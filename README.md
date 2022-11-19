@@ -79,7 +79,7 @@ after extracting under topoViewer folder you will get the following html-public 
 
  - At this point the topoViewer and containerLab are running in the same server.
 To see the topoViewer GUI, from the client side brower enter the url with the following syntax ``http://<server-ip>:<port>``
-in this example the url would be ``http://http://138.203.40.63:8080/``. To open cloudShell click node and click "Open SSH Session", as shown in below high resolution video can be found [here](https://github.com/asadarafat/topoViewer/blob/development/docs/topoViewer.mp4 "here")
+in this example the url would be ``http://138.203.40.63:8080/``. To open cloudShell click node and click "Open SSH Session", as shown in below high resolution video can be found [here](https://github.com/asadarafat/topoViewer/blob/development/docs/topoViewer.mp4 "here")
 
 ## Quick Run - Wireshark capture
 TopoViewer has a remote capture feature that allows it to intercept containerLab's node endPoint - provided that topoViewer is running on the same server as containerLab's node.
