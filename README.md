@@ -1,8 +1,11 @@
 
 # Topoviewer
-This project includes two sections of Go codes.
-- TopoEngine provides the ability to convert a containerlab topo file into a cytoscape graph model. The graph model can be visualized using https://js.cytoscape.org after it has been translated.
+This project is an attempt to provide network visualization tool based on topology data as input.
+
+There are three sections of codes in this project.
+- TopoEngine, which provides the ability to convert a topology file(at the moment Container Lab) into a cytoscape graph model. The graph model can be visualized using https://js.cytoscape.org after it has been translated.
 - CloudshellWrapper is a wrapper for https://github.com/zephinzer/cloudshell (which provides an Xterm.js frontend that connects to a Go backend to provide the host system with a shell). Basically, use a browser to access your shell.) When CloudshellWrapper is running on the same host as containerlab, the node of containerlab may be accessed via a browser.
+- Container Lab client, which provides a wrapper to easily cross launch Wireshark to do remote capture of Container Lab link.
 
 Please keep in mind that exposing shell via browser is risky; use at your own risk.
 
@@ -91,8 +94,8 @@ The feature relies on the client-side application to run tcpdump remotely and pi
 - Ensure the topoViewer running in the same host as containerLab.
 - Ensure the Wireshark ist installed client side.
 - Download client package 
-    - [here for windows](https://github.com/asadarafat/topoViewer/tree/main/dist/clab-client-windows "here for windows") 
-    - [here for MAC](https://github.com/asadarafat/topoViewer/tree/main/dist/clab-client-mac "here for MAC") 
+    - [Windows](https://github.com/asadarafat/topoViewer/tree/main/dist/clab-client-windows "here for windows") 
+    - [MAC](https://github.com/asadarafat/topoViewer/tree/main/dist/clab-client-mac "here for MAC") 
 
 
 ### Windows client package
