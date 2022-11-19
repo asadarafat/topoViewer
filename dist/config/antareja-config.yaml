@@ -1,0 +1,31 @@
+loki:
+  url: "http://100.124.41.83:3100"
+
+ssh:
+  remoteHost: "100.124.41.65"
+  remotePort: "22"
+  remoteUser: "asad"
+  remotePassword: "Lab-Her0"
+
+pods:
+  - namespace: "nsp-psa-restricted"
+    podName: "nspos-app2-tomcat"
+    podNameWildCard: true
+    containerName: "nspos-app2-tomcat"
+    logFilePath: "tail -f /opt/nsp/os/app2-tomcat/logs/restconf.log"
+  - namespace: "nsp-psa-privileged"
+    podName: "mdm-server-0"
+    podNameWildCard: false
+    containerName: "cn-nsp-mdm-server"
+    logFilePath: "tail -f /opt/nsp/mediation/log/MdmServer.log"
+  - namespace: "nsp-psa-restricted"
+    podName: "nspos-resync-fw-0"
+    podNameWildCard: false
+    containerName: "md-resync-fw"
+    logFilePath: "tail -f /opt/nsp/os/resync-fw/logs/mdResync.log"
+  - namespace: "nsp-psa-restricted"
+    podName: "nsp-mdt-ac-0"
+    podNameWildCard: false
+    containerName: "nsp-mdt-ac"
+    logFilePath: " /bin/sh -c './bin/client <<< \"log; tail;\"'  "
+

@@ -1,0 +1,158 @@
+{
+    "ietf-l2vpn-ntw:vpn-service": [
+        {
+            "vpn-id": "PW03-single-Instance-1310",
+            "vpn-name": "PW03-single-Instance-1310",
+            "vpn-description": "PW03-single-Instance-1310",
+            "customer-name": "1",
+            "parent-service-id": null,
+            "vpn-type": "ietf-vpn-common:vpws",
+            "vpn-service-topology": "ietf-vpn-common:any-to-any",
+            "bgp-ad-enabled": false,
+            "signaling-type": "ietf-vpn-common:ldp-signaling",
+            "global-parameters-profiles": {
+                "global-parameters-profile": [
+                    {
+                        "profile-id": "1",
+                        "local-autonomous-system": null,
+                        "svc-mtu": 1500,
+                        "ce-vlan-preservation": null,
+                        "ce-vlan-cos-preservation": null,
+                        "control-word-negotiation": null,
+                        "vpn-target": [
+                            {
+                                "id": 1,
+                                "route-target-type": "export",
+                                "route-targets": [
+                                    {
+                                        "route-target": "0:65000:1310"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": 2,
+                                "route-target-type": "import",
+                                "route-targets": [
+                                    {
+                                        "route-target": "0:65000:1310"
+                                    }
+                                ]
+                            }
+                        ],
+                        "mac-policies": {},
+                        "rd": "0:65000:1310"
+                    }
+                ]
+            },
+            "underlay-transport": {
+                "protocol": [
+                    "ietf-vpn-common:sr-mpls"
+                ]
+            },
+            "status": {
+                "admin-status": {
+                    "status": "ietf-vpn-common:admin-up",
+                    "last-change": null
+                }
+            },
+            "vpn-nodes": {
+                "vpn-node": [
+                    {
+                        "vpn-node-id": "PW03-single-Instance-1310_R6",
+                        "description": "site 2 description",
+                        "ne-id": "10.10.10.6",
+                        "role": "ietf-vpn-common:any-to-any-role",
+                        "router-id": null,
+                        "active-global-parameters-profiles": {
+                            "global-parameters-profile": [
+                                {
+                                    "profile-id": "1",
+                                    "local-autonomous-system": null,
+                                    "svc-mtu": null,
+                                    "ce-vlan-preservation": null,
+                                    "ce-vlan-cos-preservation": null,
+                                    "control-word-negotiation": null,
+                                    "mac-policies": {}
+                                }
+                            ]
+                        },
+                        "status": {
+                            "admin-status": {
+                                "status": "ietf-vpn-common:admin-up",
+                                "last-change": null
+                            }
+                        },
+                        "bgp-auto-discovery": {},
+                        "vpn-network-accesses": {
+                            "vpn-network-access": [
+                                {
+                                    "id": "1",
+                                    "description": "sap description",
+                                    "interface-id": "Port 1/1/15",
+                                    "global-parameters-profile": null,
+                                    "status": {
+                                        "admin-status": {
+                                            "status": "ietf-vpn-common:admin-up",
+                                            "last-change": null
+                                        }
+                                    },
+                                    "vpws-service-instance": {
+                                        "remote-vpws-service-instance": 11,
+                                        "local-vpws-service-instance": 21
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "vpn-node-id": "PW03-single-Instance-1310_R1",
+                        "description": "site 1 description",
+                        "ne-id": "10.10.10.1",
+                        "role": "ietf-vpn-common:any-to-any-role",
+                        "router-id": null,
+                        "active-global-parameters-profiles": {
+                            "global-parameters-profile": [
+                                {
+                                    "profile-id": "1",
+                                    "local-autonomous-system": null,
+                                    "svc-mtu": null,
+                                    "ce-vlan-preservation": null,
+                                    "ce-vlan-cos-preservation": null,
+                                    "control-word-negotiation": null,
+                                    "mac-policies": {}
+                                }
+                            ]
+                        },
+                        "status": {
+                            "admin-status": {
+                                "status": "ietf-vpn-common:admin-up",
+                                "last-change": null
+                            }
+                        },
+                        "bgp-auto-discovery": {},
+                        "vpn-network-accesses": {
+                            "vpn-network-access": [
+                                {
+                                    "id": "1",
+                                    "description": "sap description",
+                                    "interface-id": "Port 1/1/c11/1",
+                                    "global-parameters-profile": null,
+                                    "status": {
+                                        "admin-status": {
+                                            "status": "ietf-vpn-common:admin-up",
+                                            "last-change": null
+                                        }
+                                    },
+                                    "vpws-service-instance": {
+                                        "remote-vpws-service-instance": 21,
+                                        "local-vpws-service-instance": 11
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}

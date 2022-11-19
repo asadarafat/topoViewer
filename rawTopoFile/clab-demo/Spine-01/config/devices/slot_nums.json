@@ -1,0 +1,19 @@
+{
+ "slots": {
+  "slot_info": [
+   {
+    "slot_num": 1,
+    "is_cpm": true,
+    "is_imm": true,
+    "card_type": 187
+   },
+   {
+    "slot_num": 1,
+    "is_cpm": true,
+    "is_imm": true,
+    "card_type": 187
+   }
+  ]
+ },
+ "my_cpm_slot_num": 1
+}

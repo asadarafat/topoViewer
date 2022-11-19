@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Usage Chart</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <h1>System Usage</h1>
+    <canvas id="cpuChart" width="400" height="200"></canvas>
+    <canvas id="memoryChart" width="400" height="200"></canvas>
+    <div id="containerCharts"></div>
+    <script>
+        const cpuCtx = document.getElementById('cpuChart').getContext('2d');
+        const memoryCtx = document.getElementById('memoryChart').getContext('2d');
+
+        const cpuChart = new Chart(cpuCtx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'CPU Usage (%)',
+                    data: [],
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1,
+                    fill: false
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        const memoryChart = new Chart(memoryCtx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Memory Usage (%)',
+                    data: [],
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1,
+                    fill: false
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        const containerCharts = {};
+
+        function createContainerChart(containerId, containerName) {
+            const containerDiv = document.createElement('div');
+            containerDiv.innerHTML = `<h3>${containerName} (${containerId})</h3>
+                                      <canvas id="${containerId}-cpuChart" width="400" height="200"></canvas>
+                                      <canvas id="${containerId}-memoryChart" width="400" height="200"></canvas>`;
+            document.getElementById('containerCharts').appendChild(containerDiv);
+
+            const containerCpuCtx = document.getElementById(`${containerId}-cpuChart`).getContext('2d');
+            const containerMemoryCtx = document.getElementById(`${containerId}-memoryChart`).getContext('2d');
+
+            containerCharts[containerId] = {
+                cpuChart: new Chart(containerCpuCtx, {
+                    type: 'line',
+                    data: {
+                        labels: [],
+                        datasets: [{
+                            label: 'CPU Usage (%)',
+                            data: [],
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 1,
+                            fill: false
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                }),
+                memoryChart: new Chart(containerMemoryCtx, {
+                    type: 'line',
+                    data: {
+                        labels: [],
+                        datasets: [{
+                            label: 'Memory Usage (%)',
+                            data: [],
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1,
+                            fill: false
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                })
+            };
+        }
+
+        async function fetchData() {
+            const response = await fetch('/getUsage');
+            const data = await response.json();
+
+            const time = new Date().toLocaleTimeString();
+
+            if (cpuChart.data.labels.length > 10) {
+                cpuChart.data.labels.shift();
+                cpuChart.data.datasets[0].data.shift();
+            }
+            cpuChart.data.labels.push(time);
+            cpuChart.data.datasets[0].data.push(data.cpu);
+            cpuChart.update();
+
+            if (memoryChart.data.labels.length > 10) {
+                memoryChart.data.labels.shift();
+                memoryChart.data.datasets[0].data.shift();
+            }
+            memoryChart.data.labels.push(time);
+            memoryChart.data.datasets[0].data.push(data.memory);
+            memoryChart.update();
+
+            data.containers.forEach(container => {
+                if (!containerCharts[container.id]) {
+                    createContainerChart(container.id, container.name);
+                }
+
+                const containerCpuChart = containerCharts[container.id].cpuChart;
+                const containerMemoryChart = containerCharts[container.id].memoryChart;
+
+                if (containerCpuChart.data.labels.length > 10) {
+                    containerCpuChart.data.labels.shift();
+                    containerCpuChart.data.datasets[0].data.shift();
+                }
+                containerCpuChart.data.labels.push(time);
+                containerCpuChart.data.datasets[0].data.push(container.cpu);
+                containerCpuChart.update();
+
+                if (containerMemoryChart.data.labels.length > 10) {
+                    containerMemoryChart.data.labels.shift();
+                    containerMemoryChart.data.datasets[0].data.shift();
+                }
+                containerMemoryChart.data.labels.push(time);
+                containerMemoryChart.data.datasets[0].data.push(container.memory);
+                containerMemoryChart.update();
+            });
+        }
+
+        setInterval(fetchData, 2000);
+    </script>
+</body>
+</html>

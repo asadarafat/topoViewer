@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cytoscape.js Mixed Layout with Compound Nodes</title>
+    <link href="https://unpkg.com/bulma@0.9.3/css/bulma.min.css" rel="stylesheet">
+    <style>
+        #cy {
+            width: 100%;
+            height: 600px;
+            border: 1px solid #ccc;
+        }
+    </style>
+    <script src="https://unpkg.com/cytoscape@3.21.0/dist/cytoscape.min.js"></script>
+    <script src="https://unpkg.com/layout-base/layout-base.js"></script>
+    <script src="https://unpkg.com/avsdf-base/avsdf-base.js"></script>
+    <script src="https://unpkg.com/cose-base/cose-base.js"></script>
+    <script src="https://unpkg.com/cytoscape-cise/cytoscape-cise.js"></script>
+</head>
+<body>
+    <section class="section">
+        <div class="container">
+            <h1 class="title">Cytoscape.js Mixed Layout with Compound Nodes</h1>
+            <div id="cy"></div>
+        </div>
+    </section>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var cy = cytoscape({
+                container: document.getElementById('cy'),
+                elements: [
+                    // Parent nodes for groups
+                    { data: { id: 'Group1Parent', label: 'Group 1' } },
+                    { data: { id: 'Group2Parent', label: 'Group 2' } },
+                    { data: { id: 'Group3Parent', label: 'Group 3' } },
+
+                    // Group 1 nodes
+                    { data: { id: 'A', parent: 'Group1Parent', group: 'group1' } },
+                    { data: { id: 'B', parent: 'Group1Parent', group: 'group1' } },
+                    { data: { id: 'G', parent: 'Group1Parent', group: 'group1' } },
+                    { data: { id: 'H', parent: 'Group1Parent', group: 'group1' } },
+                    { data: { id: 'I', parent: 'Group1Parent', group: 'group1' } },
+                    { data: { id: 'J', parent: 'Group1Parent', group: 'group1' } },
+                    { data: { id: 'K', parent: 'Group1Parent', group: 'group1' } },
+
+                    // Group 2 nodes
+                    { data: { id: 'C', parent: 'Group2Parent', group: 'group2' } },
+                    { data: { id: 'D', parent: 'Group2Parent', group: 'group2' } },
+                    { data: { id: 'L', parent: 'Group2Parent', group: 'group2' } },
+                    { data: { id: 'M', parent: 'Group2Parent', group: 'group2' } },
+                    { data: { id: 'N', parent: 'Group2Parent', group: 'group2' } },
+                    { data: { id: 'O', parent: 'Group2Parent', group: 'group2' } },
+                    { data: { id: 'P', parent: 'Group2Parent', group: 'group2' } },
+
+                    // Group 3 nodes
+                    { data: { id: 'E', parent: 'Group3Parent', group: 'group3' } },
+                    { data: { id: 'F', parent: 'Group3Parent', group: 'group3' } },
+                    { data: { id: 'Q', parent: 'Group3Parent', group: 'group3' } },
+                    { data: { id: 'R', parent: 'Group3Parent', group: 'group3' } },
+                    { data: { id: 'S', parent: 'Group3Parent', group: 'group3' } },
+                    { data: { id: 'T', parent: 'Group3Parent', group: 'group3' } },
+                    { data: { id: 'U', parent: 'Group3Parent', group: 'group3' } },
+
+                    // New nodes for force-directed layout
+                    { data: { id: 'X', group: 'newGroup' } },
+                    { data: { id: 'Y', group: 'newGroup' } },
+                    { data: { id: 'Z', group: 'newGroup' } },
+                    { data: { id: 'M1', group: 'newGroup' } },
+                    { data: { id: 'M2', group: 'newGroup' } },
+                    { data: { id: 'M3', group: 'newGroup' } },
+                    { data: { id: 'M4', group: 'newGroup' } },
+                    { data: { id: 'M5', group: 'newGroup' } },
+
+                    // Circular edges for Group 1
+                    { data: { id: 'AB', source: 'A', target: 'B' } },
+                    { data: { id: 'BG', source: 'B', target: 'G' } },
+                    { data: { id: 'GH', source: 'G', target: 'H' } },
+                    { data: { id: 'HI', source: 'H', target: 'I' } },
+                    { data: { id: 'IJ', source: 'I', target: 'J' } },
+                    { data: { id: 'JK', source: 'J', target: 'K' } },
+                    { data: { id: 'KA', source: 'K', target: 'A' } }, // Closing the circle
+
+                    // Circular edges for Group 2
+                    { data: { id: 'CD', source: 'C', target: 'D' } },
+                    { data: { id: 'DL', source: 'D', target: 'L' } },
+                    { data: { id: 'LM', source: 'L', target: 'M' } },
+                    { data: { id: 'MN', source: 'M', target: 'N' } },
+                    { data: { id: 'NO', source: 'N', target: 'O' } },
+                    { data: { id: 'OP', source: 'O', target: 'P' } },
+                    { data: { id: 'PC', source: 'P', target: 'C' } }, // Closing the circle
+
+                    // Circular edges for Group 3
+                    { data: { id: 'EF', source: 'E', target: 'F' } },
+                    { data: { id: 'FQ', source: 'F', target: 'Q' } },
+                    { data: { id: 'QR', source: 'Q', target: 'R' } },
+                    { data: { id: 'RS', source: 'R', target: 'S' } },
+                    { data: { id: 'ST', source: 'S', target: 'T' } },
+                    { data: { id: 'TU', source: 'T', target: 'U' } },
+                    { data: { id: 'UE', source: 'U', target: 'E' } }, // Closing the circle
+
+                    // Semi-full mesh edges for newGroup
+                    { data: { id: 'XY', source: 'X', target: 'Y' } },
+                    { data: { id: 'XZ', source: 'X', target: 'Z' } },
+                    { data: { id: 'XM1', source: 'X', target: 'M1' } },
+                    { data: { id: 'YM2', source: 'Y', target: 'M2' } },
+                    { data: { id: 'YM3', source: 'Y', target: 'M3' } },
+                    { data: { id: 'ZM4', source: 'Z', target: 'M4' } },
+                    { data: { id: 'ZM5', source: 'Z', target: 'M5' } },
+                    { data: { id: 'M1M2', source: 'M1', target: 'M2' } },
+                    { data: { id: 'M2M3', source: 'M2', target: 'M3' } },
+                    { data: { id: 'M3M4', source: 'M3', target: 'M4' } },
+                    { data: { id: 'M4M5', source: 'M4', target: 'M5' } },
+                    { data: { id: 'M5X', source: 'M5', target: 'X' } },
+
+                    // Cross-group edges connecting newGroup to group1/2/3
+                    { data: { id: 'XG', source: 'X', target: 'G' } },
+                    { data: { id: 'YM', source: 'Y', target: 'M' } },
+                    { data: { id: 'ZR', source: 'Z', target: 'R' } },
+                    { data: { id: 'M1B', source: 'M1', target: 'B' } },
+                    { data: { id: 'M2F', source: 'M2', target: 'F' } }
+                ],
+                style: [
+                    {
+                        selector: 'node[group = "group1"], node[id = "Group1Parent"]',
+                        style: {
+                            'background-color': '#FF4136',
+                            'label': 'data(label)',
+                            'text-valign': 'center',
+                            'color': '#fff'
+                        }
+                    },
+                    {
+                        selector: 'node[group = "group2"], node[id = "Group2Parent"]',
+                        style: {
+                            'background-color': '#2ECC40',
+                            'label': 'data(label)',
+                            'text-valign': 'center',
+                            'color': '#fff'
+                        }
+                    },
+                    {
+                        selector: 'node[group = "group3"], node[id = "Group3Parent"]',
+                        style: {
+                            'background-color': '#0074D9',
+                            'label': 'data(label)',
+                            'text-valign': 'center',
+                            'color': '#fff'
+                        }
+                    },
+                    {
+                        selector: 'node[group = "newGroup"]',
+                        style: {
+                            'background-color': '#FF851B',
+                            'label': 'data(id)',
+                            'text-valign': 'center',
+                            'color': '#fff'
+                        }
+                    },
+                    {
+                        selector: 'edge',
+                        style: {
+                            'width': 2,
+                            'line-color': '#B10DC9',
+                            'target-arrow-color': '#B10DC9',
+                            'target-arrow-shape': 'triangle'
+                        }
+                    },
+                    {
+                        selector: ':parent',
+                        style: {
+                            'background-opacity': 0.5,
+                            'border-width': 2,
+                            'border-color': '#000'
+                        }
+                    }
+                ]
+            });
+
+            // Dynamically create clusters for CISE layout
+            var clustersMap = {};
+            cy.nodes().filter('[group != "newGroup"]').forEach(function (node) {
+                var group = node.data('group');
+                if (!clustersMap[group]) {
+                    clustersMap[group] = [];
+                }
+                clustersMap[group].push(node.id());
+            });
+            var clusters = Object.values(clustersMap);
+
+            // Apply CISE layout to existing nodes
+            var ciseLayout = cy.layout({
+                name: 'cise',
+                clusters: clusters,
+                animate: true,
+                padding: 20,
+                nodeSeparation: 30,
+                idealInterClusterEdgeLengthCoefficient: 1.4,
+                allowNodesInsideCircle: false,
+                maxRatioOfNodesInsideCircle: 0.1,
+                nodeRepulsion: 4500
+            });
+
+            // Run CISE layout and then lock positions
+            ciseLayout.run().promiseOn('layoutstop').then(function () {
+                cy.nodes().filter('[group != "newGroup"]').lock();
+
+                // Apply force-directed layout (cose) to new nodes
+                var coseLayout = cy.layout({
+                    name: 'cose',
+                    animate: true,
+                    padding: 20,
+                    nodeOverlap: 10,
+                    idealEdgeLength: 50,
+                    edgeElasticity: 100,
+                    nodeRepulsion: 4000,
+                    numIter: 1000,
+                    initialTemp: 200,
+                    coolingFactor: 0.95,
+                    gravity: 1.2
+                });
+
+                coseLayout.run();
+            });
+        });
+    </script>
+</body>
+</html>

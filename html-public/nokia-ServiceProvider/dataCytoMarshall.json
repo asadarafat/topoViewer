@@ -1,0 +1,2966 @@
+[
+  {
+    "data": {
+      "id": "R01-PE",
+      "weight": "30",
+      "name": "R01-PE",
+      "parent": "AS65000",
+      "topoViewerRole": "pe",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "topo1",
+        "fqdn": "R01-PE.nokia-ServiceProvider.io",
+        "group": "AS65000",
+        "id": "R01-PE",
+        "image": "registry.srlinux.dev/pub/vr-sros:23.10.R1",
+        "index": "0",
+        "kind": "vr-sros",
+        "labdir": "/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/R01-PE",
+        "labels": {
+          "ClabMgmtNetBridge": "br_nsp_ip_oob",
+          "ClabNodeGroup": "AS65000",
+          "ClabNodeKind": "vr-sros",
+          "ClabNodeLabDir": "/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/R01-PE",
+          "ClabNodeName": "R01-PE",
+          "ClabNodeType": "cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28",
+          "ClabTopoFile": "/home/aarafat/nokia-ServiceProvider-lab/topo-nokia-ServiceProvider-lab.yml",
+          "Containerlab": "nokia-ServiceProvider",
+          "TopoViewerRole": "pe"
+        },
+        "longname": "clab-nokia-ServiceProvider-R01-PE",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 24,
+        "mgmtIpv4Addresss": "10.2.1.101",
+        "mgmtIpv6Address": "",
+        "mgmtIpv6AddressLength": 0,
+        "mgmtNet": "",
+        "name": "R01-PE",
+        "shortname": "R01-PE",
+        "weight": "3"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "R01-PE-statusRed",
+      "weight": "30",
+      "name": "R01-PE-statusRed",
+      "parent": "AS65000",
+      "topoViewerRole": "",
+      "sourceEndpoint": "",
+      "targetEndpoint": ""
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": false,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": false,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "R01-PE-statusGreen",
+      "weight": "30",
+      "name": "R01-PE-statusGreen",
+      "parent": "AS65000",
+      "topoViewerRole": "",
+      "sourceEndpoint": "",
+      "targetEndpoint": ""
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": false,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": false,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "R02-PE",
+      "weight": "30",
+      "name": "R02-PE",
+      "parent": "AS65000",
+      "topoViewerRole": "pe",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "topo1",
+        "fqdn": "R02-PE.nokia-ServiceProvider.io",
+        "group": "AS65000",
+        "id": "R02-PE",
+        "image": "registry.srlinux.dev/pub/vr-sros:23.10.R1",
+        "index": "1",
+        "kind": "vr-sros",
+        "labdir": "/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/R02-PE",
+        "labels": {
+          "ClabMgmtNetBridge": "br_nsp_ip_oob",
+          "ClabNodeGroup": "AS65000",
+          "ClabNodeKind": "vr-sros",
+          "ClabNodeLabDir": "/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/R02-PE",
+          "ClabNodeName": "R02-PE",
+          "ClabNodeType": "cp: cpu=2 ram=6 chassis=SR-7 slot=A card=cpm5 ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-7 slot=1 card=imm-2pac-fp3 mda/1=p10-10g-sfp",
+          "ClabTopoFile": "/home/aarafat/nokia-ServiceProvider-lab/topo-nokia-ServiceProvider-lab.yml",
+          "Containerlab": "nokia-ServiceProvider",
+          "TopoViewerRole": "pe"
+        },
+        "longname": "clab-nokia-ServiceProvider-R02-PE",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 24,
+        "mgmtIpv4Addresss": "10.2.1.102",
+        "mgmtIpv6Address": "",
+        "mgmtIpv6AddressLength": 0,
+        "mgmtNet": "",
+        "name": "R02-PE",
+        "shortname": "R02-PE",
+        "weight": "3"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "R02-PE-statusRed",
+      "weight": "30",
+      "name": "R02-PE-statusRed",
+      "parent": "AS65000",
+      "topoViewerRole": "",
+      "sourceEndpoint": "",
+      "targetEndpoint": ""
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": false,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": false,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "R02-PE-statusGreen",
+      "weight": "30",
+      "name": "R02-PE-statusGreen",
+      "parent": "AS65000",
+      "topoViewerRole": "",
+      "sourceEndpoint": "",
+      "targetEndpoint": ""
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": false,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": false,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "R03-P",
+      "weight": "30",
+      "name": "R03-P",
+      "parent": "AS65000",
+      "topoViewerRole": "p",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "topo1",
+        "fqdn": "R03-P.nokia-ServiceProvider.io",
+        "group": "AS65000",
+        "id": "R03-P",
+        "image": "registry.srlinux.dev/pub/vr-sros:23.10.R1",
+        "index": "2",
+        "kind": "vr-sros",
+        "labdir": "/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/R03-P",
+        "labels": {
+          "ClabMgmtNetBridge": "br_nsp_ip_oob",
+          "ClabNodeGroup": "AS65000",
+          "ClabNodeKind": "vr-sros",
+          "ClabNodeLabDir": "/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/R03-P",
+          "ClabNodeName": "R03-P",
+          "ClabNodeType": "cp: cpu=2 ram=6 chassis=SR-12 slot=A card=cpm5 ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-12 slot=1 card=imm-2pac-fp3 mda/1=p10-10g-sfp",
+          "ClabTopoFile": "/home/aarafat/nokia-ServiceProvider-lab/topo-nokia-ServiceProvider-lab.yml",
+          "Containerlab": "nokia-ServiceProvider",
+          "TopoViewerRole": "p"
+        },
+        "longname": "clab-nokia-ServiceProvider-R03-P",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 24,
+        "mgmtIpv4Addresss": "10.2.1.103",
+        "mgmtIpv6Address": "",
+        "mgmtIpv6AddressLength": 0,
+        "mgmtNet": "",
+        "name": "R03-P",
+        "shortname": "R03-P",
+        "weight": "3"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "R03-P-statusRed",
+      "weight": "30",
+      "name": "R03-P-statusRed",
+      "parent": "AS65000",
+      "topoViewerRole": "",
+      "sourceEndpoint": "",
+      "targetEndpoint": ""
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": false,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": false,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "R03-P-statusGreen",
+      "weight": "30",
+      "name": "R03-P-statusGreen",
+      "parent": "AS65000",
+      "topoViewerRole": "",
+      "sourceEndpoint": "",
+      "targetEndpoint": ""
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": false,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": false,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "R04-P",
+      "weight": "30",
+      "name": "R04-P",
+      "parent": "AS65000",
+      "topoViewerRole": "p",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "topo1",
+        "fqdn": "R04-P.nokia-ServiceProvider.io",
+        "group": "AS65000",
+        "id": "R04-P",
+        "image": "registry.srlinux.dev/pub/vr-sros:23.10.R1",
+        "index": "3",
+        "kind": "vr-sros",
+        "labdir": "/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/R04-P",
+        "labels": {
+          "ClabMgmtNetBridge": "br_nsp_ip_oob",
+          "ClabNodeGroup": "AS65000",
+          "ClabNodeKind": "vr-sros",
+          "ClabNodeLabDir": "/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/R04-P",
+          "ClabNodeName": "R04-P",
+          "ClabNodeType": "cp: cpu=2 ram=6 chassis=SR-12 slot=A card=cpm5 ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-12 slot=1 card=imm-2pac-fp3 mda/1=p10-10g-sfp",
+          "ClabTopoFile": "/home/aarafat/nokia-ServiceProvider-lab/topo-nokia-ServiceProvider-lab.yml",
+          "Containerlab": "nokia-ServiceProvider",
+          "TopoViewerRole": "p"
+        },
+        "longname": "clab-nokia-ServiceProvider-R04-P",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 24,
+        "mgmtIpv4Addresss": "10.2.1.104",
+        "mgmtIpv6Address": "",
+        "mgmtIpv6AddressLength": 0,
+        "mgmtNet": "",
+        "name": "R04-P",
+        "shortname": "R04-P",
+        "weight": "3"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "R04-P-statusRed",
+      "weight": "30",
+      "name": "R04-P-statusRed",
+      "parent": "AS65000",
+      "topoViewerRole": "",
+      "sourceEndpoint": "",
+      "targetEndpoint": ""
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": false,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": false,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "R04-P-statusGreen",
+      "weight": "30",
+      "name": "R04-P-statusGreen",
+      "parent": "AS65000",
+      "topoViewerRole": "",
+      "sourceEndpoint": "",
+      "targetEndpoint": ""
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": false,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": false,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "R05-PE",
+      "weight": "30",
+      "name": "R05-PE",
+      "parent": "AS65001",
+      "topoViewerRole": "pe",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "topo1",
+        "fqdn": "R05-PE.nokia-ServiceProvider.io",
+        "group": "AS65001",
+        "id": "R05-PE",
+        "image": "registry.srlinux.dev/pub/vr-sros:23.10.R1",
+        "index": "4",
+        "kind": "vr-sros",
+        "labdir": "/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/R05-PE",
+        "labels": {
+          "ClabMgmtNetBridge": "br_nsp_ip_oob",
+          "ClabNodeGroup": "AS65000",
+          "ClabNodeKind": "vr-sros",
+          "ClabNodeLabDir": "/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/R05-PE",
+          "ClabNodeName": "R05-PE",
+          "ClabNodeType": "cp: cpu=2 ram=6 chassis=SR-a8 slot=A card=cpm-a ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-a8 slot=1 card=iom-a mda/1=ma20-1gb-tx",
+          "ClabTopoFile": "/home/aarafat/nokia-ServiceProvider-lab/topo-nokia-ServiceProvider-lab.yml",
+          "Containerlab": "nokia-ServiceProvider",
+          "TopoViewerRole": "pe"
+        },
+        "longname": "clab-nokia-ServiceProvider-R05-PE",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 24,
+        "mgmtIpv4Addresss": "10.2.1.105",
+        "mgmtIpv6Address": "",
+        "mgmtIpv6AddressLength": 0,
+        "mgmtNet": "",
+        "name": "R05-PE",
+        "shortname": "R05-PE",
+        "weight": "3"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "R05-PE-statusRed",
+      "weight": "30",
+      "name": "R05-PE-statusRed",
+      "parent": "AS65001",
+      "topoViewerRole": "",
+      "sourceEndpoint": "",
+      "targetEndpoint": ""
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": false,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": false,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "R05-PE-statusGreen",
+      "weight": "30",
+      "name": "R05-PE-statusGreen",
+      "parent": "AS65001",
+      "topoViewerRole": "",
+      "sourceEndpoint": "",
+      "targetEndpoint": ""
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": false,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": false,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "R06-PE-ASBR",
+      "weight": "30",
+      "name": "R06-PE-ASBR",
+      "parent": "AS65000",
+      "topoViewerRole": "pe",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "topo1",
+        "fqdn": "R06-PE-ASBR.nokia-ServiceProvider.io",
+        "group": "AS65000",
+        "id": "R06-PE-ASBR",
+        "image": "registry.srlinux.dev/pub/vr-sros:23.10.R1",
+        "index": "5",
+        "kind": "vr-sros",
+        "labdir": "/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/R06-PE-ASBR",
+        "labels": {
+          "ClabMgmtNetBridge": "br_nsp_ip_oob",
+          "ClabNodeGroup": "AS65000",
+          "ClabNodeKind": "vr-sros",
+          "ClabNodeLabDir": "/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/R06-PE-ASBR",
+          "ClabNodeName": "R06-PE-ASBR",
+          "ClabNodeType": "cp: cpu=2 ram=6 chassis=SR-12 slot=A card=cpm5 ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-12 slot=1 card=iom4-e-hs mda/1=me40-1gb-csfp",
+          "ClabTopoFile": "/home/aarafat/nokia-ServiceProvider-lab/topo-nokia-ServiceProvider-lab.yml",
+          "Containerlab": "nokia-ServiceProvider",
+          "TopoViewerRole": "pe"
+        },
+        "longname": "clab-nokia-ServiceProvider-R06-PE-ASBR",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 24,
+        "mgmtIpv4Addresss": "10.2.1.106",
+        "mgmtIpv6Address": "",
+        "mgmtIpv6AddressLength": 0,
+        "mgmtNet": "",
+        "name": "R06-PE-ASBR",
+        "shortname": "R06-PE-ASBR",
+        "weight": "3"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "R06-PE-ASBR-statusRed",
+      "weight": "30",
+      "name": "R06-PE-ASBR-statusRed",
+      "parent": "AS65000",
+      "topoViewerRole": "",
+      "sourceEndpoint": "",
+      "targetEndpoint": ""
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": false,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": false,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "R06-PE-ASBR-statusGreen",
+      "weight": "30",
+      "name": "R06-PE-ASBR-statusGreen",
+      "parent": "AS65000",
+      "topoViewerRole": "",
+      "sourceEndpoint": "",
+      "targetEndpoint": ""
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": false,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": false,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "R07-PE-ASBR",
+      "weight": "30",
+      "name": "R07-PE-ASBR",
+      "parent": "AS65000",
+      "topoViewerRole": "pe",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "topo1",
+        "fqdn": "R07-PE-ASBR.nokia-ServiceProvider.io",
+        "group": "AS65000",
+        "id": "R07-PE-ASBR",
+        "image": "registry.srlinux.dev/pub/vr-sros:23.10.R1",
+        "index": "6",
+        "kind": "vr-sros",
+        "labdir": "/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/R07-PE-ASBR",
+        "labels": {
+          "ClabMgmtNetBridge": "br_nsp_ip_oob",
+          "ClabNodeGroup": "AS65000",
+          "ClabNodeKind": "vr-sros",
+          "ClabNodeLabDir": "/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/R07-PE-ASBR",
+          "ClabNodeName": "R07-PE-ASBR",
+          "ClabNodeType": "cp: cpu=2 ram=6 chassis=SR-12 slot=A card=cpm5 ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-12 slot=1 card=iom4-e-hs mda/1=me40-1gb-csfp",
+          "ClabTopoFile": "/home/aarafat/nokia-ServiceProvider-lab/topo-nokia-ServiceProvider-lab.yml",
+          "Containerlab": "nokia-ServiceProvider",
+          "TopoViewerRole": "pe"
+        },
+        "longname": "clab-nokia-ServiceProvider-R07-PE-ASBR",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 24,
+        "mgmtIpv4Addresss": "10.2.1.107",
+        "mgmtIpv6Address": "",
+        "mgmtIpv6AddressLength": 0,
+        "mgmtNet": "",
+        "name": "R07-PE-ASBR",
+        "shortname": "R07-PE-ASBR",
+        "weight": "3"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "R07-PE-ASBR-statusRed",
+      "weight": "30",
+      "name": "R07-PE-ASBR-statusRed",
+      "parent": "AS65000",
+      "topoViewerRole": "",
+      "sourceEndpoint": "",
+      "targetEndpoint": ""
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": false,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": false,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "R07-PE-ASBR-statusGreen",
+      "weight": "30",
+      "name": "R07-PE-ASBR-statusGreen",
+      "parent": "AS65000",
+      "topoViewerRole": "",
+      "sourceEndpoint": "",
+      "targetEndpoint": ""
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": false,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": false,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "R08-PE",
+      "weight": "30",
+      "name": "R08-PE",
+      "parent": "AS55000",
+      "topoViewerRole": "pe",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "topo1",
+        "fqdn": "R08-PE.nokia-ServiceProvider.io",
+        "group": "AS55000",
+        "id": "R08-PE",
+        "image": "registry.srlinux.dev/pub/vr-sros:23.10.R1",
+        "index": "7",
+        "kind": "vr-sros",
+        "labdir": "/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/R08-PE",
+        "labels": {
+          "ClabMgmtNetBridge": "br_nsp_ip_oob",
+          "ClabNodeGroup": "AS55000",
+          "ClabNodeKind": "vr-sros",
+          "ClabNodeLabDir": "/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/R08-PE",
+          "ClabNodeName": "R08-PE",
+          "ClabNodeType": "cp: cpu=2 ram=6 chassis=SR-7 slot=A card=cpm5 ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-7 slot=1 card=iom4-e-hs mda/1=me40-1gb-csfp",
+          "ClabTopoFile": "/home/aarafat/nokia-ServiceProvider-lab/topo-nokia-ServiceProvider-lab.yml",
+          "Containerlab": "nokia-ServiceProvider",
+          "TopoViewerRole": "pe"
+        },
+        "longname": "clab-nokia-ServiceProvider-R08-PE",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 24,
+        "mgmtIpv4Addresss": "10.2.1.108",
+        "mgmtIpv6Address": "",
+        "mgmtIpv6AddressLength": 0,
+        "mgmtNet": "",
+        "name": "R08-PE",
+        "shortname": "R08-PE",
+        "weight": "3"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "R08-PE-statusRed",
+      "weight": "30",
+      "name": "R08-PE-statusRed",
+      "parent": "AS55000",
+      "topoViewerRole": "",
+      "sourceEndpoint": "",
+      "targetEndpoint": ""
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": false,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": false,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "R08-PE-statusGreen",
+      "weight": "30",
+      "name": "R08-PE-statusGreen",
+      "parent": "AS55000",
+      "topoViewerRole": "",
+      "sourceEndpoint": "",
+      "targetEndpoint": ""
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": false,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": false,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "R09-PE-ASBR",
+      "weight": "30",
+      "name": "R09-PE-ASBR",
+      "parent": "AS55000",
+      "topoViewerRole": "pe",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "topo1",
+        "fqdn": "R09-PE-ASBR.nokia-ServiceProvider.io",
+        "group": "AS55000",
+        "id": "R09-PE-ASBR",
+        "image": "registry.srlinux.dev/pub/vr-sros:23.10.R1",
+        "index": "8",
+        "kind": "vr-sros",
+        "labdir": "/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/R09-PE-ASBR",
+        "labels": {
+          "ClabMgmtNetBridge": "br_nsp_ip_oob",
+          "ClabNodeGroup": "AS55000",
+          "ClabNodeKind": "vr-sros",
+          "ClabNodeLabDir": "/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/R09-PE-ASBR",
+          "ClabNodeName": "R09-PE-ASBR",
+          "ClabNodeType": "cp: cpu=2 ram=6 chassis=SR-7 slot=A card=cpm5 ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-7 slot=1 card=iom4-e-hs mda/1=me40-1gb-csfp",
+          "ClabTopoFile": "/home/aarafat/nokia-ServiceProvider-lab/topo-nokia-ServiceProvider-lab.yml",
+          "Containerlab": "nokia-ServiceProvider",
+          "TopoViewerRole": "pe"
+        },
+        "longname": "clab-nokia-ServiceProvider-R09-PE-ASBR",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 24,
+        "mgmtIpv4Addresss": "10.2.1.109",
+        "mgmtIpv6Address": "",
+        "mgmtIpv6AddressLength": 0,
+        "mgmtNet": "",
+        "name": "R09-PE-ASBR",
+        "shortname": "R09-PE-ASBR",
+        "weight": "3"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "R09-PE-ASBR-statusRed",
+      "weight": "30",
+      "name": "R09-PE-ASBR-statusRed",
+      "parent": "AS55000",
+      "topoViewerRole": "",
+      "sourceEndpoint": "",
+      "targetEndpoint": ""
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": false,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": false,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "R09-PE-ASBR-statusGreen",
+      "weight": "30",
+      "name": "R09-PE-ASBR-statusGreen",
+      "parent": "AS55000",
+      "topoViewerRole": "",
+      "sourceEndpoint": "",
+      "targetEndpoint": ""
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": false,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": false,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "R10-PE-ASBR",
+      "weight": "30",
+      "name": "R10-PE-ASBR",
+      "parent": "AS55000",
+      "topoViewerRole": "pe",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "topo1",
+        "fqdn": "R10-PE-ASBR.nokia-ServiceProvider.io",
+        "group": "AS55000",
+        "id": "R10-PE-ASBR",
+        "image": "registry.srlinux.dev/pub/vr-sros:23.10.R1",
+        "index": "9",
+        "kind": "vr-sros",
+        "labdir": "/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/R10-PE-ASBR",
+        "labels": {
+          "ClabMgmtNetBridge": "br_nsp_ip_oob",
+          "ClabNodeGroup": "AS55000",
+          "ClabNodeKind": "vr-sros",
+          "ClabNodeLabDir": "/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/R10-PE-ASBR",
+          "ClabNodeName": "R10-PE-ASBR",
+          "ClabNodeType": "cp: cpu=2 ram=6 chassis=SR-7 slot=A card=cpm5 ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-7 slot=1 card=iom4-e-hs mda/1=me40-1gb-csfp",
+          "ClabTopoFile": "/home/aarafat/nokia-ServiceProvider-lab/topo-nokia-ServiceProvider-lab.yml",
+          "Containerlab": "nokia-ServiceProvider",
+          "TopoViewerRole": "pe"
+        },
+        "longname": "clab-nokia-ServiceProvider-R10-PE-ASBR",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 24,
+        "mgmtIpv4Addresss": "10.2.1.110",
+        "mgmtIpv6Address": "",
+        "mgmtIpv6AddressLength": 0,
+        "mgmtNet": "",
+        "name": "R10-PE-ASBR",
+        "shortname": "R10-PE-ASBR",
+        "weight": "3"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "R10-PE-ASBR-statusRed",
+      "weight": "30",
+      "name": "R10-PE-ASBR-statusRed",
+      "parent": "AS55000",
+      "topoViewerRole": "",
+      "sourceEndpoint": "",
+      "targetEndpoint": ""
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": false,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": false,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "R10-PE-ASBR-statusGreen",
+      "weight": "30",
+      "name": "R10-PE-ASBR-statusGreen",
+      "parent": "AS55000",
+      "topoViewerRole": "",
+      "sourceEndpoint": "",
+      "targetEndpoint": ""
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": false,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": false,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "R11-P",
+      "weight": "30",
+      "name": "R11-P",
+      "parent": "AS65000-CORE-NORTH",
+      "topoViewerRole": "p",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "topo1",
+        "fqdn": "R11-P.nokia-ServiceProvider.io",
+        "group": "AS65000-CORE-NORTH",
+        "id": "R11-P",
+        "image": "registry.srlinux.dev/pub/vr-xrv9k:7.3.2",
+        "index": "10",
+        "kind": "vr-xrv9k",
+        "labdir": "/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/R11-P",
+        "labels": {
+          "ClabMgmtNetBridge": "br_nsp_ip_oob",
+          "ClabNodeGroup": "AS65000",
+          "ClabNodeKind": "vr-xrv9k",
+          "ClabNodeLabDir": "/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/R11-P",
+          "ClabNodeName": "R11-P",
+          "ClabNodeType": "",
+          "ClabTopoFile": "/home/aarafat/nokia-ServiceProvider-lab/topo-nokia-ServiceProvider-lab.yml",
+          "Containerlab": "nokia-ServiceProvider",
+          "TopoViewerRole": "p"
+        },
+        "longname": "clab-nokia-ServiceProvider-R11-P",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 24,
+        "mgmtIpv4Addresss": "10.2.1.111",
+        "mgmtIpv6Address": "",
+        "mgmtIpv6AddressLength": 0,
+        "mgmtNet": "",
+        "name": "R11-P",
+        "shortname": "R11-P",
+        "weight": "3"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "R11-P-statusRed",
+      "weight": "30",
+      "name": "R11-P-statusRed",
+      "parent": "AS65000-CORE-NORTH",
+      "topoViewerRole": "",
+      "sourceEndpoint": "",
+      "targetEndpoint": ""
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": false,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": false,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "R11-P-statusGreen",
+      "weight": "30",
+      "name": "R11-P-statusGreen",
+      "parent": "AS65000-CORE-NORTH",
+      "topoViewerRole": "",
+      "sourceEndpoint": "",
+      "targetEndpoint": ""
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": false,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": false,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "R12-P",
+      "weight": "30",
+      "name": "R12-P",
+      "parent": "AS65000-CORE-NORTH",
+      "topoViewerRole": "p",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "topo1",
+        "fqdn": "R12-P.nokia-ServiceProvider.io",
+        "group": "AS65000-CORE-NORTH",
+        "id": "R12-P",
+        "image": "registry.srlinux.dev/pub/vr-vmx:17.4R3.16",
+        "index": "11",
+        "kind": "vr-vmx",
+        "labdir": "/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/R12-P",
+        "labels": {
+          "ClabMgmtNetBridge": "br_nsp_ip_oob",
+          "ClabNodeGroup": "AS65000",
+          "ClabNodeKind": "vr-vmx",
+          "ClabNodeLabDir": "/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/R12-P",
+          "ClabNodeName": "R12-P",
+          "ClabNodeType": "",
+          "ClabTopoFile": "/home/aarafat/nokia-ServiceProvider-lab/topo-nokia-ServiceProvider-lab.yml",
+          "Containerlab": "nokia-ServiceProvider",
+          "TopoViewerRole": "p"
+        },
+        "longname": "clab-nokia-ServiceProvider-R12-P",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 24,
+        "mgmtIpv4Addresss": "10.2.1.112",
+        "mgmtIpv6Address": "",
+        "mgmtIpv6AddressLength": 0,
+        "mgmtNet": "",
+        "name": "R12-P",
+        "shortname": "R12-P",
+        "weight": "3"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "R12-P-statusRed",
+      "weight": "30",
+      "name": "R12-P-statusRed",
+      "parent": "AS65000-CORE-NORTH",
+      "topoViewerRole": "",
+      "sourceEndpoint": "",
+      "targetEndpoint": ""
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": false,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": false,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "R12-P-statusGreen",
+      "weight": "30",
+      "name": "R12-P-statusGreen",
+      "parent": "AS65000-CORE-NORTH",
+      "topoViewerRole": "",
+      "sourceEndpoint": "",
+      "targetEndpoint": ""
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": false,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": false,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "R13-P",
+      "weight": "30",
+      "name": "R13-P",
+      "parent": "AS65000-CORE-SOUTH",
+      "topoViewerRole": "p",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "topo1",
+        "fqdn": "R13-P.nokia-ServiceProvider.io",
+        "group": "AS65000-CORE-SOUTH",
+        "id": "R13-P",
+        "image": "registry.srlinux.dev/pub/vr-sros:23.10.R1",
+        "index": "12",
+        "kind": "vr-sros",
+        "labdir": "/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/R13-P",
+        "labels": {
+          "ClabMgmtNetBridge": "br_nsp_ip_oob",
+          "ClabNodeGroup": "AS65000",
+          "ClabNodeKind": "vr-sros",
+          "ClabNodeLabDir": "/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/R13-P",
+          "ClabNodeName": "R13-P",
+          "ClabNodeType": "cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28",
+          "ClabTopoFile": "/home/aarafat/nokia-ServiceProvider-lab/topo-nokia-ServiceProvider-lab.yml",
+          "Containerlab": "nokia-ServiceProvider",
+          "TopoViewerRole": "p"
+        },
+        "longname": "clab-nokia-ServiceProvider-R13-P",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 24,
+        "mgmtIpv4Addresss": "10.2.1.113",
+        "mgmtIpv6Address": "",
+        "mgmtIpv6AddressLength": 0,
+        "mgmtNet": "",
+        "name": "R13-P",
+        "shortname": "R13-P",
+        "weight": "3"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "R13-P-statusRed",
+      "weight": "30",
+      "name": "R13-P-statusRed",
+      "parent": "AS65000-CORE-SOUTH",
+      "topoViewerRole": "",
+      "sourceEndpoint": "",
+      "targetEndpoint": ""
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": false,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": false,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "R13-P-statusGreen",
+      "weight": "30",
+      "name": "R13-P-statusGreen",
+      "parent": "AS65000-CORE-SOUTH",
+      "topoViewerRole": "",
+      "sourceEndpoint": "",
+      "targetEndpoint": ""
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": false,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": false,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "R14-P",
+      "weight": "30",
+      "name": "R14-P",
+      "parent": "AS65000-CORE-SOUTH",
+      "topoViewerRole": "p",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "topo1",
+        "fqdn": "R14-P.nokia-ServiceProvider.io",
+        "group": "AS65000-CORE-SOUTH",
+        "id": "R14-P",
+        "image": "ghcr.io/nokia/srlinux:latest",
+        "index": "13",
+        "kind": "srl",
+        "labdir": "/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/R14-P",
+        "labels": {
+          "ClabMgmtNetBridge": "br_nsp_ip_oob",
+          "ClabNodeGroup": "AS65000",
+          "ClabNodeKind": "srl",
+          "ClabNodeLabDir": "/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/R14-P",
+          "ClabNodeName": "R14-P",
+          "ClabNodeType": "sxr1x44s",
+          "ClabTopoFile": "/home/aarafat/nokia-ServiceProvider-lab/topo-nokia-ServiceProvider-lab.yml",
+          "Containerlab": "nokia-ServiceProvider",
+          "TopoViewerRole": "p"
+        },
+        "longname": "clab-nokia-ServiceProvider-R14-P",
+        "macAddress": "1a:a8:0d:00:00:00",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 24,
+        "mgmtIpv4Addresss": "10.2.1.114",
+        "mgmtIpv6Address": "",
+        "mgmtIpv6AddressLength": 0,
+        "mgmtNet": "",
+        "name": "R14-P",
+        "shortname": "R14-P",
+        "weight": "3"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "R14-P-statusRed",
+      "weight": "30",
+      "name": "R14-P-statusRed",
+      "parent": "AS65000-CORE-SOUTH",
+      "topoViewerRole": "",
+      "sourceEndpoint": "",
+      "targetEndpoint": ""
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": false,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": false,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "R14-P-statusGreen",
+      "weight": "30",
+      "name": "R14-P-statusGreen",
+      "parent": "AS65000-CORE-SOUTH",
+      "topoViewerRole": "",
+      "sourceEndpoint": "",
+      "targetEndpoint": ""
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": false,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": false,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "R31-EDGE",
+      "weight": "30",
+      "name": "R31-EDGE",
+      "parent": "AS65001",
+      "topoViewerRole": "pe",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "topo1",
+        "fqdn": "R31-EDGE.nokia-ServiceProvider.io",
+        "group": "AS65001",
+        "id": "R31-EDGE",
+        "image": "registry.srlinux.dev/pub/vr-sros:23.10.R1",
+        "index": "14",
+        "kind": "vr-sros",
+        "labdir": "/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/R31-EDGE",
+        "labels": {
+          "ClabMgmtNetBridge": "br_nsp_ip_oob",
+          "ClabNodeGroup": "AS65000",
+          "ClabNodeKind": "vr-sros",
+          "ClabNodeLabDir": "/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/R31-EDGE",
+          "ClabNodeName": "R31-EDGE",
+          "ClabNodeType": "cpu=2 ram=4 slot=A chassis=ixr-e2 card=cpm-ixr-e2 mda/1=m2-qsfpdd+2-qsfp28+24-sfp28",
+          "ClabTopoFile": "/home/aarafat/nokia-ServiceProvider-lab/topo-nokia-ServiceProvider-lab.yml",
+          "Containerlab": "nokia-ServiceProvider",
+          "TopoViewerRole": "pe"
+        },
+        "longname": "clab-nokia-ServiceProvider-R31-EDGE",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 24,
+        "mgmtIpv4Addresss": "10.2.1.131",
+        "mgmtIpv6Address": "",
+        "mgmtIpv6AddressLength": 0,
+        "mgmtNet": "",
+        "name": "R31-EDGE",
+        "shortname": "R31-EDGE",
+        "weight": "3"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "R31-EDGE-statusRed",
+      "weight": "30",
+      "name": "R31-EDGE-statusRed",
+      "parent": "AS65001",
+      "topoViewerRole": "",
+      "sourceEndpoint": "",
+      "targetEndpoint": ""
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": false,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": false,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "R31-EDGE-statusGreen",
+      "weight": "30",
+      "name": "R31-EDGE-statusGreen",
+      "parent": "AS65001",
+      "topoViewerRole": "",
+      "sourceEndpoint": "",
+      "targetEndpoint": ""
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": false,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": false,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "br_clab",
+      "weight": "30",
+      "name": "br_clab",
+      "parent": "toVsrNrc",
+      "topoViewerRole": "bridge",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "topo1",
+        "fqdn": "br_clab.nokia-ServiceProvider.io",
+        "group": "toVsrNrc",
+        "id": "br_clab",
+        "image": "",
+        "index": "15",
+        "kind": "bridge",
+        "labdir": "/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/br_clab",
+        "labels": {
+          "ClabMgmtNetBridge": "br_nsp_ip_oob",
+          "ClabNodeGroup": "toVsrNrc",
+          "ClabNodeKind": "bridge",
+          "ClabNodeLabDir": "/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/br_clab",
+          "ClabNodeName": "br_clab",
+          "ClabNodeType": "",
+          "ClabTopoFile": "/home/aarafat/nokia-ServiceProvider-lab/topo-nokia-ServiceProvider-lab.yml",
+          "Containerlab": "nokia-ServiceProvider",
+          "TopoViewerRole": "bridge"
+        },
+        "longname": "clab-nokia-ServiceProvider-br_clab",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 0,
+        "mgmtIpv4Addresss": "",
+        "mgmtIpv6Address": "",
+        "mgmtIpv6AddressLength": 0,
+        "mgmtNet": "",
+        "name": "br_clab",
+        "shortname": "br_clab",
+        "weight": "3"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "br_clab-statusRed",
+      "weight": "30",
+      "name": "br_clab-statusRed",
+      "parent": "toVsrNrc",
+      "topoViewerRole": "",
+      "sourceEndpoint": "",
+      "targetEndpoint": ""
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": false,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": false,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "br_clab-statusGreen",
+      "weight": "30",
+      "name": "br_clab-statusGreen",
+      "parent": "toVsrNrc",
+      "topoViewerRole": "",
+      "sourceEndpoint": "",
+      "targetEndpoint": ""
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": false,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": false,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "br_nsp_ip_ib",
+      "weight": "30",
+      "name": "br_nsp_ip_ib",
+      "parent": "AS65000",
+      "topoViewerRole": "bridge",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "topo1",
+        "fqdn": "br_nsp_ip_ib.nokia-ServiceProvider.io",
+        "group": "AS65000",
+        "id": "br_nsp_ip_ib",
+        "image": "",
+        "index": "16",
+        "kind": "bridge",
+        "labdir": "/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/br_nsp_ip_ib",
+        "labels": {
+          "ClabMgmtNetBridge": "br_nsp_ip_oob",
+          "ClabNodeGroup": "AS65000",
+          "ClabNodeKind": "bridge",
+          "ClabNodeLabDir": "/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/br_nsp_ip_ib",
+          "ClabNodeName": "br_nsp_ip_ib",
+          "ClabNodeType": "",
+          "ClabTopoFile": "/home/aarafat/nokia-ServiceProvider-lab/topo-nokia-ServiceProvider-lab.yml",
+          "Containerlab": "nokia-ServiceProvider",
+          "TopoViewerRole": "bridge"
+        },
+        "longname": "clab-nokia-ServiceProvider-br_nsp_ip_ib",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 0,
+        "mgmtIpv4Addresss": "",
+        "mgmtIpv6Address": "",
+        "mgmtIpv6AddressLength": 0,
+        "mgmtNet": "",
+        "name": "br_nsp_ip_ib",
+        "shortname": "br_nsp_ip_ib",
+        "weight": "3"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "br_nsp_ip_ib-statusRed",
+      "weight": "30",
+      "name": "br_nsp_ip_ib-statusRed",
+      "parent": "AS65000",
+      "topoViewerRole": "",
+      "sourceEndpoint": "",
+      "targetEndpoint": ""
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": false,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": false,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "br_nsp_ip_ib-statusGreen",
+      "weight": "30",
+      "name": "br_nsp_ip_ib-statusGreen",
+      "parent": "AS65000",
+      "topoViewerRole": "",
+      "sourceEndpoint": "",
+      "targetEndpoint": ""
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": false,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": false,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "AS65000",
+      "weight": "1000",
+      "name": "AS65000",
+      "topoViewerRole": "AS65000",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "topo1",
+        "name": "",
+        "weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "AS65001",
+      "weight": "1000",
+      "name": "AS65001",
+      "topoViewerRole": "AS65001",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "topo1",
+        "name": "",
+        "weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "AS55000",
+      "weight": "1000",
+      "name": "AS55000",
+      "topoViewerRole": "AS55000",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "topo1",
+        "name": "",
+        "weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "AS65000-CORE-NORTH",
+      "weight": "1000",
+      "name": "AS65000-CORE-NORTH",
+      "topoViewerRole": "AS65000-CORE-NORTH",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "topo1",
+        "name": "",
+        "weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "AS65000-CORE-SOUTH",
+      "weight": "1000",
+      "name": "AS65000-CORE-SOUTH",
+      "topoViewerRole": "AS65000-CORE-SOUTH",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "topo1",
+        "name": "",
+        "weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "toVsrNrc",
+      "weight": "1000",
+      "name": "toVsrNrc",
+      "topoViewerRole": "toVsrNrc",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "topo1",
+        "name": "",
+        "weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link0",
+      "source": "R01-PE",
+      "target": "R02-PE",
+      "weight": "3",
+      "name": "toVsrNrc",
+      "topoViewerRole": "toVsrNrc",
+      "sourceEndpoint": "eth2",
+      "targetEndpoint": "eth2",
+      "extraData": {
+        "clabServerUsername": "topo1",
+        "clabSourceLongName": "clab-nokia-ServiceProvider-R01-PE",
+        "clabSourceMacAddress": "aa:c1:ab:5d:d9:d8",
+        "clabSourcePort": "eth2",
+        "clabTargetLongName": "clab-nokia-ServiceProvider-R02-PE",
+        "clabTargetMacAddress": "aa:c1:ab:f0:8f:05",
+        "clabTargetPort": "eth2",
+        "topoViewerSnmpGetSourcePort": "",
+        "topoViewerSnmpGetTargetPort": ""
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link1",
+      "source": "R01-PE",
+      "target": "R03-P",
+      "weight": "3",
+      "name": "toVsrNrc",
+      "topoViewerRole": "toVsrNrc",
+      "sourceEndpoint": "eth1",
+      "targetEndpoint": "eth1",
+      "extraData": {
+        "clabServerUsername": "topo1",
+        "clabSourceLongName": "clab-nokia-ServiceProvider-R01-PE",
+        "clabSourceMacAddress": "aa:c1:ab:a7:31:cc",
+        "clabSourcePort": "eth1",
+        "clabTargetLongName": "clab-nokia-ServiceProvider-R03-P",
+        "clabTargetMacAddress": "aa:c1:ab:3d:e3:42",
+        "clabTargetPort": "eth1",
+        "topoViewerSnmpGetSourcePort": "",
+        "topoViewerSnmpGetTargetPort": ""
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link2",
+      "source": "R02-PE",
+      "target": "R04-P",
+      "weight": "3",
+      "name": "toVsrNrc",
+      "topoViewerRole": "toVsrNrc",
+      "sourceEndpoint": "eth1",
+      "targetEndpoint": "eth1",
+      "extraData": {
+        "clabServerUsername": "topo1",
+        "clabSourceLongName": "clab-nokia-ServiceProvider-R02-PE",
+        "clabSourceMacAddress": "aa:c1:ab:b4:bd:87",
+        "clabSourcePort": "eth1",
+        "clabTargetLongName": "clab-nokia-ServiceProvider-R04-P",
+        "clabTargetMacAddress": "aa:c1:ab:08:ae:5a",
+        "clabTargetPort": "eth1",
+        "topoViewerSnmpGetSourcePort": "",
+        "topoViewerSnmpGetTargetPort": ""
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link3",
+      "source": "R03-P",
+      "target": "R04-P",
+      "weight": "3",
+      "name": "toVsrNrc",
+      "topoViewerRole": "toVsrNrc",
+      "sourceEndpoint": "eth3",
+      "targetEndpoint": "eth3",
+      "extraData": {
+        "clabServerUsername": "topo1",
+        "clabSourceLongName": "clab-nokia-ServiceProvider-R03-P",
+        "clabSourceMacAddress": "aa:c1:ab:b9:4e:65",
+        "clabSourcePort": "eth3",
+        "clabTargetLongName": "clab-nokia-ServiceProvider-R04-P",
+        "clabTargetMacAddress": "aa:c1:ab:0a:88:cf",
+        "clabTargetPort": "eth3",
+        "topoViewerSnmpGetSourcePort": "",
+        "topoViewerSnmpGetTargetPort": ""
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link4",
+      "source": "R03-P",
+      "target": "R05-PE",
+      "weight": "3",
+      "name": "toVsrNrc",
+      "topoViewerRole": "toVsrNrc",
+      "sourceEndpoint": "eth4",
+      "targetEndpoint": "eth2",
+      "extraData": {
+        "clabServerUsername": "topo1",
+        "clabSourceLongName": "clab-nokia-ServiceProvider-R03-P",
+        "clabSourceMacAddress": "aa:c1:ab:f1:ef:8a",
+        "clabSourcePort": "eth4",
+        "clabTargetLongName": "clab-nokia-ServiceProvider-R05-PE",
+        "clabTargetMacAddress": "aa:c1:ab:73:85:b2",
+        "clabTargetPort": "eth2",
+        "topoViewerSnmpGetSourcePort": "",
+        "topoViewerSnmpGetTargetPort": ""
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link5",
+      "source": "R03-P",
+      "target": "R06-PE-ASBR",
+      "weight": "3",
+      "name": "toVsrNrc",
+      "topoViewerRole": "toVsrNrc",
+      "sourceEndpoint": "eth2",
+      "targetEndpoint": "eth2",
+      "extraData": {
+        "clabServerUsername": "topo1",
+        "clabSourceLongName": "clab-nokia-ServiceProvider-R03-P",
+        "clabSourceMacAddress": "aa:c1:ab:75:a1:80",
+        "clabSourcePort": "eth2",
+        "clabTargetLongName": "clab-nokia-ServiceProvider-R06-PE-ASBR",
+        "clabTargetMacAddress": "aa:c1:ab:d6:42:c9",
+        "clabTargetPort": "eth2",
+        "topoViewerSnmpGetSourcePort": "",
+        "topoViewerSnmpGetTargetPort": ""
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link6",
+      "source": "R03-P",
+      "target": "R07-PE-ASBR",
+      "weight": "3",
+      "name": "toVsrNrc",
+      "topoViewerRole": "toVsrNrc",
+      "sourceEndpoint": "eth5",
+      "targetEndpoint": "eth3",
+      "extraData": {
+        "clabServerUsername": "topo1",
+        "clabSourceLongName": "clab-nokia-ServiceProvider-R03-P",
+        "clabSourceMacAddress": "aa:c1:ab:57:f5:84",
+        "clabSourcePort": "eth5",
+        "clabTargetLongName": "clab-nokia-ServiceProvider-R07-PE-ASBR",
+        "clabTargetMacAddress": "aa:c1:ab:64:c2:73",
+        "clabTargetPort": "eth3",
+        "topoViewerSnmpGetSourcePort": "",
+        "topoViewerSnmpGetTargetPort": ""
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link7",
+      "source": "R04-P",
+      "target": "R05-PE",
+      "weight": "3",
+      "name": "toVsrNrc",
+      "topoViewerRole": "toVsrNrc",
+      "sourceEndpoint": "eth5",
+      "targetEndpoint": "eth5",
+      "extraData": {
+        "clabServerUsername": "topo1",
+        "clabSourceLongName": "clab-nokia-ServiceProvider-R04-P",
+        "clabSourceMacAddress": "aa:c1:ab:95:a1:05",
+        "clabSourcePort": "eth5",
+        "clabTargetLongName": "clab-nokia-ServiceProvider-R05-PE",
+        "clabTargetMacAddress": "aa:c1:ab:eb:a5:8c",
+        "clabTargetPort": "eth5",
+        "topoViewerSnmpGetSourcePort": "",
+        "topoViewerSnmpGetTargetPort": ""
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link8",
+      "source": "R04-P",
+      "target": "R06-PE-ASBR",
+      "weight": "3",
+      "name": "toVsrNrc",
+      "topoViewerRole": "toVsrNrc",
+      "sourceEndpoint": "eth2",
+      "targetEndpoint": "eth1",
+      "extraData": {
+        "clabServerUsername": "topo1",
+        "clabSourceLongName": "clab-nokia-ServiceProvider-R04-P",
+        "clabSourceMacAddress": "aa:c1:ab:2b:62:31",
+        "clabSourcePort": "eth2",
+        "clabTargetLongName": "clab-nokia-ServiceProvider-R06-PE-ASBR",
+        "clabTargetMacAddress": "aa:c1:ab:d1:70:c3",
+        "clabTargetPort": "eth1",
+        "topoViewerSnmpGetSourcePort": "",
+        "topoViewerSnmpGetTargetPort": ""
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link9",
+      "source": "R04-P",
+      "target": "R07-PE-ASBR",
+      "weight": "3",
+      "name": "toVsrNrc",
+      "topoViewerRole": "toVsrNrc",
+      "sourceEndpoint": "eth4",
+      "targetEndpoint": "eth2",
+      "extraData": {
+        "clabServerUsername": "topo1",
+        "clabSourceLongName": "clab-nokia-ServiceProvider-R04-P",
+        "clabSourceMacAddress": "aa:c1:ab:5c:d7:61",
+        "clabSourcePort": "eth4",
+        "clabTargetLongName": "clab-nokia-ServiceProvider-R07-PE-ASBR",
+        "clabTargetMacAddress": "aa:c1:ab:9f:26:26",
+        "clabTargetPort": "eth2",
+        "topoViewerSnmpGetSourcePort": "",
+        "topoViewerSnmpGetTargetPort": ""
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link10",
+      "source": "R06-PE-ASBR",
+      "target": "R09-PE-ASBR",
+      "weight": "3",
+      "name": "toVsrNrc",
+      "topoViewerRole": "toVsrNrc",
+      "sourceEndpoint": "eth3",
+      "targetEndpoint": "eth3",
+      "extraData": {
+        "clabServerUsername": "topo1",
+        "clabSourceLongName": "clab-nokia-ServiceProvider-R06-PE-ASBR",
+        "clabSourceMacAddress": "aa:c1:ab:ae:66:dd",
+        "clabSourcePort": "eth3",
+        "clabTargetLongName": "clab-nokia-ServiceProvider-R09-PE-ASBR",
+        "clabTargetMacAddress": "aa:c1:ab:11:f1:b6",
+        "clabTargetPort": "eth3",
+        "topoViewerSnmpGetSourcePort": "",
+        "topoViewerSnmpGetTargetPort": ""
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link11",
+      "source": "R07-PE-ASBR",
+      "target": "R10-PE-ASBR",
+      "weight": "3",
+      "name": "toVsrNrc",
+      "topoViewerRole": "toVsrNrc",
+      "sourceEndpoint": "eth1",
+      "targetEndpoint": "eth3",
+      "extraData": {
+        "clabServerUsername": "topo1",
+        "clabSourceLongName": "clab-nokia-ServiceProvider-R07-PE-ASBR",
+        "clabSourceMacAddress": "aa:c1:ab:07:78:60",
+        "clabSourcePort": "eth1",
+        "clabTargetLongName": "clab-nokia-ServiceProvider-R10-PE-ASBR",
+        "clabTargetMacAddress": "aa:c1:ab:ba:ce:7b",
+        "clabTargetPort": "eth3",
+        "topoViewerSnmpGetSourcePort": "",
+        "topoViewerSnmpGetTargetPort": ""
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link12",
+      "source": "R09-PE-ASBR",
+      "target": "R08-PE",
+      "weight": "3",
+      "name": "toVsrNrc",
+      "topoViewerRole": "toVsrNrc",
+      "sourceEndpoint": "eth2",
+      "targetEndpoint": "eth5",
+      "extraData": {
+        "clabServerUsername": "topo1",
+        "clabSourceLongName": "clab-nokia-ServiceProvider-R09-PE-ASBR",
+        "clabSourceMacAddress": "aa:c1:ab:8c:92:a5",
+        "clabSourcePort": "eth2",
+        "clabTargetLongName": "clab-nokia-ServiceProvider-R08-PE",
+        "clabTargetMacAddress": "aa:c1:ab:3f:e5:3d",
+        "clabTargetPort": "eth5",
+        "topoViewerSnmpGetSourcePort": "",
+        "topoViewerSnmpGetTargetPort": ""
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link13",
+      "source": "R10-PE-ASBR",
+      "target": "R08-PE",
+      "weight": "3",
+      "name": "toVsrNrc",
+      "topoViewerRole": "toVsrNrc",
+      "sourceEndpoint": "eth2",
+      "targetEndpoint": "eth2",
+      "extraData": {
+        "clabServerUsername": "topo1",
+        "clabSourceLongName": "clab-nokia-ServiceProvider-R10-PE-ASBR",
+        "clabSourceMacAddress": "aa:c1:ab:ec:16:02",
+        "clabSourcePort": "eth2",
+        "clabTargetLongName": "clab-nokia-ServiceProvider-R08-PE",
+        "clabTargetMacAddress": "aa:c1:ab:01:ef:ae",
+        "clabTargetPort": "eth2",
+        "topoViewerSnmpGetSourcePort": "",
+        "topoViewerSnmpGetTargetPort": ""
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link14",
+      "source": "R05-PE",
+      "target": "R31-EDGE",
+      "weight": "3",
+      "name": "toVsrNrc",
+      "topoViewerRole": "toVsrNrc",
+      "sourceEndpoint": "eth4",
+      "targetEndpoint": "eth1",
+      "extraData": {
+        "clabServerUsername": "topo1",
+        "clabSourceLongName": "clab-nokia-ServiceProvider-R05-PE",
+        "clabSourceMacAddress": "aa:c1:ab:71:75:71",
+        "clabSourcePort": "eth4",
+        "clabTargetLongName": "clab-nokia-ServiceProvider-R31-EDGE",
+        "clabTargetMacAddress": "aa:c1:ab:80:8d:95",
+        "clabTargetPort": "eth1",
+        "topoViewerSnmpGetSourcePort": "",
+        "topoViewerSnmpGetTargetPort": ""
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link15",
+      "source": "R07-PE-ASBR",
+      "target": "br_clab",
+      "weight": "3",
+      "name": "toVsrNrc",
+      "topoViewerRole": "toVsrNrc",
+      "sourceEndpoint": "eth4",
+      "targetEndpoint": "to-R07-PE-ASBR-eth4",
+      "extraData": {
+        "clabServerUsername": "topo1",
+        "clabSourceLongName": "clab-nokia-ServiceProvider-R07-PE-ASBR",
+        "clabSourceMacAddress": "aa:c1:ab:9b:8e:94",
+        "clabSourcePort": "eth4",
+        "clabTargetLongName": "clab-nokia-ServiceProvider-br_clab",
+        "clabTargetMacAddress": "aa:c1:ab:cf:eb:b7",
+        "clabTargetPort": "to-R07-PE-ASBR-eth4",
+        "topoViewerSnmpGetSourcePort": "",
+        "topoViewerSnmpGetTargetPort": ""
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link16",
+      "source": "R10-PE-ASBR",
+      "target": "br_clab",
+      "weight": "3",
+      "name": "toVsrNrc",
+      "topoViewerRole": "toVsrNrc",
+      "sourceEndpoint": "eth4",
+      "targetEndpoint": "to-R10-PE-ASBR-eth4",
+      "extraData": {
+        "clabServerUsername": "topo1",
+        "clabSourceLongName": "clab-nokia-ServiceProvider-R10-PE-ASBR",
+        "clabSourceMacAddress": "aa:c1:ab:46:b0:10",
+        "clabSourcePort": "eth4",
+        "clabTargetLongName": "clab-nokia-ServiceProvider-br_clab",
+        "clabTargetMacAddress": "aa:c1:ab:c3:91:d6",
+        "clabTargetPort": "to-R10-PE-ASBR-eth4",
+        "topoViewerSnmpGetSourcePort": "",
+        "topoViewerSnmpGetTargetPort": ""
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link17",
+      "source": "R07-PE-ASBR",
+      "target": "br_clab",
+      "weight": "3",
+      "name": "toVsrNrc",
+      "topoViewerRole": "toVsrNrc",
+      "sourceEndpoint": "eth5",
+      "targetEndpoint": "to-R07-PE-ASBR-eth5",
+      "extraData": {
+        "clabServerUsername": "topo1",
+        "clabSourceLongName": "clab-nokia-ServiceProvider-R07-PE-ASBR",
+        "clabSourceMacAddress": "aa:c1:ab:85:7d:6d",
+        "clabSourcePort": "eth5",
+        "clabTargetLongName": "clab-nokia-ServiceProvider-br_clab",
+        "clabTargetMacAddress": "aa:c1:ab:63:7c:98",
+        "clabTargetPort": "to-R07-PE-ASBR-eth5",
+        "topoViewerSnmpGetSourcePort": "",
+        "topoViewerSnmpGetTargetPort": ""
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link18",
+      "source": "R10-PE-ASBR",
+      "target": "br_clab",
+      "weight": "3",
+      "name": "toVsrNrc",
+      "topoViewerRole": "toVsrNrc",
+      "sourceEndpoint": "eth5",
+      "targetEndpoint": "to-R10-PE-ASBR-eth5",
+      "extraData": {
+        "clabServerUsername": "topo1",
+        "clabSourceLongName": "clab-nokia-ServiceProvider-R10-PE-ASBR",
+        "clabSourceMacAddress": "aa:c1:ab:4d:04:f7",
+        "clabSourcePort": "eth5",
+        "clabTargetLongName": "clab-nokia-ServiceProvider-br_clab",
+        "clabTargetMacAddress": "aa:c1:ab:8e:55:ec",
+        "clabTargetPort": "to-R10-PE-ASBR-eth5",
+        "topoViewerSnmpGetSourcePort": "",
+        "topoViewerSnmpGetTargetPort": ""
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link19",
+      "source": "R11-P",
+      "target": "R01-PE",
+      "weight": "3",
+      "name": "toVsrNrc",
+      "topoViewerRole": "toVsrNrc",
+      "sourceEndpoint": "eth1",
+      "targetEndpoint": "eth5",
+      "extraData": {
+        "clabServerUsername": "topo1",
+        "clabSourceLongName": "clab-nokia-ServiceProvider-R11-P",
+        "clabSourceMacAddress": "aa:c1:ab:40:68:27",
+        "clabSourcePort": "eth1",
+        "clabTargetLongName": "clab-nokia-ServiceProvider-R01-PE",
+        "clabTargetMacAddress": "aa:c1:ab:2d:76:bc",
+        "clabTargetPort": "eth5",
+        "topoViewerSnmpGetSourcePort": "",
+        "topoViewerSnmpGetTargetPort": ""
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link20",
+      "source": "R11-P",
+      "target": "R12-P",
+      "weight": "3",
+      "name": "toVsrNrc",
+      "topoViewerRole": "toVsrNrc",
+      "sourceEndpoint": "eth2",
+      "targetEndpoint": "eth2",
+      "extraData": {
+        "clabServerUsername": "topo1",
+        "clabSourceLongName": "clab-nokia-ServiceProvider-R11-P",
+        "clabSourceMacAddress": "aa:c1:ab:a7:e8:da",
+        "clabSourcePort": "eth2",
+        "clabTargetLongName": "clab-nokia-ServiceProvider-R12-P",
+        "clabTargetMacAddress": "aa:c1:ab:23:1a:dc",
+        "clabTargetPort": "eth2",
+        "topoViewerSnmpGetSourcePort": "",
+        "topoViewerSnmpGetTargetPort": ""
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link21",
+      "source": "R12-P",
+      "target": "R03-P",
+      "weight": "3",
+      "name": "toVsrNrc",
+      "topoViewerRole": "toVsrNrc",
+      "sourceEndpoint": "eth1",
+      "targetEndpoint": "eth6",
+      "extraData": {
+        "clabServerUsername": "topo1",
+        "clabSourceLongName": "clab-nokia-ServiceProvider-R12-P",
+        "clabSourceMacAddress": "aa:c1:ab:a1:9b:7b",
+        "clabSourcePort": "eth1",
+        "clabTargetLongName": "clab-nokia-ServiceProvider-R03-P",
+        "clabTargetMacAddress": "aa:c1:ab:01:13:67",
+        "clabTargetPort": "eth6",
+        "topoViewerSnmpGetSourcePort": "",
+        "topoViewerSnmpGetTargetPort": ""
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link22",
+      "source": "R12-P",
+      "target": "R06-PE-ASBR",
+      "weight": "3",
+      "name": "toVsrNrc",
+      "topoViewerRole": "toVsrNrc",
+      "sourceEndpoint": "eth4",
+      "targetEndpoint": "eth4",
+      "extraData": {
+        "clabServerUsername": "topo1",
+        "clabSourceLongName": "clab-nokia-ServiceProvider-R12-P",
+        "clabSourceMacAddress": "aa:c1:ab:37:7f:77",
+        "clabSourcePort": "eth4",
+        "clabTargetLongName": "clab-nokia-ServiceProvider-R06-PE-ASBR",
+        "clabTargetMacAddress": "aa:c1:ab:04:7a:54",
+        "clabTargetPort": "eth4",
+        "topoViewerSnmpGetSourcePort": "",
+        "topoViewerSnmpGetTargetPort": ""
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link23",
+      "source": "R13-P",
+      "target": "R02-PE",
+      "weight": "3",
+      "name": "toVsrNrc",
+      "topoViewerRole": "toVsrNrc",
+      "sourceEndpoint": "eth1",
+      "targetEndpoint": "eth5",
+      "extraData": {
+        "clabServerUsername": "topo1",
+        "clabSourceLongName": "clab-nokia-ServiceProvider-R13-P",
+        "clabSourceMacAddress": "aa:c1:ab:0c:7f:d3",
+        "clabSourcePort": "eth1",
+        "clabTargetLongName": "clab-nokia-ServiceProvider-R02-PE",
+        "clabTargetMacAddress": "aa:c1:ab:34:4c:bf",
+        "clabTargetPort": "eth5",
+        "topoViewerSnmpGetSourcePort": "",
+        "topoViewerSnmpGetTargetPort": ""
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link24",
+      "source": "R13-P",
+      "target": "R14-P",
+      "weight": "3",
+      "name": "toVsrNrc",
+      "topoViewerRole": "toVsrNrc",
+      "sourceEndpoint": "eth2",
+      "targetEndpoint": "e1-2",
+      "extraData": {
+        "clabServerUsername": "topo1",
+        "clabSourceLongName": "clab-nokia-ServiceProvider-R13-P",
+        "clabSourceMacAddress": "aa:c1:ab:1d:f9:5c",
+        "clabSourcePort": "eth2",
+        "clabTargetLongName": "clab-nokia-ServiceProvider-R14-P",
+        "clabTargetMacAddress": "aa:c1:ab:b2:6d:50",
+        "clabTargetPort": "e1-2",
+        "topoViewerSnmpGetSourcePort": "",
+        "topoViewerSnmpGetTargetPort": ""
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link25",
+      "source": "R14-P",
+      "target": "R04-P",
+      "weight": "3",
+      "name": "toVsrNrc",
+      "topoViewerRole": "toVsrNrc",
+      "sourceEndpoint": "e1-1",
+      "targetEndpoint": "eth6",
+      "extraData": {
+        "clabServerUsername": "topo1",
+        "clabSourceLongName": "clab-nokia-ServiceProvider-R14-P",
+        "clabSourceMacAddress": "aa:c1:ab:bb:92:1e",
+        "clabSourcePort": "e1-1",
+        "clabTargetLongName": "clab-nokia-ServiceProvider-R04-P",
+        "clabTargetMacAddress": "aa:c1:ab:67:74:27",
+        "clabTargetPort": "eth6",
+        "topoViewerSnmpGetSourcePort": "",
+        "topoViewerSnmpGetTargetPort": ""
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link26",
+      "source": "R14-P",
+      "target": "R07-PE-ASBR",
+      "weight": "3",
+      "name": "toVsrNrc",
+      "topoViewerRole": "toVsrNrc",
+      "sourceEndpoint": "e1-4",
+      "targetEndpoint": "eth6",
+      "extraData": {
+        "clabServerUsername": "topo1",
+        "clabSourceLongName": "clab-nokia-ServiceProvider-R14-P",
+        "clabSourceMacAddress": "aa:c1:ab:c4:6e:a8",
+        "clabSourcePort": "e1-4",
+        "clabTargetLongName": "clab-nokia-ServiceProvider-R07-PE-ASBR",
+        "clabTargetMacAddress": "aa:c1:ab:3c:0c:2c",
+        "clabTargetPort": "eth6",
+        "topoViewerSnmpGetSourcePort": "",
+        "topoViewerSnmpGetTargetPort": ""
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link27",
+      "source": "R01-PE",
+      "target": "br_nsp_ip_ib",
+      "weight": "3",
+      "name": "toVsrNrc",
+      "topoViewerRole": "toVsrNrc",
+      "sourceEndpoint": "eth6",
+      "targetEndpoint": "to-R01-PE-eth6",
+      "extraData": {
+        "clabServerUsername": "topo1",
+        "clabSourceLongName": "clab-nokia-ServiceProvider-R01-PE",
+        "clabSourceMacAddress": "aa:c1:ab:64:4d:4d",
+        "clabSourcePort": "eth6",
+        "clabTargetLongName": "clab-nokia-ServiceProvider-br_nsp_ip_ib",
+        "clabTargetMacAddress": "aa:c1:ab:61:47:5c",
+        "clabTargetPort": "to-R01-PE-eth6",
+        "topoViewerSnmpGetSourcePort": "",
+        "topoViewerSnmpGetTargetPort": ""
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link28",
+      "source": "R02-PE",
+      "target": "br_nsp_ip_ib",
+      "weight": "3",
+      "name": "toVsrNrc",
+      "topoViewerRole": "toVsrNrc",
+      "sourceEndpoint": "eth6",
+      "targetEndpoint": "to-R02-PE-eth6",
+      "extraData": {
+        "clabServerUsername": "topo1",
+        "clabSourceLongName": "clab-nokia-ServiceProvider-R02-PE",
+        "clabSourceMacAddress": "aa:c1:ab:e0:01:0e",
+        "clabSourcePort": "eth6",
+        "clabTargetLongName": "clab-nokia-ServiceProvider-br_nsp_ip_ib",
+        "clabTargetMacAddress": "aa:c1:ab:97:0a:a8",
+        "clabTargetPort": "to-R02-PE-eth6",
+        "topoViewerSnmpGetSourcePort": "",
+        "topoViewerSnmpGetTargetPort": ""
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link29",
+      "source": "R01-PE",
+      "target": "R01-PE",
+      "weight": "3",
+      "name": "toVsrNrc",
+      "topoViewerRole": "toVsrNrc",
+      "sourceEndpoint": "eth9",
+      "targetEndpoint": "eth10",
+      "extraData": {
+        "clabServerUsername": "topo1",
+        "clabSourceLongName": "clab-nokia-ServiceProvider-R01-PE",
+        "clabSourceMacAddress": "aa:c1:ab:ac:0d:09",
+        "clabSourcePort": "eth9",
+        "clabTargetLongName": "clab-nokia-ServiceProvider-R01-PE",
+        "clabTargetMacAddress": "aa:c1:ab:1a:9e:20",
+        "clabTargetPort": "eth10",
+        "topoViewerSnmpGetSourcePort": "",
+        "topoViewerSnmpGetTargetPort": ""
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link30",
+      "source": "R02-PE",
+      "target": "R02-PE",
+      "weight": "3",
+      "name": "toVsrNrc",
+      "topoViewerRole": "toVsrNrc",
+      "sourceEndpoint": "eth9",
+      "targetEndpoint": "eth10",
+      "extraData": {
+        "clabServerUsername": "topo1",
+        "clabSourceLongName": "clab-nokia-ServiceProvider-R02-PE",
+        "clabSourceMacAddress": "aa:c1:ab:37:42:08",
+        "clabSourcePort": "eth9",
+        "clabTargetLongName": "clab-nokia-ServiceProvider-R02-PE",
+        "clabTargetMacAddress": "aa:c1:ab:49:33:98",
+        "clabTargetPort": "eth10",
+        "topoViewerSnmpGetSourcePort": "",
+        "topoViewerSnmpGetTargetPort": ""
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  }
+]

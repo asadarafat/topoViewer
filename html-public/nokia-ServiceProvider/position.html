@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cytoscape.js Save and Load Positions</title>
+    <script src="https://unpkg.com/cytoscape@3.22.0/dist/cytoscape.min.js"></script>
+    <style>
+        #cy {
+            width: 800px;
+            height: 600px;
+            border: 1px solid #ccc;
+            display: block;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="cy"></div>
+<button id="saveBtn">Save Positions</button>
+<a id="downloadLink" href="#" download="positions.json" style="display:none;">Download</a>
+<input type="file" id="loadFile" style="display:none;" />
+<button id="loadBtn">Load Positions</button>
+
+<script>
+    // Initialize Cytoscape
+    var cy = cytoscape({
+        container: document.getElementById('cy'),
+
+        elements: [
+            { data: { id: 'a' } },
+            { data: { id: 'b' } },
+            { data: { id: 'c' } },
+            { data: { id: 'd' } },
+            { data: { id: 'e' } },
+            { data: { id: 'ab', source: 'a', target: 'b' } },
+            { data: { id: 'bc', source: 'b', target: 'c' } },
+            { data: { id: 'cd', source: 'c', target: 'd' } },
+            { data: { id: 'de', source: 'd', target: 'e' } },
+            { data: { id: 'ea', source: 'e', target: 'a' } }
+        ],
+
+        style: [
+            {
+                selector: 'node',
+                style: {
+                    'background-color': '#666',
+                    'label': 'data(id)'
+                }
+            },
+
+            {
+                selector: 'edge',
+                style: {
+                    'width': 3,
+                    'line-color': '#ccc',
+                    'target-arrow-color': '#ccc',
+                    'target-arrow-shape': 'triangle'
+                }
+            }
+        ],
+
+        layout: {
+            name: 'grid',
+            rows: 2
+        }
+    });
+
+    // Save positions
+    document.getElementById('saveBtn').addEventListener('click', function() {
+        var positions = {};
+        cy.nodes().forEach(function(node) {
+            positions[node.id()] = node.position();
+        });
+        var json = JSON.stringify(positions, null, 2);
+        var blob = new Blob([json], { type: 'application/json' });
+        var url = URL.createObjectURL(blob);
+        var downloadLink = document.getElementById('downloadLink');
+        downloadLink.href = url;
+        downloadLink.style.display = 'inline';
+        downloadLink.click();
+        URL.revokeObjectURL(url);
+        downloadLink.style.display = 'none';
+    });
+
+    // Load positions
+    document.getElementById('loadBtn').addEventListener('click', function() {
+        var loadFileInput = document.getElementById('loadFile');
+        loadFileInput.style.display = 'inline';
+        loadFileInput.click();
+    });
+
+    document.getElementById('loadFile').addEventListener('change', function(event) {
+        var file = event.target.files[0];
+        if (!file) {
+            return;
+        }
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            var content = e.target.result;
+            var positions = JSON.parse(content);
+            cy.nodes().forEach(function(node) {
+                if (positions[node.id()]) {
+                    node.position(positions[node.id()]);
+                }
+            });
+        };
+        reader.readAsText(file);
+        this.style.display = 'none';
+    });
+</script>
+
+</body>
+</html>
