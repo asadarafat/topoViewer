@@ -160,7 +160,9 @@ GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o topoviewer cloudshellwrappe
 ## TopoViewer Binary 
 Ensure to run binary file in the same directory with html folder
 ```Shell
-topoviewer -t rawTopoFile/clab-topo-file.yaml 
+vscode ➜ /workspaces/topoViewer/dist/topoViewer (master ✗) $ pwd
+/workspaces/topoViewer/dist/topoViewer
+vscode ➜ /workspaces/topoViewer/dist/topoViewer (master ✗) $ ./topoviewer -t ../../rawTopoFile/topo-topoViewerDemo.yaml 
 ```
 
 
