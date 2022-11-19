@@ -1,6 +1,11 @@
 package main
 
 import (
+	"io/ioutil"
+	"os"
+
+	log "github.com/sirupsen/logrus"
+
 	"github.com/asadarafat/topoViewer/topoengine"
 )
 
@@ -13,14 +18,22 @@ func main() {
 	cytoUiGo.LogLevel = 4
 	cytoUiGo.InitLogger()
 
-	cytoUiGo.MarshalContainerLabTopo("clab-topo-file.yaml")
+	// clab run
+	// cytoUiGo.MarshalContainerLabTopo("clab-topo-file.yaml")
+	// clabTopoJson := topoengine.ClabTopoJson{}
+	// cytoUiGo.UnmarshalContainerLabTopo(clabTopoJson)
+	// jsonBytes := cytoUiGo.UnmarshalContainerLabTopo(clabTopoJson)
+	// // log.Info(jsonBytes)
+	// cytoUiGo.PrintjsonBytesCytoUi(jsonBytes)
 
-	clabTopoJson := topoengine.ClabTopoJson{}
+	filePath, _ := os.Getwd()
+	filePath = (filePath + "/rawTopoFile/")
+	log.Info(filePath)
+	topoFile, err := ioutil.ReadFile(filePath + "topo-ietf-L2.json")
+	if err != nil {
+		log.Fatal("Error when opening file: ", err)
+	}
+	// log.Info(topoFile)
 
-	cytoUiGo.UnmarshalContainerLabTopo(clabTopoJson)
-	jsonBytes := cytoUiGo.UnmarshalContainerLabTopo(clabTopoJson)
-	// log.Info(jsonBytes)
-
-	cytoUiGo.PrintjsonBytesCytoUi(jsonBytes)
-
+	cytoUiGo.IetfL2TopoUnMarshal(topoFile, topoengine.IetfNetworkTopologyL2{})
 }
