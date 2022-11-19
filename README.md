@@ -137,32 +137,34 @@ Open topoViewer in your browser and follow the instructions in the video below t
 
 
 # How To 
-## TopoEngine Go Code Run
+## Run TopoEngine Go Code
 create cytoscape model based on containerLab yaml file definition
 ```Shell
-cd topoViewer
-go run topoengine/cmd/main.go 
+vscode ➜ /workspaces/topoViewer (development) $ pwd
+/workspaces/topoViewer
+vscode ➜ /workspaces/topoViewer (development) $ go run topoengine/cmd/main.go 
 ```
 
-## CloudshellWrapper Go Code Run
+## Run CloudshellWrapper Go Code
 ```Shell
-cd topoViewer
-go run cloudshellwrapper/cmd/main.go --help
-go run cloudshellwrapper/cmd/main.go -t rawTopoFile/clab-topo-file.yaml 
+vscode ➜ /workspaces/topoViewer (development) $ pwd
+/workspaces/topoViewer
+vscode ➜ /workspaces/topoViewer (development) $ go run cloudshellwrapper/cmd/main.go --help
+vscode ➜ /workspaces/topoViewer (development) $ go run cloudshellwrapper/cmd/main.go -t rawTopoFile/clab-topo-file.yaml 
 ```
 
-## TopoViewer Binary Build
+## Build TopoViewer Binary - Linux
 build linux amd64 binary
 ```Shell
-GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o topoviewer cloudshellwrapper/cmd/main.go 
+vscode ➜ /workspaces/topoViewer (development) $ GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o topoviewer cloudshellwrapper/cmd/main.go 
 ```
 
-## TopoViewer Binary 
+## Run TopoViewer Binary 
 Ensure to run binary file in the same directory with html folder
 ```Shell
-vscode ➜ /workspaces/topoViewer/dist/topoViewer (master ✗) $ pwd
+vscode ➜ /workspaces/topoViewer/dist/topoViewer (development ✗) $ pwd
 /workspaces/topoViewer/dist/topoViewer
-vscode ➜ /workspaces/topoViewer/dist/topoViewer (master ✗) $ ./topoviewer -t ../../rawTopoFile/topo-topoViewerDemo.yaml 
+vscode ➜ /workspaces/topoViewer/dist/topoViewer (development ✗) $ ./topoviewer -t ../../rawTopoFile/topo-topoViewerDemo.yaml 
 ```
 
 
