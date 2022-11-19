@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<!-- This code is for demonstration purposes only.  You should not hotlink to Github, Rawgit, or files from the Cytoscape.js documentation in your production apps. -->
+<html>
+  <head>
+    <meta charset=utf-8 />
+    <meta name="viewport" content="user-scalable=no, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, minimal-ui">
+
+    <title>Topology Viewer</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="./css/style.css"  />
+
+    <!-- libs used in cytoscape-libs -->
+    <script src="./cytoscape/libs/popper.js"></script>
+    <script src="./cytoscape/libs/cola.min.js"></script>
+
+    <!-- cytoscape-libs -->
+    <script src="./cytoscape/libs/lodash.min.js"></script>
+    <script src="./cytoscape/libs/tippy.all.js"></script>
+    <script src="./cytoscape/libs/cytoscape.min.js"></script>
+    <script src="./cytoscape/libs/cytoscape-cola.js"></script>
+    <script src="./cytoscape/libs/cytoscape-popper.js"></script>
+
+
+    <!-- demo src-->
+    <script src="./cytoscape/code.js"></script>
+  </head>
+  <body>
+    <div id="cy"></div>
+    <span class="fa fa-bars config-toggle" id="config-toggle"></span>
+    <div id="config" class="config">
+      <div class="preamble">
+        <span class="label label-info">Topology Viewer Prototype</span>
+        <p>This is a prototype of a graph of Network Topology that uses Cola.js for layout and Cytoscape.js for its graph model and visualisation.  
+            Use the controls below to alter the Cola.js layout parameters.</p>
+        <p>
+          Data by <a href="http://genemania.org">GeneMANIA</a><br/>
+          Visualisation by <a href="http://js.cytoscape.org">Cytoscape.js</a><br/>
+          Layout by <a href="http://marvl.infotech.monash.edu/webcola/">Cola.js</a>
+        </p>
+      </div>
+    </div>
+  </body>
+</html>

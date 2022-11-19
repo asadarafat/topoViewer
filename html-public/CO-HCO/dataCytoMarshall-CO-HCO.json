@@ -1,0 +1,1706 @@
+[
+  {
+    "data": {
+      "id": "R07-PE-ASBR",
+      "weight": "2",
+      "name": "R07-PE-ASBR",
+      "endpoint": {
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "ExtraData": {
+        "ClabGroup": "5",
+        "ClabNodeLongName": "clab-CO-HCO-R07-PE-ASBR",
+        "ClabNodeName": "R07-PE-ASBR",
+        "ClabServerUsername": "vscode",
+        "ID": "R07-PE-ASBR",
+        "Image": "registry.srlinux.dev/pub/vr-sros:22.7.R1",
+        "Kind": "vr-sros",
+        "MgmtIPv4Address": "10.10.10.107",
+        "MgmtIPv6Address": "",
+        "Name": "R07-PE-ASBR",
+        "Weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "R08-PE",
+      "weight": "2",
+      "name": "R08-PE",
+      "endpoint": {
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "ExtraData": {
+        "ClabGroup": "7",
+        "ClabNodeLongName": "clab-CO-HCO-R08-PE",
+        "ClabNodeName": "R08-PE",
+        "ClabServerUsername": "vscode",
+        "ID": "R08-PE",
+        "Image": "vrnetlab/vr-sros:19.10.R12",
+        "Kind": "vr-sros",
+        "MgmtIPv4Address": "10.10.10.108",
+        "MgmtIPv6Address": "",
+        "Name": "R08-PE",
+        "Weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "DC-LEAF-02",
+      "weight": "2",
+      "name": "DC-LEAF-02",
+      "endpoint": {
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "ExtraData": {
+        "ClabGroup": "leaf",
+        "ClabNodeLongName": "clab-CO-HCO-DC-LEAF-02",
+        "ClabNodeName": "DC-LEAF-02",
+        "ClabServerUsername": "vscode",
+        "ID": "DC-LEAF-02",
+        "Image": "ghcr.io/nokia/srlinux:22.6.1",
+        "Kind": "srl",
+        "MgmtIPv4Address": "10.10.10.124",
+        "MgmtIPv6Address": "",
+        "Name": "DC-LEAF-02",
+        "Weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "DC-LEAF-04",
+      "weight": "2",
+      "name": "DC-LEAF-04",
+      "endpoint": {
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "ExtraData": {
+        "ClabGroup": "leaf",
+        "ClabNodeLongName": "clab-CO-HCO-DC-LEAF-04",
+        "ClabNodeName": "DC-LEAF-04",
+        "ClabServerUsername": "vscode",
+        "ID": "DC-LEAF-04",
+        "Image": "ghcr.io/nokia/srlinux:22.6.2",
+        "Kind": "srl",
+        "MgmtIPv4Address": "10.10.10.126",
+        "MgmtIPv6Address": "",
+        "Name": "DC-LEAF-04",
+        "Weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "R05-PE",
+      "weight": "2",
+      "name": "R05-PE",
+      "endpoint": {
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "ExtraData": {
+        "ClabGroup": "3",
+        "ClabNodeLongName": "clab-CO-HCO-R05-PE",
+        "ClabNodeName": "R05-PE",
+        "ClabServerUsername": "vscode",
+        "ID": "R05-PE",
+        "Image": "vrnetlab/vr-sros:19.10.R12",
+        "Kind": "vr-sros",
+        "MgmtIPv4Address": "10.10.10.105",
+        "MgmtIPv6Address": "",
+        "Name": "R05-PE",
+        "Weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "R06-PE-ASBR",
+      "weight": "2",
+      "name": "R06-PE-ASBR",
+      "endpoint": {
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "ExtraData": {
+        "ClabGroup": "5",
+        "ClabNodeLongName": "clab-CO-HCO-R06-PE-ASBR",
+        "ClabNodeName": "R06-PE-ASBR",
+        "ClabServerUsername": "vscode",
+        "ID": "R06-PE-ASBR",
+        "Image": "registry.srlinux.dev/pub/vr-sros:21.10.R2",
+        "Kind": "vr-sros",
+        "MgmtIPv4Address": "10.10.10.106",
+        "MgmtIPv6Address": "",
+        "Name": "R06-PE-ASBR",
+        "Weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "R03-P",
+      "weight": "2",
+      "name": "R03-P",
+      "endpoint": {
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "ExtraData": {
+        "ClabGroup": "4",
+        "ClabNodeLongName": "clab-CO-HCO-R03-P",
+        "ClabNodeName": "R03-P",
+        "ClabServerUsername": "vscode",
+        "ID": "R03-P",
+        "Image": "registry.srlinux.dev/pub/vr-sros:21.10.R2",
+        "Kind": "vr-sros",
+        "MgmtIPv4Address": "10.10.10.103",
+        "MgmtIPv6Address": "",
+        "Name": "R03-P",
+        "Weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "R10-PE-ASBR",
+      "weight": "2",
+      "name": "R10-PE-ASBR",
+      "endpoint": {
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "ExtraData": {
+        "ClabGroup": "6",
+        "ClabNodeLongName": "clab-CO-HCO-R10-PE-ASBR",
+        "ClabNodeName": "R10-PE-ASBR",
+        "ClabServerUsername": "vscode",
+        "ID": "R10-PE-ASBR",
+        "Image": "registry.srlinux.dev/pub/vr-sros:21.10.R2",
+        "Kind": "vr-sros",
+        "MgmtIPv4Address": "10.10.10.110",
+        "MgmtIPv6Address": "",
+        "Name": "R10-PE-ASBR",
+        "Weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "br1-private",
+      "weight": "2",
+      "name": "br1-private",
+      "endpoint": {
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "ExtraData": {
+        "ClabGroup": "",
+        "ClabNodeLongName": "clab-CO-HCO-br1-private",
+        "ClabNodeName": "br1-private",
+        "ClabServerUsername": "vscode",
+        "ID": "br1-private",
+        "Image": "",
+        "Kind": "bridge",
+        "MgmtIPv4Address": "",
+        "MgmtIPv6Address": "",
+        "Name": "br1-private",
+        "Weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "DC-SPINE-01",
+      "weight": "2",
+      "name": "DC-SPINE-01",
+      "endpoint": {
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "ExtraData": {
+        "ClabGroup": "spine",
+        "ClabNodeLongName": "clab-CO-HCO-DC-SPINE-01",
+        "ClabNodeName": "DC-SPINE-01",
+        "ClabServerUsername": "vscode",
+        "ID": "DC-SPINE-01",
+        "Image": "ghcr.io/nokia/srlinux:22.6.1",
+        "Kind": "srl",
+        "MgmtIPv4Address": "10.10.10.121",
+        "MgmtIPv6Address": "",
+        "Name": "DC-SPINE-01",
+        "Weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "R01-PE",
+      "weight": "2",
+      "name": "R01-PE",
+      "endpoint": {
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "ExtraData": {
+        "ClabGroup": "1",
+        "ClabNodeLongName": "clab-CO-HCO-R01-PE",
+        "ClabNodeName": "R01-PE",
+        "ClabServerUsername": "vscode",
+        "ID": "R01-PE",
+        "Image": "registry.srlinux.dev/pub/vr-sros:22.7.R1",
+        "Kind": "vr-sros",
+        "MgmtIPv4Address": "10.10.10.101",
+        "MgmtIPv6Address": "",
+        "Name": "R01-PE",
+        "Weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "R02-PE",
+      "weight": "2",
+      "name": "R02-PE",
+      "endpoint": {
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "ExtraData": {
+        "ClabGroup": "1",
+        "ClabNodeLongName": "clab-CO-HCO-R02-PE",
+        "ClabNodeName": "R02-PE",
+        "ClabServerUsername": "vscode",
+        "ID": "R02-PE",
+        "Image": "registry.srlinux.dev/pub/vr-sros:21.10.R2",
+        "Kind": "vr-sros",
+        "MgmtIPv4Address": "10.10.10.102",
+        "MgmtIPv6Address": "",
+        "Name": "R02-PE",
+        "Weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "R04-P",
+      "weight": "2",
+      "name": "R04-P",
+      "endpoint": {
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "ExtraData": {
+        "ClabGroup": "4",
+        "ClabNodeLongName": "clab-CO-HCO-R04-P",
+        "ClabNodeName": "R04-P",
+        "ClabServerUsername": "vscode",
+        "ID": "R04-P",
+        "Image": "registry.srlinux.dev/pub/vr-sros:21.10.R2",
+        "Kind": "vr-sros",
+        "MgmtIPv4Address": "10.10.10.104",
+        "MgmtIPv6Address": "",
+        "Name": "R04-P",
+        "Weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "DC-LEAF-01",
+      "weight": "2",
+      "name": "DC-LEAF-01",
+      "endpoint": {
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "ExtraData": {
+        "ClabGroup": "leaf",
+        "ClabNodeLongName": "clab-CO-HCO-DC-LEAF-01",
+        "ClabNodeName": "DC-LEAF-01",
+        "ClabServerUsername": "vscode",
+        "ID": "DC-LEAF-01",
+        "Image": "ghcr.io/nokia/srlinux:22.6.1",
+        "Kind": "srl",
+        "MgmtIPv4Address": "10.10.10.123",
+        "MgmtIPv6Address": "",
+        "Name": "DC-LEAF-01",
+        "Weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "DC-LEAF-03",
+      "weight": "2",
+      "name": "DC-LEAF-03",
+      "endpoint": {
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "ExtraData": {
+        "ClabGroup": "leaf",
+        "ClabNodeLongName": "clab-CO-HCO-DC-LEAF-03",
+        "ClabNodeName": "DC-LEAF-03",
+        "ClabServerUsername": "vscode",
+        "ID": "DC-LEAF-03",
+        "Image": "ghcr.io/nokia/srlinux:22.6.2",
+        "Kind": "srl",
+        "MgmtIPv4Address": "10.10.10.125",
+        "MgmtIPv6Address": "",
+        "Name": "DC-LEAF-03",
+        "Weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "DC-SPINE-02",
+      "weight": "2",
+      "name": "DC-SPINE-02",
+      "endpoint": {
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "ExtraData": {
+        "ClabGroup": "spine",
+        "ClabNodeLongName": "clab-CO-HCO-DC-SPINE-02",
+        "ClabNodeName": "DC-SPINE-02",
+        "ClabServerUsername": "vscode",
+        "ID": "DC-SPINE-02",
+        "Image": "ghcr.io/nokia/srlinux:22.6.1",
+        "Kind": "srl",
+        "MgmtIPv4Address": "10.10.10.122",
+        "MgmtIPv6Address": "",
+        "Name": "DC-SPINE-02",
+        "Weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "R09-PE-ASBR",
+      "weight": "2",
+      "name": "R09-PE-ASBR",
+      "endpoint": {
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "ExtraData": {
+        "ClabGroup": "6",
+        "ClabNodeLongName": "clab-CO-HCO-R09-PE-ASBR",
+        "ClabNodeName": "R09-PE-ASBR",
+        "ClabServerUsername": "vscode",
+        "ID": "R09-PE-ASBR",
+        "Image": "registry.srlinux.dev/pub/vr-sros:21.10.R2",
+        "Kind": "vr-sros",
+        "MgmtIPv4Address": "10.10.10.109",
+        "MgmtIPv6Address": "",
+        "Name": "R09-PE-ASBR",
+        "Weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "16",
+      "source": "DC-SPINE-01",
+      "target": "R01-PE",
+      "weight": "1",
+      "name": "R09-PE-ASBR",
+      "endpoint": {
+        "sourceEndpoint": "e1-1",
+        "targetEndpoint": "eth4"
+      },
+      "ExtraData": {
+        "ClabServerUsername": "vscode",
+        "Endpoints": {
+          "SourceEndpoint": "e1-1",
+          "TargetEndpoint": "eth4"
+        },
+        "ID": "16",
+        "Kind": "edges",
+        "SourceLongName": "clab-CO-HCO-DC-SPINE-01",
+        "TargetLongName": "clab-CO-HCO-R01-PE",
+        "grabbable": true,
+        "selectable": true,
+        "weight": "1"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "10",
+      "source": "R06-PE-ASBR",
+      "target": "R09-PE-ASBR",
+      "weight": "1",
+      "name": "R09-PE-ASBR",
+      "endpoint": {
+        "sourceEndpoint": "eth3",
+        "targetEndpoint": "eth3"
+      },
+      "ExtraData": {
+        "ClabServerUsername": "vscode",
+        "Endpoints": {
+          "SourceEndpoint": "eth3",
+          "TargetEndpoint": "eth3"
+        },
+        "ID": "10",
+        "Kind": "edges",
+        "SourceLongName": "clab-CO-HCO-R06-PE-ASBR",
+        "TargetLongName": "clab-CO-HCO-R09-PE-ASBR",
+        "grabbable": true,
+        "selectable": true,
+        "weight": "1"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "8",
+      "source": "R04-P",
+      "target": "R06-PE-ASBR",
+      "weight": "1",
+      "name": "R09-PE-ASBR",
+      "endpoint": {
+        "sourceEndpoint": "eth2",
+        "targetEndpoint": "eth1"
+      },
+      "ExtraData": {
+        "ClabServerUsername": "vscode",
+        "Endpoints": {
+          "SourceEndpoint": "eth2",
+          "TargetEndpoint": "eth1"
+        },
+        "ID": "8",
+        "Kind": "edges",
+        "SourceLongName": "clab-CO-HCO-R04-P",
+        "TargetLongName": "clab-CO-HCO-R06-PE-ASBR",
+        "grabbable": true,
+        "selectable": true,
+        "weight": "1"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "18",
+      "source": "DC-SPINE-02",
+      "target": "R01-PE",
+      "weight": "1",
+      "name": "R09-PE-ASBR",
+      "endpoint": {
+        "sourceEndpoint": "e1-1",
+        "targetEndpoint": "eth5"
+      },
+      "ExtraData": {
+        "ClabServerUsername": "vscode",
+        "Endpoints": {
+          "SourceEndpoint": "e1-1",
+          "TargetEndpoint": "eth5"
+        },
+        "ID": "18",
+        "Kind": "edges",
+        "SourceLongName": "clab-CO-HCO-DC-SPINE-02",
+        "TargetLongName": "clab-CO-HCO-R01-PE",
+        "grabbable": true,
+        "selectable": true,
+        "weight": "1"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "26",
+      "source": "DC-LEAF-04",
+      "target": "DC-SPINE-01",
+      "weight": "1",
+      "name": "R09-PE-ASBR",
+      "endpoint": {
+        "sourceEndpoint": "e1-1",
+        "targetEndpoint": "e1-6"
+      },
+      "ExtraData": {
+        "ClabServerUsername": "vscode",
+        "Endpoints": {
+          "SourceEndpoint": "e1-1",
+          "TargetEndpoint": "e1-6"
+        },
+        "ID": "26",
+        "Kind": "edges",
+        "SourceLongName": "clab-CO-HCO-DC-LEAF-04",
+        "TargetLongName": "clab-CO-HCO-DC-SPINE-01",
+        "grabbable": true,
+        "selectable": true,
+        "weight": "1"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "4",
+      "source": "R03-P",
+      "target": "R05-PE",
+      "weight": "1",
+      "name": "R09-PE-ASBR",
+      "endpoint": {
+        "sourceEndpoint": "eth4",
+        "targetEndpoint": "eth2"
+      },
+      "ExtraData": {
+        "ClabServerUsername": "vscode",
+        "Endpoints": {
+          "SourceEndpoint": "eth4",
+          "TargetEndpoint": "eth2"
+        },
+        "ID": "4",
+        "Kind": "edges",
+        "SourceLongName": "clab-CO-HCO-R03-P",
+        "TargetLongName": "clab-CO-HCO-R05-PE",
+        "grabbable": true,
+        "selectable": true,
+        "weight": "1"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "2",
+      "source": "R02-PE",
+      "target": "R04-P",
+      "weight": "1",
+      "name": "R09-PE-ASBR",
+      "endpoint": {
+        "sourceEndpoint": "eth1",
+        "targetEndpoint": "eth1"
+      },
+      "ExtraData": {
+        "ClabServerUsername": "vscode",
+        "Endpoints": {
+          "SourceEndpoint": "eth1",
+          "TargetEndpoint": "eth1"
+        },
+        "ID": "2",
+        "Kind": "edges",
+        "SourceLongName": "clab-CO-HCO-R02-PE",
+        "TargetLongName": "clab-CO-HCO-R04-P",
+        "grabbable": true,
+        "selectable": true,
+        "weight": "1"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "20",
+      "source": "DC-LEAF-01",
+      "target": "DC-SPINE-01",
+      "weight": "1",
+      "name": "R09-PE-ASBR",
+      "endpoint": {
+        "sourceEndpoint": "e1-1",
+        "targetEndpoint": "e1-3"
+      },
+      "ExtraData": {
+        "ClabServerUsername": "vscode",
+        "Endpoints": {
+          "SourceEndpoint": "e1-1",
+          "TargetEndpoint": "e1-3"
+        },
+        "ID": "20",
+        "Kind": "edges",
+        "SourceLongName": "clab-CO-HCO-DC-LEAF-01",
+        "TargetLongName": "clab-CO-HCO-DC-SPINE-01",
+        "grabbable": true,
+        "selectable": true,
+        "weight": "1"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "0",
+      "source": "R01-PE",
+      "target": "R02-PE",
+      "weight": "1",
+      "name": "R09-PE-ASBR",
+      "endpoint": {
+        "sourceEndpoint": "eth2",
+        "targetEndpoint": "eth2"
+      },
+      "ExtraData": {
+        "ClabServerUsername": "vscode",
+        "Endpoints": {
+          "SourceEndpoint": "eth2",
+          "TargetEndpoint": "eth2"
+        },
+        "ID": "0",
+        "Kind": "edges",
+        "SourceLongName": "clab-CO-HCO-R01-PE",
+        "TargetLongName": "clab-CO-HCO-R02-PE",
+        "grabbable": true,
+        "selectable": true,
+        "weight": "1"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "14",
+      "source": "R07-PE-ASBR",
+      "target": "br1-private",
+      "weight": "1",
+      "name": "R09-PE-ASBR",
+      "endpoint": {
+        "sourceEndpoint": "eth4",
+        "targetEndpoint": "eth1"
+      },
+      "ExtraData": {
+        "ClabServerUsername": "vscode",
+        "Endpoints": {
+          "SourceEndpoint": "eth4",
+          "TargetEndpoint": "eth1"
+        },
+        "ID": "14",
+        "Kind": "edges",
+        "SourceLongName": "clab-CO-HCO-R07-PE-ASBR",
+        "TargetLongName": "clab-CO-HCO-br1-private",
+        "grabbable": true,
+        "selectable": true,
+        "weight": "1"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "23",
+      "source": "DC-LEAF-02",
+      "target": "DC-SPINE-02",
+      "weight": "1",
+      "name": "R09-PE-ASBR",
+      "endpoint": {
+        "sourceEndpoint": "e1-2",
+        "targetEndpoint": "e1-4"
+      },
+      "ExtraData": {
+        "ClabServerUsername": "vscode",
+        "Endpoints": {
+          "SourceEndpoint": "e1-2",
+          "TargetEndpoint": "e1-4"
+        },
+        "ID": "23",
+        "Kind": "edges",
+        "SourceLongName": "clab-CO-HCO-DC-LEAF-02",
+        "TargetLongName": "clab-CO-HCO-DC-SPINE-02",
+        "grabbable": true,
+        "selectable": true,
+        "weight": "1"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "6",
+      "source": "R03-P",
+      "target": "R07-PE-ASBR",
+      "weight": "1",
+      "name": "R09-PE-ASBR",
+      "endpoint": {
+        "sourceEndpoint": "eth5",
+        "targetEndpoint": "eth3"
+      },
+      "ExtraData": {
+        "ClabServerUsername": "vscode",
+        "Endpoints": {
+          "SourceEndpoint": "eth5",
+          "TargetEndpoint": "eth3"
+        },
+        "ID": "6",
+        "Kind": "edges",
+        "SourceLongName": "clab-CO-HCO-R03-P",
+        "TargetLongName": "clab-CO-HCO-R07-PE-ASBR",
+        "grabbable": true,
+        "selectable": true,
+        "weight": "1"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "3",
+      "source": "R03-P",
+      "target": "R04-P",
+      "weight": "1",
+      "name": "R09-PE-ASBR",
+      "endpoint": {
+        "sourceEndpoint": "eth3",
+        "targetEndpoint": "eth3"
+      },
+      "ExtraData": {
+        "ClabServerUsername": "vscode",
+        "Endpoints": {
+          "SourceEndpoint": "eth3",
+          "TargetEndpoint": "eth3"
+        },
+        "ID": "3",
+        "Kind": "edges",
+        "SourceLongName": "clab-CO-HCO-R03-P",
+        "TargetLongName": "clab-CO-HCO-R04-P",
+        "grabbable": true,
+        "selectable": true,
+        "weight": "1"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "11",
+      "source": "R07-PE-ASBR",
+      "target": "R10-PE-ASBR",
+      "weight": "1",
+      "name": "R09-PE-ASBR",
+      "endpoint": {
+        "sourceEndpoint": "eth1",
+        "targetEndpoint": "eth3"
+      },
+      "ExtraData": {
+        "ClabServerUsername": "vscode",
+        "Endpoints": {
+          "SourceEndpoint": "eth1",
+          "TargetEndpoint": "eth3"
+        },
+        "ID": "11",
+        "Kind": "edges",
+        "SourceLongName": "clab-CO-HCO-R07-PE-ASBR",
+        "TargetLongName": "clab-CO-HCO-R10-PE-ASBR",
+        "grabbable": true,
+        "selectable": true,
+        "weight": "1"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "1",
+      "source": "R01-PE",
+      "target": "R03-P",
+      "weight": "1",
+      "name": "R09-PE-ASBR",
+      "endpoint": {
+        "sourceEndpoint": "eth1",
+        "targetEndpoint": "eth1"
+      },
+      "ExtraData": {
+        "ClabServerUsername": "vscode",
+        "Endpoints": {
+          "SourceEndpoint": "eth1",
+          "TargetEndpoint": "eth1"
+        },
+        "ID": "1",
+        "Kind": "edges",
+        "SourceLongName": "clab-CO-HCO-R01-PE",
+        "TargetLongName": "clab-CO-HCO-R03-P",
+        "grabbable": true,
+        "selectable": true,
+        "weight": "1"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "12",
+      "source": "R09-PE-ASBR",
+      "target": "R08-PE",
+      "weight": "1",
+      "name": "R09-PE-ASBR",
+      "endpoint": {
+        "sourceEndpoint": "eth2",
+        "targetEndpoint": "eth5"
+      },
+      "ExtraData": {
+        "ClabServerUsername": "vscode",
+        "Endpoints": {
+          "SourceEndpoint": "eth2",
+          "TargetEndpoint": "eth5"
+        },
+        "ID": "12",
+        "Kind": "edges",
+        "SourceLongName": "clab-CO-HCO-R09-PE-ASBR",
+        "TargetLongName": "clab-CO-HCO-R08-PE",
+        "grabbable": true,
+        "selectable": true,
+        "weight": "1"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "17",
+      "source": "DC-SPINE-01",
+      "target": "R02-PE",
+      "weight": "1",
+      "name": "R09-PE-ASBR",
+      "endpoint": {
+        "sourceEndpoint": "e1-2",
+        "targetEndpoint": "eth4"
+      },
+      "ExtraData": {
+        "ClabServerUsername": "vscode",
+        "Endpoints": {
+          "SourceEndpoint": "e1-2",
+          "TargetEndpoint": "eth4"
+        },
+        "ID": "17",
+        "Kind": "edges",
+        "SourceLongName": "clab-CO-HCO-DC-SPINE-01",
+        "TargetLongName": "clab-CO-HCO-R02-PE",
+        "grabbable": true,
+        "selectable": true,
+        "weight": "1"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "21",
+      "source": "DC-LEAF-01",
+      "target": "DC-SPINE-02",
+      "weight": "1",
+      "name": "R09-PE-ASBR",
+      "endpoint": {
+        "sourceEndpoint": "e1-2",
+        "targetEndpoint": "e1-3"
+      },
+      "ExtraData": {
+        "ClabServerUsername": "vscode",
+        "Endpoints": {
+          "SourceEndpoint": "e1-2",
+          "TargetEndpoint": "e1-3"
+        },
+        "ID": "21",
+        "Kind": "edges",
+        "SourceLongName": "clab-CO-HCO-DC-LEAF-01",
+        "TargetLongName": "clab-CO-HCO-DC-SPINE-02",
+        "grabbable": true,
+        "selectable": true,
+        "weight": "1"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "22",
+      "source": "DC-LEAF-02",
+      "target": "DC-SPINE-01",
+      "weight": "1",
+      "name": "R09-PE-ASBR",
+      "endpoint": {
+        "sourceEndpoint": "e1-1",
+        "targetEndpoint": "e1-4"
+      },
+      "ExtraData": {
+        "ClabServerUsername": "vscode",
+        "Endpoints": {
+          "SourceEndpoint": "e1-1",
+          "TargetEndpoint": "e1-4"
+        },
+        "ID": "22",
+        "Kind": "edges",
+        "SourceLongName": "clab-CO-HCO-DC-LEAF-02",
+        "TargetLongName": "clab-CO-HCO-DC-SPINE-01",
+        "grabbable": true,
+        "selectable": true,
+        "weight": "1"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "5",
+      "source": "R03-P",
+      "target": "R06-PE-ASBR",
+      "weight": "1",
+      "name": "R09-PE-ASBR",
+      "endpoint": {
+        "sourceEndpoint": "eth2",
+        "targetEndpoint": "eth2"
+      },
+      "ExtraData": {
+        "ClabServerUsername": "vscode",
+        "Endpoints": {
+          "SourceEndpoint": "eth2",
+          "TargetEndpoint": "eth2"
+        },
+        "ID": "5",
+        "Kind": "edges",
+        "SourceLongName": "clab-CO-HCO-R03-P",
+        "TargetLongName": "clab-CO-HCO-R06-PE-ASBR",
+        "grabbable": true,
+        "selectable": true,
+        "weight": "1"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "24",
+      "source": "DC-LEAF-03",
+      "target": "DC-SPINE-01",
+      "weight": "1",
+      "name": "R09-PE-ASBR",
+      "endpoint": {
+        "sourceEndpoint": "e1-1",
+        "targetEndpoint": "e1-5"
+      },
+      "ExtraData": {
+        "ClabServerUsername": "vscode",
+        "Endpoints": {
+          "SourceEndpoint": "e1-1",
+          "TargetEndpoint": "e1-5"
+        },
+        "ID": "24",
+        "Kind": "edges",
+        "SourceLongName": "clab-CO-HCO-DC-LEAF-03",
+        "TargetLongName": "clab-CO-HCO-DC-SPINE-01",
+        "grabbable": true,
+        "selectable": true,
+        "weight": "1"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "7",
+      "source": "R04-P",
+      "target": "R05-PE",
+      "weight": "1",
+      "name": "R09-PE-ASBR",
+      "endpoint": {
+        "sourceEndpoint": "eth5",
+        "targetEndpoint": "eth5"
+      },
+      "ExtraData": {
+        "ClabServerUsername": "vscode",
+        "Endpoints": {
+          "SourceEndpoint": "eth5",
+          "TargetEndpoint": "eth5"
+        },
+        "ID": "7",
+        "Kind": "edges",
+        "SourceLongName": "clab-CO-HCO-R04-P",
+        "TargetLongName": "clab-CO-HCO-R05-PE",
+        "grabbable": true,
+        "selectable": true,
+        "weight": "1"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "13",
+      "source": "R10-PE-ASBR",
+      "target": "R08-PE",
+      "weight": "1",
+      "name": "R09-PE-ASBR",
+      "endpoint": {
+        "sourceEndpoint": "eth2",
+        "targetEndpoint": "eth2"
+      },
+      "ExtraData": {
+        "ClabServerUsername": "vscode",
+        "Endpoints": {
+          "SourceEndpoint": "eth2",
+          "TargetEndpoint": "eth2"
+        },
+        "ID": "13",
+        "Kind": "edges",
+        "SourceLongName": "clab-CO-HCO-R10-PE-ASBR",
+        "TargetLongName": "clab-CO-HCO-R08-PE",
+        "grabbable": true,
+        "selectable": true,
+        "weight": "1"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "15",
+      "source": "R10-PE-ASBR",
+      "target": "br1-private",
+      "weight": "1",
+      "name": "R09-PE-ASBR",
+      "endpoint": {
+        "sourceEndpoint": "eth4",
+        "targetEndpoint": "eth2"
+      },
+      "ExtraData": {
+        "ClabServerUsername": "vscode",
+        "Endpoints": {
+          "SourceEndpoint": "eth4",
+          "TargetEndpoint": "eth2"
+        },
+        "ID": "15",
+        "Kind": "edges",
+        "SourceLongName": "clab-CO-HCO-R10-PE-ASBR",
+        "TargetLongName": "clab-CO-HCO-br1-private",
+        "grabbable": true,
+        "selectable": true,
+        "weight": "1"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "19",
+      "source": "DC-SPINE-02",
+      "target": "R02-PE",
+      "weight": "1",
+      "name": "R09-PE-ASBR",
+      "endpoint": {
+        "sourceEndpoint": "e1-2",
+        "targetEndpoint": "eth5"
+      },
+      "ExtraData": {
+        "ClabServerUsername": "vscode",
+        "Endpoints": {
+          "SourceEndpoint": "e1-2",
+          "TargetEndpoint": "eth5"
+        },
+        "ID": "19",
+        "Kind": "edges",
+        "SourceLongName": "clab-CO-HCO-DC-SPINE-02",
+        "TargetLongName": "clab-CO-HCO-R02-PE",
+        "grabbable": true,
+        "selectable": true,
+        "weight": "1"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "25",
+      "source": "DC-LEAF-03",
+      "target": "DC-SPINE-02",
+      "weight": "1",
+      "name": "R09-PE-ASBR",
+      "endpoint": {
+        "sourceEndpoint": "e1-2",
+        "targetEndpoint": "e1-5"
+      },
+      "ExtraData": {
+        "ClabServerUsername": "vscode",
+        "Endpoints": {
+          "SourceEndpoint": "e1-2",
+          "TargetEndpoint": "e1-5"
+        },
+        "ID": "25",
+        "Kind": "edges",
+        "SourceLongName": "clab-CO-HCO-DC-LEAF-03",
+        "TargetLongName": "clab-CO-HCO-DC-SPINE-02",
+        "grabbable": true,
+        "selectable": true,
+        "weight": "1"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "27",
+      "source": "DC-LEAF-04",
+      "target": "DC-SPINE-02",
+      "weight": "1",
+      "name": "R09-PE-ASBR",
+      "endpoint": {
+        "sourceEndpoint": "e1-2",
+        "targetEndpoint": "e1-6"
+      },
+      "ExtraData": {
+        "ClabServerUsername": "vscode",
+        "Endpoints": {
+          "SourceEndpoint": "e1-2",
+          "TargetEndpoint": "e1-6"
+        },
+        "ID": "27",
+        "Kind": "edges",
+        "SourceLongName": "clab-CO-HCO-DC-LEAF-04",
+        "TargetLongName": "clab-CO-HCO-DC-SPINE-02",
+        "grabbable": true,
+        "selectable": true,
+        "weight": "1"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "9",
+      "source": "R04-P",
+      "target": "R07-PE-ASBR",
+      "weight": "1",
+      "name": "R09-PE-ASBR",
+      "endpoint": {
+        "sourceEndpoint": "eth4",
+        "targetEndpoint": "eth2"
+      },
+      "ExtraData": {
+        "ClabServerUsername": "vscode",
+        "Endpoints": {
+          "SourceEndpoint": "eth4",
+          "TargetEndpoint": "eth2"
+        },
+        "ID": "9",
+        "Kind": "edges",
+        "SourceLongName": "clab-CO-HCO-R04-P",
+        "TargetLongName": "clab-CO-HCO-R07-PE-ASBR",
+        "grabbable": true,
+        "selectable": true,
+        "weight": "1"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  }
+]
