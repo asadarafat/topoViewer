@@ -83,7 +83,7 @@ in this example the url would be ``http://138.203.40.63:8080/``. To open cloudSh
 
 ## Quick Run - Wireshark capture
 TopoViewer has a remote capture feature that allows it to intercept containerLab's node endPoint - provided that topoViewer is running on the same server as containerLab's node.
-The feature relies on the client-side application to run tcpdump remotely and pipe it to the client wireshark.
+The feature relies on the client-side application to run tcpdump remotely and pipe it to the client's Wireshark.
 
 ### Pre-requisite
 - Ensure the topoViewer running in the same host as containerLab.
