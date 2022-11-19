@@ -172,9 +172,9 @@ func addIncomingRequestLogging(next http.Handler) http.Handler {
 		createRequestLog(r).Infof("request completed in %vms", float64(duration.Nanoseconds())/1000000)
 	})
 }
-func createHtmlPublicFiles(htmlPublicPrefixPath string, templateFile string, outputFile string, inputValue string) {
+func createHtmlPublicFiles(htmlTemplatePath string, htmlPublicPrefixPath string, templateFile string, outputFile string, inputValue string) {
 	// os.Mkdir("./html-public/"+cyTopo.ClabTopoData.ClabTopoName, 0755) // this folder created in cytoscape model library.
-	template, err := template.ParseFiles(htmlPublicPrefixPath + templateFile)
+	template, err := template.ParseFiles(htmlTemplatePath + templateFile)
 	if err != nil {
 		log.Error("Could compile index.tmpl")
 	}
@@ -331,12 +331,14 @@ func runE(_ *cobra.Command, _ []string) error {
 	//create html-public files
 	// htmlPublicPrefixPath := "/etc/topoviewer/html-public/"
 	htmlPublicPrefixPath := "./html-public/"
+	htmlTemplatePath := "./html-static/template/"
+
 	// os.Mkdir(htmlPublicPrefixPath+cyTopo.ClabTopoData.ClabTopoName, 0755) // already created in cytoscapemodel library
 	os.Mkdir(htmlPublicPrefixPath+cyTopo.ClabTopoData.ClabTopoName+"/cloudshell", 0755)
-	createHtmlPublicFiles(htmlPublicPrefixPath, "template/index.tmpl", cyTopo.ClabTopoData.ClabTopoName+"/"+"index.html", "dataCytoMarshall-"+cyTopo.ClabTopoData.ClabTopoName+".json")
-	createHtmlPublicFiles(htmlPublicPrefixPath, "template/cy-style.tmpl", cyTopo.ClabTopoData.ClabTopoName+"/"+"cy-style.json", "")
-	createHtmlPublicFiles(htmlPublicPrefixPath, "template/cloudshell-index.tmpl", cyTopo.ClabTopoData.ClabTopoName+"/cloudshell/"+"index.html", "")
-	createHtmlPublicFiles(htmlPublicPrefixPath, "template/cloudshell-terminal-js.tmpl", cyTopo.ClabTopoData.ClabTopoName+"/cloudshell/"+"terminal.js", "")
+	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "index.tmpl", cyTopo.ClabTopoData.ClabTopoName+"/"+"index.html", "dataCytoMarshall-"+cyTopo.ClabTopoData.ClabTopoName+".json")
+	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "cy-style.tmpl", cyTopo.ClabTopoData.ClabTopoName+"/"+"cy-style.json", "")
+	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "cloudshell-index.tmpl", cyTopo.ClabTopoData.ClabTopoName+"/cloudshell/"+"index.html", "")
+	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "cloudshell-terminal-js.tmpl", cyTopo.ClabTopoData.ClabTopoName+"/cloudshell/"+"terminal.js", "")
 
 	// start memory logging pulse
 	logWithMemory := createMemoryLog()

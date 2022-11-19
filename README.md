@@ -15,7 +15,7 @@ Please keep in mind that exposing shell via browser is risky; use at your own ri
 Topoviewer currently only distributed for Linux amd64 architecture.
 
 ### Download distribution package
-- Download the TopoViewer.tar.gz file (can found under bdist/topoViewer folder) to your Linux x64 server.
+- Download the TopoViewer.tar.gz file (can found under dist/topoViewer folder) to your Linux x64 server.
 after extracting under topoViewer folder you will get the following html-public and html-private folders
 
     ```Shell
@@ -156,7 +156,7 @@ Ensure to run binary file in the same directory with html folder
 ```Shell
 vscode ➜ /workspaces/topoViewer/dist/topoViewer (development ✗) $ pwd
 /workspaces/topoViewer/dist/topoViewer
-vscode ➜ /workspaces/topoViewer/dist/topoViewer (development ✗) $ ./topoviewer -t ../../rawTopoFile/topo-topoViewerDemo.yaml 
+vscode ➜ /workspaces/topoViewer/dist/topoViewer (development ✗) $ ./topoviewer -t /../rawTopoFile/topo-topoViewerDemo.yaml 
 ```
 
 
