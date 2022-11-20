@@ -36,4 +36,7 @@ func main() {
 	// log.Info(topoFile)
 
 	cytoUiGo.IetfL2TopoUnMarshal(topoFile, topoengine.IetfNetworkTopologyL2{})
+	jsonBytes := cytoUiGo.IetfL2TopoUnMarshal(topoFile, topoengine.IetfNetworkTopologyL2{})
+	cytoUiGo.IetfL2TopoPrintjsonBytesCytoUi(jsonBytes)
+
 }

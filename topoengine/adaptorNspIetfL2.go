@@ -103,18 +103,20 @@ func (cyTopo *CytoTopology) IetfL2TopoUnMarshal(topoFile []byte, IetfNetworkTopo
 			cytoJson.Group = "nodes"
 			cytoJson.Grabbable = true
 			cytoJson.Selectable = true
-			cytoJson.Data.ID = strconv.Itoa(j)
+			cytoJson.Data.ID = node.NodeID
 			cytoJson.Data.Weight = "2"
-			cytoJson.Data.Name = node.NodeID
+			cytoJson.Data.Name = node.IetfL2TopologyL2NodeAttributes.Name
 
 			cytoJson.Data.ExtraData = map[string]interface{}{
-				"ServerUsername":    Username,
-				"IetfL2NetworkName": network.NetworkID,
-				"NetworkID":         strconv.Itoa(i),
-				"IetfL2NodeName":    node.NodeID,
-				"NodeID":            strconv.Itoa(j),
-				"Weight":            "2",
-				"Name":              node.NodeID,
+				"ServerUsername":          Username,
+				"IetfL2NetworkName":       network.NetworkID,
+				"NetworkID":               strconv.Itoa(i),
+				"NodeID":                  node.NodeID,
+				"Weight":                  "2",
+				"Name":                    node.NodeID,
+				"NodeNumber":              j,
+				"L2-NodeAttributes":       node.IetfL2TopologyL2NodeAttributes,
+				"L2-NodeTerminationPoins": node.IetfNetworkTopologyTerminationPoint,
 			}
 			cytoJsonList = append(cytoJsonList, cytoJson)
 			// log.Info(j)
@@ -171,4 +173,20 @@ func (cyTopo *CytoTopology) IetfL2TopoUnMarshal(topoFile []byte, IetfNetworkTopo
 	log.Info("jsonBytesCytoUi Result:", string(jsonBytesCytoUi))
 
 	return jsonBytesCytoUi
+}
+
+func (cyTopo *CytoTopology) IetfL2TopoPrintjsonBytesCytoUi(marshaledJsonBytesCytoUi []byte) error {
+	// Create file
+	os.Mkdir("./html-public/"+"IetfTopology-L2", 0755)
+	file, err := os.Create("html-public/" + "IetfTopology-L2" + "/dataIetfL2TopoCytoMarshall" + ".json")
+	if err != nil {
+		log.Error("Could not create json file for graph")
+	}
+
+	// Write to file
+	_, err = file.Write(marshaledJsonBytesCytoUi)
+	if err != nil {
+		log.Error("Could not write json to file")
+	}
+	return err
 }

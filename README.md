@@ -156,7 +156,7 @@ Ensure to run binary file in the same directory with html folder
 ```Shell
 vscode ➜ /workspaces/topoViewer/dist/topoViewer (development ✗) $ pwd
 /workspaces/topoViewer/dist/topoViewer
-vscode ➜ /workspaces/topoViewer/dist/topoViewer (development ✗) $ ./topoviewer -t /../rawTopoFile/topo-topoViewerDemo.yaml 
+vscode ➜ /workspaces/topoViewer/dist/topoViewer (development ✗) $ ./topoviewer -t ../../rawTopoFile/topo-topoViewerDemo.yaml 
 ```
 
 
