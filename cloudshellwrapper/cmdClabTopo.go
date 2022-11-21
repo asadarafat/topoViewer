@@ -21,12 +21,27 @@ import (
 
 var conf = Conf
 
+var rootCommand = cobra.Command{
+	Use:     "topoviewer",
+	Short:   "Creates a web-based shell using xterm.js that links to an actual shell",
+	Version: VersionInfo,
+	RunE:    RunEClab,
+}
+
+func Execute() {
+	conf.ApplyToCobra(&rootCommand)
+	if err := rootCommand.Execute(); err != nil {
+		log.Info(err)
+		os.Exit(1)
+	}
+}
+
 func RunEClab(_ *cobra.Command, _ []string) error {
 	// initialise the logger
 	log.Init(log.Format(conf.GetString("log-format")), log.Level(conf.GetString("log-level")))
 
 	// tranform clab-topo-file into cytoscape-model
-	topoClab := conf.GetString("topology-file")
+	topoClab := conf.GetString("clab-topology-file")
 	log.Info("topoFilePath: ", topoClab)
 	log.Info("topoFilePath: ", topoClab)
 

@@ -10,6 +10,7 @@ import (
 
 var VersionInfo string
 
+// root config
 var Conf = config.Map{
 	"allowed-hostnames": &config.StringSlice{
 		Default:   []string{"localhost"},
@@ -80,7 +81,7 @@ var Conf = config.Map{
 		Usage:     "working directory",
 		Shorthand: "w",
 	},
-	"topology-file": &config.String{
+	"clab-topology-file": &config.String{
 		Default:   ".",
 		Usage:     "path to containerlab topo file",
 		Shorthand: "t",
