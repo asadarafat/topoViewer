@@ -23,7 +23,7 @@ after extracting under topoViewer folder you will get the following html-public 
     .
     ├── clab
     │   ├── license.txt
-    │   └── topo-topoViewerDemo.yml
+    │   └── topo-topoViewerDemo.yaml
     └── topoViewer
         ├── html-public
         ├── html-static
@@ -32,12 +32,12 @@ after extracting under topoViewer folder you will get the following html-public 
 
 ## Quick Run - cloudShell
 ### Pre-requisite
-- Ensure the containerLab is running, the ``topo-topoViewerDemo.yml `` can be found [here](https://github.com/asadarafat/topoViewer/blob/development/rawTopoFile/topo-topoViewerDemo.yml "here")
+- Ensure the containerLab is running, the ``topo-topoViewerDemo.yaml `` can be found [here](https://github.com/asadarafat/topoViewer/blob/development/rawTopoFile/topo-topoViewerDemo.yaml "here")
     ```Shell
     [corla@nsp-kvm-host-antwerp ~]$ cd clab/
-    [corla@nsp-kvm-host-antwerp clab]$ sudo clab deploy --topo topo-topoViewerDemo.yml 
+    [corla@nsp-kvm-host-antwerp clab]$ sudo clab deploy --topo topo-topoViewerDemo.yaml 
     INFO[0000] Containerlab v0.31.1 started                 
-    INFO[0000] Parsing & checking topology file: topo-topoViewerDemo.yml 
+    INFO[0000] Parsing & checking topology file: topo-topoViewerDemo.yaml 
     INFO[0000] Creating lab directory: /home/corla/clab/clab-topoViewerDemo 
     INFO[0000] Creating docker network: Name="clab", IPv4Subnet="20.20.20.0/24", IPv6Subnet="", MTU="1500" 
     INFO[0000] Creating container: "SROS-01"                
