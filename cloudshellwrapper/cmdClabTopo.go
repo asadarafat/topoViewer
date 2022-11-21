@@ -11,6 +11,7 @@ import (
 
 	"github.com/asadarafat/topoViewer/topoengine"
 	"github.com/asadarafat/topoViewer/xtermjs"
+	"github.com/usvc/go-config"
 
 	log "github.com/asadarafat/topoViewer/tools"
 
@@ -19,30 +20,105 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var conf = Conf
+// config
+var conf = config.Map{
+	"allowed-hostnames": &config.StringSlice{
+		Default:   []string{"localhost"},
+		Usage:     "comma-delimited list of hostnames that are allowed to connect to the websocket",
+		Shorthand: "H",
+	},
+	"arguments": &config.StringSlice{
+		Default:   []string{},
+		Usage:     "comma-delimited list of arguments that should be passed to the terminal command",
+		Shorthand: "r",
+	},
+	"command": &config.String{
+		Default:   "/bin/bash",
+		Usage:     "absolute path to command to run",
+		Shorthand: "c",
+	},
+	"connection-error-limit": &config.Int{
+		Default:   10,
+		Usage:     "number of times a connection should be re-attempted before it's considered dead",
+		Shorthand: "l",
+	},
+	"keepalive-ping-timeout": &config.Int{
+		Default:   20,
+		Usage:     "maximum duration in seconds between a ping message and its response to tolerate",
+		Shorthand: "k",
+	},
+	"max-buffer-size-bytes": &config.Int{
+		Default:   512,
+		Usage:     "maximum length of input from terminal",
+		Shorthand: "B",
+	},
+	"log-format": &config.String{
+		Default: "text",
+		Usage:   fmt.Sprintf("defines the format of the logs - one of ['%s']", strings.Join(log.ValidFormatStrings, "', '")),
+	},
+	"log-level": &config.String{
+		Default: "debug",
+		Usage:   fmt.Sprintf("defines the minimum level of logs to show - one of ['%s']", strings.Join(log.ValidLevelStrings, "', '")),
+	},
+	"path-liveness": &config.String{
+		Default: "/healthz",
+		Usage:   "url path to the liveness probe endpoint",
+	},
+	"path-metrics": &config.String{
+		Default: "/metrics",
+		Usage:   "url path to the prometheus metrics endpoint",
+	},
+	"path-readiness": &config.String{
+		Default: "/readyz",
+		Usage:   "url path to the readiness probe endpoint",
+	},
+	"path-xtermjs": &config.String{
+		Default: "/xterm.js",
+		Usage:   "url path to the endpoint that xterm.js should attach to",
+	},
+	"server-addr": &config.String{
+		Default:   "0.0.0.0",
+		Usage:     "ip interface the server should listen on",
+		Shorthand: "a",
+	},
+	"server-port": &config.Int{
+		Default:   8080,
+		Usage:     "port the server should listen on",
+		Shorthand: "p",
+	},
+	"workdir": &config.String{
+		Default:   ".",
+		Usage:     "working directory",
+		Shorthand: "w",
+	},
+	"topology-file": &config.String{
+		Default:   ".",
+		Usage:     "path to containerlab topo file",
+		Shorthand: "t",
+	},
+}
 
-var rootCommand = cobra.Command{
-	Use:     "topoviewer",
-	Short:   "Creates a web-based shell using xterm.js that links to an actual shell",
+// var rootCommand = cobra.Command{
+var clabCommand = cobra.Command{
+	Use:     "clab",
+	Short:   "Creates a web-based topology view from Container Lab topology file",
 	Version: VersionInfo,
-	RunE:    RunEClab,
+	RunE:    Clab,
 }
 
-func Execute() {
-	conf.ApplyToCobra(&rootCommand)
-	if err := rootCommand.Execute(); err != nil {
-		log.Info(err)
-		os.Exit(1)
-	}
+func init() {
+	// initialise the logger config clabCommand
+	conf.ApplyToCobra(&clabCommand)
+	// init clabCommand
+	rootCommand.AddCommand(&clabCommand)
 }
 
-func RunEClab(_ *cobra.Command, _ []string) error {
+func Clab(_ *cobra.Command, _ []string) error {
 	// initialise the logger
 	log.Init(log.Format(conf.GetString("log-format")), log.Level(conf.GetString("log-level")))
 
 	// tranform clab-topo-file into cytoscape-model
-	topoClab := conf.GetString("clab-topology-file")
-	log.Info("topoFilePath: ", topoClab)
+	topoClab := conf.GetString("topology-file")
 	log.Info("topoFilePath: ", topoClab)
 
 	cyTopo := topoengine.CytoTopology{}
@@ -54,14 +130,8 @@ func RunEClab(_ *cobra.Command, _ []string) error {
 	jsonBytes := cyTopo.UnmarshalContainerLabTopo(clabTopoJson)
 	cyTopo.PrintjsonBytesCytoUi(jsonBytes)
 
-	// debug stuff
 	command := conf.GetString("command")
-
-	// command := "/bin/bash"
-	// arguments := conf.GetStringSlice("arguments")
-	// command := "/usr/bin/ssh"
-	// var listArguments = []string{"RouterId"}
-	// arguments := listArguments
+	arguments := conf.GetStringSlice("arguments")
 	connectionErrorLimit := conf.GetInt("connection-error-limit")
 	allowedHostnames := conf.GetStringSlice("allowed-hostnames")
 	keepalivePingTimeout := time.Duration(conf.GetInt("keepalive-ping-timeout")) * time.Second
@@ -85,7 +155,7 @@ func RunEClab(_ *cobra.Command, _ []string) error {
 	log.Infof("topology file path    : '%s'", workingDirectory+"/"+topoClab)
 	log.Infof("working directory     : '%s'", workingDirectory)
 	log.Infof("command               : '%s'", command)
-	// log.Infof("arguments             : ['%s']", strings.Join(arguments, "', '"))
+	log.Infof("arguments             : ['%s']", strings.Join(arguments, "', '"))
 
 	log.Infof("allowed hosts         : ['%s']", strings.Join(allowedHostnames, "', '"))
 	log.Infof("connection error limit: %v", connectionErrorLimit)
@@ -176,7 +246,6 @@ func RunEClab(_ *cobra.Command, _ []string) error {
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir(publicAssetsDirectoryHtml)))
 
 	//create html-public files
-	// htmlPublicPrefixPath := "/etc/topoviewer/html-public/"
 	htmlPublicPrefixPath := "./html-public/"
 	htmlTemplatePath := "./html-static/template/"
 

@@ -74,7 +74,7 @@ after extracting under topoViewer folder you will get the following html-public 
 - Ensure the topoViewer running in the same host as containerLab.
     ```Shell
     [corla@nsp-kvm-host-antwerp clab]$ cd ../topoViewer/
-    [corla@nsp-kvm-host-antwerp topoViewer]$ ./topoviewer -H 138.203.40.63 -p 8080 -t ../clab/topo-topoViewerDemo.yaml
+    [corla@nsp-kvm-host-antwerp topoViewer]$ ./topoviewer clab -H 138.203.40.63 -p 8080 -t ../clab/topo-topoViewerDemo.yaml
     ```
 
  - At this point the topoViewer and containerLab are running in the same server.
@@ -156,7 +156,7 @@ Ensure to run binary file in the same directory with html folder
 ```Shell
 vscode ➜ /workspaces/topoViewer/dist/topoViewer (development ✗) $ pwd
 /workspaces/topoViewer/dist/topoViewer
-vscode ➜ /workspaces/topoViewer/dist/topoViewer (development ✗) $ ./topoviewer -t ../../rawTopoFile/topo-topoViewerDemo.yaml 
+vscode ➜ /workspaces/topoViewer/dist/topoViewer (development ✗) $ ./topoviewer clab -t ../../rawTopoFile/topo-topoViewerDemo.yaml 
 ```
 
 
