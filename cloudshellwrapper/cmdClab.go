@@ -247,7 +247,7 @@ func Clab(_ *cobra.Command, _ []string) error {
 
 	//create html-public files
 	htmlPublicPrefixPath := "./html-public/"
-	htmlTemplatePath := "./html-static/template/"
+	htmlTemplatePath := "./html-static/template/clab/"
 
 	// os.Mkdir(htmlPublicPrefixPath+cyTopo.ClabTopoData.ClabTopoName, 0755) // already created in cytoscapemodel library
 	os.Mkdir(htmlPublicPrefixPath+cyTopo.ClabTopoData.ClabTopoName+"/cloudshell", 0755)

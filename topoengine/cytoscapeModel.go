@@ -4,7 +4,7 @@ type CytoTopology struct {
 	CytoTopo             CytoJsonTopology
 	LogLevel             uint32
 	ClabTopoData         ClabTopo
-	IetfNetworL2TopoData IetfNetworkTopologyL2
+	IetfNetworL2TopoData []byte
 }
 
 type CytoJsonTopology struct {

@@ -69,8 +69,9 @@ func addIncomingRequestLogging(next http.Handler) http.Handler {
 func createHtmlPublicFiles(htmlTemplatePath string, htmlPublicPrefixPath string, templateFile string, outputFile string, inputValue string) {
 	// os.Mkdir("./html-public/"+cyTopo.ClabTopoData.ClabTopoName, 0755) // this folder created in cytoscape model library.
 	template, err := template.ParseFiles(htmlTemplatePath + templateFile)
+	log.Debugf("Template File: ", htmlTemplatePath+templateFile)
 	if err != nil {
-		log.Error("Could compile index.tmpl")
+		log.Error("Could not compile index.tmpl")
 	}
 
 	// create file

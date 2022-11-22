@@ -117,21 +117,29 @@ func init() {
 }
 
 func Nsp(_ *cobra.Command, _ []string) error {
+
+	fmt.Println("tereerereere")
+
 	// initialise the logger
 	log.Init(log.Format(confNsp.GetString("log-format")), log.Level(confNsp.GetString("log-level")))
 
 	// tranform clab-topo-file into cytoscape-model
-	topoClab := confNsp.GetString("topology-file")
-	log.Info("topoFilePath: ", topoClab)
+	topoNsp := confNsp.GetString("topology-ietf-l2-topo")
+	log.Info(topoNsp)
 
 	cyTopo := topoengine.CytoTopology{}
 	cyTopo.LogLevel = 4
 	cyTopo.InitLogger()
-	cyTopo.MarshalContainerLabTopo(topoClab)
-	clabTopoJson := topoengine.ClabTopoJson{}
-	cyTopo.UnmarshalContainerLabTopo(clabTopoJson)
-	jsonBytes := cyTopo.UnmarshalContainerLabTopo(clabTopoJson)
-	cyTopo.PrintjsonBytesCytoUi(jsonBytes)
+	// cyTopo.MarshalContainerLabTopo(topoClab)
+	// clabTopoJson := topoengine.ClabTopoJson{}
+	// cyTopo.UnmarshalContainerLabTopo(clabTopoJson)
+	// jsonBytes := cyTopo.UnmarshalContainerLabTopo(clabTopoJson)
+	// cyTopo.PrintjsonBytesCytoUi(jsonBytes)
+
+	cyTopo.IetfL2TopoMarshal(topoNsp) // loading to cyTopo.IetfNetworL2TopoData
+	cyTopo.IetfL2TopoUnMarshal(cyTopo.IetfNetworL2TopoData, topoengine.IetfNetworkTopologyL2{})
+	jsonBytes := cyTopo.IetfL2TopoUnMarshal(cyTopo.IetfNetworL2TopoData, topoengine.IetfNetworkTopologyL2{})
+	cyTopo.IetfL2TopoPrintjsonBytesCytoUi(jsonBytes)
 
 	command := confNsp.GetString("command")
 	arguments := confNsp.GetStringSlice("arguments")
@@ -155,7 +163,7 @@ func Nsp(_ *cobra.Command, _ []string) error {
 		}
 		workingDirectory = path.Join(wd, workingDirectory)
 	}
-	log.Infof("topology file path    : '%s'", workingDirectory+"/"+topoClab)
+	log.Infof("topology file path    : '%s'", workingDirectory+"/"+topoNsp)
 	log.Infof("working directory     : '%s'", workingDirectory)
 	log.Infof("command               : '%s'", command)
 	log.Infof("arguments             : ['%s']", strings.Join(arguments, "', '"))
@@ -244,18 +252,21 @@ func Nsp(_ *cobra.Command, _ []string) error {
 	router.PathPrefix("/css").Handler(http.StripPrefix("/css", http.FileServer(http.Dir(depenenciesDirectoryCss))))
 
 	// // this is the endpoint for the root path aka website shell
-	publicAssetsDirectoryHtml := path.Join(workingDirectory, "./html-public/"+cyTopo.ClabTopoData.ClabTopoName)
+	publicAssetsDirectoryHtml := path.Join(workingDirectory, "./html-public/"+"IetfTopology-L2")
 	// publicAssetsDirectoryHtml := ("/etc/topoviewer/html-public/" + cyTopo.ClabTopoData.ClabTopoName)
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir(publicAssetsDirectoryHtml)))
 
 	//create html-public files
 	htmlPublicPrefixPath := "./html-public/"
-	htmlTemplatePath := "./html-static/nsp/template/"
+	htmlTemplatePath := "./html-static/template/nsp/"
+	// htmlTemplatePath := "./html-static/nsp"
+
+	// topoPrefixName := "NspIetfTopoLayer2" // should be added with NSP server ip address
 
 	// os.Mkdir(htmlPublicPrefixPath+cyTopo.ClabTopoData.ClabTopoName, 0755) // already created in cytoscapemodel library
 	// os.Mkdir(htmlPublicPrefixPath+cyTopo.ClabTopoData.ClabTopoName+"/cloudshell", 0755)
-	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "index.tmpl", cyTopo.ClabTopoData.ClabTopoName+"/"+"index.html", "dataCytoMarshall-"+cyTopo.ClabTopoData.ClabTopoName+".json")
-	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "cy-style.tmpl", cyTopo.ClabTopoData.ClabTopoName+"/"+"cy-style.json", "")
+	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "index.tmpl", "IetfTopology-L2"+"/"+"index.html", "dataIetfL2TopoCytoMarshall.json")
+	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "cy-style.tmpl", "IetfTopology-L2"+"/"+"cy-style.json", "")
 	// createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "cloudshell-index.tmpl", cyTopo.ClabTopoData.ClabTopoName+"/cloudshell/"+"index.html", "")
 	// createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "cloudshell-terminal-js.tmpl", cyTopo.ClabTopoData.ClabTopoName+"/cloudshell/"+"terminal.js", "")
 
