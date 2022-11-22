@@ -2,8 +2,10 @@ package topoengine
 
 import (
 	"encoding/json"
+	"io/ioutil"
 	"os"
 	"os/user"
+	"path"
 	"strconv"
 
 	log "github.com/sirupsen/logrus"
@@ -79,6 +81,21 @@ func (cyTopo *CytoTopology) InitLoggerIetfL2() {
 	// init logConfig
 	toolLogger := tools.Logs{}
 	toolLogger.InitLogger("logs/topoengine-CytoTopologyIetfL2.log", cyTopo.LogLevel)
+}
+
+func (cyTopo *CytoTopology) IetfL2TopoMarshal(topoFile string) {
+	log.Info(topoFile)
+
+	filePath, _ := os.Getwd()
+	filePath = path.Join(filePath, topoFile)
+
+	log.Info("topology file path: ", filePath)
+	topoFileBytes, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		log.Fatal("Error when opening file: ", err)
+	}
+
+	cyTopo.IetfNetworL2TopoData = topoFileBytes
 }
 
 func (cyTopo *CytoTopology) IetfL2TopoUnMarshal(topoFile []byte, IetfNetworkTopologyL2Data IetfNetworkTopologyL2) []byte {
@@ -178,7 +195,7 @@ func (cyTopo *CytoTopology) IetfL2TopoUnMarshal(topoFile []byte, IetfNetworkTopo
 func (cyTopo *CytoTopology) IetfL2TopoPrintjsonBytesCytoUi(marshaledJsonBytesCytoUi []byte) error {
 	// Create file
 	os.Mkdir("./html-public/"+"IetfTopology-L2", 0755)
-	file, err := os.Create("html-public/" + "IetfTopology-L2" + "/dataIetfL2TopoCytoMarshall" + ".json")
+	file, err := os.Create("html-public/" + "IetfTopology-L2" + "/dataIetfL2TopoCytoMarshall.json")
 	if err != nil {
 		log.Error("Could not create json file for graph")
 	}
