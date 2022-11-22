@@ -21,7 +21,7 @@ import (
 )
 
 // config
-var conf = config.Map{
+var confClab = config.Map{
 	"allowed-hostnames": &config.StringSlice{
 		Default:   []string{"localhost"},
 		Usage:     "comma-delimited list of hostnames that are allowed to connect to the websocket",
@@ -108,17 +108,17 @@ var clabCommand = cobra.Command{
 
 func init() {
 	// initialise the logger config clabCommand
-	conf.ApplyToCobra(&clabCommand)
+	confClab.ApplyToCobra(&clabCommand)
 	// init clabCommand
 	rootCommand.AddCommand(&clabCommand)
 }
 
 func Clab(_ *cobra.Command, _ []string) error {
 	// initialise the logger
-	log.Init(log.Format(conf.GetString("log-format")), log.Level(conf.GetString("log-level")))
+	log.Init(log.Format(confClab.GetString("log-format")), log.Level(confClab.GetString("log-level")))
 
 	// tranform clab-topo-file into cytoscape-model
-	topoClab := conf.GetString("topology-file")
+	topoClab := confClab.GetString("topology-file")
 	log.Info("topoFilePath: ", topoClab)
 
 	cyTopo := topoengine.CytoTopology{}
@@ -130,19 +130,19 @@ func Clab(_ *cobra.Command, _ []string) error {
 	jsonBytes := cyTopo.UnmarshalContainerLabTopo(clabTopoJson)
 	cyTopo.PrintjsonBytesCytoUi(jsonBytes)
 
-	command := conf.GetString("command")
-	arguments := conf.GetStringSlice("arguments")
-	connectionErrorLimit := conf.GetInt("connection-error-limit")
-	allowedHostnames := conf.GetStringSlice("allowed-hostnames")
-	keepalivePingTimeout := time.Duration(conf.GetInt("keepalive-ping-timeout")) * time.Second
-	maxBufferSizeBytes := conf.GetInt("max-buffer-size-bytes")
-	pathLiveness := conf.GetString("path-liveness")
-	pathMetrics := conf.GetString("path-metrics")
-	pathReadiness := conf.GetString("path-readiness")
-	pathXTermJS := conf.GetString("path-xtermjs")
-	serverAddress := conf.GetString("server-addr")
-	serverPort := conf.GetInt("server-port")
-	workingDirectory := conf.GetString("workdir")
+	command := confClab.GetString("command")
+	arguments := confClab.GetStringSlice("arguments")
+	connectionErrorLimit := confClab.GetInt("connection-error-limit")
+	allowedHostnames := confClab.GetStringSlice("allowed-hostnames")
+	keepalivePingTimeout := time.Duration(confClab.GetInt("keepalive-ping-timeout")) * time.Second
+	maxBufferSizeBytes := confClab.GetInt("max-buffer-size-bytes")
+	pathLiveness := confClab.GetString("path-liveness")
+	pathMetrics := confClab.GetString("path-metrics")
+	pathReadiness := confClab.GetString("path-readiness")
+	pathXTermJS := confClab.GetString("path-xtermjs")
+	serverAddress := confClab.GetString("server-addr")
+	serverPort := confClab.GetInt("server-port")
+	workingDirectory := confClab.GetString("workdir")
 	if !path.IsAbs(workingDirectory) {
 		wd, err := os.Getwd()
 		if err != nil {
