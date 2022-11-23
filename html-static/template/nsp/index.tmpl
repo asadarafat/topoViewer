@@ -301,14 +301,15 @@
           // console.log(n.jsons())
           // console.log(n.data('ExtraData').MgmtIPv4Address)
 
-          var $links = [{
-              name: 'Open SSH Session',
-              url: serverUrl + '/cloudshell/?RouterID=' + n.data('ExtraData').MgmtIPv4Address
-            },
-            {
-              name: 'Node Kind: ' + n.data('ExtraData').Kind
-              // url: 'http://www.uniprot.org/uniprot/?query='+ g +'&fil=organism%3A%22Homo+sapiens+%28Human%29+%5B9606%5D%22&sort=score'
-            }
+          var $links = [
+           {
+             name: 'Open SSH Session',
+             url: serverUrl + '/cloudshell/?RouterID=' + n.data('ExtraData').MgmtIPv4Address
+           },
+           {
+             name: 'Node Name: ' + n.data('ExtraData').L2NodeAttributes.name
+             // url: 'http://www.uniprot.org/uniprot/?query='+ g +'&fil=organism%3A%22Homo+sapiens+%28Human%29+%5B9606%5D%22&sort=score'
+           }
           ].map(function (link) {
             return h('a', {
               target: '_blank',
@@ -333,22 +334,23 @@
           // console.log(n.data('name'))
           // console.log(n.jsons())
           // console.log(n.data('ExtraData').MgmtIPv4Address)
-          var $links = [{
-              name: 'Add Link Latency',
-              url: 'ssh://admin@' + n.data('ExtraData').MgmtIPv4Address
-            },
-            {
-              name: 'WireShark Capture Endpoint-A: ' + n.data('ExtraData').SourceLongName + '--' + n.data(
-                'ExtraData').Endpoints.SourceEndpoint,
-              url: 'clab-capture://' + n.data('ExtraData').ClabServerUsername + '@' + location.host + '?' + n
-                .data('ExtraData').SourceLongName + '?' + n.data('ExtraData').Endpoints.SourceEndpoint
-            },
-            {
-              name: 'WireShark Capture Endpoint-B: ' + n.data('ExtraData').TargetLongName + '--' + n.data(
-                'ExtraData').Endpoints.TargetEndpoint,
-              url: 'clab-capture://' + n.data('ExtraData').ClabServerUsername + '@' + location.host + '?' + n
-                .data('ExtraData').TargetLongName + '?' + n.data('ExtraData').Endpoints.TargetEndpoint
-            },
+          var $links = [
+          //  {
+          //    name: 'Add Link Latency',
+          //    url: 'ssh://admin@' + n.data('ExtraData').MgmtIPv4Address
+          //  },
+          //  {
+          //    name: 'WireShark Capture Endpoint-A: ' + n.data('ExtraData').SourceLongName + '--' + n.data(
+          //      'ExtraData').Endpoints.SourceEndpoint,
+          //    url: 'clab-capture://' + n.data('ExtraData').ClabServerUsername + '@' + location.host + '?' + n
+          //      .data('ExtraData').SourceLongName + '?' + n.data('ExtraData').Endpoints.SourceEndpoint
+          //  },
+          //  {
+          //    name: 'WireShark Capture Endpoint-B: ' + n.data('ExtraData').TargetLongName + '--' + n.data(
+          //      'ExtraData').Endpoints.TargetEndpoint,
+          //    url: 'clab-capture://' + n.data('ExtraData').ClabServerUsername + '@' + location.host + '?' + n
+          //      .data('ExtraData').TargetLongName + '?' + n.data('ExtraData').Endpoints.TargetEndpoint
+          //  },
             {
               name: 'Link Type: ' + n.data('routerType'),
               url: 'http://www.uniprot.org/uniprot/?query=' + g +
