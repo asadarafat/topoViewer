@@ -124,9 +124,9 @@ func (cyTopo *CytoTopology) IetfL3TopoUnMarshal(topoFile []byte, IetfNetworkTopo
 			cytoJson.Group = "nodes"
 			cytoJson.Grabbable = true
 			cytoJson.Selectable = true
-			cytoJson.Data.ID = node.NodeID
+			cytoJson.Data.ID = "L3-" + node.NodeID
 			cytoJson.Data.Weight = "3"
-			cytoJson.Data.Name = node.NodeID
+			cytoJson.Data.Name = node.IetfL3UnicastTopologyL3NodeAttributes.Name
 
 			cytoJson.Data.ExtraData = map[string]interface{}{
 				"ServerUsername":       Username,
@@ -134,7 +134,7 @@ func (cyTopo *CytoTopology) IetfL3TopoUnMarshal(topoFile []byte, IetfNetworkTopo
 				"NetworkID":            strconv.Itoa(i),
 				"NodeID":               node.NodeID,
 				"Weight":               "3",
-				"Name":                 node.NodeID,
+				"Name":                 node.IetfL3UnicastTopologyL3NodeAttributes.Name,
 				"NodeNumber":           j,
 				"NodeAttributes":       node.IetfL3UnicastTopologyL3NodeAttributes,
 				"NodeTerminationPoins": node.IetfNetworkTopologyTerminationPoint,
@@ -147,11 +147,11 @@ func (cyTopo *CytoTopology) IetfL3TopoUnMarshal(topoFile []byte, IetfNetworkTopo
 			cytoJson.Group = "edges"
 			cytoJson.Grabbable = true
 			cytoJson.Selectable = true
-			cytoJson.Data.ID = strconv.Itoa(k)
+			cytoJson.Data.ID = strconv.Itoa(k + 3000)
 			cytoJson.Data.Weight = "1"
-			cytoJson.Data.Source = link.Source.SourceNode[85 : len(link.Source.SourceNode)-2]
+			cytoJson.Data.Source = "L3-" + link.Source.SourceNode[85:len(link.Source.SourceNode)-2]
 			cytoJson.Data.Endpoint.SourceEndpoint = link.Source.SourceTp
-			cytoJson.Data.Target = link.Destination.DestNode[85 : len(link.Destination.DestNode)-2]
+			cytoJson.Data.Target = "L3-" + link.Destination.DestNode[85:len(link.Destination.DestNode)-2]
 			cytoJson.Data.Endpoint.TargetEndpoint = link.Destination.DestTp
 
 			cytoJson.Data.Name = link.LinkID

@@ -1,16 +1,16 @@
 [
   {
     "data": {
-      "id": "10.10.10.10",
+      "id": "L3-10.10.10.10",
       "weight": "3",
-      "name": "10.10.10.10",
+      "name": "R10-PE-ASBR",
       "endpoint": {
         "sourceEndpoint": "",
         "targetEndpoint": ""
       },
       "ExtraData": {
         "IetfL3NetworkName": "TopologyId-0:55000:2-isis",
-        "Name": "10.10.10.10",
+        "Name": "R10-PE-ASBR",
         "NetworkID": "0",
         "NodeAttributes": {
           "name": "R10-PE-ASBR",
@@ -67,16 +67,16 @@
   },
   {
     "data": {
-      "id": "10.10.10.8",
+      "id": "L3-10.10.10.8",
       "weight": "3",
-      "name": "10.10.10.8",
+      "name": "R8-PE",
       "endpoint": {
         "sourceEndpoint": "",
         "targetEndpoint": ""
       },
       "ExtraData": {
         "IetfL3NetworkName": "TopologyId-0:55000:2-isis",
-        "Name": "10.10.10.8",
+        "Name": "R8-PE",
         "NetworkID": "0",
         "NodeAttributes": {
           "name": "R8-PE",
@@ -148,16 +148,16 @@
   },
   {
     "data": {
-      "id": "10.10.10.9",
+      "id": "L3-10.10.10.9",
       "weight": "3",
-      "name": "10.10.10.9",
+      "name": "R9-PE-ASBR",
       "endpoint": {
         "sourceEndpoint": "",
         "targetEndpoint": ""
       },
       "ExtraData": {
         "IetfL3NetworkName": "TopologyId-0:55000:2-isis",
-        "Name": "10.10.10.9",
+        "Name": "R9-PE-ASBR",
         "NetworkID": "0",
         "NodeAttributes": {
           "name": "R9-PE-ASBR",
@@ -214,9 +214,9 @@
   },
   {
     "data": {
-      "id": "0",
-      "source": "10.10.10.10",
-      "target": "10.10.10.8",
+      "id": "3000",
+      "source": "L3-10.10.10.10",
+      "target": "L3-10.10.10.8",
       "weight": "1",
       "name": "10.10.10.10:10.8.10.2--10.10.10.8:10.8.10.1--l2",
       "endpoint": {
@@ -261,9 +261,9 @@
   },
   {
     "data": {
-      "id": "1",
-      "source": "10.10.10.8",
-      "target": "10.10.10.10",
+      "id": "3001",
+      "source": "L3-10.10.10.8",
+      "target": "L3-10.10.10.10",
       "weight": "1",
       "name": "10.10.10.8:10.8.10.1--10.10.10.10:10.8.10.2--l2",
       "endpoint": {
@@ -308,9 +308,9 @@
   },
   {
     "data": {
-      "id": "2",
-      "source": "10.10.10.9",
-      "target": "10.10.10.8",
+      "id": "3002",
+      "source": "L3-10.10.10.9",
+      "target": "L3-10.10.10.8",
       "weight": "1",
       "name": "10.10.10.9:10.8.9.2--10.10.10.8:10.8.9.1--l2",
       "endpoint": {
@@ -355,9 +355,9 @@
   },
   {
     "data": {
-      "id": "3",
-      "source": "10.10.10.8",
-      "target": "10.10.10.9",
+      "id": "3003",
+      "source": "L3-10.10.10.8",
+      "target": "L3-10.10.10.9",
       "weight": "1",
       "name": "10.10.10.8:10.8.9.1--10.10.10.9:10.8.9.2--l2",
       "endpoint": {
@@ -382,6 +382,1892 @@
           "nsp-ietf-network-topology:nsp-attributes": []
         },
         "Name": "10.10.10.8:10.8.9.1--10.10.10.9:10.8.9.2--l2",
+        "grabbable": true,
+        "selectable": true,
+        "weight": "1"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "L210.10.10.2",
+      "weight": "2",
+      "name": "R2-PE",
+      "endpoint": {
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "ExtraData": {
+        "IetfL2NetworkName": "L2Topology",
+        "IetfL2NetworkType": {
+          "ietf-l2-topology:l2-topology": {}
+        },
+        "Name": "10.10.10.2",
+        "NetworkID": "0",
+        "NodeAttributes": {
+          "name": "R2-PE",
+          "management-mac": "C8:20:FF:00:00:00",
+          "management-vlan": null,
+          "flags": [],
+          "bridge-id": [],
+          "management-address": [
+            "192.168.100.32"
+          ]
+        },
+        "NodeID": "10.10.10.2",
+        "NodeNumber": 0,
+        "NodeTerminationPoins": [
+          {
+            "tp-id": "Port 1/1/1",
+            "ietf-l3-unicast-topology:l3-termination-point-attributes": {},
+            "ietf-l2-topology:l2-termination-point-attributes": {
+              "interface-name": "Port 1/1/1",
+              "mac-address": "52:54:00:5E:E9:6F",
+              "encapsulation-type": "ietf-l2-topology:vlan",
+              "outer-tag": null,
+              "outer-tpid": null,
+              "inner-tag": null,
+              "inner-tpid": null,
+              "lag": false,
+              "port-number": [],
+              "unnumbered-id": [
+                35684352
+              ],
+              "member-link-tp": [],
+              "nsp-ietf-network-topology:nsp-attributes": []
+            }
+          },
+          {
+            "tp-id": "Port 1/1/2",
+            "ietf-l3-unicast-topology:l3-termination-point-attributes": {},
+            "ietf-l2-topology:l2-termination-point-attributes": {
+              "interface-name": "Port 1/1/2",
+              "mac-address": "52:54:00:95:71:FB",
+              "encapsulation-type": "ietf-l2-topology:vlan",
+              "outer-tag": null,
+              "outer-tpid": null,
+              "inner-tag": null,
+              "inner-tpid": null,
+              "lag": false,
+              "port-number": [],
+              "unnumbered-id": [
+                35717120
+              ],
+              "member-link-tp": [],
+              "nsp-ietf-network-topology:nsp-attributes": []
+            }
+          },
+          {
+            "tp-id": "Lag 10",
+            "ietf-l3-unicast-topology:l3-termination-point-attributes": {},
+            "ietf-l2-topology:l2-termination-point-attributes": {
+              "interface-name": "Lag 10",
+              "mac-address": "C8:20:FF:00:01:4A",
+              "encapsulation-type": "ietf-l2-topology:vlan",
+              "outer-tag": null,
+              "outer-tpid": null,
+              "inner-tag": null,
+              "inner-tpid": null,
+              "lag": true,
+              "port-number": [],
+              "unnumbered-id": [
+                1342177290
+              ],
+              "member-link-tp": [
+                "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.2']/ietf-network-topology:termination-point[tp-id='Port 1/1/2']"
+              ],
+              "nsp-ietf-network-topology:nsp-attributes": []
+            }
+          }
+        ],
+        "ServerUsername": "vscode",
+        "Weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "L210.10.10.5",
+      "weight": "2",
+      "name": "R5-PE",
+      "endpoint": {
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "ExtraData": {
+        "IetfL2NetworkName": "L2Topology",
+        "IetfL2NetworkType": {
+          "ietf-l2-topology:l2-topology": {}
+        },
+        "Name": "10.10.10.5",
+        "NetworkID": "0",
+        "NodeAttributes": {
+          "name": "R5-PE",
+          "management-mac": "C8:23:FF:00:00:00",
+          "management-vlan": null,
+          "flags": [],
+          "bridge-id": [],
+          "management-address": [
+            "192.168.100.35"
+          ]
+        },
+        "NodeID": "10.10.10.5",
+        "NodeNumber": 1,
+        "NodeTerminationPoins": [
+          {
+            "tp-id": "Port 1/1/2",
+            "ietf-l3-unicast-topology:l3-termination-point-attributes": {},
+            "ietf-l2-topology:l2-termination-point-attributes": {
+              "interface-name": "Port 1/1/2",
+              "mac-address": "52:54:00:DD:4A:FC",
+              "encapsulation-type": "ietf-l2-topology:ethernet",
+              "outer-tag": null,
+              "outer-tpid": null,
+              "inner-tag": null,
+              "inner-tpid": null,
+              "lag": false,
+              "port-number": [],
+              "unnumbered-id": [
+                35717120
+              ],
+              "member-link-tp": [],
+              "nsp-ietf-network-topology:nsp-attributes": []
+            }
+          },
+          {
+            "tp-id": "Port 1/1/5",
+            "ietf-l3-unicast-topology:l3-termination-point-attributes": {},
+            "ietf-l2-topology:l2-termination-point-attributes": {
+              "interface-name": "Port 1/1/5",
+              "mac-address": "52:54:00:EF:05:45",
+              "encapsulation-type": "ietf-l2-topology:vlan",
+              "outer-tag": null,
+              "outer-tpid": null,
+              "inner-tag": null,
+              "inner-tpid": null,
+              "lag": false,
+              "port-number": [],
+              "unnumbered-id": [
+                35815424
+              ],
+              "member-link-tp": [],
+              "nsp-ietf-network-topology:nsp-attributes": []
+            }
+          }
+        ],
+        "ServerUsername": "vscode",
+        "Weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "L210.10.10.1",
+      "weight": "2",
+      "name": "R1-PE",
+      "endpoint": {
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "ExtraData": {
+        "IetfL2NetworkName": "L2Topology",
+        "IetfL2NetworkType": {
+          "ietf-l2-topology:l2-topology": {}
+        },
+        "Name": "10.10.10.1",
+        "NetworkID": "0",
+        "NodeAttributes": {
+          "name": "R1-PE",
+          "management-mac": "C8:1F:FF:00:00:00",
+          "management-vlan": null,
+          "flags": [],
+          "bridge-id": [],
+          "management-address": [
+            "192.168.100.31"
+          ]
+        },
+        "NodeID": "10.10.10.1",
+        "NodeNumber": 2,
+        "NodeTerminationPoins": [
+          {
+            "tp-id": "Port 1/1/c2/1",
+            "ietf-l3-unicast-topology:l3-termination-point-attributes": {},
+            "ietf-l2-topology:l2-termination-point-attributes": {
+              "interface-name": "Port 1/1/c2/1",
+              "mac-address": "52:54:00:81:34:6D",
+              "encapsulation-type": "ietf-l2-topology:vlan",
+              "outer-tag": null,
+              "outer-tpid": null,
+              "inner-tag": null,
+              "inner-tpid": null,
+              "lag": false,
+              "port-number": [],
+              "unnumbered-id": [
+                1610899585
+              ],
+              "member-link-tp": [],
+              "nsp-ietf-network-topology:nsp-attributes": []
+            }
+          },
+          {
+            "tp-id": "Lag 10",
+            "ietf-l3-unicast-topology:l3-termination-point-attributes": {},
+            "ietf-l2-topology:l2-termination-point-attributes": {
+              "interface-name": "Lag 10",
+              "mac-address": "C8:1F:FF:00:01:4A",
+              "encapsulation-type": "ietf-l2-topology:vlan",
+              "outer-tag": null,
+              "outer-tpid": null,
+              "inner-tag": null,
+              "inner-tpid": null,
+              "lag": true,
+              "port-number": [],
+              "unnumbered-id": [
+                1342177290
+              ],
+              "member-link-tp": [
+                "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.1']/ietf-network-topology:termination-point[tp-id='Port 1/1/c2/1']"
+              ],
+              "nsp-ietf-network-topology:nsp-attributes": []
+            }
+          },
+          {
+            "tp-id": "Port 1/1/c1/1",
+            "ietf-l3-unicast-topology:l3-termination-point-attributes": {},
+            "ietf-l2-topology:l2-termination-point-attributes": {
+              "interface-name": "Port 1/1/c1/1",
+              "mac-address": "52:54:00:AF:EE:B2",
+              "encapsulation-type": "ietf-l2-topology:vlan",
+              "outer-tag": null,
+              "outer-tpid": null,
+              "inner-tag": null,
+              "inner-tpid": null,
+              "lag": false,
+              "port-number": [],
+              "unnumbered-id": [
+                1610899521
+              ],
+              "member-link-tp": [],
+              "nsp-ietf-network-topology:nsp-attributes": []
+            }
+          }
+        ],
+        "ServerUsername": "vscode",
+        "Weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "L210.10.10.4",
+      "weight": "2",
+      "name": "R4-P",
+      "endpoint": {
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "ExtraData": {
+        "IetfL2NetworkName": "L2Topology",
+        "IetfL2NetworkType": {
+          "ietf-l2-topology:l2-topology": {}
+        },
+        "Name": "10.10.10.4",
+        "NetworkID": "0",
+        "NodeAttributes": {
+          "name": "R4-P",
+          "management-mac": "C8:22:FF:00:00:00",
+          "management-vlan": null,
+          "flags": [],
+          "bridge-id": [],
+          "management-address": [
+            "192.168.100.34"
+          ]
+        },
+        "NodeID": "10.10.10.4",
+        "NodeNumber": 3,
+        "NodeTerminationPoins": [
+          {
+            "tp-id": "Port 1/1/4",
+            "ietf-l3-unicast-topology:l3-termination-point-attributes": {},
+            "ietf-l2-topology:l2-termination-point-attributes": {
+              "interface-name": "Port 1/1/4",
+              "mac-address": "52:54:00:EB:26:97",
+              "encapsulation-type": "ietf-l2-topology:ethernet",
+              "outer-tag": null,
+              "outer-tpid": null,
+              "inner-tag": null,
+              "inner-tpid": null,
+              "lag": false,
+              "port-number": [],
+              "unnumbered-id": [
+                35782656
+              ],
+              "member-link-tp": [],
+              "nsp-ietf-network-topology:nsp-attributes": []
+            }
+          },
+          {
+            "tp-id": "Port 1/1/1",
+            "ietf-l3-unicast-topology:l3-termination-point-attributes": {},
+            "ietf-l2-topology:l2-termination-point-attributes": {
+              "interface-name": "Port 1/1/1",
+              "mac-address": "52:54:00:02:3E:37",
+              "encapsulation-type": "ietf-l2-topology:vlan",
+              "outer-tag": null,
+              "outer-tpid": null,
+              "inner-tag": null,
+              "inner-tpid": null,
+              "lag": false,
+              "port-number": [],
+              "unnumbered-id": [
+                35684352
+              ],
+              "member-link-tp": [],
+              "nsp-ietf-network-topology:nsp-attributes": []
+            }
+          },
+          {
+            "tp-id": "Port 1/1/2",
+            "ietf-l3-unicast-topology:l3-termination-point-attributes": {},
+            "ietf-l2-topology:l2-termination-point-attributes": {
+              "interface-name": "Port 1/1/2",
+              "mac-address": "52:54:00:AF:6C:36",
+              "encapsulation-type": "ietf-l2-topology:ethernet",
+              "outer-tag": null,
+              "outer-tpid": null,
+              "inner-tag": null,
+              "inner-tpid": null,
+              "lag": false,
+              "port-number": [],
+              "unnumbered-id": [
+                35717120
+              ],
+              "member-link-tp": [],
+              "nsp-ietf-network-topology:nsp-attributes": []
+            }
+          },
+          {
+            "tp-id": "Port 1/1/5",
+            "ietf-l3-unicast-topology:l3-termination-point-attributes": {},
+            "ietf-l2-topology:l2-termination-point-attributes": {
+              "interface-name": "Port 1/1/5",
+              "mac-address": "52:54:00:BC:22:F5",
+              "encapsulation-type": "ietf-l2-topology:vlan",
+              "outer-tag": null,
+              "outer-tpid": null,
+              "inner-tag": null,
+              "inner-tpid": null,
+              "lag": false,
+              "port-number": [],
+              "unnumbered-id": [
+                35815424
+              ],
+              "member-link-tp": [],
+              "nsp-ietf-network-topology:nsp-attributes": []
+            }
+          },
+          {
+            "tp-id": "Port 1/1/3",
+            "ietf-l3-unicast-topology:l3-termination-point-attributes": {},
+            "ietf-l2-topology:l2-termination-point-attributes": {
+              "interface-name": "Port 1/1/3",
+              "mac-address": "52:54:00:79:13:9B",
+              "encapsulation-type": "ietf-l2-topology:vlan",
+              "outer-tag": null,
+              "outer-tpid": null,
+              "inner-tag": null,
+              "inner-tpid": null,
+              "lag": false,
+              "port-number": [],
+              "unnumbered-id": [
+                35749888
+              ],
+              "member-link-tp": [],
+              "nsp-ietf-network-topology:nsp-attributes": []
+            }
+          }
+        ],
+        "ServerUsername": "vscode",
+        "Weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "L210.10.10.3",
+      "weight": "2",
+      "name": "R3-P",
+      "endpoint": {
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "ExtraData": {
+        "IetfL2NetworkName": "L2Topology",
+        "IetfL2NetworkType": {
+          "ietf-l2-topology:l2-topology": {}
+        },
+        "Name": "10.10.10.3",
+        "NetworkID": "0",
+        "NodeAttributes": {
+          "name": "R3-P",
+          "management-mac": "C8:21:FF:00:00:00",
+          "management-vlan": null,
+          "flags": [],
+          "bridge-id": [],
+          "management-address": [
+            "192.168.100.33"
+          ]
+        },
+        "NodeID": "10.10.10.3",
+        "NodeNumber": 4,
+        "NodeTerminationPoins": [
+          {
+            "tp-id": "Port 1/1/5",
+            "ietf-l3-unicast-topology:l3-termination-point-attributes": {},
+            "ietf-l2-topology:l2-termination-point-attributes": {
+              "interface-name": "Port 1/1/5",
+              "mac-address": "52:54:00:DA:32:F1",
+              "encapsulation-type": "ietf-l2-topology:ethernet",
+              "outer-tag": null,
+              "outer-tpid": null,
+              "inner-tag": null,
+              "inner-tpid": null,
+              "lag": false,
+              "port-number": [],
+              "unnumbered-id": [
+                35815424
+              ],
+              "member-link-tp": [],
+              "nsp-ietf-network-topology:nsp-attributes": []
+            }
+          },
+          {
+            "tp-id": "Port 1/1/2",
+            "ietf-l3-unicast-topology:l3-termination-point-attributes": {},
+            "ietf-l2-topology:l2-termination-point-attributes": {
+              "interface-name": "Port 1/1/2",
+              "mac-address": "52:54:00:93:C3:70",
+              "encapsulation-type": "ietf-l2-topology:ethernet",
+              "outer-tag": null,
+              "outer-tpid": null,
+              "inner-tag": null,
+              "inner-tpid": null,
+              "lag": false,
+              "port-number": [],
+              "unnumbered-id": [
+                35717120
+              ],
+              "member-link-tp": [],
+              "nsp-ietf-network-topology:nsp-attributes": []
+            }
+          },
+          {
+            "tp-id": "Port 1/1/4",
+            "ietf-l3-unicast-topology:l3-termination-point-attributes": {},
+            "ietf-l2-topology:l2-termination-point-attributes": {
+              "interface-name": "Port 1/1/4",
+              "mac-address": "52:54:00:74:73:1F",
+              "encapsulation-type": "ietf-l2-topology:ethernet",
+              "outer-tag": null,
+              "outer-tpid": null,
+              "inner-tag": null,
+              "inner-tpid": null,
+              "lag": false,
+              "port-number": [],
+              "unnumbered-id": [
+                35782656
+              ],
+              "member-link-tp": [],
+              "nsp-ietf-network-topology:nsp-attributes": []
+            }
+          },
+          {
+            "tp-id": "Port 1/1/1",
+            "ietf-l3-unicast-topology:l3-termination-point-attributes": {},
+            "ietf-l2-topology:l2-termination-point-attributes": {
+              "interface-name": "Port 1/1/1",
+              "mac-address": "52:54:00:DB:73:3E",
+              "encapsulation-type": "ietf-l2-topology:vlan",
+              "outer-tag": null,
+              "outer-tpid": null,
+              "inner-tag": null,
+              "inner-tpid": null,
+              "lag": false,
+              "port-number": [],
+              "unnumbered-id": [
+                35684352
+              ],
+              "member-link-tp": [],
+              "nsp-ietf-network-topology:nsp-attributes": []
+            }
+          },
+          {
+            "tp-id": "Port 1/1/3",
+            "ietf-l3-unicast-topology:l3-termination-point-attributes": {},
+            "ietf-l2-topology:l2-termination-point-attributes": {
+              "interface-name": "Port 1/1/3",
+              "mac-address": "52:54:00:15:A6:7E",
+              "encapsulation-type": "ietf-l2-topology:vlan",
+              "outer-tag": null,
+              "outer-tpid": null,
+              "inner-tag": null,
+              "inner-tpid": null,
+              "lag": false,
+              "port-number": [],
+              "unnumbered-id": [
+                35749888
+              ],
+              "member-link-tp": [],
+              "nsp-ietf-network-topology:nsp-attributes": []
+            }
+          }
+        ],
+        "ServerUsername": "vscode",
+        "Weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "L210.10.10.9",
+      "weight": "2",
+      "name": "R9-PE-ASBR",
+      "endpoint": {
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "ExtraData": {
+        "IetfL2NetworkName": "L2Topology",
+        "IetfL2NetworkType": {
+          "ietf-l2-topology:l2-topology": {}
+        },
+        "Name": "10.10.10.9",
+        "NetworkID": "0",
+        "NodeAttributes": {
+          "name": "R9-PE-ASBR",
+          "management-mac": "C8:27:FF:00:00:00",
+          "management-vlan": null,
+          "flags": [],
+          "bridge-id": [],
+          "management-address": [
+            "192.168.100.39"
+          ]
+        },
+        "NodeID": "10.10.10.9",
+        "NodeNumber": 5,
+        "NodeTerminationPoins": [
+          {
+            "tp-id": "Port 1/1/2",
+            "ietf-l3-unicast-topology:l3-termination-point-attributes": {},
+            "ietf-l2-topology:l2-termination-point-attributes": {
+              "interface-name": "Port 1/1/2",
+              "mac-address": "52:54:00:E4:6D:D7",
+              "encapsulation-type": "ietf-l2-topology:vlan",
+              "outer-tag": null,
+              "outer-tpid": null,
+              "inner-tag": null,
+              "inner-tpid": null,
+              "lag": false,
+              "port-number": [],
+              "unnumbered-id": [
+                35717120
+              ],
+              "member-link-tp": [],
+              "nsp-ietf-network-topology:nsp-attributes": []
+            }
+          },
+          {
+            "tp-id": "Port 1/1/3",
+            "ietf-l3-unicast-topology:l3-termination-point-attributes": {},
+            "ietf-l2-topology:l2-termination-point-attributes": {
+              "interface-name": "Port 1/1/3",
+              "mac-address": "52:54:00:48:CD:19",
+              "encapsulation-type": "ietf-l2-topology:vlan",
+              "outer-tag": null,
+              "outer-tpid": null,
+              "inner-tag": null,
+              "inner-tpid": null,
+              "lag": false,
+              "port-number": [],
+              "unnumbered-id": [
+                35749888
+              ],
+              "member-link-tp": [],
+              "nsp-ietf-network-topology:nsp-attributes": []
+            }
+          }
+        ],
+        "ServerUsername": "vscode",
+        "Weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "L210.10.10.6",
+      "weight": "2",
+      "name": "R6-PE-ASBR",
+      "endpoint": {
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "ExtraData": {
+        "IetfL2NetworkName": "L2Topology",
+        "IetfL2NetworkType": {
+          "ietf-l2-topology:l2-topology": {}
+        },
+        "Name": "10.10.10.6",
+        "NetworkID": "0",
+        "NodeAttributes": {
+          "name": "R6-PE-ASBR",
+          "management-mac": "C8:24:FF:00:00:00",
+          "management-vlan": null,
+          "flags": [],
+          "bridge-id": [],
+          "management-address": [
+            "192.168.100.36"
+          ]
+        },
+        "NodeID": "10.10.10.6",
+        "NodeNumber": 6,
+        "NodeTerminationPoins": [
+          {
+            "tp-id": "Port 1/1/1",
+            "ietf-l3-unicast-topology:l3-termination-point-attributes": {},
+            "ietf-l2-topology:l2-termination-point-attributes": {
+              "interface-name": "Port 1/1/1",
+              "mac-address": "52:54:00:C4:89:9D",
+              "encapsulation-type": "ietf-l2-topology:ethernet",
+              "outer-tag": null,
+              "outer-tpid": null,
+              "inner-tag": null,
+              "inner-tpid": null,
+              "lag": false,
+              "port-number": [],
+              "unnumbered-id": [
+                35684352
+              ],
+              "member-link-tp": [],
+              "nsp-ietf-network-topology:nsp-attributes": []
+            }
+          },
+          {
+            "tp-id": "Port 1/1/2",
+            "ietf-l3-unicast-topology:l3-termination-point-attributes": {},
+            "ietf-l2-topology:l2-termination-point-attributes": {
+              "interface-name": "Port 1/1/2",
+              "mac-address": "52:54:00:43:61:5F",
+              "encapsulation-type": "ietf-l2-topology:ethernet",
+              "outer-tag": null,
+              "outer-tpid": null,
+              "inner-tag": null,
+              "inner-tpid": null,
+              "lag": false,
+              "port-number": [],
+              "unnumbered-id": [
+                35717120
+              ],
+              "member-link-tp": [],
+              "nsp-ietf-network-topology:nsp-attributes": []
+            }
+          },
+          {
+            "tp-id": "Port 1/1/3",
+            "ietf-l3-unicast-topology:l3-termination-point-attributes": {},
+            "ietf-l2-topology:l2-termination-point-attributes": {
+              "interface-name": "Port 1/1/3",
+              "mac-address": "52:54:00:51:A8:F4",
+              "encapsulation-type": "ietf-l2-topology:vlan",
+              "outer-tag": null,
+              "outer-tpid": null,
+              "inner-tag": null,
+              "inner-tpid": null,
+              "lag": false,
+              "port-number": [],
+              "unnumbered-id": [
+                35749888
+              ],
+              "member-link-tp": [],
+              "nsp-ietf-network-topology:nsp-attributes": []
+            }
+          }
+        ],
+        "ServerUsername": "vscode",
+        "Weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "L210.10.10.7",
+      "weight": "2",
+      "name": "R7-PE-ASBR",
+      "endpoint": {
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "ExtraData": {
+        "IetfL2NetworkName": "L2Topology",
+        "IetfL2NetworkType": {
+          "ietf-l2-topology:l2-topology": {}
+        },
+        "Name": "10.10.10.7",
+        "NetworkID": "0",
+        "NodeAttributes": {
+          "name": "R7-PE-ASBR",
+          "management-mac": "C8:25:FF:00:00:00",
+          "management-vlan": null,
+          "flags": [],
+          "bridge-id": [],
+          "management-address": [
+            "192.168.100.37"
+          ]
+        },
+        "NodeID": "10.10.10.7",
+        "NodeNumber": 7,
+        "NodeTerminationPoins": [
+          {
+            "tp-id": "Port 1/1/2",
+            "ietf-l3-unicast-topology:l3-termination-point-attributes": {},
+            "ietf-l2-topology:l2-termination-point-attributes": {
+              "interface-name": "Port 1/1/2",
+              "mac-address": "52:54:00:09:24:D2",
+              "encapsulation-type": "ietf-l2-topology:ethernet",
+              "outer-tag": null,
+              "outer-tpid": null,
+              "inner-tag": null,
+              "inner-tpid": null,
+              "lag": false,
+              "port-number": [],
+              "unnumbered-id": [
+                35717120
+              ],
+              "member-link-tp": [],
+              "nsp-ietf-network-topology:nsp-attributes": []
+            }
+          },
+          {
+            "tp-id": "Port 1/1/3",
+            "ietf-l3-unicast-topology:l3-termination-point-attributes": {},
+            "ietf-l2-topology:l2-termination-point-attributes": {
+              "interface-name": "Port 1/1/3",
+              "mac-address": "52:54:00:BD:C4:D2",
+              "encapsulation-type": "ietf-l2-topology:vlan",
+              "outer-tag": null,
+              "outer-tpid": null,
+              "inner-tag": null,
+              "inner-tpid": null,
+              "lag": false,
+              "port-number": [],
+              "unnumbered-id": [
+                35749888
+              ],
+              "member-link-tp": [],
+              "nsp-ietf-network-topology:nsp-attributes": []
+            }
+          },
+          {
+            "tp-id": "Port 1/1/1",
+            "ietf-l3-unicast-topology:l3-termination-point-attributes": {},
+            "ietf-l2-topology:l2-termination-point-attributes": {
+              "interface-name": "Port 1/1/1",
+              "mac-address": "52:54:00:35:75:68",
+              "encapsulation-type": "ietf-l2-topology:vlan",
+              "outer-tag": null,
+              "outer-tpid": null,
+              "inner-tag": null,
+              "inner-tpid": null,
+              "lag": false,
+              "port-number": [],
+              "unnumbered-id": [
+                35684352
+              ],
+              "member-link-tp": [],
+              "nsp-ietf-network-topology:nsp-attributes": []
+            }
+          }
+        ],
+        "ServerUsername": "vscode",
+        "Weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "L210.10.10.8",
+      "weight": "2",
+      "name": "R8-PE",
+      "endpoint": {
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "ExtraData": {
+        "IetfL2NetworkName": "L2Topology",
+        "IetfL2NetworkType": {
+          "ietf-l2-topology:l2-topology": {}
+        },
+        "Name": "10.10.10.8",
+        "NetworkID": "0",
+        "NodeAttributes": {
+          "name": "R8-PE",
+          "management-mac": "C8:26:FF:00:00:00",
+          "management-vlan": null,
+          "flags": [],
+          "bridge-id": [],
+          "management-address": [
+            "192.168.100.38"
+          ]
+        },
+        "NodeID": "10.10.10.8",
+        "NodeNumber": 8,
+        "NodeTerminationPoins": [
+          {
+            "tp-id": "Port 1/1/5",
+            "ietf-l3-unicast-topology:l3-termination-point-attributes": {},
+            "ietf-l2-topology:l2-termination-point-attributes": {
+              "interface-name": "Port 1/1/5",
+              "mac-address": "52:54:00:1A:CC:92",
+              "encapsulation-type": "ietf-l2-topology:vlan",
+              "outer-tag": null,
+              "outer-tpid": null,
+              "inner-tag": null,
+              "inner-tpid": null,
+              "lag": false,
+              "port-number": [],
+              "unnumbered-id": [
+                35815424
+              ],
+              "member-link-tp": [],
+              "nsp-ietf-network-topology:nsp-attributes": []
+            }
+          },
+          {
+            "tp-id": "Port 1/1/2",
+            "ietf-l3-unicast-topology:l3-termination-point-attributes": {},
+            "ietf-l2-topology:l2-termination-point-attributes": {
+              "interface-name": "Port 1/1/2",
+              "mac-address": "52:54:00:D7:E2:0F",
+              "encapsulation-type": "ietf-l2-topology:ethernet",
+              "outer-tag": null,
+              "outer-tpid": null,
+              "inner-tag": null,
+              "inner-tpid": null,
+              "lag": false,
+              "port-number": [],
+              "unnumbered-id": [
+                35717120
+              ],
+              "member-link-tp": [],
+              "nsp-ietf-network-topology:nsp-attributes": []
+            }
+          }
+        ],
+        "ServerUsername": "vscode",
+        "Weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "L210.10.10.10",
+      "weight": "2",
+      "name": "R10-PE-ASBR",
+      "endpoint": {
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "ExtraData": {
+        "IetfL2NetworkName": "L2Topology",
+        "IetfL2NetworkType": {
+          "ietf-l2-topology:l2-topology": {}
+        },
+        "Name": "10.10.10.10",
+        "NetworkID": "0",
+        "NodeAttributes": {
+          "name": "R10-PE-ASBR",
+          "management-mac": "C8:28:FF:00:00:00",
+          "management-vlan": null,
+          "flags": [],
+          "bridge-id": [],
+          "management-address": [
+            "192.168.100.40"
+          ]
+        },
+        "NodeID": "10.10.10.10",
+        "NodeNumber": 9,
+        "NodeTerminationPoins": [
+          {
+            "tp-id": "Port 1/1/2",
+            "ietf-l3-unicast-topology:l3-termination-point-attributes": {},
+            "ietf-l2-topology:l2-termination-point-attributes": {
+              "interface-name": "Port 1/1/2",
+              "mac-address": "52:54:00:86:D8:48",
+              "encapsulation-type": "ietf-l2-topology:ethernet",
+              "outer-tag": null,
+              "outer-tpid": null,
+              "inner-tag": null,
+              "inner-tpid": null,
+              "lag": false,
+              "port-number": [],
+              "unnumbered-id": [
+                35717120
+              ],
+              "member-link-tp": [],
+              "nsp-ietf-network-topology:nsp-attributes": []
+            }
+          },
+          {
+            "tp-id": "Port 1/1/3",
+            "ietf-l3-unicast-topology:l3-termination-point-attributes": {},
+            "ietf-l2-topology:l2-termination-point-attributes": {
+              "interface-name": "Port 1/1/3",
+              "mac-address": "52:54:00:0A:9C:B5",
+              "encapsulation-type": "ietf-l2-topology:vlan",
+              "outer-tag": null,
+              "outer-tpid": null,
+              "inner-tag": null,
+              "inner-tpid": null,
+              "lag": false,
+              "port-number": [],
+              "unnumbered-id": [
+                35749888
+              ],
+              "member-link-tp": [],
+              "nsp-ietf-network-topology:nsp-attributes": []
+            }
+          }
+        ],
+        "ServerUsername": "vscode",
+        "Weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "0",
+      "source": "L210.10.10.3",
+      "target": "L210.10.10.7",
+      "weight": "1",
+      "name": "10.10.10.3:Port 1/1/5--10.10.10.7:Port 1/1/3",
+      "endpoint": {
+        "sourceEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.3']/ietf-network-topology:termination-point[tp-id='Port 1/1/5']",
+        "targetEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.7']/ietf-network-topology:termination-point[tp-id='Port 1/1/3']"
+      },
+      "ExtraData": {
+        "Auto-nego": true,
+        "Delay": 0,
+        "Duplex": "full-duplex",
+        "Endpoints": {
+          "SourceEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.3']",
+          "TargetEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.7']"
+        },
+        "Flags": [
+          "nsp-ietf-network-topology:cable"
+        ],
+        "ID": "0",
+        "Kind": "edges",
+        "L2LinkAttributes": {
+          "name": "R3-P:1/1/5--R7-PE-ASBR:1/1/3",
+          "rate": 10000,
+          "delay": 0,
+          "auto-nego": true,
+          "duplex": "full-duplex",
+          "flags": [
+            "nsp-ietf-network-topology:cable"
+          ],
+          "nsp-ietf-network-topology:nsp-attributes": [
+            "from-MAC Address-C8-21-FF-00-00-00-portid-35815424-Nearest-Bridge-to-MAC Address-C8-25-FF-00-00-00-portid-35749888"
+          ]
+        },
+        "Name": "R3-P:1/1/5--R7-PE-ASBR:1/1/3",
+        "Rate": 10000,
+        "TopoviewerServerUsername": "vscode",
+        "grabbable": true,
+        "selectable": true,
+        "weight": "1"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "1",
+      "source": "L210.10.10.4",
+      "target": "L210.10.10.7",
+      "weight": "1",
+      "name": "10.10.10.4:Port 1/1/4--10.10.10.7:Port 1/1/2",
+      "endpoint": {
+        "sourceEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.4']/ietf-network-topology:termination-point[tp-id='Port 1/1/4']",
+        "targetEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.7']/ietf-network-topology:termination-point[tp-id='Port 1/1/2']"
+      },
+      "ExtraData": {
+        "Auto-nego": true,
+        "Delay": 0,
+        "Duplex": "full-duplex",
+        "Endpoints": {
+          "SourceEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.4']",
+          "TargetEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.7']"
+        },
+        "Flags": [
+          "nsp-ietf-network-topology:cable"
+        ],
+        "ID": "1",
+        "Kind": "edges",
+        "L2LinkAttributes": {
+          "name": "R4-P:1/1/4--R7-PE-ASBR:1/1/2",
+          "rate": 10000,
+          "delay": 0,
+          "auto-nego": true,
+          "duplex": "full-duplex",
+          "flags": [
+            "nsp-ietf-network-topology:cable"
+          ],
+          "nsp-ietf-network-topology:nsp-attributes": [
+            "from-MAC Address-C8-22-FF-00-00-00-portid-35782656-Nearest-Bridge-to-MAC Address-C8-25-FF-00-00-00-portid-35717120"
+          ]
+        },
+        "Name": "R4-P:1/1/4--R7-PE-ASBR:1/1/2",
+        "Rate": 10000,
+        "TopoviewerServerUsername": "vscode",
+        "grabbable": true,
+        "selectable": true,
+        "weight": "1"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "2",
+      "source": "L210.10.10.3",
+      "target": "L210.10.10.4",
+      "weight": "1",
+      "name": "10.10.10.3:Port 1/1/3--10.10.10.4:Port 1/1/3",
+      "endpoint": {
+        "sourceEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.3']/ietf-network-topology:termination-point[tp-id='Port 1/1/3']",
+        "targetEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.4']/ietf-network-topology:termination-point[tp-id='Port 1/1/3']"
+      },
+      "ExtraData": {
+        "Auto-nego": true,
+        "Delay": 0,
+        "Duplex": "full-duplex",
+        "Endpoints": {
+          "SourceEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.3']",
+          "TargetEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.4']"
+        },
+        "Flags": [
+          "nsp-ietf-network-topology:cable"
+        ],
+        "ID": "2",
+        "Kind": "edges",
+        "L2LinkAttributes": {
+          "name": "R3-P:1/1/3--R4-P:1/1/3",
+          "rate": 10000,
+          "delay": 0,
+          "auto-nego": true,
+          "duplex": "full-duplex",
+          "flags": [
+            "nsp-ietf-network-topology:cable"
+          ],
+          "nsp-ietf-network-topology:nsp-attributes": [
+            "from-MAC Address-C8-21-FF-00-00-00-portid-35749888-Nearest-Bridge-to-MAC Address-C8-22-FF-00-00-00-portid-35749888"
+          ]
+        },
+        "Name": "R3-P:1/1/3--R4-P:1/1/3",
+        "Rate": 10000,
+        "TopoviewerServerUsername": "vscode",
+        "grabbable": true,
+        "selectable": true,
+        "weight": "1"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "3",
+      "source": "L210.10.10.8",
+      "target": "L210.10.10.9",
+      "weight": "1",
+      "name": "10.10.10.8:Port 1/1/5--10.10.10.9:Port 1/1/2",
+      "endpoint": {
+        "sourceEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.8']/ietf-network-topology:termination-point[tp-id='Port 1/1/5']",
+        "targetEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.9']/ietf-network-topology:termination-point[tp-id='Port 1/1/2']"
+      },
+      "ExtraData": {
+        "Auto-nego": true,
+        "Delay": 0,
+        "Duplex": "full-duplex",
+        "Endpoints": {
+          "SourceEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.8']",
+          "TargetEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.9']"
+        },
+        "Flags": [
+          "nsp-ietf-network-topology:cable"
+        ],
+        "ID": "3",
+        "Kind": "edges",
+        "L2LinkAttributes": {
+          "name": "R8-PE:1/1/5--R9-PE-ASBR:1/1/2",
+          "rate": 10000,
+          "delay": 0,
+          "auto-nego": true,
+          "duplex": "full-duplex",
+          "flags": [
+            "nsp-ietf-network-topology:cable"
+          ],
+          "nsp-ietf-network-topology:nsp-attributes": [
+            "from-MAC Address-C8-26-FF-00-00-00-portid-35815424-Nearest-Bridge-to-MAC Address-C8-27-FF-00-00-00-portid-35717120"
+          ]
+        },
+        "Name": "R8-PE:1/1/5--R9-PE-ASBR:1/1/2",
+        "Rate": 10000,
+        "TopoviewerServerUsername": "vscode",
+        "grabbable": true,
+        "selectable": true,
+        "weight": "1"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "4",
+      "source": "L210.10.10.6",
+      "target": "L210.10.10.9",
+      "weight": "1",
+      "name": "10.10.10.6:Port 1/1/3--10.10.10.9:Port 1/1/3",
+      "endpoint": {
+        "sourceEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.6']/ietf-network-topology:termination-point[tp-id='Port 1/1/3']",
+        "targetEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.9']/ietf-network-topology:termination-point[tp-id='Port 1/1/3']"
+      },
+      "ExtraData": {
+        "Auto-nego": true,
+        "Delay": 0,
+        "Duplex": "full-duplex",
+        "Endpoints": {
+          "SourceEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.6']",
+          "TargetEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.9']"
+        },
+        "Flags": [
+          "nsp-ietf-network-topology:cable"
+        ],
+        "ID": "4",
+        "Kind": "edges",
+        "L2LinkAttributes": {
+          "name": "R6-PE-ASBR:1/1/3--R9-PE-ASBR:1/1/3",
+          "rate": 10000,
+          "delay": 0,
+          "auto-nego": true,
+          "duplex": "full-duplex",
+          "flags": [
+            "nsp-ietf-network-topology:cable"
+          ],
+          "nsp-ietf-network-topology:nsp-attributes": [
+            "from-MAC Address-C8-24-FF-00-00-00-portid-35749888-Nearest-Bridge-to-MAC Address-C8-27-FF-00-00-00-portid-35749888"
+          ]
+        },
+        "Name": "R6-PE-ASBR:1/1/3--R9-PE-ASBR:1/1/3",
+        "Rate": 10000,
+        "TopoviewerServerUsername": "vscode",
+        "grabbable": true,
+        "selectable": true,
+        "weight": "1"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "5",
+      "source": "L210.10.10.2",
+      "target": "L210.10.10.4",
+      "weight": "1",
+      "name": "10.10.10.2:Port 1/1/1--10.10.10.4:Port 1/1/1",
+      "endpoint": {
+        "sourceEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.2']/ietf-network-topology:termination-point[tp-id='Port 1/1/1']",
+        "targetEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.4']/ietf-network-topology:termination-point[tp-id='Port 1/1/1']"
+      },
+      "ExtraData": {
+        "Auto-nego": true,
+        "Delay": 0,
+        "Duplex": "full-duplex",
+        "Endpoints": {
+          "SourceEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.2']",
+          "TargetEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.4']"
+        },
+        "Flags": [
+          "nsp-ietf-network-topology:cable"
+        ],
+        "ID": "5",
+        "Kind": "edges",
+        "L2LinkAttributes": {
+          "name": "R2-PE:1/1/1--R4-P:1/1/1",
+          "rate": 10000,
+          "delay": 0,
+          "auto-nego": true,
+          "duplex": "full-duplex",
+          "flags": [
+            "nsp-ietf-network-topology:cable"
+          ],
+          "nsp-ietf-network-topology:nsp-attributes": [
+            "from-MAC Address-C8-20-FF-00-00-00-portid-35684352-Nearest-Bridge-to-MAC Address-C8-22-FF-00-00-00-portid-35684352"
+          ]
+        },
+        "Name": "R2-PE:1/1/1--R4-P:1/1/1",
+        "Rate": 10000,
+        "TopoviewerServerUsername": "vscode",
+        "grabbable": true,
+        "selectable": true,
+        "weight": "1"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "6",
+      "source": "L210.10.10.4",
+      "target": "L210.10.10.6",
+      "weight": "1",
+      "name": "10.10.10.4:Port 1/1/2--10.10.10.6:Port 1/1/1",
+      "endpoint": {
+        "sourceEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.4']/ietf-network-topology:termination-point[tp-id='Port 1/1/2']",
+        "targetEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.6']/ietf-network-topology:termination-point[tp-id='Port 1/1/1']"
+      },
+      "ExtraData": {
+        "Auto-nego": true,
+        "Delay": 0,
+        "Duplex": "full-duplex",
+        "Endpoints": {
+          "SourceEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.4']",
+          "TargetEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.6']"
+        },
+        "Flags": [
+          "nsp-ietf-network-topology:cable"
+        ],
+        "ID": "6",
+        "Kind": "edges",
+        "L2LinkAttributes": {
+          "name": "R4-P:1/1/2--R6-PE-ASBR:1/1/1",
+          "rate": 10000,
+          "delay": 0,
+          "auto-nego": true,
+          "duplex": "full-duplex",
+          "flags": [
+            "nsp-ietf-network-topology:cable"
+          ],
+          "nsp-ietf-network-topology:nsp-attributes": [
+            "from-MAC Address-C8-22-FF-00-00-00-portid-35717120-Nearest-Bridge-to-MAC Address-C8-24-FF-00-00-00-portid-35684352"
+          ]
+        },
+        "Name": "R4-P:1/1/2--R6-PE-ASBR:1/1/1",
+        "Rate": 10000,
+        "TopoviewerServerUsername": "vscode",
+        "grabbable": true,
+        "selectable": true,
+        "weight": "1"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "7",
+      "source": "L210.10.10.3",
+      "target": "L210.10.10.6",
+      "weight": "1",
+      "name": "10.10.10.3:Port 1/1/2--10.10.10.6:Port 1/1/2",
+      "endpoint": {
+        "sourceEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.3']/ietf-network-topology:termination-point[tp-id='Port 1/1/2']",
+        "targetEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.6']/ietf-network-topology:termination-point[tp-id='Port 1/1/2']"
+      },
+      "ExtraData": {
+        "Auto-nego": true,
+        "Delay": 0,
+        "Duplex": "full-duplex",
+        "Endpoints": {
+          "SourceEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.3']",
+          "TargetEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.6']"
+        },
+        "Flags": [
+          "nsp-ietf-network-topology:cable"
+        ],
+        "ID": "7",
+        "Kind": "edges",
+        "L2LinkAttributes": {
+          "name": "R3-P:1/1/2--R6-PE-ASBR:1/1/2",
+          "rate": 10000,
+          "delay": 0,
+          "auto-nego": true,
+          "duplex": "full-duplex",
+          "flags": [
+            "nsp-ietf-network-topology:cable"
+          ],
+          "nsp-ietf-network-topology:nsp-attributes": [
+            "from-MAC Address-C8-21-FF-00-00-00-portid-35717120-Nearest-Bridge-to-MAC Address-C8-24-FF-00-00-00-portid-35717120"
+          ]
+        },
+        "Name": "R3-P:1/1/2--R6-PE-ASBR:1/1/2",
+        "Rate": 10000,
+        "TopoviewerServerUsername": "vscode",
+        "grabbable": true,
+        "selectable": true,
+        "weight": "1"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "8",
+      "source": "L210.10.10.8",
+      "target": "L210.10.10.10",
+      "weight": "1",
+      "name": "10.10.10.8:Port 1/1/2--10.10.10.10:Port 1/1/2",
+      "endpoint": {
+        "sourceEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.8']/ietf-network-topology:termination-point[tp-id='Port 1/1/2']",
+        "targetEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.10']/ietf-network-topology:termination-point[tp-id='Port 1/1/2']"
+      },
+      "ExtraData": {
+        "Auto-nego": true,
+        "Delay": 0,
+        "Duplex": "full-duplex",
+        "Endpoints": {
+          "SourceEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.8']",
+          "TargetEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.10']"
+        },
+        "Flags": [
+          "nsp-ietf-network-topology:cable"
+        ],
+        "ID": "8",
+        "Kind": "edges",
+        "L2LinkAttributes": {
+          "name": "R8-PE:1/1/2--R10-PE-ASBR:1/1/2",
+          "rate": 10000,
+          "delay": 0,
+          "auto-nego": true,
+          "duplex": "full-duplex",
+          "flags": [
+            "nsp-ietf-network-topology:cable"
+          ],
+          "nsp-ietf-network-topology:nsp-attributes": [
+            "from-MAC Address-C8-26-FF-00-00-00-portid-35717120-Nearest-Bridge-to-MAC Address-C8-28-FF-00-00-00-portid-35717120"
+          ]
+        },
+        "Name": "R8-PE:1/1/2--R10-PE-ASBR:1/1/2",
+        "Rate": 10000,
+        "TopoviewerServerUsername": "vscode",
+        "grabbable": true,
+        "selectable": true,
+        "weight": "1"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "9",
+      "source": "L210.10.10.7",
+      "target": "L210.10.10.10",
+      "weight": "1",
+      "name": "10.10.10.7:Port 1/1/1--10.10.10.10:Port 1/1/3",
+      "endpoint": {
+        "sourceEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.7']/ietf-network-topology:termination-point[tp-id='Port 1/1/1']",
+        "targetEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.10']/ietf-network-topology:termination-point[tp-id='Port 1/1/3']"
+      },
+      "ExtraData": {
+        "Auto-nego": true,
+        "Delay": 0,
+        "Duplex": "full-duplex",
+        "Endpoints": {
+          "SourceEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.7']",
+          "TargetEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.10']"
+        },
+        "Flags": [
+          "nsp-ietf-network-topology:cable"
+        ],
+        "ID": "9",
+        "Kind": "edges",
+        "L2LinkAttributes": {
+          "name": "R7-PE-ASBR:1/1/1--R10-PE-ASBR:1/1/3",
+          "rate": 10000,
+          "delay": 0,
+          "auto-nego": true,
+          "duplex": "full-duplex",
+          "flags": [
+            "nsp-ietf-network-topology:cable"
+          ],
+          "nsp-ietf-network-topology:nsp-attributes": [
+            "from-MAC Address-C8-25-FF-00-00-00-portid-35684352-Nearest-Bridge-to-MAC Address-C8-28-FF-00-00-00-portid-35749888"
+          ]
+        },
+        "Name": "R7-PE-ASBR:1/1/1--R10-PE-ASBR:1/1/3",
+        "Rate": 10000,
+        "TopoviewerServerUsername": "vscode",
+        "grabbable": true,
+        "selectable": true,
+        "weight": "1"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "10",
+      "source": "L210.10.10.3",
+      "target": "L210.10.10.5",
+      "weight": "1",
+      "name": "10.10.10.3:Port 1/1/4--10.10.10.5:Port 1/1/2",
+      "endpoint": {
+        "sourceEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.3']/ietf-network-topology:termination-point[tp-id='Port 1/1/4']",
+        "targetEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.5']/ietf-network-topology:termination-point[tp-id='Port 1/1/2']"
+      },
+      "ExtraData": {
+        "Auto-nego": true,
+        "Delay": 0,
+        "Duplex": "full-duplex",
+        "Endpoints": {
+          "SourceEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.3']",
+          "TargetEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.5']"
+        },
+        "Flags": [
+          "nsp-ietf-network-topology:cable"
+        ],
+        "ID": "10",
+        "Kind": "edges",
+        "L2LinkAttributes": {
+          "name": "R3-P:1/1/4--R5-PE:1/1/2",
+          "rate": 10000,
+          "delay": 0,
+          "auto-nego": true,
+          "duplex": "full-duplex",
+          "flags": [
+            "nsp-ietf-network-topology:cable"
+          ],
+          "nsp-ietf-network-topology:nsp-attributes": [
+            "from-MAC Address-C8-21-FF-00-00-00-portid-35782656-Nearest-Bridge-to-MAC Address-C8-23-FF-00-00-00-portid-35717120"
+          ]
+        },
+        "Name": "R3-P:1/1/4--R5-PE:1/1/2",
+        "Rate": 10000,
+        "TopoviewerServerUsername": "vscode",
+        "grabbable": true,
+        "selectable": true,
+        "weight": "1"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "11",
+      "source": "L210.10.10.4",
+      "target": "L210.10.10.5",
+      "weight": "1",
+      "name": "10.10.10.4:Port 1/1/5--10.10.10.5:Port 1/1/5",
+      "endpoint": {
+        "sourceEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.4']/ietf-network-topology:termination-point[tp-id='Port 1/1/5']",
+        "targetEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.5']/ietf-network-topology:termination-point[tp-id='Port 1/1/5']"
+      },
+      "ExtraData": {
+        "Auto-nego": true,
+        "Delay": 0,
+        "Duplex": "full-duplex",
+        "Endpoints": {
+          "SourceEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.4']",
+          "TargetEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.5']"
+        },
+        "Flags": [
+          "nsp-ietf-network-topology:cable"
+        ],
+        "ID": "11",
+        "Kind": "edges",
+        "L2LinkAttributes": {
+          "name": "R4-P:1/1/5--R5-PE:1/1/5",
+          "rate": 10000,
+          "delay": 0,
+          "auto-nego": true,
+          "duplex": "full-duplex",
+          "flags": [
+            "nsp-ietf-network-topology:cable"
+          ],
+          "nsp-ietf-network-topology:nsp-attributes": [
+            "from-MAC Address-C8-22-FF-00-00-00-portid-35815424-Nearest-Bridge-to-MAC Address-C8-23-FF-00-00-00-portid-35815424"
+          ]
+        },
+        "Name": "R4-P:1/1/5--R5-PE:1/1/5",
+        "Rate": 10000,
+        "TopoviewerServerUsername": "vscode",
+        "grabbable": true,
+        "selectable": true,
+        "weight": "1"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "12",
+      "source": "L210.10.10.1",
+      "target": "L210.10.10.2",
+      "weight": "1",
+      "name": "10.10.10.1:Port 1/1/c2/1--10.10.10.2:Port 1/1/2",
+      "endpoint": {
+        "sourceEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.1']/ietf-network-topology:termination-point[tp-id='Port 1/1/c2/1']",
+        "targetEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.2']/ietf-network-topology:termination-point[tp-id='Port 1/1/2']"
+      },
+      "ExtraData": {
+        "Auto-nego": true,
+        "Delay": 0,
+        "Duplex": "full-duplex",
+        "Endpoints": {
+          "SourceEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.1']",
+          "TargetEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.2']"
+        },
+        "Flags": [
+          "nsp-ietf-network-topology:cable"
+        ],
+        "ID": "12",
+        "Kind": "edges",
+        "L2LinkAttributes": {
+          "name": "R1-PE:1/1/c2/1--R2-PE:1/1/2",
+          "rate": 10000,
+          "delay": 0,
+          "auto-nego": true,
+          "duplex": "full-duplex",
+          "flags": [
+            "nsp-ietf-network-topology:cable"
+          ],
+          "nsp-ietf-network-topology:nsp-attributes": [
+            "from-MAC Address-C8-1F-FF-00-00-00-portid-1610899585-Nearest-Bridge-to-MAC Address-C8-20-FF-00-00-00-portid-35717120"
+          ]
+        },
+        "Name": "R1-PE:1/1/c2/1--R2-PE:1/1/2",
+        "Rate": 10000,
+        "TopoviewerServerUsername": "vscode",
+        "grabbable": true,
+        "selectable": true,
+        "weight": "1"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "13",
+      "source": "L210.10.10.1",
+      "target": "L210.10.10.3",
+      "weight": "1",
+      "name": "10.10.10.1:Port 1/1/c1/1--10.10.10.3:Port 1/1/1",
+      "endpoint": {
+        "sourceEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.1']/ietf-network-topology:termination-point[tp-id='Port 1/1/c1/1']",
+        "targetEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.3']/ietf-network-topology:termination-point[tp-id='Port 1/1/1']"
+      },
+      "ExtraData": {
+        "Auto-nego": false,
+        "Delay": 0,
+        "Duplex": "full-duplex",
+        "Endpoints": {
+          "SourceEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.1']",
+          "TargetEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.3']"
+        },
+        "Flags": [
+          "nsp-ietf-network-topology:cable"
+        ],
+        "ID": "13",
+        "Kind": "edges",
+        "L2LinkAttributes": {
+          "name": "R1-PE:1/1/c1/1--R3-P:1/1/1",
+          "rate": 40000000,
+          "delay": 0,
+          "auto-nego": false,
+          "duplex": "full-duplex",
+          "flags": [
+            "nsp-ietf-network-topology:cable"
+          ],
+          "nsp-ietf-network-topology:nsp-attributes": [
+            "from-MAC Address-C8-1F-FF-00-00-00-portid-1610899521-Nearest-Bridge-to-MAC Address-C8-21-FF-00-00-00-portid-35684352"
+          ]
+        },
+        "Name": "R1-PE:1/1/c1/1--R3-P:1/1/1",
+        "Rate": 40000000,
+        "TopoviewerServerUsername": "vscode",
         "grabbable": true,
         "selectable": true,
         "weight": "1"
