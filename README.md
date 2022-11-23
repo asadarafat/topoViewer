@@ -2,7 +2,7 @@
 # Topoviewer
 This project is an attempt to provide network visualization tool based on topology data as input.
 There are three sections of codes in this project.
-- TopoEngine, which provides the ability to convert a topology file(at the moment Container Lab) into a cytoscape graph model. The graph model can be visualized using https://js.cytoscape.org after it has been translated.
+- TopoEngine, which provides the ability to convert a topology data(at the moment Container Lab) into a cytoscape graph model. The graph model can be visualized using https://js.cytoscape.org after it has been translated.
 - CloudshellWrapper is a wrapper for https://github.com/zephinzer/cloudshell (which provides an Xterm.js frontend that connects to a Go backend to provide the host system with a shell). Basically, use a browser to access your shell.) When CloudshellWrapper is running on the same host as containerlab, the node of containerlab may be accessed via a browser.
 - Container Lab client, which provides a wrapper to easily cross launch Wireshark to do remote capture of Container-Lab's link.
 

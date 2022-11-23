@@ -125,15 +125,16 @@ func (cyTopo *CytoTopology) IetfL2TopoUnMarshal(topoFile []byte, IetfNetworkTopo
 			cytoJson.Data.Name = node.IetfL2TopologyL2NodeAttributes.Name
 
 			cytoJson.Data.ExtraData = map[string]interface{}{
-				"ServerUsername":         Username,
-				"IetfL2NetworkName":      network.NetworkID,
-				"NetworkID":              strconv.Itoa(i),
-				"NodeID":                 node.NodeID,
-				"Weight":                 "2",
-				"Name":                   node.NodeID,
-				"NodeNumber":             j,
-				"L2NodeAttributes":       node.IetfL2TopologyL2NodeAttributes,
-				"L2NodeTerminationPoins": node.IetfNetworkTopologyTerminationPoint,
+				"ServerUsername":       Username,
+				"IetfL2NetworkName":    network.NetworkID,
+				"IetfL2NetworkType":    network.NetworkTypes,
+				"NetworkID":            strconv.Itoa(i),
+				"NodeID":               node.NodeID,
+				"Weight":               "2",
+				"Name":                 node.NodeID,
+				"NodeNumber":           j,
+				"NodeAttributes":       node.IetfL2TopologyL2NodeAttributes,
+				"NodeTerminationPoins": node.IetfNetworkTopologyTerminationPoint,
 			}
 			cytoJsonList = append(cytoJsonList, cytoJson)
 			// log.Info(j)
@@ -153,19 +154,20 @@ func (cyTopo *CytoTopology) IetfL2TopoUnMarshal(topoFile []byte, IetfNetworkTopo
 			cytoJson.Data.Name = link.LinkID
 
 			cytoJson.Data.ExtraData = map[string]interface{}{
-				"ClabServerUsername": Username,
-				"Kind":               "edges",
-				"grabbable":          true,
-				"selectable":         true,
-				"ID":                 strconv.Itoa(k),
-				"weight":             "1",
-				"Name":               link.IetfL2TopologyL2LinkAttributes.Name,
-				"Rate":               link.IetfL2TopologyL2LinkAttributes.Rate,
-				"Delay":              link.IetfL2TopologyL2LinkAttributes.Delay,
-				"Auto-nego":          link.IetfL2TopologyL2LinkAttributes.AutoNego,
-				"Duplex":             link.IetfL2TopologyL2LinkAttributes.Duplex,
-				"Flags":              link.IetfL2TopologyL2LinkAttributes.Flags,
-				"NspAttributes":      link.IetfL2TopologyL2LinkAttributes.NspIetfNetworkTopologyNspAttributes,
+				"TopoviewerServerUsername": Username,
+				"Kind":                     "edges",
+				"grabbable":                true,
+				"selectable":               true,
+				"ID":                       strconv.Itoa(k),
+				"weight":                   "1",
+				"Name":                     link.IetfL2TopologyL2LinkAttributes.Name,
+				"Rate":                     link.IetfL2TopologyL2LinkAttributes.Rate,
+				"Delay":                    link.IetfL2TopologyL2LinkAttributes.Delay,
+				"Auto-nego":                link.IetfL2TopologyL2LinkAttributes.AutoNego,
+				"Duplex":                   link.IetfL2TopologyL2LinkAttributes.Duplex,
+				"Flags":                    link.IetfL2TopologyL2LinkAttributes.Flags,
+				"L2LinkAttributes":         link.IetfL2TopologyL2LinkAttributes,
+				// "NspAttributes": link.IetfL2TopologyL2LinkAttributes.NspIetfNetworkTopologyNspAttributes,
 				"Endpoints": struct {
 					SourceEndpoint string
 					TargetEndpoint string

@@ -307,7 +307,7 @@
              url: serverUrl + '/cloudshell/?RouterID=' + n.data('ExtraData').MgmtIPv4Address
            },
            {
-             name: 'Node Name: ' + n.data('ExtraData').L2NodeAttributes.name
+             name: 'Node Name: ' + n.data('ExtraData').NodeAttributes.name
              // url: 'http://www.uniprot.org/uniprot/?query='+ g +'&fil=organism%3A%22Homo+sapiens+%28Human%29+%5B9606%5D%22&sort=score'
            }
           ].map(function (link) {
@@ -352,7 +352,7 @@
           //      .data('ExtraData').TargetLongName + '?' + n.data('ExtraData').Endpoints.TargetEndpoint
           //  },
             {
-              name: 'Link Type: ' + n.data('routerType'),
+              name: 'Link Type: ' + n.data('name'),
               url: 'http://www.uniprot.org/uniprot/?query=' + g +
                 '&fil=organism%3A%22Homo+sapiens+%28Human%29+%5B9606%5D%22&sort=score'
             }

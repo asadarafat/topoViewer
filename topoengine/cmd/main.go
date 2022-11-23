@@ -26,17 +26,29 @@ func main() {
 	// // log.Info(jsonBytes)
 	// cytoUiGo.PrintjsonBytesCytoUi(jsonBytes)
 
+	// // Nsp Ietf L2
+	// filePath, _ := os.Getwd()
+	// filePath = (filePath + "/rawTopoFile/")
+	// log.Info(filePath)
+	// topoFile, err := ioutil.ReadFile(filePath + "topo-ietf-L2.json")
+	// if err != nil {
+	// 	log.Fatal("Error when opening file: ", err)
+	// }
+	// // log.Info(topoFile)
+	// cytoUiGo.IetfL2TopoUnMarshal(topoFile, topoengine.IetfNetworkTopologyL2{})
+	// jsonBytes := cytoUiGo.IetfL2TopoUnMarshal(topoFile, topoengine.IetfNetworkTopologyL2{})
+	// cytoUiGo.IetfL2TopoPrintjsonBytesCytoUi(jsonBytes)
+
+	// Nsp Ietf L2
 	filePath, _ := os.Getwd()
 	filePath = (filePath + "/rawTopoFile/")
 	log.Info(filePath)
-	topoFile, err := ioutil.ReadFile(filePath + "topo-ietf-L2.json")
+	topoFile, err := ioutil.ReadFile(filePath + "topo-ietf-L3.json")
 	if err != nil {
 		log.Fatal("Error when opening file: ", err)
 	}
 	// log.Info(topoFile)
-
-	cytoUiGo.IetfL2TopoUnMarshal(topoFile, topoengine.IetfNetworkTopologyL2{})
-	jsonBytes := cytoUiGo.IetfL2TopoUnMarshal(topoFile, topoengine.IetfNetworkTopologyL2{})
-	cytoUiGo.IetfL2TopoPrintjsonBytesCytoUi(jsonBytes)
-
+	cytoUiGo.IetfL3TopoUnMarshal(topoFile, topoengine.IetfNetworkTopologyL3{})
+	jsonBytes := cytoUiGo.IetfL3TopoUnMarshal(topoFile, topoengine.IetfNetworkTopologyL3{})
+	cytoUiGo.IetfL3TopoPrintjsonBytesCytoUi(jsonBytes)
 }
