@@ -118,8 +118,6 @@ func init() {
 
 func Nsp(_ *cobra.Command, _ []string) error {
 
-	fmt.Println("tereerereere")
-
 	// initialise the logger
 	log.Init(log.Format(confNsp.GetString("log-format")), log.Level(confNsp.GetString("log-level")))
 
@@ -130,13 +128,8 @@ func Nsp(_ *cobra.Command, _ []string) error {
 	cyTopo := topoengine.CytoTopology{}
 	cyTopo.LogLevel = 4
 	cyTopo.InitLogger()
-	// cyTopo.MarshalContainerLabTopo(topoClab)
-	// clabTopoJson := topoengine.ClabTopoJson{}
-	// cyTopo.UnmarshalContainerLabTopo(clabTopoJson)
-	// jsonBytes := cyTopo.UnmarshalContainerLabTopo(clabTopoJson)
-	// cyTopo.PrintjsonBytesCytoUi(jsonBytes)
 
-	cyTopo.IetfL2TopoMarshal(topoNsp) // loading to cyTopo.IetfNetworL2TopoData
+	cyTopo.IetfL2TopoMarshal(topoNsp) // loading nsp topo json to cyTopo.IetfNetworL2TopoData
 	cyTopo.IetfL2TopoUnMarshal(cyTopo.IetfNetworL2TopoData, topoengine.IetfNetworkTopologyL2{})
 	jsonBytes := cyTopo.IetfL2TopoUnMarshal(cyTopo.IetfNetworL2TopoData, topoengine.IetfNetworkTopologyL2{})
 	cyTopo.IetfL2TopoPrintjsonBytesCytoUi(jsonBytes)
@@ -259,14 +252,14 @@ func Nsp(_ *cobra.Command, _ []string) error {
 	//create html-public files
 	htmlPublicPrefixPath := "./html-public/"
 	htmlTemplatePath := "./html-static/template/nsp/"
-	// htmlTemplatePath := "./html-static/nsp"
 
 	// topoPrefixName := "NspIetfTopoLayer2" // should be added with NSP server ip address
 
 	// os.Mkdir(htmlPublicPrefixPath+cyTopo.ClabTopoData.ClabTopoName, 0755) // already created in cytoscapemodel library
-	// os.Mkdir(htmlPublicPrefixPath+cyTopo.ClabTopoData.ClabTopoName+"/cloudshell", 0755)
 	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "index.tmpl", "IetfTopology-L2"+"/"+"index.html", "dataIetfL2TopoCytoMarshall.json")
 	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "cy-style.tmpl", "IetfTopology-L2"+"/"+"cy-style.json", "")
+	// no need cloudshell
+	// os.Mkdir(htmlPublicPrefixPath+cyTopo.ClabTopoData.ClabTopoName+"/cloudshell", 0755)
 	// createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "cloudshell-index.tmpl", cyTopo.ClabTopoData.ClabTopoName+"/cloudshell/"+"index.html", "")
 	// createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "cloudshell-terminal-js.tmpl", cyTopo.ClabTopoData.ClabTopoName+"/cloudshell/"+"terminal.js", "")
 

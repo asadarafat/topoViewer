@@ -301,14 +301,15 @@
           
           
 
-          var $links = [{
-              name: 'Open SSH Session',
-              url: serverUrl + '/cloudshell/?RouterID=' + n.data('ExtraData').MgmtIPv4Address
-            },
-            {
-              name: 'Node Kind: ' + n.data('ExtraData').Kind
-              
-            }
+          var $links = [
+           {
+             name: 'Open SSH Session',
+             url: serverUrl + '/cloudshell/?RouterID=' + n.data('ExtraData').MgmtIPv4Address
+           },
+           {
+             name: 'Node Name: ' + n.data('ExtraData').L2NodeAttributes
+             
+           }
           ].map(function (link) {
             return h('a', {
               target: '_blank',
@@ -333,22 +334,23 @@
           
           
           
-          var $links = [{
-              name: 'Add Link Latency',
-              url: 'ssh://admin@' + n.data('ExtraData').MgmtIPv4Address
-            },
-            {
-              name: 'WireShark Capture Endpoint-A: ' + n.data('ExtraData').SourceLongName + '--' + n.data(
-                'ExtraData').Endpoints.SourceEndpoint,
-              url: 'clab-capture://' + n.data('ExtraData').ClabServerUsername + '@' + location.host + '?' + n
-                .data('ExtraData').SourceLongName + '?' + n.data('ExtraData').Endpoints.SourceEndpoint
-            },
-            {
-              name: 'WireShark Capture Endpoint-B: ' + n.data('ExtraData').TargetLongName + '--' + n.data(
-                'ExtraData').Endpoints.TargetEndpoint,
-              url: 'clab-capture://' + n.data('ExtraData').ClabServerUsername + '@' + location.host + '?' + n
-                .data('ExtraData').TargetLongName + '?' + n.data('ExtraData').Endpoints.TargetEndpoint
-            },
+          var $links = [
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
             {
               name: 'Link Type: ' + n.data('routerType'),
               url: 'http://www.uniprot.org/uniprot/?query=' + g +

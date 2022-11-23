@@ -142,7 +142,7 @@ vscode ➜ /workspaces/topoViewer (development) $ go run topoengine/cmd/main.go
 vscode ➜ /workspaces/topoViewer (development) $ pwd
 /workspaces/topoViewer
 vscode ➜ /workspaces/topoViewer (development) $ go run cloudshellwrapper/cmd/main.go --help
-vscode ➜ /workspaces/topoViewer (development) $ go run cloudshellwrapper/cmd/main.go -t rawTopoFile/clab-topo-file.yaml 
+vscode ➜ /workspaces/topoViewer (development) $ go run cloudshellwrapper/cmd/main.go clab -t rawTopoFile/clab-topo-file.yaml 
 ```
 
 ## Build TopoViewer Binary - Linux

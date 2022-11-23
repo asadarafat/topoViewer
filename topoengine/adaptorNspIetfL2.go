@@ -125,15 +125,15 @@ func (cyTopo *CytoTopology) IetfL2TopoUnMarshal(topoFile []byte, IetfNetworkTopo
 			cytoJson.Data.Name = node.IetfL2TopologyL2NodeAttributes.Name
 
 			cytoJson.Data.ExtraData = map[string]interface{}{
-				"ServerUsername":          Username,
-				"IetfL2NetworkName":       network.NetworkID,
-				"NetworkID":               strconv.Itoa(i),
-				"NodeID":                  node.NodeID,
-				"Weight":                  "2",
-				"Name":                    node.NodeID,
-				"NodeNumber":              j,
-				"L2-NodeAttributes":       node.IetfL2TopologyL2NodeAttributes,
-				"L2-NodeTerminationPoins": node.IetfNetworkTopologyTerminationPoint,
+				"ServerUsername":         Username,
+				"IetfL2NetworkName":      network.NetworkID,
+				"NetworkID":              strconv.Itoa(i),
+				"NodeID":                 node.NodeID,
+				"Weight":                 "2",
+				"Name":                   node.NodeID,
+				"NodeNumber":             j,
+				"L2NodeAttributes":       node.IetfL2TopologyL2NodeAttributes,
+				"L2NodeTerminationPoins": node.IetfNetworkTopologyTerminationPoint,
 			}
 			cytoJsonList = append(cytoJsonList, cytoJson)
 			// log.Info(j)
@@ -165,7 +165,7 @@ func (cyTopo *CytoTopology) IetfL2TopoUnMarshal(topoFile []byte, IetfNetworkTopo
 				"Auto-nego":          link.IetfL2TopologyL2LinkAttributes.AutoNego,
 				"Duplex":             link.IetfL2TopologyL2LinkAttributes.Duplex,
 				"Flags":              link.IetfL2TopologyL2LinkAttributes.Flags,
-				"NSP-attributes":     link.IetfL2TopologyL2LinkAttributes.NspIetfNetworkTopologyNspAttributes,
+				"NspAttributes":      link.IetfL2TopologyL2LinkAttributes.NspIetfNetworkTopologyNspAttributes,
 				"Endpoints": struct {
 					SourceEndpoint string
 					TargetEndpoint string
