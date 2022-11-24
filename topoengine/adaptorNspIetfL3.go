@@ -2,7 +2,6 @@ package topoengine
 
 import (
 	"encoding/json"
-	"io/ioutil"
 	"os"
 	"os/user"
 	"path"
@@ -87,22 +86,22 @@ func (cyTopo *CytoTopology) InitLoggerIetfL3() {
 	toolLogger.InitLogger("logs/topoengine-CytoTopologyIetfL3.log", cyTopo.LogLevel)
 }
 
-func (cyTopo *CytoTopology) IetfL3TopoMarshal(topoFile string) {
+func (cyTopo *CytoTopology) IetfL3TopoRead(topoFile string) []byte {
 	log.Info(topoFile)
 
 	filePath, _ := os.Getwd()
 	filePath = path.Join(filePath, topoFile)
 
 	log.Info("topology file path: ", filePath)
-	topoFileBytes, err := ioutil.ReadFile(filePath)
+	topoFileBytes, err := os.ReadFile(filePath)
 	if err != nil {
 		log.Fatal("Error when opening file: ", err)
 	}
 
-	cyTopo.IetfNetworL3TopoData = topoFileBytes
+	return topoFileBytes
 }
 
-func (cyTopo *CytoTopology) IetfL3TopoUnMarshal(topoFile []byte, IetfNetworkTopologyL3Data IetfNetworkTopologyL3) []byte {
+func (cyTopo *CytoTopology) IetfL3TopoUnMarshal(topoFile [][]byte, IetfNetworkTopologyL3Data IetfNetworkTopologyL3) []byte {
 	// get Clab ServerHost Username
 	user, err := user.Current()
 	if err != nil {
@@ -110,71 +109,75 @@ func (cyTopo *CytoTopology) IetfL3TopoUnMarshal(topoFile []byte, IetfNetworkTopo
 	}
 
 	Username := user.Username
-
-	json.Unmarshal(topoFile, &IetfNetworkTopologyL3Data)
-	// log.Info(IetfNetworkTopologyL3Data)
-
 	cytoJson := CytoJson{}
 	cytoJsonList := []CytoJson{}
+	for h := range topoFile {
 
-	for i, network := range IetfNetworkTopologyL3Data.IetfNetworkNetwork {
-		nodes := network.NodeList
-		for j, node := range nodes {
+		json.Unmarshal(topoFile[h], &IetfNetworkTopologyL3Data)
+		// log.Info(IetfNetworkTopologyL3Data)
 
-			cytoJson.Group = "nodes"
-			cytoJson.Grabbable = true
-			cytoJson.Selectable = true
-			cytoJson.Data.ID = "L3-" + node.NodeID
-			cytoJson.Data.Weight = "3"
-			cytoJson.Data.Name = node.IetfL3UnicastTopologyL3NodeAttributes.Name
+		// cytoJson := CytoJson{}
+		// cytoJsonList := []CytoJson{}
 
-			cytoJson.Data.ExtraData = map[string]interface{}{
-				"ServerUsername":       Username,
-				"IetfL3NetworkName":    network.NetworkID,
-				"NetworkID":            strconv.Itoa(i),
-				"NodeID":               node.NodeID,
-				"Weight":               "3",
-				"Name":                 node.IetfL3UnicastTopologyL3NodeAttributes.Name,
-				"NodeNumber":           j,
-				"NodeAttributes":       node.IetfL3UnicastTopologyL3NodeAttributes,
-				"NodeTerminationPoins": node.IetfNetworkTopologyTerminationPoint,
+		for i, network := range IetfNetworkTopologyL3Data.IetfNetworkNetwork {
+			nodes := network.NodeList
+			for j, node := range nodes {
+
+				cytoJson.Group = "nodes"
+				cytoJson.Grabbable = true
+				cytoJson.Selectable = true
+				cytoJson.Data.ID = "L3-" + node.NodeID
+				cytoJson.Data.Weight = "3"
+				cytoJson.Data.Name = "L3-" + node.IetfL3UnicastTopologyL3NodeAttributes.Name
+
+				cytoJson.Data.ExtraData = map[string]interface{}{
+					"ServerUsername":       Username,
+					"IetfL3NetworkName":    network.NetworkID,
+					"NetworkID":            strconv.Itoa(i),
+					"NodeID":               node.NodeID,
+					"Weight":               "3",
+					"Name":                 node.IetfL3UnicastTopologyL3NodeAttributes.Name,
+					"NodeNumber":           j,
+					"NodeAttributes":       node.IetfL3UnicastTopologyL3NodeAttributes,
+					"NodeTerminationPoins": node.IetfNetworkTopologyTerminationPoint,
+				}
+				cytoJsonList = append(cytoJsonList, cytoJson)
+				// log.Info(j)
 			}
-			cytoJsonList = append(cytoJsonList, cytoJson)
-			// log.Info(j)
-		}
-		links := network.LinkList
-		for k, link := range links {
-			cytoJson.Group = "edges"
-			cytoJson.Grabbable = true
-			cytoJson.Selectable = true
-			cytoJson.Data.ID = strconv.Itoa(k + 3000)
-			cytoJson.Data.Weight = "1"
-			cytoJson.Data.Source = "L3-" + link.Source.SourceNode[85:len(link.Source.SourceNode)-2]
-			cytoJson.Data.Endpoint.SourceEndpoint = link.Source.SourceTp
-			cytoJson.Data.Target = "L3-" + link.Destination.DestNode[85:len(link.Destination.DestNode)-2]
-			cytoJson.Data.Endpoint.TargetEndpoint = link.Destination.DestTp
+			links := network.LinkList
+			for k, link := range links {
+				cytoJson.Group = "edges"
+				cytoJson.Grabbable = true
+				cytoJson.Selectable = true
+				cytoJson.Data.ID = strconv.Itoa(k + 3000)
+				cytoJson.Data.Weight = "1"
+				cytoJson.Data.Source = "L3-" + link.Source.SourceNode[85:len(link.Source.SourceNode)-2]
+				cytoJson.Data.Endpoint.SourceEndpoint = link.Source.SourceTp
+				cytoJson.Data.Target = "L3-" + link.Destination.DestNode[85:len(link.Destination.DestNode)-2]
+				cytoJson.Data.Endpoint.TargetEndpoint = link.Destination.DestTp
 
-			cytoJson.Data.Name = link.LinkID
+				cytoJson.Data.Name = link.LinkID
 
-			cytoJson.Data.ExtraData = map[string]interface{}{
-				"ClabServerUsername": Username,
-				"Kind":               "edges",
-				"grabbable":          true,
-				"selectable":         true,
-				"ID":                 strconv.Itoa(k),
-				"weight":             "1",
-				"Name":               link.LinkID,
-				"L3LinkAttributes":   link.IetfL3UnicastTopologyL3LinkAttributes,
-				"Endpoints": struct {
-					SourceEndpoint string
-					TargetEndpoint string
-				}{link.Source.SourceNode, link.Destination.DestNode},
+				cytoJson.Data.ExtraData = map[string]interface{}{
+					"ClabServerUsername": Username,
+					"Kind":               "edges",
+					"grabbable":          true,
+					"selectable":         true,
+					"ID":                 strconv.Itoa(k),
+					"weight":             "1",
+					"Name":               link.LinkID,
+					"L3LinkAttributes":   link.IetfL3UnicastTopologyL3LinkAttributes,
+					"Endpoints": struct {
+						SourceEndpoint string
+						TargetEndpoint string
+					}{link.Source.SourceNode, link.Destination.DestNode},
+				}
+				cytoJsonList = append(cytoJsonList, cytoJson)
 			}
-			cytoJsonList = append(cytoJsonList, cytoJson)
 		}
 	}
+	// Throw unmarshalled result to log
 	// log.Info(cytoJsonList)
-
 	jsonBytesCytoUi, err := json.MarshalIndent(cytoJsonList, "", "  ")
 	if err != nil {
 		log.Error(err)
@@ -193,8 +196,8 @@ func (cyTopo *CytoTopology) IetfL3TopoUnMarshal(topoFile []byte, IetfNetworkTopo
 
 func (cyTopo *CytoTopology) IetfL3TopoPrintjsonBytesCytoUi(marshaledJsonBytesCytoUi []byte) error {
 	// Create file
-	os.Mkdir("./html-public/"+"IetfTopology-L3", 0755)
-	file, err := os.Create("html-public/" + "IetfTopology-L3" + "/dataIetfL3TopoCytoMarshall.json")
+	os.Mkdir("./html-public/"+"IetfTopology-MultiL2L3", 0755)
+	file, err := os.Create("html-public/" + "IetfTopology-MultiL2L3" + "/dataIetfMultiL2L3TopoCytoMarshall.json")
 	if err != nil {
 		log.Error("Could not create json file for graph")
 	}

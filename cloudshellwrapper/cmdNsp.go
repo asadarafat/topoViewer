@@ -129,8 +129,8 @@ func Nsp(_ *cobra.Command, _ []string) error {
 	cyTopo.LogLevel = 4
 	cyTopo.InitLogger()
 
-	cyTopo.IetfL2TopoMarshal(topoNsp) // loading nsp topo json to cyTopo.IetfNetworL2TopoData
-	cyTopo.IetfL2TopoUnMarshal(cyTopo.IetfNetworL2TopoData, topoengine.IetfNetworkTopologyL2{})
+	cyTopo.IetfL2TopoRead(topoNsp) // loading nsp topo json to cyTopo.IetfNetworL2TopoData
+	// cyTopo.IetfL2TopoUnMarshal(cyTopo.IetfNetworL2TopoData, topoengine.IetfNetworkTopologyL2{})
 	jsonBytes := cyTopo.IetfL2TopoUnMarshal(cyTopo.IetfNetworL2TopoData, topoengine.IetfNetworkTopologyL2{})
 	cyTopo.IetfL2TopoPrintjsonBytesCytoUi(jsonBytes)
 

@@ -1,0 +1,259 @@
+{
+    "ietf-network:network": [
+        {
+            "network-id": "TopologyId-0:55000:2-isis",
+            "network-types": {
+                "ietf-l3-unicast-topology:l3-unicast-topology": {}
+            },
+            "supporting-network": [
+                {
+                    "network-ref": "/ietf-network:networks/network[network-id='L2Topology']"
+                }
+            ],
+            "node": [
+                {
+                    "node-id": "10.10.10.10",
+                    "supporting-node": [
+                        {
+                            "network-ref": "/ietf-network:networks/network[network-id='L2Topology']",
+                            "node-ref": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.10']"
+                        }
+                    ],
+                    "ietf-network-topology:termination-point": [
+                        {
+                            "tp-id": "10.8.10.2",
+                            "supporting-termination-point": [
+                                {
+                                    "network-ref": "/ietf-network:networks/network[network-id='L2Topology']",
+                                    "node-ref": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.10']",
+                                    "tp-ref": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.10']/ietf-network-topology:termination-point[tp-id='Port 1/1/2']"
+                                }
+                            ],
+                            "ietf-l3-unicast-topology:l3-termination-point-attributes": {
+                                "ip-address": [
+                                    "10.8.10.2"
+                                ]
+                            }
+                        }
+                    ],
+                    "ietf-l3-unicast-topology:l3-node-attributes": {
+                        "name": "R10-PE-ASBR",
+                        "flag": [
+                            "nsp-ietf-network-topology:routing-instance"
+                        ],
+                        "router-id": [
+                            "10.10.10.10"
+                        ],
+                        "nsp-ietf-network-topology:nsp-attributes": [],
+                        "prefix": [
+                            {
+                                "prefix": "10.10.10.10/32",
+                                "metric": 0,
+                                "flag": []
+                            }
+                        ]
+                    }
+                },
+                {
+                    "node-id": "10.10.10.8",
+                    "supporting-node": [
+                        {
+                            "network-ref": "/ietf-network:networks/network[network-id='L2Topology']",
+                            "node-ref": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.8']"
+                        }
+                    ],
+                    "ietf-network-topology:termination-point": [
+                        {
+                            "tp-id": "10.8.10.1",
+                            "supporting-termination-point": [
+                                {
+                                    "network-ref": "/ietf-network:networks/network[network-id='L2Topology']",
+                                    "node-ref": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.8']",
+                                    "tp-ref": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.8']/ietf-network-topology:termination-point[tp-id='Port 1/1/2']"
+                                }
+                            ],
+                            "ietf-l3-unicast-topology:l3-termination-point-attributes": {
+                                "ip-address": [
+                                    "10.8.10.1"
+                                ]
+                            }
+                        },
+                        {
+                            "tp-id": "10.8.9.1",
+                            "supporting-termination-point": [
+                                {
+                                    "network-ref": "/ietf-network:networks/network[network-id='L2Topology']",
+                                    "node-ref": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.8']",
+                                    "tp-ref": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.8']/ietf-network-topology:termination-point[tp-id='Port 1/1/5']"
+                                }
+                            ],
+                            "ietf-l3-unicast-topology:l3-termination-point-attributes": {
+                                "ip-address": [
+                                    "10.8.9.1"
+                                ]
+                            }
+                        }
+                    ],
+                    "ietf-l3-unicast-topology:l3-node-attributes": {
+                        "name": "R8-PE",
+                        "flag": [
+                            "nsp-ietf-network-topology:routing-instance"
+                        ],
+                        "router-id": [
+                            "10.10.10.8"
+                        ],
+                        "nsp-ietf-network-topology:nsp-attributes": [],
+                        "prefix": [
+                            {
+                                "prefix": "10.10.10.8/32",
+                                "metric": 0,
+                                "flag": []
+                            }
+                        ]
+                    }
+                },
+                {
+                    "node-id": "10.10.10.9",
+                    "supporting-node": [
+                        {
+                            "network-ref": "/ietf-network:networks/network[network-id='L2Topology']",
+                            "node-ref": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.9']"
+                        }
+                    ],
+                    "ietf-network-topology:termination-point": [
+                        {
+                            "tp-id": "10.8.9.2",
+                            "supporting-termination-point": [
+                                {
+                                    "network-ref": "/ietf-network:networks/network[network-id='L2Topology']",
+                                    "node-ref": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.9']",
+                                    "tp-ref": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.9']/ietf-network-topology:termination-point[tp-id='Port 1/1/2']"
+                                }
+                            ],
+                            "ietf-l3-unicast-topology:l3-termination-point-attributes": {
+                                "ip-address": [
+                                    "10.8.9.2"
+                                ]
+                            }
+                        }
+                    ],
+                    "ietf-l3-unicast-topology:l3-node-attributes": {
+                        "name": "R9-PE-ASBR",
+                        "flag": [
+                            "nsp-ietf-network-topology:routing-instance"
+                        ],
+                        "router-id": [
+                            "10.10.10.9"
+                        ],
+                        "nsp-ietf-network-topology:nsp-attributes": [],
+                        "prefix": [
+                            {
+                                "prefix": "10.10.10.9/32",
+                                "metric": 0,
+                                "flag": []
+                            }
+                        ]
+                    }
+                }
+            ],
+            "ietf-network-topology:link": [
+                {
+                    "link-id": "10.10.10.10:10.8.10.2--10.10.10.8:10.8.10.1--l2",
+                    "source": {
+                        "source-node": "/ietf-network:networks/network[network-id='TopologyId-0:55000:2-isis']/node[node-id='10.10.10.10']",
+                        "source-tp": "/ietf-network:networks/network[network-id='TopologyId-0:55000:2-isis']/node[node-id='10.10.10.10']/ietf-network-topology:termination-point[tp-id='10.8.10.2']"
+                    },
+                    "destination": {
+                        "dest-node": "/ietf-network:networks/network[network-id='TopologyId-0:55000:2-isis']/node[node-id='10.10.10.8']",
+                        "dest-tp": "/ietf-network:networks/network[network-id='TopologyId-0:55000:2-isis']/node[node-id='10.10.10.8']/ietf-network-topology:termination-point[tp-id='10.8.10.1']"
+                    },
+                    "ietf-l3-unicast-topology:l3-link-attributes": {
+                        "name": "0100.1001.0010::0100.1001.0008=>10.8.10.2-ISIS_L2-PointToPoint-Original",
+                        "metric1": 10000,
+                        "metric2": 10000,
+                        "flag": [
+                            "nsp-ietf-network-topology:igp"
+                        ],
+                        "nsp-ietf-network-topology:nsp-attributes": []
+                    }
+                },
+                {
+                    "link-id": "10.10.10.8:10.8.10.1--10.10.10.10:10.8.10.2--l2",
+                    "source": {
+                        "source-node": "/ietf-network:networks/network[network-id='TopologyId-0:55000:2-isis']/node[node-id='10.10.10.8']",
+                        "source-tp": "/ietf-network:networks/network[network-id='TopologyId-0:55000:2-isis']/node[node-id='10.10.10.8']/ietf-network-topology:termination-point[tp-id='10.8.10.1']"
+                    },
+                    "destination": {
+                        "dest-node": "/ietf-network:networks/network[network-id='TopologyId-0:55000:2-isis']/node[node-id='10.10.10.10']",
+                        "dest-tp": "/ietf-network:networks/network[network-id='TopologyId-0:55000:2-isis']/node[node-id='10.10.10.10']/ietf-network-topology:termination-point[tp-id='10.8.10.2']"
+                    },
+                    "supporting-link": [
+                        {
+                            "network-ref": "/ietf-network:networks/network[network-id='L2Topology']",
+                            "link-ref": "/ietf-network:networks/network[network-id='L2Topology']/ietf-network-topology:link[link-id='10.10.10.8:Port 1/1/2--10.10.10.10:Port 1/1/2']"
+                        }
+                    ],
+                    "ietf-l3-unicast-topology:l3-link-attributes": {
+                        "name": "0100.1001.0008::0100.1001.0010=>10.8.10.1-ISIS_L2-PointToPoint-Original",
+                        "metric1": 10000,
+                        "metric2": 10000,
+                        "flag": [
+                            "nsp-ietf-network-topology:igp"
+                        ],
+                        "nsp-ietf-network-topology:nsp-attributes": []
+                    }
+                },
+                {
+                    "link-id": "10.10.10.9:10.8.9.2--10.10.10.8:10.8.9.1--l2",
+                    "source": {
+                        "source-node": "/ietf-network:networks/network[network-id='TopologyId-0:55000:2-isis']/node[node-id='10.10.10.9']",
+                        "source-tp": "/ietf-network:networks/network[network-id='TopologyId-0:55000:2-isis']/node[node-id='10.10.10.9']/ietf-network-topology:termination-point[tp-id='10.8.9.2']"
+                    },
+                    "destination": {
+                        "dest-node": "/ietf-network:networks/network[network-id='TopologyId-0:55000:2-isis']/node[node-id='10.10.10.8']",
+                        "dest-tp": "/ietf-network:networks/network[network-id='TopologyId-0:55000:2-isis']/node[node-id='10.10.10.8']/ietf-network-topology:termination-point[tp-id='10.8.9.1']"
+                    },
+                    "ietf-l3-unicast-topology:l3-link-attributes": {
+                        "name": "0100.1001.0009::0100.1001.0008=>10.8.9.2-ISIS_L2-PointToPoint-Original",
+                        "metric1": 10000,
+                        "metric2": 10000,
+                        "flag": [
+                            "nsp-ietf-network-topology:igp"
+                        ],
+                        "nsp-ietf-network-topology:nsp-attributes": []
+                    }
+                },
+                {
+                    "link-id": "10.10.10.8:10.8.9.1--10.10.10.9:10.8.9.2--l2",
+                    "source": {
+                        "source-node": "/ietf-network:networks/network[network-id='TopologyId-0:55000:2-isis']/node[node-id='10.10.10.8']",
+                        "source-tp": "/ietf-network:networks/network[network-id='TopologyId-0:55000:2-isis']/node[node-id='10.10.10.8']/ietf-network-topology:termination-point[tp-id='10.8.9.1']"
+                    },
+                    "destination": {
+                        "dest-node": "/ietf-network:networks/network[network-id='TopologyId-0:55000:2-isis']/node[node-id='10.10.10.9']",
+                        "dest-tp": "/ietf-network:networks/network[network-id='TopologyId-0:55000:2-isis']/node[node-id='10.10.10.9']/ietf-network-topology:termination-point[tp-id='10.8.9.2']"
+                    },
+                    "supporting-link": [
+                        {
+                            "network-ref": "/ietf-network:networks/network[network-id='L2Topology']",
+                            "link-ref": "/ietf-network:networks/network[network-id='L2Topology']/ietf-network-topology:link[link-id='10.10.10.8:Port 1/1/5--10.10.10.9:Port 1/1/2']"
+                        }
+                    ],
+                    "ietf-l3-unicast-topology:l3-link-attributes": {
+                        "name": "0100.1001.0008::0100.1001.0009=>10.8.9.1-ISIS_L2-PointToPoint-Original",
+                        "metric1": 10000,
+                        "metric2": 10000,
+                        "flag": [
+                            "nsp-ietf-network-topology:igp"
+                        ],
+                        "nsp-ietf-network-topology:nsp-attributes": []
+                    }
+                }
+            ],
+            "ietf-l3-unicast-topology:l3-topology-attributes": {
+                "name": "TopologyId-0:55000:2",
+                "flag": []
+            }
+        }
+    ]
+}

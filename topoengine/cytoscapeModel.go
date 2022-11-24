@@ -1,11 +1,12 @@
 package topoengine
 
 type CytoTopology struct {
-	CytoTopo             CytoJsonTopology
-	LogLevel             uint32
-	ClabTopoData         ClabTopo
-	IetfNetworL2TopoData []byte
-	IetfNetworL3TopoData []byte
+	CytoTopo                     CytoJsonTopology
+	LogLevel                     uint32
+	ClabTopoData                 ClabTopo
+	IetfNetworL2TopoData         []byte
+	IetfNetworL3TopoData         []byte
+	IetfNetworkTopologyMultiL2L3 []byte
 }
 
 type CytoJsonTopology struct {
