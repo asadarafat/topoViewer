@@ -21,7 +21,22 @@
     "overlay-padding": "0.3px",
     "z-index": "10"
   }
-}, {
+},
+{
+  "selector": "node:parent",
+  "style": {
+    "shape": "rectangle",
+    "border-width": "0.5px",
+    "border-color": "#DDDDDD",
+    "background-color": "#F2F2F2",
+    "text-outline-color": "#F2F2F2",
+    "width": "3px",
+    "height": "3x",
+    "font-size": "3px",
+    "z-index": "1"
+  }
+},
+ {
   "selector": "node[?attr]",
   "style": {
     "shape": "rectangle",
@@ -88,9 +103,32 @@
     "opacity": "0"
   }
 }, {
+  "selector": "edge[kind=\"MultiLayerLink\"]",
+  "style": {
+    "line-color": "#d0b7d5",
+    "line-style": "dotted",
+    "width": "0.5"
+
+  }
+}, {
+  "selector": "edge[kind=\"Layer3Link\"]",
+  "style": {
+    "line-color": "#a0b3dc",
+    "target-arrow-shape": "triangle",
+    "arrow-scale": "0.4",
+    "width": "1"
+  }
+}, {
+  "selector": "edge[kind=\"Layer2Link\"]",
+  "style": {
+    "line-color": "#90e190",
+    "width": "1"
+  }
+}, {
   "selector": "edge[group=\"coexp\"]",
   "style": {
-    "line-color": "#d0b7d5"
+    "line-color": "#d0b7d5",
+    "width": "1"
   }
 }, {
   "selector": "edge[group=\"coloc\"]",

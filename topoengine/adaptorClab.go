@@ -109,7 +109,7 @@ func (cyTopo *CytoTopology) UnmarshalContainerLabTopo(ClabTopoJson) []byte {
 			"ID":                 string(i),
 			"Weight":             "2",
 			"Name":               n.Config().ShortName,
-			"Kind":               n.Config().Kind,
+			"ClabKind":           n.Config().Kind,
 			"Image":              n.Config().Image,
 			"ClabGroup":          n.Config().Group,
 			"MgmtIPv4Address":    n.Config().MgmtIPv4Address,
@@ -133,7 +133,7 @@ func (cyTopo *CytoTopology) UnmarshalContainerLabTopo(ClabTopoJson) []byte {
 
 		cytoJson.Data.ExtraData = map[string]interface{}{
 			"ClabServerUsername": Username,
-			"Kind":               "edges",
+			"ClabKin":            "ClabLink",
 			"grabbable":          true,
 			"selectable":         true,
 			"ID":                 strconv.Itoa(i),

@@ -14,7 +14,7 @@ import (
 func main() {
 
 	cytoUiGo := topoengine.CytoTopology{}
-	cytoUiGo.LogLevel = 4
+	cytoUiGo.LogLevel = 5
 	cytoUiGo.InitLogger()
 
 	// clab run
@@ -27,14 +27,14 @@ func main() {
 
 	// Nsp Ietf L2
 	// Nsp Ietf L2
-	filePath, _ := os.Getwd()
-	filePath = (filePath + "/rawTopoFile/")
-	log.Info("topology file path: ", filePath)
-	topoFile, err := ioutil.ReadFile(filePath + "topo-ietf-L2.json")
+	// filePath, _ := os.Getwd()
+	// filePath = (filePath + "/rawTopoFile/")
+	// log.Info("topology file path: ", filePath)
+	// topoFile, err := ioutil.ReadFile(filePath + "topo-ietf-L2.json")
 
-	if err != nil {
-		log.Fatal("Error when opening file: ", err)
-	}
+	// if err != nil {
+	// 	log.Fatal("Error when opening file: ", err)
+	// }
 	// log.Info(topoFile)
 	// cytoUiGo.IetfL2TopoUnMarshal(topoFile, topoengine.IetfNetworkTopologyL2{})
 	// jsonBytesL2 := cytoUiGo.IetfL2TopoUnMarshal(topoFile, topoengine.IetfNetworkTopologyL2{})
@@ -64,6 +64,14 @@ func main() {
 	// Nsp Ietf Multi L2 L3
 	// Nsp Ietf Multi L2 L3
 	// load L2 topo nya dulu
+	filePath, _ := os.Getwd()
+	filePath = (filePath + "/rawTopoFile/")
+	log.Info("topology file path: ", filePath)
+	topoFile, err := ioutil.ReadFile(filePath + "topo-ietf-L2.json")
+
+	if err != nil {
+		log.Fatal("Error when opening file: ", err)
+	}
 	topoFileL2 := topoFile
 
 	// load L3 topo nya dulu
@@ -82,5 +90,5 @@ func main() {
 	topoL3FileByteCombine = append(topoL3FileByteCombine, topoFileByte2)
 
 	jsonBytesMultiL2L3 := cytoUiGo.IetfMultiL2L3TopoUnMarshal(topoFileL2, topoL3FileByteCombine, topoengine.IetfNetworkTopologyMultiL2L3{})
-	cytoUiGo.IetfL3TopoPrintjsonBytesCytoUi(jsonBytesMultiL2L3)
+	cytoUiGo.IetfMultiLayerTopoPrintjsonBytesCytoUi(jsonBytesMultiL2L3)
 }

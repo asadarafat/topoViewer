@@ -1,12 +1,12 @@
 package topoengine
 
 type CytoTopology struct {
-	CytoTopo                     CytoJsonTopology
-	LogLevel                     uint32
-	ClabTopoData                 ClabTopo
-	IetfNetworL2TopoData         []byte
-	IetfNetworL3TopoData         []byte
-	IetfNetworkTopologyMultiL2L3 []byte
+	CytoTopo                         CytoJsonTopology
+	LogLevel                         uint32
+	ClabTopoData                     ClabTopo
+	IetfNetworL2TopoData             []byte
+	IetfNetworL3TopoData             [][]byte
+	IetfNetworkTopologyMultiL2L3Data []byte
 }
 
 type CytoJsonTopology struct {
@@ -21,6 +21,9 @@ type CytoJson struct {
 		Target string `json:"target,omitempty"`
 		Weight string `json:"weight"`
 		Name   string `json:"name"`
+		Parent string `json:"parent"`
+		Kind   string `json:"kind"`
+
 		// Extra Fields
 		Endpoint struct {
 			SourceEndpoint string `json:"sourceEndpoint"`

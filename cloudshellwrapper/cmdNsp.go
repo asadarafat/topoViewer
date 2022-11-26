@@ -18,6 +18,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // config
@@ -99,6 +100,14 @@ var confNsp = config.Map{
 		Default: ".",
 		Usage:   "path to nsp ietf-l3 topo file",
 	},
+	"multi-layer": &config.String{
+		Default: "enabled",
+		Usage:   "enable multi-layer view",
+	},
+	"debug": &config.String{
+		Default: "enabled",
+		Usage:   "enable debug",
+	},
 }
 
 // var rootCommand = cobra.Command{
@@ -118,167 +127,364 @@ func init() {
 
 func Nsp(_ *cobra.Command, _ []string) error {
 
+	cyTopo := topoengine.CytoTopology{}
+	cyTopo.LogLevel = 5 // debug
+	cyTopo.InitLogger()
+
 	// initialise the logger
 	log.Init(log.Format(confNsp.GetString("log-format")), log.Level(confNsp.GetString("log-level")))
 
-	// tranform clab-topo-file into cytoscape-model
-	topoNsp := confNsp.GetString("topology-ietf-l2-topo")
-	log.Info(topoNsp)
+	viper.SetConfigName("topoviewer-config") // config file name without extension
+	viper.SetConfigType("yaml")
+	// viper.AddConfigPath(".")
+	viper.AddConfigPath("./config") // config file path
+	viper.AutomaticEnv()            // read value ENV variable
 
-	cyTopo := topoengine.CytoTopology{}
-	cyTopo.LogLevel = 4
-	cyTopo.InitLogger()
+	err := viper.ReadInConfig()
+	if err != nil {
+		log.Error("fatal error config file: default \n", err)
+		os.Exit(1)
+	}
 
-	cyTopo.IetfL2TopoRead(topoNsp) // loading nsp topo json to cyTopo.IetfNetworL2TopoData
-	// cyTopo.IetfL2TopoUnMarshal(cyTopo.IetfNetworL2TopoData, topoengine.IetfNetworkTopologyL2{})
-	jsonBytes := cyTopo.IetfL2TopoUnMarshal(cyTopo.IetfNetworL2TopoData, topoengine.IetfNetworkTopologyL2{})
-	cyTopo.IetfL2TopoPrintjsonBytesCytoUi(jsonBytes)
+	fmt.Println("NSP-IETF-Topology-L2: ", viper.GetString("nsp.nspIeftTopoL2"))
 
-	command := confNsp.GetString("command")
-	arguments := confNsp.GetStringSlice("arguments")
-	connectionErrorLimit := confNsp.GetInt("connection-error-limit")
-	allowedHostnames := confNsp.GetStringSlice("allowed-hostnames")
-	keepalivePingTimeout := time.Duration(confNsp.GetInt("keepalive-ping-timeout")) * time.Second
-	maxBufferSizeBytes := confNsp.GetInt("max-buffer-size-bytes")
-	pathLiveness := confNsp.GetString("path-liveness")
-	pathMetrics := confNsp.GetString("path-metrics")
-	pathReadiness := confNsp.GetString("path-readiness")
-	pathXTermJS := confNsp.GetString("path-xtermjs")
-	serverAddress := confNsp.GetString("server-addr")
-	serverPort := confNsp.GetInt("server-port")
-	workingDirectory := confNsp.GetString("workdir")
-	if !path.IsAbs(workingDirectory) {
-		wd, err := os.Getwd()
-		if err != nil {
-			message := fmt.Sprintf("failed to get working directory: %s", err)
-			log.Error(message)
-			return errors.New(message)
+	// var topoL3 interface{}
+	// fmt.Println(viper.UnmarshalKey("nsp", &topoL3))
+
+	if confNsp.GetString("multi-layer") == "enabled" {
+
+		// tranform clab-topo-file into cytoscape-model
+		topoNspL2 := viper.GetString("nsp.nspIeftTopoL2")
+		log.Debug("topoNspL2: ", topoNspL2)
+
+		// aarafat-tag: fixed multiple L3 Topo file
+		var topoNspL3 []string
+		topoNspL3 = append(topoNspL3, viper.GetString("nsp.nspIeftTopoL3_0"))
+		topoNspL3 = append(topoNspL3, viper.GetString("nsp.nspIeftTopoL3_1"))
+		topoNspL3 = append(topoNspL3, viper.GetString("nsp.nspIeftTopoL3_2"))
+
+		log.Debug(topoNspL3)
+		log.Debug("Code Trace Point ####")
+		cyTopo.IetfMultiL2L3TopoRead(topoNspL2, topoNspL3) // loading nsp topo L2 and L3 json-file to cyTopo.IetfNetworL3TopoData
+
+		jsonBytes := cyTopo.IetfMultiL2L3TopoUnMarshal(cyTopo.IetfNetworL2TopoData, cyTopo.IetfNetworL3TopoData, topoengine.IetfNetworkTopologyMultiL2L3{})
+		cyTopo.IetfMultiLayerTopoPrintjsonBytesCytoUi(jsonBytes)
+
+		command := confNsp.GetString("command")
+		arguments := confNsp.GetStringSlice("arguments")
+		connectionErrorLimit := confNsp.GetInt("connection-error-limit")
+		allowedHostnames := confNsp.GetStringSlice("allowed-hostnames")
+		keepalivePingTimeout := time.Duration(confNsp.GetInt("keepalive-ping-timeout")) * time.Second
+		maxBufferSizeBytes := confNsp.GetInt("max-buffer-size-bytes")
+		pathLiveness := confNsp.GetString("path-liveness")
+		pathMetrics := confNsp.GetString("path-metrics")
+		pathReadiness := confNsp.GetString("path-readiness")
+		pathXTermJS := confNsp.GetString("path-xtermjs")
+		serverAddress := confNsp.GetString("server-addr")
+		serverPort := confNsp.GetInt("server-port")
+		workingDirectory := confNsp.GetString("workdir")
+		if !path.IsAbs(workingDirectory) {
+			wd, err := os.Getwd()
+			if err != nil {
+				message := fmt.Sprintf("failed to get working directory: %s", err)
+				log.Error(message)
+				return errors.New(message)
+			}
+			workingDirectory = path.Join(wd, workingDirectory)
 		}
-		workingDirectory = path.Join(wd, workingDirectory)
-	}
-	log.Infof("topology file path    : '%s'", workingDirectory+"/"+topoNsp)
-	log.Infof("working directory     : '%s'", workingDirectory)
-	log.Infof("command               : '%s'", command)
-	log.Infof("arguments             : ['%s']", strings.Join(arguments, "', '"))
+		log.Infof("topology Ietf-Nsp-L2 file path    : '%s'", workingDirectory+"/"+topoNspL2)
+		log.Infof("topology Ietf-Nsp-L3 file path    : '%s'", workingDirectory+"/")
 
-	log.Infof("allowed hosts         : ['%s']", strings.Join(allowedHostnames, "', '"))
-	log.Infof("connection error limit: %v", connectionErrorLimit)
-	log.Infof("keepalive ping timeout: %v", keepalivePingTimeout)
-	log.Infof("max buffer size       : %v bytes", maxBufferSizeBytes)
-	log.Infof("server address        : '%s' ", serverAddress)
-	log.Infof("server port           : %v", serverPort)
+		log.Infof("working directory     : '%s'", workingDirectory)
+		log.Infof("command               : '%s'", command)
+		log.Infof("arguments             : ['%s']", strings.Join(arguments, "', '"))
 
-	log.Infof("liveness checks path  : '%s'", pathLiveness)
-	log.Infof("readiness checks path : '%s'", pathReadiness)
-	log.Infof("metrics endpoint path : '%s'", pathMetrics)
-	log.Infof("xtermjs endpoint path : '%s'", pathXTermJS)
+		log.Infof("allowed hosts         : ['%s']", strings.Join(allowedHostnames, "', '"))
+		log.Infof("connection error limit: %v", connectionErrorLimit)
+		log.Infof("keepalive ping timeout: %v", keepalivePingTimeout)
+		log.Infof("max buffer size       : %v bytes", maxBufferSizeBytes)
+		log.Infof("server address        : '%s' ", serverAddress)
+		log.Infof("server port           : %v", serverPort)
 
-	// configure routing
-	router := mux.NewRouter()
+		log.Infof("liveness checks path  : '%s'", pathLiveness)
+		log.Infof("readiness checks path : '%s'", pathReadiness)
+		log.Infof("metrics endpoint path : '%s'", pathMetrics)
+		log.Infof("xtermjs endpoint path : '%s'", pathXTermJS)
 
-	// this is the endpoint for xterm.js to connect to
-	xtermjsHandlerOptions := xtermjs.HandlerOpts{
-		AllowedHostnames: allowedHostnames,
-		// Arguments:            arguments,
-		Command:              command,
-		ConnectionErrorLimit: connectionErrorLimit,
-		CreateLogger: func(connectionUUID string, r *http.Request) xtermjs.Logger {
-			createRequestLog(r, map[string]interface{}{"connection_uuid": connectionUUID}).Infof("created logger for connection '%s'", connectionUUID)
-			return createRequestLog(nil, map[string]interface{}{"connection_uuid": connectionUUID})
-		},
-		KeepalivePingTimeout: keepalivePingTimeout,
-		MaxBufferSizeBytes:   maxBufferSizeBytes,
-	}
-	router.HandleFunc(pathXTermJS, xtermjs.GetHandler(xtermjsHandlerOptions, "TEST"))
+		// configure routing
+		router := mux.NewRouter()
 
-	// readiness probe endpoint
-	router.HandleFunc(pathReadiness, func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("ok"))
-	})
+		// this is the endpoint for xterm.js to connect to
+		xtermjsHandlerOptions := xtermjs.HandlerOpts{
+			AllowedHostnames: allowedHostnames,
+			// Arguments:            arguments,
+			Command:              command,
+			ConnectionErrorLimit: connectionErrorLimit,
+			CreateLogger: func(connectionUUID string, r *http.Request) xtermjs.Logger {
+				createRequestLog(r, map[string]interface{}{"connection_uuid": connectionUUID}).Infof("created logger for connection '%s'", connectionUUID)
+				return createRequestLog(nil, map[string]interface{}{"connection_uuid": connectionUUID})
+			},
+			KeepalivePingTimeout: keepalivePingTimeout,
+			MaxBufferSizeBytes:   maxBufferSizeBytes,
+		}
+		router.HandleFunc(pathXTermJS, xtermjs.GetHandler(xtermjsHandlerOptions, "TEST"))
 
-	// liveness probe endpoint
-	router.HandleFunc(pathLiveness, func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("ok"))
-	})
-
-	// metrics endpoint
-	router.Handle(pathMetrics, promhttp.Handler())
-
-	// version endpoint
-	router.HandleFunc("/version", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(VersionInfo))
-	})
-
-	router.HandleFunc("/cloudshell}",
-		func(w http.ResponseWriter, r *http.Request) {
-			// router.HandleFunc(pathXTermJS, xtermjs.GetHandler(xtermjsHandlerOptions, "TEST"))
-			log.Info(xtermjsHandlerOptions)
+		// readiness probe endpoint
+		router.HandleFunc(pathReadiness, func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte(VersionInfo))
-
-			params := mux.Vars(r)
-			RouterId := params["id"]
-			log.Info("##################### " + RouterId)
+			w.Write([]byte("ok"))
 		})
 
-	// this is the endpoint for serving xterm.js assets
-	depenenciesDirectorXterm := path.Join(workingDirectory, "./html-static/cloudshell/node_modules")
-	// depenenciesDirectorXterm := ("/eth/topoviewer/html-static/cloudshell/node_modules")
-	router.PathPrefix("/assets").Handler(http.StripPrefix("/assets", http.FileServer(http.Dir(depenenciesDirectorXterm))))
+		// liveness probe endpoint
+		router.HandleFunc(pathLiveness, func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte("ok"))
+		})
 
-	// this is the endpoint for serving cytoscape.js assets
-	depenenciesDirectoryCytoscape := path.Join(workingDirectory, "./html-static/cytoscape")
-	// depenenciesDirectoryCytoscape := ("/eth/topoviewer/html-static/cytoscape")
-	router.PathPrefix("/cytoscape").Handler(http.StripPrefix("/cytoscape", http.FileServer(http.Dir(depenenciesDirectoryCytoscape))))
+		// metrics endpoint
+		router.Handle(pathMetrics, promhttp.Handler())
 
-	// this is the endpoint for serving dataCyto.json asset
-	depenenciesDirectoryDataCyto := path.Join(workingDirectory, "./html-static/cytoscapedata")
-	// depenenciesDirectoryDataCyto := path.Join(workingDirectory, "/etc/topoviewer/html-static/cytoscapedata")
-	router.PathPrefix("/cytoscapedata").Handler(http.StripPrefix("/cytoscapedata", http.FileServer(http.Dir(depenenciesDirectoryDataCyto))))
+		// version endpoint
+		router.HandleFunc("/version", func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte(VersionInfo))
+		})
 
-	// this is the endpoint for serving css asset
-	depenenciesDirectoryCss := path.Join(workingDirectory, "./html-static/css")
-	// depenenciesDirectoryCss := ("/etc/topoviewer/html-static/css")
-	router.PathPrefix("/css").Handler(http.StripPrefix("/css", http.FileServer(http.Dir(depenenciesDirectoryCss))))
+		router.HandleFunc("/cloudshell}",
+			func(w http.ResponseWriter, r *http.Request) {
+				// router.HandleFunc(pathXTermJS, xtermjs.GetHandler(xtermjsHandlerOptions, "TEST"))
+				log.Info(xtermjsHandlerOptions)
+				w.WriteHeader(http.StatusOK)
+				w.Write([]byte(VersionInfo))
 
-	// // this is the endpoint for the root path aka website shell
-	publicAssetsDirectoryHtml := path.Join(workingDirectory, "./html-public/"+"IetfTopology-L2")
-	// publicAssetsDirectoryHtml := ("/etc/topoviewer/html-public/" + cyTopo.ClabTopoData.ClabTopoName)
-	router.PathPrefix("/").Handler(http.FileServer(http.Dir(publicAssetsDirectoryHtml)))
+				params := mux.Vars(r)
+				RouterId := params["id"]
+				log.Info("##################### " + RouterId)
+			})
 
-	//create html-public files
-	htmlPublicPrefixPath := "./html-public/"
-	htmlTemplatePath := "./html-static/template/nsp/"
+		// this is the endpoint for serving xterm.js assets
+		depenenciesDirectorXterm := path.Join(workingDirectory, "./html-static/cloudshell/node_modules")
+		// depenenciesDirectorXterm := ("/eth/topoviewer/html-static/cloudshell/node_modules")
+		router.PathPrefix("/assets").Handler(http.StripPrefix("/assets", http.FileServer(http.Dir(depenenciesDirectorXterm))))
 
-	// topoPrefixName := "NspIetfTopoLayer2" // should be added with NSP server ip address
+		// this is the endpoint for serving cytoscape.js assets
+		depenenciesDirectoryCytoscape := path.Join(workingDirectory, "./html-static/cytoscape")
+		// depenenciesDirectoryCytoscape := ("/eth/topoviewer/html-static/cytoscape")
+		router.PathPrefix("/cytoscape").Handler(http.StripPrefix("/cytoscape", http.FileServer(http.Dir(depenenciesDirectoryCytoscape))))
 
-	// os.Mkdir(htmlPublicPrefixPath+cyTopo.ClabTopoData.ClabTopoName, 0755) // already created in cytoscapemodel library
-	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "index.tmpl", "IetfTopology-L2"+"/"+"index.html", "dataIetfL2TopoCytoMarshall.json")
-	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "cy-style.tmpl", "IetfTopology-L2"+"/"+"cy-style.json", "")
-	// no need cloudshell
-	// os.Mkdir(htmlPublicPrefixPath+cyTopo.ClabTopoData.ClabTopoName+"/cloudshell", 0755)
-	// createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "cloudshell-index.tmpl", cyTopo.ClabTopoData.ClabTopoName+"/cloudshell/"+"index.html", "")
-	// createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "cloudshell-terminal-js.tmpl", cyTopo.ClabTopoData.ClabTopoName+"/cloudshell/"+"terminal.js", "")
+		// this is the endpoint for serving dataCyto.json asset
+		depenenciesDirectoryDataCyto := path.Join(workingDirectory, "./html-static/cytoscapedata")
+		// depenenciesDirectoryDataCyto := path.Join(workingDirectory, "/etc/topoviewer/html-static/cytoscapedata")
+		router.PathPrefix("/cytoscapedata").Handler(http.StripPrefix("/cytoscapedata", http.FileServer(http.Dir(depenenciesDirectoryDataCyto))))
 
-	// start memory logging pulse
-	logWithMemory := createMemoryLog()
-	go func(tick *time.Ticker) {
-		for {
-			logWithMemory.Debug("tick")
-			<-tick.C
+		// this is the endpoint for serving css asset
+		depenenciesDirectoryCss := path.Join(workingDirectory, "./html-static/css")
+		// depenenciesDirectoryCss := ("/etc/topoviewer/html-static/css")
+		router.PathPrefix("/css").Handler(http.StripPrefix("/css", http.FileServer(http.Dir(depenenciesDirectoryCss))))
+
+		// // this is the endpoint for the root path aka website shell
+		publicAssetsDirectoryHtml := path.Join(workingDirectory, "./html-public/"+"IetfTopology-MultiLayer")
+		// publicAssetsDirectoryHtml := ("/etc/topoviewer/html-public/" + cyTopo.ClabTopoData.ClabTopoName)
+		router.PathPrefix("/").Handler(http.FileServer(http.Dir(publicAssetsDirectoryHtml)))
+
+		//create html-public files
+		htmlPublicPrefixPath := "./html-public/"
+		htmlTemplatePath := "./html-static/template/nsp/"
+
+		// topoPrefixName := "NspIetfTopoLayer2" // should be added with NSP server ip address
+
+		// os.Mkdir(htmlPublicPrefixPath+cyTopo.ClabTopoData.ClabTopoName, 0755) // already created in cytoscapemodel library
+		createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "index.tmpl", "IetfTopology-MultiLayer"+"/"+"index.html", "dataIetfMultiLayerTopoCytoMarshall.json")
+		createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "cy-style.tmpl", "IetfTopology-MultiLayer"+"/"+"cy-style.json", "")
+		// no need cloudshell
+		// os.Mkdir(htmlPublicPrefixPath+cyTopo.ClabTopoData.ClabTopoName+"/cloudshell", 0755)
+		// createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "cloudshell-index.tmpl", cyTopo.ClabTopoData.ClabTopoName+"/cloudshell/"+"index.html", "")
+		// createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "cloudshell-terminal-js.tmpl", cyTopo.ClabTopoData.ClabTopoName+"/cloudshell/"+"terminal.js", "")
+
+		// start memory logging pulse
+		logWithMemory := createMemoryLog()
+		go func(tick *time.Ticker) {
+			for {
+				logWithMemory.Debug("tick")
+				<-tick.C
+			}
+		}(time.NewTicker(time.Second * 30))
+
+		// listen
+		listenOnAddress := fmt.Sprintf("%s:%v", serverAddress, serverPort)
+		server := http.Server{
+			Addr:    listenOnAddress,
+			Handler: addIncomingRequestLogging(router),
 		}
-	}(time.NewTicker(time.Second * 30))
 
-	// listen
-	listenOnAddress := fmt.Sprintf("%s:%v", serverAddress, serverPort)
-	server := http.Server{
-		Addr:    listenOnAddress,
-		Handler: addIncomingRequestLogging(router),
+		log.Infof("starting server on interface:port '%s'...", listenOnAddress)
+		return server.ListenAndServe()
+
+	} else {
+		// initialise the logger
+		log.Init(log.Format(confNsp.GetString("log-format")), log.Level(confNsp.GetString("log-level")))
+
+		// tranform clab-topo-file into cytoscape-model
+		topoNsp := confNsp.GetString("topology-ietf-l2-topo")
+		log.Info(topoNsp)
+
+		cyTopo := topoengine.CytoTopology{}
+		cyTopo.LogLevel = 5 // debug
+		cyTopo.InitLogger()
+
+		cyTopo.IetfL2TopoRead(topoNsp) // loading nsp topo json to cyTopo.IetfNetworL2TopoData
+		// cyTopo.IetfL2TopoUnMarshal(cyTopo.IetfNetworL2TopoData, topoengine.IetfNetworkTopologyL2{})
+		jsonBytes := cyTopo.IetfL2TopoUnMarshal(cyTopo.IetfNetworL2TopoData, topoengine.IetfNetworkTopologyL2{})
+		cyTopo.IetfL2TopoPrintjsonBytesCytoUi(jsonBytes)
+
+		command := confNsp.GetString("command")
+		arguments := confNsp.GetStringSlice("arguments")
+		connectionErrorLimit := confNsp.GetInt("connection-error-limit")
+		allowedHostnames := confNsp.GetStringSlice("allowed-hostnames")
+		keepalivePingTimeout := time.Duration(confNsp.GetInt("keepalive-ping-timeout")) * time.Second
+		maxBufferSizeBytes := confNsp.GetInt("max-buffer-size-bytes")
+		pathLiveness := confNsp.GetString("path-liveness")
+		pathMetrics := confNsp.GetString("path-metrics")
+		pathReadiness := confNsp.GetString("path-readiness")
+		pathXTermJS := confNsp.GetString("path-xtermjs")
+		serverAddress := confNsp.GetString("server-addr")
+		serverPort := confNsp.GetInt("server-port")
+		workingDirectory := confNsp.GetString("workdir")
+		if !path.IsAbs(workingDirectory) {
+			wd, err := os.Getwd()
+			if err != nil {
+				message := fmt.Sprintf("failed to get working directory: %s", err)
+				log.Error(message)
+				return errors.New(message)
+			}
+			workingDirectory = path.Join(wd, workingDirectory)
+		}
+		log.Infof("topology file path    : '%s'", workingDirectory+"/"+topoNsp)
+		log.Infof("working directory     : '%s'", workingDirectory)
+		log.Infof("command               : '%s'", command)
+		log.Infof("arguments             : ['%s']", strings.Join(arguments, "', '"))
+
+		log.Infof("allowed hosts         : ['%s']", strings.Join(allowedHostnames, "', '"))
+		log.Infof("connection error limit: %v", connectionErrorLimit)
+		log.Infof("keepalive ping timeout: %v", keepalivePingTimeout)
+		log.Infof("max buffer size       : %v bytes", maxBufferSizeBytes)
+		log.Infof("server address        : '%s' ", serverAddress)
+		log.Infof("server port           : %v", serverPort)
+
+		log.Infof("liveness checks path  : '%s'", pathLiveness)
+		log.Infof("readiness checks path : '%s'", pathReadiness)
+		log.Infof("metrics endpoint path : '%s'", pathMetrics)
+		log.Infof("xtermjs endpoint path : '%s'", pathXTermJS)
+
+		// configure routing
+		router := mux.NewRouter()
+
+		// this is the endpoint for xterm.js to connect to
+		xtermjsHandlerOptions := xtermjs.HandlerOpts{
+			AllowedHostnames: allowedHostnames,
+			// Arguments:            arguments,
+			Command:              command,
+			ConnectionErrorLimit: connectionErrorLimit,
+			CreateLogger: func(connectionUUID string, r *http.Request) xtermjs.Logger {
+				createRequestLog(r, map[string]interface{}{"connection_uuid": connectionUUID}).Infof("created logger for connection '%s'", connectionUUID)
+				return createRequestLog(nil, map[string]interface{}{"connection_uuid": connectionUUID})
+			},
+			KeepalivePingTimeout: keepalivePingTimeout,
+			MaxBufferSizeBytes:   maxBufferSizeBytes,
+		}
+		router.HandleFunc(pathXTermJS, xtermjs.GetHandler(xtermjsHandlerOptions, "TEST"))
+
+		// readiness probe endpoint
+		router.HandleFunc(pathReadiness, func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte("ok"))
+		})
+
+		// liveness probe endpoint
+		router.HandleFunc(pathLiveness, func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte("ok"))
+		})
+
+		// metrics endpoint
+		router.Handle(pathMetrics, promhttp.Handler())
+
+		// version endpoint
+		router.HandleFunc("/version", func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte(VersionInfo))
+		})
+
+		router.HandleFunc("/cloudshell}",
+			func(w http.ResponseWriter, r *http.Request) {
+				// router.HandleFunc(pathXTermJS, xtermjs.GetHandler(xtermjsHandlerOptions, "TEST"))
+				log.Info(xtermjsHandlerOptions)
+				w.WriteHeader(http.StatusOK)
+				w.Write([]byte(VersionInfo))
+
+				params := mux.Vars(r)
+				RouterId := params["id"]
+				log.Info("##################### " + RouterId)
+			})
+
+		// this is the endpoint for serving xterm.js assets
+		depenenciesDirectorXterm := path.Join(workingDirectory, "./html-static/cloudshell/node_modules")
+		// depenenciesDirectorXterm := ("/eth/topoviewer/html-static/cloudshell/node_modules")
+		router.PathPrefix("/assets").Handler(http.StripPrefix("/assets", http.FileServer(http.Dir(depenenciesDirectorXterm))))
+
+		// this is the endpoint for serving cytoscape.js assets
+		depenenciesDirectoryCytoscape := path.Join(workingDirectory, "./html-static/cytoscape")
+		// depenenciesDirectoryCytoscape := ("/eth/topoviewer/html-static/cytoscape")
+		router.PathPrefix("/cytoscape").Handler(http.StripPrefix("/cytoscape", http.FileServer(http.Dir(depenenciesDirectoryCytoscape))))
+
+		// this is the endpoint for serving dataCyto.json asset
+		depenenciesDirectoryDataCyto := path.Join(workingDirectory, "./html-static/cytoscapedata")
+		// depenenciesDirectoryDataCyto := path.Join(workingDirectory, "/etc/topoviewer/html-static/cytoscapedata")
+		router.PathPrefix("/cytoscapedata").Handler(http.StripPrefix("/cytoscapedata", http.FileServer(http.Dir(depenenciesDirectoryDataCyto))))
+
+		// this is the endpoint for serving css asset
+		depenenciesDirectoryCss := path.Join(workingDirectory, "./html-static/css")
+		// depenenciesDirectoryCss := ("/etc/topoviewer/html-static/css")
+		router.PathPrefix("/css").Handler(http.StripPrefix("/css", http.FileServer(http.Dir(depenenciesDirectoryCss))))
+
+		// // this is the endpoint for the root path aka website shell
+		publicAssetsDirectoryHtml := path.Join(workingDirectory, "./html-public/"+"IetfTopology-L2")
+		// publicAssetsDirectoryHtml := ("/etc/topoviewer/html-public/" + cyTopo.ClabTopoData.ClabTopoName)
+		router.PathPrefix("/").Handler(http.FileServer(http.Dir(publicAssetsDirectoryHtml)))
+
+		//create html-public files
+		htmlPublicPrefixPath := "./html-public/"
+		htmlTemplatePath := "./html-static/template/nsp/"
+
+		// topoPrefixName := "NspIetfTopoLayer2" // should be added with NSP server ip address
+
+		// os.Mkdir(htmlPublicPrefixPath+cyTopo.ClabTopoData.ClabTopoName, 0755) // already created in cytoscapemodel library
+		createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "index.tmpl", "IetfTopology-L2"+"/"+"index.html", "dataIetfL2TopoCytoMarshall.json")
+		createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "cy-style.tmpl", "IetfTopology-L2"+"/"+"cy-style.json", "")
+		// no need cloudshell
+		// os.Mkdir(htmlPublicPrefixPath+cyTopo.ClabTopoData.ClabTopoName+"/cloudshell", 0755)
+		// createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "cloudshell-index.tmpl", cyTopo.ClabTopoData.ClabTopoName+"/cloudshell/"+"index.html", "")
+		// createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "cloudshell-terminal-js.tmpl", cyTopo.ClabTopoData.ClabTopoName+"/cloudshell/"+"terminal.js", "")
+
+		// start memory logging pulse
+		logWithMemory := createMemoryLog()
+		go func(tick *time.Ticker) {
+			for {
+				logWithMemory.Debug("tick")
+				<-tick.C
+			}
+		}(time.NewTicker(time.Second * 30))
+
+		// listen
+		listenOnAddress := fmt.Sprintf("%s:%v", serverAddress, serverPort)
+		server := http.Server{
+			Addr:    listenOnAddress,
+			Handler: addIncomingRequestLogging(router),
+		}
+
+		log.Infof("starting server on interface:port '%s'...", listenOnAddress)
+		return server.ListenAndServe()
 	}
 
-	log.Infof("starting server on interface:port '%s'...", listenOnAddress)
-	return server.ListenAndServe()
+	// return nil
 }

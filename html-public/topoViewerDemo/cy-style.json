@@ -88,7 +88,7 @@
     "opacity": "0"
   }
 }, {
-  "selector": "edge[group=\"coexp\"]",
+  "selector": "edge[ExtraData[Kind=\"L3Link\"]]",
   "style": {
     "line-color": "#d0b7d5"
   }

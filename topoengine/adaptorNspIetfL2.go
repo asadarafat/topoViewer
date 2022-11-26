@@ -82,7 +82,7 @@ func (cyTopo *CytoTopology) InitLoggerIetfL2() {
 	toolLogger.InitLogger("logs/topoengine-CytoTopologyIetfL2.log", cyTopo.LogLevel)
 }
 
-func (cyTopo *CytoTopology) IetfL2TopoRead(topoFile string) {
+func (cyTopo *CytoTopology) IetfL2TopoRead(topoFile string) []byte {
 	// log.Info(topoFile)
 
 	filePath, _ := os.Getwd()
@@ -95,6 +95,7 @@ func (cyTopo *CytoTopology) IetfL2TopoRead(topoFile string) {
 	}
 
 	cyTopo.IetfNetworL2TopoData = topoFileBytes
+	return topoFileBytes
 }
 
 func (cyTopo *CytoTopology) IetfL2TopoUnMarshal(topoFile []byte, IetfNetworkTopologyL2Data IetfNetworkTopologyL2) []byte {

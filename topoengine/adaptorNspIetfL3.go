@@ -126,9 +126,9 @@ func (cyTopo *CytoTopology) IetfL3TopoUnMarshal(topoFile [][]byte, IetfNetworkTo
 				cytoJson.Group = "nodes"
 				cytoJson.Grabbable = true
 				cytoJson.Selectable = true
-				cytoJson.Data.ID = "L3-" + node.NodeID
+				cytoJson.Data.ID = "L3-" + network.NetworkID + node.NodeID
 				cytoJson.Data.Weight = "3"
-				cytoJson.Data.Name = "L3-" + node.IetfL3UnicastTopologyL3NodeAttributes.Name
+				cytoJson.Data.Name = "L3-" + network.NetworkID + node.NodeID
 
 				cytoJson.Data.ExtraData = map[string]interface{}{
 					"ServerUsername":       Username,
@@ -196,8 +196,8 @@ func (cyTopo *CytoTopology) IetfL3TopoUnMarshal(topoFile [][]byte, IetfNetworkTo
 
 func (cyTopo *CytoTopology) IetfL3TopoPrintjsonBytesCytoUi(marshaledJsonBytesCytoUi []byte) error {
 	// Create file
-	os.Mkdir("./html-public/"+"IetfTopology-MultiL2L3", 0755)
-	file, err := os.Create("html-public/" + "IetfTopology-MultiL2L3" + "/dataIetfMultiL2L3TopoCytoMarshall.json")
+	os.Mkdir("./html-public/"+"IetfTopology-L3", 0755)
+	file, err := os.Create("html-public/" + "IetfTopology-L3" + "/dataIetfL3TopoCytoMarshall.json")
 	if err != nil {
 		log.Error("Could not create json file for graph")
 	}

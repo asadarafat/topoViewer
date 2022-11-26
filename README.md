@@ -145,6 +145,12 @@ vscode ➜ /workspaces/topoViewer (development) $ go run cloudshellwrapper/cmd/m
 vscode ➜ /workspaces/topoViewer (development) $ go run cloudshellwrapper/cmd/main.go clab -t rawTopoFile/clab-topo-file.yaml 
 ```
 
+
+```Shell
+vscode ➜ /workspaces/topoViewer (development ✗) $ go run cloudshellwrapper/cmd/main.go nsp  --topology-ietf-l2-topo  rawTopoFile/topo-ietf-L2.json --topology-ietf-l3-topo rawTopoFile/topo-ietf-L3-TopologyId-1\:65000\:1-isis.json --multi-layer enabled
+```
+
+
 ## Build TopoViewer Binary - Linux
 build linux amd64 binary
 ```Shell
@@ -158,5 +164,3 @@ vscode ➜ /workspaces/topoViewer/dist/topoViewer (development ✗) $ pwd
 /workspaces/topoViewer/dist/topoViewer
 vscode ➜ /workspaces/topoViewer/dist/topoViewer (development ✗) $ ./topoviewer clab -t ../../rawTopoFile/topo-topoViewerDemo.yaml 
 ```
-
-
