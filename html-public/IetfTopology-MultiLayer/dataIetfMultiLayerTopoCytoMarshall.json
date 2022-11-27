@@ -229,51 +229,9 @@
         "sourceEndpoint": "",
         "targetEndpoint": ""
       },
-      "ExtraData": {
-        "IetfMultiL2L3NetworkName": "TopologyId-0:55000:2-isis",
-        "Name": "R9-PE-ASBR",
-        "NetworkID": "0",
-        "NodeAttributes": {
-          "name": "R9-PE-ASBR",
-          "flag": [
-            "nsp-ietf-network-topology:routing-instance"
-          ],
-          "router-id": [
-            "10.10.10.7"
-          ],
-          "nsp-ietf-network-topology:nsp-attributes": [],
-          "prefix": [
-            {
-              "prefix": "10.10.10.7/32",
-              "metric": 0,
-              "flag": []
-            }
-          ]
-        },
-        "NodeID": "10.10.10.9",
-        "NodeNumber": 2,
-        "NodeTerminationPoins": [
-          {
-            "tp-id": "10.4.7.2",
-            "supporting-termination-point": [
-              {
-                "network-ref": "/ietf-network:networks/network[network-id='L2Topology']",
-                "node-ref": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.7']",
-                "tp-ref": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.7']/ietf-network-topology:termination-point[tp-id='Port 1/1/2']"
-              }
-            ],
-            "ietf-l3-unicast-topology:l3-termination-point-attributes": {
-              "ip-address": [
-                "10.4.7.2"
-              ]
-            }
-          }
-        ],
-        "ServerUsername": "vscode",
-        "Weight": "3"
-      }
+      "ExtraData": {}
     },
-    "position": {
+    "position": { 
       "x": 0,
       "y": 0
     },
@@ -298,47 +256,9 @@
         "targetEndpoint": ""
       },
       "ExtraData": {
-        "IetfMultiL2L3NetworkName": "TopologyId-0:55000:2-isis",
-        "Name": "R9-PE-ASBR",
-        "NetworkID": "0",
         "NodeAttributes": {
-          "name": "R9-PE-ASBR",
-          "flag": [
-            "nsp-ietf-network-topology:routing-instance"
-          ],
-          "router-id": [
-            "10.10.10.7"
-          ],
-          "nsp-ietf-network-topology:nsp-attributes": [],
-          "prefix": [
-            {
-              "prefix": "10.10.10.7/32",
-              "metric": 0,
-              "flag": []
-            }
-          ]
-        },
-        "NodeID": "10.10.10.9",
-        "NodeNumber": 2,
-        "NodeTerminationPoins": [
-          {
-            "tp-id": "10.4.7.2",
-            "supporting-termination-point": [
-              {
-                "network-ref": "/ietf-network:networks/network[network-id='L2Topology']",
-                "node-ref": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.7']",
-                "tp-ref": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.7']/ietf-network-topology:termination-point[tp-id='Port 1/1/2']"
-              }
-            ],
-            "ietf-l3-unicast-topology:l3-termination-point-attributes": {
-              "ip-address": [
-                "10.4.7.2"
-              ]
-            }
-          }
-        ],
-        "ServerUsername": "vscode",
-        "Weight": "3"
+          "Name": "Layer-3"
+        }
       }
     },
     "position": {
@@ -599,69 +519,7 @@
         "sourceEndpoint": "",
         "targetEndpoint": ""
       },
-      "ExtraData": {
-        "IetfMultiL2L3NetworkName": "TopologyId-1:65000:1-isis",
-        "Name": "R5-PE",
-        "NetworkID": "0",
-        "NodeAttributes": {
-          "name": "R5-PE",
-          "flag": [
-            "nsp-ietf-network-topology:routing-instance"
-          ],
-          "router-id": [
-            "10.10.10.7"
-          ],
-          "nsp-ietf-network-topology:nsp-attributes": [],
-          "prefix": [
-            {
-              "prefix": "10.10.10.7/32",
-              "metric": 0,
-              "flag": []
-            },
-            {
-              "prefix": "10.67.67.1/32",
-              "metric": 0,
-              "flag": []
-            }
-          ]
-        },
-        "NodeID": "10.10.10.5",
-        "NodeNumber": 2,
-        "NodeTerminationPoins": [
-          {
-            "tp-id": "10.4.7.2",
-            "supporting-termination-point": [
-              {
-                "network-ref": "/ietf-network:networks/network[network-id='L2Topology']",
-                "node-ref": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.7']",
-                "tp-ref": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.7']/ietf-network-topology:termination-point[tp-id='Port 1/1/2']"
-              }
-            ],
-            "ietf-l3-unicast-topology:l3-termination-point-attributes": {
-              "ip-address": [
-                "10.4.7.2"
-              ]
-            }
-          },
-          {
-            "tp-id": "10.3.7.1",
-            "supporting-termination-point": [
-              {
-                "network-ref": "/ietf-network:networks/network[network-id='L2Topology']",
-                "node-ref": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.7']",
-                "tp-ref": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.7']/ietf-network-topology:termination-point[tp-id='Port 1/1/3']"
-              }
-            ],
-            "ietf-l3-unicast-topology:l3-termination-point-attributes": {
-              "ip-address": [
-                "10.3.7.1"
-              ]
-            }
-          }
-        ],
-        "ServerUsername": "vscode",
-        "Weight": "3"
-      }
+      "ExtraData": {}
     },
     "position": {
       "x": 0,
@@ -688,67 +546,9 @@
         "targetEndpoint": ""
       },
       "ExtraData": {
-        "IetfMultiL2L3NetworkName": "TopologyId-1:65000:1-isis",
-        "Name": "R5-PE",
-        "NetworkID": "0",
         "NodeAttributes": {
-          "name": "R5-PE",
-          "flag": [
-            "nsp-ietf-network-topology:routing-instance"
-          ],
-          "router-id": [
-            "10.10.10.7"
-          ],
-          "nsp-ietf-network-topology:nsp-attributes": [],
-          "prefix": [
-            {
-              "prefix": "10.10.10.7/32",
-              "metric": 0,
-              "flag": []
-            },
-            {
-              "prefix": "10.67.67.1/32",
-              "metric": 0,
-              "flag": []
-            }
-          ]
-        },
-        "NodeID": "10.10.10.5",
-        "NodeNumber": 2,
-        "NodeTerminationPoins": [
-          {
-            "tp-id": "10.4.7.2",
-            "supporting-termination-point": [
-              {
-                "network-ref": "/ietf-network:networks/network[network-id='L2Topology']",
-                "node-ref": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.7']",
-                "tp-ref": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.7']/ietf-network-topology:termination-point[tp-id='Port 1/1/2']"
-              }
-            ],
-            "ietf-l3-unicast-topology:l3-termination-point-attributes": {
-              "ip-address": [
-                "10.4.7.2"
-              ]
-            }
-          },
-          {
-            "tp-id": "10.3.7.1",
-            "supporting-termination-point": [
-              {
-                "network-ref": "/ietf-network:networks/network[network-id='L2Topology']",
-                "node-ref": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.7']",
-                "tp-ref": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.7']/ietf-network-topology:termination-point[tp-id='Port 1/1/3']"
-              }
-            ],
-            "ietf-l3-unicast-topology:l3-termination-point-attributes": {
-              "ip-address": [
-                "10.3.7.1"
-              ]
-            }
-          }
-        ],
-        "ServerUsername": "vscode",
-        "Weight": "3"
+          "Name": "Layer-3"
+        }
       }
     },
     "position": {
@@ -1325,52 +1125,7 @@
         "sourceEndpoint": "",
         "targetEndpoint": ""
       },
-      "ExtraData": {
-        "IetfMultiL2L3NetworkName": "TopologyId-0:65000:1-isis",
-        "Name": "R2-PE",
-        "NetworkID": "0",
-        "NodeAttributes": {
-          "name": "R2-PE",
-          "flag": [
-            "nsp-ietf-network-topology:routing-instance"
-          ],
-          "router-id": [
-            "10.10.10.2"
-          ],
-          "nsp-ietf-network-topology:nsp-attributes": [],
-          "prefix": [
-            {
-              "prefix": "10.10.10.2/32",
-              "metric": 0,
-              "flag": []
-            }
-          ]
-        },
-        "NodeID": "10.10.10.2",
-        "NodeNumber": 5,
-        "NodeTerminationPoins": [
-          {
-            "tp-id": "10.1.4.2",
-            "supporting-termination-point": null,
-            "ietf-l3-unicast-topology:l3-termination-point-attributes": {
-              "ip-address": [
-                "10.1.4.2"
-              ]
-            }
-          },
-          {
-            "tp-id": "10.2.4.1",
-            "supporting-termination-point": null,
-            "ietf-l3-unicast-topology:l3-termination-point-attributes": {
-              "ip-address": [
-                "10.2.4.1"
-              ]
-            }
-          }
-        ],
-        "ServerUsername": "vscode",
-        "Weight": "3"
-      }
+      "ExtraData": {}
     },
     "position": {
       "x": 0,
@@ -1397,50 +1152,9 @@
         "targetEndpoint": ""
       },
       "ExtraData": {
-        "IetfMultiL2L3NetworkName": "TopologyId-0:65000:1-isis",
-        "Name": "R2-PE",
-        "NetworkID": "0",
         "NodeAttributes": {
-          "name": "R2-PE",
-          "flag": [
-            "nsp-ietf-network-topology:routing-instance"
-          ],
-          "router-id": [
-            "10.10.10.2"
-          ],
-          "nsp-ietf-network-topology:nsp-attributes": [],
-          "prefix": [
-            {
-              "prefix": "10.10.10.2/32",
-              "metric": 0,
-              "flag": []
-            }
-          ]
-        },
-        "NodeID": "10.10.10.2",
-        "NodeNumber": 5,
-        "NodeTerminationPoins": [
-          {
-            "tp-id": "10.1.4.2",
-            "supporting-termination-point": null,
-            "ietf-l3-unicast-topology:l3-termination-point-attributes": {
-              "ip-address": [
-                "10.1.4.2"
-              ]
-            }
-          },
-          {
-            "tp-id": "10.2.4.1",
-            "supporting-termination-point": null,
-            "ietf-l3-unicast-topology:l3-termination-point-attributes": {
-              "ip-address": [
-                "10.2.4.1"
-              ]
-            }
-          }
-        ],
-        "ServerUsername": "vscode",
-        "Weight": "3"
+          "Name": "Layer-3"
+        }
       }
     },
     "position": {
@@ -4586,36 +4300,9 @@
         "targetEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.3']/ietf-network-topology:termination-point[tp-id='Port 1/1/1']"
       },
       "ExtraData": {
-        "Auto-nego": false,
-        "Delay": 0,
-        "Duplex": "full-duplex",
-        "Endpoints": {
-          "SourceEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.1']",
-          "TargetEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.3']"
-        },
-        "Flags": [
-          "nsp-ietf-network-topology:cable"
-        ],
-        "ID": "13",
-        "L2LinkAttributes": {
-          "name": "R1-PE:1/1/c1/1--R3-P:1/1/1",
-          "rate": 40000000,
-          "delay": 0,
-          "auto-nego": false,
-          "duplex": "full-duplex",
-          "flags": [
-            "nsp-ietf-network-topology:cable"
-          ],
-          "nsp-ietf-network-topology:nsp-attributes": [
-            "from-MAC Address-C8-1F-FF-00-00-00-portid-1610899521-Nearest-Bridge-to-MAC Address-C8-21-FF-00-00-00-portid-35684352"
-          ]
-        },
-        "Name": "R1-PE:1/1/c1/1--R3-P:1/1/1",
-        "Rate": 40000000,
-        "TopoviewerServerUsername": "vscode",
-        "grabbable": true,
-        "selectable": true,
-        "weight": "1"
+        "NodeAttributes": {
+          "Name": "Layer-2"
+        }
       }
     },
     "position": {
@@ -4633,7 +4320,7 @@
   },
   {
     "data": {
-      "id": "b29b8f97-56c3-4396-a64b-cdb36020063a",
+      "id": "5ae1bdb2-1fe9-4d79-a0cb-6cda706c27c2",
       "source": "L3-10.10.10.10",
       "target": "L2-10.10.10.10",
       "weight": "1",
@@ -4650,7 +4337,7 @@
           "SourceEndpoint": "L3-10.10.10.10",
           "TargetEndpoint": "L2-10.10.10.10"
         },
-        "ID": "b29b8f97-56c3-4396-a64b-cdb36020063a",
+        "ID": "5ae1bdb2-1fe9-4d79-a0cb-6cda706c27c2",
         "NetworkID": 0,
         "grabbable": true,
         "selectable": true,
@@ -4672,7 +4359,7 @@
   },
   {
     "data": {
-      "id": "0a3e0a49-46a5-4076-b777-0369789f170c",
+      "id": "ee056e04-c144-408e-a775-d6d4aa244ed3",
       "source": "L3-10.10.10.8",
       "target": "L2-10.10.10.8",
       "weight": "1",
@@ -4689,7 +4376,7 @@
           "SourceEndpoint": "L3-10.10.10.8",
           "TargetEndpoint": "L2-10.10.10.8"
         },
-        "ID": "0a3e0a49-46a5-4076-b777-0369789f170c",
+        "ID": "ee056e04-c144-408e-a775-d6d4aa244ed3",
         "NetworkID": 0,
         "grabbable": true,
         "selectable": true,
@@ -4711,7 +4398,7 @@
   },
   {
     "data": {
-      "id": "a072b554-f117-4e4b-8b57-137d0b7ae6a5",
+      "id": "69e5b020-71c8-40f4-aca1-7b83404af431",
       "source": "L3-10.10.10.9",
       "target": "L2-10.10.10.9",
       "weight": "1",
@@ -4728,7 +4415,7 @@
           "SourceEndpoint": "L3-10.10.10.9",
           "TargetEndpoint": "L2-10.10.10.9"
         },
-        "ID": "a072b554-f117-4e4b-8b57-137d0b7ae6a5",
+        "ID": "69e5b020-71c8-40f4-aca1-7b83404af431",
         "NetworkID": 0,
         "grabbable": true,
         "selectable": true,
@@ -4750,7 +4437,7 @@
   },
   {
     "data": {
-      "id": "b4b709f9-67be-45c0-8904-13c05b35a35e",
+      "id": "fe3be66c-4f8a-4130-94c9-644728c0e2ce",
       "source": "L3-10.10.10.3",
       "target": "L2-10.10.10.3",
       "weight": "1",
@@ -4767,7 +4454,7 @@
           "SourceEndpoint": "L3-10.10.10.3",
           "TargetEndpoint": "L2-10.10.10.3"
         },
-        "ID": "b4b709f9-67be-45c0-8904-13c05b35a35e",
+        "ID": "fe3be66c-4f8a-4130-94c9-644728c0e2ce",
         "NetworkID": 0,
         "grabbable": true,
         "selectable": true,
@@ -4789,7 +4476,7 @@
   },
   {
     "data": {
-      "id": "2382bcc7-a700-4228-bfa2-41c6616626ed",
+      "id": "8790b817-c267-4ab1-9fa6-4ca35865c29b",
       "source": "L3-10.10.10.4",
       "target": "L2-10.10.10.4",
       "weight": "1",
@@ -4806,7 +4493,7 @@
           "SourceEndpoint": "L3-10.10.10.4",
           "TargetEndpoint": "L2-10.10.10.4"
         },
-        "ID": "2382bcc7-a700-4228-bfa2-41c6616626ed",
+        "ID": "8790b817-c267-4ab1-9fa6-4ca35865c29b",
         "NetworkID": 0,
         "grabbable": true,
         "selectable": true,
@@ -4828,7 +4515,7 @@
   },
   {
     "data": {
-      "id": "b2026e69-d7d7-4cb2-ab5d-1fb96808b085",
+      "id": "62642354-dbdb-4b1d-a10b-e3bed15cc701",
       "source": "L3-10.10.10.5",
       "target": "L2-10.10.10.5",
       "weight": "1",
@@ -4845,7 +4532,7 @@
           "SourceEndpoint": "L3-10.10.10.5",
           "TargetEndpoint": "L2-10.10.10.5"
         },
-        "ID": "b2026e69-d7d7-4cb2-ab5d-1fb96808b085",
+        "ID": "62642354-dbdb-4b1d-a10b-e3bed15cc701",
         "NetworkID": 0,
         "grabbable": true,
         "selectable": true,
@@ -4867,7 +4554,7 @@
   },
   {
     "data": {
-      "id": "0f2bcfe9-3a27-4b1d-be09-39570bc7fea1",
+      "id": "55e6421b-1075-4b28-b443-d5c353d9c69a",
       "source": "L3-10.10.10.3",
       "target": "L2-10.10.10.3",
       "weight": "1",
@@ -4884,7 +4571,7 @@
           "SourceEndpoint": "L3-10.10.10.3",
           "TargetEndpoint": "L2-10.10.10.3"
         },
-        "ID": "0f2bcfe9-3a27-4b1d-be09-39570bc7fea1",
+        "ID": "55e6421b-1075-4b28-b443-d5c353d9c69a",
         "NetworkID": 0,
         "grabbable": true,
         "selectable": true,
@@ -4906,7 +4593,7 @@
   },
   {
     "data": {
-      "id": "464fda86-8481-40b9-8f88-0336d16beb55",
+      "id": "7d817963-fc34-4a36-b75c-10f31ea9d37f",
       "source": "L3-10.10.10.4",
       "target": "L2-10.10.10.4",
       "weight": "1",
@@ -4923,7 +4610,7 @@
           "SourceEndpoint": "L3-10.10.10.4",
           "TargetEndpoint": "L2-10.10.10.4"
         },
-        "ID": "464fda86-8481-40b9-8f88-0336d16beb55",
+        "ID": "7d817963-fc34-4a36-b75c-10f31ea9d37f",
         "NetworkID": 0,
         "grabbable": true,
         "selectable": true,
@@ -4945,7 +4632,7 @@
   },
   {
     "data": {
-      "id": "bb54b8c2-bce8-44b5-9d6f-2506d127c849",
+      "id": "f82883ee-0e58-4c4d-8393-a36c001c0daa",
       "source": "L3-10.10.10.7",
       "target": "L2-10.10.10.7",
       "weight": "1",
@@ -4962,7 +4649,7 @@
           "SourceEndpoint": "L3-10.10.10.7",
           "TargetEndpoint": "L2-10.10.10.7"
         },
-        "ID": "bb54b8c2-bce8-44b5-9d6f-2506d127c849",
+        "ID": "f82883ee-0e58-4c4d-8393-a36c001c0daa",
         "NetworkID": 0,
         "grabbable": true,
         "selectable": true,
@@ -4984,7 +4671,7 @@
   },
   {
     "data": {
-      "id": "7e5b424a-806a-419a-858a-fb410b1f99dc",
+      "id": "9754e669-9b8d-437e-82fc-de6043396e14",
       "source": "L3-10.10.10.6",
       "target": "L2-10.10.10.6",
       "weight": "1",
@@ -5001,7 +4688,7 @@
           "SourceEndpoint": "L3-10.10.10.6",
           "TargetEndpoint": "L2-10.10.10.6"
         },
-        "ID": "7e5b424a-806a-419a-858a-fb410b1f99dc",
+        "ID": "9754e669-9b8d-437e-82fc-de6043396e14",
         "NetworkID": 0,
         "grabbable": true,
         "selectable": true,
@@ -5023,7 +4710,7 @@
   },
   {
     "data": {
-      "id": "57eb02f8-964a-4cf4-870e-9b055c85f234",
+      "id": "716f3fc1-9219-413b-94dc-81d06c187b26",
       "source": "L3-10.10.10.1",
       "target": "L2-10.10.10.1",
       "weight": "1",
@@ -5040,7 +4727,7 @@
           "SourceEndpoint": "L3-10.10.10.1",
           "TargetEndpoint": "L2-10.10.10.1"
         },
-        "ID": "57eb02f8-964a-4cf4-870e-9b055c85f234",
+        "ID": "716f3fc1-9219-413b-94dc-81d06c187b26",
         "NetworkID": 0,
         "grabbable": true,
         "selectable": true,
@@ -5062,7 +4749,7 @@
   },
   {
     "data": {
-      "id": "5f5fdced-a054-4a21-b791-377a188bdae3",
+      "id": "f51cd0b2-c0c3-4031-a259-4d3e3c9ac4f6",
       "source": "L3-10.10.10.2",
       "target": "L2-10.10.10.2",
       "weight": "1",
@@ -5079,7 +4766,7 @@
           "SourceEndpoint": "L3-10.10.10.2",
           "TargetEndpoint": "L2-10.10.10.2"
         },
-        "ID": "5f5fdced-a054-4a21-b791-377a188bdae3",
+        "ID": "f51cd0b2-c0c3-4031-a259-4d3e3c9ac4f6",
         "NetworkID": 0,
         "grabbable": true,
         "selectable": true,
