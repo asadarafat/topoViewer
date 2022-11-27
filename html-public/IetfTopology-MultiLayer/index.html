@@ -141,7 +141,7 @@
         ];
 
         
-        var buttonsBgpLuLink = [{
+        var buttonscollectedNodes = [{
           label: h('span', {
             'class': 'fa fa-check-square'
           }, []),
@@ -155,7 +155,7 @@
 
         sliders.forEach(makeSlider);
         buttons.forEach(makeButton);
-        buttonsBgpLuLink.forEach(makeButtonBgpLuLink);
+        buttonscollectedNodes.forEach(makeButtoncollectedNodes);
 
         function makeLayout(opts) {
           params.randomize = false;
@@ -224,30 +224,42 @@
           });
         }
 
-        bgpLuLink = cy.filter('edge[group = "bgpLu"]');
-        
-        console.log('bgpLuLink');
-        console.log(bgpLuLink);
+        parentNode = cy.filter('node[id = "Layer-3"]');
+        collectedNodes = parentNode.descendants()
+        connectedEdges = collectedNodes.connectedEdges();
 
-        var bgpLuLinkVisibiliy = true
+        collectedNodes.forEach(function (n) {
+          var g = n.data('name')
+          console.log('collectedNodes-name: ', g)
+        });
 
-        function makeButtonBgpLuLink(opts) {
-          var $buttonsBgpLuLink = h('button', {
+
+        var collectedNodesVisibiliy = true
+
+        function makeButtoncollectedNodes(opts) {
+          var $buttonscollectedNodes = h('button', {
             'class': 'btn btn-default',
-            'title': "Toggle show BGP-LU Link-Tunnel"
+            'title': "Toggle show Layer3"
           }, [opts.label]);
-          $btnParam.appendChild($buttonsBgpLuLink);
-          $buttonsBgpLuLink.addEventListener('click', function () {
+          $btnParam.appendChild($buttonscollectedNodes);
+          $buttonscollectedNodes.addEventListener('click', function () {
             layout.stop();
 
-            if (bgpLuLinkVisibiliy) {
-              bgpLuLink.remove()
-              bgpLuLinkVisibiliy = false
-              console.log('bgpLuLinkVisibiliy: ' + bgpLuLinkVisibiliy);
+            if (collectedNodesVisibiliy) {
+              collectedNodes.remove()
+              connectedEdges.remove()
+              parentNode.remove()
+              collectedNodesVisibiliy = false
+              console.log('collectedNodesVisibiliy: ' + collectedNodesVisibiliy);
+              console.log('collectedNodes: ', collectedNodes);
+
+
             } else {
-              bgpLuLink.restore()
-              bgpLuLinkVisibiliy = true
-              console.log('bgpLuLinkVisibiliy: ' + bgpLuLinkVisibiliy);
+              parentNode.restore()
+              collectedNodes.restore()
+              connectedEdges.restore()
+              collectedNodesVisibiliy = true
+              console.log('collectedNodesVisibiliy: ' + collectedNodesVisibiliy);
             }
           });
         }
@@ -307,7 +319,7 @@
              url: serverUrl + '/cloudshell/?RouterID=' + n.data('ExtraData').MgmtIPv4Address
            },
            {
-             name: 'Node Name: ' + n.data('ExtraData').NodeAttributes.name
+             name: 'Node Name: ' + n.data('name')
              
            }
           ].map(function (link) {

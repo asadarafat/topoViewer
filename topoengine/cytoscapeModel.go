@@ -24,13 +24,15 @@ type CytoJson struct {
 		Parent string `json:"parent"`
 		Kind   string `json:"kind"`
 
-		// Extra Fields
 		Endpoint struct {
 			SourceEndpoint string `json:"sourceEndpoint"`
 			TargetEndpoint string `json:"targetEndpoint"`
 		} `json:"endpoint"`
+
+		// Extra Fields
 		ExtraData interface{} `json:"ExtraData,omitempty"`
 	} `json:"data"`
+
 	Pos struct {
 		X float64 `json:"x"`
 		Y float64 `json:"y"`

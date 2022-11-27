@@ -28,7 +28,10 @@
     "shape": "rectangle",
     "border-width": "0.5px",
     "border-color": "#DDDDDD",
-    "background-color": "#F2F2F2",
+    "background-color": "#d9d9d9",    
+
+    "background-opacity": "0.2",
+
     "text-outline-color": "#F2F2F2",
     "width": "3px",
     "height": "3x",
@@ -67,7 +70,6 @@
   "style": {
     "targetArrowShape": "none",
     "arrow-scale": "0.5",
-    "curve-style": "bezier",
     "opacity": "0.5",
     "line-color": "#61A80A",
     "width": "2",
@@ -91,7 +93,7 @@
 }, {
   "selector": "node.highlighted",
   "style": {
-    "border-width": "6px",
+    "border-width": "5px",
     "border-color": "#F2F2F2",
     "border-opacity": "0.5",
     "background-color": "#F2F2F2",
@@ -108,14 +110,16 @@
     "line-color": "#d0b7d5",
     "line-style": "dotted",
     "width": "0.5"
-
   }
 }, {
-  "selector": "edge[kind=\"Layer3Link\"]",
+  "selector": "edge[kind=\"Layer3Link\"]", 
   "style": {
     "line-color": "#a0b3dc",
-    "target-arrow-shape": "triangle",
+    "target-arrow-shape": "vee",
     "arrow-scale": "0.4",
+    "curve-style": "bezier",
+    "control-point-distances": 5,
+    "control-point-weights": 0.1,
     "width": "1"
   }
 }, {

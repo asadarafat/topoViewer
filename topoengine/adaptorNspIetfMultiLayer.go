@@ -92,8 +92,9 @@ func (cyTopo *CytoTopology) IetfMultiL2L3TopoUnMarshal(L2topoFile []byte, L3topo
 			cytoJson.Selectable = true
 			cytoJson.Data.ID = "L3--" + network.NetworkID //taken by cyto as index
 			cytoJson.Data.Weight = "3"
-			cytoJson.Data.Name = cytoJson.Data.ID
+			cytoJson.Data.Name = "L3--" + network.NetworkID
 			cytoJson.Data.Parent = "Layer-3"
+			cytoJson.Data.ExtraData = map[string]interface{}{} // empty Extra Data
 			cytoJsonList = append(cytoJsonList, cytoJson)
 		}
 		// add Parent Node For Layer 3
@@ -102,8 +103,15 @@ func (cyTopo *CytoTopology) IetfMultiL2L3TopoUnMarshal(L2topoFile []byte, L3topo
 		cytoJson.Selectable = true
 		cytoJson.Data.ID = "Layer-3" //taken by cyto as index
 		cytoJson.Data.Weight = "3"
+
 		cytoJson.Data.Name = cytoJson.Data.ID
+		cytoJson.Data.ExtraData = map[string]interface{}{
+			"NodeAttributes": struct {
+				Name string
+			}{"Layer-3"},
+		}
 		cytoJsonList = append(cytoJsonList, cytoJson)
+
 	}
 
 	// unMarshall L3 Topo - Links
@@ -138,6 +146,7 @@ func (cyTopo *CytoTopology) IetfMultiL2L3TopoUnMarshal(L2topoFile []byte, L3topo
 					"weight":                  "1",
 					"Name":                    link.LinkID,
 					"MultiL2L3LinkAttributes": link.IetfL3UnicastTopologyL3LinkAttributes,
+
 					"Endpoints": struct {
 						SourceEndpoint string
 						TargetEndpoint string
@@ -192,7 +201,6 @@ func (cyTopo *CytoTopology) IetfMultiL2L3TopoUnMarshal(L2topoFile []byte, L3topo
 			cytoJson.Data.Endpoint.TargetEndpoint = link.Destination.DestTp
 
 			cytoJson.Data.Name = link.LinkID
-
 			cytoJson.Data.Kind = "Layer2Link"
 
 			cytoJson.Data.ExtraData = map[string]interface{}{
@@ -209,6 +217,7 @@ func (cyTopo *CytoTopology) IetfMultiL2L3TopoUnMarshal(L2topoFile []byte, L3topo
 				"Flags":                    link.IetfL2TopologyL2LinkAttributes.Flags,
 				"L2LinkAttributes":         link.IetfL2TopologyL2LinkAttributes,
 				// "NspAttributes": link.IetfL2TopologyL2LinkAttributes.NspIetfNetworkTopologyNspAttributes,
+
 				"Endpoints": struct {
 					SourceEndpoint string
 					TargetEndpoint string
@@ -223,6 +232,11 @@ func (cyTopo *CytoTopology) IetfMultiL2L3TopoUnMarshal(L2topoFile []byte, L3topo
 		cytoJson.Data.ID = "Layer-2" //taken by cyto as index
 		cytoJson.Data.Weight = "3"
 		cytoJson.Data.Name = cytoJson.Data.ID
+		cytoJson.Data.ExtraData = map[string]interface{}{
+			"NodeAttributes": struct {
+				Name string
+			}{"Layer-2"},
+		}
 		cytoJsonList = append(cytoJsonList, cytoJson)
 	}
 
