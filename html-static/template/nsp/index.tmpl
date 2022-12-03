@@ -224,7 +224,7 @@
           });
         }
 
-        parentNode = cy.filter('node[id = "Layer-3"]');
+        parentNode = cy.filter('node[id = "ietf-l3-unicast-topology"]');
         collectedNodes = parentNode.descendants()
         connectedEdges = collectedNodes.connectedEdges();
 
@@ -239,7 +239,7 @@
         function makeButtoncollectedNodes(opts) {
           var $buttonscollectedNodes = h('button', {
             'class': 'btn btn-default',
-            'title': "Toggle show Layer3"
+            'title': "Toggle show ietf-l3-unicast-topology"
           }, [opts.label]);
           $btnParam.appendChild($buttonscollectedNodes);
           $buttonscollectedNodes.addEventListener('click', function () {

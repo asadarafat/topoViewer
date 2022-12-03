@@ -223,7 +223,7 @@
       "id": "L3--TopologyId-0:55000:2-isis",
       "weight": "3",
       "name": "L3--TopologyId-0:55000:2-isis",
-      "parent": "Layer-3",
+      "parent": "ietf-l3-unicast-topology (RFC 8346)",
       "kind": "",
       "endpoint": {
         "sourceEndpoint": "",
@@ -231,7 +231,7 @@
       },
       "ExtraData": {}
     },
-    "position": { 
+    "position": {
       "x": 0,
       "y": 0
     },
@@ -246,10 +246,10 @@
   },
   {
     "data": {
-      "id": "Layer-3",
+      "id": "ietf-l3-unicast-topology (RFC 8346)",
       "weight": "3",
-      "name": "Layer-3",
-      "parent": "Layer-3",
+      "name": "ietf-l3-unicast-topology (RFC 8346)",
+      "parent": "ietf-l3-unicast-topology (RFC 8346)",
       "kind": "",
       "endpoint": {
         "sourceEndpoint": "",
@@ -257,7 +257,7 @@
       },
       "ExtraData": {
         "NodeAttributes": {
-          "Name": "Layer-3"
+          "Name": "ietf-l3-unicast-topology (RFC 8346)"
         }
       }
     },
@@ -513,7 +513,7 @@
       "id": "L3--TopologyId-1:65000:1-isis",
       "weight": "3",
       "name": "L3--TopologyId-1:65000:1-isis",
-      "parent": "Layer-3",
+      "parent": "ietf-l3-unicast-topology (RFC 8346)",
       "kind": "",
       "endpoint": {
         "sourceEndpoint": "",
@@ -536,10 +536,10 @@
   },
   {
     "data": {
-      "id": "Layer-3",
+      "id": "ietf-l3-unicast-topology (RFC 8346)",
       "weight": "3",
-      "name": "Layer-3",
-      "parent": "Layer-3",
+      "name": "ietf-l3-unicast-topology (RFC 8346)",
+      "parent": "ietf-l3-unicast-topology (RFC 8346)",
       "kind": "",
       "endpoint": {
         "sourceEndpoint": "",
@@ -547,7 +547,7 @@
       },
       "ExtraData": {
         "NodeAttributes": {
-          "Name": "Layer-3"
+          "Name": "ietf-l3-unicast-topology (RFC 8346)"
         }
       }
     },
@@ -1119,7 +1119,7 @@
       "id": "L3--TopologyId-0:65000:1-isis",
       "weight": "3",
       "name": "L3--TopologyId-0:65000:1-isis",
-      "parent": "Layer-3",
+      "parent": "ietf-l3-unicast-topology (RFC 8346)",
       "kind": "",
       "endpoint": {
         "sourceEndpoint": "",
@@ -1142,10 +1142,10 @@
   },
   {
     "data": {
-      "id": "Layer-3",
+      "id": "ietf-l3-unicast-topology (RFC 8346)",
       "weight": "3",
-      "name": "Layer-3",
-      "parent": "Layer-3",
+      "name": "ietf-l3-unicast-topology (RFC 8346)",
+      "parent": "ietf-l3-unicast-topology (RFC 8346)",
       "kind": "",
       "endpoint": {
         "sourceEndpoint": "",
@@ -1153,7 +1153,7 @@
       },
       "ExtraData": {
         "NodeAttributes": {
-          "Name": "Layer-3"
+          "Name": "ietf-l3-unicast-topology (RFC 8346)"
         }
       }
     },
@@ -1177,7 +1177,7 @@
       "target": "L3-10.10.10.8",
       "weight": "1",
       "name": "10.10.10.10:10.8.10.2--10.10.10.8:10.8.10.1--l2",
-      "parent": "Layer-3",
+      "parent": "ietf-l3-unicast-topology (RFC 8346)",
       "kind": "Layer3Link",
       "endpoint": {
         "sourceEndpoint": "/ietf-network:networks/network[network-id='TopologyId-0:55000:2-isis']/node[node-id='10.10.10.10']/ietf-network-topology:termination-point[tp-id='10.8.10.2']",
@@ -1226,7 +1226,7 @@
       "target": "L3-10.10.10.10",
       "weight": "1",
       "name": "10.10.10.8:10.8.10.1--10.10.10.10:10.8.10.2--l2",
-      "parent": "Layer-3",
+      "parent": "ietf-l3-unicast-topology (RFC 8346)",
       "kind": "Layer3Link",
       "endpoint": {
         "sourceEndpoint": "/ietf-network:networks/network[network-id='TopologyId-0:55000:2-isis']/node[node-id='10.10.10.8']/ietf-network-topology:termination-point[tp-id='10.8.10.1']",
@@ -1275,7 +1275,7 @@
       "target": "L3-10.10.10.8",
       "weight": "1",
       "name": "10.10.10.9:10.8.9.2--10.10.10.8:10.8.9.1--l2",
-      "parent": "Layer-3",
+      "parent": "ietf-l3-unicast-topology (RFC 8346)",
       "kind": "Layer3Link",
       "endpoint": {
         "sourceEndpoint": "/ietf-network:networks/network[network-id='TopologyId-0:55000:2-isis']/node[node-id='10.10.10.9']/ietf-network-topology:termination-point[tp-id='10.8.9.2']",
@@ -1324,7 +1324,7 @@
       "target": "L3-10.10.10.9",
       "weight": "1",
       "name": "10.10.10.8:10.8.9.1--10.10.10.9:10.8.9.2--l2",
-      "parent": "Layer-3",
+      "parent": "ietf-l3-unicast-topology (RFC 8346)",
       "kind": "Layer3Link",
       "endpoint": {
         "sourceEndpoint": "/ietf-network:networks/network[network-id='TopologyId-0:55000:2-isis']/node[node-id='10.10.10.8']/ietf-network-topology:termination-point[tp-id='10.8.9.1']",
@@ -1373,7 +1373,7 @@
       "target": "L3-10.10.10.5",
       "weight": "1",
       "name": "10.10.10.4:10.4.5.1--10.10.10.5:10.4.5.2--l1",
-      "parent": "Layer-3",
+      "parent": "ietf-l3-unicast-topology (RFC 8346)",
       "kind": "Layer3Link",
       "endpoint": {
         "sourceEndpoint": "/ietf-network:networks/network[network-id='TopologyId-1:65000:1-isis']/node[node-id='10.10.10.4']/ietf-network-topology:termination-point[tp-id='10.4.5.1']",
@@ -1422,7 +1422,7 @@
       "target": "L3-10.10.10.3",
       "weight": "1",
       "name": "10.10.10.5:10.3.5.2--10.10.10.3:10.3.5.1--l1",
-      "parent": "Layer-3",
+      "parent": "ietf-l3-unicast-topology (RFC 8346)",
       "kind": "Layer3Link",
       "endpoint": {
         "sourceEndpoint": "/ietf-network:networks/network[network-id='TopologyId-1:65000:1-isis']/node[node-id='10.10.10.5']/ietf-network-topology:termination-point[tp-id='10.3.5.2']",
@@ -1471,7 +1471,7 @@
       "target": "L3-10.10.10.4",
       "weight": "1",
       "name": "10.10.10.5:10.4.5.2--10.10.10.4:10.4.5.1--l1",
-      "parent": "Layer-3",
+      "parent": "ietf-l3-unicast-topology (RFC 8346)",
       "kind": "Layer3Link",
       "endpoint": {
         "sourceEndpoint": "/ietf-network:networks/network[network-id='TopologyId-1:65000:1-isis']/node[node-id='10.10.10.5']/ietf-network-topology:termination-point[tp-id='10.4.5.2']",
@@ -1520,7 +1520,7 @@
       "target": "L3-10.10.10.5",
       "weight": "1",
       "name": "10.10.10.3:10.3.5.1--10.10.10.5:10.3.5.2--l1",
-      "parent": "Layer-3",
+      "parent": "ietf-l3-unicast-topology (RFC 8346)",
       "kind": "Layer3Link",
       "endpoint": {
         "sourceEndpoint": "/ietf-network:networks/network[network-id='TopologyId-1:65000:1-isis']/node[node-id='10.10.10.3']/ietf-network-topology:termination-point[tp-id='10.3.5.1']",
@@ -1569,7 +1569,7 @@
       "target": "L3-10.10.10.4",
       "weight": "1",
       "name": "10.10.10.6:10.6.4.1--10.10.10.4:10.6.4.2--l2",
-      "parent": "Layer-3",
+      "parent": "ietf-l3-unicast-topology (RFC 8346)",
       "kind": "Layer3Link",
       "endpoint": {
         "sourceEndpoint": "/ietf-network:networks/network[network-id='TopologyId-0:65000:1-isis']/node[node-id='10.10.10.6']/ietf-network-topology:termination-point[tp-id='10.6.4.1']",
@@ -1618,7 +1618,7 @@
       "target": "L3-10.10.10.1",
       "weight": "1",
       "name": "10.10.10.2:10.1.4.2--10.10.10.1:10.1.4.1--l2",
-      "parent": "Layer-3",
+      "parent": "ietf-l3-unicast-topology (RFC 8346)",
       "kind": "Layer3Link",
       "endpoint": {
         "sourceEndpoint": "/ietf-network:networks/network[network-id='TopologyId-0:65000:1-isis']/node[node-id='10.10.10.2']/ietf-network-topology:termination-point[tp-id='10.1.4.2']",
@@ -1667,7 +1667,7 @@
       "target": "L3-10.10.10.1",
       "weight": "1",
       "name": "10.10.10.3:10.1.3.2--10.10.10.1:10.1.3.1--l2",
-      "parent": "Layer-3",
+      "parent": "ietf-l3-unicast-topology (RFC 8346)",
       "kind": "Layer3Link",
       "endpoint": {
         "sourceEndpoint": "/ietf-network:networks/network[network-id='TopologyId-0:65000:1-isis']/node[node-id='10.10.10.3']/ietf-network-topology:termination-point[tp-id='10.1.3.2']",
@@ -1716,7 +1716,7 @@
       "target": "L3-10.10.10.7",
       "weight": "1",
       "name": "10.10.10.4:10.4.7.1--10.10.10.7:10.4.7.2--l2",
-      "parent": "Layer-3",
+      "parent": "ietf-l3-unicast-topology (RFC 8346)",
       "kind": "Layer3Link",
       "endpoint": {
         "sourceEndpoint": "/ietf-network:networks/network[network-id='TopologyId-0:65000:1-isis']/node[node-id='10.10.10.4']/ietf-network-topology:termination-point[tp-id='10.4.7.1']",
@@ -1765,7 +1765,7 @@
       "target": "L3-10.10.10.2",
       "weight": "1",
       "name": "10.10.10.1:10.1.4.1--10.10.10.2:10.1.4.2--l2",
-      "parent": "Layer-3",
+      "parent": "ietf-l3-unicast-topology (RFC 8346)",
       "kind": "Layer3Link",
       "endpoint": {
         "sourceEndpoint": "/ietf-network:networks/network[network-id='TopologyId-0:65000:1-isis']/node[node-id='10.10.10.1']/ietf-network-topology:termination-point[tp-id='10.1.4.1']",
@@ -1814,7 +1814,7 @@
       "target": "L3-10.10.10.6",
       "weight": "1",
       "name": "10.10.10.4:10.6.4.2--10.10.10.6:10.6.4.1--l2",
-      "parent": "Layer-3",
+      "parent": "ietf-l3-unicast-topology (RFC 8346)",
       "kind": "Layer3Link",
       "endpoint": {
         "sourceEndpoint": "/ietf-network:networks/network[network-id='TopologyId-0:65000:1-isis']/node[node-id='10.10.10.4']/ietf-network-topology:termination-point[tp-id='10.6.4.2']",
@@ -1863,7 +1863,7 @@
       "target": "L3-10.10.10.4",
       "weight": "1",
       "name": "10.10.10.2:10.2.4.1--10.10.10.4:10.2.4.2--l2",
-      "parent": "Layer-3",
+      "parent": "ietf-l3-unicast-topology (RFC 8346)",
       "kind": "Layer3Link",
       "endpoint": {
         "sourceEndpoint": "/ietf-network:networks/network[network-id='TopologyId-0:65000:1-isis']/node[node-id='10.10.10.2']/ietf-network-topology:termination-point[tp-id='10.2.4.1']",
@@ -1912,7 +1912,7 @@
       "target": "L3-10.10.10.6",
       "weight": "1",
       "name": "10.10.10.3:10.3.6.1--10.10.10.6:10.3.6.2--l2",
-      "parent": "Layer-3",
+      "parent": "ietf-l3-unicast-topology (RFC 8346)",
       "kind": "Layer3Link",
       "endpoint": {
         "sourceEndpoint": "/ietf-network:networks/network[network-id='TopologyId-0:65000:1-isis']/node[node-id='10.10.10.3']/ietf-network-topology:termination-point[tp-id='10.3.6.1']",
@@ -1961,7 +1961,7 @@
       "target": "L3-10.10.10.3",
       "weight": "1",
       "name": "10.10.10.6:10.3.6.2--10.10.10.3:10.3.6.1--l2",
-      "parent": "Layer-3",
+      "parent": "ietf-l3-unicast-topology (RFC 8346)",
       "kind": "Layer3Link",
       "endpoint": {
         "sourceEndpoint": "/ietf-network:networks/network[network-id='TopologyId-0:65000:1-isis']/node[node-id='10.10.10.6']/ietf-network-topology:termination-point[tp-id='10.3.6.2']",
@@ -2010,7 +2010,7 @@
       "target": "L3-10.10.10.3",
       "weight": "1",
       "name": "10.10.10.7:10.3.7.1--10.10.10.3:10.3.7.2--l2",
-      "parent": "Layer-3",
+      "parent": "ietf-l3-unicast-topology (RFC 8346)",
       "kind": "Layer3Link",
       "endpoint": {
         "sourceEndpoint": "/ietf-network:networks/network[network-id='TopologyId-0:65000:1-isis']/node[node-id='10.10.10.7']/ietf-network-topology:termination-point[tp-id='10.3.7.1']",
@@ -2059,7 +2059,7 @@
       "target": "L3-10.10.10.3",
       "weight": "1",
       "name": "10.10.10.4:10.3.4.2--10.10.10.3:10.3.4.1--l2",
-      "parent": "Layer-3",
+      "parent": "ietf-l3-unicast-topology (RFC 8346)",
       "kind": "Layer3Link",
       "endpoint": {
         "sourceEndpoint": "/ietf-network:networks/network[network-id='TopologyId-0:65000:1-isis']/node[node-id='10.10.10.4']/ietf-network-topology:termination-point[tp-id='10.3.4.2']",
@@ -2108,7 +2108,7 @@
       "target": "L3-10.10.10.4",
       "weight": "1",
       "name": "10.10.10.7:10.4.7.2--10.10.10.4:10.4.7.1--l2",
-      "parent": "Layer-3",
+      "parent": "ietf-l3-unicast-topology (RFC 8346)",
       "kind": "Layer3Link",
       "endpoint": {
         "sourceEndpoint": "/ietf-network:networks/network[network-id='TopologyId-0:65000:1-isis']/node[node-id='10.10.10.7']/ietf-network-topology:termination-point[tp-id='10.4.7.2']",
@@ -2157,7 +2157,7 @@
       "target": "L3-10.10.10.2",
       "weight": "1",
       "name": "10.10.10.4:10.2.4.2--10.10.10.2:10.2.4.1--l2",
-      "parent": "Layer-3",
+      "parent": "ietf-l3-unicast-topology (RFC 8346)",
       "kind": "Layer3Link",
       "endpoint": {
         "sourceEndpoint": "/ietf-network:networks/network[network-id='TopologyId-0:65000:1-isis']/node[node-id='10.10.10.4']/ietf-network-topology:termination-point[tp-id='10.2.4.2']",
@@ -2206,7 +2206,7 @@
       "target": "L3-10.10.10.4",
       "weight": "1",
       "name": "10.10.10.3:10.3.4.1--10.10.10.4:10.3.4.2--l2",
-      "parent": "Layer-3",
+      "parent": "ietf-l3-unicast-topology (RFC 8346)",
       "kind": "Layer3Link",
       "endpoint": {
         "sourceEndpoint": "/ietf-network:networks/network[network-id='TopologyId-0:65000:1-isis']/node[node-id='10.10.10.3']/ietf-network-topology:termination-point[tp-id='10.3.4.1']",
@@ -2255,7 +2255,7 @@
       "target": "L3-10.10.10.7",
       "weight": "1",
       "name": "10.10.10.3:10.3.7.2--10.10.10.7:10.3.7.1--l2",
-      "parent": "Layer-3",
+      "parent": "ietf-l3-unicast-topology (RFC 8346)",
       "kind": "Layer3Link",
       "endpoint": {
         "sourceEndpoint": "/ietf-network:networks/network[network-id='TopologyId-0:65000:1-isis']/node[node-id='10.10.10.3']/ietf-network-topology:termination-point[tp-id='10.3.7.2']",
@@ -2304,7 +2304,7 @@
       "target": "L3-10.10.10.3",
       "weight": "1",
       "name": "10.10.10.1:10.1.3.1--10.10.10.3:10.1.3.2--l2",
-      "parent": "Layer-3",
+      "parent": "ietf-l3-unicast-topology (RFC 8346)",
       "kind": "Layer3Link",
       "endpoint": {
         "sourceEndpoint": "/ietf-network:networks/network[network-id='TopologyId-0:65000:1-isis']/node[node-id='10.10.10.1']/ietf-network-topology:termination-point[tp-id='10.1.3.1']",
@@ -2353,7 +2353,7 @@
       "target": "L3-10.10.10.3",
       "weight": "2",
       "name": "L2-R2-PE",
-      "parent": "Layer-2",
+      "parent": "ietf-l2-topology (RFC 8944)",
       "kind": "Layer3Link",
       "endpoint": {
         "sourceEndpoint": "/ietf-network:networks/network[network-id='TopologyId-0:65000:1-isis']/node[node-id='10.10.10.1']/ietf-network-topology:termination-point[tp-id='10.1.3.1']",
@@ -2466,7 +2466,7 @@
       "target": "L3-10.10.10.3",
       "weight": "2",
       "name": "L2-R5-PE",
-      "parent": "Layer-2",
+      "parent": "ietf-l2-topology (RFC 8944)",
       "kind": "Layer3Link",
       "endpoint": {
         "sourceEndpoint": "/ietf-network:networks/network[network-id='TopologyId-0:65000:1-isis']/node[node-id='10.10.10.1']/ietf-network-topology:termination-point[tp-id='10.1.3.1']",
@@ -2557,7 +2557,7 @@
       "target": "L3-10.10.10.3",
       "weight": "2",
       "name": "L2-R1-PE",
-      "parent": "Layer-2",
+      "parent": "ietf-l2-topology (RFC 8944)",
       "kind": "Layer3Link",
       "endpoint": {
         "sourceEndpoint": "/ietf-network:networks/network[network-id='TopologyId-0:65000:1-isis']/node[node-id='10.10.10.1']/ietf-network-topology:termination-point[tp-id='10.1.3.1']",
@@ -2670,7 +2670,7 @@
       "target": "L3-10.10.10.3",
       "weight": "2",
       "name": "L2-R4-P",
-      "parent": "Layer-2",
+      "parent": "ietf-l2-topology (RFC 8944)",
       "kind": "Layer3Link",
       "endpoint": {
         "sourceEndpoint": "/ietf-network:networks/network[network-id='TopologyId-0:65000:1-isis']/node[node-id='10.10.10.1']/ietf-network-topology:termination-point[tp-id='10.1.3.1']",
@@ -2821,7 +2821,7 @@
       "target": "L3-10.10.10.3",
       "weight": "2",
       "name": "L2-R3-P",
-      "parent": "Layer-2",
+      "parent": "ietf-l2-topology (RFC 8944)",
       "kind": "Layer3Link",
       "endpoint": {
         "sourceEndpoint": "/ietf-network:networks/network[network-id='TopologyId-0:65000:1-isis']/node[node-id='10.10.10.1']/ietf-network-topology:termination-point[tp-id='10.1.3.1']",
@@ -2972,7 +2972,7 @@
       "target": "L3-10.10.10.3",
       "weight": "2",
       "name": "L2-R9-PE-ASBR",
-      "parent": "Layer-2",
+      "parent": "ietf-l2-topology (RFC 8944)",
       "kind": "Layer3Link",
       "endpoint": {
         "sourceEndpoint": "/ietf-network:networks/network[network-id='TopologyId-0:65000:1-isis']/node[node-id='10.10.10.1']/ietf-network-topology:termination-point[tp-id='10.1.3.1']",
@@ -3063,7 +3063,7 @@
       "target": "L3-10.10.10.3",
       "weight": "2",
       "name": "L2-R6-PE-ASBR",
-      "parent": "Layer-2",
+      "parent": "ietf-l2-topology (RFC 8944)",
       "kind": "Layer3Link",
       "endpoint": {
         "sourceEndpoint": "/ietf-network:networks/network[network-id='TopologyId-0:65000:1-isis']/node[node-id='10.10.10.1']/ietf-network-topology:termination-point[tp-id='10.1.3.1']",
@@ -3174,7 +3174,7 @@
       "target": "L3-10.10.10.3",
       "weight": "2",
       "name": "L2-R7-PE-ASBR",
-      "parent": "Layer-2",
+      "parent": "ietf-l2-topology (RFC 8944)",
       "kind": "Layer3Link",
       "endpoint": {
         "sourceEndpoint": "/ietf-network:networks/network[network-id='TopologyId-0:65000:1-isis']/node[node-id='10.10.10.1']/ietf-network-topology:termination-point[tp-id='10.1.3.1']",
@@ -3285,7 +3285,7 @@
       "target": "L3-10.10.10.3",
       "weight": "2",
       "name": "L2-R8-PE",
-      "parent": "Layer-2",
+      "parent": "ietf-l2-topology (RFC 8944)",
       "kind": "Layer3Link",
       "endpoint": {
         "sourceEndpoint": "/ietf-network:networks/network[network-id='TopologyId-0:65000:1-isis']/node[node-id='10.10.10.1']/ietf-network-topology:termination-point[tp-id='10.1.3.1']",
@@ -3376,7 +3376,7 @@
       "target": "L3-10.10.10.3",
       "weight": "2",
       "name": "L2-R10-PE-ASBR",
-      "parent": "Layer-2",
+      "parent": "ietf-l2-topology (RFC 8944)",
       "kind": "Layer3Link",
       "endpoint": {
         "sourceEndpoint": "/ietf-network:networks/network[network-id='TopologyId-0:65000:1-isis']/node[node-id='10.10.10.1']/ietf-network-topology:termination-point[tp-id='10.1.3.1']",
@@ -3467,7 +3467,7 @@
       "target": "L2-10.10.10.7",
       "weight": "1",
       "name": "10.10.10.3:Port 1/1/5--10.10.10.7:Port 1/1/3",
-      "parent": "Layer-2",
+      "parent": "ietf-l2-topology (RFC 8944)",
       "kind": "Layer2Link",
       "endpoint": {
         "sourceEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.3']/ietf-network-topology:termination-point[tp-id='Port 1/1/5']",
@@ -3526,7 +3526,7 @@
       "target": "L2-10.10.10.7",
       "weight": "1",
       "name": "10.10.10.4:Port 1/1/4--10.10.10.7:Port 1/1/2",
-      "parent": "Layer-2",
+      "parent": "ietf-l2-topology (RFC 8944)",
       "kind": "Layer2Link",
       "endpoint": {
         "sourceEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.4']/ietf-network-topology:termination-point[tp-id='Port 1/1/4']",
@@ -3585,7 +3585,7 @@
       "target": "L2-10.10.10.4",
       "weight": "1",
       "name": "10.10.10.3:Port 1/1/3--10.10.10.4:Port 1/1/3",
-      "parent": "Layer-2",
+      "parent": "ietf-l2-topology (RFC 8944)",
       "kind": "Layer2Link",
       "endpoint": {
         "sourceEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.3']/ietf-network-topology:termination-point[tp-id='Port 1/1/3']",
@@ -3644,7 +3644,7 @@
       "target": "L2-10.10.10.9",
       "weight": "1",
       "name": "10.10.10.8:Port 1/1/5--10.10.10.9:Port 1/1/2",
-      "parent": "Layer-2",
+      "parent": "ietf-l2-topology (RFC 8944)",
       "kind": "Layer2Link",
       "endpoint": {
         "sourceEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.8']/ietf-network-topology:termination-point[tp-id='Port 1/1/5']",
@@ -3703,7 +3703,7 @@
       "target": "L2-10.10.10.9",
       "weight": "1",
       "name": "10.10.10.6:Port 1/1/3--10.10.10.9:Port 1/1/3",
-      "parent": "Layer-2",
+      "parent": "ietf-l2-topology (RFC 8944)",
       "kind": "Layer2Link",
       "endpoint": {
         "sourceEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.6']/ietf-network-topology:termination-point[tp-id='Port 1/1/3']",
@@ -3762,7 +3762,7 @@
       "target": "L2-10.10.10.4",
       "weight": "1",
       "name": "10.10.10.2:Port 1/1/1--10.10.10.4:Port 1/1/1",
-      "parent": "Layer-2",
+      "parent": "ietf-l2-topology (RFC 8944)",
       "kind": "Layer2Link",
       "endpoint": {
         "sourceEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.2']/ietf-network-topology:termination-point[tp-id='Port 1/1/1']",
@@ -3821,7 +3821,7 @@
       "target": "L2-10.10.10.6",
       "weight": "1",
       "name": "10.10.10.4:Port 1/1/2--10.10.10.6:Port 1/1/1",
-      "parent": "Layer-2",
+      "parent": "ietf-l2-topology (RFC 8944)",
       "kind": "Layer2Link",
       "endpoint": {
         "sourceEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.4']/ietf-network-topology:termination-point[tp-id='Port 1/1/2']",
@@ -3880,7 +3880,7 @@
       "target": "L2-10.10.10.6",
       "weight": "1",
       "name": "10.10.10.3:Port 1/1/2--10.10.10.6:Port 1/1/2",
-      "parent": "Layer-2",
+      "parent": "ietf-l2-topology (RFC 8944)",
       "kind": "Layer2Link",
       "endpoint": {
         "sourceEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.3']/ietf-network-topology:termination-point[tp-id='Port 1/1/2']",
@@ -3939,7 +3939,7 @@
       "target": "L2-10.10.10.10",
       "weight": "1",
       "name": "10.10.10.8:Port 1/1/2--10.10.10.10:Port 1/1/2",
-      "parent": "Layer-2",
+      "parent": "ietf-l2-topology (RFC 8944)",
       "kind": "Layer2Link",
       "endpoint": {
         "sourceEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.8']/ietf-network-topology:termination-point[tp-id='Port 1/1/2']",
@@ -3998,7 +3998,7 @@
       "target": "L2-10.10.10.10",
       "weight": "1",
       "name": "10.10.10.7:Port 1/1/1--10.10.10.10:Port 1/1/3",
-      "parent": "Layer-2",
+      "parent": "ietf-l2-topology (RFC 8944)",
       "kind": "Layer2Link",
       "endpoint": {
         "sourceEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.7']/ietf-network-topology:termination-point[tp-id='Port 1/1/1']",
@@ -4057,7 +4057,7 @@
       "target": "L2-10.10.10.5",
       "weight": "1",
       "name": "10.10.10.3:Port 1/1/4--10.10.10.5:Port 1/1/2",
-      "parent": "Layer-2",
+      "parent": "ietf-l2-topology (RFC 8944)",
       "kind": "Layer2Link",
       "endpoint": {
         "sourceEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.3']/ietf-network-topology:termination-point[tp-id='Port 1/1/4']",
@@ -4116,7 +4116,7 @@
       "target": "L2-10.10.10.5",
       "weight": "1",
       "name": "10.10.10.4:Port 1/1/5--10.10.10.5:Port 1/1/5",
-      "parent": "Layer-2",
+      "parent": "ietf-l2-topology (RFC 8944)",
       "kind": "Layer2Link",
       "endpoint": {
         "sourceEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.4']/ietf-network-topology:termination-point[tp-id='Port 1/1/5']",
@@ -4175,7 +4175,7 @@
       "target": "L2-10.10.10.2",
       "weight": "1",
       "name": "10.10.10.1:Port 1/1/c2/1--10.10.10.2:Port 1/1/2",
-      "parent": "Layer-2",
+      "parent": "ietf-l2-topology (RFC 8944)",
       "kind": "Layer2Link",
       "endpoint": {
         "sourceEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.1']/ietf-network-topology:termination-point[tp-id='Port 1/1/c2/1']",
@@ -4234,7 +4234,7 @@
       "target": "L2-10.10.10.3",
       "weight": "1",
       "name": "10.10.10.1:Port 1/1/c1/1--10.10.10.3:Port 1/1/1",
-      "parent": "Layer-2",
+      "parent": "ietf-l2-topology (RFC 8944)",
       "kind": "Layer2Link",
       "endpoint": {
         "sourceEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.1']/ietf-network-topology:termination-point[tp-id='Port 1/1/c1/1']",
@@ -4288,12 +4288,12 @@
   },
   {
     "data": {
-      "id": "Layer-2",
+      "id": "ietf-l2-topology (RFC 8944)",
       "source": "L2-10.10.10.1",
       "target": "L2-10.10.10.3",
       "weight": "3",
-      "name": "Layer-2",
-      "parent": "Layer-2",
+      "name": "ietf-l2-topology (RFC 8944)",
+      "parent": "ietf-l2-topology (RFC 8944)",
       "kind": "Layer2Link",
       "endpoint": {
         "sourceEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.1']/ietf-network-topology:termination-point[tp-id='Port 1/1/c1/1']",
@@ -4301,7 +4301,7 @@
       },
       "ExtraData": {
         "NodeAttributes": {
-          "Name": "Layer-2"
+          "Name": "ietf-l2-topology (RFC 8944)"
         }
       }
     },
@@ -4320,12 +4320,12 @@
   },
   {
     "data": {
-      "id": "5ae1bdb2-1fe9-4d79-a0cb-6cda706c27c2",
+      "id": "b0194634-f72d-4f73-9e3e-3db2a8830a23",
       "source": "L3-10.10.10.10",
       "target": "L2-10.10.10.10",
       "weight": "1",
       "name": "MultiLayer--L3-10.10.10.10---L2-10.10.10.10",
-      "parent": "Layer-2",
+      "parent": "ietf-l2-topology (RFC 8944)",
       "kind": "MultiLayerLink",
       "endpoint": {
         "sourceEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.1']/ietf-network-topology:termination-point[tp-id='Port 1/1/c1/1']",
@@ -4337,7 +4337,7 @@
           "SourceEndpoint": "L3-10.10.10.10",
           "TargetEndpoint": "L2-10.10.10.10"
         },
-        "ID": "5ae1bdb2-1fe9-4d79-a0cb-6cda706c27c2",
+        "ID": "b0194634-f72d-4f73-9e3e-3db2a8830a23",
         "NetworkID": 0,
         "grabbable": true,
         "selectable": true,
@@ -4359,12 +4359,12 @@
   },
   {
     "data": {
-      "id": "ee056e04-c144-408e-a775-d6d4aa244ed3",
+      "id": "e9879185-a44a-4856-93e8-09e8b5c3b924",
       "source": "L3-10.10.10.8",
       "target": "L2-10.10.10.8",
       "weight": "1",
       "name": "MultiLayer--L3-10.10.10.8---L2-10.10.10.8",
-      "parent": "Layer-2",
+      "parent": "ietf-l2-topology (RFC 8944)",
       "kind": "MultiLayerLink",
       "endpoint": {
         "sourceEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.1']/ietf-network-topology:termination-point[tp-id='Port 1/1/c1/1']",
@@ -4376,7 +4376,7 @@
           "SourceEndpoint": "L3-10.10.10.8",
           "TargetEndpoint": "L2-10.10.10.8"
         },
-        "ID": "ee056e04-c144-408e-a775-d6d4aa244ed3",
+        "ID": "e9879185-a44a-4856-93e8-09e8b5c3b924",
         "NetworkID": 0,
         "grabbable": true,
         "selectable": true,
@@ -4398,12 +4398,12 @@
   },
   {
     "data": {
-      "id": "69e5b020-71c8-40f4-aca1-7b83404af431",
+      "id": "55facfe8-5970-4120-8c22-f9d936e63d8b",
       "source": "L3-10.10.10.9",
       "target": "L2-10.10.10.9",
       "weight": "1",
       "name": "MultiLayer--L3-10.10.10.9---L2-10.10.10.9",
-      "parent": "Layer-2",
+      "parent": "ietf-l2-topology (RFC 8944)",
       "kind": "MultiLayerLink",
       "endpoint": {
         "sourceEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.1']/ietf-network-topology:termination-point[tp-id='Port 1/1/c1/1']",
@@ -4415,7 +4415,7 @@
           "SourceEndpoint": "L3-10.10.10.9",
           "TargetEndpoint": "L2-10.10.10.9"
         },
-        "ID": "69e5b020-71c8-40f4-aca1-7b83404af431",
+        "ID": "55facfe8-5970-4120-8c22-f9d936e63d8b",
         "NetworkID": 0,
         "grabbable": true,
         "selectable": true,
@@ -4437,12 +4437,12 @@
   },
   {
     "data": {
-      "id": "fe3be66c-4f8a-4130-94c9-644728c0e2ce",
+      "id": "a3f3588f-feae-412e-a473-c93c9331ade7",
       "source": "L3-10.10.10.3",
       "target": "L2-10.10.10.3",
       "weight": "1",
       "name": "MultiLayer--L3-10.10.10.3---L2-10.10.10.3",
-      "parent": "Layer-2",
+      "parent": "ietf-l2-topology (RFC 8944)",
       "kind": "MultiLayerLink",
       "endpoint": {
         "sourceEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.1']/ietf-network-topology:termination-point[tp-id='Port 1/1/c1/1']",
@@ -4454,7 +4454,7 @@
           "SourceEndpoint": "L3-10.10.10.3",
           "TargetEndpoint": "L2-10.10.10.3"
         },
-        "ID": "fe3be66c-4f8a-4130-94c9-644728c0e2ce",
+        "ID": "a3f3588f-feae-412e-a473-c93c9331ade7",
         "NetworkID": 0,
         "grabbable": true,
         "selectable": true,
@@ -4476,12 +4476,12 @@
   },
   {
     "data": {
-      "id": "8790b817-c267-4ab1-9fa6-4ca35865c29b",
+      "id": "da771f50-c41a-4126-b503-72afc588b892",
       "source": "L3-10.10.10.4",
       "target": "L2-10.10.10.4",
       "weight": "1",
       "name": "MultiLayer--L3-10.10.10.4---L2-10.10.10.4",
-      "parent": "Layer-2",
+      "parent": "ietf-l2-topology (RFC 8944)",
       "kind": "MultiLayerLink",
       "endpoint": {
         "sourceEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.1']/ietf-network-topology:termination-point[tp-id='Port 1/1/c1/1']",
@@ -4493,7 +4493,7 @@
           "SourceEndpoint": "L3-10.10.10.4",
           "TargetEndpoint": "L2-10.10.10.4"
         },
-        "ID": "8790b817-c267-4ab1-9fa6-4ca35865c29b",
+        "ID": "da771f50-c41a-4126-b503-72afc588b892",
         "NetworkID": 0,
         "grabbable": true,
         "selectable": true,
@@ -4515,12 +4515,12 @@
   },
   {
     "data": {
-      "id": "62642354-dbdb-4b1d-a10b-e3bed15cc701",
+      "id": "1b270f18-c0ea-42d7-8fd8-d916d23be7b4",
       "source": "L3-10.10.10.5",
       "target": "L2-10.10.10.5",
       "weight": "1",
       "name": "MultiLayer--L3-10.10.10.5---L2-10.10.10.5",
-      "parent": "Layer-2",
+      "parent": "ietf-l2-topology (RFC 8944)",
       "kind": "MultiLayerLink",
       "endpoint": {
         "sourceEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.1']/ietf-network-topology:termination-point[tp-id='Port 1/1/c1/1']",
@@ -4532,7 +4532,7 @@
           "SourceEndpoint": "L3-10.10.10.5",
           "TargetEndpoint": "L2-10.10.10.5"
         },
-        "ID": "62642354-dbdb-4b1d-a10b-e3bed15cc701",
+        "ID": "1b270f18-c0ea-42d7-8fd8-d916d23be7b4",
         "NetworkID": 0,
         "grabbable": true,
         "selectable": true,
@@ -4554,12 +4554,12 @@
   },
   {
     "data": {
-      "id": "55e6421b-1075-4b28-b443-d5c353d9c69a",
+      "id": "e157abe9-7b20-45c3-afbf-dd7212c250dd",
       "source": "L3-10.10.10.3",
       "target": "L2-10.10.10.3",
       "weight": "1",
       "name": "MultiLayer--L3-10.10.10.3---L2-10.10.10.3",
-      "parent": "Layer-2",
+      "parent": "ietf-l2-topology (RFC 8944)",
       "kind": "MultiLayerLink",
       "endpoint": {
         "sourceEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.1']/ietf-network-topology:termination-point[tp-id='Port 1/1/c1/1']",
@@ -4571,7 +4571,7 @@
           "SourceEndpoint": "L3-10.10.10.3",
           "TargetEndpoint": "L2-10.10.10.3"
         },
-        "ID": "55e6421b-1075-4b28-b443-d5c353d9c69a",
+        "ID": "e157abe9-7b20-45c3-afbf-dd7212c250dd",
         "NetworkID": 0,
         "grabbable": true,
         "selectable": true,
@@ -4593,12 +4593,12 @@
   },
   {
     "data": {
-      "id": "7d817963-fc34-4a36-b75c-10f31ea9d37f",
+      "id": "4ead83b7-b5d7-42a0-8bb5-4213c3d32ee6",
       "source": "L3-10.10.10.4",
       "target": "L2-10.10.10.4",
       "weight": "1",
       "name": "MultiLayer--L3-10.10.10.4---L2-10.10.10.4",
-      "parent": "Layer-2",
+      "parent": "ietf-l2-topology (RFC 8944)",
       "kind": "MultiLayerLink",
       "endpoint": {
         "sourceEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.1']/ietf-network-topology:termination-point[tp-id='Port 1/1/c1/1']",
@@ -4610,7 +4610,7 @@
           "SourceEndpoint": "L3-10.10.10.4",
           "TargetEndpoint": "L2-10.10.10.4"
         },
-        "ID": "7d817963-fc34-4a36-b75c-10f31ea9d37f",
+        "ID": "4ead83b7-b5d7-42a0-8bb5-4213c3d32ee6",
         "NetworkID": 0,
         "grabbable": true,
         "selectable": true,
@@ -4632,12 +4632,12 @@
   },
   {
     "data": {
-      "id": "f82883ee-0e58-4c4d-8393-a36c001c0daa",
+      "id": "83fe946f-7c98-43ec-94a4-0562b5bff6a1",
       "source": "L3-10.10.10.7",
       "target": "L2-10.10.10.7",
       "weight": "1",
       "name": "MultiLayer--L3-10.10.10.7---L2-10.10.10.7",
-      "parent": "Layer-2",
+      "parent": "ietf-l2-topology (RFC 8944)",
       "kind": "MultiLayerLink",
       "endpoint": {
         "sourceEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.1']/ietf-network-topology:termination-point[tp-id='Port 1/1/c1/1']",
@@ -4649,7 +4649,7 @@
           "SourceEndpoint": "L3-10.10.10.7",
           "TargetEndpoint": "L2-10.10.10.7"
         },
-        "ID": "f82883ee-0e58-4c4d-8393-a36c001c0daa",
+        "ID": "83fe946f-7c98-43ec-94a4-0562b5bff6a1",
         "NetworkID": 0,
         "grabbable": true,
         "selectable": true,
@@ -4671,12 +4671,12 @@
   },
   {
     "data": {
-      "id": "9754e669-9b8d-437e-82fc-de6043396e14",
+      "id": "84674c9b-fd8b-4c4e-89f8-6851cf093888",
       "source": "L3-10.10.10.6",
       "target": "L2-10.10.10.6",
       "weight": "1",
       "name": "MultiLayer--L3-10.10.10.6---L2-10.10.10.6",
-      "parent": "Layer-2",
+      "parent": "ietf-l2-topology (RFC 8944)",
       "kind": "MultiLayerLink",
       "endpoint": {
         "sourceEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.1']/ietf-network-topology:termination-point[tp-id='Port 1/1/c1/1']",
@@ -4688,7 +4688,7 @@
           "SourceEndpoint": "L3-10.10.10.6",
           "TargetEndpoint": "L2-10.10.10.6"
         },
-        "ID": "9754e669-9b8d-437e-82fc-de6043396e14",
+        "ID": "84674c9b-fd8b-4c4e-89f8-6851cf093888",
         "NetworkID": 0,
         "grabbable": true,
         "selectable": true,
@@ -4710,12 +4710,12 @@
   },
   {
     "data": {
-      "id": "716f3fc1-9219-413b-94dc-81d06c187b26",
+      "id": "d5b27fce-549e-4dd4-98de-ec928c48d662",
       "source": "L3-10.10.10.1",
       "target": "L2-10.10.10.1",
       "weight": "1",
       "name": "MultiLayer--L3-10.10.10.1---L2-10.10.10.1",
-      "parent": "Layer-2",
+      "parent": "ietf-l2-topology (RFC 8944)",
       "kind": "MultiLayerLink",
       "endpoint": {
         "sourceEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.1']/ietf-network-topology:termination-point[tp-id='Port 1/1/c1/1']",
@@ -4727,7 +4727,7 @@
           "SourceEndpoint": "L3-10.10.10.1",
           "TargetEndpoint": "L2-10.10.10.1"
         },
-        "ID": "716f3fc1-9219-413b-94dc-81d06c187b26",
+        "ID": "d5b27fce-549e-4dd4-98de-ec928c48d662",
         "NetworkID": 0,
         "grabbable": true,
         "selectable": true,
@@ -4749,12 +4749,12 @@
   },
   {
     "data": {
-      "id": "f51cd0b2-c0c3-4031-a259-4d3e3c9ac4f6",
+      "id": "35e11a01-23ae-4059-8461-d5d9d3ea884e",
       "source": "L3-10.10.10.2",
       "target": "L2-10.10.10.2",
       "weight": "1",
       "name": "MultiLayer--L3-10.10.10.2---L2-10.10.10.2",
-      "parent": "Layer-2",
+      "parent": "ietf-l2-topology (RFC 8944)",
       "kind": "MultiLayerLink",
       "endpoint": {
         "sourceEndpoint": "/ietf-network:networks/network[network-id='L2Topology']/node[node-id='10.10.10.1']/ietf-network-topology:termination-point[tp-id='Port 1/1/c1/1']",
@@ -4766,7 +4766,7 @@
           "SourceEndpoint": "L3-10.10.10.2",
           "TargetEndpoint": "L2-10.10.10.2"
         },
-        "ID": "f51cd0b2-c0c3-4031-a259-4d3e3c9ac4f6",
+        "ID": "35e11a01-23ae-4059-8461-d5d9d3ea884e",
         "NetworkID": 0,
         "grabbable": true,
         "selectable": true,

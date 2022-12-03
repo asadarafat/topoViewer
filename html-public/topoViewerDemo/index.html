@@ -333,9 +333,15 @@
           
           
           
+
+          var linkDelay = "100"
+          var durationValue = "10"
+
+
           var $links = [{
               name: 'Add Link Latency',
-              url: 'ssh://admin@' + n.data('ExtraData').MgmtIPv4Address
+              url: 'clab-impairement://' + n.data('ExtraData').ClabServerUsername + '@' + location.host + '?' + n.data('ExtraData').SourceLongName + '?' 
+              + 'delay' + '?' + linkDelay + '?' + 'duration' + '?' + durationValue + '?' + n.data('ExtraData').Endpoints.SourceEndpoint
             },
             {
               name: 'WireShark Capture Endpoint-A: ' + n.data('ExtraData').SourceLongName + '--' + n.data(

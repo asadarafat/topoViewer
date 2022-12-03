@@ -93,7 +93,7 @@ func (cyTopo *CytoTopology) IetfMultiL2L3TopoUnMarshal(L2topoFile []byte, L3topo
 			cytoJson.Data.ID = "L3--" + network.NetworkID //taken by cyto as index
 			cytoJson.Data.Weight = "3"
 			cytoJson.Data.Name = "L3--" + network.NetworkID
-			cytoJson.Data.Parent = "Layer-3"
+			cytoJson.Data.Parent = "ietf-l3-unicast-topology (RFC 8346)"
 			cytoJson.Data.ExtraData = map[string]interface{}{} // empty Extra Data
 			cytoJsonList = append(cytoJsonList, cytoJson)
 		}
@@ -101,14 +101,14 @@ func (cyTopo *CytoTopology) IetfMultiL2L3TopoUnMarshal(L2topoFile []byte, L3topo
 		cytoJson.Group = "nodes"
 		cytoJson.Grabbable = true
 		cytoJson.Selectable = true
-		cytoJson.Data.ID = "Layer-3" //taken by cyto as index
+		cytoJson.Data.ID = "ietf-l3-unicast-topology (RFC 8346)" //taken by cyto as index
 		cytoJson.Data.Weight = "3"
 
 		cytoJson.Data.Name = cytoJson.Data.ID
 		cytoJson.Data.ExtraData = map[string]interface{}{
 			"NodeAttributes": struct {
 				Name string
-			}{"Layer-3"},
+			}{"ietf-l3-unicast-topology (RFC 8346)"},
 		}
 		cytoJsonList = append(cytoJsonList, cytoJson)
 
@@ -171,7 +171,7 @@ func (cyTopo *CytoTopology) IetfMultiL2L3TopoUnMarshal(L2topoFile []byte, L3topo
 			cytoJson.Data.Weight = "2"
 			cytoJson.Data.Name = "L2-" + node.IetfL2TopologyL2NodeAttributes.Name
 
-			cytoJson.Data.Parent = "Layer-2"
+			cytoJson.Data.Parent = "ietf-l2-topology (RFC 8944)"
 
 			cytoJson.Data.ExtraData = map[string]interface{}{
 				"ServerUsername":       Username,
@@ -229,13 +229,13 @@ func (cyTopo *CytoTopology) IetfMultiL2L3TopoUnMarshal(L2topoFile []byte, L3topo
 		cytoJson.Group = "nodes"
 		cytoJson.Grabbable = true
 		cytoJson.Selectable = true
-		cytoJson.Data.ID = "Layer-2" //taken by cyto as index
+		cytoJson.Data.ID = "ietf-l2-topology (RFC 8944)" //taken by cyto as index
 		cytoJson.Data.Weight = "3"
 		cytoJson.Data.Name = cytoJson.Data.ID
 		cytoJson.Data.ExtraData = map[string]interface{}{
 			"NodeAttributes": struct {
 				Name string
-			}{"Layer-2"},
+			}{"ietf-l2-topology (RFC 8944)"},
 		}
 		cytoJsonList = append(cytoJsonList, cytoJson)
 	}
