@@ -5062,3 +5062,1966 @@ topology:
         - endpoints: '[10.10.10.1:1/1/c2/1, 10.10.10.2:1/1/2]'
         - endpoints: '[10.10.10.1:1/1/c1/1, 10.10.10.3:1/1/1]'
 
+time=2022-12-04T23:05:07Z level=info msg=topology file path: /workspaces/topoViewer/rawTopoFile/
+time=2022-12-04T23:05:07Z level=debug msg=0
+time=2022-12-04T23:05:07Z level=debug msg=10.10.10.3:Port 1/1/5--10.10.10.7:Port 1/1/3
+time=2022-12-04T23:05:07Z level=debug msg=1
+time=2022-12-04T23:05:07Z level=debug msg=10.10.10.4:Port 1/1/4--10.10.10.7:Port 1/1/2
+time=2022-12-04T23:05:07Z level=debug msg=2
+time=2022-12-04T23:05:07Z level=debug msg=10.10.10.3:Port 1/1/3--10.10.10.4:Port 1/1/3
+time=2022-12-04T23:05:07Z level=debug msg=3
+time=2022-12-04T23:05:07Z level=debug msg=10.10.10.8:Port 1/1/5--10.10.10.9:Port 1/1/2
+time=2022-12-04T23:05:07Z level=debug msg=4
+time=2022-12-04T23:05:07Z level=debug msg=10.10.10.6:Port 1/1/3--10.10.10.9:Port 1/1/3
+time=2022-12-04T23:05:07Z level=debug msg=5
+time=2022-12-04T23:05:07Z level=debug msg=10.10.10.2:Port 1/1/1--10.10.10.4:Port 1/1/1
+time=2022-12-04T23:05:07Z level=debug msg=6
+time=2022-12-04T23:05:07Z level=debug msg=10.10.10.4:Port 1/1/2--10.10.10.6:Port 1/1/1
+time=2022-12-04T23:05:07Z level=debug msg=7
+time=2022-12-04T23:05:07Z level=debug msg=10.10.10.3:Port 1/1/2--10.10.10.6:Port 1/1/2
+time=2022-12-04T23:05:07Z level=debug msg=8
+time=2022-12-04T23:05:07Z level=debug msg=10.10.10.8:Port 1/1/2--10.10.10.10:Port 1/1/2
+time=2022-12-04T23:05:07Z level=debug msg=9
+time=2022-12-04T23:05:07Z level=debug msg=10.10.10.7:Port 1/1/1--10.10.10.10:Port 1/1/3
+time=2022-12-04T23:05:07Z level=debug msg=10
+time=2022-12-04T23:05:07Z level=debug msg=10.10.10.3:Port 1/1/4--10.10.10.5:Port 1/1/2
+time=2022-12-04T23:05:07Z level=debug msg=11
+time=2022-12-04T23:05:07Z level=debug msg=10.10.10.4:Port 1/1/5--10.10.10.5:Port 1/1/5
+time=2022-12-04T23:05:07Z level=debug msg=12
+time=2022-12-04T23:05:07Z level=debug msg=10.10.10.1:Port 1/1/c2/1--10.10.10.2:Port 1/1/2
+time=2022-12-04T23:05:07Z level=debug msg=13
+time=2022-12-04T23:05:07Z level=debug msg=10.10.10.1:Port 1/1/c1/1--10.10.10.3:Port 1/1/1
+time=2022-12-04T23:05:07Z level=info msg=jsonBytesCytoUi Result:name: asad
+mgmt:
+    ipv4_subnet: 30.30.0.0/16
+topology:
+    nodes:
+        - name: 10.10.10.2
+          kind: vr-sros
+          mgmt_ipv4: 30.30.1.1
+          group: sros
+          image: registry.srlinux.dev/pub/vr-sros:22.7.R1
+          type: 'cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28'
+          license: license.txt
+        - name: 10.10.10.5
+          kind: vr-sros
+          mgmt_ipv4: 30.30.1.2
+          group: sros
+          image: registry.srlinux.dev/pub/vr-sros:22.7.R1
+          type: 'cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28'
+          license: license.txt
+        - name: 10.10.10.1
+          kind: vr-sros
+          mgmt_ipv4: 30.30.1.3
+          group: sros
+          image: registry.srlinux.dev/pub/vr-sros:22.7.R1
+          type: 'cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28'
+          license: license.txt
+        - name: 10.10.10.4
+          kind: vr-sros
+          mgmt_ipv4: 30.30.1.4
+          group: sros
+          image: registry.srlinux.dev/pub/vr-sros:22.7.R1
+          type: 'cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28'
+          license: license.txt
+        - name: 10.10.10.3
+          kind: vr-sros
+          mgmt_ipv4: 30.30.1.5
+          group: sros
+          image: registry.srlinux.dev/pub/vr-sros:22.7.R1
+          type: 'cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28'
+          license: license.txt
+        - name: 10.10.10.9
+          kind: vr-sros
+          mgmt_ipv4: 30.30.1.6
+          group: sros
+          image: registry.srlinux.dev/pub/vr-sros:22.7.R1
+          type: 'cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28'
+          license: license.txt
+        - name: 10.10.10.6
+          kind: vr-sros
+          mgmt_ipv4: 30.30.1.7
+          group: sros
+          image: registry.srlinux.dev/pub/vr-sros:22.7.R1
+          type: 'cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28'
+          license: license.txt
+        - name: 10.10.10.7
+          kind: vr-sros
+          mgmt_ipv4: 30.30.1.8
+          group: sros
+          image: registry.srlinux.dev/pub/vr-sros:22.7.R1
+          type: 'cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28'
+          license: license.txt
+        - name: 10.10.10.8
+          kind: vr-sros
+          mgmt_ipv4: 30.30.1.9
+          group: sros
+          image: registry.srlinux.dev/pub/vr-sros:22.7.R1
+          type: 'cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28'
+          license: license.txt
+        - name: 10.10.10.10
+          kind: vr-sros
+          mgmt_ipv4: 30.30.1.10
+          group: sros
+          image: registry.srlinux.dev/pub/vr-sros:22.7.R1
+          type: 'cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28'
+          license: license.txt
+    links:
+        - endpoints: '[10.10.10.3:1/1/5, 10.10.10.7:1/1/3]'
+        - endpoints: '[10.10.10.4:1/1/4, 10.10.10.7:1/1/2]'
+        - endpoints: '[10.10.10.3:1/1/3, 10.10.10.4:1/1/3]'
+        - endpoints: '[10.10.10.8:1/1/5, 10.10.10.9:1/1/2]'
+        - endpoints: '[10.10.10.6:1/1/3, 10.10.10.9:1/1/3]'
+        - endpoints: '[10.10.10.2:1/1/1, 10.10.10.4:1/1/1]'
+        - endpoints: '[10.10.10.4:1/1/2, 10.10.10.6:1/1/1]'
+        - endpoints: '[10.10.10.3:1/1/2, 10.10.10.6:1/1/2]'
+        - endpoints: '[10.10.10.8:1/1/2, 10.10.10.10: 1/1/2]'
+        - endpoints: '[10.10.10.7:1/1/1, 10.10.10.10: 1/1/3]'
+        - endpoints: '[10.10.10.3:1/1/4, 10.10.10.5:1/1/2]'
+        - endpoints: '[10.10.10.4:1/1/5, 10.10.10.5:1/1/5]'
+        - endpoints: '[10.10.10.1:1/1/c2/1, 10.10.10.2:1/1/2]'
+        - endpoints: '[10.10.10.1:1/1/c1/1, 10.10.10.3:1/1/1]'
+
+time=2022-12-04T23:18:39Z level=info msg=topology file path: /workspaces/topoViewer/rawTopoFile/
+time=2022-12-04T23:18:39Z level=debug msg=0
+time=2022-12-04T23:18:39Z level=debug msg=10.10.10.3:Port 1/1/5--10.10.10.7:Port 1/1/3
+time=2022-12-04T23:18:39Z level=debug msg=1
+time=2022-12-04T23:18:39Z level=debug msg=10.10.10.4:Port 1/1/4--10.10.10.7:Port 1/1/2
+time=2022-12-04T23:18:39Z level=debug msg=2
+time=2022-12-04T23:18:39Z level=debug msg=10.10.10.3:Port 1/1/3--10.10.10.4:Port 1/1/3
+time=2022-12-04T23:18:39Z level=debug msg=3
+time=2022-12-04T23:18:39Z level=debug msg=10.10.10.8:Port 1/1/5--10.10.10.9:Port 1/1/2
+time=2022-12-04T23:18:39Z level=debug msg=4
+time=2022-12-04T23:18:39Z level=debug msg=10.10.10.6:Port 1/1/3--10.10.10.9:Port 1/1/3
+time=2022-12-04T23:18:39Z level=debug msg=5
+time=2022-12-04T23:18:39Z level=debug msg=10.10.10.2:Port 1/1/1--10.10.10.4:Port 1/1/1
+time=2022-12-04T23:18:39Z level=debug msg=6
+time=2022-12-04T23:18:39Z level=debug msg=10.10.10.4:Port 1/1/2--10.10.10.6:Port 1/1/1
+time=2022-12-04T23:18:39Z level=debug msg=7
+time=2022-12-04T23:18:39Z level=debug msg=10.10.10.3:Port 1/1/2--10.10.10.6:Port 1/1/2
+time=2022-12-04T23:18:39Z level=debug msg=8
+time=2022-12-04T23:18:39Z level=debug msg=10.10.10.8:Port 1/1/2--10.10.10.10:Port 1/1/2
+time=2022-12-04T23:18:39Z level=debug msg=9
+time=2022-12-04T23:18:39Z level=debug msg=10.10.10.7:Port 1/1/1--10.10.10.10:Port 1/1/3
+time=2022-12-04T23:18:39Z level=debug msg=10
+time=2022-12-04T23:18:39Z level=debug msg=10.10.10.3:Port 1/1/4--10.10.10.5:Port 1/1/2
+time=2022-12-04T23:18:39Z level=debug msg=11
+time=2022-12-04T23:18:39Z level=debug msg=10.10.10.4:Port 1/1/5--10.10.10.5:Port 1/1/5
+time=2022-12-04T23:18:39Z level=debug msg=12
+time=2022-12-04T23:18:39Z level=debug msg=10.10.10.1:Port 1/1/c2/1--10.10.10.2:Port 1/1/2
+time=2022-12-04T23:18:39Z level=debug msg=13
+time=2022-12-04T23:18:39Z level=debug msg=10.10.10.1:Port 1/1/c1/1--10.10.10.3:Port 1/1/1
+time=2022-12-04T23:18:39Z level=info msg=jsonBytesCytoUi Result:name: asad
+mgmt:
+    ipv4_subnet: 30.30.0.0/16
+topology:
+    nodes:
+        - name: 10.10.10.2
+          kind: vr-sros
+          mgmt_ipv4: 30.30.1.1
+          group: sros
+          image: registry.srlinux.dev/pub/vr-sros:22.7.R1
+          type: 'cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28'
+          license: license.txt
+        - name: 10.10.10.5
+          kind: vr-sros
+          mgmt_ipv4: 30.30.1.2
+          group: sros
+          image: registry.srlinux.dev/pub/vr-sros:22.7.R1
+          type: 'cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28'
+          license: license.txt
+        - name: 10.10.10.1
+          kind: vr-sros
+          mgmt_ipv4: 30.30.1.3
+          group: sros
+          image: registry.srlinux.dev/pub/vr-sros:22.7.R1
+          type: 'cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28'
+          license: license.txt
+        - name: 10.10.10.4
+          kind: vr-sros
+          mgmt_ipv4: 30.30.1.4
+          group: sros
+          image: registry.srlinux.dev/pub/vr-sros:22.7.R1
+          type: 'cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28'
+          license: license.txt
+        - name: 10.10.10.3
+          kind: vr-sros
+          mgmt_ipv4: 30.30.1.5
+          group: sros
+          image: registry.srlinux.dev/pub/vr-sros:22.7.R1
+          type: 'cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28'
+          license: license.txt
+        - name: 10.10.10.9
+          kind: vr-sros
+          mgmt_ipv4: 30.30.1.6
+          group: sros
+          image: registry.srlinux.dev/pub/vr-sros:22.7.R1
+          type: 'cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28'
+          license: license.txt
+        - name: 10.10.10.6
+          kind: vr-sros
+          mgmt_ipv4: 30.30.1.7
+          group: sros
+          image: registry.srlinux.dev/pub/vr-sros:22.7.R1
+          type: 'cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28'
+          license: license.txt
+        - name: 10.10.10.7
+          kind: vr-sros
+          mgmt_ipv4: 30.30.1.8
+          group: sros
+          image: registry.srlinux.dev/pub/vr-sros:22.7.R1
+          type: 'cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28'
+          license: license.txt
+        - name: 10.10.10.8
+          kind: vr-sros
+          mgmt_ipv4: 30.30.1.9
+          group: sros
+          image: registry.srlinux.dev/pub/vr-sros:22.7.R1
+          type: 'cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28'
+          license: license.txt
+        - name: 10.10.10.10
+          kind: vr-sros
+          mgmt_ipv4: 30.30.1.10
+          group: sros
+          image: registry.srlinux.dev/pub/vr-sros:22.7.R1
+          type: 'cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28'
+          license: license.txt
+    links:
+        - endpoints: '[10.10.10.3:1/1/5, 10.10.10.7:1/1/3]'
+        - endpoints: '[10.10.10.4:1/1/4, 10.10.10.7:1/1/2]'
+        - endpoints: '[10.10.10.3:1/1/3, 10.10.10.4:1/1/3]'
+        - endpoints: '[10.10.10.8:1/1/5, 10.10.10.9:1/1/2]'
+        - endpoints: '[10.10.10.6:1/1/3, 10.10.10.9:1/1/3]'
+        - endpoints: '[10.10.10.2:1/1/1, 10.10.10.4:1/1/1]'
+        - endpoints: '[10.10.10.4:1/1/2, 10.10.10.6:1/1/1]'
+        - endpoints: '[10.10.10.3:1/1/2, 10.10.10.6:1/1/2]'
+        - endpoints: '[10.10.10.8:1/1/2, 10.10.10.10: 1/1/2]'
+        - endpoints: '[10.10.10.7:1/1/1, 10.10.10.10: 1/1/3]'
+        - endpoints: '[10.10.10.3:1/1/4, 10.10.10.5:1/1/2]'
+        - endpoints: '[10.10.10.4:1/1/5, 10.10.10.5:1/1/5]'
+        - endpoints: '[10.10.10.1:1/1/c2/1, 10.10.10.2:1/1/2]'
+        - endpoints: '[10.10.10.1:1/1/c1/1, 10.10.10.3:1/1/1]'
+
+time=2022-12-04T23:19:16Z level=info msg=topology file path: /workspaces/topoViewer/rawTopoFile/
+time=2022-12-04T23:19:16Z level=debug msg=0
+time=2022-12-04T23:19:16Z level=debug msg=10.10.10.3:Port 1/1/5--10.10.10.7:Port 1/1/3
+time=2022-12-04T23:19:16Z level=debug msg=1
+time=2022-12-04T23:19:16Z level=debug msg=10.10.10.4:Port 1/1/4--10.10.10.7:Port 1/1/2
+time=2022-12-04T23:19:16Z level=debug msg=2
+time=2022-12-04T23:19:16Z level=debug msg=10.10.10.3:Port 1/1/3--10.10.10.4:Port 1/1/3
+time=2022-12-04T23:19:16Z level=debug msg=3
+time=2022-12-04T23:19:16Z level=debug msg=10.10.10.8:Port 1/1/5--10.10.10.9:Port 1/1/2
+time=2022-12-04T23:19:16Z level=debug msg=4
+time=2022-12-04T23:19:16Z level=debug msg=10.10.10.6:Port 1/1/3--10.10.10.9:Port 1/1/3
+time=2022-12-04T23:19:16Z level=debug msg=5
+time=2022-12-04T23:19:16Z level=debug msg=10.10.10.2:Port 1/1/1--10.10.10.4:Port 1/1/1
+time=2022-12-04T23:19:16Z level=debug msg=6
+time=2022-12-04T23:19:16Z level=debug msg=10.10.10.4:Port 1/1/2--10.10.10.6:Port 1/1/1
+time=2022-12-04T23:19:16Z level=debug msg=7
+time=2022-12-04T23:19:16Z level=debug msg=10.10.10.3:Port 1/1/2--10.10.10.6:Port 1/1/2
+time=2022-12-04T23:19:16Z level=debug msg=8
+time=2022-12-04T23:19:16Z level=debug msg=10.10.10.8:Port 1/1/2--10.10.10.10:Port 1/1/2
+time=2022-12-04T23:19:16Z level=debug msg=9
+time=2022-12-04T23:19:16Z level=debug msg=10.10.10.7:Port 1/1/1--10.10.10.10:Port 1/1/3
+time=2022-12-04T23:19:16Z level=debug msg=10
+time=2022-12-04T23:19:16Z level=debug msg=10.10.10.3:Port 1/1/4--10.10.10.5:Port 1/1/2
+time=2022-12-04T23:19:16Z level=debug msg=11
+time=2022-12-04T23:19:16Z level=debug msg=10.10.10.4:Port 1/1/5--10.10.10.5:Port 1/1/5
+time=2022-12-04T23:19:16Z level=debug msg=12
+time=2022-12-04T23:19:16Z level=debug msg=10.10.10.1:Port 1/1/c2/1--10.10.10.2:Port 1/1/2
+time=2022-12-04T23:19:16Z level=debug msg=13
+time=2022-12-04T23:19:16Z level=debug msg=10.10.10.1:Port 1/1/c1/1--10.10.10.3:Port 1/1/1
+time=2022-12-04T23:19:16Z level=info msg=jsonBytesCytoUi Result:name: asad
+mgmt:
+    ipv4_subnet: 30.30.0.0/16
+topology:
+    nodes:
+        - name: 10.10.10.2
+          kind: vr-sros
+          mgmt_ipv4: 30.30.1.1
+          group: sros
+          image: registry.srlinux.dev/pub/vr-sros:22.7.R1
+          type: 'cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28'
+          license: license.txt
+        - name: 10.10.10.5
+          kind: vr-sros
+          mgmt_ipv4: 30.30.1.2
+          group: sros
+          image: registry.srlinux.dev/pub/vr-sros:22.7.R1
+          type: 'cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28'
+          license: license.txt
+        - name: 10.10.10.1
+          kind: vr-sros
+          mgmt_ipv4: 30.30.1.3
+          group: sros
+          image: registry.srlinux.dev/pub/vr-sros:22.7.R1
+          type: 'cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28'
+          license: license.txt
+        - name: 10.10.10.4
+          kind: vr-sros
+          mgmt_ipv4: 30.30.1.4
+          group: sros
+          image: registry.srlinux.dev/pub/vr-sros:22.7.R1
+          type: 'cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28'
+          license: license.txt
+        - name: 10.10.10.3
+          kind: vr-sros
+          mgmt_ipv4: 30.30.1.5
+          group: sros
+          image: registry.srlinux.dev/pub/vr-sros:22.7.R1
+          type: 'cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28'
+          license: license.txt
+        - name: 10.10.10.9
+          kind: vr-sros
+          mgmt_ipv4: 30.30.1.6
+          group: sros
+          image: registry.srlinux.dev/pub/vr-sros:22.7.R1
+          type: 'cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28'
+          license: license.txt
+        - name: 10.10.10.6
+          kind: vr-sros
+          mgmt_ipv4: 30.30.1.7
+          group: sros
+          image: registry.srlinux.dev/pub/vr-sros:22.7.R1
+          type: 'cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28'
+          license: license.txt
+        - name: 10.10.10.7
+          kind: vr-sros
+          mgmt_ipv4: 30.30.1.8
+          group: sros
+          image: registry.srlinux.dev/pub/vr-sros:22.7.R1
+          type: 'cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28'
+          license: license.txt
+        - name: 10.10.10.8
+          kind: vr-sros
+          mgmt_ipv4: 30.30.1.9
+          group: sros
+          image: registry.srlinux.dev/pub/vr-sros:22.7.R1
+          type: 'cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28'
+          license: license.txt
+        - name: 10.10.10.10
+          kind: vr-sros
+          mgmt_ipv4: 30.30.1.10
+          group: sros
+          image: registry.srlinux.dev/pub/vr-sros:22.7.R1
+          type: 'cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28'
+          license: license.txt
+    links:
+        - endpoints: '[10.10.10.3:1/1/5, 10.10.10.7:1/1/3]'
+        - endpoints: '[10.10.10.4:1/1/4, 10.10.10.7:1/1/2]'
+        - endpoints: '[10.10.10.3:1/1/3, 10.10.10.4:1/1/3]'
+        - endpoints: '[10.10.10.8:1/1/5, 10.10.10.9:1/1/2]'
+        - endpoints: '[10.10.10.6:1/1/3, 10.10.10.9:1/1/3]'
+        - endpoints: '[10.10.10.2:1/1/1, 10.10.10.4:1/1/1]'
+        - endpoints: '[10.10.10.4:1/1/2, 10.10.10.6:1/1/1]'
+        - endpoints: '[10.10.10.3:1/1/2, 10.10.10.6:1/1/2]'
+        - endpoints: '[10.10.10.8:1/1/2, 10.10.10.10: 1/1/2]'
+        - endpoints: '[10.10.10.7:1/1/1, 10.10.10.10: 1/1/3]'
+        - endpoints: '[10.10.10.3:1/1/4, 10.10.10.5:1/1/2]'
+        - endpoints: '[10.10.10.4:1/1/5, 10.10.10.5:1/1/5]'
+        - endpoints: '[10.10.10.1:1/1/c2/1, 10.10.10.2:1/1/2]'
+        - endpoints: '[10.10.10.1:1/1/c1/1, 10.10.10.3:1/1/1]'
+
+time=2022-12-04T23:21:24Z level=info msg=topology file path: /workspaces/topoViewer/rawTopoFile/
+time=2022-12-04T23:21:24Z level=debug msg=0
+time=2022-12-04T23:21:24Z level=debug msg=10.10.10.3:Port 1/1/5--10.10.10.7:Port 1/1/3
+time=2022-12-04T23:21:24Z level=debug msg=1
+time=2022-12-04T23:21:24Z level=debug msg=10.10.10.4:Port 1/1/4--10.10.10.7:Port 1/1/2
+time=2022-12-04T23:21:24Z level=debug msg=2
+time=2022-12-04T23:21:24Z level=debug msg=10.10.10.3:Port 1/1/3--10.10.10.4:Port 1/1/3
+time=2022-12-04T23:21:24Z level=debug msg=3
+time=2022-12-04T23:21:24Z level=debug msg=10.10.10.8:Port 1/1/5--10.10.10.9:Port 1/1/2
+time=2022-12-04T23:21:24Z level=debug msg=4
+time=2022-12-04T23:21:24Z level=debug msg=10.10.10.6:Port 1/1/3--10.10.10.9:Port 1/1/3
+time=2022-12-04T23:21:24Z level=debug msg=5
+time=2022-12-04T23:21:24Z level=debug msg=10.10.10.2:Port 1/1/1--10.10.10.4:Port 1/1/1
+time=2022-12-04T23:21:24Z level=debug msg=6
+time=2022-12-04T23:21:24Z level=debug msg=10.10.10.4:Port 1/1/2--10.10.10.6:Port 1/1/1
+time=2022-12-04T23:21:24Z level=debug msg=7
+time=2022-12-04T23:21:24Z level=debug msg=10.10.10.3:Port 1/1/2--10.10.10.6:Port 1/1/2
+time=2022-12-04T23:21:24Z level=debug msg=8
+time=2022-12-04T23:21:24Z level=debug msg=10.10.10.8:Port 1/1/2--10.10.10.10:Port 1/1/2
+time=2022-12-04T23:21:24Z level=debug msg=9
+time=2022-12-04T23:21:24Z level=debug msg=10.10.10.7:Port 1/1/1--10.10.10.10:Port 1/1/3
+time=2022-12-04T23:21:24Z level=debug msg=10
+time=2022-12-04T23:21:24Z level=debug msg=10.10.10.3:Port 1/1/4--10.10.10.5:Port 1/1/2
+time=2022-12-04T23:21:24Z level=debug msg=11
+time=2022-12-04T23:21:24Z level=debug msg=10.10.10.4:Port 1/1/5--10.10.10.5:Port 1/1/5
+time=2022-12-04T23:21:24Z level=debug msg=12
+time=2022-12-04T23:21:24Z level=debug msg=10.10.10.1:Port 1/1/c2/1--10.10.10.2:Port 1/1/2
+time=2022-12-04T23:21:24Z level=debug msg=13
+time=2022-12-04T23:21:24Z level=debug msg=10.10.10.1:Port 1/1/c1/1--10.10.10.3:Port 1/1/1
+time=2022-12-04T23:21:25Z level=info msg=jsonBytesCytoUi Result:name: asad
+mgmt:
+    ipv4_subnet: 30.30.0.0/16
+topology:
+    nodes:
+        - name: 10.10.10.2
+          kind: vr-sros
+          mgmt_ipv4: 30.30.1.1
+          group: sros
+          image: registry.srlinux.dev/pub/vr-sros:22.7.R1
+          type: 'cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28'
+          license: license.txt
+        - name: 10.10.10.5
+          kind: vr-sros
+          mgmt_ipv4: 30.30.1.2
+          group: sros
+          image: registry.srlinux.dev/pub/vr-sros:22.7.R1
+          type: 'cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28'
+          license: license.txt
+        - name: 10.10.10.1
+          kind: vr-sros
+          mgmt_ipv4: 30.30.1.3
+          group: sros
+          image: registry.srlinux.dev/pub/vr-sros:22.7.R1
+          type: 'cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28'
+          license: license.txt
+        - name: 10.10.10.4
+          kind: vr-sros
+          mgmt_ipv4: 30.30.1.4
+          group: sros
+          image: registry.srlinux.dev/pub/vr-sros:22.7.R1
+          type: 'cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28'
+          license: license.txt
+        - name: 10.10.10.3
+          kind: vr-sros
+          mgmt_ipv4: 30.30.1.5
+          group: sros
+          image: registry.srlinux.dev/pub/vr-sros:22.7.R1
+          type: 'cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28'
+          license: license.txt
+        - name: 10.10.10.9
+          kind: vr-sros
+          mgmt_ipv4: 30.30.1.6
+          group: sros
+          image: registry.srlinux.dev/pub/vr-sros:22.7.R1
+          type: 'cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28'
+          license: license.txt
+        - name: 10.10.10.6
+          kind: vr-sros
+          mgmt_ipv4: 30.30.1.7
+          group: sros
+          image: registry.srlinux.dev/pub/vr-sros:22.7.R1
+          type: 'cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28'
+          license: license.txt
+        - name: 10.10.10.7
+          kind: vr-sros
+          mgmt_ipv4: 30.30.1.8
+          group: sros
+          image: registry.srlinux.dev/pub/vr-sros:22.7.R1
+          type: 'cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28'
+          license: license.txt
+        - name: 10.10.10.8
+          kind: vr-sros
+          mgmt_ipv4: 30.30.1.9
+          group: sros
+          image: registry.srlinux.dev/pub/vr-sros:22.7.R1
+          type: 'cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28'
+          license: license.txt
+        - name: 10.10.10.10
+          kind: vr-sros
+          mgmt_ipv4: 30.30.1.10
+          group: sros
+          image: registry.srlinux.dev/pub/vr-sros:22.7.R1
+          type: 'cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28'
+          license: license.txt
+    links:
+        - endpoints: '[10.10.10.3:1/1/5, 10.10.10.7:1/1/3]'
+        - endpoints: '[10.10.10.4:1/1/4, 10.10.10.7:1/1/2]'
+        - endpoints: '[10.10.10.3:1/1/3, 10.10.10.4:1/1/3]'
+        - endpoints: '[10.10.10.8:1/1/5, 10.10.10.9:1/1/2]'
+        - endpoints: '[10.10.10.6:1/1/3, 10.10.10.9:1/1/3]'
+        - endpoints: '[10.10.10.2:1/1/1, 10.10.10.4:1/1/1]'
+        - endpoints: '[10.10.10.4:1/1/2, 10.10.10.6:1/1/1]'
+        - endpoints: '[10.10.10.3:1/1/2, 10.10.10.6:1/1/2]'
+        - endpoints: '[10.10.10.8:1/1/2, 10.10.10.10: 1/1/2]'
+        - endpoints: '[10.10.10.7:1/1/1, 10.10.10.10: 1/1/3]'
+        - endpoints: '[10.10.10.3:1/1/4, 10.10.10.5:1/1/2]'
+        - endpoints: '[10.10.10.4:1/1/5, 10.10.10.5:1/1/5]'
+        - endpoints: '[10.10.10.1:1/1/c2/1, 10.10.10.2:1/1/2]'
+        - endpoints: '[10.10.10.1:1/1/c1/1, 10.10.10.3:1/1/1]'
+
+time=2022-12-04T23:22:08Z level=info msg=topology file path: /workspaces/topoViewer/rawTopoFile/
+time=2022-12-04T23:22:08Z level=debug msg=0
+time=2022-12-04T23:22:08Z level=debug msg=10.10.10.3:Port 1/1/5--10.10.10.7:Port 1/1/3
+time=2022-12-04T23:22:08Z level=debug msg=1
+time=2022-12-04T23:22:08Z level=debug msg=10.10.10.4:Port 1/1/4--10.10.10.7:Port 1/1/2
+time=2022-12-04T23:22:08Z level=debug msg=2
+time=2022-12-04T23:22:08Z level=debug msg=10.10.10.3:Port 1/1/3--10.10.10.4:Port 1/1/3
+time=2022-12-04T23:22:08Z level=debug msg=3
+time=2022-12-04T23:22:08Z level=debug msg=10.10.10.8:Port 1/1/5--10.10.10.9:Port 1/1/2
+time=2022-12-04T23:22:08Z level=debug msg=4
+time=2022-12-04T23:22:08Z level=debug msg=10.10.10.6:Port 1/1/3--10.10.10.9:Port 1/1/3
+time=2022-12-04T23:22:08Z level=debug msg=5
+time=2022-12-04T23:22:08Z level=debug msg=10.10.10.2:Port 1/1/1--10.10.10.4:Port 1/1/1
+time=2022-12-04T23:22:08Z level=debug msg=6
+time=2022-12-04T23:22:08Z level=debug msg=10.10.10.4:Port 1/1/2--10.10.10.6:Port 1/1/1
+time=2022-12-04T23:22:08Z level=debug msg=7
+time=2022-12-04T23:22:08Z level=debug msg=10.10.10.3:Port 1/1/2--10.10.10.6:Port 1/1/2
+time=2022-12-04T23:22:08Z level=debug msg=8
+time=2022-12-04T23:22:08Z level=debug msg=10.10.10.8:Port 1/1/2--10.10.10.10:Port 1/1/2
+time=2022-12-04T23:22:08Z level=debug msg=9
+time=2022-12-04T23:22:08Z level=debug msg=10.10.10.7:Port 1/1/1--10.10.10.10:Port 1/1/3
+time=2022-12-04T23:22:08Z level=debug msg=10
+time=2022-12-04T23:22:08Z level=debug msg=10.10.10.3:Port 1/1/4--10.10.10.5:Port 1/1/2
+time=2022-12-04T23:22:08Z level=debug msg=11
+time=2022-12-04T23:22:08Z level=debug msg=10.10.10.4:Port 1/1/5--10.10.10.5:Port 1/1/5
+time=2022-12-04T23:22:08Z level=debug msg=12
+time=2022-12-04T23:22:08Z level=debug msg=10.10.10.1:Port 1/1/c2/1--10.10.10.2:Port 1/1/2
+time=2022-12-04T23:22:08Z level=debug msg=13
+time=2022-12-04T23:22:08Z level=debug msg=10.10.10.1:Port 1/1/c1/1--10.10.10.3:Port 1/1/1
+time=2022-12-04T23:22:08Z level=info msg=jsonBytesCytoUi Result:name: asad
+mgmt:
+    ipv4_subnet: 30.30.0.0/16
+topology:
+    nodes:
+        - name: 10.10.10.2
+          kind: vr-sros
+          mgmt_ipv4: 30.30.1.1
+          group: sros
+          image: registry.srlinux.dev/pub/vr-sros:22.7.R1
+          type: 'cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28'
+          license: license.txt
+        - name: 10.10.10.5
+          kind: vr-sros
+          mgmt_ipv4: 30.30.1.2
+          group: sros
+          image: registry.srlinux.dev/pub/vr-sros:22.7.R1
+          type: 'cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28'
+          license: license.txt
+        - name: 10.10.10.1
+          kind: vr-sros
+          mgmt_ipv4: 30.30.1.3
+          group: sros
+          image: registry.srlinux.dev/pub/vr-sros:22.7.R1
+          type: 'cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28'
+          license: license.txt
+        - name: 10.10.10.4
+          kind: vr-sros
+          mgmt_ipv4: 30.30.1.4
+          group: sros
+          image: registry.srlinux.dev/pub/vr-sros:22.7.R1
+          type: 'cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28'
+          license: license.txt
+        - name: 10.10.10.3
+          kind: vr-sros
+          mgmt_ipv4: 30.30.1.5
+          group: sros
+          image: registry.srlinux.dev/pub/vr-sros:22.7.R1
+          type: 'cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28'
+          license: license.txt
+        - name: 10.10.10.9
+          kind: vr-sros
+          mgmt_ipv4: 30.30.1.6
+          group: sros
+          image: registry.srlinux.dev/pub/vr-sros:22.7.R1
+          type: 'cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28'
+          license: license.txt
+        - name: 10.10.10.6
+          kind: vr-sros
+          mgmt_ipv4: 30.30.1.7
+          group: sros
+          image: registry.srlinux.dev/pub/vr-sros:22.7.R1
+          type: 'cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28'
+          license: license.txt
+        - name: 10.10.10.7
+          kind: vr-sros
+          mgmt_ipv4: 30.30.1.8
+          group: sros
+          image: registry.srlinux.dev/pub/vr-sros:22.7.R1
+          type: 'cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28'
+          license: license.txt
+        - name: 10.10.10.8
+          kind: vr-sros
+          mgmt_ipv4: 30.30.1.9
+          group: sros
+          image: registry.srlinux.dev/pub/vr-sros:22.7.R1
+          type: 'cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28'
+          license: license.txt
+        - name: 10.10.10.10
+          kind: vr-sros
+          mgmt_ipv4: 30.30.1.10
+          group: sros
+          image: registry.srlinux.dev/pub/vr-sros:22.7.R1
+          type: 'cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28'
+          license: license.txt
+    links:
+        - endpoints: '[10.10.10.3:1/1/5, 10.10.10.7:1/1/3]'
+        - endpoints: '[10.10.10.4:1/1/4, 10.10.10.7:1/1/2]'
+        - endpoints: '[10.10.10.3:1/1/3, 10.10.10.4:1/1/3]'
+        - endpoints: '[10.10.10.8:1/1/5, 10.10.10.9:1/1/2]'
+        - endpoints: '[10.10.10.6:1/1/3, 10.10.10.9:1/1/3]'
+        - endpoints: '[10.10.10.2:1/1/1, 10.10.10.4:1/1/1]'
+        - endpoints: '[10.10.10.4:1/1/2, 10.10.10.6:1/1/1]'
+        - endpoints: '[10.10.10.3:1/1/2, 10.10.10.6:1/1/2]'
+        - endpoints: '[10.10.10.8:1/1/2, 10.10.10.10: 1/1/2]'
+        - endpoints: '[10.10.10.7:1/1/1, 10.10.10.10: 1/1/3]'
+        - endpoints: '[10.10.10.3:1/1/4, 10.10.10.5:1/1/2]'
+        - endpoints: '[10.10.10.4:1/1/5, 10.10.10.5:1/1/5]'
+        - endpoints: '[10.10.10.1:1/1/c2/1, 10.10.10.2:1/1/2]'
+        - endpoints: '[10.10.10.1:1/1/c1/1, 10.10.10.3:1/1/1]'
+
+time=2022-12-05T16:27:55Z level=info msg=topology file path: /workspaces/topoViewer/rawTopoFile/
+time=2022-12-05T16:27:55Z level=debug msg=0
+time=2022-12-05T16:27:55Z level=debug msg=10.10.10.3:Port 1/1/5--10.10.10.7:Port 1/1/3
+time=2022-12-05T16:27:55Z level=debug msg=1
+time=2022-12-05T16:27:55Z level=debug msg=10.10.10.4:Port 1/1/4--10.10.10.7:Port 1/1/2
+time=2022-12-05T16:27:55Z level=debug msg=2
+time=2022-12-05T16:27:55Z level=debug msg=10.10.10.3:Port 1/1/3--10.10.10.4:Port 1/1/3
+time=2022-12-05T16:27:55Z level=debug msg=3
+time=2022-12-05T16:27:55Z level=debug msg=10.10.10.8:Port 1/1/5--10.10.10.9:Port 1/1/2
+time=2022-12-05T16:27:55Z level=debug msg=4
+time=2022-12-05T16:27:55Z level=debug msg=10.10.10.6:Port 1/1/3--10.10.10.9:Port 1/1/3
+time=2022-12-05T16:27:55Z level=debug msg=5
+time=2022-12-05T16:27:55Z level=debug msg=10.10.10.2:Port 1/1/1--10.10.10.4:Port 1/1/1
+time=2022-12-05T16:27:55Z level=debug msg=6
+time=2022-12-05T16:27:55Z level=debug msg=10.10.10.4:Port 1/1/2--10.10.10.6:Port 1/1/1
+time=2022-12-05T16:27:55Z level=debug msg=7
+time=2022-12-05T16:27:55Z level=debug msg=10.10.10.3:Port 1/1/2--10.10.10.6:Port 1/1/2
+time=2022-12-05T16:27:55Z level=debug msg=8
+time=2022-12-05T16:27:55Z level=debug msg=10.10.10.8:Port 1/1/2--10.10.10.10:Port 1/1/2
+time=2022-12-05T16:27:55Z level=debug msg=9
+time=2022-12-05T16:27:55Z level=debug msg=10.10.10.7:Port 1/1/1--10.10.10.10:Port 1/1/3
+time=2022-12-05T16:27:55Z level=debug msg=10
+time=2022-12-05T16:27:55Z level=debug msg=10.10.10.3:Port 1/1/4--10.10.10.5:Port 1/1/2
+time=2022-12-05T16:27:55Z level=debug msg=11
+time=2022-12-05T16:27:55Z level=debug msg=10.10.10.4:Port 1/1/5--10.10.10.5:Port 1/1/5
+time=2022-12-05T16:27:55Z level=debug msg=12
+time=2022-12-05T16:27:55Z level=debug msg=10.10.10.1:Port 1/1/c2/1--10.10.10.2:Port 1/1/2
+time=2022-12-05T16:27:55Z level=debug msg=13
+time=2022-12-05T16:27:55Z level=debug msg=10.10.10.1:Port 1/1/c1/1--10.10.10.3:Port 1/1/1
+time=2022-12-05T16:28:26Z level=info msg=topology file path: /workspaces/topoViewer/rawTopoFile/
+time=2022-12-05T16:28:26Z level=debug msg=0
+time=2022-12-05T16:28:26Z level=debug msg=10.10.10.3:Port 1/1/5--10.10.10.7:Port 1/1/3
+time=2022-12-05T16:28:26Z level=debug msg=1
+time=2022-12-05T16:28:26Z level=debug msg=10.10.10.4:Port 1/1/4--10.10.10.7:Port 1/1/2
+time=2022-12-05T16:28:26Z level=debug msg=2
+time=2022-12-05T16:28:26Z level=debug msg=10.10.10.3:Port 1/1/3--10.10.10.4:Port 1/1/3
+time=2022-12-05T16:28:26Z level=debug msg=3
+time=2022-12-05T16:28:26Z level=debug msg=10.10.10.8:Port 1/1/5--10.10.10.9:Port 1/1/2
+time=2022-12-05T16:28:26Z level=debug msg=4
+time=2022-12-05T16:28:26Z level=debug msg=10.10.10.6:Port 1/1/3--10.10.10.9:Port 1/1/3
+time=2022-12-05T16:28:26Z level=debug msg=5
+time=2022-12-05T16:28:26Z level=debug msg=10.10.10.2:Port 1/1/1--10.10.10.4:Port 1/1/1
+time=2022-12-05T16:28:26Z level=debug msg=6
+time=2022-12-05T16:28:26Z level=debug msg=10.10.10.4:Port 1/1/2--10.10.10.6:Port 1/1/1
+time=2022-12-05T16:28:26Z level=debug msg=7
+time=2022-12-05T16:28:26Z level=debug msg=10.10.10.3:Port 1/1/2--10.10.10.6:Port 1/1/2
+time=2022-12-05T16:28:26Z level=debug msg=8
+time=2022-12-05T16:28:26Z level=debug msg=10.10.10.8:Port 1/1/2--10.10.10.10:Port 1/1/2
+time=2022-12-05T16:28:26Z level=debug msg=9
+time=2022-12-05T16:28:26Z level=debug msg=10.10.10.7:Port 1/1/1--10.10.10.10:Port 1/1/3
+time=2022-12-05T16:28:26Z level=debug msg=10
+time=2022-12-05T16:28:26Z level=debug msg=10.10.10.3:Port 1/1/4--10.10.10.5:Port 1/1/2
+time=2022-12-05T16:28:26Z level=debug msg=11
+time=2022-12-05T16:28:26Z level=debug msg=10.10.10.4:Port 1/1/5--10.10.10.5:Port 1/1/5
+time=2022-12-05T16:28:26Z level=debug msg=12
+time=2022-12-05T16:28:26Z level=debug msg=10.10.10.1:Port 1/1/c2/1--10.10.10.2:Port 1/1/2
+time=2022-12-05T16:28:26Z level=debug msg=13
+time=2022-12-05T16:28:26Z level=debug msg=10.10.10.1:Port 1/1/c1/1--10.10.10.3:Port 1/1/1
+time=2022-12-05T16:32:53Z level=info msg=topology file path: /workspaces/topoViewer/rawTopoFile/
+time=2022-12-05T16:32:53Z level=debug msg=0
+time=2022-12-05T16:32:53Z level=debug msg=10.10.10.3:Port 1/1/5--10.10.10.7:Port 1/1/3
+time=2022-12-05T16:32:53Z level=debug msg=1
+time=2022-12-05T16:32:53Z level=debug msg=10.10.10.4:Port 1/1/4--10.10.10.7:Port 1/1/2
+time=2022-12-05T16:32:53Z level=debug msg=2
+time=2022-12-05T16:32:53Z level=debug msg=10.10.10.3:Port 1/1/3--10.10.10.4:Port 1/1/3
+time=2022-12-05T16:32:53Z level=debug msg=3
+time=2022-12-05T16:32:53Z level=debug msg=10.10.10.8:Port 1/1/5--10.10.10.9:Port 1/1/2
+time=2022-12-05T16:32:53Z level=debug msg=4
+time=2022-12-05T16:32:53Z level=debug msg=10.10.10.6:Port 1/1/3--10.10.10.9:Port 1/1/3
+time=2022-12-05T16:32:53Z level=debug msg=5
+time=2022-12-05T16:32:53Z level=debug msg=10.10.10.2:Port 1/1/1--10.10.10.4:Port 1/1/1
+time=2022-12-05T16:32:53Z level=debug msg=6
+time=2022-12-05T16:32:53Z level=debug msg=10.10.10.4:Port 1/1/2--10.10.10.6:Port 1/1/1
+time=2022-12-05T16:32:53Z level=debug msg=7
+time=2022-12-05T16:32:53Z level=debug msg=10.10.10.3:Port 1/1/2--10.10.10.6:Port 1/1/2
+time=2022-12-05T16:32:53Z level=debug msg=8
+time=2022-12-05T16:32:53Z level=debug msg=10.10.10.8:Port 1/1/2--10.10.10.10:Port 1/1/2
+time=2022-12-05T16:32:53Z level=debug msg=9
+time=2022-12-05T16:32:53Z level=debug msg=10.10.10.7:Port 1/1/1--10.10.10.10:Port 1/1/3
+time=2022-12-05T16:32:53Z level=debug msg=10
+time=2022-12-05T16:32:53Z level=debug msg=10.10.10.3:Port 1/1/4--10.10.10.5:Port 1/1/2
+time=2022-12-05T16:32:53Z level=debug msg=11
+time=2022-12-05T16:32:53Z level=debug msg=10.10.10.4:Port 1/1/5--10.10.10.5:Port 1/1/5
+time=2022-12-05T16:32:53Z level=debug msg=12
+time=2022-12-05T16:32:53Z level=debug msg=10.10.10.1:Port 1/1/c2/1--10.10.10.2:Port 1/1/2
+time=2022-12-05T16:32:53Z level=debug msg=13
+time=2022-12-05T16:32:53Z level=debug msg=10.10.10.1:Port 1/1/c1/1--10.10.10.3:Port 1/1/1
+time=2022-12-05T16:33:16Z level=info msg=topology file path: /workspaces/topoViewer/rawTopoFile/
+time=2022-12-05T16:33:16Z level=debug msg=0
+time=2022-12-05T16:33:16Z level=debug msg=10.10.10.3:Port 1/1/5--10.10.10.7:Port 1/1/3
+time=2022-12-05T16:33:16Z level=debug msg=1
+time=2022-12-05T16:33:16Z level=debug msg=10.10.10.4:Port 1/1/4--10.10.10.7:Port 1/1/2
+time=2022-12-05T16:33:16Z level=debug msg=2
+time=2022-12-05T16:33:16Z level=debug msg=10.10.10.3:Port 1/1/3--10.10.10.4:Port 1/1/3
+time=2022-12-05T16:33:16Z level=debug msg=3
+time=2022-12-05T16:33:16Z level=debug msg=10.10.10.8:Port 1/1/5--10.10.10.9:Port 1/1/2
+time=2022-12-05T16:33:16Z level=debug msg=4
+time=2022-12-05T16:33:16Z level=debug msg=10.10.10.6:Port 1/1/3--10.10.10.9:Port 1/1/3
+time=2022-12-05T16:33:16Z level=debug msg=5
+time=2022-12-05T16:33:16Z level=debug msg=10.10.10.2:Port 1/1/1--10.10.10.4:Port 1/1/1
+time=2022-12-05T16:33:16Z level=debug msg=6
+time=2022-12-05T16:33:16Z level=debug msg=10.10.10.4:Port 1/1/2--10.10.10.6:Port 1/1/1
+time=2022-12-05T16:33:16Z level=debug msg=7
+time=2022-12-05T16:33:16Z level=debug msg=10.10.10.3:Port 1/1/2--10.10.10.6:Port 1/1/2
+time=2022-12-05T16:33:16Z level=debug msg=8
+time=2022-12-05T16:33:16Z level=debug msg=10.10.10.8:Port 1/1/2--10.10.10.10:Port 1/1/2
+time=2022-12-05T16:33:16Z level=debug msg=9
+time=2022-12-05T16:33:16Z level=debug msg=10.10.10.7:Port 1/1/1--10.10.10.10:Port 1/1/3
+time=2022-12-05T16:33:16Z level=debug msg=10
+time=2022-12-05T16:33:16Z level=debug msg=10.10.10.3:Port 1/1/4--10.10.10.5:Port 1/1/2
+time=2022-12-05T16:33:16Z level=debug msg=11
+time=2022-12-05T16:33:16Z level=debug msg=10.10.10.4:Port 1/1/5--10.10.10.5:Port 1/1/5
+time=2022-12-05T16:33:16Z level=debug msg=12
+time=2022-12-05T16:33:16Z level=debug msg=10.10.10.1:Port 1/1/c2/1--10.10.10.2:Port 1/1/2
+time=2022-12-05T16:33:16Z level=debug msg=13
+time=2022-12-05T16:33:16Z level=debug msg=10.10.10.1:Port 1/1/c1/1--10.10.10.3:Port 1/1/1
+time=2022-12-05T16:34:55Z level=info msg=topology file path: /workspaces/topoViewer/rawTopoFile/
+time=2022-12-05T16:34:55Z level=debug msg=0
+time=2022-12-05T16:34:55Z level=debug msg=10.10.10.3:Port 1/1/5--10.10.10.7:Port 1/1/3
+time=2022-12-05T16:34:55Z level=debug msg=1
+time=2022-12-05T16:34:55Z level=debug msg=10.10.10.4:Port 1/1/4--10.10.10.7:Port 1/1/2
+time=2022-12-05T16:34:55Z level=debug msg=2
+time=2022-12-05T16:34:55Z level=debug msg=10.10.10.3:Port 1/1/3--10.10.10.4:Port 1/1/3
+time=2022-12-05T16:34:55Z level=debug msg=3
+time=2022-12-05T16:34:55Z level=debug msg=10.10.10.8:Port 1/1/5--10.10.10.9:Port 1/1/2
+time=2022-12-05T16:34:55Z level=debug msg=4
+time=2022-12-05T16:34:55Z level=debug msg=10.10.10.6:Port 1/1/3--10.10.10.9:Port 1/1/3
+time=2022-12-05T16:34:55Z level=debug msg=5
+time=2022-12-05T16:34:55Z level=debug msg=10.10.10.2:Port 1/1/1--10.10.10.4:Port 1/1/1
+time=2022-12-05T16:34:55Z level=debug msg=6
+time=2022-12-05T16:34:55Z level=debug msg=10.10.10.4:Port 1/1/2--10.10.10.6:Port 1/1/1
+time=2022-12-05T16:34:55Z level=debug msg=7
+time=2022-12-05T16:34:55Z level=debug msg=10.10.10.3:Port 1/1/2--10.10.10.6:Port 1/1/2
+time=2022-12-05T16:34:55Z level=debug msg=8
+time=2022-12-05T16:34:55Z level=debug msg=10.10.10.8:Port 1/1/2--10.10.10.10:Port 1/1/2
+time=2022-12-05T16:34:55Z level=debug msg=9
+time=2022-12-05T16:34:55Z level=debug msg=10.10.10.7:Port 1/1/1--10.10.10.10:Port 1/1/3
+time=2022-12-05T16:34:55Z level=debug msg=10
+time=2022-12-05T16:34:55Z level=debug msg=10.10.10.3:Port 1/1/4--10.10.10.5:Port 1/1/2
+time=2022-12-05T16:34:55Z level=debug msg=11
+time=2022-12-05T16:34:55Z level=debug msg=10.10.10.4:Port 1/1/5--10.10.10.5:Port 1/1/5
+time=2022-12-05T16:34:55Z level=debug msg=12
+time=2022-12-05T16:34:55Z level=debug msg=10.10.10.1:Port 1/1/c2/1--10.10.10.2:Port 1/1/2
+time=2022-12-05T16:34:55Z level=debug msg=13
+time=2022-12-05T16:34:55Z level=debug msg=10.10.10.1:Port 1/1/c1/1--10.10.10.3:Port 1/1/1
+time=2022-12-05T16:35:21Z level=info msg=topology file path: /workspaces/topoViewer/rawTopoFile/
+time=2022-12-05T16:35:21Z level=debug msg=0
+time=2022-12-05T16:35:21Z level=debug msg=10.10.10.3:Port 1/1/5--10.10.10.7:Port 1/1/3
+time=2022-12-05T16:35:21Z level=debug msg=1
+time=2022-12-05T16:35:21Z level=debug msg=10.10.10.4:Port 1/1/4--10.10.10.7:Port 1/1/2
+time=2022-12-05T16:35:21Z level=debug msg=2
+time=2022-12-05T16:35:21Z level=debug msg=10.10.10.3:Port 1/1/3--10.10.10.4:Port 1/1/3
+time=2022-12-05T16:35:21Z level=debug msg=3
+time=2022-12-05T16:35:21Z level=debug msg=10.10.10.8:Port 1/1/5--10.10.10.9:Port 1/1/2
+time=2022-12-05T16:35:21Z level=debug msg=4
+time=2022-12-05T16:35:21Z level=debug msg=10.10.10.6:Port 1/1/3--10.10.10.9:Port 1/1/3
+time=2022-12-05T16:35:21Z level=debug msg=5
+time=2022-12-05T16:35:21Z level=debug msg=10.10.10.2:Port 1/1/1--10.10.10.4:Port 1/1/1
+time=2022-12-05T16:35:21Z level=debug msg=6
+time=2022-12-05T16:35:21Z level=debug msg=10.10.10.4:Port 1/1/2--10.10.10.6:Port 1/1/1
+time=2022-12-05T16:35:21Z level=debug msg=7
+time=2022-12-05T16:35:21Z level=debug msg=10.10.10.3:Port 1/1/2--10.10.10.6:Port 1/1/2
+time=2022-12-05T16:35:21Z level=debug msg=8
+time=2022-12-05T16:35:21Z level=debug msg=10.10.10.8:Port 1/1/2--10.10.10.10:Port 1/1/2
+time=2022-12-05T16:35:21Z level=debug msg=9
+time=2022-12-05T16:35:21Z level=debug msg=10.10.10.7:Port 1/1/1--10.10.10.10:Port 1/1/3
+time=2022-12-05T16:35:21Z level=debug msg=10
+time=2022-12-05T16:35:21Z level=debug msg=10.10.10.3:Port 1/1/4--10.10.10.5:Port 1/1/2
+time=2022-12-05T16:35:21Z level=debug msg=11
+time=2022-12-05T16:35:21Z level=debug msg=10.10.10.4:Port 1/1/5--10.10.10.5:Port 1/1/5
+time=2022-12-05T16:35:21Z level=debug msg=12
+time=2022-12-05T16:35:21Z level=debug msg=10.10.10.1:Port 1/1/c2/1--10.10.10.2:Port 1/1/2
+time=2022-12-05T16:35:21Z level=debug msg=13
+time=2022-12-05T16:35:21Z level=debug msg=10.10.10.1:Port 1/1/c1/1--10.10.10.3:Port 1/1/1
+time=2022-12-05T16:35:34Z level=info msg=topology file path: /workspaces/topoViewer/rawTopoFile/
+time=2022-12-05T16:35:34Z level=debug msg=0
+time=2022-12-05T16:35:34Z level=debug msg=10.10.10.3:Port 1/1/5--10.10.10.7:Port 1/1/3
+time=2022-12-05T16:35:34Z level=debug msg=1
+time=2022-12-05T16:35:34Z level=debug msg=10.10.10.4:Port 1/1/4--10.10.10.7:Port 1/1/2
+time=2022-12-05T16:35:34Z level=debug msg=2
+time=2022-12-05T16:35:34Z level=debug msg=10.10.10.3:Port 1/1/3--10.10.10.4:Port 1/1/3
+time=2022-12-05T16:35:34Z level=debug msg=3
+time=2022-12-05T16:35:34Z level=debug msg=10.10.10.8:Port 1/1/5--10.10.10.9:Port 1/1/2
+time=2022-12-05T16:35:34Z level=debug msg=4
+time=2022-12-05T16:35:34Z level=debug msg=10.10.10.6:Port 1/1/3--10.10.10.9:Port 1/1/3
+time=2022-12-05T16:35:34Z level=debug msg=5
+time=2022-12-05T16:35:34Z level=debug msg=10.10.10.2:Port 1/1/1--10.10.10.4:Port 1/1/1
+time=2022-12-05T16:35:34Z level=debug msg=6
+time=2022-12-05T16:35:34Z level=debug msg=10.10.10.4:Port 1/1/2--10.10.10.6:Port 1/1/1
+time=2022-12-05T16:35:34Z level=debug msg=7
+time=2022-12-05T16:35:34Z level=debug msg=10.10.10.3:Port 1/1/2--10.10.10.6:Port 1/1/2
+time=2022-12-05T16:35:34Z level=debug msg=8
+time=2022-12-05T16:35:34Z level=debug msg=10.10.10.8:Port 1/1/2--10.10.10.10:Port 1/1/2
+time=2022-12-05T16:35:34Z level=debug msg=9
+time=2022-12-05T16:35:34Z level=debug msg=10.10.10.7:Port 1/1/1--10.10.10.10:Port 1/1/3
+time=2022-12-05T16:35:34Z level=debug msg=10
+time=2022-12-05T16:35:34Z level=debug msg=10.10.10.3:Port 1/1/4--10.10.10.5:Port 1/1/2
+time=2022-12-05T16:35:34Z level=debug msg=11
+time=2022-12-05T16:35:34Z level=debug msg=10.10.10.4:Port 1/1/5--10.10.10.5:Port 1/1/5
+time=2022-12-05T16:35:34Z level=debug msg=12
+time=2022-12-05T16:35:34Z level=debug msg=10.10.10.1:Port 1/1/c2/1--10.10.10.2:Port 1/1/2
+time=2022-12-05T16:35:34Z level=debug msg=13
+time=2022-12-05T16:35:34Z level=debug msg=10.10.10.1:Port 1/1/c1/1--10.10.10.3:Port 1/1/1
+time=2022-12-05T16:35:46Z level=info msg=topology file path: /workspaces/topoViewer/rawTopoFile/
+time=2022-12-05T16:35:46Z level=debug msg=0
+time=2022-12-05T16:35:46Z level=debug msg=10.10.10.3:Port 1/1/5--10.10.10.7:Port 1/1/3
+time=2022-12-05T16:35:46Z level=debug msg=1
+time=2022-12-05T16:35:46Z level=debug msg=10.10.10.4:Port 1/1/4--10.10.10.7:Port 1/1/2
+time=2022-12-05T16:35:46Z level=debug msg=2
+time=2022-12-05T16:35:46Z level=debug msg=10.10.10.3:Port 1/1/3--10.10.10.4:Port 1/1/3
+time=2022-12-05T16:35:46Z level=debug msg=3
+time=2022-12-05T16:35:46Z level=debug msg=10.10.10.8:Port 1/1/5--10.10.10.9:Port 1/1/2
+time=2022-12-05T16:35:46Z level=debug msg=4
+time=2022-12-05T16:35:46Z level=debug msg=10.10.10.6:Port 1/1/3--10.10.10.9:Port 1/1/3
+time=2022-12-05T16:35:46Z level=debug msg=5
+time=2022-12-05T16:35:46Z level=debug msg=10.10.10.2:Port 1/1/1--10.10.10.4:Port 1/1/1
+time=2022-12-05T16:35:46Z level=debug msg=6
+time=2022-12-05T16:35:46Z level=debug msg=10.10.10.4:Port 1/1/2--10.10.10.6:Port 1/1/1
+time=2022-12-05T16:35:46Z level=debug msg=7
+time=2022-12-05T16:35:46Z level=debug msg=10.10.10.3:Port 1/1/2--10.10.10.6:Port 1/1/2
+time=2022-12-05T16:35:46Z level=debug msg=8
+time=2022-12-05T16:35:46Z level=debug msg=10.10.10.8:Port 1/1/2--10.10.10.10:Port 1/1/2
+time=2022-12-05T16:35:46Z level=debug msg=9
+time=2022-12-05T16:35:46Z level=debug msg=10.10.10.7:Port 1/1/1--10.10.10.10:Port 1/1/3
+time=2022-12-05T16:35:46Z level=debug msg=10
+time=2022-12-05T16:35:46Z level=debug msg=10.10.10.3:Port 1/1/4--10.10.10.5:Port 1/1/2
+time=2022-12-05T16:35:46Z level=debug msg=11
+time=2022-12-05T16:35:46Z level=debug msg=10.10.10.4:Port 1/1/5--10.10.10.5:Port 1/1/5
+time=2022-12-05T16:35:46Z level=debug msg=12
+time=2022-12-05T16:35:46Z level=debug msg=10.10.10.1:Port 1/1/c2/1--10.10.10.2:Port 1/1/2
+time=2022-12-05T16:35:46Z level=debug msg=13
+time=2022-12-05T16:35:46Z level=debug msg=10.10.10.1:Port 1/1/c1/1--10.10.10.3:Port 1/1/1
+time=2022-12-05T16:35:57Z level=info msg=topology file path: /workspaces/topoViewer/rawTopoFile/
+time=2022-12-05T16:35:57Z level=debug msg=0
+time=2022-12-05T16:35:57Z level=debug msg=10.10.10.3:Port 1/1/5--10.10.10.7:Port 1/1/3
+time=2022-12-05T16:35:57Z level=debug msg=1
+time=2022-12-05T16:35:57Z level=debug msg=10.10.10.4:Port 1/1/4--10.10.10.7:Port 1/1/2
+time=2022-12-05T16:35:57Z level=debug msg=2
+time=2022-12-05T16:35:57Z level=debug msg=10.10.10.3:Port 1/1/3--10.10.10.4:Port 1/1/3
+time=2022-12-05T16:35:57Z level=debug msg=3
+time=2022-12-05T16:35:57Z level=debug msg=10.10.10.8:Port 1/1/5--10.10.10.9:Port 1/1/2
+time=2022-12-05T16:35:57Z level=debug msg=4
+time=2022-12-05T16:35:57Z level=debug msg=10.10.10.6:Port 1/1/3--10.10.10.9:Port 1/1/3
+time=2022-12-05T16:35:57Z level=debug msg=5
+time=2022-12-05T16:35:57Z level=debug msg=10.10.10.2:Port 1/1/1--10.10.10.4:Port 1/1/1
+time=2022-12-05T16:35:57Z level=debug msg=6
+time=2022-12-05T16:35:57Z level=debug msg=10.10.10.4:Port 1/1/2--10.10.10.6:Port 1/1/1
+time=2022-12-05T16:35:57Z level=debug msg=7
+time=2022-12-05T16:35:57Z level=debug msg=10.10.10.3:Port 1/1/2--10.10.10.6:Port 1/1/2
+time=2022-12-05T16:35:57Z level=debug msg=8
+time=2022-12-05T16:35:57Z level=debug msg=10.10.10.8:Port 1/1/2--10.10.10.10:Port 1/1/2
+time=2022-12-05T16:35:57Z level=debug msg=9
+time=2022-12-05T16:35:57Z level=debug msg=10.10.10.7:Port 1/1/1--10.10.10.10:Port 1/1/3
+time=2022-12-05T16:35:57Z level=debug msg=10
+time=2022-12-05T16:35:57Z level=debug msg=10.10.10.3:Port 1/1/4--10.10.10.5:Port 1/1/2
+time=2022-12-05T16:35:57Z level=debug msg=11
+time=2022-12-05T16:35:57Z level=debug msg=10.10.10.4:Port 1/1/5--10.10.10.5:Port 1/1/5
+time=2022-12-05T16:35:57Z level=debug msg=12
+time=2022-12-05T16:35:57Z level=debug msg=10.10.10.1:Port 1/1/c2/1--10.10.10.2:Port 1/1/2
+time=2022-12-05T16:35:57Z level=debug msg=13
+time=2022-12-05T16:35:57Z level=debug msg=10.10.10.1:Port 1/1/c1/1--10.10.10.3:Port 1/1/1
+time=2022-12-05T16:45:45Z level=info msg=topology file path: /workspaces/topoViewer/rawTopoFile/
+time=2022-12-05T16:45:45Z level=debug msg=0
+time=2022-12-05T16:45:45Z level=debug msg=10.10.10.3:Port 1/1/5--10.10.10.7:Port 1/1/3
+time=2022-12-05T16:45:45Z level=debug msg=1
+time=2022-12-05T16:45:45Z level=debug msg=10.10.10.4:Port 1/1/4--10.10.10.7:Port 1/1/2
+time=2022-12-05T16:45:45Z level=debug msg=2
+time=2022-12-05T16:45:45Z level=debug msg=10.10.10.3:Port 1/1/3--10.10.10.4:Port 1/1/3
+time=2022-12-05T16:45:45Z level=debug msg=3
+time=2022-12-05T16:45:45Z level=debug msg=10.10.10.8:Port 1/1/5--10.10.10.9:Port 1/1/2
+time=2022-12-05T16:45:45Z level=debug msg=4
+time=2022-12-05T16:45:45Z level=debug msg=10.10.10.6:Port 1/1/3--10.10.10.9:Port 1/1/3
+time=2022-12-05T16:45:45Z level=debug msg=5
+time=2022-12-05T16:45:45Z level=debug msg=10.10.10.2:Port 1/1/1--10.10.10.4:Port 1/1/1
+time=2022-12-05T16:45:45Z level=debug msg=6
+time=2022-12-05T16:45:45Z level=debug msg=10.10.10.4:Port 1/1/2--10.10.10.6:Port 1/1/1
+time=2022-12-05T16:45:45Z level=debug msg=7
+time=2022-12-05T16:45:45Z level=debug msg=10.10.10.3:Port 1/1/2--10.10.10.6:Port 1/1/2
+time=2022-12-05T16:45:45Z level=debug msg=8
+time=2022-12-05T16:45:45Z level=debug msg=10.10.10.8:Port 1/1/2--10.10.10.10:Port 1/1/2
+time=2022-12-05T16:45:45Z level=debug msg=9
+time=2022-12-05T16:45:45Z level=debug msg=10.10.10.7:Port 1/1/1--10.10.10.10:Port 1/1/3
+time=2022-12-05T16:45:45Z level=debug msg=10
+time=2022-12-05T16:45:45Z level=debug msg=10.10.10.3:Port 1/1/4--10.10.10.5:Port 1/1/2
+time=2022-12-05T16:45:45Z level=debug msg=11
+time=2022-12-05T16:45:45Z level=debug msg=10.10.10.4:Port 1/1/5--10.10.10.5:Port 1/1/5
+time=2022-12-05T16:45:45Z level=debug msg=12
+time=2022-12-05T16:45:45Z level=debug msg=10.10.10.1:Port 1/1/c2/1--10.10.10.2:Port 1/1/2
+time=2022-12-05T16:45:45Z level=debug msg=13
+time=2022-12-05T16:45:45Z level=debug msg=10.10.10.1:Port 1/1/c1/1--10.10.10.3:Port 1/1/1
+time=2022-12-05T16:54:25Z level=info msg=topology file path: /workspaces/topoViewer/rawTopoFile/
+time=2022-12-05T16:54:25Z level=debug msg=0
+time=2022-12-05T16:54:25Z level=debug msg=10.10.10.3:Port 1/1/5--10.10.10.7:Port 1/1/3
+time=2022-12-05T16:54:25Z level=debug msg=1
+time=2022-12-05T16:54:25Z level=debug msg=10.10.10.4:Port 1/1/4--10.10.10.7:Port 1/1/2
+time=2022-12-05T16:54:25Z level=debug msg=2
+time=2022-12-05T16:54:25Z level=debug msg=10.10.10.3:Port 1/1/3--10.10.10.4:Port 1/1/3
+time=2022-12-05T16:54:25Z level=debug msg=3
+time=2022-12-05T16:54:25Z level=debug msg=10.10.10.8:Port 1/1/5--10.10.10.9:Port 1/1/2
+time=2022-12-05T16:54:25Z level=debug msg=4
+time=2022-12-05T16:54:25Z level=debug msg=10.10.10.6:Port 1/1/3--10.10.10.9:Port 1/1/3
+time=2022-12-05T16:54:25Z level=debug msg=5
+time=2022-12-05T16:54:25Z level=debug msg=10.10.10.2:Port 1/1/1--10.10.10.4:Port 1/1/1
+time=2022-12-05T16:54:25Z level=debug msg=6
+time=2022-12-05T16:54:25Z level=debug msg=10.10.10.4:Port 1/1/2--10.10.10.6:Port 1/1/1
+time=2022-12-05T16:54:25Z level=debug msg=7
+time=2022-12-05T16:54:25Z level=debug msg=10.10.10.3:Port 1/1/2--10.10.10.6:Port 1/1/2
+time=2022-12-05T16:54:25Z level=debug msg=8
+time=2022-12-05T16:54:25Z level=debug msg=10.10.10.8:Port 1/1/2--10.10.10.10:Port 1/1/2
+time=2022-12-05T16:54:25Z level=debug msg=9
+time=2022-12-05T16:54:25Z level=debug msg=10.10.10.7:Port 1/1/1--10.10.10.10:Port 1/1/3
+time=2022-12-05T16:54:25Z level=debug msg=10
+time=2022-12-05T16:54:25Z level=debug msg=10.10.10.3:Port 1/1/4--10.10.10.5:Port 1/1/2
+time=2022-12-05T16:54:25Z level=debug msg=11
+time=2022-12-05T16:54:25Z level=debug msg=10.10.10.4:Port 1/1/5--10.10.10.5:Port 1/1/5
+time=2022-12-05T16:54:25Z level=debug msg=12
+time=2022-12-05T16:54:25Z level=debug msg=10.10.10.1:Port 1/1/c2/1--10.10.10.2:Port 1/1/2
+time=2022-12-05T16:54:25Z level=debug msg=13
+time=2022-12-05T16:54:25Z level=debug msg=10.10.10.1:Port 1/1/c1/1--10.10.10.3:Port 1/1/1
+time=2022-12-05T17:03:11Z level=info msg=topology file path: /workspaces/topoViewer/rawTopoFile/
+time=2022-12-05T17:03:11Z level=debug msg=0
+time=2022-12-05T17:03:11Z level=debug msg=10.10.10.3:Port 1/1/5--10.10.10.7:Port 1/1/3
+time=2022-12-05T17:03:11Z level=debug msg=1
+time=2022-12-05T17:03:11Z level=debug msg=10.10.10.4:Port 1/1/4--10.10.10.7:Port 1/1/2
+time=2022-12-05T17:03:11Z level=debug msg=2
+time=2022-12-05T17:03:11Z level=debug msg=10.10.10.3:Port 1/1/3--10.10.10.4:Port 1/1/3
+time=2022-12-05T17:03:11Z level=debug msg=3
+time=2022-12-05T17:03:11Z level=debug msg=10.10.10.8:Port 1/1/5--10.10.10.9:Port 1/1/2
+time=2022-12-05T17:03:11Z level=debug msg=4
+time=2022-12-05T17:03:11Z level=debug msg=10.10.10.6:Port 1/1/3--10.10.10.9:Port 1/1/3
+time=2022-12-05T17:03:11Z level=debug msg=5
+time=2022-12-05T17:03:11Z level=debug msg=10.10.10.2:Port 1/1/1--10.10.10.4:Port 1/1/1
+time=2022-12-05T17:03:11Z level=debug msg=6
+time=2022-12-05T17:03:11Z level=debug msg=10.10.10.4:Port 1/1/2--10.10.10.6:Port 1/1/1
+time=2022-12-05T17:03:11Z level=debug msg=7
+time=2022-12-05T17:03:11Z level=debug msg=10.10.10.3:Port 1/1/2--10.10.10.6:Port 1/1/2
+time=2022-12-05T17:03:11Z level=debug msg=8
+time=2022-12-05T17:03:11Z level=debug msg=10.10.10.8:Port 1/1/2--10.10.10.10:Port 1/1/2
+time=2022-12-05T17:03:11Z level=debug msg=9
+time=2022-12-05T17:03:11Z level=debug msg=10.10.10.7:Port 1/1/1--10.10.10.10:Port 1/1/3
+time=2022-12-05T17:03:11Z level=debug msg=10
+time=2022-12-05T17:03:11Z level=debug msg=10.10.10.3:Port 1/1/4--10.10.10.5:Port 1/1/2
+time=2022-12-05T17:03:11Z level=debug msg=11
+time=2022-12-05T17:03:11Z level=debug msg=10.10.10.4:Port 1/1/5--10.10.10.5:Port 1/1/5
+time=2022-12-05T17:03:11Z level=debug msg=12
+time=2022-12-05T17:03:11Z level=debug msg=10.10.10.1:Port 1/1/c2/1--10.10.10.2:Port 1/1/2
+time=2022-12-05T17:03:11Z level=debug msg=13
+time=2022-12-05T17:03:11Z level=debug msg=10.10.10.1:Port 1/1/c1/1--10.10.10.3:Port 1/1/1
+time=2022-12-05T17:04:05Z level=info msg=topology file path: /workspaces/topoViewer/rawTopoFile/
+time=2022-12-05T17:04:05Z level=debug msg=0
+time=2022-12-05T17:04:05Z level=debug msg=10.10.10.3:Port 1/1/5--10.10.10.7:Port 1/1/3
+time=2022-12-05T17:04:05Z level=debug msg=1
+time=2022-12-05T17:04:05Z level=debug msg=10.10.10.4:Port 1/1/4--10.10.10.7:Port 1/1/2
+time=2022-12-05T17:04:05Z level=debug msg=2
+time=2022-12-05T17:04:05Z level=debug msg=10.10.10.3:Port 1/1/3--10.10.10.4:Port 1/1/3
+time=2022-12-05T17:04:05Z level=debug msg=3
+time=2022-12-05T17:04:05Z level=debug msg=10.10.10.8:Port 1/1/5--10.10.10.9:Port 1/1/2
+time=2022-12-05T17:04:05Z level=debug msg=4
+time=2022-12-05T17:04:05Z level=debug msg=10.10.10.6:Port 1/1/3--10.10.10.9:Port 1/1/3
+time=2022-12-05T17:04:05Z level=debug msg=5
+time=2022-12-05T17:04:05Z level=debug msg=10.10.10.2:Port 1/1/1--10.10.10.4:Port 1/1/1
+time=2022-12-05T17:04:05Z level=debug msg=6
+time=2022-12-05T17:04:05Z level=debug msg=10.10.10.4:Port 1/1/2--10.10.10.6:Port 1/1/1
+time=2022-12-05T17:04:05Z level=debug msg=7
+time=2022-12-05T17:04:05Z level=debug msg=10.10.10.3:Port 1/1/2--10.10.10.6:Port 1/1/2
+time=2022-12-05T17:04:05Z level=debug msg=8
+time=2022-12-05T17:04:05Z level=debug msg=10.10.10.8:Port 1/1/2--10.10.10.10:Port 1/1/2
+time=2022-12-05T17:04:05Z level=debug msg=9
+time=2022-12-05T17:04:05Z level=debug msg=10.10.10.7:Port 1/1/1--10.10.10.10:Port 1/1/3
+time=2022-12-05T17:04:05Z level=debug msg=10
+time=2022-12-05T17:04:05Z level=debug msg=10.10.10.3:Port 1/1/4--10.10.10.5:Port 1/1/2
+time=2022-12-05T17:04:05Z level=debug msg=11
+time=2022-12-05T17:04:05Z level=debug msg=10.10.10.4:Port 1/1/5--10.10.10.5:Port 1/1/5
+time=2022-12-05T17:04:05Z level=debug msg=12
+time=2022-12-05T17:04:05Z level=debug msg=10.10.10.1:Port 1/1/c2/1--10.10.10.2:Port 1/1/2
+time=2022-12-05T17:04:05Z level=debug msg=13
+time=2022-12-05T17:04:05Z level=debug msg=10.10.10.1:Port 1/1/c1/1--10.10.10.3:Port 1/1/1
+time=2022-12-05T17:07:27Z level=info msg=topology file path: /workspaces/topoViewer/rawTopoFile/
+time=2022-12-05T17:07:27Z level=debug msg=0
+time=2022-12-05T17:07:27Z level=debug msg=10.10.10.3:Port 1/1/5--10.10.10.7:Port 1/1/3
+time=2022-12-05T17:07:27Z level=debug msg=1
+time=2022-12-05T17:07:27Z level=debug msg=10.10.10.4:Port 1/1/4--10.10.10.7:Port 1/1/2
+time=2022-12-05T17:07:27Z level=debug msg=2
+time=2022-12-05T17:07:27Z level=debug msg=10.10.10.3:Port 1/1/3--10.10.10.4:Port 1/1/3
+time=2022-12-05T17:07:27Z level=debug msg=3
+time=2022-12-05T17:07:27Z level=debug msg=10.10.10.8:Port 1/1/5--10.10.10.9:Port 1/1/2
+time=2022-12-05T17:07:27Z level=debug msg=4
+time=2022-12-05T17:07:27Z level=debug msg=10.10.10.6:Port 1/1/3--10.10.10.9:Port 1/1/3
+time=2022-12-05T17:07:27Z level=debug msg=5
+time=2022-12-05T17:07:27Z level=debug msg=10.10.10.2:Port 1/1/1--10.10.10.4:Port 1/1/1
+time=2022-12-05T17:07:27Z level=debug msg=6
+time=2022-12-05T17:07:27Z level=debug msg=10.10.10.4:Port 1/1/2--10.10.10.6:Port 1/1/1
+time=2022-12-05T17:07:27Z level=debug msg=7
+time=2022-12-05T17:07:27Z level=debug msg=10.10.10.3:Port 1/1/2--10.10.10.6:Port 1/1/2
+time=2022-12-05T17:07:27Z level=debug msg=8
+time=2022-12-05T17:07:27Z level=debug msg=10.10.10.8:Port 1/1/2--10.10.10.10:Port 1/1/2
+time=2022-12-05T17:07:27Z level=debug msg=9
+time=2022-12-05T17:07:27Z level=debug msg=10.10.10.7:Port 1/1/1--10.10.10.10:Port 1/1/3
+time=2022-12-05T17:07:27Z level=debug msg=10
+time=2022-12-05T17:07:27Z level=debug msg=10.10.10.3:Port 1/1/4--10.10.10.5:Port 1/1/2
+time=2022-12-05T17:07:27Z level=debug msg=11
+time=2022-12-05T17:07:27Z level=debug msg=10.10.10.4:Port 1/1/5--10.10.10.5:Port 1/1/5
+time=2022-12-05T17:07:27Z level=debug msg=12
+time=2022-12-05T17:07:27Z level=debug msg=10.10.10.1:Port 1/1/c2/1--10.10.10.2:Port 1/1/2
+time=2022-12-05T17:07:27Z level=debug msg=13
+time=2022-12-05T17:07:27Z level=debug msg=10.10.10.1:Port 1/1/c1/1--10.10.10.3:Port 1/1/1
+time=2022-12-05T17:08:51Z level=info msg=topology file path: /workspaces/topoViewer/rawTopoFile/
+time=2022-12-05T17:08:51Z level=debug msg=0
+time=2022-12-05T17:08:51Z level=debug msg=10.10.10.3:Port 1/1/5--10.10.10.7:Port 1/1/3
+time=2022-12-05T17:08:51Z level=debug msg=1
+time=2022-12-05T17:08:51Z level=debug msg=10.10.10.4:Port 1/1/4--10.10.10.7:Port 1/1/2
+time=2022-12-05T17:08:51Z level=debug msg=2
+time=2022-12-05T17:08:51Z level=debug msg=10.10.10.3:Port 1/1/3--10.10.10.4:Port 1/1/3
+time=2022-12-05T17:08:51Z level=debug msg=3
+time=2022-12-05T17:08:51Z level=debug msg=10.10.10.8:Port 1/1/5--10.10.10.9:Port 1/1/2
+time=2022-12-05T17:08:51Z level=debug msg=4
+time=2022-12-05T17:08:51Z level=debug msg=10.10.10.6:Port 1/1/3--10.10.10.9:Port 1/1/3
+time=2022-12-05T17:08:51Z level=debug msg=5
+time=2022-12-05T17:08:51Z level=debug msg=10.10.10.2:Port 1/1/1--10.10.10.4:Port 1/1/1
+time=2022-12-05T17:08:51Z level=debug msg=6
+time=2022-12-05T17:08:51Z level=debug msg=10.10.10.4:Port 1/1/2--10.10.10.6:Port 1/1/1
+time=2022-12-05T17:08:51Z level=debug msg=7
+time=2022-12-05T17:08:51Z level=debug msg=10.10.10.3:Port 1/1/2--10.10.10.6:Port 1/1/2
+time=2022-12-05T17:08:51Z level=debug msg=8
+time=2022-12-05T17:08:51Z level=debug msg=10.10.10.8:Port 1/1/2--10.10.10.10:Port 1/1/2
+time=2022-12-05T17:08:51Z level=debug msg=9
+time=2022-12-05T17:08:51Z level=debug msg=10.10.10.7:Port 1/1/1--10.10.10.10:Port 1/1/3
+time=2022-12-05T17:08:51Z level=debug msg=10
+time=2022-12-05T17:08:51Z level=debug msg=10.10.10.3:Port 1/1/4--10.10.10.5:Port 1/1/2
+time=2022-12-05T17:08:51Z level=debug msg=11
+time=2022-12-05T17:08:51Z level=debug msg=10.10.10.4:Port 1/1/5--10.10.10.5:Port 1/1/5
+time=2022-12-05T17:08:51Z level=debug msg=12
+time=2022-12-05T17:08:51Z level=debug msg=10.10.10.1:Port 1/1/c2/1--10.10.10.2:Port 1/1/2
+time=2022-12-05T17:08:51Z level=debug msg=13
+time=2022-12-05T17:08:51Z level=debug msg=10.10.10.1:Port 1/1/c1/1--10.10.10.3:Port 1/1/1
+time=2022-12-05T17:20:15Z level=info msg=topology file path: /workspaces/topoViewer/rawTopoFile/
+time=2022-12-05T17:20:15Z level=debug msg=0
+time=2022-12-05T17:20:15Z level=debug msg=10.10.10.3:Port 1/1/5--10.10.10.7:Port 1/1/3
+time=2022-12-05T17:20:15Z level=debug msg=1
+time=2022-12-05T17:20:15Z level=debug msg=10.10.10.4:Port 1/1/4--10.10.10.7:Port 1/1/2
+time=2022-12-05T17:20:15Z level=debug msg=2
+time=2022-12-05T17:20:15Z level=debug msg=10.10.10.3:Port 1/1/3--10.10.10.4:Port 1/1/3
+time=2022-12-05T17:20:15Z level=debug msg=3
+time=2022-12-05T17:20:15Z level=debug msg=10.10.10.8:Port 1/1/5--10.10.10.9:Port 1/1/2
+time=2022-12-05T17:20:15Z level=debug msg=4
+time=2022-12-05T17:20:15Z level=debug msg=10.10.10.6:Port 1/1/3--10.10.10.9:Port 1/1/3
+time=2022-12-05T17:20:15Z level=debug msg=5
+time=2022-12-05T17:20:15Z level=debug msg=10.10.10.2:Port 1/1/1--10.10.10.4:Port 1/1/1
+time=2022-12-05T17:20:15Z level=debug msg=6
+time=2022-12-05T17:20:15Z level=debug msg=10.10.10.4:Port 1/1/2--10.10.10.6:Port 1/1/1
+time=2022-12-05T17:20:15Z level=debug msg=7
+time=2022-12-05T17:20:15Z level=debug msg=10.10.10.3:Port 1/1/2--10.10.10.6:Port 1/1/2
+time=2022-12-05T17:20:15Z level=debug msg=8
+time=2022-12-05T17:20:15Z level=debug msg=10.10.10.8:Port 1/1/2--10.10.10.10:Port 1/1/2
+time=2022-12-05T17:20:15Z level=debug msg=9
+time=2022-12-05T17:20:15Z level=debug msg=10.10.10.7:Port 1/1/1--10.10.10.10:Port 1/1/3
+time=2022-12-05T17:20:15Z level=debug msg=10
+time=2022-12-05T17:20:15Z level=debug msg=10.10.10.3:Port 1/1/4--10.10.10.5:Port 1/1/2
+time=2022-12-05T17:20:15Z level=debug msg=11
+time=2022-12-05T17:20:15Z level=debug msg=10.10.10.4:Port 1/1/5--10.10.10.5:Port 1/1/5
+time=2022-12-05T17:20:15Z level=debug msg=12
+time=2022-12-05T17:20:15Z level=debug msg=10.10.10.1:Port 1/1/c2/1--10.10.10.2:Port 1/1/2
+time=2022-12-05T17:20:15Z level=debug msg=13
+time=2022-12-05T17:20:15Z level=debug msg=10.10.10.1:Port 1/1/c1/1--10.10.10.3:Port 1/1/1
+time=2022-12-05T17:20:48Z level=info msg=topology file path: /workspaces/topoViewer/rawTopoFile/
+time=2022-12-05T17:20:48Z level=debug msg=0
+time=2022-12-05T17:20:48Z level=debug msg=10.10.10.3:Port 1/1/5--10.10.10.7:Port 1/1/3
+time=2022-12-05T17:20:48Z level=debug msg=1
+time=2022-12-05T17:20:48Z level=debug msg=10.10.10.4:Port 1/1/4--10.10.10.7:Port 1/1/2
+time=2022-12-05T17:20:48Z level=debug msg=2
+time=2022-12-05T17:20:48Z level=debug msg=10.10.10.3:Port 1/1/3--10.10.10.4:Port 1/1/3
+time=2022-12-05T17:20:48Z level=debug msg=3
+time=2022-12-05T17:20:48Z level=debug msg=10.10.10.8:Port 1/1/5--10.10.10.9:Port 1/1/2
+time=2022-12-05T17:20:48Z level=debug msg=4
+time=2022-12-05T17:20:48Z level=debug msg=10.10.10.6:Port 1/1/3--10.10.10.9:Port 1/1/3
+time=2022-12-05T17:20:48Z level=debug msg=5
+time=2022-12-05T17:20:48Z level=debug msg=10.10.10.2:Port 1/1/1--10.10.10.4:Port 1/1/1
+time=2022-12-05T17:20:48Z level=debug msg=6
+time=2022-12-05T17:20:48Z level=debug msg=10.10.10.4:Port 1/1/2--10.10.10.6:Port 1/1/1
+time=2022-12-05T17:20:48Z level=debug msg=7
+time=2022-12-05T17:20:48Z level=debug msg=10.10.10.3:Port 1/1/2--10.10.10.6:Port 1/1/2
+time=2022-12-05T17:20:48Z level=debug msg=8
+time=2022-12-05T17:20:48Z level=debug msg=10.10.10.8:Port 1/1/2--10.10.10.10:Port 1/1/2
+time=2022-12-05T17:20:48Z level=debug msg=9
+time=2022-12-05T17:20:48Z level=debug msg=10.10.10.7:Port 1/1/1--10.10.10.10:Port 1/1/3
+time=2022-12-05T17:20:48Z level=debug msg=10
+time=2022-12-05T17:20:48Z level=debug msg=10.10.10.3:Port 1/1/4--10.10.10.5:Port 1/1/2
+time=2022-12-05T17:20:48Z level=debug msg=11
+time=2022-12-05T17:20:48Z level=debug msg=10.10.10.4:Port 1/1/5--10.10.10.5:Port 1/1/5
+time=2022-12-05T17:20:48Z level=debug msg=12
+time=2022-12-05T17:20:48Z level=debug msg=10.10.10.1:Port 1/1/c2/1--10.10.10.2:Port 1/1/2
+time=2022-12-05T17:20:48Z level=debug msg=13
+time=2022-12-05T17:20:48Z level=debug msg=10.10.10.1:Port 1/1/c1/1--10.10.10.3:Port 1/1/1
+time=2022-12-05T17:21:50Z level=info msg=topology file path: /workspaces/topoViewer/rawTopoFile/
+time=2022-12-05T17:21:50Z level=debug msg=0
+time=2022-12-05T17:21:50Z level=debug msg=10.10.10.3:Port 1/1/5--10.10.10.7:Port 1/1/3
+time=2022-12-05T17:21:50Z level=debug msg=1
+time=2022-12-05T17:21:50Z level=debug msg=10.10.10.4:Port 1/1/4--10.10.10.7:Port 1/1/2
+time=2022-12-05T17:21:50Z level=debug msg=2
+time=2022-12-05T17:21:50Z level=debug msg=10.10.10.3:Port 1/1/3--10.10.10.4:Port 1/1/3
+time=2022-12-05T17:21:50Z level=debug msg=3
+time=2022-12-05T17:21:50Z level=debug msg=10.10.10.8:Port 1/1/5--10.10.10.9:Port 1/1/2
+time=2022-12-05T17:21:50Z level=debug msg=4
+time=2022-12-05T17:21:50Z level=debug msg=10.10.10.6:Port 1/1/3--10.10.10.9:Port 1/1/3
+time=2022-12-05T17:21:50Z level=debug msg=5
+time=2022-12-05T17:21:50Z level=debug msg=10.10.10.2:Port 1/1/1--10.10.10.4:Port 1/1/1
+time=2022-12-05T17:21:50Z level=debug msg=6
+time=2022-12-05T17:21:50Z level=debug msg=10.10.10.4:Port 1/1/2--10.10.10.6:Port 1/1/1
+time=2022-12-05T17:21:50Z level=debug msg=7
+time=2022-12-05T17:21:50Z level=debug msg=10.10.10.3:Port 1/1/2--10.10.10.6:Port 1/1/2
+time=2022-12-05T17:21:50Z level=debug msg=8
+time=2022-12-05T17:21:50Z level=debug msg=10.10.10.8:Port 1/1/2--10.10.10.10:Port 1/1/2
+time=2022-12-05T17:21:50Z level=debug msg=9
+time=2022-12-05T17:21:50Z level=debug msg=10.10.10.7:Port 1/1/1--10.10.10.10:Port 1/1/3
+time=2022-12-05T17:21:50Z level=debug msg=10
+time=2022-12-05T17:21:50Z level=debug msg=10.10.10.3:Port 1/1/4--10.10.10.5:Port 1/1/2
+time=2022-12-05T17:21:50Z level=debug msg=11
+time=2022-12-05T17:21:50Z level=debug msg=10.10.10.4:Port 1/1/5--10.10.10.5:Port 1/1/5
+time=2022-12-05T17:21:50Z level=debug msg=12
+time=2022-12-05T17:21:50Z level=debug msg=10.10.10.1:Port 1/1/c2/1--10.10.10.2:Port 1/1/2
+time=2022-12-05T17:21:50Z level=debug msg=13
+time=2022-12-05T17:21:50Z level=debug msg=10.10.10.1:Port 1/1/c1/1--10.10.10.3:Port 1/1/1
+time=2022-12-05T17:22:17Z level=info msg=topology file path: /workspaces/topoViewer/rawTopoFile/
+time=2022-12-05T17:22:17Z level=debug msg=0
+time=2022-12-05T17:22:17Z level=debug msg=10.10.10.3:Port 1/1/5--10.10.10.7:Port 1/1/3
+time=2022-12-05T17:22:17Z level=debug msg=1
+time=2022-12-05T17:22:17Z level=debug msg=10.10.10.4:Port 1/1/4--10.10.10.7:Port 1/1/2
+time=2022-12-05T17:22:17Z level=debug msg=2
+time=2022-12-05T17:22:17Z level=debug msg=10.10.10.3:Port 1/1/3--10.10.10.4:Port 1/1/3
+time=2022-12-05T17:22:17Z level=debug msg=3
+time=2022-12-05T17:22:17Z level=debug msg=10.10.10.8:Port 1/1/5--10.10.10.9:Port 1/1/2
+time=2022-12-05T17:22:17Z level=debug msg=4
+time=2022-12-05T17:22:17Z level=debug msg=10.10.10.6:Port 1/1/3--10.10.10.9:Port 1/1/3
+time=2022-12-05T17:22:17Z level=debug msg=5
+time=2022-12-05T17:22:17Z level=debug msg=10.10.10.2:Port 1/1/1--10.10.10.4:Port 1/1/1
+time=2022-12-05T17:22:17Z level=debug msg=6
+time=2022-12-05T17:22:17Z level=debug msg=10.10.10.4:Port 1/1/2--10.10.10.6:Port 1/1/1
+time=2022-12-05T17:22:17Z level=debug msg=7
+time=2022-12-05T17:22:17Z level=debug msg=10.10.10.3:Port 1/1/2--10.10.10.6:Port 1/1/2
+time=2022-12-05T17:22:17Z level=debug msg=8
+time=2022-12-05T17:22:17Z level=debug msg=10.10.10.8:Port 1/1/2--10.10.10.10:Port 1/1/2
+time=2022-12-05T17:22:17Z level=debug msg=9
+time=2022-12-05T17:22:17Z level=debug msg=10.10.10.7:Port 1/1/1--10.10.10.10:Port 1/1/3
+time=2022-12-05T17:22:17Z level=debug msg=10
+time=2022-12-05T17:22:17Z level=debug msg=10.10.10.3:Port 1/1/4--10.10.10.5:Port 1/1/2
+time=2022-12-05T17:22:17Z level=debug msg=11
+time=2022-12-05T17:22:17Z level=debug msg=10.10.10.4:Port 1/1/5--10.10.10.5:Port 1/1/5
+time=2022-12-05T17:22:17Z level=debug msg=12
+time=2022-12-05T17:22:17Z level=debug msg=10.10.10.1:Port 1/1/c2/1--10.10.10.2:Port 1/1/2
+time=2022-12-05T17:22:17Z level=debug msg=13
+time=2022-12-05T17:22:17Z level=debug msg=10.10.10.1:Port 1/1/c1/1--10.10.10.3:Port 1/1/1
+time=2022-12-05T17:23:07Z level=info msg=topology file path: /workspaces/topoViewer/rawTopoFile/
+time=2022-12-05T17:23:07Z level=debug msg=0
+time=2022-12-05T17:23:07Z level=debug msg=10.10.10.3:Port 1/1/5--10.10.10.7:Port 1/1/3
+time=2022-12-05T17:23:07Z level=debug msg=1
+time=2022-12-05T17:23:07Z level=debug msg=10.10.10.4:Port 1/1/4--10.10.10.7:Port 1/1/2
+time=2022-12-05T17:23:07Z level=debug msg=2
+time=2022-12-05T17:23:07Z level=debug msg=10.10.10.3:Port 1/1/3--10.10.10.4:Port 1/1/3
+time=2022-12-05T17:23:07Z level=debug msg=3
+time=2022-12-05T17:23:07Z level=debug msg=10.10.10.8:Port 1/1/5--10.10.10.9:Port 1/1/2
+time=2022-12-05T17:23:07Z level=debug msg=4
+time=2022-12-05T17:23:07Z level=debug msg=10.10.10.6:Port 1/1/3--10.10.10.9:Port 1/1/3
+time=2022-12-05T17:23:07Z level=debug msg=5
+time=2022-12-05T17:23:07Z level=debug msg=10.10.10.2:Port 1/1/1--10.10.10.4:Port 1/1/1
+time=2022-12-05T17:23:07Z level=debug msg=6
+time=2022-12-05T17:23:07Z level=debug msg=10.10.10.4:Port 1/1/2--10.10.10.6:Port 1/1/1
+time=2022-12-05T17:23:07Z level=debug msg=7
+time=2022-12-05T17:23:07Z level=debug msg=10.10.10.3:Port 1/1/2--10.10.10.6:Port 1/1/2
+time=2022-12-05T17:23:07Z level=debug msg=8
+time=2022-12-05T17:23:07Z level=debug msg=10.10.10.8:Port 1/1/2--10.10.10.10:Port 1/1/2
+time=2022-12-05T17:23:07Z level=debug msg=9
+time=2022-12-05T17:23:07Z level=debug msg=10.10.10.7:Port 1/1/1--10.10.10.10:Port 1/1/3
+time=2022-12-05T17:23:07Z level=debug msg=10
+time=2022-12-05T17:23:07Z level=debug msg=10.10.10.3:Port 1/1/4--10.10.10.5:Port 1/1/2
+time=2022-12-05T17:23:07Z level=debug msg=11
+time=2022-12-05T17:23:07Z level=debug msg=10.10.10.4:Port 1/1/5--10.10.10.5:Port 1/1/5
+time=2022-12-05T17:23:07Z level=debug msg=12
+time=2022-12-05T17:23:07Z level=debug msg=10.10.10.1:Port 1/1/c2/1--10.10.10.2:Port 1/1/2
+time=2022-12-05T17:23:07Z level=debug msg=13
+time=2022-12-05T17:23:07Z level=debug msg=10.10.10.1:Port 1/1/c1/1--10.10.10.3:Port 1/1/1
+time=2022-12-05T17:24:34Z level=info msg=topology file path: /workspaces/topoViewer/rawTopoFile/
+time=2022-12-05T17:24:34Z level=debug msg=0
+time=2022-12-05T17:24:34Z level=debug msg=10.10.10.3:Port 1/1/5--10.10.10.7:Port 1/1/3
+time=2022-12-05T17:24:34Z level=debug msg=1
+time=2022-12-05T17:24:34Z level=debug msg=10.10.10.4:Port 1/1/4--10.10.10.7:Port 1/1/2
+time=2022-12-05T17:24:34Z level=debug msg=2
+time=2022-12-05T17:24:34Z level=debug msg=10.10.10.3:Port 1/1/3--10.10.10.4:Port 1/1/3
+time=2022-12-05T17:24:34Z level=debug msg=3
+time=2022-12-05T17:24:34Z level=debug msg=10.10.10.8:Port 1/1/5--10.10.10.9:Port 1/1/2
+time=2022-12-05T17:24:34Z level=debug msg=4
+time=2022-12-05T17:24:34Z level=debug msg=10.10.10.6:Port 1/1/3--10.10.10.9:Port 1/1/3
+time=2022-12-05T17:24:34Z level=debug msg=5
+time=2022-12-05T17:24:34Z level=debug msg=10.10.10.2:Port 1/1/1--10.10.10.4:Port 1/1/1
+time=2022-12-05T17:24:34Z level=debug msg=6
+time=2022-12-05T17:24:34Z level=debug msg=10.10.10.4:Port 1/1/2--10.10.10.6:Port 1/1/1
+time=2022-12-05T17:24:34Z level=debug msg=7
+time=2022-12-05T17:24:34Z level=debug msg=10.10.10.3:Port 1/1/2--10.10.10.6:Port 1/1/2
+time=2022-12-05T17:24:34Z level=debug msg=8
+time=2022-12-05T17:24:34Z level=debug msg=10.10.10.8:Port 1/1/2--10.10.10.10:Port 1/1/2
+time=2022-12-05T17:24:34Z level=debug msg=9
+time=2022-12-05T17:24:34Z level=debug msg=10.10.10.7:Port 1/1/1--10.10.10.10:Port 1/1/3
+time=2022-12-05T17:24:34Z level=debug msg=10
+time=2022-12-05T17:24:34Z level=debug msg=10.10.10.3:Port 1/1/4--10.10.10.5:Port 1/1/2
+time=2022-12-05T17:24:34Z level=debug msg=11
+time=2022-12-05T17:24:34Z level=debug msg=10.10.10.4:Port 1/1/5--10.10.10.5:Port 1/1/5
+time=2022-12-05T17:24:34Z level=debug msg=12
+time=2022-12-05T17:24:34Z level=debug msg=10.10.10.1:Port 1/1/c2/1--10.10.10.2:Port 1/1/2
+time=2022-12-05T17:24:34Z level=debug msg=13
+time=2022-12-05T17:24:34Z level=debug msg=10.10.10.1:Port 1/1/c1/1--10.10.10.3:Port 1/1/1
+time=2022-12-05T17:25:04Z level=info msg=topology file path: /workspaces/topoViewer/rawTopoFile/
+time=2022-12-05T17:25:04Z level=debug msg=0
+time=2022-12-05T17:25:04Z level=debug msg=10.10.10.3:Port 1/1/5--10.10.10.7:Port 1/1/3
+time=2022-12-05T17:25:04Z level=debug msg=1
+time=2022-12-05T17:25:04Z level=debug msg=10.10.10.4:Port 1/1/4--10.10.10.7:Port 1/1/2
+time=2022-12-05T17:25:04Z level=debug msg=2
+time=2022-12-05T17:25:04Z level=debug msg=10.10.10.3:Port 1/1/3--10.10.10.4:Port 1/1/3
+time=2022-12-05T17:25:04Z level=debug msg=3
+time=2022-12-05T17:25:04Z level=debug msg=10.10.10.8:Port 1/1/5--10.10.10.9:Port 1/1/2
+time=2022-12-05T17:25:04Z level=debug msg=4
+time=2022-12-05T17:25:04Z level=debug msg=10.10.10.6:Port 1/1/3--10.10.10.9:Port 1/1/3
+time=2022-12-05T17:25:04Z level=debug msg=5
+time=2022-12-05T17:25:04Z level=debug msg=10.10.10.2:Port 1/1/1--10.10.10.4:Port 1/1/1
+time=2022-12-05T17:25:04Z level=debug msg=6
+time=2022-12-05T17:25:04Z level=debug msg=10.10.10.4:Port 1/1/2--10.10.10.6:Port 1/1/1
+time=2022-12-05T17:25:04Z level=debug msg=7
+time=2022-12-05T17:25:04Z level=debug msg=10.10.10.3:Port 1/1/2--10.10.10.6:Port 1/1/2
+time=2022-12-05T17:25:04Z level=debug msg=8
+time=2022-12-05T17:25:04Z level=debug msg=10.10.10.8:Port 1/1/2--10.10.10.10:Port 1/1/2
+time=2022-12-05T17:25:04Z level=debug msg=9
+time=2022-12-05T17:25:04Z level=debug msg=10.10.10.7:Port 1/1/1--10.10.10.10:Port 1/1/3
+time=2022-12-05T17:25:04Z level=debug msg=10
+time=2022-12-05T17:25:04Z level=debug msg=10.10.10.3:Port 1/1/4--10.10.10.5:Port 1/1/2
+time=2022-12-05T17:25:04Z level=debug msg=11
+time=2022-12-05T17:25:04Z level=debug msg=10.10.10.4:Port 1/1/5--10.10.10.5:Port 1/1/5
+time=2022-12-05T17:25:04Z level=debug msg=12
+time=2022-12-05T17:25:04Z level=debug msg=10.10.10.1:Port 1/1/c2/1--10.10.10.2:Port 1/1/2
+time=2022-12-05T17:25:04Z level=debug msg=13
+time=2022-12-05T17:25:04Z level=debug msg=10.10.10.1:Port 1/1/c1/1--10.10.10.3:Port 1/1/1
+time=2022-12-05T17:25:56Z level=info msg=topology file path: /workspaces/topoViewer/rawTopoFile/
+time=2022-12-05T17:25:56Z level=debug msg=0
+time=2022-12-05T17:25:56Z level=debug msg=10.10.10.3:Port 1/1/5--10.10.10.7:Port 1/1/3
+time=2022-12-05T17:25:56Z level=debug msg=1
+time=2022-12-05T17:25:56Z level=debug msg=10.10.10.4:Port 1/1/4--10.10.10.7:Port 1/1/2
+time=2022-12-05T17:25:56Z level=debug msg=2
+time=2022-12-05T17:25:56Z level=debug msg=10.10.10.3:Port 1/1/3--10.10.10.4:Port 1/1/3
+time=2022-12-05T17:25:56Z level=debug msg=3
+time=2022-12-05T17:25:56Z level=debug msg=10.10.10.8:Port 1/1/5--10.10.10.9:Port 1/1/2
+time=2022-12-05T17:25:56Z level=debug msg=4
+time=2022-12-05T17:25:56Z level=debug msg=10.10.10.6:Port 1/1/3--10.10.10.9:Port 1/1/3
+time=2022-12-05T17:25:56Z level=debug msg=5
+time=2022-12-05T17:25:56Z level=debug msg=10.10.10.2:Port 1/1/1--10.10.10.4:Port 1/1/1
+time=2022-12-05T17:25:56Z level=debug msg=6
+time=2022-12-05T17:25:56Z level=debug msg=10.10.10.4:Port 1/1/2--10.10.10.6:Port 1/1/1
+time=2022-12-05T17:25:56Z level=debug msg=7
+time=2022-12-05T17:25:56Z level=debug msg=10.10.10.3:Port 1/1/2--10.10.10.6:Port 1/1/2
+time=2022-12-05T17:25:56Z level=debug msg=8
+time=2022-12-05T17:25:56Z level=debug msg=10.10.10.8:Port 1/1/2--10.10.10.10:Port 1/1/2
+time=2022-12-05T17:25:56Z level=debug msg=9
+time=2022-12-05T17:25:56Z level=debug msg=10.10.10.7:Port 1/1/1--10.10.10.10:Port 1/1/3
+time=2022-12-05T17:25:56Z level=debug msg=10
+time=2022-12-05T17:25:56Z level=debug msg=10.10.10.3:Port 1/1/4--10.10.10.5:Port 1/1/2
+time=2022-12-05T17:25:56Z level=debug msg=11
+time=2022-12-05T17:25:56Z level=debug msg=10.10.10.4:Port 1/1/5--10.10.10.5:Port 1/1/5
+time=2022-12-05T17:25:56Z level=debug msg=12
+time=2022-12-05T17:25:56Z level=debug msg=10.10.10.1:Port 1/1/c2/1--10.10.10.2:Port 1/1/2
+time=2022-12-05T17:25:56Z level=debug msg=13
+time=2022-12-05T17:25:56Z level=debug msg=10.10.10.1:Port 1/1/c1/1--10.10.10.3:Port 1/1/1
+time=2022-12-05T17:26:09Z level=info msg=topology file path: /workspaces/topoViewer/rawTopoFile/
+time=2022-12-05T17:26:09Z level=debug msg=0
+time=2022-12-05T17:26:09Z level=debug msg=10.10.10.3:Port 1/1/5--10.10.10.7:Port 1/1/3
+time=2022-12-05T17:26:09Z level=debug msg=1
+time=2022-12-05T17:26:09Z level=debug msg=10.10.10.4:Port 1/1/4--10.10.10.7:Port 1/1/2
+time=2022-12-05T17:26:09Z level=debug msg=2
+time=2022-12-05T17:26:09Z level=debug msg=10.10.10.3:Port 1/1/3--10.10.10.4:Port 1/1/3
+time=2022-12-05T17:26:09Z level=debug msg=3
+time=2022-12-05T17:26:09Z level=debug msg=10.10.10.8:Port 1/1/5--10.10.10.9:Port 1/1/2
+time=2022-12-05T17:26:09Z level=debug msg=4
+time=2022-12-05T17:26:09Z level=debug msg=10.10.10.6:Port 1/1/3--10.10.10.9:Port 1/1/3
+time=2022-12-05T17:26:09Z level=debug msg=5
+time=2022-12-05T17:26:09Z level=debug msg=10.10.10.2:Port 1/1/1--10.10.10.4:Port 1/1/1
+time=2022-12-05T17:26:09Z level=debug msg=6
+time=2022-12-05T17:26:09Z level=debug msg=10.10.10.4:Port 1/1/2--10.10.10.6:Port 1/1/1
+time=2022-12-05T17:26:09Z level=debug msg=7
+time=2022-12-05T17:26:09Z level=debug msg=10.10.10.3:Port 1/1/2--10.10.10.6:Port 1/1/2
+time=2022-12-05T17:26:09Z level=debug msg=8
+time=2022-12-05T17:26:09Z level=debug msg=10.10.10.8:Port 1/1/2--10.10.10.10:Port 1/1/2
+time=2022-12-05T17:26:09Z level=debug msg=9
+time=2022-12-05T17:26:09Z level=debug msg=10.10.10.7:Port 1/1/1--10.10.10.10:Port 1/1/3
+time=2022-12-05T17:26:09Z level=debug msg=10
+time=2022-12-05T17:26:09Z level=debug msg=10.10.10.3:Port 1/1/4--10.10.10.5:Port 1/1/2
+time=2022-12-05T17:26:09Z level=debug msg=11
+time=2022-12-05T17:26:09Z level=debug msg=10.10.10.4:Port 1/1/5--10.10.10.5:Port 1/1/5
+time=2022-12-05T17:26:09Z level=debug msg=12
+time=2022-12-05T17:26:09Z level=debug msg=10.10.10.1:Port 1/1/c2/1--10.10.10.2:Port 1/1/2
+time=2022-12-05T17:26:09Z level=debug msg=13
+time=2022-12-05T17:26:09Z level=debug msg=10.10.10.1:Port 1/1/c1/1--10.10.10.3:Port 1/1/1
+time=2022-12-05T17:26:48Z level=info msg=topology file path: /workspaces/topoViewer/rawTopoFile/
+time=2022-12-05T17:26:48Z level=debug msg=0
+time=2022-12-05T17:26:48Z level=debug msg=10.10.10.3:Port 1/1/5--10.10.10.7:Port 1/1/3
+time=2022-12-05T17:26:48Z level=debug msg=1
+time=2022-12-05T17:26:48Z level=debug msg=10.10.10.4:Port 1/1/4--10.10.10.7:Port 1/1/2
+time=2022-12-05T17:26:48Z level=debug msg=2
+time=2022-12-05T17:26:48Z level=debug msg=10.10.10.3:Port 1/1/3--10.10.10.4:Port 1/1/3
+time=2022-12-05T17:26:48Z level=debug msg=3
+time=2022-12-05T17:26:48Z level=debug msg=10.10.10.8:Port 1/1/5--10.10.10.9:Port 1/1/2
+time=2022-12-05T17:26:48Z level=debug msg=4
+time=2022-12-05T17:26:48Z level=debug msg=10.10.10.6:Port 1/1/3--10.10.10.9:Port 1/1/3
+time=2022-12-05T17:26:48Z level=debug msg=5
+time=2022-12-05T17:26:48Z level=debug msg=10.10.10.2:Port 1/1/1--10.10.10.4:Port 1/1/1
+time=2022-12-05T17:26:48Z level=debug msg=6
+time=2022-12-05T17:26:48Z level=debug msg=10.10.10.4:Port 1/1/2--10.10.10.6:Port 1/1/1
+time=2022-12-05T17:26:48Z level=debug msg=7
+time=2022-12-05T17:26:48Z level=debug msg=10.10.10.3:Port 1/1/2--10.10.10.6:Port 1/1/2
+time=2022-12-05T17:26:48Z level=debug msg=8
+time=2022-12-05T17:26:48Z level=debug msg=10.10.10.8:Port 1/1/2--10.10.10.10:Port 1/1/2
+time=2022-12-05T17:26:48Z level=debug msg=9
+time=2022-12-05T17:26:48Z level=debug msg=10.10.10.7:Port 1/1/1--10.10.10.10:Port 1/1/3
+time=2022-12-05T17:26:48Z level=debug msg=10
+time=2022-12-05T17:26:48Z level=debug msg=10.10.10.3:Port 1/1/4--10.10.10.5:Port 1/1/2
+time=2022-12-05T17:26:48Z level=debug msg=11
+time=2022-12-05T17:26:48Z level=debug msg=10.10.10.4:Port 1/1/5--10.10.10.5:Port 1/1/5
+time=2022-12-05T17:26:48Z level=debug msg=12
+time=2022-12-05T17:26:48Z level=debug msg=10.10.10.1:Port 1/1/c2/1--10.10.10.2:Port 1/1/2
+time=2022-12-05T17:26:48Z level=debug msg=13
+time=2022-12-05T17:26:48Z level=debug msg=10.10.10.1:Port 1/1/c1/1--10.10.10.3:Port 1/1/1
+time=2022-12-05T17:27:36Z level=info msg=topology file path: /workspaces/topoViewer/rawTopoFile/
+time=2022-12-05T17:27:36Z level=debug msg=0
+time=2022-12-05T17:27:36Z level=debug msg=10.10.10.3:Port 1/1/5--10.10.10.7:Port 1/1/3
+time=2022-12-05T17:27:36Z level=debug msg=1
+time=2022-12-05T17:27:36Z level=debug msg=10.10.10.4:Port 1/1/4--10.10.10.7:Port 1/1/2
+time=2022-12-05T17:27:36Z level=debug msg=2
+time=2022-12-05T17:27:36Z level=debug msg=10.10.10.3:Port 1/1/3--10.10.10.4:Port 1/1/3
+time=2022-12-05T17:27:36Z level=debug msg=3
+time=2022-12-05T17:27:36Z level=debug msg=10.10.10.8:Port 1/1/5--10.10.10.9:Port 1/1/2
+time=2022-12-05T17:27:36Z level=debug msg=4
+time=2022-12-05T17:27:36Z level=debug msg=10.10.10.6:Port 1/1/3--10.10.10.9:Port 1/1/3
+time=2022-12-05T17:27:36Z level=debug msg=5
+time=2022-12-05T17:27:36Z level=debug msg=10.10.10.2:Port 1/1/1--10.10.10.4:Port 1/1/1
+time=2022-12-05T17:27:36Z level=debug msg=6
+time=2022-12-05T17:27:36Z level=debug msg=10.10.10.4:Port 1/1/2--10.10.10.6:Port 1/1/1
+time=2022-12-05T17:27:36Z level=debug msg=7
+time=2022-12-05T17:27:36Z level=debug msg=10.10.10.3:Port 1/1/2--10.10.10.6:Port 1/1/2
+time=2022-12-05T17:27:36Z level=debug msg=8
+time=2022-12-05T17:27:36Z level=debug msg=10.10.10.8:Port 1/1/2--10.10.10.10:Port 1/1/2
+time=2022-12-05T17:27:36Z level=debug msg=9
+time=2022-12-05T17:27:36Z level=debug msg=10.10.10.7:Port 1/1/1--10.10.10.10:Port 1/1/3
+time=2022-12-05T17:27:36Z level=debug msg=10
+time=2022-12-05T17:27:36Z level=debug msg=10.10.10.3:Port 1/1/4--10.10.10.5:Port 1/1/2
+time=2022-12-05T17:27:36Z level=debug msg=11
+time=2022-12-05T17:27:36Z level=debug msg=10.10.10.4:Port 1/1/5--10.10.10.5:Port 1/1/5
+time=2022-12-05T17:27:36Z level=debug msg=12
+time=2022-12-05T17:27:36Z level=debug msg=10.10.10.1:Port 1/1/c2/1--10.10.10.2:Port 1/1/2
+time=2022-12-05T17:27:36Z level=debug msg=13
+time=2022-12-05T17:27:36Z level=debug msg=10.10.10.1:Port 1/1/c1/1--10.10.10.3:Port 1/1/1
+time=2022-12-05T17:28:24Z level=info msg=topology file path: /workspaces/topoViewer/rawTopoFile/
+time=2022-12-05T17:28:24Z level=debug msg=0
+time=2022-12-05T17:28:24Z level=debug msg=10.10.10.3:Port 1/1/5--10.10.10.7:Port 1/1/3
+time=2022-12-05T17:28:24Z level=debug msg=1
+time=2022-12-05T17:28:24Z level=debug msg=10.10.10.4:Port 1/1/4--10.10.10.7:Port 1/1/2
+time=2022-12-05T17:28:24Z level=debug msg=2
+time=2022-12-05T17:28:24Z level=debug msg=10.10.10.3:Port 1/1/3--10.10.10.4:Port 1/1/3
+time=2022-12-05T17:28:24Z level=debug msg=3
+time=2022-12-05T17:28:24Z level=debug msg=10.10.10.8:Port 1/1/5--10.10.10.9:Port 1/1/2
+time=2022-12-05T17:28:24Z level=debug msg=4
+time=2022-12-05T17:28:24Z level=debug msg=10.10.10.6:Port 1/1/3--10.10.10.9:Port 1/1/3
+time=2022-12-05T17:28:24Z level=debug msg=5
+time=2022-12-05T17:28:24Z level=debug msg=10.10.10.2:Port 1/1/1--10.10.10.4:Port 1/1/1
+time=2022-12-05T17:28:24Z level=debug msg=6
+time=2022-12-05T17:28:24Z level=debug msg=10.10.10.4:Port 1/1/2--10.10.10.6:Port 1/1/1
+time=2022-12-05T17:28:24Z level=debug msg=7
+time=2022-12-05T17:28:24Z level=debug msg=10.10.10.3:Port 1/1/2--10.10.10.6:Port 1/1/2
+time=2022-12-05T17:28:24Z level=debug msg=8
+time=2022-12-05T17:28:24Z level=debug msg=10.10.10.8:Port 1/1/2--10.10.10.10:Port 1/1/2
+time=2022-12-05T17:28:24Z level=debug msg=9
+time=2022-12-05T17:28:24Z level=debug msg=10.10.10.7:Port 1/1/1--10.10.10.10:Port 1/1/3
+time=2022-12-05T17:28:24Z level=debug msg=10
+time=2022-12-05T17:28:24Z level=debug msg=10.10.10.3:Port 1/1/4--10.10.10.5:Port 1/1/2
+time=2022-12-05T17:28:24Z level=debug msg=11
+time=2022-12-05T17:28:24Z level=debug msg=10.10.10.4:Port 1/1/5--10.10.10.5:Port 1/1/5
+time=2022-12-05T17:28:24Z level=debug msg=12
+time=2022-12-05T17:28:24Z level=debug msg=10.10.10.1:Port 1/1/c2/1--10.10.10.2:Port 1/1/2
+time=2022-12-05T17:28:24Z level=debug msg=13
+time=2022-12-05T17:28:24Z level=debug msg=10.10.10.1:Port 1/1/c1/1--10.10.10.3:Port 1/1/1
+time=2022-12-05T17:30:25Z level=info msg=topology file path: /workspaces/topoViewer/rawTopoFile/
+time=2022-12-05T17:30:25Z level=debug msg=0
+time=2022-12-05T17:30:25Z level=debug msg=10.10.10.3:Port 1/1/5--10.10.10.7:Port 1/1/3
+time=2022-12-05T17:30:25Z level=debug msg=1
+time=2022-12-05T17:30:25Z level=debug msg=10.10.10.4:Port 1/1/4--10.10.10.7:Port 1/1/2
+time=2022-12-05T17:30:25Z level=debug msg=2
+time=2022-12-05T17:30:25Z level=debug msg=10.10.10.3:Port 1/1/3--10.10.10.4:Port 1/1/3
+time=2022-12-05T17:30:25Z level=debug msg=3
+time=2022-12-05T17:30:25Z level=debug msg=10.10.10.8:Port 1/1/5--10.10.10.9:Port 1/1/2
+time=2022-12-05T17:30:25Z level=debug msg=4
+time=2022-12-05T17:30:25Z level=debug msg=10.10.10.6:Port 1/1/3--10.10.10.9:Port 1/1/3
+time=2022-12-05T17:30:25Z level=debug msg=5
+time=2022-12-05T17:30:25Z level=debug msg=10.10.10.2:Port 1/1/1--10.10.10.4:Port 1/1/1
+time=2022-12-05T17:30:25Z level=debug msg=6
+time=2022-12-05T17:30:25Z level=debug msg=10.10.10.4:Port 1/1/2--10.10.10.6:Port 1/1/1
+time=2022-12-05T17:30:25Z level=debug msg=7
+time=2022-12-05T17:30:25Z level=debug msg=10.10.10.3:Port 1/1/2--10.10.10.6:Port 1/1/2
+time=2022-12-05T17:30:25Z level=debug msg=8
+time=2022-12-05T17:30:25Z level=debug msg=10.10.10.8:Port 1/1/2--10.10.10.10:Port 1/1/2
+time=2022-12-05T17:30:25Z level=debug msg=9
+time=2022-12-05T17:30:25Z level=debug msg=10.10.10.7:Port 1/1/1--10.10.10.10:Port 1/1/3
+time=2022-12-05T17:30:25Z level=debug msg=10
+time=2022-12-05T17:30:25Z level=debug msg=10.10.10.3:Port 1/1/4--10.10.10.5:Port 1/1/2
+time=2022-12-05T17:30:25Z level=debug msg=11
+time=2022-12-05T17:30:25Z level=debug msg=10.10.10.4:Port 1/1/5--10.10.10.5:Port 1/1/5
+time=2022-12-05T17:30:25Z level=debug msg=12
+time=2022-12-05T17:30:25Z level=debug msg=10.10.10.1:Port 1/1/c2/1--10.10.10.2:Port 1/1/2
+time=2022-12-05T17:30:25Z level=debug msg=13
+time=2022-12-05T17:30:25Z level=debug msg=10.10.10.1:Port 1/1/c1/1--10.10.10.3:Port 1/1/1
+time=2022-12-05T17:32:26Z level=info msg=topology file path: /workspaces/topoViewer/rawTopoFile/
+time=2022-12-05T17:32:26Z level=debug msg=0
+time=2022-12-05T17:32:26Z level=debug msg=10.10.10.3:Port 1/1/5--10.10.10.7:Port 1/1/3
+time=2022-12-05T17:32:26Z level=debug msg=1
+time=2022-12-05T17:32:26Z level=debug msg=10.10.10.4:Port 1/1/4--10.10.10.7:Port 1/1/2
+time=2022-12-05T17:32:26Z level=debug msg=2
+time=2022-12-05T17:32:26Z level=debug msg=10.10.10.3:Port 1/1/3--10.10.10.4:Port 1/1/3
+time=2022-12-05T17:32:26Z level=debug msg=3
+time=2022-12-05T17:32:26Z level=debug msg=10.10.10.8:Port 1/1/5--10.10.10.9:Port 1/1/2
+time=2022-12-05T17:32:26Z level=debug msg=4
+time=2022-12-05T17:32:26Z level=debug msg=10.10.10.6:Port 1/1/3--10.10.10.9:Port 1/1/3
+time=2022-12-05T17:32:26Z level=debug msg=5
+time=2022-12-05T17:32:26Z level=debug msg=10.10.10.2:Port 1/1/1--10.10.10.4:Port 1/1/1
+time=2022-12-05T17:32:26Z level=debug msg=6
+time=2022-12-05T17:32:26Z level=debug msg=10.10.10.4:Port 1/1/2--10.10.10.6:Port 1/1/1
+time=2022-12-05T17:32:26Z level=debug msg=7
+time=2022-12-05T17:32:26Z level=debug msg=10.10.10.3:Port 1/1/2--10.10.10.6:Port 1/1/2
+time=2022-12-05T17:32:26Z level=debug msg=8
+time=2022-12-05T17:32:26Z level=debug msg=10.10.10.8:Port 1/1/2--10.10.10.10:Port 1/1/2
+time=2022-12-05T17:32:26Z level=debug msg=9
+time=2022-12-05T17:32:26Z level=debug msg=10.10.10.7:Port 1/1/1--10.10.10.10:Port 1/1/3
+time=2022-12-05T17:32:26Z level=debug msg=10
+time=2022-12-05T17:32:26Z level=debug msg=10.10.10.3:Port 1/1/4--10.10.10.5:Port 1/1/2
+time=2022-12-05T17:32:26Z level=debug msg=11
+time=2022-12-05T17:32:26Z level=debug msg=10.10.10.4:Port 1/1/5--10.10.10.5:Port 1/1/5
+time=2022-12-05T17:32:26Z level=debug msg=12
+time=2022-12-05T17:32:26Z level=debug msg=10.10.10.1:Port 1/1/c2/1--10.10.10.2:Port 1/1/2
+time=2022-12-05T17:32:26Z level=debug msg=13
+time=2022-12-05T17:32:26Z level=debug msg=10.10.10.1:Port 1/1/c1/1--10.10.10.3:Port 1/1/1
+time=2022-12-05T17:32:58Z level=info msg=topology file path: /workspaces/topoViewer/rawTopoFile/
+time=2022-12-05T17:32:58Z level=debug msg=0
+time=2022-12-05T17:32:58Z level=debug msg=10.10.10.3:Port 1/1/5--10.10.10.7:Port 1/1/3
+time=2022-12-05T17:32:58Z level=debug msg=1
+time=2022-12-05T17:32:58Z level=debug msg=10.10.10.4:Port 1/1/4--10.10.10.7:Port 1/1/2
+time=2022-12-05T17:32:58Z level=debug msg=2
+time=2022-12-05T17:32:58Z level=debug msg=10.10.10.3:Port 1/1/3--10.10.10.4:Port 1/1/3
+time=2022-12-05T17:32:58Z level=debug msg=3
+time=2022-12-05T17:32:58Z level=debug msg=10.10.10.8:Port 1/1/5--10.10.10.9:Port 1/1/2
+time=2022-12-05T17:32:58Z level=debug msg=4
+time=2022-12-05T17:32:58Z level=debug msg=10.10.10.6:Port 1/1/3--10.10.10.9:Port 1/1/3
+time=2022-12-05T17:32:58Z level=debug msg=5
+time=2022-12-05T17:32:58Z level=debug msg=10.10.10.2:Port 1/1/1--10.10.10.4:Port 1/1/1
+time=2022-12-05T17:32:58Z level=debug msg=6
+time=2022-12-05T17:32:58Z level=debug msg=10.10.10.4:Port 1/1/2--10.10.10.6:Port 1/1/1
+time=2022-12-05T17:32:58Z level=debug msg=7
+time=2022-12-05T17:32:58Z level=debug msg=10.10.10.3:Port 1/1/2--10.10.10.6:Port 1/1/2
+time=2022-12-05T17:32:58Z level=debug msg=8
+time=2022-12-05T17:32:58Z level=debug msg=10.10.10.8:Port 1/1/2--10.10.10.10:Port 1/1/2
+time=2022-12-05T17:32:58Z level=debug msg=9
+time=2022-12-05T17:32:58Z level=debug msg=10.10.10.7:Port 1/1/1--10.10.10.10:Port 1/1/3
+time=2022-12-05T17:32:58Z level=debug msg=10
+time=2022-12-05T17:32:58Z level=debug msg=10.10.10.3:Port 1/1/4--10.10.10.5:Port 1/1/2
+time=2022-12-05T17:32:58Z level=debug msg=11
+time=2022-12-05T17:32:58Z level=debug msg=10.10.10.4:Port 1/1/5--10.10.10.5:Port 1/1/5
+time=2022-12-05T17:32:58Z level=debug msg=12
+time=2022-12-05T17:32:58Z level=debug msg=10.10.10.1:Port 1/1/c2/1--10.10.10.2:Port 1/1/2
+time=2022-12-05T17:32:58Z level=debug msg=13
+time=2022-12-05T17:32:58Z level=debug msg=10.10.10.1:Port 1/1/c1/1--10.10.10.3:Port 1/1/1
+time=2022-12-05T17:33:14Z level=info msg=topology file path: /workspaces/topoViewer/rawTopoFile/
+time=2022-12-05T17:33:14Z level=debug msg=0
+time=2022-12-05T17:33:14Z level=debug msg=10.10.10.3:Port 1/1/5--10.10.10.7:Port 1/1/3
+time=2022-12-05T17:33:14Z level=debug msg=1
+time=2022-12-05T17:33:14Z level=debug msg=10.10.10.4:Port 1/1/4--10.10.10.7:Port 1/1/2
+time=2022-12-05T17:33:14Z level=debug msg=2
+time=2022-12-05T17:33:14Z level=debug msg=10.10.10.3:Port 1/1/3--10.10.10.4:Port 1/1/3
+time=2022-12-05T17:33:14Z level=debug msg=3
+time=2022-12-05T17:33:14Z level=debug msg=10.10.10.8:Port 1/1/5--10.10.10.9:Port 1/1/2
+time=2022-12-05T17:33:14Z level=debug msg=4
+time=2022-12-05T17:33:14Z level=debug msg=10.10.10.6:Port 1/1/3--10.10.10.9:Port 1/1/3
+time=2022-12-05T17:33:14Z level=debug msg=5
+time=2022-12-05T17:33:14Z level=debug msg=10.10.10.2:Port 1/1/1--10.10.10.4:Port 1/1/1
+time=2022-12-05T17:33:14Z level=debug msg=6
+time=2022-12-05T17:33:14Z level=debug msg=10.10.10.4:Port 1/1/2--10.10.10.6:Port 1/1/1
+time=2022-12-05T17:33:14Z level=debug msg=7
+time=2022-12-05T17:33:14Z level=debug msg=10.10.10.3:Port 1/1/2--10.10.10.6:Port 1/1/2
+time=2022-12-05T17:33:14Z level=debug msg=8
+time=2022-12-05T17:33:14Z level=debug msg=10.10.10.8:Port 1/1/2--10.10.10.10:Port 1/1/2
+time=2022-12-05T17:33:14Z level=debug msg=9
+time=2022-12-05T17:33:14Z level=debug msg=10.10.10.7:Port 1/1/1--10.10.10.10:Port 1/1/3
+time=2022-12-05T17:33:14Z level=debug msg=10
+time=2022-12-05T17:33:14Z level=debug msg=10.10.10.3:Port 1/1/4--10.10.10.5:Port 1/1/2
+time=2022-12-05T17:33:14Z level=debug msg=11
+time=2022-12-05T17:33:14Z level=debug msg=10.10.10.4:Port 1/1/5--10.10.10.5:Port 1/1/5
+time=2022-12-05T17:33:14Z level=debug msg=12
+time=2022-12-05T17:33:14Z level=debug msg=10.10.10.1:Port 1/1/c2/1--10.10.10.2:Port 1/1/2
+time=2022-12-05T17:33:14Z level=debug msg=13
+time=2022-12-05T17:33:14Z level=debug msg=10.10.10.1:Port 1/1/c1/1--10.10.10.3:Port 1/1/1
+time=2022-12-05T17:34:37Z level=info msg=topology file path: /workspaces/topoViewer/rawTopoFile/
+time=2022-12-05T17:34:37Z level=debug msg=0
+time=2022-12-05T17:34:37Z level=debug msg=10.10.10.3:Port 1/1/5--10.10.10.7:Port 1/1/3
+time=2022-12-05T17:34:37Z level=debug msg=1
+time=2022-12-05T17:34:37Z level=debug msg=10.10.10.4:Port 1/1/4--10.10.10.7:Port 1/1/2
+time=2022-12-05T17:34:37Z level=debug msg=2
+time=2022-12-05T17:34:37Z level=debug msg=10.10.10.3:Port 1/1/3--10.10.10.4:Port 1/1/3
+time=2022-12-05T17:34:37Z level=debug msg=3
+time=2022-12-05T17:34:37Z level=debug msg=10.10.10.8:Port 1/1/5--10.10.10.9:Port 1/1/2
+time=2022-12-05T17:34:37Z level=debug msg=4
+time=2022-12-05T17:34:37Z level=debug msg=10.10.10.6:Port 1/1/3--10.10.10.9:Port 1/1/3
+time=2022-12-05T17:34:37Z level=debug msg=5
+time=2022-12-05T17:34:37Z level=debug msg=10.10.10.2:Port 1/1/1--10.10.10.4:Port 1/1/1
+time=2022-12-05T17:34:37Z level=debug msg=6
+time=2022-12-05T17:34:37Z level=debug msg=10.10.10.4:Port 1/1/2--10.10.10.6:Port 1/1/1
+time=2022-12-05T17:34:37Z level=debug msg=7
+time=2022-12-05T17:34:37Z level=debug msg=10.10.10.3:Port 1/1/2--10.10.10.6:Port 1/1/2
+time=2022-12-05T17:34:37Z level=debug msg=8
+time=2022-12-05T17:34:37Z level=debug msg=10.10.10.8:Port 1/1/2--10.10.10.10:Port 1/1/2
+time=2022-12-05T17:34:37Z level=debug msg=9
+time=2022-12-05T17:34:37Z level=debug msg=10.10.10.7:Port 1/1/1--10.10.10.10:Port 1/1/3
+time=2022-12-05T17:34:37Z level=debug msg=10
+time=2022-12-05T17:34:37Z level=debug msg=10.10.10.3:Port 1/1/4--10.10.10.5:Port 1/1/2
+time=2022-12-05T17:34:37Z level=debug msg=11
+time=2022-12-05T17:34:37Z level=debug msg=10.10.10.4:Port 1/1/5--10.10.10.5:Port 1/1/5
+time=2022-12-05T17:34:37Z level=debug msg=12
+time=2022-12-05T17:34:37Z level=debug msg=10.10.10.1:Port 1/1/c2/1--10.10.10.2:Port 1/1/2
+time=2022-12-05T17:34:37Z level=debug msg=13
+time=2022-12-05T17:34:37Z level=debug msg=10.10.10.1:Port 1/1/c1/1--10.10.10.3:Port 1/1/1
+time=2022-12-05T17:34:58Z level=info msg=topology file path: /workspaces/topoViewer/rawTopoFile/
+time=2022-12-05T17:34:58Z level=debug msg=0
+time=2022-12-05T17:34:58Z level=debug msg=10.10.10.3:Port 1/1/5--10.10.10.7:Port 1/1/3
+time=2022-12-05T17:34:58Z level=debug msg=1
+time=2022-12-05T17:34:58Z level=debug msg=10.10.10.4:Port 1/1/4--10.10.10.7:Port 1/1/2
+time=2022-12-05T17:34:58Z level=debug msg=2
+time=2022-12-05T17:34:58Z level=debug msg=10.10.10.3:Port 1/1/3--10.10.10.4:Port 1/1/3
+time=2022-12-05T17:34:58Z level=debug msg=3
+time=2022-12-05T17:34:58Z level=debug msg=10.10.10.8:Port 1/1/5--10.10.10.9:Port 1/1/2
+time=2022-12-05T17:34:58Z level=debug msg=4
+time=2022-12-05T17:34:58Z level=debug msg=10.10.10.6:Port 1/1/3--10.10.10.9:Port 1/1/3
+time=2022-12-05T17:34:58Z level=debug msg=5
+time=2022-12-05T17:34:58Z level=debug msg=10.10.10.2:Port 1/1/1--10.10.10.4:Port 1/1/1
+time=2022-12-05T17:34:58Z level=debug msg=6
+time=2022-12-05T17:34:58Z level=debug msg=10.10.10.4:Port 1/1/2--10.10.10.6:Port 1/1/1
+time=2022-12-05T17:34:58Z level=debug msg=7
+time=2022-12-05T17:34:58Z level=debug msg=10.10.10.3:Port 1/1/2--10.10.10.6:Port 1/1/2
+time=2022-12-05T17:34:58Z level=debug msg=8
+time=2022-12-05T17:34:58Z level=debug msg=10.10.10.8:Port 1/1/2--10.10.10.10:Port 1/1/2
+time=2022-12-05T17:34:58Z level=debug msg=9
+time=2022-12-05T17:34:58Z level=debug msg=10.10.10.7:Port 1/1/1--10.10.10.10:Port 1/1/3
+time=2022-12-05T17:34:58Z level=debug msg=10
+time=2022-12-05T17:34:58Z level=debug msg=10.10.10.3:Port 1/1/4--10.10.10.5:Port 1/1/2
+time=2022-12-05T17:34:58Z level=debug msg=11
+time=2022-12-05T17:34:58Z level=debug msg=10.10.10.4:Port 1/1/5--10.10.10.5:Port 1/1/5
+time=2022-12-05T17:34:58Z level=debug msg=12
+time=2022-12-05T17:34:58Z level=debug msg=10.10.10.1:Port 1/1/c2/1--10.10.10.2:Port 1/1/2
+time=2022-12-05T17:34:58Z level=debug msg=13
+time=2022-12-05T17:34:58Z level=debug msg=10.10.10.1:Port 1/1/c1/1--10.10.10.3:Port 1/1/1
+time=2022-12-05T17:35:34Z level=info msg=topology file path: /workspaces/topoViewer/rawTopoFile/
+time=2022-12-05T17:35:34Z level=debug msg=0
+time=2022-12-05T17:35:34Z level=debug msg=10.10.10.3:Port 1/1/5--10.10.10.7:Port 1/1/3
+time=2022-12-05T17:35:34Z level=debug msg=1
+time=2022-12-05T17:35:34Z level=debug msg=10.10.10.4:Port 1/1/4--10.10.10.7:Port 1/1/2
+time=2022-12-05T17:35:34Z level=debug msg=2
+time=2022-12-05T17:35:34Z level=debug msg=10.10.10.3:Port 1/1/3--10.10.10.4:Port 1/1/3
+time=2022-12-05T17:35:34Z level=debug msg=3
+time=2022-12-05T17:35:34Z level=debug msg=10.10.10.8:Port 1/1/5--10.10.10.9:Port 1/1/2
+time=2022-12-05T17:35:34Z level=debug msg=4
+time=2022-12-05T17:35:34Z level=debug msg=10.10.10.6:Port 1/1/3--10.10.10.9:Port 1/1/3
+time=2022-12-05T17:35:34Z level=debug msg=5
+time=2022-12-05T17:35:34Z level=debug msg=10.10.10.2:Port 1/1/1--10.10.10.4:Port 1/1/1
+time=2022-12-05T17:35:34Z level=debug msg=6
+time=2022-12-05T17:35:34Z level=debug msg=10.10.10.4:Port 1/1/2--10.10.10.6:Port 1/1/1
+time=2022-12-05T17:35:34Z level=debug msg=7
+time=2022-12-05T17:35:34Z level=debug msg=10.10.10.3:Port 1/1/2--10.10.10.6:Port 1/1/2
+time=2022-12-05T17:35:34Z level=debug msg=8
+time=2022-12-05T17:35:34Z level=debug msg=10.10.10.8:Port 1/1/2--10.10.10.10:Port 1/1/2
+time=2022-12-05T17:35:34Z level=debug msg=9
+time=2022-12-05T17:35:34Z level=debug msg=10.10.10.7:Port 1/1/1--10.10.10.10:Port 1/1/3
+time=2022-12-05T17:35:34Z level=debug msg=10
+time=2022-12-05T17:35:34Z level=debug msg=10.10.10.3:Port 1/1/4--10.10.10.5:Port 1/1/2
+time=2022-12-05T17:35:34Z level=debug msg=11
+time=2022-12-05T17:35:34Z level=debug msg=10.10.10.4:Port 1/1/5--10.10.10.5:Port 1/1/5
+time=2022-12-05T17:35:34Z level=debug msg=12
+time=2022-12-05T17:35:34Z level=debug msg=10.10.10.1:Port 1/1/c2/1--10.10.10.2:Port 1/1/2
+time=2022-12-05T17:35:34Z level=debug msg=13
+time=2022-12-05T17:35:34Z level=debug msg=10.10.10.1:Port 1/1/c1/1--10.10.10.3:Port 1/1/1
+time=2022-12-05T17:36:25Z level=info msg=topology file path: /workspaces/topoViewer/rawTopoFile/
+time=2022-12-05T17:36:25Z level=debug msg=0
+time=2022-12-05T17:36:25Z level=debug msg=10.10.10.3:Port 1/1/5--10.10.10.7:Port 1/1/3
+time=2022-12-05T17:36:25Z level=debug msg=1
+time=2022-12-05T17:36:25Z level=debug msg=10.10.10.4:Port 1/1/4--10.10.10.7:Port 1/1/2
+time=2022-12-05T17:36:25Z level=debug msg=2
+time=2022-12-05T17:36:25Z level=debug msg=10.10.10.3:Port 1/1/3--10.10.10.4:Port 1/1/3
+time=2022-12-05T17:36:25Z level=debug msg=3
+time=2022-12-05T17:36:25Z level=debug msg=10.10.10.8:Port 1/1/5--10.10.10.9:Port 1/1/2
+time=2022-12-05T17:36:25Z level=debug msg=4
+time=2022-12-05T17:36:25Z level=debug msg=10.10.10.6:Port 1/1/3--10.10.10.9:Port 1/1/3
+time=2022-12-05T17:36:25Z level=debug msg=5
+time=2022-12-05T17:36:25Z level=debug msg=10.10.10.2:Port 1/1/1--10.10.10.4:Port 1/1/1
+time=2022-12-05T17:36:25Z level=debug msg=6
+time=2022-12-05T17:36:25Z level=debug msg=10.10.10.4:Port 1/1/2--10.10.10.6:Port 1/1/1
+time=2022-12-05T17:36:25Z level=debug msg=7
+time=2022-12-05T17:36:25Z level=debug msg=10.10.10.3:Port 1/1/2--10.10.10.6:Port 1/1/2
+time=2022-12-05T17:36:25Z level=debug msg=8
+time=2022-12-05T17:36:25Z level=debug msg=10.10.10.8:Port 1/1/2--10.10.10.10:Port 1/1/2
+time=2022-12-05T17:36:25Z level=debug msg=9
+time=2022-12-05T17:36:25Z level=debug msg=10.10.10.7:Port 1/1/1--10.10.10.10:Port 1/1/3
+time=2022-12-05T17:36:25Z level=debug msg=10
+time=2022-12-05T17:36:25Z level=debug msg=10.10.10.3:Port 1/1/4--10.10.10.5:Port 1/1/2
+time=2022-12-05T17:36:25Z level=debug msg=11
+time=2022-12-05T17:36:25Z level=debug msg=10.10.10.4:Port 1/1/5--10.10.10.5:Port 1/1/5
+time=2022-12-05T17:36:25Z level=debug msg=12
+time=2022-12-05T17:36:25Z level=debug msg=10.10.10.1:Port 1/1/c2/1--10.10.10.2:Port 1/1/2
+time=2022-12-05T17:36:25Z level=debug msg=13
+time=2022-12-05T17:36:25Z level=debug msg=10.10.10.1:Port 1/1/c1/1--10.10.10.3:Port 1/1/1
+time=2022-12-05T17:36:46Z level=info msg=topology file path: /workspaces/topoViewer/rawTopoFile/
+time=2022-12-05T17:36:46Z level=debug msg=0
+time=2022-12-05T17:36:46Z level=debug msg=10.10.10.3:Port 1/1/5--10.10.10.7:Port 1/1/3
+time=2022-12-05T17:36:46Z level=debug msg=1
+time=2022-12-05T17:36:46Z level=debug msg=10.10.10.4:Port 1/1/4--10.10.10.7:Port 1/1/2
+time=2022-12-05T17:36:46Z level=debug msg=2
+time=2022-12-05T17:36:46Z level=debug msg=10.10.10.3:Port 1/1/3--10.10.10.4:Port 1/1/3
+time=2022-12-05T17:36:46Z level=debug msg=3
+time=2022-12-05T17:36:46Z level=debug msg=10.10.10.8:Port 1/1/5--10.10.10.9:Port 1/1/2
+time=2022-12-05T17:36:46Z level=debug msg=4
+time=2022-12-05T17:36:46Z level=debug msg=10.10.10.6:Port 1/1/3--10.10.10.9:Port 1/1/3
+time=2022-12-05T17:36:46Z level=debug msg=5
+time=2022-12-05T17:36:46Z level=debug msg=10.10.10.2:Port 1/1/1--10.10.10.4:Port 1/1/1
+time=2022-12-05T17:36:46Z level=debug msg=6
+time=2022-12-05T17:36:46Z level=debug msg=10.10.10.4:Port 1/1/2--10.10.10.6:Port 1/1/1
+time=2022-12-05T17:36:46Z level=debug msg=7
+time=2022-12-05T17:36:46Z level=debug msg=10.10.10.3:Port 1/1/2--10.10.10.6:Port 1/1/2
+time=2022-12-05T17:36:46Z level=debug msg=8
+time=2022-12-05T17:36:46Z level=debug msg=10.10.10.8:Port 1/1/2--10.10.10.10:Port 1/1/2
+time=2022-12-05T17:36:46Z level=debug msg=9
+time=2022-12-05T17:36:46Z level=debug msg=10.10.10.7:Port 1/1/1--10.10.10.10:Port 1/1/3
+time=2022-12-05T17:36:46Z level=debug msg=10
+time=2022-12-05T17:36:46Z level=debug msg=10.10.10.3:Port 1/1/4--10.10.10.5:Port 1/1/2
+time=2022-12-05T17:36:46Z level=debug msg=11
+time=2022-12-05T17:36:46Z level=debug msg=10.10.10.4:Port 1/1/5--10.10.10.5:Port 1/1/5
+time=2022-12-05T17:36:46Z level=debug msg=12
+time=2022-12-05T17:36:46Z level=debug msg=10.10.10.1:Port 1/1/c2/1--10.10.10.2:Port 1/1/2
+time=2022-12-05T17:36:46Z level=debug msg=13
+time=2022-12-05T17:36:46Z level=debug msg=10.10.10.1:Port 1/1/c1/1--10.10.10.3:Port 1/1/1
+time=2022-12-05T17:44:15Z level=info msg=topology file path: /workspaces/topoViewer/rawTopoFile/
+time=2022-12-05T17:44:15Z level=debug msg=0
+time=2022-12-05T17:44:15Z level=debug msg=10.10.10.3:Port 1/1/5--10.10.10.7:Port 1/1/3
+time=2022-12-05T17:44:15Z level=debug msg=1
+time=2022-12-05T17:44:15Z level=debug msg=10.10.10.4:Port 1/1/4--10.10.10.7:Port 1/1/2
+time=2022-12-05T17:44:15Z level=debug msg=2
+time=2022-12-05T17:44:15Z level=debug msg=10.10.10.3:Port 1/1/3--10.10.10.4:Port 1/1/3
+time=2022-12-05T17:44:15Z level=debug msg=3
+time=2022-12-05T17:44:15Z level=debug msg=10.10.10.8:Port 1/1/5--10.10.10.9:Port 1/1/2
+time=2022-12-05T17:44:15Z level=debug msg=4
+time=2022-12-05T17:44:15Z level=debug msg=10.10.10.6:Port 1/1/3--10.10.10.9:Port 1/1/3
+time=2022-12-05T17:44:15Z level=debug msg=5
+time=2022-12-05T17:44:15Z level=debug msg=10.10.10.2:Port 1/1/1--10.10.10.4:Port 1/1/1
+time=2022-12-05T17:44:15Z level=debug msg=6
+time=2022-12-05T17:44:15Z level=debug msg=10.10.10.4:Port 1/1/2--10.10.10.6:Port 1/1/1
+time=2022-12-05T17:44:15Z level=debug msg=7
+time=2022-12-05T17:44:15Z level=debug msg=10.10.10.3:Port 1/1/2--10.10.10.6:Port 1/1/2
+time=2022-12-05T17:44:15Z level=debug msg=8
+time=2022-12-05T17:44:15Z level=debug msg=10.10.10.8:Port 1/1/2--10.10.10.10:Port 1/1/2
+time=2022-12-05T17:44:15Z level=debug msg=9
+time=2022-12-05T17:44:15Z level=debug msg=10.10.10.7:Port 1/1/1--10.10.10.10:Port 1/1/3
+time=2022-12-05T17:44:15Z level=debug msg=10
+time=2022-12-05T17:44:15Z level=debug msg=10.10.10.3:Port 1/1/4--10.10.10.5:Port 1/1/2
+time=2022-12-05T17:44:15Z level=debug msg=11
+time=2022-12-05T17:44:15Z level=debug msg=10.10.10.4:Port 1/1/5--10.10.10.5:Port 1/1/5
+time=2022-12-05T17:44:15Z level=debug msg=12
+time=2022-12-05T17:44:15Z level=debug msg=10.10.10.1:Port 1/1/c2/1--10.10.10.2:Port 1/1/2
+time=2022-12-05T17:44:15Z level=debug msg=13
+time=2022-12-05T17:44:15Z level=debug msg=10.10.10.1:Port 1/1/c1/1--10.10.10.3:Port 1/1/1
+time=2022-12-05T17:44:43Z level=info msg=topology file path: /workspaces/topoViewer/rawTopoFile/
+time=2022-12-05T17:44:43Z level=debug msg=0
+time=2022-12-05T17:44:43Z level=debug msg=10.10.10.3:Port 1/1/5--10.10.10.7:Port 1/1/3
+time=2022-12-05T17:44:43Z level=debug msg=1
+time=2022-12-05T17:44:43Z level=debug msg=10.10.10.4:Port 1/1/4--10.10.10.7:Port 1/1/2
+time=2022-12-05T17:44:43Z level=debug msg=2
+time=2022-12-05T17:44:43Z level=debug msg=10.10.10.3:Port 1/1/3--10.10.10.4:Port 1/1/3
+time=2022-12-05T17:44:43Z level=debug msg=3
+time=2022-12-05T17:44:43Z level=debug msg=10.10.10.8:Port 1/1/5--10.10.10.9:Port 1/1/2
+time=2022-12-05T17:44:43Z level=debug msg=4
+time=2022-12-05T17:44:43Z level=debug msg=10.10.10.6:Port 1/1/3--10.10.10.9:Port 1/1/3
+time=2022-12-05T17:44:43Z level=debug msg=5
+time=2022-12-05T17:44:43Z level=debug msg=10.10.10.2:Port 1/1/1--10.10.10.4:Port 1/1/1
+time=2022-12-05T17:44:43Z level=debug msg=6
+time=2022-12-05T17:44:43Z level=debug msg=10.10.10.4:Port 1/1/2--10.10.10.6:Port 1/1/1
+time=2022-12-05T17:44:43Z level=debug msg=7
+time=2022-12-05T17:44:43Z level=debug msg=10.10.10.3:Port 1/1/2--10.10.10.6:Port 1/1/2
+time=2022-12-05T17:44:43Z level=debug msg=8
+time=2022-12-05T17:44:43Z level=debug msg=10.10.10.8:Port 1/1/2--10.10.10.10:Port 1/1/2
+time=2022-12-05T17:44:43Z level=debug msg=9
+time=2022-12-05T17:44:43Z level=debug msg=10.10.10.7:Port 1/1/1--10.10.10.10:Port 1/1/3
+time=2022-12-05T17:44:43Z level=debug msg=10
+time=2022-12-05T17:44:43Z level=debug msg=10.10.10.3:Port 1/1/4--10.10.10.5:Port 1/1/2
+time=2022-12-05T17:44:43Z level=debug msg=11
+time=2022-12-05T17:44:43Z level=debug msg=10.10.10.4:Port 1/1/5--10.10.10.5:Port 1/1/5
+time=2022-12-05T17:44:43Z level=debug msg=12
+time=2022-12-05T17:44:43Z level=debug msg=10.10.10.1:Port 1/1/c2/1--10.10.10.2:Port 1/1/2
+time=2022-12-05T17:44:43Z level=debug msg=13
+time=2022-12-05T17:44:43Z level=debug msg=10.10.10.1:Port 1/1/c1/1--10.10.10.3:Port 1/1/1
+time=2022-12-05T17:45:15Z level=info msg=topology file path: /workspaces/topoViewer/rawTopoFile/
+time=2022-12-05T17:45:15Z level=debug msg=0
+time=2022-12-05T17:45:15Z level=debug msg=10.10.10.3:Port 1/1/5--10.10.10.7:Port 1/1/3
+time=2022-12-05T17:45:15Z level=debug msg=1
+time=2022-12-05T17:45:15Z level=debug msg=10.10.10.4:Port 1/1/4--10.10.10.7:Port 1/1/2
+time=2022-12-05T17:45:15Z level=debug msg=2
+time=2022-12-05T17:45:15Z level=debug msg=10.10.10.3:Port 1/1/3--10.10.10.4:Port 1/1/3
+time=2022-12-05T17:45:15Z level=debug msg=3
+time=2022-12-05T17:45:15Z level=debug msg=10.10.10.8:Port 1/1/5--10.10.10.9:Port 1/1/2
+time=2022-12-05T17:45:15Z level=debug msg=4
+time=2022-12-05T17:45:15Z level=debug msg=10.10.10.6:Port 1/1/3--10.10.10.9:Port 1/1/3
+time=2022-12-05T17:45:15Z level=debug msg=5
+time=2022-12-05T17:45:15Z level=debug msg=10.10.10.2:Port 1/1/1--10.10.10.4:Port 1/1/1
+time=2022-12-05T17:45:15Z level=debug msg=6
+time=2022-12-05T17:45:15Z level=debug msg=10.10.10.4:Port 1/1/2--10.10.10.6:Port 1/1/1
+time=2022-12-05T17:45:15Z level=debug msg=7
+time=2022-12-05T17:45:15Z level=debug msg=10.10.10.3:Port 1/1/2--10.10.10.6:Port 1/1/2
+time=2022-12-05T17:45:15Z level=debug msg=8
+time=2022-12-05T17:45:15Z level=debug msg=10.10.10.8:Port 1/1/2--10.10.10.10:Port 1/1/2
+time=2022-12-05T17:45:15Z level=debug msg=9
+time=2022-12-05T17:45:15Z level=debug msg=10.10.10.7:Port 1/1/1--10.10.10.10:Port 1/1/3
+time=2022-12-05T17:45:15Z level=debug msg=10
+time=2022-12-05T17:45:15Z level=debug msg=10.10.10.3:Port 1/1/4--10.10.10.5:Port 1/1/2
+time=2022-12-05T17:45:15Z level=debug msg=11
+time=2022-12-05T17:45:15Z level=debug msg=10.10.10.4:Port 1/1/5--10.10.10.5:Port 1/1/5
+time=2022-12-05T17:45:15Z level=debug msg=12
+time=2022-12-05T17:45:15Z level=debug msg=10.10.10.1:Port 1/1/c2/1--10.10.10.2:Port 1/1/2
+time=2022-12-05T17:45:15Z level=debug msg=13
+time=2022-12-05T17:45:15Z level=debug msg=10.10.10.1:Port 1/1/c1/1--10.10.10.3:Port 1/1/1
+time=2022-12-05T17:46:07Z level=info msg=topology file path: /workspaces/topoViewer/rawTopoFile/
+time=2022-12-05T17:46:07Z level=debug msg=0
+time=2022-12-05T17:46:07Z level=debug msg=10.10.10.3:Port 1/1/5--10.10.10.7:Port 1/1/3
+time=2022-12-05T17:46:07Z level=debug msg=1
+time=2022-12-05T17:46:07Z level=debug msg=10.10.10.4:Port 1/1/4--10.10.10.7:Port 1/1/2
+time=2022-12-05T17:46:07Z level=debug msg=2
+time=2022-12-05T17:46:07Z level=debug msg=10.10.10.3:Port 1/1/3--10.10.10.4:Port 1/1/3
+time=2022-12-05T17:46:07Z level=debug msg=3
+time=2022-12-05T17:46:07Z level=debug msg=10.10.10.8:Port 1/1/5--10.10.10.9:Port 1/1/2
+time=2022-12-05T17:46:07Z level=debug msg=4
+time=2022-12-05T17:46:07Z level=debug msg=10.10.10.6:Port 1/1/3--10.10.10.9:Port 1/1/3
+time=2022-12-05T17:46:07Z level=debug msg=5
+time=2022-12-05T17:46:07Z level=debug msg=10.10.10.2:Port 1/1/1--10.10.10.4:Port 1/1/1
+time=2022-12-05T17:46:07Z level=debug msg=6
+time=2022-12-05T17:46:07Z level=debug msg=10.10.10.4:Port 1/1/2--10.10.10.6:Port 1/1/1
+time=2022-12-05T17:46:07Z level=debug msg=7
+time=2022-12-05T17:46:07Z level=debug msg=10.10.10.3:Port 1/1/2--10.10.10.6:Port 1/1/2
+time=2022-12-05T17:46:07Z level=debug msg=8
+time=2022-12-05T17:46:07Z level=debug msg=10.10.10.8:Port 1/1/2--10.10.10.10:Port 1/1/2
+time=2022-12-05T17:46:07Z level=debug msg=9
+time=2022-12-05T17:46:07Z level=debug msg=10.10.10.7:Port 1/1/1--10.10.10.10:Port 1/1/3
+time=2022-12-05T17:46:07Z level=debug msg=10
+time=2022-12-05T17:46:07Z level=debug msg=10.10.10.3:Port 1/1/4--10.10.10.5:Port 1/1/2
+time=2022-12-05T17:46:07Z level=debug msg=11
+time=2022-12-05T17:46:07Z level=debug msg=10.10.10.4:Port 1/1/5--10.10.10.5:Port 1/1/5
+time=2022-12-05T17:46:07Z level=debug msg=12
+time=2022-12-05T17:46:07Z level=debug msg=10.10.10.1:Port 1/1/c2/1--10.10.10.2:Port 1/1/2
+time=2022-12-05T17:46:07Z level=debug msg=13
+time=2022-12-05T17:46:07Z level=debug msg=10.10.10.1:Port 1/1/c1/1--10.10.10.3:Port 1/1/1
+time=2022-12-05T17:49:53Z level=info msg=topology file path: /workspaces/topoViewer/rawTopoFile/
+time=2022-12-05T17:49:53Z level=debug msg=0
+time=2022-12-05T17:49:53Z level=debug msg=10.10.10.3:Port 1/1/5--10.10.10.7:Port 1/1/3
+time=2022-12-05T17:49:53Z level=debug msg=1
+time=2022-12-05T17:49:53Z level=debug msg=10.10.10.4:Port 1/1/4--10.10.10.7:Port 1/1/2
+time=2022-12-05T17:49:53Z level=debug msg=2
+time=2022-12-05T17:49:53Z level=debug msg=10.10.10.3:Port 1/1/3--10.10.10.4:Port 1/1/3
+time=2022-12-05T17:49:53Z level=debug msg=3
+time=2022-12-05T17:49:53Z level=debug msg=10.10.10.8:Port 1/1/5--10.10.10.9:Port 1/1/2
+time=2022-12-05T17:49:53Z level=debug msg=4
+time=2022-12-05T17:49:53Z level=debug msg=10.10.10.6:Port 1/1/3--10.10.10.9:Port 1/1/3
+time=2022-12-05T17:49:53Z level=debug msg=5
+time=2022-12-05T17:49:53Z level=debug msg=10.10.10.2:Port 1/1/1--10.10.10.4:Port 1/1/1
+time=2022-12-05T17:49:53Z level=debug msg=6
+time=2022-12-05T17:49:54Z level=debug msg=10.10.10.4:Port 1/1/2--10.10.10.6:Port 1/1/1
+time=2022-12-05T17:49:54Z level=debug msg=7
+time=2022-12-05T17:49:54Z level=debug msg=10.10.10.3:Port 1/1/2--10.10.10.6:Port 1/1/2
+time=2022-12-05T17:49:54Z level=debug msg=8
+time=2022-12-05T17:49:54Z level=debug msg=10.10.10.8:Port 1/1/2--10.10.10.10:Port 1/1/2
+time=2022-12-05T17:49:54Z level=debug msg=9
+time=2022-12-05T17:49:54Z level=debug msg=10.10.10.7:Port 1/1/1--10.10.10.10:Port 1/1/3
+time=2022-12-05T17:49:54Z level=debug msg=10
+time=2022-12-05T17:49:54Z level=debug msg=10.10.10.3:Port 1/1/4--10.10.10.5:Port 1/1/2
+time=2022-12-05T17:49:54Z level=debug msg=11
+time=2022-12-05T17:49:54Z level=debug msg=10.10.10.4:Port 1/1/5--10.10.10.5:Port 1/1/5
+time=2022-12-05T17:49:54Z level=debug msg=12
+time=2022-12-05T17:49:54Z level=debug msg=10.10.10.1:Port 1/1/c2/1--10.10.10.2:Port 1/1/2
+time=2022-12-05T17:49:54Z level=debug msg=13
+time=2022-12-05T17:49:54Z level=debug msg=10.10.10.1:Port 1/1/c1/1--10.10.10.3:Port 1/1/1
+time=2022-12-05T18:02:50Z level=info msg=topology file path: /workspaces/topoViewer/rawTopoFile/
+time=2022-12-05T18:02:50Z level=debug msg=0
+time=2022-12-05T18:02:50Z level=debug msg=10.10.10.3:Port 1/1/5--10.10.10.7:Port 1/1/3
+time=2022-12-05T18:02:50Z level=debug msg=1
+time=2022-12-05T18:02:50Z level=debug msg=10.10.10.4:Port 1/1/4--10.10.10.7:Port 1/1/2
+time=2022-12-05T18:02:50Z level=debug msg=2
+time=2022-12-05T18:02:50Z level=debug msg=10.10.10.3:Port 1/1/3--10.10.10.4:Port 1/1/3
+time=2022-12-05T18:02:50Z level=debug msg=3
+time=2022-12-05T18:02:50Z level=debug msg=10.10.10.8:Port 1/1/5--10.10.10.9:Port 1/1/2
+time=2022-12-05T18:02:50Z level=debug msg=4
+time=2022-12-05T18:02:50Z level=debug msg=10.10.10.6:Port 1/1/3--10.10.10.9:Port 1/1/3
+time=2022-12-05T18:02:50Z level=debug msg=5
+time=2022-12-05T18:02:50Z level=debug msg=10.10.10.2:Port 1/1/1--10.10.10.4:Port 1/1/1
+time=2022-12-05T18:02:50Z level=debug msg=6
+time=2022-12-05T18:02:50Z level=debug msg=10.10.10.4:Port 1/1/2--10.10.10.6:Port 1/1/1
+time=2022-12-05T18:02:50Z level=debug msg=7
+time=2022-12-05T18:02:50Z level=debug msg=10.10.10.3:Port 1/1/2--10.10.10.6:Port 1/1/2
+time=2022-12-05T18:02:50Z level=debug msg=8
+time=2022-12-05T18:02:50Z level=debug msg=10.10.10.8:Port 1/1/2--10.10.10.10:Port 1/1/2
+time=2022-12-05T18:02:50Z level=debug msg=9
+time=2022-12-05T18:02:50Z level=debug msg=10.10.10.7:Port 1/1/1--10.10.10.10:Port 1/1/3
+time=2022-12-05T18:02:50Z level=debug msg=10
+time=2022-12-05T18:02:50Z level=debug msg=10.10.10.3:Port 1/1/4--10.10.10.5:Port 1/1/2
+time=2022-12-05T18:02:50Z level=debug msg=11
+time=2022-12-05T18:02:50Z level=debug msg=10.10.10.4:Port 1/1/5--10.10.10.5:Port 1/1/5
+time=2022-12-05T18:02:50Z level=debug msg=12
+time=2022-12-05T18:02:50Z level=debug msg=10.10.10.1:Port 1/1/c2/1--10.10.10.2:Port 1/1/2
+time=2022-12-05T18:02:50Z level=debug msg=13
+time=2022-12-05T18:02:50Z level=debug msg=10.10.10.1:Port 1/1/c1/1--10.10.10.3:Port 1/1/1
+time=2022-12-05T18:05:41Z level=info msg=topology file path: /workspaces/topoViewer/rawTopoFile/
+time=2022-12-05T18:05:41Z level=debug msg=0
+time=2022-12-05T18:05:41Z level=debug msg=10.10.10.3:Port 1/1/5--10.10.10.7:Port 1/1/3
+time=2022-12-05T18:05:41Z level=debug msg=1
+time=2022-12-05T18:05:41Z level=debug msg=10.10.10.4:Port 1/1/4--10.10.10.7:Port 1/1/2
+time=2022-12-05T18:05:41Z level=debug msg=2
+time=2022-12-05T18:05:41Z level=debug msg=10.10.10.3:Port 1/1/3--10.10.10.4:Port 1/1/3
+time=2022-12-05T18:05:41Z level=debug msg=3
+time=2022-12-05T18:05:41Z level=debug msg=10.10.10.8:Port 1/1/5--10.10.10.9:Port 1/1/2
+time=2022-12-05T18:05:41Z level=debug msg=4
+time=2022-12-05T18:05:41Z level=debug msg=10.10.10.6:Port 1/1/3--10.10.10.9:Port 1/1/3
+time=2022-12-05T18:05:41Z level=debug msg=5
+time=2022-12-05T18:05:41Z level=debug msg=10.10.10.2:Port 1/1/1--10.10.10.4:Port 1/1/1
+time=2022-12-05T18:05:41Z level=debug msg=6
+time=2022-12-05T18:05:41Z level=debug msg=10.10.10.4:Port 1/1/2--10.10.10.6:Port 1/1/1
+time=2022-12-05T18:05:41Z level=debug msg=7
+time=2022-12-05T18:05:41Z level=debug msg=10.10.10.3:Port 1/1/2--10.10.10.6:Port 1/1/2
+time=2022-12-05T18:05:41Z level=debug msg=8
+time=2022-12-05T18:05:41Z level=debug msg=10.10.10.8:Port 1/1/2--10.10.10.10:Port 1/1/2
+time=2022-12-05T18:05:41Z level=debug msg=9
+time=2022-12-05T18:05:41Z level=debug msg=10.10.10.7:Port 1/1/1--10.10.10.10:Port 1/1/3
+time=2022-12-05T18:05:41Z level=debug msg=10
+time=2022-12-05T18:05:41Z level=debug msg=10.10.10.3:Port 1/1/4--10.10.10.5:Port 1/1/2
+time=2022-12-05T18:05:41Z level=debug msg=11
+time=2022-12-05T18:05:41Z level=debug msg=10.10.10.4:Port 1/1/5--10.10.10.5:Port 1/1/5
+time=2022-12-05T18:05:41Z level=debug msg=12
+time=2022-12-05T18:05:41Z level=debug msg=10.10.10.1:Port 1/1/c2/1--10.10.10.2:Port 1/1/2
+time=2022-12-05T18:05:41Z level=debug msg=13
+time=2022-12-05T18:05:41Z level=debug msg=10.10.10.1:Port 1/1/c1/1--10.10.10.3:Port 1/1/1
+time=2022-12-05T18:08:25Z level=info msg=topology file path: /workspaces/topoViewer/rawTopoFile/
+time=2022-12-05T18:08:25Z level=debug msg=0
+time=2022-12-05T18:08:25Z level=debug msg=10.10.10.3:Port 1/1/5--10.10.10.7:Port 1/1/3
+time=2022-12-05T18:08:25Z level=debug msg=1
+time=2022-12-05T18:08:25Z level=debug msg=10.10.10.4:Port 1/1/4--10.10.10.7:Port 1/1/2
+time=2022-12-05T18:08:25Z level=debug msg=2
+time=2022-12-05T18:08:25Z level=debug msg=10.10.10.3:Port 1/1/3--10.10.10.4:Port 1/1/3
+time=2022-12-05T18:08:25Z level=debug msg=3
+time=2022-12-05T18:08:25Z level=debug msg=10.10.10.8:Port 1/1/5--10.10.10.9:Port 1/1/2
+time=2022-12-05T18:08:25Z level=debug msg=4
+time=2022-12-05T18:08:25Z level=debug msg=10.10.10.6:Port 1/1/3--10.10.10.9:Port 1/1/3
+time=2022-12-05T18:08:25Z level=debug msg=5
+time=2022-12-05T18:08:25Z level=debug msg=10.10.10.2:Port 1/1/1--10.10.10.4:Port 1/1/1
+time=2022-12-05T18:08:25Z level=debug msg=6
+time=2022-12-05T18:08:25Z level=debug msg=10.10.10.4:Port 1/1/2--10.10.10.6:Port 1/1/1
+time=2022-12-05T18:08:25Z level=debug msg=7
+time=2022-12-05T18:08:25Z level=debug msg=10.10.10.3:Port 1/1/2--10.10.10.6:Port 1/1/2
+time=2022-12-05T18:08:25Z level=debug msg=8
+time=2022-12-05T18:08:25Z level=debug msg=10.10.10.8:Port 1/1/2--10.10.10.10:Port 1/1/2
+time=2022-12-05T18:08:25Z level=debug msg=9
+time=2022-12-05T18:08:25Z level=debug msg=10.10.10.7:Port 1/1/1--10.10.10.10:Port 1/1/3
+time=2022-12-05T18:08:25Z level=debug msg=10
+time=2022-12-05T18:08:25Z level=debug msg=10.10.10.3:Port 1/1/4--10.10.10.5:Port 1/1/2
+time=2022-12-05T18:08:25Z level=debug msg=11
+time=2022-12-05T18:08:25Z level=debug msg=10.10.10.4:Port 1/1/5--10.10.10.5:Port 1/1/5
+time=2022-12-05T18:08:25Z level=debug msg=12
+time=2022-12-05T18:08:25Z level=debug msg=10.10.10.1:Port 1/1/c2/1--10.10.10.2:Port 1/1/2
+time=2022-12-05T18:08:25Z level=debug msg=13
+time=2022-12-05T18:08:25Z level=debug msg=10.10.10.1:Port 1/1/c1/1--10.10.10.3:Port 1/1/1
+time=2022-12-05T18:08:44Z level=info msg=topology file path: /workspaces/topoViewer/rawTopoFile/
+time=2022-12-05T18:08:44Z level=debug msg=0
+time=2022-12-05T18:08:44Z level=debug msg=10.10.10.3:Port 1/1/5--10.10.10.7:Port 1/1/3
+time=2022-12-05T18:08:44Z level=debug msg=1
+time=2022-12-05T18:08:44Z level=debug msg=10.10.10.4:Port 1/1/4--10.10.10.7:Port 1/1/2
+time=2022-12-05T18:08:44Z level=debug msg=2
+time=2022-12-05T18:08:44Z level=debug msg=10.10.10.3:Port 1/1/3--10.10.10.4:Port 1/1/3
+time=2022-12-05T18:08:44Z level=debug msg=3
+time=2022-12-05T18:08:44Z level=debug msg=10.10.10.8:Port 1/1/5--10.10.10.9:Port 1/1/2
+time=2022-12-05T18:08:44Z level=debug msg=4
+time=2022-12-05T18:08:44Z level=debug msg=10.10.10.6:Port 1/1/3--10.10.10.9:Port 1/1/3
+time=2022-12-05T18:08:44Z level=debug msg=5
+time=2022-12-05T18:08:44Z level=debug msg=10.10.10.2:Port 1/1/1--10.10.10.4:Port 1/1/1
+time=2022-12-05T18:08:44Z level=debug msg=6
+time=2022-12-05T18:08:44Z level=debug msg=10.10.10.4:Port 1/1/2--10.10.10.6:Port 1/1/1
+time=2022-12-05T18:08:44Z level=debug msg=7
+time=2022-12-05T18:08:44Z level=debug msg=10.10.10.3:Port 1/1/2--10.10.10.6:Port 1/1/2
+time=2022-12-05T18:08:44Z level=debug msg=8
+time=2022-12-05T18:08:44Z level=debug msg=10.10.10.8:Port 1/1/2--10.10.10.10:Port 1/1/2
+time=2022-12-05T18:08:44Z level=debug msg=9
+time=2022-12-05T18:08:44Z level=debug msg=10.10.10.7:Port 1/1/1--10.10.10.10:Port 1/1/3
+time=2022-12-05T18:08:44Z level=debug msg=10
+time=2022-12-05T18:08:44Z level=debug msg=10.10.10.3:Port 1/1/4--10.10.10.5:Port 1/1/2
+time=2022-12-05T18:08:44Z level=debug msg=11
+time=2022-12-05T18:08:44Z level=debug msg=10.10.10.4:Port 1/1/5--10.10.10.5:Port 1/1/5
+time=2022-12-05T18:08:44Z level=debug msg=12
+time=2022-12-05T18:08:44Z level=debug msg=10.10.10.1:Port 1/1/c2/1--10.10.10.2:Port 1/1/2
+time=2022-12-05T18:08:44Z level=debug msg=13
+time=2022-12-05T18:08:44Z level=debug msg=10.10.10.1:Port 1/1/c1/1--10.10.10.3:Port 1/1/1
+time=2022-12-05T18:10:14Z level=info msg=topology file path: /workspaces/topoViewer/rawTopoFile/
+time=2022-12-05T18:10:14Z level=debug msg=0
+time=2022-12-05T18:10:14Z level=debug msg=10.10.10.3:Port 1/1/5--10.10.10.7:Port 1/1/3
+time=2022-12-05T18:10:14Z level=debug msg=1
+time=2022-12-05T18:10:14Z level=debug msg=10.10.10.4:Port 1/1/4--10.10.10.7:Port 1/1/2
+time=2022-12-05T18:10:14Z level=debug msg=2
+time=2022-12-05T18:10:14Z level=debug msg=10.10.10.3:Port 1/1/3--10.10.10.4:Port 1/1/3
+time=2022-12-05T18:10:14Z level=debug msg=3
+time=2022-12-05T18:10:14Z level=debug msg=10.10.10.8:Port 1/1/5--10.10.10.9:Port 1/1/2
+time=2022-12-05T18:10:14Z level=debug msg=4
+time=2022-12-05T18:10:14Z level=debug msg=10.10.10.6:Port 1/1/3--10.10.10.9:Port 1/1/3
+time=2022-12-05T18:10:14Z level=debug msg=5
+time=2022-12-05T18:10:14Z level=debug msg=10.10.10.2:Port 1/1/1--10.10.10.4:Port 1/1/1
+time=2022-12-05T18:10:14Z level=debug msg=6
+time=2022-12-05T18:10:14Z level=debug msg=10.10.10.4:Port 1/1/2--10.10.10.6:Port 1/1/1
+time=2022-12-05T18:10:14Z level=debug msg=7
+time=2022-12-05T18:10:14Z level=debug msg=10.10.10.3:Port 1/1/2--10.10.10.6:Port 1/1/2
+time=2022-12-05T18:10:14Z level=debug msg=8
+time=2022-12-05T18:10:14Z level=debug msg=10.10.10.8:Port 1/1/2--10.10.10.10:Port 1/1/2
+time=2022-12-05T18:10:14Z level=debug msg=9
+time=2022-12-05T18:10:14Z level=debug msg=10.10.10.7:Port 1/1/1--10.10.10.10:Port 1/1/3
+time=2022-12-05T18:10:14Z level=debug msg=10
+time=2022-12-05T18:10:14Z level=debug msg=10.10.10.3:Port 1/1/4--10.10.10.5:Port 1/1/2
+time=2022-12-05T18:10:14Z level=debug msg=11
+time=2022-12-05T18:10:14Z level=debug msg=10.10.10.4:Port 1/1/5--10.10.10.5:Port 1/1/5
+time=2022-12-05T18:10:14Z level=debug msg=12
+time=2022-12-05T18:10:14Z level=debug msg=10.10.10.1:Port 1/1/c2/1--10.10.10.2:Port 1/1/2
+time=2022-12-05T18:10:14Z level=debug msg=13
+time=2022-12-05T18:10:14Z level=debug msg=10.10.10.1:Port 1/1/c1/1--10.10.10.3:Port 1/1/1
+time=2022-12-05T18:11:59Z level=info msg=topology file path: /workspaces/topoViewer/rawTopoFile/
+time=2022-12-05T18:11:59Z level=debug msg=0
+time=2022-12-05T18:11:59Z level=debug msg=10.10.10.3:Port 1/1/5--10.10.10.7:Port 1/1/3
+time=2022-12-05T18:11:59Z level=debug msg=1
+time=2022-12-05T18:11:59Z level=debug msg=10.10.10.4:Port 1/1/4--10.10.10.7:Port 1/1/2
+time=2022-12-05T18:11:59Z level=debug msg=2
+time=2022-12-05T18:11:59Z level=debug msg=10.10.10.3:Port 1/1/3--10.10.10.4:Port 1/1/3
+time=2022-12-05T18:11:59Z level=debug msg=3
+time=2022-12-05T18:11:59Z level=debug msg=10.10.10.8:Port 1/1/5--10.10.10.9:Port 1/1/2
+time=2022-12-05T18:11:59Z level=debug msg=4
+time=2022-12-05T18:11:59Z level=debug msg=10.10.10.6:Port 1/1/3--10.10.10.9:Port 1/1/3
+time=2022-12-05T18:11:59Z level=debug msg=5
+time=2022-12-05T18:11:59Z level=debug msg=10.10.10.2:Port 1/1/1--10.10.10.4:Port 1/1/1
+time=2022-12-05T18:11:59Z level=debug msg=6
+time=2022-12-05T18:11:59Z level=debug msg=10.10.10.4:Port 1/1/2--10.10.10.6:Port 1/1/1
+time=2022-12-05T18:11:59Z level=debug msg=7
+time=2022-12-05T18:11:59Z level=debug msg=10.10.10.3:Port 1/1/2--10.10.10.6:Port 1/1/2
+time=2022-12-05T18:11:59Z level=debug msg=8
+time=2022-12-05T18:11:59Z level=debug msg=10.10.10.8:Port 1/1/2--10.10.10.10:Port 1/1/2
+time=2022-12-05T18:11:59Z level=debug msg=9
+time=2022-12-05T18:11:59Z level=debug msg=10.10.10.7:Port 1/1/1--10.10.10.10:Port 1/1/3
+time=2022-12-05T18:11:59Z level=debug msg=10
+time=2022-12-05T18:11:59Z level=debug msg=10.10.10.3:Port 1/1/4--10.10.10.5:Port 1/1/2
+time=2022-12-05T18:11:59Z level=debug msg=11
+time=2022-12-05T18:11:59Z level=debug msg=10.10.10.4:Port 1/1/5--10.10.10.5:Port 1/1/5
+time=2022-12-05T18:11:59Z level=debug msg=12
+time=2022-12-05T18:11:59Z level=debug msg=10.10.10.1:Port 1/1/c2/1--10.10.10.2:Port 1/1/2
+time=2022-12-05T18:11:59Z level=debug msg=13
+time=2022-12-05T18:11:59Z level=debug msg=10.10.10.1:Port 1/1/c1/1--10.10.10.3:Port 1/1/1

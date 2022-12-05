@@ -2,12 +2,13 @@ package topoengine
 
 import (
 	"encoding/json"
+	"html/template"
 	"os"
 	"strconv"
+	"strings"
 
 	log "github.com/sirupsen/logrus"
 	types "github.com/srl-labs/containerlab/types"
-	"gopkg.in/yaml.v3"
 
 	tools "github.com/asadarafat/topoViewer/tools"
 )
@@ -46,8 +47,6 @@ func (cyTopo *CytoTopology) InitLoggerDigitalTwin() {
 	toolLogger := tools.Logs{}
 	toolLogger.InitLogger("logs/topoengine-nspDigitalTwin.log", cyTopo.LogLevel)
 }
-
-// func (cyTopo *CytoTopology) IetfL2TopoRead(topoFile string) []byte {
 
 func (cyTopo *CytoTopology) NspDigitalTwinReadTopo(ietfL2TopoFile string) []byte {
 	return cyTopo.IetfL2TopoRead(ietfL2TopoFile)
@@ -129,41 +128,59 @@ func (cyTopo *CytoTopology) NspDigitalTwinTopoUnmarshal(topoFile []byte, IetfNet
 	for i, network := range IetfNetworkTopologyL2Data.IetfNetworkNetwork {
 		nodes := network.NodeList
 		for j, node := range nodes {
-			digitalTwinNode.Name = node.NodeID
+			digitalTwinNode.Name = node.IetfL2TopologyL2NodeAttributes.Name
 			digitalTwinNode.Kind = "vr-sros"
 			digitalTwinNode.MgmtIpv4 = "30.30." + strconv.Itoa(i+1) + "." + strconv.Itoa(j+1)
 			digitalTwinNode.Group = "sros"
 			digitalTwinNode.Image = "registry.srlinux.dev/pub/vr-sros:22.7.R1"
 			digitalTwinNode.License = "license.txt"
-			digitalTwinNode.Type = "cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28"
+			digitalTwinNode.Type = "cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=6 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28"
 			digitalTwinData.Topology.Nodes = append(digitalTwinData.Topology.Nodes, digitalTwinNode)
 		}
 		links := network.LinkList
-
 		for k, link := range links {
 
 			log.Debug(k)
 			log.Debug(link.LinkID)
+
+			EndpointsRawString := (strings.Split(link.IetfL2TopologyL2LinkAttributes.Name, "--"))
+			EndpointsRawStringSourcePort := (strings.Split(EndpointsRawString[0], ":"))
+			EndpointsRawStringDestinPort := (strings.Split(EndpointsRawString[1], ":"))
+
 			digitalTwinLink.Endpoints =
-				"[" + link.Source.SourceNode[70:len(link.Source.SourceNode)-2] + ":" + link.Source.SourceTp[135:len(link.Source.SourceTp)-2] + ", " + link.Destination.DestNode[70:len(link.Destination.DestNode)-2] + ":" + link.Destination.DestTp[135:len(link.Destination.DestTp)-2] + "]"
-			// Links []struct {
-			// 	Endpoints []string `yaml:"endpoints"`
-			// } `yaml:"links"`
+				// "[" + link.Source.SourceNode[70:len(link.Source.SourceNode)-2] + ":" + link.Source.SourceTp[135:len(link.Source.SourceTp)-2] + ", " + link.Destination.DestNode[70:len(link.Destination.DestNode)-2] + ":" + link.Destination.DestTp[135:len(link.Destination.DestTp)-2] + "]"
+				"[" + EndpointsRawStringSourcePort[0] + ":" + EndpointsRawStringSourcePort[1] + ", " + EndpointsRawStringDestinPort[0] + ":" + EndpointsRawStringDestinPort[1] + "]"
+
 			digitalTwinData.Topology.Links = append(digitalTwinData.Topology.Links, digitalTwinLink)
 
 		}
 
 	}
-	yamlBytes, err := yaml.Marshal(digitalTwinData)
+
+	// write the Container Lab TopoFile
+	TemplateString := (`
+    name: topoViewerDigitalTwinDemo
+    topology:
+       nodes: {{range $n := .Topology.Nodes}}
+        {{$n.Name}}:
+           kind: {{$n.Kind}}
+           group: {{$n.Group}}
+           image: {{$n.Image}}
+           type: {{$n.Type}}
+           license: {{$n.License}}{{end}}
+
+          links: {{range $l := .Topology.Links}}
+            - endpoints: {{$l.Endpoints}}{{end}}
+        
+    `)
+
+	digitalTwinTemplate, err := template.New("digital-twin").Parse(TemplateString)
 	if err != nil {
-		log.Error(err)
+		panic(err)
+	}
+	err = digitalTwinTemplate.Execute(os.Stdout, digitalTwinData)
+	if err != nil {
 		panic(err)
 	}
 
-	_, err = os.Stdout.Write(yamlBytes)
-	if err != nil {
-		log.Error(err)
-		panic(err)
-	}
-	log.Info("jsonBytesCytoUi Result:", string(yamlBytes))
 }
