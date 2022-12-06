@@ -36,6 +36,8 @@ type DigitalTwinNode struct {
 	Image    string `yaml:"image"`
 	Type     string `yaml:"type"`
 	License  string `yaml:"license"`
+	// Extra Fields
+	ExtraData interface{} `json:"ExtraData,omitempty"`
 }
 
 type DigitalTwinLink struct {
@@ -128,6 +130,11 @@ func (cyTopo *CytoTopology) NspDigitalTwinTopoUnmarshal(topoFile []byte, IetfNet
 	for i, network := range IetfNetworkTopologyL2Data.IetfNetworkNetwork {
 		nodes := network.NodeList
 		for j, node := range nodes {
+			// aarafat-tag: Node type need to be learn dynamically from NSP restconf
+			// aarafat-tag: License file shall not be hardcoded, need to be passed as parameter
+			// aarafat-tag: MgmtIpv4 is set automatically by CLAB
+			// aarafat-tag: node-config shall not be hardcoded, need to be learn dynamically from NSP restconf
+
 			digitalTwinNode.Name = node.IetfL2TopologyL2NodeAttributes.Name
 			digitalTwinNode.Kind = "vr-sros"
 			digitalTwinNode.MgmtIpv4 = "30.30." + strconv.Itoa(i+1) + "." + strconv.Itoa(j+1)
@@ -137,41 +144,94 @@ func (cyTopo *CytoTopology) NspDigitalTwinTopoUnmarshal(topoFile []byte, IetfNet
 			digitalTwinNode.Type = "cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=6 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28"
 			digitalTwinData.Topology.Nodes = append(digitalTwinData.Topology.Nodes, digitalTwinNode)
 		}
+	}
+
+	//convert Node List to Map
+	nodes := digitalTwinData.Topology.Nodes
+	nodeMap := make(map[string]DigitalTwinNode)
+	for _, node := range nodes {
+		nodeMap[node.Name] = node
+	}
+
+	for i, network := range IetfNetworkTopologyL2Data.IetfNetworkNetwork {
+
 		links := network.LinkList
 		for k, link := range links {
 
-			log.Debug(k)
+			log.Debug(k + i)
 			log.Debug(link.LinkID)
 
 			EndpointsRawString := (strings.Split(link.IetfL2TopologyL2LinkAttributes.Name, "--"))
-			EndpointsRawStringSourcePort := (strings.Split(EndpointsRawString[0], ":"))
-			EndpointsRawStringDestinPort := (strings.Split(EndpointsRawString[1], ":"))
 
-			digitalTwinLink.Endpoints =
-				// "[" + link.Source.SourceNode[70:len(link.Source.SourceNode)-2] + ":" + link.Source.SourceTp[135:len(link.Source.SourceTp)-2] + ", " + link.Destination.DestNode[70:len(link.Destination.DestNode)-2] + ":" + link.Destination.DestTp[135:len(link.Destination.DestTp)-2] + "]"
-				"[" + EndpointsRawStringSourcePort[0] + ":" + EndpointsRawStringSourcePort[1] + ", " + EndpointsRawStringDestinPort[0] + ":" + EndpointsRawStringDestinPort[1] + "]"
+			//source EndPoint
+			EndpointsRawStringSourceRouterNameSlotMdaPort := (strings.Split(EndpointsRawString[0], ":"))
+			EndpointsRawStringSourceRouterName := EndpointsRawStringSourceRouterNameSlotMdaPort[0]
 
+			EndpointsRawStringSourceSlot := (strings.Split(EndpointsRawStringSourceRouterNameSlotMdaPort[1], "/")[0])
+			log.Debug("EndpointsRawStringSourceSlot: ", EndpointsRawStringSourceSlot)
+
+			EndpointsRawStringSourceMda := (strings.Split(EndpointsRawStringSourceRouterNameSlotMdaPort[1], "/")[1])
+			log.Debug("EndpointsRawStringSourceMda: ", EndpointsRawStringSourceMda)
+
+			EndpointsRawStringSourcePortCage := (strings.Split(EndpointsRawStringSourceRouterNameSlotMdaPort[1], "/")[2])
+			log.Debug("EndpointsRawStringSourcePortCage: ", EndpointsRawStringSourcePortCage)
+
+			//Destination EndPoint
+			EndpointsRawStringDestinationRouterNameSlotMdaPort := (strings.Split(EndpointsRawString[0], ":"))
+			EndpointsRawStringDestinationRouterName := EndpointsRawStringDestinationRouterNameSlotMdaPort[0]
+
+			EndpointsRawStringDestinationSlot := (strings.Split(EndpointsRawStringDestinationRouterNameSlotMdaPort[1], "/")[0])
+			log.Debug("EndpointsRawStringDestinationSlot: ", EndpointsRawStringDestinationSlot)
+
+			EndpointsRawStringDestinationMda := (strings.Split(EndpointsRawStringDestinationRouterNameSlotMdaPort[1], "/")[1])
+			log.Debug("EndpointsRawStringDestinationMda: ", EndpointsRawStringDestinationMda)
+
+			EndpointsRawStringDestinationPortCage := (strings.Split(EndpointsRawStringDestinationRouterNameSlotMdaPort[1], "/")[2])
+			log.Debug("EndpointsRawStringDestinationPortCage: ", EndpointsRawStringDestinationPortCage)
+
+			// set Endpoint
+			var SourceEndpoint string
+			var DestinationEndpoint string
+
+			switch nodeKindSource := nodeMap[EndpointsRawStringSourceRouterName].Kind; nodeKindSource {
+			case "vr-sros":
+				if strings.Contains(EndpointsRawStringSourcePortCage, "c") {
+					EndpointsRawStringSourcePortCage = strings.Replace(EndpointsRawStringSourcePortCage, "c", "", -1)
+					SourceEndpoint = EndpointsRawStringSourceRouterName + ":eth-" + EndpointsRawStringSourcePortCage
+				} else {
+					SourceEndpoint = EndpointsRawStringSourceRouterName + ":eth-" + EndpointsRawStringSourcePortCage
+				}
+			}
+
+			switch nodeKindDestination := nodeMap[EndpointsRawStringDestinationRouterName].Kind; nodeKindDestination {
+			case "vr-sros":
+				if strings.Contains(EndpointsRawStringDestinationPortCage, "c") {
+					EndpointsRawStringDestinationPortCage = strings.Replace(EndpointsRawStringDestinationPortCage, "c", "", -1)
+					DestinationEndpoint = EndpointsRawStringDestinationRouterName + ":eth-" + EndpointsRawStringDestinationPortCage
+				} else {
+					DestinationEndpoint = EndpointsRawStringDestinationRouterName + ":eth-" + EndpointsRawStringDestinationPortCage
+				}
+			}
+
+			digitalTwinLink.Endpoints = "[" + SourceEndpoint + ", " + DestinationEndpoint + "]"
 			digitalTwinData.Topology.Links = append(digitalTwinData.Topology.Links, digitalTwinLink)
-
 		}
-
 	}
 
 	// write the Container Lab TopoFile
 	TemplateString := (`
     name: topoViewerDigitalTwinDemo
     topology:
-       nodes: {{range $n := .Topology.Nodes}}
-        {{$n.Name}}:
+      nodes: {{range $n := .Topology.Nodes}}
+         {{$n.Name}}:
            kind: {{$n.Kind}}
            group: {{$n.Group}}
            image: {{$n.Image}}
            type: {{$n.Type}}
            license: {{$n.License}}{{end}}
 
-          links: {{range $l := .Topology.Links}}
-            - endpoints: {{$l.Endpoints}}{{end}}
-        
+      links: {{range $l := .Topology.Links}}
+         - endpoints: {{$l.Endpoints}}{{end}}
     `)
 
 	digitalTwinTemplate, err := template.New("digital-twin").Parse(TemplateString)
