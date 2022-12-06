@@ -2,10 +2,10 @@ package topoengine
 
 import (
 	"encoding/json"
-	"html/template"
 	"os"
 	"strconv"
 	"strings"
+	"text/template"
 
 	log "github.com/sirupsen/logrus"
 	types "github.com/srl-labs/containerlab/types"
@@ -43,6 +43,9 @@ type DigitalTwinNode struct {
 type DigitalTwinLink struct {
 	Endpoints string `yaml:"endpoints"`
 }
+
+// aarafat-tag: currently the code working such that the topology from NSP IETF unmarshalled directly to DigitalTwinModel
+// aarafat-tag: code need to be refactor, such that the topology from NSP IETF shall be unmarshalled to CytoScapeModel before loaded to DigitalTwinModel
 
 func (cyTopo *CytoTopology) InitLoggerDigitalTwin() {
 	// init logConfig
@@ -141,12 +144,12 @@ func (cyTopo *CytoTopology) NspDigitalTwinTopoUnmarshal(topoFile []byte, IetfNet
 			digitalTwinNode.Group = "sros"
 			digitalTwinNode.Image = "registry.srlinux.dev/pub/vr-sros:22.7.R1"
 			digitalTwinNode.License = "license.txt"
-			digitalTwinNode.Type = "cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=6 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28"
+			digitalTwinNode.Type = "\"cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=6 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28\""
 			digitalTwinData.Topology.Nodes = append(digitalTwinData.Topology.Nodes, digitalTwinNode)
 		}
 	}
 
-	//convert Node List to Map
+	//convert Node List to Map, Needed to up node's attribute
 	nodes := digitalTwinData.Topology.Nodes
 	nodeMap := make(map[string]DigitalTwinNode)
 	for _, node := range nodes {
@@ -166,6 +169,7 @@ func (cyTopo *CytoTopology) NspDigitalTwinTopoUnmarshal(topoFile []byte, IetfNet
 			//source EndPoint
 			EndpointsRawStringSourceRouterNameSlotMdaPort := (strings.Split(EndpointsRawString[0], ":"))
 			EndpointsRawStringSourceRouterName := EndpointsRawStringSourceRouterNameSlotMdaPort[0]
+			log.Debug("EndpointsRawStringSourceRouterName: ", EndpointsRawStringSourceRouterName)
 
 			EndpointsRawStringSourceSlot := (strings.Split(EndpointsRawStringSourceRouterNameSlotMdaPort[1], "/")[0])
 			log.Debug("EndpointsRawStringSourceSlot: ", EndpointsRawStringSourceSlot)
@@ -177,8 +181,9 @@ func (cyTopo *CytoTopology) NspDigitalTwinTopoUnmarshal(topoFile []byte, IetfNet
 			log.Debug("EndpointsRawStringSourcePortCage: ", EndpointsRawStringSourcePortCage)
 
 			//Destination EndPoint
-			EndpointsRawStringDestinationRouterNameSlotMdaPort := (strings.Split(EndpointsRawString[0], ":"))
+			EndpointsRawStringDestinationRouterNameSlotMdaPort := (strings.Split(EndpointsRawString[1], ":"))
 			EndpointsRawStringDestinationRouterName := EndpointsRawStringDestinationRouterNameSlotMdaPort[0]
+			log.Debug("EndpointsRawStringDestinationRouterName: ", EndpointsRawStringDestinationRouterName)
 
 			EndpointsRawStringDestinationSlot := (strings.Split(EndpointsRawStringDestinationRouterNameSlotMdaPort[1], "/")[0])
 			log.Debug("EndpointsRawStringDestinationSlot: ", EndpointsRawStringDestinationSlot)
@@ -193,6 +198,7 @@ func (cyTopo *CytoTopology) NspDigitalTwinTopoUnmarshal(topoFile []byte, IetfNet
 			var SourceEndpoint string
 			var DestinationEndpoint string
 
+			// aarafat-tag: add case for SRL
 			switch nodeKindSource := nodeMap[EndpointsRawStringSourceRouterName].Kind; nodeKindSource {
 			case "vr-sros":
 				if strings.Contains(EndpointsRawStringSourcePortCage, "c") {
@@ -238,6 +244,7 @@ func (cyTopo *CytoTopology) NspDigitalTwinTopoUnmarshal(topoFile []byte, IetfNet
 	if err != nil {
 		panic(err)
 	}
+
 	err = digitalTwinTemplate.Execute(os.Stdout, digitalTwinData)
 	if err != nil {
 		panic(err)

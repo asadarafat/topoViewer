@@ -10416,3 +10416,1217 @@ time=2022-12-06T00:43:44Z level=debug msg=EndpointsRawStringSourcePortCage: c1
 time=2022-12-06T00:43:44Z level=debug msg=EndpointsRawStringDestinationSlot: 1
 time=2022-12-06T00:43:44Z level=debug msg=EndpointsRawStringDestinationMda: 1
 time=2022-12-06T00:43:44Z level=debug msg=EndpointsRawStringDestinationPortCage: c1
+time=2022-12-06T09:13:35Z level=info msg=topology file path: /workspaces/topoViewer/rawTopoFile/
+time=2022-12-06T09:13:35Z level=debug msg=0
+time=2022-12-06T09:13:35Z level=debug msg=10.10.10.3:Port 1/1/5--10.10.10.7:Port 1/1/3
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringSourcePortCage: 5
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringDestinationPortCage: 5
+time=2022-12-06T09:13:35Z level=debug msg=1
+time=2022-12-06T09:13:35Z level=debug msg=10.10.10.4:Port 1/1/4--10.10.10.7:Port 1/1/2
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringSourcePortCage: 4
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringDestinationPortCage: 4
+time=2022-12-06T09:13:35Z level=debug msg=2
+time=2022-12-06T09:13:35Z level=debug msg=10.10.10.3:Port 1/1/3--10.10.10.4:Port 1/1/3
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringSourcePortCage: 3
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringDestinationPortCage: 3
+time=2022-12-06T09:13:35Z level=debug msg=3
+time=2022-12-06T09:13:35Z level=debug msg=10.10.10.8:Port 1/1/5--10.10.10.9:Port 1/1/2
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringSourcePortCage: 5
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringDestinationPortCage: 5
+time=2022-12-06T09:13:35Z level=debug msg=4
+time=2022-12-06T09:13:35Z level=debug msg=10.10.10.6:Port 1/1/3--10.10.10.9:Port 1/1/3
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringSourcePortCage: 3
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringDestinationPortCage: 3
+time=2022-12-06T09:13:35Z level=debug msg=5
+time=2022-12-06T09:13:35Z level=debug msg=10.10.10.2:Port 1/1/1--10.10.10.4:Port 1/1/1
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringSourcePortCage: 1
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringDestinationPortCage: 1
+time=2022-12-06T09:13:35Z level=debug msg=6
+time=2022-12-06T09:13:35Z level=debug msg=10.10.10.4:Port 1/1/2--10.10.10.6:Port 1/1/1
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringSourcePortCage: 2
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringDestinationPortCage: 2
+time=2022-12-06T09:13:35Z level=debug msg=7
+time=2022-12-06T09:13:35Z level=debug msg=10.10.10.3:Port 1/1/2--10.10.10.6:Port 1/1/2
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringSourcePortCage: 2
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringDestinationPortCage: 2
+time=2022-12-06T09:13:35Z level=debug msg=8
+time=2022-12-06T09:13:35Z level=debug msg=10.10.10.8:Port 1/1/2--10.10.10.10:Port 1/1/2
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringSourcePortCage: 2
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringDestinationPortCage: 2
+time=2022-12-06T09:13:35Z level=debug msg=9
+time=2022-12-06T09:13:35Z level=debug msg=10.10.10.7:Port 1/1/1--10.10.10.10:Port 1/1/3
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringSourcePortCage: 1
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringDestinationPortCage: 1
+time=2022-12-06T09:13:35Z level=debug msg=10
+time=2022-12-06T09:13:35Z level=debug msg=10.10.10.3:Port 1/1/4--10.10.10.5:Port 1/1/2
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringSourcePortCage: 4
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringDestinationPortCage: 4
+time=2022-12-06T09:13:35Z level=debug msg=11
+time=2022-12-06T09:13:35Z level=debug msg=10.10.10.4:Port 1/1/5--10.10.10.5:Port 1/1/5
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringSourcePortCage: 5
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringDestinationPortCage: 5
+time=2022-12-06T09:13:35Z level=debug msg=12
+time=2022-12-06T09:13:35Z level=debug msg=10.10.10.1:Port 1/1/c2/1--10.10.10.2:Port 1/1/2
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringSourcePortCage: c2
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringDestinationPortCage: c2
+time=2022-12-06T09:13:35Z level=debug msg=13
+time=2022-12-06T09:13:35Z level=debug msg=10.10.10.1:Port 1/1/c1/1--10.10.10.3:Port 1/1/1
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringSourcePortCage: c1
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:13:35Z level=debug msg=EndpointsRawStringDestinationPortCage: c1
+time=2022-12-06T09:13:52Z level=info msg=topology file path: /workspaces/topoViewer/rawTopoFile/
+time=2022-12-06T09:13:52Z level=debug msg=0
+time=2022-12-06T09:13:52Z level=debug msg=10.10.10.3:Port 1/1/5--10.10.10.7:Port 1/1/3
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringSourcePortCage: 5
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringDestinationPortCage: 5
+time=2022-12-06T09:13:52Z level=debug msg=1
+time=2022-12-06T09:13:52Z level=debug msg=10.10.10.4:Port 1/1/4--10.10.10.7:Port 1/1/2
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringSourcePortCage: 4
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringDestinationPortCage: 4
+time=2022-12-06T09:13:52Z level=debug msg=2
+time=2022-12-06T09:13:52Z level=debug msg=10.10.10.3:Port 1/1/3--10.10.10.4:Port 1/1/3
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringSourcePortCage: 3
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringDestinationPortCage: 3
+time=2022-12-06T09:13:52Z level=debug msg=3
+time=2022-12-06T09:13:52Z level=debug msg=10.10.10.8:Port 1/1/5--10.10.10.9:Port 1/1/2
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringSourcePortCage: 5
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringDestinationPortCage: 5
+time=2022-12-06T09:13:52Z level=debug msg=4
+time=2022-12-06T09:13:52Z level=debug msg=10.10.10.6:Port 1/1/3--10.10.10.9:Port 1/1/3
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringSourcePortCage: 3
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringDestinationPortCage: 3
+time=2022-12-06T09:13:52Z level=debug msg=5
+time=2022-12-06T09:13:52Z level=debug msg=10.10.10.2:Port 1/1/1--10.10.10.4:Port 1/1/1
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringSourcePortCage: 1
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringDestinationPortCage: 1
+time=2022-12-06T09:13:52Z level=debug msg=6
+time=2022-12-06T09:13:52Z level=debug msg=10.10.10.4:Port 1/1/2--10.10.10.6:Port 1/1/1
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringSourcePortCage: 2
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringDestinationPortCage: 2
+time=2022-12-06T09:13:52Z level=debug msg=7
+time=2022-12-06T09:13:52Z level=debug msg=10.10.10.3:Port 1/1/2--10.10.10.6:Port 1/1/2
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringSourcePortCage: 2
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringDestinationPortCage: 2
+time=2022-12-06T09:13:52Z level=debug msg=8
+time=2022-12-06T09:13:52Z level=debug msg=10.10.10.8:Port 1/1/2--10.10.10.10:Port 1/1/2
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringSourcePortCage: 2
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringDestinationPortCage: 2
+time=2022-12-06T09:13:52Z level=debug msg=9
+time=2022-12-06T09:13:52Z level=debug msg=10.10.10.7:Port 1/1/1--10.10.10.10:Port 1/1/3
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringSourcePortCage: 1
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringDestinationPortCage: 1
+time=2022-12-06T09:13:52Z level=debug msg=10
+time=2022-12-06T09:13:52Z level=debug msg=10.10.10.3:Port 1/1/4--10.10.10.5:Port 1/1/2
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringSourcePortCage: 4
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringDestinationPortCage: 4
+time=2022-12-06T09:13:52Z level=debug msg=11
+time=2022-12-06T09:13:52Z level=debug msg=10.10.10.4:Port 1/1/5--10.10.10.5:Port 1/1/5
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringSourcePortCage: 5
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringDestinationPortCage: 5
+time=2022-12-06T09:13:52Z level=debug msg=12
+time=2022-12-06T09:13:52Z level=debug msg=10.10.10.1:Port 1/1/c2/1--10.10.10.2:Port 1/1/2
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringSourcePortCage: c2
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringDestinationPortCage: c2
+time=2022-12-06T09:13:52Z level=debug msg=13
+time=2022-12-06T09:13:52Z level=debug msg=10.10.10.1:Port 1/1/c1/1--10.10.10.3:Port 1/1/1
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringSourcePortCage: c1
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:13:52Z level=debug msg=EndpointsRawStringDestinationPortCage: c1
+time=2022-12-06T09:15:03Z level=info msg=topology file path: /workspaces/topoViewer/rawTopoFile/
+time=2022-12-06T09:15:03Z level=debug msg=0
+time=2022-12-06T09:15:03Z level=debug msg=10.10.10.3:Port 1/1/5--10.10.10.7:Port 1/1/3
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringSourcePortCage: 5
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringDestinationPortCage: 5
+time=2022-12-06T09:15:03Z level=debug msg=1
+time=2022-12-06T09:15:03Z level=debug msg=10.10.10.4:Port 1/1/4--10.10.10.7:Port 1/1/2
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringSourcePortCage: 4
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringDestinationPortCage: 4
+time=2022-12-06T09:15:03Z level=debug msg=2
+time=2022-12-06T09:15:03Z level=debug msg=10.10.10.3:Port 1/1/3--10.10.10.4:Port 1/1/3
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringSourcePortCage: 3
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringDestinationPortCage: 3
+time=2022-12-06T09:15:03Z level=debug msg=3
+time=2022-12-06T09:15:03Z level=debug msg=10.10.10.8:Port 1/1/5--10.10.10.9:Port 1/1/2
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringSourcePortCage: 5
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringDestinationPortCage: 5
+time=2022-12-06T09:15:03Z level=debug msg=4
+time=2022-12-06T09:15:03Z level=debug msg=10.10.10.6:Port 1/1/3--10.10.10.9:Port 1/1/3
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringSourcePortCage: 3
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringDestinationPortCage: 3
+time=2022-12-06T09:15:03Z level=debug msg=5
+time=2022-12-06T09:15:03Z level=debug msg=10.10.10.2:Port 1/1/1--10.10.10.4:Port 1/1/1
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringSourcePortCage: 1
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringDestinationPortCage: 1
+time=2022-12-06T09:15:03Z level=debug msg=6
+time=2022-12-06T09:15:03Z level=debug msg=10.10.10.4:Port 1/1/2--10.10.10.6:Port 1/1/1
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringSourcePortCage: 2
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringDestinationPortCage: 2
+time=2022-12-06T09:15:03Z level=debug msg=7
+time=2022-12-06T09:15:03Z level=debug msg=10.10.10.3:Port 1/1/2--10.10.10.6:Port 1/1/2
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringSourcePortCage: 2
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringDestinationPortCage: 2
+time=2022-12-06T09:15:03Z level=debug msg=8
+time=2022-12-06T09:15:03Z level=debug msg=10.10.10.8:Port 1/1/2--10.10.10.10:Port 1/1/2
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringSourcePortCage: 2
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringDestinationPortCage: 2
+time=2022-12-06T09:15:03Z level=debug msg=9
+time=2022-12-06T09:15:03Z level=debug msg=10.10.10.7:Port 1/1/1--10.10.10.10:Port 1/1/3
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringSourcePortCage: 1
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringDestinationPortCage: 1
+time=2022-12-06T09:15:03Z level=debug msg=10
+time=2022-12-06T09:15:03Z level=debug msg=10.10.10.3:Port 1/1/4--10.10.10.5:Port 1/1/2
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringSourcePortCage: 4
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringDestinationPortCage: 4
+time=2022-12-06T09:15:03Z level=debug msg=11
+time=2022-12-06T09:15:03Z level=debug msg=10.10.10.4:Port 1/1/5--10.10.10.5:Port 1/1/5
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringSourcePortCage: 5
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringDestinationPortCage: 5
+time=2022-12-06T09:15:03Z level=debug msg=12
+time=2022-12-06T09:15:03Z level=debug msg=10.10.10.1:Port 1/1/c2/1--10.10.10.2:Port 1/1/2
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringSourcePortCage: c2
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringDestinationPortCage: c2
+time=2022-12-06T09:15:03Z level=debug msg=13
+time=2022-12-06T09:15:03Z level=debug msg=10.10.10.1:Port 1/1/c1/1--10.10.10.3:Port 1/1/1
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringSourcePortCage: c1
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:15:03Z level=debug msg=EndpointsRawStringDestinationPortCage: c1
+time=2022-12-06T09:18:48Z level=info msg=topology file path: /workspaces/topoViewer/rawTopoFile/
+time=2022-12-06T09:18:48Z level=debug msg=0
+time=2022-12-06T09:18:48Z level=debug msg=10.10.10.3:Port 1/1/5--10.10.10.7:Port 1/1/3
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringSourcePortCage: 5
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringDestinationPortCage: 5
+time=2022-12-06T09:18:48Z level=debug msg=1
+time=2022-12-06T09:18:48Z level=debug msg=10.10.10.4:Port 1/1/4--10.10.10.7:Port 1/1/2
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringSourcePortCage: 4
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringDestinationPortCage: 4
+time=2022-12-06T09:18:48Z level=debug msg=2
+time=2022-12-06T09:18:48Z level=debug msg=10.10.10.3:Port 1/1/3--10.10.10.4:Port 1/1/3
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringSourcePortCage: 3
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringDestinationPortCage: 3
+time=2022-12-06T09:18:48Z level=debug msg=3
+time=2022-12-06T09:18:48Z level=debug msg=10.10.10.8:Port 1/1/5--10.10.10.9:Port 1/1/2
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringSourcePortCage: 5
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringDestinationPortCage: 5
+time=2022-12-06T09:18:48Z level=debug msg=4
+time=2022-12-06T09:18:48Z level=debug msg=10.10.10.6:Port 1/1/3--10.10.10.9:Port 1/1/3
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringSourcePortCage: 3
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringDestinationPortCage: 3
+time=2022-12-06T09:18:48Z level=debug msg=5
+time=2022-12-06T09:18:48Z level=debug msg=10.10.10.2:Port 1/1/1--10.10.10.4:Port 1/1/1
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringSourcePortCage: 1
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringDestinationPortCage: 1
+time=2022-12-06T09:18:48Z level=debug msg=6
+time=2022-12-06T09:18:48Z level=debug msg=10.10.10.4:Port 1/1/2--10.10.10.6:Port 1/1/1
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringSourcePortCage: 2
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringDestinationPortCage: 2
+time=2022-12-06T09:18:48Z level=debug msg=7
+time=2022-12-06T09:18:48Z level=debug msg=10.10.10.3:Port 1/1/2--10.10.10.6:Port 1/1/2
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringSourcePortCage: 2
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringDestinationPortCage: 2
+time=2022-12-06T09:18:48Z level=debug msg=8
+time=2022-12-06T09:18:48Z level=debug msg=10.10.10.8:Port 1/1/2--10.10.10.10:Port 1/1/2
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringSourcePortCage: 2
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringDestinationPortCage: 2
+time=2022-12-06T09:18:48Z level=debug msg=9
+time=2022-12-06T09:18:48Z level=debug msg=10.10.10.7:Port 1/1/1--10.10.10.10:Port 1/1/3
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringSourcePortCage: 1
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringDestinationPortCage: 1
+time=2022-12-06T09:18:48Z level=debug msg=10
+time=2022-12-06T09:18:48Z level=debug msg=10.10.10.3:Port 1/1/4--10.10.10.5:Port 1/1/2
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringSourcePortCage: 4
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringDestinationPortCage: 4
+time=2022-12-06T09:18:48Z level=debug msg=11
+time=2022-12-06T09:18:48Z level=debug msg=10.10.10.4:Port 1/1/5--10.10.10.5:Port 1/1/5
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringSourcePortCage: 5
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringDestinationPortCage: 5
+time=2022-12-06T09:18:48Z level=debug msg=12
+time=2022-12-06T09:18:48Z level=debug msg=10.10.10.1:Port 1/1/c2/1--10.10.10.2:Port 1/1/2
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringSourcePortCage: c2
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringDestinationPortCage: c2
+time=2022-12-06T09:18:48Z level=debug msg=13
+time=2022-12-06T09:18:48Z level=debug msg=10.10.10.1:Port 1/1/c1/1--10.10.10.3:Port 1/1/1
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringSourcePortCage: c1
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:18:48Z level=debug msg=EndpointsRawStringDestinationPortCage: c1
+time=2022-12-06T09:19:08Z level=info msg=topology file path: /workspaces/topoViewer/rawTopoFile/
+time=2022-12-06T09:19:08Z level=debug msg=0
+time=2022-12-06T09:19:08Z level=debug msg=10.10.10.3:Port 1/1/5--10.10.10.7:Port 1/1/3
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringSourcePortCage: 5
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringDestinationPortCage: 5
+time=2022-12-06T09:19:08Z level=debug msg=1
+time=2022-12-06T09:19:08Z level=debug msg=10.10.10.4:Port 1/1/4--10.10.10.7:Port 1/1/2
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringSourcePortCage: 4
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringDestinationPortCage: 4
+time=2022-12-06T09:19:08Z level=debug msg=2
+time=2022-12-06T09:19:08Z level=debug msg=10.10.10.3:Port 1/1/3--10.10.10.4:Port 1/1/3
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringSourcePortCage: 3
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringDestinationPortCage: 3
+time=2022-12-06T09:19:08Z level=debug msg=3
+time=2022-12-06T09:19:08Z level=debug msg=10.10.10.8:Port 1/1/5--10.10.10.9:Port 1/1/2
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringSourcePortCage: 5
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringDestinationPortCage: 5
+time=2022-12-06T09:19:08Z level=debug msg=4
+time=2022-12-06T09:19:08Z level=debug msg=10.10.10.6:Port 1/1/3--10.10.10.9:Port 1/1/3
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringSourcePortCage: 3
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringDestinationPortCage: 3
+time=2022-12-06T09:19:08Z level=debug msg=5
+time=2022-12-06T09:19:08Z level=debug msg=10.10.10.2:Port 1/1/1--10.10.10.4:Port 1/1/1
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringSourcePortCage: 1
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringDestinationPortCage: 1
+time=2022-12-06T09:19:08Z level=debug msg=6
+time=2022-12-06T09:19:08Z level=debug msg=10.10.10.4:Port 1/1/2--10.10.10.6:Port 1/1/1
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringSourcePortCage: 2
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringDestinationPortCage: 2
+time=2022-12-06T09:19:08Z level=debug msg=7
+time=2022-12-06T09:19:08Z level=debug msg=10.10.10.3:Port 1/1/2--10.10.10.6:Port 1/1/2
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringSourcePortCage: 2
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringDestinationPortCage: 2
+time=2022-12-06T09:19:08Z level=debug msg=8
+time=2022-12-06T09:19:08Z level=debug msg=10.10.10.8:Port 1/1/2--10.10.10.10:Port 1/1/2
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringSourcePortCage: 2
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringDestinationPortCage: 2
+time=2022-12-06T09:19:08Z level=debug msg=9
+time=2022-12-06T09:19:08Z level=debug msg=10.10.10.7:Port 1/1/1--10.10.10.10:Port 1/1/3
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringSourcePortCage: 1
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringDestinationPortCage: 1
+time=2022-12-06T09:19:08Z level=debug msg=10
+time=2022-12-06T09:19:08Z level=debug msg=10.10.10.3:Port 1/1/4--10.10.10.5:Port 1/1/2
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringSourcePortCage: 4
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringDestinationPortCage: 4
+time=2022-12-06T09:19:08Z level=debug msg=11
+time=2022-12-06T09:19:08Z level=debug msg=10.10.10.4:Port 1/1/5--10.10.10.5:Port 1/1/5
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringSourcePortCage: 5
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringDestinationPortCage: 5
+time=2022-12-06T09:19:08Z level=debug msg=12
+time=2022-12-06T09:19:08Z level=debug msg=10.10.10.1:Port 1/1/c2/1--10.10.10.2:Port 1/1/2
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringSourcePortCage: c2
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringDestinationPortCage: c2
+time=2022-12-06T09:19:08Z level=debug msg=13
+time=2022-12-06T09:19:08Z level=debug msg=10.10.10.1:Port 1/1/c1/1--10.10.10.3:Port 1/1/1
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringSourcePortCage: c1
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:19:08Z level=debug msg=EndpointsRawStringDestinationPortCage: c1
+time=2022-12-06T09:23:41Z level=info msg=topology file path: /workspaces/topoViewer/rawTopoFile/
+time=2022-12-06T09:23:41Z level=debug msg=0
+time=2022-12-06T09:23:41Z level=debug msg=10.10.10.3:Port 1/1/5--10.10.10.7:Port 1/1/3
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringSourcePortCage: 5
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringDestinationPortCage: 5
+time=2022-12-06T09:23:41Z level=debug msg=1
+time=2022-12-06T09:23:41Z level=debug msg=10.10.10.4:Port 1/1/4--10.10.10.7:Port 1/1/2
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringSourcePortCage: 4
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringDestinationPortCage: 4
+time=2022-12-06T09:23:41Z level=debug msg=2
+time=2022-12-06T09:23:41Z level=debug msg=10.10.10.3:Port 1/1/3--10.10.10.4:Port 1/1/3
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringSourcePortCage: 3
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringDestinationPortCage: 3
+time=2022-12-06T09:23:41Z level=debug msg=3
+time=2022-12-06T09:23:41Z level=debug msg=10.10.10.8:Port 1/1/5--10.10.10.9:Port 1/1/2
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringSourcePortCage: 5
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringDestinationPortCage: 5
+time=2022-12-06T09:23:41Z level=debug msg=4
+time=2022-12-06T09:23:41Z level=debug msg=10.10.10.6:Port 1/1/3--10.10.10.9:Port 1/1/3
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringSourcePortCage: 3
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringDestinationPortCage: 3
+time=2022-12-06T09:23:41Z level=debug msg=5
+time=2022-12-06T09:23:41Z level=debug msg=10.10.10.2:Port 1/1/1--10.10.10.4:Port 1/1/1
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringSourcePortCage: 1
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringDestinationPortCage: 1
+time=2022-12-06T09:23:41Z level=debug msg=6
+time=2022-12-06T09:23:41Z level=debug msg=10.10.10.4:Port 1/1/2--10.10.10.6:Port 1/1/1
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringSourcePortCage: 2
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringDestinationPortCage: 2
+time=2022-12-06T09:23:41Z level=debug msg=7
+time=2022-12-06T09:23:41Z level=debug msg=10.10.10.3:Port 1/1/2--10.10.10.6:Port 1/1/2
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringSourcePortCage: 2
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringDestinationPortCage: 2
+time=2022-12-06T09:23:41Z level=debug msg=8
+time=2022-12-06T09:23:41Z level=debug msg=10.10.10.8:Port 1/1/2--10.10.10.10:Port 1/1/2
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringSourcePortCage: 2
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringDestinationPortCage: 2
+time=2022-12-06T09:23:41Z level=debug msg=9
+time=2022-12-06T09:23:41Z level=debug msg=10.10.10.7:Port 1/1/1--10.10.10.10:Port 1/1/3
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringSourcePortCage: 1
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringDestinationPortCage: 1
+time=2022-12-06T09:23:41Z level=debug msg=10
+time=2022-12-06T09:23:41Z level=debug msg=10.10.10.3:Port 1/1/4--10.10.10.5:Port 1/1/2
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringSourcePortCage: 4
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringDestinationPortCage: 4
+time=2022-12-06T09:23:41Z level=debug msg=11
+time=2022-12-06T09:23:41Z level=debug msg=10.10.10.4:Port 1/1/5--10.10.10.5:Port 1/1/5
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringSourcePortCage: 5
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringDestinationPortCage: 5
+time=2022-12-06T09:23:41Z level=debug msg=12
+time=2022-12-06T09:23:41Z level=debug msg=10.10.10.1:Port 1/1/c2/1--10.10.10.2:Port 1/1/2
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringSourcePortCage: c2
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringDestinationPortCage: c2
+time=2022-12-06T09:23:41Z level=debug msg=13
+time=2022-12-06T09:23:41Z level=debug msg=10.10.10.1:Port 1/1/c1/1--10.10.10.3:Port 1/1/1
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringSourcePortCage: c1
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:23:41Z level=debug msg=EndpointsRawStringDestinationPortCage: c1
+time=2022-12-06T09:23:55Z level=info msg=topology file path: /workspaces/topoViewer/rawTopoFile/
+time=2022-12-06T09:23:55Z level=debug msg=0
+time=2022-12-06T09:23:55Z level=debug msg=10.10.10.3:Port 1/1/5--10.10.10.7:Port 1/1/3
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringSourcePortCage: 5
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringDestinationPortCage: 5
+time=2022-12-06T09:23:55Z level=debug msg=1
+time=2022-12-06T09:23:55Z level=debug msg=10.10.10.4:Port 1/1/4--10.10.10.7:Port 1/1/2
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringSourcePortCage: 4
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringDestinationPortCage: 4
+time=2022-12-06T09:23:55Z level=debug msg=2
+time=2022-12-06T09:23:55Z level=debug msg=10.10.10.3:Port 1/1/3--10.10.10.4:Port 1/1/3
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringSourcePortCage: 3
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringDestinationPortCage: 3
+time=2022-12-06T09:23:55Z level=debug msg=3
+time=2022-12-06T09:23:55Z level=debug msg=10.10.10.8:Port 1/1/5--10.10.10.9:Port 1/1/2
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringSourcePortCage: 5
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringDestinationPortCage: 5
+time=2022-12-06T09:23:55Z level=debug msg=4
+time=2022-12-06T09:23:55Z level=debug msg=10.10.10.6:Port 1/1/3--10.10.10.9:Port 1/1/3
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringSourcePortCage: 3
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringDestinationPortCage: 3
+time=2022-12-06T09:23:55Z level=debug msg=5
+time=2022-12-06T09:23:55Z level=debug msg=10.10.10.2:Port 1/1/1--10.10.10.4:Port 1/1/1
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringSourcePortCage: 1
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringDestinationPortCage: 1
+time=2022-12-06T09:23:55Z level=debug msg=6
+time=2022-12-06T09:23:55Z level=debug msg=10.10.10.4:Port 1/1/2--10.10.10.6:Port 1/1/1
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringSourcePortCage: 2
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringDestinationPortCage: 2
+time=2022-12-06T09:23:55Z level=debug msg=7
+time=2022-12-06T09:23:55Z level=debug msg=10.10.10.3:Port 1/1/2--10.10.10.6:Port 1/1/2
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringSourcePortCage: 2
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringDestinationPortCage: 2
+time=2022-12-06T09:23:55Z level=debug msg=8
+time=2022-12-06T09:23:55Z level=debug msg=10.10.10.8:Port 1/1/2--10.10.10.10:Port 1/1/2
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringSourcePortCage: 2
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringDestinationPortCage: 2
+time=2022-12-06T09:23:55Z level=debug msg=9
+time=2022-12-06T09:23:55Z level=debug msg=10.10.10.7:Port 1/1/1--10.10.10.10:Port 1/1/3
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringSourcePortCage: 1
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringDestinationPortCage: 1
+time=2022-12-06T09:23:55Z level=debug msg=10
+time=2022-12-06T09:23:55Z level=debug msg=10.10.10.3:Port 1/1/4--10.10.10.5:Port 1/1/2
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringSourcePortCage: 4
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringDestinationPortCage: 4
+time=2022-12-06T09:23:55Z level=debug msg=11
+time=2022-12-06T09:23:55Z level=debug msg=10.10.10.4:Port 1/1/5--10.10.10.5:Port 1/1/5
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringSourcePortCage: 5
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringDestinationPortCage: 5
+time=2022-12-06T09:23:55Z level=debug msg=12
+time=2022-12-06T09:23:55Z level=debug msg=10.10.10.1:Port 1/1/c2/1--10.10.10.2:Port 1/1/2
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringSourcePortCage: c2
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringDestinationPortCage: c2
+time=2022-12-06T09:23:55Z level=debug msg=13
+time=2022-12-06T09:23:55Z level=debug msg=10.10.10.1:Port 1/1/c1/1--10.10.10.3:Port 1/1/1
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringSourcePortCage: c1
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:23:55Z level=debug msg=EndpointsRawStringDestinationPortCage: c1
+time=2022-12-06T09:27:47Z level=info msg=topology file path: /workspaces/topoViewer/rawTopoFile/
+time=2022-12-06T09:27:47Z level=debug msg=0
+time=2022-12-06T09:27:47Z level=debug msg=10.10.10.3:Port 1/1/5--10.10.10.7:Port 1/1/3
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringSourceRouterName: R3-P
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringSourcePortCage: 5
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringDestinationRouterName: R3-P
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringDestinationPortCage: 5
+time=2022-12-06T09:27:47Z level=debug msg=1
+time=2022-12-06T09:27:47Z level=debug msg=10.10.10.4:Port 1/1/4--10.10.10.7:Port 1/1/2
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringSourceRouterName: R4-P
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringSourcePortCage: 4
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringDestinationRouterName: R4-P
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringDestinationPortCage: 4
+time=2022-12-06T09:27:47Z level=debug msg=2
+time=2022-12-06T09:27:47Z level=debug msg=10.10.10.3:Port 1/1/3--10.10.10.4:Port 1/1/3
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringSourceRouterName: R3-P
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringSourcePortCage: 3
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringDestinationRouterName: R3-P
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringDestinationPortCage: 3
+time=2022-12-06T09:27:47Z level=debug msg=3
+time=2022-12-06T09:27:47Z level=debug msg=10.10.10.8:Port 1/1/5--10.10.10.9:Port 1/1/2
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringSourceRouterName: R8-PE
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringSourcePortCage: 5
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringDestinationRouterName: R8-PE
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringDestinationPortCage: 5
+time=2022-12-06T09:27:47Z level=debug msg=4
+time=2022-12-06T09:27:47Z level=debug msg=10.10.10.6:Port 1/1/3--10.10.10.9:Port 1/1/3
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringSourceRouterName: R6-PE-ASBR
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringSourcePortCage: 3
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringDestinationRouterName: R6-PE-ASBR
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringDestinationPortCage: 3
+time=2022-12-06T09:27:47Z level=debug msg=5
+time=2022-12-06T09:27:47Z level=debug msg=10.10.10.2:Port 1/1/1--10.10.10.4:Port 1/1/1
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringSourceRouterName: R2-PE
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringSourcePortCage: 1
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringDestinationRouterName: R2-PE
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringDestinationPortCage: 1
+time=2022-12-06T09:27:47Z level=debug msg=6
+time=2022-12-06T09:27:47Z level=debug msg=10.10.10.4:Port 1/1/2--10.10.10.6:Port 1/1/1
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringSourceRouterName: R4-P
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringSourcePortCage: 2
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringDestinationRouterName: R4-P
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringDestinationPortCage: 2
+time=2022-12-06T09:27:47Z level=debug msg=7
+time=2022-12-06T09:27:47Z level=debug msg=10.10.10.3:Port 1/1/2--10.10.10.6:Port 1/1/2
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringSourceRouterName: R3-P
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringSourcePortCage: 2
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringDestinationRouterName: R3-P
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringDestinationPortCage: 2
+time=2022-12-06T09:27:47Z level=debug msg=8
+time=2022-12-06T09:27:47Z level=debug msg=10.10.10.8:Port 1/1/2--10.10.10.10:Port 1/1/2
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringSourceRouterName: R8-PE
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringSourcePortCage: 2
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringDestinationRouterName: R8-PE
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringDestinationPortCage: 2
+time=2022-12-06T09:27:47Z level=debug msg=9
+time=2022-12-06T09:27:47Z level=debug msg=10.10.10.7:Port 1/1/1--10.10.10.10:Port 1/1/3
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringSourceRouterName: R7-PE-ASBR
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringSourcePortCage: 1
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringDestinationRouterName: R7-PE-ASBR
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringDestinationPortCage: 1
+time=2022-12-06T09:27:47Z level=debug msg=10
+time=2022-12-06T09:27:47Z level=debug msg=10.10.10.3:Port 1/1/4--10.10.10.5:Port 1/1/2
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringSourceRouterName: R3-P
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringSourcePortCage: 4
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringDestinationRouterName: R3-P
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringDestinationPortCage: 4
+time=2022-12-06T09:27:47Z level=debug msg=11
+time=2022-12-06T09:27:47Z level=debug msg=10.10.10.4:Port 1/1/5--10.10.10.5:Port 1/1/5
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringSourceRouterName: R4-P
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringSourcePortCage: 5
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringDestinationRouterName: R4-P
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringDestinationPortCage: 5
+time=2022-12-06T09:27:47Z level=debug msg=12
+time=2022-12-06T09:27:47Z level=debug msg=10.10.10.1:Port 1/1/c2/1--10.10.10.2:Port 1/1/2
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringSourceRouterName: R1-PE
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringSourcePortCage: c2
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringDestinationRouterName: R1-PE
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringDestinationPortCage: c2
+time=2022-12-06T09:27:47Z level=debug msg=13
+time=2022-12-06T09:27:47Z level=debug msg=10.10.10.1:Port 1/1/c1/1--10.10.10.3:Port 1/1/1
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringSourceRouterName: R1-PE
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringSourcePortCage: c1
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringDestinationRouterName: R1-PE
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:27:47Z level=debug msg=EndpointsRawStringDestinationPortCage: c1
+time=2022-12-06T09:28:18Z level=info msg=topology file path: /workspaces/topoViewer/rawTopoFile/
+time=2022-12-06T09:28:18Z level=debug msg=0
+time=2022-12-06T09:28:18Z level=debug msg=10.10.10.3:Port 1/1/5--10.10.10.7:Port 1/1/3
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringSourceRouterName: R3-P
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringSourcePortCage: 5
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringDestinationRouterName: 1/1/5
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringDestinationPortCage: 5
+time=2022-12-06T09:28:18Z level=debug msg=1
+time=2022-12-06T09:28:18Z level=debug msg=10.10.10.4:Port 1/1/4--10.10.10.7:Port 1/1/2
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringSourceRouterName: R4-P
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringSourcePortCage: 4
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringDestinationRouterName: 1/1/4
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringDestinationPortCage: 4
+time=2022-12-06T09:28:18Z level=debug msg=2
+time=2022-12-06T09:28:18Z level=debug msg=10.10.10.3:Port 1/1/3--10.10.10.4:Port 1/1/3
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringSourceRouterName: R3-P
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringSourcePortCage: 3
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringDestinationRouterName: 1/1/3
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringDestinationPortCage: 3
+time=2022-12-06T09:28:18Z level=debug msg=3
+time=2022-12-06T09:28:18Z level=debug msg=10.10.10.8:Port 1/1/5--10.10.10.9:Port 1/1/2
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringSourceRouterName: R8-PE
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringSourcePortCage: 5
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringDestinationRouterName: 1/1/5
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringDestinationPortCage: 5
+time=2022-12-06T09:28:18Z level=debug msg=4
+time=2022-12-06T09:28:18Z level=debug msg=10.10.10.6:Port 1/1/3--10.10.10.9:Port 1/1/3
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringSourceRouterName: R6-PE-ASBR
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringSourcePortCage: 3
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringDestinationRouterName: 1/1/3
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringDestinationPortCage: 3
+time=2022-12-06T09:28:18Z level=debug msg=5
+time=2022-12-06T09:28:18Z level=debug msg=10.10.10.2:Port 1/1/1--10.10.10.4:Port 1/1/1
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringSourceRouterName: R2-PE
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringSourcePortCage: 1
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringDestinationRouterName: 1/1/1
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringDestinationPortCage: 1
+time=2022-12-06T09:28:18Z level=debug msg=6
+time=2022-12-06T09:28:18Z level=debug msg=10.10.10.4:Port 1/1/2--10.10.10.6:Port 1/1/1
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringSourceRouterName: R4-P
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringSourcePortCage: 2
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringDestinationRouterName: 1/1/2
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringDestinationPortCage: 2
+time=2022-12-06T09:28:18Z level=debug msg=7
+time=2022-12-06T09:28:18Z level=debug msg=10.10.10.3:Port 1/1/2--10.10.10.6:Port 1/1/2
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringSourceRouterName: R3-P
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringSourcePortCage: 2
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringDestinationRouterName: 1/1/2
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringDestinationPortCage: 2
+time=2022-12-06T09:28:18Z level=debug msg=8
+time=2022-12-06T09:28:18Z level=debug msg=10.10.10.8:Port 1/1/2--10.10.10.10:Port 1/1/2
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringSourceRouterName: R8-PE
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringSourcePortCage: 2
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringDestinationRouterName: 1/1/2
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringDestinationPortCage: 2
+time=2022-12-06T09:28:18Z level=debug msg=9
+time=2022-12-06T09:28:18Z level=debug msg=10.10.10.7:Port 1/1/1--10.10.10.10:Port 1/1/3
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringSourceRouterName: R7-PE-ASBR
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringSourcePortCage: 1
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringDestinationRouterName: 1/1/1
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringDestinationPortCage: 1
+time=2022-12-06T09:28:18Z level=debug msg=10
+time=2022-12-06T09:28:18Z level=debug msg=10.10.10.3:Port 1/1/4--10.10.10.5:Port 1/1/2
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringSourceRouterName: R3-P
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringSourcePortCage: 4
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringDestinationRouterName: 1/1/4
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringDestinationPortCage: 4
+time=2022-12-06T09:28:18Z level=debug msg=11
+time=2022-12-06T09:28:18Z level=debug msg=10.10.10.4:Port 1/1/5--10.10.10.5:Port 1/1/5
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringSourceRouterName: R4-P
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringSourcePortCage: 5
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringDestinationRouterName: 1/1/5
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringDestinationPortCage: 5
+time=2022-12-06T09:28:18Z level=debug msg=12
+time=2022-12-06T09:28:18Z level=debug msg=10.10.10.1:Port 1/1/c2/1--10.10.10.2:Port 1/1/2
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringSourceRouterName: R1-PE
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringSourcePortCage: c2
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringDestinationRouterName: 1/1/c2/1
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringDestinationPortCage: c2
+time=2022-12-06T09:28:18Z level=debug msg=13
+time=2022-12-06T09:28:18Z level=debug msg=10.10.10.1:Port 1/1/c1/1--10.10.10.3:Port 1/1/1
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringSourceRouterName: R1-PE
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringSourcePortCage: c1
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringDestinationRouterName: 1/1/c1/1
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:28:18Z level=debug msg=EndpointsRawStringDestinationPortCage: c1
+time=2022-12-06T09:29:32Z level=info msg=topology file path: /workspaces/topoViewer/rawTopoFile/
+time=2022-12-06T09:29:32Z level=debug msg=0
+time=2022-12-06T09:29:32Z level=debug msg=10.10.10.3:Port 1/1/5--10.10.10.7:Port 1/1/3
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringSourceRouterName: R3-P
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringSourcePortCage: 5
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringDestinationRouterName: R7-PE-ASBR
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringDestinationPortCage: 3
+time=2022-12-06T09:29:32Z level=debug msg=1
+time=2022-12-06T09:29:32Z level=debug msg=10.10.10.4:Port 1/1/4--10.10.10.7:Port 1/1/2
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringSourceRouterName: R4-P
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringSourcePortCage: 4
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringDestinationRouterName: R7-PE-ASBR
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringDestinationPortCage: 2
+time=2022-12-06T09:29:32Z level=debug msg=2
+time=2022-12-06T09:29:32Z level=debug msg=10.10.10.3:Port 1/1/3--10.10.10.4:Port 1/1/3
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringSourceRouterName: R3-P
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringSourcePortCage: 3
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringDestinationRouterName: R4-P
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringDestinationPortCage: 3
+time=2022-12-06T09:29:32Z level=debug msg=3
+time=2022-12-06T09:29:32Z level=debug msg=10.10.10.8:Port 1/1/5--10.10.10.9:Port 1/1/2
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringSourceRouterName: R8-PE
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringSourcePortCage: 5
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringDestinationRouterName: R9-PE-ASBR
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringDestinationPortCage: 2
+time=2022-12-06T09:29:32Z level=debug msg=4
+time=2022-12-06T09:29:32Z level=debug msg=10.10.10.6:Port 1/1/3--10.10.10.9:Port 1/1/3
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringSourceRouterName: R6-PE-ASBR
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringSourcePortCage: 3
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringDestinationRouterName: R9-PE-ASBR
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringDestinationPortCage: 3
+time=2022-12-06T09:29:32Z level=debug msg=5
+time=2022-12-06T09:29:32Z level=debug msg=10.10.10.2:Port 1/1/1--10.10.10.4:Port 1/1/1
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringSourceRouterName: R2-PE
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringSourcePortCage: 1
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringDestinationRouterName: R4-P
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringDestinationPortCage: 1
+time=2022-12-06T09:29:32Z level=debug msg=6
+time=2022-12-06T09:29:32Z level=debug msg=10.10.10.4:Port 1/1/2--10.10.10.6:Port 1/1/1
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringSourceRouterName: R4-P
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringSourcePortCage: 2
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringDestinationRouterName: R6-PE-ASBR
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringDestinationPortCage: 1
+time=2022-12-06T09:29:32Z level=debug msg=7
+time=2022-12-06T09:29:32Z level=debug msg=10.10.10.3:Port 1/1/2--10.10.10.6:Port 1/1/2
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringSourceRouterName: R3-P
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringSourcePortCage: 2
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringDestinationRouterName: R6-PE-ASBR
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringDestinationPortCage: 2
+time=2022-12-06T09:29:32Z level=debug msg=8
+time=2022-12-06T09:29:32Z level=debug msg=10.10.10.8:Port 1/1/2--10.10.10.10:Port 1/1/2
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringSourceRouterName: R8-PE
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringSourcePortCage: 2
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringDestinationRouterName: R10-PE-ASBR
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringDestinationPortCage: 2
+time=2022-12-06T09:29:32Z level=debug msg=9
+time=2022-12-06T09:29:32Z level=debug msg=10.10.10.7:Port 1/1/1--10.10.10.10:Port 1/1/3
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringSourceRouterName: R7-PE-ASBR
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringSourcePortCage: 1
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringDestinationRouterName: R10-PE-ASBR
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringDestinationPortCage: 3
+time=2022-12-06T09:29:32Z level=debug msg=10
+time=2022-12-06T09:29:32Z level=debug msg=10.10.10.3:Port 1/1/4--10.10.10.5:Port 1/1/2
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringSourceRouterName: R3-P
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringSourcePortCage: 4
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringDestinationRouterName: R5-PE
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringDestinationPortCage: 2
+time=2022-12-06T09:29:32Z level=debug msg=11
+time=2022-12-06T09:29:32Z level=debug msg=10.10.10.4:Port 1/1/5--10.10.10.5:Port 1/1/5
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringSourceRouterName: R4-P
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringSourcePortCage: 5
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringDestinationRouterName: R5-PE
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringDestinationPortCage: 5
+time=2022-12-06T09:29:32Z level=debug msg=12
+time=2022-12-06T09:29:32Z level=debug msg=10.10.10.1:Port 1/1/c2/1--10.10.10.2:Port 1/1/2
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringSourceRouterName: R1-PE
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringSourcePortCage: c2
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringDestinationRouterName: R2-PE
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringDestinationPortCage: 2
+time=2022-12-06T09:29:32Z level=debug msg=13
+time=2022-12-06T09:29:32Z level=debug msg=10.10.10.1:Port 1/1/c1/1--10.10.10.3:Port 1/1/1
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringSourceRouterName: R1-PE
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringSourceSlot: 1
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringSourceMda: 1
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringSourcePortCage: c1
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringDestinationRouterName: R3-P
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringDestinationSlot: 1
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringDestinationMda: 1
+time=2022-12-06T09:29:32Z level=debug msg=EndpointsRawStringDestinationPortCage: 1
