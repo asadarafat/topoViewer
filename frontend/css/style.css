@@ -1,0 +1,30 @@
+body { 
+  font: 14px helvetica neue, helvetica, arial, sans-serif;
+}
+
+#edgeLength, #nodeSpacing {
+  width: 100%;
+}
+
+#cy {
+  height: 100vh;
+}
+
+#logo {
+  top: 25px; 
+  left: 30px;
+  z-index: 9999;
+  position: absolute;
+}
+
+#settings {
+  /*top: 70px;*/
+  bottom: 0px; 
+  right: 25px; 
+  width: 300px; 
+  position: absolute;
+}
+
+.has-background-4a {
+  background-color: #4A4A4A;
+}
