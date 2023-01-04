@@ -4,404 +4,335 @@
 
 <head>
   <meta charset=utf-8 />
-  <meta name="viewport" content="user-scalable=no, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, minimal-ui">
-
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Topology Viewer</title>
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
-  <link rel="stylesheet" href="./css/style.css" />
+  <link href="css/style.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
+
+  <script defer src="https://use.fontawesome.com/releases/v5.14.0/js/all.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/bulma-extensions@4.0.1/bulma-slider/dist/js/bulma-slider.min.js"></script>
 
   <!-- libs used in cytoscape-libs -->
-  <script src="/cytoscape/libs/popper.js"></script>
+ 
+
+   <!-- cytoscape-libs -->
   <script src="/cytoscape/libs/cola.min.js"></script>
-  <!-- <script src="https://unpkg.com/webcola@3.3.8/WebCola/cola.min.js"></script> -->
-  <!-- <script src="https://unpkg.com/popper.js@1.14.4/dist/umd/popper.js"></script> -->
-
-
-  <!-- cytoscape-libs -->
-  <script src="/cytoscape/libs/lodash.min.js"></script>
-  <script src="/cytoscape/libs/tippy.all.js"></script>
   <script src="/cytoscape/libs/cytoscape.min.js"></script>
   <script src="/cytoscape/libs/cytoscape-cola.js"></script>
+  <script src="/cytoscape/libs/popper.js"></script>
   <script src="/cytoscape/libs/cytoscape-popper.js"></script>
 
 
-  <!-- demo src-->
-  <!-- <script src="./cytoscape/code.js"></script> -->
-
-  <script type="text/javascript">
-    /* global Promise, fetch, window, cytoscape, document, tippy, _ */
-
-    //server URL
-    serverUrl = location.protocol + '//' + location.host;
-    console.log(serverUrl);
-
-    Promise.all([
-        fetch('cy-style.json')
-        .then(function (res) {
-          return res.json();
-        }),
-        fetch('{{.}}')
-        .then(function (res) {
-          console.log(res)
-          return res.json();
-        })
-      ])
-      .then(function (dataArray) {
-        var h = function (tag, attrs, children) {
-          var el = document.createElement(tag);
-          Object.keys(attrs).forEach(function (key) {
-            var val = attrs[key];
-            el.setAttribute(key, val);
-          });
-          children.forEach(function (child) {
-            el.appendChild(child);
-          });
-          // console.log(el)
-          return el;
-        };
-
-        var t = function (text) {
-          var el = document.createTextNode(text);
-          // console.log(el)
-          return el;
-        };
-
-        var $ = document.querySelector.bind(document);
-
-        var cy = window.cy = cytoscape({
-          container: document.getElementById('cy'),
-          style: dataArray[0],
-          elements: dataArray[1],
-          layout: {
-            name: 'random'
-          }
-        });
-
-        var params = {
-          name: 'cola',
-          nodeSpacing: 5,
-          nodeSpacingAsad: 10,
-          edgeLengthVal: 45,
-          animate: true,
-          randomize: false,
-          maxSimulationTime: 1500
-        };
-        var layout = makeLayout();
-        layout.run();
-
-        var $btnParam = h('div', {
-          'class': 'param'
-        }, []);
-
-        var $config = $('#config');
-        $config.appendChild($btnParam);
-
-        var sliders = [{
-            label: 'Edge length',
-            param: 'edgeLengthVal',
-            min: 1,
-            max: 200
-          },
-
-          {
-            label: 'Node spacing',
-            param: 'nodeSpacing',
-            min: 1,
-            max: 50
-          },
-
-          {
-            label: 'Placeholder',
-            param: 'Placeholder',
-            min: 1,
-            max: 500
-          }
-        ];
-
-        var buttons = [{
-            label: h('span', {
-              'class': 'fa fa-random'
-            }, []),
-            layoutOpts: {
-              randomize: true,
-              flow: null
-            }
-          },
-          {
-            label: h('span', {
-              'class': 'fa fa-long-arrow-down'
-            }, []),
-            layoutOpts: {
-              flow: {
-                axis: 'y',
-                minSeparation: 30
-              }
-            }
-          }
-        ];
-
-        // button for BgpLU link
-        var buttonsBgpLuLink = [{
-          label: h('span', {
-            'class': 'fa fa-check-square'
-          }, []),
-          layoutOpts: {
-            flow: {
-              axis: 'y',
-              minSeparation: 30
-            }
-          }
-        }];
-
-        sliders.forEach(makeSlider);
-        buttons.forEach(makeButton);
-        buttonsBgpLuLink.forEach(makeButtonBgpLuLink);
-
-        function makeLayout(opts) {
-          params.randomize = false;
-          params.edgeLength = function (e) {
-            return params.edgeLengthVal / e.data('weight');
-          };
-          for (var i in opts) {
-            params[i] = opts[i];
-          }
-          return cy.layout(params);
-        }
-
-        function makeSlider(opts) {
-          var $input = h('input', {
-            id: 'slider-' + opts.param,
-            type: 'range',
-            min: opts.min,
-            max: opts.max,
-            step: 1,
-            value: params[opts.param],
-            'class': 'slider'
-          }, []);
-
-          var $param = h('div', {
-            'class': 'param'
-          }, []);
-
-          var $label = h('label', {
-            'class': 'label label-default',
-            for: 'slider-' + opts.param
-          }, [t(opts.label)]);
-
-          $param.appendChild($label);
-          $param.appendChild($input);
-
-          $config.appendChild($param);
-
-          var update = _.throttle(function () {
-            params[opts.param] = $input.value;
-            layout.stop();
-            layout = makeLayout();
-            layout.run();
-          }, 1000 / 30);
-
-          $input.addEventListener('input', update);
-          $input.addEventListener('change', update);
-        }
-
-        function makeButton(opts) {
-          var $button = h('button', {
-            'class': 'btn btn-default',
-            'title': "Auto Layout"
-          }, [opts.label]);
-
-          $btnParam.appendChild($button);
-
-          $button.addEventListener('click', function () {
-            layout.stop();
-
-            if (opts.fn) {
-              opts.fn();
-            }
-
-            layout = makeLayout(opts.layoutOpts);
-            layout.run();
-          });
-        }
-
-        bgpLuLink = cy.filter('edge[group = "bgpLu"]');
-        //var bgpLuLink = cy.edges();
-        console.log('bgpLuLink');
-        console.log(bgpLuLink);
-
-        var bgpLuLinkVisibiliy = true
-
-        function makeButtonBgpLuLink(opts) {
-          var $buttonsBgpLuLink = h('button', {
-            'class': 'btn btn-default',
-            'title': "Toggle show BGP-LU Link-Tunnel"
-          }, [opts.label]);
-          $btnParam.appendChild($buttonsBgpLuLink);
-          $buttonsBgpLuLink.addEventListener('click', function () {
-            layout.stop();
-
-            if (bgpLuLinkVisibiliy) {
-              bgpLuLink.remove()
-              bgpLuLinkVisibiliy = false
-              console.log('bgpLuLinkVisibiliy: ' + bgpLuLinkVisibiliy);
-            } else {
-              bgpLuLink.restore()
-              bgpLuLinkVisibiliy = true
-              console.log('bgpLuLinkVisibiliy: ' + bgpLuLinkVisibiliy);
-            }
-          });
-        }
-
-        var makeTippy = function (elementEdgeNode, html) {
-          return tippy(elementEdgeNode.popperRef(), {
-            html: html,
-            trigger: 'manual',
-            arrow: 'Round',
-            placement: 'right-end',
-            hideOnClick: false,
-            interactive: true
-          }).tooltips[0];
-        };
-
-        var hideTippy = function (elementEdgeNode) {
-          var tippy = elementEdgeNode.data('tippy');
-          if (tippy != null) {
-            tippy.hide();
-          }
-        };
-
-
-        var hideAllTippies = function () {
-          cy.nodes().forEach(hideTippy);
-        };
-
-        var hideAllTippiesEdges = function () {
-          cy.edges().forEach(hideTippy);
-        };
-
-        cy.on('tap', function (e) {
-          if (e.target === cy) {
-            hideAllTippies();
-            hideAllTippiesEdges();
-          }
-        });
-
-        cy.on('tap', 'edge', function (e) {
-          hideAllTippies();
-        });
-
-        cy.on('zoom pan', function (e) {
-          hideAllTippies();
-        });
-
-        cy.nodes().forEach(function (n) {
-          var g = n.data('name');
-          // console.log(n)
-          // console.log(n.data('name'))
-          // console.log(n.jsons())
-          // console.log(n.data('ExtraData').MgmtIPv4Address)
-
-          var $links = [{
-              name: 'Open SSH Session',
-              url: serverUrl + '/cloudshell/?RouterID=' + n.data('ExtraData').MgmtIPv4Address
-            },
-            {
-              name: 'Node Kind: ' + n.data('ExtraData').Kind
-              // url: 'http://www.uniprot.org/uniprot/?query='+ g +'&fil=organism%3A%22Homo+sapiens+%28Human%29+%5B9606%5D%22&sort=score'
-            }
-          ].map(function (link) {
-            return h('a', {
-              target: '_blank',
-              href: link.url,
-              'class': 'tip-link'
-            }, [t(link.name)]);
-          });
-
-          var tippy = makeTippy(n, h('div', {}, $links));
-          n.data('tippy', tippy);
-          n.on('click', function (e) {
-            tippy.show();
-            cy.nodes().not(n).forEach(hideTippy);
-            cy.edges().not(n).forEach(hideTippy);
-
-          });
-        });
-
-        cy.edges().forEach(function (n) {
-          var g = n.data('name');
-          // console.log(n)
-          // console.log(n.data('name'))
-          // console.log(n.jsons())
-          // console.log(n.data('ExtraData').MgmtIPv4Address)
-
-          var linkDelay = "100"
-          var durationValue = "10"
-
-
-          var $links = [{
-              name: 'Add Link Latency',
-              url: 'clab-impairement://' + n.data('ExtraData').ClabServerUsername + '@' + location.host + '?' + n.data('ExtraData').SourceLongName + '?' 
-              + 'delay' + '?' + linkDelay + '?' + 'duration' + '?' + durationValue + '?' + n.data('ExtraData').Endpoints.SourceEndpoint
-            },
-            {
-              name: 'WireShark Capture Endpoint-A: ' + n.data('ExtraData').SourceLongName + '--' + n.data(
-                'ExtraData').Endpoints.SourceEndpoint,
-              url: 'clab-capture://' + n.data('ExtraData').ClabServerUsername + '@' + location.host + '?' + n
-                .data('ExtraData').SourceLongName + '?' + n.data('ExtraData').Endpoints.SourceEndpoint
-            },
-            {
-              name: 'WireShark Capture Endpoint-B: ' + n.data('ExtraData').TargetLongName + '--' + n.data(
-                'ExtraData').Endpoints.TargetEndpoint,
-              url: 'clab-capture://' + n.data('ExtraData').ClabServerUsername + '@' + location.host + '?' + n
-                .data('ExtraData').TargetLongName + '?' + n.data('ExtraData').Endpoints.TargetEndpoint
-            },
-            {
-              name: 'Link Type: ' + n.data('routerType'),
-              url: 'http://www.uniprot.org/uniprot/?query=' + g +
-                '&fil=organism%3A%22Homo+sapiens+%28Human%29+%5B9606%5D%22&sort=score'
-            }
-          ].map(function (link) {
-            return h('a', {
-              target: '_blank',
-              href: link.url,
-              'class': 'tip-link'
-            }, [t(link.name)]);
-          });
-
-          var tippy = makeTippy(n, h('div', {}, $links));
-          n.data('tippy', tippy);
-          n.on('click', function (e) {
-            tippy.show();
-            cy.edges().not(n).forEach(hideTippy);
-            cy.nodes().not(n).forEach(hideTippy);
-          });
-        });
-        $('#config-toggle').addEventListener('click', function () {
-          $('body').classList.toggle('config-closed');
-          cy.resize();
-        });
-      });
-  </script>
 
 
 </head>
 
+<style>
+body { 
+  font: 14px helvetica neue, helvetica, arial, sans-serif;
+}
+
+#edgeLength, #nodeSpacing {
+  width: 100%;
+}
+
+#cy {
+  position: absolute;
+  left: 0;
+  right: 20;
+  top: 4.5em;
+  bottom: 0;
+  right: 20em;
+}
+
+#logo {
+  top: 20px; 
+  left: 30px;
+  z-index: 9999;
+  position: absolute;
+}
+
+#settings {
+  /*top: 70px;*/
+  bottom: 0px; 
+  right: 10px; 
+  width: 270px; 
+  position: absolute;
+}
+
+.has-background-4a {
+  background-color: #275bd4;
+  z-index: 9999;
+}
+
+</style>
+
 <body>
+    <nav class="level m-0 py-4 px-5 has-background-4a">
+      <div class="level-left">
+        <div class="level-item">
+          <p class="title is-4 is-unselectable has-text-weight-light has-text-white">TopoViewer</p>
+        </div>
+      </div>
+      <div class="level-right">
+        <div class="level-item">
+          <div class="dropdown is-active is-right">
+            <div class="dropdown-trigger">
+              <button class="button is-small is-link is-light" aria-haspopup="true" aria-controls="dropdown-menu3">
+                <span>Settings</span>
+                <span class="icon is-small">
+                  <i class="fas fa-angle-down" aria-hidden="true"></i>
+                </span>
+              </button>
+            </div>
+            <div class="dropdown-menu" id="dropdown-menu" role="menu">
+              <div class="dropdown-content">
+                <div class="dropdown-item">
+                  <div class="field">
+                    <label class="label has-text-weight-normal is-small">Edge Length</label>
+                    <input id="edgeLength" type="range" min="1" max="400" step="1" value="100">
+                  </div>
+                </div>
+                <div class="dropdown-item">
+                  <div class="field">
+                    <label class="label has-text-weight-normal is-small">Node Spacing</label>
+                    <input id="nodeSpacing" type="range" min="1" max="400" step="1" value="100">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
   <div id="cy"></div>
-  <span class="fa fa-bars config-toggle" id="config-toggle"></span>
-  <div id="config" class="config">
-    <div class="preamble">
-      <span class="label label-info">Topology Viewer '{{.}}'</span>
-      <p>This is a prototype of a Network Topology Viewer that uses Cola.js for layout and Cytoscape.js for its graph
-        model and visualisation.
-        Use the controls below to alter the Cola.js layout parameters.</p>
-      <p>
-        Data by <a href="https://containerlab.dev/">Container Lab</a><br />
-        Visualisation by <a href="http://js.cytoscape.org">Cytoscape.js</a><br />
-        Layout by <a href="http://marvl.infotech.monash.edu/webcola/">Cola.js</a>
-      </p>
+    <div class="message is-hidden" id="settings">
+      <div class="message-header">
+        <p class="has-text-weight-semibold">Properties</p>
     </div>
   </div>
-</body>
+      <script type="text/javascript">
+        // settings object
+        let settings = document.getElementById("settings");
+        let options = document.getElementById("options");
+        
+        const close = document.querySelectorAll(".close");
+        close.forEach(e => e.addEventListener('click', event => {
+          var c = settings.className;
+          if(c.includes("is-hidden")) {
+            settings.className = "message";
+          } else {
+            settings.className = "message is-hidden";
+          }
+        }));
+        
+        // slider object
+        var edgeLength = document.getElementById("edgeLength");
+        var nodeSpacing = document.getElementById("nodeSpacing");
+        
+        // create html element
+        function ce(tag, attrs, children) {
+          var el = document.createElement(tag);
+          Object.keys(attrs).forEach(function(key){
+            var val = attrs[key];
+            el.setAttribute(key, val);
+          });
+          children.forEach(function(child){
+            el.appendChild(child);
+          });
+          return el;
+        };
+        
+        // create text node
+        function ctn(text) {
+          var el = document.createTextNode(text);
+          return el;
+        };
+        
+        // return node info on click
+        function nodeInfo(e) {
+          var shellUrl = location.protocol + "//" + location.host + "/cloudshell/?RouterID=";
+          var elements = [
+            {
+              name: "SSH Session",
+              url: shellUrl + e.data("ExtraData").MgmtIPv4Address
+            }
+          ].map(function(link) {
+            return ce("a", {target: "_blank", href: link.url, class: "button is-link is-small"}, [ctn(link.name)] );
+          });
+          return ce("div", {class: "has-text-right"}, elements);
+        }
+        
+        // return link info on click
+        function linkInfo(e) {
+          var elements = [
+            {
+              name: e.data("source") + "::" + e.data("endpoint").sourceEndpoint,
+              url: "clab-capture://" + e.data("ExtraData").ClabServerUsername + "@" + location.host + "?" + e.data("ExtraData").SourceLongName + "?" + e.data("ExtraData").Endpoints.SourceEndpoint
+            },
+            {
+              name: e.data("target") + "::" + e.data("endpoint").targetEndpoint,
+              url: "clab-capture://" + e.data("ExtraData").ClabServerUsername + "@" + location.host + "?" + e.data("ExtraData").TargetLongName + "?" + e.data("ExtraData").Endpoints.TargetEndpoint
+            }
+          ].map(function(link) {
+            return ce("a", {target: "_blank", href: link.url, class: "button is-link is-small"}, [ctn(link.name)] );
+          });
+        
+          var t1 = ce("label", {class: "label has-text-weight-semibold is-small"}, [ctn("Wireshark Endpoints")]);
+          var t2 = ce("div", {class: "buttons is-small"}, elements);
+          var t3 = ce("div", {class: "control"}, [t1, t2]);
+          var wireshark = ce("div", {class: "field"}, [t3]);
+        
+          t1 = ce("label", {class: "label has-text-weight-semibold is-small"}, [ctn("Link Impairment")]);
+          t2 = ce("input", {class: "input is-small", type: "number", placeholder: "Delay (ms)", id: "delay"}, []);
+          t3 = ce("div", {class: "control "}, [t2]);
+          var delay = ce("div", {class: "field"}, [t1, t3]);
+        
+          t1 = ce("input", {class: "input is-small", type: "number", placeholder: "Jitter (ms)", id: "jitter"}, []);
+          t2 = ce("div", {class: "control"}, [t1]);
+          var jitter = ce("div", {class: "field"}, [t2]);
+        
+          t1 = ce("input", {class: "input is-small", type: "number", placeholder: "Rate (Kbps)", id: "rate"}, []);
+          t2 = ce("div", {class: "control"}, [t1]);
+          var rate = ce("div", {class: "field"}, [t2]);
+        
+          t1 = ce("input", {class: "input is-small", type: "number", placeholder: "Loss (%)", id: "loss"}, []);
+          t2 = ce("div", {class: "control"}, [t1]);
+          var loss = ce("div", {class: "field"}, [t2]);
+        
+          t1 = ce("input", {class: "input is-small", type: "number", placeholder: "Duration (secs)", id: "duration"}, []);
+          t2 = ce("div", {class: "control"}, [t1]);
+          var duration = ce("div", {class: "field"}, [t2]);
+        
+          // update onclick tag
+          t1 = ce("a", {class: "button is-link is-small", onclick: ""}, [ctn("Submit")]);
+          t2 = ce("div", {class: "control has-text-right"}, [t1]);
+          var submit = ce("div", {class: "field"}, [t2]);
+        
+          return ce("div", {}, [wireshark, delay, jitter, rate, loss, duration, submit]);
+        }
+        
+        // remove last child
+        function removeLastChild() {
+          var lastChild = settings.lastChild;
+          if(lastChild.className == "message-body") {
+            settings.removeChild(lastChild);
+          }
+        }
+        
+        // proceed to main only if two files exist
+        Promise.all([
+          fetch("cy-style.json")
+            .then(function (res) {
+              return res.json();
+            }),
+          fetch("{{.}}")
+            .then(function (res) {
+              return res.json();
+            })
+        ])
+        .then(function(dataArray) {
+        // cy defintion
+          
+        // inital render random
+          // var cy = window.cy = cytoscape({
+          //  container: document.getElementById("cy"),
+          //  style: dataArray[0],
+          //  elements: dataArray[1],
+          //  layout: { name: "random" }
 
+       // inital render with cola
+          var cy = window.cy = cytoscape({
+            container: document.getElementById("cy"),
+            style: dataArray[0],
+            elements: dataArray[1],
+            layout: { 
+            name: 'cola',
+            nodeSpacing: 5,
+            nodeSpacingAsad: 10,
+            edgeLengthVal: 45,
+            animate: true,
+            randomize: false,
+            maxSimulationTime: 1500}            
+          });
+          
+          // slider change event
+          var slider = function(e) {
+            var layout = cy.layout({
+              fit: true,
+              name: "cola",
+              animate: true, 
+              randomize: false, 
+              maxSimulationTime: 1500,
+              edgeLength: function(e) {
+                return edgeLength.value / e.data("weight"); 
+              },
+              nodeSpacing: nodeSpacing.value
+            });
+            layout.run();
+          }
+        
+          var addSliderEvent = function(e) {
+            e.addEventListener("input", slider);
+            e.addEventListener("change", slider);
+          }
+          addSliderEvent(edgeLength);
+          addSliderEvent(nodeSpacing);
+             
+          var tt1 = ce("b", {}, [ctn("Node: ")]);  
+          var tname = ce("p", {}, [tt1,tt1 ]);
+          var tt2 = ce("b", {}, [ctn("Kind: ")]);
+          var tkind = ce("p", {}, [tt2, tt2]);
+
+
+          var tslider =  bulmaSlider.attach();
+
+          var tseperator = ce("hr", {class: "my-3 has-background-grey-lighter"}, []);
+          var tpanel = ce("div", {}, [tname, tkind, tseperator]);
+          var tmessageBody = ce("div", {class: "message-body"}, [tpanel])
+          settings.appendChild(tmessageBody);
+          settings.className = "message is-small is-link";
+          
+          // trigger info panel on node click
+          cy.nodes().forEach(function(node) {
+            node.on("click", function(e) {
+              removeLastChild();
+              var t1 = ce("b", {}, [ctn("Node: ")]);  
+              var name = ce("p", {}, [t1, ctn(node.data("name"))]);
+              var t2 = ce("b", {}, [ctn("Kind: ")]);
+              var kind = ce("p", {}, [t2, ctn(node.data("ExtraData").Kind)]);
+              var seperator = ce("hr", {class: "my-3 has-background-grey-lighter"}, []);
+              var addon = ce("div", {}, [nodeInfo(node)]);
+              var panel = ce("div", {}, [name, kind, seperator, addon]);
+              var messageBody = ce("div", {class: "message-body"}, [panel])
+              settings.appendChild(messageBody);
+              settings.className = "message is-small is-link";
+            });
+          });
+        
+          // trigger info panel on edge or link click
+          cy.edges().forEach(function(edge) {
+            edge.on("click", function(e) {
+              removeLastChild();
+              var t1 = ce("b", {}, [ctn("Link: ")]);  
+              var name = ce("p", {}, [t1, ctn(edge.data("name"))]);
+              var seperator = ce("hr", {class: "my-3 has-background-grey-lighter"}, []);
+              var addon = ce("div", {}, [linkInfo(edge)]);
+              var panel = ce("div", {}, [name, seperator, addon]);
+              var messageBody = ce("div", {class: "message-body"}, [panel])
+              settings.appendChild(messageBody);
+              settings.className = "message is-small is-link";
+            });
+          });
+        
+          // remove info panel on node or edge unselect
+          cy.on("tap", function(e) {
+            if(e.target === cy ){
+              settings.className = "message is-hidden";
+              removeLastChild();
+            }
+          });
+        });
+      </script>
+  </body>
 </html>

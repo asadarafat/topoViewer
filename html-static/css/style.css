@@ -1,147 +1,30 @@
-
-html {
-  width: 100%;
-  height: 100%;
+body { 
+  font: 14px helvetica neue, helvetica, arial, sans-serif;
 }
 
-body {
-  font: 12px helvetica neue, helvetica, arial, sans-serif;
+#edgeLength, #nodeSpacing {
   width: 100%;
-  height: 100%;
-  overflow: hidden;
 }
 
 #cy {
+  height: 100vh;
+}
+
+#logo {
+  top: 25px; 
+  left: 30px;
+  z-index: 9999;
   position: absolute;
-  left: 0;
-  right: 20;
-  top: 0;
-  bottom: 0;
-  right: 20em;
 }
 
-.config {
+#settings {
+  /*top: 70px;*/
+  bottom: 0px; 
+  right: 25px; 
+  width: 300px; 
   position: absolute;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  width: 20em;
-  background: #FAFAFA;
-  box-sizing: border-box;
-  padding: 1em;
-  color: #494949;
-  transition-property: opacity;
-  transition-duration: 250ms;
-  transition-timing-function: ease-out;
-  overflow: auto;
-  z-index: 1;
-
 }
 
-.param {
-  margin-bottom: 1em;
-}
-
-.preamble {
-  margin-bottom: 2em;
-}
-
-p {
-  margin: 0.5em 0;
-  font-size: 0.8em;
-}
-
-.param button {
-  width: 3em;
-  margin-right: 0.25em;
-  text-align: center;
-}
-
-a,
-a:hover {
-  color: rgb(18, 65, 145);
-}
-a:visited {
-  color: rgb(18, 65, 145);
-}
-
-.label {
-  display: block;
-
-}
-
-.slider {
-  -webkit-appearance: none;
-  width: 100%;
-  height: 8px;
-  border-radius: 5px;  
-  background: #d3d3d3;
-  outline: none;
-  opacity: 1;
-  -webkit-transition: .2s;
-  transition: opacity .2s;
-}
-
-.slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 15px;
-  height: 15px;
-  border-radius: 50%; 
-  background: #124191;
-  cursor: pointer;
-}
-
-.slider::-moz-range-thumb {
-  width: 15px;
-  height: 15px;
-  border-radius: 50%;
-  background: #124191;
-  cursor: pointer;
-}
-
-.config-toggle {
-  position: absolute;
-  right: 0.1em;
-  top: 0;
-  bottom: 0;
-  padding: 0.5em;
-  margin: 0.1em;
-  cursor: pointer;
-  color: #494949;
-  z-index: 9999999;
-}
-
-.config-closed .config {
-  opacity: 0;
-  pointer-events: none;
-}
-
-.config-closed #cy {
-  right: 0;
-}
-
-.tip-link {
-  display: grid;
-  color: #fafafa; 
-  text-align: left;
-  text-decoration: none;
-}
-.tip-link:hover {
-  display: block;
-  color:  lightskyblue; 
-}
-.tip-link:visited {
-  display: block;
-  color: #fafafa; 
-}
-.tip-link:visited:hover {
-  display: block;
-  color: lightskyblue; 
-}
-
-@media (max-width: 600px){
-  #cy {
-    right: 0;
-  }
+.has-background-4a {
+  background-color: #4A4A4A;
 }

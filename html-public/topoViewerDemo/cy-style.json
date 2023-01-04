@@ -8,10 +8,10 @@
 }, {
   "selector": "node",
   "style": {
-    "width": "5",
-    "height": "5",
+    "width": "10",
+    "height": "10",
     "content": "data(name)",
-    "font-size": "2px",
+    "font-size": "4px",
     "text-valign": "bottom",
     "text-halign": "center",
     "background-color": "#8F96AC",
@@ -21,15 +21,16 @@
     "overlay-padding": "0.3px",
     "z-index": "10"
   }
-}, {
+},
+{
   "selector": "node[?attr]",
   "style": {
     "shape": "rectangle",
     "background-color": "#aaa",
     "text-outline-color": "#aaa",
-    "width": "5px",
-    "height": "5x",
-    "font-size": "6px",
+    "width": "10px",
+    "height": "10x",
+    "font-size": "8px",
     "z-index": "1"
   }
 }, {
@@ -41,7 +42,7 @@
 }, {
   "selector": "node:selected",
   "style": {
-    "border-width": "1px",
+    "border-width": "1.5px",
     "border-color": "#F2F2F2",
     "border-opacity": "0.5",
     "background-color": "#77828C",
@@ -54,8 +55,8 @@
     "arrow-scale": "0.5",
     "curve-style": "bezier",
     "opacity": "0.5",
-    "line-color": "#61A80A",
-    "width": "2",
+    "line-color": "#B1BCC8",
+    "width": "1.5",
     "overlay-padding": "2px"
   }
 }, {

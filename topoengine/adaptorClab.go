@@ -101,6 +101,7 @@ func (cyTopo *CytoTopology) UnmarshalContainerLabTopo(ClabTopoJson) []byte {
 		cytoJson.Selectable = true
 		cytoJson.Data.ID = strconv.Itoa(i)
 		cytoJson.Data.Weight = "1"
+		cytoJson.Data.Name = l.A.Node.ShortName + "::" + l.A.EndpointName + "<-->" + l.B.Node.ShortName + "::" + l.B.EndpointName
 		cytoJson.Data.Source = l.A.Node.ShortName
 		cytoJson.Data.Endpoint.SourceEndpoint = l.A.EndpointName
 		cytoJson.Data.Target = l.B.Node.ShortName
@@ -113,6 +114,7 @@ func (cyTopo *CytoTopology) UnmarshalContainerLabTopo(ClabTopoJson) []byte {
 			"selectable":         true,
 			"ID":                 strconv.Itoa(i),
 			"weight":             "1",
+			"Name":               l.A.Node.ShortName + "::" + l.A.EndpointName + "<-->" + l.B.Node.ShortName + "::" + l.B.EndpointName,
 			"SourceLongName":     l.A.Node.LongName,
 			"TargetLongName":     l.B.Node.LongName,
 			"Endpoints": struct {
