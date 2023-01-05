@@ -164,3 +164,8 @@ vscode ➜ /workspaces/topoViewer/dist/topoViewer (development ✗) $ pwd
 /workspaces/topoViewer/dist/topoViewer
 vscode ➜ /workspaces/topoViewer/dist/topoViewer (development ✗) $ ./topoviewer clab -t ../../rawTopoFile/topo-topoViewerDemo.yaml 
 ```
+
+Running inside dist folder
+```Shell
+vscode ➜ /workspaces/topoViewer/dist (development ✗) $ ./topoviewer clab -t clab-topoDemo/topo-topoViewerDemo.yaml  
+```
