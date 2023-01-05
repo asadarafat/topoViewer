@@ -16,5 +16,6 @@ cp -r tools/clab-client-windows dist/clab-client-windows
 echo "Copy html folder and assets..."
 mkdir dist/html-public
 cp -r html-static dist/html-static
+cp rawTopoFile/topo-topoViewerDemo.yaml dist/topo-topoViewerDemo.yaml
 
 echo "Distribution build done..."
