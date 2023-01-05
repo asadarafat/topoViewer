@@ -1,44 +1,6 @@
 [
   {
     "data": {
-      "id": "SROS-02",
-      "weight": "2",
-      "name": "SROS-02",
-      "parent": "",
-      "kind": "",
-      "endpoint": {
-        "sourceEndpoint": "",
-        "targetEndpoint": ""
-      },
-      "ExtraData": {
-        "ClabGroup": "1",
-        "ClabKind": "vr-sros",
-        "ClabNodeLongName": "clab-topoViewerDemo-SROS-02",
-        "ClabNodeName": "SROS-02",
-        "ClabServerUsername": "vscode",
-        "ID": "SROS-02",
-        "Image": "registry.srlinux.dev/pub/vr-sros:22.7.R1",
-        "MgmtIPv4Address": "20.20.20.102",
-        "MgmtIPv6Address": "",
-        "Name": "SROS-02",
-        "Weight": "2"
-      }
-    },
-    "position": {
-      "x": 0,
-      "y": 0
-    },
-    "removed": false,
-    "group": "nodes",
-    "selected": false,
-    "selectable": true,
-    "locked": false,
-    "grabbed": false,
-    "grabbable": true,
-    "classes": ""
-  },
-  {
-    "data": {
       "id": "SROS-03",
       "weight": "2",
       "name": "SROS-03",
@@ -229,6 +191,44 @@
   },
   {
     "data": {
+      "id": "SROS-02",
+      "weight": "2",
+      "name": "SROS-02",
+      "parent": "",
+      "kind": "",
+      "endpoint": {
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "ExtraData": {
+        "ClabGroup": "1",
+        "ClabKind": "vr-sros",
+        "ClabNodeLongName": "clab-topoViewerDemo-SROS-02",
+        "ClabNodeName": "SROS-02",
+        "ClabServerUsername": "vscode",
+        "ID": "SROS-02",
+        "Image": "registry.srlinux.dev/pub/vr-sros:22.7.R1",
+        "MgmtIPv4Address": "20.20.20.102",
+        "MgmtIPv6Address": "",
+        "Name": "SROS-02",
+        "Weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
       "id": "0",
       "source": "SRL-01",
       "target": "SROS-01",
@@ -251,6 +251,90 @@
         "Name": "SRL-01::e1-1\u003c--\u003eSROS-01::eth1",
         "SourceLongName": "clab-topoViewerDemo-SRL-01",
         "TargetLongName": "clab-topoViewerDemo-SROS-01",
+        "grabbable": true,
+        "selectable": true,
+        "weight": "1"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "1",
+      "source": "SRL-01",
+      "target": "SROS-02",
+      "weight": "1",
+      "name": "SRL-01::e1-2\u003c--\u003eSROS-02::eth1",
+      "parent": "",
+      "kind": "",
+      "endpoint": {
+        "sourceEndpoint": "e1-2",
+        "targetEndpoint": "eth1"
+      },
+      "ExtraData": {
+        "ClabServerUsername": "vscode",
+        "Endpoints": {
+          "SourceEndpoint": "e1-2",
+          "TargetEndpoint": "eth1"
+        },
+        "ID": "1",
+        "Kind": "ClabLink",
+        "Name": "SRL-01::e1-2\u003c--\u003eSROS-02::eth1",
+        "SourceLongName": "clab-topoViewerDemo-SRL-01",
+        "TargetLongName": "clab-topoViewerDemo-SROS-02",
+        "grabbable": true,
+        "selectable": true,
+        "weight": "1"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "2",
+      "source": "SROS-01",
+      "target": "SROS-02",
+      "weight": "1",
+      "name": "SROS-01::eth2\u003c--\u003eSROS-02::eth2",
+      "parent": "",
+      "kind": "",
+      "endpoint": {
+        "sourceEndpoint": "eth2",
+        "targetEndpoint": "eth2"
+      },
+      "ExtraData": {
+        "ClabServerUsername": "vscode",
+        "Endpoints": {
+          "SourceEndpoint": "eth2",
+          "TargetEndpoint": "eth2"
+        },
+        "ID": "2",
+        "Kind": "ClabLink",
+        "Name": "SROS-01::eth2\u003c--\u003eSROS-02::eth2",
+        "SourceLongName": "clab-topoViewerDemo-SROS-01",
+        "TargetLongName": "clab-topoViewerDemo-SROS-02",
         "grabbable": true,
         "selectable": true,
         "weight": "1"
@@ -313,27 +397,69 @@
   },
   {
     "data": {
-      "id": "5",
-      "source": "SROS-02",
+      "id": "6",
+      "source": "SROS-03",
       "target": "SROS-04",
       "weight": "1",
-      "name": "SROS-02::eth5\u003c--\u003eSROS-04::eth5",
+      "name": "SROS-03::eth6\u003c--\u003eSROS-04::eth6",
       "parent": "",
       "kind": "",
       "endpoint": {
-        "sourceEndpoint": "eth5",
-        "targetEndpoint": "eth5"
+        "sourceEndpoint": "eth6",
+        "targetEndpoint": "eth6"
       },
       "ExtraData": {
         "ClabServerUsername": "vscode",
         "Endpoints": {
-          "SourceEndpoint": "eth5",
-          "TargetEndpoint": "eth5"
+          "SourceEndpoint": "eth6",
+          "TargetEndpoint": "eth6"
         },
-        "ID": "5",
+        "ID": "6",
         "Kind": "ClabLink",
-        "Name": "SROS-02::eth5\u003c--\u003eSROS-04::eth5",
-        "SourceLongName": "clab-topoViewerDemo-SROS-02",
+        "Name": "SROS-03::eth6\u003c--\u003eSROS-04::eth6",
+        "SourceLongName": "clab-topoViewerDemo-SROS-03",
+        "TargetLongName": "clab-topoViewerDemo-SROS-04",
+        "grabbable": true,
+        "selectable": true,
+        "weight": "1"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "7",
+      "source": "SROS-01",
+      "target": "SROS-04",
+      "weight": "1",
+      "name": "SROS-01::eth4\u003c--\u003eSROS-04::eth4",
+      "parent": "",
+      "kind": "",
+      "endpoint": {
+        "sourceEndpoint": "eth4",
+        "targetEndpoint": "eth4"
+      },
+      "ExtraData": {
+        "ClabServerUsername": "vscode",
+        "Endpoints": {
+          "SourceEndpoint": "eth4",
+          "TargetEndpoint": "eth4"
+        },
+        "ID": "7",
+        "Kind": "ClabLink",
+        "Name": "SROS-01::eth4\u003c--\u003eSROS-04::eth4",
+        "SourceLongName": "clab-topoViewerDemo-SROS-01",
         "TargetLongName": "clab-topoViewerDemo-SROS-04",
         "grabbable": true,
         "selectable": true,
@@ -439,90 +565,6 @@
   },
   {
     "data": {
-      "id": "1",
-      "source": "SRL-01",
-      "target": "SROS-02",
-      "weight": "1",
-      "name": "SRL-01::e1-2\u003c--\u003eSROS-02::eth1",
-      "parent": "",
-      "kind": "",
-      "endpoint": {
-        "sourceEndpoint": "e1-2",
-        "targetEndpoint": "eth1"
-      },
-      "ExtraData": {
-        "ClabServerUsername": "vscode",
-        "Endpoints": {
-          "SourceEndpoint": "e1-2",
-          "TargetEndpoint": "eth1"
-        },
-        "ID": "1",
-        "Kind": "ClabLink",
-        "Name": "SRL-01::e1-2\u003c--\u003eSROS-02::eth1",
-        "SourceLongName": "clab-topoViewerDemo-SRL-01",
-        "TargetLongName": "clab-topoViewerDemo-SROS-02",
-        "grabbable": true,
-        "selectable": true,
-        "weight": "1"
-      }
-    },
-    "position": {
-      "x": 0,
-      "y": 0
-    },
-    "removed": false,
-    "group": "edges",
-    "selected": false,
-    "selectable": true,
-    "locked": false,
-    "grabbed": false,
-    "grabbable": true,
-    "classes": ""
-  },
-  {
-    "data": {
-      "id": "2",
-      "source": "SROS-01",
-      "target": "SROS-02",
-      "weight": "1",
-      "name": "SROS-01::eth2\u003c--\u003eSROS-02::eth2",
-      "parent": "",
-      "kind": "",
-      "endpoint": {
-        "sourceEndpoint": "eth2",
-        "targetEndpoint": "eth2"
-      },
-      "ExtraData": {
-        "ClabServerUsername": "vscode",
-        "Endpoints": {
-          "SourceEndpoint": "eth2",
-          "TargetEndpoint": "eth2"
-        },
-        "ID": "2",
-        "Kind": "ClabLink",
-        "Name": "SROS-01::eth2\u003c--\u003eSROS-02::eth2",
-        "SourceLongName": "clab-topoViewerDemo-SROS-01",
-        "TargetLongName": "clab-topoViewerDemo-SROS-02",
-        "grabbable": true,
-        "selectable": true,
-        "weight": "1"
-      }
-    },
-    "position": {
-      "x": 0,
-      "y": 0
-    },
-    "removed": false,
-    "group": "edges",
-    "selected": false,
-    "selectable": true,
-    "locked": false,
-    "grabbed": false,
-    "grabbable": true,
-    "classes": ""
-  },
-  {
-    "data": {
       "id": "3",
       "source": "SROS-01",
       "target": "SROS-03",
@@ -565,69 +607,27 @@
   },
   {
     "data": {
-      "id": "6",
-      "source": "SROS-03",
+      "id": "5",
+      "source": "SROS-02",
       "target": "SROS-04",
       "weight": "1",
-      "name": "SROS-03::eth6\u003c--\u003eSROS-04::eth6",
+      "name": "SROS-02::eth5\u003c--\u003eSROS-04::eth5",
       "parent": "",
       "kind": "",
       "endpoint": {
-        "sourceEndpoint": "eth6",
-        "targetEndpoint": "eth6"
+        "sourceEndpoint": "eth5",
+        "targetEndpoint": "eth5"
       },
       "ExtraData": {
         "ClabServerUsername": "vscode",
         "Endpoints": {
-          "SourceEndpoint": "eth6",
-          "TargetEndpoint": "eth6"
+          "SourceEndpoint": "eth5",
+          "TargetEndpoint": "eth5"
         },
-        "ID": "6",
+        "ID": "5",
         "Kind": "ClabLink",
-        "Name": "SROS-03::eth6\u003c--\u003eSROS-04::eth6",
-        "SourceLongName": "clab-topoViewerDemo-SROS-03",
-        "TargetLongName": "clab-topoViewerDemo-SROS-04",
-        "grabbable": true,
-        "selectable": true,
-        "weight": "1"
-      }
-    },
-    "position": {
-      "x": 0,
-      "y": 0
-    },
-    "removed": false,
-    "group": "edges",
-    "selected": false,
-    "selectable": true,
-    "locked": false,
-    "grabbed": false,
-    "grabbable": true,
-    "classes": ""
-  },
-  {
-    "data": {
-      "id": "7",
-      "source": "SROS-01",
-      "target": "SROS-04",
-      "weight": "1",
-      "name": "SROS-01::eth4\u003c--\u003eSROS-04::eth4",
-      "parent": "",
-      "kind": "",
-      "endpoint": {
-        "sourceEndpoint": "eth4",
-        "targetEndpoint": "eth4"
-      },
-      "ExtraData": {
-        "ClabServerUsername": "vscode",
-        "Endpoints": {
-          "SourceEndpoint": "eth4",
-          "TargetEndpoint": "eth4"
-        },
-        "ID": "7",
-        "Kind": "ClabLink",
-        "Name": "SROS-01::eth4\u003c--\u003eSROS-04::eth4",
-        "SourceLongName": "clab-topoViewerDemo-SROS-01",
+        "Name": "SROS-02::eth5\u003c--\u003eSROS-04::eth5",
+        "SourceLongName": "clab-topoViewerDemo-SROS-02",
         "TargetLongName": "clab-topoViewerDemo-SROS-04",
         "grabbable": true,
         "selectable": true,

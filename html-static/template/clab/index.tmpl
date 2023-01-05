@@ -107,7 +107,7 @@ body {
     </nav>
   <div id="cy"></div>
     <div class="message is-hidden" id="settings">
-      <div class="message-header">
+      <div class="message-header" id=settingsHeader>
         <p class="has-text-weight-semibold">Properties</p>
     </div>
   </div>
@@ -279,34 +279,51 @@ body {
           addSliderEvent(edgeLength);
           addSliderEvent(nodeSpacing);
              
-          var tt1 = ce("b", {}, [ctn("Node: ")]);  
-          var tname = ce("p", {}, [tt1,tt1 ]);
-          var tt2 = ce("b", {}, [ctn("Kind: ")]);
-          var tkind = ce("p", {}, [tt2, tt2]);
+          var tt1 = ce("b", {}, [ctn("Welcome to TopoViewer.")]);
+          var tt2 = ce("p", {}, [ctn("Adjust topology physics in Settings.")]);  
+          var tt3 = ce("p", {}, [ctn("Click the node or link to see its properties.")]);  
+          var tt4 = ce("hr", {class: "my-10 has-background-grey-lighter"}, []);
+          var tt10 = ce("p", {}, [ctn("FrontEnd by Siva & BackEnd by Asad.")]);  
 
+          var tname = ce("p", {}, [tt1, tt2, tt3, tt4, tt10 ]);
 
-          var tslider =  bulmaSlider.attach();
-
-          var tseperator = ce("hr", {class: "my-3 has-background-grey-lighter"}, []);
-          var tpanel = ce("div", {}, [tname, tkind, tseperator]);
+          var tpanel = ce("div", {}, [tname]);
           var tmessageBody = ce("div", {class: "message-body"}, [tpanel])
+
+          var headerTitle = ce("p", {class: "my-7"}, [ctn("Message")]);
+          var messageHeader = ce("div", {class: "message-header"}, [headerTitle])
+          var oldSettingsHeader = document.getElementById("settingsHeader")
+          console.log(oldSettingsHeader)
+          settings.replaceChild(messageHeader, oldSettingsHeader);
+
           settings.appendChild(tmessageBody);
           settings.className = "message is-small is-link";
+          
+
           
           // trigger info panel on node click
           cy.nodes().forEach(function(node) {
             node.on("click", function(e) {
               removeLastChild();
+
+              var headerTitle = ce("p", {class: "my-7"}, [ctn("Node Properties")]);
+              var nodeMessageHeader = ce("div", {class: "message-header"}, [headerTitle]);
+              var oldSettingsHeader = settings.childNodes[1]
+              console.log(oldSettingsHeader)
+              settings.replaceChild(nodeMessageHeader, oldSettingsHeader);
+
               var t1 = ce("b", {}, [ctn("Node: ")]);  
               var name = ce("p", {}, [t1, ctn(node.data("name"))]);
               var t2 = ce("b", {}, [ctn("Kind: ")]);
-              var kind = ce("p", {}, [t2, ctn(node.data("ExtraData").Kind)]);
+              var kind = ce("p", {}, [t2, ctn(node.data("ExtraData").ClabKind)]);
               var seperator = ce("hr", {class: "my-3 has-background-grey-lighter"}, []);
               var addon = ce("div", {}, [nodeInfo(node)]);
               var panel = ce("div", {}, [name, kind, seperator, addon]);
               var messageBody = ce("div", {class: "message-body"}, [panel])
+
               settings.appendChild(messageBody);
               settings.className = "message is-small is-link";
+
             });
           });
         
@@ -314,6 +331,13 @@ body {
           cy.edges().forEach(function(edge) {
             edge.on("click", function(e) {
               removeLastChild();
+
+              var headerTitle = ce("p", {class: "my-7"}, [ctn("Link Properties")]);
+              var linkMessageHeader = ce("div", {class: "message-header"}, [headerTitle]);
+              var oldSettingsHeader = settings.childNodes[1]
+              console.log(oldSettingsHeader)
+              settings.replaceChild(linkMessageHeader, oldSettingsHeader);
+
               var t1 = ce("b", {}, [ctn("Link: ")]);  
               var name = ce("p", {}, [t1, ctn(edge.data("name"))]);
               var seperator = ce("hr", {class: "my-3 has-background-grey-lighter"}, []);
