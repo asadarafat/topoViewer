@@ -159,13 +159,11 @@ vscode ➜ /workspaces/topoViewer (development) $ GOOS=linux GOARCH=amd64 go bui
 
 ## Run TopoViewer Binary 
 Ensure to run binary file in the same directory with html folder
-```Shell
-vscode ➜ /workspaces/topoViewer/dist/topoViewer (development ✗) $ pwd
-/workspaces/topoViewer/dist/topoViewer
-vscode ➜ /workspaces/topoViewer/dist/topoViewer (development ✗) $ ./topoviewer clab -t ../../rawTopoFile/topo-topoViewerDemo.yaml 
-```
-
 Running inside dist folder
 ```Shell
-vscode ➜ /workspaces/topoViewer/dist (development ✗) $ ./topoviewer clab -t clab-topoDemo/topo-topoViewerDemo.yaml  
+vscode ➜ /workspaces/topoViewer/dist (development ✗) $ ./topoviewer clab -t topo-topoViewerDemo.yaml  
 ```
+
+ 1204   docker run --name topoviewer -idtp 8080:8080 -v "$(pwd)"/topo-file.yaml:/topo-file.yaml:ro \--entrypoint=/bin/bash topoviewer
+ 1205   docker exec -it topoviewer /bin/bash
+ 1206   docker exec -it topoviewer /opt/topoviewer/topoviewer clab -t /topo-file.yaml
