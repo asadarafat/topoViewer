@@ -5,7 +5,14 @@ WORKDIR ./opt/topoviewer
 
 # Download dist folder
 COPY ./dist /opt/topoviewer
-EXPOSE 8080
+
 USER root:root
+
+# Install ssh server
+RUN apt-get update \
+    && apt-get install -y openssh-server
+
+#expose port 
+EXPOSE 8080 22
 
 ENTRYPOINT [ "/opt/topoviewer" ]
