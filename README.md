@@ -2,7 +2,7 @@
 # Topoviewer
 This project is an attempt to provide network visualization tool based on topology data as input.
 There are three sections of codes in this project.
-- TopoEngine, which provides the ability to convert a topology file(at the moment Container Lab) into a cytoscape graph model. The graph model can be visualized using https://js.cytoscape.org after it has been translated.
+- TopoEngine, which provides the ability to convert a topology data(at the moment Container Lab) into a cytoscape graph model. The graph model can be visualized using https://js.cytoscape.org after it has been translated.
 - CloudshellWrapper is a wrapper for https://github.com/zephinzer/cloudshell (which provides an Xterm.js frontend that connects to a Go backend to provide the host system with a shell). Basically, use a browser to access your shell.) When CloudshellWrapper is running on the same host as containerlab, the node of containerlab may be accessed via a browser.
 - Container Lab client, which provides a wrapper to easily cross launch Wireshark to do remote capture of Container-Lab's link.
 
@@ -23,7 +23,7 @@ after extracting under topoViewer folder you will get the following html-public 
     .
     ├── clab
     │   ├── license.txt
-    │   └── topo-topoViewerDemo.yml
+    │   └── topo-topoViewerDemo.yaml
     └── topoViewer
         ├── html-public
         ├── html-static
@@ -32,12 +32,12 @@ after extracting under topoViewer folder you will get the following html-public 
 
 ## Quick Run - cloudShell
 ### Pre-requisite
-- Ensure the containerLab is running, the ``topo-topoViewerDemo.yml `` can be found [here](https://github.com/asadarafat/topoViewer/blob/development/rawTopoFile/topo-topoViewerDemo.yml "here")
+- Ensure the containerLab is running, the ``topo-topoViewerDemo.yaml `` can be found [here](https://github.com/asadarafat/topoViewer/blob/development/rawTopoFile/topo-topoViewerDemo.yaml "here")
     ```Shell
     [corla@nsp-kvm-host-antwerp ~]$ cd clab/
-    [corla@nsp-kvm-host-antwerp clab]$ sudo clab deploy --topo topo-topoViewerDemo.yml 
+    [corla@nsp-kvm-host-antwerp clab]$ sudo clab deploy --topo topo-topoViewerDemo.yaml 
     INFO[0000] Containerlab v0.31.1 started                 
-    INFO[0000] Parsing & checking topology file: topo-topoViewerDemo.yml 
+    INFO[0000] Parsing & checking topology file: topo-topoViewerDemo.yaml 
     INFO[0000] Creating lab directory: /home/corla/clab/clab-topoViewerDemo 
     INFO[0000] Creating docker network: Name="clab", IPv4Subnet="20.20.20.0/24", IPv6Subnet="", MTU="1500" 
     INFO[0000] Creating container: "SROS-01"                
@@ -74,7 +74,7 @@ after extracting under topoViewer folder you will get the following html-public 
 - Ensure the topoViewer running in the same host as containerLab.
     ```Shell
     [corla@nsp-kvm-host-antwerp clab]$ cd ../topoViewer/
-    [corla@nsp-kvm-host-antwerp topoViewer]$ ./topoviewer -H 138.203.40.63 -p 8080 -t ../clab/topo-topoViewerDemo.yaml
+    [corla@nsp-kvm-host-antwerp topoViewer]$ ./topoviewer clab -H 138.203.40.63 -p 8080 -t ../clab/topo-topoViewerDemo.yaml
     ```
 
  - At this point the topoViewer and containerLab are running in the same server.
@@ -83,7 +83,7 @@ in this example the url would be ``http://138.203.40.63:8080/``. To open cloudSh
 
 ## Quick Run - Wireshark capture
 TopoViewer has a remote capture feature that allows it to intercept containerLab's node endPoint - provided that topoViewer is running on the same server as containerLab's node.
-The feature relies on the client-side application to run tcpdump remotely and pipe it to the client wireshark.
+The feature relies on the client-side application to run tcpdump remotely and pipe it to the client's Wireshark.
 
 ### Pre-requisite
 - Ensure the topoViewer running in the same host as containerLab.
@@ -142,8 +142,14 @@ vscode ➜ /workspaces/topoViewer (development) $ go run topoengine/cmd/main.go
 vscode ➜ /workspaces/topoViewer (development) $ pwd
 /workspaces/topoViewer
 vscode ➜ /workspaces/topoViewer (development) $ go run cloudshellwrapper/cmd/main.go --help
-vscode ➜ /workspaces/topoViewer (development) $ go run cloudshellwrapper/cmd/main.go -t rawTopoFile/clab-topo-file.yaml 
+vscode ➜ /workspaces/topoViewer (development) $ go run cloudshellwrapper/cmd/main.go clab -t rawTopoFile/clab-topo-file.yaml 
 ```
+
+
+```Shell
+vscode ➜ /workspaces/topoViewer (development ✗) $ go run cloudshellwrapper/cmd/main.go nsp  --topology-ietf-l2-topo  rawTopoFile/topo-ietf-L2.json --topology-ietf-l3-topo rawTopoFile/topo-ietf-L3-TopologyId-1\:65000\:1-isis.json --multi-layer enabled
+```
+
 
 ## Build TopoViewer Binary - Linux
 build linux amd64 binary
@@ -153,10 +159,11 @@ vscode ➜ /workspaces/topoViewer (development) $ GOOS=linux GOARCH=amd64 go bui
 
 ## Run TopoViewer Binary 
 Ensure to run binary file in the same directory with html folder
+Running inside dist folder
 ```Shell
-vscode ➜ /workspaces/topoViewer/dist/topoViewer (development ✗) $ pwd
-/workspaces/topoViewer/dist/topoViewer
-vscode ➜ /workspaces/topoViewer/dist/topoViewer (development ✗) $ ./topoviewer -t /../rawTopoFile/topo-topoViewerDemo.yaml 
+vscode ➜ /workspaces/topoViewer/dist (development ✗) $ ./topoviewer clab -t topo-topoViewerDemo.yaml  
 ```
 
-
+ 1204   docker run --name topoviewer -idtp 8080:8080 -v "$(pwd)"/topo-file.yaml:/topo-file.yaml:ro \--entrypoint=/bin/bash topoviewer
+ 1205   docker exec -it topoviewer /bin/bash
+ 1206   docker exec -it topoviewer /opt/topoviewer/topoviewer clab -t /topo-file.yaml
