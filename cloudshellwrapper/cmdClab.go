@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/asadarafat/topoViewer/tools"
 	"github.com/asadarafat/topoViewer/topoengine"
 	"github.com/asadarafat/topoViewer/xtermjs"
 	"github.com/usvc/go-config"
@@ -119,15 +120,22 @@ func Clab(_ *cobra.Command, _ []string) error {
 
 	// tranform clab-topo-file into cytoscape-model
 	topoClab := confClab.GetString("topology-file")
+
 	log.Info("topoFilePath: ", topoClab)
 
 	cyTopo := topoengine.CytoTopology{}
 	cyTopo.LogLevel = 4
 	cyTopo.InitLogger()
-	cyTopo.MarshalContainerLabTopo(topoClab)
-	clabTopoJson := topoengine.ClabTopoJson{}
-	cyTopo.UnmarshalContainerLabTopo(clabTopoJson)
-	jsonBytes := cyTopo.UnmarshalContainerLabTopo(clabTopoJson)
+
+	// cyTopo.MarshalContainerLabTopo(topoClab)
+	// ClabTopoStruct := topoengine.ClabTopoStruct{}
+	// cyTopo.UnmarshalContainerLabTopo(ClabTopoStruct)
+	// jsonBytes := cyTopo.UnmarshalContainerLabTopo(ClabTopoStruct)
+	// cyTopo.PrintjsonBytesCytoUi(jsonBytes)
+
+	cyTopo.MarshalContainerLabTopov2(topoClab)
+	ClabTopoStruct := topoengine.ClabTopoStruct{}
+	jsonBytes := cyTopo.UnmarshalContainerLabTopov2(ClabTopoStruct)
 	cyTopo.PrintjsonBytesCytoUi(jsonBytes)
 
 	command := confClab.GetString("command")
@@ -247,10 +255,17 @@ func Clab(_ *cobra.Command, _ []string) error {
 
 	//create html-public files
 	htmlPublicPrefixPath := "./html-public/"
+	htmlStaticPrefixPath := "./html-static/"
 	htmlTemplatePath := "./html-static/template/clab/"
 
 	// os.Mkdir(htmlPublicPrefixPath+cyTopo.ClabTopoData.ClabTopoName, 0755) // already created in cytoscapemodel library
 	os.Mkdir(htmlPublicPrefixPath+cyTopo.ClabTopoData.ClabTopoName+"/cloudshell", 0755)
+	os.Mkdir(htmlPublicPrefixPath+cyTopo.ClabTopoData.ClabTopoName+"/clab-client", 0755)
+
+	log.Info(htmlStaticPrefixPath + cyTopo.ClabTopoData.ClabTopoName + "/clab-client/mac-clab-client-wireshark.zip")
+	tools.CopyFile(htmlStaticPrefixPath+"/clab-client/mac-clab-client-wireshark.zip", htmlPublicPrefixPath+cyTopo.ClabTopoData.ClabTopoName+"/clab-client/mac-clab-client-wireshark.zip")
+	tools.CopyFile(htmlStaticPrefixPath+"/clab-client/windows-clab-client-wireshark.zip", htmlPublicPrefixPath+cyTopo.ClabTopoData.ClabTopoName+"/clab-client/windows-clab-client-wireshark.zip")
+
 	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "index.tmpl", cyTopo.ClabTopoData.ClabTopoName+"/"+"index.html", "dataCytoMarshall-"+cyTopo.ClabTopoData.ClabTopoName+".json")
 	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "cy-style.tmpl", cyTopo.ClabTopoData.ClabTopoName+"/"+"cy-style.json", "")
 	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "cloudshell-index.tmpl", cyTopo.ClabTopoData.ClabTopoName+"/cloudshell/"+"index.html", "")

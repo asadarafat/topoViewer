@@ -12,20 +12,29 @@ type ClabTopo struct {
 	ClabNodes      map[string]nodes.Node            `json:"clabNodes"`           // from clab Package needed to read topo file and write topo file
 	NodeDefinition map[string]*types.NodeDefinition `yaml:"clabNodesDefinition"` // from clab Package needed to read topo file and write topo file
 	ClabLinks      map[int]*types.Link              `json:"clabLinks"`           // from clab Package needed to read topo file and write topo file
+	NodesList      []ClabNode                       `json:"nodes,omitempty"`
+	LinksList      ClabLink                         `json:"links,omitempty"`
 }
 
 // Containerlab Json Struct
-type ClabTopoJson struct {
-	Name  string                  `json:"name"`
-	Nodes map[string]ClabNodeJson `json:"nodes,omitempty"`
-	Links map[int]ClabLinkJson    `json:"links,omitempty"`
+type ClabTopoStruct struct {
+	Name      string              `json:"name"`
+	Nodes     map[string]ClabNode `json:"nodes,omitempty"`
+	ClabLinks map[int]ClabLink    `json:"links,omitempty"`
 }
-type ClabNodeJson struct {
+type ClabNode struct {
 	types.ContainerDetails
-	Vars map[string]interface{} `json:"vars,omitempty"`
+	Data map[string]interface{} `json:"vars,omitempty"`
 }
 
-type ClabLinkJson struct {
+type ClabLink struct {
 	clab.Link
-	Vars map[string]interface{} `json:"vars,omitempty"`
+	Endpoints []Endpoint `yaml:"endpoints"`
+}
+
+type Endpoint struct {
+	Source         string `json:"source,omitempty"`
+	SourceEndpoint string `json:"source_endpoint,omitempty"`
+	Target         string `json:"target,omitempty"`
+	TargetEndpoint string `json:"target_endpoint,omitempty"`
 }

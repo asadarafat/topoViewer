@@ -99,6 +99,11 @@ body {
                     <input id="nodeSpacing" type="range" min="1" max="400" step="1" value="100">
                   </div>
                 </div>
+                <div class="dropdown-item">
+                  <div class="field">
+                    <a id="clabClient" href="#" class="dropdown-item label has-text-weight-normal is-small"> Clab Client Download</a>                  
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -286,7 +291,6 @@ body {
           var tt10 = ce("p", {}, [ctn("FrontEnd by Siva & BackEnd by Asad.")]);  
 
           var tname = ce("p", {}, [tt1, tt2, tt3, tt4, tt10 ]);
-
           var tpanel = ce("div", {}, [tname]);
           var tmessageBody = ce("div", {class: "message-body"}, [tpanel])
 
@@ -299,8 +303,12 @@ body {
           settings.appendChild(tmessageBody);
           settings.className = "message is-small is-link";
           
+           
+        
+          var clabClient = document.getElementById("clabClient")
+          clabClient.href = "clab-client";
 
-          
+
           // trigger info panel on node click
           cy.nodes().forEach(function(node) {
             node.on("click", function(e) {

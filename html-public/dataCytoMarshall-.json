@@ -1,0 +1,641 @@
+[
+  {
+    "data": {
+      "id": "sros-04",
+      "weight": "2",
+      "name": "vr-sros",
+      "parent": "",
+      "kind": "sros-04",
+      "endpoint": {
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "ExtraData": {
+        "Binds": null,
+        "Image": "registry.srlinux.dev/pub/vr-sros:22.7.R1",
+        "Kind": "vr-sros",
+        "Name": "sros-04"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "topoviewer",
+      "weight": "2",
+      "name": "linux",
+      "parent": "",
+      "kind": "topoviewer",
+      "endpoint": {
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "ExtraData": {
+        "Binds": [
+          "/home/suuser/clab/topo-file.yaml:/opt/local-bind/topo-file.yaml:rw"
+        ],
+        "Image": "ghcr.io/asadarafat/topoviewer:development",
+        "Kind": "linux",
+        "Name": "topoviewer"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "sros-03",
+      "weight": "2",
+      "name": "vr-sros",
+      "parent": "",
+      "kind": "sros-03",
+      "endpoint": {
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "ExtraData": {
+        "Binds": null,
+        "Image": "registry.srlinux.dev/pub/vr-sros:22.7.R1",
+        "Kind": "vr-sros",
+        "Name": "sros-03"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "sros-02",
+      "weight": "2",
+      "name": "vr-sros",
+      "parent": "",
+      "kind": "sros-02",
+      "endpoint": {
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "ExtraData": {
+        "Binds": null,
+        "Image": "registry.srlinux.dev/pub/vr-sros:22.7.R1",
+        "Kind": "vr-sros",
+        "Name": "sros-02"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "sros-01",
+      "weight": "2",
+      "name": "vr-sros",
+      "parent": "",
+      "kind": "sros-01",
+      "endpoint": {
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "ExtraData": {
+        "Binds": null,
+        "Image": "registry.srlinux.dev/pub/vr-sros:22.7.R1",
+        "Kind": "vr-sros",
+        "Name": "sros-01"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "srl-01",
+      "weight": "2",
+      "name": "srl",
+      "parent": "",
+      "kind": "srl-01",
+      "endpoint": {
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "ExtraData": {
+        "Binds": null,
+        "Image": "ghcr.io/nokia/srlinux",
+        "Kind": "srl",
+        "Name": "srl-01"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "srl-02",
+      "weight": "2",
+      "name": "srl",
+      "parent": "",
+      "kind": "srl-02",
+      "endpoint": {
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "ExtraData": {
+        "Binds": null,
+        "Image": "ghcr.io/nokia/srlinux",
+        "Kind": "srl",
+        "Name": "srl-02"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "0",
+      "source": "srl-01",
+      "target": "sros-01",
+      "weight": "1",
+      "name": "srl-01::e1-1 \u003c--\u003e sros-01::eth1",
+      "parent": "",
+      "kind": "srl-02",
+      "endpoint": {
+        "sourceEndpoint": "e1-1",
+        "targetEndpoint": "eth1"
+      },
+      "ExtraData": {
+        "ClabServerUsername": "vscode",
+        "Endpoints": {
+          "SourceEndpoint": "e1-1",
+          "TargetEndpoint": "eth1"
+        },
+        "ID": "0",
+        "Kind": "ClabLink",
+        "Name": "srl-01::e1-1 \u003c--\u003e sros-01::eth1",
+        "SourceLongName": "srl-01",
+        "TargetLongName": "sros-01",
+        "grabbable": true,
+        "selectable": true,
+        "weight": "1"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "1",
+      "source": "srl-01",
+      "target": "sros-02",
+      "weight": "1",
+      "name": "srl-01::e1-2 \u003c--\u003e sros-02::eth1",
+      "parent": "",
+      "kind": "srl-02",
+      "endpoint": {
+        "sourceEndpoint": "e1-2",
+        "targetEndpoint": "eth1"
+      },
+      "ExtraData": {
+        "ClabServerUsername": "vscode",
+        "Endpoints": {
+          "SourceEndpoint": "e1-2",
+          "TargetEndpoint": "eth1"
+        },
+        "ID": "1",
+        "Kind": "ClabLink",
+        "Name": "srl-01::e1-2 \u003c--\u003e sros-02::eth1",
+        "SourceLongName": "srl-01",
+        "TargetLongName": "sros-02",
+        "grabbable": true,
+        "selectable": true,
+        "weight": "1"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "2",
+      "source": "sros-01",
+      "target": "sros-02",
+      "weight": "1",
+      "name": "sros-01::eth2 \u003c--\u003e sros-02::eth2",
+      "parent": "",
+      "kind": "srl-02",
+      "endpoint": {
+        "sourceEndpoint": "eth2",
+        "targetEndpoint": "eth2"
+      },
+      "ExtraData": {
+        "ClabServerUsername": "vscode",
+        "Endpoints": {
+          "SourceEndpoint": "eth2",
+          "TargetEndpoint": "eth2"
+        },
+        "ID": "2",
+        "Kind": "ClabLink",
+        "Name": "sros-01::eth2 \u003c--\u003e sros-02::eth2",
+        "SourceLongName": "sros-01",
+        "TargetLongName": "sros-02",
+        "grabbable": true,
+        "selectable": true,
+        "weight": "1"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "3",
+      "source": "sros-01",
+      "target": "sros-03",
+      "weight": "1",
+      "name": "sros-01::eth3 \u003c--\u003e sros-03::eth3",
+      "parent": "",
+      "kind": "srl-02",
+      "endpoint": {
+        "sourceEndpoint": "eth3",
+        "targetEndpoint": "eth3"
+      },
+      "ExtraData": {
+        "ClabServerUsername": "vscode",
+        "Endpoints": {
+          "SourceEndpoint": "eth3",
+          "TargetEndpoint": "eth3"
+        },
+        "ID": "3",
+        "Kind": "ClabLink",
+        "Name": "sros-01::eth3 \u003c--\u003e sros-03::eth3",
+        "SourceLongName": "sros-01",
+        "TargetLongName": "sros-03",
+        "grabbable": true,
+        "selectable": true,
+        "weight": "1"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "4",
+      "source": "sros-02",
+      "target": "sros-03",
+      "weight": "1",
+      "name": "sros-02::eth4 \u003c--\u003e sros-03::eth4",
+      "parent": "",
+      "kind": "srl-02",
+      "endpoint": {
+        "sourceEndpoint": "eth4",
+        "targetEndpoint": "eth4"
+      },
+      "ExtraData": {
+        "ClabServerUsername": "vscode",
+        "Endpoints": {
+          "SourceEndpoint": "eth4",
+          "TargetEndpoint": "eth4"
+        },
+        "ID": "4",
+        "Kind": "ClabLink",
+        "Name": "sros-02::eth4 \u003c--\u003e sros-03::eth4",
+        "SourceLongName": "sros-02",
+        "TargetLongName": "sros-03",
+        "grabbable": true,
+        "selectable": true,
+        "weight": "1"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "5",
+      "source": "sros-02",
+      "target": "sros-04",
+      "weight": "1",
+      "name": "sros-02::eth5 \u003c--\u003e sros-04::eth5",
+      "parent": "",
+      "kind": "srl-02",
+      "endpoint": {
+        "sourceEndpoint": "eth5",
+        "targetEndpoint": "eth5"
+      },
+      "ExtraData": {
+        "ClabServerUsername": "vscode",
+        "Endpoints": {
+          "SourceEndpoint": "eth5",
+          "TargetEndpoint": "eth5"
+        },
+        "ID": "5",
+        "Kind": "ClabLink",
+        "Name": "sros-02::eth5 \u003c--\u003e sros-04::eth5",
+        "SourceLongName": "sros-02",
+        "TargetLongName": "sros-04",
+        "grabbable": true,
+        "selectable": true,
+        "weight": "1"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "6",
+      "source": "sros-03",
+      "target": "sros-04",
+      "weight": "1",
+      "name": "sros-03::eth6 \u003c--\u003e sros-04::eth6",
+      "parent": "",
+      "kind": "srl-02",
+      "endpoint": {
+        "sourceEndpoint": "eth6",
+        "targetEndpoint": "eth6"
+      },
+      "ExtraData": {
+        "ClabServerUsername": "vscode",
+        "Endpoints": {
+          "SourceEndpoint": "eth6",
+          "TargetEndpoint": "eth6"
+        },
+        "ID": "6",
+        "Kind": "ClabLink",
+        "Name": "sros-03::eth6 \u003c--\u003e sros-04::eth6",
+        "SourceLongName": "sros-03",
+        "TargetLongName": "sros-04",
+        "grabbable": true,
+        "selectable": true,
+        "weight": "1"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "7",
+      "source": "sros-01",
+      "target": "sros-04",
+      "weight": "1",
+      "name": "sros-01::eth4 \u003c--\u003e sros-04::eth4",
+      "parent": "",
+      "kind": "srl-02",
+      "endpoint": {
+        "sourceEndpoint": "eth4",
+        "targetEndpoint": "eth4"
+      },
+      "ExtraData": {
+        "ClabServerUsername": "vscode",
+        "Endpoints": {
+          "SourceEndpoint": "eth4",
+          "TargetEndpoint": "eth4"
+        },
+        "ID": "7",
+        "Kind": "ClabLink",
+        "Name": "sros-01::eth4 \u003c--\u003e sros-04::eth4",
+        "SourceLongName": "sros-01",
+        "TargetLongName": "sros-04",
+        "grabbable": true,
+        "selectable": true,
+        "weight": "1"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "8",
+      "source": "sros-03",
+      "target": "srl-02",
+      "weight": "1",
+      "name": "sros-03::eth1 \u003c--\u003e srl-02::e1-3",
+      "parent": "",
+      "kind": "srl-02",
+      "endpoint": {
+        "sourceEndpoint": "eth1",
+        "targetEndpoint": "e1-3"
+      },
+      "ExtraData": {
+        "ClabServerUsername": "vscode",
+        "Endpoints": {
+          "SourceEndpoint": "eth1",
+          "TargetEndpoint": "e1-3"
+        },
+        "ID": "8",
+        "Kind": "ClabLink",
+        "Name": "sros-03::eth1 \u003c--\u003e srl-02::e1-3",
+        "SourceLongName": "sros-03",
+        "TargetLongName": "srl-02",
+        "grabbable": true,
+        "selectable": true,
+        "weight": "1"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "9",
+      "source": "sros-04",
+      "target": "srl-02",
+      "weight": "1",
+      "name": "sros-04::eth2 \u003c--\u003e srl-02::e1-4",
+      "parent": "",
+      "kind": "srl-02",
+      "endpoint": {
+        "sourceEndpoint": "eth2",
+        "targetEndpoint": "e1-4"
+      },
+      "ExtraData": {
+        "ClabServerUsername": "vscode",
+        "Endpoints": {
+          "SourceEndpoint": "eth2",
+          "TargetEndpoint": "e1-4"
+        },
+        "ID": "9",
+        "Kind": "ClabLink",
+        "Name": "sros-04::eth2 \u003c--\u003e srl-02::e1-4",
+        "SourceLongName": "sros-04",
+        "TargetLongName": "srl-02",
+        "grabbable": true,
+        "selectable": true,
+        "weight": "1"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  }
+]
