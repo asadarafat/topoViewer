@@ -97,21 +97,20 @@ func (cyTopo *CytoTopology) MarshalContainerLabTopov2(topoFile string) error {
 
 	// build nodes Nodes(with attributes))List based on nodesNames
 	for _, nodeName := range nodesNames {
-		for k, i := range viper.AllKeys() {
-			log.Infof("Nokdes Names : '%s'", nodeName)
-			log.Infof("viper key    : '%s'", viper.AllKeys()[k])
-			log.Infof("viper value  : '%s'", viper.Get(i))
+		for _, i := range viper.AllKeys() {
+			// log.Infof("Nokdes Names : '%s'", nodeName)
+			// log.Infof("viper key    : '%s'", viper.AllKeys()[k])
+			// log.Infof("viper value  : '%s'", viper.Get(i))
 			fmt.Println(i, viper.Get(i))
 			clabNodeData.Data = map[string]interface{}{
-				"Name":  nodeName,
-				"Image": viper.Get("topology.nodes." + nodeName + ".image"),
-				"Kind":  viper.Get("topology.nodes." + nodeName + ".kind"),
-				"Binds": viper.Get("topology.nodes." + nodeName + ".binds"),
+				"Name":     nodeName,
+				"Image":    viper.Get("topology.nodes." + nodeName + ".image"),
+				"ClabKind": viper.Get("topology.nodes." + nodeName + ".kind"),
+				"Binds":    viper.Get("topology.nodes." + nodeName + ".binds"),
 			}
 		}
 		NodesList = append(NodesList, clabNodeData)
 	}
-	log.Infof("NodesList    : '%s'", NodesList)
 	cyTopo.ClabTopoData.NodesList = NodesList
 	log.Infof("cyTopo.ClabTopoData.NodesList    : '%s'", cyTopo.ClabTopoData.NodesList)
 
@@ -177,10 +176,10 @@ func (cyTopo *CytoTopology) UnmarshalContainerLabTopov2(ClabTopoStruct) []byte {
 		cytoJson.Grabbable = true
 		cytoJson.Selectable = true
 		cytoJson.Data.ID = n.Data["Name"].(string)
-		cytoJson.Data.Kind = n.Data["Name"].(string)
+		cytoJson.Data.Name = n.Data["Name"].(string) // get the Node name by accessing direct via Interface
+		cytoJson.Data.Kind = n.Data["ClabKind"].(string)
 		cytoJson.Data.Weight = "2"
-		cytoJson.Data.Kind = n.Data["Kind"].(string) // get the Node name by accessing direct via Interface
-		cytoJson.Data.ExtraData = n.Data             // copy all attribute of clab n.Data to cyto ExtraData
+		cytoJson.Data.ExtraData = n.Data // copy all attribute of clab n.Data to cyto ExtraData
 		cytoJsonArray = append(cytoJsonArray, cytoJson)
 	}
 
@@ -307,43 +306,43 @@ func (cyTopo *CytoTopology) UnmarshalContainerLabTopo(ClabTopoStruct) []byte {
 		cytoJsonArray = append(cytoJsonArray, cytoJson)
 	}
 
-	// for i, n := range cyTopo.ClabTopoData.NodeDefinition {
+	for i, n := range cyTopo.ClabTopoData.NodeDefinition {
 
-	// 	cytoJson.Group = "nodes"
-	// 	cytoJson.Grabbable = true
-	// 	cytoJson.Selectable = true
-	// 	cytoJson.Data.ID = string(i)
-	// 	cytoJson.Data.Weight = "2"
+		cytoJson.Group = "nodes"
+		cytoJson.Grabbable = true
+		cytoJson.Selectable = true
+		cytoJson.Data.ID = string(i)
+		cytoJson.Data.Weight = "2"
 
-	// 	cytoJson.Data.Name = n.Type
+		cytoJson.Data.Name = n.Type
 
-	// 	// log.Info(n.Config().ShortName)
+		// log.Info(n.Config().ShortName)
 
-	// 	cytoJson.Data.ExtraData = map[string]interface{}{
-	// 		// "eggs": struct {
-	// 		// 	source string
-	// 		// 	price  float64
-	// 		// }{"chicken", 1.75},
-	// 		"ClabServerUsername": Username,
-	// 		"ClabNodeName":       n.Type,
-	// 		// "ClabNodeLongName":   n.Config().LongName,
-	// 		"ID":              string(i),
-	// 		"Weight":          "2",
-	// 		"Name":            n.Type,
-	// 		"ClabKind":        n.Kind,
-	// 		"Image":           n.Image,
-	// 		"ClabGroup":       n.Group,
-	// 		"MgmtIPv4Address": n.MgmtIPv4,
-	// 		"MgmtIPv6Address": n.MgmtIPv6,
-	// 		"Binds":           n.Binds,
-	// 		"Exec":            n.Exec,
-	// 		"Publish":         n.Publish,
-	// 		"Port":            n.Ports,
-	// 		"Entrypoint":      n.Entrypoint,
-	// 		"DockerUser":      n.User,
-	// 	}
-	// 	cytoJsonArray = append(cytoJsonArray, cytoJson)
-	// }
+		cytoJson.Data.ExtraData = map[string]interface{}{
+			// "eggs": struct {
+			// 	source string
+			// 	price  float64
+			// }{"chicken", 1.75},
+			"ClabServerUsername": Username,
+			"ClabNodeName":       n.Type,
+			// "ClabNodeLongName":   n.Config().LongName,
+			"ID":              string(i),
+			"Weight":          "2",
+			"Name":            n.Type,
+			"ClabKind":        n.Kind,
+			"Image":           n.Image,
+			"ClabGroup":       n.Group,
+			"MgmtIPv4Address": n.MgmtIPv4,
+			"MgmtIPv6Address": n.MgmtIPv6,
+			"Binds":           n.Binds,
+			"Exec":            n.Exec,
+			"Publish":         n.Publish,
+			"Port":            n.Ports,
+			"Entrypoint":      n.Entrypoint,
+			"DockerUser":      n.User,
+		}
+		cytoJsonArray = append(cytoJsonArray, cytoJson)
+	}
 
 	for i, l := range cyTopo.ClabTopoData.ClabLinks {
 

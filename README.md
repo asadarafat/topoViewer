@@ -163,6 +163,14 @@ Running inside dist folder
 ```Shell
 vscode ➜ /workspaces/topoViewer/dist (development ✗) $ ./topoviewer clab -t topo-topoViewerDemo.yaml  
 ```
+
+## Create Distribution Folder
+```Shell
+vscode ➜ /workspaces/topoViewer (development ✗) $ ./tools/dist.sh 
+Cleanup dist folder...
+Build Linux Binary...
+```
+
 docker build -t topoviewer .
 docker run --name topoviewer -idtp 8080:8080 -v "$(pwd)"/topo-file.yaml:/opt/topoviewer/topo-file.yaml:ro \--entrypoint=/bin/bash ghcr.io/asadarafat/topoviewer:development
 docker exec -it topoviewer /bin/bash
