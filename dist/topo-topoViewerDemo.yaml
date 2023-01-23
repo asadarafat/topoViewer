@@ -5,6 +5,18 @@ mgmt:
   
 topology:
   nodes:
+    topoviewer:
+      kind: linux
+      mgmt_ipv4: 20.20.20.21
+      image: ghcr.io/asadarafat/topoviewer:development
+      entrypoint: /bin/bash
+      user: root
+      ports:
+        - 8080:8080
+      exec:
+        - /opt/topoviewer/topoviewer clab -t opt/local-bind/topo-file.yaml
+      binds:
+        - /home/suuser/clab/topo-file.yaml:/opt/local-bind/topo-file.yaml:rw
     SRL-01:
       kind: srl
       mgmt_ipv4: 20.20.20.201
