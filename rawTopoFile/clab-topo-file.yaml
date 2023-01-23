@@ -19,6 +19,8 @@ topology:
         - 8080:8080
       exec:
         - /opt/topoviewer/topoviewer clab -t opt/local-bind/topo-file.yaml
+
+      ## set the topology
       binds:
         - /home/suuser/clab/topo-file.yaml:/opt/local-bind/topo-file.yaml:rw
       

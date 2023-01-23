@@ -32,9 +32,9 @@
   },
   {
     "data": {
-      "id": "sros-03",
+      "id": "sros-01",
       "weight": "2",
-      "name": "sros-03",
+      "name": "sros-01",
       "parent": "",
       "kind": "vr-sros",
       "endpoint": {
@@ -45,38 +45,7 @@
         "Binds": null,
         "ClabKind": "vr-sros",
         "Image": "registry.srlinux.dev/pub/vr-sros:22.7.R1",
-        "Name": "sros-03"
-      }
-    },
-    "position": {
-      "x": 0,
-      "y": 0
-    },
-    "removed": false,
-    "group": "nodes",
-    "selected": false,
-    "selectable": true,
-    "locked": false,
-    "grabbed": false,
-    "grabbable": true,
-    "classes": ""
-  },
-  {
-    "data": {
-      "id": "sros-04",
-      "weight": "2",
-      "name": "sros-04",
-      "parent": "",
-      "kind": "vr-sros",
-      "endpoint": {
-        "sourceEndpoint": "",
-        "targetEndpoint": ""
-      },
-      "ExtraData": {
-        "Binds": null,
-        "ClabKind": "vr-sros",
-        "Image": "registry.srlinux.dev/pub/vr-sros:22.7.R1",
-        "Name": "sros-04"
+        "Name": "sros-01"
       }
     },
     "position": {
@@ -158,9 +127,9 @@
   },
   {
     "data": {
-      "id": "sros-01",
+      "id": "sros-03",
       "weight": "2",
-      "name": "sros-01",
+      "name": "sros-03",
       "parent": "",
       "kind": "vr-sros",
       "endpoint": {
@@ -171,7 +140,38 @@
         "Binds": null,
         "ClabKind": "vr-sros",
         "Image": "registry.srlinux.dev/pub/vr-sros:22.7.R1",
-        "Name": "sros-01"
+        "Name": "sros-03"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "sros-04",
+      "weight": "2",
+      "name": "sros-04",
+      "parent": "",
+      "kind": "vr-sros",
+      "endpoint": {
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "ExtraData": {
+        "Binds": null,
+        "ClabKind": "vr-sros",
+        "Image": "registry.srlinux.dev/pub/vr-sros:22.7.R1",
+        "Name": "sros-04"
       }
     },
     "position": {
