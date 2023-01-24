@@ -76325,3 +76325,729 @@ time=2023-01-24T09:05:52Z level=info msg=jsonBytesCytoUi Result:[
     "classes": ""
   }
 ]
+time=2023-01-24T12:05:45Z level=info msg=fullFilePathSplit  : '[ workspaces topoViewer rawTopoFile clab-topo-file.yaml]'
+time=2023-01-24T12:05:45Z level=info msg=ConfigFileName  : 'clab-topo-file.yaml'
+time=2023-01-24T12:05:45Z level=info msg=viper All keys    : '[mgmt.ipv4_subnet topology.nodes.sros-02.group topology.nodes.sros-02.image name topology.nodes.topoviewer.entrypoint topology.nodes.topoviewer.ports topology.nodes.sros-03.license topology.nodes.sros-03.mgmt_ipv4 topology.nodes.sros-03.group topology.nodes.sros-04.mgmt_ipv4 topology.nodes.sros-04.license topology.nodes.topoviewer.exec topology.nodes.topoviewer.binds topology.nodes.sros-01.image topology.nodes.sros-01.type topology.nodes.sros-02.license topology.nodes.sros-03.type topology.nodes.topoviewer.kind topology.nodes.srl-02.mgmt_ipv4 topology.nodes.sros-01.license topology.nodes.sros-01.kind topology.nodes.sros-04.kind topology.nodes.topoviewer.mgmt_ipv4 topology.nodes.topoviewer.user topology.nodes.srl-01.image topology.nodes.srl-02.image topology.nodes.sros-01.group topology.nodes.sros-02.mgmt_ipv4 topology.nodes.sros-03.image topology.nodes.sros-04.type topology.nodes.srl-01.mgmt_ipv4 topology.nodes.srl-02.kind topology.links topology.nodes.sros-01.mgmt_ipv4 topology.nodes.sros-02.kind topology.nodes.sros-04.group topology.nodes.topoviewer.image topology.nodes.sros-02.type topology.nodes.srl-01.kind topology.nodes.sros-03.kind topology.nodes.sros-04.image]'
+time=2023-01-24T12:05:45Z level=info msg=viper keys    : 'license.txt'
+time=2023-01-24T12:05:45Z level=info msg=viper keys    : 'registry.srlinux.dev/pub/vr-sros:22.7.R1'
+time=2023-01-24T12:05:45Z level=info msg=viper keys    : '[8080:8080]'
+time=2023-01-24T12:05:45Z level=info msg=viper keys    : '[/home/suuser/clab/topo-file.yaml:/opt/local-bind/topo-file.yaml:rw]'
+time=2023-01-24T12:05:45Z level=info msg=viper keys    : 'vr-sros'
+time=2023-01-24T12:05:45Z level=info msg=viper keys    : '1'
+time=2023-01-24T12:05:45Z level=info msg=viper keys    : '1'
+time=2023-01-24T12:05:45Z level=info msg=viper keys    : '20.20.20.104'
+time=2023-01-24T12:05:45Z level=info msg=viper keys    : '[/opt/topoviewer/topoviewer clab -t opt/local-bind/topo-file.yaml]'
+time=2023-01-24T12:05:45Z level=info msg=viper keys    : '1'
+time=2023-01-24T12:05:45Z level=info msg=viper keys    : '20.20.20.21'
+time=2023-01-24T12:05:45Z level=info msg=viper keys    : 'ghcr.io/asadarafat/topoviewer:development'
+time=2023-01-24T12:05:45Z level=info msg=viper keys    : 'registry.srlinux.dev/pub/vr-sros:22.7.R1'
+time=2023-01-24T12:05:45Z level=info msg=viper keys    : 'license.txt'
+time=2023-01-24T12:05:45Z level=info msg=viper keys    : 'srl'
+time=2023-01-24T12:05:45Z level=info msg=viper keys    : 'vr-sros'
+time=2023-01-24T12:05:45Z level=info msg=viper keys    : '1'
+time=2023-01-24T12:05:45Z level=info msg=viper keys    : 'cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28'
+time=2023-01-24T12:05:45Z level=info msg=viper keys    : '20.20.20.103'
+time=2023-01-24T12:05:45Z level=info msg=viper keys    : 'cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28'
+time=2023-01-24T12:05:45Z level=info msg=viper keys    : 'ghcr.io/nokia/srlinux'
+time=2023-01-24T12:05:45Z level=info msg=viper keys    : 'license.txt'
+time=2023-01-24T12:05:45Z level=info msg=viper keys    : '20.20.20.102'
+time=2023-01-24T12:05:45Z level=info msg=viper keys    : 'registry.srlinux.dev/pub/vr-sros:22.7.R1'
+time=2023-01-24T12:05:45Z level=info msg=viper keys    : 'linux'
+time=2023-01-24T12:05:45Z level=info msg=viper keys    : '/bin/bash'
+time=2023-01-24T12:05:45Z level=info msg=viper keys    : 'root'
+time=2023-01-24T12:05:45Z level=info msg=viper keys    : 'srl'
+time=2023-01-24T12:05:45Z level=info msg=viper keys    : '20.20.20.202'
+time=2023-01-24T12:05:45Z level=info msg=viper keys    : 'registry.srlinux.dev/pub/vr-sros:22.7.R1'
+time=2023-01-24T12:05:45Z level=info msg=viper keys    : 'cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28'
+time=2023-01-24T12:05:45Z level=info msg=viper keys    : 'license.txt'
+time=2023-01-24T12:05:45Z level=info msg=viper keys    : 'vr-sros'
+time=2023-01-24T12:05:45Z level=info msg=viper keys    : '20.20.20.201'
+time=2023-01-24T12:05:45Z level=info msg=viper keys    : 'ghcr.io/nokia/srlinux'
+time=2023-01-24T12:05:45Z level=info msg=viper keys    : 'cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28'
+time=2023-01-24T12:05:45Z level=info msg=viper keys    : 'vr-sros'
+time=2023-01-24T12:05:45Z level=info msg=viper keys    : '20.20.20.101'
+time=2023-01-24T12:05:45Z level=info msg=All Nodes Name    : '[sros-04 topoviewer sros-03 sros-01 sros-02 srl-02 srl-01]'
+time=2023-01-24T12:05:45Z level=info msg=cyTopo.ClabTopoData.NodesList    : '[{{         } map[Binds:<nil> ClabKind:vr-sros Image:registry.srlinux.dev/pub/vr-sros:22.7.R1 Name:sros-04]} {{         } map[Binds:[/home/suuser/clab/topo-file.yaml:/opt/local-bind/topo-file.yaml:rw] ClabKind:linux Image:ghcr.io/asadarafat/topoviewer:development Name:topoviewer]} {{         } map[Binds:<nil> ClabKind:vr-sros Image:registry.srlinux.dev/pub/vr-sros:22.7.R1 Name:sros-03]} {{         } map[Binds:<nil> ClabKind:vr-sros Image:registry.srlinux.dev/pub/vr-sros:22.7.R1 Name:sros-01]} {{         } map[Binds:<nil> ClabKind:vr-sros Image:registry.srlinux.dev/pub/vr-sros:22.7.R1 Name:sros-02]} {{         } map[Binds:<nil> ClabKind:srl Image:ghcr.io/nokia/srlinux Name:srl-02]} {{         } map[Binds:<nil> ClabKind:srl Image:ghcr.io/nokia/srlinux Name:srl-01]}]'
+time=2023-01-24T12:05:45Z level=info msg=####endpoint.Source   : 'srl-01'
+time=2023-01-24T12:05:45Z level=info msg=####endpoint.SourceEndpoint   : 'e1-1'
+time=2023-01-24T12:05:45Z level=info msg=####endpoint.Target   : 'sros-01'
+time=2023-01-24T12:05:45Z level=info msg=####endpoint.TargetEndpoint   : 'eth1'
+time=2023-01-24T12:05:45Z level=info msg=####endpoint.Source   : 'srl-01'
+time=2023-01-24T12:05:45Z level=info msg=####endpoint.SourceEndpoint   : 'e1-2'
+time=2023-01-24T12:05:45Z level=info msg=####endpoint.Target   : 'sros-02'
+time=2023-01-24T12:05:45Z level=info msg=####endpoint.TargetEndpoint   : 'eth1'
+time=2023-01-24T12:05:45Z level=info msg=####endpoint.Source   : 'sros-01'
+time=2023-01-24T12:05:45Z level=info msg=####endpoint.SourceEndpoint   : 'eth2'
+time=2023-01-24T12:05:45Z level=info msg=####endpoint.Target   : 'sros-02'
+time=2023-01-24T12:05:45Z level=info msg=####endpoint.TargetEndpoint   : 'eth2'
+time=2023-01-24T12:05:45Z level=info msg=####endpoint.Source   : 'sros-01'
+time=2023-01-24T12:05:45Z level=info msg=####endpoint.SourceEndpoint   : 'eth3'
+time=2023-01-24T12:05:45Z level=info msg=####endpoint.Target   : 'sros-03'
+time=2023-01-24T12:05:45Z level=info msg=####endpoint.TargetEndpoint   : 'eth3'
+time=2023-01-24T12:05:45Z level=info msg=####endpoint.Source   : 'sros-02'
+time=2023-01-24T12:05:45Z level=info msg=####endpoint.SourceEndpoint   : 'eth4'
+time=2023-01-24T12:05:45Z level=info msg=####endpoint.Target   : 'sros-03'
+time=2023-01-24T12:05:45Z level=info msg=####endpoint.TargetEndpoint   : 'eth4'
+time=2023-01-24T12:05:45Z level=info msg=####endpoint.Source   : 'sros-02'
+time=2023-01-24T12:05:45Z level=info msg=####endpoint.SourceEndpoint   : 'eth5'
+time=2023-01-24T12:05:45Z level=info msg=####endpoint.Target   : 'sros-04'
+time=2023-01-24T12:05:45Z level=info msg=####endpoint.TargetEndpoint   : 'eth5'
+time=2023-01-24T12:05:45Z level=info msg=####endpoint.Source   : 'sros-03'
+time=2023-01-24T12:05:45Z level=info msg=####endpoint.SourceEndpoint   : 'eth6'
+time=2023-01-24T12:05:45Z level=info msg=####endpoint.Target   : 'sros-04'
+time=2023-01-24T12:05:45Z level=info msg=####endpoint.TargetEndpoint   : 'eth6'
+time=2023-01-24T12:05:45Z level=info msg=####endpoint.Source   : 'sros-01'
+time=2023-01-24T12:05:45Z level=info msg=####endpoint.SourceEndpoint   : 'eth4'
+time=2023-01-24T12:05:45Z level=info msg=####endpoint.Target   : 'sros-04'
+time=2023-01-24T12:05:45Z level=info msg=####endpoint.TargetEndpoint   : 'eth4'
+time=2023-01-24T12:05:45Z level=info msg=####endpoint.Source   : 'sros-03'
+time=2023-01-24T12:05:45Z level=info msg=####endpoint.SourceEndpoint   : 'eth1'
+time=2023-01-24T12:05:45Z level=info msg=####endpoint.Target   : 'srl-02'
+time=2023-01-24T12:05:45Z level=info msg=####endpoint.TargetEndpoint   : 'e1-3'
+time=2023-01-24T12:05:45Z level=info msg=####endpoint.Source   : 'sros-04'
+time=2023-01-24T12:05:45Z level=info msg=####endpoint.SourceEndpoint   : 'eth2'
+time=2023-01-24T12:05:45Z level=info msg=####endpoint.Target   : 'srl-02'
+time=2023-01-24T12:05:45Z level=info msg=####endpoint.TargetEndpoint   : 'e1-4'
+time=2023-01-24T12:05:45Z level=info msg=cyTopo.ClabTopoData.LinksList    : '{{   } [{srl-01 e1-1 sros-01 eth1} {srl-01 e1-2 sros-02 eth1} {sros-01 eth2 sros-02 eth2} {sros-01 eth3 sros-03 eth3} {sros-02 eth4 sros-03 eth4} {sros-02 eth5 sros-04 eth5} {sros-03 eth6 sros-04 eth6} {sros-01 eth4 sros-04 eth4} {sros-03 eth1 srl-02 e1-3} {sros-04 eth2 srl-02 e1-4}]}'
+time=2023-01-24T12:05:45Z level=info msg=cyTopo.ClabTopoData.ClabTopoName    : 'topoViewerDemo'
+time=2023-01-24T12:05:45Z level=info msg=jsonBytesCytoUi Result:[
+  {
+    "data": {
+      "id": "sros-04",
+      "weight": "2",
+      "name": "sros-04",
+      "parent": "",
+      "kind": "vr-sros",
+      "endpoint": {
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "ExtraData": {
+        "Binds": null,
+        "ClabKind": "vr-sros",
+        "Image": "registry.srlinux.dev/pub/vr-sros:22.7.R1",
+        "Name": "sros-04"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "topoviewer",
+      "weight": "2",
+      "name": "topoviewer",
+      "parent": "",
+      "kind": "linux",
+      "endpoint": {
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "ExtraData": {
+        "Binds": [
+          "/home/suuser/clab/topo-file.yaml:/opt/local-bind/topo-file.yaml:rw"
+        ],
+        "ClabKind": "linux",
+        "Image": "ghcr.io/asadarafat/topoviewer:development",
+        "Name": "topoviewer"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "sros-03",
+      "weight": "2",
+      "name": "sros-03",
+      "parent": "",
+      "kind": "vr-sros",
+      "endpoint": {
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "ExtraData": {
+        "Binds": null,
+        "ClabKind": "vr-sros",
+        "Image": "registry.srlinux.dev/pub/vr-sros:22.7.R1",
+        "Name": "sros-03"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "sros-01",
+      "weight": "2",
+      "name": "sros-01",
+      "parent": "",
+      "kind": "vr-sros",
+      "endpoint": {
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "ExtraData": {
+        "Binds": null,
+        "ClabKind": "vr-sros",
+        "Image": "registry.srlinux.dev/pub/vr-sros:22.7.R1",
+        "Name": "sros-01"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "sros-02",
+      "weight": "2",
+      "name": "sros-02",
+      "parent": "",
+      "kind": "vr-sros",
+      "endpoint": {
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "ExtraData": {
+        "Binds": null,
+        "ClabKind": "vr-sros",
+        "Image": "registry.srlinux.dev/pub/vr-sros:22.7.R1",
+        "Name": "sros-02"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "srl-02",
+      "weight": "2",
+      "name": "srl-02",
+      "parent": "",
+      "kind": "srl",
+      "endpoint": {
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "ExtraData": {
+        "Binds": null,
+        "ClabKind": "srl",
+        "Image": "ghcr.io/nokia/srlinux",
+        "Name": "srl-02"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "srl-01",
+      "weight": "2",
+      "name": "srl-01",
+      "parent": "",
+      "kind": "srl",
+      "endpoint": {
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "ExtraData": {
+        "Binds": null,
+        "ClabKind": "srl",
+        "Image": "ghcr.io/nokia/srlinux",
+        "Name": "srl-01"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "0",
+      "source": "srl-01",
+      "target": "sros-01",
+      "weight": "1",
+      "name": "srl-01::e1-1 \u003c--\u003e sros-01::eth1",
+      "parent": "",
+      "kind": "srl",
+      "endpoint": {
+        "sourceEndpoint": "e1-1",
+        "targetEndpoint": "eth1"
+      },
+      "ExtraData": {
+        "ClabServerUsername": "vscode",
+        "Endpoints": {
+          "SourceEndpoint": "e1-1",
+          "TargetEndpoint": "eth1"
+        },
+        "ID": "0",
+        "Kind": "ClabLink",
+        "Name": "srl-01::e1-1 \u003c--\u003e sros-01::eth1",
+        "SourceLongName": "srl-01",
+        "TargetLongName": "sros-01",
+        "grabbable": true,
+        "selectable": true,
+        "weight": "1"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "1",
+      "source": "srl-01",
+      "target": "sros-02",
+      "weight": "1",
+      "name": "srl-01::e1-2 \u003c--\u003e sros-02::eth1",
+      "parent": "",
+      "kind": "srl",
+      "endpoint": {
+        "sourceEndpoint": "e1-2",
+        "targetEndpoint": "eth1"
+      },
+      "ExtraData": {
+        "ClabServerUsername": "vscode",
+        "Endpoints": {
+          "SourceEndpoint": "e1-2",
+          "TargetEndpoint": "eth1"
+        },
+        "ID": "1",
+        "Kind": "ClabLink",
+        "Name": "srl-01::e1-2 \u003c--\u003e sros-02::eth1",
+        "SourceLongName": "srl-01",
+        "TargetLongName": "sros-02",
+        "grabbable": true,
+        "selectable": true,
+        "weight": "1"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "2",
+      "source": "sros-01",
+      "target": "sros-02",
+      "weight": "1",
+      "name": "sros-01::eth2 \u003c--\u003e sros-02::eth2",
+      "parent": "",
+      "kind": "srl",
+      "endpoint": {
+        "sourceEndpoint": "eth2",
+        "targetEndpoint": "eth2"
+      },
+      "ExtraData": {
+        "ClabServerUsername": "vscode",
+        "Endpoints": {
+          "SourceEndpoint": "eth2",
+          "TargetEndpoint": "eth2"
+        },
+        "ID": "2",
+        "Kind": "ClabLink",
+        "Name": "sros-01::eth2 \u003c--\u003e sros-02::eth2",
+        "SourceLongName": "sros-01",
+        "TargetLongName": "sros-02",
+        "grabbable": true,
+        "selectable": true,
+        "weight": "1"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "3",
+      "source": "sros-01",
+      "target": "sros-03",
+      "weight": "1",
+      "name": "sros-01::eth3 \u003c--\u003e sros-03::eth3",
+      "parent": "",
+      "kind": "srl",
+      "endpoint": {
+        "sourceEndpoint": "eth3",
+        "targetEndpoint": "eth3"
+      },
+      "ExtraData": {
+        "ClabServerUsername": "vscode",
+        "Endpoints": {
+          "SourceEndpoint": "eth3",
+          "TargetEndpoint": "eth3"
+        },
+        "ID": "3",
+        "Kind": "ClabLink",
+        "Name": "sros-01::eth3 \u003c--\u003e sros-03::eth3",
+        "SourceLongName": "sros-01",
+        "TargetLongName": "sros-03",
+        "grabbable": true,
+        "selectable": true,
+        "weight": "1"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "4",
+      "source": "sros-02",
+      "target": "sros-03",
+      "weight": "1",
+      "name": "sros-02::eth4 \u003c--\u003e sros-03::eth4",
+      "parent": "",
+      "kind": "srl",
+      "endpoint": {
+        "sourceEndpoint": "eth4",
+        "targetEndpoint": "eth4"
+      },
+      "ExtraData": {
+        "ClabServerUsername": "vscode",
+        "Endpoints": {
+          "SourceEndpoint": "eth4",
+          "TargetEndpoint": "eth4"
+        },
+        "ID": "4",
+        "Kind": "ClabLink",
+        "Name": "sros-02::eth4 \u003c--\u003e sros-03::eth4",
+        "SourceLongName": "sros-02",
+        "TargetLongName": "sros-03",
+        "grabbable": true,
+        "selectable": true,
+        "weight": "1"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "5",
+      "source": "sros-02",
+      "target": "sros-04",
+      "weight": "1",
+      "name": "sros-02::eth5 \u003c--\u003e sros-04::eth5",
+      "parent": "",
+      "kind": "srl",
+      "endpoint": {
+        "sourceEndpoint": "eth5",
+        "targetEndpoint": "eth5"
+      },
+      "ExtraData": {
+        "ClabServerUsername": "vscode",
+        "Endpoints": {
+          "SourceEndpoint": "eth5",
+          "TargetEndpoint": "eth5"
+        },
+        "ID": "5",
+        "Kind": "ClabLink",
+        "Name": "sros-02::eth5 \u003c--\u003e sros-04::eth5",
+        "SourceLongName": "sros-02",
+        "TargetLongName": "sros-04",
+        "grabbable": true,
+        "selectable": true,
+        "weight": "1"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "6",
+      "source": "sros-03",
+      "target": "sros-04",
+      "weight": "1",
+      "name": "sros-03::eth6 \u003c--\u003e sros-04::eth6",
+      "parent": "",
+      "kind": "srl",
+      "endpoint": {
+        "sourceEndpoint": "eth6",
+        "targetEndpoint": "eth6"
+      },
+      "ExtraData": {
+        "ClabServerUsername": "vscode",
+        "Endpoints": {
+          "SourceEndpoint": "eth6",
+          "TargetEndpoint": "eth6"
+        },
+        "ID": "6",
+        "Kind": "ClabLink",
+        "Name": "sros-03::eth6 \u003c--\u003e sros-04::eth6",
+        "SourceLongName": "sros-03",
+        "TargetLongName": "sros-04",
+        "grabbable": true,
+        "selectable": true,
+        "weight": "1"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "7",
+      "source": "sros-01",
+      "target": "sros-04",
+      "weight": "1",
+      "name": "sros-01::eth4 \u003c--\u003e sros-04::eth4",
+      "parent": "",
+      "kind": "srl",
+      "endpoint": {
+        "sourceEndpoint": "eth4",
+        "targetEndpoint": "eth4"
+      },
+      "ExtraData": {
+        "ClabServerUsername": "vscode",
+        "Endpoints": {
+          "SourceEndpoint": "eth4",
+          "TargetEndpoint": "eth4"
+        },
+        "ID": "7",
+        "Kind": "ClabLink",
+        "Name": "sros-01::eth4 \u003c--\u003e sros-04::eth4",
+        "SourceLongName": "sros-01",
+        "TargetLongName": "sros-04",
+        "grabbable": true,
+        "selectable": true,
+        "weight": "1"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "8",
+      "source": "sros-03",
+      "target": "srl-02",
+      "weight": "1",
+      "name": "sros-03::eth1 \u003c--\u003e srl-02::e1-3",
+      "parent": "",
+      "kind": "srl",
+      "endpoint": {
+        "sourceEndpoint": "eth1",
+        "targetEndpoint": "e1-3"
+      },
+      "ExtraData": {
+        "ClabServerUsername": "vscode",
+        "Endpoints": {
+          "SourceEndpoint": "eth1",
+          "TargetEndpoint": "e1-3"
+        },
+        "ID": "8",
+        "Kind": "ClabLink",
+        "Name": "sros-03::eth1 \u003c--\u003e srl-02::e1-3",
+        "SourceLongName": "sros-03",
+        "TargetLongName": "srl-02",
+        "grabbable": true,
+        "selectable": true,
+        "weight": "1"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "9",
+      "source": "sros-04",
+      "target": "srl-02",
+      "weight": "1",
+      "name": "sros-04::eth2 \u003c--\u003e srl-02::e1-4",
+      "parent": "",
+      "kind": "srl",
+      "endpoint": {
+        "sourceEndpoint": "eth2",
+        "targetEndpoint": "e1-4"
+      },
+      "ExtraData": {
+        "ClabServerUsername": "vscode",
+        "Endpoints": {
+          "SourceEndpoint": "eth2",
+          "TargetEndpoint": "e1-4"
+        },
+        "ID": "9",
+        "Kind": "ClabLink",
+        "Name": "sros-04::eth2 \u003c--\u003e srl-02::e1-4",
+        "SourceLongName": "sros-04",
+        "TargetLongName": "srl-02",
+        "grabbable": true,
+        "selectable": true,
+        "weight": "1"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  }
+]

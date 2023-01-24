@@ -32,6 +32,70 @@
   },
   {
     "data": {
+      "id": "topoviewer",
+      "weight": "2",
+      "name": "topoviewer",
+      "parent": "",
+      "kind": "linux",
+      "endpoint": {
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "ExtraData": {
+        "Binds": [
+          "/home/suuser/clab/topo-file.yaml:/opt/local-bind/topo-file.yaml:rw"
+        ],
+        "ClabKind": "linux",
+        "Image": "ghcr.io/asadarafat/topoviewer:development",
+        "Name": "topoviewer"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "sros-03",
+      "weight": "2",
+      "name": "sros-03",
+      "parent": "",
+      "kind": "vr-sros",
+      "endpoint": {
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "ExtraData": {
+        "Binds": null,
+        "ClabKind": "vr-sros",
+        "Image": "registry.srlinux.dev/pub/vr-sros:22.7.R1",
+        "Name": "sros-03"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
       "id": "sros-01",
       "weight": "2",
       "name": "sros-01",
@@ -94,53 +158,20 @@
   },
   {
     "data": {
-      "id": "sros-03",
+      "id": "srl-02",
       "weight": "2",
-      "name": "sros-03",
+      "name": "srl-02",
       "parent": "",
-      "kind": "vr-sros",
+      "kind": "srl",
       "endpoint": {
         "sourceEndpoint": "",
         "targetEndpoint": ""
       },
       "ExtraData": {
         "Binds": null,
-        "ClabKind": "vr-sros",
-        "Image": "registry.srlinux.dev/pub/vr-sros:22.7.R1",
-        "Name": "sros-03"
-      }
-    },
-    "position": {
-      "x": 0,
-      "y": 0
-    },
-    "removed": false,
-    "group": "nodes",
-    "selected": false,
-    "selectable": true,
-    "locked": false,
-    "grabbed": false,
-    "grabbable": true,
-    "classes": ""
-  },
-  {
-    "data": {
-      "id": "topoviewer",
-      "weight": "2",
-      "name": "topoviewer",
-      "parent": "",
-      "kind": "linux",
-      "endpoint": {
-        "sourceEndpoint": "",
-        "targetEndpoint": ""
-      },
-      "ExtraData": {
-        "Binds": [
-          "/home/suuser/clab/topo-file.yaml:/opt/local-bind/topo-file.yaml:rw"
-        ],
-        "ClabKind": "linux",
-        "Image": "ghcr.io/asadarafat/topoviewer:development",
-        "Name": "topoviewer"
+        "ClabKind": "srl",
+        "Image": "ghcr.io/nokia/srlinux",
+        "Name": "srl-02"
       }
     },
     "position": {
@@ -172,37 +203,6 @@
         "ClabKind": "srl",
         "Image": "ghcr.io/nokia/srlinux",
         "Name": "srl-01"
-      }
-    },
-    "position": {
-      "x": 0,
-      "y": 0
-    },
-    "removed": false,
-    "group": "nodes",
-    "selected": false,
-    "selectable": true,
-    "locked": false,
-    "grabbed": false,
-    "grabbable": true,
-    "classes": ""
-  },
-  {
-    "data": {
-      "id": "srl-02",
-      "weight": "2",
-      "name": "srl-02",
-      "parent": "",
-      "kind": "srl",
-      "endpoint": {
-        "sourceEndpoint": "",
-        "targetEndpoint": ""
-      },
-      "ExtraData": {
-        "Binds": null,
-        "ClabKind": "srl",
-        "Image": "ghcr.io/nokia/srlinux",
-        "Name": "srl-02"
       }
     },
     "position": {
