@@ -183,3 +183,148 @@ docker exec -it topoviewer /opt/topoviewer/topoviewer clab -t topo-file.yaml
 vi /etc/ssh/ssh_config    
     HostKeyAlgorithms ssh-dss
     KexAlgorithms diffie-hellman-group1-sha1
+
+
+## Quick Run With ContainerLab Topo
+
+Define the topoviewer as ContainerLab Node
+and ensure the topology file that will visualise is mounted as docker binds.
+
+```Shell
+[root@nsp-kvm-host-antwerp clab]# more topo-topoViewerDemo.yml
+
+name: topoViewerDemo
+
+mgmt:
+  ipv4_subnet: 20.20.20.0/24       # ipv4 range
+  
+topology:
+
+  nodes:
+    topoviewer:
+      kind: linux
+      image: ghcr.io/asadarafat/topoviewer:development
+      ports:
+        - 8080:8080
+      #exec:
+      #  - /opt/topoviewer/topoviewer clab -t opt/local-bind/topo-file.yaml
+      entrypoint: /bin/bash
+      binds:
+        - /home/suuser/clab/topo-topoViewerDemo.yml:/opt/local-bind/topo-file.yaml:rw
+    SRL-01:
+      kind: srl
+      mgmt_ipv4: 20.20.20.201
+      image: ghcr.io/nokia/srlinux
+    SRL-02:
+      kind: srl
+      mgmt_ipv4: 20.20.20.202
+      image: ghcr.io/nokia/srlinux
+    SROS-01:
+      kind: vr-sros
+      mgmt_ipv4: 20.20.20.101
+      group: "1"
+      image: registry.srlinux.dev/pub/vr-sros:22.7.R1
+      type: "cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28"
+      license: license.txt
+    SROS-02:
+      kind: vr-sros
+      mgmt_ipv4: 20.20.20.102
+      group: "1"
+      image: registry.srlinux.dev/pub/vr-sros:22.7.R1
+      type: "cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28"
+      license: license.txt
+    SROS-03:
+      kind: vr-sros
+      mgmt_ipv4: 20.20.20.103
+      group: "1"
+      image: registry.srlinux.dev/pub/vr-sros:22.7.R1
+      type: "cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28"
+      license: license.txt
+    SROS-04:
+      kind: vr-sros
+      mgmt_ipv4: 20.20.20.104
+      group: "1"
+      image: registry.srlinux.dev/pub/vr-sros:22.7.R1
+      type: "cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28"
+      license: license.txt
+
+  links:
+    - endpoints: ["SRL-01:e1-1", "SROS-01:eth1"]
+    - endpoints: ["SRL-01:e1-2", "SROS-02:eth1"]
+
+    - endpoints: ["SROS-01:eth2", "SROS-02:eth2"]
+    - endpoints: ["SROS-01:eth3", "SROS-03:eth3"]
+
+    - endpoints: ["SROS-02:eth4", "SROS-03:eth4"]
+    - endpoints: ["SROS-02:eth5", "SROS-04:eth5"]
+
+    - endpoints: ["SROS-03:eth6", "SROS-04:eth6"]
+
+    - endpoints: ["SROS-01:eth4", "SROS-04:eth4"]
+
+    - endpoints: ["SROS-03:eth1", "SRL-02:e1-3"]
+    - endpoints: ["SROS-04:eth2", "SRL-02:e1-4"]
+```
+
+Deploy the ContainerLab topology file
+
+```Shell
+[root@nsp-kvm-host-antwerp clab]# clab deploy --topo topo-topoViewerDemo.yml
+INFO[0000] Containerlab v0.31.1 started                 
+INFO[0000] Parsing & checking topology file: topo-topoViewerDemo.yml 
+Error: containers ["clab-topoViewerDemo-SRL-01" "clab-topoViewerDemo-SRL-02" "clab-topoViewerDemo-SROS-01" "clab-topoViewerDemo-SROS-02" "clab-topoViewerDemo-SROS-03" "clab-topoViewerDemo-SROS-04" "clab-topoViewerDemo-topoviewer"] already exist. Add '--reconfigure' flag to the deploy command to first remove the containers and then deploy the lab
+[root@nsp-kvm-host-antwerp clab]# clab destroy --topo topo-topoViewerDemo.yml
+INFO[0000] Parsing & checking topology file: topo-topoViewerDemo.yml 
+INFO[0000] Destroying lab: topoViewerDemo               
+INFO[0000] Removed container: clab-topoViewerDemo-topoviewer 
+INFO[0000] Removed container: clab-topoViewerDemo-SRL-01 
+INFO[0000] Removed container: clab-topoViewerDemo-SRL-02 
+INFO[0001] Removed container: clab-topoViewerDemo-SROS-02 
+INFO[0001] Removed container: clab-topoViewerDemo-SROS-01 
+INFO[0001] Removed container: clab-topoViewerDemo-SROS-04 
+INFO[0001] Removed container: clab-topoViewerDemo-SROS-03 
+INFO[0001] Removing containerlab host entries from /etc/hosts file 
+[root@nsp-kvm-host-antwerp clab]# clab deploy --reconfigure --topo topo-topoViewerDemo.yml
+INFO[0000] Containerlab v0.31.1 started                 
+INFO[0000] Parsing & checking topology file: topo-topoViewerDemo.yml 
+INFO[0000] Removing /home/suuser/clab/clab-topoViewerDemo directory... 
+INFO[0000] Creating lab directory: /home/suuser/clab/clab-topoViewerDemo 
+INFO[0000] Creating docker network: Name="clab", IPv4Subnet="20.20.20.0/24", IPv6Subnet="", MTU="1500" 
+INFO[0000] Creating container: "topoviewer"             
+INFO[0000] Creating container: "SROS-03"                
+INFO[0000] Creating container: "SROS-01"                
+INFO[0000] Creating container: "SROS-04"                
+INFO[0000] Creating container: "SROS-02"                
+INFO[0000] Creating container: "SRL-02"                 
+INFO[0000] Creating container: "SRL-01"                 
+INFO[0000] Creating virtual wire: SROS-01:eth2 <--> SROS-02:eth2 
+INFO[0001] Creating virtual wire: SROS-02:eth4 <--> SROS-03:eth4 
+INFO[0001] Creating virtual wire: SROS-03:eth6 <--> SROS-04:eth6 
+INFO[0001] Creating virtual wire: SROS-02:eth5 <--> SROS-04:eth5 
+INFO[0001] Creating virtual wire: SROS-01:eth3 <--> SROS-03:eth3 
+INFO[0001] Creating virtual wire: SROS-01:eth4 <--> SROS-04:eth4 
+INFO[0001] Creating virtual wire: SRL-01:e1-2 <--> SROS-02:eth1 
+INFO[0001] Creating virtual wire: SRL-01:e1-1 <--> SROS-01:eth1 
+INFO[0001] Creating virtual wire: SROS-03:eth1 <--> SRL-02:e1-3 
+INFO[0001] Creating virtual wire: SROS-04:eth2 <--> SRL-02:e1-4 
+INFO[0002] Running postdeploy actions for Nokia SR Linux 'SRL-02' node 
+INFO[0002] Running postdeploy actions for Nokia SR Linux 'SRL-01' node 
+INFO[0013] Adding containerlab host entries to /etc/hosts file 
++---+--------------------------------+--------------+-------------------------------------------+---------+---------+-----------------+--------------+
+| # |              Name              | Container ID |                   Image                   |  Kind   |  State  |  IPv4 Address   | IPv6 Address |
++---+--------------------------------+--------------+-------------------------------------------+---------+---------+-----------------+--------------+
+| 1 | clab-topoViewerDemo-SRL-01     | 9b86d76155d9 | ghcr.io/nokia/srlinux                     | srl     | running | 20.20.20.201/24 | N/A          |
+| 2 | clab-topoViewerDemo-SRL-02     | 5eaec760b2ba | ghcr.io/nokia/srlinux                     | srl     | running | 20.20.20.202/24 | N/A          |
+| 3 | clab-topoViewerDemo-SROS-01    | 508232ecc71f | registry.srlinux.dev/pub/vr-sros:22.7.R1  | vr-sros | running | 20.20.20.101/24 | N/A          |
+| 4 | clab-topoViewerDemo-SROS-02    | 96b3aba26eed | registry.srlinux.dev/pub/vr-sros:22.7.R1  | vr-sros | running | 20.20.20.102/24 | N/A          |
+| 5 | clab-topoViewerDemo-SROS-03    | 18d9c2babbbf | registry.srlinux.dev/pub/vr-sros:22.7.R1  | vr-sros | running | 20.20.20.103/24 | N/A          |
+| 6 | clab-topoViewerDemo-SROS-04    | 109ef1111472 | registry.srlinux.dev/pub/vr-sros:22.7.R1  | vr-sros | running | 20.20.20.104/24 | N/A          |
+| 7 | clab-topoViewerDemo-topoviewer | a64a3b12e806 | ghcr.io/asadarafat/topoviewer:development | linux   | running | 20.20.20.2/24   | N/A          |
++---+--------------------------------+--------------+-------------------------------------------+---------+---------+-----------------+--------------+
+```
+
+Run the Topoviewer
+
+```Shell
+[root@nsp-kvm-host-antwerp clab]# docker exec -it clab-topoViewerDemo-topoviewer /bin/bash
+```
