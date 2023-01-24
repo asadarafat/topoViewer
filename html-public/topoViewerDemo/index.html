@@ -90,18 +90,18 @@ body {
                 <div class="dropdown-item">
                   <div class="field">
                     <label class="label has-text-weight-normal is-small">Edge Length</label>
-                    <input id="edgeLength" type="range" min="1" max="400" step="1" value="100">
+                    <input id="edgeLength" type="range" min="10" max="200" step="1" value="50">
                   </div>
                 </div>
                 <div class="dropdown-item">
                   <div class="field">
                     <label class="label has-text-weight-normal is-small">Node Spacing</label>
-                    <input id="nodeSpacing" type="range" min="1" max="400" step="1" value="100">
+                    <input id="nodeSpacing" type="range" min="10" max="50" step="1" value="15">
                   </div>
                 </div>
                 <div class="dropdown-item">
                   <div class="field">
-                    <a id="clabClient" href="#" class="dropdown-item label has-text-weight-normal is-small"> Clab Client Download</a>                  
+                    <a id="clabClient" href="#" onclick="clabClient();" class="dropdown-item label has-text-weight-normal is-small"> Clab Client Download</a>                  
                   </div>
                 </div>
               </div>
@@ -134,6 +134,8 @@ body {
         
         var edgeLength = document.getElementById("edgeLength");
         var nodeSpacing = document.getElementById("nodeSpacing");
+
+        console.log("edgeLength.value: " + edgeLength.value)
         
         
         function ce(tag, attrs, children) {
@@ -153,7 +155,34 @@ body {
           var el = document.createTextNode(text);
           return el;
         };
+
         
+        function clabClient(e) {
+          removeLastChild();
+          var oldSettingsHeader = settings.childNodes[1]
+          console.log("messageClabCLient oldSettingsHeader: ")
+          console.log(oldSettingsHeader)
+          
+          var tt3 = ce("a", {target: "_blank", href: "http://"+location.host+"/clab-client/mac-clab-client-wireshark.zip", onclick: "", class: "text is-link is-small"}, [ctn("mac-clab-client-wireshark.zip")] );
+          var seperator = ce("hr", {class: "my-1"}, []);
+          var tt4 = ce("a", {target: "_blank", href: "http://"+location.host+"/clab-client/windows-clab-client-wireshark.zip", onclick: "", class: "text is-link is-small"}, [ctn("windows-clab-client-wireshark.zip")] );
+
+          var tname = ce("p", {}, [tt3, seperator, tt4]);
+         
+
+          var tpanel = ce("div", {}, [tname]);
+          var tmessageBody = ce("div", {class: "message-body"}, [tpanel])
+
+          var headerTitle = ce("p", {class: "my-7"}, [ctn("Clab Client Download")]);
+          var messageHeader = ce("div", {class: "message-header"}, [headerTitle])
+
+
+          settings.replaceChild(messageHeader, oldSettingsHeader);
+          settings.appendChild(tmessageBody);
+          settings.className = "message is-small is-link";
+          
+        }
+
         
         function nodeInfo(e) {
           var shellUrl = location.protocol + "//" + location.host + "/cloudshell/?RouterID=";
@@ -213,8 +242,9 @@ body {
           t1 = ce("a", {class: "button is-link is-small", onclick: ""}, [ctn("Submit")]);
           t2 = ce("div", {class: "control has-text-right"}, [t1]);
           var submit = ce("div", {class: "field"}, [t2]);
-        
-          return ce("div", {}, [wireshark, delay, jitter, rate, loss, duration, submit]);
+
+          return ce("div", {}, []);
+          
         }
         
         
@@ -252,16 +282,14 @@ body {
             style: dataArray[0],
             elements: dataArray[1],
             layout: { 
-            name: 'cola',
-            nodeSpacing: 5,
-            nodeSpacingAsad: 10,
-            edgeLengthVal: 45,
-            animate: true,
-            randomize: false,
-            maxSimulationTime: 1500}            
+              name: 'cola',
+              nodeSpacing: 5,
+              edgeLengthVal: 45,
+              animate: true,
+              randomize: false,
+              maxSimulationTime: 1500
+            }            
           });
-
-          console.log = cy
           
           
           var slider = function(e) {
@@ -270,12 +298,13 @@ body {
               name: "cola",
               animate: true, 
               randomize: false, 
-              maxSimulationTime: 1500,
+              maxSimulationTime: 1000,
               edgeLength: function(e) {
-                return edgeLength.value / e.data("weight"); 
+                return edgeLength.value / e.data('weight');
               },
               nodeSpacing: nodeSpacing.value
             });
+            console.log("edgeLength.value: " + edgeLength.value)
             layout.run();
           }
         
@@ -289,7 +318,7 @@ body {
           var tt1 = ce("b", {}, [ctn("Welcome to TopoViewer.")]);
           var tt2 = ce("p", {}, [ctn("Adjust topology physics in Settings.")]);  
           var tt3 = ce("p", {}, [ctn("Click the node or link to see its properties.")]);  
-          var tt4 = ce("hr", {class: "my-10 has-background-grey-lighter"}, []);
+          var tt4 = ce("hr", {class: "my-3 has-background-grey-lighter"}, []);
           var tt10 = ce("p", {}, [ctn("FrontEnd by Siva & BackEnd by Asad.")]);  
 
           var tname = ce("p", {}, [tt1, tt2, tt3, tt4, tt10 ]);
@@ -299,16 +328,13 @@ body {
           var headerTitle = ce("p", {class: "my-7"}, [ctn("Message")]);
           var messageHeader = ce("div", {class: "message-header"}, [headerTitle])
           var oldSettingsHeader = document.getElementById("settingsHeader")
+          console.log("messageInit oldSettingsHeader: ")
           console.log(oldSettingsHeader)
-          settings.replaceChild(messageHeader, oldSettingsHeader);
 
+          settings.replaceChild(messageHeader, oldSettingsHeader);
           settings.appendChild(tmessageBody);
           settings.className = "message is-small is-link";
           
-           
-        
-          var clabClient = document.getElementById("clabClient")
-          clabClient.href = "clab-client";
 
 
           

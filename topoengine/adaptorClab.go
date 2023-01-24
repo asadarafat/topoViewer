@@ -155,6 +155,9 @@ func (cyTopo *CytoTopology) MarshalContainerLabTopov2(topoFile string) error {
 	cyTopo.ClabTopoData.LinksList = LinksList
 	log.Infof("cyTopo.ClabTopoData.LinksList    : '%s'", cyTopo.ClabTopoData.LinksList)
 
+	cyTopo.ClabTopoData.ClabTopoName = viper.Get("name").(string)
+	log.Infof("cyTopo.ClabTopoData.ClabTopoName    : '%s'", cyTopo.ClabTopoData.ClabTopoName)
+
 	return nil
 }
 

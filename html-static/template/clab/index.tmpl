@@ -90,13 +90,13 @@ body {
                 <div class="dropdown-item">
                   <div class="field">
                     <label class="label has-text-weight-normal is-small">Edge Length</label>
-                    <input id="edgeLength" type="range" min="1" max="400" step="1" value="100">
+                    <input id="edgeLength" type="range" min="10" max="200" step="1" value="50">
                   </div>
                 </div>
                 <div class="dropdown-item">
                   <div class="field">
                     <label class="label has-text-weight-normal is-small">Node Spacing</label>
-                    <input id="nodeSpacing" type="range" min="1" max="400" step="1" value="100">
+                    <input id="nodeSpacing" type="range" min="10" max="50" step="1" value="15">
                   </div>
                 </div>
                 <div class="dropdown-item">
@@ -133,7 +133,10 @@ body {
         
         // slider object
         var edgeLength = document.getElementById("edgeLength");
-        var nodeSpacing = document
+        var nodeSpacing = document.getElementById("nodeSpacing");
+
+        console.log("edgeLength.value: " + edgeLength.value)
+        
         // create html element
         function ce(tag, attrs, children) {
           var el = document.createElement(tag);
@@ -239,8 +242,9 @@ body {
           t1 = ce("a", {class: "button is-link is-small", onclick: ""}, [ctn("Submit")]);
           t2 = ce("div", {class: "control has-text-right"}, [t1]);
           var submit = ce("div", {class: "field"}, [t2]);
-        
-          return ce("div", {}, [wireshark, delay, jitter, rate, loss, duration, submit]);
+
+          return ce("div", {}, []);
+          // return ce("div", {}, [wireshark, delay, jitter, rate, loss, duration, submit]);
         }
         
         // remove last child
@@ -278,13 +282,13 @@ body {
             style: dataArray[0],
             elements: dataArray[1],
             layout: { 
-            name: 'cola',
-            nodeSpacing: 5,
-            nodeSpacingAsad: 10,
-            edgeLengthVal: 45,
-            animate: true,
-            randomize: false,
-            maxSimulationTime: 1500}            
+              name: 'cola',
+              nodeSpacing: 5,
+              edgeLengthVal: 45,
+              animate: true,
+              randomize: false,
+              maxSimulationTime: 1500
+            }            
           });
           
           // slider change event
@@ -294,12 +298,13 @@ body {
               name: "cola",
               animate: true, 
               randomize: false, 
-              maxSimulationTime: 1500,
+              maxSimulationTime: 1000,
               edgeLength: function(e) {
-                return edgeLength.value / e.data("weight"); 
+                return edgeLength.value / e.data('weight');
               },
               nodeSpacing: nodeSpacing.value
             });
+            console.log("edgeLength.value: " + edgeLength.value)
             layout.run();
           }
         
@@ -313,7 +318,7 @@ body {
           var tt1 = ce("b", {}, [ctn("Welcome to TopoViewer.")]);
           var tt2 = ce("p", {}, [ctn("Adjust topology physics in Settings.")]);  
           var tt3 = ce("p", {}, [ctn("Click the node or link to see its properties.")]);  
-          var tt4 = ce("hr", {class: "my-10 has-background-grey-lighter"}, []);
+          var tt4 = ce("hr", {class: "my-3 has-background-grey-lighter"}, []);
           var tt10 = ce("p", {}, [ctn("FrontEnd by Siva & BackEnd by Asad.")]);  
 
           var tname = ce("p", {}, [tt1, tt2, tt3, tt4, tt10 ]);
