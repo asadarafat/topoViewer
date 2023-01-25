@@ -76,7 +76,7 @@ body {
       </div>
       <div class="level-right">
         <div class="level-item">
-          <div class="dropdown is-active is-right">
+          <div class="dropdown is-hoverable is-right">
             <div class="dropdown-trigger">
               <button class="button is-small is-link is-light" aria-haspopup="true" aria-controls="dropdown-menu3">
                 <span>Settings</span>
@@ -88,22 +88,15 @@ body {
             <div class="dropdown-menu" id="dropdown-menu" role="menu">
               <div class="dropdown-content">
                 <div class="dropdown-item">
-                  <div class="field">
                     <label class="label has-text-weight-normal is-small">Edge Length</label>
                     <input id="edgeLength" type="range" min="10" max="200" step="1" value="50">
-                  </div>
                 </div>
                 <div class="dropdown-item">
-                  <div class="field">
                     <label class="label has-text-weight-normal is-small">Node Spacing</label>
                     <input id="nodeSpacing" type="range" min="10" max="50" step="1" value="15">
-                  </div>
                 </div>
-                <div class="dropdown-item">
-                  <div class="field">
                     <a id="clabClient" href="#" onclick="clabClient();" class="dropdown-item label has-text-weight-normal is-small"> Clab Client Download</a>                  
-                  </div>
-                </div>
+                    <!-- <<a id="TopologyAdjust" href="#" onclick="topologyAdjust();" class="dropdown-item label has-text-weight-normal is-small"> Topology Adjust</a>                --> 
               </div>
             </div>
           </div>
@@ -117,6 +110,9 @@ body {
     </div>
   </div>
       <script type="text/javascript">
+        // global variable
+        var linkImpairmentUrl;
+
         // settings object
         let settings = document.getElementById("settings");
         let options = document.getElementById("options");
@@ -134,8 +130,8 @@ body {
         // slider object
         var edgeLength = document.getElementById("edgeLength");
         var nodeSpacing = document.getElementById("nodeSpacing");
-
         console.log("edgeLength.value: " + edgeLength.value)
+
         
         // create html element
         function ce(tag, attrs, children) {
@@ -155,6 +151,8 @@ body {
           var el = document.createTextNode(text);
           return el;
         };
+
+    
 
         // return clab client on click
         function clabClient(e) {
@@ -183,6 +181,34 @@ body {
           
         }
 
+        // return TopologyAdjust on click
+        function topologyAdjust(e) {
+          removeLastChild();
+          var oldSettingsHeader = settings.childNodes[1]
+          console.log("messageTopologyAdjust oldSettingsHeader: ")
+          console.log(oldSettingsHeader)
+          
+          var tt1 = ce("label", {class: "label is-small"}, [ctn("Edge Length")]);
+          var tt2 = ce("input", {class: "slider", step:"1", min:"0", max:"1000", value:"50", type:"range", id: "edgeLengthMessage", oninput: "slider", onchange: "slider"}, []);
+          var tt3 = ce("label", {class: "label is-small"}, [ctn("Node Spacing")]);
+          var tt4 = ce("input", {class: "slider", step:"1", min:"0", max:"1000", value:"50", type:"range", id: "nodeSpacingMessage", oninput: "slider", onchange: "slider"}, []);
+
+          var tname = ce("p", {}, [tt1, tt2, tt3, tt4]);
+         // var addon = ce("div", {}, [nodeInfo(node)]);
+
+          var tpanel = ce("div", {}, [tname]);
+          var tmessageBody = ce("div", {class: "message-body"}, [tpanel])
+
+          var headerTitle = ce("p", {class: "my-7"}, [ctn("Topology Adjust")]);
+          var messageHeader = ce("div", {class: "message-header"}, [headerTitle])
+
+
+          settings.replaceChild(messageHeader, oldSettingsHeader);
+          settings.appendChild(tmessageBody);
+          settings.className = "message is-small is-link";
+          
+        }
+
         // return node info on click
         function nodeInfo(e) {
           var shellUrl = location.protocol + "//" + location.host + "/cloudshell/?RouterID=";
@@ -199,7 +225,7 @@ body {
         
         // return link info on click
         function linkInfo(e) {
-          var elements = [
+          var wiresharkElements = [
             {
               name: e.data("source") + "::" + e.data("endpoint").sourceEndpoint,
               url: "clab-capture://" + e.data("ExtraData").ClabServerUsername + "@" + location.host + "?" + e.data("ExtraData").SourceLongName + "?" + e.data("ExtraData").Endpoints.SourceEndpoint
@@ -213,38 +239,49 @@ body {
           });
         
           var t1 = ce("label", {class: "label has-text-weight-semibold is-small"}, [ctn("Wireshark Endpoints")]);
-          var t2 = ce("div", {class: "buttons is-small"}, elements);
+          var t2 = ce("div", {class: "buttons is-small"}, wiresharkElements);
           var t3 = ce("div", {class: "control"}, [t1, t2]);
           var wireshark = ce("div", {class: "field"}, [t3]);
         
           t1 = ce("label", {class: "label has-text-weight-semibold is-small"}, [ctn("Link Impairment")]);
-          t2 = ce("input", {class: "input is-small", type: "number", placeholder: "Delay (ms)", id: "delay"}, []);
+          t2 = ce("input", {class: "input is-small", type: "number", placeholder: "Delay (ms)", id: "delay", onkeyup: "updateUrl(this)", onchange:"updateUrl(this)"}, []);
           t3 = ce("div", {class: "control "}, [t2]);
           var delay = ce("div", {class: "field"}, [t1, t3]);
         
-          t1 = ce("input", {class: "input is-small", type: "number", placeholder: "Jitter (ms)", id: "jitter"}, []);
+          t1 = ce("input", {class: "input is-small", type: "number", placeholder: "Jitter (ms)", id: "jitter", onkeyup: "updateUrl(this)", onchange:"updateUrl(this)"}, []);
           t2 = ce("div", {class: "control"}, [t1]);
           var jitter = ce("div", {class: "field"}, [t2]);
         
-          t1 = ce("input", {class: "input is-small", type: "number", placeholder: "Rate (Kbps)", id: "rate"}, []);
+          t1 = ce("input", {class: "input is-small", type: "number", placeholder: "Rate (Kbps)", id: "rate", onkeyup: "updateUrl(this)", onchange:"updateUrl(this)"}, []);
           t2 = ce("div", {class: "control"}, [t1]);
           var rate = ce("div", {class: "field"}, [t2]);
         
-          t1 = ce("input", {class: "input is-small", type: "number", placeholder: "Loss (%)", id: "loss"}, []);
+          t1 = ce("input", {class: "input is-small", type: "number", placeholder: "Loss (%)", id: "loss", onkeyup: "updateUrl(this)", onchange:"updateUrl(this)"}, []);
           t2 = ce("div", {class: "control"}, [t1]);
           var loss = ce("div", {class: "field"}, [t2]);
         
-          t1 = ce("input", {class: "input is-small", type: "number", placeholder: "Duration (secs)", id: "duration"}, []);
+          t1 = ce("input", {class: "input is-small", type: "number", placeholder: "Duration (secs)", id: "duration", onkeyup: "updateUrl(this)", onchange:"updateUrl(this)"}, []);
           t2 = ce("div", {class: "control"}, [t1]);
           var duration = ce("div", {class: "field"}, [t2]);
-        
-          // update onclick tag
-          t1 = ce("a", {class: "button is-link is-small", onclick: ""}, [ctn("Submit")]);
+
+          linkImpairmentUrl = "clab-pumba://" + e.data("ExtraData").ClabServerUsername + "@" + location.host + "?" + e.data("ExtraData").TargetLongName + "?" + e.data("ExtraData").Endpoints.TargetEndpoint
+
+          var linkImpairmentElements = [
+            {
+              url: linkImpairmentUrl
+            }
+          ].map(function(link) {
+            return ce("a", {target: "_blank", href: link.url, class: "button is-link is-small", id: "onSubmit"}, [ctn("Submit")] );
+          });
+          
+          t1 = ce("a", {class: "button is-link is-small"}, linkImpairmentElements);
           t2 = ce("div", {class: "control has-text-right"}, [t1]);
+
           var submit = ce("div", {class: "field"}, [t2]);
 
-          return ce("div", {}, []);
-          // return ce("div", {}, [wireshark, delay, jitter, rate, loss, duration, submit]);
+          // return ce("div", {}, [wireshark]);
+          return ce("div", {}, [wireshark, delay, jitter, rate, loss, duration, submit]);
+
         }
         
         // remove last child
@@ -393,6 +430,13 @@ body {
             }
           });
         });
+
+        function updateUrl(asad) {
+          var button = document.getElementById("onSubmit")
+          console.log(button)
+          console.log("delay-value: ", document.getElementById("delay").value)
+          button.href = linkImpairmentUrl + "?" + document.getElementById("delay").value + "?" + document.getElementById("jitter").value
+        }
       </script>
   </body>
 </html>

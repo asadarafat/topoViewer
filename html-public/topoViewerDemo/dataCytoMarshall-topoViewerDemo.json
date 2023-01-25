@@ -14,6 +14,7 @@
         "Binds": null,
         "ClabKind": "vr-sros",
         "Image": "registry.srlinux.dev/pub/vr-sros:22.7.R1",
+        "MgmtIPv4Address": "20.20.20.104",
         "Name": "sros-04"
       }
     },
@@ -47,100 +48,8 @@
         ],
         "ClabKind": "linux",
         "Image": "ghcr.io/asadarafat/topoviewer:development",
+        "MgmtIPv4Address": "20.20.20.21",
         "Name": "topoviewer"
-      }
-    },
-    "position": {
-      "x": 0,
-      "y": 0
-    },
-    "removed": false,
-    "group": "nodes",
-    "selected": false,
-    "selectable": true,
-    "locked": false,
-    "grabbed": false,
-    "grabbable": true,
-    "classes": ""
-  },
-  {
-    "data": {
-      "id": "sros-03",
-      "weight": "2",
-      "name": "sros-03",
-      "parent": "",
-      "kind": "vr-sros",
-      "endpoint": {
-        "sourceEndpoint": "",
-        "targetEndpoint": ""
-      },
-      "ExtraData": {
-        "Binds": null,
-        "ClabKind": "vr-sros",
-        "Image": "registry.srlinux.dev/pub/vr-sros:22.7.R1",
-        "Name": "sros-03"
-      }
-    },
-    "position": {
-      "x": 0,
-      "y": 0
-    },
-    "removed": false,
-    "group": "nodes",
-    "selected": false,
-    "selectable": true,
-    "locked": false,
-    "grabbed": false,
-    "grabbable": true,
-    "classes": ""
-  },
-  {
-    "data": {
-      "id": "sros-01",
-      "weight": "2",
-      "name": "sros-01",
-      "parent": "",
-      "kind": "vr-sros",
-      "endpoint": {
-        "sourceEndpoint": "",
-        "targetEndpoint": ""
-      },
-      "ExtraData": {
-        "Binds": null,
-        "ClabKind": "vr-sros",
-        "Image": "registry.srlinux.dev/pub/vr-sros:22.7.R1",
-        "Name": "sros-01"
-      }
-    },
-    "position": {
-      "x": 0,
-      "y": 0
-    },
-    "removed": false,
-    "group": "nodes",
-    "selected": false,
-    "selectable": true,
-    "locked": false,
-    "grabbed": false,
-    "grabbable": true,
-    "classes": ""
-  },
-  {
-    "data": {
-      "id": "sros-02",
-      "weight": "2",
-      "name": "sros-02",
-      "parent": "",
-      "kind": "vr-sros",
-      "endpoint": {
-        "sourceEndpoint": "",
-        "targetEndpoint": ""
-      },
-      "ExtraData": {
-        "Binds": null,
-        "ClabKind": "vr-sros",
-        "Image": "registry.srlinux.dev/pub/vr-sros:22.7.R1",
-        "Name": "sros-02"
       }
     },
     "position": {
@@ -171,7 +80,104 @@
         "Binds": null,
         "ClabKind": "srl",
         "Image": "ghcr.io/nokia/srlinux",
+        "MgmtIPv4Address": "20.20.20.202",
         "Name": "srl-02"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "sros-01",
+      "weight": "2",
+      "name": "sros-01",
+      "parent": "",
+      "kind": "vr-sros",
+      "endpoint": {
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "ExtraData": {
+        "Binds": null,
+        "ClabKind": "vr-sros",
+        "Image": "registry.srlinux.dev/pub/vr-sros:22.7.R1",
+        "MgmtIPv4Address": "20.20.20.101",
+        "Name": "sros-01"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "sros-03",
+      "weight": "2",
+      "name": "sros-03",
+      "parent": "",
+      "kind": "vr-sros",
+      "endpoint": {
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "ExtraData": {
+        "Binds": null,
+        "ClabKind": "vr-sros",
+        "Image": "registry.srlinux.dev/pub/vr-sros:22.7.R1",
+        "MgmtIPv4Address": "20.20.20.103",
+        "Name": "sros-03"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "sros-02",
+      "weight": "2",
+      "name": "sros-02",
+      "parent": "",
+      "kind": "vr-sros",
+      "endpoint": {
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "ExtraData": {
+        "Binds": null,
+        "ClabKind": "vr-sros",
+        "Image": "registry.srlinux.dev/pub/vr-sros:22.7.R1",
+        "MgmtIPv4Address": "20.20.20.102",
+        "Name": "sros-02"
       }
     },
     "position": {
@@ -202,6 +208,7 @@
         "Binds": null,
         "ClabKind": "srl",
         "Image": "ghcr.io/nokia/srlinux",
+        "MgmtIPv4Address": "20.20.20.201",
         "Name": "srl-01"
       }
     },

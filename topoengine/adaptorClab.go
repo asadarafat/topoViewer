@@ -103,10 +103,11 @@ func (cyTopo *CytoTopology) MarshalContainerLabTopov2(topoFile string) error {
 			// log.Infof("viper value  : '%s'", viper.Get(i))
 			fmt.Println(i, viper.Get(i))
 			clabNodeData.Data = map[string]interface{}{
-				"Name":     nodeName,
-				"Image":    viper.Get("topology.nodes." + nodeName + ".image"),
-				"ClabKind": viper.Get("topology.nodes." + nodeName + ".kind"),
-				"Binds":    viper.Get("topology.nodes." + nodeName + ".binds"),
+				"Name":            nodeName,
+				"Image":           viper.Get("topology.nodes." + nodeName + ".image"),
+				"ClabKind":        viper.Get("topology.nodes." + nodeName + ".kind"),
+				"MgmtIPv4Address": viper.Get("topology.nodes." + nodeName + ".mgmt_ipv4"),
+				"Binds":           viper.Get("topology.nodes." + nodeName + ".binds"),
 			}
 		}
 		NodesList = append(NodesList, clabNodeData)

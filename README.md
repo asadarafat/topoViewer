@@ -206,11 +206,11 @@ topology:
       image: ghcr.io/asadarafat/topoviewer:development
       ports:
         - 8080:8080
-      #exec:
-      #  - /opt/topoviewer/topoviewer clab -t opt/local-bind/topo-file.yaml
+      exec:
+        - /opt/topoviewer/topoviewer clab -H 138.203.40.63 -t local-bind/topo-file.yaml # 138.203.40.63 is the server IP where clab is running
       entrypoint: /bin/bash
       binds:
-        - /home/suuser/clab/topo-topoViewerDemo.yml:/opt/local-bind/topo-file.yaml:rw
+        - /home/suuser/clab/topo-topoViewerDemo.yml:/opt/topoviewer/local-bind/topo-file.yaml:rw # /home/suuser/clab/topo-topoViewerDemo.yml is the absolute path clab topology file 
     SRL-01:
       kind: srl
       mgmt_ipv4: 20.20.20.201
@@ -323,8 +323,5 @@ INFO[0013] Adding containerlab host entries to /etc/hosts file
 +---+--------------------------------+--------------+-------------------------------------------+---------+---------+-----------------+--------------+
 ```
 
-Run the Topoviewer
-
-```Shell
-[root@nsp-kvm-host-antwerp clab]# docker exec -it clab-topoViewerDemo-topoviewer /bin/bash
-```
+Open the TopoViewer GUI in browser http://138.203.40.63:8080/ 
+note that 138.203.40.63 is the clab server 
