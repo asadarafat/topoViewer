@@ -327,13 +327,6 @@ body {
               maxSimulationTime: 1500
             }            
           });
-
-          
-          sros01links = cy.filter('edges[source = "sros-01"]');
-          console.log("sros01links: ", sros01links)
-
-          sros01links.data("ExtraData").ClabServerUsername = "suuser";
-          console.log("sros01links: ", sros01links)
   
           
           var slider = function(e) {
@@ -407,8 +400,6 @@ body {
             });
           });
         
-
-
  
 
           

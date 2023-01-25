@@ -209,8 +209,8 @@ func (cyTopo *CytoTopology) UnmarshalContainerLabTopov2(ClabTopoStruct ClabTopoS
 			"ID":                 strconv.Itoa(i),
 			"weight":             "1",
 			"Name":               l.Source + "::" + l.SourceEndpoint + " <--> " + l.Target + "::" + l.TargetEndpoint,
-			"SourceLongName":     l.Source,
-			"TargetLongName":     l.Target,
+			"SourceLongName":     "clab" + "-" + cyTopo.ClabTopoData.ClabTopoName + "-" + l.Source,
+			"TargetLongName":     "clab" + "-" + cyTopo.ClabTopoData.ClabTopoName + "-" + l.Target,
 			"Endpoints": struct {
 				SourceEndpoint string
 				TargetEndpoint string
