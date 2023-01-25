@@ -1,9 +1,9 @@
 [
   {
     "data": {
-      "id": "sros-04",
+      "id": "sros-03",
       "weight": "2",
-      "name": "sros-04",
+      "name": "sros-03",
       "parent": "",
       "kind": "vr-sros",
       "endpoint": {
@@ -14,8 +14,8 @@
         "Binds": null,
         "ClabKind": "vr-sros",
         "Image": "registry.srlinux.dev/pub/vr-sros:22.7.R1",
-        "MgmtIPv4Address": "20.20.20.104",
-        "Name": "sros-04"
+        "MgmtIPv4Address": "20.20.20.103",
+        "Name": "sros-03"
       }
     },
     "position": {
@@ -131,9 +131,9 @@
   },
   {
     "data": {
-      "id": "sros-03",
+      "id": "sros-04",
       "weight": "2",
-      "name": "sros-03",
+      "name": "sros-04",
       "parent": "",
       "kind": "vr-sros",
       "endpoint": {
@@ -144,8 +144,8 @@
         "Binds": null,
         "ClabKind": "vr-sros",
         "Image": "registry.srlinux.dev/pub/vr-sros:22.7.R1",
-        "MgmtIPv4Address": "20.20.20.103",
-        "Name": "sros-03"
+        "MgmtIPv4Address": "20.20.20.104",
+        "Name": "sros-04"
       }
     },
     "position": {

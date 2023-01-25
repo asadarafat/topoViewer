@@ -152,8 +152,6 @@ body {
           return el;
         };
 
-    
-
         
         function clabClient(e) {
           removeLastChild();
@@ -421,15 +419,22 @@ body {
               settings.className = "message is-small is-link";
             });
           });
-        
+          
+          
+          topoViewerNode = cy.filter('node[name = "topoviewer"]');
+          topoViewerNode.remove()
+
           
           cy.on("tap", function(e) {
             if(e.target === cy ){
               settings.className = "message is-hidden";
               removeLastChild();
-            }
+              }
+            });
           });
-        });
+
+
+
 
         function updateUrl(asad) {
           var button = document.getElementById("onSubmit")
