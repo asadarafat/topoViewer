@@ -162,17 +162,18 @@ func (cyTopo *CytoTopology) MarshalContainerLabTopov2(topoFile string) error {
 	return nil
 }
 
-func (cyTopo *CytoTopology) UnmarshalContainerLabTopov2(ClabTopoStruct) []byte {
+func (cyTopo *CytoTopology) UnmarshalContainerLabTopov2(ClabTopoStruct ClabTopoStruct, ServerHostUser string) []byte {
 
 	cytoJson := CytoJson{}
 	cytoJsonArray := []CytoJson{}
 
-	// get Clab ServerHost Username
-	user, err := user.Current()
-	if err != nil {
-		log.Error(err.Error())
-	}
-	Username := user.Username
+	// // get ServerHost Username
+	// user, err := user.Current()
+	// if err != nil {
+	// 	log.Error(err.Error())
+	// }
+	// Username := user.Username
+	Username := ServerHostUser
 
 	for _, n := range cyTopo.ClabTopoData.NodesList {
 

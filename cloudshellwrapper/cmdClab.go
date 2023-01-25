@@ -97,6 +97,11 @@ var confClab = config.Map{
 		Usage:     "path to containerlab topo file",
 		Shorthand: "t",
 	},
+	"clab-user": &config.String{
+		Default:   "root",
+		Usage:     "containerLab server host user",
+		Shorthand: "u",
+	},
 }
 
 // var rootCommand = cobra.Command{
@@ -127,15 +132,10 @@ func Clab(_ *cobra.Command, _ []string) error {
 	cyTopo.LogLevel = 4
 	cyTopo.InitLogger()
 
-	// cyTopo.MarshalContainerLabTopo(topoClab)
-	// ClabTopoStruct := topoengine.ClabTopoStruct{}
-	// cyTopo.UnmarshalContainerLabTopo(ClabTopoStruct)
-	// jsonBytes := cyTopo.UnmarshalContainerLabTopo(ClabTopoStruct)
-	// cyTopo.PrintjsonBytesCytoUi(jsonBytes)
-
 	cyTopo.MarshalContainerLabTopov2(topoClab)
 	ClabTopoStruct := topoengine.ClabTopoStruct{}
-	jsonBytes := cyTopo.UnmarshalContainerLabTopov2(ClabTopoStruct)
+	jsonBytes := cyTopo.UnmarshalContainerLabTopov2(ClabTopoStruct, confClab.GetString("clab-user"))
+
 	cyTopo.PrintjsonBytesCytoUi(jsonBytes)
 
 	command := confClab.GetString("command")

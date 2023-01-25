@@ -1,6 +1,38 @@
 [
   {
     "data": {
+      "id": "sros-02",
+      "weight": "2",
+      "name": "sros-02",
+      "parent": "",
+      "kind": "vr-sros",
+      "endpoint": {
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "ExtraData": {
+        "Binds": null,
+        "ClabKind": "vr-sros",
+        "Image": "registry.srlinux.dev/pub/vr-sros:22.7.R1",
+        "MgmtIPv4Address": "20.20.20.102",
+        "Name": "sros-02"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
       "id": "sros-03",
       "weight": "2",
       "name": "sros-03",
@@ -16,6 +48,38 @@
         "Image": "registry.srlinux.dev/pub/vr-sros:22.7.R1",
         "MgmtIPv4Address": "20.20.20.103",
         "Name": "sros-03"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "srl-01",
+      "weight": "2",
+      "name": "srl-01",
+      "parent": "",
+      "kind": "srl",
+      "endpoint": {
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "ExtraData": {
+        "Binds": null,
+        "ClabKind": "srl",
+        "Image": "ghcr.io/nokia/srlinux",
+        "MgmtIPv4Address": "20.20.20.201",
+        "Name": "srl-01"
       }
     },
     "position": {
@@ -99,38 +163,6 @@
   },
   {
     "data": {
-      "id": "sros-01",
-      "weight": "2",
-      "name": "sros-01",
-      "parent": "",
-      "kind": "vr-sros",
-      "endpoint": {
-        "sourceEndpoint": "",
-        "targetEndpoint": ""
-      },
-      "ExtraData": {
-        "Binds": null,
-        "ClabKind": "vr-sros",
-        "Image": "registry.srlinux.dev/pub/vr-sros:22.7.R1",
-        "MgmtIPv4Address": "20.20.20.101",
-        "Name": "sros-01"
-      }
-    },
-    "position": {
-      "x": 0,
-      "y": 0
-    },
-    "removed": false,
-    "group": "nodes",
-    "selected": false,
-    "selectable": true,
-    "locked": false,
-    "grabbed": false,
-    "grabbable": true,
-    "classes": ""
-  },
-  {
-    "data": {
       "id": "sros-04",
       "weight": "2",
       "name": "sros-04",
@@ -163,9 +195,9 @@
   },
   {
     "data": {
-      "id": "sros-02",
+      "id": "sros-01",
       "weight": "2",
-      "name": "sros-02",
+      "name": "sros-01",
       "parent": "",
       "kind": "vr-sros",
       "endpoint": {
@@ -176,40 +208,8 @@
         "Binds": null,
         "ClabKind": "vr-sros",
         "Image": "registry.srlinux.dev/pub/vr-sros:22.7.R1",
-        "MgmtIPv4Address": "20.20.20.102",
-        "Name": "sros-02"
-      }
-    },
-    "position": {
-      "x": 0,
-      "y": 0
-    },
-    "removed": false,
-    "group": "nodes",
-    "selected": false,
-    "selectable": true,
-    "locked": false,
-    "grabbed": false,
-    "grabbable": true,
-    "classes": ""
-  },
-  {
-    "data": {
-      "id": "srl-01",
-      "weight": "2",
-      "name": "srl-01",
-      "parent": "",
-      "kind": "srl",
-      "endpoint": {
-        "sourceEndpoint": "",
-        "targetEndpoint": ""
-      },
-      "ExtraData": {
-        "Binds": null,
-        "ClabKind": "srl",
-        "Image": "ghcr.io/nokia/srlinux",
-        "MgmtIPv4Address": "20.20.20.201",
-        "Name": "srl-01"
+        "MgmtIPv4Address": "20.20.20.101",
+        "Name": "sros-01"
       }
     },
     "position": {
@@ -233,13 +233,13 @@
       "weight": "1",
       "name": "srl-01::e1-1 \u003c--\u003e sros-01::eth1",
       "parent": "",
-      "kind": "srl",
+      "kind": "vr-sros",
       "endpoint": {
         "sourceEndpoint": "e1-1",
         "targetEndpoint": "eth1"
       },
       "ExtraData": {
-        "ClabServerUsername": "vscode",
+        "ClabServerUsername": "root",
         "Endpoints": {
           "SourceEndpoint": "e1-1",
           "TargetEndpoint": "eth1"
@@ -275,13 +275,13 @@
       "weight": "1",
       "name": "srl-01::e1-2 \u003c--\u003e sros-02::eth1",
       "parent": "",
-      "kind": "srl",
+      "kind": "vr-sros",
       "endpoint": {
         "sourceEndpoint": "e1-2",
         "targetEndpoint": "eth1"
       },
       "ExtraData": {
-        "ClabServerUsername": "vscode",
+        "ClabServerUsername": "root",
         "Endpoints": {
           "SourceEndpoint": "e1-2",
           "TargetEndpoint": "eth1"
@@ -317,13 +317,13 @@
       "weight": "1",
       "name": "sros-01::eth2 \u003c--\u003e sros-02::eth2",
       "parent": "",
-      "kind": "srl",
+      "kind": "vr-sros",
       "endpoint": {
         "sourceEndpoint": "eth2",
         "targetEndpoint": "eth2"
       },
       "ExtraData": {
-        "ClabServerUsername": "vscode",
+        "ClabServerUsername": "root",
         "Endpoints": {
           "SourceEndpoint": "eth2",
           "TargetEndpoint": "eth2"
@@ -359,13 +359,13 @@
       "weight": "1",
       "name": "sros-01::eth3 \u003c--\u003e sros-03::eth3",
       "parent": "",
-      "kind": "srl",
+      "kind": "vr-sros",
       "endpoint": {
         "sourceEndpoint": "eth3",
         "targetEndpoint": "eth3"
       },
       "ExtraData": {
-        "ClabServerUsername": "vscode",
+        "ClabServerUsername": "root",
         "Endpoints": {
           "SourceEndpoint": "eth3",
           "TargetEndpoint": "eth3"
@@ -401,13 +401,13 @@
       "weight": "1",
       "name": "sros-02::eth4 \u003c--\u003e sros-03::eth4",
       "parent": "",
-      "kind": "srl",
+      "kind": "vr-sros",
       "endpoint": {
         "sourceEndpoint": "eth4",
         "targetEndpoint": "eth4"
       },
       "ExtraData": {
-        "ClabServerUsername": "vscode",
+        "ClabServerUsername": "root",
         "Endpoints": {
           "SourceEndpoint": "eth4",
           "TargetEndpoint": "eth4"
@@ -443,13 +443,13 @@
       "weight": "1",
       "name": "sros-02::eth5 \u003c--\u003e sros-04::eth5",
       "parent": "",
-      "kind": "srl",
+      "kind": "vr-sros",
       "endpoint": {
         "sourceEndpoint": "eth5",
         "targetEndpoint": "eth5"
       },
       "ExtraData": {
-        "ClabServerUsername": "vscode",
+        "ClabServerUsername": "root",
         "Endpoints": {
           "SourceEndpoint": "eth5",
           "TargetEndpoint": "eth5"
@@ -485,13 +485,13 @@
       "weight": "1",
       "name": "sros-03::eth6 \u003c--\u003e sros-04::eth6",
       "parent": "",
-      "kind": "srl",
+      "kind": "vr-sros",
       "endpoint": {
         "sourceEndpoint": "eth6",
         "targetEndpoint": "eth6"
       },
       "ExtraData": {
-        "ClabServerUsername": "vscode",
+        "ClabServerUsername": "root",
         "Endpoints": {
           "SourceEndpoint": "eth6",
           "TargetEndpoint": "eth6"
@@ -527,13 +527,13 @@
       "weight": "1",
       "name": "sros-01::eth4 \u003c--\u003e sros-04::eth4",
       "parent": "",
-      "kind": "srl",
+      "kind": "vr-sros",
       "endpoint": {
         "sourceEndpoint": "eth4",
         "targetEndpoint": "eth4"
       },
       "ExtraData": {
-        "ClabServerUsername": "vscode",
+        "ClabServerUsername": "root",
         "Endpoints": {
           "SourceEndpoint": "eth4",
           "TargetEndpoint": "eth4"
@@ -569,13 +569,13 @@
       "weight": "1",
       "name": "sros-03::eth1 \u003c--\u003e srl-02::e1-3",
       "parent": "",
-      "kind": "srl",
+      "kind": "vr-sros",
       "endpoint": {
         "sourceEndpoint": "eth1",
         "targetEndpoint": "e1-3"
       },
       "ExtraData": {
-        "ClabServerUsername": "vscode",
+        "ClabServerUsername": "root",
         "Endpoints": {
           "SourceEndpoint": "eth1",
           "TargetEndpoint": "e1-3"
@@ -611,13 +611,13 @@
       "weight": "1",
       "name": "sros-04::eth2 \u003c--\u003e srl-02::e1-4",
       "parent": "",
-      "kind": "srl",
+      "kind": "vr-sros",
       "endpoint": {
         "sourceEndpoint": "eth2",
         "targetEndpoint": "e1-4"
       },
       "ExtraData": {
-        "ClabServerUsername": "vscode",
+        "ClabServerUsername": "root",
         "Endpoints": {
           "SourceEndpoint": "eth2",
           "TargetEndpoint": "e1-4"

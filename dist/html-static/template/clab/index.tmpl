@@ -302,6 +302,8 @@ body {
             })
         ])
         .then(function(dataArray) {
+
+  
         // cy defintion
           
         // inital render random
@@ -325,7 +327,14 @@ body {
               maxSimulationTime: 1500
             }            
           });
-          
+
+          // filter sros01-links and change its ClabServerUsername data
+          sros01links = cy.filter('edges[source = "sros-01"]');
+          console.log("sros01links: ", sros01links)
+
+          sros01links.data("ExtraData").ClabServerUsername = "suuser";
+          console.log("sros01links: ", sros01links)
+  
           // slider change event
           var slider = function(e) {
             var layout = cy.layout({
@@ -398,11 +407,14 @@ body {
             });
           });
         
+
+
+ 
+
           // trigger info panel on edge or link click
           cy.edges().forEach(function(edge) {
             edge.on("click", function(e) {
               removeLastChild();
-
               var headerTitle = ce("p", {class: "my-7"}, [ctn("Link Properties")]);
               var linkMessageHeader = ce("div", {class: "message-header"}, [headerTitle]);
               var oldSettingsHeader = settings.childNodes[1]
