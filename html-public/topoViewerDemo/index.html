@@ -236,31 +236,61 @@ body {
             return ce("a", {target: "_blank", href: link.url, class: "button is-link is-small"}, [ctn(link.name)] );
           });
         
-          var t1 = ce("label", {class: "label has-text-weight-semibold is-small"}, [ctn("Wireshark Endpoints")]);
+          var t1 = ce("label", {class: "label is-small has-text-weight-semibold"}, [ctn("Wireshark Endpoints:")]);
           var t2 = ce("div", {class: "buttons is-small"}, wiresharkElements);
           var t3 = ce("div", {class: "control"}, [t1, t2]);
-          var wireshark = ce("div", {class: "field"}, [t3]);
+          var seperator = ce("hr", {class: "my-3 has-background-grey-lighter"}, []);
+          var wireshark = ce("div", {class: "field"}, [t3, seperator]);
         
-          t1 = ce("label", {class: "label has-text-weight-semibold is-small"}, [ctn("Link Impairment")]);
-          t2 = ce("input", {class: "input is-small", type: "number", placeholder: "Delay (ms)", id: "delay", onkeyup: "updateUrl(this)", onchange:"updateUrl(this)"}, []);
-          t3 = ce("div", {class: "control "}, [t2]);
-          var delay = ce("div", {class: "field"}, [t1, t3]);
+          
+          
+          
+          
+
+          t1 = ce("label", {class: "label is-small has-text-weight-semibold pb-3"}, [ctn("Link Impairment:")]);
+          var linkImpairment = ce("div", {class: "field"}, [t1]);
+
+          label01 = ce("label", {class: "label is-small has-text-right has-text-weight-normal mr-0"}, [ctn("Delay")]);
+          column01 = ce("label", {class: "column is-3 ml-3 pb-3"}, [label01]);
+          input01 = ce("input", {class: "input is-small", type: "number", placeholder: "Delay (ms)", id: "delay", onkeyup: "updateUrl(this)", onchange:"updateUrl(this)"}, []);
+          column02 = ce("label", {class: "column is-8 p-0"}, [input01]);
+          var delay = ce("div", {class: "columns"}, [column01, column02]);
         
-          t1 = ce("input", {class: "input is-small", type: "number", placeholder: "Jitter (ms)", id: "jitter", onkeyup: "updateUrl(this)", onchange:"updateUrl(this)"}, []);
-          t2 = ce("div", {class: "control"}, [t1]);
-          var jitter = ce("div", {class: "field"}, [t2]);
+          label01 = ce("label", {class: "label is-small has-text-right has-text-weight-normal mr-0"}, [ctn("Jitter")]);
+          column01 = ce("label", {class: "column is-3 ml-3 pb-3"}, [label01]);
+          input01 = ce("input", {class: "input is-small", type: "number", placeholder: "Jitter (ms)", id: "jitter", onkeyup: "updateUrl(this)", onchange:"updateUrl(this)"}, []);
+          column02 = ce("label", {class: "column is-8 p-0"}, [input01]);
+          var jitter = ce("div", {class: "columns"}, [column01, column02]);
         
-          t1 = ce("input", {class: "input is-small", type: "number", placeholder: "Rate (Kbps)", id: "rate", onkeyup: "updateUrl(this)", onchange:"updateUrl(this)"}, []);
-          t2 = ce("div", {class: "control"}, [t1]);
-          var rate = ce("div", {class: "field"}, [t2]);
+          label01 = ce("label", {class: "label is-small has-text-right has-text-weight-normal mr-0"}, [ctn("Rate")]);
+          column01 = ce("label", {class: "column is-3 ml-3 pb-3"}, [label01]);
+          input01 = ce("input", {class: "input is-small", type: "number", placeholder: "Rate (Kbps)", id: "rate", onkeyup: "updateUrl(this)", onchange:"updateUrl(this)"}, []);
+          column02 = ce("label", {class: "column is-8 p-0"}, [input01]);
+          var rate = ce("div", {class: "columns"}, [column01, column02]);
+
+          
+          
+          
+
+          label01 = ce("label", {class: "label is-small has-text-right has-text-weight-normal mr-0"}, [ctn("Loss")]);
+          column01 = ce("label", {class: "column is-3 ml-3 pb-3"}, [label01]);
+          input01 = ce("input", {class: "input is-small", type: "number", placeholder: "Loss (%)", id: "loss", onkeyup: "updateUrl(this)", onchange:"updateUrl(this)"}, []);
+          column02 = ce("label", {class: "column is-8 p-0"}, [input01]);
+          var loss = ce("div", {class: "columns"}, [column01, column02]);
         
-          t1 = ce("input", {class: "input is-small", type: "number", placeholder: "Loss (%)", id: "loss", onkeyup: "updateUrl(this)", onchange:"updateUrl(this)"}, []);
-          t2 = ce("div", {class: "control"}, [t1]);
-          var loss = ce("div", {class: "field"}, [t2]);
+          
+          
+          
+
+          label01 = ce("label", {class: "label is-small has-text-right has-text-weight-normal mr-0"}, [ctn("Duration")]);
+          column01 = ce("label", {class: "column is-3 ml-3 pb-3"}, [label01]);
+          input01 = ce("input", {class: "input is-small", type: "number", placeholder: "Duration (min)", id: "duration", onkeyup: "updateUrl(this)", onchange:"updateUrl(this)"}, []);
+          column02 = ce("label", {class: "column is-8 p-0"}, [input01]);
+          var duration = ce("div", {class: "columns"}, [column01, column02]);
         
-          t1 = ce("input", {class: "input is-small", type: "number", placeholder: "Duration (secs)", id: "duration", onkeyup: "updateUrl(this)", onchange:"updateUrl(this)"}, []);
-          t2 = ce("div", {class: "control"}, [t1]);
-          var duration = ce("div", {class: "field"}, [t2]);
+          
+          
+          
 
           linkImpairmentUrl = "clab-pumba://" + e.data("ExtraData").ClabServerUsername + "@" + location.host + "?" + e.data("ExtraData").TargetLongName + "?" + e.data("ExtraData").Endpoints.TargetEndpoint
 
@@ -278,7 +308,7 @@ body {
           var submit = ce("div", {class: "field"}, [t2]);
 
           
-          return ce("div", {}, [wireshark, delay, jitter, rate, loss, duration, submit]);
+          return ce("div", {}, [wireshark, linkImpairment, delay, jitter, rate, loss, duration, submit]);
 
         }
         
@@ -441,7 +471,7 @@ body {
           var button = document.getElementById("onSubmit")
           console.log(button)
           console.log("delay-value: ", document.getElementById("delay").value)
-          button.href = linkImpairmentUrl + "?" + document.getElementById("delay").value + "?" + document.getElementById("jitter").value
+          button.href = linkImpairmentUrl + "?" + document.getElementById("delay").value + "?" + document.getElementById("jitter").value + "?" + document.getElementById("rate").value + "?" + document.getElementById("loss").value +  "?" + document.getElementById("duration").value
         }
       </script>
   </body>
