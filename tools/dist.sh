@@ -7,13 +7,16 @@ touch dist/html-public/put-html-asset-here.txt
 echo "Build Linux Binary..."
 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o topoviewer cloudshellwrapper/cmd/main.go 
 
-echo "Copy topoviewer Binary..."
+echo "Copy TopoViewer Binary..."
 mv topoviewer dist/topoviewer
 cp -r config dist
 
 echo "Copy clab client..."
 cp -r tools/clab-client-mac dist/clab-client-mac
 cp -r tools/clab-client-windows dist/clab-client-windows
+
+echo "Copy Pumba_linux_amd64 Binary..."
+cp -r tools/pumba_linux_amd64 dist/pumba_linux_amd64
 
 echo "Copy html folder and assets..."
 cp -r html-static dist/html-static
