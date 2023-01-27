@@ -7,7 +7,7 @@ There are three sections of codes in this project.
 
 Please keep in mind that exposing shell via browser is risky; use at your own risk.
 
-![](https://github.com/asadarafat/topoViewer/blob/development/docs/topoViewer-quickRun-containerLab.mp4)
+https://github.com/asadarafat/topoViewer/blob/development/docs/topoViewer-quickRun-containerLab.mp4
 
 
 ## Quick Run With ContainerLab Topo
