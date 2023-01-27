@@ -87,7 +87,7 @@ The feature relies on the client-side application to run tcpdump remotely and pi
 
 ### Pre-requisite
 - Ensure the topoViewer running in the same host as containerLab.
-- Ensure the Wireshark ist installed client side.
+- Ensure the Wireshark is installed client side.
 - Download client package 
     - [Windows](https://github.com/asadarafat/topoViewer/tree/main/dist/clab-client-windows "here for windows") 
     - [MAC](https://github.com/asadarafat/topoViewer/tree/main/dist/clab-client-mac "here for MAC") 
