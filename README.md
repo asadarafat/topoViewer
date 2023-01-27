@@ -164,6 +164,7 @@ TopoViewer has a remote capture feature that allows to intercept ContainerLab no
 #### Prerequisite
 - Ensure iTerm installed in MAC client side
 - Ensure the Wireshark is installed in client side.
+- Setup SSH keyless access to ContainerLab host
 - Download the "ContainerLab Wireshark Client - MAC" app extract and copy the app into /Applications folder
 
 
@@ -177,6 +178,7 @@ and Pumba binary is installed in ContainerLab host. Similar with  ContainerLab W
 #### Prerequisite
 - Ensure iTerm installed in MAC client side
 - Ensure the Pumba is installed ContainerLab host.
+- Setup SSH keyless access to ContainerLab host
 - Download the "ContainerLab Link Impairment Client - MAC" app extract and copy the app into /Applications folder
 
 
