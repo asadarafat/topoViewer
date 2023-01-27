@@ -275,9 +275,10 @@ func Clab(_ *cobra.Command, _ []string) error {
 	os.Mkdir(htmlPublicPrefixPath+cyTopo.ClabTopoData.ClabTopoName+"/clab-client", 0755)
 	os.Mkdir(htmlPublicPrefixPath+cyTopo.ClabTopoData.ClabTopoName+"/cloudshell-tools", 0755)
 
-	log.Info(htmlStaticPrefixPath + cyTopo.ClabTopoData.ClabTopoName + "/clab-client/mac-clab-client-wireshark.zip")
-	tools.CopyFile(htmlStaticPrefixPath+"/clab-client/mac-clab-client-wireshark.zip", htmlPublicPrefixPath+cyTopo.ClabTopoData.ClabTopoName+"/clab-client/mac-clab-client-wireshark.zip")
-	tools.CopyFile(htmlStaticPrefixPath+"/clab-client/windows-clab-client-wireshark.zip", htmlPublicPrefixPath+cyTopo.ClabTopoData.ClabTopoName+"/clab-client/windows-clab-client-wireshark.zip")
+	tools.CopyFile(htmlStaticPrefixPath+"/clab-client/clab-client-mac/ClabCapture.app.zip", htmlPublicPrefixPath+cyTopo.ClabTopoData.ClabTopoName+"/clab-client/mac-clab-client-wireshark.zip")
+	tools.CopyFile(htmlStaticPrefixPath+"/clab-client/clab-client-mac/ClabPumbaDelay.app.zip", htmlPublicPrefixPath+cyTopo.ClabTopoData.ClabTopoName+"/clab-client/mac-clab-client-linkImpairment.zip")
+
+	tools.CopyFile(htmlStaticPrefixPath+"/clab-client/clab-client-windows/ClabCapture.app.zip", htmlPublicPrefixPath+cyTopo.ClabTopoData.ClabTopoName+"/clab-client/windows-clab-client-wireshark.zip")
 
 	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "index.tmpl", cyTopo.ClabTopoData.ClabTopoName+"/"+"index.html", "dataCytoMarshall-"+cyTopo.ClabTopoData.ClabTopoName+".json")
 	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "cy-style.tmpl", cyTopo.ClabTopoData.ClabTopoName+"/"+"cy-style.json", "")

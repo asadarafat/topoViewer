@@ -15,6 +15,14 @@ echo "Copy clab client..."
 cp -r tools/clab-client-mac dist/clab-client-mac
 cp -r tools/clab-client-windows dist/clab-client-windows
 
+rm -rR html-static/clab-client
+mkdir html-static/clab-client
+mkdir html-static/clab-client/windows
+mkdir html-static/clab-client/mac
+cp -r tools/clab-client-mac html-static/clab-client/
+cp -r tools/clab-client-windows html-static/clab-client/
+
+
 echo "Copy Pumba_linux_amd64 Binary..."
 cp -r tools/pumba_linux_amd64 dist/pumba_linux_amd64
 

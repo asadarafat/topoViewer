@@ -47,7 +47,7 @@
     terminal.onResize(function(event) {
       var rows = event.rows;
       var cols = event.cols;
-      var size = JSON.stringify({cols: cols, rows: rows + 1});
+      var size = JSON.stringify({cols: cols, rows: rows + 100});
       var send = new TextEncoder().encode("\x01" + size);
       console.log('resizing to', size);
 
