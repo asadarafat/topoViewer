@@ -156,16 +156,28 @@ note that 138.203.40.63 is the clab server
 ## Quick Run - CloudShell access
 
 ## Quick Run - Wireshark Capture
-TopoViewer has a remote capture feature that allows it to intercept ContainerLab's node endPoint - provided that topoViewer is running on the same server as ContainerLab's node. The feature relies on the client-side application to run tcpdump remotely and pipe it to the client's Wireshark.
+TopoViewer has a remote capture feature that allows to intercept ContainerLab node's endPoint - provided that topoViewer is running on the same server as ContainerLab node. The feature relies on the client-side application to run SSH command using iTerm to execute tcpdump remotely and pipe it to the client's Wireshark.
 
-### Pre-requisite - MAC
-- Ensure the Wireshark is installed client side.
+### ContainerLab Wireshark Client - MAC 
+![](https://github.com/asadarafat/topoViewer/blob/development/docs/mac-client-package-edit-client-capture-wireshark.gif)
+
+#### Prerequisite
+- Ensure iTerm installed in MAC client side
+- Ensure the Wireshark is installed in client side.
 - Download the "ContainerLab Wireshark Client - MAC" app extract and copy the app into /Applications folder
 
-## Quick Run - Link Impairment
-MAC
-First download the "ContainerLab LinkImpairment Client - MAC" app extract and copy the app into /Applications folder
 
+## Quick Run - Link Impairment
+TopoViewer has Link Impairment feature that allow ContainerLab link to be impaired - provided that topoViewer is running on the same server as ContainerLab 
+and Pumba binary is installed in ContainerLab host. Similar with  ContainerLab Wireshark Client the feature relies on the client-side application to execute Pumba command over SSH.
+
+### ContainerLab Link Impairment Client - MAC 
+![](https://github.com/asadarafat/topoViewer/blob/development/docs/mac-client-package-edit-client-capture-wireshark.gif)
+
+#### Prerequisite
+- Ensure iTerm installed in MAC client side
+- Ensure the Pumba is installed ContainerLab host.
+- Download the "ContainerLab Link Impairment Client - MAC" app extract and copy the app into /Applications folder
 
 
 
