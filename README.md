@@ -154,6 +154,7 @@ Open the TopoViewer GUI in browser http://138.203.40.63:8080/
 note that 138.203.40.63 is the clab server 
 
 ## Quick Run - CloudShell access
+Click the node to open Node Properties, and then click SSH Session
 
 ## Quick Run - Wireshark Capture
 TopoViewer has a remote capture feature that allows to intercept ContainerLab node's endPoint - provided that topoViewer is running on the same server as ContainerLab node. The feature relies on the client-side application to run SSH command using iTerm to execute tcpdump remotely and pipe it to the client's Wireshark.
@@ -170,7 +171,7 @@ TopoViewer has a remote capture feature that allows to intercept ContainerLab no
 
 ## Quick Run - Link Impairment
 TopoViewer has Link Impairment feature that allow ContainerLab link to be impaired - provided that topoViewer is running on the same server as ContainerLab 
-and ![Pumba](https://github.com/alexei-led/pumba/releases) binary is installed in ContainerLab host. Similar with  ContainerLab Wireshark Client the feature relies on the client-side application to execute Pumba command over SSH.
+and ![Pumba](https://github.com/alexei-led/pumba/releases) binary is installed in ContainerLab host. Similar with ContainerLab Wireshark Client the feature relies on the client-side application to execute Pumba command over SSH.
 
 ### ContainerLab Link Impairment Client - MAC 
 ![](https://github.com/asadarafat/topoViewer/blob/development/docs/mac-client-package-edit-client-pumba-delay.gif)
