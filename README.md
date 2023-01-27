@@ -10,7 +10,7 @@ Please keep in mind that exposing shell via browser is risky; use at your own ri
 
 ## Quick Run - With ContainerLab Topo
 
-![](https://github.com/asadarafat/topoViewer/blob/development/docs/topoViewer-quickRun-containerLab.gif)
+![](https://github.com/asadarafat/topoViewer/blob/development/docs/topoViewer-quickRun-ContainerLab.gif)
 
 Define the topoviewer as ContainerLab Node and ensure the topology file (that will be visualised) is mounted as docker binds.
 
@@ -33,7 +33,7 @@ topology:
       exec:
         - /opt/topoviewer/topoviewer clab -H 138.203.40.63 -t local-bind/topo-file.yaml -u suuser
         # "138.203.40.63" is the server IP where clab is running
-        # "suuser" is the containerLab host user name
+        # "suuser" is the ContainerLab host user name
       entrypoint: /bin/bash
       binds:
         - /home/suuser/clab/topo-topoViewerDemo.yml:/opt/topoviewer/local-bind/topo-file.yaml:rw 
@@ -156,7 +156,7 @@ note that 138.203.40.63 is the clab server
 ## Quick Run - CloudShell access
 
 ## Quick Run - Wireshark Capture
-TopoViewer has a remote capture feature that allows it to intercept ContainerLab's node endPoint - provided that topoViewer is running on the same server as containerLab's node. The feature relies on the client-side application to run tcpdump remotely and pipe it to the client's Wireshark.
+TopoViewer has a remote capture feature that allows it to intercept ContainerLab's node endPoint - provided that topoViewer is running on the same server as ContainerLab's node. The feature relies on the client-side application to run tcpdump remotely and pipe it to the client's Wireshark.
 
 ### Pre-requisite - MAC
 - Ensure the Wireshark is installed client side.
@@ -173,7 +173,7 @@ First download the "ContainerLab LinkImpairment Client - MAC" app extract and co
 
 # How To 
 ## Run TopoEngine Go Code
-create cytoscape model based on containerLab yaml file definition
+create cytoscape model based on ContainerLab yaml file definition
 ```Shell
 vscode ➜ /workspaces/topoViewer (development) $ pwd
 /workspaces/topoViewer
