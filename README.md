@@ -10,10 +10,9 @@ Please keep in mind that exposing shell via browser is risky; use at your own ri
 
 ## Quick Run With ContainerLab Topo
 
-![name](https://github.com/asadarafat/topoViewer/blob/development/docs/topoViewer-quickRun-containerLab.gif)
+![](https://github.com/asadarafat/topoViewer/blob/development/docs/topoViewer-quickRun-containerLab.gif)
 
-Define the topoviewer as ContainerLab Node
-and ensure the topology file that will visualise is mounted as docker binds.
+Define the topoviewer as ContainerLab Node and ensure the topology file (that will be visualised) is mounted as docker binds.
 
 ```Shell
 [root@nsp-kvm-host-antwerp clab]# more topo-topoViewerDemo.yml
