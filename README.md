@@ -156,8 +156,7 @@ note that 138.203.40.63 is the clab server
 ## Quick Run - CloudShell access
 
 ## Quick Run - Wireshark Capture
-TopoViewer has a remote capture feature that allows it to intercept ContainerLab's node endPoint - provided that topoViewer is running on the same server as containerLab's node.
-The feature relies on the client-side application to run tcpdump remotely and pipe it to the client's Wireshark.
+TopoViewer has a remote capture feature that allows it to intercept ContainerLab's node endPoint - provided that topoViewer is running on the same server as containerLab's node. The feature relies on the client-side application to run tcpdump remotely and pipe it to the client's Wireshark.
 
 ### Pre-requisite - MAC
 - Ensure the Wireshark is installed client side.
