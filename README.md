@@ -181,8 +181,6 @@ and Pumba binary is installed in ContainerLab host. Similar with  ContainerLab W
 
 
 
-
-
 # How To 
 ## Run TopoEngine Go Code
 create cytoscape model based on ContainerLab yaml file definition
