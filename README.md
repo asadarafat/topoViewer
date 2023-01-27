@@ -8,13 +8,9 @@ There are three sections of codes in this project.
 Please keep in mind that exposing shell via browser is risky; use at your own risk.
 
 
-
-<video src="https://github.com/asadarafat/topoViewer/blob/development/docs/topoViewer-quickRun-containerLab.mp4" controls="controls" style="max-width: 730px;">
-</video>
-
-![name](https://github.com/asadarafat/topoViewer/blob/development/docs/topoViewer-quickRun-containerLab.mp4)
-
 ## Quick Run With ContainerLab Topo
+
+![name](https://github.com/asadarafat/topoViewer/blob/development/docs/topoViewer-quickRun-containerLab.gif)
 
 Define the topoviewer as ContainerLab Node
 and ensure the topology file that will visualise is mounted as docker binds.
