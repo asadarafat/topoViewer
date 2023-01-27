@@ -173,7 +173,7 @@ TopoViewer has Link Impairment feature that allow ContainerLab link to be impair
 and Pumba binary is installed in ContainerLab host. Similar with  ContainerLab Wireshark Client the feature relies on the client-side application to execute Pumba command over SSH.
 
 ### ContainerLab Link Impairment Client - MAC 
-![](https://github.com/asadarafat/topoViewer/blob/development/docs/mac-client-package-edit-client-capture-wireshark.gif)
+![](https://github.com/asadarafat/topoViewer/blob/development/docs/mac-client-package-edit-client-pumba-delay.gif)
 
 #### Prerequisite
 - Ensure iTerm installed in MAC client side
