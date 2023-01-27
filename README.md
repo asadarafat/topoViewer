@@ -32,8 +32,8 @@ topology:
         - 8080:8080
       exec:
         - /opt/topoviewer/topoviewer clab -H 138.203.40.63 -t local-bind/topo-file.yaml -u suuser
-        # 138.203.40.63 is the server IP where clab is running
-        # suuser is the containerLab host user name
+        # "138.203.40.63" is the server IP where clab is running
+        # "suuser" is the containerLab host user name
       entrypoint: /bin/bash
       binds:
         - /home/suuser/clab/topo-topoViewerDemo.yml:/opt/topoviewer/local-bind/topo-file.yaml:rw 
