@@ -10,7 +10,8 @@ Please keep in mind that exposing shell via browser is risky; use at your own ri
 
 ## Quick Run - With ContainerLab Topo
 
-![](https://github.com/asadarafat/topoViewer/blob/development/docs/topoViewer-quickRun-ContainerLab.gif)
+![](https://github.com/asadarafat/topoViewer/blob/development/docs/topoViewer-quickRun-containerLab.gif)
+
 
 Define the topoviewer as ContainerLab Node and ensure the topology file (that will be visualised) is mounted as docker binds.
 
