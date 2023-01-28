@@ -253,11 +253,11 @@ body {
           column02 = ce("label", {class: "column is-8 p-0"}, [input01]);
           var delay = ce("div", {class: "columns"}, [column01, column02]);
         
-          
-          
-          
-          
-          
+          label01 = ce("label", {class: "label is-small has-text-right has-text-weight-normal mr-0"}, [ctn("Jitter")]);
+          column01 = ce("label", {class: "column is-3 ml-3 pb-3"}, [label01]);
+          input01 = ce("input", {class: "input is-small", type: "number", placeholder: "Jitter (ms)", id: "jitter", onkeyup: "updateUrl(this)", onchange:"updateUrl(this)"}, []);
+          column02 = ce("label", {class: "column is-8 p-0"}, [input01]);
+          var jitter = ce("div", {class: "columns"}, [column01, column02]);
         
           label01 = ce("label", {class: "label is-small has-text-right has-text-weight-normal mr-0"}, [ctn("Rate")]);
           column01 = ce("label", {class: "column is-3 ml-3 pb-3"}, [label01]);
@@ -302,7 +302,7 @@ body {
           var submit = ce("div", {class: "field"}, [t2]);
 
           
-          return ce("div", {}, [wireshark, linkImpairment, delay, rate, loss, duration, submit]);
+          return ce("div", {}, [wireshark, linkImpairment, delay, jitter, rate, loss, duration, submit]);
         }
         
         
@@ -458,7 +458,6 @@ body {
               }
             });
           });
-
 
         function updateUrl(asad) {
           var button = document.getElementById("onSubmit")

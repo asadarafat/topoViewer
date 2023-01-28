@@ -201,6 +201,9 @@ func (cyTopo *CytoTopology) UnmarshalContainerLabTopov2(ClabTopoStruct ClabTopoS
 		cytoJson.Data.Target = l.Target
 		cytoJson.Data.Endpoint.TargetEndpoint = l.TargetEndpoint
 
+		cytoJson.Data.SourceEndpoint = l.SourceEndpoint
+		cytoJson.Data.TargetEndpoint = l.TargetEndpoint
+
 		cytoJson.Data.ExtraData = map[string]interface{}{
 			"ClabServerUsername": Username,
 			"Kind":               "ClabLink",

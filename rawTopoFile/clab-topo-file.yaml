@@ -24,11 +24,11 @@ topology:
       binds:
         - /home/suuser/clab/topo-file.yaml:/opt/local-bind/topo-file.yaml:rw
       
-    srl-01:
+    SRL-01:
       kind: srl
       mgmt_ipv4: 20.20.20.201
       image: ghcr.io/nokia/srlinux
-    srl-02:
+    SRL-02:
       kind: srl
       mgmt_ipv4: 20.20.20.202
       image: ghcr.io/nokia/srlinux
@@ -62,8 +62,8 @@ topology:
       license: license.txt
 
   links:
-    - endpoints: ["srl-01:e1-1", "sros-01:eth1"]
-    - endpoints: ["srl-01:e1-2", "sros-02:eth1"]
+    - endpoints: ["SRL-01:e1-1", "sros-01:eth1"]
+    - endpoints: ["SRL-01:e1-2", "sros-02:eth1"]
 
     - endpoints: ["sros-01:eth2", "sros-02:eth2"]
     - endpoints: ["sros-01:eth3", "sros-03:eth3"]
@@ -75,5 +75,5 @@ topology:
 
     - endpoints: ["sros-01:eth4", "sros-04:eth4"]
 
-    - endpoints: ["sros-03:eth1", "srl-02:e1-3"]
-    - endpoints: ["sros-04:eth2", "srl-02:e1-4"]
+    - endpoints: ["sros-03:eth1", "SRL-02:e1-3"]
+    - endpoints: ["sros-04:eth2", "SRL-02:e1-4"]

@@ -17,13 +17,15 @@ type CytoJsonTopology struct {
 type CytoJson struct {
 	// Cytoscape Fields
 	Data struct {
-		ID     string `json:"id"`
-		Source string `json:"source,omitempty"`
-		Target string `json:"target,omitempty"`
-		Weight string `json:"weight"`
-		Name   string `json:"name"`
-		Parent string `json:"parent"`
-		Kind   string `json:"kind"`
+		ID             string `json:"id"`
+		Source         string `json:"source,omitempty"`
+		Target         string `json:"target,omitempty"`
+		Weight         string `json:"weight"`
+		Name           string `json:"name"`
+		Parent         string `json:"parent"`
+		Kind           string `json:"kind"`
+		SourceEndpoint string `json:"sourceEndpoint"`
+		TargetEndpoint string `json:"targetEndpoint"`
 
 		Endpoint struct {
 			SourceEndpoint string `json:"sourceEndpoint"`
