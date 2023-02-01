@@ -1,3 +1,3 @@
 package cloudshellwrapper
 
-var VersionInfo string
+var VersionInfo string = "development"

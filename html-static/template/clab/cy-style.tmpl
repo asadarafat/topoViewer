@@ -53,8 +53,6 @@
   "selector": "edge",
   "style": {
     "targetArrowShape": "none",
-    "source-label": "data(sourceEndpoint)",
-    "target-label": "data(targetEndpoint)",
     "source-text-offset": 10,
     "target-text-offset": 10,
     "font-size": "3.5px",
@@ -65,7 +63,13 @@
     "width": "1.5",
     "overlay-padding": "2px"
   }
-}, {
+},{
+  "selector": ".edgeEndpointLabel",
+  "style": {
+    "source-label": "data(sourceEndpoint)",
+    "target-label": "data(targetEndpoint)"
+  }
+},{
   "selector": "node.unhighlighted",
   "style": {
     "opacity": "0.2"

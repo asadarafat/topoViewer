@@ -95,8 +95,10 @@ body {
                     <label class="label has-text-weight-normal is-small">Node Spacing</label>
                     <input id="nodeSpacing" type="range" min="10" max="50" step="1" value="15">
                 </div>
-                    <a id="clabClient" href="#" onclick="clabClient();" class="dropdown-item label has-text-weight-normal is-small"> Clab Client Download</a>                  
+                    <a id="clabClient" href="#" onclick="clabClient();" class="dropdown-item label has-text-weight-normal is-small">Clab Client Download</a>                  
                      
+                    <a id="telemetry" href="#" onclick="telemetry();" class="dropdown-item label has-text-weight-normal is-small">Telemetry</a>                  
+                    <a id="toggleLinkEndpoint" href="#" onclick="toggleLinkEndpoint();" class="dropdown-item label has-text-weight-normal is-small">Toggle Link Endpoint</a>                  
               </div>
             </div>
           </div>
@@ -110,6 +112,39 @@ body {
     </div>
   </div>
       <script type="text/javascript">
+
+        
+        var protocol = "ws://";
+        var url = protocol + location.host + "/ws"
+        var websocketMessage
+
+        let socket = new WebSocket(url);
+        console.log("Attempting Connection...");
+
+        socket.onopen = () => {
+            console.log("Successfully Connected");
+            
+        };
+        socket.onclose = event => {
+          console.log("Socket Closed Connection: ", event);
+          socket.send("Client Closed!")
+        };
+
+        socket.onerror = error => {
+          console.log("Socket Error: ", error);
+        };
+
+        
+        function telemetry() {
+          socket.onmessage = (msg) => {
+            console.log(msg)
+            websocketMessage = msg
+            updateEdgeColor()
+          }
+        }
+  
+
+
         
         var linkImpairmentUrl;
 
@@ -429,6 +464,8 @@ body {
           cy.edges().forEach(function(edge) {
             edge.on("click", function(e) {
               removeLastChild();
+
+
               var headerTitle = ce("p", {class: "my-7"}, [ctn("Link Properties")]);
               var linkMessageHeader = ce("div", {class: "message-header"}, [headerTitle]);
               var oldSettingsHeader = settings.childNodes[1]
@@ -450,6 +487,7 @@ body {
           topoViewerNode = cy.filter('node[name = "topoviewer"]');
           topoViewerNode.remove()
 
+
           
           cy.on("tap", function(e) {
             if(e.target === cy ){
@@ -459,6 +497,40 @@ body {
             });
           });
 
+        function updateEdgeColor() {
+          Srl01Node = cy.filter('edge[source = "srl-01"][target = "sros-01"]');
+          Srl01Node.style("line-color", "red")
+          Srl01Node.style("label", websocketMessage.data + " kbps")
+          Srl01Node.style("text-background-padding", "0.1")
+          Srl01Node.style("text-outline-color", "#F2F2F2")
+          Srl01Node.style("text-outline-width", "0.3px")
+
+          Srl01Node.style("line-fill", "linear-gradient")
+          Srl01Node.style("line-gradient-stop-colors", ['blue', 'green', 'yellow', 'red'])
+          Srl01Node.style("line-gradient-stop-positions", ['25%', '40%', '50%', '100%'])
+
+
+        }
+
+        var linkEndpointVisibility = false
+
+        function toggleLinkEndpoint() {
+          if (linkEndpointVisibility) {
+            cy.edges().forEach(function(edge) {
+              edge.style('source-label', " ")
+              edge.style('target-label', " ")
+              linkEndpointVisibility = false
+            }) 
+          }else {
+            cy.edges().forEach(function(edge) {
+              edge.style('source-label', edge.data("sourceEndpoint"))
+              edge.style('target-label', edge.data("targetEndpoint"))
+              linkEndpointVisibility = true
+            }) 
+          }
+        }
+
+          
         function updateUrl(asad) {
           var button = document.getElementById("onSubmit")
           console.log(button)

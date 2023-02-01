@@ -3,9 +3,11 @@ package cloudshellwrapper
 import (
 	"errors"
 	"fmt"
+	"math/rand"
 	"net/http"
 	"os"
 	"path"
+	"strconv"
 	"strings"
 	"time"
 
@@ -17,6 +19,7 @@ import (
 	log "github.com/asadarafat/topoViewer/tools"
 
 	"github.com/gorilla/mux"
+	"github.com/gorilla/websocket"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/cobra"
 )
@@ -112,11 +115,40 @@ var clabCommand = cobra.Command{
 	RunE:    Clab,
 }
 
+// var websocket upgrader
+var upgrader = websocket.Upgrader{
+	ReadBufferSize:  1024,
+	WriteBufferSize: 1024,
+	CheckOrigin:     func(r *http.Request) bool { return true },
+}
+
 func init() {
 	// initialise the logger config clabCommand
 	confClab.ApplyToCobra(&clabCommand)
 	// init clabCommand
 	rootCommand.AddCommand(&clabCommand)
+}
+
+// define a reader which will listen for
+// new messages being sent to our WebSocket
+// endpoint
+func reader(conn *websocket.Conn) {
+	for {
+		// read in a message
+		messageType, p, err := conn.ReadMessage()
+		if err != nil {
+			log.Info(err)
+			return
+		}
+		// print out that message for clarity
+		log.Info(string(p))
+
+		if err := conn.WriteMessage(messageType, p); err != nil {
+			log.Info(err)
+			return
+		}
+
+	}
 }
 
 func Clab(_ *cobra.Command, _ []string) error {
@@ -214,11 +246,13 @@ func Clab(_ *cobra.Command, _ []string) error {
 	router.HandleFunc("/version", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte(VersionInfo))
+		log.Info("##################### " + VersionInfo)
+
 	})
 
+	// cloudshell endpoint
 	router.HandleFunc("/cloudshell}",
 		func(w http.ResponseWriter, r *http.Request) {
-			// router.HandleFunc(pathXTermJS, xtermjs.GetHandler(xtermjsHandlerOptions, "TEST"))
 			log.Info(xtermjsHandlerOptions)
 			w.WriteHeader(http.StatusOK)
 			w.Write([]byte(VersionInfo))
@@ -228,16 +262,49 @@ func Clab(_ *cobra.Command, _ []string) error {
 			log.Info("##################### " + RouterId)
 		})
 
+	// cloudshell-tools endpoint
 	router.HandleFunc("/cloudshell-tools}",
 		func(w http.ResponseWriter, r *http.Request) {
-			// router.HandleFunc(pathXTermJS, xtermjs.GetHandler(xtermjsHandlerOptions, "TEST"))
 			log.Info(xtermjsHandlerOptions)
 			w.WriteHeader(http.StatusOK)
 			w.Write([]byte(VersionInfo))
 
-			params := mux.Vars(r)
-			RouterId := params["id"]
-			log.Info("##################### " + RouterId)
+			log.Info("##################### cloudshell-tools")
+		})
+
+	// websocket endpoint
+	router.HandleFunc("/ws",
+		// router.HandleFunc("/",
+		func(w http.ResponseWriter, r *http.Request) {
+			// upgrade this connection to a WebSocket
+			// connection
+			log.Info("##################### " + VersionInfo)
+
+			ws, err := upgrader.Upgrade(w, r, nil)
+			if err != nil {
+				log.Info(err)
+			}
+			log.Infof("################## Websocket: Client Connected")
+			w.WriteHeader(http.StatusOK)
+
+			var message []byte
+
+			rand.Seed(time.Now().UnixNano())
+			var number int
+
+			for i := 0; i < 10000; i++ {
+				number = rand.Intn(60) + 1
+				message = []byte(strconv.Itoa(number))
+				err = ws.WriteMessage(1, message)
+				if err != nil {
+					log.Info(err)
+				}
+				time.Sleep(1 * time.Second)
+			}
+
+			// listen indefinitely for new messages coming
+			// through on our WebSocket connection
+			reader(ws)
 		})
 
 	// this is the endpoint for serving xterm.js assets
@@ -274,6 +341,7 @@ func Clab(_ *cobra.Command, _ []string) error {
 	os.Mkdir(htmlPublicPrefixPath+cyTopo.ClabTopoData.ClabTopoName+"/cloudshell", 0755)
 	os.Mkdir(htmlPublicPrefixPath+cyTopo.ClabTopoData.ClabTopoName+"/clab-client", 0755)
 	os.Mkdir(htmlPublicPrefixPath+cyTopo.ClabTopoData.ClabTopoName+"/cloudshell-tools", 0755)
+	os.Mkdir(htmlPublicPrefixPath+cyTopo.ClabTopoData.ClabTopoName+"/ws", 0755)
 
 	tools.CopyFile(htmlStaticPrefixPath+"/clab-client/clab-client-mac/ClabCapture.app.zip", htmlPublicPrefixPath+cyTopo.ClabTopoData.ClabTopoName+"/clab-client/mac-clab-client-wireshark.zip")
 	tools.CopyFile(htmlStaticPrefixPath+"/clab-client/clab-client-mac/ClabPumbaDelay.app.zip", htmlPublicPrefixPath+cyTopo.ClabTopoData.ClabTopoName+"/clab-client/mac-clab-client-linkImpairment.zip")
@@ -286,6 +354,7 @@ func Clab(_ *cobra.Command, _ []string) error {
 	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "cloudshell-terminal-js.tmpl", cyTopo.ClabTopoData.ClabTopoName+"/cloudshell/"+"terminal.js", "")
 	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "tools-cloudshell-index.tmpl", cyTopo.ClabTopoData.ClabTopoName+"/cloudshell-tools/"+"index.html", "")
 	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "tools-cloudshell-terminal-js.tmpl", cyTopo.ClabTopoData.ClabTopoName+"/cloudshell-tools/"+"terminal.js", "")
+	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "websocket-index.tmpl", cyTopo.ClabTopoData.ClabTopoName+"/ws/"+"index.html", "")
 
 	// start memory logging pulse
 	logWithMemory := createMemoryLog()
@@ -305,4 +374,5 @@ func Clab(_ *cobra.Command, _ []string) error {
 
 	log.Infof("starting server on interface:port '%s'...", listenOnAddress)
 	return server.ListenAndServe()
+
 }
