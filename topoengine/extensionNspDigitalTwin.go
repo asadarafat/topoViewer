@@ -90,7 +90,7 @@ func (cyTopo *CytoTopology) NspDigitalTwinTopoUnmarshal_usingClabMapMethod(topoF
 			m[node.NodeID] = &clabNodeAttributes
 			// log.Debug(node.NodeID)
 		}
-		ClabTopo.NodeDefinition = m
+		ClabTopo.ClabNodeDefinition = m
 
 		links := network.LinkList
 		for k, link := range links {
@@ -110,7 +110,7 @@ func (cyTopo *CytoTopology) NspDigitalTwinTopoUnmarshal_usingClabMapMethod(topoF
 	}
 
 	// load map of (nodeName to nodeDefinition relation) to ClabTopo.NodeDefinition
-	log.Debug(ClabTopo.NodeDefinition["10.10.10.2"].Kind)
+	log.Debug(ClabTopo.ClabNodeDefinition["10.10.10.2"].Kind)
 	log.Debug("ClabLink: ")
 	log.Debug("ClabLink: ")
 	log.Debug("ClabLink: ", ClabTopo.ClabLinks[0].A)

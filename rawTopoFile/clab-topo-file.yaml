@@ -28,6 +28,12 @@ topology:
       kind: srl
       mgmt_ipv4: 20.20.20.201
       image: ghcr.io/nokia/srlinux
+      #topoviewer:
+       # role: dcgw / spine / leaf / workload / pe / agg / core
+       # color: default-mapping based on role.. red / black / green
+        # mapping the icon based on role
+
+
     SRL-02:
       kind: srl
       mgmt_ipv4: 20.20.20.202

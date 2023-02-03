@@ -1,0 +1,70 @@
+[
+  {{- $i:=0 }}{{range $n, $c := .NodeConfigs}}{{if $i}}{{end}}
+  {
+    "data": {
+      "index": "{{$c.Index}}",
+      "id":  "{{$c.ShortName}}",
+      "name": "{{$c.ShortName}}",
+      "longname": "{{$c.LongName}}",
+      "fqdn": "{{$c.Fqdn}}",
+      "clabGroup": "{{$c.Group}}",
+      "binds": "{{$c.Binds}}",
+      "labdir": "{{$c.LabDir}}",
+      "kind": "{{$c.Kind}}",
+      "image": "{{$c.Image}}",
+      "mgmt-net": "{{$c.MgmtNet}}",
+      "mgmt-intf": "{{$c.MgmtIntf}}",
+      "mgmt-ipv4-address": "{{$c.MgmtIPv4Address}}",
+      "mgmt-ipv4-prefix-length": {{$c.MgmtIPv4PrefixLength}},
+      "mgmt-ipv6-address": "{{$c.MgmtIPv6Address}}",
+      "mgmt-ipv6-prefix-length": {{$c.MgmtIPv6PrefixLength}},
+      "mac-address": "{{$c.MacAddress}}",
+      "labels": {{ToJSONPretty $c.Labels "      " "  "}}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+    },
+  {{$i = add $i 1}}{{end}}
+  {{range $i, $l := .Clab.Links}}{{if $i}},{{end}}
+  {
+    "data": {
+      "id": "{{ $l.A.Node.ShortName }}::{{ $l.A.EndpointName }}<-->{{ $l.B.Node.ShortName }}::{{ $l.B.EndpointName }}",
+      "source": "{{ $l.A.Node.ShortName }}",
+      "target": "{{ $l.B.Node.ShortName }}",
+      "weight": "1",
+      "name": " "{{ $l.A.Node.ShortName }}::{{ $l.A.EndpointName }}<-->{{ $l.B.Node.ShortName }}::{{ $l.B.EndpointName }}",
+      "parent": "",
+      "kind": "",
+      "sourceEndpoint": "{{ $l.A.EndpointName }}",
+      "targetEndpoint": "{{ $l.B.EndpointName }}",
+      "sourceMac": "{{ $l.A.MAC }}",
+      "targetMac": "{{ $l.B.MAC }}",
+      "endpoint": {
+        "sourceEndpoint": "{{ $l.A.EndpointName }}",
+        "targetEndpoint": "{{ $l.B.EndpointName }}"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  }{{end}}
+]

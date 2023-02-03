@@ -5,18 +5,19 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"os/user"
+
+	// "os/user"
 	"path"
 	"strconv"
 	"strings"
-	"time"
+
+	// "time"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 
 	tools "github.com/asadarafat/topoViewer/tools"
-
-	"github.com/srl-labs/containerlab/clab"
+	// "github.com/srl-labs/containerlab/clab"
 )
 
 func (cyTopo *CytoTopology) InitLogger() {
@@ -25,33 +26,194 @@ func (cyTopo *CytoTopology) InitLogger() {
 	toolLogger.InitLogger("logs/topoengine-CytoTopology.log", cyTopo.LogLevel)
 }
 
-func (cyTopo *CytoTopology) MarshalContainerLabTopo(topoFile string) error {
-	log.Info(topoFile)
-	// static definition of topofile path
-	// filePath, _ := os.Getwd()
-	// filePath = (filePath + "/rawTopoFile/")
-	// log.Info(filePath + topoFile)
+// func (cyTopo *CytoTopology) MarshalContainerLabTopo(topoFile string) error {
+// 	log.Info(topoFile)
+// 	// static definition of topofile path
+// 	// filePath, _ := os.Getwd()
+// 	// filePath = (filePath + "/rawTopoFile/")
+// 	// log.Info(filePath + topoFile)
 
-	c, err := clab.NewContainerLab(
-		clab.WithTimeout(time.Second*30),
-		clab.WithTopoFile(topoFile, ""),
-	)
-	log.Info(topoFile)
+// 	c, err := clab.NewContainerLab(
+// 		clab.WithTimeout(time.Second*30),
+// 		clab.WithTopoFile(topoFile, ""),
+// 	)
+// 	log.Info(topoFile)
 
-	if err != nil {
-		return err
-	}
-	cyTopo.ClabTopoData.ClabNodes = c.Nodes
-	cyTopo.ClabTopoData.NodeDefinition = c.Config.Topology.Nodes
-	cyTopo.ClabTopoData.ClabLinks = c.Links
-	cyTopo.ClabTopoData.ClabTopoName = c.Config.Name
+// 	if err != nil {
+// 		return err
+// 	}
+// 	cyTopo.ClabTopoData.ClabNodes = c.Nodes
+// 	cyTopo.ClabTopoData.NodeDefinition = c.Config.Topology.Nodes
+// 	cyTopo.ClabTopoData.ClabLinks = c.Links
+// 	cyTopo.ClabTopoData.ClabTopoName = c.Config.Name
 
-	return nil
-}
+// 	return nil
+// }
+
+// func (cyTopo *CytoTopology) UnmarshalContainerLabTopo(ClabTopoStruct) []byte {
+
+// 	cytoJson := CytoJson{}
+// 	cytoJsonArray := []CytoJson{}
+
+// 	// get Clab ServerHost Username
+// 	user, err := user.Current()
+// 	if err != nil {
+// 		log.Error(err.Error())
+// 	}
+// 	Username := user.Username
+
+// 	// 	ExtraData: make(map[string]interface{}, 0),
+// 	// }
+// 	// link := CytoLink{
+// 	// 	ExtraData: make(map[string]interface{}, 0),
+// 	// }
+
+// 	for i, n := range cyTopo.ClabTopoData.ClabNodes {
+
+// 		cytoJson.Group = "nodes"
+// 		cytoJson.Grabbable = true
+// 		cytoJson.Selectable = true
+// 		cytoJson.Data.ID = string(i)
+// 		cytoJson.Data.Weight = "2"
+
+// 		cytoJson.Data.Name = n.Config().ShortName
+
+// 		log.Info(n.Config().ShortName)
+
+// 		cytoJson.Data.ExtraData = map[string]interface{}{
+// 			// "eggs": struct {
+// 			// 	source string
+// 			// 	price  float64
+// 			// }{"chicken", 1.75},
+// 			"ClabServerUsername": Username,
+// 			"ClabNodeName":       n.Config().ShortName,
+// 			"ClabNodeLongName":   n.Config().LongName,
+// 			"ID":                 string(i),
+// 			"Weight":             "2",
+// 			"Name":               n.Config().ShortName,
+// 			"ClabKind":           n.Config().Kind,
+// 			"Image":              n.Config().Image,
+// 			"ClabGroup":          n.Config().Group,
+// 			"MgmtIPv4Address":    n.Config().MgmtIPv4Address,
+// 			"MgmtIPv6Address":    n.Config().MgmtIPv6Address,
+// 			"Binds":              n.Config().Binds,
+// 			"Exec":               n.Config().Exec,
+// 			"Publish":            n.Config().Publish,
+// 			"PortSet":            n.Config().PortSet,
+// 			"Entrypoint":         n.Config().Entrypoint,
+// 			"DockerUser":         n.Config().User,
+// 		}
+// 		cytoJsonArray = append(cytoJsonArray, cytoJson)
+// 	}
+
+// 	for i, n := range cyTopo.ClabTopoData.NodeDefinition {
+
+// 		cytoJson.Group = "nodes"
+// 		cytoJson.Grabbable = true
+// 		cytoJson.Selectable = true
+// 		cytoJson.Data.ID = string(i)
+// 		cytoJson.Data.Weight = "2"
+
+// 		cytoJson.Data.Name = n.Type
+
+// 		// log.Info(n.Config().ShortName)
+
+// 		cytoJson.Data.ExtraData = map[string]interface{}{
+// 			// "eggs": struct {
+// 			// 	source string
+// 			// 	price  float64
+// 			// }{"chicken", 1.75},
+// 			"ClabServerUsername": Username,
+// 			"ClabNodeName":       n.Type,
+// 			// "ClabNodeLongName":   n.Config().LongName,
+// 			"ID":              string(i),
+// 			"Weight":          "2",
+// 			"Name":            n.Type,
+// 			"ClabKind":        n.Kind,
+// 			"Image":           n.Image,
+// 			"ClabGroup":       n.Group,
+// 			"MgmtIPv4Address": n.MgmtIPv4,
+// 			"MgmtIPv6Address": n.MgmtIPv6,
+// 			"Binds":           n.Binds,
+// 			"Exec":            n.Exec,
+// 			"Publish":         n.Publish,
+// 			"Port":            n.Ports,
+// 			"Entrypoint":      n.Entrypoint,
+// 			"DockerUser":      n.User,
+// 		}
+// 		cytoJsonArray = append(cytoJsonArray, cytoJson)
+// 	}
+
+// 	for i, l := range cyTopo.ClabTopoData.ClabLinks {
+
+// 		cytoJson.Group = "edges"
+// 		cytoJson.Grabbable = true
+// 		cytoJson.Selectable = true
+// 		cytoJson.Data.ID = strconv.Itoa(i)
+// 		cytoJson.Data.Weight = "1"
+// 		cytoJson.Data.Name = l.A.Node.ShortName + "::" + l.A.EndpointName + " <--> " + l.B.Node.ShortName + "::" + l.B.EndpointName
+// 		cytoJson.Data.Source = l.A.Node.ShortName
+// 		cytoJson.Data.Endpoint.SourceEndpoint = l.A.EndpointName
+// 		cytoJson.Data.Target = l.B.Node.ShortName
+// 		cytoJson.Data.Endpoint.TargetEndpoint = l.B.EndpointName
+
+// 		cytoJson.Data.ExtraData = map[string]interface{}{
+// 			"ClabServerUsername": Username,
+// 			"Kind":               "ClabLink",
+// 			"grabbable":          true,
+// 			"selectable":         true,
+// 			"ID":                 strconv.Itoa(i),
+// 			"weight":             "1",
+// 			"Name":               l.A.Node.ShortName + "::" + l.A.EndpointName + "<-->" + l.B.Node.ShortName + "::" + l.B.EndpointName,
+// 			"SourceLongName":     l.A.Node.LongName,
+// 			"TargetLongName":     l.B.Node.LongName,
+// 			"Endpoints": struct {
+// 				SourceEndpoint string
+// 				TargetEndpoint string
+// 			}{l.A.EndpointName, l.B.EndpointName},
+// 		}
+
+// 		cytoJsonArray = append(cytoJsonArray, cytoJson)
+// 	}
+// 	// log.Info(cyTopo.Nodes)
+
+// 	// jsonBytesCytoUi, err := json.MarshalIndent(CytoTopology{
+// 	// 	Nodes: cyTopo.Nodes,
+// 	// 	Links: cyTopo.Links}, "", "  ")
+// 	// if err != nil {
+// 	// 	log.Error(err)
+// 	// 	panic(err)
+// 	// }
+
+// 	// _, err = os.Stdout.Write(jsonBytesCytoUi)
+// 	// if err != nil {
+// 	// 	log.Error(err)
+// 	// 	panic(err)
+// 	// }
+// 	// log.Info("jsonBytesCytoUi Result:", string(jsonBytesCytoUi))
+
+// 	// jsonBytesCytoUi, err := json.MarshalIndent(CytoJsonTopology{
+// 	// 	Element: cytoJsonArray}, "", "  ")
+
+// 	jsonBytesCytoUi, err := json.MarshalIndent(cytoJsonArray, "", "  ")
+// 	if err != nil {
+// 		log.Error(err)
+// 		panic(err)
+// 	}
+
+// 	_, err = os.Stdout.Write(jsonBytesCytoUi)
+// 	if err != nil {
+// 		log.Error(err)
+// 		panic(err)
+// 	}
+// 	log.Info("jsonBytesCytoUi Result:", string(jsonBytesCytoUi))
+
+// 	return jsonBytesCytoUi
+// }
 
 func (cyTopo *CytoTopology) MarshalContainerLabTopov2(topoFile string) error {
 
-	clabNodeData := ClabNode{}
+	clabNode := ClabNode{}
 
 	workingDirectory, err1 := os.Getwd()
 	if err1 != nil {
@@ -102,15 +264,15 @@ func (cyTopo *CytoTopology) MarshalContainerLabTopov2(topoFile string) error {
 			// log.Infof("viper key    : '%s'", viper.AllKeys()[k])
 			// log.Infof("viper value  : '%s'", viper.Get(i))
 			fmt.Println(i, viper.Get(i))
-			clabNodeData.Data = map[string]interface{}{
-				"Name":            nodeName,
-				"Image":           viper.Get("topology.nodes." + nodeName + ".image"),
-				"ClabKind":        viper.Get("topology.nodes." + nodeName + ".kind"),
-				"MgmtIPv4Address": viper.Get("topology.nodes." + nodeName + ".mgmt_ipv4"),
-				"Binds":           viper.Get("topology.nodes." + nodeName + ".binds"),
+			clabNode.Data = map[string]interface{}{
+				"clabName":            nodeName,
+				"clabImage":           viper.Get("topology.nodes." + nodeName + ".image"),
+				"clabKind":            viper.Get("topology.nodes." + nodeName + ".kind"),
+				"clabMgmtIPv4Address": viper.Get("topology.nodes." + nodeName + ".mgmt_ipv4"),
+				"clabBinds":           viper.Get("topology.nodes." + nodeName + ".binds"),
 			}
 		}
-		NodesList = append(NodesList, clabNodeData)
+		NodesList = append(NodesList, clabNode)
 	}
 	cyTopo.ClabTopoData.NodesList = NodesList
 	log.Infof("cyTopo.ClabTopoData.NodesList    : '%s'", cyTopo.ClabTopoData.NodesList)
@@ -180,9 +342,9 @@ func (cyTopo *CytoTopology) UnmarshalContainerLabTopov2(ClabTopoStruct ClabTopoS
 		cytoJson.Group = "nodes"
 		cytoJson.Grabbable = true
 		cytoJson.Selectable = true
-		cytoJson.Data.ID = n.Data["Name"].(string)
-		cytoJson.Data.Name = n.Data["Name"].(string) // get the Node name by accessing direct via Interface
-		cytoJson.Data.Kind = n.Data["ClabKind"].(string)
+		cytoJson.Data.ID = n.Data["clabName"].(string)
+		cytoJson.Data.Name = n.Data["clabName"].(string) // get the Node name by accessing direct via Interface
+
 		cytoJson.Data.Weight = "2"
 		cytoJson.Data.ExtraData = n.Data // copy all attribute of clab n.Data to cyto ExtraData
 		cytoJsonArray = append(cytoJsonArray, cytoJson)
@@ -205,180 +367,16 @@ func (cyTopo *CytoTopology) UnmarshalContainerLabTopov2(ClabTopoStruct ClabTopoS
 		cytoJson.Data.TargetEndpoint = l.TargetEndpoint
 
 		cytoJson.Data.ExtraData = map[string]interface{}{
-			"ClabServerUsername": Username,
-			"Kind":               "ClabLink",
-			"grabbable":          true,
-			"selectable":         true,
-			"ID":                 strconv.Itoa(i),
-			"weight":             "1",
-			"Name":               l.Source + "::" + l.SourceEndpoint + " <--> " + l.Target + "::" + l.TargetEndpoint,
-			"SourceLongName":     "clab" + "-" + cyTopo.ClabTopoData.ClabTopoName + "-" + l.Source,
-			"TargetLongName":     "clab" + "-" + cyTopo.ClabTopoData.ClabTopoName + "-" + l.Target,
-			"Endpoints": struct {
+			"clabServerUsername": Username,
+			"clabKind":           "ClabLink",
+			"clabId":             strconv.Itoa(i),
+			"clabName":           l.Source + "::" + l.SourceEndpoint + " <--> " + l.Target + "::" + l.TargetEndpoint,
+			"clabSourceLongName": "clab" + "-" + cyTopo.ClabTopoData.ClabTopoName + "-" + l.Source,
+			"clabTargetLongName": "clab" + "-" + cyTopo.ClabTopoData.ClabTopoName + "-" + l.Target,
+			"clabEndpoints": struct {
 				SourceEndpoint string
 				TargetEndpoint string
 			}{l.SourceEndpoint, l.TargetEndpoint},
-		}
-
-		cytoJsonArray = append(cytoJsonArray, cytoJson)
-	}
-	// log.Info(cyTopo.Nodes)
-
-	// jsonBytesCytoUi, err := json.MarshalIndent(CytoTopology{
-	// 	Nodes: cyTopo.Nodes,
-	// 	Links: cyTopo.Links}, "", "  ")
-	// if err != nil {
-	// 	log.Error(err)
-	// 	panic(err)
-	// }
-
-	// _, err = os.Stdout.Write(jsonBytesCytoUi)
-	// if err != nil {
-	// 	log.Error(err)
-	// 	panic(err)
-	// }
-	// log.Info("jsonBytesCytoUi Result:", string(jsonBytesCytoUi))
-
-	// jsonBytesCytoUi, err := json.MarshalIndent(CytoJsonTopology{
-	// 	Element: cytoJsonArray}, "", "  ")
-
-	jsonBytesCytoUi, err := json.MarshalIndent(cytoJsonArray, "", "  ")
-	if err != nil {
-		log.Error(err)
-		panic(err)
-	}
-
-	_, err = os.Stdout.Write(jsonBytesCytoUi)
-	if err != nil {
-		log.Error(err)
-		panic(err)
-	}
-	log.Info("jsonBytesCytoUi Result:", string(jsonBytesCytoUi))
-
-	return jsonBytesCytoUi
-}
-
-func (cyTopo *CytoTopology) UnmarshalContainerLabTopo(ClabTopoStruct) []byte {
-
-	cytoJson := CytoJson{}
-	cytoJsonArray := []CytoJson{}
-
-	// get Clab ServerHost Username
-	user, err := user.Current()
-	if err != nil {
-		log.Error(err.Error())
-	}
-	Username := user.Username
-
-	// 	ExtraData: make(map[string]interface{}, 0),
-	// }
-	// link := CytoLink{
-	// 	ExtraData: make(map[string]interface{}, 0),
-	// }
-
-	for i, n := range cyTopo.ClabTopoData.ClabNodes {
-
-		cytoJson.Group = "nodes"
-		cytoJson.Grabbable = true
-		cytoJson.Selectable = true
-		cytoJson.Data.ID = string(i)
-		cytoJson.Data.Weight = "2"
-
-		cytoJson.Data.Name = n.Config().ShortName
-
-		log.Info(n.Config().ShortName)
-
-		cytoJson.Data.ExtraData = map[string]interface{}{
-			// "eggs": struct {
-			// 	source string
-			// 	price  float64
-			// }{"chicken", 1.75},
-			"ClabServerUsername": Username,
-			"ClabNodeName":       n.Config().ShortName,
-			"ClabNodeLongName":   n.Config().LongName,
-			"ID":                 string(i),
-			"Weight":             "2",
-			"Name":               n.Config().ShortName,
-			"ClabKind":           n.Config().Kind,
-			"Image":              n.Config().Image,
-			"ClabGroup":          n.Config().Group,
-			"MgmtIPv4Address":    n.Config().MgmtIPv4Address,
-			"MgmtIPv6Address":    n.Config().MgmtIPv6Address,
-			"Binds":              n.Config().Binds,
-			"Exec":               n.Config().Exec,
-			"Publish":            n.Config().Publish,
-			"PortSet":            n.Config().PortSet,
-			"Entrypoint":         n.Config().Entrypoint,
-			"DockerUser":         n.Config().User,
-		}
-		cytoJsonArray = append(cytoJsonArray, cytoJson)
-	}
-
-	for i, n := range cyTopo.ClabTopoData.NodeDefinition {
-
-		cytoJson.Group = "nodes"
-		cytoJson.Grabbable = true
-		cytoJson.Selectable = true
-		cytoJson.Data.ID = string(i)
-		cytoJson.Data.Weight = "2"
-
-		cytoJson.Data.Name = n.Type
-
-		// log.Info(n.Config().ShortName)
-
-		cytoJson.Data.ExtraData = map[string]interface{}{
-			// "eggs": struct {
-			// 	source string
-			// 	price  float64
-			// }{"chicken", 1.75},
-			"ClabServerUsername": Username,
-			"ClabNodeName":       n.Type,
-			// "ClabNodeLongName":   n.Config().LongName,
-			"ID":              string(i),
-			"Weight":          "2",
-			"Name":            n.Type,
-			"ClabKind":        n.Kind,
-			"Image":           n.Image,
-			"ClabGroup":       n.Group,
-			"MgmtIPv4Address": n.MgmtIPv4,
-			"MgmtIPv6Address": n.MgmtIPv6,
-			"Binds":           n.Binds,
-			"Exec":            n.Exec,
-			"Publish":         n.Publish,
-			"Port":            n.Ports,
-			"Entrypoint":      n.Entrypoint,
-			"DockerUser":      n.User,
-		}
-		cytoJsonArray = append(cytoJsonArray, cytoJson)
-	}
-
-	for i, l := range cyTopo.ClabTopoData.ClabLinks {
-
-		cytoJson.Group = "edges"
-		cytoJson.Grabbable = true
-		cytoJson.Selectable = true
-		cytoJson.Data.ID = strconv.Itoa(i)
-		cytoJson.Data.Weight = "1"
-		cytoJson.Data.Name = l.A.Node.ShortName + "::" + l.A.EndpointName + " <--> " + l.B.Node.ShortName + "::" + l.B.EndpointName
-		cytoJson.Data.Source = l.A.Node.ShortName
-		cytoJson.Data.Endpoint.SourceEndpoint = l.A.EndpointName
-		cytoJson.Data.Target = l.B.Node.ShortName
-		cytoJson.Data.Endpoint.TargetEndpoint = l.B.EndpointName
-
-		cytoJson.Data.ExtraData = map[string]interface{}{
-			"ClabServerUsername": Username,
-			"Kind":               "ClabLink",
-			"grabbable":          true,
-			"selectable":         true,
-			"ID":                 strconv.Itoa(i),
-			"weight":             "1",
-			"Name":               l.A.Node.ShortName + "::" + l.A.EndpointName + "<-->" + l.B.Node.ShortName + "::" + l.B.EndpointName,
-			"SourceLongName":     l.A.Node.LongName,
-			"TargetLongName":     l.B.Node.LongName,
-			"Endpoints": struct {
-				SourceEndpoint string
-				TargetEndpoint string
-			}{l.A.EndpointName, l.B.EndpointName},
 		}
 
 		cytoJsonArray = append(cytoJsonArray, cytoJson)

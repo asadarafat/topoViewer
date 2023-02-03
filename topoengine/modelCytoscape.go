@@ -33,7 +33,7 @@ type CytoJson struct {
 		} `json:"endpoint"`
 
 		// Extra Fields
-		ExtraData interface{} `json:"ExtraData,omitempty"`
+		ExtraData interface{} `json:"extraData,omitempty"`
 	} `json:"data"`
 
 	Pos struct {
