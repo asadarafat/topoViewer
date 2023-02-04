@@ -66,6 +66,7 @@ topology:
       image: registry.srlinux.dev/pub/vr-sros:22.7.R1
       type: "cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28"
       license: license.txt
+  
 
   links:
     - endpoints: ["SRL-01:e1-1", "sros-01:eth1"]
