@@ -1,6 +1,74 @@
 [
   {
     "data": {
+      "id": "sros-02",
+      "weight": "2",
+      "name": "sros-02",
+      "parent": "",
+      "kind": "",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "endpoint": {
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "extraData": {
+        "clabBinds": null,
+        "clabImage": "registry.srlinux.dev/pub/vr-sros:22.7.R1",
+        "clabKind": "vr-sros",
+        "clabMgmtIPv4Address": "20.20.20.102",
+        "clabName": "sros-02"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "sros-04",
+      "weight": "2",
+      "name": "sros-04",
+      "parent": "",
+      "kind": "",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "endpoint": {
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "extraData": {
+        "clabBinds": null,
+        "clabImage": "registry.srlinux.dev/pub/vr-sros:22.7.R1",
+        "clabKind": "vr-sros",
+        "clabMgmtIPv4Address": "20.20.20.104",
+        "clabName": "sros-04"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
       "id": "srl-01",
       "weight": "2",
       "name": "srl-01",
@@ -69,74 +137,6 @@
   },
   {
     "data": {
-      "id": "sros-02",
-      "weight": "2",
-      "name": "sros-02",
-      "parent": "",
-      "kind": "",
-      "sourceEndpoint": "",
-      "targetEndpoint": "",
-      "endpoint": {
-        "sourceEndpoint": "",
-        "targetEndpoint": ""
-      },
-      "extraData": {
-        "clabBinds": null,
-        "clabImage": "registry.srlinux.dev/pub/vr-sros:22.7.R1",
-        "clabKind": "vr-sros",
-        "clabMgmtIPv4Address": "20.20.20.102",
-        "clabName": "sros-02"
-      }
-    },
-    "position": {
-      "x": 0,
-      "y": 0
-    },
-    "removed": false,
-    "group": "nodes",
-    "selected": false,
-    "selectable": true,
-    "locked": false,
-    "grabbed": false,
-    "grabbable": true,
-    "classes": ""
-  },
-  {
-    "data": {
-      "id": "sros-03",
-      "weight": "2",
-      "name": "sros-03",
-      "parent": "",
-      "kind": "",
-      "sourceEndpoint": "",
-      "targetEndpoint": "",
-      "endpoint": {
-        "sourceEndpoint": "",
-        "targetEndpoint": ""
-      },
-      "extraData": {
-        "clabBinds": null,
-        "clabImage": "registry.srlinux.dev/pub/vr-sros:22.7.R1",
-        "clabKind": "vr-sros",
-        "clabMgmtIPv4Address": "20.20.20.103",
-        "clabName": "sros-03"
-      }
-    },
-    "position": {
-      "x": 0,
-      "y": 0
-    },
-    "removed": false,
-    "group": "nodes",
-    "selected": false,
-    "selectable": true,
-    "locked": false,
-    "grabbed": false,
-    "grabbable": true,
-    "classes": ""
-  },
-  {
-    "data": {
       "id": "topoviewer",
       "weight": "2",
       "name": "topoviewer",
@@ -173,40 +173,6 @@
   },
   {
     "data": {
-      "id": "sros-04",
-      "weight": "2",
-      "name": "sros-04",
-      "parent": "",
-      "kind": "",
-      "sourceEndpoint": "",
-      "targetEndpoint": "",
-      "endpoint": {
-        "sourceEndpoint": "",
-        "targetEndpoint": ""
-      },
-      "extraData": {
-        "clabBinds": null,
-        "clabImage": "registry.srlinux.dev/pub/vr-sros:22.7.R1",
-        "clabKind": "vr-sros",
-        "clabMgmtIPv4Address": "20.20.20.104",
-        "clabName": "sros-04"
-      }
-    },
-    "position": {
-      "x": 0,
-      "y": 0
-    },
-    "removed": false,
-    "group": "nodes",
-    "selected": false,
-    "selectable": true,
-    "locked": false,
-    "grabbed": false,
-    "grabbable": true,
-    "classes": ""
-  },
-  {
-    "data": {
       "id": "srl-02",
       "weight": "2",
       "name": "srl-02",
@@ -224,6 +190,40 @@
         "clabKind": "srl",
         "clabMgmtIPv4Address": "20.20.20.202",
         "clabName": "srl-02"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "sros-03",
+      "weight": "2",
+      "name": "sros-03",
+      "parent": "",
+      "kind": "",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "endpoint": {
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "extraData": {
+        "clabBinds": null,
+        "clabImage": "registry.srlinux.dev/pub/vr-sros:22.7.R1",
+        "clabKind": "vr-sros",
+        "clabMgmtIPv4Address": "20.20.20.103",
+        "clabName": "sros-03"
       }
     },
     "position": {
