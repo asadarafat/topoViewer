@@ -273,53 +273,44 @@ body {
             return ce("a", {target: "_blank", href: link.url, class: "button is-link is-small"}, [ctn(link.name)] );
           });
         
-          var t1 = ce("label", {class: "label is-small has-text-weight-semibold"}, [ctn("Wireshark Endpoints:")]);
+          var t1 = ce("label", {class: "label has-text-link is-small has-text-weight-semibold"}, [ctn("Wireshark Endpoints:")]);
           var t2 = ce("div", {class: "buttons is-small"}, wiresharkElements);
           var t3 = ce("div", {class: "control"}, [t1, t2]);
           var seperator = ce("hr", {class: "my-3 has-background-grey-lighter"}, []);
           var wireshark = ce("div", {class: "field"}, [t3, seperator]);
 
-          t1 = ce("label", {class: "label is-small has-text-weight-semibold pb-3"}, [ctn("Link Impairment:")]);
+          t1 = ce("label", {class: "label has-text-link is-small has-text-weight-semibold pb-3"}, [ctn("Link Impairment:")]);
           var linkImpairment = ce("div", {class: "field"}, [t1]);
 
-          label01 = ce("label", {class: "label is-small has-text-right has-text-weight-normal mr-0"}, [ctn("Delay")]);
+          label01 = ce("label", {class: "label has-text-link is-small has-text-right has-text-weight-normal mr-0"}, [ctn("Delay")]);
           column01 = ce("label", {class: "column is-3 ml-3 pb-3"}, [label01]);
           input01 = ce("input", {class: "input is-small", type: "number", placeholder: "Delay (ms)", id: "delay", onkeyup: "updateUrl(this)", onchange:"updateUrl(this)"}, []);
           column02 = ce("label", {class: "column is-8 p-0"}, [input01]);
           var delay = ce("div", {class: "columns mb-2"}, [column01, column02]);
         
-          label01 = ce("label", {class: "label is-small has-text-right has-text-weight-normal mr-0"}, [ctn("Jitter")]);
+          label01 = ce("label", {class: "label has-text-link is-small has-text-right has-text-weight-normal mr-0"}, [ctn("Jitter")]);
           column01 = ce("label", {class: "column is-3 ml-3 pb-3"}, [label01]);
           input01 = ce("input", {class: "input is-small", type: "number", placeholder: "Jitter (ms)", id: "jitter", onkeyup: "updateUrl(this)", onchange:"updateUrl(this)"}, []);
           column02 = ce("label", {class: "column is-8 p-0"}, [input01]);
           var jitter = ce("div", {class: "columns mb-2"}, [column01, column02]);
         
-          label01 = ce("label", {class: "label is-small has-text-right has-text-weight-normal mr-0"}, [ctn("Rate")]);
+          label01 = ce("label", {class: "label has-text-link is-small has-text-right has-text-weight-normal mr-0"}, [ctn("Rate")]);
           column01 = ce("label", {class: "column is-3 ml-3 pb-3"}, [label01]);
           input01 = ce("input", {class: "input is-small", type: "number", placeholder: "Rate (Kbps)", id: "rate", onkeyup: "updateUrl(this)", onchange:"updateUrl(this)"}, []);
           column02 = ce("label", {class: "column is-8 p-0"}, [input01]);
           var rate = ce("div", {class: "columns mb-2"}, [column01, column02]);
 
-
-          label01 = ce("label", {class: "label is-small has-text-right has-text-weight-normal mr-0"}, [ctn("Loss")]);
+          label01 = ce("label", {class: "label has-text-link is-small has-text-right has-text-weight-normal mr-0"}, [ctn("Loss")]);
           column01 = ce("label", {class: "column is-3 ml-3 pb-3"}, [label01]);
           input01 = ce("input", {class: "input is-small", type: "number", placeholder: "Loss (%)", id: "loss", onkeyup: "updateUrl(this)", onchange:"updateUrl(this)"}, []);
           column02 = ce("label", {class: "column is-8 p-0"}, [input01]);
           var loss = ce("div", {class: "columns mb-2"}, [column01, column02]);
-        
-          
-          
-          
 
-          label01 = ce("label", {class: "label is-small has-text-right has-text-weight-normal mr-0"}, [ctn("Duration")]);
+          label01 = ce("label", {class: "label has-text-link is-small has-text-right has-text-weight-normal mr-0"}, [ctn("Duration")]);
           column01 = ce("label", {class: "column is-3 ml-3 pb-3"}, [label01]);
           input01 = ce("input", {class: "input is-small", type: "number", placeholder: "Duration (min)", id: "duration", onkeyup: "updateUrl(this)", onchange:"updateUrl(this)"}, []);
           column02 = ce("label", {class: "column is-8 p-0"}, [input01]);
           var duration = ce("div", {class: "columns mb-1"}, [column01, column02]);
-        
-          
-          
-          
 
           linkImpairmentUrl = "clab-pumba://" + e.data("extraData").clabServerUsername + "@" + location.host + "?" + e.data("extraData").clabTargetLongName + "?" + e.data("extraData").clabEndpoints.TargetEndpoint
 
