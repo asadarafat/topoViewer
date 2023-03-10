@@ -1,0 +1,254 @@
+{
+    "nsp-service-intent:intent": [
+        {
+            "service-name": "L3VPN-NonAutoBind-sngl-instance-4010",
+            "intent-type": "vprn",
+            "intent-type-version": "1",
+            "olc-state": "deployed",
+            "template-name": "vprn",
+            "intent-specific-data": {
+                "vprn:vprn": {
+                    "customer-id": 1,
+                    "admin-state": "unlocked",
+                    "site-details": {
+                        "site": [
+                            {
+                                "device-id": "10.10.10.1",
+                                "site-name": "L3VPN-NonAutoBind-sngl-instance-4010",
+                                "ne-service-id": "4010",
+                                "export-inactive-bgp": false,
+                                "enable-ospf": false,
+                                "auto-bind-tunnel": {
+                                    "resolution": "filter",
+                                    "enforce-strict-tunnel-tagging": false,
+                                    "resolution-filter": {
+                                        "srte": true
+                                    }
+                                },
+                                "enable-max-routes": false,
+                                "enable-ebgp": false,
+                                "enable-static-route": false,
+                                "route-distinguisher": "65000:4010",
+                                "route-distinguisher-type": "type0",
+                                "vrf-import": ["L3VPN-NonAutoBind-sngl-instance-4010-IMPORT"],
+                                "vrf-export": ["L3VPN-NonAutoBind-sngl-instance-4010-EXPORT"],
+                                "interface-details": {
+                                    "interface": [
+                                        {
+                                            "interface-name": "int_4010_1",
+                                            "admin-state": "unlocked",
+                                            "loopback": false,
+                                            "ingress-stats": false,
+                                            "ipv4": {
+                                                "primary": {
+                                                    "address": "1.1.1.1",
+                                                    "prefix-length": 24
+                                                }
+                                            },
+                                            "sap": {
+                                                "admin-state": "unlocked",
+                                                "enable-qos": false,
+                                                "enable-filter": false,
+                                                "port-id": "1/1/c1/1",
+                                                "inner-vlan-tag": -1,
+                                                "outer-vlan-tag": 4010,
+                                                "ingress": {
+                                                    "qos": {
+                                                      "match-qinq-dot1p": "",
+                                                      "sap-ingress": {
+                                                        "policy-name": "",
+                                                        "queuing-type": "",
+                                                        "overrides": {
+                                                          "queue": [
+                                                            {
+                                                              "queue-id": "",
+                                                              "cbs": "",
+                                                              "mbs": "",
+                                                              "rate": {
+                                                                "pir": "",
+                                                                "cir": ""
+                                                              }
+                                                            }
+                                                          ],
+                                                          "policer": [
+                                                            {
+                                                              "policer-id": "",
+                                                              "cbs": "",
+                                                              "mbs": ""
+                                                            }
+                                                          ]
+                                                        }
+                                                      },
+                                                      "policer-control-policy": {
+                                                        "policy-name": ""
+                                                      },
+                                                      "scheduler-policy": {
+                                                        "policy-name": "",
+                                                        "overrides": {
+                                                          "scheduler": [
+                                                            {
+                                                              "scheduler-name": "",
+                                                              "rate": {
+                                                                "pir": "",
+                                                                "cir": ""
+                                                              }
+                                                            }
+                                                          ]
+                                                        }
+                                                      }
+                                                    },
+                                                    "filter": {
+                                                      "ip": "",
+                                                      "ipv6": ""
+                                                    }
+                                                  }
+                                                
+                                            },
+                                            "ip-mtu": 1492
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "device-id": "10.10.10.2",
+                                "site-name": "L3VPN-NonAutoBind-sngl-instance-4010",
+                                "ne-service-id": "4010",
+                                "export-inactive-bgp": false,
+                                "enable-ospf": false,
+                                "auto-bind-tunnel": {
+                                    "resolution": "filter",
+                                    "enforce-strict-tunnel-tagging": false,
+                                    "resolution-filter": {
+                                        "srte": true
+                                    }
+                                },
+                                "enable-max-routes": false,
+                                "enable-ebgp": false,
+                                "enable-static-route": false,
+                                "route-distinguisher": "65000:4010",
+                                "route-distinguisher-type": "type0",
+                                "vrf-import": ["L3VPN-NonAutoBind-sngl-instance-4010-IMPORT"],
+                                "vrf-export": ["L3VPN-NonAutoBind-sngl-instance-4010-EXPORT"],
+                                "interface-details": {
+                                    "interface": [
+                                        {
+                                            "interface-name": "int_4010_1",
+                                            "admin-state": "unlocked",
+                                            "loopback": false,
+                                            "ingress-stats": false,
+                                            "ipv4": {
+                                                "primary": {
+                                                    "address": "2.2.2.2",
+                                                    "prefix-length": 24
+                                                }
+                                            },
+                                            "sap": {
+                                                "admin-state": "unlocked",
+                                                "enable-qos": false,
+                                                "enable-filter": false,
+                                                "port-id": "1/1/5"
+                                            },
+                                            "ip-mtu": 1492
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "device-id": "10.10.10.6",
+                                "site-name": "L3VPN-NonAutoBind-sngl-instance-4010",
+                                "ne-service-id": "4010",
+                                "export-inactive-bgp": false,
+                                "enable-ospf": false,
+                                "auto-bind-tunnel": {
+                                    "resolution": "filter",
+                                    "enforce-strict-tunnel-tagging": false,
+                                    "resolution-filter": {
+                                        "srte": true
+                                    }
+                                },
+                                "enable-max-routes": false,
+                                "enable-ebgp": false,
+                                "enable-static-route": false,
+                                "route-distinguisher": "65000:4010",
+                                "route-distinguisher-type": "type0",
+                                "vrf-import": ["L3VPN-NonAutoBind-sngl-instance-4010-IMPORT"],
+                                "vrf-export": ["L3VPN-NonAutoBind-sngl-instance-4010-EXPORT"],
+                                "interface-details": {
+                                    "interface": [
+                                        {
+                                            "interface-name": "int_4010_1",
+                                            "admin-state": "unlocked",
+                                            "loopback": false,
+                                            "ingress-stats": false,
+                                            "ipv4": {
+                                                "primary": {
+                                                    "address": "6.6.6.6",
+                                                    "prefix-length": 24
+                                                }
+                                            },
+                                            "sap": {
+                                                "admin-state": "unlocked",
+                                                "enable-qos": false,
+                                                "enable-filter": false,
+                                                "port-id": "1/1/10",
+                                                "inner-vlan-tag": -1,
+                                                "outer-vlan-tag": 4010
+                                            },
+                                            "ip-mtu": 1492
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "device-id": "10.10.10.7",
+                                "site-name": "L3VPN-NonAutoBind-sngl-instance-4010",
+                                "ne-service-id": "4010",
+                                "export-inactive-bgp": false,
+                                "enable-ospf": false,
+                                "auto-bind-tunnel": {
+                                    "resolution": "filter",
+                                    "enforce-strict-tunnel-tagging": false,
+                                    "resolution-filter": {
+                                        "rsvp": true
+                                    }
+                                },
+                                "enable-max-routes": false,
+                                "enable-ebgp": false,
+                                "enable-static-route": false,
+                                "route-distinguisher": "65000:4010",
+                                "route-distinguisher-type": "type0",
+                                "vrf-import": ["L3VPN-NonAutoBind-sngl-instance-4010-IMPORT"],
+                                "vrf-export": ["L3VPN-NonAutoBind-sngl-instance-4010-EXPORT"],
+                                "interface-details": {
+                                    "interface": [
+                                        {
+                                            "interface-name": "int_4010_1",
+                                            "admin-state": "unlocked",
+                                            "loopback": false,
+                                            "ingress-stats": false,
+                                            "ipv4": {
+                                                "primary": {
+                                                    "address": "7.7.7.7",
+                                                    "prefix-length": 24
+                                                }
+                                            },
+                                            "sap": {
+                                                "admin-state": "unlocked",
+                                                "enable-qos": false,
+                                                "enable-filter": false,
+                                                "port-id": "1/1/10",
+                                                "inner-vlan-tag": -1,
+                                                "outer-vlan-tag": 4010
+                                            },
+                                            "ip-mtu": 1492
+                                        }
+                                    ]
+                                }
+                            }                            
+                        ]
+                    }
+                }
+            }
+        }
+    ]
+}

@@ -99,6 +99,7 @@ func main() {
 	filePath, _ := os.Getwd()
 	filePath = (filePath + "/rawTopoFile/")
 	log.Info("topology file path: ", filePath)
+
 	topoFile, err := ioutil.ReadFile(filePath + "topo-ietf-L2.json")
 
 	if err != nil {

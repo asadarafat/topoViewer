@@ -1,0 +1,155 @@
+qos
+scheduler-policy "ENTERPRISE-SCHEDULER" create # Enterprise Scheduler 
+    tier 3
+        scheduler "ENTERPRISE-TIER-3-SCHEDULER" create # Enterprise Tier3 Scheduler
+        exit
+    exit
+exit   
+
+sap-ingress "100"  create
+    description "decription"
+    queue 1 create
+        parent "ENTERPRISE-TIER-3-SCHEDULER" cir-level 1
+        adaptation-rule pir min cir min
+        rate max cir max
+    exit
+    queue 2 best-effort create
+        parent "ENTERPRISE-TIER-3-SCHEDULER" cir-level 2
+        adaptation-rule pir min cir min
+        rate max cir max
+    exit
+    queue 3 best-effort create
+        parent "ENTERPRISE-TIER-3-SCHEDULER" cir-level 3
+        adaptation-rule pir min cir min
+        rate max cir max
+    exit
+        queue 4 best-effort create
+        parent "ENTERPRISE-TIER-3-SCHEDULER" cir-level 4
+        adaptation-rule pir min cir min
+        rate max cir max
+    exit
+    queue 8 expedite create
+        parent "ENTERPRISE-TIER-3-SCHEDULER" level 8 cir-level 8
+        adaptation-rule pir min cir min
+        rate max cir max
+    exit
+    queue 11 multipoint create
+        parent "ENTERPRISE-TIER-3-SCHEDULER" cir-level 2
+        adaptation-rule pir min cir min
+        rate max cir max
+    exit
+
+    queue 5 best-effort create
+        parent "ENTERPRISE-TIER-3-SCHEDULER" cir-level 5
+        adaptation-rule pir min cir min
+        rate max cir max
+    exit
+    queue 7 expedite create
+        parent "ENTERPRISE-TIER-3-SCHEDULER" level 7 cir-level 7
+        adaptation-rule pir min cir min
+        rate 1
+    exit
+    fc "be" create
+        queue 1
+    exit
+     fc "l2" create
+        queue 2
+        multicast-queue 11
+    exit
+    fc "nc" create
+        queue 8
+    exit
+    fc "af" create
+        queue 3
+    exit
+   fc "l1" create
+        queue 4
+    exit
+   fc "h2" create
+        queue 5
+    exit
+   fc "ef" create
+        queue 7
+    exit
+    dscp be fc "be"
+    dscp nc1 fc "nc" priority high
+    dscp cs1 cs3 af11 af12 af13 fc "l2"
+    dscp af21 af22 af23 fc "af"
+    dscp af31 af32 af33 fc "l1"
+    dscp af41 af42 af43 fc "h2"
+    dscp ef cs5 fc "ef" priority high
+exit
+
+
+sap-egress "100"  create
+    description "decription"
+    queue 1 create
+        parent "ENTERPRISE-TIER-3-SCHEDULER" cir-level 1
+        adaptation-rule pir min cir min
+        rate max cir max
+    exit
+    queue 2 best-effort create
+        parent "ENTERPRISE-TIER-3-SCHEDULER" cir-level 2
+        adaptation-rule pir min cir min
+        rate max cir max
+    exit
+    queue 3 best-effort create
+        parent "ENTERPRISE-TIER-3-SCHEDULER" cir-level 3
+        adaptation-rule pir min cir min
+        rate max cir max
+    exit
+    queue 8 expedite create
+        parent "ENTERPRISE-TIER-3-SCHEDULER" level 8 cir-level 8
+        adaptation-rule pir min cir min
+        rate max cir max
+    exit
+    queue 4 best-effort create
+        parent "ENTERPRISE-TIER-3-SCHEDULER" cir-level 4
+        adaptation-rule pir min cir min
+        rate max cir max
+    exit
+    queue 5 best-effort create
+        parent "ENTERPRISE-TIER-3-SCHEDULER" cir-level 5
+        adaptation-rule pir min cir min
+        rate max cir max
+    exit
+    queue 7 expedite create
+        parent "ENTERPRISE-TIER-3-SCHEDULER" level 7 cir-level 7
+        adaptation-rule pir min cir min
+        rate max cir max
+    exit
+    fc "be" create
+        queue 1
+    exit
+     fc "l2" create
+        queue 2
+        multicast-queue 11
+    exit
+    fc "nc" create
+        queue 8
+        dot1p 6
+    exit
+    fc "af" create
+        queue 3
+  dot1p 3
+    exit
+   fc "l1" create
+        queue 4
+        dot1p 3
+    exit
+   fc "h2" create
+        queue 5
+        dot1p 3
+    exit
+   fc "ef" create
+        queue 7
+        dot1p 5
+    exit
+    dscp be fc "be"
+    dscp nc1 fc "nc" priority high
+    dscp cs1 cs3 af11 af12 af13 fc "l2"
+    dscp af21 af22 af23 fc "af"
+    dscp af31 af32 af33 fc "l1"
+    dscp af41 af42 af43 fc "h2"
+    dscp ef cs5 fc "ef" priority high
+exit
