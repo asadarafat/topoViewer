@@ -24,13 +24,9 @@ type CytoJson struct {
 		Name           string `json:"name"`
 		Parent         string `json:"parent"`
 		Kind           string `json:"kind"`
+		TopoviewerRole string `json:"topoviewerRole"`
 		SourceEndpoint string `json:"sourceEndpoint"`
 		TargetEndpoint string `json:"targetEndpoint"`
-
-		Endpoint struct {
-			SourceEndpoint string `json:"sourceEndpoint"`
-			TargetEndpoint string `json:"targetEndpoint"`
-		} `json:"endpoint"`
 
 		// Extra Fields
 		ExtraData interface{} `json:"extraData,omitempty"`

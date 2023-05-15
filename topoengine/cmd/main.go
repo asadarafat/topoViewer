@@ -10,21 +10,30 @@ import (
 
 // "io/ioutil"
 // "os"
+// log "github.com/sirupsen/logrus"
 
 func main() {
 
 	cytoUiGo := topoengine.CytoTopology{}
 	cytoUiGo.LogLevel = 5
 	cytoUiGo.InitLogger()
+
 	cytoUiGo.InitLoggerDigitalTwin()
 
 	// clab run
-	// cytoUiGo.MarshalContainerLabTopo("clab-topo-file.yaml")
-	// clabTopoJson := topoengine.ClabTopoJson{}
-	// cytoUiGo.UnmarshalContainerLabTopo(clabTopoJson)
-	// jsonBytes := cytoUiGo.UnmarshalContainerLabTopo(clabTopoJson)
-	// // log.Info(jsonBytes)
-	// cytoUiGo.PrintjsonBytesCytoUi(jsonBytes)
+	filePath, _ := os.Getwd()
+	filePath = (filePath + "/rawTopoFile/")
+	log.Info("topology file path: ", filePath)
+
+	topoFile, err := ioutil.ReadFile(filePath + "clab-topo-file.yaml")
+
+	if err != nil {
+		log.Fatal("Error when opening file: ", err)
+	}
+	log.Info(topoFile)
+
+	cytoUiGo.MarshalContainerLabTopov2("/rawTopoFile/clab-topo-file.yaml")
+	cytoUiGo.UnmarshalContainerLabTopov2(cytoUiGo.ClabTopoStructData, "admin")
 
 	// Nsp Ietf L2
 	// Nsp Ietf L2
@@ -96,16 +105,16 @@ func main() {
 	// // Nsp digitalTwin
 	// // Nsp digitalTwin
 	// // Nsp digitalTwin
-	filePath, _ := os.Getwd()
-	filePath = (filePath + "/rawTopoFile/")
-	log.Info("topology file path: ", filePath)
+	// filePath, _ := os.Getwd()
+	// filePath = (filePath + "/rawTopoFile/")
+	// log.Info("topology file path: ", filePath)
 
-	topoFile, err := ioutil.ReadFile(filePath + "topo-ietf-L2.json")
+	// topoFile, err := ioutil.ReadFile(filePath + "topo-ietf-L2.json")
 
-	if err != nil {
-		log.Fatal("Error when opening file: ", err)
-	}
-	// log.Info(topoFile)
-	cytoUiGo.NspDigitalTwinTopoUnmarshal(topoFile, topoengine.IetfNetworkTopologyL2{})
+	// if err != nil {
+	// 	log.Fatal("Error when opening file: ", err)
+	// }
+	// // log.Info(topoFile)
+	// cytoUiGo.NspDigitalTwinTopoUnmarshal(topoFile, topoengine.IetfNetworkTopologyL2{})
 
 }

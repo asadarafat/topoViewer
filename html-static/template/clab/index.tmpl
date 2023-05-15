@@ -71,7 +71,7 @@ body {
     <nav class="level m-0 py-4 px-5 has-background-4a">
       <div class="level-left">
         <div class="level-item">
-          <p class="title is-4 is-unselectable has-text-weight-light has-text-white">TopoViewer</p>
+          <p class="title is-4 is-unselectable has-text-weight-normal has-text-white">TopoViewer</p>
         </div>
       </div>
       <div class="level-right">
@@ -98,7 +98,8 @@ body {
                     <a id="clabClient" href="#" onclick="clabClient();" class="dropdown-item label has-text-weight-normal is-small">Clab Client Download</a>                  
                     <!-- <<a id="TopologyAdjust" href="#" onclick="topologyAdjust();" class="dropdown-item label has-text-weight-normal is-small"> Topology Adjust</a>                --> 
                     <a id="telemetry" href="#" onclick="telemetry();" class="dropdown-item label has-text-weight-normal is-small">Telemetry</a>                  
-                    <a id="toggleLinkEndpoint" href="#" onclick="toggleLinkEndpoint();" class="dropdown-item label has-text-weight-normal is-small">Toggle Link Endpoint</a>                  
+                    <a id="toggleLinkEndpoint" href="#" onclick="toggleLinkEndpoint();" class="dropdown-item label has-text-weight-normal is-small">Toggle Link Endpoint</a>
+                    <a id="showNodeIcon" href="#" onclick="showNodeIcon();" class="dropdown-item label has-text-weight-normal is-small">showNodeIcon</a>                  
               </div>
             </div>
           </div>
@@ -262,12 +263,12 @@ body {
         function linkInfo(e) {
           var wiresharkElements = [
             {
-              name: e.data("source") + "::" + e.data("endpoint").sourceEndpoint,
-              url: "clab-capture://" + e.data("extraData").clabServerUsername + "@" + location.host + "?" + e.data("extraData").clabSourceLongName + "?" + e.data("extraData").clabEndpoints.SourceEndpoint
+              name: e.data("source") + "::" + e.data("sourceEndpoint"),
+              url: "clab-capture://" + e.data("extraData").clabServerUsername + "@" + location.host + "?" + e.data("extraData").clabSourceLongName + "?" + e.data("sourceEndpoint")
             },
             {
-              name: e.data("target") + "::" + e.data("endpoint").targetEndpoint,
-              url: "clab-capture://" + e.data("extraData").clabServerUsername + "@" + location.host + "?" + e.data("extraData").clabTargetLongName + "?" + e.data("extraData").clabEndpoints.TargetEndpoint
+              name: e.data("target") + "::" + e.data("targetEndpoint"),
+              url: "clab-capture://" + e.data("extraData").clabServerUsername + "@" + location.host + "?" + e.data("extraData").clabTargetLongName + "?" + e.data("targetEndpoint")
             }
           ].map(function(link) {
             return ce("a", {target: "_blank", href: link.url, class: "button is-link is-small"}, [ctn(link.name)] );
@@ -312,7 +313,7 @@ body {
           column02 = ce("label", {class: "column is-8 p-0"}, [input01]);
           var duration = ce("div", {class: "columns mb-1"}, [column01, column02]);
 
-          linkImpairmentUrl = "clab-pumba://" + e.data("extraData").clabServerUsername + "@" + location.host + "?" + e.data("extraData").clabTargetLongName + "?" + e.data("extraData").clabEndpoints.TargetEndpoint
+          linkImpairmentUrl = "clab-pumba://" + e.data("extraData").clabServerUsername + "@" + location.host + "?" + e.data("extraData").clabTargetLongName + "?" + e.data("targetEndpoint")
 
           var linkImpairmentElements = [
             {
@@ -476,11 +477,17 @@ body {
               column02 = ce("label", {class: "column is-8 p-1"}, [label02]);
               var clabGroup = ce("div", {class: "columns mb-1"}, [column01, column02]);
 
+              label01 = ce("label", {class: "label has-text-link is-small has-text-right has-text-weight-bold mr-0"}, [ctn("Role: ")]);
+              column01 = ce("label", {class: "column is-4 p-1 is-narrow-desktop"}, [label01]);
+              label02 = ce("label", {class: "label has-text-link is-small has-text-left has-text-weight-normal mr-0"}, [ctn(node.data("extraData").clabTopoviewerRole)]);
+              column02 = ce("label", {class: "column is-8 p-1"}, [label02]);
+              var topoviewerRole = ce("div", {class: "columns mb-1"}, [column01, column02]);
+
 
 
               var seperator = ce("hr", {class: "my-3 has-background-grey-lighter"}, []);
               var addon = ce("div", {}, [nodeInfo(node)]);
-              var panel = ce("div", {}, [clabName, kind, image, fqdn, mgmtIpv4, mgmtIpv6, clabGroup, seperator, addon]);
+              var panel = ce("div", {}, [clabName, kind, image, fqdn, mgmtIpv4, mgmtIpv6, clabGroup, topoviewerRole, seperator, addon]);
               var messageBody = ce("div", {class: "message-body"}, [panel])
 
               settings.appendChild(messageBody);
@@ -514,13 +521,13 @@ body {
 
               label01 = ce("label", {class: "label has-text-link has-text-right is-small has-text-weight-bold mr-0"}, [ctn("Source: ")]);
               column01 = ce("label", {class: "column is-4 p-1 is-narrow-desktop"}, [label01]);
-              label02 = ce("label", {class: "label has-text-link is-small has-text-left has-text-weight-normal mr-0"}, [ctn(edge.data("source")+"::"+edge.data("extraData").clabEndpoints.SourceEndpoint)]);
+              label02 = ce("label", {class: "label has-text-link is-small has-text-left has-text-weight-normal mr-0"}, [ctn(edge.data("source")+"::"+edge.data("sourceEndpoint"))]);
               column02 = ce("label", {class: "column is-8 p-1"}, [label02]);
               var source = ce("div", {class: "columns mb-1"}, [column01, column02]);
 
               label01 = ce("label", {class: "label has-text-link has-text-right is-small has-text-weight-bold mr-0"}, [ctn("Target: ")]);
               column01 = ce("label", {class: "column is-4 p-1 is-narrow-desktop"}, [label01]);
-              label02 = ce("label", {class: "label has-text-link is-small has-text-left has-text-weight-normal mr-0"}, [ctn(edge.data("target")+"::"+edge.data("extraData").clabEndpoints.TargetEndpoint)]);
+              label02 = ce("label", {class: "label has-text-link is-small has-text-left has-text-weight-normal mr-0"}, [ctn(edge.data("target")+"::"+edge.data("targetEndpoint"))]);
               column02 = ce("label", {class: "column is-8 p-1"}, [label02]);
               var target = ce("div", {class: "columns mb-1"}, [column01, column02]);
 
@@ -560,16 +567,27 @@ body {
           });
 
         function updateEdgeColor() {
-          Srl01Node = cy.filter('edge[source = "srl-01"][target = "sros-01"]');
-          Srl01Node.style("line-color", "red")
-          Srl01Node.style("label", websocketMessage.data + " kbps")
-          Srl01Node.style("text-background-padding", "0.1")
-          Srl01Node.style("text-outline-color", "#F2F2F2")
-          Srl01Node.style("text-outline-width", "0.3px")
+          Srl01Edge = cy.filter('edge[source = "srl-01"][target = "sros-01"]');
+          Srl01Edge.style("line-color", "red")
+          Srl01Edge.style("label", websocketMessage.data + " kbps")
+          Srl01Edge.style("text-background-padding", "0.1")
+          Srl01Edge.style("text-outline-color", "#F2F2F2")
+          Srl01Edge.style("text-outline-width", "0.3px")
 
-          Srl01Node.style("line-fill", "linear-gradient")
-          Srl01Node.style("line-gradient-stop-colors", ['blue', 'green', 'yellow', 'red'])
-          Srl01Node.style("line-gradient-stop-positions", ['25%', '40%', '50%', '100%'])
+          Srl01Edge.style("line-fill", "linear-gradient")
+          Srl01Edge.style("line-gradient-stop-colors", ['blue', 'green', 'yellow', 'red'])
+          Srl01Edge.style("line-gradient-stop-positions", ['25%', '40%', '50%', '100%'])
+        }
+
+        function showNodeIcon() {
+          peNodesTest = cy.filter('node[name = "sros-01"]');
+          console.log(peNodesTest.data("extraData").clabTopoviewerRole)
+
+          peNodesAsad = cy.nodes('node[topoviewerRole = "pe"]');
+          console.log(peNodesAsad)
+          peNodesAsad.style("background-image","images/clab-pe-router-dark-blue.png")
+          
+
 
 
         }

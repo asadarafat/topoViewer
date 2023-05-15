@@ -31,12 +31,12 @@ type ClabNode struct {
 
 type ClabLink struct {
 	// clab.Link            // from clab Package needed to read topo file and write topo file
-	Endpoints []Endpoint `yaml:"endpoints"`
+	ClabEndpoints []ClabEndpoint `yaml:"endpoints"`
 }
 
-type Endpoint struct {
-	Source         string `json:"source,omitempty"`
-	SourceEndpoint string `json:"source_endpoint,omitempty"`
-	Target         string `json:"target,omitempty"`
-	TargetEndpoint string `json:"target_endpoint,omitempty"`
+type ClabEndpoint struct {
+	ClabSource         string `json:"clabSource,omitempty"`
+	ClabSourceEndpoint string `json:"clabSourceEndpoint,omitempty"`
+	ClabTarget         string `json:"clabTarget,omitempty"`
+	ClabTargetEndpoint string `json:"clabTargetEndpoint,omitempty"`
 }

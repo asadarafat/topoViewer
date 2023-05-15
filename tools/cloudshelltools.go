@@ -11,12 +11,12 @@ func CopyFileCheckErr(err error) {
 	}
 }
 
-func CopyFile(src string, dst string) {
+func CopyFile(source string, destination string) {
 	// Read all content of src to data, may cause OOM for a large file.
-	data, err := ioutil.ReadFile(src)
+	data, err := ioutil.ReadFile(source)
 	CopyFileCheckErr(err)
 	// Write data to dst
-	err = ioutil.WriteFile(dst, data, 0644)
+	err = ioutil.WriteFile(destination, data, 0644)
 	CopyFileCheckErr(err)
 }
 

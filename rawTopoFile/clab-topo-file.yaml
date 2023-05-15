@@ -23,21 +23,77 @@ topology:
       ## set the topology
       binds:
         - /home/suuser/clab/topo-file.yaml:/opt/local-bind/topo-file.yaml:rw
+      topoviewer:
+       role: server
       
     SRL-01:
       kind: srl
-      mgmt_ipv4: 20.20.20.201
+      mgmt_ipv4: 20.20.20.101
       image: ghcr.io/nokia/srlinux
+      topoviewer:
+       role: leaf
+
       #topoviewer:
        # role: dcgw / spine / leaf / workload / pe / agg / core
        # color: default-mapping based on role.. red / black / green
         # mapping the icon based on role
 
-
-    SRL-02:
+    Spine-01:
+      kind: srl
+      mgmt_ipv4: 20.20.20.201
+      image: ghcr.io/nokia/srlinux
+      topoviewer:
+       role: spine
+       
+    Spine-02:
       kind: srl
       mgmt_ipv4: 20.20.20.202
       image: ghcr.io/nokia/srlinux
+      topoviewer:
+       role: spine
+
+    Borderl-Leaf-01:
+      kind: srl
+      mgmt_ipv4: 20.20.20.211
+      image: ghcr.io/nokia/srlinux
+      topoviewer:
+       role: leaf
+       
+    Borderl-Leaf-02:
+      kind: srl
+      mgmt_ipv4: 20.20.20.212
+      image: ghcr.io/nokia/srlinux
+      topoviewer:
+       role: leaf
+
+    Leaf-01:
+      kind: srl
+      mgmt_ipv4: 20.20.20.221
+      image: ghcr.io/nokia/srlinux
+      topoviewer:
+       role: leaf
+       
+    Leaf-02:
+      kind: srl
+      mgmt_ipv4: 20.20.20.222
+      image: ghcr.io/nokia/srlinux
+      topoviewer:
+       role: leaf
+
+    Leaf-03:
+      kind: srl
+      mgmt_ipv4: 20.20.20.223
+      image: ghcr.io/nokia/srlinux
+      topoviewer:
+       role: leaf
+       
+    Leaf-04:
+      kind: srl
+      mgmt_ipv4: 20.20.20.224
+      image: ghcr.io/nokia/srlinux
+      topoviewer:
+       role: leaf
+
     sros-01:
       kind: vr-sros
       mgmt_ipv4: 20.20.20.101
@@ -45,6 +101,10 @@ topology:
       image: registry.srlinux.dev/pub/vr-sros:22.7.R1
       type: "cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28"
       license: license.txt
+      topoviewer:
+       role: pe
+       color: green
+
     sros-02:
       kind: vr-sros
       mgmt_ipv4: 20.20.20.102
@@ -52,20 +112,31 @@ topology:
       image: registry.srlinux.dev/pub/vr-sros:22.7.R1
       type: "cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28"
       license: license.txt
-    sros-03:
+      topoviewer:
+       role: pe
+       color: green
+
+    DCGW-03:
       kind: vr-sros
       mgmt_ipv4: 20.20.20.103
       group: "1"
       image: registry.srlinux.dev/pub/vr-sros:22.7.R1
       type: "cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28"
       license: license.txt
-    sros-04:
+      topoviewer:
+       role: dcgw
+       color: green
+
+    DCGW-04:
       kind: vr-sros
       mgmt_ipv4: 20.20.20.104
       group: "1"
       image: registry.srlinux.dev/pub/vr-sros:22.7.R1
       type: "cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28"
       license: license.txt
+      topoviewer:
+       role: dcgw
+       color: green
   
 
   links:
@@ -73,14 +144,27 @@ topology:
     - endpoints: ["SRL-01:e1-2", "sros-02:eth1"]
 
     - endpoints: ["sros-01:eth2", "sros-02:eth2"]
-    - endpoints: ["sros-01:eth3", "sros-03:eth3"]
+    - endpoints: ["sros-01:eth3", "DCGW-03:eth3"]
 
-    - endpoints: ["sros-02:eth4", "sros-03:eth4"]
-    - endpoints: ["sros-02:eth5", "sros-04:eth5"]
+    - endpoints: ["sros-02:eth4", "DCGW-03:eth4"]
+    - endpoints: ["sros-02:eth5", "DCGW-04:eth5"]
 
-    - endpoints: ["sros-03:eth6", "sros-04:eth6"]
+    - endpoints: ["DCGW-03:eth6", "DCGW-04:eth6"]
 
-    - endpoints: ["sros-01:eth4", "sros-04:eth4"]
+    - endpoints: ["sros-01:eth4", "DCGW-04:eth4"]
 
-    - endpoints: ["sros-03:eth1", "SRL-02:e1-3"]
-    - endpoints: ["sros-04:eth2", "SRL-02:e1-4"]
+    - endpoints: ["DCGW-03:eth1", "Borderl-Leaf-01:e1-3"]
+    - endpoints: ["DCGW-04:eth1", "Borderl-Leaf-02:e1-3"]
+
+    - endpoints: ["Spine-01:e1-5", "Borderl-Leaf-01:e1-2"]
+    - endpoints: ["Spine-02:e1-5", "Borderl-Leaf-02:e1-2"]
+
+    - endpoints: ["Spine-01:e1-1", "Leaf-01:e1-1"]
+    - endpoints: ["Spine-01:e1-2", "Leaf-02:e1-2"]
+    - endpoints: ["Spine-01:e1-3", "Leaf-03:e1-3"]
+    - endpoints: ["Spine-01:e1-4", "Leaf-04:e1-4"]
+
+    - endpoints: ["Spine-02:e1-1", "Leaf-01:e1-2"]
+    - endpoints: ["Spine-02:e1-2", "Leaf-02:e1-2"]
+    - endpoints: ["Spine-02:e1-3", "Leaf-03:e1-3"]
+    - endpoints: ["Spine-02:e1-4", "Leaf-04:e1-4"]

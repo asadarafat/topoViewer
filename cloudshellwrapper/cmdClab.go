@@ -11,12 +11,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/asadarafat/topoViewer/tools"
 	"github.com/asadarafat/topoViewer/topoengine"
 	"github.com/asadarafat/topoViewer/xtermjs"
 	"github.com/usvc/go-config"
 
 	log "github.com/asadarafat/topoViewer/tools"
+	cp "github.com/otiai10/copy"
 
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
@@ -342,11 +342,17 @@ func Clab(_ *cobra.Command, _ []string) error {
 	os.Mkdir(htmlPublicPrefixPath+cyTopo.ClabTopoData.ClabTopoName+"/clab-client", 0755)
 	os.Mkdir(htmlPublicPrefixPath+cyTopo.ClabTopoData.ClabTopoName+"/cloudshell-tools", 0755)
 	os.Mkdir(htmlPublicPrefixPath+cyTopo.ClabTopoData.ClabTopoName+"/ws", 0755)
+	os.Mkdir(htmlPublicPrefixPath+cyTopo.ClabTopoData.ClabTopoName+"/images", 0755)
 
-	tools.CopyFile(htmlStaticPrefixPath+"/clab-client/clab-client-mac/ClabCapture.app.zip", htmlPublicPrefixPath+cyTopo.ClabTopoData.ClabTopoName+"/clab-client/mac-clab-client-wireshark.zip")
-	tools.CopyFile(htmlStaticPrefixPath+"/clab-client/clab-client-mac/ClabPumbaDelay.app.zip", htmlPublicPrefixPath+cyTopo.ClabTopoData.ClabTopoName+"/clab-client/mac-clab-client-linkImpairment.zip")
+	sourceImageFolder := htmlStaticPrefixPath + "images"
+	destinationImageFolder := htmlPublicPrefixPath + cyTopo.ClabTopoData.ClabTopoName + "/images"
+	err := cp.Copy(sourceImageFolder, destinationImageFolder)
+	log.Debugf("Copying images folder error: ", err)
 
-	tools.CopyFile(htmlStaticPrefixPath+"/clab-client/clab-client-windows/ClabCapture.app.zip", htmlPublicPrefixPath+cyTopo.ClabTopoData.ClabTopoName+"/clab-client/windows-clab-client-wireshark.zip")
+	sourceClabClientFolder := htmlStaticPrefixPath + "clab-client"
+	destinationClabClientImageFolder := htmlPublicPrefixPath + cyTopo.ClabTopoData.ClabTopoName + "/clab-client"
+	err1 := cp.Copy(sourceClabClientFolder, destinationClabClientImageFolder)
+	log.Debugf("Copying clab-client folder error: ", err1)
 
 	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "index.tmpl", cyTopo.ClabTopoData.ClabTopoName+"/"+"index.html", "dataCytoMarshall-"+cyTopo.ClabTopoData.ClabTopoName+".json")
 	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "cy-style.tmpl", cyTopo.ClabTopoData.ClabTopoName+"/"+"cy-style.json", "")
