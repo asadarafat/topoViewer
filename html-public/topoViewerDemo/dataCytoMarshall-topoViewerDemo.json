@@ -1,189 +1,22 @@
 [
   {
     "data": {
-      "id": "srl-01",
+      "id": "spine-01",
       "weight": "2",
-      "name": "srl-01",
-      "parent": "",
+      "name": "spine-01",
+      "parent": "datacenter",
       "kind": "",
-      "topoviewerRole": "leaf",
+      "topoviewerRole": "spine",
       "sourceEndpoint": "",
       "targetEndpoint": "",
       "extraData": {
         "clabBinds": null,
         "clabImage": "ghcr.io/nokia/srlinux",
         "clabKind": "srl",
-        "clabMgmtIPv4Address": "20.20.20.101",
-        "clabName": "srl-01",
+        "clabMgmtIPv4Address": "20.20.20.201",
+        "clabName": "spine-01",
         "clabTopoviewerColor": null,
-        "clabTopoviewerRole": "leaf"
-      }
-    },
-    "position": {
-      "x": 0,
-      "y": 0
-    },
-    "removed": false,
-    "group": "nodes",
-    "selected": false,
-    "selectable": true,
-    "locked": false,
-    "grabbed": false,
-    "grabbable": true,
-    "classes": ""
-  },
-  {
-    "data": {
-      "id": "leaf-02",
-      "weight": "2",
-      "name": "leaf-02",
-      "parent": "",
-      "kind": "",
-      "topoviewerRole": "leaf",
-      "sourceEndpoint": "",
-      "targetEndpoint": "",
-      "extraData": {
-        "clabBinds": null,
-        "clabImage": "ghcr.io/nokia/srlinux",
-        "clabKind": "srl",
-        "clabMgmtIPv4Address": "20.20.20.222",
-        "clabName": "leaf-02",
-        "clabTopoviewerColor": null,
-        "clabTopoviewerRole": "leaf"
-      }
-    },
-    "position": {
-      "x": 0,
-      "y": 0
-    },
-    "removed": false,
-    "group": "nodes",
-    "selected": false,
-    "selectable": true,
-    "locked": false,
-    "grabbed": false,
-    "grabbable": true,
-    "classes": ""
-  },
-  {
-    "data": {
-      "id": "leaf-04",
-      "weight": "2",
-      "name": "leaf-04",
-      "parent": "",
-      "kind": "",
-      "topoviewerRole": "leaf",
-      "sourceEndpoint": "",
-      "targetEndpoint": "",
-      "extraData": {
-        "clabBinds": null,
-        "clabImage": "ghcr.io/nokia/srlinux",
-        "clabKind": "srl",
-        "clabMgmtIPv4Address": "20.20.20.224",
-        "clabName": "leaf-04",
-        "clabTopoviewerColor": null,
-        "clabTopoviewerRole": "leaf"
-      }
-    },
-    "position": {
-      "x": 0,
-      "y": 0
-    },
-    "removed": false,
-    "group": "nodes",
-    "selected": false,
-    "selectable": true,
-    "locked": false,
-    "grabbed": false,
-    "grabbable": true,
-    "classes": ""
-  },
-  {
-    "data": {
-      "id": "topoviewer",
-      "weight": "2",
-      "name": "topoviewer",
-      "parent": "",
-      "kind": "",
-      "topoviewerRole": "server",
-      "sourceEndpoint": "",
-      "targetEndpoint": "",
-      "extraData": {
-        "clabBinds": [
-          "/home/suuser/clab/topo-file.yaml:/opt/local-bind/topo-file.yaml:rw"
-        ],
-        "clabImage": "ghcr.io/asadarafat/topoviewer:development",
-        "clabKind": "linux",
-        "clabMgmtIPv4Address": "20.20.20.21",
-        "clabName": "topoviewer",
-        "clabTopoviewerColor": null,
-        "clabTopoviewerRole": "server"
-      }
-    },
-    "position": {
-      "x": 0,
-      "y": 0
-    },
-    "removed": false,
-    "group": "nodes",
-    "selected": false,
-    "selectable": true,
-    "locked": false,
-    "grabbed": false,
-    "grabbable": true,
-    "classes": ""
-  },
-  {
-    "data": {
-      "id": "sros-01",
-      "weight": "2",
-      "name": "sros-01",
-      "parent": "",
-      "kind": "",
-      "topoviewerRole": "pe",
-      "sourceEndpoint": "",
-      "targetEndpoint": "",
-      "extraData": {
-        "clabBinds": null,
-        "clabImage": "registry.srlinux.dev/pub/vr-sros:22.7.R1",
-        "clabKind": "vr-sros",
-        "clabMgmtIPv4Address": "20.20.20.101",
-        "clabName": "sros-01",
-        "clabTopoviewerColor": "green",
-        "clabTopoviewerRole": "pe"
-      }
-    },
-    "position": {
-      "x": 0,
-      "y": 0
-    },
-    "removed": false,
-    "group": "nodes",
-    "selected": false,
-    "selectable": true,
-    "locked": false,
-    "grabbed": false,
-    "grabbable": true,
-    "classes": ""
-  },
-  {
-    "data": {
-      "id": "borderl-leaf-02",
-      "weight": "2",
-      "name": "borderl-leaf-02",
-      "parent": "",
-      "kind": "",
-      "topoviewerRole": "leaf",
-      "sourceEndpoint": "",
-      "targetEndpoint": "",
-      "extraData": {
-        "clabBinds": null,
-        "clabImage": "ghcr.io/nokia/srlinux",
-        "clabKind": "srl",
-        "clabMgmtIPv4Address": "20.20.20.212",
-        "clabName": "borderl-leaf-02",
-        "clabTopoviewerColor": null,
-        "clabTopoviewerRole": "leaf"
+        "clabTopoviewerRole": "spine"
       }
     },
     "position": {
@@ -204,7 +37,7 @@
       "id": "dcgw-03",
       "weight": "2",
       "name": "dcgw-03",
-      "parent": "",
+      "parent": "ip-mpls",
       "kind": "",
       "topoviewerRole": "dcgw",
       "sourceEndpoint": "",
@@ -234,10 +67,43 @@
   },
   {
     "data": {
+      "id": "borderl-leaf-01",
+      "weight": "2",
+      "name": "borderl-leaf-01",
+      "parent": "datacenter",
+      "kind": "",
+      "topoviewerRole": "leaf",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabBinds": null,
+        "clabImage": "ghcr.io/nokia/srlinux",
+        "clabKind": "srl",
+        "clabMgmtIPv4Address": "20.20.20.211",
+        "clabName": "borderl-leaf-01",
+        "clabTopoviewerColor": null,
+        "clabTopoviewerRole": "leaf"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
       "id": "spine-02",
       "weight": "2",
       "name": "spine-02",
-      "parent": "",
+      "parent": "datacenter",
       "kind": "",
       "topoviewerRole": "spine",
       "sourceEndpoint": "",
@@ -270,7 +136,7 @@
       "id": "dcgw-04",
       "weight": "2",
       "name": "dcgw-04",
-      "parent": "",
+      "parent": "ip-mpls",
       "kind": "",
       "topoviewerRole": "dcgw",
       "sourceEndpoint": "",
@@ -300,10 +166,10 @@
   },
   {
     "data": {
-      "id": "leaf-01",
+      "id": "leaf-04",
       "weight": "2",
-      "name": "leaf-01",
-      "parent": "",
+      "name": "leaf-04",
+      "parent": "datacenter",
       "kind": "",
       "topoviewerRole": "leaf",
       "sourceEndpoint": "",
@@ -312,8 +178,8 @@
         "clabBinds": null,
         "clabImage": "ghcr.io/nokia/srlinux",
         "clabKind": "srl",
-        "clabMgmtIPv4Address": "20.20.20.221",
-        "clabName": "leaf-01",
+        "clabMgmtIPv4Address": "20.20.20.224",
+        "clabName": "leaf-04",
         "clabTopoviewerColor": null,
         "clabTopoviewerRole": "leaf"
       }
@@ -333,10 +199,10 @@
   },
   {
     "data": {
-      "id": "leaf-03",
+      "id": "srl-01",
       "weight": "2",
-      "name": "leaf-03",
-      "parent": "",
+      "name": "srl-01",
+      "parent": "datacenter",
       "kind": "",
       "topoviewerRole": "leaf",
       "sourceEndpoint": "",
@@ -345,8 +211,8 @@
         "clabBinds": null,
         "clabImage": "ghcr.io/nokia/srlinux",
         "clabKind": "srl",
-        "clabMgmtIPv4Address": "20.20.20.223",
-        "clabName": "leaf-03",
+        "clabMgmtIPv4Address": "20.20.20.101",
+        "clabName": "srl-01",
         "clabTopoviewerColor": null,
         "clabTopoviewerRole": "leaf"
       }
@@ -369,7 +235,7 @@
       "id": "sros-02",
       "weight": "2",
       "name": "sros-02",
-      "parent": "",
+      "parent": "ip-mpls",
       "kind": "",
       "topoviewerRole": "pe",
       "sourceEndpoint": "",
@@ -399,22 +265,24 @@
   },
   {
     "data": {
-      "id": "spine-01",
+      "id": "topoviewer",
       "weight": "2",
-      "name": "spine-01",
-      "parent": "",
+      "name": "topoviewer",
+      "parent": "ip-mpls",
       "kind": "",
-      "topoviewerRole": "spine",
+      "topoviewerRole": "server",
       "sourceEndpoint": "",
       "targetEndpoint": "",
       "extraData": {
-        "clabBinds": null,
-        "clabImage": "ghcr.io/nokia/srlinux",
-        "clabKind": "srl",
-        "clabMgmtIPv4Address": "20.20.20.201",
-        "clabName": "spine-01",
+        "clabBinds": [
+          "/home/suuser/clab/topo-file.yaml:/opt/local-bind/topo-file.yaml:rw"
+        ],
+        "clabImage": "ghcr.io/asadarafat/topoviewer:development",
+        "clabKind": "linux",
+        "clabMgmtIPv4Address": "20.20.20.21",
+        "clabName": "topoviewer",
         "clabTopoviewerColor": null,
-        "clabTopoviewerRole": "spine"
+        "clabTopoviewerRole": "server"
       }
     },
     "position": {
@@ -432,10 +300,10 @@
   },
   {
     "data": {
-      "id": "borderl-leaf-01",
+      "id": "leaf-02",
       "weight": "2",
-      "name": "borderl-leaf-01",
-      "parent": "",
+      "name": "leaf-02",
+      "parent": "datacenter",
       "kind": "",
       "topoviewerRole": "leaf",
       "sourceEndpoint": "",
@@ -444,11 +312,193 @@
         "clabBinds": null,
         "clabImage": "ghcr.io/nokia/srlinux",
         "clabKind": "srl",
-        "clabMgmtIPv4Address": "20.20.20.211",
-        "clabName": "borderl-leaf-01",
+        "clabMgmtIPv4Address": "20.20.20.222",
+        "clabName": "leaf-02",
         "clabTopoviewerColor": null,
         "clabTopoviewerRole": "leaf"
       }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "leaf-01",
+      "weight": "2",
+      "name": "leaf-01",
+      "parent": "datacenter",
+      "kind": "",
+      "topoviewerRole": "leaf",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabBinds": null,
+        "clabImage": "ghcr.io/nokia/srlinux",
+        "clabKind": "srl",
+        "clabMgmtIPv4Address": "20.20.20.221",
+        "clabName": "leaf-01",
+        "clabTopoviewerColor": null,
+        "clabTopoviewerRole": "leaf"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "borderl-leaf-02",
+      "weight": "2",
+      "name": "borderl-leaf-02",
+      "parent": "datacenter",
+      "kind": "",
+      "topoviewerRole": "leaf",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabBinds": null,
+        "clabImage": "ghcr.io/nokia/srlinux",
+        "clabKind": "srl",
+        "clabMgmtIPv4Address": "20.20.20.212",
+        "clabName": "borderl-leaf-02",
+        "clabTopoviewerColor": null,
+        "clabTopoviewerRole": "leaf"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "sros-01",
+      "weight": "2",
+      "name": "sros-01",
+      "parent": "ip-mpls",
+      "kind": "",
+      "topoviewerRole": "pe",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabBinds": null,
+        "clabImage": "registry.srlinux.dev/pub/vr-sros:22.7.R1",
+        "clabKind": "vr-sros",
+        "clabMgmtIPv4Address": "20.20.20.101",
+        "clabName": "sros-01",
+        "clabTopoviewerColor": "green",
+        "clabTopoviewerRole": "pe"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "leaf-03",
+      "weight": "2",
+      "name": "leaf-03",
+      "parent": "datacenter",
+      "kind": "",
+      "topoviewerRole": "leaf",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabBinds": null,
+        "clabImage": "ghcr.io/nokia/srlinux",
+        "clabKind": "srl",
+        "clabMgmtIPv4Address": "20.20.20.223",
+        "clabName": "leaf-03",
+        "clabTopoviewerColor": null,
+        "clabTopoviewerRole": "leaf"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "datacenter",
+      "weight": "2",
+      "name": "datacenter domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "datacenter",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": ""
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "ip-mpls",
+      "weight": "2",
+      "name": "ip-mpls domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "ip-mpls",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": ""
     },
     "position": {
       "x": 0,
@@ -472,7 +522,7 @@
       "name": "srl-01::e1-1 \u003c--\u003e sros-01::eth1",
       "parent": "",
       "kind": "",
-      "topoviewerRole": "leaf",
+      "topoviewerRole": "ip-mpls",
       "sourceEndpoint": "e1-1",
       "targetEndpoint": "eth1",
       "extraData": {
@@ -510,7 +560,7 @@
       "name": "srl-01::e1-2 \u003c--\u003e sros-02::eth1",
       "parent": "",
       "kind": "",
-      "topoviewerRole": "leaf",
+      "topoviewerRole": "ip-mpls",
       "sourceEndpoint": "e1-2",
       "targetEndpoint": "eth1",
       "extraData": {
@@ -548,7 +598,7 @@
       "name": "sros-01::eth2 \u003c--\u003e sros-02::eth2",
       "parent": "",
       "kind": "",
-      "topoviewerRole": "leaf",
+      "topoviewerRole": "ip-mpls",
       "sourceEndpoint": "eth2",
       "targetEndpoint": "eth2",
       "extraData": {
@@ -586,7 +636,7 @@
       "name": "sros-01::eth3 \u003c--\u003e dcgw-03::eth3",
       "parent": "",
       "kind": "",
-      "topoviewerRole": "leaf",
+      "topoviewerRole": "ip-mpls",
       "sourceEndpoint": "eth3",
       "targetEndpoint": "eth3",
       "extraData": {
@@ -624,7 +674,7 @@
       "name": "sros-02::eth4 \u003c--\u003e dcgw-03::eth4",
       "parent": "",
       "kind": "",
-      "topoviewerRole": "leaf",
+      "topoviewerRole": "ip-mpls",
       "sourceEndpoint": "eth4",
       "targetEndpoint": "eth4",
       "extraData": {
@@ -662,7 +712,7 @@
       "name": "sros-02::eth5 \u003c--\u003e dcgw-04::eth5",
       "parent": "",
       "kind": "",
-      "topoviewerRole": "leaf",
+      "topoviewerRole": "ip-mpls",
       "sourceEndpoint": "eth5",
       "targetEndpoint": "eth5",
       "extraData": {
@@ -700,7 +750,7 @@
       "name": "dcgw-03::eth6 \u003c--\u003e dcgw-04::eth6",
       "parent": "",
       "kind": "",
-      "topoviewerRole": "leaf",
+      "topoviewerRole": "ip-mpls",
       "sourceEndpoint": "eth6",
       "targetEndpoint": "eth6",
       "extraData": {
@@ -738,7 +788,7 @@
       "name": "sros-01::eth4 \u003c--\u003e dcgw-04::eth4",
       "parent": "",
       "kind": "",
-      "topoviewerRole": "leaf",
+      "topoviewerRole": "ip-mpls",
       "sourceEndpoint": "eth4",
       "targetEndpoint": "eth4",
       "extraData": {
@@ -776,7 +826,7 @@
       "name": "dcgw-03::eth1 \u003c--\u003e borderl-leaf-01::e1-3",
       "parent": "",
       "kind": "",
-      "topoviewerRole": "leaf",
+      "topoviewerRole": "ip-mpls",
       "sourceEndpoint": "eth1",
       "targetEndpoint": "e1-3",
       "extraData": {
@@ -814,7 +864,7 @@
       "name": "dcgw-04::eth1 \u003c--\u003e borderl-leaf-02::e1-3",
       "parent": "",
       "kind": "",
-      "topoviewerRole": "leaf",
+      "topoviewerRole": "ip-mpls",
       "sourceEndpoint": "eth1",
       "targetEndpoint": "e1-3",
       "extraData": {
@@ -852,7 +902,7 @@
       "name": "spine-01::e1-5 \u003c--\u003e borderl-leaf-01::e1-2",
       "parent": "",
       "kind": "",
-      "topoviewerRole": "leaf",
+      "topoviewerRole": "ip-mpls",
       "sourceEndpoint": "e1-5",
       "targetEndpoint": "e1-2",
       "extraData": {
@@ -890,7 +940,7 @@
       "name": "spine-02::e1-5 \u003c--\u003e borderl-leaf-02::e1-2",
       "parent": "",
       "kind": "",
-      "topoviewerRole": "leaf",
+      "topoviewerRole": "ip-mpls",
       "sourceEndpoint": "e1-5",
       "targetEndpoint": "e1-2",
       "extraData": {
@@ -928,7 +978,7 @@
       "name": "spine-01::e1-1 \u003c--\u003e leaf-01::e1-1",
       "parent": "",
       "kind": "",
-      "topoviewerRole": "leaf",
+      "topoviewerRole": "ip-mpls",
       "sourceEndpoint": "e1-1",
       "targetEndpoint": "e1-1",
       "extraData": {
@@ -966,7 +1016,7 @@
       "name": "spine-01::e1-2 \u003c--\u003e leaf-02::e1-2",
       "parent": "",
       "kind": "",
-      "topoviewerRole": "leaf",
+      "topoviewerRole": "ip-mpls",
       "sourceEndpoint": "e1-2",
       "targetEndpoint": "e1-2",
       "extraData": {
@@ -1004,7 +1054,7 @@
       "name": "spine-01::e1-3 \u003c--\u003e leaf-03::e1-3",
       "parent": "",
       "kind": "",
-      "topoviewerRole": "leaf",
+      "topoviewerRole": "ip-mpls",
       "sourceEndpoint": "e1-3",
       "targetEndpoint": "e1-3",
       "extraData": {
@@ -1042,7 +1092,7 @@
       "name": "spine-01::e1-4 \u003c--\u003e leaf-04::e1-4",
       "parent": "",
       "kind": "",
-      "topoviewerRole": "leaf",
+      "topoviewerRole": "ip-mpls",
       "sourceEndpoint": "e1-4",
       "targetEndpoint": "e1-4",
       "extraData": {
@@ -1080,7 +1130,7 @@
       "name": "spine-02::e1-1 \u003c--\u003e leaf-01::e1-2",
       "parent": "",
       "kind": "",
-      "topoviewerRole": "leaf",
+      "topoviewerRole": "ip-mpls",
       "sourceEndpoint": "e1-1",
       "targetEndpoint": "e1-2",
       "extraData": {
@@ -1118,7 +1168,7 @@
       "name": "spine-02::e1-2 \u003c--\u003e leaf-02::e1-2",
       "parent": "",
       "kind": "",
-      "topoviewerRole": "leaf",
+      "topoviewerRole": "ip-mpls",
       "sourceEndpoint": "e1-2",
       "targetEndpoint": "e1-2",
       "extraData": {
@@ -1156,7 +1206,7 @@
       "name": "spine-02::e1-3 \u003c--\u003e leaf-03::e1-3",
       "parent": "",
       "kind": "",
-      "topoviewerRole": "leaf",
+      "topoviewerRole": "ip-mpls",
       "sourceEndpoint": "e1-3",
       "targetEndpoint": "e1-3",
       "extraData": {
@@ -1194,7 +1244,7 @@
       "name": "spine-02::e1-4 \u003c--\u003e leaf-04::e1-4",
       "parent": "",
       "kind": "",
-      "topoviewerRole": "leaf",
+      "topoviewerRole": "ip-mpls",
       "sourceEndpoint": "e1-4",
       "targetEndpoint": "e1-4",
       "extraData": {

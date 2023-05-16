@@ -580,8 +580,10 @@ body {
         }
 
         function showNodeIcon() {
-          peNodesTest = cy.filter('node[name = "sros-01"]');
-          console.log(peNodesTest.data("extraData").clabTopoviewerRole)
+          peNodesTest = cy.filter('node[name = "datacenter"]');
+          console.log(peNodesTest)
+          peNodesTest.style("background-image","images/clab-pe-router-light-gray.png")
+
 
           peNodesAsad = cy.nodes('node[topoviewerRole = "pe"]');
           console.log(peNodesAsad)

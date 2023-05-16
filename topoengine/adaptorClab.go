@@ -13,6 +13,7 @@ import (
 
 	// "time"
 
+	"github.com/samber/lo"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 
@@ -132,6 +133,7 @@ func (cyTopo *CytoTopology) MarshalContainerLabTopov2(topoFile string) error {
 			}
 		}
 	}
+
 	cyTopo.ClabTopoData.LinksList = LinksList
 	log.Infof("cyTopo.ClabTopoData.LinksList    : '%s'", cyTopo.ClabTopoData.LinksList)
 
@@ -142,6 +144,8 @@ func (cyTopo *CytoTopology) MarshalContainerLabTopov2(topoFile string) error {
 }
 
 func (cyTopo *CytoTopology) UnmarshalContainerLabTopov2(ClabTopoStruct ClabTopoStruct, ServerHostUser string) []byte {
+
+	var topoviewerRoleList []string
 
 	cytoJson := CytoJson{}
 	cytoJsonArray := []CytoJson{}
@@ -162,9 +166,52 @@ func (cyTopo *CytoTopology) UnmarshalContainerLabTopov2(ClabTopoStruct ClabTopoS
 		cytoJson.Data.ID = n.Data["clabName"].(string)
 		cytoJson.Data.Name = n.Data["clabName"].(string)                     // get the Node name by accessing direct via Interface
 		cytoJson.Data.TopoviewerRole = n.Data["clabTopoviewerRole"].(string) // get the Node name by accessing direct via Interface
-
 		cytoJson.Data.Weight = "2"
 		cytoJson.Data.ExtraData = n.Data // copy all attribute of clab n.Data to cyto ExtraData
+		switch cytoJson.Data.TopoviewerRole {
+		case "dcgw":
+			cytoJson.Data.Parent = "datacenter"
+			topoviewerRoleList = append(topoviewerRoleList, cytoJson.Data.Parent)
+			cytoJson.Data.Parent = "ip-mpls"
+			topoviewerRoleList = append(topoviewerRoleList, cytoJson.Data.Parent)
+		case "superSpine":
+			cytoJson.Data.Parent = "datacenter"
+			topoviewerRoleList = append(topoviewerRoleList, cytoJson.Data.Parent)
+		case "spine":
+			cytoJson.Data.Parent = "datacenter"
+			topoviewerRoleList = append(topoviewerRoleList, cytoJson.Data.Parent)
+		case "leaf":
+			cytoJson.Data.Parent = "datacenter"
+			topoviewerRoleList = append(topoviewerRoleList, cytoJson.Data.Parent)
+		case "pe":
+			cytoJson.Data.Parent = "ip-mpls"
+			topoviewerRoleList = append(topoviewerRoleList, cytoJson.Data.Parent)
+		case "p":
+			cytoJson.Data.Parent = "ip-mpls"
+			topoviewerRoleList = append(topoviewerRoleList, cytoJson.Data.Parent)
+		case "ppe":
+			cytoJson.Data.Parent = "ip-mpls"
+			topoviewerRoleList = append(topoviewerRoleList, cytoJson.Data.Parent)
+		}
+
+		cytoJsonArray = append(cytoJsonArray, cytoJson)
+	}
+
+	uniqtopoviewerRoleList := lo.Uniq(topoviewerRoleList)
+	log.Debugf("uniqtopoviewerRoleList: ", uniqtopoviewerRoleList)
+
+	// add Parent Nodes Per topoviewerRoleList
+	for _, n := range uniqtopoviewerRoleList {
+		cytoJson.Group = "nodes"
+		cytoJson.Data.Parent = ""
+		cytoJson.Grabbable = true
+		cytoJson.Selectable = true
+		cytoJson.Data.ID = n
+		cytoJson.Data.Name = n + " domain"
+		cytoJson.Data.TopoviewerRole = n
+		cytoJson.Data.Weight = "2"
+		cytoJson.Data.ExtraData = ""
+
 		cytoJsonArray = append(cytoJsonArray, cytoJson)
 	}
 
