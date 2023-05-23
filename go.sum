@@ -2530,8 +2530,6 @@ go4.org/intern v0.0.0-20211027215823-ae77deb06f29/go.mod h1:cS2ma+47FKrLPdXFpr7C
 go4.org/intern v0.0.0-20220301175310-a089fc204883 h1:pq5gAii+wMY+DsJ5r9I6T7CHjHxHlb4d45gChzX2SsI=
 go4.org/intern v0.0.0-20220301175310-a089fc204883/go.mod h1:cS2ma+47FKrLPdXFpr7CuxiTW3eyJbWew4qx0qtQWDA=
 go4.org/unsafe/assume-no-moving-gc v0.0.0-20211027215541-db492cf91b37/go.mod h1:FftLjUGFEDu5k8lt0ddY+HcrH/qU/0qk+H8j9/nTl3E=
-go4.org/unsafe/assume-no-moving-gc v0.0.0-20220617031537-928513b29760 h1:FyBZqvoA/jbNzuAWLQE2kG820zMAkcilx6BMjGbL/E4=
-go4.org/unsafe/assume-no-moving-gc v0.0.0-20220617031537-928513b29760/go.mod h1:FftLjUGFEDu5k8lt0ddY+HcrH/qU/0qk+H8j9/nTl3E=
 go4.org/unsafe/assume-no-moving-gc v0.0.0-20230426161633-7e06285ff160 h1:LrTREdITdNDW/JRlUuG3fhXvCK3ZcKXTCf1BbxE8sT4=
 go4.org/unsafe/assume-no-moving-gc v0.0.0-20230426161633-7e06285ff160/go.mod h1:FftLjUGFEDu5k8lt0ddY+HcrH/qU/0qk+H8j9/nTl3E=
 gocloud.dev v0.19.0/go.mod h1:SmKwiR8YwIMMJvQBKLsC3fHNyMwXLw3PMDO+VVteJMI=

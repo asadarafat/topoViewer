@@ -20,6 +20,7 @@ func (cyTopo *CytoTopology) InitLogger() {
 	toolLogger.InitLogger("logs/topoengine-CytoTopology.log", cyTopo.LogLevel)
 }
 
+// need to switch the function name between MarshalContainerLabTopo and UnmarshalContainerLabTopo
 func (cyTopo *CytoTopology) MarshalContainerLabTopo(topoFile string) error {
 	log.Info(topoFile)
 	// static definition of topofile path
