@@ -27,7 +27,7 @@ func (cyTopo *CytoTopology) InitLogger() {
 	toolLogger.InitLogger("logs/topoengine-CytoTopology.log", cyTopo.LogLevel)
 }
 
-func (cyTopo *CytoTopology) MarshalContainerLabTopov2(topoFile string) error {
+func (cyTopo *CytoTopology) MarshalContainerLabTopov1(topoFile string) error {
 
 	clabNode := ClabNode{}
 
@@ -143,7 +143,7 @@ func (cyTopo *CytoTopology) MarshalContainerLabTopov2(topoFile string) error {
 	return nil
 }
 
-func (cyTopo *CytoTopology) UnmarshalContainerLabTopov2(ClabTopoStruct ClabTopoStruct, ServerHostUser string) []byte {
+func (cyTopo *CytoTopology) UnmarshalContainerLabTopov1(ClabTopoStruct ClabTopoStruct, ServerHostUser string) []byte {
 
 	var topoviewerRoleList []string
 

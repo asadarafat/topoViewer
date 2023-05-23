@@ -32,8 +32,8 @@ func main() {
 	}
 	log.Info(topoFile)
 
-	cytoUiGo.MarshalContainerLabTopov2("/rawTopoFile/clab-topo-file.yaml")
-	cytoUiGo.UnmarshalContainerLabTopov2(cytoUiGo.ClabTopoStructData, "admin")
+	cytoUiGo.MarshalContainerLabTopov1("/rawTopoFile/clab-topo-file.yaml")
+	cytoUiGo.UnmarshalContainerLabTopov1(cytoUiGo.ClabTopoStructData, "admin")
 
 	// Nsp Ietf L2
 	// Nsp Ietf L2

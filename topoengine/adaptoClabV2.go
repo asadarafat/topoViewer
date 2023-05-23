@@ -12,7 +12,7 @@ import (
 	tools "github.com/asadarafat/topoViewer/tools"
 )
 
-type ClabTopoV2 struct {
+type ClabTopoStructV2 struct {
 	Name string `json:"name"`
 	Type string `json:"type"`
 	Clab struct {
@@ -94,13 +94,13 @@ func (cyTopo *CytoTopology) ClabTopoRead(topoFile string) []byte {
 	return topoFileBytes
 }
 
-func (cyTopo *CytoTopology) UnmarshalContainerLabTopoV2(topoFile []byte, clabTopoStruct ClabTopoV2) []byte {
+func (cyTopo *CytoTopology) UnmarshalContainerLabTopoV2(CytoClabTopoData []byte, clabTopoStruct ClabTopoStructV2) []byte {
 
 	// initiate cytoJson struct
 	cytoJson := CytoJson{}
 
 	// unmarshal topoFile into clabTopoStruct
-	json.Unmarshal(topoFile, &clabTopoStruct)
+	json.Unmarshal(CytoClabTopoData, &clabTopoStruct)
 
 	// get Clab ServerHost Username
 	user, err := user.Current()
@@ -121,16 +121,36 @@ func (cyTopo *CytoTopology) UnmarshalContainerLabTopoV2(topoFile []byte, clabTop
 		cytoJson.Data.ExtraData = map[string]interface{}{
 
 			"ClabServerUsername": Username,
-			"ClabNodeName":       node.Shortname,
-			"ClabNodeLongName":   node.Longname,
-			"ID":                 strconv.Itoa(i),
-			"Weight":             "2",
-			"Name":               node.Shortname,
-			"ClabKind":           node.Kind,
-			"Image":              node.Image,
-			"ClabGroup":          node.Group,
-			"MgmtIPv4Address":    node.MgmtIpv4Address,
-			"MgmtIPv6Address":    node.MgmtIpv6Address,
+
+			"ID": strconv.Itoa(i),
+
+			"Weight": "2",
+			"Name":   node.Shortname,
+
+			"ClabNodeName":     node.Shortname,
+			"ClabNodeLongName": node.Longname,
+			"ClabKind":         node.Kind,
+			"ClabGroup":        node.Group,
+
+			"MgmtIPv4Address": node.MgmtIpv4Address,
+			"MgmtIPv6Address": node.MgmtIpv6Address,
+
+			"id":                      node.NodeID,
+			"index":                   node.Index,
+			"shortname":               node.Shortname,
+			"longname":                node.Longname,
+			"fqdn":                    node.Fqdn,
+			"group":                   node.Group,
+			"labdir":                  node.Labdir,
+			"kind":                    node.Kind,
+			"image":                   node.Image,
+			"mgmt-net":                "",
+			"mgmt-intf":               "",
+			"mgmt-ipv4-address":       node.MgmtIpv4Address,
+			"mgmt-ipv4-prefix-length": node.MgmtIpv4PrefixLength,
+			"mgmt-ipv6-address":       node.MgmtIpv6Address,
+			"mgmt-ipv6-prefix-length": node.MgmtIpv6PrefixLength,
+			"mac-address":             node.MacAddress,
 		}
 	}
 

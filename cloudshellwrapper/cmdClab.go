@@ -100,6 +100,11 @@ var confClab = config.Map{
 		Usage:     "path to containerlab topo file",
 		Shorthand: "t",
 	},
+	"topology-file-json": &config.String{
+		Default:   ".",
+		Usage:     "path to containerlab topo file",
+		Shorthand: "j",
+	},
 	"clab-user": &config.String{
 		Default:   "root",
 		Usage:     "containerLab server host user",
@@ -156,7 +161,8 @@ func Clab(_ *cobra.Command, _ []string) error {
 	log.Init(log.Format(confClab.GetString("log-format")), log.Level(confClab.GetString("log-level")))
 
 	// tranform clab-topo-file into cytoscape-model
-	topoClab := confClab.GetString("topology-file")
+	// aarafat-tag: check if provided topo in json or yaml
+	topoClab := confClab.GetString("topology-file-json")
 
 	log.Info("topoFilePath: ", topoClab)
 
@@ -164,9 +170,19 @@ func Clab(_ *cobra.Command, _ []string) error {
 	cyTopo.LogLevel = 4
 	cyTopo.InitLogger()
 
-	cyTopo.MarshalContainerLabTopov2(topoClab)
-	ClabTopoStruct := topoengine.ClabTopoStruct{}
-	jsonBytes := cyTopo.UnmarshalContainerLabTopov2(ClabTopoStruct, confClab.GetString("clab-user"))
+	//// Clab Version 1
+	// cyTopo.MarshalContainerLabTopov1(topoClab)
+	// ClabTopoStruct := topoengine.ClabTopoStruct{}
+	// jsonBytes := cyTopo.UnmarshalContainerLabTopov1(ClabTopoStruct, confClab.GetString("clab-user"))
+
+	//// Clab Version 2
+	log.Debugf("topo Clab: ", topoClab)
+	log.Debug("Code Trace Point ####")
+	cyTopo.ClabTopoRead(topoClab) // loading containerLab export-topo json file
+
+	jsonBytes := cyTopo.UnmarshalContainerLabTopoV2(cyTopo.ClabTopoStructDataV2, topoengine.ClabTopoStructV2{})
+
+	cyTopo.IetfMultiLayerTopoPrintjsonBytesCytoUi(jsonBytes)
 
 	cyTopo.PrintjsonBytesCytoUi(jsonBytes)
 
