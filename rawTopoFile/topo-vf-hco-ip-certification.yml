@@ -1,0 +1,316 @@
+name: Vodafone-CO-HCO
+
+mgmt:
+  network: custom_mgmt             # management network name
+  bridge: br1-private
+  ipv4-subnet: 10.10.10.0/24       # ipv4 range
+
+topology:
+  nodes:
+    R01-PE:
+      kind: vr-sros
+      mgmt-ipv4: 10.10.10.101
+      group: ip-mpls
+      image: registry.srlinux.dev/pub/vr-sros:22.7.R1
+      #image: registry.srlinux.dev/pub/vr-sros:20.10.R2
+      type: "cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28"
+      license: license.txt
+      # Get Mac Interfae for Test Gear Connection
+      exec:
+        - bash -c "ip l show eth3 | grep -o -E '([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}' | head -1"
+      labels:
+        topo-viewer-role: pe
+
+    R02-PE:
+      kind: vr-sros
+      mgmt-ipv4: 10.10.10.102
+      group: ip-mpls
+      image: registry.srlinux.dev/pub/vr-sros:21.10.R2
+      #type: sr-1
+      type: "cp: cpu=2 ram=6 chassis=SR-7 slot=A card=cpm5 ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-7 slot=1 card=imm-2pac-fp3 mda/1=p10-10g-sfp"      
+      license: license.txt
+      # Get Mac Interfae for Test Gear Connection
+      exec:
+        - bash -c "ip l show eth3 | grep -o -E '([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}' | head -1"
+      labels:
+        topo-viewer-role: pe
+
+    R03-P:
+      kind: vr-sros
+      mgmt-ipv4: 10.10.10.103
+      group: ip-mpls
+      image: registry.srlinux.dev/pub/vr-sros:21.10.R2
+      #type: sr-1
+      type: "cp: cpu=2 ram=6 chassis=SR-12 slot=A card=cpm5 ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-12 slot=1 card=imm-2pac-fp3 mda/1=p10-10g-sfp"
+      license: license.txt
+      labels:
+        topo-viewer-role: pe
+
+    R04-P:
+      kind: vr-sros
+      mgmt-ipv4: 10.10.10.104
+      group: ip-mpls
+      image: registry.srlinux.dev/pub/vr-sros:21.10.R2
+      #type: sr-1
+      type: "cp: cpu=2 ram=6 chassis=SR-12 slot=A card=cpm5 ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-12 slot=1 card=imm-2pac-fp3 mda/1=p10-10g-sfp"
+      license: license.txt
+      labels:
+        topo-viewer-role: pe
+
+    R05-PE:
+      kind: vr-sros
+      mgmt-ipv4: 10.10.10.105
+      group: ip-mpls
+      #image: vrnetlab/vr-sros:19.10.R12
+      image: registry.srlinux.dev/pub/vr-sros:21.10.R2      
+      #type: sr-a8
+      type: "cp: cpu=2 ram=6 chassis=SR-a8 slot=A card=cpm-a ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-a8 slot=1 card=iom-a mda/1=ma20-1gb-tx"
+      license: license.txt
+      labels:
+        topo-viewer-role: pe
+    
+    R06-PE-ASBR:
+      kind: vr-sros
+      mgmt-ipv4: 10.10.10.106
+      group: ip-mpls
+      image: registry.srlinux.dev/pub/vr-sros:21.10.R2
+      #type: sr-1
+      type: "cp: cpu=2 ram=6 chassis=SR-12 slot=A card=cpm5 ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-12 slot=1 card=iom4-e-hs mda/1=me40-1gb-csfp"      
+      license: license.txt
+      labels:
+        topo-viewer-role: pe
+
+    R07-PE-ASBR:
+      kind: vr-sros
+      mgmt-ipv4: 10.10.10.107
+      group: ip-mpls
+      # image: registry.srlinux.dev/pub/vr-sros:21.10.R2
+      image: registry.srlinux.dev/pub/vr-sros:22.7.R1
+      #type: sr-1
+      type: "cp: cpu=2 ram=6 chassis=SR-12 slot=A card=cpm5 ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-12 slot=1 card=iom4-e-hs mda/1=me40-1gb-csfp"                      
+      license: license.txt
+      labels:
+        topo-viewer-role: pe
+
+    R09-PE-ASBR:
+      kind: vr-sros
+      mgmt-ipv4: 10.10.10.109
+      group: ip-mpls
+      image: registry.srlinux.dev/pub/vr-sros:21.10.R2
+      #type: sr-1
+      type: "cp: cpu=2 ram=6 chassis=SR-7 slot=A card=cpm5 ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-7 slot=1 card=iom4-e-hs mda/1=me40-1gb-csfp"
+      license: license.txt
+      labels:
+        topo-viewer-role: pe
+
+    R10-PE-ASBR:
+      kind: vr-sros
+      mgmt-ipv4: 10.10.10.110
+      group: ip-mpls
+      image: registry.srlinux.dev/pub/vr-sros:21.10.R2
+      #type: sr-1
+      type: "cp: cpu=2 ram=6 chassis=SR-7 slot=A card=cpm5 ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-7 slot=1 card=iom4-e-hs mda/1=me40-1gb-csfp"
+      license: license.txt
+      labels:
+        topo-viewer-role: pe
+
+    R08-PE:
+      kind: vr-sros
+      mgmt-ipv4: 10.10.10.108
+      group: ip-mpls
+      #image: vrnetlab/vr-sros:19.10.R12      
+      image: registry.srlinux.dev/pub/vr-sros:21.10.R2
+      type: "cp: cpu=2 ram=6 chassis=SR-7 slot=A card=cpm5 ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-7 slot=1 card=iom4-e-hs mda/1=me40-1gb-csfp"      
+      license: license.txt
+      labels:
+        topo-viewer-role: pe
+
+
+    R11-P:
+      kind: vr-xrv9k
+      mgmt-ipv4: 10.10.10.111
+      group: ip-mpls
+      image: registry.srlinux.dev/pub/vr-xrv9k:7.3.2 
+      labels:
+        topo-viewer-role: p
+
+    R12-P:
+      kind: vr-vmx
+      mgmt-ipv4: 10.10.10.112
+      group: ip-mpls
+      #image: registry.srlinux.dev/pub/vr-vmx:19.4R3.11
+      image: registry.srlinux.dev/pub/vr-vmx:17.4R3.16
+      labels:
+        topo-viewer-role: p
+
+    R13-P:
+      kind: vr-sros
+      mgmt-ipv4: 10.10.10.113
+      group: ip-mpls
+      image: registry.srlinux.dev/pub/vr-sros:22.10.R1
+      type: "cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28"
+      license: license.txt
+      labels:
+        topo-viewer-role: p
+
+    R14-P:
+      kind: srl
+      mgmt-ipv4: 10.10.10.114
+      group: ip-mpls
+      type: ixrd3
+      image: ghcr.io/nokia/srlinux:22.6.1
+      labels:
+        topo-viewer-role: p
+
+    DC-SPINE-01:
+      kind: srl
+      mgmt-ipv4: 10.10.10.121
+      group: data-center
+      type: ixrd3
+      image: ghcr.io/nokia/srlinux:22.6.1
+      labels:
+        topo-viewer-role: spine
+
+    DC-SPINE-02:
+      kind: srl
+      mgmt-ipv4: 10.10.10.122
+      group: data-center
+      type: ixrd3
+      image: ghcr.io/nokia/srlinux:22.6.1
+      labels:
+        topo-viewer-role: spine
+
+    DC-BORDER-LEAF-01:
+      kind: srl
+      mgmt-ipv4: 10.10.10.123
+      group: data-center
+      type: ixrd3
+      image: ghcr.io/nokia/srlinux:22.6.2
+      labels:
+        topo-viewer-role: leaf
+
+    DC-BORDER-LEAF-02:
+      kind: srl
+      mgmt-ipv4: 10.10.10.124
+      group: data-center
+      type: ixrd3
+      image: ghcr.io/nokia/srlinux:22.6.2
+      labels:
+        topo-viewer-role: leaf
+
+    DC-LEAF-01:
+      kind: srl
+      mgmt-ipv4: 10.10.10.125
+      group: data-center
+      type: ixrd2
+      image: ghcr.io/nokia/srlinux:22.6.1
+      labels:
+        topo-viewer-role: leaf
+
+    DC-LEAF-02:
+      kind: srl
+      mgmt-ipv4: 10.10.10.126
+      group: data-center
+      type: ixrd2
+      image: ghcr.io/nokia/srlinux:22.6.1
+      labels:
+        topo-viewer-role: leaf
+
+
+    ## IXIA Test Gear
+    # ixia-c:
+    #   kind: keysight_ixia-c-one
+    #   image: ghcr.io/open-traffic-generator/ixia-c-one:0.0.1-2755
+    #   exec:
+    #     - "./ifcfg add eth1 10.1.1.1 24"
+    #     - "./ifcfg add eth2 10.2.2.1 24"
+
+    # Iperf Test Gear
+    iperf01:
+      kind: linux
+      image: sflow/clab-iperf3
+      exec:
+        - "ifconfig eth1 200.1.1.101 netmask 255.255.255.0"
+      labels:
+        topo-viewer-role: server
+
+    iperf02:
+      kind: linux
+      image: sflow/clab-iperf3
+      exec:
+        - "ifconfig eth1 200.1.1.102 netmask 255.255.255.0"
+      labels:
+        topo-viewer-role: server
+
+    br1-private:
+      kind: bridge
+      
+  links:
+    - endpoints: ["R01-PE:eth2", "R02-PE:eth2"]
+    - endpoints: ["R01-PE:eth1", "R03-P:eth1"]
+    - endpoints: ["R02-PE:eth1", "R04-P:eth1"]
+
+    - endpoints: ["R03-P:eth3", "R04-P:eth3"]
+    - endpoints: ["R03-P:eth4", "R05-PE:eth2"]
+    - endpoints: ["R03-P:eth2", "R06-PE-ASBR:eth2"]
+    - endpoints: ["R03-P:eth5", "R07-PE-ASBR:eth3"]
+
+    - endpoints: ["R04-P:eth5", "R05-PE:eth5"]
+    - endpoints: ["R04-P:eth2", "R06-PE-ASBR:eth1"]
+    - endpoints: ["R04-P:eth4", "R07-PE-ASBR:eth2"]
+
+    - endpoints: ["R06-PE-ASBR:eth3", "R09-PE-ASBR:eth3"]
+
+    - endpoints: ["R07-PE-ASBR:eth1", "R10-PE-ASBR:eth3"]
+
+    - endpoints: ["R09-PE-ASBR:eth2", "R08-PE:eth5"]
+
+    - endpoints: ["R10-PE-ASBR:eth2", "R08-PE:eth2"]
+
+    - endpoints: ["R07-PE-ASBR:eth4", "br1-private:eth1"]
+    - endpoints: ["R10-PE-ASBR:eth4", "br1-private:eth2"]
+
+
+    - endpoints: ["DC-LEAF-01:e1-1", "DC-SPINE-01:e1-3"]
+    - endpoints: ["DC-LEAF-01:e1-2", "DC-SPINE-02:e1-3"]
+
+    - endpoints: ["DC-LEAF-02:e1-1", "DC-SPINE-01:e1-4"]
+    - endpoints: ["DC-LEAF-02:e1-2", "DC-SPINE-02:e1-4"]
+
+    - endpoints: ["DC-BORDER-LEAF-01:e1-1", "DC-SPINE-01:e1-1"]
+    - endpoints: ["DC-BORDER-LEAF-01:e1-2", "DC-SPINE-02:e1-1"]
+    
+    - endpoints: ["DC-BORDER-LEAF-02:e1-1", "DC-SPINE-01:e1-2"]
+    - endpoints: ["DC-BORDER-LEAF-02:e1-2", "DC-SPINE-02:e1-2"]
+
+    - endpoints: ["DC-BORDER-LEAF-01:e1-3", "R01-PE:eth4"]
+    - endpoints: ["DC-BORDER-LEAF-02:e1-3", "R02-PE:eth4"]
+
+    # Cisco Juniper Connection
+    - endpoints: ["R11-P:eth1", "R01-PE:eth5"]
+    - endpoints: ["R11-P:eth2", "R12-P:eth2"]
+
+    - endpoints: ["R12-P:eth1", "R03-P:eth6"]
+    - endpoints: ["R12-P:eth4", "R06-PE-ASBR:eth4"]
+
+    # R13 R14 Connection
+    - endpoints: ["R13-P:eth1", "R02-PE:eth5"]
+    - endpoints: ["R13-P:eth2", "R14-P:e1-2"]
+
+
+    - endpoints: ["R14-P:e1-1", "R04-P:eth6"]
+    - endpoints: ["R14-P:e1-4", "R07-PE-ASBR:eth5"]
+
+    # IPERF Test Gear Connection
+    - endpoints: ["iperf01:eth1", "R01-PE:eth3"]
+    - endpoints: ["iperf02:eth1", "R02-PE:eth3"]
+
+
+
+
+
+
+
+
+
+

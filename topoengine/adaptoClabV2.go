@@ -7,12 +7,13 @@ import (
 	"path"
 	"strconv"
 
+	"github.com/samber/lo"
 	log "github.com/sirupsen/logrus"
 
 	tools "github.com/asadarafat/topoViewer/tools"
 )
 
-type ClabTopoStructV2 struct {
+type ClabTopoV2 struct {
 	Name string `json:"name"`
 	Type string `json:"type"`
 	Clab struct {
@@ -23,13 +24,14 @@ type ClabTopoStructV2 struct {
 				Bridge         string `json:"bridge"`
 				Ipv4Subnet     string `json:"ipv4-subnet"`
 				Ipv4Gw         string `json:"ipv4-gw"`
+				Ipv6Gw         string `json:"ipv6-gw"`
 				Mtu            string `json:"mtu"`
 				ExternalAccess bool   `json:"external-access"`
 			} `json:"mgmt"`
 		} `json:"config"`
 	} `json:"clab"`
 	Nodes []struct {
-		NodeID               string `json:"id"`
+		ID                   string `json:"id"`
 		Index                string `json:"index"`
 		Shortname            string `json:"shortname"`
 		Longname             string `json:"longname"`
@@ -54,6 +56,7 @@ type ClabTopoStructV2 struct {
 			ClabNodeType      string `json:"clab-node-type"`
 			ClabTopoFile      string `json:"clab-topo-file"`
 			Containerlab      string `json:"containerlab"`
+			TopoViewerRole    string `json:"topo-viewer-role"`
 		} `json:"labels"`
 	} `json:"nodes"`
 	Links []struct {
@@ -90,17 +93,18 @@ func (cyTopo *CytoTopology) ClabTopoRead(topoFile string) []byte {
 		log.Fatal("Error when opening file: ", err)
 	}
 
-	cyTopo.IetfNetworL2TopoData = topoFileBytes
 	return topoFileBytes
 }
 
-func (cyTopo *CytoTopology) UnmarshalContainerLabTopoV2(CytoClabTopoData []byte, clabTopoStruct ClabTopoStructV2) []byte {
+func (cyTopo *CytoTopology) UnmarshalContainerLabTopoV2(topoFile []byte) []byte {
 
 	// initiate cytoJson struct
 	cytoJson := CytoJson{}
+	cytoJsonList := []CytoJson{}
+	var topoviewerRoleList []string
 
 	// unmarshal topoFile into clabTopoStruct
-	json.Unmarshal(CytoClabTopoData, &clabTopoStruct)
+	json.Unmarshal(topoFile, &cyTopo.ClabTopoDataV2)
 
 	// get Clab ServerHost Username
 	user, err := user.Current()
@@ -110,53 +114,128 @@ func (cyTopo *CytoTopology) UnmarshalContainerLabTopoV2(CytoClabTopoData []byte,
 	Username := user.Username
 
 	//map the clabTopoStruct content to cytoJson content
-	for i, node := range clabTopoStruct.Nodes {
+	for _, node := range cyTopo.ClabTopoDataV2.Nodes {
 		cytoJson.Group = "nodes"
 		cytoJson.Grabbable = true
 		cytoJson.Selectable = true
-		cytoJson.Data.ID = "Clab-" + strconv.Itoa(i)
+		cytoJson.Data.ID = node.ID
 		cytoJson.Data.Weight = "3"
-		cytoJson.Data.Name = node.NodeID
-
-		cytoJson.Data.ExtraData = map[string]interface{}{
-
-			"ClabServerUsername": Username,
-
-			"ID": strconv.Itoa(i),
-
-			"Weight": "2",
-			"Name":   node.Shortname,
-
-			"ClabNodeName":     node.Shortname,
-			"ClabNodeLongName": node.Longname,
-			"ClabKind":         node.Kind,
-			"ClabGroup":        node.Group,
-
-			"MgmtIPv4Address": node.MgmtIpv4Address,
-			"MgmtIPv6Address": node.MgmtIpv6Address,
-
-			"id":                      node.NodeID,
-			"index":                   node.Index,
-			"shortname":               node.Shortname,
-			"longname":                node.Longname,
-			"fqdn":                    node.Fqdn,
-			"group":                   node.Group,
-			"labdir":                  node.Labdir,
-			"kind":                    node.Kind,
-			"image":                   node.Image,
-			"mgmt-net":                "",
-			"mgmt-intf":               "",
-			"mgmt-ipv4-address":       node.MgmtIpv4Address,
-			"mgmt-ipv4-prefix-length": node.MgmtIpv4PrefixLength,
-			"mgmt-ipv6-address":       node.MgmtIpv6Address,
-			"mgmt-ipv6-prefix-length": node.MgmtIpv6PrefixLength,
-			"mac-address":             node.MacAddress,
+		cytoJson.Data.Name = node.ID
+		cytoJson.Data.TopoviewerRole = node.Labels.TopoViewerRole
+		switch cytoJson.Data.TopoviewerRole {
+		case "dcgw":
+			cytoJson.Data.Parent = "Data Center"
+			topoviewerRoleList = append(topoviewerRoleList, cytoJson.Data.Parent)
+			cytoJson.Data.Parent = "IP-MPLS"
+			topoviewerRoleList = append(topoviewerRoleList, cytoJson.Data.Parent)
+		case "superSpine":
+			cytoJson.Data.Parent = "Data Center"
+			topoviewerRoleList = append(topoviewerRoleList, cytoJson.Data.Parent)
+		case "spine":
+			cytoJson.Data.Parent = "Data Center"
+			topoviewerRoleList = append(topoviewerRoleList, cytoJson.Data.Parent)
+		case "leaf":
+			cytoJson.Data.Parent = "Data Center"
+			topoviewerRoleList = append(topoviewerRoleList, cytoJson.Data.Parent)
+		case "pe":
+			cytoJson.Data.Parent = "IP-MPLS"
+			topoviewerRoleList = append(topoviewerRoleList, cytoJson.Data.Parent)
+		case "p":
+			cytoJson.Data.Parent = "IP-MPLS"
+			topoviewerRoleList = append(topoviewerRoleList, cytoJson.Data.Parent)
+		case "ppe":
+			cytoJson.Data.Parent = "IP-MPLS"
+			topoviewerRoleList = append(topoviewerRoleList, cytoJson.Data.Parent)
 		}
+
+		log.Debugf("node.Labels.ClabMgmtNetBridge: ", node.Labels.ClabMgmtNetBridge)
+		// cytoJson.Data.ExtraData = node
+		cytoJson.Data.ExtraData = map[string]interface{}{
+			"clabServerUsername":    Username,
+			"id":                    node.ID,
+			"weight":                "2",
+			"name":                  node.Shortname,
+			"index":                 node.Index,
+			"shortname":             node.Shortname,
+			"longname":              node.Longname,
+			"fqdn":                  node.Fqdn,
+			"group":                 node.Group,
+			"labdir":                node.Labdir,
+			"kind":                  node.Kind,
+			"image":                 node.Image,
+			"mgmtNet":               node.MgmtNet,
+			"mgmtIntf":              node.MgmtIntf,
+			"mgmtIpv4Addresss":      node.MgmtIpv4Address,
+			"mgmtIpv4AddressLength": node.MgmtIpv4PrefixLength,
+			"mgmtIpv6Address":       node.MgmtIpv6Address,
+			"mgmtIpv6AddressLength": node.MgmtIpv6PrefixLength,
+			"macAddress":            node.MacAddress,
+			"labels": struct {
+				ClabMgmtNetBridge string
+				ClabNodeGroup     string
+				ClabNodeKind      string
+				ClabNodeLabDir    string
+				ClabNodeName      string
+				ClabNodeType      string
+				ClabTopoFile      string
+				Containerlab      string
+				TopoViewerRole    string
+			}{
+				node.Labels.ClabMgmtNetBridge,
+				node.Labels.ClabNodeGroup,
+				node.Labels.ClabNodeKind,
+				node.Labels.ClabNodeLabDir,
+				node.Labels.ClabNodeName,
+				node.Labels.ClabNodeType,
+				node.Labels.ClabTopoFile,
+				node.Labels.Containerlab,
+				node.Labels.TopoViewerRole,
+			},
+		}
+		cytoJsonList = append(cytoJsonList, cytoJson)
+	}
+
+	uniqtopoviewerRoleList := lo.Uniq(topoviewerRoleList)
+	log.Debugf("Unique Group List: ", uniqtopoviewerRoleList)
+
+	// add Parent Nodes Per topoviewerRoleList
+	for _, n := range uniqtopoviewerRoleList {
+		cytoJson.Group = "nodes"
+		cytoJson.Data.Parent = ""
+		cytoJson.Grabbable = true
+		cytoJson.Selectable = true
+		cytoJson.Data.ID = n
+		cytoJson.Data.Name = n + " domain"
+		cytoJson.Data.TopoviewerRole = n
+		cytoJson.Data.Weight = "2"
+		cytoJson.Data.ExtraData = map[string]interface{}{
+			"clabServerUsername": Username,
+			"weight":             "2",
+			"name":               "",
+		}
+		cytoJsonList = append(cytoJsonList, cytoJson)
+	}
+
+	for i, link := range cyTopo.ClabTopoDataV2.Links {
+		cytoJson.Group = "edges"
+		cytoJson.Grabbable = true
+		cytoJson.Selectable = true
+
+		cytoJson.Data.ID = "Clab-Link" + strconv.Itoa(i)
+		cytoJson.Data.Weight = "3"
+		cytoJson.Data.Source = link.A.Node
+		cytoJson.Data.Target = link.Z.Node
+		cytoJson.Data.SourceEndpoint = link.A.Interface
+		cytoJson.Data.TargetEndpoint = link.Z.Interface
+
+		cytoJson.Data.ExtraData = map[string]interface{}{}
+
+		cytoJsonList = append(cytoJsonList, cytoJson)
 	}
 
 	// Throw unmarshalled result to log
 	// log.Info(cytoJsonList)
-	jsonBytesCytoUi, err := json.MarshalIndent(cytoJson, "", "  ")
+	jsonBytesCytoUi, err := json.MarshalIndent(cytoJsonList, "", "  ")
 	if err != nil {
 		log.Error(err)
 		panic(err)
@@ -174,8 +253,8 @@ func (cyTopo *CytoTopology) UnmarshalContainerLabTopoV2(CytoClabTopoData []byte,
 
 func (cyTopo *CytoTopology) PrintjsonBytesCytoUiV2(marshaledJsonBytesCytoUi []byte) error {
 	// Create file
-	os.Mkdir("./html-public/"+cyTopo.ClabTopoData.ClabTopoName, 0755)
-	file, err := os.Create("html-public/" + cyTopo.ClabTopoData.ClabTopoName + "/dataCytoMarshall-" + cyTopo.ClabTopoData.ClabTopoName + ".json")
+	os.Mkdir("./html-public/"+cyTopo.ClabTopoDataV2.Name, 0755)
+	file, err := os.Create("html-public/" + cyTopo.ClabTopoDataV2.Name + "/dataCytoMarshall-" + cyTopo.ClabTopoDataV2.Name + ".json")
 	if err != nil {
 		log.Error("Could not create json file for graph")
 	}

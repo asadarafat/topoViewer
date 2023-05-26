@@ -1,0 +1,60 @@
+all:
+  children:
+    bridge:
+      hosts:
+        clab-Vodafone-CO-HCO-br1-private:
+          ansible_host: 
+    linux:
+      hosts:
+        clab-Vodafone-CO-HCO-iperf01:
+          ansible_host: 10.10.10.3
+        clab-Vodafone-CO-HCO-iperf02:
+          ansible_host: 10.10.10.2
+    srl:
+      hosts:
+        clab-Vodafone-CO-HCO-DC-BORDER-LEAF-01:
+          ansible_host: 10.10.10.123
+        clab-Vodafone-CO-HCO-DC-BORDER-LEAF-02:
+          ansible_host: 10.10.10.124
+        clab-Vodafone-CO-HCO-DC-LEAF-01:
+          ansible_host: 10.10.10.125
+        clab-Vodafone-CO-HCO-DC-LEAF-02:
+          ansible_host: 10.10.10.126
+        clab-Vodafone-CO-HCO-DC-SPINE-01:
+          ansible_host: 10.10.10.121
+        clab-Vodafone-CO-HCO-DC-SPINE-02:
+          ansible_host: 10.10.10.122
+        clab-Vodafone-CO-HCO-R14-P:
+          ansible_host: 10.10.10.114
+    vr-sros:
+      hosts:
+        clab-Vodafone-CO-HCO-R01-PE:
+          ansible_host: 
+        clab-Vodafone-CO-HCO-R02-PE:
+          ansible_host: 
+        clab-Vodafone-CO-HCO-R03-P:
+          ansible_host: 
+        clab-Vodafone-CO-HCO-R04-P:
+          ansible_host: 
+        clab-Vodafone-CO-HCO-R05-PE:
+          ansible_host: 
+        clab-Vodafone-CO-HCO-R06-PE-ASBR:
+          ansible_host: 
+        clab-Vodafone-CO-HCO-R07-PE-ASBR:
+          ansible_host: 
+        clab-Vodafone-CO-HCO-R08-PE:
+          ansible_host: 
+        clab-Vodafone-CO-HCO-R09-PE-ASBR:
+          ansible_host: 
+        clab-Vodafone-CO-HCO-R10-PE-ASBR:
+          ansible_host: 
+        clab-Vodafone-CO-HCO-R13-P:
+          ansible_host: 
+    vr-vmx:
+      hosts:
+        clab-Vodafone-CO-HCO-R12-P:
+          ansible_host: 10.10.10.112
+    vr-xrv9k:
+      hosts:
+        clab-Vodafone-CO-HCO-R11-P:
+          ansible_host: 10.10.10.111

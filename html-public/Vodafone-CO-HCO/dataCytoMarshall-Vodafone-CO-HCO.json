@@ -1,0 +1,2320 @@
+[
+  {
+    "data": {
+      "id": "DC-BORDER-LEAF-01",
+      "weight": "3",
+      "name": "DC-BORDER-LEAF-01",
+      "parent": "Data Center",
+      "kind": "",
+      "topoviewerRole": "leaf",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "fqdn": "DC-BORDER-LEAF-01.Vodafone-CO-HCO.io",
+        "group": "",
+        "id": "DC-BORDER-LEAF-01",
+        "image": "ghcr.io/nokia/srlinux:22.6.2",
+        "index": "0",
+        "kind": "srl",
+        "labdir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/DC-BORDER-LEAF-01",
+        "labels": {
+          "ClabMgmtNetBridge": "br1-private",
+          "ClabNodeGroup": "",
+          "ClabNodeKind": "srl",
+          "ClabNodeLabDir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/DC-BORDER-LEAF-01",
+          "ClabNodeName": "DC-BORDER-LEAF-01",
+          "ClabNodeType": "ixrd3",
+          "ClabTopoFile": "/home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.yml",
+          "Containerlab": "Vodafone-CO-HCO",
+          "TopoViewerRole": "leaf"
+        },
+        "longname": "clab-Vodafone-CO-HCO-DC-BORDER-LEAF-01",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 24,
+        "mgmtIpv4Addresss": "10.10.10.123",
+        "mgmtIpv6Address": "",
+        "mgmtIpv6AddressLength": 0,
+        "mgmtNet": "",
+        "name": "DC-BORDER-LEAF-01",
+        "shortname": "DC-BORDER-LEAF-01",
+        "weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "DC-BORDER-LEAF-02",
+      "weight": "3",
+      "name": "DC-BORDER-LEAF-02",
+      "parent": "Data Center",
+      "kind": "",
+      "topoviewerRole": "leaf",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "fqdn": "DC-BORDER-LEAF-02.Vodafone-CO-HCO.io",
+        "group": "",
+        "id": "DC-BORDER-LEAF-02",
+        "image": "ghcr.io/nokia/srlinux:22.6.2",
+        "index": "1",
+        "kind": "srl",
+        "labdir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/DC-BORDER-LEAF-02",
+        "labels": {
+          "ClabMgmtNetBridge": "br1-private",
+          "ClabNodeGroup": "",
+          "ClabNodeKind": "srl",
+          "ClabNodeLabDir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/DC-BORDER-LEAF-02",
+          "ClabNodeName": "DC-BORDER-LEAF-02",
+          "ClabNodeType": "ixrd3",
+          "ClabTopoFile": "/home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.yml",
+          "Containerlab": "Vodafone-CO-HCO",
+          "TopoViewerRole": "leaf"
+        },
+        "longname": "clab-Vodafone-CO-HCO-DC-BORDER-LEAF-02",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 24,
+        "mgmtIpv4Addresss": "10.10.10.124",
+        "mgmtIpv6Address": "",
+        "mgmtIpv6AddressLength": 0,
+        "mgmtNet": "",
+        "name": "DC-BORDER-LEAF-02",
+        "shortname": "DC-BORDER-LEAF-02",
+        "weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "DC-LEAF-01",
+      "weight": "3",
+      "name": "DC-LEAF-01",
+      "parent": "Data Center",
+      "kind": "",
+      "topoviewerRole": "leaf",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "fqdn": "DC-LEAF-01.Vodafone-CO-HCO.io",
+        "group": "",
+        "id": "DC-LEAF-01",
+        "image": "ghcr.io/nokia/srlinux:22.6.1",
+        "index": "2",
+        "kind": "srl",
+        "labdir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/DC-LEAF-01",
+        "labels": {
+          "ClabMgmtNetBridge": "br1-private",
+          "ClabNodeGroup": "",
+          "ClabNodeKind": "srl",
+          "ClabNodeLabDir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/DC-LEAF-01",
+          "ClabNodeName": "DC-LEAF-01",
+          "ClabNodeType": "ixrd2",
+          "ClabTopoFile": "/home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.yml",
+          "Containerlab": "Vodafone-CO-HCO",
+          "TopoViewerRole": "leaf"
+        },
+        "longname": "clab-Vodafone-CO-HCO-DC-LEAF-01",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 24,
+        "mgmtIpv4Addresss": "10.10.10.125",
+        "mgmtIpv6Address": "",
+        "mgmtIpv6AddressLength": 0,
+        "mgmtNet": "",
+        "name": "DC-LEAF-01",
+        "shortname": "DC-LEAF-01",
+        "weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "DC-LEAF-02",
+      "weight": "3",
+      "name": "DC-LEAF-02",
+      "parent": "Data Center",
+      "kind": "",
+      "topoviewerRole": "leaf",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "fqdn": "DC-LEAF-02.Vodafone-CO-HCO.io",
+        "group": "",
+        "id": "DC-LEAF-02",
+        "image": "ghcr.io/nokia/srlinux:22.6.1",
+        "index": "3",
+        "kind": "srl",
+        "labdir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/DC-LEAF-02",
+        "labels": {
+          "ClabMgmtNetBridge": "br1-private",
+          "ClabNodeGroup": "",
+          "ClabNodeKind": "srl",
+          "ClabNodeLabDir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/DC-LEAF-02",
+          "ClabNodeName": "DC-LEAF-02",
+          "ClabNodeType": "ixrd2",
+          "ClabTopoFile": "/home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.yml",
+          "Containerlab": "Vodafone-CO-HCO",
+          "TopoViewerRole": "leaf"
+        },
+        "longname": "clab-Vodafone-CO-HCO-DC-LEAF-02",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 24,
+        "mgmtIpv4Addresss": "10.10.10.126",
+        "mgmtIpv6Address": "",
+        "mgmtIpv6AddressLength": 0,
+        "mgmtNet": "",
+        "name": "DC-LEAF-02",
+        "shortname": "DC-LEAF-02",
+        "weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "DC-SPINE-01",
+      "weight": "3",
+      "name": "DC-SPINE-01",
+      "parent": "Data Center",
+      "kind": "",
+      "topoviewerRole": "spine",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "fqdn": "DC-SPINE-01.Vodafone-CO-HCO.io",
+        "group": "",
+        "id": "DC-SPINE-01",
+        "image": "ghcr.io/nokia/srlinux:22.6.1",
+        "index": "4",
+        "kind": "srl",
+        "labdir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/DC-SPINE-01",
+        "labels": {
+          "ClabMgmtNetBridge": "br1-private",
+          "ClabNodeGroup": "",
+          "ClabNodeKind": "srl",
+          "ClabNodeLabDir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/DC-SPINE-01",
+          "ClabNodeName": "DC-SPINE-01",
+          "ClabNodeType": "ixrd3",
+          "ClabTopoFile": "/home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.yml",
+          "Containerlab": "Vodafone-CO-HCO",
+          "TopoViewerRole": "spine"
+        },
+        "longname": "clab-Vodafone-CO-HCO-DC-SPINE-01",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 24,
+        "mgmtIpv4Addresss": "10.10.10.121",
+        "mgmtIpv6Address": "",
+        "mgmtIpv6AddressLength": 0,
+        "mgmtNet": "",
+        "name": "DC-SPINE-01",
+        "shortname": "DC-SPINE-01",
+        "weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "DC-SPINE-02",
+      "weight": "3",
+      "name": "DC-SPINE-02",
+      "parent": "Data Center",
+      "kind": "",
+      "topoviewerRole": "spine",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "fqdn": "DC-SPINE-02.Vodafone-CO-HCO.io",
+        "group": "",
+        "id": "DC-SPINE-02",
+        "image": "ghcr.io/nokia/srlinux:22.6.1",
+        "index": "5",
+        "kind": "srl",
+        "labdir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/DC-SPINE-02",
+        "labels": {
+          "ClabMgmtNetBridge": "br1-private",
+          "ClabNodeGroup": "",
+          "ClabNodeKind": "srl",
+          "ClabNodeLabDir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/DC-SPINE-02",
+          "ClabNodeName": "DC-SPINE-02",
+          "ClabNodeType": "ixrd3",
+          "ClabTopoFile": "/home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.yml",
+          "Containerlab": "Vodafone-CO-HCO",
+          "TopoViewerRole": "spine"
+        },
+        "longname": "clab-Vodafone-CO-HCO-DC-SPINE-02",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 24,
+        "mgmtIpv4Addresss": "10.10.10.122",
+        "mgmtIpv6Address": "",
+        "mgmtIpv6AddressLength": 0,
+        "mgmtNet": "",
+        "name": "DC-SPINE-02",
+        "shortname": "DC-SPINE-02",
+        "weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "R01-PE",
+      "weight": "3",
+      "name": "R01-PE",
+      "parent": "IP-MPLS",
+      "kind": "",
+      "topoviewerRole": "pe",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "fqdn": "R01-PE.Vodafone-CO-HCO.io",
+        "group": "",
+        "id": "R01-PE",
+        "image": "registry.srlinux.dev/pub/vr-sros:22.7.R1",
+        "index": "6",
+        "kind": "vr-sros",
+        "labdir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/R01-PE",
+        "labels": {
+          "ClabMgmtNetBridge": "br1-private",
+          "ClabNodeGroup": "",
+          "ClabNodeKind": "vr-sros",
+          "ClabNodeLabDir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/R01-PE",
+          "ClabNodeName": "R01-PE",
+          "ClabNodeType": "cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28",
+          "ClabTopoFile": "/home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.yml",
+          "Containerlab": "Vodafone-CO-HCO",
+          "TopoViewerRole": "pe"
+        },
+        "longname": "clab-Vodafone-CO-HCO-R01-PE",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 0,
+        "mgmtIpv4Addresss": "",
+        "mgmtIpv6Address": "",
+        "mgmtIpv6AddressLength": 0,
+        "mgmtNet": "",
+        "name": "R01-PE",
+        "shortname": "R01-PE",
+        "weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "R02-PE",
+      "weight": "3",
+      "name": "R02-PE",
+      "parent": "IP-MPLS",
+      "kind": "",
+      "topoviewerRole": "pe",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "fqdn": "R02-PE.Vodafone-CO-HCO.io",
+        "group": "",
+        "id": "R02-PE",
+        "image": "registry.srlinux.dev/pub/vr-sros:21.10.R2",
+        "index": "7",
+        "kind": "vr-sros",
+        "labdir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/R02-PE",
+        "labels": {
+          "ClabMgmtNetBridge": "br1-private",
+          "ClabNodeGroup": "",
+          "ClabNodeKind": "vr-sros",
+          "ClabNodeLabDir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/R02-PE",
+          "ClabNodeName": "R02-PE",
+          "ClabNodeType": "cp: cpu=2 ram=6 chassis=SR-7 slot=A card=cpm5 ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-7 slot=1 card=imm-2pac-fp3 mda/1=p10-10g-sfp",
+          "ClabTopoFile": "/home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.yml",
+          "Containerlab": "Vodafone-CO-HCO",
+          "TopoViewerRole": "pe"
+        },
+        "longname": "clab-Vodafone-CO-HCO-R02-PE",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 0,
+        "mgmtIpv4Addresss": "",
+        "mgmtIpv6Address": "",
+        "mgmtIpv6AddressLength": 0,
+        "mgmtNet": "",
+        "name": "R02-PE",
+        "shortname": "R02-PE",
+        "weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "R03-P",
+      "weight": "3",
+      "name": "R03-P",
+      "parent": "IP-MPLS",
+      "kind": "",
+      "topoviewerRole": "pe",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "fqdn": "R03-P.Vodafone-CO-HCO.io",
+        "group": "",
+        "id": "R03-P",
+        "image": "registry.srlinux.dev/pub/vr-sros:21.10.R2",
+        "index": "8",
+        "kind": "vr-sros",
+        "labdir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/R03-P",
+        "labels": {
+          "ClabMgmtNetBridge": "br1-private",
+          "ClabNodeGroup": "",
+          "ClabNodeKind": "vr-sros",
+          "ClabNodeLabDir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/R03-P",
+          "ClabNodeName": "R03-P",
+          "ClabNodeType": "cp: cpu=2 ram=6 chassis=SR-12 slot=A card=cpm5 ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-12 slot=1 card=imm-2pac-fp3 mda/1=p10-10g-sfp",
+          "ClabTopoFile": "/home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.yml",
+          "Containerlab": "Vodafone-CO-HCO",
+          "TopoViewerRole": "pe"
+        },
+        "longname": "clab-Vodafone-CO-HCO-R03-P",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 0,
+        "mgmtIpv4Addresss": "",
+        "mgmtIpv6Address": "",
+        "mgmtIpv6AddressLength": 0,
+        "mgmtNet": "",
+        "name": "R03-P",
+        "shortname": "R03-P",
+        "weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "R04-P",
+      "weight": "3",
+      "name": "R04-P",
+      "parent": "IP-MPLS",
+      "kind": "",
+      "topoviewerRole": "pe",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "fqdn": "R04-P.Vodafone-CO-HCO.io",
+        "group": "",
+        "id": "R04-P",
+        "image": "registry.srlinux.dev/pub/vr-sros:21.10.R2",
+        "index": "9",
+        "kind": "vr-sros",
+        "labdir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/R04-P",
+        "labels": {
+          "ClabMgmtNetBridge": "br1-private",
+          "ClabNodeGroup": "",
+          "ClabNodeKind": "vr-sros",
+          "ClabNodeLabDir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/R04-P",
+          "ClabNodeName": "R04-P",
+          "ClabNodeType": "cp: cpu=2 ram=6 chassis=SR-12 slot=A card=cpm5 ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-12 slot=1 card=imm-2pac-fp3 mda/1=p10-10g-sfp",
+          "ClabTopoFile": "/home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.yml",
+          "Containerlab": "Vodafone-CO-HCO",
+          "TopoViewerRole": "pe"
+        },
+        "longname": "clab-Vodafone-CO-HCO-R04-P",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 0,
+        "mgmtIpv4Addresss": "",
+        "mgmtIpv6Address": "",
+        "mgmtIpv6AddressLength": 0,
+        "mgmtNet": "",
+        "name": "R04-P",
+        "shortname": "R04-P",
+        "weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "R05-PE",
+      "weight": "3",
+      "name": "R05-PE",
+      "parent": "IP-MPLS",
+      "kind": "",
+      "topoviewerRole": "pe",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "fqdn": "R05-PE.Vodafone-CO-HCO.io",
+        "group": "",
+        "id": "R05-PE",
+        "image": "registry.srlinux.dev/pub/vr-sros:21.10.R2",
+        "index": "10",
+        "kind": "vr-sros",
+        "labdir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/R05-PE",
+        "labels": {
+          "ClabMgmtNetBridge": "br1-private",
+          "ClabNodeGroup": "",
+          "ClabNodeKind": "vr-sros",
+          "ClabNodeLabDir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/R05-PE",
+          "ClabNodeName": "R05-PE",
+          "ClabNodeType": "cp: cpu=2 ram=6 chassis=SR-a8 slot=A card=cpm-a ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-a8 slot=1 card=iom-a mda/1=ma20-1gb-tx",
+          "ClabTopoFile": "/home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.yml",
+          "Containerlab": "Vodafone-CO-HCO",
+          "TopoViewerRole": "pe"
+        },
+        "longname": "clab-Vodafone-CO-HCO-R05-PE",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 0,
+        "mgmtIpv4Addresss": "",
+        "mgmtIpv6Address": "",
+        "mgmtIpv6AddressLength": 0,
+        "mgmtNet": "",
+        "name": "R05-PE",
+        "shortname": "R05-PE",
+        "weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "R06-PE-ASBR",
+      "weight": "3",
+      "name": "R06-PE-ASBR",
+      "parent": "IP-MPLS",
+      "kind": "",
+      "topoviewerRole": "pe",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "fqdn": "R06-PE-ASBR.Vodafone-CO-HCO.io",
+        "group": "",
+        "id": "R06-PE-ASBR",
+        "image": "registry.srlinux.dev/pub/vr-sros:21.10.R2",
+        "index": "11",
+        "kind": "vr-sros",
+        "labdir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/R06-PE-ASBR",
+        "labels": {
+          "ClabMgmtNetBridge": "br1-private",
+          "ClabNodeGroup": "",
+          "ClabNodeKind": "vr-sros",
+          "ClabNodeLabDir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/R06-PE-ASBR",
+          "ClabNodeName": "R06-PE-ASBR",
+          "ClabNodeType": "cp: cpu=2 ram=6 chassis=SR-12 slot=A card=cpm5 ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-12 slot=1 card=iom4-e-hs mda/1=me40-1gb-csfp",
+          "ClabTopoFile": "/home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.yml",
+          "Containerlab": "Vodafone-CO-HCO",
+          "TopoViewerRole": "pe"
+        },
+        "longname": "clab-Vodafone-CO-HCO-R06-PE-ASBR",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 0,
+        "mgmtIpv4Addresss": "",
+        "mgmtIpv6Address": "",
+        "mgmtIpv6AddressLength": 0,
+        "mgmtNet": "",
+        "name": "R06-PE-ASBR",
+        "shortname": "R06-PE-ASBR",
+        "weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "R07-PE-ASBR",
+      "weight": "3",
+      "name": "R07-PE-ASBR",
+      "parent": "IP-MPLS",
+      "kind": "",
+      "topoviewerRole": "pe",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "fqdn": "R07-PE-ASBR.Vodafone-CO-HCO.io",
+        "group": "",
+        "id": "R07-PE-ASBR",
+        "image": "registry.srlinux.dev/pub/vr-sros:22.7.R1",
+        "index": "12",
+        "kind": "vr-sros",
+        "labdir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/R07-PE-ASBR",
+        "labels": {
+          "ClabMgmtNetBridge": "br1-private",
+          "ClabNodeGroup": "",
+          "ClabNodeKind": "vr-sros",
+          "ClabNodeLabDir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/R07-PE-ASBR",
+          "ClabNodeName": "R07-PE-ASBR",
+          "ClabNodeType": "cp: cpu=2 ram=6 chassis=SR-12 slot=A card=cpm5 ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-12 slot=1 card=iom4-e-hs mda/1=me40-1gb-csfp",
+          "ClabTopoFile": "/home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.yml",
+          "Containerlab": "Vodafone-CO-HCO",
+          "TopoViewerRole": "pe"
+        },
+        "longname": "clab-Vodafone-CO-HCO-R07-PE-ASBR",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 0,
+        "mgmtIpv4Addresss": "",
+        "mgmtIpv6Address": "",
+        "mgmtIpv6AddressLength": 0,
+        "mgmtNet": "",
+        "name": "R07-PE-ASBR",
+        "shortname": "R07-PE-ASBR",
+        "weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "R08-PE",
+      "weight": "3",
+      "name": "R08-PE",
+      "parent": "IP-MPLS",
+      "kind": "",
+      "topoviewerRole": "pe",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "fqdn": "R08-PE.Vodafone-CO-HCO.io",
+        "group": "",
+        "id": "R08-PE",
+        "image": "registry.srlinux.dev/pub/vr-sros:21.10.R2",
+        "index": "13",
+        "kind": "vr-sros",
+        "labdir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/R08-PE",
+        "labels": {
+          "ClabMgmtNetBridge": "br1-private",
+          "ClabNodeGroup": "",
+          "ClabNodeKind": "vr-sros",
+          "ClabNodeLabDir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/R08-PE",
+          "ClabNodeName": "R08-PE",
+          "ClabNodeType": "cp: cpu=2 ram=6 chassis=SR-7 slot=A card=cpm5 ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-7 slot=1 card=iom4-e-hs mda/1=me40-1gb-csfp",
+          "ClabTopoFile": "/home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.yml",
+          "Containerlab": "Vodafone-CO-HCO",
+          "TopoViewerRole": "pe"
+        },
+        "longname": "clab-Vodafone-CO-HCO-R08-PE",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 0,
+        "mgmtIpv4Addresss": "",
+        "mgmtIpv6Address": "",
+        "mgmtIpv6AddressLength": 0,
+        "mgmtNet": "",
+        "name": "R08-PE",
+        "shortname": "R08-PE",
+        "weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "R09-PE-ASBR",
+      "weight": "3",
+      "name": "R09-PE-ASBR",
+      "parent": "IP-MPLS",
+      "kind": "",
+      "topoviewerRole": "pe",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "fqdn": "R09-PE-ASBR.Vodafone-CO-HCO.io",
+        "group": "",
+        "id": "R09-PE-ASBR",
+        "image": "registry.srlinux.dev/pub/vr-sros:21.10.R2",
+        "index": "14",
+        "kind": "vr-sros",
+        "labdir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/R09-PE-ASBR",
+        "labels": {
+          "ClabMgmtNetBridge": "br1-private",
+          "ClabNodeGroup": "",
+          "ClabNodeKind": "vr-sros",
+          "ClabNodeLabDir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/R09-PE-ASBR",
+          "ClabNodeName": "R09-PE-ASBR",
+          "ClabNodeType": "cp: cpu=2 ram=6 chassis=SR-7 slot=A card=cpm5 ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-7 slot=1 card=iom4-e-hs mda/1=me40-1gb-csfp",
+          "ClabTopoFile": "/home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.yml",
+          "Containerlab": "Vodafone-CO-HCO",
+          "TopoViewerRole": "pe"
+        },
+        "longname": "clab-Vodafone-CO-HCO-R09-PE-ASBR",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 0,
+        "mgmtIpv4Addresss": "",
+        "mgmtIpv6Address": "",
+        "mgmtIpv6AddressLength": 0,
+        "mgmtNet": "",
+        "name": "R09-PE-ASBR",
+        "shortname": "R09-PE-ASBR",
+        "weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "R10-PE-ASBR",
+      "weight": "3",
+      "name": "R10-PE-ASBR",
+      "parent": "IP-MPLS",
+      "kind": "",
+      "topoviewerRole": "pe",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "fqdn": "R10-PE-ASBR.Vodafone-CO-HCO.io",
+        "group": "",
+        "id": "R10-PE-ASBR",
+        "image": "registry.srlinux.dev/pub/vr-sros:21.10.R2",
+        "index": "15",
+        "kind": "vr-sros",
+        "labdir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/R10-PE-ASBR",
+        "labels": {
+          "ClabMgmtNetBridge": "br1-private",
+          "ClabNodeGroup": "",
+          "ClabNodeKind": "vr-sros",
+          "ClabNodeLabDir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/R10-PE-ASBR",
+          "ClabNodeName": "R10-PE-ASBR",
+          "ClabNodeType": "cp: cpu=2 ram=6 chassis=SR-7 slot=A card=cpm5 ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-7 slot=1 card=iom4-e-hs mda/1=me40-1gb-csfp",
+          "ClabTopoFile": "/home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.yml",
+          "Containerlab": "Vodafone-CO-HCO",
+          "TopoViewerRole": "pe"
+        },
+        "longname": "clab-Vodafone-CO-HCO-R10-PE-ASBR",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 0,
+        "mgmtIpv4Addresss": "",
+        "mgmtIpv6Address": "",
+        "mgmtIpv6AddressLength": 0,
+        "mgmtNet": "",
+        "name": "R10-PE-ASBR",
+        "shortname": "R10-PE-ASBR",
+        "weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "R11-P",
+      "weight": "3",
+      "name": "R11-P",
+      "parent": "IP-MPLS",
+      "kind": "",
+      "topoviewerRole": "p",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "fqdn": "R11-P.Vodafone-CO-HCO.io",
+        "group": "",
+        "id": "R11-P",
+        "image": "registry.srlinux.dev/pub/vr-xrv9k:7.3.2",
+        "index": "16",
+        "kind": "vr-xrv9k",
+        "labdir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/R11-P",
+        "labels": {
+          "ClabMgmtNetBridge": "br1-private",
+          "ClabNodeGroup": "",
+          "ClabNodeKind": "vr-xrv9k",
+          "ClabNodeLabDir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/R11-P",
+          "ClabNodeName": "R11-P",
+          "ClabNodeType": "",
+          "ClabTopoFile": "/home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.yml",
+          "Containerlab": "Vodafone-CO-HCO",
+          "TopoViewerRole": "p"
+        },
+        "longname": "clab-Vodafone-CO-HCO-R11-P",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 24,
+        "mgmtIpv4Addresss": "10.10.10.111",
+        "mgmtIpv6Address": "",
+        "mgmtIpv6AddressLength": 0,
+        "mgmtNet": "",
+        "name": "R11-P",
+        "shortname": "R11-P",
+        "weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "R12-P",
+      "weight": "3",
+      "name": "R12-P",
+      "parent": "IP-MPLS",
+      "kind": "",
+      "topoviewerRole": "p",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "fqdn": "R12-P.Vodafone-CO-HCO.io",
+        "group": "",
+        "id": "R12-P",
+        "image": "registry.srlinux.dev/pub/vr-vmx:17.4R3.16",
+        "index": "17",
+        "kind": "vr-vmx",
+        "labdir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/R12-P",
+        "labels": {
+          "ClabMgmtNetBridge": "br1-private",
+          "ClabNodeGroup": "",
+          "ClabNodeKind": "vr-vmx",
+          "ClabNodeLabDir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/R12-P",
+          "ClabNodeName": "R12-P",
+          "ClabNodeType": "",
+          "ClabTopoFile": "/home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.yml",
+          "Containerlab": "Vodafone-CO-HCO",
+          "TopoViewerRole": "p"
+        },
+        "longname": "clab-Vodafone-CO-HCO-R12-P",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 24,
+        "mgmtIpv4Addresss": "10.10.10.112",
+        "mgmtIpv6Address": "",
+        "mgmtIpv6AddressLength": 0,
+        "mgmtNet": "",
+        "name": "R12-P",
+        "shortname": "R12-P",
+        "weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "R13-P",
+      "weight": "3",
+      "name": "R13-P",
+      "parent": "IP-MPLS",
+      "kind": "",
+      "topoviewerRole": "p",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "fqdn": "R13-P.Vodafone-CO-HCO.io",
+        "group": "",
+        "id": "R13-P",
+        "image": "registry.srlinux.dev/pub/vr-sros:22.10.R1",
+        "index": "18",
+        "kind": "vr-sros",
+        "labdir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/R13-P",
+        "labels": {
+          "ClabMgmtNetBridge": "br1-private",
+          "ClabNodeGroup": "",
+          "ClabNodeKind": "vr-sros",
+          "ClabNodeLabDir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/R13-P",
+          "ClabNodeName": "R13-P",
+          "ClabNodeType": "cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28",
+          "ClabTopoFile": "/home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.yml",
+          "Containerlab": "Vodafone-CO-HCO",
+          "TopoViewerRole": "p"
+        },
+        "longname": "clab-Vodafone-CO-HCO-R13-P",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 0,
+        "mgmtIpv4Addresss": "",
+        "mgmtIpv6Address": "",
+        "mgmtIpv6AddressLength": 0,
+        "mgmtNet": "",
+        "name": "R13-P",
+        "shortname": "R13-P",
+        "weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "R14-P",
+      "weight": "3",
+      "name": "R14-P",
+      "parent": "IP-MPLS",
+      "kind": "",
+      "topoviewerRole": "p",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "fqdn": "R14-P.Vodafone-CO-HCO.io",
+        "group": "",
+        "id": "R14-P",
+        "image": "ghcr.io/nokia/srlinux:22.6.1",
+        "index": "19",
+        "kind": "srl",
+        "labdir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/R14-P",
+        "labels": {
+          "ClabMgmtNetBridge": "br1-private",
+          "ClabNodeGroup": "",
+          "ClabNodeKind": "srl",
+          "ClabNodeLabDir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/R14-P",
+          "ClabNodeName": "R14-P",
+          "ClabNodeType": "ixrh2",
+          "ClabTopoFile": "/home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.yml",
+          "Containerlab": "Vodafone-CO-HCO",
+          "TopoViewerRole": "p"
+        },
+        "longname": "clab-Vodafone-CO-HCO-R14-P",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 24,
+        "mgmtIpv4Addresss": "10.10.10.114",
+        "mgmtIpv6Address": "",
+        "mgmtIpv6AddressLength": 0,
+        "mgmtNet": "",
+        "name": "R14-P",
+        "shortname": "R14-P",
+        "weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "br1-private",
+      "weight": "3",
+      "name": "br1-private",
+      "parent": "IP-MPLS",
+      "kind": "",
+      "topoviewerRole": "",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "fqdn": "br1-private.Vodafone-CO-HCO.io",
+        "group": "",
+        "id": "br1-private",
+        "image": "",
+        "index": "20",
+        "kind": "bridge",
+        "labdir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/br1-private",
+        "labels": {
+          "ClabMgmtNetBridge": "br1-private",
+          "ClabNodeGroup": "",
+          "ClabNodeKind": "bridge",
+          "ClabNodeLabDir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/br1-private",
+          "ClabNodeName": "br1-private",
+          "ClabNodeType": "",
+          "ClabTopoFile": "/home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.yml",
+          "Containerlab": "Vodafone-CO-HCO",
+          "TopoViewerRole": ""
+        },
+        "longname": "clab-Vodafone-CO-HCO-br1-private",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 0,
+        "mgmtIpv4Addresss": "",
+        "mgmtIpv6Address": "",
+        "mgmtIpv6AddressLength": 0,
+        "mgmtNet": "",
+        "name": "br1-private",
+        "shortname": "br1-private",
+        "weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "iperf01",
+      "weight": "3",
+      "name": "iperf01",
+      "parent": "IP-MPLS",
+      "kind": "",
+      "topoviewerRole": "server",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "fqdn": "iperf01.Vodafone-CO-HCO.io",
+        "group": "",
+        "id": "iperf01",
+        "image": "sflow/clab-iperf3",
+        "index": "21",
+        "kind": "linux",
+        "labdir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/iperf01",
+        "labels": {
+          "ClabMgmtNetBridge": "br1-private",
+          "ClabNodeGroup": "",
+          "ClabNodeKind": "linux",
+          "ClabNodeLabDir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/iperf01",
+          "ClabNodeName": "iperf01",
+          "ClabNodeType": "",
+          "ClabTopoFile": "/home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.yml",
+          "Containerlab": "Vodafone-CO-HCO",
+          "TopoViewerRole": "server"
+        },
+        "longname": "clab-Vodafone-CO-HCO-iperf01",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 24,
+        "mgmtIpv4Addresss": "10.10.10.3",
+        "mgmtIpv6Address": "",
+        "mgmtIpv6AddressLength": 0,
+        "mgmtNet": "",
+        "name": "iperf01",
+        "shortname": "iperf01",
+        "weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "iperf02",
+      "weight": "3",
+      "name": "iperf02",
+      "parent": "IP-MPLS",
+      "kind": "",
+      "topoviewerRole": "server",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "fqdn": "iperf02.Vodafone-CO-HCO.io",
+        "group": "",
+        "id": "iperf02",
+        "image": "sflow/clab-iperf3",
+        "index": "22",
+        "kind": "linux",
+        "labdir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/iperf02",
+        "labels": {
+          "ClabMgmtNetBridge": "br1-private",
+          "ClabNodeGroup": "",
+          "ClabNodeKind": "linux",
+          "ClabNodeLabDir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/iperf02",
+          "ClabNodeName": "iperf02",
+          "ClabNodeType": "",
+          "ClabTopoFile": "/home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.yml",
+          "Containerlab": "Vodafone-CO-HCO",
+          "TopoViewerRole": "server"
+        },
+        "longname": "clab-Vodafone-CO-HCO-iperf02",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 24,
+        "mgmtIpv4Addresss": "10.10.10.2",
+        "mgmtIpv6Address": "",
+        "mgmtIpv6AddressLength": 0,
+        "mgmtNet": "",
+        "name": "iperf02",
+        "shortname": "iperf02",
+        "weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Data Center",
+      "weight": "2",
+      "name": "Data Center domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "Data Center",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "name": "",
+        "weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "IP-MPLS",
+      "weight": "2",
+      "name": "IP-MPLS domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "IP-MPLS",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "name": "",
+        "weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link0",
+      "source": "R01-PE",
+      "target": "R02-PE",
+      "weight": "3",
+      "name": "IP-MPLS domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "IP-MPLS",
+      "sourceEndpoint": "eth2",
+      "targetEndpoint": "eth2",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link1",
+      "source": "R01-PE",
+      "target": "R03-P",
+      "weight": "3",
+      "name": "IP-MPLS domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "IP-MPLS",
+      "sourceEndpoint": "eth1",
+      "targetEndpoint": "eth1",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link2",
+      "source": "R02-PE",
+      "target": "R04-P",
+      "weight": "3",
+      "name": "IP-MPLS domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "IP-MPLS",
+      "sourceEndpoint": "eth1",
+      "targetEndpoint": "eth1",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link3",
+      "source": "R03-P",
+      "target": "R04-P",
+      "weight": "3",
+      "name": "IP-MPLS domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "IP-MPLS",
+      "sourceEndpoint": "eth3",
+      "targetEndpoint": "eth3",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link4",
+      "source": "R03-P",
+      "target": "R05-PE",
+      "weight": "3",
+      "name": "IP-MPLS domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "IP-MPLS",
+      "sourceEndpoint": "eth4",
+      "targetEndpoint": "eth2",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link5",
+      "source": "R03-P",
+      "target": "R06-PE-ASBR",
+      "weight": "3",
+      "name": "IP-MPLS domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "IP-MPLS",
+      "sourceEndpoint": "eth2",
+      "targetEndpoint": "eth2",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link6",
+      "source": "R03-P",
+      "target": "R07-PE-ASBR",
+      "weight": "3",
+      "name": "IP-MPLS domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "IP-MPLS",
+      "sourceEndpoint": "eth5",
+      "targetEndpoint": "eth3",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link7",
+      "source": "R04-P",
+      "target": "R05-PE",
+      "weight": "3",
+      "name": "IP-MPLS domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "IP-MPLS",
+      "sourceEndpoint": "eth5",
+      "targetEndpoint": "eth5",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link8",
+      "source": "R04-P",
+      "target": "R06-PE-ASBR",
+      "weight": "3",
+      "name": "IP-MPLS domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "IP-MPLS",
+      "sourceEndpoint": "eth2",
+      "targetEndpoint": "eth1",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link9",
+      "source": "R04-P",
+      "target": "R07-PE-ASBR",
+      "weight": "3",
+      "name": "IP-MPLS domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "IP-MPLS",
+      "sourceEndpoint": "eth4",
+      "targetEndpoint": "eth2",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link10",
+      "source": "R06-PE-ASBR",
+      "target": "R09-PE-ASBR",
+      "weight": "3",
+      "name": "IP-MPLS domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "IP-MPLS",
+      "sourceEndpoint": "eth3",
+      "targetEndpoint": "eth3",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link11",
+      "source": "R07-PE-ASBR",
+      "target": "R10-PE-ASBR",
+      "weight": "3",
+      "name": "IP-MPLS domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "IP-MPLS",
+      "sourceEndpoint": "eth1",
+      "targetEndpoint": "eth3",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link12",
+      "source": "R09-PE-ASBR",
+      "target": "R08-PE",
+      "weight": "3",
+      "name": "IP-MPLS domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "IP-MPLS",
+      "sourceEndpoint": "eth2",
+      "targetEndpoint": "eth5",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link13",
+      "source": "R10-PE-ASBR",
+      "target": "R08-PE",
+      "weight": "3",
+      "name": "IP-MPLS domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "IP-MPLS",
+      "sourceEndpoint": "eth2",
+      "targetEndpoint": "eth2",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link14",
+      "source": "R07-PE-ASBR",
+      "target": "br1-private",
+      "weight": "3",
+      "name": "IP-MPLS domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "IP-MPLS",
+      "sourceEndpoint": "eth4",
+      "targetEndpoint": "eth1",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link15",
+      "source": "R10-PE-ASBR",
+      "target": "br1-private",
+      "weight": "3",
+      "name": "IP-MPLS domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "IP-MPLS",
+      "sourceEndpoint": "eth4",
+      "targetEndpoint": "eth2",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link16",
+      "source": "DC-LEAF-01",
+      "target": "DC-SPINE-01",
+      "weight": "3",
+      "name": "IP-MPLS domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "IP-MPLS",
+      "sourceEndpoint": "e1-1",
+      "targetEndpoint": "e1-3",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link17",
+      "source": "DC-LEAF-01",
+      "target": "DC-SPINE-02",
+      "weight": "3",
+      "name": "IP-MPLS domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "IP-MPLS",
+      "sourceEndpoint": "e1-2",
+      "targetEndpoint": "e1-3",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link18",
+      "source": "DC-LEAF-02",
+      "target": "DC-SPINE-01",
+      "weight": "3",
+      "name": "IP-MPLS domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "IP-MPLS",
+      "sourceEndpoint": "e1-1",
+      "targetEndpoint": "e1-4",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link19",
+      "source": "DC-LEAF-02",
+      "target": "DC-SPINE-02",
+      "weight": "3",
+      "name": "IP-MPLS domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "IP-MPLS",
+      "sourceEndpoint": "e1-2",
+      "targetEndpoint": "e1-4",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link20",
+      "source": "DC-BORDER-LEAF-01",
+      "target": "DC-SPINE-01",
+      "weight": "3",
+      "name": "IP-MPLS domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "IP-MPLS",
+      "sourceEndpoint": "e1-1",
+      "targetEndpoint": "e1-1",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link21",
+      "source": "DC-BORDER-LEAF-01",
+      "target": "DC-SPINE-02",
+      "weight": "3",
+      "name": "IP-MPLS domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "IP-MPLS",
+      "sourceEndpoint": "e1-2",
+      "targetEndpoint": "e1-1",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link22",
+      "source": "DC-BORDER-LEAF-02",
+      "target": "DC-SPINE-01",
+      "weight": "3",
+      "name": "IP-MPLS domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "IP-MPLS",
+      "sourceEndpoint": "e1-1",
+      "targetEndpoint": "e1-2",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link23",
+      "source": "DC-BORDER-LEAF-02",
+      "target": "DC-SPINE-02",
+      "weight": "3",
+      "name": "IP-MPLS domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "IP-MPLS",
+      "sourceEndpoint": "e1-2",
+      "targetEndpoint": "e1-2",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link24",
+      "source": "DC-BORDER-LEAF-01",
+      "target": "R01-PE",
+      "weight": "3",
+      "name": "IP-MPLS domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "IP-MPLS",
+      "sourceEndpoint": "e1-3",
+      "targetEndpoint": "eth4",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link25",
+      "source": "DC-BORDER-LEAF-02",
+      "target": "R02-PE",
+      "weight": "3",
+      "name": "IP-MPLS domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "IP-MPLS",
+      "sourceEndpoint": "e1-3",
+      "targetEndpoint": "eth4",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link26",
+      "source": "R11-P",
+      "target": "R01-PE",
+      "weight": "3",
+      "name": "IP-MPLS domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "IP-MPLS",
+      "sourceEndpoint": "eth1",
+      "targetEndpoint": "eth5",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link27",
+      "source": "R11-P",
+      "target": "R12-P",
+      "weight": "3",
+      "name": "IP-MPLS domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "IP-MPLS",
+      "sourceEndpoint": "eth2",
+      "targetEndpoint": "eth2",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link28",
+      "source": "R12-P",
+      "target": "R03-P",
+      "weight": "3",
+      "name": "IP-MPLS domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "IP-MPLS",
+      "sourceEndpoint": "eth1",
+      "targetEndpoint": "eth6",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link29",
+      "source": "R12-P",
+      "target": "R06-PE-ASBR",
+      "weight": "3",
+      "name": "IP-MPLS domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "IP-MPLS",
+      "sourceEndpoint": "eth4",
+      "targetEndpoint": "eth4",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link30",
+      "source": "R13-P",
+      "target": "R02-PE",
+      "weight": "3",
+      "name": "IP-MPLS domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "IP-MPLS",
+      "sourceEndpoint": "eth1",
+      "targetEndpoint": "eth5",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link31",
+      "source": "R13-P",
+      "target": "R14-P",
+      "weight": "3",
+      "name": "IP-MPLS domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "IP-MPLS",
+      "sourceEndpoint": "eth2",
+      "targetEndpoint": "e1-2",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link32",
+      "source": "R14-P",
+      "target": "R04-P",
+      "weight": "3",
+      "name": "IP-MPLS domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "IP-MPLS",
+      "sourceEndpoint": "e1-1",
+      "targetEndpoint": "eth6",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link33",
+      "source": "R14-P",
+      "target": "R07-PE-ASBR",
+      "weight": "3",
+      "name": "IP-MPLS domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "IP-MPLS",
+      "sourceEndpoint": "e1-4",
+      "targetEndpoint": "eth5",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link34",
+      "source": "iperf01",
+      "target": "R01-PE",
+      "weight": "3",
+      "name": "IP-MPLS domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "IP-MPLS",
+      "sourceEndpoint": "eth1",
+      "targetEndpoint": "eth3",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link35",
+      "source": "iperf02",
+      "target": "R02-PE",
+      "weight": "3",
+      "name": "IP-MPLS domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "IP-MPLS",
+      "sourceEndpoint": "eth1",
+      "targetEndpoint": "eth3",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  }
+]

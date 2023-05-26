@@ -107,7 +107,9 @@ func main() {
 	//// clabv2 run
 
 	cytoUiGo.InitLoggerClabV2()
-	topoFileBytes := cytoUiGo.ClabTopoRead("rawTopoFile/topology-data.json")
-	cytoUiGo.UnmarshalContainerLabTopoV2(topoFileBytes, topoengine.ClabTopoStructV2{})
+	// topoFileBytes := cytoUiGo.ClabTopoRead("rawTopoFile/topo-topoViewerDemo.json")
+	topoFileBytes := cytoUiGo.ClabTopoRead("rawTopoFile/clab-Vodafone-CO-HCO/topology-data.json")
 
+	jsonBytesCytoUi := cytoUiGo.UnmarshalContainerLabTopoV2(topoFileBytes)
+	cytoUiGo.PrintjsonBytesCytoUiV2(jsonBytesCytoUi)
 }

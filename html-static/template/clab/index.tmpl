@@ -52,11 +52,11 @@ body {
   position: absolute;
 }
 
-#settings {
+#Setting {
   /*top: 70px;*/
   bottom: 0px; 
   right: 10px; 
-  width: 270px; 
+  width: 350px; 
   position: absolute;
 }
 
@@ -79,7 +79,7 @@ body {
           <div class="dropdown is-hoverable is-right">
             <div class="dropdown-trigger">
               <button class="button is-small is-link is-light" aria-haspopup="true" aria-controls="dropdown-menu3">
-                <span>Settings</span>
+                <span>Setting</span>
                 <span class="icon is-small">
                   <i class="fas fa-angle-down" aria-hidden="true"></i>
                 </span>
@@ -107,8 +107,8 @@ body {
       </div>
     </nav>
   <div id="cy"></div>
-    <div class="message is-hidden" id="settings">
-      <div class="message-header" id=settingsHeader>
+    <div class="message is-hidden" id="Setting">
+      <div class="message-header" id=SettingHeader>
         <p class="has-text-weight-semibold">Properties</p>
     </div>
   </div>
@@ -149,17 +149,17 @@ body {
         // global variable
         var linkImpairmentUrl;
 
-        // settings object
-        let settings = document.getElementById("settings");
+        // Setting object
+        let Setting = document.getElementById("Setting");
         let options = document.getElementById("options");
         
         const close = document.querySelectorAll(".close");
         close.forEach(e => e.addEventListener('click', event => {
-          var c = settings.className;
+          var c = Setting.className;
           if(c.includes("is-hidden")) {
-            settings.className = "message";
+            Setting.className = "message";
           } else {
-            settings.className = "message is-hidden";
+            Setting.className = "message is-hidden";
           }
         }));
         
@@ -191,9 +191,9 @@ body {
         // return clab client on click
         function clabClient(e) {
           removeLastChild();
-          var oldSettingsHeader = settings.childNodes[1]
-          console.log("messageClabCLient oldSettingsHeader: ")
-          console.log(oldSettingsHeader)
+          var oldSettingHeader = Setting.childNodes[1]
+          console.log("messageClabCLient oldSettingHeader: ")
+          console.log(oldSettingHeader)
           var seperator1 = ce("hr", {class: "my-1"}, []);
           var seperator2 = ce("hr", {class: "my-1"}, []);
 
@@ -211,18 +211,18 @@ body {
           var messageHeader = ce("div", {class: "message-header"}, [headerTitle])
 
 
-          settings.replaceChild(messageHeader, oldSettingsHeader);
-          settings.appendChild(tmessageBody);
-          settings.className = "message is-small is-link";
+          Setting.replaceChild(messageHeader, oldSettingHeader);
+          Setting.appendChild(tmessageBody);
+          Setting.className = "message is-small is-link";
           
         }
 
         // return TopologyAdjust on click
         function topologyAdjust(e) {
           removeLastChild();
-          var oldSettingsHeader = settings.childNodes[1]
-          console.log("messageTopologyAdjust oldSettingsHeader: ")
-          console.log(oldSettingsHeader)
+          var oldSettingHeader = Setting.childNodes[1]
+          console.log("messageTopologyAdjust oldSettingHeader: ")
+          console.log(oldSettingHeader)
           
           var tt1 = ce("label", {class: "label is-small"}, [ctn("Edge Length")]);
           var tt2 = ce("input", {class: "slider", step:"1", min:"0", max:"1000", value:"50", type:"range", id: "edgeLengthMessage", oninput: "slider", onchange: "slider"}, []);
@@ -230,7 +230,7 @@ body {
           var tt4 = ce("input", {class: "slider", step:"1", min:"0", max:"1000", value:"50", type:"range", id: "nodeSpacingMessage", oninput: "slider", onchange: "slider"}, []);
 
           var tname = ce("p", {}, [tt1, tt2, tt3, tt4]);
-         // var addon = ce("div", {}, [nodeInfo(node)]);
+          var addon = ce("div", {}, [nodeInfo(node)]);
 
           var tpanel = ce("div", {}, [tname]);
           var tmessageBody = ce("div", {class: "message-body"}, [tpanel])
@@ -239,23 +239,26 @@ body {
           var messageHeader = ce("div", {class: "message-header"}, [headerTitle])
 
 
-          settings.replaceChild(messageHeader, oldSettingsHeader);
-          settings.appendChild(tmessageBody);
-          settings.className = "message is-small is-link";
+          Setting.replaceChild(messageHeader, oldSettingHeader);
+          Setting.appendChild(tmessageBody);
+          Setting.className = "message is-small is-link";
           
         }
 
         // return node info on click
-        function nodeInfo(e) {
+        function nodeInfo(node) {
+          console.log("mgmtIpv4Address--SSH: " + node.data("extraData").mgmtIpv4Addresss)
           var shellUrl = location.protocol + "//" + location.host + "/cloudshell/?RouterID=";
           var elements = [
             {
               name: "SSH Session",
-              url: shellUrl + e.data("MgmtIPv4Address")
+              url: shellUrl + node.data("extraData").mgmtIpv4Addresss
             }
           ].map(function(link) {
             return ce("a", {target: "_blank", href: link.url, class: "button is-link is-small"}, [ctn(link.name)] );
           });
+          console.log("SSH-URL:" + url)
+
           return ce("div", {class: "has-text-right"}, elements);
         }
         
@@ -334,9 +337,9 @@ body {
         
         // remove last child
         function removeLastChild() {
-          var lastChild = settings.lastChild;
+          var lastChild = Setting.lastChild;
           if(lastChild.className == "message-body") {
-            settings.removeChild(lastChild);
+            Setting.removeChild(lastChild);
           }
         }
         
@@ -403,7 +406,7 @@ body {
           addSliderEvent(nodeSpacing);
              
           var tt1 = ce("b", {}, [ctn("Welcome to TopoViewer.")]);
-          var tt2 = ce("p", {}, [ctn("Adjust topology physics in Settings.")]);  
+          var tt2 = ce("p", {}, [ctn("Adjust topology physics in Setting.")]);  
           var tt3 = ce("p", {}, [ctn("Click the node or link to see its properties.")]);  
           var tt4 = ce("hr", {class: "my-3 has-background-grey-lighter"}, []);
           var tt10 = ce("p", {}, [ctn("FrontEnd by Siva & BackEnd by Asad.")]);  
@@ -414,89 +417,96 @@ body {
 
           var headerTitle = ce("p", {class: "my-7"}, [ctn("Message")]);
           var messageHeader = ce("div", {class: "message-header"}, [headerTitle])
-          var oldSettingsHeader = document.getElementById("settingsHeader")
-          console.log("messageInit oldSettingsHeader: ")
-          console.log(oldSettingsHeader)
+          var oldSettingHeader = document.getElementById("SettingHeader")
+          console.log("messageInit oldSettingHeader: ")
+          console.log(oldSettingHeader)
 
-          settings.replaceChild(messageHeader, oldSettingsHeader);
-          settings.appendChild(tmessageBody);
-          settings.className = "message is-small is-link";
+          Setting.replaceChild(messageHeader, oldSettingHeader);
+          Setting.appendChild(tmessageBody);
+          Setting.className = "message is-small is-link";
           
 
 
           // trigger info panel on node click
           cy.nodes().forEach(function(node) {
             node.on("click", function(e) {
-              removeLastChild();
+            if (!node.isParent()) {          //  block of code to be executed if the condition is true
 
+              removeLastChild();
               var headerTitle = ce("p", {class: "my-7"}, [ctn("Node Properties")]);
               var nodeMessageHeader = ce("div", {class: "message-header"}, [headerTitle]);
-              var oldSettingsHeader = settings.childNodes[1]
-              console.log(oldSettingsHeader)
-              settings.replaceChild(nodeMessageHeader, oldSettingsHeader);
-
+              var oldSettingHeader = Setting.childNodes[1]
+              console.log("oldSettingHeader: ", oldSettingHeader)
+              Setting.replaceChild(nodeMessageHeader, oldSettingHeader);
+              
+              console.log("nodeName: ", node.data("extraData").name);
               label01 = ce("label", {class: "label has-text-link is-small has-text-right has-text-weight-bold mr-0"}, [ctn("Node Name: ")]);
               column01 = ce("label", {class: "column is-4 p-1 is-narrow-desktop"}, [label01]);
-              label02 = ce("label", {class: "label has-text-link is-small has-text-left has-text-weight-normal mr-0"}, [ctn(node.data("extraData").clabName)]);
+              label02 = ce("label", {class: "label has-text-link is-small has-text-left has-text-weight-normal mr-0"}, [ctn(node.data("extraData").shortname)]);  
               column02 = ce("label", {class: "column is-8 p-1"}, [label02]);
-              var clabName = ce("div", {class: "columns mb-1"}, [column01, column02]);
+              var clabName = ce("div", {class: "columns mb-1"}, [column01, column02]);  
 
+              console.log("nodeKind: ", node.data("extraData").kind);
               label01 = ce("label", {class: "label has-text-link is-small has-text-right has-text-weight-bold mr-0"}, [ctn("Kind: ")]);
               column01 = ce("label", {class: "column is-4 p-1 is-narrow-desktop"}, [label01]);
-              label02 = ce("label", {class: "label has-text-link is-small has-text-left has-text-weight-normal mr-0"}, [ctn(node.data("extraData").clabKind)]);
+              label02 = ce("label", {class: "label has-text-link is-small has-text-left has-text-weight-normal mr-0"}, [ctn(node.data("extraData").kind)]);
               column02 = ce("label", {class: "column is-8 p-1"}, [label02]);
               var kind = ce("div", {class: "columns mb-1"}, [column01, column02]);
 
+              console.log("image: ", node.data("extraData").image);
               label01 = ce("label", {class: "label has-text-link is-small has-text-right has-text-weight-bold mr-0"}, [ctn("Image: ")]);
               column01 = ce("label", {class: "column is-4 p-1 is-narrow-desktop"}, [label01]);
-              label02 = ce("label", {class: "label has-text-link is-small has-text-left has-text-weight-normal mr-0"}, [ctn(node.data("extraData").clabImage)]);
+              label02 = ce("label", {class: "label has-text-link is-small has-text-left has-text-weight-normal mr-0"}, [ctn(node.data("extraData").image)]);
               column02 = ce("label", {class: "column is-8 p-1"}, [label02]);
               var image = ce("div", {class: "columns mb-1"}, [column01, column02]);
 
+              console.log("mgmtIpv4Addresss: ", node.data("extraData").mgmtIpv4Addresss);
               label01 = ce("label", {class: "label has-text-link is-small has-text-right has-text-weight-bold mr-0"}, [ctn("Mgmt IPv4: ")]);
               column01 = ce("label", {class: "column is-4 p-1 is-narrow-desktop"}, [label01]);
-              label02 = ce("label", {class: "label has-text-link is-small has-text-left has-text-weight-normal mr-0"}, [ctn(node.data("extraData").clabMgmtIPv4Address)]);
+              label02 = ce("label", {class: "label has-text-link is-small has-text-left has-text-weight-normal mr-0"}, [ctn(node.data("extraData").mgmtIpv4Addresss)]);
               column02 = ce("label", {class: "column is-8 p-1"}, [label02]);
               var mgmtIpv4 = ce("div", {class: "columns mb-1"}, [column01, column02]);
 
+              console.log("mgmtIpv6Address: ", node.data("extraData").mgmtIpv6Address);
               label01 = ce("label", {class: "label has-text-link is-small has-text-right has-text-weight-bold mr-0"}, [ctn("Mgmt IPv6: ")]);
               column01 = ce("label", {class: "column is-4 p-1 is-narrow-desktop"}, [label01]);
-              label02 = ce("label", {class: "label has-text-link is-small has-text-left has-text-weight-normal mr-0"}, [ctn(node.data("extraData").clabMgmtIPv6Address)]);
+              label02 = ce("label", {class: "label has-text-link is-small has-text-left has-text-weight-normal mr-0"}, [ctn(node.data("extraData").mgmtIpv6Address)]);
               column02 = ce("label", {class: "column is-8 p-1"}, [label02]);
               var mgmtIpv6 = ce("div", {class: "columns mb-1"}, [column01, column02]);
 
+              console.log("fqdn: ", node.data("extraData").fqdn);
               label01 = ce("label", {class: "label has-text-link is-small has-text-right has-text-weight-bold mr-0"}, [ctn("FQDN: ")]);
               column01 = ce("label", {class: "column is-4 p-1 is-narrow-desktop"}, [label01]);
-              label02 = ce("label", {class: "label has-text-link is-small has-text-left has-text-weight-normal mr-0"}, [ctn(node.data("extraData").clabFqdn)]);
+              label02 = ce("label", {class: "label has-text-link is-small has-text-left has-text-weight-normal mr-0"}, [ctn(node.data("extraData").fqdn)]);
               column02 = ce("label", {class: "column is-8 p-1"}, [label02]);
               var fqdn = ce("div", {class: "columns mb-1"}, [column01, column02]);
 
-              label01 = ce("label", {class: "label has-text-link is-small has-text-right has-text-weight-bold mr-0"}, [ctn("Clab-Group: ")]);
-              column01 = ce("label", {class: "column is-4 p-1 is-narrow-desktop"}, [label01]);
-              label02 = ce("label", {class: "label has-text-link is-small has-text-left has-text-weight-normal mr-0"}, [ctn(node.data("extraData").clabGroup)]);
-              column02 = ce("label", {class: "column is-8 p-1"}, [label02]);
-              var clabGroup = ce("div", {class: "columns mb-1"}, [column01, column02]);
-
+              console.log("TopoViewerRole: ", node.data("extraData").labels.TopoViewerRole);
               label01 = ce("label", {class: "label has-text-link is-small has-text-right has-text-weight-bold mr-0"}, [ctn("Role: ")]);
               column01 = ce("label", {class: "column is-4 p-1 is-narrow-desktop"}, [label01]);
-              label02 = ce("label", {class: "label has-text-link is-small has-text-left has-text-weight-normal mr-0"}, [ctn(node.data("extraData").clabTopoviewerRole)]);
+              label02 = ce("label", {class: "label has-text-link is-small has-text-left has-text-weight-normal mr-0"}, [ctn(node.data("extraData").labels.TopoViewerRole)]);
               column02 = ce("label", {class: "column is-8 p-1"}, [label02]);
-              var topoviewerRole = ce("div", {class: "columns mb-1"}, [column01, column02]);
+              var topoViewerRole = ce("div", {class: "columns mb-1"}, [column01, column02]);
 
+              console.log("group: ", node.data("extraData").group);
+              label01 = ce("label", {class: "label has-text-link is-small has-text-right has-text-weight-bold mr-0"}, [ctn("Group: ")]);
+              column01 = ce("label", {class: "column is-4 p-1 is-narrow-desktop"}, [label01]);
+              label02 = ce("label", {class: "label has-text-link is-small has-text-left has-text-weight-normal mr-0"}, [ctn(node.data("extraData").group)]);
+              column02 = ce("label", {class: "column is-8 p-1"}, [label02]);
+              var group = ce("div", {class: "columns mb-1"}, [column01, column02]);
 
-
+              
               var seperator = ce("hr", {class: "my-3 has-background-grey-lighter"}, []);
               var addon = ce("div", {}, [nodeInfo(node)]);
-              var panel = ce("div", {}, [clabName, kind, image, fqdn, mgmtIpv4, mgmtIpv6, clabGroup, topoviewerRole, seperator, addon]);
+              console.log("addon: ", addon);
+
+              var panel = ce("div", {}, [clabName, kind, image, mgmtIpv4, mgmtIpv6, fqdn, topoViewerRole, group, addon]);
               var messageBody = ce("div", {class: "message-body"}, [panel])
-
-              settings.appendChild(messageBody);
-              settings.className = "message is-small is-link";
-
+              Setting.appendChild(messageBody);
+              Setting.className = "message is-small is-link";
+              }
             });
           });
-        
- 
 
           // trigger info panel on edge or link click
           cy.edges().forEach(function(edge) {
@@ -506,9 +516,9 @@ body {
 
               var headerTitle = ce("p", {class: "my-7"}, [ctn("Link Properties")]);
               var linkMessageHeader = ce("div", {class: "message-header"}, [headerTitle]);
-              var oldSettingsHeader = settings.childNodes[1]
-              console.log(oldSettingsHeader)
-              settings.replaceChild(linkMessageHeader, oldSettingsHeader);
+              var oldSettingHeader = Setting.childNodes[1]
+              console.log(oldSettingHeader)
+              Setting.replaceChild(linkMessageHeader, oldSettingHeader);
 
               var t1 = ce("b", {}, [ctn("Link Name: ")]);  
               var name = ce("p", {}, [t1, ctn(edge.data("name"))]);
@@ -547,8 +557,8 @@ body {
               var addon = ce("div", {}, [linkInfo(edge)]);
               var panel = ce("div", {}, [name, source, target, sourceMac, targetMac, seperator, addon]);
               var messageBody = ce("div", {class: "message-body"}, [panel])
-              settings.appendChild(messageBody);
-              settings.className = "message is-small is-link";
+              Setting.appendChild(messageBody);
+              Setting.className = "message is-small is-link";
             });
           });
           
@@ -560,7 +570,7 @@ body {
           // remove info panel on node or edge unselect
           cy.on("tap", function(e) {
             if(e.target === cy ){
-              settings.className = "message is-hidden";
+              Setting.className = "message is-hidden";
               removeLastChild();
               }
             });

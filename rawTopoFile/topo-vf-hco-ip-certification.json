@@ -1,0 +1,1192 @@
+{
+  "name": "Vodafone-CO-HCO",
+  "type": "clab",
+  "clab": {
+    "config": {
+      "prefix": "clab",
+      "mgmt": {
+        "network": "custom_mgmt",
+        "bridge": "br1-private",
+        "ipv4-subnet": "10.10.10.0/24",
+        "ipv4-gw": "10.10.10.1",
+        "ipv6-gw": "fe80::b67a:f1ff:fead:5545",
+        "mtu": "1500",
+        "external-access": true
+      }
+    }
+  },
+  "nodes": [
+    { 
+      "id": "DC-BORDER-LEAF-01",
+      "index": "0",
+      "shortname": "DC-BORDER-LEAF-01",
+      "longname": "clab-Vodafone-CO-HCO-DC-BORDER-LEAF-01",
+      "fqdn": "DC-BORDER-LEAF-01.Vodafone-CO-HCO.io",
+      "group": "",
+      "labdir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/DC-BORDER-LEAF-01",
+      "kind": "srl",
+      "image": "ghcr.io/nokia/srlinux:22.6.2",
+      "mgmt-net": "",
+      "mgmt-intf": "",
+      "mgmt-ipv4-address": "10.10.10.123",
+      "mgmt-ipv4-prefix-length": 24,
+      "mgmt-ipv6-address": "",
+      "mgmt-ipv6-prefix-length": 0,
+      "mac-address": "",
+      "labels": {
+        "clab-mgmt-net-bridge": "br1-private",
+        "clab-node-group": "",
+        "clab-node-kind": "srl",
+        "clab-node-lab-dir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/DC-BORDER-LEAF-01",
+        "clab-node-name": "DC-BORDER-LEAF-01",
+        "clab-node-type": "ixrd3",
+        "clab-topo-file": "/home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.yml",
+        "containerlab": "Vodafone-CO-HCO",
+        "topo-viewer-role": "leaf"
+      }
+    },
+    { 
+      "id": "DC-BORDER-LEAF-02",
+      "index": "1",
+      "shortname": "DC-BORDER-LEAF-02",
+      "longname": "clab-Vodafone-CO-HCO-DC-BORDER-LEAF-02",
+      "fqdn": "DC-BORDER-LEAF-02.Vodafone-CO-HCO.io",
+      "group": "",
+      "labdir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/DC-BORDER-LEAF-02",
+      "kind": "srl",
+      "image": "ghcr.io/nokia/srlinux:22.6.2",
+      "mgmt-net": "",
+      "mgmt-intf": "",
+      "mgmt-ipv4-address": "10.10.10.124",
+      "mgmt-ipv4-prefix-length": 24,
+      "mgmt-ipv6-address": "",
+      "mgmt-ipv6-prefix-length": 0,
+      "mac-address": "",
+      "labels": {
+        "clab-mgmt-net-bridge": "br1-private",
+        "clab-node-group": "",
+        "clab-node-kind": "srl",
+        "clab-node-lab-dir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/DC-BORDER-LEAF-02",
+        "clab-node-name": "DC-BORDER-LEAF-02",
+        "clab-node-type": "ixrd3",
+        "clab-topo-file": "/home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.yml",
+        "containerlab": "Vodafone-CO-HCO",
+        "topo-viewer-role": "leaf"
+      }
+    },
+    { 
+      "id": "DC-LEAF-01",
+      "index": "2",
+      "shortname": "DC-LEAF-01",
+      "longname": "clab-Vodafone-CO-HCO-DC-LEAF-01",
+      "fqdn": "DC-LEAF-01.Vodafone-CO-HCO.io",
+      "group": "",
+      "labdir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/DC-LEAF-01",
+      "kind": "srl",
+      "image": "ghcr.io/nokia/srlinux:22.6.1",
+      "mgmt-net": "",
+      "mgmt-intf": "",
+      "mgmt-ipv4-address": "10.10.10.125",
+      "mgmt-ipv4-prefix-length": 24,
+      "mgmt-ipv6-address": "",
+      "mgmt-ipv6-prefix-length": 0,
+      "mac-address": "",
+      "labels": {
+        "clab-mgmt-net-bridge": "br1-private",
+        "clab-node-group": "",
+        "clab-node-kind": "srl",
+        "clab-node-lab-dir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/DC-LEAF-01",
+        "clab-node-name": "DC-LEAF-01",
+        "clab-node-type": "ixrd2",
+        "clab-topo-file": "/home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.yml",
+        "containerlab": "Vodafone-CO-HCO",
+        "topo-viewer-role": "leaf"
+      }
+    },
+    { 
+      "id": "DC-LEAF-02",
+      "index": "3",
+      "shortname": "DC-LEAF-02",
+      "longname": "clab-Vodafone-CO-HCO-DC-LEAF-02",
+      "fqdn": "DC-LEAF-02.Vodafone-CO-HCO.io",
+      "group": "",
+      "labdir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/DC-LEAF-02",
+      "kind": "srl",
+      "image": "ghcr.io/nokia/srlinux:22.6.1",
+      "mgmt-net": "",
+      "mgmt-intf": "",
+      "mgmt-ipv4-address": "10.10.10.126",
+      "mgmt-ipv4-prefix-length": 24,
+      "mgmt-ipv6-address": "",
+      "mgmt-ipv6-prefix-length": 0,
+      "mac-address": "",
+      "labels": {
+        "clab-mgmt-net-bridge": "br1-private",
+        "clab-node-group": "",
+        "clab-node-kind": "srl",
+        "clab-node-lab-dir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/DC-LEAF-02",
+        "clab-node-name": "DC-LEAF-02",
+        "clab-node-type": "ixrd2",
+        "clab-topo-file": "/home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.yml",
+        "containerlab": "Vodafone-CO-HCO",
+        "topo-viewer-role": "leaf"
+      }
+    },
+    { 
+      "id": "DC-SPINE-01",
+      "index": "4",
+      "shortname": "DC-SPINE-01",
+      "longname": "clab-Vodafone-CO-HCO-DC-SPINE-01",
+      "fqdn": "DC-SPINE-01.Vodafone-CO-HCO.io",
+      "group": "",
+      "labdir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/DC-SPINE-01",
+      "kind": "srl",
+      "image": "ghcr.io/nokia/srlinux:22.6.1",
+      "mgmt-net": "",
+      "mgmt-intf": "",
+      "mgmt-ipv4-address": "10.10.10.121",
+      "mgmt-ipv4-prefix-length": 24,
+      "mgmt-ipv6-address": "",
+      "mgmt-ipv6-prefix-length": 0,
+      "mac-address": "",
+      "labels": {
+        "clab-mgmt-net-bridge": "br1-private",
+        "clab-node-group": "",
+        "clab-node-kind": "srl",
+        "clab-node-lab-dir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/DC-SPINE-01",
+        "clab-node-name": "DC-SPINE-01",
+        "clab-node-type": "ixrd3",
+        "clab-topo-file": "/home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.yml",
+        "containerlab": "Vodafone-CO-HCO",
+        "topo-viewer-role": "spine"
+      }
+    },
+    { 
+      "id": "DC-SPINE-02",
+      "index": "5",
+      "shortname": "DC-SPINE-02",
+      "longname": "clab-Vodafone-CO-HCO-DC-SPINE-02",
+      "fqdn": "DC-SPINE-02.Vodafone-CO-HCO.io",
+      "group": "",
+      "labdir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/DC-SPINE-02",
+      "kind": "srl",
+      "image": "ghcr.io/nokia/srlinux:22.6.1",
+      "mgmt-net": "",
+      "mgmt-intf": "",
+      "mgmt-ipv4-address": "10.10.10.122",
+      "mgmt-ipv4-prefix-length": 24,
+      "mgmt-ipv6-address": "",
+      "mgmt-ipv6-prefix-length": 0,
+      "mac-address": "",
+      "labels": {
+        "clab-mgmt-net-bridge": "br1-private",
+        "clab-node-group": "",
+        "clab-node-kind": "srl",
+        "clab-node-lab-dir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/DC-SPINE-02",
+        "clab-node-name": "DC-SPINE-02",
+        "clab-node-type": "ixrd3",
+        "clab-topo-file": "/home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.yml",
+        "containerlab": "Vodafone-CO-HCO",
+        "topo-viewer-role": "spine"
+      }
+    },
+    { 
+      "id": "R01-PE",
+      "index": "6",
+      "shortname": "R01-PE",
+      "longname": "clab-Vodafone-CO-HCO-R01-PE",
+      "fqdn": "R01-PE.Vodafone-CO-HCO.io",
+      "group": "",
+      "labdir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/R01-PE",
+      "kind": "vr-sros",
+      "image": "registry.srlinux.dev/pub/vr-sros:22.7.R1",
+      "mgmt-net": "",
+      "mgmt-intf": "",
+      "mgmt-ipv4-address": "",
+      "mgmt-ipv4-prefix-length": 0,
+      "mgmt-ipv6-address": "",
+      "mgmt-ipv6-prefix-length": 0,
+      "mac-address": "",
+      "labels": {
+        "clab-mgmt-net-bridge": "br1-private",
+        "clab-node-group": "",
+        "clab-node-kind": "vr-sros",
+        "clab-node-lab-dir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/R01-PE",
+        "clab-node-name": "R01-PE",
+        "clab-node-type": "cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28",
+        "clab-topo-file": "/home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.yml",
+        "containerlab": "Vodafone-CO-HCO",
+        "topo-viewer-role": "pe"
+      }
+    },
+    { 
+      "id": "R02-PE",
+      "index": "7",
+      "shortname": "R02-PE",
+      "longname": "clab-Vodafone-CO-HCO-R02-PE",
+      "fqdn": "R02-PE.Vodafone-CO-HCO.io",
+      "group": "",
+      "labdir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/R02-PE",
+      "kind": "vr-sros",
+      "image": "registry.srlinux.dev/pub/vr-sros:21.10.R2",
+      "mgmt-net": "",
+      "mgmt-intf": "",
+      "mgmt-ipv4-address": "",
+      "mgmt-ipv4-prefix-length": 0,
+      "mgmt-ipv6-address": "",
+      "mgmt-ipv6-prefix-length": 0,
+      "mac-address": "",
+      "labels": {
+        "clab-mgmt-net-bridge": "br1-private",
+        "clab-node-group": "",
+        "clab-node-kind": "vr-sros",
+        "clab-node-lab-dir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/R02-PE",
+        "clab-node-name": "R02-PE",
+        "clab-node-type": "cp: cpu=2 ram=6 chassis=SR-7 slot=A card=cpm5 ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-7 slot=1 card=imm-2pac-fp3 mda/1=p10-10g-sfp",
+        "clab-topo-file": "/home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.yml",
+        "containerlab": "Vodafone-CO-HCO",
+        "topo-viewer-role": "pe"
+      }
+    },
+    { 
+      "id": "R03-P",
+      "index": "8",
+      "shortname": "R03-P",
+      "longname": "clab-Vodafone-CO-HCO-R03-P",
+      "fqdn": "R03-P.Vodafone-CO-HCO.io",
+      "group": "",
+      "labdir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/R03-P",
+      "kind": "vr-sros",
+      "image": "registry.srlinux.dev/pub/vr-sros:21.10.R2",
+      "mgmt-net": "",
+      "mgmt-intf": "",
+      "mgmt-ipv4-address": "",
+      "mgmt-ipv4-prefix-length": 0,
+      "mgmt-ipv6-address": "",
+      "mgmt-ipv6-prefix-length": 0,
+      "mac-address": "",
+      "labels": {
+        "clab-mgmt-net-bridge": "br1-private",
+        "clab-node-group": "",
+        "clab-node-kind": "vr-sros",
+        "clab-node-lab-dir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/R03-P",
+        "clab-node-name": "R03-P",
+        "clab-node-type": "cp: cpu=2 ram=6 chassis=SR-12 slot=A card=cpm5 ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-12 slot=1 card=imm-2pac-fp3 mda/1=p10-10g-sfp",
+        "clab-topo-file": "/home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.yml",
+        "containerlab": "Vodafone-CO-HCO",
+        "topo-viewer-role": "pe"
+      }
+    },
+    { 
+      "id": "R04-P",
+      "index": "9",
+      "shortname": "R04-P",
+      "longname": "clab-Vodafone-CO-HCO-R04-P",
+      "fqdn": "R04-P.Vodafone-CO-HCO.io",
+      "group": "",
+      "labdir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/R04-P",
+      "kind": "vr-sros",
+      "image": "registry.srlinux.dev/pub/vr-sros:21.10.R2",
+      "mgmt-net": "",
+      "mgmt-intf": "",
+      "mgmt-ipv4-address": "",
+      "mgmt-ipv4-prefix-length": 0,
+      "mgmt-ipv6-address": "",
+      "mgmt-ipv6-prefix-length": 0,
+      "mac-address": "",
+      "labels": {
+        "clab-mgmt-net-bridge": "br1-private",
+        "clab-node-group": "",
+        "clab-node-kind": "vr-sros",
+        "clab-node-lab-dir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/R04-P",
+        "clab-node-name": "R04-P",
+        "clab-node-type": "cp: cpu=2 ram=6 chassis=SR-12 slot=A card=cpm5 ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-12 slot=1 card=imm-2pac-fp3 mda/1=p10-10g-sfp",
+        "clab-topo-file": "/home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.yml",
+        "containerlab": "Vodafone-CO-HCO",
+        "topo-viewer-role": "pe"
+      }
+    },
+    { 
+      "id": "R05-PE",
+      "index": "10",
+      "shortname": "R05-PE",
+      "longname": "clab-Vodafone-CO-HCO-R05-PE",
+      "fqdn": "R05-PE.Vodafone-CO-HCO.io",
+      "group": "",
+      "labdir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/R05-PE",
+      "kind": "vr-sros",
+      "image": "registry.srlinux.dev/pub/vr-sros:21.10.R2",
+      "mgmt-net": "",
+      "mgmt-intf": "",
+      "mgmt-ipv4-address": "",
+      "mgmt-ipv4-prefix-length": 0,
+      "mgmt-ipv6-address": "",
+      "mgmt-ipv6-prefix-length": 0,
+      "mac-address": "",
+      "labels": {
+        "clab-mgmt-net-bridge": "br1-private",
+        "clab-node-group": "",
+        "clab-node-kind": "vr-sros",
+        "clab-node-lab-dir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/R05-PE",
+        "clab-node-name": "R05-PE",
+        "clab-node-type": "cp: cpu=2 ram=6 chassis=SR-a8 slot=A card=cpm-a ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-a8 slot=1 card=iom-a mda/1=ma20-1gb-tx",
+        "clab-topo-file": "/home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.yml",
+        "containerlab": "Vodafone-CO-HCO",
+        "topo-viewer-role": "pe"
+      }
+    },
+    { 
+      "id": "R06-PE-ASBR",
+      "index": "11",
+      "shortname": "R06-PE-ASBR",
+      "longname": "clab-Vodafone-CO-HCO-R06-PE-ASBR",
+      "fqdn": "R06-PE-ASBR.Vodafone-CO-HCO.io",
+      "group": "",
+      "labdir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/R06-PE-ASBR",
+      "kind": "vr-sros",
+      "image": "registry.srlinux.dev/pub/vr-sros:21.10.R2",
+      "mgmt-net": "",
+      "mgmt-intf": "",
+      "mgmt-ipv4-address": "",
+      "mgmt-ipv4-prefix-length": 0,
+      "mgmt-ipv6-address": "",
+      "mgmt-ipv6-prefix-length": 0,
+      "mac-address": "",
+      "labels": {
+        "clab-mgmt-net-bridge": "br1-private",
+        "clab-node-group": "",
+        "clab-node-kind": "vr-sros",
+        "clab-node-lab-dir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/R06-PE-ASBR",
+        "clab-node-name": "R06-PE-ASBR",
+        "clab-node-type": "cp: cpu=2 ram=6 chassis=SR-12 slot=A card=cpm5 ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-12 slot=1 card=iom4-e-hs mda/1=me40-1gb-csfp",
+        "clab-topo-file": "/home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.yml",
+        "containerlab": "Vodafone-CO-HCO",
+        "topo-viewer-role": "pe"
+      }
+    },
+    { 
+      "id": "R07-PE-ASBR",
+      "index": "12",
+      "shortname": "R07-PE-ASBR",
+      "longname": "clab-Vodafone-CO-HCO-R07-PE-ASBR",
+      "fqdn": "R07-PE-ASBR.Vodafone-CO-HCO.io",
+      "group": "",
+      "labdir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/R07-PE-ASBR",
+      "kind": "vr-sros",
+      "image": "registry.srlinux.dev/pub/vr-sros:22.7.R1",
+      "mgmt-net": "",
+      "mgmt-intf": "",
+      "mgmt-ipv4-address": "",
+      "mgmt-ipv4-prefix-length": 0,
+      "mgmt-ipv6-address": "",
+      "mgmt-ipv6-prefix-length": 0,
+      "mac-address": "",
+      "labels": {
+        "clab-mgmt-net-bridge": "br1-private",
+        "clab-node-group": "",
+        "clab-node-kind": "vr-sros",
+        "clab-node-lab-dir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/R07-PE-ASBR",
+        "clab-node-name": "R07-PE-ASBR",
+        "clab-node-type": "cp: cpu=2 ram=6 chassis=SR-12 slot=A card=cpm5 ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-12 slot=1 card=iom4-e-hs mda/1=me40-1gb-csfp",
+        "clab-topo-file": "/home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.yml",
+        "containerlab": "Vodafone-CO-HCO",
+        "topo-viewer-role": "pe"
+      }
+    },
+    { 
+      "id": "R08-PE",
+      "index": "13",
+      "shortname": "R08-PE",
+      "longname": "clab-Vodafone-CO-HCO-R08-PE",
+      "fqdn": "R08-PE.Vodafone-CO-HCO.io",
+      "group": "",
+      "labdir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/R08-PE",
+      "kind": "vr-sros",
+      "image": "registry.srlinux.dev/pub/vr-sros:21.10.R2",
+      "mgmt-net": "",
+      "mgmt-intf": "",
+      "mgmt-ipv4-address": "",
+      "mgmt-ipv4-prefix-length": 0,
+      "mgmt-ipv6-address": "",
+      "mgmt-ipv6-prefix-length": 0,
+      "mac-address": "",
+      "labels": {
+        "clab-mgmt-net-bridge": "br1-private",
+        "clab-node-group": "",
+        "clab-node-kind": "vr-sros",
+        "clab-node-lab-dir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/R08-PE",
+        "clab-node-name": "R08-PE",
+        "clab-node-type": "cp: cpu=2 ram=6 chassis=SR-7 slot=A card=cpm5 ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-7 slot=1 card=iom4-e-hs mda/1=me40-1gb-csfp",
+        "clab-topo-file": "/home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.yml",
+        "containerlab": "Vodafone-CO-HCO",
+        "topo-viewer-role": "pe"
+      }
+    },
+    { 
+      "id": "R09-PE-ASBR",
+      "index": "14",
+      "shortname": "R09-PE-ASBR",
+      "longname": "clab-Vodafone-CO-HCO-R09-PE-ASBR",
+      "fqdn": "R09-PE-ASBR.Vodafone-CO-HCO.io",
+      "group": "",
+      "labdir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/R09-PE-ASBR",
+      "kind": "vr-sros",
+      "image": "registry.srlinux.dev/pub/vr-sros:21.10.R2",
+      "mgmt-net": "",
+      "mgmt-intf": "",
+      "mgmt-ipv4-address": "",
+      "mgmt-ipv4-prefix-length": 0,
+      "mgmt-ipv6-address": "",
+      "mgmt-ipv6-prefix-length": 0,
+      "mac-address": "",
+      "labels": {
+        "clab-mgmt-net-bridge": "br1-private",
+        "clab-node-group": "",
+        "clab-node-kind": "vr-sros",
+        "clab-node-lab-dir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/R09-PE-ASBR",
+        "clab-node-name": "R09-PE-ASBR",
+        "clab-node-type": "cp: cpu=2 ram=6 chassis=SR-7 slot=A card=cpm5 ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-7 slot=1 card=iom4-e-hs mda/1=me40-1gb-csfp",
+        "clab-topo-file": "/home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.yml",
+        "containerlab": "Vodafone-CO-HCO",
+        "topo-viewer-role": "pe"
+      }
+    },
+    { 
+      "id": "R10-PE-ASBR",
+      "index": "15",
+      "shortname": "R10-PE-ASBR",
+      "longname": "clab-Vodafone-CO-HCO-R10-PE-ASBR",
+      "fqdn": "R10-PE-ASBR.Vodafone-CO-HCO.io",
+      "group": "",
+      "labdir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/R10-PE-ASBR",
+      "kind": "vr-sros",
+      "image": "registry.srlinux.dev/pub/vr-sros:21.10.R2",
+      "mgmt-net": "",
+      "mgmt-intf": "",
+      "mgmt-ipv4-address": "",
+      "mgmt-ipv4-prefix-length": 0,
+      "mgmt-ipv6-address": "",
+      "mgmt-ipv6-prefix-length": 0,
+      "mac-address": "",
+      "labels": {
+        "clab-mgmt-net-bridge": "br1-private",
+        "clab-node-group": "",
+        "clab-node-kind": "vr-sros",
+        "clab-node-lab-dir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/R10-PE-ASBR",
+        "clab-node-name": "R10-PE-ASBR",
+        "clab-node-type": "cp: cpu=2 ram=6 chassis=SR-7 slot=A card=cpm5 ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-7 slot=1 card=iom4-e-hs mda/1=me40-1gb-csfp",
+        "clab-topo-file": "/home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.yml",
+        "containerlab": "Vodafone-CO-HCO",
+        "topo-viewer-role": "pe"
+      }
+    },
+    { 
+      "id": "R11-P",
+      "index": "16",
+      "shortname": "R11-P",
+      "longname": "clab-Vodafone-CO-HCO-R11-P",
+      "fqdn": "R11-P.Vodafone-CO-HCO.io",
+      "group": "",
+      "labdir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/R11-P",
+      "kind": "vr-xrv9k",
+      "image": "registry.srlinux.dev/pub/vr-xrv9k:7.3.2",
+      "mgmt-net": "",
+      "mgmt-intf": "",
+      "mgmt-ipv4-address": "10.10.10.111",
+      "mgmt-ipv4-prefix-length": 24,
+      "mgmt-ipv6-address": "",
+      "mgmt-ipv6-prefix-length": 0,
+      "mac-address": "",
+      "labels": {
+        "clab-mgmt-net-bridge": "br1-private",
+        "clab-node-group": "",
+        "clab-node-kind": "vr-xrv9k",
+        "clab-node-lab-dir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/R11-P",
+        "clab-node-name": "R11-P",
+        "clab-node-type": "",
+        "clab-topo-file": "/home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.yml",
+        "containerlab": "Vodafone-CO-HCO",
+        "topo-viewer-role": "p"
+      }
+    },
+    { 
+      "id": "R12-P",
+      "index": "17",
+      "shortname": "R12-P",
+      "longname": "clab-Vodafone-CO-HCO-R12-P",
+      "fqdn": "R12-P.Vodafone-CO-HCO.io",
+      "group": "",
+      "labdir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/R12-P",
+      "kind": "vr-vmx",
+      "image": "registry.srlinux.dev/pub/vr-vmx:17.4R3.16",
+      "mgmt-net": "",
+      "mgmt-intf": "",
+      "mgmt-ipv4-address": "10.10.10.112",
+      "mgmt-ipv4-prefix-length": 24,
+      "mgmt-ipv6-address": "",
+      "mgmt-ipv6-prefix-length": 0,
+      "mac-address": "",
+      "labels": {
+        "clab-mgmt-net-bridge": "br1-private",
+        "clab-node-group": "",
+        "clab-node-kind": "vr-vmx",
+        "clab-node-lab-dir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/R12-P",
+        "clab-node-name": "R12-P",
+        "clab-node-type": "",
+        "clab-topo-file": "/home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.yml",
+        "containerlab": "Vodafone-CO-HCO",
+        "topo-viewer-role": "p"
+      }
+    },
+    { 
+      "id": "R13-P",
+      "index": "18",
+      "shortname": "R13-P",
+      "longname": "clab-Vodafone-CO-HCO-R13-P",
+      "fqdn": "R13-P.Vodafone-CO-HCO.io",
+      "group": "",
+      "labdir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/R13-P",
+      "kind": "vr-sros",
+      "image": "registry.srlinux.dev/pub/vr-sros:22.10.R1",
+      "mgmt-net": "",
+      "mgmt-intf": "",
+      "mgmt-ipv4-address": "",
+      "mgmt-ipv4-prefix-length": 0,
+      "mgmt-ipv6-address": "",
+      "mgmt-ipv6-prefix-length": 0,
+      "mac-address": "",
+      "labels": {
+        "clab-mgmt-net-bridge": "br1-private",
+        "clab-node-group": "",
+        "clab-node-kind": "vr-sros",
+        "clab-node-lab-dir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/R13-P",
+        "clab-node-name": "R13-P",
+        "clab-node-type": "cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28",
+        "clab-topo-file": "/home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.yml",
+        "containerlab": "Vodafone-CO-HCO",
+        "topo-viewer-role": "p"
+      }
+    },
+    { 
+      "id": "R14-P",
+      "index": "19",
+      "shortname": "R14-P",
+      "longname": "clab-Vodafone-CO-HCO-R14-P",
+      "fqdn": "R14-P.Vodafone-CO-HCO.io",
+      "group": "",
+      "labdir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/R14-P",
+      "kind": "srl",
+      "image": "ghcr.io/nokia/srlinux:22.6.1",
+      "mgmt-net": "",
+      "mgmt-intf": "",
+      "mgmt-ipv4-address": "10.10.10.114",
+      "mgmt-ipv4-prefix-length": 24,
+      "mgmt-ipv6-address": "",
+      "mgmt-ipv6-prefix-length": 0,
+      "mac-address": "",
+      "labels": {
+        "clab-mgmt-net-bridge": "br1-private",
+        "clab-node-group": "",
+        "clab-node-kind": "srl",
+        "clab-node-lab-dir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/R14-P",
+        "clab-node-name": "R14-P",
+        "clab-node-type": "ixrh2",
+        "clab-topo-file": "/home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.yml",
+        "containerlab": "Vodafone-CO-HCO",
+        "topo-viewer-role": "p"
+      }
+    },
+    { 
+      "id": "br1-private",
+      "index": "20",
+      "shortname": "br1-private",
+      "longname": "clab-Vodafone-CO-HCO-br1-private",
+      "fqdn": "br1-private.Vodafone-CO-HCO.io",
+      "group": "",
+      "labdir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/br1-private",
+      "kind": "bridge",
+      "image": "",
+      "mgmt-net": "",
+      "mgmt-intf": "",
+      "mgmt-ipv4-address": "",
+      "mgmt-ipv4-prefix-length": 0,
+      "mgmt-ipv6-address": "",
+      "mgmt-ipv6-prefix-length": 0,
+      "mac-address": "",
+      "labels": {
+        "clab-mgmt-net-bridge": "br1-private",
+        "clab-node-group": "",
+        "clab-node-kind": "bridge",
+        "clab-node-lab-dir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/br1-private",
+        "clab-node-name": "br1-private",
+        "clab-node-type": "",
+        "clab-topo-file": "/home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.yml",
+        "containerlab": "Vodafone-CO-HCO"
+      }
+    },
+    { 
+      "id": "iperf01",
+      "index": "21",
+      "shortname": "iperf01",
+      "longname": "clab-Vodafone-CO-HCO-iperf01",
+      "fqdn": "iperf01.Vodafone-CO-HCO.io",
+      "group": "",
+      "labdir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/iperf01",
+      "kind": "linux",
+      "image": "sflow/clab-iperf3",
+      "mgmt-net": "",
+      "mgmt-intf": "",
+      "mgmt-ipv4-address": "10.10.10.3",
+      "mgmt-ipv4-prefix-length": 24,
+      "mgmt-ipv6-address": "",
+      "mgmt-ipv6-prefix-length": 0,
+      "mac-address": "",
+      "labels": {
+        "clab-mgmt-net-bridge": "br1-private",
+        "clab-node-group": "",
+        "clab-node-kind": "linux",
+        "clab-node-lab-dir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/iperf01",
+        "clab-node-name": "iperf01",
+        "clab-node-type": "",
+        "clab-topo-file": "/home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.yml",
+        "containerlab": "Vodafone-CO-HCO",
+        "topo-viewer-role": "server"
+      }
+    },
+    { 
+      "id": "iperf02",
+      "index": "22",
+      "shortname": "iperf02",
+      "longname": "clab-Vodafone-CO-HCO-iperf02",
+      "fqdn": "iperf02.Vodafone-CO-HCO.io",
+      "group": "",
+      "labdir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/iperf02",
+      "kind": "linux",
+      "image": "sflow/clab-iperf3",
+      "mgmt-net": "",
+      "mgmt-intf": "",
+      "mgmt-ipv4-address": "10.10.10.2",
+      "mgmt-ipv4-prefix-length": 24,
+      "mgmt-ipv6-address": "",
+      "mgmt-ipv6-prefix-length": 0,
+      "mac-address": "",
+      "labels": {
+        "clab-mgmt-net-bridge": "br1-private",
+        "clab-node-group": "",
+        "clab-node-kind": "linux",
+        "clab-node-lab-dir": "/home/suuser/topoViewer/rawTopoFile/clab-Vodafone-CO-HCO/iperf02",
+        "clab-node-name": "iperf02",
+        "clab-node-type": "",
+        "clab-topo-file": "/home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.yml",
+        "containerlab": "Vodafone-CO-HCO",
+        "topo-viewer-role": "server"
+      }
+    }
+  ],
+  "links": [
+    {
+      "a": {
+        "node": "R01-PE",
+        "interface": "eth2",
+        "mac": "aa:c1:ab:4d:d1:47",
+        "peer": "z"
+      },
+      "z": {
+        "node": "R02-PE",
+        "interface": "eth2",
+        "mac": "aa:c1:ab:a1:52:52",
+        "peer": "a"
+      }
+    },
+    {
+      "a": {
+        "node": "R01-PE",
+        "interface": "eth1",
+        "mac": "aa:c1:ab:9d:51:5c",
+        "peer": "z"
+      },
+      "z": {
+        "node": "R03-P",
+        "interface": "eth1",
+        "mac": "aa:c1:ab:3a:84:03",
+        "peer": "a"
+      }
+    },
+    {
+      "a": {
+        "node": "R02-PE",
+        "interface": "eth1",
+        "mac": "aa:c1:ab:b1:85:59",
+        "peer": "z"
+      },
+      "z": {
+        "node": "R04-P",
+        "interface": "eth1",
+        "mac": "aa:c1:ab:fd:64:65",
+        "peer": "a"
+      }
+    },
+    {
+      "a": {
+        "node": "R03-P",
+        "interface": "eth3",
+        "mac": "aa:c1:ab:96:44:a5",
+        "peer": "z"
+      },
+      "z": {
+        "node": "R04-P",
+        "interface": "eth3",
+        "mac": "aa:c1:ab:c7:32:d4",
+        "peer": "a"
+      }
+    },
+    {
+      "a": {
+        "node": "R03-P",
+        "interface": "eth4",
+        "mac": "aa:c1:ab:98:6e:20",
+        "peer": "z"
+      },
+      "z": {
+        "node": "R05-PE",
+        "interface": "eth2",
+        "mac": "aa:c1:ab:e4:63:79",
+        "peer": "a"
+      }
+    },
+    {
+      "a": {
+        "node": "R03-P",
+        "interface": "eth2",
+        "mac": "aa:c1:ab:79:b5:a8",
+        "peer": "z"
+      },
+      "z": {
+        "node": "R06-PE-ASBR",
+        "interface": "eth2",
+        "mac": "aa:c1:ab:b7:ae:b6",
+        "peer": "a"
+      }
+    },
+    {
+      "a": {
+        "node": "R03-P",
+        "interface": "eth5",
+        "mac": "aa:c1:ab:96:48:7c",
+        "peer": "z"
+      },
+      "z": {
+        "node": "R07-PE-ASBR",
+        "interface": "eth3",
+        "mac": "aa:c1:ab:2a:04:31",
+        "peer": "a"
+      }
+    },
+    {
+      "a": {
+        "node": "R04-P",
+        "interface": "eth5",
+        "mac": "aa:c1:ab:0a:10:41",
+        "peer": "z"
+      },
+      "z": {
+        "node": "R05-PE",
+        "interface": "eth5",
+        "mac": "aa:c1:ab:a9:79:5a",
+        "peer": "a"
+      }
+    },
+    {
+      "a": {
+        "node": "R04-P",
+        "interface": "eth2",
+        "mac": "aa:c1:ab:3d:e4:2a",
+        "peer": "z"
+      },
+      "z": {
+        "node": "R06-PE-ASBR",
+        "interface": "eth1",
+        "mac": "aa:c1:ab:0d:e2:f8",
+        "peer": "a"
+      }
+    },
+    {
+      "a": {
+        "node": "R04-P",
+        "interface": "eth4",
+        "mac": "aa:c1:ab:8b:05:92",
+        "peer": "z"
+      },
+      "z": {
+        "node": "R07-PE-ASBR",
+        "interface": "eth2",
+        "mac": "aa:c1:ab:29:4e:80",
+        "peer": "a"
+      }
+    },
+    {
+      "a": {
+        "node": "R06-PE-ASBR",
+        "interface": "eth3",
+        "mac": "aa:c1:ab:18:76:0d",
+        "peer": "z"
+      },
+      "z": {
+        "node": "R09-PE-ASBR",
+        "interface": "eth3",
+        "mac": "aa:c1:ab:bc:4e:0e",
+        "peer": "a"
+      }
+    },
+    {
+      "a": {
+        "node": "R07-PE-ASBR",
+        "interface": "eth1",
+        "mac": "aa:c1:ab:de:bd:ac",
+        "peer": "z"
+      },
+      "z": {
+        "node": "R10-PE-ASBR",
+        "interface": "eth3",
+        "mac": "aa:c1:ab:f1:25:5e",
+        "peer": "a"
+      }
+    },
+    {
+      "a": {
+        "node": "R09-PE-ASBR",
+        "interface": "eth2",
+        "mac": "aa:c1:ab:b0:57:a3",
+        "peer": "z"
+      },
+      "z": {
+        "node": "R08-PE",
+        "interface": "eth5",
+        "mac": "aa:c1:ab:72:46:15",
+        "peer": "a"
+      }
+    },
+    {
+      "a": {
+        "node": "R10-PE-ASBR",
+        "interface": "eth2",
+        "mac": "aa:c1:ab:02:5f:eb",
+        "peer": "z"
+      },
+      "z": {
+        "node": "R08-PE",
+        "interface": "eth2",
+        "mac": "aa:c1:ab:fc:ad:c0",
+        "peer": "a"
+      }
+    },
+    {
+      "a": {
+        "node": "R07-PE-ASBR",
+        "interface": "eth4",
+        "mac": "aa:c1:ab:22:00:dc",
+        "peer": "z"
+      },
+      "z": {
+        "node": "br1-private",
+        "interface": "eth1",
+        "mac": "aa:c1:ab:f0:4c:dc",
+        "peer": "a"
+      }
+    },
+    {
+      "a": {
+        "node": "R10-PE-ASBR",
+        "interface": "eth4",
+        "mac": "aa:c1:ab:11:4f:0d",
+        "peer": "z"
+      },
+      "z": {
+        "node": "br1-private",
+        "interface": "eth2",
+        "mac": "aa:c1:ab:f6:d8:6c",
+        "peer": "a"
+      }
+    },
+    {
+      "a": {
+        "node": "DC-LEAF-01",
+        "interface": "e1-1",
+        "mac": "aa:c1:ab:4f:a6:7d",
+        "peer": "z"
+      },
+      "z": {
+        "node": "DC-SPINE-01",
+        "interface": "e1-3",
+        "mac": "aa:c1:ab:78:9e:ee",
+        "peer": "a"
+      }
+    },
+    {
+      "a": {
+        "node": "DC-LEAF-01",
+        "interface": "e1-2",
+        "mac": "aa:c1:ab:6d:ea:23",
+        "peer": "z"
+      },
+      "z": {
+        "node": "DC-SPINE-02",
+        "interface": "e1-3",
+        "mac": "aa:c1:ab:2c:59:35",
+        "peer": "a"
+      }
+    },
+    {
+      "a": {
+        "node": "DC-LEAF-02",
+        "interface": "e1-1",
+        "mac": "aa:c1:ab:02:8a:9e",
+        "peer": "z"
+      },
+      "z": {
+        "node": "DC-SPINE-01",
+        "interface": "e1-4",
+        "mac": "aa:c1:ab:8b:58:d6",
+        "peer": "a"
+      }
+    },
+    {
+      "a": {
+        "node": "DC-LEAF-02",
+        "interface": "e1-2",
+        "mac": "aa:c1:ab:0b:82:12",
+        "peer": "z"
+      },
+      "z": {
+        "node": "DC-SPINE-02",
+        "interface": "e1-4",
+        "mac": "aa:c1:ab:d0:f8:27",
+        "peer": "a"
+      }
+    },
+    {
+      "a": {
+        "node": "DC-BORDER-LEAF-01",
+        "interface": "e1-1",
+        "mac": "aa:c1:ab:51:7f:10",
+        "peer": "z"
+      },
+      "z": {
+        "node": "DC-SPINE-01",
+        "interface": "e1-1",
+        "mac": "aa:c1:ab:80:7a:6b",
+        "peer": "a"
+      }
+    },
+    {
+      "a": {
+        "node": "DC-BORDER-LEAF-01",
+        "interface": "e1-2",
+        "mac": "aa:c1:ab:09:e3:08",
+        "peer": "z"
+      },
+      "z": {
+        "node": "DC-SPINE-02",
+        "interface": "e1-1",
+        "mac": "aa:c1:ab:52:db:ec",
+        "peer": "a"
+      }
+    },
+    {
+      "a": {
+        "node": "DC-BORDER-LEAF-02",
+        "interface": "e1-1",
+        "mac": "aa:c1:ab:cb:ef:a2",
+        "peer": "z"
+      },
+      "z": {
+        "node": "DC-SPINE-01",
+        "interface": "e1-2",
+        "mac": "aa:c1:ab:19:dc:cf",
+        "peer": "a"
+      }
+    },
+    {
+      "a": {
+        "node": "DC-BORDER-LEAF-02",
+        "interface": "e1-2",
+        "mac": "aa:c1:ab:49:40:33",
+        "peer": "z"
+      },
+      "z": {
+        "node": "DC-SPINE-02",
+        "interface": "e1-2",
+        "mac": "aa:c1:ab:76:f9:8a",
+        "peer": "a"
+      }
+    },
+    {
+      "a": {
+        "node": "DC-BORDER-LEAF-01",
+        "interface": "e1-3",
+        "mac": "aa:c1:ab:eb:fe:64",
+        "peer": "z"
+      },
+      "z": {
+        "node": "R01-PE",
+        "interface": "eth4",
+        "mac": "aa:c1:ab:23:40:6c",
+        "peer": "a"
+      }
+    },
+    {
+      "a": {
+        "node": "DC-BORDER-LEAF-02",
+        "interface": "e1-3",
+        "mac": "aa:c1:ab:8d:c6:fb",
+        "peer": "z"
+      },
+      "z": {
+        "node": "R02-PE",
+        "interface": "eth4",
+        "mac": "aa:c1:ab:44:dd:fb",
+        "peer": "a"
+      }
+    },
+    {
+      "a": {
+        "node": "R11-P",
+        "interface": "eth1",
+        "mac": "aa:c1:ab:c1:5d:20",
+        "peer": "z"
+      },
+      "z": {
+        "node": "R01-PE",
+        "interface": "eth5",
+        "mac": "aa:c1:ab:b6:00:80",
+        "peer": "a"
+      }
+    },
+    {
+      "a": {
+        "node": "R11-P",
+        "interface": "eth2",
+        "mac": "aa:c1:ab:ae:8b:1f",
+        "peer": "z"
+      },
+      "z": {
+        "node": "R12-P",
+        "interface": "eth2",
+        "mac": "aa:c1:ab:d7:86:4b",
+        "peer": "a"
+      }
+    },
+    {
+      "a": {
+        "node": "R12-P",
+        "interface": "eth1",
+        "mac": "aa:c1:ab:f4:5b:f0",
+        "peer": "z"
+      },
+      "z": {
+        "node": "R03-P",
+        "interface": "eth6",
+        "mac": "aa:c1:ab:4b:82:fb",
+        "peer": "a"
+      }
+    },
+    {
+      "a": {
+        "node": "R12-P",
+        "interface": "eth4",
+        "mac": "aa:c1:ab:fb:ac:8b",
+        "peer": "z"
+      },
+      "z": {
+        "node": "R06-PE-ASBR",
+        "interface": "eth4",
+        "mac": "aa:c1:ab:41:9a:bd",
+        "peer": "a"
+      }
+    },
+    {
+      "a": {
+        "node": "R13-P",
+        "interface": "eth1",
+        "mac": "aa:c1:ab:5f:99:8a",
+        "peer": "z"
+      },
+      "z": {
+        "node": "R02-PE",
+        "interface": "eth5",
+        "mac": "aa:c1:ab:65:cb:97",
+        "peer": "a"
+      }
+    },
+    {
+      "a": {
+        "node": "R13-P",
+        "interface": "eth2",
+        "mac": "aa:c1:ab:be:1e:2d",
+        "peer": "z"
+      },
+      "z": {
+        "node": "R14-P",
+        "interface": "e1-2",
+        "mac": "aa:c1:ab:d4:eb:a7",
+        "peer": "a"
+      }
+    },
+    {
+      "a": {
+        "node": "R14-P",
+        "interface": "e1-1",
+        "mac": "aa:c1:ab:79:98:59",
+        "peer": "z"
+      },
+      "z": {
+        "node": "R04-P",
+        "interface": "eth6",
+        "mac": "aa:c1:ab:27:99:9e",
+        "peer": "a"
+      }
+    },
+    {
+      "a": {
+        "node": "R14-P",
+        "interface": "e1-4",
+        "mac": "aa:c1:ab:a4:56:dc",
+        "peer": "z"
+      },
+      "z": {
+        "node": "R07-PE-ASBR",
+        "interface": "eth5",
+        "mac": "aa:c1:ab:a1:84:86",
+        "peer": "a"
+      }
+    },
+    {
+      "a": {
+        "node": "iperf01",
+        "interface": "eth1",
+        "mac": "aa:c1:ab:a9:e9:a2",
+        "peer": "z"
+      },
+      "z": {
+        "node": "R01-PE",
+        "interface": "eth3",
+        "mac": "aa:c1:ab:61:71:48",
+        "peer": "a"
+      }
+    },
+    {
+      "a": {
+        "node": "iperf02",
+        "interface": "eth1",
+        "mac": "aa:c1:ab:3e:65:40",
+        "peer": "z"
+      },
+      "z": {
+        "node": "R02-PE",
+        "interface": "eth3",
+        "mac": "aa:c1:ab:48:8f:c0",
+        "peer": "a"
+      }
+    }
+  ]
+}

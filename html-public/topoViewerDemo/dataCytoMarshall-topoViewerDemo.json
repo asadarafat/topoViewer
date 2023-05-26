@@ -1,88 +1,35 @@
 [
   {
     "data": {
-      "id": "spine-01",
-      "weight": "2",
-      "name": "spine-01",
-      "parent": "datacenter",
-      "kind": "",
-      "topoviewerRole": "spine",
-      "sourceEndpoint": "",
-      "targetEndpoint": "",
-      "extraData": {
-        "clabBinds": null,
-        "clabImage": "ghcr.io/nokia/srlinux",
-        "clabKind": "srl",
-        "clabMgmtIPv4Address": "20.20.20.201",
-        "clabName": "spine-01",
-        "clabTopoviewerColor": null,
-        "clabTopoviewerRole": "spine"
-      }
-    },
-    "position": {
-      "x": 0,
-      "y": 0
-    },
-    "removed": false,
-    "group": "nodes",
-    "selected": false,
-    "selectable": true,
-    "locked": false,
-    "grabbed": false,
-    "grabbable": true,
-    "classes": ""
-  },
-  {
-    "data": {
-      "id": "dcgw-03",
-      "weight": "2",
-      "name": "dcgw-03",
-      "parent": "ip-mpls",
-      "kind": "",
-      "topoviewerRole": "dcgw",
-      "sourceEndpoint": "",
-      "targetEndpoint": "",
-      "extraData": {
-        "clabBinds": null,
-        "clabImage": "registry.srlinux.dev/pub/vr-sros:22.7.R1",
-        "clabKind": "vr-sros",
-        "clabMgmtIPv4Address": "20.20.20.103",
-        "clabName": "dcgw-03",
-        "clabTopoviewerColor": "green",
-        "clabTopoviewerRole": "dcgw"
-      }
-    },
-    "position": {
-      "x": 0,
-      "y": 0
-    },
-    "removed": false,
-    "group": "nodes",
-    "selected": false,
-    "selectable": true,
-    "locked": false,
-    "grabbed": false,
-    "grabbable": true,
-    "classes": ""
-  },
-  {
-    "data": {
-      "id": "borderl-leaf-01",
-      "weight": "2",
-      "name": "borderl-leaf-01",
-      "parent": "datacenter",
+      "id": "SRL-01",
+      "weight": "3",
+      "name": "SRL-01",
+      "parent": "Data Center",
       "kind": "",
       "topoviewerRole": "leaf",
       "sourceEndpoint": "",
       "targetEndpoint": "",
       "extraData": {
-        "clabBinds": null,
-        "clabImage": "ghcr.io/nokia/srlinux",
-        "clabKind": "srl",
-        "clabMgmtIPv4Address": "20.20.20.211",
-        "clabName": "borderl-leaf-01",
-        "clabTopoviewerColor": null,
-        "clabTopoviewerRole": "leaf"
+        "clabServerUsername": "suuser",
+        "fqdn": "SRL-01.topoViewerDemo.io",
+        "group": "leaf",
+        "id": "SRL-01",
+        "image": "ghcr.io/nokia/srlinux:22.6.2",
+        "index": "0",
+        "kind": "srl",
+        "labdir": "/home/suuser/topoViewer/clab-topoViewerDemo/SRL-01",
+        "labels": {},
+        "longname": "clab-topoViewerDemo-SRL-01",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 0,
+        "mgmtIpv4Addresss": "",
+        "mgmtIpv6Address": "",
+        "mgmtIpv6AddressLengthh": 0,
+        "mgmtNet": "",
+        "name": "SRL-01",
+        "shortname": "SRL-01",
+        "weight": "2"
       }
     },
     "position": {
@@ -100,88 +47,35 @@
   },
   {
     "data": {
-      "id": "spine-02",
-      "weight": "2",
-      "name": "spine-02",
-      "parent": "datacenter",
-      "kind": "",
-      "topoviewerRole": "spine",
-      "sourceEndpoint": "",
-      "targetEndpoint": "",
-      "extraData": {
-        "clabBinds": null,
-        "clabImage": "ghcr.io/nokia/srlinux",
-        "clabKind": "srl",
-        "clabMgmtIPv4Address": "20.20.20.202",
-        "clabName": "spine-02",
-        "clabTopoviewerColor": null,
-        "clabTopoviewerRole": "spine"
-      }
-    },
-    "position": {
-      "x": 0,
-      "y": 0
-    },
-    "removed": false,
-    "group": "nodes",
-    "selected": false,
-    "selectable": true,
-    "locked": false,
-    "grabbed": false,
-    "grabbable": true,
-    "classes": ""
-  },
-  {
-    "data": {
-      "id": "dcgw-04",
-      "weight": "2",
-      "name": "dcgw-04",
-      "parent": "ip-mpls",
-      "kind": "",
-      "topoviewerRole": "dcgw",
-      "sourceEndpoint": "",
-      "targetEndpoint": "",
-      "extraData": {
-        "clabBinds": null,
-        "clabImage": "registry.srlinux.dev/pub/vr-sros:22.7.R1",
-        "clabKind": "vr-sros",
-        "clabMgmtIPv4Address": "20.20.20.104",
-        "clabName": "dcgw-04",
-        "clabTopoviewerColor": "green",
-        "clabTopoviewerRole": "dcgw"
-      }
-    },
-    "position": {
-      "x": 0,
-      "y": 0
-    },
-    "removed": false,
-    "group": "nodes",
-    "selected": false,
-    "selectable": true,
-    "locked": false,
-    "grabbed": false,
-    "grabbable": true,
-    "classes": ""
-  },
-  {
-    "data": {
-      "id": "leaf-04",
-      "weight": "2",
-      "name": "leaf-04",
-      "parent": "datacenter",
+      "id": "SRL-02",
+      "weight": "3",
+      "name": "SRL-02",
+      "parent": "Data Center",
       "kind": "",
       "topoviewerRole": "leaf",
       "sourceEndpoint": "",
       "targetEndpoint": "",
       "extraData": {
-        "clabBinds": null,
-        "clabImage": "ghcr.io/nokia/srlinux",
-        "clabKind": "srl",
-        "clabMgmtIPv4Address": "20.20.20.224",
-        "clabName": "leaf-04",
-        "clabTopoviewerColor": null,
-        "clabTopoviewerRole": "leaf"
+        "clabServerUsername": "suuser",
+        "fqdn": "SRL-02.topoViewerDemo.io",
+        "group": "leaf",
+        "id": "SRL-02",
+        "image": "ghcr.io/nokia/srlinux:22.6.2",
+        "index": "1",
+        "kind": "srl",
+        "labdir": "/home/suuser/topoViewer/clab-topoViewerDemo/SRL-02",
+        "labels": {},
+        "longname": "clab-topoViewerDemo-SRL-02",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 0,
+        "mgmtIpv4Addresss": "",
+        "mgmtIpv6Address": "",
+        "mgmtIpv6AddressLengthh": 0,
+        "mgmtNet": "",
+        "name": "SRL-02",
+        "shortname": "SRL-02",
+        "weight": "2"
       }
     },
     "position": {
@@ -199,55 +93,35 @@
   },
   {
     "data": {
-      "id": "srl-01",
-      "weight": "2",
-      "name": "srl-01",
-      "parent": "datacenter",
-      "kind": "",
-      "topoviewerRole": "leaf",
-      "sourceEndpoint": "",
-      "targetEndpoint": "",
-      "extraData": {
-        "clabBinds": null,
-        "clabImage": "ghcr.io/nokia/srlinux",
-        "clabKind": "srl",
-        "clabMgmtIPv4Address": "20.20.20.101",
-        "clabName": "srl-01",
-        "clabTopoviewerColor": null,
-        "clabTopoviewerRole": "leaf"
-      }
-    },
-    "position": {
-      "x": 0,
-      "y": 0
-    },
-    "removed": false,
-    "group": "nodes",
-    "selected": false,
-    "selectable": true,
-    "locked": false,
-    "grabbed": false,
-    "grabbable": true,
-    "classes": ""
-  },
-  {
-    "data": {
-      "id": "sros-02",
-      "weight": "2",
-      "name": "sros-02",
-      "parent": "ip-mpls",
+      "id": "SROS-01",
+      "weight": "3",
+      "name": "SROS-01",
+      "parent": "IP-MPLS",
       "kind": "",
       "topoviewerRole": "pe",
       "sourceEndpoint": "",
       "targetEndpoint": "",
       "extraData": {
-        "clabBinds": null,
-        "clabImage": "registry.srlinux.dev/pub/vr-sros:22.7.R1",
-        "clabKind": "vr-sros",
-        "clabMgmtIPv4Address": "20.20.20.102",
-        "clabName": "sros-02",
-        "clabTopoviewerColor": "green",
-        "clabTopoviewerRole": "pe"
+        "clabServerUsername": "suuser",
+        "fqdn": "SROS-01.topoViewerDemo.io",
+        "group": "pe",
+        "id": "SROS-01",
+        "image": "registry.srlinux.dev/pub/vr-sros:22.7.R1",
+        "index": "2",
+        "kind": "vr-sros",
+        "labdir": "/home/suuser/topoViewer/clab-topoViewerDemo/SROS-01",
+        "labels": {},
+        "longname": "clab-topoViewerDemo-SROS-01",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 0,
+        "mgmtIpv4Addresss": "",
+        "mgmtIpv6Address": "",
+        "mgmtIpv6AddressLengthh": 0,
+        "mgmtNet": "",
+        "name": "SROS-01",
+        "shortname": "SROS-01",
+        "weight": "2"
       }
     },
     "position": {
@@ -265,156 +139,35 @@
   },
   {
     "data": {
-      "id": "topoviewer",
-      "weight": "2",
-      "name": "topoviewer",
-      "parent": "ip-mpls",
-      "kind": "",
-      "topoviewerRole": "server",
-      "sourceEndpoint": "",
-      "targetEndpoint": "",
-      "extraData": {
-        "clabBinds": [
-          "/home/suuser/clab/topo-file.yaml:/opt/local-bind/topo-file.yaml:rw"
-        ],
-        "clabImage": "ghcr.io/asadarafat/topoviewer:development",
-        "clabKind": "linux",
-        "clabMgmtIPv4Address": "20.20.20.21",
-        "clabName": "topoviewer",
-        "clabTopoviewerColor": null,
-        "clabTopoviewerRole": "server"
-      }
-    },
-    "position": {
-      "x": 0,
-      "y": 0
-    },
-    "removed": false,
-    "group": "nodes",
-    "selected": false,
-    "selectable": true,
-    "locked": false,
-    "grabbed": false,
-    "grabbable": true,
-    "classes": ""
-  },
-  {
-    "data": {
-      "id": "leaf-02",
-      "weight": "2",
-      "name": "leaf-02",
-      "parent": "datacenter",
-      "kind": "",
-      "topoviewerRole": "leaf",
-      "sourceEndpoint": "",
-      "targetEndpoint": "",
-      "extraData": {
-        "clabBinds": null,
-        "clabImage": "ghcr.io/nokia/srlinux",
-        "clabKind": "srl",
-        "clabMgmtIPv4Address": "20.20.20.222",
-        "clabName": "leaf-02",
-        "clabTopoviewerColor": null,
-        "clabTopoviewerRole": "leaf"
-      }
-    },
-    "position": {
-      "x": 0,
-      "y": 0
-    },
-    "removed": false,
-    "group": "nodes",
-    "selected": false,
-    "selectable": true,
-    "locked": false,
-    "grabbed": false,
-    "grabbable": true,
-    "classes": ""
-  },
-  {
-    "data": {
-      "id": "leaf-01",
-      "weight": "2",
-      "name": "leaf-01",
-      "parent": "datacenter",
-      "kind": "",
-      "topoviewerRole": "leaf",
-      "sourceEndpoint": "",
-      "targetEndpoint": "",
-      "extraData": {
-        "clabBinds": null,
-        "clabImage": "ghcr.io/nokia/srlinux",
-        "clabKind": "srl",
-        "clabMgmtIPv4Address": "20.20.20.221",
-        "clabName": "leaf-01",
-        "clabTopoviewerColor": null,
-        "clabTopoviewerRole": "leaf"
-      }
-    },
-    "position": {
-      "x": 0,
-      "y": 0
-    },
-    "removed": false,
-    "group": "nodes",
-    "selected": false,
-    "selectable": true,
-    "locked": false,
-    "grabbed": false,
-    "grabbable": true,
-    "classes": ""
-  },
-  {
-    "data": {
-      "id": "borderl-leaf-02",
-      "weight": "2",
-      "name": "borderl-leaf-02",
-      "parent": "datacenter",
-      "kind": "",
-      "topoviewerRole": "leaf",
-      "sourceEndpoint": "",
-      "targetEndpoint": "",
-      "extraData": {
-        "clabBinds": null,
-        "clabImage": "ghcr.io/nokia/srlinux",
-        "clabKind": "srl",
-        "clabMgmtIPv4Address": "20.20.20.212",
-        "clabName": "borderl-leaf-02",
-        "clabTopoviewerColor": null,
-        "clabTopoviewerRole": "leaf"
-      }
-    },
-    "position": {
-      "x": 0,
-      "y": 0
-    },
-    "removed": false,
-    "group": "nodes",
-    "selected": false,
-    "selectable": true,
-    "locked": false,
-    "grabbed": false,
-    "grabbable": true,
-    "classes": ""
-  },
-  {
-    "data": {
-      "id": "sros-01",
-      "weight": "2",
-      "name": "sros-01",
-      "parent": "ip-mpls",
+      "id": "SROS-02",
+      "weight": "3",
+      "name": "SROS-02",
+      "parent": "IP-MPLS",
       "kind": "",
       "topoviewerRole": "pe",
       "sourceEndpoint": "",
       "targetEndpoint": "",
       "extraData": {
-        "clabBinds": null,
-        "clabImage": "registry.srlinux.dev/pub/vr-sros:22.7.R1",
-        "clabKind": "vr-sros",
-        "clabMgmtIPv4Address": "20.20.20.101",
-        "clabName": "sros-01",
-        "clabTopoviewerColor": "green",
-        "clabTopoviewerRole": "pe"
+        "clabServerUsername": "suuser",
+        "fqdn": "SROS-02.topoViewerDemo.io",
+        "group": "pe",
+        "id": "SROS-02",
+        "image": "registry.srlinux.dev/pub/vr-sros:22.7.R1",
+        "index": "3",
+        "kind": "vr-sros",
+        "labdir": "/home/suuser/topoViewer/clab-topoViewerDemo/SROS-02",
+        "labels": {},
+        "longname": "clab-topoViewerDemo-SROS-02",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 0,
+        "mgmtIpv4Addresss": "",
+        "mgmtIpv6Address": "",
+        "mgmtIpv6AddressLengthh": 0,
+        "mgmtNet": "",
+        "name": "SROS-02",
+        "shortname": "SROS-02",
+        "weight": "2"
       }
     },
     "position": {
@@ -432,22 +185,35 @@
   },
   {
     "data": {
-      "id": "leaf-03",
-      "weight": "2",
-      "name": "leaf-03",
-      "parent": "datacenter",
+      "id": "SROS-03",
+      "weight": "3",
+      "name": "SROS-03",
+      "parent": "IP-MPLS",
       "kind": "",
-      "topoviewerRole": "leaf",
+      "topoviewerRole": "pe",
       "sourceEndpoint": "",
       "targetEndpoint": "",
       "extraData": {
-        "clabBinds": null,
-        "clabImage": "ghcr.io/nokia/srlinux",
-        "clabKind": "srl",
-        "clabMgmtIPv4Address": "20.20.20.223",
-        "clabName": "leaf-03",
-        "clabTopoviewerColor": null,
-        "clabTopoviewerRole": "leaf"
+        "clabServerUsername": "suuser",
+        "fqdn": "SROS-03.topoViewerDemo.io",
+        "group": "pe",
+        "id": "SROS-03",
+        "image": "registry.srlinux.dev/pub/vr-sros:22.7.R1",
+        "index": "4",
+        "kind": "vr-sros",
+        "labdir": "/home/suuser/topoViewer/clab-topoViewerDemo/SROS-03",
+        "labels": {},
+        "longname": "clab-topoViewerDemo-SROS-03",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 0,
+        "mgmtIpv4Addresss": "",
+        "mgmtIpv6Address": "",
+        "mgmtIpv6AddressLengthh": 0,
+        "mgmtNet": "",
+        "name": "SROS-03",
+        "shortname": "SROS-03",
+        "weight": "2"
       }
     },
     "position": {
@@ -465,15 +231,36 @@
   },
   {
     "data": {
-      "id": "datacenter",
-      "weight": "2",
-      "name": "datacenter domain",
-      "parent": "",
+      "id": "SROS-04",
+      "weight": "3",
+      "name": "SROS-04",
+      "parent": "IP-MPLS",
       "kind": "",
-      "topoviewerRole": "datacenter",
+      "topoviewerRole": "pe",
       "sourceEndpoint": "",
       "targetEndpoint": "",
-      "extraData": ""
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "fqdn": "SROS-04.topoViewerDemo.io",
+        "group": "pe",
+        "id": "SROS-04",
+        "image": "registry.srlinux.dev/pub/vr-sros:22.7.R1",
+        "index": "5",
+        "kind": "vr-sros",
+        "labdir": "/home/suuser/topoViewer/clab-topoViewerDemo/SROS-04",
+        "labels": {},
+        "longname": "clab-topoViewerDemo-SROS-04",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 0,
+        "mgmtIpv4Addresss": "",
+        "mgmtIpv6Address": "",
+        "mgmtIpv6AddressLengthh": 0,
+        "mgmtNet": "",
+        "name": "SROS-04",
+        "shortname": "SROS-04",
+        "weight": "2"
+      }
     },
     "position": {
       "x": 0,
@@ -490,15 +277,19 @@
   },
   {
     "data": {
-      "id": "ip-mpls",
+      "id": "Data Center",
       "weight": "2",
-      "name": "ip-mpls domain",
+      "name": "Data Center domain",
       "parent": "",
       "kind": "",
-      "topoviewerRole": "ip-mpls",
+      "topoviewerRole": "Data Center",
       "sourceEndpoint": "",
       "targetEndpoint": "",
-      "extraData": ""
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "name": "",
+        "weight": "2"
+      }
     },
     "position": {
       "x": 0,
@@ -515,28 +306,46 @@
   },
   {
     "data": {
-      "id": "0",
-      "source": "srl-01",
-      "target": "sros-01",
-      "weight": "1",
-      "name": "srl-01::e1-1 \u003c--\u003e sros-01::eth1",
+      "id": "IP-MPLS",
+      "weight": "2",
+      "name": "IP-MPLS domain",
       "parent": "",
       "kind": "",
-      "topoviewerRole": "ip-mpls",
+      "topoviewerRole": "IP-MPLS",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "name": "",
+        "weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link0",
+      "source": "SRL-01",
+      "target": "SROS-01",
+      "weight": "3",
+      "name": "IP-MPLS domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "IP-MPLS",
       "sourceEndpoint": "e1-1",
       "targetEndpoint": "eth1",
-      "extraData": {
-        "clabEndpoints": {
-          "ClabSourceEndpoint": "e1-1",
-          "ClabTargetEndpoint": "eth1"
-        },
-        "clabId": "0",
-        "clabKind": "ClabLink",
-        "clabName": "srl-01::e1-1 \u003c--\u003e sros-01::eth1",
-        "clabServerUsername": "root",
-        "clabSourceLongName": "clab-topoViewerDemo-srl-01",
-        "clabTargetLongName": "clab-topoViewerDemo-sros-01"
-      }
+      "extraData": {}
     },
     "position": {
       "x": 0,
@@ -553,28 +362,17 @@
   },
   {
     "data": {
-      "id": "1",
-      "source": "srl-01",
-      "target": "sros-02",
-      "weight": "1",
-      "name": "srl-01::e1-2 \u003c--\u003e sros-02::eth1",
+      "id": "Clab-Link1",
+      "source": "SRL-01",
+      "target": "SROS-02",
+      "weight": "3",
+      "name": "IP-MPLS domain",
       "parent": "",
       "kind": "",
-      "topoviewerRole": "ip-mpls",
+      "topoviewerRole": "IP-MPLS",
       "sourceEndpoint": "e1-2",
       "targetEndpoint": "eth1",
-      "extraData": {
-        "clabEndpoints": {
-          "ClabSourceEndpoint": "e1-2",
-          "ClabTargetEndpoint": "eth1"
-        },
-        "clabId": "1",
-        "clabKind": "ClabLink",
-        "clabName": "srl-01::e1-2 \u003c--\u003e sros-02::eth1",
-        "clabServerUsername": "root",
-        "clabSourceLongName": "clab-topoViewerDemo-srl-01",
-        "clabTargetLongName": "clab-topoViewerDemo-sros-02"
-      }
+      "extraData": {}
     },
     "position": {
       "x": 0,
@@ -591,28 +389,17 @@
   },
   {
     "data": {
-      "id": "2",
-      "source": "sros-01",
-      "target": "sros-02",
-      "weight": "1",
-      "name": "sros-01::eth2 \u003c--\u003e sros-02::eth2",
+      "id": "Clab-Link2",
+      "source": "SROS-01",
+      "target": "SROS-02",
+      "weight": "3",
+      "name": "IP-MPLS domain",
       "parent": "",
       "kind": "",
-      "topoviewerRole": "ip-mpls",
+      "topoviewerRole": "IP-MPLS",
       "sourceEndpoint": "eth2",
       "targetEndpoint": "eth2",
-      "extraData": {
-        "clabEndpoints": {
-          "ClabSourceEndpoint": "eth2",
-          "ClabTargetEndpoint": "eth2"
-        },
-        "clabId": "2",
-        "clabKind": "ClabLink",
-        "clabName": "sros-01::eth2 \u003c--\u003e sros-02::eth2",
-        "clabServerUsername": "root",
-        "clabSourceLongName": "clab-topoViewerDemo-sros-01",
-        "clabTargetLongName": "clab-topoViewerDemo-sros-02"
-      }
+      "extraData": {}
     },
     "position": {
       "x": 0,
@@ -629,28 +416,17 @@
   },
   {
     "data": {
-      "id": "3",
-      "source": "sros-01",
-      "target": "dcgw-03",
-      "weight": "1",
-      "name": "sros-01::eth3 \u003c--\u003e dcgw-03::eth3",
+      "id": "Clab-Link3",
+      "source": "SROS-01",
+      "target": "SROS-03",
+      "weight": "3",
+      "name": "IP-MPLS domain",
       "parent": "",
       "kind": "",
-      "topoviewerRole": "ip-mpls",
+      "topoviewerRole": "IP-MPLS",
       "sourceEndpoint": "eth3",
       "targetEndpoint": "eth3",
-      "extraData": {
-        "clabEndpoints": {
-          "ClabSourceEndpoint": "eth3",
-          "ClabTargetEndpoint": "eth3"
-        },
-        "clabId": "3",
-        "clabKind": "ClabLink",
-        "clabName": "sros-01::eth3 \u003c--\u003e dcgw-03::eth3",
-        "clabServerUsername": "root",
-        "clabSourceLongName": "clab-topoViewerDemo-sros-01",
-        "clabTargetLongName": "clab-topoViewerDemo-dcgw-03"
-      }
+      "extraData": {}
     },
     "position": {
       "x": 0,
@@ -667,28 +443,17 @@
   },
   {
     "data": {
-      "id": "4",
-      "source": "sros-02",
-      "target": "dcgw-03",
-      "weight": "1",
-      "name": "sros-02::eth4 \u003c--\u003e dcgw-03::eth4",
+      "id": "Clab-Link4",
+      "source": "SROS-02",
+      "target": "SROS-03",
+      "weight": "3",
+      "name": "IP-MPLS domain",
       "parent": "",
       "kind": "",
-      "topoviewerRole": "ip-mpls",
+      "topoviewerRole": "IP-MPLS",
       "sourceEndpoint": "eth4",
       "targetEndpoint": "eth4",
-      "extraData": {
-        "clabEndpoints": {
-          "ClabSourceEndpoint": "eth4",
-          "ClabTargetEndpoint": "eth4"
-        },
-        "clabId": "4",
-        "clabKind": "ClabLink",
-        "clabName": "sros-02::eth4 \u003c--\u003e dcgw-03::eth4",
-        "clabServerUsername": "root",
-        "clabSourceLongName": "clab-topoViewerDemo-sros-02",
-        "clabTargetLongName": "clab-topoViewerDemo-dcgw-03"
-      }
+      "extraData": {}
     },
     "position": {
       "x": 0,
@@ -705,28 +470,17 @@
   },
   {
     "data": {
-      "id": "5",
-      "source": "sros-02",
-      "target": "dcgw-04",
-      "weight": "1",
-      "name": "sros-02::eth5 \u003c--\u003e dcgw-04::eth5",
+      "id": "Clab-Link5",
+      "source": "SROS-02",
+      "target": "SROS-04",
+      "weight": "3",
+      "name": "IP-MPLS domain",
       "parent": "",
       "kind": "",
-      "topoviewerRole": "ip-mpls",
+      "topoviewerRole": "IP-MPLS",
       "sourceEndpoint": "eth5",
       "targetEndpoint": "eth5",
-      "extraData": {
-        "clabEndpoints": {
-          "ClabSourceEndpoint": "eth5",
-          "ClabTargetEndpoint": "eth5"
-        },
-        "clabId": "5",
-        "clabKind": "ClabLink",
-        "clabName": "sros-02::eth5 \u003c--\u003e dcgw-04::eth5",
-        "clabServerUsername": "root",
-        "clabSourceLongName": "clab-topoViewerDemo-sros-02",
-        "clabTargetLongName": "clab-topoViewerDemo-dcgw-04"
-      }
+      "extraData": {}
     },
     "position": {
       "x": 0,
@@ -743,28 +497,17 @@
   },
   {
     "data": {
-      "id": "6",
-      "source": "dcgw-03",
-      "target": "dcgw-04",
-      "weight": "1",
-      "name": "dcgw-03::eth6 \u003c--\u003e dcgw-04::eth6",
+      "id": "Clab-Link6",
+      "source": "SROS-03",
+      "target": "SROS-04",
+      "weight": "3",
+      "name": "IP-MPLS domain",
       "parent": "",
       "kind": "",
-      "topoviewerRole": "ip-mpls",
+      "topoviewerRole": "IP-MPLS",
       "sourceEndpoint": "eth6",
       "targetEndpoint": "eth6",
-      "extraData": {
-        "clabEndpoints": {
-          "ClabSourceEndpoint": "eth6",
-          "ClabTargetEndpoint": "eth6"
-        },
-        "clabId": "6",
-        "clabKind": "ClabLink",
-        "clabName": "dcgw-03::eth6 \u003c--\u003e dcgw-04::eth6",
-        "clabServerUsername": "root",
-        "clabSourceLongName": "clab-topoViewerDemo-dcgw-03",
-        "clabTargetLongName": "clab-topoViewerDemo-dcgw-04"
-      }
+      "extraData": {}
     },
     "position": {
       "x": 0,
@@ -781,28 +524,17 @@
   },
   {
     "data": {
-      "id": "7",
-      "source": "sros-01",
-      "target": "dcgw-04",
-      "weight": "1",
-      "name": "sros-01::eth4 \u003c--\u003e dcgw-04::eth4",
+      "id": "Clab-Link7",
+      "source": "SROS-01",
+      "target": "SROS-04",
+      "weight": "3",
+      "name": "IP-MPLS domain",
       "parent": "",
       "kind": "",
-      "topoviewerRole": "ip-mpls",
+      "topoviewerRole": "IP-MPLS",
       "sourceEndpoint": "eth4",
       "targetEndpoint": "eth4",
-      "extraData": {
-        "clabEndpoints": {
-          "ClabSourceEndpoint": "eth4",
-          "ClabTargetEndpoint": "eth4"
-        },
-        "clabId": "7",
-        "clabKind": "ClabLink",
-        "clabName": "sros-01::eth4 \u003c--\u003e dcgw-04::eth4",
-        "clabServerUsername": "root",
-        "clabSourceLongName": "clab-topoViewerDemo-sros-01",
-        "clabTargetLongName": "clab-topoViewerDemo-dcgw-04"
-      }
+      "extraData": {}
     },
     "position": {
       "x": 0,
@@ -819,28 +551,17 @@
   },
   {
     "data": {
-      "id": "8",
-      "source": "dcgw-03",
-      "target": "borderl-leaf-01",
-      "weight": "1",
-      "name": "dcgw-03::eth1 \u003c--\u003e borderl-leaf-01::e1-3",
+      "id": "Clab-Link8",
+      "source": "SROS-03",
+      "target": "SRL-02",
+      "weight": "3",
+      "name": "IP-MPLS domain",
       "parent": "",
       "kind": "",
-      "topoviewerRole": "ip-mpls",
+      "topoviewerRole": "IP-MPLS",
       "sourceEndpoint": "eth1",
       "targetEndpoint": "e1-3",
-      "extraData": {
-        "clabEndpoints": {
-          "ClabSourceEndpoint": "eth1",
-          "ClabTargetEndpoint": "e1-3"
-        },
-        "clabId": "8",
-        "clabKind": "ClabLink",
-        "clabName": "dcgw-03::eth1 \u003c--\u003e borderl-leaf-01::e1-3",
-        "clabServerUsername": "root",
-        "clabSourceLongName": "clab-topoViewerDemo-dcgw-03",
-        "clabTargetLongName": "clab-topoViewerDemo-borderl-leaf-01"
-      }
+      "extraData": {}
     },
     "position": {
       "x": 0,
@@ -857,408 +578,17 @@
   },
   {
     "data": {
-      "id": "9",
-      "source": "dcgw-04",
-      "target": "borderl-leaf-02",
-      "weight": "1",
-      "name": "dcgw-04::eth1 \u003c--\u003e borderl-leaf-02::e1-3",
+      "id": "Clab-Link9",
+      "source": "SROS-04",
+      "target": "SRL-02",
+      "weight": "3",
+      "name": "IP-MPLS domain",
       "parent": "",
       "kind": "",
-      "topoviewerRole": "ip-mpls",
-      "sourceEndpoint": "eth1",
-      "targetEndpoint": "e1-3",
-      "extraData": {
-        "clabEndpoints": {
-          "ClabSourceEndpoint": "eth1",
-          "ClabTargetEndpoint": "e1-3"
-        },
-        "clabId": "9",
-        "clabKind": "ClabLink",
-        "clabName": "dcgw-04::eth1 \u003c--\u003e borderl-leaf-02::e1-3",
-        "clabServerUsername": "root",
-        "clabSourceLongName": "clab-topoViewerDemo-dcgw-04",
-        "clabTargetLongName": "clab-topoViewerDemo-borderl-leaf-02"
-      }
-    },
-    "position": {
-      "x": 0,
-      "y": 0
-    },
-    "removed": false,
-    "group": "edges",
-    "selected": false,
-    "selectable": true,
-    "locked": false,
-    "grabbed": false,
-    "grabbable": true,
-    "classes": ""
-  },
-  {
-    "data": {
-      "id": "10",
-      "source": "spine-01",
-      "target": "borderl-leaf-01",
-      "weight": "1",
-      "name": "spine-01::e1-5 \u003c--\u003e borderl-leaf-01::e1-2",
-      "parent": "",
-      "kind": "",
-      "topoviewerRole": "ip-mpls",
-      "sourceEndpoint": "e1-5",
-      "targetEndpoint": "e1-2",
-      "extraData": {
-        "clabEndpoints": {
-          "ClabSourceEndpoint": "e1-5",
-          "ClabTargetEndpoint": "e1-2"
-        },
-        "clabId": "10",
-        "clabKind": "ClabLink",
-        "clabName": "spine-01::e1-5 \u003c--\u003e borderl-leaf-01::e1-2",
-        "clabServerUsername": "root",
-        "clabSourceLongName": "clab-topoViewerDemo-spine-01",
-        "clabTargetLongName": "clab-topoViewerDemo-borderl-leaf-01"
-      }
-    },
-    "position": {
-      "x": 0,
-      "y": 0
-    },
-    "removed": false,
-    "group": "edges",
-    "selected": false,
-    "selectable": true,
-    "locked": false,
-    "grabbed": false,
-    "grabbable": true,
-    "classes": ""
-  },
-  {
-    "data": {
-      "id": "11",
-      "source": "spine-02",
-      "target": "borderl-leaf-02",
-      "weight": "1",
-      "name": "spine-02::e1-5 \u003c--\u003e borderl-leaf-02::e1-2",
-      "parent": "",
-      "kind": "",
-      "topoviewerRole": "ip-mpls",
-      "sourceEndpoint": "e1-5",
-      "targetEndpoint": "e1-2",
-      "extraData": {
-        "clabEndpoints": {
-          "ClabSourceEndpoint": "e1-5",
-          "ClabTargetEndpoint": "e1-2"
-        },
-        "clabId": "11",
-        "clabKind": "ClabLink",
-        "clabName": "spine-02::e1-5 \u003c--\u003e borderl-leaf-02::e1-2",
-        "clabServerUsername": "root",
-        "clabSourceLongName": "clab-topoViewerDemo-spine-02",
-        "clabTargetLongName": "clab-topoViewerDemo-borderl-leaf-02"
-      }
-    },
-    "position": {
-      "x": 0,
-      "y": 0
-    },
-    "removed": false,
-    "group": "edges",
-    "selected": false,
-    "selectable": true,
-    "locked": false,
-    "grabbed": false,
-    "grabbable": true,
-    "classes": ""
-  },
-  {
-    "data": {
-      "id": "12",
-      "source": "spine-01",
-      "target": "leaf-01",
-      "weight": "1",
-      "name": "spine-01::e1-1 \u003c--\u003e leaf-01::e1-1",
-      "parent": "",
-      "kind": "",
-      "topoviewerRole": "ip-mpls",
-      "sourceEndpoint": "e1-1",
-      "targetEndpoint": "e1-1",
-      "extraData": {
-        "clabEndpoints": {
-          "ClabSourceEndpoint": "e1-1",
-          "ClabTargetEndpoint": "e1-1"
-        },
-        "clabId": "12",
-        "clabKind": "ClabLink",
-        "clabName": "spine-01::e1-1 \u003c--\u003e leaf-01::e1-1",
-        "clabServerUsername": "root",
-        "clabSourceLongName": "clab-topoViewerDemo-spine-01",
-        "clabTargetLongName": "clab-topoViewerDemo-leaf-01"
-      }
-    },
-    "position": {
-      "x": 0,
-      "y": 0
-    },
-    "removed": false,
-    "group": "edges",
-    "selected": false,
-    "selectable": true,
-    "locked": false,
-    "grabbed": false,
-    "grabbable": true,
-    "classes": ""
-  },
-  {
-    "data": {
-      "id": "13",
-      "source": "spine-01",
-      "target": "leaf-02",
-      "weight": "1",
-      "name": "spine-01::e1-2 \u003c--\u003e leaf-02::e1-2",
-      "parent": "",
-      "kind": "",
-      "topoviewerRole": "ip-mpls",
-      "sourceEndpoint": "e1-2",
-      "targetEndpoint": "e1-2",
-      "extraData": {
-        "clabEndpoints": {
-          "ClabSourceEndpoint": "e1-2",
-          "ClabTargetEndpoint": "e1-2"
-        },
-        "clabId": "13",
-        "clabKind": "ClabLink",
-        "clabName": "spine-01::e1-2 \u003c--\u003e leaf-02::e1-2",
-        "clabServerUsername": "root",
-        "clabSourceLongName": "clab-topoViewerDemo-spine-01",
-        "clabTargetLongName": "clab-topoViewerDemo-leaf-02"
-      }
-    },
-    "position": {
-      "x": 0,
-      "y": 0
-    },
-    "removed": false,
-    "group": "edges",
-    "selected": false,
-    "selectable": true,
-    "locked": false,
-    "grabbed": false,
-    "grabbable": true,
-    "classes": ""
-  },
-  {
-    "data": {
-      "id": "14",
-      "source": "spine-01",
-      "target": "leaf-03",
-      "weight": "1",
-      "name": "spine-01::e1-3 \u003c--\u003e leaf-03::e1-3",
-      "parent": "",
-      "kind": "",
-      "topoviewerRole": "ip-mpls",
-      "sourceEndpoint": "e1-3",
-      "targetEndpoint": "e1-3",
-      "extraData": {
-        "clabEndpoints": {
-          "ClabSourceEndpoint": "e1-3",
-          "ClabTargetEndpoint": "e1-3"
-        },
-        "clabId": "14",
-        "clabKind": "ClabLink",
-        "clabName": "spine-01::e1-3 \u003c--\u003e leaf-03::e1-3",
-        "clabServerUsername": "root",
-        "clabSourceLongName": "clab-topoViewerDemo-spine-01",
-        "clabTargetLongName": "clab-topoViewerDemo-leaf-03"
-      }
-    },
-    "position": {
-      "x": 0,
-      "y": 0
-    },
-    "removed": false,
-    "group": "edges",
-    "selected": false,
-    "selectable": true,
-    "locked": false,
-    "grabbed": false,
-    "grabbable": true,
-    "classes": ""
-  },
-  {
-    "data": {
-      "id": "15",
-      "source": "spine-01",
-      "target": "leaf-04",
-      "weight": "1",
-      "name": "spine-01::e1-4 \u003c--\u003e leaf-04::e1-4",
-      "parent": "",
-      "kind": "",
-      "topoviewerRole": "ip-mpls",
-      "sourceEndpoint": "e1-4",
+      "topoviewerRole": "IP-MPLS",
+      "sourceEndpoint": "eth2",
       "targetEndpoint": "e1-4",
-      "extraData": {
-        "clabEndpoints": {
-          "ClabSourceEndpoint": "e1-4",
-          "ClabTargetEndpoint": "e1-4"
-        },
-        "clabId": "15",
-        "clabKind": "ClabLink",
-        "clabName": "spine-01::e1-4 \u003c--\u003e leaf-04::e1-4",
-        "clabServerUsername": "root",
-        "clabSourceLongName": "clab-topoViewerDemo-spine-01",
-        "clabTargetLongName": "clab-topoViewerDemo-leaf-04"
-      }
-    },
-    "position": {
-      "x": 0,
-      "y": 0
-    },
-    "removed": false,
-    "group": "edges",
-    "selected": false,
-    "selectable": true,
-    "locked": false,
-    "grabbed": false,
-    "grabbable": true,
-    "classes": ""
-  },
-  {
-    "data": {
-      "id": "16",
-      "source": "spine-02",
-      "target": "leaf-01",
-      "weight": "1",
-      "name": "spine-02::e1-1 \u003c--\u003e leaf-01::e1-2",
-      "parent": "",
-      "kind": "",
-      "topoviewerRole": "ip-mpls",
-      "sourceEndpoint": "e1-1",
-      "targetEndpoint": "e1-2",
-      "extraData": {
-        "clabEndpoints": {
-          "ClabSourceEndpoint": "e1-1",
-          "ClabTargetEndpoint": "e1-2"
-        },
-        "clabId": "16",
-        "clabKind": "ClabLink",
-        "clabName": "spine-02::e1-1 \u003c--\u003e leaf-01::e1-2",
-        "clabServerUsername": "root",
-        "clabSourceLongName": "clab-topoViewerDemo-spine-02",
-        "clabTargetLongName": "clab-topoViewerDemo-leaf-01"
-      }
-    },
-    "position": {
-      "x": 0,
-      "y": 0
-    },
-    "removed": false,
-    "group": "edges",
-    "selected": false,
-    "selectable": true,
-    "locked": false,
-    "grabbed": false,
-    "grabbable": true,
-    "classes": ""
-  },
-  {
-    "data": {
-      "id": "17",
-      "source": "spine-02",
-      "target": "leaf-02",
-      "weight": "1",
-      "name": "spine-02::e1-2 \u003c--\u003e leaf-02::e1-2",
-      "parent": "",
-      "kind": "",
-      "topoviewerRole": "ip-mpls",
-      "sourceEndpoint": "e1-2",
-      "targetEndpoint": "e1-2",
-      "extraData": {
-        "clabEndpoints": {
-          "ClabSourceEndpoint": "e1-2",
-          "ClabTargetEndpoint": "e1-2"
-        },
-        "clabId": "17",
-        "clabKind": "ClabLink",
-        "clabName": "spine-02::e1-2 \u003c--\u003e leaf-02::e1-2",
-        "clabServerUsername": "root",
-        "clabSourceLongName": "clab-topoViewerDemo-spine-02",
-        "clabTargetLongName": "clab-topoViewerDemo-leaf-02"
-      }
-    },
-    "position": {
-      "x": 0,
-      "y": 0
-    },
-    "removed": false,
-    "group": "edges",
-    "selected": false,
-    "selectable": true,
-    "locked": false,
-    "grabbed": false,
-    "grabbable": true,
-    "classes": ""
-  },
-  {
-    "data": {
-      "id": "18",
-      "source": "spine-02",
-      "target": "leaf-03",
-      "weight": "1",
-      "name": "spine-02::e1-3 \u003c--\u003e leaf-03::e1-3",
-      "parent": "",
-      "kind": "",
-      "topoviewerRole": "ip-mpls",
-      "sourceEndpoint": "e1-3",
-      "targetEndpoint": "e1-3",
-      "extraData": {
-        "clabEndpoints": {
-          "ClabSourceEndpoint": "e1-3",
-          "ClabTargetEndpoint": "e1-3"
-        },
-        "clabId": "18",
-        "clabKind": "ClabLink",
-        "clabName": "spine-02::e1-3 \u003c--\u003e leaf-03::e1-3",
-        "clabServerUsername": "root",
-        "clabSourceLongName": "clab-topoViewerDemo-spine-02",
-        "clabTargetLongName": "clab-topoViewerDemo-leaf-03"
-      }
-    },
-    "position": {
-      "x": 0,
-      "y": 0
-    },
-    "removed": false,
-    "group": "edges",
-    "selected": false,
-    "selectable": true,
-    "locked": false,
-    "grabbed": false,
-    "grabbable": true,
-    "classes": ""
-  },
-  {
-    "data": {
-      "id": "19",
-      "source": "spine-02",
-      "target": "leaf-04",
-      "weight": "1",
-      "name": "spine-02::e1-4 \u003c--\u003e leaf-04::e1-4",
-      "parent": "",
-      "kind": "",
-      "topoviewerRole": "ip-mpls",
-      "sourceEndpoint": "e1-4",
-      "targetEndpoint": "e1-4",
-      "extraData": {
-        "clabEndpoints": {
-          "ClabSourceEndpoint": "e1-4",
-          "ClabTargetEndpoint": "e1-4"
-        },
-        "clabId": "19",
-        "clabKind": "ClabLink",
-        "clabName": "spine-02::e1-4 \u003c--\u003e leaf-04::e1-4",
-        "clabServerUsername": "root",
-        "clabSourceLongName": "clab-topoViewerDemo-spine-02",
-        "clabTargetLongName": "clab-topoViewerDemo-leaf-04"
-      }
+      "extraData": {}
     },
     "position": {
       "x": 0,
