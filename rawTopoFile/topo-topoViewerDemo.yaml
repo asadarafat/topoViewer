@@ -1,7 +1,7 @@
 name: topoViewerDemo
 
 mgmt:
-  ipv4_subnet: 20.20.20.0/24       # ipv4 range
+  ipv4-subnet: 20.20.20.0/24       # ipv4 range
   
 topology:
   # defaults:
@@ -21,36 +21,36 @@ topology:
         - /home/suuser/clab/topo-topoViewerDemo.yml:/opt/topoviewer/local-bind/topo-file.yaml:rw
     srl-01:
       kind: srl
-      mgmt_ipv4: 20.20.20.201
+      mgmt-ipv4: 20.20.20.201
       image: ghcr.io/nokia/srlinux
     srl-02:
       kind: srl
-      mgmt_ipv4: 20.20.20.202
+      mgmt-ipv4: 20.20.20.202
       image: ghcr.io/nokia/srlinux
     sros-01:
       kind: vr-sros
-      mgmt_ipv4: 20.20.20.101
+      mgmt-ipv4: 20.20.20.101
       group: "1"
       image: registry.srlinux.dev/pub/vr-sros:22.7.R1
       type: "cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28"
       license: license.txt
     sros-02:
       kind: vr-sros
-      mgmt_ipv4: 20.20.20.102
+      mgmt-ipv4: 20.20.20.102
       group: "1"
       image: registry.srlinux.dev/pub/vr-sros:22.7.R1
       type: "cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28"
       license: license.txt
     sros-03:
       kind: vr-sros
-      mgmt_ipv4: 20.20.20.103
+      mgmt-ipv4: 20.20.20.103
       group: "1"
       image: registry.srlinux.dev/pub/vr-sros:22.7.R1
       type: "cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28"
       license: license.txt
     sros-04:
       kind: vr-sros
-      mgmt_ipv4: 20.20.20.104
+      mgmt-ipv4: 20.20.20.104
       group: "1"
       image: registry.srlinux.dev/pub/vr-sros:22.7.R1
       type: "cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28"

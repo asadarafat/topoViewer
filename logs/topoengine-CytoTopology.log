@@ -34,3 +34,50 @@ time=2023-05-26T17:35:47+02:00 level=info msg=topology file path: /home/suuser/t
 time=2023-05-26T17:36:27+02:00 level=info msg=topology file path: /home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.json
 time=2023-05-26T17:37:36+02:00 level=info msg=topology file path: /home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.json
 time=2023-05-26T17:38:08+02:00 level=info msg=topology file path: /home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.json
+time=2023-05-26T21:27:38+02:00 level=info msg=topology file path: /home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.json
+time=2023-05-26T21:28:41+02:00 level=info msg=topology file path: /home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.json
+time=2023-05-26T21:30:17+02:00 level=info msg=topology file path: /home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.json
+time=2023-05-26T21:36:21+02:00 level=info msg=topology file path: /home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.json
+time=2023-05-26T21:37:17+02:00 level=info msg=topology file path: /home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.json
+time=2023-05-26T21:41:04+02:00 level=info msg=topology file path: /home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.json
+time=2023-05-26T21:41:47+02:00 level=info msg=topology file path: /home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.json
+time=2023-05-26T21:45:40+02:00 level=info msg=topology file path: /home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.json
+time=2023-05-26T21:46:27+02:00 level=info msg=topology file path: /home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.json
+time=2023-05-26T21:57:17+02:00 level=info msg=topology file path: /home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.json
+time=2023-05-26T21:57:51+02:00 level=info msg=topology file path: /home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.json
+time=2023-05-26T21:58:20+02:00 level=info msg=topology file path: /home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.json
+time=2023-05-26T22:00:38+02:00 level=info msg=topology file path: /home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.json
+time=2023-05-26T22:01:20+02:00 level=info msg=topology file path: /home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.json
+time=2023-05-26T22:02:43+02:00 level=info msg=topology file path: /home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.json
+time=2023-05-26T22:04:04+02:00 level=info msg=topology file path: /home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.json
+time=2023-05-26T22:05:57+02:00 level=info msg=topology file path: /home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.json
+time=2023-05-26T22:06:54+02:00 level=info msg=topology file path: /home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.json
+time=2023-05-26T22:09:28+02:00 level=info msg=topology file path: /home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.json
+time=2023-05-26T22:10:31+02:00 level=info msg=topology file path: /home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.json
+time=2023-05-26T22:11:13+02:00 level=info msg=topology file path: /home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.json
+time=2023-05-26T22:11:46+02:00 level=info msg=topology file path: /home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.json
+time=2023-05-26T22:12:16+02:00 level=info msg=topology file path: /home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.json
+time=2023-05-26T22:13:04+02:00 level=info msg=topology file path: /home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.json
+time=2023-05-26T22:14:59+02:00 level=info msg=topology file path: /home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.json
+time=2023-05-26T22:16:00+02:00 level=info msg=topology file path: /home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.json
+time=2023-05-26T22:17:29+02:00 level=info msg=topology file path: /home/suuser/topoViewer/rawTopoFile/topo-vf-hco-ip-certification.json
+time=2023-06-04T21:14:48+02:00 level=info msg=topology file path: /home/suuser/topoViewer/rawTopoFile/
+time=2023-06-04T21:14:48+02:00 level=info msg=[rawTopoFile/topo-ietf-L3-TopologyId-0:55000:2-isis.json rawTopoFile/topo-ietf-L3-TopologyId-0:65000:1-isis.json rawTopoFile/topo-ietf-L3-TopologyId-1:65000:1-isis.json]
+time=2023-06-04T21:14:48+02:00 level=info msg=rawTopoFile/topo-ietf-L3-TopologyId-0:55000:2-isis.json
+time=2023-06-04T21:14:48+02:00 level=info msg=topology file path: /home/suuser/topoViewer/rawTopoFile/topo-ietf-L3-TopologyId-0:55000:2-isis.json
+time=2023-06-04T21:14:48+02:00 level=info msg=rawTopoFile/topo-ietf-L3-TopologyId-0:65000:1-isis.json
+time=2023-06-04T21:14:48+02:00 level=info msg=topology file path: /home/suuser/topoViewer/rawTopoFile/topo-ietf-L3-TopologyId-0:65000:1-isis.json
+time=2023-06-04T21:14:48+02:00 level=info msg=rawTopoFile/topo-ietf-L3-TopologyId-1:65000:1-isis.json
+time=2023-06-04T21:14:48+02:00 level=info msg=topology file path: /home/suuser/topoViewer/rawTopoFile/topo-ietf-L3-TopologyId-1:65000:1-isis.json
+time=2023-06-04T21:14:48+02:00 level=debug msg=0
+time=2023-06-04T21:14:48+02:00 level=debug msg=1
+time=2023-06-04T21:14:48+02:00 level=debug msg=2
+time=2023-06-04T21:14:48+02:00 level=debug msg=0
+time=2023-06-04T21:14:48+02:00 level=debug msg=1
+time=2023-06-04T21:14:48+02:00 level=debug msg=2
+time=2023-06-04T21:14:48+02:00 level=debug msg=3
+time=2023-06-04T21:14:48+02:00 level=debug msg=4
+time=2023-06-04T21:14:48+02:00 level=debug msg=5
+time=2023-06-04T21:14:48+02:00 level=debug msg=0
+time=2023-06-04T21:14:48+02:00 level=debug msg=1
+time=2023-06-04T21:14:48+02:00 level=debug msg=2

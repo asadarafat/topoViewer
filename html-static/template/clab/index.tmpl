@@ -89,11 +89,11 @@ body {
               <div class="dropdown-content">
                 <div class="dropdown-item">
                     <label class="label has-text-weight-normal is-small">Edge Length</label>
-                    <input id="edgeLength" type="range" min="10" max="200" step="1" value="50">
+                    <input id="edgeLength" type="range" min="1" max="1000" step="1" value="50">
                 </div>
                 <div class="dropdown-item">
                     <label class="label has-text-weight-normal is-small">Node Spacing</label>
-                    <input id="nodeSpacing" type="range" min="10" max="50" step="1" value="15">
+                    <input id="nodeSpacing" type="range" min="1" max="1000" step="1" value="25">
                 </div>
                     <a id="clabClient" href="#" onclick="clabClient();" class="dropdown-item label has-text-weight-normal is-small">Clab Client Download</a>                  
                     <!-- <<a id="TopologyAdjust" href="#" onclick="topologyAdjust();" class="dropdown-item label has-text-weight-normal is-small"> Topology Adjust</a>                --> 
@@ -225,9 +225,9 @@ body {
           console.log(oldSettingHeader)
           
           var tt1 = ce("label", {class: "label is-small"}, [ctn("Edge Length")]);
-          var tt2 = ce("input", {class: "slider", step:"1", min:"0", max:"1000", value:"50", type:"range", id: "edgeLengthMessage", oninput: "slider", onchange: "slider"}, []);
+          var tt2 = ce("input", {class: "slider", step:"1", min:"1", max:"1000", value:"50", type:"range", id: "edgeLengthMessage", oninput: "slider", onchange: "slider"}, []);
           var tt3 = ce("label", {class: "label is-small"}, [ctn("Node Spacing")]);
-          var tt4 = ce("input", {class: "slider", step:"1", min:"0", max:"1000", value:"50", type:"range", id: "nodeSpacingMessage", oninput: "slider", onchange: "slider"}, []);
+          var tt4 = ce("input", {class: "slider", step:"1", min:"1", max:"1000", value:"25", type:"range", id: "nodeSpacingMessage", oninput: "slider", onchange: "slider"}, []);
 
           var tname = ce("p", {}, [tt1, tt2, tt3, tt4]);
           var addon = ce("div", {}, [nodeInfo(node)]);
@@ -392,7 +392,9 @@ body {
               edgeLength: function(e) {
                 return edgeLength.value / e.data('weight');
               },
-              nodeSpacing: nodeSpacing.value
+              nodeSpacing: function(e) {
+                return nodeSpacing.value / e.data('weight');
+              },
             });
             console.log("edgeLength.value: " + edgeLength.value)
             layout.run();

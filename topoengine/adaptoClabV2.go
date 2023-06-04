@@ -101,7 +101,7 @@ func (cyTopo *CytoTopology) UnmarshalContainerLabTopoV2(topoFile []byte) []byte 
 	// initiate cytoJson struct
 	cytoJson := CytoJson{}
 	cytoJsonList := []CytoJson{}
-	var topoviewerRoleList []string
+	var topoviewerParentList []string
 
 	// unmarshal topoFile into clabTopoStruct
 	json.Unmarshal(topoFile, &cyTopo.ClabTopoDataV2)
@@ -119,41 +119,23 @@ func (cyTopo *CytoTopology) UnmarshalContainerLabTopoV2(topoFile []byte) []byte 
 		cytoJson.Grabbable = true
 		cytoJson.Selectable = true
 		cytoJson.Data.ID = node.ID
-		cytoJson.Data.Weight = "3"
+		cytoJson.Data.Weight = "30"
 		cytoJson.Data.Name = node.ID
 		cytoJson.Data.TopoviewerRole = node.Labels.TopoViewerRole
-		switch cytoJson.Data.TopoviewerRole {
-		case "dcgw":
-			cytoJson.Data.Parent = "Data Center"
-			topoviewerRoleList = append(topoviewerRoleList, cytoJson.Data.Parent)
-			cytoJson.Data.Parent = "IP-MPLS"
-			topoviewerRoleList = append(topoviewerRoleList, cytoJson.Data.Parent)
-		case "superSpine":
-			cytoJson.Data.Parent = "Data Center"
-			topoviewerRoleList = append(topoviewerRoleList, cytoJson.Data.Parent)
-		case "spine":
-			cytoJson.Data.Parent = "Data Center"
-			topoviewerRoleList = append(topoviewerRoleList, cytoJson.Data.Parent)
-		case "leaf":
-			cytoJson.Data.Parent = "Data Center"
-			topoviewerRoleList = append(topoviewerRoleList, cytoJson.Data.Parent)
-		case "pe":
-			cytoJson.Data.Parent = "IP-MPLS"
-			topoviewerRoleList = append(topoviewerRoleList, cytoJson.Data.Parent)
-		case "p":
-			cytoJson.Data.Parent = "IP-MPLS"
-			topoviewerRoleList = append(topoviewerRoleList, cytoJson.Data.Parent)
-		case "ppe":
-			cytoJson.Data.Parent = "IP-MPLS"
-			topoviewerRoleList = append(topoviewerRoleList, cytoJson.Data.Parent)
+
+		if len(node.Group) != 0 {
+			cytoJson.Data.Parent = node.Group
+		} else {
+			cytoJson.Data.Parent = "other"
 		}
+		topoviewerParentList = append(topoviewerParentList, cytoJson.Data.Parent)
 
 		log.Debugf("node.Labels.ClabMgmtNetBridge: ", node.Labels.ClabMgmtNetBridge)
 		// cytoJson.Data.ExtraData = node
 		cytoJson.Data.ExtraData = map[string]interface{}{
 			"clabServerUsername":    Username,
 			"id":                    node.ID,
-			"weight":                "2",
+			"weight":                "3",
 			"name":                  node.Shortname,
 			"index":                 node.Index,
 			"shortname":             node.Shortname,
@@ -195,11 +177,11 @@ func (cyTopo *CytoTopology) UnmarshalContainerLabTopoV2(topoFile []byte) []byte 
 		cytoJsonList = append(cytoJsonList, cytoJson)
 	}
 
-	uniqtopoviewerRoleList := lo.Uniq(topoviewerRoleList)
-	log.Debugf("Unique Group List: ", uniqtopoviewerRoleList)
+	uniqTopoviewerParentList := lo.Uniq(topoviewerParentList)
+	log.Debugf("Unique Parent List: ", uniqTopoviewerParentList)
 
 	// add Parent Nodes Per topoviewerRoleList
-	for _, n := range uniqtopoviewerRoleList {
+	for _, n := range uniqTopoviewerParentList {
 		cytoJson.Group = "nodes"
 		cytoJson.Data.Parent = ""
 		cytoJson.Grabbable = true
@@ -207,7 +189,7 @@ func (cyTopo *CytoTopology) UnmarshalContainerLabTopoV2(topoFile []byte) []byte 
 		cytoJson.Data.ID = n
 		cytoJson.Data.Name = n + " domain"
 		cytoJson.Data.TopoviewerRole = n
-		cytoJson.Data.Weight = "2"
+		cytoJson.Data.Weight = "1000"
 		cytoJson.Data.ExtraData = map[string]interface{}{
 			"clabServerUsername": Username,
 			"weight":             "2",
