@@ -1,0 +1,2500 @@
+[
+  {
+    "data": {
+      "id": "AGG-UPF01",
+      "weight": "30",
+      "name": "AGG-UPF01",
+      "parent": "6",
+      "kind": "",
+      "topoviewerRole": "pe",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "fqdn": "AGG-UPF01.cups.io",
+        "group": "6",
+        "id": "AGG-UPF01",
+        "image": "registry.srlinux.dev/pub/vr-sros:23.3.R1",
+        "index": "0",
+        "kind": "vr-sros",
+        "labdir": "/home/suuser/clab/bng-cups/clab-cups/AGG-UPF01",
+        "labels": {
+          "ClabMgmtNetBridge": "br-ae2f5f3c62b9",
+          "ClabNodeGroup": "6",
+          "ClabNodeKind": "vr-sros",
+          "ClabNodeLabDir": "/home/suuser/clab/bng-cups/clab-cups/AGG-UPF01",
+          "ClabNodeName": "AGG-UPF01",
+          "ClabNodeType": "chassis=sr-1 slot=A card=cpm-1 slot=1 mda/1=me6-100gb-qsfp28",
+          "ClabTopoFile": "/home/suuser/clab/bng-cups/cups.yml",
+          "Containerlab": "cups",
+          "TopoViewerRole": "pe"
+        },
+        "longname": "clab-cups-AGG-UPF01",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 24,
+        "mgmtIpv4Addresss": "172.20.20.7",
+        "mgmtIpv6Address": "2001:172:20:20::7",
+        "mgmtIpv6AddressLength": 64,
+        "mgmtNet": "",
+        "name": "AGG-UPF01",
+        "shortname": "AGG-UPF01",
+        "weight": "3"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "AGG-UPF02",
+      "weight": "30",
+      "name": "AGG-UPF02",
+      "parent": "6",
+      "kind": "",
+      "topoviewerRole": "pe",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "fqdn": "AGG-UPF02.cups.io",
+        "group": "6",
+        "id": "AGG-UPF02",
+        "image": "registry.srlinux.dev/pub/vr-sros:23.3.R1",
+        "index": "1",
+        "kind": "vr-sros",
+        "labdir": "/home/suuser/clab/bng-cups/clab-cups/AGG-UPF02",
+        "labels": {
+          "ClabMgmtNetBridge": "br-ae2f5f3c62b9",
+          "ClabNodeGroup": "6",
+          "ClabNodeKind": "vr-sros",
+          "ClabNodeLabDir": "/home/suuser/clab/bng-cups/clab-cups/AGG-UPF02",
+          "ClabNodeName": "AGG-UPF02",
+          "ClabNodeType": "chassis=sr-1 slot=A card=cpm-1 slot=1 mda/1=me6-100gb-qsfp28",
+          "ClabTopoFile": "/home/suuser/clab/bng-cups/cups.yml",
+          "Containerlab": "cups",
+          "TopoViewerRole": "pe"
+        },
+        "longname": "clab-cups-AGG-UPF02",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 24,
+        "mgmtIpv4Addresss": "172.20.20.4",
+        "mgmtIpv6Address": "2001:172:20:20::4",
+        "mgmtIpv6AddressLength": 64,
+        "mgmtNet": "",
+        "name": "AGG-UPF02",
+        "shortname": "AGG-UPF02",
+        "weight": "3"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "EDGE-01",
+      "weight": "30",
+      "name": "EDGE-01",
+      "parent": "4",
+      "kind": "",
+      "topoviewerRole": "pe",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "fqdn": "EDGE-01.cups.io",
+        "group": "4",
+        "id": "EDGE-01",
+        "image": "registry.srlinux.dev/pub/vr-sros:23.3.R1",
+        "index": "2",
+        "kind": "vr-sros",
+        "labdir": "/home/suuser/clab/bng-cups/clab-cups/EDGE-01",
+        "labels": {
+          "ClabMgmtNetBridge": "br-ae2f5f3c62b9",
+          "ClabNodeGroup": "4",
+          "ClabNodeKind": "vr-sros",
+          "ClabNodeLabDir": "/home/suuser/clab/bng-cups/clab-cups/EDGE-01",
+          "ClabNodeName": "EDGE-01",
+          "ClabNodeType": "cp: cpu=4 min_ram=8 slot=A chassis=ixr-x card=cpm-ixr-x/imm32-qsfp28+4-qsfpdd ___ lc: cpu=4 min_ram=8 max_nics=36 slot=1 chassis=ixr-x card=imm32-qsfp28+4-qsfpdd mda/1=m32-qsfp28+4-qsfpdd",
+          "ClabTopoFile": "/home/suuser/clab/bng-cups/cups.yml",
+          "Containerlab": "cups",
+          "TopoViewerRole": "pe"
+        },
+        "longname": "clab-cups-EDGE-01",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 24,
+        "mgmtIpv4Addresss": "172.20.20.11",
+        "mgmtIpv6Address": "2001:172:20:20::b",
+        "mgmtIpv6AddressLength": 64,
+        "mgmtNet": "",
+        "name": "EDGE-01",
+        "shortname": "EDGE-01",
+        "weight": "3"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "EDGE-02",
+      "weight": "30",
+      "name": "EDGE-02",
+      "parent": "4",
+      "kind": "",
+      "topoviewerRole": "pe",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "fqdn": "EDGE-02.cups.io",
+        "group": "4",
+        "id": "EDGE-02",
+        "image": "registry.srlinux.dev/pub/vr-sros:23.3.R1",
+        "index": "3",
+        "kind": "vr-sros",
+        "labdir": "/home/suuser/clab/bng-cups/clab-cups/EDGE-02",
+        "labels": {
+          "ClabMgmtNetBridge": "br-ae2f5f3c62b9",
+          "ClabNodeGroup": "4",
+          "ClabNodeKind": "vr-sros",
+          "ClabNodeLabDir": "/home/suuser/clab/bng-cups/clab-cups/EDGE-02",
+          "ClabNodeName": "EDGE-02",
+          "ClabNodeType": "cp: cpu=4 min_ram=8 slot=A chassis=ixr-x card=cpm-ixr-x/imm32-qsfp28+4-qsfpdd ___ lc: cpu=4 min_ram=8 max_nics=36 slot=1 chassis=ixr-x card=imm32-qsfp28+4-qsfpdd mda/1=m32-qsfp28+4-qsfpdd",
+          "ClabTopoFile": "/home/suuser/clab/bng-cups/cups.yml",
+          "Containerlab": "cups",
+          "TopoViewerRole": "pe"
+        },
+        "longname": "clab-cups-EDGE-02",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 24,
+        "mgmtIpv4Addresss": "172.20.20.5",
+        "mgmtIpv6Address": "2001:172:20:20::5",
+        "mgmtIpv6AddressLength": 64,
+        "mgmtNet": "",
+        "name": "EDGE-02",
+        "shortname": "EDGE-02",
+        "weight": "3"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "MAG-C01",
+      "weight": "30",
+      "name": "MAG-C01",
+      "parent": "8",
+      "kind": "",
+      "topoviewerRole": "controller",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "fqdn": "MAG-C01.cups.io",
+        "group": "8",
+        "id": "MAG-C01",
+        "image": "vrnetlab/vr-sros:MAG-c-23.3.R1",
+        "index": "4",
+        "kind": "vr-sros",
+        "labdir": "/home/suuser/clab/bng-cups/clab-cups/MAG-C01",
+        "labels": {
+          "ClabMgmtNetBridge": "br-ae2f5f3c62b9",
+          "ClabNodeGroup": "8",
+          "ClabNodeKind": "vr-sros",
+          "ClabNodeLabDir": "/home/suuser/clab/bng-cups/clab-cups/MAG-C01",
+          "ClabNodeName": "MAG-C01",
+          "ClabNodeType": "cp: cpu=8 min_ram=16 chassis=vsr slot=A card=cpm-v ___ lc: cpu=6 min_ram=16 max_nics=20 chassis=vsr slot=1 card=iom-v mda/1=m20-v ___ lc: cpu=4 min_ram=32 max_nics=20 chassis=vsr slot=2 card=iom-v-mg mda/1=isa-ms-v ___ lc: cpu=4 min_ram=32 max_nics=20 chassis=vsr slot=3 card=iom-v-mg mda/1=isa-ms-v ",
+          "ClabTopoFile": "/home/suuser/clab/bng-cups/cups.yml",
+          "Containerlab": "cups",
+          "TopoViewerRole": "controller"
+        },
+        "longname": "clab-cups-MAG-C01",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 24,
+        "mgmtIpv4Addresss": "172.20.20.12",
+        "mgmtIpv6Address": "2001:172:20:20::c",
+        "mgmtIpv6AddressLength": 64,
+        "mgmtNet": "",
+        "name": "MAG-C01",
+        "shortname": "MAG-C01",
+        "weight": "3"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "MAG-C02",
+      "weight": "30",
+      "name": "MAG-C02",
+      "parent": "8",
+      "kind": "",
+      "topoviewerRole": "controller",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "fqdn": "MAG-C02.cups.io",
+        "group": "8",
+        "id": "MAG-C02",
+        "image": "vrnetlab/vr-sros:MAG-c-23.3.R1",
+        "index": "5",
+        "kind": "vr-sros",
+        "labdir": "/home/suuser/clab/bng-cups/clab-cups/MAG-C02",
+        "labels": {
+          "ClabMgmtNetBridge": "br-ae2f5f3c62b9",
+          "ClabNodeGroup": "8",
+          "ClabNodeKind": "vr-sros",
+          "ClabNodeLabDir": "/home/suuser/clab/bng-cups/clab-cups/MAG-C02",
+          "ClabNodeName": "MAG-C02",
+          "ClabNodeType": "cp: cpu=8 min_ram=16 chassis=vsr slot=A card=cpm-v ___ lc: cpu=6 min_ram=16 max_nics=20 chassis=vsr slot=1 card=iom-v mda/1=m20-v ___ lc: cpu=4 min_ram=32 max_nics=20 chassis=vsr slot=2 card=iom-v-mg mda/1=isa-ms-v ___ lc: cpu=4 min_ram=32 max_nics=20 chassis=vsr slot=3 card=iom-v-mg mda/1=isa-ms-v",
+          "ClabTopoFile": "/home/suuser/clab/bng-cups/cups.yml",
+          "Containerlab": "cups",
+          "TopoViewerRole": "controller"
+        },
+        "longname": "clab-cups-MAG-C02",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 24,
+        "mgmtIpv4Addresss": "172.20.20.13",
+        "mgmtIpv6Address": "2001:172:20:20::d",
+        "mgmtIpv6AddressLength": 64,
+        "mgmtNet": "",
+        "name": "MAG-C02",
+        "shortname": "MAG-C02",
+        "weight": "3"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "PE-01",
+      "weight": "30",
+      "name": "PE-01",
+      "parent": "7",
+      "kind": "",
+      "topoviewerRole": "pe",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "fqdn": "PE-01.cups.io",
+        "group": "7",
+        "id": "PE-01",
+        "image": "registry.srlinux.dev/pub/vr-sros:23.3.R1",
+        "index": "6",
+        "kind": "vr-sros",
+        "labdir": "/home/suuser/clab/bng-cups/clab-cups/PE-01",
+        "labels": {
+          "ClabMgmtNetBridge": "br-ae2f5f3c62b9",
+          "ClabNodeGroup": "7",
+          "ClabNodeKind": "vr-sros",
+          "ClabNodeLabDir": "/home/suuser/clab/bng-cups/clab-cups/PE-01",
+          "ClabNodeName": "PE-01",
+          "ClabNodeType": "chassis=sr-1 slot=A card=cpm-1 slot=1 mda/1=me6-100gb-qsfp28",
+          "ClabTopoFile": "/home/suuser/clab/bng-cups/cups.yml",
+          "Containerlab": "cups",
+          "TopoViewerRole": "pe"
+        },
+        "longname": "clab-cups-PE-01",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 24,
+        "mgmtIpv4Addresss": "172.20.20.9",
+        "mgmtIpv6Address": "2001:172:20:20::9",
+        "mgmtIpv6AddressLength": 64,
+        "mgmtNet": "",
+        "name": "PE-01",
+        "shortname": "PE-01",
+        "weight": "3"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "PON",
+      "weight": "30",
+      "name": "PON",
+      "parent": "2",
+      "kind": "",
+      "topoviewerRole": "pon",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "fqdn": "PON.cups.io",
+        "group": "2",
+        "id": "PON",
+        "image": "registry.srlinux.dev/pub/vr-sros:23.3.R1",
+        "index": "7",
+        "kind": "vr-sros",
+        "labdir": "/home/suuser/clab/bng-cups/clab-cups/PON",
+        "labels": {
+          "ClabMgmtNetBridge": "br-ae2f5f3c62b9",
+          "ClabNodeGroup": "2",
+          "ClabNodeKind": "vr-sros",
+          "ClabNodeLabDir": "/home/suuser/clab/bng-cups/clab-cups/PON",
+          "ClabNodeName": "PON",
+          "ClabNodeType": "chassis=sr-1 slot=A card=cpm-1 slot=1 mda/1=me6-100gb-qsfp28",
+          "ClabTopoFile": "/home/suuser/clab/bng-cups/cups.yml",
+          "Containerlab": "cups",
+          "TopoViewerRole": "pon"
+        },
+        "longname": "clab-cups-PON",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 24,
+        "mgmtIpv4Addresss": "172.20.20.8",
+        "mgmtIpv6Address": "2001:172:20:20::8",
+        "mgmtIpv6AddressLength": 64,
+        "mgmtNet": "",
+        "name": "PON",
+        "shortname": "PON",
+        "weight": "3"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "RADIUS",
+      "weight": "30",
+      "name": "RADIUS",
+      "parent": "9",
+      "kind": "",
+      "topoviewerRole": "server",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "fqdn": "RADIUS.cups.io",
+        "group": "9",
+        "id": "RADIUS",
+        "image": "freeradius:latest",
+        "index": "8",
+        "kind": "linux",
+        "labdir": "/home/suuser/clab/bng-cups/clab-cups/RADIUS",
+        "labels": {
+          "ClabMgmtNetBridge": "br-ae2f5f3c62b9",
+          "ClabNodeGroup": "9",
+          "ClabNodeKind": "linux",
+          "ClabNodeLabDir": "/home/suuser/clab/bng-cups/clab-cups/RADIUS",
+          "ClabNodeName": "RADIUS",
+          "ClabNodeType": "",
+          "ClabTopoFile": "/home/suuser/clab/bng-cups/cups.yml",
+          "Containerlab": "cups",
+          "TopoViewerRole": "server"
+        },
+        "longname": "clab-cups-RADIUS",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 24,
+        "mgmtIpv4Addresss": "172.20.20.3",
+        "mgmtIpv6Address": "2001:172:20:20::3",
+        "mgmtIpv6AddressLength": 64,
+        "mgmtNet": "",
+        "name": "RADIUS",
+        "shortname": "RADIUS",
+        "weight": "3"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "bngblaster_1",
+      "weight": "30",
+      "name": "bngblaster_1",
+      "parent": "1",
+      "kind": "",
+      "topoviewerRole": "rgw",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "fqdn": "bngblaster_1.cups.io",
+        "group": "1",
+        "id": "bngblaster_1",
+        "image": "bngblaster_1:latest",
+        "index": "9",
+        "kind": "linux",
+        "labdir": "/home/suuser/clab/bng-cups/clab-cups/bngblaster_1",
+        "labels": {
+          "ClabMgmtNetBridge": "br-ae2f5f3c62b9",
+          "ClabNodeGroup": "1",
+          "ClabNodeKind": "linux",
+          "ClabNodeLabDir": "/home/suuser/clab/bng-cups/clab-cups/bngblaster_1",
+          "ClabNodeName": "bngblaster_1",
+          "ClabNodeType": "",
+          "ClabTopoFile": "/home/suuser/clab/bng-cups/cups.yml",
+          "Containerlab": "cups",
+          "TopoViewerRole": "rgw"
+        },
+        "longname": "clab-cups-bngblaster_1",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 24,
+        "mgmtIpv4Addresss": "172.20.20.6",
+        "mgmtIpv6Address": "2001:172:20:20::6",
+        "mgmtIpv6AddressLength": 64,
+        "mgmtNet": "",
+        "name": "bngblaster_1",
+        "shortname": "bngblaster_1",
+        "weight": "3"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "bngblaster_2",
+      "weight": "30",
+      "name": "bngblaster_2",
+      "parent": "1",
+      "kind": "",
+      "topoviewerRole": "rgw",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "fqdn": "bngblaster_2.cups.io",
+        "group": "1",
+        "id": "bngblaster_2",
+        "image": "bngblaster_1:latest",
+        "index": "10",
+        "kind": "linux",
+        "labdir": "/home/suuser/clab/bng-cups/clab-cups/bngblaster_2",
+        "labels": {
+          "ClabMgmtNetBridge": "br-ae2f5f3c62b9",
+          "ClabNodeGroup": "1",
+          "ClabNodeKind": "linux",
+          "ClabNodeLabDir": "/home/suuser/clab/bng-cups/clab-cups/bngblaster_2",
+          "ClabNodeName": "bngblaster_2",
+          "ClabNodeType": "",
+          "ClabTopoFile": "/home/suuser/clab/bng-cups/cups.yml",
+          "Containerlab": "cups",
+          "TopoViewerRole": "rgw"
+        },
+        "longname": "clab-cups-bngblaster_2",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 24,
+        "mgmtIpv4Addresss": "172.20.20.2",
+        "mgmtIpv6Address": "2001:172:20:20::2",
+        "mgmtIpv6AddressLength": 64,
+        "mgmtNet": "",
+        "name": "bngblaster_2",
+        "shortname": "bngblaster_2",
+        "weight": "3"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "db-br11",
+      "weight": "30",
+      "name": "db-br11",
+      "parent": "10",
+      "kind": "",
+      "topoviewerRole": "bridge",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "fqdn": "db-br11.cups.io",
+        "group": "10",
+        "id": "db-br11",
+        "image": "",
+        "index": "11",
+        "kind": "ovs-bridge",
+        "labdir": "/home/suuser/clab/bng-cups/clab-cups/db-br11",
+        "labels": {
+          "ClabMgmtNetBridge": "br-ae2f5f3c62b9",
+          "ClabNodeGroup": "10",
+          "ClabNodeKind": "ovs-bridge",
+          "ClabNodeLabDir": "/home/suuser/clab/bng-cups/clab-cups/db-br11",
+          "ClabNodeName": "db-br11",
+          "ClabNodeType": "",
+          "ClabTopoFile": "/home/suuser/clab/bng-cups/cups.yml",
+          "Containerlab": "cups",
+          "TopoViewerRole": "bridge"
+        },
+        "longname": "clab-cups-db-br11",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 0,
+        "mgmtIpv4Addresss": "",
+        "mgmtIpv6Address": "",
+        "mgmtIpv6AddressLength": 0,
+        "mgmtNet": "",
+        "name": "db-br11",
+        "shortname": "db-br11",
+        "weight": "3"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "db-br12",
+      "weight": "30",
+      "name": "db-br12",
+      "parent": "10",
+      "kind": "",
+      "topoviewerRole": "bridge",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "fqdn": "db-br12.cups.io",
+        "group": "10",
+        "id": "db-br12",
+        "image": "",
+        "index": "12",
+        "kind": "ovs-bridge",
+        "labdir": "/home/suuser/clab/bng-cups/clab-cups/db-br12",
+        "labels": {
+          "ClabMgmtNetBridge": "br-ae2f5f3c62b9",
+          "ClabNodeGroup": "10",
+          "ClabNodeKind": "ovs-bridge",
+          "ClabNodeLabDir": "/home/suuser/clab/bng-cups/clab-cups/db-br12",
+          "ClabNodeName": "db-br12",
+          "ClabNodeType": "",
+          "ClabTopoFile": "/home/suuser/clab/bng-cups/cups.yml",
+          "Containerlab": "cups",
+          "TopoViewerRole": "bridge"
+        },
+        "longname": "clab-cups-db-br12",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 0,
+        "mgmtIpv4Addresss": "",
+        "mgmtIpv6Address": "",
+        "mgmtIpv6AddressLength": 0,
+        "mgmtNet": "",
+        "name": "db-br12",
+        "shortname": "db-br12",
+        "weight": "3"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "ovs-br01",
+      "weight": "30",
+      "name": "ovs-br01",
+      "parent": "5",
+      "kind": "",
+      "topoviewerRole": "bridge",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "fqdn": "ovs-br01.cups.io",
+        "group": "5",
+        "id": "ovs-br01",
+        "image": "",
+        "index": "13",
+        "kind": "ovs-bridge",
+        "labdir": "/home/suuser/clab/bng-cups/clab-cups/ovs-br01",
+        "labels": {
+          "ClabMgmtNetBridge": "br-ae2f5f3c62b9",
+          "ClabNodeGroup": "5",
+          "ClabNodeKind": "ovs-bridge",
+          "ClabNodeLabDir": "/home/suuser/clab/bng-cups/clab-cups/ovs-br01",
+          "ClabNodeName": "ovs-br01",
+          "ClabNodeType": "",
+          "ClabTopoFile": "/home/suuser/clab/bng-cups/cups.yml",
+          "Containerlab": "cups",
+          "TopoViewerRole": "bridge"
+        },
+        "longname": "clab-cups-ovs-br01",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 0,
+        "mgmtIpv4Addresss": "",
+        "mgmtIpv6Address": "",
+        "mgmtIpv6AddressLength": 0,
+        "mgmtNet": "",
+        "name": "ovs-br01",
+        "shortname": "ovs-br01",
+        "weight": "3"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "ovs-br02",
+      "weight": "30",
+      "name": "ovs-br02",
+      "parent": "5",
+      "kind": "",
+      "topoviewerRole": "bridge",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "fqdn": "ovs-br02.cups.io",
+        "group": "5",
+        "id": "ovs-br02",
+        "image": "",
+        "index": "14",
+        "kind": "ovs-bridge",
+        "labdir": "/home/suuser/clab/bng-cups/clab-cups/ovs-br02",
+        "labels": {
+          "ClabMgmtNetBridge": "br-ae2f5f3c62b9",
+          "ClabNodeGroup": "5",
+          "ClabNodeKind": "ovs-bridge",
+          "ClabNodeLabDir": "/home/suuser/clab/bng-cups/clab-cups/ovs-br02",
+          "ClabNodeName": "ovs-br02",
+          "ClabNodeType": "",
+          "ClabTopoFile": "/home/suuser/clab/bng-cups/cups.yml",
+          "Containerlab": "cups",
+          "TopoViewerRole": "bridge"
+        },
+        "longname": "clab-cups-ovs-br02",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 0,
+        "mgmtIpv4Addresss": "",
+        "mgmtIpv6Address": "",
+        "mgmtIpv6AddressLength": 0,
+        "mgmtNet": "",
+        "name": "ovs-br02",
+        "shortname": "ovs-br02",
+        "weight": "3"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "ovs-br03",
+      "weight": "30",
+      "name": "ovs-br03",
+      "parent": "3",
+      "kind": "",
+      "topoviewerRole": "bridge",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "fqdn": "ovs-br03.cups.io",
+        "group": "3",
+        "id": "ovs-br03",
+        "image": "",
+        "index": "15",
+        "kind": "ovs-bridge",
+        "labdir": "/home/suuser/clab/bng-cups/clab-cups/ovs-br03",
+        "labels": {
+          "ClabMgmtNetBridge": "br-ae2f5f3c62b9",
+          "ClabNodeGroup": "3",
+          "ClabNodeKind": "ovs-bridge",
+          "ClabNodeLabDir": "/home/suuser/clab/bng-cups/clab-cups/ovs-br03",
+          "ClabNodeName": "ovs-br03",
+          "ClabNodeType": "",
+          "ClabTopoFile": "/home/suuser/clab/bng-cups/cups.yml",
+          "Containerlab": "cups",
+          "TopoViewerRole": "bridge"
+        },
+        "longname": "clab-cups-ovs-br03",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 0,
+        "mgmtIpv4Addresss": "",
+        "mgmtIpv6Address": "",
+        "mgmtIpv6AddressLength": 0,
+        "mgmtNet": "",
+        "name": "ovs-br03",
+        "shortname": "ovs-br03",
+        "weight": "3"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "ovs-br04",
+      "weight": "30",
+      "name": "ovs-br04",
+      "parent": "3",
+      "kind": "",
+      "topoviewerRole": "bridge",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "fqdn": "ovs-br04.cups.io",
+        "group": "3",
+        "id": "ovs-br04",
+        "image": "",
+        "index": "16",
+        "kind": "ovs-bridge",
+        "labdir": "/home/suuser/clab/bng-cups/clab-cups/ovs-br04",
+        "labels": {
+          "ClabMgmtNetBridge": "br-ae2f5f3c62b9",
+          "ClabNodeGroup": "3",
+          "ClabNodeKind": "ovs-bridge",
+          "ClabNodeLabDir": "/home/suuser/clab/bng-cups/clab-cups/ovs-br04",
+          "ClabNodeName": "ovs-br04",
+          "ClabNodeType": "",
+          "ClabTopoFile": "/home/suuser/clab/bng-cups/cups.yml",
+          "Containerlab": "cups",
+          "TopoViewerRole": "bridge"
+        },
+        "longname": "clab-cups-ovs-br04",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 0,
+        "mgmtIpv4Addresss": "",
+        "mgmtIpv6Address": "",
+        "mgmtIpv6AddressLength": 0,
+        "mgmtNet": "",
+        "name": "ovs-br04",
+        "shortname": "ovs-br04",
+        "weight": "3"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "ovs-br05",
+      "weight": "30",
+      "name": "ovs-br05",
+      "parent": "3",
+      "kind": "",
+      "topoviewerRole": "bridge",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "fqdn": "ovs-br05.cups.io",
+        "group": "3",
+        "id": "ovs-br05",
+        "image": "",
+        "index": "17",
+        "kind": "ovs-bridge",
+        "labdir": "/home/suuser/clab/bng-cups/clab-cups/ovs-br05",
+        "labels": {
+          "ClabMgmtNetBridge": "br-ae2f5f3c62b9",
+          "ClabNodeGroup": "3",
+          "ClabNodeKind": "ovs-bridge",
+          "ClabNodeLabDir": "/home/suuser/clab/bng-cups/clab-cups/ovs-br05",
+          "ClabNodeName": "ovs-br05",
+          "ClabNodeType": "",
+          "ClabTopoFile": "/home/suuser/clab/bng-cups/cups.yml",
+          "Containerlab": "cups",
+          "TopoViewerRole": "bridge"
+        },
+        "longname": "clab-cups-ovs-br05",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 0,
+        "mgmtIpv4Addresss": "",
+        "mgmtIpv6Address": "",
+        "mgmtIpv6AddressLength": 0,
+        "mgmtNet": "",
+        "name": "ovs-br05",
+        "shortname": "ovs-br05",
+        "weight": "3"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "ovs-br06",
+      "weight": "30",
+      "name": "ovs-br06",
+      "parent": "3",
+      "kind": "",
+      "topoviewerRole": "bridge",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "fqdn": "ovs-br06.cups.io",
+        "group": "3",
+        "id": "ovs-br06",
+        "image": "",
+        "index": "18",
+        "kind": "ovs-bridge",
+        "labdir": "/home/suuser/clab/bng-cups/clab-cups/ovs-br06",
+        "labels": {
+          "ClabMgmtNetBridge": "br-ae2f5f3c62b9",
+          "ClabNodeGroup": "3",
+          "ClabNodeKind": "ovs-bridge",
+          "ClabNodeLabDir": "/home/suuser/clab/bng-cups/clab-cups/ovs-br06",
+          "ClabNodeName": "ovs-br06",
+          "ClabNodeType": "",
+          "ClabTopoFile": "/home/suuser/clab/bng-cups/cups.yml",
+          "Containerlab": "cups",
+          "TopoViewerRole": "bridge"
+        },
+        "longname": "clab-cups-ovs-br06",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 0,
+        "mgmtIpv4Addresss": "",
+        "mgmtIpv6Address": "",
+        "mgmtIpv6AddressLength": 0,
+        "mgmtNet": "",
+        "name": "ovs-br06",
+        "shortname": "ovs-br06",
+        "weight": "3"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "ovs-br07",
+      "weight": "30",
+      "name": "ovs-br07",
+      "parent": "3",
+      "kind": "",
+      "topoviewerRole": "bridge",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "fqdn": "ovs-br07.cups.io",
+        "group": "3",
+        "id": "ovs-br07",
+        "image": "",
+        "index": "19",
+        "kind": "ovs-bridge",
+        "labdir": "/home/suuser/clab/bng-cups/clab-cups/ovs-br07",
+        "labels": {
+          "ClabMgmtNetBridge": "br-ae2f5f3c62b9",
+          "ClabNodeGroup": "3",
+          "ClabNodeKind": "ovs-bridge",
+          "ClabNodeLabDir": "/home/suuser/clab/bng-cups/clab-cups/ovs-br07",
+          "ClabNodeName": "ovs-br07",
+          "ClabNodeType": "",
+          "ClabTopoFile": "/home/suuser/clab/bng-cups/cups.yml",
+          "Containerlab": "cups",
+          "TopoViewerRole": "bridge"
+        },
+        "longname": "clab-cups-ovs-br07",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 0,
+        "mgmtIpv4Addresss": "",
+        "mgmtIpv6Address": "",
+        "mgmtIpv6AddressLength": 0,
+        "mgmtNet": "",
+        "name": "ovs-br07",
+        "shortname": "ovs-br07",
+        "weight": "3"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "ovs-br08",
+      "weight": "30",
+      "name": "ovs-br08",
+      "parent": "3",
+      "kind": "",
+      "topoviewerRole": "bridge",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "fqdn": "ovs-br08.cups.io",
+        "group": "3",
+        "id": "ovs-br08",
+        "image": "",
+        "index": "20",
+        "kind": "ovs-bridge",
+        "labdir": "/home/suuser/clab/bng-cups/clab-cups/ovs-br08",
+        "labels": {
+          "ClabMgmtNetBridge": "br-ae2f5f3c62b9",
+          "ClabNodeGroup": "3",
+          "ClabNodeKind": "ovs-bridge",
+          "ClabNodeLabDir": "/home/suuser/clab/bng-cups/clab-cups/ovs-br08",
+          "ClabNodeName": "ovs-br08",
+          "ClabNodeType": "",
+          "ClabTopoFile": "/home/suuser/clab/bng-cups/cups.yml",
+          "Containerlab": "cups",
+          "TopoViewerRole": "bridge"
+        },
+        "longname": "clab-cups-ovs-br08",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 0,
+        "mgmtIpv4Addresss": "",
+        "mgmtIpv6Address": "",
+        "mgmtIpv6AddressLength": 0,
+        "mgmtNet": "",
+        "name": "ovs-br08",
+        "shortname": "ovs-br08",
+        "weight": "3"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "ovs-br09",
+      "weight": "30",
+      "name": "ovs-br09",
+      "parent": "3",
+      "kind": "",
+      "topoviewerRole": "bridge",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "fqdn": "ovs-br09.cups.io",
+        "group": "3",
+        "id": "ovs-br09",
+        "image": "",
+        "index": "21",
+        "kind": "ovs-bridge",
+        "labdir": "/home/suuser/clab/bng-cups/clab-cups/ovs-br09",
+        "labels": {
+          "ClabMgmtNetBridge": "br-ae2f5f3c62b9",
+          "ClabNodeGroup": "3",
+          "ClabNodeKind": "ovs-bridge",
+          "ClabNodeLabDir": "/home/suuser/clab/bng-cups/clab-cups/ovs-br09",
+          "ClabNodeName": "ovs-br09",
+          "ClabNodeType": "",
+          "ClabTopoFile": "/home/suuser/clab/bng-cups/cups.yml",
+          "Containerlab": "cups",
+          "TopoViewerRole": "bridge"
+        },
+        "longname": "clab-cups-ovs-br09",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 0,
+        "mgmtIpv4Addresss": "",
+        "mgmtIpv6Address": "",
+        "mgmtIpv6AddressLength": 0,
+        "mgmtNet": "",
+        "name": "ovs-br09",
+        "shortname": "ovs-br09",
+        "weight": "3"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "ovs-br10",
+      "weight": "30",
+      "name": "ovs-br10",
+      "parent": "3",
+      "kind": "",
+      "topoviewerRole": "bridge",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "fqdn": "ovs-br10.cups.io",
+        "group": "3",
+        "id": "ovs-br10",
+        "image": "",
+        "index": "22",
+        "kind": "ovs-bridge",
+        "labdir": "/home/suuser/clab/bng-cups/clab-cups/ovs-br10",
+        "labels": {
+          "ClabMgmtNetBridge": "br-ae2f5f3c62b9",
+          "ClabNodeGroup": "3",
+          "ClabNodeKind": "ovs-bridge",
+          "ClabNodeLabDir": "/home/suuser/clab/bng-cups/clab-cups/ovs-br10",
+          "ClabNodeName": "ovs-br10",
+          "ClabNodeType": "",
+          "ClabTopoFile": "/home/suuser/clab/bng-cups/cups.yml",
+          "Containerlab": "cups",
+          "TopoViewerRole": "bridge"
+        },
+        "longname": "clab-cups-ovs-br10",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 0,
+        "mgmtIpv4Addresss": "",
+        "mgmtIpv6Address": "",
+        "mgmtIpv6AddressLength": 0,
+        "mgmtNet": "",
+        "name": "ovs-br10",
+        "shortname": "ovs-br10",
+        "weight": "3"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "ubuntu",
+      "weight": "30",
+      "name": "ubuntu",
+      "parent": "1",
+      "kind": "",
+      "topoviewerRole": "rgw",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "fqdn": "ubuntu.cups.io",
+        "group": "1",
+        "id": "ubuntu",
+        "image": "ubuntu:latest",
+        "index": "23",
+        "kind": "linux",
+        "labdir": "/home/suuser/clab/bng-cups/clab-cups/ubuntu",
+        "labels": {
+          "ClabMgmtNetBridge": "br-ae2f5f3c62b9",
+          "ClabNodeGroup": "1",
+          "ClabNodeKind": "linux",
+          "ClabNodeLabDir": "/home/suuser/clab/bng-cups/clab-cups/ubuntu",
+          "ClabNodeName": "ubuntu",
+          "ClabNodeType": "",
+          "ClabTopoFile": "/home/suuser/clab/bng-cups/cups.yml",
+          "Containerlab": "cups",
+          "TopoViewerRole": "rgw"
+        },
+        "longname": "clab-cups-ubuntu",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 24,
+        "mgmtIpv4Addresss": "172.20.20.10",
+        "mgmtIpv6Address": "2001:172:20:20::a",
+        "mgmtIpv6AddressLength": 64,
+        "mgmtNet": "",
+        "name": "ubuntu",
+        "shortname": "ubuntu",
+        "weight": "3"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "6",
+      "weight": "1000",
+      "name": "6 domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "6",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "name": "",
+        "weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "4",
+      "weight": "1000",
+      "name": "4 domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "4",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "name": "",
+        "weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "8",
+      "weight": "1000",
+      "name": "8 domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "8",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "name": "",
+        "weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "7",
+      "weight": "1000",
+      "name": "7 domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "7",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "name": "",
+        "weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "2",
+      "weight": "1000",
+      "name": "2 domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "2",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "name": "",
+        "weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "9",
+      "weight": "1000",
+      "name": "9 domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "9",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "name": "",
+        "weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "1",
+      "weight": "1000",
+      "name": "1 domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "1",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "name": "",
+        "weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "10",
+      "weight": "1000",
+      "name": "10 domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "10",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "name": "",
+        "weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "5",
+      "weight": "1000",
+      "name": "5 domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "5",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "name": "",
+        "weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "3",
+      "weight": "1000",
+      "name": "3 domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "3",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "name": "",
+        "weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link0",
+      "source": "MAG-C01",
+      "target": "PE-01",
+      "weight": "3",
+      "name": "3 domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "3",
+      "sourceEndpoint": "eth1",
+      "targetEndpoint": "eth3",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link1",
+      "source": "MAG-C02",
+      "target": "PE-01",
+      "weight": "3",
+      "name": "3 domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "3",
+      "sourceEndpoint": "eth1",
+      "targetEndpoint": "eth4",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link2",
+      "source": "PE-01",
+      "target": "AGG-UPF01",
+      "weight": "3",
+      "name": "3 domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "3",
+      "sourceEndpoint": "eth1",
+      "targetEndpoint": "eth3",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link3",
+      "source": "PE-01",
+      "target": "AGG-UPF02",
+      "weight": "3",
+      "name": "3 domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "3",
+      "sourceEndpoint": "eth2",
+      "targetEndpoint": "eth3",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link4",
+      "source": "AGG-UPF01",
+      "target": "ovs-br03",
+      "weight": "3",
+      "name": "3 domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "3",
+      "sourceEndpoint": "eth1",
+      "targetEndpoint": "3a",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link5",
+      "source": "ovs-br03",
+      "target": "EDGE-01",
+      "weight": "3",
+      "name": "3 domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "3",
+      "sourceEndpoint": "3b",
+      "targetEndpoint": "eth3",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link6",
+      "source": "AGG-UPF02",
+      "target": "ovs-br04",
+      "weight": "3",
+      "name": "3 domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "3",
+      "sourceEndpoint": "eth1",
+      "targetEndpoint": "4a",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link7",
+      "source": "ovs-br04",
+      "target": "EDGE-01",
+      "weight": "3",
+      "name": "3 domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "3",
+      "sourceEndpoint": "4b",
+      "targetEndpoint": "eth4",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link8",
+      "source": "AGG-UPF01",
+      "target": "ovs-br05",
+      "weight": "3",
+      "name": "3 domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "3",
+      "sourceEndpoint": "eth2",
+      "targetEndpoint": "5a",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link9",
+      "source": "ovs-br05",
+      "target": "EDGE-02",
+      "weight": "3",
+      "name": "3 domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "3",
+      "sourceEndpoint": "5b",
+      "targetEndpoint": "eth3",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link10",
+      "source": "AGG-UPF02",
+      "target": "ovs-br06",
+      "weight": "3",
+      "name": "3 domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "3",
+      "sourceEndpoint": "eth2",
+      "targetEndpoint": "6a",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link11",
+      "source": "ovs-br06",
+      "target": "EDGE-02",
+      "weight": "3",
+      "name": "3 domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "3",
+      "sourceEndpoint": "6b",
+      "targetEndpoint": "eth4",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link12",
+      "source": "MAG-C01",
+      "target": "MAG-C02",
+      "weight": "3",
+      "name": "3 domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "3",
+      "sourceEndpoint": "eth3",
+      "targetEndpoint": "eth3",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link13",
+      "source": "EDGE-01",
+      "target": "ovs-br01",
+      "weight": "3",
+      "name": "3 domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "3",
+      "sourceEndpoint": "eth1",
+      "targetEndpoint": "1a",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link14",
+      "source": "EDGE-02",
+      "target": "ovs-br02",
+      "weight": "3",
+      "name": "3 domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "3",
+      "sourceEndpoint": "eth1",
+      "targetEndpoint": "2a",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link15",
+      "source": "ovs-br01",
+      "target": "PON",
+      "weight": "3",
+      "name": "3 domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "3",
+      "sourceEndpoint": "1b",
+      "targetEndpoint": "eth2",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link16",
+      "source": "ovs-br02",
+      "target": "PON",
+      "weight": "3",
+      "name": "3 domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "3",
+      "sourceEndpoint": "2b",
+      "targetEndpoint": "eth3",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link17",
+      "source": "PON",
+      "target": "bngblaster_1",
+      "weight": "3",
+      "name": "3 domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "3",
+      "sourceEndpoint": "eth1",
+      "targetEndpoint": "eth1",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link18",
+      "source": "PON",
+      "target": "bngblaster_2",
+      "weight": "3",
+      "name": "3 domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "3",
+      "sourceEndpoint": "eth4",
+      "targetEndpoint": "eth1",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link19",
+      "source": "AGG-UPF01",
+      "target": "AGG-UPF02",
+      "weight": "3",
+      "name": "3 domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "3",
+      "sourceEndpoint": "eth4",
+      "targetEndpoint": "eth4",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link20",
+      "source": "EDGE-01",
+      "target": "EDGE-02",
+      "weight": "3",
+      "name": "3 domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "3",
+      "sourceEndpoint": "eth2",
+      "targetEndpoint": "eth2",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link21",
+      "source": "RADIUS",
+      "target": "PE-01",
+      "weight": "3",
+      "name": "3 domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "3",
+      "sourceEndpoint": "eth1",
+      "targetEndpoint": "eth5",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link22",
+      "source": "AGG-UPF01",
+      "target": "ovs-br07",
+      "weight": "3",
+      "name": "3 domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "3",
+      "sourceEndpoint": "eth5",
+      "targetEndpoint": "7a",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link23",
+      "source": "ovs-br07",
+      "target": "EDGE-01",
+      "weight": "3",
+      "name": "3 domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "3",
+      "sourceEndpoint": "7b",
+      "targetEndpoint": "eth5",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link24",
+      "source": "AGG-UPF02",
+      "target": "ovs-br08",
+      "weight": "3",
+      "name": "3 domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "3",
+      "sourceEndpoint": "eth5",
+      "targetEndpoint": "8a",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link25",
+      "source": "ovs-br08",
+      "target": "EDGE-01",
+      "weight": "3",
+      "name": "3 domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "3",
+      "sourceEndpoint": "8b",
+      "targetEndpoint": "eth6",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link26",
+      "source": "AGG-UPF01",
+      "target": "ovs-br09",
+      "weight": "3",
+      "name": "3 domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "3",
+      "sourceEndpoint": "eth6",
+      "targetEndpoint": "9a",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link27",
+      "source": "ovs-br09",
+      "target": "EDGE-02",
+      "weight": "3",
+      "name": "3 domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "3",
+      "sourceEndpoint": "9b",
+      "targetEndpoint": "eth5",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link28",
+      "source": "AGG-UPF02",
+      "target": "ovs-br10",
+      "weight": "3",
+      "name": "3 domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "3",
+      "sourceEndpoint": "eth6",
+      "targetEndpoint": "10a",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link29",
+      "source": "ovs-br10",
+      "target": "EDGE-02",
+      "weight": "3",
+      "name": "3 domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "3",
+      "sourceEndpoint": "10b",
+      "targetEndpoint": "eth6",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link30",
+      "source": "db-br11",
+      "target": "MAG-C01",
+      "weight": "3",
+      "name": "3 domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "3",
+      "sourceEndpoint": "db1-eth1",
+      "targetEndpoint": "eth2",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link31",
+      "source": "db-br12",
+      "target": "MAG-C02",
+      "weight": "3",
+      "name": "3 domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "3",
+      "sourceEndpoint": "db2-eth1",
+      "targetEndpoint": "eth2",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  }
+]
