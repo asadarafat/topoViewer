@@ -32,12 +32,12 @@ topology:
       ports:
         - 8080:8080
       exec:
-        - /opt/topoviewer/topoviewer clab -H 138.203.40.63 -t local-bind/topo-file.yaml -u suuser
+        - /root/topoViewer/opt/topoviewer/topoviewer clab -H 138.203.26.59 -t local-bind/topo-file.yaml -u root
         # "138.203.40.63" is the server IP where clab is running
-        # "suuser" is the ContainerLab host user name
+        # "root" is the ContainerLab host user name
       entrypoint: /bin/bash
       binds:
-        - /home/suuser/clab/topo-topoViewerDemo.yml:/opt/topoviewer/local-bind/topo-file.yaml:rw 
+        - rawTopoFile/clab/bng-cups/clab-cups/topology-data.json:/opt/topoviewer/local-bind/topo-file.yaml:rw 
           # /home/suuser/clab/topo-topoViewerDemo.yml is the absolute path clab topology file 
     srl-01:
       kind: srl
@@ -229,7 +229,7 @@ vscode ➜ /workspaces/topoViewer/dist (development ✗) $ ./topoviewer clab -t 
 vscode ➜ /workspaces/topoViewer (development ✗) $ ./tools/dist.sh 
 ```
 
-# BNG-UPS
+# BNG-CUPS
 ## BNG-CUPS Deploy CLAB
 [suuser@nsp-kvm-host-antwerp bng-cups]$ sudo clab deploy -t cups.yml --debug --export-template /home/suuser/topoViewer/rawTopoFile/clab-topo-export-template/clab-topo-cytoscape.tmpl 
 
