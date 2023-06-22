@@ -1,0 +1,34 @@
+all:
+  children:
+    linux:
+      hosts:
+        clab-topoViewerDemo-topoviewer:
+          ansible_host: 20.20.20.2
+    srl:
+      hosts:
+        clab-topoViewerDemo-Borderl-Leaf-01:
+          ansible_host: 20.20.20.211
+        clab-topoViewerDemo-Borderl-Leaf-02:
+          ansible_host: 20.20.20.212
+        clab-topoViewerDemo-Leaf-01:
+          ansible_host: 20.20.20.221
+        clab-topoViewerDemo-Leaf-02:
+          ansible_host: 20.20.20.222
+        clab-topoViewerDemo-Leaf-03:
+          ansible_host: 20.20.20.223
+        clab-topoViewerDemo-Leaf-04:
+          ansible_host: 20.20.20.224
+        clab-topoViewerDemo-Spine-01:
+          ansible_host: 20.20.20.201
+        clab-topoViewerDemo-Spine-02:
+          ansible_host: 20.20.20.202
+    vr-sros:
+      hosts:
+        clab-topoViewerDemo-DCGW-03:
+          ansible_host: 20.20.20.103
+        clab-topoViewerDemo-DCGW-04:
+          ansible_host: 20.20.20.104
+        clab-topoViewerDemo-PE-01:
+          ansible_host: 20.20.20.101
+        clab-topoViewerDemo-PE-02:
+          ansible_host: 20.20.20.102

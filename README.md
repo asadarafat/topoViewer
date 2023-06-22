@@ -32,13 +32,12 @@ topology:
       ports:
         - 8080:8080
       exec:
-        - /root/topoViewer/opt/topoviewer/topoviewer clab -H 138.203.26.59 -t local-bind/topo-file.yaml -u root
-        # "138.203.40.63" is the server IP where clab is running
+        - /opt/topoviewer/topoviewer clab -H 138.203.26.59 -j local-bind/topo-file.yaml -u root &
+        # "138.203.26.59" is the server IP where clab is running
         # "root" is the ContainerLab host user name
       entrypoint: /bin/bash
       binds:
-        - rawTopoFile/clab/bng-cups/clab-cups/topology-data.json:/opt/topoviewer/local-bind/topo-file.yaml:rw 
-          # /home/suuser/clab/topo-topoViewerDemo.yml is the absolute path clab topology file 
+        - /root/topoViewer/rawTopoFile/clab/bng-cups/clab-cups/topology-data.json:/opt/topoviewer/local-bind/topo-file.yaml:rw 
     srl-01:
       kind: srl
       mgmt_ipv4: 20.20.20.201
@@ -235,3 +234,4 @@ vscode ➜ /workspaces/topoViewer (development ✗) $ ./tools/dist.sh
 
 ## BNG-CUPS run topoViewer
 [suuser@nsp-kvm-host-antwerp topoViewer]$ go run cloudshellwrapper/cmd/main.go clab -H 138.203.40.63 -u suuser  -j rawTopoFile/clab/bng-cups/clab-cups/topology-data.json 
+[suuser@nsp-kvm-host-antwerp topoViewer]$ go run cloudshellwrapper/cmd/main.go clab -H 138.203.26.59 -u root  -j rawTopoFile/clab/bng-cups/clab-cups/topology-data.json 

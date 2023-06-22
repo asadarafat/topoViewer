@@ -436,6 +436,8 @@ body {
             node.on("click", function(e) {
             if (!node.isParent()) {          //  block of code to be executed if the condition is true
 
+              console.log(node.data("extraData").clabServerUsername)
+              
               removeLastChild();
               var headerTitle = ce("p", {class: "my-7"}, [ctn("Node Properties")]);
               var nodeMessageHeader = ce("div", {class: "message-header"}, [headerTitle]);

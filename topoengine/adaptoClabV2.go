@@ -62,12 +62,14 @@ type ClabTopoV2 struct {
 	Links []struct {
 		A struct {
 			Node      string `json:"node"`
+			NodeLongName string `json:"nodeLongName"`
 			Interface string `json:"interface"`
 			Mac       string `json:"mac"`
 			Peer      string `json:"peer"`
 		} `json:"a"`
 		Z struct {
 			Node      string `json:"node"`
+			NodeLongName string `json:"nodeLongName"`
 			Interface string `json:"interface"`
 			Mac       string `json:"mac"`
 			Peer      string `json:"peer"`
@@ -210,8 +212,12 @@ func (cyTopo *CytoTopology) UnmarshalContainerLabTopoV2(topoFile []byte) []byte 
 		cytoJson.Data.SourceEndpoint = link.A.Interface
 		cytoJson.Data.TargetEndpoint = link.Z.Interface
 
-		cytoJson.Data.ExtraData = map[string]interface{}{}
+		cytoJson.Data.ExtraData = map[string]interface{}{
+			"clabServerUsername": Username, // needed for wireshark capture
+			"clabSourceLongName": link.A.NodeLongName,
+			"clabTargetLongName": link.Z.NodeLongName,
 
+		}
 		cytoJsonList = append(cytoJsonList, cytoJson)
 	}
 
