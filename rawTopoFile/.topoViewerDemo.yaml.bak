@@ -1,0 +1,154 @@
+name: topoViewerDemo
+
+mgmt:
+  ipv4-subnet: 20.20.20.0/24       # ipv4 range
+  
+topology:
+  # defaults:
+  #   env:
+  #     topoFilePath: /home/suuser/clab/topo-topoViewerDemo.yml
+
+  nodes:
+    topoviewer:
+      kind: linux
+      image: ghcr.io/asadarafat/topoviewer:development
+      ports:
+        - 8080:8080
+      exec:
+        - /opt/topoviewer/topoviewer clab -H 138.203.26.59 -j local-bind/topo-file.yaml -u root &
+        # "138.203.26.59" is the server IP where clab is running
+        # "root" is the ContainerLab host user name
+      entrypoint: /bin/bash
+      binds:
+        - /root/topoViewer/rawTopoFile/clab-topoViewerDemo/topology-data.json:/opt/topoviewer/local-bind/topo-file.yaml:rw 
+        # There is caveat on this bind, the directory and file (/root/topoViewer/rawTopoFile/clab-topoViewerDemo/topology-data.json) should be exist be for clab deploy executed.
+        # otherwise the clab deploy will be failed.
+      
+    
+      #topoviewer:
+       # role: dcgw / spine / leaf / workload / pe / agg / core
+       # color: default-mapping based on role.. red / black / green
+        # mapping the icon based on role
+
+    Spine-01:
+      kind: srl
+      mgmt-ipv4: 20.20.20.201
+      image: ghcr.io/nokia/srlinux
+      labels:
+        topo-viewer-role: spine
+      
+       
+    Spine-02:
+      kind: srl
+      mgmt-ipv4: 20.20.20.202
+      image: ghcr.io/nokia/srlinux
+      labels:
+        topo-viewer-role: spine
+
+    Borderl-Leaf-01:
+      kind: srl
+      mgmt-ipv4: 20.20.20.211
+      image: ghcr.io/nokia/srlinux
+      labels:
+        topo-viewer-role: leaf
+       
+    Borderl-Leaf-02:
+      kind: srl
+      mgmt-ipv4: 20.20.20.212
+      image: ghcr.io/nokia/srlinux
+      labels:
+        topo-viewer-role: leaf
+
+    Leaf-01:
+      kind: srl
+      mgmt-ipv4: 20.20.20.221
+      image: ghcr.io/nokia/srlinux
+      labels:
+        topo-viewer-role: leaf
+       
+    Leaf-02:
+      kind: srl
+      mgmt-ipv4: 20.20.20.222
+      image: ghcr.io/nokia/srlinux
+      labels:
+        topo-viewer-role: leaf
+
+    Leaf-03:
+      kind: srl
+      mgmt-ipv4: 20.20.20.223
+      image: ghcr.io/nokia/srlinux
+      labels:
+        topo-viewer-role: leaf
+       
+    Leaf-04:
+      kind: srl
+      mgmt-ipv4: 20.20.20.224
+      image: ghcr.io/nokia/srlinux
+      labels:
+        topo-viewer-role: leaf
+
+    PE-01:
+      kind: vr-sros
+      mgmt-ipv4: 20.20.20.101
+      group: "1"
+      image: registry.srlinux.dev/pub/vr-sros:22.7.R1
+      type: "cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28"
+      license: clab/license.txt 
+      labels:
+        topo-viewer-role: pe
+
+    PE-02:
+      kind: vr-sros
+      mgmt-ipv4: 20.20.20.102
+      group: "1"
+      image: registry.srlinux.dev/pub/vr-sros:22.7.R1
+      type: "cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28"
+      license: clab/license.txt 
+      labels:
+        topo-viewer-role: pe
+
+    DCGW-03:
+      kind: vr-sros
+      mgmt-ipv4: 20.20.20.103
+      group: "1"
+      image: registry.srlinux.dev/pub/vr-sros:22.7.R1
+      type: "cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28"
+      license: clab/license.txt 
+      labels:
+        topo-viewer-role: dcgw
+ 
+    DCGW-04:
+      kind: vr-sros
+      mgmt-ipv4: 20.20.20.104
+      group: "1"
+      image: registry.srlinux.dev/pub/vr-sros:22.7.R1
+      type: "cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28"
+      license: clab/license.txt  
+      labels:
+        topo-viewer-role: dcgw
+        
+  links:
+
+    - endpoints: ["PE-01:eth2", "PE-02:eth2"]
+    - endpoints: ["PE-01:eth3", "DCGW-03:eth3"]
+
+    - endpoints: ["PE-02:eth4", "DCGW-03:eth4"]
+    - endpoints: ["PE-02:eth5", "DCGW-04:eth5"]
+
+    - endpoints: ["PE-01:eth4", "DCGW-04:eth4"]
+
+    - endpoints: ["DCGW-03:eth1", "Borderl-Leaf-01:e1-1"]
+    - endpoints: ["DCGW-04:eth1", "Borderl-Leaf-02:e1-1"]
+
+    - endpoints: ["Spine-01:e1-5", "Borderl-Leaf-01:e1-5"]
+    - endpoints: ["Spine-02:e1-5", "Borderl-Leaf-02:e1-5"]
+
+    - endpoints: ["Spine-01:e1-1", "Leaf-01:e1-1"]
+    - endpoints: ["Spine-01:e1-2", "Leaf-02:e1-1"]
+    - endpoints: ["Spine-01:e1-3", "Leaf-03:e1-3"]
+    - endpoints: ["Spine-01:e1-4", "Leaf-04:e1-3"]
+
+    - endpoints: ["Spine-02:e1-1", "Leaf-01:e1-2"]
+    - endpoints: ["Spine-02:e1-2", "Leaf-02:e1-2"]
+    - endpoints: ["Spine-02:e1-3", "Leaf-03:e1-4"]
+    - endpoints: ["Spine-02:e1-4", "Leaf-04:e1-4"]

@@ -2,10 +2,36 @@
   {
     "data": {
       "id": "SRL-01",
-      "weight": "2",
+      "weight": "3",
       "name": "SRL-01",
-      "parent": "",
+      "parent": "Data Center",
       "kind": "",
+<<<<<<< HEAD
+      "topoviewerRole": "leaf",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "fqdn": "SRL-01.topoViewerDemo.io",
+        "group": "leaf",
+        "id": "SRL-01",
+        "image": "ghcr.io/nokia/srlinux:22.6.2",
+        "index": "0",
+        "kind": "srl",
+        "labdir": "/home/suuser/topoViewer/clab-topoViewerDemo/SRL-01",
+        "labels": {},
+        "longname": "clab-topoViewerDemo-SRL-01",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 0,
+        "mgmtIpv4Addresss": "",
+        "mgmtIpv6Address": "",
+        "mgmtIpv6AddressLengthh": 0,
+        "mgmtNet": "",
+        "name": "SRL-01",
+        "shortname": "SRL-01",
+        "weight": "2"
+=======
       "endpoint": {
         "sourceEndpoint": "",
         "targetEndpoint": ""
@@ -22,6 +48,7 @@
         "MgmtIPv6Address": "",
         "Name": "SRL-01",
         "Weight": "2"
+>>>>>>> master
       }
     },
     "position": {
@@ -40,10 +67,36 @@
   {
     "data": {
       "id": "SRL-02",
-      "weight": "2",
+      "weight": "3",
       "name": "SRL-02",
-      "parent": "",
+      "parent": "Data Center",
       "kind": "",
+<<<<<<< HEAD
+      "topoviewerRole": "leaf",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "fqdn": "SRL-02.topoViewerDemo.io",
+        "group": "leaf",
+        "id": "SRL-02",
+        "image": "ghcr.io/nokia/srlinux:22.6.2",
+        "index": "1",
+        "kind": "srl",
+        "labdir": "/home/suuser/topoViewer/clab-topoViewerDemo/SRL-02",
+        "labels": {},
+        "longname": "clab-topoViewerDemo-SRL-02",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 0,
+        "mgmtIpv4Addresss": "",
+        "mgmtIpv6Address": "",
+        "mgmtIpv6AddressLengthh": 0,
+        "mgmtNet": "",
+        "name": "SRL-02",
+        "shortname": "SRL-02",
+        "weight": "2"
+=======
       "endpoint": {
         "sourceEndpoint": "",
         "targetEndpoint": ""
@@ -60,6 +113,7 @@
         "MgmtIPv6Address": "",
         "Name": "SRL-02",
         "Weight": "2"
+>>>>>>> master
       }
     },
     "position": {
@@ -78,10 +132,36 @@
   {
     "data": {
       "id": "SROS-01",
-      "weight": "2",
+      "weight": "3",
       "name": "SROS-01",
-      "parent": "",
+      "parent": "IP-MPLS",
       "kind": "",
+<<<<<<< HEAD
+      "topoviewerRole": "pe",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "fqdn": "SROS-01.topoViewerDemo.io",
+        "group": "pe",
+        "id": "SROS-01",
+        "image": "registry.srlinux.dev/pub/vr-sros:22.7.R1",
+        "index": "2",
+        "kind": "vr-sros",
+        "labdir": "/home/suuser/topoViewer/clab-topoViewerDemo/SROS-01",
+        "labels": {},
+        "longname": "clab-topoViewerDemo-SROS-01",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 0,
+        "mgmtIpv4Addresss": "",
+        "mgmtIpv6Address": "",
+        "mgmtIpv6AddressLengthh": 0,
+        "mgmtNet": "",
+        "name": "SROS-01",
+        "shortname": "SROS-01",
+        "weight": "2"
+=======
       "endpoint": {
         "sourceEndpoint": "",
         "targetEndpoint": ""
@@ -98,6 +178,7 @@
         "MgmtIPv6Address": "",
         "Name": "SROS-01",
         "Weight": "2"
+>>>>>>> master
       }
     },
     "position": {
@@ -116,10 +197,36 @@
   {
     "data": {
       "id": "SROS-02",
-      "weight": "2",
+      "weight": "3",
       "name": "SROS-02",
-      "parent": "",
+      "parent": "IP-MPLS",
       "kind": "",
+<<<<<<< HEAD
+      "topoviewerRole": "pe",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "fqdn": "SROS-02.topoViewerDemo.io",
+        "group": "pe",
+        "id": "SROS-02",
+        "image": "registry.srlinux.dev/pub/vr-sros:22.7.R1",
+        "index": "3",
+        "kind": "vr-sros",
+        "labdir": "/home/suuser/topoViewer/clab-topoViewerDemo/SROS-02",
+        "labels": {},
+        "longname": "clab-topoViewerDemo-SROS-02",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 0,
+        "mgmtIpv4Addresss": "",
+        "mgmtIpv6Address": "",
+        "mgmtIpv6AddressLengthh": 0,
+        "mgmtNet": "",
+        "name": "SROS-02",
+        "shortname": "SROS-02",
+        "weight": "2"
+=======
       "endpoint": {
         "sourceEndpoint": "",
         "targetEndpoint": ""
@@ -136,6 +243,7 @@
         "MgmtIPv6Address": "",
         "Name": "SROS-02",
         "Weight": "2"
+>>>>>>> master
       }
     },
     "position": {
@@ -154,6 +262,36 @@
   {
     "data": {
       "id": "SROS-03",
+<<<<<<< HEAD
+      "weight": "3",
+      "name": "SROS-03",
+      "parent": "IP-MPLS",
+      "kind": "",
+      "topoviewerRole": "pe",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "fqdn": "SROS-03.topoViewerDemo.io",
+        "group": "pe",
+        "id": "SROS-03",
+        "image": "registry.srlinux.dev/pub/vr-sros:22.7.R1",
+        "index": "4",
+        "kind": "vr-sros",
+        "labdir": "/home/suuser/topoViewer/clab-topoViewerDemo/SROS-03",
+        "labels": {},
+        "longname": "clab-topoViewerDemo-SROS-03",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 0,
+        "mgmtIpv4Addresss": "",
+        "mgmtIpv6Address": "",
+        "mgmtIpv6AddressLengthh": 0,
+        "mgmtNet": "",
+        "name": "SROS-03",
+        "shortname": "SROS-03",
+        "weight": "2"
+=======
       "weight": "2",
       "name": "SROS-03",
       "parent": "",
@@ -380,6 +518,7 @@
         "grabbable": true,
         "selectable": true,
         "weight": "1"
+>>>>>>> master
       }
     },
     "position": {
@@ -387,7 +526,7 @@
       "y": 0
     },
     "removed": false,
-    "group": "edges",
+    "group": "nodes",
     "selected": false,
     "selectable": true,
     "locked": false,
@@ -397,6 +536,37 @@
   },
   {
     "data": {
+<<<<<<< HEAD
+      "id": "SROS-04",
+      "weight": "3",
+      "name": "SROS-04",
+      "parent": "IP-MPLS",
+      "kind": "",
+      "topoviewerRole": "pe",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "fqdn": "SROS-04.topoViewerDemo.io",
+        "group": "pe",
+        "id": "SROS-04",
+        "image": "registry.srlinux.dev/pub/vr-sros:22.7.R1",
+        "index": "5",
+        "kind": "vr-sros",
+        "labdir": "/home/suuser/topoViewer/clab-topoViewerDemo/SROS-04",
+        "labels": {},
+        "longname": "clab-topoViewerDemo-SROS-04",
+        "macAddress": "",
+        "mgmtIntf": "",
+        "mgmtIpv4AddressLength": 0,
+        "mgmtIpv4Addresss": "",
+        "mgmtIpv6Address": "",
+        "mgmtIpv6AddressLengthh": 0,
+        "mgmtNet": "",
+        "name": "SROS-04",
+        "shortname": "SROS-04",
+        "weight": "2"
+=======
       "id": "8",
       "source": "SROS-03",
       "target": "SRL-02",
@@ -422,6 +592,7 @@
         "grabbable": true,
         "selectable": true,
         "weight": "1"
+>>>>>>> master
       }
     },
     "position": {
@@ -429,7 +600,7 @@
       "y": 0
     },
     "removed": false,
-    "group": "edges",
+    "group": "nodes",
     "selected": false,
     "selectable": true,
     "locked": false,
@@ -439,13 +610,77 @@
   },
   {
     "data": {
-      "id": "0",
-      "source": "SRL-01",
-      "target": "SROS-01",
-      "weight": "1",
-      "name": "SRL-01::e1-1 \u003c--\u003e SROS-01::eth1",
+      "id": "Data Center",
+      "weight": "2",
+      "name": "Data Center domain",
       "parent": "",
       "kind": "",
+      "topoviewerRole": "Data Center",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "name": "",
+        "weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "IP-MPLS",
+      "weight": "2",
+      "name": "IP-MPLS domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "IP-MPLS",
+      "sourceEndpoint": "",
+      "targetEndpoint": "",
+      "extraData": {
+        "clabServerUsername": "suuser",
+        "name": "",
+        "weight": "2"
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link0",
+      "source": "SRL-01",
+      "target": "SROS-01",
+      "weight": "3",
+      "name": "IP-MPLS domain",
+      "parent": "",
+      "kind": "",
+<<<<<<< HEAD
+      "topoviewerRole": "IP-MPLS",
+      "sourceEndpoint": "e1-1",
+      "targetEndpoint": "eth1",
+      "extraData": {}
+=======
       "endpoint": {
         "sourceEndpoint": "e1-1",
         "targetEndpoint": "eth1"
@@ -465,6 +700,7 @@
         "selectable": true,
         "weight": "1"
       }
+>>>>>>> master
     },
     "position": {
       "x": 0,
@@ -481,13 +717,19 @@
   },
   {
     "data": {
-      "id": "1",
+      "id": "Clab-Link1",
       "source": "SRL-01",
       "target": "SROS-02",
-      "weight": "1",
-      "name": "SRL-01::e1-2 \u003c--\u003e SROS-02::eth1",
+      "weight": "3",
+      "name": "IP-MPLS domain",
       "parent": "",
       "kind": "",
+<<<<<<< HEAD
+      "topoviewerRole": "IP-MPLS",
+      "sourceEndpoint": "e1-2",
+      "targetEndpoint": "eth1",
+      "extraData": {}
+=======
       "endpoint": {
         "sourceEndpoint": "e1-2",
         "targetEndpoint": "eth1"
@@ -507,6 +749,7 @@
         "selectable": true,
         "weight": "1"
       }
+>>>>>>> master
     },
     "position": {
       "x": 0,
@@ -523,13 +766,77 @@
   },
   {
     "data": {
-      "id": "4",
-      "source": "SROS-02",
-      "target": "SROS-03",
-      "weight": "1",
-      "name": "SROS-02::eth4 \u003c--\u003e SROS-03::eth4",
+<<<<<<< HEAD
+      "id": "Clab-Link2",
+      "source": "SROS-01",
+      "target": "SROS-02",
+      "weight": "3",
+      "name": "IP-MPLS domain",
       "parent": "",
       "kind": "",
+      "topoviewerRole": "IP-MPLS",
+      "sourceEndpoint": "eth2",
+      "targetEndpoint": "eth2",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link3",
+      "source": "SROS-01",
+      "target": "SROS-03",
+      "weight": "3",
+      "name": "IP-MPLS domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "IP-MPLS",
+      "sourceEndpoint": "eth3",
+      "targetEndpoint": "eth3",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link4",
+=======
+      "id": "4",
+>>>>>>> master
+      "source": "SROS-02",
+      "target": "SROS-03",
+      "weight": "3",
+      "name": "IP-MPLS domain",
+      "parent": "",
+      "kind": "",
+<<<<<<< HEAD
+      "topoviewerRole": "IP-MPLS",
+      "sourceEndpoint": "eth4",
+      "targetEndpoint": "eth4",
+      "extraData": {}
+=======
       "endpoint": {
         "sourceEndpoint": "eth4",
         "targetEndpoint": "eth4"
@@ -549,6 +856,7 @@
         "selectable": true,
         "weight": "1"
       }
+>>>>>>> master
     },
     "position": {
       "x": 0,
@@ -565,13 +873,127 @@
   },
   {
     "data": {
-      "id": "5",
+      "id": "Clab-Link5",
       "source": "SROS-02",
       "target": "SROS-04",
-      "weight": "1",
-      "name": "SROS-02::eth5 \u003c--\u003e SROS-04::eth5",
+      "weight": "3",
+      "name": "IP-MPLS domain",
       "parent": "",
       "kind": "",
+<<<<<<< HEAD
+      "topoviewerRole": "IP-MPLS",
+      "sourceEndpoint": "eth5",
+      "targetEndpoint": "eth5",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link6",
+      "source": "SROS-03",
+      "target": "SROS-04",
+      "weight": "3",
+      "name": "IP-MPLS domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "IP-MPLS",
+      "sourceEndpoint": "eth6",
+      "targetEndpoint": "eth6",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link7",
+      "source": "SROS-01",
+      "target": "SROS-04",
+      "weight": "3",
+      "name": "IP-MPLS domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "IP-MPLS",
+      "sourceEndpoint": "eth4",
+      "targetEndpoint": "eth4",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link8",
+      "source": "SROS-03",
+      "target": "SRL-02",
+      "weight": "3",
+      "name": "IP-MPLS domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "IP-MPLS",
+      "sourceEndpoint": "eth1",
+      "targetEndpoint": "e1-3",
+      "extraData": {}
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "edges",
+    "selected": false,
+    "selectable": true,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "Clab-Link9",
+      "source": "SROS-04",
+      "target": "SRL-02",
+      "weight": "3",
+      "name": "IP-MPLS domain",
+      "parent": "",
+      "kind": "",
+      "topoviewerRole": "IP-MPLS",
+      "sourceEndpoint": "eth2",
+      "targetEndpoint": "e1-4",
+      "extraData": {}
+=======
       "endpoint": {
         "sourceEndpoint": "eth5",
         "targetEndpoint": "eth5"
@@ -591,6 +1013,7 @@
         "selectable": true,
         "weight": "1"
       }
+>>>>>>> master
     },
     "position": {
       "x": 0,

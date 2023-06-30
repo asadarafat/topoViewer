@@ -154,9 +154,12 @@ func (cyTopo *CytoTopology) IetfL3TopoUnMarshal(topoFile [][]byte, IetfNetworkTo
 				cytoJson.Data.ID = strconv.Itoa(k + 3000)
 				cytoJson.Data.Weight = "1"
 				cytoJson.Data.Source = "L3-" + link.Source.SourceNode[85:len(link.Source.SourceNode)-2]
-				cytoJson.Data.Endpoint.SourceEndpoint = link.Source.SourceTp
+				// cytoJson.Data.Endpoint.SourceEndpoint = link.Source.SourceTp
+				cytoJson.Data.SourceEndpoint = link.Source.SourceTp
+
 				cytoJson.Data.Target = "L3-" + link.Destination.DestNode[85:len(link.Destination.DestNode)-2]
-				cytoJson.Data.Endpoint.TargetEndpoint = link.Destination.DestTp
+				// cytoJson.Data.Endpoint.TargetEndpoint = link.Destination.DestTp
+				cytoJson.Data.TargetEndpoint = link.Destination.DestTp
 
 				cytoJson.Data.Name = link.LinkID
 

@@ -429,27 +429,22 @@ func Nsp(_ *cobra.Command, _ []string) error {
 
 		// this is the endpoint for serving xterm.js assets
 		depenenciesDirectorXterm := path.Join(workingDirectory, "./html-static/cloudshell/node_modules")
-		// depenenciesDirectorXterm := ("/eth/topoviewer/html-static/cloudshell/node_modules")
 		router.PathPrefix("/assets").Handler(http.StripPrefix("/assets", http.FileServer(http.Dir(depenenciesDirectorXterm))))
 
 		// this is the endpoint for serving cytoscape.js assets
 		depenenciesDirectoryCytoscape := path.Join(workingDirectory, "./html-static/cytoscape")
-		// depenenciesDirectoryCytoscape := ("/eth/topoviewer/html-static/cytoscape")
 		router.PathPrefix("/cytoscape").Handler(http.StripPrefix("/cytoscape", http.FileServer(http.Dir(depenenciesDirectoryCytoscape))))
 
 		// this is the endpoint for serving dataCyto.json asset
 		depenenciesDirectoryDataCyto := path.Join(workingDirectory, "./html-static/cytoscapedata")
-		// depenenciesDirectoryDataCyto := path.Join(workingDirectory, "/etc/topoviewer/html-static/cytoscapedata")
 		router.PathPrefix("/cytoscapedata").Handler(http.StripPrefix("/cytoscapedata", http.FileServer(http.Dir(depenenciesDirectoryDataCyto))))
 
 		// this is the endpoint for serving css asset
 		depenenciesDirectoryCss := path.Join(workingDirectory, "./html-static/css")
-		// depenenciesDirectoryCss := ("/etc/topoviewer/html-static/css")
 		router.PathPrefix("/css").Handler(http.StripPrefix("/css", http.FileServer(http.Dir(depenenciesDirectoryCss))))
 
 		// // this is the endpoint for the root path aka website shell
 		publicAssetsDirectoryHtml := path.Join(workingDirectory, "./html-public/"+"IetfTopology-L2")
-		// publicAssetsDirectoryHtml := ("/etc/topoviewer/html-public/" + cyTopo.ClabTopoData.ClabTopoName)
 		router.PathPrefix("/").Handler(http.FileServer(http.Dir(publicAssetsDirectoryHtml)))
 
 		//create html-public files

@@ -3,9 +3,11 @@ package cloudshellwrapper
 import (
 	"errors"
 	"fmt"
+	"math/rand"
 	"net/http"
 	"os"
 	"path"
+	"strconv"
 	"strings"
 	"time"
 
@@ -14,8 +16,10 @@ import (
 	"github.com/usvc/go-config"
 
 	log "github.com/asadarafat/topoViewer/tools"
+	cp "github.com/otiai10/copy"
 
 	"github.com/gorilla/mux"
+	"github.com/gorilla/websocket"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/cobra"
 )
@@ -96,6 +100,16 @@ var confClab = config.Map{
 		Usage:     "path to containerlab topo file",
 		Shorthand: "t",
 	},
+	"topology-file-json": &config.String{
+		Default:   ".",
+		Usage:     "path to containerlab topo file",
+		Shorthand: "j",
+	},
+	"clab-user": &config.String{
+		Default:   "root",
+		Usage:     "containerLab server host user",
+		Shorthand: "u",
+	},
 }
 
 // var rootCommand = cobra.Command{
@@ -106,6 +120,13 @@ var clabCommand = cobra.Command{
 	RunE:    Clab,
 }
 
+// var websocket upgrader
+var upgrader = websocket.Upgrader{
+	ReadBufferSize:  1024,
+	WriteBufferSize: 1024,
+	CheckOrigin:     func(r *http.Request) bool { return true },
+}
+
 func init() {
 	// initialise the logger config clabCommand
 	confClab.ApplyToCobra(&clabCommand)
@@ -113,22 +134,53 @@ func init() {
 	rootCommand.AddCommand(&clabCommand)
 }
 
+// define a reader which will listen for
+// new messages being sent to our WebSocket
+// endpoint
+func reader(conn *websocket.Conn) {
+	for {
+		// read in a message
+		messageType, p, err := conn.ReadMessage()
+		if err != nil {
+			log.Info(err)
+			return
+		}
+		// print out that message for clarity
+		log.Info(string(p))
+
+		if err := conn.WriteMessage(messageType, p); err != nil {
+			log.Info(err)
+			return
+		}
+
+	}
+}
+
 func Clab(_ *cobra.Command, _ []string) error {
 	// initialise the logger
 	log.Init(log.Format(confClab.GetString("log-format")), log.Level(confClab.GetString("log-level")))
 
 	// tranform clab-topo-file into cytoscape-model
-	topoClab := confClab.GetString("topology-file")
+	// aarafat-tag: check if provided topo in json or yaml
+	topoClab := confClab.GetString("topology-file-json")
+
 	log.Info("topoFilePath: ", topoClab)
 
 	cyTopo := topoengine.CytoTopology{}
 	cyTopo.LogLevel = 4
 	cyTopo.InitLogger()
-	cyTopo.MarshalContainerLabTopo(topoClab)
-	clabTopoJson := topoengine.ClabTopoJson{}
-	cyTopo.UnmarshalContainerLabTopo(clabTopoJson)
-	jsonBytes := cyTopo.UnmarshalContainerLabTopo(clabTopoJson)
-	cyTopo.PrintjsonBytesCytoUi(jsonBytes)
+
+	//// Clab Version 1
+	// cyTopo.MarshalContainerLabTopov1(topoClab)
+	// ClabTopoStruct := topoengine.ClabTopoStruct{}
+	// jsonBytes := cyTopo.UnmarshalContainerLabTopov1(ClabTopoStruct, confClab.GetString("clab-user"))
+
+	//// Clab Version 2
+	log.Debugf("topo Clab: ", topoClab)
+	log.Debug("Code Trace Point ####")
+	topoFile := cyTopo.ClabTopoRead(topoClab) // loading containerLab export-topo json file
+	jsonBytes := cyTopo.UnmarshalContainerLabTopoV2(topoFile)
+	cyTopo.PrintjsonBytesCytoUiV2(jsonBytes)
 
 	command := confClab.GetString("command")
 	arguments := confClab.GetStringSlice("arguments")
@@ -206,11 +258,13 @@ func Clab(_ *cobra.Command, _ []string) error {
 	router.HandleFunc("/version", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte(VersionInfo))
+		log.Info("##################### " + VersionInfo)
+
 	})
 
+	// cloudshell endpoint
 	router.HandleFunc("/cloudshell}",
 		func(w http.ResponseWriter, r *http.Request) {
-			// router.HandleFunc(pathXTermJS, xtermjs.GetHandler(xtermjsHandlerOptions, "TEST"))
 			log.Info(xtermjsHandlerOptions)
 			w.WriteHeader(http.StatusOK)
 			w.Write([]byte(VersionInfo))
@@ -220,41 +274,100 @@ func Clab(_ *cobra.Command, _ []string) error {
 			log.Info("##################### " + RouterId)
 		})
 
+	// cloudshell-tools endpoint
+	router.HandleFunc("/cloudshell-tools}",
+		func(w http.ResponseWriter, r *http.Request) {
+			log.Info(xtermjsHandlerOptions)
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte(VersionInfo))
+
+			log.Info("##################### cloudshell-tools")
+		})
+
+	// websocket endpoint
+	router.HandleFunc("/ws",
+		// router.HandleFunc("/",
+		func(w http.ResponseWriter, r *http.Request) {
+			// upgrade this connection to a WebSocket
+			// connection
+			log.Info("##################### " + VersionInfo)
+
+			ws, err := upgrader.Upgrade(w, r, nil)
+			if err != nil {
+				log.Info(err)
+			}
+			log.Infof("################## Websocket: Client Connected")
+			w.WriteHeader(http.StatusOK)
+
+			var message []byte
+
+			rand.Seed(time.Now().UnixNano())
+			var number int
+
+			for i := 0; i < 10000; i++ {
+				number = rand.Intn(60) + 1
+				message = []byte(strconv.Itoa(number))
+				err = ws.WriteMessage(1, message)
+				if err != nil {
+					log.Info(err)
+				}
+				time.Sleep(1 * time.Second)
+			}
+
+			// listen indefinitely for new messages coming
+			// through on our WebSocket connection
+			reader(ws)
+		})
+
 	// this is the endpoint for serving xterm.js assets
 	depenenciesDirectorXterm := path.Join(workingDirectory, "./html-static/cloudshell/node_modules")
-	// depenenciesDirectorXterm := ("/eth/topoviewer/html-static/cloudshell/node_modules")
 	router.PathPrefix("/assets").Handler(http.StripPrefix("/assets", http.FileServer(http.Dir(depenenciesDirectorXterm))))
 
 	// this is the endpoint for serving cytoscape.js assets
 	depenenciesDirectoryCytoscape := path.Join(workingDirectory, "./html-static/cytoscape")
-	// depenenciesDirectoryCytoscape := ("/eth/topoviewer/html-static/cytoscape")
 	router.PathPrefix("/cytoscape").Handler(http.StripPrefix("/cytoscape", http.FileServer(http.Dir(depenenciesDirectoryCytoscape))))
 
 	// this is the endpoint for serving dataCyto.json asset
 	depenenciesDirectoryDataCyto := path.Join(workingDirectory, "./html-static/cytoscapedata")
-	// depenenciesDirectoryDataCyto := path.Join(workingDirectory, "/etc/topoviewer/html-static/cytoscapedata")
 	router.PathPrefix("/cytoscapedata").Handler(http.StripPrefix("/cytoscapedata", http.FileServer(http.Dir(depenenciesDirectoryDataCyto))))
 
 	// this is the endpoint for serving css asset
 	depenenciesDirectoryCss := path.Join(workingDirectory, "./html-static/css")
-	// depenenciesDirectoryCss := ("/etc/topoviewer/html-static/css")
 	router.PathPrefix("/css").Handler(http.StripPrefix("/css", http.FileServer(http.Dir(depenenciesDirectoryCss))))
 
 	// // this is the endpoint for the root path aka website shell
-	publicAssetsDirectoryHtml := path.Join(workingDirectory, "./html-public/"+cyTopo.ClabTopoData.ClabTopoName)
-	// publicAssetsDirectoryHtml := ("/etc/topoviewer/html-public/" + cyTopo.ClabTopoData.ClabTopoName)
+	publicAssetsDirectoryHtml := path.Join(workingDirectory, "./html-public/"+cyTopo.ClabTopoDataV2.Name)
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir(publicAssetsDirectoryHtml)))
 
 	//create html-public files
 	htmlPublicPrefixPath := "./html-public/"
+	htmlStaticPrefixPath := "./html-static/"
 	htmlTemplatePath := "./html-static/template/clab/"
 
-	// os.Mkdir(htmlPublicPrefixPath+cyTopo.ClabTopoData.ClabTopoName, 0755) // already created in cytoscapemodel library
-	os.Mkdir(htmlPublicPrefixPath+cyTopo.ClabTopoData.ClabTopoName+"/cloudshell", 0755)
-	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "index.tmpl", cyTopo.ClabTopoData.ClabTopoName+"/"+"index.html", "dataCytoMarshall-"+cyTopo.ClabTopoData.ClabTopoName+".json")
-	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "cy-style.tmpl", cyTopo.ClabTopoData.ClabTopoName+"/"+"cy-style.json", "")
-	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "cloudshell-index.tmpl", cyTopo.ClabTopoData.ClabTopoName+"/cloudshell/"+"index.html", "")
-	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "cloudshell-terminal-js.tmpl", cyTopo.ClabTopoData.ClabTopoName+"/cloudshell/"+"terminal.js", "")
+	// os.Mkdir(htmlPublicPrefixPath+cyTopo.ClabTopoDataV2.Name, 0755) // already created in cytoscapemodel library
+	os.Mkdir(htmlPublicPrefixPath+cyTopo.ClabTopoDataV2.Name+"/cloudshell", 0755)
+	os.Mkdir(htmlPublicPrefixPath+cyTopo.ClabTopoDataV2.Name+"/clab-client", 0755)
+	os.Mkdir(htmlPublicPrefixPath+cyTopo.ClabTopoDataV2.Name+"/cloudshell-tools", 0755)
+	os.Mkdir(htmlPublicPrefixPath+cyTopo.ClabTopoDataV2.Name+"/ws", 0755)
+	os.Mkdir(htmlPublicPrefixPath+cyTopo.ClabTopoDataV2.Name+"/images", 0755)
+
+	sourceImageFolder := htmlStaticPrefixPath + "images"
+	destinationImageFolder := htmlPublicPrefixPath + cyTopo.ClabTopoDataV2.Name + "/images"
+	err := cp.Copy(sourceImageFolder, destinationImageFolder)
+	log.Debugf("Copying images folder error: ", err)
+
+	sourceClabClientFolder := htmlStaticPrefixPath + "clab-client"
+	destinationClabClientImageFolder := htmlPublicPrefixPath + cyTopo.ClabTopoDataV2.Name + "/clab-client"
+	err1 := cp.Copy(sourceClabClientFolder, destinationClabClientImageFolder)
+	log.Debugf("Copying clab-client folder error: ", err1)
+
+	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "index.tmpl", cyTopo.ClabTopoDataV2.Name+"/"+"index.html", "dataCytoMarshall-"+cyTopo.ClabTopoDataV2.Name+".json")
+	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "cy-style.tmpl", cyTopo.ClabTopoDataV2.Name+"/"+"cy-style.json", "")
+	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "cloudshell-index.tmpl", cyTopo.ClabTopoDataV2.Name+"/cloudshell/"+"index.html", "")
+	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "cloudshell-terminal-js.tmpl", cyTopo.ClabTopoDataV2.Name+"/cloudshell/"+"terminal.js", "")
+	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "tools-cloudshell-index.tmpl", cyTopo.ClabTopoDataV2.Name+"/cloudshell-tools/"+"index.html", "")
+	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "tools-cloudshell-terminal-js.tmpl", cyTopo.ClabTopoDataV2.Name+"/cloudshell-tools/"+"terminal.js", "")
+	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "websocket-index.tmpl", cyTopo.ClabTopoDataV2.Name+"/ws/"+"index.html", "")
 
 	// start memory logging pulse
 	logWithMemory := createMemoryLog()
@@ -274,4 +387,5 @@ func Clab(_ *cobra.Command, _ []string) error {
 
 	log.Infof("starting server on interface:port '%s'...", listenOnAddress)
 	return server.ListenAndServe()
+
 }

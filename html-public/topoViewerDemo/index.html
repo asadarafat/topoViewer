@@ -52,7 +52,7 @@ body {
   position: absolute;
 }
 
-#settings {
+#infoPanel {
    
   bottom: 0px; 
   right: 10px; 
@@ -71,15 +71,15 @@ body {
     <nav class="level m-0 py-4 px-5 has-background-4a">
       <div class="level-left">
         <div class="level-item">
-          <p class="title is-4 is-unselectable has-text-weight-light has-text-white">TopoViewer</p>
+          <p class="title is-4 is-unselectable has-text-weight-normal has-text-white">TopoViewer</p>
         </div>
       </div>
       <div class="level-right">
         <div class="level-item">
-          <div class="dropdown is-active is-right">
+          <div class="dropdown is-hoverable is-right">
             <div class="dropdown-trigger">
               <button class="button is-small is-link is-light" aria-haspopup="true" aria-controls="dropdown-menu3">
-                <span>Settings</span>
+                <span>infoPanel</span>
                 <span class="icon is-small">
                   <i class="fas fa-angle-down" aria-hidden="true"></i>
                 </span>
@@ -88,17 +88,18 @@ body {
             <div class="dropdown-menu" id="dropdown-menu" role="menu">
               <div class="dropdown-content">
                 <div class="dropdown-item">
-                  <div class="field">
                     <label class="label has-text-weight-normal is-small">Edge Length</label>
-                    <input id="edgeLength" type="range" min="1" max="400" step="1" value="100">
-                  </div>
+                    <input id="edgeLength" type="range" min="10" max="200" step="1" value="50">
                 </div>
                 <div class="dropdown-item">
-                  <div class="field">
                     <label class="label has-text-weight-normal is-small">Node Spacing</label>
-                    <input id="nodeSpacing" type="range" min="1" max="400" step="1" value="100">
-                  </div>
+                    <input id="nodeSpacing" type="range" min="10" max="50" step="1" value="15">
                 </div>
+                    <a id="clabClient" href="#" onclick="clabClient();" class="dropdown-item label has-text-weight-normal is-small">Clab Client Download</a>                  
+                     
+                    <a id="telemetry" href="#" onclick="telemetry();" class="dropdown-item label has-text-weight-normal is-small">Telemetry</a>                  
+                    <a id="toggleLinkEndpoint" href="#" onclick="toggleLinkEndpoint();" class="dropdown-item label has-text-weight-normal is-small">Toggle Link Endpoint</a>
+                    <a id="showNodeIcon" href="#" onclick="showNodeIcon();" class="dropdown-item label has-text-weight-normal is-small">showNodeIcon</a>                  
               </div>
             </div>
           </div>
@@ -106,29 +107,67 @@ body {
       </div>
     </nav>
   <div id="cy"></div>
-    <div class="message is-hidden" id="settings">
-      <div class="message-header" id=settingsHeader>
+    <div class="message is-hidden" id="infoPanel">
+      <div class="message-header" id=infoPanelHeader>
         <p class="has-text-weight-semibold">Properties</p>
     </div>
   </div>
       <script type="text/javascript">
+
         
-        let settings = document.getElementById("settings");
+        var protocol = "ws://";
+        var url = protocol + location.host + "/ws"
+        var websocketMessage
+
+        let socket = new WebSocket(url);
+        console.log("Attempting Connection...");
+
+        socket.onopen = () => {
+            console.log("Successfully Connected");
+            
+        };
+        socket.onclose = event => {
+          console.log("Socket Closed Connection: ", event);
+          socket.send("Client Closed!")
+        };
+
+        socket.onerror = error => {
+          console.log("Socket Error: ", error);
+        };
+
+        
+        function telemetry() {
+          socket.onmessage = (msg) => {
+            console.log(msg)
+            websocketMessage = msg
+            updateEdgeColor()
+          }
+        }
+  
+
+
+        
+        var linkImpairmentUrl;
+
+        
+        let infoPanel = document.getElementById("infoPanel");
         let options = document.getElementById("options");
         
         const close = document.querySelectorAll(".close");
         close.forEach(e => e.addEventListener('click', event => {
-          var c = settings.className;
+          var c = infoPanel.className;
           if(c.includes("is-hidden")) {
-            settings.className = "message";
+            infoPanel.className = "message";
           } else {
-            settings.className = "message is-hidden";
+            infoPanel.className = "message is-hidden";
           }
         }));
         
         
         var edgeLength = document.getElementById("edgeLength");
         var nodeSpacing = document.getElementById("nodeSpacing");
+        console.log("edgeLength.value: " + edgeLength.value)
+
         
         
         function ce(tag, attrs, children) {
@@ -148,14 +187,71 @@ body {
           var el = document.createTextNode(text);
           return el;
         };
+
         
+        function clabClient(e) {
+          removeLastChild();
+          var oldinfoPanelHeader = infoPanel.childNodes[1]
+          console.log("messageClabCLient oldinfoPanelHeader: ")
+          console.log(oldinfoPanelHeader)
+          var seperator1 = ce("hr", {class: "my-1"}, []);
+          var seperator2 = ce("hr", {class: "my-1"}, []);
+
+          var tt1 = ce("a", {target: "_blank", href: "http://"+location.host+"/clab-client/mac-clab-client-wireshark.zip", onclick: "", class: "text is-link is-small"}, [ctn("ContainerLab Wireshark Client - MAC")] );
+          var tt2 = ce("a", {target: "_blank", href: "http://"+location.host+"/clab-client/windows-clab-client-wireshark.zip", onclick: "", class: "text is-link is-small"}, [ctn("ContainerLab Wireshark Client - Windows")] );
+          var tt3 = ce("a", {target: "_blank", href: "http://"+location.host+"/clab-client/mac-clab-client-linkImpairment.zip", onclick: "", class: "text is-link is-small"}, [ctn("ContainerLab LinkImpairment Client - MAC")] );
+
+          var tname = ce("p", {}, [tt1, seperator1, tt2, seperator2, tt3]);
+         
+
+          var tpanel = ce("div", {}, [tname]);
+          var tmessageBody = ce("div", {class: "message-body"}, [tpanel])
+
+          var headerTitle = ce("p", {class: "my-7"}, [ctn("Clab Client Download")]);
+          var messageHeader = ce("div", {class: "message-header"}, [headerTitle])
+
+
+          infoPanel.replaceChild(messageHeader, oldinfoPanelHeader);
+          infoPanel.appendChild(tmessageBody);
+          infoPanel.className = "message is-small is-link";
+          
+        }
+
+        
+        function topologyAdjust(e) {
+          removeLastChild();
+          var oldinfoPanelHeader = infoPanel.childNodes[1]
+          console.log("messageTopologyAdjust oldinfoPanelHeader: ")
+          console.log(oldinfoPanelHeader)
+          
+          var tt1 = ce("label", {class: "label is-small"}, [ctn("Edge Length")]);
+          var tt2 = ce("input", {class: "slider", step:"1", min:"0", max:"1000", value:"50", type:"range", id: "edgeLengthMessage", oninput: "slider", onchange: "slider"}, []);
+          var tt3 = ce("label", {class: "label is-small"}, [ctn("Node Spacing")]);
+          var tt4 = ce("input", {class: "slider", step:"1", min:"0", max:"1000", value:"50", type:"range", id: "nodeSpacingMessage", oninput: "slider", onchange: "slider"}, []);
+
+          var tname = ce("p", {}, [tt1, tt2, tt3, tt4]);
+         
+
+          var tpanel = ce("div", {}, [tname]);
+          var tmessageBody = ce("div", {class: "message-body"}, [tpanel])
+
+          var headerTitle = ce("p", {class: "my-7"}, [ctn("Topology Adjust")]);
+          var messageHeader = ce("div", {class: "message-header"}, [headerTitle])
+
+
+          infoPanel.replaceChild(messageHeader, oldinfoPanelHeader);
+          infoPanel.appendChild(tmessageBody);
+          infoPanel.className = "message is-small is-link";
+          
+        }
+
         
         function nodeInfo(e) {
           var shellUrl = location.protocol + "//" + location.host + "/cloudshell/?RouterID=";
           var elements = [
             {
               name: "SSH Session",
-              url: shellUrl + e.data("ExtraData").MgmtIPv4Address
+              url: shellUrl + e.data("MgmtIPv4Address")
             }
           ].map(function(link) {
             return ce("a", {target: "_blank", href: link.url, class: "button is-link is-small"}, [ctn(link.name)] );
@@ -165,58 +261,82 @@ body {
         
         
         function linkInfo(e) {
-          var elements = [
+          var wiresharkElements = [
             {
-              name: e.data("source") + "::" + e.data("endpoint").sourceEndpoint,
-              url: "clab-capture://" + e.data("ExtraData").ClabServerUsername + "@" + location.host + "?" + e.data("ExtraData").SourceLongName + "?" + e.data("ExtraData").Endpoints.SourceEndpoint
+              name: e.data("source") + "::" + e.data("sourceEndpoint"),
+              url: "clab-capture://" + e.data("extraData").clabServerUsername + "@" + location.host + "?" + e.data("extraData").clabSourceLongName + "?" + e.data("sourceEndpoint")
             },
             {
-              name: e.data("target") + "::" + e.data("endpoint").targetEndpoint,
-              url: "clab-capture://" + e.data("ExtraData").ClabServerUsername + "@" + location.host + "?" + e.data("ExtraData").TargetLongName + "?" + e.data("ExtraData").Endpoints.TargetEndpoint
+              name: e.data("target") + "::" + e.data("targetEndpoint"),
+              url: "clab-capture://" + e.data("extraData").clabServerUsername + "@" + location.host + "?" + e.data("extraData").clabTargetLongName + "?" + e.data("targetEndpoint")
             }
           ].map(function(link) {
             return ce("a", {target: "_blank", href: link.url, class: "button is-link is-small"}, [ctn(link.name)] );
           });
         
-          var t1 = ce("label", {class: "label has-text-weight-semibold is-small"}, [ctn("Wireshark Endpoints")]);
-          var t2 = ce("div", {class: "buttons is-small"}, elements);
+          var t1 = ce("label", {class: "label has-text-link is-small has-text-weight-semibold"}, [ctn("Wireshark Endpoints:")]);
+          var t2 = ce("div", {class: "buttons is-small"}, wiresharkElements);
           var t3 = ce("div", {class: "control"}, [t1, t2]);
-          var wireshark = ce("div", {class: "field"}, [t3]);
+          var seperator = ce("hr", {class: "my-3 has-background-grey-lighter"}, []);
+          var wireshark = ce("div", {class: "field"}, [t3, seperator]);
+
+          t1 = ce("label", {class: "label has-text-link is-small has-text-weight-semibold pb-3"}, [ctn("Link Impairment:")]);
+          var linkImpairment = ce("div", {class: "field"}, [t1]);
+
+          label01 = ce("label", {class: "label has-text-link is-small has-text-right has-text-weight-normal mr-0"}, [ctn("Delay")]);
+          column01 = ce("label", {class: "column is-3 ml-3 pb-3"}, [label01]);
+          input01 = ce("input", {class: "input is-small", type: "number", placeholder: "Delay (ms)", id: "delay", onkeyup: "updateUrl(this)", onchange:"updateUrl(this)"}, []);
+          column02 = ce("label", {class: "column is-8 p-0"}, [input01]);
+          var delay = ce("div", {class: "columns mb-2"}, [column01, column02]);
         
-          t1 = ce("label", {class: "label has-text-weight-semibold is-small"}, [ctn("Link Impairment")]);
-          t2 = ce("input", {class: "input is-small", type: "number", placeholder: "Delay (ms)", id: "delay"}, []);
-          t3 = ce("div", {class: "control "}, [t2]);
-          var delay = ce("div", {class: "field"}, [t1, t3]);
+          label01 = ce("label", {class: "label has-text-link is-small has-text-right has-text-weight-normal mr-0"}, [ctn("Jitter")]);
+          column01 = ce("label", {class: "column is-3 ml-3 pb-3"}, [label01]);
+          input01 = ce("input", {class: "input is-small", type: "number", placeholder: "Jitter (ms)", id: "jitter", onkeyup: "updateUrl(this)", onchange:"updateUrl(this)"}, []);
+          column02 = ce("label", {class: "column is-8 p-0"}, [input01]);
+          var jitter = ce("div", {class: "columns mb-2"}, [column01, column02]);
         
-          t1 = ce("input", {class: "input is-small", type: "number", placeholder: "Jitter (ms)", id: "jitter"}, []);
-          t2 = ce("div", {class: "control"}, [t1]);
-          var jitter = ce("div", {class: "field"}, [t2]);
-        
-          t1 = ce("input", {class: "input is-small", type: "number", placeholder: "Rate (Kbps)", id: "rate"}, []);
-          t2 = ce("div", {class: "control"}, [t1]);
-          var rate = ce("div", {class: "field"}, [t2]);
-        
-          t1 = ce("input", {class: "input is-small", type: "number", placeholder: "Loss (%)", id: "loss"}, []);
-          t2 = ce("div", {class: "control"}, [t1]);
-          var loss = ce("div", {class: "field"}, [t2]);
-        
-          t1 = ce("input", {class: "input is-small", type: "number", placeholder: "Duration (secs)", id: "duration"}, []);
-          t2 = ce("div", {class: "control"}, [t1]);
-          var duration = ce("div", {class: "field"}, [t2]);
-        
+          label01 = ce("label", {class: "label has-text-link is-small has-text-right has-text-weight-normal mr-0"}, [ctn("Rate")]);
+          column01 = ce("label", {class: "column is-3 ml-3 pb-3"}, [label01]);
+          input01 = ce("input", {class: "input is-small", type: "number", placeholder: "Rate (Kbps)", id: "rate", onkeyup: "updateUrl(this)", onchange:"updateUrl(this)"}, []);
+          column02 = ce("label", {class: "column is-8 p-0"}, [input01]);
+          var rate = ce("div", {class: "columns mb-2"}, [column01, column02]);
+
+          label01 = ce("label", {class: "label has-text-link is-small has-text-right has-text-weight-normal mr-0"}, [ctn("Loss")]);
+          column01 = ce("label", {class: "column is-3 ml-3 pb-3"}, [label01]);
+          input01 = ce("input", {class: "input is-small", type: "number", placeholder: "Loss (%)", id: "loss", onkeyup: "updateUrl(this)", onchange:"updateUrl(this)"}, []);
+          column02 = ce("label", {class: "column is-8 p-0"}, [input01]);
+          var loss = ce("div", {class: "columns mb-2"}, [column01, column02]);
+
+          label01 = ce("label", {class: "label has-text-link is-small has-text-right has-text-weight-normal mr-0"}, [ctn("Duration")]);
+          column01 = ce("label", {class: "column is-3 ml-3 pb-3"}, [label01]);
+          input01 = ce("input", {class: "input is-small", type: "number", placeholder: "Duration (min)", id: "duration", onkeyup: "updateUrl(this)", onchange:"updateUrl(this)"}, []);
+          column02 = ce("label", {class: "column is-8 p-0"}, [input01]);
+          var duration = ce("div", {class: "columns mb-1"}, [column01, column02]);
+
+          linkImpairmentUrl = "clab-pumba://" + e.data("extraData").clabServerUsername + "@" + location.host + "?" + e.data("extraData").clabTargetLongName + "?" + e.data("targetEndpoint")
+
+          var linkImpairmentElements = [
+            {
+              url: linkImpairmentUrl
+            }
+          ].map(function(link) {
+            return ce("a", {target: "_blank", href: link.url, class: "button is-link is-small", id: "onSubmit"}, [ctn("Submit")] );
+          });
           
-          t1 = ce("a", {class: "button is-link is-small", onclick: ""}, [ctn("Submit")]);
+          t1 = ce("a", {class: "button is-link is-small"}, linkImpairmentElements);
           t2 = ce("div", {class: "control has-text-right"}, [t1]);
+
           var submit = ce("div", {class: "field"}, [t2]);
-        
-          return ce("div", {}, [wireshark, delay, jitter, rate, loss, duration, submit]);
+
+          
+          return ce("div", {}, [wireshark, linkImpairment, delay, jitter, rate, loss, duration, submit]);
         }
         
         
         function removeLastChild() {
-          var lastChild = settings.lastChild;
+          var lastChild = infoPanel.lastChild;
           if(lastChild.className == "message-body") {
-            settings.removeChild(lastChild);
+            infoPanel.removeChild(lastChild);
           }
         }
         
@@ -232,6 +352,8 @@ body {
             })
         ])
         .then(function(dataArray) {
+
+  
         
           
         
@@ -247,15 +369,15 @@ body {
             style: dataArray[0],
             elements: dataArray[1],
             layout: { 
-            name: 'cola',
-            nodeSpacing: 5,
-            nodeSpacingAsad: 10,
-            edgeLengthVal: 45,
-            animate: true,
-            randomize: false,
-            maxSimulationTime: 1500}            
+              name: 'cola',
+              nodeSpacing: 5,
+              edgeLengthVal: 45,
+              animate: true,
+              randomize: false,
+              maxSimulationTime: 1500
+            }            
           });
-          
+  
           
           var slider = function(e) {
             var layout = cy.layout({
@@ -263,12 +385,13 @@ body {
               name: "cola",
               animate: true, 
               randomize: false, 
-              maxSimulationTime: 1500,
+              maxSimulationTime: 1000,
               edgeLength: function(e) {
-                return edgeLength.value / e.data("weight"); 
+                return edgeLength.value / e.data('weight');
               },
               nodeSpacing: nodeSpacing.value
             });
+            console.log("edgeLength.value: " + edgeLength.value)
             layout.run();
           }
         
@@ -280,83 +403,222 @@ body {
           addSliderEvent(nodeSpacing);
              
           var tt1 = ce("b", {}, [ctn("Welcome to TopoViewer.")]);
-          var tt2 = ce("p", {}, [ctn("Adjust topology physics in Settings.")]);  
+          var tt2 = ce("p", {}, [ctn("Adjust topology physics in infoPanel.")]);  
           var tt3 = ce("p", {}, [ctn("Click the node or link to see its properties.")]);  
-          var tt4 = ce("hr", {class: "my-10 has-background-grey-lighter"}, []);
+          var tt4 = ce("hr", {class: "my-3 has-background-grey-lighter"}, []);
           var tt10 = ce("p", {}, [ctn("FrontEnd by Siva & BackEnd by Asad.")]);  
 
           var tname = ce("p", {}, [tt1, tt2, tt3, tt4, tt10 ]);
-
           var tpanel = ce("div", {}, [tname]);
           var tmessageBody = ce("div", {class: "message-body"}, [tpanel])
 
           var headerTitle = ce("p", {class: "my-7"}, [ctn("Message")]);
           var messageHeader = ce("div", {class: "message-header"}, [headerTitle])
-          var oldSettingsHeader = document.getElementById("settingsHeader")
-          console.log(oldSettingsHeader)
-          settings.replaceChild(messageHeader, oldSettingsHeader);
+          var oldinfoPanelHeader = document.getElementById("infoPanelHeader")
+          console.log("messageInit oldinfoPanelHeader: ")
+          console.log(oldinfoPanelHeader)
 
-          settings.appendChild(tmessageBody);
-          settings.className = "message is-small is-link";
+          infoPanel.replaceChild(messageHeader, oldinfoPanelHeader);
+          infoPanel.appendChild(tmessageBody);
+          infoPanel.className = "message is-small is-link";
           
 
-          
+
           
           cy.nodes().forEach(function(node) {
             node.on("click", function(e) {
-              removeLastChild();
+            if (!node.isParent()) {          
 
+              removeLastChild();
               var headerTitle = ce("p", {class: "my-7"}, [ctn("Node Properties")]);
               var nodeMessageHeader = ce("div", {class: "message-header"}, [headerTitle]);
-              var oldSettingsHeader = settings.childNodes[1]
-              console.log(oldSettingsHeader)
-              settings.replaceChild(nodeMessageHeader, oldSettingsHeader);
+              var oldinfoPanelHeader = infoPanel.childNodes[1]
+              console.log("oldinfoPanelHeader: ", oldinfoPanelHeader)
+              infoPanel.replaceChild(nodeMessageHeader, oldinfoPanelHeader);
+              
+              console.log("nodeName: ", node.data("extraData").name);
+              label01 = ce("label", {class: "label has-text-link is-small has-text-right has-text-weight-bold mr-0"}, [ctn("Node Name: ")]);
+              column01 = ce("label", {class: "column is-4 p-1 is-narrow-desktop"}, [label01]);
+              label02 = ce("label", {class: "label has-text-link is-small has-text-left has-text-weight-normal mr-0"}, [ctn(node.data("extraData").name)]);  
+              column02 = ce("label", {class: "column is-8 p-1"}, [label02]);
+              var clabName = ce("div", {class: "columns mb-1"}, [column01, column02]);  
 
-              var t1 = ce("b", {}, [ctn("Node: ")]);  
-              var name = ce("p", {}, [t1, ctn(node.data("name"))]);
-              var t2 = ce("b", {}, [ctn("Kind: ")]);
-              var kind = ce("p", {}, [t2, ctn(node.data("ExtraData").ClabKind)]);
+              console.log("nodeKind: ", node.data("extraData").kind);
+              label01 = ce("label", {class: "label has-text-link is-small has-text-right has-text-weight-bold mr-0"}, [ctn("Kind: ")]);
+              column01 = ce("label", {class: "column is-4 p-1 is-narrow-desktop"}, [label01]);
+              label02 = ce("label", {class: "label has-text-link is-small has-text-left has-text-weight-normal mr-0"}, [ctn(node.data("extraData").kind)]);
+              column02 = ce("label", {class: "column is-8 p-1"}, [label02]);
+              var kind = ce("div", {class: "columns mb-1"}, [column01, column02]);
+
+              console.log("image: ", node.data("extraData").image);
+              label01 = ce("label", {class: "label has-text-link is-small has-text-right has-text-weight-bold mr-0"}, [ctn("Image: ")]);
+              column01 = ce("label", {class: "column is-4 p-1 is-narrow-desktop"}, [label01]);
+              label02 = ce("label", {class: "label has-text-link is-small has-text-left has-text-weight-normal mr-0"}, [ctn(node.data("extraData").image)]);
+              column02 = ce("label", {class: "column is-8 p-1"}, [label02]);
+              var image = ce("div", {class: "columns mb-1"}, [column01, column02]);
+
+              console.log("mgmtIpv4Addresss: ", node.data("extraData").mgmtIpv4Addresss);
+              label01 = ce("label", {class: "label has-text-link is-small has-text-right has-text-weight-bold mr-0"}, [ctn("Mgmt IPv4: ")]);
+              column01 = ce("label", {class: "column is-4 p-1 is-narrow-desktop"}, [label01]);
+              label02 = ce("label", {class: "label has-text-link is-small has-text-left has-text-weight-normal mr-0"}, [ctn(node.data("extraData").mgmtIpv4Addresss)]);
+              column02 = ce("label", {class: "column is-8 p-1"}, [label02]);
+              var mgmtIpv4 = ce("div", {class: "columns mb-1"}, [column01, column02]);
+
+              console.log("mgmtIpv6Address: ", node.data("extraData").mgmtIpv6Address);
+              label01 = ce("label", {class: "label has-text-link is-small has-text-right has-text-weight-bold mr-0"}, [ctn("Mgmt IPv6: ")]);
+              column01 = ce("label", {class: "column is-4 p-1 is-narrow-desktop"}, [label01]);
+              label02 = ce("label", {class: "label has-text-link is-small has-text-left has-text-weight-normal mr-0"}, [ctn(node.data("extraData").mgmtIpv6Address)]);
+              column02 = ce("label", {class: "column is-8 p-1"}, [label02]);
+              var mgmtIpv6 = ce("div", {class: "columns mb-1"}, [column01, column02]);
+
+              console.log("fqdn: ", node.data("extraData").fqdn);
+              label01 = ce("label", {class: "label has-text-link is-small has-text-right has-text-weight-bold mr-0"}, [ctn("FQDN: ")]);
+              column01 = ce("label", {class: "column is-4 p-1 is-narrow-desktop"}, [label01]);
+              label02 = ce("label", {class: "label has-text-link is-small has-text-left has-text-weight-normal mr-0"}, [ctn(node.data("extraData").fqdn)]);
+              column02 = ce("label", {class: "column is-8 p-1"}, [label02]);
+              var fqdn = ce("div", {class: "columns mb-1"}, [column01, column02]);
+
+              console.log("group: ", node.group("extraData").group);
+              label01 = ce("label", {class: "label has-text-link is-small has-text-right has-text-weight-bold mr-0"}, [ctn("Group: ")]);
+              column01 = ce("label", {class: "column is-4 p-1 is-narrow-desktop"}, [label01]);
+              label02 = ce("label", {class: "label has-text-link is-small has-text-left has-text-weight-normal mr-0"}, [ctn(node.data("extraData").group)]);
+              column02 = ce("label", {class: "column is-8 p-1"}, [label02]);
+              var group = ce("div", {class: "columns mb-1"}, [column01, column02]);
+
+              
               var seperator = ce("hr", {class: "my-3 has-background-grey-lighter"}, []);
               var addon = ce("div", {}, [nodeInfo(node)]);
-              var panel = ce("div", {}, [name, kind, seperator, addon]);
+              var panel = ce("div", {}, [clabName, kind, image, mgmtIpv4, mgmtIpv6, fqdn, group]);
               var messageBody = ce("div", {class: "message-body"}, [panel])
-
-              settings.appendChild(messageBody);
-              settings.className = "message is-small is-link";
-
+              infoPanel.appendChild(messageBody);
+              infoPanel.className = "message is-small is-link";
+              }
             });
           });
         
+ 
+
           
           cy.edges().forEach(function(edge) {
             edge.on("click", function(e) {
               removeLastChild();
 
+
               var headerTitle = ce("p", {class: "my-7"}, [ctn("Link Properties")]);
               var linkMessageHeader = ce("div", {class: "message-header"}, [headerTitle]);
-              var oldSettingsHeader = settings.childNodes[1]
-              console.log(oldSettingsHeader)
-              settings.replaceChild(linkMessageHeader, oldSettingsHeader);
+              var oldinfoPanelHeader = infoPanel.childNodes[1]
+              console.log(oldinfoPanelHeader)
+              infoPanel.replaceChild(linkMessageHeader, oldinfoPanelHeader);
 
-              var t1 = ce("b", {}, [ctn("Link: ")]);  
+              var t1 = ce("b", {}, [ctn("Link Name: ")]);  
               var name = ce("p", {}, [t1, ctn(edge.data("name"))]);
+
+              label01 = ce("label", {class: "label has-text-link has-text-right is-small has-text-weight-bold mr-0"}, [ctn("Link Name: ")]);
+              column01 = ce("label", {class: "column is-4 p-1 is-narrow-desktop"}, [label01]);
+              label02 = ce("label", {class: "label has-text-link is-small has-text-left has-text-weight-normal mr-0 is-max-content"}, [ctn(edge.data("extraData").clabName)]);
+              column02 = ce("label", {class: "column is-8 p-1"}, [label02]);
+              var name = ce("div", {class: "columns mb-1"}, [column01, column02]);
+
+              label01 = ce("label", {class: "label has-text-link has-text-right is-small has-text-weight-bold mr-0"}, [ctn("Source: ")]);
+              column01 = ce("label", {class: "column is-4 p-1 is-narrow-desktop"}, [label01]);
+              label02 = ce("label", {class: "label has-text-link is-small has-text-left has-text-weight-normal mr-0"}, [ctn(edge.data("source")+"::"+edge.data("sourceEndpoint"))]);
+              column02 = ce("label", {class: "column is-8 p-1"}, [label02]);
+              var source = ce("div", {class: "columns mb-1"}, [column01, column02]);
+
+              label01 = ce("label", {class: "label has-text-link has-text-right is-small has-text-weight-bold mr-0"}, [ctn("Target: ")]);
+              column01 = ce("label", {class: "column is-4 p-1 is-narrow-desktop"}, [label01]);
+              label02 = ce("label", {class: "label has-text-link is-small has-text-left has-text-weight-normal mr-0"}, [ctn(edge.data("target")+"::"+edge.data("targetEndpoint"))]);
+              column02 = ce("label", {class: "column is-8 p-1"}, [label02]);
+              var target = ce("div", {class: "columns mb-1"}, [column01, column02]);
+
+              label01 = ce("label", {class: "label has-text-link has-text-right is-small has-text-weight-bold mr-0"}, [ctn("Source MAC: ")]);
+              column01 = ce("label", {class: "column is-4 p-1 is-narrow-desktop"}, [label01]);
+              label02 = ce("label", {class: "label has-text-link is-small has-text-left has-text-weight-normal mr-0"}, [ctn(edge.data("extraData").sourceMac)]);
+              column02 = ce("label", {class: "column is-8 p-1"}, [label02]);
+              var sourceMac = ce("div", {class: "columns mb-1"}, [column01, column02]);
+
+              label01 = ce("label", {class: "label has-text-link has-text-right is-small has-text-weight-bold mr-0"}, [ctn("Target MAC: ")]);
+              column01 = ce("label", {class: "column is-4 p-1 is-narrow-desktop"}, [label01]);
+              label02 = ce("label", {class: "label has-text-link is-small has-text-left has-text-weight-normal mr-0"}, [ctn(edge.data("extraData").targetMac)]);
+              column02 = ce("label", {class: "column is-8 p-1"}, [label02]);
+              var targetMac = ce("div", {class: "columns mb-1"}, [column01, column02]);
+
               var seperator = ce("hr", {class: "my-3 has-background-grey-lighter"}, []);
               var addon = ce("div", {}, [linkInfo(edge)]);
-              var panel = ce("div", {}, [name, seperator, addon]);
+              var panel = ce("div", {}, [name, source, target, sourceMac, targetMac, seperator, addon]);
               var messageBody = ce("div", {class: "message-body"}, [panel])
-              settings.appendChild(messageBody);
-              settings.className = "message is-small is-link";
+              infoPanel.appendChild(messageBody);
+              infoPanel.className = "message is-small is-link";
             });
           });
-        
+          
+          
+          topoViewerNode = cy.filter('node[name = "topoviewer"]');
+          topoViewerNode.remove()
+
+
           
           cy.on("tap", function(e) {
             if(e.target === cy ){
-              settings.className = "message is-hidden";
+              infoPanel.className = "message is-hidden";
               removeLastChild();
-            }
+              }
+            });
           });
-        });
+
+        function updateEdgeColor() {
+          Srl01Edge = cy.filter('edge[source = "srl-01"][target = "sros-01"]');
+          Srl01Edge.style("line-color", "red")
+          Srl01Edge.style("label", websocketMessage.data + " kbps")
+          Srl01Edge.style("text-background-padding", "0.1")
+          Srl01Edge.style("text-outline-color", "#F2F2F2")
+          Srl01Edge.style("text-outline-width", "0.3px")
+
+          Srl01Edge.style("line-fill", "linear-gradient")
+          Srl01Edge.style("line-gradient-stop-colors", ['blue', 'green', 'yellow', 'red'])
+          Srl01Edge.style("line-gradient-stop-positions", ['25%', '40%', '50%', '100%'])
+        }
+
+        function showNodeIcon() {
+          peNodesTest = cy.filter('node[name = "datacenter"]');
+          console.log(peNodesTest)
+          peNodesTest.style("background-image","images/clab-pe-router-light-gray.png")
+
+
+          peNodesAsad = cy.nodes('node[topoviewerRole = "pe"]');
+          console.log(peNodesAsad)
+          peNodesAsad.style("background-image","images/clab-pe-router-dark-blue.png")
+          
+
+
+
+        }
+
+        var linkEndpointVisibility = false
+
+        function toggleLinkEndpoint() {
+          if (linkEndpointVisibility) {
+            cy.edges().forEach(function(edge) {
+              edge.style('source-label', " ")
+              edge.style('target-label', " ")
+              linkEndpointVisibility = false
+            }) 
+          }else {
+            cy.edges().forEach(function(edge) {
+              edge.style('source-label', edge.data("sourceEndpoint"))
+              edge.style('target-label', edge.data("targetEndpoint"))
+              linkEndpointVisibility = true
+            }) 
+          }
+        }
+
+          
+        function updateUrl(asad) {
+          var button = document.getElementById("onSubmit")
+          console.log(button)
+          console.log("delay-value: ", document.getElementById("delay").value)
+          button.href = linkImpairmentUrl + "?" + document.getElementById("delay").value + "?" + document.getElementById("jitter").value + "?" + document.getElementById("rate").value + "?" + document.getElementById("loss").value +  "?" + document.getElementById("duration").value
+        }
       </script>
   </body>
 </html>
