@@ -6,7 +6,7 @@
       "prefix": "clab",
       "mgmt": {
         "network": "clab",
-        "bridge": "br-4d3a6c045cb8",
+        "bridge": "br-ace3288d3329",
         "ipv4-subnet": "20.20.20.0/24",
         "ipv4-gw": "20.20.20.1",
         "mtu": "1500",
@@ -33,7 +33,7 @@
       "mgmt-ipv6-prefix-length": 0,
       "mac-address": "",
       "labels": {
-        "clab-mgmt-net-bridge": "br-4d3a6c045cb8",
+        "clab-mgmt-net-bridge": "br-ace3288d3329",
         "clab-node-group": "",
         "clab-node-kind": "srl",
         "clab-node-lab-dir": "/root/topoViewer/rawTopoFile/clab-topoViewerDemo/srl-01",
@@ -61,7 +61,7 @@
       "mgmt-ipv6-prefix-length": 0,
       "mac-address": "",
       "labels": {
-        "clab-mgmt-net-bridge": "br-4d3a6c045cb8",
+        "clab-mgmt-net-bridge": "br-ace3288d3329",
         "clab-node-group": "",
         "clab-node-kind": "srl",
         "clab-node-lab-dir": "/root/topoViewer/rawTopoFile/clab-topoViewerDemo/srl-02",
@@ -89,7 +89,7 @@
       "mgmt-ipv6-prefix-length": 0,
       "mac-address": "",
       "labels": {
-        "clab-mgmt-net-bridge": "br-4d3a6c045cb8",
+        "clab-mgmt-net-bridge": "br-ace3288d3329",
         "clab-node-group": "8",
         "clab-node-kind": "linux",
         "clab-node-lab-dir": "/root/topoViewer/rawTopoFile/clab-topoViewerDemo/topoviewer",
@@ -107,14 +107,14 @@
         "node": "srl-01",
         "nodeLongName": "clab-topoViewerDemo-srl-01",
         "interface": "e1-1",
-        "mac": "aa:c1:ab:59:80:7e",
+        "mac": "aa:c1:ab:f2:ec:04",
         "peer": "z"
       },
       "z": {
         "node": "srl-01",
         "nodeLongName": "clab-topoViewerDemo-srl-01",
         "interface": "e1-2",
-        "mac": "aa:c1:ab:69:34:7c",
+        "mac": "aa:c1:ab:c0:0f:85",
         "peer": "a"
       }
     }
