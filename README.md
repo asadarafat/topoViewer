@@ -12,10 +12,7 @@ Container Lab client: We've got your back when it comes to launching Wireshark f
 But hey, keep in mind, exposing your shell via a browser can be risky business. We're just putting it out there, so if you decide to dive in, do it at your own risk. Stay rad, my friend!
 
 
-## Quick Run - With ContainerLab Topo
-
-![](https://github.com/asadarafat/topoViewer/blob/development/docs/topoViewer-quickRun-containerLab.gif)
-
+## Quick Run - With ContainerLab Topology file
 
 Define the topoviewer as ContainerLab Node and ensure the topology file (that will be visualised) is mounted as docker binds.
 
