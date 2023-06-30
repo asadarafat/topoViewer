@@ -62,11 +62,6 @@ require (
 	github.com/googleapis/enterprise-certificate-proxy v0.0.0-20220520183353-fd19c99a87aa // indirect
 	github.com/googleapis/gax-go/v2 v2.4.0 // indirect
 	github.com/googleapis/go-type-adapters v1.0.0 // indirect
-<<<<<<< HEAD
-=======
-	github.com/goombaio/namegenerator v0.0.0-20181006234301-989e774b106e // indirect
-	github.com/gorilla/schema v1.2.0 // indirect
->>>>>>> master
 	github.com/gosimple/slug v1.12.0 // indirect
 	github.com/gosimple/unidecode v1.0.1 // indirect
 	github.com/hairyhenderson/go-fsimpl v0.0.0-20220529183339-9deae3e35047 // indirect
@@ -124,12 +119,7 @@ require (
 	github.com/spf13/cast v1.4.1 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-<<<<<<< HEAD
 	github.com/stretchr/objx v0.4.0 // indirect
-=======
-	github.com/stefanberger/go-pkcs11uri v0.0.0-20201008174630-78d3cae3a980 // indirect
-	github.com/stretchr/testify v1.7.5 // indirect
->>>>>>> master
 	github.com/subosito/gotenv v1.2.0 // indirect
 	github.com/ugorji/go/codec v1.2.7 // indirect
 	github.com/vishvananda/netlink v1.1.1-0.20220115184804-dd687eb2f2d4 // indirect
@@ -167,10 +157,7 @@ require (
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.2-0.20181231171920-c182affec369 // indirect
-<<<<<<< HEAD
 	github.com/otiai10/copy v1.11.0
-=======
->>>>>>> master
 	github.com/prometheus/client_model v0.2.0 // indirect
 	github.com/prometheus/common v0.37.0 // indirect
 	github.com/prometheus/procfs v0.8.0 // indirect

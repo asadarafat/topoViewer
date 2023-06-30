@@ -30,7 +30,10 @@ echo "Copy html folder and assets..."
 cp -r html-static dist/html-static
 cp rawTopoFile/topo-topoViewerDemo.yaml dist/topo-topoViewerDemo.yaml
 
-echo "Create TAR package..."
-tar -czvf dist/TopoViewer.tar.gz dist
+# echo "Create TAR package..."
+# tar -czvf dist/TopoViewer.tar.gz dist
+
+echo "Optimize binary size..."
+upx --brute dist/topoviewer 
 
 echo "Distribution build done..."

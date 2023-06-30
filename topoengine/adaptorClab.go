@@ -27,20 +27,8 @@ func (cyTopo *CytoTopology) InitLogger() {
 	toolLogger.InitLogger("logs/topoengine-CytoTopology.log", cyTopo.LogLevel)
 }
 
-<<<<<<< HEAD
 func (cyTopo *CytoTopology) MarshalContainerLabTopov1(topoFile string) error {
-=======
-// need to switch the function name between MarshalContainerLabTopo and UnmarshalContainerLabTopo
-func (cyTopo *CytoTopology) MarshalContainerLabTopo(topoFile string) error {
-	log.Info(topoFile)
-	// static definition of topofile path
-	// filePath, _ := os.Getwd()
-	// filePath = (filePath + "/rawTopoFile/")
-	// log.Info(filePath + topoFile)
->>>>>>> master
-
 	clabNode := ClabNode{}
-
 	workingDirectory, err1 := os.Getwd()
 	if err1 != nil {
 		message := fmt.Sprintf("failed to get working directory: %s", err1)
