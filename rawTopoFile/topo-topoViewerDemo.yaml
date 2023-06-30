@@ -30,14 +30,14 @@ topology:
       kind: srl
       mgmt-ipv4: 20.20.20.201
       image: ghcr.io/nokia/srlinux
-      group: spine-leve
+      group: spineGroup
       labels:
         topo-viewer-role: spine
     spine-02:
       kind: srl
       mgmt-ipv4: 20.20.20.202
       image: ghcr.io/nokia/srlinux
-      group: spine-leve
+      group: spineGroup
       labels:
         topo-viewer-role: spine
     leaf-01:
