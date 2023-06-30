@@ -132,7 +132,7 @@ func (cyTopo *CytoTopology) UnmarshalContainerLabTopoV2(topoFile []byte) []byte 
 	    // else {
 		// 	cytoJson.Data.Parent = "other"
 		// }
-		
+
 		topoviewerParentList = append(topoviewerParentList, cytoJson.Data.Parent)
 
 		log.Debugf("node.Labels.ClabMgmtNetBridge: ", node.Labels.ClabMgmtNetBridge)
@@ -192,7 +192,7 @@ func (cyTopo *CytoTopology) UnmarshalContainerLabTopoV2(topoFile []byte) []byte 
 		cytoJson.Grabbable = true
 		cytoJson.Selectable = true
 		cytoJson.Data.ID = n
-		cytoJson.Data.Name = n + " domain"
+		cytoJson.Data.Name = n
 		cytoJson.Data.TopoviewerRole = n
 		cytoJson.Data.Weight = "1000"
 		cytoJson.Data.ExtraData = map[string]interface{}{
