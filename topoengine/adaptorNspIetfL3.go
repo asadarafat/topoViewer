@@ -119,6 +119,8 @@ func (cyTopo *CytoTopology) IetfL3TopoUnMarshal(topoFile [][]byte, IetfNetworkTo
 		// cytoJson := CytoJson{}
 		// cytoJsonList := []CytoJson{}
 
+		//map the IetfNetworkTopologyL3Data content to cytoJson content
+
 		for i, network := range IetfNetworkTopologyL3Data.IetfNetworkNetwork {
 			nodes := network.NodeList
 			for j, node := range nodes {

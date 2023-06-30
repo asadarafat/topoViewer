@@ -9,7 +9,11 @@ COPY ./dist /opt/topoviewer
 USER root:root
 
 # Install ssh server
+<<<<<<< HEAD
 RUN apt-get update && apt-get install -y openssh-server iproute2 iputils-ping vim
+=======
+RUN apt-get update && apt-get install -y openssh-server iproute2
+>>>>>>> master
 RUN echo "HostKeyAlgorithms ssh-dss" >> /etc/ssh/ssh_config    
 RUN echo "KexAlgorithms diffie-hellman-group1-sha1" >> /etc/ssh/ssh_config    
 RUN useradd -rm -d /home/ubuntu -s /bin/bash -g root -G sudo -u 1000 suuser 
