@@ -70,5 +70,5 @@ topology:
     - endpoints: ["spine-01:e1-4", "leaf-03:e1-1"]
     - endpoints: ["spine-02:e1-1", "leaf-01:e1-2"]
     - endpoints: ["spine-02:e1-2", "leaf-02:e1-2"]
-    - endpoints: ["spine-02:e1-3", "leaf-02:e1-2"]
-    - endpoints: ["spine-02:e1-4", "leaf-03:e1-2"]
+    - endpoints: ["spine-02:e1-3", "leaf-03:e1-2"]
+    - endpoints: ["spine-02:e1-4", "leaf-04:e1-2"]
