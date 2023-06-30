@@ -127,9 +127,12 @@ func (cyTopo *CytoTopology) UnmarshalContainerLabTopoV2(topoFile []byte) []byte 
 
 		if len(node.Group) != 0 {
 			cytoJson.Data.Parent = node.Group
-		} else {
-			cytoJson.Data.Parent = ""
-		}
+		} 
+		
+	    // else {
+		// 	cytoJson.Data.Parent = "other"
+		// }
+		
 		topoviewerParentList = append(topoviewerParentList, cytoJson.Data.Parent)
 
 		log.Debugf("node.Labels.ClabMgmtNetBridge: ", node.Labels.ClabMgmtNetBridge)
