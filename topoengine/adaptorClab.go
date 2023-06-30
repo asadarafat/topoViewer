@@ -28,9 +28,7 @@ func (cyTopo *CytoTopology) InitLogger() {
 }
 
 func (cyTopo *CytoTopology) MarshalContainerLabTopov1(topoFile string) error {
-
 	clabNode := ClabNode{}
-
 	workingDirectory, err1 := os.Getwd()
 	if err1 != nil {
 		message := fmt.Sprintf("failed to get working directory: %s", err1)
