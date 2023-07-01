@@ -84,4 +84,4 @@ topology:
     - endpoints: ["spine-02:e1-3", "leaf-03:e1-2"]
     - endpoints: ["spine-02:e1-4", "leaf-04:e1-2"]
 
-    - endpoints: ["leaf-01:e1-1", "bngblaster_01:eth1"]
+    - endpoints: ["leaf-01:e1-5", "bngblaster_01:eth1"]
