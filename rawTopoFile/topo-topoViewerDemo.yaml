@@ -12,7 +12,8 @@ topology:
       ports:
         - 8081:8081
       exec:
-        - /opt/topoviewer/topoviewer clab -H 149.204.21.68  -p 8081 -u root -j local-bind/topo-file.yaml 
+        - /opt/topoviewer/topoviewer clab -H 149.204.21.68  -p 8081 -u root -j local-bind/topo-file.yaml &
+        - /bin/bash 
         # "149.204.21.68" is the server IP where clab is running
         # "root" is the ContainerLab host user name
         # 8081 is the port where topoViewer service run
