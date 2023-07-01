@@ -90,3 +90,4 @@ topology:
     - endpoints: ["spine-02:e1-4", "leaf-04:e1-2"]
 
     - endpoints: ["leaf-01:e1-5", "bngblaster_01:eth1"]
+    - endpoints: ["leaf-04:e1-5", "freeradius:eth1"]
