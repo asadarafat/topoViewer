@@ -26,9 +26,10 @@ topology:
       kind: linux
       mgmt-ipv4: 20.20.20.11      # set ipv4 address on management network
       image: ghcr.io/asadarafat/bngblaster:main
-      entrypoint: /bin/bash
+      entrypoint: /opt/bngblaster
       group: Residential 
-      cpu-set: 31-31 
+      exec:
+        - service ssh start
       labels:
         topo-viewer-role: rgw
     spine-01:
