@@ -26,7 +26,7 @@ topology:
       kind: linux
       mgmt-ipv4: 20.20.20.11      # set ipv4 address on management network
       image: ghcr.io/asadarafat/bngblaster:main
-      entrypoint: /opt/bngblaster
+      entrypoint: /bin/bash
       group: Residential 
       exec:
         - service ssh start
