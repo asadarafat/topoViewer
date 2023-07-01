@@ -19,4 +19,4 @@ RUN service ssh start
 #expose port 
 EXPOSE 8080 22
 
-ENTRYPOINT [ "/opt/topoviewer" ]
+ENTRYPOINT /bin/bash
