@@ -154,7 +154,7 @@ topology:
       kind: linux
       mgmt-ipv4: 10.10.10.211      # set ipv4 address on management network
       image: ghcr.io/asadarafat/freeradius:main
-      entrypoint: bin/bash
+      entrypoint: /bin/bash
       group: Server
       labels:
         topo-viewer-role: server
