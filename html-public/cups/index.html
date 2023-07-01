@@ -73,7 +73,7 @@ body {
     <nav class="level m-0 py-4 px-5 has-background-4a">
       <div class="level-left">
         <div class="level-item">
-          <p class="title is-4 is-unselectable has-text-weight-normal has-text-white">TopoViewer</p>
+          <p class="title is-8 is-unselectable has-text-weight-normal has-text-white">TopoViewer</p>
         </div>
       </div>
       <div class="level-right">
@@ -99,9 +99,9 @@ body {
                 </div>
                     <a id="clabClient" href="#" onclick="clabClient();" class="dropdown-item label has-text-weight-normal is-small">Clab Client Download</a>                  
                      
-                    <a id="telemetry" href="#" onclick="telemetry();" class="dropdown-item label has-text-weight-normal is-small">Telemetry</a>                  
+                    // <a id="telemetry" href="#" onclick="telemetry();" class="dropdown-item label has-text-weight-normal is-small">Telemetry</a>                  
                     <a id="toggleLinkEndpoint" href="#" onclick="toggleLinkEndpoint();" class="dropdown-item label has-text-weight-normal is-small">Toggle Link Endpoint</a>
-                    <a id="showNodeIcon" href="#" onclick="showNodeIcon();" class="dropdown-item label has-text-weight-normal is-small">showNodeIcon</a>                  
+                    // <a id="showNodeIcon" href="#" onclick="showNodeIcon();" class="dropdown-item label has-text-weight-normal is-small">showNodeIcon</a>                  
               </div>
             </div>
           </div>
@@ -413,9 +413,12 @@ body {
           var tt2 = ce("p", {}, [ctn("Adjust topology physics in Setting.")]);  
           var tt3 = ce("p", {}, [ctn("Click the node or link to see its properties.")]);  
           var tt4 = ce("hr", {class: "my-3 has-background-grey-lighter"}, []);
-          var tt10 = ce("p", {}, [ctn("FrontEnd by Siva & BackEnd by Asad.")]);  
+          var tt10 = ce("p", {}, [ctn("Coded by Asad, GUI revamped by Siva.")]);  
+          var tt11 = ce("p", {}, [ctn("https://github.com/asadarafat/topoViewer")]);  
 
-          var tname = ce("p", {}, [tt1, tt2, tt3, tt4, tt10 ]);
+          
+
+          var tname = ce("p", {}, [tt1, tt2, tt3, tt4, tt10, tt11 ]);
           var tpanel = ce("div", {}, [tname]);
           var tmessageBody = ce("div", {class: "message-body"}, [tpanel])
 

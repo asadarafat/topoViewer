@@ -563,7 +563,7 @@
     "data": {
       "id": "6",
       "weight": "1000",
-      "name": "6 domain",
+      "name": "6",
       "parent": "",
       "kind": "",
       "topoviewerRole": "6",
@@ -592,7 +592,7 @@
     "data": {
       "id": "8",
       "weight": "1000",
-      "name": "8 domain",
+      "name": "8",
       "parent": "",
       "kind": "",
       "topoviewerRole": "8",
@@ -621,7 +621,7 @@
     "data": {
       "id": "7",
       "weight": "1000",
-      "name": "7 domain",
+      "name": "7",
       "parent": "",
       "kind": "",
       "topoviewerRole": "7",
@@ -650,7 +650,7 @@
     "data": {
       "id": "9",
       "weight": "1000",
-      "name": "9 domain",
+      "name": "9",
       "parent": "",
       "kind": "",
       "topoviewerRole": "9",
@@ -679,7 +679,7 @@
     "data": {
       "id": "1",
       "weight": "1000",
-      "name": "1 domain",
+      "name": "1",
       "parent": "",
       "kind": "",
       "topoviewerRole": "1",
@@ -708,7 +708,7 @@
     "data": {
       "id": "10",
       "weight": "1000",
-      "name": "10 domain",
+      "name": "10",
       "parent": "",
       "kind": "",
       "topoviewerRole": "10",
@@ -739,7 +739,7 @@
       "source": "MAG-C01",
       "target": "PE-01",
       "weight": "3",
-      "name": "10 domain",
+      "name": "10",
       "parent": "",
       "kind": "",
       "topoviewerRole": "10",
@@ -747,8 +747,8 @@
       "targetEndpoint": "eth3",
       "extraData": {
         "clabServerUsername": "root",
-        "clabSourceLongName": "clab-cups-MAG-C01",
-        "clabTargetLongName": "clab-cups-PE-01"
+        "clabSourceLongName": "",
+        "clabTargetLongName": ""
       }
     },
     "position": {
@@ -770,7 +770,7 @@
       "source": "MAG-C02",
       "target": "PE-01",
       "weight": "3",
-      "name": "10 domain",
+      "name": "10",
       "parent": "",
       "kind": "",
       "topoviewerRole": "10",
@@ -778,8 +778,8 @@
       "targetEndpoint": "eth4",
       "extraData": {
         "clabServerUsername": "root",
-        "clabSourceLongName": "clab-cups-MAG-C02",
-        "clabTargetLongName": "clab-cups-PE-01"
+        "clabSourceLongName": "",
+        "clabTargetLongName": ""
       }
     },
     "position": {
@@ -801,7 +801,7 @@
       "source": "PE-01",
       "target": "AGG-UPF01",
       "weight": "3",
-      "name": "10 domain",
+      "name": "10",
       "parent": "",
       "kind": "",
       "topoviewerRole": "10",
@@ -809,8 +809,8 @@
       "targetEndpoint": "eth3",
       "extraData": {
         "clabServerUsername": "root",
-        "clabSourceLongName": "clab-cups-PE-01",
-        "clabTargetLongName": "clab-cups-AGG-UPF01"
+        "clabSourceLongName": "",
+        "clabTargetLongName": ""
       }
     },
     "position": {
@@ -832,7 +832,7 @@
       "source": "PE-01",
       "target": "AGG-UPF02",
       "weight": "3",
-      "name": "10 domain",
+      "name": "10",
       "parent": "",
       "kind": "",
       "topoviewerRole": "10",
@@ -840,8 +840,8 @@
       "targetEndpoint": "eth3",
       "extraData": {
         "clabServerUsername": "root",
-        "clabSourceLongName": "clab-cups-PE-01",
-        "clabTargetLongName": "clab-cups-AGG-UPF02"
+        "clabSourceLongName": "",
+        "clabTargetLongName": ""
       }
     },
     "position": {
@@ -863,7 +863,7 @@
       "source": "MAG-C01",
       "target": "MAG-C02",
       "weight": "3",
-      "name": "10 domain",
+      "name": "10",
       "parent": "",
       "kind": "",
       "topoviewerRole": "10",
@@ -871,8 +871,8 @@
       "targetEndpoint": "eth3",
       "extraData": {
         "clabServerUsername": "root",
-        "clabSourceLongName": "clab-cups-MAG-C01",
-        "clabTargetLongName": "clab-cups-MAG-C02"
+        "clabSourceLongName": "",
+        "clabTargetLongName": ""
       }
     },
     "position": {
@@ -894,7 +894,7 @@
       "source": "AGG-UPF01",
       "target": "AGG-UPF02",
       "weight": "3",
-      "name": "10 domain",
+      "name": "10",
       "parent": "",
       "kind": "",
       "topoviewerRole": "10",
@@ -902,8 +902,8 @@
       "targetEndpoint": "eth4",
       "extraData": {
         "clabServerUsername": "root",
-        "clabSourceLongName": "clab-cups-AGG-UPF01",
-        "clabTargetLongName": "clab-cups-AGG-UPF02"
+        "clabSourceLongName": "",
+        "clabTargetLongName": ""
       }
     },
     "position": {
@@ -925,7 +925,7 @@
       "source": "RADIUS",
       "target": "PE-01",
       "weight": "3",
-      "name": "10 domain",
+      "name": "10",
       "parent": "",
       "kind": "",
       "topoviewerRole": "10",
@@ -933,8 +933,8 @@
       "targetEndpoint": "eth5",
       "extraData": {
         "clabServerUsername": "root",
-        "clabSourceLongName": "clab-cups-RADIUS",
-        "clabTargetLongName": "clab-cups-PE-01"
+        "clabSourceLongName": "",
+        "clabTargetLongName": ""
       }
     },
     "position": {
@@ -956,7 +956,7 @@
       "source": "ovs-br11",
       "target": "MAG-C01",
       "weight": "3",
-      "name": "10 domain",
+      "name": "10",
       "parent": "",
       "kind": "",
       "topoviewerRole": "10",
@@ -964,8 +964,8 @@
       "targetEndpoint": "eth2",
       "extraData": {
         "clabServerUsername": "root",
-        "clabSourceLongName": "clab-cups-ovs-br11",
-        "clabTargetLongName": "clab-cups-MAG-C01"
+        "clabSourceLongName": "",
+        "clabTargetLongName": ""
       }
     },
     "position": {
@@ -987,7 +987,7 @@
       "source": "ovs-br12",
       "target": "MAG-C02",
       "weight": "3",
-      "name": "10 domain",
+      "name": "10",
       "parent": "",
       "kind": "",
       "topoviewerRole": "10",
@@ -995,8 +995,8 @@
       "targetEndpoint": "eth2",
       "extraData": {
         "clabServerUsername": "root",
-        "clabSourceLongName": "clab-cups-ovs-br12",
-        "clabTargetLongName": "clab-cups-MAG-C02"
+        "clabSourceLongName": "",
+        "clabTargetLongName": ""
       }
     },
     "position": {
@@ -1018,7 +1018,7 @@
       "source": "AGG-UPF01",
       "target": "bngblaster_3",
       "weight": "3",
-      "name": "10 domain",
+      "name": "10",
       "parent": "",
       "kind": "",
       "topoviewerRole": "10",
@@ -1026,8 +1026,8 @@
       "targetEndpoint": "eth1",
       "extraData": {
         "clabServerUsername": "root",
-        "clabSourceLongName": "clab-cups-AGG-UPF01",
-        "clabTargetLongName": "clab-cups-bngblaster_3"
+        "clabSourceLongName": "",
+        "clabTargetLongName": ""
       }
     },
     "position": {

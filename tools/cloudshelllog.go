@@ -73,7 +73,7 @@ var Tracef,
 		fmt.Printf("\n")
 	}
 
-func Init(
+func InitCloudShellLog(
 	logFormat Format,
 	logLevel Level,
 ) {

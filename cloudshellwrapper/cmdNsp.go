@@ -9,11 +9,14 @@ import (
 	"strings"
 	"time"
 
+	tools "github.com/asadarafat/topoViewer/tools"
+	log "github.com/sirupsen/logrus"
+
 	"github.com/asadarafat/topoViewer/topoengine"
 	"github.com/asadarafat/topoViewer/xtermjs"
 	"github.com/usvc/go-config"
 
-	log "github.com/asadarafat/topoViewer/tools"
+	// log "github.com/asadarafat/topoViewer/tools"
 
 	"github.com/gorilla/mux"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -55,11 +58,11 @@ var confNsp = config.Map{
 	},
 	"log-format": &config.String{
 		Default: "text",
-		Usage:   fmt.Sprintf("defines the format of the logs - one of ['%s']", strings.Join(log.ValidFormatStrings, "', '")),
+		Usage:   fmt.Sprintf("defines the format of the logs - one of ['%s']", strings.Join(tools.ValidFormatStrings, "', '")),
 	},
 	"log-level": &config.String{
 		Default: "debug",
-		Usage:   fmt.Sprintf("defines the minimum level of logs to show - one of ['%s']", strings.Join(log.ValidLevelStrings, "', '")),
+		Usage:   fmt.Sprintf("defines the minimum level of logs to show - one of ['%s']", strings.Join(tools.ValidLevelStrings, "', '")),
 	},
 	"path-liveness": &config.String{
 		Default: "/healthz",
@@ -132,7 +135,7 @@ func Nsp(_ *cobra.Command, _ []string) error {
 	cyTopo.InitLogger()
 
 	// initialise the logger
-	log.Init(log.Format(confNsp.GetString("log-format")), log.Level(confNsp.GetString("log-level")))
+	tools.InitCloudShellLog(tools.Format(confNsp.GetString("log-format")), tools.Level(confNsp.GetString("log-level")))
 
 	viper.SetConfigName("topoviewer-config") // config file name without extension
 	viper.SetConfigType("yaml")
@@ -322,7 +325,7 @@ func Nsp(_ *cobra.Command, _ []string) error {
 
 	} else {
 		// initialise the logger
-		log.Init(log.Format(confNsp.GetString("log-format")), log.Level(confNsp.GetString("log-level")))
+		tools.InitCloudShellLog(tools.Format(confNsp.GetString("log-format")), tools.Level(confNsp.GetString("log-level")))
 
 		// tranform clab-topo-file into cytoscape-model
 		topoNsp := confNsp.GetString("topology-ietf-l2-topo")
