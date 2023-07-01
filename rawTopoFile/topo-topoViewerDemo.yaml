@@ -28,6 +28,9 @@ topology:
       image: ghcr.io/asadarafat/bngblaster:main
       entrypoint: /bin/bash
       group: Residential 
+      exec:
+        - service ssh reload
+        - service ssh restart
       labels:
         topo-viewer-role: rgw
     spine-01:
