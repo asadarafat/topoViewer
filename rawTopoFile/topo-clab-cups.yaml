@@ -44,9 +44,6 @@ topology:
       # lc: cpu=4 min_ram=32 max_nics=20 chassis=vsr slot=4 card=iom-v-mg mda/1=isa-ms-v ___
       # lc: cpu=4 min_ram=32 max_nics=20 chassis=vsr slot=5 card=iom-v-mg mda/1=isa-ms-v  
       group: ControlPlaneFunction 
-      cpu-set : 1-22 
-      ports:
-        - 57301:22
       labels:
         topo-viewer-role: controller
 #    DB-1: 
@@ -70,9 +67,6 @@ topology:
       # lc: cpu=4 min_ram=32 max_nics=20 chassis=vsr slot=4 card=iom-v-mg mda/1=isa-ms-v ___
       # lc: cpu=4 min_ram=32 max_nics=20 chassis=vsr slot=5 card=iom-v-mg mda/1=isa-ms-v      
       group: ControlPlaneFunction 
-      cpu-set : 41-62 
-      # ports:
-      #   - 57302:22
       labels:
         topo-viewer-role: controller
 #    DB-2:
@@ -87,27 +81,18 @@ topology:
       kind: vr-sros
       mgmt-ipv4: 10.10.10.203       # set ipv4 address on management network
       group: IP-Core 
-      cpu-set : 29-30 
-      # ports:
-      #   - 57310:22
       labels:
         topo-viewer-role: pe
     AGG-UPF01:
       kind: vr-sros
       mgmt-ipv4: 10.10.10.204       # set ipv4 address on management network
       group: IP-Core  
-      cpu-set : 27-28 
-      # ports:
-      #   - 57311:22
       labels:
         topo-viewer-role: pe
     AGG-UPF02:
       kind: vr-sros
       mgmt-ipv4: 10.10.10.205       # set ipv4 address on management network
       group: IP-Core  
-      cpu-set : 27-28 
-      # ports:
-      #   - 57312:22
       labels:
         topo-viewer-role: pe
     ## EDGE-01:
@@ -170,8 +155,6 @@ topology:
       mgmt-ipv4: 10.10.10.211      # set ipv4 address on management network
       image: ghcr.io/asadarafat/freeradius:main
       entrypoint: bin/bash
-#     cmd: bash ifconfig.sh
-      cpu-set: 32-32 
       group: Server
       labels:
         topo-viewer-role: server
@@ -179,11 +162,7 @@ topology:
       kind: linux
       mgmt-ipv4: 10.10.10.212      # set ipv4 address on management network
       image: ghcr.io/asadarafat/bngblaster:main
-      entrypoint: bin/bash
       group: Residential
-      cpu-set: 31-31 
-      #ports:
-      #  - 57313:22
       labels:
         topo-viewer-role: rgw
     ## ovs-br01:
