@@ -92,6 +92,13 @@ topology:
       group: Residential
       labels:
         topo-viewer-role: rgw
+    BngBlaster_02:
+      kind: linux
+      mgmt-ipv4: 10.10.10.213      # set ipv4 address on management network
+      image: ghcr.io/asadarafat/bngblaster:main
+      group: Residential
+      labels:
+        topo-viewer-role: rgw
 
   links:
           - endpoints: ["MAG-C01:eth1","PE-01:eth3"]
@@ -102,3 +109,5 @@ topology:
           - endpoints: ["AGG-UPF01:eth4","AGG-UPF02:eth4"]
           - endpoints: ["Radius:eth1","PE-01:eth5"]  
           - endpoints: ["AGG-UPF01:eth7","BngBlaster_01:eth1"]
+          - endpoints: ["AGG-UPF02:eth7","BngBlaster_02:eth1"]
+
