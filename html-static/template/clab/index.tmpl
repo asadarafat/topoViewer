@@ -98,7 +98,7 @@ body {
                     <input id="nodeSpacing" type="range" min="1" max="1000" step="1" value="25">
                 </div>
                     <a id="clabClient" href="#" onclick="clabClient();" class="dropdown-item label has-text-weight-normal is-small">Clab Client Download</a>                  
-                    <<a id="TopologyAdjust" href="#" onclick="topologyAdjust();" class="dropdown-item label has-text-weight-normal is-small"> Topology Adjust</a>
+                    <a id="TopologyAdjust" href="#" onclick="topologyAdjust();" class="dropdown-item label has-text-weight-normal is-small"> Topology Adjust</a>
                     <!-- <a id="telemetry" href="#" onclick="telemetry();" class="dropdown-item label has-text-weight-normal is-small">Telemetry</a> -->                  
                     <a id="toggleLinkEndpoint" href="#" onclick="toggleLinkEndpoint();" class="dropdown-item label has-text-weight-normal is-small">Toggle Link Endpoint</a>
                     <!-- <a id="showNodeIcon" href="#" onclick="showNodeIcon();" class="dropdown-item label has-text-weight-normal is-small">showNodeIcon</a> -->                      
@@ -254,7 +254,7 @@ body {
           var elements = [
             {
               name: "SSH Session",
-              url: shellUrl + node.data("extraData").mgmtIpv4Addresss
+              url: shellUrl + node.data("extraData").mgmtIpv4Addresss + "?routerName=" + node.data("extraData").id
             }
           ].map(function(link) {
             return ce("a", {target: "_blank", href: link.url, class: "button is-link is-small"}, [ctn(link.name)] );
