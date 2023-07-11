@@ -58,20 +58,6 @@ func main() {
 	// jsonBytesL3 := cytoUiGo.IetfL3TopoUnMarshal(topoFileByteCombine, topoengine.IetfNetworkTopologyL3{})
 	// cytoUiGo.IetfL3TopoPrintjsonBytesCytoUi(jsonBytesL3)
 
-<<<<<<< HEAD
-	// Nsp Ietf Multi L2 L3
-	// Nsp Ietf Multi L2 L3
-	// load L2 topo nya dulu
-	filePath, _ := os.Getwd()
-	filePath = (filePath + "/rawTopoFile/")
-	log.Info("topology file path: ", filePath)
-	topoFile, err := ioutil.ReadFile(filePath + "topo-ietf-L2.json")
-
-	if err != nil {
-		log.Fatal("Error when opening file: ", err)
-	}
-	topoFileL2 := topoFile
-=======
 	// // Nsp Ietf Multi L2 L3
 	// // Nsp Ietf Multi L2 L3
 	// // load L2 topo nya dulu
@@ -117,32 +103,6 @@ func main() {
 	// // log.Info(topoFile)
 	// cytoUiGo.NspDigitalTwinTopoUnmarshal(topoFile, topoengine.IetfNetworkTopologyL2{})
 
-	//// clabv2 run
-	//// clabv2 run
-
-	cytoUiGo.InitLoggerClabV2()
-	topoFileBytes := cytoUiGo.ClabTopoRead("rawTopoFile/topology-data.json")
-	cytoUiGo.UnmarshalContainerLabTopoV2(topoFileBytes, topoengine.ClabTopoV2{})
->>>>>>> master
-
-	// load L3 topo nya dulu
-	var topoFileList []string
-	topoFileList = append(topoFileList, "rawTopoFile/topo-ietf-L3-TopologyId-0:55000:2-isis.json")
-	topoFileList = append(topoFileList, "rawTopoFile/topo-ietf-L3-TopologyId-0:65000:1-isis.json")
-	topoFileList = append(topoFileList, "rawTopoFile/topo-ietf-L3-TopologyId-1:65000:1-isis.json")
-	log.Info(topoFileList)
-	topoFileByte0 := cytoUiGo.IetfL3TopoRead(topoFileList[0])
-	topoFileByte1 := cytoUiGo.IetfL3TopoRead(topoFileList[1])
-	topoFileByte2 := cytoUiGo.IetfL3TopoRead(topoFileList[2])
-
-	var topoL3FileByteCombine [][]byte
-	topoL3FileByteCombine = append(topoL3FileByteCombine, topoFileByte0)
-	topoL3FileByteCombine = append(topoL3FileByteCombine, topoFileByte1)
-	topoL3FileByteCombine = append(topoL3FileByteCombine, topoFileByte2)
-
-	jsonBytesMultiL2L3 := cytoUiGo.IetfMultiL2L3TopoUnMarshal(topoFileL2, topoL3FileByteCombine, topoengine.IetfNetworkTopologyMultiL2L3{})
-	cytoUiGo.IetfMultiLayerTopoPrintjsonBytesCytoUi(jsonBytesMultiL2L3)
-
 	// Nsp digitalTwin
 	// Nsp digitalTwin
 	// Nsp digitalTwin
@@ -160,10 +120,10 @@ func main() {
 	//// clabv2 run
 	//// clabv2 run
 
-	// cytoUiGo.InitLoggerClabV2()
-	// // topoFileBytes := cytoUiGo.ClabTopoRead("rawTopoFile/topo-topoViewerDemo.json")
-	// topoFileBytes := cytoUiGo.ClabTopoRead("rawTopoFile/clab-Vodafone-CO-HCO/topology-data.json")
+	cytoUiGo.InitLoggerClabV2()
+	topoFileBytes := cytoUiGo.ClabTopoRead("rawTopoFile/topo-topoViewerDemo.json")
+	//topoFileBytes := cytoUiGo.ClabTopoRead("rawTopoFile/clab-Vodafone-CO-HCO/topology-data.json")
 
-	// jsonBytesCytoUi := cytoUiGo.UnmarshalContainerLabTopoV2(topoFileBytes)
-	// cytoUiGo.PrintjsonBytesCytoUiV2(jsonBytesCytoUi)
+	jsonBytesCytoUi := cytoUiGo.UnmarshalContainerLabTopoV2(topoFileBytes)
+	cytoUiGo.PrintjsonBytesCytoUiV2(jsonBytesCytoUi)
 }

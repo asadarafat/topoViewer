@@ -1,0 +1,36 @@
+{
+    "ietf-network:network": [
+        {
+            "network-id": "SAPTopology",
+            "network-types": {},
+            "node": []
+        },
+        {
+            "network-id": "L2Topology",
+            "network-types": {},
+            "node": [],
+            "ietf-network-topology:link": []
+        },
+        {
+            "network-id": "TopologyId-0:55000:2-isis",
+            "network-types": {},
+            "supporting-network": [],
+            "node": [],
+            "ietf-network-topology:link": []
+        },
+        {
+            "network-id": "TopologyId-1:65000:1-isis",
+            "network-types": {},
+            "supporting-network": [],
+            "node": [],
+            "ietf-network-topology:link": []
+        },
+        {
+            "network-id": "TopologyId-0:65000:1-isis",
+            "network-types": {},
+            "supporting-network": [],
+            "node": [],
+            "ietf-network-topology:link": []
+        }
+    ]
+}

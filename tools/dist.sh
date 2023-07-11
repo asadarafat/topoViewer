@@ -33,7 +33,7 @@ cp rawTopoFile/topo-topoViewerDemo.yaml dist/topo-topoViewerDemo.yaml
 # echo "Create TAR package..."
 # tar -czvf dist/TopoViewer.tar.gz dist
 
-echo "Optimize binary size..."
-upx --brute dist/topoviewer 
+# echo "Optimize binary size..."
+# upx --brute dist/topoviewer 
 
 echo "Distribution build done..."

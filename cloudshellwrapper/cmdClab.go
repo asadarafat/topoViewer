@@ -15,8 +15,9 @@ import (
 	"github.com/asadarafat/topoViewer/xtermjs"
 	"github.com/usvc/go-config"
 
-	log "github.com/asadarafat/topoViewer/tools"
+	tools "github.com/asadarafat/topoViewer/tools"
 	cp "github.com/otiai10/copy"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
@@ -58,11 +59,11 @@ var confClab = config.Map{
 	},
 	"log-format": &config.String{
 		Default: "text",
-		Usage:   fmt.Sprintf("defines the format of the logs - one of ['%s']", strings.Join(log.ValidFormatStrings, "', '")),
+		Usage:   fmt.Sprintf("defines the format of the logs - one of ['%s']", strings.Join(tools.ValidFormatStrings, "', '")),
 	},
 	"log-level": &config.String{
 		Default: "debug",
-		Usage:   fmt.Sprintf("defines the minimum level of logs to show - one of ['%s']", strings.Join(log.ValidLevelStrings, "', '")),
+		Usage:   fmt.Sprintf("defines the minimum level of logs to show - one of ['%s']", strings.Join(tools.ValidLevelStrings, "', '")),
 	},
 	"path-liveness": &config.String{
 		Default: "/healthz",
@@ -122,8 +123,8 @@ var clabCommand = cobra.Command{
 
 // var websocket upgrader
 var upgrader = websocket.Upgrader{
-	ReadBufferSize:  1024,
-	WriteBufferSize: 1024,
+	ReadBufferSize:  2048,
+	WriteBufferSize: 2048,
 	CheckOrigin:     func(r *http.Request) bool { return true },
 }
 
@@ -133,6 +134,13 @@ func init() {
 	// init clabCommand
 	rootCommand.AddCommand(&clabCommand)
 }
+
+// func InitLoggerCloudshellwrapper() {
+// 	// init logConfig
+// 	cyTopo := topoengine.CytoTopology{}
+// 	cyTopo.LogLevel = 4
+// 	cyTopo.InitLogger()
+// }
 
 // define a reader which will listen for
 // new messages being sent to our WebSocket
@@ -158,7 +166,7 @@ func reader(conn *websocket.Conn) {
 
 func Clab(_ *cobra.Command, _ []string) error {
 	// initialise the logger
-	log.Init(log.Format(confClab.GetString("log-format")), log.Level(confClab.GetString("log-level")))
+	tools.InitCloudShellLog(tools.Format(confClab.GetString("log-format")), tools.Level(confClab.GetString("log-level")))
 
 	// tranform clab-topo-file into cytoscape-model
 	// aarafat-tag: check if provided topo in json or yaml
@@ -167,19 +175,15 @@ func Clab(_ *cobra.Command, _ []string) error {
 	log.Info("topoFilePath: ", topoClab)
 
 	cyTopo := topoengine.CytoTopology{}
-	cyTopo.LogLevel = 4
-	cyTopo.InitLogger()
-
-	//// Clab Version 1
-	// cyTopo.MarshalContainerLabTopov1(topoClab)
-	// ClabTopoStruct := topoengine.ClabTopoStruct{}
-	// jsonBytes := cyTopo.UnmarshalContainerLabTopov1(ClabTopoStruct, confClab.GetString("clab-user"))
+	toolLogger := tools.Logs{}
+	cyTopo.LogLevel = 5 // debug
+	toolLogger.InitLogger("logs/topoengine-CytoTopology.log", cyTopo.LogLevel)
 
 	//// Clab Version 2
 	log.Debugf("topo Clab: ", topoClab)
 	log.Debug("Code Trace Point ####")
 	topoFile := cyTopo.ClabTopoRead(topoClab) // loading containerLab export-topo json file
-	jsonBytes := cyTopo.UnmarshalContainerLabTopoV2(topoFile )
+	jsonBytes := cyTopo.UnmarshalContainerLabTopoV2(topoFile)
 	cyTopo.PrintjsonBytesCytoUiV2(jsonBytes)
 
 	command := confClab.GetString("command")
