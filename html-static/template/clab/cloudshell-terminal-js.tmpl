@@ -14,12 +14,7 @@
   split1 = split1.split("?")
   console.log(split1)
 
-  var split2 = split1.toString()
-  split2 = split1.split("=")
-  console.log(split2[1])
-
-
-  document.title = routerName;
+  document.title = split1[1].split("=")[1];
 
   var terminal = new Terminal({
     screenKeys: true,
@@ -62,7 +57,7 @@
       var send = new TextEncoder().encode("\x01" + size);
       console.log('resizing to', size);
 
-      ws.send("ssh admin@" + routerId)
+      ws.send("ssh admin@" + routerId.toString().split("?")[0])
       // ws.send(send);
 
 
