@@ -10,8 +10,12 @@
   var routerId = urlParam('RouterID');
   console.log(routerId)
   
-  var routerName = urlParam('RouterName');
-  console.log(routerName)
+  var split1 = split(routerId, "?")
+  console.log(split1)
+
+  var split2 = split(split1[1], "=")
+  console.log(split2[1])
+
 
   document.title = routerName;
 

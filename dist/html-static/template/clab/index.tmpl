@@ -250,11 +250,11 @@ body {
         // return node info on click
         function nodeInfo(node) {
           console.log("mgmtIpv4Address--SSH: " + node.data("extraData").mgmtIpv4Addresss)
-          var shellUrl = location.protocol + "//" + location.host + "/cloudshell/?RouterID=";
+          var shellUrl = location.protocol + "//" + location.host + "/cloudshell/";
           var elements = [
             {
               name: "SSH Session",
-              url: shellUrl + node.data("extraData").mgmtIpv4Addresss + "?RouterName=" + node.data("extraData").id
+              url: shellUrl + "?RouterID=" + node.data("extraData").mgmtIpv4Addresss + "?RouterName=" + node.data("extraData").id
             }
           ].map(function(link) {
             return ce("a", {target: "_blank", href: link.url, class: "button is-link is-small"}, [ctn(link.name)] );
