@@ -71,11 +71,10 @@ body {
 
 <body>
     <nav class="level m-0 py-4 px-5 has-background-4a">
-      <div class="level-left">
-        <div class="level-item">
-          <p class="title is-8 is-unselectable has-text-weight-normal has-text-white">TopoViewer</p>
-        </div>
-      </div>
+      <div>
+          <p class="title    m-0 px-2 py-0          is-8 is-unselectable has-text-weight-normal has-text-white"> TopoViewer</p>
+          <p class="subtitle m-0 px-2 py-1 is-8 has-text-weight-normal has-text-white"> {{.}}</p>
+     </div>
       <div class="level-right">
         <div class="level-item">
           <div class="dropdown is-hoverable is-right">
@@ -351,7 +350,7 @@ body {
             .then(function (res) {
               return res.json();
             }),
-          fetch("{{.}}")
+          fetch("dataCytoMarshall-{{.}}.json"")
             .then(function (res) {
               return res.json();
             })
@@ -410,24 +409,21 @@ body {
           addSliderEvent(nodeSpacing);
              
           var tt1 = ce("b", {}, [ctn("Welcome to TopoViewer.")]);
-          var tt2 = ce("p", {}, [ctn("- To adjust topology, please go to setting")]);  
-          var tt3 = ce("p", {}, [ctn("- To show link port, please go to setting")]);  
-          var tt4 = ce("p", {}, [ctn("- To download clab client, please go to setting")]);  
+          var tt2 = ce("p", {}, [ctn("Conceived by asad.arafat@nokia.com")]);  
+          var tt3 = ce("p", {}, [ctn("GUI revamped by siva.sivakumar@nokia.com")]);
+          var tt4 = ce("p", {}, [ctn("https://github.com/asadarafat/topoViewer")]);  
+          var tt5 = ce("hr", {class: "my-3 has-background-grey-lighter"}, []);
+          var tt6 = ce("p", {}, [ctn("- To adjust topology, please go to setting")]);  
+          var tt7 = ce("p", {}, [ctn("- To show link port, please go to setting")]);  
+          var tt8 = ce("p", {}, [ctn("- To download clab client, please go to setting")]);  
+          var tt9 = ce("p", {}, [ctn("- Click the node or link to see its properties.")]);  
 
 
-          var tt5 = ce("p", {}, [ctn("Click the node or link to see its properties.")]);  
-          var tt6 = ce("hr", {class: "my-3 has-background-grey-lighter"}, []);
-          var tt10 = ce("p", {}, [ctn("Conceived by asad.arafat@nokia.com")]);  
-          var tt11 = ce("p", {}, [ctn("GUI revamped by siva.sivakumar@nokia.com")]);
-          var tt12 = ce("p", {}, [ctn("https://github.com/asadarafat/topoViewer")]);  
-
-          
-
-          var tname = ce("p", {}, [tt1, tt2, tt3, tt4, tt5, tt6, tt10, tt11, tt12 ]);
+          var tname = ce("p", {}, [tt1, tt2, tt3, tt4, tt5, tt6, tt7, tt8, tt9]);
           var tpanel = ce("div", {}, [tname]);
           var tmessageBody = ce("div", {class: "message-body"}, [tpanel])
 
-          var headerTitle = ce("p", {class: "my-7"}, [ctn("Message")]);
+          var headerTitle = ce("p", {class: "my-10"}, [ctn("Message")]);
           var messageHeader = ce("div", {class: "message-header"}, [headerTitle])
           var oldSettingHeader = document.getElementById("SettingHeader")
           console.log("messageInit oldSettingHeader: ")
