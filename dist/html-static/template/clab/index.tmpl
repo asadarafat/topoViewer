@@ -254,7 +254,7 @@ body {
           var elements = [
             {
               name: "SSH Session",
-              url: shellUrl + node.data("extraData").mgmtIpv4Addresss + "?routerName=" + node.data("extraData").id
+              url: shellUrl + node.data("extraData").mgmtIpv4Addresss + "?RouterName=" + node.data("extraData").id
             }
           ].map(function(link) {
             return ce("a", {target: "_blank", href: link.url, class: "button is-link is-small"}, [ctn(link.name)] );

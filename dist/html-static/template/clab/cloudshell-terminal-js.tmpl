@@ -9,7 +9,11 @@
   }
   var routerId = urlParam('RouterID');
   console.log(routerId)
-  document.title = routerId;
+  
+  var routerName = urlParam('RouterName');
+  console.log(routerName)
+
+  document.title = routerName;
 
   var terminal = new Terminal({
     screenKeys: true,
