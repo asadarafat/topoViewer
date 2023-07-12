@@ -72,8 +72,8 @@ body {
 <body>
     <nav class="level m-0 py-4 px-5 has-background-4a">
       <div>
-          <p class="title    m-0 px-2 py-0          is-8 is-unselectable has-text-weight-normal has-text-white"> TopoViewer</p>
-          <p class="subtitle m-0 px-2 py-1 is-8 has-text-weight-normal has-text-white"> {{.}}</p>
+          <p class="title    m-0 px-1 py-0          is-8 is-unselectable has-text-weight-normal has-text-white"> TopoViewer</p>
+          <p class="subtitle m-0 px-1 py-1 is-8 has-text-weight-normal has-text-white"> {{.}}</p>
      </div>
       <div class="level-right">
         <div class="level-item">
@@ -350,7 +350,7 @@ body {
             .then(function (res) {
               return res.json();
             }),
-          fetch("dataCytoMarshall-{{.}}.json"")
+          fetch("dataCytoMarshall-{{.}}.json")
             .then(function (res) {
               return res.json();
             })
