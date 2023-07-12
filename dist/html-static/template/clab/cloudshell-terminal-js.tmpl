@@ -10,10 +10,12 @@
   var routerId = urlParam('RouterID');
   console.log(routerId)
   
-  var split1 = routerId.split("?")
+  var split1 = routerId.toString()
+  split1 = split1.split("?")
   console.log(split1)
 
-  var split2 = split1.split("=")
+  var split2 = split1.toString()
+  split2 = split1.split("=")
   console.log(split2[1])
 
 
