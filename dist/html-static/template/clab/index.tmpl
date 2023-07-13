@@ -475,18 +475,6 @@ body {
               column01 = ce("label", {class: "column is-4 p-1 is-narrow-desktop"}, [label01]);
               label02 = ce("label", {class: "label has-text-link is-small has-text-left has-text-weight-normal mr-0"}, [ctn(node.data("extraData").mgmtIpv4Addresss)]);
               column02 = ce("label", {class: "column is-8 p-1"}, [label02]);
-
-              var elements = [
-                {
-                  name: "SSH Session",
-                  url: shellUrl + "?RouterID=" + node.data("extraData").mgmtIpv4Addresss + "?RouterName=" + node.data("extraData").id
-                }
-              ].map(function(link) {
-                return ce("a", {target: "_blank", href: link.url, class: "button is-link is-small"}, [ctn(link.name)] );
-              });
-
-              column03 = ce("label", {class: "column is-8 p-1"}, elements);
-
               var mgmtIpv4 = ce("div", {class: "columns mb-1"}, [column01, column02]);
 
               console.log("mgmtIpv6Address: ", node.data("extraData").mgmtIpv6Address);
