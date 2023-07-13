@@ -19,7 +19,7 @@ The simplest approach to utilise TopoViewer with Containerlab is to add the foll
     topoviewer:
       kind: linux
       mgmt-ipv4: 20.20.20.100
-      image: ghcr.io/asadarafat/topoviewer:development
+      image: ghcr.io/asadarafat/topoviewer:master
       group: topoviewerGroup
       ports:
         - 8081:8081
