@@ -72,9 +72,9 @@ body {
 <body>
     <nav class="level m-0 px-3 py-1 has-background-4a">
       <div>
-          <p class="title    m-0 px-1 py-0          is-8 is-unselectable has-text-weight-normal has-text-white"> TopoViewer</p>
-          <p class="subtitle m-0 px-1 py-1 is-8 has-text-weight-normal has-text-white"> {{.}}</p>
-     </div>
+        <p class="title    m-0 px-1 py-0   is-4 is-unselectable has-text-weight-normal has-text-white"> TopoViewer</p>
+        <p class="subtitle m-0 px-1 py-0   is-6                 has-text-weight-light  has-text-white">Containerlab: {{.}}</p>
+      </div>
       <div class="level-right">
         <div class="level-item">
           <div class="dropdown is-hoverable is-right">
@@ -141,7 +141,7 @@ body {
           socket.onmessage = (msg) => {
             console.log(msg)
             websocketMessage = msg
-            updateEdgeColor()
+            updateEdgeColorTelemetry()
           }
         }
   
@@ -586,7 +586,7 @@ body {
             });
           });
 
-        function updateEdgeColor() {
+        function updateEdgeColorTelemetry() {
           Srl01Edge = cy.filter('edge[source = "srl-01"][target = "sros-01"]');
           Srl01Edge.style("line-color", "red")
           Srl01Edge.style("label", websocketMessage.data + " kbps")
