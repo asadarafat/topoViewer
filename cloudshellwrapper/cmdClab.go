@@ -365,7 +365,18 @@ func Clab(_ *cobra.Command, _ []string) error {
 	err1 := cp.Copy(sourceClabClientFolder, destinationClabClientImageFolder)
 	log.Debugf("Copying clab-client folder error: ", err1)
 
-	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "index.tmpl", cyTopo.ClabTopoDataV2.Name+"/"+"index.html", "dataCytoMarshall-"+cyTopo.ClabTopoDataV2.Name+".json")
+	// type IndexHtml struct {
+	// 	labName          string
+	// 	dataCytoMarshall string
+	// }
+
+	// indexHtmldata := IndexHtml{
+	// 	labName:          cyTopo.ClabTopoDataV2.Name,
+	// 	dataCytoMarshall: "dataCytoMarshall-" + cyTopo.ClabTopoDataV2.Name + ".json",
+	// }
+
+	// createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "index.tmpl", cyTopo.ClabTopoDataV2.Name+"/"+"index.html", "dataCytoMarshall-"+cyTopo.ClabTopoDataV2.Name+".json")
+	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "index.tmpl", cyTopo.ClabTopoDataV2.Name+"/"+"index.html", cyTopo.ClabTopoDataV2.Name)
 	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "cy-style.tmpl", cyTopo.ClabTopoDataV2.Name+"/"+"cy-style.json", "")
 	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "cloudshell-index.tmpl", cyTopo.ClabTopoDataV2.Name+"/cloudshell/"+"index.html", "")
 	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "cloudshell-terminal-js.tmpl", cyTopo.ClabTopoDataV2.Name+"/cloudshell/"+"terminal.js", "")
