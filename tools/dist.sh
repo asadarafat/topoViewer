@@ -30,6 +30,10 @@ echo "Copy html folder and assets..."
 cp -r html-static dist/html-static
 cp rawTopoFile/topo-topoViewerDemo.yaml dist/topo-topoViewerDemo.yaml
 
+echo "Copy Docker entrypoint.sh ..."
+cp tools/entrypoint.sh dist/entrypoint.sh 
+
+
 # echo "Create TAR package..."
 # tar -czvf dist/TopoViewer.tar.gz dist
 
