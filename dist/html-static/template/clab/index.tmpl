@@ -198,9 +198,9 @@ body {
           var seperator1 = ce("hr", {class: "my-1"}, []);
           var seperator2 = ce("hr", {class: "my-1"}, []);
 
-          var tt1 = ce("a", {target: "_blank", href: "http://"+location.host+"/clab-client/mac-clab-client-wireshark.zip", onclick: "", class: "text is-link is-small"}, [ctn("ContainerLab Wireshark Client - MAC")] );
-          var tt2 = ce("a", {target: "_blank", href: "http://"+location.host+"/clab-client/windows-clab-client-wireshark.zip", onclick: "", class: "text is-link is-small"}, [ctn("ContainerLab Wireshark Client - Windows")] );
-          var tt3 = ce("a", {target: "_blank", href: "http://"+location.host+"/clab-client/mac-clab-client-linkImpairment.zip", onclick: "", class: "text is-link is-small"}, [ctn("ContainerLab LinkImpairment Client - MAC")] );
+          var tt1 = ce("a", {target: "_blank", href: "http://"+location.host+"/clab-client/clab-client-mac/ClabCapture.app.zip", onclick: "", class: "text is-link is-small"}, [ctn("ContainerLab Wireshark Client - MAC")] );
+          var tt2 = ce("a", {target: "_blank", href: "http://"+location.host+"/clab-client/clab-client-windows/ClabCapture.zip", onclick: "", class: "text is-link is-small"}, [ctn("ContainerLab Wireshark Client - Windows")] );
+          var tt3 = ce("a", {target: "_blank", href: "http://"+location.host+"/clab-client/clab-client-mac/ClabPumbaDelay.app.zip", onclick: "", class: "text is-link is-small"}, [ctn("ContainerLab LinkImpairment Client - MAC")] );
 
           var tname = ce("p", {}, [tt1, seperator1, tt2, seperator2, tt3]);
          // var addon = ce("div", {}, [nodeInfo(node)]);
@@ -411,14 +411,15 @@ body {
           var tt1 = ce("p", {}, [ctn(" ")]);
           var tt2 = ce("p", {}, [ctn("Conceived by asad.arafat@nokia.com")]);
           var tt3 = ce("p", {}, [ctn("GUI revamped by siva.sivakumar@nokia.com")]);
-          var tt4 = ce("p", {}, [ctn("https://github.com/asadarafat/topoViewer")]);
-          var tt5 = ce("hr", {class: "my-2 has-background-grey-lighter"}, []);
-          var tt6 = ce("p", {}, [ctn("Aufklärung:")]);
-          var tt7 = ce("p", {}, [ctn("- To view the attributes of a node or link, simply click on it.")]);
-          var tt8 = ce("p", {}, [ctn("- Topology adjustment can be made in the setting")]);
-          var tt9 = ce("p", {}, [ctn("- Link endpoint label display toggle can be made in setting")]);
-          var tt10 = ce("p", {}, [ctn("- Link wireshark and imparment activation will need")]);
-          var tt11 = ce("p", {}, [ctn("clab-client, download it from setting")]);
+          var tt4 = ce("hr", {class: "my-1 has-background-grey-lighter"}, []);
+          var tt5 = ce("p", {}, [ctn("Instruction:")]);
+          var tt6 = ce("p", {},  [ctn("- To view the attributes of a node or link, simply click on it.")]);
+          var tt7 = ce("p", {},  [ctn("- Topology physical adjustment can be made in the setting")]);
+          var tt8 = ce("p", {},  [ctn("- Link endpoint label display toggle can be made in setting")]);
+          var tt9 = ce("p", {},  [ctn("- Link wireshark and imparment activation will need")]);
+          var tt10 = ce("p", {}, [ctn("clab-client, download it from setting")]);
+          var tt11 = ce("p", {}, [ctn("visit https://github.com/asadarafat/topoViewer for more detail")]);
+
 
           var tname = ce("p", {}, [tt1, tt2, tt3, tt4, tt5, tt6, tt7, tt8, tt9, tt10, tt11]);
           var tpanel = ce("div", {}, [tname]);
