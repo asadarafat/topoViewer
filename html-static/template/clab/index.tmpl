@@ -408,18 +408,19 @@ body {
           addSliderEvent(edgeLength);
           addSliderEvent(nodeSpacing);
              
-          var tt1 = ce("b", {}, [ctn("Welcome to TopoViewer.")]);
-          var tt2 = ce("p", {}, [ctn("Conceived by asad.arafat@nokia.com")]);  
+          var tt1 = ce("p", {}, [ctn(" ")]);
+          var tt2 = ce("p", {}, [ctn("Conceived by asad.arafat@nokia.com")]);
           var tt3 = ce("p", {}, [ctn("GUI revamped by siva.sivakumar@nokia.com")]);
-          var tt4 = ce("p", {}, [ctn("https://github.com/asadarafat/topoViewer")]);  
-          var tt5 = ce("hr", {class: "my-3 has-background-grey-lighter"}, []);
-          var tt6 = ce("p", {}, [ctn("- To adjust topology, please go to setting")]);  
-          var tt7 = ce("p", {}, [ctn("- To show link port, please go to setting")]);  
-          var tt8 = ce("p", {}, [ctn("- To download clab client, please go to setting")]);  
-          var tt9 = ce("p", {}, [ctn("- Click the node or link to see its properties.")]);  
+          var tt4 = ce("p", {}, [ctn("https://github.com/asadarafat/topoViewer")]);
+          var tt5 = ce("hr", {class: "my-2 has-background-grey-lighter"}, []);
+          var tt6 = ce("p", {}, [ctn("Aufklärung:")]);
+          var tt7 = ce("p", {}, [ctn("- To view the attributes of a node or link, simply click on it.")]);
+          var tt8 = ce("p", {}, [ctn("- Topology adjustment can be made in the setting")]);
+          var tt9 = ce("p", {}, [ctn("- Link endpoint label display toggle can be made in setting")]);
+          var tt10 = ce("p", {}, [ctn("- Link wireshark and imparment activation will need")]);
+          var tt11 = ce("p", {}, [ctn("clab-client, download it from setting")]);
 
-
-          var tname = ce("p", {}, [tt1, tt2, tt3, tt4, tt5, tt6, tt7, tt8, tt9]);
+          var tname = ce("p", {}, [tt1, tt2, tt3, tt4, tt5, tt6, tt7, tt8, tt9, tt10, tt11]);
           var tpanel = ce("div", {}, [tname]);
           var tmessageBody = ce("div", {class: "message-body"}, [tpanel])
 
