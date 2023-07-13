@@ -305,6 +305,8 @@ func Clab(_ *cobra.Command, _ []string) error {
 
 			var message []byte
 
+			// simulating telemetry data..
+
 			rand.Seed(time.Now().UnixNano())
 			var number int
 
@@ -315,7 +317,7 @@ func Clab(_ *cobra.Command, _ []string) error {
 				if err != nil {
 					log.Info(err)
 				}
-				time.Sleep(1 * time.Second)
+				time.Sleep(2 * time.Second)
 			}
 
 			// listen indefinitely for new messages coming
