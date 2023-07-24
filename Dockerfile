@@ -19,7 +19,6 @@ RUN apt-get update && apt-get install -y openssh-server iproute2 iputils-ping vi
 RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
 RUN echo "HostKeyAlgorithms ssh-dss,ecdsa-sha2-nistp256,ssh-ed25519" >> /etc/ssh/ssh_config    
 RUN echo "KexAlgorithms diffie-hellman-group1-sha1,curve25519-sha256@libssh.org,ecdh-sha2-nistp256,ecdh-sha2-nistp384,ecdh-sha2-nistp521,diffie-hellman-group-exchange-sha256,diffie-hellman-group14-sha1" >> /etc/ssh/ssh_config    
-RUN service ssh restart
 
 # Download dist folder
 COPY ./dist /opt/topoviewer
@@ -27,5 +26,5 @@ COPY ./dist /opt/topoviewer
 #expose port 
 EXPOSE 8080 22
 
-CMD service ssh restart
+ENTRYPOINT service ssh restart && bash
 
