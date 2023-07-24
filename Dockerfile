@@ -27,5 +27,5 @@ COPY ./dist /opt/topoviewer
 #expose port 
 EXPOSE 8080 22
 
-ENTRYPOINT service ssh restart && bash
+CMD service ssh restart
 
