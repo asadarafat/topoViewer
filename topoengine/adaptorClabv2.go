@@ -135,7 +135,7 @@ func (cyTopo *CytoTopology) UnmarshalContainerLabTopoV2(topoFile []byte) []byte 
 
 		topoviewerParentList = append(topoviewerParentList, cytoJson.Data.Parent)
 
-		log.Debugf("node.Labels.ClabMgmtNetBridge: ", node.Labels.ClabMgmtNetBridge)
+		log.Debug("node.Labels.ClabMgmtNetBridge: ", node.Labels.ClabMgmtNetBridge)
 		// cytoJson.Data.ExtraData = node
 		cytoJson.Data.ExtraData = map[string]interface{}{
 			"clabServerUsername":    Username,
@@ -183,7 +183,7 @@ func (cyTopo *CytoTopology) UnmarshalContainerLabTopoV2(topoFile []byte) []byte 
 	}
 
 	uniqTopoviewerParentList := lo.Uniq(topoviewerParentList)
-	log.Debugf("Unique Parent List: ", uniqTopoviewerParentList)
+	log.Debug("Unique Parent List: ", uniqTopoviewerParentList)
 
 	// add Parent Nodes Per topoviewerRoleList
 	for _, n := range uniqTopoviewerParentList {
@@ -236,7 +236,7 @@ func (cyTopo *CytoTopology) UnmarshalContainerLabTopoV2(topoFile []byte) []byte 
 		log.Error(err)
 		panic(err)
 	}
-	log.Debugf("jsonBytesCytoUi Result:", string(jsonBytesCytoUi))
+	log.Debug("jsonBytesCytoUi Result:", string(jsonBytesCytoUi))
 
 	return jsonBytesCytoUi
 }

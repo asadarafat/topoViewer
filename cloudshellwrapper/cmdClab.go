@@ -3,11 +3,9 @@ package cloudshellwrapper
 import (
 	"errors"
 	"fmt"
-	"math/rand"
 	"net/http"
 	"os"
 	"path"
-	"strconv"
 	"strings"
 	"time"
 
@@ -165,8 +163,8 @@ func reader(conn *websocket.Conn) {
 }
 
 func Clab(_ *cobra.Command, _ []string) error {
-	// initialise the logger
-	tools.InitCloudShellLog(tools.Format(confClab.GetString("log-format")), tools.Level(confClab.GetString("log-level")))
+	// initialise the cloudshellLogger
+	// tools.InitCloudShellLog(tools.Format(confClab.GetString("log-format")), tools.Level(confClab.GetString("log-level")))
 
 	// tranform clab-topo-file into cytoscape-model
 	// aarafat-tag: check if provided topo in json or yaml
@@ -180,7 +178,7 @@ func Clab(_ *cobra.Command, _ []string) error {
 	toolLogger.InitLogger("logs/topoengine-CytoTopology.log", cyTopo.LogLevel)
 
 	//// Clab Version 2
-	log.Debugf("topo Clab: ", topoClab)
+	//log.Debug("topo Clab: ", topoClab)
 	log.Debug("Code Trace Point ####")
 	topoFile := cyTopo.ClabTopoRead(topoClab) // loading containerLab export-topo json file
 	jsonBytes := cyTopo.UnmarshalContainerLabTopoV2(topoFile)
@@ -288,42 +286,43 @@ func Clab(_ *cobra.Command, _ []string) error {
 			log.Info("##################### cloudshell-tools")
 		})
 
-	// websocket endpoint
-	router.HandleFunc("/ws",
-		// router.HandleFunc("/",
-		func(w http.ResponseWriter, r *http.Request) {
-			// upgrade this connection to a WebSocket
-			// connection
-			log.Info("##################### " + VersionInfo)
+	// // websocket endpoint
+	// // websocket endpoint
+	// router.HandleFunc("/ws",
+	// 	// router.HandleFunc("/",
+	// 	func(w http.ResponseWriter, r *http.Request) {
+	// 		// upgrade this connection to a WebSocket
+	// 		// connection
+	// 		log.Info("##################### " + VersionInfo)
 
-			ws, err := upgrader.Upgrade(w, r, nil)
-			if err != nil {
-				log.Info(err)
-			}
-			log.Infof("################## Websocket: Client Connected")
-			w.WriteHeader(http.StatusOK)
+	// 		ws, err := upgrader.Upgrade(w, r, nil)
+	// 		if err != nil {
+	// 			log.Info(err)
+	// 		}
+	// 		log.Infof("################## Websocket: Client Connected")
+	// 		w.WriteHeader(http.StatusOK)
 
-			var message []byte
+	// 		var message []byte
 
-			// simulating telemetry data..
+	// 		// simulating telemetry data..
 
-			rand.Seed(time.Now().UnixNano())
-			var number int
+	// 		rand.Seed(time.Now().UnixNano())
+	// 		var number int
 
-			for i := 0; i < 10000; i++ {
-				number = rand.Intn(60) + 1
-				message = []byte(strconv.Itoa(number))
-				err = ws.WriteMessage(1, message)
-				if err != nil {
-					log.Info(err)
-				}
-				time.Sleep(2 * time.Second)
-			}
+	// 		for i := 0; i < 10000; i++ {
+	// 			number = rand.Intn(60) + 1
+	// 			message = []byte(strconv.Itoa(number))
+	// 			err = ws.WriteMessage(1, message)
+	// 			if err != nil {
+	// 				log.Info(err)
+	// 			}
+	// 			time.Sleep(2 * time.Second)
+	// 		}
 
-			// listen indefinitely for new messages coming
-			// through on our WebSocket connection
-			reader(ws)
-		})
+	// 		// listen indefinitely for new messages coming
+	// 		// through on our WebSocket connection
+	// 		reader(ws)
+	// 	})
 
 	// this is the endpoint for serving xterm.js assets
 	depenenciesDirectorXterm := path.Join(workingDirectory, "./html-static/cloudshell/node_modules")
