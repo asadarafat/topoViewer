@@ -101,7 +101,8 @@ body {
                     <!-- <a id="telemetry" href="#" onclick="telemetry();" class="dropdown-item label has-text-weight-normal is-small">Telemetry</a> -->                  
                     <a id="toggleLinkEndpoint" href="#" onclick="toggleLinkEndpoint();" class="dropdown-item label has-text-weight-normal is-small">Toggle Link Endpoint</a>
                     <!-- <a id="showNodeIcon" href="#" onclick="showNodeIcon();" class="dropdown-item label has-text-weight-normal is-small">showNodeIcon</a> -->    
-                    <a id="version" href="#" onclick="version();" class="dropdown-item label has-text-weight-normal is-small">Version</a>                  
+                    <a id="about" href="#" onclick="about();" class="dropdown-item label has-text-weight-normal is-small">About TopoViewer</a>                  
+                  
                   
               </div>
             </div>
@@ -220,28 +221,37 @@ body {
           
         }
 
-        // return version on click
-        function version(e) {
+        // return about on click
+        function about(e) {
           removeLastChild();
           var oldSettingHeader = Setting.childNodes[1]
-          console.log("Version oldSettingHeader: ")
+          console.log("About oldSettingHeader: ")
           console.log(oldSettingHeader)
-          var seperator1 = ce("hr", {class: "my-1"}, []);
-          var seperator2 = ce("hr", {class: "my-1"}, []);
+          var tt1  = ce("p", {}, [ctn(" ")]);
+          var tt2  = ce("p", {}, [ctn("Version: 23.8.1")]);
+          var tt3  = ce("hr", {class: "my-1 has-background-grey-lighter"}, []);
+          var tt4  = ce("p", {}, [ctn("Created and designed by asad.arafat@nokia.com")]);
+          var tt5  = ce("p", {}, [ctn("GUI developed by siva.sivakumar@nokia.com")]);
+          var tt6  = ce("hr", {class: "my-1 has-background-grey-lighter"}, []);
+          var tt7  = ce("p", {}, [ctn("Instructions:")]);
+          var tt8  = ce("p", {},  [ctn("- To view the attributes of a node or link, simply click on it.")]);
+          var tt9  = ce("p", {},  [ctn("- Topology physical adjustment can be made in the setting")]);
+          var tt10 = ce("p", {},  [ctn("- Link endpoint label display toggle can be made in setting")]);
+          var tt11 = ce("p", {},  [ctn("- Link wireshark and imparment activation will need clab-client, visit https://github.com/asadarafat/topoViewer for more detail")]);
 
-          var tt1 = ce("a", {target: "_blank", class: "text is-link is-small"}, [ctn("Version: 23.8.1")] );
-
-          var tname = ce("p", {}, [tt1]);
-
+          var tname = ce("p", {}, [tt1, tt2, tt3, tt4, tt5, tt6, tt7, tt8, tt9, tt10, tt11]);
           var tpanel = ce("div", {}, [tname]);
           var tmessageBody = ce("div", {class: "message-body"}, [tpanel])
 
-          var headerTitle = ce("p", {class: "my-7"}, [ctn("TopoViewer Version")]);
+          var headerTitle = ce("p", {class: "my-10"}, [ctn("About TopoViewer")]);
           var messageHeader = ce("div", {class: "message-header"}, [headerTitle])
+          console.log("messageInit oldSettingHeader: ")
+          console.log(oldSettingHeader)
 
           Setting.replaceChild(messageHeader, oldSettingHeader);
           Setting.appendChild(tmessageBody);
           Setting.className = "message is-small is-link";
+          
           
         }
 
@@ -338,7 +348,7 @@ body {
           column02 = ce("label", {class: "column is-7 p-0"}, [input01]);
           var loss = ce("div", {class: "columns mb-2"}, [column01, column02]);
 
-          label01 = ce("label", {class: "label has-text-link is-small has-text-right has-text-weight-normal mr-0"}, [ctn("Duration  (min))")]);
+          label01 = ce("label", {class: "label has-text-link is-small has-text-right has-text-weight-normal mr-0"}, [ctn("Duration  (min)")]);
           column01 = ce("label", {class: "column is-4 ml-3 pb-3"}, [label01]);
           input01 = ce("input", {class: "input is-small", type: "number", placeholder: "Duration (min)", id: "duration", onkeyup: "updateUrl(this)", onchange:"updateUrl(this)"}, []);
           column02 = ce("label", {class: "column is-7 p-0"}, [input01]);
@@ -437,16 +447,18 @@ body {
           addSliderEvent(nodeSpacing);
              
           var tt1 = ce("p", {}, [ctn(" ")]);
-          var tt2 = ce("p", {}, [ctn("Created and Designed by asad.arafat@nokia.com")]);
-          var tt3 = ce("p", {}, [ctn("GUI by siva.sivakumar@nokia.com")]);
-          var tt4 = ce("hr", {class: "my-1 has-background-grey-lighter"}, []);
-          var tt5 = ce("p", {}, [ctn("Instruction:")]);
-          var tt6 = ce("p", {},  [ctn("- To view the attributes of a node or link, simply click on it.")]);
-          var tt7 = ce("p", {},  [ctn("- Topology physical adjustment can be made in the setting")]);
-          var tt8 = ce("p", {},  [ctn("- Link endpoint label display toggle can be made in setting")]);
-          var tt9 = ce("p", {},  [ctn("- Link wireshark and imparment activation will need clab-client, visit https://github.com/asadarafat/topoViewer for more detail")]);
+          var tt2  = ce("p", {}, [ctn("Version: 23.8.1")]);
+          var tt3  = ce("hr", {class: "my-1 has-background-grey-lighter"}, []);
+          var tt4 = ce("p", {}, [ctn("Created and designed by asad.arafat@nokia.com")]);
+          var tt5 = ce("p", {}, [ctn("GUI developed by siva.sivakumar@nokia.com")]);
+          var tt6 = ce("hr", {class: "my-1 has-background-grey-lighter"}, []);
+          var tt7 = ce("p", {}, [ctn("Instructions:")]);
+          var tt8 = ce("p", {},  [ctn("- To view the attributes of a node or link, simply click on it.")]);
+          var tt9 = ce("p", {},  [ctn("- Topology physical adjustment can be made in the setting")]);
+          var tt10 = ce("p", {},  [ctn("- Link endpoint label display toggle can be made in setting")]);
+          var tt11 = ce("p", {},  [ctn("- Link wireshark and imparment activation will need clab-client, visit https://github.com/asadarafat/topoViewer for more detail")]);
 
-          var tname = ce("p", {}, [tt1, tt2, tt3, tt4, tt5, tt6, tt7, tt8, tt9]);
+          var tname = ce("p", {}, [tt1, tt2, tt3, tt4, tt5, tt6, tt7, tt8, tt9, tt10, tt11]);
           var tpanel = ce("div", {}, [tname]);
           var tmessageBody = ce("div", {class: "message-body"}, [tpanel])
 
