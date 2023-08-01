@@ -97,10 +97,12 @@ body {
                     <input id="nodeSpacing" type="range" min="1" max="1000" step="1" value="25">
                 </div>
                     <a id="clabClient" href="#" onclick="clabClient();" class="dropdown-item label has-text-weight-normal is-small">Clab Client Download</a>                  
-                    <a id="TopologyAdjust" href="#" onclick="topologyAdjust();" class="dropdown-item label has-text-weight-normal is-small"> Topology Adjust</a>
+                    <!-- <a id="TopologyAdjust" href="#" onclick="topologyAdjust();" class="dropdown-item label has-text-weight-normal is-small"> Topology Adjust</a>  -->           
                     <!-- <a id="telemetry" href="#" onclick="telemetry();" class="dropdown-item label has-text-weight-normal is-small">Telemetry</a> -->                  
                     <a id="toggleLinkEndpoint" href="#" onclick="toggleLinkEndpoint();" class="dropdown-item label has-text-weight-normal is-small">Toggle Link Endpoint</a>
-                    <!-- <a id="showNodeIcon" href="#" onclick="showNodeIcon();" class="dropdown-item label has-text-weight-normal is-small">showNodeIcon</a> -->                      
+                    <!-- <a id="showNodeIcon" href="#" onclick="showNodeIcon();" class="dropdown-item label has-text-weight-normal is-small">showNodeIcon</a> -->    
+                    <a id="version" href="#" onclick="version();" class="dropdown-item label has-text-weight-normal is-small">Version</a>                  
+                  
               </div>
             </div>
           </div>
@@ -218,6 +220,31 @@ body {
           
         }
 
+        // return version on click
+        function version(e) {
+          removeLastChild();
+          var oldSettingHeader = Setting.childNodes[1]
+          console.log("Version oldSettingHeader: ")
+          console.log(oldSettingHeader)
+          var seperator1 = ce("hr", {class: "my-1"}, []);
+          var seperator2 = ce("hr", {class: "my-1"}, []);
+
+          var tt1 = ce("a", {target: "_blank", class: "text is-link is-small"}, [ctn("Version: 23.8.1")] );
+
+          var tname = ce("p", {}, [tt1]);
+
+          var tpanel = ce("div", {}, [tname]);
+          var tmessageBody = ce("div", {class: "message-body"}, [tpanel])
+
+          var headerTitle = ce("p", {class: "my-7"}, [ctn("TopoViewer Version")]);
+          var messageHeader = ce("div", {class: "message-header"}, [headerTitle])
+
+          Setting.replaceChild(messageHeader, oldSettingHeader);
+          Setting.appendChild(tmessageBody);
+          Setting.className = "message is-small is-link";
+          
+        }
+
         // return TopologyAdjust on click
         function topologyAdjust(e) {
           removeLastChild();
@@ -287,34 +314,34 @@ body {
           t1 = ce("label", {class: "label has-text-link is-small has-text-weight-semibold pb-3"}, [ctn("Link Impairment:")]);
           var linkImpairment = ce("div", {class: "field"}, [t1]);
 
-          label01 = ce("label", {class: "label has-text-link is-small has-text-right has-text-weight-normal mr-0"}, [ctn("Delay")]);
-          column01 = ce("label", {class: "column is-3 ml-3 pb-3"}, [label01]);
+          label01 = ce("label", {class: "label has-text-link is-small has-text-right has-text-weight-normal mr-0"}, [ctn("Delay  (ms)")]);
+          column01 = ce("label", {class: "column is-4 ml-3 pb-3"}, [label01]);
           input01 = ce("input", {class: "input is-small", type: "number", placeholder: "Delay (ms)", id: "delay", onkeyup: "updateUrl(this)", onchange:"updateUrl(this)"}, []);
-          column02 = ce("label", {class: "column is-8 p-0"}, [input01]);
+          column02 = ce("label", {class: "column is-7 p-0"}, [input01]);
           var delay = ce("div", {class: "columns mb-2"}, [column01, column02]);
         
-          label01 = ce("label", {class: "label has-text-link is-small has-text-right has-text-weight-normal mr-0"}, [ctn("Jitter")]);
-          column01 = ce("label", {class: "column is-3 ml-3 pb-3"}, [label01]);
+          label01 = ce("label", {class: "label has-text-link is-small has-text-right has-text-weight-normal mr-0"}, [ctn("Jitter  (ms)")]);
+          column01 = ce("label", {class: "column is-4 ml-3 pb-3"}, [label01]);
           input01 = ce("input", {class: "input is-small", type: "number", placeholder: "Jitter (ms)", id: "jitter", onkeyup: "updateUrl(this)", onchange:"updateUrl(this)"}, []);
-          column02 = ce("label", {class: "column is-8 p-0"}, [input01]);
+          column02 = ce("label", {class: "column is-7 p-0"}, [input01]);
           var jitter = ce("div", {class: "columns mb-2"}, [column01, column02]);
         
-          label01 = ce("label", {class: "label has-text-link is-small has-text-right has-text-weight-normal mr-0"}, [ctn("Rate")]);
-          column01 = ce("label", {class: "column is-3 ml-3 pb-3"}, [label01]);
+          label01 = ce("label", {class: "label has-text-link is-small has-text-right has-text-weight-normal mr-0"}, [ctn("Rate (Kbps)")]);
+          column01 = ce("label", {class: "column is-4 ml-3 pb-3"}, [label01]);
           input01 = ce("input", {class: "input is-small", type: "number", placeholder: "Rate (Kbps)", id: "rate", onkeyup: "updateUrl(this)", onchange:"updateUrl(this)"}, []);
-          column02 = ce("label", {class: "column is-8 p-0"}, [input01]);
+          column02 = ce("label", {class: "column is-7 p-0"}, [input01]);
           var rate = ce("div", {class: "columns mb-2"}, [column01, column02]);
 
-          label01 = ce("label", {class: "label has-text-link is-small has-text-right has-text-weight-normal mr-0"}, [ctn("Loss")]);
-          column01 = ce("label", {class: "column is-3 ml-3 pb-3"}, [label01]);
+          label01 = ce("label", {class: "label has-text-link is-small has-text-right has-text-weight-normal mr-0"}, [ctn("Loss (%)")]);
+          column01 = ce("label", {class: "column is-4 ml-3 pb-3"}, [label01]);
           input01 = ce("input", {class: "input is-small", type: "number", placeholder: "Loss (%)", id: "loss", onkeyup: "updateUrl(this)", onchange:"updateUrl(this)"}, []);
-          column02 = ce("label", {class: "column is-8 p-0"}, [input01]);
+          column02 = ce("label", {class: "column is-7 p-0"}, [input01]);
           var loss = ce("div", {class: "columns mb-2"}, [column01, column02]);
 
-          label01 = ce("label", {class: "label has-text-link is-small has-text-right has-text-weight-normal mr-0"}, [ctn("Duration")]);
-          column01 = ce("label", {class: "column is-3 ml-3 pb-3"}, [label01]);
+          label01 = ce("label", {class: "label has-text-link is-small has-text-right has-text-weight-normal mr-0"}, [ctn("Duration  (min))")]);
+          column01 = ce("label", {class: "column is-4 ml-3 pb-3"}, [label01]);
           input01 = ce("input", {class: "input is-small", type: "number", placeholder: "Duration (min)", id: "duration", onkeyup: "updateUrl(this)", onchange:"updateUrl(this)"}, []);
-          column02 = ce("label", {class: "column is-8 p-0"}, [input01]);
+          column02 = ce("label", {class: "column is-7 p-0"}, [input01]);
           var duration = ce("div", {class: "columns mb-1"}, [column01, column02]);
 
           linkImpairmentUrl = "clab-pumba://" + e.data("extraData").clabServerUsername + "@" + location.host + "?" + e.data("extraData").clabTargetLongName + "?" + e.data("targetEndpoint")
@@ -334,6 +361,7 @@ body {
 
           // return ce("div", {}, [wireshark, linkImpairment, delay, jitter, rate, loss, duration, submit]);
           return ce("div", {}, [wireshark, linkImpairment, delay, jitter, rate, loss, duration, submit]);
+
         }
         
         // remove last child
@@ -568,6 +596,14 @@ body {
               var messageBody = ce("div", {class: "message-body"}, [panel])
               Setting.appendChild(messageBody);
               Setting.className = "message is-small is-link";
+              
+              // set link impairment default value
+              console.log("delay-default-value: ", document.getElementById("delay").defaultValue = "0")
+              console.log("jitter-default-value: ", document.getElementById("jitter").defaultValue = "0")
+              console.log("rate-default-value: ", document.getElementById("rate").defaultValue = "0")
+              console.log("loss-default-value: ", document.getElementById("loss").defaultValue = "0")
+              console.log("duration-default-value: ", document.getElementById("duration").defaultValue = "0")
+
             });
           });
           
@@ -608,9 +644,6 @@ body {
           console.log(peNodesAsad)
           peNodesAsad.style("background-image","images/clab-pe-router-dark-blue.png")
           
-
-
-
         }
 
         var linkEndpointVisibility = false
@@ -636,6 +669,8 @@ body {
           var button = document.getElementById("onSubmit")
           console.log(button)
           console.log("delay-value: ", document.getElementById("delay").value)
+
+
           button.href = linkImpairmentUrl + "?" + document.getElementById("delay").value + "?" + document.getElementById("jitter").value + "?" + document.getElementById("rate").value + "?" + document.getElementById("loss").value +  "?" + document.getElementById("duration").value
         }
       </script>
