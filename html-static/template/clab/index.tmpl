@@ -23,6 +23,8 @@
   <script src="/cytoscape/libs/cytoscape-popper.js"></script>
   <script src="/cytoscape/libs/cytoscape-grid-guide.js"></script>
 
+  <script src="https://cdn.jsdelivr.net/npm/moleculer@0.14.30/index.min.js"></script>
+
 
 
 
@@ -73,7 +75,8 @@ body {
     <nav class="level m-0 px-3 py-1 has-background-4a">
       <div>
         <p class="title    m-0 px-1 py-0   is-4 is-unselectable has-text-weight-normal has-text-white"> TopoViewer</p>
-        <p class="subtitle m-0 px-1 py-0   is-6                 has-text-weight-light  has-text-white">Containerlab: {{.}}</p>
+        <p class="subtitle m-0 px-1 py-0   is-6                 has-text-weight-light  has-text-white" id="clab-subtitle">Containerlab: {{.}} -- uptime: 01:00:01</p>
+
       </div>
       <div class="level-right">
         <div class="level-item">
@@ -127,8 +130,8 @@ body {
         console.log("Attempting Connection...");
 
         socket.onopen = () => {
-            console.log("Successfully Connected");
-            // socket.send("Hi From the Client!")
+            console.log("Successfully Connected WebSocket");
+            socket.send("Hi From the Client!")
         };
         socket.onclose = event => {
           console.log("Socket Closed Connection: ", event);
@@ -147,7 +150,34 @@ body {
             updateEdgeColorTelemetry()
           }
         }
-  
+
+         // initiate websocket for uptime
+        var protocolUptime = "ws://";
+        var urlUptime = protocol + location.host + "/uptime"
+        var websocketMessage
+
+        let socketUptime = new WebSocket(urlUptime);
+        console.log("Attempting Connection...");
+
+        socket.onopen = () => {
+            console.log("Successfully Connected WebSocket");
+            socketUptime.send("Hi From the Client!")
+        };
+        socket.onclose = event => {
+          console.log("Socket Closed Connection: ", event);
+          socketUptime.send("Client Closed!")
+        };
+
+        socketUptime.onerror = error => {
+          console.log("Socket Error: ", error);
+        };
+
+        // retrieve websocket message
+   
+        socketUptime.onmessage = (msgUptime) => {
+          console.log(msgUptime.data)
+        }
+        
 
 
         // global variable
@@ -615,6 +645,9 @@ body {
               console.log("rate-default-value: ", document.getElementById("rate").defaultValue = "0")
               console.log("loss-default-value: ", document.getElementById("loss").defaultValue = "0")
               console.log("duration-default-value: ", document.getElementById("duration").defaultValue = "0")
+
+              console.log("clab-subtitle-value: ", document.getElementById("clab-subtitle").text = "asad")
+
 
             });
           });

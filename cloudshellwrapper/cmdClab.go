@@ -3,9 +3,11 @@ package cloudshellwrapper
 import (
 	"errors"
 	"fmt"
+	"math/rand"
 	"net/http"
 	"os"
 	"path"
+	"strconv"
 	"strings"
 	"time"
 
@@ -125,6 +127,8 @@ var upgrader = websocket.Upgrader{
 	WriteBufferSize: 2048,
 	CheckOrigin:     func(r *http.Request) bool { return true },
 }
+
+var StartTime = time.Now()
 
 func init() {
 	// initialise the logger config clabCommand
@@ -288,41 +292,75 @@ func Clab(_ *cobra.Command, _ []string) error {
 
 	// // websocket endpoint
 	// // websocket endpoint
-	// router.HandleFunc("/ws",
-	// 	// router.HandleFunc("/",
-	// 	func(w http.ResponseWriter, r *http.Request) {
-	// 		// upgrade this connection to a WebSocket
-	// 		// connection
-	// 		log.Info("##################### " + VersionInfo)
+	router.HandleFunc("/ws",
+		func(w http.ResponseWriter, r *http.Request) {
+			// upgrade this connection to a WebSocket
+			// connection
+			ws, err := upgrader.Upgrade(w, r, nil)
+			if err != nil {
+				log.Info(err)
+			}
+			log.Info("################## Websocket: Client Connected ws")
+			w.WriteHeader(http.StatusOK)
 
-	// 		ws, err := upgrader.Upgrade(w, r, nil)
-	// 		if err != nil {
-	// 			log.Info(err)
-	// 		}
-	// 		log.Infof("################## Websocket: Client Connected")
-	// 		w.WriteHeader(http.StatusOK)
+			var message []byte
 
-	// 		var message []byte
+			// simulating telemetry data..
 
-	// 		// simulating telemetry data..
+			rand.Seed(time.Now().UnixNano())
+			var number int
 
-	// 		rand.Seed(time.Now().UnixNano())
-	// 		var number int
+			for i := 0; i < 10000; i++ {
+				number = rand.Intn(60) + 1
+				message = []byte(strconv.Itoa(number))
+				err = ws.WriteMessage(1, message)
+				if err != nil {
+					log.Info(err)
+				}
+				time.Sleep(2 * time.Second)
+				log.Info(message)
+			}
 
-	// 		for i := 0; i < 10000; i++ {
-	// 			number = rand.Intn(60) + 1
-	// 			message = []byte(strconv.Itoa(number))
-	// 			err = ws.WriteMessage(1, message)
-	// 			if err != nil {
-	// 				log.Info(err)
-	// 			}
-	// 			time.Sleep(2 * time.Second)
-	// 		}
+			// listen indefinitely for new messages coming
+			// through on our WebSocket connection
+			reader(ws)
+		})
 
-	// 		// listen indefinitely for new messages coming
-	// 		// through on our WebSocket connection
-	// 		reader(ws)
-	// 	})
+	// // websocket endpoint
+	// // websocket endpoint
+	router.HandleFunc("/uptime",
+		func(w http.ResponseWriter, r *http.Request) {
+			// upgrade this connection to a WebSocket
+			// connection
+			log.Info("##################### " + VersionInfo)
+
+			uptime, err := upgrader.Upgrade(w, r, nil)
+			if err != nil {
+				log.Info(err)
+			}
+			log.Infof("################## Websocket: Client Connected Uptime")
+			w.WriteHeader(http.StatusOK)
+
+			var message time.Duration
+
+			// simulating uptime..
+
+			err = nil
+			// StartTime := time.Now()
+			for i := 0; i < 10000; i++ {
+				fmt.Printf("uptime %s\n", time.Since(StartTime))
+				message = time.Since(StartTime)
+				err = uptime.WriteMessage(1, []byte(message.String()))
+				if err != nil {
+					log.Info(err)
+				}
+				time.Sleep(time.Second * 10)
+
+			}
+			// listen indefinitely for new messages coming
+			// through on our WebSocket connection
+			reader(uptime)
+		})
 
 	// this is the endpoint for serving xterm.js assets
 	depenenciesDirectorXterm := path.Join(workingDirectory, "./html-static/cloudshell/node_modules")
