@@ -75,8 +75,7 @@ body {
     <nav class="level m-0 px-3 py-1 has-background-4a">
       <div>
         <p class="title    m-0 px-1 py-0   is-4 is-unselectable has-text-weight-normal has-text-white"> TopoViewer</p>
-        <p class="subtitle m-0 px-1 py-0   is-6                 has-text-weight-light  has-text-white" id="clab-subtitle">Containerlab: {{.}} -- uptime: 01:00:01</p>
-
+        <p class="subtitle m-0 px-1 py-0   is-6                 has-text-weight-light  has-text-white" id="ClabSubtitle">Topology name:{{.}} -- Up time: 10m10s</p>
       </div>
       <div class="level-right">
         <div class="level-item">
@@ -104,9 +103,7 @@ body {
                     <!-- <a id="telemetry" href="#" onclick="telemetry();" class="dropdown-item label has-text-weight-normal is-small">Telemetry</a> -->                  
                     <a id="toggleLinkEndpoint" href="#" onclick="toggleLinkEndpoint();" class="dropdown-item label has-text-weight-normal is-small">Toggle Link Endpoint</a>
                     <!-- <a id="showNodeIcon" href="#" onclick="showNodeIcon();" class="dropdown-item label has-text-weight-normal is-small">showNodeIcon</a> -->    
-                    <a id="about" href="#" onclick="about();" class="dropdown-item label has-text-weight-normal is-small">About TopoViewer</a>                  
-                  
-                  
+                    <a id="about" href="#" onclick="about();" class="dropdown-item label has-text-weight-normal is-small">About TopoViewer</a>                      
               </div>
             </div>
           </div>
@@ -114,56 +111,59 @@ body {
       </div>
     </nav>
   <div id="cy"></div>
-    <div class="message is-hidden" id="Setting">
+    <div class="message is-hidden" id="Setting" >
       <div class="message-header" id=SettingHeader>
         <p class="has-text-weight-semibold">Properties</p>
     </div>
   </div>
       <script type="text/javascript">
 
-        // initiate websocket for node telemetry
-        var protocol = "ws://";
-        var url = protocol + location.host + "/ws"
-        var websocketMessage
-
-        let socket = new WebSocket(url);
-        console.log("Attempting Connection...");
-
-        socket.onopen = () => {
-            console.log("Successfully Connected WebSocket");
-            socket.send("Hi From the Client!")
-        };
-        socket.onclose = event => {
-          console.log("Socket Closed Connection: ", event);
-          socket.send("Client Closed!")
-        };
-
-        socket.onerror = error => {
-          console.log("Socket Error: ", error);
-        };
-
-        // retrieve websocket message
-        function telemetry() {
-          socket.onmessage = (msg) => {
-            console.log(msg)
-            websocketMessage = msg
-            updateEdgeColorTelemetry()
-          }
-        }
+        //// initiate websocket for node telemetry
+        //var protocol = "ws://";
+        //var url = protocol + location.host + "/ws"
+        //var websocketMessage
+        //
+        //let socket = new WebSocket(url);
+        //console.log("Attempting Connection...");
+        //
+        //socket.onopen = () => {
+        //    console.log("Successfully Connected WebSocket");
+        //    socket.send("Hi From the Client!")
+        //};
+        //
+        //socket.onclose = event => {
+        //  console.log("Socket Closed Connection: ", event);
+        //  socket.send("Client Closed!")
+        //};
+        //
+        //socket.onerror = error => {
+        //  console.log("Socket Error: ", error);
+        //};
+        //
+        //// retrieve websocket message
+        //function telemetry() {
+        //  socket.onmessage = (msg) => {
+        //    console.log(msg)
+        //    websocketMessage = msg
+        //    updateEdgeColorTelemetry()
+        //  }
+        //}
 
          // initiate websocket for uptime
         var protocolUptime = "ws://";
-        var urlUptime = protocol + location.host + "/uptime"
+        var urlUptime = protocolUptime + location.host + "/uptime"
         var websocketMessage
 
         let socketUptime = new WebSocket(urlUptime);
         console.log("Attempting Connection...");
 
-        socket.onopen = () => {
+        socketUptime.onopen = () => {
             console.log("Successfully Connected WebSocket");
-            socketUptime.send("Hi From the Client!")
+            if (socketUptime.readyState === WebSocket.OPEN) {
+                socketUptime.send("Hi From the WebSocketClient-Uptime!");
+                }
         };
-        socket.onclose = event => {
+        socketUptime.onclose = event => {
           console.log("Socket Closed Connection: ", event);
           socketUptime.send("Client Closed!")
         };
@@ -176,17 +176,25 @@ body {
    
         socketUptime.onmessage = (msgUptime) => {
           console.log(msgUptime.data)
+          var tt1  = "Containerlab Topology: Komodo2-" + {{.}};
+          var tt2  = " -- Up time: " + msgUptime.data;
+
+          let ClabSubtitle = document.getElementById("ClabSubtitle");
+
+          var tmessageBody = tt1 + tt2
+          ClabSubtitle.innerText = tmessageBody
+          console.log(ClabSubtitle.innerText)
         }
         
-
-
         // global variable
         var linkImpairmentUrl;
 
         // Setting object
         let Setting = document.getElementById("Setting");
         let options = document.getElementById("options");
-        
+
+
+
         const close = document.querySelectorAll(".close");
         close.forEach(e => e.addEventListener('click', event => {
           var c = Setting.className;
@@ -228,14 +236,22 @@ body {
           var oldSettingHeader = Setting.childNodes[1]
           console.log("messageClabCLient oldSettingHeader: ")
           console.log(oldSettingHeader)
+          var tt1  = ce("p", {}, [ctn("Wireshark Capture")]);
+          var tt2  = ce("p", {}, [ctn("TopoViewer has a remote capture feature that allows to intercept ContainerLab node's endPoint - provided that topoViewer is running on the same server as ContainerLab node. The feature relies on the client-side application to run SSH command using SSH client (PowerShell for Windows or iTerm for MAC) to execute tcpdump remotely and pipe it to the client's Wireshark. Please download the following Wireshark Client application.")]);
+          var tt3  = ce("a", {target: "_blank", href: "http://"+location.host+"/clab-client/clab-client-mac/ClabCapture.app.zip", onclick: "", class: "text is-link is-small"}, [ctn("- Wireshark Client - MAC ")] );
           var seperator1 = ce("hr", {class: "my-1"}, []);
-          var seperator2 = ce("hr", {class: "my-1"}, []);
+          var tt4  = ce("a", {target: "_blank", href: "http://"+location.host+"/clab-client/clab-client-windows/ClabCapture.app.zip", onclick: "", class: "text is-link is-small"}, [ctn("- Wireshark Client - Windows")] );  
+          var seperator2 = ce("hr", {class: "my-3"}, []);
 
-          var tt1 = ce("a", {target: "_blank", href: "http://"+location.host+"/clab-client/clab-client-mac/ClabCapture.app.zip", onclick: "", class: "text is-link is-small"}, [ctn("ContainerLab Wireshark Client - MAC")] );
-          var tt2 = ce("a", {target: "_blank", href: "http://"+location.host+"/clab-client/clab-client-windows/ClabCapture.zip", onclick: "", class: "text is-link is-small"}, [ctn("ContainerLab Wireshark Client - Windows")] );
-          var tt3 = ce("a", {target: "_blank", href: "http://"+location.host+"/clab-client/clab-client-mac/ClabPumbaDelay.app.zip", onclick: "", class: "text is-link is-small"}, [ctn("ContainerLab LinkImpairment Client - MAC")] );
+          var tt11  = ce("p", {}, [ctn("Link Impairment")]);
+          var tt12  = ce("p", {}, [ctn("TopoViewer has Link Impairment feature that allow ContainerLab link to be impaired - provided that topoViewer is running on the same server as ContainerLab and Pumba binary is installed in ContainerLab host. Similar with ContainerLab Wireshark Client the feature relies on the client-side application to execute Pumba command over SSH.")]);
+          var tt13 = ce("a", {target: "_blank", href: "http://"+location.host+"/clab-client/clab-client-mac/ClabPumbaDelay.app.zip", onclick: "", class: "text is-link is-small"}, [ctn("LinkImpairment Client - Windows")] );
+          var seperator3 = ce("hr", {class: "my-1"}, []);
+          var tt14 = ce("a", {target: "_blank", href: "http://"+location.host+"/clab-client/clab-client-mac/ClabPumbaDelay.app.zip", onclick: "", class: "text is-link is-small"}, [ctn("LinkImpairment Client - MAC")] );
 
-          var tname = ce("p", {}, [tt1, seperator1, tt2, seperator2, tt3]);
+
+
+          var tname = ce("p", {}, [tt1, tt2, tt3, seperator1, tt4, seperator2, tt11, tt12, tt13, seperator3, tt14]);
          // var addon = ce("div", {}, [nodeInfo(node)]);
 
           var tpanel = ce("div", {}, [tname]);
@@ -265,9 +281,9 @@ body {
           var tt6  = ce("hr", {class: "my-1 has-background-grey-lighter"}, []);
           var tt7  = ce("p", {}, [ctn("Instructions:")]);
           var tt8  = ce("p", {},  [ctn("- To view the attributes of a node or link, simply click on it")]);
-          var tt9  = ce("p", {},  [ctn("- Topology physical adjustment can be made in the setting")]);
-          var tt10 = ce("p", {},  [ctn("- Link endpoint label display toggle can be made in setting")]);
-          var tt11 = ce("p", {},  [ctn("- Link wireshark and imparment activation will need clab-client, visit https://github.com/asadarafat/topoViewer for more detail")]);
+          var tt9  = ce("p", {},  [ctn("- To show/hide link endpoint label, click on setting menu")]);
+          var tt10 = ce("p", {},  [ctn("- To tap link with wireshark or to add impairment to link, please download client package")]);
+          var tt11 = ce("p", {},  [ctn("- To see further details, please visit https/github.com/asadarafat/topoViewer")]);
 
           var tname = ce("p", {}, [tt1, tt2, tt3, tt4, tt5, tt6, tt7, tt8, tt9, tt10, tt11]);
           var tpanel = ce("div", {}, [tname]);
@@ -484,9 +500,9 @@ body {
           var tt6 = ce("hr", {class: "my-1 has-background-grey-lighter"}, []);
           var tt7 = ce("p", {}, [ctn("Instructions:")]);
           var tt8 = ce("p", {},  [ctn("- To view the attributes of a node or link, simply click on it")]);
-          var tt9 = ce("p", {},  [ctn("- Topology physical adjustment can be made in the setting")]);
-          var tt10 = ce("p", {},  [ctn("- Link endpoint label display toggle can be made in setting")]);
-          var tt11 = ce("p", {},  [ctn("- Link wireshark and imparment activation will need clab-client, visit https://github.com/asadarafat/topoViewer for more detail")]);
+          var tt9 = ce("p", {},  [ctn("- To show/hide link endpoint label, click on setting menu")]);
+          var tt10 = ce("p", {},  [ctn("- To tap link with wireshark or to add impairment to link, please download client package")]);
+          var tt11 = ce("p", {},  [ctn("- To see further details, please visit https/github.com/asadarafat/topoViewer")]);
 
           var tname = ce("p", {}, [tt1, tt2, tt3, tt4, tt5, tt6, tt7, tt8, tt9, tt10, tt11]);
           var tpanel = ce("div", {}, [tname]);

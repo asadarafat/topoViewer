@@ -11,6 +11,11 @@ echo "Copy TopoViewer Binary..."
 mv topoviewer dist/topoviewer
 cp -r config dist
 
+echo "Create clab client Package..."
+zip tools/clab-client-windows/ClabCapture.app.zip tools/clab-client-windows/clabcapture.bat  tools/clab-client-windows/clab-capture.reg  tools/clab-client-windows/README-clab-capture-readme.MD
+zip tools/clab-client-windows/ClabPumba.app.zip   tools/clab-client-windows/clabpumba.bat    tools/clab-client-windows/clab-pumba.reg    tools/clab-client-windows/README-clab-pumba-readme.MD
+
+
 echo "Copy clab client..."
 cp -r tools/clab-client-mac dist/clab-client-mac
 cp -r tools/clab-client-windows dist/clab-client-windows

@@ -9,6 +9,7 @@ import (
 	"path"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/asadarafat/topoViewer/topoengine"
@@ -129,6 +130,8 @@ var upgrader = websocket.Upgrader{
 }
 
 var StartTime = time.Now()
+var connections = make(map[*websocket.Conn]bool)
+var connectionsMu sync.Mutex
 
 func init() {
 	// initialise the logger config clabCommand
@@ -330,10 +333,10 @@ func Clab(_ *cobra.Command, _ []string) error {
 	// // websocket endpoint
 	router.HandleFunc("/uptime",
 		func(w http.ResponseWriter, r *http.Request) {
+			var message time.Duration
+
 			// upgrade this connection to a WebSocket
 			// connection
-			log.Info("##################### " + VersionInfo)
-
 			uptime, err := upgrader.Upgrade(w, r, nil)
 			if err != nil {
 				log.Info(err)
@@ -341,25 +344,89 @@ func Clab(_ *cobra.Command, _ []string) error {
 			log.Infof("################## Websocket: Client Connected Uptime")
 			w.WriteHeader(http.StatusOK)
 
-			var message time.Duration
-
 			// simulating uptime..
+			// Add the new connection to the active connections list
+			connectionsMu.Lock()
+			connections[uptime] = true
+			connectionsMu.Unlock()
 
-			err = nil
-			// StartTime := time.Now()
-			for i := 0; i < 10000; i++ {
-				fmt.Printf("uptime %s\n", time.Since(StartTime))
+			// Create a channel to signal when the 10-second timer elapses
+			// timeoutCh := make(chan struct{})
+			// Start a goroutine to wait for 10 seconds and send a signal to the timeoutCh
+			// go func() {
+			// 	time.Sleep(2 * time.Second)
+			// 	timeoutCh <- struct{}{}
+			// }()
+
+			// listen indefinitely for new messages coming
+			// through on our WebSocket connection
+			// reader(uptime)
+			// for {
+			// 	fmt.Printf("uptime %s\n", time.Since(StartTime))
+			// 	message = time.Since(StartTime)
+			// 	err = uptime.WriteMessage(1, []byte(message.String()))
+			// 	if err != nil {
+			// 		// Remove the connection from the active connections list when the client disconnects
+			// 		if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
+			// 			fmt.Println("Error writing message:", err)
+			// 			connectionsMu.Lock()
+			// 			delete(connections, uptime)
+			// 			connectionsMu.Unlock()
+			// 			log.Info(err)
+			// 		}
+			// 	}
+			// 	messageType, msg, err := uptime.ReadMessage()
+			// 	if err != nil {
+			// 		fmt.Println("Error reading message:", err)
+			// 		fmt.Println("Error reading message:", messageType)
+
+			// 		// Remove the connection from the active connections list
+			// 		connectionsMu.Lock()
+			// 		delete(connections, uptime)
+			// 		connectionsMu.Unlock()
+			// 		break
+			// 	}
+			// 	fmt.Printf("Received message: %s\n", msg)
+			// 	// time.Sleep(time.Second * 10)
+			// }
+			for {
+				log.Debugf("uptime %s\n", time.Since(StartTime))
 				message = time.Since(StartTime)
-				err = uptime.WriteMessage(1, []byte(message.String()))
+				uptimeString := strings.Split(strings.Split(message.String(), "s")[0], ".")[0] + "s"
+				err = uptime.WriteMessage(1, []byte(uptimeString))
 				if err != nil {
-					log.Info(err)
+					// Remove the connection from the active connections list when the client disconnects
+					if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
+						log.Debug("Error writing message:", err)
+						connectionsMu.Lock()
+						delete(connections, uptime)
+						connectionsMu.Unlock()
+						log.Info(err)
+					}
 				}
 				time.Sleep(time.Second * 10)
 
+				// select {
+				// case <-timeoutCh:
+				// 	log.Debug("Read timeout reached, breaking ReadMessage loop")
+				// 	connectionsMu.Lock()
+				// 	delete(connections, uptime)
+				// 	connectionsMu.Unlock()
+				// 	log.Error("Error writing message:", err)
+				// default:
+				// 	messageType, msg, err := uptime.ReadMessage()
+				// 	if err != nil {
+				// 		// Remove the connection from the active connections list
+				// 		log.Debug("Error reading message:", err)
+				// 		log.Debug("Error reading message:", messageType)
+				// 		connectionsMu.Lock()
+				// 		delete(connections, uptime)
+				// 		connectionsMu.Unlock()
+				// 		break
+				// 	}
+				// 	log.Debugf("Received message: %s\n", msg)
+				// }
 			}
-			// listen indefinitely for new messages coming
-			// through on our WebSocket connection
-			reader(uptime)
 		})
 
 	// this is the endpoint for serving xterm.js assets

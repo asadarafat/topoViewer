@@ -1,0 +1,8 @@
+Windows Registry Editor Version 5.00
+
+[HKEY_CLASSES_ROOT\clab-pumba]
+"URL Protocol"=""
+[HKEY_CLASSES_ROOT\clab-pumba\shell]
+[HKEY_CLASSES_ROOT\clab-pumba\shell\open]
+[HKEY_CLASSES_ROOT\clab-pumba\shell\open\command] 
+@="\"C:\\Program Files\\clab-client\\clabpumba.bat\" %1"
