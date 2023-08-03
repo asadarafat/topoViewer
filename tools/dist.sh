@@ -12,20 +12,24 @@ mv topoviewer dist/topoviewer
 cp -r config dist
 
 echo "Create clab client Package..."
+rm -f tools/clab-client-windows/ClabCapture.app.zip
+rm -f tools/clab-client-windows/ClabPumbaDelau.app.zip
 zip tools/clab-client-windows/ClabCapture.app.zip tools/clab-client-windows/clabcapture.bat  tools/clab-client-windows/clab-capture.reg  tools/clab-client-windows/clab-capture-readme.MD
-zip tools/clab-client-windows/ClabPumba.app.zip   tools/clab-client-windows/clabpumba.bat    tools/clab-client-windows/clab-pumba.reg    tools/clab-client-windows/clab-pumba-readme.MD
+zip tools/clab-client-windows/ClabPumbaDelay.app.zip   tools/clab-client-windows/clabpumba.bat    tools/clab-client-windows/clab-pumba.reg    tools/clab-client-windows/clab-pumba-readme.MD
 
 
 echo "Copy clab client..."
 cp -r tools/clab-client-mac dist/clab-client-mac
-cp -r tools/clab-client-windows dist/clab-client-windows
+
+mkdir dist/clab-client-windows
+cp tools/clab-client-windows/ClabCapture.app.zip dist/clab-client-windows/ClabCapture.app.zip
+cp tools/clab-client-windows/ClabPumbaDelay.app.zip dist/clab-client-windows/ClabPumbaDelay.app.zip
+
 
 rm -rR html-static/clab-client
 mkdir html-static/clab-client
-mkdir html-static/clab-client/windows
-mkdir html-static/clab-client/mac
-cp -r tools/clab-client-mac html-static/clab-client/
-cp -r tools/clab-client-windows html-static/clab-client/
+cp -r dist/clab-client-mac html-static/clab-client/
+cp -r dist/clab-client-windows html-static/clab-client/
 
 
 echo "Copy Pumba_linux_amd64 Binary..."
