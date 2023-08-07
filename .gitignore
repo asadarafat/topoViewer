@@ -4,3 +4,4 @@ rawTopoFile/_clab-folder
 rawTopoFile/clab
 rawTopoFile/license.txt
 rawTopoFile/clab-topoViewerDemo/**
+node_modules/**

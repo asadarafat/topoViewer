@@ -341,7 +341,7 @@ body {
           ].map(function(link) {
             return ce("a", {target: "_blank", href: link.url, class: "button is-link is-small"}, [ctn(link.name)] );
           });
-          console.log("SSH-URL:" + url)
+          console.log("SSH-URL:" + elements)
 
           return ce("div", {class: "has-text-right"}, elements);
         }
