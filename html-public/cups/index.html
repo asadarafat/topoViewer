@@ -118,6 +118,45 @@ body {
   </div>
       <script type="text/javascript">
 
+
+
+
+        
+        let parsedVersionText = '';
+
+        
+        async function fetchAndParseText(url) {
+          try {
+            const response = await fetch(url);
+
+            
+            if (!response.ok) {
+              throw new Error('Network response was not OK');
+            }
+
+            
+            const text = await response.text();
+            console.log('Fetched text:', text);
+
+            
+            parsedVersionText = text;
+
+            
+            
+          } catch (error) {
+            console.error('Fetch error:', error);
+          }
+        }
+
+        
+        var versionUrl = location.protocol + "//" + location.host + "/version";
+        console.log(versionUrl)
+        fetchAndParseText(versionUrl);
+
+
+
+
+
         
         
         
@@ -153,6 +192,7 @@ body {
         var protocolUptime = "ws://";
         var urlUptime = protocolUptime + location.host + "/uptime"
         var websocketMessage
+        
 
         let socketUptime = new WebSocket(urlUptime);
         console.log("Attempting Connection...");
@@ -192,7 +232,6 @@ body {
         
         let Setting = document.getElementById("Setting");
         let options = document.getElementById("options");
-
 
 
         const close = document.querySelectorAll(".close");
@@ -274,7 +313,7 @@ body {
           console.log("About oldSettingHeader: ")
           console.log(oldSettingHeader)
           var tt1  = ce("p", {}, [ctn(" ")]);
-          var tt2  = ce("p", {}, [ctn("Version: 23.8.1")]);
+          var tt2  = ce("p", {}, [ctn(versionText)]);
           var tt3  = ce("hr", {class: "my-1 has-background-grey-lighter"}, []);
           var tt4  = ce("p", {}, [ctn("Designed and created by asad.arafat@nokia.com")]);
           var tt5  = ce("p", {}, [ctn("GUI developed by siva.sivakumar@nokia.com")]);
@@ -491,9 +530,18 @@ body {
           }
           addSliderEvent(edgeLength);
           addSliderEvent(nodeSpacing);
-             
+
+
+
+
+
+          versionText = "Version: "
+          versionText = versionText + parsedVersionText
+
           var tt1 = ce("p", {}, [ctn(" ")]);
-          var tt2  = ce("p", {}, [ctn("Version: 23.8.1")]);
+          
+          var tt2  = ce("p", {}, [ctn(versionText)]);
+
           var tt3  = ce("hr", {class: "my-1 has-background-grey-lighter"}, []);
           var tt4 = ce("p", {}, [ctn("Designed and created by asad.arafat@nokia.com")]);
           var tt5 = ce("p", {}, [ctn("GUI developed by siva.sivakumar@nokia.com")]);
