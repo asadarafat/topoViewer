@@ -25,6 +25,9 @@
 
   <script src="https://cdn.jsdelivr.net/npm/moleculer@0.14.30/index.min.js"></script>
 
+  <script src="https://cdn.jsdelivr.net/npm/cytoscape-layers@^2.1.0"></script>
+  <script src="./cytoscape/libs/cystoscape-overlays.js"></script>
+
 
 
 
@@ -75,7 +78,7 @@ body {
     <nav class="level m-0 px-3 py-1 has-background-4a">
       <div>
         <p class="title    m-0 px-1 py-0   is-4 is-unselectable has-text-weight-normal has-text-white"> TopoViewer</p>
-        <p class="subtitle m-0 px-1 py-0   is-6                 has-text-weight-light  has-text-white" id="ClabSubtitle">Topology name:{{.}} -- Up time: 10m10s</p>
+        <p class="subtitle m-0 px-1 py-0   is-6                 has-text-weight-light  has-text-white" id="ClabSubtitle">Topology name:{{.}} ::: Uptime: 10m10s</p>
       </div>
       <div class="level-right">
         <div class="level-item">
@@ -217,7 +220,7 @@ body {
         socketUptime.onmessage = (msgUptime) => {
           console.log(msgUptime.data)
           var tt1  = "Containerlab Topology: Komodo2-" + {{.}};
-          var tt2  = " -- Up time: " + msgUptime.data;
+          var tt2  = " ::: Uptime: " + msgUptime.data;
 
           let ClabSubtitle = document.getElementById("ClabSubtitle");
 
