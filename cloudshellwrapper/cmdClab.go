@@ -309,7 +309,6 @@ func Clab(_ *cobra.Command, _ []string) error {
 			var message []byte
 
 			// simulating telemetry data..
-
 			rand.Seed(time.Now().UnixNano())
 			var number int
 
@@ -329,8 +328,8 @@ func Clab(_ *cobra.Command, _ []string) error {
 			reader(ws)
 		})
 
-	// // websocket endpoint
-	// // websocket endpoint
+	// // websocketUptime endpoint
+	// // websocketUptime endpoint
 	router.HandleFunc("/uptime",
 		func(w http.ResponseWriter, r *http.Request) {
 			var message time.Duration
@@ -350,45 +349,6 @@ func Clab(_ *cobra.Command, _ []string) error {
 			connections[uptime] = true
 			connectionsMu.Unlock()
 
-			// Create a channel to signal when the 10-second timer elapses
-			// timeoutCh := make(chan struct{})
-			// Start a goroutine to wait for 10 seconds and send a signal to the timeoutCh
-			// go func() {
-			// 	time.Sleep(2 * time.Second)
-			// 	timeoutCh <- struct{}{}
-			// }()
-
-			// listen indefinitely for new messages coming
-			// through on our WebSocket connection
-			// reader(uptime)
-			// for {
-			// 	fmt.Printf("uptime %s\n", time.Since(StartTime))
-			// 	message = time.Since(StartTime)
-			// 	err = uptime.WriteMessage(1, []byte(message.String()))
-			// 	if err != nil {
-			// 		// Remove the connection from the active connections list when the client disconnects
-			// 		if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
-			// 			fmt.Println("Error writing message:", err)
-			// 			connectionsMu.Lock()
-			// 			delete(connections, uptime)
-			// 			connectionsMu.Unlock()
-			// 			log.Info(err)
-			// 		}
-			// 	}
-			// 	messageType, msg, err := uptime.ReadMessage()
-			// 	if err != nil {
-			// 		fmt.Println("Error reading message:", err)
-			// 		fmt.Println("Error reading message:", messageType)
-
-			// 		// Remove the connection from the active connections list
-			// 		connectionsMu.Lock()
-			// 		delete(connections, uptime)
-			// 		connectionsMu.Unlock()
-			// 		break
-			// 	}
-			// 	fmt.Printf("Received message: %s\n", msg)
-			// 	// time.Sleep(time.Second * 10)
-			// }
 			for {
 				log.Debugf("uptime %s\n", time.Since(StartTime))
 				message = time.Since(StartTime)
@@ -405,27 +365,44 @@ func Clab(_ *cobra.Command, _ []string) error {
 					}
 				}
 				time.Sleep(time.Second * 10)
+			}
+		})
+	// // websocketdockerNodeStatus endpoint
+	// // websocketdockerNodeStatus endpoint
+	router.HandleFunc("/dockerNodeStatus",
+		func(w http.ResponseWriter, r *http.Request) {
+			// upgrade this connection to a WebSocket
+			// connection
+			dockerNodeStatus, err := upgrader.Upgrade(w, r, nil)
+			if err != nil {
+				log.Info(err)
+			}
+			log.Debug("################## Websocket: Docker Node Status")
+			w.WriteHeader(http.StatusOK)
 
-				// select {
-				// case <-timeoutCh:
-				// 	log.Debug("Read timeout reached, breaking ReadMessage loop")
-				// 	connectionsMu.Lock()
-				// 	delete(connections, uptime)
-				// 	connectionsMu.Unlock()
-				// 	log.Error("Error writing message:", err)
-				// default:
-				// 	messageType, msg, err := uptime.ReadMessage()
-				// 	if err != nil {
-				// 		// Remove the connection from the active connections list
-				// 		log.Debug("Error reading message:", err)
-				// 		log.Debug("Error reading message:", messageType)
-				// 		connectionsMu.Lock()
-				// 		delete(connections, uptime)
-				// 		connectionsMu.Unlock()
-				// 		break
-				// 	}
-				// 	log.Debugf("Received message: %s\n", msg)
-				// }
+			clabUser := confClab.GetString("clab-user")
+			log.Debug("################## clabUser: " + clabUser)
+
+			clabHost := confClab.GetStringSlice("allowed-hostnames")
+			log.Debug("################## clabHost: " + clabHost[0])
+
+			// simulating dockerNodeStatus..
+			// Add the new connection to the active connections list
+
+			// Start an infinite loop
+			for {
+				// Print the sample GetDockerNodeStatus
+				// log.Infof(string(cyTopo.GetDockerNodeStatus("clab-nokia-MAGc-lab-AGG-UPF01")))
+				// log.Infof("node name:'%s'... ", cyTopo.ClabTopoDataV2.Nodes[0].Longname)
+
+				for _, n := range cyTopo.ClabTopoDataV2.Nodes {
+					dockerNodeStatus.WriteMessage(1, cyTopo.GetDockerNodeStatus(n.Longname, clabUser, clabHost[0]))
+					if err != nil {
+						log.Error(err)
+					}
+				}
+				// Pause for a short duration (e.g., 5 seconds)
+				time.Sleep(time.Second * 5)
 			}
 		})
 

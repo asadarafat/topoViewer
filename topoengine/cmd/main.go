@@ -1,129 +1,178 @@
+// package main
+
+// import (
+// 	"fmt"
+
+// 	"github.com/asadarafat/topoViewer/topoengine"
+// 	"github.com/scrapli/scrapligo/driver/generic"
+// 	"github.com/scrapli/scrapligo/driver/options"
+
+// 	"github.com/scrapli/scrapligo/channel"
+// )
+
+// // "io/ioutil"
+// // "os"
+
+// func main() {
+
+// 	cytoUiGo := topoengine.CytoTopology{}
+// 	cytoUiGo.LogLevel = 5
+// 	cytoUiGo.InitLogger()
+// cytoUiGo.InitLoggerDigitalTwin()
+
+// clab run
+// cytoUiGo.MarshalContainerLabTopo("clab-topo-file.yaml")
+// clabTopoJson := topoengine.ClabTopoJson{}
+// cytoUiGo.UnmarshalContainerLabTopo(clabTopoJson)
+// jsonBytes := cytoUiGo.UnmarshalContainerLabTopo(clabTopoJson)
+// // log.Info(jsonBytes)
+// cytoUiGo.PrintjsonBytesCytoUi(jsonBytes)
+
+// Nsp Ietf L2
+// Nsp Ietf L2
+// filePath, _ := os.Getwd()
+// filePath = (filePath + "/rawTopoFile/")
+// log.Info("topology file path: ", filePath)
+// topoFile, err := ioutil.ReadFile(filePath + "topo-ietf-L2.json")
+
+// if err != nil {
+// 	log.Fatal("Error when opening file: ", err)
+// }
+// log.Info(topoFile)
+// cytoUiGo.IetfL2TopoUnMarshal(topoFile, topoengine.IetfNetworkTopologyL2{})
+// jsonBytesL2 := cytoUiGo.IetfL2TopoUnMarshal(topoFile, topoengine.IetfNetworkTopologyL2{})
+// cytoUiGo.IetfL2TopoPrintjsonBytesCytoUi(jsonBytesL2)
+
+// Nsp Ietf L3
+// Nsp Ietf L3
+// var topoFileList []string
+
+// topoFileList = append(topoFileList, "rawTopoFile/topo-ietf-L3-TopologyId-0:55000:2-isis.json")
+// topoFileList = append(topoFileList, "rawTopoFile/topo-ietf-L3-TopologyId-0:65000:1-isis.json")
+// topoFileList = append(topoFileList, "rawTopoFile/topo-ietf-L3-TopologyId-1:65000:1-isis.json")
+// log.Info(topoFileList)
+// topoFileByte0 := cytoUiGo.IetfL3TopoRead(topoFileList[0])
+// topoFileByte1 := cytoUiGo.IetfL3TopoRead(topoFileList[1])
+// topoFileByte2 := cytoUiGo.IetfL3TopoRead(topoFileList[2])
+
+// var topoL3FileByteCombine [][]byte
+// topoL3FileByteCombine = append(topoL3FileByteCombine, topoFileByte0)
+// topoL3FileByteCombine = append(topoL3FileByteCombine, topoFileByte1)
+// topoL3FileByteCombine = append(topoL3FileByteCombine, topoFileByte2)
+
+// log.Info(topoFileByteCombine)
+// jsonBytesL3 := cytoUiGo.IetfL3TopoUnMarshal(topoFileByteCombine, topoengine.IetfNetworkTopologyL3{})
+// cytoUiGo.IetfL3TopoPrintjsonBytesCytoUi(jsonBytesL3)
+
+// // Nsp Ietf Multi L2 L3
+// // Nsp Ietf Multi L2 L3
+// // load L2 topo nya dulu
+// filePath, _ := os.Getwd()
+// filePath = (filePath + "/rawTopoFile/")
+// log.Info("topology file path: ", filePath)
+// topoFile, err := ioutil.ReadFile(filePath + "topo-ietf-L2.json")
+
+// if err != nil {
+// 	log.Fatal("Error when opening file: ", err)
+// }
+// topoFileL2 := topoFile
+
+// // load L3 topo nya dulu
+// var topoFileList []string
+// topoFileList = append(topoFileList, "rawTopoFile/topo-ietf-L3-TopologyId-0:55000:2-isis.json")
+// topoFileList = append(topoFileList, "rawTopoFile/topo-ietf-L3-TopologyId-0:65000:1-isis.json")
+// topoFileList = append(topoFileList, "rawTopoFile/topo-ietf-L3-TopologyId-1:65000:1-isis.json")
+// log.Info(topoFileList)
+// topoFileByte0 := cytoUiGo.IetfL3TopoRead(topoFileList[0])
+// topoFileByte1 := cytoUiGo.IetfL3TopoRead(topoFileList[1])
+// topoFileByte2 := cytoUiGo.IetfL3TopoRead(topoFileList[2])
+
+// var topoL3FileByteCombine [][]byte
+// topoL3FileByteCombine = append(topoL3FileByteCombine, topoFileByte0)
+// topoL3FileByteCombine = append(topoL3FileByteCombine, topoFileByte1)
+// topoL3FileByteCombine = append(topoL3FileByteCombine, topoFileByte2)
+
+// jsonBytesMultiL2L3 := cytoUiGo.IetfMultiL2L3TopoUnMarshal(topoFileL2, topoL3FileByteCombine, topoengine.IetfNetworkTopologyMultiL2L3{})
+// cytoUiGo.IetfMultiLayerTopoPrintjsonBytesCytoUi(jsonBytesMultiL2L3)
+
+// // Nsp digitalTwin
+// // Nsp digitalTwin
+// // Nsp digitalTwin
+// filePath, _ := os.Getwd()
+// filePath = (filePath + "/rawTopoFile/")
+// log.Info("topology file path: ", filePath)
+// topoFile, err := ioutil.ReadFile(filePath + "topo-ietf-L2.json")
+
+// if err != nil {
+// 	log.Fatal("Error when opening file: ", err)
+// }
+// // log.Info(topoFile)
+// cytoUiGo.NspDigitalTwinTopoUnmarshal(topoFile, topoengine.IetfNetworkTopologyL2{})
+
+// Nsp digitalTwin
+// Nsp digitalTwin
+// Nsp digitalTwin
+// // filePath, _ := os.Getwd()
+// filePath = (filePath + "/rawTopoFile/")
+// log.Info("topology file path: ", filePath)
+// topoFile, err := ioutil.ReadFile(filePath + "topo-ietf-L2.json")
+
+// if err != nil {
+// 	log.Fatal("Error when opening file: ", err)
+// }
+// // log.Info(topoFile)
+// cytoUiGo.NspDigitalTwinTopoUnmarshal(topoFile, topoengine.IetfNetworkTopologyL2{})
+
+//// clabv2 run
+//// clabv2 run
+
+// cytoUiGo.InitLoggerClabV2()
+// topoFileBytes := cytoUiGo.ClabTopoRead("rawTopoFile/clab/bng-cups/clab-cups/topology-data.json")
+// //topoFileBytes := cytoUiGo.ClabTopoRead("rawTopoFile/clab-Vodafone-CO-HCO/topology-data.json")
+
+// jsonBytesCytoUi := cytoUiGo.UnmarshalContainerLabTopoV2(topoFileBytes)
+// cytoUiGo.PrintjsonBytesCytoUiV2(jsonBytesCytoUi)
+
+// cytoUiGo.GetDockerNodeStatus("clab-Vodafone-CO-HCO-R01-PE")
+
 package main
 
 import (
-	"github.com/asadarafat/topoViewer/topoengine"
+	"bytes"
+	"fmt"
+	"log"
+
+	"golang.org/x/crypto/ssh"
 )
 
-// "io/ioutil"
-// "os"
-
 func main() {
+	config := &ssh.ClientConfig{
+		User: "root",
+		Auth: []ssh.AuthMethod{
+			ssh.Password("Lab-Her0"),
+		},
+		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+	}
+	client, err := ssh.Dial("tcp", "138.203.26.59:22", config)
+	if err != nil {
+		log.Fatal("Failed to dial: ", err)
+	}
 
-	cytoUiGo := topoengine.CytoTopology{}
-	cytoUiGo.LogLevel = 5
-	cytoUiGo.InitLogger()
-	// cytoUiGo.InitLoggerDigitalTwin()
+	// Each ClientConn can support multiple interactive sessions,
+	// represented by a Session.
+	session, err := client.NewSession()
+	if err != nil {
+		log.Fatal("Failed to create session: ", err)
+	}
+	defer session.Close()
 
-	// clab run
-	// cytoUiGo.MarshalContainerLabTopo("clab-topo-file.yaml")
-	// clabTopoJson := topoengine.ClabTopoJson{}
-	// cytoUiGo.UnmarshalContainerLabTopo(clabTopoJson)
-	// jsonBytes := cytoUiGo.UnmarshalContainerLabTopo(clabTopoJson)
-	// // log.Info(jsonBytes)
-	// cytoUiGo.PrintjsonBytesCytoUi(jsonBytes)
+	// Once a Session is created, you can execute a single command on
+	// the remote side using the Run method.
+	var b bytes.Buffer
+	session.Stdout = &b
+	if err := session.Run("docker ps --all --format json"); err != nil {
+		log.Fatal("Failed to run: " + err.Error())
+	}
+	fmt.Println(b.String())
 
-	// Nsp Ietf L2
-	// Nsp Ietf L2
-	// filePath, _ := os.Getwd()
-	// filePath = (filePath + "/rawTopoFile/")
-	// log.Info("topology file path: ", filePath)
-	// topoFile, err := ioutil.ReadFile(filePath + "topo-ietf-L2.json")
-
-	// if err != nil {
-	// 	log.Fatal("Error when opening file: ", err)
-	// }
-	// log.Info(topoFile)
-	// cytoUiGo.IetfL2TopoUnMarshal(topoFile, topoengine.IetfNetworkTopologyL2{})
-	// jsonBytesL2 := cytoUiGo.IetfL2TopoUnMarshal(topoFile, topoengine.IetfNetworkTopologyL2{})
-	// cytoUiGo.IetfL2TopoPrintjsonBytesCytoUi(jsonBytesL2)
-
-	// Nsp Ietf L3
-	// Nsp Ietf L3
-	// var topoFileList []string
-
-	// topoFileList = append(topoFileList, "rawTopoFile/topo-ietf-L3-TopologyId-0:55000:2-isis.json")
-	// topoFileList = append(topoFileList, "rawTopoFile/topo-ietf-L3-TopologyId-0:65000:1-isis.json")
-	// topoFileList = append(topoFileList, "rawTopoFile/topo-ietf-L3-TopologyId-1:65000:1-isis.json")
-	// log.Info(topoFileList)
-	// topoFileByte0 := cytoUiGo.IetfL3TopoRead(topoFileList[0])
-	// topoFileByte1 := cytoUiGo.IetfL3TopoRead(topoFileList[1])
-	// topoFileByte2 := cytoUiGo.IetfL3TopoRead(topoFileList[2])
-
-	// var topoL3FileByteCombine [][]byte
-	// topoL3FileByteCombine = append(topoL3FileByteCombine, topoFileByte0)
-	// topoL3FileByteCombine = append(topoL3FileByteCombine, topoFileByte1)
-	// topoL3FileByteCombine = append(topoL3FileByteCombine, topoFileByte2)
-
-	// log.Info(topoFileByteCombine)
-	// jsonBytesL3 := cytoUiGo.IetfL3TopoUnMarshal(topoFileByteCombine, topoengine.IetfNetworkTopologyL3{})
-	// cytoUiGo.IetfL3TopoPrintjsonBytesCytoUi(jsonBytesL3)
-
-	// // Nsp Ietf Multi L2 L3
-	// // Nsp Ietf Multi L2 L3
-	// // load L2 topo nya dulu
-	// filePath, _ := os.Getwd()
-	// filePath = (filePath + "/rawTopoFile/")
-	// log.Info("topology file path: ", filePath)
-	// topoFile, err := ioutil.ReadFile(filePath + "topo-ietf-L2.json")
-
-	// if err != nil {
-	// 	log.Fatal("Error when opening file: ", err)
-	// }
-	// topoFileL2 := topoFile
-
-	// // load L3 topo nya dulu
-	// var topoFileList []string
-	// topoFileList = append(topoFileList, "rawTopoFile/topo-ietf-L3-TopologyId-0:55000:2-isis.json")
-	// topoFileList = append(topoFileList, "rawTopoFile/topo-ietf-L3-TopologyId-0:65000:1-isis.json")
-	// topoFileList = append(topoFileList, "rawTopoFile/topo-ietf-L3-TopologyId-1:65000:1-isis.json")
-	// log.Info(topoFileList)
-	// topoFileByte0 := cytoUiGo.IetfL3TopoRead(topoFileList[0])
-	// topoFileByte1 := cytoUiGo.IetfL3TopoRead(topoFileList[1])
-	// topoFileByte2 := cytoUiGo.IetfL3TopoRead(topoFileList[2])
-
-	// var topoL3FileByteCombine [][]byte
-	// topoL3FileByteCombine = append(topoL3FileByteCombine, topoFileByte0)
-	// topoL3FileByteCombine = append(topoL3FileByteCombine, topoFileByte1)
-	// topoL3FileByteCombine = append(topoL3FileByteCombine, topoFileByte2)
-
-	// jsonBytesMultiL2L3 := cytoUiGo.IetfMultiL2L3TopoUnMarshal(topoFileL2, topoL3FileByteCombine, topoengine.IetfNetworkTopologyMultiL2L3{})
-	// cytoUiGo.IetfMultiLayerTopoPrintjsonBytesCytoUi(jsonBytesMultiL2L3)
-
-	// // Nsp digitalTwin
-	// // Nsp digitalTwin
-	// // Nsp digitalTwin
-	// filePath, _ := os.Getwd()
-	// filePath = (filePath + "/rawTopoFile/")
-	// log.Info("topology file path: ", filePath)
-	// topoFile, err := ioutil.ReadFile(filePath + "topo-ietf-L2.json")
-
-	// if err != nil {
-	// 	log.Fatal("Error when opening file: ", err)
-	// }
-	// // log.Info(topoFile)
-	// cytoUiGo.NspDigitalTwinTopoUnmarshal(topoFile, topoengine.IetfNetworkTopologyL2{})
-
-	// Nsp digitalTwin
-	// Nsp digitalTwin
-	// Nsp digitalTwin
-	// // filePath, _ := os.Getwd()
-	// filePath = (filePath + "/rawTopoFile/")
-	// log.Info("topology file path: ", filePath)
-	// topoFile, err := ioutil.ReadFile(filePath + "topo-ietf-L2.json")
-
-	// if err != nil {
-	// 	log.Fatal("Error when opening file: ", err)
-	// }
-	// // log.Info(topoFile)
-	// cytoUiGo.NspDigitalTwinTopoUnmarshal(topoFile, topoengine.IetfNetworkTopologyL2{})
-
-	//// clabv2 run
-	//// clabv2 run
-
-	cytoUiGo.InitLoggerClabV2()
-	topoFileBytes := cytoUiGo.ClabTopoRead("rawTopoFile/topo-topoViewerDemo.json")
-	//topoFileBytes := cytoUiGo.ClabTopoRead("rawTopoFile/clab-Vodafone-CO-HCO/topology-data.json")
-
-	jsonBytesCytoUi := cytoUiGo.UnmarshalContainerLabTopoV2(topoFileBytes)
-	cytoUiGo.PrintjsonBytesCytoUiV2(jsonBytesCytoUi)
 }

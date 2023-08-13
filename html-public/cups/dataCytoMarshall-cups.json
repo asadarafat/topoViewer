@@ -57,6 +57,54 @@
   },
   {
     "data": {
+      "id": "AGG-UPF01-statusRed",
+      "weight": "30",
+      "name": "AGG-UPF01-statusRed",
+      "parent": "6",
+      "kind": "",
+      "topoviewerRole": "",
+      "sourceEndpoint": "",
+      "targetEndpoint": ""
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": false,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": false,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "AGG-UPF01-statusGreen",
+      "weight": "30",
+      "name": "AGG-UPF01-statusGreen",
+      "parent": "6",
+      "kind": "",
+      "topoviewerRole": "",
+      "sourceEndpoint": "",
+      "targetEndpoint": ""
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": false,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": false,
+    "classes": ""
+  },
+  {
+    "data": {
       "id": "AGG-UPF02",
       "weight": "30",
       "name": "AGG-UPF02",
@@ -109,6 +157,54 @@
     "locked": false,
     "grabbed": false,
     "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "AGG-UPF02-statusRed",
+      "weight": "30",
+      "name": "AGG-UPF02-statusRed",
+      "parent": "6",
+      "kind": "",
+      "topoviewerRole": "",
+      "sourceEndpoint": "",
+      "targetEndpoint": ""
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": false,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": false,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "AGG-UPF02-statusGreen",
+      "weight": "30",
+      "name": "AGG-UPF02-statusGreen",
+      "parent": "6",
+      "kind": "",
+      "topoviewerRole": "",
+      "sourceEndpoint": "",
+      "targetEndpoint": ""
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": false,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": false,
     "classes": ""
   },
   {
@@ -169,6 +265,54 @@
   },
   {
     "data": {
+      "id": "MAG-C01-statusRed",
+      "weight": "30",
+      "name": "MAG-C01-statusRed",
+      "parent": "8",
+      "kind": "",
+      "topoviewerRole": "",
+      "sourceEndpoint": "",
+      "targetEndpoint": ""
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": false,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": false,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "MAG-C01-statusGreen",
+      "weight": "30",
+      "name": "MAG-C01-statusGreen",
+      "parent": "8",
+      "kind": "",
+      "topoviewerRole": "",
+      "sourceEndpoint": "",
+      "targetEndpoint": ""
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": false,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": false,
+    "classes": ""
+  },
+  {
+    "data": {
       "id": "MAG-C02",
       "weight": "30",
       "name": "MAG-C02",
@@ -221,6 +365,54 @@
     "locked": false,
     "grabbed": false,
     "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "MAG-C02-statusRed",
+      "weight": "30",
+      "name": "MAG-C02-statusRed",
+      "parent": "8",
+      "kind": "",
+      "topoviewerRole": "",
+      "sourceEndpoint": "",
+      "targetEndpoint": ""
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": false,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": false,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "MAG-C02-statusGreen",
+      "weight": "30",
+      "name": "MAG-C02-statusGreen",
+      "parent": "8",
+      "kind": "",
+      "topoviewerRole": "",
+      "sourceEndpoint": "",
+      "targetEndpoint": ""
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": false,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": false,
     "classes": ""
   },
   {
@@ -281,6 +473,54 @@
   },
   {
     "data": {
+      "id": "PE-01-statusRed",
+      "weight": "30",
+      "name": "PE-01-statusRed",
+      "parent": "7",
+      "kind": "",
+      "topoviewerRole": "",
+      "sourceEndpoint": "",
+      "targetEndpoint": ""
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": false,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": false,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "PE-01-statusGreen",
+      "weight": "30",
+      "name": "PE-01-statusGreen",
+      "parent": "7",
+      "kind": "",
+      "topoviewerRole": "",
+      "sourceEndpoint": "",
+      "targetEndpoint": ""
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": false,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": false,
+    "classes": ""
+  },
+  {
+    "data": {
       "id": "RADIUS",
       "weight": "30",
       "name": "RADIUS",
@@ -333,6 +573,54 @@
     "locked": false,
     "grabbed": false,
     "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "RADIUS-statusRed",
+      "weight": "30",
+      "name": "RADIUS-statusRed",
+      "parent": "9",
+      "kind": "",
+      "topoviewerRole": "",
+      "sourceEndpoint": "",
+      "targetEndpoint": ""
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": false,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": false,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "RADIUS-statusGreen",
+      "weight": "30",
+      "name": "RADIUS-statusGreen",
+      "parent": "9",
+      "kind": "",
+      "topoviewerRole": "",
+      "sourceEndpoint": "",
+      "targetEndpoint": ""
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": false,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": false,
     "classes": ""
   },
   {
@@ -393,6 +681,54 @@
   },
   {
     "data": {
+      "id": "bngblaster_3-statusRed",
+      "weight": "30",
+      "name": "bngblaster_3-statusRed",
+      "parent": "1",
+      "kind": "",
+      "topoviewerRole": "",
+      "sourceEndpoint": "",
+      "targetEndpoint": ""
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": false,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": false,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "bngblaster_3-statusGreen",
+      "weight": "30",
+      "name": "bngblaster_3-statusGreen",
+      "parent": "1",
+      "kind": "",
+      "topoviewerRole": "",
+      "sourceEndpoint": "",
+      "targetEndpoint": ""
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": false,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": false,
+    "classes": ""
+  },
+  {
+    "data": {
       "id": "ovs-br11",
       "weight": "30",
       "name": "ovs-br11",
@@ -445,6 +781,54 @@
     "locked": false,
     "grabbed": false,
     "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "ovs-br11-statusRed",
+      "weight": "30",
+      "name": "ovs-br11-statusRed",
+      "parent": "10",
+      "kind": "",
+      "topoviewerRole": "",
+      "sourceEndpoint": "",
+      "targetEndpoint": ""
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": false,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": false,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "ovs-br11-statusGreen",
+      "weight": "30",
+      "name": "ovs-br11-statusGreen",
+      "parent": "10",
+      "kind": "",
+      "topoviewerRole": "",
+      "sourceEndpoint": "",
+      "targetEndpoint": ""
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": false,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": false,
     "classes": ""
   },
   {
@@ -505,6 +889,54 @@
   },
   {
     "data": {
+      "id": "ovs-br12-statusRed",
+      "weight": "30",
+      "name": "ovs-br12-statusRed",
+      "parent": "10",
+      "kind": "",
+      "topoviewerRole": "",
+      "sourceEndpoint": "",
+      "targetEndpoint": ""
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": false,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": false,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "ovs-br12-statusGreen",
+      "weight": "30",
+      "name": "ovs-br12-statusGreen",
+      "parent": "10",
+      "kind": "",
+      "topoviewerRole": "",
+      "sourceEndpoint": "",
+      "targetEndpoint": ""
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": false,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": false,
+    "classes": ""
+  },
+  {
+    "data": {
       "id": "topoviewer",
       "weight": "30",
       "name": "topoviewer",
@@ -557,6 +989,54 @@
     "locked": false,
     "grabbed": false,
     "grabbable": true,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "topoviewer-statusRed",
+      "weight": "30",
+      "name": "topoviewer-statusRed",
+      "parent": "8",
+      "kind": "",
+      "topoviewerRole": "",
+      "sourceEndpoint": "",
+      "targetEndpoint": ""
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": false,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": false,
+    "classes": ""
+  },
+  {
+    "data": {
+      "id": "topoviewer-statusGreen",
+      "weight": "30",
+      "name": "topoviewer-statusGreen",
+      "parent": "8",
+      "kind": "",
+      "topoviewerRole": "",
+      "sourceEndpoint": "",
+      "targetEndpoint": ""
+    },
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "removed": false,
+    "group": "nodes",
+    "selected": false,
+    "selectable": false,
+    "locked": false,
+    "grabbed": false,
+    "grabbable": false,
     "classes": ""
   },
   {

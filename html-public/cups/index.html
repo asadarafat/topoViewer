@@ -105,6 +105,7 @@ body {
                                
                                       
                     <a id="toggleLinkEndpoint" href="#" onclick="toggleLinkEndpoint();" class="dropdown-item label has-text-weight-normal is-small">Toggle Link Endpoint</a>
+                    <a id="toggleNodeDockerStatus" href="#" onclick="toggleNodeDockerStatus();" class="dropdown-item label has-text-weight-normal is-small">Toggle Node Docker Status</a>
                         
                     <a id="about" href="#" onclick="about();" class="dropdown-item label has-text-weight-normal is-small">About TopoViewer</a>                      
               </div>
@@ -191,12 +192,11 @@ body {
         
         
 
-         
+        
         var protocolUptime = "ws://";
         var urlUptime = protocolUptime + location.host + "/uptime"
         var websocketMessage
         
-
         let socketUptime = new WebSocket(urlUptime);
         console.log("Attempting Connection...");
 
@@ -216,7 +216,6 @@ body {
         };
 
         
-   
         socketUptime.onmessage = (msgUptime) => {
           console.log(msgUptime.data)
           var tt1  = "Containerlab Topology: Komodo2-" + "cups";
@@ -228,9 +227,49 @@ body {
           ClabSubtitle.innerText = tmessageBody
           console.log(ClabSubtitle.innerText)
         }
+
         
+        var protocolDockerNodeStatus = "ws://";
+        var urlDockerNodeStatus = protocolDockerNodeStatus + location.host + "/dockerNodeStatus"
+        var websocketMessage
         
-        var linkImpairmentUrl;
+        let socketDockerNodeStatus = new WebSocket(urlDockerNodeStatus);
+        console.log("Attempting Connection...");
+
+        socketDockerNodeStatus.onopen = () => {
+            console.log("Successfully Connected WebSocket");
+            if (socketDockerNodeStatus.readyState === WebSocket.OPEN) {
+                socketDockerNodeStatus.send("Hi From the WebSocketClient-DockerNodeStatus!");
+                }
+        };
+        socketDockerNodeStatus.onclose = event => {
+          console.log("Socket Closed Connection: ", event);
+          socketDockerNodeStatus.send("Client Closed!")
+        };
+
+        socketDockerNodeStatus.onerror = error => {
+          console.log("SocketDockerNodeStatus Error: ", error);
+        };
+
+        
+        socketDockerNodeStatus.onmessage = (msgDockerNodeStatus) => {
+          
+
+          try {
+            
+            
+            const Names = JSON.parse(msgDockerNodeStatus.data).Names;
+            const Status = JSON.parse(msgDockerNodeStatus.data).Status;
+
+            console.log(`Names: ${Names}, Status: ${Status}`);
+            toggleNodeDockerStatus(Names, Status)
+            
+          }catch (error) {
+            console.error("Error parsing JSON:", error);
+          }
+
+        }
+
 
         
         let Setting = document.getElementById("Setting");
@@ -278,22 +317,24 @@ body {
           var oldSettingHeader = Setting.childNodes[1]
           console.log("messageClabCLient oldSettingHeader: ")
           console.log(oldSettingHeader)
-          var tt1  = ce("p", {}, [ctn("Wireshark Capture")]);
+          var tt1  = ce("strong", {}, [ctn("Wireshark Capture")]);
           var tt2  = ce("p", {}, [ctn("TopoViewer has a remote capture feature that allows to intercept ContainerLab node's endPoint - provided that topoViewer is running on the same server as ContainerLab node. The feature relies on the client-side application to run SSH command using SSH client (PowerShell for Windows or iTerm for MAC) to execute tcpdump remotely and pipe it to the client's Wireshark. Please download the following Wireshark Client application.")]);
-          var tt3  = ce("a", {target: "_blank", href: "http://"+location.host+"/clab-client/clab-client-mac/ClabCapture.app.zip", onclick: "", class: "text is-link is-small"}, [ctn("Wireshark Client - MAC ")] );
           var seperator1 = ce("hr", {class: "my-1"}, []);
+          var tt3  = ce("a", {target: "_blank", href: "http://"+location.host+"/clab-client/clab-client-mac/ClabCapture.app.zip", onclick: "", class: "text is-link is-small"}, [ctn("Wireshark Client - MAC ")] );
+          var seperator2 = ce("hr", {class: "my-1"}, []);
           var tt4  = ce("a", {target: "_blank", href: "http://"+location.host+"/clab-client/clab-client-windows/ClabCapture.app.zip", onclick: "", class: "text is-link is-small"}, [ctn("Wireshark Client - Windows")] );  
-          var seperator2 = ce("hr", {class: "my-3"}, []);
+          var seperator3 = ce("hr", {class: "my-3"}, []);
 
-          var tt11  = ce("p", {}, [ctn("Link Impairment")]);
+          var tt11  = ce("strong", {}, [ctn("Link Impairment")]);
           var tt12  = ce("p", {}, [ctn("TopoViewer has Link Impairment feature that allow ContainerLab link to be impaired - provided that topoViewer is running on the same server as ContainerLab and Pumba binary is installed in ContainerLab host. Similar with ContainerLab Wireshark Client the feature relies on the client-side application to execute Pumba command over SSH.")]);
+          var seperator11 = ce("hr", {class: "my-1"}, []);
           var tt13 = ce("a", {target: "_blank", href: "http://"+location.host+"/clab-client/clab-client-windows/ClabPumbaDelay.app.zip", onclick: "", class: "text is-link is-small"}, [ctn("Link Impairment Client - Windows")] );
-          var seperator3 = ce("hr", {class: "my-1"}, []);
+          var seperator14 = ce("hr", {class: "my-1"}, []);
           var tt14 = ce("a", {target: "_blank", href: "http://"+location.host+"/clab-client/clab-client-mac/ClabPumbaDelay.app.zip", onclick: "", class: "text is-link is-small"}, [ctn("Link Impairment Client - MAC")] );
 
 
 
-          var tname = ce("p", {}, [tt1, tt2, tt3, seperator1, tt4, seperator2, tt11, tt12, tt13, seperator3, tt14]);
+          var tname = ce("p", {}, [tt1, tt2, seperator1, tt3, seperator2, tt4, seperator3, tt11, tt12, seperator11, tt13, seperator14, tt14]);
          
 
           var tpanel = ce("div", {}, [tname]);
@@ -316,12 +357,12 @@ body {
           console.log("About oldSettingHeader: ")
           console.log(oldSettingHeader)
           var tt1  = ce("p", {}, [ctn(" ")]);
-          var tt2  = ce("p", {}, [ctn(versionText)]);
+          var tt2  = ce("strong", {}, [ctn(versionText)]);
           var tt3  = ce("hr", {class: "my-1 has-background-grey-lighter"}, []);
           var tt4  = ce("p", {}, [ctn("Designed and created by asad.arafat@nokia.com")]);
-          var tt5  = ce("p", {}, [ctn("GUI developed by siva.sivakumar@nokia.com")]);
+          var tt5  = ce("p", {}, [ctn("GUI Framework by siva.sivakumar@nokia.com")]);
           var tt6  = ce("hr", {class: "my-1 has-background-grey-lighter"}, []);
-          var tt7  = ce("p", {}, [ctn("Instructions:")]);
+          var tt7  = ce("strong", {}, [ctn("Instructions:")]);
           var tt8  = ce("p", {},  [ctn("- To view the attributes of a node or link, simply click on it")]);
           var tt9  = ce("p", {},  [ctn("- To show/hide link endpoint label, click on setting menu")]);
           var tt10 = ce("p", {},  [ctn("- To tap link with wireshark or to add impairment to link, please download client package")]);
@@ -542,14 +583,13 @@ body {
           versionText = versionText + parsedVersionText
 
           var tt1 = ce("p", {}, [ctn(" ")]);
-          
-          var tt2  = ce("p", {}, [ctn(versionText)]);
+          var tt2  = ce("strong", {}, [ctn(versionText)]);
 
           var tt3  = ce("hr", {class: "my-1 has-background-grey-lighter"}, []);
           var tt4 = ce("p", {}, [ctn("Designed and created by asad.arafat@nokia.com")]);
-          var tt5 = ce("p", {}, [ctn("GUI developed by siva.sivakumar@nokia.com")]);
+          var tt5 = ce("p", {}, [ctn("GUI Framework by siva.sivakumar@nokia.com")]);
           var tt6 = ce("hr", {class: "my-1 has-background-grey-lighter"}, []);
-          var tt7 = ce("p", {}, [ctn("Instructions:")]);
+          var tt7 = ce("strong", {}, [ctn("Instructions:")]);
           var tt8 = ce("p", {},  [ctn("- To view the attributes of a node or link, simply click on it")]);
           var tt9 = ce("p", {},  [ctn("- To show/hide link endpoint label, click on setting menu")]);
           var tt10 = ce("p", {},  [ctn("- To tap link with wireshark or to add impairment to link, please download client package")]);
@@ -776,7 +816,56 @@ body {
           }
         }
 
+        function toggleNodeDockerStatus(dockerNodeName, dockerNodeStatus) {
           
+          cy.nodes().forEach(function(node) {
+            
+            var nodeId = node.data('id');
+            var nodeName = node.data('name');
+            
+            
+            aNode = cy.filter(function(element) {
+              return element.isNode() && element.data('name') === nodeId;
+            });
+            refereceNodePosition = aNode.position();
+
+            statusGreenNode = cy.filter(function(element) {
+              return element.isNode() && element.data('name') === nodeId + "-statusGreen";
+            });
+            var statusGreenNodeOffsetX = 14; 
+            var statusGreenNodeOffsetY = 3; 
+            var newPosition = {
+              x: refereceNodePosition.x + statusGreenNodeOffsetX,
+              y: refereceNodePosition.y + statusGreenNodeOffsetY
+            }
+            statusGreenNode.position(newPosition)
+            
+            statusRedNode = cy.filter(function(element) {
+              return element.isNode() && element.data('name') === nodeId + "-statusRed";
+            });      
+            var statusRedNodeOffsetX = 14; 
+            var statusRedNodeOffsetY = -3; 
+            var newPosition = {
+              x: refereceNodePosition.x + statusRedNodeOffsetX,
+              y: refereceNodePosition.y + statusRedNodeOffsetY
+            }
+            statusRedNode.position(newPosition)
+            
+            if (dockerNodeName.includes(nodeId) && dockerNodeStatus.includes("healthy")) {
+              
+
+              statusGreenNode.show();
+              statusRedNode.hide();
+            } else if (dockerNodeName.includes(nodeId) && dockerNodeStatus.includes("(unhealthy)")) {
+              statusGreenNode.hide();
+              statusRedNode.show();
+            }          
+            
+            });
+
+ 
+        }
+
         function updateUrl(asad) {
           var button = document.getElementById("onSubmit")
           console.log(button)

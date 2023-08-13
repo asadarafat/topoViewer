@@ -1,4 +1,19 @@
 #!/bin/bash
+
+# Prompt the user for Tag name
+read -p "Enter the version Tag: " tag
+
+# Display the entered parameters
+echo "Hello, the version Tag tobe used is $tag"
+
+cp cloudshellwrapper/constants.go cloudshellwrapper/constants.go.bak
+sed -i "s/\(var VersionInfo string = \)\"[^\"]*\"/\1\"$tag\"/" cloudshellwrapper/constants.go
+
+
+echo "Push Git Tag"
+git tag $tag
+git push --tags
+
 echo "Cleanup dist folder..."
 rm -rR dist/*
 mkdir dist/html-public
@@ -13,7 +28,7 @@ cp -r config dist
 
 echo "Create clab client Package..."
 rm -f tools/clab-client-windows/ClabCapture.app.zip
-rm -f tools/clab-client-windows/ClabPumbaDelau.app.zip
+rm -f tools/clab-client-windows/ClabPumbaDelay.app.zip
 zip tools/clab-client-windows/ClabCapture.app.zip tools/clab-client-windows/clabcapture.bat  tools/clab-client-windows/clab-capture.reg  tools/clab-client-windows/clab-capture-readme.MD
 zip tools/clab-client-windows/ClabPumbaDelay.app.zip   tools/clab-client-windows/clabpumba.bat    tools/clab-client-windows/clab-pumba.reg    tools/clab-client-windows/clab-pumba-readme.MD
 

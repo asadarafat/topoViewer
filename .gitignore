@@ -7,3 +7,5 @@ rawTopoFile/clab-topoViewerDemo/**
 node_modules/**
 webpack.config.js
 .babelrc
+html-static/cytoscape/libs/build
+html-static/cytoscape/libs/src

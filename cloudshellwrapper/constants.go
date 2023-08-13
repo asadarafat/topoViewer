@@ -1,3 +1,3 @@
 package cloudshellwrapper
 
-var VersionInfo string = "23.8.9"
+var VersionInfo string = "v23.8.13"
