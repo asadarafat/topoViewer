@@ -10,7 +10,8 @@ cp cloudshellwrapper/constants.go cloudshellwrapper/constants.go.bak
 sed -i "s/\(var VersionInfo string = \)\"[^\"]*\"/\1\"$tag\"/" cloudshellwrapper/constants.go
 
 
-echo "Push Git Tag"
+echo "Git Commit and Push with tag Tag"
+git commit -am \"$tag\"
 git tag $tag
 git push --tags
 
