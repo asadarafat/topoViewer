@@ -306,7 +306,7 @@ func (cyTopo *CytoTopology) PrintjsonBytesCytoUiV2(JsonBytesCytoUiMarshaled []by
 	return err
 }
 
-func (cyTopo *CytoTopology) GetDockerNodeStatus(clabNodeName string, clabUser string, clabHost string) []byte {
+func (cyTopo *CytoTopology) GetDockerNodeStatus(clabNodeName string, clabUser string, clabHost string, clabPassword string) []byte {
 	// // get docker node status using exec
 	// command := "docker ps --all --format json"
 
@@ -320,13 +320,14 @@ func (cyTopo *CytoTopology) GetDockerNodeStatus(clabNodeName string, clabUser st
 	config := &ssh.ClientConfig{
 		User: "root",
 		Auth: []ssh.AuthMethod{
-			ssh.Password("Lab-Her0"),
+			ssh.Password(clabPassword),
 		},
 		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 	}
 
 	log.Debug("clabUser: " + clabUser)
 	log.Debug("clabHost: " + clabHost)
+	log.Debug("clabPassword: " + clabPassword)
 
 	client, err := ssh.Dial("tcp", clabHost+":22", config)
 	if err != nil {

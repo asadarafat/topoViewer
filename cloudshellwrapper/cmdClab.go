@@ -90,7 +90,7 @@ var confClab = config.Map{
 	"server-port": &config.Int{
 		Default:   8080,
 		Usage:     "port the server should listen on",
-		Shorthand: "p",
+		Shorthand: "P",
 	},
 	"workdir": &config.String{
 		Default:   ".",
@@ -111,6 +111,11 @@ var confClab = config.Map{
 		Default:   "root",
 		Usage:     "containerLab server host user",
 		Shorthand: "u",
+	},
+	"clab-pass": &config.String{
+		Default:   "root",
+		Usage:     "containerLab server host password",
+		Shorthand: "p",
 	},
 }
 
@@ -386,6 +391,9 @@ func Clab(_ *cobra.Command, _ []string) error {
 			clabHost := confClab.GetStringSlice("allowed-hostnames")
 			log.Debug("################## clabHost: " + clabHost[0])
 
+			clabPass := confClab.GetString("clab-pass")
+			log.Debug("################## clabHost: " + clabPass)
+
 			// simulating dockerNodeStatus..
 			// Add the new connection to the active connections list
 
@@ -396,7 +404,7 @@ func Clab(_ *cobra.Command, _ []string) error {
 				// log.Infof("node name:'%s'... ", cyTopo.ClabTopoDataV2.Nodes[0].Longname)
 
 				for _, n := range cyTopo.ClabTopoDataV2.Nodes {
-					dockerNodeStatus.WriteMessage(1, cyTopo.GetDockerNodeStatus(n.Longname, clabUser, clabHost[0]))
+					dockerNodeStatus.WriteMessage(1, cyTopo.GetDockerNodeStatus(n.Longname, clabUser, clabHost[0], clabPass))
 					if err != nil {
 						log.Error(err)
 					}
