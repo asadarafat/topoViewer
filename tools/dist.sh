@@ -9,12 +9,6 @@ echo "Hello, the version Tag tobe used is $tag"
 cp cloudshellwrapper/constants.go cloudshellwrapper/constants.go.bak
 sed -i "s/\(var VersionInfo string = \)\"[^\"]*\"/\1\"$tag\"/" cloudshellwrapper/constants.go
 
-
-echo "Git Commit and Push with tag Tag"
-git commit -am \"$tag\"
-git tag $tag
-git push --tags
-
 echo "Cleanup dist folder..."
 rm -rR dist/*
 mkdir dist/html-public
@@ -57,6 +51,11 @@ cp rawTopoFile/topo-topoViewerDemo.yaml dist/topo-topoViewerDemo.yaml
 
 echo "Copy Docker entrypoint.sh ..."
 cp tools/entrypoint.sh dist/entrypoint.sh 
+
+echo "Git Commit and Push with tag Tag"
+git commit -am \"$tag\"
+git tag $tag
+git push --tags
 
 
 # echo "Create TAR package..."
