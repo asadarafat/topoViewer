@@ -414,6 +414,24 @@ func Clab(_ *cobra.Command, _ []string) error {
 			}
 		})
 
+	// // websocketclabServerAddress endpoint
+	// // websocketclabServerAddress endpoint
+	router.HandleFunc("/clabServerAddress",
+		func(w http.ResponseWriter, r *http.Request) {
+			// upgrade this connection to a WebSocket
+			// connection
+			clabServerAddress, err := upgrader.Upgrade(w, r, nil)
+			if err != nil {
+				log.Info(err)
+			}
+			clabHost := confClab.GetStringSlice("allowed-hostnames")
+			log.Debug("################## clabHost: " + clabHost[0])
+
+			w.WriteHeader(http.StatusOK)
+			// Add the new connection to the active connections list
+			clabServerAddress.WriteMessage(1, []byte(clabHost[0]))
+		})
+
 	// this is the endpoint for serving xterm.js assets
 	depenenciesDirectorXterm := path.Join(workingDirectory, "./html-static/cloudshell/node_modules")
 	router.PathPrefix("/assets").Handler(http.StripPrefix("/assets", http.FileServer(http.Dir(depenenciesDirectorXterm))))

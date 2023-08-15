@@ -185,7 +185,7 @@ body {
       console.log("Attempting Connection...");
 
       socketUptime.onopen = () => {
-          console.log("Successfully Connected WebSocket");
+          console.log("Successfully Connected WebSocket for uptime");
           if (socketUptime.readyState === WebSocket.OPEN) {
               socketUptime.send("Hi From the WebSocketClient-Uptime!");
           }
@@ -222,7 +222,7 @@ body {
       console.log("Attempting Connection...");
 
       socketDockerNodeStatus.onopen = () => {
-          console.log("Successfully Connected WebSocket");
+          console.log("Successfully Connected WebSocket for DockerNodeStatus");
           if (socketDockerNodeStatus.readyState === WebSocket.OPEN) {
               socketDockerNodeStatus.send("Hi From the WebSocketClient-DockerNodeStatus!");
           }
@@ -246,7 +246,7 @@ body {
               const Names = JSON.parse(msgDockerNodeStatus.data).Names;
               const Status = JSON.parse(msgDockerNodeStatus.data).Status;
 
-              console.log(`Names: ${Names}, Status: ${Status}`);
+              
               SetNodeDockerStatus(Names, Status)
 
           } catch (error) {
@@ -255,6 +255,34 @@ body {
 
       }
 
+      
+      var protocolclabServerAddress = "ws://";
+      var urlclabServerAddress = protocolclabServerAddress + location.host + "/clabServerAddress"
+      var websocketMessage
+
+      let socketclabServerAddress = new WebSocket(urlclabServerAddress);
+      console.log("Attempting Connection...");
+
+      socketclabServerAddress.onopen = () => {
+          console.log("Successfully Connected WebSocket for clabServerAddress");
+          if (socketclabServerAddress.readyState === WebSocket.OPEN) {
+              socketclabServerAddress.send("Hi From the WebSocketClient-clabServerAddress!");
+          }
+      };
+      socketclabServerAddress.onclose = event => {
+          console.log("Socket Closed Connection: ", event);
+          socketclabServerAddress.send("Client Closed!")
+      };
+
+      socketclabServerAddress.onerror = error => {
+          console.log("Socket Error: ", error);
+      };
+
+      
+      socketclabServerAddress.onmessage = (msgclabServerAddress) => {
+          console.log(msgclabServerAddress.data)
+          document.title = "TopoViewer ::: "+msgclabServerAddress.data;
+      }
 
       
       let Setting = document.getElementById("Setting");
