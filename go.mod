@@ -14,6 +14,13 @@ require (
 )
 
 require (
+	github.com/buger/jsonparser v1.1.1 // indirect
+	github.com/tidwall/gjson v1.16.0 // indirect
+	github.com/tidwall/match v1.1.1 // indirect
+	github.com/tidwall/pretty v1.2.1 // indirect
+)
+
+require (
 	cloud.google.com/go v0.102.0 // indirect
 	cloud.google.com/go/compute v1.7.0 // indirect
 	cloud.google.com/go/iam v0.3.0 // indirect
@@ -47,7 +54,6 @@ require (
 	github.com/aws/smithy-go v1.11.2 // indirect
 	github.com/cenkalti/backoff/v3 v3.2.2 // indirect
 	github.com/containernetworking/plugins v1.1.1 // indirect
-	github.com/davidmz/go-pageant v1.0.2 // indirect
 	github.com/docker/go-connections v0.4.1-0.20210727194412-58542c764a11 // indirect
 	github.com/docker/libkv v0.2.2-0.20180912205406-458977154600 // indirect
 	github.com/dustin/gojson v0.0.0-20160307161227-2e71ec9dd5ad // indirect
@@ -57,6 +63,7 @@ require (
 	github.com/go-git/gcfg v1.5.0 // indirect
 	github.com/go-git/go-billy/v5 v5.3.1 // indirect
 	github.com/go-git/go-git/v5 v5.4.2 // indirect
+	github.com/go-resty/resty/v2 v2.7.0
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/go-cmp v0.5.9 // indirect
@@ -97,7 +104,6 @@ require (
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/joho/godotenv v1.4.0 // indirect
 	github.com/kevinburke/ssh_config v1.2.0 // indirect
-	github.com/kr/fs v0.1.0 // indirect
 	github.com/magiconair/properties v1.8.5 // indirect
 	github.com/matryer/is v1.4.0 // indirect
 	github.com/mattn/go-colorable v0.1.12 // indirect
@@ -113,12 +119,10 @@ require (
 	github.com/pelletier/go-toml v1.9.4 // indirect
 	github.com/pierrec/lz4 v2.6.1+incompatible // indirect
 	github.com/pkg/errors v0.9.1 // indirect
-	github.com/pkg/sftp v1.13.4 // indirect
 	github.com/rs/zerolog v1.26.1 // indirect
 	github.com/ryanuber/go-glob v1.0.0 // indirect
 	github.com/scrapli/scrapligo v1.1.11 // indirect
 	github.com/sergi/go-diff v1.2.0 // indirect
-	github.com/sfreiberg/simplessh v0.0.0-20220719182921-185eafd40485 // indirect
 	github.com/sirikothe/gotextfsm v1.0.1-0.20200816110946-6aa2cfd355e4 // indirect
 	github.com/spf13/afero v1.8.2 // indirect
 	github.com/spf13/cast v1.4.1 // indirect

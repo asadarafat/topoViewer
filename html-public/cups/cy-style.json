@@ -105,8 +105,8 @@
   {
     "selector": "node[topoviewerRole=\"controller\"]",
     "style": {
-      "width": "16",
-      "height": "16",
+      "width": "14",
+      "height": "14",
       "background-image": "images/clab-controller-light-blue.png",
       "background-fit": "cover"
     }

@@ -7,6 +7,8 @@ import (
 	"path"
 	"strconv"
 
+	"github.com/samber/lo"
+
 	log "github.com/sirupsen/logrus"
 
 	tools "github.com/asadarafat/topoViewer/tools"
@@ -93,8 +95,7 @@ func (cyTopo *CytoTopology) IetfL2TopoRead(topoFile string) []byte {
 	if err != nil {
 		log.Fatal("Error when opening file: ", err)
 	}
-
-	cyTopo.IetfNetworL2TopoData = topoFileBytes
+	//cyTopo.IetfNetworL2TopoData = topoFileBytes
 	return topoFileBytes
 }
 
@@ -107,11 +108,13 @@ func (cyTopo *CytoTopology) IetfL2TopoUnMarshal(topoFile []byte, IetfNetworkTopo
 
 	Username := user.Username
 
+	// unmarshal topoFile into IetfNetworkTopologyL2Data
 	json.Unmarshal(topoFile, &IetfNetworkTopologyL2Data)
-	// log.Info(IetfNetworkTopologyL2Data)
 
 	cytoJson := CytoJson{}
 	cytoJsonList := []CytoJson{}
+
+	var topoviewerParentList []string
 
 	for i, network := range IetfNetworkTopologyL2Data.IetfNetworkNetwork {
 		nodes := network.NodeList
@@ -123,22 +126,51 @@ func (cyTopo *CytoTopology) IetfL2TopoUnMarshal(topoFile []byte, IetfNetworkTopo
 			cytoJson.Data.ID = "L2-" + node.NodeID
 			cytoJson.Data.Weight = "2"
 			cytoJson.Data.Name = node.IetfL2TopologyL2NodeAttributes.Name
+			cytoJson.Data.Parent = network.NetworkID
+			cytoJson.Data.TopoviewerRole = "pe"
+
+			// create list of parent nodes
+			topoviewerParentList = append(topoviewerParentList, cytoJson.Data.Parent)
 
 			cytoJson.Data.ExtraData = map[string]interface{}{
-				"ServerUsername":       Username,
-				"IetfL2NetworkName":    network.NetworkID,
-				"IetfL2NetworkType":    network.NetworkTypes,
-				"NetworkID":            strconv.Itoa(i),
-				"NodeID":               node.NodeID,
-				"Weight":               "2",
-				"Name":                 node.NodeID,
-				"NodeNumber":           j,
-				"NodeAttributes":       node.IetfL2TopologyL2NodeAttributes,
-				"NodeTerminationPoins": node.IetfNetworkTopologyTerminationPoint,
+				"serverUsername":       Username,
+				"networkName":          network.NetworkID,
+				"networkType":          network.NetworkTypes,
+				"networkID":            strconv.Itoa(i),
+				"nodeID":               node.NodeID,
+				"weight":               "2",
+				"nodeNumber":           j,
+				"nodeAttributes":       node.IetfL2TopologyL2NodeAttributes,
+				"nodeTerminationPoins": node.IetfNetworkTopologyTerminationPoint,
+				"labels": struct {
+					TopoViewerRole string
+				}{
+					"pe",
+				},
 			}
 			cytoJsonList = append(cytoJsonList, cytoJson)
 			// log.Info(j)
+
 		}
+
+		uniqTopoviewerParentList := lo.Uniq(topoviewerParentList)
+		// add Parent Nodes Per topoviewerRoleList
+		for _, n := range uniqTopoviewerParentList {
+			cytoJson.Group = "nodes"
+			cytoJson.Data.Parent = ""
+			cytoJson.Grabbable = true
+			cytoJson.Selectable = true
+			cytoJson.Data.ID = n
+			cytoJson.Data.Name = n
+			cytoJson.Data.TopoviewerRole = n
+			cytoJson.Data.Weight = "1000"
+			cytoJson.Data.ExtraData = map[string]interface{}{
+				"weight": "2",
+				"name":   "",
+			}
+			cytoJsonList = append(cytoJsonList, cytoJson)
+		}
+
 		links := network.LinkList
 		for k, link := range links {
 			cytoJson.Group = "edges"
@@ -157,30 +189,24 @@ func (cyTopo *CytoTopology) IetfL2TopoUnMarshal(topoFile []byte, IetfNetworkTopo
 			cytoJson.Data.Name = link.LinkID
 
 			cytoJson.Data.ExtraData = map[string]interface{}{
-				"TopoviewerServerUsername": Username,
-				"Kind":                     "edges",
-				"grabbable":                true,
-				"selectable":               true,
-				"ID":                       strconv.Itoa(k),
+				"topoviewerServerUsername": Username,
+				"kind":                     "edges",
+				"id":                       strconv.Itoa(k),
 				"weight":                   "1",
-				"Name":                     link.IetfL2TopologyL2LinkAttributes.Name,
-				"Rate":                     link.IetfL2TopologyL2LinkAttributes.Rate,
-				"Delay":                    link.IetfL2TopologyL2LinkAttributes.Delay,
-				"Auto-nego":                link.IetfL2TopologyL2LinkAttributes.AutoNego,
-				"Duplex":                   link.IetfL2TopologyL2LinkAttributes.Duplex,
-				"Flags":                    link.IetfL2TopologyL2LinkAttributes.Flags,
-				"L2LinkAttributes":         link.IetfL2TopologyL2LinkAttributes,
-				// "NspAttributes": link.IetfL2TopologyL2LinkAttributes.NspIetfNetworkTopologyNspAttributes,
-				"Endpoints": struct {
+				"l2LinkAttributes":         link.IetfL2TopologyL2LinkAttributes,
+				"nspAttributes":            link.IetfL2TopologyL2LinkAttributes.NspIetfNetworkTopologyNspAttributes,
+				"endpoints": struct {
 					SourceEndpoint string
 					TargetEndpoint string
-				}{link.Source.SourceNode, link.Destination.DestNode},
+				}{link.Source.SourceNode,
+					link.Destination.DestNode,
+				},
 			}
 			cytoJsonList = append(cytoJsonList, cytoJson)
 		}
 	}
 	// Throw unmarshalled result to log
-	// log.Info(cytoJsonList)
+	// log.Info(cytoJsonList).json
 	jsonBytesCytoUi, err := json.MarshalIndent(cytoJsonList, "", "  ")
 	if err != nil {
 		log.Error(err)
@@ -192,7 +218,7 @@ func (cyTopo *CytoTopology) IetfL2TopoUnMarshal(topoFile []byte, IetfNetworkTopo
 		log.Error(err)
 		panic(err)
 	}
-	// log.Info("jsonBytesCytoUi Result:", string(jsonBytesCytoUi))
+	log.Info("jsonBytesCytoUi Result:", string(jsonBytesCytoUi))
 
 	return jsonBytesCytoUi
 }
@@ -200,7 +226,7 @@ func (cyTopo *CytoTopology) IetfL2TopoUnMarshal(topoFile []byte, IetfNetworkTopo
 func (cyTopo *CytoTopology) IetfL2TopoPrintjsonBytesCytoUi(marshaledJsonBytesCytoUi []byte) error {
 	// Create file
 	os.Mkdir("./html-public/"+"IetfTopology-L2", 0755)
-	file, err := os.Create("html-public/" + "IetfTopology-L2" + "/dataIetfL2TopoCytoMarshall.json")
+	file, err := os.Create("html-public/" + "IetfTopology-L2" + "/topo-ietf-L2" + ".json")
 	if err != nil {
 		log.Error("Could not create json file for graph")
 	}

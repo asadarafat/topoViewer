@@ -5,9 +5,11 @@ type CytoTopology struct {
 	LogLevel                         uint32
 	ClabTopoData                     ClabTopo
 	ClabTopoDataV2                   ClabTopoV2
-	IetfNetworL2TopoData             []byte
-	IetfNetworL3TopoData             [][]byte
+	IetfNetworSapTopoData            []byte
+	IetfNetworL2TopoData             IetfNetworkTopologyL2
+	IetfNetworL3TopoData             IetfNetworkTopologyL3
 	IetfNetworkTopologyMultiL2L3Data []byte
+	IetfNetworkTopologyGeneric       []byte
 }
 
 type CytoJsonTopology struct {
@@ -17,13 +19,13 @@ type CytoJsonTopology struct {
 type CytoJson struct {
 	// Cytoscape Fields
 	Data struct {
-		ID             string `json:"id"`
+		ID             string `json:"id,omitempty"`
 		Source         string `json:"source,omitempty"`
 		Target         string `json:"target,omitempty"`
-		Weight         string `json:"weight"`
-		Name           string `json:"name"`
-		Parent         string `json:"parent"`
-		Kind           string `json:"kind"`
+		Weight         string `json:"weight,omitempty"`
+		Name           string `json:"name,omitempty"`
+		Parent         string `json:"parent,omitempty"`
+		Kind           string `json:"kind,omitempty"`
 		TopoviewerRole string `json:"topoviewerRole"`
 		SourceEndpoint string `json:"sourceEndpoint"`
 		TargetEndpoint string `json:"targetEndpoint"`

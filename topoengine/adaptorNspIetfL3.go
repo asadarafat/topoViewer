@@ -189,11 +189,11 @@ func (cyTopo *CytoTopology) IetfL3TopoUnMarshal(topoFile [][]byte, IetfNetworkTo
 		panic(err)
 	}
 
-	_, err = os.Stdout.Write(jsonBytesCytoUi)
-	if err != nil {
-		log.Error(err)
-		panic(err)
-	}
+	// _, err = os.Stdout.Write(jsonBytesCytoUi)
+	// if err != nil {
+	// 	log.Error(err)
+	// 	panic(err)
+	// }
 	log.Info("jsonBytesCytoUi Result:", string(jsonBytesCytoUi))
 
 	return jsonBytesCytoUi
