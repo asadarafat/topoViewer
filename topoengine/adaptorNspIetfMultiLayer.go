@@ -33,11 +33,10 @@ func (cyTopo *CytoTopology) IetfMultiL2L3TopoReadV2(topoFile string) []byte {
 	if err != nil {
 		log.Fatal("Error when opening file: ", err)
 	}
-
 	return topoFileBytes
 }
 
-func (cyTopo *CytoTopology) IetfMultiL2L3TopoUnMarshalV2(topoFile []byte, IetfNetworkTopologyMultiL2L3Data IetfNetworkTopologyMultiL2L3) []byte {
+func (cyTopo *CytoTopology) IetfMultiL2L3TopoUnMarshalV2(topoFile []byte, IetfNetworkTopologyMultiL2L3Data IetfNetworkTopologyMultiL2L3) []CytoJson {
 
 	var payload map[string]interface{}
 	var extractedDataSap []map[string]interface{} // Store extracted data here
@@ -131,7 +130,8 @@ func (cyTopo *CytoTopology) IetfMultiL2L3TopoUnMarshalV2(topoFile []byte, IetfNe
 			cytoJson.Data.Weight = "2"
 			cytoJson.Data.Name = node.IetfL2TopologyL2NodeAttributes.Name
 			cytoJson.Data.Parent = "ietf-l2-topology"
-			cytoJson.Data.TopoviewerRole = "pe"
+			cytoJson.Data.Kind = "layer2Node"
+			cytoJson.Data.TopoviewerRole = ""
 			cytoJson.Data.ExtraData = map[string]interface{}{
 				"networkName":          "ietf-l2-topology",
 				"networkType":          network.NetworkTypes,
@@ -159,9 +159,8 @@ func (cyTopo *CytoTopology) IetfMultiL2L3TopoUnMarshalV2(topoFile []byte, IetfNe
 			cytoJson.Data.Target = "L2-" + link.Destination.DestNode[70:len(link.Destination.DestNode)-2]
 			// cytoJson.Data.Endpoint.TargetEndpoint = link.Destination.DestTp
 			cytoJson.Data.TargetEndpoint = link.Destination.DestTp
-
 			cytoJson.Data.Name = link.LinkID
-			cytoJson.Data.Kind = "Layer2Link"
+			cytoJson.Data.Kind = "layer2Link"
 
 			cytoJson.Data.ExtraData = map[string]interface{}{
 				"networkName":      "ietf-l2-topology",
@@ -207,7 +206,8 @@ func (cyTopo *CytoTopology) IetfMultiL2L3TopoUnMarshalV2(topoFile []byte, IetfNe
 			cytoJson.Data.Weight = "3"
 			cytoJson.Data.Name = node.IetfL3UnicastTopologyL3NodeAttributes.Name
 			cytoJson.Data.Parent = "L3--" + network.NetworkID
-			cytoJson.Data.TopoviewerRole = "pe"
+			cytoJson.Data.Kind = "layer3Node"
+			cytoJson.Data.TopoviewerRole = ""
 			cytoJson.Data.ExtraData = map[string]interface{}{
 				"networkName":          "ietf-l3-unicast-topology",
 				"networkType":          network.NetworkTypes,
@@ -232,7 +232,7 @@ func (cyTopo *CytoTopology) IetfMultiL2L3TopoUnMarshalV2(topoFile []byte, IetfNe
 			cytoJson.Data.Target = "L3-" + link.Destination.DestNode[85:len(link.Destination.DestNode)-2] + "--" + network.NetworkID
 			cytoJson.Data.TargetEndpoint = link.Destination.DestTp
 			cytoJson.Data.Name = link.LinkID
-			cytoJson.Data.Kind = "Layer3Link"
+			cytoJson.Data.Kind = "layer3Link"
 
 			cytoJson.Data.ExtraData = map[string]interface{}{
 				"networkName":      "ietf-l3-unicast-topology",
@@ -302,23 +302,7 @@ func (cyTopo *CytoTopology) IetfMultiL2L3TopoUnMarshalV2(topoFile []byte, IetfNe
 
 		}
 	}
-
-	// Write CytoScape Json Data
-	// Write CytoScape Json Data
-	// Write CytoScape Json Data
-	jsonBytesCytoUi, err := json.MarshalIndent(cytoJsonList, "", "  ")
-	if err != nil {
-		log.Error(err)
-		panic(err)
-	}
-
-	_, err = os.Stdout.Write(jsonBytesCytoUi)
-	if err != nil {
-		log.Error(err)
-		panic(err)
-	}
-
-	return jsonBytesCytoUi
+	return cytoJsonList
 }
 
 func (cyTopo *CytoTopology) IetfMultiLayerTopoPrintjsonBytesCytoUiV2(marshaledJsonBytesCytoUiL2Topo []byte) error {

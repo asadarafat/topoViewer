@@ -35,10 +35,10 @@ body {
 #cy {
   position: absolute;
   left: 0;
-  right: 20;
+  right: 0;
   top: 5.5em;
   bottom: 0;
-  right: 20em;
+  right: 0em;
 }
 
 #logo {
@@ -575,7 +575,7 @@ body {
                 
                 cy.edges().forEach(function(edge) {
                     edge.on("click", function(e) {
-                        if (edge.data("extraData").networkName == "ietf-l2-topology") {
+                        if (edge.data("kind") == "layer2Link") {
 
                             removeLastChild();
 
@@ -656,7 +656,7 @@ body {
                             }, [panel])
                             Setting.appendChild(messageBody);
                             Setting.className = "message is-small is-link";
-                        } else if (edge.data("extraData").networkName == "ietf-l3-unicast-topology") {
+                        } else if (edge.data("kind") == "layer3Link") {
 
                             removeLastChild();
 
@@ -715,6 +715,69 @@ body {
 
                             var panel = ce("div", {}, [name, source, target, metric, addon]);
 
+
+                            var messageBody = ce("div", {class: "message-body"}, [panel])
+                            Setting.appendChild(messageBody);
+                            Setting.className = "message is-small is-link";
+                    
+                        }else if (edge.data("kind") == "LayerTransportTunnelLink") {
+
+                            removeLastChild();
+
+
+                            var headerTitle = ce("p", {
+                                class: "my-7"
+                            }, [ctn("Link Properties")]);
+                            var linkMessageHeader = ce("div", {
+                                class: "message-header"
+                            }, [headerTitle]);
+                            var oldSettingHeader = Setting.childNodes[1]
+                            console.log(oldSettingHeader)
+                            Setting.replaceChild(linkMessageHeader, oldSettingHeader);
+
+
+                            console.log(edge.data("name"))
+
+                            label01 = ce("label", {class: "label has-text-link has-text-right is-small has-text-weight-bold mr-0"}, [ctn("LSP-Path Name: ")]);
+                            column01 = ce("label", {class: "column is-4 p-1 is-narrow-desktop"}, [label01]);
+                            label02 = ce("label", {class: "label has-text-link is-small has-text-left has-text-weight-normal mr-0 is-max-content"}, [ctn(edge.data("extraData")["lspPathDetail"]['pathName'])]);
+                            column02 = ce("label", {class: "column is-8 p-1"}, [label02]);
+                            var name = ce("div", {class: "columns mb-1"}, [column01, column02]);
+
+                            label01 = ce("label", {class: "label has-text-link has-text-right is-small has-text-weight-bold mr-0"}, [ctn("LSP-Path Type: ")]);
+                            column01 = ce("label", {class: "column is-4 p-1 is-narrow-desktop"}, [label01]);
+                            label02 = ce("label", {class: "label has-text-link is-small has-text-left has-text-weight-normal mr-0 is-max-content"}, [ctn(edge.data("extraData")["lspPathDetail"]['pathType'])]);
+                            column02 = ce("label", {class: "column is-8 p-1"}, [label02]);
+                            var type = ce("div", {class: "columns mb-1"}, [column01, column02]);
+
+                            var hopIndex = parseInt(edge.data("extraData")['pathHopNumber'],10);
+                            hopIndex = hopIndex;
+                            hopIndex = hopIndex.toString();
+                            console.log("hopIndex:" + hopIndex)
+
+                            label01 = ce("label", {class: "label has-text-link has-text-right is-small has-text-weight-bold mr-0"}, [ctn("Source IP: ")]);
+                            column01 = ce("label", {class: "column is-4 p-1 is-narrow-desktop"}, [label01]);
+                            label02 = ce("label", {class: "label has-text-link is-small has-text-left has-text-weight-normal mr-0 is-max-content"}, [ctn(edge.data("extraData")["lspPathDetail"]['recordedHops']["pathHops"]['pathHop'][hopIndex]["postProcessedSourceInterface"]["ipv4Address"]["string"])]);
+                            column02 = ce("label", {class: "column is-8 p-1"}, [label02]);
+                            var sourceIPv4Address  = ce("div", {class: "columns mb-1"}, [column01, column02]);
+
+                            label01 = ce("label", {class: "label has-text-link has-text-right is-small has-text-weight-bold mr-0"}, [ctn("Target IP: ")]);
+                            column01 = ce("label", {class: "column is-4 p-1 is-narrow-desktop"}, [label01]);
+                            label02 = ce("label", {class: "label has-text-link is-small has-text-left has-text-weight-normal mr-0 is-max-content"}, [ctn(edge.data("extraData")["lspPathDetail"]['recordedHops']["pathHops"]['pathHop'][hopIndex]["ipAddress"]["ipv4Address"]["string"])]);
+                            column02 = ce("label", {class: "column is-8 p-1"}, [label02]);
+                            var targetIPv4Address  = ce("div", {class: "columns mb-1"}, [column01, column02]);
+        
+
+                            label01 = ce("label", {class: "label has-text-link has-text-right is-small has-text-weight-bold mr-0"}, [ctn("Segment Label: ")]);
+                            column01 = ce("label", {class: "column is-4 p-1 is-narrow-desktop"}, [label01]);
+                            label02 = ce("label", {class: "label has-text-link is-small has-text-left has-text-weight-normal mr-0 is-max-content"}, [ctn(edge.data("extraData")["lspPathDetail"]['recordedHops']["pathHops"]['pathHop'][hopIndex]["segmentLabel"])]);
+                            column02 = ce("label", {class: "column is-8 p-1"}, [label02]);
+                            var segmentLabel  = ce("div", {class: "columns mb-1"}, [column01, column02]);
+        
+                            var seperator = ce("hr", {class: "my-3 has-background-grey-lighter"}, []);
+                            var addon = ce("div", {}, [linkInfo(edge)]);
+
+                            var panel = ce("div", {}, [name, type, segmentLabel, sourceIPv4Address, targetIPv4Address, addon]);
 
                             var messageBody = ce("div", {class: "message-body"}, [panel])
                             Setting.appendChild(messageBody);
@@ -786,12 +849,21 @@ body {
             function filterL3Nodes(node) {
                 return node.data("id").includes("L3-"); 
             }
+            function filterLspNodes(node) {
+                return node.data("id").includes("LSP-"); 
+            }
 
             
             var l2Nodes = cy.nodes().filter(filterL2Nodes);
 
             
             var l3Nodes = cy.nodes().filter(filterL3Nodes);
+
+            
+            var lspNodes = cy.nodes().filter(filterLspNodes);
+
+
+            
 
             
             l2Nodes.forEach(node2 => {
@@ -815,6 +887,23 @@ body {
 
                     }
                 });
+            lspNodes.forEach(nodeLSP => {
+                node2Name = (node2.data("extraData").nodeID);
+                nodeLSPName = (nodeLSP.data("extraData").nodeAttributes.routerId.dottedQuad.string);
+                
+                console.log ("node2Name: " + node2Name)
+                console.log ("nodeLSPName: " + nodeLSPName)
+                if (node2Name === nodeLSPName) {
+                    refereceNodePosition = node2.position();
+                    var node2NameOffsetX = 0;
+                    var node2NameOffsetY = 0;
+                    var newPosition = {
+                        x: refereceNodePosition.x + node2NameOffsetX,
+                        y: refereceNodePosition.y + node2NameOffsetY
+                    }
+                    nodeLSP.position(newPosition)
+                }
+            });
             });
             console.log("l2Nodes.length: " + l2Nodes.length)
             console.log("l3Nodes.length: " + l2Nodes.length)

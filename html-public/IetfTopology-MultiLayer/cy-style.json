@@ -109,6 +109,34 @@
     }
   },
   {
+    "selector": "node[kind=\"layer2Node\"]",
+    "style": {
+      "width": "14",
+      "height": "14",
+      "background-image": "images/clab-pe-light-blue.png",
+      "background-fit": "cover"
+    }
+  },
+    {
+    "selector": "node[kind=\"layer3Node\"]",
+    "style": {
+      "width": "14",
+      "height": "14",
+      "background-image": "images/clab-pe-dark-grey.png",
+      "background-fit": "cover"
+    }
+  },
+    {
+    "selector": "node[kind=\"LayerTransportTunnelNode\"]",
+    "style": {
+      "width": "14",
+      "height": "14",
+      "text-valign": "top",
+      "background-image": "images/clab-pe-dark-blue.png",
+      "background-fit": "cover"
+    }
+  },
+  {
     "selector": "node[topoviewerRole=\"pe\"]",
     "style": {
       "width": "14",
@@ -219,24 +247,24 @@
     }
   },
     {
-    "selector": "edge[kind=\"TransportLayerLink\"]",
+    "selector": "edge[kind=\"LayerTransportTunnelLink\"]",
     "style": {
       "source-text-offset": 10,
       "target-text-offset": 10,
       "font-size": "3.5px",
       "target-arrow-shape": "triangle",
-      "target-arrow-color": "#7D33F2",
+      "target-arrow-color": "data(extraData.color)",
       "arrow-scale": "0.5",
       "curve-style": "bezier",
       "opacity": "1",
       "line-style": "dotted",
-      "line-color": "#7D33F2",
+      "line-color": "data(extraData.color)",
       "width": "1.5",
       "overlay-padding": "2px"
     }
   },
   {
-    "selector": "edge[kind=\"Layer2Link\"]",
+    "selector": "edge[kind=\"layer2Link\"]",
     "style": {
       "source-text-offset": 10,
       "target-text-offset": 10,
@@ -247,7 +275,6 @@
       "curve-style": "bezier",
       "opacity": "0.75",
       "line-style": "solid",
-      "line-color": "#5ed68f",
       "width": "1.5",
       "overlay-padding": "2px"
     }

@@ -170,11 +170,39 @@ func Nsp(_ *cobra.Command, _ []string) error {
 		cyTopo.LogLevel = 5 // debug
 		cyTopo.InitLogger()
 
-		// L2 Working
+		// Build Layer 2/3
 		topoFile := cyTopo.IetfMultiL2L3TopoReadV2(topoNsp) // loading nsp topo json to cyTopo.IetfNetworL2TopoData
-		jsonBytes := cyTopo.IetfMultiL2L3TopoUnMarshalV2(topoFile, topoengine.IetfNetworkTopologyMultiL2L3{})
+		jsonBytesMultiL2L3Topo := cyTopo.IetfMultiL2L3TopoUnMarshalV2(topoFile, topoengine.IetfNetworkTopologyMultiL2L3{})
 
-		cyTopo.IetfMultiLayerTopoPrintjsonBytesCytoUiV2(jsonBytes)
+		LspNameList := []string{"pccSrte-from-10.10.10.1-to-10.10.10.5::LOOSE", "pccSrte-from-10.10.10.1-to-10.10.10.6::LOOSE", "pccSrte-from-10.10.10.1-to-10.10.10.7::LOOSE", "pccSrte-from-10.10.10.7-to-10.10.10.1::LOOSE", "pccSrte-from-10.10.10.7-to-10.10.10.6::LOOSE"}
+
+		// // Build Layer Transport-Tunnel
+		// topoFileNspLsp := cyTopo.IpOptimLspRead("topoNspLsp")
+		// jsonBytesNspLsp := cyTopo.IpOptimLspMarshall(topoFileNspLsp, LspNameList, topoengine.IpOptimLsp{})
+
+		// // combine Layer 2/3 and Transport-Tunnel
+		// cytoJsonList := append(jsonBytesMultiL2L3Topo, jsonBytesNspLsp...)
+		// jsonBytesCytoUiMarshalled := cyTopo.MarshallCytoJsonList(cytoJsonList)
+
+		// // Build Layer Transport-Tunnel
+		topoFileNspLsp := cyTopo.IpOptimLspRead("topoNspLsp")
+		jsonBytesNspLsp10 := cyTopo.IpOptimLspMarshall(topoFileNspLsp, LspNameList[0], topoengine.IpOptimLsp{})
+		jsonBytesNspLsp11 := cyTopo.IpOptimLspMarshall(topoFileNspLsp, LspNameList[1], topoengine.IpOptimLsp{})
+
+		jsonBytesNspLsp20 := cyTopo.IpOptimLspMarshall(topoFileNspLsp, LspNameList[2], topoengine.IpOptimLsp{})
+		jsonBytesNspLsp21 := cyTopo.IpOptimLspMarshall(topoFileNspLsp, LspNameList[3], topoengine.IpOptimLsp{})
+		jsonBytesNspLsp22 := cyTopo.IpOptimLspMarshall(topoFileNspLsp, LspNameList[4], topoengine.IpOptimLsp{})
+
+		// combine Layer 2/3 and Transport-Tunnel
+		cytoJsonList := append(jsonBytesMultiL2L3Topo, jsonBytesNspLsp10...)
+		cytoJsonList = append(cytoJsonList, jsonBytesNspLsp11...)
+		cytoJsonList = append(cytoJsonList, jsonBytesNspLsp20...)
+		cytoJsonList = append(cytoJsonList, jsonBytesNspLsp21...)
+		cytoJsonList = append(cytoJsonList, jsonBytesNspLsp22...)
+
+		jsonBytesCytoUiMarshalled := cyTopo.MarshallCytoJsonList(cytoJsonList)
+
+		cyTopo.IetfMultiLayerTopoPrintjsonBytesCytoUiV2(jsonBytesCytoUiMarshalled)
 
 		command := confNsp.GetString("command")
 		arguments := confNsp.GetStringSlice("arguments")
