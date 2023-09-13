@@ -9,4 +9,5 @@ webpack.config.js
 .babelrc
 html-static/cytoscape/libs/build
 html-static/cytoscape/libs/src
+tools/ygot
 tools/ygot/**
