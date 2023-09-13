@@ -186,7 +186,11 @@ func (cyTopo *CytoTopology) IpOptimLspMarshall(topoFile []byte, lspPathNameTarge
 
 	cytoJsonNode := CytoJson{}
 	cytoJsonEdge := CytoJson{}
+	cytoJsonEdgeMultiLayer := CytoJson{}
+
 	cytoJsonList := []CytoJson{}
+	// cytoJsonEdgeMultiLayerList := []CytoJson{}
+	// cytoJsonEdgeMultiLayerListNoDuplicate := []CytoJson{}
 
 	// // Seed the random number generator
 	// rand.Seed(time.Now().UnixNano())
@@ -200,18 +204,10 @@ func (cyTopo *CytoTopology) IpOptimLspMarshall(topoFile []byte, lspPathNameTarge
 				// assinged color
 				value := rand.Float64() * 100
 				assignedColor := cyTopo.AssignColor(value, palette)
+				cytoJsonEdge.Data.Source = ""
 
 				lenght := len(lspPath.RecordedHops.PathHops.PathHop)
 				for i := 1; i <= lenght; i++ {
-					// log.Info(i)
-					// log.Info(lspPath.RecordedHops.PathHops.PathHop[strconv.Itoa(i)])
-					// log.Info("lspPathNameTarget: ")
-					// log.Info("router Id: " + strconv.Itoa(i))
-					// log.Info(lspPath.RecordedHops.PathHops.PathHop[strconv.Itoa(i)].RouterID.DottedQuad.String)
-					// log.Info("outGoing IP Interface: ")
-					// log.Info(lspPath.RecordedHops.PathHops.PathHop[strconv.Itoa(i)].IPAddress.Ipv4Address.String)
-					// log.Info("prevHopBegin: " + prevHop.RouterID.DottedQuad.String)
-
 					// add LSP Node
 					cytoJsonNode.Group = "nodes"
 					cytoJsonNode.Grabbable = true
@@ -251,97 +247,89 @@ func (cyTopo *CytoTopology) IpOptimLspMarshall(topoFile []byte, lspPathNameTarge
 
 					prevHop = lspPath.RecordedHops.PathHops.PathHop[strconv.Itoa(i)]
 					log.Info("prevHopEnd: " + prevHop.RouterID.DottedQuad.String)
+
 					// add Linkage between L2 and LSP Nodes
 
+					cytoJsonEdgeMultiLayer.Group = "edges"
+					cytoJsonEdgeMultiLayer.Grabbable = true
+					cytoJsonEdgeMultiLayer.Selectable = true
+					cytoJsonEdgeMultiLayer.Data.ID = uuid.NewString()
+					cytoJsonEdgeMultiLayer.Data.Weight = "1"
+					cytoJsonEdgeMultiLayer.Data.Source = "LSP-" + lspPath.RecordedHops.PathHops.PathHop[strconv.Itoa(i)].RouterID.DottedQuad.String
+					cytoJsonEdgeMultiLayer.Data.Target = "L2-" + lspPath.RecordedHops.PathHops.PathHop[strconv.Itoa(i)].RouterID.DottedQuad.String
+					cytoJsonEdgeMultiLayer.Data.Name = "MultiLayer--" + cytoJsonEdgeMultiLayer.Data.Source + "---" + cytoJsonEdgeMultiLayer.Data.Target
+					cytoJsonEdgeMultiLayer.Data.Kind = "MultiLayerLink"
+					cytoJsonEdgeMultiLayer.Data.ExtraData = map[string]interface{}{
+						"networkID":   "",
+						"networkName": "",
+					}
+					cytoJsonList = append(cytoJsonList, cytoJsonEdgeMultiLayer)
+				}
+			} else if lspPath.PathType == "SRTE" {
+				// assinged color
+				value := rand.Float64() * 100
+				assignedColor := cyTopo.AssignColor(value, palette)
+				cytoJsonEdge.Data.Source = ""
+
+				lenght := len(lspPath.RecordedHops.PathHops.PathHop)
+				for i := 1; i <= lenght; i++ {
+					// add LSP Node
+					cytoJsonNode.Group = "nodes"
+					cytoJsonNode.Grabbable = true
+					cytoJsonNode.Selectable = true
+					cytoJsonNode.Data.ID = "LSP-" + lspPath.RecordedHops.PathHops.PathHop[strconv.Itoa(i)].RouterID.DottedQuad.String //taken by cyto as index
+					cytoJsonNode.Data.Weight = "3"
+					cytoJsonNode.Data.Name = lspPath.RecordedHops.PathHops.PathHop[strconv.Itoa(i)].RouterID.DottedQuad.String
+					cytoJsonNode.Data.Parent = "Transport-Tunnel"
+					cytoJsonNode.Data.Kind = "LayerTransportTunnelNode"
+					cytoJsonNode.Data.TopoviewerRole = ""
+					cytoJsonNode.Data.ExtraData = map[string]interface{}{
+						"networkID":      "",
+						"networkName":    "",
+						"nodeAttributes": lspPath.RecordedHops.PathHops.PathHop[strconv.Itoa(i)],
+					}
+					cytoJsonList = append(cytoJsonList, cytoJsonNode)
+
+					// add LSP Link
 					cytoJsonEdge.Group = "edges"
 					cytoJsonEdge.Grabbable = true
 					cytoJsonEdge.Selectable = true
 					cytoJsonEdge.Data.ID = uuid.NewString()
 					cytoJsonEdge.Data.Weight = "1"
-					cytoJsonEdge.Data.Source = "LSP-" + lspPath.RecordedHops.PathHops.PathHop[strconv.Itoa(i)].RouterID.DottedQuad.String
-					cytoJsonEdge.Data.Target = "L2-" + lspPath.RecordedHops.PathHops.PathHop[strconv.Itoa(i)].RouterID.DottedQuad.String
-					cytoJsonEdge.Data.Name = "MultiLayer--" + cytoJsonEdge.Data.Source + "---" + cytoJsonEdge.Data.Target
-					cytoJsonEdge.Data.Kind = "MultiLayerLink"
+					cytoJsonEdge.Data.Source = "LSP-" + lspPath.RecordedHops.PathHops.PathHop[strconv.Itoa(i)].PostProcessedSourceID.DottedQuad.String
+					cytoJsonEdge.Data.Target = "LSP-" + lspPath.RecordedHops.PathHops.PathHop[strconv.Itoa(i)].RouterID.DottedQuad.String
+					cytoJsonEdge.Data.Name = "LSP--" + cytoJsonEdge.Data.Source + "---" + cytoJsonEdge.Data.Target
+					cytoJsonEdge.Data.Kind = "LayerTransportTunnelLink"
 					cytoJsonEdge.Data.ExtraData = map[string]interface{}{
+						"color":         assignedColor,
+						"pathHopNumber": strconv.Itoa(i),
+						"lspPathDetail": lspPath,
+					}
+					cytoJsonList = append(cytoJsonList, cytoJsonEdge)
+
+					prevHop = lspPath.RecordedHops.PathHops.PathHop[strconv.Itoa(i)]
+					log.Info("prevHopEnd: " + prevHop.RouterID.DottedQuad.String)
+
+					// add Linkage between L2 and LSP Nodes
+					cytoJsonEdgeMultiLayer.Group = "edges"
+					cytoJsonEdgeMultiLayer.Grabbable = true
+					cytoJsonEdgeMultiLayer.Selectable = true
+					cytoJsonEdgeMultiLayer.Data.ID = uuid.NewString()
+					cytoJsonEdgeMultiLayer.Data.Weight = "1"
+					cytoJsonEdgeMultiLayer.Data.Source = "LSP-" + lspPath.RecordedHops.PathHops.PathHop[strconv.Itoa(i)].RouterID.DottedQuad.String
+					cytoJsonEdgeMultiLayer.Data.Target = "L2-" + lspPath.RecordedHops.PathHops.PathHop[strconv.Itoa(i)].RouterID.DottedQuad.String
+					cytoJsonEdgeMultiLayer.Data.Name = "MultiLayer--" + cytoJsonEdgeMultiLayer.Data.Source + "---" + cytoJsonEdgeMultiLayer.Data.Target
+					cytoJsonEdgeMultiLayer.Data.Kind = "MultiLayerLink"
+					cytoJsonEdgeMultiLayer.Data.ExtraData = map[string]interface{}{
 						"networkID":   "",
 						"networkName": "",
 					}
-					cytoJsonList = append(cytoJsonList, cytoJsonEdge)
+					cytoJsonList = append(cytoJsonList, cytoJsonEdgeMultiLayer)
 				}
-				// log.Info("##################")
-			}else if lspPath.PathType == "SRTE" {
 
-			// assinged color
-			value := rand.Float64() * 100
-			assignedColor := cyTopo.AssignColor(value, palette)
-			lenght := len(lspPath.RecordedHops.PathHops.PathHop)
-			for i := 1; i <= lenght; i++ {
-				// log.Info(i)
-				// log.Info(lspPath.RecordedHops.PathHops.PathHop[strconv.Itoa(i)])
-				// log.Info("lspPathNameTarget: ")
-				// log.Info("router Id: " + strconv.Itoa(i))
-				// log.Info(lspPath.RecordedHops.PathHops.PathHop[strconv.Itoa(i)].RouterID.DottedQuad.String)
-				// log.Info("outGoing IP Interface: ")
-				// log.Info(lspPath.RecordedHops.PathHops.PathHop[strconv.Itoa(i)].IPAddress.Ipv4Address.String)
-				// log.Info("prevHopBegin: " + prevHop.RouterID.DottedQuad.String)
-
-				// add LSP Node
-				cytoJsonNode.Group = "nodes"
-				cytoJsonNode.Grabbable = true
-				cytoJsonNode.Selectable = true
-				cytoJsonNode.Data.ID = "LSP-" + lspPath.RecordedHops.PathHops.PathHop[strconv.Itoa(i)].RouterID.DottedQuad.String //taken by cyto as index
-				cytoJsonNode.Data.Weight = "3"
-				cytoJsonNode.Data.Name = lspPath.RecordedHops.PathHops.PathHop[strconv.Itoa(i)].RouterID.DottedQuad.String
-				cytoJsonNode.Data.Parent = "Transport-Tunnel"
-				cytoJsonNode.Data.Kind = "LayerTransportTunnelNode"
-				cytoJsonNode.Data.TopoviewerRole = ""
-				cytoJsonNode.Data.ExtraData = map[string]interface{}{
-					"networkID":      "",
-					"networkName":    "",
-					"nodeAttributes": lspPath.RecordedHops.PathHops.PathHop[strconv.Itoa(i)],
-				}
-				cytoJsonList = append(cytoJsonList, cytoJsonNode)
-
-				// add LSP Link
-				cytoJsonEdge.Group = "edges"
-				cytoJsonEdge.Grabbable = true
-				cytoJsonEdge.Selectable = true
-				cytoJsonEdge.Data.ID = uuid.NewString()
-				cytoJsonEdge.Data.Weight = "1"
-				cytoJsonEdge.Data.Source = "LSP-" + lspPath.RecordedHops.PathHops.PathHop[strconv.Itoa(i)].PostProcessedSourceID.DottedQuad.String
-				cytoJsonEdge.Data.Target = "LSP-" + lspPath.RecordedHops.PathHops.PathHop[strconv.Itoa(i)].RouterID.DottedQuad.String
-				cytoJsonEdge.Data.Name = "LSP--" + cytoJsonEdge.Data.Source + "---" + cytoJsonEdge.Data.Target
-				cytoJsonEdge.Data.Kind = "LayerTransportTunnelLink"
-				cytoJsonEdge.Data.ExtraData = map[string]interface{}{
-					"color":         assignedColor,
-					"pathHopNumber": strconv.Itoa(i),
-					"lspPathDetail": lspPath,
-				}
-				cytoJsonList = append(cytoJsonList, cytoJsonEdge)
-		
-
-				prevHop = lspPath.RecordedHops.PathHops.PathHop[strconv.Itoa(i)]
-				log.Info("prevHopEnd: " + prevHop.RouterID.DottedQuad.String)
-				// add Linkage between L2 and LSP Nodes
-
-				cytoJsonEdge.Group = "edges"
-				cytoJsonEdge.Grabbable = true
-				cytoJsonEdge.Selectable = true
-				cytoJsonEdge.Data.ID = uuid.NewString()
-				cytoJsonEdge.Data.Weight = "1"
-				cytoJsonEdge.Data.Source = "LSP-" + lspPath.RecordedHops.PathHops.PathHop[strconv.Itoa(i)].RouterID.DottedQuad.String
-				cytoJsonEdge.Data.Target = "L2-" + lspPath.RecordedHops.PathHops.PathHop[strconv.Itoa(i)].RouterID.DottedQuad.String
-				cytoJsonEdge.Data.Name = "MultiLayer--" + cytoJsonEdge.Data.Source + "---" + cytoJsonEdge.Data.Target
-				cytoJsonEdge.Data.Kind = "MultiLayerLink"
-				cytoJsonEdge.Data.ExtraData = map[string]interface{}{
-					"networkID":   "",
-					"networkName": "",
-				}
-				cytoJsonList = append(cytoJsonList, cytoJsonEdge)
 			}
-			// log.Info("##################")
 		}
-		}
+
 		// add LSP parent Node
 		cytoJsonNode.Group = "nodes"
 		cytoJsonNode.Grabbable = true
@@ -358,18 +346,20 @@ func (cyTopo *CytoTopology) IpOptimLspMarshall(topoFile []byte, lspPathNameTarge
 		}
 		cytoJsonList = append(cytoJsonList, cytoJsonNode)
 
-		// jsonBytesCytoUi, err := json.MarshalIndent(cytoJsonList, "", "  ")
-		// if err != nil {
-		// 	log.Error(err)
-		// 	panic(err)
-		// }
-
-		// _, err = os.Stdout.Write(jsonBytesCytoUi)
-		// if err != nil {
-		// 	log.Error(err)
-		// 	panic(err)
-		// }
-		// return jsonBytesCytoUi
 	}
-	return cytoJsonList
+
+	// Create a map to track unique names
+	uniqueNames := make(map[string]bool)
+	uniquePeople := []CytoJson{}
+
+	// Iterate over the parsed data and filter out duplicates
+	for _, cytoJson := range cytoJsonList {
+		if !uniqueNames[cytoJson.Data.Name] {
+			uniqueNames[cytoJson.Data.Name] = true
+
+			uniquePeople = append(uniquePeople, cytoJson)
+		}
+	}
+
+	return uniquePeople
 }

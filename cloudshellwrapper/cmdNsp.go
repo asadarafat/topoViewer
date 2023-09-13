@@ -174,7 +174,7 @@ func Nsp(_ *cobra.Command, _ []string) error {
 		topoFile := cyTopo.IetfMultiL2L3TopoReadV2(topoNsp) // loading nsp topo json to cyTopo.IetfNetworL2TopoData
 		jsonBytesMultiL2L3Topo := cyTopo.IetfMultiL2L3TopoUnMarshalV2(topoFile, topoengine.IetfNetworkTopologyMultiL2L3{})
 
-		LspNameList := []string{"pccSrte-from-10.10.10.1-to-10.10.10.5::LOOSE", "pccSrte-from-10.10.10.1-to-10.10.10.6::LOOSE", "pccSrte-from-10.10.10.1-to-10.10.10.7::LOOSE", "pccSrte-from-10.10.10.7-to-10.10.10.1::LOOSE", "pccSrte-from-10.10.10.7-to-10.10.10.6::LOOSE"}
+		LspNameList := []string{"pccRsvp-from-10.10.10.1-to-10.10.10.5::LOOSE", "pccSrte-from-10.10.10.1-to-10.10.10.6::LOOSE", "pccSrte-from-10.10.10.1-to-10.10.10.7::LOOSE", "pccSrte-from-10.10.10.7-to-10.10.10.1::LOOSE", "pccSrte-from-10.10.10.7-to-10.10.10.6::LOOSE"}
 
 		// // Build Layer Transport-Tunnel
 		// topoFileNspLsp := cyTopo.IpOptimLspRead("topoNspLsp")

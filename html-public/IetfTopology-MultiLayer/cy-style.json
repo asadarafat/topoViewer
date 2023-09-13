@@ -237,7 +237,7 @@
       "target-text-offset": 10,
       "font-size": "3.5px",
       "arrow-scale": "0.5",
-      "curve-style": "bezier",
+      "curve-style": "straight",
       "opacity": "0.5",
       "line-style": "dotted",
       "line-color": "#A6A6A6",
@@ -273,7 +273,7 @@
       "target-arrow-color": "#7D33F2",
       "arrow-scale": "0.5",
       "curve-style": "bezier",
-      "opacity": "0.75",
+      "opacity": "0.1",
       "line-style": "solid",
       "width": "1.5",
       "overlay-padding": "2px"
