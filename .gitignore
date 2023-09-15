@@ -4,3 +4,10 @@ rawTopoFile/_clab-folder
 rawTopoFile/clab
 rawTopoFile/license.txt
 rawTopoFile/clab-topoViewerDemo/**
+node_modules/**
+webpack.config.js
+.babelrc
+html-static/cytoscape/libs/build
+html-static/cytoscape/libs/src
+tools/ygot
+tools/ygot/**

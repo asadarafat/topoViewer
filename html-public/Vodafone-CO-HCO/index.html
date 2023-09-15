@@ -21,6 +21,13 @@
   <script src="/cytoscape/libs/cytoscape-cola.js"></script>
   <script src="/cytoscape/libs/popper.js"></script>
   <script src="/cytoscape/libs/cytoscape-popper.js"></script>
+  <script src="/cytoscape/libs/cytoscape-grid-guide.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/moleculer@0.14.30/index.min.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/cytoscape-layers@^2.1.0"></script>
+  <script src="./cytoscape/libs/cystoscape-overlays.js"></script>
+
 
 
 
@@ -40,7 +47,7 @@ body {
   position: absolute;
   left: 0;
   right: 20;
-  top: 4.5em;
+  top: 5.5em;
   bottom: 0;
   right: 20em;
 }
@@ -68,11 +75,10 @@ body {
 </style>
 
 <body>
-    <nav class="level m-0 py-4 px-5 has-background-4a">
-      <div class="level-left">
-        <div class="level-item">
-          <p class="title is-4 is-unselectable has-text-weight-normal has-text-white">TopoViewer</p>
-        </div>
+    <nav class="level m-0 px-3 py-1 has-background-4a">
+      <div>
+        <p class="title    m-0 px-1 py-0   is-4 is-unselectable has-text-weight-normal has-text-white"> TopoViewer</p>
+        <p class="subtitle m-0 px-1 py-0   is-6                 has-text-weight-light  has-text-white" id="ClabSubtitle">Topology name:Vodafone-CO-HCO ::: Uptime: 10m10s</p>
       </div>
       <div class="level-right">
         <div class="level-item">
@@ -96,10 +102,12 @@ body {
                     <input id="nodeSpacing" type="range" min="1" max="1000" step="1" value="25">
                 </div>
                     <a id="clabClient" href="#" onclick="clabClient();" class="dropdown-item label has-text-weight-normal is-small">Clab Client Download</a>                  
-                     
-                    <a id="telemetry" href="#" onclick="telemetry();" class="dropdown-item label has-text-weight-normal is-small">Telemetry</a>                  
+                               
+                                      
                     <a id="toggleLinkEndpoint" href="#" onclick="toggleLinkEndpoint();" class="dropdown-item label has-text-weight-normal is-small">Toggle Link Endpoint</a>
-                    <a id="showNodeIcon" href="#" onclick="showNodeIcon();" class="dropdown-item label has-text-weight-normal is-small">showNodeIcon</a>                  
+                    <a id="toggleNodeDockerStatus" href="#" onclick="toggleNodeDockerStatus();" class="dropdown-item label has-text-weight-normal is-small">Toggle Node Docker Status</a>
+                        
+                    <a id="about" href="#" onclick="about();" class="dropdown-item label has-text-weight-normal is-small">About TopoViewer</a>                      
               </div>
             </div>
           </div>
@@ -107,52 +115,167 @@ body {
       </div>
     </nav>
   <div id="cy"></div>
-    <div class="message is-hidden" id="Setting">
+    <div class="message is-hidden" id="Setting" >
       <div class="message-header" id=SettingHeader>
         <p class="has-text-weight-semibold">Properties</p>
     </div>
   </div>
       <script type="text/javascript">
 
-        
-        var protocol = "ws://";
-        var url = protocol + location.host + "/ws"
-        var websocketMessage
 
-        let socket = new WebSocket(url);
+
+
+        
+        let parsedVersionText = '';
+
+        
+        async function fetchAndParseText(url) {
+          try {
+            const response = await fetch(url);
+
+            
+            if (!response.ok) {
+              throw new Error('Network response was not OK');
+            }
+
+            
+            const text = await response.text();
+            console.log('Fetched text:', text);
+
+            
+            parsedVersionText = text;
+
+            
+            
+          } catch (error) {
+            console.error('Fetch error:', error);
+          }
+        }
+
+        
+        var versionUrl = location.protocol + "//" + location.host + "/version";
+        console.log(versionUrl)
+        fetchAndParseText(versionUrl);
+
+
+
+
+
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+
+        
+        var protocolUptime = "ws://";
+        var urlUptime = protocolUptime + location.host + "/uptime"
+        var websocketMessage
+        
+        let socketUptime = new WebSocket(urlUptime);
         console.log("Attempting Connection...");
 
-        socket.onopen = () => {
-            console.log("Successfully Connected");
-            
+        socketUptime.onopen = () => {
+            console.log("Successfully Connected WebSocket");
+            if (socketUptime.readyState === WebSocket.OPEN) {
+                socketUptime.send("Hi From the WebSocketClient-Uptime!");
+                }
         };
-        socket.onclose = event => {
+        socketUptime.onclose = event => {
           console.log("Socket Closed Connection: ", event);
-          socket.send("Client Closed!")
+          socketUptime.send("Client Closed!")
         };
 
-        socket.onerror = error => {
+        socketUptime.onerror = error => {
           console.log("Socket Error: ", error);
         };
 
         
-        function telemetry() {
-          socket.onmessage = (msg) => {
-            console.log(msg)
-            websocketMessage = msg
-            updateEdgeColor()
-          }
-        }
-  
+        socketUptime.onmessage = (msgUptime) => {
+          console.log(msgUptime.data)
+          var tt1  = "Containerlab Topology: Komodo2-" + "Vodafone-CO-HCO";
+          var tt2  = " ::: Uptime: " + msgUptime.data;
 
+          let ClabSubtitle = document.getElementById("ClabSubtitle");
+
+          var tmessageBody = tt1 + tt2
+          ClabSubtitle.innerText = tmessageBody
+          console.log(ClabSubtitle.innerText)
+        }
 
         
-        var linkImpairmentUrl;
+        var protocolDockerNodeStatus = "ws://";
+        var urlDockerNodeStatus = protocolDockerNodeStatus + location.host + "/dockerNodeStatus"
+        var websocketMessage
+        
+        let socketDockerNodeStatus = new WebSocket(urlDockerNodeStatus);
+        console.log("Attempting Connection...");
+
+        socketDockerNodeStatus.onopen = () => {
+            console.log("Successfully Connected WebSocket");
+            if (socketDockerNodeStatus.readyState === WebSocket.OPEN) {
+                socketDockerNodeStatus.send("Hi From the WebSocketClient-DockerNodeStatus!");
+                }
+        };
+        socketDockerNodeStatus.onclose = event => {
+          console.log("Socket Closed Connection: ", event);
+          socketDockerNodeStatus.send("Client Closed!")
+        };
+
+        socketDockerNodeStatus.onerror = error => {
+          console.log("SocketDockerNodeStatus Error: ", error);
+        };
+
+        
+        socketDockerNodeStatus.onmessage = (msgDockerNodeStatus) => {
+          
+
+          try {
+            
+            
+            const Names = JSON.parse(msgDockerNodeStatus.data).Names;
+            const Status = JSON.parse(msgDockerNodeStatus.data).Status;
+
+            console.log(`Names: ${Names}, Status: ${Status}`);
+            toggleNodeDockerStatus(Names, Status)
+            
+          }catch (error) {
+            console.error("Error parsing JSON:", error);
+          }
+
+        }
+
 
         
         let Setting = document.getElementById("Setting");
         let options = document.getElementById("options");
-        
+
+
         const close = document.querySelectorAll(".close");
         close.forEach(e => e.addEventListener('click', event => {
           var c = Setting.className;
@@ -194,14 +317,24 @@ body {
           var oldSettingHeader = Setting.childNodes[1]
           console.log("messageClabCLient oldSettingHeader: ")
           console.log(oldSettingHeader)
+          var tt1  = ce("strong", {}, [ctn("Wireshark Capture")]);
+          var tt2  = ce("p", {}, [ctn("TopoViewer has a remote capture feature that allows to intercept ContainerLab node's endPoint - provided that topoViewer is running on the same server as ContainerLab node. The feature relies on the client-side application to run SSH command using SSH client (PowerShell for Windows or iTerm for MAC) to execute tcpdump remotely and pipe it to the client's Wireshark. Please download the following Wireshark Client application.")]);
           var seperator1 = ce("hr", {class: "my-1"}, []);
+          var tt3  = ce("a", {target: "_blank", href: "http://"+location.host+"/clab-client/clab-client-mac/ClabCapture.app.zip", onclick: "", class: "text is-link is-small"}, [ctn("Wireshark Client - MAC ")] );
           var seperator2 = ce("hr", {class: "my-1"}, []);
+          var tt4  = ce("a", {target: "_blank", href: "http://"+location.host+"/clab-client/clab-client-windows/ClabCapture.app.zip", onclick: "", class: "text is-link is-small"}, [ctn("Wireshark Client - Windows")] );  
+          var seperator3 = ce("hr", {class: "my-3"}, []);
 
-          var tt1 = ce("a", {target: "_blank", href: "http://"+location.host+"/clab-client/mac-clab-client-wireshark.zip", onclick: "", class: "text is-link is-small"}, [ctn("ContainerLab Wireshark Client - MAC")] );
-          var tt2 = ce("a", {target: "_blank", href: "http://"+location.host+"/clab-client/windows-clab-client-wireshark.zip", onclick: "", class: "text is-link is-small"}, [ctn("ContainerLab Wireshark Client - Windows")] );
-          var tt3 = ce("a", {target: "_blank", href: "http://"+location.host+"/clab-client/mac-clab-client-linkImpairment.zip", onclick: "", class: "text is-link is-small"}, [ctn("ContainerLab LinkImpairment Client - MAC")] );
+          var tt11  = ce("strong", {}, [ctn("Link Impairment")]);
+          var tt12  = ce("p", {}, [ctn("TopoViewer has Link Impairment feature that allow ContainerLab link to be impaired - provided that topoViewer is running on the same server as ContainerLab and Pumba binary is installed in ContainerLab host. Similar with ContainerLab Wireshark Client the feature relies on the client-side application to execute Pumba command over SSH.")]);
+          var seperator11 = ce("hr", {class: "my-1"}, []);
+          var tt13 = ce("a", {target: "_blank", href: "http://"+location.host+"/clab-client/clab-client-windows/ClabPumbaDelay.app.zip", onclick: "", class: "text is-link is-small"}, [ctn("Link Impairment Client - Windows")] );
+          var seperator14 = ce("hr", {class: "my-1"}, []);
+          var tt14 = ce("a", {target: "_blank", href: "http://"+location.host+"/clab-client/clab-client-mac/ClabPumbaDelay.app.zip", onclick: "", class: "text is-link is-small"}, [ctn("Link Impairment Client - MAC")] );
 
-          var tname = ce("p", {}, [tt1, seperator1, tt2, seperator2, tt3]);
+
+
+          var tname = ce("p", {}, [tt1, tt2, seperator1, tt3, seperator2, tt4, seperator3, tt11, tt12, seperator11, tt13, seperator14, tt14]);
          
 
           var tpanel = ce("div", {}, [tname]);
@@ -214,6 +347,40 @@ body {
           Setting.replaceChild(messageHeader, oldSettingHeader);
           Setting.appendChild(tmessageBody);
           Setting.className = "message is-small is-link";
+          
+        }
+
+        
+        function about(e) {
+          removeLastChild();
+          var oldSettingHeader = Setting.childNodes[1]
+          console.log("About oldSettingHeader: ")
+          console.log(oldSettingHeader)
+          var tt1  = ce("p", {}, [ctn(" ")]);
+          var tt2  = ce("strong", {}, [ctn(versionText)]);
+          var tt3  = ce("hr", {class: "my-1 has-background-grey-lighter"}, []);
+          var tt4  = ce("p", {}, [ctn("Designed and created by asad.arafat@nokia.com")]);
+          var tt5  = ce("p", {}, [ctn("GUI Framework by siva.sivakumar@nokia.com")]);
+          var tt6  = ce("hr", {class: "my-1 has-background-grey-lighter"}, []);
+          var tt7  = ce("strong", {}, [ctn("Instructions:")]);
+          var tt8  = ce("p", {},  [ctn("- To view the attributes of a node or link, simply click on it")]);
+          var tt9  = ce("p", {},  [ctn("- To show/hide link endpoint label, click on setting menu")]);
+          var tt10 = ce("p", {},  [ctn("- To tap link with wireshark or to add impairment to link, please download client package")]);
+          var tt11 = ce("p", {},  [ctn("- To see further details, please visit https/github.com/asadarafat/topoViewer")]);
+
+          var tname = ce("p", {}, [tt1, tt2, tt3, tt4, tt5, tt6, tt7, tt8, tt9, tt10, tt11]);
+          var tpanel = ce("div", {}, [tname]);
+          var tmessageBody = ce("div", {class: "message-body"}, [tpanel])
+
+          var headerTitle = ce("p", {class: "my-10"}, [ctn("About TopoViewer")]);
+          var messageHeader = ce("div", {class: "message-header"}, [headerTitle])
+          console.log("messageInit oldSettingHeader: ")
+          console.log(oldSettingHeader)
+
+          Setting.replaceChild(messageHeader, oldSettingHeader);
+          Setting.appendChild(tmessageBody);
+          Setting.className = "message is-small is-link";
+          
           
         }
 
@@ -248,16 +415,16 @@ body {
         
         function nodeInfo(node) {
           console.log("mgmtIpv4Address--SSH: " + node.data("extraData").mgmtIpv4Addresss)
-          var shellUrl = location.protocol + "//" + location.host + "/cloudshell/?RouterID=";
+          var shellUrl = location.protocol + "//" + location.host + "/cloudshell/";
           var elements = [
             {
               name: "SSH Session",
-              url: shellUrl + node.data("extraData").mgmtIpv4Addresss
+              url: shellUrl + "?RouterID=" + node.data("extraData").mgmtIpv4Addresss + "?RouterName=" + node.data("extraData").id
             }
           ].map(function(link) {
             return ce("a", {target: "_blank", href: link.url, class: "button is-link is-small"}, [ctn(link.name)] );
           });
-          console.log("SSH-URL:" + url)
+          console.log("SSH-URL:" + elements)
 
           return ce("div", {class: "has-text-right"}, elements);
         }
@@ -286,34 +453,34 @@ body {
           t1 = ce("label", {class: "label has-text-link is-small has-text-weight-semibold pb-3"}, [ctn("Link Impairment:")]);
           var linkImpairment = ce("div", {class: "field"}, [t1]);
 
-          label01 = ce("label", {class: "label has-text-link is-small has-text-right has-text-weight-normal mr-0"}, [ctn("Delay")]);
-          column01 = ce("label", {class: "column is-3 ml-3 pb-3"}, [label01]);
+          label01 = ce("label", {class: "label has-text-link is-small has-text-right has-text-weight-normal mr-0"}, [ctn("Delay  (ms)")]);
+          column01 = ce("label", {class: "column is-4 ml-3 pb-3"}, [label01]);
           input01 = ce("input", {class: "input is-small", type: "number", placeholder: "Delay (ms)", id: "delay", onkeyup: "updateUrl(this)", onchange:"updateUrl(this)"}, []);
-          column02 = ce("label", {class: "column is-8 p-0"}, [input01]);
+          column02 = ce("label", {class: "column is-7 p-0"}, [input01]);
           var delay = ce("div", {class: "columns mb-2"}, [column01, column02]);
         
-          label01 = ce("label", {class: "label has-text-link is-small has-text-right has-text-weight-normal mr-0"}, [ctn("Jitter")]);
-          column01 = ce("label", {class: "column is-3 ml-3 pb-3"}, [label01]);
+          label01 = ce("label", {class: "label has-text-link is-small has-text-right has-text-weight-normal mr-0"}, [ctn("Jitter  (ms)")]);
+          column01 = ce("label", {class: "column is-4 ml-3 pb-3"}, [label01]);
           input01 = ce("input", {class: "input is-small", type: "number", placeholder: "Jitter (ms)", id: "jitter", onkeyup: "updateUrl(this)", onchange:"updateUrl(this)"}, []);
-          column02 = ce("label", {class: "column is-8 p-0"}, [input01]);
+          column02 = ce("label", {class: "column is-7 p-0"}, [input01]);
           var jitter = ce("div", {class: "columns mb-2"}, [column01, column02]);
         
-          label01 = ce("label", {class: "label has-text-link is-small has-text-right has-text-weight-normal mr-0"}, [ctn("Rate")]);
-          column01 = ce("label", {class: "column is-3 ml-3 pb-3"}, [label01]);
+          label01 = ce("label", {class: "label has-text-link is-small has-text-right has-text-weight-normal mr-0"}, [ctn("Rate (Kbps)")]);
+          column01 = ce("label", {class: "column is-4 ml-3 pb-3"}, [label01]);
           input01 = ce("input", {class: "input is-small", type: "number", placeholder: "Rate (Kbps)", id: "rate", onkeyup: "updateUrl(this)", onchange:"updateUrl(this)"}, []);
-          column02 = ce("label", {class: "column is-8 p-0"}, [input01]);
+          column02 = ce("label", {class: "column is-7 p-0"}, [input01]);
           var rate = ce("div", {class: "columns mb-2"}, [column01, column02]);
 
-          label01 = ce("label", {class: "label has-text-link is-small has-text-right has-text-weight-normal mr-0"}, [ctn("Loss")]);
-          column01 = ce("label", {class: "column is-3 ml-3 pb-3"}, [label01]);
+          label01 = ce("label", {class: "label has-text-link is-small has-text-right has-text-weight-normal mr-0"}, [ctn("Loss (%)")]);
+          column01 = ce("label", {class: "column is-4 ml-3 pb-3"}, [label01]);
           input01 = ce("input", {class: "input is-small", type: "number", placeholder: "Loss (%)", id: "loss", onkeyup: "updateUrl(this)", onchange:"updateUrl(this)"}, []);
-          column02 = ce("label", {class: "column is-8 p-0"}, [input01]);
+          column02 = ce("label", {class: "column is-7 p-0"}, [input01]);
           var loss = ce("div", {class: "columns mb-2"}, [column01, column02]);
 
-          label01 = ce("label", {class: "label has-text-link is-small has-text-right has-text-weight-normal mr-0"}, [ctn("Duration")]);
-          column01 = ce("label", {class: "column is-3 ml-3 pb-3"}, [label01]);
+          label01 = ce("label", {class: "label has-text-link is-small has-text-right has-text-weight-normal mr-0"}, [ctn("Duration  (min)")]);
+          column01 = ce("label", {class: "column is-4 ml-3 pb-3"}, [label01]);
           input01 = ce("input", {class: "input is-small", type: "number", placeholder: "Duration (min)", id: "duration", onkeyup: "updateUrl(this)", onchange:"updateUrl(this)"}, []);
-          column02 = ce("label", {class: "column is-8 p-0"}, [input01]);
+          column02 = ce("label", {class: "column is-7 p-0"}, [input01]);
           var duration = ce("div", {class: "columns mb-1"}, [column01, column02]);
 
           linkImpairmentUrl = "clab-pumba://" + e.data("extraData").clabServerUsername + "@" + location.host + "?" + e.data("extraData").clabTargetLongName + "?" + e.data("targetEndpoint")
@@ -333,6 +500,7 @@ body {
 
           
           return ce("div", {}, [wireshark, linkImpairment, delay, jitter, rate, loss, duration, submit]);
+
         }
         
         
@@ -406,18 +574,32 @@ body {
           }
           addSliderEvent(edgeLength);
           addSliderEvent(nodeSpacing);
-             
-          var tt1 = ce("b", {}, [ctn("Welcome to TopoViewer.")]);
-          var tt2 = ce("p", {}, [ctn("Adjust topology physics in Setting.")]);  
-          var tt3 = ce("p", {}, [ctn("Click the node or link to see its properties.")]);  
-          var tt4 = ce("hr", {class: "my-3 has-background-grey-lighter"}, []);
-          var tt10 = ce("p", {}, [ctn("FrontEnd by Siva & BackEnd by Asad.")]);  
 
-          var tname = ce("p", {}, [tt1, tt2, tt3, tt4, tt10 ]);
+
+
+
+
+          versionText = "Version: "
+          versionText = versionText + parsedVersionText
+
+          var tt1 = ce("p", {}, [ctn(" ")]);
+          var tt2  = ce("strong", {}, [ctn(versionText)]);
+
+          var tt3  = ce("hr", {class: "my-1 has-background-grey-lighter"}, []);
+          var tt4 = ce("p", {}, [ctn("Designed and created by asad.arafat@nokia.com")]);
+          var tt5 = ce("p", {}, [ctn("GUI Framework by siva.sivakumar@nokia.com")]);
+          var tt6 = ce("hr", {class: "my-1 has-background-grey-lighter"}, []);
+          var tt7 = ce("strong", {}, [ctn("Instructions:")]);
+          var tt8 = ce("p", {},  [ctn("- To view the attributes of a node or link, simply click on it")]);
+          var tt9 = ce("p", {},  [ctn("- To show/hide link endpoint label, click on setting menu")]);
+          var tt10 = ce("p", {},  [ctn("- To tap link with wireshark or to add impairment to link, please download client package")]);
+          var tt11 = ce("p", {},  [ctn("- To see further details, please visit https/github.com/asadarafat/topoViewer")]);
+
+          var tname = ce("p", {}, [tt1, tt2, tt3, tt4, tt5, tt6, tt7, tt8, tt9, tt10, tt11]);
           var tpanel = ce("div", {}, [tname]);
           var tmessageBody = ce("div", {class: "message-body"}, [tpanel])
 
-          var headerTitle = ce("p", {class: "my-7"}, [ctn("Message")]);
+          var headerTitle = ce("p", {class: "my-10"}, [ctn("Welcome to TopoViewer")]);
           var messageHeader = ce("div", {class: "message-header"}, [headerTitle])
           var oldSettingHeader = document.getElementById("SettingHeader")
           console.log("messageInit oldSettingHeader: ")
@@ -434,6 +616,8 @@ body {
             node.on("click", function(e) {
             if (!node.isParent()) {          
 
+              console.log(node.data("extraData").clabServerUsername)
+              
               removeLastChild();
               var headerTitle = ce("p", {class: "my-7"}, [ctn("Node Properties")]);
               var nodeMessageHeader = ce("div", {class: "message-header"}, [headerTitle]);
@@ -561,6 +745,17 @@ body {
               var messageBody = ce("div", {class: "message-body"}, [panel])
               Setting.appendChild(messageBody);
               Setting.className = "message is-small is-link";
+              
+              
+              console.log("delay-default-value: ", document.getElementById("delay").defaultValue = "0")
+              console.log("jitter-default-value: ", document.getElementById("jitter").defaultValue = "0")
+              console.log("rate-default-value: ", document.getElementById("rate").defaultValue = "0")
+              console.log("loss-default-value: ", document.getElementById("loss").defaultValue = "0")
+              console.log("duration-default-value: ", document.getElementById("duration").defaultValue = "0")
+
+              console.log("clab-subtitle-value: ", document.getElementById("clab-subtitle").text = "asad")
+
+
             });
           });
           
@@ -578,7 +773,7 @@ body {
             });
           });
 
-        function updateEdgeColor() {
+        function updateEdgeColorTelemetry() {
           Srl01Edge = cy.filter('edge[source = "srl-01"][target = "sros-01"]');
           Srl01Edge.style("line-color", "red")
           Srl01Edge.style("label", websocketMessage.data + " kbps")
@@ -601,9 +796,6 @@ body {
           console.log(peNodesAsad)
           peNodesAsad.style("background-image","images/clab-pe-router-dark-blue.png")
           
-
-
-
         }
 
         var linkEndpointVisibility = false
@@ -624,11 +816,81 @@ body {
           }
         }
 
+         function toggleNodeDockerStatus(dockerNodeName, dockerNodeStatus) {
+
+          dockerNodeName = "AGG-UPF01"
+          cy.nodes().forEach(function(node) {
+            
+            var nodeId = node.data('id');
+            var nodeName = node.data('name');
+            
+            
+            
+            
+            
+            aNode = cy.filter(function(element) {
+              return element.isNode() && element.data('name') === dockerNodeName;
+            });
+            refereceNodePosition = aNode.position();
+            
+
+            
+            statusGreenNode = cy.filter(function(element) {
+              return element.isNode() && element.data('name') === dockerNodeName + "-statusGreen";
+            });
           
+            
+            var statusGreenNodeOffsetX = 14; 
+            var statusGreenNodeOffsetY = 3; 
+            var newPosition = {
+              x: refereceNodePosition.x + statusGreenNodeOffsetX,
+              y: refereceNodePosition.y + statusGreenNodeOffsetY
+            }
+            statusGreenNode.position(newPosition)
+            
+
+
+            
+            statusRedNode = cy.filter(function(element) {
+              return element.isNode() && element.data('name') === dockerNodeName + "-statusRed";
+            });      
+
+            
+            var statusRedNodeOffsetX = 14; 
+            var statusRedNodeOffsetY = -3; 
+            var newPosition = {
+              x: refereceNodePosition.x + statusRedNodeOffsetX,
+              y: refereceNodePosition.y + statusRedNodeOffsetY
+            }
+            statusRedNode.position(newPosition)
+            
+
+            
+
+            if (dockerNodeStatus.includes("healthy")) {
+              statusGreenNode.show();
+              statusRedNode.hide();
+            } else if (dockerNodeStatus === "running") {
+              statusGreenNode.hide();
+              statusRedNode.show();
+            } else if (dockerNodeStatus === "both") {
+              statusGreenNode.show();
+              statusRedNode.show();
+            } else {
+              statusGreenNode.hide();
+              statusRedNode.hide();
+            }
+          });
+
+ 
+        }
+
         function updateUrl(asad) {
           var button = document.getElementById("onSubmit")
           console.log(button)
           console.log("delay-value: ", document.getElementById("delay").value)
+
+
           button.href = linkImpairmentUrl + "?" + document.getElementById("delay").value + "?" + document.getElementById("jitter").value + "?" + document.getElementById("rate").value + "?" + document.getElementById("loss").value +  "?" + document.getElementById("duration").value
         }
       </script>

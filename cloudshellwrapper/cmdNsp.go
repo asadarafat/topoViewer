@@ -10,6 +10,7 @@ import (
 	"time"
 
 	tools "github.com/asadarafat/topoViewer/tools"
+	cp "github.com/otiai10/copy"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/asadarafat/topoViewer/topoengine"
@@ -103,6 +104,10 @@ var confNsp = config.Map{
 		Default: ".",
 		Usage:   "path to nsp ietf-l3 topo file",
 	},
+	"topology-ietf-all-topo": &config.String{
+		Default: ".",
+		Usage:   "path to all nsp ietf topo file",
+	},
 	"multi-layer": &config.String{
 		Default: "enabled",
 		Usage:   "enable multi-layer view",
@@ -149,29 +154,55 @@ func Nsp(_ *cobra.Command, _ []string) error {
 		os.Exit(1)
 	}
 
-	fmt.Println("NSP-IETF-Topology-L2: ", viper.GetString("nsp.nspIeftTopoL2"))
-
 	// var topoL3 interface{}
 	// fmt.Println(viper.UnmarshalKey("nsp", &topoL3))
 
 	if confNsp.GetString("multi-layer") == "enabled" {
 
 		// tranform clab-topo-file into cytoscape-model
-		topoNspL2 := viper.GetString("nsp.nspIeftTopoL2")
-		log.Debug("topoNspL2: ", topoNspL2)
 
-		// aarafat-tag: fixed multiple L3 Topo file
-		var topoNspL3 []string
-		topoNspL3 = append(topoNspL3, viper.GetString("nsp.nspIeftTopoL3_0"))
-		topoNspL3 = append(topoNspL3, viper.GetString("nsp.nspIeftTopoL3_1"))
-		topoNspL3 = append(topoNspL3, viper.GetString("nsp.nspIeftTopoL3_2"))
+		// read from static-config file
+		// topoNspL2 := viper.GetString("nsp.nspIeftTopoL2")
+		// log.Debug("topoNspL2: ", topoNspL2)
 
-		log.Debug(topoNspL3)
-		log.Debug("Code Trace Point ####")
-		cyTopo.IetfMultiL2L3TopoRead(topoNspL2, topoNspL3) // loading nsp topo L2 and L3 json-file to cyTopo.IetfNetworL3TopoData
+		topoNsp := confNsp.GetString("topology-ietf-all-topo")
+		cyTopo := topoengine.CytoTopology{}
+		cyTopo.LogLevel = 5 // debug
+		cyTopo.InitLogger()
 
-		jsonBytes := cyTopo.IetfMultiL2L3TopoUnMarshal(cyTopo.IetfNetworL2TopoData, cyTopo.IetfNetworL3TopoData, topoengine.IetfNetworkTopologyMultiL2L3{})
-		cyTopo.IetfMultiLayerTopoPrintjsonBytesCytoUi(jsonBytes)
+		// Build Layer 2/3
+		topoFile := cyTopo.IetfMultiL2L3TopoReadV2(topoNsp) // loading nsp topo json to cyTopo.IetfNetworL2TopoData
+		jsonBytesMultiL2L3Topo := cyTopo.IetfMultiL2L3TopoUnMarshalV2(topoFile, topoengine.IetfNetworkTopologyMultiL2L3{})
+
+		LspNameList := []string{"pccRsvp-from-10.10.10.1-to-10.10.10.5::LOOSE", "pccSrte-from-10.10.10.1-to-10.10.10.6::LOOSE", "pccSrte-from-10.10.10.1-to-10.10.10.7::LOOSE", "pccSrte-from-10.10.10.7-to-10.10.10.1::LOOSE", "pccSrte-from-10.10.10.7-to-10.10.10.6::LOOSE"}
+
+		// // Build Layer Transport-Tunnel
+		// topoFileNspLsp := cyTopo.IpOptimLspRead("topoNspLsp")
+		// jsonBytesNspLsp := cyTopo.IpOptimLspMarshall(topoFileNspLsp, LspNameList, topoengine.IpOptimLsp{})
+
+		// // combine Layer 2/3 and Transport-Tunnel
+		// cytoJsonList := append(jsonBytesMultiL2L3Topo, jsonBytesNspLsp...)
+		// jsonBytesCytoUiMarshalled := cyTopo.MarshallCytoJsonList(cytoJsonList)
+
+		// // Build Layer Transport-Tunnel
+		topoFileNspLsp := cyTopo.IpOptimLspRead("topoNspLsp")
+		jsonBytesNspLsp10 := cyTopo.IpOptimLspMarshall(topoFileNspLsp, LspNameList[0], topoengine.IpOptimLsp{})
+		jsonBytesNspLsp11 := cyTopo.IpOptimLspMarshall(topoFileNspLsp, LspNameList[1], topoengine.IpOptimLsp{})
+
+		jsonBytesNspLsp20 := cyTopo.IpOptimLspMarshall(topoFileNspLsp, LspNameList[2], topoengine.IpOptimLsp{})
+		jsonBytesNspLsp21 := cyTopo.IpOptimLspMarshall(topoFileNspLsp, LspNameList[3], topoengine.IpOptimLsp{})
+		jsonBytesNspLsp22 := cyTopo.IpOptimLspMarshall(topoFileNspLsp, LspNameList[4], topoengine.IpOptimLsp{})
+
+		// combine Layer 2/3 and Transport-Tunnel
+		cytoJsonList := append(jsonBytesMultiL2L3Topo, jsonBytesNspLsp10...)
+		cytoJsonList = append(cytoJsonList, jsonBytesNspLsp11...)
+		cytoJsonList = append(cytoJsonList, jsonBytesNspLsp20...)
+		cytoJsonList = append(cytoJsonList, jsonBytesNspLsp21...)
+		cytoJsonList = append(cytoJsonList, jsonBytesNspLsp22...)
+
+		jsonBytesCytoUiMarshalled := cyTopo.MarshallCytoJsonList(cytoJsonList)
+
+		cyTopo.IetfMultiLayerTopoPrintjsonBytesCytoUiV2(jsonBytesCytoUiMarshalled)
 
 		command := confNsp.GetString("command")
 		arguments := confNsp.GetStringSlice("arguments")
@@ -195,8 +226,8 @@ func Nsp(_ *cobra.Command, _ []string) error {
 			}
 			workingDirectory = path.Join(wd, workingDirectory)
 		}
-		log.Infof("topology Ietf-Nsp-L2 file path    : '%s'", workingDirectory+"/"+topoNspL2)
-		log.Infof("topology Ietf-Nsp-L3 file path    : '%s'", workingDirectory+"/")
+		log.Infof("topology Ietf-Nsp-L2 file path    : '%s'", workingDirectory+"/"+topoNsp)
+		log.Infof("topology Ietf-Nsp-L3 file path    : '%s'", workingDirectory+"/"+topoNsp)
 
 		log.Infof("working directory     : '%s'", workingDirectory)
 		log.Infof("command               : '%s'", command)
@@ -292,13 +323,28 @@ func Nsp(_ *cobra.Command, _ []string) error {
 
 		//create html-public files
 		htmlPublicPrefixPath := "./html-public/"
+		htmlStaticPrefixPath := "./html-static/"
 		htmlTemplatePath := "./html-static/template/nsp/"
+
+		//create html-public files
+		os.Mkdir(htmlPublicPrefixPath+"IetfTopology-MultiLayer"+"/images", 0755)
+
+		sourceImageFolder := htmlStaticPrefixPath + "images"
+		destinationImageFolder := htmlPublicPrefixPath + "IetfTopology-MultiLayer" + "/images"
+		err := cp.Copy(sourceImageFolder, destinationImageFolder)
+		log.Error("Copying images folder error: ", err)
 
 		// topoPrefixName := "NspIetfTopoLayer2" // should be added with NSP server ip address
 
 		// os.Mkdir(htmlPublicPrefixPath+cyTopo.ClabTopoData.ClabTopoName, 0755) // already created in cytoscapemodel library
-		createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "index.tmpl", "IetfTopology-MultiLayer"+"/"+"index.html", "dataIetfMultiLayerTopoCytoMarshall.json")
+		createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "index.tmpl", "IetfTopology-MultiLayer"+"/"+"index.html", "IetfTopology-MultiLayer.json")
 		createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "cy-style.tmpl", "IetfTopology-MultiLayer"+"/"+"cy-style.json", "")
+
+		// topoPrefixName := "NspIetfTopoLayer2" // should be added with NSP server ip address
+
+		// os.Mkdir(htmlPublicPrefixPath+cyTopo.ClabTopoData.ClabTopoName, 0755) // already created in cytoscapemodel library
+		// createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "index.tmpl", "IetfTopology-MultiLayer"+"/"+"index.html", "dataIetfMultiLayerTopoCytoMarshall.json")
+		// createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "cy-style.tmpl", "IetfTopology-MultiLayer"+"/"+"cy-style.json", "")
 		// no need cloudshell
 		// os.Mkdir(htmlPublicPrefixPath+cyTopo.ClabTopoData.ClabTopoName+"/cloudshell", 0755)
 		// createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "cloudshell-index.tmpl", cyTopo.ClabTopoData.ClabTopoName+"/cloudshell/"+"index.html", "")
@@ -335,9 +381,10 @@ func Nsp(_ *cobra.Command, _ []string) error {
 		cyTopo.LogLevel = 5 // debug
 		cyTopo.InitLogger()
 
-		cyTopo.IetfL2TopoRead(topoNsp) // loading nsp topo json to cyTopo.IetfNetworL2TopoData
-		// cyTopo.IetfL2TopoUnMarshal(cyTopo.IetfNetworL2TopoData, topoengine.IetfNetworkTopologyL2{})
-		jsonBytes := cyTopo.IetfL2TopoUnMarshal(cyTopo.IetfNetworL2TopoData, topoengine.IetfNetworkTopologyL2{})
+		// L2 Working
+		topoFile := cyTopo.IetfL2TopoRead(topoNsp) // loading nsp topo json to cyTopo.IetfNetworL2TopoData
+		jsonBytes := cyTopo.IetfL2TopoUnMarshal(topoFile, topoengine.IetfNetworkTopologyL2{})
+
 		cyTopo.IetfL2TopoPrintjsonBytesCytoUi(jsonBytes)
 
 		command := confNsp.GetString("command")
@@ -452,17 +499,22 @@ func Nsp(_ *cobra.Command, _ []string) error {
 
 		//create html-public files
 		htmlPublicPrefixPath := "./html-public/"
+		htmlStaticPrefixPath := "./html-static/"
 		htmlTemplatePath := "./html-static/template/nsp/"
+
+		//create html-public files
+		os.Mkdir(htmlPublicPrefixPath+"IetfTopology-L2"+"/images", 0755)
+
+		sourceImageFolder := htmlStaticPrefixPath + "images"
+		destinationImageFolder := htmlPublicPrefixPath + "IetfTopology-L2" + "/images"
+		err := cp.Copy(sourceImageFolder, destinationImageFolder)
+		log.Debugf("Copying images folder error: ", err)
 
 		// topoPrefixName := "NspIetfTopoLayer2" // should be added with NSP server ip address
 
 		// os.Mkdir(htmlPublicPrefixPath+cyTopo.ClabTopoData.ClabTopoName, 0755) // already created in cytoscapemodel library
-		createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "index.tmpl", "IetfTopology-L2"+"/"+"index.html", "dataIetfL2TopoCytoMarshall.json")
+		createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "index.tmpl", "IetfTopology-L2"+"/"+"index.html", "topo-ietf-L2.json")
 		createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "cy-style.tmpl", "IetfTopology-L2"+"/"+"cy-style.json", "")
-		// no need cloudshell
-		// os.Mkdir(htmlPublicPrefixPath+cyTopo.ClabTopoData.ClabTopoName+"/cloudshell", 0755)
-		// createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "cloudshell-index.tmpl", cyTopo.ClabTopoData.ClabTopoName+"/cloudshell/"+"index.html", "")
-		// createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "cloudshell-terminal-js.tmpl", cyTopo.ClabTopoData.ClabTopoName+"/cloudshell/"+"terminal.js", "")
 
 		// start memory logging pulse
 		logWithMemory := createMemoryLog()

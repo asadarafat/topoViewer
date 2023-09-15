@@ -9,6 +9,12 @@
   }
   var routerId = urlParam('RouterID');
   console.log(routerId)
+  
+  var split1 = routerId.toString()
+  split1 = split1.split("?")
+  console.log(split1)
+
+  document.title = split1[1].split("=")[1];
 
   var terminal = new Terminal({
     screenKeys: true,
@@ -51,7 +57,7 @@
       var send = new TextEncoder().encode("\x01" + size);
       console.log('resizing to', size);
 
-      ws.send("ssh admin@" + routerId)
+      ws.send("ssh admin@" + routerId.toString().split("?")[0])
       // ws.send(send);
 
 

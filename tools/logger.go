@@ -47,6 +47,7 @@ type Logs struct {
 // )
 
 func (tool *Logs) InitLogger(filePath string, level uint32) {
+	// os.Stdout sending log to standard IO a.k.a session console
 	mw := io.MultiWriter(os.Stdout, &lumberjack.Logger{
 		// mw := io.MultiWriter(&lumberjack.Logger{
 		Filename:   filePath,

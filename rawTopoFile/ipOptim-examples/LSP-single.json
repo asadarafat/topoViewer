@@ -1,0 +1,259 @@
+{
+    "response": {
+        "status": 0,
+        "startRow": 0,
+        "endRow": 0,
+        "totalRows": 1,
+        "data": [
+            {
+                "pathName": "pccRsvp-from-10.10.10.1-to-10.10.10.7::LOOSE",
+                "pathId": "197-fff712a6-ded7-437e-a255-e2c8995c2d3a",
+                "lspId": "10651-665f6e8b-602b-4db3-991a-5e0d637ca2d0",
+                "tunnelId": 6,
+                "sourceId": "70-3baa0d78-c71d-4311-b49a-9f7f3b46cb60",
+                "destinationId": "10162-30ac647f-5b7e-4539-a42c-93c16ed776ae",
+                "sourceAddress": {
+                    "ipv6Address": null,
+                    "ipv4Address": {
+                        "string": "10.10.10.1"
+                    }
+                },
+                "destinationAddress": {
+                    "ipv6Address": null,
+                    "ipv4Address": {
+                        "string": "10.10.10.7"
+                    }
+                },
+                "sourceRouterAddress": {
+                    "ipv6Address": null,
+                    "ipv4Address": {
+                        "string": "192.168.100.31"
+                    }
+                },
+                "sourceNetworkName": [
+                    "0:65000:1"
+                ],
+                "destinationNetworkName": [
+                    "BGP-0:65000:0",
+                    "0:65000:1"
+                ],
+                "pathType": "RSVP",
+                "creationType": "REQUESTED",
+                "protectionType": "UNKNOWN",
+                "protectionState": "ACTIVE",
+                "computationState": "PATH_FOUND",
+                "administrativeState": "UP",
+                "operationalState": "UP",
+                "lifecycleState": "Deployed",
+                "maintenanceAffected": "NONE",
+                "ownershipState": {
+                    "ownership": {
+                        "consumable": true,
+                        "modifiable": true,
+                        "deletable": false
+                    }
+                },
+                "paramsConfig": null,
+                "paramsState": {
+                    "pathParams": {
+                        "objective": "COST",
+                        "maxCost": null,
+                        "maxHops": 0,
+                        "maxTeMetric": null,
+                        "maxLatency": null,
+                        "bandwidth": 0,
+                        "msd": null,
+                        "setupPriority": 7,
+                        "pathProfile": null,
+                        "pathProfileOverride": null,
+                        "templateId": 0,
+                        "associationGroupPolicy": {},
+                        "associationGroupDiversity": {},
+                        "adminGroupIncludeAll": {
+                            "adminGroup": {
+                                "binary": [
+                                    0,
+                                    0,
+                                    0,
+                                    0
+                                ]
+                            },
+                            "extendedAdminGroup": null
+                        },
+                        "adminGroupIncludeAny": {
+                            "adminGroup": {
+                                "binary": [
+                                    0,
+                                    0,
+                                    0,
+                                    0
+                                ]
+                            },
+                            "extendedAdminGroup": null
+                        },
+                        "adminGroupExcludeAny": {
+                            "adminGroup": {
+                                "binary": [
+                                    0,
+                                    0,
+                                    0,
+                                    0
+                                ]
+                            },
+                            "extendedAdminGroup": null
+                        },
+                        "measuredIpBwUpdateTimestamp": null
+                    }
+                },
+                "provisionedHops": null,
+                "computedHops": {
+                    "pathHops": {
+                        "pathHop": {
+                            "1": {
+                                "hopIndex": 1,
+                                "hopId": 1,
+                                "hopLinkId": null,
+                                "hopType": "STRICT",
+                                "sidHopType": null,
+                                "segmentRouteType": null,
+                                "ipAddress": {
+                                    "ipv6Address": null,
+                                    "ipv4Address": {
+                                        "string": "10.1.3.2"
+                                    }
+                                },
+                                "ifLinkIndex": null,
+                                "routerId": null,
+                                "segmentLabel": 0,
+                                "postProcessedSourceInterface": null,
+                                "postProcessedSourceTp": null,
+                                "postProcessedSourceId": null
+                            },
+                            "2": {
+                                "hopIndex": 2,
+                                "hopId": 2,
+                                "hopLinkId": null,
+                                "hopType": "STRICT",
+                                "sidHopType": null,
+                                "segmentRouteType": null,
+                                "ipAddress": {
+                                    "ipv6Address": null,
+                                    "ipv4Address": {
+                                        "string": "10.3.7.1"
+                                    }
+                                },
+                                "ifLinkIndex": null,
+                                "routerId": null,
+                                "segmentLabel": 0,
+                                "postProcessedSourceInterface": null,
+                                "postProcessedSourceTp": null,
+                                "postProcessedSourceId": null
+                            }
+                        }
+                    }
+                },
+                "recordedHops": {
+                    "pathHops": {
+                        "pathHop": {
+                            "1": {
+                                "hopIndex": 1,
+                                "hopId": 1,
+                                "hopLinkId": "1488-39bdad39-c31d-455b-92df-9ecf6c999d79",
+                                "hopType": "STRICT",
+                                "sidHopType": null,
+                                "segmentRouteType": null,
+                                "ipAddress": {
+                                    "ipv6Address": null,
+                                    "ipv4Address": {
+                                        "string": "10.1.3.1"
+                                    }
+                                },
+                                "ifLinkIndex": null,
+                                "routerId": {
+                                    "dottedQuad": {
+                                        "string": "10.10.10.1"
+                                    }
+                                },
+                                "segmentLabel": 0,
+                                "postProcessedSourceInterface": null,
+                                "postProcessedSourceTp": null,
+                                "postProcessedSourceId": null
+                            },
+                            "2": {
+                                "hopIndex": 2,
+                                "hopId": 2,
+                                "hopLinkId": "5793-400aff94-0a8c-4aa6-82dc-6c98683dda27",
+                                "hopType": "STRICT",
+                                "sidHopType": null,
+                                "segmentRouteType": null,
+                                "ipAddress": {
+                                    "ipv6Address": null,
+                                    "ipv4Address": {
+                                        "string": "10.1.3.2"
+                                    }
+                                },
+                                "ifLinkIndex": null,
+                                "routerId": {
+                                    "dottedQuad": {
+                                        "string": "10.10.10.3"
+                                    }
+                                },
+                                "segmentLabel": 524278,
+                                "postProcessedSourceInterface": {
+                                    "ipv6Address": null,
+                                    "ipv4Address": {
+                                        "string": "10.1.3.1"
+                                    }
+                                },
+                                "postProcessedSourceTp": null,
+                                "postProcessedSourceId": {
+                                    "dottedQuad": {
+                                        "string": "10.10.10.1"
+                                    }
+                                }
+                            },
+                            "3": {
+                                "hopIndex": 3,
+                                "hopId": 3,
+                                "hopLinkId": "10344-03c21b2b-3caa-4a68-a89c-4c50126fa00d",
+                                "hopType": "STRICT",
+                                "sidHopType": null,
+                                "segmentRouteType": null,
+                                "ipAddress": {
+                                    "ipv6Address": null,
+                                    "ipv4Address": {
+                                        "string": "10.3.7.1"
+                                    }
+                                },
+                                "ifLinkIndex": null,
+                                "routerId": {
+                                    "dottedQuad": {
+                                        "string": "10.10.10.7"
+                                    }
+                                },
+                                "segmentLabel": 524209,
+                                "postProcessedSourceInterface": {
+                                    "ipv6Address": null,
+                                    "ipv4Address": {
+                                        "string": "10.3.7.2"
+                                    }
+                                },
+                                "postProcessedSourceTp": null,
+                                "postProcessedSourceId": {
+                                    "dottedQuad": {
+                                        "string": "10.10.10.3"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "administrativeFailureErrorCode": "NO_ERROR",
+                "pathErrorCode": "NO_ERROR",
+                "latency": 0.0,
+                "inSync": true,
+                "pathSearchBehaviorsInvoked": []
+            }
+        ]
+    }
+}

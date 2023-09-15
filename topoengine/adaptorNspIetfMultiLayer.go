@@ -2,10 +2,10 @@ package topoengine
 
 import (
 	"encoding/json"
+	"io/ioutil"
 	"os"
-	"os/user"
-	"path"
 	"strconv"
+	"strings"
 
 	tools "github.com/asadarafat/topoViewer/tools"
 	"github.com/google/uuid"
@@ -23,146 +23,102 @@ func (cyTopo *CytoTopology) InitLoggerIetfMultiL2L3() {
 	toolLogger.InitLogger("logs/topoengine-CytoTopologyIetfMultiLayer.log", cyTopo.LogLevel)
 }
 
-func (cyTopo *CytoTopology) IetfMultiL2L3TopoRead(topoFileL2 string, topoFileL3 []string) {
-	filePathL2, _ := os.Getwd()
-	filePathL2 = path.Join(filePathL2, topoFileL2)
+// Multi Topo Function
+func (cyTopo *CytoTopology) IetfMultiL2L3TopoReadV2(topoFile string) []byte {
+	filePath, _ := os.Getwd()
+	filePath = (filePath + "/rawTopoFile/ietf-topo-examples/")
+	log.Info("topology file path: ", filePath)
+	topoFileBytes, err := ioutil.ReadFile(filePath + "ietf-all-networks.json")
 
-	log.Info("topology file path: ", filePathL2)
-	topoFileBytesL2, err := os.ReadFile(filePathL2)
 	if err != nil {
 		log.Fatal("Error when opening file: ", err)
 	}
-
-	cyTopo.IetfNetworL2TopoData = topoFileBytesL2
-	log.Debug("Code Trace #############")
-
-	var topoL3FileByteCombine [][]byte
-	topoL3FileByteCombine = append(topoL3FileByteCombine, cyTopo.IetfL3TopoRead(topoFileL3[0]))
-	topoL3FileByteCombine = append(topoL3FileByteCombine, cyTopo.IetfL3TopoRead(topoFileL3[1]))
-	topoL3FileByteCombine = append(topoL3FileByteCombine, cyTopo.IetfL3TopoRead(topoFileL3[2]))
-
-	cyTopo.IetfNetworL3TopoData = topoL3FileByteCombine
+	return topoFileBytes
 }
 
-func (cyTopo *CytoTopology) IetfMultiL2L3TopoUnMarshal(L2topoFile []byte, L3topoFile [][]byte, IetfNetworkTopologyMultiL2L3Data IetfNetworkTopologyMultiL2L3) []byte {
-	// get TopoViewer ServerHost Username
-	user, err := user.Current()
+func (cyTopo *CytoTopology) IetfMultiL2L3TopoUnMarshalV2(topoFile []byte, IetfNetworkTopologyMultiL2L3Data IetfNetworkTopologyMultiL2L3) []CytoJson {
+
+	var payload map[string]interface{}
+	var extractedDataSap []map[string]interface{} // Store extracted data here
+	var extractedDataL2 []map[string]interface{}  // Store extracted data here
+	var extractedDataL3 []map[string]interface{}  // Store extracted data here
+
+	err := json.Unmarshal(topoFile, &payload)
 	if err != nil {
-		log.Error(err.Error())
+		log.Error("Error:", err)
 	}
 
-	Username := user.Username
+	networks, networkExists := payload["ietf-network:networks"]
+	if !networkExists {
+		log.Error("No networks found in payload")
+	}
+
+	networkList := networks.(map[string]interface{})["network"].([]interface{})
+	for _, network := range networkList {
+		networkData := network.(map[string]interface{})
+
+		networkTypes, typesExist := networkData["network-types"]
+		if !typesExist {
+			continue // Skip if no network-types
+		}
+
+		networkTypeMap := networkTypes.(map[string]interface{})
+		for key := range networkTypeMap {
+			if strings.Contains(key, "ietf-sap-ntw:sap-network") {
+				// Extract data related to "ietf-sap-ntw:sap-network"
+				extractedDataSap = append(extractedDataSap, networkData)
+				break
+			}
+			if strings.Contains(key, "ietf-l2-topology:l2-topology") {
+				// Extract data related to "ietf-l2-topology:l2-topology"
+				extractedDataL2 = append(extractedDataL2, networkData)
+				break
+			}
+			if strings.Contains(key, "ietf-l3-unicast-topology:l3-unicast-topology") {
+				// Extract data related to "ietf-l3-unicast-topology:l3-unicast-topology"
+				extractedDataL3 = append(extractedDataL3, networkData)
+
+				break
+			}
+
+		}
+	}
+
+	// // Marshal the extracted SAP Topo data to JSON, add "ietf-network:network" header in JSON Output
+	// outputExtractedDataSap := map[string][]map[string]interface{}{
+	// 	"ietf-network:network": extractedDataSap,
+	// }
+	// outputextractedDataJsonSap, err := json.MarshalIndent(outputExtractedDataSap, "", "    ")
+	// if err != nil {
+	// 	log.Info("Error encoding JSON:", err)
+	// }
+
+	// Marshal the extracted L2 Topo data to JSON, add "ietf-network:network" header in JSON Output
+	outputExtractedDataL2 := map[string][]map[string]interface{}{
+		"ietf-network:network": extractedDataL2,
+	}
+	outputextractedDataJsonL2, err := json.MarshalIndent(outputExtractedDataL2, "", "    ")
+	if err != nil {
+		log.Info("Error encoding JSON:", err)
+	}
+
+	// Marshal the extracted L3 Topo data to JSON, add "ietf-network:network" header in JSON Output
+	outputExtractedDataL3 := map[string][]map[string]interface{}{
+		"ietf-network:network": extractedDataL3,
+	}
+	outputextractedDataJsonL3, err := json.MarshalIndent(outputExtractedDataL3, "", "    ")
+	if err != nil {
+		log.Info("Error encoding JSON:", err)
+	}
+
+	// Create Cyto JSON
+	// Create Cyto JSON
 	cytoJson := CytoJson{}
 	cytoJsonList := []CytoJson{}
 
-	// unMarshall L3 Topo - Nodes
-	// unMarshall L3 Topo - Nodes
-	for h := range L3topoFile {
-		json.Unmarshal(L3topoFile[h], &IetfNetworkTopologyMultiL2L3Data.TopologyL3)
-		for i, network := range IetfNetworkTopologyMultiL2L3Data.TopologyL3.IetfNetworkNetwork {
-			nodes := network.NodeList
-			for j, node := range nodes {
-				cytoJson.Group = "nodes"
-				cytoJson.Grabbable = true
-				cytoJson.Selectable = true
-				cytoJson.Data.ID = "L3-" + node.NodeID //taken by cyto as index
-				// cytoJson.Data.ID = "L3-" + network.NetworkID + "-" + node.NodeID //taken by cyto as index
-				cytoJson.Data.Weight = "3"
-				// cytoJson.Data.Name = "L3-" + node.IetfL3UnicastTopologyL3NodeAttributes.Name + "-" + network.NetworkID
-				cytoJson.Data.Name = node.IetfL3UnicastTopologyL3NodeAttributes.Name
-
-				cytoJson.Data.Parent = "L3--" + network.NetworkID
-
-				cytoJson.Data.ExtraData = map[string]interface{}{
-					"ServerUsername":           Username,
-					"IetfMultiL2L3NetworkName": network.NetworkID,
-					"NetworkID":                strconv.Itoa(i),
-					"NodeID":                   node.NodeID,
-					"Weight":                   "3",
-					"Name":                     node.IetfL3UnicastTopologyL3NodeAttributes.Name,
-					"NodeNumber":               j,
-					"NodeAttributes":           node.IetfL3UnicastTopologyL3NodeAttributes,
-					"NodeTerminationPoins":     node.IetfNetworkTopologyTerminationPoint,
-				}
-				cytoJsonList = append(cytoJsonList, cytoJson)
-			}
-			// add Parent Nodes Per Network ID
-			cytoJson.Group = "nodes"
-			cytoJson.Grabbable = true
-			cytoJson.Selectable = true
-			cytoJson.Data.ID = "L3--" + network.NetworkID //taken by cyto as index
-			cytoJson.Data.Weight = "3"
-			cytoJson.Data.Name = "L3--" + network.NetworkID
-			cytoJson.Data.Parent = "ietf-l3-unicast-topology (RFC 8346)"
-			cytoJson.Data.ExtraData = map[string]interface{}{} // empty Extra Data
-			cytoJsonList = append(cytoJsonList, cytoJson)
-		}
-		// add Parent Node For Layer 3
-		cytoJson.Group = "nodes"
-		cytoJson.Grabbable = true
-		cytoJson.Selectable = true
-		cytoJson.Data.ID = "ietf-l3-unicast-topology (RFC 8346)" //taken by cyto as index
-		cytoJson.Data.Weight = "3"
-
-		cytoJson.Data.Name = cytoJson.Data.ID
-		cytoJson.Data.ExtraData = map[string]interface{}{
-			"NodeAttributes": struct {
-				Name string
-			}{"ietf-l3-unicast-topology (RFC 8346)"},
-		}
-		cytoJsonList = append(cytoJsonList, cytoJson)
-
-	}
-
-	// unMarshall L3 Topo - Links
-	// unMarshall L3 Topo - Links
-	for hh := range L3topoFile {
-		json.Unmarshal(L3topoFile[hh], &IetfNetworkTopologyMultiL2L3Data.TopologyL3)
-		for ii, network := range IetfNetworkTopologyMultiL2L3Data.TopologyL3.IetfNetworkNetwork {
-			links := network.LinkList
-			for k, link := range links {
-				cytoJson.Group = "edges"
-				cytoJson.Grabbable = true
-				cytoJson.Selectable = true
-				cytoJson.Data.ID = strconv.Itoa(hh+100) + strconv.Itoa(k+100)
-				cytoJson.Data.Weight = "1"
-				// cytoJson.Data.Source = "L3-" + network.NetworkID + "-" + link.Source.SourceNode[85:len(link.Source.SourceNode)-2]
-				cytoJson.Data.Source = "L3-" + link.Source.SourceNode[85:len(link.Source.SourceNode)-2]
-				// cytoJson.Data.Endpoint.SourceEndpoint = link.Source.SourceTp
-				cytoJson.Data.SourceEndpoint = link.Source.SourceTp
-
-				// cytoJson.Data.Target = "L3-" + network.NetworkID + "-" + link.Destination.DestNode[85:len(link.Destination.DestNode)-2]
-				cytoJson.Data.Target = "L3-" + link.Destination.DestNode[85:len(link.Destination.DestNode)-2]
-				// cytoJson.Data.Endpoint.TargetEndpoint = link.Destination.DestTp
-				cytoJson.Data.TargetEndpoint = link.Destination.DestTp
-
-				cytoJson.Data.Name = link.LinkID
-
-				cytoJson.Data.Kind = "Layer3Link"
-
-				cytoJson.Data.ExtraData = map[string]interface{}{
-					"ClabServerUsername":      Username,
-					"grabbable":               true,
-					"selectable":              true,
-					"ID":                      strconv.Itoa(k),
-					"NetworkID":               strconv.Itoa(ii),
-					"weight":                  "1",
-					"Name":                    link.LinkID,
-					"MultiL2L3LinkAttributes": link.IetfL3UnicastTopologyL3LinkAttributes,
-
-					"Endpoints": struct {
-						SourceEndpoint string
-						TargetEndpoint string
-					}{link.Source.SourceNode, link.Destination.DestNode},
-				}
-				cytoJsonList = append(cytoJsonList, cytoJson)
-			}
-		}
-	}
-
-	// unMarshall L2 Topo
-	// unMarshall L2 Topo
-	json.Unmarshal(L2topoFile, &IetfNetworkTopologyMultiL2L3Data.TopologyL2)
+	// Create Cyto JSON L2 TOPO
+	// Create Cyto JSON L2 TOPO
+	json.Unmarshal(outputextractedDataJsonL2, &IetfNetworkTopologyMultiL2L3Data.TopologyL2)
 	for ii, network := range IetfNetworkTopologyMultiL2L3Data.TopologyL2.IetfNetworkNetwork {
 		nodes := network.NodeList
 		for jj, node := range nodes {
@@ -172,21 +128,19 @@ func (cyTopo *CytoTopology) IetfMultiL2L3TopoUnMarshal(L2topoFile []byte, L3topo
 			cytoJson.Selectable = true
 			cytoJson.Data.ID = "L2-" + node.NodeID
 			cytoJson.Data.Weight = "2"
-			cytoJson.Data.Name = "L2-" + node.IetfL2TopologyL2NodeAttributes.Name
-
-			cytoJson.Data.Parent = "ietf-l2-topology (RFC 8944)"
-
+			cytoJson.Data.Name = node.IetfL2TopologyL2NodeAttributes.Name
+			cytoJson.Data.Parent = "ietf-l2-topology"
+			cytoJson.Data.Kind = "layer2Node"
+			cytoJson.Data.TopoviewerRole = ""
 			cytoJson.Data.ExtraData = map[string]interface{}{
-				"ServerUsername":       Username,
-				"IetfL2NetworkName":    network.NetworkID,
-				"IetfL2NetworkType":    network.NetworkTypes,
-				"NetworkID":            strconv.Itoa(ii),
-				"NodeID":               node.NodeID,
-				"Weight":               "2",
-				"Name":                 node.NodeID,
-				"NodeNumber":           jj,
-				"NodeAttributes":       node.IetfL2TopologyL2NodeAttributes,
-				"NodeTerminationPoins": node.IetfNetworkTopologyTerminationPoint,
+				"networkName":          "ietf-l2-topology",
+				"networkType":          network.NetworkTypes,
+				"networkID":            strconv.Itoa(ii),
+				"nodeID":               node.NodeID,
+				"weight":               "2",
+				"nodeNumber":           jj,
+				"nodeAttributes":       node.IetfL2TopologyL2NodeAttributes,
+				"nodeTerminationPoins": node.IetfNetworkTopologyTerminationPoint,
 			}
 			cytoJsonList = append(cytoJsonList, cytoJson)
 			// log.Info(j)
@@ -196,7 +150,7 @@ func (cyTopo *CytoTopology) IetfMultiL2L3TopoUnMarshal(L2topoFile []byte, L3topo
 			cytoJson.Group = "edges"
 			cytoJson.Grabbable = true
 			cytoJson.Selectable = true
-			cytoJson.Data.ID = strconv.Itoa(k)
+			cytoJson.Data.ID = uuid.NewString()
 			cytoJson.Data.Weight = "1"
 			cytoJson.Data.Source = "L2-" + link.Source.SourceNode[70:len(link.Source.SourceNode)-2]
 			// cytoJson.Data.Endpoint.SourceEndpoint = link.Source.SourceTp
@@ -205,29 +159,21 @@ func (cyTopo *CytoTopology) IetfMultiL2L3TopoUnMarshal(L2topoFile []byte, L3topo
 			cytoJson.Data.Target = "L2-" + link.Destination.DestNode[70:len(link.Destination.DestNode)-2]
 			// cytoJson.Data.Endpoint.TargetEndpoint = link.Destination.DestTp
 			cytoJson.Data.TargetEndpoint = link.Destination.DestTp
-
 			cytoJson.Data.Name = link.LinkID
-			cytoJson.Data.Kind = "Layer2Link"
+			cytoJson.Data.Kind = "layer2Link"
 
 			cytoJson.Data.ExtraData = map[string]interface{}{
-				"TopoviewerServerUsername": Username,
-				"grabbable":                true,
-				"selectable":               true,
-				"ID":                       strconv.Itoa(k),
-				"weight":                   "1",
-				"Name":                     link.IetfL2TopologyL2LinkAttributes.Name,
-				"Rate":                     link.IetfL2TopologyL2LinkAttributes.Rate,
-				"Delay":                    link.IetfL2TopologyL2LinkAttributes.Delay,
-				"Auto-nego":                link.IetfL2TopologyL2LinkAttributes.AutoNego,
-				"Duplex":                   link.IetfL2TopologyL2LinkAttributes.Duplex,
-				"Flags":                    link.IetfL2TopologyL2LinkAttributes.Flags,
-				"L2LinkAttributes":         link.IetfL2TopologyL2LinkAttributes,
-				// "NspAttributes": link.IetfL2TopologyL2LinkAttributes.NspIetfNetworkTopologyNspAttributes,
-
-				"Endpoints": struct {
+				"networkName":      "ietf-l2-topology",
+				"id":               strconv.Itoa(k),
+				"weight":           "1",
+				"l2LinkAttributes": link.IetfL2TopologyL2LinkAttributes,
+				"nspAttributes":    link.IetfL2TopologyL2LinkAttributes.NspIetfNetworkTopologyNspAttributes,
+				"endpoints": struct {
 					SourceEndpoint string
 					TargetEndpoint string
-				}{link.Source.SourceNode, link.Destination.DestNode},
+				}{link.Source.SourceNode,
+					link.Destination.DestNode,
+				},
 			}
 			cytoJsonList = append(cytoJsonList, cytoJson)
 		}
@@ -235,88 +181,146 @@ func (cyTopo *CytoTopology) IetfMultiL2L3TopoUnMarshal(L2topoFile []byte, L3topo
 		cytoJson.Group = "nodes"
 		cytoJson.Grabbable = true
 		cytoJson.Selectable = true
-		cytoJson.Data.ID = "ietf-l2-topology (RFC 8944)" //taken by cyto as index
+		cytoJson.Data.ID = "ietf-l2-topology" //taken by cyto as index
 		cytoJson.Data.Weight = "3"
 		cytoJson.Data.Name = cytoJson.Data.ID
+		cytoJson.Data.TopoviewerRole = "parent-l2"
 		cytoJson.Data.ExtraData = map[string]interface{}{
-			"NodeAttributes": struct {
+			"nodeAttributes": struct {
 				Name string
-			}{"ietf-l2-topology (RFC 8944)"},
+			}{"ietf-l2-topology"},
 		}
 		cytoJsonList = append(cytoJsonList, cytoJson)
 	}
 
-	// add Linkage between L2 and L3 Nodes
-	for hh := range L3topoFile {
-		json.Unmarshal(L3topoFile[hh], &IetfNetworkTopologyMultiL2L3Data.TopologyL3)
-
-		for ii, network := range IetfNetworkTopologyMultiL2L3Data.TopologyL3.IetfNetworkNetwork {
-			nodes := network.NodeList
-			for jj, node := range nodes {
-				// for kk, NodeTerminationPoins := range node.IetfNetworkTopologyTerminationPoint {
-				cytoJson.Group = "edges"
-				cytoJson.Grabbable = true
-				cytoJson.Selectable = true
-				cytoJson.Data.ID = uuid.NewString()
-
-				cytoJson.Data.Weight = "1"
-				cytoJson.Data.Source = "L3-" + node.NodeID
-				// cytoJson.Data.Endpoint.SourceEndpoint = NodeTerminationPoins.TpID
-				cytoJson.Data.Target = "L2-" + node.NodeID
-				// cytoJson.Data.Endpoint.TargetEndpoint = NodeTerminationPoins.TpID
-				cytoJson.Data.Name = "MultiLayer--" + cytoJson.Data.Source + "---" + cytoJson.Data.Target
-
-				cytoJson.Data.Kind = "MultiLayerLink"
-
-				cytoJson.Data.ExtraData = map[string]interface{}{
-					"ClabServerUsername": Username,
-					"NetworkID":          ii,
-					"grabbable":          true,
-					"selectable":         true,
-					"ID":                 cytoJson.Data.ID,
-					"weight":             "1",
-
-					"Endpoints": struct {
-						SourceEndpoint string
-						TargetEndpoint string
-					}{"L3-" + node.NodeID, "L2-" + node.NodeID},
-				}
-				cytoJsonList = append(cytoJsonList, cytoJson)
-				log.Debug(jj)
-				// }
+	// Create Cyto JSON L3 TOPO
+	// Create Cyto JSON L3 TOPO
+	json.Unmarshal(outputextractedDataJsonL3, &IetfNetworkTopologyMultiL2L3Data.TopologyL3)
+	for i, network := range IetfNetworkTopologyMultiL2L3Data.TopologyL3.IetfNetworkNetwork {
+		nodes := network.NodeList
+		for j, node := range nodes {
+			cytoJson.Group = "nodes"
+			cytoJson.Grabbable = true
+			cytoJson.Selectable = true
+			cytoJson.Data.ID = "L3-" + node.NodeID + "--" + network.NetworkID //taken by cyto as index
+			cytoJson.Data.Weight = "3"
+			cytoJson.Data.Name = node.IetfL3UnicastTopologyL3NodeAttributes.Name
+			cytoJson.Data.Parent = "L3--" + network.NetworkID
+			cytoJson.Data.Kind = "layer3Node"
+			cytoJson.Data.TopoviewerRole = ""
+			cytoJson.Data.ExtraData = map[string]interface{}{
+				"networkName":          "ietf-l3-unicast-topology",
+				"networkType":          network.NetworkTypes,
+				"networkID":            strconv.Itoa(i),
+				"nodeID":               node.NodeID,
+				"weight":               "3",
+				"nodeNumber":           j,
+				"nodeAttributes":       node.IetfL3UnicastTopologyL3NodeAttributes,
+				"nodeTerminationPoins": node.IetfNetworkTopologyTerminationPoint,
 			}
+			cytoJsonList = append(cytoJsonList, cytoJson)
+		}
+		links := network.LinkList
+		for _, link := range links {
+			cytoJson.Group = "edges"
+			cytoJson.Grabbable = true
+			cytoJson.Selectable = true
+			cytoJson.Data.ID = uuid.NewString()
+			cytoJson.Data.Weight = "1"
+			cytoJson.Data.Source = "L3-" + link.Source.SourceNode[85:len(link.Source.SourceNode)-2] + "--" + network.NetworkID
+			cytoJson.Data.SourceEndpoint = link.Source.SourceTp
+			cytoJson.Data.Target = "L3-" + link.Destination.DestNode[85:len(link.Destination.DestNode)-2] + "--" + network.NetworkID
+			cytoJson.Data.TargetEndpoint = link.Destination.DestTp
+			cytoJson.Data.Name = link.LinkID
+			cytoJson.Data.Kind = "layer3Link"
+
+			cytoJson.Data.ExtraData = map[string]interface{}{
+				"networkName":      "ietf-l3-unicast-topology",
+				"l3LinkAttributes": link.IetfL3UnicastTopologyL3LinkAttributes,
+				"endpoints": struct {
+					SourceEndpoint string
+					TargetEndpoint string
+				}{link.Source.SourceNode, link.Destination.DestNode},
+			}
+			cytoJsonList = append(cytoJsonList, cytoJson)
+		}
+
+		// add Parent Nodes Per Network ID
+		cytoJson.Group = "nodes"
+		cytoJson.Grabbable = true
+		cytoJson.Selectable = true
+		cytoJson.Data.ID = "L3--" + network.NetworkID //taken by cyto as index
+		cytoJson.Data.Weight = "3"
+		cytoJson.Data.Name = "L3--" + network.NetworkID
+		cytoJson.Data.Parent = "ietf-l3-unicast-topology"
+		cytoJson.Data.TopoviewerRole = "parent"
+		cytoJson.Data.ExtraData = map[string]interface{}{
+			"nodeAttributes": struct {
+				name string
+			}{network.NetworkID},
+		}
+		cytoJsonList = append(cytoJsonList, cytoJson)
+	}
+
+	// add Parent Node For Layer 3
+	cytoJson.Group = "nodes"
+	cytoJson.Grabbable = true
+	cytoJson.Selectable = true
+	cytoJson.Data.ID = "ietf-l3-unicast-topology" //taken by cyto as index
+	cytoJson.Data.Weight = "3"
+	cytoJson.Data.Name = cytoJson.Data.ID
+	cytoJson.Data.TopoviewerRole = "parent"
+	cytoJson.Data.ExtraData = map[string]interface{}{
+		"nodeAttributes": struct {
+			name string
+		}{"ietf-l3-unicast-topology"},
+	}
+	cytoJsonList = append(cytoJsonList, cytoJson)
+
+	// add Linkage between L2 and L3 Nodes
+	for ii, network := range IetfNetworkTopologyMultiL2L3Data.TopologyL3.IetfNetworkNetwork {
+		nodes := network.NodeList
+		for _, node := range nodes {
+			// for kk, NodeTerminationPoins := range node.IetfNetworkTopologyTerminationPoint {
+			cytoJson.Group = "edges"
+			cytoJson.Grabbable = true
+			cytoJson.Selectable = true
+			cytoJson.Data.ID = uuid.NewString()
+			cytoJson.Data.Weight = "1"
+			cytoJson.Data.Source = "L3-" + node.NodeID + "--" + network.NetworkID
+			cytoJson.Data.Target = "L2-" + node.NodeID
+			cytoJson.Data.Name = "MultiLayer--" + cytoJson.Data.Source + "---" + cytoJson.Data.Target
+			cytoJson.Data.Kind = "MultiLayerLink"
+			cytoJson.Data.ExtraData = map[string]interface{}{
+				"networkID": ii,
+				"endpoints": struct {
+					SourceEndpoint string
+					TargetEndpoint string
+				}{"L3-" + node.NodeID, "L2-" + node.NodeID},
+			}
+			cytoJsonList = append(cytoJsonList, cytoJson)
+
 		}
 	}
-
-	// Throw unmarshalled result to log
-	// log.Debug("cytoJsonList: ", cytoJsonList)
-	jsonBytesCytoUi, err := json.MarshalIndent(cytoJsonList, "", "  ")
-	if err != nil {
-		log.Error(err)
-		panic(err)
-	}
-
-	_, err = os.Stdout.Write(jsonBytesCytoUi)
-	if err != nil {
-		log.Error(err)
-		panic(err)
-	}
-	// log.Debug("jsonBytesCytoUi Result:", string(jsonBytesCytoUi))
-	return jsonBytesCytoUi
+	return cytoJsonList
 }
 
-func (cyTopo *CytoTopology) IetfMultiLayerTopoPrintjsonBytesCytoUi(marshaledJsonBytesCytoUi []byte) error {
+func (cyTopo *CytoTopology) IetfMultiLayerTopoPrintjsonBytesCytoUiV2(marshaledJsonBytesCytoUiL2Topo []byte) error {
 	// Create file
 	os.Mkdir("./html-public/"+"IetfTopology-MultiLayer", 0755)
-	file, err := os.Create("html-public/" + "IetfTopology-MultiLayer" + "/dataIetfMultiLayerTopoCytoMarshall.json")
+	file, err := os.Create("html-public/" + "IetfTopology-MultiLayer" + "/IetfTopology-MultiLayer" + ".json")
 	if err != nil {
 		log.Error("Could not create json file for graph")
 	}
 
 	// Write to file
-	_, err = file.Write(marshaledJsonBytesCytoUi)
+	_, err = file.Write(marshaledJsonBytesCytoUiL2Topo)
 	if err != nil {
 		log.Error("Could not write json to file")
 	}
+	// _, err = file.Write(marshaledJsonBytesCytoUiL3Topo)
+	// if err != nil {
+	// 	log.Error("Could not write json to file")
+	// }
 	return err
 }

@@ -9,6 +9,7 @@ import (
 	"path"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/asadarafat/topoViewer/topoengine"
@@ -89,7 +90,7 @@ var confClab = config.Map{
 	"server-port": &config.Int{
 		Default:   8080,
 		Usage:     "port the server should listen on",
-		Shorthand: "p",
+		Shorthand: "P",
 	},
 	"workdir": &config.String{
 		Default:   ".",
@@ -111,6 +112,11 @@ var confClab = config.Map{
 		Usage:     "containerLab server host user",
 		Shorthand: "u",
 	},
+	"clab-pass": &config.String{
+		Default:   "root",
+		Usage:     "containerLab server host password",
+		Shorthand: "p",
+	},
 }
 
 // var rootCommand = cobra.Command{
@@ -127,6 +133,10 @@ var upgrader = websocket.Upgrader{
 	WriteBufferSize: 2048,
 	CheckOrigin:     func(r *http.Request) bool { return true },
 }
+
+var StartTime = time.Now()
+var connections = make(map[*websocket.Conn]bool)
+var connectionsMu sync.Mutex
 
 func init() {
 	// initialise the logger config clabCommand
@@ -165,8 +175,8 @@ func reader(conn *websocket.Conn) {
 }
 
 func Clab(_ *cobra.Command, _ []string) error {
-	// initialise the logger
-	tools.InitCloudShellLog(tools.Format(confClab.GetString("log-format")), tools.Level(confClab.GetString("log-level")))
+	// initialise the cloudshellLogger
+	// tools.InitCloudShellLog(tools.Format(confClab.GetString("log-format")), tools.Level(confClab.GetString("log-level")))
 
 	// tranform clab-topo-file into cytoscape-model
 	// aarafat-tag: check if provided topo in json or yaml
@@ -180,7 +190,7 @@ func Clab(_ *cobra.Command, _ []string) error {
 	toolLogger.InitLogger("logs/topoengine-CytoTopology.log", cyTopo.LogLevel)
 
 	//// Clab Version 2
-	log.Debugf("topo Clab: ", topoClab)
+	//log.Debug("topo Clab: ", topoClab)
 	log.Debug("Code Trace Point ####")
 	topoFile := cyTopo.ClabTopoRead(topoClab) // loading containerLab export-topo json file
 	jsonBytes := cyTopo.UnmarshalContainerLabTopoV2(topoFile)
@@ -288,25 +298,22 @@ func Clab(_ *cobra.Command, _ []string) error {
 			log.Info("##################### cloudshell-tools")
 		})
 
-	// websocket endpoint
+	// // websocket endpoint
+	// // websocket endpoint
 	router.HandleFunc("/ws",
-		// router.HandleFunc("/",
 		func(w http.ResponseWriter, r *http.Request) {
 			// upgrade this connection to a WebSocket
 			// connection
-			log.Info("##################### " + VersionInfo)
-
 			ws, err := upgrader.Upgrade(w, r, nil)
 			if err != nil {
 				log.Info(err)
 			}
-			log.Infof("################## Websocket: Client Connected")
+			log.Info("################## Websocket: Client Connected ws")
 			w.WriteHeader(http.StatusOK)
 
 			var message []byte
 
 			// simulating telemetry data..
-
 			rand.Seed(time.Now().UnixNano())
 			var number int
 
@@ -318,11 +325,111 @@ func Clab(_ *cobra.Command, _ []string) error {
 					log.Info(err)
 				}
 				time.Sleep(2 * time.Second)
+				log.Info(message)
 			}
 
 			// listen indefinitely for new messages coming
 			// through on our WebSocket connection
 			reader(ws)
+		})
+
+	// // websocketUptime endpoint
+	// // websocketUptime endpoint
+	router.HandleFunc("/uptime",
+		func(w http.ResponseWriter, r *http.Request) {
+			var message time.Duration
+
+			// upgrade this connection to a WebSocket
+			// connection
+			uptime, err := upgrader.Upgrade(w, r, nil)
+			if err != nil {
+				log.Info(err)
+			}
+			log.Infof("################## Websocket: Client Connected Uptime")
+			w.WriteHeader(http.StatusOK)
+
+			// simulating uptime..
+			// Add the new connection to the active connections list
+			connectionsMu.Lock()
+			connections[uptime] = true
+			connectionsMu.Unlock()
+
+			for {
+				log.Debugf("uptime %s\n", time.Since(StartTime))
+				message = time.Since(StartTime)
+				uptimeString := strings.Split(strings.Split(message.String(), "s")[0], ".")[0] + "s"
+				err = uptime.WriteMessage(1, []byte(uptimeString))
+				if err != nil {
+					// Remove the connection from the active connections list when the client disconnects
+					if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
+						log.Debug("Error writing message:", err)
+						connectionsMu.Lock()
+						delete(connections, uptime)
+						connectionsMu.Unlock()
+						log.Info(err)
+					}
+				}
+				time.Sleep(time.Second * 10)
+			}
+		})
+	// // websocketdockerNodeStatus endpoint
+	// // websocketdockerNodeStatus endpoint
+	router.HandleFunc("/dockerNodeStatus",
+		func(w http.ResponseWriter, r *http.Request) {
+			// upgrade this connection to a WebSocket
+			// connection
+			dockerNodeStatus, err := upgrader.Upgrade(w, r, nil)
+			if err != nil {
+				log.Info(err)
+			}
+			log.Debug("################## Websocket: Docker Node Status")
+			w.WriteHeader(http.StatusOK)
+
+			clabUser := confClab.GetString("clab-user")
+			log.Debug("################## clabUser: " + clabUser)
+
+			clabHost := confClab.GetStringSlice("allowed-hostnames")
+			log.Debug("################## clabHost: " + clabHost[0])
+
+			clabPass := confClab.GetString("clab-pass")
+			log.Debug("################## clabHost: " + clabPass)
+
+			// simulating dockerNodeStatus..
+			// Add the new connection to the active connections list
+
+			// Start an infinite loop
+			for {
+				// Print the sample GetDockerNodeStatus
+				// log.Infof(string(cyTopo.GetDockerNodeStatus("clab-nokia-MAGc-lab-AGG-UPF01")))
+				// log.Infof("node name:'%s'... ", cyTopo.ClabTopoDataV2.Nodes[0].Longname)
+
+				for _, n := range cyTopo.ClabTopoDataV2.Nodes {
+					dockerNodeStatus.WriteMessage(1, cyTopo.GetDockerNodeStatus(n.Longname, clabUser, clabHost[0], clabPass))
+					if err != nil {
+						log.Error(err)
+					}
+				}
+				// Pause for a short duration (e.g., 5 seconds)
+				time.Sleep(time.Second * 5)
+			}
+		})
+
+	// // websocketclabServerAddress endpoint
+	// // websocketclabServerAddress endpoint
+	router.HandleFunc("/clabServerAddress",
+		func(w http.ResponseWriter, r *http.Request) {
+			// upgrade this connection to a WebSocket
+			// connection
+			clabServerAddress, err := upgrader.Upgrade(w, r, nil)
+			if err != nil {
+				log.Info(err)
+			}
+			clabHost := confClab.GetStringSlice("allowed-hostnames")
+			log.Debug("################## clabHost: " + clabHost[0])
+
+			w.WriteHeader(http.StatusOK)
+			// Add the new connection to the active connections list
+			clabServerAddress.WriteMessage(1, []byte(clabHost[0]))
 		})
 
 	// this is the endpoint for serving xterm.js assets

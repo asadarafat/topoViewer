@@ -1,13 +1,18 @@
 package topoengine
 
 import (
+	"bytes"
 	"encoding/json"
+	"strings"
+
 	"os"
 	"os/user"
 	"path"
 	"strconv"
 
 	"github.com/samber/lo"
+	"golang.org/x/crypto/ssh"
+
 	log "github.com/sirupsen/logrus"
 
 	tools "github.com/asadarafat/topoViewer/tools"
@@ -77,6 +82,24 @@ type ClabTopoV2 struct {
 	} `json:"links"`
 }
 
+// Define a struct to match the structure of the JSON data
+type DockerNodeStatus struct {
+	Command      string `json:"Command"`
+	CreatedAt    string `json:"CreatedAt"`
+	ID           string `json:"ID"`
+	Image        string `json:"Image"`
+	Labels       string `json:"Labels"`
+	LocalVolumes string `json:"LocalVolumes"`
+	Mounts       string `json:"Mounts"`
+	Names        string `json:"Names"`
+	Networks     string `json:"Networks"`
+	Ports        string `json:"Ports"`
+	RunningFor   string `json:"RunningFor"`
+	Size         string `json:"Size"`
+	State        string `json:"State"`
+	Status       string `json:"Status"`
+}
+
 func (cyTopo *CytoTopology) InitLoggerClabV2() {
 	// init logConfig
 	toolLogger := tools.Logs{}
@@ -87,9 +110,11 @@ func (cyTopo *CytoTopology) ClabTopoRead(topoFile string) []byte {
 	// log.Info(topoFile)
 
 	filePath, _ := os.Getwd()
-	filePath = path.Join(filePath, topoFile)
-
 	log.Info("topology file path: ", filePath)
+
+	filePath = path.Join(filePath, topoFile)
+	log.Info("topology file path: ", filePath)
+
 	topoFileBytes, err := os.ReadFile(filePath)
 	if err != nil {
 		log.Fatal("Error when opening file: ", err)
@@ -102,7 +127,10 @@ func (cyTopo *CytoTopology) UnmarshalContainerLabTopoV2(topoFile []byte) []byte 
 
 	// initiate cytoJson struct
 	cytoJson := CytoJson{}
+	cytoJsonNodeStatusRed := CytoJson{}
+	cytoJsonNodeStatusGreen := CytoJson{}
 	cytoJsonList := []CytoJson{}
+
 	var topoviewerParentList []string
 
 	// unmarshal topoFile into clabTopoStruct
@@ -129,13 +157,10 @@ func (cyTopo *CytoTopology) UnmarshalContainerLabTopoV2(topoFile []byte) []byte 
 			cytoJson.Data.Parent = node.Group
 		}
 
-		// else {
-		// 	cytoJson.Data.Parent = "other"
-		// }
-
+		// create list of parent nodes
 		topoviewerParentList = append(topoviewerParentList, cytoJson.Data.Parent)
 
-		log.Debugf("node.Labels.ClabMgmtNetBridge: ", node.Labels.ClabMgmtNetBridge)
+		log.Debug("node.Labels.ClabMgmtNetBridge: ", node.Labels.ClabMgmtNetBridge)
 		// cytoJson.Data.ExtraData = node
 		cytoJson.Data.ExtraData = map[string]interface{}{
 			"clabServerUsername":    Username,
@@ -179,11 +204,37 @@ func (cyTopo *CytoTopology) UnmarshalContainerLabTopoV2(topoFile []byte) []byte 
 				node.Labels.TopoViewerRole,
 			},
 		}
-		cytoJsonList = append(cytoJsonList, cytoJson)
+
+		cytoJsonNodeStatusRed.Group = "nodes"
+		cytoJsonNodeStatusRed.Grabbable = false
+		cytoJsonNodeStatusRed.Selectable = false
+		cytoJsonNodeStatusRed.Data.ID = node.ID + "-statusRed"
+		cytoJsonNodeStatusRed.Data.Weight = "30"
+		cytoJsonNodeStatusRed.Data.Name = node.ID + "-statusRed"
+
+		if len(node.Group) != 0 {
+			cytoJsonNodeStatusRed.Data.Parent = node.Group
+		}
+
+		cytoJsonNodeStatusGreen.Group = "nodes"
+		cytoJsonNodeStatusGreen.Grabbable = false
+		cytoJsonNodeStatusGreen.Selectable = false
+		cytoJsonNodeStatusGreen.Data.ID = node.ID + "-statusGreen"
+		cytoJsonNodeStatusGreen.Data.Weight = "30"
+		cytoJsonNodeStatusGreen.Data.Name = node.ID + "-statusGreen"
+
+		if len(node.Group) != 0 {
+			cytoJsonNodeStatusGreen.Data.Parent = node.Group
+		}
+
+		// create list of parent nodes
+		topoviewerParentList = append(topoviewerParentList, cytoJson.Data.Parent)
+
+		cytoJsonList = append(cytoJsonList, cytoJson, cytoJsonNodeStatusRed, cytoJsonNodeStatusGreen)
 	}
 
 	uniqTopoviewerParentList := lo.Uniq(topoviewerParentList)
-	log.Debugf("Unique Parent List: ", uniqTopoviewerParentList)
+	log.Debug("Unique Parent List: ", uniqTopoviewerParentList)
 
 	// add Parent Nodes Per topoviewerRoleList
 	for _, n := range uniqTopoviewerParentList {
@@ -236,12 +287,12 @@ func (cyTopo *CytoTopology) UnmarshalContainerLabTopoV2(topoFile []byte) []byte 
 		log.Error(err)
 		panic(err)
 	}
-	log.Debugf("jsonBytesCytoUi Result:", string(jsonBytesCytoUi))
+	log.Debug("jsonBytesCytoUi Result:", string(jsonBytesCytoUi))
 
 	return jsonBytesCytoUi
 }
 
-func (cyTopo *CytoTopology) PrintjsonBytesCytoUiV2(marshaledJsonBytesCytoUi []byte) error {
+func (cyTopo *CytoTopology) PrintjsonBytesCytoUiV2(JsonBytesCytoUiMarshaled []byte) error {
 	// Create file
 	os.Mkdir("./html-public/"+cyTopo.ClabTopoDataV2.Name, 0755)
 	file, err := os.Create("html-public/" + cyTopo.ClabTopoDataV2.Name + "/dataCytoMarshall-" + cyTopo.ClabTopoDataV2.Name + ".json")
@@ -250,9 +301,91 @@ func (cyTopo *CytoTopology) PrintjsonBytesCytoUiV2(marshaledJsonBytesCytoUi []by
 	}
 
 	// Write to file
-	_, err = file.Write(marshaledJsonBytesCytoUi)
+	_, err = file.Write(JsonBytesCytoUiMarshaled)
 	if err != nil {
 		log.Error("Could not write json to file")
 	}
 	return err
+}
+
+func (cyTopo *CytoTopology) GetDockerNodeStatus(clabNodeName string, clabUser string, clabHost string, clabPassword string) []byte {
+	// // get docker node status using exec
+	// command := "docker ps --all --format json"
+
+	// // Split the command into parts
+	// parts := strings.Fields(command)
+	// cmd := exec.Command(parts[0], parts[1:]...)
+
+	// // CombinedOutput runs the command and returns its combined standard output and standard error.
+	// output, err := cmd.CombinedOutput()
+
+	config := &ssh.ClientConfig{
+		User: "root",
+		Auth: []ssh.AuthMethod{
+			ssh.Password(clabPassword),
+		},
+		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+	}
+
+	log.Debug("clabUser: " + clabUser)
+	log.Debug("clabHost: " + clabHost)
+	log.Debug("clabPassword: " + clabPassword)
+
+	client, err := ssh.Dial("tcp", clabHost+":22", config)
+	if err != nil {
+		log.Fatal("Failed to dial: ", err)
+	}
+
+	// Each ClientConn can support multiple interactive sessions,
+	// represented by a Session.
+	session, err := client.NewSession()
+	if err != nil {
+		log.Fatal("Failed to create session: ", err)
+	}
+	defer session.Close()
+
+	// Once a Session is created, you can execute a single command on
+	// the remote side using the Run method.
+	var b bytes.Buffer
+	session.Stdout = &b
+	if err := session.Run("docker ps --all --format json"); err != nil {
+		log.Fatal("Failed to run: " + err.Error())
+	}
+	// fmt.Println(b.String())
+
+	output := b.String()
+
+	var outputParsed DockerNodeStatus
+	var OutputParsedMarshalled []byte
+
+	if err != nil {
+		log.Error("Error:", err)
+	}
+	// log.Debug(string(output))
+
+	lines := strings.Split(string(output), "\n")
+
+	for _, line := range lines {
+		if line == "" {
+			continue
+		}
+
+		var dockerNodeStatus DockerNodeStatus
+		err := json.Unmarshal([]byte(line), &dockerNodeStatus)
+		if err != nil {
+			log.Debug("Error parsing JSON:", err)
+			continue
+		}
+		if dockerNodeStatus.Names == clabNodeName {
+			json.Unmarshal([]byte(line), &outputParsed)
+			OutputParsedMarshalled, err := json.MarshalIndent(outputParsed, "", "  ")
+			if err != nil {
+				log.Error(err)
+				panic(err)
+			}
+			return OutputParsedMarshalled
+		}
+	}
+	return OutputParsedMarshalled
+
 }
