@@ -1,0 +1,409 @@
+{
+  "name": "nokia-MAGc-lab",
+  "type": "clab",
+  "clab": {
+    "config": {
+      "prefix": "clab",
+      "mgmt": {
+        "network": "custom_mgmt",
+        "bridge": "br1-private",
+        "ipv4-subnet": "10.10.10.0/24",
+        "ipv4-gw": "10.10.10.11",
+        "ipv6-gw": "fe80::79c3:3149:21a:2365",
+        "mtu": "1500",
+        "external-access": false
+      }
+    }
+  },
+  "nodes": [
+    { 
+      "id": "AGG-UPF01",
+      "index": "0",
+      "shortname": "AGG-UPF01",
+      "longname": "clab-nokia-MAGc-lab-AGG-UPF01",
+      "fqdn": "AGG-UPF01.nokia-MAGc-lab.io",
+      "group": "IP-Core",
+      "labdir": "/root/clab/bng-cups/nokia-MultiAccessGateway-lab/clab-nokia-MAGc-lab/AGG-UPF01",
+      "kind": "vr-sros",
+      "image": "registry.srlinux.dev/pub/vr-sros:23.3.R1",
+      "mgmt-net": "",
+      "mgmt-intf": "",
+      "mgmt-ipv4-address": "10.10.10.204",
+      "mgmt-ipv4-prefix-length": 24,
+      "mgmt-ipv6-address": "",
+      "mgmt-ipv6-prefix-length": 0,
+      "mac-address": "",
+      "labels": {
+        "clab-mgmt-net-bridge": "br1-private",
+        "clab-node-group": "IP-Core",
+        "clab-node-kind": "vr-sros",
+        "clab-node-lab-dir": "/root/clab/bng-cups/nokia-MultiAccessGateway-lab/clab-nokia-MAGc-lab/AGG-UPF01",
+        "clab-node-name": "AGG-UPF01",
+        "clab-node-type": "chassis=sr-1 slot=A card=cpm-1 slot=1 mda/1=me6-100gb-qsfp28 mda/2=me6-100gb-qsfp28",
+        "clab-topo-file": "/root/clab/bng-cups/nokia-MultiAccessGateway-lab/topo-nokia-MAG-lab.yaml",
+        "containerlab": "nokia-MAGc-lab",
+        "topo-viewer-role": "pe"
+      }
+    },
+    { 
+      "id": "AGG-UPF02",
+      "index": "1",
+      "shortname": "AGG-UPF02",
+      "longname": "clab-nokia-MAGc-lab-AGG-UPF02",
+      "fqdn": "AGG-UPF02.nokia-MAGc-lab.io",
+      "group": "IP-Core",
+      "labdir": "/root/clab/bng-cups/nokia-MultiAccessGateway-lab/clab-nokia-MAGc-lab/AGG-UPF02",
+      "kind": "vr-sros",
+      "image": "registry.srlinux.dev/pub/vr-sros:23.3.R1",
+      "mgmt-net": "",
+      "mgmt-intf": "",
+      "mgmt-ipv4-address": "10.10.10.205",
+      "mgmt-ipv4-prefix-length": 24,
+      "mgmt-ipv6-address": "",
+      "mgmt-ipv6-prefix-length": 0,
+      "mac-address": "",
+      "labels": {
+        "clab-mgmt-net-bridge": "br1-private",
+        "clab-node-group": "IP-Core",
+        "clab-node-kind": "vr-sros",
+        "clab-node-lab-dir": "/root/clab/bng-cups/nokia-MultiAccessGateway-lab/clab-nokia-MAGc-lab/AGG-UPF02",
+        "clab-node-name": "AGG-UPF02",
+        "clab-node-type": "chassis=sr-1 slot=A card=cpm-1 slot=1 mda/1=me6-100gb-qsfp28 mda/2=me6-100gb-qsfp28",
+        "clab-topo-file": "/root/clab/bng-cups/nokia-MultiAccessGateway-lab/topo-nokia-MAG-lab.yaml",
+        "containerlab": "nokia-MAGc-lab",
+        "topo-viewer-role": "pe"
+      }
+    },
+    { 
+      "id": "BngBlaster_01",
+      "index": "2",
+      "shortname": "BngBlaster_01",
+      "longname": "clab-nokia-MAGc-lab-BngBlaster_01",
+      "fqdn": "BngBlaster_01.nokia-MAGc-lab.io",
+      "group": "Residential",
+      "labdir": "/root/clab/bng-cups/nokia-MultiAccessGateway-lab/clab-nokia-MAGc-lab/BngBlaster_01",
+      "kind": "linux",
+      "image": "ghcr.io/asadarafat/bngblaster:main",
+      "mgmt-net": "",
+      "mgmt-intf": "",
+      "mgmt-ipv4-address": "10.10.10.212",
+      "mgmt-ipv4-prefix-length": 24,
+      "mgmt-ipv6-address": "",
+      "mgmt-ipv6-prefix-length": 0,
+      "mac-address": "",
+      "labels": {
+        "clab-mgmt-net-bridge": "br1-private",
+        "clab-node-group": "Residential",
+        "clab-node-kind": "linux",
+        "clab-node-lab-dir": "/root/clab/bng-cups/nokia-MultiAccessGateway-lab/clab-nokia-MAGc-lab/BngBlaster_01",
+        "clab-node-name": "BngBlaster_01",
+        "clab-node-type": "",
+        "clab-topo-file": "/root/clab/bng-cups/nokia-MultiAccessGateway-lab/topo-nokia-MAG-lab.yaml",
+        "containerlab": "nokia-MAGc-lab",
+        "topo-viewer-role": "rgw"
+      }
+    },
+    { 
+      "id": "BngBlaster_02",
+      "index": "3",
+      "shortname": "BngBlaster_02",
+      "longname": "clab-nokia-MAGc-lab-BngBlaster_02",
+      "fqdn": "BngBlaster_02.nokia-MAGc-lab.io",
+      "group": "Residential",
+      "labdir": "/root/clab/bng-cups/nokia-MultiAccessGateway-lab/clab-nokia-MAGc-lab/BngBlaster_02",
+      "kind": "linux",
+      "image": "ghcr.io/asadarafat/bngblaster:main",
+      "mgmt-net": "",
+      "mgmt-intf": "",
+      "mgmt-ipv4-address": "10.10.10.213",
+      "mgmt-ipv4-prefix-length": 24,
+      "mgmt-ipv6-address": "",
+      "mgmt-ipv6-prefix-length": 0,
+      "mac-address": "",
+      "labels": {
+        "clab-mgmt-net-bridge": "br1-private",
+        "clab-node-group": "Residential",
+        "clab-node-kind": "linux",
+        "clab-node-lab-dir": "/root/clab/bng-cups/nokia-MultiAccessGateway-lab/clab-nokia-MAGc-lab/BngBlaster_02",
+        "clab-node-name": "BngBlaster_02",
+        "clab-node-type": "",
+        "clab-topo-file": "/root/clab/bng-cups/nokia-MultiAccessGateway-lab/topo-nokia-MAG-lab.yaml",
+        "containerlab": "nokia-MAGc-lab",
+        "topo-viewer-role": "rgw"
+      }
+    },
+    { 
+      "id": "MAG-C01",
+      "index": "4",
+      "shortname": "MAG-C01",
+      "longname": "clab-nokia-MAGc-lab-MAG-C01",
+      "fqdn": "MAG-C01.nokia-MAGc-lab.io",
+      "group": "ControlPlaneFunction",
+      "labdir": "/root/clab/bng-cups/nokia-MultiAccessGateway-lab/clab-nokia-MAGc-lab/MAG-C01",
+      "kind": "vr-sros",
+      "image": "registry.srlinux.dev/pub/mag-c:23.3.R1",
+      "mgmt-net": "",
+      "mgmt-intf": "",
+      "mgmt-ipv4-address": "10.10.10.201",
+      "mgmt-ipv4-prefix-length": 24,
+      "mgmt-ipv6-address": "",
+      "mgmt-ipv6-prefix-length": 0,
+      "mac-address": "",
+      "labels": {
+        "clab-mgmt-net-bridge": "br1-private",
+        "clab-node-group": "ControlPlaneFunction",
+        "clab-node-kind": "vr-sros",
+        "clab-node-lab-dir": "/root/clab/bng-cups/nokia-MultiAccessGateway-lab/clab-nokia-MAGc-lab/MAG-C01",
+        "clab-node-name": "MAG-C01",
+        "clab-node-type": "cp: cpu=8 min_ram=16 chassis=vsr slot=A card=cpm-v ___ lc: cpu=6 min_ram=16 max_nics=20 chassis=vsr slot=1 card=iom-v mda/1=m20-v ___ lc: cpu=4 min_ram=32 max_nics=20 chassis=vsr slot=2 card=iom-v-mg mda/1=isa-ms-v ___ lc: cpu=4 min_ram=32 max_nics=20 chassis=vsr slot=3 card=iom-v-mg mda/1=isa-ms-v ",
+        "clab-topo-file": "/root/clab/bng-cups/nokia-MultiAccessGateway-lab/topo-nokia-MAG-lab.yaml",
+        "containerlab": "nokia-MAGc-lab",
+        "topo-viewer-role": "controller"
+      }
+    },
+    { 
+      "id": "MAG-C02",
+      "index": "5",
+      "shortname": "MAG-C02",
+      "longname": "clab-nokia-MAGc-lab-MAG-C02",
+      "fqdn": "MAG-C02.nokia-MAGc-lab.io",
+      "group": "ControlPlaneFunction",
+      "labdir": "/root/clab/bng-cups/nokia-MultiAccessGateway-lab/clab-nokia-MAGc-lab/MAG-C02",
+      "kind": "vr-sros",
+      "image": "registry.srlinux.dev/pub/mag-c:23.3.R1",
+      "mgmt-net": "",
+      "mgmt-intf": "",
+      "mgmt-ipv4-address": "10.10.10.202",
+      "mgmt-ipv4-prefix-length": 24,
+      "mgmt-ipv6-address": "",
+      "mgmt-ipv6-prefix-length": 0,
+      "mac-address": "",
+      "labels": {
+        "clab-mgmt-net-bridge": "br1-private",
+        "clab-node-group": "ControlPlaneFunction",
+        "clab-node-kind": "vr-sros",
+        "clab-node-lab-dir": "/root/clab/bng-cups/nokia-MultiAccessGateway-lab/clab-nokia-MAGc-lab/MAG-C02",
+        "clab-node-name": "MAG-C02",
+        "clab-node-type": "cp: cpu=8 min_ram=16 chassis=vsr slot=A card=cpm-v ___ lc: cpu=6 min_ram=16 max_nics=20 chassis=vsr slot=1 card=iom-v mda/1=m20-v ___ lc: cpu=4 min_ram=32 max_nics=20 chassis=vsr slot=2 card=iom-v-mg mda/1=isa-ms-v ___ lc: cpu=4 min_ram=32 max_nics=20 chassis=vsr slot=3 card=iom-v-mg mda/1=isa-ms-v",
+        "clab-topo-file": "/root/clab/bng-cups/nokia-MultiAccessGateway-lab/topo-nokia-MAG-lab.yaml",
+        "containerlab": "nokia-MAGc-lab",
+        "topo-viewer-role": "controller"
+      }
+    },
+    { 
+      "id": "PE-01",
+      "index": "6",
+      "shortname": "PE-01",
+      "longname": "clab-nokia-MAGc-lab-PE-01",
+      "fqdn": "PE-01.nokia-MAGc-lab.io",
+      "group": "IP-Core",
+      "labdir": "/root/clab/bng-cups/nokia-MultiAccessGateway-lab/clab-nokia-MAGc-lab/PE-01",
+      "kind": "vr-sros",
+      "image": "registry.srlinux.dev/pub/vr-sros:23.3.R1",
+      "mgmt-net": "",
+      "mgmt-intf": "",
+      "mgmt-ipv4-address": "10.10.10.203",
+      "mgmt-ipv4-prefix-length": 24,
+      "mgmt-ipv6-address": "",
+      "mgmt-ipv6-prefix-length": 0,
+      "mac-address": "",
+      "labels": {
+        "clab-mgmt-net-bridge": "br1-private",
+        "clab-node-group": "IP-Core",
+        "clab-node-kind": "vr-sros",
+        "clab-node-lab-dir": "/root/clab/bng-cups/nokia-MultiAccessGateway-lab/clab-nokia-MAGc-lab/PE-01",
+        "clab-node-name": "PE-01",
+        "clab-node-type": "chassis=sr-1 slot=A card=cpm-1 slot=1 mda/1=me6-100gb-qsfp28 mda/2=me6-100gb-qsfp28",
+        "clab-topo-file": "/root/clab/bng-cups/nokia-MultiAccessGateway-lab/topo-nokia-MAG-lab.yaml",
+        "containerlab": "nokia-MAGc-lab",
+        "topo-viewer-role": "pe"
+      }
+    },
+    { 
+      "id": "Radius",
+      "index": "7",
+      "shortname": "Radius",
+      "longname": "clab-nokia-MAGc-lab-Radius",
+      "fqdn": "Radius.nokia-MAGc-lab.io",
+      "group": "ControlPlaneFunction",
+      "labdir": "/root/clab/bng-cups/nokia-MultiAccessGateway-lab/clab-nokia-MAGc-lab/Radius",
+      "kind": "linux",
+      "image": "ghcr.io/asadarafat/freeradius:main",
+      "mgmt-net": "",
+      "mgmt-intf": "",
+      "mgmt-ipv4-address": "10.10.10.211",
+      "mgmt-ipv4-prefix-length": 24,
+      "mgmt-ipv6-address": "",
+      "mgmt-ipv6-prefix-length": 0,
+      "mac-address": "",
+      "labels": {
+        "clab-mgmt-net-bridge": "br1-private",
+        "clab-node-group": "ControlPlaneFunction",
+        "clab-node-kind": "linux",
+        "clab-node-lab-dir": "/root/clab/bng-cups/nokia-MultiAccessGateway-lab/clab-nokia-MAGc-lab/Radius",
+        "clab-node-name": "Radius",
+        "clab-node-type": "",
+        "clab-topo-file": "/root/clab/bng-cups/nokia-MultiAccessGateway-lab/topo-nokia-MAG-lab.yaml",
+        "containerlab": "nokia-MAGc-lab",
+        "topo-viewer-role": "server"
+      }
+    },
+    { 
+      "id": "topoviewer",
+      "index": "8",
+      "shortname": "topoviewer",
+      "longname": "clab-nokia-MAGc-lab-topoviewer",
+      "fqdn": "topoviewer.nokia-MAGc-lab.io",
+      "group": "",
+      "labdir": "/root/clab/bng-cups/nokia-MultiAccessGateway-lab/clab-nokia-MAGc-lab/topoviewer",
+      "kind": "linux",
+      "image": "ghcr.io/asadarafat/topoviewer:latest",
+      "mgmt-net": "",
+      "mgmt-intf": "",
+      "mgmt-ipv4-address": "10.10.10.200",
+      "mgmt-ipv4-prefix-length": 24,
+      "mgmt-ipv6-address": "",
+      "mgmt-ipv6-prefix-length": 0,
+      "mac-address": "",
+      "labels": {
+        "clab-mgmt-net-bridge": "br1-private",
+        "clab-node-group": "",
+        "clab-node-kind": "linux",
+        "clab-node-lab-dir": "/root/clab/bng-cups/nokia-MultiAccessGateway-lab/clab-nokia-MAGc-lab/topoviewer",
+        "clab-node-name": "topoviewer",
+        "clab-node-type": "",
+        "clab-topo-file": "/root/clab/bng-cups/nokia-MultiAccessGateway-lab/topo-nokia-MAG-lab.yaml",
+        "containerlab": "nokia-MAGc-lab",
+        "topo-viewer-role": "controller"
+      }
+    }
+  ],
+  "links": [
+    {
+      "a": {
+        "node": "MAG-C01",
+        "interface": "eth1",
+        "mac": "aa:c1:ab:e7:6e:66",
+        "peer": "z"
+      },
+      "z": {
+        "node": "PE-01",
+        "interface": "eth3",
+        "mac": "aa:c1:ab:2b:f5:da",
+        "peer": "a"
+      }
+    },
+    {
+      "a": {
+        "node": "MAG-C02",
+        "interface": "eth1",
+        "mac": "aa:c1:ab:00:df:ce",
+        "peer": "z"
+      },
+      "z": {
+        "node": "PE-01",
+        "interface": "eth4",
+        "mac": "aa:c1:ab:17:f8:79",
+        "peer": "a"
+      }
+    },
+    {
+      "a": {
+        "node": "PE-01",
+        "interface": "eth1",
+        "mac": "aa:c1:ab:94:1b:df",
+        "peer": "z"
+      },
+      "z": {
+        "node": "AGG-UPF01",
+        "interface": "eth3",
+        "mac": "aa:c1:ab:8f:ed:cb",
+        "peer": "a"
+      }
+    },
+    {
+      "a": {
+        "node": "PE-01",
+        "interface": "eth2",
+        "mac": "aa:c1:ab:df:90:2a",
+        "peer": "z"
+      },
+      "z": {
+        "node": "AGG-UPF02",
+        "interface": "eth3",
+        "mac": "aa:c1:ab:a6:e3:08",
+        "peer": "a"
+      }
+    },
+    {
+      "a": {
+        "node": "MAG-C01",
+        "interface": "eth3",
+        "mac": "aa:c1:ab:70:31:5a",
+        "peer": "z"
+      },
+      "z": {
+        "node": "MAG-C02",
+        "interface": "eth3",
+        "mac": "aa:c1:ab:ce:d2:32",
+        "peer": "a"
+      }
+    },
+    {
+      "a": {
+        "node": "AGG-UPF01",
+        "interface": "eth4",
+        "mac": "aa:c1:ab:44:d3:7a",
+        "peer": "z"
+      },
+      "z": {
+        "node": "AGG-UPF02",
+        "interface": "eth4",
+        "mac": "aa:c1:ab:7a:ff:3c",
+        "peer": "a"
+      }
+    },
+    {
+      "a": {
+        "node": "Radius",
+        "interface": "eth1",
+        "mac": "aa:c1:ab:7b:58:0c",
+        "peer": "z"
+      },
+      "z": {
+        "node": "PE-01",
+        "interface": "eth5",
+        "mac": "aa:c1:ab:08:07:60",
+        "peer": "a"
+      }
+    },
+    {
+      "a": {
+        "node": "AGG-UPF01",
+        "interface": "eth7",
+        "mac": "aa:c1:ab:e9:82:80",
+        "peer": "z"
+      },
+      "z": {
+        "node": "BngBlaster_01",
+        "interface": "eth1",
+        "mac": "aa:c1:ab:f3:b5:5f",
+        "peer": "a"
+      }
+    },
+    {
+      "a": {
+        "node": "AGG-UPF02",
+        "interface": "eth7",
+        "mac": "aa:c1:ab:d4:2e:af",
+        "peer": "z"
+      },
+      "z": {
+        "node": "BngBlaster_02",
+        "interface": "eth1",
+        "mac": "aa:c1:ab:8d:29:9b",
+        "peer": "a"
+      }
+    }
+  ]
+}

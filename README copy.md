@@ -241,5 +241,10 @@ vscode ➜ /workspaces/topoViewer (development ✗) $ ./tools/dist.sh
 [suuser@nsp-kvm-host-antwerp topoViewer]$ go run cloudshellwrapper/cmd/main.go clab -H 138.203.40.63 -u suuser  -j rawTopoFile/clab/bng-cups/clab-cups/topology-data.json 
 [suuser@nsp-kvm-host-antwerp topoViewer]$ go run cloudshellwrapper/cmd/main.go clab -H 138.203.26.59 -u root  -j rawTopoFile/clab/bng-cups/clab-cups/topology-data.json 
 
+[root@kvm-host-antwerp02 topoViewer]# go run cloudshellwrapper/cmd/main.go clab -H 138.203.26.59 -u root  -p Lab-Her0 -j rawTopoFile/clab/bng-cups/nokia-MultiAccessGateway-lab/clab-nokia-MAGc-lab/topology-data.json 
+
 ## NSP IETF L2 run topoViewer
 [root@kvm-host-antwerp02 topoViewer]# go run cloudshellwrapper/cmd/main.go nsp -H 138.203.26.59 --topology-ietf-l2-topo rawTopoFile/ietf-topo-examples/ietf-L2.json --multi-layer disable
+
+
+
