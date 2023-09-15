@@ -47,7 +47,7 @@ cp -r tools/pumba_linux_amd64 dist/pumba_linux_amd64
 
 echo "Copy html folder and assets..."
 cp -r html-static dist/html-static
-cp rawTopoFile/topo-topoViewerDemo.yaml dist/topo-topoViewerDemo.yaml
+cp rawTopoFile/topo-topo-nokia-MAGc-lab.yaml dist/topo-topo-nokia-MAGc-lab.yaml
 
 echo "Copy Docker entrypoint.sh ..."
 cp tools/entrypoint.sh dist/entrypoint.sh 

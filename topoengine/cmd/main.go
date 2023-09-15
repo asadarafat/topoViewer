@@ -2,12 +2,10 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"os"
 
 	"github.com/asadarafat/topoViewer/topoengine"
-	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -262,529 +260,560 @@ func main() {
 
 	////// LSP load
 	////// LSP load
-	const jsonPayload = `{
-		"response": {
-			"status": 0,
-			"startRow": 0,
-			"endRow": 0,
-			"totalRows": 1,
-			"data": [
-				{
-					"pathName": "pccRsvp-from-10.10.10.1-to-10.10.10.7::LOOSE",
-					"pathId": "197-fff712a6-ded7-437e-a255-e2c8995c2d3a",
-					"lspId": "10651-665f6e8b-602b-4db3-991a-5e0d637ca2d0",
-					"tunnelId": 6,
-					"sourceId": "70-3baa0d78-c71d-4311-b49a-9f7f3b46cb60",
-					"destinationId": "10162-30ac647f-5b7e-4539-a42c-93c16ed776ae",
-					"sourceAddress": {
-						"ipv6Address": null,
-						"ipv4Address": {
-							"string": "10.10.10.1"
-						}
-					},
-					"destinationAddress": {
-						"ipv6Address": null,
-						"ipv4Address": {
-							"string": "10.10.10.7"
-						}
-					},
-					"sourceRouterAddress": {
-						"ipv6Address": null,
-						"ipv4Address": {
-							"string": "192.168.100.31"
-						}
-					},
-					"sourceNetworkName": [
-						"0:65000:1"
-					],
-					"destinationNetworkName": [
-						"BGP-0:65000:0",
-						"0:65000:1"
-					],
-					"pathType": "RSVP",
-					"creationType": "REQUESTED",
-					"protectionType": "UNKNOWN",
-					"protectionState": "ACTIVE",
-					"computationState": "PATH_FOUND",
-					"administrativeState": "UP",
-					"operationalState": "UP",
-					"lifecycleState": "Deployed",
-					"maintenanceAffected": "NONE",
-					"ownershipState": {
-						"ownership": {
-							"consumable": true,
-							"modifiable": true,
-							"deletable": false
-						}
-					},
-					"paramsConfig": null,
-					"paramsState": {
-						"pathParams": {
-							"objective": "COST",
-							"maxCost": null,
-							"maxHops": 0,
-							"maxTeMetric": null,
-							"maxLatency": null,
-							"bandwidth": 0,
-							"msd": null,
-							"setupPriority": 7,
-							"pathProfile": null,
-							"pathProfileOverride": null,
-							"templateId": 0,
-							"associationGroupPolicy": {},
-							"associationGroupDiversity": {},
-							"adminGroupIncludeAll": {
-								"adminGroup": {
-									"binary": [
-										0,
-										0,
-										0,
-										0
-									]
-								},
-								"extendedAdminGroup": null
-							},
-							"adminGroupIncludeAny": {
-								"adminGroup": {
-									"binary": [
-										0,
-										0,
-										0,
-										0
-									]
-								},
-								"extendedAdminGroup": null
-							},
-							"adminGroupExcludeAny": {
-								"adminGroup": {
-									"binary": [
-										0,
-										0,
-										0,
-										0
-									]
-								},
-								"extendedAdminGroup": null
-							},
-							"measuredIpBwUpdateTimestamp": null
-						}
-					},
-					"provisionedHops": null,
-					"computedHops": {
-						"pathHops": {
-							"pathHop": {
-								"1": {
-									"hopIndex": 1,
-									"hopId": 1,
-									"hopLinkId": null,
-									"hopType": "STRICT",
-									"sidHopType": null,
-									"segmentRouteType": null,
-									"ipAddress": {
-										"ipv6Address": null,
-										"ipv4Address": {
-											"string": "10.1.3.2"
-										}
-									},
-									"ifLinkIndex": null,
-									"routerId": null,
-									"segmentLabel": 0,
-									"postProcessedSourceInterface": null,
-									"postProcessedSourceTp": null,
-									"postProcessedSourceId": null
-								},
-								"2": {
-									"hopIndex": 2,
-									"hopId": 2,
-									"hopLinkId": null,
-									"hopType": "STRICT",
-									"sidHopType": null,
-									"segmentRouteType": null,
-									"ipAddress": {
-										"ipv6Address": null,
-										"ipv4Address": {
-											"string": "10.3.7.1"
-										}
-									},
-									"ifLinkIndex": null,
-									"routerId": null,
-									"segmentLabel": 0,
-									"postProcessedSourceInterface": null,
-									"postProcessedSourceTp": null,
-									"postProcessedSourceId": null
-								}
-							}
-						}
-					},
-					"recordedHops": {
-						"pathHops": {
-							"pathHop": {
-								"1": {
-									"hopIndex": 1,
-									"hopId": 1,
-									"hopLinkId": "1488-39bdad39-c31d-455b-92df-9ecf6c999d79",
-									"hopType": "STRICT",
-									"sidHopType": null,
-									"segmentRouteType": null,
-									"ipAddress": {
-										"ipv6Address": null,
-										"ipv4Address": {
-											"string": "10.1.3.1"
-										}
-									},
-									"ifLinkIndex": null,
-									"routerId": {
-										"dottedQuad": {
-											"string": "10.10.10.1"
-										}
-									},
-									"segmentLabel": 0,
-									"postProcessedSourceInterface": null,
-									"postProcessedSourceTp": null,
-									"postProcessedSourceId": null
-								},
-								"2": {
-									"hopIndex": 2,
-									"hopId": 2,
-									"hopLinkId": "5793-400aff94-0a8c-4aa6-82dc-6c98683dda27",
-									"hopType": "STRICT",
-									"sidHopType": null,
-									"segmentRouteType": null,
-									"ipAddress": {
-										"ipv6Address": null,
-										"ipv4Address": {
-											"string": "10.1.3.2"
-										}
-									},
-									"ifLinkIndex": null,
-									"routerId": {
-										"dottedQuad": {
-											"string": "10.10.10.3"
-										}
-									},
-									"segmentLabel": 524278,
-									"postProcessedSourceInterface": {
-										"ipv6Address": null,
-										"ipv4Address": {
-											"string": "10.1.3.1"
-										}
-									},
-									"postProcessedSourceTp": null,
-									"postProcessedSourceId": {
-										"dottedQuad": {
-											"string": "10.10.10.1"
-										}
-									}
-								},
-								"3": {
-									"hopIndex": 3,
-									"hopId": 3,
-									"hopLinkId": "10344-03c21b2b-3caa-4a68-a89c-4c50126fa00d",
-									"hopType": "STRICT",
-									"sidHopType": null,
-									"segmentRouteType": null,
-									"ipAddress": {
-										"ipv6Address": null,
-										"ipv4Address": {
-											"string": "10.3.7.1"
-										}
-									},
-									"ifLinkIndex": null,
-									"routerId": {
-										"dottedQuad": {
-											"string": "10.10.10.7"
-										}
-									},
-									"segmentLabel": 524209,
-									"postProcessedSourceInterface": {
-										"ipv6Address": null,
-										"ipv4Address": {
-											"string": "10.3.7.2"
-										}
-									},
-									"postProcessedSourceTp": null,
-									"postProcessedSourceId": {
-										"dottedQuad": {
-											"string": "10.10.10.3"
-										}
-									}
-								}
-							}
-						}
-					},
-					"administrativeFailureErrorCode": "NO_ERROR",
-					"pathErrorCode": "NO_ERROR",
-					"latency": 0.0,
-					"inSync": true,
-					"pathSearchBehaviorsInvoked": []
-				}
-			]
-		}
-	}`
+	// const jsonPayload = `{
+	// 	"response": {
+	// 		"status": 0,
+	// 		"startRow": 0,
+	// 		"endRow": 0,
+	// 		"totalRows": 1,
+	// 		"data": [
+	// 			{
+	// 				"pathName": "pccRsvp-from-10.10.10.1-to-10.10.10.7::LOOSE",
+	// 				"pathId": "197-fff712a6-ded7-437e-a255-e2c8995c2d3a",
+	// 				"lspId": "10651-665f6e8b-602b-4db3-991a-5e0d637ca2d0",
+	// 				"tunnelId": 6,
+	// 				"sourceId": "70-3baa0d78-c71d-4311-b49a-9f7f3b46cb60",
+	// 				"destinationId": "10162-30ac647f-5b7e-4539-a42c-93c16ed776ae",
+	// 				"sourceAddress": {
+	// 					"ipv6Address": null,
+	// 					"ipv4Address": {
+	// 						"string": "10.10.10.1"
+	// 					}
+	// 				},
+	// 				"destinationAddress": {
+	// 					"ipv6Address": null,
+	// 					"ipv4Address": {
+	// 						"string": "10.10.10.7"
+	// 					}
+	// 				},
+	// 				"sourceRouterAddress": {
+	// 					"ipv6Address": null,
+	// 					"ipv4Address": {
+	// 						"string": "192.168.100.31"
+	// 					}
+	// 				},
+	// 				"sourceNetworkName": [
+	// 					"0:65000:1"
+	// 				],
+	// 				"destinationNetworkName": [
+	// 					"BGP-0:65000:0",
+	// 					"0:65000:1"
+	// 				],
+	// 				"pathType": "RSVP",
+	// 				"creationType": "REQUESTED",
+	// 				"protectionType": "UNKNOWN",
+	// 				"protectionState": "ACTIVE",
+	// 				"computationState": "PATH_FOUND",
+	// 				"administrativeState": "UP",
+	// 				"operationalState": "UP",
+	// 				"lifecycleState": "Deployed",
+	// 				"maintenanceAffected": "NONE",
+	// 				"ownershipState": {
+	// 					"ownership": {
+	// 						"consumable": true,
+	// 						"modifiable": true,
+	// 						"deletable": false
+	// 					}
+	// 				},
+	// 				"paramsConfig": null,
+	// 				"paramsState": {
+	// 					"pathParams": {
+	// 						"objective": "COST",
+	// 						"maxCost": null,
+	// 						"maxHops": 0,
+	// 						"maxTeMetric": null,
+	// 						"maxLatency": null,
+	// 						"bandwidth": 0,
+	// 						"msd": null,
+	// 						"setupPriority": 7,
+	// 						"pathProfile": null,
+	// 						"pathProfileOverride": null,
+	// 						"templateId": 0,
+	// 						"associationGroupPolicy": {},
+	// 						"associationGroupDiversity": {},
+	// 						"adminGroupIncludeAll": {
+	// 							"adminGroup": {
+	// 								"binary": [
+	// 									0,
+	// 									0,
+	// 									0,
+	// 									0
+	// 								]
+	// 							},
+	// 							"extendedAdminGroup": null
+	// 						},
+	// 						"adminGroupIncludeAny": {
+	// 							"adminGroup": {
+	// 								"binary": [
+	// 									0,
+	// 									0,
+	// 									0,
+	// 									0
+	// 								]
+	// 							},
+	// 							"extendedAdminGroup": null
+	// 						},
+	// 						"adminGroupExcludeAny": {
+	// 							"adminGroup": {
+	// 								"binary": [
+	// 									0,
+	// 									0,
+	// 									0,
+	// 									0
+	// 								]
+	// 							},
+	// 							"extendedAdminGroup": null
+	// 						},
+	// 						"measuredIpBwUpdateTimestamp": null
+	// 					}
+	// 				},
+	// 				"provisionedHops": null,
+	// 				"computedHops": {
+	// 					"pathHops": {
+	// 						"pathHop": {
+	// 							"1": {
+	// 								"hopIndex": 1,
+	// 								"hopId": 1,
+	// 								"hopLinkId": null,
+	// 								"hopType": "STRICT",
+	// 								"sidHopType": null,
+	// 								"segmentRouteType": null,
+	// 								"ipAddress": {
+	// 									"ipv6Address": null,
+	// 									"ipv4Address": {
+	// 										"string": "10.1.3.2"
+	// 									}
+	// 								},
+	// 								"ifLinkIndex": null,
+	// 								"routerId": null,
+	// 								"segmentLabel": 0,
+	// 								"postProcessedSourceInterface": null,
+	// 								"postProcessedSourceTp": null,
+	// 								"postProcessedSourceId": null
+	// 							},
+	// 							"2": {
+	// 								"hopIndex": 2,
+	// 								"hopId": 2,
+	// 								"hopLinkId": null,
+	// 								"hopType": "STRICT",
+	// 								"sidHopType": null,
+	// 								"segmentRouteType": null,
+	// 								"ipAddress": {
+	// 									"ipv6Address": null,
+	// 									"ipv4Address": {
+	// 										"string": "10.3.7.1"
+	// 									}
+	// 								},
+	// 								"ifLinkIndex": null,
+	// 								"routerId": null,
+	// 								"segmentLabel": 0,
+	// 								"postProcessedSourceInterface": null,
+	// 								"postProcessedSourceTp": null,
+	// 								"postProcessedSourceId": null
+	// 							}
+	// 						}
+	// 					}
+	// 				},
+	// 				"recordedHops": {
+	// 					"pathHops": {
+	// 						"pathHop": {
+	// 							"1": {
+	// 								"hopIndex": 1,
+	// 								"hopId": 1,
+	// 								"hopLinkId": "1488-39bdad39-c31d-455b-92df-9ecf6c999d79",
+	// 								"hopType": "STRICT",
+	// 								"sidHopType": null,
+	// 								"segmentRouteType": null,
+	// 								"ipAddress": {
+	// 									"ipv6Address": null,
+	// 									"ipv4Address": {
+	// 										"string": "10.1.3.1"
+	// 									}
+	// 								},
+	// 								"ifLinkIndex": null,
+	// 								"routerId": {
+	// 									"dottedQuad": {
+	// 										"string": "10.10.10.1"
+	// 									}
+	// 								},
+	// 								"segmentLabel": 0,
+	// 								"postProcessedSourceInterface": null,
+	// 								"postProcessedSourceTp": null,
+	// 								"postProcessedSourceId": null
+	// 							},
+	// 							"2": {
+	// 								"hopIndex": 2,
+	// 								"hopId": 2,
+	// 								"hopLinkId": "5793-400aff94-0a8c-4aa6-82dc-6c98683dda27",
+	// 								"hopType": "STRICT",
+	// 								"sidHopType": null,
+	// 								"segmentRouteType": null,
+	// 								"ipAddress": {
+	// 									"ipv6Address": null,
+	// 									"ipv4Address": {
+	// 										"string": "10.1.3.2"
+	// 									}
+	// 								},
+	// 								"ifLinkIndex": null,
+	// 								"routerId": {
+	// 									"dottedQuad": {
+	// 										"string": "10.10.10.3"
+	// 									}
+	// 								},
+	// 								"segmentLabel": 524278,
+	// 								"postProcessedSourceInterface": {
+	// 									"ipv6Address": null,
+	// 									"ipv4Address": {
+	// 										"string": "10.1.3.1"
+	// 									}
+	// 								},
+	// 								"postProcessedSourceTp": null,
+	// 								"postProcessedSourceId": {
+	// 									"dottedQuad": {
+	// 										"string": "10.10.10.1"
+	// 									}
+	// 								}
+	// 							},
+	// 							"3": {
+	// 								"hopIndex": 3,
+	// 								"hopId": 3,
+	// 								"hopLinkId": "10344-03c21b2b-3caa-4a68-a89c-4c50126fa00d",
+	// 								"hopType": "STRICT",
+	// 								"sidHopType": null,
+	// 								"segmentRouteType": null,
+	// 								"ipAddress": {
+	// 									"ipv6Address": null,
+	// 									"ipv4Address": {
+	// 										"string": "10.3.7.1"
+	// 									}
+	// 								},
+	// 								"ifLinkIndex": null,
+	// 								"routerId": {
+	// 									"dottedQuad": {
+	// 										"string": "10.10.10.7"
+	// 									}
+	// 								},
+	// 								"segmentLabel": 524209,
+	// 								"postProcessedSourceInterface": {
+	// 									"ipv6Address": null,
+	// 									"ipv4Address": {
+	// 										"string": "10.3.7.2"
+	// 									}
+	// 								},
+	// 								"postProcessedSourceTp": null,
+	// 								"postProcessedSourceId": {
+	// 									"dottedQuad": {
+	// 										"string": "10.10.10.3"
+	// 									}
+	// 								}
+	// 							}
+	// 						}
+	// 					}
+	// 				},
+	// 				"administrativeFailureErrorCode": "NO_ERROR",
+	// 				"pathErrorCode": "NO_ERROR",
+	// 				"latency": 0.0,
+	// 				"inSync": true,
+	// 				"pathSearchBehaviorsInvoked": []
+	// 			}
+	// 		]
+	// 	}
+	// }`
 
-	// result := gjson.Get(jsonPayload, "response.data.#.recordedHops.pathHops")
-	// println(result.String())
+	// // result := gjson.Get(jsonPayload, "response.data.#.recordedHops.pathHops")
+	// // println(result.String())
 
-	// result.ForEach(func(key, value gjson.Result) bool {
-	// 	println(value.String())
-	// 	return true // keep iterating
-	// })
-	type Hop struct {
-		HopID            int         `json:"hopId"`
-		HopLinkID        string      `json:"hopLinkId"`
-		HopType          string      `json:"hopType"`
-		SidHopType       interface{} `json:"sidHopType"`
-		SegmentRouteType interface{} `json:"segmentRouteType"`
-		IPAddress        struct {
-			Ipv6Address interface{} `json:"ipv6Address"`
-			Ipv4Address struct {
-				String string `json:"string"`
-			} `json:"ipv4Address"`
-		} `json:"ipAddress"`
-		IfLinkIndex interface{} `json:"ifLinkIndex"`
-		RouterID    struct {
-			DottedQuad struct {
-				String string `json:"string"`
-			} `json:"dottedQuad"`
-		} `json:"routerId"`
-		SegmentLabel                 int `json:"segmentLabel"`
-		PostProcessedSourceInterface struct {
-			Ipv6Address interface{} `json:"ipv6Address"`
-			Ipv4Address struct {
-				String string `json:"string"`
-			} `json:"ipv4Address"`
-		} `json:"postProcessedSourceInterface"`
-		PostProcessedSourceTp interface{} `json:"postProcessedSourceTp"`
-		PostProcessedSourceID struct {
-			DottedQuad struct {
-				String string `json:"string"`
-			} `json:"dottedQuad"`
-		} `json:"postProcessedSourceId"`
-	}
+	// // result.ForEach(func(key, value gjson.Result) bool {
+	// // 	println(value.String())
+	// // 	return true // keep iterating
+	// // })
+	// type Hop struct {
+	// 	HopID            int         `json:"hopId"`
+	// 	HopLinkID        string      `json:"hopLinkId"`
+	// 	HopType          string      `json:"hopType"`
+	// 	SidHopType       interface{} `json:"sidHopType"`
+	// 	SegmentRouteType interface{} `json:"segmentRouteType"`
+	// 	IPAddress        struct {
+	// 		Ipv6Address interface{} `json:"ipv6Address"`
+	// 		Ipv4Address struct {
+	// 			String string `json:"string"`
+	// 		} `json:"ipv4Address"`
+	// 	} `json:"ipAddress"`
+	// 	IfLinkIndex interface{} `json:"ifLinkIndex"`
+	// 	RouterID    struct {
+	// 		DottedQuad struct {
+	// 			String string `json:"string"`
+	// 		} `json:"dottedQuad"`
+	// 	} `json:"routerId"`
+	// 	SegmentLabel                 int `json:"segmentLabel"`
+	// 	PostProcessedSourceInterface struct {
+	// 		Ipv6Address interface{} `json:"ipv6Address"`
+	// 		Ipv4Address struct {
+	// 			String string `json:"string"`
+	// 		} `json:"ipv4Address"`
+	// 	} `json:"postProcessedSourceInterface"`
+	// 	PostProcessedSourceTp interface{} `json:"postProcessedSourceTp"`
+	// 	PostProcessedSourceID struct {
+	// 		DottedQuad struct {
+	// 			String string `json:"string"`
+	// 		} `json:"dottedQuad"`
+	// 	} `json:"postProcessedSourceId"`
+	// }
 
-	type IpOptimLsp struct {
-		Response struct {
-			Status    int `json:"status"`
-			StartRow  int `json:"startRow"`
-			EndRow    int `json:"endRow"`
-			TotalRows int `json:"totalRows"`
-			Data      []struct {
-				PathName      string `json:"pathName"`
-				PathID        string `json:"pathId"`
-				LspID         string `json:"lspId"`
-				TunnelID      int    `json:"tunnelId"`
-				SourceID      string `json:"sourceId"`
-				DestinationID string `json:"destinationId"`
-				SourceAddress struct {
-					Ipv6Address interface{} `json:"ipv6Address"`
-					Ipv4Address struct {
-						String string `json:"string"`
-					} `json:"ipv4Address"`
-				} `json:"sourceAddress"`
-				DestinationAddress struct {
-					Ipv6Address interface{} `json:"ipv6Address"`
-					Ipv4Address struct {
-						String string `json:"string"`
-					} `json:"ipv4Address"`
-				} `json:"destinationAddress"`
-				SourceRouterAddress struct {
-					Ipv6Address interface{} `json:"ipv6Address"`
-					Ipv4Address struct {
-						String string `json:"string"`
-					} `json:"ipv4Address"`
-				} `json:"sourceRouterAddress"`
-				SourceNetworkName      []string `json:"sourceNetworkName"`
-				DestinationNetworkName []string `json:"destinationNetworkName"`
-				PathType               string   `json:"pathType"`
-				CreationType           string   `json:"creationType"`
-				ProtectionType         string   `json:"protectionType"`
-				ProtectionState        string   `json:"protectionState"`
-				ComputationState       string   `json:"computationState"`
-				AdministrativeState    string   `json:"administrativeState"`
-				OperationalState       string   `json:"operationalState"`
-				LifecycleState         string   `json:"lifecycleState"`
-				MaintenanceAffected    string   `json:"maintenanceAffected"`
-				OwnershipState         struct {
-					Ownership struct {
-						Consumable bool `json:"consumable"`
-						Modifiable bool `json:"modifiable"`
-						Deletable  bool `json:"deletable"`
-					} `json:"ownership"`
-				} `json:"ownershipState"`
-				ParamsConfig interface{} `json:"paramsConfig"`
-				ParamsState  struct {
-					PathParams struct {
-						Objective              string      `json:"objective"`
-						MaxCost                interface{} `json:"maxCost"`
-						MaxHops                int         `json:"maxHops"`
-						MaxTeMetric            interface{} `json:"maxTeMetric"`
-						MaxLatency             interface{} `json:"maxLatency"`
-						Bandwidth              int         `json:"bandwidth"`
-						Msd                    interface{} `json:"msd"`
-						SetupPriority          int         `json:"setupPriority"`
-						PathProfile            interface{} `json:"pathProfile"`
-						PathProfileOverride    interface{} `json:"pathProfileOverride"`
-						TemplateID             int         `json:"templateId"`
-						AssociationGroupPolicy struct {
-						} `json:"associationGroupPolicy"`
-						AssociationGroupDiversity struct {
-						} `json:"associationGroupDiversity"`
-						AdminGroupIncludeAll struct {
-							AdminGroup struct {
-								Binary []int `json:"binary"`
-							} `json:"adminGroup"`
-							ExtendedAdminGroup interface{} `json:"extendedAdminGroup"`
-						} `json:"adminGroupIncludeAll"`
-						AdminGroupIncludeAny struct {
-							AdminGroup struct {
-								Binary []int `json:"binary"`
-							} `json:"adminGroup"`
-							ExtendedAdminGroup interface{} `json:"extendedAdminGroup"`
-						} `json:"adminGroupIncludeAny"`
-						AdminGroupExcludeAny struct {
-							AdminGroup struct {
-								Binary []int `json:"binary"`
-							} `json:"adminGroup"`
-							ExtendedAdminGroup interface{} `json:"extendedAdminGroup"`
-						} `json:"adminGroupExcludeAny"`
-						MeasuredIPBwUpdateTimestamp interface{} `json:"measuredIpBwUpdateTimestamp"`
-					} `json:"pathParams"`
-				} `json:"paramsState"`
-				ProvisionedHops interface{} `json:"provisionedHops"`
-				ComputedHops    struct {
-					PathHops struct {
-						PathHop map[string]Hop `json:"pathHop"`
-					} `json:"pathHops"`
-				} `json:"computedHops"`
-				RecordedHops struct {
-					PathHops struct {
-						PathHop map[string]Hop `json:"pathHop"`
-					} `json:"pathHops"`
-				} `json:"recordedHops"`
-				AdministrativeFailureErrorCode string        `json:"administrativeFailureErrorCode"`
-				PathErrorCode                  string        `json:"pathErrorCode"`
-				Latency                        float64       `json:"latency"`
-				InSync                         bool          `json:"inSync"`
-				PathSearchBehaviorsInvoked     []interface{} `json:"pathSearchBehaviorsInvoked"`
-			} `json:"data"`
-		} `json:"response"`
-	}
+	// type IpOptimLsp struct {
+	// 	Response struct {
+	// 		Status    int `json:"status"`
+	// 		StartRow  int `json:"startRow"`
+	// 		EndRow    int `json:"endRow"`
+	// 		TotalRows int `json:"totalRows"`
+	// 		Data      []struct {
+	// 			PathName      string `json:"pathName"`
+	// 			PathID        string `json:"pathId"`
+	// 			LspID         string `json:"lspId"`
+	// 			TunnelID      int    `json:"tunnelId"`
+	// 			SourceID      string `json:"sourceId"`
+	// 			DestinationID string `json:"destinationId"`
+	// 			SourceAddress struct {
+	// 				Ipv6Address interface{} `json:"ipv6Address"`
+	// 				Ipv4Address struct {
+	// 					String string `json:"string"`
+	// 				} `json:"ipv4Address"`
+	// 			} `json:"sourceAddress"`
+	// 			DestinationAddress struct {
+	// 				Ipv6Address interface{} `json:"ipv6Address"`
+	// 				Ipv4Address struct {
+	// 					String string `json:"string"`
+	// 				} `json:"ipv4Address"`
+	// 			} `json:"destinationAddress"`
+	// 			SourceRouterAddress struct {
+	// 				Ipv6Address interface{} `json:"ipv6Address"`
+	// 				Ipv4Address struct {
+	// 					String string `json:"string"`
+	// 				} `json:"ipv4Address"`
+	// 			} `json:"sourceRouterAddress"`
+	// 			SourceNetworkName      []string `json:"sourceNetworkName"`
+	// 			DestinationNetworkName []string `json:"destinationNetworkName"`
+	// 			PathType               string   `json:"pathType"`
+	// 			CreationType           string   `json:"creationType"`
+	// 			ProtectionType         string   `json:"protectionType"`
+	// 			ProtectionState        string   `json:"protectionState"`
+	// 			ComputationState       string   `json:"computationState"`
+	// 			AdministrativeState    string   `json:"administrativeState"`
+	// 			OperationalState       string   `json:"operationalState"`
+	// 			LifecycleState         string   `json:"lifecycleState"`
+	// 			MaintenanceAffected    string   `json:"maintenanceAffected"`
+	// 			OwnershipState         struct {
+	// 				Ownership struct {
+	// 					Consumable bool `json:"consumable"`
+	// 					Modifiable bool `json:"modifiable"`
+	// 					Deletable  bool `json:"deletable"`
+	// 				} `json:"ownership"`
+	// 			} `json:"ownershipState"`
+	// 			ParamsConfig interface{} `json:"paramsConfig"`
+	// 			ParamsState  struct {
+	// 				PathParams struct {
+	// 					Objective              string      `json:"objective"`
+	// 					MaxCost                interface{} `json:"maxCost"`
+	// 					MaxHops                int         `json:"maxHops"`
+	// 					MaxTeMetric            interface{} `json:"maxTeMetric"`
+	// 					MaxLatency             interface{} `json:"maxLatency"`
+	// 					Bandwidth              int         `json:"bandwidth"`
+	// 					Msd                    interface{} `json:"msd"`
+	// 					SetupPriority          int         `json:"setupPriority"`
+	// 					PathProfile            interface{} `json:"pathProfile"`
+	// 					PathProfileOverride    interface{} `json:"pathProfileOverride"`
+	// 					TemplateID             int         `json:"templateId"`
+	// 					AssociationGroupPolicy struct {
+	// 					} `json:"associationGroupPolicy"`
+	// 					AssociationGroupDiversity struct {
+	// 					} `json:"associationGroupDiversity"`
+	// 					AdminGroupIncludeAll struct {
+	// 						AdminGroup struct {
+	// 							Binary []int `json:"binary"`
+	// 						} `json:"adminGroup"`
+	// 						ExtendedAdminGroup interface{} `json:"extendedAdminGroup"`
+	// 					} `json:"adminGroupIncludeAll"`
+	// 					AdminGroupIncludeAny struct {
+	// 						AdminGroup struct {
+	// 							Binary []int `json:"binary"`
+	// 						} `json:"adminGroup"`
+	// 						ExtendedAdminGroup interface{} `json:"extendedAdminGroup"`
+	// 					} `json:"adminGroupIncludeAny"`
+	// 					AdminGroupExcludeAny struct {
+	// 						AdminGroup struct {
+	// 							Binary []int `json:"binary"`
+	// 						} `json:"adminGroup"`
+	// 						ExtendedAdminGroup interface{} `json:"extendedAdminGroup"`
+	// 					} `json:"adminGroupExcludeAny"`
+	// 					MeasuredIPBwUpdateTimestamp interface{} `json:"measuredIpBwUpdateTimestamp"`
+	// 				} `json:"pathParams"`
+	// 			} `json:"paramsState"`
+	// 			ProvisionedHops interface{} `json:"provisionedHops"`
+	// 			ComputedHops    struct {
+	// 				PathHops struct {
+	// 					PathHop map[string]Hop `json:"pathHop"`
+	// 				} `json:"pathHops"`
+	// 			} `json:"computedHops"`
+	// 			RecordedHops struct {
+	// 				PathHops struct {
+	// 					PathHop map[string]Hop `json:"pathHop"`
+	// 				} `json:"pathHops"`
+	// 			} `json:"recordedHops"`
+	// 			AdministrativeFailureErrorCode string        `json:"administrativeFailureErrorCode"`
+	// 			PathErrorCode                  string        `json:"pathErrorCode"`
+	// 			Latency                        float64       `json:"latency"`
+	// 			InSync                         bool          `json:"inSync"`
+	// 			PathSearchBehaviorsInvoked     []interface{} `json:"pathSearchBehaviorsInvoked"`
+	// 		} `json:"data"`
+	// 	} `json:"response"`
+	// }
+
+	// filePath, _ := os.Getwd()
+	// filePath = (filePath + "/rawTopoFile/ipOptim-examples/")
+	// log.Info("topology file path: ", filePath)
+	// lspFileBytes, err := ioutil.ReadFile(filePath + "LSP-all.json")
+
+	// if err != nil {
+	// 	log.Fatal("Error when opening file: ", err)
+	// }
+
+	// lspStruct := IpOptimLsp{}
+
+	// err = json.Unmarshal(lspFileBytes, &lspStruct)
+	// if err != nil {
+	// 	log.Error("Error:", err)
+	// }
+
+	// lspPathNameTarget := "pccRsvp-from-10.10.10.1-to-10.10.10.7::LOOSE"
+
+	// cytoJsonNode := topoengine.CytoJson{}
+	// cytoJsonEdge := topoengine.CytoJson{}
+
+	// cytoJsonList := []topoengine.CytoJson{}
+
+	// // var prevKey string
+	// var prevHop Hop
+	// var emptyHop Hop
+
+	// for _, lspPath := range lspStruct.Response.Data {
+	// 	if lspPath.PathName == lspPathNameTarget {
+	// 		fmt.Println("found")
+	// 		for _, hop := range lspPath.RecordedHops.PathHops.PathHop {
+	// 			log.Info("router Id: ")
+	// 			log.Info(hop.RouterID.DottedQuad.String)
+
+	// 			log.Info("outGoing IP Interface: ")
+	// 			log.Info(hop.IPAddress.Ipv4Address.String)
+
+	// 			// add LSP Node
+	// 			cytoJsonNode.Group = "nodes"
+	// 			cytoJsonNode.Grabbable = true
+	// 			cytoJsonNode.Selectable = true
+	// 			cytoJsonNode.Data.ID = "LSP-" + hop.RouterID.DottedQuad.String //taken by cyto as index
+	// 			cytoJsonNode.Data.Weight = "3"
+	// 			cytoJsonNode.Data.Name = "LSP-" + hop.RouterID.DottedQuad.String
+	// 			cytoJsonNode.Data.Parent = "LSP"
+	// 			cytoJsonNode.Data.TopoviewerRole = "pe"
+	// 			cytoJsonEdge.Data.Kind = "TransportLayerNode"
+	// 			cytoJsonNode.Data.ExtraData = map[string]interface{}{
+	// 				"networkID":      "",
+	// 				"networkName":    "",
+	// 				"nodeAttributes": hop,
+	// 			}
+	// 			cytoJsonList = append(cytoJsonList, cytoJsonNode)
+
+	// 			// add LSP Link
+	// 			if prevHop != emptyHop {
+	// 				cytoJsonEdge.Group = "edges"
+	// 				cytoJsonEdge.Grabbable = true
+	// 				cytoJsonEdge.Selectable = true
+	// 				cytoJsonEdge.Data.ID = uuid.NewString()
+	// 				cytoJsonEdge.Data.Weight = "1"
+	// 				cytoJsonEdge.Data.Source = "LSP-" + prevHop.RouterID.DottedQuad.String
+	// 				cytoJsonEdge.Data.Target = "LSP-" + hop.RouterID.DottedQuad.String
+	// 				cytoJsonEdge.Data.Name = "LSP--" + cytoJsonEdge.Data.Source + "---" + cytoJsonEdge.Data.Target
+	// 				cytoJsonEdge.Data.Kind = "TransportLayerLink"
+	// 				cytoJsonEdge.Data.ExtraData = map[string]interface{}{
+	// 					"LSPname": lspPathNameTarget,
+	// 				}
+	// 				cytoJsonList = append(cytoJsonList, cytoJsonEdge)
+	// 			}
+	// 			prevHop = hop
+	// 			// add Linkage between L2 and LSP Nodes
+
+	// 			cytoJsonEdge.Group = "edges"
+	// 			cytoJsonEdge.Grabbable = true
+	// 			cytoJsonEdge.Selectable = true
+	// 			cytoJsonEdge.Data.ID = uuid.NewString()
+	// 			cytoJsonEdge.Data.Weight = "1"
+	// 			cytoJsonEdge.Data.Source = "LSP-" + hop.RouterID.DottedQuad.String
+	// 			cytoJsonEdge.Data.Target = "L2-" + hop.RouterID.DottedQuad.String
+	// 			cytoJsonEdge.Data.Name = "MultiLayer--" + cytoJsonEdge.Data.Source + "---" + cytoJsonEdge.Data.Target
+	// 			cytoJsonEdge.Data.Kind = "MultiLayerLink"
+	// 			cytoJsonEdge.Data.ExtraData = map[string]interface{}{
+	// 				"networkID":   "",
+	// 				"networkName": "",
+	// 			}
+	// 			cytoJsonList = append(cytoJsonList, cytoJsonEdge)
+	// 		}
+
+	// 		// add LSP parent Node
+	// 		cytoJsonNode.Group = "nodes"
+	// 		cytoJsonNode.Grabbable = true
+	// 		cytoJsonNode.Selectable = true
+	// 		cytoJsonNode.Data.ID = "Transport Tunnel" //taken by cyto as index
+	// 		cytoJsonNode.Data.Weight = "3"
+	// 		cytoJsonNode.Data.Name = "LSP"
+	// 		cytoJsonNode.Data.Parent = ""
+	// 		cytoJsonNode.Data.TopoviewerRole = "parent"
+	// 		cytoJsonNode.Data.ExtraData = map[string]interface{}{
+	// 			"nodeAttributes": struct {
+	// 				name string
+	// 			}{"LSP"},
+	// 		}
+	// 		cytoJsonList = append(cytoJsonList, cytoJsonNode)
+
+	// 	}
+	// }
+
+	// jsonBytesCytoUi, err := json.MarshalIndent(cytoJsonList, "", "  ")
+	// if err != nil {
+	// 	log.Error(err)
+	// 	panic(err)
+	// }
+
+	// _, err = os.Stdout.Write(jsonBytesCytoUi)
+	// if err != nil {
+	// 	log.Error(err)
+	// 	panic(err)
+	// }
+
+	IetfL2nm := topoengine.L2Nm{}
 
 	filePath, _ := os.Getwd()
-	filePath = (filePath + "/rawTopoFile/ipOptim-examples/")
+	filePath = (filePath + "/rawTopoFile/ietf-topo-examples/")
 	log.Info("topology file path: ", filePath)
-	lspFileBytes, err := ioutil.ReadFile(filePath + "LSP-all.json")
+	topoFileBytes, err := ioutil.ReadFile(filePath + "ietf-l2nm-evpn.json")
 
-	if err != nil {
-		log.Fatal("Error when opening file: ", err)
-	}
+	log.Error(err)
+	log.Info(topoFileBytes)
 
-	lspStruct := IpOptimLsp{}
-
-	err = json.Unmarshal(lspFileBytes, &lspStruct)
+	err = json.Unmarshal(topoFileBytes, &IetfL2nm.VpnService)
 	if err != nil {
 		log.Error("Error:", err)
 	}
 
-	lspPathNameTarget := "pccRsvp-from-10.10.10.1-to-10.10.10.7::LOOSE"
+	// log.Info(topoFileBytes)
+	// log.Info(IetfL2nm)
 
-	cytoJsonNode := topoengine.CytoJson{}
-	cytoJsonEdge := topoengine.CytoJson{}
-
-	cytoJsonList := []topoengine.CytoJson{}
-
-	// var prevKey string
-	var prevHop Hop
-	var emptyHop Hop
-
-	for _, lspPath := range lspStruct.Response.Data {
-		if lspPath.PathName == lspPathNameTarget {
-			fmt.Println("found")
-			for _, hop := range lspPath.RecordedHops.PathHops.PathHop {
-				log.Info("router Id: ")
-				log.Info(hop.RouterID.DottedQuad.String)
-
-				log.Info("outGoing IP Interface: ")
-				log.Info(hop.IPAddress.Ipv4Address.String)
-
-				// add LSP Node
-				cytoJsonNode.Group = "nodes"
-				cytoJsonNode.Grabbable = true
-				cytoJsonNode.Selectable = true
-				cytoJsonNode.Data.ID = "LSP-" + hop.RouterID.DottedQuad.String //taken by cyto as index
-				cytoJsonNode.Data.Weight = "3"
-				cytoJsonNode.Data.Name = "LSP-" + hop.RouterID.DottedQuad.String
-				cytoJsonNode.Data.Parent = "LSP"
-				cytoJsonNode.Data.TopoviewerRole = "pe"
-				cytoJsonEdge.Data.Kind = "TransportLayerNode"
-				cytoJsonNode.Data.ExtraData = map[string]interface{}{
-					"networkID":      "",
-					"networkName":    "",
-					"nodeAttributes": hop,
-				}
-				cytoJsonList = append(cytoJsonList, cytoJsonNode)
-
-				// add LSP Link
-				if prevHop != emptyHop {
-					cytoJsonEdge.Group = "edges"
-					cytoJsonEdge.Grabbable = true
-					cytoJsonEdge.Selectable = true
-					cytoJsonEdge.Data.ID = uuid.NewString()
-					cytoJsonEdge.Data.Weight = "1"
-					cytoJsonEdge.Data.Source = "LSP-" + prevHop.RouterID.DottedQuad.String
-					cytoJsonEdge.Data.Target = "LSP-" + hop.RouterID.DottedQuad.String
-					cytoJsonEdge.Data.Name = "LSP--" + cytoJsonEdge.Data.Source + "---" + cytoJsonEdge.Data.Target
-					cytoJsonEdge.Data.Kind = "TransportLayerLink"
-					cytoJsonEdge.Data.ExtraData = map[string]interface{}{
-						"LSPname": lspPathNameTarget,
-					}
-					cytoJsonList = append(cytoJsonList, cytoJsonEdge)
-				}
-				prevHop = hop
-				// add Linkage between L2 and LSP Nodes
-
-				cytoJsonEdge.Group = "edges"
-				cytoJsonEdge.Grabbable = true
-				cytoJsonEdge.Selectable = true
-				cytoJsonEdge.Data.ID = uuid.NewString()
-				cytoJsonEdge.Data.Weight = "1"
-				cytoJsonEdge.Data.Source = "LSP-" + hop.RouterID.DottedQuad.String
-				cytoJsonEdge.Data.Target = "L2-" + hop.RouterID.DottedQuad.String
-				cytoJsonEdge.Data.Name = "MultiLayer--" + cytoJsonEdge.Data.Source + "---" + cytoJsonEdge.Data.Target
-				cytoJsonEdge.Data.Kind = "MultiLayerLink"
-				cytoJsonEdge.Data.ExtraData = map[string]interface{}{
-					"networkID":   "",
-					"networkName": "",
-				}
-				cytoJsonList = append(cytoJsonList, cytoJsonEdge)
-			}
-
-			// add LSP parent Node
-			cytoJsonNode.Group = "nodes"
-			cytoJsonNode.Grabbable = true
-			cytoJsonNode.Selectable = true
-			cytoJsonNode.Data.ID = "Transport Tunnel" //taken by cyto as index
-			cytoJsonNode.Data.Weight = "3"
-			cytoJsonNode.Data.Name = "LSP"
-			cytoJsonNode.Data.Parent = ""
-			cytoJsonNode.Data.TopoviewerRole = "parent"
-			cytoJsonNode.Data.ExtraData = map[string]interface{}{
-				"nodeAttributes": struct {
-					name string
-				}{"LSP"},
-			}
-			cytoJsonList = append(cytoJsonList, cytoJsonNode)
-
-		}
-	}
-
-	jsonBytesCytoUi, err := json.MarshalIndent(cytoJsonList, "", "  ")
+	// Throw unmarshalled result to log
+	jsonBytesIetfL2nm, err := json.MarshalIndent(IetfL2nm, "", "  ")
 	if err != nil {
 		log.Error(err)
 		panic(err)
 	}
 
-	_, err = os.Stdout.Write(jsonBytesCytoUi)
+	_, err = os.Stdout.Write(jsonBytesIetfL2nm)
 	if err != nil {
 		log.Error(err)
 		panic(err)
