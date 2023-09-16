@@ -18,7 +18,6 @@ import (
 	"github.com/spf13/viper"
 
 	tools "github.com/asadarafat/topoViewer/tools"
-	// "github.com/srl-labs/containerlab/clab"
 )
 
 func (cyTopo *CytoTopology) InitLogger() {

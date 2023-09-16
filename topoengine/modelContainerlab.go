@@ -1,10 +1,10 @@
 package topoengine
 
-import (
-	// "github.com/srl-labs/containerlab/clab"
-	// nodes "github.com/srl-labs/containerlab/nodes"
-	types "github.com/srl-labs/containerlab/types"
-)
+import types "github.com/srl-labs/containerlab/types"
+
+// "github.com/srl-labs/containerlab/clab"
+// nodes "github.com/srl-labs/containerlab/nodes"
+// types "github.com/srl-labs/containerlab/types"
 
 // Containerlab Struct
 type ClabTopo struct {

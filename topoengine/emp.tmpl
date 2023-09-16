@@ -1,0 +1,72 @@
+"name": "{{ .Name }}",
+"type": "{{ .Type }}",
+
+{{ $labName := .Name }}
+{{ $type := .Type }}
+
+"clab": {
+  "config": {
+    "prefix": "{{ .Clab.Config.Prefix }}",
+    "mgmt": {{ ToJSONPretty .Clab.Config.Mgmt "      " "  "}}
+  }
+},
+"nodes": [
+  {{- $i:=0 }}{{range $n, $c := .NodeConfigs}}{{if $i}},{{end}}
+  {
+    "id": "{{$n}}",
+    "index": "{{$c.Index}}",
+    "shortname": "{{$c.ShortName}}",
+    "longname": "{{$c.LongName}}",
+    "fqdn": "{{$c.Fqdn}}",
+    "group": "{{$c.Group}}",
+    "labdir": "{{$c.LabDir}}",
+    "kind": "{{$c.Kind}}",
+    "image": "{{$c.Image}}",
+    "mgmt-net": "{{$c.MgmtNet}}",
+    "mgmt-intf": "{{$c.MgmtIntf}}",
+    "mgmt-ipv4-address": "{{$c.MgmtIPv4Address}}",
+    "mgmt-ipv4-prefix-length": {{$c.MgmtIPv4PrefixLength}},
+    "mgmt-ipv6-address": "{{$c.MgmtIPv6Address}}",
+    "mgmt-ipv6-prefix-length": {{$c.MgmtIPv6PrefixLength}},
+    "mac-address": "{{$c.MacAddress}}",
+    "labels": {{ToJSONPretty $c.Labels "      " "  "}}
+  {{$i = add $i 1}}}{{end}}
+],
+"links": [{{range $i, $l := .Clab.Links}}{{if $i}},{{end}}
+{{ $endpointA := index $l.Endpoints 0 }}
+{{ $endpointB := index $l.Endpoints 1 }}
+{{ $endpointAList := split (printf "%s" $endpointA) ":" }}
+{{ $endpointBList := split (printf "%s" $endpointB) ":" }}
+  {
+      "a": {
+        "node": "{{ index $endpointAList 0 }}",
+        "nodeLongName": "{{ $type }}-{{ $labName}}-{{ index $endpointAList 0 }}",
+        "interface": "{{ index $endpointAList 1 }}",
+        "mac": "",
+        "peer": "z"
+      },
+      "z": {
+        "node": "{{ index $endpointBList 0 }}",
+        "nodeLongName": "{{ $type }}-{{ $labName}}-{{ index $endpointBList 0 }}",
+        "interface": "{{ index $endpointBList 1 }}"
+        "mac": "",
+        "peer": "a"
+      }
+  }{{end}}
+]
+
+
+      "a": {
+        "node": "{{ index $endpointAList 0 }}",
+        "nodeLongName": "{{ $type }}-{{ $labName}}-{{ index $endpointAList 0 }}",
+        "interface": "{{ index $endpointAList 1 }}",
+        "mac": "",
+        "peer": "z"
+      },
+      "z": {
+        "node": "{{ index $endpointBList 0 }}",
+        "nodeLongName": "{{ $type }}-{{ $labName}}-{{ index $endpointBList 0 }}",
+        "interface": "{{ index $endpointBList 1 }}"
+        "mac": "",
+        "peer": "a"
+      }

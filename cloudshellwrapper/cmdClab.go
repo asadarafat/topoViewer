@@ -193,7 +193,8 @@ func Clab(_ *cobra.Command, _ []string) error {
 	//log.Debug("topo Clab: ", topoClab)
 	log.Debug("Code Trace Point ####")
 	topoFile := cyTopo.ClabTopoRead(topoClab) // loading containerLab export-topo json file
-	jsonBytes := cyTopo.UnmarshalContainerLabTopoV2(topoFile)
+	clabHostUsername := confClab.GetString("clab-user")
+	jsonBytes := cyTopo.UnmarshalContainerLabTopoV2(topoFile, clabHostUsername)
 	cyTopo.PrintjsonBytesCytoUiV2(jsonBytes)
 
 	command := confClab.GetString("command")
