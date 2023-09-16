@@ -22,6 +22,7 @@ The simplest approach to utilise TopoViewer with Containerlab is to add the foll
       image: ghcr.io/asadarafat/topoviewer:latest
       ports:
         - 8080:8080
+          #### the opend port could be adjusted accordingly, not always 8080.
       # exec:
       # - '/opt/topoviewer/topoviewer clab -H 138.203.26.59 -P 8080 -u root -p j0k0w1 -j local-bind/topo-file.json' 
           #### "root" corresponds to the server username where containerLab is currently operational.
@@ -36,9 +37,18 @@ The simplest approach to utilise TopoViewer with Containerlab is to add the foll
         topo-viewer-role: controller
 ```
 
-Get ContainerLab topology YAML file and export template(compatible with containerlab release 0.43.0). 
+Grab ContainerLab topology export template, it's gonna help us export out the ContainerLab's topology in a format that TopoViewer can consume."
+for containerlab version: 0.41.2 and below:
 ```Shell
 wget https://github.com/asadarafat/topoViewer/blob/development/rawTopoFile/template-clab-cyto.tmpl
+```
+for containerlab version: version: 0.44.3:
+```Shell
+wget https://github.com/asadarafat/topoViewer/blob/development/rawTopoFile/clab-topo-new-version-cytoscape.tmpl
+```
+
+Get ContainerLab topology YAML file
+```Shell
 wget https://raw.githubusercontent.com/asadarafat/topoViewer/development/rawTopoFile/topo-nokia-MAGc-lab.yaml
 ```
 
