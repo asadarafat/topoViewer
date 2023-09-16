@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"os"
-	"os/user"
 	"path"
 	"strconv"
 
@@ -123,7 +122,7 @@ func (cyTopo *CytoTopology) ClabTopoRead(topoFile string) []byte {
 	return topoFileBytes
 }
 
-func (cyTopo *CytoTopology) UnmarshalContainerLabTopoV2(topoFile []byte) []byte {
+func (cyTopo *CytoTopology) UnmarshalContainerLabTopoV2(topoFile []byte, clabHostUsername string) []byte {
 
 	// initiate cytoJson struct
 	cytoJson := CytoJson{}
@@ -136,12 +135,14 @@ func (cyTopo *CytoTopology) UnmarshalContainerLabTopoV2(topoFile []byte) []byte 
 	// unmarshal topoFile into clabTopoStruct
 	json.Unmarshal(topoFile, &cyTopo.ClabTopoDataV2)
 
-	// get Clab ServerHost Username
-	user, err := user.Current()
-	if err != nil {
-		log.Error(err.Error())
-	}
-	Username := user.Username
+	// // get Clab ServerHost Username
+	// user, err := user.Current()
+	// if err != nil {
+	// 	log.Error(err.Error())
+	// }
+	// Username := user.Username
+	// Clab ServerHost Username should be passed from parameter
+	Username := clabHostUsername
 
 	//map the clabTopoStruct content to cytoJson content
 	for _, node := range cyTopo.ClabTopoDataV2.Nodes {

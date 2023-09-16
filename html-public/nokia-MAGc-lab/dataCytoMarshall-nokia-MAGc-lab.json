@@ -1001,8 +1001,8 @@
       "targetEndpoint": "eth3",
       "extraData": {
         "clabServerUsername": "root",
-        "clabSourceLongName": "",
-        "clabTargetLongName": ""
+        "clabSourceLongName": "clab-nokia-MAGc-lab-MAG-C01",
+        "clabTargetLongName": "clab-nokia-MAGc-lab-PE-01"
       }
     },
     "position": {
@@ -1030,8 +1030,8 @@
       "targetEndpoint": "eth4",
       "extraData": {
         "clabServerUsername": "root",
-        "clabSourceLongName": "",
-        "clabTargetLongName": ""
+        "clabSourceLongName": "clab-nokia-MAGc-lab-MAG-C02",
+        "clabTargetLongName": "clab-nokia-MAGc-lab-PE-01"
       }
     },
     "position": {
@@ -1059,8 +1059,8 @@
       "targetEndpoint": "eth3",
       "extraData": {
         "clabServerUsername": "root",
-        "clabSourceLongName": "",
-        "clabTargetLongName": ""
+        "clabSourceLongName": "clab-nokia-MAGc-lab-PE-01",
+        "clabTargetLongName": "clab-nokia-MAGc-lab-AGG-UPF01"
       }
     },
     "position": {
@@ -1088,8 +1088,8 @@
       "targetEndpoint": "eth3",
       "extraData": {
         "clabServerUsername": "root",
-        "clabSourceLongName": "",
-        "clabTargetLongName": ""
+        "clabSourceLongName": "clab-nokia-MAGc-lab-PE-01",
+        "clabTargetLongName": "clab-nokia-MAGc-lab-AGG-UPF02"
       }
     },
     "position": {
@@ -1117,8 +1117,8 @@
       "targetEndpoint": "eth3",
       "extraData": {
         "clabServerUsername": "root",
-        "clabSourceLongName": "",
-        "clabTargetLongName": ""
+        "clabSourceLongName": "clab-nokia-MAGc-lab-MAG-C01",
+        "clabTargetLongName": "clab-nokia-MAGc-lab-MAG-C02"
       }
     },
     "position": {
@@ -1146,8 +1146,8 @@
       "targetEndpoint": "eth4",
       "extraData": {
         "clabServerUsername": "root",
-        "clabSourceLongName": "",
-        "clabTargetLongName": ""
+        "clabSourceLongName": "clab-nokia-MAGc-lab-AGG-UPF01",
+        "clabTargetLongName": "clab-nokia-MAGc-lab-AGG-UPF02"
       }
     },
     "position": {
@@ -1175,8 +1175,8 @@
       "targetEndpoint": "eth5",
       "extraData": {
         "clabServerUsername": "root",
-        "clabSourceLongName": "",
-        "clabTargetLongName": ""
+        "clabSourceLongName": "clab-nokia-MAGc-lab-Radius",
+        "clabTargetLongName": "clab-nokia-MAGc-lab-PE-01"
       }
     },
     "position": {
@@ -1204,8 +1204,8 @@
       "targetEndpoint": "eth1",
       "extraData": {
         "clabServerUsername": "root",
-        "clabSourceLongName": "",
-        "clabTargetLongName": ""
+        "clabSourceLongName": "clab-nokia-MAGc-lab-AGG-UPF01",
+        "clabTargetLongName": "clab-nokia-MAGc-lab-BngBlaster_01"
       }
     },
     "position": {
@@ -1233,8 +1233,8 @@
       "targetEndpoint": "eth1",
       "extraData": {
         "clabServerUsername": "root",
-        "clabSourceLongName": "",
-        "clabTargetLongName": ""
+        "clabSourceLongName": "clab-nokia-MAGc-lab-AGG-UPF02",
+        "clabTargetLongName": "clab-nokia-MAGc-lab-BngBlaster_02"
       }
     },
     "position": {
