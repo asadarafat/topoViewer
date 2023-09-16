@@ -321,7 +321,7 @@ func (cyTopo *CytoTopology) GetDockerNodeStatus(clabNodeName string, clabUser st
 	// output, err := cmd.CombinedOutput()
 
 	config := &ssh.ClientConfig{
-		User: "root",
+		User: clabUser,
 		Auth: []ssh.AuthMethod{
 			ssh.Password(clabPassword),
 		},
@@ -334,14 +334,14 @@ func (cyTopo *CytoTopology) GetDockerNodeStatus(clabNodeName string, clabUser st
 
 	client, err := ssh.Dial("tcp", clabHost+":22", config)
 	if err != nil {
-		log.Fatal("Failed to dial: ", err)
+		log.Error("Failed to dial: ", err)
 	}
 
 	// Each ClientConn can support multiple interactive sessions,
 	// represented by a Session.
 	session, err := client.NewSession()
 	if err != nil {
-		log.Fatal("Failed to create session: ", err)
+		log.Error("Failed to create session: ", err)
 	}
 	defer session.Close()
 
@@ -350,7 +350,7 @@ func (cyTopo *CytoTopology) GetDockerNodeStatus(clabNodeName string, clabUser st
 	var b bytes.Buffer
 	session.Stdout = &b
 	if err := session.Run("docker ps --all --format json"); err != nil {
-		log.Fatal("Failed to run: " + err.Error())
+		log.Error("Failed to run: " + err.Error())
 	}
 	// fmt.Println(b.String())
 

@@ -91,3 +91,8 @@ and ![Pumba](https://github.com/alexei-led/pumba/releases) binary is installed i
 - Ensure the Pumba is installed ContainerLab host.
 - Setup SSH keyless access to ContainerLab host
 - Download the "ContainerLab Link Impairment Client - MAC" app extract and copy the app into /Applications folder
+
+
+## Tested Environment
+- containerlab version:  0.41.2, 0.44.3
+- docker-ce version: 24.0.2
