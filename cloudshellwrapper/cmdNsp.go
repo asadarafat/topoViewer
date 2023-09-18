@@ -62,7 +62,7 @@ var confNsp = config.Map{
 		Usage:   fmt.Sprintf("defines the format of the logs - one of ['%s']", strings.Join(tools.ValidFormatStrings, "', '")),
 	},
 	"log-level": &config.String{
-		Default: "debug",
+		Default: "info",
 		Usage:   fmt.Sprintf("defines the minimum level of logs to show - one of ['%s']", strings.Join(tools.ValidLevelStrings, "', '")),
 	},
 	"path-liveness": &config.String{
@@ -111,10 +111,6 @@ var confNsp = config.Map{
 	"multi-layer": &config.String{
 		Default: "enabled",
 		Usage:   "enable multi-layer view",
-	},
-	"debug": &config.String{
-		Default: "enabled",
-		Usage:   "enable debug",
 	},
 }
 

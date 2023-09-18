@@ -1,12 +1,8 @@
 package main
 
 import (
-	"encoding/json"
-	"io/ioutil"
-	"os"
-
+	tools "github.com/asadarafat/topoViewer/tools"
 	"github.com/asadarafat/topoViewer/topoengine"
-	log "github.com/sirupsen/logrus"
 )
 
 // // "io/ioutil"
@@ -788,39 +784,48 @@ func main() {
 	// 	panic(err)
 	// }
 
-	IetfL2nm := topoengine.L2Nm{}
+	// // test L2NM
+	// // test L2NM
+	// // test L2NM
+	// // test L2NM
+	// IetfL2nm := topoengine.L2Nm{}
 
-	filePath, _ := os.Getwd()
-	filePath = (filePath + "/rawTopoFile/ietf-topo-examples/")
-	log.Info("topology file path: ", filePath)
-	topoFileBytes, err := ioutil.ReadFile(filePath + "ietf-l2nm-evpn.json")
+	// filePath, _ := os.Getwd()
+	// filePath = (filePath + "/rawTopoFile/ietf-topo-examples/")
+	// log.Info("topology file path: ", filePath)
+	// topoFileBytes, err := ioutil.ReadFile(filePath + "ietf-l2nm-evpn.json")
 
-	log.Error(err)
-	log.Info(topoFileBytes)
-
-	err = json.Unmarshal(topoFileBytes, &IetfL2nm.VpnService)
-	if err != nil {
-		log.Error("Error:", err)
-	}
-
+	// log.Error(err)
 	// log.Info(topoFileBytes)
-	// log.Info(IetfL2nm)
 
-	// Throw unmarshalled result to log
-	jsonBytesIetfL2nm, err := json.MarshalIndent(IetfL2nm, "", "  ")
-	if err != nil {
-		log.Error(err)
-		panic(err)
-	}
+	// err = json.Unmarshal(topoFileBytes, &IetfL2nm.VpnService)
+	// if err != nil {
+	// 	log.Error("Error:", err)
+	// }
 
-	_, err = os.Stdout.Write(jsonBytesIetfL2nm)
-	if err != nil {
-		log.Error(err)
-		panic(err)
-	}
+	// // log.Info(topoFileBytes)
+	// // log.Info(IetfL2nm)
+
+	// // Throw unmarshalled result to log
+	// jsonBytesIetfL2nm, err := json.MarshalIndent(IetfL2nm, "", "  ")
+	// if err != nil {
+	// 	log.Error(err)
+	// 	panic(err)
+	// }
+
+	// _, err = os.Stdout.Write(jsonBytesIetfL2nm)
+	// if err != nil {
+	// 	log.Error(err)
+	// 	panic(err)
+	// }
+
+	tools.CommentProcessor("./html-public/nokia-MAGc-lab/button.html", "./html-static/template/clab/button.tmpl")
 
 }
 
+// test ssh
+// test ssh
+// test ssh
 // test ssh
 // package main
 

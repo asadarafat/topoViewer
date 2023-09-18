@@ -25,8 +25,8 @@ The simplest approach to utilise TopoViewer with Containerlab is to add the foll
           #### the opend port could be adjusted accordingly, not always 8080.
       # exec:
       # - '/opt/topoviewer/topoviewer clab -H 138.203.26.59 -P 8080 -u root -p j0k0w1 -j local-bind/topo-file.json' 
-          #### "root" corresponds to the server username where containerLab is currently operational.
-          #### "j0k0w1", corresponds to user's password
+          #### "root" corresponds to the server host user where containerLab is currently operational.
+          #### "j0k0w1", corresponds to user's password.
           #### "138.203.26.59," corresponds to the server IP address where containerLab is currently operational.
           #### "8080", corresponds to the port where the topoViewer service will be listening.
                 
@@ -40,11 +40,11 @@ The simplest approach to utilise TopoViewer with Containerlab is to add the foll
 Grab ContainerLab topology export template, it's gonna help us export out the ContainerLab's topology in a format that TopoViewer can consume."
 for containerlab version: 0.41.2 and below:
 ```Shell
-wget https://github.com/asadarafat/topoViewer/blob/development/rawTopoFile/template-clab-cyto.tmpl
+wget https://github.com/asadarafat/topoViewer/blob/development/rawTopoFile/clab-topo-export-template-example/clab-topo-cytoscape.tmpl
 ```
 for containerlab version: version: 0.44.3:
 ```Shell
-wget https://github.com/asadarafat/topoViewer/blob/development/rawTopoFile/clab-topo-new-version-cytoscape.tmpl
+wget https://github.com/asadarafat/topoViewer/blob/development/rawTopoFile/clab-topo-export-template-example/clab-topo-new-version-cytoscape.tmpl
 ```
 
 Get ContainerLab topology YAML file
@@ -58,10 +58,18 @@ clab deploy -t topo-nokia-MAGc-lab.yaml --export-template template-clab-cyto.tmp
 
 ```
 
+Run Topoviewer
+```Shell
+docker exec -it clab-nokia-MAGc-lab-topoviewer /opt/topoviewer/topoviewer clab -H 138.203.26.59 -P 8080 -u root -p j0k0w1 -j local-bind/topo-file.json
+#### "clab-nokia-MAGc-lab-topoviewer" corresponds to the topoViewer container that currently running
+#### "root" corresponds to the <server-host-user> where containerLab is currently operational.
+#### "j0k0w1", corresponds to user's <password>.
+#### "138.203.26.59," corresponds to the <server-IP-address> where containerLab is currently operational.
+#### "8080", corresponds to the port where the topoViewer service will be listening.
+```
 
-
-Open the TopoViewer GUI in browser http://138.203.40.63:8080/ 
-note that 138.203.40.63 is the clab server 
+Open the TopoViewer GUI in browser http://138.203.26.59:8080/ 
+note that 138.203.26.59 is the <server-IP-address>
 
 ## Quick Run - CloudShell access
 Click the node to open Node Properties, and then click SSH Session
@@ -75,7 +83,7 @@ TopoViewer has a remote capture feature that allows to intercept ContainerLab no
 #### Prerequisite
 - Ensure iTerm installed in MAC client side
 - Ensure the Wireshark is installed in client side.
-- Setup SSH keyless access to ContainerLab host
+- Setup SSH keyless access to ContainerLab host from client side.
 - Download the "ContainerLab Wireshark Client - MAC" app extract and copy the app into /Applications folder
 
 
@@ -87,9 +95,9 @@ and ![Pumba](https://github.com/alexei-led/pumba/releases) binary is installed i
 ![](https://github.com/asadarafat/topoViewer/blob/development/docs/mac-client-package-edit-client-pumba-delay.gif)
 
 #### Prerequisite
-- Ensure iTerm installed in MAC client side
+- Ensure iTerm installed in MAC client side.
 - Ensure the Pumba is installed ContainerLab host.
-- Setup SSH keyless access to ContainerLab host
+- Setup SSH keyless access to ContainerLab host from client side
 - Download the "ContainerLab Link Impairment Client - MAC" app extract and copy the app into /Applications folder
 
 
