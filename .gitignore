@@ -11,7 +11,7 @@ html-static/cytoscape/libs/build
 html-static/cytoscape/libs/src
 tools/ygot
 tools/ygot/**
-README copy.md
+README-copy.md
 html-static/template/clab/*.bak*
 html-static/template/clab/button.tmpl
 
