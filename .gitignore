@@ -12,3 +12,4 @@ html-static/cytoscape/libs/src
 tools/ygot
 tools/ygot/**
 README copy.md
+html-static/template/clab/button*
