@@ -66,18 +66,46 @@ func addIncomingRequestLogging(next http.Handler) http.Handler {
 		createRequestLog(r).Infof("request completed in %vms", float64(duration.Nanoseconds())/1000000)
 	})
 }
+
+// func createHtmlPublicFiles(htmlTemplatePath string, htmlPublicPrefixPath string, templateFile string, outputFile string, inputValue string) {
+// 	// os.Mkdir("./html-public/"+cyTopo.ClabTopoData.ClabTopoName, 0755) // this folder created in cytoscape model library.
+// 	template, err := template.ParseFiles(htmlTemplatePath + templateFile)
+// 	log.Debugf("Template File: ", htmlTemplatePath+templateFile)
+// 	if err != nil {
+// 		log.Error("Could not compile " + htmlTemplatePath + templateFile)
+// 	}
+
+// 	// create file
+// 	file, err := os.Create(htmlPublicPrefixPath + outputFile)
+// 	if err != nil {
+// 		log.Error("Could not render " + htmlTemplatePath + templateFile + " into file")
+// 	}
+// 	// write file
+// 	err = template.Execute(file, inputValue)
+// 	if err != nil {
+// 		log.Error("execute: ", err)
+// 	}
+// }
+
 func createHtmlPublicFiles(htmlTemplatePath string, htmlPublicPrefixPath string, templateFile string, outputFile string, inputValue string) {
 	// os.Mkdir("./html-public/"+cyTopo.ClabTopoData.ClabTopoName, 0755) // this folder created in cytoscape model library.
-	template, err := template.ParseFiles(htmlTemplatePath + templateFile)
-	log.Debugf("Template File: ", htmlTemplatePath+templateFile)
+	template, err := template.New(templateFile).Funcs(template.FuncMap{
+		"rawHTMLComment": func(comment string) template.HTML {
+			return template.HTML("<!-- " + comment + " -->")
+		},
+		"rawJSComment": func(comment string) template.JS {
+			return template.JS("//##" + comment)
+		},
+	}).ParseFiles(htmlTemplatePath + templateFile)
+
 	if err != nil {
-		log.Error("Could not compile index.tmpl")
+		log.Error("Could not compile " + htmlTemplatePath + templateFile)
 	}
 
 	// create file
 	file, err := os.Create(htmlPublicPrefixPath + outputFile)
 	if err != nil {
-		log.Error("Could not create index.html file")
+		log.Error("Could not render " + htmlTemplatePath + templateFile + " into file")
 	}
 	// write file
 	err = template.Execute(file, inputValue)

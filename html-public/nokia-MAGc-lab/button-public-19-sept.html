@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>TopoViewer</title>
+		<link href="css/style.css" rel="stylesheet"/>
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
+		<script defer src="https://use.fontawesome.com/releases/v5.14.0/js/all.js"></script>
+		<script defer src="https://cdn.jsdelivr.net/npm/bulma-extensions@4.0.1/bulma-slider/dist/js/bulma-slider.min.js"></script>
+	</head>
+	<style>
+		body { 
+			font: 14px helvetica neue, helvetica, arial, sans-serif;
+		}
+		#edgeLength, #nodeSpacing {
+			width: 100%;
+		}
+		#cy {
+			position: fixed;
+			left: 0;
+			right: 26em;
+			top: 5em;
+			bottom: 0em;
+		}
+		#logo {
+			top: 20px; 
+			left: 30px;
+			z-index: 9999;
+			position: absolute;
+		}
+		#Panel-01 {
+			top: 60px; 
+			right: 10px; 
+			width: 350px; 
+			position: absolute;
+		}
+		#Panel-02 {
+			bottom: 0px; 
+			right: 10px; 
+			width: 350px; 
+			position: absolute;
+		}
+		#Panel-03 {
+			top: 60px; 
+			right: 10px; 
+			width: 350px; 
+			position: absolute;
+		}
+		.has-background-4a {
+			background-color: #275bd4;
+			z-index: 9999;
+		}
+		.panel-block {
+			background-color: white;  
+		}
+		.panel-tabs {
+			background-color: white;  
+		}
+	</style>
+	<body>
+		<nav class="level m-0 px-3 py-1 has-background-4a">
+			<div>
+				<p class="title    m-0 px-1 py-0   is-4 is-unselectable has-text-weight-normal has-text-white"> TopoViewer</p>
+				<p class="subtitle m-0 px-1 py-0   is-6                 has-text-weight-light  has-text-white" id="ClabSubtitle">Topology name:nokia-MAGc-lab ::: Uptime: 10m10s</p>
+			</div>
+			<div class="level-right">
+				<div id="nokia-logo">
+					<img src="images/nokia-logo.png" width="100" hspace="10" vspace="5"><br>
+				</div>
+				<div class="level-item">
+					<div class="dropdown is-hoverable is-right">
+						<div class="dropdown-trigger">
+							<button class="button is-small is-link is-light" aria-haspopup="true" aria-controls="dropdown-menu3">
+								<i class="icon fas fa-solid fa-bars fa-lg" aria-hidden="true"></i>
+							</button>
+						</div>
+						<div class="dropdown-menu" id="dropdown-menu3" role="menu">
+							<div class="dropdown-content">
+								<div class="dropdown-item">
+									<label class="label has-text-weight-normal is-small">Edge Length</label>
+									<input id="edgeLength" type="range" min="1" max="1000" step="1" value="50">
+								</div>
+								<div class="dropdown-item">
+									<label class="label has-text-weight-normal is-small">Node Spacing</label>
+									<input id="nodeSpacing" type="range" min="1" max="1000" step="1" value="25">
+								</div>
+								<hr class="dropdown-divider">
+								<a href="#" class="dropdown-item">
+								With a divider
+								</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</nav>
+		<div id="cy-container">
+			<div id="cy"></div>
+			<<div class="panel" id="Panel-01" style="display: block;">
+			<!-- <div class="panel" id="Panel-01" style="display: none;">  inital static was display node 
+				<p class="panel-heading is-size-6">Actions</p>
+				<p class="panel-tabs">
+					<a class="toggle-Panel01-tab" data-target="Panel-01--Tab-01-Container" id="Panel-01--Tab-01-Button">Tab-01</a>
+					<a class="toggle-Panel01-tab" data-target="Panel-01--Tab-02-Container" id="Panel-01--Tab-02-Button">Tab-02</a>
+					<a class="toggle-Panel01-tab" data-target="Panel-01--Tab-03-Container" id="Panel-01--Tab-03-Button">Tab-03</a>
+					<a class="toggle-Panel01-tab" data-target="Panel-01--Tab-04-Container" id="Panel-01--Tab-04-Button">Tab-04</a>
+					<a class="toggle-Panel01-tab" data-target="Panel-01--Tab-05-Container" id="Panel-01--Tab-05-Button">Tab-05</a>
+				</p>
+				<div class="Panel-Container" id="Panel-01--Tab-01-Container">
+					<div class="panel-block">
+						<div id="nodeAttributes">
+							<label class="label is-size-7" for="nodeName">Node Spawner:</label>
+							<input class="input is-small" type="text" id="nodeName" placeholder="Node Name">
+							<button class="button is-small" id="addNodeSubmit">Spwan</button>
+						</div>
+						<div id="nodeGenerate">
+							<label class="label is-size-7" for="generateNodesInput">Network Maker:</label>
+							<input class="input is-small" type="text" id="generateNodesInput" placeholder="Wiro Sableng" value="212">
+							<button class="button is-small" id="generateNodesButton">Generate</button>
+						</div>
+					</div>
+					<div class="panel-block">
+						<label class="label is-size-7" for="nodeFindInput">Find Node :</label>
+						<div id="nodeFind">
+							<input class="input is-small" type="text" id="nodeFindInput" placeholder="Node Name">
+							<button class="button is-small" id="nodeFindButton">Find</button>
+							<button class="button is-small" id="fitAllNodesAction">Zoom to Fit</button>
+						</div>
+					</div>
+					<div class="panel-block">
+						<label class="label is-size-7" >Path Finder:</label>
+						<div id="nodeAttributes">
+							<input class="input is-small" type="text" id="findPathSourceNodeInput" placeholder="Source Node Name">
+							<input class="input is-small" type="text" id="findPathTargetNodeInput" placeholder="Target Node Name">
+							<button class="button is-small" id="findPathButtonDijkstra">Find Path Dijkstra</button>
+						</div>
+					</div>
+					<div class="panel-block">
+						<button class="button is-small" id="connectNodesAction">Connect Nodes</button>
+					</div>
+					<div class="panel-block">
+						<button class="button is-small" id="closeForm">Close</button>
+					</div>
+				</div>
+				<div class="Panel-Container" id="Panel-01--Tab-02-Container">
+					<div class="panel-block">
+						<div id="Container">
+							<label class="label is-size-7" for="Container">Container:</label>
+							<input class="input is-small" type="text" id="Container" placeholder="Container">
+							<button class="button is-small" id="addNodeSubmit">Container</button>
+						</div>
+					</div>
+				</div>
+				<div class="Panel-Container" id="Panel-01--Tab-03-Container">
+					<div class="panel-block">
+						<div id="Container">
+							<label class="label is-size-7" for="Container">Container:</label>
+							<input class="input is-small" type="text" id="Container" placeholder="Container">
+							<button class="button is-small" id="addNodeSubmit">Container</button>
+						</div>
+					</div>
+				</div>
+				<div class="Panel-Container" id="Panel-01--Tab-04-Container">
+					<div class="panel-block">
+						<div id="Container">
+							<label class="label is-size-7" for="Container">Container:</label>
+							<input class="input is-small" type="text" id="Container" placeholder="Container">
+							<button class="button is-small" id="addNodeSubmit">Container</button>
+						</div>
+					</div>
+				</div>
+				<div class="Panel-Container" id="Panel-01--Tab-05-Container">
+					<div class="panel-block">
+						<div id="Container">
+							<label class="label is-size-7" for="Container">Container:</label>
+							<input class="input is-small" type="text" id="Container" placeholder="Container">
+							<button class="button is-small" id="addNodeSubmit">Container</button>
+						</div>
+					</div>
+				</div>
+			</div> 
+		</div> inital static was display none -->
+		</div>
+		<div class="panel" id="Panel-02" >
+			<p class="panel-heading is-size-6 ">Notifications</p>
+			<div class="panel-block">
+				<textarea class="textarea is-small is-outlined is-expanded" id="notificationTextarea" rows="20"></textarea>
+			</div>
+			<div class="panel-block">
+				<button id="copyToClipboardButton" class="button is-small">Copy to Clipboard</button>
+			</div>
+		</div>
+		<script src="/cytoscape/libs/cola.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.19.0/cytoscape.min.js"></script>
+		<script src="/cytoscape/libs/cytoscape-cola.js"></script>
+		<script src="/cytoscape/libs/popper.js"></script>
+		<script src="/cytoscape/libs/cytoscape-popper.js"></script>
+		<script src="/cytoscape/libs/cytoscape-grid-guide.js"></script>
+		<script>
+
+
+			// Initialize a state variable to track the element's presence
+			let isElementAdded = false;
+
+			document.addEventListener('DOMContentLoaded', function() {
+				//- Initialize Cytoscape.js
+				const cy = cytoscape({
+					container: document.getElementById('cy'),
+					elements: [],
+					style: [
+					{
+						selector: 'node',
+						style: {
+							'background-color': '#3498db',
+							'label': 'data(label)'
+						}
+					}]
+				});
+			
+				cy.on('click', 'node', function (event) {
+					// This code will be executed when you click on a node
+					// You can add logic specific to nodes here
+					appendMessage("Info: node is clicked")
+					console.log("Info: node is clicked")
+					const newContent = `
+					<p class="panel-heading is-size-6">Updated Panel</p>
+					<p>This is the updated content of Panel-01.</p>
+					<!-- Add more content here as needed -->
+				  	`;
+					  // Update Panel-01 content
+					  updatePanelContent(newContent);
+					  // Log that the panel content has been updated
+					  console.log('Panel-01 content has been updated.');
+					
+
+				});
+
+				// // Get all buttons with the class 'toggle-Panel01-tab'
+				// const toggleButtons = document.querySelectorAll('.toggle-Panel01-tab');
+ 
+				// // Add click event listeners to toggle tabs
+				// toggleButtons.forEach(button => {
+				// 	button.addEventListener('click', () => {
+				// 	// Get the target panel ID from the data-target attribute of the clicked button
+				// 	const targetPanelId = button.getAttribute('data-target');
+ 
+				// 	// Hide all tab containers
+				// 	const tabContainers = document.querySelectorAll('.Panel-Container');
+				// 	tabContainers.forEach(container => {
+				// 	  container.style.display = 'none';
+				// 	});
+ 
+				// 	// Show the selected tab container
+				// 	const selectedTabContainer = document.getElementById(targetPanelId);
+				// 	selectedTabContainer.style.display = 'block';
+ 
+				// 	// Log the panel and tab state
+				// 	console.log(`Panel-${targetPanelId} is displayed.`);
+				// 	appendMessage(`Panel-${targetPanelId} is displayed.`);
+				//   });
+				// });
+ 
+				// //- Helper eventListner for managed Panel-01 tabs
+				// ['01', '02', '03', '04', '05'].forEach(num => {
+				// 	document.getElementById(`Panel-01--Tab-${num}-Button`).addEventListener('click', () => {
+				// 		appendMessage(`Panel-01--Tab-${num}-Button clicked`);
+				// 		showPanel01Tab(`Panel-01--Tab-${num}-Container`);
+				// 		});
+				// 	  });
+			
+				//- Toggle the Panel-01 when clicking on the cy container 
+				document.getElementById('cy').addEventListener('click', () => {
+					//- This code will be executed when you click anywhere in the Cytoscape container
+					//- You can add logic specific to the container here	
+					createContentPanel01()
+
+					var panel01 = document.getElementById('Panel-01');
+					console.log(panel01)
+				
+					if (panel01.style.display === 'none' || panel01.style.display === '') {
+					//- Show the panel01
+					panel01.style.display = 'block';
+					panel01.classList.toggle('active')
+			
+					} else {
+						//- Hide the panel
+						panel01.style.display = 'none';
+					}
+
+
+					
+				});
+			
+			
+				// document.getElementById('connectNodesAction').addEventListener('click', () => {
+				// 	//- Implement logic to connect nodes here 
+				// 	//- You can create edges between nodes, similar to what you did before
+					
+					
+				// });
+			
+				// //- Add click event listener to 'Zoom to Fit' the form 
+				// document.getElementById('fitAllNodesAction').addEventListener('click', () => {
+				// 	//- Get the current zoom level
+				// 	const currentZoom = cy.zoom();
+				// 	//- Fit all nodes with padding
+				// 	cy.fit();
+				// });
+			
+				// //- Add click event listener to close the form 
+				// document.getElementById('closeForm').addEventListener('click', () => {
+				// 	var panel = document.getElementById('Panel-01');
+				// 	if (panel.style.display === 'none' || panel.style.display === '') {
+				// 		//- Show the panel
+				// 		panel.style.display = 'block';
+				// 		panel.classList.toggle('active');
+				// 	} else {
+				// 		//- Hide the panel
+				// 		panel.style.display = 'none';
+				// 	}
+				// 	console.log("Panel-01.style: " + document.getElementById('Panel-01').style.display)
+				// });
+			
+				// //- Add a click event listener to the 'Submit' button in the hidden form
+				// document.getElementById('addNodeSubmit').addEventListener('click', () => {
+				// 	//- Get the node name from the input field 
+				// 	const nodeName = document.getElementById('nodeName').value;
+				// 	console.log(nodeName)
+				// 	//- Check if a node name is empty 
+				// 	if (nodeName == "") {
+				// 		//- append message in textArea 
+				// 		appendMessage('Error: Enter node name.');
+				// 		return;
+				// 	}
+				// 	//- Check if a node with the same name already exists 
+				// 	if (cy.$(`node[id = "${nodeName}"]`).length > 0) {
+				// 		//- append message in textArea 
+				// 		appendMessage('Error: Node with this name already exists.');
+				// 		return;
+				// 	}
+				// 	//- Create a new node element 
+				// 	const newNode = {
+				// 		group: 'nodes',
+				// 		data: {
+				// 			id: nodeName,
+				// 			name: nodeName,
+				// 			label: nodeName
+				// 		}
+				// 	};
+				// 	//- Add the new node to Cytoscape.js 
+				// 	cy.add(newNode);
+				// 	//- Randomize the positions and center the graph 
+				// 	const layout = cy.layout({
+				// 		name: 'cola',
+				// 		nodeSpacing: 5,
+				// 		edgeLengthVal: 45,
+				// 		animate: true,
+				// 		randomize: false,
+				// 		maxSimulationTime: 1500
+				// 	});
+				// 	layout.run();
+				// 	//- Append a notification message to the textarea 
+				// 	console.log("Info: " + `Nice! Node "${nodeName}" added successfully.`);
+				// 	appendMessage("Info: " + `Nice! Node "${nodeName}" added successfully.`);
+				// 
+				// });
+				
+				// Add a click event listener to the copy button
+				const copyButton = document.getElementById('copyToClipboardButton');
+				copyButton.addEventListener('click', copyToClipboard);
+			
+				//- Function to find and highlight a node by name
+				async function findNode(nodeName) {
+					//- Get a reference to your Cytoscape instance (assuming it's named 'cy')
+					//- const cy = window.cy; //- Replace 'window.cy' with your actual Cytoscape instance
+					//- Find the node with the specified name
+					const node = cy.$(`node[name = "${nodeName}"]`);
+					//- Check if the node exists
+					if (node.length > 0) {
+						// console
+						console.log("Info: " + "Sweet! Node \"" + nodeName + "\" is in the house.");
+						appendMessage("Info: " + "Sweet! Node \"" + nodeName + "\" is in the house.");
+						//- Apply a highlight style to the node
+						node.style({
+							'border-color': 'red',
+							'border-width': '2px',
+							'background-color': 'yellow'
+						});
+						//- Zoom out on the node
+						cy.fit()
+						//- Zoom in on the node
+						cy.animate({
+							zoom: {
+								level: 5,
+								position: {
+									x: node.position('x'),
+									y: node.position('y')
+								},
+								renderedPosition: {
+									x: node.renderedPosition('x'),
+									y: node.renderedPosition('y')
+								}
+							},
+							duration: 1500
+						});
+					} else {
+						console.error(`Bro, I couldn't find a node named "${nodeName}". Try another one.`);
+						appendMessage(`Bro, I couldn't find a node named "${nodeName}". Try another one.`);
+			
+					}
+				}
+			
+				// Usage example:
+				// highlightShortestPath('node-a', 'node-b'); // Replace with your source and target node IDs
+				//- Function to get the default node style from cy-style.json
+				//- weight: (edge) => 1, // You can adjust the weight function if needed
+				//- weight: (edge) => edge.data('distance')
+				function highlightShortestPath(sourceNodeId, targetNodeId) {
+			
+					// Remove existing highlight from all edges
+					cy.edges().forEach(edge => {
+						edge.removeClass('spf');
+							});
+			
+					// Assuming you have 'cy' as your Cytoscape instance
+					const sourceNode = cy.$(`node[id="${sourceNodeId}"]`);
+					const targetNode = cy.$(`node[id="${targetNodeId}"]`);
+			
+					console.log("Info: " + "Let's find the path from-" + sourceNodeId + "-to-"  + targetNodeId + "!");
+					appendMessage("Info: " + "Let's find the path from-" + sourceNodeId + "-to-"  + targetNodeId + "!");
+			
+							// Check if both nodes exist
+							if (sourceNode.length === 0 || targetNode.length === 0) {
+								console.error(`Bro, couldn't find the source or target node you specified. Double-check the node names.`);
+								appendMessage(`Bro, couldn't find the source or target node you specified. Double-check the node names.`);
+								return;
+							}
+			
+					// Get the Dijkstra result with the shortest path
+					const dijkstraResult = cy.elements().dijkstra({
+						root: sourceNode,
+						weight: (edge) => 1, 
+						// Use the custom weight attribute
+						// weight: edge => edge.data('customWeight'),
+			
+					});
+					// Get the shortest path from Dijkstra result
+					const shortestPathEdges = dijkstraResult.pathTo(targetNode);
+			
+					//// Apply a style to highlight the shortest path edges
+					// shortestPathEdges.style({
+					//	'line-color': 'red', 
+					//	'line-style': 'solid', 
+					// });
+			
+					// Highlight the shortest path
+					shortestPathEdges.forEach(edge => {
+						edge.addClass('spf'); 
+							});
+			
+					//- Zoom out on the node
+					cy.fit()
+			
+					//- Zoom in on the node
+					cy.animate({
+						zoom: {
+							level: 5,
+							position: {
+								x: sourceNode.position('x'),
+								y: sourceNode.position('y')
+							},
+							renderedPosition: {
+								x: sourceNode.renderedPosition('x'),
+								y: sourceNode.renderedPosition('y')
+							}
+						},
+						duration: 1500
+					});
+					// throw log
+					console.log("Info: " + "Yo, check it out! Shorthest Path from-" + sourceNodeId + "-to-"  + targetNodeId + " has been found.");
+					appendMessage("Info: " + "Yo, check it out! Shorthest Path from-" + sourceNodeId + "-to-"  + targetNodeId + " has been found, below is the path trace..");
+					console.log(shortestPathEdges)
+			
+					shortestPathEdges.forEach(edge => {
+						console.log('Edge ID:', edge.id());
+						console.log('Source Node ID:', edge.source().id());
+						console.log('Target Node ID:', edge.target().id());
+			
+						edgeId = edge.id();
+						sourceNodeId = edge.source().id();
+						targetNodeId = edge.target().id();
+						// You can access other properties of the edge, e.g., source, target, data, etc.
+						
+						appendMessage("Info: " + 'Edge ID: ' + edgeId )
+						appendMessage("Info: " + 'Source Node ID: ' + sourceNodeId )
+						appendMessage("Info: " + 'Target Node ID: ' + targetNodeId )
+			
+			
+							});
+			
+				}
+			
+				//- Function to get the default node style from cy-style.json
+				async function getDefaultNodeStyle(node) {
+					try {
+						//- Fetch the cy-style.json file
+						const response = await fetch('cy-style.json');
+						//- Check if the response is successful (status code 200)
+						if (!response.ok) {
+							throw new Error(`Failed to fetch cy-style.json (${response.status} ${response.statusText})`);
+						}
+						//- Parse the JSON response
+						const styleData = await response.json();
+						//- Extract the default node style from the loaded JSON
+						//- Adjust this based on your JSON structure
+						const defaultNodeStyle = styleData[0].style;
+						return defaultNodeStyle;
+					} catch (error) {
+						console.error('Error loading cy-style.json:', error);
+						appendMessage(`Error loading cy-style.json: ${error}`);
+						//- Return a default style in case of an error
+						return {
+							'background-color': 'blue',
+							'border-color': 'gray',
+							'border-width': '1px'
+						};
+					}
+				}
+
+
+
+				//- Helper Function for managed Panel-01 tabs
+				function showPanel01Tab(tabId) {
+					hideAllTabs();
+					document.getElementById(tabId).style.display = 'block';
+					}
+				
+				//- Append message function
+				function appendMessage(message) {
+					const textarea = document.getElementById('notificationTextarea');
+					// Get the current date and time
+							const timestamp = new Date().toLocaleString();
+			
+					textarea.value += `[${timestamp}] ${message}\n` ;
+					textarea.scrollTop = textarea.scrollHeight;
+				}
+				
+				// Function to copy textarea content to clipboard
+				function copyToClipboard() {
+					const textarea = document.getElementById('notificationTextarea');
+					textarea.select();
+					document.execCommand('copy');
+					}
+
+
+				// Function to create the Panel-01 content
+				function createContentPanel01() {
+					// Create the main panel div
+					const panel = document.createElement('div');
+					panel.className = 'panel';
+					panel.id = 'Panel-01';
+					panel.style.display = 'block';
+					// Create the panel heading
+					const panelHeading = document.createElement('p');
+					panelHeading.className = 'panel-heading is-size-6';
+					panelHeading.textContent = 'Actions';
+					// Create the panel tabs
+					const panelTabs = document.createElement('p');
+					panelTabs.className = 'panel-tabs';
+					// Array of tab names
+					const tabNames = ['Tab-01', 'Tab-02', 'Tab-03', 'Tab-04', 'Tab-05'];
+					// Create tabs dynamically
+					for (const name of tabNames) {
+						const tab = document.createElement('a');
+						tab.className = 'toggle-Panel01-tab';
+						tab.setAttribute('data-target', `Panel-01--Tab-${name}-Container`);
+						tab.id = `Panel-01--Tab-${name}-Button`;
+						tab.textContent = name;
+						panelTabs.appendChild(tab);
+					}
+					// Append the panel heading and tabs to the panel
+					panel.appendChild(panelHeading);
+					panel.appendChild(panelTabs);
+					// Create tab containers dynamically
+					for (const name of tabNames) {
+						const tabContainer = document.createElement('div');
+						tabContainer.className = 'Panel-Container';
+						tabContainer.id = `Panel-01--Tab-${name}-Container`;
+						// Create content for each tab container
+						if (name === 'Tab-01') {
+							// Call the function to create Tab-01 content
+							const tab01Content = createPanel01Tab01Content();
+							tabContainer.appendChild(tab01Content);
+
+						} else if (name === 'Tab-02') {
+							// Content for Tab-02
+							const containerInput = document.createElement('div');
+							// ... Add your content for Tab-02 here ...
+							tabContainer.appendChild(containerInput);
+						} else {
+							// Content for other tabs
+							// ...
+						}
+						// Append the tab container to the panel
+						panel.appendChild(tabContainer);
+					}
+					// Append the panel to the document body or another container of your choice
+					document.body.appendChild(panel);
+				}
+
+
+
+				// Start of JS Functions HTML Element Creation section
+				// Start of JS Functions HTML Element Creation section
+
+				// Function to create content for Panel01-Tab-01
+				function createPanel01Tab01Content() {
+					// Create a div container for Tab-01 content
+					const tab01Container = document.createElement('div');
+					tab01Container.className = 'Panel-Container';
+					tab01Container.id = 'Panel-01--Tab-01-Container';
+				
+					// Create a div with class "panel-block" for the first block of content
+					const block1 = document.createElement('div');
+					block1.className = 'panel-block';
+				
+					// Create the "Node Spawner" section
+					const nodeAttributes = document.createElement('div');
+					nodeAttributes.id = 'nodeAttributes';
+				
+					const nodeNameLabel = document.createElement('label');
+					nodeNameLabel.className = 'label is-size-7';
+					nodeNameLabel.setAttribute('for', 'nodeName');
+					nodeNameLabel.textContent = 'Node Spawner:';
+				
+					const nodeNameInput = document.createElement('input');
+					nodeNameInput.className = 'input is-small';
+					nodeNameInput.type = 'text';
+					nodeNameInput.id = 'nodeName';
+					nodeNameInput.placeholder = 'Node Name';
+				
+					const addNodeButton = document.createElement('button');
+					addNodeButton.className = 'button is-small';
+					addNodeButton.id = 'addNodeSubmit';
+					addNodeButton.textContent = 'Spawn';
+				
+					nodeAttributes.appendChild(nodeNameLabel);
+					nodeAttributes.appendChild(nodeNameInput);
+					nodeAttributes.appendChild(addNodeButton);
+				
+					// Create the "Network Maker" section
+					const nodeGenerate = document.createElement('div');
+					nodeGenerate.id = 'nodeGenerate';
+				
+					const networkMakerLabel = document.createElement('label');
+					networkMakerLabel.className = 'label is-size-7';
+					networkMakerLabel.setAttribute('for', 'generateNodesInput');
+					networkMakerLabel.textContent = 'Network Maker:';
+				
+					const generateNodesInput = document.createElement('input');
+					generateNodesInput.className = 'input is-small';
+					generateNodesInput.type = 'text';
+					generateNodesInput.id = 'generateNodesInput';
+					generateNodesInput.placeholder = 'Wiro Sableng';
+					generateNodesInput.value = '212';
+				
+					const generateNodesButton = document.createElement('button');
+					generateNodesButton.className = 'button is-small';
+					generateNodesButton.id = 'generateNodesButton';
+					generateNodesButton.textContent = 'Generate';
+				
+					nodeGenerate.appendChild(networkMakerLabel);
+					nodeGenerate.appendChild(generateNodesInput);
+					nodeGenerate.appendChild(generateNodesButton);
+				
+					block1.appendChild(nodeAttributes);
+					block1.appendChild(nodeGenerate);
+				
+					// Create the second block of content
+					const block2 = document.createElement('div');
+					block2.className = 'panel-block';
+				
+					// Create the "Find Node" section
+					const findNodeDiv = document.createElement('div');
+					findNodeDiv.id = 'nodeFind';
+				
+					const findNodeLabel = document.createElement('label');
+					findNodeLabel.className = 'label is-size-7';
+					findNodeLabel.textContent = 'Find Node :';
+				
+					const nodeFindInput = document.createElement('input');
+					nodeFindInput.className = 'input is-small';
+					nodeFindInput.type = 'text';
+					nodeFindInput.id = 'nodeFindInput';
+					nodeFindInput.placeholder = 'Node Name';
+				
+					const nodeFindButton = document.createElement('button');
+					nodeFindButton.className = 'button is-small';
+					nodeFindButton.id = 'nodeFindButton';
+					nodeFindButton.textContent = 'Find';
+				
+					const fitAllNodesButton = document.createElement('button');
+					fitAllNodesButton.className = 'button is-small';
+					fitAllNodesButton.id = 'fitAllNodesAction';
+					fitAllNodesButton.textContent = 'Zoom to Fit';
+				
+					findNodeDiv.appendChild(findNodeLabel);
+					findNodeDiv.appendChild(nodeFindInput);
+					findNodeDiv.appendChild(nodeFindButton);
+					findNodeDiv.appendChild(fitAllNodesButton);
+				
+					block2.appendChild(findNodeDiv);
+				
+					// Create the third block of content
+					const block3 = document.createElement('div');
+					block3.className = 'panel-block';
+				
+					// Create the "Path Finder" section
+					const pathFinderDiv = document.createElement('div');
+					pathFinderDiv.id = 'nodeAttributes';
+				
+					const pathFinderLabel = document.createElement('label');
+					pathFinderLabel.className = 'label is-size-7';
+					pathFinderLabel.textContent = 'Path Finder:';
+				
+					const findPathSourceNodeInput = document.createElement('input');
+					findPathSourceNodeInput.className = 'input is-small';
+					findPathSourceNodeInput.type = 'text';
+					findPathSourceNodeInput.id = 'findPathSourceNodeInput';
+					findPathSourceNodeInput.placeholder = 'Source Node Name';
+				
+					const findPathTargetNodeInput = document.createElement('input');
+					findPathTargetNodeInput.className = 'input is-small';
+					findPathTargetNodeInput.type = 'text';
+					findPathTargetNodeInput.id = 'findPathTargetNodeInput';
+					findPathTargetNodeInput.placeholder = 'Target Node Name';
+				
+					const findPathButtonDijkstra = document.createElement('button');
+					findPathButtonDijkstra.className = 'button is-small';
+					findPathButtonDijkstra.id = 'findPathButtonDijkstra';
+					findPathButtonDijkstra.textContent = 'Find Path Dijkstra';
+				
+					pathFinderDiv.appendChild(pathFinderLabel);
+					pathFinderDiv.appendChild(findPathSourceNodeInput);
+					pathFinderDiv.appendChild(findPathTargetNodeInput);
+					pathFinderDiv.appendChild(findPathButtonDijkstra);
+				
+					block3.appendChild(pathFinderDiv);
+				
+					// Create the fourth block of content
+					const block4 = document.createElement('div');
+					block4.className = 'panel-block';
+				
+					// Create the "Connect Nodes" button
+					const connectNodesButton = document.createElement('button');
+					connectNodesButton.className = 'button is-small';
+					connectNodesButton.id = 'connectNodesAction';
+					connectNodesButton.textContent = 'Connect Nodes';
+				
+					block4.appendChild(connectNodesButton);
+				
+					// Create the fifth block of content
+					const block5 = document.createElement('div');
+					block5.className = 'panel-block';
+				
+					// Create the "Close" button
+					const closeButton = document.createElement('button');
+					closeButton.className = 'button is-small';
+					closeButton.id = 'closeForm';
+					closeButton.textContent = 'Close';
+				
+					block5.appendChild(closeButton);
+				
+					// Append all blocks to the Tab-01 container
+					tab01Container.appendChild(block1);
+					tab01Container.appendChild(block2);
+					tab01Container.appendChild(block3);
+					tab01Container.appendChild(block4);
+					tab01Container.appendChild(block5);
+
+					generateNodesButton.addEventListener('click', generateNodes)
+					
+					return tab01Container;
+				}
+
+				// END of JS Functions HTML Element Creation section
+				// END of JS Functions HTML Element Creation section
+
+				// Start of JS Functions Event Handling section
+				// Start of JS Functions Event Handling section
+
+				function generateNodes(event) {
+					// Your event handling logic here
+					//- Add a click event listener to the 'Generate' button
+					//- Get the number of node from the input field  
+					console.log('generateNodesButton clicked')
+					const numNodes = document.getElementById('generateNodesInput').value;
+					console.log(numNodes)
+					//- Check if the number of node is empty  
+					if (numNodes === null) {
+						//- if node number empty do nothing 
+						return;
+					}
+					const numNodesToGenerate = parseInt(numNodes, 10);
+					//- Check if the number of node is positive 
+					if (isNaN(numNodesToGenerate) || numNodesToGenerate <= 0) {
+						//- Invalid input
+						appendMessage("Error:" + "Bro, you gotta enter a valid positive number, come on!");
+						return;
+					}
+					//- Generate nodes with random positions
+					for (let i = 0; i < numNodesToGenerate; i++) {
+						const nodeName = `node-${i + 1}`;
+						const newNode = {
+							group: 'nodes',
+							data: {
+								id: nodeName,
+								name: nodeName,
+							},
+							position: {
+								x: Math.random() * 400,
+								y: Math.random() * 400
+							}
+						};
+						//-cy.add(newNode);
+						try {
+							cy.add(newNode);
+							//- throw new Error('This is an example exception');
+						} catch (error) {
+							//- Log the exception to the console
+							console.error("An exception occurred:", error);
+							//- Log the exception to notification message to the textarea 
+							appendMessage("An exception occurred:" + error);
+						}
+					}
+					//- Generate random edges between nodes
+					for (let i = 0; i < numNodesToGenerate; i++) {
+						const sourceNode = `node-${i + 1}`;
+						const targetNode = `node-${Math.floor(Math.random() * numNodesToGenerate) + 1}`;
+						if (sourceNode !== targetNode) {
+							const newEdge = {
+								group: 'edges',
+								data: {
+									id: "from-" + sourceNode+ "-to-" + targetNode,
+									name: "from-" + sourceNode+ "-to-" + targetNode,
+									source: sourceNode,
+									target: targetNode
+								}
+							};
+							try {
+								cy.add(newEdge);
+								//- throw new Error('This is an example exception');
+							} catch (error) {
+								//- Log the exception to the console
+								console.error("An exception occurred:", error);
+								//- Log the exception to notification message to the textarea 
+								appendMessage("An exception occurred::" + error);
+							}
+						}
+					}
+					//- run layout
+					const layout = cy.layout({
+						name: 'cola',
+						nodeSpacing: 5,
+						edgeLengthVal: 45,
+						animate: true,
+						randomize: false,
+						maxSimulationTime: 1500
+					});
+					layout.run();
+					//-//- Append a notification message to the textarea
+					console.log("Info: " + `Boom! Just generated ${numNodesToGenerate} nodes with some random edges. That's how we roll!`);
+					appendMessage("Info: " + `Boom! Just generated ${numNodesToGenerate} nodes with some random edges. That's how we roll!`);
+				}
+
+				// End of JS Functions Event Handling section
+				// End of JS Functions Event Handling section
+
+
+
+
+				// End of JS Functions section
+				// End of JS Functions section
+
+				//- Load and apply Cytoscape styles from cy-style.json using fetch
+				fetch('cy-style.json')
+					.then(response => response.json())
+					.then(styles => {
+						//- Apply styles loaded from cy-style.json
+						cy.style().fromJson(styles).update();
+					})
+					.catch(error => {
+						console.error('Oops, we hit a snag! Couldnt load the cyto styles, bro.', error);
+						appendMessage(`Oops, we hit a snag! Couldnt load the cyto styles, bro.: ${error}`);
+					});
+			
+			});
+		</script>
+	</body>
+</html>

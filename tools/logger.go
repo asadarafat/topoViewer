@@ -68,3 +68,20 @@ func (tool *Logs) InitLogger(filePath string, level uint32) {
 
 	// log.SetFormatter(&log.JSONFormatter{})
 }
+func (tool *Logs) MapLogLevelStringToNumber(input string) int {
+	stringToNumber := map[string]int{
+		"trace": 6,
+		"debug": 5,
+		"info":  4,
+		"warn":  3,
+		"error": 2,
+	}
+
+	if value, found := stringToNumber[input]; found {
+		return value
+	}
+
+	// Return a default value or an error code if the input string is not found
+	// For example, return -1 for unknown strings
+	return -1
+}

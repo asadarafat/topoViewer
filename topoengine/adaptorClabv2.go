@@ -321,7 +321,7 @@ func (cyTopo *CytoTopology) GetDockerNodeStatus(clabNodeName string, clabUser st
 	// output, err := cmd.CombinedOutput()
 
 	config := &ssh.ClientConfig{
-		User: "root",
+		User: clabUser,
 		Auth: []ssh.AuthMethod{
 			ssh.Password(clabPassword),
 		},
@@ -330,18 +330,20 @@ func (cyTopo *CytoTopology) GetDockerNodeStatus(clabNodeName string, clabUser st
 
 	log.Debug("clabUser: " + clabUser)
 	log.Debug("clabHost: " + clabHost)
-	log.Debug("clabPassword: " + clabPassword)
+	// log.Debug("clabPassword: " + clabPassword)
+
+	log.Debug("clabNode:" + clabNodeName)
 
 	client, err := ssh.Dial("tcp", clabHost+":22", config)
 	if err != nil {
-		log.Fatal("Failed to dial: ", err)
+		log.Error("Failed to dial: ", err)
 	}
 
 	// Each ClientConn can support multiple interactive sessions,
 	// represented by a Session.
 	session, err := client.NewSession()
 	if err != nil {
-		log.Fatal("Failed to create session: ", err)
+		log.Error("Failed to create session: ", err)
 	}
 	defer session.Close()
 
@@ -350,9 +352,10 @@ func (cyTopo *CytoTopology) GetDockerNodeStatus(clabNodeName string, clabUser st
 	var b bytes.Buffer
 	session.Stdout = &b
 	if err := session.Run("docker ps --all --format json"); err != nil {
-		log.Fatal("Failed to run: " + err.Error())
+		log.Error("Failed to run: " + err.Error())
 	}
-	// fmt.Println(b.String())
+	log.Debug("output of 'docker ps --all --format json' comamand: ")
+	// log.Debug(b.String())
 
 	output := b.String()
 
@@ -365,6 +368,7 @@ func (cyTopo *CytoTopology) GetDockerNodeStatus(clabNodeName string, clabUser st
 	// log.Debug(string(output))
 
 	lines := strings.Split(string(output), "\n")
+	// log.Debug(lines)
 
 	for _, line := range lines {
 		if line == "" {
@@ -377,6 +381,8 @@ func (cyTopo *CytoTopology) GetDockerNodeStatus(clabNodeName string, clabUser st
 			log.Debug("Error parsing JSON:", err)
 			continue
 		}
+		log.Debug(dockerNodeStatus.Names)
+
 		if dockerNodeStatus.Names == clabNodeName {
 			json.Unmarshal([]byte(line), &outputParsed)
 			OutputParsedMarshalled, err := json.MarshalIndent(outputParsed, "", "  ")
@@ -387,6 +393,9 @@ func (cyTopo *CytoTopology) GetDockerNodeStatus(clabNodeName string, clabUser st
 			return OutputParsedMarshalled
 		}
 	}
+
+	log.Debug(OutputParsedMarshalled)
+
 	return OutputParsedMarshalled
 
 }

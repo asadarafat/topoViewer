@@ -63,7 +63,7 @@ var confClab = config.Map{
 		Usage:   fmt.Sprintf("defines the format of the logs - one of ['%s']", strings.Join(tools.ValidFormatStrings, "', '")),
 	},
 	"log-level": &config.String{
-		Default: "debug",
+		Default: "info",
 		Usage:   fmt.Sprintf("defines the minimum level of logs to show - one of ['%s']", strings.Join(tools.ValidLevelStrings, "', '")),
 	},
 	"path-liveness": &config.String{
@@ -186,7 +186,7 @@ func Clab(_ *cobra.Command, _ []string) error {
 
 	cyTopo := topoengine.CytoTopology{}
 	toolLogger := tools.Logs{}
-	cyTopo.LogLevel = 5 // debug
+	cyTopo.LogLevel = uint32(toolLogger.MapLogLevelStringToNumber(confClab.GetString("log-level")))
 	toolLogger.InitLogger("logs/topoengine-CytoTopology.log", cyTopo.LogLevel)
 
 	//// Clab Version 2
@@ -493,6 +493,8 @@ func Clab(_ *cobra.Command, _ []string) error {
 	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "tools-cloudshell-index.tmpl", cyTopo.ClabTopoDataV2.Name+"/cloudshell-tools/"+"index.html", "")
 	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "tools-cloudshell-terminal-js.tmpl", cyTopo.ClabTopoDataV2.Name+"/cloudshell-tools/"+"terminal.js", "")
 	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "websocket-index.tmpl", cyTopo.ClabTopoDataV2.Name+"/ws/"+"index.html", "")
+
+	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "button.tmpl", cyTopo.ClabTopoDataV2.Name+"/"+"button.html", "")
 
 	// start memory logging pulse
 	logWithMemory := createMemoryLog()
