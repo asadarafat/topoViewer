@@ -97,90 +97,8 @@
 		</nav>
 		<div id="cy-container">
 			<div id="cy"></div>
-			<<div class="panel" id="Panel-01" style="display: block;">
-			<!-- <div class="panel" id="Panel-01" style="display: none;">  inital static was display node 
-				<p class="panel-heading is-size-6">Actions</p>
-				<p class="panel-tabs">
-					<a class="toggle-Panel01-tab" data-target="Panel-01--Tab-01-Container" id="Panel-01--Tab-01-Button">Tab-01</a>
-					<a class="toggle-Panel01-tab" data-target="Panel-01--Tab-02-Container" id="Panel-01--Tab-02-Button">Tab-02</a>
-					<a class="toggle-Panel01-tab" data-target="Panel-01--Tab-03-Container" id="Panel-01--Tab-03-Button">Tab-03</a>
-					<a class="toggle-Panel01-tab" data-target="Panel-01--Tab-04-Container" id="Panel-01--Tab-04-Button">Tab-04</a>
-					<a class="toggle-Panel01-tab" data-target="Panel-01--Tab-05-Container" id="Panel-01--Tab-05-Button">Tab-05</a>
-				</p>
-				<div class="Panel-Container" id="Panel-01--Tab-01-Container">
-					<div class="panel-block">
-						<div id="nodeAttributes">
-							<label class="label is-size-7" for="nodeName">Node Spawner:</label>
-							<input class="input is-small" type="text" id="nodeName" placeholder="Node Name">
-							<button class="button is-small" id="addNodeSubmit">Spwan</button>
-						</div>
-						<div id="nodeGenerate">
-							<label class="label is-size-7" for="generateNodesInput">Network Maker:</label>
-							<input class="input is-small" type="text" id="generateNodesInput" placeholder="Wiro Sableng" value="212">
-							<button class="button is-small" id="generateNodesButton">Generate</button>
-						</div>
-					</div>
-					<div class="panel-block">
-						<label class="label is-size-7" for="nodeFindInput">Find Node :</label>
-						<div id="nodeFind">
-							<input class="input is-small" type="text" id="nodeFindInput" placeholder="Node Name">
-							<button class="button is-small" id="nodeFindButton">Find</button>
-							<button class="button is-small" id="fitAllNodesAction">Zoom to Fit</button>
-						</div>
-					</div>
-					<div class="panel-block">
-						<label class="label is-size-7" >Path Finder:</label>
-						<div id="nodeAttributes">
-							<input class="input is-small" type="text" id="findPathSourceNodeInput" placeholder="Source Node Name">
-							<input class="input is-small" type="text" id="findPathTargetNodeInput" placeholder="Target Node Name">
-							<button class="button is-small" id="findPathButtonDijkstra">Find Path Dijkstra</button>
-						</div>
-					</div>
-					<div class="panel-block">
-						<button class="button is-small" id="connectNodesAction">Connect Nodes</button>
-					</div>
-					<div class="panel-block">
-						<button class="button is-small" id="closeForm">Close</button>
-					</div>
-				</div>
-				<div class="Panel-Container" id="Panel-01--Tab-02-Container">
-					<div class="panel-block">
-						<div id="Container">
-							<label class="label is-size-7" for="Container">Container:</label>
-							<input class="input is-small" type="text" id="Container" placeholder="Container">
-							<button class="button is-small" id="addNodeSubmit">Container</button>
-						</div>
-					</div>
-				</div>
-				<div class="Panel-Container" id="Panel-01--Tab-03-Container">
-					<div class="panel-block">
-						<div id="Container">
-							<label class="label is-size-7" for="Container">Container:</label>
-							<input class="input is-small" type="text" id="Container" placeholder="Container">
-							<button class="button is-small" id="addNodeSubmit">Container</button>
-						</div>
-					</div>
-				</div>
-				<div class="Panel-Container" id="Panel-01--Tab-04-Container">
-					<div class="panel-block">
-						<div id="Container">
-							<label class="label is-size-7" for="Container">Container:</label>
-							<input class="input is-small" type="text" id="Container" placeholder="Container">
-							<button class="button is-small" id="addNodeSubmit">Container</button>
-						</div>
-					</div>
-				</div>
-				<div class="Panel-Container" id="Panel-01--Tab-05-Container">
-					<div class="panel-block">
-						<div id="Container">
-							<label class="label is-size-7" for="Container">Container:</label>
-							<input class="input is-small" type="text" id="Container" placeholder="Container">
-							<button class="button is-small" id="addNodeSubmit">Container</button>
-						</div>
-					</div>
-				</div>
-			</div> 
-		</div> inital static was display none -->
+			&lt;<div class="panel" id="Panel-01" style="display: block;">
+			
 		</div>
 		<div class="panel" id="Panel-02" >
 			<p class="panel-heading is-size-6 ">Notifications</p>
@@ -200,11 +118,11 @@
 		<script>
 
 
-			// Initialize a state variable to track the element's presence
+			
 			let isElementAdded = false;
 
 			document.addEventListener('DOMContentLoaded', function() {
-				//- Initialize Cytoscape.js
+				
 				const cy = cytoscape({
 					container: document.getElementById('cy'),
 					elements: [],
@@ -219,8 +137,8 @@
 				});
 			
 				cy.on('click', 'node', function (event) {
-					// This code will be executed when you click on a node
-					// You can add logic specific to nodes here
+					
+					
 					appendMessage("Info: node is clicked")
 					console.log("Info: node is clicked")
 					const newContent = `
@@ -228,63 +146,63 @@
 					<p>This is the updated content of Panel-01.</p>
 					<!-- Add more content here as needed -->
 				  	`;
-					  // Update Panel-01 content
+					  
 					  updatePanelContent(newContent);
-					  // Log that the panel content has been updated
+					  
 					  console.log('Panel-01 content has been updated.');
 					
 
 				});
 
-				// // Get all buttons with the class 'toggle-Panel01-tab'
-				// const toggleButtons = document.querySelectorAll('.toggle-Panel01-tab');
+				
+				
  
-				// // Add click event listeners to toggle tabs
-				// toggleButtons.forEach(button => {
-				// 	button.addEventListener('click', () => {
-				// 	// Get the target panel ID from the data-target attribute of the clicked button
-				// 	const targetPanelId = button.getAttribute('data-target');
+				
+				
+				
+				
+				
  
-				// 	// Hide all tab containers
-				// 	const tabContainers = document.querySelectorAll('.Panel-Container');
-				// 	tabContainers.forEach(container => {
-				// 	  container.style.display = 'none';
-				// 	});
+				
+				
+				
+				
+				
  
-				// 	// Show the selected tab container
-				// 	const selectedTabContainer = document.getElementById(targetPanelId);
-				// 	selectedTabContainer.style.display = 'block';
+				
+				
+				
  
-				// 	// Log the panel and tab state
-				// 	console.log(`Panel-${targetPanelId} is displayed.`);
-				// 	appendMessage(`Panel-${targetPanelId} is displayed.`);
-				//   });
-				// });
+				
+				
+				
+				
+				
  
-				// //- Helper eventListner for managed Panel-01 tabs
-				// ['01', '02', '03', '04', '05'].forEach(num => {
-				// 	document.getElementById(`Panel-01--Tab-${num}-Button`).addEventListener('click', () => {
-				// 		appendMessage(`Panel-01--Tab-${num}-Button clicked`);
-				// 		showPanel01Tab(`Panel-01--Tab-${num}-Container`);
-				// 		});
-				// 	  });
+				
+				
+				
+				
+				
+				
+				
 			
-				//- Toggle the Panel-01 when clicking on the cy container 
+				
 				document.getElementById('cy').addEventListener('click', () => {
-					//- This code will be executed when you click anywhere in the Cytoscape container
-					//- You can add logic specific to the container here	
+					
+					
 					createContentPanel01()
 
 					var panel01 = document.getElementById('Panel-01');
 					console.log(panel01)
 				
 					if (panel01.style.display === 'none' || panel01.style.display === '') {
-					//- Show the panel01
+					
 					panel01.style.display = 'block';
 					panel01.classList.toggle('active')
 			
 					} else {
-						//- Hide the panel
+						
 						panel01.style.display = 'none';
 					}
 
@@ -293,103 +211,103 @@
 				});
 			
 			
-				// document.getElementById('connectNodesAction').addEventListener('click', () => {
-				// 	//- Implement logic to connect nodes here 
-				// 	//- You can create edges between nodes, similar to what you did before
-					
-					
-				// });
-			
-				// //- Add click event listener to 'Zoom to Fit' the form 
-				// document.getElementById('fitAllNodesAction').addEventListener('click', () => {
-				// 	//- Get the current zoom level
-				// 	const currentZoom = cy.zoom();
-				// 	//- Fit all nodes with padding
-				// 	cy.fit();
-				// });
-			
-				// //- Add click event listener to close the form 
-				// document.getElementById('closeForm').addEventListener('click', () => {
-				// 	var panel = document.getElementById('Panel-01');
-				// 	if (panel.style.display === 'none' || panel.style.display === '') {
-				// 		//- Show the panel
-				// 		panel.style.display = 'block';
-				// 		panel.classList.toggle('active');
-				// 	} else {
-				// 		//- Hide the panel
-				// 		panel.style.display = 'none';
-				// 	}
-				// 	console.log("Panel-01.style: " + document.getElementById('Panel-01').style.display)
-				// });
-			
-				// //- Add a click event listener to the 'Submit' button in the hidden form
-				// document.getElementById('addNodeSubmit').addEventListener('click', () => {
-				// 	//- Get the node name from the input field 
-				// 	const nodeName = document.getElementById('nodeName').value;
-				// 	console.log(nodeName)
-				// 	//- Check if a node name is empty 
-				// 	if (nodeName == "") {
-				// 		//- append message in textArea 
-				// 		appendMessage('Error: Enter node name.');
-				// 		return;
-				// 	}
-				// 	//- Check if a node with the same name already exists 
-				// 	if (cy.$(`node[id = "${nodeName}"]`).length > 0) {
-				// 		//- append message in textArea 
-				// 		appendMessage('Error: Node with this name already exists.');
-				// 		return;
-				// 	}
-				// 	//- Create a new node element 
-				// 	const newNode = {
-				// 		group: 'nodes',
-				// 		data: {
-				// 			id: nodeName,
-				// 			name: nodeName,
-				// 			label: nodeName
-				// 		}
-				// 	};
-				// 	//- Add the new node to Cytoscape.js 
-				// 	cy.add(newNode);
-				// 	//- Randomize the positions and center the graph 
-				// 	const layout = cy.layout({
-				// 		name: 'cola',
-				// 		nodeSpacing: 5,
-				// 		edgeLengthVal: 45,
-				// 		animate: true,
-				// 		randomize: false,
-				// 		maxSimulationTime: 1500
-				// 	});
-				// 	layout.run();
-				// 	//- Append a notification message to the textarea 
-				// 	console.log("Info: " + `Nice! Node "${nodeName}" added successfully.`);
-				// 	appendMessage("Info: " + `Nice! Node "${nodeName}" added successfully.`);
-				// 
-				// });
 				
-				// Add a click event listener to the copy button
+				
+				
+					
+					
+				
+			
+				
+				
+				
+				
+				
+				
+				
+			
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+			
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
 				const copyButton = document.getElementById('copyToClipboardButton');
 				copyButton.addEventListener('click', copyToClipboard);
 			
-				//- Function to find and highlight a node by name
+				
 				async function findNode(nodeName) {
-					//- Get a reference to your Cytoscape instance (assuming it's named 'cy')
-					//- const cy = window.cy; //- Replace 'window.cy' with your actual Cytoscape instance
-					//- Find the node with the specified name
+					
+					
+					
 					const node = cy.$(`node[name = "${nodeName}"]`);
-					//- Check if the node exists
+					
 					if (node.length > 0) {
-						// console
+						
 						console.log("Info: " + "Sweet! Node \"" + nodeName + "\" is in the house.");
 						appendMessage("Info: " + "Sweet! Node \"" + nodeName + "\" is in the house.");
-						//- Apply a highlight style to the node
+						
 						node.style({
 							'border-color': 'red',
 							'border-width': '2px',
 							'background-color': 'yellow'
 						});
-						//- Zoom out on the node
+						
 						cy.fit()
-						//- Zoom in on the node
+						
 						cy.animate({
 							zoom: {
 								level: 5,
@@ -411,58 +329,58 @@
 					}
 				}
 			
-				// Usage example:
-				// highlightShortestPath('node-a', 'node-b'); // Replace with your source and target node IDs
-				//- Function to get the default node style from cy-style.json
-				//- weight: (edge) => 1, // You can adjust the weight function if needed
-				//- weight: (edge) => edge.data('distance')
+				
+				
+				
+				
+				
 				function highlightShortestPath(sourceNodeId, targetNodeId) {
 			
-					// Remove existing highlight from all edges
+					
 					cy.edges().forEach(edge => {
 						edge.removeClass('spf');
 							});
 			
-					// Assuming you have 'cy' as your Cytoscape instance
+					
 					const sourceNode = cy.$(`node[id="${sourceNodeId}"]`);
 					const targetNode = cy.$(`node[id="${targetNodeId}"]`);
 			
 					console.log("Info: " + "Let's find the path from-" + sourceNodeId + "-to-"  + targetNodeId + "!");
 					appendMessage("Info: " + "Let's find the path from-" + sourceNodeId + "-to-"  + targetNodeId + "!");
 			
-							// Check if both nodes exist
+							
 							if (sourceNode.length === 0 || targetNode.length === 0) {
 								console.error(`Bro, couldn't find the source or target node you specified. Double-check the node names.`);
 								appendMessage(`Bro, couldn't find the source or target node you specified. Double-check the node names.`);
 								return;
 							}
 			
-					// Get the Dijkstra result with the shortest path
+					
 					const dijkstraResult = cy.elements().dijkstra({
 						root: sourceNode,
 						weight: (edge) => 1, 
-						// Use the custom weight attribute
-						// weight: edge => edge.data('customWeight'),
+						
+						
 			
 					});
-					// Get the shortest path from Dijkstra result
+					
 					const shortestPathEdges = dijkstraResult.pathTo(targetNode);
 			
-					//// Apply a style to highlight the shortest path edges
-					// shortestPathEdges.style({
-					//	'line-color': 'red', 
-					//	'line-style': 'solid', 
-					// });
+					
+					
+					
+					
+					
 			
-					// Highlight the shortest path
+					
 					shortestPathEdges.forEach(edge => {
 						edge.addClass('spf'); 
 							});
 			
-					//- Zoom out on the node
+					
 					cy.fit()
 			
-					//- Zoom in on the node
+					
 					cy.animate({
 						zoom: {
 							level: 5,
@@ -477,7 +395,7 @@
 						},
 						duration: 1500
 					});
-					// throw log
+					
 					console.log("Info: " + "Yo, check it out! Shorthest Path from-" + sourceNodeId + "-to-"  + targetNodeId + " has been found.");
 					appendMessage("Info: " + "Yo, check it out! Shorthest Path from-" + sourceNodeId + "-to-"  + targetNodeId + " has been found, below is the path trace..");
 					console.log(shortestPathEdges)
@@ -490,7 +408,7 @@
 						edgeId = edge.id();
 						sourceNodeId = edge.source().id();
 						targetNodeId = edge.target().id();
-						// You can access other properties of the edge, e.g., source, target, data, etc.
+						
 						
 						appendMessage("Info: " + 'Edge ID: ' + edgeId )
 						appendMessage("Info: " + 'Source Node ID: ' + sourceNodeId )
@@ -501,25 +419,25 @@
 			
 				}
 			
-				//- Function to get the default node style from cy-style.json
+				
 				async function getDefaultNodeStyle(node) {
 					try {
-						//- Fetch the cy-style.json file
+						
 						const response = await fetch('cy-style.json');
-						//- Check if the response is successful (status code 200)
+						
 						if (!response.ok) {
 							throw new Error(`Failed to fetch cy-style.json (${response.status} ${response.statusText})`);
 						}
-						//- Parse the JSON response
+						
 						const styleData = await response.json();
-						//- Extract the default node style from the loaded JSON
-						//- Adjust this based on your JSON structure
+						
+						
 						const defaultNodeStyle = styleData[0].style;
 						return defaultNodeStyle;
 					} catch (error) {
 						console.error('Error loading cy-style.json:', error);
 						appendMessage(`Error loading cy-style.json: ${error}`);
-						//- Return a default style in case of an error
+						
 						return {
 							'background-color': 'blue',
 							'border-color': 'gray',
@@ -530,23 +448,23 @@
 
 
 
-				//- Helper Function for managed Panel-01 tabs
+				
 				function showPanel01Tab(tabId) {
 					hideAllTabs();
 					document.getElementById(tabId).style.display = 'block';
 					}
 				
-				//- Append message function
+				
 				function appendMessage(message) {
 					const textarea = document.getElementById('notificationTextarea');
-					// Get the current date and time
+					
 							const timestamp = new Date().toLocaleString();
 			
 					textarea.value += `[${timestamp}] ${message}\n` ;
 					textarea.scrollTop = textarea.scrollHeight;
 				}
 				
-				// Function to copy textarea content to clipboard
+				
 				function copyToClipboard() {
 					const textarea = document.getElementById('notificationTextarea');
 					textarea.select();
@@ -554,23 +472,23 @@
 					}
 
 
-				// Function to create the Panel-01 content
+				
 				function createContentPanel01() {
-					// Create the main panel div
+					
 					const panel = document.createElement('div');
 					panel.className = 'panel';
 					panel.id = 'Panel-01';
 					panel.style.display = 'block';
-					// Create the panel heading
+					
 					const panelHeading = document.createElement('p');
 					panelHeading.className = 'panel-heading is-size-6';
 					panelHeading.textContent = 'Actions';
-					// Create the panel tabs
+					
 					const panelTabs = document.createElement('p');
 					panelTabs.className = 'panel-tabs';
-					// Array of tab names
+					
 					const tabNames = ['Tab-01', 'Tab-02', 'Tab-03', 'Tab-04', 'Tab-05'];
-					// Create tabs dynamically
+					
 					for (const name of tabNames) {
 						const tab = document.createElement('a');
 						tab.className = 'toggle-Panel01-tab';
@@ -579,53 +497,53 @@
 						tab.textContent = name;
 						panelTabs.appendChild(tab);
 					}
-					// Append the panel heading and tabs to the panel
+					
 					panel.appendChild(panelHeading);
 					panel.appendChild(panelTabs);
-					// Create tab containers dynamically
+					
 					for (const name of tabNames) {
 						const tabContainer = document.createElement('div');
 						tabContainer.className = 'Panel-Container';
 						tabContainer.id = `Panel-01--Tab-${name}-Container`;
-						// Create content for each tab container
+						
 						if (name === 'Tab-01') {
-							// Call the function to create Tab-01 content
+							
 							const tab01Content = createPanel01Tab01Content();
 							tabContainer.appendChild(tab01Content);
 
 						} else if (name === 'Tab-02') {
-							// Content for Tab-02
+							
 							const containerInput = document.createElement('div');
-							// ... Add your content for Tab-02 here ...
+							
 							tabContainer.appendChild(containerInput);
 						} else {
-							// Content for other tabs
-							// ...
+							
+							
 						}
-						// Append the tab container to the panel
+						
 						panel.appendChild(tabContainer);
 					}
-					// Append the panel to the document body or another container of your choice
+					
 					document.body.appendChild(panel);
 				}
 
 
 
-				// Start of JS Functions HTML Element Creation section
-				// Start of JS Functions HTML Element Creation section
+				
+				
 
-				// Function to create content for Panel01-Tab-01
+				
 				function createPanel01Tab01Content() {
-					// Create a div container for Tab-01 content
+					
 					const tab01Container = document.createElement('div');
 					tab01Container.className = 'Panel-Container';
 					tab01Container.id = 'Panel-01--Tab-01-Container';
 				
-					// Create a div with class "panel-block" for the first block of content
+					
 					const block1 = document.createElement('div');
 					block1.className = 'panel-block';
 				
-					// Create the "Node Spawner" section
+					
 					const nodeAttributes = document.createElement('div');
 					nodeAttributes.id = 'nodeAttributes';
 				
@@ -649,7 +567,7 @@
 					nodeAttributes.appendChild(nodeNameInput);
 					nodeAttributes.appendChild(addNodeButton);
 				
-					// Create the "Network Maker" section
+					
 					const nodeGenerate = document.createElement('div');
 					nodeGenerate.id = 'nodeGenerate';
 				
@@ -677,11 +595,11 @@
 					block1.appendChild(nodeAttributes);
 					block1.appendChild(nodeGenerate);
 				
-					// Create the second block of content
+					
 					const block2 = document.createElement('div');
 					block2.className = 'panel-block';
 				
-					// Create the "Find Node" section
+					
 					const findNodeDiv = document.createElement('div');
 					findNodeDiv.id = 'nodeFind';
 				
@@ -712,11 +630,11 @@
 				
 					block2.appendChild(findNodeDiv);
 				
-					// Create the third block of content
+					
 					const block3 = document.createElement('div');
 					block3.className = 'panel-block';
 				
-					// Create the "Path Finder" section
+					
 					const pathFinderDiv = document.createElement('div');
 					pathFinderDiv.id = 'nodeAttributes';
 				
@@ -748,11 +666,11 @@
 				
 					block3.appendChild(pathFinderDiv);
 				
-					// Create the fourth block of content
+					
 					const block4 = document.createElement('div');
 					block4.className = 'panel-block';
 				
-					// Create the "Connect Nodes" button
+					
 					const connectNodesButton = document.createElement('button');
 					connectNodesButton.className = 'button is-small';
 					connectNodesButton.id = 'connectNodesAction';
@@ -760,11 +678,11 @@
 				
 					block4.appendChild(connectNodesButton);
 				
-					// Create the fifth block of content
+					
 					const block5 = document.createElement('div');
 					block5.className = 'panel-block';
 				
-					// Create the "Close" button
+					
 					const closeButton = document.createElement('button');
 					closeButton.className = 'button is-small';
 					closeButton.id = 'closeForm';
@@ -772,7 +690,7 @@
 				
 					block5.appendChild(closeButton);
 				
-					// Append all blocks to the Tab-01 container
+					
 					tab01Container.appendChild(block1);
 					tab01Container.appendChild(block2);
 					tab01Container.appendChild(block3);
@@ -784,32 +702,32 @@
 					return tab01Container;
 				}
 
-				// END of JS Functions HTML Element Creation section
-				// END of JS Functions HTML Element Creation section
+				
+				
 
-				// Start of JS Functions Event Handling section
-				// Start of JS Functions Event Handling section
+				
+				
 
 				function generateNodes(event) {
-					// Your event handling logic here
-					//- Add a click event listener to the 'Generate' button
-					//- Get the number of node from the input field  
+					
+					
+					
 					console.log('generateNodesButton clicked')
 					const numNodes = document.getElementById('generateNodesInput').value;
 					console.log(numNodes)
-					//- Check if the number of node is empty  
+					
 					if (numNodes === null) {
-						//- if node number empty do nothing 
+						
 						return;
 					}
 					const numNodesToGenerate = parseInt(numNodes, 10);
-					//- Check if the number of node is positive 
+					
 					if (isNaN(numNodesToGenerate) || numNodesToGenerate <= 0) {
-						//- Invalid input
+						
 						appendMessage("Error:" + "Bro, you gotta enter a valid positive number, come on!");
 						return;
 					}
-					//- Generate nodes with random positions
+					
 					for (let i = 0; i < numNodesToGenerate; i++) {
 						const nodeName = `node-${i + 1}`;
 						const newNode = {
@@ -823,18 +741,18 @@
 								y: Math.random() * 400
 							}
 						};
-						//-cy.add(newNode);
+						
 						try {
 							cy.add(newNode);
-							//- throw new Error('This is an example exception');
+							
 						} catch (error) {
-							//- Log the exception to the console
+							
 							console.error("An exception occurred:", error);
-							//- Log the exception to notification message to the textarea 
+							
 							appendMessage("An exception occurred:" + error);
 						}
 					}
-					//- Generate random edges between nodes
+					
 					for (let i = 0; i < numNodesToGenerate; i++) {
 						const sourceNode = `node-${i + 1}`;
 						const targetNode = `node-${Math.floor(Math.random() * numNodesToGenerate) + 1}`;
@@ -850,16 +768,16 @@
 							};
 							try {
 								cy.add(newEdge);
-								//- throw new Error('This is an example exception');
+								
 							} catch (error) {
-								//- Log the exception to the console
+								
 								console.error("An exception occurred:", error);
-								//- Log the exception to notification message to the textarea 
+								
 								appendMessage("An exception occurred::" + error);
 							}
 						}
 					}
-					//- run layout
+					
 					const layout = cy.layout({
 						name: 'cola',
 						nodeSpacing: 5,
@@ -869,25 +787,25 @@
 						maxSimulationTime: 1500
 					});
 					layout.run();
-					//-//- Append a notification message to the textarea
+					
 					console.log("Info: " + `Boom! Just generated ${numNodesToGenerate} nodes with some random edges. That's how we roll!`);
 					appendMessage("Info: " + `Boom! Just generated ${numNodesToGenerate} nodes with some random edges. That's how we roll!`);
 				}
 
-				// End of JS Functions Event Handling section
-				// End of JS Functions Event Handling section
+				
+				
 
 
 
 
-				// End of JS Functions section
-				// End of JS Functions section
+				
+				
 
-				//- Load and apply Cytoscape styles from cy-style.json using fetch
+				
 				fetch('cy-style.json')
 					.then(response => response.json())
 					.then(styles => {
-						//- Apply styles loaded from cy-style.json
+						
 						cy.style().fromJson(styles).update();
 					})
 					.catch(error => {

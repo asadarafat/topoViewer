@@ -200,11 +200,11 @@
 		<script>
 
 
-			// Initialize a state variable to track the element's presence
+{{rawJSComment 			// Initialize a state variable to track the element's presence}}
 			let isElementAdded = false;
 
 			document.addEventListener('DOMContentLoaded', function() {
-				//- Initialize Cytoscape.js
+{{rawJSComment 				//- Initialize Cytoscape.js}}
 				const cy = cytoscape({
 					container: document.getElementById('cy'),
 					elements: [],
@@ -219,8 +219,8 @@
 				});
 			
 				cy.on('click', 'node', function (event) {
-					// This code will be executed when you click on a node
-					// You can add logic specific to nodes here
+{{rawJSComment 					// This code will be executed when you click on a node}}
+{{rawJSComment 					// You can add logic specific to nodes here}}
 					appendMessage("Info: node is clicked")
 					console.log("Info: node is clicked")
 					const newContent = `
@@ -228,63 +228,63 @@
 					<p>This is the updated content of Panel-01.</p>
 					<!-- Add more content here as needed -->
 				  	`;
-					  // Update Panel-01 content
+{{rawJSComment 					  // Update Panel-01 content}}
 					  updatePanelContent(newContent);
-					  // Log that the panel content has been updated
+{{rawJSComment 					  // Log that the panel content has been updated}}
 					  console.log('Panel-01 content has been updated.');
 					
 
 				});
 
-				// // Get all buttons with the class 'toggle-Panel01-tab'
-				// const toggleButtons = document.querySelectorAll('.toggle-Panel01-tab');
+{{rawJSComment 				// // Get all buttons with the class 'toggle-Panel01-tab'}}
+{{rawJSComment 				// const toggleButtons = document.querySelectorAll('.toggle-Panel01-tab');}}
  
-				// // Add click event listeners to toggle tabs
-				// toggleButtons.forEach(button => {
-				// 	button.addEventListener('click', () => {
-				// 	// Get the target panel ID from the data-target attribute of the clicked button
-				// 	const targetPanelId = button.getAttribute('data-target');
+{{rawJSComment 				// // Add click event listeners to toggle tabs}}
+{{rawJSComment 				// toggleButtons.forEach(button => {}}
+{{rawJSComment 				// 	button.addEventListener('click', () => {}}
+{{rawJSComment 				// 	// Get the target panel ID from the data-target attribute of the clicked button}}
+{{rawJSComment 				// 	const targetPanelId = button.getAttribute('data-target');}}
  
-				// 	// Hide all tab containers
-				// 	const tabContainers = document.querySelectorAll('.Panel-Container');
-				// 	tabContainers.forEach(container => {
-				// 	  container.style.display = 'none';
-				// 	});
+{{rawJSComment 				// 	// Hide all tab containers}}
+{{rawJSComment 				// 	const tabContainers = document.querySelectorAll('.Panel-Container');}}
+{{rawJSComment 				// 	tabContainers.forEach(container => {}}
+{{rawJSComment 				// 	  container.style.display = 'none';}}
+{{rawJSComment 				// 	});}}
  
-				// 	// Show the selected tab container
-				// 	const selectedTabContainer = document.getElementById(targetPanelId);
-				// 	selectedTabContainer.style.display = 'block';
+{{rawJSComment 				// 	// Show the selected tab container}}
+{{rawJSComment 				// 	const selectedTabContainer = document.getElementById(targetPanelId);}}
+{{rawJSComment 				// 	selectedTabContainer.style.display = 'block';}}
  
-				// 	// Log the panel and tab state
-				// 	console.log(`Panel-${targetPanelId} is displayed.`);
-				// 	appendMessage(`Panel-${targetPanelId} is displayed.`);
-				//   });
-				// });
+{{rawJSComment 				// 	// Log the panel and tab state}}
+{{rawJSComment 				// 	console.log(`Panel-${targetPanelId} is displayed.`);}}
+{{rawJSComment 				// 	appendMessage(`Panel-${targetPanelId} is displayed.`);}}
+{{rawJSComment 				//   });}}
+{{rawJSComment 				// });}}
  
-				// //- Helper eventListner for managed Panel-01 tabs
-				// ['01', '02', '03', '04', '05'].forEach(num => {
-				// 	document.getElementById(`Panel-01--Tab-${num}-Button`).addEventListener('click', () => {
-				// 		appendMessage(`Panel-01--Tab-${num}-Button clicked`);
-				// 		showPanel01Tab(`Panel-01--Tab-${num}-Container`);
-				// 		});
-				// 	  });
+{{rawJSComment 				// //- Helper eventListner for managed Panel-01 tabs}}
+{{rawJSComment 				// ['01', '02', '03', '04', '05'].forEach(num => {}}
+{{rawJSComment 				// 	document.getElementById(`Panel-01--Tab-${num}-Button`).addEventListener('click', () => {}}
+{{rawJSComment 				// 		appendMessage(`Panel-01--Tab-${num}-Button clicked`);}}
+{{rawJSComment 				// 		showPanel01Tab(`Panel-01--Tab-${num}-Container`);}}
+{{rawJSComment 				// 		});}}
+{{rawJSComment 				// 	  });}}
 			
-				//- Toggle the Panel-01 when clicking on the cy container 
+{{rawJSComment 				//- Toggle the Panel-01 when clicking on the cy container }}
 				document.getElementById('cy').addEventListener('click', () => {
-					//- This code will be executed when you click anywhere in the Cytoscape container
-					//- You can add logic specific to the container here	
+{{rawJSComment 					//- This code will be executed when you click anywhere in the Cytoscape container}}
+{{rawJSComment 					//- You can add logic specific to the container here	}}
 					createContentPanel01()
 
 					var panel01 = document.getElementById('Panel-01');
 					console.log(panel01)
 				
 					if (panel01.style.display === 'none' || panel01.style.display === '') {
-					//- Show the panel01
+{{rawJSComment 					//- Show the panel01}}
 					panel01.style.display = 'block';
 					panel01.classList.toggle('active')
 			
 					} else {
-						//- Hide the panel
+{{rawJSComment 						//- Hide the panel}}
 						panel01.style.display = 'none';
 					}
 
@@ -293,103 +293,103 @@
 				});
 			
 			
-				// document.getElementById('connectNodesAction').addEventListener('click', () => {
-				// 	//- Implement logic to connect nodes here 
-				// 	//- You can create edges between nodes, similar to what you did before
+{{rawJSComment 				// document.getElementById('connectNodesAction').addEventListener('click', () => {}}
+{{rawJSComment 				// 	//- Implement logic to connect nodes here }}
+{{rawJSComment 				// 	//- You can create edges between nodes, similar to what you did before}}
 					
 					
-				// });
+{{rawJSComment 				// });}}
 			
-				// //- Add click event listener to 'Zoom to Fit' the form 
-				// document.getElementById('fitAllNodesAction').addEventListener('click', () => {
-				// 	//- Get the current zoom level
-				// 	const currentZoom = cy.zoom();
-				// 	//- Fit all nodes with padding
-				// 	cy.fit();
-				// });
+{{rawJSComment 				// //- Add click event listener to 'Zoom to Fit' the form }}
+{{rawJSComment 				// document.getElementById('fitAllNodesAction').addEventListener('click', () => {}}
+{{rawJSComment 				// 	//- Get the current zoom level}}
+{{rawJSComment 				// 	const currentZoom = cy.zoom();}}
+{{rawJSComment 				// 	//- Fit all nodes with padding}}
+{{rawJSComment 				// 	cy.fit();}}
+{{rawJSComment 				// });}}
 			
-				// //- Add click event listener to close the form 
-				// document.getElementById('closeForm').addEventListener('click', () => {
-				// 	var panel = document.getElementById('Panel-01');
-				// 	if (panel.style.display === 'none' || panel.style.display === '') {
-				// 		//- Show the panel
-				// 		panel.style.display = 'block';
-				// 		panel.classList.toggle('active');
-				// 	} else {
-				// 		//- Hide the panel
-				// 		panel.style.display = 'none';
-				// 	}
-				// 	console.log("Panel-01.style: " + document.getElementById('Panel-01').style.display)
-				// });
+{{rawJSComment 				// //- Add click event listener to close the form }}
+{{rawJSComment 				// document.getElementById('closeForm').addEventListener('click', () => {}}
+{{rawJSComment 				// 	var panel = document.getElementById('Panel-01');}}
+{{rawJSComment 				// 	if (panel.style.display === 'none' || panel.style.display === '') {}}
+{{rawJSComment 				// 		//- Show the panel}}
+{{rawJSComment 				// 		panel.style.display = 'block';}}
+{{rawJSComment 				// 		panel.classList.toggle('active');}}
+{{rawJSComment 				// 	} else {}}
+{{rawJSComment 				// 		//- Hide the panel}}
+{{rawJSComment 				// 		panel.style.display = 'none';}}
+{{rawJSComment 				// 	}}}
+{{rawJSComment 				// 	console.log("Panel-01.style: " + document.getElementById('Panel-01').style.display)}}
+{{rawJSComment 				// });}}
 			
-				// //- Add a click event listener to the 'Submit' button in the hidden form
-				// document.getElementById('addNodeSubmit').addEventListener('click', () => {
-				// 	//- Get the node name from the input field 
-				// 	const nodeName = document.getElementById('nodeName').value;
-				// 	console.log(nodeName)
-				// 	//- Check if a node name is empty 
-				// 	if (nodeName == "") {
-				// 		//- append message in textArea 
-				// 		appendMessage('Error: Enter node name.');
-				// 		return;
-				// 	}
-				// 	//- Check if a node with the same name already exists 
-				// 	if (cy.$(`node[id = "${nodeName}"]`).length > 0) {
-				// 		//- append message in textArea 
-				// 		appendMessage('Error: Node with this name already exists.');
-				// 		return;
-				// 	}
-				// 	//- Create a new node element 
-				// 	const newNode = {
-				// 		group: 'nodes',
-				// 		data: {
-				// 			id: nodeName,
-				// 			name: nodeName,
-				// 			label: nodeName
-				// 		}
-				// 	};
-				// 	//- Add the new node to Cytoscape.js 
-				// 	cy.add(newNode);
-				// 	//- Randomize the positions and center the graph 
-				// 	const layout = cy.layout({
-				// 		name: 'cola',
-				// 		nodeSpacing: 5,
-				// 		edgeLengthVal: 45,
-				// 		animate: true,
-				// 		randomize: false,
-				// 		maxSimulationTime: 1500
-				// 	});
-				// 	layout.run();
-				// 	//- Append a notification message to the textarea 
-				// 	console.log("Info: " + `Nice! Node "${nodeName}" added successfully.`);
-				// 	appendMessage("Info: " + `Nice! Node "${nodeName}" added successfully.`);
-				// 
-				// });
+{{rawJSComment 				// //- Add a click event listener to the 'Submit' button in the hidden form}}
+{{rawJSComment 				// document.getElementById('addNodeSubmit').addEventListener('click', () => {}}
+{{rawJSComment 				// 	//- Get the node name from the input field }}
+{{rawJSComment 				// 	const nodeName = document.getElementById('nodeName').value;}}
+{{rawJSComment 				// 	console.log(nodeName)}}
+{{rawJSComment 				// 	//- Check if a node name is empty }}
+{{rawJSComment 				// 	if (nodeName == "") {}}
+{{rawJSComment 				// 		//- append message in textArea }}
+{{rawJSComment 				// 		appendMessage('Error: Enter node name.');}}
+{{rawJSComment 				// 		return;}}
+{{rawJSComment 				// 	}}}
+{{rawJSComment 				// 	//- Check if a node with the same name already exists }}
+{{rawJSComment 				// 	if (cy.$(`node[id = "${nodeName}"]`).length > 0) {}}
+{{rawJSComment 				// 		//- append message in textArea }}
+{{rawJSComment 				// 		appendMessage('Error: Node with this name already exists.');}}
+{{rawJSComment 				// 		return;}}
+{{rawJSComment 				// 	}}}
+{{rawJSComment 				// 	//- Create a new node element }}
+{{rawJSComment 				// 	const newNode = {}}
+{{rawJSComment 				// 		group: 'nodes',}}
+{{rawJSComment 				// 		data: {}}
+{{rawJSComment 				// 			id: nodeName,}}
+{{rawJSComment 				// 			name: nodeName,}}
+{{rawJSComment 				// 			label: nodeName}}
+{{rawJSComment 				// 		}}}
+{{rawJSComment 				// 	};}}
+{{rawJSComment 				// 	//- Add the new node to Cytoscape.js }}
+{{rawJSComment 				// 	cy.add(newNode);}}
+{{rawJSComment 				// 	//- Randomize the positions and center the graph }}
+{{rawJSComment 				// 	const layout = cy.layout({}}
+{{rawJSComment 				// 		name: 'cola',}}
+{{rawJSComment 				// 		nodeSpacing: 5,}}
+{{rawJSComment 				// 		edgeLengthVal: 45,}}
+{{rawJSComment 				// 		animate: true,}}
+{{rawJSComment 				// 		randomize: false,}}
+{{rawJSComment 				// 		maxSimulationTime: 1500}}
+{{rawJSComment 				// 	});}}
+{{rawJSComment 				// 	layout.run();}}
+{{rawJSComment 				// 	//- Append a notification message to the textarea }}
+{{rawJSComment 				// 	console.log("Info: " + `Nice! Node "${nodeName}" added successfully.`);}}
+{{rawJSComment 				// 	appendMessage("Info: " + `Nice! Node "${nodeName}" added successfully.`);}}
+{{rawJSComment 				// }}
+{{rawJSComment 				// });}}
 				
-				// Add a click event listener to the copy button
+{{rawJSComment 				// Add a click event listener to the copy button}}
 				const copyButton = document.getElementById('copyToClipboardButton');
 				copyButton.addEventListener('click', copyToClipboard);
 			
-				//- Function to find and highlight a node by name
+{{rawJSComment 				//- Function to find and highlight a node by name}}
 				async function findNode(nodeName) {
-					//- Get a reference to your Cytoscape instance (assuming it's named 'cy')
-					//- const cy = window.cy; //- Replace 'window.cy' with your actual Cytoscape instance
-					//- Find the node with the specified name
+{{rawJSComment 					//- Get a reference to your Cytoscape instance (assuming it's named 'cy')}}
+{{rawJSComment 					//- const cy = window.cy; //- Replace 'window.cy' with your actual Cytoscape instance}}
+{{rawJSComment 					//- Find the node with the specified name}}
 					const node = cy.$(`node[name = "${nodeName}"]`);
-					//- Check if the node exists
+{{rawJSComment 					//- Check if the node exists}}
 					if (node.length > 0) {
-						// console
+{{rawJSComment 						// console}}
 						console.log("Info: " + "Sweet! Node \"" + nodeName + "\" is in the house.");
 						appendMessage("Info: " + "Sweet! Node \"" + nodeName + "\" is in the house.");
-						//- Apply a highlight style to the node
+{{rawJSComment 						//- Apply a highlight style to the node}}
 						node.style({
 							'border-color': 'red',
 							'border-width': '2px',
 							'background-color': 'yellow'
 						});
-						//- Zoom out on the node
+{{rawJSComment 						//- Zoom out on the node}}
 						cy.fit()
-						//- Zoom in on the node
+{{rawJSComment 						//- Zoom in on the node}}
 						cy.animate({
 							zoom: {
 								level: 5,
@@ -411,58 +411,58 @@
 					}
 				}
 			
-				// Usage example:
-				// highlightShortestPath('node-a', 'node-b'); // Replace with your source and target node IDs
-				//- Function to get the default node style from cy-style.json
-				//- weight: (edge) => 1, // You can adjust the weight function if needed
-				//- weight: (edge) => edge.data('distance')
+{{rawJSComment 				// Usage example:}}
+{{rawJSComment 				// highlightShortestPath('node-a', 'node-b'); // Replace with your source and target node IDs}}
+{{rawJSComment 				//- Function to get the default node style from cy-style.json}}
+{{rawJSComment 				//- weight: (edge) => 1, // You can adjust the weight function if needed}}
+{{rawJSComment 				//- weight: (edge) => edge.data('distance')}}
 				function highlightShortestPath(sourceNodeId, targetNodeId) {
 			
-					// Remove existing highlight from all edges
+{{rawJSComment 					// Remove existing highlight from all edges}}
 					cy.edges().forEach(edge => {
 						edge.removeClass('spf');
 							});
 			
-					// Assuming you have 'cy' as your Cytoscape instance
+{{rawJSComment 					// Assuming you have 'cy' as your Cytoscape instance}}
 					const sourceNode = cy.$(`node[id="${sourceNodeId}"]`);
 					const targetNode = cy.$(`node[id="${targetNodeId}"]`);
 			
 					console.log("Info: " + "Let's find the path from-" + sourceNodeId + "-to-"  + targetNodeId + "!");
 					appendMessage("Info: " + "Let's find the path from-" + sourceNodeId + "-to-"  + targetNodeId + "!");
 			
-							// Check if both nodes exist
+{{rawJSComment 							// Check if both nodes exist}}
 							if (sourceNode.length === 0 || targetNode.length === 0) {
 								console.error(`Bro, couldn't find the source or target node you specified. Double-check the node names.`);
 								appendMessage(`Bro, couldn't find the source or target node you specified. Double-check the node names.`);
 								return;
 							}
 			
-					// Get the Dijkstra result with the shortest path
+{{rawJSComment 					// Get the Dijkstra result with the shortest path}}
 					const dijkstraResult = cy.elements().dijkstra({
 						root: sourceNode,
 						weight: (edge) => 1, 
-						// Use the custom weight attribute
-						// weight: edge => edge.data('customWeight'),
+{{rawJSComment 						// Use the custom weight attribute}}
+{{rawJSComment 						// weight: edge => edge.data('customWeight'),}}
 			
 					});
-					// Get the shortest path from Dijkstra result
+{{rawJSComment 					// Get the shortest path from Dijkstra result}}
 					const shortestPathEdges = dijkstraResult.pathTo(targetNode);
 			
-					//// Apply a style to highlight the shortest path edges
-					// shortestPathEdges.style({
-					//	'line-color': 'red', 
-					//	'line-style': 'solid', 
-					// });
+{{rawJSComment 					//// Apply a style to highlight the shortest path edges}}
+{{rawJSComment 					// shortestPathEdges.style({}}
+{{rawJSComment 					//	'line-color': 'red', }}
+{{rawJSComment 					//	'line-style': 'solid', }}
+{{rawJSComment 					// });}}
 			
-					// Highlight the shortest path
+{{rawJSComment 					// Highlight the shortest path}}
 					shortestPathEdges.forEach(edge => {
 						edge.addClass('spf'); 
 							});
 			
-					//- Zoom out on the node
+{{rawJSComment 					//- Zoom out on the node}}
 					cy.fit()
 			
-					//- Zoom in on the node
+{{rawJSComment 					//- Zoom in on the node}}
 					cy.animate({
 						zoom: {
 							level: 5,
@@ -477,7 +477,7 @@
 						},
 						duration: 1500
 					});
-					// throw log
+{{rawJSComment 					// throw log}}
 					console.log("Info: " + "Yo, check it out! Shorthest Path from-" + sourceNodeId + "-to-"  + targetNodeId + " has been found.");
 					appendMessage("Info: " + "Yo, check it out! Shorthest Path from-" + sourceNodeId + "-to-"  + targetNodeId + " has been found, below is the path trace..");
 					console.log(shortestPathEdges)
@@ -490,7 +490,7 @@
 						edgeId = edge.id();
 						sourceNodeId = edge.source().id();
 						targetNodeId = edge.target().id();
-						// You can access other properties of the edge, e.g., source, target, data, etc.
+{{rawJSComment 						// You can access other properties of the edge, e.g., source, target, data, etc.}}
 						
 						appendMessage("Info: " + 'Edge ID: ' + edgeId )
 						appendMessage("Info: " + 'Source Node ID: ' + sourceNodeId )
@@ -501,25 +501,25 @@
 			
 				}
 			
-				//- Function to get the default node style from cy-style.json
+{{rawJSComment 				//- Function to get the default node style from cy-style.json}}
 				async function getDefaultNodeStyle(node) {
 					try {
-						//- Fetch the cy-style.json file
+{{rawJSComment 						//- Fetch the cy-style.json file}}
 						const response = await fetch('cy-style.json');
-						//- Check if the response is successful (status code 200)
+{{rawJSComment 						//- Check if the response is successful (status code 200)}}
 						if (!response.ok) {
 							throw new Error(`Failed to fetch cy-style.json (${response.status} ${response.statusText})`);
 						}
-						//- Parse the JSON response
+{{rawJSComment 						//- Parse the JSON response}}
 						const styleData = await response.json();
-						//- Extract the default node style from the loaded JSON
-						//- Adjust this based on your JSON structure
+{{rawJSComment 						//- Extract the default node style from the loaded JSON}}
+{{rawJSComment 						//- Adjust this based on your JSON structure}}
 						const defaultNodeStyle = styleData[0].style;
 						return defaultNodeStyle;
 					} catch (error) {
 						console.error('Error loading cy-style.json:', error);
 						appendMessage(`Error loading cy-style.json: ${error}`);
-						//- Return a default style in case of an error
+{{rawJSComment 						//- Return a default style in case of an error}}
 						return {
 							'background-color': 'blue',
 							'border-color': 'gray',
@@ -530,23 +530,23 @@
 
 
 
-				//- Helper Function for managed Panel-01 tabs
+{{rawJSComment 				//- Helper Function for managed Panel-01 tabs}}
 				function showPanel01Tab(tabId) {
 					hideAllTabs();
 					document.getElementById(tabId).style.display = 'block';
 					}
 				
-				//- Append message function
+{{rawJSComment 				//- Append message function}}
 				function appendMessage(message) {
 					const textarea = document.getElementById('notificationTextarea');
-					// Get the current date and time
+{{rawJSComment 					// Get the current date and time}}
 							const timestamp = new Date().toLocaleString();
 			
 					textarea.value += `[${timestamp}] ${message}\n` ;
 					textarea.scrollTop = textarea.scrollHeight;
 				}
 				
-				// Function to copy textarea content to clipboard
+{{rawJSComment 				// Function to copy textarea content to clipboard}}
 				function copyToClipboard() {
 					const textarea = document.getElementById('notificationTextarea');
 					textarea.select();
@@ -554,23 +554,23 @@
 					}
 
 
-				// Function to create the Panel-01 content
+{{rawJSComment 				// Function to create the Panel-01 content}}
 				function createContentPanel01() {
-					// Create the main panel div
+{{rawJSComment 					// Create the main panel div}}
 					const panel = document.createElement('div');
 					panel.className = 'panel';
 					panel.id = 'Panel-01';
 					panel.style.display = 'block';
-					// Create the panel heading
+{{rawJSComment 					// Create the panel heading}}
 					const panelHeading = document.createElement('p');
 					panelHeading.className = 'panel-heading is-size-6';
 					panelHeading.textContent = 'Actions';
-					// Create the panel tabs
+{{rawJSComment 					// Create the panel tabs}}
 					const panelTabs = document.createElement('p');
 					panelTabs.className = 'panel-tabs';
-					// Array of tab names
+{{rawJSComment 					// Array of tab names}}
 					const tabNames = ['Tab-01', 'Tab-02', 'Tab-03', 'Tab-04', 'Tab-05'];
-					// Create tabs dynamically
+{{rawJSComment 					// Create tabs dynamically}}
 					for (const name of tabNames) {
 						const tab = document.createElement('a');
 						tab.className = 'toggle-Panel01-tab';
@@ -579,53 +579,53 @@
 						tab.textContent = name;
 						panelTabs.appendChild(tab);
 					}
-					// Append the panel heading and tabs to the panel
+{{rawJSComment 					// Append the panel heading and tabs to the panel}}
 					panel.appendChild(panelHeading);
 					panel.appendChild(panelTabs);
-					// Create tab containers dynamically
+{{rawJSComment 					// Create tab containers dynamically}}
 					for (const name of tabNames) {
 						const tabContainer = document.createElement('div');
 						tabContainer.className = 'Panel-Container';
 						tabContainer.id = `Panel-01--Tab-${name}-Container`;
-						// Create content for each tab container
+{{rawJSComment 						// Create content for each tab container}}
 						if (name === 'Tab-01') {
-							// Call the function to create Tab-01 content
+{{rawJSComment 							// Call the function to create Tab-01 content}}
 							const tab01Content = createPanel01Tab01Content();
 							tabContainer.appendChild(tab01Content);
 
 						} else if (name === 'Tab-02') {
-							// Content for Tab-02
+{{rawJSComment 							// Content for Tab-02}}
 							const containerInput = document.createElement('div');
-							// ... Add your content for Tab-02 here ...
+{{rawJSComment 							// ... Add your content for Tab-02 here ...}}
 							tabContainer.appendChild(containerInput);
 						} else {
-							// Content for other tabs
-							// ...
+{{rawJSComment 							// Content for other tabs}}
+{{rawJSComment 							// ...}}
 						}
-						// Append the tab container to the panel
+{{rawJSComment 						// Append the tab container to the panel}}
 						panel.appendChild(tabContainer);
 					}
-					// Append the panel to the document body or another container of your choice
+{{rawJSComment 					// Append the panel to the document body or another container of your choice}}
 					document.body.appendChild(panel);
 				}
 
 
 
-				// Start of JS Functions HTML Element Creation section
-				// Start of JS Functions HTML Element Creation section
+{{rawJSComment 				// Start of JS Functions HTML Element Creation section}}
+{{rawJSComment 				// Start of JS Functions HTML Element Creation section}}
 
-				// Function to create content for Panel01-Tab-01
+{{rawJSComment 				// Function to create content for Panel01-Tab-01}}
 				function createPanel01Tab01Content() {
-					// Create a div container for Tab-01 content
+{{rawJSComment 					// Create a div container for Tab-01 content}}
 					const tab01Container = document.createElement('div');
 					tab01Container.className = 'Panel-Container';
 					tab01Container.id = 'Panel-01--Tab-01-Container';
 				
-					// Create a div with class "panel-block" for the first block of content
+{{rawJSComment 					// Create a div with class "panel-block" for the first block of content}}
 					const block1 = document.createElement('div');
 					block1.className = 'panel-block';
 				
-					// Create the "Node Spawner" section
+{{rawJSComment 					// Create the "Node Spawner" section}}
 					const nodeAttributes = document.createElement('div');
 					nodeAttributes.id = 'nodeAttributes';
 				
@@ -649,7 +649,7 @@
 					nodeAttributes.appendChild(nodeNameInput);
 					nodeAttributes.appendChild(addNodeButton);
 				
-					// Create the "Network Maker" section
+{{rawJSComment 					// Create the "Network Maker" section}}
 					const nodeGenerate = document.createElement('div');
 					nodeGenerate.id = 'nodeGenerate';
 				
@@ -677,11 +677,11 @@
 					block1.appendChild(nodeAttributes);
 					block1.appendChild(nodeGenerate);
 				
-					// Create the second block of content
+{{rawJSComment 					// Create the second block of content}}
 					const block2 = document.createElement('div');
 					block2.className = 'panel-block';
 				
-					// Create the "Find Node" section
+{{rawJSComment 					// Create the "Find Node" section}}
 					const findNodeDiv = document.createElement('div');
 					findNodeDiv.id = 'nodeFind';
 				
@@ -712,11 +712,11 @@
 				
 					block2.appendChild(findNodeDiv);
 				
-					// Create the third block of content
+{{rawJSComment 					// Create the third block of content}}
 					const block3 = document.createElement('div');
 					block3.className = 'panel-block';
 				
-					// Create the "Path Finder" section
+{{rawJSComment 					// Create the "Path Finder" section}}
 					const pathFinderDiv = document.createElement('div');
 					pathFinderDiv.id = 'nodeAttributes';
 				
@@ -748,11 +748,11 @@
 				
 					block3.appendChild(pathFinderDiv);
 				
-					// Create the fourth block of content
+{{rawJSComment 					// Create the fourth block of content}}
 					const block4 = document.createElement('div');
 					block4.className = 'panel-block';
 				
-					// Create the "Connect Nodes" button
+{{rawJSComment 					// Create the "Connect Nodes" button}}
 					const connectNodesButton = document.createElement('button');
 					connectNodesButton.className = 'button is-small';
 					connectNodesButton.id = 'connectNodesAction';
@@ -760,11 +760,11 @@
 				
 					block4.appendChild(connectNodesButton);
 				
-					// Create the fifth block of content
+{{rawJSComment 					// Create the fifth block of content}}
 					const block5 = document.createElement('div');
 					block5.className = 'panel-block';
 				
-					// Create the "Close" button
+{{rawJSComment 					// Create the "Close" button}}
 					const closeButton = document.createElement('button');
 					closeButton.className = 'button is-small';
 					closeButton.id = 'closeForm';
@@ -772,7 +772,7 @@
 				
 					block5.appendChild(closeButton);
 				
-					// Append all blocks to the Tab-01 container
+{{rawJSComment 					// Append all blocks to the Tab-01 container}}
 					tab01Container.appendChild(block1);
 					tab01Container.appendChild(block2);
 					tab01Container.appendChild(block3);
@@ -784,32 +784,32 @@
 					return tab01Container;
 				}
 
-				// END of JS Functions HTML Element Creation section
-				// END of JS Functions HTML Element Creation section
+{{rawJSComment 				// END of JS Functions HTML Element Creation section}}
+{{rawJSComment 				// END of JS Functions HTML Element Creation section}}
 
-				// Start of JS Functions Event Handling section
-				// Start of JS Functions Event Handling section
+{{rawJSComment 				// Start of JS Functions Event Handling section}}
+{{rawJSComment 				// Start of JS Functions Event Handling section}}
 
 				function generateNodes(event) {
-					// Your event handling logic here
-					//- Add a click event listener to the 'Generate' button
-					//- Get the number of node from the input field  
+{{rawJSComment 					// Your event handling logic here}}
+{{rawJSComment 					//- Add a click event listener to the 'Generate' button}}
+{{rawJSComment 					//- Get the number of node from the input field  }}
 					console.log('generateNodesButton clicked')
 					const numNodes = document.getElementById('generateNodesInput').value;
 					console.log(numNodes)
-					//- Check if the number of node is empty  
+{{rawJSComment 					//- Check if the number of node is empty  }}
 					if (numNodes === null) {
-						//- if node number empty do nothing 
+{{rawJSComment 						//- if node number empty do nothing }}
 						return;
 					}
 					const numNodesToGenerate = parseInt(numNodes, 10);
-					//- Check if the number of node is positive 
+{{rawJSComment 					//- Check if the number of node is positive }}
 					if (isNaN(numNodesToGenerate) || numNodesToGenerate <= 0) {
-						//- Invalid input
+{{rawJSComment 						//- Invalid input}}
 						appendMessage("Error:" + "Bro, you gotta enter a valid positive number, come on!");
 						return;
 					}
-					//- Generate nodes with random positions
+{{rawJSComment 					//- Generate nodes with random positions}}
 					for (let i = 0; i < numNodesToGenerate; i++) {
 						const nodeName = `node-${i + 1}`;
 						const newNode = {
@@ -823,18 +823,18 @@
 								y: Math.random() * 400
 							}
 						};
-						//-cy.add(newNode);
+{{rawJSComment 						//-cy.add(newNode);}}
 						try {
 							cy.add(newNode);
-							//- throw new Error('This is an example exception');
+{{rawJSComment 							//- throw new Error('This is an example exception');}}
 						} catch (error) {
-							//- Log the exception to the console
+{{rawJSComment 							//- Log the exception to the console}}
 							console.error("An exception occurred:", error);
-							//- Log the exception to notification message to the textarea 
+{{rawJSComment 							//- Log the exception to notification message to the textarea }}
 							appendMessage("An exception occurred:" + error);
 						}
 					}
-					//- Generate random edges between nodes
+{{rawJSComment 					//- Generate random edges between nodes}}
 					for (let i = 0; i < numNodesToGenerate; i++) {
 						const sourceNode = `node-${i + 1}`;
 						const targetNode = `node-${Math.floor(Math.random() * numNodesToGenerate) + 1}`;
@@ -850,16 +850,16 @@
 							};
 							try {
 								cy.add(newEdge);
-								//- throw new Error('This is an example exception');
+{{rawJSComment 								//- throw new Error('This is an example exception');}}
 							} catch (error) {
-								//- Log the exception to the console
+{{rawJSComment 								//- Log the exception to the console}}
 								console.error("An exception occurred:", error);
-								//- Log the exception to notification message to the textarea 
+{{rawJSComment 								//- Log the exception to notification message to the textarea }}
 								appendMessage("An exception occurred::" + error);
 							}
 						}
 					}
-					//- run layout
+{{rawJSComment 					//- run layout}}
 					const layout = cy.layout({
 						name: 'cola',
 						nodeSpacing: 5,
@@ -869,25 +869,25 @@
 						maxSimulationTime: 1500
 					});
 					layout.run();
-					//-//- Append a notification message to the textarea
+{{rawJSComment 					//-//- Append a notification message to the textarea}}
 					console.log("Info: " + `Boom! Just generated ${numNodesToGenerate} nodes with some random edges. That's how we roll!`);
 					appendMessage("Info: " + `Boom! Just generated ${numNodesToGenerate} nodes with some random edges. That's how we roll!`);
 				}
 
-				// End of JS Functions Event Handling section
-				// End of JS Functions Event Handling section
+{{rawJSComment 				// End of JS Functions Event Handling section}}
+{{rawJSComment 				// End of JS Functions Event Handling section}}
 
 
 
 
-				// End of JS Functions section
-				// End of JS Functions section
+{{rawJSComment 				// End of JS Functions section}}
+{{rawJSComment 				// End of JS Functions section}}
 
-				//- Load and apply Cytoscape styles from cy-style.json using fetch
+{{rawJSComment 				//- Load and apply Cytoscape styles from cy-style.json using fetch}}
 				fetch('cy-style.json')
 					.then(response => response.json())
 					.then(styles => {
-						//- Apply styles loaded from cy-style.json
+{{rawJSComment 						//- Apply styles loaded from cy-style.json}}
 						cy.style().fromJson(styles).update();
 					})
 					.catch(error => {

@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang='en'>
 	<head>
-		<meta charset="UTF-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta charset='UTF-8'>
+		<meta name='viewport' content='width=device-width, initial-scale=1.0'>
 		<title>TopoViewer</title>
-		<link href="css/style.css" rel="stylesheet"/>
-		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
-		<script defer src="https://use.fontawesome.com/releases/v5.14.0/js/all.js"></script>
-		<script defer src="https://cdn.jsdelivr.net/npm/bulma-extensions@4.0.1/bulma-slider/dist/js/bulma-slider.min.js"></script>
+		<link href='css/style.css' rel='stylesheet'/>
+		<link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css'>
+		<script defer src='https://use.fontawesome.com/releases/v5.14.0/js/all.js'></script>
+		<script defer src='https://cdn.jsdelivr.net/npm/bulma-extensions@4.0.1/bulma-slider/dist/js/bulma-slider.min.js'></script>
 	</head>
 	<style>
 		body { 
@@ -59,34 +59,34 @@
 		}
 	</style>
 	<body>
-		<nav class="level m-0 px-3 py-1 has-background-4a">
+		<nav class='level m-0 px-3 py-1 has-background-4a'>
 			<div>
-				<p class="title    m-0 px-1 py-0   is-4 is-unselectable has-text-weight-normal has-text-white"> TopoViewer</p>
-				<p class="subtitle m-0 px-1 py-0   is-6                 has-text-weight-light  has-text-white" id="ClabSubtitle">Topology name:nokia-MAGc-lab ::: Uptime: 10m10s</p>
+				<p class='title    m-0 px-1 py-0   is-4 is-unselectable has-text-weight-normal has-text-white'> TopoViewer</p>
+				<p class='subtitle m-0 px-1 py-0   is-6                 has-text-weight-light  has-text-white' id='ClabSubtitle'>Topology name:nokia-MAGc-lab ::: Uptime: 10m10s</p>
 			</div>
-			<div class="level-right">
-				<div id="nokia-logo">
-					<img src="images/nokia-logo.png" width="100" hspace="10" vspace="5"><br>
+			<div class='level-right'>
+				<div id='nokia-logo'>
+					<img src='images/nokia-logo.png' width='100' hspace='10' vspace='5'><br>
 				</div>
-				<div class="level-item">
-					<div class="dropdown is-hoverable is-right">
-						<div class="dropdown-trigger">
-							<button class="button is-small is-link is-light" aria-haspopup="true" aria-controls="dropdown-menu3">
-								<i class="icon fas fa-solid fa-bars fa-lg" aria-hidden="true"></i>
+				<div class='level-item'>
+					<div class='dropdown is-hoverable is-right'>
+						<div class='dropdown-trigger'>
+							<button class='button is-small is-link is-light' aria-haspopup='true' aria-controls='dropdown-menu3'>
+								<i class='icon fas fa-solid fa-bars fa-lg' aria-hidden='true'></i>
 							</button>
 						</div>
-						<div class="dropdown-menu" id="dropdown-menu3" role="menu">
-							<div class="dropdown-content">
-								<div class="dropdown-item">
-									<label class="label has-text-weight-normal is-small">Edge Length</label>
-									<input id="edgeLength" type="range" min="1" max="1000" step="1" value="50">
+						<div class='dropdown-menu' id='dropdown-menu3' role='menu'>
+							<div class='dropdown-content'>
+								<div class='dropdown-item'>
+									<label class='label has-text-weight-normal is-small'>Edge Length</label>
+									<input id='edgeLength' type='range' min='1' max='1000' step='1' value='50'>
 								</div>
-								<div class="dropdown-item">
-									<label class="label has-text-weight-normal is-small">Node Spacing</label>
-									<input id="nodeSpacing" type="range" min="1" max="1000" step="1" value="25">
+								<div class='dropdown-item'>
+									<label class='label has-text-weight-normal is-small'>Node Spacing</label>
+									<input id='nodeSpacing' type='range' min='1' max='1000' step='1' value='25'>
 								</div>
-								<hr class="dropdown-divider">
-								<a href="#" class="dropdown-item">
+								<hr class='dropdown-divider'>
+								<a href='#' class='dropdown-item'>
 								With a divider
 								</a>
 							</div>
@@ -95,108 +95,108 @@
 				</div>
 			</div>
 		</nav>
-		<div id="cy-container">
-			<div id="cy"></div>
-			<<div class="panel" id="Panel-01" style="display: block;">
-			<!-- <div class="panel" id="Panel-01" style="display: none;">  inital static was display node 
-				<p class="panel-heading is-size-6">Actions</p>
-				<p class="panel-tabs">
-					<a class="toggle-Panel01-tab" data-target="Panel-01--Tab-01-Container" id="Panel-01--Tab-01-Button">Tab-01</a>
-					<a class="toggle-Panel01-tab" data-target="Panel-01--Tab-02-Container" id="Panel-01--Tab-02-Button">Tab-02</a>
-					<a class="toggle-Panel01-tab" data-target="Panel-01--Tab-03-Container" id="Panel-01--Tab-03-Button">Tab-03</a>
-					<a class="toggle-Panel01-tab" data-target="Panel-01--Tab-04-Container" id="Panel-01--Tab-04-Button">Tab-04</a>
-					<a class="toggle-Panel01-tab" data-target="Panel-01--Tab-05-Container" id="Panel-01--Tab-05-Button">Tab-05</a>
+		<div id='cy-container'>
+			<div id='cy'></div>
+			<<div class='panel' id='Panel-01' style='display: block;'>
+			<!-- <div class='panel' id='Panel-01' style='display: none;'>  inital static was display node 
+				<p class='panel-heading is-size-6'>Actions</p>
+				<p class='panel-tabs'>
+					<a class='toggle-Panel01-tab' data-target='Panel-01--Tab-01-Container' id='Panel-01--Tab-01-Button'>Tab-01</a>
+					<a class='toggle-Panel01-tab' data-target='Panel-01--Tab-02-Container' id='Panel-01--Tab-02-Button'>Tab-02</a>
+					<a class='toggle-Panel01-tab' data-target='Panel-01--Tab-03-Container' id='Panel-01--Tab-03-Button'>Tab-03</a>
+					<a class='toggle-Panel01-tab' data-target='Panel-01--Tab-04-Container' id='Panel-01--Tab-04-Button'>Tab-04</a>
+					<a class='toggle-Panel01-tab' data-target='Panel-01--Tab-05-Container' id='Panel-01--Tab-05-Button'>Tab-05</a>
 				</p>
-				<div class="Panel-Container" id="Panel-01--Tab-01-Container">
-					<div class="panel-block">
-						<div id="nodeAttributes">
-							<label class="label is-size-7" for="nodeName">Node Spawner:</label>
-							<input class="input is-small" type="text" id="nodeName" placeholder="Node Name">
-							<button class="button is-small" id="addNodeSubmit">Spwan</button>
+				<div class='Panel-Container' id='Panel-01--Tab-01-Container'>
+					<div class='panel-block'>
+						<div id='nodeAttributes'>
+							<label class='label is-size-7' for='nodeName'>Node Spawner:</label>
+							<input class='input is-small' type='text' id='nodeName' placeholder='Node Name'>
+							<button class='button is-small' id='addNodeSubmit'>Spwan</button>
 						</div>
-						<div id="nodeGenerate">
-							<label class="label is-size-7" for="generateNodesInput">Network Maker:</label>
-							<input class="input is-small" type="text" id="generateNodesInput" placeholder="Wiro Sableng" value="212">
-							<button class="button is-small" id="generateNodesButton">Generate</button>
-						</div>
-					</div>
-					<div class="panel-block">
-						<label class="label is-size-7" for="nodeFindInput">Find Node :</label>
-						<div id="nodeFind">
-							<input class="input is-small" type="text" id="nodeFindInput" placeholder="Node Name">
-							<button class="button is-small" id="nodeFindButton">Find</button>
-							<button class="button is-small" id="fitAllNodesAction">Zoom to Fit</button>
+						<div id='nodeGenerate'>
+							<label class='label is-size-7' for='generateNodesInput'>Network Maker:</label>
+							<input class='input is-small' type='text' id='generateNodesInput' placeholder='Wiro Sableng' value='212'>
+							<button class='button is-small' id='generateNodesButton'>Generate</button>
 						</div>
 					</div>
-					<div class="panel-block">
-						<label class="label is-size-7" >Path Finder:</label>
-						<div id="nodeAttributes">
-							<input class="input is-small" type="text" id="findPathSourceNodeInput" placeholder="Source Node Name">
-							<input class="input is-small" type="text" id="findPathTargetNodeInput" placeholder="Target Node Name">
-							<button class="button is-small" id="findPathButtonDijkstra">Find Path Dijkstra</button>
+					<div class='panel-block'>
+						<label class='label is-size-7' for='nodeFindInput'>Find Node :</label>
+						<div id='nodeFind'>
+							<input class='input is-small' type='text' id='nodeFindInput' placeholder='Node Name'>
+							<button class='button is-small' id='nodeFindButton'>Find</button>
+							<button class='button is-small' id='fitAllNodesAction'>Zoom to Fit</button>
 						</div>
 					</div>
-					<div class="panel-block">
-						<button class="button is-small" id="connectNodesAction">Connect Nodes</button>
+					<div class='panel-block'>
+						<label class='label is-size-7' >Path Finder:</label>
+						<div id='nodeAttributes'>
+							<input class='input is-small' type='text' id='findPathSourceNodeInput' placeholder='Source Node Name'>
+							<input class='input is-small' type='text' id='findPathTargetNodeInput' placeholder='Target Node Name'>
+							<button class='button is-small' id='findPathButtonDijkstra'>Find Path Dijkstra</button>
+						</div>
 					</div>
-					<div class="panel-block">
-						<button class="button is-small" id="closeForm">Close</button>
+					<div class='panel-block'>
+						<button class='button is-small' id='connectNodesAction'>Connect Nodes</button>
+					</div>
+					<div class='panel-block'>
+						<button class='button is-small' id='closeForm'>Close</button>
 					</div>
 				</div>
-				<div class="Panel-Container" id="Panel-01--Tab-02-Container">
-					<div class="panel-block">
-						<div id="Container">
-							<label class="label is-size-7" for="Container">Container:</label>
-							<input class="input is-small" type="text" id="Container" placeholder="Container">
-							<button class="button is-small" id="addNodeSubmit">Container</button>
-						</div>
-					</div>
-				</div>
-				<div class="Panel-Container" id="Panel-01--Tab-03-Container">
-					<div class="panel-block">
-						<div id="Container">
-							<label class="label is-size-7" for="Container">Container:</label>
-							<input class="input is-small" type="text" id="Container" placeholder="Container">
-							<button class="button is-small" id="addNodeSubmit">Container</button>
+				<div class='Panel-Container' id='Panel-01--Tab-02-Container'>
+					<div class='panel-block'>
+						<div id='Container'>
+							<label class='label is-size-7' for='Container'>Container:</label>
+							<input class='input is-small' type='text' id='Container' placeholder='Container'>
+							<button class='button is-small' id='addNodeSubmit'>Container</button>
 						</div>
 					</div>
 				</div>
-				<div class="Panel-Container" id="Panel-01--Tab-04-Container">
-					<div class="panel-block">
-						<div id="Container">
-							<label class="label is-size-7" for="Container">Container:</label>
-							<input class="input is-small" type="text" id="Container" placeholder="Container">
-							<button class="button is-small" id="addNodeSubmit">Container</button>
+				<div class='Panel-Container' id='Panel-01--Tab-03-Container'>
+					<div class='panel-block'>
+						<div id='Container'>
+							<label class='label is-size-7' for='Container'>Container:</label>
+							<input class='input is-small' type='text' id='Container' placeholder='Container'>
+							<button class='button is-small' id='addNodeSubmit'>Container</button>
 						</div>
 					</div>
 				</div>
-				<div class="Panel-Container" id="Panel-01--Tab-05-Container">
-					<div class="panel-block">
-						<div id="Container">
-							<label class="label is-size-7" for="Container">Container:</label>
-							<input class="input is-small" type="text" id="Container" placeholder="Container">
-							<button class="button is-small" id="addNodeSubmit">Container</button>
+				<div class='Panel-Container' id='Panel-01--Tab-04-Container'>
+					<div class='panel-block'>
+						<div id='Container'>
+							<label class='label is-size-7' for='Container'>Container:</label>
+							<input class='input is-small' type='text' id='Container' placeholder='Container'>
+							<button class='button is-small' id='addNodeSubmit'>Container</button>
+						</div>
+					</div>
+				</div>
+				<div class='Panel-Container' id='Panel-01--Tab-05-Container'>
+					<div class='panel-block'>
+						<div id='Container'>
+							<label class='label is-size-7' for='Container'>Container:</label>
+							<input class='input is-small' type='text' id='Container' placeholder='Container'>
+							<button class='button is-small' id='addNodeSubmit'>Container</button>
 						</div>
 					</div>
 				</div>
 			</div> 
 		</div> inital static was display none -->
 		</div>
-		<div class="panel" id="Panel-02" >
-			<p class="panel-heading is-size-6 ">Notifications</p>
-			<div class="panel-block">
-				<textarea class="textarea is-small is-outlined is-expanded" id="notificationTextarea" rows="20"></textarea>
+		<div class='panel' id='Panel-02' >
+			<p class='panel-heading is-size-6 '>Notifications</p>
+			<div class='panel-block'>
+				<textarea class='textarea is-small is-outlined is-expanded' id='notificationTextarea' rows='20'></textarea>
 			</div>
-			<div class="panel-block">
-				<button id="copyToClipboardButton" class="button is-small">Copy to Clipboard</button>
+			<div class='panel-block'>
+				<button id='copyToClipboardButton' class='button is-small'>Copy to Clipboard</button>
 			</div>
 		</div>
-		<script src="/cytoscape/libs/cola.min.js"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.19.0/cytoscape.min.js"></script>
-		<script src="/cytoscape/libs/cytoscape-cola.js"></script>
-		<script src="/cytoscape/libs/popper.js"></script>
-		<script src="/cytoscape/libs/cytoscape-popper.js"></script>
-		<script src="/cytoscape/libs/cytoscape-grid-guide.js"></script>
+		<script src='/cytoscape/libs/cola.min.js'></script>
+		<script src='https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.19.0/cytoscape.min.js'></script>
+		<script src='/cytoscape/libs/cytoscape-cola.js'></script>
+		<script src='/cytoscape/libs/popper.js'></script>
+		<script src='/cytoscape/libs/cytoscape-popper.js'></script>
+		<script src='/cytoscape/libs/cytoscape-grid-guide.js'></script>
 		<script>
 
 
@@ -221,10 +221,10 @@
 				cy.on('click', 'node', function (event) {
 					// This code will be executed when you click on a node
 					// You can add logic specific to nodes here
-					appendMessage("Info: node is clicked")
-					console.log("Info: node is clicked")
+					appendMessage('Info: node is clicked')
+					console.log('Info: node is clicked')
 					const newContent = `
-					<p class="panel-heading is-size-6">Updated Panel</p>
+					<p class='panel-heading is-size-6'>Updated Panel</p>
 					<p>This is the updated content of Panel-01.</p>
 					<!-- Add more content here as needed -->
 				  	`;
@@ -319,7 +319,7 @@
 				// 		//- Hide the panel
 				// 		panel.style.display = 'none';
 				// 	}
-				// 	console.log("Panel-01.style: " + document.getElementById('Panel-01').style.display)
+				// 	console.log('Panel-01.style: ' + document.getElementById('Panel-01').style.display)
 				// });
 			
 				// //- Add a click event listener to the 'Submit' button in the hidden form
@@ -328,13 +328,13 @@
 				// 	const nodeName = document.getElementById('nodeName').value;
 				// 	console.log(nodeName)
 				// 	//- Check if a node name is empty 
-				// 	if (nodeName == "") {
+				// 	if (nodeName == '') {
 				// 		//- append message in textArea 
 				// 		appendMessage('Error: Enter node name.');
 				// 		return;
 				// 	}
 				// 	//- Check if a node with the same name already exists 
-				// 	if (cy.$(`node[id = "${nodeName}"]`).length > 0) {
+				// 	if (cy.$(`node[id = '${nodeName}']`).length > 0) {
 				// 		//- append message in textArea 
 				// 		appendMessage('Error: Node with this name already exists.');
 				// 		return;
@@ -361,8 +361,8 @@
 				// 	});
 				// 	layout.run();
 				// 	//- Append a notification message to the textarea 
-				// 	console.log("Info: " + `Nice! Node "${nodeName}" added successfully.`);
-				// 	appendMessage("Info: " + `Nice! Node "${nodeName}" added successfully.`);
+				// 	console.log('Info: ' + `Nice! Node '${nodeName}' added successfully.`);
+				// 	appendMessage('Info: ' + `Nice! Node '${nodeName}' added successfully.`);
 				// 
 				// });
 				
@@ -375,12 +375,12 @@
 					//- Get a reference to your Cytoscape instance (assuming it's named 'cy')
 					//- const cy = window.cy; //- Replace 'window.cy' with your actual Cytoscape instance
 					//- Find the node with the specified name
-					const node = cy.$(`node[name = "${nodeName}"]`);
+					const node = cy.$(`node[name = '${nodeName}']`);
 					//- Check if the node exists
 					if (node.length > 0) {
 						// console
-						console.log("Info: " + "Sweet! Node \"" + nodeName + "\" is in the house.");
-						appendMessage("Info: " + "Sweet! Node \"" + nodeName + "\" is in the house.");
+						console.log('Info: ' + 'Sweet! Node \'' + nodeName + '\' is in the house.');
+						appendMessage('Info: ' + 'Sweet! Node \'' + nodeName + '\' is in the house.');
 						//- Apply a highlight style to the node
 						node.style({
 							'border-color': 'red',
@@ -405,8 +405,8 @@
 							duration: 1500
 						});
 					} else {
-						console.error(`Bro, I couldn't find a node named "${nodeName}". Try another one.`);
-						appendMessage(`Bro, I couldn't find a node named "${nodeName}". Try another one.`);
+						console.error(`Bro, I couldn't find a node named '${nodeName}'. Try another one.`);
+						appendMessage(`Bro, I couldn't find a node named '${nodeName}'. Try another one.`);
 			
 					}
 				}
@@ -424,11 +424,11 @@
 							});
 			
 					// Assuming you have 'cy' as your Cytoscape instance
-					const sourceNode = cy.$(`node[id="${sourceNodeId}"]`);
-					const targetNode = cy.$(`node[id="${targetNodeId}"]`);
+					const sourceNode = cy.$(`node[id='${sourceNodeId}']`);
+					const targetNode = cy.$(`node[id='${targetNodeId}']`);
 			
-					console.log("Info: " + "Let's find the path from-" + sourceNodeId + "-to-"  + targetNodeId + "!");
-					appendMessage("Info: " + "Let's find the path from-" + sourceNodeId + "-to-"  + targetNodeId + "!");
+					console.log('Info: ' + 'Let's find the path from-' + sourceNodeId + '-to-'  + targetNodeId + '!');
+					appendMessage('Info: ' + 'Let's find the path from-' + sourceNodeId + '-to-'  + targetNodeId + '!');
 			
 							// Check if both nodes exist
 							if (sourceNode.length === 0 || targetNode.length === 0) {
@@ -478,8 +478,8 @@
 						duration: 1500
 					});
 					// throw log
-					console.log("Info: " + "Yo, check it out! Shorthest Path from-" + sourceNodeId + "-to-"  + targetNodeId + " has been found.");
-					appendMessage("Info: " + "Yo, check it out! Shorthest Path from-" + sourceNodeId + "-to-"  + targetNodeId + " has been found, below is the path trace..");
+					console.log('Info: ' + 'Yo, check it out! Shorthest Path from-' + sourceNodeId + '-to-'  + targetNodeId + ' has been found.');
+					appendMessage('Info: ' + 'Yo, check it out! Shorthest Path from-' + sourceNodeId + '-to-'  + targetNodeId + ' has been found, below is the path trace..');
 					console.log(shortestPathEdges)
 			
 					shortestPathEdges.forEach(edge => {
@@ -492,9 +492,9 @@
 						targetNodeId = edge.target().id();
 						// You can access other properties of the edge, e.g., source, target, data, etc.
 						
-						appendMessage("Info: " + 'Edge ID: ' + edgeId )
-						appendMessage("Info: " + 'Source Node ID: ' + sourceNodeId )
-						appendMessage("Info: " + 'Target Node ID: ' + targetNodeId )
+						appendMessage('Info: ' + 'Edge ID: ' + edgeId )
+						appendMessage('Info: ' + 'Source Node ID: ' + sourceNodeId )
+						appendMessage('Info: ' + 'Target Node ID: ' + targetNodeId )
 			
 			
 							});
@@ -621,11 +621,11 @@
 					tab01Container.className = 'Panel-Container';
 					tab01Container.id = 'Panel-01--Tab-01-Container';
 				
-					// Create a div with class "panel-block" for the first block of content
+					// Create a div with class 'panel-block' for the first block of content
 					const block1 = document.createElement('div');
 					block1.className = 'panel-block';
 				
-					// Create the "Node Spawner" section
+					// Create the 'Node Spawner' section
 					const nodeAttributes = document.createElement('div');
 					nodeAttributes.id = 'nodeAttributes';
 				
@@ -649,7 +649,7 @@
 					nodeAttributes.appendChild(nodeNameInput);
 					nodeAttributes.appendChild(addNodeButton);
 				
-					// Create the "Network Maker" section
+					// Create the 'Network Maker' section
 					const nodeGenerate = document.createElement('div');
 					nodeGenerate.id = 'nodeGenerate';
 				
@@ -681,7 +681,7 @@
 					const block2 = document.createElement('div');
 					block2.className = 'panel-block';
 				
-					// Create the "Find Node" section
+					// Create the 'Find Node' section
 					const findNodeDiv = document.createElement('div');
 					findNodeDiv.id = 'nodeFind';
 				
@@ -716,7 +716,7 @@
 					const block3 = document.createElement('div');
 					block3.className = 'panel-block';
 				
-					// Create the "Path Finder" section
+					// Create the 'Path Finder' section
 					const pathFinderDiv = document.createElement('div');
 					pathFinderDiv.id = 'nodeAttributes';
 				
@@ -752,7 +752,7 @@
 					const block4 = document.createElement('div');
 					block4.className = 'panel-block';
 				
-					// Create the "Connect Nodes" button
+					// Create the 'Connect Nodes' button
 					const connectNodesButton = document.createElement('button');
 					connectNodesButton.className = 'button is-small';
 					connectNodesButton.id = 'connectNodesAction';
@@ -764,7 +764,7 @@
 					const block5 = document.createElement('div');
 					block5.className = 'panel-block';
 				
-					// Create the "Close" button
+					// Create the 'Close' button
 					const closeButton = document.createElement('button');
 					closeButton.className = 'button is-small';
 					closeButton.id = 'closeForm';
@@ -806,7 +806,7 @@
 					//- Check if the number of node is positive 
 					if (isNaN(numNodesToGenerate) || numNodesToGenerate <= 0) {
 						//- Invalid input
-						appendMessage("Error:" + "Bro, you gotta enter a valid positive number, come on!");
+						appendMessage('Error:' + 'Bro, you gotta enter a valid positive number, come on!');
 						return;
 					}
 					//- Generate nodes with random positions
@@ -829,9 +829,9 @@
 							//- throw new Error('This is an example exception');
 						} catch (error) {
 							//- Log the exception to the console
-							console.error("An exception occurred:", error);
+							console.error('An exception occurred:', error);
 							//- Log the exception to notification message to the textarea 
-							appendMessage("An exception occurred:" + error);
+							appendMessage('An exception occurred:' + error);
 						}
 					}
 					//- Generate random edges between nodes
@@ -842,8 +842,8 @@
 							const newEdge = {
 								group: 'edges',
 								data: {
-									id: "from-" + sourceNode+ "-to-" + targetNode,
-									name: "from-" + sourceNode+ "-to-" + targetNode,
+									id: 'from-' + sourceNode+ '-to-' + targetNode,
+									name: 'from-' + sourceNode+ '-to-' + targetNode,
 									source: sourceNode,
 									target: targetNode
 								}
@@ -853,9 +853,9 @@
 								//- throw new Error('This is an example exception');
 							} catch (error) {
 								//- Log the exception to the console
-								console.error("An exception occurred:", error);
+								console.error('An exception occurred:', error);
 								//- Log the exception to notification message to the textarea 
-								appendMessage("An exception occurred::" + error);
+								appendMessage('An exception occurred::' + error);
 							}
 						}
 					}
@@ -870,8 +870,8 @@
 					});
 					layout.run();
 					//-//- Append a notification message to the textarea
-					console.log("Info: " + `Boom! Just generated ${numNodesToGenerate} nodes with some random edges. That's how we roll!`);
-					appendMessage("Info: " + `Boom! Just generated ${numNodesToGenerate} nodes with some random edges. That's how we roll!`);
+					console.log('Info: ' + `Boom! Just generated ${numNodesToGenerate} nodes with some random edges. That's how we roll!`);
+					appendMessage('Info: ' + `Boom! Just generated ${numNodesToGenerate} nodes with some random edges. That's how we roll!`);
 				}
 
 				// End of JS Functions Event Handling section
