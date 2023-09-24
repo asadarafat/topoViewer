@@ -79,6 +79,7 @@
         .is-smallest-element {
             font-size: 11px;  
             padding: 0px 8px;  
+			height: 24px;
         }
         .vertical-align-top {
             display: flex;
@@ -102,6 +103,23 @@
 		.link-impairment-widht {
 			width: 140px;
 		}
+
+		/* Add custom CSS to style the top and bottom outline using pseudo-elements */
+		.with-outline {
+			position: relative; /* Required for absolute positioning of pseudo-elements */
+		}
+
+		.with-outline::before {
+			content: ''; /* Required for pseudo-element */
+			position: absolute; /* Position the pseudo-element relative to the parent */
+			bottom: 0; /* Position the pseudo-element at the bottom */
+			left: 0; /* Optionally, adjust the left position as needed */
+			width: 100%; /* Full width of the column */
+			border-bottom: 2px solid #3498db; /* Set the border color and width as desired */
+			pointer-events: none; /* Allows clicking through the pseudo-element to the content */
+		  }
+		
+  
           
           
         
@@ -168,14 +186,14 @@
 			<script>
 
 
-//##			// Initialize a state variable to track the element's presence
+			// Initialize a state variable to track the element's presence
 			let isPanel01Cy = false;
 			let nodeClicked = false;
 			let edgeClicked = false;
 
 
 			document.addEventListener('DOMContentLoaded', function() {
-//##				//- Initialize Cytoscape.js
+				//- Initialize Cytoscape.js
 				const cy = cytoscape({
 					container: document.getElementById('cy'),
 					elements: [],
@@ -189,11 +207,11 @@
 					}]
 				});				
 
-//##				//- Load and apply Cytoscape styles from cy-style.json using fetch
+				//- Load and apply Cytoscape styles from cy-style.json using fetch
 				fetch('cy-style.json')
 				.then(response => response.json())
 				.then(styles => {
-//##					//- Apply styles loaded from cy-style.json
+					//- Apply styles loaded from cy-style.json
 					cy.style().fromJson(styles).update();
 				})
 				.catch(error => {
@@ -202,13 +220,13 @@
 				});
 
 
-//##				// Fetch and load element data from a JSON file
+				// Fetch and load element data from a JSON file
 				fetch('dataCytoMarshall-nokia-MAGc-lab.json')
 					.then(response => response.json())
 					.then(elements => {
-//##						// Add the elements to the Cytoscape instance
+						// Add the elements to the Cytoscape instance
 						cy.add(elements);
-//##						//- run layout
+						//- run layout
 						const layout = cy.layout({
 							name: 'cola',
 							nodeSpacing: 5,
@@ -218,7 +236,7 @@
 							maxSimulationTime: 1500
 						});
 						layout.run();
-//##						// remove node topoviewer
+						// remove node topoviewer
 						topoViewerNode = cy.filter('node[name = "topoviewer"]');
 						topoViewerNode.remove()
 					})
@@ -229,16 +247,16 @@
 
 
 
-//##				//- Toggle the Panel-01 when clicking on the cy container 
+				//- Toggle the Panel-01 when clicking on the cy container 
 				document.getElementById('cy').addEventListener('click', function (event) {
-//##					//- This code will be executed when you click anywhere in the Cytoscape container
-//##					//- You can add logic specific to the container here
+					//- This code will be executed when you click anywhere in the Cytoscape container
+					//- You can add logic specific to the container here
 
 					if (!nodeClicked && !edgeClicked) {
 						if (!isPanel01Cy) {
 							removeElementById("Panel-01");
-//##							// Define tabContentFns with custom content generation functions
-//##							// createNetworkExplorerTab is has corresponding function with similar name.
+							// Define tabContentFns with custom content generation functions
+							// createNetworkExplorerTab is has corresponding function with similar name.
 							const tabContentFns = [createNetworkExplorerTab, createNetworkBuilderTab];
 							const tabContentFnsArg = ["createNetworkExplorerTab", "createNetworkBuilderTab"];
 
@@ -255,13 +273,13 @@
 					appendMessage(`"nodeClicked: " ${nodeClicked}`)
 				});
 
-//##				// Click event listener for nodes
+				// Click event listener for nodes
 				cy.on('click', 'node', function (event) {
-//##					// This code will be executed when you click on a node
+					// This code will be executed when you click on a node
 					const node = event.target		
 					nodeClicked = true; 
 
-//##					// You can add logic specific to nodes here
+					// You can add logic specific to nodes here
 					removeElementById("Panel-01");
 					const tabContentFns = [createNodeDetailTab];
 					const tabContentFnsArg = [node];
@@ -272,14 +290,14 @@
 					appendMessage(`"nodeClicked: " ${nodeClicked}`)						
 				});
 
-//##				// Click event listener for edges
+				// Click event listener for edges
 				cy.on('click', 'edge', function(event) {
-//##					// This code will be executed when you click on a node
-//##					// You can add logic specific to nodes here
+					// This code will be executed when you click on a node
+					// You can add logic specific to nodes here
 					const edge = event.target		
 					edgeClicked = true; 
 
-//##					// You can add logic specific to nodes here
+					// You can add logic specific to nodes here
 					removeElementById("Panel-01");
 					const tabContentFns = [createEdgeDetailTab];
 					createContentPanel('Panel-01', tabContentFns, edge, 'Link Properties');
@@ -288,27 +306,27 @@
 					appendMessage(`"nodeClicked: " ${nodeClicked}`)
 				});
 			
-//##				// ######################################################
-//##				// Start of JS Functions HTML Element Creation section
-//##				// Start of JS Functions HTML Element Creation section
-//##				// ######################################################
+				// ######################################################
+				// Start of JS Functions HTML Element Creation section
+				// Start of JS Functions HTML Element Creation section
+				// ######################################################
 
-//##				// Function to create the Panel-01-nodeDetail content
+				// Function to create the Panel-01-nodeDetail content
 				function createContentPanelAction() {
 					const panel = document.createElement('div');
 					panel.className = 'panel';
 					panel.id = 'Panel-03';
 					panel.style.display = 'block';
-//##					// Create the panel heading
+					// Create the panel heading
 					const panelHeading = document.createElement('p');
 					panelHeading.className = 'panel-heading is-size-7';
 					panelHeading.textContent = 'Node Detail';
-//##					// Create the panel tabs
+					// Create the panel tabs
 					const panelTabs = document.createElement('p');
 					panelTabs.className = 'panel-tabs';
-//##					// Array of tab names
+					// Array of tab names
 					const tabNames = ['Network Explorer', 'Network Builder', 'Tab-03', 'Tab-04', 'Tab-05'];
-//##					// Create tabs dynamically
+					// Create tabs dynamically
 					for (const name of tabNames) {
 						const tab = document.createElement('a');
 						tab.className = 'toggle-Panel01-tab is-smallest';
@@ -317,18 +335,18 @@
 						tab.textContent = name;
 						panelTabs.appendChild(tab);
 					}
-//##					// Append the panel heading and tabs to the panel
+					// Append the panel heading and tabs to the panel
 					panel.appendChild(panelHeading);
 					panel.appendChild(panelTabs);
 
-//##					// Append the panel to the document body or another container of your choice
+					// Append the panel to the document body or another container of your choice
 					document.body.appendChild(panel);
 
 
 				}				
 
-//##				// Call createContentPanel with the panel ID and an array of tab content functions
-//##				// The Tab name will be auto generate by the tabFunction names, ie: funtion name: createNetworkExplorerTab --> tab name: NetworkExplorer
+				// Call createContentPanel with the panel ID and an array of tab content functions
+				// The Tab name will be auto generate by the tabFunction names, ie: funtion name: createNetworkExplorerTab --> tab name: NetworkExplorer
 				function createContentPanel(panelId, tabContentFns, tabContentFnsArg, panelHeadingText) {
 					appendMessage(`"createContentPanel reach:`)
 	
@@ -348,7 +366,7 @@
 				  
 					const tabContainers = [];
 					
-//##					// Check if the tabContentFns have more than 1 element
+					// Check if the tabContentFns have more than 1 element
 					if (tabContentFns.length != 1) {
 						for (let i = 0; i < tabNames.length; i++) {
 						  	const name = tabNames[i];
@@ -366,7 +384,7 @@
 
 						  	tabContainers.push(tabContainer);
 
-//##						  	// Generate tab content using the provided function from tabContentFns
+						  	// Generate tab content using the provided function from tabContentFns
 						  	if (tabContentFns[i] && typeof tabContentFns[i] === 'function') {
 								const tabContent = tabContentFns[i]();
 								tabContainer.appendChild(tabContent);
@@ -375,20 +393,20 @@
 							panel.appendChild(panelTabs);
 						}
 					}else{
-//##						// const name = tabNames[0];
-//##						// const tab = document.createElement('a');
-//##						// tab.className = 'toggle-Panel01-tab is-smallish has-text-weight-medium';
-//##						// tab.setAttribute('data-target', `${panelId}-Tab-${name}-Container`); 
-//##						// tab.id = `${panelId}-Tab-${name}-Button`;
-//##						// tab.textContent = name.replace(/^create|Tab$/g, ''); 
-//##						// panelTabs.appendChild(tab);
+						// const name = tabNames[0];
+						// const tab = document.createElement('a');
+						// tab.className = 'toggle-Panel01-tab is-smallish has-text-weight-medium';
+						// tab.setAttribute('data-target', `${panelId}-Tab-${name}-Container`); 
+						// tab.id = `${panelId}-Tab-${name}-Button`;
+						// tab.textContent = name.replace(/^create|Tab$/g, ''); 
+						// panelTabs.appendChild(tab);
 
 						const tabContainer = document.createElement('div');
 						tabContainer.className = 'panel-tabContainer';
 						tabContainer.id = `${panelId}-Tab-${name}-Container`;
 						tabContainers.push(tabContainer);
 						
-//##						// Generate tab content using the provided function from tabContentFns
+						// Generate tab content using the provided function from tabContentFns
 						if (tabContentFns[0] && typeof tabContentFns[0] === 'function') {
 							const tabContent = tabContentFns[0](tabContentFnsArg, panelHeadingText); 
 							console.log("tabContentFnsArg")
@@ -401,9 +419,9 @@
 				  
 
 					
-//##					// Check if the tabContentFns have more than 1 element
+					// Check if the tabContentFns have more than 1 element
 					if (tabContentFns.length != 1) {
-//##						// initial hide all tab and only opent the first tab
+						// initial hide all tab and only opent the first tab
 						for (const tabContainer of tabContainers) {
 							tabContainer.style.display = 'none';
 						 	panel.appendChild(tabContainer);
@@ -420,12 +438,12 @@
 							const targetTabId = tab.getAttribute('data-target');
 							const selectedTabContainer = document.getElementById(targetTabId);
 
-//##							// Hide all tab containers
+							// Hide all tab containers
 							tabContainers.forEach(container => {
 							  container.style.display = 'none';
 							});
 
-//##							// Show the selected tab container
+							// Show the selected tab container
 							selectedTabContainer.style.display = 'block';
 				  
 							console.log(`Panel-${targetTabId} is displayed.`);
@@ -435,17 +453,17 @@
 				}
 				  
 				function createNetworkExplorerTab() {
-//##					// const content = document.createElement('div');
-//##					// content.textContent = `Content for 1`;
-//##					// return content;
-//##					// Create a div container for Tab-01 content
+					// const content = document.createElement('div');
+					// content.textContent = `Content for 1`;
+					// return content;
+					// Create a div container for Tab-01 content
 					const tab01Container = document.createElement('div');
 				
-//##					// Create the first block of content
+					// Create the first block of content
 					const block1 = document.createElement('div');
 					block1.className = 'panel-block';
 				
-//##					// Create the 'Network Maker' section
+					// Create the 'Network Maker' section
 					const nodeGenerate = document.createElement('div');
 					nodeGenerate.id = 'nodeGenerate';
 					nodeGenerate.className = 'column my-auto';
@@ -471,14 +489,14 @@
 					nodeGenerate.appendChild(generateNodesInput);
 					nodeGenerate.appendChild(generateNodesButton);
 				
-//##					// block1.appendChild(nodeAttributes);
+					// block1.appendChild(nodeAttributes);
 					block1.appendChild(nodeGenerate);
 				
-//##					// Create the second block of content
+					// Create the second block of content
 					const block2 = document.createElement('div');
 					block2.className = 'panel-block';
 				
-//##					// Create the 'Find Node' section
+					// Create the 'Find Node' section
 					const findNodeDiv = document.createElement('div');
 					findNodeDiv.id = 'nodeFind';
 					findNodeDiv.className = 'column my-auto';
@@ -515,7 +533,7 @@
 				
 					block2.appendChild(findNodeDiv);
 				
-//##					// Create the 'Path Finder' section
+					// Create the 'Path Finder' section
 					const pathFinderDiv = document.createElement('div');
 					pathFinderDiv.id = 'pathFinder';
 					pathFinderDiv.className = 'column my-auto';
@@ -548,11 +566,11 @@
 				
 					block2.appendChild(pathFinderDiv);
 				
-//##					// Create the fifth block of content
+					// Create the fifth block of content
 					const block5 = document.createElement('div');
 					block5.className = 'panel-block';
 				
-//##					// Create the 'Close' button
+					// Create the 'Close' button
 					const closePanel01Button = document.createElement('button');
 					closePanel01Button.className = 'button is-smallest-element';
 					closePanel01Button.id = 'closeForm';
@@ -560,13 +578,13 @@
 				
 					block5.appendChild(closePanel01Button);
 				
-//##					// Append all blocks to the Tab-01 container
+					// Append all blocks to the Tab-01 container
 					tab01Container.appendChild(block1);
 					tab01Container.appendChild(block2);
-//##					//tab01Container.appendChild(block3);
+					//tab01Container.appendChild(block3);
 					tab01Container.appendChild(block5);
 
-//##					// call event handler function
+					// call event handler function
 					generateNodesButton.addEventListener('click', generateNodesEvent)
 					nodeFindButton.addEventListener('click', nodeFindEvent)
 					zoomToFitButton.addEventListener('click', zoomToFitEvent)
@@ -577,18 +595,18 @@
 				}
 				  
 				function createNetworkBuilderTab() {
-//##					// const content = document.createElement('div');
-//##					// content.textContent = `Contentaaa for 2 `;
-//##					// return content;
+					// const content = document.createElement('div');
+					// content.textContent = `Contentaaa for 2 `;
+					// return content;
 
-//##					// Create a div container for Tab-01 content
+					// Create a div container for Tab-01 content
 					const tab02Container = document.createElement('div');
 				
-//##					// Create the first block of content
+					// Create the first block of content
 					const block1 = document.createElement('div');
 					block1.className = 'panel-block';
 				
-//##					// Create the 'Node Spawner' section
+					// Create the 'Node Spawner' section
 					const nodeAttributes = document.createElement('div');
 					nodeAttributes.id = 'nodeAttributes';
 					nodeAttributes.className = 'column my-auto';
@@ -620,7 +638,7 @@
 				
 					block1.appendChild(nodeAttributes);
 				
-//##					// Create the 'Network Builder' section
+					// Create the 'Network Builder' section
 					const networkBuilderkDiv = document.createElement('div');
 					networkBuilderkDiv.id = 'networkBuilder';
 					networkBuilderkDiv.className = 'column my-auto';
@@ -653,11 +671,11 @@
 				
 					block1.appendChild(networkBuilderkDiv);
 				
-//##					// Create the fifth block of content
+					// Create the fifth block of content
 					const block5 = document.createElement('div');
 					block5.className = 'panel-block';
 				
-//##					// Create the 'Close' button
+					// Create the 'Close' button
 					const closePanel01Button = document.createElement('button');
 					closePanel01Button.className = 'button is-smallest-element';
 					closePanel01Button.id = 'closeForm';
@@ -665,11 +683,11 @@
 				
 					block5.appendChild(closePanel01Button);
 				
-//##					// Append all blocks to the Tab-01 container
+					// Append all blocks to the Tab-01 container
 					tab02Container.appendChild(block1);
 					tab02Container.appendChild(block5);
 				
-//##					// call event handler function
+					// call event handler function
 					spawnNodeButton.addEventListener('click', spawnNodeEvent)
 					closePanel01Button.addEventListener('click', closePanel01Event)
 
@@ -677,7 +695,7 @@
 				}
 
 				function createPanelBlockContainer(tabContainerId) {
-//##					// this is helper function to create PanelBlock-Container
+					// this is helper function to create PanelBlock-Container
 					const panelBlock = document.createElement('div');
 					panelBlock.id = `panelBlock-${tabContainerId}`
 					panelBlock.className = 'panel-block py-2';
@@ -693,48 +711,48 @@
 				}
 
 				function createPanelBlockForm(PanelColumnsConfig, panelBlock, divPanelBlock) {
-//##					// This is helper function to create PanelBlock-Form-Content
-//##					// Usage: 
-//##					// // Panel Block 01
-//##					// // Start of mandatory panelContent containercontainer
-//##					// const panelBlock01 = document.createElement('div');
-//##					// panelBlock01.id = `panelBlock01-${modifiedHeaderText}`
-//##					// panelBlock01.className = 'panel-block p-0';
+					// This is helper function to create PanelBlock-Form-Content
+					// Usage: 
+					// // Panel Block 01
+					// // Start of mandatory panelContent containercontainer
+					// const panelBlock01 = document.createElement('div');
+					// panelBlock01.id = `panelBlock01-${modifiedHeaderText}`
+					// panelBlock01.className = 'panel-block p-0';
 				
-//##					// const divPanelBlock01 = document.createElement('div');
-//##					// divPanelBlock01.id = `${panelBlock01.id}-divPanelBlock01-`
-//##					// divPanelBlock01.className = 'column ';
-//##					// // End of mandatory panelContent containercontainer
+					// const divPanelBlock01 = document.createElement('div');
+					// divPanelBlock01.id = `${panelBlock01.id}-divPanelBlock01-`
+					// divPanelBlock01.className = 'column ';
+					// // End of mandatory panelContent containercontainer
 				
-//##					// const Panel01ColumnsConfig = [
-//##					// 	{ idSuffix: 'LinkName', textContent: 'Link Name', className: 'link-impairment-widht', columntInputType: 'label' },
-//##					// 	{ idSuffix: 'Source', textContent: 'Source', className: 'link-impairment-widht', columntInputType: 'label'},
-//##					// 	{ idSuffix: 'Target', textContent: 'Target', className: 'link-impairment-widht', columntInputType: 'label' },
-//##					// 	{ idSuffix: 'SourceMac', textContent: 'Source MAC', className: 'link-impairment-widht', columntInputType: 'label' },
-//##					// 	{ idSuffix: 'TargetMac', textContent: 'Target Mac', className: 'link-impairment-widht', columntInputType: 'label' },
-//##					// ];
+					// const Panel01ColumnsConfig = [
+					// 	{ idSuffix: 'LinkName', textContent: 'Link Name', className: 'link-impairment-widht', columntInputType: 'label' },
+					// 	{ idSuffix: 'Source', textContent: 'Source', className: 'link-impairment-widht', columntInputType: 'label'},
+					// 	{ idSuffix: 'Target', textContent: 'Target', className: 'link-impairment-widht', columntInputType: 'label' },
+					// 	{ idSuffix: 'SourceMac', textContent: 'Source MAC', className: 'link-impairment-widht', columntInputType: 'label' },
+					// 	{ idSuffix: 'TargetMac', textContent: 'Target Mac', className: 'link-impairment-widht', columntInputType: 'label' },
+					// ];
 				
-//##					// createPanelBlockForm(Panel01ColumnsConfig, panelBlock01, divPanelBlock01)
+					// createPanelBlockForm(Panel01ColumnsConfig, panelBlock01, divPanelBlock01)
 				
 					PanelColumnsConfig.forEach(config => {
-//##						// Create columnContainer
+						// Create columnContainer
 						const columnContainer = document.createElement('div');
 						columnContainer.id = `${divPanelBlock.id}-columnContainer${config.idSuffix}`
-						columnContainer.className = 'column py-auto';
+						columnContainer.className = 'column my-auto';
 				
-//##						// Create panelContent
+						// Create panelContent
 						const panelContent = document.createElement('div');
 						panelContent.id = `${columnContainer.id}-panelContent${config.idSuffix}`
-						panelContent.className = 'panel-content p-0';
+						panelContent.className = 'panel-content';
 				
-//##						// Create columnsPanelContent container
+						// Create columnsPanelContent container
 						const columnsPanelContent = document.createElement('div');
-						columnsPanelContent.className = 'columns p-0';
+						columnsPanelContent.className = 'columns py-auto';
 						columnsPanelContent.id = `${panelContent.id}-columnsPanelContent${config.idSuffix}`
 				
-//##						// Create labelColumn column
+						// Create labelColumn column
 						const labelColumn = document.createElement('div');
-						labelColumn.className = 'column is-3 p-0 is-narrow-desktop';
+						labelColumn.className = 'column is-4 p-1 is-narrow-desktop';
 						labelColumn.id = `${columnsPanelContent.id}-labelColumn${config.idSuffix}`
 				
 						const labelElement = document.createElement('label');
@@ -745,10 +763,10 @@
 						labelColumn.appendChild(labelElement);
 						columnsPanelContent.appendChild(labelColumn);
 				
-//##						// Create inputColumn column
+						// Create inputColumn column
 						if (config.columntInputType == 'label'){
 							const inputColumn = document.createElement('div');
-							inputColumn.className = `column is-8 p-0 pl-3`;
+							inputColumn.className = `column is-8 p-1 pl-3`;
 							inputColumn.id = `${labelColumn.id}-inputColumn${config.idSuffix}`
 					
 							const inputElement = document.createElement('label');
@@ -760,7 +778,7 @@
 							columnsPanelContent.appendChild(inputColumn);
 						}else if (config.columntInputType == 'button') {
 							const inputColumn = document.createElement('div');
-							inputColumn.className = `column is-8 p-0 pl-3`;
+							inputColumn.className = `column is-8 py-0 pl-3`;
 							inputColumn.id = `${labelColumn.id}-inputColumn${config.idSuffix}`
 					
 							const inputElement = document.createElement('button');
@@ -782,12 +800,12 @@
 					
 				function createNodeDetailTab(node, panelHeadingText) {
 					const modifiedHeaderText = panelHeadingText.replace(/\s+/g, '');
-//##					// Create the tab-container 
+					// Create the tab-container 
 					const tabContainer = document.createElement('div');
 					tabContainer.id = `tabContainer-${modifiedHeaderText}`
 					tabContainer.className = 'panel-tabContainer';
 
-//##					// Panel Block 01
+					// Panel Block 01
 					panelBlockContainer = createPanelBlockContainer(tabContainer.id)
 					panelBlock01 = panelBlockContainer.panelBlock
 					divPanelBlock01 = panelBlockContainer.divPanelBlock
@@ -807,10 +825,10 @@
 					createPanelBlockForm(Panel01ColumnsConfig, panelBlock01, divPanelBlock01)
 				
 				
-//##					// Per panelBlock divPanelBlock01 --> panelBlock01
+					// Per panelBlock divPanelBlock01 --> panelBlock01
 					panelBlock01.appendChild(divPanelBlock01)
 				
-//##					// --> tabContainer
+					// --> tabContainer
 					tabContainer.appendChild(panelBlock01)
 
 					return tabContainer
@@ -819,12 +837,12 @@
 				function createEdgeDetailTab(edge, panelHeadingText) {
 					const modifiedHeaderText = panelHeadingText.replace(/\s+/g, '');
 				
-//##					// Create the tab-container 
+					// Create the tab-container 
 					const tabContainer = document.createElement('div');
 					tabContainer.id = `tabContainer-${modifiedHeaderText}`
 					tabContainer.className = 'panel-tabContainer';
 
-//##					// Panel Block 01
+					// Panel Block 01
 					panelBlockContainer = createPanelBlockContainer(tabContainer.id)
 					panelBlock01 = panelBlockContainer.panelBlock
 					divPanelBlock01 = panelBlockContainer.divPanelBlock
@@ -839,17 +857,17 @@
 
 					createPanelBlockForm(Panel01ColumnsConfig, panelBlock01, divPanelBlock01)
 
-//##					// append divPanelBlock02 --> panelBlock02 --> tabContainer
+					// append divPanelBlock02 --> panelBlock02 --> tabContainer
 					panelBlock01.append(divPanelBlock01)
 					tabContainer.appendChild(panelBlock01)
 				
-//##					// Panel Block 02
+					// Panel Block 02
 					panelBlockContainer = createPanelBlockContainer(tabContainer.id)
 					panelBlock02 = panelBlockContainer.panelBlock
 					divPanelBlock02 = panelBlockContainer.divPanelBlock
 				
-//##					// Create Content in panel block 02 for Capture Endpoint Source
-//##					// Create the 'column' child of panelblock02 as content container
+					// Create Content in panel block 02 for Capture Endpoint Source
+					// Create the 'column' child of panelblock02 as content container
 					const endpoint = ['PE-01::eth1', 'AGG-UPF01::eth3'];
 					const elements = ['Source', 'Target'];
 				
@@ -898,7 +916,7 @@
 							} else {
 								console.log('No valid Endpoint label')
 							}
-//##							// is-justify-content-flex-start --> flexbox class, as bulma.io has-text-link is not responding for button class.
+							// is-justify-content-flex-start --> flexbox class, as bulma.io has-text-link is not responding for button class.
 							button.className = `button button-capture has-text-link is-justify-content-flex-start is-static is-smallest-element is-outlined`;
 							control.appendChild(button);
 							fieldPanelContent02.appendChild(control);
@@ -926,12 +944,12 @@
 						divPanelBlock02.appendChild(columnContainer);
 					});
 			
-//##					// append divPanelBlock02 --> panelBlock02 --> tabContainer
+					// append divPanelBlock02 --> panelBlock02 --> tabContainer
 					panelBlock02.append(divPanelBlock02)
 					tabContainer.appendChild(panelBlock02)
 				
 				
-//##					// Panel Block 03
+					// Panel Block 03
 					panelBlockContainer = createPanelBlockContainer(tabContainer.id)
 					panelBlock03 = panelBlockContainer.panelBlock
 					divPanelBlock03 = panelBlockContainer.divPanelBlock
@@ -945,22 +963,22 @@
 					];
 				
 					columnsConfig.forEach(config => {
-//##						// Create columnContainer
+						// Create columnContainer
 						const columnContainer = document.createElement('div');
 						columnContainer.id = `${divPanelBlock03.id}-columnContainerImpairment${config.idSuffix}-`
 						columnContainer.className = 'column my-auto';
 				
-//##						// Create panelContent
+						// Create panelContent
 						const panelContent = document.createElement('div');
 						panelContent.id = `${columnContainer.id}-panelContentImpairment${config.idSuffix}-`
 						panelContent.className = 'panel-content';
 				
-//##						// Create columnsPanelContent container
+						// Create columnsPanelContent container
 						const columnsPanelContent = document.createElement('div');
 						columnsPanelContent.className = 'columns py-auto';
 						columnsPanelContent.id = `${panelContent.id}-columnsPanelContentImpairment${config.idSuffix}`
 				
-//##						// Create buttonColumn column
+						// Create buttonColumn column
 						const buttonColumn = document.createElement('div');
 						buttonColumn.className = 'column is-4 p-1 is-narrow-desktop';
 						buttonColumn.id = `${columnsPanelContent.id}-buttonImpairment${config.idSuffix}Column-`
@@ -973,7 +991,7 @@
 						buttonColumn.appendChild(buttonLabel);
 						columnsPanelContent.appendChild(buttonColumn);
 				
-//##						// Create inputColumn column
+						// Create inputColumn column
 						const inputColumn = document.createElement('div');
 						inputColumn.className = `column is-8 p-1 pl-3`;
 						inputColumn.id = `${buttonColumn.id}-inputColumnImpairment${config.idSuffix}-`
@@ -994,34 +1012,34 @@
 					});
 				
 				
-//##					// Apply Column Start
+					// Apply Column Start
 					const columnContainerImpairmentApply = document.createElement('div');
 					columnContainerImpairmentApply.id = `${divPanelBlock03.id}-columnContainerImpairmentApply-`
 					columnContainerImpairmentApply.className = 'column my-auto';
 				
-//##					// Create panelContentImpairmentApply
+					// Create panelContentImpairmentApply
 					const panelContentImpairmentApply = document.createElement('div');
 					panelContentImpairmentApply.id = `${columnContainerImpairmentApply.id}-panelContentImpairmentApply-`
 					panelContentImpairmentApply.className = 'panel-content';
 				
-//##					// Create columnsPanelContentImpairmentApply container
+					// Create columnsPanelContentImpairmentApply container
 					const columnsPanelContentImpairmentApply = document.createElement('div');
 					columnsPanelContentImpairmentApply.className = 'columns py-auto';
 					columnsPanelContentImpairmentApply.id = `${panelContentImpairmentApply.id}-columnsPanelContentImpairmentApply`
 				
-//##					// Create buttonImpairmentApplyColumn column
+					// Create buttonImpairmentApplyColumn column
 					const buttonImpairmentApplyColumn = document.createElement('div');
 					buttonImpairmentApplyColumn.className = 'column is-4 p-1 is-narrow-desktop';
 					buttonImpairmentApplyColumn.id = `${columnsPanelContentImpairmentApply.id}-buttonImpairmentApplyColumn-`
 				
-//##					// const buttonImpairmentApply = document.createElement('button');
-//##					// buttonImpairmentApply.className = 'button hide has-text-link has-text-right is-smallest has-text-weight-bold px-auto';
-//##					// buttonImpairmentApply.textContent = '';
-//##					// buttonImpairmentApply.id = `${buttonImpairmentApplyColumn.id}-buttonImpairmentApply-`
+					// const buttonImpairmentApply = document.createElement('button');
+					// buttonImpairmentApply.className = 'button hide has-text-link has-text-right is-smallest has-text-weight-bold px-auto';
+					// buttonImpairmentApply.textContent = '';
+					// buttonImpairmentApply.id = `${buttonImpairmentApplyColumn.id}-buttonImpairmentApply-`
 				
-//##					// buttonImpairmentApplyColumn.appendChild(buttonImpairmentApply);
+					// buttonImpairmentApplyColumn.appendChild(buttonImpairmentApply);
 					columnsPanelContentImpairmentApply.appendChild(buttonImpairmentApplyColumn);
-//##					// Create inputColumnImpairmentApply column
+					// Create inputColumnImpairmentApply column
 					const inputColumnImpairmentApply = document.createElement('div');
 					inputColumnImpairmentApply.className = 'column is-8 p-1 pl-3';
 					inputColumnImpairmentApply.id = `${buttonImpairmentApplyColumn.id}-inputColumnImpairmentApply-`
@@ -1038,12 +1056,12 @@
 					columnContainerImpairmentApply.appendChild(panelContentImpairmentApply)
 				
 					divPanelBlock03.appendChild(columnContainerImpairmentApply)
-//##					// Apply Column End
+					// Apply Column End
 				
-//##					// Per panelBlock divPanelBlock03 --> panelBlock03
+					// Per panelBlock divPanelBlock03 --> panelBlock03
 					panelBlock03.appendChild(divPanelBlock03)
 				
-//##					// --> tabContainer
+					// --> tabContainer
 					tabContainer.appendChild(panelBlock03)
 				
 				
@@ -1057,37 +1075,37 @@
 
 				
   
-//##				// ######################################################
-//##				// END of JS Functions HTML Element Creation section
-//##				// END of JS Functions HTML Element Creation section
-//##				// ######################################################
+				// ######################################################
+				// END of JS Functions HTML Element Creation section
+				// END of JS Functions HTML Element Creation section
+				// ######################################################
 
 
-//##				// ######################################################
-//##				// START of JS Functions Event Handling section
-//##				// START of JS Functions Event Handling section
-//##				// ######################################################
+				// ######################################################
+				// START of JS Functions Event Handling section
+				// START of JS Functions Event Handling section
+				// ######################################################
 
 				function generateNodesEvent(event) {
-//##					// Your event handling logic here
-//##					//- Add a click event listener to the 'Generate' button
-//##					//- Get the number of node from the input field  
+					// Your event handling logic here
+					//- Add a click event listener to the 'Generate' button
+					//- Get the number of node from the input field  
 					console.log('generateNodesButton clicked')
 					const numNodes = document.getElementById('generateNodesInput').value;
 					console.log(numNodes)
-//##					//- Check if the number of node is empty  
+					//- Check if the number of node is empty  
 					if (numNodes === null) {
-//##						//- if node number empty do nothing 
+						//- if node number empty do nothing 
 						return;
 					}
 					const numNodesToGenerate = parseInt(numNodes, 10);
-//##					//- Check if the number of node is positive 
+					//- Check if the number of node is positive 
 					if (isNaN(numNodesToGenerate) || numNodesToGenerate <= 0) {
-//##						//- Invalid input
+						//- Invalid input
 						appendMessage("Error:" + "Bro, you gotta enter a valid positive number, come on!");
 						return;
 					}
-//##					//- Generate nodes with random positions
+					//- Generate nodes with random positions
 					for (let i = 0; i < numNodesToGenerate; i++) {
 						const nodeName = `node-${i + 1}`;
 						const newNode = {
@@ -1101,18 +1119,18 @@
 								y: Math.random() * 400
 							}
 						};
-//##						//-cy.add(newNode);
+						//-cy.add(newNode);
 						try {
 							cy.add(newNode);
-//##							//- throw new Error('This is an example exception');
+							//- throw new Error('This is an example exception');
 						} catch (error) {
-//##							//- Log the exception to the console
+							//- Log the exception to the console
 							console.error("An exception occurred:", error);
-//##							//- Log the exception to notification message to the textarea 
+							//- Log the exception to notification message to the textarea 
 							appendMessage("An exception occurred:" + error);
 						}
 					}
-//##					//- Generate random edges between nodes
+					//- Generate random edges between nodes
 					for (let i = 0; i < numNodesToGenerate; i++) {
 						const sourceNode = `node-${i + 1}`;
 						const targetNode = `node-${Math.floor(Math.random() * numNodesToGenerate) + 1}`;
@@ -1128,16 +1146,16 @@
 							};
 							try {
 								cy.add(newEdge);
-//##								//- throw new Error('This is an example exception');
+								//- throw new Error('This is an example exception');
 							} catch (error) {
-//##								//- Log the exception to the console
+								//- Log the exception to the console
 								console.error("An exception occurred:", error);
-//##								//- Log the exception to notification message to the textarea 
+								//- Log the exception to notification message to the textarea 
 								appendMessage("An exception occurred::" + error);
 							}
 						}
 					}
-//##					//- run layout
+					//- run layout
 					const layout = cy.layout({
 						name: 'cola',
 						nodeSpacing: 5,
@@ -1147,29 +1165,29 @@
 						maxSimulationTime: 1500
 					});
 					layout.run();
-//##					//-//- Append a notification message to the textarea
+					//-//- Append a notification message to the textarea
 					console.log("Info: " + `Boom! Just generated ${numNodesToGenerate} nodes with some random edges. That's how we roll!`);
 					appendMessage("Info: " + `Boom! Just generated ${numNodesToGenerate} nodes with some random edges. That's how we roll!`);
 				}
 
 				function spawnNodeEvent(event) {
-//##					//- Add a click event listener to the 'Submit' button in the hidden form
-//##					//- Get the node name from the input field 
+					//- Add a click event listener to the 'Submit' button in the hidden form
+					//- Get the node name from the input field 
 					const nodeName = document.getElementById('nodeName').value;
 					console.log(nodeName)
-//##					//- Check if a node name is empty 
+					//- Check if a node name is empty 
 					if (nodeName == "") {
-//##						//- append message in textArea 
+						//- append message in textArea 
 						appendMessage('Error: Enter node name.');
 						return;
 					}
-//##					//- Check if a node with the same name already exists 
+					//- Check if a node with the same name already exists 
 					if (cy.$(`node[id = "${nodeName}"]`).length > 0) {
-//##						//- append message in textArea 
+						//- append message in textArea 
 						appendMessage('Error: Node with this name already exists.');
 						return;
 					}
-//##					//- Create a new node element 
+					//- Create a new node element 
 					const newNode = {
 						group: 'nodes',
 						data: {
@@ -1178,9 +1196,9 @@
 							label: nodeName
 						}
 					};
-//##					//- Add the new node to Cytoscape.js 
+					//- Add the new node to Cytoscape.js 
 					cy.add(newNode);
-//##					//- Randomize the positions and center the graph 
+					//- Randomize the positions and center the graph 
 					const layout = cy.layout({
 						name: 'cola',
 						nodeSpacing: 5,
@@ -1190,31 +1208,31 @@
 						maxSimulationTime: 1500
 					});
 					layout.run();
-//##					//- Append a notification message to the textarea 
+					//- Append a notification message to the textarea 
 					console.log("Info: " + `Nice! Node "${nodeName}" added successfully.`);
 					appendMessage("Info: " + `Nice! Node "${nodeName}" added successfully.`);
 				}
 
 				function nodeFindEvent(event) {
-//##					//- Get a reference to your Cytoscape instance (assuming it's named 'cy')
-//##					//- const cy = window.cy; //- Replace 'window.cy' with your actual Cytoscape instance
-//##					//- Find the node with the specified name
+					//- Get a reference to your Cytoscape instance (assuming it's named 'cy')
+					//- const cy = window.cy; //- Replace 'window.cy' with your actual Cytoscape instance
+					//- Find the node with the specified name
 					const nodeName = document.getElementById('nodeFindInput').value;
 					const node = cy.$(`node[name = "${nodeName}"]`);
-//##					//- Check if the node exists
+					//- Check if the node exists
 					if (node.length > 0) {
-//##						// console
+						// console
 						console.log("Info: " + "Sweet! Node \"" + nodeName + "\" is in the house.");
 						appendMessage("Info: " + "Sweet! Node \"" + nodeName + "\" is in the house.");
-//##						//- Apply a highlight style to the node
+						//- Apply a highlight style to the node
 						node.style({
 							'border-color': 'red',
 							'border-width': '2px',
 							'background-color': 'yellow'
 						});
-//##						//- Zoom out on the node
+						//- Zoom out on the node
 						cy.fit()
-//##						//- Zoom in on the node
+						//- Zoom in on the node
 						cy.animate({
 							zoom: {
 								level: 5,
@@ -1239,72 +1257,72 @@
 				function zoomToFitEvent(event) {
 					const initialZoom = cy.zoom();
 					appendMessage(`Bro, initial zoom level is "${initialZoom}".`);
-//##					//- Fit all nodes possible with padding
+					//- Fit all nodes possible with padding
 					cy.fit();
 					const currentZoom = cy.zoom();
 					appendMessage(`And now the zoom level is "${currentZoom}".`);
 				}
 
 				function pathFinderDijkstraEvent(event) {
-//##					// Usage example:
-//##					// highlightShortestPath('node-a', 'node-b'); // Replace with your source and target node IDs
-//##					//- Function to get the default node style from cy-style.json
-//##					//- weight: (edge) => 1, // You can adjust the weight function if needed
-//##					//- weight: (edge) => edge.data('distance')
+					// Usage example:
+					// highlightShortestPath('node-a', 'node-b'); // Replace with your source and target node IDs
+					//- Function to get the default node style from cy-style.json
+					//- weight: (edge) => 1, // You can adjust the weight function if needed
+					//- weight: (edge) => edge.data('distance')
 								
-//##					// Remove existing highlight from all edges
+					// Remove existing highlight from all edges
 					cy.edges().forEach(edge => {
 						edge.removeClass('spf');
 							});
 
-//##					// Get the node sourceNodeId from pathFinderSourceNodeInput and targetNodeId from pathFinderTargetNodeInput  
+					// Get the node sourceNodeId from pathFinderSourceNodeInput and targetNodeId from pathFinderTargetNodeInput  
 					const sourceNodeId = document.getElementById('pathFinderSourceNodeInput').value;
 					const targetNodeId = document.getElementById('pathFinderTargetNodeInput').value;
 
-//##					// Assuming you have 'cy' as your Cytoscape instance
+					// Assuming you have 'cy' as your Cytoscape instance
 					const sourceNode = cy.$(`node[id="${sourceNodeId}"]`);
 					const targetNode = cy.$(`node[id="${targetNodeId}"]`);
 			
 					console.log("Info: " + "Let's find the path from-" + sourceNodeId + "-to-"  + targetNodeId + "!");
 					appendMessage("Info: " + "Let's find the path from-" + sourceNodeId + "-to-"  + targetNodeId + "!");
 			
-//##					// Check if both nodes exist
+					// Check if both nodes exist
 					if (sourceNode.length === 0 || targetNode.length === 0) {
 						console.error(`Bro, couldn't find the source or target node you specified. Double-check the node names.`);
 						appendMessage(`Bro, couldn't find the source or target node you specified. Double-check the node names.`);
 						return;
 					}
 			
-//##			    	// Get the Dijkstra result with the shortest path
+			    	// Get the Dijkstra result with the shortest path
 			    	const dijkstraResult = cy.elements().dijkstra({
 			    		root: sourceNode,
 			    		weight: (edge) => 1, 
-//##			    		// Use the custom weight attribute
-//##			    		// weight: edge => edge.data('customWeight'),
+			    		// Use the custom weight attribute
+			    		// weight: edge => edge.data('customWeight'),
                     
 			    	});
-//##			    	// Get the shortest path from Dijkstra result
+			    	// Get the shortest path from Dijkstra result
 			    	const shortestPathEdges = dijkstraResult.pathTo(targetNode);
                     console.log(shortestPathEdges)
                 
-//##                    // Check if there is a valid path (shortestPathEdges is not empty)
+                    // Check if there is a valid path (shortestPathEdges is not empty)
                     if (shortestPathEdges.length > 1) {
                         
-//##			    		//// Apply a style to highlight the shortest path edges
-//##			    		// shortestPathEdges.style({
-//##			    		//	'line-color': 'red', 
-//##			    		//	'line-style': 'solid', 
-//##			    		// });
+			    		//// Apply a style to highlight the shortest path edges
+			    		// shortestPathEdges.style({
+			    		//	'line-color': 'red', 
+			    		//	'line-style': 'solid', 
+			    		// });
                         
-//##			    		// Highlight the shortest path
+			    		// Highlight the shortest path
 			    		shortestPathEdges.forEach(edge => {
 			    			edge.addClass('spf'); 
 			    				});
                             
-//##			    		//- Zoom out on the node
+			    		//- Zoom out on the node
 			    		cy.fit()
                             
-//##			    		//- Zoom in on the node
+			    		//- Zoom in on the node
 			    		cy.animate({
 			    			zoom: {
 			    				level: 5,
@@ -1319,7 +1337,7 @@
 			    			},
 			    			duration: 1500
 			    		});
-//##			    		// throw log
+			    		// throw log
 			    		console.log("Info: " + "Yo, check it out! Shorthest Path from-" + sourceNodeId + "-to-"  + targetNodeId + " has been found.");
 			    		appendMessage("Info: " + "Yo, check it out! Shorthest Path from-" + sourceNodeId + "-to-"  + targetNodeId + " has been found, below is the path trace..");
 			    		console.log(shortestPathEdges)
@@ -1332,7 +1350,7 @@
 			    			edgeId = edge.id();
 			    			sourceNodeId = edge.source().id();
 			    			targetNodeId = edge.target().id();
-//##			    			// You can access other properties of the edge, e.g., source, target, data, etc.
+			    			// You can access other properties of the edge, e.g., source, target, data, etc.
                         
 			    			appendMessage("Info: " + 'Edge ID: ' + edgeId )
 			    			appendMessage("Info: " + 'Source Node ID: ' + sourceNodeId )
@@ -1350,34 +1368,34 @@
 				function closePanel01Event(event) {
 					var panel = document.getElementById('Panel-01');
 					if (panel.style.display === 'none' || panel.style.display === '') {
-//##						//- Show the panel
+						//- Show the panel
 						panel.style.display = 'block';
 						panel.classList.toggle('active');
 					} else {
-//##						//- Hide the panel
+						//- Hide the panel
 						panel.style.display = 'none';
 					}
 					isPanel01Added = false
 					console.log("Panel-01.style: " + document.getElementById('Panel-01').style.display)
 				}
-//##				// ######################################################
-//##				// End of JS Functions Event Handling section
-//##				// End of JS Functions Event Handling section
-//##				// ######################################################
+				// ######################################################
+				// End of JS Functions Event Handling section
+				// End of JS Functions Event Handling section
+				// ######################################################
 
 
-//##				// ######################################################
-//##				// Start of JS Generic Functions
-//##				// Start of JS Generic Functions
-//##				// ######################################################
+				// ######################################################
+				// Start of JS Generic Functions
+				// Start of JS Generic Functions
+				// ######################################################
 
-//##				//- Helper Function for managed Panel-01 tabs
+				//- Helper Function for managed Panel-01 tabs
 				function showPanel01Tab(tabId) {
 					hideAllTabs();
 					document.getElementById(tabId).style.display = 'block';
 				}
 
-//##				// Function to remove an element by its id
+				// Function to remove an element by its id
 				function removeElementById(id) {
 					const elementToRemove = document.getElementById(id);
 					console.log (elementToRemove)
@@ -1386,25 +1404,25 @@
 				    }
 				}
 
-//##				//- Function to get the default node style from cy-style.json
+				//- Function to get the default node style from cy-style.json
 				async function getDefaultNodeStyle(node) {
 					try {
-//##						//- Fetch the cy-style.json file
+						//- Fetch the cy-style.json file
 						const response = await fetch('cy-style.json');
-//##						//- Check if the response is successful (status code 200)
+						//- Check if the response is successful (status code 200)
 						if (!response.ok) {
 							throw new Error(`Failed to fetch cy-style.json (${response.status} ${response.statusText})`);
 						}
-//##						//- Parse the JSON response
+						//- Parse the JSON response
 						const styleData = await response.json();
-//##						//- Extract the default node style from the loaded JSON
-//##						//- Adjust this based on your JSON structure
+						//- Extract the default node style from the loaded JSON
+						//- Adjust this based on your JSON structure
 						const defaultNodeStyle = styleData[0].style;
 						return defaultNodeStyle;
 					} catch (error) {
 						console.error('Error loading cy-style.json:', error);
 						appendMessage(`Error loading cy-style.json: ${error}`);
-//##						//- Return a default style in case of an error
+						//- Return a default style in case of an error
 						return {
 							'background-color': 'blue',
 							'border-color': 'gray',
@@ -1413,33 +1431,33 @@
 					}
 				}
 
-//##				//-Panel-02 Function to append message function
+				//-Panel-02 Function to append message function
 				function appendMessage(message) {
 					const textarea = document.getElementById('notificationTextarea');
-//##					// Get the current date and time
+					// Get the current date and time
 					const timestamp = new Date().toLocaleString();
 			
 					textarea.value += `[${timestamp}] ${message}\n` ;
 					textarea.scrollTop = textarea.scrollHeight;
 				}
 				
-//##				// Panel-02 Function to copy textarea content to clipboard
+				// Panel-02 Function to copy textarea content to clipboard
 				function copyToClipboard() {
 					const textarea = document.getElementById('notificationTextarea');
 					textarea.select();
 					document.execCommand('copy');
 					}
 
-//##				//-Panel-02 Function to add a click event listener to the copy button
+				//-Panel-02 Function to add a click event listener to the copy button
 				const copyButton = document.getElementById('copyToClipboardButton');
                 copyButton.className = 'button is-smallest-element';
 				copyButton.addEventListener('click', copyToClipboard);	
 					
 
-//##				// ######################################################
-//##				// End of JS Generic Functions section
-//##				// End of JS Generic Functions section
-//##				// ######################################################
+				// ######################################################
+				// End of JS Generic Functions section
+				// End of JS Generic Functions section
+				// ######################################################
 
 
 			
