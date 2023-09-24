@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cytoscape.js Tooltip Example</title>
+    <!-- Include necessary libraries -->
+
+
+        <!-- libs used by demo -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.10.0/lodash.min.js"></script>
+        <script src="https://unpkg.com/webcola@3.3.8/WebCola/cola.min.js"></script>
+        <script src="https://unpkg.com/popper.js@1.14.4/dist/umd/popper.js"></script>
+        <script src="https://unpkg.com/tippy.js@2.6.0/dist/tippy.all.js"></script>
+    
+        <!-- cy libs -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.19.0/cytoscape.min.js"></script>
+        <script src="https://unpkg.com/cytoscape-cola@2.2.3/cytoscape-cola.js"></script>
+        <script src="https://unpkg.com/cytoscape-popper@1.0.2/cytoscape-popper.js"></script>
+</head>
+<body>
+    <div id="cy" style="width: 500px; height: 500px;"></div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const cy = cytoscape({
+                container: document.getElementById('cy'),
+                elements: [
+                    { data: { id: 'node1', label: 'Node 1' }, position: { x: 100, y: 100 } },
+                    { data: { id: 'node2', label: 'Node 2' }, position: { x: 200, y: 200 } }
+                ],
+                style: [
+                    {
+                        selector: 'node',
+                        style: {
+                            'background-color': '#3498db',
+                            'label': 'data(label)'
+                        }
+                    }
+                ]
+            });
+
+
+            // create a basic popper on all nodes
+            cy.nodes().forEach(function(node){
+                return node.popper({
+                    content: () => {
+                        let div = document.createElement('div');
+                        div.innerHTML = 'Popper content Iter ' + node.data('id');
+                        document.body.appendChild(div);
+                        return div;
+                    },
+                    popper: {
+                        hideOnClick: false,
+                        interactive: true
+                    } // my popper options here
+                });
+            })
+
+
+
+           
+
+         });
+    </script>
+</body>
+</html>

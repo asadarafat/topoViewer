@@ -441,10 +441,6 @@ func Clab(_ *cobra.Command, _ []string) error {
 	depenenciesDirectoryCytoscape := path.Join(workingDirectory, "./html-static/cytoscape")
 	router.PathPrefix("/cytoscape").Handler(http.StripPrefix("/cytoscape", http.FileServer(http.Dir(depenenciesDirectoryCytoscape))))
 
-	// this is the endpoint for serving dataCyto.json asset
-	depenenciesDirectoryDataCyto := path.Join(workingDirectory, "./html-static/cytoscapedata")
-	router.PathPrefix("/cytoscapedata").Handler(http.StripPrefix("/cytoscapedata", http.FileServer(http.Dir(depenenciesDirectoryDataCyto))))
-
 	// this is the endpoint for serving css asset
 	depenenciesDirectoryCss := path.Join(workingDirectory, "./html-static/css")
 	router.PathPrefix("/css").Handler(http.StripPrefix("/css", http.FileServer(http.Dir(depenenciesDirectoryCss))))
