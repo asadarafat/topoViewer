@@ -4,10 +4,28 @@
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>TopoViewer</title>
-		<link href="css/style.css" rel="stylesheet"/>
+
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
+
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@4.0.0/animate.min.css">
+		
+		<link href="css/style.css" rel="stylesheet"/>
+
+
+
 		<script defer src="https://use.fontawesome.com/releases/v5.14.0/js/all.js"></script>
 		<script defer src="https://cdn.jsdelivr.net/npm/bulma-extensions@4.0.1/bulma-slider/dist/js/bulma-slider.min.js"></script>
+
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/bulma-toast/2.4.0/bulma-toast.min.js"></script>
+		<!-- <link rel="stylesheet" href="bulma-toast.min.css"> -->
+
+		<!-- 
+			The defer attribute in the script tag specifies that the script should be executed after the HTML is parsed but before the DOMContentLoaded event. Here's what it means in more detail:
+			Without defer or async: When you include a script without the defer or async attribute, the browser will download and execute the script immediately. It can block further parsing of the HTML until the script is fully executed. This can affect page load times, especially if the script is large or takes some time to execute.
+			With defer: When you include the defer attribute, the browser will download the script in the background while continuing to parse the HTML. The script is then executed after the HTML is fully parsed but before the DOMContentLoaded event is fired. This means that it won't block the parsing of the HTML, and it will not delay the rendering of the page. Multiple scripts with the defer attribute will be executed in the order they appear in the HTML.
+			With async: If you use the async attribute, the script is also downloaded in the background, but it can be executed as soon as it's downloaded, even if the HTML parsing is not complete. Scripts with the async attribute are executed in parallel, and their order of execution is not guaranteed.
+			In summary, using defer is often a good choice for non-essential scripts that you want to load in the background without blocking the rendering of the page. It ensures that the script is executed in the correct order after the HTML is parsed, making it suitable for scripts that rely on the DOM being available but are not critical for the initial page load.
+	 	-->
 	</head>
 	<style>
 		body { 
@@ -112,22 +130,24 @@
 			width: 100%;  
 			border-bottom: 2px solid #3498db;  
 			pointer-events: none;  
-		  }
+		}
 
-		   
-		  .hover-text.is-hidden {
-			display: none;
-		  }
-		
-		   
-		  .hover-text {
-			position: absolute;
-			 
-			border: 1px solid #e8a010; 
-			padding: 2px;
-			box-shadow: 2px 3px 4px rgba(0, 0, 0, 0.4);
-			z-index: 100;  
-		  }
+		.hover-text.is-hidden {
+		display: none;
+		}
+	
+		.hover-text {
+		position: absolute;
+			
+		border: 1px solid #e8a010; 
+		padding: 2px;
+		box-shadow: 2px 3px 4px rgba(0, 0, 0, 0.4);
+		z-index: 100;  
+		}
+
+		@media (prefers-reduced-motion: reduce) {
+		/* Disable or simplify animations */
+		}
 
 				 	
           
@@ -264,6 +284,12 @@
 					}
 				});
 
+{{rawJSComment "				// WebSocket for clabServerAddress"}}
+				const socketclabServerAddress = initializeWebSocket('/clabServerAddress', (msgclabServerAddress) => {
+					console.log(msgclabServerAddress.data);
+					document.title = "TopoViewer ::: " + msgclabServerAddress.data;
+				});
+
 				var nodeDockerStatusVisibility = true;
 				function setNodeDockerStatus(dockerNodeName, dockerNodeStatus) {
 					cy.nodes().forEach(function(node) {
@@ -271,31 +297,32 @@
 
 {{rawJSComment "						// Find the corresponding status nodes based on node ID"}}
 						var statusGreenNode = cy.$(`node[name="${nodeId}-statusGreen"]`);
+						var statusOrangeNode = cy.$(`node[name="${nodeId}-statusOrange"]`);
 						var statusRedNode = cy.$(`node[name="${nodeId}-statusRed"]`);
+
 
 						if (statusGreenNode.length === 0 || statusRedNode.length === 0) {
 {{rawJSComment "							// If status nodes are not found, skip this node"}}
 							return;
 						}
 
-{{rawJSComment "						// Determine whether to show or hide status nodes"}}
-						var showGreenNode = nodeDockerStatusVisibility && dockerNodeName.includes(nodeId) && dockerNodeStatus.includes("healthy");
-						var showRedNode = nodeDockerStatusVisibility && dockerNodeName.includes(nodeId) && dockerNodeStatus.includes("(health: starting)");
-
 {{rawJSComment "						// Update positions of status nodes relative to the node"}}
 						var nodePosition = node.position();
-						var offset = { x: 14, y: 3 };
+						var offset = { x: -4, y: -10 };
 						var statusGreenNodePosition = { x: nodePosition.x + offset.x, y: nodePosition.y + offset.y };
 						var statusRedNodePosition = { x: nodePosition.x + offset.x, y: nodePosition.y - offset.y };
 
 {{rawJSComment "						// Check if the nodeDockerStatusVisibility is true"}}
 						if (nodeDockerStatusVisibility) {
 {{rawJSComment "							// Check if the dockerNodeName includes nodeId and dockerNodeStatus includes 'healthy'"}}
-							if (dockerNodeName.includes(nodeId) && dockerNodeStatus.includes("healthy")) {
+							if (dockerNodeName.includes(nodeId) && (dockerNodeStatus.includes("Up") || dockerNodeStatus.includes("healthy") ) ) {  // Good state for sros is 'Up 9 days (healthy)'', but for linux is 'Up 9 days'.
 								statusGreenNode.show();
 								statusRedNode.hide();
 								console.log("nodeDockerStatusVisibility: " + nodeDockerStatusVisibility);
-							} else if (dockerNodeName.includes(nodeId) && dockerNodeStatus.includes("(health: starting)")) {
+							} else if (dockerNodeName.includes(nodeId) && dockerNodeStatus.includes("(health: starting)")) {  // booting state for SROS is '(health: starting)'
+								statusGreenNode.hide();
+								statusOrangeNode.show();
+							} else if (dockerNodeName.includes(nodeId) && dockerNodeStatus.includes("Exited")) { // bad state for all docker is 'Status': 'Exited (0) 3 weeks ago'
 								statusGreenNode.hide();
 								statusRedNode.show();
 							}
@@ -577,9 +604,6 @@
 				}
 				  
 				function createNetworkExplorerTab() {
-{{rawJSComment "					// const content = document.createElement('div');"}}
-{{rawJSComment "					// content.textContent = `Content for 1`;"}}
-{{rawJSComment "					// return content;"}}
 {{rawJSComment "					// Create a div container for Tab-01 content"}}
 					const tab01Container = document.createElement('div');
 				
@@ -988,15 +1012,51 @@
 								control.className = 'control';
 								control.id = controlId;
 							  
-								const button = document.createElement('button');
+{{rawJSComment "								// Create a button element"}}
+								const button = document.createElement('a'); 
 								button.id = `${controlId}-button${addon.name}}`;
 								button.className = `button px-3 is-smallest-element is-${addon.name === 'blue' ? 'link' : 'success'}`;
-							  
+
+								if (addon.hrefFunction == 'link'){
+									button.href = addon.hrefLink;
+									button.target = '_blank';
+								} else if (addon.hrefFunction == 'copy'){
+									button.href = addon.hrefLink;
+									button.target = '_blank';
+									button.addEventListener('click', function(event) {
+{{rawJSComment "										// Prevent the default behavior of the anchor element (opening a new tab)"}}
+										urlToCopy = addon.hrefLink;
+										event.preventDefault();
+										
+{{rawJSComment "										// Create a temporary input element to copy the URL to the clipboard"}}
+										const tempInput = document.createElement('input');
+										tempInput.value = urlToCopy;
+										document.body.appendChild(tempInput);
+										tempInput.select();
+										document.execCommand('copy');
+										document.body.removeChild(tempInput);
+										
+{{rawJSComment "										// Provide user feedback (e.g., alert or toast) that the URL has been copied"}}
+										bulmaToast.toast({ 
+											message: `SSH command is lit 🔥 and copied to your clipboard, ready to drop it in your terminal console like a boss! 🚀💻`,
+											type: 'is-link is-size-7 p-3',
+											duration: 4000, 
+											position: "bottom-center",
+											closeOnClick: true,
+		
+										})
+										appendMessage(`SSH command is lit 🔥 and copied to your clipboard, ready to drop it in your terminal console like a boss! 🚀💻`)
+									});
+								}
+								
+
+{{rawJSComment "							  	// Create a icon element"}}
 								const icon = document.createElement('span');
 								icon.className = 'icon is-small';
 								const iconElement = document.createElement('i');
 								iconElement.className = addon.iconClass;
 								icon.appendChild(iconElement);
+
 								button.appendChild(icon);
 
 {{rawJSComment "								// Create a hover text paragraph element"}}
@@ -1052,19 +1112,26 @@
 					panelBlock01 = panelBlockContainer.panelBlock
 					divPanelBlock01 = panelBlockContainer.divPanelBlock
 
+					const shellUrl = '/cloudshell/';
+
 					const Panel01ColumnsConfig = [
 						{ idSuffix: 'labelNodeName', textContent: 'Node Name', className: 'link-impairment-widht', columntInputType: 'field', columntInputContent: node.data('name'), 						
 							addonsContent: [
 							{
 								name: 'blue',
 								iconClass: 'fas fa-terminal',
-								hoverMessage: 'Click to open a web-based SSH console'
+								hoverMessage: 'Click to open a web-based SSH console',
+								hrefFunction: 'link',
+								hrefLink: `${shellUrl}?RouterID=${node.data('extraData').mgmtIpv4Addresss}?RouterName=${node.data('extraData').id}`
 							},
 							{
 								name: 'green',
 								iconClass: 'far fa-clone',
-								hoverMessage: 'Click to copy the SSH command to your clipboard.'
-							}]},
+								hoverMessage: 'Click to copy the SSH command to your clipboard.',
+								hrefFunction: 'copy',
+								hrefLink: `ssh -t root@${location.hostname} "ssh admin@${node.data('extraData').longname}"`
+							}]
+						},
 						{ idSuffix: 'labelKind', textContent: 'Kind', className: 'link-impairment-widht', columntInputType: 'label', columntInputContent: node.data('extraData').kind },
 						{ idSuffix: 'labelImage', textContent: 'Image', className: 'link-impairment-widht', columntInputType: 'label', columntInputContent: node.data('extraData').image },
 						{ idSuffix: 'labelManagementIPv4', textContent: 'Management IPv4', className: 'link-impairment-widht', columntInputType: 'label', columntInputContent: node.data('extraData').mgmtIpv4Addresss },
@@ -1100,9 +1167,9 @@
 
 					const Panel01ColumnsConfig = [
 						{ idSuffix: 'LinkName', textContent: 'Link Name', className: 'link-impairment-widht', columntInputType: 'label', columntInputContent: edge.data('source') +"---"+ edge.data('target') },
-						{ idSuffix: 'Source', textContent: 'Source', className: 'link-impairment-widht', columntInputType: 'label', columntInputContent: edge.data('source') + "::" + edge.data('sourceEndpoint') },
-						{ idSuffix: 'Target', textContent: 'Target', className: 'link-impairment-widht', columntInputType: 'label' , columntInputContent: edge.data('target') + "::" + edge.data('targetEndpoint') },
-						{ idSuffix: 'SourceMac', textContent: 'Source MAC', className: 'link-impairment-widht', columntInputType: 'label' , columntInputContent: '' },
+						{ idSuffix: 'Source', textContent: 'Source', className: 'link-impairment-widht', columntInputType: 'label', columntInputContent: edge.data('source') + "::" + edge.data('sourceEndpoint')},
+						{ idSuffix: 'Target', textContent: 'Target', className: 'link-impairment-widht', columntInputType: 'label', columntInputContent: edge.data('target') + "::" + edge.data('targetEndpoint')},
+						{ idSuffix: 'SourceMac', textContent: 'Source MAC', className: 'link-impairment-widht', columntInputType: 'label' , columntInputContent: ''},
 						{ idSuffix: 'TargetMac', textContent: 'Target Mac', className: 'link-impairment-widht', columntInputType: 'label' , columntInputContent: '' },
 					];
 
@@ -1122,22 +1189,37 @@
 							addonsContent: [
 							{
 								name: 'blue',
-								iconClass: 'fas fa-ethernet'
+								iconClass: 'fas fa-ethernet',
+								hoverMessage: 'Click to cross-launch Wireshark app',
+								hrefFunction: 'link',
+								hrefLink: 'clab-capture://' + edge.data("extraData").clabServerUsername + '@' + location.host + '?' + edge.data('extraData').clabSourceLongName + '?' + edge.data('sourceEndpoint')
 							},
 							{
 								name: 'green',
-								iconClass: 'far fa-clone'
-							}]},
+								iconClass: 'far fa-clone',
+								hoverMessage: 'Click to copy the SSH command to your clipboard.',
+								hrefFunction: 'copy',
+								hrefLink: `ssh root@${location.hostname} "sudo -S /sbin/ip netns exec ${edge.data('extraData').clabSourceLongName} tcpdump -U -nni ${edge.data("sourceEndpoint")} -w -" | wireshark -k -i -`
+
+							}]
+						},
 						{ idSuffix: 'labelCaptureSourceEndpoint', textContent: 'Capture Source Endpoint', className: 'link-impairment-widht', columntInputType: 'field', columntInputContent: edge.data('target') + "::" + edge.data('targetEndpoint'),
 							addonsContent: [
 							{
 								name: 'blue',
-								iconClass: 'fas fa-ethernet'
+								iconClass: 'fas fa-ethernet',
+								hoverMessage: 'Click to cross-launch Wireshark app',
+								hrefFunction: 'link',
+								hrefLink: 'clab-capture://' + edge.data("extraData").clabServerUsername + '@' + location.host + '?' + edge.data('extraData').clabSourceLongName + '?' + edge.data('targetEndpoint')
 							},
 							{
 								name: 'green',
-								iconClass: 'far fa-clone'
-							}]}, 
+								iconClass: 'far fa-clone',
+								hoverMessage: 'Click to copy the SSH command to your clipboard',
+								hrefFunction: 'copy',
+								hrefLink: `ssh root@${location.hostname} "sudo -S /sbin/ip netns exec ${edge.data('extraData').clabTargetLongName} tcpdump -U -nni  ${edge.data("targetEndpoint")} -w -" | wireshark -k -i -`
+							}]
+						}, 
 					];
 
 			
@@ -1159,11 +1241,22 @@
 						{ idSuffix: 'labelRate', textContent: 'Rate (kbps', className: 'link-impairment-widht', columntInputType: 'input', columntInputContent: '0' },
 						{ idSuffix: 'labelLoss', textContent: 'Loss (%)', className: 'link-impairment-widht', columntInputType: 'input', columntInputContent: '0' },
 						{ idSuffix: 'labelDuration', textContent: 'Duration (min.)', className: 'link-impairment-widht', columntInputType: 'field', columntInputContent: '1', columntInputAttribute: 'enabled', 
-						addonsContent: [
+							addonsContent: [
 							{
 								name: 'blue',
-								iconClass: 'fas fa-stopwatch'
-							}]},
+								iconClass: 'fas fa-play',
+								hoverMessage: 'Start link impairment',
+								hrefFunction: 'link',
+								hrefLink: 'clab-capture://' + edge.data("extraData").clabServerUsername + '@' + location.host + '?' + edge.data('extraData').clabSourceLongName + '?' + edge.data('targetEndpoint')
+							},
+							{
+								name: 'blue',
+								iconClass: 'fas fa-stop',
+								hoverMessage: 'Stop link impairment',
+								hrefFunction: 'copy',
+								hrefLink: `ssh root@${location.hostname} "sudo -S /sbin/ip netns exec ${edge.data('extraData').clabTargetLongName} tcpdump -U -nni  ${edge.data("targetEndpoint")} -w -" | wireshark -k -i -`
+							}]
+						},
 						];
 
 					createPanelBlockForm(Panel03ColumnsConfig, panelBlock03, divPanelBlock03)
@@ -1562,6 +1655,20 @@
 {{rawJSComment "				// ######################################################"}}
 
 
+				function showToast(message, type) {
+{{rawJSComment "					// Create a toast element"}}
+					const toast = document.createElement('div');
+					toast.className = `notification is-${type} bottom-center`;
+					toast.textContent = message;
+				
+{{rawJSComment "					// Append the toast to the body or a container of your choice"}}
+					document.body.appendChild(toast);
+				
+{{rawJSComment "					// Remove the toast after a few seconds (adjust as needed)"}}
+					setTimeout(function() {
+						document.body.removeChild(toast);
+					}, 3000); // Display for 3 seconds (adjust as needed)
+				}
 			
 			});
 			</script>
