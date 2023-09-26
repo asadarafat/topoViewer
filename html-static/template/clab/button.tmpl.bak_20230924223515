@@ -68,7 +68,7 @@
 			padding: 0px 0px 0px 0px;  
 		}
 		.is-smallest {
-            font-size: 10px;  
+            font-size: 12px;  
           }
         .is-smaller {
             font-size: 12.5px;  
@@ -79,7 +79,6 @@
         .is-smallest-element {
             font-size: 11px;  
             padding: 0px 8px;  
-			height: 24px;
         }
         .vertical-align-top {
             display: flex;
@@ -93,43 +92,16 @@
 		.button {
 			height: 24px;
 		}
+		.button-capture {
+			width: 140px;
+			text-align: left;
+		}
 		.input {
 			height: 24px;
 		}
 		.link-impairment-widht {
-			width: 130px;
-			white-space: nowrap;
+			width: 140px;
 		}
-		.with-outline {
-			position: relative;  
-		}
-
-		.with-outline::before {
-			content: '';  
-			position: absolute;  
-			bottom: 0;  
-			left: 0;  
-			width: 100%;  
-			border-bottom: 2px solid #3498db;  
-			pointer-events: none;  
-		  }
-
-		   
-		  .hover-text.is-hidden {
-			display: none;
-		  }
-		
-		   
-		  .hover-text {
-			position: absolute;
-			 
-			border: 1px solid #e8a010; 
-			padding: 2px;
-			box-shadow: 2px 3px 4px rgba(0, 0, 0, 0.4);
-			z-index: 100;  
-		  }
-
-				 	
           
           
         
@@ -195,16 +167,6 @@
 
 			<script>
 
-{{rawJSComment "				// CSS TUTORIAL"}}
-{{rawJSComment "				//"}}
-{{rawJSComment "				// /* Style box-shadow"}}
-{{rawJSComment "				// The box-shadow property in CSS is used to create a shadow effect around an element, such as a button or a box. It adds depth and dimension to the element, making it appear raised or floating above the background. Here's the breakdown of the property values:"}}
-{{rawJSComment "				// 0px represents the horizontal offset of the shadow. In this case, there is no horizontal offset, so the shadow is directly behind the element."}}
-{{rawJSComment "				// 0px represents the vertical offset of the shadow. There's no vertical offset, so the shadow is right below the element."}}
-{{rawJSComment "				// 5px is the blur radius of the shadow. It determines how blurry or sharp the shadow edges appear. In this case, the shadow is slightly blurry, creating a softer effect."}}
-{{rawJSComment "				// rgba(0, 0, 0, 0.2) specifies the color and transparency of the shadow. It's a black shadow (0, 0, 0 represents black), and the 0.2 alpha value makes it slightly transparent. The alpha value controls the shadow's opacity, with 0 being completely transparent and 1 being fully opaque."}}
-{{rawJSComment "				// */	"}}
-
 
 {{rawJSComment "			// Initialize a state variable to track the element's presence"}}
 			let isPanel01Cy = false;
@@ -213,103 +175,6 @@
 
 
 			document.addEventListener('DOMContentLoaded', function() {
-				
-{{rawJSComment "				// Reusable function to initialize a WebSocket connection"}}
-				function initializeWebSocket(url, onMessageCallback) {
-					const protocol = location.protocol === 'https:' ? 'wss://' : 'ws://';
-					const socket = new WebSocket(protocol + location.host + url);
-
-					socket.onopen = () => {
-						console.log(`Successfully connected WebSocket to ${url}`);
-						if (socket.readyState === WebSocket.OPEN) {
-							socket.send(`Hi From the WebSocketClient-${url}`);
-						}
-					};
-
-					socket.onclose = (event) => {
-						console.log(`Socket to ${url} closed: `, event);
-						socket.send('Client Closed!');
-					};
-
-					socket.onerror = (error) => {
-						console.log(`Socket to ${url} error: `, error);
-					};
-
-					socket.onmessage = onMessageCallback;
-
-					return socket;
-				}
-
-{{rawJSComment "				// WebSocket for uptime"}}
-				const socketUptime = initializeWebSocket('/uptime', (msgUptime) => {
-					const string01 = "Containerlab Topology: Komodo2-" + 'dummy-string';
-					const string02 = " ::: Uptime: " + msgUptime.data;
-
-					const ClabSubtitle = document.getElementById("ClabSubtitle");
-					const messageBody = string01 + string02;
-
-					ClabSubtitle.innerText = messageBody;
-					console.log(ClabSubtitle.innerText);
-				});
-
-{{rawJSComment "				// WebSocket for DockerNodeStatus"}}
-				const socketDockerNodeStatusInitial = initializeWebSocket('/dockerNodeStatus', (msgDockerNodeStatus) => {
-					try {
-						const { Names, Status } = JSON.parse(msgDockerNodeStatus.data);
-						setNodeDockerStatus(Names, Status);
-						console.log(JSON.parse(msgDockerNodeStatus.data));
-
-					} catch (error) {
-						console.error("Error parsing JSON:", error);
-					}
-				});
-
-				var nodeDockerStatusVisibility = true;
-				function setNodeDockerStatus(dockerNodeName, dockerNodeStatus) {
-					cy.nodes().forEach(function(node) {
-						var nodeId = node.data('id');
-
-{{rawJSComment "						// Find the corresponding status nodes based on node ID"}}
-						var statusGreenNode = cy.$(`node[name="${nodeId}-statusGreen"]`);
-						var statusRedNode = cy.$(`node[name="${nodeId}-statusRed"]`);
-
-						if (statusGreenNode.length === 0 || statusRedNode.length === 0) {
-{{rawJSComment "							// If status nodes are not found, skip this node"}}
-							return;
-						}
-
-{{rawJSComment "						// Determine whether to show or hide status nodes"}}
-						var showGreenNode = nodeDockerStatusVisibility && dockerNodeName.includes(nodeId) && dockerNodeStatus.includes("healthy");
-						var showRedNode = nodeDockerStatusVisibility && dockerNodeName.includes(nodeId) && dockerNodeStatus.includes("(health: starting)");
-
-{{rawJSComment "						// Update positions of status nodes relative to the node"}}
-						var nodePosition = node.position();
-						var offset = { x: 14, y: 3 };
-						var statusGreenNodePosition = { x: nodePosition.x + offset.x, y: nodePosition.y + offset.y };
-						var statusRedNodePosition = { x: nodePosition.x + offset.x, y: nodePosition.y - offset.y };
-
-{{rawJSComment "						// Check if the nodeDockerStatusVisibility is true"}}
-						if (nodeDockerStatusVisibility) {
-{{rawJSComment "							// Check if the dockerNodeName includes nodeId and dockerNodeStatus includes 'healthy'"}}
-							if (dockerNodeName.includes(nodeId) && dockerNodeStatus.includes("healthy")) {
-								statusGreenNode.show();
-								statusRedNode.hide();
-								console.log("nodeDockerStatusVisibility: " + nodeDockerStatusVisibility);
-							} else if (dockerNodeName.includes(nodeId) && dockerNodeStatus.includes("(health: starting)")) {
-								statusGreenNode.hide();
-								statusRedNode.show();
-							}
-						} else {
-							statusGreenNode.hide();
-							statusRedNode.hide();
-						}
-
-						statusGreenNode.position(statusGreenNodePosition);
-						statusRedNode.position(statusRedNodePosition);
-					});
-				}
-
-
 {{rawJSComment "				//- Initialize Cytoscape.js"}}
 				const cy = cytoscape({
 					container: document.getElementById('cy'),
@@ -362,11 +227,6 @@
 					});
 
 
-{{rawJSComment "				// hover text element"}}
-				const hoverText = document.createElement('box');
-				hoverText.classList.add('hover-text', 'is-hidden', 'box', 'has-text-weight-normal', 'is-warning', 'is-smallest');
-				hoverText.textContent = 'Launch CloudShell.';
-				document.body.appendChild(hoverText);
 
 
 {{rawJSComment "				//- Toggle the Panel-01 when clicking on the cy container "}}
@@ -406,7 +266,7 @@
 					const tabContentFns = [createNodeDetailTab];
 					const tabContentFnsArg = [node];
 
-					createContentPanel('Panel-01', tabContentFns, tabContentFnsArg[0], 'Node Properties');
+					createContentPanel('Panel-01', tabContentFns, node, 'Node Properties');
 
 					appendMessage(`"isPanel01Cy-cy: " ${isPanel01Cy}`)
 					appendMessage(`"nodeClicked: " ${nodeClicked}`)						
@@ -422,9 +282,7 @@
 {{rawJSComment "					// You can add logic specific to nodes here"}}
 					removeElementById("Panel-01");
 					const tabContentFns = [createEdgeDetailTab];
-					tabContentFnsArg = [edge];
-
-					createContentPanel('Panel-01', tabContentFns, tabContentFnsArg[0], 'Link Properties');
+					createContentPanel('Panel-01', tabContentFns, edge, 'Link Properties');
 
 					appendMessage(`"isPanel01Cy-cy: " ${isPanel01Cy}`)
 					appendMessage(`"nodeClicked: " ${nodeClicked}`)
@@ -849,34 +707,11 @@
 {{rawJSComment "					// // End of mandatory panelContent containercontainer"}}
 				
 {{rawJSComment "					// const Panel01ColumnsConfig = ["}}
-{{rawJSComment "					// 	{ idSuffix: 'labelNodeName', textContent: 'Node Name', className: 'link-impairment-widht', columntInputType: 'field', columntInputContent: node.data('name'), 						"}}
-{{rawJSComment "					// 		addonsContent: ["}}
-{{rawJSComment "					// 		{"}}
-{{rawJSComment "					// 			name: 'blue',"}}
-{{rawJSComment "					// 			iconClass: 'fas fa-terminal'"}}
-{{rawJSComment "					// 		},"}}
-{{rawJSComment "					// 		{"}}
-{{rawJSComment "					// 			name: 'green',"}}
-{{rawJSComment "					// 			iconClass: 'fas fa-copy'"}}
-{{rawJSComment "					// 		}]},"}}
-{{rawJSComment "					// 	{ idSuffix: 'labelKind', textContent: 'Kind', className: 'link-impairment-widht', columntInputType: 'label', columntInputContent: node.data('extraData').kind },"}}
-{{rawJSComment "					// 	{ idSuffix: 'labelImage', textContent: 'Image', className: 'link-impairment-widht', columntInputType: 'label', columntInputContent: node.data('extraData').image },"}}
-{{rawJSComment "					// 	{ idSuffix: 'labelManagementIPv4', textContent: 'Management IPv4', className: 'link-impairment-widht', columntInputType: 'label', columntInputContent: node.data('extraData').mgmtIpv4Addresss },"}}
-{{rawJSComment "					// 	{ idSuffix: 'labelManagement IPv6', textContent: 'Management IPv6', className: 'link-impairment-widht', columntInputType: 'label', columntInputContent: node.data('extraData').mgmtIpv6Addresss },"}}
-{{rawJSComment "					// 	{ idSuffix: 'labelFqdn', textContent: 'FQDN', className: 'link-impairment-widht', columntInputType: 'label', columntInputContent: node.data('extraData').fqdn },"}}
-{{rawJSComment "					// 	{ idSuffix: 'labelGroup', textContent: 'Group', className: 'link-impairment-widht', columntInputType: 'label', columntInputContent: node.data('extraData').group },"}}
-{{rawJSComment "					// 	{ idSuffix: 'labelTopoviewerRole', textContent: 'Topoviewer Role', className: 'link-impairment-widht', columntInputType: 'label', columntInputContent: node.data('topoviewerRole') },					"}}
-{{rawJSComment "					//  { idSuffix: 'labelLinkImpairment', textContent: 'Link Impairment', className: 'link-impairment-widht', columntInputType: 'field', columntInputContent: 'Apply', columntInputAttribute: 'enabled', // columntInputAttribute default is disabled"}}
-{{rawJSComment "					//  addonsContent: ["}}
-{{rawJSComment "					//  	{"}}
-{{rawJSComment "					//  		name: 'blue',"}}
-{{rawJSComment "					//  		iconClass: 'fas fa-terminal'"}}
-{{rawJSComment "					//  	},"}}
-{{rawJSComment "					//  	{"}}
-{{rawJSComment "					//  		name: 'green',"}}
-{{rawJSComment "					//  		iconClass: 'fas fa-copy'"}}
-{{rawJSComment "					//  	}]},"}}
-{{rawJSComment "					//  ];"}}
+{{rawJSComment "					// 	{ idSuffix: 'LinkName', textContent: 'Link Name', className: 'link-impairment-widht', columntInputType: 'label' },"}}
+{{rawJSComment "					// 	{ idSuffix: 'Source', textContent: 'Source', className: 'link-impairment-widht', columntInputType: 'label'},"}}
+{{rawJSComment "					// 	{ idSuffix: 'Target', textContent: 'Target', className: 'link-impairment-widht', columntInputType: 'label' },"}}
+{{rawJSComment "					// 	{ idSuffix: 'SourceMac', textContent: 'Source MAC', className: 'link-impairment-widht', columntInputType: 'label' },"}}
+{{rawJSComment "					// 	{ idSuffix: 'TargetMac', textContent: 'Target Mac', className: 'link-impairment-widht', columntInputType: 'label' },"}}
 {{rawJSComment "					// ];"}}
 				
 {{rawJSComment "					// createPanelBlockForm(Panel01ColumnsConfig, panelBlock01, divPanelBlock01)"}}
@@ -885,25 +720,25 @@
 {{rawJSComment "						// Create columnContainer"}}
 						const columnContainer = document.createElement('div');
 						columnContainer.id = `${divPanelBlock.id}-columnContainer${config.idSuffix}`
-						columnContainer.className = 'column my-auto';
+						columnContainer.className = 'column py-auto';
 				
 {{rawJSComment "						// Create panelContent"}}
 						const panelContent = document.createElement('div');
 						panelContent.id = `${columnContainer.id}-panelContent${config.idSuffix}`
-						panelContent.className = 'panel-content';
+						panelContent.className = 'panel-content p-0';
 				
 {{rawJSComment "						// Create columnsPanelContent container"}}
 						const columnsPanelContent = document.createElement('div');
-						columnsPanelContent.className = 'columns py-auto';
+						columnsPanelContent.className = 'columns p-0';
 						columnsPanelContent.id = `${panelContent.id}-columnsPanelContent${config.idSuffix}`
 				
 {{rawJSComment "						// Create labelColumn column"}}
 						const labelColumn = document.createElement('div');
-						labelColumn.className = 'column is-4 p-1';
+						labelColumn.className = 'column is-3 p-0 is-narrow-desktop';
 						labelColumn.id = `${columnsPanelContent.id}-labelColumn${config.idSuffix}`
 				
 						const labelElement = document.createElement('label');
-						labelElement.className = 'label is-size-7 has-text-right has-text-weight-medium px-auto';
+						labelElement.className = 'label is-size-7-desktop has-text-right has-text-weight-medium px-auto';
 						labelElement.textContent = config.textContent;
 						labelElement.id = `${labelColumn.id}-labelElement${config.idSuffix}`
 				
@@ -913,124 +748,29 @@
 {{rawJSComment "						// Create inputColumn column"}}
 						if (config.columntInputType == 'label'){
 							const inputColumn = document.createElement('div');
-							inputColumn.className = `column is-8 p-1 pl-3`;
+							inputColumn.className = `column is-8 p-0 pl-3`;
 							inputColumn.id = `${labelColumn.id}-inputColumn${config.idSuffix}`
 					
 							const inputElement = document.createElement('label');
-							inputElement.className = `label is-size-7 has-text-left link-impairment-widht has-text-weight-normal mr-0 is-max-content`;
-							inputElement.id = `${inputColumn.id}-label${config.idSuffix}`
+							inputElement.className = `label is-size-7-desktop has-text-left has-text-weight-normal mr-0 is-max-content`;
 							inputElement.textContent = config.columntInputContent;
-
+							inputElement.id = `${inputColumn.id}-label${config.idSuffix}`
+					
 							inputColumn.appendChild(inputElement);
 							columnsPanelContent.appendChild(inputColumn);
-
 						}else if (config.columntInputType == 'button') {
 							const inputColumn = document.createElement('div');
-							inputColumn.className = `column is-8 p-1 pl-3`;
+							inputColumn.className = `column is-8 p-0 pl-3`;
 							inputColumn.id = `${labelColumn.id}-inputColumn${config.idSuffix}`
 					
 							const inputElement = document.createElement('button');
-							inputElement.className = `button is-size-7-desktop link-impairment-widht is-smallest-element is-justify-content-flex-start is-link fa-regular fa-network-wired`; 
+							inputElement.className = `button is-size-7-desktop link-impairment-widht is-primary is-smallest-element is-link fa-regular fa-network-wired';`;
+							inputElement.textContent = 'SSH';
 							inputElement.id = `${inputColumn.id}-label${config.idSuffix}`
-							inputElement.textContent = config.columntInputContent;
 					
-							inputColumn.appendChild(inputElement);
-							columnsPanelContent.appendChild(inputColumn);
-
-						}else if (config.columntInputType == 'input') {
-							const inputColumn = document.createElement('div');
-							inputColumn.className = `column is-8 p-1 pl-3`;
-							inputColumn.id = `${labelColumn.id}-inputColumn${config.idSuffix}`
-					
-							const inputElement = document.createElement('input');
-							inputElement.className = `input is-size-7-desktop has-text-left link-impairment-widht has-text-weight-normal is-smallest-element`;
-							inputElement.id = `${inputColumn.id}-label${config.idSuffix}`
-							inputElement.type = 'text'
-							inputElement.value = config.columntInputContent
-					
-							inputColumn.appendChild(inputElement);
-							columnsPanelContent.appendChild(inputColumn);
-						}else if (config.columntInputType == 'field') {
-							const inputColumn = document.createElement('div');
-							inputColumn.className = `column is-8 p-1 pl-3`;
-							inputColumn.id = `${labelColumn.id}-inputColumn${config.idSuffix}`
-					
-							const inputElement = document.createElement('div');
-							inputElement.className = `field has-addons`;
-							inputElement.id = `${inputColumn.id}-label${config.idSuffix}`
-
-{{rawJSComment "							// create addon input"}}
-							const controlId = `${inputElement.id}-control`;
-							const control = document.createElement('p');
-							control.className = 'control';
-							control.id = controlId;
-							const input = document.createElement('input');
-							input.id = `${controlId}-input`;
-
-							if (config.columntInputAttribute == 'enabled'){
-								input.setAttribute('enabled', '')
-							}else{
-								input.setAttribute('disabled','')
-							}
-
-							input.className = `input is-size-7-desktop has-text-left link-impairment-widht has-text-weight-normal is-smallest-element`; 
-							input.value = config.columntInputContent;
-							control.appendChild(input);
-							inputElement.appendChild(control);
-
-{{rawJSComment "							// create addon button"}}
-							addons = config.addonsContent
-
-							for (let i = 0; i < addons.length; i++) {
-								const addon = addons[i];
-								const controlId = `${inputElement.id}-control${addon.name}}`;
-								const control = document.createElement('p');
-								control.className = 'control';
-								control.id = controlId;
-							  
-								const button = document.createElement('button');
-								button.id = `${controlId}-button${addon.name}}`;
-								button.className = `button px-3 is-smallest-element is-${addon.name === 'blue' ? 'link' : 'success'}`;
-							  
-								const icon = document.createElement('span');
-								icon.className = 'icon is-small';
-								const iconElement = document.createElement('i');
-								iconElement.className = addon.iconClass;
-								icon.appendChild(iconElement);
-								button.appendChild(icon);
-
-{{rawJSComment "								// Create a hover text paragraph element"}}
-								const hoverText = document.querySelector('.hover-text');
-
-{{rawJSComment "								// Add event listeners for hover behavior"}}
-								button.addEventListener('mouseover', () => {
-{{rawJSComment "									// Calculate the position for the hover text"}}
-									const rect = button.getBoundingClientRect();
-									const top = rect.top - hoverText.offsetHeight + 25; 
-									const left = rect.left + (button.offsetWidth - hoverText.offsetWidth) / 2; 
-
-{{rawJSComment "									// Set the position and show the hover text"}}
-									hoverText.style.top = `${top}px`;
-									hoverText.style.left = `${left}px`;
-									hoverText.classList.remove('is-hidden');
-									hoverText.textContent = addon.hoverMessage;
-								});
-
-								button.addEventListener('mouseout', () => {
-{{rawJSComment "									// Hide the hover text"}}
-									hoverText.classList.add('is-hidden');
-								});
-
-
-
-								control.appendChild(button);
-								inputElement.appendChild(control);
-							  }
-
 							inputColumn.appendChild(inputElement);
 							columnsPanelContent.appendChild(inputColumn);
 						}
-
 				
 						panelContent.appendChild(columnsPanelContent);
 						columnContainer.appendChild(panelContent)
@@ -1053,29 +793,20 @@
 					divPanelBlock01 = panelBlockContainer.divPanelBlock
 
 					const Panel01ColumnsConfig = [
-						{ idSuffix: 'labelNodeName', textContent: 'Node Name', className: 'link-impairment-widht', columntInputType: 'field', columntInputContent: node.data('name'), 						
-							addonsContent: [
-							{
-								name: 'blue',
-								iconClass: 'fas fa-terminal',
-								hoverMessage: 'Click to open a web-based SSH console'
-							},
-							{
-								name: 'green',
-								iconClass: 'far fa-clone',
-								hoverMessage: 'Click to copy the SSH command to your clipboard.'
-							}]},
-						{ idSuffix: 'labelKind', textContent: 'Kind', className: 'link-impairment-widht', columntInputType: 'label', columntInputContent: node.data('extraData').kind },
-						{ idSuffix: 'labelImage', textContent: 'Image', className: 'link-impairment-widht', columntInputType: 'label', columntInputContent: node.data('extraData').image },
-						{ idSuffix: 'labelManagementIPv4', textContent: 'Management IPv4', className: 'link-impairment-widht', columntInputType: 'label', columntInputContent: node.data('extraData').mgmtIpv4Addresss },
-						{ idSuffix: 'labelManagement IPv6', textContent: 'Management IPv6', className: 'link-impairment-widht', columntInputType: 'label', columntInputContent: node.data('extraData').mgmtIpv6Addresss },
-						{ idSuffix: 'labelFqdn', textContent: 'FQDN', className: 'link-impairment-widht', columntInputType: 'label', columntInputContent: node.data('extraData').fqdn },
-						{ idSuffix: 'labelGroup', textContent: 'Group', className: 'link-impairment-widht', columntInputType: 'label', columntInputContent: node.data('extraData').group },
-						{ idSuffix: 'labelTopoviewerRole', textContent: 'Topoviewer Role', className: 'link-impairment-widht', columntInputType: 'label', columntInputContent: node.data('topoviewerRole') },					
-					];
+					{ idSuffix: 'labelNodeName', textContent: 'Node Name', className: 'link-impairment-widht', columntInputType: 'label', columntInputContent: node.data('name') },
+					{ idSuffix: 'labelKind', textContent: 'Kind', className: 'link-impairment-widht', columntInputType: 'label', columntInputContent: node.data('extraData').kind },
+					{ idSuffix: 'labelImage', textContent: 'Image', className: 'link-impairment-widht', columntInputType: 'label', columntInputContent: node.data('extraData').image },
+					{ idSuffix: 'labelManagementIPv4', textContent: 'Management IPv4', className: 'link-impairment-widht', columntInputType: 'label', columntInputContent: node.data('extraData').mgmtIpv4Addresss },
+					{ idSuffix: 'labelManagement IPv6', textContent: 'Management IPv6', className: 'link-impairment-widht', columntInputType: 'label', columntInputContent: node.data('extraData').mgmtIpv6Addresss },
+					{ idSuffix: 'labelFqdn', textContent: 'FQDN', className: 'link-impairment-widht', columntInputType: 'label', columntInputContent: node.data('extraData').fqdn },
+					{ idSuffix: 'labelGroup', textContent: 'Group', className: 'link-impairment-widht', columntInputType: 'label', columntInputContent: node.data('extraData').group },
+					{ idSuffix: 'labelTopoviewerRole', textContent: 'Topoviewer Role', className: 'link-impairment-widht', columntInputType: 'label', columntInputContent: node.data('topoviewerRole') },
+					{ idSuffix: 'labelNeSessiong', textContent: 'NE Session', className: 'link-impairment-widht', columntInputType: 'button', columntInputContent: "SSH Console" },
 
+				 	];
 					createPanelBlockForm(Panel01ColumnsConfig, panelBlock01, divPanelBlock01)
-						
+				
+				
 {{rawJSComment "					// Per panelBlock divPanelBlock01 --> panelBlock01"}}
 					panelBlock01.appendChild(divPanelBlock01)
 				
@@ -1099,11 +830,11 @@
 					divPanelBlock01 = panelBlockContainer.divPanelBlock
 
 					const Panel01ColumnsConfig = [
-						{ idSuffix: 'LinkName', textContent: 'Link Name', className: 'link-impairment-widht', columntInputType: 'label', columntInputContent: edge.data('source') +"---"+ edge.data('target') },
-						{ idSuffix: 'Source', textContent: 'Source', className: 'link-impairment-widht', columntInputType: 'label', columntInputContent: edge.data('source') + "::" + edge.data('sourceEndpoint') },
-						{ idSuffix: 'Target', textContent: 'Target', className: 'link-impairment-widht', columntInputType: 'label' , columntInputContent: edge.data('target') + "::" + edge.data('targetEndpoint') },
-						{ idSuffix: 'SourceMac', textContent: 'Source MAC', className: 'link-impairment-widht', columntInputType: 'label' , columntInputContent: '' },
-						{ idSuffix: 'TargetMac', textContent: 'Target Mac', className: 'link-impairment-widht', columntInputType: 'label' , columntInputContent: '' },
+						{ idSuffix: 'LinkName', textContent: 'Link Name', className: 'link-impairment-widht', columntInputType: 'label', columntInputContent: edge.data('name') },
+						{ idSuffix: 'Source', textContent: 'Source', className: 'link-impairment-widht', columntInputType: 'label', columntInputContent: edge.data('name') },
+						{ idSuffix: 'Target', textContent: 'Target', className: 'link-impairment-widht', columntInputType: 'label' , columntInputContent: edge.data('name') },
+						{ idSuffix: 'SourceMac', textContent: 'Source MAC', className: 'link-impairment-widht', columntInputType: 'label' , columntInputContent: edge.data('name') },
+						{ idSuffix: 'TargetMac', textContent: 'Target Mac', className: 'link-impairment-widht', columntInputType: 'label' , columntInputContent: edge.data('name') },
 					];
 
 					createPanelBlockForm(Panel01ColumnsConfig, panelBlock01, divPanelBlock01)
@@ -1116,60 +847,203 @@
 					panelBlockContainer = createPanelBlockContainer(tabContainer.id)
 					panelBlock02 = panelBlockContainer.panelBlock
 					divPanelBlock02 = panelBlockContainer.divPanelBlock
-
-					const Panel02ColumnsConfig = [
-						{ idSuffix: 'labelCaptureSourceEndpoint', textContent: 'Capture Source Endpoint', className: 'link-impairment-widht', columntInputType: 'field', columntInputContent: edge.data('source') + "::" + edge.data('sourceEndpoint'),
-							addonsContent: [
-							{
-								name: 'blue',
-								iconClass: 'fas fa-ethernet'
-							},
-							{
-								name: 'green',
-								iconClass: 'far fa-clone'
-							}]},
-						{ idSuffix: 'labelCaptureSourceEndpoint', textContent: 'Capture Source Endpoint', className: 'link-impairment-widht', columntInputType: 'field', columntInputContent: edge.data('target') + "::" + edge.data('targetEndpoint'),
-							addonsContent: [
-							{
-								name: 'blue',
-								iconClass: 'fas fa-ethernet'
-							},
-							{
-								name: 'green',
-								iconClass: 'far fa-clone'
-							}]}, 
-					];
-
+				
+{{rawJSComment "					// Create Content in panel block 02 for Capture Endpoint Source"}}
+{{rawJSComment "					// Create the 'column' child of panelblock02 as content container"}}
+					const endpoint = ['PE-01::eth1', 'AGG-UPF01::eth3'];
+					const elements = ['Source', 'Target'];
+				
+					elements.forEach(element => {
+						const columnContainer = document.createElement('div');
+						columnContainer.id = `${divPanelBlock02.id}-column-${element.toLowerCase()}`;
+						columnContainer.className = 'column my-auto';
+				
+						const panelContent = document.createElement('div');
+						panelContent.id = `${columnContainer.id}-panelContent02`;
+						panelContent.className = 'panel-content';
+				
+						const columnDiv = document.createElement('div');
+						columnDiv.className = 'columns py-auto';
+						columnDiv.id = `${panelContent.id}-columnDiv${element}`;
+				
+						const labelColumn = document.createElement('div');
+						labelColumn.className = 'column is-4 p-1 is-narrow-desktop';
+						labelColumn.id = `${columnDiv.id}-labelColumn${element}`;
+				
+						const label = document.createElement('label');
+						label.className = 'label has-text-link has-text-right is-small has-text-weight-bold px-auto';
+						label.textContent = `Capture ${element} Endpoint`;
+						label.id = `${labelColumn.id}-label${element}`;
+						labelColumn.appendChild(label);
+				
+						const inputColumn = document.createElement('div');
+						inputColumn.className = 'column is-8 p-1 pl-3';
+						inputColumn.id = `${labelColumn.id}-inputColumn${element}`;
+				
+						const fieldPanelContent02 = document.createElement('div');
+						fieldPanelContent02.className = 'field has-addons';
+						fieldPanelContent02.id = `${inputColumn.id}-fieldPanelContent02${element}`;
+				
+						['EndpointLabel'].forEach(buttonType => {
+							const controlId = `${fieldPanelContent02.id}-control${buttonType}${element}`;
+							const control = document.createElement('p');
+							control.className = 'control';
+							control.id = controlId;
+							const button = document.createElement('button');
+							button.id = `${controlId}-button${buttonType}${element}`;
+							if (element == 'Source') {
+								button.textContent = endpoint[0];
+							} else if (element == 'Target') {
+								button.textContent = endpoint[1];
+							} else {
+								console.log('No valid Endpoint label')
+							}
+{{rawJSComment "							// is-justify-content-flex-start --> flexbox class, as bulma.io has-text-link is not responding for button class."}}
+							button.className = `button button-capture has-text-link is-justify-content-flex-start is-static is-smallest-element is-outlined`;
+							control.appendChild(button);
+							fieldPanelContent02.appendChild(control);
+						});
+				
+						['Wireshark', 'SSH'].forEach(buttonType => {
+							const controlId = `${fieldPanelContent02.id}-control${buttonType}${element}`;
+							const control = document.createElement('p');
+							control.className = 'control';
+							control.id = controlId;
+				
+							const button = document.createElement('button');
+							button.id = `${controlId}-button${buttonType}${element}`;
+							button.textContent = buttonType.substring(0, 2);
+							button.className = `button is-primary is-smallest-element is-${buttonType === 'Wireshark' ? 'link' : 'success'} fa-regular fa-${buttonType.toLowerCase()}`;
+							control.appendChild(button);
+							fieldPanelContent02.appendChild(control);
+						});
+				
+						inputColumn.appendChild(fieldPanelContent02);
+						columnDiv.appendChild(labelColumn);
+						columnDiv.appendChild(inputColumn);
+						panelContent.appendChild(columnDiv);
+						columnContainer.appendChild(panelContent);
+						divPanelBlock02.appendChild(columnContainer);
+					});
 			
-					createPanelBlockForm(Panel02ColumnsConfig, panelBlock02, divPanelBlock02)
-
 {{rawJSComment "					// append divPanelBlock02 --> panelBlock02 --> tabContainer"}}
 					panelBlock02.append(divPanelBlock02)
 					tabContainer.appendChild(panelBlock02)
 				
-
+				
 {{rawJSComment "					// Panel Block 03"}}
 					panelBlockContainer = createPanelBlockContainer(tabContainer.id)
 					panelBlock03 = panelBlockContainer.panelBlock
 					divPanelBlock03 = panelBlockContainer.divPanelBlock
-
-					const Panel03ColumnsConfig = [
-						{ idSuffix: 'labelDelay', textContent: 'Delay (ms)', className: 'link-impairment-widht', columntInputType: 'input', columntInputContent: '0' },
-						{ idSuffix: 'labelJitter', textContent: 'Jitter (ms', className: 'link-impairment-widht', columntInputType: 'input', columntInputContent: '0' },
-						{ idSuffix: 'labelRate', textContent: 'Rate (kbps', className: 'link-impairment-widht', columntInputType: 'input', columntInputContent: '0' },
-						{ idSuffix: 'labelLoss', textContent: 'Loss (%)', className: 'link-impairment-widht', columntInputType: 'input', columntInputContent: '0' },
-						{ idSuffix: 'labelDuration', textContent: 'Duration (min.)', className: 'link-impairment-widht', columntInputType: 'field', columntInputContent: '1', columntInputAttribute: 'enabled', 
-						addonsContent: [
-							{
-								name: 'blue',
-								iconClass: 'fas fa-stopwatch'
-							}]},
-						];
-
-					createPanelBlockForm(Panel03ColumnsConfig, panelBlock03, divPanelBlock03)
-
-{{rawJSComment "					// append divPanelBlock03 --> panelBlock03 --> tabContainer"}}
+				
+					const columnsConfig = [
+						{ idSuffix: 'Delay', textContent: 'Delay (ms)', className: 'link-impairment-widht' },
+						{ idSuffix: 'Jitter', textContent: 'Jitter (ms)', className: 'link-impairment-widht' },
+						{ idSuffix: 'Rate', textContent: 'Rate (kbps)', className: 'link-impairment-widht' },
+						{ idSuffix: 'Loss', textContent: 'Loss (%)', className: 'link-impairment-widht' },
+						{ idSuffix: 'Duration', textContent: 'Duration (min.)', className: 'link-impairment-widht' },
+					];
+				
+					columnsConfig.forEach(config => {
+{{rawJSComment "						// Create columnContainer"}}
+						const columnContainer = document.createElement('div');
+						columnContainer.id = `${divPanelBlock03.id}-columnContainerImpairment${config.idSuffix}-`
+						columnContainer.className = 'column my-auto';
+				
+{{rawJSComment "						// Create panelContent"}}
+						const panelContent = document.createElement('div');
+						panelContent.id = `${columnContainer.id}-panelContentImpairment${config.idSuffix}-`
+						panelContent.className = 'panel-content';
+				
+{{rawJSComment "						// Create columnsPanelContent container"}}
+						const columnsPanelContent = document.createElement('div');
+						columnsPanelContent.className = 'columns py-auto';
+						columnsPanelContent.id = `${panelContent.id}-columnsPanelContentImpairment${config.idSuffix}`
+				
+{{rawJSComment "						// Create buttonColumn column"}}
+						const buttonColumn = document.createElement('div');
+						buttonColumn.className = 'column is-4 p-1 is-narrow-desktop';
+						buttonColumn.id = `${columnsPanelContent.id}-buttonImpairment${config.idSuffix}Column-`
+				
+						const buttonLabel = document.createElement('label');
+						buttonLabel.className = 'label has-text-link has-text-right is-smallest has-text-weight-bold px-auto';
+						buttonLabel.textContent = config.textContent;
+						buttonLabel.id = `${buttonColumn.id}-buttonImpairment${config.idSuffix}-`
+				
+						buttonColumn.appendChild(buttonLabel);
+						columnsPanelContent.appendChild(buttonColumn);
+				
+{{rawJSComment "						// Create inputColumn column"}}
+						const inputColumn = document.createElement('div');
+						inputColumn.className = `column is-8 p-1 pl-3`;
+						inputColumn.id = `${buttonColumn.id}-inputColumnImpairment${config.idSuffix}-`
+				
+						const inputElement = document.createElement('input');
+						inputElement.className = `input ${config.className} is-smallest-element`;
+						inputElement.type = 'text'
+						inputElement.value = '0'
+						inputElement.id = `${inputColumn.id}-inputImpairment${config.idSuffix}-`
+				
+						inputColumn.appendChild(inputElement);
+						columnsPanelContent.appendChild(inputColumn);
+				
+						panelContent.appendChild(columnsPanelContent);
+						columnContainer.appendChild(panelContent)
+				
+						divPanelBlock03.appendChild(columnContainer)
+					});
+				
+				
+{{rawJSComment "					// Apply Column Start"}}
+					const columnContainerImpairmentApply = document.createElement('div');
+					columnContainerImpairmentApply.id = `${divPanelBlock03.id}-columnContainerImpairmentApply-`
+					columnContainerImpairmentApply.className = 'column my-auto';
+				
+{{rawJSComment "					// Create panelContentImpairmentApply"}}
+					const panelContentImpairmentApply = document.createElement('div');
+					panelContentImpairmentApply.id = `${columnContainerImpairmentApply.id}-panelContentImpairmentApply-`
+					panelContentImpairmentApply.className = 'panel-content';
+				
+{{rawJSComment "					// Create columnsPanelContentImpairmentApply container"}}
+					const columnsPanelContentImpairmentApply = document.createElement('div');
+					columnsPanelContentImpairmentApply.className = 'columns py-auto';
+					columnsPanelContentImpairmentApply.id = `${panelContentImpairmentApply.id}-columnsPanelContentImpairmentApply`
+				
+{{rawJSComment "					// Create buttonImpairmentApplyColumn column"}}
+					const buttonImpairmentApplyColumn = document.createElement('div');
+					buttonImpairmentApplyColumn.className = 'column is-4 p-1 is-narrow-desktop';
+					buttonImpairmentApplyColumn.id = `${columnsPanelContentImpairmentApply.id}-buttonImpairmentApplyColumn-`
+				
+{{rawJSComment "					// const buttonImpairmentApply = document.createElement('button');"}}
+{{rawJSComment "					// buttonImpairmentApply.className = 'button hide has-text-link has-text-right is-smallest has-text-weight-bold px-auto';"}}
+{{rawJSComment "					// buttonImpairmentApply.textContent = '';"}}
+{{rawJSComment "					// buttonImpairmentApply.id = `${buttonImpairmentApplyColumn.id}-buttonImpairmentApply-`"}}
+				
+{{rawJSComment "					// buttonImpairmentApplyColumn.appendChild(buttonImpairmentApply);"}}
+					columnsPanelContentImpairmentApply.appendChild(buttonImpairmentApplyColumn);
+{{rawJSComment "					// Create inputColumnImpairmentApply column"}}
+					const inputColumnImpairmentApply = document.createElement('div');
+					inputColumnImpairmentApply.className = 'column is-8 p-1 pl-3';
+					inputColumnImpairmentApply.id = `${buttonImpairmentApplyColumn.id}-inputColumnImpairmentApply-`
+				
+					const inputImpairmentApply = document.createElement('button');
+					inputImpairmentApply.className = 'button link-impairment-widht is-primary is-smallest-element is-link fa-regular fa-network-wired';
+					inputImpairmentApply.textContent = 'Apply';
+					inputImpairmentApply.id = `${inputColumnImpairmentApply.id}-inputImpairmentApply-`
+				
+					inputColumnImpairmentApply.appendChild(inputImpairmentApply);
+					columnsPanelContentImpairmentApply.appendChild(inputColumnImpairmentApply);
+				
+					panelContentImpairmentApply.appendChild(columnsPanelContentImpairmentApply);
+					columnContainerImpairmentApply.appendChild(panelContentImpairmentApply)
+				
+					divPanelBlock03.appendChild(columnContainerImpairmentApply)
+{{rawJSComment "					// Apply Column End"}}
+				
+{{rawJSComment "					// Per panelBlock divPanelBlock03 --> panelBlock03"}}
 					panelBlock03.appendChild(divPanelBlock03)
+				
+{{rawJSComment "					// --> tabContainer"}}
 					tabContainer.appendChild(panelBlock03)
 				
 				
@@ -1177,6 +1051,12 @@
 				}
 				
 				
+				
+				 
+				
+
+				
+  
 {{rawJSComment "				// ######################################################"}}
 {{rawJSComment "				// END of JS Functions HTML Element Creation section"}}
 {{rawJSComment "				// END of JS Functions HTML Element Creation section"}}

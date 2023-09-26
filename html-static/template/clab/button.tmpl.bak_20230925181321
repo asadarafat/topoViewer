@@ -114,22 +114,32 @@
 			pointer-events: none;  
 		  }
 
-		   
+		  /* Initially hide the hover text */
 		  .hover-text.is-hidden {
 			display: none;
 		  }
 		
-		   
+		  /* Style the hover text */
 		  .hover-text {
 			position: absolute;
-			 
+			/* background-color: #cacaca;
+			border: 1px solid #ffffff; 
+			padding: 1px;
+			border-radius: 1px;
+			box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2); */
 			border: 1px solid #e8a010; 
 			padding: 2px;
 			box-shadow: 2px 3px 4px rgba(0, 0, 0, 0.4);
-			z-index: 100;  
+			z-index: 100; /* Ensure the hover text appears above other content */
 		  }
 
-				 	
+				/* Style box-shadow
+				The box-shadow property in CSS is used to create a shadow effect around an element, such as a button or a box. It adds depth and dimension to the element, making it appear raised or floating above the background. Here's the breakdown of the property values:
+				0px represents the horizontal offset of the shadow. In this case, there is no horizontal offset, so the shadow is directly behind the element.
+				0px represents the vertical offset of the shadow. There's no vertical offset, so the shadow is right below the element.
+				5px is the blur radius of the shadow. It determines how blurry or sharp the shadow edges appear. In this case, the shadow is slightly blurry, creating a softer effect.
+				rgba(0, 0, 0, 0.2) specifies the color and transparency of the shadow. It's a black shadow (0, 0, 0 represents black), and the 0.2 alpha value makes it slightly transparent. The alpha value controls the shadow's opacity, with 0 being completely transparent and 1 being fully opaque.
+				*/	
           
           
         
@@ -195,16 +205,6 @@
 
 			<script>
 
-{{rawJSComment "				// CSS TUTORIAL"}}
-{{rawJSComment "				//"}}
-{{rawJSComment "				// /* Style box-shadow"}}
-{{rawJSComment "				// The box-shadow property in CSS is used to create a shadow effect around an element, such as a button or a box. It adds depth and dimension to the element, making it appear raised or floating above the background. Here's the breakdown of the property values:"}}
-{{rawJSComment "				// 0px represents the horizontal offset of the shadow. In this case, there is no horizontal offset, so the shadow is directly behind the element."}}
-{{rawJSComment "				// 0px represents the vertical offset of the shadow. There's no vertical offset, so the shadow is right below the element."}}
-{{rawJSComment "				// 5px is the blur radius of the shadow. It determines how blurry or sharp the shadow edges appear. In this case, the shadow is slightly blurry, creating a softer effect."}}
-{{rawJSComment "				// rgba(0, 0, 0, 0.2) specifies the color and transparency of the shadow. It's a black shadow (0, 0, 0 represents black), and the 0.2 alpha value makes it slightly transparent. The alpha value controls the shadow's opacity, with 0 being completely transparent and 1 being fully opaque."}}
-{{rawJSComment "				// */	"}}
-
 
 {{rawJSComment "			// Initialize a state variable to track the element's presence"}}
 			let isPanel01Cy = false;
@@ -213,103 +213,6 @@
 
 
 			document.addEventListener('DOMContentLoaded', function() {
-				
-{{rawJSComment "				// Reusable function to initialize a WebSocket connection"}}
-				function initializeWebSocket(url, onMessageCallback) {
-					const protocol = location.protocol === 'https:' ? 'wss://' : 'ws://';
-					const socket = new WebSocket(protocol + location.host + url);
-
-					socket.onopen = () => {
-						console.log(`Successfully connected WebSocket to ${url}`);
-						if (socket.readyState === WebSocket.OPEN) {
-							socket.send(`Hi From the WebSocketClient-${url}`);
-						}
-					};
-
-					socket.onclose = (event) => {
-						console.log(`Socket to ${url} closed: `, event);
-						socket.send('Client Closed!');
-					};
-
-					socket.onerror = (error) => {
-						console.log(`Socket to ${url} error: `, error);
-					};
-
-					socket.onmessage = onMessageCallback;
-
-					return socket;
-				}
-
-{{rawJSComment "				// WebSocket for uptime"}}
-				const socketUptime = initializeWebSocket('/uptime', (msgUptime) => {
-					const string01 = "Containerlab Topology: Komodo2-" + 'dummy-string';
-					const string02 = " ::: Uptime: " + msgUptime.data;
-
-					const ClabSubtitle = document.getElementById("ClabSubtitle");
-					const messageBody = string01 + string02;
-
-					ClabSubtitle.innerText = messageBody;
-					console.log(ClabSubtitle.innerText);
-				});
-
-{{rawJSComment "				// WebSocket for DockerNodeStatus"}}
-				const socketDockerNodeStatusInitial = initializeWebSocket('/dockerNodeStatus', (msgDockerNodeStatus) => {
-					try {
-						const { Names, Status } = JSON.parse(msgDockerNodeStatus.data);
-						setNodeDockerStatus(Names, Status);
-						console.log(JSON.parse(msgDockerNodeStatus.data));
-
-					} catch (error) {
-						console.error("Error parsing JSON:", error);
-					}
-				});
-
-				var nodeDockerStatusVisibility = true;
-				function setNodeDockerStatus(dockerNodeName, dockerNodeStatus) {
-					cy.nodes().forEach(function(node) {
-						var nodeId = node.data('id');
-
-{{rawJSComment "						// Find the corresponding status nodes based on node ID"}}
-						var statusGreenNode = cy.$(`node[name="${nodeId}-statusGreen"]`);
-						var statusRedNode = cy.$(`node[name="${nodeId}-statusRed"]`);
-
-						if (statusGreenNode.length === 0 || statusRedNode.length === 0) {
-{{rawJSComment "							// If status nodes are not found, skip this node"}}
-							return;
-						}
-
-{{rawJSComment "						// Determine whether to show or hide status nodes"}}
-						var showGreenNode = nodeDockerStatusVisibility && dockerNodeName.includes(nodeId) && dockerNodeStatus.includes("healthy");
-						var showRedNode = nodeDockerStatusVisibility && dockerNodeName.includes(nodeId) && dockerNodeStatus.includes("(health: starting)");
-
-{{rawJSComment "						// Update positions of status nodes relative to the node"}}
-						var nodePosition = node.position();
-						var offset = { x: 14, y: 3 };
-						var statusGreenNodePosition = { x: nodePosition.x + offset.x, y: nodePosition.y + offset.y };
-						var statusRedNodePosition = { x: nodePosition.x + offset.x, y: nodePosition.y - offset.y };
-
-{{rawJSComment "						// Check if the nodeDockerStatusVisibility is true"}}
-						if (nodeDockerStatusVisibility) {
-{{rawJSComment "							// Check if the dockerNodeName includes nodeId and dockerNodeStatus includes 'healthy'"}}
-							if (dockerNodeName.includes(nodeId) && dockerNodeStatus.includes("healthy")) {
-								statusGreenNode.show();
-								statusRedNode.hide();
-								console.log("nodeDockerStatusVisibility: " + nodeDockerStatusVisibility);
-							} else if (dockerNodeName.includes(nodeId) && dockerNodeStatus.includes("(health: starting)")) {
-								statusGreenNode.hide();
-								statusRedNode.show();
-							}
-						} else {
-							statusGreenNode.hide();
-							statusRedNode.hide();
-						}
-
-						statusGreenNode.position(statusGreenNodePosition);
-						statusRedNode.position(statusRedNodePosition);
-					});
-				}
-
-
 {{rawJSComment "				//- Initialize Cytoscape.js"}}
 				const cy = cytoscape({
 					container: document.getElementById('cy'),
@@ -899,11 +802,11 @@
 				
 {{rawJSComment "						// Create labelColumn column"}}
 						const labelColumn = document.createElement('div');
-						labelColumn.className = 'column is-4 p-1';
+						labelColumn.className = 'column is-4 p-1 is-narrow-desktop';
 						labelColumn.id = `${columnsPanelContent.id}-labelColumn${config.idSuffix}`
 				
 						const labelElement = document.createElement('label');
-						labelElement.className = 'label is-size-7 has-text-right has-text-weight-medium px-auto';
+						labelElement.className = 'label is-size-7-desktop has-text-right has-text-weight-medium px-auto';
 						labelElement.textContent = config.textContent;
 						labelElement.id = `${labelColumn.id}-labelElement${config.idSuffix}`
 				
@@ -917,7 +820,7 @@
 							inputColumn.id = `${labelColumn.id}-inputColumn${config.idSuffix}`
 					
 							const inputElement = document.createElement('label');
-							inputElement.className = `label is-size-7 has-text-left link-impairment-widht has-text-weight-normal mr-0 is-max-content`;
+							inputElement.className = `label is-size-7-desktop has-text-left link-impairment-widht has-text-weight-normal mr-0 is-max-content`;
 							inputElement.id = `${inputColumn.id}-label${config.idSuffix}`
 							inputElement.textContent = config.columntInputContent;
 
@@ -973,7 +876,7 @@
 								input.setAttribute('disabled','')
 							}
 
-							input.className = `input is-size-7-desktop has-text-left link-impairment-widht has-text-weight-normal is-smallest-element`; 
+							input.className = `input is-size-7-desktop has-text-left link-impairment-widht has-text-weight-normal is-smallest-element`; // is-justify-content-flex-start --> flexbox class, as bulma.io has-text-left is not responding for input class.
 							input.value = config.columntInputContent;
 							control.appendChild(input);
 							inputElement.appendChild(control);
@@ -1006,14 +909,13 @@
 								button.addEventListener('mouseover', () => {
 {{rawJSComment "									// Calculate the position for the hover text"}}
 									const rect = button.getBoundingClientRect();
-									const top = rect.top - hoverText.offsetHeight + 25; 
-									const left = rect.left + (button.offsetWidth - hoverText.offsetWidth) / 2; 
+									const top = rect.top - hoverText.offsetHeight + 25; // Adjust the vertical position
+									const left = rect.left + (button.offsetWidth - hoverText.offsetWidth) / 2; // Center horizontally
 
 {{rawJSComment "									// Set the position and show the hover text"}}
 									hoverText.style.top = `${top}px`;
 									hoverText.style.left = `${left}px`;
 									hoverText.classList.remove('is-hidden');
-									hoverText.textContent = addon.hoverMessage;
 								});
 
 								button.addEventListener('mouseout', () => {
@@ -1057,13 +959,11 @@
 							addonsContent: [
 							{
 								name: 'blue',
-								iconClass: 'fas fa-terminal',
-								hoverMessage: 'Click to open a web-based SSH console'
+								iconClass: 'fas fa-terminal'
 							},
 							{
 								name: 'green',
-								iconClass: 'far fa-clone',
-								hoverMessage: 'Click to copy the SSH command to your clipboard.'
+								iconClass: 'far fa-clone'
 							}]},
 						{ idSuffix: 'labelKind', textContent: 'Kind', className: 'link-impairment-widht', columntInputType: 'label', columntInputContent: node.data('extraData').kind },
 						{ idSuffix: 'labelImage', textContent: 'Image', className: 'link-impairment-widht', columntInputType: 'label', columntInputContent: node.data('extraData').image },
@@ -1158,7 +1058,7 @@
 						{ idSuffix: 'labelJitter', textContent: 'Jitter (ms', className: 'link-impairment-widht', columntInputType: 'input', columntInputContent: '0' },
 						{ idSuffix: 'labelRate', textContent: 'Rate (kbps', className: 'link-impairment-widht', columntInputType: 'input', columntInputContent: '0' },
 						{ idSuffix: 'labelLoss', textContent: 'Loss (%)', className: 'link-impairment-widht', columntInputType: 'input', columntInputContent: '0' },
-						{ idSuffix: 'labelDuration', textContent: 'Duration (min.)', className: 'link-impairment-widht', columntInputType: 'field', columntInputContent: '1', columntInputAttribute: 'enabled', 
+						{ idSuffix: 'labelDuration', textContent: 'Duration (min.)', className: 'link-impairment-widht', columntInputType: 'field', columntInputContent: '1', columntInputAttribute: 'enabled', // columntInputAttribute default is disabled
 						addonsContent: [
 							{
 								name: 'blue',

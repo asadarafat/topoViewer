@@ -405,6 +405,7 @@ func Clab(_ *cobra.Command, _ []string) error {
 				// log.Infof("node name:'%s'... ", cyTopo.ClabTopoDataV2.Nodes[0].Longname)
 
 				for _, n := range cyTopo.ClabTopoDataV2.Nodes {
+					// log.Info("n.Longname", n.Longname)
 					dockerNodeStatus.WriteMessage(1, cyTopo.GetDockerNodeStatus(n.Longname, clabUser, clabHost[0], clabPass))
 					if err != nil {
 						log.Error(err)
