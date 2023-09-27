@@ -211,18 +211,18 @@
 
 			<script>
 
-				// CSS TUTORIAL
-				//
-				// /* Style box-shadow
-				// The box-shadow property in CSS is used to create a shadow effect around an element, such as a button or a box. It adds depth and dimension to the element, making it appear raised or floating above the background. Here's the breakdown of the property values:
-				// 0px represents the horizontal offset of the shadow. In this case, there is no horizontal offset, so the shadow is directly behind the element.
-				// 0px represents the vertical offset of the shadow. There's no vertical offset, so the shadow is right below the element.
-				// 5px is the blur radius of the shadow. It determines how blurry or sharp the shadow edges appear. In this case, the shadow is slightly blurry, creating a softer effect.
-				// rgba(0, 0, 0, 0.2) specifies the color and transparency of the shadow. It's a black shadow (0, 0, 0 represents black), and the 0.2 alpha value makes it slightly transparent. The alpha value controls the shadow's opacity, with 0 being completely transparent and 1 being fully opaque.
-				// */	
+{{rawJSComment "				// CSS TUTORIAL"}}
+{{rawJSComment "				//"}}
+{{rawJSComment "				// /* Style box-shadow"}}
+{{rawJSComment "				// The box-shadow property in CSS is used to create a shadow effect around an element, such as a button or a box. It adds depth and dimension to the element, making it appear raised or floating above the background. Here's the breakdown of the property values:"}}
+{{rawJSComment "				// 0px represents the horizontal offset of the shadow. In this case, there is no horizontal offset, so the shadow is directly behind the element."}}
+{{rawJSComment "				// 0px represents the vertical offset of the shadow. There's no vertical offset, so the shadow is right below the element."}}
+{{rawJSComment "				// 5px is the blur radius of the shadow. It determines how blurry or sharp the shadow edges appear. In this case, the shadow is slightly blurry, creating a softer effect."}}
+{{rawJSComment "				// rgba(0, 0, 0, 0.2) specifies the color and transparency of the shadow. It's a black shadow (0, 0, 0 represents black), and the 0.2 alpha value makes it slightly transparent. The alpha value controls the shadow's opacity, with 0 being completely transparent and 1 being fully opaque."}}
+{{rawJSComment "				// */	"}}
 
 
-			// Initialize a state variable to track the element's presence
+{{rawJSComment "			// Initialize a state variable to track the element's presence"}}
 			let isPanel01Cy = false;
 			let nodeClicked = false;
 			let edgeClicked = false;
@@ -230,7 +230,7 @@
 
 			document.addEventListener('DOMContentLoaded', function() {
 				
-				// Reusable function to initialize a WebSocket connection
+{{rawJSComment "				// Reusable function to initialize a WebSocket connection"}}
 				function initializeWebSocket(url, onMessageCallback) {
 					const protocol = location.protocol === 'https:' ? 'wss://' : 'ws://';
 					const socket = new WebSocket(protocol + location.host + url);
@@ -256,7 +256,7 @@
 					return socket;
 				}
 
-				// WebSocket for uptime
+{{rawJSComment "				// WebSocket for uptime"}}
 				const socketUptime = initializeWebSocket('/uptime', (msgUptime) => {
 					const string01 = "Containerlab Topology: Komodo2-" + 'dummy-string';
 					const string02 = " ::: Uptime: " + msgUptime.data;
@@ -268,19 +268,19 @@
 					console.log(ClabSubtitle.innerText);
 				});
 
-				// WebSocket for DockerNodeStatus
+{{rawJSComment "				// WebSocket for DockerNodeStatus"}}
 				const socketDockerNodeStatusInitial = initializeWebSocket('/dockerNodeStatus', (msgDockerNodeStatus) => {
 					try {
 						const { Names, Status } = JSON.parse(msgDockerNodeStatus.data);
 						setNodeDockerStatus(Names, Status);
-						// console.log(JSON.parse(msgDockerNodeStatus.data));
+						console.log(JSON.parse(msgDockerNodeStatus.data));
 
 					} catch (error) {
 						console.error("Error parsing JSON:", error);
 					}
 				});
 
-				// WebSocket for clabServerAddress
+{{rawJSComment "				// WebSocket for clabServerAddress"}}
 				const socketclabServerAddress = initializeWebSocket('/clabServerAddress', (msgclabServerAddress) => {
 					console.log(msgclabServerAddress.data);
 					document.title = "TopoViewer ::: " + msgclabServerAddress.data;
@@ -291,26 +291,26 @@
 					cy.nodes().forEach(function(node) {
 						var nodeId = node.data('id');
 
-						// Find the corresponding status nodes based on node ID
+{{rawJSComment "						// Find the corresponding status nodes based on node ID"}}
 						var statusGreenNode = cy.$(`node[name="${nodeId}-statusGreen"]`);
 						var statusOrangeNode = cy.$(`node[name="${nodeId}-statusOrange"]`);
 						var statusRedNode = cy.$(`node[name="${nodeId}-statusRed"]`);
 
 
 						if (statusGreenNode.length === 0 || statusRedNode.length === 0) {
-							// If status nodes are not found, skip this node
+{{rawJSComment "							// If status nodes are not found, skip this node"}}
 							return;
 						}
 
-						// Update positions of status nodes relative to the node
+{{rawJSComment "						// Update positions of status nodes relative to the node"}}
 						var nodePosition = node.position();
 						var offset = { x: -4, y: -10 };
 						var statusGreenNodePosition = { x: nodePosition.x + offset.x, y: nodePosition.y + offset.y };
 						var statusRedNodePosition = { x: nodePosition.x + offset.x, y: nodePosition.y - offset.y };
 
-						// Check if the nodeDockerStatusVisibility is true
+{{rawJSComment "						// Check if the nodeDockerStatusVisibility is true"}}
 						if (nodeDockerStatusVisibility) {
-							// Check if the dockerNodeName includes nodeId and dockerNodeStatus includes 'healthy'
+{{rawJSComment "							// Check if the dockerNodeName includes nodeId and dockerNodeStatus includes 'healthy'"}}
 							if (dockerNodeName.includes(nodeId) && (dockerNodeStatus.includes("Up") || dockerNodeStatus.includes("healthy") ) ) {  
 								statusGreenNode.show();
 								statusRedNode.hide();
@@ -333,7 +333,7 @@
 				}
 
 
-				//- Initialize Cytoscape.js
+{{rawJSComment "				//- Initialize Cytoscape.js"}}
 				const cy = cytoscape({
 					container: document.getElementById('cy'),
 					elements: [],
@@ -347,11 +347,11 @@
 					}]
 				});				
 
-				//- Load and apply Cytoscape styles from cy-style.json using fetch
+{{rawJSComment "				//- Load and apply Cytoscape styles from cy-style.json using fetch"}}
 				fetch('cy-style.json')
 				.then(response => response.json())
 				.then(styles => {
-					//- Apply styles loaded from cy-style.json
+{{rawJSComment "					//- Apply styles loaded from cy-style.json"}}
 					cy.style().fromJson(styles).update();
 				})
 				.catch(error => {
@@ -360,13 +360,13 @@
 				});
 
 
-				// Fetch and load element data from a JSON file
+{{rawJSComment "				// Fetch and load element data from a JSON file"}}
 				fetch('dataCytoMarshall-nokia-MAGc-lab.json')
 					.then(response => response.json())
 					.then(elements => {
-						// Add the elements to the Cytoscape instance
+{{rawJSComment "						// Add the elements to the Cytoscape instance"}}
 						cy.add(elements);
-						//- run layout
+{{rawJSComment "						//- run layout"}}
 						const layout = cy.layout({
 							name: 'cola',
 							nodeSpacing: 5,
@@ -376,7 +376,7 @@
 							maxSimulationTime: 1500
 						});
 						layout.run();
-						// remove node topoviewer
+{{rawJSComment "						// remove node topoviewer"}}
 						topoViewerNode = cy.filter('node[name = "topoviewer"]');
 						topoViewerNode.remove()
 					})
@@ -385,23 +385,23 @@
 					});
 
 
-				// hover text element
+{{rawJSComment "				// hover text element"}}
 				const hoverText = document.createElement('box');
 				hoverText.classList.add('hover-text', 'is-hidden', 'box', 'has-text-weight-normal', 'is-warning', 'is-smallest');
 				hoverText.textContent = 'Launch CloudShell.';
 				document.body.appendChild(hoverText);
 
 
-				//- Toggle the Panel-01 when clicking on the cy container 
+{{rawJSComment "				//- Toggle the Panel-01 when clicking on the cy container "}}
 				document.getElementById('cy').addEventListener('click', function (event) {
-					//- This code will be executed when you click anywhere in the Cytoscape container
-					//- You can add logic specific to the container here
+{{rawJSComment "					//- This code will be executed when you click anywhere in the Cytoscape container"}}
+{{rawJSComment "					//- You can add logic specific to the container here"}}
 
 					if (!nodeClicked && !edgeClicked) {
 						if (!isPanel01Cy) {
 							removeElementById("Panel-01");
-							// Define tabContentFns with custom content generation functions
-							// createNetworkExplorerTab is has corresponding function with similar name.
+{{rawJSComment "							// Define tabContentFns with custom content generation functions"}}
+{{rawJSComment "							// createNetworkExplorerTab is has corresponding function with similar name."}}
 							const tabContentFns = [createNetworkExplorerTab, createNetworkBuilderTab];
 							const tabContentFnsArg = ["createNetworkExplorerTab", "createNetworkBuilderTab"];
 
@@ -418,13 +418,13 @@
 					appendMessage(`"nodeClicked: " ${nodeClicked}`)
 				});
 
-				// Click event listener for nodes
+{{rawJSComment "				// Click event listener for nodes"}}
 				cy.on('click', 'node', function (event) {
-					// This code will be executed when you click on a node
+{{rawJSComment "					// This code will be executed when you click on a node"}}
 					const node = event.target		
 					nodeClicked = true; 
 
-					// You can add logic specific to nodes here
+{{rawJSComment "					// You can add logic specific to nodes here"}}
 					removeElementById("Panel-01");
 					const tabContentFns = [createNodeDetailTab];
 					const tabContentFnsArg = [node];
@@ -435,14 +435,14 @@
 					appendMessage(`"nodeClicked: " ${nodeClicked}`)						
 				});
 
-				// Click event listener for edges
+{{rawJSComment "				// Click event listener for edges"}}
 				cy.on('click', 'edge', function(event) {
-					// This code will be executed when you click on a node
-					// You can add logic specific to nodes here
+{{rawJSComment "					// This code will be executed when you click on a node"}}
+{{rawJSComment "					// You can add logic specific to nodes here"}}
 					const edge = event.target		
 					edgeClicked = true; 
 
-					// You can add logic specific to nodes here
+{{rawJSComment "					// You can add logic specific to nodes here"}}
 					removeElementById("Panel-01");
 					const tabContentFns = [createEdgeDetailTab];
 					tabContentFnsArg = [edge];
@@ -453,27 +453,27 @@
 					appendMessage(`"nodeClicked: " ${nodeClicked}`)
 				});
 			
-				// ######################################################
-				// Start of JS Functions HTML Element Creation section
-				// Start of JS Functions HTML Element Creation section
-				// ######################################################
+{{rawJSComment "				// ######################################################"}}
+{{rawJSComment "				// Start of JS Functions HTML Element Creation section"}}
+{{rawJSComment "				// Start of JS Functions HTML Element Creation section"}}
+{{rawJSComment "				// ######################################################"}}
 
-				// Function to create the Panel-01-nodeDetail content
+{{rawJSComment "				// Function to create the Panel-01-nodeDetail content"}}
 				function createContentPanelAction() {
 					const panel = document.createElement('div');
 					panel.className = 'panel';
 					panel.id = 'Panel-03';
 					panel.style.display = 'block';
-					// Create the panel heading
+{{rawJSComment "					// Create the panel heading"}}
 					const panelHeading = document.createElement('p');
 					panelHeading.className = 'panel-heading is-size-7';
 					panelHeading.textContent = 'Node Detail';
-					// Create the panel tabs
+{{rawJSComment "					// Create the panel tabs"}}
 					const panelTabs = document.createElement('p');
 					panelTabs.className = 'panel-tabs';
-					// Array of tab names
+{{rawJSComment "					// Array of tab names"}}
 					const tabNames = ['Network Explorer', 'Network Builder', 'Tab-03', 'Tab-04', 'Tab-05'];
-					// Create tabs dynamically
+{{rawJSComment "					// Create tabs dynamically"}}
 					for (const name of tabNames) {
 						const tab = document.createElement('a');
 						tab.className = 'toggle-Panel01-tab is-smallest';
@@ -482,18 +482,18 @@
 						tab.textContent = name;
 						panelTabs.appendChild(tab);
 					}
-					// Append the panel heading and tabs to the panel
+{{rawJSComment "					// Append the panel heading and tabs to the panel"}}
 					panel.appendChild(panelHeading);
 					panel.appendChild(panelTabs);
 
-					// Append the panel to the document body or another container of your choice
+{{rawJSComment "					// Append the panel to the document body or another container of your choice"}}
 					document.body.appendChild(panel);
 
 
 				}				
 
-				// Call createContentPanel with the panel ID and an array of tab content functions
-				// The Tab name will be auto generate by the tabFunction names, ie: funtion name: createNetworkExplorerTab --> tab name: NetworkExplorer
+{{rawJSComment "				// Call createContentPanel with the panel ID and an array of tab content functions"}}
+{{rawJSComment "				// The Tab name will be auto generate by the tabFunction names, ie: funtion name: createNetworkExplorerTab --> tab name: NetworkExplorer"}}
 				function createContentPanel(panelId, tabContentFns, tabContentFnsArg, panelHeadingText) {
 					appendMessage(`"createContentPanel reach:`)
 	
@@ -513,7 +513,7 @@
 				  
 					const tabContainers = [];
 					
-					// Check if the tabContentFns have more than 1 element
+{{rawJSComment "					// Check if the tabContentFns have more than 1 element"}}
 					if (tabContentFns.length != 1) {
 						for (let i = 0; i < tabNames.length; i++) {
 						  	const name = tabNames[i];
@@ -531,7 +531,7 @@
 
 						  	tabContainers.push(tabContainer);
 
-						  	// Generate tab content using the provided function from tabContentFns
+{{rawJSComment "						  	// Generate tab content using the provided function from tabContentFns"}}
 						  	if (tabContentFns[i] && typeof tabContentFns[i] === 'function') {
 								const tabContent = tabContentFns[i]();
 								tabContainer.appendChild(tabContent);
@@ -540,20 +540,20 @@
 							panel.appendChild(panelTabs);
 						}
 					}else{
-						// const name = tabNames[0];
-						// const tab = document.createElement('a');
-						// tab.className = 'toggle-Panel01-tab is-smallish has-text-weight-medium';
-						// tab.setAttribute('data-target', `${panelId}-Tab-${name}-Container`); 
-						// tab.id = `${panelId}-Tab-${name}-Button`;
-						// tab.textContent = name.replace(/^create|Tab$/g, ''); 
-						// panelTabs.appendChild(tab);
+{{rawJSComment "						// const name = tabNames[0];"}}
+{{rawJSComment "						// const tab = document.createElement('a');"}}
+{{rawJSComment "						// tab.className = 'toggle-Panel01-tab is-smallish has-text-weight-medium';"}}
+{{rawJSComment "						// tab.setAttribute('data-target', `${panelId}-Tab-${name}-Container`); "}}
+{{rawJSComment "						// tab.id = `${panelId}-Tab-${name}-Button`;"}}
+{{rawJSComment "						// tab.textContent = name.replace(/^create|Tab$/g, ''); "}}
+{{rawJSComment "						// panelTabs.appendChild(tab);"}}
 
 						const tabContainer = document.createElement('div');
 						tabContainer.className = 'panel-tabContainer';
 						tabContainer.id = `${panelId}-Tab-${name}-Container`;
 						tabContainers.push(tabContainer);
 						
-						// Generate tab content using the provided function from tabContentFns
+{{rawJSComment "						// Generate tab content using the provided function from tabContentFns"}}
 						if (tabContentFns[0] && typeof tabContentFns[0] === 'function') {
 							const tabContent = tabContentFns[0](tabContentFnsArg, panelHeadingText); 
 							console.log("tabContentFnsArg")
@@ -566,9 +566,9 @@
 				  
 
 					
-					// Check if the tabContentFns have more than 1 element
+{{rawJSComment "					// Check if the tabContentFns have more than 1 element"}}
 					if (tabContentFns.length != 1) {
-						// initial hide all tab and only opent the first tab
+{{rawJSComment "						// initial hide all tab and only opent the first tab"}}
 						for (const tabContainer of tabContainers) {
 							tabContainer.style.display = 'none';
 						 	panel.appendChild(tabContainer);
@@ -585,12 +585,12 @@
 							const targetTabId = tab.getAttribute('data-target');
 							const selectedTabContainer = document.getElementById(targetTabId);
 
-							// Hide all tab containers
+{{rawJSComment "							// Hide all tab containers"}}
 							tabContainers.forEach(container => {
 							  container.style.display = 'none';
 							});
 
-							// Show the selected tab container
+{{rawJSComment "							// Show the selected tab container"}}
 							selectedTabContainer.style.display = 'block';
 				  
 							console.log(`Panel-${targetTabId} is displayed.`);
@@ -600,14 +600,14 @@
 				}
 				  
 				function createNetworkExplorerTab() {
-					// Create a div container for Tab-01 content
+{{rawJSComment "					// Create a div container for Tab-01 content"}}
 					const tab01Container = document.createElement('div');
 				
-					// Create the first block of content
+{{rawJSComment "					// Create the first block of content"}}
 					const block1 = document.createElement('div');
 					block1.className = 'panel-block';
 				
-					// Create the 'Network Maker' section
+{{rawJSComment "					// Create the 'Network Maker' section"}}
 					const nodeGenerate = document.createElement('div');
 					nodeGenerate.id = 'nodeGenerate';
 					nodeGenerate.className = 'column my-auto';
@@ -633,14 +633,14 @@
 					nodeGenerate.appendChild(generateNodesInput);
 					nodeGenerate.appendChild(generateNodesButton);
 				
-					// block1.appendChild(nodeAttributes);
+{{rawJSComment "					// block1.appendChild(nodeAttributes);"}}
 					block1.appendChild(nodeGenerate);
 				
-					// Create the second block of content
+{{rawJSComment "					// Create the second block of content"}}
 					const block2 = document.createElement('div');
 					block2.className = 'panel-block';
 				
-					// Create the 'Find Node' section
+{{rawJSComment "					// Create the 'Find Node' section"}}
 					const findNodeDiv = document.createElement('div');
 					findNodeDiv.id = 'nodeFind';
 					findNodeDiv.className = 'column my-auto';
@@ -677,7 +677,7 @@
 				
 					block2.appendChild(findNodeDiv);
 				
-					// Create the 'Path Finder' section
+{{rawJSComment "					// Create the 'Path Finder' section"}}
 					const pathFinderDiv = document.createElement('div');
 					pathFinderDiv.id = 'pathFinder';
 					pathFinderDiv.className = 'column my-auto';
@@ -710,11 +710,11 @@
 				
 					block2.appendChild(pathFinderDiv);
 				
-					// Create the fifth block of content
+{{rawJSComment "					// Create the fifth block of content"}}
 					const block5 = document.createElement('div');
 					block5.className = 'panel-block';
 				
-					// Create the 'Close' button
+{{rawJSComment "					// Create the 'Close' button"}}
 					const closePanel01Button = document.createElement('button');
 					closePanel01Button.className = 'button is-smallest-element';
 					closePanel01Button.id = 'closeForm';
@@ -722,13 +722,13 @@
 				
 					block5.appendChild(closePanel01Button);
 				
-					// Append all blocks to the Tab-01 container
+{{rawJSComment "					// Append all blocks to the Tab-01 container"}}
 					tab01Container.appendChild(block1);
 					tab01Container.appendChild(block2);
-					//tab01Container.appendChild(block3);
+{{rawJSComment "					//tab01Container.appendChild(block3);"}}
 					tab01Container.appendChild(block5);
 
-					// call event handler function
+{{rawJSComment "					// call event handler function"}}
 					generateNodesButton.addEventListener('click', generateNodesEvent)
 					nodeFindButton.addEventListener('click', nodeFindEvent)
 					zoomToFitButton.addEventListener('click', zoomToFitEvent)
@@ -739,18 +739,18 @@
 				}
 				  
 				function createNetworkBuilderTab() {
-					// const content = document.createElement('div');
-					// content.textContent = `Contentaaa for 2 `;
-					// return content;
+{{rawJSComment "					// const content = document.createElement('div');"}}
+{{rawJSComment "					// content.textContent = `Contentaaa for 2 `;"}}
+{{rawJSComment "					// return content;"}}
 
-					// Create a div container for Tab-01 content
+{{rawJSComment "					// Create a div container for Tab-01 content"}}
 					const tab02Container = document.createElement('div');
 				
-					// Create the first block of content
+{{rawJSComment "					// Create the first block of content"}}
 					const block1 = document.createElement('div');
 					block1.className = 'panel-block';
 				
-					// Create the 'Node Spawner' section
+{{rawJSComment "					// Create the 'Node Spawner' section"}}
 					const nodeAttributes = document.createElement('div');
 					nodeAttributes.id = 'nodeAttributes';
 					nodeAttributes.className = 'column my-auto';
@@ -782,7 +782,7 @@
 				
 					block1.appendChild(nodeAttributes);
 				
-					// Create the 'Network Builder' section
+{{rawJSComment "					// Create the 'Network Builder' section"}}
 					const networkBuilderkDiv = document.createElement('div');
 					networkBuilderkDiv.id = 'networkBuilder';
 					networkBuilderkDiv.className = 'column my-auto';
@@ -815,11 +815,11 @@
 				
 					block1.appendChild(networkBuilderkDiv);
 				
-					// Create the fifth block of content
+{{rawJSComment "					// Create the fifth block of content"}}
 					const block5 = document.createElement('div');
 					block5.className = 'panel-block';
 				
-					// Create the 'Close' button
+{{rawJSComment "					// Create the 'Close' button"}}
 					const closePanel01Button = document.createElement('button');
 					closePanel01Button.className = 'button is-smallest-element';
 					closePanel01Button.id = 'closeForm';
@@ -827,11 +827,11 @@
 				
 					block5.appendChild(closePanel01Button);
 				
-					// Append all blocks to the Tab-01 container
+{{rawJSComment "					// Append all blocks to the Tab-01 container"}}
 					tab02Container.appendChild(block1);
 					tab02Container.appendChild(block5);
 				
-					// call event handler function
+{{rawJSComment "					// call event handler function"}}
 					spawnNodeButton.addEventListener('click', spawnNodeEvent)
 					closePanel01Button.addEventListener('click', closePanel01Event)
 
@@ -839,7 +839,7 @@
 				}
 
 				function createPanelBlockContainer(tabContainerId) {
-					// this is helper function to create PanelBlock-Container
+{{rawJSComment "					// this is helper function to create PanelBlock-Container"}}
 					const panelBlock = document.createElement('div');
 					panelBlock.id = `panelBlock-${tabContainerId}`
 					panelBlock.className = 'panel-block py-2';
@@ -855,69 +855,69 @@
 				}
 
 				function createPanelBlockForm(PanelColumnsConfig, panelBlock, divPanelBlock) {
-					// This is helper function to create PanelBlock-Form-Content
-					// Usage: 
-					// // Panel Block 01
-					// // Start of mandatory panelContent containercontainer
-					// const panelBlock01 = document.createElement('div');
-					// panelBlock01.id = `panelBlock01-${modifiedHeaderText}`
-					// panelBlock01.className = 'panel-block p-0';
+{{rawJSComment "					// This is helper function to create PanelBlock-Form-Content"}}
+{{rawJSComment "					// Usage: "}}
+{{rawJSComment "					// // Panel Block 01"}}
+{{rawJSComment "					// // Start of mandatory panelContent containercontainer"}}
+{{rawJSComment "					// const panelBlock01 = document.createElement('div');"}}
+{{rawJSComment "					// panelBlock01.id = `panelBlock01-${modifiedHeaderText}`"}}
+{{rawJSComment "					// panelBlock01.className = 'panel-block p-0';"}}
 				
-					// const divPanelBlock01 = document.createElement('div');
-					// divPanelBlock01.id = `${panelBlock01.id}-divPanelBlock01-`
-					// divPanelBlock01.className = 'column ';
-					// // End of mandatory panelContent containercontainer
+{{rawJSComment "					// const divPanelBlock01 = document.createElement('div');"}}
+{{rawJSComment "					// divPanelBlock01.id = `${panelBlock01.id}-divPanelBlock01-`"}}
+{{rawJSComment "					// divPanelBlock01.className = 'column ';"}}
+{{rawJSComment "					// // End of mandatory panelContent containercontainer"}}
 				
-					// const Panel01ColumnsConfig = [
-					// 	{ idSuffix: 'labelNodeName', textContent: 'Node Name', className: 'link-impairment-widht', columntInputType: 'field', columntInputContent: node.data('name'), 						
-					// 		addonsContent: [
-					// 		{
-					// 			name: 'blue',
-					// 			iconClass: 'fas fa-terminal'
-					// 		},
-					// 		{
-					// 			name: 'green',
-					// 			iconClass: 'fas fa-copy'
-					// 		}]},
-					// 	{ idSuffix: 'labelKind', textContent: 'Kind', className: 'link-impairment-widht', columntInputType: 'label', columntInputContent: node.data('extraData').kind },
-					// 	{ idSuffix: 'labelImage', textContent: 'Image', className: 'link-impairment-widht', columntInputType: 'label', columntInputContent: node.data('extraData').image },
-					// 	{ idSuffix: 'labelManagementIPv4', textContent: 'Management IPv4', className: 'link-impairment-widht', columntInputType: 'label', columntInputContent: node.data('extraData').mgmtIpv4Addresss },
-					// 	{ idSuffix: 'labelManagement IPv6', textContent: 'Management IPv6', className: 'link-impairment-widht', columntInputType: 'label', columntInputContent: node.data('extraData').mgmtIpv6Addresss },
-					// 	{ idSuffix: 'labelFqdn', textContent: 'FQDN', className: 'link-impairment-widht', columntInputType: 'label', columntInputContent: node.data('extraData').fqdn },
-					// 	{ idSuffix: 'labelGroup', textContent: 'Group', className: 'link-impairment-widht', columntInputType: 'label', columntInputContent: node.data('extraData').group },
-					// 	{ idSuffix: 'labelTopoviewerRole', textContent: 'Topoviewer Role', className: 'link-impairment-widht', columntInputType: 'label', columntInputContent: node.data('topoviewerRole') },					
-					//  { idSuffix: 'labelLinkImpairment', textContent: 'Link Impairment', className: 'link-impairment-widht', columntInputType: 'field', columntInputContent: 'Apply', columntInputAttribute: 'enabled', // columntInputAttribute default is disabled
-					//  addonsContent: [
-					//  	{
-					//  		name: 'blue',
-					//  		iconClass: 'fas fa-terminal'
-					//  	},
-					//  	{
-					//  		name: 'green',
-					//  		iconClass: 'fas fa-copy'
-					//  	}]},
-					//  ];
-					// ];
+{{rawJSComment "					// const Panel01ColumnsConfig = ["}}
+{{rawJSComment "					// 	{ idSuffix: 'labelNodeName', textContent: 'Node Name', className: 'link-impairment-widht', columntInputType: 'field', columntInputContent: node.data('name'), 						"}}
+{{rawJSComment "					// 		addonsContent: ["}}
+{{rawJSComment "					// 		{"}}
+{{rawJSComment "					// 			name: 'blue',"}}
+{{rawJSComment "					// 			iconClass: 'fas fa-terminal'"}}
+{{rawJSComment "					// 		},"}}
+{{rawJSComment "					// 		{"}}
+{{rawJSComment "					// 			name: 'green',"}}
+{{rawJSComment "					// 			iconClass: 'fas fa-copy'"}}
+{{rawJSComment "					// 		}]},"}}
+{{rawJSComment "					// 	{ idSuffix: 'labelKind', textContent: 'Kind', className: 'link-impairment-widht', columntInputType: 'label', columntInputContent: node.data('extraData').kind },"}}
+{{rawJSComment "					// 	{ idSuffix: 'labelImage', textContent: 'Image', className: 'link-impairment-widht', columntInputType: 'label', columntInputContent: node.data('extraData').image },"}}
+{{rawJSComment "					// 	{ idSuffix: 'labelManagementIPv4', textContent: 'Management IPv4', className: 'link-impairment-widht', columntInputType: 'label', columntInputContent: node.data('extraData').mgmtIpv4Addresss },"}}
+{{rawJSComment "					// 	{ idSuffix: 'labelManagement IPv6', textContent: 'Management IPv6', className: 'link-impairment-widht', columntInputType: 'label', columntInputContent: node.data('extraData').mgmtIpv6Addresss },"}}
+{{rawJSComment "					// 	{ idSuffix: 'labelFqdn', textContent: 'FQDN', className: 'link-impairment-widht', columntInputType: 'label', columntInputContent: node.data('extraData').fqdn },"}}
+{{rawJSComment "					// 	{ idSuffix: 'labelGroup', textContent: 'Group', className: 'link-impairment-widht', columntInputType: 'label', columntInputContent: node.data('extraData').group },"}}
+{{rawJSComment "					// 	{ idSuffix: 'labelTopoviewerRole', textContent: 'Topoviewer Role', className: 'link-impairment-widht', columntInputType: 'label', columntInputContent: node.data('topoviewerRole') },					"}}
+{{rawJSComment "					//  { idSuffix: 'labelLinkImpairment', textContent: 'Link Impairment', className: 'link-impairment-widht', columntInputType: 'field', columntInputContent: 'Apply', columntInputAttribute: 'enabled', // columntInputAttribute default is disabled"}}
+{{rawJSComment "					//  addonsContent: ["}}
+{{rawJSComment "					//  	{"}}
+{{rawJSComment "					//  		name: 'blue',"}}
+{{rawJSComment "					//  		iconClass: 'fas fa-terminal'"}}
+{{rawJSComment "					//  	},"}}
+{{rawJSComment "					//  	{"}}
+{{rawJSComment "					//  		name: 'green',"}}
+{{rawJSComment "					//  		iconClass: 'fas fa-copy'"}}
+{{rawJSComment "					//  	}]},"}}
+{{rawJSComment "					//  ];"}}
+{{rawJSComment "					// ];"}}
 				
-					// createPanelBlockForm(Panel01ColumnsConfig, panelBlock01, divPanelBlock01)
+{{rawJSComment "					// createPanelBlockForm(Panel01ColumnsConfig, panelBlock01, divPanelBlock01)"}}
 				
 					PanelColumnsConfig.forEach(config => {
-						// Create columnContainer
+{{rawJSComment "						// Create columnContainer"}}
 						const columnContainer = document.createElement('div');
 						columnContainer.id = `${divPanelBlock.id}-columnContainer${config.idSuffix}`
 						columnContainer.className = 'column my-auto';
 				
-						// Create panelContent
+{{rawJSComment "						// Create panelContent"}}
 						const panelContent = document.createElement('div');
 						panelContent.id = `${columnContainer.id}-panelContent${config.idSuffix}`
 						panelContent.className = 'panel-content';
 				
-						// Create columnsPanelContent container
+{{rawJSComment "						// Create columnsPanelContent container"}}
 						const columnsPanelContent = document.createElement('div');
 						columnsPanelContent.className = 'columns py-auto';
 						columnsPanelContent.id = `${panelContent.id}-columnsPanelContent${config.idSuffix}`
 				
-						// Create labelColumn column
+{{rawJSComment "						// Create labelColumn column"}}
 						const labelColumn = document.createElement('div');
 						labelColumn.className = 'column is-4 p-1';
 						labelColumn.id = `${columnsPanelContent.id}-labelColumn${config.idSuffix}`
@@ -930,7 +930,7 @@
 						labelColumn.appendChild(labelElement);
 						columnsPanelContent.appendChild(labelColumn);
 				
-						// Create inputColumn column
+{{rawJSComment "						// Create inputColumn column"}}
 						if (config.columntInputType == 'label'){
 							const inputColumn = document.createElement('div');
 							inputColumn.className = `column is-8 p-1 pl-3`;
@@ -979,7 +979,7 @@
 							inputElement.className = `field has-addons`;
 							inputElement.id = `${inputColumn.id}-label${config.idSuffix}`
 
-							// create addon input
+{{rawJSComment "							// create addon input"}}
 							const controlId = `${inputElement.id}-control`;
 							const control = document.createElement('p');
 							control.className = 'control';
@@ -998,19 +998,19 @@
 							control.appendChild(input);
 							inputElement.appendChild(control);
 
-							// create addon button
+{{rawJSComment "							// create addon button"}}
 							addons = config.addonsContent
 
 							for (let i = 0; i < addons.length; i++) {
 								const addon = addons[i];
-								const controlId = `${inputElement.id}-control${addon.name}`;
+								const controlId = `${inputElement.id}-control${addon.name}}`;
 								const control = document.createElement('p');
 								control.className = 'control';
 								control.id = controlId;
 							  
-								// Create a button element
+{{rawJSComment "								// Create a button element"}}
 								const button = document.createElement('a'); 
-								button.id = `${controlId}-button${addon.name}`;
+								button.id = `${controlId}-button${addon.name}}`;
 								button.className = `button is-light is-outlined px-3 is-smallest-element is-${addon.name === 'blue' ? 'link' : 'success'}`;
 
 								if (addon.hrefFunction == 'link'){
@@ -1020,11 +1020,11 @@
 									button.href = addon.hrefLink;
 									button.target = '_blank';
 									button.addEventListener('click', function(event) {
-										// Prevent the default behavior of the anchor element (opening a new tab)
+{{rawJSComment "										// Prevent the default behavior of the anchor element (opening a new tab)"}}
 										urlToCopy = addon.hrefLink;
 										event.preventDefault();
 										
-										// Create a temporary input element to copy the URL to the clipboard
+{{rawJSComment "										// Create a temporary input element to copy the URL to the clipboard"}}
 										const tempInput = document.createElement('input');
 										tempInput.value = urlToCopy;
 										document.body.appendChild(tempInput);
@@ -1032,7 +1032,7 @@
 										document.execCommand('copy');
 										document.body.removeChild(tempInput);
 										
-										// Provide user feedback (e.g., alert or toast) that the URL has been copied
+{{rawJSComment "										// Provide user feedback (e.g., alert or toast) that the URL has been copied"}}
 										bulmaToast.toast({ 
 											message: `SSH command is lit 🔥 and copied to your clipboard, ready to drop it in your terminal console like a boss! 🚀💻`,
 											type: 'is-warning is-size-6 p-3',
@@ -1042,25 +1042,12 @@
 										})
 										appendMessage(`SSH command is lit 🔥 and copied to your clipboard, ready to drop it in your terminal console like a boss! 🚀💻`)
 									});
-								}else if (addon.hrefFunction == 'linkImpairment'){ 
-									if (addon.hrefFunctionArg == 'start'){
-										button.classList.add('impairment-start')						
-										button.addEventListener('click', () => {
-											console.log('impairmentStartButton is clicked')
-											linkImpairmentManager('start', addon.hrefLink)  
-										});
-									}
-									else if (addon.hrefFunctionArg == 'stop'){
-										button.classList.add('impairment-stop')
-										button.addEventListener('click', () => {
-											console.log('impairmentStoptButton is clicked')
-											linkImpairmentManager('stop', addon.hrefLink) 
-										});
-									}
+								}else if (addon.hrefFunction == 'callBackEnd'){
+									callGoFunction(addon.hrefFunctionArg[0], addon.hrefFunctionArg[1])
 								}
 								
 
-							  	// Create a icon element
+{{rawJSComment "							  	// Create a icon element"}}
 								const icon = document.createElement('span');
 								icon.className = 'icon is-small';
 								const iconElement = document.createElement('i');
@@ -1069,17 +1056,17 @@
 
 								button.appendChild(icon);
 
-								// Create a hover text paragraph element
+{{rawJSComment "								// Create a hover text paragraph element"}}
 								const hoverText = document.querySelector('.hover-text');
 
-								// Add event listeners for hover behavior
+{{rawJSComment "								// Add event listeners for hover behavior"}}
 								button.addEventListener('mouseover', () => {
-									// Calculate the position for the hover text
+{{rawJSComment "									// Calculate the position for the hover text"}}
 									const rect = button.getBoundingClientRect();
 									const top = rect.top - hoverText.offsetHeight + 25; 
 									const left = rect.left + (button.offsetWidth - hoverText.offsetWidth) / 2; 
 
-									// Set the position and show the hover text
+{{rawJSComment "									// Set the position and show the hover text"}}
 									hoverText.style.top = `${top}px`;
 									hoverText.style.left = `${left}px`;
 									hoverText.classList.remove('is-hidden');
@@ -1087,7 +1074,7 @@
 								});
 
 								button.addEventListener('mouseout', () => {
-									// Hide the hover text
+{{rawJSComment "									// Hide the hover text"}}
 									hoverText.classList.add('is-hidden');
 								});
 
@@ -1112,12 +1099,12 @@
 					
 				function createNodeDetailTab(node, panelHeadingText) {
 					const modifiedHeaderText = panelHeadingText.replace(/\s+/g, '');
-					// Create the tab-container 
+{{rawJSComment "					// Create the tab-container "}}
 					const tabContainer = document.createElement('div');
 					tabContainer.id = `tabContainer-${modifiedHeaderText}`
 					tabContainer.className = 'panel-tabContainer';
 
-					// Panel Block 01
+{{rawJSComment "					// Panel Block 01"}}
 					panelBlockContainer = createPanelBlockContainer(tabContainer.id)
 					panelBlock01 = panelBlockContainer.panelBlock
 					divPanelBlock01 = panelBlockContainer.divPanelBlock
@@ -1153,10 +1140,10 @@
 
 					createPanelBlockForm(Panel01ColumnsConfig, panelBlock01, divPanelBlock01)
 						
-					// Per panelBlock divPanelBlock01 --> panelBlock01
+{{rawJSComment "					// Per panelBlock divPanelBlock01 --> panelBlock01"}}
 					panelBlock01.appendChild(divPanelBlock01)
 				
-					// --> tabContainer
+{{rawJSComment "					// --> tabContainer"}}
 					tabContainer.appendChild(panelBlock01)
 
 					return tabContainer
@@ -1165,12 +1152,12 @@
 				function createEdgeDetailTab(edge, panelHeadingText) {
 					const modifiedHeaderText = panelHeadingText.replace(/\s+/g, '');
 				
-					// Create the tab-container 
+{{rawJSComment "					// Create the tab-container "}}
 					const tabContainer = document.createElement('div');
 					tabContainer.id = `tabContainer-${modifiedHeaderText}`
 					tabContainer.className = 'panel-tabContainer';
 
-					// Panel Block 01
+{{rawJSComment "					// Panel Block 01"}}
 					panelBlockContainer = createPanelBlockContainer(tabContainer.id)
 					panelBlock01 = panelBlockContainer.panelBlock
 					divPanelBlock01 = panelBlockContainer.divPanelBlock
@@ -1185,11 +1172,11 @@
 
 					createPanelBlockForm(Panel01ColumnsConfig, panelBlock01, divPanelBlock01)
 
-					// append divPanelBlock02 --> panelBlock02 --> tabContainer
+{{rawJSComment "					// append divPanelBlock02 --> panelBlock02 --> tabContainer"}}
 					panelBlock01.append(divPanelBlock01)
 					tabContainer.appendChild(panelBlock01)
 				
-					// Panel Block 02
+{{rawJSComment "					// Panel Block 02"}}
 					panelBlockContainer = createPanelBlockContainer(tabContainer.id)
 					panelBlock02 = panelBlockContainer.panelBlock
 					divPanelBlock02 = panelBlockContainer.divPanelBlock
@@ -1235,64 +1222,45 @@
 			
 					createPanelBlockForm(Panel02ColumnsConfig, panelBlock02, divPanelBlock02)
 
-					// append divPanelBlock02 --> panelBlock02 --> tabContainer
+{{rawJSComment "					// append divPanelBlock02 --> panelBlock02 --> tabContainer"}}
 					panelBlock02.append(divPanelBlock02)
 					tabContainer.appendChild(panelBlock02)
 				
 
-					// Panel Block 03
+{{rawJSComment "					// Panel Block 03"}}
 					panelBlockContainer = createPanelBlockContainer(tabContainer.id)
 					panelBlock03 = panelBlockContainer.panelBlock
 					divPanelBlock03 = panelBlockContainer.divPanelBlock
 
 					const Panel03ColumnsConfig = [
-						{ idSuffix: 'labelDelay', textContent: 'Delay (ms)', className: 'link-impairment-widht', columntInputType: 'input', columntInputContent: '1000' },  
+						{ idSuffix: 'labelDelay', textContent: 'Delay (ms)', className: 'link-impairment-widht', columntInputType: 'input', columntInputContent: '0' },
 						{ idSuffix: 'labelJitter', textContent: 'Jitter (ms', className: 'link-impairment-widht', columntInputType: 'input', columntInputContent: '0' },
 						{ idSuffix: 'labelRate', textContent: 'Rate (kbps', className: 'link-impairment-widht', columntInputType: 'input', columntInputContent: '0' },
 						{ idSuffix: 'labelLoss', textContent: 'Loss (%)', className: 'link-impairment-widht', columntInputType: 'input', columntInputContent: '0' },
-						{ idSuffix: 'labelSource', textContent: 'Impair Source Endpoint', className: 'link-impairment-widht', columntInputType: 'field', columntInputContent: edge.data('source') + "::" + edge.data('sourceEndpoint'), columntInputAttribute: 'disabled',  
+						{ idSuffix: 'labelDuration', textContent: 'Duration (min.)', className: 'link-impairment-widht', columntInputType: 'field', columntInputContent: '1', columntInputAttribute: 'enabled', 
 							addonsContent: [
 							{
 								name: 'blue',
 								iconClass: 'fas fa-play',
 								hoverMessage: 'Start link impairment',
-								hrefFunction: 'linkImpairment',
-								hrefLink: `clab tools netem set -n ${edge.data('extraData').clabSourceLongName} -i ${edge.data("sourceEndpoint")}`, 
-								hrefFunctionArg: 'start' 
+								hrefFunction: 'callBackEnd',
+								hrefLink: ``,
+								hrefFunctionArg: [`clab tools netem set -n ${edge.data('extraData').clabSourceLongName} -i ${edge.data("sourceEndpoint")} --loss 10`, 'stop']
 							},
 							{
 								name: 'blue',
 								iconClass: 'fas fa-stop',
 								hoverMessage: 'Stop link impairment',
-								hrefFunction: 'linkImpairment',
-								hrefLink: `clab tools netem set -n ${edge.data('extraData').clabSourceLongName} -i ${edge.data("sourceEndpoint")}`,
-								hrefFunctionArg: 'stop'
-							}]
-						},
-						{ idSuffix: 'labelTarget', textContent: 'Impair Target Endpoint', className: 'link-impairment-widht', columntInputType: 'field', columntInputContent: edge.data('target') + "::" + edge.data('targetEndpoint'), columntInputAttribute: 'disabled',  
-							addonsContent: [
-							{
-								name: 'blue',
-								iconClass: 'fas fa-play',
-								hoverMessage: 'Start link impairment',
-								hrefFunction: 'linkImpairment',
-								hrefLink: `clab tools netem set -n ${edge.data('extraData').clabTargetLongName} -i ${edge.data("targetEndpoint")}`, 
-								hrefFunctionArg: 'start' 
-							},
-							{
-								name: 'blue',
-								iconClass: 'fas fa-stop',
-								hoverMessage: 'Stop link impairment',
-								hrefFunction: 'linkImpairment',
-								hrefLink: `clab tools netem set -n ${edge.data('extraData').clabTargetLongName} -i ${edge.data("targetEndpoint")}`,
-								hrefFunctionArg: 'stop'
+								hrefFunction: 'callBackEnd',
+								hrefLink: ``,
+								hrefFunctionArg: [`clab tools netem set -n ${edge.data('extraData').clabSourceLongName} -i ${edge.data("sourceEndpoint")}`, 'stop']
 							}]
 						},
 						];
 
 					createPanelBlockForm(Panel03ColumnsConfig, panelBlock03, divPanelBlock03)
 
-					// append divPanelBlock03 --> panelBlock03 --> tabContainer
+{{rawJSComment "					// append divPanelBlock03 --> panelBlock03 --> tabContainer"}}
 					panelBlock03.appendChild(divPanelBlock03)
 					tabContainer.appendChild(panelBlock03)
 				
@@ -1301,37 +1269,37 @@
 				}
 				
 				
-				// ######################################################
-				// END of JS Functions HTML Element Creation section
-				// END of JS Functions HTML Element Creation section
-				// ######################################################
+{{rawJSComment "				// ######################################################"}}
+{{rawJSComment "				// END of JS Functions HTML Element Creation section"}}
+{{rawJSComment "				// END of JS Functions HTML Element Creation section"}}
+{{rawJSComment "				// ######################################################"}}
 
 
-				// ######################################################
-				// START of JS Functions Event Handling section
-				// START of JS Functions Event Handling section
-				// ######################################################
+{{rawJSComment "				// ######################################################"}}
+{{rawJSComment "				// START of JS Functions Event Handling section"}}
+{{rawJSComment "				// START of JS Functions Event Handling section"}}
+{{rawJSComment "				// ######################################################"}}
 
 				function generateNodesEvent(event) {
-					// Your event handling logic here
-					//- Add a click event listener to the 'Generate' button
-					//- Get the number of node from the input field  
+{{rawJSComment "					// Your event handling logic here"}}
+{{rawJSComment "					//- Add a click event listener to the 'Generate' button"}}
+{{rawJSComment "					//- Get the number of node from the input field  "}}
 					console.log('generateNodesButton clicked')
 					const numNodes = document.getElementById('generateNodesInput').value;
 					console.log(numNodes)
-					//- Check if the number of node is empty  
+{{rawJSComment "					//- Check if the number of node is empty  "}}
 					if (numNodes === null) {
-						//- if node number empty do nothing 
+{{rawJSComment "						//- if node number empty do nothing "}}
 						return;
 					}
 					const numNodesToGenerate = parseInt(numNodes, 10);
-					//- Check if the number of node is positive 
+{{rawJSComment "					//- Check if the number of node is positive "}}
 					if (isNaN(numNodesToGenerate) || numNodesToGenerate <= 0) {
-						//- Invalid input
+{{rawJSComment "						//- Invalid input"}}
 						appendMessage("Error:" + "Bro, you gotta enter a valid positive number, come on!");
 						return;
 					}
-					//- Generate nodes with random positions
+{{rawJSComment "					//- Generate nodes with random positions"}}
 					for (let i = 0; i < numNodesToGenerate; i++) {
 						const nodeName = `node-${i + 1}`;
 						const newNode = {
@@ -1345,18 +1313,18 @@
 								y: Math.random() * 400
 							}
 						};
-						//-cy.add(newNode);
+{{rawJSComment "						//-cy.add(newNode);"}}
 						try {
 							cy.add(newNode);
-							//- throw new Error('This is an example exception');
+{{rawJSComment "							//- throw new Error('This is an example exception');"}}
 						} catch (error) {
-							//- Log the exception to the console
+{{rawJSComment "							//- Log the exception to the console"}}
 							console.error("An exception occurred:", error);
-							//- Log the exception to notification message to the textarea 
+{{rawJSComment "							//- Log the exception to notification message to the textarea "}}
 							appendMessage("An exception occurred:" + error);
 						}
 					}
-					//- Generate random edges between nodes
+{{rawJSComment "					//- Generate random edges between nodes"}}
 					for (let i = 0; i < numNodesToGenerate; i++) {
 						const sourceNode = `node-${i + 1}`;
 						const targetNode = `node-${Math.floor(Math.random() * numNodesToGenerate) + 1}`;
@@ -1372,16 +1340,16 @@
 							};
 							try {
 								cy.add(newEdge);
-								//- throw new Error('This is an example exception');
+{{rawJSComment "								//- throw new Error('This is an example exception');"}}
 							} catch (error) {
-								//- Log the exception to the console
+{{rawJSComment "								//- Log the exception to the console"}}
 								console.error("An exception occurred:", error);
-								//- Log the exception to notification message to the textarea 
+{{rawJSComment "								//- Log the exception to notification message to the textarea "}}
 								appendMessage("An exception occurred::" + error);
 							}
 						}
 					}
-					//- run layout
+{{rawJSComment "					//- run layout"}}
 					const layout = cy.layout({
 						name: 'cola',
 						nodeSpacing: 5,
@@ -1391,29 +1359,29 @@
 						maxSimulationTime: 1500
 					});
 					layout.run();
-					//-//- Append a notification message to the textarea
+{{rawJSComment "					//-//- Append a notification message to the textarea"}}
 					console.log("Info: " + `Boom! Just generated ${numNodesToGenerate} nodes with some random edges. That's how we roll!`);
 					appendMessage("Info: " + `Boom! Just generated ${numNodesToGenerate} nodes with some random edges. That's how we roll!`);
 				}
 
 				function spawnNodeEvent(event) {
-					//- Add a click event listener to the 'Submit' button in the hidden form
-					//- Get the node name from the input field 
+{{rawJSComment "					//- Add a click event listener to the 'Submit' button in the hidden form"}}
+{{rawJSComment "					//- Get the node name from the input field "}}
 					const nodeName = document.getElementById('nodeName').value;
 					console.log(nodeName)
-					//- Check if a node name is empty 
+{{rawJSComment "					//- Check if a node name is empty "}}
 					if (nodeName == "") {
-						//- append message in textArea 
+{{rawJSComment "						//- append message in textArea "}}
 						appendMessage('Error: Enter node name.');
 						return;
 					}
-					//- Check if a node with the same name already exists 
+{{rawJSComment "					//- Check if a node with the same name already exists "}}
 					if (cy.$(`node[id = "${nodeName}"]`).length > 0) {
-						//- append message in textArea 
+{{rawJSComment "						//- append message in textArea "}}
 						appendMessage('Error: Node with this name already exists.');
 						return;
 					}
-					//- Create a new node element 
+{{rawJSComment "					//- Create a new node element "}}
 					const newNode = {
 						group: 'nodes',
 						data: {
@@ -1422,9 +1390,9 @@
 							label: nodeName
 						}
 					};
-					//- Add the new node to Cytoscape.js 
+{{rawJSComment "					//- Add the new node to Cytoscape.js "}}
 					cy.add(newNode);
-					//- Randomize the positions and center the graph 
+{{rawJSComment "					//- Randomize the positions and center the graph "}}
 					const layout = cy.layout({
 						name: 'cola',
 						nodeSpacing: 5,
@@ -1434,31 +1402,31 @@
 						maxSimulationTime: 1500
 					});
 					layout.run();
-					//- Append a notification message to the textarea 
+{{rawJSComment "					//- Append a notification message to the textarea "}}
 					console.log("Info: " + `Nice! Node "${nodeName}" added successfully.`);
 					appendMessage("Info: " + `Nice! Node "${nodeName}" added successfully.`);
 				}
 
 				function nodeFindEvent(event) {
-					//- Get a reference to your Cytoscape instance (assuming it's named 'cy')
-					//- const cy = window.cy; //- Replace 'window.cy' with your actual Cytoscape instance
-					//- Find the node with the specified name
+{{rawJSComment "					//- Get a reference to your Cytoscape instance (assuming it's named 'cy')"}}
+{{rawJSComment "					//- const cy = window.cy; //- Replace 'window.cy' with your actual Cytoscape instance"}}
+{{rawJSComment "					//- Find the node with the specified name"}}
 					const nodeName = document.getElementById('nodeFindInput').value;
 					const node = cy.$(`node[name = "${nodeName}"]`);
-					//- Check if the node exists
+{{rawJSComment "					//- Check if the node exists"}}
 					if (node.length > 0) {
-						// console
+{{rawJSComment "						// console"}}
 						console.log("Info: " + "Sweet! Node \"" + nodeName + "\" is in the house.");
 						appendMessage("Info: " + "Sweet! Node \"" + nodeName + "\" is in the house.");
-						//- Apply a highlight style to the node
+{{rawJSComment "						//- Apply a highlight style to the node"}}
 						node.style({
 							'border-color': 'red',
 							'border-width': '2px',
 							'background-color': 'yellow'
 						});
-						//- Zoom out on the node
+{{rawJSComment "						//- Zoom out on the node"}}
 						cy.fit()
-						//- Zoom in on the node
+{{rawJSComment "						//- Zoom in on the node"}}
 						cy.animate({
 							zoom: {
 								level: 5,
@@ -1483,72 +1451,72 @@
 				function zoomToFitEvent(event) {
 					const initialZoom = cy.zoom();
 					appendMessage(`Bro, initial zoom level is "${initialZoom}".`);
-					//- Fit all nodes possible with padding
+{{rawJSComment "					//- Fit all nodes possible with padding"}}
 					cy.fit();
 					const currentZoom = cy.zoom();
 					appendMessage(`And now the zoom level is "${currentZoom}".`);
 				}
 
 				function pathFinderDijkstraEvent(event) {
-					// Usage example:
-					// highlightShortestPath('node-a', 'node-b'); // Replace with your source and target node IDs
-					//- Function to get the default node style from cy-style.json
-					//- weight: (edge) => 1, // You can adjust the weight function if needed
-					//- weight: (edge) => edge.data('distance')
+{{rawJSComment "					// Usage example:"}}
+{{rawJSComment "					// highlightShortestPath('node-a', 'node-b'); // Replace with your source and target node IDs"}}
+{{rawJSComment "					//- Function to get the default node style from cy-style.json"}}
+{{rawJSComment "					//- weight: (edge) => 1, // You can adjust the weight function if needed"}}
+{{rawJSComment "					//- weight: (edge) => edge.data('distance')"}}
 								
-					// Remove existing highlight from all edges
+{{rawJSComment "					// Remove existing highlight from all edges"}}
 					cy.edges().forEach(edge => {
 						edge.removeClass('spf');
 							});
 
-					// Get the node sourceNodeId from pathFinderSourceNodeInput and targetNodeId from pathFinderTargetNodeInput  
+{{rawJSComment "					// Get the node sourceNodeId from pathFinderSourceNodeInput and targetNodeId from pathFinderTargetNodeInput  "}}
 					const sourceNodeId = document.getElementById('pathFinderSourceNodeInput').value;
 					const targetNodeId = document.getElementById('pathFinderTargetNodeInput').value;
 
-					// Assuming you have 'cy' as your Cytoscape instance
+{{rawJSComment "					// Assuming you have 'cy' as your Cytoscape instance"}}
 					const sourceNode = cy.$(`node[id="${sourceNodeId}"]`);
 					const targetNode = cy.$(`node[id="${targetNodeId}"]`);
 			
 					console.log("Info: " + "Let's find the path from-" + sourceNodeId + "-to-"  + targetNodeId + "!");
 					appendMessage("Info: " + "Let's find the path from-" + sourceNodeId + "-to-"  + targetNodeId + "!");
 			
-					// Check if both nodes exist
+{{rawJSComment "					// Check if both nodes exist"}}
 					if (sourceNode.length === 0 || targetNode.length === 0) {
 						console.error(`Bro, couldn't find the source or target node you specified. Double-check the node names.`);
 						appendMessage(`Bro, couldn't find the source or target node you specified. Double-check the node names.`);
 						return;
 					}
 			
-			    	// Get the Dijkstra result with the shortest path
+{{rawJSComment "			    	// Get the Dijkstra result with the shortest path"}}
 			    	const dijkstraResult = cy.elements().dijkstra({
 			    		root: sourceNode,
 			    		weight: (edge) => 1, 
-			    		// Use the custom weight attribute
-			    		// weight: edge => edge.data('customWeight'),
+{{rawJSComment "			    		// Use the custom weight attribute"}}
+{{rawJSComment "			    		// weight: edge => edge.data('customWeight'),"}}
                     
 			    	});
-			    	// Get the shortest path from Dijkstra result
+{{rawJSComment "			    	// Get the shortest path from Dijkstra result"}}
 			    	const shortestPathEdges = dijkstraResult.pathTo(targetNode);
                     console.log(shortestPathEdges)
                 
-                    // Check if there is a valid path (shortestPathEdges is not empty)
+{{rawJSComment "                    // Check if there is a valid path (shortestPathEdges is not empty)"}}
                     if (shortestPathEdges.length > 1) {
                         
-			    		//// Apply a style to highlight the shortest path edges
-			    		// shortestPathEdges.style({
-			    		//	'line-color': 'red', 
-			    		//	'line-style': 'solid', 
-			    		// });
+{{rawJSComment "			    		//// Apply a style to highlight the shortest path edges"}}
+{{rawJSComment "			    		// shortestPathEdges.style({"}}
+{{rawJSComment "			    		//	'line-color': 'red', "}}
+{{rawJSComment "			    		//	'line-style': 'solid', "}}
+{{rawJSComment "			    		// });"}}
                         
-			    		// Highlight the shortest path
+{{rawJSComment "			    		// Highlight the shortest path"}}
 			    		shortestPathEdges.forEach(edge => {
 			    			edge.addClass('spf'); 
 			    				});
                             
-			    		//- Zoom out on the node
+{{rawJSComment "			    		//- Zoom out on the node"}}
 			    		cy.fit()
                             
-			    		//- Zoom in on the node
+{{rawJSComment "			    		//- Zoom in on the node"}}
 			    		cy.animate({
 			    			zoom: {
 			    				level: 5,
@@ -1563,7 +1531,7 @@
 			    			},
 			    			duration: 1500
 			    		});
-			    		// throw log
+{{rawJSComment "			    		// throw log"}}
 			    		console.log("Info: " + "Yo, check it out! Shorthest Path from-" + sourceNodeId + "-to-"  + targetNodeId + " has been found.");
 			    		appendMessage("Info: " + "Yo, check it out! Shorthest Path from-" + sourceNodeId + "-to-"  + targetNodeId + " has been found, below is the path trace..");
 			    		console.log(shortestPathEdges)
@@ -1576,7 +1544,7 @@
 			    			edgeId = edge.id();
 			    			sourceNodeId = edge.source().id();
 			    			targetNodeId = edge.target().id();
-			    			// You can access other properties of the edge, e.g., source, target, data, etc.
+{{rawJSComment "			    			// You can access other properties of the edge, e.g., source, target, data, etc."}}
                         
 			    			appendMessage("Info: " + 'Edge ID: ' + edgeId )
 			    			appendMessage("Info: " + 'Source Node ID: ' + sourceNodeId )
@@ -1594,58 +1562,34 @@
 				function closePanel01Event(event) {
 					var panel = document.getElementById('Panel-01');
 					if (panel.style.display === 'none' || panel.style.display === '') {
-						//- Show the panel
+{{rawJSComment "						//- Show the panel"}}
 						panel.style.display = 'block';
 						panel.classList.toggle('active');
 					} else {
-						//- Hide the panel
+{{rawJSComment "						//- Hide the panel"}}
 						panel.style.display = 'none';
 					}
 					isPanel01Added = false
 					console.log("Panel-01.style: " + document.getElementById('Panel-01').style.display)
 				}
+{{rawJSComment "				// ######################################################"}}
+{{rawJSComment "				// End of JS Functions Event Handling section"}}
+{{rawJSComment "				// End of JS Functions Event Handling section"}}
+{{rawJSComment "				// ######################################################"}}
 
 
+{{rawJSComment "				// ######################################################"}}
+{{rawJSComment "				// Start of JS Generic Functions"}}
+{{rawJSComment "				// Start of JS Generic Functions"}}
+{{rawJSComment "				// ######################################################"}}
 
-				function linkImpairmentManager(toggle, baseCommand) {
-
-					console.log ("linkImpairmentManager-READCH")
-
-					delayValue = document.getElementById('panelBlock-tabContainer-LinkProperties-divPanelBlock-columnContainerlabelDelay-panelContentlabelDelay-columnsPanelContentlabelDelay-labelColumnlabelDelay-inputColumnlabelDelay-labellabelDelay').value
-					jitterValue = document.getElementById('panelBlock-tabContainer-LinkProperties-divPanelBlock-columnContainerlabelJitter-panelContentlabelJitter-columnsPanelContentlabelJitter-labelColumnlabelJitter-inputColumnlabelJitter-labellabelJitter').value
-					rateValue = document.getElementById('panelBlock-tabContainer-LinkProperties-divPanelBlock-columnContainerlabelRate-panelContentlabelRate-columnsPanelContentlabelRate-labelColumnlabelRate-inputColumnlabelRate-labellabelRate').value
-					lossValue = document.getElementById('panelBlock-tabContainer-LinkProperties-divPanelBlock-columnContainerlabelLoss-panelContentlabelLoss-columnsPanelContentlabelLoss-labelColumnlabelLoss-inputColumnlabelLoss-labellabelLoss').value
-					console.log (delayValue)
-
-					if (toggle == 'start'){
-						fullCommand = baseCommand + ` --delay ${delayValue}ms --jitter ${jitterValue}ms --rate ${rateValue} --loss ${lossValue}` 
-						console.log (fullCommand)
-						callGoFunction(fullCommand, 'emptyPadding')
-
-					}else if(toggle == 'stop'){
-						console.log (baseCommand)
-						callGoFunction(baseCommand, 'emptyPadding')
-					}
-				}
-
-				// ######################################################
-				// End of JS Functions Event Handling section
-				// End of JS Functions Event Handling section
-				// ######################################################
-
-
-				// ######################################################
-				// Start of JS Generic Functions
-				// Start of JS Generic Functions
-				// ######################################################
-
-				//- Helper Function for managed Panel-01 tabs
+{{rawJSComment "				//- Helper Function for managed Panel-01 tabs"}}
 				function showPanel01Tab(tabId) {
 					hideAllTabs();
 					document.getElementById(tabId).style.display = 'block';
 				}
 
-				// Function to remove an element by its id
+{{rawJSComment "				// Function to remove an element by its id"}}
 				function removeElementById(id) {
 					const elementToRemove = document.getElementById(id);
 					console.log (elementToRemove)
@@ -1654,25 +1598,25 @@
 				    }
 				}
 
-				//- Function to get the default node style from cy-style.json
+{{rawJSComment "				//- Function to get the default node style from cy-style.json"}}
 				async function getDefaultNodeStyle(node) {
 					try {
-						//- Fetch the cy-style.json file
+{{rawJSComment "						//- Fetch the cy-style.json file"}}
 						const response = await fetch('cy-style.json');
-						//- Check if the response is successful (status code 200)
+{{rawJSComment "						//- Check if the response is successful (status code 200)"}}
 						if (!response.ok) {
 							throw new Error(`Failed to fetch cy-style.json (${response.status} ${response.statusText})`);
 						}
-						//- Parse the JSON response
+{{rawJSComment "						//- Parse the JSON response"}}
 						const styleData = await response.json();
-						//- Extract the default node style from the loaded JSON
-						//- Adjust this based on your JSON structure
+{{rawJSComment "						//- Extract the default node style from the loaded JSON"}}
+{{rawJSComment "						//- Adjust this based on your JSON structure"}}
 						const defaultNodeStyle = styleData[0].style;
 						return defaultNodeStyle;
 					} catch (error) {
 						console.error('Error loading cy-style.json:', error);
 						appendMessage(`Error loading cy-style.json: ${error}`);
-						//- Return a default style in case of an error
+{{rawJSComment "						//- Return a default style in case of an error"}}
 						return {
 							'background-color': 'blue',
 							'border-color': 'gray',
@@ -1681,30 +1625,30 @@
 					}
 				}
 
-				//-Panel-02 Function to append message function
+{{rawJSComment "				//-Panel-02 Function to append message function"}}
 				function appendMessage(message) {
 					const textarea = document.getElementById('notificationTextarea');
-					// Get the current date and time
+{{rawJSComment "					// Get the current date and time"}}
 					const timestamp = new Date().toLocaleString();
 			
 					textarea.value += `[${timestamp}] ${message}\n` ;
 					textarea.scrollTop = textarea.scrollHeight;
 				}
 				
-				// Panel-02 Function to copy textarea content to clipboard
+{{rawJSComment "				// Panel-02 Function to copy textarea content to clipboard"}}
 				function copyToClipboard() {
 					const textarea = document.getElementById('notificationTextarea');
 					textarea.select();
 					document.execCommand('copy');
 					}
 
-				//-Panel-02 Function to add a click event listener to the copy button
+{{rawJSComment "				//-Panel-02 Function to add a click event listener to the copy button"}}
 				const copyButton = document.getElementById('copyToClipboardButton');
                 copyButton.className = 'button is-smallest-element';
 				copyButton.addEventListener('click', copyToClipboard);	
 					
 
-				// Call Go BackEnd function
+{{rawJSComment "				// Call Go BackEnd function"}}
 				function callGoFunction(parameter1, parameter2) {
 					const data = {
 						param1: parameter1,
@@ -1719,7 +1663,7 @@
 						body: JSON.stringify(data),
 					})
 					.then(response => {
-						// Handle the response from the Go function
+{{rawJSComment "						// Handle the response from the Go function"}}
 					})
 					.catch(error => {
 						console.error('Error:', error);
@@ -1727,22 +1671,22 @@
 				}
 
 			
-				// ######################################################
-				// End of JS Generic Functions section
-				// End of JS Generic Functions section
-				// ######################################################
+{{rawJSComment "				// ######################################################"}}
+{{rawJSComment "				// End of JS Generic Functions section"}}
+{{rawJSComment "				// End of JS Generic Functions section"}}
+{{rawJSComment "				// ######################################################"}}
 
 
 				function showToast(message, type) {
-					// Create a toast element
+{{rawJSComment "					// Create a toast element"}}
 					const toast = document.createElement('div');
 					toast.className = `notification is-${type} bottom-center`;
 					toast.textContent = message;
 				
-					// Append the toast to the body or a container of your choice
+{{rawJSComment "					// Append the toast to the body or a container of your choice"}}
 					document.body.appendChild(toast);
 				
-					// Remove the toast after a few seconds (adjust as needed)
+{{rawJSComment "					// Remove the toast after a few seconds (adjust as needed)"}}
 					setTimeout(function() {
 						document.body.removeChild(toast);
 					}, 3000); 

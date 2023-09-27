@@ -3,6 +3,7 @@ package topoengine
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"strings"
 
 	"os"
@@ -309,17 +310,160 @@ func (cyTopo *CytoTopology) PrintjsonBytesCytoUiV2(JsonBytesCytoUiMarshaled []by
 	return err
 }
 
-func (cyTopo *CytoTopology) GetDockerNodeStatus(clabNodeName string, clabUser string, clabHost string, clabPassword string) []byte {
-	// // get docker node status using exec
-	// command := "docker ps --all --format json"
+// func (cyTopo *CytoTopology) GetDockerNodeStatus(clabNodeName string, clabUser string, clabHost string, clabPassword string) []byte {
+// 	// // get docker node status using exec
+// 	// command := "docker ps --all --format json"
 
-	// // Split the command into parts
-	// parts := strings.Fields(command)
-	// cmd := exec.Command(parts[0], parts[1:]...)
+// 	// // Split the command into parts
+// 	// parts := strings.Fields(command)
+// 	// cmd := exec.Command(parts[0], parts[1:]...)
 
-	// // CombinedOutput runs the command and returns its combined standard output and standard error.
-	// output, err := cmd.CombinedOutput()
+// 	// // CombinedOutput runs the command and returns its combined standard output and standard error.
+// 	// output, err := cmd.CombinedOutput()
 
+// 	config := &ssh.ClientConfig{
+// 		User: clabUser,
+// 		Auth: []ssh.AuthMethod{
+// 			ssh.Password(clabPassword),
+// 		},
+// 		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+// 	}
+
+// 	log.Debug("clabUser: " + clabUser)
+// 	log.Debug("clabHost: " + clabHost)
+// 	// log.Debug("clabPassword: " + clabPassword)
+
+// 	log.Debug("clabNode:" + clabNodeName)
+
+// 	client, err := ssh.Dial("tcp", clabHost+":22", config)
+// 	if err != nil {
+// 		log.Error("Failed to dial: ", err)
+// 	}
+
+// 	// Each ClientConn can support multiple interactive sessions,
+// 	// represented by a Session.
+// 	session, err := client.NewSession()
+// 	if err != nil {
+// 		log.Error("Failed to create session: ", err)
+// 	}
+// 	defer session.Close()
+
+// 	// Once a Session is created, you can execute a single command on
+// 	// the remote side using the Run method.
+// 	var b bytes.Buffer
+// 	session.Stdout = &b
+// 	if err := session.Run("docker ps --all --format json"); err != nil {
+// 		log.Error("Failed to run: " + err.Error())
+// 	}
+// 	log.Debug("output of 'docker ps --all --format json' comamand: ")
+// 	// log.Debug(b.String())
+
+// 	output := b.String()
+
+// 	var outputParsed DockerNodeStatus
+// 	var OutputParsedMarshalled []byte
+
+// 	if err != nil {
+// 		log.Error("Error:", err)
+// 	}
+// 	// log.Debug(string(output))
+
+// 	lines := strings.Split(string(output), "\n")
+// 	// log.Debug(lines)
+
+// 	for _, line := range lines {
+// 		if line == "" {
+// 			continue
+// 		}
+
+// 		var dockerNodeStatus DockerNodeStatus
+// 		err := json.Unmarshal([]byte(line), &dockerNodeStatus)
+// 		if err != nil {
+// 			log.Debug("Error parsing JSON:", err)
+// 			continue
+// 		}
+// 		log.Debug(dockerNodeStatus.Names)
+
+// 		if dockerNodeStatus.Names == clabNodeName {
+// 			json.Unmarshal([]byte(line), &outputParsed)
+// 			OutputParsedMarshalled, err := json.MarshalIndent(outputParsed, "", "  ")
+// 			if err != nil {
+// 				log.Error(err)
+// 				panic(err)
+// 			}
+// 			return OutputParsedMarshalled
+// 		}
+// 	}
+
+// 	log.Debug(OutputParsedMarshalled)
+
+// 	return OutputParsedMarshalled
+
+// }
+
+// func (cyTopo *CytoTopology) GetDockerNodeStatus(clabNodeName string, clabUser string, clabHost string, clabPassword string) ([]byte, error) {
+// 	config := &ssh.ClientConfig{
+// 		User: clabUser,
+// 		Auth: []ssh.AuthMethod{
+// 			ssh.Password(clabPassword),
+// 		},
+// 		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+// 	}
+
+// 	client, err := ssh.Dial("tcp", clabHost+":22", config)
+// 	if err != nil {
+// 		return nil, fmt.Errorf("failed to dial SSH: %w", err)
+// 	}
+// 	defer client.Close()
+
+// 	session, err := client.NewSession()
+// 	if err != nil {
+// 		return nil, fmt.Errorf("failed to create SSH session: %w", err)
+// 	}
+// 	defer session.Close()
+
+// 	var b bytes.Buffer
+// 	session.Stdout = &b
+// 	if err := session.Run("docker ps --all --format json"); err != nil {
+// 		return nil, fmt.Errorf("failed to run 'docker ps' command: %w", err)
+// 	}
+
+// 	output := b.String()
+
+// 	var outputParsed DockerNodeStatus
+
+// 	lines := strings.Split(output, "\n")
+
+// 	for _, line := range lines {
+// 		if line == "" {
+// 			continue
+// 		}
+
+// 		var dockerNodeStatus DockerNodeStatus
+// 		if err := json.Unmarshal([]byte(line), &dockerNodeStatus); err != nil {
+// 			log.Debug("Error parsing JSON:", err)
+// 			continue
+// 		}
+
+// 		if dockerNodeStatus.Names == clabNodeName {
+// 			outputParsed = dockerNodeStatus
+// 			break
+// 		}
+// 	}
+
+// 	if outputParsed.Names == "" {
+// 		return nil, fmt.Errorf("docker node with name %s not found", clabNodeName)
+// 	}
+
+// 	outputParsedMarshalled, err := json.MarshalIndent(outputParsed, "", "  ")
+// 	if err != nil {
+// 		return nil, fmt.Errorf("failed to marshal JSON: %w", err)
+// 	}
+
+// 	return outputParsedMarshalled, nil
+// }
+
+func (cyTopo *CytoTopology) RunSSHCommand(clabUser string, clabHost string, clabPassword string, command string) ([]byte, error) {
 	config := &ssh.ClientConfig{
 		User: clabUser,
 		Auth: []ssh.AuthMethod{
@@ -328,74 +472,60 @@ func (cyTopo *CytoTopology) GetDockerNodeStatus(clabNodeName string, clabUser st
 		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 	}
 
-	log.Debug("clabUser: " + clabUser)
-	log.Debug("clabHost: " + clabHost)
-	// log.Debug("clabPassword: " + clabPassword)
-
-	log.Debug("clabNode:" + clabNodeName)
+	log.Debug(command)
 
 	client, err := ssh.Dial("tcp", clabHost+":22", config)
 	if err != nil {
-		log.Error("Failed to dial: ", err)
+		return nil, fmt.Errorf("failed to dial SSH: %w", err)
 	}
+	defer client.Close()
 
-	// Each ClientConn can support multiple interactive sessions,
-	// represented by a Session.
 	session, err := client.NewSession()
 	if err != nil {
-		log.Error("Failed to create session: ", err)
+		return nil, fmt.Errorf("failed to create SSH session: %w", err)
 	}
 	defer session.Close()
 
-	// Once a Session is created, you can execute a single command on
-	// the remote side using the Run method.
 	var b bytes.Buffer
 	session.Stdout = &b
-	if err := session.Run("docker ps --all --format json"); err != nil {
-		log.Error("Failed to run: " + err.Error())
+	if err := session.Run(command); err != nil {
+		return nil, fmt.Errorf("failed to run SSH command: %w", err)
 	}
-	log.Debug("output of 'docker ps --all --format json' comamand: ")
-	// log.Debug(b.String())
 
-	output := b.String()
+	return b.Bytes(), nil
+}
+
+func (cyTopo *CytoTopology) GetDockerNodeStatus(clabNodeName string, clabUser string, clabHost string, clabPassword string) ([]byte, error) {
+	command := "docker ps --all --format json"
+	output, err := cyTopo.RunSSHCommand(clabUser, clabHost, clabPassword, command)
+	if err != nil {
+		return nil, err
+	}
 
 	var outputParsed DockerNodeStatus
-	var OutputParsedMarshalled []byte
-
-	if err != nil {
-		log.Error("Error:", err)
-	}
-	// log.Debug(string(output))
-
 	lines := strings.Split(string(output), "\n")
-	// log.Debug(lines)
-
 	for _, line := range lines {
 		if line == "" {
 			continue
 		}
-
 		var dockerNodeStatus DockerNodeStatus
-		err := json.Unmarshal([]byte(line), &dockerNodeStatus)
-		if err != nil {
+		if err := json.Unmarshal([]byte(line), &dockerNodeStatus); err != nil {
 			log.Debug("Error parsing JSON:", err)
 			continue
 		}
-		log.Debug(dockerNodeStatus.Names)
-
 		if dockerNodeStatus.Names == clabNodeName {
-			json.Unmarshal([]byte(line), &outputParsed)
-			OutputParsedMarshalled, err := json.MarshalIndent(outputParsed, "", "  ")
-			if err != nil {
-				log.Error(err)
-				panic(err)
-			}
-			return OutputParsedMarshalled
+			outputParsed = dockerNodeStatus
+			break
 		}
 	}
 
-	log.Debug(OutputParsedMarshalled)
+	if outputParsed.Names == "" {
+		return nil, fmt.Errorf("Docker node with name %s not found", clabNodeName)
+	}
+	outputParsedMarshalled, err := json.MarshalIndent(outputParsed, "", "  ")
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal JSON: %w", err)
+	}
 
-	return OutputParsedMarshalled
-
+	return outputParsedMarshalled, nil
 }
