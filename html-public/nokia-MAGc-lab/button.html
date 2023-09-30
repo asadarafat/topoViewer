@@ -31,7 +31,7 @@
 		#cy {
 			position: fixed;
 			left: 0;
-			right: 26em;
+			right: 0em;
 			top: 5em;
 			bottom: 0em;
 		}
@@ -42,18 +42,18 @@
 			position: absolute;
 		}
 		#Panel-01 {
-			top: 60px; 
+			top: 80px; 
 			right: 10px; 
 			width: 340px;
 			max-height: 600px;
 			overflow-y: auto; 
 			position: fixed;
 		}
-		#Panel-02 {
+		#logMessagesPanel {
 			bottom: 0px; 
 			right: 10px; 
 			width: 340px; 
-			max-height: 280px;
+			max-height: 290px;
 			overflow-y: auto; 
 			position: fixed;
 		}
@@ -64,19 +64,20 @@
 			position: absolute;
 		}
 		#ViewPortButtons {
-			top: 100px; 
+			top: 80px; 
 			left: 10px; 
 			position: fixed;
 		}
 		.ViewPortDrawer {
-			top: 100px; 
+			top: 80px; 
 			left: 60px;
-			max-width: 200px;
+			max-width: 250px;
 			position: fixed;
 		}
 		.has-background-4a {
 			background-color: #275bd4;
 			z-index: 9999;
+			box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.4);
 		}
 		.column {
 			background-color: white;  
@@ -171,39 +172,34 @@
 				<div class="level-item">
 					<div class="dropdown is-hoverable is-right">
 						<div class="dropdown-trigger">
-							<button class="button is-small is-link is-light" aria-haspopup="true" aria-controls="dropdown-menu3">
-								<i class="icon fas fa-solid fa-bars fa-lg" aria-hidden="true"></i>
+							<button class="button is-small is-link is-light">
+							<i class="icon fas fa-bars" aria-hidden="true"></i>
 							</button>
 						</div>
-						<div class="dropdown-menu" id="dropdown-menu3" role="menu">
+						<div class="dropdown-menu" id="dropdown-menu" role="menu">
 							<div class="dropdown-content">
-								<div class="dropdown-item">
-									<label class="label has-text-weight-normal is-small">Edge Length</label>
-									<input id="edgeLength" type="range" min="1" max="1000" step="1" value="50">
-								</div>
-								<div class="dropdown-item">
-									<label class="label has-text-weight-normal is-small">Node Spacing</label>
-									<input id="nodeSpacing" type="range" min="1" max="1000" step="1" value="25">
-								</div>
-								<hr class="dropdown-divider">
-								<a href="#" class="dropdown-item">
-								With a divider
-								</a>
+								<a id="about" href="#" onclick="about();" class="dropdown-item label has-text-weight-normal is-small py-0">About TopoViewer</a>                      
+								<hr class="dropdown-divider py-0">
+								<a id="clabClientDropdownItem" href="#" onclick="clabClient();"        class="dropdown-item label has-text-weight-normal is-small py-0">Clab Client Download</a>                  
+								<a id="logMessagesDropdownItem" href="#" onclick="logMessages(event);" class="dropdown-item label has-text-weight-normal is-small py-0">Log Messages</a>                  
 							</div>
 						</div>
-					</div>
 				</div>
 			</div>
 		</nav>
 		<div id="root-div">
 			<div id="cy"></div>
-			<div class="panel is-link" id="Panel-02" >
+
+			<div class="panel is-link" id="logMessagesPanel" style="display: none;">
 				<p class="panel-heading is-size-7">Log Messages</p>
-				<div class="panel-block">
+				<div class="panel-block py-2 px-2">
 					<textarea class="textarea is-small is-outlined is-expanded" id="notificationTextarea" rows="10"></textarea>
 				</div>
-				<div class="panel-block">
-					<button id="copyToClipboardButton" class="button is-small">Copy to Clipboard</button>
+				<div class="panel-block py-2 px-2">
+					<div class="is-justify-content-space-between">
+						<button id="copyToClipboardButton" class="button is-small">Copy to Clipboard</button>
+						<button id="panel02CloseButton" class="button is-small">Close</button>
+					</div>
 				</div>
 			</div>
     		
@@ -276,12 +272,12 @@
 					console.log(ClabSubtitle.innerText);
 				});
 
-//##				// WebSocket for DockerNodeStatus
-				const socketDockerNodeStatusInitial = initializeWebSocket('/dockerNodeStatus', (msgDockerNodeStatus) => {
+//##				// WebSocket for ContainerNodeStatus
+				const socketContainerNodeStatusInitial = initializeWebSocket('/containerNodeStatus', (msgContainerNodeStatus) => {
 					try {
-						const { Names, Status } = JSON.parse(msgDockerNodeStatus.data);
-						setNodeDockerStatus(Names, Status);
-//##						// console.log(JSON.parse(msgDockerNodeStatus.data));
+						const { Names, Status } = JSON.parse(msgContainerNodeStatus.data);
+						setNodeContainerStatus(Names, Status);
+//##						// console.log(JSON.parse(msgContainerNodeStatus.data));
 
 					} catch (error) {
 						console.error("Error parsing JSON:", error);
@@ -293,54 +289,6 @@
 					console.log(msgclabServerAddress.data);
 					document.title = "TopoViewer ::: " + msgclabServerAddress.data;
 				});
-
-				var nodeDockerStatusVisibility = true;
-				function setNodeDockerStatus(dockerNodeName, dockerNodeStatus) {
-					cy.nodes().forEach(function(node) {
-						var nodeId = node.data('id');
-
-//##						// Find the corresponding status nodes based on node ID
-						var statusGreenNode = cy.$(`node[name="${nodeId}-statusGreen"]`);
-						var statusOrangeNode = cy.$(`node[name="${nodeId}-statusOrange"]`);
-						var statusRedNode = cy.$(`node[name="${nodeId}-statusRed"]`);
-
-
-						if (statusGreenNode.length === 0 || statusRedNode.length === 0) {
-//##							// If status nodes are not found, skip this node
-							return;
-						}
-
-//##						// Update positions of status nodes relative to the node
-						var nodePosition = node.position();
-						var offset = { x: -4, y: -10 };
-						var statusGreenNodePosition = { x: nodePosition.x + offset.x, y: nodePosition.y + offset.y };
-						var statusRedNodePosition = { x: nodePosition.x + offset.x, y: nodePosition.y - offset.y };
-
-//##						// Check if the nodeDockerStatusVisibility is true
-						if (nodeDockerStatusVisibility) {
-//##							// Check if the dockerNodeName includes nodeId and dockerNodeStatus includes 'healthy'
-							if (dockerNodeName.includes(nodeId) && (dockerNodeStatus.includes("Up") || dockerNodeStatus.includes("healthy") ) ) {  
-								statusGreenNode.show();
-								statusRedNode.hide();
-								console.log("nodeDockerStatusVisibility: " + nodeDockerStatusVisibility);
-							} else if (dockerNodeName.includes(nodeId) && dockerNodeStatus.includes("(health: starting)")) {  
-								statusGreenNode.hide();
-								statusOrangeNode.show();
-							} else if (dockerNodeName.includes(nodeId) && dockerNodeStatus.includes("Exited")) { 
-								statusGreenNode.hide();
-								statusRedNode.show();
-							}
-						} else {
-							statusGreenNode.hide();
-							statusRedNode.hide();
-						}
-
-						statusGreenNode.position(statusGreenNodePosition);
-						statusRedNode.position(statusRedNodePosition);
-					});
-				}
-
-
 
 
 //##				//- Initialize Cytoscape.js
@@ -357,18 +305,22 @@
 					}]
 				});				
 
-//##				//- Load and apply Cytoscape styles from cy-style.json using fetch
-				fetch('cy-style.json')
-				.then(response => response.json())
-				.then(styles => {
-//##					//- Apply styles loaded from cy-style.json
-					cy.style().fromJson(styles).update();
-				})
-				.catch(error => {
-					console.error('Oops, we hit a snag! Couldnt load the cyto styles, bro.', error);
-					appendMessage(`Oops, we hit a snag! Couldnt load the cyto styles, bro.: ${error}`);
-				});
+				loadCytoStyle()
 
+				function loadCytoStyle() {
+  					
+//##					//- Load and apply Cytoscape styles from cy-style.json using fetch
+					fetch('cy-style.json')
+					.then(response => response.json())
+					.then(styles => {
+//##						//- Apply styles loaded from cy-style.json
+						cy.style().fromJson(styles).update();
+					})
+					.catch(error => {
+						console.error('Oops, we hit a snag! Couldnt load the cyto styles, bro.', error);
+						appendMessage(`Oops, we hit a snag! Couldnt load the cyto styles, bro.: ${error}`);
+					});
+				}
 
 //##				// Fetch and load element data from a JSON file
 				fetch('dataCytoMarshall-nokia-MAGc-lab.json')
@@ -395,30 +347,32 @@
 					});
 
 
-//##				// hover text element
+//##				// initiate hover text element
 				const hoverText = document.createElement('box');
 				hoverText.classList.add('hover-text', 'is-hidden', 'box', 'has-text-weight-normal', 'is-warning', 'is-smallest');
 				hoverText.textContent = 'Launch CloudShell.';
 				document.body.appendChild(hoverText);
 
-//##				// Initialize cy-viewport buttons
+//##				// Initialize viewport buttons
 				createViewportButtons()
-
 
 //##				//- Toggle the Panel-01 when clicking on the cy container 
 				document.getElementById('cy').addEventListener('click', function (event) {
 //##					//- This code will be executed when you click anywhere in the Cytoscape container
 //##					//- You can add logic specific to the container here
 
+					loadCytoStyle() 
+
 					if (!nodeClicked && !edgeClicked) {
 						if (!isPanel01Cy) {
 							removeElementById("Panel-01");
 //##							// Define tabContentFns with custom content generation functions
 //##							// createNetworkExplorerTab is has corresponding function with similar name.
-							const tabContentFns = [createNetworkExplorerTab, createNetworkBuilderTab];
-							const tabContentFnsArg = ["createNetworkExplorerTab", "createNetworkBuilderTab"];
-
-							createContentPanel('Panel-01', tabContentFns, tabContentFnsArg, "Actions");
+							
+//##							// Hide Actions panel, future use
+//##							// const tabContentFns = [createNetworkExplorerTab, createNetworkBuilderTab];
+//##							// const tabContentFnsArg = ['createNetworkExplorerTab', 'createNetworkBuilderTab'];
+//##							// createContentPanel('Panel-01', tabContentFns, tabContentFnsArg, 'Actions');
 						}else {
 							removeElementById("Panel-01");
 							appendMessage(`"try to remove panel01-Cy"`)
@@ -436,16 +390,18 @@
 //##					// This code will be executed when you click on a node
 					const node = event.target		
 					nodeClicked = true; 
+					
+					if (!node.isParent()) {
+//##						// You can add logic specific to nodes here
+						removeElementById("Panel-01");
+						const tabContentFns = [createNodeDetailTab];
+						const tabContentFnsArg = [node];
 
-//##					// You can add logic specific to nodes here
-					removeElementById("Panel-01");
-					const tabContentFns = [createNodeDetailTab];
-					const tabContentFnsArg = [node];
+						createContentPanel('Panel-01', tabContentFns, tabContentFnsArg[0], 'Node Properties');
 
-					createContentPanel('Panel-01', tabContentFns, tabContentFnsArg[0], 'Node Properties');
-
-					appendMessage(`"isPanel01Cy-cy: " ${isPanel01Cy}`)
-					appendMessage(`"nodeClicked: " ${nodeClicked}`)						
+						appendMessage(`"isPanel01Cy-cy: " ${isPanel01Cy}`)
+						appendMessage(`"nodeClicked: " ${nodeClicked}`)			
+					}			
 				});
 
 //##				// Click event listener for edges
@@ -477,141 +433,172 @@
 					boxContainer.className = 'box p-2';
 					boxContainer.id = 'ViewPortButtons';
 //##					// Set a new box shadow using the style property
-					boxContainer.style.boxShadow = '5px 10px 10px rgba(0, 0, 0, 0.3)';
+//##					// boxContainer.style.boxShadow = '5px 10px 10px rgba(0, 0, 0, 0.3)';
 				
 //##					// Create a button container
 					const buttonContainer = document.createElement('div');
 					buttonContainer.className = 'is-flex is-flex-direction-column is-justify-content-space-evenly';
 				
-					const addonsContent = [
-					{
+					const configContent = [{
 						name: 'fitToScreen',
 						iconClass: 'fas fa-expand',
 						hoverMessage: 'Fit to screen',
-						hrefFunction: 'eventHandler',
+						hrefFunction: 'eventHandlerLink',
 						hrefLink: '',
-						callOutFuntionName: 'zoomToFitEvent', 
+						callOutFuntionName: 'zoomToFitEvent',
 					},
 					{
-						name: 'findNode',
-						iconClass: 'fas fa-crosshairs',
-						hoverMessage: 'Find node',
-						hrefFunction: 'drawer',
-						hrefLink: ``,
+						name: 'findNode', iconClass: 'fas fa-crosshairs', hoverMessage: 'Find node', hrefFunction: 'drawer', hrefLink: ``,
+						drawerConfig: [
+						{
+							idSuffix: 'labelNodeName', columnLabelTextContent: '', columnLabelClass: 'column is-0 p-0', columnInputType: 'label', columnInputContent: 'Find Node', columnInputAttribute: 'enabled', 
+						},
+						{
+							idSuffix: 'labelNodeName', columnLabelTextContent: '', columnLabelClass: 'column is-0 p-0', columnInputType: 'field', columnInputContent: '', columnInputPlaceholder: 'node name', columnInputAttribute: 'enabled', 
+							addonsContent: [{
+								name: 'blue',
+								iconClass: 'fas fa-check-circle',
+								hoverMessage: 'Find the node',
+								hrefFunction: 'eventHandlerLink',
+								hrefLink: `nodeFindDrawer`
+							}]
+						}]
 					},
 					{
-						name: 'findRoute',
-						iconClass: 'fas fa-route',
-						hoverMessage: 'Find route',
-						hrefFunction: 'drawer',
-						hrefLink: ``,
+						name: 'findRoute', iconClass: 'fas fa-route', hoverMessage: 'Route Finder', hrefFunction: 'drawer', hrefLink: ``,
+						drawerConfig: [
+						{
+							idSuffix: 'labelFindRoute', columnLabelTextContent: '', columnLabelClass: 'column is-0 p-0', columnInputType: 'label', columnInputContent: 'Route Finder', columnInputPlaceholder: '', columnInputAttribute: 'enabled', 
+							addonsContent: []
+						},
+						{
+							idSuffix: 'labelFindRouteSource', columnLabelTextContent: '', columnLabelClass: 'column is-0 p-0', columnInputType: 'field', columnInputContent: '', columnInputPlaceholder: 'source node', columnInputAttribute: 'enabled',
+							addonsContent: []
+						},
+						{
+							idSuffix: 'labelFindRouteTarget', columnLabelTextContent: '', columnLabelClass: 'column is-0 p-0', columnInputType: 'field', columnInputContent: '', columnInputPlaceholder: 'target node', columnInputAttribute: 'enabled',
+							addonsContent: []
+						},
+						{
+							idSuffix: 'labelFindRouteSource', columnLabelTextContent: '', columnLabelClass: 'column is-0 p-0', columnInputType: 'field', columnInputContent: '', columnInputPlaceholder: 'Find the route', columnInputAttribute: 'disabled', columnHrefFunction: 'pathFinderDijkstraEvent',
+							addonsContent: [{
+								name: 'blue',
+								iconClass: 'fas fa-check-circle',
+								hoverMessage: 'Find the route',
+								hrefFunction: 'eventHandlerLink',
+								hrefLink: `pathFinderDijkstraDrawer`
+							}]
+						}]
+					},
+					{
+						name: 'togleEndpointLabel',
+						iconClass: 'fas fa-tag',
+						hoverMessage: 'Toggle endpoint label',
+						hrefFunction: 'eventHandlerLink',
+						hrefLink: '',
+						callOutFuntionName: 'toggleLinkEndpoint',
+					},
+					{
+						name: 'togleContainerStatus',
+						iconClass: 'fab fa-docker',
+						hoverMessage: 'Toggle container status',
+						hrefFunction: 'eventHandlerLink',
+						hrefLink: '',
+						callOutFuntionName: 'toggleContainerStatusVisibility',
 					},
 					{
 						name: 'screenShoot',
 						iconClass: 'fas fa-camera',
 						hoverMessage: 'Capture viewport as PNG',
-						hrefFunction: 'eventHandler',
-						hrefLink: ` `,  
+						hrefFunction: 'eventHandlerLink',
+						hrefLink: ` `,
 						callOutFuntionName: `captureAndSaveViewport`
 					}, ];
 				
 					const controlId = 'viewportButtons';
 				
-					addonsContent.forEach((addon) => {
+					configContent.forEach((config) => {
 						const control = document.createElement('p');
 				
-						control.id = `${controlId}-button${addon.name}`;
+						control.id = `${controlId}-button${config.name}`;
 						control.className = 'control p-0';
 				
 						const button = document.createElement('a');
-						button.id = `${controlId}-button${addon.name}`;
+						button.id = `${controlId}-button${config.name}`;
 //##						// button.className = `button is-light is-large is-outlined py-4 is-${addon.name === 'blue' ? 'link' : 'success'}`;
 						button.className = `button is-light px-4 py-4 is-smallest-element`;
 						button.style.outline = 'none';
 				
-						if (addon.hrefFunction == 'eventHandler') {
+						if (config.hrefFunction == 'eventHandlerLink') {
 							button.addEventListener('click', function() {
 //##								// Use eval() to call the function by name
-								eval(addon.callOutFuntionName + '()');
+								eval(config.callOutFuntionName + `()`);
 							});
 						}
-										
-						if (addon.hrefFunction == 'drawer') {
+				
+						if (config.hrefFunction == 'drawer') {
+//##							// button.addEventListener('click', () => {
+//##								// Create an drawerBox element
+								const drawerBox = document.createElement('div');
+								drawerBox.className = 'box drawerBox ViewPortDrawer p-1 is-1';
+								drawerBox.style.display = 'none';
 
-//##							// Create an drawerBox element
-							const drawerBox = document.createElement('div');
-							drawerBox.className = 'box drawerBox ViewPortDrawer p-1 is-1';
-//##							// drawerBox.textContent = `${button.id}`;
-							drawerBox.style.display = 'none'; 
-//##							// drawerBox.style.width = '100px'; // Initially hide the box
-
-//##							////
+								window.addEventListener('DOMContentLoaded', (event) => { 
+//##									// Access the height of buttonContainer here
+									const rect = boxContainer.getBoundingClientRect();
+									const height = rect.height;
+									drawerBox.style.height = `${height}px`;
+								});
 
 
-//##							// Panel Block 01
-							panelBlockContainer = createPanelBlockContainer(`${button.id}`)
-							panelBlock01 = panelBlockContainer.panelBlock
-							divPanelBlock01 = panelBlockContainer.divPanelBlock
+//##								// drawerBox.style.boxShadow = '5px 10px 10px rgba(0, 0, 0, 0.3)';
+								console.log('drawerBox.style.boxShadow')
+								console.log(drawerBox.style)
+					
+//##								////
+//##								// Panel Block 01
+								panelBlockContainer = createPanelBlockContainer(`${button.id}`)
+								panelBlock01 = panelBlockContainer.panelBlock
+								divPanelBlock01 = panelBlockContainer.divPanelBlock				
 
-							divPanelBlock01 = panelBlockContainer.divPanelBlock
-		
-							const shellUrl = '/cloudshell/';
-		
-							const Panel01ColumnsConfig = [
-								{ idSuffix: 'labelNodeName', columnLabelTextContent: '', columnLabelClass: 'column is-0 p-0', columnInputType: 'field', columnInputContent: 'name', 						
-									addonsContent: [
-									{
-										name: 'blue',
-										iconClass: 'fas fa-terminal',
-										hoverMessage: 'Click to open a web-based SSH console',
-										hrefFunction: 'link',
-										hrefLink: ``
-									},
-									{
-										name: 'green',
-										iconClass: 'far fa-clone',
-										hoverMessage: 'Click to copy the SSH command to your clipboard.',
-										hrefFunction: 'copy',
-										hrefLink: ``
-									}]
-								}
-							];
-							createPanelBlockForm(Panel01ColumnsConfig, panelBlock01, divPanelBlock01)
-//##							// Per panelBlock divPanelBlock01 --> panelBlock01
-							panelBlock01.appendChild(divPanelBlock01)
-							drawerBox.appendChild(panelBlock01)
-
-//##							///
-
-//##							// Add click event listener to the button
-							button.addEventListener('click', () => {
-//##								// Toggle the display of the corresponding drawerBox
-								if (drawerBox.style.display === 'none' || drawerBox.style.display === '') {
-									
-//##									// Hide all other drawerBoxes
-									const allAnimatedBoxes = document.querySelectorAll('.ViewPortDrawer');
-									allAnimatedBoxes.forEach((box) => {
-										if (box !== drawerBox) {
-											box.style.display = 'none';
-										}
-									});
-//##									// Show the corresponding drawerBox
-									drawerBox.style.display = 'block';
-
-								} else {
-//##									// Hide the corresponding drawerBox when clicked again
-									drawerBox.style.display = 'none';
-								}
-							});
-//##							// Append the container to the document body
-							document.body.appendChild(drawerBox);
+								createPanelBlockForm(config.drawerConfig, panelBlock01, divPanelBlock01)
+//##								// Per panelBlock divPanelBlock01 --> panelBlock01
+								panelBlock01.appendChild(divPanelBlock01)
+								drawerBox.appendChild(panelBlock01)
+//##								///
+					
+//##								// Add click event listener to the button
+								button.addEventListener('click', () => {
+//##									// Toggle the display of the corresponding drawerBox
+									if (drawerBox.style.display === 'none' || drawerBox.style.display === '') {
+					
+//##										// Hide all other drawerBoxes
+										const allAnimatedBoxes = document.querySelectorAll('.ViewPortDrawer');
+										allAnimatedBoxes.forEach((box) => {
+											if (box !== drawerBox) {
+												box.style.display = 'none';
+											}
+										});
+//##										// Show the corresponding drawerBox
+										drawerBox.style.display = 'block';
+					
+									} else {
+//##										// Hide the corresponding drawerBox when clicked again
+										drawerBox.style.display = 'none';
+									}
+								});
+														
+//##								// Append the container to the document body
+								document.body.appendChild(drawerBox);
+//##							// })
 						}
+						
 				
 //##						// Create a icon element
 						const icon = document.createElement('span');
 						icon.className = 'icon is-small';
 						const iconElement = document.createElement('i');
-						iconElement.className = addon.iconClass;
+						iconElement.className = config.iconClass;
 						icon.appendChild(iconElement);
 				
 						button.appendChild(icon);
@@ -630,7 +617,8 @@
 							hoverText.style.top = `${top}px`;
 							hoverText.style.left = `${left}px`;
 							hoverText.classList.remove('is-hidden');
-							hoverText.textContent = addon.hoverMessage;
+							hoverText.textContent = config.hoverMessage;
+
 						});
 				
 						button.addEventListener('mouseout', () => {
@@ -642,10 +630,13 @@
 						buttonContainer.appendChild(control);
 						boxContainer.appendChild(buttonContainer);
 					});
+
+			
 				
 //##					// Append the container to the document body
 					document.body.appendChild(boxContainer);
 				}
+				
 
 
 //##				// Function to create the Panel-01-nodeDetail content
@@ -729,15 +720,8 @@
 							panel.appendChild(panelHeading);
 							panel.appendChild(panelTabs);
 						}
+						
 					}else{
-//##						// const name = tabNames[0];
-//##						// const tab = document.createElement('a');
-//##						// tab.className = 'toggle-Panel01-tab is-smallish has-text-weight-medium';
-//##						// tab.setAttribute('data-target', `${panelId}-Tab-${name}-Container`); 
-//##						// tab.id = `${panelId}-Tab-${name}-Button`;
-//##						// tab.textContent = name.replace(/^create|Tab$/g, ''); 
-//##						// panelTabs.appendChild(tab);
-
 						const tabContainer = document.createElement('div');
 						tabContainer.className = 'panel-tabContainer';
 						tabContainer.id = `${panelId}-Tab-${name}-Container`;
@@ -830,75 +814,7 @@
 					const block2 = document.createElement('div');
 					block2.className = 'panel-block';
 				
-//##					// Create the 'Find Node' section
-					const findNodeDiv = document.createElement('div');
-					findNodeDiv.id = 'nodeFind';
-					findNodeDiv.className = 'column my-auto';
-
-					const findNodeLabel = document.createElement('label');
-					findNodeLabel.className = 'label is-smallest';
-					findNodeLabel.textContent = 'Find Node :';
-				
-					const nodeFindInput = document.createElement('input');
-					nodeFindInput.className = 'input is-smallest-element';
-					nodeFindInput.type = 'text';
-					nodeFindInput.id = 'nodeFindInput';
-					nodeFindInput.placeholder = 'Node Name';
-
-					const nodeFindInvis01 = document.createElement('input');
-					nodeFindInvis01.className = 'input is-invisible is-smallest-element';
-					nodeFindInvis01.type = 'text';
-				
-					const nodeFindButton = document.createElement('button');
-					nodeFindButton.className = 'button is-smallest-element';
-					nodeFindButton.id = 'nodeFindButton';
-					nodeFindButton.textContent = 'Find';
-				
-					const zoomToFitButton = document.createElement('button');
-					zoomToFitButton.className = 'button is-smallest-element';
-					zoomToFitButton.id = 'fitAllNodesAction';
-					zoomToFitButton.textContent = 'Zoom to Fit';
-				
-					findNodeDiv.appendChild(findNodeLabel);
-					findNodeDiv.appendChild(nodeFindInput);
-					findNodeDiv.appendChild(nodeFindInvis01);
-					findNodeDiv.appendChild(nodeFindButton);
-					findNodeDiv.appendChild(zoomToFitButton);
-				
-					block2.appendChild(findNodeDiv);
-				
-//##					// Create the 'Path Finder' section
-					const pathFinderDiv = document.createElement('div');
-					pathFinderDiv.id = 'pathFinder';
-					pathFinderDiv.className = 'column my-auto';
-				
-					const pathFinderLabel = document.createElement('label');
-					pathFinderLabel.className = 'label is-smallest';
-					pathFinderLabel.textContent = 'Path Finder:';
-				
-					const pathFinderSourceNodeInput = document.createElement('input');
-					pathFinderSourceNodeInput.className = 'input is-smallest-element';
-					pathFinderSourceNodeInput.type = 'text';
-					pathFinderSourceNodeInput.id = 'pathFinderSourceNodeInput';
-					pathFinderSourceNodeInput.placeholder = 'Source Node Name';
-				
-					const pathFinderTargetNodeInput = document.createElement('input');
-					pathFinderTargetNodeInput.className = 'input is-smallest-element';
-					pathFinderTargetNodeInput.type = 'text';
-					pathFinderTargetNodeInput.id = 'pathFinderTargetNodeInput';
-					pathFinderTargetNodeInput.placeholder = 'Target Node Name';
-				
-					const pathFinderDijkstraButton = document.createElement('button');
-					pathFinderDijkstraButton.className = 'button is-smallest-element';
-					pathFinderDijkstraButton.id = 'pathFinderDijkstraButton';
-					pathFinderDijkstraButton.textContent = 'Find Path Dijkstra';
-				
-					pathFinderDiv.appendChild(pathFinderLabel);
-					pathFinderDiv.appendChild(pathFinderSourceNodeInput);
-					pathFinderDiv.appendChild(pathFinderTargetNodeInput);
-					pathFinderDiv.appendChild(pathFinderDijkstraButton);
-				
-					block2.appendChild(pathFinderDiv);
+		
 				
 //##					// Create the fifth block of content
 					const block5 = document.createElement('div');
@@ -915,14 +831,10 @@
 //##					// Append all blocks to the Tab-01 container
 					tab01Container.appendChild(block1);
 					tab01Container.appendChild(block2);
-//##					//tab01Container.appendChild(block3);
 					tab01Container.appendChild(block5);
 
 //##					// call event handler function
 					generateNodesButton.addEventListener('click', generateNodesEvent)
-					nodeFindButton.addEventListener('click', nodeFindEvent)
-					zoomToFitButton.addEventListener('click', zoomToFitEvent)
-					pathFinderDijkstraButton.addEventListener('click', pathFinderDijkstraEvent)
 					closePanel01Button.addEventListener('click', closePanel01Event)
 
 					return tab01Container;
@@ -1024,10 +936,10 @@
 //##					// call event handler function
 					spawnNodeButton.addEventListener('click', spawnNodeEvent)
 					closePanel01Button.addEventListener('click', closePanel01Event)
+		
 
 					return tab02Container;
 				}
-
 
 				function createPanelBlockContainer(tabContainerId) {
 //##					// this is helper function to create PanelBlock-Container
@@ -1076,7 +988,10 @@
 //##					// 	{ idSuffix: 'labelManagement IPv6', columnLabelTextContent: 'Management IPv6', columnLabelClass: 'column is-4 p-1', columnInputType: 'label', columnInputContent: node.data('extraData').mgmtIpv6Addresss },
 //##					// 	{ idSuffix: 'labelFqdn', columnLabelTextContent: 'FQDN', columnLabelClass: 'column is-4 p-1', columnInputType: 'label', columnInputContent: node.data('extraData').fqdn },
 //##					// 	{ idSuffix: 'labelGroup', columnLabelTextContent: 'Group', columnLabelClass: 'column is-4 p-1', columnInputType: 'label', columnInputContent: node.data('extraData').group },
-//##					// 	{ idSuffix: 'labelTopoviewerRole', columnLabelTextContent: 'Topoviewer Role', columnLabelClass: 'column is-4 p-1', columnInputType: 'label', columnInputContent: node.data('topoviewerRole') },					
+//##					// 	{ idSuffix: 'labelTopoviewerRole', columnLabelTextContent: 'Topoviewer Role', columnLabelClass: 'column is-4 p-1', columnInputType: 'label', columnInputContent: node.data('topoviewerRole') },	
+//##					//  { idSuffix: 'labelFindRouteSource', columnLabelTextContent: '', columnLabelClass: 'column is-0 p-0', columnInputType: 'field', columnInputContent: '', columnInputPlaceholder: 'name', columnInputAttribute: 'enabled',
+//##					//  	addonsContent: []
+//##					//  }				
 //##					//  { idSuffix: 'labelLinkImpairment', columnLabelTextContent: 'Link Impairment', columnLabelClass: 'column is-4 p-1', columnInputType: 'field', columnInputContent: 'Apply', columntInputAttribute: 'enabled', // columntInputAttribute default is disabled
 //##					//  addonsContent: [
 //##					//  	{
@@ -1158,9 +1073,11 @@
 							inputElement.id = `${inputColumn.id}-label${config.idSuffix}`
 							inputElement.type = 'text'
 							inputElement.value = config.columnInputContent
-					
+							inputElement.placeholder = config.columnInputPlaceholder
+
 							inputColumn.appendChild(inputElement);
 							columnsPanelContent.appendChild(inputColumn);
+
 						}else if (config.columnInputType == 'field') {
 							const inputColumn = document.createElement('div');
 							inputColumn.className = `column is-8 p-1 pl-3`;
@@ -1178,7 +1095,7 @@
 							const input = document.createElement('input');
 							input.id = `${controlId}-input`;
 
-							if (config.columntInputAttribute == 'enabled'){
+							if (config.columnInputAttribute == 'enabled'){
 								input.setAttribute('enabled', '')
 							}else{
 								input.setAttribute('disabled','')
@@ -1186,6 +1103,8 @@
 
 							input.className = `input is-size-7 has-text-left link-impairment-widht has-text-weight-normal is-smallest-element`; 
 							input.value = config.columnInputContent;
+							input.placeholder = config.columnInputPlaceholder
+
 							control.appendChild(input);
 							inputElement.appendChild(control);
 
@@ -1202,11 +1121,26 @@
 //##								// Create a button element
 								const button = document.createElement('a'); 
 								button.id = `${controlId}-button${addon.name}`;
-								button.className = `button is-light is-outlined px-3 is-smallest-element is-${addon.name === 'blue' ? 'link' : 'success'}`;
+								button.className = `button is-outlined px-3 is-smallest-element is-${addon.name === 'blue' ? 'link' : 'success'}`;
 
 								if (addon.hrefFunction == 'link'){
 									button.href = addon.hrefLink;
 									button.target = '_blank';
+								
+								}
+								else if (addon.hrefFunction == 'eventHandlerLink'){
+									console.log(addon.hrefFunction)
+									button.addEventListener('click', function(event) {
+										if (typeof addon.hrefLink === 'string' && addon.hrefLink.length > 0) {
+//##											// create function
+//##											// eval(`${addon.hrefLink}(event, '${input.value}')`);
+											eval(`${addon.hrefLink}(event)`);
+											
+										} else {
+											console.error('(addon.hrefLink or input.value) is empty or not a string ');
+										}
+									});
+								
 								} else if (addon.hrefFunction == 'copy'){
 									button.href = addon.hrefLink;
 									button.target = '_blank';
@@ -1250,14 +1184,12 @@
 									}
 								}
 								
-
 //##							  	// Create a icon element
 								const icon = document.createElement('span');
 								icon.className = 'icon is-small';
 								const iconElement = document.createElement('i');
 								iconElement.className = addon.iconClass;
 								icon.appendChild(iconElement);
-
 								button.appendChild(icon);
 
 //##								// Create a hover text paragraph element
@@ -1265,6 +1197,7 @@
 
 //##								// Add event listeners for hover behavior
 								button.addEventListener('mouseover', () => {
+																		
 //##									// Calculate the position for the hover text
 									const rect = button.getBoundingClientRect();
 									const top = rect.top - hoverText.offsetHeight + 25; 
@@ -1276,14 +1209,10 @@
 									hoverText.classList.remove('is-hidden');
 									hoverText.textContent = addon.hoverMessage;
 								});
-
 								button.addEventListener('mouseout', () => {
 //##									// Hide the hover text
 									hoverText.classList.add('is-hidden');
 								});
-
-
-
 								control.appendChild(button);
 								inputElement.appendChild(control);
 							  }
@@ -1292,7 +1221,6 @@
 							columnsPanelContent.appendChild(inputColumn);
 						}
 
-				
 						panelContent.appendChild(columnsPanelContent);
 						columnContainer.appendChild(panelContent)
 				
@@ -1671,6 +1599,48 @@
 					}
 				}
 
+				function nodeFindDrawer(event) {
+//##					//- Get a reference to your Cytoscape instance (assuming it's named 'cy')
+//##					//- const cy = window.cy; //- Replace 'window.cy' with your actual Cytoscape instance
+//##					//- Find the node with the specified name
+					const nodeName = document.getElementById('panelBlock-viewportButtons-buttonfindNode-divPanelBlock-columnContainerlabelNodeName-panelContentlabelNodeName-columnsPanelContentlabelNodeName-labelColumnlabelNodeName-inputColumnlabelNodeName-labellabelNodeName-control-input').value;
+
+					const node = cy.$(`node[name = "${nodeName}"]`);
+//##					//- Check if the node exists
+					if (node.length > 0) {
+//##						// console
+						console.log("Info: " + "Sweet! Node \"" + nodeName + "\" is in the house.");
+						appendMessage("Info: " + "Sweet! Node \"" + nodeName + "\" is in the house.");
+//##						//- Apply a highlight style to the node
+						node.style({
+							'border-color': 'red',
+							'border-width': '2px',
+							'background-color': 'yellow'
+						});
+//##						//- Zoom out on the node
+						cy.fit()
+//##						//- Zoom in on the node
+						cy.animate({
+							zoom: {
+								level: 5,
+								position: {
+									x: node.position('x'),
+									y: node.position('y')
+								},
+								renderedPosition: {
+									x: node.renderedPosition('x'),
+									y: node.renderedPosition('y')
+								}
+							},
+							duration: 1500
+						});
+					} else {
+						console.error(`Bro, I couldn't find a node named "${nodeName}". Try another one.`);
+						appendMessage(`Bro, I couldn't find a node named "${nodeName}". Try another one.`);
+			
+					}
+				}
+
 				function zoomToFitEvent(event) {
 					const initialZoom = cy.zoom();
 					appendMessage(`Bro, initial zoom level is "${initialZoom}".`);
@@ -1680,79 +1650,86 @@
 					appendMessage(`And now the zoom level is "${currentZoom}".`);
 				}
 
-				function captureAndSaveViewport() {
+				async function captureAndSaveViewport() {
 //##					// Find the canvas element for layer2-node
 					const canvasElement = document.querySelector('#cy canvas[data-id="layer2-node"]');
-
+				
 					const highResolutionFactor = 1;
-				  
+				
 //##					// Check if the canvas element exists and is an HTMLCanvasElement
 					if (canvasElement instanceof HTMLCanvasElement) {
-//##					  // Calculate the new canvas dimensions based on the high resolution factor
-					  const newWidth = canvasElement.width * highResolutionFactor;
-					  const newHeight = canvasElement.height * highResolutionFactor;
-				  
-//##					  // Create a new canvas element with the increased dimensions
-					  const newCanvas = document.createElement('canvas');
-					  newCanvas.width = newWidth;
-					  newCanvas.height = newHeight;
-					  const newCanvasContext = newCanvas.getContext('2d');
-				  
-//##					  // Scale the canvas content to the new dimensions
-					  newCanvasContext.scale(highResolutionFactor, highResolutionFactor);
-				  
-//##					  // Fill the new canvas with a white background
-					  newCanvasContext.fillStyle = 'white';
-					  newCanvasContext.fillRect(0, 0, newWidth, newHeight);
-				  
-//##					  // Draw the original canvas content on the new canvas
-					  newCanvasContext.drawImage(canvasElement, 0, 0);
-				  
-//##					  // Convert the new canvas to a data URL with a white background
-					  const dataUrl = newCanvas.toDataURL('image/png');
-				  
-//##					  // Create an anchor element to trigger the download
-					  const link = document.createElement('a');
-					  link.href = dataUrl;
-					  link.download = 'cytoscape-viewport.png';
-				  
-//##					  // Simulate a click to trigger the download
-					  link.click();
+//##						// Calculate the new canvas dimensions based on the high resolution factor
+						const newWidth = canvasElement.width * highResolutionFactor;
+						const newHeight = canvasElement.height * highResolutionFactor;
+				
+//##						// Create a new canvas element with the increased dimensions
+						const newCanvas = document.createElement('canvas');
+						newCanvas.width = newWidth;
+						newCanvas.height = newHeight;
+						const newCanvasContext = newCanvas.getContext('2d');
+				
+//##						// Scale the canvas content to the new dimensions
+						newCanvasContext.scale(highResolutionFactor, highResolutionFactor);
+				
+//##						// Fill the new canvas with a white background
+						newCanvasContext.fillStyle = 'white';
+						newCanvasContext.fillRect(0, 0, newWidth, newHeight);
+				
+//##						// Draw the original canvas content on the new canvas
+						newCanvasContext.drawImage(canvasElement, 0, 0);
+				
+//##						// Convert the new canvas to a data URL with a white background
+						const dataUrl = newCanvas.toDataURL('image/png');
+				
+//##						// Create an anchor element to trigger the download
+						const link = document.createElement('a');
+						link.href = dataUrl;
+						link.download = 'cytoscape-viewport.png';
+				
+						bulmaToast.toast({
+							message: `Brace yourselves for a quick snapshot, folks! 📸 Capturing the viewport in 3... 2... 1... 🚀💥`,
+							type: 'is-warning is-size-6 p-3',
+							duration: 2000,
+							position: "top-center",
+							closeOnClick: true,
+						})
+						await sleep(2000)
+//##						// Simulate a click to trigger the download
+						link.click();
 					} else {
-					  console.error('Canvas element for layer2-node is not found or is not a valid HTML canvas element.');
+						console.error('Canvas element for layer2-node is not found or is not a valid HTML canvas element.');
 					}
-				  }
-
-				  function captureAndSaveViewportAsSvg() {
+				}
+				
+				function captureAndSaveViewportAsSvg() {
 //##					// Find the canvas element for layer2-node
 					const canvasElement = document.querySelector('#cy canvas[data-id="layer2-node"]');
-				  
+				
 //##					// Check if the canvas element exists and is an HTMLCanvasElement
 					if (canvasElement instanceof HTMLCanvasElement) {
-//##					  // Create an SVG string
-					  const svgString = `<svg xmlns="http://www.w3.org/2000/svg" width="${canvasElement.width}" height="${canvasElement.height}"><foreignObject width="100%" height="100%"><canvas xmlns="http://www.w3.org/1999/xhtml" width="${canvasElement.width}" height="${canvasElement.height}">${canvasElement.outerHTML}</canvas></foreignObject></svg>`;
-				  
-//##					  // Create a Blob containing the SVG data
-					  const blob = new Blob([svgString], { type: 'image/svg+xml' });
-				  
-//##					  // Create a URL for the Blob
-					  const url = URL.createObjectURL(blob);
-				  
-//##					  // Create an anchor element to trigger the download
-					  const link = document.createElement('a');
-					  link.href = url;
-					  link.download = 'cytoscape-viewport.svg';
-				  
-//##					  // Simulate a click to trigger the download
-					  link.click();
+//##						// Create an SVG string
+						const svgString = `<svg xmlns="http://www.w3.org/2000/svg" width="${canvasElement.width}" height="${canvasElement.height}"><foreignObject width="100%" height="100%"><canvas xmlns="http://www.w3.org/1999/xhtml" width="${canvasElement.width}" height="${canvasElement.height}">${canvasElement.outerHTML}</canvas></foreignObject></svg>`;
+				
+//##						// Create a Blob containing the SVG data
+						const blob = new Blob([svgString], {
+							type: 'image/svg+xml'
+						});
+				
+//##						// Create a URL for the Blob
+						const url = URL.createObjectURL(blob);
+				
+//##						// Create an anchor element to trigger the download
+						const link = document.createElement('a');
+						link.href = url;
+						link.download = 'cytoscape-viewport.svg';
+				
+//##						// Simulate a click to trigger the download
+						link.click();
 					} else {
-					  console.error('Canvas element for layer2-node is not found or is not a valid HTML canvas element.');
+						console.error('Canvas element for layer2-node is not found or is not a valid HTML canvas element.');
 					}
-				  }
-				  
-				  
-			
-
+				}
+				
 
 				function pathFinderDijkstraEvent(event) {
 //##					// Usage example:
@@ -1761,6 +1738,8 @@
 //##					//- weight: (edge) => 1, // You can adjust the weight function if needed
 //##					//- weight: (edge) => edge.data('distance')
 								
+					console.log('im triggered')
+
 //##					// Remove existing highlight from all edges
 					cy.edges().forEach(edge => {
 						edge.removeClass('spf');
@@ -1769,6 +1748,110 @@
 //##					// Get the node sourceNodeId from pathFinderSourceNodeInput and targetNodeId from pathFinderTargetNodeInput  
 					const sourceNodeId = document.getElementById('pathFinderSourceNodeInput').value;
 					const targetNodeId = document.getElementById('pathFinderTargetNodeInput').value;
+
+//##					// Assuming you have 'cy' as your Cytoscape instance
+					const sourceNode = cy.$(`node[id="${sourceNodeId}"]`);
+					const targetNode = cy.$(`node[id="${targetNodeId}"]`);
+			
+					console.log("Info: " + "Let's find the path from-" + sourceNodeId + "-to-"  + targetNodeId + "!");
+					appendMessage("Info: " + "Let's find the path from-" + sourceNodeId + "-to-"  + targetNodeId + "!");
+			
+//##					// Check if both nodes exist
+					if (sourceNode.length === 0 || targetNode.length === 0) {
+						console.error(`Bro, couldn't find the source or target node you specified. Double-check the node names.`);
+						appendMessage(`Bro, couldn't find the source or target node you specified. Double-check the node names.`);
+						return;
+					}
+			
+//##			    	// Get the Dijkstra result with the shortest path
+			    	const dijkstraResult = cy.elements().dijkstra({
+			    		root: sourceNode,
+			    		weight: (edge) => 1, 
+//##			    		// Use the custom weight attribute
+//##			    		// weight: edge => edge.data('customWeight'),
+                    
+			    	});
+//##			    	// Get the shortest path from Dijkstra result
+			    	const shortestPathEdges = dijkstraResult.pathTo(targetNode);
+                    console.log(shortestPathEdges)
+                
+//##                    // Check if there is a valid path (shortestPathEdges is not empty)
+                    if (shortestPathEdges.length > 1) {
+                        
+//##			    		//// Apply a style to highlight the shortest path edges
+//##			    		// shortestPathEdges.style({
+//##			    		//	'line-color': 'red', 
+//##			    		//	'line-style': 'solid', 
+//##			    		// });
+                        
+//##			    		// Highlight the shortest path
+			    		shortestPathEdges.forEach(edge => {
+			    			edge.addClass('spf'); 
+			    				});
+                            
+//##			    		//- Zoom out on the node
+			    		cy.fit()
+                            
+//##			    		//- Zoom in on the node
+			    		cy.animate({
+			    			zoom: {
+			    				level: 5,
+			    				position: {
+			    					x: sourceNode.position('x'),
+			    					y: sourceNode.position('y')
+			    				},
+			    				renderedPosition: {
+			    					x: sourceNode.renderedPosition('x'),
+			    					y: sourceNode.renderedPosition('y')
+			    				}
+			    			},
+			    			duration: 1500
+			    		});
+//##			    		// throw log
+			    		console.log("Info: " + "Yo, check it out! Shorthest Path from-" + sourceNodeId + "-to-"  + targetNodeId + " has been found.");
+			    		appendMessage("Info: " + "Yo, check it out! Shorthest Path from-" + sourceNodeId + "-to-"  + targetNodeId + " has been found, below is the path trace..");
+			    		console.log(shortestPathEdges)
+                    
+			    		shortestPathEdges.forEach(edge => {
+			    			console.log('Edge ID:', edge.id());
+			    			console.log('Source Node ID:', edge.source().id());
+			    			console.log('Target Node ID:', edge.target().id());
+                        
+			    			edgeId = edge.id();
+			    			sourceNodeId = edge.source().id();
+			    			targetNodeId = edge.target().id();
+//##			    			// You can access other properties of the edge, e.g., source, target, data, etc.
+                        
+			    			appendMessage("Info: " + 'Edge ID: ' + edgeId )
+			    			appendMessage("Info: " + 'Source Node ID: ' + sourceNodeId )
+			    			appendMessage("Info: " + 'Target Node ID: ' + targetNodeId )			
+			    		});
+			    	
+                        
+                    }else{
+                        console.error(`Bro, there is no path from "${sourceNodeId}" to "${targetNodeId}".`);
+                        appendMessage(`Bro, there is no path from "${sourceNodeId}" to "${targetNodeId}".`);
+                        return;
+                    }
+                }
+
+				function pathFinderDijkstraDrawer(event) {
+//##					// Usage example:
+//##					// highlightShortestPath('node-a', 'node-b'); // Replace with your source and target node IDs
+//##					//- Function to get the default node style from cy-style.json
+//##					//- weight: (edge) => 1, // You can adjust the weight function if needed
+//##					//- weight: (edge) => edge.data('distance')
+								
+					console.log('im triggered')
+
+//##					// Remove existing highlight from all edges
+					cy.edges().forEach(edge => {
+						edge.removeClass('spf');
+							});
+
+//##					// Get the node sourceNodeId from pathFinderSourceNodeInput and targetNodeId from pathFinderTargetNodeInput  
+					const sourceNodeId = document.getElementById('panelBlock-viewportButtons-buttonfindRoute-divPanelBlock-columnContainerlabelFindRouteSource-panelContentlabelFindRouteSource-columnsPanelContentlabelFindRouteSource-labelColumnlabelFindRouteSource-inputColumnlabelFindRouteSource-labellabelFindRouteSource-control-input').value;
+					const targetNodeId = document.getElementById('panelBlock-viewportButtons-buttonfindRoute-divPanelBlock-columnContainerlabelFindRouteTarget-panelContentlabelFindRouteTarget-columnsPanelContentlabelFindRouteTarget-labelColumnlabelFindRouteTarget-inputColumnlabelFindRouteTarget-labellabelFindRouteTarget-control-input').value;
 
 //##					// Assuming you have 'cy' as your Cytoscape instance
 					const sourceNode = cy.$(`node[id="${sourceNodeId}"]`);
@@ -1870,8 +1953,6 @@
 					console.log("Panel-01.style: " + document.getElementById('Panel-01').style.display)
 				}
 
-
-
 				function linkImpairmentManager(toggle, baseCommand) {
 
 					console.log ("linkImpairmentManager-READCH")
@@ -1907,6 +1988,100 @@
 					}
 				}
 
+				var linkEndpointVisibility = false
+
+				function toggleLinkEndpoint() {
+					if (linkEndpointVisibility) {
+						cy.edges().forEach(function(edge) {
+							edge.style('source-label', " ")
+							edge.style('target-label', " ")
+							linkEndpointVisibility = false
+						})
+					} else {
+						cy.edges().forEach(function(edge) {
+							edge.style('source-label', edge.data("sourceEndpoint"))
+							edge.style('target-label', edge.data("targetEndpoint"))
+							linkEndpointVisibility = true
+						})
+					}
+				}
+
+				var nodeContainerStatusVisibility = false;
+
+				function toggleContainerStatusVisibility() {
+					if (nodeContainerStatusVisibility) {
+						nodeContainerStatusVisibility = false
+						console.log("nodeContainerStatusVisibility: " + nodeContainerStatusVisibility)
+						appendMessage("nodeContainerStatusVisibility: " + nodeContainerStatusVisibility)
+						bulmaToast.toast({ 
+							message: `Alright, mission control, we're standing down. 🛑🔍 Container status probing aborted. Stay chill, folks. 😎👨‍💻`,
+							type: 'is-warning is-size-6 p-3',
+							duration: 4000, 
+							position: "top-center",
+							closeOnClick: true,
+						})
+
+					} else {
+						nodeContainerStatusVisibility = true
+						console.log("nodeContainerStatusVisibility: " + nodeContainerStatusVisibility)
+						appendMessage("nodeContainerStatusVisibility: " + nodeContainerStatusVisibility)
+						bulmaToast.toast({ 
+							message: `🕵️‍♂️ Bro, we're currently on a mission to probe that container status! Stay tuned for the results. 🔍🚀👨‍💻`,
+							type: 'is-warning is-size-6 p-3',
+							duration: 4000, 
+							position: "top-center",
+							closeOnClick: true,
+						})
+				
+					}
+				}
+
+			
+				function setNodeContainerStatus(containerNodeName, containerNodeStatus) {
+					cy.nodes().forEach(function(node) {
+						var nodeId = node.data('id');
+
+//##						// Find the corresponding status nodes based on node ID
+						var statusGreenNode = cy.$(`node[name="${nodeId}-statusGreen"]`);
+						var statusOrangeNode = cy.$(`node[name="${nodeId}-statusOrange"]`);
+						var statusRedNode = cy.$(`node[name="${nodeId}-statusRed"]`);
+
+
+						if (statusGreenNode.length === 0 || statusRedNode.length === 0) {
+//##							// If status nodes are not found, skip this node
+							return;
+						}
+
+//##						// Update positions of status nodes relative to the node
+						var nodePosition = node.position();
+						var offset = { x: -4, y: -10 };
+						var statusGreenNodePosition = { x: nodePosition.x + offset.x, y: nodePosition.y + offset.y };
+						var statusRedNodePosition = { x: nodePosition.x + offset.x, y: nodePosition.y - offset.y };
+
+//##						// Check if the nodeContainerStatusVisibility is true
+						if (nodeContainerStatusVisibility) {
+//##							// Check if the containerNodeName includes nodeId and containerNodeStatus includes 'healthy'
+							if (containerNodeName.includes(nodeId) && (containerNodeStatus.includes("Up") || containerNodeStatus.includes("healthy") ) ) {  
+								statusGreenNode.show();
+								statusRedNode.hide();
+								console.log("nodeContainerStatusVisibility: " + nodeContainerStatusVisibility);
+							} else if (containerNodeName.includes(nodeId) && containerNodeStatus.includes("(health: starting)")) {  
+								statusGreenNode.hide();
+								statusOrangeNode.show();
+							} else if (containerNodeName.includes(nodeId) && containerNodeStatus.includes("Exited")) { 
+								statusGreenNode.hide();
+								statusRedNode.show();
+							}
+						} else {
+							statusGreenNode.hide();
+							statusRedNode.hide();
+						}
+
+						statusGreenNode.position(statusGreenNodePosition);
+						statusRedNode.position(statusRedNodePosition);
+					});
+				}
+
 //##				// ######################################################
 //##				// End of JS Functions Event Handling section
 //##				// End of JS Functions Event Handling section
@@ -1917,6 +2092,9 @@
 //##				// Start of JS Generic Functions
 //##				// Start of JS Generic Functions
 //##				// ######################################################
+
+
+			
 
 //##				//- Helper Function for managed Panel-01 tabs
 				function showPanel01Tab(tabId) {
@@ -1960,7 +2138,8 @@
 					}
 				}
 
-//##				//-Panel-02 Function to append message function
+//##				// logMessagesPanel manager
+//##				///-logMessagesPanel Function to append message function
 				function appendMessage(message) {
 					const textarea = document.getElementById('notificationTextarea');
 //##					// Get the current date and time
@@ -1969,19 +2148,36 @@
 					textarea.value += `[${timestamp}] ${message}\n` ;
 					textarea.scrollTop = textarea.scrollHeight;
 				}
-				
-//##				// Panel-02 Function to copy textarea content to clipboard
+
+//##				///-logMessagesPanel Function to add a click event listener to the copy button
+				const copyButton = document.getElementById('copyToClipboardButton');
+                copyButton.className = 'button is-smallest-element';
+				copyButton.addEventListener('click', copyToClipboard);	
+
+//##				/// logMessagesPanel Function to copy textarea content to clipboard
 				function copyToClipboard() {
 					const textarea = document.getElementById('notificationTextarea');
 					textarea.select();
 					document.execCommand('copy');
 					}
+				
+//##				///-logMessagesPanel Function to add a click event listener to the close button
+				const panel02CloseButton = document.getElementById('panel02CloseButton');
+                panel02CloseButton.className = 'button is-smallest-element';
 
-//##				//-Panel-02 Function to add a click event listener to the copy button
-				const copyButton = document.getElementById('copyToClipboardButton');
-                copyButton.className = 'button is-smallest-element';
-				copyButton.addEventListener('click', copyToClipboard);	
-					
+				panel02CloseButton.addEventListener('click', () => {
+					panelId = document.getElementById('logMessagesPanel');
+					closePanelEvent(event, panelId)
+				});
+
+				function closePanelEvent(event, panel) {
+					panel.style.display= 'block'
+					console.log(panel.style.display)
+					panel.style.display = 'none'
+				}
+
+
+
 
 //##				// Call Go BackEnd function
 				function callGoFunction(parameter1, parameter2) {
@@ -2005,12 +2201,32 @@
 					});
 				}
 			
+//##				// sleep funtion
+				function sleep(ms) {
+					return new Promise(resolve => setTimeout(resolve, ms));
+				  }
+				
 //##				// ######################################################
 //##				// End of JS Generic Functions section
 //##				// End of JS Generic Functions section
 //##				// ######################################################
 			
 			});
+
+//##			// aarafat-tag:
+//##			//// removed this under cy.
+//##			//// reworked the Log Message panel to be dynamicaly created
+//##			//// create about panel
+//##			//// create clab client download panel
+			function logMessages(event){
+				panel =  document.getElementById('logMessagesPanel');
+				showPanelEvent(event, panel)
+			}
+			function showPanelEvent(event, panel) {
+				panel.style.display= 'none'
+				console.log(panel.style.display)
+				panel.style.display = 'block'
+			}
 			</script>
 		</div>
 	</body>

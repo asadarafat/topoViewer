@@ -374,13 +374,13 @@ func Clab(_ *cobra.Command, _ []string) error {
 				time.Sleep(time.Second * 10)
 			}
 		})
-	// // websocketdockerNodeStatus endpoint
-	// // websocketdockerNodeStatus endpoint
-	router.HandleFunc("/dockerNodeStatus",
+	// // websocketcontainerNodeStatus endpoint
+	// // websocketcontainerNodeStatus endpoint
+	router.HandleFunc("/containerNodeStatus",
 		func(w http.ResponseWriter, r *http.Request) {
 			// upgrade this connection to a WebSocket
 			// connection
-			dockerNodeStatus, err := upgrader.Upgrade(w, r, nil)
+			containerNodeStatus, err := upgrader.Upgrade(w, r, nil)
 			if err != nil {
 				log.Info(err)
 			}
@@ -396,7 +396,7 @@ func Clab(_ *cobra.Command, _ []string) error {
 			clabPass := confClab.GetString("clab-pass")
 			log.Debug("################## clabHost: " + clabPass)
 
-			// simulating dockerNodeStatus..
+			// simulating containerNodeStatus..
 			// Add the new connection to the active connections list
 
 			// Start an infinite loop
@@ -408,7 +408,7 @@ func Clab(_ *cobra.Command, _ []string) error {
 				for _, n := range cyTopo.ClabTopoDataV2.Nodes {
 					// log.Info("n.Longname", n.Longname)
 					x, err := cyTopo.GetDockerNodeStatus(n.Longname, clabUser, clabHost[0], clabPass)
-					dockerNodeStatus.WriteMessage(1, x)
+					containerNodeStatus.WriteMessage(1, x)
 					if err != nil {
 						log.Error(err)
 					}
