@@ -53,13 +53,15 @@
 			position: fixed;
 		}
 		#Panel-02 {
-			top: 500px; 
-			left: 10px; 
+			bottom: 0px; 
+			right: 10px; 
 			width: 340px; 
+			max-height: 290px;
+			overflow-y: auto; 
 			position: fixed;
 		}
 		#Panel-03 {
-			top: 580px; 
+			bottom: 10px; 
 			right: 10px; 
 			width: 340px; 
 			max-height: 290px;
@@ -156,6 +158,10 @@
 		.notification {
 			transform: translateY(60px);
 		}
+
+				 	
+          
+          
         
 	</style>
 	<body>
@@ -177,12 +183,10 @@
 						</div>
 						<div class="dropdown-menu" id="dropdown-menu" role="menu">
 							<div class="dropdown-content">
-								<a id="about" href="#" onclick="showPanelAbout();" class="dropdown-item label has-text-weight-normal is-small py-0">About TopoViewer</a>                      
+								<a id="about" href="#" onclick="showPanelWelcome();" class="dropdown-item label has-text-weight-normal is-small py-0">About TopoViewer</a>                      
 								<hr class="dropdown-divider py-0">
-								<a id="clabClientDropdownItem" href="#" onclick="showPanelTopoViewerClient();"        class="dropdown-item label has-text-weight-normal is-small py-0">TopoViewer Helper App</a>                  
-								<a id="logMessagesDropdownItem" href="#" onclick="logMessages(event);" class="dropdown-item label has-text-weight-normal is-small py-0">Log Messages</a>      
-								<!-- <a id="logMessagesDropdownItem" href="#" onclick="showLogMessagesPanel();" class="dropdown-item label has-text-weight-normal is-small py-0">Log Messages</a>                   -->
-            
+								<a id="clabClientDropdownItem" href="#" onclick="showPanelTopoViewerClient();"        class="dropdown-item label has-text-weight-normal is-small py-0">TopoViewer Client Download</a>                  
+								<a id="logMessagesDropdownItem" href="#" onclick="logMessages(event);" class="dropdown-item label has-text-weight-normal is-small py-0">Log Messages</a>                  
 							</div>
 						</div>
 				</div>
@@ -194,7 +198,7 @@
 			<div class="panel is-link" id="Panel-02" style="display: none;">
 				<p class="panel-heading is-size-7">Log Messages</p>
 				<div class="panel-block py-2 px-2">
-					<textarea class="textarea is-small is-outlined is-expanded" id="notificationTextarea" rows="12"></textarea>
+					<textarea class="textarea is-small is-outlined is-expanded" id="notificationTextarea" rows="10"></textarea>
 				</div>
 				<div class="panel-block py-2 px-2">
 					<div class="is-justify-content-space-between">
@@ -227,15 +231,11 @@
 {{rawJSComment "				// rgba(0, 0, 0, 0.2) specifies the color and transparency of the shadow. It's a black shadow (0, 0, 0 represents black), and the 0.2 alpha value makes it slightly transparent. The alpha value controls the shadow's opacity, with 0 being completely transparent and 1 being fully opaque."}}
 {{rawJSComment "				// */	"}}
 
-{{rawJSComment "			// Instantiate Panel Weclome, this is should be loaded before CY"}}
-			showPanelWelcome()
-				
-
 {{rawJSComment "			// Initialize a state variable to track the element's presence"}}
 			let isPanel01Cy = false;
 			let nodeClicked = false;
 			let edgeClicked = false;
-					
+
 			document.addEventListener('DOMContentLoaded', function() {
 
 {{rawJSComment "				// Reusable function to initialize a WebSocket connection"}}
@@ -310,7 +310,9 @@
 				});
 
 				loadCytoStyle()
+
 				function loadCytoStyle() {
+
 {{rawJSComment "					//- Load and apply Cytoscape styles from cy-style.json using fetch"}}
 					fetch('cy-style.json')
 						.then(response => response.json())
@@ -358,7 +360,7 @@
 {{rawJSComment "				// Instantiate viewport buttons"}}
 				createViewportButtons()
 
-{{rawJSComment "				//- Toggle the Panel(s) when clicking on the cy container "}}
+{{rawJSComment "				//- Toggle the Panel-01 when clicking on the cy container "}}
 				document.getElementById('cy').addEventListener('click', function(event) {
 {{rawJSComment "					//- This code will be executed when you click anywhere in the Cytoscape container"}}
 {{rawJSComment "					//- You can add logic specific to the container here"}}
@@ -368,8 +370,6 @@
 					if (!nodeClicked && !edgeClicked) {
 						if (!isPanel01Cy) {
 							removeElementById("Panel-01");
-							removeElementById("Panel-03");
-
 {{rawJSComment "							// Define tabContentFns with custom content generation functions"}}
 {{rawJSComment "							// createNetworkExplorerTab is has corresponding function with similar name."}}
 
@@ -1783,7 +1783,14 @@
 					document.getElementById(tabId).style.display = 'block';
 				}
 
-
+{{rawJSComment "				// Function to remove an element by its id"}}
+				function removeElementById(id) {
+					const elementToRemove = document.getElementById(id);
+					console.log(elementToRemove)
+					if (elementToRemove) {
+						elementToRemove.remove();
+					}
+				}
 
 {{rawJSComment "				//- Function to get the default node style from cy-style.json"}}
 				async function getDefaultNodeStyle(node) {
@@ -1829,7 +1836,7 @@
 				panel02CloseButton.className = 'button is-smallest-element';
 
 				panel02CloseButton.addEventListener('click', () => {
-					panelId = document.getElementById('Panel-02');
+					panelId = document.getElementById('logMessagesPanel');
 					closePanelEvent(event, panelId)
 				});
 
@@ -1879,7 +1886,6 @@
 {{rawJSComment "			//// create about panel"}}
 {{rawJSComment "			//// create clab client download panel"}}
 			function logMessages(event) {
-				removeElementById("Panel-03");
 				panel = document.getElementById('Panel-02');
 				showPanelEvent(event, panel)
 			}
@@ -1890,14 +1896,6 @@
 				panel.style.display = 'block'
 			}
 
-{{rawJSComment "			// Function to remove an element by its id"}}
-			function removeElementById(id) {
-				const elementToRemove = document.getElementById(id);
-				console.log(elementToRemove)
-				if (elementToRemove) {
-					elementToRemove.remove();
-				}
-			}
 
 
 {{rawJSComment "			// Call createContentPanel with the panel ID and an array of tab content functions"}}
@@ -2003,9 +2001,7 @@
 {{rawJSComment "			// logMessagesPanel manager"}}
 {{rawJSComment "			///-logMessagesPanel Function to append message function"}}
 			function appendMessage(message) {
-{{rawJSComment "				// const textarea = document.getElementById('notificationTextarea');"}}
 				const textarea = document.getElementById('notificationTextarea');
-
 {{rawJSComment "				// Get the current date and time"}}
 				const timestamp = new Date().toLocaleString();
 
@@ -2297,6 +2293,61 @@
 				});
 			}
 
+			function showPanelAbout() {
+				tabContentFns = [createAboutTab]
+				tabContentFnsArg = []
+				createContentPanel('Panel-03', tabContentFns, tabContentFnsArg, 'About')
+
+{{rawJSComment "				// createContentPanel('Panel-01', tabContentFns, tabContentFnsArg[0], 'Node Properties');"}}
+			}
+			function createAboutTab(panelHeadingText) {
+				const modifiedHeaderText = panelHeadingText;
+
+{{rawJSComment "				// Create the tab-container "}}
+				const tabContainer = document.createElement('div');
+				tabContainer.id = `tabContainer-${modifiedHeaderText}`
+				tabContainer.className = 'panel-tabContainer';
+
+{{rawJSComment "				// Panel Block 01"}}
+				panelBlockContainer = createPanelBlockContainer(tabContainer.id)
+				panelBlock01 = panelBlockContainer.panelBlock
+				divPanelBlock01 = panelBlockContainer.divPanelBlock
+
+{{rawJSComment "				// Define the HTML content as a string"}}
+				var topoViewerVersion ='nightly'
+				const htmlContent = `
+				<div class="content is-small pb-2">
+					<h6>Version: ${topoViewerVersion}</h6>
+					
+					<p>
+					Designed and developed by <strong>asad.arafat@nokia.com</strong> <br>
+					GUI Framework by <strong>siva.sivakumar@nokia.com</strong> <br>
+					</p>
+
+					<p>Instruction: </p>
+					<ul>
+					<li>To view the attributes of a node or link, click on it.</li>
+					<li>To show/hide link endpoint label, click on setting menu.</li>
+					<li>To tap link with wireshark or to add impairment to link, please download client package.</li>
+					<li>To see further details, please visit <a href="https/github.com/asadarafat/topoViewer">https/github.com/asadarafat/topoViewer</a>.</li>
+					</ul>
+					
+				</div>
+				`;
+
+{{rawJSComment "				// Create a div element and set its innerHTML to the defined HTML content"}}
+				const contentDiv = document.createElement('div');
+				contentDiv.className = 'px-2 content';
+				contentDiv.innerHTML = htmlContent;
+
+				divPanelBlock01.appendChild(contentDiv)
+{{rawJSComment "				// append divPanelBlock01 --> panelBlock01 --> tabContainer"}}
+				panelBlock01.append(divPanelBlock01)
+				tabContainer.appendChild(panelBlock01)
+
+				return tabContainer;
+			}
+
 			function showPanelWelcome() {
 				tabContentFns = [createWelcomeTab]
 				tabContentFnsArg = []
@@ -2355,74 +2406,14 @@
 						We hope you find TopoViewer a valuable tool for your network management needs. If you have any questions or feedback, please don't hesitate to reach out to us.
 					</p>
 
-				</div>
-				`;
-
-{{rawJSComment "				// Create a div element and set its innerHTML to the defined HTML content"}}
-				const contentDiv = document.createElement('div');
-				contentDiv.className = 'px-2';
-				contentDiv.innerHTML = htmlContent;
-				contentDiv.style.maxHeight = '200px';
-				contentDiv.style.overflowY = 'auto';
-
-				divPanelBlock01.appendChild(contentDiv)
-{{rawJSComment "				// append divPanelBlock01 --> panelBlock01 --> tabContainer"}}
-				panelBlock01.append(divPanelBlock01)
-
-				tabContainer.appendChild(panelBlock01)
-
-				return tabContainer;
-			}
-
-			function showPanelAbout() {
-				removeElementById("Panel-03");
-				tabContentFns = [createAboutTab]
-				tabContentFnsArg = []
-				createContentPanel('Panel-03', tabContentFns, tabContentFnsArg, 'About')
-
-{{rawJSComment "				// createContentPanel('Panel-01', tabContentFns, tabContentFnsArg[0], 'Node Properties');"}}
-			}
-			function createAboutTab(panelHeadingText) {
-				const modifiedHeaderText = panelHeadingText;
-
-{{rawJSComment "				// Create the tab-container "}}
-				const tabContainer = document.createElement('div');
-				tabContainer.id = `tabContainer-${modifiedHeaderText}`
-				tabContainer.className = 'panel-tabContainer';
-
-{{rawJSComment "				// Panel Block 01"}}
-				panelBlockContainer = createPanelBlockContainer(tabContainer.id)
-				panelBlock01 = panelBlockContainer.panelBlock
-				divPanelBlock01 = panelBlockContainer.divPanelBlock
-
-{{rawJSComment "				// Define the HTML content as a string"}}
-				var topoViewerVersion ='nightly'
-				const htmlContent = `
-				<div class="content is-small pb-2">
-					<h6>Version: ${topoViewerVersion}</h6>
-					
-					<p>
-					Designed and developed by <strong>asad.arafat@nokia.com</strong> <br>
-					GUI Framework by <strong>siva.sivakumar@nokia.com</strong> <br>
-					</p>
-
-					<p>Instruction: </p>
-					<ul>
-					<li>To view the attributes of a node or link, click on it.</li>
-					<li>To show/hide link endpoint label, click on setting menu.</li>
-					<li>To tap link with wireshark or to add impairment to link, please download client package.</li>
-					<li>To see further details, please visit <a href="https/github.com/asadarafat/topoViewer">https/github.com/asadarafat/topoViewer</a>.</li>
-					</ul>
 					
 				</div>
 				`;
 
 {{rawJSComment "				// Create a div element and set its innerHTML to the defined HTML content"}}
 				const contentDiv = document.createElement('div');
-				contentDiv.className = 'px-2';
+				contentDiv.className = 'px-2 content';
 				contentDiv.innerHTML = htmlContent;
-				contentDiv.style.maxHeight = '200px';
-				contentDiv.style.overflowY = 'auto';
 
 				divPanelBlock01.appendChild(contentDiv)
 {{rawJSComment "				// append divPanelBlock01 --> panelBlock01 --> tabContainer"}}
@@ -2431,13 +2422,11 @@
 
 				return tabContainer;
 			}
-
 
 			function showPanelTopoViewerClient() {
-				removeElementById("Panel-03");
 				tabContentFns = [createTopoViewerClientTab]
 				tabContentFnsArg = []
-				createContentPanel('Panel-03', tabContentFns, tabContentFnsArg, 'TopoViewer Helper App')
+				createContentPanel('Panel-03', tabContentFns, tabContentFnsArg, 'TopoViewer Client')
 
 {{rawJSComment "				// createContentPanel('Panel-01', tabContentFns, tabContentFnsArg[0], 'Node Properties');"}}
 			}
@@ -2462,25 +2451,25 @@
 				const htmlContent = `
 				<div class="content is-small pb-2">
 					<h6>Wireshark Capture</h6>
+					
 					<p>
-						Please download the following helper app:
+						TopoViewer offers a remote capture feature to intercept ContainerLab node endpoints. For optimal convenience, it's recommended to have both TopoViewer and its client installed on the same server as the ContainerLab node. With the TopoViewer client, you can seamlessly launch Wireshark's GUI automatically. Alternatively, if you don't have the client, you can copy and paste an SSH command to manually start Wireshark. This provides flexibility in how you use this feature. <br>
+					</p>
+					<p>
+						Please download the following client app:
 					</p>
 					<ul>
 						<li><a href="${hreWindows}">Windows version</a> </li>
 						<li><a href="${hrefMac}">MAC version</a> </li>
 					</ul>
-					<p>
-						TopoViewer offers a remote capture feature for intercepting ContainerLab node endpoints. For the best experience, it's recommended to have both TopoViewer and its helper app installed on client-side. With the TopoViewer helper app, you can effortlessly automate the launch of Wireshark's GUI. Alternatively, if you don't have the helper app, you can simply copy and paste an SSH command to initiate Wireshark manually. This setup provides flexibility in how you utilize this feature. <br>
-					</p>
+				
 				</div>
 				`;
 
 {{rawJSComment "				// Create a div element and set its innerHTML to the defined HTML content"}}
 				const contentDiv = document.createElement('div');
-				contentDiv.className = 'px-2';
+				contentDiv.className = 'px-2 content';
 				contentDiv.innerHTML = htmlContent;
-				contentDiv.style.maxHeight = '200px';
-				contentDiv.style.overflowY = 'auto';
 
 				divPanelBlock01.appendChild(contentDiv)
 {{rawJSComment "				// append divPanelBlock01 --> panelBlock01 --> tabContainer"}}
@@ -2489,7 +2478,6 @@
 
 				return tabContainer;
 			}
-
 
 			</script>
 		</div>
