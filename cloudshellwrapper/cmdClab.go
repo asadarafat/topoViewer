@@ -1,6 +1,7 @@
 package cloudshellwrapper
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"math/rand"
@@ -356,7 +357,7 @@ func Clab(_ *cobra.Command, _ []string) error {
 			connectionsMu.Unlock()
 
 			for {
-				log.Debugf("uptime %s\n", time.Since(StartTime))
+				log.Debug("uptime %s\n", time.Since(StartTime))
 				message = time.Since(StartTime)
 				uptimeString := strings.Split(strings.Split(message.String(), "s")[0], ".")[0] + "s"
 				err = uptime.WriteMessage(1, []byte(uptimeString))
@@ -373,13 +374,13 @@ func Clab(_ *cobra.Command, _ []string) error {
 				time.Sleep(time.Second * 10)
 			}
 		})
-	// // websocketdockerNodeStatus endpoint
-	// // websocketdockerNodeStatus endpoint
-	router.HandleFunc("/dockerNodeStatus",
+	// // websocketcontainerNodeStatus endpoint
+	// // websocketcontainerNodeStatus endpoint
+	router.HandleFunc("/containerNodeStatus",
 		func(w http.ResponseWriter, r *http.Request) {
 			// upgrade this connection to a WebSocket
 			// connection
-			dockerNodeStatus, err := upgrader.Upgrade(w, r, nil)
+			containerNodeStatus, err := upgrader.Upgrade(w, r, nil)
 			if err != nil {
 				log.Info(err)
 			}
@@ -395,7 +396,7 @@ func Clab(_ *cobra.Command, _ []string) error {
 			clabPass := confClab.GetString("clab-pass")
 			log.Debug("################## clabHost: " + clabPass)
 
-			// simulating dockerNodeStatus..
+			// simulating containerNodeStatus..
 			// Add the new connection to the active connections list
 
 			// Start an infinite loop
@@ -405,7 +406,9 @@ func Clab(_ *cobra.Command, _ []string) error {
 				// log.Infof("node name:'%s'... ", cyTopo.ClabTopoDataV2.Nodes[0].Longname)
 
 				for _, n := range cyTopo.ClabTopoDataV2.Nodes {
-					dockerNodeStatus.WriteMessage(1, cyTopo.GetDockerNodeStatus(n.Longname, clabUser, clabHost[0], clabPass))
+					// log.Info("n.Longname", n.Longname)
+					x, err := cyTopo.GetDockerNodeStatus(n.Longname, clabUser, clabHost[0], clabPass)
+					containerNodeStatus.WriteMessage(1, x)
 					if err != nil {
 						log.Error(err)
 					}
@@ -415,12 +418,11 @@ func Clab(_ *cobra.Command, _ []string) error {
 			}
 		})
 
-	// // websocketclabServerAddress endpoint
-	// // websocketclabServerAddress endpoint
+	//// websocket clabServerAddress endpoint
+	//// websocket clabServerAddress endpoint
 	router.HandleFunc("/clabServerAddress",
 		func(w http.ResponseWriter, r *http.Request) {
-			// upgrade this connection to a WebSocket
-			// connection
+			// upgrade this connection to a WebSocket connection
 			clabServerAddress, err := upgrader.Upgrade(w, r, nil)
 			if err != nil {
 				log.Info(err)
@@ -429,9 +431,63 @@ func Clab(_ *cobra.Command, _ []string) error {
 			log.Debug("################## clabHost: " + clabHost[0])
 
 			w.WriteHeader(http.StatusOK)
+
 			// Add the new connection to the active connections list
 			clabServerAddress.WriteMessage(1, []byte(clabHost[0]))
 		})
+
+	//// clabNetem endpoint
+	//// clabNetem endpoint
+	router.HandleFunc("/clabNetem",
+		func(w http.ResponseWriter, r *http.Request) {
+
+			// Parse the request body
+			var requestData map[string]interface{}
+			if err := json.NewDecoder(r.Body).Decode(&requestData); err != nil {
+				http.Error(w, "Invalid request body", http.StatusBadRequest)
+				return
+			}
+
+			// Access the parameters
+			command := requestData["param1"].(string)
+			emptyPadding := requestData["param2"].(string)
+
+			log.Info("clabNetem-Param1: ", command)
+			log.Info("clabNetem-Param2: ", emptyPadding)
+
+			clabUser := confClab.GetString("clab-user")
+			log.Debug("################## clabUser: " + clabUser)
+			clabHost := confClab.GetStringSlice("allowed-hostnames")
+			log.Debug("################## clabHost: " + clabHost[0])
+			clabPass := confClab.GetString("clab-pass")
+			log.Debug("################## clabHost: " + clabPass)
+
+			// call function to run SSH commnd
+			cyTopo.RunSSHCommand(clabUser, clabHost[0], clabPass, command)
+
+			// Create a response JSON object
+			responseData := map[string]interface{}{
+				"result": "Netem command received",
+			}
+
+			// Marshal the response JSON object into a JSON string
+			jsonResponse, err := json.Marshal(responseData)
+			if err != nil {
+				http.Error(w, "Failed to marshal response data", http.StatusInternalServerError)
+				return
+			}
+
+			// Set the response Content-Type header
+			w.Header().Set("Content-Type", "application/json")
+
+			// Write the JSON response to the client
+			_, err = w.Write(jsonResponse)
+			if err != nil {
+				// Handle the error (e.g., log it)
+				http.Error(w, "Failed to write response", http.StatusInternalServerError)
+				return
+			}
+		}).Methods("POST")
 
 	// this is the endpoint for serving xterm.js assets
 	depenenciesDirectorXterm := path.Join(workingDirectory, "./html-static/cloudshell/node_modules")
@@ -440,10 +496,6 @@ func Clab(_ *cobra.Command, _ []string) error {
 	// this is the endpoint for serving cytoscape.js assets
 	depenenciesDirectoryCytoscape := path.Join(workingDirectory, "./html-static/cytoscape")
 	router.PathPrefix("/cytoscape").Handler(http.StripPrefix("/cytoscape", http.FileServer(http.Dir(depenenciesDirectoryCytoscape))))
-
-	// this is the endpoint for serving dataCyto.json asset
-	depenenciesDirectoryDataCyto := path.Join(workingDirectory, "./html-static/cytoscapedata")
-	router.PathPrefix("/cytoscapedata").Handler(http.StripPrefix("/cytoscapedata", http.FileServer(http.Dir(depenenciesDirectoryDataCyto))))
 
 	// this is the endpoint for serving css asset
 	depenenciesDirectoryCss := path.Join(workingDirectory, "./html-static/css")
@@ -468,12 +520,12 @@ func Clab(_ *cobra.Command, _ []string) error {
 	sourceImageFolder := htmlStaticPrefixPath + "images"
 	destinationImageFolder := htmlPublicPrefixPath + cyTopo.ClabTopoDataV2.Name + "/images"
 	err := cp.Copy(sourceImageFolder, destinationImageFolder)
-	log.Debugf("Copying images folder error: ", err)
+	log.Debug("Copying images folder error: ", err)
 
 	sourceClabClientFolder := htmlStaticPrefixPath + "clab-client"
 	destinationClabClientImageFolder := htmlPublicPrefixPath + cyTopo.ClabTopoDataV2.Name + "/clab-client"
 	err1 := cp.Copy(sourceClabClientFolder, destinationClabClientImageFolder)
-	log.Debugf("Copying clab-client folder error: ", err1)
+	log.Debug("Copying clab-client folder error: ", err1)
 
 	// type IndexHtml struct {
 	// 	labName          string
