@@ -342,7 +342,7 @@
 				}
 
 {{rawJSComment "				// Fetch and load element data from a JSON file"}}
-				fetch('dataCytoMarshall-nokia-MAGc-lab.json')
+				fetch('{{.}}')
 					.then(response => response.json())
 					.then(elements => {
 {{rawJSComment "						// Add the elements to the Cytoscape instance"}}
