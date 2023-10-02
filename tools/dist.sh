@@ -15,7 +15,7 @@ mkdir dist/html-public
 touch dist/html-public/put-html-asset-here.txt
 
 echo "Build Linux Binary..."
-GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o topoviewer cloudshellwrapper/cmd/main.go 
+GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o topoviewer go_cloudshellwrapper/cmd/main.go 
 
 echo "Copy TopoViewer Binary..."
 mv topoviewer dist/topoviewer
