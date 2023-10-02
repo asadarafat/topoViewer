@@ -4,11 +4,13 @@ rawTopoFile/_clab-folder
 rawTopoFile/clab
 rawTopoFile/license.txt
 rawTopoFile/clab-topoViewerDemo/**
-node_modules/**
-_frontend_olds/**
 webpack.config.js
 .babelrc
 go_tools/ygot
 go_tools/ygot/**
-README-copy.md
 html-static/template/clab/button.tmpl
+node_modules/**
+_archive/**
+html-public/**
+README-copy.md
+README-copy2.md

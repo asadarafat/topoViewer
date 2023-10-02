@@ -15,7 +15,7 @@ mkdir dist/html-public
 touch dist/html-public/put-html-asset-here.txt
 
 echo "Build Linux Binary..."
-GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o topoviewer cloudshellwrapper/cmd/main.go 
+GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o topoviewer go_cloudshellwrapper/cmd/main.go 
 
 echo "Copy TopoViewer Binary..."
 mv topoviewer dist/topoviewer
@@ -55,6 +55,7 @@ echo "Copy Docker entrypoint.sh ..."
 cp tools/entrypoint.sh dist/entrypoint.sh 
 
 echo "Git Commit and Push with tag Tag"
+git add dist/topoviewer
 git commit -am \"$tag\"
 git tag $tag
 git push --tags
