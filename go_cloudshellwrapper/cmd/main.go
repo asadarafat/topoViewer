@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/asadarafat/topoViewer/cloudshellwrapper"
+	cloudshellwrapper "github.com/asadarafat/topoViewer/go_cloudshellwrapper"
 )
 
 // // var conf = cloudshellwrapper.Conf

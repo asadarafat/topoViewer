@@ -13,11 +13,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/asadarafat/topoViewer/topoengine"
-	"github.com/asadarafat/topoViewer/xtermjs"
+	topoengine "github.com/asadarafat/topoViewer/go_topoengine"
+	xtermjs "github.com/asadarafat/topoViewer/go_xtermjs"
 	"github.com/usvc/go-config"
 
-	tools "github.com/asadarafat/topoViewer/tools"
+	tools "github.com/asadarafat/topoViewer/go_tools"
 	cp "github.com/otiai10/copy"
 	log "github.com/sirupsen/logrus"
 

@@ -11,7 +11,7 @@ import (
 	"sync"
 	"time"
 
-	log "github.com/asadarafat/topoViewer/tools"
+	log "github.com/asadarafat/topoViewer/go_tools"
 
 	"github.com/creack/pty"
 	"github.com/google/uuid"

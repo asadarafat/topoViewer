@@ -17,7 +17,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 
-	tools "github.com/asadarafat/topoViewer/tools"
+	tools "github.com/asadarafat/topoViewer/go_tools"
 )
 
 func (cyTopo *CytoTopology) InitLogger() {

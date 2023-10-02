@@ -4,7 +4,7 @@ import (
 	"io/ioutil"
 	"os"
 
-	tools "github.com/asadarafat/topoViewer/tools"
+	tools "github.com/asadarafat/topoViewer/go_tools"
 	log "github.com/sirupsen/logrus"
 )
 

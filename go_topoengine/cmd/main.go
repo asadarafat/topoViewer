@@ -1,8 +1,8 @@
 package main
 
 import (
-	tools "github.com/asadarafat/topoViewer/tools"
-	"github.com/asadarafat/topoViewer/topoengine"
+	tools "github.com/asadarafat/topoViewer/go_tools"
+	topoengine "github.com/asadarafat/topoViewer/go_topoengine"
 )
 
 // // "io/ioutil"

@@ -7,7 +7,7 @@ import (
 	"os"
 	"strconv"
 
-	tools "github.com/asadarafat/topoViewer/tools"
+	tools "github.com/asadarafat/topoViewer/go_tools"
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 )

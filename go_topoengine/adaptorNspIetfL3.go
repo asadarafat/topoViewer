@@ -9,7 +9,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	tools "github.com/asadarafat/topoViewer/tools"
+	tools "github.com/asadarafat/topoViewer/go_tools"
 )
 
 type IetfNetworkTopologyL3 struct {

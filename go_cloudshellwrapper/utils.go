@@ -7,7 +7,7 @@ import (
 	"runtime"
 	"time"
 
-	log "github.com/asadarafat/topoViewer/tools"
+	log "github.com/asadarafat/topoViewer/go_tools"
 	"github.com/gorilla/mux"
 )
 

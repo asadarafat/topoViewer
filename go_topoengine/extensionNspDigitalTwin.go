@@ -10,7 +10,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	types "github.com/srl-labs/containerlab/types"
 
-	tools "github.com/asadarafat/topoViewer/tools"
+	tools "github.com/asadarafat/topoViewer/go_tools"
 )
 
 // Containerlab Struct
