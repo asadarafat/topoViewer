@@ -55,6 +55,7 @@ echo "Copy Docker entrypoint.sh ..."
 cp tools/entrypoint.sh dist/entrypoint.sh 
 
 echo "Git Commit and Push with tag Tag"
+git add dist/topoviewer
 git commit -am \"$tag\"
 git tag $tag
 git push --tags
