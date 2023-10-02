@@ -5,8 +5,8 @@ rawTopoFile/clab
 rawTopoFile/license.txt
 rawTopoFile/clab-topoViewerDemo/**
 node_modules/**
-_frontend_olds/
-_frontend_olds/**
+_frontend_old/
+_frontend_old/**
 webpack.config.js
 .babelrc
 go_tools/ygot
@@ -14,6 +14,5 @@ go_tools/ygot/**
 README-copy.md
 README-copy2.md
 html-static/template/clab/button.tmpl
-html-public/3tier/**
-html-public/3tierSmall/**
-html-public/nokia-MAGc-lab/**
+html-public/**
+_archive/**
