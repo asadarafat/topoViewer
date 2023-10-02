@@ -14,5 +14,4 @@ go_tools/ygot/**
 README-copy.md
 README-copy2.md
 html-static/template/clab/button.tmpl
-html-public/**
 _archive/**
