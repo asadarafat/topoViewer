@@ -5,9 +5,10 @@ rawTopoFile/clab
 rawTopoFile/license.txt
 rawTopoFile/clab-topoViewerDemo/**
 node_modules/**
+_frontend_olds/**
 webpack.config.js
 .babelrc
-tools/ygot
-tools/ygot/**
+go_tools/ygot
+go_tools/ygot/**
 README-copy.md
 html-static/template/clab/button.tmpl
