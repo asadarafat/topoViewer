@@ -10,17 +10,16 @@
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@4.0.0/animate.min.css">
 		
 		<link href="css/style.css" rel="stylesheet"/>
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/material-design-icons@3.0.1/iconfont/material-icons.css">
 
 
 
 		<script defer src="https://use.fontawesome.com/releases/v5.14.0/js/all.js"></script>
+		
+		<script defer src="https://cdn.jsdelivr.net/npm/bulma-extensions@4.0.1/bulma-slider/dist/js/bulma-slider.min.js"></script>
+		<script defer src="https://cdnjs.cloudflare.com/ajax/libs/bulma-toast/2.4.0/bulma-toast.min.js"></script>
 		<script defer src="https://cdn.jsdelivr.net/npm/bulma-extensions@4.0.1/bulma-slider/dist/js/bulma-slider.min.js"></script>
 
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/bulma-toast/2.4.0/bulma-toast.min.js"></script>
-
-		<script defer src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-
-		
 
 		
 	</head>
@@ -45,7 +44,7 @@
 			position: absolute;
 		}
 		#Panel-01 {
-			top: 80px; 
+			top: 75px; 
 			right: 10px; 
 			width: 340px;
 			max-height: 600px;
@@ -53,21 +52,21 @@
 			position: fixed;
 		}
 		#Panel-02 {
-			top: 500px; 
+			bottom: 5px;
 			left: 10px; 
 			width: 340px; 
 			position: fixed;
 		}
 		#Panel-03 {
-			top: 580px; 
+			bottom: 10px;
 			right: 10px; 
 			width: 340px; 
-			max-height: 290px;
+			max-height: 340px;
 			overflow-y: auto; 
 			position: fixed;
 		}
 		#ViewPortButtons {
-			top: 80px; 
+			top: 75px; 
 			left: 10px; 
 			position: fixed;
 		}
@@ -82,6 +81,26 @@
 			z-index: 9999;
 			box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.4);
 		}
+		.custom-slider {
+			height: 10px;  
+		}
+   
+		input[type="range"]::-moz-range-thumb {
+			width: 5px;  
+			height: 5px;  
+			background-color: #007bff;  
+			border: 2px solid #007bff;  
+			border-radius: 10%;  
+			cursor: pointer;  
+		}
+
+		input[type="range"]::-moz-range-track {
+			width: 100%;  
+			height: 3px;  
+			background-color: #ccc;  
+			border-radius: 5px;  
+		}
+  
 		.column {
 			background-color: white;  
 		}
@@ -181,7 +200,7 @@
 								<hr class="dropdown-divider py-0">
 								<a id="clabClientDropdownItem" href="#" onclick="showPanelTopoViewerClient();"        class="dropdown-item label has-text-weight-normal is-small py-0">TopoViewer Helper App</a>                  
 								<a id="logMessagesDropdownItem" href="#" onclick="logMessages(event);" class="dropdown-item label has-text-weight-normal is-small py-0">Log Messages</a>      
-								<!-- <a id="logMessagesDropdownItem" href="#" onclick="showLogMessagesPanel();" class="dropdown-item label has-text-weight-normal is-small py-0">Log Messages</a>                   -->
+								
             
 							</div>
 						</div>
@@ -208,7 +227,6 @@
     		<script src="https://unpkg.com/webcola@3.3.8/WebCola/cola.min.js"></script>
     		<script src="https://unpkg.com/popper.js@1.14.4/dist/umd/popper.js"></script>
     		<script src="https://unpkg.com/tippy.js@2.6.0/dist/tippy.all.js"></script>
-			
     		
 			<script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.19.0/cytoscape.min.js"></script>
     		<script src="https://unpkg.com/cytoscape-cola@2.2.3/cytoscape-cola.js"></script>
@@ -229,13 +247,12 @@
 
 {{rawJSComment "			// Instantiate Panel Weclome, this is should be loaded before CY"}}
 			showPanelWelcome()
-				
 
 {{rawJSComment "			// Initialize a state variable to track the element's presence"}}
 			let isPanel01Cy = false;
 			let nodeClicked = false;
 			let edgeClicked = false;
-					
+			
 			document.addEventListener('DOMContentLoaded', function() {
 
 {{rawJSComment "				// Reusable function to initialize a WebSocket connection"}}
@@ -340,6 +357,7 @@
 							maxSimulationTime: 1500
 						});
 						layout.run();
+
 {{rawJSComment "						// remove node topoviewer"}}
 						topoViewerNode = cy.filter('node[name = "topoviewer"]');
 						topoViewerNode.remove()
@@ -355,8 +373,7 @@
 				hoverText.textContent = 'Launch CloudShell.';
 				document.body.appendChild(hoverText);
 
-{{rawJSComment "				// Instantiate viewport buttons"}}
-				createViewportButtons()
+
 
 {{rawJSComment "				//- Toggle the Panel(s) when clicking on the cy container "}}
 				document.getElementById('cy').addEventListener('click', function(event) {
@@ -426,13 +443,10 @@
 					appendMessage(`"nodeClicked: " ${nodeClicked}`)
 				});
 
+{{rawJSComment "				// Instantiate viewport buttons"}}
+				createViewportButtons(cy)
 
-{{rawJSComment "				// ######################################################"}}
-{{rawJSComment "				// Start of JS Functions HTML Element Creation section"}}
-{{rawJSComment "				// Start of JS Functions HTML Element Creation section"}}
-{{rawJSComment "				// ######################################################"}}
-
-				function createViewportButtons() {
+				function createViewportButtons(cy) {
 {{rawJSComment "					// Create a buttons container"}}
 					const boxContainer = document.createElement('div');
 					boxContainer.className = 'box p-2';
@@ -450,7 +464,7 @@
 						hoverMessage: 'Fit to screen',
 						hrefFunction: 'eventHandlerLink',
 						hrefLink: '',
-						callOutFuntionName: 'zoomToFitEvent',
+						callOutFuntionName: 'zoomToFitDrawer',
 					},
 					{
 						name: 'findNode',
@@ -480,7 +494,7 @@
 								iconClass: 'fas fa-check-circle',
 								hoverMessage: 'Find the node',
 								hrefFunction: 'eventHandlerLink',
-								hrefLink: `nodeFindDrawer`
+								callOutFuntionName: `nodeFindDrawer`
 							}]
 						}]
 					},
@@ -535,9 +549,76 @@
 								iconClass: 'fas fa-check-circle',
 								hoverMessage: 'Find the route',
 								hrefFunction: 'eventHandlerLink',
-								hrefLink: `pathFinderDijkstraDrawer`
+								callOutFuntionName: `pathFinderDijkstraDrawer`
 							}]
 						}]
+					},
+					{
+						name: 'adjustLayout',
+						iconClass: 'fas fa-vector-square',
+						hoverMessage: 'Adjust Layout',
+						hrefFunction: 'drawer',
+						hrefLink: ``,
+						drawerConfig: [
+						{
+							idSuffix: 'labelAdjustLayoutLinksLenght',
+							columnLabelTextContent: '',
+							columnLabelClass: 'column is-0 p-0',
+							columnInputType: 'label',
+							columnInputContent: 'Links Length',
+							columnInputPlaceholder: '',
+							columnInputAttribute: 'enabled',
+							addonsContent: []
+						},
+						{
+							idSuffix: 'labelAdjustLayoutLinksLenghtSlider',
+							columnLabelTextContent: '',
+							columnLabelClass: 'column is-0 p-0 LinksLenghtSlider',
+							columnInputType: 'slider',
+							columnInputContent: '',
+							columnInputPlaceholder: '',
+							columnInputAttribute: 'enabled',
+							addonsContent: []
+						},
+						{
+							idSuffix: 'labelAdjustLayoutNodeSpacing',
+							columnLabelTextContent: '',
+							columnLabelClass: 'column is-0 p-0',
+							columnInputType: 'label',
+							columnInputContent: 'Node Spacing',
+							columnInputPlaceholder: '',
+							columnInputAttribute: 'enabled',
+							addonsContent: []
+						},
+						{
+							idSuffix: 'labelAdjustLayoutNodeSpacingSlider',
+							columnLabelTextContent: '',
+							columnLabelClass: 'column is-0 p-0 NodeSpacingSlider',
+							columnInputType: 'slider',
+							columnInputContent: '',
+							columnInputPlaceholder: '',
+							columnInputAttribute: 'enabled',
+							addonsContent: []
+						},
+						{
+							idSuffix: 'labelAdjustLayoutPaddingHidden',
+							columnLabelTextContent: '',
+							columnLabelClass: 'column is-0 p-0',
+							columnInputType: 'field',
+							columnInputContent: 'Links Length',
+							columnInputPlaceholder: '',
+							columnInputAttribute: 'enabled',
+							columnInputIsInvisible: 'yes',
+							addonsContent: [{
+								name: 'blue',
+								iconClass: 'fas fa-check-circle',
+								hoverMessage: 'Find the route',
+								hrefFunction: '',
+								hrefLink: ``
+							}]
+						}
+						
+						]
 					},
 					{
 						name: 'togleEndpointLabel',
@@ -579,9 +660,9 @@
 						button.style.outline = 'none';
 
 						if (config.hrefFunction == 'eventHandlerLink') {
-							button.addEventListener('click', function() {
+							button.addEventListener('click', function(cy) {
 {{rawJSComment "								// Use eval() to call the function by name"}}
-								eval(config.callOutFuntionName + `()`);
+								eval(config.callOutFuntionName + `()`); // this config.callOutFuntionName funtion need to be defined inside DOM loading event
 							});
 						}
 
@@ -604,13 +685,13 @@
 							console.log('drawerBox.style.boxShadow')
 							console.log(drawerBox.style)
 
-{{rawJSComment "							////"}}
+{{rawJSComment "							//// The drawerBox element is created using createPanelBlockContainer() and createPanelBlockForm() functions"}}
 {{rawJSComment "							// Panel Block 01"}}
 							panelBlockContainer = createPanelBlockContainer(`${button.id}`)
 							panelBlock01 = panelBlockContainer.panelBlock
 							divPanelBlock01 = panelBlockContainer.divPanelBlock
 
-							createPanelBlockForm(config.drawerConfig, panelBlock01, divPanelBlock01)
+							createPanelBlockForm(config.drawerConfig, panelBlock01, divPanelBlock01, cy)
 {{rawJSComment "							// Per panelBlock divPanelBlock01 --> panelBlock01"}}
 							panelBlock01.appendChild(divPanelBlock01)
 							drawerBox.appendChild(panelBlock01)
@@ -685,6 +766,57 @@
 {{rawJSComment "					// Append the container to the document body"}}
 					document.body.appendChild(boxContainer);
 				}
+				
+{{rawJSComment "				// Initiate Layout SLider "}}
+				setupLayoutSliders(cy);
+				
+				function setupLayoutSliders(cy) {
+					const updateLayout = (edgeLengthValue, nodeSpacingValue) => {
+						console.log ("edgeLengthValue", edgeLengthValue)
+						console.log ("nodeSpacingValue", nodeSpacingValue)
+
+						cy.layout({
+							fit: true,
+							name: "cola",
+							animate: true,
+							randomize: false,
+							maxSimulationTime: 400,
+{{rawJSComment "							//edgeLength: '50',"}}
+{{rawJSComment "							// nodeSpacing: function(node){"}}
+{{rawJSComment "							// 	 return 10; "}}
+{{rawJSComment "							// 	},"}}
+							edgeLength: function(e) {
+								return edgeLengthValue / e.data('weight');
+							},
+							nodeSpacing: function(e) {
+								return nodeSpacingValue / e.data('weight');
+							},
+						}).run();
+					};
+				
+					const edgeLengthSlider = document.getElementById("panelBlock-viewportButtons-buttonadjustLayout-divPanelBlock-columnContainerlabelAdjustLayoutLinksLenghtSlider-panelContentlabelAdjustLayoutLinksLenghtSlider-columnsPanelContentlabelAdjustLayoutLinksLenghtSlider-labelColumnlabelAdjustLayoutLinksLenghtSlider-inputColumnlabelAdjustLayoutLinksLenghtSlider-labellabelAdjustLayoutLinksLenghtSlider");
+					const nodeSpacingSlider = document.getElementById("panelBlock-viewportButtons-buttonadjustLayout-divPanelBlock-columnContainerlabelAdjustLayoutNodeSpacingSlider-panelContentlabelAdjustLayoutNodeSpacingSlider-columnsPanelContentlabelAdjustLayoutNodeSpacingSlider-labelColumnlabelAdjustLayoutNodeSpacingSlider-inputColumnlabelAdjustLayoutNodeSpacingSlider-labellabelAdjustLayoutNodeSpacingSlider");
+				
+					const sliderEventHandler = () => {
+
+						console.log("edgeLengthSlider.value", edgeLengthSlider.value)
+						console.log("nodeSpacingSlider.value", nodeSpacingSlider.value)
+
+						const edgeLengthValue = parseFloat(edgeLengthSlider.value);
+						const nodeSpacingValue = parseFloat(nodeSpacingSlider.value);
+						updateLayout(edgeLengthValue, nodeSpacingValue);
+					};
+				
+					edgeLengthSlider.addEventListener("input", sliderEventHandler);
+					nodeSpacingSlider.addEventListener("input", sliderEventHandler);
+				}	
+
+{{rawJSComment "				// ######################################################"}}
+{{rawJSComment "				// Start of JS Functions HTML Element Creation section"}}
+{{rawJSComment "				// Start of JS Functions HTML Element Creation section"}}
+{{rawJSComment "				// ######################################################"}}
+
+			
 
 {{rawJSComment "				// Function to create the Panel-01-nodeDetail content"}}
 				function createContentPanelAction() {
@@ -717,8 +849,6 @@
 {{rawJSComment "					// Append the panel to the document body or another container of your choice"}}
 					document.body.appendChild(panel);
 				}
-
-
 
 				function createNetworkExplorerTab() {
 {{rawJSComment "					// Create a div container for Tab-01 content"}}
@@ -887,8 +1017,6 @@
 
 					return tab02Container;
 				}
-
-
 
 				function createNodeDetailTab(node, panelHeadingText) {
 					const modifiedHeaderText = panelHeadingText.replace(/\s+/g, '');
@@ -1106,6 +1234,10 @@
 					return tabContainer;
 				}
 
+				function createViewPortAddonTab(panelHeadingText) {
+
+				}
+				
 {{rawJSComment "				// ######################################################"}}
 {{rawJSComment "				// END of JS Functions HTML Element Creation section"}}
 {{rawJSComment "				// END of JS Functions HTML Element Creation section"}}
@@ -1285,49 +1417,7 @@
 					}
 				}
 
-				function nodeFindDrawer(event) {
-{{rawJSComment "					//- Get a reference to your Cytoscape instance (assuming it's named 'cy')"}}
-{{rawJSComment "					//- const cy = window.cy; //- Replace 'window.cy' with your actual Cytoscape instance"}}
-{{rawJSComment "					//- Find the node with the specified name"}}
-					const nodeName = document.getElementById('panelBlock-viewportButtons-buttonfindNode-divPanelBlock-columnContainerlabelNodeName-panelContentlabelNodeName-columnsPanelContentlabelNodeName-labelColumnlabelNodeName-inputColumnlabelNodeName-labellabelNodeName-control-input').value;
-
-					const node = cy.$(`node[name = "${nodeName}"]`);
-{{rawJSComment "					//- Check if the node exists"}}
-					if (node.length > 0) {
-{{rawJSComment "						// console"}}
-						console.log("Info: " + "Sweet! Node \"" + nodeName + "\" is in the house.");
-						appendMessage("Info: " + "Sweet! Node \"" + nodeName + "\" is in the house.");
-{{rawJSComment "						//- Apply a highlight style to the node"}}
-						node.style({
-							'border-color': 'red',
-							'border-width': '2px',
-							'background-color': 'yellow'
-						});
-{{rawJSComment "						//- Zoom out on the node"}}
-						cy.fit()
-{{rawJSComment "						//- Zoom in on the node"}}
-						cy.animate({
-							zoom: {
-								level: 5,
-								position: {
-									x: node.position('x'),
-									y: node.position('y')
-								},
-								renderedPosition: {
-									x: node.renderedPosition('x'),
-									y: node.renderedPosition('y')
-								}
-							},
-							duration: 1500
-						});
-					} else {
-						console.error(`Bro, I couldn't find a node named "${nodeName}". Try another one.`);
-						appendMessage(`Bro, I couldn't find a node named "${nodeName}". Try another one.`);
-
-					}
-				}
-
-				function zoomToFitEvent(event) {
+				function zoomToFitDrawer() {
 					const initialZoom = cy.zoom();
 					appendMessage(`Bro, initial zoom level is "${initialZoom}".`);
 {{rawJSComment "					//- Fit all nodes possible with padding"}}
@@ -1414,6 +1504,39 @@
 					} else {
 						console.error('Canvas element for layer2-node is not found or is not a valid HTML canvas element.');
 					}
+				}
+
+				function captureAndSaveViewportAsPpt() {
+{{rawJSComment "					//default options"}}
+					let defaultOptions = {
+						width: 10, 
+						height: 5.625, 
+						marginTop: 0.2, 
+						marginLeft: 0.2, 
+						segmentedEdges: true, 
+					};
+
+{{rawJSComment "					// Find the canvas element for layer2-node"}}
+					const cy = document.querySelector('#cy canvas[data-id="layer2-node"]');
+
+{{rawJSComment "					// 1. Create a new Presentation"}}
+					let pres = new PptxGenJS();
+
+{{rawJSComment "					// // 2. Add a Slide"}}
+{{rawJSComment "					// let slide = pres.addSlide();"}}
+
+{{rawJSComment "					// // 3. Add one or more objects (Tables, Shapes, Images, Text and Media) to the Slide"}}
+{{rawJSComment "					// let textboxText = 'Hello World from PptxGenJS!';"}}
+{{rawJSComment "					// let textboxOpts = { x: 1, y: 1, color: '363636' };"}}
+{{rawJSComment "					// slide.addText(textboxText, textboxOpts);"}}
+
+{{rawJSComment "					// // 4. Save the Presentation"}}
+{{rawJSComment "					// pres.writeFile();"}}
+
+					pptxAddSlide(pres, cy);
+
+					pres.writeFile();
+
 				}
 
 				function pathFinderDijkstraEvent(event) {
@@ -1520,109 +1643,7 @@
 					}
 				}
 
-				function pathFinderDijkstraDrawer(event) {
-{{rawJSComment "					// Usage example:"}}
-{{rawJSComment "					// highlightShortestPath('node-a', 'node-b'); // Replace with your source and target node IDs"}}
-{{rawJSComment "					//- Function to get the default node style from cy-style.json"}}
-{{rawJSComment "					//- weight: (edge) => 1, // You can adjust the weight function if needed"}}
-{{rawJSComment "					//- weight: (edge) => edge.data('distance')"}}
-
-					console.log('im triggered')
-
-{{rawJSComment "					// Remove existing highlight from all edges"}}
-					cy.edges().forEach(edge => {
-						edge.removeClass('spf');
-					});
-
-{{rawJSComment "					// Get the node sourceNodeId from pathFinderSourceNodeInput and targetNodeId from pathFinderTargetNodeInput  "}}
-					const sourceNodeId = document.getElementById('panelBlock-viewportButtons-buttonfindRoute-divPanelBlock-columnContainerlabelFindRouteSource-panelContentlabelFindRouteSource-columnsPanelContentlabelFindRouteSource-labelColumnlabelFindRouteSource-inputColumnlabelFindRouteSource-labellabelFindRouteSource-control-input').value;
-					const targetNodeId = document.getElementById('panelBlock-viewportButtons-buttonfindRoute-divPanelBlock-columnContainerlabelFindRouteTarget-panelContentlabelFindRouteTarget-columnsPanelContentlabelFindRouteTarget-labelColumnlabelFindRouteTarget-inputColumnlabelFindRouteTarget-labellabelFindRouteTarget-control-input').value;
-
-{{rawJSComment "					// Assuming you have 'cy' as your Cytoscape instance"}}
-					const sourceNode = cy.$(`node[id="${sourceNodeId}"]`);
-					const targetNode = cy.$(`node[id="${targetNodeId}"]`);
-
-					console.log("Info: " + "Let's find the path from-" + sourceNodeId + "-to-" + targetNodeId + "!");
-					appendMessage("Info: " + "Let's find the path from-" + sourceNodeId + "-to-" + targetNodeId + "!");
-
-{{rawJSComment "					// Check if both nodes exist"}}
-					if (sourceNode.length === 0 || targetNode.length === 0) {
-						console.error(`Bro, couldn't find the source or target node you specified. Double-check the node names.`);
-						appendMessage(`Bro, couldn't find the source or target node you specified. Double-check the node names.`);
-						return;
-					}
-
-{{rawJSComment "					// Get the Dijkstra result with the shortest path"}}
-					const dijkstraResult = cy.elements().dijkstra({
-						root: sourceNode,
-						weight: (edge) => 1,
-{{rawJSComment "						// Use the custom weight attribute"}}
-{{rawJSComment "						// weight: edge => edge.data('customWeight'),"}}
-
-					});
-{{rawJSComment "					// Get the shortest path from Dijkstra result"}}
-					const shortestPathEdges = dijkstraResult.pathTo(targetNode);
-					console.log(shortestPathEdges)
-
-{{rawJSComment "					// Check if there is a valid path (shortestPathEdges is not empty)"}}
-					if (shortestPathEdges.length > 1) {
-
-{{rawJSComment "						//// Apply a style to highlight the shortest path edges"}}
-{{rawJSComment "						// shortestPathEdges.style({"}}
-{{rawJSComment "						//	'line-color': 'red', "}}
-{{rawJSComment "						//	'line-style': 'solid', "}}
-{{rawJSComment "						// });"}}
-
-{{rawJSComment "						// Highlight the shortest path"}}
-						shortestPathEdges.forEach(edge => {
-							edge.addClass('spf');
-						});
-
-{{rawJSComment "						//- Zoom out on the node"}}
-						cy.fit()
-
-{{rawJSComment "						//- Zoom in on the node"}}
-						cy.animate({
-							zoom: {
-								level: 5,
-								position: {
-									x: sourceNode.position('x'),
-									y: sourceNode.position('y')
-								},
-								renderedPosition: {
-									x: sourceNode.renderedPosition('x'),
-									y: sourceNode.renderedPosition('y')
-								}
-							},
-							duration: 1500
-						});
-{{rawJSComment "						// throw log"}}
-						console.log("Info: " + "Yo, check it out! Shorthest Path from-" + sourceNodeId + "-to-" + targetNodeId + " has been found.");
-						appendMessage("Info: " + "Yo, check it out! Shorthest Path from-" + sourceNodeId + "-to-" + targetNodeId + " has been found, below is the path trace..");
-						console.log(shortestPathEdges)
-
-						shortestPathEdges.forEach(edge => {
-							console.log('Edge ID:', edge.id());
-							console.log('Source Node ID:', edge.source().id());
-							console.log('Target Node ID:', edge.target().id());
-
-							edgeId = edge.id();
-							sourceNodeId = edge.source().id();
-							targetNodeId = edge.target().id();
-{{rawJSComment "							// You can access other properties of the edge, e.g., source, target, data, etc."}}
-
-							appendMessage("Info: " + 'Edge ID: ' + edgeId)
-							appendMessage("Info: " + 'Source Node ID: ' + sourceNodeId)
-							appendMessage("Info: " + 'Target Node ID: ' + targetNodeId)
-						});
-
-
-					} else {
-						console.error(`Bro, there is no path from "${sourceNodeId}" to "${targetNodeId}".`);
-						appendMessage(`Bro, there is no path from "${sourceNodeId}" to "${targetNodeId}".`);
-						return;
-					}
-				}
+				
 
 				function closePanel01Event(event) {
 					var panel = document.getElementById('Panel-01');
@@ -1783,8 +1804,6 @@
 					document.getElementById(tabId).style.display = 'block';
 				}
 
-
-
 {{rawJSComment "				//- Function to get the default node style from cy-style.json"}}
 				async function getDefaultNodeStyle(node) {
 					try {
@@ -1871,7 +1890,7 @@
 {{rawJSComment "				// End of JS Generic Functions section"}}
 {{rawJSComment "				// ######################################################"}}
 
-			}); 
+			}); // end of DOM loading
 
 {{rawJSComment "			// aarafat-tag:"}}
 {{rawJSComment "			//// removed this under cy."}}
@@ -2013,8 +2032,6 @@
 				textarea.scrollTop = textarea.scrollHeight;
 			}
 
-			
-
 			function createPanelBlockContainer(tabContainerId) {
 {{rawJSComment "				// this is helper function to create PanelBlock-Container"}}
 				const panelBlock = document.createElement('div');
@@ -2031,7 +2048,7 @@
 				}
 			}
 
-			function createPanelBlockForm(PanelColumnsConfig, panelBlock, divPanelBlock) {
+			function createPanelBlockForm(PanelColumnsConfig, panelBlock, divPanelBlock, cy) { // this outer function can be called from a function inside DOM loading block, as long as 'cy' parameter is included. Th 'cy' will be loading 1st before the executing outer function.
 {{rawJSComment "				// This is helper function to create PanelBlock-Form-Content"}}
 {{rawJSComment "				// Usage: "}}
 {{rawJSComment "				// // Panel Block 01"}}
@@ -2063,7 +2080,7 @@
 {{rawJSComment "				// 	{ idSuffix: 'labelFqdn', columnLabelTextContent: 'FQDN', columnLabelClass: 'column is-4 p-1', columnInputType: 'label', columnInputContent: node.data('extraData').fqdn },"}}
 {{rawJSComment "				// 	{ idSuffix: 'labelGroup', columnLabelTextContent: 'Group', columnLabelClass: 'column is-4 p-1', columnInputType: 'label', columnInputContent: node.data('extraData').group },"}}
 {{rawJSComment "				// 	{ idSuffix: 'labelTopoviewerRole', columnLabelTextContent: 'Topoviewer Role', columnLabelClass: 'column is-4 p-1', columnInputType: 'label', columnInputContent: node.data('topoviewerRole') },	"}}
-{{rawJSComment "				//  { idSuffix: 'labelFindRouteSource', columnLabelTextContent: '', columnLabelClass: 'column is-0 p-0', columnInputType: 'field', columnInputContent: '', columnInputPlaceholder: 'name', columnInputAttribute: 'enabled',"}}
+{{rawJSComment "				//  { idSuffix: 'labelFindRouteSource', columnLabelTextContent: '', columnLabelClass: 'column is-0 p-0', columnInputType: 'field', columnInputContent: '', columnInputPlaceholder: 'name', columnInputAttribute: 'enabled', columnInputIsInvisible: 'yes',"}}
 {{rawJSComment "				//  	addonsContent: []"}}
 {{rawJSComment "				//  }				"}}
 {{rawJSComment "				//  { idSuffix: 'labelLinkImpairment', columnLabelTextContent: 'Link Impairment', columnLabelClass: 'column is-4 p-1', columnInputType: 'field', columnInputContent: 'Apply', columntInputAttribute: 'enabled', // columntInputAttribute default is disabled"}}
@@ -2135,6 +2152,27 @@
 						inputColumn.appendChild(inputElement);
 						columnsPanelContent.appendChild(inputColumn);
 
+					} else if (config.columnInputType == 'slider') {
+						const inputColumn = document.createElement('div');
+						inputColumn.className = `column is-8 p-1 pl-3`;
+						inputColumn.id = `${labelColumn.id}-inputColumn${config.idSuffix}`
+
+						const inputElement = document.createElement('input');
+						inputElement.className = `slider is-fullwidth custom-slider`;
+						
+						inputElement.step= '1';
+						inputElement.min= '1';
+						inputElement.max= '1000';
+						inputElement.value= '50';
+						inputElement.type= 'range'
+						
+						
+						inputElement.id = `${inputColumn.id}-label${config.idSuffix}`
+						inputElement.textContent = config.columnInputContent;
+
+						inputColumn.appendChild(inputElement);
+						columnsPanelContent.appendChild(inputColumn);
+
 					} else if (config.columnInputType == 'input') {
 						const inputColumn = document.createElement('div');
 						inputColumn.className = `column is-8 p-1 pl-3`;
@@ -2158,6 +2196,9 @@
 						const inputElement = document.createElement('div');
 						inputElement.className = `field has-addons`;
 						inputElement.id = `${inputColumn.id}-label${config.idSuffix}`
+						if (config.columnInputIsInvisible == 'yes'){
+							inputElement.classList.add('is-invisible'); 
+						}
 
 {{rawJSComment "						// create addon input"}}
 						const controlId = `${inputElement.id}-control`;
@@ -2176,6 +2217,8 @@
 						input.className = `input is-size-7 has-text-left link-impairment-widht has-text-weight-normal is-smallest-element`;
 						input.value = config.columnInputContent;
 						input.placeholder = config.columnInputPlaceholder
+
+		
 
 						control.appendChild(input);
 						inputElement.appendChild(control);
@@ -2201,16 +2244,12 @@
 
 							}
 							else if (addon.hrefFunction == 'eventHandlerLink') {
-								console.log(addon.hrefFunction)
-								button.addEventListener('click', function(event) {
-									if (typeof addon.hrefLink === 'string' && addon.hrefLink.length > 0) {
-{{rawJSComment "										// create function"}}
-{{rawJSComment "										// eval(`${addon.hrefLink}(event, '${input.value}')`);"}}
-										eval(`${addon.hrefLink}(event)`);
+								button.addEventListener('click', function() {
 
-									} else {
-										console.error('(addon.hrefLink or input.value) is empty or not a string ');
-									}
+									console.log ('addon.callOutFuntionName', addon.callOutFuntionName)
+									eval(addon.callOutFuntionName + `(cy)`);
+								
+							
 								});
 
 							} else if (addon.hrefFunction == 'copy') {
@@ -2304,6 +2343,7 @@
 
 {{rawJSComment "				// createContentPanel('Panel-01', tabContentFns, tabContentFnsArg[0], 'Node Properties');"}}
 			}
+
 			function createWelcomeTab(panelHeadingText) {
 				const modifiedHeaderText = panelHeadingText;
 
@@ -2362,7 +2402,7 @@
 				const contentDiv = document.createElement('div');
 				contentDiv.className = 'px-2';
 				contentDiv.innerHTML = htmlContent;
-				contentDiv.style.maxHeight = '200px';
+				contentDiv.style.maxHeight = '280px';
 				contentDiv.style.overflowY = 'auto';
 
 				divPanelBlock01.appendChild(contentDiv)
@@ -2373,16 +2413,31 @@
 
 				return tabContainer;
 			}
+		
+			async function showPanelAbout() {
+				const versionUrl = `${location.protocol}//${location.host}/version`;			
+				try {
+					const response = await fetch(versionUrl);
+			
+					if (!response.ok) {
+						throw new Error('Network response was not OK');
+					}
+			
+					const versionParsedText = await response.text();
+					console.log('Fetched text:', versionParsedText);
 
-			function showPanelAbout() {
-				removeElementById("Panel-03");
-				tabContentFns = [createAboutTab]
-				tabContentFnsArg = []
-				createContentPanel('Panel-03', tabContentFns, tabContentFnsArg, 'About')
+					removeElementById("Panel-03");
+					tabContentFns = [createAboutTab]
+					tabContentFnsArg = [versionParsedText]
+					createContentPanel('Panel-03', tabContentFns, tabContentFnsArg[0], 'About')
 
-{{rawJSComment "				// createContentPanel('Panel-01', tabContentFns, tabContentFnsArg[0], 'Node Properties');"}}
+				} catch (error) {
+					console.error('Fetch error:', error);
+					throw error; 
+				}
 			}
-			function createAboutTab(panelHeadingText) {
+			
+			function createAboutTab(versionParsedText, panelHeadingText) {
 				const modifiedHeaderText = panelHeadingText;
 
 {{rawJSComment "				// Create the tab-container "}}
@@ -2396,7 +2451,7 @@
 				divPanelBlock01 = panelBlockContainer.divPanelBlock
 
 {{rawJSComment "				// Define the HTML content as a string"}}
-				var topoViewerVersion ='nightly'
+				var topoViewerVersion = versionParsedText;
 				const htmlContent = `
 				<div class="content is-small pb-2">
 					<h6>Version: ${topoViewerVersion}</h6>
@@ -2421,7 +2476,7 @@
 				const contentDiv = document.createElement('div');
 				contentDiv.className = 'px-2';
 				contentDiv.innerHTML = htmlContent;
-				contentDiv.style.maxHeight = '200px';
+				contentDiv.style.maxHeight = '280px';
 				contentDiv.style.overflowY = 'auto';
 
 				divPanelBlock01.appendChild(contentDiv)
@@ -2432,7 +2487,6 @@
 				return tabContainer;
 			}
 
-
 			function showPanelTopoViewerClient() {
 				removeElementById("Panel-03");
 				tabContentFns = [createTopoViewerClientTab]
@@ -2441,6 +2495,7 @@
 
 {{rawJSComment "				// createContentPanel('Panel-01', tabContentFns, tabContentFnsArg[0], 'Node Properties');"}}
 			}
+
 			function createTopoViewerClientTab(panelHeadingText) {
 				const modifiedHeaderText = panelHeadingText;
 
@@ -2470,7 +2525,13 @@
 						<li><a href="${hrefMac}">MAC version</a> </li>
 					</ul>
 					<p>
-						TopoViewer offers a remote capture feature for intercepting ContainerLab node endpoints. For the best experience, it's recommended to have both TopoViewer and its helper app installed on client-side. With the TopoViewer helper app, you can effortlessly automate the launch of Wireshark's GUI. Alternatively, if you don't have the helper app, you can simply copy and paste an SSH command to initiate Wireshark manually. This setup provides flexibility in how you utilize this feature. <br>
+						TopoViewer offers a remote capture feature for intercepting ContainerLab node endpoints. 
+						For the best experience, it's recommended to have both TopoViewer and its helper app installed on client-side. 
+						With the TopoViewer helper app, you can effortlessly automate the launch of Wireshark's GUI. 
+					</p>
+					<p>
+						Alternatively, if you don't have the helper app, you can simply copy and paste an SSH command to initiate Wireshark manually. 
+						This setup provides flexibility in how you utilize this feature. <br>
 					</p>
 				</div>
 				`;
@@ -2479,7 +2540,7 @@
 				const contentDiv = document.createElement('div');
 				contentDiv.className = 'px-2';
 				contentDiv.innerHTML = htmlContent;
-				contentDiv.style.maxHeight = '200px';
+				contentDiv.style.maxHeight = '280px';
 				contentDiv.style.overflowY = 'auto';
 
 				divPanelBlock01.appendChild(contentDiv)
@@ -2489,7 +2550,161 @@
 
 				return tabContainer;
 			}
+			
 
+{{rawJSComment "			// function zoomToFitDrawerl(cy) {"}}
+{{rawJSComment "			// 	const initialZoom = cy.zoom();"}}
+{{rawJSComment "			// 	appendMessage(`Bro, initial zoom level is '${initialZoom}'.`);"}}
+{{rawJSComment "			// 	//- Fit all nodes possible with padding"}}
+{{rawJSComment "			// 	cy.fit();"}}
+{{rawJSComment "			// 	const currentZoom = cy.zoom();"}}
+{{rawJSComment "			// 	appendMessage(`And now the zoom level is '${currentZoom}'.`);"}}
+{{rawJSComment "			// }"}}
+
+			function nodeFindDrawer(cy) {
+{{rawJSComment "				//- Get a reference to your Cytoscape instance (assuming it's named 'cy')"}}
+{{rawJSComment "				//- const cy = window.cy; //- Replace 'window.cy' with your actual Cytoscape instance"}}
+{{rawJSComment "				//- Find the node with the specified name"}}
+				const nodeName = document.getElementById('panelBlock-viewportButtons-buttonfindNode-divPanelBlock-columnContainerlabelNodeName-panelContentlabelNodeName-columnsPanelContentlabelNodeName-labelColumnlabelNodeName-inputColumnlabelNodeName-labellabelNodeName-control-input').value;
+
+				const node = cy.$(`node[name = "${nodeName}"]`);
+{{rawJSComment "				//- Check if the node exists"}}
+				if (node.length > 0) {
+{{rawJSComment "					// console"}}
+					console.log("Info: " + "Sweet! Node \"" + nodeName + "\" is in the house.");
+					appendMessage("Info: " + "Sweet! Node \"" + nodeName + "\" is in the house.");
+{{rawJSComment "					//- Apply a highlight style to the node"}}
+					node.style({
+						'border-color': 'red',
+						'border-width': '2px',
+						'background-color': 'yellow'
+					});
+{{rawJSComment "					//- Zoom out on the node"}}
+					cy.fit()
+{{rawJSComment "					//- Zoom in on the node"}}
+					cy.animate({
+						zoom: {
+							level: 5,
+							position: {
+								x: node.position('x'),
+								y: node.position('y')
+							},
+							renderedPosition: {
+								x: node.renderedPosition('x'),
+								y: node.renderedPosition('y')
+							}
+						},
+						duration: 1500
+					});
+				} else {
+					console.error(`Bro, I couldn't find a node named "${nodeName}". Try another one.`);
+					appendMessage(`Bro, I couldn't find a node named "${nodeName}". Try another one.`);
+
+				}
+			}
+			function pathFinderDijkstraDrawer(cy) {
+{{rawJSComment "				// Usage example:"}}
+{{rawJSComment "				// highlightShortestPath('node-a', 'node-b'); // Replace with your source and target node IDs"}}
+{{rawJSComment "				//- Function to get the default node style from cy-style.json"}}
+{{rawJSComment "				//- weight: (edge) => 1, // You can adjust the weight function if needed"}}
+{{rawJSComment "				//- weight: (edge) => edge.data('distance')"}}
+
+				console.log('im triggered')
+
+{{rawJSComment "				// Remove existing highlight from all edges"}}
+				cy.edges().forEach(edge => {
+					edge.removeClass('spf');
+				});
+
+{{rawJSComment "				// Get the node sourceNodeId from pathFinderSourceNodeInput and targetNodeId from pathFinderTargetNodeInput  "}}
+				const sourceNodeId = document.getElementById('panelBlock-viewportButtons-buttonfindRoute-divPanelBlock-columnContainerlabelFindRouteSource-panelContentlabelFindRouteSource-columnsPanelContentlabelFindRouteSource-labelColumnlabelFindRouteSource-inputColumnlabelFindRouteSource-labellabelFindRouteSource-control-input').value;
+				const targetNodeId = document.getElementById('panelBlock-viewportButtons-buttonfindRoute-divPanelBlock-columnContainerlabelFindRouteTarget-panelContentlabelFindRouteTarget-columnsPanelContentlabelFindRouteTarget-labelColumnlabelFindRouteTarget-inputColumnlabelFindRouteTarget-labellabelFindRouteTarget-control-input').value;
+
+{{rawJSComment "				// Assuming you have 'cy' as your Cytoscape instance"}}
+				const sourceNode = cy.$(`node[id="${sourceNodeId}"]`);
+				const targetNode = cy.$(`node[id="${targetNodeId}"]`);
+
+				console.log("Info: " + "Let's find the path from-" + sourceNodeId + "-to-" + targetNodeId + "!");
+				appendMessage("Info: " + "Let's find the path from-" + sourceNodeId + "-to-" + targetNodeId + "!");
+
+{{rawJSComment "				// Check if both nodes exist"}}
+				if (sourceNode.length === 0 || targetNode.length === 0) {
+					console.error(`Bro, couldn't find the source or target node you specified. Double-check the node names.`);
+					appendMessage(`Bro, couldn't find the source or target node you specified. Double-check the node names.`);
+					return;
+				}
+
+{{rawJSComment "				// Get the Dijkstra result with the shortest path"}}
+				const dijkstraResult = cy.elements().dijkstra({
+					root: sourceNode,
+					weight: (edge) => 1,
+{{rawJSComment "					// Use the custom weight attribute"}}
+{{rawJSComment "					// weight: edge => edge.data('customWeight'),"}}
+
+				});
+{{rawJSComment "				// Get the shortest path from Dijkstra result"}}
+				const shortestPathEdges = dijkstraResult.pathTo(targetNode);
+				console.log(shortestPathEdges)
+
+{{rawJSComment "				// Check if there is a valid path (shortestPathEdges is not empty)"}}
+				if (shortestPathEdges.length > 1) {
+
+{{rawJSComment "					//// Apply a style to highlight the shortest path edges"}}
+{{rawJSComment "					// shortestPathEdges.style({"}}
+{{rawJSComment "					//	'line-color': 'red', "}}
+{{rawJSComment "					//	'line-style': 'solid', "}}
+{{rawJSComment "					// });"}}
+
+{{rawJSComment "					// Highlight the shortest path"}}
+					shortestPathEdges.forEach(edge => {
+						edge.addClass('spf');
+					});
+
+{{rawJSComment "					//- Zoom out on the node"}}
+					cy.fit()
+
+{{rawJSComment "					//- Zoom in on the node"}}
+					cy.animate({
+						zoom: {
+							level: 5,
+							position: {
+								x: sourceNode.position('x'),
+								y: sourceNode.position('y')
+							},
+							renderedPosition: {
+								x: sourceNode.renderedPosition('x'),
+								y: sourceNode.renderedPosition('y')
+							}
+						},
+						duration: 1500
+					});
+{{rawJSComment "					// throw log"}}
+					console.log("Info: " + "Yo, check it out! Shorthest Path from-" + sourceNodeId + "-to-" + targetNodeId + " has been found.");
+					appendMessage("Info: " + "Yo, check it out! Shorthest Path from-" + sourceNodeId + "-to-" + targetNodeId + " has been found, below is the path trace..");
+					console.log(shortestPathEdges)
+
+					shortestPathEdges.forEach(edge => {
+						console.log('Edge ID:', edge.id());
+						console.log('Source Node ID:', edge.source().id());
+						console.log('Target Node ID:', edge.target().id());
+
+						edgeId = edge.id();
+						sourceNodeId = edge.source().id();
+						targetNodeId = edge.target().id();
+{{rawJSComment "						// You can access other properties of the edge, e.g., source, target, data, etc."}}
+
+						appendMessage("Info: " + 'Edge ID: ' + edgeId)
+						appendMessage("Info: " + 'Source Node ID: ' + sourceNodeId)
+						appendMessage("Info: " + 'Target Node ID: ' + targetNodeId)
+					});
+
+
+				} else {
+					console.error(`Bro, there is no path from "${sourceNodeId}" to "${targetNodeId}".`);
+					appendMessage(`Bro, there is no path from "${sourceNodeId}" to "${targetNodeId}".`);
+					return;
+				}
+			}
 
 			</script>
 		</div>

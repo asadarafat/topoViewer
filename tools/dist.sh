@@ -6,7 +6,7 @@ read -p "Enter the version Tag: " tag
 # Display the entered parameters
 echo "Hello, the version Tag tobe used is $tag"
 
-cp cloudshellwrapper/constants.go cloudshellwrapper/constants.go.bak
+cp go_cloudshellwrapper/constants.go cloudshellwrapper/constants.go.bak
 sed -i "s/\(var VersionInfo string = \)\"[^\"]*\"/\1\"$tag\"/" cloudshellwrapper/constants.go
 
 echo "Cleanup dist folder..."
@@ -47,7 +47,9 @@ cp -r tools/pumba_linux_amd64 dist/pumba_linux_amd64
 
 echo "Copy html folder and assets..."
 cp -rR html-static dist/html-static
-# cp rawTopoFile/topo-nokia-MAGc-lab.yaml dist/topo-nokia-MAGc-lab.yaml
+rm -rR dist/html-static/archive-clab
+rm -rR dist/html-static/archive-nsp
+
 
 echo "Copy Docker entrypoint.sh ..."
 cp tools/entrypoint.sh dist/entrypoint.sh 
