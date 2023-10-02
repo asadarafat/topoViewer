@@ -1,0 +1,1253 @@
+[
+    {
+      "data": {
+        "id": "AGG-UPF01",
+        "weight": "30",
+        "name": "AGG-UPF01",
+        "parent": "IP-Core",
+        "topoviewerRole": "pe",
+        "sourceEndpoint": "",
+        "targetEndpoint": "",
+        "extraData": {
+          "clabServerUsername": "root",
+          "fqdn": "AGG-UPF01.nokia-MAGc-lab.io",
+          "group": "IP-Core",
+          "id": "AGG-UPF01",
+          "image": "registry.srlinux.dev/pub/vr-sros:23.3.R1",
+          "index": "0",
+          "kind": "vr-sros",
+          "labdir": "/root/clab/bng-cups/nokia-MultiAccessGateway-lab/clab-nokia-MAGc-lab/AGG-UPF01",
+          "labels": {
+            "ClabMgmtNetBridge": "br1-private",
+            "ClabNodeGroup": "IP-Core",
+            "ClabNodeKind": "vr-sros",
+            "ClabNodeLabDir": "/root/clab/bng-cups/nokia-MultiAccessGateway-lab/clab-nokia-MAGc-lab/AGG-UPF01",
+            "ClabNodeName": "AGG-UPF01",
+            "ClabNodeType": "chassis=sr-1 slot=A card=cpm-1 slot=1 mda/1=me6-100gb-qsfp28 mda/2=me6-100gb-qsfp28",
+            "ClabTopoFile": "/root/clab/bng-cups/nokia-MultiAccessGateway-lab/topo-nokia-MAG-lab.yaml",
+            "Containerlab": "nokia-MAGc-lab",
+            "TopoViewerRole": "pe"
+          },
+          "longname": "clab-nokia-MAGc-lab-AGG-UPF01",
+          "macAddress": "",
+          "mgmtIntf": "",
+          "mgmtIpv4AddressLength": 24,
+          "mgmtIpv4Addresss": "10.10.10.204",
+          "mgmtIpv6Address": "",
+          "mgmtIpv6AddressLength": 0,
+          "mgmtNet": "",
+          "name": "AGG-UPF01",
+          "shortname": "AGG-UPF01",
+          "weight": "3"
+        }
+      },
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "removed": false,
+      "group": "nodes",
+      "selected": false,
+      "selectable": true,
+      "locked": false,
+      "grabbed": false,
+      "grabbable": true,
+      "classes": ""
+    },
+    {
+      "data": {
+        "id": "AGG-UPF01-statusRed",
+        "weight": "30",
+        "name": "AGG-UPF01-statusRed",
+        "parent": "IP-Core",
+        "topoviewerRole": "",
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "removed": false,
+      "group": "nodes",
+      "selected": false,
+      "selectable": false,
+      "locked": false,
+      "grabbed": false,
+      "grabbable": false,
+      "classes": ""
+    },
+    {
+      "data": {
+        "id": "AGG-UPF01-statusGreen",
+        "weight": "30",
+        "name": "AGG-UPF01-statusGreen",
+        "parent": "IP-Core",
+        "topoviewerRole": "",
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "removed": false,
+      "group": "nodes",
+      "selected": false,
+      "selectable": false,
+      "locked": false,
+      "grabbed": false,
+      "grabbable": false,
+      "classes": ""
+    },
+    {
+      "data": {
+        "id": "AGG-UPF02",
+        "weight": "30",
+        "name": "AGG-UPF02",
+        "parent": "IP-Core",
+        "topoviewerRole": "pe",
+        "sourceEndpoint": "",
+        "targetEndpoint": "",
+        "extraData": {
+          "clabServerUsername": "root",
+          "fqdn": "AGG-UPF02.nokia-MAGc-lab.io",
+          "group": "IP-Core",
+          "id": "AGG-UPF02",
+          "image": "registry.srlinux.dev/pub/vr-sros:23.3.R1",
+          "index": "1",
+          "kind": "vr-sros",
+          "labdir": "/root/clab/bng-cups/nokia-MultiAccessGateway-lab/clab-nokia-MAGc-lab/AGG-UPF02",
+          "labels": {
+            "ClabMgmtNetBridge": "br1-private",
+            "ClabNodeGroup": "IP-Core",
+            "ClabNodeKind": "vr-sros",
+            "ClabNodeLabDir": "/root/clab/bng-cups/nokia-MultiAccessGateway-lab/clab-nokia-MAGc-lab/AGG-UPF02",
+            "ClabNodeName": "AGG-UPF02",
+            "ClabNodeType": "chassis=sr-1 slot=A card=cpm-1 slot=1 mda/1=me6-100gb-qsfp28 mda/2=me6-100gb-qsfp28",
+            "ClabTopoFile": "/root/clab/bng-cups/nokia-MultiAccessGateway-lab/topo-nokia-MAG-lab.yaml",
+            "Containerlab": "nokia-MAGc-lab",
+            "TopoViewerRole": "pe"
+          },
+          "longname": "clab-nokia-MAGc-lab-AGG-UPF02",
+          "macAddress": "",
+          "mgmtIntf": "",
+          "mgmtIpv4AddressLength": 24,
+          "mgmtIpv4Addresss": "10.10.10.205",
+          "mgmtIpv6Address": "",
+          "mgmtIpv6AddressLength": 0,
+          "mgmtNet": "",
+          "name": "AGG-UPF02",
+          "shortname": "AGG-UPF02",
+          "weight": "3"
+        }
+      },
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "removed": false,
+      "group": "nodes",
+      "selected": false,
+      "selectable": true,
+      "locked": false,
+      "grabbed": false,
+      "grabbable": true,
+      "classes": ""
+    },
+    {
+      "data": {
+        "id": "AGG-UPF02-statusRed",
+        "weight": "30",
+        "name": "AGG-UPF02-statusRed",
+        "parent": "IP-Core",
+        "topoviewerRole": "",
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "removed": false,
+      "group": "nodes",
+      "selected": false,
+      "selectable": false,
+      "locked": false,
+      "grabbed": false,
+      "grabbable": false,
+      "classes": ""
+    },
+    {
+      "data": {
+        "id": "AGG-UPF02-statusGreen",
+        "weight": "30",
+        "name": "AGG-UPF02-statusGreen",
+        "parent": "IP-Core",
+        "topoviewerRole": "",
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "removed": false,
+      "group": "nodes",
+      "selected": false,
+      "selectable": false,
+      "locked": false,
+      "grabbed": false,
+      "grabbable": false,
+      "classes": ""
+    },
+    {
+      "data": {
+        "id": "BngBlaster_01",
+        "weight": "30",
+        "name": "BngBlaster_01",
+        "parent": "Residential",
+        "topoviewerRole": "rgw",
+        "sourceEndpoint": "",
+        "targetEndpoint": "",
+        "extraData": {
+          "clabServerUsername": "root",
+          "fqdn": "BngBlaster_01.nokia-MAGc-lab.io",
+          "group": "Residential",
+          "id": "BngBlaster_01",
+          "image": "ghcr.io/asadarafat/bngblaster:main",
+          "index": "2",
+          "kind": "linux",
+          "labdir": "/root/clab/bng-cups/nokia-MultiAccessGateway-lab/clab-nokia-MAGc-lab/BngBlaster_01",
+          "labels": {
+            "ClabMgmtNetBridge": "br1-private",
+            "ClabNodeGroup": "Residential",
+            "ClabNodeKind": "linux",
+            "ClabNodeLabDir": "/root/clab/bng-cups/nokia-MultiAccessGateway-lab/clab-nokia-MAGc-lab/BngBlaster_01",
+            "ClabNodeName": "BngBlaster_01",
+            "ClabNodeType": "",
+            "ClabTopoFile": "/root/clab/bng-cups/nokia-MultiAccessGateway-lab/topo-nokia-MAG-lab.yaml",
+            "Containerlab": "nokia-MAGc-lab",
+            "TopoViewerRole": "rgw"
+          },
+          "longname": "clab-nokia-MAGc-lab-BngBlaster_01",
+          "macAddress": "",
+          "mgmtIntf": "",
+          "mgmtIpv4AddressLength": 24,
+          "mgmtIpv4Addresss": "10.10.10.212",
+          "mgmtIpv6Address": "",
+          "mgmtIpv6AddressLength": 0,
+          "mgmtNet": "",
+          "name": "BngBlaster_01",
+          "shortname": "BngBlaster_01",
+          "weight": "3"
+        }
+      },
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "removed": false,
+      "group": "nodes",
+      "selected": false,
+      "selectable": true,
+      "locked": false,
+      "grabbed": false,
+      "grabbable": true,
+      "classes": ""
+    },
+    {
+      "data": {
+        "id": "BngBlaster_01-statusRed",
+        "weight": "30",
+        "name": "BngBlaster_01-statusRed",
+        "parent": "Residential",
+        "topoviewerRole": "",
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "removed": false,
+      "group": "nodes",
+      "selected": false,
+      "selectable": false,
+      "locked": false,
+      "grabbed": false,
+      "grabbable": false,
+      "classes": ""
+    },
+    {
+      "data": {
+        "id": "BngBlaster_01-statusGreen",
+        "weight": "30",
+        "name": "BngBlaster_01-statusGreen",
+        "parent": "Residential",
+        "topoviewerRole": "",
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "removed": false,
+      "group": "nodes",
+      "selected": false,
+      "selectable": false,
+      "locked": false,
+      "grabbed": false,
+      "grabbable": false,
+      "classes": ""
+    },
+    {
+      "data": {
+        "id": "BngBlaster_02",
+        "weight": "30",
+        "name": "BngBlaster_02",
+        "parent": "Residential",
+        "topoviewerRole": "rgw",
+        "sourceEndpoint": "",
+        "targetEndpoint": "",
+        "extraData": {
+          "clabServerUsername": "root",
+          "fqdn": "BngBlaster_02.nokia-MAGc-lab.io",
+          "group": "Residential",
+          "id": "BngBlaster_02",
+          "image": "ghcr.io/asadarafat/bngblaster:main",
+          "index": "3",
+          "kind": "linux",
+          "labdir": "/root/clab/bng-cups/nokia-MultiAccessGateway-lab/clab-nokia-MAGc-lab/BngBlaster_02",
+          "labels": {
+            "ClabMgmtNetBridge": "br1-private",
+            "ClabNodeGroup": "Residential",
+            "ClabNodeKind": "linux",
+            "ClabNodeLabDir": "/root/clab/bng-cups/nokia-MultiAccessGateway-lab/clab-nokia-MAGc-lab/BngBlaster_02",
+            "ClabNodeName": "BngBlaster_02",
+            "ClabNodeType": "",
+            "ClabTopoFile": "/root/clab/bng-cups/nokia-MultiAccessGateway-lab/topo-nokia-MAG-lab.yaml",
+            "Containerlab": "nokia-MAGc-lab",
+            "TopoViewerRole": "rgw"
+          },
+          "longname": "clab-nokia-MAGc-lab-BngBlaster_02",
+          "macAddress": "",
+          "mgmtIntf": "",
+          "mgmtIpv4AddressLength": 24,
+          "mgmtIpv4Addresss": "10.10.10.213",
+          "mgmtIpv6Address": "",
+          "mgmtIpv6AddressLength": 0,
+          "mgmtNet": "",
+          "name": "BngBlaster_02",
+          "shortname": "BngBlaster_02",
+          "weight": "3"
+        }
+      },
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "removed": false,
+      "group": "nodes",
+      "selected": false,
+      "selectable": true,
+      "locked": false,
+      "grabbed": false,
+      "grabbable": true,
+      "classes": ""
+    },
+    {
+      "data": {
+        "id": "BngBlaster_02-statusRed",
+        "weight": "30",
+        "name": "BngBlaster_02-statusRed",
+        "parent": "Residential",
+        "topoviewerRole": "",
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "removed": false,
+      "group": "nodes",
+      "selected": false,
+      "selectable": false,
+      "locked": false,
+      "grabbed": false,
+      "grabbable": false,
+      "classes": ""
+    },
+    {
+      "data": {
+        "id": "BngBlaster_02-statusGreen",
+        "weight": "30",
+        "name": "BngBlaster_02-statusGreen",
+        "parent": "Residential",
+        "topoviewerRole": "",
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "removed": false,
+      "group": "nodes",
+      "selected": false,
+      "selectable": false,
+      "locked": false,
+      "grabbed": false,
+      "grabbable": false,
+      "classes": ""
+    },
+    {
+      "data": {
+        "id": "MAG-C01",
+        "weight": "30",
+        "name": "MAG-C01",
+        "parent": "ControlPlaneFunction",
+        "topoviewerRole": "controller",
+        "sourceEndpoint": "",
+        "targetEndpoint": "",
+        "extraData": {
+          "clabServerUsername": "root",
+          "fqdn": "MAG-C01.nokia-MAGc-lab.io",
+          "group": "ControlPlaneFunction",
+          "id": "MAG-C01",
+          "image": "registry.srlinux.dev/pub/mag-c:23.3.R1",
+          "index": "4",
+          "kind": "vr-sros",
+          "labdir": "/root/clab/bng-cups/nokia-MultiAccessGateway-lab/clab-nokia-MAGc-lab/MAG-C01",
+          "labels": {
+            "ClabMgmtNetBridge": "br1-private",
+            "ClabNodeGroup": "ControlPlaneFunction",
+            "ClabNodeKind": "vr-sros",
+            "ClabNodeLabDir": "/root/clab/bng-cups/nokia-MultiAccessGateway-lab/clab-nokia-MAGc-lab/MAG-C01",
+            "ClabNodeName": "MAG-C01",
+            "ClabNodeType": "cp: cpu=8 min_ram=16 chassis=vsr slot=A card=cpm-v ___ lc: cpu=6 min_ram=16 max_nics=20 chassis=vsr slot=1 card=iom-v mda/1=m20-v ___ lc: cpu=4 min_ram=32 max_nics=20 chassis=vsr slot=2 card=iom-v-mg mda/1=isa-ms-v ___ lc: cpu=4 min_ram=32 max_nics=20 chassis=vsr slot=3 card=iom-v-mg mda/1=isa-ms-v ",
+            "ClabTopoFile": "/root/clab/bng-cups/nokia-MultiAccessGateway-lab/topo-nokia-MAG-lab.yaml",
+            "Containerlab": "nokia-MAGc-lab",
+            "TopoViewerRole": "controller"
+          },
+          "longname": "clab-nokia-MAGc-lab-MAG-C01",
+          "macAddress": "",
+          "mgmtIntf": "",
+          "mgmtIpv4AddressLength": 24,
+          "mgmtIpv4Addresss": "10.10.10.201",
+          "mgmtIpv6Address": "",
+          "mgmtIpv6AddressLength": 0,
+          "mgmtNet": "",
+          "name": "MAG-C01",
+          "shortname": "MAG-C01",
+          "weight": "3"
+        }
+      },
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "removed": false,
+      "group": "nodes",
+      "selected": false,
+      "selectable": true,
+      "locked": false,
+      "grabbed": false,
+      "grabbable": true,
+      "classes": ""
+    },
+    {
+      "data": {
+        "id": "MAG-C01-statusRed",
+        "weight": "30",
+        "name": "MAG-C01-statusRed",
+        "parent": "ControlPlaneFunction",
+        "topoviewerRole": "",
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "removed": false,
+      "group": "nodes",
+      "selected": false,
+      "selectable": false,
+      "locked": false,
+      "grabbed": false,
+      "grabbable": false,
+      "classes": ""
+    },
+    {
+      "data": {
+        "id": "MAG-C01-statusGreen",
+        "weight": "30",
+        "name": "MAG-C01-statusGreen",
+        "parent": "ControlPlaneFunction",
+        "topoviewerRole": "",
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "removed": false,
+      "group": "nodes",
+      "selected": false,
+      "selectable": false,
+      "locked": false,
+      "grabbed": false,
+      "grabbable": false,
+      "classes": ""
+    },
+    {
+      "data": {
+        "id": "MAG-C02",
+        "weight": "30",
+        "name": "MAG-C02",
+        "parent": "ControlPlaneFunction",
+        "topoviewerRole": "controller",
+        "sourceEndpoint": "",
+        "targetEndpoint": "",
+        "extraData": {
+          "clabServerUsername": "root",
+          "fqdn": "MAG-C02.nokia-MAGc-lab.io",
+          "group": "ControlPlaneFunction",
+          "id": "MAG-C02",
+          "image": "registry.srlinux.dev/pub/mag-c:23.3.R1",
+          "index": "5",
+          "kind": "vr-sros",
+          "labdir": "/root/clab/bng-cups/nokia-MultiAccessGateway-lab/clab-nokia-MAGc-lab/MAG-C02",
+          "labels": {
+            "ClabMgmtNetBridge": "br1-private",
+            "ClabNodeGroup": "ControlPlaneFunction",
+            "ClabNodeKind": "vr-sros",
+            "ClabNodeLabDir": "/root/clab/bng-cups/nokia-MultiAccessGateway-lab/clab-nokia-MAGc-lab/MAG-C02",
+            "ClabNodeName": "MAG-C02",
+            "ClabNodeType": "cp: cpu=8 min_ram=16 chassis=vsr slot=A card=cpm-v ___ lc: cpu=6 min_ram=16 max_nics=20 chassis=vsr slot=1 card=iom-v mda/1=m20-v ___ lc: cpu=4 min_ram=32 max_nics=20 chassis=vsr slot=2 card=iom-v-mg mda/1=isa-ms-v ___ lc: cpu=4 min_ram=32 max_nics=20 chassis=vsr slot=3 card=iom-v-mg mda/1=isa-ms-v",
+            "ClabTopoFile": "/root/clab/bng-cups/nokia-MultiAccessGateway-lab/topo-nokia-MAG-lab.yaml",
+            "Containerlab": "nokia-MAGc-lab",
+            "TopoViewerRole": "controller"
+          },
+          "longname": "clab-nokia-MAGc-lab-MAG-C02",
+          "macAddress": "",
+          "mgmtIntf": "",
+          "mgmtIpv4AddressLength": 24,
+          "mgmtIpv4Addresss": "10.10.10.202",
+          "mgmtIpv6Address": "",
+          "mgmtIpv6AddressLength": 0,
+          "mgmtNet": "",
+          "name": "MAG-C02",
+          "shortname": "MAG-C02",
+          "weight": "3"
+        }
+      },
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "removed": false,
+      "group": "nodes",
+      "selected": false,
+      "selectable": true,
+      "locked": false,
+      "grabbed": false,
+      "grabbable": true,
+      "classes": ""
+    },
+    {
+      "data": {
+        "id": "MAG-C02-statusRed",
+        "weight": "30",
+        "name": "MAG-C02-statusRed",
+        "parent": "ControlPlaneFunction",
+        "topoviewerRole": "",
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "removed": false,
+      "group": "nodes",
+      "selected": false,
+      "selectable": false,
+      "locked": false,
+      "grabbed": false,
+      "grabbable": false,
+      "classes": ""
+    },
+    {
+      "data": {
+        "id": "MAG-C02-statusGreen",
+        "weight": "30",
+        "name": "MAG-C02-statusGreen",
+        "parent": "ControlPlaneFunction",
+        "topoviewerRole": "",
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "removed": false,
+      "group": "nodes",
+      "selected": false,
+      "selectable": false,
+      "locked": false,
+      "grabbed": false,
+      "grabbable": false,
+      "classes": ""
+    },
+    {
+      "data": {
+        "id": "PE-01",
+        "weight": "30",
+        "name": "PE-01",
+        "parent": "IP-Core",
+        "topoviewerRole": "pe",
+        "sourceEndpoint": "",
+        "targetEndpoint": "",
+        "extraData": {
+          "clabServerUsername": "root",
+          "fqdn": "PE-01.nokia-MAGc-lab.io",
+          "group": "IP-Core",
+          "id": "PE-01",
+          "image": "registry.srlinux.dev/pub/vr-sros:23.3.R1",
+          "index": "6",
+          "kind": "vr-sros",
+          "labdir": "/root/clab/bng-cups/nokia-MultiAccessGateway-lab/clab-nokia-MAGc-lab/PE-01",
+          "labels": {
+            "ClabMgmtNetBridge": "br1-private",
+            "ClabNodeGroup": "IP-Core",
+            "ClabNodeKind": "vr-sros",
+            "ClabNodeLabDir": "/root/clab/bng-cups/nokia-MultiAccessGateway-lab/clab-nokia-MAGc-lab/PE-01",
+            "ClabNodeName": "PE-01",
+            "ClabNodeType": "chassis=sr-1 slot=A card=cpm-1 slot=1 mda/1=me6-100gb-qsfp28 mda/2=me6-100gb-qsfp28",
+            "ClabTopoFile": "/root/clab/bng-cups/nokia-MultiAccessGateway-lab/topo-nokia-MAG-lab.yaml",
+            "Containerlab": "nokia-MAGc-lab",
+            "TopoViewerRole": "pe"
+          },
+          "longname": "clab-nokia-MAGc-lab-PE-01",
+          "macAddress": "",
+          "mgmtIntf": "",
+          "mgmtIpv4AddressLength": 24,
+          "mgmtIpv4Addresss": "10.10.10.203",
+          "mgmtIpv6Address": "",
+          "mgmtIpv6AddressLength": 0,
+          "mgmtNet": "",
+          "name": "PE-01",
+          "shortname": "PE-01",
+          "weight": "3"
+        }
+      },
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "removed": false,
+      "group": "nodes",
+      "selected": false,
+      "selectable": true,
+      "locked": false,
+      "grabbed": false,
+      "grabbable": true,
+      "classes": ""
+    },
+    {
+      "data": {
+        "id": "PE-01-statusRed",
+        "weight": "30",
+        "name": "PE-01-statusRed",
+        "parent": "IP-Core",
+        "topoviewerRole": "",
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "removed": false,
+      "group": "nodes",
+      "selected": false,
+      "selectable": false,
+      "locked": false,
+      "grabbed": false,
+      "grabbable": false,
+      "classes": ""
+    },
+    {
+      "data": {
+        "id": "PE-01-statusGreen",
+        "weight": "30",
+        "name": "PE-01-statusGreen",
+        "parent": "IP-Core",
+        "topoviewerRole": "",
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "removed": false,
+      "group": "nodes",
+      "selected": false,
+      "selectable": false,
+      "locked": false,
+      "grabbed": false,
+      "grabbable": false,
+      "classes": ""
+    },
+    {
+      "data": {
+        "id": "Radius",
+        "weight": "30",
+        "name": "Radius",
+        "parent": "ControlPlaneFunction",
+        "topoviewerRole": "server",
+        "sourceEndpoint": "",
+        "targetEndpoint": "",
+        "extraData": {
+          "clabServerUsername": "root",
+          "fqdn": "Radius.nokia-MAGc-lab.io",
+          "group": "ControlPlaneFunction",
+          "id": "Radius",
+          "image": "ghcr.io/asadarafat/freeradius:main",
+          "index": "7",
+          "kind": "linux",
+          "labdir": "/root/clab/bng-cups/nokia-MultiAccessGateway-lab/clab-nokia-MAGc-lab/Radius",
+          "labels": {
+            "ClabMgmtNetBridge": "br1-private",
+            "ClabNodeGroup": "ControlPlaneFunction",
+            "ClabNodeKind": "linux",
+            "ClabNodeLabDir": "/root/clab/bng-cups/nokia-MultiAccessGateway-lab/clab-nokia-MAGc-lab/Radius",
+            "ClabNodeName": "Radius",
+            "ClabNodeType": "",
+            "ClabTopoFile": "/root/clab/bng-cups/nokia-MultiAccessGateway-lab/topo-nokia-MAG-lab.yaml",
+            "Containerlab": "nokia-MAGc-lab",
+            "TopoViewerRole": "server"
+          },
+          "longname": "clab-nokia-MAGc-lab-Radius",
+          "macAddress": "",
+          "mgmtIntf": "",
+          "mgmtIpv4AddressLength": 24,
+          "mgmtIpv4Addresss": "10.10.10.211",
+          "mgmtIpv6Address": "",
+          "mgmtIpv6AddressLength": 0,
+          "mgmtNet": "",
+          "name": "Radius",
+          "shortname": "Radius",
+          "weight": "3"
+        }
+      },
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "removed": false,
+      "group": "nodes",
+      "selected": false,
+      "selectable": true,
+      "locked": false,
+      "grabbed": false,
+      "grabbable": true,
+      "classes": ""
+    },
+    {
+      "data": {
+        "id": "Radius-statusRed",
+        "weight": "30",
+        "name": "Radius-statusRed",
+        "parent": "ControlPlaneFunction",
+        "topoviewerRole": "",
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "removed": false,
+      "group": "nodes",
+      "selected": false,
+      "selectable": false,
+      "locked": false,
+      "grabbed": false,
+      "grabbable": false,
+      "classes": ""
+    },
+    {
+      "data": {
+        "id": "Radius-statusGreen",
+        "weight": "30",
+        "name": "Radius-statusGreen",
+        "parent": "ControlPlaneFunction",
+        "topoviewerRole": "",
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "removed": false,
+      "group": "nodes",
+      "selected": false,
+      "selectable": false,
+      "locked": false,
+      "grabbed": false,
+      "grabbable": false,
+      "classes": ""
+    },
+    {
+      "data": {
+        "id": "topoviewer",
+        "weight": "30",
+        "name": "topoviewer",
+        "parent": "ControlPlaneFunction",
+        "topoviewerRole": "controller",
+        "sourceEndpoint": "",
+        "targetEndpoint": "",
+        "extraData": {
+          "clabServerUsername": "root",
+          "fqdn": "topoviewer.nokia-MAGc-lab.io",
+          "group": "",
+          "id": "topoviewer",
+          "image": "ghcr.io/asadarafat/topoviewer:latest",
+          "index": "8",
+          "kind": "linux",
+          "labdir": "/root/clab/bng-cups/nokia-MultiAccessGateway-lab/clab-nokia-MAGc-lab/topoviewer",
+          "labels": {
+            "ClabMgmtNetBridge": "br1-private",
+            "ClabNodeGroup": "",
+            "ClabNodeKind": "linux",
+            "ClabNodeLabDir": "/root/clab/bng-cups/nokia-MultiAccessGateway-lab/clab-nokia-MAGc-lab/topoviewer",
+            "ClabNodeName": "topoviewer",
+            "ClabNodeType": "",
+            "ClabTopoFile": "/root/clab/bng-cups/nokia-MultiAccessGateway-lab/topo-nokia-MAG-lab.yaml",
+            "Containerlab": "nokia-MAGc-lab",
+            "TopoViewerRole": "controller"
+          },
+          "longname": "clab-nokia-MAGc-lab-topoviewer",
+          "macAddress": "",
+          "mgmtIntf": "",
+          "mgmtIpv4AddressLength": 24,
+          "mgmtIpv4Addresss": "10.10.10.200",
+          "mgmtIpv6Address": "",
+          "mgmtIpv6AddressLength": 0,
+          "mgmtNet": "",
+          "name": "topoviewer",
+          "shortname": "topoviewer",
+          "weight": "3"
+        }
+      },
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "removed": false,
+      "group": "nodes",
+      "selected": false,
+      "selectable": true,
+      "locked": false,
+      "grabbed": false,
+      "grabbable": true,
+      "classes": ""
+    },
+    {
+      "data": {
+        "id": "topoviewer-statusRed",
+        "weight": "30",
+        "name": "topoviewer-statusRed",
+        "parent": "ControlPlaneFunction",
+        "topoviewerRole": "",
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "removed": false,
+      "group": "nodes",
+      "selected": false,
+      "selectable": false,
+      "locked": false,
+      "grabbed": false,
+      "grabbable": false,
+      "classes": ""
+    },
+    {
+      "data": {
+        "id": "topoviewer-statusGreen",
+        "weight": "30",
+        "name": "topoviewer-statusGreen",
+        "parent": "ControlPlaneFunction",
+        "topoviewerRole": "",
+        "sourceEndpoint": "",
+        "targetEndpoint": ""
+      },
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "removed": false,
+      "group": "nodes",
+      "selected": false,
+      "selectable": false,
+      "locked": false,
+      "grabbed": false,
+      "grabbable": false,
+      "classes": ""
+    },
+    {
+      "data": {
+        "id": "IP-Core",
+        "weight": "1000",
+        "name": "IP-Core",
+        "topoviewerRole": "IP-Core",
+        "sourceEndpoint": "",
+        "targetEndpoint": "",
+        "extraData": {
+          "clabServerUsername": "root",
+          "name": "",
+          "weight": "2"
+        }
+      },
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "removed": false,
+      "group": "nodes",
+      "selected": false,
+      "selectable": true,
+      "locked": false,
+      "grabbed": false,
+      "grabbable": true,
+      "classes": ""
+    },
+    {
+      "data": {
+        "id": "Residential",
+        "weight": "1000",
+        "name": "Residential",
+        "topoviewerRole": "Residential",
+        "sourceEndpoint": "",
+        "targetEndpoint": "",
+        "extraData": {
+          "clabServerUsername": "root",
+          "name": "",
+          "weight": "2"
+        }
+      },
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "removed": false,
+      "group": "nodes",
+      "selected": false,
+      "selectable": true,
+      "locked": false,
+      "grabbed": false,
+      "grabbable": true,
+      "classes": ""
+    },
+    {
+      "data": {
+        "id": "ControlPlaneFunction",
+        "weight": "1000",
+        "name": "ControlPlaneFunction",
+        "topoviewerRole": "ControlPlaneFunction",
+        "sourceEndpoint": "",
+        "targetEndpoint": "",
+        "extraData": {
+          "clabServerUsername": "root",
+          "name": "",
+          "weight": "2"
+        }
+      },
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "removed": false,
+      "group": "nodes",
+      "selected": false,
+      "selectable": true,
+      "locked": false,
+      "grabbed": false,
+      "grabbable": true,
+      "classes": ""
+    },
+    {
+      "data": {
+        "id": "Clab-Link0",
+        "source": "MAG-C01",
+        "target": "PE-01",
+        "weight": "3",
+        "name": "ControlPlaneFunction",
+        "topoviewerRole": "ControlPlaneFunction",
+        "sourceEndpoint": "eth1",
+        "targetEndpoint": "eth3",
+        "extraData": {
+          "clabServerUsername": "root",
+          "clabSourceLongName": "clab-nokia-MAGc-lab-MAG-C01",
+          "clabTargetLongName": "clab-nokia-MAGc-lab-PE-01"
+        }
+      },
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "removed": false,
+      "group": "edges",
+      "selected": false,
+      "selectable": true,
+      "locked": false,
+      "grabbed": false,
+      "grabbable": true,
+      "classes": ""
+    },
+    {
+      "data": {
+        "id": "Clab-Link1",
+        "source": "MAG-C02",
+        "target": "PE-01",
+        "weight": "3",
+        "name": "ControlPlaneFunction",
+        "topoviewerRole": "ControlPlaneFunction",
+        "sourceEndpoint": "eth1",
+        "targetEndpoint": "eth4",
+        "extraData": {
+          "clabServerUsername": "root",
+          "clabSourceLongName": "clab-nokia-MAGc-lab-MAG-C02",
+          "clabTargetLongName": "clab-nokia-MAGc-lab-PE-01"
+        }
+      },
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "removed": false,
+      "group": "edges",
+      "selected": false,
+      "selectable": true,
+      "locked": false,
+      "grabbed": false,
+      "grabbable": true,
+      "classes": ""
+    },
+    {
+      "data": {
+        "id": "Clab-Link2",
+        "source": "PE-01",
+        "target": "AGG-UPF01",
+        "weight": "3",
+        "name": "ControlPlaneFunction",
+        "topoviewerRole": "ControlPlaneFunction",
+        "sourceEndpoint": "eth1",
+        "targetEndpoint": "eth3",
+        "extraData": {
+          "clabServerUsername": "root",
+          "clabSourceLongName": "clab-nokia-MAGc-lab-PE-01",
+          "clabTargetLongName": "clab-nokia-MAGc-lab-AGG-UPF01"
+        }
+      },
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "removed": false,
+      "group": "edges",
+      "selected": false,
+      "selectable": true,
+      "locked": false,
+      "grabbed": false,
+      "grabbable": true,
+      "classes": ""
+    },
+    {
+      "data": {
+        "id": "Clab-Link3",
+        "source": "PE-01",
+        "target": "AGG-UPF02",
+        "weight": "3",
+        "name": "ControlPlaneFunction",
+        "topoviewerRole": "ControlPlaneFunction",
+        "sourceEndpoint": "eth2",
+        "targetEndpoint": "eth3",
+        "extraData": {
+          "clabServerUsername": "root",
+          "clabSourceLongName": "clab-nokia-MAGc-lab-PE-01",
+          "clabTargetLongName": "clab-nokia-MAGc-lab-AGG-UPF02"
+        }
+      },
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "removed": false,
+      "group": "edges",
+      "selected": false,
+      "selectable": true,
+      "locked": false,
+      "grabbed": false,
+      "grabbable": true,
+      "classes": ""
+    },
+    {
+      "data": {
+        "id": "Clab-Link4",
+        "source": "MAG-C01",
+        "target": "MAG-C02",
+        "weight": "3",
+        "name": "ControlPlaneFunction",
+        "topoviewerRole": "ControlPlaneFunction",
+        "sourceEndpoint": "eth3",
+        "targetEndpoint": "eth3",
+        "extraData": {
+          "clabServerUsername": "root",
+          "clabSourceLongName": "clab-nokia-MAGc-lab-MAG-C01",
+          "clabTargetLongName": "clab-nokia-MAGc-lab-MAG-C02"
+        }
+      },
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "removed": false,
+      "group": "edges",
+      "selected": false,
+      "selectable": true,
+      "locked": false,
+      "grabbed": false,
+      "grabbable": true,
+      "classes": ""
+    },
+    {
+      "data": {
+        "id": "Clab-Link5",
+        "source": "AGG-UPF01",
+        "target": "AGG-UPF02",
+        "weight": "3",
+        "name": "ControlPlaneFunction",
+        "topoviewerRole": "ControlPlaneFunction",
+        "sourceEndpoint": "eth4",
+        "targetEndpoint": "eth4",
+        "extraData": {
+          "clabServerUsername": "root",
+          "clabSourceLongName": "clab-nokia-MAGc-lab-AGG-UPF01",
+          "clabTargetLongName": "clab-nokia-MAGc-lab-AGG-UPF02"
+        }
+      },
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "removed": false,
+      "group": "edges",
+      "selected": false,
+      "selectable": true,
+      "locked": false,
+      "grabbed": false,
+      "grabbable": true,
+      "classes": ""
+    },
+    {
+      "data": {
+        "id": "Clab-Link6",
+        "source": "Radius",
+        "target": "PE-01",
+        "weight": "3",
+        "name": "ControlPlaneFunction",
+        "topoviewerRole": "ControlPlaneFunction",
+        "sourceEndpoint": "eth1",
+        "targetEndpoint": "eth5",
+        "extraData": {
+          "clabServerUsername": "root",
+          "clabSourceLongName": "clab-nokia-MAGc-lab-Radius",
+          "clabTargetLongName": "clab-nokia-MAGc-lab-PE-01"
+        }
+      },
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "removed": false,
+      "group": "edges",
+      "selected": false,
+      "selectable": true,
+      "locked": false,
+      "grabbed": false,
+      "grabbable": true,
+      "classes": ""
+    },
+    {
+      "data": {
+        "id": "Clab-Link7",
+        "source": "AGG-UPF01",
+        "target": "BngBlaster_01",
+        "weight": "3",
+        "name": "ControlPlaneFunction",
+        "topoviewerRole": "ControlPlaneFunction",
+        "sourceEndpoint": "eth7",
+        "targetEndpoint": "eth1",
+        "extraData": {
+          "clabServerUsername": "root",
+          "clabSourceLongName": "clab-nokia-MAGc-lab-AGG-UPF01",
+          "clabTargetLongName": "clab-nokia-MAGc-lab-BngBlaster_01"
+        }
+      },
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "removed": false,
+      "group": "edges",
+      "selected": false,
+      "selectable": true,
+      "locked": false,
+      "grabbed": false,
+      "grabbable": true,
+      "classes": ""
+    },
+    {
+      "data": {
+        "id": "Clab-Link8",
+        "source": "AGG-UPF02",
+        "target": "BngBlaster_02",
+        "weight": "3",
+        "name": "ControlPlaneFunction",
+        "topoviewerRole": "ControlPlaneFunction",
+        "sourceEndpoint": "eth7",
+        "targetEndpoint": "eth1",
+        "extraData": {
+          "clabServerUsername": "root",
+          "clabSourceLongName": "clab-nokia-MAGc-lab-AGG-UPF02",
+          "clabTargetLongName": "clab-nokia-MAGc-lab-BngBlaster_02"
+        }
+      },
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "removed": false,
+      "group": "edges",
+      "selected": false,
+      "selectable": true,
+      "locked": false,
+      "grabbed": false,
+      "grabbable": true,
+      "classes": ""
+    }
+  ]
