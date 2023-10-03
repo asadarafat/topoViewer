@@ -10,7 +10,7 @@ cp go_cloudshellwrapper/constants.go cloudshellwrapper/constants.go.bak
 sed -i "s/\(var VersionInfo string = \)\"[^\"]*\"/\1\"$tag\"/" cloudshellwrapper/constants.go
 
 echo "Cleanup dist folder..."
-rm -rR dist/*
+rm -rRf dist/*
 mkdir dist/html-public
 touch dist/html-public/put-html-asset-here.txt
 

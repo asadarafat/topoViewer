@@ -14,7 +14,7 @@
 
 
 
-		<script defer src="https://use.fontawesome.com/releases/v5.14.0/js/all.js"></script>
+		<script defer src="https://use.fontawesome.com/releases/v6.4.2/js/all.js"></script>
 		
 		<script defer src="https://cdn.jsdelivr.net/npm/bulma-extensions@4.0.1/bulma-slider/dist/js/bulma-slider.min.js"></script>
 		<script defer src="https://cdnjs.cloudflare.com/ajax/libs/bulma-toast/2.4.0/bulma-toast.min.js"></script>
@@ -27,7 +27,7 @@
 		body { 
 			font: 12px helvetica neue, helvetica, arial, sans-serif;
 		}
-		#edgeLength, #nodeSpacing {
+		#edgeLength, #nodeGap {
 			width: 100%;
 		}
 		#cy {
@@ -71,7 +71,7 @@
 			position: fixed;
 		}
 		.ViewPortDrawer {
-			top: 80px; 
+			top: 75px; 
 			left: 60px;
 			max-width: 250px;
 			position: fixed;
@@ -93,14 +93,12 @@
 			border-radius: 10%;  
 			cursor: pointer;  
 		}
-
 		input[type="range"]::-moz-range-track {
 			width: 100%;  
 			height: 3px;  
 			background-color: #ccc;  
 			border-radius: 5px;  
 		}
-  
 		.column {
 			background-color: white;  
 		}
@@ -148,6 +146,10 @@
 			width: 130px;
 			white-space: nowrap;
 		}
+		.drawer-box-input-widht {
+			width: 100px;
+			white-space: nowrap;
+		}
 		.with-outline {
 			position: relative;  
 		}
@@ -181,7 +183,7 @@
 		<nav class="level m-0 px-3 py-1 has-background-4a">
 			<div>
 				<p class="title    m-0 px-1 py-0   is-4 is-unselectable has-text-weight-normal has-text-white"> TopoViewer</p>
-				<p class="subtitle m-0 px-1 py-0   is-6                 has-text-weight-light  has-text-white" id="ClabSubtitle">Topology name:nokia-MAGc-lab ::: Uptime: 10m10s</p>
+				<p class="subtitle m-0 px-1 py-0   is-6                 has-text-weight-light  has-text-white" id="ClabSubtitle">Topology name: nokia-MAGc-lab ::: Uptime: 10m10s</p>
 			</div>
 			<div class="level-right">
 				<div id="nokia-logo">
@@ -283,8 +285,8 @@
 
 {{rawJSComment "				// WebSocket for uptime"}}
 				const socketUptime = initializeWebSocket('/uptime', (msgUptime) => {
-					const string01 = "Containerlab Topology: Komodo2-" + 'dummy-string';
-					const string02 = " ::: Uptime: " + msgUptime.data;
+					const string01 = 'Containerlab Topology: ' + 'nokia-MAGc-lab';
+					const string02 = ' ::: Uptime: ' + msgUptime.data;
 
 					const ClabSubtitle = document.getElementById("ClabSubtitle");
 					const messageBody = string01 + string02;
@@ -342,7 +344,9 @@
 				}
 
 {{rawJSComment "				// Fetch and load element data from a JSON file"}}
-				fetch('dataCytoMarshall-{{.}}.json')
+				fetch('dataCytoMarshall-3tierSmall.json')
+{{rawJSComment "				// fetch('dataCytoMarshall-{{.}}.json') "}}
+
 					.then(response => response.json())
 					.then(elements => {
 {{rawJSComment "						// Add the elements to the Cytoscape instance"}}
@@ -350,8 +354,8 @@
 {{rawJSComment "						//- run layout"}}
 						const layout = cy.layout({
 							name: 'cola',
-							nodeSpacing: 5,
-							edgeLengthVal: 45,
+							nodeGap: 5,
+							edgeLength: 100,
 							animate: true,
 							randomize: false,
 							maxSimulationTime: 1500
@@ -361,6 +365,7 @@
 {{rawJSComment "						// remove node topoviewer"}}
 						topoViewerNode = cy.filter('node[name = "topoviewer"]');
 						topoViewerNode.remove()
+
 					})
 					.catch(error => {
 						console.error('Error loading graph data:', error);
@@ -555,25 +560,27 @@
 					},
 					{
 						name: 'adjustLayout',
-						iconClass: 'fas fa-vector-square',
+						iconClass: 'fas fa-solid fa-circle-nodes',
 						hoverMessage: 'Adjust Layout',
 						hrefFunction: 'drawer',
 						hrefLink: ``,
 						drawerConfig: [
 						{
-							idSuffix: 'labelAdjustLayoutLinksLenght',
-							columnLabelTextContent: '',
-							columnLabelClass: 'column is-0 p-0',
-							columnInputType: 'label',
-							columnInputContent: 'Links Length',
+							idSuffix: 'labelAdjustLayoutForceDirected',
+							columnLabelTextContent: 'Force-Directed Layout',
+							columnLabelClass: 'column is-12 pt-2 pb-2 pr-2 LinksLenghtSlider is-light',
+							columnLabelElementClass: 'label is-size-7 has-text-weight-semibold px-auto',
+							columnInputType: '',
+							columnInputContent: '',
 							columnInputPlaceholder: '',
 							columnInputAttribute: 'enabled',
 							addonsContent: []
 						},
 						{
 							idSuffix: 'labelAdjustLayoutLinksLenghtSlider',
-							columnLabelTextContent: '',
-							columnLabelClass: 'column is-0 p-0 LinksLenghtSlider',
+							columnLabelTextContent: 'Link Length',
+							columnLabelClass: 'column is-6 pt-0 pr-2 LinksLenghtSlider is-light',
+							columnLabelElementClass: 'label is-size-7 has-text-right has-text-weight-normal px-auto',
 							columnInputType: 'slider',
 							columnInputContent: '',
 							columnInputPlaceholder: '',
@@ -581,19 +588,10 @@
 							addonsContent: []
 						},
 						{
-							idSuffix: 'labelAdjustLayoutNodeSpacing',
-							columnLabelTextContent: '',
-							columnLabelClass: 'column is-0 p-0',
-							columnInputType: 'label',
-							columnInputContent: 'Node Spacing',
-							columnInputPlaceholder: '',
-							columnInputAttribute: 'enabled',
-							addonsContent: []
-						},
-						{
-							idSuffix: 'labelAdjustLayoutNodeSpacingSlider',
-							columnLabelTextContent: '',
-							columnLabelClass: 'column is-0 p-0 NodeSpacingSlider',
+							idSuffix: 'labelAdjustLayoutNodeGapSlider',
+							columnLabelTextContent: 'Node Gap',
+							columnLabelClass: 'column is-6 pt-0 pr-2 LinksLenghtSlider is-light',
+							columnLabelElementClass: 'label is-size-7 has-text-right has-text-weight-normal px-auto',
 							columnInputType: 'slider',
 							columnInputContent: '',
 							columnInputPlaceholder: '',
@@ -601,23 +599,107 @@
 							addonsContent: []
 						},
 						{
-							idSuffix: 'labelAdjustLayoutPaddingHidden',
-							columnLabelTextContent: '',
-							columnLabelClass: 'column is-0 p-0',
-							columnInputType: 'field',
-							columnInputContent: 'Links Length',
+							idSuffix: 'labelAdjustLayoutAlignmentVertical',
+							columnLabelTextContent: 'Vertical Alignment Layout',
+							columnLabelClass: 'column is-12 pt-2 pb-2 pr-2 LinksLenghtSlider is-light',
+							columnLabelElementClass: 'label is-size-7 has-text-weight-semibold px-auto',
+							columnInputType: '',
+							columnInputContent: '',
 							columnInputPlaceholder: '',
 							columnInputAttribute: 'enabled',
-							columnInputIsInvisible: 'yes',
-							addonsContent: [{
-								name: 'blue',
-								iconClass: 'fas fa-check-circle',
-								hoverMessage: 'Find the route',
-								hrefFunction: '',
-								hrefLink: ``
-							}]
-						}
-						
+							addonsContent: []
+						},
+						{
+							idSuffix: 'labelAdjustLayoutAlignmentVerticalNodeGap',
+							columnLabelTextContent: 'Node Gap',
+							columnLabelClass: 'column is-6 pt-0 pr-2 LinksLenghtSlider is-light',
+							columnLabelElementClass: 'label is-size-7 has-text-right has-text-weight-normal px-auto',
+							columnInputType: 'input',
+							columnInputClass: 'column is-6 p-1 pl-3',
+							columnInputElementClass: 'input is-size-7 has-text-left has-text-weight-normal is-smallest-element',
+							columnInputContent: '5',
+							columnInputPlaceholder: 'node spacing',
+							columnInputAttribute: 'enabled',
+							addonsContent: []				
+						},
+						{
+							idSuffix: 'labelAdjustLayoutAlignmentVerticalGroupGap',
+							columnLabelTextContent: 'Group Gap',
+							columnLabelClass: 'column is-6 pt-0 pr-2 LinksLenghtSlider is-light',
+							columnLabelElementClass: 'label is-size-7 has-text-right has-text-weight-normal px-auto',
+							columnInputType: 'input',
+							columnInputClass: 'column is-6 p-1 pl-3',
+							columnInputElementClass: 'input is-size-7 has-text-left has-text-weight-normal is-smallest-element',
+							columnInputContent: '50',
+							columnInputPlaceholder: 'group spacing',
+							columnInputAttribute: 'enabled',
+							addonsContent: []				
+						},
+						{
+							idSuffix: 'labelAdjustLayoutAlignmentVerticalApply',
+							columnLabelTextContent: '',
+							columnLabelClass: 'column is-6 pt-0 pr-1 LinksLenghtSlider is-light',
+							columnLabelElementClass: '',
+							columnInputType: 'button',
+							columnInputClass: 'column is-6 p-1 pl-3',
+							columnInputElementClass: 'button is-size-7 has-text-left has-text-weight-normal is-smallest-element is-justify-content-flex-start is-link',
+							columnInputContent: 'Apply',
+							columnInputPlaceholder: '',
+							columnInputAttribute: 'enabled',
+							columnInputCallOutFuntionName: 'verticallAllignLayout',
+							addonsContent: []				
+						},
+						{
+							idSuffix: 'labelAdjustLayoutAlignmentHorizontal',
+							columnLabelTextContent: 'Horizontal Alignment Layout',
+							columnLabelClass: 'column is-12 pt-2 pb-2 pr-2 LinksLenghtSlider is-light',
+							columnLabelElementClass: 'label is-size-7 has-text-weight-semibold px-auto',
+							columnInputType: '',
+							columnInputContent: '',
+							columnInputPlaceholder: '',
+							columnInputAttribute: 'enabled',
+							addonsContent: []
+						},
+						{
+							idSuffix: 'labelAdjustLayoutAlignmentHorizontalNodeGap',
+							columnLabelTextContent: 'Node Gap',
+							columnLabelClass: 'column is-6 pt-0 pr-2 LinksLenghtSlider is-light',
+							columnLabelElementClass: 'label is-size-7 has-text-right has-text-weight-normal px-auto',
+							columnInputType: 'input',
+							columnInputClass: 'column is-6 p-1 pl-3',
+							columnInputElementClass: 'input is-size-7 has-text-left has-text-weight-normal is-smallest-element',
+							columnInputContent: '5',
+							columnInputPlaceholder: 'node spacing',
+							columnInputAttribute: 'enabled',
+							addonsContent: []				
+						},
+						{
+							idSuffix: 'labelAdjustLayoutAlignmentHorizontalGroupGap',
+							columnLabelTextContent: 'Group Gap',
+							columnLabelClass: 'column is-6 pt-0 pr-2 LinksLenghtSlider is-light',
+							columnLabelElementClass: 'label is-size-7 has-text-right has-text-weight-normal px-auto',
+							columnInputType: 'input',
+							columnInputClass: 'column is-6 p-1 pl-3',
+							columnInputElementClass: 'input is-size-7 has-text-left has-text-weight-normal is-smallest-element',
+							columnInputContent: '50',
+							columnInputPlaceholder: 'group spacing',
+							columnInputAttribute: 'enabled',
+							addonsContent: []				
+						},
+						{
+							idSuffix: 'labelAdjustLayoutAlignmentHorizontalApply',
+							columnLabelTextContent: '',
+							columnLabelClass: 'column is-6 pt-0 pr-1 LinksLenghtSlider is-light',
+							columnLabelElementClass: '',
+							columnInputType: 'button',
+							columnInputClass: 'column is-6 p-1 pl-3',
+							columnInputElementClass: 'button is-size-7 has-text-left has-text-weight-normal is-smallest-element is-justify-content-flex-start is-link',
+							columnInputContent: 'Apply',
+							columnInputPlaceholder: '',
+							columnInputAttribute: 'enabled',
+							columnInputCallOutFuntionName: 'horizontalAllignLayout',
+							addonsContent: []				
+						},
 						]
 					},
 					{
@@ -662,7 +744,7 @@
 						if (config.hrefFunction == 'eventHandlerLink') {
 							button.addEventListener('click', function(cy) {
 {{rawJSComment "								// Use eval() to call the function by name"}}
-								eval(config.callOutFuntionName + `()`); // this config.callOutFuntionName funtion need to be defined inside DOM loading event
+								eval(config.callOutFuntionName + `()`); 
 							});
 						}
 
@@ -673,17 +755,24 @@
 							drawerBox.className = 'box drawerBox ViewPortDrawer p-1 is-1';
 							drawerBox.style.display = 'none';
 
-							window.addEventListener('DOMContentLoaded', (event) => {
+							window.addEventListener('load', (event) => {
 {{rawJSComment "								// Access the height of buttonContainer here"}}
 								const rect = boxContainer.getBoundingClientRect();
-								const height = rect.height;
-								drawerBox.style.height = `${height}px`;
+								const calculatedHeight = rect.height;
+{{rawJSComment "								// drawerBox.style.height = `${calculatedHeight}px`;"}}
+								drawerBox.style.height = 'auto';
+
+								drawerBox.style.display = 'block';
+
+								const contentHeight = drawerBox.getBoundingClientRect().height;
+
+								if (contentHeight > calculatedHeight) {
+									drawerBox.style.height = 'auto';
+								}else{
+									drawerBox.style.height = `${calculatedHeight}px`;
+								}
+								drawerBox.style.display = 'none';
 							});
-
-
-{{rawJSComment "							// drawerBox.style.boxShadow = '5px 10px 10px rgba(0, 0, 0, 0.3)';"}}
-							console.log('drawerBox.style.boxShadow')
-							console.log(drawerBox.style)
 
 {{rawJSComment "							//// The drawerBox element is created using createPanelBlockContainer() and createPanelBlockForm() functions"}}
 {{rawJSComment "							// Panel Block 01"}}
@@ -691,11 +780,10 @@
 							panelBlock01 = panelBlockContainer.panelBlock
 							divPanelBlock01 = panelBlockContainer.divPanelBlock
 
-							createPanelBlockForm(config.drawerConfig, panelBlock01, divPanelBlock01, cy)
+							createPanelBlockForm(config.drawerConfig, panelBlock01, divPanelBlock01, cy) 
 {{rawJSComment "							// Per panelBlock divPanelBlock01 --> panelBlock01"}}
 							panelBlock01.appendChild(divPanelBlock01)
 							drawerBox.appendChild(panelBlock01)
-{{rawJSComment "							///"}}
 
 {{rawJSComment "							// Add click event listener to the button"}}
 							button.addEventListener('click', () => {
@@ -720,9 +808,7 @@
 
 {{rawJSComment "							// Append the container to the document body"}}
 							document.body.appendChild(drawerBox);
-{{rawJSComment "							// })"}}
 						}
-
 
 {{rawJSComment "						// Create a icon element"}}
 						const icon = document.createElement('span');
@@ -762,7 +848,6 @@
 					});
 
 
-
 {{rawJSComment "					// Append the container to the document body"}}
 					document.body.appendChild(boxContainer);
 				}
@@ -771,9 +856,9 @@
 				setupLayoutSliders(cy);
 				
 				function setupLayoutSliders(cy) {
-					const updateLayout = (edgeLengthValue, nodeSpacingValue) => {
+					const updateLayout = (edgeLengthValue, nodeGapValue) => {
 						console.log ("edgeLengthValue", edgeLengthValue)
-						console.log ("nodeSpacingValue", nodeSpacingValue)
+						console.log ("nodeGapValue", nodeGapValue)
 
 						cy.layout({
 							fit: true,
@@ -782,41 +867,39 @@
 							randomize: false,
 							maxSimulationTime: 400,
 {{rawJSComment "							//edgeLength: '50',"}}
-{{rawJSComment "							// nodeSpacing: function(node){"}}
+{{rawJSComment "							// nodeGap: function(node){"}}
 {{rawJSComment "							// 	 return 10; "}}
 {{rawJSComment "							// 	},"}}
 							edgeLength: function(e) {
 								return edgeLengthValue / e.data('weight');
 							},
-							nodeSpacing: function(e) {
-								return nodeSpacingValue / e.data('weight');
+							nodeGap: function(e) {
+								return nodeGapValue / e.data('weight');
 							},
 						}).run();
 					};
 				
 					const edgeLengthSlider = document.getElementById("panelBlock-viewportButtons-buttonadjustLayout-divPanelBlock-columnContainerlabelAdjustLayoutLinksLenghtSlider-panelContentlabelAdjustLayoutLinksLenghtSlider-columnsPanelContentlabelAdjustLayoutLinksLenghtSlider-labelColumnlabelAdjustLayoutLinksLenghtSlider-inputColumnlabelAdjustLayoutLinksLenghtSlider-labellabelAdjustLayoutLinksLenghtSlider");
-					const nodeSpacingSlider = document.getElementById("panelBlock-viewportButtons-buttonadjustLayout-divPanelBlock-columnContainerlabelAdjustLayoutNodeSpacingSlider-panelContentlabelAdjustLayoutNodeSpacingSlider-columnsPanelContentlabelAdjustLayoutNodeSpacingSlider-labelColumnlabelAdjustLayoutNodeSpacingSlider-inputColumnlabelAdjustLayoutNodeSpacingSlider-labellabelAdjustLayoutNodeSpacingSlider");
+					const nodeGapSlider = document.getElementById("panelBlock-viewportButtons-buttonadjustLayout-divPanelBlock-columnContainerlabelAdjustLayoutNodeGapSlider-panelContentlabelAdjustLayoutNodeGapSlider-columnsPanelContentlabelAdjustLayoutNodeGapSlider-labelColumnlabelAdjustLayoutNodeGapSlider-inputColumnlabelAdjustLayoutNodeGapSlider-labellabelAdjustLayoutNodeGapSlider");
 				
 					const sliderEventHandler = () => {
 
 						console.log("edgeLengthSlider.value", edgeLengthSlider.value)
-						console.log("nodeSpacingSlider.value", nodeSpacingSlider.value)
+						console.log("nodeGapSlider.value", nodeGapSlider.value)
 
 						const edgeLengthValue = parseFloat(edgeLengthSlider.value);
-						const nodeSpacingValue = parseFloat(nodeSpacingSlider.value);
-						updateLayout(edgeLengthValue, nodeSpacingValue);
+						const nodeGapValue = parseFloat(nodeGapSlider.value);
+						updateLayout(edgeLengthValue, nodeGapValue);
 					};
 				
 					edgeLengthSlider.addEventListener("input", sliderEventHandler);
-					nodeSpacingSlider.addEventListener("input", sliderEventHandler);
+					nodeGapSlider.addEventListener("input", sliderEventHandler);
 				}	
 
 {{rawJSComment "				// ######################################################"}}
 {{rawJSComment "				// Start of JS Functions HTML Element Creation section"}}
 {{rawJSComment "				// Start of JS Functions HTML Element Creation section"}}
 {{rawJSComment "				// ######################################################"}}
-
-			
 
 {{rawJSComment "				// Function to create the Panel-01-nodeDetail content"}}
 				function createContentPanelAction() {
@@ -1161,7 +1244,6 @@
 					panelBlock02.append(divPanelBlock02)
 					tabContainer.appendChild(panelBlock02)
 
-
 {{rawJSComment "					// Panel Block 03"}}
 					panelBlockContainer = createPanelBlockContainer(tabContainer.id)
 					panelBlock03 = panelBlockContainer.panelBlock
@@ -1234,9 +1316,6 @@
 					return tabContainer;
 				}
 
-				function createViewPortAddonTab(panelHeadingText) {
-
-				}
 				
 {{rawJSComment "				// ######################################################"}}
 {{rawJSComment "				// END of JS Functions HTML Element Creation section"}}
@@ -1321,7 +1400,7 @@
 {{rawJSComment "					//- run layout"}}
 					const layout = cy.layout({
 						name: 'cola',
-						nodeSpacing: 5,
+						nodeGap: 5,
 						edgeLengthVal: 45,
 						animate: true,
 						randomize: false,
@@ -1364,7 +1443,7 @@
 {{rawJSComment "					//- Randomize the positions and center the graph "}}
 					const layout = cy.layout({
 						name: 'cola',
-						nodeSpacing: 5,
+						nodeGap: 5,
 						edgeLengthVal: 45,
 						animate: true,
 						randomize: false,
@@ -1659,40 +1738,7 @@
 					console.log("Panel-01.style: " + document.getElementById('Panel-01').style.display)
 				}
 
-				function linkImpairmentManager(toggle, baseCommand) {
-
-					console.log("linkImpairmentManager-READCH")
-
-					delayValue = document.getElementById('panelBlock-tabContainer-LinkProperties-divPanelBlock-columnContainerlabelDelay-panelContentlabelDelay-columnsPanelContentlabelDelay-labelColumnlabelDelay-inputColumnlabelDelay-labellabelDelay').value
-					jitterValue = document.getElementById('panelBlock-tabContainer-LinkProperties-divPanelBlock-columnContainerlabelJitter-panelContentlabelJitter-columnsPanelContentlabelJitter-labelColumnlabelJitter-inputColumnlabelJitter-labellabelJitter').value
-					rateValue = document.getElementById('panelBlock-tabContainer-LinkProperties-divPanelBlock-columnContainerlabelRate-panelContentlabelRate-columnsPanelContentlabelRate-labelColumnlabelRate-inputColumnlabelRate-labellabelRate').value
-					lossValue = document.getElementById('panelBlock-tabContainer-LinkProperties-divPanelBlock-columnContainerlabelLoss-panelContentlabelLoss-columnsPanelContentlabelLoss-labelColumnlabelLoss-inputColumnlabelLoss-labellabelLoss').value
-					console.log(delayValue)
-
-					if (toggle == 'start') {
-						fullCommand = baseCommand + ` --delay ${delayValue}ms --jitter ${jitterValue}ms --rate ${rateValue} --loss ${lossValue}`
-						console.log(fullCommand)
-						callGoFunction(fullCommand, 'emptyPadding')
-{{rawJSComment "						// Provide user feedback (e.g., alert or toast) that the URL has been copied"}}
-						bulmaToast.toast({
-							message: `Link Impairment Initiated. Let's rock this! 😎💥`,
-							type: 'is-warning is-size-6 p-3',
-							duration: 4000,
-							position: "top-center",
-							closeOnClick: true,
-						})
-					} else if (toggle == 'stop') {
-						console.log(baseCommand)
-						callGoFunction(baseCommand, 'emptyPadding')
-						bulmaToast.toast({
-							message: `Link Impairment Successfully Stopped. Mission Accomplished! 😎🚀`,
-							type: 'is-warning is-size-6 p-3',
-							duration: 4000,
-							position: "top-center",
-							closeOnClick: true,
-						})
-					}
-				}
+				
 
 				var linkEndpointVisibility = false
 
@@ -1858,39 +1904,14 @@
 					panel.style.display = 'none'
 				}
 
-{{rawJSComment "				// Call Go BackEnd function"}}
-				function callGoFunction(parameter1, parameter2) {
-					const data = {
-						param1: parameter1,
-						param2: parameter2,
-					};
 
-					fetch('/clabNetem', {
-							method: 'POST',
-							headers: {
-								'Content-Type': 'application/json',
-							},
-							body: JSON.stringify(data),
-						})
-						.then(response => {
-{{rawJSComment "							// Handle the response from the Go function"}}
-						})
-						.catch(error => {
-							console.error('Error:', error);
-						});
-				}
-
-{{rawJSComment "				// sleep funtion"}}
-				function sleep(ms) {
-					return new Promise(resolve => setTimeout(resolve, ms));
-				}
 
 {{rawJSComment "				// ######################################################"}}
 {{rawJSComment "				// End of JS Generic Functions section"}}
 {{rawJSComment "				// End of JS Generic Functions section"}}
 {{rawJSComment "				// ######################################################"}}
 
-			}); // end of DOM loading
+			}); 
 
 {{rawJSComment "			// aarafat-tag:"}}
 {{rawJSComment "			//// removed this under cy."}}
@@ -1984,8 +2005,6 @@
 					}
 				}
 
-
-
 {{rawJSComment "				// Check if the tabContentFns have more than 1 element"}}
 				if (tabContentFns.length != 1) {
 {{rawJSComment "					// initial hide all tab and only opent the first tab"}}
@@ -2048,7 +2067,7 @@
 				}
 			}
 
-			function createPanelBlockForm(PanelColumnsConfig, panelBlock, divPanelBlock, cy) { // this outer function can be called from a function inside DOM loading block, as long as 'cy' parameter is included. Th 'cy' will be loading 1st before the executing outer function.
+			function createPanelBlockForm(PanelColumnsConfig, panelBlock, divPanelBlock, cy) { 
 {{rawJSComment "				// This is helper function to create PanelBlock-Form-Content"}}
 {{rawJSComment "				// Usage: "}}
 {{rawJSComment "				// // Panel Block 01"}}
@@ -2100,8 +2119,8 @@
 {{rawJSComment "					// Create columnContainer"}}
 					const columnContainer = document.createElement('div');
 					columnContainer.id = `${divPanelBlock.id}-columnContainer${config.idSuffix}`
-					columnContainer.className = 'column my-auto';
-
+					columnContainer.className = 'column my-auto is-11';  
+ 
 {{rawJSComment "					// Create panelContent"}}
 					const panelContent = document.createElement('div');
 					panelContent.id = `${columnContainer.id}-panelContent${config.idSuffix}`
@@ -2118,7 +2137,12 @@
 					labelColumn.className = `${config.columnLabelClass}`;
 
 					const labelElement = document.createElement('label');
-					labelElement.className = 'label is-size-7 has-text-right has-text-weight-medium px-auto';
+					if (typeof config.columnLabelElementClass !== 'undefined' && config.columnLabelElementClass !== null && config.columnLabelElementClass !== '') {
+						labelElement.className = config.columnLabelElementClass;
+					  } else {
+						labelElement.className = 'label is-size-7 has-text-right has-text-weight-medium px-auto'; 
+					  }
+					  
 					labelElement.textContent = config.columnLabelTextContent;
 					labelElement.id = `${labelColumn.id}-labelElement${config.idSuffix}`
 
@@ -2141,31 +2165,44 @@
 
 					} else if (config.columnInputType == 'button') {
 						const inputColumn = document.createElement('div');
-						inputColumn.className = `column is-8 p-1 pl-3`;
+						if (typeof config.columnInputClass !== 'undefined' && config.columnInputClass !== null && config.columnInputClass !== '') {
+							inputColumn.className = config.columnInputClass;
+						  } else {
+							inputColumn.className = `column is-8 p-1 pl-3`;
+						}
 						inputColumn.id = `${labelColumn.id}-inputColumn${config.idSuffix}`
 
 						const inputElement = document.createElement('button');
-						inputElement.className = `button is-size-7 link-impairment-widht is-smallest-element is-justify-content-flex-start is-link fa-regular fa-network-wired`;
+						if (typeof config.columnInputElementClass !== 'undefined' && config.columnInputElementClass !== null && config.columnInputElementClass !== '') {
+							inputElement.className = config.columnInputElementClass;
+						  } else {
+							inputElement.className = `button is-size-7 link-impairment-widht is-smallest-element is-justify-content-flex-start is-link fa-regular fa-network-wired`;
+						}
 						inputElement.id = `${inputColumn.id}-label${config.idSuffix}`
 						inputElement.textContent = config.columnInputContent;
+
+						inputElement.addEventListener('click', function() {
+							console.log ('addon.callOutFuntionName', config.columnInputCallOutFuntionName)
+							eval(config.columnInputCallOutFuntionName + `(cy)`);
+						});
 
 						inputColumn.appendChild(inputElement);
 						columnsPanelContent.appendChild(inputColumn);
 
 					} else if (config.columnInputType == 'slider') {
 						const inputColumn = document.createElement('div');
-						inputColumn.className = `column is-8 p-1 pl-3`;
+						inputColumn.className = `column is-5 p-1 pl-2`;
 						inputColumn.id = `${labelColumn.id}-inputColumn${config.idSuffix}`
 
 						const inputElement = document.createElement('input');
-						inputElement.className = `slider is-fullwidth custom-slider`;
-						
+						inputElement.className = `slider custom-slider`;
+						inputElement.style.width = `100px`;
+
 						inputElement.step= '1';
 						inputElement.min= '1';
 						inputElement.max= '1000';
 						inputElement.value= '50';
 						inputElement.type= 'range'
-						
 						
 						inputElement.id = `${inputColumn.id}-label${config.idSuffix}`
 						inputElement.textContent = config.columnInputContent;
@@ -2175,11 +2212,20 @@
 
 					} else if (config.columnInputType == 'input') {
 						const inputColumn = document.createElement('div');
-						inputColumn.className = `column is-8 p-1 pl-3`;
+						if (typeof config.columnInputClass !== 'undefined' && config.columnInputClass !== null && config.columnInputClass !== '') {
+							inputColumn.className = config.columnInputClass;
+						  } else {
+							inputColumn.className = `column is-8 p-1 pl-3`;
+						}
+{{rawJSComment "						// inputColumn.className = `column is-8 p-1 pl-3`;"}}
 						inputColumn.id = `${labelColumn.id}-inputColumn${config.idSuffix}`
-
 						const inputElement = document.createElement('input');
-						inputElement.className = `input is-size-7 has-text-left link-impairment-widht has-text-weight-normal is-smallest-element`;
+						if (typeof config.columnInputElementClass !== 'undefined' && config.columnInputElementClass !== null && config.columnInputElementClass !== '') {
+							inputElement.className = config.columnInputElementClass;
+						  } else {
+							inputElement.className = `input is-size-7 has-text-left link-impairment-widht has-text-weight-normal is-smallest-element`;
+						}
+{{rawJSComment "						// inputElement.className = `input is-size-7 has-text-left link-impairment-widht has-text-weight-normal is-smallest-element`;"}}
 						inputElement.id = `${inputColumn.id}-label${config.idSuffix}`
 						inputElement.type = 'text'
 						inputElement.value = config.columnInputContent
@@ -2245,11 +2291,8 @@
 							}
 							else if (addon.hrefFunction == 'eventHandlerLink') {
 								button.addEventListener('click', function() {
-
 									console.log ('addon.callOutFuntionName', addon.callOutFuntionName)
 									eval(addon.callOutFuntionName + `(cy)`);
-								
-							
 								});
 
 							} else if (addon.hrefFunction == 'copy') {
@@ -2550,6 +2593,79 @@
 
 				return tabContainer;
 			}
+
+			function showPanelDrawerLayout() {
+				removeElementById("Panel-03");
+				tabContentFns = [createDrawerLayoutTab]
+				tabContentFnsArg = []
+				createContentPanel('Panel-03', tabContentFns, tabContentFnsArg, 'TopoViewer Helper App')
+
+{{rawJSComment "				// createContentPanel('Panel-01', tabContentFns, tabContentFnsArg[0], 'Node Properties');"}}
+			}
+
+			function createDrawerLayoutTab(panelHeadingText) {
+				const modifiedHeaderText = panelHeadingText;
+
+{{rawJSComment "				// Create the tab-container "}}
+				const tabContainer = document.createElement('div');
+				tabContainer.id = `tabContainer-${modifiedHeaderText}`
+				tabContainer.className = 'panel-tabContainer';
+
+{{rawJSComment "				// Panel Block 01"}}
+				panelBlockContainer = createPanelBlockContainer(tabContainer.id)
+				panelBlock01 = panelBlockContainer.panelBlock
+				divPanelBlock01 = panelBlockContainer.divPanelBlock
+
+{{rawJSComment "				// Define the HTML content as a string"}}
+
+				url = location.host
+				const hreWindows = `http://${url}/clab-client/clab-client-windows/ClabCapture.app.zip`
+				const hrefMac = `http://${url}/clab-client/clab-client-mac/ClabCapture.app.zip`
+				const htmlContent = `
+				<div class="tabs is-boxed px-">
+				    <ul>
+				        <li class="is-active">
+				            <a>
+				                <span class="icon is-small"><i class="fas fa-image" aria-hidden="true"></i></span>
+				                <span></span>
+				            </a>
+				        </li>
+				        <li>
+				            <a>
+				                <span class="icon is-small px-0"><i class="fas fa-music" aria-hidden="true"></i></span>
+				                <span></span>
+				            </a>
+				        </li>
+				        <li>
+				            <a>
+				                <span class="icon is-small"><i class="fas fa-film" aria-hidden="true"></i></span>
+				                <span></span>
+				            </a>
+				        </li>
+				        <li>
+				            <a>
+				                <span class="icon is-small"><i class="far fa-file-alt" aria-hidden="true"></i></span>
+				                <span></span>
+				            </a>
+				        </li>
+				    </ul>
+				</div>
+				`;
+
+{{rawJSComment "				// Create a div element and set its innerHTML to the defined HTML content"}}
+				const contentDiv = document.createElement('div');
+				contentDiv.className = 'px-2';
+				contentDiv.innerHTML = htmlContent;
+				contentDiv.style.maxHeight = '280px';
+				contentDiv.style.overflowY = 'auto';
+
+				divPanelBlock01.appendChild(contentDiv)
+{{rawJSComment "				// append divPanelBlock01 --> panelBlock01 --> tabContainer"}}
+				panelBlock01.append(divPanelBlock01)
+				tabContainer.appendChild(panelBlock01)
+
+				return tabContainer;
+			}
 			
 
 {{rawJSComment "			// function zoomToFitDrawerl(cy) {"}}
@@ -2649,15 +2765,9 @@
 {{rawJSComment "				// Check if there is a valid path (shortestPathEdges is not empty)"}}
 				if (shortestPathEdges.length > 1) {
 
-{{rawJSComment "					//// Apply a style to highlight the shortest path edges"}}
-{{rawJSComment "					// shortestPathEdges.style({"}}
-{{rawJSComment "					//	'line-color': 'red', "}}
-{{rawJSComment "					//	'line-style': 'solid', "}}
-{{rawJSComment "					// });"}}
-
 {{rawJSComment "					// Highlight the shortest path"}}
 					shortestPathEdges.forEach(edge => {
-						edge.addClass('spf');
+						edge.addClass('spf'); 
 					});
 
 {{rawJSComment "					//- Zoom out on the node"}}
@@ -2706,6 +2816,234 @@
 				}
 			}
 
+
+			function linkImpairmentManager(toggle, baseCommand) {
+
+				console.log("linkImpairmentManager-READCH")
+
+				delayValue = document.getElementById('panelBlock-tabContainer-LinkProperties-divPanelBlock-columnContainerlabelDelay-panelContentlabelDelay-columnsPanelContentlabelDelay-labelColumnlabelDelay-inputColumnlabelDelay-labellabelDelay').value
+				jitterValue = document.getElementById('panelBlock-tabContainer-LinkProperties-divPanelBlock-columnContainerlabelJitter-panelContentlabelJitter-columnsPanelContentlabelJitter-labelColumnlabelJitter-inputColumnlabelJitter-labellabelJitter').value
+				rateValue = document.getElementById('panelBlock-tabContainer-LinkProperties-divPanelBlock-columnContainerlabelRate-panelContentlabelRate-columnsPanelContentlabelRate-labelColumnlabelRate-inputColumnlabelRate-labellabelRate').value
+				lossValue = document.getElementById('panelBlock-tabContainer-LinkProperties-divPanelBlock-columnContainerlabelLoss-panelContentlabelLoss-columnsPanelContentlabelLoss-labelColumnlabelLoss-inputColumnlabelLoss-labellabelLoss').value
+				console.log(delayValue)
+
+				if (toggle == 'start') {
+					fullCommand = baseCommand + ` --delay ${delayValue}ms --jitter ${jitterValue}ms --rate ${rateValue} --loss ${lossValue}`
+					console.log(fullCommand)
+					callGoFunction(fullCommand, 'emptyPadding')
+{{rawJSComment "					// Provide user feedback (e.g., alert or toast) that the URL has been copied"}}
+					bulmaToast.toast({
+						message: `Link Impairment Initiated. Let's rock this! 😎💥`,
+						type: 'is-warning is-size-6 p-3',
+						duration: 4000,
+						position: "top-center",
+						closeOnClick: true,
+					})
+				} else if (toggle == 'stop') {
+					console.log(baseCommand)
+					callGoFunction(baseCommand, 'emptyPadding')
+					bulmaToast.toast({
+						message: `Link Impairment Successfully Stopped. Mission Accomplished! 😎🚀`,
+						type: 'is-warning is-size-6 p-3',
+						duration: 4000,
+						position: "top-center",
+						closeOnClick: true,
+					})
+				}
+			}
+
+{{rawJSComment "			// Call Go BackEnd function"}}
+			function callGoFunction(parameter1, parameter2) {
+				const data = {
+					param1: parameter1,
+					param2: parameter2,
+				};
+
+				fetch('/clabNetem', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify(data),
+					})
+					.then(response => {
+{{rawJSComment "						// Handle the response from the Go function"}}
+					})
+					.catch(error => {
+						console.error('Error:', error);
+					});
+			}
+
+{{rawJSComment "			// sleep funtion"}}
+			function sleep(ms) {
+				return new Promise(resolve => setTimeout(resolve, ms));
+			}
+
+
+			function verticallAllignLayout(cy) {
+
+				var verticalNodeGap = document.getElementById('panelBlock-viewportButtons-buttonadjustLayout-divPanelBlock-columnContainerlabelAdjustLayoutAlignmentVerticalNodeGap-panelContentlabelAdjustLayoutAlignmentVerticalNodeGap-columnsPanelContentlabelAdjustLayoutAlignmentVerticalNodeGap-labelColumnlabelAdjustLayoutAlignmentVerticalNodeGap-inputColumnlabelAdjustLayoutAlignmentVerticalNodeGap-labellabelAdjustLayoutAlignmentVerticalNodeGap').value
+				var verticalGroupGap = document.getElementById('panelBlock-viewportButtons-buttonadjustLayout-divPanelBlock-columnContainerlabelAdjustLayoutAlignmentVerticalGroupGap-panelContentlabelAdjustLayoutAlignmentVerticalGroupGap-columnsPanelContentlabelAdjustLayoutAlignmentVerticalGroupGap-labelColumnlabelAdjustLayoutAlignmentVerticalGroupGap-inputColumnlabelAdjustLayoutAlignmentVerticalGroupGap-labellabelAdjustLayoutAlignmentVerticalGroupGap').value
+
+				console.log('verticalNodeGap', verticalNodeGap)
+				console.log('verticalGroupGap', verticalGroupGap)
+
+				const xOffset = parseFloat(verticalNodeGap);
+				const yOffset = parseFloat(verticalGroupGap);
+
+				console.log('yOffset', yOffset)
+				console.log('xOffset', xOffset)
+
+				const delay = 100; 
+
+				setTimeout(() => {
+					cy.nodes().forEach(function(node) {
+						if (node.isParent()) {
+{{rawJSComment "							// For each parent node"}}
+							const children = node.children();
+							const numRows = 1; 
+							
+							const cellWidth = node.width() / children.length; 
+{{rawJSComment "							// const xOffset = 5 "}}
+							
+							children.forEach(function(child, index) {
+{{rawJSComment "								// Position children in rows"}}
+								const xPos = index * (cellWidth + xOffset);
+								const yPos = 0; 
+								
+{{rawJSComment "								// Set the position of each child node"}}
+								child.position({ x: xPos, y: yPos });
+							});
+						}
+					});
+
+					
+					var parentCounts = {}; 
+					var maxWidth = 0;
+					var centerX = 0;
+					var centerY = cy.height() / 2; 
+
+{{rawJSComment "					// Count children of each parent node"}}
+					cy.nodes().forEach(function(node) {
+						if (node.isParent()) {
+							const childrenCount = node.children().length;
+							parentCounts[node.id()] = childrenCount;
+						}
+					});
+
+					cy.nodes().forEach(function (node) {
+						if (node.isParent()) {
+							const width = node.width();
+							if (width > maxWidth) {
+								maxWidth = width;
+								console.log('ParentMaxWidth: ', maxWidth)
+							}
+						}
+					});
+					
+					const divisionFactor = maxWidth / 2; 
+					console.log('divisionFactor: ', divisionFactor)
+				  
+{{rawJSComment "					// Sort parent nodes by child count in ascending order"}}
+					const sortedParents = Object.keys(parentCounts).sort(
+						  (a, b) => parentCounts[a] - parentCounts[b]
+					);
+				  
+					let yPos = 0; 
+{{rawJSComment "					// const yOffset = 50; "}}
+				  
+{{rawJSComment "					// Position parent nodes vertically and center them horizontally"}}
+					sortedParents.forEach(function(parentId) {
+						const parent = cy.getElementById(parentId);
+						const xPos = centerX - parent.width() / divisionFactor;	
+{{rawJSComment "																				  // to the left compared to the center of the widest parent node."}}
+						  parent.position({ x: xPos, y: yPos });  
+						  yPos += yOffset;
+					});
+					cy.fit(); 
+				},delay); 
+			}
+
+			function horizontalAllignLayout(cy) {
+				var horizontalNodeGap = document.getElementById('panelBlock-viewportButtons-buttonadjustLayout-divPanelBlock-columnContainerlabelAdjustLayoutAlignmentHorizontalNodeGap-panelContentlabelAdjustLayoutAlignmentHorizontalNodeGap-columnsPanelContentlabelAdjustLayoutAlignmentHorizontalNodeGap-labelColumnlabelAdjustLayoutAlignmentHorizontalNodeGap-inputColumnlabelAdjustLayoutAlignmentHorizontalNodeGap-labellabelAdjustLayoutAlignmentHorizontalNodeGap').value
+				var horizontalGroupGap = document.getElementById('panelBlock-viewportButtons-buttonadjustLayout-divPanelBlock-columnContainerlabelAdjustLayoutAlignmentHorizontalGroupGap-panelContentlabelAdjustLayoutAlignmentHorizontalGroupGap-columnsPanelContentlabelAdjustLayoutAlignmentHorizontalGroupGap-labelColumnlabelAdjustLayoutAlignmentHorizontalGroupGap-inputColumnlabelAdjustLayoutAlignmentHorizontalGroupGap-labellabelAdjustLayoutAlignmentHorizontalGroupGap').value
+
+				console.log('horizontalNodeGap', horizontalNodeGap)
+				console.log('horizontalGroupGap', horizontalGroupGap)
+
+				const yOffset = parseFloat(horizontalNodeGap);
+				const xOffset = parseFloat(horizontalGroupGap);
+
+				console.log('yOffset', yOffset)
+				console.log('xOffset', xOffset)
+
+				const delay = 100;
+				setTimeout(() => {
+				  cy.nodes().forEach(function (node) {
+					if (node.isParent()) {
+{{rawJSComment "					  // For each parent node"}}
+					  const children = node.children();
+					  const numColumns = 1; 
+					  const cellHeight = node.height() / children.length; 
+{{rawJSComment "					  // const yOffset = 5; "}}
+			  
+					  children.forEach(function (child, index) {
+{{rawJSComment "						// Position children in columns"}}
+						const xPos = 0; 
+						const yPos = index * (cellHeight + yOffset);
+						
+{{rawJSComment "						// Set the position of each child node"}}
+						child.position({ x: xPos, y: yPos });
+					  });
+					}
+				  });
+			  
+				  var parentCounts = {};
+				  var maxHeight = 0;
+				  var centerX = cy.width() / 2;
+				  var centerY = cy.height() / 2;
+			  
+{{rawJSComment "				  // Count children of each parent node"}}
+				  cy.nodes().forEach(function (node) {
+					if (node.isParent()) {
+					  const childrenCount = node.children().length;
+					  parentCounts[node.id()] = childrenCount;
+					}
+				  });
+			  
+				  cy.nodes().forEach(function (node) {
+					if (node.isParent()) {
+					  const height = node.height();
+					  if (height > maxHeight) {
+						maxHeight = height;
+						console.log('ParentMaxHeight: ', maxHeight);
+					  }
+					}
+				  });
+			  
+				  const divisionFactor = maxHeight / 2;
+				  console.log('divisionFactor: ', divisionFactor);
+			  
+{{rawJSComment "				  // Sort parent nodes by child count in ascending order"}}
+				  const sortedParents = Object.keys(parentCounts).sort(
+					(a, b) => parentCounts[a] - parentCounts[b]
+				  );
+			  
+				  let xPos = 0;
+{{rawJSComment "				  // const xOffset = 50;"}}
+			  
+{{rawJSComment "				  // Position parent nodes horizontally and center them vertically"}}
+				  sortedParents.forEach(function (parentId) {
+					const parent = cy.getElementById(parentId);
+					const yPos = centerY - parent.height() / divisionFactor; 
+					parent.position({ x: xPos, y: yPos });
+					xPos -= xOffset;
+				  });
+			  
+				  cy.fit();
+				}, delay);
+			  }
+			  
 			</script>
 		</div>
 	</body>
