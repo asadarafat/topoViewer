@@ -56,7 +56,7 @@ cp tools/entrypoint.sh dist/entrypoint.sh
 
 echo "Git Commit and Push with tag Tag"
 git add dist/topoviewer
-git commit -am \"$tag\"
+git push --tags\"$tag\"
 git tag $tag
 git push --tags
 
