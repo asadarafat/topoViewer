@@ -14,3 +14,6 @@ _archive/**
 html-public/**
 README-copy.md
 README-copy2.md
+package-lock.json
+package.json
+.cache/**

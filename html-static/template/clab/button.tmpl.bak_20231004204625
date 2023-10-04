@@ -479,6 +479,45 @@
 						hrefLink: ``,
 						drawerConfig: [
 						{
+							idSuffix: 'labelFindNode',
+							columnLabelTextContent: 'Node Finder',
+							columnLabelClass: 'column is-12 pt-2 pb-2 pr-2 LinksLenghtSlider is-light',
+							columnLabelElementClass: 'label is-size-7 has-text-weight-semibold px-auto',
+							columnInputType: '',
+							columnInputContent: '',
+							columnInputPlaceholder: '',
+							columnInputAttribute: 'enabled',
+							addonsContent: []
+						},
+						{
+							idSuffix: 'labelFindNodeNodeName',
+							columnLabelTextContent: 'Node Name',
+							columnLabelClass: 'column is-6 pt-0 pr-1 LinksLenghtSlider is-light',
+							columnLabelElementClass: 'label is-size-7 has-text-right has-text-weight-normal px-auto pt-1',
+							columnInputType: 'input',
+							columnInputClass: 'column is-6 p-1 pl-3',
+							columnInputElementClass: 'input is-size-7 has-text-left has-text-weight-normal is-smallest-element',
+							columnInputContent: '',
+							columnInputPlaceholder: 'node name',
+							columnInputAttribute: 'enabled',
+							addonsContent: []				
+						},
+						{
+							idSuffix: 'labelFindNodeApply',
+							columnLabelTextContent: '',
+							columnLabelClass: 'column is-6 pt-0 pr-1 LinksLenghtSlider is-light',
+							columnLabelElementClass: '',
+							columnInputType: 'button',
+							columnInputClass: 'column is-6 p-1 pl-3 is-flex is-justify-content-right',
+							columnInputElementClass: 'button is-size-7 is-smallest-element is-link',
+							columnInputContent: 'Find',
+							columnInputPlaceholder: '',
+							columnInputAttribute: 'enabled',
+							columnInputCallOutFuntionName: 'pathFinderDijkstraDrawer',
+							addonsContent: []				
+						},
+
+						{
 							idSuffix: 'labelNodeName',
 							columnLabelTextContent: '',
 							columnLabelClass: 'column is-0 p-0',
@@ -512,50 +551,54 @@
 						drawerConfig: [
 						{
 							idSuffix: 'labelFindRoute',
-							columnLabelTextContent: '',
-							columnLabelClass: 'column is-0 p-0',
-							columnInputType: 'label',
-							columnInputContent: 'Route Finder',
+							columnLabelTextContent: 'Route Finder',
+							columnLabelClass: 'column is-12 pt-2 pb-2 pr-2 LinksLenghtSlider is-light',
+							columnLabelElementClass: 'label is-size-7 has-text-weight-semibold px-auto',
+							columnInputType: '',
+							columnInputContent: '',
 							columnInputPlaceholder: '',
 							columnInputAttribute: 'enabled',
 							addonsContent: []
 						},
 						{
 							idSuffix: 'labelFindRouteSource',
-							columnLabelTextContent: '',
-							columnLabelClass: 'column is-0 p-0',
-							columnInputType: 'field',
+							columnLabelTextContent: 'Source Node',
+							columnLabelClass: 'column is-6 pt-0 pr-1 LinksLenghtSlider is-light',
+							columnLabelElementClass: 'label is-size-7 has-text-right has-text-weight-normal px-auto pt-1',
+							columnInputType: 'input',
+							columnInputClass: 'column is-6 p-1 pl-3',
+							columnInputElementClass: 'input is-size-7 has-text-left has-text-weight-normal is-smallest-element',
 							columnInputContent: '',
-							columnInputPlaceholder: 'source node',
+							columnInputPlaceholder: 'node name',
 							columnInputAttribute: 'enabled',
-							addonsContent: []
+							addonsContent: []				
 						},
 						{
 							idSuffix: 'labelFindRouteTarget',
-							columnLabelTextContent: '',
-							columnLabelClass: 'column is-0 p-0',
-							columnInputType: 'field',
+							columnLabelTextContent: 'Target Node',
+							columnLabelClass: 'column is-6 pt-0 pr-1 LinksLenghtSlider is-light',
+							columnLabelElementClass: 'label is-size-7 has-text-right has-text-weight-normal px-auto pt-1',
+							columnInputType: 'input',
+							columnInputClass: 'column is-6 p-1 pl-3',
+							columnInputElementClass: 'input is-size-7 has-text-left has-text-weight-normal is-smallest-element',
 							columnInputContent: '',
-							columnInputPlaceholder: 'target node',
+							columnInputPlaceholder: 'node name',
 							columnInputAttribute: 'enabled',
-							addonsContent: []
+							addonsContent: []				
 						},
 						{
-							idSuffix: 'labelFindRouteSource',
+							idSuffix: 'labelFindRouteTargetFind',
 							columnLabelTextContent: '',
-							columnLabelClass: 'column is-0 p-0',
-							columnInputType: 'field',
-							columnInputContent: '',
-							columnInputPlaceholder: 'Find the route',
-							columnInputAttribute: 'disabled',
-							columnHrefFunction: 'pathFinderDijkstraEvent',
-							addonsContent: [{
-								name: 'blue',
-								iconClass: 'fas fa-check-circle',
-								hoverMessage: 'Find the route',
-								hrefFunction: 'eventHandlerLink',
-								callOutFuntionName: `pathFinderDijkstraDrawer`
-							}]
+							columnLabelClass: 'column is-6 pt-0 pr-1 LinksLenghtSlider is-light',
+							columnLabelElementClass: '',
+							columnInputType: 'button',
+							columnInputClass: 'column is-6 p-1 pl-3 is-flex is-justify-content-right',
+							columnInputElementClass: 'button is-size-7 is-smallest-element is-link',
+							columnInputContent: 'Find',
+							columnInputPlaceholder: '',
+							columnInputAttribute: 'enabled',
+							columnInputCallOutFuntionName: 'pathFinderDijkstraDrawer',
+							addonsContent: []				
 						}]
 					},
 					{
@@ -579,7 +622,7 @@
 						{
 							idSuffix: 'labelAdjustLayoutLinksLenghtSlider',
 							columnLabelTextContent: 'Link Length',
-							columnLabelClass: 'column is-6 pt-0 pr-2 LinksLenghtSlider is-light',
+							columnLabelClass: 'column is-6 pt-0 pr-1 LinksLenghtSlider is-light',
 							columnLabelElementClass: 'label is-size-7 has-text-right has-text-weight-normal px-auto',
 							columnInputType: 'slider',
 							columnInputContent: '',
@@ -590,7 +633,7 @@
 						{
 							idSuffix: 'labelAdjustLayoutNodeGapSlider',
 							columnLabelTextContent: 'Node Gap',
-							columnLabelClass: 'column is-6 pt-0 pr-2 LinksLenghtSlider is-light',
+							columnLabelClass: 'column is-6 pt-0 pr-1 LinksLenghtSlider is-light',
 							columnLabelElementClass: 'label is-size-7 has-text-right has-text-weight-normal px-auto',
 							columnInputType: 'slider',
 							columnInputContent: '',
@@ -612,8 +655,8 @@
 						{
 							idSuffix: 'labelAdjustLayoutAlignmentVerticalNodeGap',
 							columnLabelTextContent: 'Node Gap',
-							columnLabelClass: 'column is-6 pt-0 pr-2 LinksLenghtSlider is-light',
-							columnLabelElementClass: 'label is-size-7 has-text-right has-text-weight-normal px-auto',
+							columnLabelClass: 'column is-6 pt-0 pr-1 LinksLenghtSlider is-light',
+							columnLabelElementClass: 'label is-size-7 has-text-right has-text-weight-normal px-auto pt-1',
 							columnInputType: 'input',
 							columnInputClass: 'column is-6 p-1 pl-3',
 							columnInputElementClass: 'input is-size-7 has-text-left has-text-weight-normal is-smallest-element',
@@ -625,8 +668,8 @@
 						{
 							idSuffix: 'labelAdjustLayoutAlignmentVerticalGroupGap',
 							columnLabelTextContent: 'Group Gap',
-							columnLabelClass: 'column is-6 pt-0 pr-2 LinksLenghtSlider is-light',
-							columnLabelElementClass: 'label is-size-7 has-text-right has-text-weight-normal px-auto',
+							columnLabelClass: 'column is-6 pt-0 pr-1 LinksLenghtSlider is-light',
+							columnLabelElementClass: 'label is-size-7 has-text-right has-text-weight-normal px-auto pt-1',
 							columnInputType: 'input',
 							columnInputClass: 'column is-6 p-1 pl-3',
 							columnInputElementClass: 'input is-size-7 has-text-left has-text-weight-normal is-smallest-element',
@@ -641,8 +684,8 @@
 							columnLabelClass: 'column is-6 pt-0 pr-1 LinksLenghtSlider is-light',
 							columnLabelElementClass: '',
 							columnInputType: 'button',
-							columnInputClass: 'column is-6 p-1 pl-3',
-							columnInputElementClass: 'button is-size-7 has-text-left has-text-weight-normal is-smallest-element is-justify-content-flex-start is-link',
+							columnInputClass: 'column is-6 p-1 pl-3 is-flex is-justify-content-right',
+							columnInputElementClass: 'button is-size-7 is-smallest-element is-link',
 							columnInputContent: 'Apply',
 							columnInputPlaceholder: '',
 							columnInputAttribute: 'enabled',
@@ -663,8 +706,8 @@
 						{
 							idSuffix: 'labelAdjustLayoutAlignmentHorizontalNodeGap',
 							columnLabelTextContent: 'Node Gap',
-							columnLabelClass: 'column is-6 pt-0 pr-2 LinksLenghtSlider is-light',
-							columnLabelElementClass: 'label is-size-7 has-text-right has-text-weight-normal px-auto',
+							columnLabelClass: 'column is-6 pt-0 pr-1 LinksLenghtSlider is-light',
+							columnLabelElementClass: 'label is-size-7 has-text-right has-text-weight-normal px-auto pt-1',
 							columnInputType: 'input',
 							columnInputClass: 'column is-6 p-1 pl-3',
 							columnInputElementClass: 'input is-size-7 has-text-left has-text-weight-normal is-smallest-element',
@@ -676,8 +719,8 @@
 						{
 							idSuffix: 'labelAdjustLayoutAlignmentHorizontalGroupGap',
 							columnLabelTextContent: 'Group Gap',
-							columnLabelClass: 'column is-6 pt-0 pr-2 LinksLenghtSlider is-light',
-							columnLabelElementClass: 'label is-size-7 has-text-right has-text-weight-normal px-auto',
+							columnLabelClass: 'column is-6 pt-0 pr-1 LinksLenghtSlider is-light',
+							columnLabelElementClass: 'label is-size-7 has-text-right has-text-weight-normal px-auto pt-1',
 							columnInputType: 'input',
 							columnInputClass: 'column is-6 p-1 pl-3',
 							columnInputElementClass: 'input is-size-7 has-text-left has-text-weight-normal is-smallest-element',
@@ -692,8 +735,8 @@
 							columnLabelClass: 'column is-6 pt-0 pr-1 LinksLenghtSlider is-light',
 							columnLabelElementClass: '',
 							columnInputType: 'button',
-							columnInputClass: 'column is-6 p-1 pl-3',
-							columnInputElementClass: 'button is-size-7 has-text-left has-text-weight-normal is-smallest-element is-justify-content-flex-start is-link',
+							columnInputClass: 'column is-6 p-1 pl-3 is-flex is-justify-content-right',
+							columnInputElementClass: 'button is-size-7 is-smallest-element is-link',
 							columnInputContent: 'Apply',
 							columnInputPlaceholder: '',
 							columnInputAttribute: 'enabled',
@@ -1807,7 +1850,7 @@
 						var nodePosition = node.position();
 						var offset = { x: -4, y: -10 };
 						var statusGreenNodePosition = { x: nodePosition.x + offset.x, y: nodePosition.y + offset.y };
-						var statusRedNodePosition = { x: nodePosition.x + offset.x, y: nodePosition.y - offset.y };
+						var statusRedNodePosition = { x: nodePosition.x + offset.x, y: nodePosition.y + offset.y };
 
 {{rawJSComment "						// Check if the nodeContainerStatusVisibility is true"}}
 						if (nodeContainerStatusVisibility) {
@@ -2176,10 +2219,12 @@
 						if (typeof config.columnInputElementClass !== 'undefined' && config.columnInputElementClass !== null && config.columnInputElementClass !== '') {
 							inputElement.className = config.columnInputElementClass;
 						  } else {
-							inputElement.className = `button is-size-7 link-impairment-widht is-smallest-element is-justify-content-flex-start is-link fa-regular fa-network-wired`;
+							inputElement.className = `button is-size-7 is-smallest-element is-justify-content-flex-end`;
 						}
+						
 						inputElement.id = `${inputColumn.id}-label${config.idSuffix}`
 						inputElement.textContent = config.columnInputContent;
+						inputElement.style.width = '50'
 
 						inputElement.addEventListener('click', function() {
 							console.log ('addon.callOutFuntionName', config.columnInputCallOutFuntionName)
