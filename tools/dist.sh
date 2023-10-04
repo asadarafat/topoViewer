@@ -6,8 +6,8 @@ read -p "Enter the version Tag: " tag
 # Display the entered parameters
 echo "Hello, the version Tag tobe used is $tag"
 
-cp go_cloudshellwrapper/constants.go cloudshellwrapper/constants.go.bak
-sed -i "s/\(var VersionInfo string = \)\"[^\"]*\"/\1\"$tag\"/" cloudshellwrapper/constants.go
+cp go_cloudshellwrapper/constants.go go_cloudshellwrapper/constants.go.bak
+sed -i "s/\(var VersionInfo string = \)\"[^\"]*\"/\1\"$tag\"/" go_cloudshellwrapper/constants.go
 
 echo "Cleanup dist folder..."
 rm -rRf dist/*
