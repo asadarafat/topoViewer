@@ -479,28 +479,42 @@
 						hrefLink: ``,
 						drawerConfig: [
 						{
-							idSuffix: 'labelNodeName',
-							columnLabelTextContent: '',
-							columnLabelClass: 'column is-0 p-0',
-							columnInputType: 'label',
-							columnInputContent: 'Find Node',
+							idSuffix: 'labelFindNode',
+							columnLabelTextContent: 'Node Finder',
+							columnLabelClass: 'column is-12 pt-2 pb-2 pr-2 LinksLenghtSlider is-light',
+							columnLabelElementClass: 'label is-size-7 has-text-weight-semibold px-auto',
+							columnInputType: '',
+							columnInputContent: '',
+							columnInputPlaceholder: '',
 							columnInputAttribute: 'enabled',
+							addonsContent: []
 						},
 						{
-							idSuffix: 'labelNodeName',
-							columnLabelTextContent: '',
-							columnLabelClass: 'column is-0 p-0',
-							columnInputType: 'field',
+							idSuffix: 'labelFindNodeNodeName',
+							columnLabelTextContent: 'Node Name',
+							columnLabelClass: 'column is-6 pt-0 pr-1 LinksLenghtSlider is-light',
+							columnLabelElementClass: 'label is-size-7 has-text-right has-text-weight-normal px-auto pt-1',
+							columnInputType: 'input',
+							columnInputClass: 'column is-6 p-1 pl-3',
+							columnInputElementClass: 'input is-size-7 has-text-left has-text-weight-normal is-smallest-element',
 							columnInputContent: '',
 							columnInputPlaceholder: 'node name',
 							columnInputAttribute: 'enabled',
-							addonsContent: [{
-								name: 'blue',
-								iconClass: 'fas fa-check-circle',
-								hoverMessage: 'Find the node',
-								hrefFunction: 'eventHandlerLink',
-								callOutFuntionName: `nodeFindDrawer`
-							}]
+							addonsContent: []				
+						},
+						{
+							idSuffix: 'labelFindNodeApply',
+							columnLabelTextContent: '',
+							columnLabelClass: 'column is-6 pt-0 pr-1 LinksLenghtSlider is-light',
+							columnLabelElementClass: '',
+							columnInputType: 'button',
+							columnInputClass: 'column is-6 p-1 pl-3 is-flex is-justify-content-right',
+							columnInputElementClass: 'button is-size-7 is-smallest-element is-link',
+							columnInputContent: 'Find',
+							columnInputPlaceholder: '',
+							columnInputAttribute: 'enabled',
+							columnInputCallOutFuntionName: 'nodeFindDrawer',
+							addonsContent: []				
 						}]
 					},
 					{
@@ -512,50 +526,54 @@
 						drawerConfig: [
 						{
 							idSuffix: 'labelFindRoute',
-							columnLabelTextContent: '',
-							columnLabelClass: 'column is-0 p-0',
-							columnInputType: 'label',
-							columnInputContent: 'Route Finder',
+							columnLabelTextContent: 'Route Finder',
+							columnLabelClass: 'column is-12 pt-2 pb-2 pr-2 LinksLenghtSlider is-light',
+							columnLabelElementClass: 'label is-size-7 has-text-weight-semibold px-auto',
+							columnInputType: '',
+							columnInputContent: '',
 							columnInputPlaceholder: '',
 							columnInputAttribute: 'enabled',
 							addonsContent: []
 						},
 						{
 							idSuffix: 'labelFindRouteSource',
-							columnLabelTextContent: '',
-							columnLabelClass: 'column is-0 p-0',
-							columnInputType: 'field',
+							columnLabelTextContent: 'Source Node',
+							columnLabelClass: 'column is-6 pt-0 pr-1 LinksLenghtSlider is-light',
+							columnLabelElementClass: 'label is-size-7 has-text-right has-text-weight-normal px-auto pt-1',
+							columnInputType: 'input',
+							columnInputClass: 'column is-6 p-1 pl-3',
+							columnInputElementClass: 'input is-size-7 has-text-left has-text-weight-normal is-smallest-element',
 							columnInputContent: '',
-							columnInputPlaceholder: 'source node',
+							columnInputPlaceholder: 'node name',
 							columnInputAttribute: 'enabled',
-							addonsContent: []
+							addonsContent: []				
 						},
 						{
 							idSuffix: 'labelFindRouteTarget',
-							columnLabelTextContent: '',
-							columnLabelClass: 'column is-0 p-0',
-							columnInputType: 'field',
+							columnLabelTextContent: 'Target Node',
+							columnLabelClass: 'column is-6 pt-0 pr-1 LinksLenghtSlider is-light',
+							columnLabelElementClass: 'label is-size-7 has-text-right has-text-weight-normal px-auto pt-1',
+							columnInputType: 'input',
+							columnInputClass: 'column is-6 p-1 pl-3',
+							columnInputElementClass: 'input is-size-7 has-text-left has-text-weight-normal is-smallest-element',
 							columnInputContent: '',
-							columnInputPlaceholder: 'target node',
+							columnInputPlaceholder: 'node name',
 							columnInputAttribute: 'enabled',
-							addonsContent: []
+							addonsContent: []				
 						},
 						{
-							idSuffix: 'labelFindRouteSource',
+							idSuffix: 'labelFindRouteTargetFind',
 							columnLabelTextContent: '',
-							columnLabelClass: 'column is-0 p-0',
-							columnInputType: 'field',
-							columnInputContent: '',
-							columnInputPlaceholder: 'Find the route',
-							columnInputAttribute: 'disabled',
-							columnHrefFunction: 'pathFinderDijkstraEvent',
-							addonsContent: [{
-								name: 'blue',
-								iconClass: 'fas fa-check-circle',
-								hoverMessage: 'Find the route',
-								hrefFunction: 'eventHandlerLink',
-								callOutFuntionName: `pathFinderDijkstraDrawer`
-							}]
+							columnLabelClass: 'column is-6 pt-0 pr-1 LinksLenghtSlider is-light',
+							columnLabelElementClass: '',
+							columnInputType: 'button',
+							columnInputClass: 'column is-6 p-1 pl-3 is-flex is-justify-content-right',
+							columnInputElementClass: 'button is-size-7 is-smallest-element is-link',
+							columnInputContent: 'Find',
+							columnInputPlaceholder: '',
+							columnInputAttribute: 'enabled',
+							columnInputCallOutFuntionName: 'pathFinderDijkstraDrawer',
+							addonsContent: []				
 						}]
 					},
 					{
@@ -579,7 +597,7 @@
 						{
 							idSuffix: 'labelAdjustLayoutLinksLenghtSlider',
 							columnLabelTextContent: 'Link Length',
-							columnLabelClass: 'column is-6 pt-0 pr-2 LinksLenghtSlider is-light',
+							columnLabelClass: 'column is-6 pt-0 pr-1 LinksLenghtSlider is-light',
 							columnLabelElementClass: 'label is-size-7 has-text-right has-text-weight-normal px-auto',
 							columnInputType: 'slider',
 							columnInputContent: '',
@@ -590,7 +608,7 @@
 						{
 							idSuffix: 'labelAdjustLayoutNodeGapSlider',
 							columnLabelTextContent: 'Node Gap',
-							columnLabelClass: 'column is-6 pt-0 pr-2 LinksLenghtSlider is-light',
+							columnLabelClass: 'column is-6 pt-0 pr-1 LinksLenghtSlider is-light',
 							columnLabelElementClass: 'label is-size-7 has-text-right has-text-weight-normal px-auto',
 							columnInputType: 'slider',
 							columnInputContent: '',
@@ -612,8 +630,8 @@
 						{
 							idSuffix: 'labelAdjustLayoutAlignmentVerticalNodeGap',
 							columnLabelTextContent: 'Node Gap',
-							columnLabelClass: 'column is-6 pt-0 pr-2 LinksLenghtSlider is-light',
-							columnLabelElementClass: 'label is-size-7 has-text-right has-text-weight-normal px-auto',
+							columnLabelClass: 'column is-6 pt-0 pr-1 LinksLenghtSlider is-light',
+							columnLabelElementClass: 'label is-size-7 has-text-right has-text-weight-normal px-auto pt-1',
 							columnInputType: 'input',
 							columnInputClass: 'column is-6 p-1 pl-3',
 							columnInputElementClass: 'input is-size-7 has-text-left has-text-weight-normal is-smallest-element',
@@ -625,8 +643,8 @@
 						{
 							idSuffix: 'labelAdjustLayoutAlignmentVerticalGroupGap',
 							columnLabelTextContent: 'Group Gap',
-							columnLabelClass: 'column is-6 pt-0 pr-2 LinksLenghtSlider is-light',
-							columnLabelElementClass: 'label is-size-7 has-text-right has-text-weight-normal px-auto',
+							columnLabelClass: 'column is-6 pt-0 pr-1 LinksLenghtSlider is-light',
+							columnLabelElementClass: 'label is-size-7 has-text-right has-text-weight-normal px-auto pt-1',
 							columnInputType: 'input',
 							columnInputClass: 'column is-6 p-1 pl-3',
 							columnInputElementClass: 'input is-size-7 has-text-left has-text-weight-normal is-smallest-element',
@@ -641,8 +659,8 @@
 							columnLabelClass: 'column is-6 pt-0 pr-1 LinksLenghtSlider is-light',
 							columnLabelElementClass: '',
 							columnInputType: 'button',
-							columnInputClass: 'column is-6 p-1 pl-3',
-							columnInputElementClass: 'button is-size-7 has-text-left has-text-weight-normal is-smallest-element is-justify-content-flex-start is-link',
+							columnInputClass: 'column is-6 p-1 pl-3 is-flex is-justify-content-right',
+							columnInputElementClass: 'button is-size-7 is-smallest-element is-link',
 							columnInputContent: 'Apply',
 							columnInputPlaceholder: '',
 							columnInputAttribute: 'enabled',
@@ -663,8 +681,8 @@
 						{
 							idSuffix: 'labelAdjustLayoutAlignmentHorizontalNodeGap',
 							columnLabelTextContent: 'Node Gap',
-							columnLabelClass: 'column is-6 pt-0 pr-2 LinksLenghtSlider is-light',
-							columnLabelElementClass: 'label is-size-7 has-text-right has-text-weight-normal px-auto',
+							columnLabelClass: 'column is-6 pt-0 pr-1 LinksLenghtSlider is-light',
+							columnLabelElementClass: 'label is-size-7 has-text-right has-text-weight-normal px-auto pt-1',
 							columnInputType: 'input',
 							columnInputClass: 'column is-6 p-1 pl-3',
 							columnInputElementClass: 'input is-size-7 has-text-left has-text-weight-normal is-smallest-element',
@@ -676,8 +694,8 @@
 						{
 							idSuffix: 'labelAdjustLayoutAlignmentHorizontalGroupGap',
 							columnLabelTextContent: 'Group Gap',
-							columnLabelClass: 'column is-6 pt-0 pr-2 LinksLenghtSlider is-light',
-							columnLabelElementClass: 'label is-size-7 has-text-right has-text-weight-normal px-auto',
+							columnLabelClass: 'column is-6 pt-0 pr-1 LinksLenghtSlider is-light',
+							columnLabelElementClass: 'label is-size-7 has-text-right has-text-weight-normal px-auto pt-1',
 							columnInputType: 'input',
 							columnInputClass: 'column is-6 p-1 pl-3',
 							columnInputElementClass: 'input is-size-7 has-text-left has-text-weight-normal is-smallest-element',
@@ -692,8 +710,8 @@
 							columnLabelClass: 'column is-6 pt-0 pr-1 LinksLenghtSlider is-light',
 							columnLabelElementClass: '',
 							columnInputType: 'button',
-							columnInputClass: 'column is-6 p-1 pl-3',
-							columnInputElementClass: 'button is-size-7 has-text-left has-text-weight-normal is-smallest-element is-justify-content-flex-start is-link',
+							columnInputClass: 'column is-6 p-1 pl-3 is-flex is-justify-content-right',
+							columnInputElementClass: 'button is-size-7 is-smallest-element is-link',
 							columnInputContent: 'Apply',
 							columnInputPlaceholder: '',
 							columnInputAttribute: 'enabled',
@@ -1807,7 +1825,7 @@
 						var nodePosition = node.position();
 						var offset = { x: -4, y: -10 };
 						var statusGreenNodePosition = { x: nodePosition.x + offset.x, y: nodePosition.y + offset.y };
-						var statusRedNodePosition = { x: nodePosition.x + offset.x, y: nodePosition.y - offset.y };
+						var statusRedNodePosition = { x: nodePosition.x + offset.x, y: nodePosition.y + offset.y };
 
 {{rawJSComment "						// Check if the nodeContainerStatusVisibility is true"}}
 						if (nodeContainerStatusVisibility) {
@@ -2119,7 +2137,7 @@
 {{rawJSComment "					// Create columnContainer"}}
 					const columnContainer = document.createElement('div');
 					columnContainer.id = `${divPanelBlock.id}-columnContainer${config.idSuffix}`
-					columnContainer.className = 'column my-auto is-11';  
+					columnContainer.className = 'column my-auto is-11 pr-1';  
  
 {{rawJSComment "					// Create panelContent"}}
 					const panelContent = document.createElement('div');
@@ -2176,10 +2194,12 @@
 						if (typeof config.columnInputElementClass !== 'undefined' && config.columnInputElementClass !== null && config.columnInputElementClass !== '') {
 							inputElement.className = config.columnInputElementClass;
 						  } else {
-							inputElement.className = `button is-size-7 link-impairment-widht is-smallest-element is-justify-content-flex-start is-link fa-regular fa-network-wired`;
+							inputElement.className = `button is-size-7 is-smallest-element is-justify-content-flex-end`;
 						}
+						
 						inputElement.id = `${inputColumn.id}-label${config.idSuffix}`
 						inputElement.textContent = config.columnInputContent;
+						inputElement.style.width = '50'
 
 						inputElement.addEventListener('click', function() {
 							console.log ('addon.callOutFuntionName', config.columnInputCallOutFuntionName)
@@ -2681,7 +2701,7 @@
 {{rawJSComment "				//- Get a reference to your Cytoscape instance (assuming it's named 'cy')"}}
 {{rawJSComment "				//- const cy = window.cy; //- Replace 'window.cy' with your actual Cytoscape instance"}}
 {{rawJSComment "				//- Find the node with the specified name"}}
-				const nodeName = document.getElementById('panelBlock-viewportButtons-buttonfindNode-divPanelBlock-columnContainerlabelNodeName-panelContentlabelNodeName-columnsPanelContentlabelNodeName-labelColumnlabelNodeName-inputColumnlabelNodeName-labellabelNodeName-control-input').value;
+				const nodeName = document.getElementById('panelBlock-viewportButtons-buttonfindNode-divPanelBlock-columnContainerlabelFindNodeNodeName-panelContentlabelFindNodeNodeName-columnsPanelContentlabelFindNodeNodeName-labelColumnlabelFindNodeNodeName-inputColumnlabelFindNodeNodeName-labellabelFindNodeNodeName').value;
 
 				const node = cy.$(`node[name = "${nodeName}"]`);
 {{rawJSComment "				//- Check if the node exists"}}
@@ -2733,8 +2753,8 @@
 				});
 
 {{rawJSComment "				// Get the node sourceNodeId from pathFinderSourceNodeInput and targetNodeId from pathFinderTargetNodeInput  "}}
-				const sourceNodeId = document.getElementById('panelBlock-viewportButtons-buttonfindRoute-divPanelBlock-columnContainerlabelFindRouteSource-panelContentlabelFindRouteSource-columnsPanelContentlabelFindRouteSource-labelColumnlabelFindRouteSource-inputColumnlabelFindRouteSource-labellabelFindRouteSource-control-input').value;
-				const targetNodeId = document.getElementById('panelBlock-viewportButtons-buttonfindRoute-divPanelBlock-columnContainerlabelFindRouteTarget-panelContentlabelFindRouteTarget-columnsPanelContentlabelFindRouteTarget-labelColumnlabelFindRouteTarget-inputColumnlabelFindRouteTarget-labellabelFindRouteTarget-control-input').value;
+				const sourceNodeId = document.getElementById('panelBlock-viewportButtons-buttonfindRoute-divPanelBlock-columnContainerlabelFindRouteSource-panelContentlabelFindRouteSource-columnsPanelContentlabelFindRouteSource-labelColumnlabelFindRouteSource-inputColumnlabelFindRouteSource-labellabelFindRouteSource').value;
+				const targetNodeId = document.getElementById('panelBlock-viewportButtons-buttonfindRoute-divPanelBlock-columnContainerlabelFindRouteTarget-panelContentlabelFindRouteTarget-columnsPanelContentlabelFindRouteTarget-labelColumnlabelFindRouteTarget-inputColumnlabelFindRouteTarget-labellabelFindRouteTarget').value;
 
 {{rawJSComment "				// Assuming you have 'cy' as your Cytoscape instance"}}
 				const sourceNode = cy.$(`node[id="${sourceNodeId}"]`);
