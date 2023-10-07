@@ -54,11 +54,11 @@ rm -rR dist/html-static/archive-nsp
 echo "Copy Docker entrypoint.sh ..."
 cp tools/entrypoint.sh dist/entrypoint.sh 
 
-echo "Git Commit and Push with tag Tag"
+echo "Git Commit and Push with tag $tag"
 git add dist/topoviewer
-git push --tags\"$tag\"
+git push origin $tag
 git tag $tag
-git push --tags
+# git push --tags
 
 
 # echo "Create TAR package..."
