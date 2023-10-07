@@ -6,13 +6,8 @@
 		<title>TopoViewer</title>
 
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
-
-		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@4.0.0/animate.min.css">
 		
 		<link href="css/style.css" rel="stylesheet"/>
-		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/material-design-icons@3.0.1/iconfont/material-icons.css">
-
-
 
 		<script defer src="https://use.fontawesome.com/releases/v6.4.2/js/all.js"></script>
 		
@@ -235,6 +230,14 @@
     		<script src="https://unpkg.com/cytoscape-popper@1.0.2/cytoscape-popper.js"></script>
 
 
+			<script src="cytoscape/libs/pptx.cjs.js"></script>
+			<script src="https://cdn.jsdelivr.net/gh/gitbrent/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
+
+
+
+
+
+
 			<script>
 
 {{rawJSComment "				// CSS TUTORIAL"}}
@@ -247,6 +250,11 @@
 {{rawJSComment "				// rgba(0, 0, 0, 0.2) specifies the color and transparency of the shadow. It's a black shadow (0, 0, 0 represents black), and the 0.2 alpha value makes it slightly transparent. The alpha value controls the shadow's opacity, with 0 being completely transparent and 1 being fully opaque."}}
 {{rawJSComment "				// */	"}}
 
+		
+
+
+
+
 {{rawJSComment "			// Instantiate Panel Weclome, this is should be loaded before CY"}}
 			showPanelWelcome()
 
@@ -256,6 +264,9 @@
 			let edgeClicked = false;
 			
 			document.addEventListener('DOMContentLoaded', function() {
+
+
+
 
 {{rawJSComment "				// Reusable function to initialize a WebSocket connection"}}
 				function initializeWebSocket(url, onMessageCallback) {
@@ -380,6 +391,8 @@
 
 
 
+
+
 {{rawJSComment "				//- Toggle the Panel(s) when clicking on the cy container "}}
 				document.getElementById('cy').addEventListener('click', function(event) {
 {{rawJSComment "					//- This code will be executed when you click anywhere in the Cytoscape container"}}
@@ -387,10 +400,20 @@
 
 					loadCytoStyle()
 
+
+
+
 					if (!nodeClicked && !edgeClicked) {
 						if (!isPanel01Cy) {
 							removeElementById("Panel-01");
 							removeElementById("Panel-03");
+
+{{rawJSComment "							// display none each ViewPortDrawer Element, the ViewPortDrawer is created during DOM loading and styled as display node initially	"}}
+							var ViewPortDrawerElements = document.getElementsByClassName('ViewPortDrawer'); 
+							var ViewPortDrawerArray = Array.from(ViewPortDrawerElements); 
+							ViewPortDrawerArray.forEach(function(element) {
+								element.style.display = 'none'
+							});
 
 {{rawJSComment "							// Define tabContentFns with custom content generation functions"}}
 {{rawJSComment "							// createNetworkExplorerTab is has corresponding function with similar name."}}
@@ -742,7 +765,7 @@
 						hoverMessage: 'Capture viewport as PNG',
 						hrefFunction: 'eventHandlerLink',
 						hrefLink: ` `,
-						callOutFuntionName: `captureAndSaveViewport`
+						callOutFuntionName: `captureAndSaveViewportAsDrawIo`
 					}, ];
 
 					const controlId = 'viewportButtons';
@@ -762,7 +785,7 @@
 						if (config.hrefFunction == 'eventHandlerLink') {
 							button.addEventListener('click', function(cy) {
 {{rawJSComment "								// Use eval() to call the function by name"}}
-								eval(config.callOutFuntionName + `()`); 
+								eval(config.callOutFuntionName + `(cy)`); 
 							});
 						}
 
@@ -1162,7 +1185,7 @@
 						{ idSuffix: 'labelManagement IPv6', columnLabelTextContent: 'Management IPv6', columnLabelClass: 'column is-4 p-1', columnInputType: 'label', columnInputContent: node.data('extraData').mgmtIpv6Addresss },
 						{ idSuffix: 'labelFqdn', columnLabelTextContent: 'FQDN', columnLabelClass: 'column is-4 p-1', columnInputType: 'label', columnInputContent: node.data('extraData').fqdn },
 						{ idSuffix: 'labelGroup', columnLabelTextContent: 'Group', columnLabelClass: 'column is-4 p-1', columnInputType: 'label', columnInputContent: node.data('extraData').group },
-						{ idSuffix: 'labelTopoviewerRole', columnLabelTextContent: 'Topoviewer Role', columnLabelClass: 'column is-4 p-1', columnInputType: 'label', columnInputContent: node.data('topoviewerRole') },
+						{ idSuffix: 'labeltopoViewerRole', columnLabelTextContent: 'TopoViewer Role', columnLabelClass: 'column is-4 p-1', columnInputType: 'label', columnInputContent: node.data('topoViewerRole') },
 					];
 
 					createPanelBlockForm(Panel01ColumnsConfig, panelBlock01, divPanelBlock01)
@@ -1527,13 +1550,13 @@
 {{rawJSComment "					// Find the canvas element for layer2-node"}}
 					const canvasElement = document.querySelector('#cy canvas[data-id="layer2-node"]');
 
-					const highResolutionFactor = 1;
+					const zoomScaleFactor = 1;
 
 {{rawJSComment "					// Check if the canvas element exists and is an HTMLCanvasElement"}}
 					if (canvasElement instanceof HTMLCanvasElement) {
 {{rawJSComment "						// Calculate the new canvas dimensions based on the high resolution factor"}}
-						const newWidth = canvasElement.width * highResolutionFactor;
-						const newHeight = canvasElement.height * highResolutionFactor;
+						const newWidth = canvasElement.width * zoomScaleFactor;
+						const newHeight = canvasElement.height * zoomScaleFactor;
 
 {{rawJSComment "						// Create a new canvas element with the increased dimensions"}}
 						const newCanvas = document.createElement('canvas');
@@ -1542,7 +1565,7 @@
 						const newCanvasContext = newCanvas.getContext('2d');
 
 {{rawJSComment "						// Scale the canvas content to the new dimensions"}}
-						newCanvasContext.scale(highResolutionFactor, highResolutionFactor);
+						newCanvasContext.scale(zoomScaleFactor, zoomScaleFactor);
 
 {{rawJSComment "						// Fill the new canvas with a white background"}}
 						newCanvasContext.fillStyle = 'white';
@@ -1575,8 +1598,6 @@
 				}
 
 				function captureAndSaveViewportAsSvg() {
-{{rawJSComment "					// Find the canvas element for layer2-node"}}
-					const canvasElement = document.querySelector('#cy canvas[data-id="layer2-node"]');
 
 {{rawJSComment "					// Check if the canvas element exists and is an HTMLCanvasElement"}}
 					if (canvasElement instanceof HTMLCanvasElement) {
@@ -1613,29 +1634,125 @@
 						segmentedEdges: true, 
 					};
 
-{{rawJSComment "					// Find the canvas element for layer2-node"}}
-					const cy = document.querySelector('#cy canvas[data-id="layer2-node"]');
-
-{{rawJSComment "					// 1. Create a new Presentation"}}
 					let pres = new PptxGenJS();
-
-{{rawJSComment "					// // 2. Add a Slide"}}
-{{rawJSComment "					// let slide = pres.addSlide();"}}
-
-{{rawJSComment "					// // 3. Add one or more objects (Tables, Shapes, Images, Text and Media) to the Slide"}}
-{{rawJSComment "					// let textboxText = 'Hello World from PptxGenJS!';"}}
-{{rawJSComment "					// let textboxOpts = { x: 1, y: 1, color: '363636' };"}}
-{{rawJSComment "					// slide.addText(textboxText, textboxOpts);"}}
-
-{{rawJSComment "					// // 4. Save the Presentation"}}
-{{rawJSComment "					// pres.writeFile();"}}
-
-					pptxAddSlide(pres, cy);
-
+					let pptxGetLayouts = new pptxGetLayoutsCy();
+					console.log(pptxGetLayoutsCy());
+				
+					pptxAddSlideCy(pres, cy, { 
+						options: defaultOptions
+					});
 					pres.writeFile();
 
 				}
 
+				function captureAndSaveViewportAsDrawIo() {
+
+{{rawJSComment "					// Find the canvas element for layer2-node"}}
+					const canvasElement = document.querySelector('#cy canvas[data-id="layer2-node"]');
+					const drawIoWidht= canvasElement.width / 10;
+					const drawIoHeight = canvasElement.height / 10;
+					const drawIoaAspectRatio = drawIoWidht / drawIoHeight
+
+
+					  
+					const mxGraphHeader = `<mxGraphModel dx="${drawIoWidht / 2 }" dy="${drawIoHeight / 2 }" grid="1" gridSize="1" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="${drawIoWidht}" pageHeight="${drawIoHeight}" math="0" shadow="0">
+																<root>
+																	<mxCell id="0" />
+																	<mxCell id="1" parent="0" />`;
+					
+					const mxGraphFooter = `    					</root>
+																	</mxGraphModel>`;
+					
+					const mxCells = [];
+					
+{{rawJSComment "					// Iterate through nodes and edges"}}
+{{rawJSComment "					// Function to create mxCell XML for nodes"}}
+					function createMxCellForNode(node, imageURL) {
+						if (node.isParent()) {
+							return`	
+								<mxCell id="${node.id()}" value="${node.data('id')}" style="shape=image;imageAspect=0;aspect=fixed;verticalLabelPosition=bottom;verticalAlign=top;image=undefined;imageBackground=#8F96AC;imageBorder=#F2F2F2;strokeWidth=2;perimeterSpacing=10;opacity=30;fontSize=4;spacingTop=-7;" parent="1" vertex="1">
+									<mxGeometry x="${(node.position('x')) - (node.width() / 2 )}" y="${((node.position('y')) - node.height() / 2 )}" width="${node.width()}" height="${node.height()}" as="geometry" />
+								</mxCell>`
+						}
+						else if ( !(node.data('id').includes('statusGreen')) && !(node.data('id').includes('statusRed'))) {
+							return `
+								<mxCell id="${node.id()}" value="${node.data('id')}" style="shape=image;imageAspect=0;aspect=fixed;verticalLabelPosition=bottom;verticalAlign=top;image=${imageURL};fontSize=4;spacingTop=-7;" vertex="1" parent="1">
+									<mxGeometry x="${node.position('x') - (node.width() / 2 )}" y="${((node.position('y')) - node.height() / 2 )}" width="${node.width()}" height="${node.height()}" as="geometry" />
+								</mxCell>`;
+						}
+					}
+
+					cy.nodes().forEach(function(node) {
+						let imageURL;
+						switch (node.data('topoViewerRole')) {
+							case 'pe':
+								imageURL = 'http://138.203.26.59:8080/images/clab-pe-light-blue.png';
+								break;
+							case 'controller':
+								imageURL = 'http://138.203.26.59:8080/images/clab-controller-light-blue.png';
+								break;
+							case 'pon':
+								imageURL = 'http://138.203.26.59:8080/images/clab-pon-dark-blue.png';
+								break;
+							case 'dcgw':
+								imageURL = 'http://138.203.26.59:8080/images/clab-dcgw-dark-blue.png';
+								break;
+							case 'leaf':
+								imageURL = 'http://138.203.26.59:8080/images/clab-leaf-light-blue.png';
+								break;
+							case 'spine':
+								imageURL = 'http://138.203.26.59:8080/images/clab-spine-dark-blue.png';
+								break;
+							case 'super-spine':
+								imageURL = 'http://138.203.26.59:8080/images/clab-spine-light-blue.png';
+								break;
+						}
+						mxCells.push(createMxCellForNode(node, imageURL));
+					});
+					
+					cy.edges().forEach(function(edge) {
+						mxCells.push(`
+										<mxCell id="${edge.data('id')}" value="" style="endArrow=none;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;strokeWidth=1;strokeColor=#B1BCC8;opacity=60;" parent="1" source="${edge.data('source')}" target="${edge.data('target')}" edge="1">
+										  	<mxGeometry width="50" height="50" relative="1" as="geometry" >
+											</mxGeometry>
+										</mxCell>
+										<mxCell id="${edge.data('id')}-LabelSource" value="${edge.data('sourceEndpoint')}" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=3;" parent="${edge.data('id')}" vertex="1" connectable="0">
+										  	<mxGeometry x="-0.5" y="1" relative="0.5" as="geometry">
+												<mxPoint x="1" y="1" as="sourcePoint" />
+										  	</mxGeometry>
+										</mxCell>
+										<mxCell id="${edge.data('id')}-labelTarget" value="${edge.data('targetEndpoint')}" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=3" parent="${edge.data('id')}" vertex="1" connectable="0">
+										  	<mxGeometry x="0.5" y="1" relative="0.5" as="geometry">
+												<mxPoint x="1" y="1" as="targetPoint" />
+										  	</mxGeometry>
+										</mxCell>`);
+					});
+					
+{{rawJSComment "					// Combine all parts and create XML"}}
+					const mxGraphXML = mxGraphHeader + mxCells.join('') + mxGraphFooter;
+					
+{{rawJSComment "					// Create a Blob from the XML"}}
+					const blob = new Blob([mxGraphXML], {
+						type: 'application/xml'
+					});
+					
+{{rawJSComment "					// Create a URL for the Blob"}}
+					const url = window.URL.createObjectURL(blob);
+					
+{{rawJSComment "					// Create a download link and trigger a click event"}}
+					const a = document.createElement('a');
+					a.style.display = 'none';
+					a.href = url;
+					a.download = 'filename.drawio';
+					document.body.appendChild(a);
+					a.click();
+					
+{{rawJSComment "					// Clean up by revoking the URL and removing the download link"}}
+					window.URL.revokeObjectURL(url);
+					document.body.removeChild(a);
+				}
+				
+				  			  
 				function pathFinderDijkstraEvent(event) {
 {{rawJSComment "					// Usage example:"}}
 {{rawJSComment "					// highlightShortestPath('node-a', 'node-b'); // Replace with your source and target node IDs"}}
@@ -1739,9 +1856,7 @@
 						return;
 					}
 				}
-
 				
-
 				function closePanel01Event(event) {
 					var panel = document.getElementById('Panel-01');
 					if (panel.style.display === 'none' || panel.style.display === '') {
@@ -1755,8 +1870,7 @@
 					isPanel01Added = false
 					console.log("Panel-01.style: " + document.getElementById('Panel-01').style.display)
 				}
-
-				
+			
 
 				var linkEndpointVisibility = false
 
@@ -2116,7 +2230,7 @@
 {{rawJSComment "				// 	{ idSuffix: 'labelManagement IPv6', columnLabelTextContent: 'Management IPv6', columnLabelClass: 'column is-4 p-1', columnInputType: 'label', columnInputContent: node.data('extraData').mgmtIpv6Addresss },"}}
 {{rawJSComment "				// 	{ idSuffix: 'labelFqdn', columnLabelTextContent: 'FQDN', columnLabelClass: 'column is-4 p-1', columnInputType: 'label', columnInputContent: node.data('extraData').fqdn },"}}
 {{rawJSComment "				// 	{ idSuffix: 'labelGroup', columnLabelTextContent: 'Group', columnLabelClass: 'column is-4 p-1', columnInputType: 'label', columnInputContent: node.data('extraData').group },"}}
-{{rawJSComment "				// 	{ idSuffix: 'labelTopoviewerRole', columnLabelTextContent: 'Topoviewer Role', columnLabelClass: 'column is-4 p-1', columnInputType: 'label', columnInputContent: node.data('topoviewerRole') },	"}}
+{{rawJSComment "				// 	{ idSuffix: 'labeltopoViewerRole', columnLabelTextContent: 'Topoviewer Role', columnLabelClass: 'column is-4 p-1', columnInputType: 'label', columnInputContent: node.data('topoViewerRole') },	"}}
 {{rawJSComment "				//  { idSuffix: 'labelFindRouteSource', columnLabelTextContent: '', columnLabelClass: 'column is-0 p-0', columnInputType: 'field', columnInputContent: '', columnInputPlaceholder: 'name', columnInputAttribute: 'enabled', columnInputIsInvisible: 'yes',"}}
 {{rawJSComment "				//  	addonsContent: []"}}
 {{rawJSComment "				//  }				"}}
@@ -2738,6 +2852,7 @@
 
 				}
 			}
+			
 			function pathFinderDijkstraDrawer(cy) {
 {{rawJSComment "				// Usage example:"}}
 {{rawJSComment "				// highlightShortestPath('node-a', 'node-b'); // Replace with your source and target node IDs"}}

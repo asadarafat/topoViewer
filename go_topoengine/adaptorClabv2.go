@@ -61,7 +61,7 @@ type ClabTopoV2 struct {
 			ClabNodeType      string `json:"clab-node-type"`
 			ClabTopoFile      string `json:"clab-topo-file"`
 			Containerlab      string `json:"containerlab"`
-			TopoViewerRole    string `json:"topo-viewer-role"`
+			TopoViewerRole    string `json:"topoViewer-role"`
 		} `json:"labels"`
 	} `json:"nodes"`
 	Links []struct {
@@ -153,7 +153,7 @@ func (cyTopo *CytoTopology) UnmarshalContainerLabTopoV2(topoFile []byte, clabHos
 		cytoJson.Data.ID = node.ID
 		cytoJson.Data.Weight = "30"
 		cytoJson.Data.Name = node.ID
-		cytoJson.Data.TopoviewerRole = node.Labels.TopoViewerRole
+		cytoJson.Data.TopoViewerRole = node.Labels.TopoViewerRole
 
 		if len(node.Group) != 0 {
 			cytoJson.Data.Parent = node.Group
@@ -246,7 +246,7 @@ func (cyTopo *CytoTopology) UnmarshalContainerLabTopoV2(topoFile []byte, clabHos
 		cytoJson.Selectable = true
 		cytoJson.Data.ID = n
 		cytoJson.Data.Name = n
-		cytoJson.Data.TopoviewerRole = n
+		cytoJson.Data.TopoViewerRole = n
 		cytoJson.Data.Weight = "1000"
 		cytoJson.Data.ExtraData = map[string]interface{}{
 			"clabServerUsername": Username,

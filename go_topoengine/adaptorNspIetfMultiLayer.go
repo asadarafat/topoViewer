@@ -131,7 +131,7 @@ func (cyTopo *CytoTopology) IetfMultiL2L3TopoUnMarshalV2(topoFile []byte, IetfNe
 			cytoJson.Data.Name = node.IetfL2TopologyL2NodeAttributes.Name
 			cytoJson.Data.Parent = "ietf-l2-topology"
 			cytoJson.Data.Kind = "layer2Node"
-			cytoJson.Data.TopoviewerRole = ""
+			cytoJson.Data.TopoViewerRole = ""
 			cytoJson.Data.ExtraData = map[string]interface{}{
 				"networkName":          "ietf-l2-topology",
 				"networkType":          network.NetworkTypes,
@@ -184,7 +184,7 @@ func (cyTopo *CytoTopology) IetfMultiL2L3TopoUnMarshalV2(topoFile []byte, IetfNe
 		cytoJson.Data.ID = "ietf-l2-topology" //taken by cyto as index
 		cytoJson.Data.Weight = "3"
 		cytoJson.Data.Name = cytoJson.Data.ID
-		cytoJson.Data.TopoviewerRole = "parent-l2"
+		cytoJson.Data.TopoViewerRole = "parent-l2"
 		cytoJson.Data.ExtraData = map[string]interface{}{
 			"nodeAttributes": struct {
 				Name string
@@ -207,7 +207,7 @@ func (cyTopo *CytoTopology) IetfMultiL2L3TopoUnMarshalV2(topoFile []byte, IetfNe
 			cytoJson.Data.Name = node.IetfL3UnicastTopologyL3NodeAttributes.Name
 			cytoJson.Data.Parent = "L3--" + network.NetworkID
 			cytoJson.Data.Kind = "layer3Node"
-			cytoJson.Data.TopoviewerRole = ""
+			cytoJson.Data.TopoViewerRole = ""
 			cytoJson.Data.ExtraData = map[string]interface{}{
 				"networkName":          "ietf-l3-unicast-topology",
 				"networkType":          network.NetworkTypes,
@@ -253,7 +253,7 @@ func (cyTopo *CytoTopology) IetfMultiL2L3TopoUnMarshalV2(topoFile []byte, IetfNe
 		cytoJson.Data.Weight = "3"
 		cytoJson.Data.Name = "L3--" + network.NetworkID
 		cytoJson.Data.Parent = "ietf-l3-unicast-topology"
-		cytoJson.Data.TopoviewerRole = "parent"
+		cytoJson.Data.TopoViewerRole = "parent"
 		cytoJson.Data.ExtraData = map[string]interface{}{
 			"nodeAttributes": struct {
 				name string
@@ -269,7 +269,7 @@ func (cyTopo *CytoTopology) IetfMultiL2L3TopoUnMarshalV2(topoFile []byte, IetfNe
 	cytoJson.Data.ID = "ietf-l3-unicast-topology" //taken by cyto as index
 	cytoJson.Data.Weight = "3"
 	cytoJson.Data.Name = cytoJson.Data.ID
-	cytoJson.Data.TopoviewerRole = "parent"
+	cytoJson.Data.TopoViewerRole = "parent"
 	cytoJson.Data.ExtraData = map[string]interface{}{
 		"nodeAttributes": struct {
 			name string

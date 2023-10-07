@@ -127,7 +127,7 @@ func (cyTopo *CytoTopology) IetfL2TopoUnMarshal(topoFile []byte, IetfNetworkTopo
 			cytoJson.Data.Weight = "2"
 			cytoJson.Data.Name = node.IetfL2TopologyL2NodeAttributes.Name
 			cytoJson.Data.Parent = network.NetworkID
-			cytoJson.Data.TopoviewerRole = "pe"
+			cytoJson.Data.TopoViewerRole = "pe"
 
 			// create list of parent nodes
 			topoviewerParentList = append(topoviewerParentList, cytoJson.Data.Parent)
@@ -162,7 +162,7 @@ func (cyTopo *CytoTopology) IetfL2TopoUnMarshal(topoFile []byte, IetfNetworkTopo
 			cytoJson.Selectable = true
 			cytoJson.Data.ID = n
 			cytoJson.Data.Name = n
-			cytoJson.Data.TopoviewerRole = n
+			cytoJson.Data.TopoViewerRole = n
 			cytoJson.Data.Weight = "1000"
 			cytoJson.Data.ExtraData = map[string]interface{}{
 				"weight": "2",
