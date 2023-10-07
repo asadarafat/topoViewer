@@ -56,9 +56,9 @@ cp tools/entrypoint.sh dist/entrypoint.sh
 
 echo "Git Commit and Push with tag $tag"
 git add dist/topoviewer
-git push origin $tag
+# git push --tags $tag
 git tag $tag
-# git push --tags
+git push --tags
 
 
 # echo "Create TAR package..."
