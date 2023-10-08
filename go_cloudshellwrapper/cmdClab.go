@@ -92,7 +92,7 @@ var confClab = config.Map{
 	"server-port": &config.Int{
 		Default:   8080,
 		Usage:     "port the server should listen on",
-		Shorthand: "P",
+		Shorthand: "p",
 	},
 	"workdir": &config.String{
 		Default:   ".",
@@ -117,7 +117,7 @@ var confClab = config.Map{
 	"clab-pass": &config.String{
 		Default:   "root",
 		Usage:     "containerLab server host password",
-		Shorthand: "p",
+		Shorthand: "P",
 	},
 }
 
