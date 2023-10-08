@@ -356,7 +356,7 @@
 
 {{rawJSComment "##				// Fetch and load element data from a JSON file"}}
 {{rawJSComment "##              //				fetch('dataCytoMarshall-3tierSmall.json') "}}
-{{rawJSComment "##				// fetch('dataCytoMarshall-{{.}}.json') "}}
+ fetch('dataCytoMarshall-{{.}}.json')
 
 					.then(response => response.json())
 					.then(elements => {
