@@ -47,8 +47,8 @@ cp -r tools/pumba_linux_amd64 dist/pumba_linux_amd64
 
 echo "Copy html folder and assets..."
 cp -rR html-static dist/html-static
-rm -rR dist/html-static/archive-clab
-rm -rR dist/html-static/archive-nsp
+rm -rR dist/html-static/template/archive-clab
+rm -rR dist/html-static/template/archive-nsp
 
 
 echo "Copy Docker entrypoint.sh ..."
