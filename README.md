@@ -101,6 +101,14 @@ and ![Pumba](https://github.com/alexei-led/pumba/releases) binary is installed i
 - Download the "ContainerLab Link Impairment Client - MAC" app extract and copy the app into /Applications folder
 
 
+
+## Quick Run - container status feature
+#### Prerequisite
+- ensure the `clab-user` has privilage to execute docker command.
+- otherwise you can add with this command `sudo usermod -aG docker <clab-user>`
+
+
+
 ## Tested Environment
-- containerlab version:  0.41.2, 0.44.3
+- containerlab version:  0.41.2, 0.44.3, 0.46.0
 - docker-ce version: 24.0.2
