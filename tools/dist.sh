@@ -59,13 +59,9 @@ git add .
 git add dist/topoviewer
 git commit -m "commit with tag $tag "
 git tag $tag
+
+# Push the commit and the tag to the remote repository
 git push origin development --tags
 
-
-# echo "Create TAR package..."
-# tar -czvf dist/TopoViewer.tar.gz dist
-
-# echo "Optimize binary size..."
-# upx --brute dist/topoviewer 
 
 echo "Distribution build done..."
