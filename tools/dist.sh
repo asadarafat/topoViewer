@@ -59,7 +59,7 @@ git add .
 git add dist/topoviewer
 git commit -m "commit with tag $tag "
 git tag $tag
-git push --tags
+git push origin development --tags
 
 
 # echo "Create TAR package..."
