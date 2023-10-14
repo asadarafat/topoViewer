@@ -1,7 +1,7 @@
 package main
 
 import (
-	tools "github.com/asadarafat/topoViewer/go_tools"
+	// tools "github.com/asadarafat/topoViewer/go_tools"
 	topoengine "github.com/asadarafat/topoViewer/go_topoengine"
 )
 
@@ -820,7 +820,9 @@ func main() {
 	// }
 
 	// tools.CommentProcessor("./html-public/nokia-MAGc-lab/button.html", "./html-static/template/clab/button.tmpl")
-	tools.CommentProcessor("./html-public/3tierSmall/button.html", "./html-static/template/clab/button.tmpl")
+	// tools.CommentProcessor("./html-public/3tierSmall/button.html", "./html-static/template/clab/button.tmpl")
+
+	cytoUiGo.GetDockerNodeStatusViaUnixSocket("clab-3tierSmall-dcgw-1", "localhost")
 
 }
 

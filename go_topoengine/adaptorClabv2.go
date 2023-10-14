@@ -2,20 +2,23 @@ package topoengine
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
 
 	"os"
 	"path"
 	"strconv"
 
+	"github.com/docker/docker/client"
 	"github.com/samber/lo"
 	"golang.org/x/crypto/ssh"
 
-	log "github.com/sirupsen/logrus"
-
 	tools "github.com/asadarafat/topoViewer/go_tools"
+	dockerType "github.com/docker/docker/api/types"
+	log "github.com/sirupsen/logrus"
 )
 
 type ClabTopoV2 struct {
@@ -84,20 +87,20 @@ type ClabTopoV2 struct {
 
 // Define a struct to match the structure of the JSON data
 type DockerNodeStatus struct {
-	Command      string `json:"Command"`
-	CreatedAt    string `json:"CreatedAt"`
-	ID           string `json:"ID"`
-	Image        string `json:"Image"`
-	Labels       string `json:"Labels"`
-	LocalVolumes string `json:"LocalVolumes"`
-	Mounts       string `json:"Mounts"`
-	Names        string `json:"Names"`
-	Networks     string `json:"Networks"`
-	Ports        string `json:"Ports"`
-	RunningFor   string `json:"RunningFor"`
-	Size         string `json:"Size"`
-	State        string `json:"State"`
-	Status       string `json:"Status"`
+	Command      string      `json:"Command"`
+	CreatedAt    interface{} `json:"CreatedAt"`
+	ID           interface{} `json:"ID"`
+	Image        string      `json:"Image"`
+	Labels       interface{} `json:"Labels"`
+	LocalVolumes string      `json:"LocalVolumes"`
+	Mounts       interface{} `json:"Mounts"`
+	Names        string      `json:"Names"`
+	Networks     interface{} `json:"Networks"`
+	Ports        interface{} `json:"Ports"`
+	RunningFor   string      `json:"RunningFor"`
+	Size         string      `json:"Size"`
+	State        string      `json:"State"`
+	Status       string      `json:"Status"`
 }
 
 func (cyTopo *CytoTopology) InitLoggerClabV2() {
@@ -310,159 +313,6 @@ func (cyTopo *CytoTopology) PrintjsonBytesCytoUiV2(JsonBytesCytoUiMarshaled []by
 	return err
 }
 
-// func (cyTopo *CytoTopology) GetDockerNodeStatus(clabNodeName string, clabUser string, clabHost string, clabPassword string) []byte {
-// 	// // get docker node status using exec
-// 	// command := "docker ps --all --format json"
-
-// 	// // Split the command into parts
-// 	// parts := strings.Fields(command)
-// 	// cmd := exec.Command(parts[0], parts[1:]...)
-
-// 	// // CombinedOutput runs the command and returns its combined standard output and standard error.
-// 	// output, err := cmd.CombinedOutput()
-
-// 	config := &ssh.ClientConfig{
-// 		User: clabUser,
-// 		Auth: []ssh.AuthMethod{
-// 			ssh.Password(clabPassword),
-// 		},
-// 		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
-// 	}
-
-// 	log.Debug("clabUser: " + clabUser)
-// 	log.Debug("clabHost: " + clabHost)
-// 	// log.Debug("clabPassword: " + clabPassword)
-
-// 	log.Debug("clabNode:" + clabNodeName)
-
-// 	client, err := ssh.Dial("tcp", clabHost+":22", config)
-// 	if err != nil {
-// 		log.Error("Failed to dial: ", err)
-// 	}
-
-// 	// Each ClientConn can support multiple interactive sessions,
-// 	// represented by a Session.
-// 	session, err := client.NewSession()
-// 	if err != nil {
-// 		log.Error("Failed to create session: ", err)
-// 	}
-// 	defer session.Close()
-
-// 	// Once a Session is created, you can execute a single command on
-// 	// the remote side using the Run method.
-// 	var b bytes.Buffer
-// 	session.Stdout = &b
-// 	if err := session.Run("docker ps --all --format json"); err != nil {
-// 		log.Error("Failed to run: " + err.Error())
-// 	}
-// 	log.Debug("output of 'docker ps --all --format json' comamand: ")
-// 	// log.Debug(b.String())
-
-// 	output := b.String()
-
-// 	var outputParsed DockerNodeStatus
-// 	var OutputParsedMarshalled []byte
-
-// 	if err != nil {
-// 		log.Error("Error:", err)
-// 	}
-// 	// log.Debug(string(output))
-
-// 	lines := strings.Split(string(output), "\n")
-// 	// log.Debug(lines)
-
-// 	for _, line := range lines {
-// 		if line == "" {
-// 			continue
-// 		}
-
-// 		var dockerNodeStatus DockerNodeStatus
-// 		err := json.Unmarshal([]byte(line), &dockerNodeStatus)
-// 		if err != nil {
-// 			log.Debug("Error parsing JSON:", err)
-// 			continue
-// 		}
-// 		log.Debug(dockerNodeStatus.Names)
-
-// 		if dockerNodeStatus.Names == clabNodeName {
-// 			json.Unmarshal([]byte(line), &outputParsed)
-// 			OutputParsedMarshalled, err := json.MarshalIndent(outputParsed, "", "  ")
-// 			if err != nil {
-// 				log.Error(err)
-// 				panic(err)
-// 			}
-// 			return OutputParsedMarshalled
-// 		}
-// 	}
-
-// 	log.Debug(OutputParsedMarshalled)
-
-// 	return OutputParsedMarshalled
-
-// }
-
-// func (cyTopo *CytoTopology) GetDockerNodeStatus(clabNodeName string, clabUser string, clabHost string, clabPassword string) ([]byte, error) {
-// 	config := &ssh.ClientConfig{
-// 		User: clabUser,
-// 		Auth: []ssh.AuthMethod{
-// 			ssh.Password(clabPassword),
-// 		},
-// 		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
-// 	}
-
-// 	client, err := ssh.Dial("tcp", clabHost+":22", config)
-// 	if err != nil {
-// 		return nil, fmt.Errorf("failed to dial SSH: %w", err)
-// 	}
-// 	defer client.Close()
-
-// 	session, err := client.NewSession()
-// 	if err != nil {
-// 		return nil, fmt.Errorf("failed to create SSH session: %w", err)
-// 	}
-// 	defer session.Close()
-
-// 	var b bytes.Buffer
-// 	session.Stdout = &b
-// 	if err := session.Run("docker ps --all --format json"); err != nil {
-// 		return nil, fmt.Errorf("failed to run 'docker ps' command: %w", err)
-// 	}
-
-// 	output := b.String()
-
-// 	var outputParsed DockerNodeStatus
-
-// 	lines := strings.Split(output, "\n")
-
-// 	for _, line := range lines {
-// 		if line == "" {
-// 			continue
-// 		}
-
-// 		var dockerNodeStatus DockerNodeStatus
-// 		if err := json.Unmarshal([]byte(line), &dockerNodeStatus); err != nil {
-// 			log.Debug("Error parsing JSON:", err)
-// 			continue
-// 		}
-
-// 		if dockerNodeStatus.Names == clabNodeName {
-// 			outputParsed = dockerNodeStatus
-// 			break
-// 		}
-// 	}
-
-// 	if outputParsed.Names == "" {
-// 		return nil, fmt.Errorf("docker node with name %s not found", clabNodeName)
-// 	}
-
-// 	outputParsedMarshalled, err := json.MarshalIndent(outputParsed, "", "  ")
-// 	if err != nil {
-// 		return nil, fmt.Errorf("failed to marshal JSON: %w", err)
-// 	}
-
-// 	return outputParsedMarshalled, nil
-// }
-
 func (cyTopo *CytoTopology) RunSSHCommand(clabUser string, clabHost string, clabPassword string, command string) ([]byte, error) {
 	config := &ssh.ClientConfig{
 		User: clabUser,
@@ -520,12 +370,124 @@ func (cyTopo *CytoTopology) GetDockerNodeStatus(clabNodeName string, clabUser st
 	}
 
 	if outputParsed.Names == "" {
-		return nil, fmt.Errorf("Docker node with name %s not found", clabNodeName)
+		return nil, fmt.Errorf("docker node with name %s not found", clabNodeName)
 	}
 	outputParsedMarshalled, err := json.MarshalIndent(outputParsed, "", "  ")
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal JSON: %w", err)
 	}
+
+	return outputParsedMarshalled, nil
+}
+
+func (cyTopo *CytoTopology) GetDockerNodeStatusViaUnixSocket(clabNodeName string, clabHost string) ([]byte, error) {
+
+	// aarafat-tag: sample output of unix:///var/run/docker.sock vi cli.ContainerList(ctx, dockerType.ContainerListOptions{All: false})
+	//
+	// {
+	//     "Id": "a0977499239d175e5e7a21d0d9fc06b7f8e551f7685d3a174e2f717fa9cd7635",
+	//     "Names": [
+	//         "/clab-Vodafone-CO-HCO-iperf01"
+	//     ],
+	//     "Image": "sflow/clab-iperf3",
+	//     "ImageID": "sha256:14eacc2bcba9533d382025ba41f8c4698d5a4d1a339ad75611197c84e0f3f95d",
+	//     "Command": "/sbin/tini -- iperf3 -s",
+	//     "Created": 1696766427,
+	//     "Ports": [],
+	//     "Labels": {
+	//         "clab-mgmt-net-bridge": "br1-private",
+	//         "clab-node-group": "CE-01",
+	//         "clab-node-kind": "linux",
+	//         "clab-node-lab-dir": "/root/clab/LAB-Vodafone-CO-HCO/clab-Vodafone-CO-HCO/iperf01",
+	//         "clab-node-name": "iperf01",
+	//         "clab-node-type": "",
+	//         "clab-topo-file": "/root/clab/LAB-Vodafone-CO-HCO/topo-vf-hco-ip-certification.yml",
+	//         "containerlab": "Vodafone-CO-HCO",
+	//         "description": "iperf3 for CONTAINERlab",
+	//         "maintainer": "InMon Corp. https://inmon.com",
+	//         "topoViewer-role": "server",
+	//         "url": "https://hub.docker.com/r/sflow/clab-iperf3"
+	//     },
+	//     "State": "running",
+	//     "Status": "Up 6 days",
+	//     "HostConfig": {
+	//         "NetworkMode": "custom_mgmt"
+	//     },
+	//     "NetworkSettings": {
+	//         "Networks": {
+	//             "custom_mgmt": {
+	//                 "IPAMConfig": {},
+	//                 "Links": null,
+	//                 "Aliases": null,
+	//                 "NetworkID": "293258bc6afa4f17453c82522fd5bb5e7f8a69acf9836282a2923214e5653b9c",
+	//                 "EndpointID": "7428e3be867f2028d2e1390eafc83bfb1cbe4a922b7e747ec003504ea391d352",
+	//                 "Gateway": "10.10.10.11",
+	//                 "IPAddress": "10.10.10.2",
+	//                 "IPPrefixLen": 24,
+	//                 "IPv6Gateway": "",
+	//                 "GlobalIPv6Address": "",
+	//                 "GlobalIPv6PrefixLen": 0,
+	//                 "MacAddress": "02:42:0a:0a:0a:02",
+	//                 "DriverOpts": null
+	//             }
+	//         }
+	//     },
+	//     "Mounts": []
+	// }
+
+	// Create a Docker client connected to the Unix socket
+	cli, err := client.NewClientWithOpts(client.WithHost("unix:///var/run/docker.sock"))
+	if err != nil {
+		log.Errorf("Failed to create Docker client: %v", err)
+	}
+
+	// Set a timeout for the Docker API requests (optional)
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	// List Docker containers
+	containers, err := cli.ContainerList(ctx, dockerType.ContainerListOptions{All: true})
+	if err != nil {
+		log.Errorf("Failed to list containers: %v", err)
+	}
+
+	// Print container information
+	var dockerNodeStatus DockerNodeStatus
+
+	for _, container := range containers {
+		log.Infof("Container Names: %v\n", container.Names)
+		log.Infof("Container State: %s\n", container.State)
+
+		if container.Names[0] == "/"+clabNodeName {
+
+			dockerNodeStatus.Command = container.Command
+			dockerNodeStatus.CreatedAt = container.Created
+			dockerNodeStatus.ID = container.Created
+			dockerNodeStatus.Labels = container.Labels
+			dockerNodeStatus.LocalVolumes = ""
+			dockerNodeStatus.Mounts = container.Mounts
+			dockerNodeStatus.Names = strings.ReplaceAll(container.Names[0], "/", "")
+			dockerNodeStatus.Networks = container.NetworkSettings
+			dockerNodeStatus.Ports = container.Ports
+			dockerNodeStatus.RunningFor = ""
+			dockerNodeStatus.Size = ""
+			dockerNodeStatus.State = container.State
+			dockerNodeStatus.Status = container.Status
+		}
+	}
+
+	// if dockerNodeStatus.Names[0] == "" {
+	// 	log.Errorf("docker node with name %s not found", clabNodeName)
+	// 	return nil, fmt.Errorf("docker node with name %s not found", clabNodeName)
+	// }
+
+	outputParsedMarshalled, err := json.MarshalIndent(dockerNodeStatus, "", "  ")
+	if err != nil {
+		log.Errorf("failed to marshal JSON: %v", err)
+		return nil, fmt.Errorf("failed to marshal JSON: %w", err)
+	}
+
+	log.Debug(string(outputParsedMarshalled))
 
 	return outputParsedMarshalled, nil
 }

@@ -408,7 +408,13 @@ func Clab(_ *cobra.Command, _ []string) error {
 
 				for _, n := range cyTopo.ClabTopoDataV2.Nodes {
 					// log.Info("n.Longname", n.Longname)
-					x, err := cyTopo.GetDockerNodeStatus(n.Longname, clabUser, clabHost[0], clabPass)
+
+					// get docker status via ssh "docker ps --all"
+					// x, err := cyTopo.GetDockerNodeStatus(n.Longname, clabUser, clabHost[0], clabPass)
+
+					// get docker status via unix socket
+					x, err := cyTopo.GetDockerNodeStatusViaUnixSocket(n.Longname, clabHost[0])
+
 					containerNodeStatus.WriteMessage(1, x)
 					if err != nil {
 						log.Error(err)
