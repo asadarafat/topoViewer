@@ -134,6 +134,9 @@
 		.button {
 			height: 24px;
 		}
+		.button-modal {
+			height: 35px;
+		}
 		.input {
 			height: 24px;
 		}
@@ -197,7 +200,8 @@
 								<hr class="dropdown-divider py-0">
 								<a id="clabClientDropdownItem" href="#" onclick="showPanelTopoViewerClient();"        class="dropdown-item label has-text-weight-normal is-small py-0">TopoViewer Helper App</a>                  
 								<a id="logMessagesDropdownItem" href="#" onclick="logMessages(event);" class="dropdown-item label has-text-weight-normal is-small py-0">Log Messages</a>      
-								
+								<a id="logMessagesDropdownItem" href="#" onclick="showModal(event);" class="dropdown-item label has-text-weight-normal is-small py-0">Modal Test</a>      
+
             
 							</div>
 						</div>
@@ -354,9 +358,9 @@
 						});
 				}
 
-{{rawJSComment "				// Fetch and load element data from a JSON file"}}
-				fetch('dataCytoMarshall-3tierSmall.json')
-{{rawJSComment "				// fetch('dataCytoMarshall-{{.}}.json') "}}
+{{rawJSComment "			// Fetch and load element data from a JSON file"}}
+{{rawJSComment "            //				fetch('dataCytoMarshall-3tierSmall.json') "}}
+ 								fetch('dataCytoMarshall-{{.}}.json')
 
 					.then(response => response.json())
 					.then(elements => {
@@ -389,19 +393,12 @@
 				hoverText.textContent = 'Launch CloudShell.';
 				document.body.appendChild(hoverText);
 
-
-
-
-
 {{rawJSComment "				//- Toggle the Panel(s) when clicking on the cy container "}}
 				document.getElementById('cy').addEventListener('click', function(event) {
 {{rawJSComment "					//- This code will be executed when you click anywhere in the Cytoscape container"}}
 {{rawJSComment "					//- You can add logic specific to the container here"}}
 
 					loadCytoStyle()
-
-
-
 
 					if (!nodeClicked && !edgeClicked) {
 						if (!isPanel01Cy) {
@@ -762,11 +759,55 @@
 					{
 						name: 'screenShoot',
 						iconClass: 'fas fa-camera',
-						hoverMessage: 'Capture viewport as PNG',
-						hrefFunction: 'eventHandlerLink',
-						hrefLink: ` `,
-						callOutFuntionName: `captureAndSaveViewportAsDrawIo`
-					}, ];
+						hoverMessage: 'Capture viewport',
+						hrefFunction: 'drawer',
+						hrefLink: ``,
+						drawerConfig: [
+						{
+							idSuffix: 'labelScreenShoot',
+							columnLabelTextContent: 'Capture Viewport',
+							columnLabelClass: 'column is-12 pt-2 pb-2 pr-2 LinksLenghtSlider is-light',
+							columnLabelElementClass: 'label is-size-7 has-text-weight-semibold px-auto',
+							columnInputType: '',
+							columnInputContent: '',
+							columnInputPlaceholder: '',
+							columnInputAttribute: 'enabled',
+							addonsContent: []
+						},
+						{
+							idSuffix: 'labelScreenShootExportPng',
+							columnLabelTextContent: '',
+							columnLabelClass: 'column is-6 pt-0 pr-1 LinksLenghtSlider is-light',
+							columnLabelElementClass: '',
+							columnInputType: 'button',
+							columnInputClass: 'column is-6 p-1 pl-3 is-flex is-justify-content-right',
+							columnInputElementClass: 'button is-size-7 is-smallest-element is-link',
+							columnInputContent: 'Export as PNG',
+							columnInputContentIconSpanClass: 'icon is-small',
+							columnInputContentIconInlineElementClass: 'fas fa-file-image',
+							columnInputPlaceholder: '',
+							columnInputAttribute: 'enabled',
+							columnInputCallOutFuntionName: 'captureAndSaveViewportAsPng',
+							addonsContent: []				
+						},
+						{
+							idSuffix: 'labelScreenShootExportDrawIo',
+							columnLabelTextContent: '',
+							columnLabelClass: 'column is-6 pt-0 pr-1 LinksLenghtSlider is-light',
+							columnLabelElementClass: '',
+							columnInputType: 'button',
+							columnInputClass: 'column is-6 p-1 pl-3 is-flex is-justify-content-right',
+							columnInputElementClass: 'button is-size-7 is-smallest-element is-link',
+							columnInputContent: 'Export as draw.io',
+							columnInputContentIconSpanClass: 'icon is-small',
+							columnInputContentIconInlineElementClass: 'fas fa-share-nodes fa-rotate-90',
+							columnInputPlaceholder: '',
+							columnInputAttribute: 'enabled',
+							columnInputCallOutFuntionName: 'captureAndSaveViewportAsDrawIo',
+							addonsContent: []						
+						}]
+					},
+					];
 
 					const controlId = 'viewportButtons';
 
@@ -1545,212 +1586,6 @@
 					const currentZoom = cy.zoom();
 					appendMessage(`And now the zoom level is "${currentZoom}".`);
 				}
-
-				async function captureAndSaveViewport() {
-{{rawJSComment "					// Find the canvas element for layer2-node"}}
-					const canvasElement = document.querySelector('#cy canvas[data-id="layer2-node"]');
-
-					const zoomScaleFactor = 1;
-
-{{rawJSComment "					// Check if the canvas element exists and is an HTMLCanvasElement"}}
-					if (canvasElement instanceof HTMLCanvasElement) {
-{{rawJSComment "						// Calculate the new canvas dimensions based on the high resolution factor"}}
-						const newWidth = canvasElement.width * zoomScaleFactor;
-						const newHeight = canvasElement.height * zoomScaleFactor;
-
-{{rawJSComment "						// Create a new canvas element with the increased dimensions"}}
-						const newCanvas = document.createElement('canvas');
-						newCanvas.width = newWidth;
-						newCanvas.height = newHeight;
-						const newCanvasContext = newCanvas.getContext('2d');
-
-{{rawJSComment "						// Scale the canvas content to the new dimensions"}}
-						newCanvasContext.scale(zoomScaleFactor, zoomScaleFactor);
-
-{{rawJSComment "						// Fill the new canvas with a white background"}}
-						newCanvasContext.fillStyle = 'white';
-						newCanvasContext.fillRect(0, 0, newWidth, newHeight);
-
-{{rawJSComment "						// Draw the original canvas content on the new canvas"}}
-						newCanvasContext.drawImage(canvasElement, 0, 0);
-
-{{rawJSComment "						// Convert the new canvas to a data URL with a white background"}}
-						const dataUrl = newCanvas.toDataURL('image/png');
-
-{{rawJSComment "						// Create an anchor element to trigger the download"}}
-						const link = document.createElement('a');
-						link.href = dataUrl;
-						link.download = 'cytoscape-viewport.png';
-
-						bulmaToast.toast({
-							message: `Brace yourselves for a quick snapshot, folks! 📸 Capturing the viewport in 3... 2... 1... 🚀💥`,
-							type: 'is-warning is-size-6 p-3',
-							duration: 2000,
-							position: "top-center",
-							closeOnClick: true,
-						})
-						await sleep(2000)
-{{rawJSComment "						// Simulate a click to trigger the download"}}
-						link.click();
-					} else {
-						console.error('Canvas element for layer2-node is not found or is not a valid HTML canvas element.');
-					}
-				}
-
-				function captureAndSaveViewportAsSvg() {
-
-{{rawJSComment "					// Check if the canvas element exists and is an HTMLCanvasElement"}}
-					if (canvasElement instanceof HTMLCanvasElement) {
-{{rawJSComment "						// Create an SVG string"}}
-						const svgString = `<svg xmlns="http://www.w3.org/2000/svg" width="${canvasElement.width}" height="${canvasElement.height}"><foreignObject width="100%" height="100%"><canvas xmlns="http://www.w3.org/1999/xhtml" width="${canvasElement.width}" height="${canvasElement.height}">${canvasElement.outerHTML}</canvas></foreignObject></svg>`;
-
-{{rawJSComment "						// Create a Blob containing the SVG data"}}
-						const blob = new Blob([svgString], {
-							type: 'image/svg+xml'
-						});
-
-{{rawJSComment "						// Create a URL for the Blob"}}
-						const url = URL.createObjectURL(blob);
-
-{{rawJSComment "						// Create an anchor element to trigger the download"}}
-						const link = document.createElement('a');
-						link.href = url;
-						link.download = 'cytoscape-viewport.svg';
-
-{{rawJSComment "						// Simulate a click to trigger the download"}}
-						link.click();
-					} else {
-						console.error('Canvas element for layer2-node is not found or is not a valid HTML canvas element.');
-					}
-				}
-
-				function captureAndSaveViewportAsPpt() {
-{{rawJSComment "					//default options"}}
-					let defaultOptions = {
-						width: 10, 
-						height: 5.625, 
-						marginTop: 0.2, 
-						marginLeft: 0.2, 
-						segmentedEdges: true, 
-					};
-
-					let pres = new PptxGenJS();
-					let pptxGetLayouts = new pptxGetLayoutsCy();
-					console.log(pptxGetLayoutsCy());
-				
-					pptxAddSlideCy(pres, cy, { 
-						options: defaultOptions
-					});
-					pres.writeFile();
-
-				}
-
-				function captureAndSaveViewportAsDrawIo() {
-
-{{rawJSComment "					// Find the canvas element for layer2-node"}}
-					const canvasElement = document.querySelector('#cy canvas[data-id="layer2-node"]');
-					const drawIoWidht= canvasElement.width / 10;
-					const drawIoHeight = canvasElement.height / 10;
-					const drawIoaAspectRatio = drawIoWidht / drawIoHeight
-
-
-					  
-					const mxGraphHeader = `<mxGraphModel dx="${drawIoWidht / 2 }" dy="${drawIoHeight / 2 }" grid="1" gridSize="1" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="${drawIoWidht}" pageHeight="${drawIoHeight}" math="0" shadow="0">
-																<root>
-																	<mxCell id="0" />
-																	<mxCell id="1" parent="0" />`;
-					
-					const mxGraphFooter = `    					</root>
-																	</mxGraphModel>`;
-					
-					const mxCells = [];
-					
-{{rawJSComment "					// Iterate through nodes and edges"}}
-{{rawJSComment "					// Function to create mxCell XML for nodes"}}
-					function createMxCellForNode(node, imageURL) {
-						if (node.isParent()) {
-							return`	
-								<mxCell id="${node.id()}" value="${node.data('id')}" style="shape=image;imageAspect=0;aspect=fixed;verticalLabelPosition=bottom;verticalAlign=top;image=undefined;imageBackground=#8F96AC;imageBorder=#F2F2F2;strokeWidth=2;perimeterSpacing=10;opacity=30;fontSize=4;spacingTop=-7;" parent="1" vertex="1">
-									<mxGeometry x="${(node.position('x')) - (node.width() / 2 )}" y="${((node.position('y')) - node.height() / 2 )}" width="${node.width()}" height="${node.height()}" as="geometry" />
-								</mxCell>`
-						}
-						else if ( !(node.data('id').includes('statusGreen')) && !(node.data('id').includes('statusRed'))) {
-							return `
-								<mxCell id="${node.id()}" value="${node.data('id')}" style="shape=image;imageAspect=0;aspect=fixed;verticalLabelPosition=bottom;verticalAlign=top;image=${imageURL};fontSize=4;spacingTop=-7;" vertex="1" parent="1">
-									<mxGeometry x="${node.position('x') - (node.width() / 2 )}" y="${((node.position('y')) - node.height() / 2 )}" width="${node.width()}" height="${node.height()}" as="geometry" />
-								</mxCell>`;
-						}
-					}
-
-					cy.nodes().forEach(function(node) {
-						let imageURL;
-						switch (node.data('topoViewerRole')) {
-							case 'pe':
-								imageURL = 'http://138.203.26.59:8080/images/clab-pe-light-blue.png';
-								break;
-							case 'controller':
-								imageURL = 'http://138.203.26.59:8080/images/clab-controller-light-blue.png';
-								break;
-							case 'pon':
-								imageURL = 'http://138.203.26.59:8080/images/clab-pon-dark-blue.png';
-								break;
-							case 'dcgw':
-								imageURL = 'http://138.203.26.59:8080/images/clab-dcgw-dark-blue.png';
-								break;
-							case 'leaf':
-								imageURL = 'http://138.203.26.59:8080/images/clab-leaf-light-blue.png';
-								break;
-							case 'spine':
-								imageURL = 'http://138.203.26.59:8080/images/clab-spine-dark-blue.png';
-								break;
-							case 'super-spine':
-								imageURL = 'http://138.203.26.59:8080/images/clab-spine-light-blue.png';
-								break;
-						}
-						mxCells.push(createMxCellForNode(node, imageURL));
-					});
-					
-					cy.edges().forEach(function(edge) {
-						mxCells.push(`
-										<mxCell id="${edge.data('id')}" value="" style="endArrow=none;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;strokeWidth=1;strokeColor=#B1BCC8;opacity=60;" parent="1" source="${edge.data('source')}" target="${edge.data('target')}" edge="1">
-										  	<mxGeometry width="50" height="50" relative="1" as="geometry" >
-											</mxGeometry>
-										</mxCell>
-										<mxCell id="${edge.data('id')}-LabelSource" value="${edge.data('sourceEndpoint')}" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=3;" parent="${edge.data('id')}" vertex="1" connectable="0">
-										  	<mxGeometry x="-0.5" y="1" relative="0.5" as="geometry">
-												<mxPoint x="1" y="1" as="sourcePoint" />
-										  	</mxGeometry>
-										</mxCell>
-										<mxCell id="${edge.data('id')}-labelTarget" value="${edge.data('targetEndpoint')}" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=3" parent="${edge.data('id')}" vertex="1" connectable="0">
-										  	<mxGeometry x="0.5" y="1" relative="0.5" as="geometry">
-												<mxPoint x="1" y="1" as="targetPoint" />
-										  	</mxGeometry>
-										</mxCell>`);
-					});
-					
-{{rawJSComment "					// Combine all parts and create XML"}}
-					const mxGraphXML = mxGraphHeader + mxCells.join('') + mxGraphFooter;
-					
-{{rawJSComment "					// Create a Blob from the XML"}}
-					const blob = new Blob([mxGraphXML], {
-						type: 'application/xml'
-					});
-					
-{{rawJSComment "					// Create a URL for the Blob"}}
-					const url = window.URL.createObjectURL(blob);
-					
-{{rawJSComment "					// Create a download link and trigger a click event"}}
-					const a = document.createElement('a');
-					a.style.display = 'none';
-					a.href = url;
-					a.download = 'filename.drawio';
-					document.body.appendChild(a);
-					a.click();
-					
-{{rawJSComment "					// Clean up by revoking the URL and removing the download link"}}
-					window.URL.revokeObjectURL(url);
-					document.body.removeChild(a);
-				}
 				
 				  			  
 				function pathFinderDijkstraEvent(event) {
@@ -2037,11 +1872,20 @@
 				}
 
 
+				createModal()
+
+{{rawJSComment "				// Add a click event on various child elements to close the parent modal"}}
+				document.getElementById('modalParent').addEventListener('click', function(event) {
+					modal = document.getElementById("modalParent");
+					modal.classList.remove('is-active');
+				})
+
 
 {{rawJSComment "				// ######################################################"}}
 {{rawJSComment "				// End of JS Generic Functions section"}}
 {{rawJSComment "				// End of JS Generic Functions section"}}
 {{rawJSComment "				// ######################################################"}}
+
 
 			}); 
 
@@ -2311,12 +2155,27 @@
 							inputElement.className = `button is-size-7 is-smallest-element is-justify-content-flex-end`;
 						}
 						
-						inputElement.id = `${inputColumn.id}-label${config.idSuffix}`
+						inputElement.id = `${inputColumn.id}-inputElement${config.idSuffix}`
 						inputElement.textContent = config.columnInputContent;
 						inputElement.style.width = '50'
 
+						inputElementIconSpan = document.createElement('span');
+						inputElementIconSpan.id = `${inputElement.id}-inputElementIconSpan${config.idSuffix}`
+						inputElementIconSpan.className = config.columnInputContentIconSpanClass;
+
+						inputElementIconInlineElement = document.createElement('i');
+						inputElementIconInlineElement.id = `${inputElementIconSpan.id}-inputElementIconInlineElement${config.idSuffix}`
+						inputElementIconInlineElement.className = config.columnInputContentIconInlineElementClass;
+
+						inputElementIconSpanButtonLabel = document.createElement('span');
+						inputElementIconSpanButtonLabel.id = `${inputElement.id}-inputElementIconSpanButtonLabel${config.idSuffix}`
+
+						inputElementIconSpan.appendChild(inputElementIconInlineElement)
+						inputElement.appendChild(inputElementIconSpanButtonLabel)
+						inputElement.appendChild(inputElementIconSpan)
+
 						inputElement.addEventListener('click', function() {
-							console.log ('addon.callOutFuntionName', config.columnInputCallOutFuntionName)
+							console.log ('config.columnInputCallOutFuntionName: ', config.columnInputCallOutFuntionName)
 							eval(config.columnInputCallOutFuntionName + `(cy)`);
 						});
 
@@ -3178,7 +3037,238 @@
 				  cy.fit();
 				}, delay);
 			  }
-			  
+
+			  async function captureAndSaveViewportAsPng(cy) {
+{{rawJSComment "				// Find the canvas element for layer2-node"}}
+				const canvasElement = document.querySelector('#cy canvas[data-id="layer2-node"]');
+
+				const zoomScaleFactor = 1;
+
+{{rawJSComment "				// Check if the canvas element exists and is an HTMLCanvasElement"}}
+				if (canvasElement instanceof HTMLCanvasElement) {
+{{rawJSComment "					// Calculate the new canvas dimensions based on the high resolution factor"}}
+					const newWidth = canvasElement.width * zoomScaleFactor;
+					const newHeight = canvasElement.height * zoomScaleFactor;
+
+{{rawJSComment "					// Create a new canvas element with the increased dimensions"}}
+					const newCanvas = document.createElement('canvas');
+					newCanvas.width = newWidth;
+					newCanvas.height = newHeight;
+					const newCanvasContext = newCanvas.getContext('2d');
+
+{{rawJSComment "					// Scale the canvas content to the new dimensions"}}
+					newCanvasContext.scale(zoomScaleFactor, zoomScaleFactor);
+
+{{rawJSComment "					// Fill the new canvas with a white background"}}
+					newCanvasContext.fillStyle = 'white';
+					newCanvasContext.fillRect(0, 0, newWidth, newHeight);
+
+{{rawJSComment "					// Draw the original canvas content on the new canvas"}}
+					newCanvasContext.drawImage(canvasElement, 0, 0);
+
+{{rawJSComment "					// Convert the new canvas to a data URL with a white background"}}
+					const dataUrl = newCanvas.toDataURL('image/png');
+
+{{rawJSComment "					// Create an anchor element to trigger the download"}}
+					const link = document.createElement('a');
+					link.href = dataUrl;
+					link.download = 'cytoscape-viewport.png';
+
+					bulmaToast.toast({
+						message: `Brace yourselves for a quick snapshot, folks! 📸 Capturing the viewport in 3... 2... 1... 🚀💥`,
+						type: 'is-warning is-size-6 p-3',
+						duration: 2000,
+						position: "top-center",
+						closeOnClick: true,
+					})
+					await sleep(2000)
+{{rawJSComment "					// Simulate a click to trigger the download"}}
+					link.click();
+				} else {
+					console.error('Canvas element for layer2-node is not found or is not a valid HTML canvas element.');
+				}
+			}
+
+			async function captureAndSaveViewportAsDrawIo(cy) {
+
+{{rawJSComment "				// Find the canvas element for layer2-node"}}
+				const canvasElement = document.querySelector('#cy canvas[data-id="layer2-node"]');
+				const drawIoWidht= canvasElement.width / 10;
+				const drawIoHeight = canvasElement.height / 10;
+				const drawIoaAspectRatio = drawIoWidht / drawIoHeight
+
+
+				  
+				const mxGraphHeader = `<mxGraphModel dx="${drawIoWidht / 2 }" dy="${drawIoHeight / 2 }" grid="1" gridSize="1" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="${drawIoWidht}" pageHeight="${drawIoHeight}" math="0" shadow="0">
+															<root>
+																<mxCell id="0" />
+																<mxCell id="1" parent="0" />`;
+				
+				const mxGraphFooter = `    					</root>
+																</mxGraphModel>`;
+				
+				const mxCells = [];
+				
+{{rawJSComment "				// Iterate through nodes and edges"}}
+{{rawJSComment "				// Function to create mxCell XML for nodes"}}
+				function createMxCellForNode(node, imageURL) {
+					if (node.isParent()) {
+						return`	
+							<mxCell id="${node.id()}" value="${node.data('id')}" style="shape=image;imageAspect=0;aspect=fixed;verticalLabelPosition=bottom;verticalAlign=top;image=undefined;imageBackground=#8F96AC;imageBorder=#F2F2F2;strokeWidth=2;perimeterSpacing=10;opacity=30;fontSize=4;spacingTop=-7;" parent="1" vertex="1">
+								<mxGeometry x="${(node.position('x')) - (node.width() / 2 )}" y="${((node.position('y')) - node.height() / 2 )}" width="${node.width()}" height="${node.height()}" as="geometry" />
+							</mxCell>`
+					}
+					else if ( !(node.data('id').includes('statusGreen')) && !(node.data('id').includes('statusRed'))) {
+						return `
+							<mxCell id="${node.id()}" value="${node.data('id')}" style="shape=image;imageAspect=0;aspect=fixed;verticalLabelPosition=bottom;verticalAlign=top;image=${imageURL};fontSize=4;spacingTop=-7;" vertex="1" parent="1">
+								<mxGeometry x="${node.position('x') - (node.width() / 2 )}" y="${((node.position('y')) - node.height() / 2 )}" width="${node.width()}" height="${node.height()}" as="geometry" />
+							</mxCell>`;
+					}
+				}
+
+				cy.nodes().forEach(function(node) {
+					let imageURL;
+					switch (node.data('topoViewerRole')) {
+						case 'pe':
+							imageURL = 'http://138.203.26.59:8080/images/clab-pe-light-blue.png';
+							break;
+						case 'controller':
+							imageURL = 'http://138.203.26.59:8080/images/clab-controller-light-blue.png';
+							break;
+						case 'pon':
+							imageURL = 'http://138.203.26.59:8080/images/clab-pon-dark-blue.png';
+							break;
+						case 'dcgw':
+							imageURL = 'http://138.203.26.59:8080/images/clab-dcgw-dark-blue.png';
+							break;
+						case 'leaf':
+							imageURL = 'http://138.203.26.59:8080/images/clab-leaf-light-blue.png';
+							break;
+						case 'spine':
+							imageURL = 'http://138.203.26.59:8080/images/clab-spine-dark-blue.png';
+							break;
+						case 'super-spine':
+							imageURL = 'http://138.203.26.59:8080/images/clab-spine-light-blue.png';
+							break;
+					}
+					mxCells.push(createMxCellForNode(node, imageURL));
+				});
+				
+				cy.edges().forEach(function(edge) {
+					mxCells.push(`
+									<mxCell id="${edge.data('id')}" value="" style="endArrow=none;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;strokeWidth=1;strokeColor=#B1BCC8;opacity=60;" parent="1" source="${edge.data('source')}" target="${edge.data('target')}" edge="1">
+										  <mxGeometry width="50" height="50" relative="1" as="geometry" >
+										</mxGeometry>
+									</mxCell>
+									<mxCell id="${edge.data('id')}-LabelSource" value="${edge.data('sourceEndpoint')}" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=3;" parent="${edge.data('id')}" vertex="1" connectable="0">
+										  <mxGeometry x="-0.5" y="1" relative="0.5" as="geometry">
+											<mxPoint x="1" y="1" as="sourcePoint" />
+										  </mxGeometry>
+									</mxCell>
+									<mxCell id="${edge.data('id')}-labelTarget" value="${edge.data('targetEndpoint')}" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=3" parent="${edge.data('id')}" vertex="1" connectable="0">
+										  <mxGeometry x="0.5" y="1" relative="0.5" as="geometry">
+											<mxPoint x="1" y="1" as="targetPoint" />
+										  </mxGeometry>
+									</mxCell>`);
+				});
+				
+{{rawJSComment "				// Combine all parts and create XML"}}
+				const mxGraphXML = mxGraphHeader + mxCells.join('') + mxGraphFooter;
+				
+{{rawJSComment "				// Create a Blob from the XML"}}
+				const blob = new Blob([mxGraphXML], {
+					type: 'application/xml'
+				});
+				
+{{rawJSComment "				// Create a URL for the Blob"}}
+				const url = window.URL.createObjectURL(blob);
+				
+{{rawJSComment "				// Create a download link and trigger a click event"}}
+				const a = document.createElement('a');
+				a.style.display = 'none';
+				a.href = url;
+				a.download = 'filename.drawio';
+				document.body.appendChild(a);
+				
+				bulmaToast.toast({
+					message: `Brace yourselves for a quick snapshot, folks! 📸 Capturing the viewport in 3... 2... 1... 🚀💥`,
+					type: 'is-warning is-size-6 p-3',
+					duration: 2000,
+					position: "top-center",
+					closeOnClick: true,
+				})
+				await sleep(2000)
+{{rawJSComment "				// Simulate a click to trigger the download"}}
+				a.click();
+				
+{{rawJSComment "				// Clean up by revoking the URL and removing the download link"}}
+				window.URL.revokeObjectURL(url);
+				document.body.removeChild(a);
+			}
+
+
+			function showModal() {
+				modal = document.getElementById("modalParent");
+				modal.classList.add('is-active');
+			}
+
+
+			const modalContent = ` 	<div class="modal-card" style="max-width: 280px;">
+										<header class="modal-card-head pb-3" style="background-color: white";>
+											<div>
+												<div class="content py-0 px-5">
+													<p class="has-text-centered is-size-6 has-text-weight-bold py-0">Select file type</p>
+													<p class="has-text-centered is-size-7 has-text-weight-normal">Choose one or multiple types you want to export</p>
+												</div>
+											</div>
+										</header>
+										<div section="modal-card-body">
+										<div class="column">
+											<div class="control is-flex is-flex-direction-column">
+												<div class="column py-3">
+													<label class="radio is-size-7">
+													<input type="radio" name="answer">
+													PNG
+													</label>
+												</div>
+												<div class="column py-3">
+													<label class="radio is-size-7">
+													<input type="radio" name="answer">
+													Draw.IO
+													</label>
+												</div>
+											</div>
+										</div>
+										</section>
+										<footer class="modal-card-foot p-2 px-2" style="background-color: white">
+											<div class="is-flex is-flex-direction-column is-flex-grow-3" >
+												<div class="column p-2" style="background-color: white">
+													<button class="button button-modal is-small is-link is-fullwidth">Continue</button>
+												</div>
+												<div class="column p-2" style="background-color: white">
+													<button class="button button-modal is-small is-fullwidth">Cancel</button>
+												</div>
+											</div>
+										</footer>
+									</div>`
+
+			function createModal() {
+{{rawJSComment "				// Create the modal"}}
+				const htmlContent = `
+					<div id="modalParent" class="modal">
+						<div class="modal-background"></div>
+							${modalContent}
+					</div>
+					`;
+				
+				const modalDiv = document.createElement('div');
+				modalDiv.innerHTML = htmlContent;
+				modalDiv.id = 'modalDivExportViewport';
+
+				document.body.appendChild(modalDiv);
+			}
+
+
 			</script>
 		</div>
 	</body>

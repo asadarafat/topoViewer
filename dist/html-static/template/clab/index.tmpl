@@ -135,7 +135,7 @@
 			height: 24px;
 		}
 		.button-modal {
-			height: 35px;
+			height: 30px;
 		}
 		.input {
 			height: 24px;
@@ -200,7 +200,6 @@
 								<hr class="dropdown-divider py-0">
 								<a id="clabClientDropdownItem" href="#" onclick="showPanelTopoViewerClient();"        class="dropdown-item label has-text-weight-normal is-small py-0">TopoViewer Helper App</a>                  
 								<a id="logMessagesDropdownItem" href="#" onclick="logMessages(event);" class="dropdown-item label has-text-weight-normal is-small py-0">Log Messages</a>      
-								<a id="logMessagesDropdownItem" href="#" onclick="showModal(event);" class="dropdown-item label has-text-weight-normal is-small py-0">Modal Test</a>      
 
             
 							</div>
@@ -267,6 +266,9 @@
 			let nodeClicked = false;
 			let edgeClicked = false;
 			
+
+
+
 			document.addEventListener('DOMContentLoaded', function() {
 
 
@@ -315,7 +317,7 @@
 					try {
 						const { Names, Status } = JSON.parse(msgContainerNodeStatus.data);
 						setNodeContainerStatus(Names, Status);
-{{rawJSComment "						// console.log(JSON.parse(msgContainerNodeStatus.data));"}}
+						console.log(JSON.parse(msgContainerNodeStatus.data));
 
 					} catch (error) {
 						console.error("Error parsing JSON:", error);
@@ -358,9 +360,8 @@
 						});
 				}
 
-{{rawJSComment "			// Fetch and load element data from a JSON file"}}
-{{rawJSComment "            //				fetch('dataCytoMarshall-3tierSmall.json') "}}
- 								fetch('dataCytoMarshall-{{.}}.json')
+{{rawJSComment "	// Fetch and load element data from a JSON file"}}
+ 					fetch('dataCytoMarshall-{{.}}.json')
 
 					.then(response => response.json())
 					.then(elements => {
@@ -385,6 +386,8 @@
 					.catch(error => {
 						console.error('Error loading graph data:', error);
 					});
+
+
 
 
 {{rawJSComment "				// Instantiate hover text element"}}
@@ -757,55 +760,16 @@
 						callOutFuntionName: 'toggleContainerStatusVisibility',
 					},
 					{
-						name: 'screenShoot',
+						name: 'captureViewport',
+						idSuffix: 'modalSaveViewport',
 						iconClass: 'fas fa-camera',
-						hoverMessage: 'Capture viewport',
-						hrefFunction: 'drawer',
-						hrefLink: ``,
-						drawerConfig: [
-						{
-							idSuffix: 'labelScreenShoot',
-							columnLabelTextContent: 'Capture Viewport',
-							columnLabelClass: 'column is-12 pt-2 pb-2 pr-2 LinksLenghtSlider is-light',
-							columnLabelElementClass: 'label is-size-7 has-text-weight-semibold px-auto',
-							columnInputType: '',
-							columnInputContent: '',
-							columnInputPlaceholder: '',
-							columnInputAttribute: 'enabled',
-							addonsContent: []
-						},
-						{
-							idSuffix: 'labelScreenShootExportPng',
-							columnLabelTextContent: '',
-							columnLabelClass: 'column is-6 pt-0 pr-1 LinksLenghtSlider is-light',
-							columnLabelElementClass: '',
-							columnInputType: 'button',
-							columnInputClass: 'column is-6 p-1 pl-3 is-flex is-justify-content-right',
-							columnInputElementClass: 'button is-size-7 is-smallest-element is-link',
-							columnInputContent: 'Export as PNG',
-							columnInputContentIconSpanClass: 'icon is-small',
-							columnInputContentIconInlineElementClass: 'fas fa-file-image',
-							columnInputPlaceholder: '',
-							columnInputAttribute: 'enabled',
-							columnInputCallOutFuntionName: 'captureAndSaveViewportAsPng',
-							addonsContent: []				
-						},
-						{
-							idSuffix: 'labelScreenShootExportDrawIo',
-							columnLabelTextContent: '',
-							columnLabelClass: 'column is-6 pt-0 pr-1 LinksLenghtSlider is-light',
-							columnLabelElementClass: '',
-							columnInputType: 'button',
-							columnInputClass: 'column is-6 p-1 pl-3 is-flex is-justify-content-right',
-							columnInputElementClass: 'button is-size-7 is-smallest-element is-link',
-							columnInputContent: 'Export as draw.io',
-							columnInputContentIconSpanClass: 'icon is-small',
-							columnInputContentIconInlineElementClass: 'fas fa-share-nodes fa-rotate-90',
-							columnInputPlaceholder: '',
-							columnInputAttribute: 'enabled',
-							columnInputCallOutFuntionName: 'captureAndSaveViewportAsDrawIo',
-							addonsContent: []						
-						}]
+						hoverMessage: 'Capture Viewport',
+						hrefFunction: 'eventHandlerLink',
+						hrefLink: '',
+						callOutFuntionName: 'showModalCaptureViewport',
+						callOutFuntionArgsString: 'modalSaveViewport',
+						callOutFuntionArgsObject: '',
+
 					},
 					];
 
@@ -825,8 +789,15 @@
 
 						if (config.hrefFunction == 'eventHandlerLink') {
 							button.addEventListener('click', function(cy) {
+								if (config.callOutFuntionArgsString != '') {
+									eval(config.callOutFuntionName + `('${config.callOutFuntionArgsString}')`); 
+								}else if (config.callOutFuntionArgsObject != '') {
+									eval(config.callOutFuntionName + `(${config.callOutFuntionArgsObject})`);  
+								}
+								else{
 {{rawJSComment "								// Use eval() to call the function by name"}}
 								eval(config.callOutFuntionName + `(cy)`); 
+								}
 							});
 						}
 
@@ -1292,7 +1263,7 @@
 							iconClass: 'far fa-clone',
 							hoverMessage: 'Click to copy the SSH command to your clipboard.',
 							hrefFunction: 'copy',
-							hrefLink: `ssh root@${location.hostname} "sudo -S /sbin/ip netns exec ${edge.data('extraData').clabSourceLongName} tcpdump -U -nni ${edge.data("sourceEndpoint")} -w -" | wireshark -k -i -`
+							hrefLink: `ssh ${edge.data("extraData").clabServerUsername}@${location.hostname} "sudo -S /sbin/ip netns exec ${edge.data('extraData').clabSourceLongName} tcpdump -U -nni ${edge.data("sourceEndpoint")} -w -" | wireshark -k -i -`
 
 						}]
 					},
@@ -1315,7 +1286,7 @@
 							iconClass: 'far fa-clone',
 							hoverMessage: 'Click to copy the SSH command to your clipboard',
 							hrefFunction: 'copy',
-							hrefLink: `ssh root@${location.hostname} "sudo -S /sbin/ip netns exec ${edge.data('extraData').clabTargetLongName} tcpdump -U -nni  ${edge.data("targetEndpoint")} -w -" | wireshark -k -i -`
+							hrefLink: `ssh ${edge.data("extraData").clabServerUsername}@${location.hostname} "sudo -S /sbin/ip netns exec ${edge.data('extraData').clabTargetLongName} tcpdump -U -nni  ${edge.data("targetEndpoint")} -w -" | wireshark -k -i -`
 						}]
 					}, ];
 
@@ -1871,14 +1842,120 @@
 					panel.style.display = 'none'
 				}
 
+			
 
-				createModal()
+				function createModal(modalId, modalContent) {
+{{rawJSComment "					// Create the modal"}}
+					const htmlContent = `
+							<div id="${modalId}" class="modal">
+								<div id="${modalId}-modalBackgroundId" class="modal-background"></div>
+									${modalContent}
+							</div>
+							`;
 
-{{rawJSComment "				// Add a click event on various child elements to close the parent modal"}}
-				document.getElementById('modalParent').addEventListener('click', function(event) {
-					modal = document.getElementById("modalParent");
-					modal.classList.remove('is-active');
-				})
+					const modalDiv = document.createElement('div');
+					modalDiv.innerHTML = htmlContent;
+					modalDiv.id = 'modalDivExportViewport';
+
+					document.body.appendChild(modalDiv);
+					const modalBackground = document.getElementById(`${modalId}-modalBackgroundId`);
+
+					modalBackground.addEventListener('click', function() {
+						const modal = modalBackground.parentNode
+						modal.classList.remove('is-active');
+					});
+
+					
+				}
+
+				function showModalCaptureViewport(modalId) {
+					const modalContentSaveViewport = ` 	
+									<div class="modal-content" style="max-width:300px;">
+										<div class="box px-1 pb-1">
+											<div class="column is-flex is-justify-content-center ">
+													<i class="icon fas fa-camera  is-large"></i>
+											</div>
+											<div class="column">
+												<div class="content py-0 px-5">
+													<p class="has-text-centered is-size-6 has-text-weight-bold py-0 mb-2">Select file type</p>
+													<p class="has-text-centered is-size-7 has-text-weight-normal">Choose one or multiple types you want to export</p>
+												</div>
+											</div>
+											<div class="column px-5">
+												<div class="control is-flex is-flex-direction-column">
+													<div class="column py-2">
+														<label class="checkbox is-size-7">
+														<input type="checkbox"  name="checkboxSaveViewPort" value="option01">
+														PNG
+														</label>
+													</div>
+													<div class="column py-2">
+														<label class="checkbox is-size-7">
+														<input type="checkbox" name="checkboxSaveViewPort" value="option02">
+														Draw.IO
+														</label>
+													</div>
+												</div>
+											</div>
+											<div class="column p-0 pb-3 is-flex is-flex-direction-column is-flex-grow-3" >
+												<div class="column" style="background-color: white">
+													<button id="performActionButton" class="button button-modal is-small is-link is-fullwidth">Continue</button>
+												</div>
+											</div>
+										</div>
+									</div>
+									 `
+					
+{{rawJSComment "					// Instantiate modal "}}
+					createModal("modalSaveViewport", modalContentSaveViewport)
+
+
+{{rawJSComment "					// create event listener"}}
+					const performActionButton = document.getElementById("performActionButton");
+					performActionButton.addEventListener("click", function() {
+						const checkboxName = "checkboxSaveViewPort"; 
+						const checkboxes = document.querySelectorAll(`input[type="checkbox"][name="${checkboxName}"]`);
+						const selectedOptions = [];
+						
+						checkboxes.forEach(function(checkbox) {
+							if (checkbox.checked) {
+								selectedOptions.push(checkbox.value);
+							}
+						});
+						
+						if (selectedOptions.length === 0) {
+							bulmaToast.toast({
+								message: `Hey there, please pick at least one option.😊👌`,
+								type: 'is-warning is-light is-size-6 p-3',
+								duration: 4000,
+								position: "top-center",
+								closeOnClick: true,
+							})
+						} else {
+{{rawJSComment "							// Perform your action based on the selected options"}}
+							if (selectedOptions.join(", ") == 'option01') { 
+								captureAndSaveViewportAsPng(cy)
+								modal.classList.remove('is-active');
+
+							} else if (selectedOptions.join(", ") == 'option02') { 
+								captureAndSaveViewportAsDrawIo(cy)
+								modal.classList.remove('is-active');
+
+							} else if (selectedOptions.join(", ") == 'option01, option02') { 
+								captureAndSaveViewportAsPng(cy)
+								sleep(5000)
+								captureAndSaveViewportAsDrawIo(cy)
+								modal.classList.remove('is-active');
+							}
+						}
+					});
+					
+{{rawJSComment "					// show modal"}}
+					modal = document.getElementById(modalId);
+					modal.classList.add('is-active');
+				}
+				
+
 
 
 {{rawJSComment "				// ######################################################"}}
@@ -1890,7 +1967,6 @@
 			}); 
 
 {{rawJSComment "			// aarafat-tag:"}}
-{{rawJSComment "			//// removed this under cy."}}
 {{rawJSComment "			//// reworked the Log Message panel to be dynamicaly created"}}
 {{rawJSComment "			//// create about panel"}}
 {{rawJSComment "			//// create clab client download panel"}}
@@ -3207,66 +3283,12 @@
 			}
 
 
-			function showModal() {
-				modal = document.getElementById("modalParent");
-				modal.classList.add('is-active');
-			}
 
 
-			const modalContent = ` 	<div class="modal-card" style="max-width: 280px;">
-										<header class="modal-card-head pb-3" style="background-color: white";>
-											<div>
-												<div class="content py-0 px-5">
-													<p class="has-text-centered is-size-6 has-text-weight-bold py-0">Select file type</p>
-													<p class="has-text-centered is-size-7 has-text-weight-normal">Choose one or multiple types you want to export</p>
-												</div>
-											</div>
-										</header>
-										<div section="modal-card-body">
-										<div class="column">
-											<div class="control is-flex is-flex-direction-column">
-												<div class="column py-3">
-													<label class="radio is-size-7">
-													<input type="radio" name="answer">
-													PNG
-													</label>
-												</div>
-												<div class="column py-3">
-													<label class="radio is-size-7">
-													<input type="radio" name="answer">
-													Draw.IO
-													</label>
-												</div>
-											</div>
-										</div>
-										</section>
-										<footer class="modal-card-foot p-2 px-2" style="background-color: white">
-											<div class="is-flex is-flex-direction-column is-flex-grow-3" >
-												<div class="column p-2" style="background-color: white">
-													<button class="button button-modal is-small is-link is-fullwidth">Continue</button>
-												</div>
-												<div class="column p-2" style="background-color: white">
-													<button class="button button-modal is-small is-fullwidth">Cancel</button>
-												</div>
-											</div>
-										</footer>
-									</div>`
 
-			function createModal() {
-{{rawJSComment "				// Create the modal"}}
-				const htmlContent = `
-					<div id="modalParent" class="modal">
-						<div class="modal-background"></div>
-							${modalContent}
-					</div>
-					`;
+
+
 				
-				const modalDiv = document.createElement('div');
-				modalDiv.innerHTML = htmlContent;
-				modalDiv.id = 'modalDivExportViewport';
-
-				document.body.appendChild(modalDiv);
-			}
 
 
 			</script>

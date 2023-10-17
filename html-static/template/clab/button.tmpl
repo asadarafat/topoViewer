@@ -791,9 +791,9 @@
 						if (config.hrefFunction == 'eventHandlerLink') {
 							button.addEventListener('click', function(cy) {
 								if (config.callOutFuntionArgsString != '') {
-									eval(config.callOutFuntionName + `('${config.callOutFuntionArgsString}')`); // pass the argument as string
+									eval(config.callOutFuntionName + `('${config.callOutFuntionArgsString}')`); 
 								}else if (config.callOutFuntionArgsObject != '') {
-									eval(config.callOutFuntionName + `(${config.callOutFuntionArgsObject})`);  // pass the argument as object
+									eval(config.callOutFuntionName + `(${config.callOutFuntionArgsObject})`);  
 								}
 								else{
 {{rawJSComment "								// Use eval() to call the function by name"}}
@@ -1264,7 +1264,7 @@
 							iconClass: 'far fa-clone',
 							hoverMessage: 'Click to copy the SSH command to your clipboard.',
 							hrefFunction: 'copy',
-							hrefLink: `ssh root@${location.hostname} "sudo -S /sbin/ip netns exec ${edge.data('extraData').clabSourceLongName} tcpdump -U -nni ${edge.data("sourceEndpoint")} -w -" | wireshark -k -i -`
+							hrefLink: `ssh ${edge.data("extraData").clabServerUsername}@${location.hostname} "sudo -S /sbin/ip netns exec ${edge.data('extraData').clabSourceLongName} tcpdump -U -nni ${edge.data("sourceEndpoint")} -w -" | wireshark -k -i -`
 
 						}]
 					},
@@ -1287,7 +1287,7 @@
 							iconClass: 'far fa-clone',
 							hoverMessage: 'Click to copy the SSH command to your clipboard',
 							hrefFunction: 'copy',
-							hrefLink: `ssh root@${location.hostname} "sudo -S /sbin/ip netns exec ${edge.data('extraData').clabTargetLongName} tcpdump -U -nni  ${edge.data("targetEndpoint")} -w -" | wireshark -k -i -`
+							hrefLink: `ssh ${edge.data("extraData").clabServerUsername}@${location.hostname} "sudo -S /sbin/ip netns exec ${edge.data('extraData').clabTargetLongName} tcpdump -U -nni  ${edge.data("targetEndpoint")} -w -" | wireshark -k -i -`
 						}]
 					}, ];
 
@@ -1914,7 +1914,7 @@
 {{rawJSComment "					// create event listener"}}
 					const performActionButton = document.getElementById("performActionButton");
 					performActionButton.addEventListener("click", function() {
-						const checkboxName = "checkboxSaveViewPort"; // Change to the name of your checkboxes
+						const checkboxName = "checkboxSaveViewPort"; 
 						const checkboxes = document.querySelectorAll(`input[type="checkbox"][name="${checkboxName}"]`);
 						const selectedOptions = [];
 						
@@ -1934,15 +1934,15 @@
 							})
 						} else {
 {{rawJSComment "							// Perform your action based on the selected options"}}
-							if (selectedOptions.join(", ") == 'option01') { // save as PNG
+							if (selectedOptions.join(", ") == 'option01') { 
 								captureAndSaveViewportAsPng(cy)
 								modal.classList.remove('is-active');
 
-							} else if (selectedOptions.join(", ") == 'option02') { // save as DrawIo
+							} else if (selectedOptions.join(", ") == 'option02') { 
 								captureAndSaveViewportAsDrawIo(cy)
 								modal.classList.remove('is-active');
 
-							} else if (selectedOptions.join(", ") == 'option01, option02') { // save as PNG and DrawIo
+							} else if (selectedOptions.join(", ") == 'option01, option02') { 
 								captureAndSaveViewportAsPng(cy)
 								sleep(5000)
 								captureAndSaveViewportAsDrawIo(cy)
