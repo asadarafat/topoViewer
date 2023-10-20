@@ -20,7 +20,7 @@ The simplest approach to utilise TopoViewer with Containerlab is to include the 
 copy paste below start-up script, to deploy a Containerlab topology with topoviewer.
 
 ```Shell
-bash -c "$(wget -qO - https://raw.githubusercontent.com/asadarafat/nokia-DataCenterFabric-lab/main/demo-deploy.sh")
+bash -c "$(wget -qO - https://raw.githubusercontent.com/asadarafat/nokia-DataCenterFabric-lab/main/demo-deploy.sh)"
 ```
 
 ## How-to guides
