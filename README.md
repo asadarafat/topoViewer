@@ -23,6 +23,7 @@ copy paste below start-up script, to deploy a Containerlab topology with topovie
 bash -c "$(wget -qO - https://raw.githubusercontent.com/asadarafat/nokia-DataCenterFabric-lab/main/demo-deploy.sh)"
 ```
 
+Quickstart Video
 [![Quickstart Video](http://img.youtube.com/vi/na6M1Zfum4o/0.jpg)](https://youtu.be/na6M1Zfum4o "TopoViewer - Quickstart")
 
 
