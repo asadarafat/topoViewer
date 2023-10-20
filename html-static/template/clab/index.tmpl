@@ -1188,7 +1188,7 @@
 								iconClass: 'far fa-clone',
 								hoverMessage: 'Click to copy the SSH command to your clipboard.',
 								hrefFunction: 'copy',
-								hrefLink: `ssh -t root@${location.hostname} "ssh admin@${node.data('extraData').longname}"`
+								hrefLink: `ssh -t ${node.data("extraData").clabServerUsername}@${location.hostname} "ssh admin@${node.data('extraData').longname}"`
 							}]
 						},
 						{ idSuffix: 'labelKind', columnLabelTextContent: 'Kind', columnLabelClass: 'column is-4 p-1', columnInputType: 'label', columnInputContent: node.data('extraData').kind },
