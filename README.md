@@ -14,7 +14,7 @@ Container Lab client: We've got your back when it comes to launching Wireshark f
 But hey, keep in mind, exposing your shell via a browser can be risky business. We're just putting it out there, so if you decide to dive in, do it at your own risk. Stay rad, my friend!
 
 
-## Quickstarts
+## Quickstart
 The simplest approach to utilise TopoViewer with Containerlab is to include the under the 'nodes:' section to a topology YAML file.
 
 copy paste below start-up script, to deploy a Containerlab topology with topoviewer.
@@ -22,6 +22,13 @@ copy paste below start-up script, to deploy a Containerlab topology with topovie
 ```Shell
 bash -c "$(wget -qO - https://raw.githubusercontent.com/asadarafat/nokia-DataCenterFabric-lab/main/demo-deploy.sh)"
 ```
+
+[![Quickstart Video](http://img.youtube.com/vi/na6M1Zfum4o/0.jpg)](https://youtu.be/na6M1Zfum4o "TopoViewer - Quickstart)
+
+
+
+
+
 
 ## How-to guides
 
