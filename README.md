@@ -28,8 +28,9 @@ Quickstart Video
 [![Quickstart Video](http://img.youtube.com/vi/na6M1Zfum4o/0.jpg)](https://youtu.be/na6M1Zfum4o "TopoViewer - Quickstart")
 
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/na6M1Zfum4o?si=NrFmJhtROomSwf17" title="TopoViewer - Quickstart" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
-
+<div align="center">
+  <a href="https://www.youtube.com/watch?v=na6M1Zfum4o"><img src="https://img.youtube.com/vi/na6M1Zfum4o/0.jpg" alt="TopoViewer - Quickstart"></a>
+</div>
 
 
 
