@@ -54,7 +54,6 @@ Here is the quickstart video clip.
       <img src="https://github.com/asadarafat/topoViewer/blob/development/docs/image/topoViewer-nodeWebConsole.gif"/>
     </details>
 
-
     <details>
       <summary>terminal console</summary>
       <img src="https://github.com/asadarafat/topoViewer/blob/development/docs/image/topoViewer-nodeTerminalConsole.gif"/>
@@ -62,6 +61,13 @@ Here is the quickstart video clip.
 
 
 * **Packet capture**
+
+    <details>
+      <summary>Wireshark Client Helper</summary>
+      <p>There are two type of suported client here, Windows version and MAC version</p>
+      Windows versions
+      <img src="https://github.com/asadarafat/topoViewer/blob/development/docs/image/topoViewer-nodeTerminalConsole.gif"/>
+    </details>
 
 * **Link impairment**
 
