@@ -61,9 +61,7 @@ Here is the quickstart video clip.
 * **Packet capture**
 
     <details>
-      <summary>Wireshark Client Helper</summary>
-      <p>There are two type of suported client here, Windows version and MAC version, both of the clients can be find in "Setting Menu, TopoViewer Helper App". 
-      </p>
+      <summary>Wireshark Client Helper, There are two type of suported client here, Windows version and MAC version, both of the clients can be find in "Setting Menu, TopoViewer Helper App". </summary>
       <ul>
         <li> For the Windows version, download and install the registry entry. </li>
         Prerequisite
