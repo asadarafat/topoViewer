@@ -56,7 +56,7 @@ Here is the quickstart video clip.
 
 
     <details>
-      <summary>web console</summary>
+      <summary>terminal console</summary>
       <img src="https://github.com/asadarafat/topoViewer/blob/development/docs/image/topoViewer-nodeTerminalConsole.gif"/>
     </details>
 
