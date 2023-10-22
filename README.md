@@ -64,8 +64,10 @@ Here is the quickstart video clip.
 
     <details>
       <summary>Wireshark Client Helper</summary>
-      <p>There are two type of suported client here, Windows version and MAC version, both of the clients can be find in "Setting Menu - TopoViewer Helper App". 
-      - For the MAC version, download and copy extracted app into Application folder. </p>
+      <p>There are two type of suported client here, Windows version and MAC version, both of the clients can be find in "Setting Menu, TopoViewer Helper App". </p>
+      - For the Windows version, download and install the registry entry. 
+      - For the MAC version, download and copy extracted app into Application folder.
+
     </details>
 
 * **Link impairment**
