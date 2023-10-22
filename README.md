@@ -33,12 +33,8 @@ Here is the quickstart video clip.
 <details>
   <summary> 
     <p>
-
-    <strong>
-    
-      See node Properties
-    </strong>
-     </p>
+    <strong>See node Properties</strong>
+    </p>
   </summary>
   
   <p>
