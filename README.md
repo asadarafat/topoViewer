@@ -68,32 +68,16 @@ Here is the quickstart video clip.
       </p>
       <ul>
         <li> For the Windows version, download and install the registry entry. </li>
-        <li> For the MAC version, download and copy extracted app into Application folder.</li>
-      </ul>
+        <li> For the MAC version, download and copy extracted app into Application folder.
+              Once the Wireshark client helper installed, simply click Cross Launch Button in link Properties.
+              <img src="https://github.com/asadarafat/topoViewer/blob/development/docs/image/topoViewer-WiresharkHelperApp-MAC.gif"/>
+        </li>
 
+      </ul>
+     
     </details>
 
 * **Link impairment**
-
-* **Fit topology to screen**
-
-* **Find node**
-
-* **Find shorthest route between two nodes**
-
-* **Adjust layout**
-
-* **Toggle link endpoint label**
-
-* **Toggle node container status**
-
-* **Capture and export the topology viewport**
-
-
-
-
-
-
 
 
 
