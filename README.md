@@ -71,7 +71,7 @@ Here is the quickstart video clip.
           <li> Ensure PowerShell installed in Windows client side </li>
           <li> Ensure the Wireshark is installed in client side. </li>
           <li> Setup SSH keyless access to ContainerLab host </li>
-          <li> Copy clabcapture.bat and clab-capture.reg into C:\\Program Files\\clab-client </li>
+          <li> Copy clabcapture.bat and clab-capture.reg into C:\Program Files\clab-client </li>
           <li> Merge clab-capture.reg into Windows Registry, simply double click it. </li>
         </ul>
         <li> For the MAC version, download and copy extracted app into Application folder. </li>
