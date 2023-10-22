@@ -36,22 +36,19 @@ Here is the quickstart video clip.
       See node Properties
     </strong>
   </summary>
+  Simply click the node
   <img src="https://github.com/asadarafat/topoViewer/blob/development/docs/image/topoViewer-nodeProperties.gif"/>
  </details>
 
-* **See node Properties**
-
-  <details>
-    <summary>Simply click the node</summary>
-    <img src="https://github.com/asadarafat/topoViewer/blob/development/docs/image/topoViewer-nodeProperties.gif"/>
-  </details>
-
-* **See link Properties**
-
-    <details>
-    <summary>Simply click the node</summary>
+<details>
+  <summary> 
+    <strong>
+      See linknode Properties
+    </strong>
+  </summary>
+    Simply click the link
     <img src="https://github.com/asadarafat/topoViewer/blob/development/docs/image/topoViewer-linkProperties.gif"/>
-  </details>
+ </details>
 
 * **Get to the node console**
   
