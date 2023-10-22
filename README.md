@@ -84,8 +84,9 @@ Here is the quickstart video clip.
             <li> Ensure iTerm installed in MAC client side </li>
             <li> Ensure the Wireshark is installed in client side. </li>
             <li> Setup SSH keyless access to ContainerLab host from client side, otherwise the password need tobe entered manually </li>
-            <li> <img src="https://github.com/asadarafat/topoViewer/blob/development/docs/image/topoViewer-WiresharkHelperApp-MAC.gif"/> </li>
-
+            <li> From link properties, click Capture Source/Target Endpoint cross-launch button 
+                <img src="https://github.com/asadarafat/topoViewer/blob/development/docs/image/topoViewer-WiresharkHelperApp-MAC.gif"/> 
+                </li>
           </ul>
         </p>
     </details>
