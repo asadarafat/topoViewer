@@ -48,6 +48,11 @@ Here is the quickstart video clip.
   </details>
 
 * **Get to the node console**
+  
+    <details>
+      <summary>web console</summary>
+      <img src="https://github.com/asadarafat/topoViewer/blob/development/docs/image/topoViewer-nodeWebConsole.gif"/>
+    </details>
 
 * **Packet capture**
 
