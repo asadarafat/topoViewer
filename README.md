@@ -64,28 +64,31 @@ Here is the quickstart video clip.
       <summary>
         Wireshark Client Helper
       </summary>
-      There are two type of suported client here, Windows version and MAC version, both of the clients can be find in "Setting Menu, TopoViewer Helper App". Once the Wireshark client helper installed, simply click Cross Launch Button in link Properties.
-      <ul>
-        <li> For the Windows version, download and install the registry entry. </li>
-        Prerequisite
-        <ul>
-          <li> Ensure PowerShell installed in Windows client side </li>
-          <li> Ensure the Wireshark is installed in client side. </li>
-          <li> Setup SSH keyless access to ContainerLab host </li>
-          <li> Copy clabcapture.bat and clab-capture.reg into C:\Program Files\clab-client </li>
-          <li> Merge clab-capture.reg into Windows Registry, simply double click it. </li>
-        </ul>
+      <p>
+        There are two type of suported client here, Windows version and MAC version, both of the clients can be find in "Setting Menu, TopoViewer Helper App". Once the Wireshark client helper installed, simply click Cross Launch Button in link Properties.
+      </p>
+      <p>
+        For the Windows version, download and install the registry entry.
+        Prerequisite:
+          <ul>
+            <li> Ensure PowerShell installed in Windows client side </li>
+            <li> Ensure the Wireshark is installed in client side. </li>
+            <li> Setup SSH keyless access to ContainerLab host </li>
+            <li> Copy clabcapture.bat and clab-capture.reg into C:\Program Files\clab-client </li>
+            <li> Merge clab-capture.reg into Windows Registry, simply double click it. </li>
+          </ul>
+        </p>
         <p>
-        <li> For the MAC version, download and copy extracted app into Application folder. </li>
-        Prerequisite
-         <ul>
-          <li> Ensure iTerm installed in MAC client side </li>
-          <li> Ensure the Wireshark is installed in client side. </li>
-          <li> Setup SSH keyless access to ContainerLab host from client side, otherwise the password need tobe entered manually </li>
-          <li> Download the "ContainerLab Wireshark Client - MAC" app extract and copy the app into /Applications folder </li>
-         </ul>
-        <img src="https://github.com/asadarafat/topoViewer/blob/development/docs/image/topoViewer-WiresharkHelperApp-MAC.gif"/>
-      </ul>
+          For the MAC version, download and copy extracted app into Application folder.
+          Prerequisite:
+          <ul>
+            <li> Ensure iTerm installed in MAC client side </li>
+            <li> Ensure the Wireshark is installed in client side. </li>
+            <li> Setup SSH keyless access to ContainerLab host from client side, otherwise the password need tobe entered manually </li>
+            <li> Download the "ContainerLab Wireshark Client - MAC" app extract and copy the app into /Applications folder </li>
+          </ul>
+          <img src="https://github.com/asadarafat/topoViewer/blob/development/docs/image/topoViewer-WiresharkHelperApp-MAC.gif"/>
+        </p>
     </details>
 
 * **Link impairment**
