@@ -32,9 +32,7 @@ Here is the quickstart video clip.
 ## How-to guides
 <details>
   <summary> 
-    <p>
     <strong>See node Properties</strong>
-    </p>
   </summary>
   
   <p>
