@@ -76,6 +76,13 @@ Here is the quickstart video clip.
         <li> For the MAC version, download and copy extracted app into Application folder. </li>
         Once the Wireshark client helper installed, simply click Cross Launch Button in link Properties.
         <img src="https://github.com/asadarafat/topoViewer/blob/development/docs/image/topoViewer-WiresharkHelperApp-MAC.gif"/>
+        Prerequisite
+         <ul>
+          <li> Ensure iTerm installed in MAC client side </li>
+          <li> Ensure the Wireshark is installed in client side. </li>
+          <li> Setup SSH keyless access to ContainerLab host from client side, otherwise the password need tobe entered manually </li>
+          <li> Download the "ContainerLab Wireshark Client - MAC" app extract and copy the app into /Applications folder </li>
+         </ul>
       </ul>
     </details>
 
