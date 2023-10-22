@@ -35,13 +35,17 @@ Here is the quickstart video clip.
 
 * **See node Properties**
 
-  Simply click the node
-  ![node Properties](https://github.com/asadarafat/topoViewer/blob/development/docs/image/topoViewer-nodeProperties.gif)
+  <details>
+    <summary>Simply click the node</summary>
+    ![node Properties](https://github.com/asadarafat/topoViewer/blob/development/docs/image/topoViewer-nodeProperties.gif)
+  </details>
+
+ 
 
 * **See link Properties**
 
   Simply click the link
-  ![node Properties](https://github.com/asadarafat/topoViewer/blob/development/docs/image/topoViewer-nodeProperties.gif)
+  ![node Properties](https://github.com/asadarafat/topoViewer/blob/development/docs/image/topoViewer-linkProperties.gif)
 
 * **Get to the node console**
 
