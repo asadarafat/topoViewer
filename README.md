@@ -34,11 +34,8 @@ Here is the quickstart video clip.
   <summary> 
     <strong>See node Properties</strong>
   </summary>
-  
-  <p>
-    Simply click the node
-  </p>
-  <img src="https://github.com/asadarafat/topoViewer/blob/development/docs/image/topoViewer-nodeProperties.gif"/>
+  <p> Simply click the node <img src="https://github.com/asadarafat/topoViewer/blob/development/docs/image/topoViewer-nodeProperties.gif"/>
+   </p>
  </details>
 
 
