@@ -26,7 +26,7 @@ bash -c "$(wget -qO - https://raw.githubusercontent.com/asadarafat/nokia-DataCen
 Here is the quickstart video clip.
 
 <div align="left" width="100%" height="365" >
-  <a href="https://www.youtube.com/watch?v=na6M1Zfum4o"><img src="https://img.youtube.com/vi/na6M1Zfum4o/0.jpg" alt="TopoViewer - Quickstart video clip"></a>
+  <a href="https://www.youtube.com/watch?v=na6M1Zfum4o"><img src="https://github.com/asadarafat/topoViewer/blob/development/docs/image/topoViewer-quickstart.png" alt="TopoViewer - Quickstart video clip"></a>
 </div>
 
 
