@@ -30,35 +30,20 @@ Here is the quickstart video clip.
 
 
 ## How-to guides
-<details>
-  <summary> 
-    <strong>See node Properties</strong>
-  </summary>
-  <p> Simply click the node <img src="https://github.com/asadarafat/topoViewer/blob/development/docs/image/topoViewer-nodeProperties.gif"/>
-   </p>
- </details>
 
+* **See node Properties**
+  <details>
+    <summary>Simply click the node</summary>
+    <img src="https://github.com/asadarafat/topoViewer/blob/development/docs/image/topoViewer-nodeProperties.gif"/>
+  </details>
 
-<details>
-  <summary>See node Properties</summary>
-  Simply click the node
-  <img src="https://github.com/asadarafat/topoViewer/blob/development/docs/image/topoViewer-nodeProperties.gif"/>
-</details>
-
-<details>
-  <summary> 
-    <strong>
-      See node Properties
-    </strong>
-  </summary>
-  <p>
-    Simply click the link
+* **See link Properties**
+    <details>
+    <summary>Simply click the node</summary>
     <img src="https://github.com/asadarafat/topoViewer/blob/development/docs/image/topoViewer-linkProperties.gif"/>
-  </p>    
- </details>
+  </details>
 
 * **Get to the node console**
-  
     <details>
       <summary>web console</summary>
       <img src="https://github.com/asadarafat/topoViewer/blob/development/docs/image/topoViewer-nodeWebConsole.gif"/>
@@ -71,7 +56,6 @@ Here is the quickstart video clip.
 
 
 * **Packet capture**
-
     <details>
       <summary>
         Wireshark Client Helper
