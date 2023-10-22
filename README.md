@@ -34,8 +34,12 @@ Here is the quickstart video clip.
 ## How-to guides
 
 * **See node Properties**
+  Simply click the node
+  ![node Properties](ttps://github.com/asadarafat/topoViewer/blob/development/docs/image/topoViewer-nodeProperties.gif)
 
 * **See link Properties**
+  Simply click the link
+  ![node Properties](ttps://github.com/asadarafat/topoViewer/blob/development/docs/image/topoViewer-nodeProperties.gif)
 
 * **Get to the node console**
 
