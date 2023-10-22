@@ -83,7 +83,7 @@ func (cyTopo *CytoTopology) MarshalContainerLabTopov1(topoFile string) error {
 				"clabKind":            viper.Get("topology.nodes." + nodeName + ".kind"),
 				"clabMgmtIPv4Address": viper.Get("topology.nodes." + nodeName + ".mgmt_ipv4"),
 				"clabBinds":           viper.Get("topology.nodes." + nodeName + ".binds"),
-				"clabTopoviewerRole":  viper.Get("topology.nodes." + nodeName + ".topoviewer.role"),
+				"clabTopoViewerRole":  viper.Get("topology.nodes." + nodeName + ".topoviewer.role"),
 				"clabTopoviewerColor": viper.Get("topology.nodes." + nodeName + ".topoviewer.color"),
 			}
 		}
@@ -142,7 +142,7 @@ func (cyTopo *CytoTopology) MarshalContainerLabTopov1(topoFile string) error {
 
 func (cyTopo *CytoTopology) UnmarshalContainerLabTopov1(ClabTopoStruct ClabTopoStruct, ServerHostUser string) []byte {
 
-	var topoviewerRoleList []string
+	var TopoViewerRoleList []string
 
 	cytoJson := CytoJson{}
 	cytoJsonArray := []CytoJson{}
@@ -162,50 +162,50 @@ func (cyTopo *CytoTopology) UnmarshalContainerLabTopov1(ClabTopoStruct ClabTopoS
 		cytoJson.Selectable = true
 		cytoJson.Data.ID = n.Data["clabName"].(string)
 		cytoJson.Data.Name = n.Data["clabName"].(string)                     // get the Node name by accessing direct via Interface
-		cytoJson.Data.TopoviewerRole = n.Data["clabTopoviewerRole"].(string) // get the Node name by accessing direct via Interface
+		cytoJson.Data.TopoViewerRole = n.Data["clabTopoViewerRole"].(string) // get the Node name by accessing direct via Interface
 		cytoJson.Data.Weight = "2"
 		cytoJson.Data.ExtraData = n.Data // copy all attribute of clab n.Data to cyto ExtraData
-		switch cytoJson.Data.TopoviewerRole {
+		switch cytoJson.Data.TopoViewerRole {
 		case "dcgw":
 			cytoJson.Data.Parent = "datacenter"
-			topoviewerRoleList = append(topoviewerRoleList, cytoJson.Data.Parent)
+			TopoViewerRoleList = append(TopoViewerRoleList, cytoJson.Data.Parent)
 			cytoJson.Data.Parent = "ip-mpls"
-			topoviewerRoleList = append(topoviewerRoleList, cytoJson.Data.Parent)
+			TopoViewerRoleList = append(TopoViewerRoleList, cytoJson.Data.Parent)
 		case "superSpine":
 			cytoJson.Data.Parent = "datacenter"
-			topoviewerRoleList = append(topoviewerRoleList, cytoJson.Data.Parent)
+			TopoViewerRoleList = append(TopoViewerRoleList, cytoJson.Data.Parent)
 		case "spine":
 			cytoJson.Data.Parent = "datacenter"
-			topoviewerRoleList = append(topoviewerRoleList, cytoJson.Data.Parent)
+			TopoViewerRoleList = append(TopoViewerRoleList, cytoJson.Data.Parent)
 		case "leaf":
 			cytoJson.Data.Parent = "datacenter"
-			topoviewerRoleList = append(topoviewerRoleList, cytoJson.Data.Parent)
+			TopoViewerRoleList = append(TopoViewerRoleList, cytoJson.Data.Parent)
 		case "pe":
 			cytoJson.Data.Parent = "ip-mpls"
-			topoviewerRoleList = append(topoviewerRoleList, cytoJson.Data.Parent)
+			TopoViewerRoleList = append(TopoViewerRoleList, cytoJson.Data.Parent)
 		case "p":
 			cytoJson.Data.Parent = "ip-mpls"
-			topoviewerRoleList = append(topoviewerRoleList, cytoJson.Data.Parent)
+			TopoViewerRoleList = append(TopoViewerRoleList, cytoJson.Data.Parent)
 		case "ppe":
 			cytoJson.Data.Parent = "ip-mpls"
-			topoviewerRoleList = append(topoviewerRoleList, cytoJson.Data.Parent)
+			TopoViewerRoleList = append(TopoViewerRoleList, cytoJson.Data.Parent)
 		}
 
 		cytoJsonArray = append(cytoJsonArray, cytoJson)
 	}
 
-	uniqtopoviewerRoleList := lo.Uniq(topoviewerRoleList)
-	log.Debugf("uniqtopoviewerRoleList: ", uniqtopoviewerRoleList)
+	uniqTopoViewerRoleList := lo.Uniq(TopoViewerRoleList)
+	log.Debugf("uniqTopoViewerRoleList: ", uniqTopoViewerRoleList)
 
-	// add Parent Nodes Per topoviewerRoleList
-	for _, n := range uniqtopoviewerRoleList {
+	// add Parent Nodes Per TopoViewerRoleList
+	for _, n := range uniqTopoViewerRoleList {
 		cytoJson.Group = "nodes"
 		cytoJson.Data.Parent = ""
 		cytoJson.Grabbable = true
 		cytoJson.Selectable = true
 		cytoJson.Data.ID = n
 		cytoJson.Data.Name = n + " domain"
-		cytoJson.Data.TopoviewerRole = n
+		cytoJson.Data.TopoViewerRole = n
 		cytoJson.Data.Weight = "2"
 		cytoJson.Data.ExtraData = ""
 

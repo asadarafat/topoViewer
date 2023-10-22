@@ -23,6 +23,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
+
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/cobra"
 )
@@ -407,7 +408,13 @@ func Clab(_ *cobra.Command, _ []string) error {
 
 				for _, n := range cyTopo.ClabTopoDataV2.Nodes {
 					// log.Info("n.Longname", n.Longname)
-					x, err := cyTopo.GetDockerNodeStatus(n.Longname, clabUser, clabHost[0], clabPass)
+
+					// get docker status via ssh "docker ps --all"
+					// x, err := cyTopo.GetDockerNodeStatus(n.Longname, clabUser, clabHost[0], clabPass)
+
+					// get docker status via unix socket
+					x, err := cyTopo.GetDockerNodeStatusViaUnixSocket(n.Longname, clabHost[0])
+
 					containerNodeStatus.WriteMessage(1, x)
 					if err != nil {
 						log.Error(err)
@@ -546,7 +553,7 @@ func Clab(_ *cobra.Command, _ []string) error {
 	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "tools-cloudshell-terminal-js.tmpl", cyTopo.ClabTopoDataV2.Name+"/cloudshell-tools/"+"terminal.js", "")
 	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "websocket-index.tmpl", cyTopo.ClabTopoDataV2.Name+"/ws/"+"index.html", "")
 
-	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "button.tmpl", cyTopo.ClabTopoDataV2.Name+"/"+"button.html", "")
+	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "button.tmpl", cyTopo.ClabTopoDataV2.Name+"/"+"button.html", cyTopo.ClabTopoDataV2.Name)
 
 	// start memory logging pulse
 	logWithMemory := createMemoryLog()

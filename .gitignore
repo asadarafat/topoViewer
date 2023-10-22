@@ -1,8 +1,7 @@
 logs/*
-rawTopoFile/clab-Vodafone-CO-HCO/**
-rawTopoFile/_clab-folder
-rawTopoFile/clab
+rawTopoFile/clab/**
 rawTopoFile/license.txt
+rawTopoFile/topo-vf-hco-ip-certification.yml
 rawTopoFile/clab-topoViewerDemo/**
 webpack.config.js
 .babelrc
@@ -14,3 +13,7 @@ _archive/**
 html-public/**
 README-copy.md
 README-copy2.md
+package-lock.json
+package.json
+.cache/**
+clab-3tierSmall/**

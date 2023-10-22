@@ -6,11 +6,11 @@ read -p "Enter the version Tag: " tag
 # Display the entered parameters
 echo "Hello, the version Tag tobe used is $tag"
 
-cp go_cloudshellwrapper/constants.go cloudshellwrapper/constants.go.bak
-sed -i "s/\(var VersionInfo string = \)\"[^\"]*\"/\1\"$tag\"/" cloudshellwrapper/constants.go
+cp go_cloudshellwrapper/constants.go go_cloudshellwrapper/constants.go.bak
+sed -i "s/\(var VersionInfo string = \)\"[^\"]*\"/\1\"$tag\"/" go_cloudshellwrapper/constants.go
 
 echo "Cleanup dist folder..."
-rm -rR dist/*
+rm -rRf dist/*
 mkdir dist/html-public
 touch dist/html-public/put-html-asset-here.txt
 
@@ -47,24 +47,21 @@ cp -r tools/pumba_linux_amd64 dist/pumba_linux_amd64
 
 echo "Copy html folder and assets..."
 cp -rR html-static dist/html-static
-rm -rR dist/html-static/archive-clab
-rm -rR dist/html-static/archive-nsp
+rm -rR dist/html-static/template/archive-clab
+rm -rR dist/html-static/template/archive-nsp
 
 
 echo "Copy Docker entrypoint.sh ..."
 cp tools/entrypoint.sh dist/entrypoint.sh 
 
-echo "Git Commit and Push with tag Tag"
+echo "Git Commit and Push with tag $tag"
+git add .
 git add dist/topoviewer
-git commit -am \"$tag\"
+git commit -m "commit with tag $tag "
 git tag $tag
-git push --tags
 
+# Push the commit and the tag to the remote repository
+git push origin development --tags
 
-# echo "Create TAR package..."
-# tar -czvf dist/TopoViewer.tar.gz dist
-
-# echo "Optimize binary size..."
-# upx --brute dist/topoviewer 
 
 echo "Distribution build done..."

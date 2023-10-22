@@ -217,7 +217,7 @@ func (cyTopo *CytoTopology) IpOptimLspMarshall(topoFile []byte, lspPathNameTarge
 					cytoJsonNode.Data.Name = lspPath.RecordedHops.PathHops.PathHop[strconv.Itoa(i)].RouterID.DottedQuad.String
 					cytoJsonNode.Data.Parent = "Transport-Tunnel"
 					cytoJsonNode.Data.Kind = "LayerTransportTunnelNode"
-					cytoJsonNode.Data.TopoviewerRole = ""
+					cytoJsonNode.Data.TopoViewerRole = ""
 					cytoJsonNode.Data.ExtraData = map[string]interface{}{
 						"networkID":      "",
 						"networkName":    "",
@@ -282,7 +282,7 @@ func (cyTopo *CytoTopology) IpOptimLspMarshall(topoFile []byte, lspPathNameTarge
 					cytoJsonNode.Data.Name = lspPath.RecordedHops.PathHops.PathHop[strconv.Itoa(i)].RouterID.DottedQuad.String
 					cytoJsonNode.Data.Parent = "Transport-Tunnel"
 					cytoJsonNode.Data.Kind = "LayerTransportTunnelNode"
-					cytoJsonNode.Data.TopoviewerRole = ""
+					cytoJsonNode.Data.TopoViewerRole = ""
 					cytoJsonNode.Data.ExtraData = map[string]interface{}{
 						"networkID":      "",
 						"networkName":    "",
