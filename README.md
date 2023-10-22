@@ -31,7 +31,7 @@ Here is the quickstart video clip.
 
 ## How-to guides
 
-* **See node Properties**
+* ###See node Properties
 
   <details>
     <summary>Simply click the node</summary>
