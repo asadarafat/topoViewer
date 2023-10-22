@@ -37,6 +37,8 @@ Here is the quickstart video clip.
 
   <details>
     <summary>Simply click the node</summary>
+    <img src="https://github.com/asadarafat/topoViewer/blob/development/docs/image/topoViewer-nodeProperties.gif"/>
+
     ![node Properties](https://github.com/asadarafat/topoViewer/blob/development/docs/image/topoViewer-nodeProperties.gif)
   </details>
 
