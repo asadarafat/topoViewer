@@ -67,7 +67,7 @@ Here is the quickstart video clip.
       <p>There are two type of suported client here, Windows version and MAC version, both of the clients can be find in "Setting Menu, TopoViewer Helper App". Once the Wireshark client helper installed, simply click Cross Launch Button in link Properties.
       </p>
       <p>
-        Prerequisite for the Windows version:
+        Using Windows version of Wireshark Client Helper:
           <ul>
             <li> Download and install the Windows version of Wireshark Client Helper. </li>
             <li> Ensure PowerShell installed in Windows client side </li>
@@ -78,7 +78,7 @@ Here is the quickstart video clip.
           </ul>
         </p>
         <p>
-          Prerequisite for the MAC version:
+          Using MAC version of Wireshark Client Helper:
           <ul>
             <li> Download and install the MAC version of Wireshark Client Help, extract and copy the app into /Applications folder  </li>
             <li> Ensure iTerm installed in MAC client side </li>
