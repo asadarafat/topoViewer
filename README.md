@@ -54,6 +54,13 @@ Here is the quickstart video clip.
       <img src="https://github.com/asadarafat/topoViewer/blob/development/docs/image/topoViewer-nodeWebConsole.gif"/>
     </details>
 
+
+    <details>
+      <summary>web console</summary>
+      <img src="https://github.com/asadarafat/topoViewer/blob/development/docs/image/topoViewer-nodeTerminalConsole.gif"/>
+    </details>
+
+
 * **Packet capture**
 
 * **Link impairment**
