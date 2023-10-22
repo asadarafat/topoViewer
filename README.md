@@ -30,10 +30,14 @@ Here is the quickstart video clip.
 
 
 ## How-to guides
-* <details>
-    <summary> **See node Properties**</summary>
-    <img src="https://github.com/asadarafat/topoViewer/blob/development/docs/image/topoViewer-nodeProperties.gif"/>
-  </details>
+<details>
+  <summary> 
+    <strong>
+      See node Properties
+    </strong>
+  </summary>
+  <img src="https://github.com/asadarafat/topoViewer/blob/development/docs/image/topoViewer-nodeProperties.gif"/>
+ </details>
 
 * **See node Properties**
 
