@@ -33,29 +33,29 @@ Here is the quickstart video clip.
 
 ## How-to guides
 
-### See node Properties
+* **See node Properties**
 
-### See link Properties
+* **See link Properties**
 
-### Get to the node console
+* **Get to the node console**
 
-### Packet capture
+* **Packet capture**
 
-### Link impairment
+* **Link impairment**
 
-### Fit topology to screen
+* **Fit topology to screen**
 
-### Find node
+* **Find node**
 
-### Find shorthest route between two nodes
+* **Find shorthest route between two nodes**
 
-### Adjust layout
+* **Adjust layout**
 
-### Toggle link endpoint label
+* **Toggle link endpoint label**
 
-### Toggle node container status
+* **Toggle node container status**
 
-### Capture and export the topology viewport
+* **Capture and export the topology viewport**
 
 
 
