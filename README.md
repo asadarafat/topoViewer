@@ -67,9 +67,9 @@ Here is the quickstart video clip.
       <p>There are two type of suported client here, Windows version and MAC version, both of the clients can be find in "Setting Menu, TopoViewer Helper App". Once the Wireshark client helper installed, simply click Cross Launch Button in link Properties.
       </p>
       <p>
-        For the Windows version, download and install the registry entry.
-        Prerequisite:
+        Prerequisite for the Windows version:
           <ul>
+            <li> Download and install the Windows version of Wireshark Client Helper. </li>
             <li> Ensure PowerShell installed in Windows client side </li>
             <li> Ensure the Wireshark is installed in client side. </li>
             <li> Setup SSH keyless access to ContainerLab host </li>
@@ -78,9 +78,9 @@ Here is the quickstart video clip.
           </ul>
         </p>
         <p>
-          For the MAC version, download and copy extracted app into Application folder.
-          Prerequisite:
+          Prerequisite for the MAC version:
           <ul>
+            <li> Download and install the MAC version of Wireshark Client Helper. </li>
             <li> Ensure iTerm installed in MAC client side </li>
             <li> Ensure the Wireshark is installed in client side. </li>
             <li> Setup SSH keyless access to ContainerLab host from client side, otherwise the password need tobe entered manually </li>
