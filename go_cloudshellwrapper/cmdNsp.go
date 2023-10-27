@@ -11,13 +11,14 @@ import (
 
 	tools "github.com/asadarafat/topoViewer/go_tools"
 	cp "github.com/otiai10/copy"
-	log "github.com/sirupsen/logrus"
+
+	//log "github.com/sirupsen/logrus"
 
 	topoengine "github.com/asadarafat/topoViewer/go_topoengine"
 	xtermjs "github.com/asadarafat/topoViewer/go_xtermjs"
 	"github.com/usvc/go-config"
 
-	// log "github.com/asadarafat/topoViewer/tools"
+	log "github.com/asadarafat/topoViewer/go_tools"
 
 	"github.com/gorilla/mux"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -136,7 +137,7 @@ func Nsp(_ *cobra.Command, _ []string) error {
 	cyTopo.InitLogger()
 
 	// initialise the logger
-	tools.InitCloudShellLog(tools.Format(confNsp.GetString("log-format")), tools.Level(confNsp.GetString("log-level")))
+	// tools.InitCloudShellLog(tools.Format(confNsp.GetString("log-format")), tools.Level(confNsp.GetString("log-level")))
 
 	viper.SetConfigName("topoviewer-config") // config file name without extension
 	viper.SetConfigType("yaml")
@@ -367,7 +368,7 @@ func Nsp(_ *cobra.Command, _ []string) error {
 
 	} else {
 		// initialise the logger
-		tools.InitCloudShellLog(tools.Format(confNsp.GetString("log-format")), tools.Level(confNsp.GetString("log-level")))
+		// tools.InitCloudShellLog(tools.Format(confNsp.GetString("log-format")), tools.Level(confNsp.GetString("log-level")))
 
 		// tranform clab-topo-file into cytoscape-model
 		topoNsp := confNsp.GetString("topology-ietf-l2-topo")

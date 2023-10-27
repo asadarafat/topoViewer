@@ -13,12 +13,13 @@ FOR /f "tokens=1 delims=: " %%a IN ("%HOSTRAW03%") DO SET HOST=%%a
 
 
 ECHO "USERNAME: %USERNAME%..."
+ECHO "USERLOGIN: %USERLOGIN%..."
 ECHO "HOSTRAW02: %HOSTRAW02%..."
 ECHO "HOSTRAW03: %HOSTRAW03%..."
 ECHO "HOST: %HOST%..."
 ECHO "CLAB-NODE:  %CLABNODE%..."
 ECHO "INT:  %CLABNODE%..."
 ECHO "INT:  %INT%..."
-ECHO "Connecting to %USERNAME%@%HOST%..."
-ssh %USERNAME%@%HOST% "sudo -S /sbin/ip netns exec %CLABNODE% tcpdump -ni %INT% -w - not port 22" | "C:\Program Files\Wireshark\Wireshark.exe" -k -i -
+ECHO "Connecting to %USERLOGIN%@%HOST%..."
+ssh %USERLOGIN%@%HOST% "sudo -S /sbin/ip netns exec %CLABNODE% tcpdump -ni %INT% -w - not port 22" | "C:\Program Files\Wireshark\Wireshark.exe" -k -i -
 PAUSE

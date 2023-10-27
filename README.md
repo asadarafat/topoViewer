@@ -32,21 +32,18 @@ Here is the quickstart video clip.
 ## How-to guides
 
 * **See node Properties**
-
   <details>
     <summary>Simply click the node</summary>
     <img src="https://github.com/asadarafat/topoViewer/blob/development/docs/image/topoViewer-nodeProperties.gif"/>
   </details>
 
 * **See link Properties**
-
     <details>
     <summary>Simply click the node</summary>
     <img src="https://github.com/asadarafat/topoViewer/blob/development/docs/image/topoViewer-linkProperties.gif"/>
   </details>
 
 * **Get to the node console**
-  
     <details>
       <summary>web console</summary>
       <img src="https://github.com/asadarafat/topoViewer/blob/development/docs/image/topoViewer-nodeWebConsole.gif"/>
@@ -59,26 +56,35 @@ Here is the quickstart video clip.
 
 
 * **Packet capture**
-
     <details>
-      <summary>Wireshark Client Helper</summary>
-      <p>There are two type of suported client here, Windows version and MAC version, both of the clients can be find in "Setting Menu, TopoViewer Helper App". 
+      <summary>
+        Wireshark Client Helper
+      </summary>
+      <p>There are two type of suported client here, Windows version and MAC version, both of the clients can be find in "Setting Menu, TopoViewer Helper App". Once the Wireshark client helper installed, simply click Cross Launch Button in link Properties.
       </p>
-      <ul>
-        <li> For the Windows version, download and install the registry entry. </li>
-        Prerequisite
-        <ul>
-          <li> Ensure PowerShell installed in Windows client side </li>
-          <li> Ensure the Wireshark is installed in client side. </li>
-          <li> Setup SSH keyless access to ContainerLab host </li>
-          <li> Copy clabcapture.bat and clab-capture.reg into C:\Program Files\clab-client </li>
-          <li> Merge clab-capture.reg into Windows Registry, simply double click it. </li>
-        </ul>
+      <p>
+        Using Windows version of Wireshark Client Helper:
+          <ul>
+            <li> Download and install the Windows version of Wireshark Client Helper. </li>
+            <li> Ensure PowerShell installed in Windows client side </li>
+            <li> Ensure the Wireshark is installed in client side, from client side, otherwise the password need tobe entered manually </li>
+            <li> Setup SSH keyless access to ContainerLab host </li>
+            <li> Copy clabcapture.bat and clab-capture.reg into C:\Program Files\clab-client </li>
+            <li> Merge clab-capture.reg into Windows Registry, simply double click it. </li>
+          </ul>
+        </p>
         <p>
-        <li> For the MAC version, download and copy extracted app into Application folder. </li>
-        Once the Wireshark client helper installed, simply click Cross Launch Button in link Properties.
-        <img src="https://github.com/asadarafat/topoViewer/blob/development/docs/image/topoViewer-WiresharkHelperApp-MAC.gif"/>
-      </ul>
+          Using MAC version of Wireshark Client Helper:
+          <ul>
+            <li> Download and install the MAC version of Wireshark Client Help, extract and copy the app into /Applications folder  </li>
+            <li> Ensure iTerm installed in MAC client side </li>
+            <li> Ensure the Wireshark is installed in client side. </li>
+            <li> Setup SSH keyless access to ContainerLab host from client side, otherwise the password need tobe entered manually </li>
+            <li> From link properties, click Capture Source/Target Endpoint cross-launch button 
+                <img src="https://github.com/asadarafat/topoViewer/blob/development/docs/image/topoViewer-WiresharkHelperApp-MAC.gif"/> 
+                </li>
+          </ul>
+        </p>
     </details>
 
 * **Link impairment**
