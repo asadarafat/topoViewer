@@ -287,11 +287,11 @@ func (cyTopo *CytoTopology) UnmarshalContainerLabTopoV2(topoFile []byte, clabHos
 		panic(err)
 	}
 
-	_, err = os.Stdout.Write(jsonBytesCytoUi)
-	if err != nil {
-		log.Error(err)
-		panic(err)
-	}
+	// _, err = os.Stdout.Write(jsonBytesCytoUi)
+	// if err != nil {
+	// 	log.Error(err)
+	// 	panic(err)
+	// }
 	log.Debug("jsonBytesCytoUi Result:", string(jsonBytesCytoUi))
 
 	return jsonBytesCytoUi

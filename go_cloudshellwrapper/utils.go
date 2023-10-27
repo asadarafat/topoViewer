@@ -7,7 +7,11 @@ import (
 	"runtime"
 	"time"
 
-	log "github.com/asadarafat/topoViewer/go_tools"
+	topoengine "github.com/asadarafat/topoViewer/go_topoengine"
+
+	log "github.com/sirupsen/logrus"
+
+	tools "github.com/asadarafat/topoViewer/go_tools"
 	"github.com/gorilla/mux"
 )
 
@@ -15,7 +19,7 @@ import (
 func FileExists(filename string) bool {
 	f, err := os.Stat(filename)
 	if err != nil {
-		log.Debugf("error while trying to access file %v: %v", filename, err)
+		log.Debug("error while trying to access file %v: %v", filename, err)
 		return false
 	}
 
@@ -23,7 +27,15 @@ func FileExists(filename string) bool {
 }
 
 // createRequestLog returns a logger with relevant request fields
-func createRequestLog(r *http.Request, additionalFields ...map[string]interface{}) log.Logger {
+func createRequestLog(r *http.Request, additionalFields ...map[string]interface{}) tools.Logger {
+
+	cyTopo := topoengine.CytoTopology{}
+	toolLogger := tools.Logs{}
+
+	cyTopo.InitLogger()
+	cyTopo.LogLevel = uint32(toolLogger.MapLogLevelStringToNumber(confClab.GetString("log-level")))
+	toolLogger.InitLogger("logs/topoengine-CytoTopology.log", cyTopo.LogLevel)
+
 	fields := map[string]interface{}{}
 	if len(additionalFields) > 0 {
 		fields = additionalFields[0]
@@ -41,7 +53,7 @@ func createRequestLog(r *http.Request, additionalFields ...map[string]interface{
 	return log.WithFields(fields)
 }
 
-func createMemoryLog() log.Logger {
+func createMemoryLog() tools.Logger {
 	var memStats runtime.MemStats
 	runtime.ReadMemStats(&memStats)
 	return log.WithFields(map[string]interface{}{
@@ -66,26 +78,6 @@ func addIncomingRequestLogging(next http.Handler) http.Handler {
 		createRequestLog(r).Infof("request completed in %vms", float64(duration.Nanoseconds())/1000000)
 	})
 }
-
-// func createHtmlPublicFiles(htmlTemplatePath string, htmlPublicPrefixPath string, templateFile string, outputFile string, inputValue string) {
-// 	// os.Mkdir("./html-public/"+cyTopo.ClabTopoData.ClabTopoName, 0755) // this folder created in cytoscape model library.
-// 	template, err := template.ParseFiles(htmlTemplatePath + templateFile)
-// 	log.Debugf("Template File: ", htmlTemplatePath+templateFile)
-// 	if err != nil {
-// 		log.Error("Could not compile " + htmlTemplatePath + templateFile)
-// 	}
-
-// 	// create file
-// 	file, err := os.Create(htmlPublicPrefixPath + outputFile)
-// 	if err != nil {
-// 		log.Error("Could not render " + htmlTemplatePath + templateFile + " into file")
-// 	}
-// 	// write file
-// 	err = template.Execute(file, inputValue)
-// 	if err != nil {
-// 		log.Error("execute: ", err)
-// 	}
-// }
 
 func createHtmlPublicFiles(htmlTemplatePath string, htmlPublicPrefixPath string, templateFile string, outputFile string, inputValue string) {
 	// os.Mkdir("./html-public/"+cyTopo.ClabTopoData.ClabTopoName, 0755) // this folder created in cytoscape model library.
