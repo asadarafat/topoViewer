@@ -37,14 +37,14 @@
     {
         "a": {
             "node": "{{ index $endpointAList 0 }}",
-            "nodeLongName": "{{ $type }}-{{ $labName}}-{{ index $endpointAList 0 }}",
+            "nodeLongName": "{{$labName}}-{{ index $endpointAList 0 }}",
             "interface": "{{ index $endpointAList 1 }}",
             "mac": "",
             "peer": "z"
         },
         "z": {
             "node": "{{ index $endpointBList 0 }}",
-            "nodeLongName": "{{ $type }}-{{ $labName}}-{{ index $endpointBList 0 }}",
+            "nodeLongName": "{{$labName}}-{{ index $endpointBList 0 }}",
             "interface": "{{ index $endpointBList 1 }}",
             "mac": "",
             "peer": "a"
