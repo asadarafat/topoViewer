@@ -1317,7 +1317,7 @@
 								iconClass: 'fas fa-play',
 								hoverMessage: 'Start link impairment',
 								hrefFunction: 'linkImpairment',
-								hrefLink: `clab tools netem set -n ${edge.data('extraData').clabSourceLongName} -i ${edge.data("sourceEndpoint")}`,
+								hrefLink: `sudo /usr/bin/containerlab tools netem set -n ${edge.data('extraData').clabSourceLongName} -i ${edge.data("sourceEndpoint")}`,
 								hrefFunctionArg: 'start'
 							},
 							{
@@ -1325,7 +1325,7 @@
 								iconClass: 'fas fa-stop',
 								hoverMessage: 'Stop link impairment',
 								hrefFunction: 'linkImpairment',
-								hrefLink: `clab tools netem set -n ${edge.data('extraData').clabSourceLongName} -i ${edge.data("sourceEndpoint")}`,
+								hrefLink: `sudo /usr/bin/containerlab tools netem set -n ${edge.data('extraData').clabSourceLongName} -i ${edge.data("sourceEndpoint")}`,
 								hrefFunctionArg: 'stop'
 							}]
 						},
@@ -1342,7 +1342,7 @@
 								iconClass: 'fas fa-play',
 								hoverMessage: 'Start link impairment',
 								hrefFunction: 'linkImpairment',
-								hrefLink: `clab tools netem set -n ${edge.data('extraData').clabTargetLongName} -i ${edge.data("targetEndpoint")}`,
+								hrefLink: `sudo /usr/bin/containerlab tools netem set -n ${edge.data('extraData').clabTargetLongName} -i ${edge.data("targetEndpoint")}`,
 								hrefFunctionArg: 'start'
 							},
 							{
@@ -1350,7 +1350,7 @@
 								iconClass: 'fas fa-stop',
 								hoverMessage: 'Stop link impairment',
 								hrefFunction: 'linkImpairment',
-								hrefLink: `clab tools netem set -n ${edge.data('extraData').clabTargetLongName} -i ${edge.data("targetEndpoint")}`,
+								hrefLink: `sudo /usr/bin/containerlab tools netem set -n ${edge.data('extraData').clabTargetLongName} -i ${edge.data("targetEndpoint")}`,
 								hrefFunctionArg: 'stop'
 							}]
 						},
