@@ -326,20 +326,23 @@ func (cyTopo *CytoTopology) RunSSHCommand(clabUser string, clabHost string, clab
 
 	client, err := ssh.Dial("tcp", clabHost+":22", config)
 	if err != nil {
-		return nil, fmt.Errorf("failed to dial SSH: %w", err)
+		log.Errorf("failed to dial SSH: %s", err)
+		return nil, err
 	}
 	defer client.Close()
 
 	session, err := client.NewSession()
 	if err != nil {
-		return nil, fmt.Errorf("failed to create SSH session: %w", err)
+		log.Errorf("failed to create SSH session: %s", err)
+		return nil, err
 	}
 	defer session.Close()
 
 	var b bytes.Buffer
 	session.Stdout = &b
 	if err := session.Run(command); err != nil {
-		return nil, fmt.Errorf("failed to run SSH command: %w", err)
+		log.Errorf("failed to run SSH command: %s", err)
+		return nil, err
 	}
 
 	return b.Bytes(), nil
