@@ -1181,7 +1181,7 @@
 								hrefLink: `${shellUrl}?RouterID=${node.data('extraData').mgmtIpv4Addresss}?RouterName=${node.data('extraData').id}`
 							},
 							{
-								name: 'green',
+								name: 'blue',
 								iconClass: 'far fa-clone',
 								hoverMessage: 'Click to copy the SSH command to your clipboard.',
 								hrefFunction: 'copy',
@@ -1256,7 +1256,7 @@
 							hrefLink: 'clab-capture://' + edge.data("extraData").clabServerUsername + '@' + location.host + '?' + edge.data('extraData').clabSourceLongName + '?' + edge.data('sourceEndpoint')
 						},
 						{
-							name: 'green',
+							name: 'blue',
 							iconClass: 'far fa-clone',
 							hoverMessage: 'Click to copy the SSH command to your clipboard.',
 							hrefFunction: 'copy',
@@ -1279,7 +1279,7 @@
 							hrefLink: 'clab-capture://' + edge.data("extraData").clabServerUsername + '@' + location.host + '?' + edge.data('extraData').clabSourceLongName + '?' + edge.data('targetEndpoint')
 						},
 						{
-							name: 'green',
+							name: 'blue',
 							iconClass: 'far fa-clone',
 							hoverMessage: 'Click to copy the SSH command to your clipboard',
 							hrefFunction: 'copy',
@@ -1315,7 +1315,7 @@
 							{
 								name: 'blue',
 								iconClass: 'fas fa-play',
-								hoverMessage: 'Start link impairment',
+								hoverMessage: 'Click to copy the SSH command that START the link impairment.',
 								hrefFunction: 'linkImpairment',
 								hrefLink: `ssh ${edge.data("extraData").clabServerUsername}@${location.hostname} sudo /usr/bin/containerlab tools netem set -n ${edge.data('extraData').clabSourceLongName} -i ${edge.data("sourceEndpoint")}`,
 								hrefFunctionArg: 'start'
@@ -1323,7 +1323,7 @@
 							{
 								name: 'blue',
 								iconClass: 'fas fa-stop',
-								hoverMessage: 'Stop link impairment',
+								hoverMessage: 'Click to copy the SSH command that STOP the link impairment.',
 								hrefFunction: 'linkImpairment',
 								hrefLink: `ssh ${edge.data("extraData").clabServerUsername}@${location.hostname} sudo /usr/bin/containerlab tools netem set -n ${edge.data('extraData').clabSourceLongName} -i ${edge.data("sourceEndpoint")}`,
 								hrefFunctionArg: 'stop'
@@ -1340,7 +1340,7 @@
 							{
 								name: 'blue',
 								iconClass: 'fas fa-play',
-								hoverMessage: 'Start link impairment',
+								hoverMessage: 'Click to copy the SSH command that START the link impairment.',
 								hrefFunction: 'linkImpairment',
 								hrefLink: `ssh ${edge.data("extraData").clabServerUsername}@${location.hostname} /usr/bin/containerlab tools netem set -n ${edge.data('extraData').clabTargetLongName} -i ${edge.data("targetEndpoint")}`,
 								hrefFunctionArg: 'start'
@@ -1348,7 +1348,7 @@
 							{
 								name: 'blue',
 								iconClass: 'fas fa-stop',
-								hoverMessage: 'Stop link impairment',
+								hoverMessage: 'Click to copy the SSH command that STOP the link impairment.',
 								hrefFunction: 'linkImpairment',
 								hrefLink: `ssh ${edge.data("extraData").clabServerUsername}@${location.hostname} /usr/bin/containerlab tools netem set -n ${edge.data('extraData').clabTargetLongName} -i ${edge.data("targetEndpoint")}`,
 								hrefFunctionArg: 'stop'
@@ -2477,8 +2477,8 @@
 					</p>
 
 					<p>
-						Designed and developed by <strong>asad.arafat@nokia.com</strong> <br>
-						GUI Framework by <strong>siva.sivakumar@nokia.com</strong> <br>
+						Designed and developed by <strong><a href="https://www.linkedin.com/in/asadarafat/">Asad Arafat</a></strong> <br>
+						GUI Framework by <strong><a href="https://www.linkedin.com/in/siva19susi//">Siva Sivakumar</a></strong> <br>
 					</p>
 
 					<p>Key Features: </p>
@@ -2566,8 +2566,8 @@
 					<h6>Version: ${topoViewerVersion}</h6>
 					
 					<p>
-					Designed and developed by <strong>asad.arafat@nokia.com</strong> <br>
-					GUI Framework by <strong>siva.sivakumar@nokia.com</strong> <br>
+					Designed and developed by <strong><a href="https://www.linkedin.com/in/asadarafat/">Asad Arafat</a></strong> <br>
+					GUI Framework by <strong><a href="https://www.linkedin.com/in/siva19susi//">Siva Sivakumar</a></strong> <br>
 					</p>
 
 					<p>Instruction: </p>
