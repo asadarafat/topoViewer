@@ -95,3 +95,26 @@ Here is the quickstart video clip.
 ## Tested Environment
 - containerlab version:  0.41.2, 0.44.3, 0.46.0
 - docker-ce version: 24.0.2
+
+
+## Build TopoViewer Binary - Linux
+build linux amd64 binary
+```Shell
+vscode ➜ /workspaces/topoViewer (development) $ GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o topoviewer cloudshellwrap
+per/cmd/main.go 
+```
+
+## Run TopoViewer Binary 
+Ensure to run binary file in the same directory with html folder
+Running inside dist folder
+```Shell
+vscode ➜ /workspaces/topoViewer/dist (development ✗) $ ./topoviewer clab -t topo-topoViewerDemo.yaml  
+```
+
+## Create Distribution Folder
+```Shell
+vscode ➜ /workspaces/topoViewer (development ✗) $ ./tools/dist.sh 
+```
+
+
+
