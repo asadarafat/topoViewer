@@ -6,6 +6,8 @@ read -p "Enter the version Tag: " tag
 # Display the entered parameters
 echo "Hello, the version Tag tobe used is $tag"
 
+sudo chown -R $(whoami):$(whoami) *
+
 cp go_cloudshellwrapper/constants.go go_cloudshellwrapper/constants.go.bak
 sed -i "s/\(var VersionInfo string = \)\"[^\"]*\"/\1\"$tag\"/" go_cloudshellwrapper/constants.go
 
@@ -15,7 +17,7 @@ mkdir dist/html-public
 touch dist/html-public/put-html-asset-here.txt
 
 echo "Build Linux Binary..."
-sudo GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o topoviewer go_cloudshellwrapper/cmd/main.go 
+GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o topoviewer go_cloudshellwrapper/cmd/main.go 
 
 echo "Copy TopoViewer Binary..."
 mv topoviewer dist/topoviewer
