@@ -382,6 +382,7 @@ func Clab(_ *cobra.Command, _ []string) error {
 			}
 			log.Debug("################## Websocket: Docker Node Status")
 			// w.WriteHeader(http.StatusOK)
+			// The error message "http: response.WriteHeader on hijacked connection" in Go indicates that you are trying to write a HTTP header to a connection that has been hijacked. In the context of Go's net/http package, hijacking a connection typically means that the underlying network connection has been taken over by some other process or handler, often for purposes like upgrading to a WebSocket connection.
 
 			clabUser := confClab.GetString("clab-user")
 			log.Debug("################## clabUser: " + clabUser)
