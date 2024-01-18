@@ -116,5 +116,7 @@ vscode ➜ /workspaces/topoViewer/dist (development ✗) $ ./topoviewer clab -t 
 vscode ➜ /workspaces/topoViewer (development ✗) $ ./tools/dist.sh 
 ```
 
-
+## Run TopoViewer Code
+```Shell
+vscode ➜ /workspaces/topoViewer (development ✗) go run go_cloudshellwrapper/cmd/main.go clab --allowed-hostnames 149.204.21.68 --clab-user aarafat  --server-port 8087 --topology-file-json ./rawTopoFile/clab/nokia-MultiAccessGateway-lab/clab-nokia-MAGc-lab/topology-data.json 
 

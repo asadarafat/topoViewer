@@ -1,3 +1,3 @@
 package cloudshellwrapper
 
-var VersionInfo string = "nightly-24.01.13m"
+var VersionInfo string = "nightly-24.01.18"
