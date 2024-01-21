@@ -19,7 +19,7 @@ jobs:
       - name: Create ZIP archive
         run: |
           mkdir -p release
-          zip -r release/folder.zip ${{ env.FOLDER_TO_PUBLISH }}
+          zip -r release/folder.zip ./dist/*
         working-directory: ${{ github.workspace }}
 
       - name: Get current tag
