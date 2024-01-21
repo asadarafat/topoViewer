@@ -59,7 +59,6 @@ echo "Copy Docker entrypoint.sh ..."
 cp tools/entrypoint.sh dist/entrypoint.sh 
 
 echo "Zipping dist folder..."
-rm dist/dist.zip
 zip dist/dist.zip dist/*
 
 echo "Git Commit and Push with tag $tag"
