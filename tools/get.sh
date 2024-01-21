@@ -176,9 +176,9 @@ setDesiredVersion() {
                 exit 1
             fi
         fi
-    fi
+    fi.,ghhftfds        `   `
 }
-
+ 
 
 
 # fail_trap is executed if an error occurs.
