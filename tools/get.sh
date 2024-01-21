@@ -268,7 +268,7 @@ echo "The detected OS is: $OS_ID"
 # fi
 
 rm -f /tmp/dist.zip*
-wget  --no-cache -P /tmp/ https://github.com/asadarafat/topoViewer/blob/development/dist/dist.zip
+wget -O /tmp/dist.zip https://github.com/asadarafat/topoViewer/raw/development/dist/dist.zip
 sudo rm -fR /opt/topoviewer
 sudo mkdir /opt/topoviewer
-sudo unzip -d /opt/topoviewer/ /tmp/dist.zip 
+sudo unzip -d /opt/topoviewer/ /tmp/dist.zip

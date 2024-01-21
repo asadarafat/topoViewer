@@ -189,10 +189,10 @@ func Clab(_ *cobra.Command, _ []string) error {
 	//// Clab Version 2
 	//log.Debug("topo Clab: ", topoClab)
 	log.Debug("Code Trace Point ####")
-	topoFile := cyTopo.ClabTopoRead(topoClab) // loading containerLab export-topo json file
+
+	// topoFile := cyTopo.ClabTopoRead(topoClab) // loading containerLab export-topo json file
+
 	clabHostUsername := confClab.GetString("clab-user")
-	jsonBytes := cyTopo.UnmarshalContainerLabTopoV2(topoFile, clabHostUsername)
-	cyTopo.PrintjsonBytesCytoUiV2(jsonBytes)
 
 	command := confClab.GetString("command")
 	arguments := confClab.GetStringSlice("arguments")
@@ -216,7 +216,10 @@ func Clab(_ *cobra.Command, _ []string) error {
 		}
 		workingDirectory = path.Join(wd, workingDirectory)
 	}
-	log.Infof("topology file path    : '%s'", workingDirectory+"/"+topoClab)
+	// log.Infof("topology file path    : '%s'", workingDirectory+"/"+topoClab)
+
+	log.Infof("topology file    : '%s'", (topoClab))
+
 	log.Infof("working directory     : '%s'", workingDirectory)
 	log.Infof("command               : '%s'", command)
 	log.Infof("arguments             : ['%s']", strings.Join(arguments, "', '"))
@@ -235,6 +238,11 @@ func Clab(_ *cobra.Command, _ []string) error {
 
 	// configure routing
 	router := mux.NewRouter()
+
+	topoFile := cyTopo.ClabTopoRead(topoClab) // loading containerLab export-topo json file
+	// topoFile := cyTopo.ClabTopoRead(path.Join("", topoClab)) // loading containerLab export-topo json file
+	jsonBytes := cyTopo.UnmarshalContainerLabTopoV2(topoFile, clabHostUsername)
+	cyTopo.PrintjsonBytesCytoUiV2(jsonBytes)
 
 	// this is the endpoint for xterm.js to connect to
 	xtermjsHandlerOptions := xtermjs.HandlerOpts{
