@@ -55,7 +55,7 @@ docker exec -it clab-nokia-MAGc-lab-topoviewer /opt/topoviewer/topoviewer clab -
 
 ## Run TopoViewer Code
 ```Shell
-go run go_cloudshellwrapper/cmd/main.go clab --allowed-hostnames 149.204.21.68 --clab-user aarafat  --server-port 8087 --topology-file-json ./rawTopoFile/clab/nokia
--MultiAccessGateway-lab/clab-nokia-MAGc-lab/topology-data.json 
+go run go_cloudshellwrapper/cmd/main.go clab --allowed-hostnames 149.204.21.68 --clab-user aarafat  --server-port 8087 --topology-file-json ./rawTopoFile/clab/nokia-MultiAccessGateway-lab/clab-nokia-MAGc-lab/topology-data.json 
+
 vscode ➜ /workspaces/topoViewer/dist (development ✗) $ ./topoviewer clab -t topo-topoViewerDemo.yaml  
 ```

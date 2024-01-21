@@ -176,7 +176,7 @@ setDesiredVersion() {
                 exit 1
             fi
         fi
-    fi.,ghhftfds        `   `
+    fi 
 }
  
 
@@ -250,19 +250,25 @@ echo "The detected architecture is: $ARCH"
 detectOS
 echo "The detected OS is: $OS_ID"
 
-runAsRoot
+# runAsRoot
 
-verifySupported
+# verifySupported
 
-setDesiredVersion
+# setDesiredVersion
 
-if ! checkInstalledVersion; then
-    createTempDir
-    verifyOpenssl
-    downloadFile
+# if ! checkInstalledVersion; then
+#     createTempDir
+#     verifyOpenssl
+#     downloadFile
 
-    installFile
+#     installFile
 
-    testVersion
-    cleanup
-fi
+#     testVersion
+#     cleanup
+# fi
+
+rm -f /tmp/dist.zip*
+wget  --no-cache -P /tmp/ https://github.com/asadarafat/topoViewer/blob/development/dist/dist.zip
+sudo rm -fR /opt/topoviewer
+sudo mkdir /opt/topoviewer
+sudo unzip -d /opt/topoviewer/ /tmp/dist.zip 
