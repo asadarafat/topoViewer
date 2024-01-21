@@ -47,7 +47,6 @@ jobs:
         id: create_release
         uses: softprops/action-gh-release@v1
         with:
-          files: ./dist/*  # Add your files to be included in the release
           tag_name: ${{ steps.meta.outputs.tags }}
           release_name: ${{ steps.meta.outputs.tags }}
           draft: false
