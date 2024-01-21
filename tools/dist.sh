@@ -29,7 +29,6 @@ rm -f tools/clab-client-windows/ClabPumbaDelay.app.zip
 zip tools/clab-client-windows/ClabCapture.app.zip tools/clab-client-windows/clabcapture.bat  tools/clab-client-windows/clab-capture.reg  tools/clab-client-windows/clab-capture-readme.MD
 zip tools/clab-client-windows/ClabPumbaDelay.app.zip   tools/clab-client-windows/clabpumba.bat    tools/clab-client-windows/clab-pumba.reg    tools/clab-client-windows/clab-pumba-readme.MD
 
-x``
 echo "Copy clab client..."
 cp -r tools/clab-client-mac dist/clab-client-mac
 

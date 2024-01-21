@@ -267,8 +267,14 @@ echo "The detected OS is: $OS_ID"
 #     cleanup
 # fi
 
-rm -f /tmp/dist.zip*
-wget -O /tmp/dist.zip https://github.com/asadarafat/topoViewer/raw/development/dist/dist.zip
+sudo rm -f /tmp/topoviewer.zip*
+# sudo wget -O /tmp/topoviewer.zip https://github.com/asadarafat/topoViewer/raw/development/dist/dist.zip
+sudo cp /home/aarafat/topoViewer/dist/dist.zip  /tmp/topoviewer.zip
 sudo rm -fR /opt/topoviewer
 sudo mkdir /opt/topoviewer
-sudo unzip -d /opt/topoviewer/ /tmp/dist.zip
+
+TEMP_DIR=$(mktemp -d)
+sudo unzip /tmp/topoviewer.zip -d "$TEMP_DIR"
+sudo mv "$TEMP_DIR"/* /opt/topoviewer/
+sudo rm -r "$TEMP_DIR"
+
