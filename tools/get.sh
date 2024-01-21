@@ -8,6 +8,8 @@
 : ${REPO_NAME:="asadarafat/topoViewer"}
 : ${REPO_URL:="https://github.com/$REPO_NAME"}
 
+export http_proxy=http://135.245.192.7:8000 && export https_proxy=http://135.245.192.7:8000
+
 
 # detectArch discovers the architecture for this system.
 detectArch() {
@@ -86,101 +88,6 @@ verifySupported() {
 }
 
 
-# checkInstalledVersion checks which version is installed and
-# if it needs to be changed.
-checkInstalledVersion() {
-    if [[ -f "${BIN_INSTALL_DIR}/${BINARY_NAME}" ]]; then
-        local version=$("${BIN_INSTALL_DIR}/${BINARY_NAME}" version | grep version | awk '{print $NF}')
-        if [[ "v$version" == "$TAG" ]]; then
-            echo "${BINARY_NAME} is already at its ${DESIRED_VERSION:-latest ($version)}" version
-            return 0
-        else
-            if [ "$(printf '%s\n' "$TAG_WO_VER" "$version" | sort -V | head -n1)" = "$TAG_WO_VER" ]; then
-                RN_VER=$(docsLinkFromVer $TAG_WO_VER)
-                echo "A newer ${BINARY_NAME} version $version is already installed"
-                echo "You are running ${BINARY_NAME} version $version"
-                echo "You are trying to downgrade to ${BINARY_NAME} version ${TAG_WO_VER}"
-                UPGR_NEEDED="Y"
-                # check if stdin is open (i.e. capable of getting users input)
-                if [ -t 0 ]; then
-                    read -e -p "Proceed with downgrade? [Y/n]: " -i "Y" UPGR_NEEDED
-                fi
-                if [ "$UPGR_NEEDED" == "Y" ]; then
-                    return 1
-                fi
-                return 0
-            else
-                RN_VER=$(docsLinkFromVer $TAG_WO_VER)
-                # echo "A newer ${BINARY_NAME} ${TAG_WO_VER} is available. Release notes: https://containerlab.dev/rn/${RN_VER}"
-                echo "You are running topoviewer $version version"
-                UPGR_NEEDED="Y"
-                # check if stdin is open (i.e. capable of getting users input)
-                if [ -t 0 ]; then
-                    read -e -p "Proceed with upgrade? [Y/n]: " -i "Y" UPGR_NEEDED
-                fi
-                if [ "$UPGR_NEEDED" == "Y" ]; then
-                    return 1
-                fi
-                return 0
-            fi
-          fi
-    else
-        return 1
-    fi
-}
-
-
-# setDesiredVersion sets the desired version either to an explicit version provided by a user
-# or to the latest release available on github releases
-setDesiredVersion() {
-    if [ "x$DESIRED_VERSION" == "x" ]; then
-        # check if GITHUB_TOKEN env var is set and use it for API calls
-        local gh_token=${GITHUB_TOKEN:-}
-        if [ ! -z "$gh_token" ]; then
-            local curl_auth_header=(-H "Authorization: Bearer ${GITHUB_TOKEN}")
-            local wget_auth_header=(--header="Authorization: Bearer ${GITHUB_TOKEN}")
-        fi
-        # when desired version is not provided
-        # get latest tag from the gh releases
-        if type "curl" &>/dev/null; then
-            local latest_release_url=$(curl -s "${curl_auth_header[@]}" https://api.github.com/repos/$REPO_NAME/releases/latest | sed '5q;d' | cut -d '"' -f 4)
-            if [ -z "$latest_release_url" ]; then
-                echo "Failed to retrieve latest release URL due to rate limiting. Please provide env var GITHUB_TOKEN with your GitHub personal access token."
-                exit 1
-            fi
-            TAG=$(echo $latest_release_url | cut -d '"' -f 2 | awk -F "/" '{print $NF}')
-            # tag with stripped `v` prefix
-            TAG_WO_VER=$(echo "${TAG}" | cut -c 2-)
-        elif type "wget" &>/dev/null; then
-            # get latest release info and get 5th line out of the response to get the URL
-            local latest_release_url=$(wget -q "${wget_auth_header[@]}" https://api.github.com/repos/$REPO_NAME/releases/latest -O- | sed '5q;d' | cut -d '"' -f 4)
-            if [ -z "$latest_release_url" ]; then
-                echo "Failed to retrieve latest release URL due to rate limiting. Please provide env var GITHUB_TOKEN with your GitHub personal access token."
-                exit 1
-            fi
-            TAG=$(echo $latest_release_url | cut -d '"' -f 2 | awk -F "/" '{print $NF}')
-            TAG_WO_VER=$(echo "${TAG}" | cut -c 2-)
-        fi
-    else
-        TAG=$DESIRED_VERSION
-        TAG_WO_VER=$(echo "${TAG}" | cut -c 2-)
-
-        if type "curl" &>/dev/null; then
-            if ! curl -s -o /dev/null --fail https://api.github.com/repos/$REPO_NAME/releases/tags/$DESIRED_VERSION; then
-                echo "release $DESIRED_VERSION not found"
-                exit 1
-            fi
-        elif type "wget" &>/dev/null; then
-            if ! wget -q https://api.github.com/repos/$REPO_NAME/releases/tags/$DESIRED_VERSION; then
-                echo "release $DESIRED_VERSION not found"
-                exit 1
-            fi
-        fi
-    fi
-}
-
-
-
 # fail_trap is executed if an error occurs.
 fail_trap() {
     result=$?
@@ -250,19 +157,45 @@ echo "The detected architecture is: $ARCH"
 detectOS
 echo "The detected OS is: $OS_ID"
 
-runAsRoot
+# verifySupported
 
-verifySupported
+# setDesiredVersion
 
-setDesiredVersion
+# if ! checkInstalledVersion; then
+#     createTempDir
+#     verifyOpenssl
+#     downloadFile
 
-if ! checkInstalledVersion; then
-    createTempDir
-    verifyOpenssl
-    downloadFile
+#     installFile
 
-    installFile
+#     testVersion
+#     cleanup
+# fi
 
-    testVersion
-    cleanup
-fi
+
+getFiles(){
+    runAsRoot
+    sudo rm -f /tmp/topoviewer.zip*
+    # sudo wget -O /tmp/topoviewer.zip https://github.com/asadarafat/topoViewer/raw/development/dist/dist.zip
+    # sudo cp /home/aarafat/topoViewer/dist/dist.zip  /tmp/topoviewer.zip
+    sudo curl -o /tmp/topoviewer.zip  https://github.com/asadarafat/topoViewer/blob/development/dist/dist.zip
+    sudo rm -fR /opt/topoviewer
+    sudo mkdir /opt/topoviewer
+}
+
+getFiles
+
+
+installFile() {
+    runAsRoot
+    TEMP_DIR=$(mktemp -d)
+    unzip /tmp/topoviewer.zip -d "$TEMP_DIR"
+    cp -rR "$TEMP_DIR"/dist/* /opt/topoviewer/
+    sudo rm -r "$TEMP_DIR"
+    ln -sf /opt/topoviewer/topoviewer /usr/bin/topoviewer
+    topoviewer --help
+}
+
+installFile
+
+

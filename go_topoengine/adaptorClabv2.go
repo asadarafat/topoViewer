@@ -113,12 +113,13 @@ func (cyTopo *CytoTopology) ClabTopoRead(topoFile string) []byte {
 	// log.Info(topoFile)
 
 	filePath, _ := os.Getwd()
-	log.Info("topology file path: ", filePath)
-
 	filePath = path.Join(filePath, topoFile)
-	log.Info("topology file path: ", filePath)
+	log.Info("ClabTopoRead topology absolute file path: ", filePath)
 
-	topoFileBytes, err := os.ReadFile(filePath)
+	// topoFileBytes, err := os.ReadFile(filePath)
+
+	topoFileBytes, err := os.ReadFile(topoFile)
+
 	if err != nil {
 		log.Fatal("Error when opening file: ", err)
 	}
