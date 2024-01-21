@@ -42,12 +42,3 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-
-      - name: Create Release
-        id: create_release
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: ${{ steps.meta.outputs.tags }}
-          release_name: ${{ steps.meta.outputs.tags }}
-          draft: false
-          prerelease: false
