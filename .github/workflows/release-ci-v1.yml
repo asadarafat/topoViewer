@@ -1,7 +1,6 @@
-name: release-ci-v1.yml
+name: Release CI V1
 
-on:
-  workflow_dispatch:
+on: [workflow_dispatch]
 
 env:
   REGISTRY: ghcr.io
