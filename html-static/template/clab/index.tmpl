@@ -299,7 +299,7 @@
 
 {{rawJSComment "				// WebSocket for uptime"}}
 				const socketUptime = initializeWebSocket('/uptime', (msgUptime) => {
-					const string01 = 'Containerlab Topology: ' + 'nokia-MAGc-lab';
+					const string01 = 'Containerlab Topology: ' + {{.}};
 					const string02 = ' ::: Uptime: ' + msgUptime.data;
 
 					const ClabSubtitle = document.getElementById("ClabSubtitle");
@@ -1181,7 +1181,7 @@
 								hrefLink: `${shellUrl}?RouterID=${node.data('extraData').mgmtIpv4Addresss}?RouterName=${node.data('extraData').id}`
 							},
 							{
-								name: 'green',
+								name: 'blue',
 								iconClass: 'far fa-clone',
 								hoverMessage: 'Click to copy the SSH command to your clipboard.',
 								hrefFunction: 'copy',
@@ -1256,7 +1256,7 @@
 							hrefLink: 'clab-capture://' + edge.data("extraData").clabServerUsername + '@' + location.host + '?' + edge.data('extraData').clabSourceLongName + '?' + edge.data('sourceEndpoint')
 						},
 						{
-							name: 'green',
+							name: 'blue',
 							iconClass: 'far fa-clone',
 							hoverMessage: 'Click to copy the SSH command to your clipboard.',
 							hrefFunction: 'copy',
@@ -1279,7 +1279,7 @@
 							hrefLink: 'clab-capture://' + edge.data("extraData").clabServerUsername + '@' + location.host + '?' + edge.data('extraData').clabSourceLongName + '?' + edge.data('targetEndpoint')
 						},
 						{
-							name: 'green',
+							name: 'blue',
 							iconClass: 'far fa-clone',
 							hoverMessage: 'Click to copy the SSH command to your clipboard',
 							hrefFunction: 'copy',
@@ -1315,17 +1315,17 @@
 							{
 								name: 'blue',
 								iconClass: 'fas fa-play',
-								hoverMessage: 'Start link impairment',
+								hoverMessage: 'Click to copy the SSH command that START the link impairment.',
 								hrefFunction: 'linkImpairment',
-								hrefLink: `clab tools netem set -n ${edge.data('extraData').clabSourceLongName} -i ${edge.data("sourceEndpoint")}`,
+								hrefLink: `ssh ${edge.data("extraData").clabServerUsername}@${location.hostname} sudo /usr/bin/containerlab tools netem set -n ${edge.data('extraData').clabSourceLongName} -i ${edge.data("sourceEndpoint")}`,
 								hrefFunctionArg: 'start'
 							},
 							{
 								name: 'blue',
 								iconClass: 'fas fa-stop',
-								hoverMessage: 'Stop link impairment',
+								hoverMessage: 'Click to copy the SSH command that STOP the link impairment.',
 								hrefFunction: 'linkImpairment',
-								hrefLink: `clab tools netem set -n ${edge.data('extraData').clabSourceLongName} -i ${edge.data("sourceEndpoint")}`,
+								hrefLink: `ssh ${edge.data("extraData").clabServerUsername}@${location.hostname} sudo /usr/bin/containerlab tools netem set -n ${edge.data('extraData').clabSourceLongName} -i ${edge.data("sourceEndpoint")}`,
 								hrefFunctionArg: 'stop'
 							}]
 						},
@@ -1340,17 +1340,17 @@
 							{
 								name: 'blue',
 								iconClass: 'fas fa-play',
-								hoverMessage: 'Start link impairment',
+								hoverMessage: 'Click to copy the SSH command that START the link impairment.',
 								hrefFunction: 'linkImpairment',
-								hrefLink: `clab tools netem set -n ${edge.data('extraData').clabTargetLongName} -i ${edge.data("targetEndpoint")}`,
+								hrefLink: `ssh ${edge.data("extraData").clabServerUsername}@${location.hostname} /usr/bin/containerlab tools netem set -n ${edge.data('extraData').clabTargetLongName} -i ${edge.data("targetEndpoint")}`,
 								hrefFunctionArg: 'start'
 							},
 							{
 								name: 'blue',
 								iconClass: 'fas fa-stop',
-								hoverMessage: 'Stop link impairment',
+								hoverMessage: 'Click to copy the SSH command that STOP the link impairment.',
 								hrefFunction: 'linkImpairment',
-								hrefLink: `clab tools netem set -n ${edge.data('extraData').clabTargetLongName} -i ${edge.data("targetEndpoint")}`,
+								hrefLink: `ssh ${edge.data("extraData").clabServerUsername}@${location.hostname} /usr/bin/containerlab tools netem set -n ${edge.data('extraData').clabTargetLongName} -i ${edge.data("targetEndpoint")}`,
 								hrefFunctionArg: 'stop'
 							}]
 						},
@@ -2477,8 +2477,8 @@
 					</p>
 
 					<p>
-						Designed and developed by <strong>asad.arafat@nokia.com</strong> <br>
-						GUI Framework by <strong>siva.sivakumar@nokia.com</strong> <br>
+						Designed and developed by <strong><a href="https://www.linkedin.com/in/asadarafat/">Asad Arafat</a></strong> <br>
+						GUI Framework by <strong><a href="https://www.linkedin.com/in/siva19susi//">Siva Sivakumar</a></strong> <br>
 					</p>
 
 					<p>Key Features: </p>
@@ -2566,8 +2566,8 @@
 					<h6>Version: ${topoViewerVersion}</h6>
 					
 					<p>
-					Designed and developed by <strong>asad.arafat@nokia.com</strong> <br>
-					GUI Framework by <strong>siva.sivakumar@nokia.com</strong> <br>
+					Designed and developed by <strong><a href="https://www.linkedin.com/in/asadarafat/">Asad Arafat</a></strong> <br>
+					GUI Framework by <strong><a href="https://www.linkedin.com/in/siva19susi//">Siva Sivakumar</a></strong> <br>
 					</p>
 
 					<p>Instruction: </p>
@@ -2894,29 +2894,39 @@
 				lossValue = document.getElementById('panelBlock-tabContainer-LinkProperties-divPanelBlock-columnContainerlabelLoss-panelContentlabelLoss-columnsPanelContentlabelLoss-labelColumnlabelLoss-inputColumnlabelLoss-labellabelLoss').value
 				console.log(delayValue)
 
+				fullCommand = baseCommand
+
 				if (toggle == 'start') {
 					fullCommand = baseCommand + ` --delay ${delayValue}ms --jitter ${jitterValue}ms --rate ${rateValue} --loss ${lossValue}`
-					console.log(fullCommand)
-					callGoFunction(fullCommand, 'emptyPadding')
-{{rawJSComment "					// Provide user feedback (e.g., alert or toast) that the URL has been copied"}}
-					bulmaToast.toast({
-						message: `Link Impairment Initiated. Let's rock this! 😎💥`,
-						type: 'is-warning is-size-6 p-3',
-						duration: 4000,
-						position: "top-center",
-						closeOnClick: true,
-					})
-				} else if (toggle == 'stop') {
-					console.log(baseCommand)
-					callGoFunction(baseCommand, 'emptyPadding')
-					bulmaToast.toast({
-						message: `Link Impairment Successfully Stopped. Mission Accomplished! 😎🚀`,
-						type: 'is-warning is-size-6 p-3',
-						duration: 4000,
-						position: "top-center",
-						closeOnClick: true,
-					})
+					alert_msg = `SSH command to start link impairment is lit 🔥 and copied to your clipboard, ready to drop it in your terminal console like a boss! 🚀💻`
+				} else {
+					fullCommand = baseCommand
+					alert_msg = `SSH command to stop link impairment is lit 🔥 and copied to your clipboard, ready to drop it in your terminal console like a boss! 🚀💻`
 				}
+
+				console.log(fullCommand)
+
+				urlToCopy = fullCommand;
+				event.preventDefault();
+
+{{rawJSComment " // Create a temporary input element to copy the URL to the clipboard"}}
+				const tempInput = document.createElement('input');
+				tempInput.value = urlToCopy;
+				document.body.appendChild(tempInput);
+				tempInput.select();
+				document.execCommand('copy');
+				document.body.removeChild(tempInput);
+
+
+{{rawJSComment " // Provide user feedback (e.g., alert or toast) that the URL has been copied"}}
+				bulmaToast.toast({
+					message: alert_msg,
+					type: 'is-warning is-size-6 p-3',
+					duration: 4000,
+					position: "top-center",
+					closeOnClick: true,
+				})
+				appendMessage(alert_msg)
 			}
 
 {{rawJSComment "			// Call Go BackEnd function"}}

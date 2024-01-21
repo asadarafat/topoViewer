@@ -253,13 +253,13 @@ func Clab(_ *cobra.Command, _ []string) error {
 
 	// readiness probe endpoint
 	router.HandleFunc(pathReadiness, func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
+		// w.WriteHeader(http.StatusOK)
 		w.Write([]byte("ok"))
 	})
 
 	// liveness probe endpoint
 	router.HandleFunc(pathLiveness, func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
+		// w.WriteHeader(http.StatusOK)
 		w.Write([]byte("ok"))
 	})
 
@@ -268,7 +268,7 @@ func Clab(_ *cobra.Command, _ []string) error {
 
 	// version endpoint
 	router.HandleFunc("/version", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
+		// w.WriteHeader(http.StatusOK)
 		w.Write([]byte(VersionInfo))
 		log.Info("##################### " + VersionInfo)
 
@@ -278,7 +278,7 @@ func Clab(_ *cobra.Command, _ []string) error {
 	router.HandleFunc("/cloudshell}",
 		func(w http.ResponseWriter, r *http.Request) {
 			log.Info(xtermjsHandlerOptions)
-			w.WriteHeader(http.StatusOK)
+			// w.WriteHeader(http.StatusOK)
 			w.Write([]byte(VersionInfo))
 
 			params := mux.Vars(r)
@@ -290,7 +290,7 @@ func Clab(_ *cobra.Command, _ []string) error {
 	router.HandleFunc("/cloudshell-tools}",
 		func(w http.ResponseWriter, r *http.Request) {
 			log.Info(xtermjsHandlerOptions)
-			w.WriteHeader(http.StatusOK)
+			// w.WriteHeader(http.StatusOK)
 			w.Write([]byte(VersionInfo))
 
 			log.Info("##################### cloudshell-tools")
@@ -307,7 +307,7 @@ func Clab(_ *cobra.Command, _ []string) error {
 				log.Info(err)
 			}
 			log.Info("################## Websocket: Client Connected ws")
-			w.WriteHeader(http.StatusOK)
+			// w.WriteHeader(http.StatusOK)
 
 			var message []byte
 
@@ -344,7 +344,7 @@ func Clab(_ *cobra.Command, _ []string) error {
 				log.Info(err)
 			}
 			log.Infof("################## Websocket: Client Connected Uptime")
-			w.WriteHeader(http.StatusOK)
+			// w.WriteHeader(http.StatusOK)
 
 			// simulating uptime..
 			// Add the new connection to the active connections list
@@ -381,7 +381,8 @@ func Clab(_ *cobra.Command, _ []string) error {
 				log.Info(err)
 			}
 			log.Debug("################## Websocket: Docker Node Status")
-			w.WriteHeader(http.StatusOK)
+			// w.WriteHeader(http.StatusOK)
+			// The error message "http: response.WriteHeader on hijacked connection" in Go indicates that you are trying to write a HTTP header to a connection that has been hijacked. In the context of Go's net/http package, hijacking a connection typically means that the underlying network connection has been taken over by some other process or handler, often for purposes like upgrading to a WebSocket connection.
 
 			clabUser := confClab.GetString("clab-user")
 			log.Debug("################## clabUser: " + clabUser)
@@ -432,7 +433,7 @@ func Clab(_ *cobra.Command, _ []string) error {
 			clabHost := confClab.GetStringSlice("allowed-hostnames")
 			log.Debug("################## clabHost: " + clabHost[0])
 
-			w.WriteHeader(http.StatusOK)
+			// w.WriteHeader(http.StatusOK)
 
 			// Add the new connection to the active connections list
 			clabServerAddress.WriteMessage(1, []byte(clabHost[0]))

@@ -6,6 +6,8 @@ read -p "Enter the version Tag: " tag
 # Display the entered parameters
 echo "Hello, the version Tag tobe used is $tag"
 
+sudo chown -R $(whoami):$(whoami) *
+
 cp go_cloudshellwrapper/constants.go go_cloudshellwrapper/constants.go.bak
 sed -i "s/\(var VersionInfo string = \)\"[^\"]*\"/\1\"$tag\"/" go_cloudshellwrapper/constants.go
 
@@ -32,8 +34,10 @@ echo "Copy clab client..."
 cp -r tools/clab-client-mac dist/clab-client-mac
 
 mkdir dist/clab-client-windows
+chmod 775 tools/clab-client-windows/*
 cp tools/clab-client-windows/ClabCapture.app.zip dist/clab-client-windows/ClabCapture.app.zip
 cp tools/clab-client-windows/ClabPumbaDelay.app.zip dist/clab-client-windows/ClabPumbaDelay.app.zip
+chmod 775 dist/clab-client-windows/*
 
 
 rm -rR html-static/clab-client
