@@ -1,4 +1,4 @@
-name: Docker Image CI V4 Publish Folder as Release and Docker Image
+name: Docker Image CI V4
 
 on: [workflow_dispatch]
 
