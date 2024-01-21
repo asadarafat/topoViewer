@@ -1,0 +1,62 @@
+name: Docker Image CI V4 Publish Folder as Release and Docker Image
+
+on: [workflow_dispatch]
+
+env:
+  FOLDER_TO_PUBLISH: dist
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  DOCKER_CONTEXT: ${{ github.workspace }}
+
+jobs:
+  publish-folder-and-docker-image:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Create ZIP archive
+        run: |
+          mkdir -p release
+          zip -r release/folder.zip ${{ env.FOLDER_TO_PUBLISH }}
+        working-directory: ${{ github.workspace }}
+
+      - name: Get current tag
+        id: get_tag
+        run: echo ::set-output name=TAG::$(basename $GITHUB_REF)
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        with:
+          files: release/folder.zip
+          tag_name: ${{ steps.get_tag.outputs.TAG }}  # Use the current tag as the tag name
+          release_name: ${{ steps.get_tag.outputs.TAG }}  # Use the current tag as the release name
+          draft: false
+          prerelease: false
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=ref,event=tag
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: ${{ env.DOCKER_CONTEXT }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
