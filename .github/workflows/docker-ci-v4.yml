@@ -47,7 +47,7 @@ jobs:
         id: create_release
         uses: softprops/action-gh-release@v1
         with:
-          files: ./dist  # Add your files to be included in the release
+          files: ./dist/*  # Add your files to be included in the release
           tag_name: "Docker Image CI V3"
           release_name: "Docker Image CI V3"
           draft: false
