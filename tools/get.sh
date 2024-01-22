@@ -8,7 +8,7 @@
 : ${REPO_NAME:="asadarafat/topoViewer"}
 : ${REPO_URL:="https://github.com/$REPO_NAME"}
 
-export http_proxy=http://135.245.192.7:8000 && export https_proxy=http://135.245.192.7:8000
+# export http_proxy=http://135.245.192.7:8000 && export https_proxy=http://135.245.192.7:8000
 
 
 # detectArch discovers the architecture for this system.
@@ -176,9 +176,9 @@ echo "The detected OS is: $OS_ID"
 getFiles(){
     runAsRoot
     sudo rm -f /tmp/topoviewer.zip*
-    # sudo wget -O /tmp/topoviewer.zip https://github.com/asadarafat/topoViewer/raw/development/dist/dist.zip
+    sudo wget -O /tmp/topoviewer.zip https://github.com/asadarafat/topoViewer/raw/development/dist/dist.zip
     # sudo cp /home/aarafat/topoViewer/dist/dist.zip  /tmp/topoviewer.zip
-    sudo curl -o /tmp/topoviewer.zip  https://github.com/asadarafat/topoViewer/blob/development/dist/dist.zip
+    # sudo curl -o /tmp/topoviewer.zip  https://github.com/asadarafat/topoViewer/blob/development/dist/dist.zip
     sudo rm -fR /opt/topoviewer
     sudo mkdir /opt/topoviewer
 }
