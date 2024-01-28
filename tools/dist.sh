@@ -32,6 +32,10 @@ zip tools/clab-client-windows/ClabPumbaDelay.app.zip   tools/clab-client-windows
 echo "Copy clab client..."
 cp -r tools/clab-client-mac dist/clab-client-mac
 
+
+echo "Clab export template..."
+cp rawTopoFile/clab-topo-export-template-example/clab-topo-new-version-cytoscape.tmpl dist/clab-topoviewer.tmpl
+
 mkdir dist/clab-client-windows
 chmod 775 tools/clab-client-windows/*
 cp tools/clab-client-windows/ClabCapture.app.zip dist/clab-client-windows/ClabCapture.app.zip

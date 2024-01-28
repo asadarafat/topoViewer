@@ -2,11 +2,11 @@
 ```Shell
 vscode ➜ /workspaces/topoViewer (development) $ pwd
 /workspaces/topoViewer
-vscode ➜ /workspaces/topoViewer (development) $ go run cloudshellwrapper/cmd/main.go --help
-vscode ➜ /workspaces/topoViewer (development) $ go run cloudshellwrapper/cmd/main.go clab -H 138.203.40.63 -t rawTopoFile/clab-topo-file.yaml ## obsolete
-vscode ➜ /workspaces/topoViewer (development) $ go run cloudshellwrapper/cmd/main.go clab -j rawTopoFile/clab-Vodafone-CO-HCO/topology-data.json   -H 138.203.
+vscode ➜ /workspaces/topoViewer (development) $ go run go_cloudshellwrapper/cmd/main.go --help
+vscode ➜ /workspaces/topoViewer (development) $ go run go_cloudshellwrapper/cmd/main.go clab -H 138.203.40.63 -t rawTopoFile/clab-topo-file.yaml ## obsolete
+vscode ➜ /workspaces/topoViewer (development) $ go run go_cloudshellwrapper/cmd/main.go clab -j rawTopoFile/clab-Vodafone-CO-HCO/topology-data.json   -H 138.203.
 40.63 -u suuser ## obsolete
-vscode ➜ /workspaces/topoViewer (development) $ go run cloudshellwrapper/cmd/main.go clab -j rawTopoFile/clab/bng-cups/clab-cups/topology-data.json   -H 138.2
+vscode ➜ /workspaces/topoViewer (development) $ go run go_cloudshellwrapper/cmd/main.go clab -j rawTopoFile/clab/bng-cups/clab-cups/topology-data.json   -H 138.2
 03.40.63 -u root
 
 138.203.26.59
@@ -16,7 +16,7 @@ vscode ➜ /workspaces/topoViewer (development) $ go run cloudshellwrapper/cmd/m
 
 
 ```Shell
-vscode ➜ /workspaces/topoViewer (development ✗) $ go run cloudshellwrapper/cmd/main.go nsp  -H 138.203.40.63 --topology-ietf-l2-topo  rawTopoFile/topo-ietf-L2
+vscode ➜ /workspaces/topoViewer (development ✗) $≈nsp  -H 138.203.40.63 --topology-ietf-l2-topo  rawTopoFile/topo-ietf-L2
 .json --topology-ietf-l3-topo rawTopoFile/topo-ietf-L3-TopologyId-1\:65000\:1-isis.json --multi-layer enabled
 ```
 

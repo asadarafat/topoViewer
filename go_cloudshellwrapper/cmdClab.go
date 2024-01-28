@@ -184,7 +184,7 @@ func Clab(_ *cobra.Command, _ []string) error {
 	toolLogger.InitLogger("logs/topoengine-CytoTopology.log", cyTopo.LogLevel)
 
 	topoClab := confClab.GetString("topology-file-json")
-	log.Info("topoFilePath: ", topoClab)
+	log.Infof("topoFilePath: %s", topoClab)
 
 	//// Clab Version 2
 	//log.Debug("topo Clab: ", topoClab)
@@ -278,7 +278,7 @@ func Clab(_ *cobra.Command, _ []string) error {
 	router.HandleFunc("/version", func(w http.ResponseWriter, r *http.Request) {
 		// w.WriteHeader(http.StatusOK)
 		w.Write([]byte(VersionInfo))
-		log.Info("##################### " + VersionInfo)
+		log.Infof("VersionInfo: %s", VersionInfo)
 
 	})
 
@@ -291,17 +291,16 @@ func Clab(_ *cobra.Command, _ []string) error {
 
 			params := mux.Vars(r)
 			RouterId := params["id"]
-			log.Info("##################### " + RouterId)
+			log.Infof("RouterId: %s ", RouterId)
 		})
 
 	// cloudshell-tools endpoint
 	router.HandleFunc("/cloudshell-tools}",
 		func(w http.ResponseWriter, r *http.Request) {
-			log.Info(xtermjsHandlerOptions)
+			log.Infof("cloudshell-tools endpoint called, xtermjsHandlerOptions is : %v", xtermjsHandlerOptions)
 			// w.WriteHeader(http.StatusOK)
 			w.Write([]byte(VersionInfo))
 
-			log.Info("##################### cloudshell-tools")
 		})
 
 	// // websocket endpoint
@@ -314,7 +313,7 @@ func Clab(_ *cobra.Command, _ []string) error {
 			if err != nil {
 				log.Info(err)
 			}
-			log.Info("################## Websocket: Client Connected ws")
+			log.Infof("websocket endpoint called")
 			// w.WriteHeader(http.StatusOK)
 
 			var message []byte
@@ -331,7 +330,8 @@ func Clab(_ *cobra.Command, _ []string) error {
 					log.Info(err)
 				}
 				time.Sleep(2 * time.Second)
-				log.Info(message)
+				log.Infof("sending topoViewer object telemetry via websocket, object telemetry is: %v", message)
+
 			}
 
 			// listen indefinitely for new messages coming
@@ -351,7 +351,7 @@ func Clab(_ *cobra.Command, _ []string) error {
 			if err != nil {
 				log.Info(err)
 			}
-			log.Infof("################## Websocket: Client Connected Uptime")
+			log.Infof("uptime endpoint called")
 			// w.WriteHeader(http.StatusOK)
 
 			// simulating uptime..
@@ -361,7 +361,7 @@ func Clab(_ *cobra.Command, _ []string) error {
 			connectionsMu.Unlock()
 
 			for {
-				log.Debug("uptime %s\n", time.Since(StartTime))
+				log.Debugf("uptime %s\n", time.Since(StartTime))
 				message = time.Since(StartTime)
 				uptimeString := strings.Split(strings.Split(message.String(), "s")[0], ".")[0] + "s"
 				err = uptime.WriteMessage(1, []byte(uptimeString))
@@ -388,18 +388,17 @@ func Clab(_ *cobra.Command, _ []string) error {
 			if err != nil {
 				log.Info(err)
 			}
-			log.Debug("################## Websocket: Docker Node Status")
+			log.Infof("containerNodeStatus endpoint called")
+
 			// w.WriteHeader(http.StatusOK)
 			// The error message "http: response.WriteHeader on hijacked connection" in Go indicates that you are trying to write a HTTP header to a connection that has been hijacked. In the context of Go's net/http package, hijacking a connection typically means that the underlying network connection has been taken over by some other process or handler, often for purposes like upgrading to a WebSocket connection.
 
 			clabUser := confClab.GetString("clab-user")
-			log.Debug("################## clabUser: " + clabUser)
-
+			log.Infof("clabUser: '%s'", clabUser)
 			clabHost := confClab.GetStringSlice("allowed-hostnames")
-			log.Debug("################## clabHost: " + clabHost[0])
-
+			log.Infof("clabHost: '%s'", clabHost[0])
 			clabPass := confClab.GetString("clab-pass")
-			log.Debug("################## clabHost: " + clabPass)
+			log.Infof("clabPass: '%s'", clabPass)
 
 			// simulating containerNodeStatus..
 			// Add the new connection to the active connections list
@@ -411,7 +410,7 @@ func Clab(_ *cobra.Command, _ []string) error {
 				// log.Infof("node name:'%s'... ", cyTopo.ClabTopoDataV2.Nodes[0].Longname)
 
 				for _, n := range cyTopo.ClabTopoDataV2.Nodes {
-					// log.Info("n.Longname", n.Longname)
+					// log.Infof("n.Longname", n.Longname)
 
 					// get docker status via ssh "docker ps --all"
 					// x, err := cyTopo.GetDockerNodeStatus(n.Longname, clabUser, clabHost[0], clabPass)
@@ -439,7 +438,7 @@ func Clab(_ *cobra.Command, _ []string) error {
 				log.Info(err)
 			}
 			clabHost := confClab.GetStringSlice("allowed-hostnames")
-			log.Debug("################## clabHost: " + clabHost[0])
+			log.Infof("clabServerAddress endpoint called, clabHost is %s", clabHost[0])
 
 			// w.WriteHeader(http.StatusOK)
 
@@ -463,15 +462,17 @@ func Clab(_ *cobra.Command, _ []string) error {
 			command := requestData["param1"].(string)
 			emptyPadding := requestData["param2"].(string)
 
-			log.Info("clabNetem-Param1: ", command)
-			log.Info("clabNetem-Param2: ", emptyPadding)
+			log.Infof("clabNetem endpoint called")
+
+			log.Infof("clabNetem-Param1: %s", command)
+			log.Infof("clabNetem-Param2: %s", emptyPadding)
 
 			clabUser := confClab.GetString("clab-user")
-			log.Debug("################## clabUser: " + clabUser)
+			log.Infof("clabUser: '%s'", clabUser)
 			clabHost := confClab.GetStringSlice("allowed-hostnames")
-			log.Debug("################## clabHost: " + clabHost[0])
+			log.Infof("clabHost: '%s'", clabHost[0])
 			clabPass := confClab.GetString("clab-pass")
-			log.Debug("################## clabHost: " + clabPass)
+			log.Infof("clabPass: '%s'", clabPass)
 
 			// call function to run SSH commnd
 			cyTopo.RunSSHCommand(clabUser, clabHost[0], clabPass, command)
