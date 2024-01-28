@@ -19,12 +19,18 @@ jobs:
 
       - name: Create Release
         id: create_release
-        uses: actions/create-release@v1
+        uses: 
+          actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
         with:
+<<<<<<< HEAD:.github/workflows/docker-ci-v4.yml
           tag_name: "test"
           release_name: "test"
+=======
+          tag_name:  test
+          release_name: Release test
+>>>>>>> d14e5c344ebf83e4b4ac85b517d7e5ae5238600f:.github/workflows/main.yml
           body: |
             Changes in this Release
             - First Change
