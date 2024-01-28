@@ -3,6 +3,7 @@ package tools
 import (
 	"fmt"
 	"io"
+	"os"
 
 	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
@@ -110,14 +111,14 @@ var Tracef,
 
 func (tool *Logs) InitLogger(filePath string, level uint32) {
 	// os.Stdout sending log to standard IO a.k.a session console
-	//mw := io.MultiWriter(os.Stdout, &lumberjack.Logger{
-	mw := io.MultiWriter(&lumberjack.Logger{
-		Filename:   filePath,
-		MaxSize:    10, // megabytes
-		MaxBackups: 3,
-		MaxAge:     28,   //days
-		Compress:   true, // disabled by default
-	})
+	mw := io.MultiWriter(os.Stdout, &lumberjack.Logger{})
+	// mw := io.MultiWriter(&lumberjack.Logger{
+	// 	Filename: filePath,
+	// 	// MaxSize:    100, // megabytes
+	// 	MaxBackups: 5,
+	// 	MaxAge:     28,   //days
+	// 	Compress:   true, // disabled by default
+	// })
 	log.SetLevel(log.Level(level))
 	log.SetOutput(mw)
 

@@ -106,7 +106,7 @@ type DockerNodeStatus struct {
 func (cyTopo *CytoTopology) InitLoggerClabV2() {
 	// init logConfig
 	toolLogger := tools.Logs{}
-	toolLogger.InitLogger("logs/topoengine-CytoTopology.log", cyTopo.LogLevel)
+	toolLogger.InitLogger("logs/topoengine-CytoTopology-adaptorClabV2.log", cyTopo.LogLevel)
 }
 
 func (cyTopo *CytoTopology) ClabTopoRead(topoFile string) []byte {
@@ -114,7 +114,7 @@ func (cyTopo *CytoTopology) ClabTopoRead(topoFile string) []byte {
 
 	filePath, _ := os.Getwd()
 	filePath = path.Join(filePath, topoFile)
-	log.Info("ClabTopoRead topology absolute file path: ", filePath)
+	log.Infof("ClabTopoRead topology absolute file path: '%s'", filePath)
 
 	// topoFileBytes, err := os.ReadFile(filePath)
 
@@ -323,11 +323,11 @@ func (cyTopo *CytoTopology) RunSSHCommand(clabUser string, clabHost string, clab
 		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 	}
 
-	log.Debug(command)
+	log.Infof("RunSSHCommand Function: '%s'", command)
 
 	client, err := ssh.Dial("tcp", clabHost+":22", config)
 	if err != nil {
-		log.Errorf("failed to dial SSH: %s", err)
+		log.Errorf("failed to dial SSH: '%s'", err)
 		return nil, err
 	}
 	defer client.Close()
@@ -459,8 +459,8 @@ func (cyTopo *CytoTopology) GetDockerNodeStatusViaUnixSocket(clabNodeName string
 	var dockerNodeStatus DockerNodeStatus
 
 	for _, container := range containers {
-		log.Infof("Container Names: %v\n", container.Names)
-		log.Infof("Container State: %s\n", container.State)
+		log.Debugf("Container Names: %v\n", container.Names)
+		log.Debugf("Container State: %s\n", container.State)
 
 		if container.Names[0] == "/"+clabNodeName {
 
