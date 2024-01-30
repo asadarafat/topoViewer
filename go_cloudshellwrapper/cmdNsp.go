@@ -18,7 +18,7 @@ import (
 	xtermjs "github.com/asadarafat/topoViewer/go_xtermjs"
 	"github.com/usvc/go-config"
 
-	log "github.com/asadarafat/topoViewer/go_tools"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/gorilla/mux"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -505,7 +505,7 @@ func Nsp(_ *cobra.Command, _ []string) error {
 		sourceImageFolder := htmlStaticPrefixPath + "images"
 		destinationImageFolder := htmlPublicPrefixPath + "IetfTopology-L2" + "/images"
 		err := cp.Copy(sourceImageFolder, destinationImageFolder)
-		log.Debugf("Copying images folder error: ", err)
+		log.Debugf("Copying images folder error: %s", err)
 
 		// topoPrefixName := "NspIetfTopoLayer2" // should be added with NSP server ip address
 

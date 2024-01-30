@@ -19,7 +19,7 @@ import (
 func FileExists(filename string) bool {
 	f, err := os.Stat(filename)
 	if err != nil {
-		log.Debug("error while trying to access file %v: %v", filename, err)
+		log.Debugf("error while trying to access file %v: %v", filename, err)
 		return false
 	}
 
@@ -67,14 +67,14 @@ func createMemoryLog() tools.Logger {
 
 func addIncomingRequestLogging(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		then := time.Now()
+		startTime := time.Now()
 		defer func() {
 			if recovered := recover(); recovered != nil {
 				createRequestLog(r).Info("request errored out")
 			}
 		}()
 		next.ServeHTTP(w, r)
-		duration := time.Now().Sub(then)
+		duration := time.Since(startTime)
 		createRequestLog(r).Infof("request completed in %vms", float64(duration.Nanoseconds())/1000000)
 	})
 }
