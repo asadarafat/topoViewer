@@ -11,6 +11,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"syscall"
 	"time"
 
 	topoengine "github.com/asadarafat/topoViewer/go_topoengine"
@@ -169,7 +170,23 @@ func reader(conn *websocket.Conn) {
 	}
 }
 
+func checkSudoAccess() {
+	euid := syscall.Geteuid()
+
+	if euid == 0 {
+		log.Infof("Yo, this app is running with sudo access (as root).")
+	} else {
+		log.Infof("This app ain't got no sudo powers, bro.")
+		os.Exit(1)
+
+	}
+}
+
 func Clab(_ *cobra.Command, _ []string) error {
+
+	//check sudo
+	checkSudoAccess()
+
 	// initialise the cloudshellLogger
 	// tools.InitCloudShellLog(tools.Format(confClab.GetString("log-format")), tools.Level(confClab.GetString("log-level")))
 
