@@ -273,9 +273,11 @@ func (cyTopo *CytoTopology) UnmarshalContainerLabTopoV2(topoFile []byte, clabHos
 		cytoJson.Data.TargetEndpoint = link.Z.Interface
 
 		cytoJson.Data.ExtraData = map[string]interface{}{
-			"clabServerUsername": Username, // needed for wireshark capture
-			"clabSourceLongName": link.A.NodeLongName,
-			"clabTargetLongName": link.Z.NodeLongName,
+			"clabServerUsername":   Username, // needed for wireshark capture
+			"clabSourceLongName":   link.A.NodeLongName,
+			"clabTargetLongName":   link.Z.NodeLongName,
+			"clabSourceMacAddress": link.A.Mac,
+			"clabTargetMacAddress": link.Z.Mac,
 		}
 		cytoJsonList = append(cytoJsonList, cytoJson)
 	}

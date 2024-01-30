@@ -303,7 +303,7 @@
 
 {{rawJSComment "				// WebSocket for uptime"}}
 				const socketUptime = initializeWebSocket('/uptime', (msgUptime) => {
-					const string01 = 'Containerlab Topology: ' + "{{.}}";
+					const string01 = 'Containerlab Topology: ' + "{{.}}b";
 					const string02 = ' ::: Uptime: ' + msgUptime.data;
 
 					const ClabSubtitle = document.getElementById("ClabSubtitle");
@@ -1407,7 +1407,7 @@
 
 					const Panel03ColumnsConfig = [
 						{ idSuffix: 'Target', columnLabelTextContent: 'Endpoint', columnLabelClass: 'column is-4 p-1', columnInputType: 'label', columnInputContent: edge.data('target') + "::" + edge.data('targetEndpoint') },
-						{ idSuffix: 'TargetMac', columnLabelTextContent: 'MAC address', columnLabelClass: 'column is-4 p-1', columnInputType: 'label', columnInputContent: edge.data('extraData').clabTargetMacAddress},
+						{ idSuffix: 'TargetMac', columnLabelTextContent: 'MAC address', columnLabelClass: 'column is-4 p-1', columnInputType: 'label', columnInputContent: '' },
 						{
 							idSuffix: 'labelTargetImpairment',
 							columnLabelTextContent: 'Impairment',
