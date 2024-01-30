@@ -42,8 +42,12 @@
 			top: 75px; 
 			right: 10px; 
 			width: 340px;
-			max-height: 600px;
+			max-height: 700px;
+			
 			overflow-y: auto; 
+			overflow-x: hidden; 
+
+
 			position: fixed;
 		}
 		#Panel-02 {
@@ -299,7 +303,7 @@
 
 {{rawJSComment "				// WebSocket for uptime"}}
 				const socketUptime = initializeWebSocket('/uptime', (msgUptime) => {
-					const string01 = 'Containerlab Topology: ' + 'nokia-MAGc-lab';
+					const string01 = 'Containerlab Topology: ' + "{{.}}";
 					const string02 = ' ::: Uptime: ' + msgUptime.data;
 
 					const ClabSubtitle = document.getElementById("ClabSubtitle");
@@ -357,9 +361,8 @@
 						});
 				}
 
-{{rawJSComment "				// Fetch and load element data from a JSON file"}}
-{{rawJSComment "              //				fetch('dataCytoMarshall-3tierSmall.json') "}}
- 			fetch('dataCytoMarshall-3tierSmall.json')
+{{rawJSComment "	// Fetch and load element data from a JSON file"}}
+ 					fetch('dataCytoMarshall-{{.}}.json')
 
 					.then(response => response.json())
 					.then(elements => {
@@ -1182,7 +1185,7 @@
 								hrefLink: `${shellUrl}?RouterID=${node.data('extraData').mgmtIpv4Addresss}?RouterName=${node.data('extraData').id}`
 							},
 							{
-								name: 'green',
+								name: 'blue',
 								iconClass: 'far fa-clone',
 								hoverMessage: 'Click to copy the SSH command to your clipboard.',
 								hrefFunction: 'copy',
@@ -1224,10 +1227,6 @@
 
 					const Panel01ColumnsConfig = [
 						{ idSuffix: 'LinkName', columnLabelTextContent: 'Link Name', columnLabelClass: 'column is-4 p-1', columnInputType: 'label', columnInputContent: edge.data('source') + "---" + edge.data('target') },
-						{ idSuffix: 'Source', columnLabelTextContent: 'Source', columnLabelClass: 'column is-4 p-1', columnInputType: 'label', columnInputContent: edge.data('source') + "::" + edge.data('sourceEndpoint') },
-						{ idSuffix: 'Target', columnLabelTextContent: 'Target', columnLabelClass: 'column is-4 p-1', columnInputType: 'label', columnInputContent: edge.data('target') + "::" + edge.data('targetEndpoint') },
-						{ idSuffix: 'SourceMac', columnLabelTextContent: 'Source MAC', columnLabelClass: 'column is-4 p-1', columnInputType: 'label', columnInputContent: '' },
-						{ idSuffix: 'TargetMac', columnLabelTextContent: 'Target Mac', columnLabelClass: 'column is-4 p-1', columnInputType: 'label', columnInputContent: '' },
 					];
 
 					createPanelBlockForm(Panel01ColumnsConfig, panelBlock01, divPanelBlock01)
@@ -1242,51 +1241,157 @@
 					divPanelBlock02 = panelBlockContainer.divPanelBlock
 
 					const Panel02ColumnsConfig = [
-					{
-						idSuffix: 'labelCaptureSourceEndpoint',
-						columnLabelTextContent: 'Capture Source Endpoint',
-						columnLabelClass: 'column is-4 p-1',
-						columnInputType: 'field',
-						columnInputContent: edge.data('source') + "::" + edge.data('sourceEndpoint'),
-						addonsContent: [
-						{
-							name: 'blue',
-							iconClass: 'fas fa-ethernet',
-							hoverMessage: 'Click to cross-launch Wireshark app',
-							hrefFunction: 'link',
-							hrefLink: 'clab-capture://' + edge.data("extraData").clabServerUsername + '@' + location.host + '?' + edge.data('extraData').clabSourceLongName + '?' + edge.data('sourceEndpoint')
-						},
-						{
-							name: 'green',
-							iconClass: 'far fa-clone',
-							hoverMessage: 'Click to copy the SSH command to your clipboard.',
-							hrefFunction: 'copy',
-							hrefLink: `ssh ${edge.data("extraData").clabServerUsername}@${location.hostname} "sudo -S /sbin/ip netns exec ${edge.data('extraData').clabSourceLongName} tcpdump -U -nni ${edge.data("sourceEndpoint")} -w -" | wireshark -k -i -`
+					{ idSuffix: 'Source', columnLabelTextContent: 'Source', columnLabelClass: 'column is-4 p-1', columnInputType: 'label', columnInputContent: edge.data('source') + "::" + edge.data('sourceEndpoint') },
+					{ idSuffix: 'SourceMac', columnLabelTextContent: 'MAC', columnLabelClass: 'column is-4 p-1', columnInputType: 'label', columnInputContent: '' },
 
-						}]
+					{
+						idSuffix: 'labelSourceImpairment',
+						columnLabelTextContent: 'Impairment',
+						columnLabelClass: 'column is-4 p-1',
+						columnInputType: 'buttonGroup',
+						columnInputContent: edge.data('source') + "::" + edge.data('sourceEndpoint'),
+						columntInputAttribute: 'disabled',
+						addonsContent: []
+					},
+
+					{
+						idSuffix: 'labelSourceImpairmentDelay',
+						columnLabelTextContent: 'Delay (ms)',
+						columnLabelClass: 'column is-7 pt-0 pr-1 LinksLenghtSlider is-light',
+						columnLabelElementClass: 'label is-size-7 has-text-right has-text-weight-normal px-auto pt-1',
+						columnInputType: 'input',
+						columnInputClass: 'column is-3 p-1 pl-0',
+						columnInputElementClass: 'input is-size-7 has-text-left has-text-weight-normal is-smallest-element',
+						columnInputContent: '0',
+						columnInputPlaceholder: 'node spacing',
+						columnInputAttribute: 'enabled',
+						addonsContent: []				
 					},
 					{
-						idSuffix: 'labelCaptureTargetEndpoint',
-						columnLabelTextContent: 'Capture Target Endpoint',
-						columnLabelClass: 'column is-4 p-1',
-						columnInputType: 'field',
-						columnInputContent: edge.data('target') + "::" + edge.data('targetEndpoint'),
+						idSuffix: 'labelSourceImpairmentJitter',
+						columnLabelTextContent: 'Jitter (ms)',
+						columnLabelClass: 'column is-7 pt-0 pr-1 LinksLenghtSlider is-light',
+						columnLabelElementClass: 'label is-size-7 has-text-right has-text-weight-normal px-auto pt-1',
+						columnInputType: 'input',
+						columnInputClass: 'column is-3 p-1 pl-0',
+						columnInputElementClass: 'input is-size-7 has-text-left has-text-weight-normal is-smallest-element',
+						columnInputContent: '0',
+						columnInputPlaceholder: 'node spacing',
+						columnInputAttribute: 'enabled',
+						addonsContent: []				
+					},
+					{
+						idSuffix: 'labelSourceImpairmentRate',
+						columnLabelTextContent: 'Rate (kpbs)',
+						columnLabelClass: 'column is-7 pt-0 pr-1 LinksLenghtSlider is-light',
+						columnLabelElementClass: 'label is-size-7 has-text-right has-text-weight-normal px-auto pt-1',
+						columnInputType: 'input',
+						columnInputClass: 'column is-3 p-1 pl-0',
+						columnInputElementClass: 'input is-size-7 has-text-left has-text-weight-normal is-smallest-element',
+						columnInputContent: '0',
+						columnInputPlaceholder: 'node spacing',
+						columnInputAttribute: 'enabled',
+						addonsContent: []				
+					},
+					{
+						idSuffix: 'labelSourceImpairmentLoss',
+						columnLabelTextContent: 'Loss (%)',
+						columnLabelClass: 'column is-7 pt-0 pr-1 LinksLenghtSlider is-light',
+						columnLabelElementClass: 'label is-size-7 has-text-right has-text-weight-normal px-auto pt-1',
+						columnInputType: 'input',
+						columnInputClass: 'column is-3 p-1 pl-0',
+						columnInputElementClass: 'input is-size-7 has-text-left has-text-weight-normal is-smallest-element',
+						columnInputContent: '0',
+						columnInputPlaceholder: 'node spacing',
+						columnInputAttribute: 'enabled',
+						addonsContent: []				
+					},
+					{
+						idSuffix: 'labelSourceImpairmentApply',
+						columnLabelTextContent: 'Apply',
+						columnLabelClass: 'column is-7 pt-0 pr-1 LinksLenghtSlider is-light',
+						columnLabelElementClass: 'label is-size-7 has-text-right has-text-weight-normal px-auto pt-1',
+						columnInputType: 'buttonGroup',
+						columnInputClass: 'column is-3 p-1 pl-0',
+						columnInputContent: '0',
+						columnInputAttribute: 'enabled',
+
+
 						addonsContent: [
 						{
 							name: 'blue',
-							iconClass: 'fas fa-ethernet',
-							hoverMessage: 'Click to cross-launch Wireshark app',
-							hrefFunction: 'link',
-							hrefLink: 'clab-capture://' + edge.data("extraData").clabServerUsername + '@' + location.host + '?' + edge.data('extraData').clabSourceLongName + '?' + edge.data('targetEndpoint')
+							iconClass: 'fas fa-play',
+							hoverMessage: 'Click to START the link impairment.',
+							hrefFunction: 'linkImpairmentSsh',
+							hrefLink: `/usr/bin/containerlab tools netem set -n ${edge.data('extraData').clabSourceLongName} -i ${edge.data("sourceEndpoint")}`,
+							hrefFunctionArg: 'start-source',
 						},
 						{
 							name: 'green',
 							iconClass: 'far fa-clone',
-							hoverMessage: 'Click to copy the SSH command to your clipboard',
-							hrefFunction: 'copy',
-							hrefLink: `ssh ${edge.data("extraData").clabServerUsername}@${location.hostname} "sudo -S /sbin/ip netns exec ${edge.data('extraData').clabTargetLongName} tcpdump -U -nni  ${edge.data("targetEndpoint")} -w -" | wireshark -k -i -`
-						}]
-					}, ];
+							hoverMessage: 'Click to copy the START impairment command to your clipboard',
+							hrefFunction: 'linkImpairmentCopy',
+							hrefLink: `ssh ${edge.data("extraData").clabServerUsername}@${location.hostname} sudo /usr/bin/containerlab tools netem set -n ${edge.data('extraData').clabSourceLongName} -i ${edge.data("sourceEndpoint")}`,
+							hrefFunctionArg: 'start-source',
+
+						},	
+						{
+							name: 'blue',
+							iconClass: 'fas fa-stop',
+							hoverMessage: 'Click to STOP the link impairment.',
+							hrefFunction: 'linkImpairmentSsh',
+							hrefLink: `ssh ${edge.data("extraData").clabServerUsername}@${location.hostname} sudo /usr/bin/containerlab tools netem set -n ${edge.data('extraData').clabSourceLongName} -i ${edge.data("sourceEndpoint")}`,
+							hrefFunctionArg: 'stop-source'
+						},						
+						{
+							name: 'green',
+							iconClass: 'far fa-clone',
+							hoverMessage: 'Click to copy the STOP impairment command to your clipboard',
+							hrefFunction: 'linkImpairmentCopy',
+							hrefLink: `ssh ${edge.data("extraData").clabServerUsername}@${location.hostname} sudo /usr/bin/containerlab tools netem set -n ${edge.data('extraData').clabSourceLongName} -i ${edge.data("sourceEndpoint")}`,
+							hrefFunctionArg: 'stop-source',
+						}]					
+					},
+
+						{
+							idSuffix: 'labelSourceWireshark',
+							columnLabelTextContent: 'Wireshark',
+							columnLabelClass: 'column is-4 p-1',
+							columnInputType: 'buttonGroup',
+							columnInputContent: edge.data('source') + "::" + edge.data('sourceEndpoint'),
+							columntInputAttribute: 'disabled',
+							addonsContent: []
+						},
+						{
+							idSuffix: 'labelSourceWiresharkCapture',
+							columnLabelTextContent: 'Capture',
+							columnLabelClass: 'column is-7 pt-0 pr-1 LinksLenghtSlider is-light',
+							columnLabelElementClass: 'label is-size-7 has-text-right has-text-weight-normal px-auto pt-1',
+							columnInputType: 'buttonGroup',
+							columnInputClass: 'column is-3 p-1 pl-0',
+							columnInputContent: '0',
+							columnInputAttribute: 'enabled',
+	
+	
+							addonsContent: [
+							{
+								name: 'blue',
+								iconClass: 'fas fa-ethernet',
+								hoverMessage: 'Click to cross-launch Wireshark app',
+								hrefFunction: 'link',
+								hrefLink: 'clab-capture://' + edge.data("extraData").clabServerUsername + '@' + location.host + '?' + edge.data('extraData').clabSourceLongName + '?' + edge.data('sourceEndpoint')
+							},
+							{
+								name: 'green',
+								iconClass: 'far fa-clone',
+								hoverMessage: 'Click to copy the SSH command to your clipboard.',
+								hrefFunction: 'copy',
+								hrefLink: `ssh ${edge.data("extraData").clabServerUsername}@${location.hostname} "sudo -S /sbin/ip netns exec ${edge.data('extraData').clabSourceLongName} tcpdump -U -nni ${edge.data("sourceEndpoint")} -w -" | wireshark -k -i -`
+	
+							}]
+					},
+
+					];
 
 
 					createPanelBlockForm(Panel02ColumnsConfig, panelBlock02, divPanelBlock02)
@@ -1301,59 +1406,153 @@
 					divPanelBlock03 = panelBlockContainer.divPanelBlock
 
 					const Panel03ColumnsConfig = [
-						{ idSuffix: 'labelDelay', columnLabelTextContent: 'Delay (ms)', columnLabelClass: 'column is-4 p-1', columnInputType: 'input', columnInputContent: '1000' },
-						{ idSuffix: 'labelJitter', columnLabelTextContent: 'Jitter (ms', columnLabelClass: 'column is-4 p-1', columnInputType: 'input', columnInputContent: '0' },
-						{ idSuffix: 'labelRate', columnLabelTextContent: 'Rate (kbps', columnLabelClass: 'column is-4 p-1', columnInputType: 'input', columnInputContent: '0' },
-						{ idSuffix: 'labelLoss', columnLabelTextContent: 'Loss (%)', columnLabelClass: 'column is-4 p-1', columnInputType: 'input', columnInputContent: '0' },
+						{ idSuffix: 'Target', columnLabelTextContent: 'Target', columnLabelClass: 'column is-4 p-1', columnInputType: 'label', columnInputContent: edge.data('target') + "::" + edge.data('targetEndpoint') },
+						{ idSuffix: 'TargetMac', columnLabelTextContent: 'Mac', columnLabelClass: 'column is-4 p-1', columnInputType: 'label', columnInputContent: '' },
 						{
-							idSuffix: 'labelSource',
-							columnLabelTextContent: 'Impair Source Endpoint',
+							idSuffix: 'labelTargetImpairment',
+							columnLabelTextContent: 'Impairment',
 							columnLabelClass: 'column is-4 p-1',
-							columnInputType: 'field',
-							columnInputContent: edge.data('source') + "::" + edge.data('sourceEndpoint'),
-							columntInputAttribute: 'disabled',
-							addonsContent: [
-							{
-								name: 'blue',
-								iconClass: 'fas fa-play',
-								hoverMessage: 'Start link impairment',
-								hrefFunction: 'linkImpairment',
-								hrefLink: `clab tools netem set -n ${edge.data('extraData').clabSourceLongName} -i ${edge.data("sourceEndpoint")}`,
-								hrefFunctionArg: 'start'
-							},
-							{
-								name: 'blue',
-								iconClass: 'fas fa-stop',
-								hoverMessage: 'Stop link impairment',
-								hrefFunction: 'linkImpairment',
-								hrefLink: `clab tools netem set -n ${edge.data('extraData').clabSourceLongName} -i ${edge.data("sourceEndpoint")}`,
-								hrefFunctionArg: 'stop'
-							}]
-						},
-						{
-							idSuffix: 'labelTarget',
-							columnLabelTextContent: 'Impair Target Endpoint',
-							columnLabelClass: 'column is-4 p-1',
-							columnInputType: 'field',
+							columnInputType: 'buttonGroup',
 							columnInputContent: edge.data('target') + "::" + edge.data('targetEndpoint'),
 							columntInputAttribute: 'disabled',
+							addonsContent: []
+						},
+	
+						{
+							idSuffix: 'labelTargetImpairmentDelay',
+							columnLabelTextContent: 'Delay (ms)',
+							columnLabelClass: 'column is-7 pt-0 pr-1 LinksLenghtSlider is-light',
+							columnLabelElementClass: 'label is-size-7 has-text-right has-text-weight-normal px-auto pt-1',
+							columnInputType: 'input',
+							columnInputClass: 'column is-3 p-1 pl-0',
+							columnInputElementClass: 'input is-size-7 has-text-left has-text-weight-normal is-smallest-element',
+							columnInputContent: '0',
+							columnInputPlaceholder: 'node spacing',
+							columnInputAttribute: 'enabled',
+							addonsContent: []				
+						},
+						{
+							idSuffix: 'labelTargetImpairmentJitter',
+							columnLabelTextContent: 'Jitter (ms)',
+							columnLabelClass: 'column is-7 pt-0 pr-1 LinksLenghtSlider is-light',
+							columnLabelElementClass: 'label is-size-7 has-text-right has-text-weight-normal px-auto pt-1',
+							columnInputType: 'input',
+							columnInputClass: 'column is-3 p-1 pl-0',
+							columnInputElementClass: 'input is-size-7 has-text-left has-text-weight-normal is-smallest-element',
+							columnInputContent: '0',
+							columnInputPlaceholder: 'node spacing',
+							columnInputAttribute: 'enabled',
+							addonsContent: []				
+						},
+						{
+							idSuffix: 'labelTargetImpairmentRate',
+							columnLabelTextContent: 'Rate (kpbs)',
+							columnLabelClass: 'column is-7 pt-0 pr-1 LinksLenghtSlider is-light',
+							columnLabelElementClass: 'label is-size-7 has-text-right has-text-weight-normal px-auto pt-1',
+							columnInputType: 'input',
+							columnInputClass: 'column is-3 p-1 pl-0',
+							columnInputElementClass: 'input is-size-7 has-text-left has-text-weight-normal is-smallest-element',
+							columnInputContent: '0',
+							columnInputPlaceholder: 'node spacing',
+							columnInputAttribute: 'enabled',
+							addonsContent: []				
+						},
+						{
+							idSuffix: 'labelTargetImpairmentLoss',
+							columnLabelTextContent: 'Loss (%)',
+							columnLabelClass: 'column is-7 pt-0 pr-1 LinksLenghtSlider is-light',
+							columnLabelElementClass: 'label is-size-7 has-text-right has-text-weight-normal px-auto pt-1',
+							columnInputType: 'input',
+							columnInputClass: 'column is-3 p-1 pl-0',
+							columnInputElementClass: 'input is-size-7 has-text-left has-text-weight-normal is-smallest-element',
+							columnInputContent: '0',
+							columnInputPlaceholder: 'node spacing',
+							columnInputAttribute: 'enabled',
+							addonsContent: []				
+						},
+						{
+							idSuffix: 'labelTargetImpairmentApply',
+							columnLabelTextContent: 'Apply',
+							columnLabelClass: 'column is-7 pt-0 pr-1 LinksLenghtSlider is-light',
+							columnLabelElementClass: 'label is-size-7 has-text-right has-text-weight-normal px-auto pt-1',
+							columnInputType: 'buttonGroup',
+							columnInputClass: 'column is-3 p-1 pl-0',
+							columnInputContent: '0',
+							columnInputAttribute: 'enabled',
+	
+	
 							addonsContent: [
 							{
 								name: 'blue',
 								iconClass: 'fas fa-play',
-								hoverMessage: 'Start link impairment',
-								hrefFunction: 'linkImpairment',
-								hrefLink: `clab tools netem set -n ${edge.data('extraData').clabTargetLongName} -i ${edge.data("targetEndpoint")}`,
-								hrefFunctionArg: 'start'
+								hoverMessage: 'Click to START the link impairment.',
+								hrefFunction: 'linkImpairmentSsh',
+								hrefLink: `ssh ${edge.data("extraData").clabServerUsername}@${location.hostname} sudo /usr/bin/containerlab tools netem set -n ${edge.data('extraData').clabTargetLongName} -i ${edge.data("targetEndpoint")}`,
+								hrefFunctionArg: 'start-target',
 							},
+							{
+								name: 'green',
+								iconClass: 'far fa-clone',
+								hoverMessage: 'Click to copy the START impairment command to your clipboard',
+								hrefFunction: 'linkImpairmentCopy',
+								hrefLink: `ssh ${edge.data("extraData").clabServerUsername}@${location.hostname} sudo /usr/bin/containerlab tools netem set -n ${edge.data('extraData').clabTargetLongName} -i ${edge.data("targetEndpoint")}`,
+								hrefFunctionArg: 'start-target',
+	
+							},	
 							{
 								name: 'blue',
 								iconClass: 'fas fa-stop',
-								hoverMessage: 'Stop link impairment',
-								hrefFunction: 'linkImpairment',
-								hrefLink: `clab tools netem set -n ${edge.data('extraData').clabTargetLongName} -i ${edge.data("targetEndpoint")}`,
-								hrefFunctionArg: 'stop'
-							}]
+								hoverMessage: 'Click to STOP the link impairment.',
+								hrefFunction: 'linkImpairmentSsh',
+								hrefLink: `ssh ${edge.data("extraData").clabServerUsername}@${location.hostname} sudo /usr/bin/containerlab tools netem set -n ${edge.data('extraData').clabTargetLongName} -i ${edge.data("targetEndpoint")}`,
+								hrefFunctionArg: 'stop-target'
+							},						
+							{
+								name: 'green',
+								iconClass: 'far fa-clone',
+								hoverMessage: 'Click to copy the STOP impairment command to your clipboard',
+								hrefFunction: 'linkImpairmentCopy',
+								hrefLink: `ssh ${edge.data("extraData").clabServerUsername}@${location.hostname} sudo /usr/bin/containerlab tools netem set -n ${edge.data('extraData').clabTargetLongName} -i ${edge.data("targetEndpoint")}`,
+								hrefFunctionArg: 'stop-target',
+							}]					
+						},
+	
+							{
+								idSuffix: 'labelTargetWireshark',
+								columnLabelTextContent: 'Wireshark',
+								columnLabelClass: 'column is-4 p-1',
+								columnInputType: 'buttonGroup',
+								columnInputContent: edge.data('target') + "::" + edge.data('targetEndpoint'),
+								columntInputAttribute: 'disabled',
+								addonsContent: []
+							},
+							{
+								idSuffix: 'labelTargetWiresharkCapture',
+								columnLabelTextContent: 'Capture',
+								columnLabelClass: 'column is-7 pt-0 pr-1 LinksLenghtSlider is-light',
+								columnLabelElementClass: 'label is-size-7 has-text-right has-text-weight-normal px-auto pt-1',
+								columnInputType: 'buttonGroup',
+								columnInputClass: 'column is-3 p-1 pl-0',
+								columnInputContent: '0',
+								columnInputAttribute: 'enabled',
+		
+		
+								addonsContent: [
+								{
+									name: 'blue',
+									iconClass: 'fas fa-ethernet',
+									hoverMessage: 'Click to cross-launch Wireshark app',
+									hrefFunction: 'link',
+									hrefLink: 'clab-capture://' + edge.data("extraData").clabServerUsername + '@' + location.host + '?' + edge.data('extraData').clabTargetLongName + '?' + edge.data('targetEndpoint')
+								},
+								{
+									name: 'green',
+									iconClass: 'far fa-clone',
+									hoverMessage: 'Click to copy the SSH command to your clipboard.',
+									hrefFunction: 'copy',
+									hrefLink: `ssh ${edge.data("extraData").clabServerUsername}@${location.hostname} "sudo -S /sbin/ip netns exec ${edge.data('extraData').clabTargetLongName} tcpdump -U -nni ${edge.data("targetEndpoint")} -w -" | wireshark -k -i -`
+		
+								}]
 						},
 					];
 
@@ -2152,7 +2351,7 @@
 {{rawJSComment "				//  { idSuffix: 'labelFindRouteSource', columnLabelTextContent: '', columnLabelClass: 'column is-0 p-0', columnInputType: 'field', columnInputContent: '', columnInputPlaceholder: 'name', columnInputAttribute: 'enabled', columnInputIsInvisible: 'yes',"}}
 {{rawJSComment "				//  	addonsContent: []"}}
 {{rawJSComment "				//  }				"}}
-{{rawJSComment "				//  { idSuffix: 'labelLinkImpairment', columnLabelTextContent: 'Link Impairment', columnLabelClass: 'column is-4 p-1', columnInputType: 'field', columnInputContent: 'Apply', columntInputAttribute: 'enabled', // columntInputAttribute default is disabled"}}
+{{rawJSComment "				//  { idSuffix: 'labellinkImpairmentSsh', columnLabelTextContent: 'Link Impairment', columnLabelClass: 'column is-4 p-1', columnInputType: 'field', columnInputContent: 'Apply', columntInputAttribute: 'enabled', // columntInputAttribute default is disabled"}}
 {{rawJSComment "				//  addonsContent: ["}}
 {{rawJSComment "				//  	{"}}
 {{rawJSComment "				//  		name: 'blue',"}}
@@ -2331,8 +2530,6 @@
 						input.value = config.columnInputContent;
 						input.placeholder = config.columnInputPlaceholder
 
-		
-
 						control.appendChild(input);
 						inputElement.appendChild(control);
 
@@ -2388,22 +2585,7 @@
 									})
 									appendMessage(`SSH command is lit 🔥 and copied to your clipboard, ready to drop it in your terminal console like a boss! 🚀💻`)
 								});
-							} else if (addon.hrefFunction == 'linkImpairment') {
-								if (addon.hrefFunctionArg == 'start') {
-									button.classList.add('impairment-start')
-									button.addEventListener('click', () => {
-										console.log('impairmentStartButton is clicked')
-										linkImpairmentManager('start', addon.hrefLink)
-									});
-								}
-								else if (addon.hrefFunctionArg == 'stop') {
-									button.classList.add('impairment-stop')
-									button.addEventListener('click', () => {
-										console.log('impairmentStoptButton is clicked')
-										linkImpairmentManager('stop', addon.hrefLink)
-									});
-								}
-							}
+							} 
 
 {{rawJSComment "							// Create a icon element"}}
 							const icon = document.createElement('span');
@@ -2440,6 +2622,171 @@
 						inputColumn.appendChild(inputElement);
 						columnsPanelContent.appendChild(inputColumn);
 					}
+
+{{rawJSComment "					// columnInputType buttonGroupHandle"}}
+					else if (config.columnInputType == 'buttonGroup') {
+					const inputColumn = document.createElement('div');
+					inputColumn.className = `column is-8 p-1 pl-0`;
+					inputColumn.id = `${labelColumn.id}-inputColumn${config.idSuffix}`
+
+					const inputElement = document.createElement('div');
+					inputElement.className = `field has-addons`;
+					inputElement.id = `${inputColumn.id}-label${config.idSuffix}`
+					if (config.columnInputIsInvisible == 'yes'){
+						inputElement.classList.add('is-invisible'); 
+					}
+
+{{rawJSComment "					// create addon button"}}
+					addons = config.addonsContent
+
+					for (let i = 0; i < addons.length; i++) {
+						const addon = addons[i];
+						const controlId = `${inputElement.id}-control${addon.name}`;
+						const control = document.createElement('p');
+						control.className = 'control';
+						control.id = controlId;
+
+{{rawJSComment "						// Create a button element"}}
+						const button = document.createElement('a');
+						button.id = `${controlId}-button${addon.name}`;
+						button.className = `button is-outlined px-3 is-smallest-element is-${addon.name === 'blue' ? 'link' : 'success'}`;
+
+						if (addon.hrefFunction == 'link') {
+							button.href = addon.hrefLink;
+							button.target = '_blank';
+
+						}
+						else if (addon.hrefFunction == 'eventHandlerLink') {
+							button.addEventListener('click', function() {
+								console.log ('addon.callOutFuntionName', addon.callOutFuntionName)
+								eval(addon.callOutFuntionName + `(cy)`);
+							});
+
+						} else if (addon.hrefFunction == 'copy') {
+							button.href = addon.hrefLink;
+							button.target = '_blank';
+							button.addEventListener('click', function(event) {
+{{rawJSComment "								// Prevent the default behavior of the anchor element (opening a new tab)"}}
+								urlToCopy = addon.hrefLink;
+								event.preventDefault();
+
+{{rawJSComment "								// Create a temporary input element to copy the URL to the clipboard"}}
+								const tempInput = document.createElement('input');
+								tempInput.value = urlToCopy;
+								document.body.appendChild(tempInput);
+								tempInput.select();
+								document.execCommand('copy');
+								document.body.removeChild(tempInput);
+
+{{rawJSComment "								// Provide user feedback (e.g., alert or toast) that the URL has been copied"}}
+								bulmaToast.toast({
+									message: `SSH command is lit 🔥 and copied to your clipboard, ready to drop it in your terminal console like a boss! 🚀💻`,
+									type: 'is-warning is-size-6 p-3',
+									duration: 4000,
+									position: "top-center",
+									closeOnClick: true,
+								})
+								appendMessage(`SSH command is lit 🔥 and copied to your clipboard, ready to drop it in your terminal console like a boss! 🚀💻`)
+							});
+						}
+						else if (addon.hrefFunction == 'linkImpairmentSsh') {
+							if (addon.hrefFunctionArg == 'start-source') {
+								button.classList.add('impairment-start-copy')
+								button.addEventListener('click', () => {
+									console.log('impairmentStartSshButton is clicked')
+									linkImpairmentManagerSsh('start-source', addon.hrefLink)
+								});
+							}
+							else if (addon.hrefFunctionArg == 'stop-source') {
+								button.classList.add('impairment-stop-copy')
+								button.addEventListener('click', () => {
+									console.log('impairmentStopSshButton is clicked')
+									linkImpairmentManagerSsh('stop-source', addon.hrefLink)
+								});
+							}
+							else if (addon.hrefFunctionArg == 'start-target') {
+								button.classList.add('impairment-stop-copy')
+								button.addEventListener('click', () => {
+									console.log('impairmentStopSshButton is clicked')
+									linkImpairmentManagerSsh('start-target', addon.hrefLink)
+								});
+							}
+							else if (addon.hrefFunctionArg == 'stop-target') {
+								button.classList.add('impairment-stop-copy')
+								button.addEventListener('click', () => {
+									console.log('impairmentStopSshButton is clicked')
+									linkImpairmentManagerSsh('stop-target', addon.hrefLink)
+								});
+							}
+ 						}		 
+						else if (addon.hrefFunction == 'linkImpairmentCopy') {
+							if (addon.hrefFunctionArg == 'start-source') {
+								button.classList.add('impairment-start-copy')
+								button.addEventListener('click', () => {
+									console.log('impairmentStartCopyButton is clicked')
+									linkImpairmentManagerCopy('start-source', addon.hrefLink)
+								});
+							}
+							else if (addon.hrefFunctionArg == 'stop-source') {
+								button.classList.add('impairment-stop-copy')
+								button.addEventListener('click', () => {
+									console.log('impairmentStopCopyButton is clicked')
+									linkImpairmentManagerCopy('stop-source', addon.hrefLink)
+								});
+							}
+							else if (addon.hrefFunctionArg == 'start-target') {
+								button.classList.add('impairment-stop-copy')
+								button.addEventListener('click', () => {
+									console.log('impairmentStopCopyButton is clicked')
+									linkImpairmentManagerCopy('start-target', addon.hrefLink)
+								});
+							}
+							else if (addon.hrefFunctionArg == 'stop-target') {
+								button.classList.add('impairment-stop-copy')
+								button.addEventListener('click', () => {
+									console.log('impairmentStopCopyButton is clicked')
+									linkImpairmentManagerCopy('stop-target', addon.hrefLink)
+								});
+							}
+						}
+
+{{rawJSComment "						// Create a icon element"}}
+						const icon = document.createElement('span');
+						icon.className = 'icon is-small';
+						const iconElement = document.createElement('i');
+						iconElement.className = addon.iconClass;
+						icon.appendChild(iconElement);
+						button.appendChild(icon);
+
+{{rawJSComment "						// Create a hover text paragraph element"}}
+						const hoverText = document.querySelector('.hover-text');
+
+{{rawJSComment "						// Add event listeners for hover behavior"}}
+						button.addEventListener('mouseover', () => {
+
+{{rawJSComment "							// Calculate the position for the hover text"}}
+							const rect = button.getBoundingClientRect();
+							const top = rect.top - hoverText.offsetHeight + 25;
+							const left = rect.left + (button.offsetWidth - hoverText.offsetWidth) / 2;
+
+{{rawJSComment "							// Set the position and show the hover text"}}
+							hoverText.style.top = `${top}px`;
+							hoverText.style.left = `${left}px`;
+							hoverText.classList.remove('is-hidden');
+							hoverText.textContent = addon.hoverMessage;
+						});
+						button.addEventListener('mouseout', () => {
+{{rawJSComment "							// Hide the hover text"}}
+							hoverText.classList.add('is-hidden');
+						});
+						control.appendChild(button);
+						inputElement.appendChild(control);
+					}
+					inputColumn.appendChild(inputElement);
+					columnsPanelContent.appendChild(inputColumn);
+				}
+
+
 					panelContent.appendChild(columnsPanelContent);
 					columnContainer.appendChild(panelContent)
 					divPanelBlock.appendChild(columnContainer)
@@ -2478,8 +2825,8 @@
 					</p>
 
 					<p>
-						Designed and developed by <strong>asad.arafat@nokia.com</strong> <br>
-						GUI Framework by <strong>siva.sivakumar@nokia.com</strong> <br>
+						Designed and developed by <strong><a href="https://www.linkedin.com/in/asadarafat/">Asad Arafat</a></strong> <br>
+						GUI Framework by <strong><a href="https://www.linkedin.com/in/siva19susi//">Siva Sivakumar</a></strong> <br>
 					</p>
 
 					<p>Key Features: </p>
@@ -2567,8 +2914,8 @@
 					<h6>Version: ${topoViewerVersion}</h6>
 					
 					<p>
-					Designed and developed by <strong>asad.arafat@nokia.com</strong> <br>
-					GUI Framework by <strong>siva.sivakumar@nokia.com</strong> <br>
+					Designed and developed by <strong><a href="https://www.linkedin.com/in/asadarafat/">Asad Arafat</a></strong> <br>
+					GUI Framework by <strong><a href="https://www.linkedin.com/in/siva19susi//">Siva Sivakumar</a></strong> <br>
 					</p>
 
 					<p>Instruction: </p>
@@ -2885,43 +3232,126 @@
 			}
 
 
-			function linkImpairmentManager(toggle, baseCommand) {
+			function linkImpairmentManagerCopy(toggle, baseCommand) {
 
-				console.log("linkImpairmentManager-READCH")
+				console.log("linkImpairmentManagerCopy-Function-Reach")
 
-				delayValue = document.getElementById('panelBlock-tabContainer-LinkProperties-divPanelBlock-columnContainerlabelDelay-panelContentlabelDelay-columnsPanelContentlabelDelay-labelColumnlabelDelay-inputColumnlabelDelay-labellabelDelay').value
-				jitterValue = document.getElementById('panelBlock-tabContainer-LinkProperties-divPanelBlock-columnContainerlabelJitter-panelContentlabelJitter-columnsPanelContentlabelJitter-labelColumnlabelJitter-inputColumnlabelJitter-labellabelJitter').value
-				rateValue = document.getElementById('panelBlock-tabContainer-LinkProperties-divPanelBlock-columnContainerlabelRate-panelContentlabelRate-columnsPanelContentlabelRate-labelColumnlabelRate-inputColumnlabelRate-labellabelRate').value
-				lossValue = document.getElementById('panelBlock-tabContainer-LinkProperties-divPanelBlock-columnContainerlabelLoss-panelContentlabelLoss-columnsPanelContentlabelLoss-labelColumnlabelLoss-inputColumnlabelLoss-labellabelLoss').value
-				console.log(delayValue)
+				fullCommand = baseCommand
 
-				if (toggle == 'start') {
+				if (toggle == 'start-source') {
+					delayValue  = document.getElementById('panelBlock-tabContainer-LinkProperties-divPanelBlock-columnContainerlabelSourceImpairmentDelay-panelContentlabelSourceImpairmentDelay-columnsPanelContentlabelSourceImpairmentDelay-labelColumnlabelSourceImpairmentDelay-inputColumnlabelSourceImpairmentDelay-labellabelSourceImpairmentDelay').value
+					jitterValue = document.getElementById('panelBlock-tabContainer-LinkProperties-divPanelBlock-columnContainerlabelSourceImpairmentJitter-panelContentlabelSourceImpairmentJitter-columnsPanelContentlabelSourceImpairmentJitter-labelColumnlabelSourceImpairmentJitter-inputColumnlabelSourceImpairmentJitter-labellabelSourceImpairmentJitter').value
+					rateValue   = document.getElementById('panelBlock-tabContainer-LinkProperties-divPanelBlock-columnContainerlabelSourceImpairmentRate-panelContentlabelSourceImpairmentRate-columnsPanelContentlabelSourceImpairmentRate-labelColumnlabelSourceImpairmentRate-inputColumnlabelSourceImpairmentRate-labellabelSourceImpairmentRate').value
+					lossValue   = document.getElementById('panelBlock-tabContainer-LinkProperties-divPanelBlock-columnContainerlabelSourceImpairmentLoss-panelContentlabelSourceImpairmentLoss-columnsPanelContentlabelSourceImpairmentLoss-labelColumnlabelSourceImpairmentLoss-inputColumnlabelSourceImpairmentLoss-labellabelSourceImpairmentLoss').value
+
+					console.log(delayValue)
+
 					fullCommand = baseCommand + ` --delay ${delayValue}ms --jitter ${jitterValue}ms --rate ${rateValue} --loss ${lossValue}`
-					console.log(fullCommand)
-					callGoFunction(fullCommand, 'emptyPadding')
-{{rawJSComment "					// Provide user feedback (e.g., alert or toast) that the URL has been copied"}}
-					bulmaToast.toast({
-						message: `Link Impairment Initiated. Let's rock this! 😎💥`,
-						type: 'is-warning is-size-6 p-3',
-						duration: 4000,
-						position: "top-center",
-						closeOnClick: true,
-					})
-				} else if (toggle == 'stop') {
-					console.log(baseCommand)
-					callGoFunction(baseCommand, 'emptyPadding')
-					bulmaToast.toast({
-						message: `Link Impairment Successfully Stopped. Mission Accomplished! 😎🚀`,
-						type: 'is-warning is-size-6 p-3',
-						duration: 4000,
-						position: "top-center",
-						closeOnClick: true,
-					})
-				}
+					alert_msg = `SSH command to start link impairment is lit 🔥 and copied to your clipboard, ready to drop it in your terminal console like a boss! 🚀💻`
+				} 
+				else if (toggle == 'stop-source') {
+					fullCommand = baseCommand
+					alert_msg = `SSH command to stop link impairment is lit 🔥 and copied to your clipboard, ready to drop it in your terminal console like a boss! 🚀💻`
+				} 
+
+				else if (toggle == 'start-target') {
+					delayValue  = document.getElementById('panelBlock-tabContainer-LinkProperties-divPanelBlock-columnContainerlabelTargetImpairmentDelay-panelContentlabelTargetImpairmentDelay-columnsPanelContentlabelTargetImpairmentDelay-labelColumnlabelTargetImpairmentDelay-inputColumnlabelTargetImpairmentDelay-labellabelTargetImpairmentDelay').value
+					jitterValue = document.getElementById('panelBlock-tabContainer-LinkProperties-divPanelBlock-columnContainerlabelTargetImpairmentJitter-panelContentlabelTargetImpairmentJitter-columnsPanelContentlabelTargetImpairmentJitter-labelColumnlabelTargetImpairmentJitter-inputColumnlabelTargetImpairmentJitter-labellabelTargetImpairmentJitter').value
+					rateValue   = document.getElementById('panelBlock-tabContainer-LinkProperties-divPanelBlock-columnContainerlabelTargetImpairmentRate-panelContentlabelTargetImpairmentRate-columnsPanelContentlabelTargetImpairmentRate-labelColumnlabelTargetImpairmentRate-inputColumnlabelTargetImpairmentRate-labellabelTargetImpairmentRate').value
+					lossValue   = document.getElementById('panelBlock-tabContainer-LinkProperties-divPanelBlock-columnContainerlabelTargetImpairmentLoss-panelContentlabelTargetImpairmentLoss-columnsPanelContentlabelTargetImpairmentLoss-labelColumnlabelTargetImpairmentLoss-inputColumnlabelTargetImpairmentLoss-labellabelTargetImpairmentLoss').value
+
+					console.log(delayValue)
+
+					fullCommand = baseCommand + ` --delay ${delayValue}ms --jitter ${jitterValue}ms --rate ${rateValue} --loss ${lossValue}`
+					alert_msg = `SSH command to start link impairment is lit 🔥 and copied to your clipboard, ready to drop it in your terminal console like a boss! 🚀💻`
+				} 
+				else if (toggle == 'stop-target') {
+					fullCommand = baseCommand
+					alert_msg = `SSH command to stop link impairment is lit 🔥 and copied to your clipboard, ready to drop it in your terminal console like a boss! 🚀💻`
+				} 
+
+				console.log(fullCommand)
+
+				urlToCopy = fullCommand;
+				event.preventDefault();
+
+{{rawJSComment " 				// Create a temporary input element to copy the URL to the clipboard"}}
+				const tempInput = document.createElement('input');
+				tempInput.value = urlToCopy;
+				document.body.appendChild(tempInput);
+				tempInput.select();
+				document.execCommand('copy');
+				document.body.removeChild(tempInput);
+
+
+{{rawJSComment " 				// Provide user feedback (e.g., alert or toast) that the URL has been copied"}}
+				bulmaToast.toast({
+					message: alert_msg,
+					type: 'is-warning is-size-6 p-3',
+					duration: 4000,
+					position: "top-center",
+					closeOnClick: true,
+				})
+				appendMessage(alert_msg)
+			}
+
+
+			function linkImpairmentManagerSsh(toggle, baseCommand) {
+
+				console.log("linkImpairmentManagerSsh-Function-Called")
+
+				fullCommand = baseCommand
+
+				if (toggle == 'start-source') {
+					delayValue  = document.getElementById('panelBlock-tabContainer-LinkProperties-divPanelBlock-columnContainerlabelSourceImpairmentDelay-panelContentlabelSourceImpairmentDelay-columnsPanelContentlabelSourceImpairmentDelay-labelColumnlabelSourceImpairmentDelay-inputColumnlabelSourceImpairmentDelay-labellabelSourceImpairmentDelay').value
+					jitterValue = document.getElementById('panelBlock-tabContainer-LinkProperties-divPanelBlock-columnContainerlabelSourceImpairmentJitter-panelContentlabelSourceImpairmentJitter-columnsPanelContentlabelSourceImpairmentJitter-labelColumnlabelSourceImpairmentJitter-inputColumnlabelSourceImpairmentJitter-labellabelSourceImpairmentJitter').value
+					rateValue   = document.getElementById('panelBlock-tabContainer-LinkProperties-divPanelBlock-columnContainerlabelSourceImpairmentRate-panelContentlabelSourceImpairmentRate-columnsPanelContentlabelSourceImpairmentRate-labelColumnlabelSourceImpairmentRate-inputColumnlabelSourceImpairmentRate-labellabelSourceImpairmentRate').value
+					lossValue   = document.getElementById('panelBlock-tabContainer-LinkProperties-divPanelBlock-columnContainerlabelSourceImpairmentLoss-panelContentlabelSourceImpairmentLoss-columnsPanelContentlabelSourceImpairmentLoss-labelColumnlabelSourceImpairmentLoss-inputColumnlabelSourceImpairmentLoss-labellabelSourceImpairmentLoss').value
+
+					console.log(`delayValue: ${delayValue}`)
+					console.log(`jitterValue: ${jitterValue}`)
+					console.log(`rateValue: ${rateValue}`)
+					console.log(`lossValue: ${lossValue}`)
+
+					fullCommand = baseCommand + ` --delay ${delayValue}ms --jitter ${jitterValue}ms --rate ${rateValue} --loss ${lossValue}`
+					alert_msg = `SSH command to start link impairment is lit 🔥 and copied to your clipboard, ready to drop it in your terminal console like a boss! 🚀💻`
+				} 
+				else if (toggle == 'stop-source') {
+					fullCommand = baseCommand
+					alert_msg = `SSH command to stop link impairment is lit 🔥 and copied to your clipboard, ready to drop it in your terminal console like a boss! 🚀💻`
+				} 
+				else if (toggle == 'start-target') {
+					delayValue  = document.getElementById('panelBlock-tabContainer-LinkProperties-divPanelBlock-columnContainerlabelTargetImpairmentDelay-panelContentlabelTargetImpairmentDelay-columnsPanelContentlabelTargetImpairmentDelay-labelColumnlabelTargetImpairmentDelay-inputColumnlabelTargetImpairmentDelay-labellabelTargetImpairmentDelay').value
+					jitterValue = document.getElementById('panelBlock-tabContainer-LinkProperties-divPanelBlock-columnContainerlabelTargetImpairmentJitter-panelContentlabelTargetImpairmentJitter-columnsPanelContentlabelTargetImpairmentJitter-labelColumnlabelTargetImpairmentJitter-inputColumnlabelTargetImpairmentJitter-labellabelTargetImpairmentJitter').value
+					rateValue   = document.getElementById('panelBlock-tabContainer-LinkProperties-divPanelBlock-columnContainerlabelTargetImpairmentRate-panelContentlabelTargetImpairmentRate-columnsPanelContentlabelTargetImpairmentRate-labelColumnlabelTargetImpairmentRate-inputColumnlabelTargetImpairmentRate-labellabelTargetImpairmentRate').value
+					lossValue   = document.getElementById('panelBlock-tabContainer-LinkProperties-divPanelBlock-columnContainerlabelTargetImpairmentLoss-panelContentlabelTargetImpairmentLoss-columnsPanelContentlabelTargetImpairmentLoss-labelColumnlabelTargetImpairmentLoss-inputColumnlabelTargetImpairmentLoss-labellabelTargetImpairmentLoss').value
+
+					console.log(`delayValue: ${delayValue}`)
+					console.log(`jitterValue: ${jitterValue}`)
+					console.log(`rateValue: ${rateValue}`)
+					console.log(`lossValue: ${lossValue}`)
+
+					fullCommand = baseCommand + ` --delay ${delayValue}ms --jitter ${jitterValue}ms --rate ${rateValue} --loss ${lossValue}`
+					alert_msg = `SSH command to start link impairment is lit 🔥 and copied to your clipboard, ready to drop it in your terminal console like a boss! 🚀💻`
+				} 
+				else if (toggle == 'stop-target') {
+					fullCommand = baseCommand
+					alert_msg = `SSH command to stop link impairment is lit 🔥 and copied to your clipboard, ready to drop it in your terminal console like a boss! 🚀💻`
+				} 
+
+
+				console.log(`baseCommand: ${baseCommand}`)
+				console.log(`fullCommand: ${fullCommand}`)
+
+				callGoFunction(fullCommand, 'padding')
+
 			}
 
 {{rawJSComment "			// Call Go BackEnd function"}}
 			function callGoFunction(parameter1, parameter2) {
+
+				console.log("callGoFunction-Called")
+
 				const data = {
 					param1: parameter1,
 					param2: parameter2,
