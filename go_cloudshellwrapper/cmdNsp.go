@@ -333,9 +333,14 @@ func Nsp(_ *cobra.Command, _ []string) error {
 
 		// topoPrefixName := "NspIetfTopoLayer2" // should be added with NSP server ip address
 
+		indexHtmldata := IndexHtmlStruct{
+			LabName:        cyTopo.ClabTopoDataV2.Name,
+			DeploymentType: "deploymentType",
+		}
+
 		// os.Mkdir(htmlPublicPrefixPath+cyTopo.ClabTopoData.ClabTopoName, 0755) // already created in cytoscapemodel library
-		createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "index.tmpl", "IetfTopology-MultiLayer"+"/"+"index.html", "IetfTopology-MultiLayer.json")
-		createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "cy-style.tmpl", "IetfTopology-MultiLayer"+"/"+"cy-style.json", "")
+		createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "index.tmpl", "IetfTopology-MultiLayer"+"/"+"index.html", indexHtmldata)
+		createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "cy-style.tmpl", "IetfTopology-MultiLayer"+"/"+"cy-style.json", indexHtmldata)
 
 		// topoPrefixName := "NspIetfTopoLayer2" // should be added with NSP server ip address
 
@@ -509,9 +514,14 @@ func Nsp(_ *cobra.Command, _ []string) error {
 
 		// topoPrefixName := "NspIetfTopoLayer2" // should be added with NSP server ip address
 
+		indexHtmldata := IndexHtmlStruct{
+			LabName:        cyTopo.ClabTopoDataV2.Name,
+			DeploymentType: "deploymentType",
+		}
+
 		// os.Mkdir(htmlPublicPrefixPath+cyTopo.ClabTopoData.ClabTopoName, 0755) // already created in cytoscapemodel library
-		createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "index.tmpl", "IetfTopology-L2"+"/"+"index.html", "topo-ietf-L2.json")
-		createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "cy-style.tmpl", "IetfTopology-L2"+"/"+"cy-style.json", "")
+		createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "index.tmpl", "IetfTopology-L2"+"/"+"index.html", indexHtmldata)
+		createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "cy-style.tmpl", "IetfTopology-L2"+"/"+"cy-style.json", indexHtmldata)
 
 		// start memory logging pulse
 		logWithMemory := createMemoryLog()

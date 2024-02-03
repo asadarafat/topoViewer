@@ -79,7 +79,7 @@ func addIncomingRequestLogging(next http.Handler) http.Handler {
 	})
 }
 
-func createHtmlPublicFiles(htmlTemplatePath string, htmlPublicPrefixPath string, templateFile string, outputFile string, inputValue string) {
+func createHtmlPublicFiles(htmlTemplatePath string, htmlPublicPrefixPath string, templateFile string, outputFile string, inputValue IndexHtmlStruct) {
 	// os.Mkdir("./html-public/"+cyTopo.ClabTopoData.ClabTopoName, 0755) // this folder created in cytoscape model library.
 	template, err := template.New(templateFile).Funcs(template.FuncMap{
 		"rawHTMLComment": func(comment string) template.HTML {
@@ -101,6 +101,7 @@ func createHtmlPublicFiles(htmlTemplatePath string, htmlPublicPrefixPath string,
 	}
 	// write file
 	err = template.Execute(file, inputValue)
+	log.Info(inputValue)
 	if err != nil {
 		log.Error("execute: ", err)
 	}

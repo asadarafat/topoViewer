@@ -29,6 +29,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
+type IndexHtmlStruct struct {
+	LabName        string
+	DeploymentType string
+}
+
 // config
 var confClab = config.Map{
 	"allowed-hostnames": &config.StringSlice{
@@ -119,6 +124,10 @@ var confClab = config.Map{
 		Default:   "root",
 		Usage:     "containerLab server host password",
 		Shorthand: "p",
+	},
+	"deployment-type": &config.String{
+		Default: "container",
+		Usage:   "TopoViewertype of deployment. The option are 'container' if the TopoViewer will be running under container or 'colocated' if TopoViewer will be running co-located with containerlab server",
 	},
 }
 
@@ -233,6 +242,8 @@ func Clab(_ *cobra.Command, _ []string) error {
 		}
 		workingDirectory = path.Join(wd, workingDirectory)
 	}
+	deploymentType := confClab.GetString("deployment-type")
+
 	// log.Infof("topology file path    : '%s'", workingDirectory+"/"+topoClab)
 
 	log.Infof("topology file    : '%s'", (topoClab))
@@ -397,53 +408,53 @@ func Clab(_ *cobra.Command, _ []string) error {
 		})
 	// // websocketcontainerNodeStatus endpoint
 	// // websocketcontainerNodeStatus endpoint
-	router.HandleFunc("/containerNodeStatus",
-		func(w http.ResponseWriter, r *http.Request) {
-			// upgrade this connection to a WebSocket
-			// connection
-			containerNodeStatus, err := upgrader.Upgrade(w, r, nil)
-			if err != nil {
-				log.Info(err)
-			}
-			log.Infof("containerNodeStatus endpoint called")
+	// router.HandleFunc("/containerNodeStatus",
+	// 	func(w http.ResponseWriter, r *http.Request) {
+	// 		// upgrade this connection to a WebSocket
+	// 		// connection
+	// 		containerNodeStatus, err := upgrader.Upgrade(w, r, nil)
+	// 		if err != nil {
+	// 			log.Info(err)
+	// 		}
+	// 		log.Infof("containerNodeStatus endpoint called")
 
-			// w.WriteHeader(http.StatusOK)
-			// The error message "http: response.WriteHeader on hijacked connection" in Go indicates that you are trying to write a HTTP header to a connection that has been hijacked. In the context of Go's net/http package, hijacking a connection typically means that the underlying network connection has been taken over by some other process or handler, often for purposes like upgrading to a WebSocket connection.
+	// 		// w.WriteHeader(http.StatusOK)
+	// 		// The error message "http: response.WriteHeader on hijacked connection" in Go indicates that you are trying to write a HTTP header to a connection that has been hijacked. In the context of Go's net/http package, hijacking a connection typically means that the underlying network connection has been taken over by some other process or handler, often for purposes like upgrading to a WebSocket connection.
 
-			clabUser := confClab.GetString("clab-user")
-			log.Infof("clabUser: '%s'", clabUser)
-			clabHost := confClab.GetStringSlice("allowed-hostnames")
-			log.Infof("clabHost: '%s'", clabHost[0])
-			clabPass := confClab.GetString("clab-pass")
-			log.Infof("clabPass: '%s'", clabPass)
+	// 		clabUser := confClab.GetString("clab-user")
+	// 		log.Infof("clabUser: '%s'", clabUser)
+	// 		clabHost := confClab.GetStringSlice("allowed-hostnames")
+	// 		log.Infof("clabHost: '%s'", clabHost[0])
+	// 		clabPass := confClab.GetString("clab-pass")
+	// 		log.Infof("clabPass: '%s'", clabPass)
 
-			// simulating containerNodeStatus..
-			// Add the new connection to the active connections list
+	// 		// simulating containerNodeStatus..
+	// 		// Add the new connection to the active connections list
 
-			// Start an infinite loop
-			for {
-				// Print the sample GetDockerNodeStatus
-				// log.Infof(string(cyTopo.GetDockerNodeStatus("clab-nokia-MAGc-lab-AGG-UPF01")))
-				// log.Infof("node name:'%s'... ", cyTopo.ClabTopoDataV2.Nodes[0].Longname)
+	// 		// Start an infinite loop
+	// 		for {
+	// 			// Print the sample GetDockerNodeStatus
+	// 			// log.Infof(string(cyTopo.GetDockerNodeStatus("clab-nokia-MAGc-lab-AGG-UPF01")))
+	// 			// log.Infof("node name:'%s'... ", cyTopo.ClabTopoDataV2.Nodes[0].Longname)
 
-				for _, n := range cyTopo.ClabTopoDataV2.Nodes {
-					// log.Infof("n.Longname", n.Longname)
+	// 			for _, n := range cyTopo.ClabTopoDataV2.Nodes {
+	// 				// log.Infof("n.Longname", n.Longname)
 
-					// get docker status via ssh "docker ps --all"
-					// x, err := cyTopo.GetDockerNodeStatus(n.Longname, clabUser, clabHost[0], clabPass)
+	// 				// get docker status via ssh "docker ps --all"
+	// 				// x, err := cyTopo.GetDockerNodeStatus(n.Longname, clabUser, clabHost[0], clabPass)
 
-					// get docker status via unix socket
-					x, err := cyTopo.GetDockerNodeStatusViaUnixSocket(n.Longname, clabHost[0])
+	// 				// get docker status via unix socket
+	// 				x, err := cyTopo.GetDockerNodeStatusViaUnixSocket(n.Longname, clabHost[0])
 
-					containerNodeStatus.WriteMessage(1, x)
-					if err != nil {
-						log.Error(err)
-					}
-				}
-				// Pause for a short duration (e.g., 5 seconds)
-				time.Sleep(time.Second * 5)
-			}
-		})
+	// 				containerNodeStatus.WriteMessage(1, x)
+	// 				if err != nil {
+	// 					log.Error(err)
+	// 				}
+	// 			}
+	// 			// Pause for a short duration (e.g., 5 seconds)
+	// 			time.Sleep(time.Second * 5)
+	// 		}
+	// 	})
 
 	//// websocket clabServerAddress endpoint
 	//// websocket clabServerAddress endpoint
@@ -556,26 +567,33 @@ func Clab(_ *cobra.Command, _ []string) error {
 	err1 := cp.Copy(sourceClabClientFolder, destinationClabClientImageFolder)
 	log.Debug("Copying clab-client folder error: ", err1)
 
-	// type IndexHtml struct {
-	// 	labName          string
-	// 	dataCytoMarshall string
-	// }
-
-	// indexHtmldata := IndexHtml{
-	// 	labName:          cyTopo.ClabTopoDataV2.Name,
-	// 	dataCytoMarshall: "dataCytoMarshall-" + cyTopo.ClabTopoDataV2.Name + ".json",
-	// }
-
 	// createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "index.tmpl", cyTopo.ClabTopoDataV2.Name+"/"+"index.html", "dataCytoMarshall-"+cyTopo.ClabTopoDataV2.Name+".json")
-	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "index.tmpl", cyTopo.ClabTopoDataV2.Name+"/"+"index.html", cyTopo.ClabTopoDataV2.Name)
-	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "cy-style.tmpl", cyTopo.ClabTopoDataV2.Name+"/"+"cy-style.json", "")
-	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "cloudshell-index.tmpl", cyTopo.ClabTopoDataV2.Name+"/cloudshell/"+"index.html", "")
-	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "cloudshell-terminal-js.tmpl", cyTopo.ClabTopoDataV2.Name+"/cloudshell/"+"terminal.js", "")
-	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "tools-cloudshell-index.tmpl", cyTopo.ClabTopoDataV2.Name+"/cloudshell-tools/"+"index.html", "")
-	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "tools-cloudshell-terminal-js.tmpl", cyTopo.ClabTopoDataV2.Name+"/cloudshell-tools/"+"terminal.js", "")
-	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "websocket-index.tmpl", cyTopo.ClabTopoDataV2.Name+"/ws/"+"index.html", "")
 
-	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "button.tmpl", cyTopo.ClabTopoDataV2.Name+"/"+"button.html", cyTopo.ClabTopoDataV2.Name)
+	// createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "index.tmpl", cyTopo.ClabTopoDataV2.Name+"/"+"index.html", cyTopo.ClabTopoDataV2.Name)
+	// createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "cy-style.tmpl", cyTopo.ClabTopoDataV2.Name+"/"+"cy-style.json", "")
+	// createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "cloudshell-index.tmpl", cyTopo.ClabTopoDataV2.Name+"/cloudshell/"+"index.html", "")
+	// createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "cloudshell-terminal-js.tmpl", cyTopo.ClabTopoDataV2.Name+"/cloudshell/"+"terminal.js", "")
+	// createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "tools-cloudshell-index.tmpl", cyTopo.ClabTopoDataV2.Name+"/cloudshell-tools/"+"index.html", "")
+	// createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "tools-cloudshell-terminal-js.tmpl", cyTopo.ClabTopoDataV2.Name+"/cloudshell-tools/"+"terminal.js", "")
+	// createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "websocket-index.tmpl", cyTopo.ClabTopoDataV2.Name+"/ws/"+"index.html", "")
+
+	// createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "button.tmpl", cyTopo.ClabTopoDataV2.Name+"/"+"button.html", cyTopo.ClabTopoDataV2.Name)
+
+	indexHtmldata := IndexHtmlStruct{
+		LabName:        cyTopo.ClabTopoDataV2.Name,
+		DeploymentType: deploymentType,
+	}
+
+	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "cy-style.tmpl", cyTopo.ClabTopoDataV2.Name+"/"+"cy-style.json", indexHtmldata)
+	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "cloudshell-index.tmpl", cyTopo.ClabTopoDataV2.Name+"/cloudshell/"+"index.html", indexHtmldata)
+	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "cloudshell-terminal-js.tmpl", cyTopo.ClabTopoDataV2.Name+"/cloudshell/"+"terminal.js", indexHtmldata)
+	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "tools-cloudshell-index.tmpl", cyTopo.ClabTopoDataV2.Name+"/cloudshell-tools/"+"index.html", indexHtmldata)
+	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "tools-cloudshell-terminal-js.tmpl", cyTopo.ClabTopoDataV2.Name+"/cloudshell-tools/"+"terminal.js", indexHtmldata)
+	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "websocket-index.tmpl", cyTopo.ClabTopoDataV2.Name+"/ws/"+"index.html", indexHtmldata)
+
+	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "button.tmpl", cyTopo.ClabTopoDataV2.Name+"/"+"button.html", indexHtmldata)
+
+	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "index.tmpl", cyTopo.ClabTopoDataV2.Name+"/"+"index.html", indexHtmldata)
 
 	// start memory logging pulse
 	logWithMemory := createMemoryLog()

@@ -303,7 +303,7 @@
 
 {{rawJSComment "				// WebSocket for uptime"}}
 				const socketUptime = initializeWebSocket('/uptime', (msgUptime) => {
-					const string01 = 'Containerlab Topology: ' + "{{.}}";
+					const string01 = 'Containerlab Topology: ' +  "{{.LabName}}";
 					const string02 = ' ::: Uptime: ' + msgUptime.data;
 
 					const ClabSubtitle = document.getElementById("ClabSubtitle");
@@ -362,7 +362,13 @@
 				}
 
 {{rawJSComment "	// Fetch and load element data from a JSON file"}}
- 					fetch('dataCytoMarshall-{{.}}.json')
+					console.log("Lab Name:  {{.LabName}}")
+
+					var deploymentType = {{.DeploymentType}}
+
+					console.log ("DeploymentType: ", deploymentType)
+
+ 					fetch('dataCytoMarshall-{{.LabName}}.json')
 
 					.then(response => response.json())
 					.then(elements => {
@@ -458,13 +464,28 @@
 				cy.on('click', 'edge', function(event) {
 {{rawJSComment "					// This code will be executed when you click on a node"}}
 {{rawJSComment "					// You can add logic specific to nodes here"}}
-					const edge = event.target
+					const clickedEdge = event.target
 					edgeClicked = true;
+
+{{rawJSComment "					// Assuming you have a reference to the clicked edge in a variable 'edge'"}}
+					const defaultEdgeColor = clickedEdge.style('line-color');
+
+					console.log(defaultEdgeColor)
+
+{{rawJSComment "					// Change the color of the clicked edge (for example, to red)"}}
+					clickedEdge.style('line-color', '#457800');
+
+{{rawJSComment "					// Revert the color of other edges that were not clicked (e.g., back to their default color)"}}
+					cy.edges().forEach(function(edge) {
+						if (edge !== clickedEdge) {
+							edge.style('line-color', defaultEdgeColor); 
+						}
+					});
 
 {{rawJSComment "					// You can add logic specific to nodes here"}}
 					removeElementById("Panel-01");
 					const tabContentFns = [createEdgeDetailTab];
-					tabContentFnsArg = [edge];
+					tabContentFnsArg = [clickedEdge];
 
 					createContentPanel('Panel-01', tabContentFns, tabContentFnsArg[0], 'Link Properties');
 
@@ -1324,7 +1345,9 @@
 							hoverMessage: 'Click to START the link impairment.',
 							hrefFunction: 'linkImpairmentSsh',
 							hrefLink: `/usr/bin/containerlab tools netem set -n ${edge.data('extraData').clabSourceLongName} -i ${edge.data("sourceEndpoint")}`,
+							hrefLink02: `ssh ${edge.data("extraData").clabServerUsername}@${location.hostname} sudo /usr/bin/containerlab tools netem set -n ${edge.data('extraData').clabSourceLongName} -i ${edge.data("sourceEndpoint")}`,
 							hrefFunctionArg: 'start-source',
+							typeOfTopoviewerDeployment: deploymentType,
 						},
 						{
 							name: 'green',
@@ -1340,8 +1363,10 @@
 							iconClass: 'fas fa-stop',
 							hoverMessage: 'Click to STOP the link impairment.',
 							hrefFunction: 'linkImpairmentSsh',
-							hrefLink: `ssh ${edge.data("extraData").clabServerUsername}@${location.hostname} sudo /usr/bin/containerlab tools netem set -n ${edge.data('extraData').clabSourceLongName} -i ${edge.data("sourceEndpoint")}`,
-							hrefFunctionArg: 'stop-source'
+							hrefLink: `/usr/bin/containerlab tools netem set -n ${edge.data('extraData').clabSourceLongName} -i ${edge.data("sourceEndpoint")}`,
+							hrefLink02: `ssh ${edge.data("extraData").clabServerUsername}@${location.hostname} sudo /usr/bin/containerlab tools netem set -n ${edge.data('extraData').clabSourceLongName} -i ${edge.data("sourceEndpoint")}`,
+							hrefFunctionArg: 'stop-source',
+							typeOfTopoviewerDeployment: deploymentType,
 						},						
 						{
 							name: 'green',
@@ -1487,8 +1512,10 @@
 								iconClass: 'fas fa-play',
 								hoverMessage: 'Click to START the link impairment.',
 								hrefFunction: 'linkImpairmentSsh',
-								hrefLink: `ssh ${edge.data("extraData").clabServerUsername}@${location.hostname} sudo /usr/bin/containerlab tools netem set -n ${edge.data('extraData').clabTargetLongName} -i ${edge.data("targetEndpoint")}`,
+								hrefLink: `/usr/bin/containerlab tools netem set -n ${edge.data('extraData').clabTargetLongName} -i ${edge.data("targetEndpoint")}`,
+								hrefLink02: `ssh ${edge.data("extraData").clabServerUsername}@${location.hostname} sudo /usr/bin/containerlab tools netem set -n ${edge.data('extraData').clabTargetLongName} -i ${edge.data("targetEndpoint")}`,
 								hrefFunctionArg: 'start-target',
+								typeOfTopoviewerDeployment: deploymentType,
 							},
 							{
 								name: 'green',
@@ -1504,8 +1531,11 @@
 								iconClass: 'fas fa-stop',
 								hoverMessage: 'Click to STOP the link impairment.',
 								hrefFunction: 'linkImpairmentSsh',
-								hrefLink: `ssh ${edge.data("extraData").clabServerUsername}@${location.hostname} sudo /usr/bin/containerlab tools netem set -n ${edge.data('extraData').clabTargetLongName} -i ${edge.data("targetEndpoint")}`,
-								hrefFunctionArg: 'stop-target'
+								hrefLink: `/usr/bin/containerlab tools netem set -n ${edge.data('extraData').clabTargetLongName} -i ${edge.data("targetEndpoint")}`,
+								hrefLink02: `ssh ${edge.data("extraData").clabServerUsername}@${location.hostname} sudo /usr/bin/containerlab tools netem set -n ${edge.data('extraData').clabTargetLongName} -i ${edge.data("targetEndpoint")}`,
+								hrefFunctionArg: 'stop-target',
+								typeOfTopoviewerDeployment: deploymentType,
+
 							},						
 							{
 								name: 'green',
@@ -2691,58 +2721,58 @@
 						}
 						else if (addon.hrefFunction == 'linkImpairmentSsh') {
 							if (addon.hrefFunctionArg == 'start-source') {
-								button.classList.add('impairment-start-copy')
+								button.classList.add('impairment-start-source-ssh')
 								button.addEventListener('click', () => {
 									console.log('impairmentStartSshButton is clicked')
-									linkImpairmentManagerSsh('start-source', addon.hrefLink)
+									linkImpairmentManagerSsh('start-source', addon.hrefLink, addon.hrefLink02, addon.typeOfTopoviewerDeployment)
 								});
 							}
 							else if (addon.hrefFunctionArg == 'stop-source') {
-								button.classList.add('impairment-stop-copy')
+								button.classList.add('impairment-stop-source-ssh')
 								button.addEventListener('click', () => {
 									console.log('impairmentStopSshButton is clicked')
-									linkImpairmentManagerSsh('stop-source', addon.hrefLink)
+									linkImpairmentManagerSsh('stop-source', addon.hrefLink, addon.hrefLink02, addon.typeOfTopoviewerDeployment)
 								});
 							}
 							else if (addon.hrefFunctionArg == 'start-target') {
-								button.classList.add('impairment-stop-copy')
+								button.classList.add('impairment-start-target-ssh')
 								button.addEventListener('click', () => {
 									console.log('impairmentStopSshButton is clicked')
-									linkImpairmentManagerSsh('start-target', addon.hrefLink)
+									linkImpairmentManagerSsh('start-target', addon.hrefLink, addon.hrefLink02, addon.typeOfTopoviewerDeployment)
 								});
 							}
 							else if (addon.hrefFunctionArg == 'stop-target') {
-								button.classList.add('impairment-stop-copy')
+								button.classList.add('impairment-stop-target-ssh')
 								button.addEventListener('click', () => {
 									console.log('impairmentStopSshButton is clicked')
-									linkImpairmentManagerSsh('stop-target', addon.hrefLink)
+									linkImpairmentManagerSsh('stop-target', addon.hrefLink, addon.hrefLink02, addon.typeOfTopoviewerDeployment)
 								});
 							}
  						}		 
 						else if (addon.hrefFunction == 'linkImpairmentCopy') {
 							if (addon.hrefFunctionArg == 'start-source') {
-								button.classList.add('impairment-start-copy')
+								button.classList.add('impairment-start-source-copy')
 								button.addEventListener('click', () => {
 									console.log('impairmentStartCopyButton is clicked')
 									linkImpairmentManagerCopy('start-source', addon.hrefLink)
 								});
 							}
 							else if (addon.hrefFunctionArg == 'stop-source') {
-								button.classList.add('impairment-stop-copy')
+								button.classList.add('impairment-stop-source-copy')
 								button.addEventListener('click', () => {
 									console.log('impairmentStopCopyButton is clicked')
 									linkImpairmentManagerCopy('stop-source', addon.hrefLink)
 								});
 							}
 							else if (addon.hrefFunctionArg == 'start-target') {
-								button.classList.add('impairment-stop-copy')
+								button.classList.add('impairment-stop-target-copy')
 								button.addEventListener('click', () => {
 									console.log('impairmentStopCopyButton is clicked')
 									linkImpairmentManagerCopy('start-target', addon.hrefLink)
 								});
 							}
 							else if (addon.hrefFunctionArg == 'stop-target') {
-								button.classList.add('impairment-stop-copy')
+								button.classList.add('impairment-stop-target-copy')
 								button.addEventListener('click', () => {
 									console.log('impairmentStopCopyButton is clicked')
 									linkImpairmentManagerCopy('stop-target', addon.hrefLink)
@@ -3296,11 +3326,11 @@
 			}
 
 
-			function linkImpairmentManagerSsh(toggle, baseCommand) {
+			function linkImpairmentManagerSsh(toggle, baseCommandColocatedDeployment, baseCommandContainerDeployment, type) {
 
 				console.log("linkImpairmentManagerSsh-Function-Called")
 
-				fullCommand = baseCommand
+{{rawJSComment "				// fullCommand = baseCommand"}}
 
 				if (toggle == 'start-source') {
 					delayValue  = document.getElementById('panelBlock-tabContainer-LinkProperties-divPanelBlock-columnContainerlabelSourceImpairmentDelay-panelContentlabelSourceImpairmentDelay-columnsPanelContentlabelSourceImpairmentDelay-labelColumnlabelSourceImpairmentDelay-inputColumnlabelSourceImpairmentDelay-labellabelSourceImpairmentDelay').value
@@ -3313,13 +3343,31 @@
 					console.log(`rateValue: ${rateValue}`)
 					console.log(`lossValue: ${lossValue}`)
 
-					fullCommand = baseCommand + ` --delay ${delayValue}ms --jitter ${jitterValue}ms --rate ${rateValue} --loss ${lossValue}`
-					alert_msg = `SSH command to start link impairment is lit 🔥 and copied to your clipboard, ready to drop it in your terminal console like a boss! 🚀💻`
+					console.log(`type of deployment: ${type}`)
+
+					if (type == 'colocated') {
+						fullCommand = baseCommandColocatedDeployment + ` --delay ${delayValue}ms --jitter ${jitterValue}ms --rate ${rateValue} --loss ${lossValue}`
+						alert_msg = `SSH command to start link impairment is lit 🔥, ready to drop it in your terminal console like a boss! 🚀💻`
+					}else{
+						fullCommand = baseCommandContainerDeployment + ` --delay ${delayValue}ms --jitter ${jitterValue}ms --rate ${rateValue} --loss ${lossValue}`
+						alert_msg = `SSH command to start link impairment is lit 🔥, ready to drop it in your terminal console like a boss! 🚀💻`
+					}
+
+
 				} 
 				else if (toggle == 'stop-source') {
-					fullCommand = baseCommand
-					alert_msg = `SSH command to stop link impairment is lit 🔥 and copied to your clipboard, ready to drop it in your terminal console like a boss! 🚀💻`
+{{rawJSComment "					// fullCommand = baseCommand"}}
+					alert_msg = `SSH command to stop link impairment is lit 🔥, ready to drop it in your terminal console like a boss! 🚀💻`
+					if (type == 'colocated') {
+						fullCommand = baseCommandColocatedDeployment
+						alert_msg = `SSH command to start link impairment is lit 🔥, ready to drop it in your terminal console like a boss! 🚀💻`
+					}else{
+						fullCommand = baseCommandContainerDeployment
+						alert_msg = `SSH command to start link impairment is lit 🔥, ready to drop it in your terminal console like a boss! 🚀💻`
+					}
 				} 
+
+
 				else if (toggle == 'start-target') {
 					delayValue  = document.getElementById('panelBlock-tabContainer-LinkProperties-divPanelBlock-columnContainerlabelTargetImpairmentDelay-panelContentlabelTargetImpairmentDelay-columnsPanelContentlabelTargetImpairmentDelay-labelColumnlabelTargetImpairmentDelay-inputColumnlabelTargetImpairmentDelay-labellabelTargetImpairmentDelay').value
 					jitterValue = document.getElementById('panelBlock-tabContainer-LinkProperties-divPanelBlock-columnContainerlabelTargetImpairmentJitter-panelContentlabelTargetImpairmentJitter-columnsPanelContentlabelTargetImpairmentJitter-labelColumnlabelTargetImpairmentJitter-inputColumnlabelTargetImpairmentJitter-labellabelTargetImpairmentJitter').value
@@ -3331,16 +3379,30 @@
 					console.log(`rateValue: ${rateValue}`)
 					console.log(`lossValue: ${lossValue}`)
 
-					fullCommand = baseCommand + ` --delay ${delayValue}ms --jitter ${jitterValue}ms --rate ${rateValue} --loss ${lossValue}`
-					alert_msg = `SSH command to start link impairment is lit 🔥 and copied to your clipboard, ready to drop it in your terminal console like a boss! 🚀💻`
+					console.log(`type of deployment: ${type}`)
+
+					if (type == 'colocated') {
+						fullCommand = baseCommandColocatedDeployment + ` --delay ${delayValue}ms --jitter ${jitterValue}ms --rate ${rateValue} --loss ${lossValue}`
+						alert_msg = `SSH command to start link impairment is lit 🔥 and copied to your clipboard, ready to drop it in your terminal console like a boss! 🚀💻`
+					}else{
+						fullCommand = baseCommandContainerDeployment + ` --delay ${delayValue}ms --jitter ${jitterValue}ms --rate ${rateValue} --loss ${lossValue}`
+						alert_msg = `SSH command to start link impairment is lit 🔥 and copied to your clipboard, ready to drop it in your terminal console like a boss! 🚀💻`
+					}
+
 				} 
 				else if (toggle == 'stop-target') {
-					fullCommand = baseCommand
-					alert_msg = `SSH command to stop link impairment is lit 🔥 and copied to your clipboard, ready to drop it in your terminal console like a boss! 🚀💻`
+{{rawJSComment "					// fullCommand = baseCommand"}}
+					alert_msg = `SSH command to stop link impairment is lit 🔥, ready to drop it in your terminal console like a boss! 🚀💻`
+					if (type == 'colocated') {
+						fullCommand = baseCommandColocatedDeployment
+						alert_msg = `SSH command to start link impairment is lit 🔥, ready to drop it in your terminal console like a boss! 🚀💻`
+					}else{
+						fullCommand = baseCommandContainerDeployment
+						alert_msg = `SSH command to start link impairment is lit 🔥, ready to drop it in your terminal console like a boss! 🚀💻`
+					}
 				} 
 
 
-				console.log(`baseCommand: ${baseCommand}`)
 				console.log(`fullCommand: ${fullCommand}`)
 
 				callGoFunction(fullCommand, 'padding')
