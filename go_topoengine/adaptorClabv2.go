@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"os/exec"
 	"strings"
 	"time"
 
@@ -349,6 +350,30 @@ func (cyTopo *CytoTopology) RunSSHCommand(clabUser string, clabHost string, clab
 	}
 
 	return b.Bytes(), nil
+}
+
+func (cyTopo *CytoTopology) RunExecCommand(clabUser string, clabHost string, command string) ([]byte, error) {
+
+	log.Infof("RunExecCommand Function: '%s'", command)
+
+	// Split the command into individual arguments
+	args := strings.Fields(command)
+	cmd := exec.Command(args[0], args[1:]...)
+
+	output, err := cmd.Output()
+
+	if err != nil {
+		if err, ok := err.(*exec.ExitError); ok {
+			// The command exited with a non-zero status code
+			return nil, err
+		}
+		return nil, err
+	}
+
+	log.Infof("Output of RunExecCommand: %s", output)
+	log.Errorf("Error of RunExecCommand: %s", err)
+
+	return output, err
 }
 
 func (cyTopo *CytoTopology) GetDockerNodeStatus(clabNodeName string, clabUser string, clabHost string, clabPassword string) ([]byte, error) {

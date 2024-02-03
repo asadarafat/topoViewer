@@ -533,30 +533,65 @@ func Clab(_ *cobra.Command, _ []string) error {
 			clabPass := confClab.GetString("clab-pass")
 			log.Infof("clabPass: '%s'", clabPass)
 
-			// call function to run SSH commnd
-			cyTopo.RunSSHCommand(clabUser, clabHost[0], clabPass, command)
+			if deploymentType == "colocated" {
 
-			// Create a response JSON object
-			responseData := map[string]interface{}{
-				"result": "Netem command received",
-			}
+				log.Infof("executing exec command, since deployment type is colocated")
 
-			// Marshal the response JSON object into a JSON string
-			jsonResponse, err := json.Marshal(responseData)
-			if err != nil {
-				http.Error(w, "Failed to marshal response data", http.StatusInternalServerError)
-				return
-			}
+				returnData, err := cyTopo.RunExecCommand(clabUser, clabHost[0], command)
 
-			// Set the response Content-Type header
-			w.Header().Set("Content-Type", "application/json")
+				// Create a response JSON object
+				responseData := map[string]interface{}{
+					"result":      "Netem command received",
+					"return data": returnData,
+					"error":       err,
+				}
 
-			// Write the JSON response to the client
-			_, err = w.Write(jsonResponse)
-			if err != nil {
-				// Handle the error (e.g., log it)
-				http.Error(w, "Failed to write response", http.StatusInternalServerError)
-				return
+				// Marshal the response JSON object into a JSON string
+				jsonResponse, err := json.Marshal(responseData)
+				if err != nil {
+					http.Error(w, "Failed to marshal response data", http.StatusInternalServerError)
+					return
+				}
+
+				// Set the response Content-Type header
+				w.Header().Set("Content-Type", "application/json")
+
+				// Write the JSON response to the client
+				_, err = w.Write(jsonResponse)
+				if err != nil {
+					// Handle the error (e.g., log it)
+					http.Error(w, "Failed to write response", http.StatusInternalServerError)
+					return
+				}
+
+			} else {
+				// call function to run SSH commnd
+				returnData, err := cyTopo.RunSSHCommand(clabUser, clabHost[0], clabPass, command)
+
+				// Create a response JSON object
+				responseData := map[string]interface{}{
+					"result":      "Netem command received",
+					"return data": returnData,
+					"error":       err,
+				}
+
+				// Marshal the response JSON object into a JSON string
+				jsonResponse, err := json.Marshal(responseData)
+				if err != nil {
+					http.Error(w, "Failed to marshal response data", http.StatusInternalServerError)
+					return
+				}
+
+				// Set the response Content-Type header
+				w.Header().Set("Content-Type", "application/json")
+
+				// Write the JSON response to the client
+				_, err = w.Write(jsonResponse)
+				if err != nil {
+					// Handle the error (e.g., log it)
+					http.Error(w, "Failed to write response", http.StatusInternalServerError)
+					return
+				}
 			}
 		}).Methods("POST")
 

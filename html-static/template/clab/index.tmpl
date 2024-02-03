@@ -362,6 +362,12 @@
 				}
 
 {{rawJSComment "	// Fetch and load element data from a JSON file"}}
+
+
+					console.log ("Lab-Name: {{.LabName}}")
+					console.log ("DeploymentType: {{.DeploymentType}}")
+
+
  					fetch('dataCytoMarshall-{{.LabName}}.json')
 
 					.then(response => response.json())
@@ -467,12 +473,12 @@
 					console.log(defaultEdgeColor)
 
 {{rawJSComment "					// Change the color of the clicked edge (for example, to red)"}}
-					clickedEdge.style('line-color', '#457800');
+					clickedEdge.style('line-color', '#0043BF');
 
 {{rawJSComment "					// Revert the color of other edges that were not clicked (e.g., back to their default color)"}}
 					cy.edges().forEach(function(edge) {
 						if (edge !== clickedEdge) {
-							edge.style('line-color', defaultEdgeColor); // Replace 'defaultEdgeColor' with your default color
+							edge.style('line-color', defaultEdgeColor); 
 						}
 					});
 
@@ -1337,8 +1343,9 @@
 							name: 'blue',
 							iconClass: 'fas fa-play',
 							hoverMessage: 'Click to START the link impairment.',
-							hrefFunction: 'linkImpairmentSsh',
-							hrefLink: `/usr/bin/containerlab tools netem set -n ${edge.data('extraData').clabSourceLongName} -i ${edge.data("sourceEndpoint")}`,
+							hrefFunction: 'linkImpairmentManagerExec',
+							hrefLink: `ssh ${edge.data("extraData").clabServerUsername}@${location.hostname} sudo /usr/bin/containerlab tools netem set -n ${edge.data('extraData').clabSourceLongName} -i ${edge.data("sourceEndpoint")}`,
+							hrefLink02: `/usr/bin/containerlab tools netem set -n ${edge.data('extraData').clabSourceLongName} -i ${edge.data("sourceEndpoint")}`,
 							hrefFunctionArg: 'start-source',
 						},
 						{
@@ -1354,8 +1361,9 @@
 							name: 'blue',
 							iconClass: 'fas fa-stop',
 							hoverMessage: 'Click to STOP the link impairment.',
-							hrefFunction: 'linkImpairmentSsh',
+							hrefFunction: 'linkImpairmentManagerExec',
 							hrefLink: `ssh ${edge.data("extraData").clabServerUsername}@${location.hostname} sudo /usr/bin/containerlab tools netem set -n ${edge.data('extraData').clabSourceLongName} -i ${edge.data("sourceEndpoint")}`,
+							hrefLink02: `/usr/bin/containerlab tools netem set -n ${edge.data('extraData').clabSourceLongName} -i ${edge.data("sourceEndpoint")}`,
 							hrefFunctionArg: 'stop-source'
 						},						
 						{
@@ -1501,8 +1509,9 @@
 								name: 'blue',
 								iconClass: 'fas fa-play',
 								hoverMessage: 'Click to START the link impairment.',
-								hrefFunction: 'linkImpairmentSsh',
+								hrefFunction: 'linkImpairmentManagerExec',
 								hrefLink: `ssh ${edge.data("extraData").clabServerUsername}@${location.hostname} sudo /usr/bin/containerlab tools netem set -n ${edge.data('extraData').clabTargetLongName} -i ${edge.data("targetEndpoint")}`,
+								hrefLink02: `/usr/bin/containerlab tools netem set -n ${edge.data('extraData').clabTargetLongName} -i ${edge.data("targetEndpoint")}`,
 								hrefFunctionArg: 'start-target',
 							},
 							{
@@ -1518,8 +1527,9 @@
 								name: 'blue',
 								iconClass: 'fas fa-stop',
 								hoverMessage: 'Click to STOP the link impairment.',
-								hrefFunction: 'linkImpairmentSsh',
+								hrefFunction: 'linkImpairmentManagerExec',
 								hrefLink: `ssh ${edge.data("extraData").clabServerUsername}@${location.hostname} sudo /usr/bin/containerlab tools netem set -n ${edge.data('extraData').clabTargetLongName} -i ${edge.data("targetEndpoint")}`,
+								hrefLink02: `/usr/bin/containerlab tools netem set -n ${edge.data('extraData').clabTargetLongName} -i ${edge.data("targetEndpoint")}`,
 								hrefFunctionArg: 'stop-target'
 							},						
 							{
@@ -2366,7 +2376,7 @@
 {{rawJSComment "				//  { idSuffix: 'labelFindRouteSource', columnLabelTextContent: '', columnLabelClass: 'column is-0 p-0', columnInputType: 'field', columnInputContent: '', columnInputPlaceholder: 'name', columnInputAttribute: 'enabled', columnInputIsInvisible: 'yes',"}}
 {{rawJSComment "				//  	addonsContent: []"}}
 {{rawJSComment "				//  }				"}}
-{{rawJSComment "				//  { idSuffix: 'labellinkImpairmentSsh', columnLabelTextContent: 'Link Impairment', columnLabelClass: 'column is-4 p-1', columnInputType: 'field', columnInputContent: 'Apply', columntInputAttribute: 'enabled', // columntInputAttribute default is disabled"}}
+{{rawJSComment "				//  { idSuffix: 'labellinkImpairmentManagerExec', columnLabelTextContent: 'Link Impairment', columnLabelClass: 'column is-4 p-1', columnInputType: 'field', columnInputContent: 'Apply', columntInputAttribute: 'enabled', // columntInputAttribute default is disabled"}}
 {{rawJSComment "				//  addonsContent: ["}}
 {{rawJSComment "				//  	{"}}
 {{rawJSComment "				//  		name: 'blue',"}}
@@ -2704,33 +2714,33 @@
 								appendMessage(`SSH command is lit 🔥 and copied to your clipboard, ready to drop it in your terminal console like a boss! 🚀💻`)
 							});
 						}
-						else if (addon.hrefFunction == 'linkImpairmentSsh') {
+						else if (addon.hrefFunction == 'linkImpairmentManagerExec') {
 							if (addon.hrefFunctionArg == 'start-source') {
-								button.classList.add('impairment-start-copy')
+								button.classList.add('impairment-start-ssh')
 								button.addEventListener('click', () => {
 									console.log('impairmentStartSshButton is clicked')
-									linkImpairmentManagerSsh('start-source', addon.hrefLink)
+									linkImpairmentManagerExec('start-source', addon.hrefLink, addon.hrefLink02)
 								});
 							}
 							else if (addon.hrefFunctionArg == 'stop-source') {
-								button.classList.add('impairment-stop-copy')
+								button.classList.add('impairment-stop-ssh')
 								button.addEventListener('click', () => {
 									console.log('impairmentStopSshButton is clicked')
-									linkImpairmentManagerSsh('stop-source', addon.hrefLink)
+									linkImpairmentManagerExec('stop-source', addon.hrefLink, addon.hrefLink02)
 								});
 							}
 							else if (addon.hrefFunctionArg == 'start-target') {
-								button.classList.add('impairment-stop-copy')
+								button.classList.add('impairment-stop-ssh')
 								button.addEventListener('click', () => {
 									console.log('impairmentStopSshButton is clicked')
-									linkImpairmentManagerSsh('start-target', addon.hrefLink)
+									linkImpairmentManagerExec('start-target', addon.hrefLink, addon.hrefLink02)
 								});
 							}
 							else if (addon.hrefFunctionArg == 'stop-target') {
-								button.classList.add('impairment-stop-copy')
+								button.classList.add('impairment-stop-ssh')
 								button.addEventListener('click', () => {
 									console.log('impairmentStopSshButton is clicked')
-									linkImpairmentManagerSsh('stop-target', addon.hrefLink)
+									linkImpairmentManagerExec('stop-target', addon.hrefLink, addon.hrefLink02)
 								});
 							}
  						}		 
@@ -3311,11 +3321,19 @@
 			}
 
 
-			function linkImpairmentManagerSsh(toggle, baseCommand) {
+			function linkImpairmentManagerExec(toggle, baseCommandSsh, baseCommandExec) {
 
-				console.log("linkImpairmentManagerSsh-Function-Called")
+				console.log("linkImpairmentManagerExec-Function-Called")
+				
+				var deploymentType =  {{.DeploymentType}}
 
-				fullCommand = baseCommand
+
+				if (deploymentType == 'colocated') {
+					baseCommand = baseCommandExec
+				} else {
+					baseCommand = baseCommandSsh
+				}
+
 
 				if (toggle == 'start-source') {
 					delayValue  = document.getElementById('panelBlock-tabContainer-LinkProperties-divPanelBlock-columnContainerlabelSourceImpairmentDelay-panelContentlabelSourceImpairmentDelay-columnsPanelContentlabelSourceImpairmentDelay-labelColumnlabelSourceImpairmentDelay-inputColumnlabelSourceImpairmentDelay-labellabelSourceImpairmentDelay').value
@@ -3335,6 +3353,8 @@
 					fullCommand = baseCommand
 					alert_msg = `SSH command to stop link impairment is lit 🔥 and copied to your clipboard, ready to drop it in your terminal console like a boss! 🚀💻`
 				} 
+
+
 				else if (toggle == 'start-target') {
 					delayValue  = document.getElementById('panelBlock-tabContainer-LinkProperties-divPanelBlock-columnContainerlabelTargetImpairmentDelay-panelContentlabelTargetImpairmentDelay-columnsPanelContentlabelTargetImpairmentDelay-labelColumnlabelTargetImpairmentDelay-inputColumnlabelTargetImpairmentDelay-labellabelTargetImpairmentDelay').value
 					jitterValue = document.getElementById('panelBlock-tabContainer-LinkProperties-divPanelBlock-columnContainerlabelTargetImpairmentJitter-panelContentlabelTargetImpairmentJitter-columnsPanelContentlabelTargetImpairmentJitter-labelColumnlabelTargetImpairmentJitter-inputColumnlabelTargetImpairmentJitter-labellabelTargetImpairmentJitter').value
