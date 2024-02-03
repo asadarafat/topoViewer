@@ -408,53 +408,53 @@ func Clab(_ *cobra.Command, _ []string) error {
 		})
 	// // websocketcontainerNodeStatus endpoint
 	// // websocketcontainerNodeStatus endpoint
-	// router.HandleFunc("/containerNodeStatus",
-	// 	func(w http.ResponseWriter, r *http.Request) {
-	// 		// upgrade this connection to a WebSocket
-	// 		// connection
-	// 		containerNodeStatus, err := upgrader.Upgrade(w, r, nil)
-	// 		if err != nil {
-	// 			log.Info(err)
-	// 		}
-	// 		log.Infof("containerNodeStatus endpoint called")
+	router.HandleFunc("/containerNodeStatus",
+		func(w http.ResponseWriter, r *http.Request) {
+			// upgrade this connection to a WebSocket
+			// connection
+			containerNodeStatus, err := upgrader.Upgrade(w, r, nil)
+			if err != nil {
+				log.Info(err)
+			}
+			log.Infof("containerNodeStatus endpoint called")
 
-	// 		// w.WriteHeader(http.StatusOK)
-	// 		// The error message "http: response.WriteHeader on hijacked connection" in Go indicates that you are trying to write a HTTP header to a connection that has been hijacked. In the context of Go's net/http package, hijacking a connection typically means that the underlying network connection has been taken over by some other process or handler, often for purposes like upgrading to a WebSocket connection.
+			// w.WriteHeader(http.StatusOK)
+			// The error message "http: response.WriteHeader on hijacked connection" in Go indicates that you are trying to write a HTTP header to a connection that has been hijacked. In the context of Go's net/http package, hijacking a connection typically means that the underlying network connection has been taken over by some other process or handler, often for purposes like upgrading to a WebSocket connection.
 
-	// 		clabUser := confClab.GetString("clab-user")
-	// 		log.Infof("clabUser: '%s'", clabUser)
-	// 		clabHost := confClab.GetStringSlice("allowed-hostnames")
-	// 		log.Infof("clabHost: '%s'", clabHost[0])
-	// 		clabPass := confClab.GetString("clab-pass")
-	// 		log.Infof("clabPass: '%s'", clabPass)
+			clabUser := confClab.GetString("clab-user")
+			log.Infof("clabUser: '%s'", clabUser)
+			clabHost := confClab.GetStringSlice("allowed-hostnames")
+			log.Infof("clabHost: '%s'", clabHost[0])
+			clabPass := confClab.GetString("clab-pass")
+			log.Infof("clabPass: '%s'", clabPass)
 
-	// 		// simulating containerNodeStatus..
-	// 		// Add the new connection to the active connections list
+			// simulating containerNodeStatus..
+			// Add the new connection to the active connections list
 
-	// 		// Start an infinite loop
-	// 		for {
-	// 			// Print the sample GetDockerNodeStatus
-	// 			// log.Infof(string(cyTopo.GetDockerNodeStatus("clab-nokia-MAGc-lab-AGG-UPF01")))
-	// 			// log.Infof("node name:'%s'... ", cyTopo.ClabTopoDataV2.Nodes[0].Longname)
+			// Start an infinite loop
+			for {
+				// Print the sample GetDockerNodeStatus
+				// log.Infof(string(cyTopo.GetDockerNodeStatus("clab-nokia-MAGc-lab-AGG-UPF01")))
+				// log.Infof("node name:'%s'... ", cyTopo.ClabTopoDataV2.Nodes[0].Longname)
 
-	// 			for _, n := range cyTopo.ClabTopoDataV2.Nodes {
-	// 				// log.Infof("n.Longname", n.Longname)
+				for _, n := range cyTopo.ClabTopoDataV2.Nodes {
+					// log.Infof("n.Longname", n.Longname)
 
-	// 				// get docker status via ssh "docker ps --all"
-	// 				// x, err := cyTopo.GetDockerNodeStatus(n.Longname, clabUser, clabHost[0], clabPass)
+					// get docker status via ssh "docker ps --all"
+					// x, err := cyTopo.GetDockerNodeStatus(n.Longname, clabUser, clabHost[0], clabPass)
 
-	// 				// get docker status via unix socket
-	// 				x, err := cyTopo.GetDockerNodeStatusViaUnixSocket(n.Longname, clabHost[0])
+					// get docker status via unix socket
+					x, err := cyTopo.GetDockerNodeStatusViaUnixSocket(n.Longname, clabHost[0])
 
-	// 				containerNodeStatus.WriteMessage(1, x)
-	// 				if err != nil {
-	// 					log.Error(err)
-	// 				}
-	// 			}
-	// 			// Pause for a short duration (e.g., 5 seconds)
-	// 			time.Sleep(time.Second * 5)
-	// 		}
-	// 	})
+					containerNodeStatus.WriteMessage(1, x)
+					if err != nil {
+						log.Error(err)
+					}
+				}
+				// Pause for a short duration (e.g., 5 seconds)
+				time.Sleep(time.Second * 5)
+			}
+		})
 
 	//// websocket clabServerAddress endpoint
 	//// websocket clabServerAddress endpoint

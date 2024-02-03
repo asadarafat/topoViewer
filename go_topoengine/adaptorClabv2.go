@@ -446,6 +446,7 @@ func (cyTopo *CytoTopology) GetDockerNodeStatusViaUnixSocket(clabNodeName string
 	if err != nil {
 		log.Errorf("Failed to create Docker client: %v", err)
 	}
+	defer cli.Close() // Ensure Docker client is closed when the function exits
 
 	// Set a timeout for the Docker API requests (optional)
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
