@@ -161,11 +161,21 @@ func init() {
 // new messages being sent to our WebSocket
 // endpoint
 func reader(conn *websocket.Conn) {
+	defer conn.Close()
+
+	// Set the maximum allowed idle time for the WebSocket connection
+	conn.SetReadDeadline(time.Now().Add(5 * time.Second)) // Adjust the duration as needed
+
 	for {
 		// read in a message
 		messageType, p, err := conn.ReadMessage()
 		if err != nil {
-			log.Info(err)
+			// Check for specific close error codes indicating client-initiated closure
+			if websocket.IsCloseError(err, websocket.CloseNormalClosure, websocket.CloseGoingAway) {
+				log.Info("WebSocket connection closed by the client.")
+			} else {
+				log.Info("Error while reading from WebSocket:", err)
+			}
 			return
 		}
 		// print out that message for clarity
@@ -175,7 +185,7 @@ func reader(conn *websocket.Conn) {
 			log.Info(err)
 			return
 		}
-
+		conn.SetReadDeadline(time.Now().Add(5 * time.Second))
 	}
 }
 
@@ -210,7 +220,6 @@ func Clab(_ *cobra.Command, _ []string) error {
 	toolLogger.InitLogger("logs/topoengine-CytoTopology.log", cyTopo.LogLevel)
 
 	topoClab := confClab.GetString("topology-file-json")
-	log.Infof("topoFilePath: %s", topoClab)
 
 	//// Clab Version 2
 	//log.Debug("topo Clab: ", topoClab)
@@ -245,24 +254,26 @@ func Clab(_ *cobra.Command, _ []string) error {
 	deploymentType := confClab.GetString("deployment-type")
 
 	// log.Infof("topology file path    : '%s'", workingDirectory+"/"+topoClab)
+	log.Infof("====== Start up Parameter ======")
+	log.Infof("topology file			: '%s'", (topoClab))
+	log.Infof("depyloyment type		: %s", (deploymentType))
 
-	log.Infof("topology file    : '%s'", (topoClab))
+	log.Infof("working directory		: '%s'", workingDirectory)
+	log.Infof("command			: '%s'", command)
+	log.Infof("arguments			: ['%s']", strings.Join(arguments, "', '"))
 
-	log.Infof("working directory     : '%s'", workingDirectory)
-	log.Infof("command               : '%s'", command)
-	log.Infof("arguments             : ['%s']", strings.Join(arguments, "', '"))
+	log.Infof("allowed hosts			: ['%s']", strings.Join(allowedHostnames, "', '"))
+	log.Infof("connection error limit		: %v", connectionErrorLimit)
+	log.Infof("keepalive ping timeout		: %v", keepalivePingTimeout)
+	log.Infof("max buffer size		: %v bytes", maxBufferSizeBytes)
+	log.Infof("server address			: '%s' ", serverAddress)
+	log.Infof("server port			: %v", serverPort)
 
-	log.Infof("allowed hosts         : ['%s']", strings.Join(allowedHostnames, "', '"))
-	log.Infof("connection error limit: %v", connectionErrorLimit)
-	log.Infof("keepalive ping timeout: %v", keepalivePingTimeout)
-	log.Infof("max buffer size       : %v bytes", maxBufferSizeBytes)
-	log.Infof("server address        : '%s' ", serverAddress)
-	log.Infof("server port           : %v", serverPort)
-
-	log.Infof("liveness checks path  : '%s'", pathLiveness)
-	log.Infof("readiness checks path : '%s'", pathReadiness)
-	log.Infof("metrics endpoint path : '%s'", pathMetrics)
-	log.Infof("xtermjs endpoint path : '%s'", pathXTermJS)
+	log.Infof("liveness checks path		: '%s'", pathLiveness)
+	log.Infof("readiness checks path		: '%s'", pathReadiness)
+	log.Infof("metrics endpoint path		: '%s'", pathMetrics)
+	log.Infof("xtermjs endpoint path		: '%s'", pathXTermJS)
+	log.Infof("====== Start up Parameter ======")
 
 	// configure routing
 	router := mux.NewRouter()
@@ -335,36 +346,37 @@ func Clab(_ *cobra.Command, _ []string) error {
 	// // websocket endpoint
 	router.HandleFunc("/ws",
 		func(w http.ResponseWriter, r *http.Request) {
-			// upgrade this connection to a WebSocket
-			// connection
+			// Upgrade this connection to a WebSocket connection
 			ws, err := upgrader.Upgrade(w, r, nil)
 			if err != nil {
 				log.Info(err)
+				return // Return to exit the handler if WebSocket upgrade fails
 			}
-			log.Infof("websocket endpoint called")
-			// w.WriteHeader(http.StatusOK)
+			defer ws.Close() // Ensure WebSocket connection is closed when the handler exits
 
-			var message []byte
+			log.Infof("WebSocket endpoint called")
 
-			// simulating telemetry data..
+			// Simulating telemetry data...
 			rand.Seed(time.Now().UnixNano())
 			var number int
 
 			for i := 0; i < 10000; i++ {
-				number = rand.Intn(60) + 1
-				message = []byte(strconv.Itoa(number))
-				err = ws.WriteMessage(1, message)
-				if err != nil {
-					log.Info(err)
+				select {
+				case <-r.Context().Done():
+					log.Info("WebSocket connection closed due to client disconnect")
+					return // Return to exit the loop when the client disconnects
+				default:
+					number = rand.Intn(60) + 1
+					message := []byte(strconv.Itoa(number))
+					err = ws.WriteMessage(websocket.TextMessage, message)
+					if err != nil {
+						log.Info(err)
+						return // Return to exit the handler if write fails
+					}
+					time.Sleep(2 * time.Second)
+					log.Infof("Sending telemetry via WebSocket: %v", message)
 				}
-				time.Sleep(2 * time.Second)
-				log.Infof("sending topoViewer object telemetry via websocket, object telemetry is: %v", message)
-
 			}
-
-			// listen indefinitely for new messages coming
-			// through on our WebSocket connection
-			reader(ws)
 		})
 
 	// // websocketUptime endpoint
@@ -373,53 +385,62 @@ func Clab(_ *cobra.Command, _ []string) error {
 		func(w http.ResponseWriter, r *http.Request) {
 			var message time.Duration
 
-			// upgrade this connection to a WebSocket
-			// connection
+			// Upgrade this connection to a WebSocket connection
 			uptime, err := upgrader.Upgrade(w, r, nil)
 			if err != nil {
 				log.Info(err)
+				return // Return to exit the handler if WebSocket upgrade fails
 			}
-			log.Infof("uptime endpoint called")
-			// w.WriteHeader(http.StatusOK)
+			defer func() {
+				// Remove the connection from the active connections list when the handler exits
+				connectionsMu.Lock()
+				delete(connections, uptime)
+				connectionsMu.Unlock()
+				uptime.Close() // Close the WebSocket connection when the handler exits
+			}()
 
-			// simulating uptime..
+			log.Infof("uptime endpoint called")
+
+			// Simulating uptime...
 			// Add the new connection to the active connections list
 			connectionsMu.Lock()
 			connections[uptime] = true
 			connectionsMu.Unlock()
 
 			for {
-				log.Debugf("uptime %s\n", time.Since(StartTime))
-				message = time.Since(StartTime)
-				uptimeString := strings.Split(strings.Split(message.String(), "s")[0], ".")[0] + "s"
-				err = uptime.WriteMessage(1, []byte(uptimeString))
-				if err != nil {
-					// Remove the connection from the active connections list when the client disconnects
-					if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
+				select {
+				case <-r.Context().Done():
+					log.Info("WebSocket connection closed due to client disconnect")
+					return // Return to exit the loop when the client disconnects
+				default:
+					log.Debugf("Uptime %s\n", time.Since(StartTime))
+					message = time.Since(StartTime)
+					uptimeString := strings.Split(strings.Split(message.String(), "s")[0], ".")[0] + "s"
+					err = uptime.WriteMessage(websocket.TextMessage, []byte(uptimeString))
+					if err != nil {
 						log.Debug("Error writing message:", err)
-						connectionsMu.Lock()
-						delete(connections, uptime)
-						connectionsMu.Unlock()
-						log.Info(err)
+						return // Return to exit the handler if write fails
 					}
+					time.Sleep(10 * time.Second)
 				}
-				time.Sleep(time.Second * 10)
 			}
 		})
+
 	// // websocketcontainerNodeStatus endpoint
 	// // websocketcontainerNodeStatus endpoint
 	router.HandleFunc("/containerNodeStatus",
 		func(w http.ResponseWriter, r *http.Request) {
-			// upgrade this connection to a WebSocket
-			// connection
+			// Upgrade this connection to a WebSocket connection
 			containerNodeStatus, err := upgrader.Upgrade(w, r, nil)
 			if err != nil {
 				log.Info(err)
+				return // Return to exit the handler if WebSocket upgrade fails
 			}
-			log.Infof("containerNodeStatus endpoint called")
+			defer func() {
+				containerNodeStatus.Close() // Close the WebSocket connection when the handler exits
+			}()
 
-			// w.WriteHeader(http.StatusOK)
-			// The error message "http: response.WriteHeader on hijacked connection" in Go indicates that you are trying to write a HTTP header to a connection that has been hijacked. In the context of Go's net/http package, hijacking a connection typically means that the underlying network connection has been taken over by some other process or handler, often for purposes like upgrading to a WebSocket connection.
+			log.Infof("containerNodeStatus endpoint called")
 
 			clabUser := confClab.GetString("clab-user")
 			log.Infof("clabUser: '%s'", clabUser)
@@ -428,31 +449,33 @@ func Clab(_ *cobra.Command, _ []string) error {
 			clabPass := confClab.GetString("clab-pass")
 			log.Infof("clabPass: '%s'", clabPass)
 
-			// simulating containerNodeStatus..
+			// simulating containerNodeStatus...
 			// Add the new connection to the active connections list
 
-			// Start an infinite loop
 			for {
-				// Print the sample GetDockerNodeStatus
-				// log.Infof(string(cyTopo.GetDockerNodeStatus("clab-nokia-MAGc-lab-AGG-UPF01")))
-				// log.Infof("node name:'%s'... ", cyTopo.ClabTopoDataV2.Nodes[0].Longname)
+				select {
+				case <-r.Context().Done():
+					log.Info("WebSocket connection closed due to client disconnect")
+					return // Return to exit the loop when the client disconnects
+				default:
+					for _, n := range cyTopo.ClabTopoDataV2.Nodes {
+						// get docker status via unix socket
+						x, err := cyTopo.GetDockerNodeStatusViaUnixSocket(n.Longname, clabHost[0])
 
-				for _, n := range cyTopo.ClabTopoDataV2.Nodes {
-					// log.Infof("n.Longname", n.Longname)
+						if err != nil {
+							log.Error(err)
+							return // Return to exit the handler if an error occurs
+						}
 
-					// get docker status via ssh "docker ps --all"
-					// x, err := cyTopo.GetDockerNodeStatus(n.Longname, clabUser, clabHost[0], clabPass)
-
-					// get docker status via unix socket
-					x, err := cyTopo.GetDockerNodeStatusViaUnixSocket(n.Longname, clabHost[0])
-
-					containerNodeStatus.WriteMessage(1, x)
-					if err != nil {
-						log.Error(err)
+						err = containerNodeStatus.WriteMessage(websocket.TextMessage, x)
+						if err != nil {
+							log.Info(err)
+							return // Return to exit the handler if write fails
+						}
 					}
+					// Pause for a short duration (e.g., 5 seconds)
+					time.Sleep(5 * time.Second)
 				}
-				// Pause for a short duration (e.g., 5 seconds)
-				time.Sleep(time.Second * 5)
 			}
 		})
 
@@ -460,18 +483,26 @@ func Clab(_ *cobra.Command, _ []string) error {
 	//// websocket clabServerAddress endpoint
 	router.HandleFunc("/clabServerAddress",
 		func(w http.ResponseWriter, r *http.Request) {
-			// upgrade this connection to a WebSocket connection
+			// Upgrade this connection to a WebSocket connection
 			clabServerAddress, err := upgrader.Upgrade(w, r, nil)
 			if err != nil {
 				log.Info(err)
+				return // Return to exit the handler if WebSocket upgrade fails
 			}
+
+			defer func() {
+				clabServerAddress.Close() // Close the WebSocket connection when the handler exits
+			}()
+
 			clabHost := confClab.GetStringSlice("allowed-hostnames")
 			log.Infof("clabServerAddress endpoint called, clabHost is %s", clabHost[0])
 
-			// w.WriteHeader(http.StatusOK)
-
-			// Add the new connection to the active connections list
-			clabServerAddress.WriteMessage(1, []byte(clabHost[0]))
+			// Write the clabHost value to the WebSocket connection
+			err = clabServerAddress.WriteMessage(websocket.TextMessage, []byte(clabHost[0]))
+			if err != nil {
+				log.Info(err)
+				return // Return to exit the handler if write fails
+			}
 		})
 
 	//// clabNetem endpoint
