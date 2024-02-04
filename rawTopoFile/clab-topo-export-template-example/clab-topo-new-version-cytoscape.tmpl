@@ -30,7 +30,7 @@
         "mgmt-ipv6-prefix-length": {{$c.MgmtIPv6PrefixLength}},
         "mac-address": "{{$c.MacAddress}}",
         "labels": {{ToJSONPretty $c.Labels "      " "  "}}
-    {{$i = add $i 1}}}{{end}}
+        {{$i = add $i 1}}}{{end}}
     ],
 "links": [{{range $i, $l := .Clab.Links}}{{if $i}},{{end}}{{ $endpointA := index $l.Endpoints 0 }}{{ $endpointB := index $l.Endpoints 1 }}{{ $endpointAList := split (printf "%s"
  $endpointA) ":" }}{{ $endpointBList := split (printf "%s" $endpointB) ":" }}

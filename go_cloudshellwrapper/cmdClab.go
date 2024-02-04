@@ -1,6 +1,7 @@
 package cloudshellwrapper
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -21,6 +22,9 @@ import (
 	tools "github.com/asadarafat/topoViewer/go_tools"
 	cp "github.com/otiai10/copy"
 	log "github.com/sirupsen/logrus"
+
+	"github.com/openconfig/gnmic/pkg/api"
+	"google.golang.org/protobuf/encoding/prototext"
 
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
@@ -157,43 +161,118 @@ func init() {
 	rootCommand.AddCommand(&clabCommand)
 }
 
+// test gMNIc
+func SendGnmicToNodeCapabilities(targetName string, targetAddress string, targetUsername string, targetPassword string, skipVerifyFlag bool, insecureFlag bool) {
+	// create a target
+	tg, err := api.NewTarget(
+		api.Name(targetName),
+		api.Address(targetAddress+":57400"),
+		api.Username(targetUsername),
+		api.Password(targetPassword),
+		api.SkipVerify(skipVerifyFlag),
+		api.Insecure(insecureFlag),
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	// create a gNMI client
+	err = tg.CreateGNMIClient(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer tg.Close()
+
+	// send a gNMI capabilities request to the created target
+	capResp, err := tg.Capabilities(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(prototext.Format(capResp))
+}
+
+func SendGnmicToNodeGet(targetName string, targetAddress string, targetUsername string, targetPassword string, skipVerifyFlag bool, insecureFlag bool, path string) {
+	// create a target
+	tg, err := api.NewTarget(
+		api.Name(targetName),
+		api.Address(targetAddress+":57400"),
+		api.Username(targetUsername),
+		api.Password(targetPassword),
+		api.SkipVerify(skipVerifyFlag),
+		api.Insecure(insecureFlag),
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	// create a gNMI client
+	err = tg.CreateGNMIClient(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer tg.Close()
+
+	// create a GetRequest
+	getReq, err := api.NewGetRequest(
+		api.Path(path),
+		api.Encoding("json_ietf"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(prototext.Format(getReq))
+
+	// send the created gNMI GetRequest to the created target
+	getResp, err := tg.Get(ctx, getReq)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(prototext.Format(getResp))
+}
+
 // define a reader which will listen for
 // new messages being sent to our WebSocket
 // endpoint
-func reader(conn *websocket.Conn) {
-	defer conn.Close()
+// func reader(conn *websocket.Conn) {
+// 	defer conn.Close()
 
-	// Set the maximum allowed idle time for the WebSocket connection
-	conn.SetReadDeadline(time.Now().Add(5 * time.Second)) // Adjust the duration as needed
+// 	// Set the maximum allowed idle time for the WebSocket connection
+// 	conn.SetReadDeadline(time.Now().Add(5 * time.Second)) // Adjust the duration as needed
 
-	for {
-		// read in a message
-		messageType, p, err := conn.ReadMessage()
-		if err != nil {
-			// Check for specific close error codes indicating client-initiated closure
-			if websocket.IsCloseError(err, websocket.CloseNormalClosure, websocket.CloseGoingAway) {
-				log.Info("WebSocket connection closed by the client.")
-			} else {
-				log.Info("Error while reading from WebSocket:", err)
-			}
-			return
-		}
-		// print out that message for clarity
-		log.Info(string(p))
+// 	for {
+// 		// read in a message
+// 		messageType, p, err := conn.ReadMessage()
+// 		if err != nil {
+// 			// Check for specific close error codes indicating client-initiated closure
+// 			if websocket.IsCloseError(err, websocket.CloseNormalClosure, websocket.CloseGoingAway) {
+// 				log.Info("WebSocket connection closed by the client.")
+// 			} else {
+// 				log.Info("Error while reading from WebSocket:", err)
+// 			}
+// 			return
+// 		}
+// 		// print out that message for clarity
+// 		log.Info(string(p))
 
-		if err := conn.WriteMessage(messageType, p); err != nil {
-			log.Info(err)
-			return
-		}
-		conn.SetReadDeadline(time.Now().Add(5 * time.Second))
-	}
-}
+// 		if err := conn.WriteMessage(messageType, p); err != nil {
+// 			log.Info(err)
+// 			return
+// 		}
+// 		conn.SetReadDeadline(time.Now().Add(5 * time.Second))
+// 	}
+// }
 
 func checkSudoAccess() {
 	euid := syscall.Geteuid()
 
 	if euid == 0 {
 		log.Infof("Yo, this app is running with sudo access (as root).")
+
 	} else {
 		log.Infof("This app ain't got no sudo powers, bro.")
 		os.Exit(1)
@@ -205,6 +284,11 @@ func Clab(_ *cobra.Command, _ []string) error {
 
 	//check sudo
 	checkSudoAccess()
+	// SendGnmicToNodeCapabilities("srl", "10.2.1.121", "admin", "NokiaSrl1!", true, false)
+	// SendGnmicToNodeCapabilities("sros", "10.2.1.101", "admin", "admin", true, true)
+
+	// SendGnmicToNodeGet("srl", "10.2.1.121", "admin", "NokiaSrl1!", true, false, "/system/name")
+	// SendGnmicToNodeGet("sros", "10.2.1.101", "admin", "admin", true, true, "/system/name")
 
 	// initialise the cloudshellLogger
 	// tools.InitCloudShellLog(tools.Format(confClab.GetString("log-format")), tools.Level(confClab.GetString("log-level")))
@@ -632,18 +716,6 @@ func Clab(_ *cobra.Command, _ []string) error {
 	destinationClabClientImageFolder := htmlPublicPrefixPath + cyTopo.ClabTopoDataV2.Name + "/clab-client"
 	err1 := cp.Copy(sourceClabClientFolder, destinationClabClientImageFolder)
 	log.Debug("Copying clab-client folder error: ", err1)
-
-	// createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "index.tmpl", cyTopo.ClabTopoDataV2.Name+"/"+"index.html", "dataCytoMarshall-"+cyTopo.ClabTopoDataV2.Name+".json")
-
-	// createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "index.tmpl", cyTopo.ClabTopoDataV2.Name+"/"+"index.html", cyTopo.ClabTopoDataV2.Name)
-	// createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "cy-style.tmpl", cyTopo.ClabTopoDataV2.Name+"/"+"cy-style.json", "")
-	// createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "cloudshell-index.tmpl", cyTopo.ClabTopoDataV2.Name+"/cloudshell/"+"index.html", "")
-	// createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "cloudshell-terminal-js.tmpl", cyTopo.ClabTopoDataV2.Name+"/cloudshell/"+"terminal.js", "")
-	// createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "tools-cloudshell-index.tmpl", cyTopo.ClabTopoDataV2.Name+"/cloudshell-tools/"+"index.html", "")
-	// createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "tools-cloudshell-terminal-js.tmpl", cyTopo.ClabTopoDataV2.Name+"/cloudshell-tools/"+"terminal.js", "")
-	// createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "websocket-index.tmpl", cyTopo.ClabTopoDataV2.Name+"/ws/"+"index.html", "")
-
-	// createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "button.tmpl", cyTopo.ClabTopoDataV2.Name+"/"+"button.html", cyTopo.ClabTopoDataV2.Name)
 
 	indexHtmldata := IndexHtmlStruct{
 		LabName:        cyTopo.ClabTopoDataV2.Name,

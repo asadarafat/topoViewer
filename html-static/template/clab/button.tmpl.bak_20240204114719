@@ -244,37 +244,29 @@
 
 			<script>
 
-{{rawJSComment "				// CSS TUTORIAL"}}
-{{rawJSComment "				//"}}
-{{rawJSComment "				// /* Style box-shadow"}}
-{{rawJSComment "				// The box-shadow property in CSS is used to create a shadow effect around an element, such as a button or a box. It adds depth and dimension to the element, making it appear raised or floating above the background. Here's the breakdown of the property values:"}}
-{{rawJSComment "				// 0px represents the horizontal offset of the shadow. In this case, there is no horizontal offset, so the shadow is directly behind the element."}}
-{{rawJSComment "				// 0px represents the vertical offset of the shadow. There's no vertical offset, so the shadow is right below the element."}}
-{{rawJSComment "				// 5px is the blur radius of the shadow. It determines how blurry or sharp the shadow edges appear. In this case, the shadow is slightly blurry, creating a softer effect."}}
-{{rawJSComment "				// rgba(0, 0, 0, 0.2) specifies the color and transparency of the shadow. It's a black shadow (0, 0, 0 represents black), and the 0.2 alpha value makes it slightly transparent. The alpha value controls the shadow's opacity, with 0 being completely transparent and 1 being fully opaque."}}
-{{rawJSComment "				// */	"}}
+{{rawJSComment "##				// CSS TUTORIAL"}}
+{{rawJSComment "##				//"}}
+{{rawJSComment "##				// /* Style box-shadow"}}
+{{rawJSComment "##				// The box-shadow property in CSS is used to create a shadow effect around an element, such as a button or a box. It adds depth and dimension to the element, making it appear raised or floating above the background. Here's the breakdown of the property values:"}}
+{{rawJSComment "##				// 0px represents the horizontal offset of the shadow. In this case, there is no horizontal offset, so the shadow is directly behind the element."}}
+{{rawJSComment "##				// 0px represents the vertical offset of the shadow. There's no vertical offset, so the shadow is right below the element."}}
+{{rawJSComment "##				// 5px is the blur radius of the shadow. It determines how blurry or sharp the shadow edges appear. In this case, the shadow is slightly blurry, creating a softer effect."}}
+{{rawJSComment "##				// rgba(0, 0, 0, 0.2) specifies the color and transparency of the shadow. It's a black shadow (0, 0, 0 represents black), and the 0.2 alpha value makes it slightly transparent. The alpha value controls the shadow's opacity, with 0 being completely transparent and 1 being fully opaque."}}
+{{rawJSComment "##				// */	"}}
 
 		
 
 
 
 
-{{rawJSComment "			// Instantiate Panel Weclome, this is should be loaded before CY"}}
+{{rawJSComment "##			// Instantiate Panel Weclome, this is should be loaded before CY"}}
 			showPanelWelcome()
 
-{{rawJSComment "			// Initialize a state variable to track the element's presence"}}
+{{rawJSComment "##			// Initialize a state variable to track the element's presence"}}
 			let isPanel01Cy = false;
 			let nodeClicked = false;
 			let edgeClicked = false;
 			
-
-			const labName =  '{{.LabName}}'
-			const deploymentType = '{{.DeploymentType}}'
-
-			console.log ("Lab-Name: ", labName)
-			console.log ("DeploymentType: ", deploymentType)
-
-
 
 
 
@@ -283,7 +275,7 @@
 
 
 
-{{rawJSComment "				// Reusable function to initialize a WebSocket connection"}}
+{{rawJSComment "##				// Reusable function to initialize a WebSocket connection"}}
 				function initializeWebSocket(url, onMessageCallback) {
 					const protocol = location.protocol === 'https:' ? 'wss://' : 'ws://';
 					const socket = new WebSocket(protocol + location.host + url);
@@ -309,9 +301,9 @@
 					return socket;
 				}
 
-{{rawJSComment "				// WebSocket for uptime"}}
+{{rawJSComment "##				// WebSocket for uptime"}}
 				const socketUptime = initializeWebSocket('/uptime', (msgUptime) => {
-					const string01 = 'Containerlab Topology: ' + labName;
+					const string01 = 'Containerlab Topology: ' + "nokia-MAGc-lab";
 					const string02 = ' ::: Uptime: ' + msgUptime.data;
 
 					const ClabSubtitle = document.getElementById("ClabSubtitle");
@@ -321,28 +313,26 @@
 					console.log(ClabSubtitle.innerText);
 				});
 
-{{rawJSComment "				// WebSocket for ContainerNodeStatus"}}
+{{rawJSComment "##				// WebSocket for ContainerNodeStatus"}}
 				const socketContainerNodeStatusInitial = initializeWebSocket('/containerNodeStatus', (msgContainerNodeStatus) => {
 					try {
-						const { Names, Status, State } = JSON.parse(msgContainerNodeStatus.data);
+						const { Names, Status } = JSON.parse(msgContainerNodeStatus.data);
 						setNodeContainerStatus(Names, Status);
 						console.log(JSON.parse(msgContainerNodeStatus.data));
-
-						setNodeDataWithContainerAttribute(Names, Status, State);
 
 					} catch (error) {
 						console.error("Error parsing JSON:", error);
 					}
 				});
 
-{{rawJSComment "				// WebSocket for clabServerAddress"}}
+{{rawJSComment "##				// WebSocket for clabServerAddress"}}
 				const socketclabServerAddress = initializeWebSocket('/clabServerAddress', (msgclabServerAddress) => {
 					console.log(msgclabServerAddress.data);
 					document.title = "TopoViewer ::: " + msgclabServerAddress.data;
 				});
 
 
-{{rawJSComment "				//- Instantiate Cytoscape.js"}}
+{{rawJSComment "##				//- Instantiate Cytoscape.js"}}
 				const cy = cytoscape({
 					container: document.getElementById('cy'),
 					elements: [],
@@ -358,11 +348,11 @@
 
 				loadCytoStyle()
 				function loadCytoStyle() {
-{{rawJSComment "					//- Load and apply Cytoscape styles from cy-style.json using fetch"}}
+{{rawJSComment "##					//- Load and apply Cytoscape styles from cy-style.json using fetch"}}
 					fetch('cy-style.json')
 						.then(response => response.json())
 						.then(styles => {
-{{rawJSComment "							//- Apply styles loaded from cy-style.json"}}
+{{rawJSComment "##							//- Apply styles loaded from cy-style.json"}}
 							cy.style().fromJson(styles).update();
 						})
 						.catch(error => {
@@ -371,19 +361,20 @@
 						});
 				}
 
-{{rawJSComment "	// Fetch and load element data from a JSON file"}}
+{{rawJSComment "##	// Fetch and load element data from a JSON file"}}
 
 
+					console.log ("Lab-Name: nokia-MAGc-lab")
+					console.log ("DeploymentType: colocated")
 
 
-
- 					fetch('dataCytoMarshall-'+labName+'.json')
+ 					fetch('dataCytoMarshall-nokia-MAGc-lab.json')
 
 					.then(response => response.json())
 					.then(elements => {
-{{rawJSComment "						// Add the elements to the Cytoscape instance"}}
+{{rawJSComment "##						// Add the elements to the Cytoscape instance"}}
 						cy.add(elements);
-{{rawJSComment "						//- run layout"}}
+{{rawJSComment "##						//- run layout"}}
 						const layout = cy.layout({
 							name: 'cola',
 							nodeGap: 5,
@@ -394,7 +385,7 @@
 						});
 						layout.run();
 
-{{rawJSComment "						// remove node topoviewer"}}
+{{rawJSComment "##						// remove node topoviewer"}}
 						topoViewerNode = cy.filter('node[name = "topoviewer"]');
 						topoViewerNode.remove()
 
@@ -406,16 +397,16 @@
 
 
 
-{{rawJSComment "				// Instantiate hover text element"}}
+{{rawJSComment "##				// Instantiate hover text element"}}
 				const hoverText = document.createElement('box');
 				hoverText.classList.add('hover-text', 'is-hidden', 'box', 'has-text-weight-normal', 'is-warning', 'is-smallest');
 				hoverText.textContent = 'Launch CloudShell.';
 				document.body.appendChild(hoverText);
 
-{{rawJSComment "				//- Toggle the Panel(s) when clicking on the cy container "}}
+{{rawJSComment "##				//- Toggle the Panel(s) when clicking on the cy container "}}
 				document.getElementById('cy').addEventListener('click', function(event) {
-{{rawJSComment "					//- This code will be executed when you click anywhere in the Cytoscape container"}}
-{{rawJSComment "					//- You can add logic specific to the container here"}}
+{{rawJSComment "##					//- This code will be executed when you click anywhere in the Cytoscape container"}}
+{{rawJSComment "##					//- You can add logic specific to the container here"}}
 
 					loadCytoStyle()
 
@@ -424,20 +415,20 @@
 							removeElementById("Panel-01");
 							removeElementById("Panel-03");
 
-{{rawJSComment "							// display none each ViewPortDrawer Element, the ViewPortDrawer is created during DOM loading and styled as display node initially	"}}
+{{rawJSComment "##							// display none each ViewPortDrawer Element, the ViewPortDrawer is created during DOM loading and styled as display node initially	"}}
 							var ViewPortDrawerElements = document.getElementsByClassName('ViewPortDrawer'); 
 							var ViewPortDrawerArray = Array.from(ViewPortDrawerElements); 
 							ViewPortDrawerArray.forEach(function(element) {
 								element.style.display = 'none'
 							});
 
-{{rawJSComment "							// Define tabContentFns with custom content generation functions"}}
-{{rawJSComment "							// createNetworkExplorerTab is has corresponding function with similar name."}}
+{{rawJSComment "##							// Define tabContentFns with custom content generation functions"}}
+{{rawJSComment "##							// createNetworkExplorerTab is has corresponding function with similar name."}}
 
-{{rawJSComment "							// Hide Actions panel, future use"}}
-{{rawJSComment "							// const tabContentFns = [createNetworkExplorerTab, createNetworkBuilderTab];"}}
-{{rawJSComment "							// const tabContentFnsArg = ['createNetworkExplorerTab', 'createNetworkBuilderTab'];"}}
-{{rawJSComment "							// createContentPanel('Panel-01', tabContentFns, tabContentFnsArg, 'Actions');"}}
+{{rawJSComment "##							// Hide Actions panel, future use"}}
+{{rawJSComment "##							// const tabContentFns = [createNetworkExplorerTab, createNetworkBuilderTab];"}}
+{{rawJSComment "##							// const tabContentFnsArg = ['createNetworkExplorerTab', 'createNetworkBuilderTab'];"}}
+{{rawJSComment "##							// createContentPanel('Panel-01', tabContentFns, tabContentFnsArg, 'Actions');"}}
 						} else {
 							removeElementById("Panel-01");
 							appendMessage(`"try to remove panel01-Cy"`)
@@ -450,14 +441,14 @@
 					appendMessage(`"nodeClicked: " ${nodeClicked}`)
 				});
 
-{{rawJSComment "				// Click event listener for nodes"}}
+{{rawJSComment "##				// Click event listener for nodes"}}
 				cy.on('click', 'node', function(event) {
-{{rawJSComment "					// This code will be executed when you click on a node"}}
+{{rawJSComment "##					// This code will be executed when you click on a node"}}
 					const node = event.target
 					nodeClicked = true;
 
 					if (!node.isParent()) {
-{{rawJSComment "						// You can add logic specific to nodes here"}}
+{{rawJSComment "##						// You can add logic specific to nodes here"}}
 						removeElementById("Panel-01");
 						const tabContentFns = [createNodeDetailTab];
 						const tabContentFnsArg = [node];
@@ -469,28 +460,29 @@
 					}
 				});
 
-{{rawJSComment "				// Click event listener for edges"}}
+{{rawJSComment "##				// Click event listener for edges"}}
 				cy.on('click', 'edge', function(event) {
-{{rawJSComment "					// This code will be executed when you click on a node"}}
-{{rawJSComment "					// You can add logic specific to nodes here"}}
+{{rawJSComment "##					// This code will be executed when you click on a node"}}
+{{rawJSComment "##					// You can add logic specific to nodes here"}}
 					const clickedEdge = event.target
-					const defaultEdgeColor = '#B1BCC8'
 					edgeClicked = true;
 
+{{rawJSComment "##					// Assuming you have a reference to the clicked edge in a variable 'edge'"}}
+					const defaultEdgeColor = clickedEdge.style('line-color');
 
 					console.log(defaultEdgeColor)
 
-{{rawJSComment "					// Change the color of the clicked edge (for example, to red)"}}
+{{rawJSComment "##					// Change the color of the clicked edge (for example, to red)"}}
 					clickedEdge.style('line-color', '#0043BF');
 
-{{rawJSComment "					// Revert the color of other edges that were not clicked (e.g., back to their default color)"}}
+{{rawJSComment "##					// Revert the color of other edges that were not clicked (e.g., back to their default color)"}}
 					cy.edges().forEach(function(edge) {
 						if (edge !== clickedEdge) {
 							edge.style('line-color', defaultEdgeColor); 
 						}
 					});
 
-{{rawJSComment "					// You can add logic specific to nodes here"}}
+{{rawJSComment "##					// You can add logic specific to nodes here"}}
 					removeElementById("Panel-01");
 					const tabContentFns = [createEdgeDetailTab];
 					tabContentFnsArg = [clickedEdge];
@@ -501,18 +493,18 @@
 					appendMessage(`"nodeClicked: " ${nodeClicked}`)
 				});
 
-{{rawJSComment "				// Instantiate viewport buttons"}}
+{{rawJSComment "##				// Instantiate viewport buttons"}}
 				createViewportButtons(cy)
 
 				function createViewportButtons(cy) {
-{{rawJSComment "					// Create a buttons container"}}
+{{rawJSComment "##					// Create a buttons container"}}
 					const boxContainer = document.createElement('div');
 					boxContainer.className = 'box p-2';
 					boxContainer.id = 'ViewPortButtons';
-{{rawJSComment "					// Set a new box shadow using the style property"}}
-{{rawJSComment "					// boxContainer.style.boxShadow = '5px 10px 10px rgba(0, 0, 0, 0.3)';"}}
+{{rawJSComment "##					// Set a new box shadow using the style property"}}
+{{rawJSComment "##					// boxContainer.style.boxShadow = '5px 10px 10px rgba(0, 0, 0, 0.3)';"}}
 
-{{rawJSComment "					// Create a button container"}}
+{{rawJSComment "##					// Create a button container"}}
 					const buttonContainer = document.createElement('div');
 					buttonContainer.className = 'is-flex is-flex-direction-column is-justify-content-space-evenly';
 
@@ -813,7 +805,7 @@
 
 						const button = document.createElement('a');
 						button.id = `${controlId}-button${config.name}`;
-{{rawJSComment "						// button.className = `button is-light is-large is-outlined py-4 is-${addon.name === 'blue' ? 'link' : 'success'}`;"}}
+{{rawJSComment "##						// button.className = `button is-light is-large is-outlined py-4 is-${addon.name === 'blue' ? 'link' : 'success'}`;"}}
 						button.className = `button is-light px-4 py-4 is-smallest-element`;
 						button.style.outline = 'none';
 
@@ -825,24 +817,24 @@
 									eval(config.callOutFuntionName + `(${config.callOutFuntionArgsObject})`);  
 								}
 								else{
-{{rawJSComment "								// Use eval() to call the function by name"}}
+{{rawJSComment "##								// Use eval() to call the function by name"}}
 								eval(config.callOutFuntionName + `(cy)`); 
 								}
 							});
 						}
 
 						if (config.hrefFunction == 'drawer') {
-{{rawJSComment "							// button.addEventListener('click', () => {"}}
-{{rawJSComment "							// Create an drawerBox element"}}
+{{rawJSComment "##							// button.addEventListener('click', () => {"}}
+{{rawJSComment "##							// Create an drawerBox element"}}
 							const drawerBox = document.createElement('div');
 							drawerBox.className = 'box drawerBox ViewPortDrawer p-1 is-1';
 							drawerBox.style.display = 'none';
 
 							window.addEventListener('load', (event) => {
-{{rawJSComment "								// Access the height of buttonContainer here"}}
+{{rawJSComment "##								// Access the height of buttonContainer here"}}
 								const rect = boxContainer.getBoundingClientRect();
 								const calculatedHeight = rect.height;
-{{rawJSComment "								// drawerBox.style.height = `${calculatedHeight}px`;"}}
+{{rawJSComment "##								// drawerBox.style.height = `${calculatedHeight}px`;"}}
 								drawerBox.style.height = 'auto';
 
 								drawerBox.style.display = 'block';
@@ -857,43 +849,43 @@
 								drawerBox.style.display = 'none';
 							});
 
-{{rawJSComment "							//// The drawerBox element is created using createPanelBlockContainer() and createPanelBlockForm() functions"}}
-{{rawJSComment "							// Panel Block 01"}}
+{{rawJSComment "##							//// The drawerBox element is created using createPanelBlockContainer() and createPanelBlockForm() functions"}}
+{{rawJSComment "##							// Panel Block 01"}}
 							panelBlockContainer = createPanelBlockContainer(`${button.id}`)
 							panelBlock01 = panelBlockContainer.panelBlock
 							divPanelBlock01 = panelBlockContainer.divPanelBlock
 
 							createPanelBlockForm(config.drawerConfig, panelBlock01, divPanelBlock01, cy) 
-{{rawJSComment "							// Per panelBlock divPanelBlock01 --> panelBlock01"}}
+{{rawJSComment "##							// Per panelBlock divPanelBlock01 --> panelBlock01"}}
 							panelBlock01.appendChild(divPanelBlock01)
 							drawerBox.appendChild(panelBlock01)
 
-{{rawJSComment "							// Add click event listener to the button"}}
+{{rawJSComment "##							// Add click event listener to the button"}}
 							button.addEventListener('click', () => {
-{{rawJSComment "								// Toggle the display of the corresponding drawerBox"}}
+{{rawJSComment "##								// Toggle the display of the corresponding drawerBox"}}
 								if (drawerBox.style.display === 'none' || drawerBox.style.display === '') {
 
-{{rawJSComment "									// Hide all other drawerBoxes"}}
+{{rawJSComment "##									// Hide all other drawerBoxes"}}
 									const allAnimatedBoxes = document.querySelectorAll('.ViewPortDrawer');
 									allAnimatedBoxes.forEach((box) => {
 										if (box !== drawerBox) {
 											box.style.display = 'none';
 										}
 									});
-{{rawJSComment "									// Show the corresponding drawerBox"}}
+{{rawJSComment "##									// Show the corresponding drawerBox"}}
 									drawerBox.style.display = 'block';
 
 								} else {
-{{rawJSComment "									// Hide the corresponding drawerBox when clicked again"}}
+{{rawJSComment "##									// Hide the corresponding drawerBox when clicked again"}}
 									drawerBox.style.display = 'none';
 								}
 							});
 
-{{rawJSComment "							// Append the container to the document body"}}
+{{rawJSComment "##							// Append the container to the document body"}}
 							document.body.appendChild(drawerBox);
 						}
 
-{{rawJSComment "						// Create a icon element"}}
+{{rawJSComment "##						// Create a icon element"}}
 						const icon = document.createElement('span');
 						icon.className = 'icon is-small';
 						const iconElement = document.createElement('i');
@@ -903,16 +895,16 @@
 						button.appendChild(icon);
 						control.appendChild(button)
 
-{{rawJSComment "						// Create a hover text paragraph element"}}
+{{rawJSComment "##						// Create a hover text paragraph element"}}
 						const hoverText = document.querySelector('.hover-text');
 
-{{rawJSComment "						// Add event listeners for hover behavior"}}
+{{rawJSComment "##						// Add event listeners for hover behavior"}}
 						button.addEventListener('mouseover', () => {
-{{rawJSComment "							// Calculate the position for the hover text"}}
+{{rawJSComment "##							// Calculate the position for the hover text"}}
 							const rect = button.getBoundingClientRect();
 							const top = rect.top - hoverText.offsetHeight + 20;
 							const left = rect.left + 35;
-{{rawJSComment "							// Set the position and show the hover text"}}
+{{rawJSComment "##							// Set the position and show the hover text"}}
 							hoverText.style.top = `${top}px`;
 							hoverText.style.left = `${left}px`;
 							hoverText.classList.remove('is-hidden');
@@ -921,21 +913,21 @@
 						});
 
 						button.addEventListener('mouseout', () => {
-{{rawJSComment "							// Hide the hover text"}}
+{{rawJSComment "##							// Hide the hover text"}}
 							hoverText.classList.add('is-hidden');
 						});
 
-{{rawJSComment "						// Append the button to the container"}}
+{{rawJSComment "##						// Append the button to the container"}}
 						buttonContainer.appendChild(control);
 						boxContainer.appendChild(buttonContainer);
 					});
 
 
-{{rawJSComment "					// Append the container to the document body"}}
+{{rawJSComment "##					// Append the container to the document body"}}
 					document.body.appendChild(boxContainer);
 				}
 				
-{{rawJSComment "				// Initiate Layout SLider "}}
+{{rawJSComment "##				// Initiate Layout SLider "}}
 				setupLayoutSliders(cy);
 				
 				function setupLayoutSliders(cy) {
@@ -949,10 +941,10 @@
 							animate: true,
 							randomize: false,
 							maxSimulationTime: 400,
-{{rawJSComment "							//edgeLength: '50',"}}
-{{rawJSComment "							// nodeGap: function(node){"}}
-{{rawJSComment "							// 	 return 10; "}}
-{{rawJSComment "							// 	},"}}
+{{rawJSComment "##							//edgeLength: '50',"}}
+{{rawJSComment "##							// nodeGap: function(node){"}}
+{{rawJSComment "##							// 	 return 10; "}}
+{{rawJSComment "##							// 	},"}}
 							edgeLength: function(e) {
 								return edgeLengthValue / e.data('weight');
 							},
@@ -979,27 +971,27 @@
 					nodeGapSlider.addEventListener("input", sliderEventHandler);
 				}	
 
-{{rawJSComment "				// ######################################################"}}
-{{rawJSComment "				// Start of JS Functions HTML Element Creation section"}}
-{{rawJSComment "				// Start of JS Functions HTML Element Creation section"}}
-{{rawJSComment "				// ######################################################"}}
+{{rawJSComment "##				// ######################################################"}}
+{{rawJSComment "##				// Start of JS Functions HTML Element Creation section"}}
+{{rawJSComment "##				// Start of JS Functions HTML Element Creation section"}}
+{{rawJSComment "##				// ######################################################"}}
 
-{{rawJSComment "				// Function to create the Panel-01-nodeDetail content"}}
+{{rawJSComment "##				// Function to create the Panel-01-nodeDetail content"}}
 				function createContentPanelAction() {
 					const panel = document.createElement('div');
 					panel.className = 'panel';
 					panel.id = 'Panel-03';
 					panel.style.display = 'block';
-{{rawJSComment "					// Create the panel heading"}}
+{{rawJSComment "##					// Create the panel heading"}}
 					const panelHeading = document.createElement('p');
 					panelHeading.className = 'panel-heading is-size-7';
 					panelHeading.textContent = 'Node Detail';
-{{rawJSComment "					// Create the panel tabs"}}
+{{rawJSComment "##					// Create the panel tabs"}}
 					const panelTabs = document.createElement('p');
 					panelTabs.className = 'panel-tabs';
-{{rawJSComment "					// Array of tab names"}}
+{{rawJSComment "##					// Array of tab names"}}
 					const tabNames = ['Network Explorer', 'Network Builder', 'Tab-03', 'Tab-04', 'Tab-05'];
-{{rawJSComment "					// Create tabs dynamically"}}
+{{rawJSComment "##					// Create tabs dynamically"}}
 					for (const name of tabNames) {
 						const tab = document.createElement('a');
 						tab.className = 'toggle-Panel01-tab is-smallest';
@@ -1008,23 +1000,23 @@
 						tab.textContent = name;
 						panelTabs.appendChild(tab);
 					}
-{{rawJSComment "					// Append the panel heading and tabs to the panel"}}
+{{rawJSComment "##					// Append the panel heading and tabs to the panel"}}
 					panel.appendChild(panelHeading);
 					panel.appendChild(panelTabs);
 
-{{rawJSComment "					// Append the panel to the document body or another container of your choice"}}
+{{rawJSComment "##					// Append the panel to the document body or another container of your choice"}}
 					document.body.appendChild(panel);
 				}
 
 				function createNetworkExplorerTab() {
-{{rawJSComment "					// Create a div container for Tab-01 content"}}
+{{rawJSComment "##					// Create a div container for Tab-01 content"}}
 					const tab01Container = document.createElement('div');
 
-{{rawJSComment "					// Create the first block of content"}}
+{{rawJSComment "##					// Create the first block of content"}}
 					const block1 = document.createElement('div');
 					block1.className = 'panel-block';
 
-{{rawJSComment "					// Create the 'Network Maker' section"}}
+{{rawJSComment "##					// Create the 'Network Maker' section"}}
 					const nodeGenerate = document.createElement('div');
 					nodeGenerate.id = 'nodeGenerate';
 					nodeGenerate.className = 'column my-auto';
@@ -1050,20 +1042,20 @@
 					nodeGenerate.appendChild(generateNodesInput);
 					nodeGenerate.appendChild(generateNodesButton);
 
-{{rawJSComment "					// block1.appendChild(nodeAttributes);"}}
+{{rawJSComment "##					// block1.appendChild(nodeAttributes);"}}
 					block1.appendChild(nodeGenerate);
 
-{{rawJSComment "					// Create the second block of content"}}
+{{rawJSComment "##					// Create the second block of content"}}
 					const block2 = document.createElement('div');
 					block2.className = 'panel-block';
 
 
 
-{{rawJSComment "					// Create the fifth block of content"}}
+{{rawJSComment "##					// Create the fifth block of content"}}
 					const block5 = document.createElement('div');
 					block5.className = 'panel-block';
 
-{{rawJSComment "					// Create the 'Close' button"}}
+{{rawJSComment "##					// Create the 'Close' button"}}
 					const closePanel01Button = document.createElement('button');
 					closePanel01Button.className = 'button is-smallest-element';
 					closePanel01Button.id = 'closeForm';
@@ -1071,12 +1063,12 @@
 
 					block5.appendChild(closePanel01Button);
 
-{{rawJSComment "					// Append all blocks to the Tab-01 container"}}
+{{rawJSComment "##					// Append all blocks to the Tab-01 container"}}
 					tab01Container.appendChild(block1);
 					tab01Container.appendChild(block2);
 					tab01Container.appendChild(block5);
 
-{{rawJSComment "					// call event handler function"}}
+{{rawJSComment "##					// call event handler function"}}
 					generateNodesButton.addEventListener('click', generateNodesEvent)
 					closePanel01Button.addEventListener('click', closePanel01Event)
 
@@ -1084,18 +1076,18 @@
 				}
 
 				function createNetworkBuilderTab() {
-{{rawJSComment "					// const content = document.createElement('div');"}}
-{{rawJSComment "					// content.textContent = `Contentaaa for 2 `;"}}
-{{rawJSComment "					// return content;"}}
+{{rawJSComment "##					// const content = document.createElement('div');"}}
+{{rawJSComment "##					// content.textContent = `Contentaaa for 2 `;"}}
+{{rawJSComment "##					// return content;"}}
 
-{{rawJSComment "					// Create a div container for Tab-01 content"}}
+{{rawJSComment "##					// Create a div container for Tab-01 content"}}
 					const tab02Container = document.createElement('div');
 
-{{rawJSComment "					// Create the first block of content"}}
+{{rawJSComment "##					// Create the first block of content"}}
 					const block1 = document.createElement('div');
 					block1.className = 'panel-block';
 
-{{rawJSComment "					// Create the 'Node Spawner' section"}}
+{{rawJSComment "##					// Create the 'Node Spawner' section"}}
 					const nodeAttributes = document.createElement('div');
 					nodeAttributes.id = 'nodeAttributes';
 					nodeAttributes.className = 'column my-auto';
@@ -1127,7 +1119,7 @@
 
 					block1.appendChild(nodeAttributes);
 
-{{rawJSComment "					// Create the 'Network Builder' section"}}
+{{rawJSComment "##					// Create the 'Network Builder' section"}}
 					const networkBuilderkDiv = document.createElement('div');
 					networkBuilderkDiv.id = 'networkBuilder';
 					networkBuilderkDiv.className = 'column my-auto';
@@ -1160,11 +1152,11 @@
 
 					block1.appendChild(networkBuilderkDiv);
 
-{{rawJSComment "					// Create the fifth block of content"}}
+{{rawJSComment "##					// Create the fifth block of content"}}
 					const block5 = document.createElement('div');
 					block5.className = 'panel-block';
 
-{{rawJSComment "					// Create the 'Close' button"}}
+{{rawJSComment "##					// Create the 'Close' button"}}
 					const closePanel01Button = document.createElement('button');
 					closePanel01Button.className = 'button is-smallest-element';
 					closePanel01Button.id = 'closeForm';
@@ -1172,11 +1164,11 @@
 
 					block5.appendChild(closePanel01Button);
 
-{{rawJSComment "					// Append all blocks to the Tab-01 container"}}
+{{rawJSComment "##					// Append all blocks to the Tab-01 container"}}
 					tab02Container.appendChild(block1);
 					tab02Container.appendChild(block5);
 
-{{rawJSComment "					// call event handler function"}}
+{{rawJSComment "##					// call event handler function"}}
 					spawnNodeButton.addEventListener('click', spawnNodeEvent)
 					closePanel01Button.addEventListener('click', closePanel01Event)
 
@@ -1186,12 +1178,12 @@
 
 				function createNodeDetailTab(node, panelHeadingText) {
 					const modifiedHeaderText = panelHeadingText.replace(/\s+/g, '');
-{{rawJSComment "					// Create the tab-container "}}
+{{rawJSComment "##					// Create the tab-container "}}
 					const tabContainer = document.createElement('div');
 					tabContainer.id = `tabContainer-${modifiedHeaderText}`
 					tabContainer.className = 'panel-tabContainer';
 
-{{rawJSComment "					// Panel Block 01"}}
+{{rawJSComment "##					// Panel Block 01"}}
 					panelBlockContainer = createPanelBlockContainer(tabContainer.id)
 					panelBlock01 = panelBlockContainer.panelBlock
 					divPanelBlock01 = panelBlockContainer.divPanelBlock
@@ -1221,7 +1213,6 @@
 								hrefLink: `ssh -t ${node.data("extraData").clabServerUsername}@${location.hostname} "ssh admin@${node.data('extraData').longname}"`
 							}]
 						},
-						{ idSuffix: 'labelStatus', columnLabelTextContent: 'Status', columnLabelClass: 'column is-4 p-1', columnInputType: 'label', columnInputContent: node.data('containerDockerExtraAttribute').status },
 						{ idSuffix: 'labelKind', columnLabelTextContent: 'Kind', columnLabelClass: 'column is-4 p-1', columnInputType: 'label', columnInputContent: node.data('extraData').kind },
 						{ idSuffix: 'labelImage', columnLabelTextContent: 'Image', columnLabelClass: 'column is-4 p-1', columnInputType: 'label', columnInputContent: node.data('extraData').image },
 						{ idSuffix: 'labelManagementIPv4', columnLabelTextContent: 'Management IPv4', columnLabelClass: 'column is-4 p-1', columnInputType: 'label', columnInputContent: node.data('extraData').mgmtIpv4Addresss },
@@ -1233,10 +1224,10 @@
 
 					createPanelBlockForm(Panel01ColumnsConfig, panelBlock01, divPanelBlock01)
 
-{{rawJSComment "					// Per panelBlock divPanelBlock01 --> panelBlock01"}}
+{{rawJSComment "##					// Per panelBlock divPanelBlock01 --> panelBlock01"}}
 					panelBlock01.appendChild(divPanelBlock01)
 
-{{rawJSComment "					// --> tabContainer"}}
+{{rawJSComment "##					// --> tabContainer"}}
 					tabContainer.appendChild(panelBlock01)
 
 					return tabContainer
@@ -1245,12 +1236,12 @@
 				function createEdgeDetailTab(edge, panelHeadingText) {
 					const modifiedHeaderText = panelHeadingText.replace(/\s+/g, '');
 
-{{rawJSComment "					// Create the tab-container "}}
+{{rawJSComment "##					// Create the tab-container "}}
 					const tabContainer = document.createElement('div');
 					tabContainer.id = `tabContainer-${modifiedHeaderText}`
 					tabContainer.className = 'panel-tabContainer';
 
-{{rawJSComment "					// Panel Block 01"}}
+{{rawJSComment "##					// Panel Block 01"}}
 					panelBlockContainer = createPanelBlockContainer(tabContainer.id)
 					panelBlock01 = panelBlockContainer.panelBlock
 					divPanelBlock01 = panelBlockContainer.divPanelBlock
@@ -1261,11 +1252,11 @@
 
 					createPanelBlockForm(Panel01ColumnsConfig, panelBlock01, divPanelBlock01)
 
-{{rawJSComment "					// append divPanelBlock02 --> panelBlock02 --> tabContainer"}}
+{{rawJSComment "##					// append divPanelBlock02 --> panelBlock02 --> tabContainer"}}
 					panelBlock01.append(divPanelBlock01)
 					tabContainer.appendChild(panelBlock01)
 
-{{rawJSComment "					// Panel Block 02"}}
+{{rawJSComment "##					// Panel Block 02"}}
 					panelBlockContainer = createPanelBlockContainer(tabContainer.id)
 					panelBlock02 = panelBlockContainer.panelBlock
 					divPanelBlock02 = panelBlockContainer.divPanelBlock
@@ -1428,11 +1419,11 @@
 
 					createPanelBlockForm(Panel02ColumnsConfig, panelBlock02, divPanelBlock02)
 
-{{rawJSComment "					// append divPanelBlock02 --> panelBlock02 --> tabContainer"}}
+{{rawJSComment "##					// append divPanelBlock02 --> panelBlock02 --> tabContainer"}}
 					panelBlock02.append(divPanelBlock02)
 					tabContainer.appendChild(panelBlock02)
 
-{{rawJSComment "					// Panel Block 03"}}
+{{rawJSComment "##					// Panel Block 03"}}
 					panelBlockContainer = createPanelBlockContainer(tabContainer.id)
 					panelBlock03 = panelBlockContainer.panelBlock
 					divPanelBlock03 = panelBlockContainer.divPanelBlock
@@ -1592,7 +1583,7 @@
 
 					createPanelBlockForm(Panel03ColumnsConfig, panelBlock03, divPanelBlock03)
 
-{{rawJSComment "					// append divPanelBlock03 --> panelBlock03 --> tabContainer"}}
+{{rawJSComment "##					// append divPanelBlock03 --> panelBlock03 --> tabContainer"}}
 					panelBlock03.appendChild(divPanelBlock03)
 					tabContainer.appendChild(panelBlock03)
 
@@ -1601,37 +1592,37 @@
 				}
 
 				
-{{rawJSComment "				// ######################################################"}}
-{{rawJSComment "				// END of JS Functions HTML Element Creation section"}}
-{{rawJSComment "				// END of JS Functions HTML Element Creation section"}}
-{{rawJSComment "				// ######################################################"}}
+{{rawJSComment "##				// ######################################################"}}
+{{rawJSComment "##				// END of JS Functions HTML Element Creation section"}}
+{{rawJSComment "##				// END of JS Functions HTML Element Creation section"}}
+{{rawJSComment "##				// ######################################################"}}
 
 
-{{rawJSComment "				// ######################################################"}}
-{{rawJSComment "				// START of JS Functions Event Handling section"}}
-{{rawJSComment "				// START of JS Functions Event Handling section"}}
-{{rawJSComment "				// ######################################################"}}
+{{rawJSComment "##				// ######################################################"}}
+{{rawJSComment "##				// START of JS Functions Event Handling section"}}
+{{rawJSComment "##				// START of JS Functions Event Handling section"}}
+{{rawJSComment "##				// ######################################################"}}
 
 				function generateNodesEvent(event) {
-{{rawJSComment "					// Your event handling logic here"}}
-{{rawJSComment "					//- Add a click event listener to the 'Generate' button"}}
-{{rawJSComment "					//- Get the number of node from the input field  "}}
+{{rawJSComment "##					// Your event handling logic here"}}
+{{rawJSComment "##					//- Add a click event listener to the 'Generate' button"}}
+{{rawJSComment "##					//- Get the number of node from the input field  "}}
 					console.log('generateNodesButton clicked')
 					const numNodes = document.getElementById('generateNodesInput').value;
 					console.log(numNodes)
-{{rawJSComment "					//- Check if the number of node is empty  "}}
+{{rawJSComment "##					//- Check if the number of node is empty  "}}
 					if (numNodes === null) {
-{{rawJSComment "						//- if node number empty do nothing "}}
+{{rawJSComment "##						//- if node number empty do nothing "}}
 						return;
 					}
 					const numNodesToGenerate = parseInt(numNodes, 10);
-{{rawJSComment "					//- Check if the number of node is positive "}}
+{{rawJSComment "##					//- Check if the number of node is positive "}}
 					if (isNaN(numNodesToGenerate) || numNodesToGenerate <= 0) {
-{{rawJSComment "						//- Invalid input"}}
+{{rawJSComment "##						//- Invalid input"}}
 						appendMessage("Error:" + "Bro, you gotta enter a valid positive number, come on!");
 						return;
 					}
-{{rawJSComment "					//- Generate nodes with random positions"}}
+{{rawJSComment "##					//- Generate nodes with random positions"}}
 					for (let i = 0; i < numNodesToGenerate; i++) {
 						const nodeName = `node-${i + 1}`;
 						const newNode = {
@@ -1645,18 +1636,18 @@
 								y: Math.random() * 400
 							}
 						};
-{{rawJSComment "						//-cy.add(newNode);"}}
+{{rawJSComment "##						//-cy.add(newNode);"}}
 						try {
 							cy.add(newNode);
-{{rawJSComment "							//- throw new Error('This is an example exception');"}}
+{{rawJSComment "##							//- throw new Error('This is an example exception');"}}
 						} catch (error) {
-{{rawJSComment "							//- Log the exception to the console"}}
+{{rawJSComment "##							//- Log the exception to the console"}}
 							console.error("An exception occurred:", error);
-{{rawJSComment "							//- Log the exception to notification message to the textarea "}}
+{{rawJSComment "##							//- Log the exception to notification message to the textarea "}}
 							appendMessage("An exception occurred:" + error);
 						}
 					}
-{{rawJSComment "					//- Generate random edges between nodes"}}
+{{rawJSComment "##					//- Generate random edges between nodes"}}
 					for (let i = 0; i < numNodesToGenerate; i++) {
 						const sourceNode = `node-${i + 1}`;
 						const targetNode = `node-${Math.floor(Math.random() * numNodesToGenerate) + 1}`;
@@ -1672,16 +1663,16 @@
 							};
 							try {
 								cy.add(newEdge);
-{{rawJSComment "								//- throw new Error('This is an example exception');"}}
+{{rawJSComment "##								//- throw new Error('This is an example exception');"}}
 							} catch (error) {
-{{rawJSComment "								//- Log the exception to the console"}}
+{{rawJSComment "##								//- Log the exception to the console"}}
 								console.error("An exception occurred:", error);
-{{rawJSComment "								//- Log the exception to notification message to the textarea "}}
+{{rawJSComment "##								//- Log the exception to notification message to the textarea "}}
 								appendMessage("An exception occurred::" + error);
 							}
 						}
 					}
-{{rawJSComment "					//- run layout"}}
+{{rawJSComment "##					//- run layout"}}
 					const layout = cy.layout({
 						name: 'cola',
 						nodeGap: 5,
@@ -1691,29 +1682,29 @@
 						maxSimulationTime: 1500
 					});
 					layout.run();
-{{rawJSComment "					//-//- Append a notification message to the textarea"}}
+{{rawJSComment "##					//-//- Append a notification message to the textarea"}}
 					console.log("Info: " + `Boom! Just generated ${numNodesToGenerate} nodes with some random edges. That's how we roll!`);
 					appendMessage("Info: " + `Boom! Just generated ${numNodesToGenerate} nodes with some random edges. That's how we roll!`);
 				}
 
 				function spawnNodeEvent(event) {
-{{rawJSComment "					//- Add a click event listener to the 'Submit' button in the hidden form"}}
-{{rawJSComment "					//- Get the node name from the input field "}}
+{{rawJSComment "##					//- Add a click event listener to the 'Submit' button in the hidden form"}}
+{{rawJSComment "##					//- Get the node name from the input field "}}
 					const nodeName = document.getElementById('nodeName').value;
 					console.log(nodeName)
-{{rawJSComment "					//- Check if a node name is empty "}}
+{{rawJSComment "##					//- Check if a node name is empty "}}
 					if (nodeName == "") {
-{{rawJSComment "						//- append message in textArea "}}
+{{rawJSComment "##						//- append message in textArea "}}
 						appendMessage('Error: Enter node name.');
 						return;
 					}
-{{rawJSComment "					//- Check if a node with the same name already exists "}}
+{{rawJSComment "##					//- Check if a node with the same name already exists "}}
 					if (cy.$(`node[id = "${nodeName}"]`).length > 0) {
-{{rawJSComment "						//- append message in textArea "}}
+{{rawJSComment "##						//- append message in textArea "}}
 						appendMessage('Error: Node with this name already exists.');
 						return;
 					}
-{{rawJSComment "					//- Create a new node element "}}
+{{rawJSComment "##					//- Create a new node element "}}
 					const newNode = {
 						group: 'nodes',
 						data: {
@@ -1722,9 +1713,9 @@
 							label: nodeName
 						}
 					};
-{{rawJSComment "					//- Add the new node to Cytoscape.js "}}
+{{rawJSComment "##					//- Add the new node to Cytoscape.js "}}
 					cy.add(newNode);
-{{rawJSComment "					//- Randomize the positions and center the graph "}}
+{{rawJSComment "##					//- Randomize the positions and center the graph "}}
 					const layout = cy.layout({
 						name: 'cola',
 						nodeGap: 5,
@@ -1734,31 +1725,31 @@
 						maxSimulationTime: 1500
 					});
 					layout.run();
-{{rawJSComment "					//- Append a notification message to the textarea "}}
+{{rawJSComment "##					//- Append a notification message to the textarea "}}
 					console.log("Info: " + `Nice! Node "${nodeName}" added successfully.`);
 					appendMessage("Info: " + `Nice! Node "${nodeName}" added successfully.`);
 				}
 
 				function nodeFindEvent(event) {
-{{rawJSComment "					//- Get a reference to your Cytoscape instance (assuming it's named 'cy')"}}
-{{rawJSComment "					//- const cy = window.cy; //- Replace 'window.cy' with your actual Cytoscape instance"}}
-{{rawJSComment "					//- Find the node with the specified name"}}
+{{rawJSComment "##					//- Get a reference to your Cytoscape instance (assuming it's named 'cy')"}}
+{{rawJSComment "##					//- const cy = window.cy; //- Replace 'window.cy' with your actual Cytoscape instance"}}
+{{rawJSComment "##					//- Find the node with the specified name"}}
 					const nodeName = document.getElementById('nodeFindInput').value;
 					const node = cy.$(`node[name = "${nodeName}"]`);
-{{rawJSComment "					//- Check if the node exists"}}
+{{rawJSComment "##					//- Check if the node exists"}}
 					if (node.length > 0) {
-{{rawJSComment "						// console"}}
+{{rawJSComment "##						// console"}}
 						console.log("Info: " + "Sweet! Node \"" + nodeName + "\" is in the house.");
 						appendMessage("Info: " + "Sweet! Node \"" + nodeName + "\" is in the house.");
-{{rawJSComment "						//- Apply a highlight style to the node"}}
+{{rawJSComment "##						//- Apply a highlight style to the node"}}
 						node.style({
 							'border-color': 'red',
 							'border-width': '2px',
 							'background-color': 'yellow'
 						});
-{{rawJSComment "						//- Zoom out on the node"}}
+{{rawJSComment "##						//- Zoom out on the node"}}
 						cy.fit()
-{{rawJSComment "						//- Zoom in on the node"}}
+{{rawJSComment "##						//- Zoom in on the node"}}
 						cy.animate({
 							zoom: {
 								level: 5,
@@ -1783,74 +1774,75 @@
 				function zoomToFitDrawer() {
 					const initialZoom = cy.zoom();
 					appendMessage(`Bro, initial zoom level is "${initialZoom}".`);
-{{rawJSComment "					//- Fit all nodes possible with padding"}}
+{{rawJSComment "##					//- Fit all nodes possible with padding"}}
 					cy.fit();
 					const currentZoom = cy.zoom();
 					appendMessage(`And now the zoom level is "${currentZoom}".`);
 				}
-								  			  
+				
+				  			  
 				function pathFinderDijkstraEvent(event) {
-{{rawJSComment "					// Usage example:"}}
-{{rawJSComment "					// highlightShortestPath('node-a', 'node-b'); // Replace with your source and target node IDs"}}
-{{rawJSComment "					//- Function to get the default node style from cy-style.json"}}
-{{rawJSComment "					//- weight: (edge) => 1, // You can adjust the weight function if needed"}}
-{{rawJSComment "					//- weight: (edge) => edge.data('distance')"}}
+{{rawJSComment "##					// Usage example:"}}
+{{rawJSComment "##					// highlightShortestPath('node-a', 'node-b'); // Replace with your source and target node IDs"}}
+{{rawJSComment "##					//- Function to get the default node style from cy-style.json"}}
+{{rawJSComment "##					//- weight: (edge) => 1, // You can adjust the weight function if needed"}}
+{{rawJSComment "##					//- weight: (edge) => edge.data('distance')"}}
 
 					console.log('im triggered')
 
-{{rawJSComment "					// Remove existing highlight from all edges"}}
+{{rawJSComment "##					// Remove existing highlight from all edges"}}
 					cy.edges().forEach(edge => {
 						edge.removeClass('spf');
 					});
 
-{{rawJSComment "					// Get the node sourceNodeId from pathFinderSourceNodeInput and targetNodeId from pathFinderTargetNodeInput  "}}
+{{rawJSComment "##					// Get the node sourceNodeId from pathFinderSourceNodeInput and targetNodeId from pathFinderTargetNodeInput  "}}
 					const sourceNodeId = document.getElementById('pathFinderSourceNodeInput').value;
 					const targetNodeId = document.getElementById('pathFinderTargetNodeInput').value;
 
-{{rawJSComment "					// Assuming you have 'cy' as your Cytoscape instance"}}
+{{rawJSComment "##					// Assuming you have 'cy' as your Cytoscape instance"}}
 					const sourceNode = cy.$(`node[id="${sourceNodeId}"]`);
 					const targetNode = cy.$(`node[id="${targetNodeId}"]`);
 
 					console.log("Info: " + "Let's find the path from-" + sourceNodeId + "-to-" + targetNodeId + "!");
 					appendMessage("Info: " + "Let's find the path from-" + sourceNodeId + "-to-" + targetNodeId + "!");
 
-{{rawJSComment "					// Check if both nodes exist"}}
+{{rawJSComment "##					// Check if both nodes exist"}}
 					if (sourceNode.length === 0 || targetNode.length === 0) {
 						console.error(`Bro, couldn't find the source or target node you specified. Double-check the node names.`);
 						appendMessage(`Bro, couldn't find the source or target node you specified. Double-check the node names.`);
 						return;
 					}
 
-{{rawJSComment "					// Get the Dijkstra result with the shortest path"}}
+{{rawJSComment "##					// Get the Dijkstra result with the shortest path"}}
 					const dijkstraResult = cy.elements().dijkstra({
 						root: sourceNode,
 						weight: (edge) => 1,
-{{rawJSComment "						// Use the custom weight attribute"}}
-{{rawJSComment "						// weight: edge => edge.data('customWeight'),"}}
+{{rawJSComment "##						// Use the custom weight attribute"}}
+{{rawJSComment "##						// weight: edge => edge.data('customWeight'),"}}
 
 					});
-{{rawJSComment "					// Get the shortest path from Dijkstra result"}}
+{{rawJSComment "##					// Get the shortest path from Dijkstra result"}}
 					const shortestPathEdges = dijkstraResult.pathTo(targetNode);
 					console.log(shortestPathEdges)
 
-{{rawJSComment "					// Check if there is a valid path (shortestPathEdges is not empty)"}}
+{{rawJSComment "##					// Check if there is a valid path (shortestPathEdges is not empty)"}}
 					if (shortestPathEdges.length > 1) {
 
-{{rawJSComment "						//// Apply a style to highlight the shortest path edges"}}
-{{rawJSComment "						// shortestPathEdges.style({"}}
-{{rawJSComment "						//	'line-color': 'red', "}}
-{{rawJSComment "						//	'line-style': 'solid', "}}
-{{rawJSComment "						// });"}}
+{{rawJSComment "##						//// Apply a style to highlight the shortest path edges"}}
+{{rawJSComment "##						// shortestPathEdges.style({"}}
+{{rawJSComment "##						//	'line-color': 'red', "}}
+{{rawJSComment "##						//	'line-style': 'solid', "}}
+{{rawJSComment "##						// });"}}
 
-{{rawJSComment "						// Highlight the shortest path"}}
+{{rawJSComment "##						// Highlight the shortest path"}}
 						shortestPathEdges.forEach(edge => {
 							edge.addClass('spf');
 						});
 
-{{rawJSComment "						//- Zoom out on the node"}}
+{{rawJSComment "##						//- Zoom out on the node"}}
 						cy.fit()
 
-{{rawJSComment "						//- Zoom in on the node"}}
+{{rawJSComment "##						//- Zoom in on the node"}}
 						cy.animate({
 							zoom: {
 								level: 5,
@@ -1865,7 +1857,7 @@
 							},
 							duration: 1500
 						});
-{{rawJSComment "						// throw log"}}
+{{rawJSComment "##						// throw log"}}
 						console.log("Info: " + "Yo, check it out! Shorthest Path from-" + sourceNodeId + "-to-" + targetNodeId + " has been found.");
 						appendMessage("Info: " + "Yo, check it out! Shorthest Path from-" + sourceNodeId + "-to-" + targetNodeId + " has been found, below is the path trace..");
 						console.log(shortestPathEdges)
@@ -1878,7 +1870,7 @@
 							edgeId = edge.id();
 							sourceNodeId = edge.source().id();
 							targetNodeId = edge.target().id();
-{{rawJSComment "							// You can access other properties of the edge, e.g., source, target, data, etc."}}
+{{rawJSComment "##							// You can access other properties of the edge, e.g., source, target, data, etc."}}
 
 							appendMessage("Info: " + 'Edge ID: ' + edgeId)
 							appendMessage("Info: " + 'Source Node ID: ' + sourceNodeId)
@@ -1896,11 +1888,11 @@
 				function closePanel01Event(event) {
 					var panel = document.getElementById('Panel-01');
 					if (panel.style.display === 'none' || panel.style.display === '') {
-{{rawJSComment "						//- Show the panel"}}
+{{rawJSComment "##						//- Show the panel"}}
 						panel.style.display = 'block';
 						panel.classList.toggle('active');
 					} else {
-{{rawJSComment "						//- Hide the panel"}}
+{{rawJSComment "##						//- Hide the panel"}}
 						panel.style.display = 'none';
 					}
 					isPanel01Added = false
@@ -1925,7 +1917,6 @@
 						})
 					}
 				}
-
 
 				var nodeContainerStatusVisibility = false;
 
@@ -1961,26 +1952,26 @@
 					cy.nodes().forEach(function(node) {
 						var nodeId = node.data('id');
 
-{{rawJSComment "						// Find the corresponding status nodes based on node ID"}}
+{{rawJSComment "##						// Find the corresponding status nodes based on node ID"}}
 						var statusGreenNode = cy.$(`node[name="${nodeId}-statusGreen"]`);
 						var statusOrangeNode = cy.$(`node[name="${nodeId}-statusOrange"]`);
 						var statusRedNode = cy.$(`node[name="${nodeId}-statusRed"]`);
 
 
 						if (statusGreenNode.length === 0 || statusRedNode.length === 0) {
-{{rawJSComment "							// If status nodes are not found, skip this node"}}
+{{rawJSComment "##							// If status nodes are not found, skip this node"}}
 							return;
 						}
 
-{{rawJSComment "						// Update positions of status nodes relative to the node"}}
+{{rawJSComment "##						// Update positions of status nodes relative to the node"}}
 						var nodePosition = node.position();
 						var offset = { x: -4, y: -10 };
 						var statusGreenNodePosition = { x: nodePosition.x + offset.x, y: nodePosition.y + offset.y };
 						var statusRedNodePosition = { x: nodePosition.x + offset.x, y: nodePosition.y + offset.y };
 
-{{rawJSComment "						// Check if the nodeContainerStatusVisibility is true"}}
+{{rawJSComment "##						// Check if the nodeContainerStatusVisibility is true"}}
 						if (nodeContainerStatusVisibility) {
-{{rawJSComment "							// Check if the containerNodeName includes nodeId and containerNodeStatus includes 'healthy'"}}
+{{rawJSComment "##							// Check if the containerNodeName includes nodeId and containerNodeStatus includes 'healthy'"}}
 							if (containerNodeName.includes(nodeId) && (containerNodeStatus.includes("Up") || containerNodeStatus.includes("healthy"))) {
 								statusGreenNode.show();
 								statusRedNode.hide();
@@ -2002,59 +1993,42 @@
 					});
 				}
 
-				function setNodeDataWithContainerAttribute(containerNodeName, status, state) {
-
-					cy.nodes().forEach(function(node) {
-						var nodeId = node.data('id');
-						if (containerNodeName.includes(nodeId) ) {
-
-							var containerDockerExtraAttributeData = {
-								state: state,
-								status: status,
-							  };
-							
-							node.data('containerDockerExtraAttribute', containerDockerExtraAttributeData);
-						}
-					})
-					
-				}
-
-{{rawJSComment "				// ######################################################"}}
-{{rawJSComment "				// End of JS Functions Event Handling section"}}
-{{rawJSComment "				// End of JS Functions Event Handling section"}}
-{{rawJSComment "				// ######################################################"}}
+{{rawJSComment "##				// ######################################################"}}
+{{rawJSComment "##				// End of JS Functions Event Handling section"}}
+{{rawJSComment "##				// End of JS Functions Event Handling section"}}
+{{rawJSComment "##				// ######################################################"}}
 
 
-{{rawJSComment "				// ######################################################"}}
-{{rawJSComment "				// Start of JS Generic Functions"}}
-{{rawJSComment "				// Start of JS Generic Functions"}}
-{{rawJSComment "				// ######################################################"}}
+{{rawJSComment "##				// ######################################################"}}
+{{rawJSComment "##				// Start of JS Generic Functions"}}
+{{rawJSComment "##				// Start of JS Generic Functions"}}
+{{rawJSComment "##				// ######################################################"}}
 
-{{rawJSComment "				//- Helper Function for managed Panel-01 tabs"}}
+{{rawJSComment "##				//- Helper Function for managed Panel-01 tabs"}}
 				function showPanel01Tab(tabId) {
 					hideAllTabs();
 					document.getElementById(tabId).style.display = 'block';
 				}
 
-{{rawJSComment "				//- Function to get the default node style from cy-style.json"}}
+{{rawJSComment "##				//- Function to get the default node style from cy-style.json"}}
 				async function getDefaultNodeStyle(node) {
 					try {
-{{rawJSComment "						//- Fetch the cy-style.json file"}}
+{{rawJSComment "##						//- Fetch the cy-style.json file"}}
 						const response = await fetch('cy-style.json');
-{{rawJSComment "						//- Check if the response is successful (status code 200)"}}
+{{rawJSComment "##						//- Check if the response is successful (status code 200)"}}
 						if (!response.ok) {
 							throw new Error(`Failed to fetch cy-style.json (${response.status} ${response.statusText})`);
 						}
-{{rawJSComment "						//- Parse the JSON response"}}
+{{rawJSComment "##						//- Parse the JSON response"}}
 						const styleData = await response.json();
-{{rawJSComment "						//- Extract the default node style from the loaded JSON"}}
-{{rawJSComment "						//- Adjust this based on your JSON structure"}}
+{{rawJSComment "##						//- Extract the default node style from the loaded JSON"}}
+{{rawJSComment "##						//- Adjust this based on your JSON structure"}}
 						const defaultNodeStyle = styleData[0].style;
 						return defaultNodeStyle;
 					} catch (error) {
 						console.error('Error loading cy-style.json:', error);
 						appendMessage(`Error loading cy-style.json: ${error}`);
-{{rawJSComment "						//- Return a default style in case of an error"}}
+{{rawJSComment "##						//- Return a default style in case of an error"}}
 						return {
 							'background-color': 'blue',
 							'border-color': 'gray',
@@ -2063,19 +2037,19 @@
 					}
 				}
 
-{{rawJSComment "				///-logMessagesPanel Function to add a click event listener to the copy button"}}
+{{rawJSComment "##				///-logMessagesPanel Function to add a click event listener to the copy button"}}
 				const copyButton = document.getElementById('copyToClipboardButton');
 				copyButton.className = 'button is-smallest-element';
 				copyButton.addEventListener('click', copyToClipboard);
 
-{{rawJSComment "				/// logMessagesPanel Function to copy textarea content to clipboard"}}
+{{rawJSComment "##				/// logMessagesPanel Function to copy textarea content to clipboard"}}
 				function copyToClipboard() {
 					const textarea = document.getElementById('notificationTextarea');
 					textarea.select();
 					document.execCommand('copy');
 				}
 
-{{rawJSComment "				///-logMessagesPanel Function to add a click event listener to the close button"}}
+{{rawJSComment "##				///-logMessagesPanel Function to add a click event listener to the close button"}}
 				const panel02CloseButton = document.getElementById('panel02CloseButton');
 				panel02CloseButton.className = 'button is-smallest-element';
 
@@ -2093,7 +2067,7 @@
 			
 
 				function createModal(modalId, modalContent) {
-{{rawJSComment "					// Create the modal"}}
+{{rawJSComment "##					// Create the modal"}}
 					const htmlContent = `
 							<div id="${modalId}" class="modal">
 								<div id="${modalId}-modalBackgroundId" class="modal-background"></div>
@@ -2154,11 +2128,11 @@
 									</div>
 									 `
 					
-{{rawJSComment "					// Instantiate modal "}}
+{{rawJSComment "##					// Instantiate modal "}}
 					createModal("modalSaveViewport", modalContentSaveViewport)
 
 
-{{rawJSComment "					// create event listener"}}
+{{rawJSComment "##					// create event listener"}}
 					const performActionButton = document.getElementById("performActionButton");
 					performActionButton.addEventListener("click", function() {
 						const checkboxName = "checkboxSaveViewPort"; 
@@ -2180,7 +2154,7 @@
 								closeOnClick: true,
 							})
 						} else {
-{{rawJSComment "							// Perform your action based on the selected options"}}
+{{rawJSComment "##							// Perform your action based on the selected options"}}
 							if (selectedOptions.join(", ") == 'option01') { 
 								captureAndSaveViewportAsPng(cy)
 								modal.classList.remove('is-active');
@@ -2198,7 +2172,7 @@
 						}
 					});
 					
-{{rawJSComment "					// show modal"}}
+{{rawJSComment "##					// show modal"}}
 					modal = document.getElementById(modalId);
 					modal.classList.add('is-active');
 				}
@@ -2206,18 +2180,18 @@
 
 
 
-{{rawJSComment "				// ######################################################"}}
-{{rawJSComment "				// End of JS Generic Functions section"}}
-{{rawJSComment "				// End of JS Generic Functions section"}}
-{{rawJSComment "				// ######################################################"}}
+{{rawJSComment "##				// ######################################################"}}
+{{rawJSComment "##				// End of JS Generic Functions section"}}
+{{rawJSComment "##				// End of JS Generic Functions section"}}
+{{rawJSComment "##				// ######################################################"}}
 
 
 			}); 
 
-{{rawJSComment "			// aarafat-tag:"}}
-{{rawJSComment "			//// reworked the Log Message panel to be dynamicaly created"}}
-{{rawJSComment "			//// create about panel"}}
-{{rawJSComment "			//// create clab client download panel"}}
+{{rawJSComment "##			// aarafat-tag:"}}
+{{rawJSComment "##			//// reworked the Log Message panel to be dynamicaly created"}}
+{{rawJSComment "##			//// create about panel"}}
+{{rawJSComment "##			//// create clab client download panel"}}
 			function logMessages(event) {
 				removeElementById("Panel-03");
 				panel = document.getElementById('Panel-02');
@@ -2230,7 +2204,7 @@
 				panel.style.display = 'block'
 			}
 
-{{rawJSComment "			// Function to remove an element by its id"}}
+{{rawJSComment "##			// Function to remove an element by its id"}}
 			function removeElementById(id) {
 				const elementToRemove = document.getElementById(id);
 				console.log(elementToRemove)
@@ -2240,8 +2214,8 @@
 			}
 
 
-{{rawJSComment "			// Call createContentPanel with the panel ID and an array of tab content functions"}}
-{{rawJSComment "			// The Tab name will be auto generate by the tabFunction names, ie: funtion name: createNetworkExplorerTab --> tab name: NetworkExplorer"}}
+{{rawJSComment "##			// Call createContentPanel with the panel ID and an array of tab content functions"}}
+{{rawJSComment "##			// The Tab name will be auto generate by the tabFunction names, ie: funtion name: createNetworkExplorerTab --> tab name: NetworkExplorer"}}
 			function createContentPanel(panelId, tabContentFns, tabContentFnsArg, panelHeadingText) {
 				appendMessage(`"createContentPanel reach:`)
 
@@ -2261,7 +2235,7 @@
 
 				const tabContainers = [];
 
-{{rawJSComment "				// Check if the tabContentFns have more than 1 element"}}
+{{rawJSComment "##				// Check if the tabContentFns have more than 1 element"}}
 				if (tabContentFns.length != 1) {
 					for (let i = 0; i < tabNames.length; i++) {
 						const name = tabNames[i];
@@ -2279,7 +2253,7 @@
 
 						tabContainers.push(tabContainer);
 
-{{rawJSComment "						// Generate tab content using the provided function from tabContentFns"}}
+{{rawJSComment "##						// Generate tab content using the provided function from tabContentFns"}}
 						if (tabContentFns[i] && typeof tabContentFns[i] === 'function') {
 							const tabContent = tabContentFns[i]();
 							tabContainer.appendChild(tabContent);
@@ -2294,7 +2268,7 @@
 					tabContainer.id = `${panelId}-Tab-${name}-Container`;
 					tabContainers.push(tabContainer);
 
-{{rawJSComment "					// Generate tab content using the provided function from tabContentFns"}}
+{{rawJSComment "##					// Generate tab content using the provided function from tabContentFns"}}
 					if (tabContentFns[0] && typeof tabContentFns[0] === 'function') {
 						const tabContent = tabContentFns[0](tabContentFnsArg, panelHeadingText);
 						console.log("tabContentFnsArg")
@@ -2305,9 +2279,9 @@
 					}
 				}
 
-{{rawJSComment "				// Check if the tabContentFns have more than 1 element"}}
+{{rawJSComment "##				// Check if the tabContentFns have more than 1 element"}}
 				if (tabContentFns.length != 1) {
-{{rawJSComment "					// initial hide all tab and only opent the first tab"}}
+{{rawJSComment "##					// initial hide all tab and only opent the first tab"}}
 					for (const tabContainer of tabContainers) {
 						tabContainer.style.display = 'none';
 						panel.appendChild(tabContainer);
@@ -2324,12 +2298,12 @@
 						const targetTabId = tab.getAttribute('data-target');
 						const selectedTabContainer = document.getElementById(targetTabId);
 
-{{rawJSComment "						// Hide all tab containers"}}
+{{rawJSComment "##						// Hide all tab containers"}}
 						tabContainers.forEach(container => {
 							container.style.display = 'none';
 						});
 
-{{rawJSComment "						// Show the selected tab container"}}
+{{rawJSComment "##						// Show the selected tab container"}}
 						selectedTabContainer.style.display = 'block';
 
 						console.log(`Panel-${targetTabId} is displayed.`);
@@ -2338,13 +2312,13 @@
 				});
 			}
 
-{{rawJSComment "			// logMessagesPanel manager"}}
-{{rawJSComment "			///-logMessagesPanel Function to append message function"}}
+{{rawJSComment "##			// logMessagesPanel manager"}}
+{{rawJSComment "##			///-logMessagesPanel Function to append message function"}}
 			function appendMessage(message) {
-{{rawJSComment "				// const textarea = document.getElementById('notificationTextarea');"}}
+{{rawJSComment "##				// const textarea = document.getElementById('notificationTextarea');"}}
 				const textarea = document.getElementById('notificationTextarea');
 
-{{rawJSComment "				// Get the current date and time"}}
+{{rawJSComment "##				// Get the current date and time"}}
 				const timestamp = new Date().toLocaleString();
 
 				textarea.value += `[${timestamp}] ${message}\n`;
@@ -2352,7 +2326,7 @@
 			}
 
 			function createPanelBlockContainer(tabContainerId) {
-{{rawJSComment "				// this is helper function to create PanelBlock-Container"}}
+{{rawJSComment "##				// this is helper function to create PanelBlock-Container"}}
 				const panelBlock = document.createElement('div');
 				panelBlock.id = `panelBlock-${tabContainerId}`
 				panelBlock.className = 'panel-block py-2';
@@ -2368,70 +2342,70 @@
 			}
 
 			function createPanelBlockForm(PanelColumnsConfig, panelBlock, divPanelBlock, cy) { 
-{{rawJSComment "				// This is helper function to create PanelBlock-Form-Content"}}
-{{rawJSComment "				// Usage: "}}
-{{rawJSComment "				// // Panel Block 01"}}
-{{rawJSComment "				// // Start of mandatory panelContent containercontainer"}}
-{{rawJSComment "				// const panelBlock01 = document.createElement('div');"}}
-{{rawJSComment "				// panelBlock01.id = `panelBlock01-${modifiedHeaderText}`"}}
-{{rawJSComment "				// panelBlock01.className = 'panel-block p-0';"}}
+{{rawJSComment "##				// This is helper function to create PanelBlock-Form-Content"}}
+{{rawJSComment "##				// Usage: "}}
+{{rawJSComment "##				// // Panel Block 01"}}
+{{rawJSComment "##				// // Start of mandatory panelContent containercontainer"}}
+{{rawJSComment "##				// const panelBlock01 = document.createElement('div');"}}
+{{rawJSComment "##				// panelBlock01.id = `panelBlock01-${modifiedHeaderText}`"}}
+{{rawJSComment "##				// panelBlock01.className = 'panel-block p-0';"}}
 
-{{rawJSComment "				// const divPanelBlock01 = document.createElement('div');"}}
-{{rawJSComment "				// divPanelBlock01.id = `${panelBlock01.id}-divPanelBlock01-`"}}
-{{rawJSComment "				// divPanelBlock01.className = 'column ';"}}
-{{rawJSComment "				// // End of mandatory panelContent containercontainer"}}
+{{rawJSComment "##				// const divPanelBlock01 = document.createElement('div');"}}
+{{rawJSComment "##				// divPanelBlock01.id = `${panelBlock01.id}-divPanelBlock01-`"}}
+{{rawJSComment "##				// divPanelBlock01.className = 'column ';"}}
+{{rawJSComment "##				// // End of mandatory panelContent containercontainer"}}
 
-{{rawJSComment "				// const Panel01ColumnsConfig = ["}}
-{{rawJSComment "				// 	{ idSuffix: 'labelNodeName', columnLabelTextContent: 'Node Name', columnLabelClass: 'column is-4 p-1', columnInputType: 'field', columnInputContent: node.data('name'), 						"}}
-{{rawJSComment "				// 		addonsContent: ["}}
-{{rawJSComment "				// 		{"}}
-{{rawJSComment "				// 			name: 'blue',"}}
-{{rawJSComment "				// 			iconClass: 'fas fa-terminal'"}}
-{{rawJSComment "				// 		},"}}
-{{rawJSComment "				// 		{"}}
-{{rawJSComment "				// 			name: 'green',"}}
-{{rawJSComment "				// 			iconClass: 'fas fa-copy'"}}
-{{rawJSComment "				// 		}]},"}}
-{{rawJSComment "				// 	{ idSuffix: 'labelKind', columnLabelTextContent: 'Kind', columnLabelClass: 'column is-4 p-1', columnInputType: 'label', columnInputContent: node.data('extraData').kind },"}}
-{{rawJSComment "				// 	{ idSuffix: 'labelImage', columnLabelTextContent: 'Image', columnLabelClass: 'column is-4 p-1', columnInputType: 'label', columnInputContent: node.data('extraData').image },"}}
-{{rawJSComment "				// 	{ idSuffix: 'labelManagementIPv4', columnLabelTextContent: 'Management IPv4', columnLabelClass: 'column is-4 p-1', columnInputType: 'label', columnInputContent: node.data('extraData').mgmtIpv4Addresss },"}}
-{{rawJSComment "				// 	{ idSuffix: 'labelManagement IPv6', columnLabelTextContent: 'Management IPv6', columnLabelClass: 'column is-4 p-1', columnInputType: 'label', columnInputContent: node.data('extraData').mgmtIpv6Addresss },"}}
-{{rawJSComment "				// 	{ idSuffix: 'labelFqdn', columnLabelTextContent: 'FQDN', columnLabelClass: 'column is-4 p-1', columnInputType: 'label', columnInputContent: node.data('extraData').fqdn },"}}
-{{rawJSComment "				// 	{ idSuffix: 'labelGroup', columnLabelTextContent: 'Group', columnLabelClass: 'column is-4 p-1', columnInputType: 'label', columnInputContent: node.data('extraData').group },"}}
-{{rawJSComment "				// 	{ idSuffix: 'labeltopoViewerRole', columnLabelTextContent: 'Topoviewer Role', columnLabelClass: 'column is-4 p-1', columnInputType: 'label', columnInputContent: node.data('topoViewerRole') },	"}}
-{{rawJSComment "				//  { idSuffix: 'labelFindRouteSource', columnLabelTextContent: '', columnLabelClass: 'column is-0 p-0', columnInputType: 'field', columnInputContent: '', columnInputPlaceholder: 'name', columnInputAttribute: 'enabled', columnInputIsInvisible: 'yes',"}}
-{{rawJSComment "				//  	addonsContent: []"}}
-{{rawJSComment "				//  }				"}}
-{{rawJSComment "				//  { idSuffix: 'labellinkImpairmentManagerExec', columnLabelTextContent: 'Link Impairment', columnLabelClass: 'column is-4 p-1', columnInputType: 'field', columnInputContent: 'Apply', columntInputAttribute: 'enabled', // columntInputAttribute default is disabled"}}
-{{rawJSComment "				//  addonsContent: ["}}
-{{rawJSComment "				//  	{"}}
-{{rawJSComment "				//  		name: 'blue',"}}
-{{rawJSComment "				//  		iconClass: 'fas fa-terminal'"}}
-{{rawJSComment "				//  	},"}}
-{{rawJSComment "				//  	{"}}
-{{rawJSComment "				//  		name: 'green',"}}
-{{rawJSComment "				//  		iconClass: 'fas fa-copy'"}}
-{{rawJSComment "				//  	}]},"}}
-{{rawJSComment "				//  ];"}}
-{{rawJSComment "				// ];"}}
+{{rawJSComment "##				// const Panel01ColumnsConfig = ["}}
+{{rawJSComment "##				// 	{ idSuffix: 'labelNodeName', columnLabelTextContent: 'Node Name', columnLabelClass: 'column is-4 p-1', columnInputType: 'field', columnInputContent: node.data('name'), 						"}}
+{{rawJSComment "##				// 		addonsContent: ["}}
+{{rawJSComment "##				// 		{"}}
+{{rawJSComment "##				// 			name: 'blue',"}}
+{{rawJSComment "##				// 			iconClass: 'fas fa-terminal'"}}
+{{rawJSComment "##				// 		},"}}
+{{rawJSComment "##				// 		{"}}
+{{rawJSComment "##				// 			name: 'green',"}}
+{{rawJSComment "##				// 			iconClass: 'fas fa-copy'"}}
+{{rawJSComment "##				// 		}]},"}}
+{{rawJSComment "##				// 	{ idSuffix: 'labelKind', columnLabelTextContent: 'Kind', columnLabelClass: 'column is-4 p-1', columnInputType: 'label', columnInputContent: node.data('extraData').kind },"}}
+{{rawJSComment "##				// 	{ idSuffix: 'labelImage', columnLabelTextContent: 'Image', columnLabelClass: 'column is-4 p-1', columnInputType: 'label', columnInputContent: node.data('extraData').image },"}}
+{{rawJSComment "##				// 	{ idSuffix: 'labelManagementIPv4', columnLabelTextContent: 'Management IPv4', columnLabelClass: 'column is-4 p-1', columnInputType: 'label', columnInputContent: node.data('extraData').mgmtIpv4Addresss },"}}
+{{rawJSComment "##				// 	{ idSuffix: 'labelManagement IPv6', columnLabelTextContent: 'Management IPv6', columnLabelClass: 'column is-4 p-1', columnInputType: 'label', columnInputContent: node.data('extraData').mgmtIpv6Addresss },"}}
+{{rawJSComment "##				// 	{ idSuffix: 'labelFqdn', columnLabelTextContent: 'FQDN', columnLabelClass: 'column is-4 p-1', columnInputType: 'label', columnInputContent: node.data('extraData').fqdn },"}}
+{{rawJSComment "##				// 	{ idSuffix: 'labelGroup', columnLabelTextContent: 'Group', columnLabelClass: 'column is-4 p-1', columnInputType: 'label', columnInputContent: node.data('extraData').group },"}}
+{{rawJSComment "##				// 	{ idSuffix: 'labeltopoViewerRole', columnLabelTextContent: 'Topoviewer Role', columnLabelClass: 'column is-4 p-1', columnInputType: 'label', columnInputContent: node.data('topoViewerRole') },	"}}
+{{rawJSComment "##				//  { idSuffix: 'labelFindRouteSource', columnLabelTextContent: '', columnLabelClass: 'column is-0 p-0', columnInputType: 'field', columnInputContent: '', columnInputPlaceholder: 'name', columnInputAttribute: 'enabled', columnInputIsInvisible: 'yes',"}}
+{{rawJSComment "##				//  	addonsContent: []"}}
+{{rawJSComment "##				//  }				"}}
+{{rawJSComment "##				//  { idSuffix: 'labellinkImpairmentManagerExec', columnLabelTextContent: 'Link Impairment', columnLabelClass: 'column is-4 p-1', columnInputType: 'field', columnInputContent: 'Apply', columntInputAttribute: 'enabled', // columntInputAttribute default is disabled"}}
+{{rawJSComment "##				//  addonsContent: ["}}
+{{rawJSComment "##				//  	{"}}
+{{rawJSComment "##				//  		name: 'blue',"}}
+{{rawJSComment "##				//  		iconClass: 'fas fa-terminal'"}}
+{{rawJSComment "##				//  	},"}}
+{{rawJSComment "##				//  	{"}}
+{{rawJSComment "##				//  		name: 'green',"}}
+{{rawJSComment "##				//  		iconClass: 'fas fa-copy'"}}
+{{rawJSComment "##				//  	}]},"}}
+{{rawJSComment "##				//  ];"}}
+{{rawJSComment "##				// ];"}}
 
 				PanelColumnsConfig.forEach(config => {
-{{rawJSComment "					// Create columnContainer"}}
+{{rawJSComment "##					// Create columnContainer"}}
 					const columnContainer = document.createElement('div');
 					columnContainer.id = `${divPanelBlock.id}-columnContainer${config.idSuffix}`
 					columnContainer.className = 'column my-auto is-11 pr-1';  
  
-{{rawJSComment "					// Create panelContent"}}
+{{rawJSComment "##					// Create panelContent"}}
 					const panelContent = document.createElement('div');
 					panelContent.id = `${columnContainer.id}-panelContent${config.idSuffix}`
 					panelContent.className = 'panel-content';
 
-{{rawJSComment "					// Create columnsPanelContent container"}}
+{{rawJSComment "##					// Create columnsPanelContent container"}}
 					const columnsPanelContent = document.createElement('div');
 					columnsPanelContent.className = 'columns py-auto';
 					columnsPanelContent.id = `${panelContent.id}-columnsPanelContent${config.idSuffix}`
 
-{{rawJSComment "					// Create labelColumn column"}}
+{{rawJSComment "##					// Create labelColumn column"}}
 					const labelColumn = document.createElement('div');
 					labelColumn.id = `${columnsPanelContent.id}-labelColumn${config.idSuffix}`
 					labelColumn.className = `${config.columnLabelClass}`;
@@ -2449,7 +2423,7 @@
 					labelColumn.appendChild(labelElement);
 					columnsPanelContent.appendChild(labelColumn);
 
-{{rawJSComment "					// Create inputColumn column"}}
+{{rawJSComment "##					// Create inputColumn column"}}
 					if (config.columnInputType == 'label') {
 						const inputColumn = document.createElement('div');
 						inputColumn.className = `column is-8 p-1 pl-3`;
@@ -2534,7 +2508,7 @@
 						  } else {
 							inputColumn.className = `column is-8 p-1 pl-3`;
 						}
-{{rawJSComment "						// inputColumn.className = `column is-8 p-1 pl-3`;"}}
+{{rawJSComment "##						// inputColumn.className = `column is-8 p-1 pl-3`;"}}
 						inputColumn.id = `${labelColumn.id}-inputColumn${config.idSuffix}`
 						const inputElement = document.createElement('input');
 						if (typeof config.columnInputElementClass !== 'undefined' && config.columnInputElementClass !== null && config.columnInputElementClass !== '') {
@@ -2542,7 +2516,7 @@
 						  } else {
 							inputElement.className = `input is-size-7 has-text-left link-impairment-widht has-text-weight-normal is-smallest-element`;
 						}
-{{rawJSComment "						// inputElement.className = `input is-size-7 has-text-left link-impairment-widht has-text-weight-normal is-smallest-element`;"}}
+{{rawJSComment "##						// inputElement.className = `input is-size-7 has-text-left link-impairment-widht has-text-weight-normal is-smallest-element`;"}}
 						inputElement.id = `${inputColumn.id}-label${config.idSuffix}`
 						inputElement.type = 'text'
 						inputElement.value = config.columnInputContent
@@ -2563,7 +2537,7 @@
 							inputElement.classList.add('is-invisible'); 
 						}
 
-{{rawJSComment "						// create addon input"}}
+{{rawJSComment "##						// create addon input"}}
 						const controlId = `${inputElement.id}-control`;
 						const control = document.createElement('p');
 						control.className = 'control';
@@ -2584,7 +2558,7 @@
 						control.appendChild(input);
 						inputElement.appendChild(control);
 
-{{rawJSComment "						// create addon button"}}
+{{rawJSComment "##						// create addon button"}}
 						addons = config.addonsContent
 
 						for (let i = 0; i < addons.length; i++) {
@@ -2594,7 +2568,7 @@
 							control.className = 'control';
 							control.id = controlId;
 
-{{rawJSComment "							// Create a button element"}}
+{{rawJSComment "##							// Create a button element"}}
 							const button = document.createElement('a');
 							button.id = `${controlId}-button${addon.name}`;
 							button.className = `button is-outlined px-3 is-smallest-element is-${addon.name === 'blue' ? 'link' : 'success'}`;
@@ -2614,11 +2588,11 @@
 								button.href = addon.hrefLink;
 								button.target = '_blank';
 								button.addEventListener('click', function(event) {
-{{rawJSComment "									// Prevent the default behavior of the anchor element (opening a new tab)"}}
+{{rawJSComment "##									// Prevent the default behavior of the anchor element (opening a new tab)"}}
 									urlToCopy = addon.hrefLink;
 									event.preventDefault();
 
-{{rawJSComment "									// Create a temporary input element to copy the URL to the clipboard"}}
+{{rawJSComment "##									// Create a temporary input element to copy the URL to the clipboard"}}
 									const tempInput = document.createElement('input');
 									tempInput.value = urlToCopy;
 									document.body.appendChild(tempInput);
@@ -2626,7 +2600,7 @@
 									document.execCommand('copy');
 									document.body.removeChild(tempInput);
 
-{{rawJSComment "									// Provide user feedback (e.g., alert or toast) that the URL has been copied"}}
+{{rawJSComment "##									// Provide user feedback (e.g., alert or toast) that the URL has been copied"}}
 									bulmaToast.toast({
 										message: `SSH command is lit 🔥 and copied to your clipboard, ready to drop it in your terminal console like a boss! 🚀💻`,
 										type: 'is-warning is-size-6 p-3',
@@ -2638,7 +2612,7 @@
 								});
 							} 
 
-{{rawJSComment "							// Create a icon element"}}
+{{rawJSComment "##							// Create a icon element"}}
 							const icon = document.createElement('span');
 							icon.className = 'icon is-small';
 							const iconElement = document.createElement('i');
@@ -2646,25 +2620,25 @@
 							icon.appendChild(iconElement);
 							button.appendChild(icon);
 
-{{rawJSComment "							// Create a hover text paragraph element"}}
+{{rawJSComment "##							// Create a hover text paragraph element"}}
 							const hoverText = document.querySelector('.hover-text');
 
-{{rawJSComment "							// Add event listeners for hover behavior"}}
+{{rawJSComment "##							// Add event listeners for hover behavior"}}
 							button.addEventListener('mouseover', () => {
 
-{{rawJSComment "								// Calculate the position for the hover text"}}
+{{rawJSComment "##								// Calculate the position for the hover text"}}
 								const rect = button.getBoundingClientRect();
 								const top = rect.top - hoverText.offsetHeight + 25;
 								const left = rect.left + (button.offsetWidth - hoverText.offsetWidth) / 2;
 
-{{rawJSComment "								// Set the position and show the hover text"}}
+{{rawJSComment "##								// Set the position and show the hover text"}}
 								hoverText.style.top = `${top}px`;
 								hoverText.style.left = `${left}px`;
 								hoverText.classList.remove('is-hidden');
 								hoverText.textContent = addon.hoverMessage;
 							});
 							button.addEventListener('mouseout', () => {
-{{rawJSComment "								// Hide the hover text"}}
+{{rawJSComment "##								// Hide the hover text"}}
 								hoverText.classList.add('is-hidden');
 							});
 							control.appendChild(button);
@@ -2674,7 +2648,7 @@
 						columnsPanelContent.appendChild(inputColumn);
 					}
 
-{{rawJSComment "					// columnInputType buttonGroupHandle"}}
+{{rawJSComment "##					// columnInputType buttonGroupHandle"}}
 					else if (config.columnInputType == 'buttonGroup') {
 					const inputColumn = document.createElement('div');
 					inputColumn.className = `column is-8 p-1 pl-0`;
@@ -2687,7 +2661,7 @@
 						inputElement.classList.add('is-invisible'); 
 					}
 
-{{rawJSComment "					// create addon button"}}
+{{rawJSComment "##					// create addon button"}}
 					addons = config.addonsContent
 
 					for (let i = 0; i < addons.length; i++) {
@@ -2697,7 +2671,7 @@
 						control.className = 'control';
 						control.id = controlId;
 
-{{rawJSComment "						// Create a button element"}}
+{{rawJSComment "##						// Create a button element"}}
 						const button = document.createElement('a');
 						button.id = `${controlId}-button${addon.name}`;
 						button.className = `button is-outlined px-3 is-smallest-element is-${addon.name === 'blue' ? 'link' : 'success'}`;
@@ -2717,11 +2691,11 @@
 							button.href = addon.hrefLink;
 							button.target = '_blank';
 							button.addEventListener('click', function(event) {
-{{rawJSComment "								// Prevent the default behavior of the anchor element (opening a new tab)"}}
+{{rawJSComment "##								// Prevent the default behavior of the anchor element (opening a new tab)"}}
 								urlToCopy = addon.hrefLink;
 								event.preventDefault();
 
-{{rawJSComment "								// Create a temporary input element to copy the URL to the clipboard"}}
+{{rawJSComment "##								// Create a temporary input element to copy the URL to the clipboard"}}
 								const tempInput = document.createElement('input');
 								tempInput.value = urlToCopy;
 								document.body.appendChild(tempInput);
@@ -2729,7 +2703,7 @@
 								document.execCommand('copy');
 								document.body.removeChild(tempInput);
 
-{{rawJSComment "								// Provide user feedback (e.g., alert or toast) that the URL has been copied"}}
+{{rawJSComment "##								// Provide user feedback (e.g., alert or toast) that the URL has been copied"}}
 								bulmaToast.toast({
 									message: `SSH command is lit 🔥 and copied to your clipboard, ready to drop it in your terminal console like a boss! 🚀💻`,
 									type: 'is-warning is-size-6 p-3',
@@ -2801,7 +2775,7 @@
 							}
 						}
 
-{{rawJSComment "						// Create a icon element"}}
+{{rawJSComment "##						// Create a icon element"}}
 						const icon = document.createElement('span');
 						icon.className = 'icon is-small';
 						const iconElement = document.createElement('i');
@@ -2809,25 +2783,25 @@
 						icon.appendChild(iconElement);
 						button.appendChild(icon);
 
-{{rawJSComment "						// Create a hover text paragraph element"}}
+{{rawJSComment "##						// Create a hover text paragraph element"}}
 						const hoverText = document.querySelector('.hover-text');
 
-{{rawJSComment "						// Add event listeners for hover behavior"}}
+{{rawJSComment "##						// Add event listeners for hover behavior"}}
 						button.addEventListener('mouseover', () => {
 
-{{rawJSComment "							// Calculate the position for the hover text"}}
+{{rawJSComment "##							// Calculate the position for the hover text"}}
 							const rect = button.getBoundingClientRect();
 							const top = rect.top - hoverText.offsetHeight + 25;
 							const left = rect.left + (button.offsetWidth - hoverText.offsetWidth) / 2;
 
-{{rawJSComment "							// Set the position and show the hover text"}}
+{{rawJSComment "##							// Set the position and show the hover text"}}
 							hoverText.style.top = `${top}px`;
 							hoverText.style.left = `${left}px`;
 							hoverText.classList.remove('is-hidden');
 							hoverText.textContent = addon.hoverMessage;
 						});
 						button.addEventListener('mouseout', () => {
-{{rawJSComment "							// Hide the hover text"}}
+{{rawJSComment "##							// Hide the hover text"}}
 							hoverText.classList.add('is-hidden');
 						});
 						control.appendChild(button);
@@ -2849,23 +2823,23 @@
 				tabContentFnsArg = []
 				createContentPanel('Panel-03', tabContentFns, tabContentFnsArg, 'Introduction')
 
-{{rawJSComment "				// createContentPanel('Panel-01', tabContentFns, tabContentFnsArg[0], 'Node Properties');"}}
+{{rawJSComment "##				// createContentPanel('Panel-01', tabContentFns, tabContentFnsArg[0], 'Node Properties');"}}
 			}
 
 			function createWelcomeTab(panelHeadingText) {
 				const modifiedHeaderText = panelHeadingText;
 
-{{rawJSComment "				// Create the tab-container "}}
+{{rawJSComment "##				// Create the tab-container "}}
 				const tabContainer = document.createElement('div');
 				tabContainer.id = `tabContainer-${modifiedHeaderText}`
 				tabContainer.className = 'panel-tabContainer';
 
-{{rawJSComment "				// Panel Block 01"}}
+{{rawJSComment "##				// Panel Block 01"}}
 				panelBlockContainer = createPanelBlockContainer(tabContainer.id)
 				panelBlock01 = panelBlockContainer.panelBlock
 				divPanelBlock01 = panelBlockContainer.divPanelBlock
 
-{{rawJSComment "				// Define the HTML content as a string"}}
+{{rawJSComment "##				// Define the HTML content as a string"}}
 				var topoViewerVersion ='nightly'
 				const htmlContent = `
 				<div class="content is-small pb-2">
@@ -2906,7 +2880,7 @@
 				</div>
 				`;
 
-{{rawJSComment "				// Create a div element and set its innerHTML to the defined HTML content"}}
+{{rawJSComment "##				// Create a div element and set its innerHTML to the defined HTML content"}}
 				const contentDiv = document.createElement('div');
 				contentDiv.className = 'px-2';
 				contentDiv.innerHTML = htmlContent;
@@ -2914,7 +2888,7 @@
 				contentDiv.style.overflowY = 'auto';
 
 				divPanelBlock01.appendChild(contentDiv)
-{{rawJSComment "				// append divPanelBlock01 --> panelBlock01 --> tabContainer"}}
+{{rawJSComment "##				// append divPanelBlock01 --> panelBlock01 --> tabContainer"}}
 				panelBlock01.append(divPanelBlock01)
 
 				tabContainer.appendChild(panelBlock01)
@@ -2948,17 +2922,17 @@
 			function createAboutTab(versionParsedText, panelHeadingText) {
 				const modifiedHeaderText = panelHeadingText;
 
-{{rawJSComment "				// Create the tab-container "}}
+{{rawJSComment "##				// Create the tab-container "}}
 				const tabContainer = document.createElement('div');
 				tabContainer.id = `tabContainer-${modifiedHeaderText}`
 				tabContainer.className = 'panel-tabContainer';
 
-{{rawJSComment "				// Panel Block 01"}}
+{{rawJSComment "##				// Panel Block 01"}}
 				panelBlockContainer = createPanelBlockContainer(tabContainer.id)
 				panelBlock01 = panelBlockContainer.panelBlock
 				divPanelBlock01 = panelBlockContainer.divPanelBlock
 
-{{rawJSComment "				// Define the HTML content as a string"}}
+{{rawJSComment "##				// Define the HTML content as a string"}}
 				var topoViewerVersion = versionParsedText;
 				const htmlContent = `
 				<div class="content is-small pb-2">
@@ -2980,7 +2954,7 @@
 				</div>
 				`;
 
-{{rawJSComment "				// Create a div element and set its innerHTML to the defined HTML content"}}
+{{rawJSComment "##				// Create a div element and set its innerHTML to the defined HTML content"}}
 				const contentDiv = document.createElement('div');
 				contentDiv.className = 'px-2';
 				contentDiv.innerHTML = htmlContent;
@@ -2988,7 +2962,7 @@
 				contentDiv.style.overflowY = 'auto';
 
 				divPanelBlock01.appendChild(contentDiv)
-{{rawJSComment "				// append divPanelBlock01 --> panelBlock01 --> tabContainer"}}
+{{rawJSComment "##				// append divPanelBlock01 --> panelBlock01 --> tabContainer"}}
 				panelBlock01.append(divPanelBlock01)
 				tabContainer.appendChild(panelBlock01)
 
@@ -3001,23 +2975,23 @@
 				tabContentFnsArg = []
 				createContentPanel('Panel-03', tabContentFns, tabContentFnsArg, 'TopoViewer Helper App')
 
-{{rawJSComment "				// createContentPanel('Panel-01', tabContentFns, tabContentFnsArg[0], 'Node Properties');"}}
+{{rawJSComment "##				// createContentPanel('Panel-01', tabContentFns, tabContentFnsArg[0], 'Node Properties');"}}
 			}
 
 			function createTopoViewerClientTab(panelHeadingText) {
 				const modifiedHeaderText = panelHeadingText;
 
-{{rawJSComment "				// Create the tab-container "}}
+{{rawJSComment "##				// Create the tab-container "}}
 				const tabContainer = document.createElement('div');
 				tabContainer.id = `tabContainer-${modifiedHeaderText}`
 				tabContainer.className = 'panel-tabContainer';
 
-{{rawJSComment "				// Panel Block 01"}}
+{{rawJSComment "##				// Panel Block 01"}}
 				panelBlockContainer = createPanelBlockContainer(tabContainer.id)
 				panelBlock01 = panelBlockContainer.panelBlock
 				divPanelBlock01 = panelBlockContainer.divPanelBlock
 
-{{rawJSComment "				// Define the HTML content as a string"}}
+{{rawJSComment "##				// Define the HTML content as a string"}}
 
 				url = location.host
 				const hreWindows = `http://${url}/clab-client/clab-client-windows/ClabCapture.app.zip`
@@ -3044,7 +3018,7 @@
 				</div>
 				`;
 
-{{rawJSComment "				// Create a div element and set its innerHTML to the defined HTML content"}}
+{{rawJSComment "##				// Create a div element and set its innerHTML to the defined HTML content"}}
 				const contentDiv = document.createElement('div');
 				contentDiv.className = 'px-2';
 				contentDiv.innerHTML = htmlContent;
@@ -3052,7 +3026,7 @@
 				contentDiv.style.overflowY = 'auto';
 
 				divPanelBlock01.appendChild(contentDiv)
-{{rawJSComment "				// append divPanelBlock01 --> panelBlock01 --> tabContainer"}}
+{{rawJSComment "##				// append divPanelBlock01 --> panelBlock01 --> tabContainer"}}
 				panelBlock01.append(divPanelBlock01)
 				tabContainer.appendChild(panelBlock01)
 
@@ -3065,23 +3039,23 @@
 				tabContentFnsArg = []
 				createContentPanel('Panel-03', tabContentFns, tabContentFnsArg, 'TopoViewer Helper App')
 
-{{rawJSComment "				// createContentPanel('Panel-01', tabContentFns, tabContentFnsArg[0], 'Node Properties');"}}
+{{rawJSComment "##				// createContentPanel('Panel-01', tabContentFns, tabContentFnsArg[0], 'Node Properties');"}}
 			}
 
 			function createDrawerLayoutTab(panelHeadingText) {
 				const modifiedHeaderText = panelHeadingText;
 
-{{rawJSComment "				// Create the tab-container "}}
+{{rawJSComment "##				// Create the tab-container "}}
 				const tabContainer = document.createElement('div');
 				tabContainer.id = `tabContainer-${modifiedHeaderText}`
 				tabContainer.className = 'panel-tabContainer';
 
-{{rawJSComment "				// Panel Block 01"}}
+{{rawJSComment "##				// Panel Block 01"}}
 				panelBlockContainer = createPanelBlockContainer(tabContainer.id)
 				panelBlock01 = panelBlockContainer.panelBlock
 				divPanelBlock01 = panelBlockContainer.divPanelBlock
 
-{{rawJSComment "				// Define the HTML content as a string"}}
+{{rawJSComment "##				// Define the HTML content as a string"}}
 
 				url = location.host
 				const hreWindows = `http://${url}/clab-client/clab-client-windows/ClabCapture.app.zip`
@@ -3117,7 +3091,7 @@
 				</div>
 				`;
 
-{{rawJSComment "				// Create a div element and set its innerHTML to the defined HTML content"}}
+{{rawJSComment "##				// Create a div element and set its innerHTML to the defined HTML content"}}
 				const contentDiv = document.createElement('div');
 				contentDiv.className = 'px-2';
 				contentDiv.innerHTML = htmlContent;
@@ -3125,7 +3099,7 @@
 				contentDiv.style.overflowY = 'auto';
 
 				divPanelBlock01.appendChild(contentDiv)
-{{rawJSComment "				// append divPanelBlock01 --> panelBlock01 --> tabContainer"}}
+{{rawJSComment "##				// append divPanelBlock01 --> panelBlock01 --> tabContainer"}}
 				panelBlock01.append(divPanelBlock01)
 				tabContainer.appendChild(panelBlock01)
 
@@ -3133,36 +3107,36 @@
 			}
 			
 
-{{rawJSComment "			// function zoomToFitDrawerl(cy) {"}}
-{{rawJSComment "			// 	const initialZoom = cy.zoom();"}}
-{{rawJSComment "			// 	appendMessage(`Bro, initial zoom level is '${initialZoom}'.`);"}}
-{{rawJSComment "			// 	//- Fit all nodes possible with padding"}}
-{{rawJSComment "			// 	cy.fit();"}}
-{{rawJSComment "			// 	const currentZoom = cy.zoom();"}}
-{{rawJSComment "			// 	appendMessage(`And now the zoom level is '${currentZoom}'.`);"}}
-{{rawJSComment "			// }"}}
+{{rawJSComment "##			// function zoomToFitDrawerl(cy) {"}}
+{{rawJSComment "##			// 	const initialZoom = cy.zoom();"}}
+{{rawJSComment "##			// 	appendMessage(`Bro, initial zoom level is '${initialZoom}'.`);"}}
+{{rawJSComment "##			// 	//- Fit all nodes possible with padding"}}
+{{rawJSComment "##			// 	cy.fit();"}}
+{{rawJSComment "##			// 	const currentZoom = cy.zoom();"}}
+{{rawJSComment "##			// 	appendMessage(`And now the zoom level is '${currentZoom}'.`);"}}
+{{rawJSComment "##			// }"}}
 
 			function nodeFindDrawer(cy) {
-{{rawJSComment "				//- Get a reference to your Cytoscape instance (assuming it's named 'cy')"}}
-{{rawJSComment "				//- const cy = window.cy; //- Replace 'window.cy' with your actual Cytoscape instance"}}
-{{rawJSComment "				//- Find the node with the specified name"}}
+{{rawJSComment "##				//- Get a reference to your Cytoscape instance (assuming it's named 'cy')"}}
+{{rawJSComment "##				//- const cy = window.cy; //- Replace 'window.cy' with your actual Cytoscape instance"}}
+{{rawJSComment "##				//- Find the node with the specified name"}}
 				const nodeName = document.getElementById('panelBlock-viewportButtons-buttonfindNode-divPanelBlock-columnContainerlabelFindNodeNodeName-panelContentlabelFindNodeNodeName-columnsPanelContentlabelFindNodeNodeName-labelColumnlabelFindNodeNodeName-inputColumnlabelFindNodeNodeName-labellabelFindNodeNodeName').value;
 
 				const node = cy.$(`node[name = "${nodeName}"]`);
-{{rawJSComment "				//- Check if the node exists"}}
+{{rawJSComment "##				//- Check if the node exists"}}
 				if (node.length > 0) {
-{{rawJSComment "					// console"}}
+{{rawJSComment "##					// console"}}
 					console.log("Info: " + "Sweet! Node \"" + nodeName + "\" is in the house.");
 					appendMessage("Info: " + "Sweet! Node \"" + nodeName + "\" is in the house.");
-{{rawJSComment "					//- Apply a highlight style to the node"}}
+{{rawJSComment "##					//- Apply a highlight style to the node"}}
 					node.style({
 						'border-color': 'red',
 						'border-width': '2px',
 						'background-color': 'yellow'
 					});
-{{rawJSComment "					//- Zoom out on the node"}}
+{{rawJSComment "##					//- Zoom out on the node"}}
 					cy.fit()
-{{rawJSComment "					//- Zoom in on the node"}}
+{{rawJSComment "##					//- Zoom in on the node"}}
 					cy.animate({
 						zoom: {
 							level: 5,
@@ -3185,61 +3159,61 @@
 			}
 			
 			function pathFinderDijkstraDrawer(cy) {
-{{rawJSComment "				// Usage example:"}}
-{{rawJSComment "				// highlightShortestPath('node-a', 'node-b'); // Replace with your source and target node IDs"}}
-{{rawJSComment "				//- Function to get the default node style from cy-style.json"}}
-{{rawJSComment "				//- weight: (edge) => 1, // You can adjust the weight function if needed"}}
-{{rawJSComment "				//- weight: (edge) => edge.data('distance')"}}
+{{rawJSComment "##				// Usage example:"}}
+{{rawJSComment "##				// highlightShortestPath('node-a', 'node-b'); // Replace with your source and target node IDs"}}
+{{rawJSComment "##				//- Function to get the default node style from cy-style.json"}}
+{{rawJSComment "##				//- weight: (edge) => 1, // You can adjust the weight function if needed"}}
+{{rawJSComment "##				//- weight: (edge) => edge.data('distance')"}}
 
 				console.log('im triggered')
 
-{{rawJSComment "				// Remove existing highlight from all edges"}}
+{{rawJSComment "##				// Remove existing highlight from all edges"}}
 				cy.edges().forEach(edge => {
 					edge.removeClass('spf');
 				});
 
-{{rawJSComment "				// Get the node sourceNodeId from pathFinderSourceNodeInput and targetNodeId from pathFinderTargetNodeInput  "}}
+{{rawJSComment "##				// Get the node sourceNodeId from pathFinderSourceNodeInput and targetNodeId from pathFinderTargetNodeInput  "}}
 				const sourceNodeId = document.getElementById('panelBlock-viewportButtons-buttonfindRoute-divPanelBlock-columnContainerlabelFindRouteSource-panelContentlabelFindRouteSource-columnsPanelContentlabelFindRouteSource-labelColumnlabelFindRouteSource-inputColumnlabelFindRouteSource-labellabelFindRouteSource').value;
 				const targetNodeId = document.getElementById('panelBlock-viewportButtons-buttonfindRoute-divPanelBlock-columnContainerlabelFindRouteTarget-panelContentlabelFindRouteTarget-columnsPanelContentlabelFindRouteTarget-labelColumnlabelFindRouteTarget-inputColumnlabelFindRouteTarget-labellabelFindRouteTarget').value;
 
-{{rawJSComment "				// Assuming you have 'cy' as your Cytoscape instance"}}
+{{rawJSComment "##				// Assuming you have 'cy' as your Cytoscape instance"}}
 				const sourceNode = cy.$(`node[id="${sourceNodeId}"]`);
 				const targetNode = cy.$(`node[id="${targetNodeId}"]`);
 
 				console.log("Info: " + "Let's find the path from-" + sourceNodeId + "-to-" + targetNodeId + "!");
 				appendMessage("Info: " + "Let's find the path from-" + sourceNodeId + "-to-" + targetNodeId + "!");
 
-{{rawJSComment "				// Check if both nodes exist"}}
+{{rawJSComment "##				// Check if both nodes exist"}}
 				if (sourceNode.length === 0 || targetNode.length === 0) {
 					console.error(`Bro, couldn't find the source or target node you specified. Double-check the node names.`);
 					appendMessage(`Bro, couldn't find the source or target node you specified. Double-check the node names.`);
 					return;
 				}
 
-{{rawJSComment "				// Get the Dijkstra result with the shortest path"}}
+{{rawJSComment "##				// Get the Dijkstra result with the shortest path"}}
 				const dijkstraResult = cy.elements().dijkstra({
 					root: sourceNode,
 					weight: (edge) => 1,
-{{rawJSComment "					// Use the custom weight attribute"}}
-{{rawJSComment "					// weight: edge => edge.data('customWeight'),"}}
+{{rawJSComment "##					// Use the custom weight attribute"}}
+{{rawJSComment "##					// weight: edge => edge.data('customWeight'),"}}
 
 				});
-{{rawJSComment "				// Get the shortest path from Dijkstra result"}}
+{{rawJSComment "##				// Get the shortest path from Dijkstra result"}}
 				const shortestPathEdges = dijkstraResult.pathTo(targetNode);
 				console.log(shortestPathEdges)
 
-{{rawJSComment "				// Check if there is a valid path (shortestPathEdges is not empty)"}}
+{{rawJSComment "##				// Check if there is a valid path (shortestPathEdges is not empty)"}}
 				if (shortestPathEdges.length > 1) {
 
-{{rawJSComment "					// Highlight the shortest path"}}
+{{rawJSComment "##					// Highlight the shortest path"}}
 					shortestPathEdges.forEach(edge => {
 						edge.addClass('spf'); 
 					});
 
-{{rawJSComment "					//- Zoom out on the node"}}
+{{rawJSComment "##					//- Zoom out on the node"}}
 					cy.fit()
 
-{{rawJSComment "					//- Zoom in on the node"}}
+{{rawJSComment "##					//- Zoom in on the node"}}
 					cy.animate({
 						zoom: {
 							level: 5,
@@ -3254,7 +3228,7 @@
 						},
 						duration: 1500
 					});
-{{rawJSComment "					// throw log"}}
+{{rawJSComment "##					// throw log"}}
 					console.log("Info: " + "Yo, check it out! Shorthest Path from-" + sourceNodeId + "-to-" + targetNodeId + " has been found.");
 					appendMessage("Info: " + "Yo, check it out! Shorthest Path from-" + sourceNodeId + "-to-" + targetNodeId + " has been found, below is the path trace..");
 					console.log(shortestPathEdges)
@@ -3267,7 +3241,7 @@
 						edgeId = edge.id();
 						sourceNodeId = edge.source().id();
 						targetNodeId = edge.target().id();
-{{rawJSComment "						// You can access other properties of the edge, e.g., source, target, data, etc."}}
+{{rawJSComment "##						// You can access other properties of the edge, e.g., source, target, data, etc."}}
 
 						appendMessage("Info: " + 'Edge ID: ' + edgeId)
 						appendMessage("Info: " + 'Source Node ID: ' + sourceNodeId)
@@ -3326,7 +3300,7 @@
 				urlToCopy = fullCommand;
 				event.preventDefault();
 
-{{rawJSComment " 				// Create a temporary input element to copy the URL to the clipboard"}}
+{{rawJSComment "## 				// Create a temporary input element to copy the URL to the clipboard"}}
 				const tempInput = document.createElement('input');
 				tempInput.value = urlToCopy;
 				document.body.appendChild(tempInput);
@@ -3335,7 +3309,7 @@
 				document.body.removeChild(tempInput);
 
 
-{{rawJSComment " 				// Provide user feedback (e.g., alert or toast) that the URL has been copied"}}
+{{rawJSComment "## 				// Provide user feedback (e.g., alert or toast) that the URL has been copied"}}
 				bulmaToast.toast({
 					message: alert_msg,
 					type: 'is-warning is-size-6 p-3',
@@ -3351,6 +3325,8 @@
 
 				console.log("linkImpairmentManagerExec-Function-Called")
 				
+				var deploymentType =  "colocated"
+
 
 				if (deploymentType == 'colocated') {
 					baseCommand = baseCommandExec
@@ -3406,7 +3382,7 @@
 
 			}
 
-{{rawJSComment "			// Call Go BackEnd function"}}
+{{rawJSComment "##			// Call Go BackEnd function"}}
 			function callGoFunction(parameter1, parameter2) {
 
 				console.log("callGoFunction-Called")
@@ -3424,14 +3400,14 @@
 						body: JSON.stringify(data),
 					})
 					.then(response => {
-{{rawJSComment "						// Handle the response from the Go function"}}
+{{rawJSComment "##						// Handle the response from the Go function"}}
 					})
 					.catch(error => {
 						console.error('Error:', error);
 					});
 			}
 
-{{rawJSComment "			// sleep funtion"}}
+{{rawJSComment "##			// sleep funtion"}}
 			function sleep(ms) {
 				return new Promise(resolve => setTimeout(resolve, ms));
 			}
@@ -3456,19 +3432,19 @@
 				setTimeout(() => {
 					cy.nodes().forEach(function(node) {
 						if (node.isParent()) {
-{{rawJSComment "							// For each parent node"}}
+{{rawJSComment "##							// For each parent node"}}
 							const children = node.children();
 							const numRows = 1; 
 							
 							const cellWidth = node.width() / children.length; 
-{{rawJSComment "							// const xOffset = 5 "}}
+{{rawJSComment "##							// const xOffset = 5 "}}
 							
 							children.forEach(function(child, index) {
-{{rawJSComment "								// Position children in rows"}}
+{{rawJSComment "##								// Position children in rows"}}
 								const xPos = index * (cellWidth + xOffset);
 								const yPos = 0; 
 								
-{{rawJSComment "								// Set the position of each child node"}}
+{{rawJSComment "##								// Set the position of each child node"}}
 								child.position({ x: xPos, y: yPos });
 							});
 						}
@@ -3480,7 +3456,7 @@
 					var centerX = 0;
 					var centerY = cy.height() / 2; 
 
-{{rawJSComment "					// Count children of each parent node"}}
+{{rawJSComment "##					// Count children of each parent node"}}
 					cy.nodes().forEach(function(node) {
 						if (node.isParent()) {
 							const childrenCount = node.children().length;
@@ -3501,19 +3477,19 @@
 					const divisionFactor = maxWidth / 2; 
 					console.log('divisionFactor: ', divisionFactor)
 				  
-{{rawJSComment "					// Sort parent nodes by child count in ascending order"}}
+{{rawJSComment "##					// Sort parent nodes by child count in ascending order"}}
 					const sortedParents = Object.keys(parentCounts).sort(
 						  (a, b) => parentCounts[a] - parentCounts[b]
 					);
 				  
 					let yPos = 0; 
-{{rawJSComment "					// const yOffset = 50; "}}
+{{rawJSComment "##					// const yOffset = 50; "}}
 				  
-{{rawJSComment "					// Position parent nodes vertically and center them horizontally"}}
+{{rawJSComment "##					// Position parent nodes vertically and center them horizontally"}}
 					sortedParents.forEach(function(parentId) {
 						const parent = cy.getElementById(parentId);
 						const xPos = centerX - parent.width() / divisionFactor;	
-{{rawJSComment "																				  // to the left compared to the center of the widest parent node."}}
+{{rawJSComment "##																				  // to the left compared to the center of the widest parent node."}}
 						  parent.position({ x: xPos, y: yPos });  
 						  yPos += yOffset;
 					});
@@ -3538,18 +3514,18 @@
 				setTimeout(() => {
 				  cy.nodes().forEach(function (node) {
 					if (node.isParent()) {
-{{rawJSComment "					  // For each parent node"}}
+{{rawJSComment "##					  // For each parent node"}}
 					  const children = node.children();
 					  const numColumns = 1; 
 					  const cellHeight = node.height() / children.length; 
-{{rawJSComment "					  // const yOffset = 5; "}}
+{{rawJSComment "##					  // const yOffset = 5; "}}
 			  
 					  children.forEach(function (child, index) {
-{{rawJSComment "						// Position children in columns"}}
+{{rawJSComment "##						// Position children in columns"}}
 						const xPos = 0; 
 						const yPos = index * (cellHeight + yOffset);
 						
-{{rawJSComment "						// Set the position of each child node"}}
+{{rawJSComment "##						// Set the position of each child node"}}
 						child.position({ x: xPos, y: yPos });
 					  });
 					}
@@ -3560,7 +3536,7 @@
 				  var centerX = cy.width() / 2;
 				  var centerY = cy.height() / 2;
 			  
-{{rawJSComment "				  // Count children of each parent node"}}
+{{rawJSComment "##				  // Count children of each parent node"}}
 				  cy.nodes().forEach(function (node) {
 					if (node.isParent()) {
 					  const childrenCount = node.children().length;
@@ -3581,15 +3557,15 @@
 				  const divisionFactor = maxHeight / 2;
 				  console.log('divisionFactor: ', divisionFactor);
 			  
-{{rawJSComment "				  // Sort parent nodes by child count in ascending order"}}
+{{rawJSComment "##				  // Sort parent nodes by child count in ascending order"}}
 				  const sortedParents = Object.keys(parentCounts).sort(
 					(a, b) => parentCounts[a] - parentCounts[b]
 				  );
 			  
 				  let xPos = 0;
-{{rawJSComment "				  // const xOffset = 50;"}}
+{{rawJSComment "##				  // const xOffset = 50;"}}
 			  
-{{rawJSComment "				  // Position parent nodes horizontally and center them vertically"}}
+{{rawJSComment "##				  // Position parent nodes horizontally and center them vertically"}}
 				  sortedParents.forEach(function (parentId) {
 					const parent = cy.getElementById(parentId);
 					const yPos = centerY - parent.height() / divisionFactor; 
@@ -3602,37 +3578,37 @@
 			  }
 
 			  async function captureAndSaveViewportAsPng(cy) {
-{{rawJSComment "				// Find the canvas element for layer2-node"}}
+{{rawJSComment "##				// Find the canvas element for layer2-node"}}
 				const canvasElement = document.querySelector('#cy canvas[data-id="layer2-node"]');
 
 				const zoomScaleFactor = 1;
 
-{{rawJSComment "				// Check if the canvas element exists and is an HTMLCanvasElement"}}
+{{rawJSComment "##				// Check if the canvas element exists and is an HTMLCanvasElement"}}
 				if (canvasElement instanceof HTMLCanvasElement) {
-{{rawJSComment "					// Calculate the new canvas dimensions based on the high resolution factor"}}
+{{rawJSComment "##					// Calculate the new canvas dimensions based on the high resolution factor"}}
 					const newWidth = canvasElement.width * zoomScaleFactor;
 					const newHeight = canvasElement.height * zoomScaleFactor;
 
-{{rawJSComment "					// Create a new canvas element with the increased dimensions"}}
+{{rawJSComment "##					// Create a new canvas element with the increased dimensions"}}
 					const newCanvas = document.createElement('canvas');
 					newCanvas.width = newWidth;
 					newCanvas.height = newHeight;
 					const newCanvasContext = newCanvas.getContext('2d');
 
-{{rawJSComment "					// Scale the canvas content to the new dimensions"}}
+{{rawJSComment "##					// Scale the canvas content to the new dimensions"}}
 					newCanvasContext.scale(zoomScaleFactor, zoomScaleFactor);
 
-{{rawJSComment "					// Fill the new canvas with a white background"}}
+{{rawJSComment "##					// Fill the new canvas with a white background"}}
 					newCanvasContext.fillStyle = 'white';
 					newCanvasContext.fillRect(0, 0, newWidth, newHeight);
 
-{{rawJSComment "					// Draw the original canvas content on the new canvas"}}
+{{rawJSComment "##					// Draw the original canvas content on the new canvas"}}
 					newCanvasContext.drawImage(canvasElement, 0, 0);
 
-{{rawJSComment "					// Convert the new canvas to a data URL with a white background"}}
+{{rawJSComment "##					// Convert the new canvas to a data URL with a white background"}}
 					const dataUrl = newCanvas.toDataURL('image/png');
 
-{{rawJSComment "					// Create an anchor element to trigger the download"}}
+{{rawJSComment "##					// Create an anchor element to trigger the download"}}
 					const link = document.createElement('a');
 					link.href = dataUrl;
 					link.download = 'cytoscape-viewport.png';
@@ -3645,7 +3621,7 @@
 						closeOnClick: true,
 					})
 					await sleep(2000)
-{{rawJSComment "					// Simulate a click to trigger the download"}}
+{{rawJSComment "##					// Simulate a click to trigger the download"}}
 					link.click();
 				} else {
 					console.error('Canvas element for layer2-node is not found or is not a valid HTML canvas element.');
@@ -3654,7 +3630,7 @@
 
 			async function captureAndSaveViewportAsDrawIo(cy) {
 
-{{rawJSComment "				// Find the canvas element for layer2-node"}}
+{{rawJSComment "##				// Find the canvas element for layer2-node"}}
 				const canvasElement = document.querySelector('#cy canvas[data-id="layer2-node"]');
 				const drawIoWidht= canvasElement.width / 10;
 				const drawIoHeight = canvasElement.height / 10;
@@ -3672,8 +3648,8 @@
 				
 				const mxCells = [];
 				
-{{rawJSComment "				// Iterate through nodes and edges"}}
-{{rawJSComment "				// Function to create mxCell XML for nodes"}}
+{{rawJSComment "##				// Iterate through nodes and edges"}}
+{{rawJSComment "##				// Function to create mxCell XML for nodes"}}
 				function createMxCellForNode(node, imageURL) {
 					if (node.isParent()) {
 						return`	
@@ -3735,18 +3711,18 @@
 									</mxCell>`);
 				});
 				
-{{rawJSComment "				// Combine all parts and create XML"}}
+{{rawJSComment "##				// Combine all parts and create XML"}}
 				const mxGraphXML = mxGraphHeader + mxCells.join('') + mxGraphFooter;
 				
-{{rawJSComment "				// Create a Blob from the XML"}}
+{{rawJSComment "##				// Create a Blob from the XML"}}
 				const blob = new Blob([mxGraphXML], {
 					type: 'application/xml'
 				});
 				
-{{rawJSComment "				// Create a URL for the Blob"}}
+{{rawJSComment "##				// Create a URL for the Blob"}}
 				const url = window.URL.createObjectURL(blob);
 				
-{{rawJSComment "				// Create a download link and trigger a click event"}}
+{{rawJSComment "##				// Create a download link and trigger a click event"}}
 				const a = document.createElement('a');
 				a.style.display = 'none';
 				a.href = url;
@@ -3761,10 +3737,10 @@
 					closeOnClick: true,
 				})
 				await sleep(2000)
-{{rawJSComment "				// Simulate a click to trigger the download"}}
+{{rawJSComment "##				// Simulate a click to trigger the download"}}
 				a.click();
 				
-{{rawJSComment "				// Clean up by revoking the URL and removing the download link"}}
+{{rawJSComment "##				// Clean up by revoking the URL and removing the download link"}}
 				window.URL.revokeObjectURL(url);
 				document.body.removeChild(a);
 			}
