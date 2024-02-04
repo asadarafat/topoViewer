@@ -268,6 +268,14 @@
 			let edgeClicked = false;
 			
 
+			const labName =  '{{.LabName}}'
+			const deploymentType = '{{.DeploymentType}}'
+
+			console.log ("Lab-Name: ", labName)
+			console.log ("DeploymentType: ", deploymentType)
+
+
+
 
 
 			document.addEventListener('DOMContentLoaded', function() {
@@ -303,7 +311,7 @@
 
 {{rawJSComment "				// WebSocket for uptime"}}
 				const socketUptime = initializeWebSocket('/uptime', (msgUptime) => {
-					const string01 = 'Containerlab Topology: ' + "{{.LabName}}";
+					const string01 = 'Containerlab Topology: ' + labName;
 					const string02 = ' ::: Uptime: ' + msgUptime.data;
 
 					const ClabSubtitle = document.getElementById("ClabSubtitle");
@@ -316,9 +324,11 @@
 {{rawJSComment "				// WebSocket for ContainerNodeStatus"}}
 				const socketContainerNodeStatusInitial = initializeWebSocket('/containerNodeStatus', (msgContainerNodeStatus) => {
 					try {
-						const { Names, Status } = JSON.parse(msgContainerNodeStatus.data);
+						const { Names, Status, State } = JSON.parse(msgContainerNodeStatus.data);
 						setNodeContainerStatus(Names, Status);
 						console.log(JSON.parse(msgContainerNodeStatus.data));
+
+						setNodeDataWithContainerAttribute(Names, Status, State);
 
 					} catch (error) {
 						console.error("Error parsing JSON:", error);
@@ -364,11 +374,10 @@
 {{rawJSComment "	// Fetch and load element data from a JSON file"}}
 
 
-					console.log ("Lab-Name: {{.LabName}}")
-					console.log ("DeploymentType: {{.DeploymentType}}")
 
 
- 					fetch('dataCytoMarshall-{{.LabName}}.json')
+
+ 					fetch('dataCytoMarshall-'+labName+'.json')
 
 					.then(response => response.json())
 					.then(elements => {
@@ -465,10 +474,9 @@
 {{rawJSComment "					// This code will be executed when you click on a node"}}
 {{rawJSComment "					// You can add logic specific to nodes here"}}
 					const clickedEdge = event.target
+					const defaultEdgeColor = '#B1BCC8'
 					edgeClicked = true;
 
-{{rawJSComment "					// Assuming you have a reference to the clicked edge in a variable 'edge'"}}
-					const defaultEdgeColor = clickedEdge.style('line-color');
 
 					console.log(defaultEdgeColor)
 
@@ -1213,6 +1221,7 @@
 								hrefLink: `ssh -t ${node.data("extraData").clabServerUsername}@${location.hostname} "ssh admin@${node.data('extraData').longname}"`
 							}]
 						},
+						{ idSuffix: 'labelStatus', columnLabelTextContent: 'Status', columnLabelClass: 'column is-4 p-1', columnInputType: 'label', columnInputContent: node.data('containerDockerExtraAttribute').status },
 						{ idSuffix: 'labelKind', columnLabelTextContent: 'Kind', columnLabelClass: 'column is-4 p-1', columnInputType: 'label', columnInputContent: node.data('extraData').kind },
 						{ idSuffix: 'labelImage', columnLabelTextContent: 'Image', columnLabelClass: 'column is-4 p-1', columnInputType: 'label', columnInputContent: node.data('extraData').image },
 						{ idSuffix: 'labelManagementIPv4', columnLabelTextContent: 'Management IPv4', columnLabelClass: 'column is-4 p-1', columnInputType: 'label', columnInputContent: node.data('extraData').mgmtIpv4Addresss },
@@ -1779,8 +1788,7 @@
 					const currentZoom = cy.zoom();
 					appendMessage(`And now the zoom level is "${currentZoom}".`);
 				}
-				
-				  			  
+								  			  
 				function pathFinderDijkstraEvent(event) {
 {{rawJSComment "					// Usage example:"}}
 {{rawJSComment "					// highlightShortestPath('node-a', 'node-b'); // Replace with your source and target node IDs"}}
@@ -1918,6 +1926,7 @@
 					}
 				}
 
+
 				var nodeContainerStatusVisibility = false;
 
 				function toggleContainerStatusVisibility() {
@@ -1991,6 +2000,23 @@
 						statusGreenNode.position(statusGreenNodePosition);
 						statusRedNode.position(statusRedNodePosition);
 					});
+				}
+
+				function setNodeDataWithContainerAttribute(containerNodeName, status, state) {
+
+					cy.nodes().forEach(function(node) {
+						var nodeId = node.data('id');
+						if (containerNodeName.includes(nodeId) ) {
+
+							var containerDockerExtraAttributeData = {
+								state: state,
+								status: status,
+							  };
+							
+							node.data('containerDockerExtraAttribute', containerDockerExtraAttributeData);
+						}
+					})
+					
 				}
 
 {{rawJSComment "				// ######################################################"}}
@@ -3325,8 +3351,6 @@
 
 				console.log("linkImpairmentManagerExec-Function-Called")
 				
-				var deploymentType =  {{.DeploymentType}}
-
 
 				if (deploymentType == 'colocated') {
 					baseCommand = baseCommandExec
