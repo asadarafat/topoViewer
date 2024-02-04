@@ -28,7 +28,6 @@ Here is the quickstart video clip.
 </div>
 
 
-
 ## How-to guides
 
 * **See node Properties**
@@ -126,3 +125,7 @@ vscode ➜ /workspaces/topoViewer (development ✗) go run go_cloudshellwrapper/
  [aarafat@nsp-clab1 topoViewer]$ sudo topoviewer clab --allowed-hostnames 149.204.21.68 --clab-user aarafat  --server-port 8087 --topology-file-json /home/aarafat/topoViewer/rawTopoFile/clab/nokia-MultiAccessGateway-lab/clab-nokia-MAGc-lab/topology-data.json
  ```
  
+ ## Quickstart - colocated with Containerlab 
+```Shell
+bash -c "$(wget -qO - https://raw.githubusercontent.com/asadarafat/topoViewer/development/tools/getGithubApi.sh)"
+```

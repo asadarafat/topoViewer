@@ -399,8 +399,8 @@ func Clab(_ *cobra.Command, _ []string) error {
 	// SendGnmicToNodeGet("srl", "10.2.1.121", "admin", "NokiaSrl1!", true, false, "/system/name")
 	// SendGnmicToNodeGet("sros", "10.2.1.101", "admin", "admin", true, true, "/system/name")
 
-	log.Infof("testing snmp walk")
-	SendSnmpToNodeWalk("snmp", "clab-nokia-ServiceProvider-R05-PE", "private", snmp.Version2c)
+	// log.Infof("testing snmp walk")
+	// SendSnmpToNodeWalk("snmp", "clab-nokia-ServiceProvider-R05-PE", "private", snmp.Version2c)
 
 	// initialise the cloudshellLogger
 	// tools.InitCloudShellLog(tools.Format(confClab.GetString("log-format")), tools.Level(confClab.GetString("log-level")))
@@ -444,6 +444,8 @@ func Clab(_ *cobra.Command, _ []string) error {
 
 	// log.Infof("topology file path    : '%s'", workingDirectory+"/"+topoClab)
 	log.Infof("====== Start up Parameter ======")
+	log.Infof("")
+	log.Infof("TopoViewer Version		: '%s'", VersionInfo)
 	log.Infof("topology file			: '%s'", (topoClab))
 	log.Infof("depyloyment type		: %s", (deploymentType))
 
@@ -463,6 +465,7 @@ func Clab(_ *cobra.Command, _ []string) error {
 	log.Infof("metrics endpoint path		: '%s'", pathMetrics)
 	log.Infof("xtermjs endpoint path		: '%s'", pathXTermJS)
 	log.Infof("====== Start up Parameter ======")
+	log.Infof("")
 
 	// configure routing
 	router := mux.NewRouter()
