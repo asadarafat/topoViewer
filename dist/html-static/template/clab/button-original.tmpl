@@ -303,7 +303,7 @@
 
 {{rawJSComment "				// WebSocket for uptime"}}
 				const socketUptime = initializeWebSocket('/uptime', (msgUptime) => {
-					const string01 = 'Containerlab Topology: ' + "{{.}}b";
+					const string01 = 'Containerlab Topology: ' + "{{.}}";
 					const string02 = ' ::: Uptime: ' + msgUptime.data;
 
 					const ClabSubtitle = document.getElementById("ClabSubtitle");
@@ -458,13 +458,28 @@
 				cy.on('click', 'edge', function(event) {
 {{rawJSComment "					// This code will be executed when you click on a node"}}
 {{rawJSComment "					// You can add logic specific to nodes here"}}
-					const edge = event.target
+					const clickedEdge = event.target
 					edgeClicked = true;
+
+{{rawJSComment "					// Assuming you have a reference to the clicked edge in a variable 'edge'"}}
+					const defaultEdgeColor = clickedEdge.style('line-color');
+
+					console.log(defaultEdgeColor)
+
+{{rawJSComment "					// Change the color of the clicked edge (for example, to red)"}}
+					clickedEdge.style('line-color', '#457800');
+
+{{rawJSComment "					// Revert the color of other edges that were not clicked (e.g., back to their default color)"}}
+					cy.edges().forEach(function(edge) {
+						if (edge !== clickedEdge) {
+							edge.style('line-color', defaultEdgeColor); // Replace 'defaultEdgeColor' with your default color
+						}
+					});
 
 {{rawJSComment "					// You can add logic specific to nodes here"}}
 					removeElementById("Panel-01");
 					const tabContentFns = [createEdgeDetailTab];
-					tabContentFnsArg = [edge];
+					tabContentFnsArg = [clickedEdge];
 
 					createContentPanel('Panel-01', tabContentFns, tabContentFnsArg[0], 'Link Properties');
 
@@ -1407,7 +1422,7 @@
 
 					const Panel03ColumnsConfig = [
 						{ idSuffix: 'Target', columnLabelTextContent: 'Endpoint', columnLabelClass: 'column is-4 p-1', columnInputType: 'label', columnInputContent: edge.data('target') + "::" + edge.data('targetEndpoint') },
-						{ idSuffix: 'TargetMac', columnLabelTextContent: 'MAC address', columnLabelClass: 'column is-4 p-1', columnInputType: 'label', columnInputContent: '' },
+						{ idSuffix: 'TargetMac', columnLabelTextContent: 'MAC address', columnLabelClass: 'column is-4 p-1', columnInputType: 'label', columnInputContent: edge.data('extraData').clabTargetMacAddress},
 						{
 							idSuffix: 'labelTargetImpairment',
 							columnLabelTextContent: 'Impairment',
