@@ -14,6 +14,7 @@ import (
 	"strconv"
 
 	"github.com/docker/docker/client"
+	"github.com/gosnmp/gosnmp"
 	"github.com/samber/lo"
 	"golang.org/x/crypto/ssh"
 
@@ -128,7 +129,7 @@ func (cyTopo *CytoTopology) ClabTopoRead(topoFile string) []byte {
 	return topoFileBytes
 }
 
-func (cyTopo *CytoTopology) UnmarshalContainerLabTopoV2(topoFile []byte, clabHostUsername string) []byte {
+func (cyTopo *CytoTopology) UnmarshalContainerLabTopoV2(topoFile []byte, clabHostUsername string, nodeEndpointDetailSourceTarget []byte) []byte {
 
 	// initiate cytoJson struct
 	cytoJson := CytoJson{}
@@ -270,15 +271,55 @@ func (cyTopo *CytoTopology) UnmarshalContainerLabTopoV2(topoFile []byte, clabHos
 		cytoJson.Data.Weight = "3"
 		cytoJson.Data.Source = link.A.Node
 		cytoJson.Data.Target = link.Z.Node
+
 		cytoJson.Data.SourceEndpoint = link.A.Interface
 		cytoJson.Data.TargetEndpoint = link.Z.Interface
 
-		cytoJson.Data.ExtraData = map[string]interface{}{
-			"clabServerUsername":   Username, // needed for wireshark capture
-			"clabSourceLongName":   link.A.NodeLongName,
-			"clabTargetLongName":   link.Z.NodeLongName,
-			"clabSourceMacAddress": link.A.Mac,
-			"clabTargetMacAddress": link.Z.Mac,
+		if len(nodeEndpointDetailSourceTarget) > 0 {
+			var x [][]map[string]map[string]interface{}
+			json.Unmarshal([]byte(nodeEndpointDetailSourceTarget), &x)
+
+			if link.A.NodeLongName == x[0][0]["index-1"]["nodeName"] && link.Z.NodeLongName == x[1][0]["index-1"]["nodeName"] {
+				linkAInterfaceIndex, _ := strconv.Atoi(strings.TrimPrefix(link.A.Interface, "eth"))
+				cytoJson.Data.SourceEndpoint = fmt.Sprintf("%s", x[0][linkAInterfaceIndex-1][fmt.Sprintf("index-%s", strings.TrimPrefix(link.A.Interface, "eth"))]["ifName"])
+
+				linkZInterfaceIndex, _ := strconv.Atoi(strings.TrimPrefix(link.Z.Interface, "eth"))
+				cytoJson.Data.TargetEndpoint = fmt.Sprintf("%s", x[1][linkZInterfaceIndex-1][fmt.Sprintf("index-%s", strings.TrimPrefix(link.Z.Interface, "eth"))]["ifName"])
+
+				cytoJson.Data.ExtraData = map[string]interface{}{
+					"clabServerUsername":          Username, // needed for wireshark capture
+					"clabSourceLongName":          link.A.NodeLongName,
+					"clabTargetLongName":          link.Z.NodeLongName,
+					"clabSourceMacAddress":        link.A.Mac,
+					"clabTargetMacAddress":        link.Z.Mac,
+					"topoViewerSnmpGetSourcePort": fmt.Sprintf("%s", x[0][linkAInterfaceIndex-1][fmt.Sprintf("index-%s", strings.TrimPrefix(link.A.Interface, "eth"))]["ifName"]),
+					"topoViewerSnmpGetTargetPort": fmt.Sprintf("%s", x[1][linkZInterfaceIndex-1][fmt.Sprintf("index-%s", strings.TrimPrefix(link.Z.Interface, "eth"))]["ifName"]),
+				}
+			} else {
+				cytoJson.Data.SourceEndpoint = link.A.Interface
+				cytoJson.Data.TargetEndpoint = link.Z.Interface
+				cytoJson.Data.ExtraData = map[string]interface{}{
+					"clabServerUsername":          Username, // needed for wireshark capture
+					"clabSourceLongName":          link.A.NodeLongName,
+					"clabTargetLongName":          link.Z.NodeLongName,
+					"clabSourceMacAddress":        link.A.Mac,
+					"clabTargetMacAddress":        link.Z.Mac,
+					"topoViewerSnmpGetSourcePort": "",
+					"topoViewerSnmpGetTargetPort": "",
+				}
+			}
+		} else {
+			cytoJson.Data.SourceEndpoint = link.A.Interface
+			cytoJson.Data.TargetEndpoint = link.Z.Interface
+			cytoJson.Data.ExtraData = map[string]interface{}{
+				"clabServerUsername":          Username, // needed for wireshark capture
+				"clabSourceLongName":          link.A.NodeLongName,
+				"clabTargetLongName":          link.Z.NodeLongName,
+				"clabSourceMacAddress":        link.A.Mac,
+				"clabTargetMacAddress":        link.Z.Mac,
+				"topoViewerSnmpGetSourcePort": "",
+				"topoViewerSnmpGetTargetPort": "",
+			}
 		}
 		cytoJsonList = append(cytoJsonList, cytoJson)
 	}
@@ -522,4 +563,262 @@ func (cyTopo *CytoTopology) GetDockerNodeStatusViaUnixSocket(clabNodeName string
 	log.Debug(string(outputParsedMarshalled))
 
 	return outputParsedMarshalled, nil
+}
+
+// SROS
+// # snmpwalk -v2c -c private clab-mixed-berlin system
+// SNMPv2-MIB::sysDescr.0 = STRING: TiMOS-B-23.10.R1 both/x86_64 Nokia 7750 SR Copyright (c) 2000-2023 Nokia.
+// All rights reserved. All use subject to applicable license agreements.
+// Built on Thu Oct 26 20:12:19 UTC 2023 by builder in /builds/2310B/R1/panos/main/sros
+// SNMPv2-MIB::sysObjectID.0 = OID: SNMPv2-SMI::enterprises.6527.1.3.15
+// DISMAN-EVENT-MIB::sysUpTimeInstance = Timeticks: (32461) 0:05:24.61
+// SNMPv2-MIB::sysContact.0 = STRING: swisotzk
+// SNMPv2-MIB::sysName.0 = STRING: berlin
+// SNMPv2-MIB::sysLocation.0 = STRING: Berlin (Germany)
+// SNMPv2-MIB::sysServices.0 = INTEGER: 79
+
+// SR Linux
+// # snmpwalk -v2c -c private clab-mixed-madrid system
+// SNMPv2-MIB::sysDescr.0 = STRING: SRLinux-v0.0.0-53661-g7518a5eff1 7730 SXR-1x-44S Copyright (c) 2000-2020 Nokia. Kernel 5.4.236-1.el7.elrepo.x86_64 #1 SMP Mon Mar 13 21:36:53 EDT 2023
+// SNMPv2-MIB::sysObjectID.0 = OID: SNMPv2-SMI::zeroDotZero.0
+// DISMAN-EVENT-MIB::sysUpTimeInstance = Timeticks: (41600) 0:06:56.00
+// SNMPv2-MIB::sysContact.0 = STRING: swisotzk
+// SNMPv2-MIB::sysName.0 = STRING: madrid
+// SNMPv2-MIB::sysLocation.0 = STRING: N 40 25 0, W 3 43 0
+
+type PortInfo struct {
+	NodeName      string `json:"nodeName"`
+	IfName        string `json:"ifName"`
+	IfDescription string `json:"ifDescription"`
+	IfPhysAddress string `json:"ifPhysAddress"`
+	IfMtu         string `json:"ifMtu"`
+	IfType        string `json:"ifType"`
+	IfAdminStatus string `json:"ifAdminStatus"`
+	IfOperStatus  string `json:"ifOperStatus"`
+	IfExtraField  string `json:"ifExtraField"`
+}
+
+func (cyTopo *CytoTopology) SendSnmpGetNodeEndpoint(targetAddress string, targetCommunity string, targetVersion gosnmp.SnmpVersion) ([]byte, error) {
+
+	g := &gosnmp.GoSNMP{
+		Target:    targetAddress,
+		Port:      uint16(161),
+		Community: targetCommunity,
+		Version:   targetVersion,
+		Timeout:   time.Duration(5) * time.Second,
+	}
+
+	printResult := func(format string, values ...interface{}) {
+		fmt.Printf(format, values...)
+	}
+
+	interfaceOIDList := []string{".1.3.6.1.2.1.31.1.1.1.1", // ifName
+		".1.3.6.1.2.1.2.2.1.2", // ifDescr
+		".1.3.6.1.2.1.2.2.1.6", // ifPhysAddress
+		".1.3.6.1.2.1.2.2.1.4", // ifMtu
+		".1.3.6.1.2.1.2.2.1.3", // ifType
+		".1.3.6.1.2.1.2.2.1.7", // ifAdminStatus
+		".1.3.6.1.2.1.2.2.1.8"} // ifOperStatus
+
+	var nestedList [][]interface{}
+
+	for _, rootOID := range interfaceOIDList {
+		// log.Infof("Iteration %s", strconv.Itoa(i))
+
+		err := g.Connect()
+		if err != nil {
+			log.Errorf("Connect() error: %v", err)
+		}
+		defer g.Conn.Close()
+
+		result, err := g.WalkAll(rootOID)
+		if err != nil {
+			log.Errorf("WalkAll() error: %v", err)
+		}
+
+		// The fmt.Sprintf function uses formatting verbs to represent different types of values. Here are some common formatting verbs used with fmt.Sprintf:
+
+		// %v: default format for the value.
+		// %T: a Go-syntax representation of the type of the value.
+		// %t: boolean (true or false).
+		// %b: base 2 (binary).
+		// %c: character represented by the corresponding Unicode code point.
+		// %d: decimal (base 10).
+		// %o: octal (base 8).
+		// %x: hexadecimal (base 16) with lowercase letters.
+		// %X: hexadecimal with uppercase letters.
+		// %U: Unicode format: U+1234, same as "%#U".
+		// %e, %E: scientific notation (e.g., -1.234456e+78).
+		// %f, %F: decimal-point notation (e.g., 123.456).
+		// %g, %G: either scientific notation or decimal-point notation, depending on the value.
+		// %s: the uninterpreted bytes of the string or slice.
+		// %q: a double-quoted string safely escaped with Go syntax.
+		// %p: pointer representation (base 16), with leading 0x.
+
+		// var ethernetCsmacd = 6
+
+		// Print the SNMP walk results
+
+		for j, pdu := range result {
+			nestedList = append(nestedList, []interface{}{strconv.Itoa(j)})
+
+			switch rootOID {
+			case ".1.3.6.1.2.1.31.1.1.1.1": // ifName
+				// fmt.Printf("iteration %v, %v ", j, i)
+				// pduType := pdu.Type
+				// printResult("ifName, OID is %s, PDU Type is %s, PDU Value is %s\n", rootOID, pduType, pdu.Value)
+				outputValue := fmt.Sprintf("ifName: %s", pdu.Value)
+				nestedList[j] = append(nestedList[j], outputValue)
+
+			case ".1.3.6.1.2.1.2.2.1.2": // ifDescr
+				// fmt.Printf("iteration %v, %v ", j, i)
+				// pduType := pdu.Type
+				// printResult("ifDescr, OID is %s, PDU Type is %s, PDU Value is %s\n", rootOID, pduType, pdu.Value)
+				outputValue := fmt.Sprintf("ifDescr: %s", pdu.Value)
+				nestedList[j] = append(nestedList[j], outputValue)
+
+			case ".1.3.6.1.2.1.2.2.1.6": // ifPhysAddress (MAC Address)
+				// fmt.Printf("iteration %v, %v ", j, i)
+				// pduType := pdu.Type
+				// printResult("ifPhysAddress, OID is %s, PDU Type is %s, PDU Value %s\n", rootOID, pduType, pdu.Value)
+				octetString := pdu.Value.([]byte)
+				macBytes := octetString[:6] // Extract the first 6 bytes
+				outputValue := fmt.Sprintf("ifPhysAddress: %02X:%02X:%02X:%02X:%02X:%02X", macBytes[0], macBytes[1], macBytes[2], macBytes[3], macBytes[4], macBytes[5])
+
+				nestedList[j] = append(nestedList[j], outputValue)
+
+			case ".1.3.6.1.2.1.2.2.1.4": // ifMtu
+				// fmt.Printf("iteration %v, %v ", j, i)
+				// pduType := pdu.Type
+				// printResult("ifMtu, OID is %s, PDU Type is %s, PDU value is: %d\n", rootOID, pduType, pdu.Value)
+				outputValue := fmt.Sprintf("ifMtu: %d", pdu.Value)
+				nestedList[j] = append(nestedList[j], outputValue)
+
+			case ".1.3.6.1.2.1.2.2.1.3": // ifType
+				// fmt.Printf("iteration %v, %v ", j, i)
+
+				oidName := "ifType"
+
+				switch pdu.Value {
+				case 6:
+					// printResult("%s, OID is %s, PDU Type is %s, PDU value is: %d\n", oidName, rootOID, pduType, "ethernet-csmacd")
+					outputValue := fmt.Sprintf("%s: %s", oidName, "ethernet-csmacd")
+					nestedList[j] = append(nestedList[j], outputValue)
+
+				case 24:
+					// printResult("%s, OID is %s, PDU Type is %s, PDU value is: %d\n", oidName, rootOID, pduType, "softwareLoopback")
+					outputValue := fmt.Sprintf("%s: %s", oidName, "softwareLoopback")
+					nestedList[j] = append(nestedList[j], outputValue)
+
+				case 142:
+					// printResult("%s, OID is %s, PDU Type is %s, PDU value is: %d\n", oidName, rootOID, pduType, "ipForward")
+					outputValue := fmt.Sprintf("%s: %s", oidName, "ipForward")
+					nestedList[j] = append(nestedList[j], outputValue)
+				default:
+					// printResult("%s, OID is %s, PDU Type is %s, PDU value is: %d\n", oidName, rootOID, pduType, pdu.Value)
+					pduType := pdu.Type
+					outputValue := fmt.Sprintf("%s: %s", oidName, pduType)
+					nestedList[j] = append(nestedList[j], outputValue)
+				}
+
+			case ".1.3.6.1.2.1.2.2.1.7": // ifAdminStatus
+				pduType := pdu.Type
+				// fmt.Printf("iteration %v, %v ", j, i)
+				oidName := "ifAdminStatus"
+
+				if pdu.Value == 1 {
+					// printResult("%s, OID is %s, PDU Type is %s, PDU value is: %d\n", oidName, rootOID, pduType, "Up")
+					outputValue := fmt.Sprintf("%s: %s", oidName, "up")
+					nestedList[j] = append(nestedList[j], outputValue)
+				} else if pdu.Value == 2 {
+					// printResult("%s, OID is %s, PDU Type is %s, PDU value is: %d\n", oidName, rootOID, pduType, "Down")
+					outputValue := fmt.Sprintf("%s: %s", oidName, "down")
+					nestedList[j] = append(nestedList[j], outputValue)
+				} else {
+					// printResult("%s, OID is %s, PDU Type is %s, PDU value is: %d\n", oidName, rootOID, pduType, pdu.Value)
+					outputValue := fmt.Sprintf("%s: pduType-%s pduValue-%s", oidName, pduType, pdu.Value)
+					nestedList[j] = append(nestedList[j], outputValue)
+				}
+
+			case ".1.3.6.1.2.1.2.2.1.8": // ifOperStatus
+				oidName := "ifOperStatus"
+				pduType := pdu.Type
+				// fmt.Printf("iteration %v, %v ", j, i)
+				if pdu.Value == 1 {
+					// printResult("%s, OID is %s, PDU Type is %s, PDU value is: %d\n", oidName, rootOID, pduType, "Up")
+					outputValue := fmt.Sprintf("%s: %s", oidName, "up")
+					nestedList[j] = append(nestedList[j], outputValue)
+				} else if pdu.Value == 2 {
+					// printResult("%s, OID is %s, PDU Type is %s, PDU value is: %d\n", oidName, rootOID, pduType, "Down")
+					outputValue := fmt.Sprintf("%s: %s", oidName, "down")
+					nestedList[j] = append(nestedList[j], outputValue)
+				} else if pdu.Value == 3 {
+					// printResult("%s, OID is %s, PDU Type is %s, PDU value is: %d\n", oidName, rootOID, pduType, "Down")
+					outputValue := fmt.Sprintf("%s: %s", oidName, "testing")
+					nestedList[j] = append(nestedList[j], outputValue)
+				} else if pdu.Value == 4 {
+					// printResult("%s, OID is %s, PDU Type is %s, PDU value is: %d\n", oidName, rootOID, pduType, "Down")
+					outputValue := fmt.Sprintf("%s: %s", oidName, "unknown")
+					nestedList[j] = append(nestedList[j], outputValue)
+				} else if pdu.Value == 5 {
+					// printResult("%s, OID is %s, PDU Type is %s, PDU value is: %d\n", oidName, rootOID, pduType, "Down")
+					outputValue := fmt.Sprintf("%s: %s", oidName, "dormant")
+					nestedList[j] = append(nestedList[j], outputValue)
+				} else if pdu.Value == 6 {
+					// printResult("%s, OID is %s, PDU Type is %s, PDU value is: %d\n", oidName, rootOID, pduType, "Down")
+					outputValue := fmt.Sprintf("%s: %s", oidName, "notPresent")
+					nestedList[j] = append(nestedList[j], outputValue)
+				} else { // printResult("%s, OID is %s, PDU Type is %s, PDU value is: %d\n", oidName, rootOID, pduType, pdu.Value)
+					outputValue := fmt.Sprintf("%s: pduType-%s pduValue-%s", oidName, pduType, pdu.Value)
+					nestedList[j] = append(nestedList[j], outputValue)
+				}
+
+			default:
+				pduType := pdu.Type
+				// fmt.Printf("iteration %v, %v ", j, i)
+				printResult("DEAFAUT, PDU Type is %s, PDU value is: %d\n", rootOID, pduType, pdu.Value)
+			}
+		}
+	}
+
+	outputParsedMarshalled, err := json.MarshalIndent(nestedList, "", " ")
+	if err != nil {
+		log.Errorf("failed to marshal JSON: %v", err)
+	}
+	log.Debug(string(outputParsedMarshalled))
+
+	// Convert nested list to JSON
+	var result []map[string]PortInfo
+
+	newIndex := 0
+
+	for _, item := range nestedList {
+
+		if len(item) >= 2 && strings.Contains(item[5].(string), "ethernet-csmacd") {
+			newIndex = newIndex + 1
+
+			log.Debug(item[5].(string))
+
+			portIdString := ("index-" + (strconv.Itoa(newIndex)))
+			info := PortInfo{}
+			info.NodeName = targetAddress
+			info.IfName = strings.SplitN(fmt.Sprintf("%v", item[1]), ": ", 2)[1]
+			info.IfDescription = strings.SplitN(fmt.Sprintf("%v", item[2]), ": ", 2)[1]
+			info.IfPhysAddress = strings.SplitN(fmt.Sprintf("%v", item[3]), ": ", 2)[1]
+			info.IfMtu = strings.SplitN(fmt.Sprintf("%v", item[4]), ": ", 2)[1]
+			info.IfType = strings.SplitN(fmt.Sprintf("%v", item[5]), ": ", 2)[1]
+			info.IfAdminStatus = strings.SplitN(fmt.Sprintf("%v", item[6]), ": ", 2)[1]
+			info.IfOperStatus = strings.SplitN(fmt.Sprintf("%v", item[7]), ": ", 2)[1]
+
+			result = append(result, map[string]PortInfo{portIdString: info})
+		}
+	}
+
+	// Convert result to JSON string
+	jsonData, err := json.MarshalIndent(result, "", "    ")
+	if err != nil {
+		fmt.Println("Error:", err)
+	}
+	log.Info(string(jsonData))
+	return jsonData, err
 }

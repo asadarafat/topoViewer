@@ -15,10 +15,9 @@ import (
 	"syscall"
 	"time"
 
-	snmp "github.com/gosnmp/gosnmp"
-
 	topoengine "github.com/asadarafat/topoViewer/go_topoengine"
 	xtermjs "github.com/asadarafat/topoViewer/go_xtermjs"
+	"github.com/gosnmp/gosnmp"
 	"github.com/usvc/go-config"
 
 	tools "github.com/asadarafat/topoViewer/go_tools"
@@ -237,103 +236,6 @@ func SendGnmicToNodeGet(targetName string, targetAddress string, targetUsername 
 	fmt.Println(prototext.Format(getResp))
 }
 
-func SendSnmpToNodeWalk(targetName string, targetAddress string, targetCommunity string, targetVersion snmp.SnmpVersion) {
-	// Build our own GoSNMP struct, rather than using g.Default.
-	// Do verbose logging of packets.
-
-	log.Infof("targetAddress: %s", targetAddress)
-
-	g := &snmp.GoSNMP{
-		Target:    targetAddress,
-		Port:      uint16(161),
-		Community: targetCommunity,
-		Version:   targetVersion,
-		Timeout:   time.Duration(2) * time.Second,
-	}
-
-	err := g.Connect()
-	if err != nil {
-		log.Errorf("Connect() err: %v", err)
-	}
-
-	defer g.Conn.Close()
-
-	// Define the root OID for the SNMP walk
-	rootOID := ".1.3.6.1.2.1.1" // system
-
-	// rootOID := ".1.3.6.1.2.1.2.1" // number of interface
-
-	result, err := g.WalkAll(rootOID)
-	if err != nil {
-		log.Errorf("WalkAll() err: %v", err)
-	}
-
-	// Example result
-	// 1: oid: .1.3.6.1.2.1.1.2.0 number: 0
-	// 2: oid: .1.3.6.1.2.1.1.3.0 number: 3995257
-	// 3: oid: .1.3.6.1.2.1.1.4.0 string:
-	// 4: oid: .1.3.6.1.2.1.1.5.0 string: R05-PE
-	// 5: oid: .1.3.6.1.2.1.1.6.0 string:
-	// 6: oid: .1.3.6.1.2.1.1.7.0 number: 79
-
-	// SROS
-	// # snmpwalk -v2c -c private clab-mixed-berlin system
-	// SNMPv2-MIB::sysDescr.0 = STRING: TiMOS-B-23.10.R1 both/x86_64 Nokia 7750 SR Copyright (c) 2000-2023 Nokia.
-	// All rights reserved. All use subject to applicable license agreements.
-	// Built on Thu Oct 26 20:12:19 UTC 2023 by builder in /builds/2310B/R1/panos/main/sros
-	// SNMPv2-MIB::sysObjectID.0 = OID: SNMPv2-SMI::enterprises.6527.1.3.15
-	// DISMAN-EVENT-MIB::sysUpTimeInstance = Timeticks: (32461) 0:05:24.61
-	// SNMPv2-MIB::sysContact.0 = STRING: swisotzk
-	// SNMPv2-MIB::sysName.0 = STRING: berlin
-	// SNMPv2-MIB::sysLocation.0 = STRING: Berlin (Germany)
-	// SNMPv2-MIB::sysServices.0 = INTEGER: 79
-
-	// SR Linux
-	// # snmpwalk -v2c -c private clab-mixed-madrid system
-	// SNMPv2-MIB::sysDescr.0 = STRING: SRLinux-v0.0.0-53661-g7518a5eff1 7730 SXR-1x-44S Copyright (c) 2000-2020 Nokia. Kernel 5.4.236-1.el7.elrepo.x86_64 #1 SMP Mon Mar 13 21:36:53 EDT 2023
-	// SNMPv2-MIB::sysObjectID.0 = OID: SNMPv2-SMI::zeroDotZero.0
-	// DISMAN-EVENT-MIB::sysUpTimeInstance = Timeticks: (41600) 0:06:56.00
-	// SNMPv2-MIB::sysContact.0 = STRING: swisotzk
-	// SNMPv2-MIB::sysName.0 = STRING: madrid
-	// SNMPv2-MIB::sysLocation.0 = STRING: N 40 25 0, W 3 43 0
-
-	// Create a slice to hold the SNMP results
-	resultMap := make(map[string]interface{})
-
-	resultMapPerNode := make(map[string]interface{})
-	var resultMapList []interface{} // Create a slice to hold JSON representations of SNMP results
-
-	resultMapPerNode["nodeId"] = targetAddress
-
-	for i, variable := range result {
-
-		resultMap["id"] = i
-		resultMap["oid"] = variable.Name
-
-		switch variable.Type {
-		case snmp.OctetString:
-			resultMap["value"] = string(variable.Value.([]byte))
-		default:
-			resultMap["number"] = snmp.ToBigInt(variable.Value)
-		}
-		resultMapList = append(resultMapList, resultMap)
-	}
-	resultMapPerNode["snmpWalkResult"] = resultMapList
-
-	// Convert the results slice to JSON
-	jsonData, err := json.MarshalIndent(resultMapPerNode, "", "  ")
-	if err != nil {
-		log.Fatalf("JSON Marshal error: %v", err)
-	}
-
-	log.Infof("Result of SNMP Walk: %s", jsonData)
-
-	if err != nil {
-		log.Errorf("Walk() err: %v", err)
-	}
-
-}
-
 // define a reader which will listen for
 // new messages being sent to our WebSocket
 // endpoint
@@ -398,9 +300,6 @@ func Clab(_ *cobra.Command, _ []string) error {
 	// Test gNMIc Get
 	// SendGnmicToNodeGet("srl", "10.2.1.121", "admin", "NokiaSrl1!", true, false, "/system/name")
 	// SendGnmicToNodeGet("sros", "10.2.1.101", "admin", "admin", true, true, "/system/name")
-
-	// log.Infof("testing snmp walk")
-	// SendSnmpToNodeWalk("snmp", "clab-nokia-ServiceProvider-R05-PE", "private", snmp.Version2c)
 
 	// initialise the cloudshellLogger
 	// tools.InitCloudShellLog(tools.Format(confClab.GetString("log-format")), tools.Level(confClab.GetString("log-level")))
@@ -469,7 +368,10 @@ func Clab(_ *cobra.Command, _ []string) error {
 
 	topoFile := cyTopo.ClabTopoRead(topoClab) // loading containerLab export-topo json file
 	// topoFile := cyTopo.ClabTopoRead(path.Join("", topoClab)) // loading containerLab export-topo json file
-	jsonBytes := cyTopo.UnmarshalContainerLabTopoV2(topoFile, clabHostUsername)
+
+	var initNodeEndpointDetailSourceTarget []byte
+
+	jsonBytes := cyTopo.UnmarshalContainerLabTopoV2(topoFile, clabHostUsername, initNodeEndpointDetailSourceTarget)
 	cyTopo.PrintjsonBytesCytoUiV2(jsonBytes)
 
 	// this is the endpoint for xterm.js to connect to
@@ -488,27 +390,30 @@ func Clab(_ *cobra.Command, _ []string) error {
 	router.HandleFunc(pathXTermJS, xtermjs.GetHandler(xtermjsHandlerOptions, "TEST"))
 
 	// readiness probe endpoint
-	router.HandleFunc(pathReadiness, func(w http.ResponseWriter, r *http.Request) {
-		// w.WriteHeader(http.StatusOK)
-		w.Write([]byte("ok"))
-	})
+	router.HandleFunc(pathReadiness,
+		func(w http.ResponseWriter, r *http.Request) {
+			// w.WriteHeader(http.StatusOK)
+			w.Write([]byte("ok"))
+		})
 
 	// liveness probe endpoint
-	router.HandleFunc(pathLiveness, func(w http.ResponseWriter, r *http.Request) {
-		// w.WriteHeader(http.StatusOK)
-		w.Write([]byte("ok"))
-	})
+	router.HandleFunc(pathLiveness,
+		func(w http.ResponseWriter, r *http.Request) {
+			// w.WriteHeader(http.StatusOK)
+			w.Write([]byte("ok"))
+		})
 
 	// metrics endpoint
 	router.Handle(pathMetrics, promhttp.Handler())
 
 	// version endpoint
-	router.HandleFunc("/version", func(w http.ResponseWriter, r *http.Request) {
-		// w.WriteHeader(http.StatusOK)
-		w.Write([]byte(VersionInfo))
-		log.Infof("VersionInfo: %s", VersionInfo)
+	router.HandleFunc("/version",
+		func(w http.ResponseWriter, r *http.Request) {
+			// w.WriteHeader(http.StatusOK)
+			w.Write([]byte(VersionInfo))
+			log.Infof("VersionInfo: %s", VersionInfo)
 
-	})
+		})
 
 	// cloudshell endpoint
 	router.HandleFunc("/cloudshell}",
@@ -531,6 +436,81 @@ func Clab(_ *cobra.Command, _ []string) error {
 
 		})
 
+	// getNodeEndpointDetail endpoint
+	router.HandleFunc("/getNodeEndpointDetail",
+		func(w http.ResponseWriter, r *http.Request) {
+
+			// Parse the request body
+			var requestData map[string]interface{}
+			if err := json.NewDecoder(r.Body).Decode(&requestData); err != nil {
+				http.Error(w, "Invalid request body", http.StatusBadRequest)
+				return
+			}
+
+			// Access the parameters
+			arg01 := requestData["param1"].(string)
+			arg02 := requestData["param2"].(string)
+
+			log.Infof("clabNetem endpoint called")
+
+			log.Infof("clabNetem-Param1: %s", arg01)
+			log.Infof("clabNetem-Param2: %s", arg02)
+
+			w.WriteHeader(http.StatusOK)
+
+			log.Infof("getNodeEndpointDetai  called")
+			log.Info("Interface SNMP Walk id triggered")
+
+			nodeEndpointDetailSource, _ := cyTopo.SendSnmpGetNodeEndpoint(arg01, "private", gosnmp.Version2c)
+			// w.Write(nodeEndpointDetailSource)
+
+			nodeEndpointDetailTarget, _ := cyTopo.SendSnmpGetNodeEndpoint(arg02, "private", gosnmp.Version2c)
+			// w.Write(nodeEndpointDetailTarget)
+
+			var x []map[string]interface{}
+			var y []map[string]interface{}
+
+			// Unmarshal JSON into slices of maps
+			if err := json.Unmarshal(nodeEndpointDetailSource, &x); err != nil {
+				panic(err)
+			}
+			if err := json.Unmarshal(nodeEndpointDetailTarget, &y); err != nil {
+				panic(err)
+			}
+
+			// Create a new slice to contain the combined arrays
+			combined := [][]map[string]interface{}{{}, {}}
+			combined[0] = append(combined[0], x...)
+			combined[1] = append(combined[1], y...)
+
+			// Marshal combined slice into JSON bytes
+			combinedJSON, err := json.MarshalIndent(combined, "", " ")
+			if err != nil {
+				panic(err)
+			}
+
+			// Print the combined JSON
+			fmt.Println(string(combinedJSON))
+
+			// If you want to convert combinedJSON to bytes
+			combinedBytes := combinedJSON
+			// fmt.Printf("Combined JSON in bytes: %s\n", combinedBytes)
+
+			// log.Infof("nodeEndpointDetailSource: %s", nodeEndpointDetailSource)
+			// log.Infof("nodeEndpointDetailTarget: %s", nodeEndpointDetailTarget)
+			log.Infof("combinedSlice: %s", combinedBytes)
+
+			w.Write(combinedBytes)
+
+			nodeEndpointDetailSourceTarget := combinedBytes
+
+			jsonBtytesNodeEndpoint := cyTopo.UnmarshalContainerLabTopoV2(topoFile, clabHostUsername, nodeEndpointDetailSourceTarget)
+			cyTopo.PrintjsonBytesCytoUiV2(jsonBtytesNodeEndpoint) // write new dataCytoMarshall-{{clab-node-name}}.json
+
+			log.Debug("jsonBtytesNodeEndpoint: %s", jsonBtytesNodeEndpoint)
+			log.Debug("len of nodeEndpointDetailSourceTarget is %d ", len(nodeEndpointDetailSourceTarget))
+
+		})
 	// // websocket endpoint
 	// // websocket endpoint
 	router.HandleFunc("/ws",
