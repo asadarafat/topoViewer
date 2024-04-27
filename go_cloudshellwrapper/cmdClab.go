@@ -436,6 +436,15 @@ func Clab(_ *cobra.Command, _ []string) error {
 
 		})
 
+	// getAllNodeEndpointDetail endpoint
+	router.HandleFunc("/getAllNodeEndpointDetail",
+	func(w http.ResponseWriter, r *http.Request) {
+		log.Infof("getAllNodeEndpointDetail endpoint called")
+		// w.WriteHeader(http.StatusOK)
+		w.Write([]byte(VersionInfo))
+
+	})
+
 	// getNodeEndpointDetail endpoint
 	router.HandleFunc("/getNodeEndpointDetail",
 		func(w http.ResponseWriter, r *http.Request) {
@@ -461,10 +470,10 @@ func Clab(_ *cobra.Command, _ []string) error {
 			log.Infof("getNodeEndpointDetai  called")
 			log.Info("Interface SNMP Walk id triggered")
 
-			nodeEndpointDetailSource, _ := cyTopo.SendSnmpGetNodeEndpoint(arg01, "private", gosnmp.Version2c)
+			nodeEndpointDetailSource, _ := cyTopo.SendSnmpGetNodeEndpoint(arg01, "public", gosnmp.Version2c)
 			// w.Write(nodeEndpointDetailSource)
 
-			nodeEndpointDetailTarget, _ := cyTopo.SendSnmpGetNodeEndpoint(arg02, "private", gosnmp.Version2c)
+			nodeEndpointDetailTarget, _ := cyTopo.SendSnmpGetNodeEndpoint(arg02, "public", gosnmp.Version2c)
 			// w.Write(nodeEndpointDetailTarget)
 
 			var x []map[string]interface{}
@@ -507,10 +516,45 @@ func Clab(_ *cobra.Command, _ []string) error {
 			jsonBtytesNodeEndpoint := cyTopo.UnmarshalContainerLabTopoV2(topoFile, clabHostUsername, nodeEndpointDetailSourceTarget)
 			cyTopo.PrintjsonBytesCytoUiV2(jsonBtytesNodeEndpoint) // write new dataCytoMarshall-{{clab-node-name}}.json
 
-			log.Debug("jsonBtytesNodeEndpoint: %s", jsonBtytesNodeEndpoint)
-			log.Debug("len of nodeEndpointDetailSourceTarget is %d ", len(nodeEndpointDetailSourceTarget))
+			log.Infof("jsonBtytesNodeEndpoint: %s", jsonBtytesNodeEndpoint)
+			log.Infof("len of nodeEndpointDetailSourceTarget is %d ", len(nodeEndpointDetailSourceTarget))
 
 		})
+
+	// // getAllNodeEndpointDetail endpoint
+	// router.HandleFunc("/getAllNodeEndpointDetail",
+	// 	func(w http.ResponseWriter, r *http.Request) {
+
+	// 		// Parse the request body
+	// 		var requestData map[string]interface{}
+	// 		if err := json.NewDecoder(r.Body).Decode(&requestData); err != nil {
+	// 			http.Error(w, "Invalid request body", http.StatusBadRequest)
+	// 			return
+	// 		}
+
+	// 		// Access the parameters
+	// 		arg01 := requestData["param1"].(string)
+	// 		arg02 := requestData["param2"].(string)
+
+	// 		log.Infof("clabNetem endpoint called")
+
+	// 		log.Infof("clabNetem-Param1: %s", arg01)
+	// 		log.Infof("clabNetem-Param2: %s", arg02)
+
+	// 		w.WriteHeader(http.StatusOK)
+
+	// 		log.Infof("getNodeEndpointDetai  called")
+	// 		log.Info("Interface SNMP Walk id triggered")
+
+	// 		nodeEndpointDetailSource, _ := cyTopo.SendSnmpGetNodeEndpoint(arg01, "public", gosnmp.Version2c)
+	// 		// w.Write(nodeEndpointDetailSource)
+
+	// 		nodeEndpointDetailTarget, _ := cyTopo.SendSnmpGetNodeEndpoint(arg02, "public", gosnmp.Version2c)
+	// 		// w.Write(nodeEndpointDetailTarget)
+
+
+	// 	})
+
 	// // websocket endpoint
 	// // websocket endpoint
 	router.HandleFunc("/ws",

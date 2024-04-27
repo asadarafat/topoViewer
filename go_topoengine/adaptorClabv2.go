@@ -275,6 +275,18 @@ func (cyTopo *CytoTopology) UnmarshalContainerLabTopoV2(topoFile []byte, clabHos
 		cytoJson.Data.SourceEndpoint = link.A.Interface
 		cytoJson.Data.TargetEndpoint = link.Z.Interface
 
+		cytoJson.Data.ExtraData = map[string]interface{}{
+			"clabServerUsername":          Username, // needed for wireshark capture
+			"clabSourceLongName":          "",
+			"clabTargetLongName":          "",
+			"clabSourceMacAddress":        "",
+			"clabTargetMacAddress":        "",
+			"clabSourcePort":              link.A.Interface,
+			"clabTargetPort":              link.Z.Interface,
+			"topoViewerSnmpGetSourcePort": "",
+			"topoViewerSnmpGetTargetPort": "",
+		}
+
 		if len(nodeEndpointDetailSourceTarget) > 0 {
 			var x [][]map[string]map[string]interface{}
 			json.Unmarshal([]byte(nodeEndpointDetailSourceTarget), &x)
@@ -292,6 +304,8 @@ func (cyTopo *CytoTopology) UnmarshalContainerLabTopoV2(topoFile []byte, clabHos
 					"clabTargetLongName":          link.Z.NodeLongName,
 					"clabSourceMacAddress":        link.A.Mac,
 					"clabTargetMacAddress":        link.Z.Mac,
+					"clabSourcePort":              link.A.Interface,
+					"clabTargetPort":              link.Z.Interface,
 					"topoViewerSnmpGetSourcePort": fmt.Sprintf("%s", x[0][linkAInterfaceIndex-1][fmt.Sprintf("index-%s", strings.TrimPrefix(link.A.Interface, "eth"))]["ifName"]),
 					"topoViewerSnmpGetTargetPort": fmt.Sprintf("%s", x[1][linkZInterfaceIndex-1][fmt.Sprintf("index-%s", strings.TrimPrefix(link.Z.Interface, "eth"))]["ifName"]),
 				}
@@ -304,6 +318,8 @@ func (cyTopo *CytoTopology) UnmarshalContainerLabTopoV2(topoFile []byte, clabHos
 					"clabTargetLongName":          link.Z.NodeLongName,
 					"clabSourceMacAddress":        link.A.Mac,
 					"clabTargetMacAddress":        link.Z.Mac,
+					"clabSourcePort":              link.A.Interface,
+					"clabTargetPort":              link.Z.Interface,
 					"topoViewerSnmpGetSourcePort": "",
 					"topoViewerSnmpGetTargetPort": "",
 				}
@@ -317,6 +333,8 @@ func (cyTopo *CytoTopology) UnmarshalContainerLabTopoV2(topoFile []byte, clabHos
 				"clabTargetLongName":          link.Z.NodeLongName,
 				"clabSourceMacAddress":        link.A.Mac,
 				"clabTargetMacAddress":        link.Z.Mac,
+				"clabSourcePort":              link.A.Interface,
+				"clabTargetPort":              link.Z.Interface,
 				"topoViewerSnmpGetSourcePort": "",
 				"topoViewerSnmpGetTargetPort": "",
 			}

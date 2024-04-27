@@ -57,7 +57,7 @@
       var send = new TextEncoder().encode("\x01" + size);
       console.log('resizing to', size);
 
-      ws.send("ssh admin@" + routerId.toString().split("?")[0])
+      ws.send("ssh -q -o StrictHostKeyChecking=no admin@" + routerId.toString().split("?")[0])
       // ws.send(send);
 
 

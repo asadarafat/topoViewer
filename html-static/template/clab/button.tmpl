@@ -145,8 +145,8 @@
 			height: 24px;
 		}
 		.link-impairment-widht {
-			width: 130px;
-			white-space: nowrap;
+			width: 190px;
+			white-space: wrap;
 		}
 		.drawer-box-input-widht {
 			width: 100px;
@@ -202,8 +202,10 @@
 							<div class="dropdown-content">
 								<a id="about" href="#" onclick="showPanelAbout();" class="dropdown-item label has-text-weight-normal is-small py-0">About TopoViewer</a>                      
 								<hr class="dropdown-divider py-0">
+								<a id="getAllEndpointDetail" href="#" onclick="getAllNodeEndpoint(event);" class="dropdown-item label has-text-weight-normal is-small py-0">Action - Get True Endpoint Label</a>     
+								<a id="logMessagesDropdownItem" href="#" onclick="logMessages(event);" class="dropdown-item label has-text-weight-normal is-small py-0">Action - Log Messages</a>       
+								<hr class="dropdown-divider py-0">
 								<a id="clabClientDropdownItem" href="#" onclick="showPanelTopoViewerClient();"        class="dropdown-item label has-text-weight-normal is-small py-0">TopoViewer Helper App</a>                  
-								<a id="logMessagesDropdownItem" href="#" onclick="logMessages(event);" class="dropdown-item label has-text-weight-normal is-small py-0">Log Messages</a>      
 
             
 							</div>
@@ -236,6 +238,7 @@
     		<script src="https://unpkg.com/cytoscape-cola@2.2.3/cytoscape-cola.js"></script>
     		<script src="https://unpkg.com/cytoscape-popper@1.0.2/cytoscape-popper.js"></script>
 
+			<script src="https://cdn.jsdelivr.net/npm/cytoscape-grid-guide@2.3.3/cytoscape-grid-guide.min.js"></script>
 
 
 
@@ -273,11 +276,12 @@
 				let edgeClicked = false;
 
 
-				const labName =  '{{.LabName}}'
-				const deploymentType = '{{.DeploymentType}}'
+				const labName =  'nokia-ServiceProvider'
+				const deploymentType = 'colocated'
 
 				console.log ("Lab-Name: ", labName)
 				console.log ("DeploymentType: ", deploymentType)
+
 
 
 				document.addEventListener("DOMContentLoaded", function () {
@@ -385,9 +389,56 @@
 								);
 							});
 					}
-
+{{rawJSComment "					// Enable grid guide extension"}}
+					cy.gridGuide({
+{{rawJSComment "						// On/Off Modules"}}
+							 
+							snapToGridOnRelease: true, 
+							snapToGridDuringDrag: false, 
+							snapToAlignmentLocationOnRelease: true, 
+							snapToAlignmentLocationDuringDrag: false, 
+							distributionGuidelines: false, 
+							geometricGuideline: false, 
+							initPosAlignment: false, 
+							centerToEdgeAlignment: false, 
+							resize: false, 
+							parentPadding: false, 
+							drawGrid: false, 
+					
+{{rawJSComment "							// General"}}
+							gridSpacing: 10, 
+							snapToGridCenter: true, 
+					
+{{rawJSComment "							// Draw Grid"}}
+							zoomDash: true, 
+							panGrid: true, 
+							gridStackOrder: -1, 
+							gridColor: '#dedede', 
+							lineWidth: 1.0, 
+					
+{{rawJSComment "							// Guidelines"}}
+							guidelinesStackOrder: 4, 
+							guidelinesTolerance: 2.00, 
+							guidelinesStyle: { 
+								strokeStyle: "#8b7d6b", 
+								geometricGuidelineRange: 400, 
+								range: 100, 
+								minDistRange: 10, 
+								distGuidelineOffset: 10, 
+								horizontalDistColor: "#ff0000", 
+								verticalDistColor: "#00ff00", 
+								initPosAlignmentColor: "#0000ff", 
+								lineDash: [0, 0], 
+								horizontalDistLine: [0, 0], 
+								verticalDistLine: [0, 0], 
+								initPosAlignmentLine: [0, 0], 
+							},
+					
+{{rawJSComment "							// Parent Padding"}}
+							parentSpacing: -1 
+						});
+						
 {{rawJSComment "					// Fetch and load element data from a JSON file"}}
-
 					fetch("dataCytoMarshall-" + labName + ".json")
 						.then((response) => response.json())
 						.then((elements) => {
@@ -1360,7 +1411,7 @@
 										iconClass: "fas fa-terminal",
 										hoverMessage: "Click to open a web-based SSH console",
 										hrefFunction: "link",
-										hrefLink: `${shellUrl}?RouterID=${node.data("extraData").mgmtIpv4Addresss}?RouterName=${node.data("extraData").id}`,
+										hrefLink: `${shellUrl}?RouterID=${node.data("extraData").mgmtIpv4Addresss}?RouterName=${node.data("extraData").longname}`,
 									},
 									{
 										name: "blue",
@@ -1590,8 +1641,8 @@
 											iconClass: "fas fa-play",
 											hoverMessage: "Click to START the link impairment.",
 											hrefFunction: "linkImpairmentManagerExec",
-											hrefLink: `ssh ${edge.data("extraData").clabServerUsername}@${location.hostname} sudo /usr/bin/containerlab tools netem set -n ${edge.data("extraData").clabSourceLongName} -i ${edge.data("sourceEndpoint")}`,
-											hrefLink02: `/usr/bin/containerlab tools netem set -n ${edge.data("extraData").clabSourceLongName} -i ${edge.data("sourceEndpoint")}`,
+											hrefLink: `ssh ${edge.data("extraData").clabServerUsername}@${location.hostname} sudo /usr/bin/containerlab tools netem set -n ${edge.data("extraData").clabSourceLongName} -i ${edge.data("extraData").clabSourcePort}`,
+											hrefLink02: `/usr/bin/containerlab tools netem set -n ${edge.data("extraData").clabSourceLongName} -i ${edge.data("extraData").clabSourcePort}`,
 											hrefFunctionArg: "start-source",
 										},
 										{
@@ -1599,12 +1650,12 @@
 											iconClass: "fas fa-stop",
 											hoverMessage: "Click to STOP the link impairment.",
 											hrefFunction: "linkImpairmentManagerExec",
-											hrefLink: `ssh ${edge.data("extraData").clabServerUsername}@${location.hostname} sudo /usr/bin/containerlab tools netem set -n ${edge.data("extraData").clabSourceLongName} -i ${edge.data("sourceEndpoint")}`,
-											hrefLink02: `/usr/bin/containerlab tools netem set -n ${edge.data("extraData").clabSourceLongName} -i ${edge.data("sourceEndpoint")}`,
+											hrefLink: `ssh ${edge.data("extraData").clabServerUsername}@${location.hostname} sudo /usr/bin/containerlab tools netem set -n ${edge.data("extraData").clabSourceLongName} -i ${edge.data("extraData").clabSourcePort}`,
+											hrefLink02: `/usr/bin/containerlab tools netem set -n ${edge.data("extraData").clabSourceLongName} -i ${edge.data("extraData").clabSourcePort}`,
 											hrefFunctionArg: "stop-source",
 										},
 										{
-											name: "blue",
+											name: "green",
 											iconClass: "fas fa-ethernet",
 											hoverMessage: "Click to cross-launch Wireshark app",
 											hrefFunction: "link",
@@ -1623,7 +1674,7 @@
 											iconClass: "far fa-clone",
 											hoverMessage: "Click to copy the SSH command to your clipboard.",
 											hrefFunction: "copy",
-											hrefLink: `ssh ${edge.data("extraData").clabServerUsername}@${location.hostname} "sudo -S /sbin/ip netns exec ${edge.data("extraData").clabSourceLongName} tcpdump -U -nni ${edge.data("sourceEndpoint")} -w -" | wireshark -k -i -`,
+											hrefLink: `ssh ${edge.data("extraData").clabServerUsername}@${location.hostname} "sudo -S /sbin/ip netns exec ${edge.data("extraData").clabSourceLongName} tcpdump -U -nni ${edge.data("extraData").clabSourcePort} -w -" | wireshark -k -i -`,
 										},
 									],
 								},
@@ -1718,8 +1769,8 @@
 											iconClass: "fas fa-play",
 											hoverMessage: "Click to START the link impairment.",
 											hrefFunction: "linkImpairmentManagerExec",
-											hrefLink: `ssh ${edge.data("extraData").clabServerUsername}@${location.hostname} sudo /usr/bin/containerlab tools netem set -n ${edge.data("extraData").clabSourceLongName} -i ${edge.data("sourceEndpoint")}`,
-											hrefLink02: `/usr/bin/containerlab tools netem set -n ${edge.data("extraData").clabSourceLongName} -i ${edge.data("sourceEndpoint")}`,
+											hrefLink: `ssh ${edge.data("extraData").clabServerUsername}@${location.hostname} sudo /usr/bin/containerlab tools netem set -n ${edge.data("extraData").clabSourceLongName} -i ${edge.data("extraData").clabSourcePort}`,
+											hrefLink02: `/usr/bin/containerlab tools netem set -n ${edge.data("extraData").clabSourceLongName} -i ${edge.data("extraData").clabSourcePort}`,
 											hrefFunctionArg: "start-source",
 										},
 										{
@@ -1728,7 +1779,7 @@
 											hoverMessage:
 												"Click to copy the START impairment command to your clipboard",
 											hrefFunction: "linkImpairmentCopy",
-											hrefLink: `ssh ${edge.data("extraData").clabServerUsername}@${location.hostname} sudo /usr/bin/containerlab tools netem set -n ${edge.data("extraData").clabSourceLongName} -i ${edge.data("sourceEndpoint")}`,
+											hrefLink: `ssh ${edge.data("extraData").clabServerUsername}@${location.hostname} sudo /usr/bin/containerlab tools netem set -n ${edge.data("extraData").clabSourceLongName} -i ${edge.data("extraData").clabSourcePort}`,
 											hrefFunctionArg: "start-source",
 										},
 										{
@@ -1736,8 +1787,8 @@
 											iconClass: "fas fa-stop",
 											hoverMessage: "Click to STOP the link impairment.",
 											hrefFunction: "linkImpairmentManagerExec",
-											hrefLink: `ssh ${edge.data("extraData").clabServerUsername}@${location.hostname} sudo /usr/bin/containerlab tools netem set -n ${edge.data("extraData").clabSourceLongName} -i ${edge.data("sourceEndpoint")}`,
-											hrefLink02: `/usr/bin/containerlab tools netem set -n ${edge.data("extraData").clabSourceLongName} -i ${edge.data("sourceEndpoint")}`,
+											hrefLink: `ssh ${edge.data("extraData").clabServerUsername}@${location.hostname} sudo /usr/bin/containerlab tools netem set -n ${edge.data("extraData").clabSourceLongName} -i ${edge.data("extraData").clabSourcePort}`,
+											hrefLink02: `/usr/bin/containerlab tools netem set -n ${edge.data("extraData").clabSourceLongName} -i ${edge.data("extraData").clabSourcePort}`,
 											hrefFunctionArg: "stop-source",
 										},
 										{
@@ -1746,11 +1797,11 @@
 											hoverMessage:
 												"Click to copy the STOP impairment command to your clipboard",
 											hrefFunction: "linkImpairmentCopy",
-											hrefLink: `ssh ${edge.data("extraData").clabServerUsername}@${location.hostname} sudo /usr/bin/containerlab tools netem set -n ${edge.data("extraData").clabSourceLongName} -i ${edge.data("sourceEndpoint")}`,
+											hrefLink: `ssh ${edge.data("extraData").clabServerUsername}@${location.hostname} sudo /usr/bin/containerlab tools netem set -n ${edge.data("extraData").clabSourceLongName} -i ${edge.data("extraData").clabSourcePort}`,
 											hrefFunctionArg: "stop-source",
 										},
 										{
-											name: "blue",
+											name: "green",
 											iconClass: "fas fa-ethernet",
 											hoverMessage: "Click to cross-launch Wireshark app",
 											hrefFunction: "link",
@@ -1769,7 +1820,7 @@
 											iconClass: "far fa-clone",
 											hoverMessage: "Click to copy the SSH command to your clipboard.",
 											hrefFunction: "copy",
-											hrefLink: `ssh ${edge.data("extraData").clabServerUsername}@${location.hostname} "sudo -S /sbin/ip netns exec ${edge.data("extraData").clabSourceLongName} tcpdump -U -nni ${edge.data("sourceEndpoint")} -w -" | wireshark -k -i -`,
+											hrefLink: `ssh ${edge.data("extraData").clabServerUsername}@${location.hostname} "sudo -S /sbin/ip netns exec ${edge.data("extraData").clabSourceLongName} tcpdump -U -nni ${edge.data("extraData").clabSourcePort} -w -" | wireshark -k -i -`,
 										},
 									],
 								},
@@ -1881,8 +1932,8 @@
 											iconClass: "fas fa-play",
 											hoverMessage: "Click to START the link impairment.",
 											hrefFunction: "linkImpairmentManagerExec",
-											hrefLink: `ssh ${edge.data("extraData").clabServerUsername}@${location.hostname} sudo /usr/bin/containerlab tools netem set -n ${edge.data("extraData").clabTargetLongName} -i ${edge.data("targetEndpoint")}`,
-											hrefLink02: `/usr/bin/containerlab tools netem set -n ${edge.data("extraData").clabTargetLongName} -i ${edge.data("targetEndpoint")}`,
+											hrefLink: `ssh ${edge.data("extraData").clabServerUsername}@${location.hostname} sudo /usr/bin/containerlab tools netem set -n ${edge.data("extraData").clabTargetLongName} -i ${edge.data("extraData").clabTargetPort}`,
+											hrefLink02: `/usr/bin/containerlab tools netem set -n ${edge.data("extraData").clabTargetLongName} -i ${edge.data("extraData").clabTargetPort}`,
 											hrefFunctionArg: "start-target",
 										},
 										{
@@ -1890,12 +1941,12 @@
 											iconClass: "fas fa-stop",
 											hoverMessage: "Click to STOP the link impairment.",
 											hrefFunction: "linkImpairmentManagerExec",
-											hrefLink: `ssh ${edge.data("extraData").clabServerUsername}@${location.hostname} sudo /usr/bin/containerlab tools netem set -n ${edge.data("extraData").clabTargetLongName} -i ${edge.data("targetEndpoint")}`,
-											hrefLink02: `/usr/bin/containerlab tools netem set -n ${edge.data("extraData").clabTargetLongName} -i ${edge.data("targetEndpoint")}`,
+											hrefLink: `ssh ${edge.data("extraData").clabServerUsername}@${location.hostname} sudo /usr/bin/containerlab tools netem set -n ${edge.data("extraData").clabTargetLongName} -i ${edge.data("extraData").clabTargetPort}`,
+											hrefLink02: `/usr/bin/containerlab tools netem set -n ${edge.data("extraData").clabTargetLongName} -i ${edge.data("extraData").clabTargetPort}`,
 											hrefFunctionArg: "stop-target",
 										},
 										{
-											name: "blue",
+											name: "green",
 											iconClass: "fas fa-ethernet",
 											hoverMessage: "Click to cross-launch Wireshark app",
 											hrefFunction: "link",
@@ -1914,7 +1965,7 @@
 											iconClass: "far fa-clone",
 											hoverMessage: "Click to copy the SSH command to your clipboard.",
 											hrefFunction: "copy",
-											hrefLink: `ssh ${edge.data("extraData").clabServerUsername}@${location.hostname} "sudo -S /sbin/ip netns exec ${edge.data("extraData").clabTargetLongName} tcpdump -U -nni ${edge.data("targetEndpoint")} -w -" | wireshark -k -i -`,
+											hrefLink: `ssh ${edge.data("extraData").clabServerUsername}@${location.hostname} "sudo -S /sbin/ip netns exec ${edge.data("extraData").clabTargetLongName} tcpdump -U -nni ${edge.data("extraData").clabTargetPort} -w -" | wireshark -k -i -`,
 										},
 									],
 								},
@@ -2009,8 +2060,8 @@
 											iconClass: "fas fa-play",
 											hoverMessage: "Click to START the link impairment.",
 											hrefFunction: "linkImpairmentManagerExec",
-											hrefLink: `ssh ${edge.data("extraData").clabServerUsername}@${location.hostname} sudo /usr/bin/containerlab tools netem set -n ${edge.data("extraData").clabTargetLongName} -i ${edge.data("targetEndpoint")}`,
-											hrefLink02: `/usr/bin/containerlab tools netem set -n ${edge.data("extraData").clabTargetLongName} -i ${edge.data("targetEndpoint")}`,
+											hrefLink: `ssh ${edge.data("extraData").clabServerUsername}@${location.hostname} sudo /usr/bin/containerlab tools netem set -n ${edge.data("extraData").clabTargetLongName} -i ${edge.data("extraData").clabTargetPort}}`,
+											hrefLink02: `/usr/bin/containerlab tools netem set -n ${edge.data("extraData").clabTargetLongName} -i ${edge.data("extraData").clabTargetPort}}`,
 											hrefFunctionArg: "start-target",
 										},
 										{
@@ -2019,7 +2070,7 @@
 											hoverMessage:
 												"Click to copy the START impairment command to your clipboard",
 											hrefFunction: "linkImpairmentCopy",
-											hrefLink: `ssh ${edge.data("extraData").clabServerUsername}@${location.hostname} sudo /usr/bin/containerlab tools netem set -n ${edge.data("extraData").clabTargetLongName} -i ${edge.data("targetEndpoint")}`,
+											hrefLink: `ssh ${edge.data("extraData").clabServerUsername}@${location.hostname} sudo /usr/bin/containerlab tools netem set -n ${edge.data("extraData").clabTargetLongName} -i ${edge.data("extraData").clabTargetPort}}`,
 											hrefFunctionArg: "start-target",
 										},
 										{
@@ -2027,8 +2078,8 @@
 											iconClass: "fas fa-stop",
 											hoverMessage: "Click to STOP the link impairment.",
 											hrefFunction: "linkImpairmentManagerExec",
-											hrefLink: `ssh ${edge.data("extraData").clabServerUsername}@${location.hostname} sudo /usr/bin/containerlab tools netem set -n ${edge.data("extraData").clabTargetLongName} -i ${edge.data("targetEndpoint")}`,
-											hrefLink02: `/usr/bin/containerlab tools netem set -n ${edge.data("extraData").clabTargetLongName} -i ${edge.data("targetEndpoint")}`,
+											hrefLink: `ssh ${edge.data("extraData").clabServerUsername}@${location.hostname} sudo /usr/bin/containerlab tools netem set -n ${edge.data("extraData").clabTargetLongName} -i ${edge.data("extraData").clabTargetPort}`,
+											hrefLink02: `/usr/bin/containerlab tools netem set -n ${edge.data("extraData").clabTargetLongName} -i ${edge.data("extraData").clabTargetPort}}`,
 											hrefFunctionArg: "stop-target",
 										},
 										{
@@ -2037,7 +2088,7 @@
 											hoverMessage:
 												"Click to copy the STOP impairment command to your clipboard",
 											hrefFunction: "linkImpairmentCopy",
-											hrefLink: `ssh ${edge.data("extraData").clabServerUsername}@${location.hostname} sudo /usr/bin/containerlab tools netem set -n ${edge.data("extraData").clabTargetLongName} -i ${edge.data("targetEndpoint")}`,
+											hrefLink: `ssh ${edge.data("extraData").clabServerUsername}@${location.hostname} sudo /usr/bin/containerlab tools netem set -n ${edge.data("extraData").clabTargetLongName} -i ${edge.data("extraData").clabTargetPort}`,
 											hrefFunctionArg: "stop-target",
 										},
 										{
@@ -2060,7 +2111,7 @@
 											iconClass: "far fa-clone",
 											hoverMessage: "Click to copy the SSH command to your clipboard.",
 											hrefFunction: "copy",
-											hrefLink: `ssh ${edge.data("extraData").clabServerUsername}@${location.hostname} "sudo -S /sbin/ip netns exec ${edge.data("extraData").clabTargetLongName} tcpdump -U -nni ${edge.data("targetEndpoint")} -w -" | wireshark -k -i -`,
+											hrefLink: `ssh ${edge.data("extraData").clabServerUsername}@${location.hostname} "sudo -S /sbin/ip netns exec ${edge.data("extraData").clabTargetLongName} tcpdump -U -nni ${edge.data("extraData").clabTargetPort} -w -" | wireshark -k -i -`,
 										},
 									],
 								},
@@ -2866,6 +2917,16 @@
 					showPanelEvent(event, panel);
 				}
 
+				function getAllNodeEndpoint(event) {
+					console.log ("getAllNodeEndpoint Function called")
+					arg01 = "arg01"
+					arg02 = "arg02"
+					arg03 = "arg03"
+
+					getAllNodeEndpointDetailExec(arg01, arg02, arg03)
+					
+				}
+
 				function showPanelEvent(event, panel) {
 					panel.style.display = "none";
 					console.log(panel.style.display);
@@ -3282,7 +3343,7 @@
 								input.setAttribute("disabled", "");
 							}
 
-							input.className = `input is-size-7 has-text-left link-impairment-widht has-text-weight-normal is-smallest-element`;
+							input.className = `label is-size-7 has-text-left has-text-weight-normal is-flex-wrap-wrap is-smallest-element`;
 							input.value = config.columnInputContent;
 							input.placeholder = config.columnInputPlaceholder;
 
@@ -4319,6 +4380,26 @@
 {{rawJSComment "							// Handle the response data"}}
 							console.log(
 								"Received response data from getNodeEndpointDetailExec:",
+								responseData,
+							);
+						})
+						.catch((error) => {
+{{rawJSComment "							// Handle errors"}}
+							console.error("Error occurred:", error);
+						});
+				}
+
+
+				function getAllNodeEndpointDetailExec(arg01, arg02, arg03) {
+					console.log("getAllNodeEndpointDetailExec-Function Called");
+					console.log(`getAllNodeEndpointDetailExec-Function Argument01: ${arg01}`);
+					console.log(`getAllNodeEndpointDetailExec-Function Argument02: ${arg02}`);
+					console.log(`getAllNodeEndpointDetailExec-Function Argument03: ${arg03}`);
+					callGoFunction("/getAllNodeEndpointDetail", arg01, arg02, arg03)
+						.then((responseData) => {
+{{rawJSComment "							// Handle the response data"}}
+							console.log(
+								"Received response data from getAllNodeEndpointDetailExec:",
 								responseData,
 							);
 						})

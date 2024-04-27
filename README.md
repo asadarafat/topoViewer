@@ -122,7 +122,7 @@ vscode ➜ /workspaces/topoViewer (development ✗) go run go_cloudshellwrapper/
 
 ## Run TopoViewer Binary
 ```Shell
- [aarafat@nsp-clab1 topoViewer]$ sudo topoviewer clab --allowed-hostnames 149.204.21.68 --clab-user aarafat  --server-port 8087 --topology-file-json /home/aarafat/topoViewer/rawTopoFile/clab/nokia-MultiAccessGateway-lab/clab-nokia-MAGc-lab/topology-data.json
+sudo go run go_cloudshellwrapper/cmd/main.go clab --allowed-hostnames 149.204.21.68 --clab-user aarafat  --server-port 8081  --topology-file-json  /home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/topology-data.json --deployment-type colocated
  ```
  
  ## Quickstart - colocated with Containerlab 
