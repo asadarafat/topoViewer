@@ -2,13 +2,112 @@ package main
 
 import (
 	// tools "github.com/asadarafat/topoViewer/go_tools"
+	"bufio"
+	"fmt"
+	"io"
+	"log"
+	"net"
+	"os/exec"
+	"strings"
+
 	tools "github.com/asadarafat/topoViewer/go_tools"
 	topoengine "github.com/asadarafat/topoViewer/go_topoengine"
+	"golang.org/x/crypto/ssh"
 )
 
 // // "io/ioutil"
 // // "os"
 
+type Connection struct {
+	*ssh.Client
+	password string
+}
+
+func Connect(addr, user, password string) (*Connection, error) {
+	sshConfig := &ssh.ClientConfig{
+		User: user,
+		Auth: []ssh.AuthMethod{
+			ssh.Password(password),
+		},
+		HostKeyCallback: ssh.HostKeyCallback(func(hostname string, remote net.Addr, key ssh.PublicKey) error { return nil }),
+	}
+
+	conn, err := ssh.Dial("tcp", addr, sshConfig)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Connection{conn, password}, nil
+
+}
+
+func (conn *Connection) SendCommands(cmds ...string) ([]byte, error) {
+	session, err := conn.NewSession()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer session.Close()
+
+	modes := ssh.TerminalModes{
+		ssh.ECHO:          0,     // disable echoing
+		ssh.TTY_OP_ISPEED: 14400, // input speed = 14.4kbaud
+		ssh.TTY_OP_OSPEED: 14400, // output speed = 14.4kbaud
+	}
+
+	err = session.RequestPty("xterm", 80, 40, modes)
+	if err != nil {
+		return []byte{}, err
+	}
+
+	in, err := session.StdinPipe()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	out, err := session.StdoutPipe()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var output []byte
+
+	go func(in io.WriteCloser, out io.Reader, output *[]byte) {
+		var (
+			line string
+			r    = bufio.NewReader(out)
+		)
+		for {
+			b, err := r.ReadByte()
+			if err != nil {
+				break
+			}
+
+			*output = append(*output, b)
+
+			if b == byte('\n') {
+				line = ""
+				continue
+			}
+
+			line += string(b)
+
+			if strings.HasPrefix(line, "[sudo] password for ") && strings.HasSuffix(line, ": ") {
+				_, err = in.Write([]byte(conn.password + "\n"))
+				if err != nil {
+					break
+				}
+			}
+		}
+	}(in, out, &output)
+
+	cmd := strings.Join(cmds, "; ")
+	_, err = session.Output(cmd)
+	if err != nil {
+		return []byte{}, err
+	}
+
+	return output, nil
+}
 func main() {
 
 	cytoUiGo := topoengine.CytoTopology{}
@@ -827,4 +926,29 @@ func main() {
 
 	// cytoUiGo.GetDockerNodeStatusViaUnixSocket("clab-3tierSmall-dcgw-1", "localhost")
 
+	// Command to execute the Python script
+	cmd := exec.Command("python3", "./html-static/actions/exampleScript.py", "arg1", "arg2")
+	// cmd := exec.Command("whoami")
+
+	// Capture standard output and error
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		log.Fatalf("Failed to execute Python script: %v", err)
+	}
+
+	// Print the output
+	fmt.Printf("Python script output:\n%s\n", out)
+
+	// ssh refers to the custom package above
+	conn, err := Connect("149.204.21.68:22", "suuser", "Lab-Her0")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	output, err := conn.SendCommands("sudo clab inspect --all", "sudo clab inspect --all")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println(string(output))
 }
