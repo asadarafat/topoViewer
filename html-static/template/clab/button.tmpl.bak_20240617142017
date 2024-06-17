@@ -4390,70 +4390,62 @@
 				}
 
 
-				async function getAllNodeEndpointDetailExec(arg01, arg02, arg03) {
+				function getAllNodeEndpointDetailExec(arg01, arg02, arg03) {
 					console.log("getAllNodeEndpointDetailExec-Function Called");
 					console.log(`getAllNodeEndpointDetailExec-Function Argument01: ${arg01}`);
 					console.log(`getAllNodeEndpointDetailExec-Function Argument02: ${arg02}`);
 					console.log(`getAllNodeEndpointDetailExec-Function Argument03: ${arg03}`);
-				
-					try {
-						const responseData = await callGoFunction("/getAllNodeEndpointDetail", arg01, arg02, arg03);
-{{rawJSComment "##						// Handle the response data"}}
-
-{{rawJSComment "##						// Check if responseData is a non-empty object"}}
-						if (responseData && typeof responseData === 'object' && Object.keys(responseData).length > 0) {
-{{rawJSComment "##							// Perform actions if responseData is a non-empty JSON object"}}
-							console.log("Valid non-empty JSON response received:", responseData);
-							location.reload()
-
-						} else {
-							console.log("Empty or invalid JSON response received");
-						}
-					} catch (error) {
-{{rawJSComment "##						// Handle errors"}}
-						console.error("Error occurred:", error);
-					}
+					callGoFunction("/getAllNodeEndpointDetail", arg01, arg02, arg03)
+						.then((responseData) => {
+{{rawJSComment "							// Handle the response data"}}
+							console.log(
+								"Received response data from getAllNodeEndpointDetailExec:",
+								responseData,
+							);
+						})
+						.catch((error) => {
+{{rawJSComment "							// Handle errors"}}
+							console.error("Error occurred:", error);
+						});
 				}
-				
 
 {{rawJSComment "				// Call Go BackEnd function"}}
 {{rawJSComment "				// Call Go BackEnd function"}}
-					async function callGoFunction(goFunctionName, arg01, arg02, arg03) {
-						console.log(`callGoFunction Called with ${goFunctionName}`);
-						console.log(`callGoFunction Parameter01: ${arg01}`);
-						console.log(`callGoFunction Parameter02: ${arg02}`);
+				function callGoFunction(goFunctionName, arg01, arg02, arg03) {
+					console.log(`callGoFunction Called is ${goFunctionName}`);
+					console.log(`callGoFunction Parameter01: ${arg01}`);
+					console.log(`callGoFunction Parameter02: ${arg02}`);
 
-						const data = {
-							param1: arg01,
-							param2: arg02,
-						};
+					const data = {
+						param1: arg01,
+						param2: arg02,
+					};
 
-						try {
-							const response = await fetch(goFunctionName, {
-								method: "POST",
-								headers: {
-									"Content-Type": "application/json",
-								},
-								body: JSON.stringify(data),
-							});
-
-{{rawJSComment "##							// Check if response is ok"}}
+					return fetch(goFunctionName, {
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json",
+						},
+						body: JSON.stringify(data),
+					})
+						.then((response) => {
+{{rawJSComment "							// Check if response is ok"}}
 							if (!response.ok) {
 								throw new Error("Network response was not ok");
 							}
-
-{{rawJSComment "##							// Parse the JSON response"}}
-							const responseData = await response.json();
-							
-{{rawJSComment "##							// Return the response data from the Go function"}}
+{{rawJSComment "							// Parse the JSON response"}}
+							return response.json();
+						})
+						.then((responseData) => {
+{{rawJSComment "							// Return the response data from the Go function"}}
 							return responseData;
-						} catch (error) {
-{{rawJSComment "##							// Handle any errors that occurred during the fetch"}}
+						})
+						.catch((error) => {
+{{rawJSComment "							// Handle any errors that occurred during the fetch"}}
 							console.error("Error:", error);
 							throw error; 
-						}
-}
-
+						});
+				}
 
 {{rawJSComment "				// sleep funtion"}}
 {{rawJSComment "				// sleep funtion"}}

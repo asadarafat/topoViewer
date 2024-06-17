@@ -14,6 +14,7 @@ func main() {
 	cytoUiGo := topoengine.CytoTopology{}
 	cytoUiGo.LogLevel = 5
 	cytoUiGo.InitLogger()
+
 	// cytoUiGo.InitLoggerDigitalTwin()
 
 	// clab run
@@ -821,54 +822,9 @@ func main() {
 	// }
 
 	// // tools.CommentProcessor("./html-public/demo/button.html", "./html-static/template/clab/button.tmpl")
+	//// ini penting
 	tools.CommentProcessor("./html-public/nokia-ServiceProvider/button.html", "./html-static/template/clab/button.tmpl")
 
 	// cytoUiGo.GetDockerNodeStatusViaUnixSocket("clab-3tierSmall-dcgw-1", "localhost")
 
 }
-
-// test ssh
-// test ssh
-// test ssh
-// test ssh
-// package main
-
-// import (
-// 	"bytes"
-// 	"fmt"
-// 	"log"
-
-// 	"golang.org/x/crypto/ssh"
-// )
-
-// func main() {
-// 	config := &ssh.ClientConfig{
-// 		User: "root",
-// 		Auth: []ssh.AuthMethod{
-// 			ssh.Password("Lab-Her0"),
-// 		},
-// 		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
-// 	}
-// 	client, err := ssh.Dial("tcp", "138.203.26.59:22", config)
-// 	if err != nil {
-// 		log.Fatal("Failed to dial: ", err)
-// 	}
-
-// 	// Each ClientConn can support multiple interactive sessions,
-// 	// represented by a Session.
-// 	session, err := client.NewSession()
-// 	if err != nil {
-// 		log.Fatal("Failed to create session: ", err)
-// 	}
-// 	defer session.Close()
-
-// 	// Once a Session is created, you can execute a single command on
-// 	// the remote side using the Run method.
-// 	var b bytes.Buffer
-// 	session.Stdout = &b
-// 	if err := session.Run("docker ps --all --format json"); err != nil {
-// 		log.Fatal("Failed to run: " + err.Error())
-// 	}
-// 	fmt.Println(b.String())
-
-// }

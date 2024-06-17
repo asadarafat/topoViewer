@@ -1,0 +1,274 @@
+// package main
+
+// import (
+// 	"context"
+// 	"crypto/tls"
+// 	"crypto/x509"
+// 	"encoding/json"
+// 	"os"
+// 	"os/signal"
+// 	"sync"
+
+// 	log "github.com/sirupsen/logrus"
+// 	"github.com/spf13/viper"
+
+// 	"github.com/IBM/sarama"
+// 	"golang.org/x/oauth2"
+// 	"golang.org/x/oauth2/clientcredentials"
+// )
+
+// const (
+// 	OffsetBeginning = "beginning"
+// 	OffsetLatest    = "latest"
+// )
+
+// type ConfigKafkaClient struct {
+// 	ClientCertFile  string   `yaml:"client_cert_file"`
+// 	ClientKeyFile   string   `yaml:"client_key_file"`
+// 	CACertFile      string   `yaml:"ca_cert_file"`
+// 	KafkaBrokers    []string `yaml:"kafka_brokers"`
+// 	Topic           string   `yaml:"topic"`
+// 	OffsetStrategy  string   `yaml:"offset_strategy"`
+// 	NumLatestEvents int64    `yaml:"num_latest_events"`
+// 	SaslEnabled     bool     `yaml:"sasl_enable"`
+// 	SaslUser        string   `yaml:"sasl_user"`
+// 	SaslPassword    string   `yaml:"sasl_password"`
+// }
+
+// func LoadConfigKafkaClient() (ConfigKafkaClient, error) {
+// 	// Set default values
+// 	viper.SetDefault("client_cert_file", "/home/user/client.crt")
+// 	viper.SetDefault("client_key_file", "/home/user/client.key")
+// 	viper.SetDefault("ca_cert_file", "/etc/ssl/certs/ca-certificates.crt")
+// 	viper.SetDefault("kafka_brokers", []string{"localhost:9092"})
+// 	viper.SetDefault("topic", "example_topic")
+// 	viper.SetDefault("offset_strategy", "latest")
+// 	viper.SetDefault("num_latest_events", int64(50))
+// 	viper.SetDefault("sasl_enable", bool(true))
+// 	viper.SetDefault("sasl_user", "admin")
+// 	viper.SetDefault("sasl_password", "Changeme1!")
+
+// 	// Load configuration from config.yaml using Viper
+// 	viper.SetConfigName("kafka-client-config") // name of config file (without extension)
+// 	viper.SetConfigType("yaml")                // REQUIRED if the config file does not have the extension in the name
+// 	viper.AddConfigPath("config/")
+
+// 	if err := viper.ReadInConfig(); err != nil {
+// 		log.Printf("Warning: error reading config file: %v", err)
+// 	}
+// 	var configKafkaClient ConfigKafkaClient
+
+// 	configKafkaClient.ClientCertFile = viper.GetString("client_cert_file")
+// 	configKafkaClient.ClientKeyFile = viper.GetString("client_key_file")
+// 	configKafkaClient.CACertFile = viper.GetString("ca_cert_file")
+// 	configKafkaClient.KafkaBrokers = viper.GetStringSlice("kafka_brokers")
+// 	configKafkaClient.Topic = viper.GetString("topic")
+// 	configKafkaClient.OffsetStrategy = viper.GetString("offset_strategy")
+// 	configKafkaClient.NumLatestEvents = viper.GetInt64("num_latest_events")
+// 	configKafkaClient.SaslEnabled = viper.GetBool("sasl_enable")
+// 	configKafkaClient.SaslUser = viper.GetString("sasl_user")
+// 	configKafkaClient.SaslPassword = viper.GetString("sasl_password")
+
+// 	return configKafkaClient, nil
+// }
+
+// // token provider begin
+// // originally from: https://github.com/damiannolan/sasl
+
+// // TokenProvider is a simple struct that implements sarama.AccessTokenProvider.
+// // It encapsulates an oauth2.TokenSource which is leveraged for AccessToken retrieval through the
+// // oauth2 client credentials flow, the token will auto-refresh as necessary.
+// type TokenProvider struct {
+// 	tokenSource oauth2.TokenSource
+// }
+
+// // NewTokenProvider creates a new sarama.AccessTokenProvider with the provided clientID and clientSecret.
+// // The provided tokenURL is used to perform the 2 legged client credentials flow.
+// func NewTokenProvider(clientID, clientSecret, tokenURL string) sarama.AccessTokenProvider {
+// 	cfg := clientcredentials.Config{
+// 		ClientID:     clientID,
+// 		ClientSecret: clientSecret,
+// 		TokenURL:     tokenURL,
+// 	}
+
+// 	return &TokenProvider{
+// 		tokenSource: cfg.TokenSource(context.Background()),
+// 	}
+// }
+
+// // Token returns a new *sarama.AccessToken or an error as appropriate.
+// func (t *TokenProvider) Token() (*sarama.AccessToken, error) {
+// 	token, err := t.tokenSource.Token()
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	log.Info(token.AccessToken)
+// 	return &sarama.AccessToken{Token: token.AccessToken}, nil
+
+// }
+
+// // token provider end
+
+// func loadTLSConfig(clientCertFile, clientKeyFile, caCertFile string) (*tls.Config, error) {
+// 	tlsConfig := tls.Config{}
+
+// 	// Load client cert
+// 	cert, err := tls.LoadX509KeyPair(clientCertFile, clientKeyFile)
+// 	if err != nil {
+// 		return &tlsConfig, err
+// 	}
+// 	tlsConfig.Certificates = []tls.Certificate{cert}
+
+// 	// Load CA cert
+// 	caCert, err := os.ReadFile(caCertFile)
+// 	if err != nil {
+// 		return &tlsConfig, err
+// 	}
+// 	caCertPool := x509.NewCertPool()
+// 	caCertPool.AppendCertsFromPEM(caCert)
+// 	tlsConfig.RootCAs = caCertPool
+
+// 	// tlsConfig.BuildNameToCertificate()
+// 	return &tlsConfig, err
+// }
+
+// func consumerLoop(client sarama.Client, consumer sarama.Consumer, topic string, offsetStrategy string, numLatestEvents int64) {
+// 	partitions, err := consumer.Partitions(topic)
+// 	if err != nil {
+// 		log.Println("unable to fetch partition IDs for the topic", topic, err)
+// 		return
+// 	}
+
+// 	// Trap SIGINT to trigger a shutdown.
+// 	signals := make(chan os.Signal, 1)
+// 	signal.Notify(signals, os.Interrupt)
+
+// 	var wg sync.WaitGroup
+// 	for _, partition := range partitions {
+// 		wg.Add(1)
+// 		go func(partition int32) {
+// 			defer wg.Done()
+// 			consumePartition(client, consumer, topic, partition, signals, offsetStrategy, numLatestEvents)
+// 		}(partition)
+// 	}
+// 	wg.Wait()
+// }
+
+// func consumePartition(client sarama.Client, consumer sarama.Consumer, topic string, partition int32, signals chan os.Signal, offsetStrategy string, numLatestEvents int64) {
+// 	var offset int64
+// 	var err error
+
+// 	if offsetStrategy == OffsetLatest {
+// 		// Get the earliest and latest offsets
+// 		latestOffset, err := client.GetOffset(topic, partition, sarama.OffsetNewest)
+// 		if err != nil {
+// 			log.Println("unable to get latest offset for partition", partition, err)
+// 			return
+// 		}
+// 		earliestOffset, err := client.GetOffset(topic, partition, sarama.OffsetOldest)
+// 		if err != nil {
+// 			log.Println("unable to get earliest offset for partition", partition, err)
+// 			return
+// 		}
+
+// 		// Calculate the starting offset
+// 		offset = latestOffset - numLatestEvents
+// 		if offset < earliestOffset {
+// 			offset = earliestOffset
+// 		}
+// 	} else {
+// 		// Start from the beginning
+// 		offset = sarama.OffsetOldest
+// 	}
+
+// 	partitionConsumer, err := consumer.ConsumePartition(topic, partition, offset)
+// 	if err != nil {
+// 		log.Println("unable to start partition consumer for partition", partition, err)
+// 		return
+// 	}
+// 	defer partitionConsumer.Close()
+
+// 	for {
+// 		select {
+// 		case msg := <-partitionConsumer.Messages():
+// 			formattedValue, err := prettyPrintJSON(msg.Value)
+// 			if err != nil {
+// 				log.Infof("Consumed message from topic %s, partition %d: key=%s value=\n%s", topic, msg.Partition, string(msg.Key), string(msg.Value))
+// 			} else {
+// 				log.Infof("Consumed message from topic %s, partition %d: key=%s value=\n%s", topic, msg.Partition, string(msg.Key), formattedValue)
+
+// 			}
+// 		case err := <-partitionConsumer.Errors():
+// 			log.Println("Error consuming partition", partition, err)
+// 		case <-signals:
+// 			log.Println("Interrupt is detected")
+// 			return
+// 		}
+// 	}
+// }
+
+// func prettyPrintJSON(data []byte) (string, error) {
+// 	var out map[string]interface{}
+// 	err := json.Unmarshal(data, &out)
+// 	if err != nil {
+// 		return "", err
+// 	}
+// 	prettyJSON, err := json.MarshalIndent(out, "", "  ")
+// 	if err != nil {
+// 		return "", err
+// 	}
+// 	return string(prettyJSON), nil
+// }
+
+// func main() {
+
+// 	ConfigKafkaClient, _ := LoadConfigKafkaClient()
+// 	log.Info("Connecting to kafka cluster...")
+// 	log.Info("Using following config: ")
+// 	log.Info(ConfigKafkaClient)
+
+// 	config := sarama.NewConfig()
+
+// 	tlsConfig, err := loadTLSConfig(
+// 		ConfigKafkaClient.ClientCertFile,
+// 		ConfigKafkaClient.ClientKeyFile,
+// 		ConfigKafkaClient.CACertFile)
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
+// 	tlsConfig.InsecureSkipVerify = true // This can be used on test server if domain does not match cert:
+
+// 	// sarama SASL
+// 	tokenEndpoint := "https://149.204.7.127/rest-gateway/rest/api/v1/auth/token"
+
+// 	if ConfigKafkaClient.SaslEnabled {
+// 		config.Net.SASL.Enable = true
+// 		config.Net.SASL.User = ConfigKafkaClient.SaslUser
+// 		config.Net.SASL.Password = ConfigKafkaClient.SaslPassword
+// 		config.Net.SASL.Mechanism = sarama.SASLTypeOAuth
+// 		config.Net.SASL.TokenProvider = NewTokenProvider(ConfigKafkaClient.SaslUser, ConfigKafkaClient.SaslPassword, tokenEndpoint)
+// 		config.Net.SASL.Handshake = false
+
+// 	}
+
+// 	// sarama SSL
+// 	config.Net.TLS.Enable = true
+// 	config.Net.TLS.Config = tlsConfig
+
+// 	// client, err := sarama.NewClient([]string{"atlanticnsp.nice.nokia.net:9192"}, config)
+// 	client, err := sarama.NewClient(ConfigKafkaClient.KafkaBrokers, config)
+
+// 	if err != nil {
+// 		log.Errorf("unable to create kafka client: %q", err)
+// 	}
+
+// 	consumer, err := sarama.NewConsumerFromClient(client)
+// 	if err != nil {
+// 		log.Error(err)
+// 	}
+// 	defer consumer.Close()
+
+// 	consumerLoop(client, consumer, ConfigKafkaClient.Topic, ConfigKafkaClient.OffsetStrategy, ConfigKafkaClient.NumLatestEvents)
+
+// }

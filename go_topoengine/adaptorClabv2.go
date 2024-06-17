@@ -105,6 +105,18 @@ type DockerNodeStatus struct {
 	Status       string      `json:"Status"`
 }
 
+type PortInfo struct {
+	NodeName      string `json:"nodeName"`
+	IfName        string `json:"ifName"`
+	IfDescription string `json:"ifDescription"`
+	IfPhysAddress string `json:"ifPhysAddress"`
+	IfMtu         string `json:"ifMtu"`
+	IfType        string `json:"ifType"`
+	IfAdminStatus string `json:"ifAdminStatus"`
+	IfOperStatus  string `json:"ifOperStatus"`
+	IfExtraField  string `json:"ifExtraField"`
+}
+
 func (cyTopo *CytoTopology) InitLoggerClabV2() {
 	// init logConfig
 	toolLogger := tools.Logs{}
@@ -604,26 +616,15 @@ func (cyTopo *CytoTopology) GetDockerNodeStatusViaUnixSocket(clabNodeName string
 // SNMPv2-MIB::sysName.0 = STRING: madrid
 // SNMPv2-MIB::sysLocation.0 = STRING: N 40 25 0, W 3 43 0
 
-type PortInfo struct {
-	NodeName      string `json:"nodeName"`
-	IfName        string `json:"ifName"`
-	IfDescription string `json:"ifDescription"`
-	IfPhysAddress string `json:"ifPhysAddress"`
-	IfMtu         string `json:"ifMtu"`
-	IfType        string `json:"ifType"`
-	IfAdminStatus string `json:"ifAdminStatus"`
-	IfOperStatus  string `json:"ifOperStatus"`
-	IfExtraField  string `json:"ifExtraField"`
-}
-
-func (cyTopo *CytoTopology) SendSnmpGetNodeEndpoint(targetAddress string, targetCommunity string, targetVersion gosnmp.SnmpVersion) ([]byte, error) {
+func (cyTopo *CytoTopology) SendSnmpGetNodeEndpoint(targetAddress string, targetCommunity string, targetVersion gosnmp.SnmpVersion) ([]byte, map[string][]PortInfo, error) {
 
 	g := &gosnmp.GoSNMP{
 		Target:    targetAddress,
 		Port:      uint16(161),
 		Community: targetCommunity,
 		Version:   targetVersion,
-		Timeout:   time.Duration(5) * time.Second,
+		Timeout:   time.Duration(2) * time.Second,
+		Retries:   1,
 	}
 
 	printResult := func(format string, values ...interface{}) {
@@ -645,13 +646,15 @@ func (cyTopo *CytoTopology) SendSnmpGetNodeEndpoint(targetAddress string, target
 
 		err := g.Connect()
 		if err != nil {
-			log.Errorf("Connect() error: %v", err)
+			log.Errorf("<SendSnmpGetNodeEndpoint><E><Connect() to %s with OID %s error: %v>", targetAddress, rootOID, err)
+
 		}
 		defer g.Conn.Close()
 
 		result, err := g.WalkAll(rootOID)
 		if err != nil {
-			log.Errorf("WalkAll() error: %v", err)
+			log.Errorf("<SendSnmpGetNodeEndpoint><E><WalkAll() to %s with OID %s error: %v>", targetAddress, rootOID, err)
+
 		}
 
 		// The fmt.Sprintf function uses formatting verbs to represent different types of values. Here are some common formatting verbs used with fmt.Sprintf:
@@ -808,6 +811,8 @@ func (cyTopo *CytoTopology) SendSnmpGetNodeEndpoint(targetAddress string, target
 	// Convert nested list to JSON
 	var result []map[string]PortInfo
 
+	nodeMap := make(map[string][]PortInfo)
+
 	newIndex := 0
 
 	for _, item := range nestedList {
@@ -828,15 +833,29 @@ func (cyTopo *CytoTopology) SendSnmpGetNodeEndpoint(targetAddress string, target
 			info.IfAdminStatus = strings.SplitN(fmt.Sprintf("%v", item[6]), ": ", 2)[1]
 			info.IfOperStatus = strings.SplitN(fmt.Sprintf("%v", item[7]), ": ", 2)[1]
 
+			// result = append(result, map[string]PortInfo{portIdString: info})
+
 			result = append(result, map[string]PortInfo{portIdString: info})
+
+			nodeMap[info.NodeName] = append(nodeMap[info.NodeName], info)
+
 		}
 	}
 
 	// Convert result to JSON string
-	jsonData, err := json.MarshalIndent(result, "", "    ")
+	// jsonData, err := json.MarshalIndent(result, "", "    ")
+	// if err != nil {
+	// 	fmt.Println("Error:", err)
+	// }
+	// log.Debug(string(jsonData))
+	// return jsonData, err
+
+	// Convert result to jsonDataNodeMap string
+	jsonDataNodeMap, err := json.MarshalIndent(nodeMap, "", "    ")
 	if err != nil {
 		fmt.Println("Error:", err)
 	}
-	log.Info(string(jsonData))
-	return jsonData, err
+	log.Debug(string(jsonDataNodeMap))
+	return jsonDataNodeMap, nodeMap, err
+
 }

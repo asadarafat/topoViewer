@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"math/rand"
 	"net/http"
 	"os"
@@ -372,6 +373,7 @@ func Clab(_ *cobra.Command, _ []string) error {
 	var initNodeEndpointDetailSourceTarget []byte
 
 	jsonBytes := cyTopo.UnmarshalContainerLabTopoV2(topoFile, clabHostUsername, initNodeEndpointDetailSourceTarget)
+	// printing dataCytoMarshall-{{clab-node-name}}.json
 	cyTopo.PrintjsonBytesCytoUiV2(jsonBytes)
 
 	// this is the endpoint for xterm.js to connect to
@@ -436,15 +438,6 @@ func Clab(_ *cobra.Command, _ []string) error {
 
 		})
 
-	// getAllNodeEndpointDetail endpoint
-	router.HandleFunc("/getAllNodeEndpointDetail",
-	func(w http.ResponseWriter, r *http.Request) {
-		log.Infof("getAllNodeEndpointDetail endpoint called")
-		// w.WriteHeader(http.StatusOK)
-		w.Write([]byte(VersionInfo))
-
-	})
-
 	// getNodeEndpointDetail endpoint
 	router.HandleFunc("/getNodeEndpointDetail",
 		func(w http.ResponseWriter, r *http.Request) {
@@ -460,20 +453,20 @@ func Clab(_ *cobra.Command, _ []string) error {
 			arg01 := requestData["param1"].(string)
 			arg02 := requestData["param2"].(string)
 
-			log.Infof("clabNetem endpoint called")
+			log.Infof("getNodeEndpointDetail endpoint called")
 
-			log.Infof("clabNetem-Param1: %s", arg01)
-			log.Infof("clabNetem-Param2: %s", arg02)
+			log.Infof("getNodeEndpointDetail-Param1: %s", arg01)
+			log.Infof("getNodeEndpointDetail-Param2: %s", arg02)
 
 			w.WriteHeader(http.StatusOK)
 
-			log.Infof("getNodeEndpointDetai  called")
+			log.Infof("getNodeEndpointDetai called")
 			log.Info("Interface SNMP Walk id triggered")
 
-			nodeEndpointDetailSource, _ := cyTopo.SendSnmpGetNodeEndpoint(arg01, "public", gosnmp.Version2c)
+			nodeEndpointDetailSource, _, _ := cyTopo.SendSnmpGetNodeEndpoint(arg01, "public", gosnmp.Version2c)
 			// w.Write(nodeEndpointDetailSource)
 
-			nodeEndpointDetailTarget, _ := cyTopo.SendSnmpGetNodeEndpoint(arg02, "public", gosnmp.Version2c)
+			nodeEndpointDetailTarget, _, _ := cyTopo.SendSnmpGetNodeEndpoint(arg02, "public", gosnmp.Version2c)
 			// w.Write(nodeEndpointDetailTarget)
 
 			var x []map[string]interface{}
@@ -520,40 +513,217 @@ func Clab(_ *cobra.Command, _ []string) error {
 			log.Infof("len of nodeEndpointDetailSourceTarget is %d ", len(nodeEndpointDetailSourceTarget))
 
 		})
+	// getAllNodeEndpointDetail endpoint
+	router.HandleFunc("/getAllNodeEndpointDetail",
+		func(w http.ResponseWriter, r *http.Request) {
 
-	// // getAllNodeEndpointDetail endpoint
-	// router.HandleFunc("/getAllNodeEndpointDetail",
-	// 	func(w http.ResponseWriter, r *http.Request) {
+			// Parse the request body
+			var requestData map[string]interface{}
+			if err := json.NewDecoder(r.Body).Decode(&requestData); err != nil {
+				http.Error(w, "Invalid request body", http.StatusBadRequest)
+				log.Infof("Error execute getAllNodeEndpointDetail endpoint")
+				return
+			}
 
-	// 		// Parse the request body
-	// 		var requestData map[string]interface{}
-	// 		if err := json.NewDecoder(r.Body).Decode(&requestData); err != nil {
-	// 			http.Error(w, "Invalid request body", http.StatusBadRequest)
-	// 			return
-	// 		}
+			// Access the parameters
+			// Ensure we can read requestData["param1"].(string) and log an error if not
+			arg01, ok1 := requestData["param1"].(string)
+			if !ok1 {
+				log.Errorf("<getAllNodeEndpointDetail><E><cannot access param1 of POST API to getAllNodeEndpointDetail endpoint>")
+			}
 
-	// 		// Access the parameters
-	// 		arg01 := requestData["param1"].(string)
-	// 		arg02 := requestData["param2"].(string)
+			// Assertion - ensure we can read requestData["param2"].(string) and log an error if not
+			arg02, ok2 := requestData["param2"].(string)
+			if !ok2 {
+				log.Errorf("<getAllNodeEndpointDetail><E><cannot access param2 of POST API to getAllNodeEndpointDetail endpoint>")
+			}
 
-	// 		log.Infof("clabNetem endpoint called")
+			log.Infof("<getAllNodeEndpointDetail><I><endpoint called>")
+			log.Infof("<getAllNodeEndpointDetail><I><Param1: %s>", arg01)
+			log.Infof("<getAllNodeEndpointDetail><I><Param1: %s>", arg02)
 
-	// 		log.Infof("clabNetem-Param1: %s", arg01)
-	// 		log.Infof("clabNetem-Param2: %s", arg02)
+			// log.Infof("getAllNodeEndpointDetail-Param3: %s", arg03)
 
-	// 		w.WriteHeader(http.StatusOK)
+			// Loading the dataCytoMarshall-{{clab-node-name}}.json
+			dataCytoMarshallPath := path.Join(workingDirectory, fmt.Sprintf("./html-public/%s/dataCytoMarshall-%s.json", cyTopo.ClabTopoDataV2.Name, cyTopo.ClabTopoDataV2.Name))
+			log.Infof("Loading dataCytoMarshall-'%s'.json from: '%s'", cyTopo.ClabTopoDataV2.Name, dataCytoMarshallPath)
 
-	// 		log.Infof("getNodeEndpointDetai  called")
-	// 		log.Info("Interface SNMP Walk id triggered")
+			file, err := os.Open(dataCytoMarshallPath)
+			if err != nil {
+				log.Errorf("<getAllNodeEndpointDetail><E><Error opening dataCytoMarshall-{{clab-node-name}}.json %s>", err)
+				return
+			}
+			defer file.Close()
 
-	// 		nodeEndpointDetailSource, _ := cyTopo.SendSnmpGetNodeEndpoint(arg01, "public", gosnmp.Version2c)
-	// 		// w.Write(nodeEndpointDetailSource)
+			// Read the file contents
+			byteValue, err := io.ReadAll(file)
+			if err != nil {
+				log.Errorf("<getAllNodeEndpointDetail><E><Error reading dataCytoMarshall-{{clab-node-name}}.json %s>", err)
+				return
+			}
 
-	// 		nodeEndpointDetailTarget, _ := cyTopo.SendSnmpGetNodeEndpoint(arg02, "public", gosnmp.Version2c)
-	// 		// w.Write(nodeEndpointDetailTarget)
+			// load dataCytoMarshall-{{lab-name}}.json
+			var cytoElements []topoengine.CytoJson
+			err = json.Unmarshal(byteValue, &cytoElements)
+			if err != nil {
+				log.Errorf("<getAllNodeEndpointDetail><E><Error unmarshal dataCytoMarshall-{{clab-node-name}}.json %s>", err)
+				return
+			}
 
+			// build list of nodes
+			var nodeSrosList []string
 
-	// 	})
+			for _, cytoElementNode := range cytoElements {
+				if cytoElementNode.Group == "nodes" {
+					if extraData, ok := cytoElementNode.Data.ExtraData.(map[string]interface{}); ok {
+						if kind, ok := extraData["kind"].(string); ok {
+							if kind == "vr-sros" {
+								nodeSrosList = append(nodeSrosList, extraData["longname"].(string))
+							}
+						}
+					}
+				}
+			}
+			log.Infof("<getAllNodeEndpointDetail><I><List of SROS node as input for snmp-walk: %s>", nodeSrosList)
+
+			// build list of Node PortInfo map with snmpWalk
+			nodesPortInfo := make(map[string][]topoengine.PortInfo)
+
+			for _, nodeSros := range nodeSrosList {
+				log.Infof("<getAllNodeEndpointDetail><I><Attempt snmpwalk to %s...>", nodeSros)
+
+				_, sourceNodeSnmpWalkIfList, _ := cyTopo.SendSnmpGetNodeEndpoint(nodeSros, "public", gosnmp.Version2c)
+				for key, interfaces := range sourceNodeSnmpWalkIfList { // combining map from sourceNodeSnmpWalkIfList
+					nodesPortInfo[key] = append(nodesPortInfo[key], interfaces...)
+				}
+			}
+
+			sampleNodePortInfoString := "clab-nokia-ServiceProvider-R07-PE-ASBR"
+			if len(nodesPortInfo[sampleNodePortInfoString]) > 0 {
+				nodesPortInfoJSON, err := json.MarshalIndent(nodesPortInfo[sampleNodePortInfoString][0], "", "  ")
+				if err != nil {
+					log.Debugf("<getAllNodeEndpointDetail><D><Error pretty printing JSON:: %s>", err)
+					return
+				}
+				log.Debugf("<getAllNodeEndpointDetail><D><nodesPortInfoJSON: %s>", nodesPortInfoJSON)
+			} else {
+				log.Debugf("<getAllNodeEndpointDetail><D><sampleNodePortInfoString %s does not have NodePortInfoString, could be snmpwalk to this node has failed...>", sampleNodePortInfoString)
+			}
+
+			// time=2024-06-16T21:44:12Z level=info msg={
+			// 	"nodeName": "clab-nokia-ServiceProvider-R07-PE-ASBR",
+			// 	"ifName": "1/1/1",
+			// 	"ifDescription": "1/1/1, 10/100/Gig Ethernet SFP, \"IP-PTP-010.007.010.001/29\"",
+			// 	"ifPhysAddress": "0C:00:D4:1E:56:01",
+			// 	"ifMtu": "8704",
+			// 	"ifType": "ethernet-csmacd",
+			// 	"ifAdminStatus": "up",
+			// 	"ifOperStatus": "up",
+			// 	"ifExtraField": ""
+			//   }
+
+			// jsonBytesCytoUiBeforeSnmpwalk, err := json.MarshalIndent(cytoElements, "", "  ")
+			// if err != nil {
+			// 	log.Error(err)
+			// 	panic(err)
+			// }
+			// log.Info("jsonBytesCytoUiBeforeSnmpwalk Result:", string(jsonBytesCytoUiBeforeSnmpwalk))
+
+			for i, cytoElement := range cytoElements {
+				if cytoElement.Group == "edges" {
+
+					log.Infof("<getAllNodeEndpointDetail><I><Edge id %s>", cytoElement.Data.ID)
+
+					extraData := cytoElement.Data.ExtraData.(map[string]interface{})
+
+					log.Debugf("<getAllNodeEndpointDetail><D><########### Before snmpwalk ><###########>")
+					log.Debugf("<getAllNodeEndpointDetail><D><clabSourceLongName: %s", extraData["clabSourceLongName"].(string))
+					log.Debugf("<getAllNodeEndpointDetail><D><clabSourceLongName: %s>", extraData["clabSourceLongName"].(string))
+					log.Debugf("<getAllNodeEndpointDetail><D><sourceEndpoint: %s>", cytoElement.Data.SourceEndpoint)
+					log.Debugf("<getAllNodeEndpointDetail><D><clabTargetLongName: %s>", extraData["clabTargetLongName"].(string))
+					log.Debugf("<getAllNodeEndpointDetail><D><targetEndpoint: %s>", cytoElement.Data.TargetEndpoint)
+
+					for _, nodeSros := range nodeSrosList {
+						clabSourceLongName := extraData["clabSourceLongName"].(string)
+						log.Infof("<getAllNodeEndpointDetail><D><clabSourceLongName: %s>", clabSourceLongName)
+
+						if clabSourceLongName == nodeSros && len(nodesPortInfo[clabSourceLongName]) > 0 {
+							SourceEndpointPortIndexStr := strings.TrimPrefix(cytoElement.Data.SourceEndpoint, "eth")
+							SourceEndpointPortIndexInt, _ := strconv.Atoi(SourceEndpointPortIndexStr)
+							cytoElement.Data.SourceEndpoint = nodesPortInfo[clabSourceLongName][SourceEndpointPortIndexInt-1].IfName
+
+							log.Debugf("<getAllNodeEndpointDetail><D><NEW cytoElement.Data.SourceEndpoint: %s>", cytoElement.Data.SourceEndpoint)
+
+							cytoElements[i] = cytoElement
+
+						}
+
+						clabTargetLongName := extraData["clabTargetLongName"].(string)
+						log.Infof("<getAllNodeEndpointDetail><D><clabTargetLongName: %s>", clabTargetLongName)
+
+						if clabTargetLongName == nodeSros && len(nodesPortInfo[clabTargetLongName]) > 0 {
+							TargetEndpointPortIndexStr := strings.TrimPrefix(cytoElement.Data.TargetEndpoint, "eth")
+							TargetEndpointPortIndexInt, _ := strconv.Atoi(TargetEndpointPortIndexStr)
+							cytoElement.Data.TargetEndpoint = nodesPortInfo[clabTargetLongName][TargetEndpointPortIndexInt-1].IfName
+
+							log.Debugf("<getAllNodeEndpointDetail><D><NEW cytoElement.Data.TargetEndpoint: %s>", cytoElement.Data.TargetEndpoint)
+
+							cytoElements[i] = cytoElement
+
+						}
+					}
+
+					log.Debugf("<getAllNodeEndpointDetail><D><########### After snmpwalk ><###########>")
+					log.Debugf("<getAllNodeEndpointDetail><D><clabSourceLongName: %s", extraData["clabSourceLongName"].(string))
+					log.Debugf("<getAllNodeEndpointDetail><D><clabSourceLongName: %s>", extraData["clabSourceLongName"].(string))
+					log.Debugf("<getAllNodeEndpointDetail><D><sourceEndpoint: %s>", cytoElement.Data.SourceEndpoint)
+					log.Debugf("<getAllNodeEndpointDetail><D><clabTargetLongName: %s>", extraData["clabTargetLongName"].(string))
+					log.Debugf("<getAllNodeEndpointDetail><D><targetEndpoint: %s>", cytoElement.Data.TargetEndpoint)
+
+					log.Infof("<getAllNodeEndpointDetail><D><cytoElement: %v>", cytoElement)
+
+				}
+			}
+
+			jsonBytesCytoUiAfterSnmpwalk, err := json.MarshalIndent(cytoElements, "", "  ")
+			if err != nil {
+				log.Error(err)
+				panic(err)
+			}
+			log.Infof("<getAllNodeEndpointDetail><D><jsonBytesCytoUiAfterSnmpwalk Result: %v", string(jsonBytesCytoUiAfterSnmpwalk))
+			cyTopo.PrintjsonBytesCytoUiV2(jsonBytesCytoUiAfterSnmpwalk)
+
+			// w.Write([]byte(VersionInfo))          // send modifiedJSON as response to browser
+
+			// w.Write([]byte("ok"))
+
+			// w.WriteHeader(http.StatusOK)
+			w.Write(jsonBytesCytoUiAfterSnmpwalk) // send modifiedJSON as response to browser
+
+		})
+
+	router.HandleFunc("/reload",
+
+		func(w http.ResponseWriter, r *http.Request) {
+			// Perform your operations here...
+
+			// Send a response that includes JavaScript to reload the page
+			w.Header().Set("Content-Type", "text/html")
+			fmt.Fprintf(w, `
+				<html>
+				<head>
+					<script type="text/javascript">
+						window.onload = function() {
+							window.location.reload();
+						}
+					</script>
+				</head>
+				<body>
+					<p>Reloading...</p>
+				</body>
+				</html>
+			`)
+		})
 
 	// // websocket endpoint
 	// // websocket endpoint
@@ -674,8 +844,6 @@ func Clab(_ *cobra.Command, _ []string) error {
 					for _, n := range cyTopo.ClabTopoDataV2.Nodes {
 						// get docker status via unix socket
 						x, err := cyTopo.GetDockerNodeStatusViaUnixSocket(n.Longname, clabHost[0])
-
-						// SendSnmpToNodeWalk("snmp", n.Longname, "private", snmp.Version2c)
 
 						if err != nil {
 							log.Error(err)
@@ -810,6 +978,7 @@ func Clab(_ *cobra.Command, _ []string) error {
 			}
 		}).Methods("POST")
 
+	// starting HTTP server
 	// this is the endpoint for serving xterm.js assets
 	depenenciesDirectorXterm := path.Join(workingDirectory, "./html-static/cloudshell/node_modules")
 	router.PathPrefix("/assets").Handler(http.StripPrefix("/assets", http.FileServer(http.Dir(depenenciesDirectorXterm))))
