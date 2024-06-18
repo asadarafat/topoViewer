@@ -529,18 +529,18 @@ func Clab(_ *cobra.Command, _ []string) error {
 			// Ensure we can read requestData["param1"].(string) and log an error if not
 			arg01, ok1 := requestData["param1"].(string)
 			if !ok1 {
-				log.Errorf("<getAllNodeEndpointDetail><E><cannot access param1 of POST API to getAllNodeEndpointDetail endpoint>")
+				log.Errorf("<go_cloudshellwrapper><E>getAllNodeEndpointDetail - cannot access param1 of POST API to getAllNodeEndpointDetail endpoint>")
 			}
 
 			// Assertion - ensure we can read requestData["param2"].(string) and log an error if not
 			arg02, ok2 := requestData["param2"].(string)
 			if !ok2 {
-				log.Errorf("<getAllNodeEndpointDetail><E><cannot access param2 of POST API to getAllNodeEndpointDetail endpoint>")
+				log.Errorf("<go_cloudshellwrapper><E>getAllNodeEndpointDetail - cannot access param2 of POST API to getAllNodeEndpointDetail endpoint>")
 			}
 
-			log.Infof("<getAllNodeEndpointDetail><I><endpoint called>")
-			log.Infof("<getAllNodeEndpointDetail><I><Param1: %s>", arg01)
-			log.Infof("<getAllNodeEndpointDetail><I><Param1: %s>", arg02)
+			log.Infof("<go_cloudshellwrapper><I>getAllNodeEndpointDetail - endpoint called>")
+			log.Infof("<go_cloudshellwrapper><I>getAllNodeEndpointDetail - Param1: %s>", arg01)
+			log.Infof("<go_cloudshellwrapper><I>getAllNodeEndpointDetail - Param1: %s>", arg02)
 
 			// log.Infof("getAllNodeEndpointDetail-Param3: %s", arg03)
 
@@ -550,7 +550,7 @@ func Clab(_ *cobra.Command, _ []string) error {
 
 			file, err := os.Open(dataCytoMarshallPath)
 			if err != nil {
-				log.Errorf("<getAllNodeEndpointDetail><E><Error opening dataCytoMarshall-{{clab-node-name}}.json %s>", err)
+				log.Errorf("<go_cloudshellwrapper><E>getAllNodeEndpointDetail - Error opening dataCytoMarshall-{{clab-node-name}}.json %s>", err)
 				return
 			}
 			defer file.Close()
@@ -558,7 +558,7 @@ func Clab(_ *cobra.Command, _ []string) error {
 			// Read the file contents
 			byteValue, err := io.ReadAll(file)
 			if err != nil {
-				log.Errorf("<getAllNodeEndpointDetail><E><Error reading dataCytoMarshall-{{clab-node-name}}.json %s>", err)
+				log.Errorf("<go_cloudshellwrapper><E>getAllNodeEndpointDetail - Error reading dataCytoMarshall-{{clab-node-name}}.json %s>", err)
 				return
 			}
 
@@ -566,7 +566,7 @@ func Clab(_ *cobra.Command, _ []string) error {
 			var cytoElements []topoengine.CytoJson
 			err = json.Unmarshal(byteValue, &cytoElements)
 			if err != nil {
-				log.Errorf("<getAllNodeEndpointDetail><E><Error unmarshal dataCytoMarshall-{{clab-node-name}}.json %s>", err)
+				log.Errorf("<go_cloudshellwrapper><E>getAllNodeEndpointDetail - Error unmarshal dataCytoMarshall-{{clab-node-name}}.json %s>", err)
 				return
 			}
 
@@ -584,13 +584,13 @@ func Clab(_ *cobra.Command, _ []string) error {
 					}
 				}
 			}
-			log.Infof("<getAllNodeEndpointDetail><I><List of SROS node as input for snmp-walk: %s>", nodeSrosList)
+			log.Infof("<go_cloudshellwrapper><I>getAllNodeEndpointDetail - List of SROS node as input for snmp-walk: %s>", nodeSrosList)
 
 			// build list of Node PortInfo map with snmpWalk
 			nodesPortInfo := make(map[string][]topoengine.PortInfo)
 
 			for _, nodeSros := range nodeSrosList {
-				log.Infof("<getAllNodeEndpointDetail><I><Attempt snmpwalk to %s...>", nodeSros)
+				log.Infof("<go_cloudshellwrapper><I>getAllNodeEndpointDetail - Attempt snmpwalk to %s...>", nodeSros)
 
 				_, sourceNodeSnmpWalkIfList, _ := cyTopo.SendSnmpGetNodeEndpoint(nodeSros, "public", gosnmp.Version2c)
 				for key, interfaces := range sourceNodeSnmpWalkIfList { // combining map from sourceNodeSnmpWalkIfList
@@ -602,12 +602,12 @@ func Clab(_ *cobra.Command, _ []string) error {
 			if len(nodesPortInfo[sampleNodePortInfoString]) > 0 {
 				nodesPortInfoJSON, err := json.MarshalIndent(nodesPortInfo[sampleNodePortInfoString][0], "", "  ")
 				if err != nil {
-					log.Debugf("<getAllNodeEndpointDetail><D><Error pretty printing JSON:: %s>", err)
+					log.Debugf("<go_cloudshellwrapper><D>getAllNodeEndpointDetail - Error pretty printing JSON:: %s>", err)
 					return
 				}
-				log.Debugf("<getAllNodeEndpointDetail><D><nodesPortInfoJSON: %s>", nodesPortInfoJSON)
+				log.Debugf("<go_cloudshellwrapper><D>getAllNodeEndpointDetail - nodesPortInfoJSON: %s>", nodesPortInfoJSON)
 			} else {
-				log.Debugf("<getAllNodeEndpointDetail><D><sampleNodePortInfoString %s does not have NodePortInfoString, could be snmpwalk to this node has failed...>", sampleNodePortInfoString)
+				log.Debugf("<go_cloudshellwrapper><D>getAllNodeEndpointDetail - sampleNodePortInfoString %s does not have NodePortInfoString, could be snmpwalk to this node has failed...>", sampleNodePortInfoString)
 			}
 
 			// time=2024-06-16T21:44:12Z level=info msg={
@@ -632,55 +632,55 @@ func Clab(_ *cobra.Command, _ []string) error {
 			for i, cytoElement := range cytoElements {
 				if cytoElement.Group == "edges" {
 
-					log.Infof("<getAllNodeEndpointDetail><I><Edge id %s>", cytoElement.Data.ID)
+					log.Infof("<go_cloudshellwrapper><I>getAllNodeEndpointDetail - Edge id %s>", cytoElement.Data.ID)
 
 					extraData := cytoElement.Data.ExtraData.(map[string]interface{})
 
-					log.Debugf("<getAllNodeEndpointDetail><D><########### Before snmpwalk ><###########>")
-					log.Debugf("<getAllNodeEndpointDetail><D><clabSourceLongName: %s", extraData["clabSourceLongName"].(string))
-					log.Debugf("<getAllNodeEndpointDetail><D><clabSourceLongName: %s>", extraData["clabSourceLongName"].(string))
-					log.Debugf("<getAllNodeEndpointDetail><D><sourceEndpoint: %s>", cytoElement.Data.SourceEndpoint)
-					log.Debugf("<getAllNodeEndpointDetail><D><clabTargetLongName: %s>", extraData["clabTargetLongName"].(string))
-					log.Debugf("<getAllNodeEndpointDetail><D><targetEndpoint: %s>", cytoElement.Data.TargetEndpoint)
+					log.Debugf("<go_cloudshellwrapper><D>getAllNodeEndpointDetail - ########### Before snmpwalk ><###########>")
+					log.Debugf("<go_cloudshellwrapper><D>getAllNodeEndpointDetail - clabSourceLongName: %s", extraData["clabSourceLongName"].(string))
+					log.Debugf("<go_cloudshellwrapper><D>getAllNodeEndpointDetail - clabSourceLongName: %s>", extraData["clabSourceLongName"].(string))
+					log.Debugf("<go_cloudshellwrapper><D>getAllNodeEndpointDetail - sourceEndpoint: %s>", cytoElement.Data.SourceEndpoint)
+					log.Debugf("<go_cloudshellwrapper><D>getAllNodeEndpointDetail - clabTargetLongName: %s>", extraData["clabTargetLongName"].(string))
+					log.Debugf("<go_cloudshellwrapper><D>getAllNodeEndpointDetail - targetEndpoint: %s>", cytoElement.Data.TargetEndpoint)
 
 					for _, nodeSros := range nodeSrosList {
 						clabSourceLongName := extraData["clabSourceLongName"].(string)
-						log.Infof("<getAllNodeEndpointDetail><D><clabSourceLongName: %s>", clabSourceLongName)
+						log.Infof("<go_cloudshellwrapper><D>getAllNodeEndpointDetail - clabSourceLongName: %s>", clabSourceLongName)
 
 						if clabSourceLongName == nodeSros && len(nodesPortInfo[clabSourceLongName]) > 0 {
 							SourceEndpointPortIndexStr := strings.TrimPrefix(cytoElement.Data.SourceEndpoint, "eth")
 							SourceEndpointPortIndexInt, _ := strconv.Atoi(SourceEndpointPortIndexStr)
 							cytoElement.Data.SourceEndpoint = nodesPortInfo[clabSourceLongName][SourceEndpointPortIndexInt-1].IfName
 
-							log.Debugf("<getAllNodeEndpointDetail><D><NEW cytoElement.Data.SourceEndpoint: %s>", cytoElement.Data.SourceEndpoint)
+							log.Debugf("<go_cloudshellwrapper><D>getAllNodeEndpointDetail - NEW cytoElement.Data.SourceEndpoint: %s>", cytoElement.Data.SourceEndpoint)
 
 							cytoElements[i] = cytoElement
 
 						}
 
 						clabTargetLongName := extraData["clabTargetLongName"].(string)
-						log.Infof("<getAllNodeEndpointDetail><D><clabTargetLongName: %s>", clabTargetLongName)
+						log.Infof("<go_cloudshellwrapper><D>getAllNodeEndpointDetail - clabTargetLongName: %s>", clabTargetLongName)
 
 						if clabTargetLongName == nodeSros && len(nodesPortInfo[clabTargetLongName]) > 0 {
 							TargetEndpointPortIndexStr := strings.TrimPrefix(cytoElement.Data.TargetEndpoint, "eth")
 							TargetEndpointPortIndexInt, _ := strconv.Atoi(TargetEndpointPortIndexStr)
 							cytoElement.Data.TargetEndpoint = nodesPortInfo[clabTargetLongName][TargetEndpointPortIndexInt-1].IfName
 
-							log.Debugf("<getAllNodeEndpointDetail><D><NEW cytoElement.Data.TargetEndpoint: %s>", cytoElement.Data.TargetEndpoint)
+							log.Debugf("<go_cloudshellwrapper><D>getAllNodeEndpointDetail - NEW cytoElement.Data.TargetEndpoint: %s>", cytoElement.Data.TargetEndpoint)
 
 							cytoElements[i] = cytoElement
 
 						}
 					}
 
-					log.Debugf("<getAllNodeEndpointDetail><D><########### After snmpwalk ><###########>")
-					log.Debugf("<getAllNodeEndpointDetail><D><clabSourceLongName: %s", extraData["clabSourceLongName"].(string))
-					log.Debugf("<getAllNodeEndpointDetail><D><clabSourceLongName: %s>", extraData["clabSourceLongName"].(string))
-					log.Debugf("<getAllNodeEndpointDetail><D><sourceEndpoint: %s>", cytoElement.Data.SourceEndpoint)
-					log.Debugf("<getAllNodeEndpointDetail><D><clabTargetLongName: %s>", extraData["clabTargetLongName"].(string))
-					log.Debugf("<getAllNodeEndpointDetail><D><targetEndpoint: %s>", cytoElement.Data.TargetEndpoint)
+					log.Debugf("<go_cloudshellwrapper><D>getAllNodeEndpointDetail - ########### After snmpwalk ><###########>")
+					log.Debugf("<go_cloudshellwrapper><D>getAllNodeEndpointDetail - clabSourceLongName: %s", extraData["clabSourceLongName"].(string))
+					log.Debugf("<go_cloudshellwrapper><D>getAllNodeEndpointDetail - clabSourceLongName: %s>", extraData["clabSourceLongName"].(string))
+					log.Debugf("<go_cloudshellwrapper><D>getAllNodeEndpointDetail - sourceEndpoint: %s>", cytoElement.Data.SourceEndpoint)
+					log.Debugf("<go_cloudshellwrapper><D>getAllNodeEndpointDetail - clabTargetLongName: %s>", extraData["clabTargetLongName"].(string))
+					log.Debugf("<go_cloudshellwrapper><D>getAllNodeEndpointDetail - targetEndpoint: %s>", cytoElement.Data.TargetEndpoint)
 
-					log.Infof("<getAllNodeEndpointDetail><D><cytoElement: %v>", cytoElement)
+					log.Infof("<go_cloudshellwrapper><D>getAllNodeEndpointDetail - cytoElement: %v>", cytoElement)
 
 				}
 			}
@@ -690,7 +690,7 @@ func Clab(_ *cobra.Command, _ []string) error {
 				log.Error(err)
 				panic(err)
 			}
-			log.Infof("<getAllNodeEndpointDetail><D><jsonBytesCytoUiAfterSnmpwalk Result: %v", string(jsonBytesCytoUiAfterSnmpwalk))
+			log.Infof("<go_cloudshellwrapper><D>getAllNodeEndpointDetail - jsonBytesCytoUiAfterSnmpwalk Result: %v", string(jsonBytesCytoUiAfterSnmpwalk))
 			cyTopo.PrintjsonBytesCytoUiV2(jsonBytesCytoUiAfterSnmpwalk)
 
 			// w.Write([]byte(VersionInfo))          // send modifiedJSON as response to browser
@@ -949,7 +949,9 @@ func Clab(_ *cobra.Command, _ []string) error {
 
 			} else {
 				// call function to run SSH commnd
-				returnData, err := cyTopo.RunSSHCommand(clabUser, clabHost[0], clabPass, command)
+				// returnData, err := cyTopo.RunSSHCommand(clabUser, clabHost[0], clabPass, command)
+
+				returnData, err := tools.SshSudo(clabHost[0], "22", clabUser, clabPass, command)
 
 				// Create a response JSON object
 				responseData := map[string]interface{}{

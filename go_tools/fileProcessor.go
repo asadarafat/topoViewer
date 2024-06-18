@@ -1,8 +1,8 @@
 package tools
 
 import (
-	"io/ioutil"
 	"log"
+	"os"
 )
 
 func CopyFileCheckErr(err error) {
@@ -13,10 +13,10 @@ func CopyFileCheckErr(err error) {
 
 func CopyFile(source string, destination string) {
 	// Read all content of src to data, may cause OOM for a large file.
-	data, err := ioutil.ReadFile(source)
+	data, err := os.ReadFile(source)
 	CopyFileCheckErr(err)
 	// Write data to dst
-	err = ioutil.WriteFile(destination, data, 0644)
+	err = os.WriteFile(destination, data, 0644)
 	CopyFileCheckErr(err)
 }
 

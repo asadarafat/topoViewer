@@ -646,14 +646,14 @@ func (cyTopo *CytoTopology) SendSnmpGetNodeEndpoint(targetAddress string, target
 
 		err := g.Connect()
 		if err != nil {
-			log.Errorf("<SendSnmpGetNodeEndpoint><E><Connect() to %s with OID %s error: %v>", targetAddress, rootOID, err)
+			log.Errorf("<adaptorClabV2><E><Connect() to %s with OID %s error: %v>", targetAddress, rootOID, err)
 
 		}
 		defer g.Conn.Close()
 
 		result, err := g.WalkAll(rootOID)
 		if err != nil {
-			log.Errorf("<SendSnmpGetNodeEndpoint><E><WalkAll() to %s with OID %s error: %v>", targetAddress, rootOID, err)
+			log.Errorf("<adaptorClabV2><E><WalkAll() to %s with OID %s error: %v>", targetAddress, rootOID, err)
 
 		}
 

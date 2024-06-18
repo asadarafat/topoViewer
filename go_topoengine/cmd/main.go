@@ -3,11 +3,9 @@ package main
 import (
 	// tools "github.com/asadarafat/topoViewer/go_tools"
 	"bufio"
-	"fmt"
 	"io"
 	"log"
 	"net"
-	"os/exec"
 	"strings"
 
 	tools "github.com/asadarafat/topoViewer/go_tools"
@@ -926,29 +924,40 @@ func main() {
 
 	// cytoUiGo.GetDockerNodeStatusViaUnixSocket("clab-3tierSmall-dcgw-1", "localhost")
 
-	// Command to execute the Python script
-	cmd := exec.Command("python3", "./html-static/actions/exampleScript.py", "arg1", "arg2")
-	// cmd := exec.Command("whoami")
+	var neHost = "149.204.21.68"
+	var nePort = "22"
+	var neUser = "aarafat"
+	var nePass = "!Wulandar100"
+	var cmd1 = "sudo clab inspect --all"
 
-	// Capture standard output and error
-	out, err := cmd.CombinedOutput()
-	if err != nil {
-		log.Fatalf("Failed to execute Python script: %v", err)
-	}
+	// // Command to execute the Python script
+	// cmd := exec.Command("python3", "./html-static/actions/exampleScript.py", "arg1", "arg2")
+	// // cmd := exec.Command("whoami")
 
-	// Print the output
-	fmt.Printf("Python script output:\n%s\n", out)
+	// // Capture standard output and error
+	// out, err := cmd.CombinedOutput()
+	// if err != nil {
+	// 	log.Fatalf("Failed to execute Python script: %v", err)
+	// }
 
-	// ssh refers to the custom package above
-	conn, err := Connect("149.204.21.68:22", "suuser", "Lab-Her0")
-	if err != nil {
-		log.Fatal(err)
-	}
+	// // Print the output
+	// fmt.Printf("Python script output:\n%s\n", out)
 
-	output, err := conn.SendCommands("sudo clab inspect --all", "sudo clab inspect --all")
-	if err != nil {
-		log.Fatal(err)
-	}
+	// // ssh refers to the custom package above
+	// conn, err := Connect(neHost+":"+nePort, neUser, nePass)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
 
-	fmt.Println(string(output))
+	// output, err := conn.SendCommands("sudo clab inspect --all", "sudo /usr/bin/containerlab tools netem set -n clab-nokia-ServiceProvider-R06-PE-ASBR -i eth3 --delay 5000ms --jitter 0ms --rate 0 --loss 0")
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+
+	// fmt.Println(string(output))
+
+	tools.SshSudo(neHost, nePort, neUser, nePass, cmd1)
+
+	////
+
 }

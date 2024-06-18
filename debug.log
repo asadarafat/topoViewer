@@ -1,56 +1,75 @@
-time=2024-06-17T20:05:13Z level=info msg=Yo, this app is running with sudo access (as root).
-time=2024-06-17T20:05:13Z level=info msg======= Start up Parameter ======
-time=2024-06-17T20:05:13Z level=info
-time=2024-06-17T20:05:13Z level=info msg=TopoViewer Version		: 'nightly-24.02.11'
-time=2024-06-17T20:05:13Z level=info msg=topology file			: '/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/topology-data.json'
-time=2024-06-17T20:05:13Z level=info msg=depyloyment type			: container
-time=2024-06-17T20:05:13Z level=info msg=working directory		: '/home/aarafat/topoViewer'
-time=2024-06-17T20:05:13Z level=info msg=command					: '/bin/bash'
-time=2024-06-17T20:05:13Z level=info msg=arguments				: ['']
-time=2024-06-17T20:05:13Z level=info msg=allowed hosts			: ['149.204.21.68']
-time=2024-06-17T20:05:13Z level=info msg=connection error limit	: 10
-time=2024-06-17T20:05:13Z level=info msg=keepalive ping timeout	: 20s
-time=2024-06-17T20:05:13Z level=info msg=max buffer size			: 512 bytes
-time=2024-06-17T20:05:13Z level=info msg=server address			: '0.0.0.0' 
-time=2024-06-17T20:05:13Z level=info msg=server port				: 8087
-time=2024-06-17T20:05:13Z level=info msg=liveness checks path		: '/healthz'
-time=2024-06-17T20:05:13Z level=info msg=readiness checks path	: '/readyz'
-time=2024-06-17T20:05:13Z level=info msg=metrics endpoint path	: '/metrics'
-time=2024-06-17T20:05:13Z level=info msg=xtermjs endpoint path	: '/xterm.js'
-time=2024-06-17T20:05:13Z level=info msg======= Start up Parameter ======
-time=2024-06-17T20:05:13Z level=info
-time=2024-06-17T20:05:13Z level=info msg=ClabTopoRead topology absolute file path: '/home/aarafat/topoViewer/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/topology-data.json'
-time=2024-06-17T20:05:13Z level=info msg={nokia-ServiceProvider container}
-time=2024-06-17T20:05:13Z level=info msg={nokia-ServiceProvider container}
-time=2024-06-17T20:05:13Z level=info msg={nokia-ServiceProvider container}
-time=2024-06-17T20:05:13Z level=info msg={nokia-ServiceProvider container}
-time=2024-06-17T20:05:13Z level=info msg={nokia-ServiceProvider container}
-time=2024-06-17T20:05:13Z level=info msg={nokia-ServiceProvider container}
-time=2024-06-17T20:05:13Z level=info msg={nokia-ServiceProvider container}
-time=2024-06-17T20:05:13Z level=info msg={nokia-ServiceProvider container}
-time=2024-06-17T20:05:13Z level=info msg=starting server on interface:port '0.0.0.0:8087'...
-time=2024-06-17T20:05:18Z level=info msg=request completed in 299.820248ms cookies=[] host=149.204.21.68:8087 method=GET path=/button.html protocol=HTTP/1.1 remote_addr=135.245.48.77:2214 request_url=/button.html user_agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36
-time=2024-06-17T20:05:18Z level=info msg=request completed in 1.272185ms cookies=[] host=149.204.21.68:8087 method=GET path=/css/style.css protocol=HTTP/1.1 remote_addr=135.245.48.77:2231 request_url=/css/style.css user_agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36
-time=2024-06-17T20:05:19Z level=info msg=request completed in 1.693193ms cookies=[] host=149.204.21.68:8087 method=GET path=/images/nokia-logo.png protocol=HTTP/1.1 remote_addr=135.245.48.77:2236 request_url=/images/nokia-logo.png user_agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36
-time=2024-06-17T20:05:20Z level=info msg=request completed in 1.177645ms cookies=[] host=149.204.21.68:8087 method=GET path=/cy-style.json protocol=HTTP/1.1 remote_addr=135.245.48.77:2214 request_url=/cy-style.json user_agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36
-time=2024-06-17T20:05:20Z level=info msg=request completed in 0.917304ms cookies=[] host=149.204.21.68:8087 method=GET path=/dataCytoMarshall-nokia-ServiceProvider.json protocol=HTTP/1.1 remote_addr=135.245.48.77:2231 request_url=/dataCytoMarshall-nokia-ServiceProvider.json user_agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36
-time=2024-06-17T20:05:20Z level=info msg=containerNodeStatus endpoint called
-time=2024-06-17T20:05:20Z level=info msg=clabUser: 'suuser'
-time=2024-06-17T20:05:20Z level=info msg=clabHost: '149.204.21.68'
-time=2024-06-17T20:05:20Z level=info msg=clabPass: 'Lab-Her0'
-time=2024-06-17T20:05:20Z level=info msg=uptime endpoint called
-time=2024-06-17T20:05:20Z level=info msg=clabServerAddress endpoint called, clabHost is 149.204.21.68
-time=2024-06-17T20:05:20Z level=info msg=request completed in 1.014528ms cookies=[] host=149.204.21.68:8087 method=GET path=/clabServerAddress protocol=HTTP/1.1 remote_addr=135.245.48.77:2269 request_url=/clabServerAddress user_agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36
-time=2024-06-17T20:05:21Z level=info msg=request completed in 1.693435ms cookies=[] host=149.204.21.68:8087 method=GET path=/images/clab-pe-light-blue.png protocol=HTTP/1.1 remote_addr=135.245.48.77:2214 request_url=/images/clab-pe-light-blue.png user_agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36
-time=2024-06-17T20:05:21Z level=info msg=request completed in 1.8216ms cookies=[] host=149.204.21.68:8087 method=GET path=/images/clab-pe-dark-blue.png protocol=HTTP/1.1 remote_addr=135.245.48.77:2236 request_url=/images/clab-pe-dark-blue.png user_agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36
-time=2024-06-17T20:05:21Z level=info msg=request completed in 1.855913ms cookies=[] host=149.204.21.68:8087 method=GET path=/images/clab-bridge-light-grey.png protocol=HTTP/1.1 remote_addr=135.245.48.77:2231 request_url=/images/clab-bridge-light-grey.png user_agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36
-time=2024-06-17T20:05:23Z level=info msg=request completed in 0.201878ms cookies=[] host=149.204.21.68:8087 method=GET path=/cy-style.json protocol=HTTP/1.1 remote_addr=135.245.48.77:2236 request_url=/cy-style.json user_agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36
-time=2024-06-17T20:05:26Z level=info msg=clabNetem endpoint called
-time=2024-06-17T20:05:26Z level=info msg=clabNetem-Param1: /usr/bin/containerlab tools netem set -n clab-nokia-ServiceProvider-R06-PE-ASBR -i eth3 --delay 5000ms --jitter 0ms --rate 0 --loss 0
-time=2024-06-17T20:05:26Z level=info msg=clabNetem-Param2: padding
-time=2024-06-17T20:05:26Z level=info msg=clabUser: 'suuser'
-time=2024-06-17T20:05:26Z level=info msg=clabHost: '149.204.21.68'
-time=2024-06-17T20:05:26Z level=info msg=clabPass: 'Lab-Her0'
-time=2024-06-17T20:05:26Z level=info msg=RunSSHCommand Function: '/usr/bin/containerlab tools netem set -n clab-nokia-ServiceProvider-R06-PE-ASBR -i eth3 --delay 5000ms --jitter 0ms --rate 0 --loss 0'
-time=2024-06-17T20:05:26Z level=error msg=failed to run SSH command: Process exited with status 1
-time=2024-06-17T20:05:26Z level=info msg=request completed in 178.702745ms cookies=[] host=149.204.21.68:8087 method=POST path=/clabNetem protocol=HTTP/1.1 remote_addr=135.245.48.77:2236 request_url=/clabNetem user_agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36
+time=2024-06-18T08:13:07Z level=info msg=Yo, this app is running with sudo access (as root).
+time=2024-06-18T08:13:07Z level=info msg======= Start up Parameter ======
+time=2024-06-18T08:13:07Z level=info
+time=2024-06-18T08:13:07Z level=info msg=TopoViewer Version		: 'nightly-24.02.11'
+time=2024-06-18T08:13:07Z level=info msg=topology file			: '/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/topology-data.json'
+time=2024-06-18T08:13:07Z level=info msg=depyloyment type			: container
+time=2024-06-18T08:13:07Z level=info msg=working directory		: '/home/aarafat/topoViewer'
+time=2024-06-18T08:13:07Z level=info msg=command					: '/bin/bash'
+time=2024-06-18T08:13:07Z level=info msg=arguments				: ['']
+time=2024-06-18T08:13:07Z level=info msg=allowed hosts			: ['149.204.21.68']
+time=2024-06-18T08:13:07Z level=info msg=connection error limit	: 10
+time=2024-06-18T08:13:07Z level=info msg=keepalive ping timeout	: 20s
+time=2024-06-18T08:13:07Z level=info msg=max buffer size			: 512 bytes
+time=2024-06-18T08:13:07Z level=info msg=server address			: '0.0.0.0' 
+time=2024-06-18T08:13:07Z level=info msg=server port				: 8087
+time=2024-06-18T08:13:07Z level=info msg=liveness checks path		: '/healthz'
+time=2024-06-18T08:13:07Z level=info msg=readiness checks path	: '/readyz'
+time=2024-06-18T08:13:07Z level=info msg=metrics endpoint path	: '/metrics'
+time=2024-06-18T08:13:07Z level=info msg=xtermjs endpoint path	: '/xterm.js'
+time=2024-06-18T08:13:07Z level=info msg======= Start up Parameter ======
+time=2024-06-18T08:13:07Z level=info
+time=2024-06-18T08:13:07Z level=info msg=ClabTopoRead topology absolute file path: '/home/aarafat/topoViewer/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/topology-data.json'
+time=2024-06-18T08:13:07Z level=info msg={nokia-ServiceProvider container}
+time=2024-06-18T08:13:07Z level=info msg={nokia-ServiceProvider container}
+time=2024-06-18T08:13:07Z level=info msg={nokia-ServiceProvider container}
+time=2024-06-18T08:13:07Z level=info msg={nokia-ServiceProvider container}
+time=2024-06-18T08:13:07Z level=info msg={nokia-ServiceProvider container}
+time=2024-06-18T08:13:07Z level=info msg={nokia-ServiceProvider container}
+time=2024-06-18T08:13:07Z level=info msg={nokia-ServiceProvider container}
+time=2024-06-18T08:13:07Z level=info msg={nokia-ServiceProvider container}
+time=2024-06-18T08:13:07Z level=info msg=starting server on interface:port '0.0.0.0:8087'...
+time=2024-06-18T08:13:15Z level=info msg=request completed in 303.019516ms cookies=[] host=149.204.21.68:8087 method=GET path=/button.html protocol=HTTP/1.1 remote_addr=135.245.48.77:24873 request_url=/button.html user_agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36
+time=2024-06-18T08:13:15Z level=info msg=request completed in 1.122932ms cookies=[] host=149.204.21.68:8087 method=GET path=/css/style.css protocol=HTTP/1.1 remote_addr=135.245.48.77:24879 request_url=/css/style.css user_agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36
+time=2024-06-18T08:13:15Z level=info msg=request completed in 1.419056ms cookies=[] host=149.204.21.68:8087 method=GET path=/images/nokia-logo.png protocol=HTTP/1.1 remote_addr=135.245.48.77:24887 request_url=/images/nokia-logo.png user_agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36
+time=2024-06-18T08:13:16Z level=info msg=request completed in 1.555185ms cookies=[] host=149.204.21.68:8087 method=GET path=/cy-style.json protocol=HTTP/1.1 remote_addr=135.245.48.77:24873 request_url=/cy-style.json user_agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36
+time=2024-06-18T08:13:16Z level=info msg=request completed in 0.941678ms cookies=[] host=149.204.21.68:8087 method=GET path=/dataCytoMarshall-nokia-ServiceProvider.json protocol=HTTP/1.1 remote_addr=135.245.48.77:24879 request_url=/dataCytoMarshall-nokia-ServiceProvider.json user_agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36
+time=2024-06-18T08:13:17Z level=info msg=request completed in 1.19711ms cookies=[] host=149.204.21.68:8087 method=GET path=/favicon.ico protocol=HTTP/1.1 remote_addr=135.245.48.77:24887 request_url=/favicon.ico user_agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36
+time=2024-06-18T08:13:17Z level=info msg=uptime endpoint called
+time=2024-06-18T08:13:17Z level=info msg=clabServerAddress endpoint called, clabHost is 149.204.21.68
+time=2024-06-18T08:13:17Z level=info msg=containerNodeStatus endpoint called
+time=2024-06-18T08:13:17Z level=info msg=request completed in 0.386494ms cookies=[] host=149.204.21.68:8087 method=GET path=/clabServerAddress protocol=HTTP/1.1 remote_addr=135.245.48.77:24906 request_url=/clabServerAddress user_agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36
+time=2024-06-18T08:13:18Z level=info msg=request completed in 1.979259ms cookies=[] host=149.204.21.68:8087 method=GET path=/images/clab-pe-dark-blue.png protocol=HTTP/1.1 remote_addr=135.245.48.77:24873 request_url=/images/clab-pe-dark-blue.png user_agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36
+time=2024-06-18T08:13:18Z level=info msg=request completed in 2.754349ms cookies=[] host=149.204.21.68:8087 method=GET path=/images/clab-bridge-light-grey.png protocol=HTTP/1.1 remote_addr=135.245.48.77:24879 request_url=/images/clab-bridge-light-grey.png user_agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36
+time=2024-06-18T08:13:18Z level=info msg=request completed in 2.390944ms cookies=[] host=149.204.21.68:8087 method=GET path=/images/clab-pe-light-blue.png protocol=HTTP/1.1 remote_addr=135.245.48.77:24887 request_url=/images/clab-pe-light-blue.png user_agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36
+time=2024-06-18T08:13:21Z level=info msg=request completed in 1.24328ms cookies=[] host=149.204.21.68:8087 method=GET path=/cy-style.json protocol=HTTP/1.1 remote_addr=135.245.48.77:24879 request_url=/cy-style.json user_agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36
+time=2024-06-18T08:13:27Z level=info msg=clabNetem endpoint called
+time=2024-06-18T08:13:27Z level=info msg=clabNetem-Param1: /usr/bin/containerlab tools netem set -n clab-nokia-ServiceProvider-R06-PE-ASBR -i eth3 --delay 5000ms --jitter 0ms --rate 0 --loss 0
+time=2024-06-18T08:13:27Z level=info msg=clabNetem-Param2: padding
+time=2024-06-18T08:13:27Z level=info msg=clabUser: 'aarafat'
+time=2024-06-18T08:13:27Z level=info msg=clabHost: '149.204.21.68'
+time=2024-06-18T08:13:27Z level=info msg=clabPass: '!Wulandar100'
+time=2024-06-18T08:13:27Z level=info msg=<tools><E><SshSudo() executing command string: /usr/bin/containerlab tools netem set -n clab-nokia-ServiceProvider-R06-PE-ASBR -i eth3 --delay 5000ms --jitter 0ms --rate 0 --loss 0>
+time=2024-06-18T08:13:27Z level=info msg=<tools><E><SshSudo() excuting command string: [sudo] password for aarafat: 
++-----------+-------+--------+-------------+-------------+
+| Interface | Delay | Jitter | Packet Loss | Rate (kbit) |
++-----------+-------+--------+-------------+-------------+
+| eth3      | 5s    | 0s     | 0.00%       |           0 |
++-----------+-------+--------+-------------+-------------+
+>
+time=2024-06-18T08:13:27Z level=info msg=request completed in 664.742554ms cookies=[] host=149.204.21.68:8087 method=POST path=/clabNetem protocol=HTTP/1.1 remote_addr=135.245.48.77:24879 request_url=/clabNetem user_agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36
+time=2024-06-18T08:13:40Z level=info msg=clabNetem endpoint called
+time=2024-06-18T08:13:40Z level=info msg=clabNetem-Param1: /usr/bin/containerlab tools netem set -n clab-nokia-ServiceProvider-R06-PE-ASBR -i eth3
+time=2024-06-18T08:13:40Z level=info msg=clabNetem-Param2: padding
+time=2024-06-18T08:13:40Z level=info msg=clabUser: 'aarafat'
+time=2024-06-18T08:13:40Z level=info msg=clabHost: '149.204.21.68'
+time=2024-06-18T08:13:40Z level=info msg=clabPass: '!Wulandar100'
+time=2024-06-18T08:13:40Z level=info msg=<tools><E><SshSudo() executing command string: /usr/bin/containerlab tools netem set -n clab-nokia-ServiceProvider-R06-PE-ASBR -i eth3>
+time=2024-06-18T08:13:40Z level=info msg=<tools><E><SshSudo() excuting command string: [sudo] password for aarafat: 
++-----------+-------+--------+-------------+-------------+
+| Interface | Delay | Jitter | Packet Loss | Rate (kbit) |
++-----------+-------+--------+-------------+-------------+
+| eth3      | 0s    | 0s     | 0.00%       |           0 |
++-----------+-------+--------+-------------+-------------+
+>
+time=2024-06-18T08:13:40Z level=info msg=request completed in 654.800203ms cookies=[] host=149.204.21.68:8087 method=POST path=/clabNetem protocol=HTTP/1.1 remote_addr=135.245.48.77:24879 request_url=/clabNetem user_agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36
