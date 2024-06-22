@@ -203,7 +203,6 @@
 								<a id="about" href="#" onclick="showPanelAbout();" class="dropdown-item label has-text-weight-normal is-small py-0">About TopoViewer</a>                      
 								<hr class="dropdown-divider py-0">
 								<a id="getAllEndpointDetail" href="#" onclick="getAllNodeEndpoint(event);" class="dropdown-item label has-text-weight-normal is-small py-0">Action - Get True Endpoint Label</a>     
-								<a id="performNodeActionSaveNodesConfig" href="#" onclick="performNodeActionSaveNodesConfig(event);" class="dropdown-item label has-text-weight-normal is-small py-0">Action - Save Nodes Config</a>     
 								<a id="logMessagesDropdownItem" href="#" onclick="logMessages(event);" class="dropdown-item label has-text-weight-normal is-small py-0">Action - Log Messages</a>       
 								<hr class="dropdown-divider py-0">
 								<a id="clabClientDropdownItem" href="#" onclick="showPanelTopoViewerClient();"        class="dropdown-item label has-text-weight-normal is-small py-0">TopoViewer Helper App</a>                  
