@@ -1207,7 +1207,7 @@ func Clab(_ *cobra.Command, _ []string) error {
 			var requestData map[string]interface{}
 			if err := json.NewDecoder(r.Body).Decode(&requestData); err != nil {
 				http.Error(w, "Invalid request body", http.StatusBadRequest)
-				return
+				log.Error(err)
 			}
 
 			// Access the parameters
@@ -1220,18 +1220,16 @@ func Clab(_ *cobra.Command, _ []string) error {
 			command := requestData["param2"].(string)
 
 			backupDir := fmt.Sprintf(HtmlPublicPrefixPath + cyTopo.ClabTopoDataV2.Name + "/node-backup/" + RouterId)
-			os.Mkdir(backupDir, 0755)
-
-			chownCmd := exec.Command("chown", fmt.Sprintf("%s:%s", clabUser, clabUser), backupDir)
-
-			// Run the chown command
-			var err error
-			err = chownCmd.Run()
+			err := os.Mkdir(backupDir, 0755)
 			if err != nil {
 				log.Error(err)
 			}
 
-			// chmod the node-backup/ folder
+			chownCmd := exec.Command("chown", fmt.Sprintf("%s:%s", clabUser, clabUser), backupDir)
+			err = chownCmd.Run()
+			if err != nil {
+				log.Error(err)
+			}
 
 			returnData, err := tools.Ssh(clabHost[0], "22", clabUser, clabPass, command)
 
