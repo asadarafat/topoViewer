@@ -623,8 +623,8 @@ func (cyTopo *CytoTopology) SendSnmpGetNodeEndpoint(targetAddress string, target
 		Port:      uint16(161),
 		Community: targetCommunity,
 		Version:   targetVersion,
-		Timeout:   time.Duration(2) * time.Second,
-		Retries:   1,
+		Timeout:   time.Duration(500) * time.Millisecond,
+		Retries:   0,
 	}
 
 	printResult := func(format string, values ...interface{}) {
@@ -797,7 +797,7 @@ func (cyTopo *CytoTopology) SendSnmpGetNodeEndpoint(targetAddress string, target
 			default:
 				pduType := pdu.Type
 				// fmt.Printf("iteration %v, %v ", j, i)
-				printResult("DEAFAUT, PDU Type is %s, PDU value is: %d\n", rootOID, pduType, pdu.Value)
+				printResult("DEFAULT, PDU Type is %s, PDU value is: %d\n", rootOID, pduType, pdu.Value)
 			}
 		}
 	}
@@ -806,13 +806,11 @@ func (cyTopo *CytoTopology) SendSnmpGetNodeEndpoint(targetAddress string, target
 	if err != nil {
 		log.Errorf("failed to marshal JSON: %v", err)
 	}
-	log.Debug(string(outputParsedMarshalled))
+	log.Debugf(string(outputParsedMarshalled))
 
 	// Convert nested list to JSON
 	var result []map[string]PortInfo
-
 	nodeMap := make(map[string][]PortInfo)
-
 	newIndex := 0
 
 	for _, item := range nestedList {
@@ -853,7 +851,7 @@ func (cyTopo *CytoTopology) SendSnmpGetNodeEndpoint(targetAddress string, target
 	// Convert result to jsonDataNodeMap string
 	jsonDataNodeMap, err := json.MarshalIndent(nodeMap, "", "    ")
 	if err != nil {
-		fmt.Println("Error:", err)
+		log.Errorf("Error:", err)
 	}
 	log.Debug(string(jsonDataNodeMap))
 	return jsonDataNodeMap, nodeMap, err

@@ -4,182 +4,170 @@
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>TopoViewer</title>
-
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
-		
 		<link href="css/style.css" rel="stylesheet"/>
-
 		<script defer src="https://use.fontawesome.com/releases/v6.4.2/js/all.js"></script>
-		
 		<script defer src="https://cdn.jsdelivr.net/npm/bulma-extensions@4.0.1/bulma-slider/dist/js/bulma-slider.min.js"></script>
 		<script defer src="https://cdnjs.cloudflare.com/ajax/libs/bulma-toast/2.4.0/bulma-toast.min.js"></script>
 		<script defer src="https://cdn.jsdelivr.net/npm/bulma-extensions@4.0.1/bulma-slider/dist/js/bulma-slider.min.js"></script>
-
-
-		
 	</head>
 	<style>
 		body { 
-			font: 12px helvetica neue, helvetica, arial, sans-serif;
+		font: 12px helvetica neue, helvetica, arial, sans-serif;
 		}
 		#edgeLength, #nodeGap {
-			width: 100%;
+		width: 100%;
 		}
 		#cy {
-			position: fixed;
-			left: 0;
-			right: 0em;
-			top: 5em;
-			bottom: 0em;
+		position: fixed;
+		left: 0;
+		right: 0em;
+		top: 5em;
+		bottom: 0em;
 		}
 		#logo {
-			top: 20px; 
-			left: 30px;
-			z-index: 9999;
-			position: absolute;
+		top: 20px; 
+		left: 30px;
+		z-index: 9999;
+		position: absolute;
 		}
 		#Panel-01 {
-			top: 75px; 
-			right: 10px; 
-			width: 340px;
-			max-height: 700px;
-			
-			overflow-y: auto; 
-			overflow-x: hidden; 
-
-
-			position: fixed;
+		top: 75px; 
+		right: 10px; 
+		width: 340px;
+		max-height: 700px;
+		overflow-y: auto; 
+		overflow-x: hidden; 
+		position: fixed;
 		}
 		#Panel-02 {
-			bottom: 5px;
-			left: 10px; 
-			width: 340px; 
-			position: fixed;
+		bottom: 5px;
+		left: 10px; 
+		width: 340px; 
+		position: fixed;
 		}
 		#Panel-03 {
-			bottom: 10px;
-			right: 10px; 
-			width: 340px; 
-			max-height: 340px;
-			overflow-y: auto; 
-			position: fixed;
+		bottom: 10px;
+		right: 10px; 
+		width: 340px; 
+		max-height: 340px;
+		overflow-y: auto; 
+		position: fixed;
 		}
 		#ViewPortButtons {
-			top: 75px; 
-			left: 10px; 
-			position: fixed;
+		top: 75px; 
+		left: 10px; 
+		position: fixed;
 		}
 		.ViewPortDrawer {
-			top: 75px; 
-			left: 60px;
-			max-width: 250px;
-			position: fixed;
+		top: 75px; 
+		left: 60px;
+		max-width: 250px;
+		position: fixed;
 		}
 		.has-background-4a {
-			background-color: #275bd4;
-			z-index: 9999;
-			box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.4);
+		background-color: #275bd4;
+		z-index: 9999;
+		box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.4);
 		}
 		.custom-slider {
-			height: 10px;  
+		height: 10px;  
 		}
-   
 		input[type="range"]::-moz-range-thumb {
-			width: 5px;  
-			height: 5px;  
-			background-color: #007bff;  
-			border: 2px solid #007bff;  
-			border-radius: 10%;  
-			cursor: pointer;  
+		width: 5px;  
+		height: 5px;  
+		background-color: #007bff;  
+		border: 2px solid #007bff;  
+		border-radius: 10%;  
+		cursor: pointer;  
 		}
 		input[type="range"]::-moz-range-track {
-			width: 100%;  
-			height: 3px;  
-			background-color: #ccc;  
-			border-radius: 5px;  
+		width: 100%;  
+		height: 3px;  
+		background-color: #ccc;  
+		border-radius: 5px;  
 		}
 		.column {
-			background-color: white;  
+		background-color: white;  
 		}
 		.panel-tabs {
-			background-color: white;  
+		background-color: white;  
 		}
 		.panel-tabContainer {
-			background-color: white;
-			padding: 0px 0px 0px 0px;  
+		background-color: white;
+		padding: 0px 0px 0px 0px;  
 		}
 		.panel-block {
-			background-color: white;  
-			padding: 0px 0px 0px 0px;  
+		background-color: white;  
+		padding: 0px 0px 0px 0px;  
 		}
 		.is-smallest {
-            font-size: 10px;  
-          }
-        .is-smaller {
-            font-size: 12.5px;  
-          }
+		font-size: 10px;  
+		}
+		.is-smaller {
+		font-size: 12.5px;  
+		}
 		.is-smallish {
-            font-size: 13px; 
-          }
-        .is-smallest-element {
-            font-size: 11px;  
-            padding: 0px 8px;  
-			height: 24px;
-        }
-        .vertical-align-top {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;  
-            padding-top: 0
-        }
-        .spacing-button {
-            background-color: white;
-        }
+		font-size: 13px; 
+		}
+		.is-smallest-element {
+		font-size: 11px;  
+		padding: 0px 8px;  
+		height: 24px;
+		}
+		.vertical-align-top {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;  
+		padding-top: 0
+		}
+		.spacing-button {
+		background-color: white;
+		}
 		.button {
-			height: 24px;
+		height: 24px;
 		}
 		.button-modal {
-			height: 30px;
+		height: 30px;
 		}
 		.input {
-			height: 24px;
+		height: 24px;
 		}
 		.link-impairment-widht {
-			width: 190px;
-			white-space: wrap;
+		width: 190px;
+		white-space: wrap;
 		}
 		.drawer-box-input-widht {
-			width: 100px;
-			white-space: nowrap;
+		width: 100px;
+		white-space: nowrap;
 		}
 		.with-outline {
-			position: relative;  
+		position: relative;  
 		}
 		.with-outline::before {
-			content: '';  
-			position: absolute;  
-			bottom: 0;  
-			left: 0;  
-			width: 100%;  
-			border-bottom: 2px solid #3498db;  
-			pointer-events: none;  
+		content: '';  
+		position: absolute;  
+		bottom: 0;  
+		left: 0;  
+		width: 100%;  
+		border-bottom: 2px solid #3498db;  
+		pointer-events: none;  
 		}
 		.hover-text.is-hidden {
-			display: none;
+		display: none;
 		}
 		.hover-text {
-			position: absolute;
-			border: 1px solid #e8a010; 
-			padding: 2px;
-			box-shadow: 2px 3px 4px rgba(0, 0, 0, 0.4);
-			z-index: 100;  
+		position: absolute;
+		border: 1px solid #e8a010; 
+		padding: 2px;
+		box-shadow: 2px 3px 4px rgba(0, 0, 0, 0.4);
+		z-index: 100;  
 		}
 		@media (prefers-reduced-motion: reduce) {
 		}
 		.notification {
-			transform: translateY(60px);
+		transform: translateY(60px);
 		}
-        
 	</style>
 	<body>
 		<nav class="level m-0 px-3 py-1 has-background-4a">
@@ -188,35 +176,32 @@
 				<p class="subtitle m-0 px-1 py-0   is-6                 has-text-weight-light  has-text-white" id="ClabSubtitle">Topology name: nokia-MAGc-lab ::: Uptime: 10m10s</p>
 			</div>
 			<div class="level-right">
-				<div id="nokia-logo">
-					<img src="images/nokia-logo.png" width="100" hspace="10" vspace="5"><br>
-				</div>
-				<div class="level-item">
-					<div class="dropdown is-hoverable is-right">
-						<div class="dropdown-trigger">
-							<button class="button is-small is-link is-light">
-							<i class="icon fas fa-bars" aria-hidden="true"></i>
-							</button>
+			<div id="nokia-logo">
+				<img src="images/nokia-logo.png" width="100" hspace="10" vspace="5"><br>
+			</div>
+			<div class="level-item">
+				<div class="dropdown is-hoverable is-right">
+					<div class="dropdown-trigger">
+						<button class="button is-small is-link is-light">
+						<i class="icon fas fa-bars" aria-hidden="true"></i>
+						</button>
+					</div>
+					<div class="dropdown-menu" id="dropdown-menu" role="menu">
+						<div class="dropdown-content">
+							<a id="about" href="#" onclick="showPanelAbout();" class="dropdown-item label has-text-weight-normal is-small py-0">About TopoViewer</a>                      
+							<hr class="dropdown-divider py-0">
+							<a id="getAllEndpointDetail" href="#" onclick="getAllNodeEndpoint(event);" class="dropdown-item label has-text-weight-normal is-small py-0">Action - Get True Endpoint Label</a>     
+							<a id="performNodeActionSaveNodesConfig" href="#" onclick="performNodeActionSaveNodesConfig(event);" class="dropdown-item label has-text-weight-normal is-small py-0">Action - Save Nodes Config</a>     
+							<a id="logMessagesDropdownItem" href="#" onclick="logMessages(event);" class="dropdown-item label has-text-weight-normal is-small py-0">Action - Log Messages</a>       
+							<hr class="dropdown-divider py-0">
+							<a id="clabClientDropdownItem" href="#" onclick="showPanelTopoViewerClient();"        class="dropdown-item label has-text-weight-normal is-small py-0">TopoViewer Helper App</a>                  
 						</div>
-						<div class="dropdown-menu" id="dropdown-menu" role="menu">
-							<div class="dropdown-content">
-								<a id="about" href="#" onclick="showPanelAbout();" class="dropdown-item label has-text-weight-normal is-small py-0">About TopoViewer</a>                      
-								<hr class="dropdown-divider py-0">
-								<a id="getAllEndpointDetail" href="#" onclick="getAllNodeEndpoint(event);" class="dropdown-item label has-text-weight-normal is-small py-0">Action - Get True Endpoint Label</a>     
-								<a id="performNodeActionSaveNodesConfig" href="#" onclick="performNodeActionSaveNodesConfig(event);" class="dropdown-item label has-text-weight-normal is-small py-0">Action - Save Nodes Config</a>     
-								<a id="logMessagesDropdownItem" href="#" onclick="logMessages(event);" class="dropdown-item label has-text-weight-normal is-small py-0">Action - Log Messages</a>       
-								<hr class="dropdown-divider py-0">
-								<a id="clabClientDropdownItem" href="#" onclick="showPanelTopoViewerClient();"        class="dropdown-item label has-text-weight-normal is-small py-0">TopoViewer Helper App</a>                  
-
-            
-							</div>
-						</div>
+					</div>
 				</div>
 			</div>
 		</nav>
 		<div id="root-div">
 			<div id="cy"></div>
-
 			<div class="panel is-link" id="Panel-02" style="display: none;">
 				<p class="panel-heading is-size-7">Log Messages</p>
 				<div class="panel-block py-2 px-2">
@@ -229,23 +214,14 @@
 					</div>
 				</div>
 			</div>
-    		
-    		<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.10.0/lodash.min.js"></script>
-    		<script src="https://unpkg.com/webcola@3.3.8/WebCola/cola.min.js"></script>
-    		<script src="https://unpkg.com/popper.js@1.14.4/dist/umd/popper.js"></script>
-    		<script src="https://unpkg.com/tippy.js@2.6.0/dist/tippy.all.js"></script>
-    		
+			<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.10.0/lodash.min.js"></script>
+			<script src="https://unpkg.com/webcola@3.3.8/WebCola/cola.min.js"></script>
+			<script src="https://unpkg.com/popper.js@1.14.4/dist/umd/popper.js"></script>
+			<script src="https://unpkg.com/tippy.js@2.6.0/dist/tippy.all.js"></script>
 			<script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.19.0/cytoscape.min.js"></script>
-    		<script src="https://unpkg.com/cytoscape-cola@2.2.3/cytoscape-cola.js"></script>
-    		<script src="https://unpkg.com/cytoscape-popper@1.0.2/cytoscape-popper.js"></script>
-
+			<script src="https://unpkg.com/cytoscape-cola@2.2.3/cytoscape-cola.js"></script>
+			<script src="https://unpkg.com/cytoscape-popper@1.0.2/cytoscape-popper.js"></script>
 			<script src="https://cdn.jsdelivr.net/npm/cytoscape-grid-guide@2.3.3/cytoscape-grid-guide.min.js"></script>
-
-
-
-
-
-
 			<script>
 {{rawJSComment "				// CSS TUTORIAL"}}
 {{rawJSComment "				//"}}
@@ -265,67 +241,67 @@
 {{rawJSComment "				// 5px is the blur radius of the shadow. It determines how blurry or sharp the shadow edges appear. In this case, the shadow is slightly blurry, creating a softer effect."}}
 {{rawJSComment "				// rgba(0, 0, 0, 0.2) specifies the color and transparency of the shadow. It's a black shadow (0, 0, 0 represents black), and the 0.2 alpha value makes it slightly transparent. The alpha value controls the shadow's opacity, with 0 being completely transparent and 1 being fully opaque."}}
 {{rawJSComment "				// */"}}
-
+				
 {{rawJSComment "				// Instantiate Panel Weclome, this is should be loaded before CY"}}
 {{rawJSComment "				// Instantiate Panel Weclome, this is should be loaded before CY"}}
 				showPanelWelcome();
-
+				
 {{rawJSComment "				// Initialize a state variable to track the element's presence"}}
 {{rawJSComment "				// Initialize a state variable to track the element's presence"}}
 				let isPanel01Cy = false;
 				let nodeClicked = false;
 				let edgeClicked = false;
-
-
+				
+				
 				const labName =  'nokia-ServiceProvider'
 				const deploymentType = 'colocated'
-
+				
 				console.log ("Lab-Name: ", labName)
 				console.log ("DeploymentType: ", deploymentType)
-
-
-
+				
+				
+				
 				document.addEventListener("DOMContentLoaded", function () {
 {{rawJSComment "					// Reusable function to initialize a WebSocket connection"}}
 {{rawJSComment "					// Reusable function to initialize a WebSocket connection"}}
 					function initializeWebSocket(url, onMessageCallback) {
 						const protocol = location.protocol === "https:" ? "wss://" : "ws://";
 						const socket = new WebSocket(protocol + location.host + url);
-
+				
 						socket.onopen = () => {
 							console.log(`Successfully connected WebSocket to ${url}`);
 							if (socket.readyState === WebSocket.OPEN) {
 								socket.send(`Hi From the WebSocketClient-${url}`);
 							}
 						};
-
+				
 						socket.onclose = (event) => {
 							console.log(`Socket to ${url} closed: `, event);
 							socket.send("Client Closed!");
 						};
-
+				
 						socket.onerror = (error) => {
 							console.log(`Socket to ${url} error: `, error);
 						};
-
+				
 						socket.onmessage = onMessageCallback;
-
+				
 						return socket;
 					}
-
+				
 {{rawJSComment "					// WebSocket for uptime"}}
 {{rawJSComment "					// WebSocket for uptime"}}
 					const socketUptime = initializeWebSocket("/uptime", (msgUptime) => {
 						const string01 = "Containerlab Topology: " + labName;
 						const string02 = " ::: Uptime: " + msgUptime.data;
-
+				
 						const ClabSubtitle = document.getElementById("ClabSubtitle");
 						const messageBody = string01 + string02;
-
+				
 						ClabSubtitle.innerText = messageBody;
 						console.log(ClabSubtitle.innerText);
 					});
-
+				
 {{rawJSComment "					// WebSocket for ContainerNodeStatus"}}
 {{rawJSComment "					// WebSocket for ContainerNodeStatus"}}
 					const socketContainerNodeStatusInitial = initializeWebSocket(
@@ -335,14 +311,14 @@
 								const { Names, Status, State } = JSON.parse(msgContainerNodeStatus.data);
 								setNodeContainerStatus(Names, Status);
 								console.log(JSON.parse(msgContainerNodeStatus.data));
-
+				
 								setNodeDataWithContainerAttribute(Names, Status, State);
 							} catch (error) {
 								console.error("Error parsing JSON:", error);
 							}
 						},
 					);
-
+				
 {{rawJSComment "					// WebSocket for clabServerAddress"}}
 {{rawJSComment "					// WebSocket for clabServerAddress"}}
 					const socketclabServerAddress = initializeWebSocket(
@@ -352,7 +328,7 @@
 							document.title = "TopoViewer ::: " + msgclabServerAddress.data;
 						},
 					);
-
+				
 {{rawJSComment "					//- Instantiate Cytoscape.js"}}
 {{rawJSComment "					//- Instantiate Cytoscape.js"}}
 					const cy = cytoscape({
@@ -368,7 +344,7 @@
 							},
 						],
 					});
-
+				
 					loadCytoStyle();
 					function loadCytoStyle() {
 {{rawJSComment "						//- Load and apply Cytoscape styles from cy-style.json using fetch"}}
@@ -457,7 +433,7 @@
 								maxSimulationTime: 1500,
 							});
 							layout.run();
-
+				
 {{rawJSComment "							// remove node topoviewer"}}
 {{rawJSComment "							// remove node topoviewer"}}
 							topoViewerNode = cy.filter('node[name = "topoviewer"]');
@@ -466,7 +442,7 @@
 						.catch((error) => {
 							console.error("Error loading graph data:", error);
 						});
-
+				
 {{rawJSComment "					// Instantiate hover text element"}}
 {{rawJSComment "					// Instantiate hover text element"}}
 					const hoverText = document.createElement("box");
@@ -480,7 +456,7 @@
 					);
 					hoverText.textContent = "Launch CloudShell.";
 					document.body.appendChild(hoverText);
-
+				
 {{rawJSComment "					//- Toggle the Panel(s) when clicking on the cy container"}}
 {{rawJSComment "					//- Toggle the Panel(s) when clicking on the cy container"}}
 					document.getElementById("cy").addEventListener("click", function (event) {
@@ -488,14 +464,14 @@
 {{rawJSComment "						//- You can add logic specific to the container here"}}
 {{rawJSComment "						//- This code will be executed when you click anywhere in the Cytoscape container"}}
 {{rawJSComment "						//- You can add logic specific to the container here"}}
-
+				
 						loadCytoStyle();
-
+				
 						if (!nodeClicked && !edgeClicked) {
 							if (!isPanel01Cy) {
 								removeElementById("Panel-01");
 								removeElementById("Panel-03");
-
+				
 {{rawJSComment "								// display none each ViewPortDrawer Element, the ViewPortDrawer is created during DOM loading and styled as display node initially"}}
 {{rawJSComment "								// display none each ViewPortDrawer Element, the ViewPortDrawer is created during DOM loading and styled as display node initially"}}
 								var ViewPortDrawerElements =
@@ -504,12 +480,12 @@
 								ViewPortDrawerArray.forEach(function (element) {
 									element.style.display = "none";
 								});
-
+				
 {{rawJSComment "								// Define tabContentFns with custom content generation functions"}}
 {{rawJSComment "								// createNetworkExplorerTab is has corresponding function with similar name."}}
 {{rawJSComment "								// Define tabContentFns with custom content generation functions"}}
 {{rawJSComment "								// createNetworkExplorerTab is has corresponding function with similar name."}}
-
+				
 {{rawJSComment "								// Hide Actions panel, future use"}}
 {{rawJSComment "								// const tabContentFns = [createNetworkExplorerTab, createNetworkBuilderTab];"}}
 {{rawJSComment "								// const tabContentFnsArg = ['createNetworkExplorerTab', 'createNetworkBuilderTab'];"}}
@@ -525,11 +501,11 @@
 						}
 						nodeClicked = false;
 						edgeClicked = false;
-
+				
 						appendMessage(`"isPanel01Cy-cy: " ${isPanel01Cy}`);
 						appendMessage(`"nodeClicked: " ${nodeClicked}`);
 					});
-
+				
 {{rawJSComment "					// Click event listener for nodes"}}
 {{rawJSComment "					// Click event listener for nodes"}}
 					cy.on("click", "node", function (event) {
@@ -537,26 +513,26 @@
 {{rawJSComment "						// This code will be executed when you click on a node"}}
 						const node = event.target;
 						nodeClicked = true;
-
+				
 						if (!node.isParent()) {
 {{rawJSComment "							// You can add logic specific to nodes here"}}
 {{rawJSComment "							// You can add logic specific to nodes here"}}
 							removeElementById("Panel-01");
 							const tabContentFns = [createNodeDetailTab];
 							const tabContentFnsArg = [node];
-
+				
 							createContentPanel(
 								"Panel-01",
 								tabContentFns,
 								tabContentFnsArg[0],
 								"Node Properties",
 							);
-
+				
 							appendMessage(`"isPanel01Cy-cy: " ${isPanel01Cy}`);
 							appendMessage(`"nodeClicked: " ${nodeClicked}`);
 						}
 					});
-
+				
 {{rawJSComment "					// Click event listener for edges"}}
 {{rawJSComment "					// Click event listener for edges"}}
 					cy.on("click", "edge", function (event) {
@@ -565,39 +541,39 @@
 						const clickedEdge = event.target;
 						const defaultEdgeColor = "#B1BCC8";
 						edgeClicked = true;
-
+				
 						console.log(defaultEdgeColor);
-
+				
 {{rawJSComment "						// Change the color of the clicked edge (for example, to red)"}}
 						clickedEdge.style("line-color", "#0043BF");
-
+				
 {{rawJSComment "						// Revert the color of other edges that were not clicked (e.g., back to their default color)"}}
 						cy.edges().forEach(function (edge) {
 							if (edge !== clickedEdge) {
 								edge.style("line-color", defaultEdgeColor);
 							}
 						});
-
+				
 {{rawJSComment "						// You can add logic specific to nodes here"}}
 						removeElementById("Panel-01");
 						const tabContentFns = [createEdgeDetailTab];
 						tabContentFnsArg = [clickedEdge];
-
+				
 						createContentPanel(
 							"Panel-01",
 							tabContentFns,
 							tabContentFnsArg[0],
 							"Link Properties",
 						);
-
+				
 						appendMessage(`"isPanel01Cy-cy: " ${isPanel01Cy}`);
 						appendMessage(`"nodeClicked: " ${nodeClicked}`);
 					});
-
+				
 {{rawJSComment "					// Instantiate viewport buttons"}}
 {{rawJSComment "					// Instantiate viewport buttons"}}
 					createViewportButtons(cy);
-
+				
 					function createViewportButtons(cy) {
 {{rawJSComment "						// Create a buttons container"}}
 {{rawJSComment "						// Create a buttons container"}}
@@ -608,13 +584,13 @@
 {{rawJSComment "						// boxContainer.style.boxShadow = '5px 10px 10px rgba(0, 0, 0, 0.3)';"}}
 {{rawJSComment "						// Set a new box shadow using the style property"}}
 {{rawJSComment "						// boxContainer.style.boxShadow = '5px 10px 10px rgba(0, 0, 0, 0.3)';"}}
-
+				
 {{rawJSComment "						// Create a button container"}}
 {{rawJSComment "						// Create a button container"}}
 						const buttonContainer = document.createElement("div");
 						buttonContainer.className =
 							"is-flex is-flex-direction-column is-justify-content-space-evenly";
-
+				
 						const configContent = [
 							{
 								name: "fitToScreen",
@@ -929,22 +905,22 @@
 								callOutFuntionArgsObject: "",
 							},
 						];
-
+				
 						const controlId = "viewportButtons";
-
+				
 						configContent.forEach((config) => {
 							const control = document.createElement("p");
-
+				
 							control.id = `${controlId}-button${config.name}`;
 							control.className = "control p-0";
-
+				
 							const button = document.createElement("a");
 							button.id = `${controlId}-button${config.name}`;
 {{rawJSComment "							// button.className = `button is-light is-large is-outlined py-4 is-${addon.name === 'blue' ? 'link' : 'success'}`;"}}
 {{rawJSComment "							// button.className = `button is-light is-large is-outlined py-4 is-${addon.name === 'blue' ? 'link' : 'success'}`;"}}
 							button.className = `button is-light px-4 py-4 is-smallest-element`;
 							button.style.outline = "none";
-
+				
 							if (config.hrefFunction == "eventHandlerLink") {
 								button.addEventListener("click", function (cy) {
 									if (config.callOutFuntionArgsString != "") {
@@ -960,7 +936,7 @@
 									}
 								});
 							}
-
+				
 							if (config.hrefFunction == "drawer") {
 {{rawJSComment "								// button.addEventListener('click', () => {"}}
 {{rawJSComment "								// Create an drawerBox element"}}
@@ -969,7 +945,7 @@
 								const drawerBox = document.createElement("div");
 								drawerBox.className = "box drawerBox ViewPortDrawer p-1 is-1";
 								drawerBox.style.display = "none";
-
+				
 								window.addEventListener("load", (event) => {
 {{rawJSComment "									// Access the height of buttonContainer here"}}
 {{rawJSComment "									// Access the height of buttonContainer here"}}
@@ -978,11 +954,11 @@
 {{rawJSComment "									// drawerBox.style.height = `${calculatedHeight}px`;"}}
 {{rawJSComment "									// drawerBox.style.height = `${calculatedHeight}px`;"}}
 									drawerBox.style.height = "auto";
-
+				
 									drawerBox.style.display = "block";
-
+				
 									const contentHeight = drawerBox.getBoundingClientRect().height;
-
+				
 									if (contentHeight > calculatedHeight) {
 										drawerBox.style.height = "auto";
 									} else {
@@ -990,7 +966,7 @@
 									}
 									drawerBox.style.display = "none";
 								});
-
+				
 {{rawJSComment "								//// The drawerBox element is created using createPanelBlockContainer() and createPanelBlockForm() functions"}}
 {{rawJSComment "								// Panel Block 01"}}
 {{rawJSComment "								//// The drawerBox element is created using createPanelBlockContainer() and createPanelBlockForm() functions"}}
@@ -998,7 +974,7 @@
 								panelBlockContainer = createPanelBlockContainer(`${button.id}`);
 								panelBlock01 = panelBlockContainer.panelBlock;
 								divPanelBlock01 = panelBlockContainer.divPanelBlock;
-
+				
 								createPanelBlockForm(
 									config.drawerConfig,
 									panelBlock01,
@@ -1009,7 +985,7 @@
 {{rawJSComment "								// Per panelBlock divPanelBlock01 --> panelBlock01"}}
 								panelBlock01.appendChild(divPanelBlock01);
 								drawerBox.appendChild(panelBlock01);
-
+				
 {{rawJSComment "								// Add click event listener to the button"}}
 {{rawJSComment "								// Add click event listener to the button"}}
 								button.addEventListener("click", () => {
@@ -1033,12 +1009,12 @@
 										drawerBox.style.display = "none";
 									}
 								});
-
+				
 {{rawJSComment "								// Append the container to the document body"}}
 {{rawJSComment "								// Append the container to the document body"}}
 								document.body.appendChild(drawerBox);
 							}
-
+				
 {{rawJSComment "							// Create a icon element"}}
 {{rawJSComment "							// Create a icon element"}}
 							const icon = document.createElement("span");
@@ -1046,14 +1022,14 @@
 							const iconElement = document.createElement("i");
 							iconElement.className = config.iconClass;
 							icon.appendChild(iconElement);
-
+				
 							button.appendChild(icon);
 							control.appendChild(button);
-
+				
 {{rawJSComment "							// Create a hover text paragraph element"}}
 {{rawJSComment "							// Create a hover text paragraph element"}}
 							const hoverText = document.querySelector(".hover-text");
-
+				
 {{rawJSComment "							// Add event listeners for hover behavior"}}
 {{rawJSComment "							// Add event listeners for hover behavior"}}
 							button.addEventListener("mouseover", () => {
@@ -1069,33 +1045,33 @@
 								hoverText.classList.remove("is-hidden");
 								hoverText.textContent = config.hoverMessage;
 							});
-
+				
 							button.addEventListener("mouseout", () => {
 {{rawJSComment "								// Hide the hover text"}}
 {{rawJSComment "								// Hide the hover text"}}
 								hoverText.classList.add("is-hidden");
 							});
-
+				
 {{rawJSComment "							// Append the button to the container"}}
 {{rawJSComment "							// Append the button to the container"}}
 							buttonContainer.appendChild(control);
 							boxContainer.appendChild(buttonContainer);
 						});
-
+				
 {{rawJSComment "						// Append the container to the document body"}}
 {{rawJSComment "						// Append the container to the document body"}}
 						document.body.appendChild(boxContainer);
 					}
-
+				
 {{rawJSComment "					// Initiate Layout SLider"}}
 {{rawJSComment "					// Initiate Layout SLider"}}
 					setupLayoutSliders(cy);
-
+				
 					function setupLayoutSliders(cy) {
 						const updateLayout = (edgeLengthValue, nodeGapValue) => {
 							console.log("edgeLengthValue", edgeLengthValue);
 							console.log("nodeGapValue", nodeGapValue);
-
+				
 							cy
 								.layout({
 									fit: true,
@@ -1120,27 +1096,27 @@
 								})
 								.run();
 						};
-
+				
 						const edgeLengthSlider = document.getElementById(
 							"panelBlock-viewportButtons-buttonadjustLayout-divPanelBlock-columnContainerlabelAdjustLayoutLinksLenghtSlider-panelContentlabelAdjustLayoutLinksLenghtSlider-columnsPanelContentlabelAdjustLayoutLinksLenghtSlider-labelColumnlabelAdjustLayoutLinksLenghtSlider-inputColumnlabelAdjustLayoutLinksLenghtSlider-labellabelAdjustLayoutLinksLenghtSlider",
 						);
 						const nodeGapSlider = document.getElementById(
 							"panelBlock-viewportButtons-buttonadjustLayout-divPanelBlock-columnContainerlabelAdjustLayoutNodeGapSlider-panelContentlabelAdjustLayoutNodeGapSlider-columnsPanelContentlabelAdjustLayoutNodeGapSlider-labelColumnlabelAdjustLayoutNodeGapSlider-inputColumnlabelAdjustLayoutNodeGapSlider-labellabelAdjustLayoutNodeGapSlider",
 						);
-
+				
 						const sliderEventHandler = () => {
 							console.log("edgeLengthSlider.value", edgeLengthSlider.value);
 							console.log("nodeGapSlider.value", nodeGapSlider.value);
-
+				
 							const edgeLengthValue = parseFloat(edgeLengthSlider.value);
 							const nodeGapValue = parseFloat(nodeGapSlider.value);
 							updateLayout(edgeLengthValue, nodeGapValue);
 						};
-
+				
 						edgeLengthSlider.addEventListener("input", sliderEventHandler);
 						nodeGapSlider.addEventListener("input", sliderEventHandler);
 					}
-
+				
 {{rawJSComment "					// "}}
 {{rawJSComment "					// Start of JS Functions HTML Element Creation section"}}
 {{rawJSComment "					// Start of JS Functions HTML Element Creation section"}}
@@ -1149,7 +1125,7 @@
 {{rawJSComment "					// Start of JS Functions HTML Element Creation section"}}
 {{rawJSComment "					// Start of JS Functions HTML Element Creation section"}}
 {{rawJSComment "					// "}}
-
+				
 {{rawJSComment "					// Function to create the Panel-01-nodeDetail content"}}
 {{rawJSComment "					// Function to create the Panel-01-nodeDetail content"}}
 					function createContentPanelAction() {
@@ -1192,86 +1168,86 @@
 {{rawJSComment "						// Append the panel heading and tabs to the panel"}}
 						panel.appendChild(panelHeading);
 						panel.appendChild(panelTabs);
-
+				
 {{rawJSComment "						// Append the panel to the document body or another container of your choice"}}
 {{rawJSComment "						// Append the panel to the document body or another container of your choice"}}
 						document.body.appendChild(panel);
 					}
-
+				
 					function createNetworkExplorerTab() {
 {{rawJSComment "						// Create a div container for Tab-01 content"}}
 {{rawJSComment "						// Create a div container for Tab-01 content"}}
 						const tab01Container = document.createElement("div");
-
+				
 {{rawJSComment "						// Create the first block of content"}}
 {{rawJSComment "						// Create the first block of content"}}
 						const block1 = document.createElement("div");
 						block1.className = "panel-block";
-
+				
 {{rawJSComment "						// Create the 'Network Maker' section"}}
 {{rawJSComment "						// Create the 'Network Maker' section"}}
 						const nodeGenerate = document.createElement("div");
 						nodeGenerate.id = "nodeGenerate";
 						nodeGenerate.className = "column my-auto";
-
+				
 						const networkMakerLabel = document.createElement("label");
 						networkMakerLabel.className = "label is-smallest";
 						networkMakerLabel.setAttribute("for", "generateNodesInput");
 						networkMakerLabel.textContent = "Network Maker:";
-
+				
 						const generateNodesInput = document.createElement("input");
 						generateNodesInput.className = "input is-smallest-element";
 						generateNodesInput.type = "text";
 						generateNodesInput.id = "generateNodesInput";
 						generateNodesInput.placeholder = "Wiro Sableng";
 						generateNodesInput.value = "212";
-
+				
 						const generateNodesButton = document.createElement("button");
 						generateNodesButton.className = "button is-smallest-element";
 						generateNodesButton.id = "generateNodesButton";
 						generateNodesButton.textContent = "Generate";
-
+				
 						nodeGenerate.appendChild(networkMakerLabel);
 						nodeGenerate.appendChild(generateNodesInput);
 						nodeGenerate.appendChild(generateNodesButton);
-
+				
 {{rawJSComment "						// block1.appendChild(nodeAttributes);"}}
 {{rawJSComment "						// block1.appendChild(nodeAttributes);"}}
 						block1.appendChild(nodeGenerate);
-
+				
 {{rawJSComment "						// Create the second block of content"}}
 {{rawJSComment "						// Create the second block of content"}}
 						const block2 = document.createElement("div");
 						block2.className = "panel-block";
-
+				
 {{rawJSComment "						// Create the fifth block of content"}}
 {{rawJSComment "						// Create the fifth block of content"}}
 						const block5 = document.createElement("div");
 						block5.className = "panel-block";
-
+				
 {{rawJSComment "						// Create the 'Close' button"}}
 {{rawJSComment "						// Create the 'Close' button"}}
 						const closePanel01Button = document.createElement("button");
 						closePanel01Button.className = "button is-smallest-element";
 						closePanel01Button.id = "closeForm";
 						closePanel01Button.textContent = "Close";
-
+				
 						block5.appendChild(closePanel01Button);
-
+				
 {{rawJSComment "						// Append all blocks to the Tab-01 container"}}
 {{rawJSComment "						// Append all blocks to the Tab-01 container"}}
 						tab01Container.appendChild(block1);
 						tab01Container.appendChild(block2);
 						tab01Container.appendChild(block5);
-
+				
 {{rawJSComment "						// call event handler function"}}
 {{rawJSComment "						// call event handler function"}}
 						generateNodesButton.addEventListener("click", generateNodesEvent);
 						closePanel01Button.addEventListener("click", closePanel01Event);
-
+				
 						return tab01Container;
 					}
-
+				
 					function createNetworkBuilderTab() {
 {{rawJSComment "						// const content = document.createElement('div');"}}
 {{rawJSComment "						// content.textContent = `Contentaaa for 2 `;"}}
@@ -1279,110 +1255,110 @@
 {{rawJSComment "						// const content = document.createElement('div');"}}
 {{rawJSComment "						// content.textContent = `Contentaaa for 2 `;"}}
 {{rawJSComment "						// return content;"}}
-
+				
 {{rawJSComment "						// Create a div container for Tab-01 content"}}
 {{rawJSComment "						// Create a div container for Tab-01 content"}}
 						const tab02Container = document.createElement("div");
-
+				
 {{rawJSComment "						// Create the first block of content"}}
 {{rawJSComment "						// Create the first block of content"}}
 						const block1 = document.createElement("div");
 						block1.className = "panel-block";
-
+				
 {{rawJSComment "						// Create the 'Node Spawner' section"}}
 {{rawJSComment "						// Create the 'Node Spawner' section"}}
 						const nodeAttributes = document.createElement("div");
 						nodeAttributes.id = "nodeAttributes";
 						nodeAttributes.className = "column my-auto";
-
+				
 						const nodeNameLabel = document.createElement("label");
 						nodeNameLabel.className = "label is-smallest";
 						nodeNameLabel.setAttribute("for", "nodeName");
 						nodeNameLabel.textContent = "Node Spawner:";
-
+				
 						const nodeNameInput = document.createElement("input");
 						nodeNameInput.className = "input is-smallest-element";
 						nodeNameInput.type = "text";
 						nodeNameInput.id = "nodeName";
 						nodeNameInput.placeholder = "Node Name";
-
+				
 						const nodeNameInput1 = document.createElement("input");
 						nodeNameInput1.className = "input is-invisible is-smallest-element";
 						nodeNameInput1.type = "text";
-
+				
 						const spawnNodeButton = document.createElement("button");
 						spawnNodeButton.className = "button is-smallest-element";
 						spawnNodeButton.id = "spawnNodeButton";
 						spawnNodeButton.textContent = "Spawn Node";
-
+				
 						nodeAttributes.appendChild(nodeNameLabel);
 						nodeAttributes.appendChild(nodeNameInput);
 						nodeAttributes.appendChild(nodeNameInput1);
 						nodeAttributes.appendChild(spawnNodeButton);
-
+				
 						block1.appendChild(nodeAttributes);
-
+				
 {{rawJSComment "						// Create the 'Network Builder' section"}}
 {{rawJSComment "						// Create the 'Network Builder' section"}}
 						const networkBuilderkDiv = document.createElement("div");
 						networkBuilderkDiv.id = "networkBuilder";
 						networkBuilderkDiv.className = "column my-auto";
-
+				
 						const networkBuilderkLabel = document.createElement("label");
 						networkBuilderkLabel.className = "label is-smallest";
 						networkBuilderkLabel.textContent = "Link Spawner :";
-
+				
 						const createLinkSourceNodeInput = document.createElement("input");
 						createLinkSourceNodeInput.className = "input is-smallest-element";
 						createLinkSourceNodeInput.type = "text";
 						createLinkSourceNodeInput.id = "createLinkSourceNodeInput";
 						createLinkSourceNodeInput.placeholder = "Source Node Name";
-
+				
 						const createLinkTargetNodeInput = document.createElement("input");
 						createLinkTargetNodeInput.className = "input is-smallest-element";
 						createLinkTargetNodeInput.type = "text";
 						createLinkTargetNodeInput.id = "createLinkTargetNodeInput";
 						createLinkTargetNodeInput.placeholder = "Target Node Name";
-
+				
 						const connectNodesButton = document.createElement("button");
 						connectNodesButton.className = "button is-smallest-element";
 						connectNodesButton.id = "connectNodesAction";
 						connectNodesButton.textContent = "Spawn Link";
-
+				
 						networkBuilderkDiv.appendChild(networkBuilderkLabel);
 						networkBuilderkDiv.appendChild(createLinkSourceNodeInput);
 						networkBuilderkDiv.appendChild(createLinkTargetNodeInput);
 						networkBuilderkDiv.appendChild(connectNodesButton);
-
+				
 						block1.appendChild(networkBuilderkDiv);
-
+				
 {{rawJSComment "						// Create the fifth block of content"}}
 {{rawJSComment "						// Create the fifth block of content"}}
 						const block5 = document.createElement("div");
 						block5.className = "panel-block";
-
+				
 {{rawJSComment "						// Create the 'Close' button"}}
 {{rawJSComment "						// Create the 'Close' button"}}
 						const closePanel01Button = document.createElement("button");
 						closePanel01Button.className = "button is-smallest-element";
 						closePanel01Button.id = "closeForm";
 						closePanel01Button.textContent = "Close";
-
+				
 						block5.appendChild(closePanel01Button);
-
+				
 {{rawJSComment "						// Append all blocks to the Tab-01 container"}}
 {{rawJSComment "						// Append all blocks to the Tab-01 container"}}
 						tab02Container.appendChild(block1);
 						tab02Container.appendChild(block5);
-
+				
 {{rawJSComment "						// call event handler function"}}
 {{rawJSComment "						// call event handler function"}}
 						spawnNodeButton.addEventListener("click", spawnNodeEvent);
 						closePanel01Button.addEventListener("click", closePanel01Event);
-
+				
 						return tab02Container;
 					}
-
+				
 					function createNodeDetailTab(node, panelHeadingText) {
 						const modifiedHeaderText = panelHeadingText.replace(/\s+/g, "");
 {{rawJSComment "						// Create the tab-container"}}
@@ -1390,15 +1366,15 @@
 						const tabContainer = document.createElement("div");
 						tabContainer.id = `tabContainer-${modifiedHeaderText}`;
 						tabContainer.className = "panel-tabContainer";
-
+				
 {{rawJSComment "						// Panel Block 01"}}
 {{rawJSComment "						// Panel Block 01"}}
 						panelBlockContainer = createPanelBlockContainer(tabContainer.id);
 						panelBlock01 = panelBlockContainer.panelBlock;
 						divPanelBlock01 = panelBlockContainer.divPanelBlock;
-
+				
 						const shellUrl = "/cloudshell/";
-
+				
 						const Panel01ColumnsConfig = [
 							{
 								idSuffix: "labelNodeName",
@@ -1480,35 +1456,35 @@
 								columnInputContent: node.data("topoViewerRole"),
 							},
 						];
-
+				
 						createPanelBlockForm(Panel01ColumnsConfig, panelBlock01, divPanelBlock01);
-
+				
 {{rawJSComment "						// Per panelBlock divPanelBlock01 --> panelBlock01"}}
 {{rawJSComment "						// Per panelBlock divPanelBlock01 --> panelBlock01"}}
 						panelBlock01.appendChild(divPanelBlock01);
-
+				
 {{rawJSComment "						// --> tabContainer"}}
 {{rawJSComment "						// --> tabContainer"}}
 						tabContainer.appendChild(panelBlock01);
-
+				
 						return tabContainer;
 					}
-
+				
 					function createEdgeDetailTab(edge, panelHeadingText) {
 						const modifiedHeaderText = panelHeadingText.replace(/\s+/g, "");
-
+				
 {{rawJSComment "						// Create the tab-container"}}
 {{rawJSComment "						// Create the tab-container"}}
 						const tabContainer = document.createElement("div");
 						tabContainer.id = `tabContainer-${modifiedHeaderText}`;
 						tabContainer.className = "panel-tabContainer";
-
+				
 {{rawJSComment "						// Panel Block 01"}}
 {{rawJSComment "						// Panel Block 01"}}
 						panelBlockContainer = createPanelBlockContainer(tabContainer.id);
 						panelBlock01 = panelBlockContainer.panelBlock;
 						divPanelBlock01 = panelBlockContainer.divPanelBlock;
-
+				
 						const Panel01ColumnsConfig = [
 							{
 								idSuffix: "LinkName",
@@ -1517,41 +1493,23 @@
 								columnInputType: "label",
 								columnInputContent: edge.data("source") + "---" + edge.data("target"),
 							},
-							{
-								idSuffix: "labelActions",
-								columnLabelTextContent: "Actions",
-								columnLabelClass: "column is-4 p-1",
-								columnInputType: "buttonGroup",
-								columnInputContent: "",
-								addonsContent: [
-									{
-										name: "blue",
-										iconClass: "fas fa-terminal",
-										hoverMessage: "Click to get true endpoint label",
-										hrefFunction: "getNodeEndpointDetailExec",
-										hrefFunctionArg01: `${edge.data("extraData").clabSourceLongName}`,
-										hrefFunctionArg02: `${edge.data("extraData").clabTargetLongName}`,
-										hrefFunctionArg03: "",
-									},
-								],
-							},
 						];
-
+				
 						createPanelBlockForm(Panel01ColumnsConfig, panelBlock01, divPanelBlock01);
-
+				
 {{rawJSComment "						// append divPanelBlock02 --> panelBlock02 --> tabContainer"}}
 {{rawJSComment "						// append divPanelBlock02 --> panelBlock02 --> tabContainer"}}
 						panelBlock01.append(divPanelBlock01);
 						tabContainer.appendChild(panelBlock01);
-
+				
 {{rawJSComment "						// Panel Block 02"}}
 {{rawJSComment "						// Panel Block 02"}}
 						panelBlockContainer = createPanelBlockContainer(tabContainer.id);
 						panelBlock02 = panelBlockContainer.panelBlock;
 						divPanelBlock02 = panelBlockContainer.divPanelBlock;
-
+				
 						var Panel02ColumnsConfig;
-
+				
 						if (deploymentType == "colocated") {
 							Panel02ColumnsConfig = [
 								{
@@ -1569,7 +1527,7 @@
 									columnInputType: "label",
 									columnInputContent: edge.data("extraData").clabSourceMacAddress,
 								},
-
+				
 								{
 									idSuffix: "labelSourceImpairmentDelay",
 									columnLabelTextContent: "Delay (ms)",
@@ -1635,7 +1593,7 @@
 									columnInputClass: "column is-3 p-1 pl-3",
 									columnInputContent: "0",
 									columnInputAttribute: "enabled",
-
+				
 									addonsContent: [
 										{
 											name: "blue",
@@ -1697,7 +1655,7 @@
 									columnInputType: "label",
 									columnInputContent: edge.data("extraData").clabSourceMacAddress,
 								},
-
+				
 								{
 									idSuffix: "labelSourceImpairmentDelay",
 									columnLabelTextContent: "Delay (ms)",
@@ -1763,7 +1721,7 @@
 									columnInputClass: "column is-3 p-1 pl-3",
 									columnInputContent: "0",
 									columnInputAttribute: "enabled",
-
+				
 									addonsContent: [
 										{
 											name: "blue",
@@ -1827,22 +1785,22 @@
 								},
 							];
 						}
-
+				
 						createPanelBlockForm(Panel02ColumnsConfig, panelBlock02, divPanelBlock02);
-
+				
 {{rawJSComment "						// append divPanelBlock02 --> panelBlock02 --> tabContainer"}}
 {{rawJSComment "						// append divPanelBlock02 --> panelBlock02 --> tabContainer"}}
 						panelBlock02.append(divPanelBlock02);
 						tabContainer.appendChild(panelBlock02);
-
+				
 {{rawJSComment "						// Panel Block 03"}}
 {{rawJSComment "						// Panel Block 03"}}
 						panelBlockContainer = createPanelBlockContainer(tabContainer.id);
 						panelBlock03 = panelBlockContainer.panelBlock;
 						divPanelBlock03 = panelBlockContainer.divPanelBlock;
-
+				
 						var Panel03ColumnsConfig;
-
+				
 						if (deploymentType == "colocated") {
 							Panel03ColumnsConfig = [
 								{
@@ -1860,7 +1818,7 @@
 									columnInputType: "label",
 									columnInputContent: edge.data("extraData").clabTargetMacAddress,
 								},
-
+				
 								{
 									idSuffix: "labelTargetImpairmentDelay",
 									columnLabelTextContent: "Delay (ms)",
@@ -1926,7 +1884,7 @@
 									columnInputClass: "column is-3 p-1 pl-3",
 									columnInputContent: "0",
 									columnInputAttribute: "enabled",
-
+				
 									addonsContent: [
 										{
 											name: "blue",
@@ -1988,7 +1946,7 @@
 									columnInputType: "label",
 									columnInputContent: edge.data("extraData").clabTargetMacAddress,
 								},
-
+				
 								{
 									idSuffix: "labelTargetImpairmentDelay",
 									columnLabelTextContent: "Delay (ms)",
@@ -2054,7 +2012,7 @@
 									columnInputClass: "column is-3 p-1 pl-3",
 									columnInputContent: "0",
 									columnInputAttribute: "enabled",
-
+				
 									addonsContent: [
 										{
 											name: "blue",
@@ -2118,17 +2076,17 @@
 								},
 							];
 						}
-
+				
 						createPanelBlockForm(Panel03ColumnsConfig, panelBlock03, divPanelBlock03);
-
+				
 {{rawJSComment "						// append divPanelBlock03 --> panelBlock03 --> tabContainer"}}
 {{rawJSComment "						// append divPanelBlock03 --> panelBlock03 --> tabContainer"}}
 						panelBlock03.appendChild(divPanelBlock03);
 						tabContainer.appendChild(panelBlock03);
-
+				
 						return tabContainer;
 					}
-
+				
 {{rawJSComment "					// "}}
 {{rawJSComment "					// END of JS Functions HTML Element Creation section"}}
 {{rawJSComment "					// END of JS Functions HTML Element Creation section"}}
@@ -2137,7 +2095,7 @@
 {{rawJSComment "					// END of JS Functions HTML Element Creation section"}}
 {{rawJSComment "					// END of JS Functions HTML Element Creation section"}}
 {{rawJSComment "					// "}}
-
+				
 {{rawJSComment "					// "}}
 {{rawJSComment "					// START of JS Functions Event Handling section"}}
 {{rawJSComment "					// START of JS Functions Event Handling section"}}
@@ -2146,7 +2104,7 @@
 {{rawJSComment "					// START of JS Functions Event Handling section"}}
 {{rawJSComment "					// START of JS Functions Event Handling section"}}
 {{rawJSComment "					// "}}
-
+				
 					function generateNodesEvent(event) {
 {{rawJSComment "						// Your event handling logic here"}}
 {{rawJSComment "						//- Add a click event listener to the 'Generate' button"}}
@@ -2256,7 +2214,7 @@
 								`Boom! Just generated ${numNodesToGenerate} nodes with some random edges. That's how we roll!`,
 						);
 					}
-
+				
 					function spawnNodeEvent(event) {
 {{rawJSComment "						//- Add a click event listener to the 'Submit' button in the hidden form"}}
 {{rawJSComment "						//- Get the node name from the input field"}}
@@ -2309,7 +2267,7 @@
 						console.log("Info: " + `Nice! Node "${nodeName}" added successfully.`);
 						appendMessage("Info: " + `Nice! Node "${nodeName}" added successfully.`);
 					}
-
+				
 					function nodeFindEvent(event) {
 {{rawJSComment "						//- Get a reference to your Cytoscape instance (assuming it's named 'cy')"}}
 {{rawJSComment "						//- const cy = window.cy; //- Replace 'window.cy' with your actual Cytoscape instance"}}
@@ -2361,7 +2319,7 @@
 							);
 						}
 					}
-
+				
 					function zoomToFitDrawer() {
 						const initialZoom = cy.zoom();
 						appendMessage(`Bro, initial zoom level is "${initialZoom}".`);
@@ -2371,7 +2329,7 @@
 						const currentZoom = cy.zoom();
 						appendMessage(`And now the zoom level is "${currentZoom}".`);
 					}
-
+				
 					function pathFinderDijkstraEvent(event) {
 {{rawJSComment "						// Usage example:"}}
 {{rawJSComment "						// highlightShortestPath('node-a', 'node-b'); // Replace with your source and target node IDs"}}
@@ -2383,15 +2341,15 @@
 {{rawJSComment "						//- Function to get the default node style from cy-style.json"}}
 {{rawJSComment "						//- weight: (edge) => 1, // You can adjust the weight function if needed"}}
 {{rawJSComment "						//- weight: (edge) => edge.data('distance')"}}
-
+				
 						console.log("im triggered");
-
+				
 {{rawJSComment "						// Remove existing highlight from all edges"}}
 {{rawJSComment "						// Remove existing highlight from all edges"}}
 						cy.edges().forEach((edge) => {
 							edge.removeClass("spf");
 						});
-
+				
 {{rawJSComment "						// Get the node sourceNodeId from pathFinderSourceNodeInput and targetNodeId from pathFinderTargetNodeInput"}}
 {{rawJSComment "						// Get the node sourceNodeId from pathFinderSourceNodeInput and targetNodeId from pathFinderTargetNodeInput"}}
 						const sourceNodeId = document.getElementById(
@@ -2400,12 +2358,12 @@
 						const targetNodeId = document.getElementById(
 							"pathFinderTargetNodeInput",
 						).value;
-
+				
 {{rawJSComment "						// Assuming you have 'cy' as your Cytoscape instance"}}
 {{rawJSComment "						// Assuming you have 'cy' as your Cytoscape instance"}}
 						const sourceNode = cy.$(`node[id="${sourceNodeId}"]`);
 						const targetNode = cy.$(`node[id="${targetNodeId}"]`);
-
+				
 						console.log(
 							"Info: " +
 								"Let's find the path from-" +
@@ -2422,7 +2380,7 @@
 								targetNodeId +
 								"!",
 						);
-
+				
 {{rawJSComment "						// Check if both nodes exist"}}
 {{rawJSComment "						// Check if both nodes exist"}}
 						if (sourceNode.length === 0 || targetNode.length === 0) {
@@ -2434,7 +2392,7 @@
 							);
 							return;
 						}
-
+				
 {{rawJSComment "						// Get the Dijkstra result with the shortest path"}}
 {{rawJSComment "						// Get the Dijkstra result with the shortest path"}}
 						const dijkstraResult = cy.elements().dijkstra({
@@ -2449,7 +2407,7 @@
 {{rawJSComment "						// Get the shortest path from Dijkstra result"}}
 						const shortestPathEdges = dijkstraResult.pathTo(targetNode);
 						console.log(shortestPathEdges);
-
+				
 {{rawJSComment "						// Check if there is a valid path (shortestPathEdges is not empty)"}}
 {{rawJSComment "						// Check if there is a valid path (shortestPathEdges is not empty)"}}
 						if (shortestPathEdges.length > 1) {
@@ -2463,17 +2421,17 @@
 {{rawJSComment "							//	'line-color': 'red',"}}
 {{rawJSComment "							//	'line-style': 'solid',"}}
 {{rawJSComment "							// });"}}
-
+				
 {{rawJSComment "							// Highlight the shortest path"}}
 {{rawJSComment "							// Highlight the shortest path"}}
 							shortestPathEdges.forEach((edge) => {
 								edge.addClass("spf");
 							});
-
+				
 {{rawJSComment "							//- Zoom out on the node"}}
 {{rawJSComment "							//- Zoom out on the node"}}
 							cy.fit();
-
+				
 {{rawJSComment "							//- Zoom in on the node"}}
 {{rawJSComment "							//- Zoom in on the node"}}
 							cy.animate({
@@ -2509,18 +2467,18 @@
 									" has been found, below is the path trace..",
 							);
 							console.log(shortestPathEdges);
-
+				
 							shortestPathEdges.forEach((edge) => {
 								console.log("Edge ID:", edge.id());
 								console.log("Source Node ID:", edge.source().id());
 								console.log("Target Node ID:", edge.target().id());
-
+				
 								edgeId = edge.id();
 								sourceNodeId = edge.source().id();
 								targetNodeId = edge.target().id();
 {{rawJSComment "								// You can access other properties of the edge, e.g., source, target, data, etc."}}
 {{rawJSComment "								// You can access other properties of the edge, e.g., source, target, data, etc."}}
-
+				
 								appendMessage("Info: " + "Edge ID: " + edgeId);
 								appendMessage("Info: " + "Source Node ID: " + sourceNodeId);
 								appendMessage("Info: " + "Target Node ID: " + targetNodeId);
@@ -2535,7 +2493,7 @@
 							return;
 						}
 					}
-
+				
 					function closePanel01Event(event) {
 						var panel = document.getElementById("Panel-01");
 						if (panel.style.display === "none" || panel.style.display === "") {
@@ -2553,14 +2511,14 @@
 							"Panel-01.style: " + document.getElementById("Panel-01").style.display,
 						);
 					}
-
-					var linkEndpointVisibility = false;
-
+				
+					var linkEndpointVisibility = true;
+				
 					function toggleLinkEndpoint() {
 						if (linkEndpointVisibility) {
 							cy.edges().forEach(function (edge) {
-								edge.style("source-label", " ");
-								edge.style("target-label", " ");
+								edge.style("source-label", ".");
+								edge.style("target-label", ".");
 								linkEndpointVisibility = false;
 							});
 						} else {
@@ -2571,9 +2529,9 @@
 							});
 						}
 					}
-
+				
 					var nodeContainerStatusVisibility = false;
-
+				
 					function toggleContainerStatusVisibility() {
 						if (nodeContainerStatusVisibility) {
 							nodeContainerStatusVisibility = false;
@@ -2607,23 +2565,23 @@
 							});
 						}
 					}
-
+				
 					function setNodeContainerStatus(containerNodeName, containerNodeStatus) {
 						cy.nodes().forEach(function (node) {
 							var nodeId = node.data("id");
-
+				
 {{rawJSComment "							// Find the corresponding status nodes based on node ID"}}
 {{rawJSComment "							// Find the corresponding status nodes based on node ID"}}
 							var statusGreenNode = cy.$(`node[name="${nodeId}-statusGreen"]`);
 							var statusOrangeNode = cy.$(`node[name="${nodeId}-statusOrange"]`);
 							var statusRedNode = cy.$(`node[name="${nodeId}-statusRed"]`);
-
+				
 							if (statusGreenNode.length === 0 || statusRedNode.length === 0) {
 {{rawJSComment "								// If status nodes are not found, skip this node"}}
 {{rawJSComment "								// If status nodes are not found, skip this node"}}
 								return;
 							}
-
+				
 {{rawJSComment "							// Update positions of status nodes relative to the node"}}
 {{rawJSComment "							// Update positions of status nodes relative to the node"}}
 							var nodePosition = node.position();
@@ -2636,7 +2594,7 @@
 								x: nodePosition.x + offset.x,
 								y: nodePosition.y + offset.y,
 							};
-
+				
 {{rawJSComment "							// Check if the nodeContainerStatusVisibility is true"}}
 {{rawJSComment "							// Check if the nodeContainerStatusVisibility is true"}}
 							if (nodeContainerStatusVisibility) {
@@ -2669,12 +2627,12 @@
 								statusGreenNode.hide();
 								statusRedNode.hide();
 							}
-
+				
 							statusGreenNode.position(statusGreenNodePosition);
 							statusRedNode.position(statusRedNodePosition);
 						});
 					}
-
+				
 					function setNodeDataWithContainerAttribute(containerNodeName, status, state) {
 						cy.nodes().forEach(function (node) {
 							var nodeId = node.data("id");
@@ -2683,7 +2641,7 @@
 									state: state,
 									status: status,
 								};
-
+				
 								node.data(
 									"containerDockerExtraAttribute",
 									containerDockerExtraAttributeData,
@@ -2691,12 +2649,12 @@
 							}
 						});
 					}
-
+				
 {{rawJSComment "					// "}}
 {{rawJSComment "					// End of JS Functions Event Handling section"}}
 {{rawJSComment "					// End of JS Functions Event Handling section"}}
 {{rawJSComment "					// "}}
-
+				
 {{rawJSComment "					// "}}
 {{rawJSComment "					// Start of JS Generic Functions"}}
 {{rawJSComment "					// Start of JS Generic Functions"}}
@@ -2705,14 +2663,14 @@
 {{rawJSComment "					// Start of JS Generic Functions"}}
 {{rawJSComment "					// Start of JS Generic Functions"}}
 {{rawJSComment "					// "}}
-
+				
 {{rawJSComment "					//- Helper Function for managed Panel-01 tabs"}}
 {{rawJSComment "					//- Helper Function for managed Panel-01 tabs"}}
 					function showPanel01Tab(tabId) {
 						hideAllTabs();
 						document.getElementById(tabId).style.display = "block";
 					}
-
+				
 {{rawJSComment "					//- Function to get the default node style from cy-style.json"}}
 {{rawJSComment "					//- Function to get the default node style from cy-style.json"}}
 					async function getDefaultNodeStyle(node) {
@@ -2748,13 +2706,13 @@
 							};
 						}
 					}
-
+				
 {{rawJSComment "					///-logMessagesPanel Function to add a click event listener to the copy button"}}
 {{rawJSComment "					///-logMessagesPanel Function to add a click event listener to the copy button"}}
 					const copyButton = document.getElementById("copyToClipboardButton");
 					copyButton.className = "button is-smallest-element";
 					copyButton.addEventListener("click", copyToClipboard);
-
+				
 {{rawJSComment "					/// logMessagesPanel Function to copy textarea content to clipboard"}}
 {{rawJSComment "					/// logMessagesPanel Function to copy textarea content to clipboard"}}
 					function copyToClipboard() {
@@ -2762,23 +2720,23 @@
 						textarea.select();
 						document.execCommand("copy");
 					}
-
+				
 {{rawJSComment "					///-logMessagesPanel Function to add a click event listener to the close button"}}
 {{rawJSComment "					///-logMessagesPanel Function to add a click event listener to the close button"}}
 					const panel02CloseButton = document.getElementById("panel02CloseButton");
 					panel02CloseButton.className = "button is-smallest-element";
-
+				
 					panel02CloseButton.addEventListener("click", () => {
 						panelId = document.getElementById("Panel-02");
 						closePanelEvent(event, panelId);
 					});
-
+				
 					function closePanelEvent(event, panel) {
 						panel.style.display = "block";
 						console.log(panel.style.display);
 						panel.style.display = "none";
 					}
-
+				
 					function createModal(modalId, modalContent) {
 {{rawJSComment "						// Create the modal"}}
 {{rawJSComment "						// Create the modal"}}
@@ -2788,22 +2746,22 @@
 																	${modalContent}
 															</div>
 															`;
-
+				
 						const modalDiv = document.createElement("div");
 						modalDiv.innerHTML = htmlContent;
 						modalDiv.id = "modalDivExportViewport";
-
+				
 						document.body.appendChild(modalDiv);
 						const modalBackground = document.getElementById(
 							`${modalId}-modalBackgroundId`,
 						);
-
+				
 						modalBackground.addEventListener("click", function () {
 							const modal = modalBackground.parentNode;
 							modal.classList.remove("is-active");
 						});
 					}
-
+				
 					function showModalCaptureViewport(modalId) {
 						const modalContentSaveViewport = ` 	
 																	<div class="modal-content" style="max-width:300px;">
@@ -2841,11 +2799,11 @@
 																		</div>
 																	</div>
 																	`;
-
+				
 {{rawJSComment "						// Instantiate modal"}}
 {{rawJSComment "						// Instantiate modal"}}
 						createModal("modalSaveViewport", modalContentSaveViewport);
-
+				
 {{rawJSComment "						// create event listener"}}
 {{rawJSComment "						// create event listener"}}
 						const performActionButton = document.getElementById("performActionButton");
@@ -2855,13 +2813,13 @@
 								`input[type="checkbox"][name="${checkboxName}"]`,
 							);
 							const selectedOptions = [];
-
+				
 							checkboxes.forEach(function (checkbox) {
 								if (checkbox.checked) {
 									selectedOptions.push(checkbox.value);
 								}
 							});
-
+				
 							if (selectedOptions.length === 0) {
 								bulmaToast.toast({
 									message: `Hey there, please pick at least one option.😊👌`,
@@ -2887,13 +2845,13 @@
 								}
 							}
 						});
-
+				
 {{rawJSComment "						// show modal"}}
 {{rawJSComment "						// show modal"}}
 						modal = document.getElementById(modalId);
 						modal.classList.add("is-active");
 					}
-
+				
 {{rawJSComment "					// "}}
 {{rawJSComment "					// End of JS Generic Functions section"}}
 {{rawJSComment "					// End of JS Generic Functions section"}}
@@ -2903,7 +2861,7 @@
 {{rawJSComment "					// End of JS Generic Functions section"}}
 {{rawJSComment "					// "}}
 				});
-
+				
 {{rawJSComment "				// aarafat-tag:"}}
 {{rawJSComment "				//// reworked the Log Message panel to be dynamicaly created"}}
 {{rawJSComment "				//// create about panel"}}
@@ -2917,23 +2875,23 @@
 					panel = document.getElementById("Panel-02");
 					showPanelEvent(event, panel);
 				}
-
+				
 				function getAllNodeEndpoint(event) {
 					console.log ("getAllNodeEndpoint Function called")
 					arg01 = "arg01"
 					arg02 = "arg02"
 					arg03 = "arg03"
-
+				
 					getAllNodeEndpointDetailExec(arg01, arg02, arg03)
 					
 				}
-
+				
 				function showPanelEvent(event, panel) {
 					panel.style.display = "none";
 					console.log(panel.style.display);
 					panel.style.display = "block";
 				}
-
+				
 {{rawJSComment "				// Function to remove an element by its id"}}
 {{rawJSComment "				// Function to remove an element by its id"}}
 				function removeElementById(id) {
@@ -2943,7 +2901,7 @@
 						elementToRemove.remove();
 					}
 				}
-
+				
 {{rawJSComment "				// Call createContentPanel with the panel ID and an array of tab content functions"}}
 {{rawJSComment "				// The Tab name will be auto generate by the tabFunction names, ie: funtion name: createNetworkExplorerTab --> tab name: NetworkExplorer"}}
 {{rawJSComment "				// Call createContentPanel with the panel ID and an array of tab content functions"}}
@@ -2955,23 +2913,23 @@
 					panelHeadingText,
 				) {
 					appendMessage(`"createContentPanel reach:`);
-
+				
 					const tabNames = tabContentFns.map((fn) => fn.name);
-
+				
 					const panel = document.createElement("div");
 					panel.className = "panel is-link";
 					panel.id = panelId;
 					panel.style.display = "block";
-
+				
 					const panelHeading = document.createElement("p");
 					panelHeading.className = "panel-heading is-size-7";
 					panelHeading.textContent = panelHeadingText;
-
+				
 					const panelTabs = document.createElement("p");
 					panelTabs.className = "panel-tabs";
-
+				
 					const tabContainers = [];
-
+				
 {{rawJSComment "					// Check if the tabContentFns have more than 1 element"}}
 {{rawJSComment "					// Check if the tabContentFns have more than 1 element"}}
 					if (tabContentFns.length != 1) {
@@ -2982,15 +2940,15 @@
 							tab.setAttribute("data-target", `${panelId}-Tab-${name}-Container`);
 							tab.id = `${panelId}-Tab-${name}-Button`;
 							tab.textContent = name.replace(/^create|Tab$/g, "");
-
+				
 							panelTabs.appendChild(tab);
-
+				
 							const tabContainer = document.createElement("div");
 							tabContainer.className = "panel-tabContainer";
 							tabContainer.id = `${panelId}-Tab-${name}-Container`;
-
+				
 							tabContainers.push(tabContainer);
-
+				
 {{rawJSComment "							// Generate tab content using the provided function from tabContentFns"}}
 {{rawJSComment "							// Generate tab content using the provided function from tabContentFns"}}
 							if (tabContentFns[i] && typeof tabContentFns[i] === "function") {
@@ -3005,19 +2963,19 @@
 						tabContainer.className = "panel-tabContainer";
 						tabContainer.id = `${panelId}-Tab-${name}-Container`;
 						tabContainers.push(tabContainer);
-
+				
 {{rawJSComment "						// Generate tab content using the provided function from tabContentFns"}}
 {{rawJSComment "						// Generate tab content using the provided function from tabContentFns"}}
 						if (tabContentFns[0] && typeof tabContentFns[0] === "function") {
 							const tabContent = tabContentFns[0](tabContentFnsArg, panelHeadingText);
 							console.log("tabContentFnsArg");
-
+				
 							console.log(tabContentFnsArg);
 							panel.appendChild(panelHeading);
 							panel.appendChild(tabContent);
 						}
 					}
-
+				
 {{rawJSComment "					// Check if the tabContentFns have more than 1 element"}}
 {{rawJSComment "					// Check if the tabContentFns have more than 1 element"}}
 					if (tabContentFns.length != 1) {
@@ -3029,32 +2987,32 @@
 						}
 						tabContainers[0].style.display = "block";
 					}
-
+				
 					document.body.appendChild(panel);
-
+				
 					const toggleButtons = document.querySelectorAll(".toggle-Panel01-tab");
-
+				
 					toggleButtons.forEach((tab) => {
 						tab.addEventListener("click", () => {
 							const targetTabId = tab.getAttribute("data-target");
 							const selectedTabContainer = document.getElementById(targetTabId);
-
+				
 {{rawJSComment "							// Hide all tab containers"}}
 {{rawJSComment "							// Hide all tab containers"}}
 							tabContainers.forEach((container) => {
 								container.style.display = "none";
 							});
-
+				
 {{rawJSComment "							// Show the selected tab container"}}
 {{rawJSComment "							// Show the selected tab container"}}
 							selectedTabContainer.style.display = "block";
-
+				
 							console.log(`Panel-${targetTabId} is displayed.`);
 							appendMessage(`Panel-${targetTabId} is displayed.`);
 						});
 					});
 				}
-
+				
 {{rawJSComment "				// logMessagesPanel manager"}}
 {{rawJSComment "				///-logMessagesPanel Function to append message function"}}
 {{rawJSComment "				// logMessagesPanel manager"}}
@@ -3063,32 +3021,32 @@
 {{rawJSComment "					// const textarea = document.getElementById('notificationTextarea');"}}
 {{rawJSComment "					// const textarea = document.getElementById('notificationTextarea');"}}
 					const textarea = document.getElementById("notificationTextarea");
-
+				
 {{rawJSComment "					// Get the current date and time"}}
 {{rawJSComment "					// Get the current date and time"}}
 					const timestamp = new Date().toLocaleString();
-
+				
 					textarea.value += `[${timestamp}] ${message}\n`;
 					textarea.scrollTop = textarea.scrollHeight;
 				}
-
+				
 				function createPanelBlockContainer(tabContainerId) {
 {{rawJSComment "					// this is helper function to create PanelBlock-Container"}}
 {{rawJSComment "					// this is helper function to create PanelBlock-Container"}}
 					const panelBlock = document.createElement("div");
 					panelBlock.id = `panelBlock-${tabContainerId}`;
 					panelBlock.className = "panel-block py-2";
-
+				
 					const divPanelBlock = document.createElement("div");
 					divPanelBlock.id = `${panelBlock.id}-divPanelBlock`;
 					divPanelBlock.className = "column p-0";
-
+				
 					return {
 						panelBlock: panelBlock,
 						divPanelBlock: divPanelBlock,
 					};
 				}
-
+				
 				function createPanelBlockForm(
 					PanelColumnsConfig,
 					panelBlock,
@@ -3109,7 +3067,7 @@
 {{rawJSComment "					// const panelBlock01 = document.createElement('div');"}}
 {{rawJSComment "					// panelBlock01.id = `panelBlock01-${modifiedHeaderText}`"}}
 {{rawJSComment "					// panelBlock01.className = 'panel-block p-0';"}}
-
+				
 {{rawJSComment "					// const divPanelBlock01 = document.createElement('div');"}}
 {{rawJSComment "					// divPanelBlock01.id = `${panelBlock01.id}-divPanelBlock01-`"}}
 {{rawJSComment "					// divPanelBlock01.className = 'column ';"}}
@@ -3118,7 +3076,7 @@
 {{rawJSComment "					// divPanelBlock01.id = `${panelBlock01.id}-divPanelBlock01-`"}}
 {{rawJSComment "					// divPanelBlock01.className = 'column ';"}}
 {{rawJSComment "					// // End of mandatory panelContent containercontainer"}}
-
+				
 {{rawJSComment "					// const Panel01ColumnsConfig = ["}}
 {{rawJSComment "					// 	{ idSuffix: 'labelNodeName', columnLabelTextContent: 'Node Name', columnLabelClass: 'column is-4 p-1', columnInputType: 'field', columnInputContent: node.data('name'),"}}
 {{rawJSComment "					// 		addonsContent: ["}}
@@ -3152,32 +3110,32 @@
 {{rawJSComment "					//  	}]},"}}
 {{rawJSComment "					//  ];"}}
 {{rawJSComment "					// ];"}}
-
+				
 					PanelColumnsConfig.forEach((config) => {
 {{rawJSComment "						// Create columnContainer"}}
 {{rawJSComment "						// Create columnContainer"}}
 						const columnContainer = document.createElement("div");
 						columnContainer.id = `${divPanelBlock.id}-columnContainer${config.idSuffix}`;
 						columnContainer.className = "column my-auto is-11 pr-1";
-
+				
 {{rawJSComment "						// Create panelContent"}}
 {{rawJSComment "						// Create panelContent"}}
 						const panelContent = document.createElement("div");
 						panelContent.id = `${columnContainer.id}-panelContent${config.idSuffix}`;
 						panelContent.className = "panel-content";
-
+				
 {{rawJSComment "						// Create columnsPanelContent container"}}
 {{rawJSComment "						// Create columnsPanelContent container"}}
 						const columnsPanelContent = document.createElement("div");
 						columnsPanelContent.className = "columns py-auto";
 						columnsPanelContent.id = `${panelContent.id}-columnsPanelContent${config.idSuffix}`;
-
+				
 {{rawJSComment "						// Create labelColumn column"}}
 {{rawJSComment "						// Create labelColumn column"}}
 						const labelColumn = document.createElement("div");
 						labelColumn.id = `${columnsPanelContent.id}-labelColumn${config.idSuffix}`;
 						labelColumn.className = `${config.columnLabelClass}`;
-
+				
 						const labelElement = document.createElement("label");
 						if (
 							typeof config.columnLabelElementClass !== "undefined" &&
@@ -3189,25 +3147,25 @@
 							labelElement.className =
 								"label is-size-7 has-text-right has-text-weight-medium px-auto";
 						}
-
+				
 						labelElement.textContent = config.columnLabelTextContent;
 						labelElement.id = `${labelColumn.id}-labelElement${config.idSuffix}`;
-
+				
 						labelColumn.appendChild(labelElement);
 						columnsPanelContent.appendChild(labelColumn);
-
+				
 {{rawJSComment "						// Create inputColumn column"}}
 {{rawJSComment "						// Create inputColumn column"}}
 						if (config.columnInputType == "label") {
 							const inputColumn = document.createElement("div");
 							inputColumn.className = `column is-8 p-1 pl-3`;
 							inputColumn.id = `${labelColumn.id}-inputColumn${config.idSuffix}`;
-
+				
 							const inputElement = document.createElement("label");
 							inputElement.className = `label is-size-7 has-text-left link-impairment-widht has-text-weight-normal mr-0 is-max-content`;
 							inputElement.id = `${inputColumn.id}-label${config.idSuffix}`;
 							inputElement.textContent = config.columnInputContent;
-
+				
 							inputColumn.appendChild(inputElement);
 							columnsPanelContent.appendChild(inputColumn);
 						} else if (config.columnInputType == "button") {
@@ -3222,7 +3180,7 @@
 								inputColumn.className = `column is-8 p-1 pl-3`;
 							}
 							inputColumn.id = `${labelColumn.id}-inputColumn${config.idSuffix}`;
-
+				
 							const inputElement = document.createElement("button");
 							if (
 								typeof config.columnInputElementClass !== "undefined" &&
@@ -3233,27 +3191,27 @@
 							} else {
 								inputElement.className = `button is-size-7 is-smallest-element is-justify-content-flex-end`;
 							}
-
+				
 							inputElement.id = `${inputColumn.id}-inputElement${config.idSuffix}`;
 							inputElement.textContent = config.columnInputContent;
 							inputElement.style.width = "50";
-
+				
 							inputElementIconSpan = document.createElement("span");
 							inputElementIconSpan.id = `${inputElement.id}-inputElementIconSpan${config.idSuffix}`;
 							inputElementIconSpan.className = config.columnInputContentIconSpanClass;
-
+				
 							inputElementIconInlineElement = document.createElement("i");
 							inputElementIconInlineElement.id = `${inputElementIconSpan.id}-inputElementIconInlineElement${config.idSuffix}`;
 							inputElementIconInlineElement.className =
 								config.columnInputContentIconInlineElementClass;
-
+				
 							inputElementIconSpanButtonLabel = document.createElement("span");
 							inputElementIconSpanButtonLabel.id = `${inputElement.id}-inputElementIconSpanButtonLabel${config.idSuffix}`;
-
+				
 							inputElementIconSpan.appendChild(inputElementIconInlineElement);
 							inputElement.appendChild(inputElementIconSpanButtonLabel);
 							inputElement.appendChild(inputElementIconSpan);
-
+				
 							inputElement.addEventListener("click", function () {
 								console.log(
 									"config.columnInputCallOutFuntionName: ",
@@ -3261,27 +3219,27 @@
 								);
 								eval(config.columnInputCallOutFuntionName + `(cy)`);
 							});
-
+				
 							inputColumn.appendChild(inputElement);
 							columnsPanelContent.appendChild(inputColumn);
 						} else if (config.columnInputType == "slider") {
 							const inputColumn = document.createElement("div");
 							inputColumn.className = `column is-5 p-1 pl-2`;
 							inputColumn.id = `${labelColumn.id}-inputColumn${config.idSuffix}`;
-
+				
 							const inputElement = document.createElement("input");
 							inputElement.className = `slider custom-slider`;
 							inputElement.style.width = `100px`;
-
+				
 							inputElement.step = "1";
 							inputElement.min = "1";
 							inputElement.max = "1000";
 							inputElement.value = "50";
 							inputElement.type = "range";
-
+				
 							inputElement.id = `${inputColumn.id}-label${config.idSuffix}`;
 							inputElement.textContent = config.columnInputContent;
-
+				
 							inputColumn.appendChild(inputElement);
 							columnsPanelContent.appendChild(inputColumn);
 						} else if (config.columnInputType == "input") {
@@ -3314,21 +3272,21 @@
 							inputElement.type = "text";
 							inputElement.value = config.columnInputContent;
 							inputElement.placeholder = config.columnInputPlaceholder;
-
+				
 							inputColumn.appendChild(inputElement);
 							columnsPanelContent.appendChild(inputColumn);
 						} else if (config.columnInputType == "field") {
 							const inputColumn = document.createElement("div");
 							inputColumn.className = `column is-8 p-1 pl-3`;
 							inputColumn.id = `${labelColumn.id}-inputColumn${config.idSuffix}`;
-
+				
 							const inputElement = document.createElement("div");
 							inputElement.className = `field has-addons`;
 							inputElement.id = `${inputColumn.id}-label${config.idSuffix}`;
 							if (config.columnInputIsInvisible == "yes") {
 								inputElement.classList.add("is-invisible");
 							}
-
+				
 {{rawJSComment "							// create addon input"}}
 {{rawJSComment "							// create addon input"}}
 							const controlId = `${inputElement.id}-control`;
@@ -3337,37 +3295,37 @@
 							control.id = controlId;
 							const input = document.createElement("input");
 							input.id = `${controlId}-input`;
-
+				
 							if (config.columnInputAttribute == "enabled") {
 								input.setAttribute("enabled", "");
 							} else {
 								input.setAttribute("disabled", "");
 							}
-
+				
 							input.className = `label is-size-7 has-text-left has-text-weight-normal is-flex-wrap-wrap is-smallest-element`;
 							input.value = config.columnInputContent;
 							input.placeholder = config.columnInputPlaceholder;
-
+				
 							control.appendChild(input);
 							inputElement.appendChild(control);
-
+				
 {{rawJSComment "							// create addon button"}}
 {{rawJSComment "							// create addon button"}}
 							addons = config.addonsContent;
-
+				
 							for (let i = 0; i < addons.length; i++) {
 								const addon = addons[i];
 								const controlId = `${inputElement.id}-control${addon.name}`;
 								const control = document.createElement("p");
 								control.className = "control";
 								control.id = controlId;
-
+				
 {{rawJSComment "								// Create a button element"}}
 {{rawJSComment "								// Create a button element"}}
 								const button = document.createElement("a");
 								button.id = `${controlId}-button${addon.name}`;
 								button.className = `button is-outlined px-3 is-smallest-element is-${addon.name === "blue" ? "link" : "success"}`;
-
+				
 								if (addon.hrefFunction == "link") {
 									button.href = addon.hrefLink;
 									button.target = "_blank";
@@ -3384,7 +3342,7 @@
 {{rawJSComment "										// Prevent the default behavior of the anchor element (opening a new tab)"}}
 										urlToCopy = addon.hrefLink;
 										event.preventDefault();
-
+				
 {{rawJSComment "										// Create a temporary input element to copy the URL to the clipboard"}}
 {{rawJSComment "										// Create a temporary input element to copy the URL to the clipboard"}}
 										const tempInput = document.createElement("input");
@@ -3393,7 +3351,7 @@
 										tempInput.select();
 										document.execCommand("copy");
 										document.body.removeChild(tempInput);
-
+				
 {{rawJSComment "										// Provide user feedback (e.g., alert or toast) that the URL has been copied"}}
 {{rawJSComment "										// Provide user feedback (e.g., alert or toast) that the URL has been copied"}}
 										bulmaToast.toast({
@@ -3408,7 +3366,7 @@
 										);
 									});
 								}
-
+				
 {{rawJSComment "								// Create a icon element"}}
 {{rawJSComment "								// Create a icon element"}}
 								const icon = document.createElement("span");
@@ -3417,11 +3375,11 @@
 								iconElement.className = addon.iconClass;
 								icon.appendChild(iconElement);
 								button.appendChild(icon);
-
+				
 {{rawJSComment "								// Create a hover text paragraph element"}}
 {{rawJSComment "								// Create a hover text paragraph element"}}
 								const hoverText = document.querySelector(".hover-text");
-
+				
 {{rawJSComment "								// Add event listeners for hover behavior"}}
 {{rawJSComment "								// Add event listeners for hover behavior"}}
 								button.addEventListener("mouseover", () => {
@@ -3430,7 +3388,7 @@
 									const rect = button.getBoundingClientRect();
 									const top = rect.top - hoverText.offsetHeight + 25;
 									const left = rect.left + (button.offsetWidth - hoverText.offsetWidth) / 2;
-
+				
 {{rawJSComment "									// Set the position and show the hover text"}}
 {{rawJSComment "									// Set the position and show the hover text"}}
 									hoverText.style.top = `${top}px`;
@@ -3449,7 +3407,7 @@
 							inputColumn.appendChild(inputElement);
 							columnsPanelContent.appendChild(inputColumn);
 						}
-
+				
 {{rawJSComment "						// columnInputType buttonGroupHandle"}}
 {{rawJSComment "						// columnInputType buttonGroupHandle"}}
 						else if (config.columnInputType == "buttonGroup") {
@@ -3464,31 +3422,31 @@
 								inputColumn.className = `column is-8 p-1 pl-3`;
 							}
 							inputColumn.id = `${labelColumn.id}-inputColumn${config.idSuffix}`;
-
+				
 							const inputElement = document.createElement("div");
 							inputElement.className = `field has-addons`;
 							inputElement.id = `${inputColumn.id}-label${config.idSuffix}`;
 							if (config.columnInputIsInvisible == "yes") {
 								inputElement.classList.add("is-invisible");
 							}
-
+				
 {{rawJSComment "							// create addon button"}}
 {{rawJSComment "							// create addon button"}}
 							addons = config.addonsContent;
-
+				
 							for (let i = 0; i < addons.length; i++) {
 								const addon = addons[i];
 								const controlId = `${inputElement.id}-control${addon.name}`;
 								const control = document.createElement("p");
 								control.className = "control";
 								control.id = controlId;
-
+				
 {{rawJSComment "								// Create a button element"}}
 {{rawJSComment "								// Create a button element"}}
 								const button = document.createElement("a");
 								button.id = `${controlId}-button${addon.name}`;
 								button.className = `button is-outlined px-3 is-smallest-element is-${addon.name === "blue" ? "link" : "success"}`;
-
+				
 								if (addon.hrefFunction == "link") {
 									button.href = addon.hrefLink;
 									button.target = "_blank";
@@ -3505,7 +3463,7 @@
 {{rawJSComment "										// Prevent the default behavior of the anchor element (opening a new tab)"}}
 										urlToCopy = addon.hrefLink;
 										event.preventDefault();
-
+				
 {{rawJSComment "										// Create a temporary input element to copy the URL to the clipboard"}}
 {{rawJSComment "										// Create a temporary input element to copy the URL to the clipboard"}}
 										const tempInput = document.createElement("input");
@@ -3514,7 +3472,7 @@
 										tempInput.select();
 										document.execCommand("copy");
 										document.body.removeChild(tempInput);
-
+				
 {{rawJSComment "										// Provide user feedback (e.g., alert or toast) that the URL has been copied"}}
 {{rawJSComment "										// Provide user feedback (e.g., alert or toast) that the URL has been copied"}}
 										bulmaToast.toast({
@@ -3541,7 +3499,7 @@
 										console.log(
 											`getNodeEndpointDetailExecButton Arg03: ${addon.hrefFunctionArg03}`,
 										);
-
+				
 										getNodeEndpointDetailExec(
 											addon.hrefFunctionArg01,
 											addon.hrefFunctionArg02,
@@ -3625,7 +3583,7 @@
 										});
 									}
 								}
-
+				
 {{rawJSComment "								// Create a icon element"}}
 {{rawJSComment "								// Create a icon element"}}
 								const icon = document.createElement("span");
@@ -3634,11 +3592,11 @@
 								iconElement.className = addon.iconClass;
 								icon.appendChild(iconElement);
 								button.appendChild(icon);
-
+				
 {{rawJSComment "								// Create a hover text paragraph element"}}
 {{rawJSComment "								// Create a hover text paragraph element"}}
 								const hoverText = document.querySelector(".hover-text");
-
+				
 {{rawJSComment "								// Add event listeners for hover behavior"}}
 {{rawJSComment "								// Add event listeners for hover behavior"}}
 								button.addEventListener("mouseover", () => {
@@ -3647,7 +3605,7 @@
 									const rect = button.getBoundingClientRect();
 									const top = rect.top - hoverText.offsetHeight + 25;
 									const left = rect.left + (button.offsetWidth - hoverText.offsetWidth) / 2;
-
+				
 {{rawJSComment "									// Set the position and show the hover text"}}
 {{rawJSComment "									// Set the position and show the hover text"}}
 									hoverText.style.top = `${top}px`;
@@ -3666,13 +3624,13 @@
 							inputColumn.appendChild(inputElement);
 							columnsPanelContent.appendChild(inputColumn);
 						}
-
+				
 						panelContent.appendChild(columnsPanelContent);
 						columnContainer.appendChild(panelContent);
 						divPanelBlock.appendChild(columnContainer);
 					});
 				}
-
+				
 				function showPanelWelcome() {
 					tabContentFns = [createWelcomeTab];
 					tabContentFnsArg = [];
@@ -3682,26 +3640,26 @@
 						tabContentFnsArg,
 						"Introduction",
 					);
-
+				
 {{rawJSComment "					// createContentPanel('Panel-01', tabContentFns, tabContentFnsArg[0], 'Node Properties');"}}
 {{rawJSComment "					// createContentPanel('Panel-01', tabContentFns, tabContentFnsArg[0], 'Node Properties');"}}
 				}
-
+				
 				function createWelcomeTab(panelHeadingText) {
 					const modifiedHeaderText = panelHeadingText;
-
+				
 {{rawJSComment "					// Create the tab-container"}}
 {{rawJSComment "					// Create the tab-container"}}
 					const tabContainer = document.createElement("div");
 					tabContainer.id = `tabContainer-${modifiedHeaderText}`;
 					tabContainer.className = "panel-tabContainer";
-
+				
 {{rawJSComment "					// Panel Block 01"}}
 {{rawJSComment "					// Panel Block 01"}}
 					panelBlockContainer = createPanelBlockContainer(tabContainer.id);
 					panelBlock01 = panelBlockContainer.panelBlock;
 					divPanelBlock01 = panelBlockContainer.divPanelBlock;
-
+				
 {{rawJSComment "					// Define the HTML content as a string"}}
 {{rawJSComment "					// Define the HTML content as a string"}}
 					var topoViewerVersion = "nightly";
@@ -3712,12 +3670,12 @@
 													<p>
 														TopoViewer is a powerful network topology visualization tool designed to help you easily manage and monitor your network infrastructure. Whether you're a network administrator, engineer, or simply curious about your network, TopoViewer has you covered.<br>
 													</p>
-
+				
 													<p>
 														Designed and developed by <strong><a href="https://www.linkedin.com/in/asadarafat/">Asad Arafat</a></strong> <br>
 														GUI Framework by <strong><a href="https://www.linkedin.com/in/siva19susi//">Siva Sivakumar</a></strong> <br>
 													</p>
-
+				
 													<p>Key Features: </p>
 													<ul>
 														<li>Visualize your network topology with ease.</li>
@@ -3725,7 +3683,7 @@
 														<li>Analyze network traffic using Wireshark integration.</li>
 														<li>Apply network impairments to simulate real-world conditions.</li>
 													</ul>
-
+				
 													<p>
 														Getting Started: 
 													</p>
@@ -3736,14 +3694,14 @@
 														<li>For advanced network analysis, download our client package.</li>
 														<li>Visit our GitHub repository for more details <a href="https/github.com/asadarafat/topoViewer">https/github.com/asadarafat/topoViewer</a>.</li>
 													</ul>
-
+				
 													<p>
 														We hope you find TopoViewer a valuable tool for your network management needs. If you have any questions or feedback, please don't hesitate to reach out to us.
 													</p>
-
+				
 												</div>
 												`;
-
+				
 {{rawJSComment "					// Create a div element and set its innerHTML to the defined HTML content"}}
 {{rawJSComment "					// Create a div element and set its innerHTML to the defined HTML content"}}
 					const contentDiv = document.createElement("div");
@@ -3751,29 +3709,29 @@
 					contentDiv.innerHTML = htmlContent;
 					contentDiv.style.maxHeight = "280px";
 					contentDiv.style.overflowY = "auto";
-
+				
 					divPanelBlock01.appendChild(contentDiv);
 {{rawJSComment "					// append divPanelBlock01 --> panelBlock01 --> tabContainer"}}
 {{rawJSComment "					// append divPanelBlock01 --> panelBlock01 --> tabContainer"}}
 					panelBlock01.append(divPanelBlock01);
-
+				
 					tabContainer.appendChild(panelBlock01);
-
+				
 					return tabContainer;
 				}
-
+				
 				async function showPanelAbout() {
 					const versionUrl = `${location.protocol}//${location.host}/version`;
 					try {
 						const response = await fetch(versionUrl);
-
+				
 						if (!response.ok) {
 							throw new Error("Network response was not OK");
 						}
-
+				
 						const versionParsedText = await response.text();
 						console.log("Fetched text:", versionParsedText);
-
+				
 						removeElementById("Panel-03");
 						tabContentFns = [createAboutTab];
 						tabContentFnsArg = [versionParsedText];
@@ -3783,22 +3741,22 @@
 						throw error;
 					}
 				}
-
+				
 				function createAboutTab(versionParsedText, panelHeadingText) {
 					const modifiedHeaderText = panelHeadingText;
-
+				
 {{rawJSComment "					// Create the tab-container"}}
 {{rawJSComment "					// Create the tab-container"}}
 					const tabContainer = document.createElement("div");
 					tabContainer.id = `tabContainer-${modifiedHeaderText}`;
 					tabContainer.className = "panel-tabContainer";
-
+				
 {{rawJSComment "					// Panel Block 01"}}
 {{rawJSComment "					// Panel Block 01"}}
 					panelBlockContainer = createPanelBlockContainer(tabContainer.id);
 					panelBlock01 = panelBlockContainer.panelBlock;
 					divPanelBlock01 = panelBlockContainer.divPanelBlock;
-
+				
 {{rawJSComment "					// Define the HTML content as a string"}}
 {{rawJSComment "					// Define the HTML content as a string"}}
 					var topoViewerVersion = versionParsedText;
@@ -3810,7 +3768,7 @@
 													Designed and developed by <strong><a href="https://www.linkedin.com/in/asadarafat/">Asad Arafat</a></strong> <br>
 													GUI Framework by <strong><a href="https://www.linkedin.com/in/siva19susi//">Siva Sivakumar</a></strong> <br>
 													</p>
-
+				
 													<p>Instruction: </p>
 													<ul>
 													<li>To view the attributes of a node or link, click on it.</li>
@@ -3821,7 +3779,7 @@
 													
 												</div>
 												`;
-
+				
 {{rawJSComment "					// Create a div element and set its innerHTML to the defined HTML content"}}
 {{rawJSComment "					// Create a div element and set its innerHTML to the defined HTML content"}}
 					const contentDiv = document.createElement("div");
@@ -3829,16 +3787,16 @@
 					contentDiv.innerHTML = htmlContent;
 					contentDiv.style.maxHeight = "280px";
 					contentDiv.style.overflowY = "auto";
-
+				
 					divPanelBlock01.appendChild(contentDiv);
 {{rawJSComment "					// append divPanelBlock01 --> panelBlock01 --> tabContainer"}}
 {{rawJSComment "					// append divPanelBlock01 --> panelBlock01 --> tabContainer"}}
 					panelBlock01.append(divPanelBlock01);
 					tabContainer.appendChild(panelBlock01);
-
+				
 					return tabContainer;
 				}
-
+				
 				function showPanelTopoViewerClient() {
 					removeElementById("Panel-03");
 					tabContentFns = [createTopoViewerClientTab];
@@ -3849,29 +3807,29 @@
 						tabContentFnsArg,
 						"TopoViewer Helper App",
 					);
-
+				
 {{rawJSComment "					// createContentPanel('Panel-01', tabContentFns, tabContentFnsArg[0], 'Node Properties');"}}
 {{rawJSComment "					// createContentPanel('Panel-01', tabContentFns, tabContentFnsArg[0], 'Node Properties');"}}
 				}
-
+				
 				function createTopoViewerClientTab(panelHeadingText) {
 					const modifiedHeaderText = panelHeadingText;
-
+				
 {{rawJSComment "					// Create the tab-container"}}
 {{rawJSComment "					// Create the tab-container"}}
 					const tabContainer = document.createElement("div");
 					tabContainer.id = `tabContainer-${modifiedHeaderText}`;
 					tabContainer.className = "panel-tabContainer";
-
+				
 {{rawJSComment "					// Panel Block 01"}}
 {{rawJSComment "					// Panel Block 01"}}
 					panelBlockContainer = createPanelBlockContainer(tabContainer.id);
 					panelBlock01 = panelBlockContainer.panelBlock;
 					divPanelBlock01 = panelBlockContainer.divPanelBlock;
-
+				
 {{rawJSComment "					// Define the HTML content as a string"}}
 {{rawJSComment "					// Define the HTML content as a string"}}
-
+				
 					url = location.host;
 					const hreWindows = `http://${url}/clab-client/clab-client-windows/ClabCapture.app.zip`;
 					const hrefMac = `http://${url}/clab-client/clab-client-mac/ClabCapture.app.zip`;
@@ -3896,7 +3854,7 @@
 												</p>
 											</div>
 											`;
-
+				
 {{rawJSComment "					// Create a div element and set its innerHTML to the defined HTML content"}}
 {{rawJSComment "					// Create a div element and set its innerHTML to the defined HTML content"}}
 					const contentDiv = document.createElement("div");
@@ -3904,16 +3862,16 @@
 					contentDiv.innerHTML = htmlContent;
 					contentDiv.style.maxHeight = "280px";
 					contentDiv.style.overflowY = "auto";
-
+				
 					divPanelBlock01.appendChild(contentDiv);
 {{rawJSComment "					// append divPanelBlock01 --> panelBlock01 --> tabContainer"}}
 {{rawJSComment "					// append divPanelBlock01 --> panelBlock01 --> tabContainer"}}
 					panelBlock01.append(divPanelBlock01);
 					tabContainer.appendChild(panelBlock01);
-
+				
 					return tabContainer;
 				}
-
+				
 				function showPanelDrawerLayout() {
 					removeElementById("Panel-03");
 					tabContentFns = [createDrawerLayoutTab];
@@ -3924,29 +3882,29 @@
 						tabContentFnsArg,
 						"TopoViewer Helper App",
 					);
-
+				
 {{rawJSComment "					// createContentPanel('Panel-01', tabContentFns, tabContentFnsArg[0], 'Node Properties');"}}
 {{rawJSComment "					// createContentPanel('Panel-01', tabContentFns, tabContentFnsArg[0], 'Node Properties');"}}
 				}
-
+				
 				function createDrawerLayoutTab(panelHeadingText) {
 					const modifiedHeaderText = panelHeadingText;
-
+				
 {{rawJSComment "					// Create the tab-container"}}
 {{rawJSComment "					// Create the tab-container"}}
 					const tabContainer = document.createElement("div");
 					tabContainer.id = `tabContainer-${modifiedHeaderText}`;
 					tabContainer.className = "panel-tabContainer";
-
+				
 {{rawJSComment "					// Panel Block 01"}}
 {{rawJSComment "					// Panel Block 01"}}
 					panelBlockContainer = createPanelBlockContainer(tabContainer.id);
 					panelBlock01 = panelBlockContainer.panelBlock;
 					divPanelBlock01 = panelBlockContainer.divPanelBlock;
-
+				
 {{rawJSComment "					// Define the HTML content as a string"}}
 {{rawJSComment "					// Define the HTML content as a string"}}
-
+				
 					url = location.host;
 					const hreWindows = `http://${url}/clab-client/clab-client-windows/ClabCapture.app.zip`;
 					const hrefMac = `http://${url}/clab-client/clab-client-mac/ClabCapture.app.zip`;
@@ -3980,7 +3938,7 @@
 													</ul>
 												</div>
 												`;
-
+				
 {{rawJSComment "					// Create a div element and set its innerHTML to the defined HTML content"}}
 {{rawJSComment "					// Create a div element and set its innerHTML to the defined HTML content"}}
 					const contentDiv = document.createElement("div");
@@ -3988,16 +3946,16 @@
 					contentDiv.innerHTML = htmlContent;
 					contentDiv.style.maxHeight = "280px";
 					contentDiv.style.overflowY = "auto";
-
+				
 					divPanelBlock01.appendChild(contentDiv);
 {{rawJSComment "					// append divPanelBlock01 --> panelBlock01 --> tabContainer"}}
 {{rawJSComment "					// append divPanelBlock01 --> panelBlock01 --> tabContainer"}}
 					panelBlock01.append(divPanelBlock01);
 					tabContainer.appendChild(panelBlock01);
-
+				
 					return tabContainer;
 				}
-
+				
 {{rawJSComment "				// function zoomToFitDrawerl(cy) {"}}
 {{rawJSComment "				// 	const initialZoom = cy.zoom();"}}
 {{rawJSComment "				// 	appendMessage(`Bro, initial zoom level is '${initialZoom}'.`);"}}
@@ -4014,7 +3972,7 @@
 {{rawJSComment "				// 	const currentZoom = cy.zoom();"}}
 {{rawJSComment "				// 	appendMessage(`And now the zoom level is '${currentZoom}'.`);"}}
 {{rawJSComment "				// }"}}
-
+				
 				function nodeFindDrawer(cy) {
 {{rawJSComment "					//- Get a reference to your Cytoscape instance (assuming it's named 'cy')"}}
 {{rawJSComment "					//- const cy = window.cy; //- Replace 'window.cy' with your actual Cytoscape instance"}}
@@ -4025,7 +3983,7 @@
 					const nodeName = document.getElementById(
 						"panelBlock-viewportButtons-buttonfindNode-divPanelBlock-columnContainerlabelFindNodeNodeName-panelContentlabelFindNodeNodeName-columnsPanelContentlabelFindNodeNodeName-labelColumnlabelFindNodeNodeName-inputColumnlabelFindNodeNodeName-labellabelFindNodeNodeName",
 					).value;
-
+				
 					const node = cy.$(`node[name = "${nodeName}"]`);
 {{rawJSComment "					//- Check if the node exists"}}
 {{rawJSComment "					//- Check if the node exists"}}
@@ -4069,7 +4027,7 @@
 						);
 					}
 				}
-
+				
 				function pathFinderDijkstraDrawer(cy) {
 {{rawJSComment "					// Usage example:"}}
 {{rawJSComment "					// highlightShortestPath('node-a', 'node-b'); // Replace with your source and target node IDs"}}
@@ -4081,15 +4039,15 @@
 {{rawJSComment "					//- Function to get the default node style from cy-style.json"}}
 {{rawJSComment "					//- weight: (edge) => 1, // You can adjust the weight function if needed"}}
 {{rawJSComment "					//- weight: (edge) => edge.data('distance')"}}
-
+				
 					console.log("im triggered");
-
+				
 {{rawJSComment "					// Remove existing highlight from all edges"}}
 {{rawJSComment "					// Remove existing highlight from all edges"}}
 					cy.edges().forEach((edge) => {
 						edge.removeClass("spf");
 					});
-
+				
 {{rawJSComment "					// Get the node sourceNodeId from pathFinderSourceNodeInput and targetNodeId from pathFinderTargetNodeInput"}}
 {{rawJSComment "					// Get the node sourceNodeId from pathFinderSourceNodeInput and targetNodeId from pathFinderTargetNodeInput"}}
 					const sourceNodeId = document.getElementById(
@@ -4098,12 +4056,12 @@
 					const targetNodeId = document.getElementById(
 						"panelBlock-viewportButtons-buttonfindRoute-divPanelBlock-columnContainerlabelFindRouteTarget-panelContentlabelFindRouteTarget-columnsPanelContentlabelFindRouteTarget-labelColumnlabelFindRouteTarget-inputColumnlabelFindRouteTarget-labellabelFindRouteTarget",
 					).value;
-
+				
 {{rawJSComment "					// Assuming you have 'cy' as your Cytoscape instance"}}
 {{rawJSComment "					// Assuming you have 'cy' as your Cytoscape instance"}}
 					const sourceNode = cy.$(`node[id="${sourceNodeId}"]`);
 					const targetNode = cy.$(`node[id="${targetNodeId}"]`);
-
+				
 					console.log(
 						"Info: " +
 							"Let's find the path from-" +
@@ -4120,7 +4078,7 @@
 							targetNodeId +
 							"!",
 					);
-
+				
 {{rawJSComment "					// Check if both nodes exist"}}
 {{rawJSComment "					// Check if both nodes exist"}}
 					if (sourceNode.length === 0 || targetNode.length === 0) {
@@ -4132,7 +4090,7 @@
 						);
 						return;
 					}
-
+				
 {{rawJSComment "					// Get the Dijkstra result with the shortest path"}}
 {{rawJSComment "					// Get the Dijkstra result with the shortest path"}}
 					const dijkstraResult = cy.elements().dijkstra({
@@ -4147,7 +4105,7 @@
 {{rawJSComment "					// Get the shortest path from Dijkstra result"}}
 					const shortestPathEdges = dijkstraResult.pathTo(targetNode);
 					console.log(shortestPathEdges);
-
+				
 {{rawJSComment "					// Check if there is a valid path (shortestPathEdges is not empty)"}}
 {{rawJSComment "					// Check if there is a valid path (shortestPathEdges is not empty)"}}
 					if (shortestPathEdges.length > 1) {
@@ -4156,11 +4114,11 @@
 						shortestPathEdges.forEach((edge) => {
 							edge.addClass("spf");
 						});
-
+				
 {{rawJSComment "						//- Zoom out on the node"}}
 {{rawJSComment "						//- Zoom out on the node"}}
 						cy.fit();
-
+				
 {{rawJSComment "						//- Zoom in on the node"}}
 {{rawJSComment "						//- Zoom in on the node"}}
 						cy.animate({
@@ -4196,18 +4154,18 @@
 								" has been found, below is the path trace..",
 						);
 						console.log(shortestPathEdges);
-
+				
 						shortestPathEdges.forEach((edge) => {
 							console.log("Edge ID:", edge.id());
 							console.log("Source Node ID:", edge.source().id());
 							console.log("Target Node ID:", edge.target().id());
-
+				
 							edgeId = edge.id();
 							sourceNodeId = edge.source().id();
 							targetNodeId = edge.target().id();
 {{rawJSComment "							// You can access other properties of the edge, e.g., source, target, data, etc."}}
 {{rawJSComment "							// You can access other properties of the edge, e.g., source, target, data, etc."}}
-
+				
 							appendMessage("Info: " + "Edge ID: " + edgeId);
 							appendMessage("Info: " + "Source Node ID: " + sourceNodeId);
 							appendMessage("Info: " + "Target Node ID: " + targetNodeId);
@@ -4222,12 +4180,12 @@
 						return;
 					}
 				}
-
+				
 				function linkImpairmentManagerCopy(toggle, baseCommand) {
 					console.log("linkImpairmentManagerCopy-Function-Reach");
-
+				
 					fullCommand = baseCommand;
-
+				
 					if (toggle == "start-source") {
 						delayValue = document.getElementById(
 							"panelBlock-tabContainer-LinkProperties-divPanelBlock-columnContainerlabelSourceImpairmentDelay-panelContentlabelSourceImpairmentDelay-columnsPanelContentlabelSourceImpairmentDelay-labelColumnlabelSourceImpairmentDelay-inputColumnlabelSourceImpairmentDelay-labellabelSourceImpairmentDelay",
@@ -4241,9 +4199,9 @@
 						lossValue = document.getElementById(
 							"panelBlock-tabContainer-LinkProperties-divPanelBlock-columnContainerlabelSourceImpairmentLoss-panelContentlabelSourceImpairmentLoss-columnsPanelContentlabelSourceImpairmentLoss-labelColumnlabelSourceImpairmentLoss-inputColumnlabelSourceImpairmentLoss-labellabelSourceImpairmentLoss",
 						).value;
-
+				
 						console.log(delayValue);
-
+				
 						fullCommand =
 							baseCommand +
 							` --delay ${delayValue}ms --jitter ${jitterValue}ms --rate ${rateValue} --loss ${lossValue}`;
@@ -4264,9 +4222,9 @@
 						lossValue = document.getElementById(
 							"panelBlock-tabContainer-LinkProperties-divPanelBlock-columnContainerlabelTargetImpairmentLoss-panelContentlabelTargetImpairmentLoss-columnsPanelContentlabelTargetImpairmentLoss-labelColumnlabelTargetImpairmentLoss-inputColumnlabelTargetImpairmentLoss-labellabelTargetImpairmentLoss",
 						).value;
-
+				
 						console.log(delayValue);
-
+				
 						fullCommand =
 							baseCommand +
 							` --delay ${delayValue}ms --jitter ${jitterValue}ms --rate ${rateValue} --loss ${lossValue}`;
@@ -4275,12 +4233,12 @@
 						fullCommand = baseCommand;
 						alert_msg = `SSH command to stop link impairment is lit 🔥 and copied to your clipboard, ready to drop it in your terminal console like a boss! 🚀💻`;
 					}
-
+				
 					console.log(fullCommand);
-
+				
 					urlToCopy = fullCommand;
 					event.preventDefault();
-
+				
 {{rawJSComment "					// Create a temporary input element to copy the URL to the clipboard"}}
 {{rawJSComment "					// Create a temporary input element to copy the URL to the clipboard"}}
 					const tempInput = document.createElement("input");
@@ -4289,7 +4247,7 @@
 					tempInput.select();
 					document.execCommand("copy");
 					document.body.removeChild(tempInput);
-
+				
 {{rawJSComment "					// Provide user feedback (e.g., alert or toast) that the URL has been copied"}}
 {{rawJSComment "					// Provide user feedback (e.g., alert or toast) that the URL has been copied"}}
 					bulmaToast.toast({
@@ -4301,16 +4259,16 @@
 					});
 					appendMessage(alert_msg);
 				}
-
+				
 				function linkImpairmentManagerExec(toggle, baseCommandSsh, baseCommandExec) {
 					console.log("linkImpairmentManagerExec-Function-Called");
-
+				
 					if (deploymentType == "colocated") {
 						baseCommand = baseCommandExec;
 					} else {
 						baseCommand = baseCommandSsh;
 					}
-
+				
 					if (toggle == "start-source") {
 						delayValue = document.getElementById(
 							"panelBlock-tabContainer-LinkProperties-divPanelBlock-columnContainerlabelSourceImpairmentDelay-panelContentlabelSourceImpairmentDelay-columnsPanelContentlabelSourceImpairmentDelay-labelColumnlabelSourceImpairmentDelay-inputColumnlabelSourceImpairmentDelay-labellabelSourceImpairmentDelay",
@@ -4324,12 +4282,12 @@
 						lossValue = document.getElementById(
 							"panelBlock-tabContainer-LinkProperties-divPanelBlock-columnContainerlabelSourceImpairmentLoss-panelContentlabelSourceImpairmentLoss-columnsPanelContentlabelSourceImpairmentLoss-labelColumnlabelSourceImpairmentLoss-inputColumnlabelSourceImpairmentLoss-labellabelSourceImpairmentLoss",
 						).value;
-
+				
 						console.log(`delayValue: ${delayValue}`);
 						console.log(`jitterValue: ${jitterValue}`);
 						console.log(`rateValue: ${rateValue}`);
 						console.log(`lossValue: ${lossValue}`);
-
+				
 						fullCommand =
 							baseCommand +
 							` --delay ${delayValue}ms --jitter ${jitterValue}ms --rate ${rateValue} --loss ${lossValue}`;
@@ -4350,12 +4308,12 @@
 						lossValue = document.getElementById(
 							"panelBlock-tabContainer-LinkProperties-divPanelBlock-columnContainerlabelTargetImpairmentLoss-panelContentlabelTargetImpairmentLoss-columnsPanelContentlabelTargetImpairmentLoss-labelColumnlabelTargetImpairmentLoss-inputColumnlabelTargetImpairmentLoss-labellabelTargetImpairmentLoss",
 						).value;
-
+				
 						console.log(`delayValue: ${delayValue}`);
 						console.log(`jitterValue: ${jitterValue}`);
 						console.log(`rateValue: ${rateValue}`);
 						console.log(`lossValue: ${lossValue}`);
-
+				
 						fullCommand =
 							baseCommand +
 							` --delay ${delayValue}ms --jitter ${jitterValue}ms --rate ${rateValue} --loss ${lossValue}`;
@@ -4364,13 +4322,13 @@
 						fullCommand = baseCommand;
 						alert_msg = `SSH command to stop link impairment is lit 🔥 and copied to your clipboard, ready to drop it in your terminal console like a boss! 🚀💻`;
 					}
-
+				
 					console.log(`baseCommand: ${baseCommand}`);
 					console.log(`fullCommand: ${fullCommand}`);
-
+				
 					callGoFunction("/clabNetem", fullCommand, "padding", "");
 				}
-
+				
 				function getNodeEndpointDetailExec(arg01, arg02, arg03) {
 					console.log("getNodeEndpointDetailExec-Function Called");
 					console.log(`getNodeEndpointDetailExec-Function Argument01: ${arg01}`);
@@ -4389,8 +4347,8 @@
 							console.error("Error occurred:", error);
 						});
 				}
-
-
+				
+				
 				async function getAllNodeEndpointDetailExec(arg01, arg02, arg03) {
 					console.log("getAllNodeEndpointDetailExec-Function Called");
 					console.log(`getAllNodeEndpointDetailExec-Function Argument01: ${arg01}`);
@@ -4400,13 +4358,13 @@
 					try {
 						const responseData = await callGoFunction("/getAllNodeEndpointDetail", arg01, arg02, arg03);
 {{rawJSComment "						// Handle the response data"}}
-
+				
 {{rawJSComment "						// Check if responseData is a non-empty object"}}
 						if (responseData && typeof responseData === 'object' && Object.keys(responseData).length > 0) {
 {{rawJSComment "							// Perform actions if responseData is a non-empty JSON object"}}
 							console.log("Valid non-empty JSON response received:", responseData);
 							location.reload()
-
+				
 						} else {
 							console.log("Empty or invalid JSON response received");
 						}
@@ -4416,19 +4374,19 @@
 					}
 				}
 				
-
+				
 {{rawJSComment "				// Call Go BackEnd function"}}
 {{rawJSComment "				// Call Go BackEnd function"}}
 					async function callGoFunction(goFunctionName, arg01, arg02, arg03) {
 						console.log(`callGoFunction Called with ${goFunctionName}`);
 						console.log(`callGoFunction Parameter01: ${arg01}`);
 						console.log(`callGoFunction Parameter02: ${arg02}`);
-
+				
 						const data = {
 							param1: arg01,
 							param2: arg02,
 						};
-
+				
 						try {
 							const response = await fetch(goFunctionName, {
 								method: "POST",
@@ -4437,12 +4395,12 @@
 								},
 								body: JSON.stringify(data),
 							});
-
+				
 {{rawJSComment "							// Check if response is ok"}}
 							if (!response.ok) {
 								throw new Error("Network response was not ok");
 							}
-
+				
 {{rawJSComment "							// Parse the JSON response"}}
 							const responseData = await response.json();
 							
@@ -4453,15 +4411,15 @@
 							console.error("Error:", error);
 							throw error; 
 						}
-}
-
-
+				}
+				
+				
 {{rawJSComment "				// sleep funtion"}}
 {{rawJSComment "				// sleep funtion"}}
 				function sleep(ms) {
 					return new Promise((resolve) => setTimeout(resolve, ms));
 				}
-
+				
 				function verticallAllignLayout(cy) {
 					var verticalNodeGap = document.getElementById(
 						"panelBlock-viewportButtons-buttonadjustLayout-divPanelBlock-columnContainerlabelAdjustLayoutAlignmentVerticalNodeGap-panelContentlabelAdjustLayoutAlignmentVerticalNodeGap-columnsPanelContentlabelAdjustLayoutAlignmentVerticalNodeGap-labelColumnlabelAdjustLayoutAlignmentVerticalNodeGap-inputColumnlabelAdjustLayoutAlignmentVerticalNodeGap-labellabelAdjustLayoutAlignmentVerticalNodeGap",
@@ -4469,18 +4427,18 @@
 					var verticalGroupGap = document.getElementById(
 						"panelBlock-viewportButtons-buttonadjustLayout-divPanelBlock-columnContainerlabelAdjustLayoutAlignmentVerticalGroupGap-panelContentlabelAdjustLayoutAlignmentVerticalGroupGap-columnsPanelContentlabelAdjustLayoutAlignmentVerticalGroupGap-labelColumnlabelAdjustLayoutAlignmentVerticalGroupGap-inputColumnlabelAdjustLayoutAlignmentVerticalGroupGap-labellabelAdjustLayoutAlignmentVerticalGroupGap",
 					).value;
-
+				
 					console.log("verticalNodeGap", verticalNodeGap);
 					console.log("verticalGroupGap", verticalGroupGap);
-
+				
 					const xOffset = parseFloat(verticalNodeGap);
 					const yOffset = parseFloat(verticalGroupGap);
-
+				
 					console.log("yOffset", yOffset);
 					console.log("xOffset", xOffset);
-
+				
 					const delay = 100;
-
+				
 					setTimeout(() => {
 						cy.nodes().forEach(function (node) {
 							if (node.isParent()) {
@@ -4488,29 +4446,29 @@
 {{rawJSComment "								// For each parent node"}}
 								const children = node.children();
 								const numRows = 1;
-
+				
 								const cellWidth = node.width() / children.length;
 {{rawJSComment "								// const xOffset = 5"}}
 {{rawJSComment "								// const xOffset = 5"}}
-
+				
 								children.forEach(function (child, index) {
 {{rawJSComment "									// Position children in rows"}}
 {{rawJSComment "									// Position children in rows"}}
 									const xPos = index * (cellWidth + xOffset);
 									const yPos = 0;
-
+				
 {{rawJSComment "									// Set the position of each child node"}}
 {{rawJSComment "									// Set the position of each child node"}}
 									child.position({ x: xPos, y: yPos });
 								});
 							}
 						});
-
+				
 						var parentCounts = {};
 						var maxWidth = 0;
 						var centerX = 0;
 						var centerY = cy.height() / 2;
-
+				
 {{rawJSComment "						// Count children of each parent node"}}
 {{rawJSComment "						// Count children of each parent node"}}
 						cy.nodes().forEach(function (node) {
@@ -4519,7 +4477,7 @@
 								parentCounts[node.id()] = childrenCount;
 							}
 						});
-
+				
 						cy.nodes().forEach(function (node) {
 							if (node.isParent()) {
 								const width = node.width();
@@ -4529,20 +4487,20 @@
 								}
 							}
 						});
-
+				
 						const divisionFactor = maxWidth / 2;
 						console.log("divisionFactor: ", divisionFactor);
-
+				
 {{rawJSComment "						// Sort parent nodes by child count in ascending order"}}
 {{rawJSComment "						// Sort parent nodes by child count in ascending order"}}
 						const sortedParents = Object.keys(parentCounts).sort(
 							(a, b) => parentCounts[a] - parentCounts[b],
 						);
-
+				
 						let yPos = 0;
 {{rawJSComment "						// const yOffset = 50;"}}
 {{rawJSComment "						// const yOffset = 50;"}}
-
+				
 {{rawJSComment "						// Position parent nodes vertically and center them horizontally"}}
 {{rawJSComment "						// Position parent nodes vertically and center them horizontally"}}
 						sortedParents.forEach(function (parentId) {
@@ -4556,7 +4514,7 @@
 						cy.fit();
 					}, delay);
 				}
-
+				
 				function horizontalAllignLayout(cy) {
 					var horizontalNodeGap = document.getElementById(
 						"panelBlock-viewportButtons-buttonadjustLayout-divPanelBlock-columnContainerlabelAdjustLayoutAlignmentHorizontalNodeGap-panelContentlabelAdjustLayoutAlignmentHorizontalNodeGap-columnsPanelContentlabelAdjustLayoutAlignmentHorizontalNodeGap-labelColumnlabelAdjustLayoutAlignmentHorizontalNodeGap-inputColumnlabelAdjustLayoutAlignmentHorizontalNodeGap-labellabelAdjustLayoutAlignmentHorizontalNodeGap",
@@ -4564,16 +4522,16 @@
 					var horizontalGroupGap = document.getElementById(
 						"panelBlock-viewportButtons-buttonadjustLayout-divPanelBlock-columnContainerlabelAdjustLayoutAlignmentHorizontalGroupGap-panelContentlabelAdjustLayoutAlignmentHorizontalGroupGap-columnsPanelContentlabelAdjustLayoutAlignmentHorizontalGroupGap-labelColumnlabelAdjustLayoutAlignmentHorizontalGroupGap-inputColumnlabelAdjustLayoutAlignmentHorizontalGroupGap-labellabelAdjustLayoutAlignmentHorizontalGroupGap",
 					).value;
-
+				
 					console.log("horizontalNodeGap", horizontalNodeGap);
 					console.log("horizontalGroupGap", horizontalGroupGap);
-
+				
 					const yOffset = parseFloat(horizontalNodeGap);
 					const xOffset = parseFloat(horizontalGroupGap);
-
+				
 					console.log("yOffset", yOffset);
 					console.log("xOffset", xOffset);
-
+				
 					const delay = 100;
 					setTimeout(() => {
 						cy.nodes().forEach(function (node) {
@@ -4585,25 +4543,25 @@
 								const cellHeight = node.height() / children.length;
 {{rawJSComment "								// const yOffset = 5;"}}
 {{rawJSComment "								// const yOffset = 5;"}}
-
+				
 								children.forEach(function (child, index) {
 {{rawJSComment "									// Position children in columns"}}
 {{rawJSComment "									// Position children in columns"}}
 									const xPos = 0;
 									const yPos = index * (cellHeight + yOffset);
-
+				
 {{rawJSComment "									// Set the position of each child node"}}
 {{rawJSComment "									// Set the position of each child node"}}
 									child.position({ x: xPos, y: yPos });
 								});
 							}
 						});
-
+				
 						var parentCounts = {};
 						var maxHeight = 0;
 						var centerX = cy.width() / 2;
 						var centerY = cy.height() / 2;
-
+				
 {{rawJSComment "						// Count children of each parent node"}}
 {{rawJSComment "						// Count children of each parent node"}}
 						cy.nodes().forEach(function (node) {
@@ -4612,7 +4570,7 @@
 								parentCounts[node.id()] = childrenCount;
 							}
 						});
-
+				
 						cy.nodes().forEach(function (node) {
 							if (node.isParent()) {
 								const height = node.height();
@@ -4622,20 +4580,20 @@
 								}
 							}
 						});
-
+				
 						const divisionFactor = maxHeight / 2;
 						console.log("divisionFactor: ", divisionFactor);
-
+				
 {{rawJSComment "						// Sort parent nodes by child count in ascending order"}}
 {{rawJSComment "						// Sort parent nodes by child count in ascending order"}}
 						const sortedParents = Object.keys(parentCounts).sort(
 							(a, b) => parentCounts[a] - parentCounts[b],
 						);
-
+				
 						let xPos = 0;
 {{rawJSComment "						// const xOffset = 50;"}}
 {{rawJSComment "						// const xOffset = 50;"}}
-
+				
 {{rawJSComment "						// Position parent nodes horizontally and center them vertically"}}
 {{rawJSComment "						// Position parent nodes horizontally and center them vertically"}}
 						sortedParents.forEach(function (parentId) {
@@ -4644,20 +4602,20 @@
 							parent.position({ x: xPos, y: yPos });
 							xPos -= xOffset;
 						});
-
+				
 						cy.fit();
 					}, delay);
 				}
-
+				
 				async function captureAndSaveViewportAsPng(cy) {
 {{rawJSComment "					// Find the canvas element for layer2-node"}}
 {{rawJSComment "					// Find the canvas element for layer2-node"}}
 					const canvasElement = document.querySelector(
 						'#cy canvas[data-id="layer2-node"]',
 					);
-
+				
 					const zoomScaleFactor = 1;
-
+				
 {{rawJSComment "					// Check if the canvas element exists and is an HTMLCanvasElement"}}
 {{rawJSComment "					// Check if the canvas element exists and is an HTMLCanvasElement"}}
 					if (canvasElement instanceof HTMLCanvasElement) {
@@ -4665,37 +4623,37 @@
 {{rawJSComment "						// Calculate the new canvas dimensions based on the high resolution factor"}}
 						const newWidth = canvasElement.width * zoomScaleFactor;
 						const newHeight = canvasElement.height * zoomScaleFactor;
-
+				
 {{rawJSComment "						// Create a new canvas element with the increased dimensions"}}
 {{rawJSComment "						// Create a new canvas element with the increased dimensions"}}
 						const newCanvas = document.createElement("canvas");
 						newCanvas.width = newWidth;
 						newCanvas.height = newHeight;
 						const newCanvasContext = newCanvas.getContext("2d");
-
+				
 {{rawJSComment "						// Scale the canvas content to the new dimensions"}}
 {{rawJSComment "						// Scale the canvas content to the new dimensions"}}
 						newCanvasContext.scale(zoomScaleFactor, zoomScaleFactor);
-
+				
 {{rawJSComment "						// Fill the new canvas with a white background"}}
 {{rawJSComment "						// Fill the new canvas with a white background"}}
 						newCanvasContext.fillStyle = "white";
 						newCanvasContext.fillRect(0, 0, newWidth, newHeight);
-
+				
 {{rawJSComment "						// Draw the original canvas content on the new canvas"}}
 {{rawJSComment "						// Draw the original canvas content on the new canvas"}}
 						newCanvasContext.drawImage(canvasElement, 0, 0);
-
+				
 {{rawJSComment "						// Convert the new canvas to a data URL with a white background"}}
 {{rawJSComment "						// Convert the new canvas to a data URL with a white background"}}
 						const dataUrl = newCanvas.toDataURL("image/png");
-
+				
 {{rawJSComment "						// Create an anchor element to trigger the download"}}
 {{rawJSComment "						// Create an anchor element to trigger the download"}}
 						const link = document.createElement("a");
 						link.href = dataUrl;
 						link.download = "cytoscape-viewport.png";
-
+				
 						bulmaToast.toast({
 							message: `Brace yourselves for a quick snapshot, folks! 📸 Capturing the viewport in 3... 2... 1... 🚀💥`,
 							type: "is-warning is-size-6 p-3",
@@ -4713,7 +4671,7 @@
 						);
 					}
 				}
-
+				
 				async function captureAndSaveViewportAsDrawIo(cy) {
 {{rawJSComment "					// Find the canvas element for layer2-node"}}
 {{rawJSComment "					// Find the canvas element for layer2-node"}}
@@ -4723,17 +4681,17 @@
 					const drawIoWidht = canvasElement.width / 10;
 					const drawIoHeight = canvasElement.height / 10;
 					const drawIoaAspectRatio = drawIoWidht / drawIoHeight;
-
+				
 					const mxGraphHeader = `<mxGraphModel dx="${drawIoWidht / 2}" dy="${drawIoHeight / 2}" grid="1" gridSize="1" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="${drawIoWidht}" pageHeight="${drawIoHeight}" math="0" shadow="0">
 																							<root>
 																								<mxCell id="0" />
 																								<mxCell id="1" parent="0" />`;
-
+				
 					const mxGraphFooter = `    					</root>
 																								</mxGraphModel>`;
-
+				
 					const mxCells = [];
-
+				
 {{rawJSComment "					// Iterate through nodes and edges"}}
 {{rawJSComment "					// Function to create mxCell XML for nodes"}}
 {{rawJSComment "					// Iterate through nodes and edges"}}
@@ -4754,7 +4712,7 @@
 															</mxCell>`;
 						}
 					}
-
+				
 					cy.nodes().forEach(function (node) {
 						let imageURL;
 						switch (node.data("topoViewerRole")) {
@@ -4783,7 +4741,7 @@
 						}
 						mxCells.push(createMxCellForNode(node, imageURL));
 					});
-
+				
 					cy.edges().forEach(function (edge) {
 						mxCells.push(`
 																	<mxCell id="${edge.data("id")}" value="" style="endArrow=none;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;strokeWidth=1;strokeColor=#B1BCC8;opacity=60;" parent="1" source="${edge.data("source")}" target="${edge.data("target")}" edge="1">
@@ -4801,21 +4759,21 @@
 																		</mxGeometry>
 																	</mxCell>`);
 					});
-
+				
 {{rawJSComment "					// Combine all parts and create XML"}}
 {{rawJSComment "					// Combine all parts and create XML"}}
 					const mxGraphXML = mxGraphHeader + mxCells.join("") + mxGraphFooter;
-
+				
 {{rawJSComment "					// Create a Blob from the XML"}}
 {{rawJSComment "					// Create a Blob from the XML"}}
 					const blob = new Blob([mxGraphXML], {
 						type: "application/xml",
 					});
-
+				
 {{rawJSComment "					// Create a URL for the Blob"}}
 {{rawJSComment "					// Create a URL for the Blob"}}
 					const url = window.URL.createObjectURL(blob);
-
+				
 {{rawJSComment "					// Create a download link and trigger a click event"}}
 {{rawJSComment "					// Create a download link and trigger a click event"}}
 					const a = document.createElement("a");
@@ -4823,7 +4781,7 @@
 					a.href = url;
 					a.download = "filename.drawio";
 					document.body.appendChild(a);
-
+				
 					bulmaToast.toast({
 						message: `Brace yourselves for a quick snapshot, folks! 📸 Capturing the viewport in 3... 2... 1... 🚀💥`,
 						type: "is-warning is-size-6 p-3",
@@ -4835,15 +4793,15 @@
 {{rawJSComment "					// Simulate a click to trigger the download"}}
 {{rawJSComment "					// Simulate a click to trigger the download"}}
 					a.click();
-
+				
 {{rawJSComment "					// Clean up by revoking the URL and removing the download link"}}
 {{rawJSComment "					// Clean up by revoking the URL and removing the download link"}}
 					window.URL.revokeObjectURL(url);
 					document.body.removeChild(a);
 				}
-
-
-
+				
+				
+				
 			</script>
 		</div>
 	</body>

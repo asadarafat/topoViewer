@@ -202,8 +202,11 @@
 							<div class="dropdown-content">
 								<a id="about" href="#" onclick="showPanelAbout();" class="dropdown-item label has-text-weight-normal is-small py-0">About TopoViewer</a>                      
 								<hr class="dropdown-divider py-0">
+								<a id="getAllEndpointDetail" href="#" onclick="getAllNodeEndpoint(event);" class="dropdown-item label has-text-weight-normal is-small py-0">Action - Get True Endpoint Label</a>     
+								<a id="performNodeActionSaveNodesConfig" href="#" onclick="performNodeActionSaveNodesConfig(event);" class="dropdown-item label has-text-weight-normal is-small py-0">Action - Save Nodes Config</a>     
+								<a id="logMessagesDropdownItem" href="#" onclick="logMessages(event);" class="dropdown-item label has-text-weight-normal is-small py-0">Action - Log Messages</a>       
+								<hr class="dropdown-divider py-0">
 								<a id="clabClientDropdownItem" href="#" onclick="showPanelTopoViewerClient();"        class="dropdown-item label has-text-weight-normal is-small py-0">TopoViewer Helper App</a>                  
-								<a id="logMessagesDropdownItem" href="#" onclick="logMessages(event);" class="dropdown-item label has-text-weight-normal is-small py-0">Log Messages</a>      
 
             
 							</div>
@@ -236,6 +239,7 @@
     		<script src="https://unpkg.com/cytoscape-cola@2.2.3/cytoscape-cola.js"></script>
     		<script src="https://unpkg.com/cytoscape-popper@1.0.2/cytoscape-popper.js"></script>
 
+			<script src="https://cdn.jsdelivr.net/npm/cytoscape-grid-guide@2.3.3/cytoscape-grid-guide.min.js"></script>
 
 
 
@@ -273,8 +277,8 @@
 				let edgeClicked = false;
 
 
-				const labName =  '{{.LabName}}'
-				const deploymentType = '{{.DeploymentType}}'
+				const labName =  'nokia-ServiceProvider'
+				const deploymentType = 'colocated'
 
 				console.log ("Lab-Name: ", labName)
 				console.log ("DeploymentType: ", deploymentType)
@@ -386,9 +390,56 @@
 								);
 							});
 					}
-
+{{rawJSComment "					// Enable grid guide extension"}}
+					cy.gridGuide({
+{{rawJSComment "						// On/Off Modules"}}
+							 
+							snapToGridOnRelease: true, 
+							snapToGridDuringDrag: false, 
+							snapToAlignmentLocationOnRelease: true, 
+							snapToAlignmentLocationDuringDrag: false, 
+							distributionGuidelines: false, 
+							geometricGuideline: false, 
+							initPosAlignment: false, 
+							centerToEdgeAlignment: false, 
+							resize: false, 
+							parentPadding: false, 
+							drawGrid: false, 
+					
+{{rawJSComment "							// General"}}
+							gridSpacing: 10, 
+							snapToGridCenter: true, 
+					
+{{rawJSComment "							// Draw Grid"}}
+							zoomDash: true, 
+							panGrid: true, 
+							gridStackOrder: -1, 
+							gridColor: '#dedede', 
+							lineWidth: 1.0, 
+					
+{{rawJSComment "							// Guidelines"}}
+							guidelinesStackOrder: 4, 
+							guidelinesTolerance: 2.00, 
+							guidelinesStyle: { 
+								strokeStyle: "#8b7d6b", 
+								geometricGuidelineRange: 400, 
+								range: 100, 
+								minDistRange: 10, 
+								distGuidelineOffset: 10, 
+								horizontalDistColor: "#ff0000", 
+								verticalDistColor: "#00ff00", 
+								initPosAlignmentColor: "#0000ff", 
+								lineDash: [0, 0], 
+								horizontalDistLine: [0, 0], 
+								verticalDistLine: [0, 0], 
+								initPosAlignmentLine: [0, 0], 
+							},
+					
+{{rawJSComment "							// Parent Padding"}}
+							parentSpacing: -1 
+						});
+						
 {{rawJSComment "					// Fetch and load element data from a JSON file"}}
-
 					fetch("dataCytoMarshall-" + labName + ".json")
 						.then((response) => response.json())
 						.then((elements) => {
@@ -1090,14 +1141,14 @@
 						nodeGapSlider.addEventListener("input", sliderEventHandler);
 					}
 
-{{rawJSComment "					// ######################################################"}}
+{{rawJSComment "					// "}}
 {{rawJSComment "					// Start of JS Functions HTML Element Creation section"}}
 {{rawJSComment "					// Start of JS Functions HTML Element Creation section"}}
-{{rawJSComment "					// ######################################################"}}
-{{rawJSComment "					// ######################################################"}}
+{{rawJSComment "					// "}}
+{{rawJSComment "					// "}}
 {{rawJSComment "					// Start of JS Functions HTML Element Creation section"}}
 {{rawJSComment "					// Start of JS Functions HTML Element Creation section"}}
-{{rawJSComment "					// ######################################################"}}
+{{rawJSComment "					// "}}
 
 {{rawJSComment "					// Function to create the Panel-01-nodeDetail content"}}
 {{rawJSComment "					// Function to create the Panel-01-nodeDetail content"}}
@@ -1465,24 +1516,6 @@
 								columnLabelClass: "column is-4 p-1",
 								columnInputType: "label",
 								columnInputContent: edge.data("source") + "---" + edge.data("target"),
-							},
-							{
-								idSuffix: "labelActions",
-								columnLabelTextContent: "Actions",
-								columnLabelClass: "column is-4 p-1",
-								columnInputType: "buttonGroup",
-								columnInputContent: "",
-								addonsContent: [
-									{
-										name: "blue",
-										iconClass: "fas fa-terminal",
-										hoverMessage: "Click to get true endpoint label",
-										hrefFunction: "getNodeEndpointDetailExec",
-										hrefFunctionArg01: `${edge.data("extraData").clabSourceLongName}`,
-										hrefFunctionArg02: `${edge.data("extraData").clabTargetLongName}`,
-										hrefFunctionArg03: "",
-									},
-								],
 							},
 						];
 
@@ -2078,23 +2111,23 @@
 						return tabContainer;
 					}
 
-{{rawJSComment "					// ######################################################"}}
+{{rawJSComment "					// "}}
 {{rawJSComment "					// END of JS Functions HTML Element Creation section"}}
 {{rawJSComment "					// END of JS Functions HTML Element Creation section"}}
-{{rawJSComment "					// ######################################################"}}
-{{rawJSComment "					// ######################################################"}}
+{{rawJSComment "					// "}}
+{{rawJSComment "					// "}}
 {{rawJSComment "					// END of JS Functions HTML Element Creation section"}}
 {{rawJSComment "					// END of JS Functions HTML Element Creation section"}}
-{{rawJSComment "					// ######################################################"}}
+{{rawJSComment "					// "}}
 
-{{rawJSComment "					// ######################################################"}}
+{{rawJSComment "					// "}}
 {{rawJSComment "					// START of JS Functions Event Handling section"}}
 {{rawJSComment "					// START of JS Functions Event Handling section"}}
-{{rawJSComment "					// ######################################################"}}
-{{rawJSComment "					// ######################################################"}}
+{{rawJSComment "					// "}}
+{{rawJSComment "					// "}}
 {{rawJSComment "					// START of JS Functions Event Handling section"}}
 {{rawJSComment "					// START of JS Functions Event Handling section"}}
-{{rawJSComment "					// ######################################################"}}
+{{rawJSComment "					// "}}
 
 					function generateNodesEvent(event) {
 {{rawJSComment "						// Your event handling logic here"}}
@@ -2503,13 +2536,13 @@
 						);
 					}
 
-					var linkEndpointVisibility = false;
+					var linkEndpointVisibility = true;
 
 					function toggleLinkEndpoint() {
 						if (linkEndpointVisibility) {
 							cy.edges().forEach(function (edge) {
-								edge.style("source-label", " ");
-								edge.style("target-label", " ");
+								edge.style("source-label", ".");
+								edge.style("target-label", ".");
 								linkEndpointVisibility = false;
 							});
 						} else {
@@ -2641,19 +2674,19 @@
 						});
 					}
 
-{{rawJSComment "					// ######################################################"}}
+{{rawJSComment "					// "}}
 {{rawJSComment "					// End of JS Functions Event Handling section"}}
 {{rawJSComment "					// End of JS Functions Event Handling section"}}
-{{rawJSComment "					// ######################################################"}}
+{{rawJSComment "					// "}}
 
-{{rawJSComment "					// ######################################################"}}
+{{rawJSComment "					// "}}
 {{rawJSComment "					// Start of JS Generic Functions"}}
 {{rawJSComment "					// Start of JS Generic Functions"}}
-{{rawJSComment "					// ######################################################"}}
-{{rawJSComment "					// ######################################################"}}
+{{rawJSComment "					// "}}
+{{rawJSComment "					// "}}
 {{rawJSComment "					// Start of JS Generic Functions"}}
 {{rawJSComment "					// Start of JS Generic Functions"}}
-{{rawJSComment "					// ######################################################"}}
+{{rawJSComment "					// "}}
 
 {{rawJSComment "					//- Helper Function for managed Panel-01 tabs"}}
 {{rawJSComment "					//- Helper Function for managed Panel-01 tabs"}}
@@ -2843,14 +2876,14 @@
 						modal.classList.add("is-active");
 					}
 
-{{rawJSComment "					// ######################################################"}}
+{{rawJSComment "					// "}}
 {{rawJSComment "					// End of JS Generic Functions section"}}
 {{rawJSComment "					// End of JS Generic Functions section"}}
-{{rawJSComment "					// ######################################################"}}
-{{rawJSComment "					// ######################################################"}}
+{{rawJSComment "					// "}}
+{{rawJSComment "					// "}}
 {{rawJSComment "					// End of JS Generic Functions section"}}
 {{rawJSComment "					// End of JS Generic Functions section"}}
-{{rawJSComment "					// ######################################################"}}
+{{rawJSComment "					// "}}
 				});
 
 {{rawJSComment "				// aarafat-tag:"}}
@@ -2865,6 +2898,16 @@
 					removeElementById("Panel-03");
 					panel = document.getElementById("Panel-02");
 					showPanelEvent(event, panel);
+				}
+
+				function getAllNodeEndpoint(event) {
+					console.log ("getAllNodeEndpoint Function called")
+					arg01 = "arg01"
+					arg02 = "arg02"
+					arg03 = "arg03"
+
+					getAllNodeEndpointDetailExec(arg01, arg02, arg03)
+					
 				}
 
 				function showPanelEvent(event, panel) {
@@ -4329,43 +4372,71 @@
 						});
 				}
 
+
+				async function getAllNodeEndpointDetailExec(arg01, arg02, arg03) {
+					console.log("getAllNodeEndpointDetailExec-Function Called");
+					console.log(`getAllNodeEndpointDetailExec-Function Argument01: ${arg01}`);
+					console.log(`getAllNodeEndpointDetailExec-Function Argument02: ${arg02}`);
+					console.log(`getAllNodeEndpointDetailExec-Function Argument03: ${arg03}`);
+				
+					try {
+						const responseData = await callGoFunction("/getAllNodeEndpointDetail", arg01, arg02, arg03);
+{{rawJSComment "						// Handle the response data"}}
+
+{{rawJSComment "						// Check if responseData is a non-empty object"}}
+						if (responseData && typeof responseData === 'object' && Object.keys(responseData).length > 0) {
+{{rawJSComment "							// Perform actions if responseData is a non-empty JSON object"}}
+							console.log("Valid non-empty JSON response received:", responseData);
+							location.reload()
+
+						} else {
+							console.log("Empty or invalid JSON response received");
+						}
+					} catch (error) {
+{{rawJSComment "						// Handle errors"}}
+						console.error("Error occurred:", error);
+					}
+				}
+				
+
 {{rawJSComment "				// Call Go BackEnd function"}}
 {{rawJSComment "				// Call Go BackEnd function"}}
-				function callGoFunction(goFunctionName, arg01, arg02, arg03) {
-					console.log(`callGoFunction Called is ${goFunctionName}`);
-					console.log(`callGoFunction Parameter01: ${arg01}`);
-					console.log(`callGoFunction Parameter02: ${arg02}`);
+					async function callGoFunction(goFunctionName, arg01, arg02, arg03) {
+						console.log(`callGoFunction Called with ${goFunctionName}`);
+						console.log(`callGoFunction Parameter01: ${arg01}`);
+						console.log(`callGoFunction Parameter02: ${arg02}`);
 
-					const data = {
-						param1: arg01,
-						param2: arg02,
-					};
+						const data = {
+							param1: arg01,
+							param2: arg02,
+						};
 
-					return fetch(goFunctionName, {
-						method: "POST",
-						headers: {
-							"Content-Type": "application/json",
-						},
-						body: JSON.stringify(data),
-					})
-						.then((response) => {
+						try {
+							const response = await fetch(goFunctionName, {
+								method: "POST",
+								headers: {
+									"Content-Type": "application/json",
+								},
+								body: JSON.stringify(data),
+							});
+
 {{rawJSComment "							// Check if response is ok"}}
 							if (!response.ok) {
 								throw new Error("Network response was not ok");
 							}
+
 {{rawJSComment "							// Parse the JSON response"}}
-							return response.json();
-						})
-						.then((responseData) => {
+							const responseData = await response.json();
+							
 {{rawJSComment "							// Return the response data from the Go function"}}
 							return responseData;
-						})
-						.catch((error) => {
+						} catch (error) {
 {{rawJSComment "							// Handle any errors that occurred during the fetch"}}
 							console.error("Error:", error);
 							throw error; 
-						});
-				}
+						}
+}
+
 
 {{rawJSComment "				// sleep funtion"}}
 {{rawJSComment "				// sleep funtion"}}

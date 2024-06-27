@@ -26,9 +26,11 @@ require (
 	github.com/bufbuild/protocompile v0.6.0 // indirect
 	github.com/docker/distribution v2.8.2+incompatible // indirect
 	github.com/docker/go-units v0.5.0 // indirect
+	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/jhump/protoreflect v1.15.3 // indirect
 	github.com/klauspost/cpuid v1.3.1 // indirect
+	github.com/lufia/plan9stats v0.0.0-20211012122336-39d0f177ccd0 // indirect
 	github.com/mackerelio/go-osstat v0.2.4 // indirect
 	github.com/morikuni/aec v1.0.0 // indirect
 	github.com/openconfig/gnmi v0.10.0 // indirect
@@ -41,7 +43,11 @@ require (
 	github.com/opencontainers/image-spec v1.1.0-rc3 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.8 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
+	github.com/power-devops/perfstat v0.0.0-20210106213030-5aafc221ea8c // indirect
 	github.com/stretchr/testify v1.9.0 // indirect
+	github.com/tklauser/go-sysconf v0.3.12 // indirect
+	github.com/tklauser/numcpus v0.6.1 // indirect
+	github.com/yusufpapurcu/wmi v1.2.4 // indirect
 	golang.org/x/mod v0.12.0 // indirect
 	golang.org/x/oauth2 v0.13.0 // indirect
 	golang.org/x/sync v0.7.0 // indirect
@@ -91,10 +97,11 @@ require (
 	github.com/prometheus/common v0.39.0 // indirect
 	github.com/prometheus/procfs v0.8.0 // indirect
 	github.com/samber/lo v1.38.1
+	github.com/shirou/gopsutil/v4 v4.24.5
 	github.com/spf13/cobra v1.7.0
 	github.com/srl-labs/containerlab v0.44.3
 	github.com/usvc/go-config v0.4.1
-	golang.org/x/sys v0.19.0 // indirect
+	golang.org/x/sys v0.20.0 // indirect
 	google.golang.org/protobuf v1.32.0
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
 )

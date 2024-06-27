@@ -9,7 +9,9 @@ import (
 	"math/rand"
 	"net/http"
 	"os"
+	"os/exec"
 	"path"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"sync"
@@ -25,19 +27,44 @@ import (
 	cp "github.com/otiai10/copy"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/openconfig/gnmic/pkg/api"
-	"google.golang.org/protobuf/encoding/prototext"
-
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/cobra"
+
+	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/client"
+	"github.com/shirou/gopsutil/v4/cpu"
+	"github.com/shirou/gopsutil/v4/mem"
 )
 
 type IndexHtmlStruct struct {
 	LabName        string
 	DeploymentType string
+}
+
+type UsageData struct {
+	CPU        float64          `json:"cpu"`
+	Memory     float64          `json:"memory"`
+	Containers []ContainerUsage `json:"containers"`
+}
+
+type ContainerUsage struct {
+	ID     string  `json:"id"`
+	Name   string  `json:"name"`
+	CPU    float64 `json:"cpu"`
+	Memory float64 `json:"memory"`
+}
+
+type FileListResponse struct {
+	Files []string `json:"files"`
+}
+
+type FileContentResponse struct {
+	Success bool   `json:"success"`
+	Content string `json:"content,omitempty"`
+	Message string `json:"message,omitempty"`
 }
 
 // config
@@ -161,80 +188,6 @@ func init() {
 	confClab.ApplyToCobra(&clabCommand)
 	// init clabCommand
 	rootCommand.AddCommand(&clabCommand)
-}
-
-// test gMNIc
-func SendGnmicToNodeCapabilities(targetName string, targetAddress string, targetUsername string, targetPassword string, skipVerifyFlag bool, insecureFlag bool) {
-	// create a target
-	tg, err := api.NewTarget(
-		api.Name(targetName),
-		api.Address(targetAddress+":57400"),
-		api.Username(targetUsername),
-		api.Password(targetPassword),
-		api.SkipVerify(skipVerifyFlag),
-		api.Insecure(insecureFlag),
-	)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	// create a gNMI client
-	err = tg.CreateGNMIClient(ctx)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer tg.Close()
-
-	// send a gNMI capabilities request to the created target
-	capResp, err := tg.Capabilities(ctx)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println(prototext.Format(capResp))
-}
-
-func SendGnmicToNodeGet(targetName string, targetAddress string, targetUsername string, targetPassword string, skipVerifyFlag bool, insecureFlag bool, path string) {
-	// create a target
-	tg, err := api.NewTarget(
-		api.Name(targetName),
-		api.Address(targetAddress+":57400"),
-		api.Username(targetUsername),
-		api.Password(targetPassword),
-		api.SkipVerify(skipVerifyFlag),
-		api.Insecure(insecureFlag),
-	)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	// create a gNMI client
-	err = tg.CreateGNMIClient(ctx)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer tg.Close()
-
-	// create a GetRequest
-	getReq, err := api.NewGetRequest(
-		api.Path(path),
-		api.Encoding("json_ietf"))
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println(prototext.Format(getReq))
-
-	// send the created gNMI GetRequest to the created target
-	getResp, err := tg.Get(ctx, getReq)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println(prototext.Format(getResp))
 }
 
 // define a reader which will listen for
@@ -372,9 +325,9 @@ func Clab(_ *cobra.Command, _ []string) error {
 
 	var initNodeEndpointDetailSourceTarget []byte
 
-	jsonBytes := cyTopo.UnmarshalContainerLabTopoV2(topoFile, clabHostUsername, initNodeEndpointDetailSourceTarget)
+	cyTopoJsonBytes := cyTopo.UnmarshalContainerLabTopoV2(topoFile, clabHostUsername, initNodeEndpointDetailSourceTarget)
 	// printing dataCytoMarshall-{{clab-node-name}}.json
-	cyTopo.PrintjsonBytesCytoUiV2(jsonBytes)
+	cyTopo.PrintjsonBytesCytoUiV2(cyTopoJsonBytes)
 
 	// this is the endpoint for xterm.js to connect to
 	xtermjsHandlerOptions := xtermjs.HandlerOpts{
@@ -576,8 +529,10 @@ func Clab(_ *cobra.Command, _ []string) error {
 			for _, cytoElementNode := range cytoElements {
 				if cytoElementNode.Group == "nodes" {
 					if extraData, ok := cytoElementNode.Data.ExtraData.(map[string]interface{}); ok {
-						if kind, ok := extraData["kind"].(string); ok {
-							if kind == "vr-sros" {
+						if longname, ok := extraData["longname"].(string); ok {
+
+							// if kind, ok := extraData["kind"].(string); ok {
+							if longname == "vr-sros" {
 								nodeSrosList = append(nodeSrosList, extraData["longname"].(string))
 							}
 						}
@@ -598,17 +553,17 @@ func Clab(_ *cobra.Command, _ []string) error {
 				}
 			}
 
-			sampleNodePortInfoString := "clab-nokia-ServiceProvider-R07-PE-ASBR"
-			if len(nodesPortInfo[sampleNodePortInfoString]) > 0 {
-				nodesPortInfoJSON, err := json.MarshalIndent(nodesPortInfo[sampleNodePortInfoString][0], "", "  ")
-				if err != nil {
-					log.Debugf("<go_cloudshellwrapper><D>getAllNodeEndpointDetail - Error pretty printing JSON:: %s>", err)
-					return
-				}
-				log.Debugf("<go_cloudshellwrapper><D>getAllNodeEndpointDetail - nodesPortInfoJSON: %s>", nodesPortInfoJSON)
-			} else {
-				log.Debugf("<go_cloudshellwrapper><D>getAllNodeEndpointDetail - sampleNodePortInfoString %s does not have NodePortInfoString, could be snmpwalk to this node has failed...>", sampleNodePortInfoString)
-			}
+			// sampleNodePortInfoString := "clab-nokia-ServiceProvider-R07-PE-ASBR"
+			// if len(nodesPortInfo[sampleNodePortInfoString]) > 0 {
+			// 	nodesPortInfoJSON, err := json.MarshalIndent(nodesPortInfo[sampleNodePortInfoString][0], "", "  ")
+			// 	if err != nil {
+			// 		log.Debugf("<go_cloudshellwrapper><D>getAllNodeEndpointDetail - Error pretty printing JSON:: %s>", err)
+			// 		return
+			// 	}
+			// 	log.Debugf("<go_cloudshellwrapper><D>getAllNodeEndpointDetail - nodesPortInfoJSON: %s>", nodesPortInfoJSON)
+			// } else {
+			// 	log.Debugf("<go_cloudshellwrapper><D>getAllNodeEndpointDetail - sampleNodePortInfoString %s does not have NodePortInfoString, could be snmpwalk to this node has failed...>", sampleNodePortInfoString)
+			// }
 
 			// time=2024-06-16T21:44:12Z level=info msg={
 			// 	"nodeName": "clab-nokia-ServiceProvider-R07-PE-ASBR",
@@ -637,7 +592,6 @@ func Clab(_ *cobra.Command, _ []string) error {
 					extraData := cytoElement.Data.ExtraData.(map[string]interface{})
 
 					log.Debugf("<go_cloudshellwrapper><D>getAllNodeEndpointDetail - ########### Before snmpwalk ><###########>")
-					log.Debugf("<go_cloudshellwrapper><D>getAllNodeEndpointDetail - clabSourceLongName: %s", extraData["clabSourceLongName"].(string))
 					log.Debugf("<go_cloudshellwrapper><D>getAllNodeEndpointDetail - clabSourceLongName: %s>", extraData["clabSourceLongName"].(string))
 					log.Debugf("<go_cloudshellwrapper><D>getAllNodeEndpointDetail - sourceEndpoint: %s>", cytoElement.Data.SourceEndpoint)
 					log.Debugf("<go_cloudshellwrapper><D>getAllNodeEndpointDetail - clabTargetLongName: %s>", extraData["clabTargetLongName"].(string))
@@ -648,13 +602,15 @@ func Clab(_ *cobra.Command, _ []string) error {
 						log.Infof("<go_cloudshellwrapper><D>getAllNodeEndpointDetail - clabSourceLongName: %s>", clabSourceLongName)
 
 						if clabSourceLongName == nodeSros && len(nodesPortInfo[clabSourceLongName]) > 0 {
-							SourceEndpointPortIndexStr := strings.TrimPrefix(cytoElement.Data.SourceEndpoint, "eth")
-							SourceEndpointPortIndexInt, _ := strconv.Atoi(SourceEndpointPortIndexStr)
-							cytoElement.Data.SourceEndpoint = nodesPortInfo[clabSourceLongName][SourceEndpointPortIndexInt-1].IfName
+							if strings.HasPrefix(cytoElement.Data.SourceEndpoint, "eth") {
+								SourceEndpointPortIndexStr := strings.TrimPrefix(cytoElement.Data.SourceEndpoint, "eth") /// if it is already snmp'ed then no eth
+								SourceEndpointPortIndexInt, _ := strconv.Atoi(SourceEndpointPortIndexStr)
+								cytoElement.Data.SourceEndpoint = nodesPortInfo[clabSourceLongName][SourceEndpointPortIndexInt-1].IfName
 
-							log.Debugf("<go_cloudshellwrapper><D>getAllNodeEndpointDetail - NEW cytoElement.Data.SourceEndpoint: %s>", cytoElement.Data.SourceEndpoint)
+								log.Debugf("<go_cloudshellwrapper><D>getAllNodeEndpointDetail - NEW cytoElement.Data.SourceEndpoint: %s>", cytoElement.Data.SourceEndpoint)
 
-							cytoElements[i] = cytoElement
+								cytoElements[i] = cytoElement
+							}
 
 						}
 
@@ -662,19 +618,21 @@ func Clab(_ *cobra.Command, _ []string) error {
 						log.Infof("<go_cloudshellwrapper><D>getAllNodeEndpointDetail - clabTargetLongName: %s>", clabTargetLongName)
 
 						if clabTargetLongName == nodeSros && len(nodesPortInfo[clabTargetLongName]) > 0 {
-							TargetEndpointPortIndexStr := strings.TrimPrefix(cytoElement.Data.TargetEndpoint, "eth")
-							TargetEndpointPortIndexInt, _ := strconv.Atoi(TargetEndpointPortIndexStr)
-							cytoElement.Data.TargetEndpoint = nodesPortInfo[clabTargetLongName][TargetEndpointPortIndexInt-1].IfName
+							if strings.HasPrefix(cytoElement.Data.TargetEndpoint, "eth") {
 
-							log.Debugf("<go_cloudshellwrapper><D>getAllNodeEndpointDetail - NEW cytoElement.Data.TargetEndpoint: %s>", cytoElement.Data.TargetEndpoint)
+								TargetEndpointPortIndexStr := strings.TrimPrefix(cytoElement.Data.TargetEndpoint, "eth")
+								TargetEndpointPortIndexInt, _ := strconv.Atoi(TargetEndpointPortIndexStr)
+								cytoElement.Data.TargetEndpoint = nodesPortInfo[clabTargetLongName][TargetEndpointPortIndexInt-1].IfName
 
-							cytoElements[i] = cytoElement
+								log.Debugf("<go_cloudshellwrapper><D>getAllNodeEndpointDetail - NEW cytoElement.Data.TargetEndpoint: %s>", cytoElement.Data.TargetEndpoint)
 
+								cytoElements[i] = cytoElement
+
+							}
 						}
 					}
 
 					log.Debugf("<go_cloudshellwrapper><D>getAllNodeEndpointDetail - ########### After snmpwalk ><###########>")
-					log.Debugf("<go_cloudshellwrapper><D>getAllNodeEndpointDetail - clabSourceLongName: %s", extraData["clabSourceLongName"].(string))
 					log.Debugf("<go_cloudshellwrapper><D>getAllNodeEndpointDetail - clabSourceLongName: %s>", extraData["clabSourceLongName"].(string))
 					log.Debugf("<go_cloudshellwrapper><D>getAllNodeEndpointDetail - sourceEndpoint: %s>", cytoElement.Data.SourceEndpoint)
 					log.Debugf("<go_cloudshellwrapper><D>getAllNodeEndpointDetail - clabTargetLongName: %s>", extraData["clabTargetLongName"].(string))
@@ -703,7 +661,6 @@ func Clab(_ *cobra.Command, _ []string) error {
 		})
 
 	router.HandleFunc("/reload",
-
 		func(w http.ResponseWriter, r *http.Request) {
 			// Perform your operations here...
 
@@ -910,10 +867,11 @@ func Clab(_ *cobra.Command, _ []string) error {
 			log.Infof("clabNetem-Param2: %s", emptyPadding)
 
 			clabUser := confClab.GetString("clab-user")
-			log.Infof("clabUser: '%s'", clabUser)
 			clabHost := confClab.GetStringSlice("allowed-hostnames")
-			log.Infof("clabHost: '%s'", clabHost[0])
 			clabPass := confClab.GetString("clab-pass")
+
+			log.Infof("clabUser: '%s'", clabUser)
+			log.Infof("clabHost: '%s'", clabHost[0])
 			log.Infof("clabPass: '%s'", clabPass)
 
 			if deploymentType == "colocated" {
@@ -980,6 +938,336 @@ func Clab(_ *cobra.Command, _ []string) error {
 			}
 		}).Methods("POST")
 
+	//// getUsage endpoint
+	//// getUsage endpoint
+	router.HandleFunc("/compute-resource-usage",
+		func(w http.ResponseWriter, r *http.Request) {
+
+			ctx := context.Background()
+			cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+
+			cpuPercent, err := cpu.Percent(0, false)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+
+			memInfo, err := mem.VirtualMemory()
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+
+			containers, err := cli.ContainerList(ctx, types.ContainerListOptions{})
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+
+			containerUsages := []ContainerUsage{}
+			for _, container := range containers {
+				stats, err := cli.ContainerStatsOneShot(ctx, container.ID)
+				if err != nil {
+					http.Error(w, err.Error(), http.StatusInternalServerError)
+					return
+				}
+
+				var statsData types.StatsJSON
+				err = json.NewDecoder(stats.Body).Decode(&statsData)
+				stats.Body.Close()
+				if err != nil {
+					http.Error(w, err.Error(), http.StatusInternalServerError)
+					return
+				}
+
+				cpuDelta := float64(statsData.CPUStats.CPUUsage.TotalUsage - statsData.PreCPUStats.CPUUsage.TotalUsage)
+				systemDelta := float64(statsData.CPUStats.SystemUsage - statsData.PreCPUStats.SystemUsage)
+				numberCPUs := float64(statsData.CPUStats.OnlineCPUs)
+				cpuPercent := (cpuDelta / systemDelta) * numberCPUs * 100.0
+
+				memoryUsage := float64(statsData.MemoryStats.Usage) / float64(statsData.MemoryStats.Limit) * 100.0
+
+				containerUsages = append(containerUsages, ContainerUsage{
+					ID:     container.ID,
+					Name:   container.Names[0],
+					CPU:    cpuPercent,
+					Memory: memoryUsage,
+				})
+			}
+
+			usageData := UsageData{
+				CPU:        cpuPercent[0],
+				Memory:     memInfo.UsedPercent,
+				Containers: containerUsages,
+			}
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(usageData)
+
+		}).Methods("GET")
+
+	// API endpoint to list files
+	// API endpoint to list files
+	router.HandleFunc("/files", func(w http.ResponseWriter, r *http.Request) {
+		// Define the directory to list files from
+		RouterName := r.URL.Query().Get("RouterName")
+		if RouterName == "" {
+			http.Error(w, "Missing directory parameter", http.StatusBadRequest)
+			return
+		}
+
+		workingDirectory, _ := os.Getwd()
+		routerBackupDirectory := path.Join(workingDirectory, HtmlPublicPrefixPath+cyTopo.ClabTopoDataV2.Name+"/node-backup/"+RouterName)
+
+		log.Infof("routerBackupDirectory: %s", routerBackupDirectory)
+
+		// Read the directory
+		files, err := os.ReadDir(routerBackupDirectory)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		// Collect file names
+		var fileNames []string
+		for _, file := range files {
+			if !file.IsDir() {
+				fileNames = append(fileNames, file.Name())
+			}
+		}
+
+		// Create the response
+		response := FileListResponse{Files: fileNames}
+
+		// Write the response as JSON
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(response)
+
+	}).Methods("GET")
+
+	// API endpoint to read file
+	// API endpoint to read file
+	router.HandleFunc("/file",
+		func(w http.ResponseWriter, r *http.Request) {
+			fileName := r.URL.Query().Get("name")
+			if fileName == "" {
+				http.Error(w, "Missing file name", http.StatusBadRequest)
+				return
+			}
+
+			// Define the directory to list files from
+			RouterName := r.URL.Query().Get("RouterName")
+			if RouterName == "" {
+				http.Error(w, "Missing directory parameter", http.StatusBadRequest)
+				return
+			}
+
+			workingDirectory, _ := os.Getwd()
+			routerBackupDirectory := path.Join(workingDirectory, HtmlPublicPrefixPath+cyTopo.ClabTopoDataV2.Name+"/node-backup/"+RouterName)
+
+			log.Infof("routerBackupDirectory: %s", routerBackupDirectory)
+
+			filePath := filepath.Join(routerBackupDirectory, fileName)
+			log.Infof("routerBackupDirectoryFilepath: %s", filePath)
+
+			content, err := os.ReadFile(filePath)
+			if err != nil {
+				w.Header().Set("Content-Type", "application/json")
+				json.NewEncoder(w).Encode(FileContentResponse{
+					Success: false,
+					Message: "Failed to read file",
+				})
+				return
+			}
+
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(FileContentResponse{
+				Success: true,
+				Content: string(content),
+			})
+		}).Methods("GET")
+
+	//// nodeBackupRestore endpoint
+	//// nodeBackupRestore endpoint
+	router.HandleFunc("/nodeBackupRestore",
+		func(w http.ResponseWriter, r *http.Request) {
+
+			// Parse the request body
+			var requestData map[string]interface{}
+			if err := json.NewDecoder(r.Body).Decode(&requestData); err != nil {
+				http.Error(w, "Invalid request body", http.StatusBadRequest)
+				return
+			}
+
+			// Access the parameters
+			RouterId := requestData["param1"].(string)
+			configName := requestData["param2"].(string)
+			Flag := requestData["param3"].(string)
+
+			log.Infof("<go_cloudshellwrapper><I>nodeBackupRestore - RouterId: %s >", RouterId)
+			log.Infof("<go_cloudshellwrapper><I>nodeBackupRestore - configName: %s >", configName)
+			log.Infof("<go_cloudshellwrapper><I>nodeBackupRestore - flag: %s >", Flag)
+
+			clabUser := confClab.GetString("clab-user")
+			clabHost := confClab.GetStringSlice("allowed-hostnames")
+			clabPass := confClab.GetString("clab-pass")
+
+			log.Infof("clabUser: '%s'", clabUser)
+			log.Infof("clabHost: '%s'", clabHost[0])
+			log.Infof("clabPass: '%s'", clabPass)
+
+			os.Mkdir(HtmlPublicPrefixPath+cyTopo.ClabTopoDataV2.Name+"/node-backup/"+RouterId, 0755)
+
+			// aarafat-tag: to be fixed, the Endpoint should be generic and only getting the ssh command in raw ie: "python3 /home/aarafat/topoViewer/html-static/actions/backupRestoreScript/backupRestoreScript.py --ip_address 10.2.1.108 --username admin --password admin --configname clab-nokia-ServiceProvider-R08-PE-date.cfg --kind vr-sros --directory /home/aarafat/topoViewer/html-public/nokia-ServiceProvider/node-backup/clab-nokia-ServiceProvider-R08-PE/ --backup"
+			// all data massaging shall be done in JS. the Go endPoint only passing the ssh command to pyton script.
+
+			deviceKind := "vr-sros"
+			logDirectory := fmt.Sprintf("%s/logs/", workingDirectory)
+
+			// this is static "/home/aarafat/topoViewer/html-static/actions/"
+
+			// command := "python3 /home/aarafat/topoViewer/html-static/actions/backupRestoreScript/backupRestoreScript.py --ip_address 10.2.1.108 --username admin --password admin --configname clab-nokia-ServiceProvider-R08-PE-date.cfg --kind vr-sros --directory /home/aarafat/topoViewer/html-public/nokia-ServiceProvider/node-backup/clab-nokia-ServiceProvider-R08-PE/ --backup"
+			command := fmt.Sprintf("python3 /home/aarafat/topoViewer/html-static/actions/backupRestoreScript/backupRestoreScript.py --ip_address %s --username admin --password admin --configname %s --kind %s --directory /home/aarafat/topoViewer/html-public/nokia-ServiceProvider/node-backup/%s/ --log_directory %s --%s", RouterId, configName, deviceKind, configName, logDirectory, Flag)
+
+			returnData, err := tools.Ssh(clabHost[0], "22", clabUser, clabPass, command)
+
+			if err != nil {
+				log.Errorf("Failed to send ssh command")
+				return
+			}
+
+			log.Info("#############################")
+
+			log.Info(returnData)
+
+			// Create a response JSON object
+			responseData := map[string]interface{}{
+				"result":      "nodeBackupRestore command executed",
+				"return data": returnData,
+				"error":       err,
+			}
+
+			// Marshal the response JSON object into a JSON string
+			jsonResponse, err := json.Marshal(responseData)
+			if err != nil {
+				http.Error(w, "Failed to marshal response data", http.StatusInternalServerError)
+				return
+			}
+
+			// Set the response Content-Type header
+			w.Header().Set("Content-Type", "application/json")
+
+			// Write the JSON response to the client
+			_, err = w.Write(jsonResponse)
+			if err != nil {
+				// Handle the error (e.g., log it)
+				http.Error(w, "Failed to write response", http.StatusInternalServerError)
+				return
+			}
+
+		}).Methods("POST")
+
+	//// getEnvironments endpoint
+	//// getEnvironments endpoint
+	router.HandleFunc("/get-environments",
+		func(w http.ResponseWriter, r *http.Request) {
+
+			type Environments struct {
+				EnvWorkingDirectory string `json:"working-directory"`
+				EnvClabName         string `json:"clab-name"`
+				EnvCyTopoJsonBytes  []topoengine.CytoJson
+			}
+
+			var cytoTopoJson []topoengine.CytoJson
+			err := json.Unmarshal(cyTopoJsonBytes, &cytoTopoJson)
+			if err != nil {
+				fmt.Println("Error parsing JSON:", err)
+				return
+			}
+
+			environments := Environments{
+				EnvWorkingDirectory: workingDirectory,
+				EnvClabName:         cyTopo.ClabTopoDataV2.Name,
+				EnvCyTopoJsonBytes:  cytoTopoJson,
+			}
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(environments)
+
+		}).Methods("GET")
+
+	//// python-action endpoint
+	//// python-action endpoint
+	router.HandleFunc("/python-action",
+		func(w http.ResponseWriter, r *http.Request) {
+
+			// Parse the request body
+			var requestData map[string]interface{}
+			if err := json.NewDecoder(r.Body).Decode(&requestData); err != nil {
+				http.Error(w, "Invalid request body", http.StatusBadRequest)
+				return
+			}
+
+			// Access the parameters
+			log.Info(requestData)
+
+			clabUser := confClab.GetString("clab-user")
+			clabHost := confClab.GetStringSlice("allowed-hostnames")
+			clabPass := confClab.GetString("clab-pass")
+			RouterId := requestData["param1"].(string)
+			command := requestData["param2"].(string)
+
+			backupDir := fmt.Sprintf(HtmlPublicPrefixPath + cyTopo.ClabTopoDataV2.Name + "/node-backup/" + RouterId)
+			os.Mkdir(backupDir, 0755)
+
+			chownCmd := exec.Command("chown", fmt.Sprintf("%s:%s", clabUser, clabUser), backupDir)
+
+			// Run the chown command
+			var err error
+			err = chownCmd.Run()
+			if err != nil {
+				log.Error(err)
+			}
+
+			// chmod the node-backup/ folder
+
+			returnData, err := tools.Ssh(clabHost[0], "22", clabUser, clabPass, command)
+
+			// // to be deleted
+			// returnData := "ok"
+			// var err error
+			// err = nil
+			// // to be deleted
+
+			// Create a response JSON object
+			responseData := map[string]interface{}{
+				"result":      "python-action endpoint executed",
+				"return data": returnData,
+				"error":       err,
+			}
+
+			// Marshal the response JSON object into a JSON string
+			jsonResponse, err := json.Marshal(responseData)
+			if err != nil {
+				http.Error(w, "Failed to marshal response data", http.StatusInternalServerError)
+				return
+			}
+
+			// Set the response Content-Type header
+			w.Header().Set("Content-Type", "application/json")
+
+			// Write the JSON response to the client
+			_, err = w.Write(jsonResponse)
+			if err != nil {
+				// Handle the error (e.g., log it)
+				http.Error(w, "Failed to write response", http.StatusInternalServerError)
+				return
+			}
+
+		}).Methods("POST")
+
 	// starting HTTP server
 	// this is the endpoint for serving xterm.js assets
 	depenenciesDirectorXterm := path.Join(workingDirectory, "./html-static/cloudshell/node_modules")
@@ -998,24 +1286,22 @@ func Clab(_ *cobra.Command, _ []string) error {
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir(publicAssetsDirectoryHtml)))
 
 	//create html-public files
-	htmlPublicPrefixPath := "./html-public/"
-	htmlStaticPrefixPath := "./html-static/"
-	htmlTemplatePath := "./html-static/template/clab/"
+	// os.Mkdir(HtmlPublicPrefixPath+cyTopo.ClabTopoDataV2.Name, 0755) // already created in cytoscapemodel library
+	os.Mkdir(HtmlPublicPrefixPath+cyTopo.ClabTopoDataV2.Name+"/cloudshell", 0755)
+	os.Mkdir(HtmlPublicPrefixPath+cyTopo.ClabTopoDataV2.Name+"/clab-client", 0755)
+	os.Mkdir(HtmlPublicPrefixPath+cyTopo.ClabTopoDataV2.Name+"/cloudshell-tools", 0755)
+	os.Mkdir(HtmlPublicPrefixPath+cyTopo.ClabTopoDataV2.Name+"/ws", 0755)
+	os.Mkdir(HtmlPublicPrefixPath+cyTopo.ClabTopoDataV2.Name+"/images", 0755)
 
-	// os.Mkdir(htmlPublicPrefixPath+cyTopo.ClabTopoDataV2.Name, 0755) // already created in cytoscapemodel library
-	os.Mkdir(htmlPublicPrefixPath+cyTopo.ClabTopoDataV2.Name+"/cloudshell", 0755)
-	os.Mkdir(htmlPublicPrefixPath+cyTopo.ClabTopoDataV2.Name+"/clab-client", 0755)
-	os.Mkdir(htmlPublicPrefixPath+cyTopo.ClabTopoDataV2.Name+"/cloudshell-tools", 0755)
-	os.Mkdir(htmlPublicPrefixPath+cyTopo.ClabTopoDataV2.Name+"/ws", 0755)
-	os.Mkdir(htmlPublicPrefixPath+cyTopo.ClabTopoDataV2.Name+"/images", 0755)
+	os.Mkdir(HtmlPublicPrefixPath+cyTopo.ClabTopoDataV2.Name+"/node-backup", 0755)
 
-	sourceImageFolder := htmlStaticPrefixPath + "images"
-	destinationImageFolder := htmlPublicPrefixPath + cyTopo.ClabTopoDataV2.Name + "/images"
+	sourceImageFolder := HtmlStaticPrefixPath + "images"
+	destinationImageFolder := HtmlPublicPrefixPath + cyTopo.ClabTopoDataV2.Name + "/images"
 	err := cp.Copy(sourceImageFolder, destinationImageFolder)
 	log.Debug("Copying images folder error: ", err)
 
-	sourceClabClientFolder := htmlStaticPrefixPath + "clab-client"
-	destinationClabClientImageFolder := htmlPublicPrefixPath + cyTopo.ClabTopoDataV2.Name + "/clab-client"
+	sourceClabClientFolder := HtmlStaticPrefixPath + "clab-client"
+	destinationClabClientImageFolder := HtmlPublicPrefixPath + cyTopo.ClabTopoDataV2.Name + "/clab-client"
 	err1 := cp.Copy(sourceClabClientFolder, destinationClabClientImageFolder)
 	log.Debug("Copying clab-client folder error: ", err1)
 
@@ -1024,16 +1310,16 @@ func Clab(_ *cobra.Command, _ []string) error {
 		DeploymentType: deploymentType,
 	}
 
-	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "cy-style.tmpl", cyTopo.ClabTopoDataV2.Name+"/"+"cy-style.json", indexHtmldata)
-	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "cloudshell-index.tmpl", cyTopo.ClabTopoDataV2.Name+"/cloudshell/"+"index.html", indexHtmldata)
-	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "cloudshell-terminal-js.tmpl", cyTopo.ClabTopoDataV2.Name+"/cloudshell/"+"terminal.js", indexHtmldata)
-	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "tools-cloudshell-index.tmpl", cyTopo.ClabTopoDataV2.Name+"/cloudshell-tools/"+"index.html", indexHtmldata)
-	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "tools-cloudshell-terminal-js.tmpl", cyTopo.ClabTopoDataV2.Name+"/cloudshell-tools/"+"terminal.js", indexHtmldata)
-	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "websocket-index.tmpl", cyTopo.ClabTopoDataV2.Name+"/ws/"+"index.html", indexHtmldata)
+	createHtmlPublicFiles(HtmlTemplatePath, HtmlPublicPrefixPath, "cy-style.tmpl", cyTopo.ClabTopoDataV2.Name+"/"+"cy-style.json", indexHtmldata)
+	createHtmlPublicFiles(HtmlTemplatePath, HtmlPublicPrefixPath, "cloudshell-index.tmpl", cyTopo.ClabTopoDataV2.Name+"/cloudshell/"+"index.html", indexHtmldata)
+	createHtmlPublicFiles(HtmlTemplatePath, HtmlPublicPrefixPath, "cloudshell-terminal-js.tmpl", cyTopo.ClabTopoDataV2.Name+"/cloudshell/"+"terminal.js", indexHtmldata)
+	createHtmlPublicFiles(HtmlTemplatePath, HtmlPublicPrefixPath, "tools-cloudshell-index.tmpl", cyTopo.ClabTopoDataV2.Name+"/cloudshell-tools/"+"index.html", indexHtmldata)
+	createHtmlPublicFiles(HtmlTemplatePath, HtmlPublicPrefixPath, "tools-cloudshell-terminal-js.tmpl", cyTopo.ClabTopoDataV2.Name+"/cloudshell-tools/"+"terminal.js", indexHtmldata)
+	createHtmlPublicFiles(HtmlTemplatePath, HtmlPublicPrefixPath, "websocket-index.tmpl", cyTopo.ClabTopoDataV2.Name+"/ws/"+"index.html", indexHtmldata)
 
-	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "button.tmpl", cyTopo.ClabTopoDataV2.Name+"/"+"button.html", indexHtmldata)
+	createHtmlPublicFiles(HtmlTemplatePath, HtmlPublicPrefixPath, "button.tmpl", cyTopo.ClabTopoDataV2.Name+"/"+"button.html", indexHtmldata)
 
-	createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "index.tmpl", cyTopo.ClabTopoDataV2.Name+"/"+"index.html", indexHtmldata)
+	createHtmlPublicFiles(HtmlTemplatePath, HtmlPublicPrefixPath, "index.tmpl", cyTopo.ClabTopoDataV2.Name+"/"+"index.html", indexHtmldata)
 
 	// start memory logging pulse
 	logWithMemory := createMemoryLog()
