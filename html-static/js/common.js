@@ -1,0 +1,166 @@
+			// reusable commonn functions 
+
+			async function callGoFunction(goFunctionName, arg01, arg02, arg03) {
+				console.log(`callGoFunction Called with ${goFunctionName}`);
+				console.log(`Parameter01: ${arg01}`);
+				console.log(`Parameter02: ${arg02}`);
+
+				const data = {
+					param1: arg01,
+					param2: arg02,
+					param3: arg03 // Add param3 if needed
+				};
+
+				try {
+					const response = await fetch(goFunctionName, {
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json",
+						},
+						body: JSON.stringify(data),
+					});
+
+					if (!response.ok) {
+						throw new Error("Network response was not ok");
+					}
+
+					const responseData = await response.json();
+					return responseData;
+				} catch (error) {
+					console.error("Error:", error);
+					throw error;
+				}
+			}
+
+
+			async function getEnvironments(event) {
+				showLoadingSpinner();
+
+				try {
+					const environments = await sendRequestToEndpointGet("/get-environments");
+
+					// Handle the response data
+					if (environments && typeof environments === 'object' && Object.keys(environments).length > 0) {
+						hideLoadingSpinner();
+						console.log("Valid non-empty JSON response received:", environments);
+						return environments
+					
+					} else {
+						console.log("Empty or invalid JSON response received");
+					}
+				} catch (error) {
+					hideLoadingSpinner();
+					console.error("Error occurred:", error);
+					// Handle errors as needed
+				}
+			}
+
+			async function postPythonAction(event, commandList) {
+				showLoadingSpinner();
+				try {
+					const pythonActionRespons = await sendRequestToEndpointPost("/python-action" ,commandList);
+
+					// Handle the response data
+					if (pythonActionRespons && typeof pythonActionRespons === 'object' && Object.keys(pythonActionRespons).length > 0) {
+						hideLoadingSpinner();
+						console.log("Valid non-empty JSON response received:", pythonActionRespons);
+						return pythonActionRespons
+					} else {
+						console.log("Empty or invalid JSON response received");
+					}
+				} catch (error) {
+					hideLoadingSpinner();
+					console.error("Error occurred:", error);
+					// Handle errors as needed
+				}
+			}
+
+			// Function to find a cytoJson element from cytoTopologyJson from getEnvironments() by id and retrieve its attributes
+			function findCytoElementById(jsonArray, id) {
+				const cytoElement = jsonArray.find(obj => obj.data.id === id);
+				if (cytoElement) {
+					return  cytoElement;
+				} else {
+					return null; // Handle case where person with given name is not found
+				}
+			}
+
+			// Function to find a cytoJson element from cytoTopologyJson from getEnvironments() by name and retrieve its attributes
+			function findCytoElementByName(jsonArray, name) {
+				const cytoElement = jsonArray.find(obj => obj.data.name === name);
+				if (cytoElement) {
+					return cytoElement;
+				} else {
+					return null; // Handle case where person with given name is not found
+				}
+			}
+
+			// Function to find a cytoJson element from cytoTopologyJson from getEnvironments() by longname and retrieve its attributes
+			function findCytoElementByLongname(jsonArray, longname) {
+				const cytoElement = jsonArray.find(obj => obj.data && obj.data.extraData && obj.data.extraData.longname === longname);
+				if (cytoElement) {
+					return cytoElement;
+				} else {
+					return null; // Handle case where element with given longname is not found
+				}
+			}
+
+		
+			// argsList is list
+			async function sendRequestToEndpointPost(endpointName, argsList = []) {
+				console.log(`callGoFunction Called with ${endpointName}`);
+				console.log(`Parameters:`, argsList);
+			
+				const data = {};
+				argsList.forEach((arg, index) => {
+					data[`param${index + 1}`] = arg;
+				});
+			
+				try {
+					const response = await fetch(endpointName, {
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json",
+						},
+						body: JSON.stringify(data),
+					});
+			
+					if (!response.ok) {
+						throw new Error("Network response was not ok");
+					}
+			
+					const responseData = await response.json();
+					return responseData;
+				} catch (error) {
+					console.error("Error:", error);
+					throw error;
+				}
+			}
+			async function sendRequestToEndpointGet(endpointName, argsList = []) {
+				console.log(`callGoFunction Called with ${endpointName}`);
+				console.log(`Parameters:`, argsList);
+			
+				const data = {};
+				argsList.forEach((arg, index) => {
+					data[`param${index + 1}`] = arg;
+				});
+			
+				try {
+					const response = await fetch(endpointName, {
+						method: "GET",
+						headers: {
+							"Content-Type": "application/json",
+						},
+					});
+			
+					if (!response.ok) {
+						throw new Error("Network response was not ok");
+					}
+			
+					const responseData = await response.json();
+					return responseData;
+				} catch (error) {
+					console.error("Error:", error);
+					throw error;
+				}
+			}

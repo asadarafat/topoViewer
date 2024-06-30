@@ -845,9 +845,9 @@ func Clab(_ *cobra.Command, _ []string) error {
 			}
 		})
 
-	//// clabNetem endpoint
-	//// clabNetem endpoint
-	router.HandleFunc("/clabNetem",
+	//// clab-link-impairment endpoint
+	//// clab-link-impairment endpoint
+	router.HandleFunc("/clab-link-impairment",
 		func(w http.ResponseWriter, r *http.Request) {
 
 			// Parse the request body
@@ -858,84 +858,42 @@ func Clab(_ *cobra.Command, _ []string) error {
 			}
 
 			// Access the parameters
-			command := requestData["param1"].(string)
-			emptyPadding := requestData["param2"].(string)
-
-			log.Infof("clabNetem endpoint called")
-
-			log.Infof("clabNetem-Param1: %s", command)
-			log.Infof("clabNetem-Param2: %s", emptyPadding)
+			log.Info(requestData)
 
 			clabUser := confClab.GetString("clab-user")
 			clabHost := confClab.GetStringSlice("allowed-hostnames")
 			clabPass := confClab.GetString("clab-pass")
+			command := requestData["param1"].(string)
 
-			log.Infof("clabUser: '%s'", clabUser)
-			log.Infof("clabHost: '%s'", clabHost[0])
-			log.Infof("clabPass: '%s'", clabPass)
+			log.Info("command: ", command)
 
-			if deploymentType == "colocated" {
+			returnData, err := tools.SshSudo(clabHost[0], "22", clabUser, clabPass, command)
 
-				log.Infof("executing exec command, since deployment type is colocated")
-
-				returnData, err := cyTopo.RunExecCommand(clabUser, clabHost[0], command)
-
-				// Create a response JSON object
-				responseData := map[string]interface{}{
-					"result":      "Netem command received",
-					"return data": returnData,
-					"error":       err,
-				}
-
-				// Marshal the response JSON object into a JSON string
-				jsonResponse, err := json.Marshal(responseData)
-				if err != nil {
-					http.Error(w, "Failed to marshal response data", http.StatusInternalServerError)
-					return
-				}
-
-				// Set the response Content-Type header
-				w.Header().Set("Content-Type", "application/json")
-
-				// Write the JSON response to the client
-				_, err = w.Write(jsonResponse)
-				if err != nil {
-					// Handle the error (e.g., log it)
-					http.Error(w, "Failed to write response", http.StatusInternalServerError)
-					return
-				}
-
-			} else {
-				// call function to run SSH commnd
-				// returnData, err := cyTopo.RunSSHCommand(clabUser, clabHost[0], clabPass, command)
-
-				returnData, err := tools.SshSudo(clabHost[0], "22", clabUser, clabPass, command)
-
-				// Create a response JSON object
-				responseData := map[string]interface{}{
-					"result":      "Netem command received",
-					"return data": returnData,
-					"error":       err,
-				}
-
-				// Marshal the response JSON object into a JSON string
-				jsonResponse, err := json.Marshal(responseData)
-				if err != nil {
-					http.Error(w, "Failed to marshal response data", http.StatusInternalServerError)
-					return
-				}
-
-				// Set the response Content-Type header
-				w.Header().Set("Content-Type", "application/json")
-
-				// Write the JSON response to the client
-				_, err = w.Write(jsonResponse)
-				if err != nil {
-					// Handle the error (e.g., log it)
-					http.Error(w, "Failed to write response", http.StatusInternalServerError)
-					return
-				}
+			// Create a response JSON object
+			responseData := map[string]interface{}{
+				"result":      "python-action endpoint executed",
+				"return data": returnData,
+				"error":       err,
 			}
+
+			// Marshal the response JSON object into a JSON string
+			jsonResponse, err := json.Marshal(responseData)
+			if err != nil {
+				http.Error(w, "Failed to marshal response data", http.StatusInternalServerError)
+				return
+			}
+
+			// Set the response Content-Type header
+			w.Header().Set("Content-Type", "application/json")
+
+			// Write the JSON response to the client
+			_, err = w.Write(jsonResponse)
+			if err != nil {
+				// Handle the error (e.g., log it)
+				http.Error(w, "Failed to write response", http.StatusInternalServerError)
+				return
+			}
+
 		}).Methods("POST")
 
 	//// getUsage endpoint
@@ -1096,9 +1054,13 @@ func Clab(_ *cobra.Command, _ []string) error {
 		func(w http.ResponseWriter, r *http.Request) {
 
 			type Environments struct {
-				EnvWorkingDirectory string `json:"working-directory"`
-				EnvClabName         string `json:"clab-name"`
-				EnvCyTopoJsonBytes  []topoengine.CytoJson
+				EnvWorkingDirectory  string `json:"working-directory"`
+				EnvClabName          string `json:"clab-name"`
+				EnvClabServerAddress string `json:"clab-server-address"`
+				EnvClabServerPort    string `json:"clab-server-port"`
+				EnvDeploymentType    string `json:"deployment-type"`
+				EnvTopoViewerVersion string `json:"topoviewer-version"`
+				EnvCyTopoJsonBytes   []topoengine.CytoJson
 			}
 
 			var cytoTopoJson []topoengine.CytoJson
@@ -1109,9 +1071,13 @@ func Clab(_ *cobra.Command, _ []string) error {
 			}
 
 			environments := Environments{
-				EnvWorkingDirectory: workingDirectory,
-				EnvClabName:         cyTopo.ClabTopoDataV2.Name,
-				EnvCyTopoJsonBytes:  cytoTopoJson,
+				EnvWorkingDirectory:  workingDirectory,
+				EnvClabName:          cyTopo.ClabTopoDataV2.Name,
+				EnvClabServerAddress: confClab.GetStringSlice("allowed-hostnames")[0],
+				EnvClabServerPort:    fmt.Sprintf("%d", confClab.GetInt("server-port")),
+				EnvDeploymentType:    deploymentType,
+				EnvTopoViewerVersion: VersionInfo,
+				EnvCyTopoJsonBytes:   cytoTopoJson,
 			}
 			w.Header().Set("Content-Type", "application/json")
 			json.NewEncoder(w).Encode(environments)
@@ -1153,12 +1119,6 @@ func Clab(_ *cobra.Command, _ []string) error {
 
 			returnData, err := tools.Ssh(clabHost[0], "22", clabUser, clabPass, command)
 
-			// // to be deleted
-			// returnData := "ok"
-			// var err error
-			// err = nil
-			// // to be deleted
-
 			// Create a response JSON object
 			responseData := map[string]interface{}{
 				"result":      "python-action endpoint executed",
@@ -1191,13 +1151,17 @@ func Clab(_ *cobra.Command, _ []string) error {
 	depenenciesDirectorXterm := path.Join(workingDirectory, "./html-static/cloudshell/node_modules")
 	router.PathPrefix("/assets").Handler(http.StripPrefix("/assets", http.FileServer(http.Dir(depenenciesDirectorXterm))))
 
-	// this is the endpoint for serving cytoscape.js assets
-	depenenciesDirectoryCytoscape := path.Join(workingDirectory, "./html-static/cytoscape")
-	router.PathPrefix("/cytoscape").Handler(http.StripPrefix("/cytoscape", http.FileServer(http.Dir(depenenciesDirectoryCytoscape))))
+	// // this is the endpoint for serving cytoscape.js assets
+	// depenenciesDirectoryCytoscape := path.Join(workingDirectory, "./html-static/cytoscape")
+	// router.PathPrefix("/cytoscape").Handler(http.StripPrefix("/cytoscape", http.FileServer(http.Dir(depenenciesDirectoryCytoscape))))
 
 	// this is the endpoint for serving css asset
 	depenenciesDirectoryCss := path.Join(workingDirectory, "./html-static/css")
 	router.PathPrefix("/css").Handler(http.StripPrefix("/css", http.FileServer(http.Dir(depenenciesDirectoryCss))))
+
+	// this is the endpoint for serving js library assets
+	depenenciesDirectorJs := path.Join(workingDirectory, "./html-static/js")
+	router.PathPrefix("/js").Handler(http.StripPrefix("/js", http.FileServer(http.Dir(depenenciesDirectorJs))))
 
 	// // this is the endpoint for the root path aka website shell
 	publicAssetsDirectoryHtml := path.Join(workingDirectory, "./html-public/"+cyTopo.ClabTopoDataV2.Name)
