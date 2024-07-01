@@ -35,7 +35,6 @@
 
 			async function getEnvironments(event) {
 				showLoadingSpinner();
-
 				try {
 					const environments = await sendRequestToEndpointGet("/get-environments");
 
@@ -152,6 +151,8 @@
 							"Content-Type": "application/json",
 						},
 					});
+
+					console.log(response)
 			
 					if (!response.ok) {
 						throw new Error("Network response was not ok");
@@ -163,4 +164,29 @@
 					console.error("Error:", error);
 					throw error;
 				}
+			}
+
+			// Function to detect light or dark mode
+			function detectColorScheme() {
+				// Check if the browser supports the prefers-color-scheme media feature
+				if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+					// Dark mode is enabled
+					return 'dark';
+				} else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+					// Light mode is enabled
+					return 'light';
+				} else {
+					// No preference or the browser does not support this media feature
+					return 'no-preference';
+				}
+			}
+
+			function showLoadingSpinnerGlobal() {
+				document.getElementById('loading-spinner-global')
+					.style.display = 'block';
+			}
+			
+			function hideLoadingSpinnerGlobal() {
+				document.getElementById('loading-spinner-global')
+					.style.display = 'none';
 			}

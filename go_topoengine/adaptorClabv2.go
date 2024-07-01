@@ -375,7 +375,8 @@ func (cyTopo *CytoTopology) UnmarshalContainerLabTopoV2(topoFile []byte, clabHos
 func (cyTopo *CytoTopology) PrintjsonBytesCytoUiV2(JsonBytesCytoUiMarshaled []byte) error {
 	// Create file
 	os.Mkdir("./html-public/"+cyTopo.ClabTopoDataV2.Name, 0755)
-	file, err := os.Create("html-public/" + cyTopo.ClabTopoDataV2.Name + "/dataCytoMarshall-" + cyTopo.ClabTopoDataV2.Name + ".json")
+	// file, err := os.Create("html-public/" + cyTopo.ClabTopoDataV2.Name + "/dataCytoMarshall-" + cyTopo.ClabTopoDataV2.Name + ".json")
+	file, err := os.Create("html-public/" + cyTopo.ClabTopoDataV2.Name + "/dataCytoMarshall.json")
 	if err != nil {
 		log.Error("Could not create json file for graph")
 	}
@@ -617,6 +618,7 @@ func (cyTopo *CytoTopology) GetDockerNodeStatusViaUnixSocket(clabNodeName string
 // SNMPv2-MIB::sysLocation.0 = STRING: N 40 25 0, W 3 43 0
 
 func (cyTopo *CytoTopology) SendSnmpGetNodeEndpoint(targetAddress string, targetCommunity string, targetVersion gosnmp.SnmpVersion) ([]byte, map[string][]PortInfo, error) {
+	log.Infof("########################", targetAddress, targetCommunity)
 
 	g := &gosnmp.GoSNMP{
 		Target:    targetAddress,

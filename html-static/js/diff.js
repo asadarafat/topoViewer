@@ -1,30 +1,57 @@
-// init
-const routerID = "10.2.1.108";
-const routerName = "clab-nokia-ServiceProvider-R08-PE";
+
 
 var files = [];
 var OriginalModelFileName;
 
-document.addEventListener('DOMContentLoaded', async (event) => {
-	// Output the values to console
-	console.log('routerID:', routerID);
-	console.log('routerName:', routerName);
+var routerName
+var RouterID
 
-	// Update the text of the file browser title
-	const fileBrowserTitle = document.getElementById('diff-panel-title');
-	if (fileBrowserTitle && routerID) {
-		fileBrowserTitle.textContent = `${routerName}`;
-	}
-	if (routerName) {
-		loadFileList(routerName);
-	} else {
-		console.error('No routerName specified in URL');
+async function backupRestoreNodeConfig(event) {
+	// init environments parameters
+	environments = await getEnvironments(event);
+	console.log("linkImpairment - environments: ", environments)
+	nodeData = findCytoElementByLongname(environments["EnvCyTopoJsonBytes"], globalSelectedNode)
+
+	routerName = globalSelectedNode;
+	routerID = nodeData["data"]["extraData"]["mgmtIpv4Addresss"]
+
+	console.log("backupRestoreNodeConfig - routerName: ", routerName)
+    console.log("backupRestoreNodeConfig - routerID: ", routerID)
+
+	// Remove all Overlayed Panel
+	// Get all elements with the class "panel-overlay"
+	var panelOverlays = document.getElementsByClassName("panel-overlay");
+	// Loop through each element and set its display to 'none'
+	for (var i = 0; i < panelOverlays.length; i++) {
+		panelOverlays[i].style.display = "none";
 	}
 
-	const searchInput = document.getElementById('search-input');
-	searchInput.addEventListener('input', (event) => {
-		const filter = event.target.value.toLowerCase();
-		filterFileList(filter);
+    try {
+
+        document.getElementById("panel-backup-restore").style.display = "block";
+        document.getElementById("panel-backup-restore").style.height = "calc(85vh - 50px)";
+        document.getElementById("editor-container").style.height = "calc(80vh - 80px)";
+
+		// Output the values to console
+		console.log('routerID:', routerID);
+		console.log('routerName:', routerName);
+
+		// Update the text of the file browser title
+		const fileBrowserTitle = document.getElementById('diff-panel-title');
+		if (fileBrowserTitle && routerID) {
+			fileBrowserTitle.textContent = `${routerName}`;
+		}
+		if (routerName) {
+			loadFileList(routerName);
+		} else {
+			console.error('No routerName specified in URL');
+		}
+
+		const searchInput = document.getElementById('search-input');
+		searchInput.addEventListener('input', (event) => {
+			const filter = event.target.value.toLowerCase();
+			filterFileList(filter);
+		
 	});
 
 	// Add event listener to the buttonRestoreConfig
@@ -164,7 +191,10 @@ document.addEventListener('DOMContentLoaded', async (event) => {
 		}
 	});
 
-});
+    } catch (error) {
+        console.error('Error executing restore configuration:', error);
+    }
+}
 
 
 function loadFileList(routerName) {
