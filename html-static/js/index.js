@@ -4,6 +4,8 @@ var isPanel01Cy = false;
 var nodeClicked = false;
 var edgeClicked = false;
 
+var cy
+
 var globalSelectedNode
 var globalSelectedEdge
 
@@ -89,7 +91,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     //- Instantiate Cytoscape.js
     //- Instantiate Cytoscape.js
-    const cy = cytoscape({
+    cy = cytoscape({
         container: document.getElementById("cy"),
         elements: [],
         style: [{
@@ -258,6 +260,12 @@ document.addEventListener("DOMContentLoaded", function() {
                 // Loop through each element and set its display to 'none'
                 for (var i = 0; i < panelOverlays.length; i++) {
                     panelOverlays[i].style.display = "none";
+                }
+
+                var viewportDrawer = document.getElementsByClassName("viewport-drawer");
+                // Loop through each element and set its display to 'none'
+                for (var i = 0; i < viewportDrawer.length; i++) {
+                    viewportDrawer[i].style.display = "none";
                 }
 
                 // display none each ViewPortDrawer Element, the ViewPortDrawer is created during DOM loading and styled as display node initially
@@ -1943,17 +1951,16 @@ async function showPanelAbout(event) {
             
             <p>
             Designed and developed by <strong><a href="https://www.linkedin.com/in/asadarafat/">Asad Arafat</a></strong> <br>
-            Special Thanks:
             </p>
-
-
-            <ul>
-
-                <li><strong><a href="https://www.linkedin.com/in/siva19susi/">Siva Sivakumar</a></strong> - For pioneering the integration of Bulma CSS, significantly enhancing TopoViewer design and usability.</li>
-                <li><strong><a href="https://www.linkedin.com/in/gatot-susilo-b073166//">Gatot Susilo</a></strong> - For seamlessly incorporating TopoViewer into the Komodo2 tool, bridging functionality with innovation.</li>
-                <li><strong><a href="https://www.linkedin.com/in/gusman-dharma-putra-1b955117/">Gusman Dharma Putra</a></strong> - For his invaluable contribution in integrating TopoViewer into Komodo2, enriching its capabilities.</li>
-                <li><strong><a href="https://www.linkedin.com/in/sven-wisotzky-44788333/">Sven Wisotzky</a></strong> - For offering insightful feedback that led to significant backend optimizations.</li>
-            </ul>
+            <p>
+            Special Thanks:
+                <ul>
+                    <li><strong><a href="https://www.linkedin.com/in/siva19susi/">Siva Sivakumar</a></strong> - For pioneering the integration of Bulma CSS, significantly enhancing TopoViewer design and usability.</li>
+                    <li><strong><a href="https://www.linkedin.com/in/gatot-susilo-b073166//">Gatot Susilo</a></strong> - For seamlessly incorporating TopoViewer into the Komodo2 tool, bridging functionality with innovation.</li>
+                    <li><strong><a href="https://www.linkedin.com/in/gusman-dharma-putra-1b955117/">Gusman Dharma Putra</a></strong> - For his invaluable contribution in integrating TopoViewer into Komodo2, enriching its capabilities.</li>
+                    <li><strong><a href="https://www.linkedin.com/in/sven-wisotzky-44788333/">Sven Wisotzky</a></strong> - For offering insightful feedback that led to significant backend optimizations.</li>
+                </ul>
+            </p>
 
 
         </div>
@@ -2025,6 +2032,116 @@ async function getActualNodesEndpoints(event) {
         // Handle errors as needed
     }
 }
+
+function viewportButtonsZoomToFit() {
+    const initialZoom = cy.zoom();
+    appendMessage(`Bro, initial zoom level is "${initialZoom}".`);
+    //- Fit all nodes possible with padding
+    //- Fit all nodes possible with padding
+    cy.fit();
+    const currentZoom = cy.zoom();
+    appendMessage(`And now the zoom level is "${currentZoom}".`);
+}
+
+function viewportButtonsLayoutAlgo() {
+    viewportDrawerLayout = document.getElementById("viewport-drawer-layout")
+    viewportDrawerLayout.style.display = "block"
+}
+
+
+
+
+async function layoutAlgoChange(event) {
+    try {
+        console.log("layoutAlgoChange clicked");
+
+        var selectElement = document.getElementById("select-layout-algo");
+        var selectedOption = selectElement.value;
+
+        if (selectedOption === "Force Directed") {
+            console.log("Force Directed algo selected");
+
+            var layoutAlgoPanels = document.getElementsByClassName("layout-algo");
+            // Loop through each element and set its display to 'none'
+            for (var i = 0; i < layoutAlgoPanels.length; i++) {
+                layoutAlgoPanels[i].style.display = "none";
+            }
+
+            viewportDrawerForceDirected = document.getElementById("viewport-drawer-force-directed")
+            viewportDrawerForceDirected.style.display = "block"
+
+            viewportDrawerForceDirectedResetStart = document.getElementById("viewport-drawer-force-directed-reset-start")
+            viewportDrawerForceDirectedResetStart.style.display = "block"
+
+            console.log(document.getElementById("viewport-drawer-force-directed"))
+            console.log(document.getElementById("viewport-drawer-force-directed-reset-start"))
+
+        } else if (selectedOption === "Vertical") {
+            console.log("Vertical algo selected");
+    
+            var layoutAlgoPanels = document.getElementsByClassName("layout-algo");
+            // Loop through each element and set its display to 'none'
+            for (var i = 0; i < layoutAlgoPanels.length; i++) {
+                layoutAlgoPanels[i].style.display = "none";
+            }
+    
+            viewportDrawerForceDirected = document.getElementById("viewport-drawer-dc-vertical")
+            viewportDrawerForceDirected.style.display = "block"
+    
+            viewportDrawerForceDirectedResetStart = document.getElementById("viewport-drawer-dc-vertical-reset-start")
+            viewportDrawerForceDirectedResetStart.style.display = "block"
+    
+            console.log(document.getElementById("viewport-drawer-dc-vertical"))
+            console.log(document.getElementById("viewport-drawer-dc-vertical-reset-start"))
+
+        } else if (selectedOption === "Horizontal") {
+            console.log("Horizontal algo selected");
+    
+            var layoutAlgoPanels = document.getElementsByClassName("layout-algo");
+            // Loop through each element and set its display to 'none'
+            for (var i = 0; i < layoutAlgoPanels.length; i++) {
+                layoutAlgoPanels[i].style.display = "none";
+            }
+    
+            viewportDrawerForceDirected = document.getElementById("viewport-drawer-dc-horizontal")
+            viewportDrawerForceDirected.style.display = "block"
+    
+            viewportDrawerForceDirectedResetStart = document.getElementById("viewport-drawer-dc-horizontal-reset-start")
+            viewportDrawerForceDirectedResetStart.style.display = "block"
+    
+            console.log(document.getElementById("viewport-drawer-dc-horizontal"))
+            console.log(document.getElementById("viewport-drawer-dc-horizontal-reset-start"))
+        }
+
+    }catch (error) {
+        console.error("Error occurred:", error);
+        // Handle errors as needed
+    }
+}
+
+
+function viewportButtonsTopologyOverview() {
+
+    console.log("viewportButtonsTopologyOverview clicked")
+    viewportDrawerLayout = document.getElementById("viewport-drawer-topology-overview")
+    viewportDrawerLayout.style.display = "block"
+
+    viewportDrawerLayoutContent = document.getElementById("viewport-drawer-topology-overview-content")
+    viewportDrawerLayoutContent.style.display = "block"
+}
+
+function viewportButtonsTopologyCapture() {
+
+    console.log("viewportButtonsTopologyCapture clicked")
+
+    viewportDrawerCapture = document.getElementById("viewport-drawer-capture-sceenshoot")
+    viewportDrawerCapture.style.display = "block"
+
+    viewportDrawerCaptureContent = document.getElementById("viewport-drawer-capture-sceenshoot-content")
+    viewportDrawerCaptureContent.style.display = "block"
+}
+
+
 
 // aarafat-tag:
 //// REFACTOR END
