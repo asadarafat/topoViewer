@@ -2140,125 +2140,46 @@ function viewportButtonContainerStatusVisibility() {
     }
 }
 
+
+function viewportDrawerLayoutForceDirected() {
+    edgeLengthSlider = document.getElementById("force-directed-slider-link-lenght");
+    nodeGapSlider = document.getElementById("force-directed-slider-node-gap");
+
+    const edgeLengthValue = parseFloat(edgeLengthSlider.value);
+    const nodeGapValue = parseFloat(nodeGapSlider.value);
+
+    console.log("edgeLengthValue", edgeLengthValue);
+    console.log("nodeGapValue", nodeGapValue);
+
+    cy.layout({
+            fit: true,
+            name: "cola",
+            animate: true,
+            randomize: false,
+            maxSimulationTime: 400,
+            //edgeLength: '50',
+            // nodeGap: function(node){
+            // 	 return 10;
+            // 	},
+            //edgeLength: '50',
+            // nodeGap: function(node){
+            // 	 return 10;
+            // 	},
+            edgeLength: function(e) {
+                return edgeLengthValue / e.data("weight");
+            },
+            nodeGap: function(e) {
+                return nodeGapValue / e.data("weight");
+            },
+        })
+        .run();
+
+}
+
+
 // aarafat-tag:
 //// REFACTOR END
 
-
-
-
-// Call createContentPanel with the panel ID and an array of tab content functions
-// The Tab name will be auto generate by the tabFunction names, ie: funtion name: createNetworkExplorerTab --> tab name: NetworkExplorer
-// Call createContentPanel with the panel ID and an array of tab content functions
-// The Tab name will be auto generate by the tabFunction names, ie: funtion name: createNetworkExplorerTab --> tab name: NetworkExplorer
-function createContentPanel(
-    panelId,
-    tabContentFns,
-    tabContentFnsArg,
-    panelHeadingText,
-) {
-    appendMessage(`"createContentPanel reach:`);
-
-    const tabNames = tabContentFns.map((fn) => fn.name);
-
-    const panel = document.createElement("div");
-    panel.className = "panel is-link";
-    panel.id = panelId;
-    panel.style.display = "block";
-
-    const panelHeading = document.createElement("p");
-    panelHeading.className = "panel-heading is-size-7";
-    panelHeading.textContent = panelHeadingText;
-
-    const panelTabs = document.createElement("p");
-    panelTabs.className = "panel-tabs";
-
-    const tabContainers = [];
-
-    // Check if the tabContentFns have more than 1 element
-    // Check if the tabContentFns have more than 1 element
-    if (tabContentFns.length != 1) {
-        for (let i = 0; i < tabNames.length; i++) {
-            const name = tabNames[i];
-            const tab = document.createElement("a");
-            tab.className = "toggle-Panel01-tab is-smallish has-text-weight-medium";
-            tab.setAttribute("data-target", `${panelId}-Tab-${name}-Container`);
-            tab.id = `${panelId}-Tab-${name}-Button`;
-            tab.textContent = name.replace(/^create|Tab$/g, "");
-
-            panelTabs.appendChild(tab);
-
-            const tabContainer = document.createElement("div");
-            tabContainer.className = "panel-tabContainer";
-            tabContainer.id = `${panelId}-Tab-${name}-Container`;
-
-            tabContainers.push(tabContainer);
-
-            // Generate tab content using the provided function from tabContentFns
-            // Generate tab content using the provided function from tabContentFns
-            if (tabContentFns[i] && typeof tabContentFns[i] === "function") {
-                const tabContent = tabContentFns[i]();
-                tabContainer.appendChild(tabContent);
-            }
-            panel.appendChild(panelHeading);
-            panel.appendChild(panelTabs);
-        }
-    } else {
-        const tabContainer = document.createElement("div");
-        tabContainer.className = "panel-tabContainer";
-        tabContainer.id = `${panelId}-Tab-${name}-Container`;
-        tabContainers.push(tabContainer);
-
-        // Generate tab content using the provided function from tabContentFns
-        // Generate tab content using the provided function from tabContentFns
-        if (tabContentFns[0] && typeof tabContentFns[0] === "function") {
-            const tabContent = tabContentFns[0](tabContentFnsArg, panelHeadingText);
-            console.log("tabContentFnsArg");
-
-            console.log(tabContentFnsArg);
-            panel.appendChild(panelHeading);
-            panel.appendChild(tabContent);
-        }
-    }
-
-    // Check if the tabContentFns have more than 1 element
-    // Check if the tabContentFns have more than 1 element
-    if (tabContentFns.length != 1) {
-        // initial hide all tab and only opent the first tab
-        // initial hide all tab and only opent the first tab
-        for (const tabContainer of tabContainers) {
-            tabContainer.style.display = "none";
-            panel.appendChild(tabContainer);
-        }
-        tabContainers[0].style.display = "block";
-    }
-
-    document.body.appendChild(panel);
-
-    const toggleButtons = document.querySelectorAll(".toggle-Panel01-tab");
-
-    toggleButtons.forEach((tab) => {
-        tab.addEventListener("click", () => {
-            const targetTabId = tab.getAttribute("data-target");
-            const selectedTabContainer = document.getElementById(targetTabId);
-
-            // Hide all tab containers
-            // Hide all tab containers
-            tabContainers.forEach((container) => {
-                container.style.display = "none";
-            });
-
-            // Show the selected tab container
-            // Show the selected tab container
-            selectedTabContainer.style.display = "block";
-
-            console.log(`Panel-${targetTabId} is displayed.`);
-            appendMessage(`Panel-${targetTabId} is displayed.`);
-        });
-    });
-}
-
-// logMessagesPanel manager
-///-logMessagesPanel Function to append message function
 // logMessagesPanel manager
 ///-logMessagesPanel Function to append message function
 function appendMessage(message) {
@@ -3280,17 +3201,17 @@ async function captureAndSaveViewportAsDrawIo(cy) {
     function createMxCellForNode(node, imageURL) {
         if (node.isParent()) {
             return `	
-                                                        <mxCell id="${node.id()}" value="${node.data("id")}" style="shape=image;imageAspect=0;aspect=fixed;verticalLabelPosition=bottom;verticalAlign=top;image=undefined;imageBackground=#8F96AC;imageBorder=#F2F2F2;strokeWidth=2;perimeterSpacing=10;opacity=30;fontSize=4;spacingTop=-7;" parent="1" vertex="1">
-                                                            <mxGeometry x="${node.position("x") - node.width() / 2}" y="${node.position("y") - node.height() / 2}" width="${node.width()}" height="${node.height()}" as="geometry" />
-                                                        </mxCell>`;
+                <mxCell id="${node.id()}" value="${node.data("id")}" style="shape=image;imageAspect=0;aspect=fixed;verticalLabelPosition=bottom;verticalAlign=top;image=undefined;imageBackground=#8F96AC;imageBorder=#F2F2F2;strokeWidth=2;perimeterSpacing=10;opacity=30;fontSize=4;spacingTop=-7;" parent="1" vertex="1">
+                    <mxGeometry x="${node.position("x") - node.width() / 2}" y="${node.position("y") - node.height() / 2}" width="${node.width()}" height="${node.height()}" as="geometry" />
+                </mxCell>`;
         } else if (
             !node.data("id").includes("statusGreen") &&
             !node.data("id").includes("statusRed")
         ) {
             return `
-                                                        <mxCell id="${node.id()}" value="${node.data("id")}" style="shape=image;imageAspect=0;aspect=fixed;verticalLabelPosition=bottom;verticalAlign=top;image=${imageURL};fontSize=4;spacingTop=-7;" vertex="1" parent="1">
-                                                            <mxGeometry x="${node.position("x") - node.width() / 2}" y="${node.position("y") - node.height() / 2}" width="${node.width()}" height="${node.height()}" as="geometry" />
-                                                        </mxCell>`;
+                <mxCell id="${node.id()}" value="${node.data("id")}" style="shape=image;imageAspect=0;aspect=fixed;verticalLabelPosition=bottom;verticalAlign=top;image=${imageURL};fontSize=4;spacingTop=-7;" vertex="1" parent="1">
+                    <mxGeometry x="${node.position("x") - node.width() / 2}" y="${node.position("y") - node.height() / 2}" width="${node.width()}" height="${node.height()}" as="geometry" />
+                </mxCell>`;
         }
     }
 
@@ -3325,20 +3246,20 @@ async function captureAndSaveViewportAsDrawIo(cy) {
 
     cy.edges().forEach(function(edge) {
         mxCells.push(`
-                                                                <mxCell id="${edge.data("id")}" value="" style="endArrow=none;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;strokeWidth=1;strokeColor=#B1BCC8;opacity=60;" parent="1" source="${edge.data("source")}" target="${edge.data("target")}" edge="1">
-                                                                    <mxGeometry width="50" height="50" relative="1" as="geometry" >
-                                                                    </mxGeometry>
-                                                                </mxCell>
-                                                                <mxCell id="${edge.data("id")}-LabelSource" value="${edge.data("sourceEndpoint")}" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=3;" parent="${edge.data("id")}" vertex="1" connectable="0">
-                                                                    <mxGeometry x="-0.5" y="1" relative="0.5" as="geometry">
-                                                                        <mxPoint x="1" y="1" as="sourcePoint" />
-                                                                    </mxGeometry>
-                                                                </mxCell>
-                                                                <mxCell id="${edge.data("id")}-labelTarget" value="${edge.data("targetEndpoint")}" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=3" parent="${edge.data("id")}" vertex="1" connectable="0">
-                                                                    <mxGeometry x="0.5" y="1" relative="0.5" as="geometry">
-                                                                        <mxPoint x="1" y="1" as="targetPoint" />
-                                                                    </mxGeometry>
-                                                                </mxCell>`);
+            <mxCell id="${edge.data("id")}" value="" style="endArrow=none;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;strokeWidth=1;strokeColor=#B1BCC8;opacity=60;" parent="1" source="${edge.data("source")}" target="${edge.data("target")}" edge="1">
+                <mxGeometry width="50" height="50" relative="1" as="geometry" >
+                </mxGeometry>
+            </mxCell>
+            <mxCell id="${edge.data("id")}-LabelSource" value="${edge.data("sourceEndpoint")}" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=3;" parent="${edge.data("id")}" vertex="1" connectable="0">
+                <mxGeometry x="-0.5" y="1" relative="0.5" as="geometry">
+                    <mxPoint x="1" y="1" as="sourcePoint" />
+                </mxGeometry>
+            </mxCell>
+            <mxCell id="${edge.data("id")}-labelTarget" value="${edge.data("targetEndpoint")}" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=3" parent="${edge.data("id")}" vertex="1" connectable="0">
+                <mxGeometry x="0.5" y="1" relative="0.5" as="geometry">
+                    <mxPoint x="1" y="1" as="targetPoint" />
+                </mxGeometry>
+            </mxCell>`);
     });
 
     // Combine all parts and create XML
