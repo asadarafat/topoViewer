@@ -2178,21 +2178,94 @@ function viewportDrawerLayoutVertical() {
     console.log("nodevGapValue", nodevGapValue);
     console.log("groupvGapValue", groupvGapValue);
 
-    cy.layout(
-        {
-            fit: true,
-            name: "cola",
-            animate: true,
-            randomize: false,
-            maxSimulationTime: 400,
-            edgeLength: function(e) {
-                return edgeLengthValue / e.data("weight");
-            },
-            nodeGap: function(e) {
-                return nodeGapValue / e.data("weight");
-            },
-        })
-        .run();
+    const xOffset = parseFloat(nodevGapValue);
+    const yOffset = parseFloat(groupvGapValue);
+
+    console.log("yOffset", yOffset);
+    console.log("xOffset", xOffset);
+
+    const delay = 100;
+
+    setTimeout(() => {
+        cy.nodes().forEach(function(node) {
+            if (node.isParent()) {
+                // For each parent node
+                // For each parent node
+                const children = node.children();
+                const numRows = 1;
+
+                const cellWidth = node.width() / children.length;
+                // const xOffset = 5
+                // const xOffset = 5
+
+                children.forEach(function(child, index) {
+                    // Position children in rows
+                    // Position children in rows
+                    const xPos = index * (cellWidth + xOffset);
+                    const yPos = 0;
+
+                    // Set the position of each child node
+                    // Set the position of each child node
+                    child.position({
+                        x: xPos,
+                        y: yPos
+                    });
+                });
+            }
+        });
+
+        var parentCounts = {};
+        var maxWidth = 0;
+        var centerX = 0;
+        var centerY = cy.height() / 2;
+
+        // Count children of each parent node
+        // Count children of each parent node
+        cy.nodes().forEach(function(node) {
+            if (node.isParent()) {
+                const childrenCount = node.children().length;
+                parentCounts[node.id()] = childrenCount;
+            }
+        });
+
+        cy.nodes().forEach(function(node) {
+            if (node.isParent()) {
+                const width = node.width();
+                if (width > maxWidth) {
+                    maxWidth = width;
+                    console.log("ParentMaxWidth: ", maxWidth);
+                }
+            }
+        });
+
+        const divisionFactor = maxWidth / 2;
+        console.log("divisionFactor: ", divisionFactor);
+
+        // Sort parent nodes by child count in ascending order
+        // Sort parent nodes by child count in ascending order
+        const sortedParents = Object.keys(parentCounts).sort(
+            (a, b) => parentCounts[a] - parentCounts[b],
+        );
+
+        let yPos = 0;
+        // const yOffset = 50;
+        // const yOffset = 50;
+
+        // Position parent nodes vertically and center them horizontally
+        // Position parent nodes vertically and center them horizontally
+        sortedParents.forEach(function(parentId) {
+            const parent = cy.getElementById(parentId);
+            const xPos = centerX - parent.width() / divisionFactor;
+            // to the left compared to the center of the widest parent node.
+            // to the left compared to the center of the widest parent node.
+            parent.position({
+                x: xPos,
+                y: yPos
+            });
+            yPos += yOffset;
+        });
+        cy.fit();
+    }, delay);
 }
 
 
