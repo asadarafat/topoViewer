@@ -1,6 +1,6 @@
 package cloudshellwrapper
 
-var VersionInfo string = "nightly-24.02.11"
+var VersionInfo string = "nightly-24.07.07"
 
 // create html-public files
 var HtmlPublicPrefixPath string = "./html-public/"

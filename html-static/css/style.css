@@ -30,15 +30,14 @@ body {
 
 #viewport-buttons {
   top: 75px;
-  left: 10px;
+  left: 40px;
   position: fixed;
   z-index: 9999;
-
 }
 
 .viewport-drawer {
   top: 75px;
-  left: 60px;
+  left: 90px;
   width: 300px;
   position: fixed;
   z-index: 9998;
