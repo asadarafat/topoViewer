@@ -86,7 +86,7 @@
 						</a>
 					</p>
 					<p class="control p-0">
-						<a  class="button px-4 py-4 is-smallest-element" style="outline: none;">
+						<a  id="viewport-container-status-visibility" href="#" onclick="viewportButtonContainerStatusVisibility()"class="button px-4 py-4 is-smallest-element" style="outline: none;">
 							<span class="icon is-small">
 								<i class="fab fa-docker"></i> 
 							</span>
@@ -134,7 +134,7 @@
 									<label class="label is-size-7 has-text-right px-auto" >Link Lenght</label>
 								</div>
 								<div  class="column pb-1 is-5">
-									<input class="slider" step="1" min="1" max="1000" type="range"  style="width: 130px;">								
+									<input id="force-directed-slider-link-lenght" class="slider" step="1" min="1" max="10" type="range"  style="width: 130px;">								
 								</div>
 							</div>
 							<div class="columns" >
@@ -142,7 +142,7 @@
 									<label class="label is-size-7 has-text-right px-auto" >Node Gap</label>
 								</div>
 								<div  class="column is-5">
-									<input class="slider" step="1" min="1" max="1000" type="range"  style="width: 130px;">								
+									<input id="force-directed-slider-node-gap" class="slider" step="1" min="1" max="100" type="range"  style="width: 130px;">								
 								</div>
 							</div>
 						</div>
@@ -153,7 +153,7 @@
 						<div  class="column is-12 is-flex is-justify-content-flex-end">
 							<div class="buttons">
 								<button class="button is-link is-outlined is-small">Reset</button>
-								<button class="button is-link is-outlined is-small">Start</button>
+								<button href="#" onclick="viewportDrawerLayoutForceDirected(event)" class="button is-link is-outlined is-small">Start</button>
 							  </div>
 						</div>
 					</div>
@@ -166,7 +166,7 @@
 									<label class="label is-size-7 has-text-right px-auto" >Node v-Gap</label>
 								</div>
 								<div  class="column pb-1 is-5">
-									<input class="slider" step="1" min="1" max="1000" type="range"  style="width: 130px;">								
+									<input id="vertical-layout-slider-node-v-gap" class="slider" step="1" min="1" max="100" type="range"  style="width: 130px;">								
 								</div>
 							</div>
 							<div class="columns" >
@@ -174,7 +174,7 @@
 									<label class="label is-size-7 has-text-right px-auto">Group v-Gap</label>
 								</div>
 								<div  class="column is-5">
-									<input class="slider" step="1" min="1" max="1000" type="range"  style="width: 130px;">								
+									<input id="vertical-layout-slider-group-v-gap"  class="slider" step="1" min="1" max="10" type="range"  style="width: 130px;">								
 								</div>
 							</div>
 						</div>
@@ -185,7 +185,7 @@
 						<div  class="column is-12 is-flex is-justify-content-flex-end">
 							<div class="buttons">
 								<button class="button is-link is-outlined is-small">Reset</button>
-								<button class="button is-link is-outlined is-small">Start</button>
+								<button href="#" onclick="viewportDrawerLayoutVertical(event)" class="button is-link is-outlined is-small">Start</button>
 							  </div>
 						</div>
 					</div>

@@ -2151,20 +2151,13 @@ function viewportDrawerLayoutForceDirected() {
     console.log("edgeLengthValue", edgeLengthValue);
     console.log("nodeGapValue", nodeGapValue);
 
-    cy.layout({
+    cy.layout(
+        {
             fit: true,
             name: "cola",
             animate: true,
             randomize: false,
             maxSimulationTime: 400,
-            //edgeLength: '50',
-            // nodeGap: function(node){
-            // 	 return 10;
-            // 	},
-            //edgeLength: '50',
-            // nodeGap: function(node){
-            // 	 return 10;
-            // 	},
             edgeLength: function(e) {
                 return edgeLengthValue / e.data("weight");
             },
@@ -2173,7 +2166,33 @@ function viewportDrawerLayoutForceDirected() {
             },
         })
         .run();
+}
 
+function viewportDrawerLayoutVertical() {
+    nodevGap = document.getElementById("vertical-layout-slider-node-v-gap");
+    groupvGap = document.getElementById("vertical-layout-slider-group-v-gap");
+
+    const nodevGapValue = parseFloat(nodevGap.value);
+    const groupvGapValue = parseFloat(groupvGap.value);
+
+    console.log("nodevGapValue", nodevGapValue);
+    console.log("groupvGapValue", groupvGapValue);
+
+    cy.layout(
+        {
+            fit: true,
+            name: "cola",
+            animate: true,
+            randomize: false,
+            maxSimulationTime: 400,
+            edgeLength: function(e) {
+                return edgeLengthValue / e.data("weight");
+            },
+            nodeGap: function(e) {
+                return nodeGapValue / e.data("weight");
+            },
+        })
+        .run();
 }
 
 
