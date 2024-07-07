@@ -31,7 +31,7 @@
 						<div class="dropdown-content">
 							<a id="about" href="#" onclick="showPanelAbout(event);" class="dropdown-item label has-text-weight-normal is-small py-0">About TopoViewer</a>                      
 							<hr class="dropdown-divider py-0">
-							<!-- <a id="getAllEndpointDetail" href="#" onclick="getAllNodeEndpoint(event);" class="dropdown-item label has-text-weight-normal is-small py-0">Action - Get True Endpoint Label</a>      -->
+							
 							<a id="getAllEndpointDetail" href="#" onclick="getActualNodesEndpoints(event);" class="dropdown-item label has-text-weight-normal is-small py-0">Action - Retrieve Actual Endpoint Label</a>     
 							<a id="logMessagesDropdownItem" href="#" onclick="showPanelLogMessages(event);" class="dropdown-item label has-text-weight-normal is-small py-0">Action - Log Messages</a>       
 							<hr class="dropdown-divider py-0">
@@ -79,7 +79,7 @@
 						</a>
 					</p>
 					<p class="control p-0">
-						<a  class="button px-4 py-4 is-smallest-element" style="outline: none;">
+						<a  id="viewport-label-endpoint" href="#" onclick="viewportButtonsLabelEndpoint()" class="button px-4 py-4 is-smallest-element" style="outline: none;">
 							<span class="icon is-small">
 								<i class="fas fa-tag"></i> 
 							</span>
@@ -115,7 +115,7 @@
 								</p>
 							</div>
 							<div class="select p-0 is-small">
-								<!-- layoutAlgoChange -->
+								
 								<select id="select-layout-algo" onchange="layoutAlgoChange(event)"> 
 									<option>Select Layout Algorithm</option>
 								  	<option>Force Directed</option>
@@ -312,36 +312,7 @@
 			</div>
 			
 			
-			<!-- <sidebar class="column pt-6 px-0" id="sidebar">
-				<buttonControl class="control is-link p-0">
-					<a class="button p-4 is-fullwidth mb-2 is-sidebar is-large" id="sidebar-button-fit-screen" ref="#" onclick="sidebarButtonFitScreen(event);">
-						<span class="icon is-large">
-							<i class="fa-solid fa-expand"></i>
-						</span>
-					</a>
-				</buttonControl>
-				<buttonControl class="control is-link p-0">
-					<a class="button p-4 is-fullwidth mb-2 is-sidebar is-large" id="sidebar-button-filter-element" ref="#" onclick="sidebarButtonFitScreen(event);">
-						<span class="icon is-large">
-							<i class="fa-solid fa-expand"></i>
-						</span>
-					</a>
-				</buttonControl>
-				<buttonControl class="control is-link p-0">
-					<a class="button p-4 is-fullwidth mb-2 is-sidebar is-large" id="sidebar-button-fit-screen" ref="#" onclick="sidebarButtonFitScreen(event);">
-						<span class="icon is-large">
-							<i class="fa-solid fa-expand"></i>
-						</span>
-					</a>
-				</buttonControl>
-			</sidebar>
-
-			<drawer class="column pt-6 px-0" id="drawer">
-				<drawerPanel>
-
-				</drawerPanel>
-
-			</drawer> -->
+			
 
 			<div class="panel panel-overlay is-link" id="panel-node" style="display: none;">
 				<p class="panel-heading is-size-7">Node Properties</p>
@@ -738,7 +709,7 @@
 						<div id="panelBlock-tabContainer--divPanelBlock" class="column p-0">
 							<div class="px-2" style="max-height: 280px; overflow-y: auto;">
 								<div class="content is-small pb-2" id="panel-topoviewer-helper-content">
-									<!-- to be inserted by index.js -->
+									
 								</div>
 							</div>
 						</div>
@@ -753,7 +724,7 @@
 						<div id="panelBlock-tabContainer--divPanelBlock" class="column p-0">
 							<div class="px-2" style="max-height: 280px; overflow-y: auto;">
 								<div class="content is-small pb-2" id="panel-topoviewer-about-content">
-									<!-- to be inserted by index.js -->
+									
 								</div>
 							</div>
 						</div>

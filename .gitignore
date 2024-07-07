@@ -19,3 +19,5 @@ package.json
 .cache/**
 clab-3tierSmall/**
 README-02.md
+.topoViewer.code-workspace
+topoViewer.code-workspace

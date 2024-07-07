@@ -9,6 +9,10 @@ var cy
 var globalSelectedNode
 var globalSelectedEdge
 
+var linkEndpointVisibility = true;
+var nodeContainerStatusVisibility = false;
+
+
 var globalShellUrl = "/cloudshell"
 
 const labName = 'nokia-ServiceProvider'
@@ -1307,78 +1311,6 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     }
 
-    function closePanel01Event(event) {
-        var panel = document.getElementById("Panel-01");
-        if (panel.style.display === "none" || panel.style.display === "") {
-            //- Show the panel
-            //- Show the panel
-            panel.style.display = "block";
-            panel.classList.toggle("active");
-        } else {
-            //- Hide the panel
-            //- Hide the panel
-            panel.style.display = "none";
-        }
-        isPanel01Added = false;
-        console.log(
-            "Panel-01.style: " + document.getElementById("Panel-01").style.display,
-        );
-    }
-
-    var linkEndpointVisibility = true;
-
-    function toggleLinkEndpoint() {
-        if (linkEndpointVisibility) {
-            cy.edges().forEach(function(edge) {
-                edge.style("source-label", ".");
-                edge.style("target-label", ".");
-                linkEndpointVisibility = false;
-            });
-        } else {
-            cy.edges().forEach(function(edge) {
-                edge.style("source-label", edge.data("sourceEndpoint"));
-                edge.style("target-label", edge.data("targetEndpoint"));
-                linkEndpointVisibility = true;
-            });
-        }
-    }
-
-    var nodeContainerStatusVisibility = false;
-
-    function toggleContainerStatusVisibility() {
-        if (nodeContainerStatusVisibility) {
-            nodeContainerStatusVisibility = false;
-            console.log(
-                "nodeContainerStatusVisibility: " + nodeContainerStatusVisibility,
-            );
-            appendMessage(
-                "nodeContainerStatusVisibility: " + nodeContainerStatusVisibility,
-            );
-            bulmaToast.toast({
-                message: `Alright, mission control, we're standing down. 🛑🔍 Container status probing aborted. Stay chill, folks. 😎👨‍💻`,
-                type: "is-warning is-size-6 p-3",
-                duration: 4000,
-                position: "top-center",
-                closeOnClick: true,
-            });
-        } else {
-            nodeContainerStatusVisibility = true;
-            console.log(
-                "nodeContainerStatusVisibility: " + nodeContainerStatusVisibility,
-            );
-            appendMessage(
-                "nodeContainerStatusVisibility: " + nodeContainerStatusVisibility,
-            );
-            bulmaToast.toast({
-                message: `🕵️‍♂️ Bro, we're currently on a mission to probe that container status! Stay tuned for the results. 🔍🚀👨‍💻`,
-                type: "is-warning is-size-6 p-3",
-                duration: 4000,
-                position: "top-center",
-                closeOnClick: true,
-            });
-        }
-    }
-
     function setNodeContainerStatus(containerNodeName, containerNodeStatus) {
         cy.nodes().forEach(function(node) {
             var nodeId = node.data("id");
@@ -2044,6 +1976,12 @@ function viewportButtonsZoomToFit() {
 }
 
 function viewportButtonsLayoutAlgo() {
+    var viewportDrawer = document.getElementsByClassName("viewport-drawer");
+    // Loop through each element and set its display to 'none'
+    for (var i = 0; i < viewportDrawer.length; i++) {
+        viewportDrawer[i].style.display = "none";
+    }
+    
     viewportDrawerLayout = document.getElementById("viewport-drawer-layout")
     viewportDrawerLayout.style.display = "block"
 }
@@ -2052,6 +1990,7 @@ function viewportButtonsLayoutAlgo() {
 
 
 async function layoutAlgoChange(event) {
+
     try {
         console.log("layoutAlgoChange clicked");
 
@@ -2121,6 +2060,11 @@ async function layoutAlgoChange(event) {
 
 
 function viewportButtonsTopologyOverview() {
+    var viewportDrawer = document.getElementsByClassName("viewport-drawer");
+    // Loop through each element and set its display to 'none'
+    for (var i = 0; i < viewportDrawer.length; i++) {
+        viewportDrawer[i].style.display = "none";
+    }
 
     console.log("viewportButtonsTopologyOverview clicked")
     viewportDrawerLayout = document.getElementById("viewport-drawer-topology-overview")
@@ -2131,6 +2075,11 @@ function viewportButtonsTopologyOverview() {
 }
 
 function viewportButtonsTopologyCapture() {
+    var viewportDrawer = document.getElementsByClassName("viewport-drawer");
+    // Loop through each element and set its display to 'none'
+    for (var i = 0; i < viewportDrawer.length; i++) {
+        viewportDrawer[i].style.display = "none";
+    }
 
     console.log("viewportButtonsTopologyCapture clicked")
 
@@ -2141,7 +2090,55 @@ function viewportButtonsTopologyCapture() {
     viewportDrawerCaptureContent.style.display = "block"
 }
 
+function viewportButtonsLabelEndpoint() {
+    if (linkEndpointVisibility) {
+        cy.edges().forEach(function(edge) {
+            edge.style("source-label", ".");
+            edge.style("target-label", ".");
+            linkEndpointVisibility = false;
+        });
+    } else {
+        cy.edges().forEach(function(edge) {
+            edge.style("source-label", edge.data("sourceEndpoint"));
+            edge.style("target-label", edge.data("targetEndpoint"));
+            linkEndpointVisibility = true;
+        });
+    }
+}
 
+function viewportButtonContainerStatusVisibility() {
+    if (nodeContainerStatusVisibility) {
+        nodeContainerStatusVisibility = false;
+        console.log(
+            "nodeContainerStatusVisibility: " + nodeContainerStatusVisibility,
+        );
+        appendMessage(
+            "nodeContainerStatusVisibility: " + nodeContainerStatusVisibility,
+        );
+        bulmaToast.toast({
+            message: `Alright, mission control, we're standing down. 🛑🔍 Container status probing aborted. Stay chill, folks. 😎👨‍💻`,
+            type: "is-warning is-size-6 p-3",
+            duration: 4000,
+            position: "top-center",
+            closeOnClick: true,
+        });
+    } else {
+        nodeContainerStatusVisibility = true;
+        console.log(
+            "nodeContainerStatusVisibility: " + nodeContainerStatusVisibility,
+        );
+        appendMessage(
+            "nodeContainerStatusVisibility: " + nodeContainerStatusVisibility,
+        );
+        bulmaToast.toast({
+            message: `🕵️‍♂️ Bro, we're currently on a mission to probe that container status! Stay tuned for the results. 🔍🚀👨‍💻`,
+            type: "is-warning is-size-6 p-3",
+            duration: 4000,
+            position: "top-center",
+            closeOnClick: true,
+        });
+    }
+}
 
 // aarafat-tag:
 //// REFACTOR END
