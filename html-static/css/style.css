@@ -28,10 +28,9 @@ body {
   position: absolute;
 }
 
-
 #viewport-buttons {
   top: 75px;
-  left: 110px;
+  left: 10px;
   position: fixed;
   z-index: 9999;
 
@@ -39,23 +38,10 @@ body {
 
 .viewport-drawer {
   top: 75px;
-  left: 160px;
+  left: 60px;
   width: 300px;
   position: fixed;
   z-index: 9998;
-}
-
-#ViewPortButtons {
-  top: 75px;
-  left: 10px;
-  position: fixed;
-}
-
-.ViewPortDrawer {
-  top: 75px;
-  left: 60px;
-  max-width: 250px;
-  position: fixed;
 }
 
 .panel-tabContainer {

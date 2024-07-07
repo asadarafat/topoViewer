@@ -1,6 +1,7 @@
 
 
 var files = [];
+var filteredFiles = [];
 var OriginalModelFileName;
 
 var routerName
@@ -50,6 +51,7 @@ async function backupRestoreNodeConfig(event) {
 		const searchInput = document.getElementById('search-input');
 		searchInput.addEventListener('input', (event) => {
 			const filter = event.target.value.toLowerCase();
+			console.log ("filter", filter)
 			filterFileList(filter);
 		
 	});
@@ -206,7 +208,7 @@ function loadFileList(routerName) {
 				// Handle empty response here, e.g., show a message to the user
 				renderFileList([]);
 			} else {
-				const files = data.files;
+				files = data.files;
 				console.log(files)
 				renderFileList(files);
 			}
@@ -241,8 +243,15 @@ function renderFileList(fileList) {
 }
 
 function filterFileList(filter) {
-	const filteredFiles = files.filter(file => file.toLowerCase()
-		.includes(filter));
+
+	console.log("filteredFiles() - filter: ", filter)
+	console.log("filteredFiles() - files: ", files)
+
+
+	filteredFiles = files.filter(file => file.toLowerCase().includes(filter));
+
+	console.log("filteredFiles() - filteredFiles: ", filteredFiles)
+
 	renderFileList(filteredFiles);
 }
 

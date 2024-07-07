@@ -15,14 +15,13 @@ var nodeContainerStatusVisibility = false;
 
 var globalShellUrl = "/cloudshell"
 
-const labName = 'nokia-ServiceProvider'
-const deploymentType = 'colocated'
+var labName
+var deploymentType
 
-console.log("Lab-Name: ", labName)
-console.log("DeploymentType: ", deploymentType)
 
-document.addEventListener("DOMContentLoaded", function() {
-    // Reusable function to initialize a WebSocket connection
+
+document.addEventListener("DOMContentLoaded", async function() {
+
     // Reusable function to initialize a WebSocket connection
     function initializeWebSocket(url, onMessageCallback) {
         const protocol = location.protocol === "https:" ? "wss://" : "ws://";
@@ -51,7 +50,14 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // WebSocket for uptime
     // WebSocket for uptime
-    const socketUptime = initializeWebSocket("/uptime", (msgUptime) => {
+    const socketUptime = initializeWebSocket("/uptime", async (msgUptime) => {
+        environments =  await getEnvironments();
+        labName =  environments["clab-name"]
+        deploymentType  =  environments["deploymentType"]
+
+        console.log("initializeWebSocket - getEnvironments", environments)
+        console.log("initializeWebSocket - labName", environments["clab-name"])
+        
         const string01 = "Containerlab Topology: " + labName;
         const string02 = " ::: Uptime: " + msgUptime.data;
 
@@ -62,7 +68,6 @@ document.addEventListener("DOMContentLoaded", function() {
         console.log(ClabSubtitle.innerText);
     });
 
-    // WebSocket for ContainerNodeStatus
     // WebSocket for ContainerNodeStatus
     const socketContainerNodeStatusInitial = initializeWebSocket(
         "/containerNodeStatus",
@@ -83,17 +88,6 @@ document.addEventListener("DOMContentLoaded", function() {
         },
     );
 
-    // // WebSocket for clabServerAddress
-    // // WebSocket for clabServerAddress
-    // const socketclabServerAddress = initializeWebSocket(
-    //     "/clabServerAddress",
-    //     (msgclabServerAddress) => {
-    //         console.log(msgclabServerAddress.data);
-    //         document.title = "TopoViewer ::: " + msgclabServerAddress.data;
-    //     },
-    // );
-
-    //- Instantiate Cytoscape.js
     //- Instantiate Cytoscape.js
     cy = cytoscape({
         container: document.getElementById("cy"),
@@ -106,8 +100,6 @@ document.addEventListener("DOMContentLoaded", function() {
             },
         }, ],
     });
-
-
 
 
     loadCytoStyle();
@@ -223,7 +215,6 @@ document.addEventListener("DOMContentLoaded", function() {
             layout.run();
 
             // remove node topoviewer
-            // remove node topoviewer
             topoViewerNode = cy.filter('node[name = "topoviewer"]');
             topoViewerNode.remove();
         })
@@ -231,7 +222,6 @@ document.addEventListener("DOMContentLoaded", function() {
             console.error("Error loading graph data:", error);
         });
 
-    // Instantiate hover text element
     // Instantiate hover text element
     const hoverText = document.createElement("box");
     hoverText.classList.add(
@@ -405,522 +395,8 @@ document.addEventListener("DOMContentLoaded", function() {
         appendMessage(`"nodeClicked: " ${nodeClicked}`);
     });
 
-    // Instantiate viewport buttons
-    // Instantiate viewport buttons
-    createViewportButtons(cy);
+ 
 
-    function createViewportButtons(cy) {
-        // Create a buttons container
-        // Create a buttons container
-        const boxContainer = document.createElement("div");
-        boxContainer.className = "box p-2";
-        boxContainer.id = "ViewPortButtons";
-        // Set a new box shadow using the style property
-        // boxContainer.style.boxShadow = '5px 10px 10px rgba(0, 0, 0, 0.3)';
-        // Set a new box shadow using the style property
-        // boxContainer.style.boxShadow = '5px 10px 10px rgba(0, 0, 0, 0.3)';
-
-        // Create a button container
-        // Create a button container
-        const buttonContainer = document.createElement("div");
-        buttonContainer.className =
-            "is-flex is-flex-direction-column is-justify-content-space-evenly";
-
-        const configContent = [{
-                name: "fitToScreen",
-                iconClass: "fas fa-expand",
-                hoverMessage: "Fit to screen",
-                hrefFunction: "eventHandlerLink",
-                hrefLink: "",
-                callOutFuntionName: "zoomToFitDrawer",
-            },
-            {
-                name: "findNode",
-                iconClass: "fas fa-crosshairs",
-                hoverMessage: "Find node",
-                hrefFunction: "drawer",
-                hrefLink: ``,
-                drawerConfig: [{
-                        idSuffix: "labelFindNode",
-                        columnLabelTextContent: "Node Finder",
-                        columnLabelClass: "column is-12 pt-2 pb-2 pr-2 LinksLenghtSlider",
-                        columnLabelElementClass: "label is-size-7 has-text-weight-semibold px-auto",
-                        columnInputType: "",
-                        columnInputContent: "",
-                        columnInputPlaceholder: "",
-                        columnInputAttribute: "enabled",
-                        addonsContent: [],
-                    },
-                    {
-                        idSuffix: "labelFindNodeNodeName",
-                        columnLabelTextContent: "Node Name",
-                        columnLabelClass: "column is-6 pt-0 pr-1 LinksLenghtSlider",
-                        columnLabelElementClass: "label is-size-7 has-text-right has-text-weight-normal px-auto pt-1",
-                        columnInputType: "input",
-                        columnInputClass: "column is-6 p-1 pl-3",
-                        columnInputElementClass: "input is-size-7 has-text-left has-text-weight-normal is-smallest-element",
-                        columnInputContent: "",
-                        columnInputPlaceholder: "node name",
-                        columnInputAttribute: "enabled",
-                        addonsContent: [],
-                    },
-                    {
-                        idSuffix: "labelFindNodeApply",
-                        columnLabelTextContent: "",
-                        columnLabelClass: "column is-6 pt-0 pr-1 LinksLenghtSlider",
-                        columnLabelElementClass: "",
-                        columnInputType: "button",
-                        columnInputClass: "column is-6 p-1 pl-3 is-flex is-justify-content-right",
-                        columnInputElementClass: "button is-size-7 is-smallest-element is-link",
-                        columnInputContent: "Find",
-                        columnInputPlaceholder: "",
-                        columnInputAttribute: "enabled",
-                        columnInputCallOutFuntionName: "nodeFindDrawer",
-                        addonsContent: [],
-                    },
-                ],
-            },
-            {
-                name: "findRoute",
-                iconClass: "fas fa-route",
-                hoverMessage: "Route Finder",
-                hrefFunction: "drawer",
-                hrefLink: ``,
-                drawerConfig: [{
-                        idSuffix: "labelFindRoute",
-                        columnLabelTextContent: "Route Finder",
-                        columnLabelClass: "column is-12 pt-2 pb-2 pr-2 LinksLenghtSlider",
-                        columnLabelElementClass: "label is-size-7 has-text-weight-semibold px-auto",
-                        columnInputType: "",
-                        columnInputContent: "",
-                        columnInputPlaceholder: "",
-                        columnInputAttribute: "enabled",
-                        addonsContent: [],
-                    },
-                    {
-                        idSuffix: "labelFindRouteSource",
-                        columnLabelTextContent: "Source Node",
-                        columnLabelClass: "column is-6 pt-0 pr-1 LinksLenghtSlider",
-                        columnLabelElementClass: "label is-size-7 has-text-right has-text-weight-normal px-auto pt-1",
-                        columnInputType: "input",
-                        columnInputClass: "column is-6 p-1 pl-3",
-                        columnInputElementClass: "input is-size-7 has-text-left has-text-weight-normal is-smallest-element",
-                        columnInputContent: "",
-                        columnInputPlaceholder: "node name",
-                        columnInputAttribute: "enabled",
-                        addonsContent: [],
-                    },
-                    {
-                        idSuffix: "labelFindRouteTarget",
-                        columnLabelTextContent: "Target Node",
-                        columnLabelClass: "column is-6 pt-0 pr-1 LinksLenghtSlider",
-                        columnLabelElementClass: "label is-size-7 has-text-right has-text-weight-normal px-auto pt-1",
-                        columnInputType: "input",
-                        columnInputClass: "column is-6 p-1 pl-3",
-                        columnInputElementClass: "input is-size-7 has-text-left has-text-weight-normal is-smallest-element",
-                        columnInputContent: "",
-                        columnInputPlaceholder: "node name",
-                        columnInputAttribute: "enabled",
-                        addonsContent: [],
-                    },
-                    {
-                        idSuffix: "labelFindRouteTargetFind",
-                        columnLabelTextContent: "",
-                        columnLabelClass: "column is-6 pt-0 pr-1 LinksLenghtSlider",
-                        columnLabelElementClass: "",
-                        columnInputType: "button",
-                        columnInputClass: "column is-6 p-1 pl-3 is-flex is-justify-content-right",
-                        columnInputElementClass: "button is-size-7 is-smallest-element is-link",
-                        columnInputContent: "Find",
-                        columnInputPlaceholder: "",
-                        columnInputAttribute: "enabled",
-                        columnInputCallOutFuntionName: "pathFinderDijkstraDrawer",
-                        addonsContent: [],
-                    },
-                ],
-            },
-            {
-                name: "adjustLayout",
-                iconClass: "fas fa-solid fa-circle-nodes",
-                hoverMessage: "Adjust Layout",
-                hrefFunction: "drawer",
-                hrefLink: ``,
-                drawerConfig: [{
-                        idSuffix: "labelAdjustLayoutForceDirected",
-                        columnLabelTextContent: "Force-Directed Layout",
-                        columnLabelClass: "column is-12 pt-2 pb-2 pr-2 LinksLenghtSlider",
-                        columnLabelElementClass: "label is-size-7 has-text-weight-semibold px-auto",
-                        columnInputType: "",
-                        columnInputContent: "",
-                        columnInputPlaceholder: "",
-                        columnInputAttribute: "enabled",
-                        addonsContent: [],
-                    },
-                    {
-                        idSuffix: "labelAdjustLayoutLinksLenghtSlider",
-                        columnLabelTextContent: "Link Length",
-                        columnLabelClass: "column is-6 pt-0 pr-1 LinksLenghtSlider",
-                        columnLabelElementClass: "label is-size-7 has-text-right has-text-weight-normal px-auto",
-                        columnInputType: "slider",
-                        columnInputContent: "",
-                        columnInputPlaceholder: "",
-                        columnInputAttribute: "enabled",
-                        addonsContent: [],
-                    },
-                    {
-                        idSuffix: "labelAdjustLayoutNodeGapSlider",
-                        columnLabelTextContent: "Node Gap",
-                        columnLabelClass: "column is-6 pt-0 pr-1 LinksLenghtSlider",
-                        columnLabelElementClass: "label is-size-7 has-text-right has-text-weight-normal px-auto",
-                        columnInputType: "slider",
-                        columnInputContent: "",
-                        columnInputPlaceholder: "",
-                        columnInputAttribute: "enabled",
-                        addonsContent: [],
-                    },
-                    {
-                        idSuffix: "labelAdjustLayoutAlignmentVertical",
-                        columnLabelTextContent: "Vertical Alignment Layout",
-                        columnLabelClass: "column is-12 pt-2 pb-2 pr-2 LinksLenghtSlider",
-                        columnLabelElementClass: "label is-size-7 has-text-weight-semibold px-auto",
-                        columnInputType: "",
-                        columnInputContent: "",
-                        columnInputPlaceholder: "",
-                        columnInputAttribute: "enabled",
-                        addonsContent: [],
-                    },
-                    {
-                        idSuffix: "labelAdjustLayoutAlignmentVerticalNodeGap",
-                        columnLabelTextContent: "Node Gap",
-                        columnLabelClass: "column is-6 pt-0 pr-1 LinksLenghtSlider",
-                        columnLabelElementClass: "label is-size-7 has-text-right has-text-weight-normal px-auto pt-1",
-                        columnInputType: "input",
-                        columnInputClass: "column is-6 p-1 pl-3",
-                        columnInputElementClass: "input is-size-7 has-text-left has-text-weight-normal is-smallest-element",
-                        columnInputContent: "5",
-                        columnInputPlaceholder: "node spacing",
-                        columnInputAttribute: "enabled",
-                        addonsContent: [],
-                    },
-                    {
-                        idSuffix: "labelAdjustLayoutAlignmentVerticalGroupGap",
-                        columnLabelTextContent: "Group Gap",
-                        columnLabelClass: "column is-6 pt-0 pr-1 LinksLenghtSlider",
-                        columnLabelElementClass: "label is-size-7 has-text-right has-text-weight-normal px-auto pt-1",
-                        columnInputType: "input",
-                        columnInputClass: "column is-6 p-1 pl-3",
-                        columnInputElementClass: "input is-size-7 has-text-left has-text-weight-normal is-smallest-element",
-                        columnInputContent: "50",
-                        columnInputPlaceholder: "group spacing",
-                        columnInputAttribute: "enabled",
-                        addonsContent: [],
-                    },
-                    {
-                        idSuffix: "labelAdjustLayoutAlignmentVerticalApply",
-                        columnLabelTextContent: "",
-                        columnLabelClass: "column is-6 pt-0 pr-1 LinksLenghtSlider",
-                        columnLabelElementClass: "",
-                        columnInputType: "button",
-                        columnInputClass: "column is-6 p-1 pl-3 is-flex is-justify-content-right",
-                        columnInputElementClass: "button is-size-7 is-smallest-element is-link",
-                        columnInputContent: "Apply",
-                        columnInputPlaceholder: "",
-                        columnInputAttribute: "enabled",
-                        columnInputCallOutFuntionName: "verticallAllignLayout",
-                        addonsContent: [],
-                    },
-                    {
-                        idSuffix: "labelAdjustLayoutAlignmentHorizontal",
-                        columnLabelTextContent: "Horizontal Alignment Layout",
-                        columnLabelClass: "column is-12 pt-2 pb-2 pr-2 LinksLenghtSlider",
-                        columnLabelElementClass: "label is-size-7 has-text-weight-semibold px-auto",
-                        columnInputType: "",
-                        columnInputContent: "",
-                        columnInputPlaceholder: "",
-                        columnInputAttribute: "enabled",
-                        addonsContent: [],
-                    },
-                    {
-                        idSuffix: "labelAdjustLayoutAlignmentHorizontalNodeGap",
-                        columnLabelTextContent: "Node Gap",
-                        columnLabelClass: "column is-6 pt-0 pr-1 LinksLenghtSlider",
-                        columnLabelElementClass: "label is-size-7 has-text-right has-text-weight-normal px-auto pt-1",
-                        columnInputType: "input",
-                        columnInputClass: "column is-6 p-1 pl-3",
-                        columnInputElementClass: "input is-size-7 has-text-left has-text-weight-normal is-smallest-element",
-                        columnInputContent: "5",
-                        columnInputPlaceholder: "node spacing",
-                        columnInputAttribute: "enabled",
-                        addonsContent: [],
-                    },
-                    {
-                        idSuffix: "labelAdjustLayoutAlignmentHorizontalGroupGap",
-                        columnLabelTextContent: "Group Gap",
-                        columnLabelClass: "column is-6 pt-0 pr-1 LinksLenghtSlider",
-                        columnLabelElementClass: "label is-size-7 has-text-right has-text-weight-normal px-auto pt-1",
-                        columnInputType: "input",
-                        columnInputClass: "column is-6 p-1 pl-3",
-                        columnInputElementClass: "input is-size-7 has-text-left has-text-weight-normal is-smallest-element",
-                        columnInputContent: "50",
-                        columnInputPlaceholder: "group spacing",
-                        columnInputAttribute: "enabled",
-                        addonsContent: [],
-                    },
-                    {
-                        idSuffix: "labelAdjustLayoutAlignmentHorizontalApply",
-                        columnLabelTextContent: "",
-                        columnLabelClass: "column is-6 pt-0 pr-1 LinksLenghtSlider",
-                        columnLabelElementClass: "",
-                        columnInputType: "button",
-                        columnInputClass: "column is-6 p-1 pl-3 is-flex is-justify-content-right",
-                        columnInputElementClass: "button is-size-7 is-smallest-element is-link",
-                        columnInputContent: "Apply",
-                        columnInputPlaceholder: "",
-                        columnInputAttribute: "enabled",
-                        columnInputCallOutFuntionName: "horizontalAllignLayout",
-                        addonsContent: [],
-                    },
-                ],
-            },
-            {
-                name: "togleEndpointLabel",
-                iconClass: "fas fa-tag",
-                hoverMessage: "Toggle endpoint label",
-                hrefFunction: "eventHandlerLink",
-                hrefLink: "",
-                callOutFuntionName: "toggleLinkEndpoint",
-            },
-            {
-                name: "togleContainerStatus",
-                iconClass: "fab fa-docker",
-                hoverMessage: "Toggle container status",
-                hrefFunction: "eventHandlerLink",
-                hrefLink: "",
-                callOutFuntionName: "toggleContainerStatusVisibility",
-            },
-            {
-                name: "captureViewport",
-                idSuffix: "modalSaveViewport",
-                iconClass: "fas fa-camera",
-                hoverMessage: "Capture Viewport",
-                hrefFunction: "eventHandlerLink",
-                hrefLink: "",
-                callOutFuntionName: "showModalCaptureViewport",
-                callOutFuntionArgsString: "modalSaveViewport",
-                callOutFuntionArgsObject: "",
-            },
-        ];
-
-        const controlId = "viewportButtons";
-
-        configContent.forEach((config) => {
-            const control = document.createElement("p");
-
-            control.id = `${controlId}-button${config.name}`;
-            control.className = "control p-0";
-
-            const button = document.createElement("a");
-            button.id = `${controlId}-button${config.name}`;
-            // button.className = `button is-large is-outlined py-4 is-${addon.name === 'blue' ? 'link' : 'success'}`;
-            // button.className = `button is-large is-outlined py-4 is-${addon.name === 'blue' ? 'link' : 'success'}`;
-            button.className = `button px-4 py-4 is-smallest-element`;
-            button.style.outline = "none";
-
-            if (config.hrefFunction == "eventHandlerLink") {
-                button.addEventListener("click", function(cy) {
-                    if (config.callOutFuntionArgsString != "") {
-                        eval(
-                            config.callOutFuntionName + `('${config.callOutFuntionArgsString}')`,
-                        );
-                    } else if (config.callOutFuntionArgsObject != "") {
-                        eval(config.callOutFuntionName + `(${config.callOutFuntionArgsObject})`);
-                    } else {
-                        // Use eval() to call the function by name
-                        // Use eval() to call the function by name
-                        eval(config.callOutFuntionName + `(cy)`);
-                    }
-                });
-            }
-
-            if (config.hrefFunction == "drawer") {
-                // button.addEventListener('click', () => {
-                // Create an drawerBox element
-                // button.addEventListener('click', () => {
-                // Create an drawerBox element
-                const drawerBox = document.createElement("div");
-                drawerBox.className = "box drawerBox ViewPortDrawer p-1 is-1";
-                drawerBox.style.display = "none";
-
-                window.addEventListener("load", (event) => {
-                    // Access the height of buttonContainer here
-                    // Access the height of buttonContainer here
-                    const rect = boxContainer.getBoundingClientRect();
-                    const calculatedHeight = rect.height;
-                    // drawerBox.style.height = `${calculatedHeight}px`;
-                    // drawerBox.style.height = `${calculatedHeight}px`;
-                    drawerBox.style.height = "auto";
-
-                    drawerBox.style.display = "block";
-
-                    const contentHeight = drawerBox.getBoundingClientRect().height;
-
-                    if (contentHeight > calculatedHeight) {
-                        drawerBox.style.height = "auto";
-                    } else {
-                        drawerBox.style.height = `${calculatedHeight}px`;
-                    }
-                    drawerBox.style.display = "none";
-                });
-
-                //// The drawerBox element is created using createPanelBlockContainer() and createPanelBlockForm() functions
-                // Panel Block 01
-                //// The drawerBox element is created using createPanelBlockContainer() and createPanelBlockForm() functions
-                // Panel Block 01
-                panelBlockContainer = createPanelBlockContainer(`${button.id}`);
-                panelBlock01 = panelBlockContainer.panelBlock;
-                divPanelBlock01 = panelBlockContainer.divPanelBlock;
-
-                createPanelBlockForm(
-                    config.drawerConfig,
-                    panelBlock01,
-                    divPanelBlock01,
-                    cy,
-                );
-                // Per panelBlock divPanelBlock01 --> panelBlock01
-                // Per panelBlock divPanelBlock01 --> panelBlock01
-                panelBlock01.appendChild(divPanelBlock01);
-                drawerBox.appendChild(panelBlock01);
-
-                // Add click event listener to the button
-                // Add click event listener to the button
-                button.addEventListener("click", () => {
-                    // Toggle the display of the corresponding drawerBox
-                    // Toggle the display of the corresponding drawerBox
-                    if (drawerBox.style.display === "none" || drawerBox.style.display === "") {
-                        // Hide all other drawerBoxes
-                        // Hide all other drawerBoxes
-                        const allAnimatedBoxes = document.querySelectorAll(".ViewPortDrawer");
-                        allAnimatedBoxes.forEach((box) => {
-                            if (box !== drawerBox) {
-                                box.style.display = "none";
-                            }
-                        });
-                        // Show the corresponding drawerBox
-                        // Show the corresponding drawerBox
-                        drawerBox.style.display = "block";
-                    } else {
-                        // Hide the corresponding drawerBox when clicked again
-                        // Hide the corresponding drawerBox when clicked again
-                        drawerBox.style.display = "none";
-                    }
-                });
-
-                // Append the container to the document body
-                // Append the container to the document body
-                document.body.appendChild(drawerBox);
-            }
-
-            // Create a icon element
-            // Create a icon element
-            const icon = document.createElement("span");
-            icon.className = "icon is-small";
-            const iconElement = document.createElement("i");
-            iconElement.className = config.iconClass;
-            icon.appendChild(iconElement);
-
-            button.appendChild(icon);
-            control.appendChild(button);
-
-            // Create a hover text paragraph element
-            // Create a hover text paragraph element
-            const hoverText = document.querySelector(".hover-text");
-
-            // Add event listeners for hover behavior
-            // Add event listeners for hover behavior
-            button.addEventListener("mouseover", () => {
-                // Calculate the position for the hover text
-                // Calculate the position for the hover text
-                const rect = button.getBoundingClientRect();
-                const top = rect.top - hoverText.offsetHeight + 20;
-                const left = rect.left + 35;
-                // Set the position and show the hover text
-                // Set the position and show the hover text
-                hoverText.style.top = `${top}px`;
-                hoverText.style.left = `${left}px`;
-                hoverText.classList.remove("is-hidden");
-                hoverText.textContent = config.hoverMessage;
-            });
-
-            button.addEventListener("mouseout", () => {
-                // Hide the hover text
-                // Hide the hover text
-                hoverText.classList.add("is-hidden");
-            });
-
-            // Append the button to the container
-            // Append the button to the container
-            buttonContainer.appendChild(control);
-            boxContainer.appendChild(buttonContainer);
-        });
-
-        // Append the container to the document body
-        // Append the container to the document body
-        document.body.appendChild(boxContainer);
-    }
-
-    // Initiate Layout SLider
-    // Initiate Layout SLider
-    setupLayoutSliders(cy);
-
-    function setupLayoutSliders(cy) {
-        const updateLayout = (edgeLengthValue, nodeGapValue) => {
-            console.log("edgeLengthValue", edgeLengthValue);
-            console.log("nodeGapValue", nodeGapValue);
-
-            cy
-                .layout({
-                    fit: true,
-                    name: "cola",
-                    animate: true,
-                    randomize: false,
-                    maxSimulationTime: 400,
-                    //edgeLength: '50',
-                    // nodeGap: function(node){
-                    // 	 return 10;
-                    // 	},
-                    //edgeLength: '50',
-                    // nodeGap: function(node){
-                    // 	 return 10;
-                    // 	},
-                    edgeLength: function(e) {
-                        return edgeLengthValue / e.data("weight");
-                    },
-                    nodeGap: function(e) {
-                        return nodeGapValue / e.data("weight");
-                    },
-                })
-                .run();
-        };
-
-        const edgeLengthSlider = document.getElementById(
-            "panelBlock-viewportButtons-buttonadjustLayout-divPanelBlock-columnContainerlabelAdjustLayoutLinksLenghtSlider-panelContentlabelAdjustLayoutLinksLenghtSlider-columnsPanelContentlabelAdjustLayoutLinksLenghtSlider-labelColumnlabelAdjustLayoutLinksLenghtSlider-inputColumnlabelAdjustLayoutLinksLenghtSlider-labellabelAdjustLayoutLinksLenghtSlider",
-        );
-        const nodeGapSlider = document.getElementById(
-            "panelBlock-viewportButtons-buttonadjustLayout-divPanelBlock-columnContainerlabelAdjustLayoutNodeGapSlider-panelContentlabelAdjustLayoutNodeGapSlider-columnsPanelContentlabelAdjustLayoutNodeGapSlider-labelColumnlabelAdjustLayoutNodeGapSlider-inputColumnlabelAdjustLayoutNodeGapSlider-labellabelAdjustLayoutNodeGapSlider",
-        );
-
-        const sliderEventHandler = () => {
-            console.log("edgeLengthSlider.value", edgeLengthSlider.value);
-            console.log("nodeGapSlider.value", nodeGapSlider.value);
-
-            const edgeLengthValue = parseFloat(edgeLengthSlider.value);
-            const nodeGapValue = parseFloat(nodeGapSlider.value);
-            updateLayout(edgeLengthValue, nodeGapValue);
-        };
-
-        edgeLengthSlider.addEventListener("input", sliderEventHandler);
-        nodeGapSlider.addEventListener("input", sliderEventHandler);
-    }
 
     function generateNodesEvent(event) {
         // Your event handling logic here
@@ -1603,6 +1079,16 @@ document.addEventListener("DOMContentLoaded", function() {
 ////  - re-create log-messages
 ////  - re-create viewport
 
+async function initEnv() {
+    environments =  await getEnvironments();
+    labName = await environments["labName"]
+    deploymentType  = await environments["deploymentType"]
+
+    console.log("Lab-Name: ", labName)
+    console.log("DeploymentType: ", deploymentType)
+    return environments, labName
+    }
+
 
 async function sshWebBased(event) {
     console.log("sshWebBased: ", globalSelectedNode)
@@ -2268,6 +1754,103 @@ function viewportDrawerLayoutVertical() {
     }, delay);
 }
 
+function viewportDrawerLayoutHorizontal() {
+    nodehGap = document.getElementById("horizontal-layout-slider-node-h-gap");
+    grouphGap = document.getElementById("horizontal-layout-slider-group-h-gap");
+
+    const horizontalNodeGap = parseFloat(nodehGap.value);
+    const horizontalGroupGap = parseFloat(grouphGap.value);
+
+    console.log("nodevGapValue", horizontalNodeGap);
+    console.log("groupvGapValue", horizontalGroupGap);
+
+    const yOffset = parseFloat(horizontalNodeGap);
+    const xOffset = parseFloat(horizontalGroupGap);
+
+    console.log("yOffset", yOffset);
+    console.log("xOffset", xOffset);
+
+    const delay = 100;
+    setTimeout(() => {
+        cy.nodes().forEach(function(node) {
+            if (node.isParent()) {
+                // For each parent node
+                // For each parent node
+                const children = node.children();
+                const numColumns = 1;
+                const cellHeight = node.height() / children.length;
+                // const yOffset = 5;
+                // const yOffset = 5;
+
+                children.forEach(function(child, index) {
+                    // Position children in columns
+                    // Position children in columns
+                    const xPos = 0;
+                    const yPos = index * (cellHeight + yOffset);
+
+                    // Set the position of each child node
+                    // Set the position of each child node
+                    child.position({
+                        x: xPos,
+                        y: yPos
+                    });
+                });
+            }
+        });
+
+        var parentCounts = {};
+        var maxHeight = 0;
+        var centerX = cy.width() / 2;
+        var centerY = cy.height() / 2;
+
+        // Count children of each parent node
+        // Count children of each parent node
+        cy.nodes().forEach(function(node) {
+            if (node.isParent()) {
+                const childrenCount = node.children().length;
+                parentCounts[node.id()] = childrenCount;
+            }
+        });
+
+        cy.nodes().forEach(function(node) {
+            if (node.isParent()) {
+                const height = node.height();
+                if (height > maxHeight) {
+                    maxHeight = height;
+                    console.log("ParentMaxHeight: ", maxHeight);
+                }
+            }
+        });
+
+        const divisionFactor = maxHeight / 2;
+        console.log("divisionFactor: ", divisionFactor);
+
+        // Sort parent nodes by child count in ascending order
+        // Sort parent nodes by child count in ascending order
+        const sortedParents = Object.keys(parentCounts).sort(
+            (a, b) => parentCounts[a] - parentCounts[b],
+        );
+
+        let xPos = 0;
+        // const xOffset = 50;
+        // const xOffset = 50;
+
+        // Position parent nodes horizontally and center them vertically
+        // Position parent nodes horizontally and center them vertically
+        sortedParents.forEach(function(parentId) {
+            const parent = cy.getElementById(parentId);
+            const yPos = centerY - parent.height() / divisionFactor;
+            parent.position({
+                x: xPos,
+                y: yPos
+            });
+            xPos -= xOffset;
+        });
+
+        cy.fit();
+    }, delay);
+
+}
 
 // aarafat-tag:
 //// REFACTOR END
@@ -2285,508 +1868,6 @@ function appendMessage(message) {
 
     textarea.value += `[${timestamp}] ${message}\n`;
     textarea.scrollTop = textarea.scrollHeight;
-}
-
-function createPanelBlockContainer(tabContainerId) {
-    // this is helper function to create PanelBlock-Container
-    // this is helper function to create PanelBlock-Container
-    const panelBlock = document.createElement("div");
-    panelBlock.id = `panelBlock-${tabContainerId}`;
-    panelBlock.className = "panel-block py-2";
-
-    const divPanelBlock = document.createElement("div");
-    divPanelBlock.id = `${panelBlock.id}-divPanelBlock`;
-    divPanelBlock.className = "column p-0";
-
-    return {
-        panelBlock: panelBlock,
-        divPanelBlock: divPanelBlock,
-    };
-}
-
-function createPanelBlockForm(
-    PanelColumnsConfig,
-    panelBlock,
-    divPanelBlock,
-    cy,
-) {
-
-    PanelColumnsConfig.forEach((config) => {
-            // Create columnContainer
-            // Create columnContainer
-            const columnContainer = document.createElement("div");
-            columnContainer.id = `${divPanelBlock.id}-columnContainer${config.idSuffix}`;
-            columnContainer.className = "column my-auto is-11 pr-1";
-
-            // Create panelContent
-            // Create panelContent
-            const panelContent = document.createElement("div");
-            panelContent.id = `${columnContainer.id}-panelContent${config.idSuffix}`;
-            panelContent.className = "panel-content";
-
-            // Create columnsPanelContent container
-            // Create columnsPanelContent container
-            const columnsPanelContent = document.createElement("div");
-            columnsPanelContent.className = "columns py-auto";
-            columnsPanelContent.id = `${panelContent.id}-columnsPanelContent${config.idSuffix}`;
-
-            // Create labelColumn column
-            // Create labelColumn column
-            const labelColumn = document.createElement("div");
-            labelColumn.id = `${columnsPanelContent.id}-labelColumn${config.idSuffix}`;
-            labelColumn.className = `${config.columnLabelClass}`;
-
-            const labelElement = document.createElement("label");
-            if (
-                typeof config.columnLabelElementClass !== "undefined" &&
-                config.columnLabelElementClass !== null &&
-                config.columnLabelElementClass !== ""
-            ) {
-                labelElement.className = config.columnLabelElementClass;
-            } else {
-                labelElement.className =
-                    "label is-size-7 has-text-right has-text-weight-medium px-auto";
-            }
-
-            labelElement.textContent = config.columnLabelTextContent;
-            labelElement.id = `${labelColumn.id}-labelElement${config.idSuffix}`;
-
-            labelColumn.appendChild(labelElement);
-            columnsPanelContent.appendChild(labelColumn);
-
-            // Create inputColumn column
-            // Create inputColumn column
-            if (config.columnInputType == "label") {
-                const inputColumn = document.createElement("div");
-                inputColumn.className = `column is-8 p-1 pl-3`;
-                inputColumn.id = `${labelColumn.id}-inputColumn${config.idSuffix}`;
-
-                const inputElement = document.createElement("label");
-                inputElement.className = `label is-size-7 has-text-left link-impairment-widht has-text-weight-normal mr-0 is-max-content`;
-                inputElement.id = `${inputColumn.id}-label${config.idSuffix}`;
-                inputElement.textContent = config.columnInputContent;
-
-                inputColumn.appendChild(inputElement);
-                columnsPanelContent.appendChild(inputColumn);
-            } else if (config.columnInputType == "button") {
-                const inputColumn = document.createElement("div");
-                if (
-                    typeof config.columnInputClass !== "undefined" &&
-                    config.columnInputClass !== null &&
-                    config.columnInputClass !== ""
-                ) {
-                    inputColumn.className = config.columnInputClass;
-                } else {
-                    inputColumn.className = `column is-8 p-1 pl-3`;
-                }
-                inputColumn.id = `${labelColumn.id}-inputColumn${config.idSuffix}`;
-
-                const inputElement = document.createElement("button");
-                if (
-                    typeof config.columnInputElementClass !== "undefined" &&
-                    config.columnInputElementClass !== null &&
-                    config.columnInputElementClass !== ""
-                ) {
-                    inputElement.className = config.columnInputElementClass;
-                } else {
-                    inputElement.className = `button is-size-7 is-smallest-element is-justify-content-flex-end`;
-                }
-
-                inputElement.id = `${inputColumn.id}-inputElement${config.idSuffix}`;
-                inputElement.textContent = config.columnInputContent;
-                inputElement.style.width = "50";
-
-                inputElementIconSpan = document.createElement("span");
-                inputElementIconSpan.id = `${inputElement.id}-inputElementIconSpan${config.idSuffix}`;
-                inputElementIconSpan.className = config.columnInputContentIconSpanClass;
-
-                inputElementIconInlineElement = document.createElement("i");
-                inputElementIconInlineElement.id = `${inputElementIconSpan.id}-inputElementIconInlineElement${config.idSuffix}`;
-                inputElementIconInlineElement.className =
-                    config.columnInputContentIconInlineElementClass;
-
-                inputElementIconSpanButtonLabel = document.createElement("span");
-                inputElementIconSpanButtonLabel.id = `${inputElement.id}-inputElementIconSpanButtonLabel${config.idSuffix}`;
-
-                inputElementIconSpan.appendChild(inputElementIconInlineElement);
-                inputElement.appendChild(inputElementIconSpanButtonLabel);
-                inputElement.appendChild(inputElementIconSpan);
-
-                inputElement.addEventListener("click", function() {
-                    console.log(
-                        "config.columnInputCallOutFuntionName: ",
-                        config.columnInputCallOutFuntionName,
-                    );
-                    eval(config.columnInputCallOutFuntionName + `(cy)`);
-                });
-
-                inputColumn.appendChild(inputElement);
-                columnsPanelContent.appendChild(inputColumn);
-            } else if (config.columnInputType == "slider") {
-                const inputColumn = document.createElement("div");
-                inputColumn.className = `column is-5 p-1 pl-2`;
-                inputColumn.id = `${labelColumn.id}-inputColumn${config.idSuffix}`;
-
-                const inputElement = document.createElement("input");
-                inputElement.className = `slider custom-slider`;
-                inputElement.style.width = `100px`;
-
-                inputElement.step = "1";
-                inputElement.min = "1";
-                inputElement.max = "1000";
-                inputElement.value = "50";
-                inputElement.type = "range";
-
-                inputElement.id = `${inputColumn.id}-label${config.idSuffix}`;
-                inputElement.textContent = config.columnInputContent;
-
-                inputColumn.appendChild(inputElement);
-                columnsPanelContent.appendChild(inputColumn);
-            } else if (config.columnInputType == "input") {
-                const inputColumn = document.createElement("div");
-                if (
-                    typeof config.columnInputClass !== "undefined" &&
-                    config.columnInputClass !== null &&
-                    config.columnInputClass !== ""
-                ) {
-                    inputColumn.className = config.columnInputClass;
-                } else {
-                    inputColumn.className = `column is-8 p-1 pl-3`;
-                }
-                // inputColumn.className = `column is-8 p-1 pl-3`;
-                // inputColumn.className = `column is-8 p-1 pl-3`;
-                inputColumn.id = `${labelColumn.id}-inputColumn${config.idSuffix}`;
-                const inputElement = document.createElement("input");
-                if (
-                    typeof config.columnInputElementClass !== "undefined" &&
-                    config.columnInputElementClass !== null &&
-                    config.columnInputElementClass !== ""
-                ) {
-                    inputElement.className = config.columnInputElementClass;
-                } else {
-                    inputElement.className = `input is-size-7 has-text-left link-impairment-widht has-text-weight-normal is-smallest-element`;
-                }
-                // inputElement.className = `input is-size-7 has-text-left link-impairment-widht has-text-weight-normal is-smallest-element`;
-                // inputElement.className = `input is-size-7 has-text-left link-impairment-widht has-text-weight-normal is-smallest-element`;
-                inputElement.id = `${inputColumn.id}-label${config.idSuffix}`;
-                inputElement.type = "text";
-                inputElement.value = config.columnInputContent;
-                inputElement.placeholder = config.columnInputPlaceholder;
-
-                inputColumn.appendChild(inputElement);
-                columnsPanelContent.appendChild(inputColumn);
-            } else if (config.columnInputType == "field") {
-                const inputColumn = document.createElement("div");
-                inputColumn.className = `column is-8 p-1 pl-3`;
-                inputColumn.id = `${labelColumn.id}-inputColumn${config.idSuffix}`;
-
-                const inputElement = document.createElement("div");
-                inputElement.className = `field has-addons`;
-                inputElement.id = `${inputColumn.id}-label${config.idSuffix}`;
-                if (config.columnInputIsInvisible == "yes") {
-                    inputElement.classList.add("is-invisible");
-                }
-
-                // create addon input
-                // create addon input
-                const controlId = `${inputElement.id}-control`;
-                const control = document.createElement("p");
-                control.className = "control";
-                control.id = controlId;
-                const input = document.createElement("input");
-                input.id = `${controlId}-input`;
-
-                if (config.columnInputAttribute == "enabled") {
-                    input.setAttribute("enabled", "");
-                } else {
-                    input.setAttribute("disabled", "");
-                }
-
-                input.className = `label is-size-7 has-text-left has-text-weight-normal is-flex-wrap-wrap is-smallest-element`;
-                input.value = config.columnInputContent;
-                input.placeholder = config.columnInputPlaceholder;
-
-                control.appendChild(input);
-                inputElement.appendChild(control);
-
-                // create addon button
-                // create addon button
-                addons = config.addonsContent;
-
-                for (let i = 0; i < addons.length; i++) {
-                    const addon = addons[i];
-                    const controlId = `${inputElement.id}-control${addon.name}`;
-                    const control = document.createElement("p");
-                    control.className = "control";
-                    control.id = controlId;
-
-                    // Create a button element
-                    // Create a button element
-                    const button = document.createElement("a");
-                    button.id = `${controlId}-button${addon.name}`;
-                    button.className = `button is-outlined px-3 is-smallest-element is-${addon.name === "blue" ? "link" : "success"}`;
-
-                    if (addon.hrefFunction == "link") {
-                        button.href = addon.hrefLink;
-                        button.target = "_blank";
-                    } else if (addon.hrefFunction == "eventHandlerLink") {
-                        button.addEventListener("click", function() {
-                            console.log("addon.callOutFuntionName", addon.callOutFuntionName);
-                            eval(addon.callOutFuntionName + `(cy)`);
-                        });
-                    } else if (addon.hrefFunction == "copy") {
-                        button.href = addon.hrefLink;
-                        button.target = "_blank";
-                        button.addEventListener("click", function(event) {
-                            // Prevent the default behavior of the anchor element (opening a new tab)
-                            // Prevent the default behavior of the anchor element (opening a new tab)
-                            urlToCopy = addon.hrefLink;
-                            event.preventDefault();
-
-                            // Create a temporary input element to copy the URL to the clipboard
-                            // Create a temporary input element to copy the URL to the clipboard
-                            const tempInput = document.createElement("input");
-                            tempInput.value = urlToCopy;
-                            document.body.appendChild(tempInput);
-                            tempInput.select();
-                            document.execCommand("copy");
-                            document.body.removeChild(tempInput);
-
-                            // Provide user feedback (e.g., alert or toast) that the URL has been copied
-                            // Provide user feedback (e.g., alert or toast) that the URL has been copied
-                            bulmaToast.toast({
-                                message: `SSH command is lit 🔥 and copied to your clipboard, ready to drop it in your terminal console like a boss! 🚀💻`,
-                                type: "is-warning is-size-6 p-3",
-                                duration: 4000,
-                                position: "top-center",
-                                closeOnClick: true,
-                            });
-                            appendMessage(
-                                `SSH command is lit 🔥 and copied to your clipboard, ready to drop it in your terminal console like a boss! 🚀💻`,
-                            );
-                        });
-                    }
-
-                    // Create a icon element
-                    // Create a icon element
-                    const icon = document.createElement("span");
-                    icon.className = "icon is-small";
-                    const iconElement = document.createElement("i");
-                    iconElement.className = addon.iconClass;
-                    icon.appendChild(iconElement);
-                    button.appendChild(icon);
-
-                    // Create a hover text paragraph element
-                    // Create a hover text paragraph element
-                    const hoverText = document.querySelector(".hover-text");
-
-                    // Add event listeners for hover behavior
-                    // Add event listeners for hover behavior
-                    button.addEventListener("mouseover", () => {
-                        // Calculate the position for the hover text
-                        // Calculate the position for the hover text
-                        const rect = button.getBoundingClientRect();
-                        const top = rect.top - hoverText.offsetHeight + 25;
-                        const left = rect.left + (button.offsetWidth - hoverText.offsetWidth) / 2;
-
-                        // Set the position and show the hover text
-                        // Set the position and show the hover text
-                        hoverText.style.top = `${top}px`;
-                        hoverText.style.left = `${left}px`;
-                        hoverText.classList.remove("is-hidden");
-                        hoverText.textContent = addon.hoverMessage;
-                    });
-                    button.addEventListener("mouseout", () => {
-                        // Hide the hover text
-                        // Hide the hover text
-                        hoverText.classList.add("is-hidden");
-                    });
-                    control.appendChild(button);
-                    inputElement.appendChild(control);
-                }
-                inputColumn.appendChild(inputElement);
-                columnsPanelContent.appendChild(inputColumn);
-            }
-            // columnInputType buttonGroupHandle
-            // columnInputType buttonGroupHandle
-            else if (config.columnInputType == "selectGroup") {
-                const inputColumn = document.createElement("div");
-                if (
-                    typeof config.columnInputClass !== "undefined" &&
-                    config.columnInputClass !== null &&
-                    config.columnInputClass !== ""
-                ) {
-                    inputColumn.className = config.columnInputClass;
-                } else {
-                    inputColumn.className = `column is-8 p-1 pl-3`;
-                }
-                inputColumn.id = `${labelColumn.id}-inputColumn${config.idSuffix}`;
-
-                const inputElement = document.createElement("div");
-                inputElement.className = `field has-addons`;
-                inputElement.id = `${inputColumn.id}-label${config.idSuffix}`;
-                if (config.columnInputIsInvisible == "yes") {
-                    inputElement.classList.add("is-invisible");
-                }
-
-                // create addon select
-                // create addon select
-                addons = config.addonsContent;
-
-                for (let i = 0; i < addons.length; i++) {
-                    const addon = addons[i];
-                    const controlId = `${inputElement.id}-control${addon.name}`;
-                    const control = document.createElement("p");
-                    control.className = "control";
-                    control.id = controlId;
-
-                    // Create a select element
-                    // Create a select element
-                    const select = document.createElement("a");
-                    select.id = `${controlId}-select${addon.name}`;
-                    select.className = `select is-outlined px-3 is-smallest-element is-${addon.name === "blue" ? "link" : "success"}`;
-
-                    if (addon.hrefFunction == "link") {
-                        select.href = addon.hrefLink;
-                        select.target = "_blank";
-                    } else if (addon.hrefFunction == "eventHandlerLink") {
-                        select.addEventListener("click", function() {
-                            console.log("addon.callOutFuntionName", addon.callOutFuntionName);
-                            eval(addon.callOutFuntionName + `(cy)`);
-                        });
-                    }
-
-                    // Create a icon element
-                    // Create a icon element
-                    const icon = document.createElement("span");
-                    icon.className = "icon is-small";
-                    const iconElement = document.createElement("i");
-                    iconElement.className = addon.iconClass;
-                    icon.appendChild(iconElement);
-                    select.appendChild(icon);
-
-                    // Create a hover text paragraph element
-                    // Create a hover text paragraph element
-                    const hoverText = document.querySelector(".hover-text");
-
-                    // Add event listeners for hover behavior
-                    // Add event listeners for hover behavior
-                    select.addEventListener("mouseover", () => {
-                        // Calculate the position for the hover text
-                        // Calculate the position for the hover text
-                        const rect = select.getBoundingClientRect();
-                        const top = rect.top - hoverText.offsetHeight + 25;
-                        const left = rect.left + (select.offsetWidth - hoverText.offsetWidth) / 2;
-
-                        // Set the position and show the hover text
-                        // Set the position and show the hover text
-                        hoverText.style.top = `${top}px`;
-                        hoverText.style.left = `${left}px`;
-                        hoverText.classList.remove("is-hidden");
-                        hoverText.textContent = addon.hoverMessage;
-                    });
-                    select.addEventListener("mouseout", () => {
-                        // Hide the hover text
-                        // Hide the hover text
-                        hoverText.classList.add("is-hidden");
-                    });
-                    control.appendChild(select);
-                    inputElement.appendChild(control);
-                }
-                inputColumn.appendChild(inputElement);
-                columnsPanelContent.appendChild(inputColumn);
-            }
-
-            panelContent.appendChild(columnsPanelContent);
-            columnContainer.appendChild(panelContent);
-            divPanelBlock.appendChild(columnContainer);
-        }
-
-    );
-}
-
-function showPanelDrawerLayout() {
-    removeElementById("Panel-03");
-    tabContentFns = [createDrawerLayoutTab];
-    tabContentFnsArg = [];
-    createContentPanel(
-        "Panel-03",
-        tabContentFns,
-        tabContentFnsArg,
-        "TopoViewer Helper App",
-    );
-
-    // createContentPanel('Panel-01', tabContentFns, tabContentFnsArg[0], 'Node Properties');
-    // createContentPanel('Panel-01', tabContentFns, tabContentFnsArg[0], 'Node Properties');
-}
-
-function createDrawerLayoutTab(panelHeadingText) {
-    const modifiedHeaderText = panelHeadingText;
-
-    // Create the tab-container
-    // Create the tab-container
-    const tabContainer = document.createElement("div");
-    tabContainer.id = `tabContainer-${modifiedHeaderText}`;
-    tabContainer.className = "panel-tabContainer";
-
-    // Panel Block 01
-    // Panel Block 01
-    panelBlockContainer = createPanelBlockContainer(tabContainer.id);
-    panelBlock01 = panelBlockContainer.panelBlock;
-    divPanelBlock01 = panelBlockContainer.divPanelBlock;
-
-    // Define the HTML content as a string
-    // Define the HTML content as a string
-
-    url = location.host;
-    const hreWindows = `http://${url}/clab-client/clab-client-windows/ClabCapture.app.zip`;
-    const hrefMac = `http://${url}/clab-client/clab-client-mac/ClabCapture.app.zip`;
-    const htmlContent = `
-                                            <div class="tabs is-boxed px-">
-                                                <ul>
-                                                    <li class="is-active">
-                                                        <a>
-                                                            <span class="icon is-small"><i class="fas fa-image" aria-hidden="true"></i></span>
-                                                            <span></span>
-                                                        </a>
-                                                    </li>
-                                                    <li>
-                                                        <a>
-                                                            <span class="icon is-small px-0"><i class="fas fa-music" aria-hidden="true"></i></span>
-                                                            <span></span>
-                                                        </a>
-                                                    </li>
-                                                    <li>
-                                                        <a>
-                                                            <span class="icon is-small"><i class="fas fa-film" aria-hidden="true"></i></span>
-                                                            <span></span>
-                                                        </a>
-                                                    </li>
-                                                    <li>
-                                                        <a>
-                                                            <span class="icon is-small"><i class="far fa-file-alt" aria-hidden="true"></i></span>
-                                                            <span></span>
-                                                        </a>
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                            `;
-
-    // Create a div element and set its innerHTML to the defined HTML content
-    // Create a div element and set its innerHTML to the defined HTML content
-    const contentDiv = document.createElement("div");
-    contentDiv.className = "px-2";
-    contentDiv.innerHTML = htmlContent;
-    contentDiv.style.maxHeight = "280px";
-    contentDiv.style.overflowY = "auto";
-
-    divPanelBlock01.appendChild(contentDiv);
-    // append divPanelBlock01 --> panelBlock01 --> tabContainer
-    // append divPanelBlock01 --> panelBlock01 --> tabContainer
-    panelBlock01.append(divPanelBlock01);
-    tabContainer.appendChild(panelBlock01);
-
-    return tabContainer;
 }
 
 function nodeFindDrawer(cy) {
@@ -3000,205 +2081,6 @@ function pathFinderDijkstraDrawer(cy) {
 // sleep funtion
 function sleep(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-function verticallAllignLayout(cy) {
-    var verticalNodeGap = document.getElementById(
-        "panelBlock-viewportButtons-buttonadjustLayout-divPanelBlock-columnContainerlabelAdjustLayoutAlignmentVerticalNodeGap-panelContentlabelAdjustLayoutAlignmentVerticalNodeGap-columnsPanelContentlabelAdjustLayoutAlignmentVerticalNodeGap-labelColumnlabelAdjustLayoutAlignmentVerticalNodeGap-inputColumnlabelAdjustLayoutAlignmentVerticalNodeGap-labellabelAdjustLayoutAlignmentVerticalNodeGap",
-    ).value;
-    var verticalGroupGap = document.getElementById(
-        "panelBlock-viewportButtons-buttonadjustLayout-divPanelBlock-columnContainerlabelAdjustLayoutAlignmentVerticalGroupGap-panelContentlabelAdjustLayoutAlignmentVerticalGroupGap-columnsPanelContentlabelAdjustLayoutAlignmentVerticalGroupGap-labelColumnlabelAdjustLayoutAlignmentVerticalGroupGap-inputColumnlabelAdjustLayoutAlignmentVerticalGroupGap-labellabelAdjustLayoutAlignmentVerticalGroupGap",
-    ).value;
-
-    console.log("verticalNodeGap", verticalNodeGap);
-    console.log("verticalGroupGap", verticalGroupGap);
-
-    const xOffset = parseFloat(verticalNodeGap);
-    const yOffset = parseFloat(verticalGroupGap);
-
-    console.log("yOffset", yOffset);
-    console.log("xOffset", xOffset);
-
-    const delay = 100;
-
-    setTimeout(() => {
-        cy.nodes().forEach(function(node) {
-            if (node.isParent()) {
-                // For each parent node
-                // For each parent node
-                const children = node.children();
-                const numRows = 1;
-
-                const cellWidth = node.width() / children.length;
-                // const xOffset = 5
-                // const xOffset = 5
-
-                children.forEach(function(child, index) {
-                    // Position children in rows
-                    // Position children in rows
-                    const xPos = index * (cellWidth + xOffset);
-                    const yPos = 0;
-
-                    // Set the position of each child node
-                    // Set the position of each child node
-                    child.position({
-                        x: xPos,
-                        y: yPos
-                    });
-                });
-            }
-        });
-
-        var parentCounts = {};
-        var maxWidth = 0;
-        var centerX = 0;
-        var centerY = cy.height() / 2;
-
-        // Count children of each parent node
-        // Count children of each parent node
-        cy.nodes().forEach(function(node) {
-            if (node.isParent()) {
-                const childrenCount = node.children().length;
-                parentCounts[node.id()] = childrenCount;
-            }
-        });
-
-        cy.nodes().forEach(function(node) {
-            if (node.isParent()) {
-                const width = node.width();
-                if (width > maxWidth) {
-                    maxWidth = width;
-                    console.log("ParentMaxWidth: ", maxWidth);
-                }
-            }
-        });
-
-        const divisionFactor = maxWidth / 2;
-        console.log("divisionFactor: ", divisionFactor);
-
-        // Sort parent nodes by child count in ascending order
-        // Sort parent nodes by child count in ascending order
-        const sortedParents = Object.keys(parentCounts).sort(
-            (a, b) => parentCounts[a] - parentCounts[b],
-        );
-
-        let yPos = 0;
-        // const yOffset = 50;
-        // const yOffset = 50;
-
-        // Position parent nodes vertically and center them horizontally
-        // Position parent nodes vertically and center them horizontally
-        sortedParents.forEach(function(parentId) {
-            const parent = cy.getElementById(parentId);
-            const xPos = centerX - parent.width() / divisionFactor;
-            // to the left compared to the center of the widest parent node.
-            // to the left compared to the center of the widest parent node.
-            parent.position({
-                x: xPos,
-                y: yPos
-            });
-            yPos += yOffset;
-        });
-        cy.fit();
-    }, delay);
-}
-
-function horizontalAllignLayout(cy) {
-    var horizontalNodeGap = document.getElementById(
-        "panelBlock-viewportButtons-buttonadjustLayout-divPanelBlock-columnContainerlabelAdjustLayoutAlignmentHorizontalNodeGap-panelContentlabelAdjustLayoutAlignmentHorizontalNodeGap-columnsPanelContentlabelAdjustLayoutAlignmentHorizontalNodeGap-labelColumnlabelAdjustLayoutAlignmentHorizontalNodeGap-inputColumnlabelAdjustLayoutAlignmentHorizontalNodeGap-labellabelAdjustLayoutAlignmentHorizontalNodeGap",
-    ).value;
-    var horizontalGroupGap = document.getElementById(
-        "panelBlock-viewportButtons-buttonadjustLayout-divPanelBlock-columnContainerlabelAdjustLayoutAlignmentHorizontalGroupGap-panelContentlabelAdjustLayoutAlignmentHorizontalGroupGap-columnsPanelContentlabelAdjustLayoutAlignmentHorizontalGroupGap-labelColumnlabelAdjustLayoutAlignmentHorizontalGroupGap-inputColumnlabelAdjustLayoutAlignmentHorizontalGroupGap-labellabelAdjustLayoutAlignmentHorizontalGroupGap",
-    ).value;
-
-    console.log("horizontalNodeGap", horizontalNodeGap);
-    console.log("horizontalGroupGap", horizontalGroupGap);
-
-    const yOffset = parseFloat(horizontalNodeGap);
-    const xOffset = parseFloat(horizontalGroupGap);
-
-    console.log("yOffset", yOffset);
-    console.log("xOffset", xOffset);
-
-    const delay = 100;
-    setTimeout(() => {
-        cy.nodes().forEach(function(node) {
-            if (node.isParent()) {
-                // For each parent node
-                // For each parent node
-                const children = node.children();
-                const numColumns = 1;
-                const cellHeight = node.height() / children.length;
-                // const yOffset = 5;
-                // const yOffset = 5;
-
-                children.forEach(function(child, index) {
-                    // Position children in columns
-                    // Position children in columns
-                    const xPos = 0;
-                    const yPos = index * (cellHeight + yOffset);
-
-                    // Set the position of each child node
-                    // Set the position of each child node
-                    child.position({
-                        x: xPos,
-                        y: yPos
-                    });
-                });
-            }
-        });
-
-        var parentCounts = {};
-        var maxHeight = 0;
-        var centerX = cy.width() / 2;
-        var centerY = cy.height() / 2;
-
-        // Count children of each parent node
-        // Count children of each parent node
-        cy.nodes().forEach(function(node) {
-            if (node.isParent()) {
-                const childrenCount = node.children().length;
-                parentCounts[node.id()] = childrenCount;
-            }
-        });
-
-        cy.nodes().forEach(function(node) {
-            if (node.isParent()) {
-                const height = node.height();
-                if (height > maxHeight) {
-                    maxHeight = height;
-                    console.log("ParentMaxHeight: ", maxHeight);
-                }
-            }
-        });
-
-        const divisionFactor = maxHeight / 2;
-        console.log("divisionFactor: ", divisionFactor);
-
-        // Sort parent nodes by child count in ascending order
-        // Sort parent nodes by child count in ascending order
-        const sortedParents = Object.keys(parentCounts).sort(
-            (a, b) => parentCounts[a] - parentCounts[b],
-        );
-
-        let xPos = 0;
-        // const xOffset = 50;
-        // const xOffset = 50;
-
-        // Position parent nodes horizontally and center them vertically
-        // Position parent nodes horizontally and center them vertically
-        sortedParents.forEach(function(parentId) {
-            const parent = cy.getElementById(parentId);
-            const yPos = centerY - parent.height() / divisionFactor;
-            parent.position({
-                x: xPos,
-                y: yPos
-            });
-            xPos -= xOffset;
-        });
-
-        cy.fit();
-    }, delay);
 }
 
 async function captureAndSaveViewportAsPng(cy) {
