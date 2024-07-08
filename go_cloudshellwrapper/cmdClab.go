@@ -34,6 +34,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
 	"github.com/shirou/gopsutil/v4/cpu"
 	"github.com/shirou/gopsutil/v4/mem"
@@ -794,7 +795,7 @@ func Clab(_ *cobra.Command, _ []string) error {
 				return
 			}
 
-			containers, err := cli.ContainerList(ctx, types.ContainerListOptions{})
+			containers, err := cli.ContainerList(ctx, container.ListOptions{})
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return

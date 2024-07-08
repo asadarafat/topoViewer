@@ -13,13 +13,13 @@ import (
 	"path"
 	"strconv"
 
+	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
 	"github.com/gosnmp/gosnmp"
 	"github.com/samber/lo"
 	"golang.org/x/crypto/ssh"
 
 	tools "github.com/asadarafat/topoViewer/go_tools"
-	dockerType "github.com/docker/docker/api/types"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -117,7 +117,7 @@ type PortInfo struct {
 	IfExtraField  string `json:"ifExtraField"`
 }
 
-func (cyTopo *CytoTopology) InitLoggerClabV2() {
+func (cyTopo *CytoTopology) InitLogger() {
 	// init logConfig
 	toolLogger := tools.Logs{}
 	toolLogger.InitLogger("logs/topoengine-CytoTopology-adaptorClabV2.log", cyTopo.LogLevel)
@@ -486,6 +486,7 @@ func (cyTopo *CytoTopology) GetDockerNodeStatus(clabNodeName string, clabUser st
 func (cyTopo *CytoTopology) GetDockerNodeStatusViaUnixSocket(clabNodeName string, clabHost string) ([]byte, error) {
 
 	// aarafat-tag: sample output of unix:///var/run/docker.sock vi cli.ContainerList(ctx, dockerType.ContainerListOptions{All: false})
+	// container.ListOptions{All: true})
 	//
 	// {
 	//     "Id": "a0977499239d175e5e7a21d0d9fc06b7f8e551f7685d3a174e2f717fa9cd7635",
@@ -550,7 +551,8 @@ func (cyTopo *CytoTopology) GetDockerNodeStatusViaUnixSocket(clabNodeName string
 	defer cancel()
 
 	// List Docker containers
-	containers, err := cli.ContainerList(ctx, dockerType.ContainerListOptions{All: true})
+	containers, err := cli.ContainerList(ctx, container.ListOptions{All: true})
+
 	if err != nil {
 		log.Errorf("Failed to list containers: %v", err)
 	}
