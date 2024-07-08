@@ -2,104 +2,110 @@ package main
 
 import (
 	// tools "github.com/asadarafat/topoViewer/go_tools"
+	"bufio"
+	"io"
+	"log"
+	"net"
+	"strings"
 
 	tools "github.com/asadarafat/topoViewer/go_tools"
 	topoengine "github.com/asadarafat/topoViewer/go_topoengine"
+	"golang.org/x/crypto/ssh"
 )
 
 // // "io/ioutil"
 // // "os"
 
-// type Connection struct {
-// 	*ssh.Client
-// 	password string
-// }
+type Connection struct {
+	*ssh.Client
+	password string
+}
 
-// func Connect(addr, user, password string) (*Connection, error) {
-// 	sshConfig := &ssh.ClientConfig{
-// 		User: user,
-// 		Auth: []ssh.AuthMethod{
-// 			ssh.Password(password),
-// 		},
-// 		HostKeyCallback: ssh.HostKeyCallback(func(hostname string, remote net.Addr, key ssh.PublicKey) error { return nil }),
-// 	}
+func Connect(addr, user, password string) (*Connection, error) {
+	sshConfig := &ssh.ClientConfig{
+		User: user,
+		Auth: []ssh.AuthMethod{
+			ssh.Password(password),
+		},
+		HostKeyCallback: ssh.HostKeyCallback(func(hostname string, remote net.Addr, key ssh.PublicKey) error { return nil }),
+	}
 
-// 	conn, err := ssh.Dial("tcp", addr, sshConfig)
-// 	if err != nil {
-// 		return nil, err
-// 	}
+	conn, err := ssh.Dial("tcp", addr, sshConfig)
+	if err != nil {
+		return nil, err
+	}
 
-// 	return &Connection{conn, password}, nil
+	return &Connection{conn, password}, nil
 
-// }
+}
 
-// func (conn *Connection) SendCommands(cmds ...string) ([]byte, error) {
-// 	session, err := conn.NewSession()
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	defer session.Close()
+func (conn *Connection) SendCommands(cmds ...string) ([]byte, error) {
+	session, err := conn.NewSession()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer session.Close()
 
-// 	modes := ssh.TerminalModes{
-// 		ssh.ECHO:          0,     // disable echoing
-// 		ssh.TTY_OP_ISPEED: 14400, // input speed = 14.4kbaud
-// 		ssh.TTY_OP_OSPEED: 14400, // output speed = 14.4kbaud
-// 	}
+	modes := ssh.TerminalModes{
+		ssh.ECHO:          0,     // disable echoing
+		ssh.TTY_OP_ISPEED: 14400, // input speed = 14.4kbaud
+		ssh.TTY_OP_OSPEED: 14400, // output speed = 14.4kbaud
+	}
 
-// 	err = session.RequestPty("xterm", 80, 40, modes)
-// 	if err != nil {
-// 		return []byte{}, err
-// 	}
+	err = session.RequestPty("xterm", 80, 40, modes)
+	if err != nil {
+		return []byte{}, err
+	}
 
-// 	in, err := session.StdinPipe()
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
+	in, err := session.StdinPipe()
+	if err != nil {
+		log.Fatal(err)
+	}
 
-// 	out, err := session.StdoutPipe()
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
+	out, err := session.StdoutPipe()
+	if err != nil {
+		log.Fatal(err)
+	}
 
-// 	var output []byte
+	var output []byte
 
-// 	go func(in io.WriteCloser, out io.Reader, output *[]byte) {
-// 		var (
-// 			line string
-// 			r    = bufio.NewReader(out)
-// 		)
-// 		for {
-// 			b, err := r.ReadByte()
-// 			if err != nil {
-// 				break
-// 			}
+	go func(in io.WriteCloser, out io.Reader, output *[]byte) {
+		var (
+			line string
+			r    = bufio.NewReader(out)
+		)
+		for {
+			b, err := r.ReadByte()
+			if err != nil {
+				break
+			}
 
-// 			*output = append(*output, b)
+			*output = append(*output, b)
 
-// 			if b == byte('\n') {
-// 				line = ""
-// 				continue
-// 			}
+			if b == byte('\n') {
+				line = ""
+				continue
+			}
 
-// 			line += string(b)
+			line += string(b)
 
-// 			if strings.HasPrefix(line, "[sudo] password for ") && strings.HasSuffix(line, ": ") {
-// 				_, err = in.Write([]byte(conn.password + "\n"))
-// 				if err != nil {
-// 					break
-// 				}
-// 			}
-// 		}
-// 	}(in, out, &output)
+			if strings.HasPrefix(line, "[sudo] password for ") && strings.HasSuffix(line, ": ") {
+				_, err = in.Write([]byte(conn.password + "\n"))
+				if err != nil {
+					break
+				}
+			}
+		}
+	}(in, out, &output)
 
-// 	cmd := strings.Join(cmds, "; ")
-// 	_, err = session.Output(cmd)
-// 	if err != nil {
-// 		return []byte{}, err
-// 	}
+	cmd := strings.Join(cmds, "; ")
+	_, err = session.Output(cmd)
+	if err != nil {
+		return []byte{}, err
+	}
 
-//		return output, nil
-//	}
+	return output, nil
+}
 func main() {
 
 	cytoUiGo := topoengine.CytoTopology{}
@@ -918,11 +924,11 @@ func main() {
 
 	// cytoUiGo.GetDockerNodeStatusViaUnixSocket("clab-3tierSmall-dcgw-1", "localhost")
 
-	// var neHost = "149.204.21.68"
-	// var nePort = "22"
-	// var neUser = "aarafat"
-	// var nePass = "!Wulandar100"
-	// var cmd1 = "sudo clab inspect --all"
+	var neHost = "149.204.21.68"
+	var nePort = "22"
+	var neUser = "aarafat"
+	var nePass = "!Wulandar100"
+	var cmd1 = "sudo clab inspect --all"
 
 	// // Command to execute the Python script
 	// cmd := exec.Command("python3", "./html-static/actions/exampleScript.py", "arg1", "arg2")
@@ -950,7 +956,7 @@ func main() {
 
 	// fmt.Println(string(output))
 
-	// tools.SshSudo(neHost, nePort, neUser, nePass, cmd1)
+	tools.SshSudo(neHost, nePort, neUser, nePass, cmd1)
 
 	////
 

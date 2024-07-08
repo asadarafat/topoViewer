@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 {
   "name": "nokia-ServiceProvider",
@@ -1010,4 +1011,1018 @@
       }
   }
   ]
+=======
+
+{
+    "name": "nokia-ServiceProvider",
+    "type": "clab",
+    
+    
+    "clab": {
+        "config": {
+        "prefix": "clab",
+        "mgmt": {
+        "network": "public-mgmt",
+        "bridge": "br_nsp_ip_oob",
+        "ipv4-subnet": "10.2.1.0/24",
+        "ipv4-gw": "10.2.1.2",
+        "mtu": 1500,
+        "external-access": true
+      }
+        }
+    },
+"nodes": [
+    {
+        "id": "R01-PE",
+        "index": "0",
+        "shortname": "R01-PE",
+        "longname": "clab-nokia-ServiceProvider-R01-PE",
+        "fqdn": "R01-PE.nokia-ServiceProvider.io",
+        "group": "AS65000",
+        "labdir": "/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/R01-PE",
+        "kind": "vr-sros",
+        "image": "registry.srlinux.dev/pub/vr-sros:23.10.R1",
+        "mgmt-net": "",
+        "mgmt-intf": "",
+        "mgmt-ipv4-address": "10.2.1.101",
+        "mgmt-ipv4-prefix-length": 24,
+        "mgmt-ipv6-address": "",
+        "mgmt-ipv6-prefix-length": 0,
+        "mac-address": "",
+        "labels": {
+        "clab-mgmt-net-bridge": "br_nsp_ip_oob",
+        "clab-node-group": "AS65000",
+        "clab-node-kind": "vr-sros",
+        "clab-node-lab-dir": "/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/R01-PE",
+        "clab-node-name": "R01-PE",
+        "clab-node-type": "cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28",
+        "clab-topo-file": "/home/aarafat/nokia-ServiceProvider-lab/topo-nokia-ServiceProvider-lab.yml",
+        "containerlab": "nokia-ServiceProvider",
+        "topoViewer-role": "pe"
+      }
+        },
+    {
+        "id": "R02-PE",
+        "index": "1",
+        "shortname": "R02-PE",
+        "longname": "clab-nokia-ServiceProvider-R02-PE",
+        "fqdn": "R02-PE.nokia-ServiceProvider.io",
+        "group": "AS65000",
+        "labdir": "/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/R02-PE",
+        "kind": "vr-sros",
+        "image": "registry.srlinux.dev/pub/vr-sros:23.10.R1",
+        "mgmt-net": "",
+        "mgmt-intf": "",
+        "mgmt-ipv4-address": "10.2.1.102",
+        "mgmt-ipv4-prefix-length": 24,
+        "mgmt-ipv6-address": "",
+        "mgmt-ipv6-prefix-length": 0,
+        "mac-address": "",
+        "labels": {
+        "clab-mgmt-net-bridge": "br_nsp_ip_oob",
+        "clab-node-group": "AS65000",
+        "clab-node-kind": "vr-sros",
+        "clab-node-lab-dir": "/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/R02-PE",
+        "clab-node-name": "R02-PE",
+        "clab-node-type": "cp: cpu=2 ram=6 chassis=SR-7 slot=A card=cpm5 ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-7 slot=1 card=imm-2pac-fp3 mda/1=p10-10g-sfp",
+        "clab-topo-file": "/home/aarafat/nokia-ServiceProvider-lab/topo-nokia-ServiceProvider-lab.yml",
+        "containerlab": "nokia-ServiceProvider",
+        "topoViewer-role": "pe"
+      }
+        },
+    {
+        "id": "R03-P",
+        "index": "2",
+        "shortname": "R03-P",
+        "longname": "clab-nokia-ServiceProvider-R03-P",
+        "fqdn": "R03-P.nokia-ServiceProvider.io",
+        "group": "AS65000",
+        "labdir": "/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/R03-P",
+        "kind": "vr-sros",
+        "image": "registry.srlinux.dev/pub/vr-sros:23.10.R1",
+        "mgmt-net": "",
+        "mgmt-intf": "",
+        "mgmt-ipv4-address": "10.2.1.103",
+        "mgmt-ipv4-prefix-length": 24,
+        "mgmt-ipv6-address": "",
+        "mgmt-ipv6-prefix-length": 0,
+        "mac-address": "",
+        "labels": {
+        "clab-mgmt-net-bridge": "br_nsp_ip_oob",
+        "clab-node-group": "AS65000",
+        "clab-node-kind": "vr-sros",
+        "clab-node-lab-dir": "/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/R03-P",
+        "clab-node-name": "R03-P",
+        "clab-node-type": "cp: cpu=2 ram=6 chassis=SR-12 slot=A card=cpm5 ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-12 slot=1 card=imm-2pac-fp3 mda/1=p10-10g-sfp",
+        "clab-topo-file": "/home/aarafat/nokia-ServiceProvider-lab/topo-nokia-ServiceProvider-lab.yml",
+        "containerlab": "nokia-ServiceProvider",
+        "topoViewer-role": "p"
+      }
+        },
+    {
+        "id": "R04-P",
+        "index": "3",
+        "shortname": "R04-P",
+        "longname": "clab-nokia-ServiceProvider-R04-P",
+        "fqdn": "R04-P.nokia-ServiceProvider.io",
+        "group": "AS65000",
+        "labdir": "/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/R04-P",
+        "kind": "vr-sros",
+        "image": "registry.srlinux.dev/pub/vr-sros:23.10.R1",
+        "mgmt-net": "",
+        "mgmt-intf": "",
+        "mgmt-ipv4-address": "10.2.1.104",
+        "mgmt-ipv4-prefix-length": 24,
+        "mgmt-ipv6-address": "",
+        "mgmt-ipv6-prefix-length": 0,
+        "mac-address": "",
+        "labels": {
+        "clab-mgmt-net-bridge": "br_nsp_ip_oob",
+        "clab-node-group": "AS65000",
+        "clab-node-kind": "vr-sros",
+        "clab-node-lab-dir": "/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/R04-P",
+        "clab-node-name": "R04-P",
+        "clab-node-type": "cp: cpu=2 ram=6 chassis=SR-12 slot=A card=cpm5 ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-12 slot=1 card=imm-2pac-fp3 mda/1=p10-10g-sfp",
+        "clab-topo-file": "/home/aarafat/nokia-ServiceProvider-lab/topo-nokia-ServiceProvider-lab.yml",
+        "containerlab": "nokia-ServiceProvider",
+        "topoViewer-role": "p"
+      }
+        },
+    {
+        "id": "R05-PE",
+        "index": "4",
+        "shortname": "R05-PE",
+        "longname": "clab-nokia-ServiceProvider-R05-PE",
+        "fqdn": "R05-PE.nokia-ServiceProvider.io",
+        "group": "AS65000",
+        "labdir": "/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/R05-PE",
+        "kind": "vr-sros",
+        "image": "registry.srlinux.dev/pub/vr-sros:23.10.R1",
+        "mgmt-net": "",
+        "mgmt-intf": "",
+        "mgmt-ipv4-address": "10.2.1.105",
+        "mgmt-ipv4-prefix-length": 24,
+        "mgmt-ipv6-address": "",
+        "mgmt-ipv6-prefix-length": 0,
+        "mac-address": "",
+        "labels": {
+        "clab-mgmt-net-bridge": "br_nsp_ip_oob",
+        "clab-node-group": "AS65000",
+        "clab-node-kind": "vr-sros",
+        "clab-node-lab-dir": "/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/R05-PE",
+        "clab-node-name": "R05-PE",
+        "clab-node-type": "cp: cpu=2 ram=6 chassis=SR-a8 slot=A card=cpm-a ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-a8 slot=1 card=iom-a mda/1=ma20-1gb-tx",
+        "clab-topo-file": "/home/aarafat/nokia-ServiceProvider-lab/topo-nokia-ServiceProvider-lab.yml",
+        "containerlab": "nokia-ServiceProvider",
+        "topoViewer-role": "pe"
+      }
+        },
+    {
+        "id": "R06-PE-ASBR",
+        "index": "5",
+        "shortname": "R06-PE-ASBR",
+        "longname": "clab-nokia-ServiceProvider-R06-PE-ASBR",
+        "fqdn": "R06-PE-ASBR.nokia-ServiceProvider.io",
+        "group": "AS65000",
+        "labdir": "/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/R06-PE-ASBR",
+        "kind": "vr-sros",
+        "image": "registry.srlinux.dev/pub/vr-sros:23.10.R1",
+        "mgmt-net": "",
+        "mgmt-intf": "",
+        "mgmt-ipv4-address": "10.2.1.106",
+        "mgmt-ipv4-prefix-length": 24,
+        "mgmt-ipv6-address": "",
+        "mgmt-ipv6-prefix-length": 0,
+        "mac-address": "",
+        "labels": {
+        "clab-mgmt-net-bridge": "br_nsp_ip_oob",
+        "clab-node-group": "AS65000",
+        "clab-node-kind": "vr-sros",
+        "clab-node-lab-dir": "/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/R06-PE-ASBR",
+        "clab-node-name": "R06-PE-ASBR",
+        "clab-node-type": "cp: cpu=2 ram=6 chassis=SR-12 slot=A card=cpm5 ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-12 slot=1 card=iom4-e-hs mda/1=me40-1gb-csfp",
+        "clab-topo-file": "/home/aarafat/nokia-ServiceProvider-lab/topo-nokia-ServiceProvider-lab.yml",
+        "containerlab": "nokia-ServiceProvider",
+        "topoViewer-role": "pe"
+      }
+        },
+    {
+        "id": "R07-PE-ASBR",
+        "index": "6",
+        "shortname": "R07-PE-ASBR",
+        "longname": "clab-nokia-ServiceProvider-R07-PE-ASBR",
+        "fqdn": "R07-PE-ASBR.nokia-ServiceProvider.io",
+        "group": "AS65000",
+        "labdir": "/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/R07-PE-ASBR",
+        "kind": "vr-sros",
+        "image": "registry.srlinux.dev/pub/vr-sros:23.10.R1",
+        "mgmt-net": "",
+        "mgmt-intf": "",
+        "mgmt-ipv4-address": "10.2.1.107",
+        "mgmt-ipv4-prefix-length": 24,
+        "mgmt-ipv6-address": "",
+        "mgmt-ipv6-prefix-length": 0,
+        "mac-address": "",
+        "labels": {
+        "clab-mgmt-net-bridge": "br_nsp_ip_oob",
+        "clab-node-group": "AS65000",
+        "clab-node-kind": "vr-sros",
+        "clab-node-lab-dir": "/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/R07-PE-ASBR",
+        "clab-node-name": "R07-PE-ASBR",
+        "clab-node-type": "cp: cpu=2 ram=6 chassis=SR-12 slot=A card=cpm5 ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-12 slot=1 card=iom4-e-hs mda/1=me40-1gb-csfp",
+        "clab-topo-file": "/home/aarafat/nokia-ServiceProvider-lab/topo-nokia-ServiceProvider-lab.yml",
+        "containerlab": "nokia-ServiceProvider",
+        "topoViewer-role": "pe"
+      }
+        },
+    {
+        "id": "R08-PE",
+        "index": "7",
+        "shortname": "R08-PE",
+        "longname": "clab-nokia-ServiceProvider-R08-PE",
+        "fqdn": "R08-PE.nokia-ServiceProvider.io",
+        "group": "AS55000",
+        "labdir": "/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/R08-PE",
+        "kind": "vr-sros",
+        "image": "registry.srlinux.dev/pub/vr-sros:23.10.R1",
+        "mgmt-net": "",
+        "mgmt-intf": "",
+        "mgmt-ipv4-address": "10.2.1.108",
+        "mgmt-ipv4-prefix-length": 24,
+        "mgmt-ipv6-address": "",
+        "mgmt-ipv6-prefix-length": 0,
+        "mac-address": "",
+        "labels": {
+        "clab-mgmt-net-bridge": "br_nsp_ip_oob",
+        "clab-node-group": "AS55000",
+        "clab-node-kind": "vr-sros",
+        "clab-node-lab-dir": "/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/R08-PE",
+        "clab-node-name": "R08-PE",
+        "clab-node-type": "cp: cpu=2 ram=6 chassis=SR-7 slot=A card=cpm5 ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-7 slot=1 card=iom4-e-hs mda/1=me40-1gb-csfp",
+        "clab-topo-file": "/home/aarafat/nokia-ServiceProvider-lab/topo-nokia-ServiceProvider-lab.yml",
+        "containerlab": "nokia-ServiceProvider",
+        "topoViewer-role": "pe"
+      }
+        },
+    {
+        "id": "R09-PE-ASBR",
+        "index": "8",
+        "shortname": "R09-PE-ASBR",
+        "longname": "clab-nokia-ServiceProvider-R09-PE-ASBR",
+        "fqdn": "R09-PE-ASBR.nokia-ServiceProvider.io",
+        "group": "AS55000",
+        "labdir": "/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/R09-PE-ASBR",
+        "kind": "vr-sros",
+        "image": "registry.srlinux.dev/pub/vr-sros:23.10.R1",
+        "mgmt-net": "",
+        "mgmt-intf": "",
+        "mgmt-ipv4-address": "10.2.1.109",
+        "mgmt-ipv4-prefix-length": 24,
+        "mgmt-ipv6-address": "",
+        "mgmt-ipv6-prefix-length": 0,
+        "mac-address": "",
+        "labels": {
+        "clab-mgmt-net-bridge": "br_nsp_ip_oob",
+        "clab-node-group": "AS55000",
+        "clab-node-kind": "vr-sros",
+        "clab-node-lab-dir": "/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/R09-PE-ASBR",
+        "clab-node-name": "R09-PE-ASBR",
+        "clab-node-type": "cp: cpu=2 ram=6 chassis=SR-7 slot=A card=cpm5 ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-7 slot=1 card=iom4-e-hs mda/1=me40-1gb-csfp",
+        "clab-topo-file": "/home/aarafat/nokia-ServiceProvider-lab/topo-nokia-ServiceProvider-lab.yml",
+        "containerlab": "nokia-ServiceProvider",
+        "topoViewer-role": "pe"
+      }
+        },
+    {
+        "id": "R10-PE-ASBR",
+        "index": "9",
+        "shortname": "R10-PE-ASBR",
+        "longname": "clab-nokia-ServiceProvider-R10-PE-ASBR",
+        "fqdn": "R10-PE-ASBR.nokia-ServiceProvider.io",
+        "group": "AS55000",
+        "labdir": "/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/R10-PE-ASBR",
+        "kind": "vr-sros",
+        "image": "registry.srlinux.dev/pub/vr-sros:23.10.R1",
+        "mgmt-net": "",
+        "mgmt-intf": "",
+        "mgmt-ipv4-address": "10.2.1.110",
+        "mgmt-ipv4-prefix-length": 24,
+        "mgmt-ipv6-address": "",
+        "mgmt-ipv6-prefix-length": 0,
+        "mac-address": "",
+        "labels": {
+        "clab-mgmt-net-bridge": "br_nsp_ip_oob",
+        "clab-node-group": "AS55000",
+        "clab-node-kind": "vr-sros",
+        "clab-node-lab-dir": "/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/R10-PE-ASBR",
+        "clab-node-name": "R10-PE-ASBR",
+        "clab-node-type": "cp: cpu=2 ram=6 chassis=SR-7 slot=A card=cpm5 ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-7 slot=1 card=iom4-e-hs mda/1=me40-1gb-csfp",
+        "clab-topo-file": "/home/aarafat/nokia-ServiceProvider-lab/topo-nokia-ServiceProvider-lab.yml",
+        "containerlab": "nokia-ServiceProvider",
+        "topoViewer-role": "pe"
+      }
+        },
+    {
+        "id": "R11-P",
+        "index": "10",
+        "shortname": "R11-P",
+        "longname": "clab-nokia-ServiceProvider-R11-P",
+        "fqdn": "R11-P.nokia-ServiceProvider.io",
+        "group": "AS65000",
+        "labdir": "/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/R11-P",
+        "kind": "vr-xrv9k",
+        "image": "registry.srlinux.dev/pub/vr-xrv9k:7.3.2",
+        "mgmt-net": "",
+        "mgmt-intf": "",
+        "mgmt-ipv4-address": "10.2.1.111",
+        "mgmt-ipv4-prefix-length": 24,
+        "mgmt-ipv6-address": "",
+        "mgmt-ipv6-prefix-length": 0,
+        "mac-address": "",
+        "labels": {
+        "clab-mgmt-net-bridge": "br_nsp_ip_oob",
+        "clab-node-group": "AS65000",
+        "clab-node-kind": "vr-xrv9k",
+        "clab-node-lab-dir": "/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/R11-P",
+        "clab-node-name": "R11-P",
+        "clab-node-type": "",
+        "clab-topo-file": "/home/aarafat/nokia-ServiceProvider-lab/topo-nokia-ServiceProvider-lab.yml",
+        "containerlab": "nokia-ServiceProvider",
+        "topoViewer-role": "p"
+      }
+        },
+    {
+        "id": "R12-P",
+        "index": "11",
+        "shortname": "R12-P",
+        "longname": "clab-nokia-ServiceProvider-R12-P",
+        "fqdn": "R12-P.nokia-ServiceProvider.io",
+        "group": "AS65000",
+        "labdir": "/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/R12-P",
+        "kind": "vr-vmx",
+        "image": "registry.srlinux.dev/pub/vr-vmx:17.4R3.16",
+        "mgmt-net": "",
+        "mgmt-intf": "",
+        "mgmt-ipv4-address": "10.2.1.112",
+        "mgmt-ipv4-prefix-length": 24,
+        "mgmt-ipv6-address": "",
+        "mgmt-ipv6-prefix-length": 0,
+        "mac-address": "",
+        "labels": {
+        "clab-mgmt-net-bridge": "br_nsp_ip_oob",
+        "clab-node-group": "AS65000",
+        "clab-node-kind": "vr-vmx",
+        "clab-node-lab-dir": "/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/R12-P",
+        "clab-node-name": "R12-P",
+        "clab-node-type": "",
+        "clab-topo-file": "/home/aarafat/nokia-ServiceProvider-lab/topo-nokia-ServiceProvider-lab.yml",
+        "containerlab": "nokia-ServiceProvider",
+        "topoViewer-role": "p"
+      }
+        },
+    {
+        "id": "R13-P",
+        "index": "12",
+        "shortname": "R13-P",
+        "longname": "clab-nokia-ServiceProvider-R13-P",
+        "fqdn": "R13-P.nokia-ServiceProvider.io",
+        "group": "AS65000",
+        "labdir": "/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/R13-P",
+        "kind": "vr-sros",
+        "image": "registry.srlinux.dev/pub/vr-sros:23.10.R1",
+        "mgmt-net": "",
+        "mgmt-intf": "",
+        "mgmt-ipv4-address": "10.2.1.113",
+        "mgmt-ipv4-prefix-length": 24,
+        "mgmt-ipv6-address": "",
+        "mgmt-ipv6-prefix-length": 0,
+        "mac-address": "",
+        "labels": {
+        "clab-mgmt-net-bridge": "br_nsp_ip_oob",
+        "clab-node-group": "AS65000",
+        "clab-node-kind": "vr-sros",
+        "clab-node-lab-dir": "/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/R13-P",
+        "clab-node-name": "R13-P",
+        "clab-node-type": "cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28",
+        "clab-topo-file": "/home/aarafat/nokia-ServiceProvider-lab/topo-nokia-ServiceProvider-lab.yml",
+        "containerlab": "nokia-ServiceProvider",
+        "topoViewer-role": "p"
+      }
+        },
+    {
+        "id": "R14-P",
+        "index": "13",
+        "shortname": "R14-P",
+        "longname": "clab-nokia-ServiceProvider-R14-P",
+        "fqdn": "R14-P.nokia-ServiceProvider.io",
+        "group": "AS65000",
+        "labdir": "/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/R14-P",
+        "kind": "srl",
+        "image": "ghcr.io/nokia/srlinux:latest",
+        "mgmt-net": "",
+        "mgmt-intf": "",
+        "mgmt-ipv4-address": "10.2.1.114",
+        "mgmt-ipv4-prefix-length": 24,
+        "mgmt-ipv6-address": "",
+        "mgmt-ipv6-prefix-length": 0,
+        "mac-address": "1a:a8:0d:00:00:00",
+        "labels": {
+        "clab-mgmt-net-bridge": "br_nsp_ip_oob",
+        "clab-node-group": "AS65000",
+        "clab-node-kind": "srl",
+        "clab-node-lab-dir": "/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/R14-P",
+        "clab-node-name": "R14-P",
+        "clab-node-type": "sxr1x44s",
+        "clab-topo-file": "/home/aarafat/nokia-ServiceProvider-lab/topo-nokia-ServiceProvider-lab.yml",
+        "containerlab": "nokia-ServiceProvider",
+        "topoViewer-role": "p"
+      }
+        },
+    {
+        "id": "R31-EDGE",
+        "index": "14",
+        "shortname": "R31-EDGE",
+        "longname": "clab-nokia-ServiceProvider-R31-EDGE",
+        "fqdn": "R31-EDGE.nokia-ServiceProvider.io",
+        "group": "AS65000",
+        "labdir": "/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/R31-EDGE",
+        "kind": "vr-sros",
+        "image": "registry.srlinux.dev/pub/vr-sros:23.10.R1",
+        "mgmt-net": "",
+        "mgmt-intf": "",
+        "mgmt-ipv4-address": "10.2.1.131",
+        "mgmt-ipv4-prefix-length": 24,
+        "mgmt-ipv6-address": "",
+        "mgmt-ipv6-prefix-length": 0,
+        "mac-address": "",
+        "labels": {
+        "clab-mgmt-net-bridge": "br_nsp_ip_oob",
+        "clab-node-group": "AS65000",
+        "clab-node-kind": "vr-sros",
+        "clab-node-lab-dir": "/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/R31-EDGE",
+        "clab-node-name": "R31-EDGE",
+        "clab-node-type": "cpu=2 ram=4 slot=A chassis=ixr-e2 card=cpm-ixr-e2 mda/1=m2-qsfpdd+2-qsfp28+24-sfp28",
+        "clab-topo-file": "/home/aarafat/nokia-ServiceProvider-lab/topo-nokia-ServiceProvider-lab.yml",
+        "containerlab": "nokia-ServiceProvider",
+        "topoViewer-role": "pe"
+      }
+        },
+    {
+        "id": "br_clab",
+        "index": "15",
+        "shortname": "br_clab",
+        "longname": "clab-nokia-ServiceProvider-br_clab",
+        "fqdn": "br_clab.nokia-ServiceProvider.io",
+        "group": "toVsrNrc",
+        "labdir": "/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/br_clab",
+        "kind": "bridge",
+        "image": "",
+        "mgmt-net": "",
+        "mgmt-intf": "",
+        "mgmt-ipv4-address": "",
+        "mgmt-ipv4-prefix-length": 0,
+        "mgmt-ipv6-address": "",
+        "mgmt-ipv6-prefix-length": 0,
+        "mac-address": "",
+        "labels": {
+        "clab-mgmt-net-bridge": "br_nsp_ip_oob",
+        "clab-node-group": "toVsrNrc",
+        "clab-node-kind": "bridge",
+        "clab-node-lab-dir": "/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/br_clab",
+        "clab-node-name": "br_clab",
+        "clab-node-type": "",
+        "clab-topo-file": "/home/aarafat/nokia-ServiceProvider-lab/topo-nokia-ServiceProvider-lab.yml",
+        "containerlab": "nokia-ServiceProvider",
+        "topoViewer-role": "bridge"
+      }
+        },
+    {
+        "id": "br_nsp_ip_ib",
+        "index": "16",
+        "shortname": "br_nsp_ip_ib",
+        "longname": "clab-nokia-ServiceProvider-br_nsp_ip_ib",
+        "fqdn": "br_nsp_ip_ib.nokia-ServiceProvider.io",
+        "group": "toInbandManagementNetwork",
+        "labdir": "/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/br_nsp_ip_ib",
+        "kind": "bridge",
+        "image": "",
+        "mgmt-net": "",
+        "mgmt-intf": "",
+        "mgmt-ipv4-address": "",
+        "mgmt-ipv4-prefix-length": 0,
+        "mgmt-ipv6-address": "",
+        "mgmt-ipv6-prefix-length": 0,
+        "mac-address": "",
+        "labels": {
+        "clab-mgmt-net-bridge": "br_nsp_ip_oob",
+        "clab-node-group": "toInbandManagementNetwork",
+        "clab-node-kind": "bridge",
+        "clab-node-lab-dir": "/home/aarafat/nokia-ServiceProvider-lab/clab-nokia-ServiceProvider/br_nsp_ip_ib",
+        "clab-node-name": "br_nsp_ip_ib",
+        "clab-node-type": "",
+        "clab-topo-file": "/home/aarafat/nokia-ServiceProvider-lab/topo-nokia-ServiceProvider-lab.yml",
+        "containerlab": "nokia-ServiceProvider",
+        "topoViewer-role": "bridge"
+      }
+        }
+    ],
+"links": [
+    {
+        "a": {
+            "node": "R01-PE",
+            "nodeLongName": "clab-nokia-ServiceProvider-R01-PE",
+            "interface": "eth2",
+            "mac": "aa:c1:ab:5d:d9:d8",
+            "peer": "z"
+        },
+        "z": {
+            "node": "R02-PE",
+            "nodeLongName": "clab-nokia-ServiceProvider-R02-PE",
+            "interface": "eth2",
+            "mac": "aa:c1:ab:f0:8f:05",
+            "peer": "a"
+        }
+    },
+    {
+        "a": {
+            "node": "R01-PE",
+            "nodeLongName": "clab-nokia-ServiceProvider-R01-PE",
+            "interface": "eth1",
+            "mac": "aa:c1:ab:a7:31:cc",
+            "peer": "z"
+        },
+        "z": {
+            "node": "R03-P",
+            "nodeLongName": "clab-nokia-ServiceProvider-R03-P",
+            "interface": "eth1",
+            "mac": "aa:c1:ab:3d:e3:42",
+            "peer": "a"
+        }
+    },
+    {
+        "a": {
+            "node": "R02-PE",
+            "nodeLongName": "clab-nokia-ServiceProvider-R02-PE",
+            "interface": "eth1",
+            "mac": "aa:c1:ab:b4:bd:87",
+            "peer": "z"
+        },
+        "z": {
+            "node": "R04-P",
+            "nodeLongName": "clab-nokia-ServiceProvider-R04-P",
+            "interface": "eth1",
+            "mac": "aa:c1:ab:08:ae:5a",
+            "peer": "a"
+        }
+    },
+    {
+        "a": {
+            "node": "R03-P",
+            "nodeLongName": "clab-nokia-ServiceProvider-R03-P",
+            "interface": "eth3",
+            "mac": "aa:c1:ab:b9:4e:65",
+            "peer": "z"
+        },
+        "z": {
+            "node": "R04-P",
+            "nodeLongName": "clab-nokia-ServiceProvider-R04-P",
+            "interface": "eth3",
+            "mac": "aa:c1:ab:0a:88:cf",
+            "peer": "a"
+        }
+    },
+    {
+        "a": {
+            "node": "R03-P",
+            "nodeLongName": "clab-nokia-ServiceProvider-R03-P",
+            "interface": "eth4",
+            "mac": "aa:c1:ab:f1:ef:8a",
+            "peer": "z"
+        },
+        "z": {
+            "node": "R05-PE",
+            "nodeLongName": "clab-nokia-ServiceProvider-R05-PE",
+            "interface": "eth2",
+            "mac": "aa:c1:ab:73:85:b2",
+            "peer": "a"
+        }
+    },
+    {
+        "a": {
+            "node": "R03-P",
+            "nodeLongName": "clab-nokia-ServiceProvider-R03-P",
+            "interface": "eth2",
+            "mac": "aa:c1:ab:75:a1:80",
+            "peer": "z"
+        },
+        "z": {
+            "node": "R06-PE-ASBR",
+            "nodeLongName": "clab-nokia-ServiceProvider-R06-PE-ASBR",
+            "interface": "eth2",
+            "mac": "aa:c1:ab:d6:42:c9",
+            "peer": "a"
+        }
+    },
+    {
+        "a": {
+            "node": "R03-P",
+            "nodeLongName": "clab-nokia-ServiceProvider-R03-P",
+            "interface": "eth5",
+            "mac": "aa:c1:ab:57:f5:84",
+            "peer": "z"
+        },
+        "z": {
+            "node": "R07-PE-ASBR",
+            "nodeLongName": "clab-nokia-ServiceProvider-R07-PE-ASBR",
+            "interface": "eth3",
+            "mac": "aa:c1:ab:64:c2:73",
+            "peer": "a"
+        }
+    },
+    {
+        "a": {
+            "node": "R04-P",
+            "nodeLongName": "clab-nokia-ServiceProvider-R04-P",
+            "interface": "eth5",
+            "mac": "aa:c1:ab:95:a1:05",
+            "peer": "z"
+        },
+        "z": {
+            "node": "R05-PE",
+            "nodeLongName": "clab-nokia-ServiceProvider-R05-PE",
+            "interface": "eth5",
+            "mac": "aa:c1:ab:eb:a5:8c",
+            "peer": "a"
+        }
+    },
+    {
+        "a": {
+            "node": "R04-P",
+            "nodeLongName": "clab-nokia-ServiceProvider-R04-P",
+            "interface": "eth2",
+            "mac": "aa:c1:ab:2b:62:31",
+            "peer": "z"
+        },
+        "z": {
+            "node": "R06-PE-ASBR",
+            "nodeLongName": "clab-nokia-ServiceProvider-R06-PE-ASBR",
+            "interface": "eth1",
+            "mac": "aa:c1:ab:d1:70:c3",
+            "peer": "a"
+        }
+    },
+    {
+        "a": {
+            "node": "R04-P",
+            "nodeLongName": "clab-nokia-ServiceProvider-R04-P",
+            "interface": "eth4",
+            "mac": "aa:c1:ab:5c:d7:61",
+            "peer": "z"
+        },
+        "z": {
+            "node": "R07-PE-ASBR",
+            "nodeLongName": "clab-nokia-ServiceProvider-R07-PE-ASBR",
+            "interface": "eth2",
+            "mac": "aa:c1:ab:9f:26:26",
+            "peer": "a"
+        }
+    },
+    {
+        "a": {
+            "node": "R06-PE-ASBR",
+            "nodeLongName": "clab-nokia-ServiceProvider-R06-PE-ASBR",
+            "interface": "eth3",
+            "mac": "aa:c1:ab:ae:66:dd",
+            "peer": "z"
+        },
+        "z": {
+            "node": "R09-PE-ASBR",
+            "nodeLongName": "clab-nokia-ServiceProvider-R09-PE-ASBR",
+            "interface": "eth3",
+            "mac": "aa:c1:ab:11:f1:b6",
+            "peer": "a"
+        }
+    },
+    {
+        "a": {
+            "node": "R07-PE-ASBR",
+            "nodeLongName": "clab-nokia-ServiceProvider-R07-PE-ASBR",
+            "interface": "eth1",
+            "mac": "aa:c1:ab:07:78:60",
+            "peer": "z"
+        },
+        "z": {
+            "node": "R10-PE-ASBR",
+            "nodeLongName": "clab-nokia-ServiceProvider-R10-PE-ASBR",
+            "interface": "eth3",
+            "mac": "aa:c1:ab:ba:ce:7b",
+            "peer": "a"
+        }
+    },
+    {
+        "a": {
+            "node": "R09-PE-ASBR",
+            "nodeLongName": "clab-nokia-ServiceProvider-R09-PE-ASBR",
+            "interface": "eth2",
+            "mac": "aa:c1:ab:8c:92:a5",
+            "peer": "z"
+        },
+        "z": {
+            "node": "R08-PE",
+            "nodeLongName": "clab-nokia-ServiceProvider-R08-PE",
+            "interface": "eth5",
+            "mac": "aa:c1:ab:3f:e5:3d",
+            "peer": "a"
+        }
+    },
+    {
+        "a": {
+            "node": "R10-PE-ASBR",
+            "nodeLongName": "clab-nokia-ServiceProvider-R10-PE-ASBR",
+            "interface": "eth2",
+            "mac": "aa:c1:ab:ec:16:02",
+            "peer": "z"
+        },
+        "z": {
+            "node": "R08-PE",
+            "nodeLongName": "clab-nokia-ServiceProvider-R08-PE",
+            "interface": "eth2",
+            "mac": "aa:c1:ab:01:ef:ae",
+            "peer": "a"
+        }
+    },
+    {
+        "a": {
+            "node": "R05-PE",
+            "nodeLongName": "clab-nokia-ServiceProvider-R05-PE",
+            "interface": "eth4",
+            "mac": "aa:c1:ab:71:75:71",
+            "peer": "z"
+        },
+        "z": {
+            "node": "R31-EDGE",
+            "nodeLongName": "clab-nokia-ServiceProvider-R31-EDGE",
+            "interface": "eth1",
+            "mac": "aa:c1:ab:80:8d:95",
+            "peer": "a"
+        }
+    },
+    {
+        "a": {
+            "node": "R07-PE-ASBR",
+            "nodeLongName": "clab-nokia-ServiceProvider-R07-PE-ASBR",
+            "interface": "eth4",
+            "mac": "aa:c1:ab:9b:8e:94",
+            "peer": "z"
+        },
+        "z": {
+            "node": "br_clab",
+            "nodeLongName": "clab-nokia-ServiceProvider-br_clab",
+            "interface": "to-R07-PE-ASBR-eth4",
+            "mac": "aa:c1:ab:cf:eb:b7",
+            "peer": "a"
+        }
+    },
+    {
+        "a": {
+            "node": "R10-PE-ASBR",
+            "nodeLongName": "clab-nokia-ServiceProvider-R10-PE-ASBR",
+            "interface": "eth4",
+            "mac": "aa:c1:ab:46:b0:10",
+            "peer": "z"
+        },
+        "z": {
+            "node": "br_clab",
+            "nodeLongName": "clab-nokia-ServiceProvider-br_clab",
+            "interface": "to-R10-PE-ASBR-eth4",
+            "mac": "aa:c1:ab:c3:91:d6",
+            "peer": "a"
+        }
+    },
+    {
+        "a": {
+            "node": "R07-PE-ASBR",
+            "nodeLongName": "clab-nokia-ServiceProvider-R07-PE-ASBR",
+            "interface": "eth5",
+            "mac": "aa:c1:ab:85:7d:6d",
+            "peer": "z"
+        },
+        "z": {
+            "node": "br_clab",
+            "nodeLongName": "clab-nokia-ServiceProvider-br_clab",
+            "interface": "to-R07-PE-ASBR-eth5",
+            "mac": "aa:c1:ab:63:7c:98",
+            "peer": "a"
+        }
+    },
+    {
+        "a": {
+            "node": "R10-PE-ASBR",
+            "nodeLongName": "clab-nokia-ServiceProvider-R10-PE-ASBR",
+            "interface": "eth5",
+            "mac": "aa:c1:ab:4d:04:f7",
+            "peer": "z"
+        },
+        "z": {
+            "node": "br_clab",
+            "nodeLongName": "clab-nokia-ServiceProvider-br_clab",
+            "interface": "to-R10-PE-ASBR-eth5",
+            "mac": "aa:c1:ab:8e:55:ec",
+            "peer": "a"
+        }
+    },
+    {
+        "a": {
+            "node": "R11-P",
+            "nodeLongName": "clab-nokia-ServiceProvider-R11-P",
+            "interface": "eth1",
+            "mac": "aa:c1:ab:40:68:27",
+            "peer": "z"
+        },
+        "z": {
+            "node": "R01-PE",
+            "nodeLongName": "clab-nokia-ServiceProvider-R01-PE",
+            "interface": "eth5",
+            "mac": "aa:c1:ab:2d:76:bc",
+            "peer": "a"
+        }
+    },
+    {
+        "a": {
+            "node": "R11-P",
+            "nodeLongName": "clab-nokia-ServiceProvider-R11-P",
+            "interface": "eth2",
+            "mac": "aa:c1:ab:a7:e8:da",
+            "peer": "z"
+        },
+        "z": {
+            "node": "R12-P",
+            "nodeLongName": "clab-nokia-ServiceProvider-R12-P",
+            "interface": "eth2",
+            "mac": "aa:c1:ab:23:1a:dc",
+            "peer": "a"
+        }
+    },
+    {
+        "a": {
+            "node": "R12-P",
+            "nodeLongName": "clab-nokia-ServiceProvider-R12-P",
+            "interface": "eth1",
+            "mac": "aa:c1:ab:a1:9b:7b",
+            "peer": "z"
+        },
+        "z": {
+            "node": "R03-P",
+            "nodeLongName": "clab-nokia-ServiceProvider-R03-P",
+            "interface": "eth6",
+            "mac": "aa:c1:ab:01:13:67",
+            "peer": "a"
+        }
+    },
+    {
+        "a": {
+            "node": "R12-P",
+            "nodeLongName": "clab-nokia-ServiceProvider-R12-P",
+            "interface": "eth4",
+            "mac": "aa:c1:ab:37:7f:77",
+            "peer": "z"
+        },
+        "z": {
+            "node": "R06-PE-ASBR",
+            "nodeLongName": "clab-nokia-ServiceProvider-R06-PE-ASBR",
+            "interface": "eth4",
+            "mac": "aa:c1:ab:04:7a:54",
+            "peer": "a"
+        }
+    },
+    {
+        "a": {
+            "node": "R13-P",
+            "nodeLongName": "clab-nokia-ServiceProvider-R13-P",
+            "interface": "eth1",
+            "mac": "aa:c1:ab:0c:7f:d3",
+            "peer": "z"
+        },
+        "z": {
+            "node": "R02-PE",
+            "nodeLongName": "clab-nokia-ServiceProvider-R02-PE",
+            "interface": "eth5",
+            "mac": "aa:c1:ab:34:4c:bf",
+            "peer": "a"
+        }
+    },
+    {
+        "a": {
+            "node": "R13-P",
+            "nodeLongName": "clab-nokia-ServiceProvider-R13-P",
+            "interface": "eth2",
+            "mac": "aa:c1:ab:1d:f9:5c",
+            "peer": "z"
+        },
+        "z": {
+            "node": "R14-P",
+            "nodeLongName": "clab-nokia-ServiceProvider-R14-P",
+            "interface": "e1-2",
+            "mac": "aa:c1:ab:b2:6d:50",
+            "peer": "a"
+        }
+    },
+    {
+        "a": {
+            "node": "R14-P",
+            "nodeLongName": "clab-nokia-ServiceProvider-R14-P",
+            "interface": "e1-1",
+            "mac": "aa:c1:ab:bb:92:1e",
+            "peer": "z"
+        },
+        "z": {
+            "node": "R04-P",
+            "nodeLongName": "clab-nokia-ServiceProvider-R04-P",
+            "interface": "eth6",
+            "mac": "aa:c1:ab:67:74:27",
+            "peer": "a"
+        }
+    },
+    {
+        "a": {
+            "node": "R14-P",
+            "nodeLongName": "clab-nokia-ServiceProvider-R14-P",
+            "interface": "e1-4",
+            "mac": "aa:c1:ab:c4:6e:a8",
+            "peer": "z"
+        },
+        "z": {
+            "node": "R07-PE-ASBR",
+            "nodeLongName": "clab-nokia-ServiceProvider-R07-PE-ASBR",
+            "interface": "eth6",
+            "mac": "aa:c1:ab:3c:0c:2c",
+            "peer": "a"
+        }
+    },
+    {
+        "a": {
+            "node": "R01-PE",
+            "nodeLongName": "clab-nokia-ServiceProvider-R01-PE",
+            "interface": "eth6",
+            "mac": "aa:c1:ab:64:4d:4d",
+            "peer": "z"
+        },
+        "z": {
+            "node": "br_nsp_ip_ib",
+            "nodeLongName": "clab-nokia-ServiceProvider-br_nsp_ip_ib",
+            "interface": "to-R01-PE-eth6",
+            "mac": "aa:c1:ab:61:47:5c",
+            "peer": "a"
+        }
+    },
+    {
+        "a": {
+            "node": "R02-PE",
+            "nodeLongName": "clab-nokia-ServiceProvider-R02-PE",
+            "interface": "eth6",
+            "mac": "aa:c1:ab:e0:01:0e",
+            "peer": "z"
+        },
+        "z": {
+            "node": "br_nsp_ip_ib",
+            "nodeLongName": "clab-nokia-ServiceProvider-br_nsp_ip_ib",
+            "interface": "to-R02-PE-eth6",
+            "mac": "aa:c1:ab:97:0a:a8",
+            "peer": "a"
+        }
+    },
+    {
+        "a": {
+            "node": "R01-PE",
+            "nodeLongName": "clab-nokia-ServiceProvider-R01-PE",
+            "interface": "eth9",
+            "mac": "aa:c1:ab:ac:0d:09",
+            "peer": "z"
+        },
+        "z": {
+            "node": "R01-PE",
+            "nodeLongName": "clab-nokia-ServiceProvider-R01-PE",
+            "interface": "eth10",
+            "mac": "aa:c1:ab:1a:9e:20",
+            "peer": "a"
+        }
+    },
+    {
+        "a": {
+            "node": "R02-PE",
+            "nodeLongName": "clab-nokia-ServiceProvider-R02-PE",
+            "interface": "eth9",
+            "mac": "aa:c1:ab:37:42:08",
+            "peer": "z"
+        },
+        "z": {
+            "node": "R02-PE",
+            "nodeLongName": "clab-nokia-ServiceProvider-R02-PE",
+            "interface": "eth10",
+            "mac": "aa:c1:ab:49:33:98",
+            "peer": "a"
+        }
+    }
+    ]
+>>>>>>> b0252c6 (dev)
 }
