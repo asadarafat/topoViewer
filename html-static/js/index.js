@@ -389,11 +389,30 @@ document.addEventListener("DOMContentLoaded", async function() {
             console.log("Valid non-empty JSON response received:", clabSourceLinkImpairmentClabData);
             console.log("Valid non-empty JSON response received: clabSourceLinkImpairmentClabData returnd data", clabSourceLinkImpairmentClabData["return data"]["delay"]);
 
+            if (clabSourceLinkImpairmentClabData["return data"]["delay"] == "N/A") {
+                document.getElementById("panel-link-endpoint-a-delay").value = '0'
+            }else {
+                document.getElementById("panel-link-endpoint-a-delay").value = clabSourceLinkImpairmentClabData["return data"]["delay"]
+            }
 
-            document.getElementById("panel-link-endpoint-a-delay").value = clabSourceLinkImpairmentClabData["return data"]["delay"]
-            document.getElementById("panel-link-endpoint-a-jitter").value = clabSourceLinkImpairmentClabData["return data"]["jitter"]
-            document.getElementById("panel-link-endpoint-a-rate").value = clabSourceLinkImpairmentClabData["return data"]["rate"]
-            document.getElementById("panel-link-endpoint-a-loss").value = clabSourceLinkImpairmentClabData["return data"]["packet_loss"]
+            if (clabSourceLinkImpairmentClabData["return data"]["jitter"] == "N/A") {
+                document.getElementById("panel-link-endpoint-a-jitter").value = '0'
+            }else {
+                document.getElementById("panel-link-endpoint-a-jitter").value = clabSourceLinkImpairmentClabData["return data"]["jitter"]
+            }
+
+            if (clabSourceLinkImpairmentClabData["return data"]["rate"] == "N/A") {
+                document.getElementById("panel-link-endpoint-a-rate").value = '0'
+            }else {
+                document.getElementById("panel-link-endpoint-a-rate").value = clabSourceLinkImpairmentClabData["return data"]["rate"]
+            }
+
+            if (clabSourceLinkImpairmentClabData["return data"]["packet_loss"] == "N/A") {
+                document.getElementById("panel-link-endpoint-a-loss").value = '0'
+            }else {
+                document.getElementById("panel-link-endpoint-a-loss").value = clabSourceLinkImpairmentClabData["return data"]["packet_loss"]
+            }
+
         
         } else {
             console.log("Empty or invalid JSON response received");
@@ -402,24 +421,45 @@ document.addEventListener("DOMContentLoaded", async function() {
 
 
 
-        // setting default impairment endpoint-a values by getting the data from clab via /clab-link-impairment GET API
+        // setting default impairment endpoint-b values by getting the data from clab via /clab-link-impairment GET API
         clabTargetLinkArgsList = [`${clickedEdge.data("extraData").clabTargetLongName}`,`${clickedEdge.data("extraData").clabTargetPort}`]
         clabTargetLinkImpairmentClabData = await sendRequestToEndpointGetV2("/clab-link-impairment", clabTargetLinkArgsList)
-
+        
         if (clabTargetLinkImpairmentClabData && typeof clabTargetLinkImpairmentClabData === 'object' && Object.keys(clabTargetLinkImpairmentClabData).length > 0) {
             hideLoadingSpinner();
             console.log("Valid non-empty JSON response received:", clabTargetLinkImpairmentClabData);
             console.log("Valid non-empty JSON response received: clabTargetLinkImpairmentClabData returnd data", clabTargetLinkImpairmentClabData["return data"]["delay"]);
 
+            if (clabTargetLinkImpairmentClabData["return data"]["delay"] == "N/A") {
+                document.getElementById("panel-link-endpoint-b-delay").value = '0'
+            }else {
+                document.getElementById("panel-link-endpoint-b-delay").value = clabTargetLinkImpairmentClabData["return data"]["delay"]
+            }
 
-            document.getElementById("panel-link-endpoint-b-delay").value = clabTargetLinkImpairmentClabData["return data"]["delay"]
-            document.getElementById("panel-link-endpoint-b-jitter").value = clabTargetLinkImpairmentClabData["return data"]["jitter"]
-            document.getElementById("panel-link-endpoint-b-rate").value = clabTargetLinkImpairmentClabData["return data"]["rate"]
-            document.getElementById("panel-link-endpoint-b-loss").value = clabTargetLinkImpairmentClabData["return data"]["packet_loss"]
+            if (clabTargetLinkImpairmentClabData["return data"]["jitter"] == "N/A") {
+                document.getElementById("panel-link-endpoint-b-jitter").value = '0'
+            }else {
+                document.getElementById("panel-link-endpoint-b-jitter").value = clabTargetLinkImpairmentClabData["return data"]["jitter"]
+            }
+
+            if (clabTargetLinkImpairmentClabData["return data"]["rate"] == "N/A") {
+                document.getElementById("panel-link-endpoint-b-rate").value = '0'
+            }else {
+                document.getElementById("panel-link-endpoint-b-rate").value = clabTargetLinkImpairmentClabData["return data"]["rate"]
+            }
+
+            if (clabTargetLinkImpairmentClabData["return data"]["packet_loss"] == "N/A") {
+                document.getElementById("panel-link-endpoint-b-loss").value = '0'
+            }else {
+                document.getElementById("panel-link-endpoint-b-loss").value = clabTargetLinkImpairmentClabData["return data"]["packet_loss"]
+            }
+
         
         } else {
             console.log("Empty or invalid JSON response received");
         }
+
+
 
 
         // set selected edge-id to global variable

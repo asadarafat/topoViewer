@@ -879,11 +879,8 @@ func (cyTopo *CytoTopology) ParseCLIOutput(cliOutput []byte, nodeId, interfaceFi
 
 	var results ClabNetemInterfaceData
 
-	// headerPattern := regexp.MustCompile(`^\+\-+.*$`)
-	// dataPattern := regexp.MustCompile(`^\| (\w+) +\| (\w+) +\| (\w+) +\| (\w+) +\| (\w+) +\|$`)
-
 	// Split the input data into lines
-	// Iterate over the lines to find and parse the relevant data for eth3
+	// Iterate over the lines to find and parse the relevant data for interfaceFilter
 	for _, line := range lines {
 		// Ignore the lines that are not data rows
 
@@ -892,6 +889,9 @@ func (cyTopo *CytoTopology) ParseCLIOutput(cliOutput []byte, nodeId, interfaceFi
 		}
 
 		// Split the line into fields
+
+		log.Info(line)
+
 		fields := strings.FieldsFunc(line, func(r rune) bool {
 			return r == '|' || r == ' '
 		})
