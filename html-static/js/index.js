@@ -332,7 +332,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 
     // Click event listener for edges
     // Click event listener for edges
-    cy.on("click", "edge", function(event) {
+    cy.on("click", "edge", async function(event) {
 
         // Remove all Overlayed Panel
         // Get all elements with the class "panel-overlay"
@@ -360,6 +360,9 @@ document.addEventListener("DOMContentLoaded", async function() {
             }
         });
 
+
+
+
         document.getElementById("panel-link").style.display = "none";
 
         if (document.getElementById("panel-link").style.display === "none") {
@@ -372,27 +375,57 @@ document.addEventListener("DOMContentLoaded", async function() {
 
         document.getElementById("panel-link-endpoint-a-name").textContent = `${clickedEdge.data("source")}`
         document.getElementById("panel-link-endpoint-a-mac-address").textContent = `${clickedEdge.data("extraData").clabSourceMacAddress}`
-        // setting default impairment endpoint-a values
-        document.getElementById("panel-link-endpoint-a-delay").value = `0`
-        document.getElementById("panel-link-endpoint-a-jitter").value = `0`
-        document.getElementById("panel-link-endpoint-a-rate").value = `0`
-        document.getElementById("panel-link-endpoint-a-loss").value = `0`
 
         document.getElementById("panel-link-endpoint-b-name").textContent = `${clickedEdge.data("target")}`
         document.getElementById("panel-link-endpoint-b-mac-address").textContent = `${clickedEdge.data("extraData").clabTargetMacAddress}`
 
-        // setting default impairment endpoint-b values
-        document.getElementById("panel-link-endpoint-b-delay").value = `0`
-        document.getElementById("panel-link-endpoint-b-jitter").value = `0`
-        document.getElementById("panel-link-endpoint-b-rate").value = `0`
-        document.getElementById("panel-link-endpoint-b-loss").value = `0`
+    
+        // setting default impairment endpoint-a values by getting the data from clab via /clab-link-impairment GET API
+        clabSourceLinkArgsList = [`${clickedEdge.data("extraData").clabSourceLongName}`,`${clickedEdge.data("extraData").clabSourcePort}`]
+        clabSourceLinkImpairmentClabData = await sendRequestToEndpointGetV2("/clab-link-impairment", clabSourceLinkArgsList)
+
+        if (clabSourceLinkImpairmentClabData && typeof clabSourceLinkImpairmentClabData === 'object' && Object.keys(clabSourceLinkImpairmentClabData).length > 0) {
+            hideLoadingSpinner();
+            console.log("Valid non-empty JSON response received:", clabSourceLinkImpairmentClabData);
+            console.log("Valid non-empty JSON response received: clabSourceLinkImpairmentClabData returnd data", clabSourceLinkImpairmentClabData["return data"]["delay"]);
+
+
+            document.getElementById("panel-link-endpoint-a-delay").value = clabSourceLinkImpairmentClabData["return data"]["delay"]
+            document.getElementById("panel-link-endpoint-a-jitter").value = clabSourceLinkImpairmentClabData["return data"]["jitter"]
+            document.getElementById("panel-link-endpoint-a-rate").value = clabSourceLinkImpairmentClabData["return data"]["rate"]
+            document.getElementById("panel-link-endpoint-a-loss").value = clabSourceLinkImpairmentClabData["return data"]["packet_loss"]
+        
+        } else {
+            console.log("Empty or invalid JSON response received");
+        }
+
+
+
+
+        // setting default impairment endpoint-a values by getting the data from clab via /clab-link-impairment GET API
+        clabTargetLinkArgsList = [`${clickedEdge.data("extraData").clabTargetLongName}`,`${clickedEdge.data("extraData").clabTargetPort}`]
+        clabTargetLinkImpairmentClabData = await sendRequestToEndpointGetV2("/clab-link-impairment", clabTargetLinkArgsList)
+
+        if (clabTargetLinkImpairmentClabData && typeof clabTargetLinkImpairmentClabData === 'object' && Object.keys(clabTargetLinkImpairmentClabData).length > 0) {
+            hideLoadingSpinner();
+            console.log("Valid non-empty JSON response received:", clabTargetLinkImpairmentClabData);
+            console.log("Valid non-empty JSON response received: clabTargetLinkImpairmentClabData returnd data", clabTargetLinkImpairmentClabData["return data"]["delay"]);
+
+
+            document.getElementById("panel-link-endpoint-b-delay").value = clabTargetLinkImpairmentClabData["return data"]["delay"]
+            document.getElementById("panel-link-endpoint-b-jitter").value = clabTargetLinkImpairmentClabData["return data"]["jitter"]
+            document.getElementById("panel-link-endpoint-b-rate").value = clabTargetLinkImpairmentClabData["return data"]["rate"]
+            document.getElementById("panel-link-endpoint-b-loss").value = clabTargetLinkImpairmentClabData["return data"]["packet_loss"]
+        
+        } else {
+            console.log("Empty or invalid JSON response received");
+        }
+
 
         // set selected edge-id to global variable
         globalSelectedEdge = clickedEdge.data("id")
 
-
-        appendMessage(`"isPanel01Cy-cy: " ${isPanel01Cy}`);
-        appendMessage(`"nodeClicked: " ${nodeClicked}`);
+        appendMessage(`"edgeClicked: " ${edgeClicked}`);
     });
 
  
@@ -1194,6 +1227,7 @@ async function linkImpairmentClab(event, impairDirection) {
             var postPayload = []
             postPayload[0] = command
             await sendRequestToEndpointPost("/clab-link-impairment", postPayload)
+            
 
         } else if (impairDirection == "b-to-a") {
             console.log("linkImpairment - impairDirection: ", impairDirection)
@@ -1203,8 +1237,16 @@ async function linkImpairmentClab(event, impairDirection) {
             rateValue = document.getElementById("panel-link-endpoint-b-rate").value
             lossValue = document.getElementById("panel-link-endpoint-b-loss").value
 
-            command = `ssh ${clabUser}@${clabServerAddress} /usr/bin/containerlab tools netem set -n ${clabSourceLongName} -i ${clabSourcePort} --delay ${delayValue}ms --jitter ${jitterValue}ms --rate ${rateValue} --loss ${lossValue}`
-            console.log("linkImpairment - command: ", command)
+            if (deploymentType == "container") {
+                command = `ssh ${clabUser}@${clabServerAddress} /usr/bin/containerlab tools netem set -n ${clabTargetLongName} -i ${clabTargetPort} --delay ${delayValue}ms --jitter ${jitterValue}ms --rate ${rateValue} --loss ${lossValue}`
+            } else if (deploymentType == "colocated") {
+                command = `/usr/bin/containerlab tools netem set -n ${clabTargetLongName} -i ${clabTargetPort} --delay ${delayValue}ms --jitter ${jitterValue}ms --rate ${rateValue} --loss ${lossValue}`
+            }
+
+            console.log(`linkImpairment - deployment ${deploymentType}, command: ${command}`)
+            var postPayload = []
+            postPayload[0] = command
+            await sendRequestToEndpointPost("/clab-link-impairment", postPayload)
         }
 
     } catch (error) {

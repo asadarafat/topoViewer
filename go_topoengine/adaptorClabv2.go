@@ -117,6 +117,16 @@ type PortInfo struct {
 	IfExtraField  string `json:"ifExtraField"`
 }
 
+// ClabNetemInterfaceData holds the structured data for each interface
+type ClabNetemInterfaceData struct {
+	Node       string `json:"node"`
+	Interface  string `json:"interface"`
+	Delay      string `json:"delay"`
+	Jitter     string `json:"jitter"`
+	PacketLoss string `json:"packet_loss"`
+	Rate       string `json:"rate"`
+}
+
 func (cyTopo *CytoTopology) InitLogger() {
 	// init logConfig
 	toolLogger := tools.Logs{}
@@ -860,4 +870,49 @@ func (cyTopo *CytoTopology) SendSnmpGetNodeEndpoint(targetAddress string, target
 	log.Debug(string(jsonDataNodeMap))
 	return jsonDataNodeMap, nodeMap, err
 
+}
+
+func (cyTopo *CytoTopology) ParseCLIOutput(cliOutput []byte, nodeId, interfaceFilter string) (ClabNetemInterfaceData, error) {
+	// Convert bytes to string
+	cliOutputStr := string(cliOutput)
+	lines := strings.Split(cliOutputStr, "\n")
+
+	var results ClabNetemInterfaceData
+
+	// headerPattern := regexp.MustCompile(`^\+\-+.*$`)
+	// dataPattern := regexp.MustCompile(`^\| (\w+) +\| (\w+) +\| (\w+) +\| (\w+) +\| (\w+) +\|$`)
+
+	// Split the input data into lines
+	// Iterate over the lines to find and parse the relevant data for eth3
+	for _, line := range lines {
+		// Ignore the lines that are not data rows
+
+		if !strings.HasPrefix(line, fmt.Sprintf("| %s", interfaceFilter)) {
+			continue
+		}
+
+		// Split the line into fields
+		fields := strings.FieldsFunc(line, func(r rune) bool {
+			return r == '|' || r == ' '
+		})
+
+		// Ensure we have enough fields
+		if len(fields) < 5 {
+			continue
+		}
+
+		// Create a new instance of ClabNetemInterfaceData and populate it
+		data := ClabNetemInterfaceData{
+			Node:       nodeId,
+			Interface:  fields[0],
+			Delay:      fields[1],
+			Jitter:     fields[2],
+			PacketLoss: fields[3],
+			Rate:       fields[4],
+		}
+
+		// Append to the list of eth3 data
+		results = data
+	}
+	return results, nil
 }

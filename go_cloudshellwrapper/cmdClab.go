@@ -720,8 +720,7 @@ func Clab(_ *cobra.Command, _ []string) error {
 			}
 		})
 
-	//// API endpoint to get trigger clab-link-impairment
-	//// API endpoint to get trigger clab-link-impairment
+	//// API endpoint to trigger clab-link-impairment
 	router.HandleFunc("/clab-link-impairment",
 		func(w http.ResponseWriter, r *http.Request) {
 
@@ -746,7 +745,7 @@ func Clab(_ *cobra.Command, _ []string) error {
 
 			// Create a response JSON object
 			responseData := map[string]interface{}{
-				"result":      "python-action endpoint executed",
+				"result":      "clab-link-impairment endpoint POST executed",
 				"return data": returnData,
 				"error":       err,
 			}
@@ -770,6 +769,68 @@ func Clab(_ *cobra.Command, _ []string) error {
 			}
 
 		}).Methods("POST")
+
+	//// API endpoint to get clab-link-impairment value
+	router.HandleFunc("/clab-link-impairment",
+		func(w http.ResponseWriter, r *http.Request) {
+			log.Infof("<cmd-clab><I><clab-link-impairment(): GET method")
+
+			query := r.URL.Query()
+
+			queriesList := make([]string, 0)
+			for _, values := range query {
+				queriesList = append(queriesList, values...)
+			}
+
+			// paramaters := "Received parameters:\n"
+
+			// for key, values := range query {
+			// 	for _, value := range values {
+			// 		paramaters += fmt.Sprintf("%s: %s\n", key, value)
+			// 	}
+			// }
+
+			// log.Infof("<cmd-clab><I><clab-link-impairment() GET method response: %s", paramaters)
+
+			nodeId := queriesList[0]
+			interfaceId := queriesList[1]
+
+			clabUser := confClab.GetString("clab-user")
+			clabHost := confClab.GetStringSlice("allowed-hostnames")
+			clabPass := confClab.GetString("clab-pass")
+			command := fmt.Sprintf("/usr/bin/containerlab tools netem show -n %s", nodeId)
+
+			log.Info("<cmd-clab><I><clab-link-impairment() - queriesList: ", queriesList)
+
+			log.Info("<cmd-clab><I><clab-link-impairment() - nodeId: ", nodeId)
+			log.Info("<cmd-clab><I><clab-link-impairment() - interfaceId: ", interfaceId)
+			log.Info("<cmd-clab><I><clab-link-impairment() - command: ", command)
+
+			cliOutput, err := tools.SshSudo(clabHost[0], "22", clabUser, clabPass, command)
+			if err != nil {
+				log.Error("<cmd-clab><I><clab-link-impairment() - GET: ", err)
+				return
+			}
+
+			parseCliOutput, err := cyTopo.ParseCLIOutput(cliOutput, nodeId, interfaceId)
+			if err != nil {
+				log.Error("<cmd-clab><I><clab-link-impairment() - GET: ", err)
+				return
+			}
+
+			log.Info("<cmd-clab><I><clab-link-impairment() - ClabNetemInterfaceData: ", parseCliOutput)
+
+			// Create a response JSON object
+			responseData := map[string]interface{}{
+				"result":      "clab-link-impairment endpoint GET executed",
+				"return data": parseCliOutput,
+				"error":       err,
+			}
+
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(responseData)
+
+		}).Methods("GET")
 
 	//// API endpoint to get compute-resource-usage
 	//// API endpoint to get compute-resource-usage

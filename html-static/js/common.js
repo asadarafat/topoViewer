@@ -139,9 +139,10 @@
 				console.log(`callGoFunction Called with ${endpointName}`);
 				console.log(`Parameters:`, argsList);
 			
-				const data = {};
+				// Construct the query string from argsList
+				const params = new URLSearchParams();
 				argsList.forEach((arg, index) => {
-					data[`param${index + 1}`] = arg;
+					params.append(`param${index + 1}`, arg);
 				});
 			
 				try {
@@ -159,6 +160,42 @@
 					}
 			
 					const responseData = await response.json();
+					return responseData;
+				} catch (error) {
+					console.error("Error:", error);
+					throw error;
+				}
+			}
+
+			async function sendRequestToEndpointGetV2(endpointName, argsList = []) {
+				console.log(`callGoFunction Called with ${endpointName}`);
+				console.log(`Parameters:`, argsList);
+			
+				// Construct the query string from argsList
+				const params = new URLSearchParams();
+				argsList.forEach((arg, index) => {
+					params.append(`param${index + 1}`, arg);
+				});
+			
+				const urlWithParams = `${endpointName}?${params.toString()}`;
+			
+				try {
+					const response = await fetch(urlWithParams, {
+						method: "GET",
+						headers: {
+							"Content-Type": "application/json",
+						},
+					});
+			
+			
+					if (!response.ok) {
+						throw new Error("Network response was not ok");
+					}
+			
+					const responseData = await response.json();
+
+					console.log(responseData);
+
 					return responseData;
 				} catch (error) {
 					console.error("Error:", error);
