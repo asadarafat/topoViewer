@@ -18,9 +18,9 @@ var globalShellUrl = "/cloudshell"
 var labName
 var deploymentType
 
-
-
 document.addEventListener("DOMContentLoaded", async function() {
+
+    detectColorScheme() 
 
     // Reusable function to initialize a WebSocket connection
     function initializeWebSocket(url, onMessageCallback) {
@@ -112,7 +112,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 
         //- Load and apply Cytoscape styles from cy-style.json using fetch
         if (colorScheme == "light") {
-            fetch("cy-style.json")
+            fetch("css/cy-style.json")
                 .then((response) => response.json())
                 .then((styles) => {
                     cy.style().fromJson(styles).update();
@@ -127,7 +127,7 @@ document.addEventListener("DOMContentLoaded", async function() {
                     );
                 });
         } else if (colorScheme == "dark") {
-            fetch("cy-style-dark.json")
+            fetch("css/cy-style-dark.json")
                 .then((response) => response.json())
                 .then((styles) => {
                     cy.style().fromJson(styles).update();
@@ -345,7 +345,7 @@ document.addEventListener("DOMContentLoaded", async function() {
         // This code will be executed when you click on a node
         // You can add logic specific to nodes here
         const clickedEdge = event.target;
-        const defaultEdgeColor = "#B1BCC8";
+        const defaultEdgeColor = "#969799";
         edgeClicked = true;
 
         console.log(defaultEdgeColor);
@@ -2275,26 +2275,26 @@ async function captureAndSaveViewportAsDrawIo(cy) {
         let imageURL;
         switch (node.data("topoViewerRole")) {
             case "pe":
-                imageURL = "http://149.204.21.68:8087/images/clab-pe-light-blue.png";
+                imageURL = `http://${location.host}/images/clab-pe-light-blue.png`;
                 break;
             case "controller":
                 imageURL =
-                    "http://149.204.21.68:8087/images/clab-controller-light-blue.png";
+                    `http://${location.host}/images/clab-controller-light-blue.png`;
                 break;
             case "pon":
-                imageURL = "http://149.204.21.68:8087/images/clab-pon-dark-blue.png";
+                imageURL = `http://${location.host}/images/clab-pon-dark-blue.png`;
                 break;
             case "dcgw":
-                imageURL = "http://149.204.21.68:8087/images/clab-dcgw-dark-blue.png";
+                imageURL = `http://${location.host}/images/clab-dcgw-dark-blue.png`;
                 break;
             case "leaf":
-                imageURL = "http://149.204.21.68:8087/images/clab-leaf-light-blue.png";
+                imageURL = `http://${location.host}/images/clab-leaf-light-blue.png`;
                 break;
             case "spine":
-                imageURL = "http://149.204.21.68:8087/images/clab-spine-dark-blue.png";
+                imageURL = `http://${location.host}/images/clab-spine-dark-blue.png`;
                 break;
             case "super-spine":
-                imageURL = "http://149.204.21.68:8087/images/clab-spine-light-blue.png";
+                imageURL = `http://${location.host}/images/clab-spine-light-blue.png`;
                 break;
         }
         mxCells.push(createMxCellForNode(node, imageURL));
@@ -2302,7 +2302,7 @@ async function captureAndSaveViewportAsDrawIo(cy) {
 
     cy.edges().forEach(function(edge) {
         mxCells.push(`
-            <mxCell id="${edge.data("id")}" value="" style="endArrow=none;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;strokeWidth=1;strokeColor=#B1BCC8;opacity=60;" parent="1" source="${edge.data("source")}" target="${edge.data("target")}" edge="1">
+            <mxCell id="${edge.data("id")}" value="" style="endArrow=none;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;strokeWidth=1;strokeColor=#969799;opacity=60;" parent="1" source="${edge.data("source")}" target="${edge.data("target")}" edge="1">
                 <mxGeometry width="50" height="50" relative="1" as="geometry" >
                 </mxGeometry>
             </mxCell>

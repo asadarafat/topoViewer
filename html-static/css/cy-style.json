@@ -15,16 +15,13 @@
       "height": "10",
       "content": "data(name)",
       "label": "data(name)",
-      "font-size": "7px",
+      "font-size": "6px",
       "text-valign": "bottom",
       "text-halign": "center",
       "background-color": "#8F96AC",
-
-      "min-zoomed-font-size": "7px",
-      "color": "#F5F5F5",
-      "text-outline-color": "#3C3E41",
-
+      "text-outline-color": "#F2F2F2",
       "text-outline-width": "0.3px",
+      "color": "#353535",
       "overlay-padding": "0.3px",
       "z-index": "10"
     }
@@ -53,11 +50,10 @@
       "border-color": "#DDDDDD",
       "background-color": "#d9d9d9",
       "background-opacity": "0.2",
-      "color": "#EBECF0",
-      "text-outline-color": "#000000",
+      "text-outline-color": "#F2F2F2",
       "width": "3px",
       "height": "3x",
-      "font-size": "8px",
+      "font-size": "5px",
       "z-index": "1"
     }
   },
@@ -65,10 +61,10 @@
     "selector": "node:selected",
     "style": {
       "border-width": "1.5px",
-      "border-color": "#282828",
+      "border-color": "#F2F2F2",
       "border-opacity": "0.5",
       "background-color": "#77828C",
-      "text-outline-color": "#282828"
+      "text-outline-color": "#F2F2F2"
     }
   },
     {
@@ -79,7 +75,7 @@
       "label": " ",
       "width": "4",
       "height": "4",
-      "background-color": "#F5F5F5",
+      "background-color": "#0FFF50",
       "border-width": "0.5",
       "border-color": "#00A500"
     }
@@ -196,21 +192,22 @@
     "selector": "edge",
     "style": {
       "targetArrowShape": "none",
-      "source-text-offset": 13,
-      "target-text-offset": 13,
-      "font-size": "7px",
+      "source-text-offset": 10,
+      "target-text-offset": 10,
+      "font-size": "5px",
       "source-label": "data(sourceEndpoint)",
       "target-label": "data(targetEndpoint)",
       "arrow-scale": "0.5",
-      "color": "#CACBCC",
+      "color": "#FFFFFF",
       "text-outline-width": "0.3px",
-
-      "text-outline-color": "#3C3E41",
-
-
+      "text-outline-color": "#000000",
+      "text-background-color": "#000000",  
+      "text-background-opacity": 0.9,      
+      "text-background-shape": "roundrectangle",  
+      "text-background-padding": "1px",    
       "curve-style": "bezier",
-      "opacity": "1",
-      "line-color": "#969799",
+      "opacity": "0.5",
+      "line-color": "#B1BCC8",
       "width": "1.5",
       "overlay-padding": "2px"
     }
@@ -228,11 +225,11 @@
   {
     "selector": "node.highlighted",
     "style": {
-      "border-width": "7px",
-      "border-color": "#282828",
+      "border-width": "6px",
+      "border-color": "#F2F2F2",
       "border-opacity": "0.5",
-      "background-color": "#282828",
-      "text-outline-color": "#282828"
+      "background-color": "#F2F2F2",
+      "text-outline-color": "#F2F2F2"
     }
   },
   {"selector": "edge.filtered", "style": {"opacity": "0"}},

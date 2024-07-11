@@ -208,15 +208,27 @@
 				// Check if the browser supports the prefers-color-scheme media feature
 				if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
 					// Dark mode is enabled
+					applyTheme('dark');
+
 					return 'dark';
 				} else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
 					// Light mode is enabled
+					applyTheme('light');
+
 					return 'light';
 				} else {
 					// No preference or the browser does not support this media feature
+					applyTheme('light');
+
 					return 'no-preference';
 				}
 			}
+
+			function applyTheme(theme) {
+				document.getElementById('root').setAttribute(`data-theme`, `${theme}`);
+				console.log(document.getElementById('root').getAttribute(`data-theme`))
+			  }
+			  
 
 			function showLoadingSpinnerGlobal() {
 				document.getElementById('loading-spinner-global')

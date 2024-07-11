@@ -1085,9 +1085,10 @@ func Clab(_ *cobra.Command, _ []string) error {
 		}).Methods("POST")
 
 	// starting HTTP server
+
 	// this is the endpoint for serving xterm.js assets
-	depenenciesDirectorXterm := path.Join(workingDirectory, "./html-static/cloudshell/node_modules")
-	router.PathPrefix("/assets").Handler(http.StripPrefix("/assets", http.FileServer(http.Dir(depenenciesDirectorXterm))))
+	depenenciesDirectoryXterm := path.Join(workingDirectory, "./html-static/cloudshell/node_modules")
+	router.PathPrefix("/assets").Handler(http.StripPrefix("/assets", http.FileServer(http.Dir(depenenciesDirectoryXterm))))
 
 	// // this is the endpoint for serving cytoscape.js assets
 	// depenenciesDirectoryCytoscape := path.Join(workingDirectory, "./html-static/cytoscape")
@@ -1130,13 +1131,13 @@ func Clab(_ *cobra.Command, _ []string) error {
 		DeploymentType: deploymentType,
 	}
 
-	createHtmlPublicFiles(HtmlTemplatePath, HtmlPublicPrefixPath, "cy-style.tmpl", cyTopo.ClabTopoDataV2.Name+"/"+"cy-style.json", indexHtmldata)
-	createHtmlPublicFiles(HtmlTemplatePath, HtmlPublicPrefixPath, "cy-style-dark.tmpl", cyTopo.ClabTopoDataV2.Name+"/"+"cy-style-dark.json", indexHtmldata)
+	// createHtmlPublicFiles(HtmlTemplatePath, HtmlPublicPrefixPath, "cy-style.tmpl", cyTopo.ClabTopoDataV2.Name+"/"+"cy-style.json", indexHtmldata)
+	// createHtmlPublicFiles(HtmlTemplatePath, HtmlPublicPrefixPath, "cy-style-dark.tmpl", cyTopo.ClabTopoDataV2.Name+"/"+"cy-style-dark.json", indexHtmldata)
 
 	createHtmlPublicFiles(HtmlTemplatePath, HtmlPublicPrefixPath, "cloudshell-index.tmpl", cyTopo.ClabTopoDataV2.Name+"/cloudshell/"+"index.html", indexHtmldata)
 	createHtmlPublicFiles(HtmlTemplatePath, HtmlPublicPrefixPath, "cloudshell-terminal-js.tmpl", cyTopo.ClabTopoDataV2.Name+"/cloudshell/"+"terminal.js", indexHtmldata)
-	createHtmlPublicFiles(HtmlTemplatePath, HtmlPublicPrefixPath, "tools-cloudshell-index.tmpl", cyTopo.ClabTopoDataV2.Name+"/cloudshell-tools/"+"index.html", indexHtmldata)
-	createHtmlPublicFiles(HtmlTemplatePath, HtmlPublicPrefixPath, "tools-cloudshell-terminal-js.tmpl", cyTopo.ClabTopoDataV2.Name+"/cloudshell-tools/"+"terminal.js", indexHtmldata)
+	// createHtmlPublicFiles(HtmlTemplatePath, HtmlPublicPrefixPath, "tools-cloudshell-index.tmpl", cyTopo.ClabTopoDataV2.Name+"/cloudshell-tools/"+"index.html", indexHtmldata)
+	// createHtmlPublicFiles(HtmlTemplatePath, HtmlPublicPrefixPath, "tools-cloudshell-terminal-js.tmpl", cyTopo.ClabTopoDataV2.Name+"/cloudshell-tools/"+"terminal.js", indexHtmldata)
 	createHtmlPublicFiles(HtmlTemplatePath, HtmlPublicPrefixPath, "websocket-index.tmpl", cyTopo.ClabTopoDataV2.Name+"/ws/"+"index.html", indexHtmldata)
 
 	createHtmlPublicFiles(HtmlTemplatePath, HtmlPublicPrefixPath, "button.html.tmpl", cyTopo.ClabTopoDataV2.Name+"/"+"button.html", indexHtmldata)

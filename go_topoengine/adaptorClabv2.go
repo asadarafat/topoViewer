@@ -877,7 +877,7 @@ func (cyTopo *CytoTopology) ParseCLIOutput(cliOutput []byte, nodeId, interfaceFi
 	cliOutputStr := string(cliOutput)
 	lines := strings.Split(cliOutputStr, "\n")
 
-	var results ClabNetemInterfaceData
+	var results []ClabNetemInterfaceData
 
 	// Split the input data into lines
 	// Iterate over the lines to find and parse the relevant data for interfaceFilter
@@ -912,7 +912,7 @@ func (cyTopo *CytoTopology) ParseCLIOutput(cliOutput []byte, nodeId, interfaceFi
 		}
 
 		// Append to the list of eth3 data
-		results = data
+		results = append(results, data)
 	}
-	return results, nil
+	return results[0], nil
 }
