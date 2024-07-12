@@ -2,10 +2,11 @@
 
 # Default values
 GITHUB_TOKEN=""
+SPECIFIC_VERSION=""
 
 # Function to display usage information
 usage() {
-  echo "Usage: $0 [--github-token <GitHub_Personal_Access_Token>]"
+  echo "Usage: $0 [--github-token <GitHub_Personal_Access_Token>] [--version <Specific_Version>]"
   exit 1
 }
 
@@ -22,10 +23,6 @@ check_jq() {
 log() {
   echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1"
 }
-
-# Usage example
-# log "This is a log message."
-
 
 # Function to fetch tags from GitHub API
 fetch_tags() {
@@ -44,30 +41,28 @@ fetch_tags() {
   echo "$response"
 }
 
-# Function to install the latest version
-download_latest_version() {
+# Function to download the specified version
+download_version() {
   local token="$1"
-  local latest_version="$2"
-  local zip_url="$3"  
-  # echo "executing... curl -L --compressed ${token:+-H "Authorization: token $token"} $zip_url -o /tmp/$latest_version.zip "
-  curl -L -o /tmp/$latest_version.zip ${token:+-H "Authorization: token $token"} $zip_url
+  local version="$2"
+  local zip_url="$3"
+  curl -L -o /tmp/$version.zip ${token:+-H "Authorization: token $token"} $zip_url
 }
 
 # Function to perform the installation
 perform_installation() {
-  local token="$1"
-  local latest_version="$2"
-  sudo rm -rRf "/tmp/$latest_version/" /opt/topoviewer/
-  sudo mkdir "/tmp/$latest_version"
-  sudo unzip "/tmp/$latest_version.zip" -d "/tmp/$latest_version"
-  sudo mv "/tmp/$latest_version"/*/* "/tmp/$latest_version"
+  local version="$1"
+  sudo rm -rRf "/tmp/$version/" /opt/topoviewer/
+  sudo mkdir "/tmp/$version"
+  sudo unzip "/tmp/$version.zip" -d "/tmp/$version"
+  sudo mv "/tmp/$version"/*/* "/tmp/$version"
   sudo rm -rRf /opt/topoviewer
   sudo mkdir /opt/topoviewer
-  sudo cp -rR "/tmp/$latest_version/dist/"* /opt/topoviewer/
+  sudo cp -rR "/tmp/$version/dist/"* /opt/topoviewer/
   sudo ln -sf "/opt/topoviewer/topoviewer" /usr/bin/topoviewer
-  sudo rm -rRf "/tmp/$latest_version/" "/tmp/$latest_version.zip"
+  sudo rm -rRf "/tmp/$version/" "/tmp/$version.zip"
   log " "
-  log "topoViewer version $latest_version is installed in /opt/topoviewer"
+  log "topoViewer version $version is installed in /opt/topoviewer"
   log " "
 }
 
@@ -76,6 +71,10 @@ while [ "$#" -gt 0 ]; do
   case "$1" in
     --github-token)
       GITHUB_TOKEN="$2"
+      shift 2
+      ;;
+    --version)
+      SPECIFIC_VERSION="$2"
       shift 2
       ;;
     *)
@@ -89,45 +88,47 @@ done
 USER="asadarafat"
 REPO="topoViewer"
 
-# Continue with your application logic here
+# Ensure jq is installed
 check_jq
 
 # GitHub API URL for tags
 API_URL="https://api.github.com/repos/$USER/$REPO/tags"
-echo "The API_URL is: $API_URL"
+log "The API_URL is: $API_URL"
 
-# Fetch tags using curl, grep, and awk
-
-log "Fetching available version...." 
+log "Fetching available versions...."
 tags_response=$(fetch_tags "$API_URL" "$GITHUB_TOKEN")
 tags=$(echo "$tags_response" | jq -r '.[] | select(.name | test("komodo") | not) | .name')
 
-log "All available version:"
+log "All available versions:"
 echo "$tags"
 
 # Convert the tags into an array
 tags_array=($tags)
 
-# Get the first element (index 0) of the array
-LATEST_VERSION="${tags_array[0]}"
+# Determine the version to download
+if [ -z "$SPECIFIC_VERSION" ]; then
+  LATEST_VERSION="${tags_array[0]}"
+else
+  LATEST_VERSION="$SPECIFIC_VERSION"
+  # Check if the specified version exists
+  if ! echo "${tags_array[@]}" | grep -qw "$LATEST_VERSION"; then
+    log "Specified version $LATEST_VERSION not found. Available versions are:"
+    echo "$tags"
+    exit 1
+  fi
+fi
 
+log "The version to install is $LATEST_VERSION"
 
-log "The latest version is $LATEST_VERSION"
+# Construct the ZIP URL for the specified version
+ZIP_URL="https://api.github.com/repos/$USER/$REPO/zipball/refs/tags/$LATEST_VERSION"
+log "Downloading the version - $ZIP_URL"
 
+# Download and install the specified version
+download_version "$GITHUB_TOKEN" "$LATEST_VERSION" "$ZIP_URL"
 
-# Extract the ZIP URL using jq
-# LATEST_VERSION_zip_url=$(echo "$tags_response" | jq -r '.[].zipball_url')
-
-LATEST_VERSION_zip_url=https://api.github.com/repos/$USER/$REPO/zipball/refs/tags/$LATEST_VERSION
-
-# Print the first element
-log "Downloading the latest version - $LATEST_VERSION_zip_url"
-
-# Download and install the latest version
-download_latest_version "$GITHUB_TOKEN" "$LATEST_VERSION" "$LATEST_VERSION_zip_url"
-
-#Perform Installation
+# Perform Installation
 log "Installing topoViewer"
-perform_installation "$GITHUB_TOKEN" "$LATEST_VERSION" 
+perform_installation "$LATEST_VERSION"
 
 exit 0
