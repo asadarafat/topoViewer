@@ -24,7 +24,6 @@ import (
 	"github.com/usvc/go-config"
 
 	tools "github.com/asadarafat/topoViewer/go_tools"
-	cp "github.com/otiai10/copy"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/gorilla/mux"
@@ -1098,45 +1097,39 @@ func Clab(_ *cobra.Command, _ []string) error {
 	depenenciesDirectoryJs := path.Join(workingDirectory, "./html-static/js")
 	router.PathPrefix("/js").Handler(http.StripPrefix("/js", http.FileServer(http.Dir(depenenciesDirectoryJs))))
 
+	// this is the endpoint for serving cloudshell-tools library assets
+	depenenciesDirectoryCloudshellTools := path.Join(workingDirectory, "./html-static/cloudshell-tools")
+	router.PathPrefix("/cloudshell-tools").Handler(http.StripPrefix("/cloudshell-tools", http.FileServer(http.Dir(depenenciesDirectoryCloudshellTools))))
+
+	// this is the endpoint for serving cloudshell library assets
+	depenenciesDirectoryCloudshell := path.Join(workingDirectory, "./html-static/cloudshell")
+	router.PathPrefix("/cloudshell").Handler(http.StripPrefix("/cloudshell", http.FileServer(http.Dir(depenenciesDirectoryCloudshell))))
+
+	// this is the endpoint for serving images asset
+	depenenciesDirectoryImages := path.Join(workingDirectory, "./html-static/images")
+	router.PathPrefix("/images").Handler(http.StripPrefix("/images", http.FileServer(http.Dir(depenenciesDirectoryImages))))
+
+	// this is the endpoint for serving clab-client asset
+	depenenciesDirectoryClabClient := path.Join(workingDirectory, "./html-static/clab-client")
+	router.PathPrefix("/clab-client").Handler(http.StripPrefix("/clab-client", http.FileServer(http.Dir(depenenciesDirectoryClabClient))))
+
 	// // this is the endpoint for the root path aka website shell
 	publicAssetsDirectoryHtml := path.Join(workingDirectory, "./html-public/"+cyTopo.ClabTopoDataV2.Name)
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir(publicAssetsDirectoryHtml)))
 
 	//create html-public files
 	// os.Mkdir(HtmlPublicPrefixPath+cyTopo.ClabTopoDataV2.Name, 0755) // already created in cytoscapemodel library
-	os.Mkdir(HtmlPublicPrefixPath+cyTopo.ClabTopoDataV2.Name+"/cloudshell", 0755)
-	os.Mkdir(HtmlPublicPrefixPath+cyTopo.ClabTopoDataV2.Name+"/clab-client", 0755)
-	os.Mkdir(HtmlPublicPrefixPath+cyTopo.ClabTopoDataV2.Name+"/cloudshell-tools", 0755)
+
 	os.Mkdir(HtmlPublicPrefixPath+cyTopo.ClabTopoDataV2.Name+"/ws", 0755)
-	os.Mkdir(HtmlPublicPrefixPath+cyTopo.ClabTopoDataV2.Name+"/images", 0755)
-
 	os.Mkdir(HtmlPublicPrefixPath+cyTopo.ClabTopoDataV2.Name+"/node-backup", 0755)
-
-	sourceImageFolder := HtmlStaticPrefixPath + "images"
-	destinationImageFolder := HtmlPublicPrefixPath + cyTopo.ClabTopoDataV2.Name + "/images"
-	err := cp.Copy(sourceImageFolder, destinationImageFolder)
-	log.Debug("Copying images folder error: ", err)
-
-	sourceClabClientFolder := HtmlStaticPrefixPath + "clab-client"
-	destinationClabClientImageFolder := HtmlPublicPrefixPath + cyTopo.ClabTopoDataV2.Name + "/clab-client"
-	err1 := cp.Copy(sourceClabClientFolder, destinationClabClientImageFolder)
-	log.Debug("Copying clab-client folder error: ", err1)
 
 	indexHtmldata := IndexHtmlStruct{
 		LabName:        cyTopo.ClabTopoDataV2.Name,
 		DeploymentType: deploymentType,
 	}
 
-	createHtmlPublicFiles(HtmlTemplatePath, HtmlPublicPrefixPath, "cloudshell-index.tmpl", cyTopo.ClabTopoDataV2.Name+"/cloudshell/"+"index.html", indexHtmldata)
-	createHtmlPublicFiles(HtmlTemplatePath, HtmlPublicPrefixPath, "cloudshell-terminal-js.tmpl", cyTopo.ClabTopoDataV2.Name+"/cloudshell/"+"terminal.js", indexHtmldata)
-
-	createHtmlPublicFiles(HtmlTemplatePath, HtmlPublicPrefixPath, "tools-cloudshell-index.tmpl", cyTopo.ClabTopoDataV2.Name+"/cloudshell-tools/"+"index.html", indexHtmldata)
-	createHtmlPublicFiles(HtmlTemplatePath, HtmlPublicPrefixPath, "tools-cloudshell-terminal-js.tmpl", cyTopo.ClabTopoDataV2.Name+"/cloudshell-tools/"+"terminal.js", indexHtmldata)
-
 	createHtmlPublicFiles(HtmlTemplatePath, HtmlPublicPrefixPath, "websocket-index.tmpl", cyTopo.ClabTopoDataV2.Name+"/ws/"+"index.html", indexHtmldata)
-
 	createHtmlPublicFiles(HtmlTemplatePath, HtmlPublicPrefixPath, "button.html.tmpl", cyTopo.ClabTopoDataV2.Name+"/"+"button.html", indexHtmldata)
-
 	createHtmlPublicFiles(HtmlTemplatePath, HtmlPublicPrefixPath, "index.html.tmpl", cyTopo.ClabTopoDataV2.Name+"/"+"index.html", indexHtmldata)
 
 	// start memory logging pulse

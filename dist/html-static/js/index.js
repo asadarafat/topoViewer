@@ -1507,12 +1507,16 @@ async function getActualNodesEndpoints(event) {
 
         showLoadingSpinnerGlobal()
         const CyTopoJson = await  sendRequestToEndpointGet("/actual-nodes-endpoints", argsList = []) 
+        location.reload(true);
+
         // Handle the response data
         if (CyTopoJson && typeof CyTopoJson === 'object' && Object.keys(CyTopoJson).length > 0) {
             hideLoadingSpinner();
             console.log("Valid non-empty JSON response received:", CyTopoJson);
 
             hideLoadingSpinnerGlobal();
+
+
 
             return CyTopoJson
         

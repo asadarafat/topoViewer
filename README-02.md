@@ -13,6 +13,7 @@ vscode ➜ /workspaces/topoViewer (development) $ go run go_cloudshellwrapper/cm
 
 
 ```
+bash -c "$(wget -qO - https://raw.githubusercontent.com/asadarafat/topoViewer/development/tools/getGithubApi.sh)" -- --version 1.2.3
 
 
 ```Shell
