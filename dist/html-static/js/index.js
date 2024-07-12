@@ -392,13 +392,13 @@ document.addEventListener("DOMContentLoaded", async function() {
             if (clabSourceLinkImpairmentClabData["return data"]["delay"] == "N/A") {
                 document.getElementById("panel-link-endpoint-a-delay").value = '0'
             }else {
-                document.getElementById("panel-link-endpoint-a-delay").value = clabSourceLinkImpairmentClabData["return data"]["delay"]
+                document.getElementById("panel-link-endpoint-a-delay").value = clabSourceLinkImpairmentClabData["return data"]["delay"].replace(/ms$/, '');
             }
 
             if (clabSourceLinkImpairmentClabData["return data"]["jitter"] == "N/A") {
                 document.getElementById("panel-link-endpoint-a-jitter").value = '0'
             }else {
-                document.getElementById("panel-link-endpoint-a-jitter").value = clabSourceLinkImpairmentClabData["return data"]["jitter"]
+                document.getElementById("panel-link-endpoint-a-jitter").value = clabSourceLinkImpairmentClabData["return data"]["jitter"].replace(/ms$/, '');
             }
 
             if (clabSourceLinkImpairmentClabData["return data"]["rate"] == "N/A") {
@@ -410,7 +410,7 @@ document.addEventListener("DOMContentLoaded", async function() {
             if (clabSourceLinkImpairmentClabData["return data"]["packet_loss"] == "N/A") {
                 document.getElementById("panel-link-endpoint-a-loss").value = '0'
             }else {
-                document.getElementById("panel-link-endpoint-a-loss").value = clabSourceLinkImpairmentClabData["return data"]["packet_loss"]
+                document.getElementById("panel-link-endpoint-a-loss").value = clabSourceLinkImpairmentClabData["return data"]["packet_loss"].replace(/%$/, '');
             }
 
         
@@ -433,13 +433,13 @@ document.addEventListener("DOMContentLoaded", async function() {
             if (clabTargetLinkImpairmentClabData["return data"]["delay"] == "N/A") {
                 document.getElementById("panel-link-endpoint-b-delay").value = '0'
             }else {
-                document.getElementById("panel-link-endpoint-b-delay").value = clabTargetLinkImpairmentClabData["return data"]["delay"]
+                document.getElementById("panel-link-endpoint-b-delay").value = clabTargetLinkImpairmentClabData["return data"]["delay"].replace(/ms$/, '');
             }
 
             if (clabTargetLinkImpairmentClabData["return data"]["jitter"] == "N/A") {
                 document.getElementById("panel-link-endpoint-b-jitter").value = '0'
             }else {
-                document.getElementById("panel-link-endpoint-b-jitter").value = clabTargetLinkImpairmentClabData["return data"]["jitter"]
+                document.getElementById("panel-link-endpoint-b-jitter").value = clabTargetLinkImpairmentClabData["return data"]["jitter"].replace(/ms$/, '');
             }
 
             if (clabTargetLinkImpairmentClabData["return data"]["rate"] == "N/A") {
@@ -451,7 +451,7 @@ document.addEventListener("DOMContentLoaded", async function() {
             if (clabTargetLinkImpairmentClabData["return data"]["packet_loss"] == "N/A") {
                 document.getElementById("panel-link-endpoint-b-loss").value = '0'
             }else {
-                document.getElementById("panel-link-endpoint-b-loss").value = clabTargetLinkImpairmentClabData["return data"]["packet_loss"]
+                document.getElementById("panel-link-endpoint-b-loss").value = clabTargetLinkImpairmentClabData["return data"]["packet_loss"].replace(/%$/, '');
             }
 
         
