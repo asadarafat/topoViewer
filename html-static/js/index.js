@@ -872,11 +872,9 @@ document.addEventListener("DOMContentLoaded", async function() {
 
             if (statusGreenNode.length === 0 || statusRedNode.length === 0) {
                 // If status nodes are not found, skip this node
-                // If status nodes are not found, skip this node
                 return;
             }
 
-            // Update positions of status nodes relative to the node
             // Update positions of status nodes relative to the node
             var nodePosition = node.position();
             var offset = {
@@ -893,9 +891,7 @@ document.addEventListener("DOMContentLoaded", async function() {
             };
 
             // Check if the nodeContainerStatusVisibility is true
-            // Check if the nodeContainerStatusVisibility is true
             if (nodeContainerStatusVisibility) {
-                // Check if the containerNodeName includes nodeId and containerNodeStatus includes 'healthy'
                 // Check if the containerNodeName includes nodeId and containerNodeStatus includes 'healthy'
                 if (
                     containerNodeName.includes(nodeId) &&
@@ -1661,14 +1657,18 @@ function viewportButtonsTopologyCapture() {
 function viewportButtonsLabelEndpoint() {
     if (linkEndpointVisibility) {
         cy.edges().forEach(function(edge) {
-            edge.style("source-label", ".");
-            edge.style("target-label", ".");
+            // edge.style("source-label", ".");
+            // edge.style("target-label", ".");
+            edge.style("text-opacity", 0);
+            edge.style("text-background-opacity", 0);
+
+
             linkEndpointVisibility = false;
         });
     } else {
         cy.edges().forEach(function(edge) {
-            edge.style("source-label", edge.data("sourceEndpoint"));
-            edge.style("target-label", edge.data("targetEndpoint"));
+            edge.style("text-opacity", 1);
+            edge.style("text-background-opacity", 0.7);
             linkEndpointVisibility = true;
         });
     }
@@ -1758,21 +1758,17 @@ function viewportDrawerLayoutVertical() {
         cy.nodes().forEach(function(node) {
             if (node.isParent()) {
                 // For each parent node
-                // For each parent node
                 const children = node.children();
                 const numRows = 1;
 
                 const cellWidth = node.width() / children.length;
                 // const xOffset = 5
-                // const xOffset = 5
 
                 children.forEach(function(child, index) {
-                    // Position children in rows
                     // Position children in rows
                     const xPos = index * (cellWidth + xOffset);
                     const yPos = 0;
 
-                    // Set the position of each child node
                     // Set the position of each child node
                     child.position({
                         x: xPos,
@@ -1787,7 +1783,6 @@ function viewportDrawerLayoutVertical() {
         var centerX = 0;
         var centerY = cy.height() / 2;
 
-        // Count children of each parent node
         // Count children of each parent node
         cy.nodes().forEach(function(node) {
             if (node.isParent()) {
@@ -1810,7 +1805,6 @@ function viewportDrawerLayoutVertical() {
         console.log("divisionFactor: ", divisionFactor);
 
         // Sort parent nodes by child count in ascending order
-        // Sort parent nodes by child count in ascending order
         const sortedParents = Object.keys(parentCounts).sort(
             (a, b) => parentCounts[a] - parentCounts[b],
         );
@@ -1820,11 +1814,9 @@ function viewportDrawerLayoutVertical() {
         // const yOffset = 50;
 
         // Position parent nodes vertically and center them horizontally
-        // Position parent nodes vertically and center them horizontally
         sortedParents.forEach(function(parentId) {
             const parent = cy.getElementById(parentId);
             const xPos = centerX - parent.width() / divisionFactor;
-            // to the left compared to the center of the widest parent node.
             // to the left compared to the center of the widest parent node.
             parent.position({
                 x: xPos,
@@ -1857,20 +1849,16 @@ function viewportDrawerLayoutHorizontal() {
         cy.nodes().forEach(function(node) {
             if (node.isParent()) {
                 // For each parent node
-                // For each parent node
                 const children = node.children();
                 const numColumns = 1;
                 const cellHeight = node.height() / children.length;
                 // const yOffset = 5;
-                // const yOffset = 5;
 
                 children.forEach(function(child, index) {
-                    // Position children in columns
                     // Position children in columns
                     const xPos = 0;
                     const yPos = index * (cellHeight + yOffset);
 
-                    // Set the position of each child node
                     // Set the position of each child node
                     child.position({
                         x: xPos,
@@ -1885,7 +1873,6 @@ function viewportDrawerLayoutHorizontal() {
         var centerX = cy.width() / 2;
         var centerY = cy.height() / 2;
 
-        // Count children of each parent node
         // Count children of each parent node
         cy.nodes().forEach(function(node) {
             if (node.isParent()) {
@@ -1908,16 +1895,13 @@ function viewportDrawerLayoutHorizontal() {
         console.log("divisionFactor: ", divisionFactor);
 
         // Sort parent nodes by child count in ascending order
-        // Sort parent nodes by child count in ascending order
         const sortedParents = Object.keys(parentCounts).sort(
             (a, b) => parentCounts[a] - parentCounts[b],
         );
 
         let xPos = 0;
         // const xOffset = 50;
-        // const xOffset = 50;
 
-        // Position parent nodes horizontally and center them vertically
         // Position parent nodes horizontally and center them vertically
         sortedParents.forEach(function(parentId) {
             const parent = cy.getElementById(parentId);
@@ -1933,6 +1917,59 @@ function viewportDrawerLayoutHorizontal() {
     }, delay);
 
 }
+
+
+function viewportDrawerCaptureButton() {
+
+    console.log ("viewportDrawerCaptureButton() - clicked")
+
+
+
+
+        // Get all checkbox inputs within the specific div
+        const checkboxes = document.querySelectorAll('#viewport-drawer-capture-sceenshoot-content .checkbox-input');
+        
+        // Initialize an array to store the values of checked checkboxes
+        const selectedOptions = [];
+
+        // Iterate through the NodeList of checkboxes
+        checkboxes.forEach((checkbox) => {
+            // If the checkbox is checked, push its value to the array
+            if (checkbox.checked) {
+                selectedOptions.push(checkbox.value);
+            }
+        });
+
+        console.log ("viewportDrawerCaptureButton() - ", selectedOptions)
+
+
+        if (selectedOptions.length === 0) {
+            bulmaToast.toast({
+                message: `Hey there, please pick at least one option.😊👌`,
+                type: "is-warning is-size-6 p-3",
+                duration: 4000,
+                position: "top-center",
+                closeOnClick: true,
+            });
+        } else {
+            // Perform your action based on the selected options
+            // Perform your action based on the selected options
+            if (selectedOptions.join(", ") == "option01") {
+                captureAndSaveViewportAsPng(cy);
+                modal.classList.remove("is-active");
+            } else if (selectedOptions.join(", ") == "option02") {
+                captureAndSaveViewportAsDrawIo(cy);
+                modal.classList.remove("is-active");
+            } else if (selectedOptions.join(", ") == "option01, option02") {
+                captureAndSaveViewportAsPng(cy);
+                sleep(5000);
+                captureAndSaveViewportAsDrawIo(cy);
+                modal.classList.remove("is-active");
+            }
+        }
+    
+}
+
 
 // aarafat-tag:
 //// REFACTOR END

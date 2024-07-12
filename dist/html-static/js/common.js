@@ -139,9 +139,10 @@
 				console.log(`callGoFunction Called with ${endpointName}`);
 				console.log(`Parameters:`, argsList);
 			
-				const data = {};
+				// Construct the query string from argsList
+				const params = new URLSearchParams();
 				argsList.forEach((arg, index) => {
-					data[`param${index + 1}`] = arg;
+					params.append(`param${index + 1}`, arg);
 				});
 			
 				try {
@@ -166,20 +167,68 @@
 				}
 			}
 
+			async function sendRequestToEndpointGetV2(endpointName, argsList = []) {
+				console.log(`callGoFunction Called with ${endpointName}`);
+				console.log(`Parameters:`, argsList);
+			
+				// Construct the query string from argsList
+				const params = new URLSearchParams();
+				argsList.forEach((arg, index) => {
+					params.append(`param${index + 1}`, arg);
+				});
+			
+				const urlWithParams = `${endpointName}?${params.toString()}`;
+			
+				try {
+					const response = await fetch(urlWithParams, {
+						method: "GET",
+						headers: {
+							"Content-Type": "application/json",
+						},
+					});
+			
+			
+					if (!response.ok) {
+						throw new Error("Network response was not ok");
+					}
+			
+					const responseData = await response.json();
+
+					console.log(responseData);
+
+					return responseData;
+				} catch (error) {
+					console.error("Error:", error);
+					throw error;
+				}
+			}
+
 			// Function to detect light or dark mode
 			function detectColorScheme() {
 				// Check if the browser supports the prefers-color-scheme media feature
 				if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
 					// Dark mode is enabled
+					applyTheme('dark');
+
 					return 'dark';
 				} else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
 					// Light mode is enabled
+					applyTheme('light');
+
 					return 'light';
 				} else {
 					// No preference or the browser does not support this media feature
+					applyTheme('light');
+
 					return 'no-preference';
 				}
 			}
+
+			function applyTheme(theme) {
+				document.getElementById('root').setAttribute(`data-theme`, `${theme}`);
+				console.log(document.getElementById('root').getAttribute(`data-theme`))
+			  }
+			  
 
 			function showLoadingSpinnerGlobal() {
 				document.getElementById('loading-spinner-global')

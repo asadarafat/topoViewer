@@ -18,9 +18,9 @@ var globalShellUrl = "/cloudshell"
 var labName
 var deploymentType
 
-
-
 document.addEventListener("DOMContentLoaded", async function() {
+
+    detectColorScheme() 
 
     // Reusable function to initialize a WebSocket connection
     function initializeWebSocket(url, onMessageCallback) {
@@ -112,7 +112,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 
         //- Load and apply Cytoscape styles from cy-style.json using fetch
         if (colorScheme == "light") {
-            fetch("cy-style.json")
+            fetch("css/cy-style.json")
                 .then((response) => response.json())
                 .then((styles) => {
                     cy.style().fromJson(styles).update();
@@ -127,7 +127,7 @@ document.addEventListener("DOMContentLoaded", async function() {
                     );
                 });
         } else if (colorScheme == "dark") {
-            fetch("cy-style-dark.json")
+            fetch("css/cy-style-dark.json")
                 .then((response) => response.json())
                 .then((styles) => {
                     cy.style().fromJson(styles).update();
@@ -332,7 +332,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 
     // Click event listener for edges
     // Click event listener for edges
-    cy.on("click", "edge", function(event) {
+    cy.on("click", "edge", async function(event) {
 
         // Remove all Overlayed Panel
         // Get all elements with the class "panel-overlay"
@@ -345,7 +345,7 @@ document.addEventListener("DOMContentLoaded", async function() {
         // This code will be executed when you click on a node
         // You can add logic specific to nodes here
         const clickedEdge = event.target;
-        const defaultEdgeColor = "#B1BCC8";
+        const defaultEdgeColor = "#969799";
         edgeClicked = true;
 
         console.log(defaultEdgeColor);
@@ -360,6 +360,9 @@ document.addEventListener("DOMContentLoaded", async function() {
             }
         });
 
+
+
+
         document.getElementById("panel-link").style.display = "none";
 
         if (document.getElementById("panel-link").style.display === "none") {
@@ -372,27 +375,97 @@ document.addEventListener("DOMContentLoaded", async function() {
 
         document.getElementById("panel-link-endpoint-a-name").textContent = `${clickedEdge.data("source")}`
         document.getElementById("panel-link-endpoint-a-mac-address").textContent = `${clickedEdge.data("extraData").clabSourceMacAddress}`
-        // setting default impairment endpoint-a values
-        document.getElementById("panel-link-endpoint-a-delay").value = `0`
-        document.getElementById("panel-link-endpoint-a-jitter").value = `0`
-        document.getElementById("panel-link-endpoint-a-rate").value = `0`
-        document.getElementById("panel-link-endpoint-a-loss").value = `0`
 
         document.getElementById("panel-link-endpoint-b-name").textContent = `${clickedEdge.data("target")}`
         document.getElementById("panel-link-endpoint-b-mac-address").textContent = `${clickedEdge.data("extraData").clabTargetMacAddress}`
 
-        // setting default impairment endpoint-b values
-        document.getElementById("panel-link-endpoint-b-delay").value = `0`
-        document.getElementById("panel-link-endpoint-b-jitter").value = `0`
-        document.getElementById("panel-link-endpoint-b-rate").value = `0`
-        document.getElementById("panel-link-endpoint-b-loss").value = `0`
+    
+        // setting default impairment endpoint-a values by getting the data from clab via /clab-link-impairment GET API
+        clabSourceLinkArgsList = [`${clickedEdge.data("extraData").clabSourceLongName}`,`${clickedEdge.data("extraData").clabSourcePort}`]
+        clabSourceLinkImpairmentClabData = await sendRequestToEndpointGetV2("/clab-link-impairment", clabSourceLinkArgsList)
+
+        if (clabSourceLinkImpairmentClabData && typeof clabSourceLinkImpairmentClabData === 'object' && Object.keys(clabSourceLinkImpairmentClabData).length > 0) {
+            hideLoadingSpinner();
+            console.log("Valid non-empty JSON response received:", clabSourceLinkImpairmentClabData);
+            console.log("Valid non-empty JSON response received: clabSourceLinkImpairmentClabData returnd data", clabSourceLinkImpairmentClabData["return data"]["delay"]);
+
+            if (clabSourceLinkImpairmentClabData["return data"]["delay"] == "N/A") {
+                document.getElementById("panel-link-endpoint-a-delay").value = '0'
+            }else {
+                document.getElementById("panel-link-endpoint-a-delay").value = clabSourceLinkImpairmentClabData["return data"]["delay"]
+            }
+
+            if (clabSourceLinkImpairmentClabData["return data"]["jitter"] == "N/A") {
+                document.getElementById("panel-link-endpoint-a-jitter").value = '0'
+            }else {
+                document.getElementById("panel-link-endpoint-a-jitter").value = clabSourceLinkImpairmentClabData["return data"]["jitter"]
+            }
+
+            if (clabSourceLinkImpairmentClabData["return data"]["rate"] == "N/A") {
+                document.getElementById("panel-link-endpoint-a-rate").value = '0'
+            }else {
+                document.getElementById("panel-link-endpoint-a-rate").value = clabSourceLinkImpairmentClabData["return data"]["rate"]
+            }
+
+            if (clabSourceLinkImpairmentClabData["return data"]["packet_loss"] == "N/A") {
+                document.getElementById("panel-link-endpoint-a-loss").value = '0'
+            }else {
+                document.getElementById("panel-link-endpoint-a-loss").value = clabSourceLinkImpairmentClabData["return data"]["packet_loss"]
+            }
+
+        
+        } else {
+            console.log("Empty or invalid JSON response received");
+        }
+
+
+
+
+        // setting default impairment endpoint-b values by getting the data from clab via /clab-link-impairment GET API
+        clabTargetLinkArgsList = [`${clickedEdge.data("extraData").clabTargetLongName}`,`${clickedEdge.data("extraData").clabTargetPort}`]
+        clabTargetLinkImpairmentClabData = await sendRequestToEndpointGetV2("/clab-link-impairment", clabTargetLinkArgsList)
+        
+        if (clabTargetLinkImpairmentClabData && typeof clabTargetLinkImpairmentClabData === 'object' && Object.keys(clabTargetLinkImpairmentClabData).length > 0) {
+            hideLoadingSpinner();
+            console.log("Valid non-empty JSON response received:", clabTargetLinkImpairmentClabData);
+            console.log("Valid non-empty JSON response received: clabTargetLinkImpairmentClabData returnd data", clabTargetLinkImpairmentClabData["return data"]["delay"]);
+
+            if (clabTargetLinkImpairmentClabData["return data"]["delay"] == "N/A") {
+                document.getElementById("panel-link-endpoint-b-delay").value = '0'
+            }else {
+                document.getElementById("panel-link-endpoint-b-delay").value = clabTargetLinkImpairmentClabData["return data"]["delay"]
+            }
+
+            if (clabTargetLinkImpairmentClabData["return data"]["jitter"] == "N/A") {
+                document.getElementById("panel-link-endpoint-b-jitter").value = '0'
+            }else {
+                document.getElementById("panel-link-endpoint-b-jitter").value = clabTargetLinkImpairmentClabData["return data"]["jitter"]
+            }
+
+            if (clabTargetLinkImpairmentClabData["return data"]["rate"] == "N/A") {
+                document.getElementById("panel-link-endpoint-b-rate").value = '0'
+            }else {
+                document.getElementById("panel-link-endpoint-b-rate").value = clabTargetLinkImpairmentClabData["return data"]["rate"]
+            }
+
+            if (clabTargetLinkImpairmentClabData["return data"]["packet_loss"] == "N/A") {
+                document.getElementById("panel-link-endpoint-b-loss").value = '0'
+            }else {
+                document.getElementById("panel-link-endpoint-b-loss").value = clabTargetLinkImpairmentClabData["return data"]["packet_loss"]
+            }
+
+        
+        } else {
+            console.log("Empty or invalid JSON response received");
+        }
+
+
+
 
         // set selected edge-id to global variable
         globalSelectedEdge = clickedEdge.data("id")
 
-
-        appendMessage(`"isPanel01Cy-cy: " ${isPanel01Cy}`);
-        appendMessage(`"nodeClicked: " ${nodeClicked}`);
+        appendMessage(`"edgeClicked: " ${edgeClicked}`);
     });
 
  
@@ -799,11 +872,9 @@ document.addEventListener("DOMContentLoaded", async function() {
 
             if (statusGreenNode.length === 0 || statusRedNode.length === 0) {
                 // If status nodes are not found, skip this node
-                // If status nodes are not found, skip this node
                 return;
             }
 
-            // Update positions of status nodes relative to the node
             // Update positions of status nodes relative to the node
             var nodePosition = node.position();
             var offset = {
@@ -820,9 +891,7 @@ document.addEventListener("DOMContentLoaded", async function() {
             };
 
             // Check if the nodeContainerStatusVisibility is true
-            // Check if the nodeContainerStatusVisibility is true
             if (nodeContainerStatusVisibility) {
-                // Check if the containerNodeName includes nodeId and containerNodeStatus includes 'healthy'
                 // Check if the containerNodeName includes nodeId and containerNodeStatus includes 'healthy'
                 if (
                     containerNodeName.includes(nodeId) &&
@@ -1194,6 +1263,7 @@ async function linkImpairmentClab(event, impairDirection) {
             var postPayload = []
             postPayload[0] = command
             await sendRequestToEndpointPost("/clab-link-impairment", postPayload)
+            
 
         } else if (impairDirection == "b-to-a") {
             console.log("linkImpairment - impairDirection: ", impairDirection)
@@ -1203,8 +1273,16 @@ async function linkImpairmentClab(event, impairDirection) {
             rateValue = document.getElementById("panel-link-endpoint-b-rate").value
             lossValue = document.getElementById("panel-link-endpoint-b-loss").value
 
-            command = `ssh ${clabUser}@${clabServerAddress} /usr/bin/containerlab tools netem set -n ${clabSourceLongName} -i ${clabSourcePort} --delay ${delayValue}ms --jitter ${jitterValue}ms --rate ${rateValue} --loss ${lossValue}`
-            console.log("linkImpairment - command: ", command)
+            if (deploymentType == "container") {
+                command = `ssh ${clabUser}@${clabServerAddress} /usr/bin/containerlab tools netem set -n ${clabTargetLongName} -i ${clabTargetPort} --delay ${delayValue}ms --jitter ${jitterValue}ms --rate ${rateValue} --loss ${lossValue}`
+            } else if (deploymentType == "colocated") {
+                command = `/usr/bin/containerlab tools netem set -n ${clabTargetLongName} -i ${clabTargetPort} --delay ${delayValue}ms --jitter ${jitterValue}ms --rate ${rateValue} --loss ${lossValue}`
+            }
+
+            console.log(`linkImpairment - deployment ${deploymentType}, command: ${command}`)
+            var postPayload = []
+            postPayload[0] = command
+            await sendRequestToEndpointPost("/clab-link-impairment", postPayload)
         }
 
     } catch (error) {
@@ -1579,14 +1657,18 @@ function viewportButtonsTopologyCapture() {
 function viewportButtonsLabelEndpoint() {
     if (linkEndpointVisibility) {
         cy.edges().forEach(function(edge) {
-            edge.style("source-label", ".");
-            edge.style("target-label", ".");
+            // edge.style("source-label", ".");
+            // edge.style("target-label", ".");
+            edge.style("text-opacity", 0);
+            edge.style("text-background-opacity", 0);
+
+
             linkEndpointVisibility = false;
         });
     } else {
         cy.edges().forEach(function(edge) {
-            edge.style("source-label", edge.data("sourceEndpoint"));
-            edge.style("target-label", edge.data("targetEndpoint"));
+            edge.style("text-opacity", 1);
+            edge.style("text-background-opacity", 0.7);
             linkEndpointVisibility = true;
         });
     }
@@ -1676,21 +1758,17 @@ function viewportDrawerLayoutVertical() {
         cy.nodes().forEach(function(node) {
             if (node.isParent()) {
                 // For each parent node
-                // For each parent node
                 const children = node.children();
                 const numRows = 1;
 
                 const cellWidth = node.width() / children.length;
                 // const xOffset = 5
-                // const xOffset = 5
 
                 children.forEach(function(child, index) {
-                    // Position children in rows
                     // Position children in rows
                     const xPos = index * (cellWidth + xOffset);
                     const yPos = 0;
 
-                    // Set the position of each child node
                     // Set the position of each child node
                     child.position({
                         x: xPos,
@@ -1705,7 +1783,6 @@ function viewportDrawerLayoutVertical() {
         var centerX = 0;
         var centerY = cy.height() / 2;
 
-        // Count children of each parent node
         // Count children of each parent node
         cy.nodes().forEach(function(node) {
             if (node.isParent()) {
@@ -1728,7 +1805,6 @@ function viewportDrawerLayoutVertical() {
         console.log("divisionFactor: ", divisionFactor);
 
         // Sort parent nodes by child count in ascending order
-        // Sort parent nodes by child count in ascending order
         const sortedParents = Object.keys(parentCounts).sort(
             (a, b) => parentCounts[a] - parentCounts[b],
         );
@@ -1738,11 +1814,9 @@ function viewportDrawerLayoutVertical() {
         // const yOffset = 50;
 
         // Position parent nodes vertically and center them horizontally
-        // Position parent nodes vertically and center them horizontally
         sortedParents.forEach(function(parentId) {
             const parent = cy.getElementById(parentId);
             const xPos = centerX - parent.width() / divisionFactor;
-            // to the left compared to the center of the widest parent node.
             // to the left compared to the center of the widest parent node.
             parent.position({
                 x: xPos,
@@ -1775,20 +1849,16 @@ function viewportDrawerLayoutHorizontal() {
         cy.nodes().forEach(function(node) {
             if (node.isParent()) {
                 // For each parent node
-                // For each parent node
                 const children = node.children();
                 const numColumns = 1;
                 const cellHeight = node.height() / children.length;
                 // const yOffset = 5;
-                // const yOffset = 5;
 
                 children.forEach(function(child, index) {
-                    // Position children in columns
                     // Position children in columns
                     const xPos = 0;
                     const yPos = index * (cellHeight + yOffset);
 
-                    // Set the position of each child node
                     // Set the position of each child node
                     child.position({
                         x: xPos,
@@ -1803,7 +1873,6 @@ function viewportDrawerLayoutHorizontal() {
         var centerX = cy.width() / 2;
         var centerY = cy.height() / 2;
 
-        // Count children of each parent node
         // Count children of each parent node
         cy.nodes().forEach(function(node) {
             if (node.isParent()) {
@@ -1826,16 +1895,13 @@ function viewportDrawerLayoutHorizontal() {
         console.log("divisionFactor: ", divisionFactor);
 
         // Sort parent nodes by child count in ascending order
-        // Sort parent nodes by child count in ascending order
         const sortedParents = Object.keys(parentCounts).sort(
             (a, b) => parentCounts[a] - parentCounts[b],
         );
 
         let xPos = 0;
         // const xOffset = 50;
-        // const xOffset = 50;
 
-        // Position parent nodes horizontally and center them vertically
         // Position parent nodes horizontally and center them vertically
         sortedParents.forEach(function(parentId) {
             const parent = cy.getElementById(parentId);
@@ -1851,6 +1917,59 @@ function viewportDrawerLayoutHorizontal() {
     }, delay);
 
 }
+
+
+function viewportDrawerCaptureButton() {
+
+    console.log ("viewportDrawerCaptureButton() - clicked")
+
+
+
+
+        // Get all checkbox inputs within the specific div
+        const checkboxes = document.querySelectorAll('#viewport-drawer-capture-sceenshoot-content .checkbox-input');
+        
+        // Initialize an array to store the values of checked checkboxes
+        const selectedOptions = [];
+
+        // Iterate through the NodeList of checkboxes
+        checkboxes.forEach((checkbox) => {
+            // If the checkbox is checked, push its value to the array
+            if (checkbox.checked) {
+                selectedOptions.push(checkbox.value);
+            }
+        });
+
+        console.log ("viewportDrawerCaptureButton() - ", selectedOptions)
+
+
+        if (selectedOptions.length === 0) {
+            bulmaToast.toast({
+                message: `Hey there, please pick at least one option.😊👌`,
+                type: "is-warning is-size-6 p-3",
+                duration: 4000,
+                position: "top-center",
+                closeOnClick: true,
+            });
+        } else {
+            // Perform your action based on the selected options
+            // Perform your action based on the selected options
+            if (selectedOptions.join(", ") == "option01") {
+                captureAndSaveViewportAsPng(cy);
+                modal.classList.remove("is-active");
+            } else if (selectedOptions.join(", ") == "option02") {
+                captureAndSaveViewportAsDrawIo(cy);
+                modal.classList.remove("is-active");
+            } else if (selectedOptions.join(", ") == "option01, option02") {
+                captureAndSaveViewportAsPng(cy);
+                sleep(5000);
+                captureAndSaveViewportAsDrawIo(cy);
+                modal.classList.remove("is-active");
+            }
+        }
+    
+}
+
 
 // aarafat-tag:
 //// REFACTOR END
@@ -2193,26 +2312,26 @@ async function captureAndSaveViewportAsDrawIo(cy) {
         let imageURL;
         switch (node.data("topoViewerRole")) {
             case "pe":
-                imageURL = "http://149.204.21.68:8087/images/clab-pe-light-blue.png";
+                imageURL = `http://${location.host}/images/clab-pe-light-blue.png`;
                 break;
             case "controller":
                 imageURL =
-                    "http://149.204.21.68:8087/images/clab-controller-light-blue.png";
+                    `http://${location.host}/images/clab-controller-light-blue.png`;
                 break;
             case "pon":
-                imageURL = "http://149.204.21.68:8087/images/clab-pon-dark-blue.png";
+                imageURL = `http://${location.host}/images/clab-pon-dark-blue.png`;
                 break;
             case "dcgw":
-                imageURL = "http://149.204.21.68:8087/images/clab-dcgw-dark-blue.png";
+                imageURL = `http://${location.host}/images/clab-dcgw-dark-blue.png`;
                 break;
             case "leaf":
-                imageURL = "http://149.204.21.68:8087/images/clab-leaf-light-blue.png";
+                imageURL = `http://${location.host}/images/clab-leaf-light-blue.png`;
                 break;
             case "spine":
-                imageURL = "http://149.204.21.68:8087/images/clab-spine-dark-blue.png";
+                imageURL = `http://${location.host}/images/clab-spine-dark-blue.png`;
                 break;
             case "super-spine":
-                imageURL = "http://149.204.21.68:8087/images/clab-spine-light-blue.png";
+                imageURL = `http://${location.host}/images/clab-spine-light-blue.png`;
                 break;
         }
         mxCells.push(createMxCellForNode(node, imageURL));
@@ -2220,7 +2339,7 @@ async function captureAndSaveViewportAsDrawIo(cy) {
 
     cy.edges().forEach(function(edge) {
         mxCells.push(`
-            <mxCell id="${edge.data("id")}" value="" style="endArrow=none;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;strokeWidth=1;strokeColor=#B1BCC8;opacity=60;" parent="1" source="${edge.data("source")}" target="${edge.data("target")}" edge="1">
+            <mxCell id="${edge.data("id")}" value="" style="endArrow=none;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;strokeWidth=1;strokeColor=#969799;opacity=60;" parent="1" source="${edge.data("source")}" target="${edge.data("target")}" edge="1">
                 <mxGeometry width="50" height="50" relative="1" as="geometry" >
                 </mxGeometry>
             </mxCell>

@@ -1090,17 +1090,13 @@ func Clab(_ *cobra.Command, _ []string) error {
 	depenenciesDirectoryXterm := path.Join(workingDirectory, "./html-static/cloudshell/node_modules")
 	router.PathPrefix("/assets").Handler(http.StripPrefix("/assets", http.FileServer(http.Dir(depenenciesDirectoryXterm))))
 
-	// // this is the endpoint for serving cytoscape.js assets
-	// depenenciesDirectoryCytoscape := path.Join(workingDirectory, "./html-static/cytoscape")
-	// router.PathPrefix("/cytoscape").Handler(http.StripPrefix("/cytoscape", http.FileServer(http.Dir(depenenciesDirectoryCytoscape))))
-
 	// this is the endpoint for serving css asset
 	depenenciesDirectoryCss := path.Join(workingDirectory, "./html-static/css")
 	router.PathPrefix("/css").Handler(http.StripPrefix("/css", http.FileServer(http.Dir(depenenciesDirectoryCss))))
 
 	// this is the endpoint for serving js library assets
-	depenenciesDirectorJs := path.Join(workingDirectory, "./html-static/js")
-	router.PathPrefix("/js").Handler(http.StripPrefix("/js", http.FileServer(http.Dir(depenenciesDirectorJs))))
+	depenenciesDirectoryJs := path.Join(workingDirectory, "./html-static/js")
+	router.PathPrefix("/js").Handler(http.StripPrefix("/js", http.FileServer(http.Dir(depenenciesDirectoryJs))))
 
 	// // this is the endpoint for the root path aka website shell
 	publicAssetsDirectoryHtml := path.Join(workingDirectory, "./html-public/"+cyTopo.ClabTopoDataV2.Name)
@@ -1110,7 +1106,7 @@ func Clab(_ *cobra.Command, _ []string) error {
 	// os.Mkdir(HtmlPublicPrefixPath+cyTopo.ClabTopoDataV2.Name, 0755) // already created in cytoscapemodel library
 	os.Mkdir(HtmlPublicPrefixPath+cyTopo.ClabTopoDataV2.Name+"/cloudshell", 0755)
 	os.Mkdir(HtmlPublicPrefixPath+cyTopo.ClabTopoDataV2.Name+"/clab-client", 0755)
-	os.Mkdir(HtmlPublicPrefixPath+cyTopo.ClabTopoDataV2.Name+"/cloudshell-tools", 0755)
+	// os.Mkdir(HtmlPublicPrefixPath+cyTopo.ClabTopoDataV2.Name+"/cloudshell-tools", 0755)
 	os.Mkdir(HtmlPublicPrefixPath+cyTopo.ClabTopoDataV2.Name+"/ws", 0755)
 	os.Mkdir(HtmlPublicPrefixPath+cyTopo.ClabTopoDataV2.Name+"/images", 0755)
 
@@ -1131,19 +1127,13 @@ func Clab(_ *cobra.Command, _ []string) error {
 		DeploymentType: deploymentType,
 	}
 
-	// createHtmlPublicFiles(HtmlTemplatePath, HtmlPublicPrefixPath, "cy-style.tmpl", cyTopo.ClabTopoDataV2.Name+"/"+"cy-style.json", indexHtmldata)
-	// createHtmlPublicFiles(HtmlTemplatePath, HtmlPublicPrefixPath, "cy-style-dark.tmpl", cyTopo.ClabTopoDataV2.Name+"/"+"cy-style-dark.json", indexHtmldata)
-
 	createHtmlPublicFiles(HtmlTemplatePath, HtmlPublicPrefixPath, "cloudshell-index.tmpl", cyTopo.ClabTopoDataV2.Name+"/cloudshell/"+"index.html", indexHtmldata)
 	createHtmlPublicFiles(HtmlTemplatePath, HtmlPublicPrefixPath, "cloudshell-terminal-js.tmpl", cyTopo.ClabTopoDataV2.Name+"/cloudshell/"+"terminal.js", indexHtmldata)
-	// createHtmlPublicFiles(HtmlTemplatePath, HtmlPublicPrefixPath, "tools-cloudshell-index.tmpl", cyTopo.ClabTopoDataV2.Name+"/cloudshell-tools/"+"index.html", indexHtmldata)
-	// createHtmlPublicFiles(HtmlTemplatePath, HtmlPublicPrefixPath, "tools-cloudshell-terminal-js.tmpl", cyTopo.ClabTopoDataV2.Name+"/cloudshell-tools/"+"terminal.js", indexHtmldata)
 	createHtmlPublicFiles(HtmlTemplatePath, HtmlPublicPrefixPath, "websocket-index.tmpl", cyTopo.ClabTopoDataV2.Name+"/ws/"+"index.html", indexHtmldata)
 
 	createHtmlPublicFiles(HtmlTemplatePath, HtmlPublicPrefixPath, "button.html.tmpl", cyTopo.ClabTopoDataV2.Name+"/"+"button.html", indexHtmldata)
 
 	createHtmlPublicFiles(HtmlTemplatePath, HtmlPublicPrefixPath, "index.html.tmpl", cyTopo.ClabTopoDataV2.Name+"/"+"index.html", indexHtmldata)
-	// createHtmlPublicFiles(HtmlTemplatePath, HtmlPublicPrefixPath, "index.js.tmpl", cyTopo.ClabTopoDataV2.Name+"/"+"index.js", indexHtmldata)
 
 	// start memory logging pulse
 	logWithMemory := createMemoryLog()
