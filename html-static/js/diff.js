@@ -89,11 +89,23 @@ async function backupRestoreNodeConfig(event) {
 
 			console.log("buttonRestoreConfig - routerData - longName: ", routerData)
 
-			command = (`python3 ${workingDirectory}/html-static/actions/${actionName}/${actionName}.py --ip_address ${routerID} --username ${routerUserName} --password ${routerPassword} --configname ${configName} --kind ${routerKind} --directory ${workingDirectory}/html-public/nokia-ServiceProvider/node-backup/${routerName}/ --log_directory ${workingDirectory}/logs --restore`)
-			console.log(command)
+			// send python command to backend
+			// command = (`python3 ${workingDirectory}/html-static/actions/${actionName}/${actionName}.py --ip_address ${routerID} --username ${routerUserName} --password ${routerPassword} --configname ${configName} --kind ${routerKind} --directory ${workingDirectory}/html-public/nokia-ServiceProvider/node-backup/${routerName}/ --log_directory ${workingDirectory}/logs --restore`)
+			// console.log(command)
+			// const postPythonActionArgs = [routerName, command]
+			// await postPythonAction(event, postPythonActionArgs)
 
-			const postPythonActionArgs = [routerName, command]
-			await postPythonAction(event, postPythonActionArgs)
+			var postPayload = [
+				routerKind, 
+				routerID, 
+				routerUserName, 
+				routerPassword, 
+				`${workingDirectory}/html-public/nokia-ServiceProvider/node-backup/${routerName}`, 
+				"restore"
+			]
+
+			await sendRequestToEndpointPost("/node-backup-restore", postPayload) 
+
 			loadFileList(routerName)
 
 
@@ -102,7 +114,6 @@ async function backupRestoreNodeConfig(event) {
 		}
 	});
 
-	// Add event listener to the buttonBackupConfig
 	// Add event listener to the buttonBackupConfig
 	const buttonBackupConfig = document.getElementById('buttonBackupConfig');
 	buttonBackupConfig.addEventListener('click', async (event) => {
@@ -135,12 +146,35 @@ async function backupRestoreNodeConfig(event) {
 
 			console.log("buttonBackupConfig - routerData - longName: ", routerData)
 
-			command = (`python3 ${workingDirectory}/html-static/actions/${actionName}/${actionName}.py --ip_address ${routerID} --username ${routerUserName} --password ${routerPassword} --configname ${routerName} --kind ${routerKind} --directory ${workingDirectory}/html-public/nokia-ServiceProvider/node-backup/${routerName}/ --log_directory ${workingDirectory}/logs --backup`)
-			console.log(command)
+			//// send python command to backend
+			// command = (`python3 ${workingDirectory}/html-static/actions/${actionName}/${actionName}.py --ip_address ${routerID} --username ${routerUserName} --password ${routerPassword} --configname ${routerName} --kind ${routerKind} --directory ${workingDirectory}/html-public/nokia-ServiceProvider/node-backup/${routerName}/ --log_directory ${workingDirectory}/logs --backup`)
+			// console.log(command)
 
-			const postPythonActionArgs = [routerName, command]
-			await postPythonAction(event, postPythonActionArgs)
+			// const postPythonActionArgs = [routerName, command]
+			// await postPythonAction(event, postPythonActionArgs)
+
+
+			var postPayload = []
+
+			// Create an object with attributes and values
+			var payload = {
+				routerKind: routerKind,
+				routerID: routerID,
+				routerUserName: routerUserName,
+				routerPassword: routerPassword,
+				configNamePrefix: routerName,
+				backupPath: `${workingDirectory}/html-public/nokia-ServiceProvider/node-backup/${routerName}`,
+				action: "backup"
+			};
+
+			var postPayloadJSON = JSON.stringify(payload);
+			postPayload[0] = postPayloadJSON
+			await sendRequestToEndpointPost("/node-backup-restore", postPayload) 
+
+
+
 			loadFileList(routerName)
+			
 
 
 		} catch (error) {
@@ -148,7 +182,6 @@ async function backupRestoreNodeConfig(event) {
 		}
 	});
 
-	// Add event listener to the buttonLoadRunningConfig
 	// Add event listener to the buttonLoadRunningConfig
 	const buttonLoadRunningConfig = document.getElementById('buttonLoadRunningConfig');
 	buttonLoadRunningConfig.addEventListener('click', async (event) => {
@@ -180,11 +213,31 @@ async function backupRestoreNodeConfig(event) {
 
 			console.log("buttonLoadRunningConfig - routerData - longName: ", routerData)
 
-			command = (`python3 ${workingDirectory}/html-static/actions/${actionName}/${actionName}.py --ip_address ${routerID} --username ${routerUserName} --password ${routerPassword} --configname ${routerName} --kind ${routerKind} --directory ${workingDirectory}/html-public/nokia-ServiceProvider/node-backup/${routerName}/ --log_directory ${workingDirectory}/logs --get`)
-			console.log(command)
+			//// send python command to backend
+			// command = (`python3 ${workingDirectory}/html-static/actions/${actionName}/${actionName}.py --ip_address ${routerID} --username ${routerUserName} --password ${routerPassword} --configname ${routerName} --kind ${routerKind} --directory ${workingDirectory}/html-public/nokia-ServiceProvider/node-backup/${routerName}/ --log_directory ${workingDirectory}/logs --get`)
+			// console.log(command)
 
-			const postPythonActionArgs = [routerName, command]
-			await postPythonAction(event, postPythonActionArgs)
+			// const postPythonActionArgs = [routerName, command]
+			// await postPythonAction(event, postPythonActionArgs)
+
+			var postPayload = []
+
+			// Create an object with attributes and values
+			var payload = {
+				routerKind: routerKind,
+				routerID: routerID,
+				routerUserName: routerUserName,
+				routerPassword: routerPassword,
+				configNamePrefix: routerName,
+				backupPath: `${workingDirectory}/html-public/nokia-ServiceProvider/node-backup/${routerName}`,
+				action: "running"
+			};
+
+			var postPayloadJSON = JSON.stringify(payload);
+			postPayload[0] = postPayloadJSON
+			await sendRequestToEndpointPost("/node-backup-restore", postPayload) 
+
+
 			loadFileList(routerName)
 			loadFileContentModified(`${routerName}-running.cfg`)
 
@@ -350,8 +403,8 @@ require.config({
 	}
 });
 require(['vs/editor/editor.main'], function() {
-	const originalModel = monaco.editor.createModel('<!DOCTYPE html>\n<html>\n	<head>\n  		<title>My Saved Config</title>\n	</head>\n	<body>\n		<h1>Hello, World!</h1>\n	</body>\n</html>', 'html');
-	const modifiedModel = monaco.editor.createModel('<!DOCTYPE html>\n<html>\n	<head>\n  		<title>My Running Config</title>\n	</head>\n	<body>\n		<h1>Hello, Universe!</h1>\n	</body>\n</html>', 'html');
+	const originalModel = monaco.editor.createModel('Please select the configuration file you wish to restore, then click "Restore Saved Config. \nThe selected config will be displayed here.');
+	const modifiedModel = monaco.editor.createModel('Please click the "Backup Running Config" button to save the current configuration. \nThe results of the backup will be displayed here.');
 
 	window.diffEditor = monaco.editor.createDiffEditor(document.getElementById('editor-container'), {
 		theme: 'vs-dark',

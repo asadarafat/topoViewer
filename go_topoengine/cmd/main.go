@@ -3,6 +3,8 @@ package main
 import (
 	// tools "github.com/asadarafat/topoViewer/go_tools"
 
+	log "github.com/sirupsen/logrus"
+
 	tools "github.com/asadarafat/topoViewer/go_tools"
 	topoengine "github.com/asadarafat/topoViewer/go_topoengine"
 )
@@ -953,5 +955,37 @@ func main() {
 	// tools.SshSudo(neHost, nePort, neUser, nePass, cmd1)
 
 	////
+	cyTopo := topoengine.CytoTopology{}
+	toolLogger := tools.Logs{}
 
+	cyTopo.InitLogger()
+	cyTopo.LogLevel = uint32(toolLogger.MapLogLevelStringToNumber("debug"))
+	toolLogger.InitLogger("logs/topoengine-CytoTopology.log", cyTopo.LogLevel)
+
+	backupDirectory := "/var/asad/topoViewer/html-public/nokia-ServiceProvider/node-backup/clab-nokia-ServiceProvider-R09-PE-ASBR"
+	// err := cyTopo.NodeConfigBackup(
+	// 	"vr-sros",
+	// 	"10.2.1.109",
+	// 	"admin",
+	// 	"admin",
+	// 	"backup.cfg",
+	// 	backupDirectory,
+	// 	"backup",
+	// )
+
+	err := cyTopo.NodeConfigRestore(
+		"vr-sros",
+		"10.2.1.109",
+		"admin",
+		"admin",
+		"clab-nokia-ServiceProvider-R09-PE-ASBR-running.cfg",
+		backupDirectory,
+		"restore",
+	)
+
+	// time=2024-07-14T13:37:57Z level=info msg=requestData-param1-param1DataString: {"routerKind":"vr-sros","routerID":"10.2.1.109","routerUserName":"admin","routerPassword":"admin","backupPath":"/var/asad/topoViewer/html-public/nokia-ServiceProvider/node-backup/clab-nokia-ServiceProvider-R09-PE-ASBR","action":"backup"}
+
+	if err != nil {
+		log.Errorf("Failed to execute device operation: %v", err)
+	}
 }
