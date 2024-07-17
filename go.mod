@@ -1,10 +1,9 @@
 module github.com/asadarafat/topoViewer
 
-go 1.21.1
-
-toolchain go1.21.6
+go 1.22.5
 
 require (
+	github.com/asadarafat/netmiGO v0.0.1
 	github.com/buger/jsonparser v1.1.1
 	github.com/creack/pty v1.1.21
 	github.com/docker/docker v26.1.4+incompatible
@@ -23,7 +22,7 @@ require (
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/viper v1.16.0
 	github.com/usvc/go-config v0.4.1
-	golang.org/x/crypto v0.24.0
+	golang.org/x/crypto v0.25.0
 	google.golang.org/protobuf v1.34.2
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
 )
@@ -97,7 +96,7 @@ require (
 	golang.org/x/net v0.26.0 // indirect
 	golang.org/x/oauth2 v0.20.0 // indirect
 	golang.org/x/sync v0.7.0 // indirect
-	golang.org/x/sys v0.21.0 // indirect
+	golang.org/x/sys v0.22.0 // indirect
 	golang.org/x/text v0.16.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240701130421-f6361c86f094 // indirect
 	google.golang.org/grpc v1.64.0 // indirect

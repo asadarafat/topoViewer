@@ -973,7 +973,7 @@ func main() {
 	// 	"backup",
 	// )
 
-	err := cyTopo.NodeConfigRestore(
+	err := cyTopo.NodeConfigBackupRestore(
 		"vr-sros",
 		"10.2.1.109",
 		"admin",

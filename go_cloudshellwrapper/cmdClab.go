@@ -1124,7 +1124,6 @@ func Clab(_ *cobra.Command, _ []string) error {
 			backupDirectory := backupRestoreRouterInfo.BackupPath
 			action := backupRestoreRouterInfo.Action
 
-			log.Info("calling NodeBackup() with following paramters: ")
 			log.Infof("deviceKind: %s", deviceKind)
 			log.Infof("ipAddress: %s", ipAddress)
 			log.Infof("username: %s", username)
@@ -1133,7 +1132,7 @@ func Clab(_ *cobra.Command, _ []string) error {
 			log.Infof("configBackupDirectory: %s", backupDirectory)
 			log.Infof("NodeBackupRestoreFunctionFlag: %s", action)
 
-			cyTopo.NodeConfigBackup(
+			cyTopo.NodeConfigBackupRestore(
 				deviceKind,
 				ipAddress,
 				username,

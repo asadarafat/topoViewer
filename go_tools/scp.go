@@ -9,6 +9,8 @@ import (
 	"github.com/pkg/sftp"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/crypto/ssh"
+
+	netmigo "github.com/asadarafat/netmiGO/netmigo"
 )
 
 // SCPDirection represents the direction of the file transfer.
@@ -103,4 +105,40 @@ func SCPFile(hostname, username, password, localPath, remotePath string, overwri
 	}
 
 	return nil
+}
+
+func exampleBasicSROS() {
+
+	Router10, err := netmigo.InitSROSDevice("10.2.1.109", "admin", "admin", 22)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Open session with Router10
+	if err := Router10.Connect(); err != nil {
+		log.Fatal(err)
+	}
+
+	// Transfer a file
+	if err := Router10.FileTransfer("examples/clab-nokia-ServiceProvider-R09-PE-ASBR-running.cfg", "cf3:/clab-nokia-ServiceProvider-R09-PE-ASBR-running.cfg"); err != nil {
+		log.Fatal(err)
+	}
+
+	// Send command
+	output1, _ := Router10.SendCommand("show port")
+	output2, _ := Router10.SendCommand("show uptime")
+
+	// Send config command for classic CLI
+	_, _ = Router10.SendCommand("show version")
+	_, _ = Router10.SendCommand("admin save")
+
+	// Send a set of config commands
+	commands := []string{"show version", "load full-replace cf3:clab-nokia-ServiceProvider-R09-PE-ASBR-running.cfg"}
+	output3, _ := Router10.SendConfigSet(commands)
+
+	Router10.Disconnect()
+
+	fmt.Println(output1)
+	fmt.Println(output2)
+	fmt.Println(output3)
 }

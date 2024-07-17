@@ -70,9 +70,9 @@ async function backupRestoreNodeConfig(event) {
 		console.log("OriginalModelFileName: ", OriginalModelFileName)
 		console.log("configName: ", configName)
 
-		const arg01 = routerID; // Replace with actual arguments as needed
-		const arg02 = routerName; // Replace with actual arguments as needed
-		const arg03 = 'restore'; // Replace with actual arguments as needed
+		// const arg01 = routerID; // Replace with actual arguments as needed
+		// const arg02 = routerName; // Replace with actual arguments as needed
+		// const arg03 = 'restore'; // Replace with actual arguments as needed
 
 		try {
 			environments = await getEnvironments(event);
@@ -82,6 +82,7 @@ async function backupRestoreNodeConfig(event) {
 			routerData = findCytoElementByLongname(cytoTopologyJson, routerName)
 
 			workingDirectory = environments["working-directory"]
+			clabName = environments["clab-name"]
 			actionName = "backupRestoreScript"
 			routerUserName = "admin"
 			routerPassword = "admin"
@@ -89,25 +90,24 @@ async function backupRestoreNodeConfig(event) {
 
 			console.log("buttonRestoreConfig - routerData - longName: ", routerData)
 
-			// send python command to backend
-			// command = (`python3 ${workingDirectory}/html-static/actions/${actionName}/${actionName}.py --ip_address ${routerID} --username ${routerUserName} --password ${routerPassword} --configname ${configName} --kind ${routerKind} --directory ${workingDirectory}/html-public/nokia-ServiceProvider/node-backup/${routerName}/ --log_directory ${workingDirectory}/logs --restore`)
-			// console.log(command)
-			// const postPythonActionArgs = [routerName, command]
-			// await postPythonAction(event, postPythonActionArgs)
+			var postPayload = []
 
-			var postPayload = [
-				routerKind, 
-				routerID, 
-				routerUserName, 
-				routerPassword, 
-				`${workingDirectory}/html-public/nokia-ServiceProvider/node-backup/${routerName}`, 
-				"restore"
-			]
+			// Create an object with attributes and values
+			var payload = {
+				routerKind: routerKind,
+				routerID: routerID,
+				routerUserName: routerUserName,
+				routerPassword: routerPassword,
+				configNamePrefix: configName,
+				backupPath: `${workingDirectory}/html-public/${clabName}/node-backup/${routerName}`,
+				action: "restore"
+			};
 
+			var postPayloadJSON = JSON.stringify(payload);
+			postPayload[0] = postPayloadJSON
+			console.log("buttonRestoreConfig - postPayload : ", postPayload)
 			await sendRequestToEndpointPost("/node-backup-restore", postPayload) 
-
 			loadFileList(routerName)
-
 
 		} catch (error) {
 			console.error('Error executing restore configuration:', error);
@@ -139,20 +139,13 @@ async function backupRestoreNodeConfig(event) {
 			routerData = findCytoElementByLongname(cytoTopologyJson, routerName)
 
 			workingDirectory = environments["working-directory"]
+			clabName = environments["clab-name"]
 			actionName = "backupRestoreScript"
 			routerUserName = "admin"
 			routerPassword = "admin"
 			routerKind = routerData["data"]["extraData"]["kind"]
 
 			console.log("buttonBackupConfig - routerData - longName: ", routerData)
-
-			//// send python command to backend
-			// command = (`python3 ${workingDirectory}/html-static/actions/${actionName}/${actionName}.py --ip_address ${routerID} --username ${routerUserName} --password ${routerPassword} --configname ${routerName} --kind ${routerKind} --directory ${workingDirectory}/html-public/nokia-ServiceProvider/node-backup/${routerName}/ --log_directory ${workingDirectory}/logs --backup`)
-			// console.log(command)
-
-			// const postPythonActionArgs = [routerName, command]
-			// await postPythonAction(event, postPythonActionArgs)
-
 
 			var postPayload = []
 
@@ -163,20 +156,16 @@ async function backupRestoreNodeConfig(event) {
 				routerUserName: routerUserName,
 				routerPassword: routerPassword,
 				configNamePrefix: routerName,
-				backupPath: `${workingDirectory}/html-public/nokia-ServiceProvider/node-backup/${routerName}`,
+				backupPath: `${workingDirectory}/html-public/${clabName}/node-backup/${routerName}`,
 				action: "backup"
 			};
 
 			var postPayloadJSON = JSON.stringify(payload);
 			postPayload[0] = postPayloadJSON
+			console.log("buttonRestoreConfig - postPayload : ", postPayload)
 			await sendRequestToEndpointPost("/node-backup-restore", postPayload) 
-
-
-
 			loadFileList(routerName)
 			
-
-
 		} catch (error) {
 			console.error('Error executing backup configuration:', error);
 		}

@@ -461,8 +461,9 @@
 												</div>
 												<div class="dropdown-menu" id="panel-link-action-dropdown-menu" role="menu">
 													<div class="dropdown-content">
-														<a onclick="linkImpairmentClab(event, 'a-to-b');" class="dropdown-item label has-text-weight-normal is-small py-0" id="panel-link-action-impairment-A->B">Apply Impairment A -> B</a>
-														<a onclick="linkImpairmentClab(event, 'b-to-a');"       class="dropdown-item label has-text-weight-normal is-small py-0" id="panel-link-action-impairment-B->A">Apply Impairment B -> A</a>
+														<a onclick="linkImpairmentClab(event, 'a-to-b');" class="dropdown-item label has-text-weight-normal is-small py-0" id="panel-link-action-impairment-A->B">Apply Impairment</a>
+
+														
 														<hr class="dropdown-divider" />
 														<a onclick="linkWireshark(event, 'app', 'source');" class="dropdown-item label has-text-weight-normal is-small py-0"> Wireshark A - Launch App </a>
 														<a onclick="linkWireshark(event, 'copy', 'source');" class="dropdown-item label has-text-weight-normal is-small py-0">Wireshark A - Copy to Clipboard</a>
@@ -493,6 +494,38 @@
 									<div class="columns py-auto" >
 										<div  class="column is-4 p-1"><label class="label is-size-7 has-text-right has-text-weight-medium px-auto" >MAC address</label></div>
 										<div class="column is-8 p-1 pl-3" ><label class="label is-size-7 has-text-left link-impairment-widht has-text-weight-normal mr-0 is-max-content" id="panel-link-endpoint-a-mac-address">link-mac-address-placeholder</label></div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div  class="panel-block p-0" id="panel-link-endpoint-b">
+						<div  class="column px-0">
+							<div  class="column my-auto is-11">
+								<div  class="panel-content">
+									<div class="columns py-auto" >
+										<div  class="column is-4 p-1"><label class="label is-size-7 has-text-right has-text-weight-medium px-auto" >Endpoint-B</label></div>
+										<div class="column is-8 p-1 pl-3" ><label class="label is-size-7 has-text-left link-impairment-widht has-text-weight-normal mr-0 is-max-content" id="panel-link-endpoint-b-name">link-endpoint-a-name-placeholder</label></div>
+									</div>
+								</div>
+							</div>
+							<div  class="column my-auto is-11">
+								<div  class="panel-content">
+									<div class="columns py-auto" >
+										<div  class="column is-4 p-1"><label class="label is-size-7 has-text-right has-text-weight-medium px-auto" >MAC address</label></div>
+										<div class="column is-8 p-1 pl-3" ><label class="label is-size-7 has-text-left link-impairment-widht has-text-weight-normal mr-0 is-max-content" id="panel-link-endpoint-b-mac-address">link-mac-address-placeholder</label></div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<panel-block-impairment-a-b  class="panel-block p-0" id="panel-block-impairment-a-b">
+						<div  class="column px-0">
+							<div  class="column my-auto is-11">
+								<div  class="panel-content">
+									<div class="columns py-auto" >
+										<div class="column is-4 p-1"><label class="label is-size-7 has-text-right has-text-weight-medium px-auto" >Impairment</label></div>
+										<div class="column is-8 p-1 pl-3" ><label class="label is-size-7 has-text-left has-text-weight-medium px-auto" >A >>> B</label></div>
 									</div>
 								</div>
 							</div>
@@ -529,22 +562,16 @@
 								</div>
 							</div>
 						</div>
-					</div>
-					<div  class="panel-block p-0" id="panel-link-endpoint-b">
+					</panel-block-impairment-a-b>
+
+
+					<panel-block-impairment-b-a  class="panel-block p-0" id="panel-block-impairment-b-a">
 						<div  class="column px-0">
 							<div  class="column my-auto is-11">
 								<div  class="panel-content">
 									<div class="columns py-auto" >
-										<div  class="column is-4 p-1"><label class="label is-size-7 has-text-right has-text-weight-medium px-auto" >Endpoint-B</label></div>
-										<div class="column is-8 p-1 pl-3" ><label class="label is-size-7 has-text-left link-impairment-widht has-text-weight-normal mr-0 is-max-content" id="panel-link-endpoint-b-name">link-endpoint-a-name-placeholder</label></div>
-									</div>
-								</div>
-							</div>
-							<div  class="column my-auto is-11">
-								<div  class="panel-content">
-									<div class="columns py-auto" >
-										<div  class="column is-4 p-1"><label class="label is-size-7 has-text-right has-text-weight-medium px-auto" >MAC address</label></div>
-										<div class="column is-8 p-1 pl-3" ><label class="label is-size-7 has-text-left link-impairment-widht has-text-weight-normal mr-0 is-max-content" id="panel-link-endpoint-b-mac-address">link-mac-address-placeholder</label></div>
+										<div class="column is-4 p-1"><label class="label is-size-7 has-text-right has-text-weight-medium px-auto" >Impairment</label></div>
+										<div class="column is-8 p-1 pl-3" ><label class="label is-size-7 has-text-left has-text-weight-medium px-auto" >B >>> A</label></div>
 									</div>
 								</div>
 							</div>
@@ -581,7 +608,7 @@
 								</div>
 							</div>
 						</div>
-					</div>
+					</panel-block-impairment-b-a>
 				</div>
 			</div>
 
@@ -741,12 +768,12 @@
 			<script src="https://unpkg.com/cytoscape-popper@1.0.2/cytoscape-popper.js"></script>
 			<script src="https://cdn.jsdelivr.net/npm/cytoscape-grid-guide@2.3.3/cytoscape-grid-guide.min.js"></script>
 	
-			<script src="js/index.js"></script>
+			<script src="js/index.js?ver=1"></script>
 
 			<script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.50.0/min/vs/loader.js"></script>
 
-			<script src="/js/diff.js"></script>
-			<script src="/js/common.js"></script>
+			<script src="/js/diff.js?ver=1"></script>
+			<script src="/js/common.js?ver=1"></script>
 		</div>
 	</body>
 </html>
