@@ -12,7 +12,7 @@ var linkEndpointVisibility = true;
 var nodeContainerStatusVisibility = false;
 
 
-var globalShellUrl = "/cloudshell"
+var globalShellUrl = "/js/cloudshell"
 
 var labName
 var deploymentType
@@ -20,6 +20,9 @@ var deploymentType
 document.addEventListener("DOMContentLoaded", async function() {
 
     detectColorScheme() 
+
+    await changeTitle()
+
 
     // Reusable function to initialize a WebSocket connection
     function initializeWebSocket(url, onMessageCallback) {
@@ -46,6 +49,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 
         return socket;
     }
+
 
     // WebSocket for uptime
     // WebSocket for uptime
@@ -1149,14 +1153,21 @@ document.addEventListener("DOMContentLoaded", async function() {
 
 async function initEnv() {
     environments =  await getEnvironments();
-    labName = await environments["labName"]
-    deploymentType  = await environments["deploymentType"]
+    labName = await environments["clab-name"]
+    deploymentType  = await environments["deployment-type"]
 
     console.log("Lab-Name: ", labName)
     console.log("DeploymentType: ", deploymentType)
     return environments, labName
     }
 
+async function changeTitle() {
+    environments =  await getEnvironments();
+    labName = await environments["clab-name"]
+
+    console.log("changeTitle() - labName: ", labName)
+    document.title = `TopoViewer::${labName}`;
+}
 
 async function sshWebBased(event) {
     console.log("sshWebBased: ", globalSelectedNode)

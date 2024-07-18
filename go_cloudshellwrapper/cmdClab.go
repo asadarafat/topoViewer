@@ -1190,13 +1190,13 @@ func Clab(_ *cobra.Command, _ []string) error {
 	depenenciesDirectoryJs := path.Join(workingDirectory, "./html-static/js")
 	router.PathPrefix("/js").Handler(http.StripPrefix("/js", http.FileServer(http.Dir(depenenciesDirectoryJs))))
 
-	// this is the endpoint for serving cloudshell-tools library assets
-	depenenciesDirectoryCloudshellTools := path.Join(workingDirectory, "./html-static/cloudshell-tools")
-	router.PathPrefix("/cloudshell-tools").Handler(http.StripPrefix("/cloudshell-tools", http.FileServer(http.Dir(depenenciesDirectoryCloudshellTools))))
+	// // this is the endpoint for serving cloudshell-tools library assets
+	// depenenciesDirectoryCloudshellTools := path.Join(workingDirectory, "./html-static/cloudshell-tools")
+	// router.PathPrefix("/cloudshell-tools").Handler(http.StripPrefix("/cloudshell-tools", http.FileServer(http.Dir(depenenciesDirectoryCloudshellTools))))
 
-	// this is the endpoint for serving cloudshell library assets
-	depenenciesDirectoryCloudshell := path.Join(workingDirectory, "./html-static/cloudshell")
-	router.PathPrefix("/cloudshell").Handler(http.StripPrefix("/cloudshell", http.FileServer(http.Dir(depenenciesDirectoryCloudshell))))
+	// // this is the endpoint for serving cloudshell library assets
+	// depenenciesDirectoryCloudshell := path.Join(workingDirectory, "./html-static/cloudshell")
+	// router.PathPrefix("/cloudshell").Handler(http.StripPrefix("/cloudshell", http.FileServer(http.Dir(depenenciesDirectoryCloudshell))))
 
 	// this is the endpoint for serving images asset
 	depenenciesDirectoryImages := path.Join(workingDirectory, "./html-static/images")
