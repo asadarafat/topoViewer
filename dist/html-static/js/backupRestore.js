@@ -19,6 +19,10 @@ async function backupRestoreNodeConfig(event) {
 	console.log("backupRestoreNodeConfig - routerName: ", routerName)
     console.log("backupRestoreNodeConfig - routerID: ", routerID)
 
+
+	// init the running config to be loaded
+	handleLoadRunningConfig(event)
+
 	// Remove all Overlayed Panel
 	// Get all elements with the class "panel-overlay"
 	var panelOverlays = document.getElementsByClassName("panel-overlay");
@@ -56,148 +60,186 @@ async function backupRestoreNodeConfig(event) {
 		
 	});
 
-	// Add event listener to the buttonRestoreConfig
+
 	// Add event listener to the buttonRestoreConfig
 	const buttonRestoreConfig = document.getElementById('buttonRestoreConfig');
-	buttonRestoreConfig.addEventListener('click', async (event) => {
-		event.preventDefault(); // Prevent default form submission if inside a form
-		var configName = OriginalModelFileName;
+	buttonRestoreConfig.addEventListener('click', handleRestoreConfig);
 
-		// Output the values to console
-		console.log('############################################################');
-		console.log('routerID:', routerID);
-		console.log('routerName:', routerName);
-		console.log("OriginalModelFileName: ", OriginalModelFileName)
-		console.log("configName: ", configName)
-
-		const arg01 = routerID; // Replace with actual arguments as needed
-		const arg02 = routerName; // Replace with actual arguments as needed
-		const arg03 = 'restore'; // Replace with actual arguments as needed
-
-		try {
-			environments = await getEnvironments(event);
-			console.log("buttonRestoreConfig - environments: ", environments)
-
-			cytoTopologyJson = environments["EnvCyTopoJsonBytes"]
-			routerData = findCytoElementByLongname(cytoTopologyJson, routerName)
-
-			workingDirectory = environments["working-directory"]
-			actionName = "backupRestoreScript"
-			routerUserName = "admin"
-			routerPassword = "admin"
-			routerKind = routerData["data"]["extraData"]["kind"]
-
-			console.log("buttonRestoreConfig - routerData - longName: ", routerData)
-
-			command = (`python3 ${workingDirectory}/html-static/actions/${actionName}/${actionName}.py --ip_address ${routerID} --username ${routerUserName} --password ${routerPassword} --configname ${configName} --kind ${routerKind} --directory ${workingDirectory}/html-public/nokia-ServiceProvider/node-backup/${routerName}/ --log_directory ${workingDirectory}/logs --restore`)
-			console.log(command)
-
-			const postPythonActionArgs = [routerName, command]
-			await postPythonAction(event, postPythonActionArgs)
-			loadFileList(routerName)
-
-
-		} catch (error) {
-			console.error('Error executing restore configuration:', error);
-		}
-	});
-
-	// Add event listener to the buttonBackupConfig
 	// Add event listener to the buttonBackupConfig
 	const buttonBackupConfig = document.getElementById('buttonBackupConfig');
-	buttonBackupConfig.addEventListener('click', async (event) => {
-		event.preventDefault(); // Prevent default form submission if inside a form
-		var configName = OriginalModelFileName;
+	buttonBackupConfig.addEventListener('click', handleBackupConfig);
 
-		// Output the values to console
-		console.log('############################################################');
-		console.log('routerID:', routerID);
-		console.log('routerName:', routerName);
-		console.log("OriginalModelFileName: ", OriginalModelFileName)
-
-		const arg01 = routerID; // Replace with actual arguments as needed
-		const arg02 = routerName; // Replace with actual arguments as needed
-		const arg03 = 'backup'; // Replace with actual arguments as needed
-
-		try {
-			// await buttonBackupConfigExec(event, arg01, arg02, arg03);
-			environments = await getEnvironments(event);
-			console.log("buttonLoadRunningConfig - environments: ", environments)
-
-			cytoTopologyJson = environments["EnvCyTopoJsonBytes"]
-			routerData = findCytoElementByLongname(cytoTopologyJson, routerName)
-
-			workingDirectory = environments["working-directory"]
-			actionName = "backupRestoreScript"
-			routerUserName = "admin"
-			routerPassword = "admin"
-			routerKind = routerData["data"]["extraData"]["kind"]
-
-			console.log("buttonBackupConfig - routerData - longName: ", routerData)
-
-			command = (`python3 ${workingDirectory}/html-static/actions/${actionName}/${actionName}.py --ip_address ${routerID} --username ${routerUserName} --password ${routerPassword} --configname ${routerName} --kind ${routerKind} --directory ${workingDirectory}/html-public/nokia-ServiceProvider/node-backup/${routerName}/ --log_directory ${workingDirectory}/logs --backup`)
-			console.log(command)
-
-			const postPythonActionArgs = [routerName, command]
-			await postPythonAction(event, postPythonActionArgs)
-			loadFileList(routerName)
-
-
-		} catch (error) {
-			console.error('Error executing backup configuration:', error);
-		}
-	});
-
-	// Add event listener to the buttonLoadRunningConfig
 	// Add event listener to the buttonLoadRunningConfig
 	const buttonLoadRunningConfig = document.getElementById('buttonLoadRunningConfig');
-	buttonLoadRunningConfig.addEventListener('click', async (event) => {
-		event.preventDefault(); // Prevent default form submission if inside a form
-		var configName = OriginalModelFileName;
+	buttonLoadRunningConfig.addEventListener('click', handleLoadRunningConfig);
 
-		// Output the values to console
-		console.log('############################################################');
-		console.log('routerID:', routerID);
-		console.log('routerName:', routerName);
-
-		const arg01 = routerID; // Replace with actual arguments as needed
-		const arg02 = routerName; // Replace with actual arguments as needed
-		const arg03 = 'get'; // Replace with actual arguments as needed
-
-		try {
-			environments = await getEnvironments(event);
-			console.log("buttonLoadRunningConfig - environments: ", environments)
-
-			cytoTopologyJson = environments["EnvCyTopoJsonBytes"]
-			routerData = findCytoElementByLongname(cytoTopologyJson, routerName)
-			console.log("routerDatarouterDatarouterDatarouterDatarouterData", routerData)
-
-			workingDirectory = environments["working-directory"]
-			actionName = "backupRestoreScript"
-			routerUserName = "admin"
-			routerPassword = "admin"
-			routerKind = routerData["data"]["extraData"]["kind"]
-
-			console.log("buttonLoadRunningConfig - routerData - longName: ", routerData)
-
-			command = (`python3 ${workingDirectory}/html-static/actions/${actionName}/${actionName}.py --ip_address ${routerID} --username ${routerUserName} --password ${routerPassword} --configname ${routerName} --kind ${routerKind} --directory ${workingDirectory}/html-public/nokia-ServiceProvider/node-backup/${routerName}/ --log_directory ${workingDirectory}/logs --get`)
-			console.log(command)
-
-			const postPythonActionArgs = [routerName, command]
-			await postPythonAction(event, postPythonActionArgs)
-			loadFileList(routerName)
-			loadFileContentModified(`${routerName}-running.cfg`)
-
-		} catch (error) {
-			console.error('Error executing load running configuration:', error);
-		}
-	});
 
     } catch (error) {
         console.error('Error executing restore configuration:', error);
     }
 }
 
+// Function to handle loading running configuration
+async function handleLoadRunningConfig(event) {
+	event.preventDefault(); // Prevent default form submission if inside a form
+	var configName = OriginalModelFileName;
+
+	// Output the values to console
+	console.log('############################################################');
+	console.log('routerID:', routerID);
+	console.log('routerName:', routerName);
+
+	const arg01 = routerID; // Replace with actual arguments as needed
+	const arg02 = routerName; // Replace with actual arguments as needed
+	const arg03 = 'get'; // Replace with actual arguments as needed
+
+	try {
+		environments = await getEnvironments(event);
+		console.log("handleLoadRunningConfig - environments: ", environments);
+
+		cytoTopologyJson = environments["EnvCyTopoJsonBytes"];
+		routerData = findCytoElementByLongname(cytoTopologyJson, routerName);
+		console.log("handleLoadRunningConfig - routerData - longName: ", routerData);
+
+		workingDirectory = environments["working-directory"];
+		actionName = "backupRestoreScript";
+		routerUserName = "admin";
+		routerPassword = "admin";
+		routerKind = routerData["data"]["extraData"]["kind"];
+
+		console.log("handleLoadRunningConfig - routerData - longName: ", routerData);
+
+		var postPayload = [];
+
+		// Create an object with attributes and values
+		var payload = {
+			routerKind: routerKind,
+			routerID: routerID,
+			routerUserName: routerUserName,
+			routerPassword: routerPassword,
+			configNamePrefix: routerName,
+			backupPath: `${workingDirectory}/html-public/nokia-ServiceProvider/node-backup/${routerName}`,
+			action: "running"
+		};
+
+		var postPayloadJSON = JSON.stringify(payload);
+		postPayload[0] = postPayloadJSON;
+		await sendRequestToEndpointPost("/node-backup-restore", postPayload);
+
+		loadFileList(routerName);
+		loadFileContentModified(`${routerName}-running.cfg`);
+
+	} catch (error) {
+		console.error('Error executing load running configuration:', error);
+	}
+}
+
+// Function to handle restore configuration
+	async function handleRestoreConfig(event) {
+		event.preventDefault(); // Prevent default form submission if inside a form
+		var configName = OriginalModelFileName;
+
+		// Output the values to console
+		console.log('############################################################');
+		console.log('routerID:', routerID);
+		console.log('routerName:', routerName);
+		console.log("OriginalModelFileName: ", OriginalModelFileName);
+		console.log("configName: ", configName);
+
+		try {
+			environments = await getEnvironments(event);
+			console.log("handleRestoreConfig - environments: ", environments);
+
+			cytoTopologyJson = environments["EnvCyTopoJsonBytes"];
+			routerData = findCytoElementByLongname(cytoTopologyJson, routerName);
+
+			workingDirectory = environments["working-directory"];
+			clabName = environments["clab-name"];
+			actionName = "backupRestoreScript";
+			routerUserName = "admin";
+			routerPassword = "admin";
+			routerKind = routerData["data"]["extraData"]["kind"];
+
+			console.log("handleRestoreConfig - routerData - longName: ", routerData);
+
+			var postPayload = [];
+
+			// Create an object with attributes and values
+			var payload = {
+				routerKind: routerKind,
+				routerID: routerID,
+				routerUserName: routerUserName,
+				routerPassword: routerPassword,
+				configNamePrefix: configName,
+				backupPath: `${workingDirectory}/html-public/${clabName}/node-backup/${routerName}`,
+				action: "restore"
+			};
+
+			var postPayloadJSON = JSON.stringify(payload);
+			postPayload[0] = postPayloadJSON;
+			console.log("handleRestoreConfig - postPayload : ", postPayload);
+			await sendRequestToEndpointPost("/node-backup-restore", postPayload);
+			loadFileList(routerName);
+
+		} catch (error) {
+			console.error('Error executing restore configuration:', error);
+		}
+	}
+
+// Function to handle backup configuration
+async function handleBackupConfig(event) {
+	event.preventDefault(); // Prevent default form submission if inside a form
+	var configName = OriginalModelFileName;
+
+	// Output the values to console
+	console.log('############################################################');
+	console.log('routerID:', routerID);
+	console.log('routerName:', routerName);
+	console.log("OriginalModelFileName: ", OriginalModelFileName);
+
+	const arg01 = routerID; // Replace with actual arguments as needed
+	const arg02 = routerName; // Replace with actual arguments as needed
+	const arg03 = 'backup'; // Replace with actual arguments as needed
+
+	try {
+		environments = await getEnvironments(event);
+		console.log("handleBackupConfig - environments: ", environments);
+
+		cytoTopologyJson = environments["EnvCyTopoJsonBytes"];
+		routerData = findCytoElementByLongname(cytoTopologyJson, routerName);
+
+		workingDirectory = environments["working-directory"];
+		clabName = environments["clab-name"];
+		actionName = "backupRestoreScript";
+		routerUserName = "admin";
+		routerPassword = "admin";
+		routerKind = routerData["data"]["extraData"]["kind"];
+
+		console.log("handleBackupConfig - routerData - longName: ", routerData);
+
+		var postPayload = [];
+
+		// Create an object with attributes and values
+		var payload = {
+			routerKind: routerKind,
+			routerID: routerID,
+			routerUserName: routerUserName,
+			routerPassword: routerPassword,
+			configNamePrefix: routerName,
+			backupPath: `${workingDirectory}/html-public/${clabName}/node-backup/${routerName}`,
+			action: "backup"
+		};
+
+		var postPayloadJSON = JSON.stringify(payload);
+		postPayload[0] = postPayloadJSON;
+		console.log("handleBackupConfig - postPayload : ", postPayload);
+		await sendRequestToEndpointPost("/node-backup-restore", postPayload);
+		loadFileList(routerName);
+
+	} catch (error) {
+		console.error('Error executing backup configuration:', error);
+	}
+}
 
 function loadFileList(routerName) {
 	fetch(`/files?RouterName=${encodeURIComponent(routerName)}`)
@@ -344,17 +386,27 @@ function loadFileContentModified(fileName) {
 }
 
 
+
 require.config({
 	paths: {
 		'vs': 'https://cdn.jsdelivr.net/npm/monaco-editor@0.50.0/min/vs'
 	}
 });
 require(['vs/editor/editor.main'], function() {
-	const originalModel = monaco.editor.createModel('<!DOCTYPE html>\n<html>\n	<head>\n  		<title>My Saved Config</title>\n	</head>\n	<body>\n		<h1>Hello, World!</h1>\n	</body>\n</html>', 'html');
-	const modifiedModel = monaco.editor.createModel('<!DOCTYPE html>\n<html>\n	<head>\n  		<title>My Running Config</title>\n	</head>\n	<body>\n		<h1>Hello, Universe!</h1>\n	</body>\n</html>', 'html');
+	const colorScheme =  detectColorScheme()
+	if (colorScheme == "light") {
+		vsCodeTheme = "vs"
+	}else if (colorScheme == "dark") {
+		vsCodeTheme = "vs-dark"
+	}else {
+		console.log ("unsupported colorScheme: ", colorScheme )
+	}
+
+	const originalModel = monaco.editor.createModel('Please select the configuration file you wish to restore, then click "Restore Saved Config. \nThe selected config will be displayed here.');
+	const modifiedModel = monaco.editor.createModel('Please click the "Backup Running Config" button to save the current configuration. \nThe results of the backup will be displayed here.');
 
 	window.diffEditor = monaco.editor.createDiffEditor(document.getElementById('editor-container'), {
-		theme: 'vs-dark',
+		theme: vsCodeTheme,
 		originalEditable: true,
 		readOnly: false,
 		smoothScrolling: false,
@@ -364,6 +416,8 @@ require(['vs/editor/editor.main'], function() {
 		enableSplitViewResizing: true,
 		automaticLayout: true,
 		splitViewDefaultRatio: 0.52,
+		renderGutterMenu: false,
+		
 	});
 
 	diffEditor.setModel({
