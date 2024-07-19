@@ -13,7 +13,7 @@ import (
 
 // DeviceOperation performs the defined operations on the device
 func (cyTopo *CytoTopology) NodeConfigBackupRestore(deviceKind, ipAddress, username, password, configName, directory, action string) error {
-	if deviceKind == "vr-sros" {
+	if deviceKind == "vr-sros" || deviceKind == "nokia_sros" {
 		if action == "backup" {
 			var output string
 			configFileName := fmt.Sprintf("%s-%s.cfg", configName, time.Now().Format("2006-01-02T15-04-05Z")) // Get the current time
