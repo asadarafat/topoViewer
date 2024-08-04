@@ -34,13 +34,11 @@
 
 
 			async function getEnvironments(event) {
-				showLoadingSpinner();
 				try {
 					const environments = await sendRequestToEndpointGet("/get-environments");
 
 					// Handle the response data
 					if (environments && typeof environments === 'object' && Object.keys(environments).length > 0) {
-						hideLoadingSpinner();
 						console.log("Valid non-empty JSON response received:", environments);
 						return environments
 					
@@ -48,27 +46,26 @@
 						console.log("Empty or invalid JSON response received");
 					}
 				} catch (error) {
-					hideLoadingSpinner();
 					console.error("Error occurred:", error);
 					// Handle errors as needed
 				}
 			}
 
 			async function postPythonAction(event, commandList) {
-				showLoadingSpinner();
 				try {
+					showLoadingSpinnerGlobal()
 					const pythonActionRespons = await sendRequestToEndpointPost("/python-action" ,commandList);
 
 					// Handle the response data
 					if (pythonActionRespons && typeof pythonActionRespons === 'object' && Object.keys(pythonActionRespons).length > 0) {
-						hideLoadingSpinner();
+						hideLoadingSpinnerGlobal();
 						console.log("Valid non-empty JSON response received:", pythonActionRespons);
 						return pythonActionRespons
 					} else {
 						console.log("Empty or invalid JSON response received");
 					}
 				} catch (error) {
-					hideLoadingSpinner();
+					hideLoadingSpinnerGlobal();
 					console.error("Error occurred:", error);
 					// Handle errors as needed
 				}
@@ -233,6 +230,10 @@
 			function showLoadingSpinnerGlobal() {
 				document.getElementById('loading-spinner-global')
 					.style.display = 'block';
+				document.getElementById('loading-spinner-global')
+					.style.zIndex = '9999'; 
+				document.getElementById('panel-backup-restore')
+					.style.zIndex = '9998'; 
 			}
 			
 			function hideLoadingSpinnerGlobal() {

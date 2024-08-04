@@ -8,6 +8,9 @@ var routerName
 var RouterID
 
 async function backupRestoreNodeConfig(event) {
+
+	initializeMonacoEditor()
+	
 	// init environments parameters
 	environments = await getEnvironments(event);
 	console.log("linkImpairment - environments: ", environments)
@@ -79,8 +82,71 @@ async function backupRestoreNodeConfig(event) {
     }
 }
 
+// Function to initialize the Monaco Editor with default content
+function initializeMonacoEditor() {
+    // Create the original and modified models with default messages
+    const originalModel = monaco.editor.createModel(
+        'Please select the configuration file you wish to restore.. \nthen click "Restore Saved Config. \nThe selected config will be displayed here. \n\n\nMeanwhile please enjoy this  poem.\n \n Die Eule \n ----\n Abends gegen neune \n In der alten scheune \n Hört man ien Geheule \n So ruft die Schleireule \n Schlafen nachts die Leute \n Jagt sie ihre Beute \n Schuhu Schuhu \n Um mitternacht ist Ruh\n\n',
+        'text/plain'
+    );	
+    const modifiedModel = monaco.editor.createModel(
+        'Please click the "Backup Running Config" button to save the current configuration. \nThe results of the backup will be displayed here.',
+        'text/plain'
+    );
+
+    // Set up the diff editor with the created models
+    diffEditor.setModel({
+        original: originalModel,
+        modified: modifiedModel
+    });
+}
+
+// Monaco Editor setup
+require.config({
+    paths: {
+        'vs': 'https://cdn.jsdelivr.net/npm/monaco-editor@0.50.0/min/vs'
+    }
+});
+require(['vs/editor/editor.main'], function() {
+    const colorScheme = detectColorScheme();
+    let vsCodeTheme = "vs"; // Default theme
+    if (colorScheme === "dark") {
+        vsCodeTheme = "vs-dark";
+    } else if (colorScheme !== "light") {
+        console.log("unsupported colorScheme: ", colorScheme);
+    }
+
+    // Initialize the Monaco Editor with configuration options
+    window.diffEditor = monaco.editor.createDiffEditor(document.getElementById('editor-container'), {
+        theme: vsCodeTheme,
+        originalEditable: false,
+        readOnly: true,
+        smoothScrolling: false,
+        fontFamily: "menlo",
+        fontSize: 11,
+        fontLigatures: true,
+        enableSplitViewResizing: true,
+        automaticLayout: true,
+        splitViewDefaultRatio: 0.52,
+        renderGutterMenu: false,
+    });
+
+    // Call the initialization function to set default content
+    initializeMonacoEditor();
+
+    // Ensure the editor layout adjusts when the window resizes
+    window.addEventListener('resize', () => {
+        diffEditor.layout();
+    });
+
+    // Adjust the layout after initialization
+    diffEditor.layout();
+});
+
 // Function to handle loading running configuration
 async function handleLoadRunningConfig(event) {
+
+	
 	event.preventDefault(); // Prevent default form submission if inside a form
 	var configName = OriginalModelFileName;
 
@@ -93,7 +159,24 @@ async function handleLoadRunningConfig(event) {
 	const arg02 = routerName; // Replace with actual arguments as needed
 	const arg03 = 'get'; // Replace with actual arguments as needed
 
+
+
 	try {
+		
+		showLoadingSpinnerGlobal()
+		appendMessage(
+            "Loading Running Config",
+        );
+        bulmaToast.toast({
+            message: `Alright, we're Loading the Running Config. Stay chill, folks. 😎👨‍💻`,
+            type: "is-warning is-size-6 p-3",
+            duration: 4000,
+            position: "top-center",
+            closeOnClick: true,
+        });
+
+		console.log("handleLoadRunningConfig - showLoadingSpinner")
+
 		environments = await getEnvironments(event);
 		console.log("handleLoadRunningConfig - environments: ", environments);
 
@@ -129,9 +212,13 @@ async function handleLoadRunningConfig(event) {
 		loadFileList(routerName);
 		loadFileContentModified(`${routerName}-running.cfg`);
 
+		hideLoadingSpinnerGlobal()
+
 	} catch (error) {
 		console.error('Error executing load running configuration:', error);
 	}
+
+	
 }
 
 // Function to handle restore configuration
@@ -147,6 +234,17 @@ async function handleLoadRunningConfig(event) {
 		console.log("configName: ", configName);
 
 		try {
+			showLoadingSpinnerGlobal()
+			appendMessage(
+				"Restoring up the Config",
+			);
+			bulmaToast.toast({
+				message: `Alright, we're restoring the config. Stay chill, folks. 😎👨‍💻`,
+				type: "is-warning is-size-6 p-3",
+				duration: 4000,
+				position: "top-center",
+				closeOnClick: true,
+			});
 			environments = await getEnvironments(event);
 			console.log("handleRestoreConfig - environments: ", environments);
 
@@ -180,6 +278,7 @@ async function handleLoadRunningConfig(event) {
 			console.log("handleRestoreConfig - postPayload : ", postPayload);
 			await sendRequestToEndpointPost("/node-backup-restore", postPayload);
 			loadFileList(routerName);
+			hideLoadingSpinnerGlobal()
 
 		} catch (error) {
 			console.error('Error executing restore configuration:', error);
@@ -202,6 +301,18 @@ async function handleBackupConfig(event) {
 	const arg03 = 'backup'; // Replace with actual arguments as needed
 
 	try {
+		showLoadingSpinnerGlobal()
+		appendMessage(
+            "Backing up the Config",
+        );
+        bulmaToast.toast({
+            message: `Alright, we're making the config backup. Stay chill, folks. 😎👨‍💻`,
+            type: "is-warning is-size-6 p-3",
+            duration: 4000,
+            position: "top-center",
+            closeOnClick: true,
+        });
+
 		environments = await getEnvironments(event);
 		console.log("handleBackupConfig - environments: ", environments);
 
@@ -236,6 +347,8 @@ async function handleBackupConfig(event) {
 		await sendRequestToEndpointPost("/node-backup-restore", postPayload);
 		loadFileList(routerName);
 
+		hideLoadingSpinnerGlobal()
+
 	} catch (error) {
 		console.error('Error executing backup configuration:', error);
 	}
@@ -251,8 +364,10 @@ function loadFileList(routerName) {
 				renderFileList([]);
 			} else {
 				files = data.files;
-				console.log(files)
-				renderFileList(files);
+				let filteredFileList = files.filter(file => !file.includes('running'));
+
+				console.log("loadFileList: ", filteredFileList)
+				renderFileList(filteredFileList);
 			}
 		})
 		.catch(error => console.error('Error fetching file list:', error));
@@ -297,18 +412,8 @@ function filterFileList(filter) {
 	renderFileList(filteredFiles);
 }
 
-function showLoadingSpinner() {
-	document.getElementById('loading-spinner')
-		.style.display = 'block';
-}
-
-function hideLoadingSpinner() {
-	document.getElementById('loading-spinner')
-		.style.display = 'none';
-}
-
 function loadFileContentOriginal(fileName) {
-	showLoadingSpinner();
+	showLoadingSpinnerGlobal();
 
 	// set Global Var
 	OriginalModelFileName = fileName;
@@ -327,7 +432,7 @@ function loadFileContentOriginal(fileName) {
 	fetch(`/file?RouterName=${encodeURIComponent(routerName)}&name=${encodeURIComponent(fileName)}`)
 		.then(response => response.json())
 		.then(data => {
-			hideLoadingSpinner();
+			
 
 			if (data.success) {
 				const originalModel = monaco.editor.createModel(data.content, 'text/plain');
@@ -339,15 +444,16 @@ function loadFileContentOriginal(fileName) {
 			} else {
 				console.error('Error loading file content:', data.message);
 			}
+			hideLoadingSpinnerGlobal();
 		})
 		.catch(error => {
-			hideLoadingSpinner();
 			console.error('Error fetching file content:', error);
+			hideLoadingSpinnerGlobal();
 		});
 }
 
 function loadFileContentModified(fileName) {
-	showLoadingSpinner();
+	showLoadingSpinnerGlobal();
 
 	// set Global Var
 	OriginalModelFileName = fileName;
@@ -366,7 +472,7 @@ function loadFileContentModified(fileName) {
 	fetch(`/file?RouterName=${encodeURIComponent(routerName)}&name=${encodeURIComponent(fileName)}`)
 		.then(response => response.json())
 		.then(data => {
-			hideLoadingSpinner();
+			
 
 			if (data.success) {
 				const modifiedModel = monaco.editor.createModel(data.content, 'text/plain');
@@ -378,56 +484,12 @@ function loadFileContentModified(fileName) {
 			} else {
 				console.error('Error loading file content:', data.message);
 			}
+			hideLoadingSpinnerGlobal();
 		})
 		.catch(error => {
-			hideLoadingSpinner();
+			
 			console.error('Error fetching file content:', error);
+			hideLoadingSpinnerGlobal();
 		});
 }
 
-
-
-require.config({
-	paths: {
-		'vs': 'https://cdn.jsdelivr.net/npm/monaco-editor@0.50.0/min/vs'
-	}
-});
-require(['vs/editor/editor.main'], function() {
-	const colorScheme =  detectColorScheme()
-	if (colorScheme == "light") {
-		vsCodeTheme = "vs"
-	}else if (colorScheme == "dark") {
-		vsCodeTheme = "vs-dark"
-	}else {
-		console.log ("unsupported colorScheme: ", colorScheme )
-	}
-
-	const originalModel = monaco.editor.createModel('Please select the configuration file you wish to restore, then click "Restore Saved Config. \nThe selected config will be displayed here.');
-	const modifiedModel = monaco.editor.createModel('Please click the "Backup Running Config" button to save the current configuration. \nThe results of the backup will be displayed here.');
-
-	window.diffEditor = monaco.editor.createDiffEditor(document.getElementById('editor-container'), {
-		theme: vsCodeTheme,
-		originalEditable: true,
-		readOnly: false,
-		smoothScrolling: false,
-		fontFamily: "menlo",
-		fontSize: 11,
-		fontLigatures: true,
-		enableSplitViewResizing: true,
-		automaticLayout: true,
-		splitViewDefaultRatio: 0.52,
-		renderGutterMenu: false,
-		
-	});
-
-	diffEditor.setModel({
-		original: originalModel,
-		modified: modifiedModel
-	});
-
-	window.addEventListener('resize', () => {
-		diffEditor.layout();
-	});
-
-	diffEditor.layout();
-});

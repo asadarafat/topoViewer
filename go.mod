@@ -3,7 +3,7 @@ module github.com/asadarafat/topoViewer
 go 1.22.5
 
 require (
-	github.com/asadarafat/netmiGO v0.0.1
+	github.com/asadarafat/netmiGO v0.0.4
 	github.com/buger/jsonparser v1.1.1
 	github.com/creack/pty v1.1.21
 	github.com/docker/docker v26.1.4+incompatible
@@ -16,7 +16,6 @@ require (
 	github.com/otiai10/copy v1.14.0
 	github.com/prometheus/client_golang v1.14.0
 	github.com/samber/lo v1.38.1
-	github.com/scrapli/scrapligo v1.3.1
 	github.com/shirou/gopsutil/v4 v4.24.5
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/cobra v1.8.0
@@ -77,7 +76,6 @@ require (
 	github.com/prometheus/common v0.39.0 // indirect
 	github.com/prometheus/procfs v0.8.0 // indirect
 	github.com/shoenig/go-m1cpu v0.1.6 // indirect
-	github.com/sirikothe/gotextfsm v1.0.1-0.20200816110946-6aa2cfd355e4 // indirect
 	github.com/spf13/afero v1.11.0 // indirect
 	github.com/spf13/cast v1.5.1 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
