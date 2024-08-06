@@ -3,7 +3,7 @@ module github.com/asadarafat/topoViewer
 go 1.22.5
 
 require (
-	github.com/asadarafat/netmiGO v0.0.4
+	github.com/asadarafat/netmiGO v0.0.6
 	github.com/buger/jsonparser v1.1.1
 	github.com/creack/pty v1.1.21
 	github.com/docker/docker v26.1.4+incompatible
@@ -26,7 +26,10 @@ require (
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
 )
 
-require github.com/kr/fs v0.1.0 // indirect
+require (
+	github.com/bramvdbogaerde/go-scp v1.5.0 // indirect
+	github.com/kr/fs v0.1.0 // indirect
+)
 
 require (
 	cloud.google.com/go/compute/metadata v0.3.0 // indirect

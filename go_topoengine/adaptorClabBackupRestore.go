@@ -247,9 +247,247 @@ func (cyTopo *CytoTopology) NodeConfigBackupRestore(deviceKind, ipAddress, usern
 			log.Infof("NokiaSrosRestore() - output of  %s : %s", loadConfigCommand, output)
 			srlDevice.Disconnect()
 		}
+
+		// vr-juniper_vmx
+		// vr-juniper_vmx
+	} else if deviceKind == "vr-vmx" || deviceKind == "vr-juniper_vmx" {
+		if action == "backup" {
+			var output string
+			configFileName := fmt.Sprintf("%s-%s.cfg", configName, time.Now().Format("2006-01-02T15-04-05Z")) // Get the current time
+			// configFileName := fmt.Sprintf("%s.cfg", configName) // Get the current time
+
+			junosDevice, err := netmigo.InitJUNOSDevice(ipAddress, username, "admin@123", 22)
+			if err != nil {
+				log.Error(err)
+			}
+
+			err = junosDevice.Connect()
+			if err != nil {
+				log.Error(err)
+			}
+
+			// execute running config save
+			saveRunningCommand := fmt.Sprintf("show configuration | save /var/home/admin/%s", configFileName)
+			output, err = junosDevice.SendCommand(saveRunningCommand, "running", 10*time.Second)
+			if err != nil {
+				log.Error(err)
+			}
+			log.Infof("JuniperJunosBackup() - output of `save file running-config.json from running`: %s", output)
+
+			// retrieve saved running config from device to TopoViewer server
+			localPath := filepath.Join(directory, configFileName)           // path in TopoViewer server
+			remotePath := filepath.Join("/var/home/admin/", configFileName) // path in junos device
+
+			log.Infof("JuniperJunosBackup() - localPath`: %s", localPath)
+			log.Infof("JuniperJunosBackup() - remotePath`: %s", remotePath)
+
+			err = junosDevice.RetrieveFile(remotePath, localPath)
+			if err != nil {
+				log.Error(err)
+			}
+
+			junosDevice.Disconnect()
+
+			log.Infof("JuniperJunosBackup() - deviceType: %s", deviceKind)
+
+		} else if action == "running" {
+			var output string
+			configFileName := fmt.Sprintf("%s-running.cfg", configName)
+
+			log.Infof("JuniperJunosBackup() - deviceType: %s", deviceKind)
+
+			junosDevice, err := netmigo.InitJUNOSDevice(ipAddress, username, "admin@123", 22)
+			if err != nil {
+				log.Error(err)
+			}
+
+			err = junosDevice.Connect()
+			if err != nil {
+				log.Error(err)
+			}
+
+			// execute running config save
+			saveRunningCommand := fmt.Sprintf("show configuration | save /var/home/admin/%s", configFileName)
+
+			output, err = junosDevice.SendCommand(saveRunningCommand, "running", 10*time.Second)
+			if err != nil {
+				log.Error(err)
+			}
+			log.Infof("JuniperJunosBackup() - output of save file %s from running`: %s", configFileName, output)
+
+			// retrieve saved running config from device to TopoViewer server
+			localPath := filepath.Join(directory, configFileName)           // path in TopoViewer server
+			remotePath := filepath.Join("/var/home/admin/", configFileName) // path in srl device
+
+			log.Infof("JuniperJunosRunning() - localPath`: %s", localPath)
+			log.Infof("JuniperJunosRunning() - remotePath`: %s", remotePath)
+
+			err = junosDevice.RetrieveFile(remotePath, localPath)
+			if err != nil {
+				log.Error(err)
+			}
+
+			junosDevice.Disconnect()
+
+		} else if action == "restore" {
+			var output string
+			configFileName := configName
+
+			log.Infof("JuniperJunosRestore() - deviceType: %s", deviceKind)
+
+			junosDevice, err := netmigo.InitJUNOSDevice(ipAddress, username, "admin@123", 22)
+			if err != nil {
+				log.Error(err)
+			}
+			err = junosDevice.Connect()
+			if err != nil {
+				log.Error(err)
+			}
+
+			// retrieve saved running config from device to TopoViewer server
+			localPath := filepath.Join(directory, configFileName)           // path in TopoViewer server
+			remotePath := filepath.Join("/var/home/admin/", configFileName) // path in srl device
+
+			log.Infof("JuniperJunosRestore() - localPath`: %s", localPath)
+			log.Infof("JuniperJunosRestore() - remotePath`: %s", remotePath)
+
+			err = junosDevice.FileTransfer(localPath, remotePath)
+			if err != nil {
+				log.Error(err)
+			}
+
+			// Send a set of config command
+			loadConfigCommand := fmt.Sprintf("load replace %s", configFileName)
+			output, err = junosDevice.SendCommand(loadConfigCommand, "candidate", 10*time.Second)
+			if err != nil {
+				log.Error(err)
+			}
+			log.Infof("JuniperJunosRestore() - output of  %s : %s", loadConfigCommand, output)
+			junosDevice.Disconnect()
+
+			// vr-cisco_xrv9k
+			// vr-cisco_xrv9k
+
+		}
+
+	} else if deviceKind == "vr-xrv9k" || deviceKind == "vr-cisco_xrv9k" {
+		log.Info("CiscoIosxrBackup()")
+		if action == "backup" {
+			var output string
+			configFileName := fmt.Sprintf("%s-%s.cfg", configName, time.Now().Format("2006-01-02T15-04-05Z")) // Get the current time
+			// configFileName := fmt.Sprintf("%s.cfg", configName) // Get the current time
+
+			iosxrDevice, err := netmigo.InitIOSXRDevice(ipAddress, "clab", "clab@123", 22)
+			if err != nil {
+				log.Error(err)
+			}
+
+			err = iosxrDevice.Connect()
+			if err != nil {
+				log.Error(err)
+			}
+
+			// execute running config save
+			saveRunningCommand := configFileName
+			output, err = iosxrDevice.CopyRunningConfig(saveRunningCommand, "running", 10*time.Second)
+			if err != nil {
+				log.Error(err)
+			}
+			log.Infof("CiscoIosxrBackup() - output of `save file running-config.json from running`: %s", output)
+
+			// retrieve saved running config from device to TopoViewer server
+			localPath := filepath.Join(directory, configFileName)         // path in TopoViewer server
+			remotePath := filepath.Join("/misc/scratch/", configFileName) // path in iosxr device
+
+			log.Infof("CiscoIosxrBackup() - localPath`: %s", localPath)
+			log.Infof("CiscoIosxrBackup() - remotePath`: %s", remotePath)
+
+			err = iosxrDevice.RetrieveFile(remotePath, localPath)
+			if err != nil {
+				log.Error(err)
+			}
+
+			iosxrDevice.Disconnect()
+
+			log.Infof("CiscoIosxrBackup() - deviceType: %s", deviceKind)
+
+		} else if action == "running" {
+			var output string
+			configFileName := fmt.Sprintf("%s-running.cfg", configName)
+			log.Infof("CiscoIosxrRunning() - deviceType: %s", deviceKind)
+
+			iosxrDevice, err := netmigo.InitIOSXRDevice(ipAddress, "clab", "clab@123", 22)
+			if err != nil {
+				log.Error(err)
+			}
+
+			err = iosxrDevice.Connect()
+			if err != nil {
+				log.Error(err)
+			}
+
+			// execute running config save
+			saveRunningCommand := configFileName
+			output, err = iosxrDevice.CopyRunningConfig(saveRunningCommand, "running", 10*time.Second)
+			if err != nil {
+				log.Error(err)
+			}
+			log.Infof("CiscoIosxrRunning() - output of save file %s from running`: %s", configFileName, output)
+
+			// retrieve saved running config from device to TopoViewer server
+			localPath := filepath.Join(directory, configFileName)         // path in TopoViewer server
+			remotePath := filepath.Join("/misc/scratch/", configFileName) // path in iosxr device
+
+			log.Infof("CiscoIosxrRunning() - localPath`: %s", localPath)
+			log.Infof("CiscoIosxrRunning() - remotePath`: %s", remotePath)
+
+			err = iosxrDevice.RetrieveFile(remotePath, localPath)
+			if err != nil {
+				log.Error(err)
+			}
+
+			iosxrDevice.Disconnect()
+
+		} else if action == "restore" {
+			var output string
+			configFileName := configName
+
+			log.Infof("CiscoIosxrRestore() - deviceType: %s", deviceKind)
+
+			iosxrDevice, err := netmigo.InitIOSXRDevice(ipAddress, "clab", "clab@123", 22)
+			if err != nil {
+				log.Error(err)
+			}
+			err = iosxrDevice.Connect()
+			if err != nil {
+				log.Error(err)
+			}
+
+			// retrieve saved running config from device to TopoViewer server
+			localPath := filepath.Join(directory, configFileName)         // path in TopoViewer server
+			remotePath := filepath.Join("/misc/scratch/", configFileName) // path in iosxr device
+
+			log.Infof("CiscoIosxrRestore() - localPath`: %s", localPath)
+			log.Infof("CiscoIosxrRestore() - remotePath`: %s", remotePath)
+
+			err = iosxrDevice.FileTransfer(localPath, remotePath)
+			if err != nil {
+				log.Error(err)
+			}
+
+			// Send a set of config command
+			// loadConfigCommand := fmt.Sprintf("load replace %s", configFileName)
+			output, err = iosxrDevice.LoadRunningConfig(configFileName, "candidate", 10*time.Second)
+			if err != nil {
+				log.Error(err)
+			}
+			log.Infof("CiscoIosxrRestore() - output of LoadRunningConfig() %s ", output)
+			iosxrDevice.Disconnect()
+		}
 	} else {
 		log.Errorf("Unsupported device type: %s", deviceKind)
 		return fmt.Errorf("unsupported device type: %s", deviceKind)
+
 	}
 
 	return nil
