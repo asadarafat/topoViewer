@@ -630,7 +630,7 @@ func (cyTopo *CytoTopology) GetDockerNodeStatusViaUnixSocket(clabNodeName string
 // SNMPv2-MIB::sysLocation.0 = STRING: N 40 25 0, W 3 43 0
 
 func (cyTopo *CytoTopology) SendSnmpGetNodeEndpoint(targetAddress string, targetCommunity string, targetVersion gosnmp.SnmpVersion) ([]byte, map[string][]PortInfo, error) {
-	log.Infof("########################", targetAddress, targetCommunity)
+	log.Infof("######################## %s %s", targetAddress, targetCommunity)
 
 	g := &gosnmp.GoSNMP{
 		Target:    targetAddress,
@@ -823,7 +823,7 @@ func (cyTopo *CytoTopology) SendSnmpGetNodeEndpoint(targetAddress string, target
 	log.Debugf(string(outputParsedMarshalled))
 
 	// Convert nested list to JSON
-	var result []map[string]PortInfo
+	// var result []map[string]PortInfo
 	nodeMap := make(map[string][]PortInfo)
 	newIndex := 0
 
@@ -834,7 +834,7 @@ func (cyTopo *CytoTopology) SendSnmpGetNodeEndpoint(targetAddress string, target
 
 			log.Debug(item[5].(string))
 
-			portIdString := ("index-" + (strconv.Itoa(newIndex)))
+			// portIdString := ("index-" + (strconv.Itoa(newIndex)))
 			info := PortInfo{}
 			info.NodeName = targetAddress
 			info.IfName = strings.SplitN(fmt.Sprintf("%v", item[1]), ": ", 2)[1]
@@ -847,7 +847,7 @@ func (cyTopo *CytoTopology) SendSnmpGetNodeEndpoint(targetAddress string, target
 
 			// result = append(result, map[string]PortInfo{portIdString: info})
 
-			result = append(result, map[string]PortInfo{portIdString: info})
+			// result = append(result, map[string]PortInfo{portIdString: info})
 
 			nodeMap[info.NodeName] = append(nodeMap[info.NodeName], info)
 
@@ -865,7 +865,7 @@ func (cyTopo *CytoTopology) SendSnmpGetNodeEndpoint(targetAddress string, target
 	// Convert result to jsonDataNodeMap string
 	jsonDataNodeMap, err := json.MarshalIndent(nodeMap, "", "    ")
 	if err != nil {
-		log.Errorf("Error:", err)
+		log.Errorf("Error: %s", err)
 	}
 	log.Debug(string(jsonDataNodeMap))
 	return jsonDataNodeMap, nodeMap, err
