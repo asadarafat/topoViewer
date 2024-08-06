@@ -1505,14 +1505,14 @@ async function sidebarButtonFitScreen(event) {
 async function getActualNodesEndpoints(event) {
     try {
         bulmaToast.toast({
-            message: `Getting Actual Nodes Endpoint Labesl... Hold on..! 🚀💻`,
+            message: `Getting Actual Nodes Endpoint Labels... Hold on..! 🚀💻`,
             type: "is-warning is-size-6 p-3",
             duration: 4000,
             position: "top-center",
             closeOnClick: true,
         });
         appendMessage(
-           `Getting Actual Nodes Endpoint Labesl... Hold on..! 🚀💻`,
+           `Getting Actual Nodes Endpoint Labels... Hold on..! 🚀💻`,
         );
 
         showLoadingSpinnerGlobal()

@@ -4,82 +4,150 @@ var files = [];
 var filteredFiles = [];
 var OriginalModelFileName;
 
+// environments variables
 var routerName
-var RouterID
+var routerID
+var routerKind
+var routerUsername
+var routerPassword
+var workingDirectory
+var clabName
+
+// Define default kind credential
+const supportedRouterKindsDefaultCredential = [
+	["srl", "admin", "NokiaSrl1!"],
+	["nokia_srl", "admin", "NokiaSrl1!"],
+	["vr-sros", "admin", "admin"],
+	["nokia_sros", "admin", "admin"],
+	["vr-vmx", "admin", "admin@123"],
+	["vr-juniper_vmx", "admin", "admin@123"],
+	["vr-xrv9k", "clab", "clab@123"],
+	["vr-cisco_xrv9k", "clab", "clab@123"]
+];
+
+// Function to check if a router kind is supported
+function isRouterKindSupported(routerKind) {
+    return supportedRouterKindsDefaultCredential.some(function(entry) {
+        const kind = entry[0]; // Extract the router kind from the entry
+        return kind === routerKind;
+    });
+}
+
+function getCredentialsForRouterKind(routerKind) {
+    // Find the entry for the given router kind
+    const credentialEntry = supportedRouterKindsDefaultCredential.find(function(entry) {
+        const kind = entry[0];
+        return kind === routerKind;
+    });
+
+    // Check if the credential entry was found
+    if (credentialEntry) {
+        const [, user, password] = credentialEntry; // Destructure to get user and password
+        return { user, password };
+    }
+
+    return null; // Return null if not found
+}
 
 async function backupRestoreNodeConfig(event) {
-
-	initializeMonacoEditor()
 	
-	// init environments parameters
+	// init environments variables
 	environments = await getEnvironments(event);
 	console.log("linkImpairment - environments: ", environments)
+	workingDirectory = environments["working-directory"];
+	clabName = environments["clab-name"];
 	nodeData = findCytoElementByLongname(environments["EnvCyTopoJsonBytes"], globalSelectedNode)
-
 	routerName = globalSelectedNode;
 	routerID = nodeData["data"]["extraData"]["mgmtIpv4Addresss"]
+	routerKind = nodeData["data"]["extraData"]["kind"];
+	credentials = getCredentialsForRouterKind(routerKind);
+	routerUsername = credentials.user
+	routerPassword = credentials.password
 
-	console.log("backupRestoreNodeConfig - routerName: ", routerName)
+    // console.log("backupRestoreNodeConfig - credentials: ", routerUsername + ":" + routerPassword)
+	// console.log("backupRestoreNodeConfig - routerName: ", routerName)
     console.log("backupRestoreNodeConfig - routerID: ", routerID)
 
+	// if (supportedRouterKinds.includes(routerKind)) {
+	if (isRouterKindSupported(routerKind)) { 
 
-	// init the running config to be loaded
-	handleLoadRunningConfig(event)
 
-	// Remove all Overlayed Panel
-	// Get all elements with the class "panel-overlay"
-	var panelOverlays = document.getElementsByClassName("panel-overlay");
-	// Loop through each element and set its display to 'none'
-	for (var i = 0; i < panelOverlays.length; i++) {
-		panelOverlays[i].style.display = "none";
-	}
-
-    try {
-
-        document.getElementById("panel-backup-restore").style.display = "block";
-        document.getElementById("panel-backup-restore").style.height = "calc(85vh - 50px)";
-        document.getElementById("editor-container").style.height = "calc(80vh - 80px)";
-
-		// Output the values to console
-		console.log('routerID:', routerID);
-		console.log('routerName:', routerName);
-
-		// Update the text of the file browser title
-		const fileBrowserTitle = document.getElementById('diff-panel-title');
-		if (fileBrowserTitle && routerID) {
-			fileBrowserTitle.textContent = `${routerName}`;
-		}
-		if (routerName) {
-			loadFileList(routerName);
-		} else {
-			console.error('No routerName specified in URL');
-		}
-
-		const searchInput = document.getElementById('search-input');
-		searchInput.addEventListener('input', (event) => {
-			const filter = event.target.value.toLowerCase();
-			console.log ("filter", filter)
-			filterFileList(filter);
+		// init the backupRestore monaco editor
+		initializeMonacoEditor()
 		
-	});
+		// init the running config to be loaded
+		handleLoadRunningConfig(event)
+
+		// Remove all Overlayed Panel
+		// Get all elements with the class "panel-overlay"
+		var panelOverlays = document.getElementsByClassName("panel-overlay");
+		// Loop through each element and set its display to 'none'
+		for (var i = 0; i < panelOverlays.length; i++) {
+			panelOverlays[i].style.display = "none";
+		}
+
+		try {
+
+			document.getElementById("panel-backup-restore").style.display = "block";
+			document.getElementById("panel-backup-restore").style.height = "calc(85vh - 50px)";
+			document.getElementById("editor-container").style.height = "calc(80vh - 80px)";
+
+			// Output the values to console
+			console.log('routerID:', routerID);
+			console.log('routerName:', routerName);
+
+			// Update the text of the file browser title
+			const fileBrowserTitle = document.getElementById('diff-panel-title');
+			if (fileBrowserTitle && routerID) {
+				fileBrowserTitle.textContent = `${routerName}`;
+			}
+			if (routerName) {
+				loadFileList(routerName);
+			} else {
+				console.error('No routerName specified in URL');
+			}
+
+			const searchInput = document.getElementById('search-input');
+			searchInput.addEventListener('input', (event) => {
+				const filter = event.target.value.toLowerCase();
+				console.log ("filter", filter)
+				filterFileList(filter);
+			
+		});
+
+		// Add event listener to the buttonRestoreConfig
+		const buttonRestoreConfig = document.getElementById('buttonRestoreConfig');
+		buttonRestoreConfig.addEventListener('click', handleRestoreConfig);
+
+		// Add event listener to the buttonBackupConfig
+		const buttonBackupConfig = document.getElementById('buttonBackupConfig');
+		buttonBackupConfig.addEventListener('click', handleBackupConfig);
+
+		// Add event listener to the buttonLoadRunningConfig
+		const buttonLoadRunningConfig = document.getElementById('buttonLoadRunningConfig');
+		buttonLoadRunningConfig.addEventListener('click', handleLoadRunningConfig);
 
 
-	// Add event listener to the buttonRestoreConfig
-	const buttonRestoreConfig = document.getElementById('buttonRestoreConfig');
-	buttonRestoreConfig.addEventListener('click', handleRestoreConfig);
+		} catch (error) {
+			console.error('Error executing restore configuration:', error);
+		}
+	} else {
 
-	// Add event listener to the buttonBackupConfig
-	const buttonBackupConfig = document.getElementById('buttonBackupConfig');
-	buttonBackupConfig.addEventListener('click', handleBackupConfig);
+		appendMessage(
+			`Router Kind ${routerKind} is not supported for backup-restore`,
+		);
+		bulmaToast.toast({
+			message: `Sorry, Router Kind ${routerKind} is not supported for backup-restore 👨‍💻`,
+			type: "is-warning is-size-6 p-3",
+			duration: 4000,
+			position: "top-center",
+			closeOnClick: true,
+		});
+		
+    }  
 
-	// Add event listener to the buttonLoadRunningConfig
-	const buttonLoadRunningConfig = document.getElementById('buttonLoadRunningConfig');
-	buttonLoadRunningConfig.addEventListener('click', handleLoadRunningConfig);
 
 
-    } catch (error) {
-        console.error('Error executing restore configuration:', error);
-    }
 }
 
 // Function to initialize the Monaco Editor with default content
@@ -160,9 +228,9 @@ async function handleLoadRunningConfig(event) {
 	const arg03 = 'get'; // Replace with actual arguments as needed
 
 
-
 	try {
-		
+		actionName = "backupRestoreScript";
+
 		showLoadingSpinnerGlobal()
 		appendMessage(
             "Loading Running Config",
@@ -176,29 +244,13 @@ async function handleLoadRunningConfig(event) {
         });
 
 		console.log("handleLoadRunningConfig - showLoadingSpinner")
-
-		environments = await getEnvironments(event);
-		console.log("handleLoadRunningConfig - environments: ", environments);
-
-		cytoTopologyJson = environments["EnvCyTopoJsonBytes"];
-		routerData = findCytoElementByLongname(cytoTopologyJson, routerName);
-		console.log("handleLoadRunningConfig - routerData - longName: ", routerData);
-
-		workingDirectory = environments["working-directory"];
-		actionName = "backupRestoreScript";
-		routerUserName = "admin";
-		routerPassword = "admin";
-		routerKind = routerData["data"]["extraData"]["kind"];
-
-		console.log("handleLoadRunningConfig - routerData - longName: ", routerData);
-
 		var postPayload = [];
 
 		// Create an object with attributes and values
 		var payload = {
 			routerKind: routerKind,
 			routerID: routerID,
-			routerUserName: routerUserName,
+			routerUsername: routerUsername,
 			routerPassword: routerPassword,
 			configNamePrefix: routerName,
 			backupPath: `${workingDirectory}/html-public/nokia-ServiceProvider/node-backup/${routerName}`,
@@ -234,6 +286,8 @@ async function handleLoadRunningConfig(event) {
 		console.log("configName: ", configName);
 
 		try {
+			actionName = "backupRestoreScript";
+
 			showLoadingSpinnerGlobal()
 			appendMessage(
 				"Restoring up the Config",
@@ -245,28 +299,13 @@ async function handleLoadRunningConfig(event) {
 				position: "top-center",
 				closeOnClick: true,
 			});
-			environments = await getEnvironments(event);
-			console.log("handleRestoreConfig - environments: ", environments);
-
-			cytoTopologyJson = environments["EnvCyTopoJsonBytes"];
-			routerData = findCytoElementByLongname(cytoTopologyJson, routerName);
-
-			workingDirectory = environments["working-directory"];
-			clabName = environments["clab-name"];
-			actionName = "backupRestoreScript";
-			routerUserName = "admin";
-			routerPassword = "admin";
-			routerKind = routerData["data"]["extraData"]["kind"];
-
-			console.log("handleRestoreConfig - routerData - longName: ", routerData);
-
 			var postPayload = [];
 
 			// Create an object with attributes and values
 			var payload = {
 				routerKind: routerKind,
 				routerID: routerID,
-				routerUserName: routerUserName,
+				routerUsername: routerUsername,
 				routerPassword: routerPassword,
 				configNamePrefix: configName,
 				backupPath: `${workingDirectory}/html-public/${clabName}/node-backup/${routerName}`,
@@ -300,7 +339,9 @@ async function handleBackupConfig(event) {
 	const arg02 = routerName; // Replace with actual arguments as needed
 	const arg03 = 'backup'; // Replace with actual arguments as needed
 
-	try {
+	try {		
+		actionName = "backupRestoreScript";
+
 		showLoadingSpinnerGlobal()
 		appendMessage(
             "Backing up the Config",
@@ -313,28 +354,13 @@ async function handleBackupConfig(event) {
             closeOnClick: true,
         });
 
-		environments = await getEnvironments(event);
-		console.log("handleBackupConfig - environments: ", environments);
-
-		cytoTopologyJson = environments["EnvCyTopoJsonBytes"];
-		routerData = findCytoElementByLongname(cytoTopologyJson, routerName);
-
-		workingDirectory = environments["working-directory"];
-		clabName = environments["clab-name"];
-		actionName = "backupRestoreScript";
-		routerUserName = "admin";
-		routerPassword = "admin";
-		routerKind = routerData["data"]["extraData"]["kind"];
-
-		console.log("handleBackupConfig - routerData - longName: ", routerData);
-
 		var postPayload = [];
 
 		// Create an object with attributes and values
 		var payload = {
 			routerKind: routerKind,
 			routerID: routerID,
-			routerUserName: routerUserName,
+			routerUsername: routerUsername,
 			routerPassword: routerPassword,
 			configNamePrefix: routerName,
 			backupPath: `${workingDirectory}/html-public/${clabName}/node-backup/${routerName}`,
