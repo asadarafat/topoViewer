@@ -10,7 +10,6 @@ import (
 	"net/http"
 	"os"
 	"path"
-	"path/filepath"
 	"strconv"
 	"strings"
 	"sync"
@@ -56,16 +55,6 @@ type ContainerUsage struct {
 	Name   string  `json:"name"`
 	CPU    float64 `json:"cpu"`
 	Memory float64 `json:"memory"`
-}
-
-type FileListResponse struct {
-	Files []string `json:"files"`
-}
-
-type FileContentResponse struct {
-	Success bool   `json:"success"`
-	Content string `json:"content,omitempty"`
-	Message string `json:"message,omitempty"`
 }
 
 // config
@@ -900,186 +889,15 @@ func Clab(_ *cobra.Command, _ []string) error {
 
 		}).Methods("GET")
 
-	// API endpoint to list files
-	// API endpoint to list files
+	// Separate handler for node-backup-restore files endpoint
 	router.HandleFunc("/files", func(w http.ResponseWriter, r *http.Request) {
-		// Define the directory to list files from
-		RouterName := r.URL.Query().Get("RouterName")
-		if RouterName == "" {
-			http.Error(w, "Missing directory parameter", http.StatusBadRequest)
-			return
-		}
-
-		workingDirectory, _ := os.Getwd()
-		routerBackupDirectory := path.Join(workingDirectory, HtmlPublicPrefixPath+cyTopo.ClabTopoDataV2.Name+"/node-backup/"+RouterName)
-
-		os.Mkdir(routerBackupDirectory, 0755)
-
-		log.Infof("routerBackupDirectory: %s", routerBackupDirectory)
-
-		// Read the directory
-		files, err := os.ReadDir(routerBackupDirectory)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		// Collect file names
-		var fileNames []string
-		for _, file := range files {
-			if !file.IsDir() {
-				fileNames = append(fileNames, file.Name())
-			}
-		}
-
-		// Create the response
-		response := FileListResponse{Files: fileNames}
-
-		// Write the response as JSON
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(response)
-
+		clabHandlers.FilesHandler(w, r, &cyTopo, HtmlPublicPrefixPath)
 	}).Methods("GET")
 
-	// API endpoint to read file
-	// API endpoint to read file
-	router.HandleFunc("/file",
-		func(w http.ResponseWriter, r *http.Request) {
-			fileName := r.URL.Query().Get("name")
-			if fileName == "" {
-				http.Error(w, "Missing file name", http.StatusBadRequest)
-				return
-			}
-
-			// Define the directory to list files from
-			RouterName := r.URL.Query().Get("RouterName")
-			if RouterName == "" {
-				http.Error(w, "Missing directory parameter", http.StatusBadRequest)
-				return
-			}
-
-			workingDirectory, _ := os.Getwd()
-			routerBackupDirectory := path.Join(workingDirectory, HtmlPublicPrefixPath+cyTopo.ClabTopoDataV2.Name+"/node-backup/"+RouterName)
-
-			log.Infof("routerBackupDirectory: %s", routerBackupDirectory)
-
-			filePath := filepath.Join(routerBackupDirectory, fileName)
-			log.Infof("routerBackupDirectoryFilepath: %s", filePath)
-
-			content, err := os.ReadFile(filePath)
-			if err != nil {
-				w.Header().Set("Content-Type", "application/json")
-				json.NewEncoder(w).Encode(FileContentResponse{
-					Success: false,
-					Message: "Failed to read file",
-				})
-				return
-			}
-
-			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(FileContentResponse{
-				Success: true,
-				Content: string(content),
-			})
-		}).Methods("GET")
-
-	// API endpoint to get-environments
-	// API endpoint to get-environments
-	// router.HandleFunc("/get-environments",
-	// 	func(w http.ResponseWriter, r *http.Request) {
-
-	// 		type Environments struct {
-	// 			EnvWorkingDirectory  string `json:"working-directory"`
-	// 			EnvClabName          string `json:"clab-name"`
-	// 			EnvClabServerAddress string `json:"clab-server-address"`
-	// 			EnvClabServerPort    string `json:"clab-server-port"`
-	// 			EnvDeploymentType    string `json:"deployment-type"`
-	// 			EnvTopoViewerVersion string `json:"topoviewer-version"`
-	// 			EnvCyTopoJsonBytes   []topoengine.CytoJson
-	// 		}
-
-	// 		var cytoTopoJson []topoengine.CytoJson
-	// 		err := json.Unmarshal(cyTopoJsonBytes, &cytoTopoJson)
-	// 		if err != nil {
-	// 			fmt.Println("Error parsing JSON:", err)
-	// 			return
-	// 		}
-
-	// 		environments := Environments{
-	// 			EnvWorkingDirectory:  workingDirectory,
-	// 			EnvClabName:          cyTopo.ClabTopoDataV2.Name,
-	// 			EnvClabServerAddress: confClab.GetStringSlice("allowed-hostnames")[0],
-	// 			EnvClabServerPort:    fmt.Sprintf("%d", confClab.GetInt("server-port")),
-	// 			EnvDeploymentType:    deploymentType,
-	// 			EnvTopoViewerVersion: VersionInfo,
-	// 			EnvCyTopoJsonBytes:   cytoTopoJson,
-	// 		}
-	// 		w.Header().Set("Content-Type", "application/json")
-	// 		json.NewEncoder(w).Encode(environments)
-
-	// 	}).Methods("GET")
-
-	// API endpoint to trigger python-action
-	// API endpoint to trigger python-action
-	// router.HandleFunc("/python-action",
-	// func(w http.ResponseWriter, r *http.Request) {
-
-	// 	// Parse the request body
-	// 	var requestData map[string]interface{}
-	// 	if err := json.NewDecoder(r.Body).Decode(&requestData); err != nil {
-	// 		http.Error(w, "Invalid request body", http.StatusBadRequest)
-	// 		log.Error(err)
-	// 	}
-
-	// 	// Access the parameters
-	// 	log.Info(requestData)
-
-	// 	clabUser := confClab.GetString("clab-user")
-	// 	clabHost := confClab.GetStringSlice("allowed-hostnames")
-	// 	clabPass := confClab.GetString("clab-pass")
-	// 	RouterId := requestData["param1"].(string)
-	// 	command := requestData["param2"].(string)
-
-	// 	backupDir := fmt.Sprintf(HtmlPublicPrefixPath + cyTopo.ClabTopoDataV2.Name + "/node-backup/" + RouterId)
-	// 	err := os.Mkdir(backupDir, 0755)
-	// 	if err != nil {
-	// 		log.Error(err)
-	// 	}
-
-	// 	chownCmd := exec.Command("chown", fmt.Sprintf("%s:%s", clabUser, clabUser), backupDir)
-	// 	err = chownCmd.Run()
-	// 	if err != nil {
-	// 		log.Error(err)
-	// 	}
-
-	// 	returnData, err := tools.Ssh(clabHost[0], "22", clabUser, clabPass, command)
-
-	// 	// Create a response JSON object
-	// 	responseData := map[string]interface{}{
-	// 		"result":      "python-action endpoint executed",
-	// 		"return data": returnData,
-	// 		"error":       err,
-	// 	}
-
-	// 	// Marshal the response JSON object into a JSON string
-	// 	jsonResponse, err := json.Marshal(responseData)
-	// 	if err != nil {
-	// 		http.Error(w, "Failed to marshal response data", http.StatusInternalServerError)
-	// 		return
-	// 	}
-
-	// 	// Set the response Content-Type header
-	// 	w.Header().Set("Content-Type", "application/json")
-
-	// 	// Write the JSON response to the client
-	// 	_, err = w.Write(jsonResponse)
-	// 	if err != nil {
-	// 		// Handle the error (e.g., log it)
-	// 		http.Error(w, "Failed to write response", http.StatusInternalServerError)
-	// 		return
-	// 	}
-
-	// }).Methods("POST")
+	// Separate handler for node-backup-restorefile endpoint
+	router.HandleFunc("/file", func(w http.ResponseWriter, r *http.Request) {
+		clabHandlers.FileHandler(w, r, &cyTopo, HtmlPublicPrefixPath)
+	}).Methods("GET")
 
 	// // Separate handler for get-environments
 	router.HandleFunc("/get-environments", func(w http.ResponseWriter, r *http.Request) {
@@ -1096,6 +914,7 @@ func Clab(_ *cobra.Command, _ []string) error {
 		clabHandlers.ClabNodeBackupRestoreHandler(w, r, &cyTopo)
 	}).Methods("POST")
 
+	// starting HTTP server
 	// starting HTTP server
 
 	// this is the endpoint for serving xterm.js assets
