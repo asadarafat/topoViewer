@@ -889,6 +889,10 @@ func Clab(_ *cobra.Command, _ []string) error {
 
 		}).Methods("GET")
 
+	router.HandleFunc("/container-compute-resource-usage", func(w http.ResponseWriter, r *http.Request) {
+		clabHandlers.ContainerComputeResourceUsage(w, r)
+	}).Methods("GET")
+
 	// Separate handler for node-backup-restore files endpoint
 	router.HandleFunc("/files", func(w http.ResponseWriter, r *http.Request) {
 		clabHandlers.FilesHandler(w, r, &cyTopo, HtmlPublicPrefixPath)
