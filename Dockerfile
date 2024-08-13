@@ -39,9 +39,6 @@ echo "KexAlgorithms diffie-hellman-group1-sha1,curve25519-sha256@libssh.org,ecdh
 # Download dist folder
 COPY ./dist /opt/topoviewer
 
-RUN pip install --no-cache-dir -r ./html-static/actions/backupRestoreScript/requirements.txt
-RUN pip install --no-cache-dir -r ./html-static/actions/rebootScript/requirements.txt
-
 
 #expose port 
 EXPOSE 8080 22 514
