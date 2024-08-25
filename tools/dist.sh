@@ -33,7 +33,7 @@ echo "Copy clab client..."
 cp -r tools/clab-client-mac dist/clab-client-mac
 
 
-echo "Clab export template..."
+echo "Clab export template..."LA
 cp rawTopoFile/clab-topo-export-template-example/clab-topo-new-version-cytoscape.tmpl dist/clab-topoviewer.tmpl
 
 mkdir dist/clab-client-windows

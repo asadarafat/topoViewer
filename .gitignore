@@ -19,3 +19,7 @@ package.json
 .cache/**
 clab-3tierSmall/**
 README-02.md
+go_topoengine/cmd/*
+go_topoengine/cmd/**
+config/*
+config/**
