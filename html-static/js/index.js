@@ -388,7 +388,7 @@ document.addEventListener("DOMContentLoaded", async function() {
         clabSourceLinkImpairmentClabData = await sendRequestToEndpointGetV2("/clab-link-impairment", clabSourceLinkArgsList)
 
         if (clabSourceLinkImpairmentClabData && typeof clabSourceLinkImpairmentClabData === 'object' && Object.keys(clabSourceLinkImpairmentClabData).length > 0) {
-            hideLoadingSpinner();
+            hideLoadingSpinnerGlobal();
             console.log("Valid non-empty JSON response received:", clabSourceLinkImpairmentClabData);
             console.log("Valid non-empty JSON response received: clabSourceLinkImpairmentClabData returnd data", clabSourceLinkImpairmentClabData["return data"]["delay"]);
 
@@ -429,7 +429,7 @@ document.addEventListener("DOMContentLoaded", async function() {
         clabTargetLinkImpairmentClabData = await sendRequestToEndpointGetV2("/clab-link-impairment", clabTargetLinkArgsList)
         
         if (clabTargetLinkImpairmentClabData && typeof clabTargetLinkImpairmentClabData === 'object' && Object.keys(clabTargetLinkImpairmentClabData).length > 0) {
-            hideLoadingSpinner();
+            hideLoadingSpinnerGlobal();
             console.log("Valid non-empty JSON response received:", clabTargetLinkImpairmentClabData);
             console.log("Valid non-empty JSON response received: clabTargetLinkImpairmentClabData returnd data", clabTargetLinkImpairmentClabData["return data"]["delay"]);
 
@@ -1521,7 +1521,7 @@ async function getActualNodesEndpoints(event) {
 
         // Handle the response data
         if (CyTopoJson && typeof CyTopoJson === 'object' && Object.keys(CyTopoJson).length > 0) {
-            hideLoadingSpinner();
+            hideLoadingSpinnerGlobal();
             console.log("Valid non-empty JSON response received:", CyTopoJson);
 
             hideLoadingSpinnerGlobal();
