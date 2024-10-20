@@ -180,38 +180,6 @@ func init() {
 	rootCommand.AddCommand(&clabCommand)
 }
 
-// define a reader which will listen for
-// new messages being sent to our WebSocket
-// endpoint
-// func reader(conn *websocket.Conn) {
-// 	defer conn.Close()
-
-// 	// Set the maximum allowed idle time for the WebSocket connection
-// 	conn.SetReadDeadline(time.Now().Add(5 * time.Second)) // Adjust the duration as needed
-
-// 	for {
-// 		// read in a message
-// 		messageType, p, err := conn.ReadMessage()
-// 		if err != nil {
-// 			// Check for specific close error codes indicating client-initiated closure
-// 			if websocket.IsCloseError(err, websocket.CloseNormalClosure, websocket.CloseGoingAway) {
-// 				log.Info("WebSocket connection closed by the client.")
-// 			} else {
-// 				log.Info("Error while reading from WebSocket:", err)
-// 			}
-// 			return
-// 		}
-// 		// print out that message for clarity
-// 		log.Info(string(p))
-
-// 		if err := conn.WriteMessage(messageType, p); err != nil {
-// 			log.Info(err)
-// 			return
-// 		}
-// 		conn.SetReadDeadline(time.Now().Add(5 * time.Second))
-// 	}
-// }
-
 func checkSudoAccess() {
 	euid := syscall.Geteuid()
 
@@ -227,12 +195,10 @@ func checkSudoAccess() {
 
 func Clab(_ *cobra.Command, _ []string) error {
 
+	// init logger
 	cyTopo := topoengine.CytoTopology{}
 	toolLogger := tools.Logs{}
-
-	cyTopo.InitLogger()
-	cyTopo.LogLevel = uint32(toolLogger.MapLogLevelStringToNumber(confClab.GetString("log-level")))
-	toolLogger.InitLogger("logs/topoengine-CytoTopology.log", cyTopo.LogLevel)
+	toolLogger.InitLogger("logs/topoengine-CytoTopology.log", uint32(toolLogger.MapLogLevelStringToNumber(confClab.GetString("log-level"))))
 
 	//check sudo
 	checkSudoAccess()
@@ -330,7 +296,7 @@ func Clab(_ *cobra.Command, _ []string) error {
 		KeepalivePingTimeout: keepalivePingTimeout,
 		MaxBufferSizeBytes:   maxBufferSizeBytes,
 	}
-	router.HandleFunc(pathXTermJS, xtermjs.GetHandler(xtermjsHandlerOptions, "TEST"))
+	router.HandleFunc(pathXTermJS, xtermjs.GetHandler(xtermjsHandlerOptions, "TEST", clabHostUsername))
 
 	// readiness probe endpoint
 	router.HandleFunc(pathReadiness,
@@ -679,32 +645,6 @@ func Clab(_ *cobra.Command, _ []string) error {
 				}
 			}
 		})
-
-	// //// websocket clabServerAddress endpoint
-	// //// websocket clabServerAddress endpoint
-	// router.HandleFunc("/clabServerAddress",
-	// 	func(w http.ResponseWriter, r *http.Request) {
-	// 		// Upgrade this connection to a WebSocket connection
-	// 		clabServerAddress, err := upgrader.Upgrade(w, r, nil)
-	// 		if err != nil {
-	// 			log.Info(err)
-	// 			return // Return to exit the handler if WebSocket upgrade fails
-	// 		}
-
-	// 		defer func() {
-	// 			clabServerAddress.Close() // Close the WebSocket connection when the handler exits
-	// 		}()
-
-	// 		clabHost := confClab.GetStringSlice("allowed-hostnames")
-	// 		log.Infof("clabServerAddress endpoint called, clabHost is %s", clabHost[0])
-
-	// 		// Write the clabHost value to the WebSocket connection
-	// 		err = clabServerAddress.WriteMessage(websocket.TextMessage, []byte(clabHost[0]))
-	// 		if err != nil {
-	// 			log.Info(err)
-	// 			return // Return to exit the handler if write fails
-	// 		}
-	// 	})
 
 	//// API endpoint to trigger clab-link-impairment
 	router.HandleFunc("/clab-link-impairment",

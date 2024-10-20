@@ -19,7 +19,6 @@ import (
 	"github.com/samber/lo"
 	"golang.org/x/crypto/ssh"
 
-	tools "github.com/asadarafat/topoViewer/go_tools"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -127,11 +126,11 @@ type ClabNetemInterfaceData struct {
 	Rate       string `json:"rate"`
 }
 
-func (cyTopo *CytoTopology) InitLogger() {
-	// init logConfig
-	toolLogger := tools.Logs{}
-	toolLogger.InitLogger("logs/topoengine-CytoTopology-adaptorClabV2.log", cyTopo.LogLevel)
-}
+// func (cyTopo *CytoTopology) InitLogger() {
+// 	// init logConfig
+// 	toolLogger := tools.Logs{}
+// 	toolLogger.InitLogger("logs/topoengine-CytoTopology-adaptorClabV2.log", cyTopo.LogLevel)
+// }
 
 func (cyTopo *CytoTopology) ClabTopoRead(topoFile string) []byte {
 	// log.Info(topoFile)

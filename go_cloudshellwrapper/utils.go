@@ -32,7 +32,6 @@ func createRequestLog(r *http.Request, additionalFields ...map[string]interface{
 	cyTopo := topoengine.CytoTopology{}
 	toolLogger := tools.Logs{}
 
-	cyTopo.InitLogger()
 	cyTopo.LogLevel = uint32(toolLogger.MapLogLevelStringToNumber(confClab.GetString("log-level")))
 	toolLogger.InitLogger("logs/topoengine-CytoTopology.log", cyTopo.LogLevel)
 

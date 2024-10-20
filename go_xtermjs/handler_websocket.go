@@ -11,51 +11,42 @@ import (
 	"sync"
 	"time"
 
-	log "github.com/asadarafat/topoViewer/go_tools"
-
 	"github.com/creack/pty"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
+	log "github.com/sirupsen/logrus"
 )
 
 const DefaultConnectionErrorLimit = 10
 
 type HandlerOpts struct {
-	// AllowedHostnames is a list of strings which will be matched to the client
-	// requesting for a connection upgrade to a websocket connection
-	AllowedHostnames []string
-	// Arguments is a list of strings to pass as arguments to the specified COmmand
-	Arguments []string
-	// Command is the path to the binary we should create a TTY for
-	Command string
-	// ConnectionErrorLimit defines the number of consecutive errors that can happen
-	// before a connection is considered unusable
+	AllowedHostnames     []string
+	Arguments            []string
+	Command              string
 	ConnectionErrorLimit int
-	// CreateLogger when specified should return a logger that the handler will use.
-	// The string argument being passed in will be a unique identifier for the
-	// current connection. When not specified, logs will be sent to stdout
-	CreateLogger func(string, *http.Request) Logger
-	// KeepalivePingTimeout defines the maximum duration between which a ping and pong
-	// cycle should be tolerated, beyond this the connection should be deemed dead
+	CreateLogger         func(string, *http.Request) Logger
 	KeepalivePingTimeout time.Duration
 	MaxBufferSizeBytes   int
 }
 
-func GetHandler(opts HandlerOpts, routerId string) func(http.ResponseWriter, *http.Request) {
+// Function to check if a user exists by using 'id' command
+func userExists(username string) bool {
+	cmd := exec.Command("id", username)
+	err := cmd.Run()
+	return err == nil // If err is nil, the user exists
+}
+
+// Function to create a new user using 'useradd'
+func createUser(username string) error {
+	cmd := exec.Command("sudo", "useradd", "-m", "-s", "/bin/bash", username)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	return cmd.Run()
+}
+
+func GetHandler(opts HandlerOpts, routerId string, clabHostUsername string) func(http.ResponseWriter, *http.Request) {
 
 	return func(w http.ResponseWriter, r *http.Request) {
-
-		// params := mux.Vars(r)
-
-		// RouterId := r.URL.Query().Get("parm1")
-
-		// reqDump, err := httputil.DumpRequestOut(r, true)
-		// if err != nil {
-		// 	log.Error(err)
-		// }
-
-		// log.Debug("XXXXXXXXXXX  " + string(reqDump))
-		// log.Info("XXXXXXXXXXX  " + r.URL.Scheme)
 
 		connectionErrorLimit := opts.ConnectionErrorLimit
 		if connectionErrorLimit < 0 {
@@ -89,11 +80,26 @@ func GetHandler(opts HandlerOpts, routerId string) func(http.ResponseWriter, *ht
 			return
 		}
 
-		terminal := opts.Command
-		args := opts.Arguments
+		// Define the non-root user for running the terminal
+		nonRootUser := clabHostUsername
 
-		// var listArguments = []string{RouterId}
-		// args := listArguments
+		// Check if the non-root user exists, and create it if it doesn't
+		if !userExists(nonRootUser) {
+			clog.Infof("User '%s' does not exist, creating...", nonRootUser)
+			err := createUser(nonRootUser)
+			if err != nil {
+				clog.Errorf("Failed to create user '%s': %s", nonRootUser, err)
+				connection.WriteMessage(websocket.TextMessage, []byte(fmt.Sprintf("Failed to create user '%s'", nonRootUser)))
+				return
+			}
+			clog.Infof("User '%s' created successfully.", nonRootUser)
+		} else {
+			clog.Infof("User '%s' already exists.", nonRootUser)
+		}
+
+		// Run the PTY under the non-root user using sudo -u <non-root-user>
+		terminal := "sudo"
+		args := []string{"-u", nonRootUser, opts.Command} // Use sudo to run the command as the non-root user
 
 		clog.Debugf("starting new tty using command '%s' with arguments ['%s']...", terminal, strings.Join(args, "', '"))
 		cmd := exec.Command(terminal, args...)
@@ -105,6 +111,7 @@ func GetHandler(opts HandlerOpts, routerId string) func(http.ResponseWriter, *ht
 			connection.WriteMessage(websocket.TextMessage, []byte(message))
 			return
 		}
+
 		defer func() {
 			clog.Info("gracefully stopping spawned tty...")
 			if err := cmd.Process.Kill(); err != nil {
@@ -117,7 +124,7 @@ func GetHandler(opts HandlerOpts, routerId string) func(http.ResponseWriter, *ht
 				clog.Warnf("failed to close spawned tty gracefully: %s", err)
 			}
 			if err := connection.Close(); err != nil {
-				clog.Warnf("failed to close webscoket connection: %s", err)
+				clog.Warnf("failed to close websocket connection: %s", err)
 			}
 		}()
 
@@ -125,7 +132,7 @@ func GetHandler(opts HandlerOpts, routerId string) func(http.ResponseWriter, *ht
 		var waiter sync.WaitGroup
 		waiter.Add(1)
 
-		// this is a keep-alive loop that ensures connection does not hang-up itself
+		// Keep-alive loop to ensure the connection does not hang up
 		lastPongTime := time.Now()
 		connection.SetPongHandler(func(msg string) error {
 			lastPongTime = time.Now()
@@ -138,7 +145,7 @@ func GetHandler(opts HandlerOpts, routerId string) func(http.ResponseWriter, *ht
 					return
 				}
 				time.Sleep(keepalivePingTimeout / 2)
-				if time.Now().Sub(lastPongTime) > keepalivePingTimeout {
+				if time.Since(lastPongTime) > keepalivePingTimeout {
 					clog.Warn("failed to get response from ping, triggering disconnect now...")
 					waiter.Done()
 					return

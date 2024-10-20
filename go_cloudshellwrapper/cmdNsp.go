@@ -90,7 +90,7 @@ var confNsp = config.Map{
 	"server-port": &config.Int{
 		Default:   8080,
 		Usage:     "port the server should listen on",
-		Shorthand: "p",
+		Shorthand: "P",
 	},
 	"workdir": &config.String{
 		Default:   ".",
@@ -113,6 +113,20 @@ var confNsp = config.Map{
 		Default: "enabled",
 		Usage:   "enable multi-layer view",
 	},
+	"clab-user": &config.String{
+		Default:   "root",
+		Usage:     "containerLab server host user",
+		Shorthand: "u",
+	},
+	"clab-pass": &config.String{
+		Default:   "root",
+		Usage:     "containerLab server host password",
+		Shorthand: "p",
+	},
+	"deployment-type": &config.String{
+		Default: "container",
+		Usage:   "TopoViewertype of deployment. The option are 'container' if the TopoViewer will be running under container or 'colocated' if TopoViewer will be running co-located with containerlab server",
+	},
 }
 
 // var rootCommand = cobra.Command{
@@ -134,7 +148,7 @@ func Nsp(_ *cobra.Command, _ []string) error {
 
 	cyTopo := topoengine.CytoTopology{}
 	cyTopo.LogLevel = 5 // debug
-	cyTopo.InitLogger()
+	// cyTopo.InitLogger()
 
 	// initialise the logger
 	// tools.InitCloudShellLog(tools.Format(confNsp.GetString("log-format")), tools.Level(confNsp.GetString("log-level")))
@@ -165,7 +179,7 @@ func Nsp(_ *cobra.Command, _ []string) error {
 		topoNsp := confNsp.GetString("topology-ietf-all-topo")
 		cyTopo := topoengine.CytoTopology{}
 		cyTopo.LogLevel = 5 // debug
-		cyTopo.InitLogger()
+		// cyTopo.InitLogger()
 
 		// Build Layer 2/3
 		topoFile := cyTopo.IetfMultiL2L3TopoReadV2(topoNsp) // loading nsp topo json to cyTopo.IetfNetworL2TopoData
@@ -258,7 +272,7 @@ func Nsp(_ *cobra.Command, _ []string) error {
 			KeepalivePingTimeout: keepalivePingTimeout,
 			MaxBufferSizeBytes:   maxBufferSizeBytes,
 		}
-		router.HandleFunc(pathXTermJS, xtermjs.GetHandler(xtermjsHandlerOptions, "TEST"))
+		router.HandleFunc(pathXTermJS, xtermjs.GetHandler(xtermjsHandlerOptions, "TEST", confClab.GetString("clab-user")))
 
 		// readiness probe endpoint
 		router.HandleFunc(pathReadiness, func(w http.ResponseWriter, r *http.Request) {
@@ -381,7 +395,7 @@ func Nsp(_ *cobra.Command, _ []string) error {
 
 		cyTopo := topoengine.CytoTopology{}
 		cyTopo.LogLevel = 5 // debug
-		cyTopo.InitLogger()
+		// cyTopo.InitLogger()
 
 		// L2 Working
 		topoFile := cyTopo.IetfL2TopoRead(topoNsp) // loading nsp topo json to cyTopo.IetfNetworL2TopoData
@@ -444,7 +458,7 @@ func Nsp(_ *cobra.Command, _ []string) error {
 			KeepalivePingTimeout: keepalivePingTimeout,
 			MaxBufferSizeBytes:   maxBufferSizeBytes,
 		}
-		router.HandleFunc(pathXTermJS, xtermjs.GetHandler(xtermjsHandlerOptions, "TEST"))
+		router.HandleFunc(pathXTermJS, xtermjs.GetHandler(xtermjsHandlerOptions, "TEST", confClab.GetString("clab-user")))
 
 		// readiness probe endpoint
 		router.HandleFunc(pathReadiness, func(w http.ResponseWriter, r *http.Request) {
