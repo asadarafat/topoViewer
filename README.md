@@ -1,15 +1,29 @@
-# Topoviewer
-
 ## Overview
-Yo, listen up! This mind-blowing project is all about hooking you up with the dopest network visualization tool out there. We're talking about taking your topology data and turning it into a sick cytoscape graph model that you can peep using https://js.cytoscape.org. It's like having a virtual eye candy for your network!
 
-Now, let's break it down into two rad sections:
+[`topoViewer`] is a network visualization tool that converts topology data into a Cytoscape graph model, allowing you to visualize your network using [Cytoscape.js](https://js.cytoscape.org).
 
-TopoEngine: This bad boy is all about converting your topology data (right now it's Container Lab) into a sick cytoscape graph model. Once translated, you can visualize that bad boy and watch your network come to life.
+The project is divided into two main components:
 
-CloudshellWrapper: Here's the deal, we've got a wicked wrapper for https://github.com/zephinzer/cloudshell. It's like having your own personal Xterm.js frontend that connects to a Go backend and gives you a shell right in your browser. Yeah, you heard it right, access your shell using your browser. It's like having a virtual command center at your fingertips. And guess what? If you're running CloudshellWrapper on the same host as containerlab, you can even access the nodes of containerlab through your browser. How cool is that?
+- **TopoEngine**: Converts topology data (currently supports Container Lab) into a Cytoscape graph model. This component handles the core logic for processing and visualizing network topologies, including parsing topology files and generating visual representations.
 
-But hey, keep in mind, exposing your shell via a browser can be risky business. We're just putting it out there, so if you decide to dive in, do it at your own risk. Stay rad, my friend!
+- **CloudshellWrapper**: A wrapper for [cloudshell](https://github.com/zephinzer/cloudshell) that provides an Xterm.js frontend connected to a Go backend, allowing you to access your shell via a browser. If CloudshellWrapper is running on the same host as Containerlab, it can also access the nodes of Containerlab through the browser.
+
+> **Note**: Exposing your shell via a browser can be risky. Use at your own risk.
+
+The codebase is organized into several folders with the prefix `go_`, each serving a specific purpose:
+
+- **go_cloudshellwrapper**: Contains the main logic for running [`topoViewer`]. Key files include:
+  - `cmd/main.go`: The entry point for running [`topoViewer`].
+  - `cmdClab.go`: Handles CLAB-specific commands.
+  - `cmdNsp.go`: Handles NSP-specific commands.
+  - `utils.go`: Contains utility functions such as `createMemoryLog` and `createRequestLog`.
+  - Additionally, the `clabHandlers` directory contains handlers specific to Containerlab operations.
+
+- **go_topoengine**: Contains the core logic for processing and visualizing network topologies. This includes parsing topology files and generating visual representations.
+
+- **go_xtermjs**: Integrates `xterm.js` for terminal emulation within the [`topoViewer`]interface. This allows users to interact with the terminal directly from the web interface.
+
+- **go_tools**: Contains various utility functions and tools used by [`topoViewer`]. 
 
 
 ## Quickstart
