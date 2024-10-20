@@ -20,11 +20,22 @@ import (
 const DefaultConnectionErrorLimit = 10
 
 type HandlerOpts struct {
-	AllowedHostnames     []string
-	Arguments            []string
-	Command              string
+	// AllowedHostnames is a list of strings which will be matched to the client
+	// requesting for a connection upgrade to a websocket connection
+	AllowedHostnames []string
+	// Arguments is a list of strings to pass as arguments to the specified COmmand
+	Arguments []string
+	// Command is the path to the binary we should create a TTY for
+	Command string
+	// ConnectionErrorLimit defines the number of consecutive errors that can happen
+	// before a connection is considered unusable
 	ConnectionErrorLimit int
-	CreateLogger         func(string, *http.Request) Logger
+	// CreateLogger when specified should return a logger that the handler will use.
+	// The string argument being passed in will be a unique identifier for the
+	// current connection. When not specified, logs will be sent to stdout
+	CreateLogger func(string, *http.Request) Logger
+	// KeepalivePingTimeout defines the maximum duration between which a ping and pong
+	// cycle should be tolerated, beyond this the connection should be deemed dead
 	KeepalivePingTimeout time.Duration
 	MaxBufferSizeBytes   int
 }
