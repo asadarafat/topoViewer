@@ -2,7 +2,7 @@
 logs/*
 
 # Raw topology files
-rawTopoFile/clab/**
+rawTopoFile/clab-demo/**
 rawTopoFile/license.txt
 rawTopoFile/topo-vf-hco-ip-certification.yml
 rawTopoFile/clab-topoViewerDemo/**
