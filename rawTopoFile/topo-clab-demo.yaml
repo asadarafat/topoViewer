@@ -6,7 +6,7 @@ topology:
 
     topoviewer:
       kind: linux
-      image: ghcr.io/asadarafat/topoviewer:local
+      image: ghcr.io/asadarafat/topoviewer:latest
       ports:
         - 8088:8088
       startup-delay: 5
@@ -88,54 +88,54 @@ topology:
       labels:
         topoViewer-role: leaf
 
-    PE-01:
-      kind: vr-sros
-      image: registry.srlinux.dev/pub/vr-sros:22.7.R1
-      type: "cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28"
-      license: license.txt 
-      group: "Back Bone"
-      labels:
-        topoViewer-role: pe
+    # PE-01:
+    #   kind: vr-sros
+    #   image: registry.srlinux.dev/pub/vr-sros:22.7.R1
+    #   type: "cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28"
+    #   license: license.txt 
+    #   group: "Back Bone"
+    #   labels:
+    #     topoViewer-role: pe
 
-    PE-02:
-      kind: vr-sros
-      image: registry.srlinux.dev/pub/vr-sros:22.7.R1
-      type: "cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28"
-      license: license.txt 
-      group: "Back Bone"
-      labels:
-        topoViewer-role: pe
+    # PE-02:
+    #   kind: vr-sros
+    #   image: registry.srlinux.dev/pub/vr-sros:22.7.R1
+    #   type: "cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28"
+    #   license: license.txt 
+    #   group: "Back Bone"
+    #   labels:
+    #     topoViewer-role: pe
 
-    DCGW-03:
-      kind: vr-sros
-      image: registry.srlinux.dev/pub/vr-sros:22.7.R1
-      type: "cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28"
-      license: license.txt 
-      group: "Data Center - DCGW"
-      labels:
-        topoViewer-role: dcgw
+    # DCGW-03:
+    #   kind: vr-sros
+    #   image: registry.srlinux.dev/pub/vr-sros:22.7.R1
+    #   type: "cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28"
+    #   license: license.txt 
+    #   group: "Data Center - DCGW"
+    #   labels:
+    #     topoViewer-role: dcgw
  
-    DCGW-04:
-      kind: vr-sros
-      image: registry.srlinux.dev/pub/vr-sros:22.7.R1
-      type: "cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28"
-      license: license.txt  
-      group: "Data Center - DCGW"
-      labels:
-        topoViewer-role: dcgw
+    # DCGW-04:
+    #   kind: vr-sros
+    #   image: registry.srlinux.dev/pub/vr-sros:22.7.R1
+    #   type: "cp: cpu=2 ram=6 chassis=SR-2s slot=A card=cpm-2s ___ lc: cpu=2 ram=4 max_nics=10 chassis=SR-2s slot=1 card=xcm-2s mda/1=s18-100gb-qsfp28"
+    #   license: license.txt  
+    #   group: "Data Center - DCGW"
+    #   labels:
+    #     topoViewer-role: dcgw
         
   links:
 
-    - endpoints: ["PE-01:eth2", "PE-02:eth2"]
-    - endpoints: ["PE-01:eth3", "DCGW-03:eth3"]
+    # - endpoints: ["PE-01:eth2", "PE-02:eth2"]
+    # - endpoints: ["PE-01:eth3", "DCGW-03:eth3"]
 
-    - endpoints: ["PE-02:eth4", "DCGW-03:eth4"]
-    - endpoints: ["PE-02:eth5", "DCGW-04:eth5"]
+    # - endpoints: ["PE-02:eth4", "DCGW-03:eth4"]
+    # - endpoints: ["PE-02:eth5", "DCGW-04:eth5"]
 
-    - endpoints: ["PE-01:eth4", "DCGW-04:eth4"]
+    # - endpoints: ["PE-01:eth4", "DCGW-04:eth4"]
 
-    - endpoints: ["DCGW-03:eth1", "Borderl-Leaf-01:e1-1"]
-    - endpoints: ["DCGW-04:eth1", "Borderl-Leaf-02:e1-1"]
+    # - endpoints: ["DCGW-03:eth1", "Borderl-Leaf-01:e1-1"]
+    # - endpoints: ["DCGW-04:eth1", "Borderl-Leaf-02:e1-1"]
 
     - endpoints: ["Spine-01:e1-5", "Borderl-Leaf-01:e1-5"]
     - endpoints: ["Spine-02:e1-5", "Borderl-Leaf-02:e1-5"]
