@@ -12,7 +12,7 @@ useradd -rm -d /home/ubuntu -s /bin/bash -g root -G sudo -u 1001 suuser && \
 echo 'suuser:suuser' | chpasswd && \
 useradd -rm -d /home/ubuntu -s /bin/bash -g root -G sudo -u 1002 admin && \
 echo 'admin:admin' | chpasswd && \
-apt-get update && apt-get install -y openssh-server iproute2 iputils-ping vim wget sudo curl rsyslog python3.12 && \
+apt-get update && apt-get install -y openssh-server iproute2 iputils-ping vim wget sudo curl rsyslog python3.12 jq && \
 sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config && \
 echo "HostKeyAlgorithms ssh-dss,ecdsa-sha2-nistp256,ssh-ed25519" >> /etc/ssh/ssh_config && \    
 echo "HostKeyAlgorithms ssh-dss,ecdsa-sha2-nistp256,ssh-ed25519" >> /etc/ssh/ssh_config && \     

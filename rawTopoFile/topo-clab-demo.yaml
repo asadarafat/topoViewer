@@ -9,7 +9,7 @@ topology:
       image: ghcr.io/asadarafat/topoviewer:latest
       ports:
         - 8088:8088
-      startup-delay: 5
+      startup-delay: 30
       exec:
         - '/opt/topoviewer/entrypoint.sh'
           ### This is the entrypoint script of topoviewer container
