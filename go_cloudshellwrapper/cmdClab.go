@@ -193,6 +193,35 @@ func checkSudoAccess() {
 	}
 }
 
+func reloadTopoFile() error {
+	// Load topology file path from configuration
+	topoFile := confClab.GetString("topology-file-json")
+
+	// Check if topoFile is empty
+	if topoFile == "" {
+		log.Error("topoFile is empty. Please provide a valid file.")
+		return errors.New("topoFile is empty")
+	}
+
+	// Reload and process the topoFile
+	cyTopo := topoengine.CytoTopology{}
+	loadedTopoFile := cyTopo.ClabTopoRead(topoFile) // Reads the topology file
+	if loadedTopoFile == nil {
+		log.Error("Failed to reload topoFile.")
+		return errors.New("failed to reload topoFile")
+	}
+
+	// Process the reloaded topoFile
+	var initNodeEndpointDetailSourceTarget []byte
+	cyTopoJsonBytes := cyTopo.UnmarshalContainerLabTopoV2(loadedTopoFile, confClab.GetString("clab-user"), initNodeEndpointDetailSourceTarget)
+
+	// Print or store the reloaded topology data (for visualization, debugging, etc.)
+	cyTopo.PrintjsonBytesCytoUiV2(cyTopoJsonBytes)
+
+	log.Info("Topology file reloaded successfully.")
+	return nil
+}
+
 func Clab(_ *cobra.Command, _ []string) error {
 
 	// init logger
@@ -828,6 +857,38 @@ func Clab(_ *cobra.Command, _ []string) error {
 			json.NewEncoder(w).Encode(usageData)
 
 		}).Methods("GET")
+
+	// router.HandleFunc("/reload-topo", func(w http.ResponseWriter, r *http.Request) {
+	// 	// Call the reload function
+	// 	err := reloadTopoFile()
+
+	// 	// Handle error and return appropriate response
+	// 	if err != nil {
+	// 		http.Error(w, "Failed to reload topology file: "+err.Error(), http.StatusInternalServerError)
+	// 		return
+	// 	}
+
+	// 	// Send success response
+	// 	w.Header().Set("Content-Type", "application/json")
+	// 	response := map[string]string{"message": "Topology file reloaded successfully"}
+	// 	json.NewEncoder(w).Encode(response)
+	// }).Methods("POST")
+
+	router.HandleFunc("/reload-topo", func(w http.ResponseWriter, r *http.Request) {
+		// Call the reload function
+		err := reloadTopoFile()
+
+		// Handle error and return appropriate response
+		if err != nil {
+			http.Error(w, "Failed to reload topology file: "+err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		// Send success response
+		w.Header().Set("Content-Type", "application/json")
+		response := map[string]string{"message": "Topology file reloaded successfully"}
+		json.NewEncoder(w).Encode(response)
+	}).Methods("GET")
 
 	router.HandleFunc("/container-compute-resource-usage", func(w http.ResponseWriter, r *http.Request) {
 		clabHandlers.ContainerComputeResourceUsage(w, r)
