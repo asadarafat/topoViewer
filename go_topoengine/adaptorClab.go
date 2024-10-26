@@ -158,7 +158,7 @@ func (cyTopo *CytoTopology) GenerateClabTopoFromYaml(clabYamlTopoFile string) (s
 	topoDataF, _ := os.Create(clabJsonTopoFilePath)
 
 	ctx, _ := context.WithCancel(context.Background())
-	c.GenerateExports(ctx, topoDataF, "./topoviewer.tmpl")
+	c.GenerateExports(ctx, topoDataF, "./clab-topoviewer.tmpl")
 
 	log.Infof("clab json topology succesfully generated, location of the file is %s", clabJsonTopoFilePath)
 
