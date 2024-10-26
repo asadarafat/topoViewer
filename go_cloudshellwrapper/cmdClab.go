@@ -128,7 +128,7 @@ var confClab = config.Map{
 		Usage:     "working directory",
 		Shorthand: "w",
 	},
-	"topology-file": &config.String{
+	"topology-file-yaml": &config.String{
 		Default:   ".",
 		Usage:     "path to containerlab topo file",
 		Shorthand: "t",
@@ -205,7 +205,7 @@ func reloadTopoFile() error {
 
 	// Reload and process the topoFile
 	cyTopo := topoengine.CytoTopology{}
-	loadedTopoFile := cyTopo.ClabTopoRead(topoFile) // Reads the topology file
+	loadedTopoFile := cyTopo.ClabTopoJsonRead(topoFile) // Reads the topology file
 	if loadedTopoFile == nil {
 		log.Error("Failed to reload topoFile.")
 		return errors.New("failed to reload topoFile")
@@ -246,7 +246,9 @@ func Clab(_ *cobra.Command, _ []string) error {
 	// tranform clab-topo-file into cytoscape-model
 	// aarafat-tag: check if provided topo in json or yaml
 
-	topoClab := confClab.GetString("topology-file-json")
+	// Fetch the topology file paths from configuration
+	topoClabYaml := confClab.GetString("topology-file-yaml")
+	topoClabJson := confClab.GetString("topology-file-json")
 
 	//// Clab Version 2
 	//log.Debug("topo Clab: ", topoClab)
@@ -282,7 +284,9 @@ func Clab(_ *cobra.Command, _ []string) error {
 	log.Infof("====== Start up Parameter ======")
 	log.Infof("")
 	log.Infof("TopoViewer Version		: '%s'", VersionInfo)
-	log.Infof("topology file			: '%s'", (topoClab))
+	log.Infof("topology file yaml			: '%s'", (topoClabYaml))
+	log.Infof("topology-data json file			: '%s'", (topoClabJson))
+
 	log.Infof("depyloyment type			: %s", (deploymentType))
 	log.Infof("working directory		: '%s'", workingDirectory)
 	log.Infof("command					: '%s'", command)
@@ -303,10 +307,48 @@ func Clab(_ *cobra.Command, _ []string) error {
 	// configure routing
 	router := mux.NewRouter()
 
-	topoFile := cyTopo.ClabTopoRead(topoClab) // loading containerLab export-topo json file
-	// topoFile := cyTopo.ClabTopoRead(path.Join("", topoClab)) // loading containerLab export-topo json file
-
 	var initNodeEndpointDetailSourceTarget []byte
+	var topoFile []byte
+
+	// // Check if both YAML and JSON files are provided, raise an error
+
+	log.Infof("topo JSON: %v", topoClabYaml)
+	log.Infof("topo YAML: %v", topoClabJson)
+
+	if topoClabYaml != "." && topoClabJson != "." {
+		log.Error("Both topology-file-yaml and topology-file-json are supplied. Please provide only one.")
+		return errors.New("both topology-file-yaml and topology-file-json are provided")
+	}
+
+	// Check if "topology-file-yaml" is provided
+	if topoClabYaml != "" {
+		// Generate JSON topology from YAML
+		clabJsonTopoFilePath, err := cyTopo.GenerateClabTopoFromYaml(topoClabYaml)
+		if err != nil {
+			log.Errorf("Failed to generate JSON topology from YAML: %v", err)
+			return err
+		}
+
+		// Read the generated JSON topology file
+		topoFile = cyTopo.ClabTopoJsonRead(clabJsonTopoFilePath)
+		if topoFile == nil {
+			log.Error("Failed to read topology from generated JSON file.")
+			return errors.New("failed to read topology from generated JSON file")
+		}
+
+	} else if topoClabJson != "" {
+		// Read the topology directly from JSON file
+		topoFile = cyTopo.ClabTopoJsonRead(topoClabJson)
+		if topoFile == nil {
+			log.Error("Failed to read topology from JSON file.")
+			return errors.New("failed to read topology from JSON file")
+		}
+
+	} else {
+		// If neither is provided, raise an error
+		log.Error("Neither topology-file-yaml nor topology-file-json is supplied.")
+		return errors.New("no valid topology file supplied")
+	}
 
 	cyTopoJsonBytes := cyTopo.UnmarshalContainerLabTopoV2(topoFile, clabHostUsername, initNodeEndpointDetailSourceTarget)
 	// printing dataCytoMarshall-{{clab-node-name}}.json
@@ -955,7 +997,7 @@ func Clab(_ *cobra.Command, _ []string) error {
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir(publicAssetsDirectoryHtml)))
 
 	//create html-public files
-	// os.Mkdir(HtmlPublicPrefixPath+cyTopo.ClabTopoDataV2.Name, 0755) // already created in cytoscapemodel library
+	// os.Mkdir(HtmlPublicPrefixPath+cyTopo.ClabTopoDataV2.Name, 0755) // already created in adaptorClab module
 
 	os.Mkdir(HtmlPublicPrefixPath+cyTopo.ClabTopoDataV2.Name+"/ws", 0755)
 	os.Mkdir(HtmlPublicPrefixPath+cyTopo.ClabTopoDataV2.Name+"/node-backup", 0755)

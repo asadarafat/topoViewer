@@ -17,6 +17,7 @@ import (
 	"github.com/docker/docker/client"
 	"github.com/gosnmp/gosnmp"
 	"github.com/samber/lo"
+	containerlab "github.com/srl-labs/containerlab/clab"
 	"golang.org/x/crypto/ssh"
 
 	log "github.com/sirupsen/logrus"
@@ -132,7 +133,39 @@ type ClabNetemInterfaceData struct {
 // 	toolLogger.InitLogger("logs/topoengine-CytoTopology-adaptorClabV2.log", cyTopo.LogLevel)
 // }
 
-func (cyTopo *CytoTopology) ClabTopoRead(topoFile string) []byte {
+func (cyTopo *CytoTopology) GenerateClabTopoFromYaml(clabYamlTopoFile string) (string, error) {
+	log.Infof("<go_topoengine><I>GenerateClabTopoFromYaml: Generating clab json topology, from clab yaml %s>", clabYamlTopoFile)
+
+	// dynamic definition of topofile path
+	c, err := containerlab.NewContainerLab(
+		containerlab.WithTimeout(time.Second*30),
+		containerlab.WithTopoPath(clabYamlTopoFile, ""),
+	)
+	if err != nil {
+		log.Errorf("<go_topoengine><I>GenerateClabTopoFromYaml: Failed creating containerlab instance %s>", err)
+		return "nil", err
+	}
+
+	c.ResolveLinks()
+
+	// topoDataFPath := c.TopoPaths.TopoExportFile()
+	// return path.Join(t.labDir, topologyExportDatFileName)
+
+	labDir := "./html-public/" + c.Config.Name
+	os.Mkdir(labDir, 0755)
+
+	clabJsonTopoFilePath := path.Join(labDir, "topology-data.json")
+	topoDataF, _ := os.Create(clabJsonTopoFilePath)
+
+	ctx, _ := context.WithCancel(context.Background())
+	c.GenerateExports(ctx, topoDataF, "./topoviewer.tmpl")
+
+	log.Infof("clab json topology succesfully generated, location of the file is %s", clabJsonTopoFilePath)
+
+	return clabJsonTopoFilePath, nil
+}
+
+func (cyTopo *CytoTopology) ClabTopoJsonRead(topoFile string) []byte {
 	// log.Info(topoFile)
 
 	filePath, _ := os.Getwd()
@@ -383,7 +416,7 @@ func (cyTopo *CytoTopology) UnmarshalContainerLabTopoV2(topoFile []byte, clabHos
 
 func (cyTopo *CytoTopology) PrintjsonBytesCytoUiV2(JsonBytesCytoUiMarshaled []byte) error {
 	// Create file
-	os.Mkdir("./html-public/"+cyTopo.ClabTopoDataV2.Name, 0755)
+	// os.Mkdir("./html-public/"+cyTopo.ClabTopoDataV2.Name, 0755)
 	// file, err := os.Create("html-public/" + cyTopo.ClabTopoDataV2.Name + "/dataCytoMarshall-" + cyTopo.ClabTopoDataV2.Name + ".json")
 	file, err := os.Create("html-public/" + cyTopo.ClabTopoDataV2.Name + "/dataCytoMarshall.json")
 	if err != nil {
