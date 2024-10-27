@@ -1,46 +1,27 @@
-# Log files
 logs/*
-
-# Raw topology files
-rawTopoFile/clab-demo/**
+rawTopoFile/clab/*
+rawTopoFile/clab/**
 rawTopoFile/license.txt
 rawTopoFile/topo-vf-hco-ip-certification.yml
 rawTopoFile/clab-topoViewerDemo/**
+rawTopoFile/topo-clab-demo.yaml
+rawTopoFile/topo-clab-demo.bak
+rawTopoFile/clab-demo/*
 
-# Configuration files
-config/**
 
-# Build artifacts
+config/*
 webpack.config.js
 .babelrc
-package-lock.json
-package.json
-
-# Go tools
+go_tools/ygot
 go_tools/ygot/**
-
-# HTML templates
 html-static/template/clab/button.tmpl
-
-# Node modules
 node_modules/**
-
-# Archive files
 _archive/**
-
-# Public HTML files
 html-public/**
-
-# Miscellaneous
 README-copy.md
 README-copy2.md
-README-02.md
-
-# Cache files
+package-lock.json
+package.json
 .cache/**
-
-# Clab files
 clab-3tierSmall/**
-
-# Go topoengine command files
-go_topoengine/cmd/**
+README-02.md
