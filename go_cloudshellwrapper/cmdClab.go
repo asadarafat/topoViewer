@@ -700,6 +700,8 @@ func Clab(_ *cobra.Command, _ []string) error {
 						// get docker status via unix socket
 						x, err := cyTopo.GetDockerNodeStatusViaUnixSocket(n.Longname, clabHost[0])
 
+						//fmt.Print(cyTopo.GetDockerConnectedInterfacesViaUnixSocket("clab-demo-Spine-02", "clab-demo-Leaf-02"))
+
 						if err != nil {
 							log.Error(err)
 							return // Return to exit the handler if an error occurs
@@ -827,6 +829,33 @@ func Clab(_ *cobra.Command, _ []string) error {
 			w.Header().Set("Content-Type", "application/json")
 			json.NewEncoder(w).Encode(responseData)
 
+		}).Methods("GET")
+
+	//// API endpoint to get clab-link-mac value
+	router.HandleFunc("/clab-link-mac",
+		func(w http.ResponseWriter, r *http.Request) {
+			// sourceContainer := "clab-demo-Spine-01"
+			// targetContainer := "clab-demo-Leaf-03"
+
+			query := r.URL.Query()
+
+			queriesList := make([]string, 0)
+			for _, values := range query {
+				queriesList = append(queriesList, values...)
+			}
+
+			log.Info("<cmd-clab><I><clab-link-mac() - queriesList: ", queriesList)
+
+			// Call the function to get Docker connected interfaces
+			data, err := cyTopo.GetDockerConnectedInterfacesViaUnixSocket(queriesList[0], queriesList[1])
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+
+			w.WriteHeader(http.StatusOK)
+			w.Write(data)
+			log.Infof("Docker Network Info: %s", data)
 		}).Methods("GET")
 
 	//// API endpoint to get compute-resource-usage

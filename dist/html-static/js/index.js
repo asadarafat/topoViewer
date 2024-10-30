@@ -84,7 +84,19 @@ document.addEventListener("DOMContentLoaded", async function() {
                 setNodeContainerStatus(Names, Status);
                 console.log(JSON.parse(msgContainerNodeStatus.data));
 
-                setNodeDataWithContainerAttribute(Names, Status, State);
+                const IPAddress = JSON.parse(msgContainerNodeStatus.data).Networks.Networks.clab.IPAddress;
+                const GlobalIPv6Address= JSON.parse(msgContainerNodeStatus.data).Networks.Networks.clab.GlobalIPv6Address
+
+                // console.log("IPAddress: ",JSON.parse(msgContainerNodeStatus.data).Networks.Networks.clab.IPAddress);
+                // console.log("IPPrefixLen: ",JSON.parse(msgContainerNodeStatus.data).Networks.Networks.clab.IPPrefixLen);
+
+                // console.log("GlobalIPv6Address: ",JSON.parse(msgContainerNodeStatus.data).Networks.Networks.clab.GlobalIPv6Address);
+                // console.log("GlobalIPv6PrefixLen: ",JSON.parse(msgContainerNodeStatus.data).Networks.Networks.clab.GlobalIPv6PrefixLen);
+
+
+
+                setNodeDataWithContainerAttribute(Names, Status, State, IPAddress, GlobalIPv6Address);
+
             } catch (error) {
                 console.error("Error parsing JSON:", error);
             }
@@ -319,7 +331,7 @@ document.addEventListener("DOMContentLoaded", async function() {
             document.getElementById("panel-node-kind").textContent = node.data("extraData").kind
             document.getElementById("panel-node-image").textContent = node.data("extraData").image
             document.getElementById("panel-node-mgmtipv4").textContent = node.data("extraData").mgmtIpv4Addresss
-            document.getElementById("panel-node-mgmtipv6").textContent = node.data("extraData").mgmtIpv6Addresss
+            document.getElementById("panel-node-mgmtipv6").textContent = node.data("extraData").mgmtIpv6Address
             document.getElementById("panel-node-fqdn").textContent = node.data("extraData").fqdn
             document.getElementById("panel-node-group").textContent = node.data("extraData").group
             document.getElementById("panel-node-topoviewerrole").textContent = node.data("topoViewerRole")
@@ -366,6 +378,8 @@ document.addEventListener("DOMContentLoaded", async function() {
 
 
 
+
+
         document.getElementById("panel-link").style.display = "none";
 
         if (document.getElementById("panel-link").style.display === "none") {
@@ -377,12 +391,27 @@ document.addEventListener("DOMContentLoaded", async function() {
         document.getElementById("panel-link-name").textContent = `${clickedEdge.data("source")} --- ${clickedEdge.data("target")}`
 
         document.getElementById("panel-link-endpoint-a-name").textContent = `${clickedEdge.data("source")}`
-        document.getElementById("panel-link-endpoint-a-mac-address").textContent = `${clickedEdge.data("extraData").clabSourceMacAddress}`
+        // document.getElementById("panel-link-endpoint-a-mac-address").textContent = `${clickedEdge.data("extraData").clabSourceMacAddress}`
+        document.getElementById("panel-link-endpoint-a-mac-address").textContent = "getting the MAC address"
 
         document.getElementById("panel-link-endpoint-b-name").textContent = `${clickedEdge.data("target")}`
-        document.getElementById("panel-link-endpoint-b-mac-address").textContent = `${clickedEdge.data("extraData").clabTargetMacAddress}`
+        // document.getElementById("panel-link-endpoint-b-mac-address").textContent = `${clickedEdge.data("extraData").clabTargetMacAddress}`
+        document.getElementById("panel-link-endpoint-b-mac-address").textContent = "getting the MAC address"
 
-    
+
+        // setting clabSourceLinkArgsList
+        clabLinkMacArgsList = [`${clickedEdge.data("extraData").clabSourceLongName}`,`${clickedEdge.data("extraData").clabTargetLongName}`]
+
+        // setting MAC address endpoint-a values by getting the data from clab via /clab-link-mac GET API
+        const actualLinkMacPair = await  sendRequestToEndpointGetV2("/clab-link-mac", clabLinkMacArgsList) 
+        console.log("actualLinkMacPair-Source: ", actualLinkMacPair[0].sourceIfMac)
+        console.log("actualLinkMacPair-Target: ", actualLinkMacPair[0].targetIfMac)
+
+        document.getElementById("panel-link-endpoint-a-mac-address").textContent = actualLinkMacPair[0].sourceIfMac
+        document.getElementById("panel-link-endpoint-b-mac-address").textContent = actualLinkMacPair[0].targetIfMac
+
+
+
         // setting default impairment endpoint-a values by getting the data from clab via /clab-link-impairment GET API
         clabSourceLinkArgsList = [`${clickedEdge.data("extraData").clabSourceLongName}`,`${clickedEdge.data("extraData").clabSourcePort}`]
         clabSourceLinkImpairmentClabData = await sendRequestToEndpointGetV2("/clab-link-impairment", clabSourceLinkArgsList)
@@ -929,7 +958,7 @@ document.addEventListener("DOMContentLoaded", async function() {
         });
     }
 
-    function setNodeDataWithContainerAttribute(containerNodeName, status, state) {
+    function setNodeDataWithContainerAttribute(containerNodeName, status, state, IPAddress, GlobalIPv6Address) {
         cy.nodes().forEach(function(node) {
             var nodeId = node.data("id");
             if (containerNodeName.includes(nodeId)) {
@@ -942,6 +971,9 @@ document.addEventListener("DOMContentLoaded", async function() {
                     "containerDockerExtraAttribute",
                     containerDockerExtraAttributeData,
                 );
+                node.data("extraData").mgmtIpv4Addresss = IPAddress;
+                node.data("extraData").mgmtIpv6Address = GlobalIPv6Address;
+
             }
         });
     }

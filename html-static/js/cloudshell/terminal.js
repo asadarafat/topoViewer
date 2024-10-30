@@ -9,7 +9,8 @@
 
 	// Retrieve the RouterID query parameter
 	var routerId = urlParam('RouterID');
-	console.log(routerId);
+	
+	console.log("routerId:", routerId);
 
 	// Process the routerId string
 	var split1 = routerId.toString().split("?");
@@ -65,7 +66,11 @@
 			fitAddon.fit();
 		});
 		// Uncomment the following lines if needed to send commands to the WebSocket
-		ws.send("ssh -q -o StrictHostKeyChecking=no admin@" + routerId.toString().split("?")[0]);
+		// ws.send("ssh -q -o StrictHostKeyChecking=no admin@" + routerId.toString().split("?")[0]);
+		console.log("ssh -q -o StrictHostKeyChecking=no admin@" + urlParam('RouterName'));
+		ws.send("ssh -q -o StrictHostKeyChecking=no admin@" + urlParam('RouterName'));
+
+
 
 		terminal.onResize(function(event) {
 			var rows = event.rows;

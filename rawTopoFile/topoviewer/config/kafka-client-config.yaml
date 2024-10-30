@@ -1,8 +1,0 @@
-client_cert_file: /home/aarafat/atlantic-client.cer.pem
-client_key_file: /home/aarafat/atlantic-client.key.pem
-ca_cert_file: /home/aarafat/atlantic-server.cer.pem
-kafka_brokers:
-  - atlanticnsp.nice.nokia.net:9192
-topic: nsp-yang-model.change-notif
-offset_strategy: latest
-num_latest_events: 50
