@@ -1,0 +1,357 @@
+body {
+  font: 14px helvetica neue, helvetica, arial, sans-serif;
+}
+#settings {
+ /*top: 70px;
+ */
+  bottom: 0px;
+  right: 25px;
+  width: 300px;
+  position: absolute;
+}
+
+
+.has-background-4a {
+  z-index: 9999;
+  background-color:rgba(70,86, 246, 1);
+  box-shadow: 0px 3px 6px rgba(255, 255, 255, 0.4);
+}
+.panel-block {
+  background-color: white;
+}
+.panel {
+  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.4);
+  background-color: white;
+}
+.column {
+  background-color: white;
+}
+.box {
+  background-color: white;
+}
+.panel-tabs {
+  background-color: white;
+}
+.panel-tabContainer {
+  background-color: white;
+  padding: 0px 0px 0px 0px;
+}
+#sidebar {
+  background-color: white;
+}
+
+#edgeLength, #nodeSpacing #nodeGap {
+  width: 100%;
+}
+#cy {
+  height: 100vh;
+  position: fixed;
+  left: 0em;
+  right: 0em;
+  top: 5em;
+  bottom: 0em;
+}
+
+#logo {
+  top: 20px;
+  left: 30px;
+  z-index: 9999;
+  position: absolute;
+}
+
+#viewport-buttons {
+  top: 75px;
+  left: 40px;
+  position: fixed;
+  z-index: 9999;
+}
+
+.viewport-drawer {
+  top: 75px;
+  left: 90px;
+  width: 300px;
+  position: fixed;
+  z-index: 9998;
+}
+
+.panel-tabContainer {
+  padding: 0px 0px 0px 0px;
+}
+.is-smallest {
+  font-size: 10px;
+}
+.is-smaller {
+  font-size: 12.5px;
+}
+.is-smallish {
+  font-size: 13px;
+}
+.is-smallest-element {
+  font-size: 11px;
+  padding: 0px 8px;
+  height: 24px;
+}
+.vertical-align-top {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding-top: 0 
+}
+.button {
+  height: 24px;
+}
+.button-modal {
+  height: 30px;
+}
+.input {
+  height: 24px;
+}
+.link-impairment-widht {
+  width: 190px;
+  white-space: wrap;
+}
+.drawer-box-input-widht {
+  width: 100px;
+  white-space: nowrap;
+}
+.with-outline {
+  position: relative;
+}
+.with-outline::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  border-bottom: 2px solid #3498db;
+  pointer-events: none;
+}
+.hover-text.is-hidden {
+  display: none;
+}
+.hover-text {
+  position: absolute;
+  border: 1px solid #e8a010;
+  padding: 2px;
+  padding-left: 5px;
+  padding-right: 5px;
+  box-shadow: 2px 3px 4px rgba(0, 0, 0, 0.6);
+  z-index: 100;
+}
+@media (prefers-reduced-motion: reduce) {
+}
+.notification {
+  transform: translateY(60px);
+}
+
+#panel-node {
+  top: 85px;
+  right: 40px;
+  width: 340px;
+  max-height: 700px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: fixed;
+}
+
+#panel-link {
+  top: 85px;
+  right: 40px;
+  width: 340px;
+  max-height: 700px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: fixed;
+}
+
+#panel-introduction {
+  bottom: 10px;
+  right: 40px;
+  width: 340px;
+  max-height: 700px;
+  overflow-y: auto;
+  position: fixed;
+}
+
+#panel-log-messages {
+  bottom: 10px;
+  left: 40px;
+  width: 640px;
+  max-height: 700px;
+  overflow-y: auto;
+  position: fixed;
+}
+
+#panel-topoviewer-helper {
+  bottom: 10px;
+  right: 40px;
+  width: 340px;
+  max-height: 700px;
+  overflow-y: auto;
+  position: fixed;
+}
+
+#panel-topoviewer-about {
+  bottom: 10px;
+  right: 40px;
+  width: 340px;
+  max-height: 700px;
+  overflow-y: auto;
+  position: fixed;
+}
+
+#panel-backup-restore {
+  top: 100px;
+  right: 100px;
+  left: 100px;
+  height: calc(85vh - 50px);
+  position: fixed;
+  display: block;
+}
+
+#sidebar {
+  height: 100vh;
+  width: 60px;
+  position: fixed;
+  left: 5em;
+}
+
+#sidebar-control {
+  height: 30px;
+}
+
+#drawer {
+  height: 100vh;
+  width: 300px;
+  position: fixed;
+  left: calc(5em + 60px);
+  display: none; /* Initially hidden */
+  
+}
+
+#editor-container {
+  height: calc(80vh - 80px);
+  /* height: auto; */
+  width: 100%;
+  overflow: hidden;
+}
+
+#original-title, #modified-title {
+  width: 50%;
+  text-align: center;
+}
+
+#loading-spinner-global-button {
+  width: 50px;
+  height: 50px;
+}
+
+.loading {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100px ;
+  height: 100px ;
+  transform: translate(-50%, -50%);
+}
+.monaco-editor .inputarea {
+  position: fixed ;
+  top: 0 ;
+  left: 0 ;
+  width: 100px ;
+  height: 100px ;
+}
+
+[data-theme=dark], 
+.theme-dark {
+  .has-background-4a {
+    z-index: 9999;
+    background-color:rgba(24,24, 24, 1);
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.4);
+  }
+  .panel-block {
+    background-color: rgba(40, 40, 40, 1);
+  }
+  .panel {
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.4);
+    background-color: rgba(40, 40, 40, 1);
+  }
+  .column {
+    background-color: rgba(40, 40, 40, 1);
+  }
+  .box {
+    background-color: rgba(40, 40, 40, 1);
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.4);
+  }
+  .panel-tabs {
+    background-color: rgba(40, 40, 40, 1);
+  }
+  .panel-tabContainer {
+    background-color: rgba(40, 40, 40, 1);
+    padding: 0px 0px 0px 0px;
+  }
+  #sidebar {
+    background-color: rgba(40, 40, 40, 1);
+  }
+  #drawer {
+  background-color: rgba(76,82, 97, 1);
+  }
+ .ViewPortDrawer {
+    background-color: rgba(40, 40, 40, 1);
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.4);
+  }
+  #ViewPortButtons {
+    background-color: rgba(40, 40, 40, 1);
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.4);
+  }
+
+  #viewport-buttons {
+    background-color: rgba(40, 40, 40, 1);
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.4);
+  }
+  .button.is-sidebar {
+    border-top-right-radius: 2px;
+    border-bottom-right-radius: 2px;
+    outline: none;
+    background-color: rgba(54,58, 69, 1);
+    height: 50px;
+    --sidebar-button-background-color-default:rgba(40, 40, 40, 1);
+    --sidebar-button-background-color-active: rgba(76, 82, 97, 1);
+  }
+  .button.is-sidebar:hover {
+    background-color: rgba(40, 40, 40, 1);
+    border: rgba(54,58, 69, 1);
+  }
+}
+
+[data-theme=light], 
+.theme-light {
+  .has-background-4a {
+    z-index: 9999;
+    background-color:rgba(70,86, 246, 1);
+    box-shadow: 0px 3px 6px rgba(255, 255, 255, 0.4);
+ }
+  .panel-block {
+    background-color: white;
+  }
+  .panel {
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.4);
+    background-color: white;
+  }
+  .column {
+    background-color: white;
+  }
+  .box {
+    background-color: white;
+  }
+  .panel-tabs {
+    background-color: white;
+  }
+  .panel-tabContainer {
+    background-color: white;
+    padding: 0px 0px 0px 0px;
+  }
+  #sidebar {
+    background-color: white;
+  }
+}
