@@ -7,16 +7,19 @@ nsp:
   nspOsIP:    "thalesnsp.ion.de.alcatel-lucent.com"    # API gateway
   nspIprcIP:  "thalesnsp.ion.de.alcatel-lucent.com"   # API gateway
   username:   "admin"
-  password:   "NokiaNsp1!"
+  password:   "${NSP_PASSWORD}"
   nspIeftTopoL2: "rawTopoFile/topo-ietf-L2.json"
   nspIeftTopoL3_0: "rawTopoFile/topo-ietf-L3-TopologyId-0:55000:2-isis.json"
   nspIeftTopoL3_1: "rawTopoFile/topo-ietf-L3-TopologyId-1:65000:1-isis.json"
   nspIeftTopoL3_2: "rawTopoFile/topo-ietf-L3-TopologyId-0:65000:1-isis.json"
   multi-layer: "enabled"
+  password1:    "${NSP_PASSWORD}"
+
 
 
 
   # nspOsIP:    "147.75.102.178"    # API gateway
   # nspIprcIP:  "147.75.102.178"   # API gateway
   # username:   "admin"
-  # password:   "zkw3VSs6"
+  # password:    "${NSP_PASSWORD}"
+
