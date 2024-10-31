@@ -5,7 +5,7 @@ ssh:
   remoteHost: "100.124.41.65"
   remotePort: "22"
   remoteUser: "asad"
-  remotePassword: "Lab-Her0"
+  remotePassword: "${HOST_PASSWORD}"
 
 pods:
   - namespace: "nsp-psa-restricted"
