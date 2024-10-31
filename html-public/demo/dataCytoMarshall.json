@@ -773,10 +773,10 @@
       "extraData": {
         "clabServerUsername": "asad",
         "clabSourceLongName": "clab-demo-Spine-01",
-        "clabSourceMacAddress": "aa:c1:ab:91:3f:84",
+        "clabSourceMacAddress": "aa:c1:ab:7f:1b:d3",
         "clabSourcePort": "e1-1",
         "clabTargetLongName": "clab-demo-Leaf-01",
-        "clabTargetMacAddress": "aa:c1:ab:da:d9:21",
+        "clabTargetMacAddress": "aa:c1:ab:36:b4:ab",
         "clabTargetPort": "e1-1",
         "topoViewerSnmpGetSourcePort": "",
         "topoViewerSnmpGetTargetPort": ""
@@ -808,10 +808,10 @@
       "extraData": {
         "clabServerUsername": "asad",
         "clabSourceLongName": "clab-demo-Spine-01",
-        "clabSourceMacAddress": "aa:c1:ab:c2:78:6e",
+        "clabSourceMacAddress": "aa:c1:ab:03:19:45",
         "clabSourcePort": "e1-2",
         "clabTargetLongName": "clab-demo-Leaf-02",
-        "clabTargetMacAddress": "aa:c1:ab:40:36:0d",
+        "clabTargetMacAddress": "aa:c1:ab:f2:65:db",
         "clabTargetPort": "e1-1",
         "topoViewerSnmpGetSourcePort": "",
         "topoViewerSnmpGetTargetPort": ""
@@ -843,10 +843,10 @@
       "extraData": {
         "clabServerUsername": "asad",
         "clabSourceLongName": "clab-demo-Spine-01",
-        "clabSourceMacAddress": "aa:c1:ab:7e:8e:09",
+        "clabSourceMacAddress": "aa:c1:ab:fb:ee:e4",
         "clabSourcePort": "e1-3",
         "clabTargetLongName": "clab-demo-Leaf-03",
-        "clabTargetMacAddress": "aa:c1:ab:4c:e9:e2",
+        "clabTargetMacAddress": "aa:c1:ab:78:94:6a",
         "clabTargetPort": "e1-3",
         "topoViewerSnmpGetSourcePort": "",
         "topoViewerSnmpGetTargetPort": ""
@@ -878,10 +878,10 @@
       "extraData": {
         "clabServerUsername": "asad",
         "clabSourceLongName": "clab-demo-Spine-01",
-        "clabSourceMacAddress": "aa:c1:ab:46:e1:b0",
+        "clabSourceMacAddress": "aa:c1:ab:c0:46:a8",
         "clabSourcePort": "e1-4",
         "clabTargetLongName": "clab-demo-Leaf-04",
-        "clabTargetMacAddress": "aa:c1:ab:5c:d6:83",
+        "clabTargetMacAddress": "aa:c1:ab:56:d2:35",
         "clabTargetPort": "e1-3",
         "topoViewerSnmpGetSourcePort": "",
         "topoViewerSnmpGetTargetPort": ""
@@ -913,10 +913,10 @@
       "extraData": {
         "clabServerUsername": "asad",
         "clabSourceLongName": "clab-demo-Spine-02",
-        "clabSourceMacAddress": "aa:c1:ab:4e:cb:9e",
+        "clabSourceMacAddress": "aa:c1:ab:2e:9d:19",
         "clabSourcePort": "e1-1",
         "clabTargetLongName": "clab-demo-Leaf-01",
-        "clabTargetMacAddress": "aa:c1:ab:91:2d:16",
+        "clabTargetMacAddress": "aa:c1:ab:59:7f:05",
         "clabTargetPort": "e1-2",
         "topoViewerSnmpGetSourcePort": "",
         "topoViewerSnmpGetTargetPort": ""
@@ -948,10 +948,10 @@
       "extraData": {
         "clabServerUsername": "asad",
         "clabSourceLongName": "clab-demo-Spine-02",
-        "clabSourceMacAddress": "aa:c1:ab:d4:41:51",
+        "clabSourceMacAddress": "aa:c1:ab:50:34:e9",
         "clabSourcePort": "e1-2",
         "clabTargetLongName": "clab-demo-Leaf-02",
-        "clabTargetMacAddress": "aa:c1:ab:fb:45:89",
+        "clabTargetMacAddress": "aa:c1:ab:0d:7f:55",
         "clabTargetPort": "e1-2",
         "topoViewerSnmpGetSourcePort": "",
         "topoViewerSnmpGetTargetPort": ""
@@ -983,10 +983,10 @@
       "extraData": {
         "clabServerUsername": "asad",
         "clabSourceLongName": "clab-demo-Spine-02",
-        "clabSourceMacAddress": "aa:c1:ab:a6:44:c8",
+        "clabSourceMacAddress": "aa:c1:ab:5b:05:35",
         "clabSourcePort": "e1-3",
         "clabTargetLongName": "clab-demo-Leaf-03",
-        "clabTargetMacAddress": "aa:c1:ab:f0:95:27",
+        "clabTargetMacAddress": "aa:c1:ab:c4:68:3b",
         "clabTargetPort": "e1-4",
         "topoViewerSnmpGetSourcePort": "",
         "topoViewerSnmpGetTargetPort": ""
@@ -1018,10 +1018,10 @@
       "extraData": {
         "clabServerUsername": "asad",
         "clabSourceLongName": "clab-demo-Spine-02",
-        "clabSourceMacAddress": "aa:c1:ab:22:e6:b7",
+        "clabSourceMacAddress": "aa:c1:ab:93:ee:01",
         "clabSourcePort": "e1-4",
         "clabTargetLongName": "clab-demo-Leaf-04",
-        "clabTargetMacAddress": "aa:c1:ab:79:da:f6",
+        "clabTargetMacAddress": "aa:c1:ab:99:dc:6f",
         "clabTargetPort": "e1-4",
         "topoViewerSnmpGetSourcePort": "",
         "topoViewerSnmpGetTargetPort": ""

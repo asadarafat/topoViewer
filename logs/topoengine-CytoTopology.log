@@ -13546,3 +13546,51 @@ time=2024-10-30T21:11:12Z level=info msg=request completed in 2.044852ms cookies
 time=2024-10-30T21:11:22Z level=info msg=request completed in 2.008415ms cookies=[] host=nsp-clab1.nice.nokia.net:8081 method=GET path=/get-environments protocol=HTTP/1.1 remote_addr=10.206.70.125:49756 request_url=/get-environments user_agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36
 time=2024-10-30T21:11:32Z level=info msg=request completed in 2.01887ms cookies=[] host=nsp-clab1.nice.nokia.net:8081 method=GET path=/get-environments protocol=HTTP/1.1 remote_addr=10.206.70.125:49756 request_url=/get-environments user_agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36
 >>>>>>> e0a25ad9 (before rebase-squash)
+time=2024-10-31T11:30:18Z level=info msg=Yo, this app is running with sudo access (as root).
+time=2024-10-31T11:30:18Z level=info msg======= Start up Parameter ======
+time=2024-10-31T11:30:18Z level=info
+time=2024-10-31T11:30:18Z level=info msg=TopoViewer Version		: 'nightly-24.10.30'
+time=2024-10-31T11:30:18Z level=info msg=topology file yaml			: 'rawTopoFile/clab-demo.yaml'
+time=2024-10-31T11:30:18Z level=info msg=topology-data json file			: '.'
+time=2024-10-31T11:30:18Z level=info msg=depyloyment type			: colocated
+time=2024-10-31T11:30:18Z level=info msg=working directory		: '/var/asad/topoViewer'
+time=2024-10-31T11:30:18Z level=info msg=command					: '/bin/bash'
+time=2024-10-31T11:30:18Z level=info msg=arguments				: ['']
+time=2024-10-31T11:30:18Z level=info msg=allowed hosts			: ['nsp-clab1.nice.nokia.net']
+time=2024-10-31T11:30:18Z level=info msg=connection error limit	: 10
+time=2024-10-31T11:30:18Z level=info msg=keepalive ping timeout	: 20s
+time=2024-10-31T11:30:18Z level=info msg=max buffer size			: 512 bytes
+time=2024-10-31T11:30:18Z level=info msg=server address			: '0.0.0.0' 
+time=2024-10-31T11:30:18Z level=info msg=server port				: 8081
+time=2024-10-31T11:30:18Z level=info msg=liveness checks path		: '/healthz'
+time=2024-10-31T11:30:18Z level=info msg=readiness checks path	: '/readyz'
+time=2024-10-31T11:30:18Z level=info msg=metrics endpoint path	: '/metrics'
+time=2024-10-31T11:30:18Z level=info msg=xtermjs endpoint path	: '/xterm.js'
+time=2024-10-31T11:30:18Z level=info msg======= Start up Parameter ======
+time=2024-10-31T11:30:18Z level=info
+time=2024-10-31T11:30:18Z level=info msg=topo JSON: rawTopoFile/clab-demo.yaml
+time=2024-10-31T11:30:18Z level=info msg=topo YAML: .
+time=2024-10-31T11:30:18Z level=info msg=<go_topoengine><I>GenerateClabTopoFromYaml: Generating clab json topology, from clab yaml rawTopoFile/clab-demo.yaml>
+time=2024-10-31T11:30:18Z level=info msg=Parsing & checking topology file: clab-demo.yaml
+time=2024-10-31T11:30:18Z level=info msg=clab json topology succesfully generated, location of the file is html-public/demo/topology-data.json
+time=2024-10-31T11:30:18Z level=info msg=ClabTopoRead topology absolute file path: '/var/asad/topoViewer/html-public/demo/topology-data.json'
+time=2024-10-31T11:30:18Z level=info msg={demo colocated}
+time=2024-10-31T11:30:18Z level=info msg={demo colocated}
+time=2024-10-31T11:30:18Z level=info msg={demo colocated}
+time=2024-10-31T11:30:18Z level=info msg=starting server on interface:port '0.0.0.0:8081'...
+time=2024-10-31T11:30:22Z level=info msg=request completed in 0.328097ms cookies=[] host=nsp-clab1.nice.nokia.net:8081 method=GET path=/ protocol=HTTP/1.1 remote_addr=10.206.69.208:56556 request_url=/ user_agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.6 Safari/605.1.15
+time=2024-10-31T11:30:22Z level=info msg=request completed in 0.820876ms cookies=[] host=nsp-clab1.nice.nokia.net:8081 method=GET path=/js/index.js protocol=HTTP/1.1 remote_addr=10.206.69.208:56556 request_url=/js/index.js?ver=1 user_agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.6 Safari/605.1.15
+time=2024-10-31T11:30:23Z level=info msg=request completed in 0.327763ms cookies=[] host=nsp-clab1.nice.nokia.net:8081 method=GET path=/js/common.js protocol=HTTP/1.1 remote_addr=10.206.69.208:56557 request_url=/js/common.js?ver=1 user_agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.6 Safari/605.1.15
+time=2024-10-31T11:30:23Z level=info msg=request completed in 1.97812ms cookies=[] host=nsp-clab1.nice.nokia.net:8081 method=GET path=/get-environments protocol=HTTP/1.1 remote_addr=10.206.69.208:56556 request_url=/get-environments user_agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.6 Safari/605.1.15
+time=2024-10-31T11:30:23Z level=info msg=request completed in 0.275811ms cookies=[] host=nsp-clab1.nice.nokia.net:8081 method=GET path=/css/cy-style-dark.json protocol=HTTP/1.1 remote_addr=10.206.69.208:56556 request_url=/css/cy-style-dark.json user_agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.6 Safari/605.1.15
+time=2024-10-31T11:30:23Z level=info msg=request completed in 0.168695ms cookies=[] host=nsp-clab1.nice.nokia.net:8081 method=GET path=/dataCytoMarshall.json protocol=HTTP/1.1 remote_addr=10.206.69.208:56557 request_url=/dataCytoMarshall.json user_agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.6 Safari/605.1.15
+time=2024-10-31T11:30:23Z level=info msg=uptime endpoint called
+time=2024-10-31T11:30:23Z level=info msg=containerNodeStatus endpoint called
+time=2024-10-31T11:30:23Z level=info msg=clabUser: 'asad'
+time=2024-10-31T11:30:23Z level=info msg=clabHost: 'nsp-clab1.nice.nokia.net'
+time=2024-10-31T11:30:23Z level=info msg=clabPass: 'Lab-Her0'
+time=2024-10-31T11:30:23Z level=info msg=request completed in 1.872657ms cookies=[] host=nsp-clab1.nice.nokia.net:8081 method=GET path=/get-environments protocol=HTTP/1.1 remote_addr=10.206.69.208:56556 request_url=/get-environments user_agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.6 Safari/605.1.15
+time=2024-10-31T11:30:27Z level=info msg=request completed in 0.289777ms cookies=[] host=nsp-clab1.nice.nokia.net:8081 method=GET path=/css/cy-style-dark.json protocol=HTTP/1.1 remote_addr=10.206.69.208:56557 request_url=/css/cy-style-dark.json user_agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.6 Safari/605.1.15
+time=2024-10-31T11:30:27Z level=info msg=<cmd-clab><I><clab-link-mac() - queriesList: [clab-demo-Spine-02 clab-demo-Leaf-01]
+time=2024-10-31T11:30:27Z level=info msg=request completed in 79.755908ms cookies=[] host=nsp-clab1.nice.nokia.net:8081 method=GET path=/clab-link-mac protocol=HTTP/1.1 remote_addr=10.206.69.208:56556 request_url=/clab-link-mac?param1=clab-demo-Spine-02&param2=clab-demo-Leaf-01 user_agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.6 Safari/605.1.15
+time=2024-10-31T11:30:33Z level=info msg=request completed in 2.079972ms cookies=[] host=nsp-clab1.nice.nokia.net:8081 method=GET path=/get-environments protocol=HTTP/1.1 remote_addr=10.206.69.208:56556 request_url=/get-environments user_agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.6 Safari/605.1.15

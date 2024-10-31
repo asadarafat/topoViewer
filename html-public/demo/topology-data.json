@@ -226,14 +226,14 @@
             "node": "Spine-01",
             "nodeLongName": "clab-demo-Spine-01",
             "interface": "e1-1",
-            "mac": "aa:c1:ab:91:3f:84",
+            "mac": "aa:c1:ab:7f:1b:d3",
             "peer": "z"
         },
         "z": {
             "node": "Leaf-01",
             "nodeLongName": "clab-demo-Leaf-01",
             "interface": "e1-1",
-            "mac": "aa:c1:ab:da:d9:21",
+            "mac": "aa:c1:ab:36:b4:ab",
             "peer": "a"
         }
     },
@@ -242,14 +242,14 @@
             "node": "Spine-01",
             "nodeLongName": "clab-demo-Spine-01",
             "interface": "e1-2",
-            "mac": "aa:c1:ab:c2:78:6e",
+            "mac": "aa:c1:ab:03:19:45",
             "peer": "z"
         },
         "z": {
             "node": "Leaf-02",
             "nodeLongName": "clab-demo-Leaf-02",
             "interface": "e1-1",
-            "mac": "aa:c1:ab:40:36:0d",
+            "mac": "aa:c1:ab:f2:65:db",
             "peer": "a"
         }
     },
@@ -258,14 +258,14 @@
             "node": "Spine-01",
             "nodeLongName": "clab-demo-Spine-01",
             "interface": "e1-3",
-            "mac": "aa:c1:ab:7e:8e:09",
+            "mac": "aa:c1:ab:fb:ee:e4",
             "peer": "z"
         },
         "z": {
             "node": "Leaf-03",
             "nodeLongName": "clab-demo-Leaf-03",
             "interface": "e1-3",
-            "mac": "aa:c1:ab:4c:e9:e2",
+            "mac": "aa:c1:ab:78:94:6a",
             "peer": "a"
         }
     },
@@ -274,14 +274,14 @@
             "node": "Spine-01",
             "nodeLongName": "clab-demo-Spine-01",
             "interface": "e1-4",
-            "mac": "aa:c1:ab:46:e1:b0",
+            "mac": "aa:c1:ab:c0:46:a8",
             "peer": "z"
         },
         "z": {
             "node": "Leaf-04",
             "nodeLongName": "clab-demo-Leaf-04",
             "interface": "e1-3",
-            "mac": "aa:c1:ab:5c:d6:83",
+            "mac": "aa:c1:ab:56:d2:35",
             "peer": "a"
         }
     },
@@ -290,14 +290,14 @@
             "node": "Spine-02",
             "nodeLongName": "clab-demo-Spine-02",
             "interface": "e1-1",
-            "mac": "aa:c1:ab:4e:cb:9e",
+            "mac": "aa:c1:ab:2e:9d:19",
             "peer": "z"
         },
         "z": {
             "node": "Leaf-01",
             "nodeLongName": "clab-demo-Leaf-01",
             "interface": "e1-2",
-            "mac": "aa:c1:ab:91:2d:16",
+            "mac": "aa:c1:ab:59:7f:05",
             "peer": "a"
         }
     },
@@ -306,14 +306,14 @@
             "node": "Spine-02",
             "nodeLongName": "clab-demo-Spine-02",
             "interface": "e1-2",
-            "mac": "aa:c1:ab:d4:41:51",
+            "mac": "aa:c1:ab:50:34:e9",
             "peer": "z"
         },
         "z": {
             "node": "Leaf-02",
             "nodeLongName": "clab-demo-Leaf-02",
             "interface": "e1-2",
-            "mac": "aa:c1:ab:fb:45:89",
+            "mac": "aa:c1:ab:0d:7f:55",
             "peer": "a"
         }
     },
@@ -322,14 +322,14 @@
             "node": "Spine-02",
             "nodeLongName": "clab-demo-Spine-02",
             "interface": "e1-3",
-            "mac": "aa:c1:ab:a6:44:c8",
+            "mac": "aa:c1:ab:5b:05:35",
             "peer": "z"
         },
         "z": {
             "node": "Leaf-03",
             "nodeLongName": "clab-demo-Leaf-03",
             "interface": "e1-4",
-            "mac": "aa:c1:ab:f0:95:27",
+            "mac": "aa:c1:ab:c4:68:3b",
             "peer": "a"
         }
     },
@@ -338,14 +338,14 @@
             "node": "Spine-02",
             "nodeLongName": "clab-demo-Spine-02",
             "interface": "e1-4",
-            "mac": "aa:c1:ab:22:e6:b7",
+            "mac": "aa:c1:ab:93:ee:01",
             "peer": "z"
         },
         "z": {
             "node": "Leaf-04",
             "nodeLongName": "clab-demo-Leaf-04",
             "interface": "e1-4",
-            "mac": "aa:c1:ab:79:da:f6",
+            "mac": "aa:c1:ab:99:dc:6f",
             "peer": "a"
         }
     }

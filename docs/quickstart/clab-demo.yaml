@@ -4,19 +4,19 @@ topology:
   nodes:
     topoviewer:
       kind: linux
-      image: ghcr.io/asadarafat/topoviewer:nightly-24.10.27a
+      image: ghcr.io/asadarafat/topoviewer:${TOPOVIEWER_VERSION:=nightly-24.10.30}
       ports:
-        - 8088:8088
+        - ${SERVER_PORT:=8088}:${SERVER_PORT:=8088}
       startup-delay: 5
       binds:
         - /var/run/docker.sock:/var/run/docker.sock:ro
         - clab-demo.yaml:/opt/topoviewer/local-bind/clab-demo.yaml:ro
       env:
         ### These are the environment variables for topoviewer container
-        ALLOWED_HOSTNAME: "100.124.41.89"
-        CLAB_USER: "asad"
-        CLAB_PASS: "PassW0rd"
-        SERVER_PORT: "8088"
+        ALLOWED_HOSTNAME: ${CLAB_USER:=100.124.41.89}
+        CLAB_USER: ${CLAB_USER:=topoviewer}
+        CLAB_PASS: ${CLAB_PASS:=pass}
+        SERVER_PORT: ${SERVER_PORT:=8088}
         CLAB_TOPO_YAML: "clab-demo.yaml"
       labels:
         topoviewer-role: controller
