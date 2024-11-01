@@ -20,6 +20,6 @@ The codebase is organized into several folders prefixed with `go_`, each serving
 
 
 ## Quick Start
-`bash -c "$(curl -sL https://raw.githubusercontent.com/asadarafat/topoViewer/refs/heads/development/docs/quickstart/quick-deploy.sh)"`
+For Quick Start steps, refer to the [Quick Start Guide](https://github.com/asadarafat/topoViewer/blob/development/docs/quickstart/quickstart.md).
 
 > **Note**: Exposing your shell via a browser can be risky. Use at your own risk.
