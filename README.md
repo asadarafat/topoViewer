@@ -18,4 +18,8 @@ The codebase is organized into several folders prefixed with `go_`, each serving
 
 - **go_tools**: Contains various utility functions and tools essential for TopoViewer’s operations.
 
+
+## Quick Start
+`bash -c "$(curl -sL https://raw.githubusercontent.com/asadarafat/topoViewer/refs/heads/development/docs/quickstart/quick-deploy.sh)"`
+
 > **Note**: Exposing your shell via a browser can be risky. Use at your own risk.
