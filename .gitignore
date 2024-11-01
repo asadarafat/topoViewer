@@ -1,4 +1,5 @@
-config/*
+config
+config/**
 
 docs/quickstart/clab-demo/*
 
@@ -16,6 +17,12 @@ package.json
 webpack.config.js
 .babelrc
 node_modules/**
+
+docs/quickstart/clab-demo
+docs/quickstart/clab-demo/**
+docs/quickstart/.clab-demo-output.yaml.bak
+docs/quickstart/clab-demo-output.yaml
+
 
 .cache/**
 
