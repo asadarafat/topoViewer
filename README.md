@@ -20,6 +20,11 @@ The codebase is organized into several folders prefixed with `go_`, each serving
 
 
 ## Quick Start
-For Quick Start steps, refer to the [Quick Start Guide](https://github.com/asadarafat/topoViewer/blob/development/docs/quickstart/quickstart.md).
+For Quick Start, refer to the [Quick Start Guide](https://github.com/asadarafat/topoViewer/blob/development/docs/quickstart/quickstart.md).
+
+
+## Enhanced Containerlab Topology Definition
+
+TopoViewer offers support for [enhanced containerlab topology definition](docs/containerlab-topology-definition-enhancement/readme.md), providing additional features for more intuitive network visualizations.
 
 > **Note**: Exposing your shell via a browser can be risky. Use at your own risk.
