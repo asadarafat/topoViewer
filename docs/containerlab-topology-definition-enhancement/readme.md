@@ -59,6 +59,9 @@ topology:
 
 By specifying `topoViewer-role` labels for each node, you enable TopoViewer to display nodes with role-specific icons, enhancing the clarity and visual structure of the topology in data center simulations.
 
+---
+
+
 ## Containerlab Topology with Group Organization
 
 TopoViewer supports organizing nodes into hierarchical groups within the topology by using the `group` attribute in the Containerlab configuration. This feature allows you to categorize nodes under specific parent groups, improving the structure and readability of the network layout in TopoViewer.
