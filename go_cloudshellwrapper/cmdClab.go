@@ -990,6 +990,11 @@ func Clab(_ *cobra.Command, _ []string) error {
 		clabHandlers.ClabNodeBackupRestoreHandler(w, r, &cyTopo)
 	}).Methods("POST")
 
+	// Separate handler for node-backup-restore
+	router.HandleFunc("/clab-save-topo", func(w http.ResponseWriter, r *http.Request) {
+		clabHandlers.ClabSaveTopoHandler(w, r, &cyTopo, workingDirectory)
+	}).Methods("POST")
+
 	// starting HTTP server
 	// starting HTTP server
 
