@@ -247,6 +247,59 @@
     }
   },
 
+  {
+    "selector": ".eh-handle",
+    "style": {
+      "background-color": "red",
+      "width": 2,
+      "height": 2,
+      "shape": "ellipse",
+      "overlay-opacity": 0,
+      "border-width": 2, 
+      "border-opacity": 0
+    }
+  },
+
+  {
+    "selector": ".eh-hover",
+    "style": {
+      "background-color": "red"
+    }
+  },
+
+  {
+    "selector": ".eh-source",
+    "style": {
+      "border-width": 2,
+      "border-color": "red"
+    }
+  },
+
+  {
+    "selector": ".eh-target",
+    "style": {
+      "border-width": 2,
+      "border-color": "red"
+    }
+  },
+
+  {
+    "selector": ".eh-preview, .eh-ghost-edge",
+    "style": {
+      "background-color": "red",
+      "line-color": "red",
+      "target-arrow-color": "red",
+      "source-arrow-color": "red"
+    }
+  },
+  {
+    "selector": ".eh-ghost-edge.eh-preview-active",
+    "style": {
+      "opacity": 0
+    }
+  },
+
+
 
   {"selector": "edge[group=\"coexp\"]", "style": {"line-color": "#d0b7d5"}},
   {"selector": "edge[group=\"coloc\"]", "style": {"line-color": "#a0b3dc"}},

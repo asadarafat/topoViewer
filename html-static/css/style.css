@@ -164,6 +164,15 @@ body {
   position: fixed;
 }
 
+#panel-clab-editor {
+  top: 85px;
+  right: 40px;
+  width: 700px;
+  overflow-y: hidden;
+  overflow-x: hidden;
+  position: fixed;
+}
+
 #panel-introduction {
   bottom: 10px;
   right: 40px;
