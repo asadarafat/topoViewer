@@ -21,6 +21,7 @@ import (
 	"github.com/gosnmp/gosnmp"
 	"github.com/samber/lo"
 	containerlab "github.com/srl-labs/containerlab/clab"
+
 	"golang.org/x/crypto/ssh"
 
 	log "github.com/sirupsen/logrus"

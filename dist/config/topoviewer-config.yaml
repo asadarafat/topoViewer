@@ -13,13 +13,10 @@ nsp:
   nspIeftTopoL3_1: "rawTopoFile/topo-ietf-L3-TopologyId-1:65000:1-isis.json"
   nspIeftTopoL3_2: "rawTopoFile/topo-ietf-L3-TopologyId-0:65000:1-isis.json"
   multi-layer: "enabled"
-  password1:    "${NSP_PASSWORD}"
-
 
 
 
   # nspOsIP:    "147.75.102.178"    # API gateway
   # nspIprcIP:  "147.75.102.178"   # API gateway
   # username:   "admin"
-  # password:    "${NSP_PASSWORD}"
-
+  # password:   "${NSP_PASSWORD}"

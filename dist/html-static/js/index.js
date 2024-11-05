@@ -258,6 +258,13 @@ document.addEventListener("DOMContentLoaded", async function() {
         //- This code will be executed when you click anywhere in the Cytoscape container
         //- You can add logic specific to the container here
 
+        console.log("cy container clicked");
+
+        console.log("isPanel01Cy: ", isPanel01Cy);
+        console.log("nodeClicked: ", nodeClicked);
+        console.log("edgeClicked: ", edgeClicked);
+
+
         loadCytoStyle();
 
         if (!nodeClicked && !edgeClicked) {
