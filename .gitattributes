@@ -1,2 +1,0 @@
-dist/topoviewer filter=lfs diff=lfs merge=lfs -text
-dist/topoviewer !text !filter !merge !diff
