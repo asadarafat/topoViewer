@@ -52,6 +52,8 @@
 				}
 			}
 
+
+
 			async function postPythonAction(event, commandList) {
 				try {
 					showLoadingSpinnerGlobal()
@@ -201,6 +203,50 @@
 				}
 			}
 
+
+			async function sendRequestToEndpointGetV3(endpointName, argsList = []) {
+				console.log(`callGoFunction Called with ${endpointName}`);
+				console.log(`Parameters:`, argsList);
+			
+				// Construct the query string from argsList
+				const params = new URLSearchParams();
+				argsList.forEach((arg, index) => {
+					params.append(`param${index + 1}`, arg);
+				});
+			
+				const urlWithParams = `${endpointName}?${params.toString()}`;
+			
+				try {
+					const response = await fetch(urlWithParams, {
+						method: "GET",
+						headers: {
+							"Content-Type": "application/json",
+						},
+					});
+			
+					if (!response.ok) {
+						throw new Error(`HTTP error! Status: ${response.status}`);
+					}
+			
+					// Check if the response is JSON; otherwise, return as text
+					const contentType = response.headers.get("Content-Type");
+					let responseData;
+			
+					if (contentType && contentType.includes("application/json")) {
+						responseData = await response.json();
+					} else {
+						responseData = await response.text(); // Return as-is for non-JSON content
+					}
+			
+					console.log(responseData);
+			
+					return responseData;
+				} catch (error) {
+					console.error("Error:", error);
+					throw error;
+				}
+			}
+			
 			// Function to detect light or dark mode
 			function detectColorScheme() {
 				// Check if the browser supports the prefers-color-scheme media feature

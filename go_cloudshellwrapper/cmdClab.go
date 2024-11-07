@@ -995,6 +995,11 @@ func Clab(_ *cobra.Command, _ []string) error {
 		clabHandlers.ClabSaveTopoHandler(w, r, &cyTopo, workingDirectory)
 	}).Methods("POST")
 
+	// // Separate handler for get-yaml-topo-content endpoint
+	router.HandleFunc("/get-yaml-topo-content", func(w http.ResponseWriter, r *http.Request) {
+		clabHandlers.GetYamlTopoContent(w, r, topoClabYaml)
+	}).Methods("GET")
+
 	// starting HTTP server
 	// starting HTTP server
 

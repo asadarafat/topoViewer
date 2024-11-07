@@ -1641,6 +1641,9 @@ document.getElementById("panel-log-messages-close-button").addEventListener("cli
 // CLAB EDITOR
 async function showPanelContainerlabEditor(event) {
     // Remove all Overlayed Panel
+
+    getYamlTopoContent(event)
+
     // Get all elements with the class "panel-overlay"
     var panelOverlays = document.getElementsByClassName("panel-overlay");
     // Loop through each element and set its display to 'none'
@@ -2322,131 +2325,6 @@ function viewportDrawerCaptureButton() {
     
 }
 
-
-
-
-// async function captureAndSaveViewportAsDrawIo(cy) {
-//     // Find the canvas element for layer2-node
-//     // Find the canvas element for layer2-node
-//     const canvasElement = document.querySelector(
-//         '#cy canvas[data-id="layer2-node"]',
-//     );
-//     const drawIoWidht = canvasElement.width / 10;
-//     const drawIoHeight = canvasElement.height / 10;
-//     const drawIoaAspectRatio = drawIoWidht / drawIoHeight;
-
-//     const mxGraphHeader = `<mxGraphModel dx="${drawIoWidht / 2}" dy="${drawIoHeight / 2}" grid="1" gridSize="1" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="${drawIoWidht}" pageHeight="${drawIoHeight}" math="0" shadow="0">
-//                                                                                         <root>
-//                                                                                             <mxCell id="0" />
-//                                                                                             <mxCell id="1" parent="0" />`;
-
-//     const mxGraphFooter = `    					</root>
-//                                                                                             </mxGraphModel>`;
-
-//     const mxCells = [];
-
-//     // Iterate through nodes and edges
-//     // Function to create mxCell XML for nodes
-//     // Iterate through nodes and edges
-//     // Function to create mxCell XML for nodes
-//     function createMxCellForNode(node, imageURL) {
-//         if (node.isParent()) {
-//             return `	
-//                 <mxCell id="${node.id()}" value="${node.data("id")}" style="shape=image;imageAspect=0;aspect=fixed;verticalLabelPosition=bottom;verticalAlign=top;image=undefined;imageBackground=#8F96AC;imageBorder=#F2F2F2;strokeWidth=2;perimeterSpacing=10;opacity=30;fontSize=4;spacingTop=-7;" parent="1" vertex="1">
-//                     <mxGeometry x="${node.position("x") - node.width() / 2}" y="${node.position("y") - node.height() / 2}" width="${node.width()}" height="${node.height()}" as="geometry" />
-//                 </mxCell>`;
-//         } else if (
-//             !node.data("id").includes("statusGreen") &&
-//             !node.data("id").includes("statusRed")
-//         ) {
-//             return `
-//                 <mxCell id="${node.id()}" value="${node.data("id")}" style="shape=image;imageAspect=0;aspect=fixed;verticalLabelPosition=bottom;verticalAlign=top;image=${imageURL};fontSize=4;spacingTop=-7;" vertex="1" parent="1">
-//                     <mxGeometry x="${node.position("x") - node.width() / 2}" y="${node.position("y") - node.height() / 2}" width="${node.width()}" height="${node.height()}" as="geometry" />
-//                 </mxCell>`;
-//         }
-//     }
-
-//     cy.nodes().forEach(function(node) {
-//         let imageURL;
-//         switch (node.data("topoViewerRole")) {
-//             case "pe":
-//                 imageURL = `http://${location.host}/images/clab-pe-light-blue.png`;
-//                 break;
-//             case "controller":
-//                 imageURL =
-//                     `http://${location.host}/images/clab-controller-light-blue.png`;
-//                 break;
-//             case "pon":
-//                 imageURL = `http://${location.host}/images/clab-pon-dark-blue.png`;
-//                 break;
-//             case "dcgw":
-//                 imageURL = `http://${location.host}/images/clab-dcgw-dark-blue.png`;
-//                 break;
-//             case "leaf":
-//                 imageURL = `http://${location.host}/images/clab-leaf-light-blue.png`;
-//                 break;
-//             case "spine":
-//                 imageURL = `http://${location.host}/images/clab-spine-dark-blue.png`;
-//                 break;
-//             case "super-spine":
-//                 imageURL = `http://${location.host}/images/clab-spine-light-blue.png`;
-//                 break;
-//         }
-//         mxCells.push(createMxCellForNode(node, imageURL));
-//     });
-
-//     cy.edges().forEach(function(edge) {
-//         mxCells.push(`
-//             <mxCell id="${edge.data("id")}" value="" style="endArrow=none;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;strokeWidth=1;strokeColor=#969799;opacity=60;" parent="1" source="${edge.data("source")}" target="${edge.data("target")}" edge="1">
-//                 <mxGeometry width="50" height="50" relative="1" as="geometry" >
-//                 </mxGeometry>
-//             </mxCell>
-//             <mxCell id="${edge.data("id")}-LabelSource" value="${edge.data("sourceEndpoint")}" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=3;" parent="${edge.data("id")}" vertex="1" connectable="0">
-//                 <mxGeometry x="-0.5" y="1" relative="0.5" as="geometry">
-//                     <mxPoint x="1" y="1" as="sourcePoint" />
-//                 </mxGeometry>
-//             </mxCell>
-//             <mxCell id="${edge.data("id")}-labelTarget" value="${edge.data("targetEndpoint")}" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=3" parent="${edge.data("id")}" vertex="1" connectable="0">
-//                 <mxGeometry x="0.5" y="1" relative="0.5" as="geometry">
-//                     <mxPoint x="1" y="1" as="targetPoint" />
-//                 </mxGeometry>
-//             </mxCell>`);
-//     });
-
-//     // Combine all parts and create XML
-//     const mxGraphXML = mxGraphHeader + mxCells.join("") + mxGraphFooter;
-
-//     // Create a Blob from the XML
-//     const blob = new Blob([mxGraphXML], {
-//         type: "application/xml",
-//     });
-
-//     // Create a URL for the Blob
-//     const url = window.URL.createObjectURL(blob);
-
-//     // Create a download link and trigger a click event
-//     const a = document.createElement("a");
-//     a.style.display = "none";
-//     a.href = url;
-//     a.download = "filename.drawio";
-//     document.body.appendChild(a);
-
-//     bulmaToast.toast({
-//         message: `Brace yourselves for a quick snapshot, folks! 📸 Capturing the viewport in 3... 2... 1... 🚀💥`,
-//         type: "is-warning is-size-6 p-3",
-//         duration: 2000,
-//         position: "top-center",
-//         closeOnClick: true,
-//     });
-//     await sleep(2000);
-//     // Simulate a click to trigger the download
-//     a.click();
-
-//     // Clean up by revoking the URL and removing the download link
-//     window.URL.revokeObjectURL(url);
-//     document.body.removeChild(a);
-// }
-
 async function captureAndSaveViewportAsDrawIo(cy) {
     // Define base64-encoded SVGs for each role
     const svgBase64ByRole = {
@@ -2555,7 +2433,19 @@ async function captureAndSaveViewportAsDrawIo(cy) {
     document.body.removeChild(a);
 }
 
+async function getYamlTopoContent(event) {
+    try {
+        const yamlTopoContent = await sendRequestToEndpointGetV3("/get-yaml-topo-content");
 
+        console.log('YAML Topo Content:', yamlTopoContent);
+        document.getElementById('panel-clab-editor-text-area').value = yamlTopoContent;
+
+        
+    } catch (error) {
+        console.error("Error occurred:", error);
+        // Handle errors as needed
+    }
+}
 
 
 // aarafat-tag:
