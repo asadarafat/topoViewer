@@ -154,6 +154,26 @@ body {
   position: fixed;
 }
 
+#panel-node-editor {
+  bottom: 10px;
+  left: 40px;
+  width: 340px;
+  max-height: 700px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: fixed;
+}
+
+#panel-node-kind-dropdown-content {
+  max-height: 120px; /* Adjust height to show about 5 items */
+  overflow-y: auto; /* Enables vertical scrolling */
+}
+
+#panel-node-topoviewerrole-dropdown-content {
+  max-height: 120px; /* Adjust height to show about 5 items */
+  overflow-y: auto; /* Enables vertical scrolling */
+}
+
 #panel-link {
   top: 85px;
   right: 40px;

@@ -36,7 +36,7 @@
 
 			async function getEnvironments(event) {
 				try {
-					const environments = await sendRequestToEndpointGet("/get-environments");
+					const environments = await sendRequestToEndpointGetV2("/get-environments");
 
 					// Handle the response data
 					if (environments && typeof environments === 'object' && Object.keys(environments).length > 0) {

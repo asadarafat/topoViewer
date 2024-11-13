@@ -496,7 +496,7 @@ func Clab(_ *cobra.Command, _ []string) error {
 
 					for _, nodeSros := range nodeSrosList {
 						clabSourceLongName := extraData["clabSourceLongName"].(string)
-						log.Infof("<go_cloudshellwrapper><D>getAllNodeEndpointDetail - clabSourceLongName: %s>", clabSourceLongName)
+						log.Infof("<go_cloudshellwrapper><I>getAllNodeEndpointDetail - clabSourceLongName: %s>", clabSourceLongName)
 
 						if clabSourceLongName == nodeSros && len(nodesPortInfo[clabSourceLongName]) > 0 {
 							if strings.HasPrefix(cytoElement.Data.SourceEndpoint, "eth") {
@@ -997,7 +997,17 @@ func Clab(_ *cobra.Command, _ []string) error {
 
 	// // Separate handler for get-yaml-topo-content endpoint
 	router.HandleFunc("/get-yaml-topo-content", func(w http.ResponseWriter, r *http.Request) {
-		clabHandlers.GetYamlTopoContent(w, r, topoClabYaml)
+		clabHandlers.GetYamlTopoContentHandler(w, r, topoClabYaml)
+	}).Methods("GET")
+
+	// // Separate handler for get-kind-enum endpoint
+	router.HandleFunc("/get-kind-enum", func(w http.ResponseWriter, r *http.Request) {
+		clabHandlers.ClabGetNodeKindEnumHandler(w, r, path.Join(workingDirectory, "./html-static/template/clab/clabJsonSchema-v0.59.0.json"))
+	}).Methods("GET")
+
+	// // Separate handler for get-kind-enum endpoint
+	router.HandleFunc("/get-kind-type-enum", func(w http.ResponseWriter, r *http.Request) {
+		clabHandlers.ClabGetNodeKindTypeEnumHandler(w, r, path.Join(workingDirectory, "./html-static/template/clab/clabJsonSchema-v0.59.0.json"), "vr-sros")
 	}).Methods("GET")
 
 	// starting HTTP server

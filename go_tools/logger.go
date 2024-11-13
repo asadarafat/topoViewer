@@ -3,50 +3,21 @@ package tools
 import (
 	"fmt"
 	"io"
+	"path/filepath"
+	"runtime"
 
 	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
-
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
+// Logs struct holds the log file name.
+// You can extend this struct with more configurations if needed.
 type Logs struct {
 	LogFileName string
 }
 
-// log level
-// // A constant exposing all logging levels
-// var AllLevels = []Level{
-// 	PanicLevel, 0
-// 	FatalLevel, 1
-// 	ErrorLevel, 2
-// 	WarnLevel,  3
-// 	InfoLevel,  4
-// 	DebugLevel, 5
-// 	TraceLevel, 6
-// }
-
-// const (
-// 	// PanicLevel level, highest level of severity. Logs and then calls panic with the
-// 	// message passed to Debug, Info, ...
-// 	PanicLevel Level = iota
-// 	// FatalLevel level. Logs and then calls `logger.Exit(1)`. It will exit even if the
-// 	// logging level is set to Panic.
-// 	FatalLevel
-// 	// ErrorLevel level. Logs. Used for errors that should definitely be noted.
-// 	// Commonly used for hooks to send errors to an error tracking service.
-// 	ErrorLevel
-// 	// WarnLevel level. Non-critical entries that deserve eyes.
-// 	WarnLevel
-// 	// InfoLevel level. General operational entries about what's going on inside the
-// 	// application.
-// 	InfoLevel
-// 	// DebugLevel level. Usually only enabled when debugging. Very verbose logging.
-// 	DebugLevel
-// 	// TraceLevel level. Designates finer-grained informational events than the Debug.
-// 	TraceLevel
-// )
-
+// Logger interface defines the logging methods.
 type Logger interface {
 	Trace(...interface{})
 	Tracef(string, ...interface{})
@@ -59,78 +30,87 @@ type Logger interface {
 	Error(...interface{})
 	Errorf(string, ...interface{})
 }
-type Logf func(s string, l ...interface{})
 
+// Logf defines the function signature for formatted logging.
+type Logf func(string, ...interface{})
+
+// Log defines the function signature for unformatted logging.
+type Log func(...interface{})
+
+// Initialize a new Logrus logger instance.
 var logger = logrus.New()
 
-var WithField,
-	WithFields = logger.WithField,
-	logger.WithFields
+// WithField and WithFields are shortcuts to add fields to logs.
+var WithField, WithFields = logger.WithField, logger.WithFields
 
-// Log defines the function signature of the logger
-type Log func(l ...interface{})
-
-var Trace,
-	// Debug logs at the Debug level
-	Debug,
-	// Info logs at the Info level
-	Info,
-	// Warn logs at the Warn level
-	Warn,
-	// Error logs at the Error level
-	Error,
-	Print Log = logger.Trace,
-	logger.Debug,
-	logger.Info,
-	logger.Warn,
-	logger.Error,
-	func(l ...interface{}) {
-		fmt.Println(l...)
-	}
-
-// Tracef logs at the trace level with formatting
-var Tracef,
-	// Debugf logs at the debug level with formatting
-	Debugf,
-	// Infof logs at the info level with formatting
-	Infof,
-	// Warnf logs at the warn level with formatting
-	Warnf,
-	// Errorf logs at the error level with formatting
-	Errorf,
-	Printf Logf = logger.Tracef,
-	logger.Debugf,
-	logger.Infof,
-	logger.Warnf,
-	logger.Errorf,
-	func(s string, l ...interface{}) {
+// Define logging functions mapped to the logger's methods.
+var (
+	Trace  Log  = logger.Trace
+	Debug  Log  = logger.Debug
+	Info   Log  = logger.Info
+	Warn   Log  = logger.Warn
+	Error  Log  = logger.Error
+	Print  Log  = func(l ...interface{}) { fmt.Println(l...) }
+	Tracef Logf = logger.Tracef
+	Debugf Logf = logger.Debugf
+	Infof  Logf = logger.Infof
+	Warnf  Logf = logger.Warnf
+	Errorf Logf = logger.Errorf
+	Printf Logf = func(s string, l ...interface{}) {
 		fmt.Printf(s, l...)
 		fmt.Printf("\n")
 	}
+)
 
+// InitLogger initializes the Logrus logger with specified configurations.
+// It sets up log rotation, log level, output destinations, and formatter with CallerPrettyfier.
 func (tool *Logs) InitLogger(filePath string, level uint32) {
-	// os.Stdout sending log to standard IO a.k.a session console
-	// mw := io.MultiWriter(os.Stdout, &lumberjack.Logger{})
-
-	mw := io.MultiWriter(&lumberjack.Logger{
-		Filename: filePath,
-		// MaxSize:    100, // megabytes
+	// Setup lumberjack logger for log rotation
+	lumberjackLogger := &lumberjack.Logger{
+		Filename:   filePath,
+		MaxSize:    100, // megabytes; adjust as needed
 		MaxBackups: 5,
-		MaxAge:     28,   //days
-		Compress:   true, // disabled by default
-	})
-	log.SetLevel(log.Level(level))
-	log.SetOutput(mw)
+		MaxAge:     28,   // days
+		Compress:   true, // compress rotated files
+	}
 
-	// log.SetFormatter(&nested.Formatter{})
+	// Setup multi-writer: file and optionally stdout
+	var mw io.Writer
+	// Uncomment the next line to also log to stdout
+	// mw = io.MultiWriter(os.Stdout, lumberjackLogger)
+	mw = io.MultiWriter(lumberjackLogger)
 
+	// Set the log level based on the provided level
+	logLevel := log.Level(level)
+	log.SetLevel(logLevel)
+
+	// Enable caller reporting to include file and function information
+	log.SetReportCaller(true)
+
+	// Customize the log formatter to include caller information elegantly
 	log.SetFormatter(&log.TextFormatter{
 		DisableQuote:  true,
 		DisableColors: false,
-		FullTimestamp: true})
+		FullTimestamp: true,
+		// CallerPrettyfier formats the function and file information
+		CallerPrettyfier: func(frame *runtime.Frame) (function string, file string) {
+			// Extract the file name without the full path
+			filename := filepath.Base(frame.File)
+			// Format the function name and file location
+			return fmt.Sprintf("%s()", frame.Function), fmt.Sprintf("%s:%d", filename, frame.Line)
+		},
+	})
 
-	// log.SetFormatter(&log.JSONFormatter{})
+	// Set the output destinations
+	log.SetOutput(mw)
+
+	// Optional: Switch to JSONFormatter if preferred
+	// log.SetFormatter(&log.JSONFormatter{
+	// 	TimestampFormat: "2006-01-02T15:04:05Z07:00",
+	// })
 }
+
+// MapLogLevelStringToNumber maps string log levels to Logrus log level numbers.
 func (tool *Logs) MapLogLevelStringToNumber(input string) int {
 	stringToNumber := map[string]int{
 		"trace": 6,

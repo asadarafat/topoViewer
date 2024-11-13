@@ -9,7 +9,7 @@ import (
 )
 
 // GetYamlTopoContent handles the /get-yaml-topo-content endpoint
-func GetYamlTopoContent(w http.ResponseWriter, r *http.Request, yamlTopoFilePath string) {
+func GetYamlTopoContentHandler(w http.ResponseWriter, r *http.Request, yamlTopoFilePath string) {
 	yamlData, err := os.ReadFile(yamlTopoFilePath)
 	if err != nil {
 		log.Error("Error reading YAML file:", err)

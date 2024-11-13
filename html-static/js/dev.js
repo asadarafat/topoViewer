@@ -200,7 +200,7 @@ document.addEventListener("DOMContentLoaded", async function() {
         saveEdgeToFile(edgeId);
 
         // Save the edge element to clab editor panel
-        clabEditorAddEdge(sourceNode.id(), sourceEndpoint, targetNode.id(), targetEndpoint);
+        clabEditorAddEdge(sourceNode, sourceEndpoint, targetNode, targetEndpoint);
     });
     
     async function saveEdgeToFile(edgeId) {
@@ -385,7 +385,6 @@ document.addEventListener("DOMContentLoaded", async function() {
         console.log("edgeClicked: ", edgeClicked);
 
 
-
         //- This code will be executed when you click anywhere in the Cytoscape container
         //- You can add logic specific to the container here
         //- This code will be executed when you click anywhere in the Cytoscape container
@@ -400,7 +399,6 @@ document.addEventListener("DOMContentLoaded", async function() {
             // if (!isPanel01Cy) {
 
                 console.log("!isPanel01Cy: ");
-
 
                 // Remove all Overlayed Panel
                 // Get all elements with the class "panel-overlay"
@@ -420,7 +418,6 @@ document.addEventListener("DOMContentLoaded", async function() {
                     viewportDrawer[i].style.display = "none";
                 }
 
-                // display none each ViewPortDrawer Element, the ViewPortDrawer is created during DOM loading and styled as display node initially
                 // display none each ViewPortDrawer Element, the ViewPortDrawer is created during DOM loading and styled as display node initially
                 var ViewPortDrawerElements =
                     document.getElementsByClassName("ViewPortDrawer");
@@ -445,61 +442,50 @@ document.addEventListener("DOMContentLoaded", async function() {
 
     // Listen for tap or click on the Cytoscape canvas
     cy.on('click', async (event) => {
-        if (event.target === cy && shiftKeyDown) { // Ensures Shift + click/tap
+        if (event.target === cy && shiftKeyDown) { // Ensures Shift + click/tap 
+
             const pos = event.position;
-            const newNodeId = 'node' + (cy.nodes().length + 1);
+            const newNodeId = 'nodeId-' + (cy.nodes().length + 1);
 
             // Add the new node to the graph
             cy.add({
                 group: 'nodes',
-                data: { id: newNodeId },
+                data: 
+                {
+                    "id": newNodeId,
+                    "editor": "true",
+                    "weight": "30",
+                    "name": newNodeId,
+                    "parent": "",
+                    "topoViewerRole": "pe",
+                    "sourceEndpoint": "",
+                    "targetEndpoint": "",
+                    "containerDockerExtraAttribute": {
+                        "state": "",
+                        "status": "",
+                    },
+                    "extraData": {
+                        "kind": "container",
+                        "longname": "",
+                        "image": "",
+                        "mgmtIpv4Addresss": "",
+                    },
+                },
                 position: { x: pos.x, y: pos.y }
             });
 
-            // Save the node element to file in the server
-            await saveNodeToFile(newNodeId);
-            // Save the node element to clab editor panel
-            clabEditorAddNode(newNodeId)
+            var cyNode = cy.$id(newNodeId); // Get cytoscpe node object id
+
+            showPanelContainerlabEditor(event)
+            sleep (100)
+            showPanelNodeEditor(cyNode)
+            sleep (100)
+            saveNodeToEditorToFile()
             
         }
     });
     
-    async function saveNodeToFile(nodeId) {
-        const nodeData = cy.$id(nodeId).json(); // Get JSON data of the node with the specified ID
-      
-        // Helper function to get the next available label or custom pattern if needed
-        function getNextLabel(nodeId) {
-          const nodes = cy.nodes(`[id = "${nodeId}"]`);
-          let maxLabelNumber = 0;
-      
-          nodes.forEach(node => {
-            const label = node.data("label");
-            const match = label ? label.match(/^node-(\d+)$/) : null;
-            if (match) {
-              const labelNum = parseInt(match[1], 10);
-              if (labelNum > maxLabelNumber) {
-                maxLabelNumber = labelNum;
-              }
-            }
-          });
-      
-          // Increment max label number found
-          return `node-${maxLabelNumber + 1}`;
-        }
-      
-        // Assign a new label if needed (e.g., for consistency or uniqueness)
-        nodeData.data.label = getNextLabel(nodeId);
-      
-        const endpointName = '/clab-save-topo';
-      
-        try {
-          // Send the enhanced node data directly without wrapping it in an object
-          const response = await sendRequestToEndpointPost(endpointName, [nodeData]);
-          console.log('Node data saved successfully', response);
-        } catch (error) {
-          console.error('Failed to save node data:', error);
-        }
-    }
+
 
     // Click event listener for nodes
     // Click event listener for nodes
@@ -515,7 +501,9 @@ document.addEventListener("DOMContentLoaded", async function() {
         nodeClicked = true;
     
         if (!node.isParent()) {
-            if (event.originalEvent.shiftKey) { // Start edge creation on Shift + Click
+            // if (event.originalEvent.shiftKey && (document.getElementById("panel-clab-editor").style.display != "none")) { // Start edge creation on Shift + Click and the clab editor panel is open
+            if (event.originalEvent.shiftKey) { // Start edge creation on Shift
+
                 console.log("Shift + Click");
                 console.log("edgeHandler Node: ", node.data("extraData").longname);
     
@@ -524,41 +512,52 @@ document.addEventListener("DOMContentLoaded", async function() {
     
                 // Start the edge handler from the clicked node
                 eh.start(node);
-    
-                console.log("isEdgeHandlerActive - Set the edge handler flag: ", isEdgeHandlerActive);
+
+
             } else {
-                // Remove all Overlayed Panel
-                const panelOverlays = document.getElementsByClassName("panel-overlay");
-                for (let i = 0; i < panelOverlays.length; i++) {
-                    panelOverlays[i].style.display = "none";
-                }
-    
-                console.log(node);
-                console.log(node.data("containerDockerExtraAttribute").status);
-                console.log(node.data("extraData"));
-    
-                if (document.getElementById("panel-node").style.display === "none") {
-                    document.getElementById("panel-node").style.display = "block";
+
+                if (node.data("editor") === "true") {
+                    console.log("Node is an editor node");
+
+                    showPanelNodeEditor(node)
+
+
                 } else {
-                    document.getElementById("panel-node").style.display = "none";
+
+                    // Remove all Overlayed Panel
+                    const panelOverlays = document.getElementsByClassName("panel-overlay");
+                    for (let i = 0; i < panelOverlays.length; i++) {
+                        panelOverlays[i].style.display = "none";
+                    }
+
+
+                    console.log(node);
+                    console.log(node.data("containerDockerExtraAttribute").status);
+                    console.log(node.data("extraData"));
+        
+                    if (document.getElementById("panel-node").style.display === "none") {
+                        document.getElementById("panel-node").style.display = "block";
+                    } else {
+                        document.getElementById("panel-node").style.display = "none";
+                    }
+        
+                    document.getElementById("panel-node-name").textContent = node.data("extraData").longname;
+                    document.getElementById("panel-node-status").textContent = node.data("containerDockerExtraAttribute").status;
+                    document.getElementById("panel-node-kind").textContent = node.data("extraData").kind;
+                    document.getElementById("panel-node-image").textContent = node.data("extraData").image;
+                    document.getElementById("panel-node-mgmtipv4").textContent = node.data("extraData").mgmtIpv4Addresss;
+                    document.getElementById("panel-node-mgmtipv6").textContent = node.data("extraData").mgmtIpv6Address;
+                    document.getElementById("panel-node-fqdn").textContent = node.data("extraData").fqdn;
+                    document.getElementById("panel-node-group").textContent = node.data("extraData").group;
+                    document.getElementById("panel-node-topoviewerrole").textContent = node.data("topoViewerRole");
+        
+                    // Set selected node-long-name to global variable
+                    globalSelectedNode = node.data("extraData").longname;
+                    console.log("internal: ", globalSelectedNode);
+        
+                    appendMessage(`"isPanel01Cy-cy: " ${isPanel01Cy}`);
+                    appendMessage(`"nodeClicked: " ${nodeClicked}`);
                 }
-    
-                document.getElementById("panel-node-name").textContent = node.data("extraData").longname;
-                document.getElementById("panel-node-status").textContent = node.data("containerDockerExtraAttribute").status;
-                document.getElementById("panel-node-kind").textContent = node.data("extraData").kind;
-                document.getElementById("panel-node-image").textContent = node.data("extraData").image;
-                document.getElementById("panel-node-mgmtipv4").textContent = node.data("extraData").mgmtIpv4Addresss;
-                document.getElementById("panel-node-mgmtipv6").textContent = node.data("extraData").mgmtIpv6Address;
-                document.getElementById("panel-node-fqdn").textContent = node.data("extraData").fqdn;
-                document.getElementById("panel-node-group").textContent = node.data("extraData").group;
-                document.getElementById("panel-node-topoviewerrole").textContent = node.data("topoViewerRole");
-    
-                // Set selected node-long-name to global variable
-                globalSelectedNode = node.data("extraData").longname;
-                console.log("internal: ", globalSelectedNode);
-    
-                appendMessage(`"isPanel01Cy-cy: " ${isPanel01Cy}`);
-                appendMessage(`"nodeClicked: " ${nodeClicked}`);
             }
         }
     });
@@ -1640,9 +1639,8 @@ document.getElementById("panel-log-messages-close-button").addEventListener("cli
 
 // CLAB EDITOR
 async function showPanelContainerlabEditor(event) {
-    // Remove all Overlayed Panel
-
-    getYamlTopoContent(event)
+    // Get the YAML content from backend
+    getYamlTopoContent(yamlTopoContent)
 
     // Get all elements with the class "panel-overlay"
     var panelOverlays = document.getElementsByClassName("panel-overlay");
@@ -1683,35 +1681,77 @@ function clabEditorLoadFile() {
 }
 
 
-function clabEditorAddNode(nodeName = "Spine-01") {
-    const textarea = document.getElementById('panel-clab-editor-text-area');
-    const nodeDefinition = `
-    ${nodeName}:
-      kind: srl
-      image: ghcr.io/nokia/srlinux
-      group: "Data Center Spine"
-      labels:
-        topoViewer-role: spine
-    `;
 
-    // Append the new node definition at the end of the 'nodes' section
-    const nodesIndex = textarea.value.indexOf("  nodes:");
-    if (nodesIndex !== -1) {
-        const insertionIndex = textarea.value.indexOf("  links:", nodesIndex);
-        if (insertionIndex !== -1) {
-            textarea.value = textarea.value.slice(0, insertionIndex) + nodeDefinition + textarea.value.slice(insertionIndex);
+function clabEditorAddNode(nodeId, nodeName = "Spine-01", kind ='nokia_srlinux', image = 'ghcr.io/nokia/srlinux:latest', group = 'group-01', topoViewerRole = 'dcgw') {
+    if (!kind || !image || !group || !topoViewerRole) {
+        console.error("All parameters (kind, image, group, topoViewerRole) must be provided.");
+        return;
+    }
+
+    const textarea = document.getElementById('panel-clab-editor-text-area');
+    nodeId = (`### ${nodeId}`);
+    
+    // Updated regex pattern to capture nodeName if it exists under the specified nodeId
+    // const existingNodeRegex = new RegExp(`###\\s*${nodeId}\\s*\\n\\s*(\\S+):`, 'm');
+    const existingNodeRegex = new RegExp(`${nodeId}\\s*\\n\\s+(\\S+):`, 'm');
+
+    const match = textarea.value.match(existingNodeRegex);
+    const oldNodeName = match ? match[1] : null;
+
+    console.log("oldNodeName: ", oldNodeName);  // Debug: log oldNodeName
+
+    // Node definition template with the new nodeName
+    const nodeDefinition = 
+`${nodeId}
+    ${nodeName}:
+      kind: ${kind}
+      image: ${image}
+      group: ${group}
+      labels:
+        topoViewer-role: ${topoViewerRole}
+
+`;
+
+    // Insert or update the node definition in the "nodes" section
+    const nodesSectionIndex = textarea.value.search(/^\s*nodes:/m);
+    const nodeRegex = new RegExp(`\\s*${nodeId}\\s*\\n(\\s*.*\\n)*?\\s*topoViewer-role: .*\\n`, 'g');
+
+    if (nodesSectionIndex !== -1) {
+        const insertionIndex = textarea.value.indexOf("  links:", nodesSectionIndex);
+        const endOfNodesSection = insertionIndex !== -1 ? insertionIndex : textarea.value.length;
+        const nodesSection = textarea.value.slice(nodesSectionIndex, endOfNodesSection);
+
+        if (nodesSection.match(nodeRegex)) {
+            // Replace the existing node
+            textarea.value = textarea.value.replace(nodeRegex, 
+                `\n\n${nodeId}\n    ${nodeName}:\n      kind: ${kind}\n      image: ${image}\n      group: ${group}\n      labels:\n        topoViewer-role: ${topoViewerRole}\n`);
         } else {
-            // If 'links' section isn't found, append at the end of the content
-            textarea.value += nodeDefinition;
+            // Insert the new node at the end of the nodes section
+            textarea.value = textarea.value.slice(0, endOfNodesSection) + nodeDefinition + textarea.value.slice(endOfNodesSection);
         }
     } else {
-        // If no 'nodes' section, append the node definition at the end
-        textarea.value += nodeDefinition;
+        // Append if "nodes" section doesn't exist
+        textarea.value += (textarea.value.endsWith("\n") ? "" : "\n") + nodeDefinition;
     }
+
+    // Update the links section if oldNodeName exists
+    if (oldNodeName && oldNodeName !== nodeName) {
+        // Updated regex to match oldNodeName in any position in the endpoints array
+        const linksRegex = new RegExp(`(endpoints:\\s*\\[\\s*".*?)(\\b${oldNodeName}\\b)(:.*?)\\]`, 'g');
+        textarea.value = textarea.value.replace(linksRegex, `$1${nodeName}$3]`);
+    }
+
+    yamlTopoContent = textarea.value;
 }
 
-function clabEditorAddEdge(sourceNodeName, sourceNodeEndpoint, targetNodeName, targetNodeEndpoint) {
+
+
+function clabEditorAddEdge(sourceCyNode, sourceNodeEndpoint, targetCyNode, targetNodeEndpoint) {
     const textarea = document.getElementById('panel-clab-editor-text-area');
+
+    sourceNodeName = sourceCyNode.data("name")
+    targetNodeName = targetCyNode.data("name")
+
     
     // Edge definition with dynamic endpoints array
     const edgeDefinition = `
@@ -1732,8 +1772,328 @@ function clabEditorAddEdge(sourceNodeName, sourceNodeEndpoint, targetNodeName, t
     }
 }
 
+// NODE EDITOR START
+// NODE EDITOR START
+// NODE EDITOR START
 
-// CLAB EDITOR
+var yamlTopoContent
+
+async function showPanelNodeEditor(node) {
+    try {
+        // Remove all Overlayed Panels
+        const panelOverlays = document.getElementsByClassName("panel-overlay");
+        Array.from(panelOverlays).forEach(panel => {
+            panel.style.display = "none";
+        });
+
+        console.log("showPanelNodeEditor - node ID:", node.data("id"));
+
+        // Set the node Name in the editor
+        const nodeNameInput = document.getElementById("panel-node-editor-name");
+        if (nodeNameInput) {
+            nodeNameInput.value = node.data("id"); //defaulted by node id
+        }
+
+        // Set the node Id in the editor
+        const nodeIdLabel = document.getElementById("panel-node-editor-id");
+        if (nodeIdLabel) {
+            nodeIdLabel.textContent = node.data("id");
+        }
+
+        // Set the node image in the editor
+        const nodeImageLabel = document.getElementById("panel-node-editor-image");
+        if (nodeImageLabel) {
+            nodeImageLabel.value = 'ghcr.io/nokia/srlinux:latest';
+        }
+
+        // Set the node image in the editor
+        const nodeGroupLabel = document.getElementById("panel-node-editor-group");
+        if (nodeGroupLabel) {
+            nodeGroupLabel.value = 'data-center';
+        }
+
+        // Display the node editor panel
+        const nodeEditorPanel = document.getElementById("panel-node-editor");
+        if (nodeEditorPanel) {
+            nodeEditorPanel.style.display = "block";
+        }
+
+
+        // Fetch JSON schema from the backend
+        const url = "js/clabJsonSchema-v0.59.0.json";
+        try {
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            const jsonData = await response.json();
+
+            // Get kind enums from the JSON data
+            const { kindOptions } = getKindEnums(jsonData);
+            console.log('Kind Enum:', kindOptions);
+
+            // Populate the dropdown with fetched kindOptions
+            populateKindDropdown(kindOptions);
+
+            // Populate the dropdown with fetched topoViwerRoleOptions
+            var  topoViwerRoleOptions = ['bridge', 'controller', 'dcgw', 'router', 'leaf', 'pe', 'pon', 'rgw', 'server','super-spine', 'spine'];
+            populateTopoViewerRoleDropdown(topoViwerRoleOptions)
+
+            // List type enums based on kind pattern
+            const typeOptions = getTypeEnumsByKindPattern(jsonData, '(srl|nokia_srlinux)'); // aarafat-tag: to be added to the UI
+            console.log('Type Enum for (srl|nokia_srlinux):', typeOptions);
+
+        } catch (error) {
+            console.error("Error fetching or processing JSON data:", error.message);
+            throw error;
+        }
+
+    } catch (error) {
+        console.error("Error in showPanelNodeEditor:", error);
+        // Optionally, display an error message to the user
+        const errorDiv = document.getElementById('panel-node-editor-error');
+        if (errorDiv) {
+            errorDiv.textContent = "An error occurred while loading the node editor. Please try again.";
+            errorDiv.style.display = "block";
+        }
+    }
+}
+
+// Function to get kind enums from the JSON schema
+function getKindEnums(jsonData) {
+    let kindOptions = [];
+    if (jsonData && jsonData.definitions && jsonData.definitions['node-config']) {
+        kindOptions = jsonData.definitions['node-config'].properties.kind.enum || [];
+    } else {
+        throw new Error("Invalid JSON structure or 'kind' enum not found");
+    }
+    return { kindOptions, schemaData: jsonData };
+}
+
+// Function to get type enums based on a kind pattern
+function getTypeEnumsByKindPattern(jsonData, pattern) {
+    if (jsonData && jsonData.definitions && jsonData.definitions['node-config'] && jsonData.definitions['node-config'].allOf) {
+        for (const condition of jsonData.definitions['node-config'].allOf) {
+            if (condition.if && condition.if.properties && condition.if.properties.kind && condition.if.properties.kind.pattern === pattern) {
+                if (condition.then && condition.then.properties && condition.then.properties.type && condition.then.properties.type.enum) {
+                    return condition.then.properties.type.enum;
+                }
+            }
+        }
+    }
+    return [];
+}
+
+let panelNodeEditorKind = "nokia_srlinux"; // Variable to store the selected option for dropdown menu, nokia_srlinux as default
+// Function to populate the kind dropdown
+function populateKindDropdown(options) {
+    // Get the dropdown elements by their IDs
+    const dropdownTrigger = document.querySelector("#panel-node-kind-dropdown .dropdown-trigger button span");
+    const dropdownContent = document.getElementById("panel-node-kind-dropdown-content");
+    const dropdownButton = document.querySelector("#panel-node-kind-dropdown .dropdown-trigger button");
+    const dropdownContainer = dropdownButton.closest(".dropdown");
+
+    if (!dropdownTrigger || !dropdownContent || !dropdownButton || !dropdownContainer) {
+        console.error("Dropdown elements not found in the DOM.");
+        return;
+    }
+
+    // Set the initial value on the dropdown button
+    dropdownTrigger.textContent = panelNodeEditorKind;
+
+    // Clear any existing content
+    dropdownContent.innerHTML = "";
+
+    options.forEach(option => {
+        // Create a new anchor element for each option
+        const optionElement = document.createElement("a");
+        optionElement.classList.add("dropdown-item", "label", "has-text-weight-normal", "is-small", "py-0");
+        optionElement.textContent = option;
+        optionElement.href = "#"; // Optional, can be adjusted as needed
+
+        // Set an event handler for the option
+        optionElement.addEventListener("click", (event) => {
+            event.preventDefault(); // Prevent default link behavior
+
+            panelNodeEditorKind = option; // Store the selected option in the variable
+            console.log(`${panelNodeEditorKind} selected`); // Log the selected option
+
+            dropdownTrigger.textContent = panelNodeEditorKind;
+
+            // Collapse the dropdown menu
+            dropdownContainer.classList.remove("is-active");
+        });
+
+        // Append the option element to the dropdown content
+        dropdownContent.appendChild(optionElement);
+    });
+}
+
+// Initialize event listeners for the dropdown
+function initializeDropdownListeners() {
+    const dropdownButton = document.querySelector("#panel-node-kind-dropdown .dropdown-trigger button");
+    const dropdownContainer = dropdownButton.closest(".dropdown");
+
+    if (!dropdownButton || !dropdownContainer) {
+        console.error("Dropdown button or container not found in the DOM.");
+        return;
+    }
+
+    // Toggle dropdown menu on button click
+    dropdownButton.addEventListener("click", (event) => {
+        event.stopPropagation(); // Prevents the event from bubbling up
+        dropdownContainer.classList.toggle("is-active");
+    });
+
+    // Collapse the dropdown if clicked outside
+    document.addEventListener("click", (event) => {
+        if (dropdownContainer.classList.contains("is-active")) {
+            dropdownContainer.classList.remove("is-active");
+        }
+    });
+}
+// Initialize dropdown listeners once when the DOM is fully loaded
+document.addEventListener("DOMContentLoaded", () => {
+    initializeDropdownListeners();
+});
+
+
+let panelNodeEditorTopoViewerRole = "pe"; // Variable to store the selected option for dropdown menu, nokia_srlinux as default
+// Function to populate the topoviewerrole dropdown
+function populateTopoViewerRoleDropdown(options) {
+    // Get the dropdown elements by their IDs
+    const dropdownTrigger = document.querySelector("#panel-node-topoviewerrole-dropdown .dropdown-trigger button span");
+    const dropdownContent = document.getElementById("panel-node-topoviewerrole-dropdown-content");
+    const dropdownButton = document.querySelector("#panel-node-topoviewerrole-dropdown .dropdown-trigger button");
+    const dropdownContainer = dropdownButton.closest(".dropdown");
+
+    if (!dropdownTrigger || !dropdownContent || !dropdownButton || !dropdownContainer) {
+        console.error("Dropdown elements not found in the DOM.");
+        return;
+    }
+
+    // Set the initial value on the dropdown button
+    dropdownTrigger.textContent = panelNodeEditorTopoViewerRole;
+
+
+    // Clear any existing content
+    dropdownContent.innerHTML = "";
+
+    options.forEach(option => {
+        // Create a new anchor element for each option
+        const optionElement = document.createElement("a");
+        optionElement.classList.add("dropdown-item", "label", "has-text-weight-normal", "is-small", "py-0");
+        optionElement.textContent = option;
+        optionElement.href = "#"; // Optional, can be adjusted as needed
+
+        // Set an event handler for the option
+        optionElement.addEventListener("click", (event) => {
+            event.preventDefault(); // Prevent default link behavior
+
+            panelNodeEditorTopoViewerRole = option; // Store the selected option in the variable
+            console.log(`${panelNodeEditorTopoViewerRole} selected`); // Log the selected option
+
+            dropdownTrigger.textContent = panelNodeEditorTopoViewerRole;
+
+            // Collapse the dropdown menu
+            dropdownContainer.classList.remove("is-active");
+        });
+
+        // Append the option element to the dropdown content
+        dropdownContent.appendChild(optionElement);
+    });
+}
+
+// Initialize event listeners for the dropdown
+function initializeDropdownTopoViewerRoleListeners() {
+    const dropdownButton = document.querySelector("#panel-node-topoviewerrole-dropdown .dropdown-trigger button");
+    const dropdownContainer = dropdownButton.closest(".dropdown");
+
+    if (!dropdownButton || !dropdownContainer) {
+        console.error("Dropdown button or container not found in the DOM.");
+        return;
+    }
+
+    // Toggle dropdown menu on button click
+    dropdownButton.addEventListener("click", (event) => {
+        event.stopPropagation(); // Prevents the event from bubbling up
+        dropdownContainer.classList.toggle("is-active");
+    });
+
+    // Collapse the dropdown if clicked outside
+    document.addEventListener("click", (event) => {
+        if (dropdownContainer.classList.contains("is-active")) {
+            dropdownContainer.classList.remove("is-active");
+        }
+    });
+}
+
+// Initialize dropdown listeners once when the DOM is fully loaded
+document.addEventListener("DOMContentLoaded", () => {
+    initializeDropdownTopoViewerRoleListeners();
+});
+
+// Initialize event listener for the close button
+document.getElementById("panel-node-editor-close-button").addEventListener("click", () => {
+    document.getElementById("panel-node-editor").style.display = "none";
+});
+
+
+// save to dataCytoMarshall-addon.json and reconcile later to dataCytoMarshall.json
+
+async function saveNodeToEditorToFile() {
+    const nodeId =document.getElementById("panel-node-editor-id").textContent
+    var cyNode = cy.$id(nodeId); // Get cytoscpe node object id
+
+    // get value from panel-node-editor
+    nodeName = document.getElementById("panel-node-editor-name").value
+    kind = panelNodeEditorKind
+    image = document.getElementById("panel-node-editor-image").value
+    group = document.getElementById("panel-node-editor-group").value
+    topoViewerRole = panelNodeEditorTopoViewerRole
+
+    console.log("panelEditorNodeName", nodeName)
+    console.log("panelEditorkind", kind)
+    console.log("panelEditorImage", image)
+    console.log("panelEditorGroup", group)
+    console.log("panelEditorTopoViewerRole",topoViewerRole)
+
+    // save node data to cytoscape node object
+    var extraData = {
+        "kind": kind,
+        "image": image,
+        "longname": "",
+        "mgmtIpv4Addresss": ""
+      };
+
+    cyNode.data(('name'), nodeName)
+    cyNode.data(('parent'), group)
+    cyNode.data(('topoViewerRole'), topoViewerRole)
+    cyNode.data(('extraData'), extraData)
+
+    console.log('cyto node object data: ', cyNode);
+
+    // dump cytoscape node object to nodeData to be persisted to dataCytoMarshall-addon.json
+    var nodeData = cy.$id(nodeId).json(); // Get JSON data of the node with the specified ID
+  
+    const endpointName = '/clab-save-topo';
+  
+    try {
+      // Send the enhanced node data directly without wrapping it in an object
+      const response = await sendRequestToEndpointPost(endpointName, [nodeData]);
+      console.log('Node data saved successfully', response);
+    } catch (error) {
+      console.error('Failed to save node data:', error);
+    }
+
+    // add node to clab editor textarea
+    clabEditorAddNode(nodeId, nodeName, kind, image, group, topoViewerRole)
+
+}
+
+
+// NODE EDITOR END
+// NODE EDITOR END
 
 
 async function showPanelTopoViewerClient(event) {
@@ -1859,7 +2219,7 @@ async function getActualNodesEndpoints(event) {
         );
 
         showLoadingSpinnerGlobal()
-        const CyTopoJson = await  sendRequestToEndpointGet("/actual-nodes-endpoints", argsList = []) 
+        const CyTopoJson = await  sendRequestToEndpointGetV2("/actual-nodes-endpoints", argsList = []) 
         location.reload(true);
 
         // Handle the response data
@@ -2278,9 +2638,6 @@ function viewportDrawerCaptureButton() {
 
     console.log ("viewportDrawerCaptureButton() - clicked")
 
-
-
-
         // Get all checkbox inputs within the specific div
         const checkboxes = document.querySelectorAll('#viewport-drawer-capture-sceenshoot-content .checkbox-input');
         
@@ -2433,9 +2790,13 @@ async function captureAndSaveViewportAsDrawIo(cy) {
     document.body.removeChild(a);
 }
 
-async function getYamlTopoContent(event) {
+async function getYamlTopoContent(yamlTopoContent) {
     try {
-        const yamlTopoContent = await sendRequestToEndpointGetV3("/get-yaml-topo-content");
+        // Check if yamlTopoContent is already set
+        if (!yamlTopoContent) {
+            // Load the content if yamlTopoContent is empty
+            yamlTopoContent = await sendRequestToEndpointGetV3("/get-yaml-topo-content");
+        }
 
         console.log('YAML Topo Content:', yamlTopoContent);
         document.getElementById('panel-clab-editor-text-area').value = yamlTopoContent;
@@ -2446,6 +2807,7 @@ async function getYamlTopoContent(event) {
         // Handle errors as needed
     }
 }
+
 
 
 // aarafat-tag:
