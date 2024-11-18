@@ -15,7 +15,7 @@ topology:
         ### These are the environment variables for topoviewer container
         ALLOWED_HOSTNAME: "nsp-clab1.nice.nokia.net"
         CLAB_USER: "asad"
-        CLAB_PASS: "Lab-Her0"
+        CLAB_PASS: "Passw0rd"
         SERVER_PORT: "8088"
         CLAB_TOPO_YAML: "clab-demo.yaml"
       labels:

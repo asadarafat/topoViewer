@@ -7,13 +7,14 @@ import (
 	"path"
 
 	topoengine "github.com/asadarafat/topoViewer/go_topoengine"
+	log "github.com/sirupsen/logrus"
 
 	"os"
 )
 
-// ClabSaveTopoHandler handles the save-cytoTopo endpoint without a specific struct
+// ClabSaveTopoCytoJsonHandler handles the save-cytoTopo endpoint without a specific cyto json file
 // the handles will save the cytoTopoData based on the POST request of the frontEnd
-func ClabSaveTopoHandler(w http.ResponseWriter, r *http.Request, cyTopo *topoengine.CytoTopology, workingDirectory string) {
+func ClabSaveTopoCytoJsonHandler(w http.ResponseWriter, r *http.Request, cyTopo *topoengine.CytoTopology, workingDirectory string) {
 	var wrappedData map[string]interface{}
 
 	// Parse JSON body to get the new element data
@@ -31,7 +32,10 @@ func ClabSaveTopoHandler(w http.ResponseWriter, r *http.Request, cyTopo *topoeng
 	}
 
 	// File path for dataCytoMarshall-addon.json
-	filePath := path.Join(workingDirectory, "./html-public/"+cyTopo.ClabTopoDataV2.Name+"/dataCytoMarshall-addon.json")
+	// filePath := path.Join(workingDirectory, "./html-public/"+cyTopo.ClabTopoDataV2.Name+"/dataCytoMarshall-addon.json")
+
+	// File path for dataCytoMarshall.json
+	filePath := path.Join(workingDirectory, "./html-public/"+cyTopo.ClabTopoDataV2.Name+"/dataCytoMarshall.json")
 
 	// Read existing data from the file, if it exists
 	var existingData []map[string]interface{}
@@ -85,4 +89,43 @@ func ClabSaveTopoHandler(w http.ResponseWriter, r *http.Request, cyTopo *topoeng
 	// Respond with a success message
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(`{"message": "Graph data saved successfully"}`))
+}
+
+func ClabSaveTopoYamlHandler(w http.ResponseWriter, r *http.Request, cyTopo *topoengine.CytoTopology, workingDirectory string) {
+	var wrappedData map[string]interface{}
+
+	// Parse JSON body to get the new element data
+	err := json.NewDecoder(r.Body).Decode(&wrappedData)
+	if err != nil {
+		http.Error(w, "Invalid request payload", http.StatusBadRequest)
+		return
+	}
+
+	// Extract the element data from "param1"
+	clabTopoYamlEditorData, exists := wrappedData["param1"]
+	if !exists {
+		http.Error(w, "Expected 'param1' key in request payload", http.StatusBadRequest)
+		return
+	}
+
+	log.Infof("clabTopoYamlEditorData: %v", clabTopoYamlEditorData)
+
+	// File path for clab-topo-yaml-addon.yaml
+	filePath := path.Join(workingDirectory, "./html-public/"+cyTopo.ClabTopoDataV2.Name+"/dclab-topo-yaml-addon.yaml")
+
+	// Write the updated clab topo yaml data to file
+	data, ok := clabTopoYamlEditorData.(string)
+	if !ok {
+		http.Error(w, "Invalid data format", http.StatusBadRequest)
+		return
+	}
+	err = os.WriteFile(filePath, []byte(data), 0644)
+	if err != nil {
+		http.Error(w, "Failed to save updated data", http.StatusInternalServerError)
+		return
+	}
+
+	// Respond with a success message
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(`{"message": "Clab Topo yaml data saved successfully"}`))
 }

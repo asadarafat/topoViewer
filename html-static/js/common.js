@@ -109,12 +109,12 @@
 			async function sendRequestToEndpointPost(endpointName, argsList = []) {
 				console.log(`callGoFunction Called with ${endpointName}`);
 				console.log(`Parameters:`, argsList);
-			
+
 				const data = {};
 				argsList.forEach((arg, index) => {
 					data[`param${index + 1}`] = arg;
 				});
-			
+
 				try {
 					const response = await fetch(endpointName, {
 						method: "POST",
@@ -123,11 +123,11 @@
 						},
 						body: JSON.stringify(data),
 					});
-			
+
 					if (!response.ok) {
 						throw new Error("Network response was not ok");
 					}
-			
+
 					const responseData = await response.json();
 					return responseData;
 				} catch (error) {
@@ -135,6 +135,7 @@
 					throw error;
 				}
 			}
+			
 			async function sendRequestToEndpointGet(endpointName, argsList = []) {
 				console.log(`callGoFunction Called with ${endpointName}`);
 				console.log(`Parameters:`, argsList);
