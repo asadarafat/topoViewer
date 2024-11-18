@@ -36,7 +36,7 @@
 
 			async function getEnvironments(event) {
 				try {
-					const environments = await sendRequestToEndpointGet("/get-environments");
+					const environments = await sendRequestToEndpointGetV2("/get-environments");
 
 					// Handle the response data
 					if (environments && typeof environments === 'object' && Object.keys(environments).length > 0) {
@@ -51,6 +51,8 @@
 					// Handle errors as needed
 				}
 			}
+
+
 
 			async function postPythonAction(event, commandList) {
 				try {
@@ -107,12 +109,12 @@
 			async function sendRequestToEndpointPost(endpointName, argsList = []) {
 				console.log(`callGoFunction Called with ${endpointName}`);
 				console.log(`Parameters:`, argsList);
-			
+
 				const data = {};
 				argsList.forEach((arg, index) => {
 					data[`param${index + 1}`] = arg;
 				});
-			
+
 				try {
 					const response = await fetch(endpointName, {
 						method: "POST",
@@ -121,11 +123,11 @@
 						},
 						body: JSON.stringify(data),
 					});
-			
+
 					if (!response.ok) {
 						throw new Error("Network response was not ok");
 					}
-			
+
 					const responseData = await response.json();
 					return responseData;
 				} catch (error) {
@@ -133,6 +135,7 @@
 					throw error;
 				}
 			}
+			
 			async function sendRequestToEndpointGet(endpointName, argsList = []) {
 				console.log(`callGoFunction Called with ${endpointName}`);
 				console.log(`Parameters:`, argsList);
@@ -201,6 +204,50 @@
 				}
 			}
 
+
+			async function sendRequestToEndpointGetV3(endpointName, argsList = []) {
+				console.log(`callGoFunction Called with ${endpointName}`);
+				console.log(`Parameters:`, argsList);
+			
+				// Construct the query string from argsList
+				const params = new URLSearchParams();
+				argsList.forEach((arg, index) => {
+					params.append(`param${index + 1}`, arg);
+				});
+			
+				const urlWithParams = `${endpointName}?${params.toString()}`;
+			
+				try {
+					const response = await fetch(urlWithParams, {
+						method: "GET",
+						headers: {
+							"Content-Type": "application/json",
+						},
+					});
+			
+					if (!response.ok) {
+						throw new Error(`HTTP error! Status: ${response.status}`);
+					}
+			
+					// Check if the response is JSON; otherwise, return as text
+					const contentType = response.headers.get("Content-Type");
+					let responseData;
+			
+					if (contentType && contentType.includes("application/json")) {
+						responseData = await response.json();
+					} else {
+						responseData = await response.text(); // Return as-is for non-JSON content
+					}
+			
+					console.log(responseData);
+			
+					return responseData;
+				} catch (error) {
+					console.error("Error:", error);
+					throw error;
+				}
+			}
+			
 			// Function to detect light or dark mode
 			function detectColorScheme() {
 				// Check if the browser supports the prefers-color-scheme media feature

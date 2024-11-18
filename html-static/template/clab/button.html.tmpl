@@ -9,6 +9,10 @@
 		<script defer src="https://use.fontawesome.com/releases/v6.4.2/js/all.js"></script>
 		<script src="https://cdn.jsdelivr.net/npm/bulma-extensions@4.0.1/bulma-slider/dist/js/bulma-slider.min.js"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/bulma-toast/2.4.0/bulma-toast.min.js"></script>
+		
+		
+
+
 	</head>
 	<body>
 		<nav class="level m-0 px-3 py-1 has-background-4a">
@@ -36,6 +40,8 @@
 							<a id="logMessagesDropdownItem" href="#" onclick="showPanelLogMessages(event);" class="dropdown-item label has-text-weight-normal is-small py-0">Action - Log Messages</a>       
 							<hr class="dropdown-divider py-0">
 							<a id="clabClientDropdownItem" href="#" onclick="showPanelTopoViewerClient();"        class="dropdown-item label has-text-weight-normal is-small py-0">TopoViewer Helper App</a>                  
+							<a id="clabYamlEditorItem"     href="#" onclick="showPanelContainerlabEditor();"       class="dropdown-item label has-text-weight-normal is-small py-0">Containerlab Editor</a>                  
+
 						</div>
 					</div>
 				</div>
@@ -311,6 +317,39 @@
 				
 			</div>
 			
+			<div class="panel is-link" id="panel-clab-editor" style="display: none;">
+				<p class="panel-heading is-size-7">Containerlab YAML Editor</p>
+				<div class="panel-tabContainer">
+					<div class="panel-block p-0">
+						<div class="column px-0">
+							<div class="column my-auto">
+								<div class="panel-content">
+									<!-- File Input and Load Button -->
+									<div class="field">
+										<div class="control">
+											<input type="file" id="panel-clab-editor-file-input" class="file-input">
+											<button class="button is-link is-outlined is-small" onclick="clabEditorLoadFile()">Load YAML</button>
+											<button class="button is-link is-outlined is-small" onclick="clabEditorAddNode()">Add Node</button>
+											<button class="button is-link is-outlined is-small" id="panel-clab-editor-close-button" >Close</button>
+			
+										</div>
+									</div>
+			
+									<!-- Textarea for YAML Configuration -->
+									<div id="panel-clab-editor-text-area" style="width:100%; height:600px;"></div>
+									<!-- <textarea class="textarea my-auto is-size-7 is-family-monospace has-text-left link-impairment-width has-text-weight-normal" id="panel-clab-editor-text-area" rows="40"></textarea> -->
+
+									<!-- <div id="panel-clab-editor-text-area-container" style="width: 100%; height: 400px;">
+										<textarea class="textarea my-auto is-size-7 is-family-monospace has-text-left link-impairment-width has-text-weight-normal" 
+												  id="panel-clab-editor-text-area" rows="40" style="display: none;"></textarea>
+									</div> -->
+									
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
 			
 			
 
@@ -429,6 +468,128 @@
 					</div>
 				</div>
 			</div>
+
+			<div class="panel is-link" id="panel-node-editor" style="display: none;">
+				<p class="panel-heading is-size-7">Node Properties Editor</p>
+				<div  class="panel-tabContainer">
+					<div  class="panel-block p-0">
+						<div  class="column px-0">
+							<div  class="column my-auto is-11">
+								<div  class="panel-content">
+									<div class="columns py-auto" >
+										<div class="column is-4 p-1"><label class="label is-size-7 has-text-right has-text-weight-medium px-auto" >Node Name</label></div>
+										<div class="column is-8 p-1 pl-3">
+											<input class="input is-size-7 has-text-left link-impairment-widht has-text-weight-normal mr-0 is-max-content" id="panel-node-editor-name"></input>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div  class="panel-block p-0">
+						<div  class="column px-0">
+							
+							<div class="column my-auto is-11">
+								<div class="panel-content">
+									<div class="columns py-auto">
+										<div class="column is-4 p-1">
+											<label class="label is-size-7 has-text-right has-text-weight-medium px-auto">Kind</label>
+										</div>
+										<div class="column is-8 p-1 pl-3">
+											<div class="dropdown" id="panel-node-kind-dropdown">
+												<div class="dropdown-trigger">
+													<button class="button is-size-7" aria-haspopup="true" aria-controls="dropdown-menu">
+														<span>Select Kind</span>
+														<span class="icon is-small">
+															<i class="fas fa-angle-down" aria-hidden="true"></i>
+														</span>
+													</button>
+												</div>
+												<div class="dropdown-menu" id="dropdown-menu" role="menu">
+													<div class="dropdown-content" id="panel-node-kind-dropdown-content">
+														<!-- Options will be dynamically generated here -->
+													</div>
+												</div>
+											</div>											
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<div class="column my-auto is-11">
+								<div class="panel-content">
+									<div class="columns py-auto">
+										<div class="column is-4 p-1">
+											<label class="label is-size-7 has-text-right has-text-weight-medium px-auto">TopoViewer Role</label>
+										</div>
+										<div class="column is-8 p-1 pl-3">
+											<div class="dropdown" id="panel-node-topoviewerrole-dropdown">
+												<div class="dropdown-trigger">
+													<button class="button is-size-7" aria-haspopup="true" aria-controls="dropdown-menu">
+														<span>Select TopoViewerRole</span>
+														<span class="icon is-small">
+															<i class="fas fa-angle-down" aria-hidden="true"></i>
+														</span>
+													</button>
+												</div>
+												<div class="dropdown-menu" id="dropdown-menu-topoviewerrole" role="menu">
+													<div class="dropdown-content" id="panel-node-topoviewerrole-dropdown-content">
+														<!-- Options will be dynamically generated here -->
+													</div>
+												</div>
+											</div>											
+										</div>
+									</div>
+								</div>
+							</div>
+							
+							<div  class="column my-auto is-11">
+								<div  class="panel-content">
+									<div class="columns py-auto" >
+										<div  class="column is-4 p-1"><label class="label is-size-7 has-text-right has-text-weight-medium px-auto" >Id</label></div>
+										<div class="column is-8 p-1 pl-3" ><label class="label is-size-7 has-text-left link-impairment-widht has-text-weight-normal mr-0 is-max-content" id="panel-node-editor-id"></label></div>
+									</div>
+								</div>
+							</div>
+
+							<div  class="column my-auto is-11">
+								<div  class="panel-content">
+									<div class="columns py-auto" >
+										<div  class="column is-4 p-1"><label class="label is-size-7 has-text-right has-text-weight-medium px-auto" >Image</label></div>
+										<div class="column is-8 p-1 pl-3" ><input class="input is-size-7 has-text-left link-impairment-widht has-text-weight-normal mr-0 is-max-content" id="panel-node-editor-image"></input></div>
+									</div>
+								</div>
+							</div>
+							<div  class="column my-auto is-11">
+								<div  class="panel-content">
+									<div class="columns py-auto" >
+										<div  class="column is-4 p-1"><label class="label is-size-7 has-text-right has-text-weight-medium px-auto" >Group</label></div>
+										<div class="column is-8 p-1 pl-3" ><input class="input is-size-7 has-text-left link-impairment-widht has-text-weight-normal mr-0 is-max-content" id="panel-node-editor-group"></input></div>
+									</div>
+								</div>
+							</div>
+							<div  class="column my-auto is-11">
+								<div  class="panel-content">
+									<div class="columns py-auto" >
+										<div class="column is-4 p-1"></div>
+										<div class="column is-8 p-1 pl-3" >
+											<div class="field">
+												<div class="control">
+													<input type="file" id="panel-clab-editor-file-input" class="file-input">
+													<button class="button is-link is-outlined is-small" onclick="saveNodeToEditorToFile()">Save</button>
+													<button class="button is-link is-outlined is-small" id="panel-node-editor-close-button" >Close</button>
+												</div>
+											</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+
+
 
 			<div class="panel panel-overlay is-link" id="panel-link" style="display: none;">
 				<p class="panel-heading is-size-7">Link Properties</p>
@@ -655,14 +816,7 @@
 												<i class="fa-solid fa-arrow-left"></i>
 											</span>
 										</button>
-										<!-- 
-										<button class="button is-small is-link is-outlined" id="buttonLoadRunningConfig">
-											<span>Load</span>
-											<span class="icon is-small">
-												<svg class="svg-inline--fa fa-arrow-up" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="arrow-up" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" data-fa-i2svg=""><path fill="currentColor" d="M214.6 41.4c-12.5-12.5-32.8-12.5-45.3 0l-160 160c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L160 141.2V448c0 17.7 14.3 32 32 32s32-14.3 32-32V141.2L329.4 246.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3l-160-160z"></path></svg>
-											</span>
-										</button> 
-										-->
+										
 									</p>
 								</div>
 							</div>
@@ -773,12 +927,16 @@
 			<script src="https://cdn.jsdelivr.net/npm/cytoscape-grid-guide@2.3.3/cytoscape-grid-guide.min.js"></script>
 			<!-- Cytoscape Edgehandles plugin CDN -->
 			<script src="https://cdn.jsdelivr.net/npm/cytoscape-edgehandles/cytoscape-edgehandles.min.js"></script>
+
 	
-			<script src="js/index.js?ver=1"></script>
+			<script src="js/dev.js?ver=1"></script>
 
 			<script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.50.0/min/vs/loader.js"></script>
 
 			<script src="/js/backupRestore.js?ver=1"></script>
+
+			<script src="/js/clabEditor.js?ver=1"></script>
+
 			<script src="/js/common.js?ver=1"></script>
 		</div>
 	</body>
