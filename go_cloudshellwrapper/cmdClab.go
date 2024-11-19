@@ -150,7 +150,11 @@ var confClab = config.Map{
 	},
 	"deployment-type": &config.String{
 		Default: "container",
-		Usage:   "TopoViewertype of deployment. The option are 'container' if the TopoViewer will be running under container or 'colocated' if TopoViewer will be running co-located with containerlab server",
+		Usage:   "TopoViewer type of deployment. The option are 'container' if the TopoViewer will be running under container or 'colocated' if TopoViewer will be running co-located with containerlab server",
+	},
+	"clab-server-address": &config.String{
+		Default: ".",
+		Usage:   "Option to set containerlab server, if not set it will use first address in allowed-hostnames",
 	},
 }
 
@@ -279,6 +283,7 @@ func Clab(_ *cobra.Command, _ []string) error {
 		workingDirectory = path.Join(wd, workingDirectory)
 	}
 	deploymentType := confClab.GetString("deployment-type")
+	clabServerAddress := confClab.GetString("clab-server-address")
 
 	// log.Infof("topology file path    : '%s'", workingDirectory+"/"+topoClab)
 	log.Infof("====== Start up Parameter ======")
@@ -740,7 +745,7 @@ func Clab(_ *cobra.Command, _ []string) error {
 
 			log.Info("command: ", command)
 
-			returnData, err := tools.SshSudo(clabHost[0], "22", clabUser, clabPass, deploymentType, command)
+			returnData, err := tools.SshSudo(clabHost[0], "22", clabUser, clabPass, clabServerAddress, command)
 
 			log.Info(returnData)
 
@@ -806,7 +811,7 @@ func Clab(_ *cobra.Command, _ []string) error {
 			log.Info("<cmd-clab><I><clab-link-impairment() - interfaceId: ", interfaceId)
 			log.Info("<cmd-clab><I><clab-link-impairment() - command: ", command)
 
-			cliOutput, err := tools.SshSudo(clabHost[0], "22", clabUser, clabPass, deploymentType, command)
+			cliOutput, err := tools.SshSudo(clabHost[0], "22", clabUser, clabPass, clabServerAddress, command)
 			if err != nil {
 				log.Error("<cmd-clab><I><clab-link-impairment() - GET: ", err)
 				return
