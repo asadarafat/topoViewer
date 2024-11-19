@@ -740,7 +740,7 @@ func Clab(_ *cobra.Command, _ []string) error {
 
 			log.Info("command: ", command)
 
-			returnData, err := tools.SshSudo(clabHost[0], "22", clabUser, clabPass, command)
+			returnData, err := tools.SshSudo(clabHost[0], "22", clabUser, clabPass, deploymentType, command)
 
 			log.Info(returnData)
 
@@ -806,7 +806,7 @@ func Clab(_ *cobra.Command, _ []string) error {
 			log.Info("<cmd-clab><I><clab-link-impairment() - interfaceId: ", interfaceId)
 			log.Info("<cmd-clab><I><clab-link-impairment() - command: ", command)
 
-			cliOutput, err := tools.SshSudo(clabHost[0], "22", clabUser, clabPass, command)
+			cliOutput, err := tools.SshSudo(clabHost[0], "22", clabUser, clabPass, deploymentType, command)
 			if err != nil {
 				log.Error("<cmd-clab><I><clab-link-impairment() - GET: ", err)
 				return

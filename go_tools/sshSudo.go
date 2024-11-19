@@ -107,7 +107,7 @@ func (conn *Connection) SendCommands(cmds ...string) ([]byte, error) {
 	return output, nil
 }
 
-func SshSudo(neHost string, nePort string, neUser string, nePass string, cmds ...string) ([]byte, error) {
+func SshSudo(neHost string, nePort string, neUser string, nePass string, deploymentType string, cmds ...string) ([]byte, error) {
 
 	// // Command to execute the Python script
 	// cmd := exec.Command("python3", "./html-static/actions/exampleScript.py", "arg1", "arg2")
@@ -122,6 +122,9 @@ func SshSudo(neHost string, nePort string, neUser string, nePass string, cmds ..
 	// // Print the output
 	// fmt.Printf("Python script output:\n%s\n", out)
 	// log.Infof("<tools><E><SshSudo() error: %v>", err)
+	if deploymentType == "collocated" {
+		neHost = "127.0.0.1"
+	}
 
 	log.Infof("<tools><E><SshSudo() neHost: %s, nePort: %s, neUser: %s, nePass: %s, cmds: %v>", neHost, nePort, neUser, nePass, cmds)
 
