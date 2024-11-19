@@ -586,9 +586,20 @@ func (cyTopo *CytoTopology) GetDockerNodeStatusViaUnixSocket(clabNodeName string
 	// }
 
 	// Create a Docker client connected to the Unix socket
-	cli, err := client.NewClientWithOpts(client.WithHost("unix:///var/run/docker.sock"))
+	// cli, err := client.NewClientWithOpts(client.WithHost("unix:///var/run/docker.sock"))
+	// if err != nil {
+	// 	log.Errorf("Failed to create Docker client: %v", err)
+	// }
+	// defer cli.Close() // Ensure Docker client is closed when the function exits
+
+	// Create a Docker client connected to the Unix socket with API version negotiation
+	cli, err := client.NewClientWithOpts(
+		client.WithHost("unix:///var/run/docker.sock"),
+		client.WithAPIVersionNegotiation(),
+	)
 	if err != nil {
 		log.Errorf("Failed to create Docker client: %v", err)
+		return nil, fmt.Errorf("failed to create Docker client: %w", err)
 	}
 	defer cli.Close() // Ensure Docker client is closed when the function exits
 

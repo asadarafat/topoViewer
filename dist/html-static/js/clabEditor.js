@@ -185,7 +185,6 @@ function clabEditorAddEdge(sourceCyNode, sourceNodeEndpoint, targetCyNode, targe
 }
 
 async function showPanelNodeEditor(node) {
-    try {
         // Remove all Overlayed Panels
         const panelOverlays = document.getElementsByClassName("panel-overlay");
         Array.from(panelOverlays).forEach(panel => {
@@ -253,16 +252,14 @@ async function showPanelNodeEditor(node) {
             throw error;
         }
 
-    } catch (error) {
-        console.error("Error in showPanelNodeEditor:", error);
-        // Optionally, display an error message to the user
-        const errorDiv = document.getElementById('panel-node-editor-error');
-        if (errorDiv) {
-            errorDiv.textContent = "An error occurred while loading the node editor. Please try again.";
-            errorDiv.style.display = "block";
-        }
-    }
+    
 }
+
+// Initialize event listener for the close button
+document.getElementById("panel-node-editor-close-button").addEventListener("click", () => {
+    document.getElementById("panel-node-editor").style.display = "none";
+});
+
 
 // Function to get kind enums from the JSON schema
 function getKindEnums(jsonData) {
@@ -357,10 +354,10 @@ function initializeDropdownListeners() {
         }
     });
 }
-// Initialize dropdown listeners once when the DOM is fully loaded
-document.addEventListener("DOMContentLoaded", () => {
-    initializeDropdownListeners();
-});
+// // Initialize dropdown listeners once when the DOM is fully loaded
+// document.addEventListener("DOMContentLoaded", () => {
+//     initializeDropdownListeners();
+// });
 
 let panelNodeEditorTopoViewerRole = "pe"; // Variable to store the selected option for dropdown menu
 // Function to populate the topoViewerRole dropdown
@@ -431,15 +428,11 @@ function initializeDropdownTopoViewerRoleListeners() {
     });
 }
 
-// Initialize dropdown listeners once when the DOM is fully loaded
-document.addEventListener("DOMContentLoaded", () => {
-    initializeDropdownTopoViewerRoleListeners();
-});
+// // Initialize dropdown listeners once when the DOM is fully loaded
+// document.addEventListener("DOMContentLoaded", () => {
+//     initializeDropdownTopoViewerRoleListeners();
+// });
 
-// Initialize event listener for the close button
-document.getElementById("panel-node-editor-close-button").addEventListener("click", () => {
-    document.getElementById("panel-node-editor").style.display = "none";
-});
 
 // Function to save node data from the editor
 // Adjusted saveNodeToEditorToFile function
@@ -514,5 +507,34 @@ async function getYamlTopoContent(yamlTopoContent) {
     } catch (error) {
         console.error("Error occurred:", error);
         // Handle errors as needed
+    }
+}
+
+
+function clabEditorCopyYamlContent() {
+    const editorContent =  window.monacoEditor.getValue(); // Get the text from the editor
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        // Modern API
+        navigator.clipboard.writeText(editorContent).then(() => {
+            alert('Text copied to clipboard!');
+        }).catch(err => {
+            console.error('Failed to copy text: ', err);
+        });
+    } else {
+        // Fallback for older browsers
+        const textarea = document.createElement('textarea');
+        textarea.value = editorContent;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+
+        bulmaToast.toast({
+            message: `Hey, YAML wurde in das clipboard kopiert. 😊👌`,
+            type: "is-warning is-size-6 p-3",
+            duration: 4000,
+            position: "top-center",
+            closeOnClick: true,
+        });
     }
 }

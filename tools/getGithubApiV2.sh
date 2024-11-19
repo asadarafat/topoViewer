@@ -88,7 +88,7 @@ API_URL="https://api.github.com/repos/$USER/$REPO/tags"
 log "The API_URL is: $API_URL"
 
 log "Fetching available versions...."
-tags=$(git ls-remote --tags https://github.com/asadarafat/topoViewer.git | grep -v komodo | sed -n 's|.*refs/tags/\(nightly.*\)|\1|p' | sort -r)
+tags=$(git ls-remote --tags https://github.com/$USER/$REPO.git | grep -v komodo | sed -n 's|.*refs/tags/\(nightly.*\)|\1|p' | sort -r)
 
 # Convert the tags into an array
 tags_array=($tags)

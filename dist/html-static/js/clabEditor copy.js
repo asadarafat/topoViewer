@@ -1,10 +1,36 @@
 // Declare global variables at the top
 var yamlTopoContent;
 
+// Create a Promise to track when the Monaco Editor is ready
+let monacoEditorReady = new Promise((resolve) => {
+    // Configure Monaco Editor paths
+    require.config({ paths: { 'vs': ' https://cdn.jsdelivr.net/npm/monaco-editor@0.50.0/min/vs' }});
+
+    require(['vs/editor/editor.main'], function() {
+        // Initialize the Monaco Editor
+        window.monacoEditor = monaco.editor.create(document.getElementById('panel-clab-editor-text-area'), {
+            value: '', // Initial content will be set later
+            language: 'yaml', // Set the language mode
+            theme: 'vs-dark', // Optional: Set editor theme
+            automaticLayout: true // Adjust layout automatically
+        });
+        resolve(); // Resolve the Promise when the editor is ready
+    });
+});
+
+// Call getYamlTopoContent on page load
+document.addEventListener("DOMContentLoaded", async () => {
+    await monacoEditorReady;
+    await getYamlTopoContent();
+});
+
 // CLAB EDITOR
 async function showPanelContainerlabEditor(event) {
+    // Wait until the Monaco Editor is initialized
+    await monacoEditorReady;
+
     // Get the YAML content from backend
-    getYamlTopoContent(yamlTopoContent)
+    await getYamlTopoContent();
 
     // Get all elements with the class "panel-overlay"
     var panelOverlays = document.getElementsByClassName("panel-overlay");
@@ -15,14 +41,14 @@ async function showPanelContainerlabEditor(event) {
     document.getElementById("panel-clab-editor").style.display = "block";
 }
 
-// / logMessagesPanel Function to add a click event listener to the close button
+// Close button event listener
 document.getElementById("panel-clab-editor-close-button").addEventListener("click", () => {
     document.getElementById("panel-clab-editor").style.display = "none";
 });
 
+// Function to load a file into the editor
 function clabEditorLoadFile() {
     const fileInput = document.getElementById('panel-clab-editor-file-input');
-    const textarea = document.getElementById('panel-clab-editor-text-area');
 
     // Trigger the file input's file browser dialog
     fileInput.click();
@@ -36,36 +62,42 @@ function clabEditorLoadFile() {
         const file = fileInput.files[0];
         const reader = new FileReader();
 
-        reader.onload = function(event) {
-            textarea.value = event.target.result;
+        reader.onload = async function(event) {
+            // Set the content of the Monaco Editor
+            window.monacoEditor.setValue(event.target.result);
+            yamlTopoContent = event.target.result;
+
+            // Save to the server
+            await clabEditorSaveYamlTopo();
         };
 
         reader.readAsText(file);
     };
 }
 
+async function clabEditorAddNode(nodeId, nodeName = "Spine-01", kind ='nokia_srlinux', image = 'ghcr.io/nokia/srlinux:latest', group = 'group-01', topoViewerRole = 'dcgw') {
+    await monacoEditorReady;
 
-
-function clabEditorAddNode(nodeId, nodeName = "Spine-01", kind ='nokia_srlinux', image = 'ghcr.io/nokia/srlinux:latest', group = 'group-01', topoViewerRole = 'dcgw') {
     if (!kind || !image || !group || !topoViewerRole) {
         console.error("All parameters (kind, image, group, topoViewerRole) must be provided.");
         return;
     }
 
-    const textarea = document.getElementById('panel-clab-editor-text-area');
+    // Get the content of the Monaco Editor
+    let editorContent = window.monacoEditor.getValue();
+    console.log("editorContent - clabEditorAddNode: ", editorContent);  // Debug: log editorContent
     nodeId = (`### ${nodeId}`);
-    
+
     // Updated regex pattern to capture nodeName if it exists under the specified nodeId
-    // const existingNodeRegex = new RegExp(`###\\s*${nodeId}\\s*\\n\\s*(\\S+):`, 'm');
     const existingNodeRegex = new RegExp(`${nodeId}\\s*\\n\\s+(\\S+):`, 'm');
 
-    const match = textarea.value.match(existingNodeRegex);
+    const match = editorContent.match(existingNodeRegex);
     const oldNodeName = match ? match[1] : null;
 
     console.log("oldNodeName: ", oldNodeName);  // Debug: log oldNodeName
 
     // Node definition template with the new nodeName
-    const nodeDefinition = 
+    const nodeDefinition =
 `${nodeId}
     ${nodeName}:
       kind: ${kind}
@@ -77,88 +109,93 @@ function clabEditorAddNode(nodeId, nodeName = "Spine-01", kind ='nokia_srlinux',
 `;
 
     // Insert or update the node definition in the "nodes" section
-    const nodesSectionIndex = textarea.value.search(/^\s*nodes:/m);
-    const nodeRegex = new RegExp(`\\s*${nodeId}\\s*\\n(\\s*.*\\n)*?\\s*topoViewer-role: .*\\n`, 'g');
+    const nodesSectionIndex = editorContent.search(/^\s*nodes:/m);
+    const nodeRegex = new RegExp(`\\s*${nodeId}\\s*\\n([\\s\\S]*?)labels:[\\s\\S]*?topoViewer-role:.*`, 'm');
 
     if (nodesSectionIndex !== -1) {
-        const insertionIndex = textarea.value.indexOf("  links:", nodesSectionIndex);
-        const endOfNodesSection = insertionIndex !== -1 ? insertionIndex : textarea.value.length;
-        const nodesSection = textarea.value.slice(nodesSectionIndex, endOfNodesSection);
+        const insertionIndex = editorContent.indexOf("  links:", nodesSectionIndex);
+        const endOfNodesSection = insertionIndex !== -1 ? insertionIndex : editorContent.length;
+        const nodesSection = editorContent.slice(nodesSectionIndex, endOfNodesSection);
 
         if (nodesSection.match(nodeRegex)) {
             // Replace the existing node
-            textarea.value = textarea.value.replace(nodeRegex, 
-                `\n\n${nodeId}\n    ${nodeName}:\n      kind: ${kind}\n      image: ${image}\n      group: ${group}\n      labels:\n        topoViewer-role: ${topoViewerRole}\n`);
+            editorContent = editorContent.replace(nodeRegex, `\n\n${nodeDefinition}`);
         } else {
             // Insert the new node at the end of the nodes section
-            textarea.value = textarea.value.slice(0, endOfNodesSection) + nodeDefinition + textarea.value.slice(endOfNodesSection);
+            editorContent = editorContent.slice(0, endOfNodesSection) + nodeDefinition + editorContent.slice(endOfNodesSection);
         }
     } else {
         // Append if "nodes" section doesn't exist
-        textarea.value += (textarea.value.endsWith("\n") ? "" : "\n") + nodeDefinition;
+        editorContent += (editorContent.endsWith("\n") ? "" : "\n") + nodeDefinition;
     }
 
     // Update the links section if oldNodeName exists
     if (oldNodeName && oldNodeName !== nodeName) {
         // Updated regex to match oldNodeName in any position in the endpoints array
-        const linksRegex = new RegExp(`(endpoints:\\s*\\[\\s*".*?)(\\b${oldNodeName}\\b)(:.*?)\\]`, 'g');
-        textarea.value = textarea.value.replace(linksRegex, `$1${nodeName}$3]`);
+        const linksRegex = new RegExp(`(endpoints:\\s*\\[\\s*".*?)\\b${oldNodeName}\\b(:.*?)\\]`, 'g');
+        editorContent = editorContent.replace(linksRegex, `$1${nodeName}$2]`);
     }
 
-    yamlTopoContent = textarea.value;
+    // Update the content of the Monaco Editor
+    window.monacoEditor.setValue(editorContent);
+    yamlTopoContent = editorContent;
+
+    // Save to the server
+    await clabEditorSaveYamlTopo(); // Save the updated content to the server
 }
 
 async function clabEditorSaveYamlTopo() {
-    const textarea = document.getElementById('panel-clab-editor-text-area');
-    clabTopoYamlEditorData = textarea.value;
-    console.log("clabTopoYamlEditorData - yamlTopoContent: ", clabTopoYamlEditorData)
+    // Get the content of the Monaco Editor
+    const editorContent = window.monacoEditor.getValue();
+    yamlTopoContent = editorContent;
+    console.log("clabTopoYamlEditorData - yamlTopoContent: ", yamlTopoContent);
 
-    // dump clabTopoYamlEditorDatal to be persisted to clab-topo.yaml
+    // Send yamlTopoContent to be persisted on the server
     const endpointName = '/clab-save-topo-yaml';
-    
-    try {
-        // Send the enhanced node data directly without wrapping it in an object
-        const response = await sendRequestToEndpointPost(endpointName, [clabTopoYamlEditorData]);
-        console.log('Node data saved successfully', response);
-    } catch (error) {
-        console.error('Failed to save yaml topo:', error);
-    }
 
+    try {
+        // Send the content directly without wrapping it in an object
+        const response = await sendRequestToEndpointPost(endpointName, [yamlTopoContent]);
+        console.log('YAML topology saved successfully', response);
+    } catch (error) {
+        console.error('Failed to save YAML topology:', error);
+    }
 }
 
+async function clabEditorAddEdge(sourceCyNode, sourceNodeEndpoint, targetCyNode, targetNodeEndpoint) {
+    await monacoEditorReady;
 
+    // Get the content of the Monaco Editor
+    let editorContent = window.monacoEditor.getValue();
 
-function clabEditorAddEdge(sourceCyNode, sourceNodeEndpoint, targetCyNode, targetNodeEndpoint) {
-    const textarea = document.getElementById('panel-clab-editor-text-area');
+    const sourceNodeName = sourceCyNode.data("name");
+    const targetNodeName = targetCyNode.data("name");
 
-    sourceNodeName = sourceCyNode.data("name")
-    targetNodeName = targetCyNode.data("name")
-
-    
     // Edge definition with dynamic endpoints array
     const edgeDefinition = `
     - endpoints: ["${sourceNodeName}:${sourceNodeEndpoint}", "${targetNodeName}:${targetNodeEndpoint}"]`;
 
     // Locate the 'links' section and insert the edge definition at the end of it
-    const linksIndex = textarea.value.indexOf("  links:");
+    const linksIndex = editorContent.indexOf("  links:");
     if (linksIndex !== -1) {
         // Find the end of the links section or where the next section begins
-        const nextSectionIndex = textarea.value.indexOf("\n", linksIndex);
-        const insertionIndex = nextSectionIndex !== -1 ? nextSectionIndex : textarea.value.length;
+        const nextSectionIndex = editorContent.indexOf("\n", linksIndex);
+        const insertionIndex = nextSectionIndex !== -1 ? nextSectionIndex : editorContent.length;
 
         // Insert the edge definition at the end of the links section
-        textarea.value = textarea.value.slice(0, insertionIndex) + edgeDefinition + textarea.value.slice(insertionIndex);
+        editorContent = editorContent.slice(0, insertionIndex) + edgeDefinition + editorContent.slice(insertionIndex);
     } else {
         // If no 'links' section exists, append the edge definition at the end of the content
-        textarea.value += "\n  links:" + edgeDefinition;
+        editorContent += "\n  links:" + edgeDefinition;
     }
+
+    // Update the content of the Monaco Editor
+    window.monacoEditor.setValue(editorContent);
+    yamlTopoContent = editorContent;
+
+    // Save to the server
+    await clabEditorSaveYamlTopo();
 }
-
-// NODE EDITOR START
-// NODE EDITOR START
-// NODE EDITOR START
-
-// var yamlTopoContent
 
 async function showPanelNodeEditor(node) {
     try {
@@ -173,7 +210,7 @@ async function showPanelNodeEditor(node) {
         // Set the node Name in the editor
         const nodeNameInput = document.getElementById("panel-node-editor-name");
         if (nodeNameInput) {
-            nodeNameInput.value = node.data("id"); //defaulted by node id
+            nodeNameInput.value = node.data("id"); // defaulted by node id
         }
 
         // Set the node Id in the editor
@@ -188,7 +225,7 @@ async function showPanelNodeEditor(node) {
             nodeImageLabel.value = 'ghcr.io/nokia/srlinux:latest';
         }
 
-        // Set the node image in the editor
+        // Set the node group in the editor
         const nodeGroupLabel = document.getElementById("panel-node-editor-group");
         if (nodeGroupLabel) {
             nodeGroupLabel.value = 'data-center';
@@ -199,7 +236,6 @@ async function showPanelNodeEditor(node) {
         if (nodeEditorPanel) {
             nodeEditorPanel.style.display = "block";
         }
-
 
         // Fetch JSON schema from the backend
         const url = "js/clabJsonSchema-v0.59.0.json";
@@ -218,11 +254,11 @@ async function showPanelNodeEditor(node) {
             populateKindDropdown(kindOptions);
 
             // Populate the dropdown with fetched topoViwerRoleOptions
-            var  topoViwerRoleOptions = ['bridge', 'controller', 'dcgw', 'router', 'leaf', 'pe', 'pon', 'rgw', 'server','super-spine', 'spine'];
-            populateTopoViewerRoleDropdown(topoViwerRoleOptions)
+            var topoViwerRoleOptions = ['bridge', 'controller', 'dcgw', 'router', 'leaf', 'pe', 'pon', 'rgw', 'server', 'super-spine', 'spine'];
+            populateTopoViewerRoleDropdown(topoViwerRoleOptions);
 
             // List type enums based on kind pattern
-            const typeOptions = getTypeEnumsByKindPattern(jsonData, '(srl|nokia_srlinux)'); // aarafat-tag: to be added to the UI
+            const typeOptions = getTypeEnumsByKindPattern(jsonData, '(srl|nokia_srlinux)'); // To be added to the UI
             console.log('Type Enum for (srl|nokia_srlinux):', typeOptions);
 
         } catch (error) {
@@ -266,7 +302,7 @@ function getTypeEnumsByKindPattern(jsonData, pattern) {
     return [];
 }
 
-let panelNodeEditorKind = "nokia_srlinux"; // Variable to store the selected option for dropdown menu, nokia_srlinux as default
+let panelNodeEditorKind = "nokia_srlinux"; // Variable to store the selected option for dropdown menu
 // Function to populate the kind dropdown
 function populateKindDropdown(options) {
     // Get the dropdown elements by their IDs
@@ -339,9 +375,8 @@ document.addEventListener("DOMContentLoaded", () => {
     initializeDropdownListeners();
 });
 
-
-let panelNodeEditorTopoViewerRole = "pe"; // Variable to store the selected option for dropdown menu, nokia_srlinux as default
-// Function to populate the topoviewerrole dropdown
+let panelNodeEditorTopoViewerRole = "pe"; // Variable to store the selected option for dropdown menu
+// Function to populate the topoViewerRole dropdown
 function populateTopoViewerRoleDropdown(options) {
     // Get the dropdown elements by their IDs
     const dropdownTrigger = document.querySelector("#panel-node-topoviewerrole-dropdown .dropdown-trigger button span");
@@ -356,7 +391,6 @@ function populateTopoViewerRoleDropdown(options) {
 
     // Set the initial value on the dropdown button
     dropdownTrigger.textContent = panelNodeEditorTopoViewerRole;
-
 
     // Clear any existing content
     dropdownContent.innerHTML = "";
@@ -420,75 +454,65 @@ document.getElementById("panel-node-editor-close-button").addEventListener("clic
     document.getElementById("panel-node-editor").style.display = "none";
 });
 
-
-// update node data in the editor, save cyto json to file dataCytoMarshall.json and save to clab topo.yaml
+// Function to save node data from the editor
 async function saveNodeToEditorToFile() {
-    const nodeId =document.getElementById("panel-node-editor-id").textContent
-    var cyNode = cy.$id(nodeId); // Get cytoscpe node object id
+    const nodeId = document.getElementById("panel-node-editor-id").textContent;
+    var cyNode = cy.$id(nodeId); // Get Cytoscape node object id
 
-    // get value from panel-node-editor
-    nodeName = document.getElementById("panel-node-editor-name").value
-    kind = panelNodeEditorKind
-    image = document.getElementById("panel-node-editor-image").value
-    group = document.getElementById("panel-node-editor-group").value
-    topoViewerRole = panelNodeEditorTopoViewerRole
+    // Get values from panel-node-editor
+    const nodeName = document.getElementById("panel-node-editor-name").value;
+    const kind = panelNodeEditorKind;
+    const image = document.getElementById("panel-node-editor-image").value;
+    const group = document.getElementById("panel-node-editor-group").value;
+    const topoViewerRole = panelNodeEditorTopoViewerRole;
 
-    console.log("panelEditorNodeName", nodeName)
-    console.log("panelEditorkind", kind)
-    console.log("panelEditorImage", image)
-    console.log("panelEditorGroup", group)
-    console.log("panelEditorTopoViewerRole",topoViewerRole)
+    console.log("panelEditorNodeName", nodeName);
+    console.log("panelEditorkind", kind);
+    console.log("panelEditorImage", image);
+    console.log("panelEditorGroup", group);
+    console.log("panelEditorTopoViewerRole", topoViewerRole);
 
-    // save node data to cytoscape node object
+    // Save node data to Cytoscape node object
     var extraData = {
         "kind": kind,
         "image": image,
         "longname": "",
         "mgmtIpv4Addresss": ""
-      };
+    };
 
-    cyNode.data(('name'), nodeName)
-    cyNode.data(('parent'), group)
-    cyNode.data(('topoViewerRole'), topoViewerRole)
-    cyNode.data(('extraData'), extraData)
+    cyNode.data('name', nodeName);
+    cyNode.data('parent', group);
+    cyNode.data('topoViewerRole', topoViewerRole);
+    cyNode.data('extraData', extraData);
 
-    console.log('cyto node object data: ', cyNode);
+    console.log('Cytoscape node object data: ', cyNode);
 
-    // dump cytoscape node object to nodeData to be persisted to dataCytoMarshall.json
-    var nodeData = cy.$id(nodeId).json(); // Get JSON data of the node with the specified ID
+    // Persist node data to the server
+    var nodeData = cyNode.json(); // Get JSON data of the node with the specified ID
     const endpointName = '/clab-save-topo-cyto-json';
-  
+
     try {
-      // Send the enhanced node data directly without wrapping it in an object
-      const response = await sendRequestToEndpointPost(endpointName, [nodeData]);
-      console.log('Node data saved successfully', response);
+        // Send the enhanced node data directly without wrapping it in an object
+        const response = await sendRequestToEndpointPost(endpointName, [nodeData]);
+        console.log('Node data saved successfully', response);
     } catch (error) {
-      console.error('Failed to save node data:', error);
+        console.error('Failed to save node data:', error);
     }
 
-    // add node to clab editor textarea
-    clabEditorAddNode(nodeId, nodeName, kind, image, group, topoViewerRole)
-
-    // clabEditorSaveYamlTopo()
+    // Add node to Monaco Editor
+    await clabEditorAddNode(nodeId, nodeName, kind, image, group, topoViewerRole);
 }
 
-async function getYamlTopoContent(yamlTopoContent) {
-
+async function getYamlTopoContent() {
     try {
-        // Check if yamlTopoContent is already set
-        console.log('YAML Topo Initial Content:', yamlTopoContent);
-
-        if (!yamlTopoContent) {
-            // Load the content if yamlTopoContent is empty
-            yamlTopoContent = await sendRequestToEndpointGetV3("/get-yaml-topo-content");
-        }
+        // Fetch the content from the server
+        yamlTopoContent = await sendRequestToEndpointGetV3("/get-yaml-topo-content");
 
         console.log('YAML Topo Content:', yamlTopoContent);
-        document.getElementById('panel-clab-editor-text-area').value = yamlTopoContent;
 
-        
+        // Set the content of the Monaco Editor
+        window.monacoEditor.setValue(yamlTopoContent);
     } catch (error) {
-        console.error("Error occurred:", error);
-        // Handle errors as needed
+        console.error("Error occurred while fetching YAML topology:", error);
     }
 }

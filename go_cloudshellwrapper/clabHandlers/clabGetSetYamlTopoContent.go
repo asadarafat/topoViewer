@@ -1,15 +1,14 @@
-// clabGetEnvironment.go
+// clabGetYamlTopoContent.go
 package clabhandlers
 
 import (
 	"encoding/json"
 	"net/http"
+	"os"
 	"path"
 
 	topoengine "github.com/asadarafat/topoViewer/go_topoengine"
 	log "github.com/sirupsen/logrus"
-
-	"os"
 )
 
 // ClabSaveTopoCytoJsonHandler handles the save-cytoTopo endpoint without a specific cyto json file
@@ -91,6 +90,32 @@ func ClabSaveTopoCytoJsonHandler(w http.ResponseWriter, r *http.Request, cyTopo 
 	w.Write([]byte(`{"message": "Graph data saved successfully"}`))
 }
 
+// GetYamlTopoContent handles the /get-yaml-topo-content endpoint
+// func GetYamlTopoContentHandler(w http.ResponseWriter, r *http.Request, yamlTopoFilePath string) {
+// 	yamlData, err := os.ReadFile(yamlTopoFilePath)
+
+func GetYamlTopoContentHandler(w http.ResponseWriter, r *http.Request, cyTopo *topoengine.CytoTopology, workingDirectory string) {
+	// yamlData, err := os.ReadFile(yamlTopoFilePath)
+
+	// File path for clab-topo-yaml-addon.yaml
+	filePath := path.Join(workingDirectory, "./html-public/"+cyTopo.ClabTopoDataV2.Name+"/clab-topo-yaml-addon.yaml")
+	yamlData, err := os.ReadFile(filePath)
+
+	if err != nil {
+		log.Error("Error reading YAML file:", err)
+		http.Error(w, "Error reading YAML file", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/x-yaml")
+	_, err = w.Write(yamlData)
+	if err != nil {
+		log.Error("Failed to write response:", err)
+		http.Error(w, "Failed to write response", http.StatusInternalServerError)
+		return
+	}
+}
+
 func ClabSaveTopoYamlHandler(w http.ResponseWriter, r *http.Request, cyTopo *topoengine.CytoTopology, workingDirectory string) {
 	var wrappedData map[string]interface{}
 
@@ -111,7 +136,7 @@ func ClabSaveTopoYamlHandler(w http.ResponseWriter, r *http.Request, cyTopo *top
 	log.Infof("clabTopoYamlEditorData: %v", clabTopoYamlEditorData)
 
 	// File path for clab-topo-yaml-addon.yaml
-	filePath := path.Join(workingDirectory, "./html-public/"+cyTopo.ClabTopoDataV2.Name+"/dclab-topo-yaml-addon.yaml")
+	filePath := path.Join(workingDirectory, "./html-public/"+cyTopo.ClabTopoDataV2.Name+"/clab-topo-yaml-addon.yaml")
 
 	// Write the updated clab topo yaml data to file
 	data, ok := clabTopoYamlEditorData.(string)

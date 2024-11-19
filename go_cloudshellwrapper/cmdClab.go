@@ -1002,7 +1002,7 @@ func Clab(_ *cobra.Command, _ []string) error {
 
 	// // Separate handler for get-yaml-topo-content endpoint
 	router.HandleFunc("/get-yaml-topo-content", func(w http.ResponseWriter, r *http.Request) {
-		clabHandlers.GetYamlTopoContentHandler(w, r, topoClabYaml)
+		clabHandlers.GetYamlTopoContentHandler(w, r, &cyTopo, workingDirectory)
 	}).Methods("GET")
 
 	// // Separate handler for get-kind-enum endpoint
