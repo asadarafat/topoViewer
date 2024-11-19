@@ -742,6 +742,8 @@ func Clab(_ *cobra.Command, _ []string) error {
 
 			returnData, err := tools.SshSudo(clabHost[0], "22", clabUser, clabPass, command)
 
+			log.Info(returnData)
+
 			// Create a response JSON object
 			responseData := map[string]interface{}{
 				"result":      "clab-link-impairment endpoint POST executed",
@@ -800,7 +802,6 @@ func Clab(_ *cobra.Command, _ []string) error {
 			command := fmt.Sprintf("/usr/bin/containerlab tools netem show -n %s", nodeId)
 
 			log.Info("<cmd-clab><I><clab-link-impairment() - queriesList: ", queriesList)
-
 			log.Info("<cmd-clab><I><clab-link-impairment() - nodeId: ", nodeId)
 			log.Info("<cmd-clab><I><clab-link-impairment() - interfaceId: ", interfaceId)
 			log.Info("<cmd-clab><I><clab-link-impairment() - command: ", command)

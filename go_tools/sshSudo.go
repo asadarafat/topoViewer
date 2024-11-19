@@ -123,6 +123,8 @@ func SshSudo(neHost string, nePort string, neUser string, nePass string, cmds ..
 	// fmt.Printf("Python script output:\n%s\n", out)
 	// log.Infof("<tools><E><SshSudo() error: %v>", err)
 
+	log.Infof("<tools><E><SshSudo() neHost: %s, nePort: %s, neUser: %s, nePass: %s, cmds: %v>", neHost, nePort, neUser, nePass, cmds)
+
 	// ssh refers to the custom package above
 	conn, err := Connect(neHost+":"+nePort, neUser, nePass)
 	if err != nil {
