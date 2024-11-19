@@ -122,7 +122,7 @@ func SshSudo(neHost string, nePort string, neUser string, nePass string, deploym
 	// // Print the output
 	// fmt.Printf("Python script output:\n%s\n", out)
 	// log.Infof("<tools><E><SshSudo() error: %v>", err)
-	if deploymentType == "collocated" {
+	if deploymentType == "colocated" {
 		neHost = "127.0.0.1"
 	}
 
