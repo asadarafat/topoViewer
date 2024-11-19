@@ -19,7 +19,7 @@ topology:
         SERVER_PORT: "8088"
         CLAB_TOPO_YAML: "clab-demo.yaml"
       labels:
-        topoviewer-role: controller
+        topoViewer-role: controller
       exec:
         ## This is the entrypoint script of topoviewer container
         - '/opt/topoviewer/entrypoint.sh'

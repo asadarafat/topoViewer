@@ -658,7 +658,10 @@ func (cyTopo *CytoTopology) GetDockerNodeStatusViaUnixSocket(clabNodeName string
 // GetDockerConnectedInterfacesViaUnixSocket lists network interfaces in the source container connected to the target container
 func (cyTopo *CytoTopology) GetDockerConnectedInterfacesViaUnixSocket(sourceContainer, targetContainer string) ([]byte, error) {
 	// Step 1: Create a Docker client connected to the Unix socket
-	cli, err := client.NewClientWithOpts(client.WithHost("unix:///var/run/docker.sock"))
+	cli, err := client.NewClientWithOpts(
+		client.WithHost("unix:///var/run/docker.sock"),
+		client.WithAPIVersionNegotiation(),
+	)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create Docker client: %v", err)
 	}
