@@ -95,7 +95,10 @@ tags_array=($tags)
 
 # Determine the version to download
 if [ -z "$SPECIFIC_VERSION" ]; then
-  # Get latest version
+  VERSION_TO_INSTALL="latest"
+elif [ "$SPECIFIC_VERSION" = "latest" ]; then
+  VERSION_TO_INSTALL="latest"
+elif [ "$SPECIFIC_VERSION" = "newest" ]; then
   VERSION_TO_INSTALL="${tags_array[0]}"
 else
   VERSION_TO_INSTALL="$SPECIFIC_VERSION"
