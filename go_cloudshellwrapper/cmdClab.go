@@ -153,7 +153,7 @@ var confClab = config.Map{
 		Usage:   "TopoViewer type of deployment. The option are 'container' if the TopoViewer will be running under container or 'colocated' if TopoViewer will be running co-located with containerlab server",
 	},
 	"clab-server-address": &config.String{
-		Default: ".",
+		Default: "", // Dynamically set to match allowed-hostnames[0]
 		Usage:   "Option to set containerlab server, if not set it will use first address in allowed-hostnames",
 	},
 }
@@ -283,6 +283,7 @@ func Clab(_ *cobra.Command, _ []string) error {
 		workingDirectory = path.Join(wd, workingDirectory)
 	}
 	deploymentType := confClab.GetString("deployment-type")
+
 	clabServerAddress := confClab.GetString("clab-server-address")
 
 	// log.Infof("topology file path    : '%s'", workingDirectory+"/"+topoClab)
