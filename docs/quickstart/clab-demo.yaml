@@ -4,7 +4,7 @@ topology:
   nodes:
     topoviewer:
       kind: linux
-      image: ghcr.io/asadarafat/topoviewer:nightly-24.10.30
+      image: ghcr.io/asadarafat/topoviewer:nightly-24.11.24
       ports:
         - ${TOPOVIEWER_SERVER_PORT}:${TOPOVIEWER_SERVER_PORT}
       startup-delay: 5
