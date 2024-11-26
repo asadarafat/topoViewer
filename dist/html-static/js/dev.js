@@ -323,7 +323,7 @@ document.addEventListener("DOMContentLoaded", async function() {
     });
 
     // Fetch and load element data from a JSON file
-    // fetch("dataCytoMarshall-" + labName + ".json")
+    // Dev Version EDITOR
     fetch("")
 
         .then((response) => response.json())

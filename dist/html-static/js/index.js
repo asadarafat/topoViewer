@@ -209,8 +209,9 @@ document.addEventListener("DOMContentLoaded", async function() {
     });
 
     // Fetch and load element data from a JSON file
-    // fetch("dataCytoMarshall-" + labName + ".json")
     fetch("dataCytoMarshall.json")
+    // fetch("")
+
 
         .then((response) => response.json())
         .then((elements) => {

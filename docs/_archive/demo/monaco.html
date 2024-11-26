@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Monaco Editor Example</title>
+  <!-- Include the Monaco Editor CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/monaco-editor/min/vs/loader.js"></script>
+  <style>
+    /* Style for the editor container */
+    #editor-container {
+      width: 100%;
+      height: 90vh;
+      border: 1px solid #ccc;
+    }
+  </style>
+</head>
+<body>
+  <h1>Monaco Editor in Static HTML</h1>
+  <div id="editor-container"></div>
+  
+  <script>
+    // Configure Monaco Editor loader
+    require.config({ paths: { vs: "https://cdn.jsdelivr.net/npm/monaco-editor/min/vs" } });
+
+    // Initialize the Monaco Editor
+    require(["vs/editor/editor.main"], function () {
+      monaco.editor.create(document.getElementById("editor-container"), {
+        value: `// Type your code here\nconsole.log("Hello, Monaco!");`,
+        language: "javascript",
+        theme: "vs-dark" // Use "vs", "vs-dark", or "hc-black"
+      });
+    });
+  </script>
+</body>
+</html>

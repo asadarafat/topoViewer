@@ -1,0 +1,32 @@
+name: demo
+
+topology:  
+  nodes:
+    topoviewer:
+      kind: linux
+      image: ghcr.io/asadarafat/topoviewer:nightly-24.10.27a
+      ports:
+        - 8088:8088
+      startup-delay: 5
+      binds:
+        - /var/run/docker.sock:/var/run/docker.sock:ro
+        - clab-demo.yaml:/opt/topoviewer/local-bind/clab-demo.yaml:ro
+      env:
+        ### These are the environment variables for topoviewer container
+        ALLOWED_HOSTNAME: "nsp-clab1.nice.nokia.net"
+        CLAB_USER: "asad"
+        CLAB_PASS: "Lab-Her0"
+        SERVER_PORT: "8088"
+        CLAB_TOPO_YAML: "clab-demo.yaml"
+      labels:
+        topoviewer-role: controller
+      exec:
+        ## This is the entrypoint script of topoviewer container
+        - '/opt/topoviewer/entrypoint.sh'
+
+
+
+
+  links:
+
+  

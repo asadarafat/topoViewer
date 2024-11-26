@@ -29,5 +29,18 @@ docs/quickstart/.clab-demo-output.yaml.bak
 docs/quickstart/clab-demo-output.yaml
 
 
+clab-demo-ci
+clab-demo-ci/**
+clab-demo-ci.yaml
+clab-demo-output.yaml
+clab-demo-output.yaml.bak
+.clab-demo-output.yaml.bak
+
+.dgf-nsp.yml.bak
+dgf-nsp.yml
+dgf-nsp.yml.bak
+dgf-nsp/**
+
+
 .cache/**
 
