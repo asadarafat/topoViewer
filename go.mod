@@ -3,7 +3,7 @@ module github.com/asadarafat/topoViewer
 go 1.22.5
 
 require (
-	github.com/asadarafat/netmiGO v0.0.6
+	github.com/asadarafat/netmiGO v0.0.7
 	github.com/buger/jsonparser v1.1.1
 	github.com/creack/pty v1.1.21
 	github.com/docker/docker v27.3.1+incompatible

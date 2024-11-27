@@ -674,57 +674,6 @@ document.addEventListener("DOMContentLoaded", async function() {
         appendMessage("Info: " + `Nice! Node "${nodeName}" added successfully.`);
     }
 
-    function nodeFindEvent(event) {
-        //- Get a reference to your Cytoscape instance (assuming it's named 'cy')
-        //- const cy = window.cy; //- Replace 'window.cy' with your actual Cytoscape instance
-        //- Find the node with the specified name
-        //- Get a reference to your Cytoscape instance (assuming it's named 'cy')
-        //- const cy = window.cy; //- Replace 'window.cy' with your actual Cytoscape instance
-        //- Find the node with the specified name
-        const nodeName = document.getElementById("nodeFindInput").value;
-        const node = cy.$(`node[name = "${nodeName}"]`);
-        //- Check if the node exists
-        //- Check if the node exists
-        if (node.length > 0) {
-            // console
-            // console
-            console.log("Info: " + 'Sweet! Node "' + nodeName + '" is in the house.');
-            appendMessage("Info: " + 'Sweet! Node "' + nodeName + '" is in the house.');
-            //- Apply a highlight style to the node
-            //- Apply a highlight style to the node
-            node.style({
-                "border-color": "red",
-                "border-width": "2px",
-                "background-color": "yellow",
-            });
-            //- Zoom out on the node
-            //- Zoom out on the node
-            cy.fit();
-            //- Zoom in on the node
-            //- Zoom in on the node
-            cy.animate({
-                zoom: {
-                    level: 5,
-                    position: {
-                        x: node.position("x"),
-                        y: node.position("y"),
-                    },
-                    renderedPosition: {
-                        x: node.renderedPosition("x"),
-                        y: node.renderedPosition("y"),
-                    },
-                },
-                duration: 1500,
-            });
-        } else {
-            console.error(
-                `Bro, I couldn't find a node named "${nodeName}". Try another one.`,
-            );
-            appendMessage(
-                `Bro, I couldn't find a node named "${nodeName}". Try another one.`,
-            );
-        }
-    }
 
     function zoomToFitDrawer() {
         const initialZoom = cy.zoom();
@@ -1374,8 +1323,21 @@ async function linkWireshark(event, option, endpoint) {
                 wiresharkHref = `clab-capture://${clabUser}@${clabServerAddress}?${clabTargetLongName}?${clabTargetPort}`
                 console.log("linkWireshark- wiresharkHref: ", wiresharkHref)
             }
-
             window.open(wiresharkHref);
+
+        } else if (option == "edgeShark") {
+            if (endpoint == "source") {
+                baseUrl = `packetflix:ws://${clabServerAddress}:5001/capture?`;
+                urlParams = `container={"network-interfaces":["${clabSourcePort}"],"name":"${clabSourceLongName.toLocaleLowerCase()}","type":"docker","prefix":""}&nif=${clabSourcePort}`;
+
+                edgeSharkHref = baseUrl + urlParams;
+
+                console.log("linkWireshark - edgeSharkHref: ", edgeSharkHref)
+
+                window.open(edgeSharkHref);
+            }
+            
+
 
         } else if (option == "copy") {
             if (endpoint == "source") {
@@ -1448,23 +1410,27 @@ async function showPanelTopoViewerClient(event) {
     clabServerAddress = environments["clab-server-address"]
     clabServerPort = environments["clab-server-port"]
 
-    hrefWindows = `http://${clabServerAddress}:${clabServerPort}/clab-client/clab-client-windows/ClabCapture.app.zip`
-    hrefMac = `http://${clabServerAddress}:${clabServerPort}/clab-client/clab-client-mac/ClabCapture.app.zip`
+    // hrefWindows = `http://${clabServerAddress}:${clabServerPort}/clab-client/clab-client-windows/ClabCapture.app.zip`
+    // hrefMac = `http://${clabServerAddress}:${clabServerPort}/clab-client/clab-client-mac/ClabCapture.app.zip`
+    // hrefMac = `http://${clabServerAddress}:${clabServerPort}/clab-client/clab-client-mac/paketFlix.zip`
+
+    // <p>
+    // Please download the following helper app:
+    // </p>
+    // <ul>
+    //     <li><a href="${hrefWindows}">Windows version</a> </li>
+    //     <li><a href="${hrefMac}">MAC version</a> </li>
+    // </ul>
+
 
     document.getElementById("panel-topoviewer-helper").style.display = "block";
 
     const htmlContent = `
             <h6>Wireshark Capture</h6>
             <p>
-                Please download the following helper app:
-            </p>
-            <ul>
-                <li><a href="${hrefWindows}">Windows version</a> </li>
-                <li><a href="${hrefMac}">MAC version</a> </li>
-            </ul>
-            <p>
-                TopoViewer offers a remote capture feature for intercepting ContainerLab node endpoints. 
-                For the best experience, it's recommended to have both TopoViewer and its helper app installed on client-side. 
+                TopoViewer offers a remote capture feature for intercepting Containerlab node endpoints with the help from EdgeShark. 
+                For the best experience, it's recommended to have both TopoViewer and its EdgeShark's helper app (packetflix) installed on client-side. 
+                please refer to this link https://containerlab.dev/manual/wireshark/#edgeshark-integration for more information on how to install the helper app.
                 With the TopoViewer helper app, you can effortlessly automate the launch of Wireshark's GUI. 
             </p>
             <p>
@@ -2022,6 +1988,66 @@ function viewportDrawerCaptureButton() {
             }
         }
     
+}
+
+
+function nodeFindEvent(event) {
+    //- Get a reference to your Cytoscape instance (assuming it's named 'cy')
+    //- const cy = window.cy; //- Replace 'window.cy' with your actual Cytoscape instance
+    //- Find the node with the specified name
+    //- Get a reference to your Cytoscape instance (assuming it's named 'cy')
+    //- const cy = window.cy; //- Replace 'window.cy' with your actual Cytoscape instance
+    //- Find the node with the specified name
+    const nodeName = document.getElementById("viewport-drawer-topology-overview-content-edit").value;
+    const node = cy.$(`node[name = "${nodeName}"]`);
+    //- Check if the node exists
+    //- Check if the node exists
+    if (node.length > 0) {
+        // console
+        // console
+        console.log("Info: " + 'Sweet! Node "' + nodeName + '" is in the house.');
+        appendMessage("Info: " + 'Sweet! Node "' + nodeName + '" is in the house.');
+        //- Apply a highlight style to the node
+        //- Apply a highlight style to the node
+        node.style({
+            "border-color": "red",
+            "border-width": "2px",
+            "background-color": "yellow",
+        });
+        //- Zoom out on the node
+        //- Zoom out on the node
+        cy.fit();
+        //- Zoom in on the node
+        //- Zoom in on the node
+        cy.animate({
+            zoom: {
+                level: 5,
+                position: {
+                    x: node.position("x"),
+                    y: node.position("y"),
+                },
+                renderedPosition: {
+                    x: node.renderedPosition("x"),
+                    y: node.renderedPosition("y"),
+                },
+            },
+            duration: 1500,
+        });
+    } else {
+        console.error(
+            `Bro, I couldn't find a node named "${nodeName}". Try another one.`,
+        );
+        appendMessage(
+            `Bro, I couldn't find a node named "${nodeName}". Try another one.`,
+        );
+        bulmaToast.toast({
+            message:`Bro, I couldn't find a node named "${nodeName}". Try another one.`,
+            type: "is-warning is-size-6 p-3",
+            duration: 4000,
+            position: "top-center",
+            closeOnClick: true,
+        });
+    }
 }
 
 async function captureAndSaveViewportAsDrawIo(cy) {

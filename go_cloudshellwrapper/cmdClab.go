@@ -974,7 +974,7 @@ func Clab(_ *cobra.Command, _ []string) error {
 
 	// Separate handler for node-backup-restore files endpoint
 	router.HandleFunc("/files", func(w http.ResponseWriter, r *http.Request) {
-		clabHandlers.FilesHandler(w, r, &cyTopo, HtmlPublicPrefixPath)
+		clabHandlers.FilesHandler(w, r, &cyTopo, HtmlPublicPrefixPath, clabHostUsername, clabHostUsername)
 	}).Methods("GET")
 
 	// Separate handler for node-backup-restorefile endpoint

@@ -58,7 +58,7 @@ async function backupRestoreNodeConfig(event) {
 	clabName = environments["clab-name"];
 	nodeData = findCytoElementByLongname(environments["EnvCyTopoJsonBytes"], globalSelectedNode)
 	routerName = globalSelectedNode;
-	routerID = nodeData["data"]["extraData"]["mgmtIpv4Addresss"]
+	routerID = nodeData["data"]["extraData"]["longname"]
 	routerKind = nodeData["data"]["extraData"]["kind"];
 	credentials = getCredentialsForRouterKind(routerKind);
 	routerUsername = credentials.user
@@ -253,7 +253,7 @@ async function handleLoadRunningConfig(event) {
 			routerUsername: routerUsername,
 			routerPassword: routerPassword,
 			configNamePrefix: routerName,
-			backupPath: `${workingDirectory}/html-public/nokia-ServiceProvider/node-backup/${routerName}`,
+			backupPath: `${workingDirectory}/html-public/${clabName}/node-backup/${routerName}`,
 			action: "running"
 		};
 

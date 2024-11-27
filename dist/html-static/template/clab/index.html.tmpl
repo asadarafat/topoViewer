@@ -234,7 +234,7 @@
 						<div  class="column pb-0 is-12">
 							<div class="content p-0 mb-2 is-small">
 								<p>
-									This panel allows to filter the topology.
+									This panel allows to search node in the topology.
 								</p>
 							</div>							
 						</div>
@@ -246,11 +246,18 @@
 							<div class="columns py-auto" >
 								<div  class="column">
 									<div class="control has-icons-left">
-										<input class="input is-small" type="text" placeholder="Search for nodes, links ..." />
+										<input class="input is-small" type="text" id="viewport-drawer-topology-overview-content-edit" placeholder="Search for nodes, links ..." />
 										<span class="icon is-flex is-align-self-auto pl-2" style="display: block; height: 25px; width: 20px;">
 											<i class="fas fa-search" aria-hidden="true"></i>
 										</span>
 									</div>
+								</div>
+							</div>
+						</div>
+						<div  class="panel-content">
+							<div class="columns py-auto" >
+								<div  class="column">
+									<button class="button is-link is-outlined is-small" onclick="nodeFindEvent()">Search Node</button>
 								</div>
 							</div>
 						</div>
@@ -349,7 +356,7 @@
 													<a onclick="sshCliCommandCopy(event);" class="dropdown-item label has-text-weight-normal is-small py-0" id="panel-node-action-ssh-copy-cli-command">SSH - Copy to Clipboard</a>
 													<hr class="dropdown-divider" />
 													<a onclick="backupRestoreNodeConfig(event);" class="dropdown-item label has-text-weight-normal is-small py-0"> Backup-Restore Config </a>
-													<!-- <a href="#" class="dropdown-item label has-text-weight-normal is-small py-0"> Reboot </a> -->
+													
 												  </div>
 												</div>
 											</div>
@@ -462,13 +469,13 @@
 												<div class="dropdown-menu" id="panel-link-action-dropdown-menu" role="menu">
 													<div class="dropdown-content">
 														<a onclick="linkImpairmentClab(event, 'a-to-b');" class="dropdown-item label has-text-weight-normal is-small py-0" id="panel-link-action-impairment-A->B">Apply Impairment</a>
-
-														
 														<hr class="dropdown-divider" />
-														<a onclick="linkWireshark(event, 'app', 'source');" class="dropdown-item label has-text-weight-normal is-small py-0"> Wireshark A - Launch App </a>
+														<!-- <a onclick="linkWireshark(event, 'app', 'source');" class="dropdown-item label has-text-weight-normal is-small py-0"> Wireshark A - Launch App </a> -->
+														<a onclick="linkWireshark(event, 'edgeShark', 'source');" class="dropdown-item label has-text-weight-normal is-small py-0">Wireshark A - Launch EdgeShark</a>
 														<a onclick="linkWireshark(event, 'copy', 'source');" class="dropdown-item label has-text-weight-normal is-small py-0">Wireshark A - Copy to Clipboard</a>
 														<hr class="dropdown-divider" />
-														<a onclick="linkWireshark(event, 'app', 'target');" class="dropdown-item label has-text-weight-normal is-small py-0"> Wireshark B - Launch App </a>
+														<!-- <a onclick="linkWireshark(event, 'app', 'target');" class="dropdown-item label has-text-weight-normal is-small py-0"> Wireshark B - Launch App </a> -->
+														<a onclick="linkWireshark(event, 'edgeShark', 'target');" class="dropdown-item label has-text-weight-normal is-small py-0">Wireshark B - Launch EdgeShark</a>
 														<a onclick="linkWireshark(event, 'copy', 'target');" class="dropdown-item label has-text-weight-normal is-small py-0">Wireshark B - Copy to Clipboard</a>
 													</div>
 												</div>
@@ -655,14 +662,7 @@
 												<i class="fa-solid fa-arrow-left"></i>
 											</span>
 										</button>
-										<!-- 
-										<button class="button is-small is-link is-outlined" id="buttonLoadRunningConfig">
-											<span>Load</span>
-											<span class="icon is-small">
-												<svg class="svg-inline--fa fa-arrow-up" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="arrow-up" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" data-fa-i2svg=""><path fill="currentColor" d="M214.6 41.4c-12.5-12.5-32.8-12.5-45.3 0l-160 160c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L160 141.2V448c0 17.7 14.3 32 32 32s32-14.3 32-32V141.2L329.4 246.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3l-160-160z"></path></svg>
-											</span>
-										</button> 
-										-->
+										
 									</p>
 								</div>
 							</div>
@@ -772,7 +772,7 @@
 			<script src="https://unpkg.com/cytoscape-popper@1.0.2/cytoscape-popper.js"></script>
 			<script src="https://cdn.jsdelivr.net/npm/cytoscape-grid-guide@2.3.3/cytoscape-grid-guide.min.js"></script>
 			
-			<!-- Cytoscape Edgehandles plugin CDN -->
+			
 			<script src="https://cdn.jsdelivr.net/npm/cytoscape-edgehandles/cytoscape-edgehandles.min.js"></script>
 			<script src="js/index.js?ver=1"></script>
 

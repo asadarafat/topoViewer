@@ -5,7 +5,9 @@ import (
 	"encoding/json"
 	"net/http"
 	"os"
+	"os/user"
 	"path"
+	"strconv"
 
 	topoengine "github.com/asadarafat/topoViewer/go_topoengine"
 	log "github.com/sirupsen/logrus"
@@ -15,8 +17,7 @@ type FileListResponse struct {
 	Files []string `json:"files"`
 }
 
-// FilesHandler handles the /files endpoint
-func FilesHandler(w http.ResponseWriter, r *http.Request, cyTopo *topoengine.CytoTopology, HtmlPublicPrefixPath string) {
+func FilesHandler(w http.ResponseWriter, r *http.Request, cyTopo *topoengine.CytoTopology, HtmlPublicPrefixPath string, username string, groupname string) {
 	// Get the RouterName from query parameters
 	RouterName := r.URL.Query().Get("RouterName")
 	if RouterName == "" {
@@ -31,6 +32,38 @@ func FilesHandler(w http.ResponseWriter, r *http.Request, cyTopo *topoengine.Cyt
 	err := os.MkdirAll(routerBackupDirectory, 0755)
 	if err != nil {
 		http.Error(w, "Failed to create backup directory", http.StatusInternalServerError)
+		return
+	}
+
+	// Resolve the UID and GID for the given username and groupname
+	usr, err := user.Lookup(username)
+	if err != nil {
+		http.Error(w, "Failed to lookup user", http.StatusInternalServerError)
+		return
+	}
+
+	uid, err := strconv.Atoi(usr.Uid)
+	if err != nil {
+		http.Error(w, "Failed to parse user UID", http.StatusInternalServerError)
+		return
+	}
+
+	grp, err := user.LookupGroup(groupname)
+	if err != nil {
+		http.Error(w, "Failed to lookup group", http.StatusInternalServerError)
+		return
+	}
+
+	gid, err := strconv.Atoi(grp.Gid)
+	if err != nil {
+		http.Error(w, "Failed to parse group GID", http.StatusInternalServerError)
+		return
+	}
+
+	// Change ownership of the directory
+	err = os.Chown(routerBackupDirectory, uid, gid)
+	if err != nil {
+		http.Error(w, "Failed to change ownership of backup directory", http.StatusInternalServerError)
 		return
 	}
 
