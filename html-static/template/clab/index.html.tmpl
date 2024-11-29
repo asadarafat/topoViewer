@@ -31,77 +31,73 @@
 						<div class="dropdown-content">
 							<a id="about" href="#" onclick="showPanelAbout(event);" class="dropdown-item label has-text-weight-normal is-small py-0">About TopoViewer</a>                      
 							<hr class="dropdown-divider py-0">
-							
 							<a id="getAllEndpointDetail" href="#" onclick="getActualNodesEndpoints(event);" class="dropdown-item label has-text-weight-normal is-small py-0">Action - Retrieve Actual Endpoint Label</a>     
 							<a id="logMessagesDropdownItem" href="#" onclick="showPanelLogMessages(event);" class="dropdown-item label has-text-weight-normal is-small py-0">Action - Log Messages</a>       
 							<hr class="dropdown-divider py-0">
 							<a id="clabClientDropdownItem" href="#" onclick="showPanelTopoViewerClient();"        class="dropdown-item label has-text-weight-normal is-small py-0">TopoViewer Helper App</a>                  
+							<a id="clabYamlEditorItem"     href="#" onclick="showPanelContainerlabEditor();"       class="dropdown-item label has-text-weight-normal is-small py-0">Containerlab Editor</a>                  
 						</div>
 					</div>
 				</div>
 			</div>
 		</nav>
-		
-		
-		
 		<div id="root-div">
 			<div id="cy"></div>
-
 			<div id="loading-spinner-global" class="loading" style="display: none;">
 				<button id="loading-spinner-global-button" class="button is-loading is-large">
 					<span class="icon is-large">
-					<svg class="svg-inline--fa fa-italic" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="italic" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" data-fa-i2svg=""><path fill="currentColor" d="M128 64c0-17.7 14.3-32 32-32H352c17.7 0 32 14.3 32 32s-14.3 32-32 32H293.3L160 416h64c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H90.7L224 96H160c-17.7 0-32-14.3-32-32z"></path></svg>
+						<svg class="svg-inline--fa fa-italic" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="italic" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" data-fa-i2svg="">
+							<path fill="currentColor" d="M128 64c0-17.7 14.3-32 32-32H352c17.7 0 32 14.3 32 32s-14.3 32-32 32H293.3L160 416h64c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H90.7L224 96H160c-17.7 0-32-14.3-32-32z"></path>
+						</svg>
 					</span>
 				</button>
 			</div>
-			
 			<div id="viewport-buttons" class="box p-2" style="display: block; height: 260px;">
 				<div class="is-flex is-flex-direction-column is-justify-content-space-evenly">
 					<p class="control p-0">
 						<a  id="viewport-zoom-to-fit" href="#" onclick="viewportButtonsZoomToFit(event)" class="button px-4 py-4 is-smallest-element" style="outline: none;">
-							<span class="icon is-small">
-								<i class="fas fa-expand"></i> 
-							</span>
+						<span class="icon is-small">
+						<i class="fas fa-expand"></i> 
+						</span>
 						</a>
 					</p>
 					<p class="control p-0">
 						<a  id="viewport-layout" href="#" onclick="viewportButtonsLayoutAlgo(event)" class="button px-4 py-4 is-smallest-element" style="outline: none;">
-							<span class="icon is-small">
-								<i class="fas fa-circle-nodes"></i> 
-							</span>
+						<span class="icon is-small">
+						<i class="fas fa-circle-nodes"></i> 
+						</span>
 						</a>
 					</p>
 					<p class="control p-0">
 						<a  id="viewport-topology-overview" href="#" onclick="viewportButtonsTopologyOverview(event)" class="button px-4 py-4 is-smallest-element" style="outline: none;">
-							<span class="icon is-small">
-								<i class="fa-solid fa-binoculars"></i>
-							</span>
+						<span class="icon is-small">
+						<i class="fa-solid fa-binoculars"></i>
+						</span>
 						</a>
 					</p>
 					<p class="control p-0">
 						<a  id="viewport-label-endpoint" href="#" onclick="viewportButtonsLabelEndpoint()" class="button px-4 py-4 is-smallest-element" style="outline: none;">
-							<span class="icon is-small">
-								<i class="fas fa-tag"></i> 
-							</span>
+						<span class="icon is-small">
+						<i class="fas fa-tag"></i> 
+						</span>
 						</a>
 					</p>
 					<p class="control p-0">
 						<a  id="viewport-container-status-visibility" href="#" onclick="viewportButtonContainerStatusVisibility()"class="button px-4 py-4 is-smallest-element" style="outline: none;">
-							<span class="icon is-small">
-								<i class="fab fa-docker"></i> 
-							</span>
+						<span class="icon is-small">
+						<i class="fab fa-docker"></i> 
+						</span>
 						</a>
 					</p>
 					<p class="control p-0">
 						<a  id="viewport-topology-capture" href="#" onclick="viewportButtonsTopologyCapture(event)" class="button px-4 py-4 is-smallest-element" style="outline: none;">
-							<span class="icon is-small">
-								<i class="fas fa-camera"></i> 
-							</span>
+						<span class="icon is-small">
+						<i class="fas fa-camera"></i> 
+						</span>
 						</a>
 					</p>
 				</div>
 			</div>
-
 			<div id="viewport-drawer-layout" class="panel p-1 is-1 viewport-drawer" style="display: none; height: 260px; width: 300px;">
 				<div class="panel-block p-0 pb-2">
 					<div  class="column p-0 is-flex-direction-column">
@@ -115,14 +111,13 @@
 								</p>
 							</div>
 							<div class="select p-0 is-small">
-								
-								<select id="select-layout-algo" onchange="layoutAlgoChange(event)"> 
+								<select id="select-layout-algo" onchange="layoutAlgoChange(event)">
 									<option>Select Layout Algorithm</option>
-								  	<option>Force Directed</option>
-								  	<option>Vertical</option>
-								  	<option>Horizontal</option>
+									<option>Force Directed</option>
+									<option>Vertical</option>
+									<option>Horizontal</option>
 								</select>
-							  </div>								
+							</div>
 						</div>
 					</div>
 				</div>
@@ -154,7 +149,7 @@
 							<div class="buttons">
 								<button class="button is-link is-outlined is-small">Reset</button>
 								<button href="#" onclick="viewportDrawerLayoutForceDirected(event)" class="button is-link is-outlined is-small">Start</button>
-							  </div>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -186,7 +181,7 @@
 							<div class="buttons">
 								<button class="button is-link is-outlined is-small">Reset</button>
 								<button href="#" onclick="viewportDrawerLayoutVertical(event)" class="button is-link is-outlined is-small">Start</button>
-							  </div>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -218,13 +213,11 @@
 							<div class="buttons">
 								<button class="button is-link is-outlined is-small">Reset</button>
 								<button href="#" onclick="viewportDrawerLayoutHorizontal(event)" class="button is-link is-outlined is-small">Start</button>
-							  </div>
+							</div>
 						</div>
 					</div>
 				</div>
 			</div>
-
-
 			<div id="viewport-drawer-topology-overview" class="panel p-1 is-1 viewport-drawer" style="display: none; height: 260px; width: 300px;">
 				<div class="panel-block p-0 pb-2">
 					<div  class="column p-0 is-flex-direction-column">
@@ -236,7 +229,7 @@
 								<p>
 									This panel allows to search node in the topology.
 								</p>
-							</div>							
+							</div>
 						</div>
 					</div>
 				</div>
@@ -248,7 +241,7 @@
 									<div class="control has-icons-left">
 										<input class="input is-small" type="text" id="viewport-drawer-topology-overview-content-edit" placeholder="Search for nodes, links ..." />
 										<span class="icon is-flex is-align-self-auto pl-2" style="display: block; height: 25px; width: 20px;">
-											<i class="fas fa-search" aria-hidden="true"></i>
+										<i class="fas fa-search" aria-hidden="true"></i>
 										</span>
 									</div>
 								</div>
@@ -257,14 +250,13 @@
 						<div  class="panel-content">
 							<div class="columns py-auto" >
 								<div  class="column">
-									<button class="button is-link is-outlined is-small" onclick="nodeFindEvent()">Search Node</button>
+									<button class="button is-link is-outlined is-small" onclick="viewportNodeFindEvent()">Search Node</button>
 								</div>
 							</div>
 						</div>
 					</div>
 				</div>
 			</div>
-
 			<div id="viewport-drawer-capture-sceenshoot" class="panel p-1 is-1 viewport-drawer" style="display: none; height: 260px; width: 300px;">
 				<div class="panel-block p-0 pb-2">
 					<div  class="column p-0 is-flex-direction-column">
@@ -276,7 +268,7 @@
 								<p>
 									This panel allows to capture the topology screenshoot.
 								</p>
-							</div>							
+							</div>
 						</div>
 					</div>
 				</div>
@@ -289,7 +281,7 @@
 								</div>
 								<div  class="column pb-1 is-5">
 									<label class="checkbox is-size-7">
-										<input class="checkbox-input" type="checkbox" value="option01">
+									<input class="checkbox-input" type="checkbox" value="option01">
 									</label>
 								</div>
 							</div>
@@ -299,7 +291,7 @@
 								</div>
 								<div  class="column is-5">
 									<label class="checkbox is-size-7">
-										<input class="checkbox-input" type="checkbox" value="option02">
+									<input class="checkbox-input" type="checkbox" value="option02">
 									</label>			
 								</div>
 							</div>
@@ -311,16 +303,33 @@
 						<div  class="column is-12 is-flex is-justify-content-flex-end">
 							<div class="buttons">
 								<button href="#" onclick="viewportDrawerCaptureButton(event)" class="button is-link is-outlined is-small">Capture</button>
-							  </div>
+							</div>
 						</div>
 					</div>
 				</div>
-				
 			</div>
-			
-			
-			
-
+			<div class="panel is-link" id="panel-clab-editor" style="display: none;">
+				<p class="panel-heading is-size-7">Containerlab YAML Editor</p>
+				<div class="panel-tabContainer">
+					<div class="panel-block p-0">
+						<div class="column px-0">
+							<div class="column my-auto">
+								<div class="panel-content">
+									<div class="field">
+										<div class="control">
+											<input type="file" id="panel-clab-editor-file-input" class="file-input">
+											<button class="button is-link is-outlined is-small" onclick="clabEditorLoadFile()">Load YAML</button>
+											<button class="button is-link is-outlined is-small" onclick="clabEditorAddNode()">Add Node</button>
+											<button class="button is-link is-outlined is-small" id="panel-clab-editor-close-button" >Close</button>
+										</div>
+									</div>
+									<div id="panel-clab-editor-text-area" style="width:100%; height:600px;"></div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
 			<div class="panel panel-overlay is-link" id="panel-node" style="display: none;">
 				<p class="panel-heading is-size-7">Node Properties</p>
 				<div  class="panel-tabContainer">
@@ -343,21 +352,21 @@
 										<div class="column is-8 p-1 pl-3" >
 											<div class="dropdown is-hoverable">
 												<div class="dropdown-trigger">
-												  <button class="button label has-text-weight-normal is-small py-0" aria-haspopup="true" aria-controls="dropdown-menu">
+													<button class="button label has-text-weight-normal is-small py-0" aria-haspopup="true" aria-controls="dropdown-menu">
 													<span>Actions</span>
 													<span class="icon is-small">
-													  <i class="fas fa-angle-down" aria-hidden="true"></i>
+													<i class="fas fa-angle-down" aria-hidden="true"></i>
 													</span>
-												  </button>
+													</button>
 												</div>
 												<div class="dropdown-menu" id="panel-node-action-dropdown-menu" role="menu">
-												  <div class="dropdown-content">
-													<a onclick="sshWebBased(event);"       class="dropdown-item label has-text-weight-normal is-small py-0" id="panel-node-action-ssh-web-based">SSH - Launch Web-Based</a>
-													<a onclick="sshCliCommandCopy(event);" class="dropdown-item label has-text-weight-normal is-small py-0" id="panel-node-action-ssh-copy-cli-command">SSH - Copy to Clipboard</a>
-													<hr class="dropdown-divider" />
-													<a onclick="backupRestoreNodeConfig(event);" class="dropdown-item label has-text-weight-normal is-small py-0"> Backup-Restore Config </a>
-													
-												  </div>
+													<div class="dropdown-content">
+														<a onclick="sshWebBased(event);"       class="dropdown-item label has-text-weight-normal is-small py-0" id="panel-node-action-ssh-web-based">SSH - Launch Web-Based</a>
+														<a onclick="sshCliCommandCopy(event);" class="dropdown-item label has-text-weight-normal is-small py-0" id="panel-node-action-ssh-copy-cli-command">SSH - Copy to Clipboard</a>
+														<hr class="dropdown-divider" />
+														<a onclick="backupRestoreNodeConfig(event);" class="dropdown-item label has-text-weight-normal is-small py-0"> Backup-Restore Config </a>
+														<a href="#" class="dropdown-item label has-text-weight-normal is-small py-0"> Reboot </a>
+													</div>
 												</div>
 											</div>
 										</div>
@@ -436,7 +445,119 @@
 					</div>
 				</div>
 			</div>
-
+			<div class="panel is-link" id="panel-node-editor" style="display: none;">
+				<p class="panel-heading is-size-7">Node Properties Editor</p>
+				<div  class="panel-tabContainer">
+					<div  class="panel-block p-0">
+						<div  class="column px-0">
+							<div  class="column my-auto is-11">
+								<div  class="panel-content">
+									<div class="columns py-auto" >
+										<div class="column is-4 p-1"><label class="label is-size-7 has-text-right has-text-weight-medium px-auto" >Node Name</label></div>
+										<div class="column is-8 p-1 pl-3">
+											<input class="input is-size-7 has-text-left link-impairment-widht has-text-weight-normal mr-0 is-max-content" id="panel-node-editor-name"></input>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div  class="panel-block p-0">
+						<div  class="column px-0">
+							<div class="column my-auto is-11">
+								<div class="panel-content">
+									<div class="columns py-auto">
+										<div class="column is-4 p-1">
+											<label class="label is-size-7 has-text-right has-text-weight-medium px-auto">Kind</label>
+										</div>
+										<div class="column is-8 p-1 pl-3">
+											<div class="dropdown" id="panel-node-kind-dropdown">
+												<div class="dropdown-trigger">
+													<button class="button is-size-7" aria-haspopup="true" aria-controls="dropdown-menu">
+													<span>Select Kind</span>
+													<span class="icon is-small">
+													<i class="fas fa-angle-down" aria-hidden="true"></i>
+													</span>
+													</button>
+												</div>
+												<div class="dropdown-menu" id="dropdown-menu" role="menu">
+													<div class="dropdown-content" id="panel-node-kind-dropdown-content">
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="column my-auto is-11">
+								<div class="panel-content">
+									<div class="columns py-auto">
+										<div class="column is-4 p-1">
+											<label class="label is-size-7 has-text-right has-text-weight-medium px-auto">TopoViewer Role</label>
+										</div>
+										<div class="column is-8 p-1 pl-3">
+											<div class="dropdown" id="panel-node-topoviewerrole-dropdown">
+												<div class="dropdown-trigger">
+													<button class="button is-size-7" aria-haspopup="true" aria-controls="dropdown-menu">
+													<span>Select TopoViewerRole</span>
+													<span class="icon is-small">
+													<i class="fas fa-angle-down" aria-hidden="true"></i>
+													</span>
+													</button>
+												</div>
+												<div class="dropdown-menu" id="dropdown-menu-topoviewerrole" role="menu">
+													<div class="dropdown-content" id="panel-node-topoviewerrole-dropdown-content">
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div  class="column my-auto is-11">
+								<div  class="panel-content">
+									<div class="columns py-auto" >
+										<div  class="column is-4 p-1"><label class="label is-size-7 has-text-right has-text-weight-medium px-auto" >Id</label></div>
+										<div class="column is-8 p-1 pl-3" ><label class="label is-size-7 has-text-left link-impairment-widht has-text-weight-normal mr-0 is-max-content" id="panel-node-editor-id"></label></div>
+									</div>
+								</div>
+							</div>
+							<div  class="column my-auto is-11">
+								<div  class="panel-content">
+									<div class="columns py-auto" >
+										<div  class="column is-4 p-1"><label class="label is-size-7 has-text-right has-text-weight-medium px-auto" >Image</label></div>
+										<div class="column is-8 p-1 pl-3" ><input class="input is-size-7 has-text-left link-impairment-widht has-text-weight-normal mr-0 is-max-content" id="panel-node-editor-image"></input></div>
+									</div>
+								</div>
+							</div>
+							<div  class="column my-auto is-11">
+								<div  class="panel-content">
+									<div class="columns py-auto" >
+										<div  class="column is-4 p-1"><label class="label is-size-7 has-text-right has-text-weight-medium px-auto" >Group</label></div>
+										<div class="column is-8 p-1 pl-3" ><input class="input is-size-7 has-text-left link-impairment-widht has-text-weight-normal mr-0 is-max-content" id="panel-node-editor-group"></input></div>
+									</div>
+								</div>
+							</div>
+							<div  class="column my-auto is-11">
+								<div  class="panel-content">
+									<div class="columns py-auto" >
+										<div class="column is-4 p-1"></div>
+										<div class="column is-8 p-1 pl-3" >
+											<div class="field">
+												<div class="control">
+													<input type="file" id="panel-clab-editor-file-input" class="file-input">
+													<button class="button is-link is-outlined is-small" onclick="saveNodeToEditorToFile()">Save</button>
+													<button class="button is-link is-outlined is-small" id="panel-node-editor-close-button" >Close</button>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
 			<div class="panel panel-overlay is-link" id="panel-link" style="display: none;">
 				<p class="panel-heading is-size-7">Link Properties</p>
 				<div  class="panel-tabContainer">
@@ -459,22 +580,20 @@
 										<div class="column is-8 p-1 pl-3" >
 											<div class="dropdown is-hoverable">
 												<div class="dropdown-trigger">
-												<button class="button label has-text-weight-normal is-small py-0" aria-haspopup="true" aria-controls="dropdown-menu">
+													<button class="button label has-text-weight-normal is-small py-0" aria-haspopup="true" aria-controls="dropdown-menu">
 													<span>Actions</span>
 													<span class="icon is-small">
 													<i class="fas fa-angle-down" aria-hidden="true"></i>
 													</span>
-												</button>
+													</button>
 												</div>
 												<div class="dropdown-menu" id="panel-link-action-dropdown-menu" role="menu">
 													<div class="dropdown-content">
-														<a onclick="linkImpairmentClab(event, 'a-to-b');" class="dropdown-item label has-text-weight-normal is-small py-0" id="panel-link-action-impairment-A->B">Apply Impairment</a>
+														<a onclick="linkImpairmentClab(event, 'a-to-b');" class="dropdown-item label has-text-weight-normal is-small py-0" id="panel-link-action-impairment-A->B">Apply Impairment</a>						
 														<hr class="dropdown-divider" />
-														<!-- <a onclick="linkWireshark(event, 'app', 'source');" class="dropdown-item label has-text-weight-normal is-small py-0"> Wireshark A - Launch App </a> -->
 														<a onclick="linkWireshark(event, 'edgeShark', 'source');" class="dropdown-item label has-text-weight-normal is-small py-0">Wireshark A - Launch EdgeShark</a>
 														<a onclick="linkWireshark(event, 'copy', 'source');" class="dropdown-item label has-text-weight-normal is-small py-0">Wireshark A - Copy to Clipboard</a>
 														<hr class="dropdown-divider" />
-														<!-- <a onclick="linkWireshark(event, 'app', 'target');" class="dropdown-item label has-text-weight-normal is-small py-0"> Wireshark B - Launch App </a> -->
 														<a onclick="linkWireshark(event, 'edgeShark', 'target');" class="dropdown-item label has-text-weight-normal is-small py-0">Wireshark B - Launch EdgeShark</a>
 														<a onclick="linkWireshark(event, 'copy', 'target');" class="dropdown-item label has-text-weight-normal is-small py-0">Wireshark B - Copy to Clipboard</a>
 													</div>
@@ -570,8 +689,6 @@
 							</div>
 						</div>
 					</panel-block-impairment-a-b>
-
-
 					<panel-block-impairment-b-a  class="panel-block p-0" id="panel-block-impairment-b-a">
 						<div  class="column px-0">
 							<div  class="column my-auto is-11">
@@ -618,7 +735,6 @@
 					</panel-block-impairment-b-a>
 				</div>
 			</div>
-
 			<div class="panel panel-overlay is-link" id="panel-backup-restore" style="display: none;">
 				<p class="panel-heading is-size-7" id="diff-panel-title">Diff</p>
 				<div>
@@ -632,7 +748,9 @@
 											<p class="control has-icons-left">
 												<input class="input is-link is-size-7" type="text" placeholder="Search" id="search-input">
 												<span class="icon is-flex is-align-self-auto pl-2" style="display: block; height: 25px; width: 20px;">
-													<svg class="svg-inline--fa fa-magnifying-glass" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="magnifying-glass" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z"></path></svg>
+													<svg class="svg-inline--fa fa-magnifying-glass" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="magnifying-glass" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg="">
+														<path fill="currentColor" d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z"></path>
+													</svg>
 												</span>
 											</p>
 										</div>
@@ -646,10 +764,10 @@
 									<div class="label is-size-7">Saved Config</div>
 									<p class="control is-flex">
 										<button class="button is-small is-link is-outlined" id="buttonRestoreConfig">
-											<span>Restore</span>
-											<span class="icon is-small">
-												<i class="fa-solid fa-arrow-right"></i>
-											</span>
+										<span>Restore</span>
+										<span class="icon is-small">
+										<i class="fa-solid fa-arrow-right"></i>
+										</span>
 										</button>
 									</p>
 								</div>
@@ -657,12 +775,11 @@
 									<div class="label label is-size-7">Running Config</div>
 									<p class="buttons is-flex">
 										<button class="button is-small is-link is-outlined" id="buttonBackupConfig">
-											<span>Backup</span>
-											<span class="icon is-small">
-												<i class="fa-solid fa-arrow-left"></i>
-											</span>
+										<span>Backup</span>
+										<span class="icon is-small">
+										<i class="fa-solid fa-arrow-left"></i>
+										</span>
 										</button>
-										
 									</p>
 								</div>
 							</div>
@@ -671,14 +788,15 @@
 					</div>
 					<div id="loading-spinner" class="loading" style="display: none;">
 						<button id="loading-spinner-global-button" class="button is-loading is-large is-dark">
-						<span class="icon is-small">
-						<svg class="svg-inline--fa fa-italic" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="italic" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" data-fa-i2svg=""><path fill="currentColor" d="M128 64c0-17.7 14.3-32 32-32H352c17.7 0 32 14.3 32 32s-14.3 32-32 32H293.3L160 416h64c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H90.7L224 96H160c-17.7 0-32-14.3-32-32z"></path></svg>
-						</span>
+							<span class="icon is-small">
+								<svg class="svg-inline--fa fa-italic" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="italic" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" data-fa-i2svg="">
+									<path fill="currentColor" d="M128 64c0-17.7 14.3-32 32-32H352c17.7 0 32 14.3 32 32s-14.3 32-32 32H293.3L160 416h64c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H90.7L224 96H160c-17.7 0-32-14.3-32-32z"></path>
+								</svg>
+							</span>
 						</button>
-					</div>		
-				</div>		
+					</div>
+				</div>
 			</div>
-
 			<div class="panel panel-overlay is-link" id="panel-introduction" style="display: block;">
 				<p class="panel-heading is-size-7">Introduction</p>
 				<div id="tabContainer-" class="panel-tabContainer">
@@ -719,7 +837,6 @@
 					</div>
 				</div>
 			</div>
-
 			<div class="panel is-link" id="panel-log-messages" style="display: none;">
 				<p class="panel-heading is-size-7">Log Messages</p>
 				<div class="panel-block py-2 px-2">
@@ -732,7 +849,6 @@
 					</div>
 				</div>
 			</div>
-
 			<div class="panel panel-overlay is-link" id="panel-topoviewer-helper" style="display: none;">
 				<p class="panel-heading is-size-7">TopoViewer Helper App</p>
 				<div id="tabContainer-" class="panel-tabContainer">
@@ -740,14 +856,12 @@
 						<div id="panelBlock-tabContainer--divPanelBlock" class="column p-0">
 							<div class="px-2" style="max-height: 280px; overflow-y: auto;">
 								<div class="content is-small pb-2" id="panel-topoviewer-helper-content">
-									
 								</div>
 							</div>
 						</div>
 					</div>
 				</div>
 			</div>
-
 			<div class="panel panel-overlay is-link" id="panel-topoviewer-about" style="display: none;">
 				<p class="panel-heading is-size-7">TopoViewer About</p>
 				<div id="tabContainer-" class="panel-tabContainer">
@@ -755,14 +869,12 @@
 						<div id="panelBlock-tabContainer--divPanelBlock" class="column p-0">
 							<div class="px-2" style="max-height: 280px; overflow-y: auto;">
 								<div class="content is-small pb-2" id="panel-topoviewer-about-content">
-									
 								</div>
 							</div>
 						</div>
 					</div>
 				</div>
 			</div>
-
 			<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.10.0/lodash.min.js"></script>
 			<script src="https://unpkg.com/webcola@3.3.8/WebCola/cola.min.js"></script>
 			<script src="https://unpkg.com/popper.js@1.14.4/dist/umd/popper.js"></script>
@@ -771,14 +883,11 @@
 			<script src="https://unpkg.com/cytoscape-cola@2.2.3/cytoscape-cola.js"></script>
 			<script src="https://unpkg.com/cytoscape-popper@1.0.2/cytoscape-popper.js"></script>
 			<script src="https://cdn.jsdelivr.net/npm/cytoscape-grid-guide@2.3.3/cytoscape-grid-guide.min.js"></script>
-			
-			
 			<script src="https://cdn.jsdelivr.net/npm/cytoscape-edgehandles/cytoscape-edgehandles.min.js"></script>
-			<script src="js/index.js?ver=1"></script>
-
+			<script src="js/dev.js?ver=1"></script>
 			<script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.50.0/min/vs/loader.js"></script>
-
 			<script src="/js/backupRestore.js?ver=1"></script>
+			<script src="/js/clabEditor.js?ver=1"></script>
 			<script src="/js/common.js?ver=1"></script>
 		</div>
 	</body>

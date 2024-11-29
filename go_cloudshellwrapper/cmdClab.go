@@ -974,7 +974,7 @@ func Clab(_ *cobra.Command, _ []string) error {
 
 	// Separate handler for node-backup-restore files endpoint
 	router.HandleFunc("/files", func(w http.ResponseWriter, r *http.Request) {
-		clabHandlers.FilesHandler(w, r, &cyTopo, HtmlPublicPrefixPath, clabHostUsername, clabHostUsername)
+		clabHandlers.FilesHandler(w, r, &cyTopo, HtmlPublicPrefixPath, clabHostUsername, clabHostUsername, deploymentType)
 	}).Methods("GET")
 
 	// Separate handler for node-backup-restorefile endpoint
@@ -1063,13 +1063,17 @@ func Clab(_ *cobra.Command, _ []string) error {
 	os.Mkdir(HtmlPublicPrefixPath+cyTopo.ClabTopoDataV2.Name+"/ws", 0755)
 	os.Mkdir(HtmlPublicPrefixPath+cyTopo.ClabTopoDataV2.Name+"/node-backup", 0755)
 
+	topoClabYamlAddon := path.Join(workingDirectory, HtmlPublicPrefixPath+cyTopo.ClabTopoDataV2.Name+"/clab-topo-yaml-addon.yaml")
+
+	tools.CopyFile(topoClabYaml, topoClabYamlAddon)
+
 	indexHtmldata := IndexHtmlStruct{
 		LabName:        cyTopo.ClabTopoDataV2.Name,
 		DeploymentType: deploymentType,
 	}
 
 	createHtmlPublicFiles(HtmlTemplatePath, HtmlPublicPrefixPath, "websocket-index.tmpl", cyTopo.ClabTopoDataV2.Name+"/ws/"+"index.html", indexHtmldata)
-	createHtmlPublicFiles(HtmlTemplatePath, HtmlPublicPrefixPath, "button.html.tmpl", cyTopo.ClabTopoDataV2.Name+"/"+"button.html", indexHtmldata)
+	createHtmlPublicFiles(HtmlTemplatePath, HtmlPublicPrefixPath, "dev.html.tmpl", cyTopo.ClabTopoDataV2.Name+"/"+"dev.html", indexHtmldata)
 	createHtmlPublicFiles(HtmlTemplatePath, HtmlPublicPrefixPath, "index.html.tmpl", cyTopo.ClabTopoDataV2.Name+"/"+"index.html", indexHtmldata)
 
 	// start memory logging pulse

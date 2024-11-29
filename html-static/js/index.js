@@ -19,11 +19,16 @@ var deploymentType
 
 document.addEventListener("DOMContentLoaded", async function() {
 
+
     detectColorScheme() 
 
     await changeTitle()
 
+    initializeDropdownTopoViewerRoleListeners();
 
+    initializeDropdownListeners();
+
+    
     // Reusable function to initialize a WebSocket connection
     function initializeWebSocket(url, onMessageCallback) {
         const protocol = location.protocol === "https:" ? "wss://" : "ws://";
@@ -87,13 +92,6 @@ document.addEventListener("DOMContentLoaded", async function() {
                 const IPAddress = JSON.parse(msgContainerNodeStatus.data).Networks.Networks.clab.IPAddress;
                 const GlobalIPv6Address= JSON.parse(msgContainerNodeStatus.data).Networks.Networks.clab.GlobalIPv6Address
 
-                // console.log("IPAddress: ",JSON.parse(msgContainerNodeStatus.data).Networks.Networks.clab.IPAddress);
-                // console.log("IPPrefixLen: ",JSON.parse(msgContainerNodeStatus.data).Networks.Networks.clab.IPPrefixLen);
-
-                // console.log("GlobalIPv6Address: ",JSON.parse(msgContainerNodeStatus.data).Networks.Networks.clab.GlobalIPv6Address);
-                // console.log("GlobalIPv6PrefixLen: ",JSON.parse(msgContainerNodeStatus.data).Networks.Networks.clab.GlobalIPv6PrefixLen);
-
-
 
                 setNodeDataWithContainerAttribute(Names, Status, State, IPAddress, GlobalIPv6Address);
 
@@ -116,6 +114,122 @@ document.addEventListener("DOMContentLoaded", async function() {
         }, ],
     });
 
+
+    // // Initialize cytoscape-edgehandles plugin
+    // cytoscape.use(cytoscapeEdgehandles);
+
+    // Initialize edgehandles with configuration
+    const eh = cy.edgehandles({
+        // Enable preview of edge before finalizing
+        preview: false,
+        hoverDelay: 50, // time spent hovering over a target node before it is considered selected
+        snap: false, // when enabled, the edge can be drawn by just moving close to a target node (can be confusing on compound graphs)
+        snapThreshold: 10, // the target node must be less than or equal to this many pixels away from the cursor/finger
+        snapFrequency: 150, // the number of times per second (Hz) that snap checks done (lower is less expensive)
+        noEdgeEventsInDraw: false, // set events:no to edges during draws, prevents mouseouts on compounds
+        disableBrowserGestures: false, // during an edge drawing gesture, disable browser gestures such as two-finger trackpad swipe and pinch-to-zoom
+        canConnect: function( sourceNode, targetNode ){
+            // whether an edge can be created between source and target
+            return !sourceNode.same(targetNode) && !sourceNode.isParent() && !targetNode.isParent(); 
+        },
+        edgeParams: function( sourceNode, targetNode ){
+            // for edges between the specified source and target
+            // return element object to be passed to cy.add() for edge
+            return {};
+        },
+    });
+
+    // Enable edgehandles functionality
+    eh.enable();
+
+    let isEdgeHandlerActive = false; // Flag to track if edge handler is active
+
+
+ 
+    cy.on('ehcomplete', (event, sourceNode, targetNode, addedEdge) => {
+        console.log(`Edge created from ${sourceNode.id()} to ${targetNode.id()}`);
+        console.log("Added edge:", addedEdge);
+
+        // Reset the edge handler flag after a short delay
+        setTimeout(() => {
+            isEdgeHandlerActive = false;
+        }, 100); // Adjust delay as needed
+        
+        // Get the ID of the added edge
+        const edgeId = addedEdge.id(); // Extracts the edge ID
+        
+        // Helper function to get the next available endpoint with pattern detection
+        function getNextEndpoint(nodeId, isSource) {
+            const edges = cy.edges(`[${isSource ? 'source' : 'target'} = "${nodeId}"]`);
+            const e1Pattern = /^e1-(\d+)$/;
+            const ethPattern = /^eth(\d+)$/;
+            let maxEndpoint = 0;
+            let selectedPattern = e1Pattern; // Default to e1- pattern
+
+            edges.forEach(edge => {
+                const endpoint = edge.data(isSource ? "sourceEndpoint" : "targetEndpoint");
+                let match = endpoint ? endpoint.match(e1Pattern) : null;
+                if (match) {
+                    // If endpoint matches e1- pattern
+                    const endpointNum = parseInt(match[1], 10);
+                    if (endpointNum > maxEndpoint) {
+                        maxEndpoint = endpointNum;
+                    }
+                } else {
+                    // If endpoint doesn't match e1-, try eth pattern
+                    match = endpoint ? endpoint.match(ethPattern) : null;
+                    if (match) {
+                        // Switch to eth pattern if detected
+                        selectedPattern = ethPattern;
+                        const endpointNum = parseInt(match[1], 10);
+                        if (endpointNum > maxEndpoint) {
+                            maxEndpoint = endpointNum;
+                        }
+                    }
+                }
+            });
+
+            // Increment max endpoint found and format based on selected pattern
+            return selectedPattern === e1Pattern
+                ? `e1-${maxEndpoint + 1}`
+                : `eth${maxEndpoint + 1}`;
+        }
+
+        // Calculate next available source and target endpoints
+        const sourceEndpoint = getNextEndpoint(sourceNode.id(), true);
+        const targetEndpoint = getNextEndpoint(targetNode.id(), false);
+
+        // Add calculated endpoints to the edge data
+        addedEdge.data('sourceEndpoint', sourceEndpoint);
+        addedEdge.data('targetEndpoint', targetEndpoint);
+
+        // Save the edge element to file in the server
+        saveEdgeToFile(edgeId);
+
+        // Save the edge element to clab editor panel
+        clabEditorAddEdge(sourceNode, sourceEndpoint, targetNode, targetEndpoint);
+    });
+    
+    async function saveEdgeToFile(edgeId) {
+        const edgeData = cy.$id(edgeId).json(); // Get JSON data of the edge with the specified ID
+        const endpointName = '/clab-save-topo-cyto-json';
+    
+        try {
+            // Send the enhanced edge data directly without wrapping it in an object
+            const response = await sendRequestToEndpointPost(endpointName, [edgeData]);
+            console.log('Edge data saved successfully', response);
+        } catch (error) {
+            console.error('Failed to save edge data:', error);
+        }
+    }
+    
+    
+
+    // cy.on('remove', 'edge', () => {
+    //     saveEdgeToFile();
+    // });
+      
+      
 
     loadCytoStyle();
 
@@ -209,9 +323,8 @@ document.addEventListener("DOMContentLoaded", async function() {
     });
 
     // Fetch and load element data from a JSON file
+    // Main Version EDITOR
     fetch("dataCytoMarshall.json")
-    // fetch("")
-
 
         .then((response) => response.json())
         .then((elements) => {
@@ -237,7 +350,6 @@ document.addEventListener("DOMContentLoaded", async function() {
         .catch((error) => {
             console.error("Error loading graph data:", error);
         });
-
     // Instantiate hover text element
     const hoverText = document.createElement("box");
     hoverText.classList.add(
@@ -251,13 +363,27 @@ document.addEventListener("DOMContentLoaded", async function() {
     hoverText.textContent = "Launch CloudShell.";
     document.body.appendChild(hoverText);
 
+
+    
+    let shiftKeyDown = false;
+
+    // Detect when Shift is pressed or released
+    document.addEventListener('keydown', (event) => {
+    if (event.key === 'Shift') {
+        shiftKeyDown = true;
+    }
+    });
+
+    document.addEventListener('keyup', (event) => {
+    if (event.key === 'Shift') {
+        shiftKeyDown = false;
+    }
+    });
+
+
     //- Toggle the Panel(s) when clicking on the cy container
     //- Toggle the Panel(s) when clicking on the cy container
     document.getElementById("cy").addEventListener("click", function(event) {
-        //- This code will be executed when you click anywhere in the Cytoscape container
-        //- You can add logic specific to the container here
-        //- This code will be executed when you click anywhere in the Cytoscape container
-        //- You can add logic specific to the container here
 
         console.log("cy container clicked");
 
@@ -266,16 +392,30 @@ document.addEventListener("DOMContentLoaded", async function() {
         console.log("edgeClicked: ", edgeClicked);
 
 
+        //- This code will be executed when you click anywhere in the Cytoscape container
+        //- You can add logic specific to the container here
+        //- This code will be executed when you click anywhere in the Cytoscape container
+        //- You can add logic specific to the container here
+
         loadCytoStyle();
 
         if (!nodeClicked && !edgeClicked) {
+
+            console.log("!nodeClicked  -- !edgeClicked");
+
             if (!isPanel01Cy) {
+
+                console.log("!isPanel01Cy: ");
 
                 // Remove all Overlayed Panel
                 // Get all elements with the class "panel-overlay"
                 var panelOverlays = document.getElementsByClassName("panel-overlay");
+
+                console.log("panelOverlays: ", panelOverlays);
+
                 // Loop through each element and set its display to 'none'
                 for (var i = 0; i < panelOverlays.length; i++) {
+                    console.log
                     panelOverlays[i].style.display = "none";
                 }
 
@@ -285,7 +425,6 @@ document.addEventListener("DOMContentLoaded", async function() {
                     viewportDrawer[i].style.display = "none";
                 }
 
-                // display none each ViewPortDrawer Element, the ViewPortDrawer is created during DOM loading and styled as display node initially
                 // display none each ViewPortDrawer Element, the ViewPortDrawer is created during DOM loading and styled as display node initially
                 var ViewPortDrawerElements =
                     document.getElementsByClassName("ViewPortDrawer");
@@ -304,52 +443,118 @@ document.addEventListener("DOMContentLoaded", async function() {
 
         appendMessage(`"isPanel01Cy-cy: " ${isPanel01Cy}`);
         appendMessage(`"nodeClicked: " ${nodeClicked}`);
+
+        
     });
 
-    // Click event listener for nodes
+    // Listen for tap or click on the Cytoscape canvas
+    cy.on('click', async (event) => {
+        if (event.target === cy && shiftKeyDown) { // Ensures Shift + click/tap 
+
+            const pos = event.position;
+            const newNodeId = 'nodeId-' + (cy.nodes().length + 1);
+
+            // Add the new node to the graph
+            cy.add({
+                group: 'nodes',
+                data: 
+                {
+                    "id": newNodeId,
+                    "editor": "true",
+                    "weight": "30",
+                    "name": newNodeId,
+                    "parent": "",
+                    "topoViewerRole": "pe",
+                    "sourceEndpoint": "",
+                    "targetEndpoint": "",
+                    "containerDockerExtraAttribute": {
+                        "state": "",
+                        "status": "",
+                    },
+                    "extraData": {
+                        "kind": "container",
+                        "longname": "",
+                        "image": "",
+                        "mgmtIpv4Addresss": "",
+                    },
+                },
+                position: { x: pos.x, y: pos.y }
+            });
+
+            var cyNode = cy.$id(newNodeId); // Get cytoscpe node object id
+            
+
+            await showPanelContainerlabEditor(event)
+            // sleep (1000)
+            await showPanelNodeEditor(cyNode)
+            // sleep (100)
+            await saveNodeToEditorToFile()
+        }
+    });
+    
     // Click event listener for nodes
     cy.on("click", "node", function(event) {
-        // This code will be executed when you click on a node
-        // This code will be executed when you click on a node
+        console.log("isEdgeHandlerActive after node click: ", isEdgeHandlerActive);
+    
+        // Ignore the click event if edge handler is active
+        if (isEdgeHandlerActive) {
+            return;
+        }
+    
         const node = event.target;
         nodeClicked = true;
-
+    
         if (!node.isParent()) {
+            // if (event.originalEvent.shiftKey && (document.getElementById("panel-clab-editor").style.display != "none")) { // Start edge creation on Shift + Click and the clab editor panel is open
+            if (event.originalEvent.shiftKey) { // Start edge creation on Shift
 
-            // Remove all Overlayed Panel
-            // Get all elements with the class "panel-overlay"
-            var panelOverlays = document.getElementsByClassName("panel-overlay");
-            // Loop through each element and set its display to 'none'
-            for (var i = 0; i < panelOverlays.length; i++) {
-                panelOverlays[i].style.display = "none";
-            }
+                console.log("Shift + Click");
+                console.log("edgeHandler Node: ", node.data("extraData").longname);
+    
+                // Set the edge handler flag
+                isEdgeHandlerActive = true;
+    
+                // Start the edge handler from the clicked node
+                eh.start(node);
 
-            console.log(node)
-            console.log(node.data("containerDockerExtraAttribute").status)
-            console.log(node.data("extraData"))
 
-            if (document.getElementById("panel-node").style.display === "none") {
-                document.getElementById("panel-node").style.display = "block";
             } else {
-                document.getElementById("panel-node").style.display = "none";
+                if (node.data("editor") === "true") {
+                    console.log("Node is an editor node");
+                    showPanelNodeEditor(node)
+                } else {
+                    // Remove all Overlayed Panel
+                    const panelOverlays = document.getElementsByClassName("panel-overlay");
+                    for (let i = 0; i < panelOverlays.length; i++) {
+                        panelOverlays[i].style.display = "none";
+                    }
+                    console.log(node);
+                    console.log(node.data("containerDockerExtraAttribute").status);
+                    console.log(node.data("extraData"));
+                    if (document.getElementById("panel-node").style.display === "none") {
+                        document.getElementById("panel-node").style.display = "block";
+                    } else {
+                        document.getElementById("panel-node").style.display = "none";
+                    }
+        
+                    document.getElementById("panel-node-name").textContent = node.data("extraData").longname;
+                    document.getElementById("panel-node-status").textContent = node.data("containerDockerExtraAttribute").status;
+                    document.getElementById("panel-node-kind").textContent = node.data("extraData").kind;
+                    document.getElementById("panel-node-image").textContent = node.data("extraData").image;
+                    document.getElementById("panel-node-mgmtipv4").textContent = node.data("extraData").mgmtIpv4Addresss;
+                    document.getElementById("panel-node-mgmtipv6").textContent = node.data("extraData").mgmtIpv6Address;
+                    document.getElementById("panel-node-fqdn").textContent = node.data("extraData").fqdn;
+                    document.getElementById("panel-node-group").textContent = node.data("extraData").group;
+                    document.getElementById("panel-node-topoviewerrole").textContent = node.data("topoViewerRole");
+        
+                    // Set selected node-long-name to global variable
+                    globalSelectedNode = node.data("extraData").longname;
+                    console.log("internal: ", globalSelectedNode);
+        
+                    appendMessage(`"isPanel01Cy-cy: " ${isPanel01Cy}`);
+                    appendMessage(`"nodeClicked: " ${nodeClicked}`);
+                }
             }
-
-            document.getElementById("panel-node-name").textContent = node.data("extraData").longname
-            document.getElementById("panel-node-status").textContent = node.data("containerDockerExtraAttribute").status
-            document.getElementById("panel-node-kind").textContent = node.data("extraData").kind
-            document.getElementById("panel-node-image").textContent = node.data("extraData").image
-            document.getElementById("panel-node-mgmtipv4").textContent = node.data("extraData").mgmtIpv4Addresss
-            document.getElementById("panel-node-mgmtipv6").textContent = node.data("extraData").mgmtIpv6Address
-            document.getElementById("panel-node-fqdn").textContent = node.data("extraData").fqdn
-            document.getElementById("panel-node-group").textContent = node.data("extraData").group
-            document.getElementById("panel-node-topoviewerrole").textContent = node.data("topoViewerRole")
-
-            // set selected node-long-name to global variable
-            globalSelectedNode = node.data("extraData").longname
-            console.log("internal: ", globalSelectedNode)
-
-            appendMessage(`"isPanel01Cy-cy: " ${isPanel01Cy}`);
-            appendMessage(`"nodeClicked: " ${nodeClicked}`);
         }
     });
 
@@ -382,11 +587,6 @@ document.addEventListener("DOMContentLoaded", async function() {
                 edge.style("line-color", defaultEdgeColor);
             }
         });
-
-
-
-
-
 
         document.getElementById("panel-link").style.display = "none";
 
@@ -674,6 +874,7 @@ document.addEventListener("DOMContentLoaded", async function() {
         appendMessage("Info: " + `Nice! Node "${nodeName}" added successfully.`);
     }
 
+    
 
     function zoomToFitDrawer() {
         const initialZoom = cy.zoom();
@@ -1329,15 +1530,17 @@ async function linkWireshark(event, option, endpoint) {
             if (endpoint == "source") {
                 baseUrl = `packetflix:ws://${clabServerAddress}:5001/capture?`;
                 urlParams = `container={"network-interfaces":["${clabSourcePort}"],"name":"${clabSourceLongName.toLocaleLowerCase()}","type":"docker","prefix":""}&nif=${clabSourcePort}`;
-
                 edgeSharkHref = baseUrl + urlParams;
-
                 console.log("linkWireshark - edgeSharkHref: ", edgeSharkHref)
+                window.open(edgeSharkHref);
 
+            } else if (endpoint == "target") {
+                baseUrl = `packetflix:ws://${clabServerAddress}:5001/capture?`;
+                urlParams = `container={"network-interfaces":["${clabTargetPort}"],"name":"${clabTargetLongName.toLocaleLowerCase()}","type":"docker","prefix":""}&nif=${clabTargetPort}`;
+                edgeSharkHref = baseUrl + urlParams;
+                console.log("linkWireshark - edgeSharkHref: ", edgeSharkHref)
                 window.open(edgeSharkHref);
             }
-            
-
 
         } else if (option == "copy") {
             if (endpoint == "source") {
@@ -1395,6 +1598,8 @@ document.getElementById("panel-log-messages-close-button").addEventListener("cli
     document.getElementById("panel-log-messages").style.display = "none";
 });
 
+
+
 async function showPanelTopoViewerClient(event) {
     // Remove all Overlayed Panel
     // Get all elements with the class "panel-overlay"
@@ -1410,18 +1615,8 @@ async function showPanelTopoViewerClient(event) {
     clabServerAddress = environments["clab-server-address"]
     clabServerPort = environments["clab-server-port"]
 
-    // hrefWindows = `http://${clabServerAddress}:${clabServerPort}/clab-client/clab-client-windows/ClabCapture.app.zip`
-    // hrefMac = `http://${clabServerAddress}:${clabServerPort}/clab-client/clab-client-mac/ClabCapture.app.zip`
-    // hrefMac = `http://${clabServerAddress}:${clabServerPort}/clab-client/clab-client-mac/paketFlix.zip`
-
-    // <p>
-    // Please download the following helper app:
-    // </p>
-    // <ul>
-    //     <li><a href="${hrefWindows}">Windows version</a> </li>
-    //     <li><a href="${hrefMac}">MAC version</a> </li>
-    // </ul>
-
+    hrefWindows = `http://${clabServerAddress}:${clabServerPort}/clab-client/clab-client-windows/ClabCapture.app.zip`
+    hrefMac = `http://${clabServerAddress}:${clabServerPort}/clab-client/clab-client-mac/ClabCapture.app.zip`
 
     document.getElementById("panel-topoviewer-helper").style.display = "block";
 
@@ -1430,6 +1625,8 @@ async function showPanelTopoViewerClient(event) {
             <p>
                 TopoViewer offers a remote capture feature for intercepting Containerlab node endpoints with the help from EdgeShark. 
                 For the best experience, it's recommended to have both TopoViewer and its EdgeShark's helper app (packetflix) installed on client-side. 
+            </p>
+            <p>
                 please refer to this link https://containerlab.dev/manual/wireshark/#edgeshark-integration for more information on how to install the helper app.
                 With the TopoViewer helper app, you can effortlessly automate the launch of Wireshark's GUI. 
             </p>
@@ -1522,7 +1719,7 @@ async function getActualNodesEndpoints(event) {
         );
 
         showLoadingSpinnerGlobal()
-        const CyTopoJson = await  sendRequestToEndpointGet("/actual-nodes-endpoints", argsList = []) 
+        const CyTopoJson = await  sendRequestToEndpointGetV2("/actual-nodes-endpoints", argsList = []) 
         location.reload(true);
 
         // Handle the response data
@@ -1531,8 +1728,6 @@ async function getActualNodesEndpoints(event) {
             console.log("Valid non-empty JSON response received:", CyTopoJson);
 
             hideLoadingSpinnerGlobal();
-
-
 
             return CyTopoJson
         
@@ -1571,7 +1766,57 @@ function viewportButtonsLayoutAlgo() {
 }
 
 
-
+function viewportNodeFindEvent(event) {
+    //- Get a reference to your Cytoscape instance (assuming it's named 'cy')
+    //- const cy = window.cy; //- Replace 'window.cy' with your actual Cytoscape instance
+    //- Find the node with the specified name
+    //- Get a reference to your Cytoscape instance (assuming it's named 'cy')
+    //- const cy = window.cy; //- Replace 'window.cy' with your actual Cytoscape instance
+    //- Find the node with the specified name
+    const nodeName = document.getElementById("nodeFindInput").value;
+    const node = cy.$(`node[name = "${nodeName}"]`);
+    //- Check if the node exists
+    //- Check if the node exists
+    if (node.length > 0) {
+        // console
+        // console
+        console.log("Info: " + 'Sweet! Node "' + nodeName + '" is in the house.');
+        appendMessage("Info: " + 'Sweet! Node "' + nodeName + '" is in the house.');
+        //- Apply a highlight style to the node
+        //- Apply a highlight style to the node
+        node.style({
+            "border-color": "red",
+            "border-width": "2px",
+            "background-color": "yellow",
+        });
+        //- Zoom out on the node
+        //- Zoom out on the node
+        cy.fit();
+        //- Zoom in on the node
+        //- Zoom in on the node
+        cy.animate({
+            zoom: {
+                level: 5,
+                position: {
+                    x: node.position("x"),
+                    y: node.position("y"),
+                },
+                renderedPosition: {
+                    x: node.renderedPosition("x"),
+                    y: node.renderedPosition("y"),
+                },
+            },
+            duration: 1500,
+        });
+    } else {
+        console.error(
+            `Bro, I couldn't find a node named "${nodeName}". Try another one.`,
+        );
+        appendMessage(
+            `Bro, I couldn't find a node named "${nodeName}". Try another one.`,
+        );
+    }
+}
 
 async function layoutAlgoChange(event) {
 
@@ -1943,9 +2188,6 @@ function viewportDrawerCaptureButton() {
 
     console.log ("viewportDrawerCaptureButton() - clicked")
 
-
-
-
         // Get all checkbox inputs within the specific div
         const checkboxes = document.querySelectorAll('#viewport-drawer-capture-sceenshoot-content .checkbox-input');
         
@@ -1990,100 +2232,42 @@ function viewportDrawerCaptureButton() {
     
 }
 
-
-function nodeFindEvent(event) {
-    //- Get a reference to your Cytoscape instance (assuming it's named 'cy')
-    //- const cy = window.cy; //- Replace 'window.cy' with your actual Cytoscape instance
-    //- Find the node with the specified name
-    //- Get a reference to your Cytoscape instance (assuming it's named 'cy')
-    //- const cy = window.cy; //- Replace 'window.cy' with your actual Cytoscape instance
-    //- Find the node with the specified name
-    const nodeName = document.getElementById("viewport-drawer-topology-overview-content-edit").value;
-    const node = cy.$(`node[name = "${nodeName}"]`);
-    //- Check if the node exists
-    //- Check if the node exists
-    if (node.length > 0) {
-        // console
-        // console
-        console.log("Info: " + 'Sweet! Node "' + nodeName + '" is in the house.');
-        appendMessage("Info: " + 'Sweet! Node "' + nodeName + '" is in the house.');
-        //- Apply a highlight style to the node
-        //- Apply a highlight style to the node
-        node.style({
-            "border-color": "red",
-            "border-width": "2px",
-            "background-color": "yellow",
-        });
-        //- Zoom out on the node
-        //- Zoom out on the node
-        cy.fit();
-        //- Zoom in on the node
-        //- Zoom in on the node
-        cy.animate({
-            zoom: {
-                level: 5,
-                position: {
-                    x: node.position("x"),
-                    y: node.position("y"),
-                },
-                renderedPosition: {
-                    x: node.renderedPosition("x"),
-                    y: node.renderedPosition("y"),
-                },
-            },
-            duration: 1500,
-        });
-    } else {
-        console.error(
-            `Bro, I couldn't find a node named "${nodeName}". Try another one.`,
-        );
-        appendMessage(
-            `Bro, I couldn't find a node named "${nodeName}". Try another one.`,
-        );
-        bulmaToast.toast({
-            message:`Bro, I couldn't find a node named "${nodeName}". Try another one.`,
-            type: "is-warning is-size-6 p-3",
-            duration: 4000,
-            position: "top-center",
-            closeOnClick: true,
-        });
-    }
-}
-
 async function captureAndSaveViewportAsDrawIo(cy) {
-    // Find the canvas element for layer2-node
-    // Find the canvas element for layer2-node
-    const canvasElement = document.querySelector(
-        '#cy canvas[data-id="layer2-node"]',
-    );
-    const drawIoWidht = canvasElement.width / 10;
+    // Define base64-encoded SVGs for each role
+    const svgBase64ByRole = {
+        dcgw:           'data:image/svg+xml,PHN2ZyB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWw6c3BhY2U9InByZXNlcnZlIiBzdHlsZT0iZW5hYmxlLWJhY2tncm91bmQ6bmV3IDAgMCAxMjAgMTIwOyIgdmlld0JveD0iMCAwIDEyMCAxMjAiIHk9IjBweCIgeD0iMHB4IiBpZD0iTGF5ZXJfMSIgdmVyc2lvbj0iMS4xIj4mI3hhOzxzdHlsZSB0eXBlPSJ0ZXh0L2NzcyI+LnN0MCB7IGZpbGw6IHJnYigxLCA5MCwgMjU1KTsgfSAuc3QxIHsgZmlsbDogbm9uZTsgc3Ryb2tlOiByZ2IoMjU1LCAyNTUsIDI1NSk7IHN0cm9rZS13aWR0aDogNDsgc3Ryb2tlLWxpbmVjYXA6IHJvdW5kOyBzdHJva2UtbGluZWpvaW46IHJvdW5kOyBzdHJva2UtbWl0ZXJsaW1pdDogMTA7IH0gLnN0MiB7IGZpbGw6IHJnYigyNTUsIDI1NSwgMjU1KTsgfSAuc3QzIHsgZmlsbDogbm9uZTsgc3Ryb2tlOiByZ2IoMjU1LCAyNTUsIDI1NSk7IHN0cm9rZS13aWR0aDogNDsgc3Ryb2tlLW1pdGVybGltaXQ6IDEwOyB9IC5zdDQgeyBmaWxsOiBub25lOyBzdHJva2U6IHJnYigyNTUsIDI1NSwgMjU1KTsgc3Ryb2tlLXdpZHRoOiA0OyBzdHJva2UtbGluZWNhcDogcm91bmQ7IHN0cm9rZS1saW5lam9pbjogcm91bmQ7IH0gLnN0NSB7IGZpbGw6IHJnYigyNTUsIDI1NSwgMjU1KTsgc3Ryb2tlOiByZ2IoMjU1LCAyNTUsIDI1NSk7IHN0cm9rZS13aWR0aDogNDsgc3Ryb2tlLWxpbmVjYXA6IHJvdW5kOyBzdHJva2UtbGluZWpvaW46IHJvdW5kOyBzdHJva2UtbWl0ZXJsaW1pdDogMTA7IH0gLnN0NiB7IGZpbGw6IG5vbmU7IHN0cm9rZTogcmdiKDI1NSwgMjU1LCAyNTUpOyBzdHJva2Utd2lkdGg6IDQuMjMzMzsgc3Ryb2tlLWxpbmVjYXA6IHJvdW5kOyBzdHJva2UtbGluZWpvaW46IHJvdW5kOyBzdHJva2UtbWl0ZXJsaW1pdDogMTA7IH0gLnN0NyB7IGZpbGw6IG5vbmU7IHN0cm9rZTogcmdiKDI1NSwgMjU1LCAyNTUpOyBzdHJva2Utd2lkdGg6IDQ7IHN0cm9rZS1saW5lY2FwOiByb3VuZDsgc3Ryb2tlLW1pdGVybGltaXQ6IDEwOyB9IC5zdDggeyBmaWxsOiByZ2IoMjU1LCAyNTUsIDI1NSk7IHN0cm9rZTogcmdiKDI1NSwgMjU1LCAyNTUpOyBzdHJva2Utd2lkdGg6IDQ7IHN0cm9rZS1taXRlcmxpbWl0OiAxMDsgfSAuc3Q5IHsgZmlsbDogcmdiKDI1NSwgMjU1LCAyNTUpOyBzdHJva2U6IHJnYigyNTUsIDI1NSwgMjU1KTsgc3Ryb2tlLXdpZHRoOiA0OyB9IC5zdDEwIHsgZmlsbDogbm9uZTsgc3Ryb2tlOiByZ2IoMjU1LCAyNTUsIDI1NSk7IHN0cm9rZS13aWR0aDogNDsgfSAuc3QxMSB7IGZpbGw6IHJnYigzOCwgMzgsIDM4KTsgc3Ryb2tlOiByZ2IoMjU1LCAyNTUsIDI1NSk7IHN0cm9rZS13aWR0aDogNC4yMzMzOyB9IC5zdDEyIHsgZmlsbC1ydWxlOiBldmVub2RkOyBjbGlwLXJ1bGU6IGV2ZW5vZGQ7IGZpbGw6IG5vbmU7IHN0cm9rZTogcmdiKDI1NSwgMjU1LCAyNTUpOyBzdHJva2Utd2lkdGg6IDQ7IHN0cm9rZS1taXRlcmxpbWl0OiAxMDsgfSAuc3QxMyB7IGZpbGwtcnVsZTogZXZlbm9kZDsgY2xpcC1ydWxlOiBldmVub2RkOyBmaWxsOiByZ2IoMjU1LCAyNTUsIDI1NSk7IHN0cm9rZTogcmdiKDI1NSwgMjU1LCAyNTUpOyBzdHJva2Utd2lkdGg6IDQ7IH0gLnN0MTQgeyBmaWxsOiBub25lOyBzdHJva2U6IHJnYigyNTUsIDI1NSwgMjU1KTsgc3Ryb2tlLXdpZHRoOiA0LjIzMzM7IHN0cm9rZS1saW5lY2FwOiByb3VuZDsgc3Ryb2tlLWxpbmVqb2luOiByb3VuZDsgfSAuc3QxNSB7IGZpbGw6IG5vbmU7IHN0cm9rZTogcmdiKDI1NSwgMjU1LCAyNTUpOyBzdHJva2Utd2lkdGg6IDQ7IHN0cm9rZS1saW5lY2FwOiByb3VuZDsgfSAuc3QxNiB7IGZpbGw6IHJnYigyNTUsIDI1NSwgMjU1KTsgc3Ryb2tlOiByZ2IoMjU1LCAyNTUsIDI1NSk7IHN0cm9rZS1taXRlcmxpbWl0OiAxMDsgfSAuc3QxNyB7IGZpbGw6IHJnYigzOCwgMzgsIDM4KTsgc3Ryb2tlOiByZ2IoMjU1LCAyNTUsIDI1NSk7IHN0cm9rZS13aWR0aDogNDsgc3Ryb2tlLW1pdGVybGltaXQ6IDEwOyB9IC5zdDE4IHsgZmlsbDogcmdiKDI1NSwgMjU1LCAyNTUpOyBzdHJva2U6IHJnYigyNTUsIDI1NSwgMjU1KTsgc3Ryb2tlLXdpZHRoOiA0OyBzdHJva2UtbGluZWNhcDogcm91bmQ7IHN0cm9rZS1saW5lam9pbjogcm91bmQ7IH0gPC9zdHlsZT4mI3hhOzxyZWN0IGhlaWdodD0iMTIwIiB3aWR0aD0iMTIwIiBjbGFzcz0ic3QwIi8+JiN4YTs8Zz4mI3hhOwk8Zz4mI3hhOwkJPHBhdGggZD0iTTk4LDMwLjFINjhMNTIsODkuOUgyMiIgY2xhc3M9InN0MSIvPiYjeGE7CQk8cGF0aCBkPSJNMjgsMTAwbC03LTguMWMtMS4zLTEuMy0xLjMtMy4xLDAtNC4zbDctNy42IiBjbGFzcz0ic3QxIi8+JiN4YTsJCTxwYXRoIGQ9Ik05MiwyMGw3LDguMWMxLjMsMS4zLDEuMywzLjEsMCw0LjNMOTIsNDAiIGNsYXNzPSJzdDEiLz4mI3hhOwk8L2c+JiN4YTsJPHBhdGggZD0iTTk4LDg5LjlINjQiIGNsYXNzPSJzdDEiLz4mI3hhOwk8cGF0aCBkPSJNOTIsODBsNyw3LjZjMS4zLDEuMywxLjMsMy4xLDAsNC4zbC03LDguMSIgY2xhc3M9InN0MSIvPiYjeGE7CTxwYXRoIGQ9Ik01NiwzMC4xSDIyIE0yOCw0MGwtNy03LjZjLTEuMy0xLjMtMS4zLTMuMSwwLTQuM2w3LTguMSIgY2xhc3M9InN0MSIvPiYjeGE7CTxsaW5lIHkyPSI0OCIgeDI9Ijc2IiB5MT0iNDgiIHgxPSIxMDAiIGNsYXNzPSJzdDEiLz4mI3hhOwk8bGluZSB5Mj0iNjAiIHgyPSI3MiIgeTE9IjYwIiB4MT0iMTAwIiBjbGFzcz0ic3QxIi8+JiN4YTsJPGxpbmUgeTI9IjcyIiB4Mj0iNjgiIHkxPSI3MiIgeDE9IjEwMCIgY2xhc3M9InN0MSIvPiYjeGE7CTxsaW5lIHkyPSI3MiIgeDI9IjQ0IiB5MT0iNzIiIHgxPSIyMCIgY2xhc3M9InN0MSIvPiYjeGE7CTxsaW5lIHkyPSI2MCIgeDI9IjQ4IiB5MT0iNjAiIHgxPSIyMCIgY2xhc3M9InN0MSIvPiYjeGE7CTxsaW5lIHkyPSI0OCIgeDI9IjUyIiB5MT0iNDgiIHgxPSIyMCIgY2xhc3M9InN0MSIvPiYjeGE7PC9nPiYjeGE7PC9zdmc+',
+        router:         'data:image/svg+xml,PHN2ZyB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWw6c3BhY2U9InByZXNlcnZlIiBzdHlsZT0iZW5hYmxlLWJhY2tncm91bmQ6bmV3IDAgMCAxMjAgMTIwOyIgdmlld0JveD0iMCAwIDEyMCAxMjAiIHk9IjBweCIgeD0iMHB4IiBpZD0iTGF5ZXJfMSIgdmVyc2lvbj0iMS4xIj4mI3hhOzxzdHlsZSB0eXBlPSJ0ZXh0L2NzcyI+LnN0MCB7IGZpbGw6IHJnYigxLCA5MCwgMjU1KTsgfSAuc3QxIHsgZmlsbDogbm9uZTsgc3Ryb2tlOiByZ2IoMjU1LCAyNTUsIDI1NSk7IHN0cm9rZS13aWR0aDogNDsgc3Ryb2tlLWxpbmVjYXA6IHJvdW5kOyBzdHJva2UtbGluZWpvaW46IHJvdW5kOyBzdHJva2UtbWl0ZXJsaW1pdDogMTA7IH0gLnN0MiB7IGZpbGw6IHJnYigyNTUsIDI1NSwgMjU1KTsgfSAuc3QzIHsgZmlsbDogbm9uZTsgc3Ryb2tlOiByZ2IoMjU1LCAyNTUsIDI1NSk7IHN0cm9rZS13aWR0aDogNDsgc3Ryb2tlLW1pdGVybGltaXQ6IDEwOyB9IC5zdDQgeyBmaWxsOiBub25lOyBzdHJva2U6IHJnYigyNTUsIDI1NSwgMjU1KTsgc3Ryb2tlLXdpZHRoOiA0OyBzdHJva2UtbGluZWNhcDogcm91bmQ7IHN0cm9rZS1saW5lam9pbjogcm91bmQ7IH0gLnN0NSB7IGZpbGw6IHJnYigyNTUsIDI1NSwgMjU1KTsgc3Ryb2tlOiByZ2IoMjU1LCAyNTUsIDI1NSk7IHN0cm9rZS13aWR0aDogNDsgc3Ryb2tlLWxpbmVjYXA6IHJvdW5kOyBzdHJva2UtbGluZWpvaW46IHJvdW5kOyBzdHJva2UtbWl0ZXJsaW1pdDogMTA7IH0gLnN0NiB7IGZpbGw6IG5vbmU7IHN0cm9rZTogcmdiKDI1NSwgMjU1LCAyNTUpOyBzdHJva2Utd2lkdGg6IDQuMjMzMzsgc3Ryb2tlLWxpbmVjYXA6IHJvdW5kOyBzdHJva2UtbGluZWpvaW46IHJvdW5kOyBzdHJva2UtbWl0ZXJsaW1pdDogMTA7IH0gLnN0NyB7IGZpbGw6IG5vbmU7IHN0cm9rZTogcmdiKDI1NSwgMjU1LCAyNTUpOyBzdHJva2Utd2lkdGg6IDQ7IHN0cm9rZS1saW5lY2FwOiByb3VuZDsgc3Ryb2tlLW1pdGVybGltaXQ6IDEwOyB9IC5zdDggeyBmaWxsOiByZ2IoMjU1LCAyNTUsIDI1NSk7IHN0cm9rZTogcmdiKDI1NSwgMjU1LCAyNTUpOyBzdHJva2Utd2lkdGg6IDQ7IHN0cm9rZS1taXRlcmxpbWl0OiAxMDsgfSAuc3Q5IHsgZmlsbDogcmdiKDI1NSwgMjU1LCAyNTUpOyBzdHJva2U6IHJnYigyNTUsIDI1NSwgMjU1KTsgc3Ryb2tlLXdpZHRoOiA0OyB9IC5zdDEwIHsgZmlsbDogbm9uZTsgc3Ryb2tlOiByZ2IoMjU1LCAyNTUsIDI1NSk7IHN0cm9rZS13aWR0aDogNDsgfSAuc3QxMSB7IGZpbGw6IHJnYigzOCwgMzgsIDM4KTsgc3Ryb2tlOiByZ2IoMjU1LCAyNTUsIDI1NSk7IHN0cm9rZS13aWR0aDogNC4yMzMzOyB9IC5zdDEyIHsgZmlsbC1ydWxlOiBldmVub2RkOyBjbGlwLXJ1bGU6IGV2ZW5vZGQ7IGZpbGw6IG5vbmU7IHN0cm9rZTogcmdiKDI1NSwgMjU1LCAyNTUpOyBzdHJva2Utd2lkdGg6IDQ7IHN0cm9rZS1taXRlcmxpbWl0OiAxMDsgfSAuc3QxMyB7IGZpbGwtcnVsZTogZXZlbm9kZDsgY2xpcC1ydWxlOiBldmVub2RkOyBmaWxsOiByZ2IoMjU1LCAyNTUsIDI1NSk7IHN0cm9rZTogcmdiKDI1NSwgMjU1LCAyNTUpOyBzdHJva2Utd2lkdGg6IDQ7IH0gLnN0MTQgeyBmaWxsOiBub25lOyBzdHJva2U6IHJnYigyNTUsIDI1NSwgMjU1KTsgc3Ryb2tlLXdpZHRoOiA0LjIzMzM7IHN0cm9rZS1saW5lY2FwOiByb3VuZDsgc3Ryb2tlLWxpbmVqb2luOiByb3VuZDsgfSAuc3QxNSB7IGZpbGw6IG5vbmU7IHN0cm9rZTogcmdiKDI1NSwgMjU1LCAyNTUpOyBzdHJva2Utd2lkdGg6IDQ7IHN0cm9rZS1saW5lY2FwOiByb3VuZDsgfSAuc3QxNiB7IGZpbGw6IHJnYigyNTUsIDI1NSwgMjU1KTsgc3Ryb2tlOiByZ2IoMjU1LCAyNTUsIDI1NSk7IHN0cm9rZS1taXRlcmxpbWl0OiAxMDsgfSAuc3QxNyB7IGZpbGw6IHJnYigzOCwgMzgsIDM4KTsgc3Ryb2tlOiByZ2IoMjU1LCAyNTUsIDI1NSk7IHN0cm9rZS13aWR0aDogNDsgc3Ryb2tlLW1pdGVybGltaXQ6IDEwOyB9IC5zdDE4IHsgZmlsbDogcmdiKDI1NSwgMjU1LCAyNTUpOyBzdHJva2U6IHJnYigyNTUsIDI1NSwgMjU1KTsgc3Ryb2tlLXdpZHRoOiA0OyBzdHJva2UtbGluZWNhcDogcm91bmQ7IHN0cm9rZS1saW5lam9pbjogcm91bmQ7IH0gPC9zdHlsZT4mI3hhOzxyZWN0IGhlaWdodD0iMTIwIiB3aWR0aD0iMTIwIiBjbGFzcz0ic3QwIiB4PSIwIi8+JiN4YTs8Zz4mI3hhOwk8Zz4mI3hhOwkJPHBhdGggZD0iTTQ5LjcsNzBMMjAuMSw5OS44IiBjbGFzcz0ic3QxIi8+JiN4YTsJPC9nPiYjeGE7CTxnPiYjeGE7CQk8cGF0aCBkPSJNOTcuNyw5Ny40TDY4LDY3LjkiIGNsYXNzPSJzdDEiLz4mI3hhOwk8L2c+JiN4YTsJPGc+JiN4YTsJCTxwYXRoIGQ9Ik03MC40LDQ5LjdMOTkuOSwyMCIgY2xhc3M9InN0MSIvPiYjeGE7CTwvZz4mI3hhOwk8cGF0aCBkPSJNMjIuMywyMi4zTDUyLDUxLjkiIGNsYXNzPSJzdDEiLz4mI3hhOwk8cGF0aCBkPSJNMjAuMSwzMy45bDAtMTAuN2MwLTEuOCwxLjMtMywzLjEtMy4xbDEwLjgsMCIgY2xhc3M9InN0MSIvPiYjeGE7CTxwYXRoIGQ9Ik0zOC40LDY4bDEwLjcsMGMxLjgsMCwzLDEuMywzLjEsMy4xbDAsMTAuOCIgY2xhc3M9InN0MSIvPiYjeGE7CTxwYXRoIGQ9Ik05OS44LDg2LjJsMCwxMC43YzAsMS44LTEuMywzLTMuMSwzLjFsLTEwLjgsMCIgY2xhc3M9InN0MSIvPiYjeGE7CTxwYXRoIGQ9Ik04MS44LDUxLjlsLTEwLjcsMGMtMS44LDAtMy0xLjMtMy4xLTMuMUw2OCwzOCIgY2xhc3M9InN0MSIvPiYjeGE7PC9nPiYjeGE7PC9zdmc+',
+        pe:             'data:image/svg+xml,PHN2ZyB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWw6c3BhY2U9InByZXNlcnZlIiBzdHlsZT0iZW5hYmxlLWJhY2tncm91bmQ6bmV3IDAgMCAxMjAgMTIwO2VkaXRhYmxlQ3NzUnVsZXM9Lio7IiB2aWV3Qm94PSIwIDAgMTIwIDEyMCIgeT0iMHB4IiB4PSIwcHgiIGlkPSJMYXllcl8xIiB2ZXJzaW9uPSIxLjEiPiYjeGE7PHN0eWxlIHR5cGU9InRleHQvY3NzIj4uc3QwIHsgZmlsbDogcmdiKDEsIDkwLCAyNTUpOyB9IC5zdDEgeyBmaWxsOiBub25lOyBzdHJva2U6IHJnYigyNTUsIDI1NSwgMjU1KTsgc3Ryb2tlLXdpZHRoOiA0OyBzdHJva2UtbGluZWNhcDogcm91bmQ7IHN0cm9rZS1saW5lam9pbjogcm91bmQ7IHN0cm9rZS1taXRlcmxpbWl0OiAxMDsgfSAuc3QyIHsgZmlsbDogcmdiKDI1NSwgMjU1LCAyNTUpOyB9IC5zdDMgeyBmaWxsOiBub25lOyBzdHJva2U6IHJnYigyNTUsIDI1NSwgMjU1KTsgc3Ryb2tlLXdpZHRoOiA0OyBzdHJva2UtbWl0ZXJsaW1pdDogMTA7IH0gLnN0NCB7IGZpbGw6IG5vbmU7IHN0cm9rZTogcmdiKDI1NSwgMjU1LCAyNTUpOyBzdHJva2Utd2lkdGg6IDQ7IHN0cm9rZS1saW5lY2FwOiByb3VuZDsgc3Ryb2tlLWxpbmVqb2luOiByb3VuZDsgfSAuc3Q1IHsgZmlsbDogcmdiKDI1NSwgMjU1LCAyNTUpOyBzdHJva2U6IHJnYigyNTUsIDI1NSwgMjU1KTsgc3Ryb2tlLXdpZHRoOiA0OyBzdHJva2UtbGluZWNhcDogcm91bmQ7IHN0cm9rZS1saW5lam9pbjogcm91bmQ7IHN0cm9rZS1taXRlcmxpbWl0OiAxMDsgfSAuc3Q2IHsgZmlsbDogbm9uZTsgc3Ryb2tlOiByZ2IoMjU1LCAyNTUsIDI1NSk7IHN0cm9rZS13aWR0aDogNC4yMzMzOyBzdHJva2UtbGluZWNhcDogcm91bmQ7IHN0cm9rZS1saW5lam9pbjogcm91bmQ7IHN0cm9rZS1taXRlcmxpbWl0OiAxMDsgfSAuc3Q3IHsgZmlsbDogbm9uZTsgc3Ryb2tlOiByZ2IoMjU1LCAyNTUsIDI1NSk7IHN0cm9rZS13aWR0aDogNDsgc3Ryb2tlLWxpbmVjYXA6IHJvdW5kOyBzdHJva2UtbWl0ZXJsaW1pdDogMTA7IH0gLnN0OCB7IGZpbGw6IHJnYigyNTUsIDI1NSwgMjU1KTsgc3Ryb2tlOiByZ2IoMjU1LCAyNTUsIDI1NSk7IHN0cm9rZS13aWR0aDogNDsgc3Ryb2tlLW1pdGVybGltaXQ6IDEwOyB9IC5zdDkgeyBmaWxsOiByZ2IoMjU1LCAyNTUsIDI1NSk7IHN0cm9rZTogcmdiKDI1NSwgMjU1LCAyNTUpOyBzdHJva2Utd2lkdGg6IDQ7IH0gLnN0MTAgeyBmaWxsOiBub25lOyBzdHJva2U6IHJnYigyNTUsIDI1NSwgMjU1KTsgc3Ryb2tlLXdpZHRoOiA0OyB9IC5zdDExIHsgZmlsbDogcmdiKDM4LCAzOCwgMzgpOyBzdHJva2U6IHJnYigyNTUsIDI1NSwgMjU1KTsgc3Ryb2tlLXdpZHRoOiA0LjIzMzM7IH0gLnN0MTIgeyBmaWxsLXJ1bGU6IGV2ZW5vZGQ7IGNsaXAtcnVsZTogZXZlbm9kZDsgZmlsbDogbm9uZTsgc3Ryb2tlOiByZ2IoMjU1LCAyNTUsIDI1NSk7IHN0cm9rZS13aWR0aDogNDsgc3Ryb2tlLW1pdGVybGltaXQ6IDEwOyB9IC5zdDEzIHsgZmlsbC1ydWxlOiBldmVub2RkOyBjbGlwLXJ1bGU6IGV2ZW5vZGQ7IGZpbGw6IHJnYigyNTUsIDI1NSwgMjU1KTsgc3Ryb2tlOiByZ2IoMjU1LCAyNTUsIDI1NSk7IHN0cm9rZS13aWR0aDogNDsgfSAuc3QxNCB7IGZpbGw6IG5vbmU7IHN0cm9rZTogcmdiKDI1NSwgMjU1LCAyNTUpOyBzdHJva2Utd2lkdGg6IDQuMjMzMzsgc3Ryb2tlLWxpbmVjYXA6IHJvdW5kOyBzdHJva2UtbGluZWpvaW46IHJvdW5kOyB9IC5zdDE1IHsgZmlsbDogbm9uZTsgc3Ryb2tlOiByZ2IoMjU1LCAyNTUsIDI1NSk7IHN0cm9rZS13aWR0aDogNDsgc3Ryb2tlLWxpbmVjYXA6IHJvdW5kOyB9IC5zdDE2IHsgZmlsbDogcmdiKDI1NSwgMjU1LCAyNTUpOyBzdHJva2U6IHJnYigyNTUsIDI1NSwgMjU1KTsgc3Ryb2tlLW1pdGVybGltaXQ6IDEwOyB9IC5zdDE3IHsgZmlsbDogcmdiKDM4LCAzOCwgMzgpOyBzdHJva2U6IHJnYigyNTUsIDI1NSwgMjU1KTsgc3Ryb2tlLXdpZHRoOiA0OyBzdHJva2UtbWl0ZXJsaW1pdDogMTA7IH0gLnN0MTggeyBmaWxsOiByZ2IoMjU1LCAyNTUsIDI1NSk7IHN0cm9rZTogcmdiKDI1NSwgMjU1LCAyNTUpOyBzdHJva2Utd2lkdGg6IDQ7IHN0cm9rZS1saW5lY2FwOiByb3VuZDsgc3Ryb2tlLWxpbmVqb2luOiByb3VuZDsgfSA8L3N0eWxlPiYjeGE7PHJlY3QgaGVpZ2h0PSIxMjAiIHdpZHRoPSIxMjAiIGNsYXNzPSJzdDAiLz4mI3hhOzxnPiYjeGE7CTxnPiYjeGE7CQk8cGF0aCBkPSJNNzEuNywxOS43VjQ4aDI4IiBjbGFzcz0ic3QxIi8+JiN4YTsJCTxwYXRoIGQ9Ik05MS4yLDM4LjVsNy41LDcuNmMxLjMsMS4zLDEuMywzLjEsMCw0LjNMOTEuMSw1OCIgY2xhc3M9InN0MSIvPiYjeGE7CTwvZz4mI3hhOwk8Zz4mI3hhOwkJPHBhdGggZD0iTTIwLDQ3LjhoMjguNHYtMjgiIGNsYXNzPSJzdDEiLz4mI3hhOwkJPHBhdGggZD0iTTM4LjgsMjguM2w3LjYtNy41YzEuMy0xLjMsMy4xLTEuMyw0LjMsMGw3LjcsNy42IiBjbGFzcz0ic3QxIi8+JiN4YTsJPC9nPiYjeGE7CTxnPiYjeGE7CQk8cGF0aCBkPSJNNDgsMTAwLjNWNzJIMjAiIGNsYXNzPSJzdDEiLz4mI3hhOwkJPHBhdGggZD0iTTI4LjUsODEuNUwyMSw3My45Yy0xLjMtMS4zLTEuMy0zLjEsMC00LjNsNy42LTcuNyIgY2xhc3M9InN0MSIvPiYjeGE7CTwvZz4mI3hhOwk8Zz4mI3hhOwkJPHBhdGggZD0iTTEwMCw3MS45SDcxLjZ2MjgiIGNsYXNzPSJzdDEiLz4mI3hhOwkJPHBhdGggZD0iTTgxLjIsOTEuNGwtNy42LDcuNWMtMS4zLDEuMy0zLjEsMS4zLTQuMywwbC03LjctNy42IiBjbGFzcz0ic3QxIi8+JiN4YTsJPC9nPiYjeGE7PC9nPiYjeGE7PC9zdmc+',
+        controller:     'data:image/svg+xml,PHN2ZyB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiBvdmVyZmxvdz0iaGlkZGVuIiB4bWw6c3BhY2U9InByZXNlcnZlIiBoZWlnaHQ9IjU4IiB3aWR0aD0iNTkiIHZpZXdCb3g9IjAgMCA1OSA1OCI+PGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoLTQxNyAtMTg0KSI+PGc+PGc+PGc+PGc+PHBhdGggZmlsbC1vcGFjaXR5PSIxIiBmaWxsLXJ1bGU9Im5vbnplcm8iIGZpbGw9IiMwMDVBRkYiIGQ9Ik00MTggMTg1IDQ3NSAxODUgNDc1IDI0MiA0MTggMjQyWiIvPjxwYXRoIGZpbGwtb3BhY2l0eT0iMSIgZmlsbC1ydWxlPSJub256ZXJvIiBmaWxsPSIjMDA1QUZGIiBzdHJva2Utb3BhY2l0eT0iMSIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS13aWR0aD0iMS45IiBzdHJva2U9IiNGRkZGRkYiIGQ9Ik00NTYgMjAwLjEwNUM0NTEuMDYgMTk2LjU5IDQ0NC4zNjIgMTk1Ljk3MyA0MzguNzEgMTk5LjA2IDQzMy41MzMgMjAxLjg2MyA0MzAuNDQ1IDIwNy4wNCA0MzAuMTYgMjEyLjU1Ii8+PHBhdGggZmlsbC1vcGFjaXR5PSIxIiBmaWxsLXJ1bGU9Im5vbnplcm8iIGZpbGw9IiMwMDVBRkYiIHN0cm9rZS1vcGFjaXR5PSIxIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLXdpZHRoPSIxLjkiIHN0cm9rZT0iI0ZGRkZGRiIgZD0iTTQzNyAyMjYuODQ4QzQ0MS45NCAyMzAuMzE1IDQ0OC41OSAyMzAuOTggNDU0LjI5IDIyNy44OTMgNDU5LjQ2NyAyMjUuMDkgNDYyLjU1NSAyMTkuODY1IDQ2Mi44NCAyMTQuNDAyIi8+PHBhdGggZmlsbC1vcGFjaXR5PSIxIiBmaWxsLXJ1bGU9Im5vbnplcm8iIGZpbGw9IiMwMDVBRkYiIHN0cm9rZS1vcGFjaXR5PSIxIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLXdpZHRoPSIxLjkiIHN0cm9rZT0iI0ZGRkZGRiIgZD0iTTQ1MC45NjUgMjAyLjU3NSA0NTUuMzM1IDIwMC44MThDNDU2LjA5NSAyMDAuNTMzIDQ1Ni40MjcgMTk5LjgyIDQ1Ni4xOSAxOTkuMDEyTDQ1NC44NiAxOTQuMzEiLz48cGF0aCBmaWxsLW9wYWNpdHk9IjEiIGZpbGwtcnVsZT0ibm9uemVybyIgZmlsbD0iIzAwNUFGRiIgc3Ryb2tlLW9wYWNpdHk9IjEiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2Utd2lkdGg9IjEuOSIgc3Ryb2tlPSIjRkZGRkZGIiBkPSJNNDQxLjk4NyAyMjQuNDI1IDQzNy42MTcgMjI2LjE4MkM0MzYuODU4IDIyNi40NjcgNDM2LjUyNSAyMjcuMTggNDM2Ljc2MyAyMjcuOTg4TDQzOC4wOTIgMjMyLjY5Ii8+PHBhdGggZmlsbC1vcGFjaXR5PSIxIiBmaWxsLXJ1bGU9Im5vbnplcm8iIGZpbGw9IiMwMDVBRkYiIHN0cm9rZS1vcGFjaXR5PSIxIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLXdpZHRoPSIxLjkiIHN0cm9rZT0iI0ZGRkZGRiIgZD0iTTQzNC4zODggMjIwLjQzNUM0MzQuMzg4IDIyMS45MyA0MzMuMTc1IDIyMy4xNDMgNDMxLjY4IDIyMy4xNDMgNDMwLjE4NSAyMjMuMTQzIDQyOC45NzMgMjIxLjkzIDQyOC45NzMgMjIwLjQzNSA0MjguOTczIDIxOC45NCA0MzAuMTg1IDIxNy43MjcgNDMxLjY4IDIxNy43MjcgNDMzLjE3NSAyMTcuNzI3IDQzNC4zODggMjE4Ljk0IDQzNC4zODggMjIwLjQzNVoiLz48cGF0aCBmaWxsLW9wYWNpdHk9IjEiIGZpbGwtcnVsZT0ibm9uemVybyIgZmlsbD0iIzAwNUFGRiIgc3Ryb2tlLW9wYWNpdHk9IjEiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2Utd2lkdGg9IjEuOSIgc3Ryb2tlPSIjRkZGRkZGIiBkPSJNNDY0LjAyNyAyMDYuNDIzQzQ2NC4wMjcgMjA3LjkxOCA0NjIuODE1IDIwOS4xMyA0NjEuMzIgMjA5LjEzIDQ1OS44MjUgMjA5LjEzIDQ1OC42MTMgMjA3LjkxOCA0NTguNjEzIDIwNi40MjMgNDU4LjYxMyAyMDQuOTI3IDQ1OS44MjUgMjAzLjcxNSA0NjEuMzIgMjAzLjcxNSA0NjIuODE1IDIwMy43MTUgNDY0LjAyNyAyMDQuOTI3IDQ2NC4wMjcgMjA2LjQyM1oiLz48L2c+PC9nPjwvZz48L2c+PC9nPjwvc3ZnPg==',
+        pon:    'data:image/svg+xml,PHN2ZyB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiBvdmVyZmxvdz0iaGlkZGVuIiB4bWw6c3BhY2U9InByZXNlcnZlIiBoZWlnaHQ9IjQ4MCIgd2lkdGg9IjQ4MiIgdmlld0JveD0iMCAwIDQ4MiA0ODAiPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKC0yMTQgLTQpIj48Zz48Zz48Zz48Zz48cGF0aCBmaWxsLW9wYWNpdHk9IjEiIGZpbGwtcnVsZT0ibm9uemVybyIgZmlsbD0iIzAwNUFGRiIgZD0iTTIxNSA0IDY5NSA0IDY5NSA0ODQgMjE1IDQ4NFoiLz48cGF0aCBmaWxsLW9wYWNpdHk9IjEiIGZpbGwtcnVsZT0ibm9uemVybyIgZmlsbD0iIzAwNUFGRiIgc3Ryb2tlLW9wYWNpdHk9IjEiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2Utd2lkdGg9IjE2IiBzdHJva2U9IiNGRkZGRkYiIGQ9Ik0yOTguNiA4NCA2MDMgMjQ0IDI5OC42IDQwNCIvPjxwYXRoIGZpbGwtcnVsZT0ibm9uemVybyIgZmlsbD0ibm9uZSIgc3Ryb2tlLW9wYWNpdHk9IjEiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2Utd2lkdGg9IjE2IiBzdHJva2U9IiNGRkZGRkYiIGQ9Ik0yOTguNiAyNDQgNTEwLjIgMjQ0Ii8+PHBhdGggZmlsbC1vcGFjaXR5PSIxIiBmaWxsLXJ1bGU9Im5vbnplcm8iIGZpbGw9IiMwMDVBRkYiIHN0cm9rZS1vcGFjaXR5PSIxIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHN0cm9rZS1saW5lam9pbj0ibWl0ZXIiIHN0cm9rZS1saW5lY2FwPSJidXR0IiBzdHJva2Utd2lkdGg9IjE2IiBzdHJva2U9IiNGRkZGRkYiIGQ9Ik02MDcuNCAyNDRDNjA3LjQgMjUwLjYyNyA2MDIuMDI3IDI1NiA1OTUuNCAyNTYgNTg4Ljc3MyAyNTYgNTgzLjQgMjUwLjYyNyA1ODMuNCAyNDQgNTgzLjQgMjM3LjM3MyA1ODguNzczIDIzMiA1OTUuNCAyMzIgNjAyLjAyNyAyMzIgNjA3LjQgMjM3LjM3MyA2MDcuNCAyNDRaIi8+PC9nPjwvZz48L2c+PC9nPjwvZz48L3N2Zz4=',
+        leaf:   'data:image/svg+xml,PHN2ZyB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWw6c3BhY2U9InByZXNlcnZlIiBzdHlsZT0iZW5hYmxlLWJhY2tncm91bmQ6bmV3IDAgMCAxMjAgMTIwOyIgdmlld0JveD0iMCAwIDEyMCAxMjAiIHk9IjBweCIgeD0iMHB4IiBpZD0iTGF5ZXJfMSIgdmVyc2lvbj0iMS4xIj4mI3hhOzxzdHlsZSB0eXBlPSJ0ZXh0L2NzcyI+LnN0MCB7IGZpbGw6IHJnYigwLCA5MCwgMjU1KTsgfSAuc3QxIHsgZmlsbDogbm9uZTsgc3Ryb2tlOiByZ2IoMjU1LCAyNTUsIDI1NSk7IHN0cm9rZS13aWR0aDogNDsgc3Ryb2tlLWxpbmVjYXA6IHJvdW5kOyBzdHJva2UtbGluZWpvaW46IHJvdW5kOyBzdHJva2UtbWl0ZXJsaW1pdDogMTA7IH0gLnN0MiB7IGZpbGw6IHJnYigyNTUsIDI1NSwgMjU1KTsgfSAuc3QzIHsgZmlsbDogbm9uZTsgc3Ryb2tlOiByZ2IoMjU1LCAyNTUsIDI1NSk7IHN0cm9rZS13aWR0aDogNDsgc3Ryb2tlLW1pdGVybGltaXQ6IDEwOyB9IC5zdDQgeyBmaWxsOiBub25lOyBzdHJva2U6IHJnYigyNTUsIDI1NSwgMjU1KTsgc3Ryb2tlLXdpZHRoOiA0OyBzdHJva2UtbGluZWNhcDogcm91bmQ7IHN0cm9rZS1saW5lam9pbjogcm91bmQ7IH0gLnN0NSB7IGZpbGw6IHJnYigyNTUsIDI1NSwgMjU1KTsgc3Ryb2tlOiByZ2IoMjU1LCAyNTUsIDI1NSk7IHN0cm9rZS13aWR0aDogNDsgc3Ryb2tlLWxpbmVjYXA6IHJvdW5kOyBzdHJva2UtbGluZWpvaW46IHJvdW5kOyBzdHJva2UtbWl0ZXJsaW1pdDogMTA7IH0gLnN0NiB7IGZpbGw6IG5vbmU7IHN0cm9rZTogcmdiKDI1NSwgMjU1LCAyNTUpOyBzdHJva2Utd2lkdGg6IDQuMjMzMzsgc3Ryb2tlLWxpbmVjYXA6IHJvdW5kOyBzdHJva2UtbGluZWpvaW46IHJvdW5kOyBzdHJva2UtbWl0ZXJsaW1pdDogMTA7IH0gLnN0NyB7IGZpbGw6IG5vbmU7IHN0cm9rZTogcmdiKDI1NSwgMjU1LCAyNTUpOyBzdHJva2Utd2lkdGg6IDQ7IHN0cm9rZS1saW5lY2FwOiByb3VuZDsgc3Ryb2tlLW1pdGVybGltaXQ6IDEwOyB9IC5zdDggeyBmaWxsOiByZ2IoMjU1LCAyNTUsIDI1NSk7IHN0cm9rZTogcmdiKDI1NSwgMjU1LCAyNTUpOyBzdHJva2Utd2lkdGg6IDQ7IHN0cm9rZS1taXRlcmxpbWl0OiAxMDsgfSAuc3Q5IHsgZmlsbDogcmdiKDI1NSwgMjU1LCAyNTUpOyBzdHJva2U6IHJnYigyNTUsIDI1NSwgMjU1KTsgc3Ryb2tlLXdpZHRoOiA0OyB9IC5zdDEwIHsgZmlsbDogbm9uZTsgc3Ryb2tlOiByZ2IoMjU1LCAyNTUsIDI1NSk7IHN0cm9rZS13aWR0aDogNDsgfSAuc3QxMSB7IGZpbGw6IHJnYigzOCwgMzgsIDM4KTsgc3Ryb2tlOiByZ2IoMjU1LCAyNTUsIDI1NSk7IHN0cm9rZS13aWR0aDogNC4yMzMzOyB9IC5zdDEyIHsgZmlsbC1ydWxlOiBldmVub2RkOyBjbGlwLXJ1bGU6IGV2ZW5vZGQ7IGZpbGw6IG5vbmU7IHN0cm9rZTogcmdiKDI1NSwgMjU1LCAyNTUpOyBzdHJva2Utd2lkdGg6IDQ7IHN0cm9rZS1taXRlcmxpbWl0OiAxMDsgfSAuc3QxMyB7IGZpbGwtcnVsZTogZXZlbm9kZDsgY2xpcC1ydWxlOiBldmVub2RkOyBmaWxsOiByZ2IoMjU1LCAyNTUsIDI1NSk7IHN0cm9rZTogcmdiKDI1NSwgMjU1LCAyNTUpOyBzdHJva2Utd2lkdGg6IDQ7IH0gLnN0MTQgeyBmaWxsOiBub25lOyBzdHJva2U6IHJnYigyNTUsIDI1NSwgMjU1KTsgc3Ryb2tlLXdpZHRoOiA0LjIzMzM7IHN0cm9rZS1saW5lY2FwOiByb3VuZDsgc3Ryb2tlLWxpbmVqb2luOiByb3VuZDsgfSAuc3QxNSB7IGZpbGw6IG5vbmU7IHN0cm9rZTogcmdiKDI1NSwgMjU1LCAyNTUpOyBzdHJva2Utd2lkdGg6IDQ7IHN0cm9rZS1saW5lY2FwOiByb3VuZDsgfSAuc3QxNiB7IGZpbGw6IHJnYigyNTUsIDI1NSwgMjU1KTsgc3Ryb2tlOiByZ2IoMjU1LCAyNTUsIDI1NSk7IHN0cm9rZS1taXRlcmxpbWl0OiAxMDsgfSAuc3QxNyB7IGZpbGw6IHJnYigzOCwgMzgsIDM4KTsgc3Ryb2tlOiByZ2IoMjU1LCAyNTUsIDI1NSk7IHN0cm9rZS13aWR0aDogNDsgc3Ryb2tlLW1pdGVybGltaXQ6IDEwOyB9IC5zdDE4IHsgZmlsbDogcmdiKDI1NSwgMjU1LCAyNTUpOyBzdHJva2U6IHJnYigyNTUsIDI1NSwgMjU1KTsgc3Ryb2tlLXdpZHRoOiA0OyBzdHJva2UtbGluZWNhcDogcm91bmQ7IHN0cm9rZS1saW5lam9pbjogcm91bmQ7IH0gPC9zdHlsZT4mI3hhOzxyZWN0IGhlaWdodD0iMTIwIiB3aWR0aD0iMTIwIiBjbGFzcz0ic3QwIi8+JiN4YTs8Zz4mI3hhOwk8cGF0aCBkPSJNOTEuNSwyNy4zbDcuNiw3LjZjMS4zLDEuMywxLjMsMy4xLDAsNC4zbC03LjYsNy43IiBjbGFzcz0ic3QxIi8+JiN4YTsJPHBhdGggZD0iTTI4LjUsNDYuOWwtNy42LTcuNmMtMS4zLTEuMy0xLjMtMy4xLDAtNC4zbDcuNi03LjciIGNsYXNzPSJzdDEiLz4mI3hhOwk8cGF0aCBkPSJNOTEuNSw3My4xbDcuNiw3LjZjMS4zLDEuMywxLjMsMy4xLDAsNC4zbC03LjYsNy43IiBjbGFzcz0ic3QxIi8+JiN4YTsJPHBhdGggZD0iTTI4LjUsOTIuN2wtNy42LTcuNmMtMS4zLTEuMy0xLjMtMy4xLDAtNC4zbDcuNi03LjciIGNsYXNzPSJzdDEiLz4mI3hhOwk8Zz4mI3hhOwkJPHBhdGggZD0iTTk2LjYsMzYuOEg2Ny45bC0xNiw0NS45SDIzLjIiIGNsYXNzPSJzdDEiLz4mI3hhOwkJPHBhdGggZD0iTTk2LjYsODIuN0g2Ny45bC0xNi00NS45SDIzLjIiIGNsYXNzPSJzdDEiLz4mI3hhOwk8L2c+JiN4YTs8L2c+JiN4YTs8L3N2Zz4=',
+        spine:  'data:image/svg+xml,PHN2ZyB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWw6c3BhY2U9InByZXNlcnZlIiBzdHlsZT0iZW5hYmxlLWJhY2tncm91bmQ6bmV3IDAgMCAxMjAgMTIwOyIgdmlld0JveD0iMCAwIDEyMCAxMjAiIHk9IjBweCIgeD0iMHB4IiBpZD0iTGF5ZXJfMSIgdmVyc2lvbj0iMS4xIj4mI3hhOzxzdHlsZSB0eXBlPSJ0ZXh0L2NzcyI+LnN0MCB7IGZpbGw6IHJnYigwLCA5MCwgMjU1KTsgfSAuc3QxIHsgZmlsbDogbm9uZTsgc3Ryb2tlOiByZ2IoMjU1LCAyNTUsIDI1NSk7IHN0cm9rZS13aWR0aDogNDsgc3Ryb2tlLWxpbmVjYXA6IHJvdW5kOyBzdHJva2UtbGluZWpvaW46IHJvdW5kOyBzdHJva2UtbWl0ZXJsaW1pdDogMTA7IH0gLnN0MiB7IGZpbGw6IHJnYigyNTUsIDI1NSwgMjU1KTsgfSAuc3QzIHsgZmlsbDogbm9uZTsgc3Ryb2tlOiByZ2IoMjU1LCAyNTUsIDI1NSk7IHN0cm9rZS13aWR0aDogNDsgc3Ryb2tlLW1pdGVybGltaXQ6IDEwOyB9IC5zdDQgeyBmaWxsOiBub25lOyBzdHJva2U6IHJnYigyNTUsIDI1NSwgMjU1KTsgc3Ryb2tlLXdpZHRoOiA0OyBzdHJva2UtbGluZWNhcDogcm91bmQ7IHN0cm9rZS1saW5lam9pbjogcm91bmQ7IH0gLnN0NSB7IGZpbGw6IHJnYigyNTUsIDI1NSwgMjU1KTsgc3Ryb2tlOiByZ2IoMjU1LCAyNTUsIDI1NSk7IHN0cm9rZS13aWR0aDogNDsgc3Ryb2tlLWxpbmVjYXA6IHJvdW5kOyBzdHJva2UtbGluZWpvaW46IHJvdW5kOyBzdHJva2UtbWl0ZXJsaW1pdDogMTA7IH0gLnN0NiB7IGZpbGw6IG5vbmU7IHN0cm9rZTogcmdiKDI1NSwgMjU1LCAyNTUpOyBzdHJva2Utd2lkdGg6IDQuMjMzMzsgc3Ryb2tlLWxpbmVjYXA6IHJvdW5kOyBzdHJva2UtbGluZWpvaW46IHJvdW5kOyBzdHJva2UtbWl0ZXJsaW1pdDogMTA7IH0gLnN0NyB7IGZpbGw6IG5vbmU7IHN0cm9rZTogcmdiKDI1NSwgMjU1LCAyNTUpOyBzdHJva2Utd2lkdGg6IDQ7IHN0cm9rZS1saW5lY2FwOiByb3VuZDsgc3Ryb2tlLW1pdGVybGltaXQ6IDEwOyB9IC5zdDggeyBmaWxsOiByZ2IoMjU1LCAyNTUsIDI1NSk7IHN0cm9rZTogcmdiKDI1NSwgMjU1LCAyNTUpOyBzdHJva2Utd2lkdGg6IDQ7IHN0cm9rZS1taXRlcmxpbWl0OiAxMDsgfSAuc3Q5IHsgZmlsbDogcmdiKDI1NSwgMjU1LCAyNTUpOyBzdHJva2U6IHJnYigyNTUsIDI1NSwgMjU1KTsgc3Ryb2tlLXdpZHRoOiA0OyB9IC5zdDEwIHsgZmlsbDogbm9uZTsgc3Ryb2tlOiByZ2IoMjU1LCAyNTUsIDI1NSk7IHN0cm9rZS13aWR0aDogNDsgfSAuc3QxMSB7IGZpbGw6IHJnYigzOCwgMzgsIDM4KTsgc3Ryb2tlOiByZ2IoMjU1LCAyNTUsIDI1NSk7IHN0cm9rZS13aWR0aDogNC4yMzMzOyB9IC5zdDEyIHsgZmlsbC1ydWxlOiBldmVub2RkOyBjbGlwLXJ1bGU6IGV2ZW5vZGQ7IGZpbGw6IG5vbmU7IHN0cm9rZTogcmdiKDI1NSwgMjU1LCAyNTUpOyBzdHJva2Utd2lkdGg6IDQ7IHN0cm9rZS1taXRlcmxpbWl0OiAxMDsgfSAuc3QxMyB7IGZpbGwtcnVsZTogZXZlbm9kZDsgY2xpcC1ydWxlOiBldmVub2RkOyBmaWxsOiByZ2IoMjU1LCAyNTUsIDI1NSk7IHN0cm9rZTogcmdiKDI1NSwgMjU1LCAyNTUpOyBzdHJva2Utd2lkdGg6IDQ7IH0gLnN0MTQgeyBmaWxsOiBub25lOyBzdHJva2U6IHJnYigyNTUsIDI1NSwgMjU1KTsgc3Ryb2tlLXdpZHRoOiA0LjIzMzM7IHN0cm9rZS1saW5lY2FwOiByb3VuZDsgc3Ryb2tlLWxpbmVqb2luOiByb3VuZDsgfSAuc3QxNSB7IGZpbGw6IG5vbmU7IHN0cm9rZTogcmdiKDI1NSwgMjU1LCAyNTUpOyBzdHJva2Utd2lkdGg6IDQ7IHN0cm9rZS1saW5lY2FwOiByb3VuZDsgfSAuc3QxNiB7IGZpbGw6IHJnYigyNTUsIDI1NSwgMjU1KTsgc3Ryb2tlOiByZ2IoMjU1LCAyNTUsIDI1NSk7IHN0cm9rZS1taXRlcmxpbWl0OiAxMDsgfSAuc3QxNyB7IGZpbGw6IHJnYigzOCwgMzgsIDM4KTsgc3Ryb2tlOiByZ2IoMjU1LCAyNTUsIDI1NSk7IHN0cm9rZS13aWR0aDogNDsgc3Ryb2tlLW1pdGVybGltaXQ6IDEwOyB9IC5zdDE4IHsgZmlsbDogcmdiKDI1NSwgMjU1LCAyNTUpOyBzdHJva2U6IHJnYigyNTUsIDI1NSwgMjU1KTsgc3Ryb2tlLXdpZHRoOiA0OyBzdHJva2UtbGluZWNhcDogcm91bmQ7IHN0cm9rZS1saW5lam9pbjogcm91bmQ7IH0gLnN0MTkgeyBmaWxsOiByZ2IoMCwgMTcsIDUzKTsgc3Ryb2tlOiByZ2IoMjU1LCAyNTUsIDI1NSk7IHN0cm9rZS13aWR0aDogNDsgc3Ryb2tlLWxpbmVjYXA6IHJvdW5kOyBzdHJva2UtbGluZWpvaW46IHJvdW5kOyBzdHJva2UtbWl0ZXJsaW1pdDogMTA7IH0gPC9zdHlsZT4mI3hhOzxyZWN0IGhlaWdodD0iMTIwIiB3aWR0aD0iMTIwIiBjbGFzcz0ic3QwIiB5PSIwIi8+JiN4YTs8cmVjdCBoZWlnaHQ9IjEyMCIgd2lkdGg9IjEyMCIgY2xhc3M9InN0MCIvPiYjeGE7PGc+JiN4YTsJPGc+JiN4YTsJCTxwYXRoIGQ9Ik05OCwzMC4xSDY4TDUyLDg5LjlIMjIiIGNsYXNzPSJzdDEiLz4mI3hhOwkJPHBhdGggZD0iTTI4LDEwMGwtNy04LjFjLTEuMy0xLjMtMS4zLTMuMSwwLTQuM2w3LTcuNiIgY2xhc3M9InN0MSIvPiYjeGE7CQk8cGF0aCBkPSJNOTIsMjBsNyw4LjFjMS4zLDEuMywxLjMsMy4xLDAsNC4zTDkyLDQwIiBjbGFzcz0ic3QxIi8+JiN4YTsJPC9nPiYjeGE7CTxwYXRoIGQ9Ik05OCw4OS45SDY0IiBjbGFzcz0ic3QxIi8+JiN4YTsJPHBhdGggZD0iTTkyLDgwbDcsNy42YzEuMywxLjMsMS4zLDMuMSwwLDQuM2wtNyw4LjEiIGNsYXNzPSJzdDEiLz4mI3hhOwk8cGF0aCBkPSJNNTYsMzAuMUgyMiBNMjgsNDBsLTctNy42Yy0xLjMtMS4zLTEuMy0zLjEsMC00LjNsNy04LjEiIGNsYXNzPSJzdDEiLz4mI3hhOwk8bGluZSB5Mj0iNjAiIHgyPSI3MiIgeTE9IjYwIiB4MT0iMTAwIiBjbGFzcz0ic3QxIi8+JiN4YTsJPGxpbmUgeTI9IjYwIiB4Mj0iNDgiIHkxPSI2MCIgeDE9IjIwIiBjbGFzcz0ic3QxIi8+JiN4YTs8L2c+JiN4YTs8L3N2Zz4=',
+        'super-spine': 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48cGF0aCBkPSJNMTAsMTAgTDkwLDkwIiBzdHlsZT0iZmlsbDojZmYwMGYwOyIgLz48L3N2Zz4=',
+    };
+
+    const canvasElement = document.querySelector('#cy canvas[data-id="layer2-node"]');
+    const drawIoWidth = canvasElement.width / 10;
     const drawIoHeight = canvasElement.height / 10;
-    const drawIoaAspectRatio = drawIoWidht / drawIoHeight;
 
-    const mxGraphHeader = `<mxGraphModel dx="${drawIoWidht / 2}" dy="${drawIoHeight / 2}" grid="1" gridSize="1" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="${drawIoWidht}" pageHeight="${drawIoHeight}" math="0" shadow="0">
-                                                                                        <root>
-                                                                                            <mxCell id="0" />
-                                                                                            <mxCell id="1" parent="0" />`;
+    const mxGraphHeader = `<mxGraphModel dx="${drawIoWidth / 2}" dy="${drawIoHeight / 2}" grid="1" gridSize="1" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="${drawIoWidth}" pageHeight="${drawIoHeight}" math="0" shadow="0">
+        <root>
+            <mxCell id="0" />
+            <mxCell id="1" parent="0" />`;
 
-    const mxGraphFooter = `    					</root>
-                                                                                            </mxGraphModel>`;
+    const mxGraphFooter = `</root>
+    </mxGraphModel>`;
 
     const mxCells = [];
 
-    // Iterate through nodes and edges
-    // Function to create mxCell XML for nodes
-    // Iterate through nodes and edges
-    // Function to create mxCell XML for nodes
     function createMxCellForNode(node, imageURL) {
         if (node.isParent()) {
-            return `	
-                <mxCell id="${node.id()}" value="${node.data("id")}" style="shape=image;imageAspect=0;aspect=fixed;verticalLabelPosition=bottom;verticalAlign=top;image=undefined;imageBackground=#8F96AC;imageBorder=#F2F2F2;strokeWidth=2;perimeterSpacing=10;opacity=30;fontSize=4;spacingTop=-7;" parent="1" vertex="1">
+            console.log("createMxCellForNode - node.isParent()",node.isParent() );
+            // Use a tiny transparent SVG as a placeholder for the image
+            return `
+                <mxCell id="${node.id()}" value="${node.data("id")}" style="shape=image;imageAspect=0;aspect=fixed;verticalLabelPosition=bottom;verticalAlign=top;image=${imageURL};imageBackground=#8F96AC;imageBorder=#F2F2F2;strokeWidth=0.5;perimeterSpacing=10;opacity=30;fontSize=4;spacingTop=-7;" parent="1" vertex="1">
                     <mxGeometry x="${node.position("x") - node.width() / 2}" y="${node.position("y") - node.height() / 2}" width="${node.width()}" height="${node.height()}" as="geometry" />
                 </mxCell>`;
-        } else if (
-            !node.data("id").includes("statusGreen") &&
-            !node.data("id").includes("statusRed")
-        ) {
+        } else if (!node.data("id").includes("statusGreen") && !node.data("id").includes("statusRed")) {
             return `
                 <mxCell id="${node.id()}" value="${node.data("id")}" style="shape=image;imageAspect=0;aspect=fixed;verticalLabelPosition=bottom;verticalAlign=top;image=${imageURL};fontSize=4;spacingTop=-7;" vertex="1" parent="1">
                     <mxGeometry x="${node.position("x") - node.width() / 2}" y="${node.position("y") - node.height() / 2}" width="${node.width()}" height="${node.height()}" as="geometry" />
@@ -2092,39 +2276,24 @@ async function captureAndSaveViewportAsDrawIo(cy) {
     }
 
     cy.nodes().forEach(function(node) {
-        let imageURL;
-        switch (node.data("topoViewerRole")) {
-            case "pe":
-                imageURL = `http://${location.host}/images/clab-pe-light-blue.png`;
-                break;
-            case "controller":
-                imageURL =
-                    `http://${location.host}/images/clab-controller-light-blue.png`;
-                break;
-            case "pon":
-                imageURL = `http://${location.host}/images/clab-pon-dark-blue.png`;
-                break;
-            case "dcgw":
-                imageURL = `http://${location.host}/images/clab-dcgw-dark-blue.png`;
-                break;
-            case "leaf":
-                imageURL = `http://${location.host}/images/clab-leaf-light-blue.png`;
-                break;
-            case "spine":
-                imageURL = `http://${location.host}/images/clab-spine-dark-blue.png`;
-                break;
-            case "super-spine":
-                imageURL = `http://${location.host}/images/clab-spine-light-blue.png`;
-                break;
+        const svgBase64 = svgBase64ByRole[node.data("topoViewerRole")] || (node.isParent() ? 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMSIgaGVpZ2h0PSIxIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciLz4=' : null);
+    
+        if (svgBase64) {
+            // Add parent nodes at the start of the array for bottom-layer rendering
+            if (node.isParent()) {
+                mxCells.unshift(createMxCellForNode(node, svgBase64));
+            } else {
+                // Add non-parent nodes at the end of the array
+                mxCells.push(createMxCellForNode(node, svgBase64));
+            }
         }
-        mxCells.push(createMxCellForNode(node, imageURL));
     });
+    
 
     cy.edges().forEach(function(edge) {
         mxCells.push(`
             <mxCell id="${edge.data("id")}" value="" style="endArrow=none;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;strokeWidth=1;strokeColor=#969799;opacity=60;" parent="1" source="${edge.data("source")}" target="${edge.data("target")}" edge="1">
-                <mxGeometry width="50" height="50" relative="1" as="geometry" >
-                </mxGeometry>
+                <mxGeometry width="50" height="50" relative="1" as="geometry" />
             </mxCell>
             <mxCell id="${edge.data("id")}-LabelSource" value="${edge.data("sourceEndpoint")}" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=3;" parent="${edge.data("id")}" vertex="1" connectable="0">
                 <mxGeometry x="-0.5" y="1" relative="0.5" as="geometry">
@@ -2142,9 +2311,7 @@ async function captureAndSaveViewportAsDrawIo(cy) {
     const mxGraphXML = mxGraphHeader + mxCells.join("") + mxGraphFooter;
 
     // Create a Blob from the XML
-    const blob = new Blob([mxGraphXML], {
-        type: "application/xml",
-    });
+    const blob = new Blob([mxGraphXML], { type: "application/xml" });
 
     // Create a URL for the Blob
     const url = window.URL.createObjectURL(blob);
@@ -2164,6 +2331,7 @@ async function captureAndSaveViewportAsDrawIo(cy) {
         closeOnClick: true,
     });
     await sleep(2000);
+
     // Simulate a click to trigger the download
     a.click();
 
@@ -2171,70 +2339,27 @@ async function captureAndSaveViewportAsDrawIo(cy) {
     window.URL.revokeObjectURL(url);
     document.body.removeChild(a);
 }
-async function captureAndSaveViewportAsPng(cy) {
-    // Find the canvas element for layer2-node
-    // Find the canvas element for layer2-node
-    const canvasElement = document.querySelector(
-        '#cy canvas[data-id="layer2-node"]',
-    );
 
-    const zoomScaleFactor = 1;
+// async function getYamlTopoContent(yamlTopoContent) {
 
-    // Check if the canvas element exists and is an HTMLCanvasElement
-    // Check if the canvas element exists and is an HTMLCanvasElement
-    if (canvasElement instanceof HTMLCanvasElement) {
-        // Calculate the new canvas dimensions based on the high resolution factor
-        // Calculate the new canvas dimensions based on the high resolution factor
-        const newWidth = canvasElement.width * zoomScaleFactor;
-        const newHeight = canvasElement.height * zoomScaleFactor;
+//     try {
+//         // Check if yamlTopoContent is already set
+//         console.log('YAML Topo Initial Content:', yamlTopoContent);
 
-        // Create a new canvas element with the increased dimensions
-        // Create a new canvas element with the increased dimensions
-        const newCanvas = document.createElement("canvas");
-        newCanvas.width = newWidth;
-        newCanvas.height = newHeight;
-        const newCanvasContext = newCanvas.getContext("2d");
+//         if (!yamlTopoContent) {
+//             // Load the content if yamlTopoContent is empty
+//             yamlTopoContent = await sendRequestToEndpointGetV3("/get-yaml-topo-content");
+//         }
 
-        // Scale the canvas content to the new dimensions
-        // Scale the canvas content to the new dimensions
-        newCanvasContext.scale(zoomScaleFactor, zoomScaleFactor);
+//         console.log('YAML Topo Content:', yamlTopoContent);
+//         document.getElementById('panel-clab-editor-text-area').value = yamlTopoContent;
 
-        // Fill the new canvas with a white background
-        // Fill the new canvas with a white background
-        newCanvasContext.fillStyle = "white";
-        newCanvasContext.fillRect(0, 0, newWidth, newHeight);
-
-        // Draw the original canvas content on the new canvas
-        // Draw the original canvas content on the new canvas
-        newCanvasContext.drawImage(canvasElement, 0, 0);
-
-        // Convert the new canvas to a data URL with a white background
-        // Convert the new canvas to a data URL with a white background
-        const dataUrl = newCanvas.toDataURL("image/png");
-
-        // Create an anchor element to trigger the download
-        // Create an anchor element to trigger the download
-        const link = document.createElement("a");
-        link.href = dataUrl;
-        link.download = "cytoscape-viewport.png";
-
-        bulmaToast.toast({
-            message: `Brace yourselves for a quick snapshot, folks! 📸 Capturing the viewport in 3... 2... 1... 🚀💥`,
-            type: "is-warning is-size-6 p-3",
-            duration: 2000,
-            position: "top-center",
-            closeOnClick: true,
-        });
-        await sleep(2000);
-        // Simulate a click to trigger the download
-        // Simulate a click to trigger the download
-        link.click();
-    } else {
-        console.error(
-            "Canvas element for layer2-node is not found or is not a valid HTML canvas element.",
-        );
-    }
-}
+        
+//     } catch (error) {
+//         console.error("Error occurred:", error);
+//         // Handle errors as needed
+//     }
+// }
 
 
 

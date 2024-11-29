@@ -30,9 +30,6 @@ func ClabSaveTopoCytoJsonHandler(w http.ResponseWriter, r *http.Request, cyTopo 
 		return
 	}
 
-	// File path for dataCytoMarshall-addon.json
-	// filePath := path.Join(workingDirectory, "./html-public/"+cyTopo.ClabTopoDataV2.Name+"/dataCytoMarshall-addon.json")
-
 	// File path for dataCytoMarshall.json
 	filePath := path.Join(workingDirectory, "./html-public/"+cyTopo.ClabTopoDataV2.Name+"/dataCytoMarshall.json")
 

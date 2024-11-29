@@ -155,34 +155,7 @@ async function clabEditorSaveYamlTopo() {
     }
 }
 
-function clabEditorAddEdge(sourceCyNode, sourceNodeEndpoint, targetCyNode, targetNodeEndpoint) {
-    // Get the content of the Monaco Editor
-    let editorContent = window.monacoEditor.getValue();
 
-    const sourceNodeName = sourceCyNode.data("name");
-    const targetNodeName = targetCyNode.data("name");
-
-    // Edge definition with dynamic endpoints array
-    const edgeDefinition = `
-    - endpoints: ["${sourceNodeName}:${sourceNodeEndpoint}", "${targetNodeName}:${targetNodeEndpoint}"]`;
-
-    // Locate the 'links' section and insert the edge definition at the end of it
-    const linksIndex = editorContent.indexOf("  links:");
-    if (linksIndex !== -1) {
-        // Find the end of the links section or where the next section begins
-        const nextSectionIndex = editorContent.indexOf("\n", linksIndex);
-        const insertionIndex = nextSectionIndex !== -1 ? nextSectionIndex : editorContent.length;
-
-        // Insert the edge definition at the end of the links section
-        editorContent = editorContent.slice(0, insertionIndex) + edgeDefinition + editorContent.slice(insertionIndex);
-    } else {
-        // If no 'links' section exists, append the edge definition at the end of the content
-        editorContent += "\n  links:" + edgeDefinition;
-    }
-
-    // Update the content of the Monaco Editor
-    window.monacoEditor.setValue(editorContent);
-}
 
 async function showPanelNodeEditor(node) {
         // Remove all Overlayed Panels
@@ -331,13 +304,18 @@ function populateKindDropdown(options) {
     });
 }
 
-// Initialize event listeners for the dropdown
 function initializeDropdownListeners() {
     const dropdownButton = document.querySelector("#panel-node-kind-dropdown .dropdown-trigger button");
+
+    if (!dropdownButton) {
+        console.error("Dropdown button not found in the DOM.");
+        return;
+    }
+
     const dropdownContainer = dropdownButton.closest(".dropdown");
 
-    if (!dropdownButton || !dropdownContainer) {
-        console.error("Dropdown button or container not found in the DOM.");
+    if (!dropdownContainer) {
+        console.error("Dropdown container not found in the DOM.");
         return;
     }
 
@@ -349,11 +327,15 @@ function initializeDropdownListeners() {
 
     // Collapse the dropdown if clicked outside
     document.addEventListener("click", (event) => {
-        if (dropdownContainer.classList.contains("is-active")) {
+        if (
+            dropdownContainer.classList.contains("is-active") &&
+            !dropdownContainer.contains(event.target)
+        ) {
             dropdownContainer.classList.remove("is-active");
         }
     });
 }
+
 // // Initialize dropdown listeners once when the DOM is fully loaded
 // document.addEventListener("DOMContentLoaded", () => {
 //     initializeDropdownListeners();
@@ -404,13 +386,18 @@ function populateTopoViewerRoleDropdown(options) {
     });
 }
 
-// Initialize event listeners for the dropdown
 function initializeDropdownTopoViewerRoleListeners() {
     const dropdownButton = document.querySelector("#panel-node-topoviewerrole-dropdown .dropdown-trigger button");
+
+    if (!dropdownButton) {
+        console.error("Dropdown button not found in the DOM.");
+        return;
+    }
+
     const dropdownContainer = dropdownButton.closest(".dropdown");
 
-    if (!dropdownButton || !dropdownContainer) {
-        console.error("Dropdown button or container not found in the DOM.");
+    if (!dropdownContainer) {
+        console.error("Dropdown container not found in the DOM.");
         return;
     }
 
@@ -422,16 +409,14 @@ function initializeDropdownTopoViewerRoleListeners() {
 
     // Collapse the dropdown if clicked outside
     document.addEventListener("click", (event) => {
-        if (dropdownContainer.classList.contains("is-active")) {
+        if (
+            dropdownContainer.classList.contains("is-active") &&
+            !dropdownContainer.contains(event.target)
+        ) {
             dropdownContainer.classList.remove("is-active");
         }
     });
 }
-
-// // Initialize dropdown listeners once when the DOM is fully loaded
-// document.addEventListener("DOMContentLoaded", () => {
-//     initializeDropdownTopoViewerRoleListeners();
-// });
 
 
 // Function to save node data from the editor
@@ -537,4 +522,49 @@ function clabEditorCopyYamlContent() {
             closeOnClick: true,
         });
     }
+}
+
+
+async function saveEdgeToFile(edgeId) {
+    const edgeData = cy.$id(edgeId).json(); // Get JSON data of the edge with the specified ID
+    const endpointName = '/clab-save-topo-cyto-json';
+
+    try {
+        // Send the enhanced edge data directly without wrapping it in an object
+        const response = await sendRequestToEndpointPost(endpointName, [edgeData]);
+        console.log('Edge data saved successfully', response);
+    } catch (error) {
+        console.error('Failed to save edge data:', error);
+    }
+}
+
+function clabEditorAddEdge(sourceCyNode, sourceNodeEndpoint, targetCyNode, targetNodeEndpoint) {
+    // Get the content of the Monaco Editor
+    let editorContent = window.monacoEditor.getValue();
+
+    const sourceNodeName = sourceCyNode.data("name");
+    const targetNodeName = targetCyNode.data("name");
+
+    // Edge definition with dynamic endpoints array
+    const edgeDefinition = `
+    - endpoints: ["${sourceNodeName}:${sourceNodeEndpoint}", "${targetNodeName}:${targetNodeEndpoint}"]`;
+
+    // Locate the 'links' section and insert the edge definition at the end of it
+    const linksIndex = editorContent.indexOf("  links:");
+    if (linksIndex !== -1) {
+        // Find the end of the links section or where the next section begins
+        const nextSectionIndex = editorContent.indexOf("\n", linksIndex);
+        const insertionIndex = nextSectionIndex !== -1 ? nextSectionIndex : editorContent.length;
+
+        // Insert the edge definition at the end of the links section
+        editorContent = editorContent.slice(0, insertionIndex) + edgeDefinition + editorContent.slice(insertionIndex);
+    } else {
+        // If no 'links' section exists, append the edge definition at the end of the content
+        editorContent += "\n  links:" + edgeDefinition;
+    }
+
+    // Update the content of the Monaco Editor
+    window.monacoEditor.setValue(editorContent);
+    yamlTopoContent = editorContent;
+
 }
