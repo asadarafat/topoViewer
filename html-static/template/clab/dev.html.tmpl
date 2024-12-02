@@ -33,9 +33,9 @@
 							<hr class="dropdown-divider py-0">
 							<a id="getAllEndpointDetail" href="#" onclick="getActualNodesEndpoints(event);" class="dropdown-item label has-text-weight-normal is-small py-0">Action - Retrieve Actual Endpoint Label</a>     
 							<a id="logMessagesDropdownItem" href="#" onclick="showPanelLogMessages(event);" class="dropdown-item label has-text-weight-normal is-small py-0">Action - Log Messages</a>       
+							<a id="clabYamlEditorItem"     href="#" onclick="showPanelContainerlabEditor();"       class="dropdown-item label has-text-weight-normal is-small py-0">Action - Containerlab Editor</a>                  
 							<hr class="dropdown-divider py-0">
 							<a id="clabClientDropdownItem" href="#" onclick="showPanelTopoViewerClient();"        class="dropdown-item label has-text-weight-normal is-small py-0">TopoViewer Helper App</a>                  
-							<a id="clabYamlEditorItem"     href="#" onclick="showPanelContainerlabEditor();"       class="dropdown-item label has-text-weight-normal is-small py-0">Containerlab Editor</a>                  
 						</div>
 					</div>
 				</div>
@@ -364,7 +364,6 @@
 						</div>
 					</div>
 				</div>
-
 			</div>			
 			
 			<div class="panel is-link" id="panel-clab-editor" style="display: none;">
@@ -378,7 +377,7 @@
 										<div class="control">
 											<input type="file" id="panel-clab-editor-file-input" class="file-input">
 											<button class="button is-link is-outlined is-small" id="panel-clab-editor-copy-button"; onclick="clabEditorCopyYamlContent(event);">Copy to Clipboard</button>
-											<button class="button is-link is-outlined is-small" id="panel-clab-editor-close-button"; onclick="clabEditorPanelClose(event)" >Close</button>
+											<button class="button is-link is-outlined is-small" id="panel-clab-editor-close-button"; onclick="closePanelContainerlabEditor(event)" >Close</button>
 										</div>
 									</div>
 									<div id="panel-clab-editor-text-area" style="width:100%; height:600px;"></div>
