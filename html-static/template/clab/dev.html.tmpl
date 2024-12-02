@@ -36,9 +36,6 @@
 							<hr class="dropdown-divider py-0">
 							<a id="clabClientDropdownItem" href="#" onclick="showPanelTopoViewerClient();"        class="dropdown-item label has-text-weight-normal is-small py-0">TopoViewer Helper App</a>                  
 							<a id="clabYamlEditorItem"     href="#" onclick="showPanelContainerlabEditor();"       class="dropdown-item label has-text-weight-normal is-small py-0">Containerlab Editor</a>                  
-							<a class="dropdown-item label has-text-weight-normal is-small py-0">
-								<label class="checkbox label has-text-weight-normal is-small py-0"> <input type="checkbox"> Containerlab Editor</label>
-							</a>
 						</div>
 					</div>
 				</div>
@@ -380,9 +377,8 @@
 									<div class="field">
 										<div class="control">
 											<input type="file" id="panel-clab-editor-file-input" class="file-input">
-											<button class="button is-link is-outlined is-small" onclick="clabEditorLoadFile()">Load YAML</button>
-											<button class="button is-link is-outlined is-small" onclick="clabEditorAddNode()">Add Node</button>
-											<button class="button is-link is-outlined is-small" id="panel-clab-editor-close-button" >Close</button>
+											<button class="button is-link is-outlined is-small" id="panel-clab-editor-copy-button"; onclick="clabEditorCopyYamlContent(event);">Copy to Clipboard</button>
+											<button class="button is-link is-outlined is-small" id="panel-clab-editor-close-button"; onclick="clabEditorPanelClose(event)" >Close</button>
 										</div>
 									</div>
 									<div id="panel-clab-editor-text-area" style="width:100%; height:600px;"></div>

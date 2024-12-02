@@ -38,9 +38,11 @@ function showPanelContainerlabEditor(event) {
 }
 
 // Close button event listener
-document.getElementById("panel-clab-editor-close-button").addEventListener("click", () => {
-    document.getElementById("panel-clab-editor").style.display = "none";
-});
+function closePanelContainerlabEditor() {
+    const editorPanel =  document.getElementById("panel-clab-editor");
+    editorPanel.style.display = "none";
+}
+
 
 // Function to load a file into the editor
 function clabEditorLoadFile() {
@@ -144,7 +146,7 @@ async function clabEditorSaveYamlTopo() {
     console.log("clabTopoYamlEditorData - yamlTopoContent: ", clabTopoYamlEditorData)
 
     // Dump clabTopoYamlEditorData to be persisted to clab-topo.yaml
-    const endpointName = '/clab-save-topo-yaml';
+    const endpointName = '/clab-topo-yaml-save';
     
     try {
         // Send the enhanced node data directly without wrapping it in an object
@@ -153,6 +155,7 @@ async function clabEditorSaveYamlTopo() {
     } catch (error) {
         console.error('Failed to save yaml topo:', error);
     }
+    
 }
 
 
@@ -467,9 +470,9 @@ async function saveNodeToEditorToFile() {
     }
 
     // add node to clab editor textarea
-    clabEditorAddNode(nodeId, nodeName, kind, image, group, topoViewerRole)
+    await clabEditorAddNode(nodeId, nodeName, kind, image, group, topoViewerRole)
 
-    // clabEditorSaveYamlTopo()
+    await clabEditorSaveYamlTopo()
 }
 
 async function getYamlTopoContent(yamlTopoContent) {
@@ -482,7 +485,7 @@ async function getYamlTopoContent(yamlTopoContent) {
 
         if (!yamlTopoContent) {
             // Load the content if yamlTopoContent is empty
-            yamlTopoContent = await sendRequestToEndpointGetV3("/get-yaml-topo-content");
+            yamlTopoContent = await sendRequestToEndpointGetV3("/clab-topo-yaml-get");
         }
 
         console.log('YAML Topo Content:', yamlTopoContent);
@@ -525,7 +528,7 @@ function clabEditorCopyYamlContent() {
 }
 
 
-async function saveEdgeToFile(edgeId) {
+async function saveEdgeToEditorToFile(edgeId, sourceCyNode, sourceNodeEndpoint, targetCyNode, targetNodeEndpoint) {
     const edgeData = cy.$id(edgeId).json(); // Get JSON data of the edge with the specified ID
     const endpointName = '/clab-save-topo-cyto-json';
 
@@ -536,9 +539,15 @@ async function saveEdgeToFile(edgeId) {
     } catch (error) {
         console.error('Failed to save edge data:', error);
     }
+
+    
+    await clabEditorAddEdge(sourceCyNode, sourceNodeEndpoint, targetCyNode, targetNodeEndpoint)
+
+    await clabEditorSaveYamlTopo()
 }
 
-function clabEditorAddEdge(sourceCyNode, sourceNodeEndpoint, targetCyNode, targetNodeEndpoint) {
+
+async function clabEditorAddEdge(sourceCyNode, sourceNodeEndpoint, targetCyNode, targetNodeEndpoint) {
     // Get the content of the Monaco Editor
     let editorContent = window.monacoEditor.getValue();
 

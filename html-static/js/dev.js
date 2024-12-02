@@ -25,9 +25,7 @@ document.addEventListener("DOMContentLoaded", async function() {
     initializeDropdownTopoViewerRoleListeners();
     initializeDropdownListeners();
 
-
-
-
+    initViewportDrawerClabEditoCheckboxToggle()
     
     // Reusable function to initialize a WebSocket connection
     function initializeWebSocket(url, onMessageCallback) {
@@ -146,7 +144,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 
 
  
-    cy.on('ehcomplete', (event, sourceNode, targetNode, addedEdge) => {
+    cy.on('ehcomplete', async (event, sourceNode, targetNode, addedEdge) => {
         console.log(`Edge created from ${sourceNode.id()} to ${targetNode.id()}`);
         console.log("Added edge:", addedEdge);
 
@@ -204,11 +202,14 @@ document.addEventListener("DOMContentLoaded", async function() {
         addedEdge.data('targetEndpoint', targetEndpoint);
 
 
-        // Save the edge element to file in the server
-        saveEdgeToFile(edgeId);
+        await showPanelContainerlabEditor(event)
 
-        // Save the edge element to clab editor panel
-        clabEditorAddEdge(sourceNode, sourceEndpoint, targetNode, targetEndpoint);
+       
+
+        // Save the edge element to file in the server CY and Yaml
+        await saveEdgeToEditorToFile(edgeId, sourceNode, sourceEndpoint, targetNode, targetEndpoint);
+
+
     });
     
 
@@ -485,14 +486,18 @@ document.addEventListener("DOMContentLoaded", async function() {
         nodeClicked = true;
     
         if (!node.isParent()) {
-             // Usage: Initialize the listener and get a live checker function
+
+            // Usage: Initialize the listener and get a live checker function
             const isViewportDrawerClabEditorCheckboxChecked = setupCheckboxListener('#viewport-drawer-clab-editor-content-01 .checkbox-input');
+
 
             if (event.originalEvent.shiftKey && isViewportDrawerClabEditorCheckboxChecked) { // Start edge creation on Shift and the isViewportDrawerClabEditorCheckboxChecked 
 
                 console.log("Shift + Click");
                 console.log("edgeHandler Node: ", node.data("extraData").longname);
-    
+
+                
+
                 // Set the edge handler flag
                 isEdgeHandlerActive = true;
     
@@ -2161,12 +2166,10 @@ function viewportDrawerLayoutHorizontal() {
 
         cy.fit();
     }, delay);
-
 }
 
 
 function viewportDrawerCaptureButton() {
-
     console.log ("viewportDrawerCaptureButton() - clicked")
 
         // Get all checkbox inputs within the specific div
@@ -2184,7 +2187,6 @@ function viewportDrawerCaptureButton() {
         });
 
         console.log ("viewportDrawerCaptureButton() - ", selectedOptions)
-
 
         if (selectedOptions.length === 0) {
             bulmaToast.toast({
@@ -2356,6 +2358,18 @@ function setupCheckboxListener(checkboxSelector) {
     return isChecked;
 }
 
+function initViewportDrawerClabEditoCheckboxToggle() {
+    const checkbox = document.querySelector('#viewport-drawer-clab-editor-content-01 .checkbox-input');
+  
+    checkbox.addEventListener('change', function () {
+      if (checkbox.checked) {
+        showPanelContainerlabEditor();
+        return isChecked;
+      } else {
+        closePanelContainerlabEditor();
+      }
+    });
+  }
 
 
 

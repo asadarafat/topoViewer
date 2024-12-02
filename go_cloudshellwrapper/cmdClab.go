@@ -1002,13 +1002,13 @@ func Clab(_ *cobra.Command, _ []string) error {
 		clabHandlers.ClabSaveTopoCytoJsonHandler(w, r, &cyTopo, workingDirectory)
 	}).Methods("POST")
 
-	// Separate handler for clab-save-topo-yaml
-	router.HandleFunc("/clab-save-topo-yaml", func(w http.ResponseWriter, r *http.Request) {
+	// Separate handler for clab-topo-yaml-save
+	router.HandleFunc("/clab-topo-yaml-save", func(w http.ResponseWriter, r *http.Request) {
 		clabHandlers.ClabSaveTopoYamlHandler(w, r, &cyTopo, workingDirectory)
 	}).Methods("POST")
 
-	// // Separate handler for get-yaml-topo-content endpoint
-	router.HandleFunc("/get-yaml-topo-content", func(w http.ResponseWriter, r *http.Request) {
+	// // Separate handler for clab-topo-yaml-get endpoint
+	router.HandleFunc("/clab-topo-yaml-get", func(w http.ResponseWriter, r *http.Request) {
 		clabHandlers.GetYamlTopoContentHandler(w, r, &cyTopo, workingDirectory)
 	}).Methods("GET")
 
