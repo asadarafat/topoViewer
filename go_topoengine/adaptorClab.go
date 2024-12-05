@@ -432,6 +432,7 @@ func (cyTopo *CytoTopology) PrintjsonBytesCytoUiV2(JsonBytesCytoUiMarshaled []by
 	if err != nil {
 		log.Error("Could not write json to file")
 	}
+
 	return err
 }
 

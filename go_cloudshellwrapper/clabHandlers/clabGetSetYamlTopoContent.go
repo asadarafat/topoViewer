@@ -11,9 +11,9 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// ClabSaveTopoCytoJsonHandler handles the save-cytoTopo endpoint without a specific cyto json file
+// ClabAddNodeSaveTopoCytoJsonHandler handles the save-cytoTopo endpoint without a specific cyto json file
 // the handles will save the cytoTopoData based on the POST request of the frontEnd
-func ClabSaveTopoCytoJsonHandler(w http.ResponseWriter, r *http.Request, cyTopo *topoengine.CytoTopology, workingDirectory string) {
+func ClabAddNodeSaveTopoCytoJsonHandler(w http.ResponseWriter, r *http.Request, cyTopo *topoengine.CytoTopology, workingDirectory string) {
 	var wrappedData map[string]interface{}
 
 	// Parse JSON body to get the new element data
@@ -87,9 +87,85 @@ func ClabSaveTopoCytoJsonHandler(w http.ResponseWriter, r *http.Request, cyTopo 
 	w.Write([]byte(`{"message": "Graph data saved successfully"}`))
 }
 
-// GetYamlTopoContent handles the /get-yaml-topo-content endpoint
-// func GetYamlTopoContentHandler(w http.ResponseWriter, r *http.Request, yamlTopoFilePath string) {
-// 	yamlData, err := os.ReadFile(yamlTopoFilePath)
+func ClabDelNodeSaveTopoCytoJsonHandler(w http.ResponseWriter, r *http.Request, cyTopo *topoengine.CytoTopology, workingDirectory string) {
+	var wrappedData map[string]interface{}
+
+	// Parse JSON body to get the node data
+	err := json.NewDecoder(r.Body).Decode(&wrappedData)
+	if err != nil {
+		http.Error(w, "Invalid request payload", http.StatusBadRequest)
+		return
+	}
+
+	log.Infof("wrappedData: %v", wrappedData)
+
+	// Extract the node ID to delete
+	nodeId, idExists := wrappedData["param1"].(string)
+	if !idExists {
+		http.Error(w, "Missing 'param1' key in request payload", http.StatusBadRequest)
+		return
+	}
+
+	log.Infof("nodeId: %v", nodeId)
+
+	// File path for dataCytoMarshall.json
+	filePath := path.Join(workingDirectory, "./html-public/"+cyTopo.ClabTopoDataV2.Name+"/dataCytoMarshall.json")
+
+	// Read existing data from the file, if it exists
+	var existingData []map[string]interface{}
+	fileContent, err := os.ReadFile(filePath)
+	if err == nil {
+		// Parse existing JSON data
+		err = json.Unmarshal(fileContent, &existingData)
+		if err != nil {
+			http.Error(w, "Failed to parse existing data", http.StatusInternalServerError)
+			return
+		}
+	} else {
+		// Initialize empty data if the file doesn't exist
+		existingData = []map[string]interface{}{}
+	}
+
+	// Filter out the node and its associated edges
+	var updatedData []map[string]interface{}
+	for _, element := range existingData {
+		if data, ok := element["data"].(map[string]interface{}); ok {
+			// Check if the element is a node or an edge
+			if element["group"] == "nodes" {
+				// Skip the node to be deleted
+				if data["id"] == nodeId {
+					continue
+				}
+			} else if element["group"] == "edges" {
+				// Skip the edge if its source or target matches the nodeId
+				if data["source"] == nodeId || data["target"] == nodeId {
+					continue
+				}
+			}
+		}
+
+		// Add the element to the updated data if it's not deleted
+		updatedData = append(updatedData, element)
+	}
+
+	// Convert the updated data back to JSON for saving
+	updatedJSON, err := json.MarshalIndent(updatedData, "", "  ")
+	if err != nil {
+		http.Error(w, "Failed to encode updated data", http.StatusInternalServerError)
+		return
+	}
+
+	// Write the updated JSON data to file
+	err = os.WriteFile(filePath, updatedJSON, 0644)
+	if err != nil {
+		http.Error(w, "Failed to save updated data", http.StatusInternalServerError)
+		return
+	}
+
+	// Respond with a success message
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(`{"message": "Node and related edges deleted successfully"}`))
+}
 
 func GetYamlTopoContentHandler(w http.ResponseWriter, r *http.Request, cyTopo *topoengine.CytoTopology, workingDirectory string) {
 	// yamlData, err := os.ReadFile(yamlTopoFilePath)

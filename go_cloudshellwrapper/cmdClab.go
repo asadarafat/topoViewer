@@ -997,9 +997,14 @@ func Clab(_ *cobra.Command, _ []string) error {
 		clabHandlers.ClabNodeBackupRestoreHandler(w, r, &cyTopo)
 	}).Methods("POST")
 
-	// Separate handler for clab-save-topo-cyto-json
-	router.HandleFunc("/clab-save-topo-cyto-json", func(w http.ResponseWriter, r *http.Request) {
-		clabHandlers.ClabSaveTopoCytoJsonHandler(w, r, &cyTopo, workingDirectory)
+	// Separate handler for clab-add-node-save-topo-cyto-json
+	router.HandleFunc("/clab-add-node-save-topo-cyto-json", func(w http.ResponseWriter, r *http.Request) {
+		clabHandlers.ClabAddNodeSaveTopoCytoJsonHandler(w, r, &cyTopo, workingDirectory)
+	}).Methods("POST")
+
+	// Separate handler for clab-del-node-save-topo-cyto-json
+	router.HandleFunc("/clab-del-node-save-topo-cyto-json", func(w http.ResponseWriter, r *http.Request) {
+		clabHandlers.ClabDelNodeSaveTopoCytoJsonHandler(w, r, &cyTopo, workingDirectory)
 	}).Methods("POST")
 
 	// Separate handler for clab-topo-yaml-save
@@ -1037,14 +1042,6 @@ func Clab(_ *cobra.Command, _ []string) error {
 	depenenciesDirectoryJs := path.Join(workingDirectory, "./html-static/js")
 	router.PathPrefix("/js").Handler(http.StripPrefix("/js", http.FileServer(http.Dir(depenenciesDirectoryJs))))
 
-	// // this is the endpoint for serving cloudshell-tools library assets
-	// depenenciesDirectoryCloudshellTools := path.Join(workingDirectory, "./html-static/cloudshell-tools")
-	// router.PathPrefix("/cloudshell-tools").Handler(http.StripPrefix("/cloudshell-tools", http.FileServer(http.Dir(depenenciesDirectoryCloudshellTools))))
-
-	// // this is the endpoint for serving cloudshell library assets
-	// depenenciesDirectoryCloudshell := path.Join(workingDirectory, "./html-static/cloudshell")
-	// router.PathPrefix("/cloudshell").Handler(http.StripPrefix("/cloudshell", http.FileServer(http.Dir(depenenciesDirectoryCloudshell))))
-
 	// this is the endpoint for serving images asset
 	depenenciesDirectoryImages := path.Join(workingDirectory, "./html-static/images")
 	router.PathPrefix("/images").Handler(http.StripPrefix("/images", http.FileServer(http.Dir(depenenciesDirectoryImages))))
@@ -1063,8 +1060,8 @@ func Clab(_ *cobra.Command, _ []string) error {
 	os.Mkdir(HtmlPublicPrefixPath+cyTopo.ClabTopoDataV2.Name+"/ws", 0755)
 	os.Mkdir(HtmlPublicPrefixPath+cyTopo.ClabTopoDataV2.Name+"/node-backup", 0755)
 
+	// copy clab-topo-yaml to clab-topo-yaml-addon.yaml
 	topoClabYamlAddon := path.Join(workingDirectory, HtmlPublicPrefixPath+cyTopo.ClabTopoDataV2.Name+"/clab-topo-yaml-addon.yaml")
-
 	tools.CopyFile(topoClabYaml, topoClabYamlAddon)
 
 	indexHtmldata := IndexHtmlStruct{
