@@ -5,6 +5,7 @@ var yamlTopoContent;
 let monacoEditorReady = new Promise((resolve) => {
     // Configure Monaco Editor paths
     require.config({ paths: { 'vs': ' https://cdn.jsdelivr.net/npm/monaco-editor@0.50.0/min/vs' }});
+    // require.config({ paths: { 'vs': 'js/library/monaco-loader.js' }});
 
    
     require(['vs/editor/editor.main'], function() {
@@ -68,73 +69,6 @@ function clabEditorLoadFile() {
         reader.readAsText(file);
     };
 }
-
-// async function clabEditorAddNode(nodeId, nodeName = "Spine-01", kind ='nokia_srlinux', image = 'ghcr.io/nokia/srlinux:latest', group = 'group-01', topoViewerRole = 'dcgw') {
-//     await monacoEditorReady;
-
-//     if (!kind || !image || !group || !topoViewerRole) {
-//         console.error("All parameters (kind, image, group, topoViewerRole) must be provided.");
-//         return;
-//     }
-
-//     // Get the content of the Monaco Editor
-//     let editorContent = window.monacoEditor.getValue();
-//     console.log ("editorContent - clabEditorAddNode: ", editorContent);  // Debug: log editorContent
-//     nodeId = (`### ${nodeId}`);
-
-//     // Updated regex pattern to capture nodeName if it exists under the specified nodeId
-//     const existingNodeRegex = new RegExp(`${nodeId}\\s*\\n\\s+(\\S+):`, 'm');
-
-//     const match = editorContent.match(existingNodeRegex);
-//     const oldNodeName = match ? match[1] : null;
-
-//     console.log("oldNodeName: ", oldNodeName);  // Debug: log oldNodeName
-
-//     // Node definition template with the new nodeName
-//     const nodeDefinition = 
-// `${nodeId}
-//     ${nodeName}:
-//       kind: ${kind}
-//       image: ${image}
-//       group: ${group}
-//       labels:
-//         topoViewer-role: ${topoViewerRole}
-
-// `;
-
-//     // Insert or update the node definition in the "nodes" section
-//     const nodesSectionIndex = editorContent.search(/^\s*nodes:/m);
-//     const nodeRegex = new RegExp(`\\s*${nodeId}\\s*\\n(\\s*.*\\n)*?\\s*topoViewer-role: .*\\n`, 'g');
-
-//     if (nodesSectionIndex !== -1) {
-//         const insertionIndex = editorContent.indexOf("  links:", nodesSectionIndex);
-//         const endOfNodesSection = insertionIndex !== -1 ? insertionIndex : editorContent.length;
-//         const nodesSection = editorContent.slice(nodesSectionIndex, endOfNodesSection);
-
-//         if (nodesSection.match(nodeRegex)) {
-//             // Replace the existing node
-//             editorContent = editorContent.replace(nodeRegex, 
-//                 `\n\n${nodeId}\n    ${nodeName}:\n      kind: ${kind}\n      image: ${image}\n      group: ${group}\n      labels:\n        topoViewer-role: ${topoViewerRole}\n`);
-//         } else {
-//             // Insert the new node at the end of the nodes section
-//             editorContent = editorContent.slice(0, endOfNodesSection) + nodeDefinition + editorContent.slice(endOfNodesSection);
-//         }
-//     } else {
-//         // Append if "nodes" section doesn't exist
-//         editorContent += (editorContent.endsWith("\n") ? "" : "\n") + nodeDefinition;
-//     }
-
-//     // Update the links section if oldNodeName exists
-//     if (oldNodeName && oldNodeName !== nodeName) {
-//         // Updated regex to match oldNodeName in any position in the endpoints array
-//         const linksRegex = new RegExp(`(endpoints:\\s*\\[\\s*".*?)(\\b${oldNodeName}\\b)(:.*?)\\]`, 'g');
-//         editorContent = editorContent.replace(linksRegex, `$1${nodeName}$3]`);
-//     }
-
-//     // Update the content of the Monaco Editor
-//     window.monacoEditor.setValue(editorContent);
-//     yamlTopoContent = editorContent;
-// }
 
 
 async function clabEditorAddNode(nodeId, nodeName = "Spine-01", kind = 'nokia_srlinux', image = 'ghcr.io/nokia/srlinux:latest', group = 'group-01', topoViewerRole = 'dcgw') {
@@ -660,76 +594,76 @@ async function saveEdgeToEditorToFile(edgeId, sourceCyNode, sourceNodeEndpoint, 
 }
 
 
-async function clabEditorAddEdge(sourceCyNode, sourceNodeEndpoint, targetCyNode, targetNodeEndpoint) {
-    // Get the content of the Monaco Editor
-    let editorContent = window.monacoEditor.getValue();
-
-    const sourceNodeName = sourceCyNode.data("name");
-    const targetNodeName = targetCyNode.data("name");
-
-    // Edge definition with dynamic endpoints array
-    const edgeDefinition = `
-    - endpoints: ["${sourceNodeName}:${sourceNodeEndpoint}", "${targetNodeName}:${targetNodeEndpoint}"]`;
-
-    // Locate the 'links' section and insert the edge definition at the end of it
-    const linksIndex = editorContent.indexOf("  links:");
-    if (linksIndex !== -1) {
-        // Find the end of the links section or where the next section begins
-        const nextSectionIndex = editorContent.indexOf("\n", linksIndex);
-        const insertionIndex = nextSectionIndex !== -1 ? nextSectionIndex : editorContent.length;
-
-        // Insert the edge definition at the end of the links section
-        editorContent = editorContent.slice(0, insertionIndex) + edgeDefinition + editorContent.slice(insertionIndex);
-    } else {
-        // If no 'links' section exists, append the edge definition at the end of the content
-        editorContent += "\n  links:" + edgeDefinition;
-    }
-
-    // Update the content of the Monaco Editor
-    window.monacoEditor.setValue(editorContent);
-    yamlTopoContent = editorContent;
-
-}
-
 // async function clabEditorAddEdge(sourceCyNode, sourceNodeEndpoint, targetCyNode, targetNodeEndpoint) {
 //     // Get the content of the Monaco Editor
 //     let editorContent = window.monacoEditor.getValue();
-//     let topology;
-
-//     try {
-//         // Parse the YAML content
-//         topology = YAML.parse(editorContent);
-//     } catch (e) {
-//         console.error("Failed to parse YAML content:", e);
-//         return;
-//     }
 
 //     const sourceNodeName = sourceCyNode.data("name");
 //     const targetNodeName = targetCyNode.data("name");
 
 //     // Edge definition with dynamic endpoints array
-//     const edgeDefinition = {
-//         endpoints: [
-//             `${sourceNodeName}:${sourceNodeEndpoint}`,
-//             `${targetNodeName}:${targetNodeEndpoint}`
-//         ]
-//     };
+//     const edgeDefinition = `
+//     - endpoints: ["${sourceNodeName}:${sourceNodeEndpoint}", "${targetNodeName}:${targetNodeEndpoint}"]`;
 
-//     // Ensure the 'links' section exists and is an array
-//     if (!Array.isArray(topology.links)) {
-//         topology.links = [];
+//     // Locate the 'links' section and insert the edge definition at the end of it
+//     const linksIndex = editorContent.indexOf("  links:");
+//     if (linksIndex !== -1) {
+//         // Find the end of the links section or where the next section begins
+//         const nextSectionIndex = editorContent.indexOf("\n", linksIndex);
+//         const insertionIndex = nextSectionIndex !== -1 ? nextSectionIndex : editorContent.length;
+
+//         // Insert the edge definition at the end of the links section
+//         editorContent = editorContent.slice(0, insertionIndex) + edgeDefinition + editorContent.slice(insertionIndex);
+//     } else {
+//         // If no 'links' section exists, append the edge definition at the end of the content
+//         editorContent += "\n  links:" + edgeDefinition;
 //     }
 
-//     // Add the edge definition to the 'links' section
-//     topology.links.push(edgeDefinition);
-
-//     // Serialize the updated topology back to YAML
-//     const updatedContent = YAML.stringify(topology, 4);
-
 //     // Update the content of the Monaco Editor
-//     window.monacoEditor.setValue(updatedContent);
-//     yamlTopoContent = updatedContent;
+//     window.monacoEditor.setValue(editorContent);
+//     yamlTopoContent = editorContent;
 // }
+
+async function clabEditorAddEdge(sourceCyNode, sourceNodeEndpoint, targetCyNode, targetNodeEndpoint) {
+    // Get the content of the Monaco Editor
+    let editorContent = window.monacoEditor.getValue();
+    let topology;
+
+    try {
+        // Parse the YAML content into a JavaScript object
+        yamlData = jsyaml.load(editorContent) || {};
+
+    } catch (e) {
+        console.error("Failed to parse YAML content:", e);
+        return;
+    }
+
+    const sourceNodeName = sourceCyNode.data("name");
+    const targetNodeName = targetCyNode.data("name");
+
+    // Edge definition with dynamic endpoints array
+    const edgeDefinition = {
+        endpoints: [
+            `${sourceNodeName}:${sourceNodeEndpoint}`,
+            `${targetNodeName}:${targetNodeEndpoint}`
+        ]
+    };
+
+    // Ensure the 'links' section exists and is an array
+    if (!Array.isArray(yamlData.topology.links)) {
+        yamlData.topology.links = [];
+    }
+
+    // Add the edge definition to the 'links' section
+    yamlData.topology.links.push(edgeDefinition);
+
+    // Serialize the updated topology back to YAML
+    const updatedYaml = jsyaml.dump(yamlData);
+
+    // Update the Monaco Editor with the new YAML content
+    window.monacoEditor.setValue(updatedYaml);
+    yamlTopoContent = updatedYaml; // Update the global or relevant state variable
+}
 
 
 
