@@ -19,15 +19,11 @@ var deploymentType
 
 document.addEventListener("DOMContentLoaded", async function() {
 
-
     detectColorScheme() 
-
     await changeTitle()
-
     initializeDropdownTopoViewerRoleListeners();
-
     initializeDropdownListeners();
-
+    initViewportDrawerClabEditoCheckboxToggle()
     
     // Reusable function to initialize a WebSocket connection
     function initializeWebSocket(url, onMessageCallback) {
@@ -55,8 +51,6 @@ document.addEventListener("DOMContentLoaded", async function() {
         return socket;
     }
 
-
-    // WebSocket for uptime
     // WebSocket for uptime
     const socketUptime = initializeWebSocket("/uptime", async (msgUptime) => {
         environments =  await getEnvironments();
@@ -144,9 +138,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 
     let isEdgeHandlerActive = false; // Flag to track if edge handler is active
 
-
- 
-    cy.on('ehcomplete', (event, sourceNode, targetNode, addedEdge) => {
+    cy.on('ehcomplete', async (event, sourceNode, targetNode, addedEdge) => {
         console.log(`Edge created from ${sourceNode.id()} to ${targetNode.id()}`);
         console.log("Added edge:", addedEdge);
 
@@ -159,41 +151,59 @@ document.addEventListener("DOMContentLoaded", async function() {
         const edgeId = addedEdge.id(); // Extracts the edge ID
         
         // Helper function to get the next available endpoint with pattern detection
-        function getNextEndpoint(nodeId, isSource) {
-            const edges = cy.edges(`[${isSource ? 'source' : 'target'} = "${nodeId}"]`);
+        function getNextEndpoint(nodeId) {
+            // Get all edges connected to the node, both as source and target
+            const edges = cy.edges(`[source = "${nodeId}"], [target = "${nodeId}"]`);
             const e1Pattern = /^e1-(\d+)$/;
             const ethPattern = /^eth(\d+)$/;
-            let maxEndpoint = 0;
-            let selectedPattern = e1Pattern; // Default to e1- pattern
-
+            let usedNumbers = new Set();
+            let selectedPattern = null; // Determine the pattern based on existing endpoints
+        
             edges.forEach(edge => {
-                const endpoint = edge.data(isSource ? "sourceEndpoint" : "targetEndpoint");
-                let match = endpoint ? endpoint.match(e1Pattern) : null;
-                if (match) {
-                    // If endpoint matches e1- pattern
-                    const endpointNum = parseInt(match[1], 10);
-                    if (endpointNum > maxEndpoint) {
-                        maxEndpoint = endpointNum;
-                    }
-                } else {
-                    // If endpoint doesn't match e1-, try eth pattern
-                    match = endpoint ? endpoint.match(ethPattern) : null;
+                // Check both sourceEndpoint and targetEndpoint for the connected node
+                ['sourceEndpoint', 'targetEndpoint'].forEach(key => {
+                    const endpoint = edge.data(key);
+                    // Skip if the endpoint is not associated with the current node
+                    const isNodeEndpoint = (edge.data('source') === nodeId && key === 'sourceEndpoint') ||
+                                           (edge.data('target') === nodeId && key === 'targetEndpoint');
+                    if (!endpoint || !isNodeEndpoint) return;
+        
+                    let match = endpoint.match(e1Pattern);
                     if (match) {
-                        // Switch to eth pattern if detected
-                        selectedPattern = ethPattern;
+                        // Endpoint matches e1- pattern
                         const endpointNum = parseInt(match[1], 10);
-                        if (endpointNum > maxEndpoint) {
-                            maxEndpoint = endpointNum;
+                        usedNumbers.add(endpointNum);
+                        if (!selectedPattern) selectedPattern = e1Pattern;
+                    } else {
+                        match = endpoint.match(ethPattern);
+                        if (match) {
+                            // Endpoint matches eth pattern
+                            const endpointNum = parseInt(match[1], 10);
+                            usedNumbers.add(endpointNum);
+                            if (!selectedPattern) selectedPattern = ethPattern;
                         }
                     }
-                }
+                });
             });
-
-            // Increment max endpoint found and format based on selected pattern
+        
+            // If no pattern was detected, default to e1Pattern
+            if (!selectedPattern) {
+                selectedPattern = e1Pattern;
+            }
+        
+            // Find the smallest unused number
+            let endpointNum = 1;
+            while (usedNumbers.has(endpointNum)) {
+                endpointNum++;
+            }
+        
+            // Return the new endpoint formatted according to the pattern
             return selectedPattern === e1Pattern
-                ? `e1-${maxEndpoint + 1}`
-                : `eth${maxEndpoint + 1}`;
+                ? `e1-${endpointNum}`
+                : `eth${endpointNum}`;
         }
+        
+        
 
         // Calculate next available source and target endpoints
         const sourceEndpoint = getNextEndpoint(sourceNode.id(), true);
@@ -203,38 +213,15 @@ document.addEventListener("DOMContentLoaded", async function() {
         addedEdge.data('sourceEndpoint', sourceEndpoint);
         addedEdge.data('targetEndpoint', targetEndpoint);
 
-        // Save the edge element to file in the server
-        saveEdgeToFile(edgeId);
+        await showPanelContainerlabEditor(event)
 
-        // Save the edge element to clab editor panel
-        clabEditorAddEdge(sourceNode, sourceEndpoint, targetNode, targetEndpoint);
+        // Save the edge element to file in the server CY and Yaml
+        await saveEdgeToEditorToFile(edgeId, sourceNode, sourceEndpoint, targetNode, targetEndpoint);
     });
     
-    async function saveEdgeToFile(edgeId) {
-        const edgeData = cy.$id(edgeId).json(); // Get JSON data of the edge with the specified ID
-        const endpointName = '/clab-save-topo-cyto-json';
-    
-        try {
-            // Send the enhanced edge data directly without wrapping it in an object
-            const response = await sendRequestToEndpointPost(endpointName, [edgeData]);
-            console.log('Edge data saved successfully', response);
-        } catch (error) {
-            console.error('Failed to save edge data:', error);
-        }
-    }
-    
-    
-
-    // cy.on('remove', 'edge', () => {
-    //     saveEdgeToFile();
-    // });
-      
-      
-
     loadCytoStyle();
 
     function loadCytoStyle() {
-        
         // detect light or dark mode
         const colorScheme =  detectColorScheme();
         console.log('The user prefers:', colorScheme);
@@ -276,7 +263,6 @@ document.addEventListener("DOMContentLoaded", async function() {
     // Enable grid guide extension
     cy.gridGuide({
         // On/Off Modules
-
         snapToGridOnRelease: true,
         snapToGridDuringDrag: false,
         snapToAlignmentLocationOnRelease: true,
@@ -323,8 +309,8 @@ document.addEventListener("DOMContentLoaded", async function() {
     });
 
     // Fetch and load element data from a JSON file
-    // Dev Version EDITOR
-    fetch("")
+    // Main Version EDITOR
+    fetch("dataCytoMarshall.json")
 
         .then((response) => response.json())
         .then((elements) => {
@@ -366,7 +352,6 @@ document.addEventListener("DOMContentLoaded", async function() {
 
     
     let shiftKeyDown = false;
-
     // Detect when Shift is pressed or released
     document.addEventListener('keydown', (event) => {
     if (event.key === 'Shift') {
@@ -380,33 +365,35 @@ document.addEventListener("DOMContentLoaded", async function() {
     }
     });
 
+    let altKeyDown = false;
+    // Detect when Alt is pressed or released
+    document.addEventListener('keydown', (event) => {
+    if (event.key === 'Ctrl') {
+        altKeyDown = true;
+    }
+    });
 
-    //- Toggle the Panel(s) when clicking on the cy container
+    document.addEventListener('keyup', (event) => {
+    if (event.key === 'Ctrl') {
+        altKeyDown = false;
+    }
+    });
+
     //- Toggle the Panel(s) when clicking on the cy container
     document.getElementById("cy").addEventListener("click", function(event) {
 
         console.log("cy container clicked");
-
         console.log("isPanel01Cy: ", isPanel01Cy);
         console.log("nodeClicked: ", nodeClicked);
         console.log("edgeClicked: ", edgeClicked);
 
-
         //- This code will be executed when you click anywhere in the Cytoscape container
         //- You can add logic specific to the container here
-        //- This code will be executed when you click anywhere in the Cytoscape container
-        //- You can add logic specific to the container here
-
-        loadCytoStyle();
 
         if (!nodeClicked && !edgeClicked) {
-
             console.log("!nodeClicked  -- !edgeClicked");
-
             if (!isPanel01Cy) {
-
                 console.log("!isPanel01Cy: ");
-
                 // Remove all Overlayed Panel
                 // Get all elements with the class "panel-overlay"
                 var panelOverlays = document.getElementsByClassName("panel-overlay");
@@ -443,17 +430,16 @@ document.addEventListener("DOMContentLoaded", async function() {
 
         appendMessage(`"isPanel01Cy-cy: " ${isPanel01Cy}`);
         appendMessage(`"nodeClicked: " ${nodeClicked}`);
-
-        
     });
 
     // Listen for tap or click on the Cytoscape canvas
     cy.on('click', async (event) => {
-        if (event.target === cy && shiftKeyDown) { // Ensures Shift + click/tap 
 
+        // Usage: Initialize the listener and get a live checker function
+        const isViewportDrawerClabEditorCheckboxChecked = setupCheckboxListener('#viewport-drawer-clab-editor-content-01 .checkbox-input');
+        if (event.target === cy && shiftKeyDown && isViewportDrawerClabEditorCheckboxChecked) { // Ensures Shift + click/tap and the isViewportDrawerClabEditorCheckboxChecked 
             const pos = event.position;
             const newNodeId = 'nodeId-' + (cy.nodes().length + 1);
-
             // Add the new node to the graph
             cy.add({
                 group: 'nodes',
@@ -483,7 +469,6 @@ document.addEventListener("DOMContentLoaded", async function() {
 
             var cyNode = cy.$id(newNodeId); // Get cytoscpe node object id
             
-
             await showPanelContainerlabEditor(event)
             // sleep (1000)
             await showPanelNodeEditor(cyNode)
@@ -493,72 +478,73 @@ document.addEventListener("DOMContentLoaded", async function() {
     });
     
     // Click event listener for nodes
-    cy.on("click", "node", function(event) {
+    cy.on("click", "node", async function(event) {
         console.log("isEdgeHandlerActive after node click: ", isEdgeHandlerActive);
     
         // Ignore the click event if edge handler is active
         if (isEdgeHandlerActive) {
             return;
         }
-    
         const node = event.target;
         nodeClicked = true;
-    
         if (!node.isParent()) {
-            // if (event.originalEvent.shiftKey && (document.getElementById("panel-clab-editor").style.display != "none")) { // Start edge creation on Shift + Click and the clab editor panel is open
-            if (event.originalEvent.shiftKey) { // Start edge creation on Shift
+            // Usage: Initialize the listener and get a live checker function
+            const isViewportDrawerClabEditorCheckboxChecked = setupCheckboxListener('#viewport-drawer-clab-editor-content-01 .checkbox-input');
 
+            if (event.originalEvent.shiftKey && isViewportDrawerClabEditorCheckboxChecked) { // Start edge creation on Shift and the isViewportDrawerClabEditorCheckboxChecked 
                 console.log("Shift + Click");
                 console.log("edgeHandler Node: ", node.data("extraData").longname);
-    
+
                 // Set the edge handler flag
                 isEdgeHandlerActive = true;
-    
                 // Start the edge handler from the clicked node
                 eh.start(node);
 
+                console.log("Node is an editor node");
+
+                showPanelNodeEditor(node)
+                // after this cy.on('ehcomplete') is called, the 'ehcomplete' event will be triggered
+            } 
+            if (event.originalEvent.altKey && isViewportDrawerClabEditorCheckboxChecked  && (node.data("editor") === "true")) { // node deletion on Alt and the isViewportDrawerClabEditorCheckboxChecked 
+                console.log("Alt + Click is enabled");
+                console.log("deleted Node: ", node.data("extraData").longname);
+                deleteNodeToEditorToFile(node)
 
             } else {
-                if (node.data("editor") === "true") {
-                    console.log("Node is an editor node");
-                    showPanelNodeEditor(node)
-                } else {
-                    // Remove all Overlayed Panel
-                    const panelOverlays = document.getElementsByClassName("panel-overlay");
-                    for (let i = 0; i < panelOverlays.length; i++) {
-                        panelOverlays[i].style.display = "none";
-                    }
-                    console.log(node);
-                    console.log(node.data("containerDockerExtraAttribute").status);
-                    console.log(node.data("extraData"));
-                    if (document.getElementById("panel-node").style.display === "none") {
-                        document.getElementById("panel-node").style.display = "block";
-                    } else {
-                        document.getElementById("panel-node").style.display = "none";
-                    }
-        
-                    document.getElementById("panel-node-name").textContent = node.data("extraData").longname;
-                    document.getElementById("panel-node-status").textContent = node.data("containerDockerExtraAttribute").status;
-                    document.getElementById("panel-node-kind").textContent = node.data("extraData").kind;
-                    document.getElementById("panel-node-image").textContent = node.data("extraData").image;
-                    document.getElementById("panel-node-mgmtipv4").textContent = node.data("extraData").mgmtIpv4Addresss;
-                    document.getElementById("panel-node-mgmtipv6").textContent = node.data("extraData").mgmtIpv6Address;
-                    document.getElementById("panel-node-fqdn").textContent = node.data("extraData").fqdn;
-                    document.getElementById("panel-node-group").textContent = node.data("extraData").group;
-                    document.getElementById("panel-node-topoviewerrole").textContent = node.data("topoViewerRole");
-        
-                    // Set selected node-long-name to global variable
-                    globalSelectedNode = node.data("extraData").longname;
-                    console.log("internal: ", globalSelectedNode);
-        
-                    appendMessage(`"isPanel01Cy-cy: " ${isPanel01Cy}`);
-                    appendMessage(`"nodeClicked: " ${nodeClicked}`);
+                // Remove all Overlayed Panel
+                const panelOverlays = document.getElementsByClassName("panel-overlay");
+                for (let i = 0; i < panelOverlays.length; i++) {
+                    panelOverlays[i].style.display = "none";
                 }
+                console.log(node);
+                console.log(node.data("containerDockerExtraAttribute").status);
+                console.log(node.data("extraData"));
+                if (document.getElementById("panel-node").style.display === "none") {
+                    document.getElementById("panel-node").style.display = "block";
+                } else {
+                    document.getElementById("panel-node").style.display = "none";
+                }
+    
+                document.getElementById("panel-node-name").textContent = node.data("extraData").longname;
+                document.getElementById("panel-node-status").textContent = node.data("containerDockerExtraAttribute").status;
+                document.getElementById("panel-node-kind").textContent = node.data("extraData").kind;
+                document.getElementById("panel-node-image").textContent = node.data("extraData").image;
+                document.getElementById("panel-node-mgmtipv4").textContent = node.data("extraData").mgmtIpv4Addresss;
+                document.getElementById("panel-node-mgmtipv6").textContent = node.data("extraData").mgmtIpv6Address;
+                document.getElementById("panel-node-fqdn").textContent = node.data("extraData").fqdn;
+                document.getElementById("panel-node-group").textContent = node.data("extraData").group;
+                document.getElementById("panel-node-topoviewerrole").textContent = node.data("topoViewerRole");
+    
+                // Set selected node-long-name to global variable
+                globalSelectedNode = node.data("extraData").longname;
+                console.log("internal: ", globalSelectedNode);
+    
+                appendMessage(`"isPanel01Cy-cy: " ${isPanel01Cy}`);
+                appendMessage(`"nodeClicked: " ${nodeClicked}`);
             }
         }
     });
 
-    // Click event listener for edges
     // Click event listener for edges
     cy.on("click", "edge", async function(event) {
 
@@ -618,8 +604,6 @@ document.addEventListener("DOMContentLoaded", async function() {
         document.getElementById("panel-link-endpoint-a-mac-address").textContent = actualLinkMacPair[0].sourceIfMac
         document.getElementById("panel-link-endpoint-b-mac-address").textContent = actualLinkMacPair[0].targetIfMac
 
-
-
         // setting default impairment endpoint-a values by getting the data from clab via /clab-link-impairment GET API
         clabSourceLinkArgsList = [`${clickedEdge.data("extraData").clabSourceLongName}`,`${clickedEdge.data("extraData").clabSourcePort}`]
         clabSourceLinkImpairmentClabData = await sendRequestToEndpointGetV2("/clab-link-impairment", clabSourceLinkArgsList)
@@ -657,8 +641,6 @@ document.addEventListener("DOMContentLoaded", async function() {
         } else {
             console.log("Empty or invalid JSON response received");
         }
-
-
 
 
         // setting default impairment endpoint-b values by getting the data from clab via /clab-link-impairment GET API
@@ -699,16 +681,12 @@ document.addEventListener("DOMContentLoaded", async function() {
             console.log("Empty or invalid JSON response received");
         }
 
-
-
-
         // set selected edge-id to global variable
         globalSelectedEdge = clickedEdge.data("id")
 
         appendMessage(`"edgeClicked: " ${edgeClicked}`);
     });
 
- 
 
 
     function generateNodesEvent(event) {
@@ -722,14 +700,11 @@ document.addEventListener("DOMContentLoaded", async function() {
         const numNodes = document.getElementById("generateNodesInput").value;
         console.log(numNodes);
         //- Check if the number of node is empty
-        //- Check if the number of node is empty
         if (numNodes === null) {
-            //- if node number empty do nothing
             //- if node number empty do nothing
             return;
         }
         const numNodesToGenerate = parseInt(numNodes, 10);
-        //- Check if the number of node is positive
         //- Check if the number of node is positive
         if (isNaN(numNodesToGenerate) || numNodesToGenerate <= 0) {
             //- Invalid input
@@ -739,7 +714,6 @@ document.addEventListener("DOMContentLoaded", async function() {
             );
             return;
         }
-        //- Generate nodes with random positions
         //- Generate nodes with random positions
         for (let i = 0; i < numNodesToGenerate; i++) {
             const nodeName = `node-${i + 1}`;
@@ -755,21 +729,16 @@ document.addEventListener("DOMContentLoaded", async function() {
                 },
             };
             //-cy.add(newNode);
-            //-cy.add(newNode);
             try {
                 cy.add(newNode);
                 //- throw new Error('This is an example exception');
-                //- throw new Error('This is an example exception');
             } catch (error) {
                 //- Log the exception to the console
-                //- Log the exception to the console
                 console.error("An exception occurred:", error);
-                //- Log the exception to notification message to the textarea
                 //- Log the exception to notification message to the textarea
                 appendMessage("An exception occurred:" + error);
             }
         }
-        //- Generate random edges between nodes
         //- Generate random edges between nodes
         for (let i = 0; i < numNodesToGenerate; i++) {
             const sourceNode = `node-${i + 1}`;
@@ -787,18 +756,14 @@ document.addEventListener("DOMContentLoaded", async function() {
                 try {
                     cy.add(newEdge);
                     //- throw new Error('This is an example exception');
-                    //- throw new Error('This is an example exception');
                 } catch (error) {
                     //- Log the exception to the console
-                    //- Log the exception to the console
                     console.error("An exception occurred:", error);
-                    //- Log the exception to notification message to the textarea
                     //- Log the exception to notification message to the textarea
                     appendMessage("An exception occurred::" + error);
                 }
             }
         }
-        //- run layout
         //- run layout
         const layout = cy.layout({
             name: "cola",
@@ -809,7 +774,6 @@ document.addEventListener("DOMContentLoaded", async function() {
             maxSimulationTime: 1500,
         });
         layout.run();
-        //-//- Append a notification message to the textarea
         //-//- Append a notification message to the textarea
         console.log(
             "Info: " +
@@ -824,27 +788,20 @@ document.addEventListener("DOMContentLoaded", async function() {
     function spawnNodeEvent(event) {
         //- Add a click event listener to the 'Submit' button in the hidden form
         //- Get the node name from the input field
-        //- Add a click event listener to the 'Submit' button in the hidden form
-        //- Get the node name from the input field
         const nodeName = document.getElementById("nodeName").value;
         console.log(nodeName);
         //- Check if a node name is empty
-        //- Check if a node name is empty
         if (nodeName == "") {
-            //- append message in textArea
             //- append message in textArea
             appendMessage("Error: Enter node name.");
             return;
         }
         //- Check if a node with the same name already exists
-        //- Check if a node with the same name already exists
         if (cy.$(`node[id = "${nodeName}"]`).length > 0) {
-            //- append message in textArea
             //- append message in textArea
             appendMessage("Error: Node with this name already exists.");
             return;
         }
-        //- Create a new node element
         //- Create a new node element
         const newNode = {
             group: "nodes",
@@ -855,9 +812,7 @@ document.addEventListener("DOMContentLoaded", async function() {
             },
         };
         //- Add the new node to Cytoscape.js
-        //- Add the new node to Cytoscape.js
         cy.add(newNode);
-        //- Randomize the positions and center the graph
         //- Randomize the positions and center the graph
         const layout = cy.layout({
             name: "cola",
@@ -869,67 +824,13 @@ document.addEventListener("DOMContentLoaded", async function() {
         });
         layout.run();
         //- Append a notification message to the textarea
-        //- Append a notification message to the textarea
         console.log("Info: " + `Nice! Node "${nodeName}" added successfully.`);
         appendMessage("Info: " + `Nice! Node "${nodeName}" added successfully.`);
-    }
-
-    function nodeFindEvent(event) {
-        //- Get a reference to your Cytoscape instance (assuming it's named 'cy')
-        //- const cy = window.cy; //- Replace 'window.cy' with your actual Cytoscape instance
-        //- Find the node with the specified name
-        //- Get a reference to your Cytoscape instance (assuming it's named 'cy')
-        //- const cy = window.cy; //- Replace 'window.cy' with your actual Cytoscape instance
-        //- Find the node with the specified name
-        const nodeName = document.getElementById("nodeFindInput").value;
-        const node = cy.$(`node[name = "${nodeName}"]`);
-        //- Check if the node exists
-        //- Check if the node exists
-        if (node.length > 0) {
-            // console
-            // console
-            console.log("Info: " + 'Sweet! Node "' + nodeName + '" is in the house.');
-            appendMessage("Info: " + 'Sweet! Node "' + nodeName + '" is in the house.');
-            //- Apply a highlight style to the node
-            //- Apply a highlight style to the node
-            node.style({
-                "border-color": "red",
-                "border-width": "2px",
-                "background-color": "yellow",
-            });
-            //- Zoom out on the node
-            //- Zoom out on the node
-            cy.fit();
-            //- Zoom in on the node
-            //- Zoom in on the node
-            cy.animate({
-                zoom: {
-                    level: 5,
-                    position: {
-                        x: node.position("x"),
-                        y: node.position("y"),
-                    },
-                    renderedPosition: {
-                        x: node.renderedPosition("x"),
-                        y: node.renderedPosition("y"),
-                    },
-                },
-                duration: 1500,
-            });
-        } else {
-            console.error(
-                `Bro, I couldn't find a node named "${nodeName}". Try another one.`,
-            );
-            appendMessage(
-                `Bro, I couldn't find a node named "${nodeName}". Try another one.`,
-            );
-        }
     }
 
     function zoomToFitDrawer() {
         const initialZoom = cy.zoom();
         appendMessage(`Bro, initial zoom level is "${initialZoom}".`);
-        //- Fit all nodes possible with padding
         //- Fit all nodes possible with padding
         cy.fit();
         const currentZoom = cy.zoom();
@@ -942,21 +843,14 @@ document.addEventListener("DOMContentLoaded", async function() {
         //- Function to get the default node style from cy-style.json
         //- weight: (edge) => 1, // You can adjust the weight function if needed
         //- weight: (edge) => edge.data('distance')
-        // Usage example:
-        // highlightShortestPath('node-a', 'node-b'); // Replace with your source and target node IDs
-        //- Function to get the default node style from cy-style.json
-        //- weight: (edge) => 1, // You can adjust the weight function if needed
-        //- weight: (edge) => edge.data('distance')
 
         console.log("im triggered");
 
-        // Remove existing highlight from all edges
         // Remove existing highlight from all edges
         cy.edges().forEach((edge) => {
             edge.removeClass("spf");
         });
 
-        // Get the node sourceNodeId from pathFinderSourceNodeInput and targetNodeId from pathFinderTargetNodeInput
         // Get the node sourceNodeId from pathFinderSourceNodeInput and targetNodeId from pathFinderTargetNodeInput
         const sourceNodeId = document.getElementById(
             "pathFinderSourceNodeInput",
@@ -965,7 +859,6 @@ document.addEventListener("DOMContentLoaded", async function() {
             "pathFinderTargetNodeInput",
         ).value;
 
-        // Assuming you have 'cy' as your Cytoscape instance
         // Assuming you have 'cy' as your Cytoscape instance
         const sourceNode = cy.$(`node[id="${sourceNodeId}"]`);
         const targetNode = cy.$(`node[id="${targetNodeId}"]`);
@@ -988,7 +881,6 @@ document.addEventListener("DOMContentLoaded", async function() {
         );
 
         // Check if both nodes exist
-        // Check if both nodes exist
         if (sourceNode.length === 0 || targetNode.length === 0) {
             console.error(
                 `Bro, couldn't find the source or target node you specified. Double-check the node names.`,
@@ -1000,45 +892,31 @@ document.addEventListener("DOMContentLoaded", async function() {
         }
 
         // Get the Dijkstra result with the shortest path
-        // Get the Dijkstra result with the shortest path
         const dijkstraResult = cy.elements().dijkstra({
             root: sourceNode,
             weight: (edge) => 1,
             // Use the custom weight attribute
             // weight: edge => edge.data('customWeight'),
-            // Use the custom weight attribute
-            // weight: edge => edge.data('customWeight'),
         });
-        // Get the shortest path from Dijkstra result
         // Get the shortest path from Dijkstra result
         const shortestPathEdges = dijkstraResult.pathTo(targetNode);
         console.log(shortestPathEdges);
 
-        // Check if there is a valid path (shortestPathEdges is not empty)
         // Check if there is a valid path (shortestPathEdges is not empty)
         if (shortestPathEdges.length > 1) {
             //// Apply a style to highlight the shortest path edges
             // shortestPathEdges.style({
             //	'line-color': 'red',
             //	'line-style': 'solid',
-            // });
-            //// Apply a style to highlight the shortest path edges
-            // shortestPathEdges.style({
-            //	'line-color': 'red',
-            //	'line-style': 'solid',
-            // });
 
-            // Highlight the shortest path
             // Highlight the shortest path
             shortestPathEdges.forEach((edge) => {
                 edge.addClass("spf");
             });
 
             //- Zoom out on the node
-            //- Zoom out on the node
             cy.fit();
 
-            //- Zoom in on the node
             //- Zoom in on the node
             cy.animate({
                 zoom: {
@@ -1054,8 +932,6 @@ document.addEventListener("DOMContentLoaded", async function() {
                 },
                 duration: 1500,
             });
-            // throw log
-            // throw log
             console.log(
                 "Info: " +
                 "Yo, check it out! Shorthest Path from-" +
@@ -1083,7 +959,6 @@ document.addEventListener("DOMContentLoaded", async function() {
                 sourceNodeId = edge.source().id();
                 targetNodeId = edge.target().id();
                 // You can access other properties of the edge, e.g., source, target, data, etc.
-                // You can access other properties of the edge, e.g., source, target, data, etc.
 
                 appendMessage("Info: " + "Edge ID: " + edgeId);
                 appendMessage("Info: " + "Source Node ID: " + sourceNodeId);
@@ -1104,7 +979,6 @@ document.addEventListener("DOMContentLoaded", async function() {
         cy.nodes().forEach(function(node) {
             var nodeId = node.data("id");
 
-            // Find the corresponding status nodes based on node ID
             // Find the corresponding status nodes based on node ID
             var statusGreenNode = cy.$(`node[name="${nodeId}-statusGreen"]`);
             var statusOrangeNode = cy.$(`node[name="${nodeId}-statusOrange"]`);
@@ -1195,20 +1069,13 @@ document.addEventListener("DOMContentLoaded", async function() {
     // Start of JS Generic Functions
     // Start of JS Generic Functions
     // 
-    // 
-    // Start of JS Generic Functions
-    // Start of JS Generic Functions
-    // 
 
 
-    //- Function to get the default node style from cy-style.json
     //- Function to get the default node style from cy-style.json
     async function getDefaultNodeStyle(node) {
         try {
             //- Fetch the cy-style.json file
-            //- Fetch the cy-style.json file
             const response = await fetch("cy-style.json");
-            //- Check if the response is successful (status code 200)
             //- Check if the response is successful (status code 200)
             if (!response.ok) {
                 throw new Error(
@@ -1216,10 +1083,7 @@ document.addEventListener("DOMContentLoaded", async function() {
                 );
             }
             //- Parse the JSON response
-            //- Parse the JSON response
             const styleData = await response.json();
-            //- Extract the default node style from the loaded JSON
-            //- Adjust this based on your JSON structure
             //- Extract the default node style from the loaded JSON
             //- Adjust this based on your JSON structure
             const defaultNodeStyle = styleData[0].style;
@@ -1227,7 +1091,6 @@ document.addEventListener("DOMContentLoaded", async function() {
         } catch (error) {
             console.error("Error loading cy-style.json:", error);
             appendMessage(`Error loading cy-style.json: ${error}`);
-            //- Return a default style in case of an error
             //- Return a default style in case of an error
             return {
                 "background-color": "blue",
@@ -1238,12 +1101,10 @@ document.addEventListener("DOMContentLoaded", async function() {
     }
 
     ///-logMessagesPanel Function to add a click event listener to the copy button
-    ///-logMessagesPanel Function to add a click event listener to the copy button
     const copyButton = document.getElementById("copyToClipboardButton");
     copyButton.className = "button is-smallest-element";
     copyButton.addEventListener("click", copyToClipboard);
 
-    /// logMessagesPanel Function to copy textarea content to clipboard
     /// logMessagesPanel Function to copy textarea content to clipboard
     function copyToClipboard() {
         const textarea = document.getElementById("notificationTextarea");
@@ -1251,16 +1112,7 @@ document.addEventListener("DOMContentLoaded", async function() {
         document.execCommand("copy");
     }
 
-
-
-    // function closePanelEvent(event, panel) {
-    //     panel.style.display = "block";
-    //     console.log(panel.style.display);
-    //     panel.style.display = "none";
-    // }
-
     function createModal(modalId, modalContent) {
-        // Create the modal
         // Create the modal
         const htmlContent = `
                                                         <div id="${modalId}" class="modal">
@@ -1323,10 +1175,8 @@ document.addEventListener("DOMContentLoaded", async function() {
                                                                 `;
 
         // Instantiate modal
-        // Instantiate modal
         createModal("modalSaveViewport", modalContentSaveViewport);
 
-        // create event listener
         // create event listener
         const performActionButton = document.getElementById("performActionButton");
         performActionButton.addEventListener("click", function() {
@@ -1369,15 +1219,10 @@ document.addEventListener("DOMContentLoaded", async function() {
         });
 
         // show modal
-        // show modal
         modal = document.getElementById(modalId);
         modal.classList.add("is-active");
     }
 
-    // 
-    // End of JS Generic Functions section
-    // End of JS Generic Functions section
-    // 
     // 
     // End of JS Generic Functions section
     // End of JS Generic Functions section
@@ -1574,8 +1419,23 @@ async function linkWireshark(event, option, endpoint) {
                 wiresharkHref = `clab-capture://${clabUser}@${clabServerAddress}?${clabTargetLongName}?${clabTargetPort}`
                 console.log("linkWireshark- wiresharkHref: ", wiresharkHref)
             }
-
             window.open(wiresharkHref);
+
+        } else if (option == "edgeShark") {
+            if (endpoint == "source") {
+                baseUrl = `packetflix:ws://${clabServerAddress}:5001/capture?`;
+                urlParams = `container={"network-interfaces":["${clabSourcePort}"],"name":"${clabSourceLongName.toLocaleLowerCase()}","type":"docker","prefix":""}&nif=${clabSourcePort}`;
+                edgeSharkHref = baseUrl + urlParams;
+                console.log("linkWireshark - edgeSharkHref: ", edgeSharkHref)
+                window.open(edgeSharkHref);
+
+            } else if (endpoint == "target") {
+                baseUrl = `packetflix:ws://${clabServerAddress}:5001/capture?`;
+                urlParams = `container={"network-interfaces":["${clabTargetPort}"],"name":"${clabTargetLongName.toLocaleLowerCase()}","type":"docker","prefix":""}&nif=${clabTargetPort}`;
+                edgeSharkHref = baseUrl + urlParams;
+                console.log("linkWireshark - edgeSharkHref: ", edgeSharkHref)
+                window.open(edgeSharkHref);
+            }
 
         } else if (option == "copy") {
             if (endpoint == "source") {
@@ -1658,15 +1518,11 @@ async function showPanelTopoViewerClient(event) {
     const htmlContent = `
             <h6>Wireshark Capture</h6>
             <p>
-                Please download the following helper app:
+                TopoViewer offers a remote capture feature for intercepting Containerlab node endpoints with the help from EdgeShark. 
+                For the best experience, it's recommended to have both TopoViewer and its EdgeShark's helper app (packetflix) installed on client-side. 
             </p>
-            <ul>
-                <li><a href="${hrefWindows}">Windows version</a> </li>
-                <li><a href="${hrefMac}">MAC version</a> </li>
-            </ul>
             <p>
-                TopoViewer offers a remote capture feature for intercepting ContainerLab node endpoints. 
-                For the best experience, it's recommended to have both TopoViewer and its helper app installed on client-side. 
+                please refer to this link https://containerlab.dev/manual/wireshark/#edgeshark-integration for more information on how to install the helper app.
                 With the TopoViewer helper app, you can effortlessly automate the launch of Wireshark's GUI. 
             </p>
             <p>
@@ -1805,7 +1661,48 @@ function viewportButtonsLayoutAlgo() {
 }
 
 
-
+function viewportNodeFindEvent(event) {
+    //- Get a reference to your Cytoscape instance (assuming it's named 'cy')
+    //- const cy = window.cy; //- Replace 'window.cy' with your actual Cytoscape instance
+    //- Find the node with the specified name
+    const nodeName = document.getElementById("viewport-drawer-topology-overview-content-edit").value;
+    const node = cy.$(`node[name = "${nodeName}"]`);
+    //- Check if the node exists
+    if (node.length > 0) {
+        console.log("Info: " + 'Sweet! Node "' + nodeName + '" is in the house.');
+        appendMessage("Info: " + 'Sweet! Node "' + nodeName + '" is in the house.');
+        //- Apply a highlight style to the node
+        node.style({
+            "border-color": "red",
+            "border-width": "2px",
+            "background-color": "yellow",
+        });
+        //- Zoom out on the node
+        cy.fit();
+        //- Zoom in on the node
+        cy.animate({
+            zoom: {
+                level: 5,
+                position: {
+                    x: node.position("x"),
+                    y: node.position("y"),
+                },
+                renderedPosition: {
+                    x: node.renderedPosition("x"),
+                    y: node.renderedPosition("y"),
+                },
+            },
+            duration: 1500,
+        });
+    } else {
+        console.error(
+            `Bro, I couldn't find a node named "${nodeName}". Try another one.`,
+        );
+        appendMessage(
+            `Bro, I couldn't find a node named "${nodeName}". Try another one.`,
+        );
+    }
+}
 
 async function layoutAlgoChange(event) {
 
@@ -1911,8 +1808,6 @@ function viewportButtonsTopologyCapture() {
 function viewportButtonsLabelEndpoint() {
     if (linkEndpointVisibility) {
         cy.edges().forEach(function(edge) {
-            // edge.style("source-label", ".");
-            // edge.style("target-label", ".");
             edge.style("text-opacity", 0);
             edge.style("text-background-opacity", 0);
 
@@ -2065,7 +1960,6 @@ function viewportDrawerLayoutVertical() {
 
         let yPos = 0;
         // const yOffset = 50;
-        // const yOffset = 50;
 
         // Position parent nodes vertically and center them horizontally
         sortedParents.forEach(function(parentId) {
@@ -2169,12 +2063,10 @@ function viewportDrawerLayoutHorizontal() {
 
         cy.fit();
     }, delay);
-
 }
 
 
 function viewportDrawerCaptureButton() {
-
     console.log ("viewportDrawerCaptureButton() - clicked")
 
         // Get all checkbox inputs within the specific div
@@ -2193,7 +2085,6 @@ function viewportDrawerCaptureButton() {
 
         console.log ("viewportDrawerCaptureButton() - ", selectedOptions)
 
-
         if (selectedOptions.length === 0) {
             bulmaToast.toast({
                 message: `Hey there, please pick at least one option.😊👌`,
@@ -2203,7 +2094,6 @@ function viewportDrawerCaptureButton() {
                 closeOnClick: true,
             });
         } else {
-            // Perform your action based on the selected options
             // Perform your action based on the selected options
             if (selectedOptions.join(", ") == "option01") {
                 captureAndSaveViewportAsPng(cy);
@@ -2329,26 +2219,53 @@ async function captureAndSaveViewportAsDrawIo(cy) {
     document.body.removeChild(a);
 }
 
-// async function getYamlTopoContent(yamlTopoContent) {
+function viewportButtonsClabEditor() {
+    var viewportDrawer = document.getElementsByClassName("viewport-drawer");
+    // Loop through each element and set its display to 'none'
+    for (var i = 0; i < viewportDrawer.length; i++) {
+        viewportDrawer[i].style.display = "none";
+    }
 
-//     try {
-//         // Check if yamlTopoContent is already set
-//         console.log('YAML Topo Initial Content:', yamlTopoContent);
+    console.log("viewportButtonsClabEditor clicked")
 
-//         if (!yamlTopoContent) {
-//             // Load the content if yamlTopoContent is empty
-//             yamlTopoContent = await sendRequestToEndpointGetV3("/get-yaml-topo-content");
-//         }
+    viewportDrawerCapture = document.getElementById("viewport-drawer-clab-editor")
+    viewportDrawerCapture.style.display = "block"
 
-//         console.log('YAML Topo Content:', yamlTopoContent);
-//         document.getElementById('panel-clab-editor-text-area').value = yamlTopoContent;
+    viewportDrawerCaptureContent = document.getElementById("viewport-drawer-clab-editor-content-01")
+    viewportDrawerCaptureContent.style.display = "block"
+    viewportDrawerCaptureContent = document.getElementById("viewport-drawer-clab-editor-content-02")
+    viewportDrawerCaptureContent.style.display = "block"
+}
 
-        
-//     } catch (error) {
-//         console.error("Error occurred:", error);
-//         // Handle errors as needed
-//     }
-// }
+// Define a function to get the checkbox state and attach the event listener
+function setupCheckboxListener(checkboxSelector) {
+    // Select the checkbox input element
+    const checkbox = document.querySelector(checkboxSelector);
+
+    if (!checkbox) {
+        console.error(`Checkbox not found for selector: ${checkboxSelector}`);
+        return null; // Return null if the checkbox is not found
+    }
+
+    const isChecked = checkbox.checked; // Returns true if checked, false otherwise
+    console.log(`${checkboxSelector}:`);
+    console.log(isChecked);
+
+    return isChecked;
+}
+
+function initViewportDrawerClabEditoCheckboxToggle() {
+    const checkbox = document.querySelector('#viewport-drawer-clab-editor-content-01 .checkbox-input');
+  
+    checkbox.addEventListener('change', function () {
+      if (checkbox.checked) {
+        showPanelContainerlabEditor();
+        return isChecked;
+      } else {
+        closePanelContainerlabEditor();
+      }
+    });
+  }
 
 
 
@@ -2372,22 +2289,16 @@ function nodeFindDrawer(cy) {
     //- Get a reference to your Cytoscape instance (assuming it's named 'cy')
     //- const cy = window.cy; //- Replace 'window.cy' with your actual Cytoscape instance
     //- Find the node with the specified name
-    //- Get a reference to your Cytoscape instance (assuming it's named 'cy')
-    //- const cy = window.cy; //- Replace 'window.cy' with your actual Cytoscape instance
-    //- Find the node with the specified name
     const nodeName = document.getElementById(
         "panelBlock-viewportButtons-buttonfindNode-divPanelBlock-columnContainerlabelFindNodeNodeName-panelContentlabelFindNodeNodeName-columnsPanelContentlabelFindNodeNodeName-labelColumnlabelFindNodeNodeName-inputColumnlabelFindNodeNodeName-labellabelFindNodeNodeName",
     ).value;
 
     const node = cy.$(`node[name = "${nodeName}"]`);
     //- Check if the node exists
-    //- Check if the node exists
     if (node.length > 0) {
-        // console
         // console
         console.log("Info: " + 'Sweet! Node "' + nodeName + '" is in the house.');
         appendMessage("Info: " + 'Sweet! Node "' + nodeName + '" is in the house.');
-        //- Apply a highlight style to the node
         //- Apply a highlight style to the node
         node.style({
             "border-color": "red",
@@ -2395,9 +2306,7 @@ function nodeFindDrawer(cy) {
             "background-color": "yellow",
         });
         //- Zoom out on the node
-        //- Zoom out on the node
         cy.fit();
-        //- Zoom in on the node
         //- Zoom in on the node
         cy.animate({
             zoom: {
@@ -2429,21 +2338,13 @@ function pathFinderDijkstraDrawer(cy) {
     //- Function to get the default node style from cy-style.json
     //- weight: (edge) => 1, // You can adjust the weight function if needed
     //- weight: (edge) => edge.data('distance')
-    // Usage example:
-    // highlightShortestPath('node-a', 'node-b'); // Replace with your source and target node IDs
-    //- Function to get the default node style from cy-style.json
-    //- weight: (edge) => 1, // You can adjust the weight function if needed
-    //- weight: (edge) => edge.data('distance')
-
     console.log("im triggered");
 
-    // Remove existing highlight from all edges
     // Remove existing highlight from all edges
     cy.edges().forEach((edge) => {
         edge.removeClass("spf");
     });
 
-    // Get the node sourceNodeId from pathFinderSourceNodeInput and targetNodeId from pathFinderTargetNodeInput
     // Get the node sourceNodeId from pathFinderSourceNodeInput and targetNodeId from pathFinderTargetNodeInput
     const sourceNodeId = document.getElementById(
         "panelBlock-viewportButtons-buttonfindRoute-divPanelBlock-columnContainerlabelFindRouteSource-panelContentlabelFindRouteSource-columnsPanelContentlabelFindRouteSource-labelColumnlabelFindRouteSource-inputColumnlabelFindRouteSource-labellabelFindRouteSource",
@@ -2452,7 +2353,6 @@ function pathFinderDijkstraDrawer(cy) {
         "panelBlock-viewportButtons-buttonfindRoute-divPanelBlock-columnContainerlabelFindRouteTarget-panelContentlabelFindRouteTarget-columnsPanelContentlabelFindRouteTarget-labelColumnlabelFindRouteTarget-inputColumnlabelFindRouteTarget-labellabelFindRouteTarget",
     ).value;
 
-    // Assuming you have 'cy' as your Cytoscape instance
     // Assuming you have 'cy' as your Cytoscape instance
     const sourceNode = cy.$(`node[id="${sourceNodeId}"]`);
     const targetNode = cy.$(`node[id="${targetNodeId}"]`);
@@ -2487,34 +2387,25 @@ function pathFinderDijkstraDrawer(cy) {
     }
 
     // Get the Dijkstra result with the shortest path
-    // Get the Dijkstra result with the shortest path
     const dijkstraResult = cy.elements().dijkstra({
         root: sourceNode,
         weight: (edge) => 1,
         // Use the custom weight attribute
         // weight: edge => edge.data('customWeight'),
-        // Use the custom weight attribute
-        // weight: edge => edge.data('customWeight'),
     });
-    // Get the shortest path from Dijkstra result
     // Get the shortest path from Dijkstra result
     const shortestPathEdges = dijkstraResult.pathTo(targetNode);
     console.log(shortestPathEdges);
 
     // Check if there is a valid path (shortestPathEdges is not empty)
-    // Check if there is a valid path (shortestPathEdges is not empty)
     if (shortestPathEdges.length > 1) {
-        // Highlight the shortest path
         // Highlight the shortest path
         shortestPathEdges.forEach((edge) => {
             edge.addClass("spf");
         });
-
-        //- Zoom out on the node
         //- Zoom out on the node
         cy.fit();
 
-        //- Zoom in on the node
         //- Zoom in on the node
         cy.animate({
             zoom: {
@@ -2530,7 +2421,6 @@ function pathFinderDijkstraDrawer(cy) {
             },
             duration: 1500,
         });
-        // throw log
         // throw log
         console.log(
             "Info: " +
@@ -2558,9 +2448,8 @@ function pathFinderDijkstraDrawer(cy) {
             edgeId = edge.id();
             sourceNodeId = edge.source().id();
             targetNodeId = edge.target().id();
-            // You can access other properties of the edge, e.g., source, target, data, etc.
-            // You can access other properties of the edge, e.g., source, target, data, etc.
 
+            // You can access other properties of the edge, e.g., source, target, data, etc.
             appendMessage("Info: " + "Edge ID: " + edgeId);
             appendMessage("Info: " + "Source Node ID: " + sourceNodeId);
             appendMessage("Info: " + "Target Node ID: " + targetNodeId);
