@@ -984,7 +984,7 @@ func Clab(_ *cobra.Command, _ []string) error {
 
 	// // Separate handler for get-environments
 	router.HandleFunc("/get-environments", func(w http.ResponseWriter, r *http.Request) {
-		clabHandlers.GetEnvironmentsHandler(w, r, &cyTopo, confClab, cyTopoJsonBytes, VersionInfo)
+		clabHandlers.GetEnvironmentsHandler(w, r, &cyTopo, confClab, cyTopoJsonBytes, VersionInfo, workingDirectory)
 	}).Methods("GET")
 
 	// Separate handler for python-action

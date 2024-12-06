@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
+	"path"
 
 	topoengine "github.com/asadarafat/topoViewer/go_topoengine"
 	log "github.com/sirupsen/logrus"
@@ -13,17 +15,18 @@ import (
 
 // Environments holds environment configuration details
 type Environments struct {
-	EnvWorkingDirectory  string `json:"working-directory"`
-	EnvClabName          string `json:"clab-name"`
-	EnvClabServerAddress string `json:"clab-server-address"`
-	EnvClabServerPort    string `json:"clab-server-port"`
-	EnvDeploymentType    string `json:"deployment-type"`
-	EnvTopoViewerVersion string `json:"topoviewer-version"`
-	EnvCyTopoJsonBytes   []topoengine.CytoJson
+	EnvWorkingDirectory     string `json:"working-directory"`
+	EnvClabName             string `json:"clab-name"`
+	EnvClabServerAddress    string `json:"clab-server-address"`
+	EnvClabServerPort       string `json:"clab-server-port"`
+	EnvDeploymentType       string `json:"deployment-type"`
+	EnvTopoViewerVersion    string `json:"topoviewer-version"`
+	EnvCyTopoJsonBytes      []topoengine.CytoJson
+	EnvCyTopoJsonBytesAddon []map[string]interface{}
 }
 
 // GetEnvironmentsHandler handles the /get-environments endpoint
-func GetEnvironmentsHandler(w http.ResponseWriter, r *http.Request, cyTopo *topoengine.CytoTopology, confClab config.Map, cyTopoJsonBytes []byte, VersionInfo string) {
+func GetEnvironmentsHandler(w http.ResponseWriter, r *http.Request, cyTopo *topoengine.CytoTopology, confClab config.Map, cyTopoJsonBytes []byte, VersionInfo string, workingDirectory string) {
 	var cytoTopoJson []topoengine.CytoJson
 	err := json.Unmarshal(cyTopoJsonBytes, &cytoTopoJson)
 	if err != nil {
@@ -32,14 +35,33 @@ func GetEnvironmentsHandler(w http.ResponseWriter, r *http.Request, cyTopo *topo
 		return
 	}
 
+	// File path for dataCytoMarshall.json
+	filePath := path.Join(workingDirectory, "./html-public/"+cyTopo.ClabTopoDataV2.Name+"/dataCytoMarshall.json")
+
+	// Read existing data from the file, if it exists, existing data could contain the addon data
+	var existingData []map[string]interface{}
+	fileContent, err := os.ReadFile(filePath)
+	if err == nil {
+		// Parse existing JSON data
+		err = json.Unmarshal(fileContent, &existingData)
+		if err != nil {
+			http.Error(w, "Failed to parse existing data", http.StatusInternalServerError)
+			return
+		}
+	} else {
+		// Initialize empty data if the file doesn't exist
+		existingData = []map[string]interface{}{}
+	}
+
 	environments := Environments{
-		EnvWorkingDirectory:  confClab.GetString("workdir"),
-		EnvClabName:          cyTopo.ClabTopoDataV2.Name,
-		EnvClabServerAddress: confClab.GetStringSlice("allowed-hostnames")[0],
-		EnvClabServerPort:    fmt.Sprintf("%d", confClab.GetInt("server-port")),
-		EnvDeploymentType:    confClab.GetString("deployment-type"),
-		EnvTopoViewerVersion: VersionInfo,
-		EnvCyTopoJsonBytes:   cytoTopoJson,
+		EnvWorkingDirectory:     confClab.GetString("workdir"),
+		EnvClabName:             cyTopo.ClabTopoDataV2.Name,
+		EnvClabServerAddress:    confClab.GetStringSlice("allowed-hostnames")[0],
+		EnvClabServerPort:       fmt.Sprintf("%d", confClab.GetInt("server-port")),
+		EnvDeploymentType:       confClab.GetString("deployment-type"),
+		EnvTopoViewerVersion:    VersionInfo,
+		EnvCyTopoJsonBytes:      cytoTopoJson,
+		EnvCyTopoJsonBytesAddon: existingData,
 	}
 
 	w.Header().Set("Content-Type", "application/json")

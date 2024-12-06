@@ -737,22 +737,20 @@ async function clabEditorDeleteNode(nodeId) {
 	}
 }
 
-
-
 async function deleteEdgeToEditorToFile(edge) {
 
-    sourceNode = edge.data("source")
-    targetNode = edge.data("target")
+	sourceNode = edge.data("source")
+	targetNode = edge.data("target")
 
-    try {
-        console.log(`Deleting edge between "${sourceNode}" and "${targetNode}" from Cytoscape and YAML.`);
-        // Remove the edge visually from Cytoscape
-        cy.remove(edge);
+	try {
+		console.log(`Deleting edge between "${sourceNode}" and "${targetNode}" from Cytoscape and YAML.`);
+		// Remove the edge visually from Cytoscape
+		cy.remove(edge);
 
 
 		try {
-            // Backend endpoint for edge deletion
-            const endpointName = '/clab-del-edge-save-topo-cyto-json';
+			// Backend endpoint for edge deletion
+			const endpointName = '/clab-del-edge-save-topo-cyto-json';
 
 			// Send the enhanced edge id directly without wrapping it in an object
 			const response = await sendRequestToEndpointPost(endpointName, [edge.data("id")]);
@@ -761,79 +759,105 @@ async function deleteEdgeToEditorToFile(edge) {
 			console.error('Failed to save node data:', error);
 		}
 
-        // // Update the YAML content in the Monaco Editor
-        // await clabEditorDeleteEdge(sourceNode, targetNode);
+		// // Update the YAML content in the Monaco Editor
+		await clabEditorDeleteEdge(edge);
 
 
-    } catch (error) {
-        console.error(`Failed to delete edge between "${sourceNode}" and "${targetNode}":`, error);
-        alert(`Failed to delete edge between "${sourceNode}" and "${targetNode}": ${error.message}`);
-    }
+	} catch (error) {
+		console.error(`Failed to delete edge between "${sourceNode}" and "${targetNode}":`, error);
+		alert(`Failed to delete edge between "${sourceNode}" and "${targetNode}": ${error.message}`);
+	}
 }
-async function clabEditorDeleteEdge(sourceNode, targetNode) {
-    // Ensure the Monaco Editor is initialized
-    await monacoEditorReady;
+async function clabEditorDeleteEdge(edge) {
+	// Ensure the Monaco Editor is initialized
+	await monacoEditorReady;
 
-    try {
-        // Get the current YAML content from the Monaco Editor
-        let editorContent = window.monacoEditor.getValue();
-        console.log("editorContent - clabEditorDeleteEdge:", editorContent);
+	sourceNodeId = edge.data("source")
+	targetNodeId = edge.data("target")
 
-        // Parse the YAML content into a JavaScript object
-        let yamlData = jsyaml.load(editorContent) || {};
+	console.log("sourceNodeId - clabEditorDeleteEdge: ", sourceNodeId)
+	console.log("targetNodeId - clabEditorDeleteEdge: ", targetNodeId)
 
-        // Ensure the 'topology.links' section exists and is an array
-        if (!yamlData.topology || !yamlData.topology.links || !Array.isArray(yamlData.topology.links)) {
-            throw new Error("The 'topology.links' section is missing or invalid.");
-        }
+	environments = await getEnvironments();
+	cytoTopologyJson = environments["EnvCyTopoJsonBytesAddon"]
 
-        // Remove the link matching sourceNode and targetNode
-        const initialLinkCount = yamlData.topology.links.length;
-        yamlData.topology.links = yamlData.topology.links.filter(link => {
-            const endpoints = link.endpoints || [];
-            return !(
-                (endpoints[0].startsWith(`${sourceNode}:`) && endpoints[1].startsWith(`${targetNode}:`)) ||
-                (endpoints[0].startsWith(`${targetNode}:`) && endpoints[1].startsWith(`${sourceNode}:`))
-            );
-        });
+	sourceNode = findCytoElementById(cytoTopologyJson, sourceNodeId)
+	targetNode = findCytoElementById(cytoTopologyJson, targetNodeId)
 
-        const removedLinksCount = initialLinkCount - yamlData.topology.links.length;
-        if (removedLinksCount > 0) {
-            console.log(`Removed ${removedLinksCount} link(s) between "${sourceNode}" and "${targetNode}".`);
-        } else {
-            console.warn(`No link found between "${sourceNode}" and "${targetNode}".`);
-        }
+	console.log("sourceNode - clabEditorDeleteEdge: ", sourceNode)
+	console.log("targetNode - clabEditorDeleteEdge: ", targetNode)
 
-        // Serialize the updated JavaScript object back to YAML
-        const updatedYaml = jsyaml.dump(yamlData, { lineWidth: -1 });
-        console.log("Updated YAML content after edge deletion:", updatedYaml);
 
-        // Update the Monaco Editor with the new YAML content
-        window.monacoEditor.setValue(updatedYaml);
-        yamlTopoContent = updatedYaml;
+	sourceNodeName = sourceNode.data.name
+	targetNodeName = targetNode.data.name
 
-        console.log("YAML topology updated successfully after deleting the edge.");
 
-        // Optionally, persist the changes to the backend
-        await clabEditorSaveYamlTopo();
-        console.log("Changes have been persisted to the backend.");
+	console.log("sourceNodeName - clabEditorDeleteEdge: ", sourceNodeName)
+	console.log("targetNodeName - clabEditorDeleteEdge: ", targetNodeName)
 
-        // Notify the user of the successful operation
-        bulmaToast.toast({
-            message: `Link between "${sourceNode}" and "${targetNode}" has been successfully deleted.`,
-            type: "is-warning",
-            duration: 3000,
-            position: "top-center",
-            closeOnClick: true,
-        });
-    } catch (error) {
-        console.error("Error while deleting edge from YAML:", error);
-        bulmaToast.toast({
-            message: `Failed to delete link: ${error.message}`,
-            type: "is-warning",
-            duration: 5000,
-            position: "top-center",
-            closeOnClick: true,
-        });
-    }
+
+	try {
+		// Get the current YAML content from the Monaco Editor
+		let editorContent = window.monacoEditor.getValue();
+		console.log("editorContent - clabEditorDeleteEdge:", editorContent);
+
+		// Parse the YAML content into a JavaScript object
+		let yamlData = jsyaml.load(editorContent) || {};
+
+		// Ensure the 'topology.links' section exists and is an array
+		if (!yamlData.topology || !yamlData.topology.links || !Array.isArray(yamlData.topology.links)) {
+			throw new Error("The 'topology.links' section is missing or invalid.");
+		}
+
+		// Remove the link matching sourceNodeName and targetNodeName
+		const initialLinkCount = yamlData.topology.links.length;
+		yamlData.topology.links = yamlData.topology.links.filter(link => {
+			const endpoints = link.endpoints || [];
+			return !(
+				(endpoints[0].startsWith(`${sourceNodeName}:`) && endpoints[1].startsWith(`${targetNodeName}:`)) ||
+				(endpoints[0].startsWith(`${targetNodeName}:`) && endpoints[1].startsWith(`${sourceNodeName}:`))
+			);
+		});
+
+		const removedLinksCount = initialLinkCount - yamlData.topology.links.length;
+		if (removedLinksCount > 0) {
+			console.log(`Removed ${removedLinksCount} link(s) between "${sourceNodeName}" and "${targetNodeName}".`);
+		} else {
+			console.warn(`No link found between "${sourceNodeName}" and "${targetNodeName}".`);
+		}
+
+		// Serialize the updated JavaScript object back to YAML
+		const updatedYaml = jsyaml.dump(yamlData, {
+			lineWidth: -1
+		});
+		console.log("Updated YAML content after edge deletion:", updatedYaml);
+
+		// Update the Monaco Editor with the new YAML content
+		window.monacoEditor.setValue(updatedYaml);
+		yamlTopoContent = updatedYaml;
+
+		console.log("YAML topology updated successfully after deleting the edge.");
+
+		// Optionally, persist the changes to the backend
+		await clabEditorSaveYamlTopo();
+		console.log("Changes have been persisted to the backend.");
+
+		// Notify the user of the successful operation
+		bulmaToast.toast({
+			message: `Link between "${sourceNodeName}" and "${targetNodeName}" has been successfully deleted.`,
+			type: "is-warning",
+			duration: 3000,
+			position: "top-center",
+			closeOnClick: true,
+		});
+	} catch (error) {
+		console.error("Error while deleting edge from YAML:", error);
+		bulmaToast.toast({
+			message: `Failed to delete link: ${error.message}`,
+			type: "is-warning",
+			duration: 5000,
+			position: "top-center",
+			closeOnClick: true,
+		});
+	}
 }
