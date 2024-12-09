@@ -166,7 +166,21 @@ go run go_cloudshellwrapper/cmd/main.go clab --allowed-hostnames 149.204.21.68 -
 
 vscode ➜ /workspaces/topoViewer/dist (development ✗) $ ./topoviewer clab -t topo-topoViewerDemo.yaml  
 ```
+```Shell
+			<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.10.0/lodash.min.js"></script>
+			<script src="https://unpkg.com/webcola@3.3.8/WebCola/cola.min.js"></script>
+			<script src="https://unpkg.com/popper.js@1.14.4/dist/umd/popper.js"></script>
+			<script src="https://unpkg.com/tippy.js@2.6.0/dist/tippy.all.js"></script>
+			<script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.19.0/cytoscape.min.js"></script>
+			<script src="https://unpkg.com/cytoscape-cola@2.2.3/cytoscape-cola.js"></script>
+			<script src="https://unpkg.com/cytoscape-popper@1.0.2/cytoscape-popper.js"></script>
+			<script src="https://cdn.jsdelivr.net/npm/cytoscape-grid-guide@2.3.3/cytoscape-grid-guide.min.js"></script>
+			<!-- Cytoscape Edgehandles plugin CDN -->
+			<script src="https://cdn.jsdelivr.net/npm/cytoscape-edgehandles/cytoscape-edgehandles.min.js"></script>
+			<script src="js/dev.js?ver=1"></script>
+			<script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.50.0/min/vs/loader.js"></script>
+			<script src="/js/backupRestore.js?ver=1"></script>
+			<script src="/js/clabEditor.js?ver=1"></script>
+			<script src="/js/common.js?ver=1"></script>
 
-
-
-
+```

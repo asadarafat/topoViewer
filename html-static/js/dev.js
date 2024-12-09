@@ -105,12 +105,81 @@ document.addEventListener("DOMContentLoaded", async function() {
 				"background-color": "#3498db",
 				label: "data(label)",
 			},
-		}, ],
+		},],
+		boxSelectionEnabled: true,
+		selectionType: 'additive' // Allow additive selection
+
 	});
 
+	 // Listen for selection events
+	 cy.on('select', 'node', (event) => {
+		const selectedNodes = cy.$('node:selected');
+		// Dynamically style selected nodes
+		selectedNodes.style({
+			'border-width': 2,
+			'border-color': '#ff0000'
+		});
+		console.log('Selected nodes:', selectedNodes.map(n => n.id()));
+	  });
 
-	// // Initialize cytoscape-edgehandles plugin
-	// cytoscape.use(cytoscapeEdgehandles);
+	// Optionally, reset the style when nodes are unselected
+	cy.on('unselect', 'node', (event) => {
+		// Clear inline styles for all nodes
+		cy.nodes().removeStyle();
+		loadCytoStyle(cy);
+		console.log('Remaining selected nodes:', cy.$('node:selected').map(n => n.id()));
+	});
+
+	// Programmatic selection of nodes
+	setTimeout(() => {
+	cy.$('#node1, #node2').select(); // Select node1 and node2 after 2 seconds
+	console.log('Programmatic selection: node1 and node2');
+	}, 2000);
+
+
+
+    // Helper function to check if a node is inside a parent
+    function isNodeInsideParent(node, parent) {
+		const parentBox = parent.boundingBox();
+		const nodePos = node.position();
+		return (
+		  nodePos.x >= parentBox.x1 &&
+		  nodePos.x <= parentBox.x2 &&
+		  nodePos.y >= parentBox.y1 &&
+		  nodePos.y <= parentBox.y2
+		);
+	  }
+  
+    // Drag-and-Drop logic
+    cy.on('dragfree', 'node', (event) => {
+		const draggedNode = event.target;
+  
+		// Check all parent nodes to see if the dragged node is inside
+		const parents = cy.nodes(':parent');
+		let assignedParent = null;
+  
+		parents.forEach((parent) => {
+		  if (isNodeInsideParent(draggedNode, parent)) {
+			assignedParent = parent;
+		  }
+		});
+  
+		if (assignedParent) {
+		  // If dragged inside a parent, move the node to the parent
+		  draggedNode.move({ parent: assignedParent.id() });
+		  console.log(`${draggedNode.id()} became a child of ${assignedParent.id()}`);
+		} else {
+		  // If dragged outside all parents, make the node an orphan
+		  if (draggedNode.isChild()) {
+			console.log(`${draggedNode.id()} is dragged out of ${draggedNode.parent().id()} and is now orphaned`);
+			draggedNode.move({ parent: null });
+		  } else {
+			console.log(`${draggedNode.id()} was not dropped inside a parent`);
+		  }
+		}
+	  })
+
+
 
 	// Initialize edgehandles with configuration
 	const eh = cy.edgehandles({
@@ -223,16 +292,19 @@ document.addEventListener("DOMContentLoaded", async function() {
 		await saveEdgeToEditorToFile(edgeId, sourceNode, sourceEndpoint, targetNode, targetEndpoint);
 	});
 
-	loadCytoStyle();
+	loadCytoStyle(cy);
 
-	function loadCytoStyle() {
+	function loadCytoStyle(cy) {
+
+		cy.nodes().removeStyle();
+
 		// detect light or dark mode
 		const colorScheme = detectColorScheme();
 		console.log('The user prefers:', colorScheme);
 
 		//- Load and apply Cytoscape styles from cy-style.json using fetch
 		if (colorScheme == "light") {
-			fetch("css/cy-style.json")
+			fetch("css/cy-style-dark.json")
 				.then((response) => response.json())
 				.then((styles) => {
 					cy.style().fromJson(styles).update();
@@ -383,6 +455,20 @@ document.addEventListener("DOMContentLoaded", async function() {
 		}
 	});
 
+	let shiftAltPressed = false;
+	// Detect when Alt+Shift is pressed or released
+	document.addEventListener('keydown', (event) => {
+		if (event.shiftKey && event.altKey) {
+		shiftAltPressed = true;
+		}
+	});
+
+	document.addEventListener('keyup', (event) => {
+		if (!event.shiftKey || !event.altKey) {
+		shiftAltPressed = false;
+		}
+	});
+
 	//- Toggle the Panel(s) when clicking on the cy container
 	document.getElementById("cy").addEventListener("click", function(event) {
 
@@ -438,7 +524,6 @@ document.addEventListener("DOMContentLoaded", async function() {
 
 	// Listen for tap or click on the Cytoscape canvas
 	cy.on('click', async (event) => {
-
 		// Usage: Initialize the listener and get a live checker function
 		const isViewportDrawerClabEditorCheckboxChecked = setupCheckboxListener('#viewport-drawer-clab-editor-content-01 .checkbox-input');
 		if (event.target === cy && shiftKeyDown && isViewportDrawerClabEditorCheckboxChecked) { // Ensures Shift + click/tap and the isViewportDrawerClabEditorCheckboxChecked 
@@ -480,6 +565,8 @@ document.addEventListener("DOMContentLoaded", async function() {
 			await showPanelNodeEditor(cyNode)
 			// sleep (100)
 			await saveNodeToEditorToFile()
+		} else {
+			loadCytoStyle(cy)
 		}
 	});
 
@@ -499,6 +586,15 @@ document.addEventListener("DOMContentLoaded", async function() {
 		if (!node.isParent()) {
 			// Usage: Initialize the listener and get a live checker function
 			const isViewportDrawerClabEditorCheckboxChecked = setupCheckboxListener('#viewport-drawer-clab-editor-content-01 .checkbox-input');
+
+			// Check if Shift + Alt is pressed and the node is a child
+			if (shiftAltPressed && node.isChild()) {
+			console.log(`Orphaning node: ${node.id()} from parent: ${node.parent().id()}`);
+	
+			// Make the node orphan
+			node.move({ parent: null });
+			console.log(`${node.id()} is now an orphan`);
+			}
 
 			if (event.originalEvent.shiftKey && isViewportDrawerClabEditorCheckboxChecked) { // Start edge creation on Shift and the isViewportDrawerClabEditorCheckboxChecked 
 				console.log("Shift + Click");
