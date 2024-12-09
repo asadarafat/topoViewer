@@ -364,6 +364,7 @@
       "overlay-padding": "2px"
     }
   },
+
   {
     "selector": ".edgeEndpointLabel",
     "style": {
@@ -384,6 +385,7 @@
       "text-outline-color": "#282828"
     }
   },
+
   {"selector": "edge.filtered", "style": {"opacity": "0"}},
 
   {"selector": ".spf", "style": 

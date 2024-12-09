@@ -606,7 +606,6 @@ document.addEventListener("DOMContentLoaded", async function() {
 				eh.start(node);
 
 				console.log("Node is an editor node");
-
 				showPanelNodeEditor(node) // after this cy.on('ehcomplete') is called, the 'ehcomplete' event will be triggered
 			}
 			if (event.originalEvent.altKey && isViewportDrawerClabEditorCheckboxChecked && (node.data("editor") === "true")) { // node deletion on Alt and the isViewportDrawerClabEditorCheckboxChecked 
@@ -671,7 +670,11 @@ document.addEventListener("DOMContentLoaded", async function() {
 		console.log(defaultEdgeColor);
 
 		// Change the color of the clicked edge (for example, to blue)
-		clickedEdge.style("line-color", "#0043BF");
+		if (clickedEdge.data("editor") === "true") {
+			clickedEdge.style("line-color", "#32CD32");
+		} else {
+			clickedEdge.style("line-color", "#0043BF");
+		}
 
 		// Revert the color of other edges that were not clicked (e.g., back to their default color)
 		cy.edges().forEach(function(edge) {
@@ -799,7 +802,6 @@ document.addEventListener("DOMContentLoaded", async function() {
 		}
 
 	});
-
 
 
 	function generateNodesEvent(event) {
