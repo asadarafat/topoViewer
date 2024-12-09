@@ -574,7 +574,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 
 		console.log(defaultEdgeColor);
 
-		// Change the color of the clicked edge (for example, to red)
+		// Change the color of the clicked edge (for example, to blue)
 		clickedEdge.style("line-color", "#0043BF");
 
 		// Revert the color of other edges that were not clicked (e.g., back to their default color)
@@ -593,7 +593,8 @@ document.addEventListener("DOMContentLoaded", async function() {
 
             deleteEdgeToEditorToFile(clickedEdge)
 
-		} else {
+		} 
+		if (clickedEdge.data("editor") !== "true") {			
 			document.getElementById("panel-link").style.display = "none";
 			if (document.getElementById("panel-link").style.display === "none") {
 				document.getElementById("panel-link").style.display = "block";

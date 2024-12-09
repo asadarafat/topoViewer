@@ -100,6 +100,15 @@
     }
   },
   {
+    "selector": "node[topoViewerRole=\"router\"]",
+    "style": {
+      "width": "14",
+      "height": "14",
+      "background-image": "images/clab-pe-light-blue.png",
+      "background-fit": "cover"
+    }
+  },
+  {
     "selector": "node[topoViewerRole=\"pe\"]",
     "style": {
       "width": "14",
@@ -197,11 +206,22 @@
     "style": {
       "width": "8",
       "height": "8",
-      "background-image": "images/clab-bridge-light-blue.png",
+      "background-image": "images/clab-bridge-light-grey.png",
       "background-fit": "cover"
     }
   },
   
+  {
+    "selector": "node[topoViewerRole=\"router\"][editor=\"true\"]",
+    "style": {
+      "width": "14",
+      "height": "14",
+      "background-image": "images/clab-pe-dark-blue.png",
+      "background-fit": "cover",
+      "border-width": "0.5px",
+      "border-color": "#32CD32" 
+    }
+  },
   {
     "selector": "node[topoViewerRole=\"pe\"][editor=\"true\"]",
     "style": {
@@ -313,7 +333,7 @@
     "style": {
       "width": "8",
       "height": "8",
-      "background-image": "images/clab-bridge-light-blue.png",
+      "background-image": "images/clab-bridge-light-grey.png",
       "background-fit": "cover",
       "border-width": "0.5px",
       "border-color": "#32CD32" 

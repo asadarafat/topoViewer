@@ -1,3 +1,6 @@
+// nodeId is always the same as static
+// nodeName can be changed
+
 // Declare global variables at the top
 var yamlTopoContent;
 
@@ -738,7 +741,6 @@ async function clabEditorDeleteNode(nodeId) {
 }
 
 async function deleteEdgeToEditorToFile(edge) {
-
 	sourceNode = edge.data("source")
 	targetNode = edge.data("target")
 
@@ -746,7 +748,6 @@ async function deleteEdgeToEditorToFile(edge) {
 		console.log(`Deleting edge between "${sourceNode}" and "${targetNode}" from Cytoscape and YAML.`);
 		// Remove the edge visually from Cytoscape
 		cy.remove(edge);
-
 
 		try {
 			// Backend endpoint for edge deletion
@@ -761,7 +762,6 @@ async function deleteEdgeToEditorToFile(edge) {
 
 		// // Update the YAML content in the Monaco Editor
 		await clabEditorDeleteEdge(edge);
-
 
 	} catch (error) {
 		console.error(`Failed to delete edge between "${sourceNode}" and "${targetNode}":`, error);
@@ -786,7 +786,6 @@ async function clabEditorDeleteEdge(edge) {
 
 	console.log("sourceNode - clabEditorDeleteEdge: ", sourceNode)
 	console.log("targetNode - clabEditorDeleteEdge: ", targetNode)
-
 
 	sourceNodeName = sourceNode.data.name
 	targetNodeName = targetNode.data.name
