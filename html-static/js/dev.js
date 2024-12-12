@@ -105,14 +105,14 @@ document.addEventListener("DOMContentLoaded", async function() {
 				"background-color": "#3498db",
 				label: "data(label)",
 			},
-		},],
+		}, ],
 		boxSelectionEnabled: true,
 		selectionType: 'additive' // Allow additive selection
 
 	});
 
-	 // Listen for selection events
-	 cy.on('select', 'node', (event) => {
+	// Listen for selection events
+	cy.on('select', 'node', (event) => {
 		const selectedNodes = cy.$('node:selected');
 		// Dynamically style selected nodes
 		selectedNodes.style({
@@ -120,7 +120,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 			'border-color': '#ff0000'
 		});
 		console.log('Selected nodes:', selectedNodes.map(n => n.id()));
-	  });
+	});
 
 	// Optionally, reset the style when nodes are unselected
 	cy.on('unselect', 'node', (event) => {
@@ -132,52 +132,52 @@ document.addEventListener("DOMContentLoaded", async function() {
 
 	// Programmatic selection of nodes
 	setTimeout(() => {
-	cy.$('#node1, #node2').select(); // Select node1 and node2 after 2 seconds
-	console.log('Programmatic selection: node1 and node2');
+		cy.$('#node1, #node2').select(); // Select node1 and node2 after 2 seconds
+		console.log('Programmatic selection: node1 and node2');
 	}, 2000);
 
 
 
-    // Helper function to check if a node is inside a parent
-    function isNodeInsideParent(node, parent) {
+	// Helper function to check if a node is inside a parent
+	function isNodeInsideParent(node, parent) {
 		const parentBox = parent.boundingBox();
 		const nodePos = node.position();
 		return (
-		  nodePos.x >= parentBox.x1 &&
-		  nodePos.x <= parentBox.x2 &&
-		  nodePos.y >= parentBox.y1 &&
-		  nodePos.y <= parentBox.y2
+			nodePos.x >= parentBox.x1 &&
+			nodePos.x <= parentBox.x2 &&
+			nodePos.y >= parentBox.y1 &&
+			nodePos.y <= parentBox.y2
 		);
-	  }
-  
-    // Drag-and-Drop logic
-    cy.on('dragfree', 'node', (event) => {
-		const draggedNode = event.target;
-  
-		// Check all parent nodes to see if the dragged node is inside
-		const parents = cy.nodes(':parent');
-		let assignedParent = null;
-  
-		parents.forEach((parent) => {
-		  if (isNodeInsideParent(draggedNode, parent)) {
-			assignedParent = parent;
-		  }
-		});
-  
-		if (assignedParent) {
-		  // If dragged inside a parent, move the node to the parent
-		  draggedNode.move({ parent: assignedParent.id() });
-		  console.log(`${draggedNode.id()} became a child of ${assignedParent.id()}`);
-		} else {
-		  // If dragged outside all parents, make the node an orphan
-		  if (draggedNode.isChild()) {
-			console.log(`${draggedNode.id()} is dragged out of ${draggedNode.parent().id()} and is now orphaned`);
-			draggedNode.move({ parent: null });
-		  } else {
-			console.log(`${draggedNode.id()} was not dropped inside a parent`);
-		  }
+	}
+
+	// Drag-and-Drop logic
+	cy.on('dragfree', 'node', (event) => {
+		const isViewportDrawerClabEditorCheckboxChecked = setupCheckboxListener('#viewport-drawer-clab-editor-content-01 .checkbox-input');
+		if (isViewportDrawerClabEditorCheckboxChecked) {
+			const draggedNode = event.target;
+
+			// Check all parent nodes to see if the dragged node is inside
+			const parents = cy.nodes(':parent');
+			let assignedParent = null;
+
+			parents.forEach((parent) => {
+				if (isNodeInsideParent(draggedNode, parent)) {
+					assignedParent = parent;
+				}
+			});
+
+			if (assignedParent) {
+				// If dragged inside a parent, move the node to the parent
+				draggedNode.move({
+					parent: assignedParent.id()
+				});
+				console.log(`${draggedNode.id()} became a child of ${assignedParent.id()}`);
+				showPanelNodeEditor(draggedNode)
+			}
+			// to release the node from the parent, alt + shift + click on the node.
 		}
-	  })
+
+	})
 
 
 
@@ -295,9 +295,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 	loadCytoStyle(cy);
 
 	function loadCytoStyle(cy) {
-
 		cy.nodes().removeStyle();
-
 		// detect light or dark mode
 		const colorScheme = detectColorScheme();
 		console.log('The user prefers:', colorScheme);
@@ -391,9 +389,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 		.then((response) => response.json())
 		.then((elements) => {
 			// Add the elements to the Cytoscape instance
-			// Add the elements to the Cytoscape instance
 			cy.add(elements);
-			//- run layout
 			//- run layout
 			const layout = cy.layout({
 				name: "cola",
@@ -408,6 +404,25 @@ document.addEventListener("DOMContentLoaded", async function() {
 			// remove node topoviewer
 			topoViewerNode = cy.filter('node[name = "topoviewer"]');
 			topoViewerNode.remove();
+
+			var api = cy.expandCollapse({
+				layoutBy: null, // null means use existing layout
+				undoable: false,
+				fisheye: false,
+				animationDuration: 10, // when animate is true, the duration in milliseconds of the animation
+				animate: true
+			});
+
+			// Example collapse/expand after some delay
+			// Make sure the '#parent' node exists in your loaded elements
+			setTimeout(function() {
+				var parent = cy.$('#parent'); // Ensure that '#parent' is actually present in dataCytoMarshall.json
+				api.collapse(parent);
+
+				setTimeout(function() {
+					api.expand(parent);
+				}, 2000);
+			}, 2000);
 		})
 		.catch((error) => {
 			console.error("Error loading graph data:", error);
@@ -444,30 +459,32 @@ document.addEventListener("DOMContentLoaded", async function() {
 	let altKeyDown = false;
 	// Detect when Alt is pressed or released
 	document.addEventListener('keydown', (event) => {
-		if (event.key === 'Ctrl') {
+		if (event.key === 'Alt') {
 			altKeyDown = true;
 		}
 	});
 
 	document.addEventListener('keyup', (event) => {
-		if (event.key === 'Ctrl') {
+		if (event.key === 'Alt') {
 			altKeyDown = false;
 		}
 	});
 
-	let shiftAltPressed = false;
-	// Detect when Alt+Shift is pressed or released
+	let ctrlKeyDown = false;
+	// Detect when Control is pressed or released
 	document.addEventListener('keydown', (event) => {
-		if (event.shiftKey && event.altKey) {
-		shiftAltPressed = true;
+		if (event.key === 'Control') {
+			ctrlKeyDown = true;
 		}
 	});
 
 	document.addEventListener('keyup', (event) => {
-		if (!event.shiftKey || !event.altKey) {
-		shiftAltPressed = false;
+		if (event.key === 'Control') {
+			ctrlKeyDown = false;
 		}
 	});
+
+
 
 	//- Toggle the Panel(s) when clicking on the cy container
 	document.getElementById("cy").addEventListener("click", function(event) {
@@ -588,12 +605,14 @@ document.addEventListener("DOMContentLoaded", async function() {
 			const isViewportDrawerClabEditorCheckboxChecked = setupCheckboxListener('#viewport-drawer-clab-editor-content-01 .checkbox-input');
 
 			// Check if Shift + Alt is pressed and the node is a child
-			if (shiftAltPressed && node.isChild()) {
-			console.log(`Orphaning node: ${node.id()} from parent: ${node.parent().id()}`);
-	
-			// Make the node orphan
-			node.move({ parent: null });
-			console.log(`${node.id()} is now an orphan`);
+			if (event.originalEvent.ctrlKey && node.isChild() && isViewportDrawerClabEditorCheckboxChecked) {
+				console.log(`Orphaning node: ${node.id()} from parent: ${node.parent().id()}`);
+
+				// Make the node orphan
+				node.move({
+					parent: null
+				});
+				console.log(`${node.id()} is now an orphan`);
 			}
 
 			if (event.originalEvent.shiftKey && isViewportDrawerClabEditorCheckboxChecked) { // Start edge creation on Shift and the isViewportDrawerClabEditorCheckboxChecked 
@@ -683,17 +702,17 @@ document.addEventListener("DOMContentLoaded", async function() {
 			}
 		});
 
-        // Usage: Initialize the listener and get a live checker function
-        const isViewportDrawerClabEditorCheckboxChecked = setupCheckboxListener('#viewport-drawer-clab-editor-content-01 .checkbox-input');
+		// Usage: Initialize the listener and get a live checker function
+		const isViewportDrawerClabEditorCheckboxChecked = setupCheckboxListener('#viewport-drawer-clab-editor-content-01 .checkbox-input');
 
 		if (event.originalEvent.altKey && isViewportDrawerClabEditorCheckboxChecked && clickedEdge.data("editor") === "true") {
-            console.log("Alt + Click is enabled");
-            console.log("deleted Edge: ", clickedEdge.data("source"), clickedEdge.data("target"));
+			console.log("Alt + Click is enabled");
+			console.log("deleted Edge: ", clickedEdge.data("source"), clickedEdge.data("target"));
 
-            deleteEdgeToEditorToFile(clickedEdge)
+			deleteEdgeToEditorToFile(clickedEdge)
 
-		} 
-		if (clickedEdge.data("editor") !== "true") {			
+		}
+		if (clickedEdge.data("editor") !== "true") {
 			document.getElementById("panel-link").style.display = "none";
 			if (document.getElementById("panel-link").style.display === "none") {
 				document.getElementById("panel-link").style.display = "block";
@@ -1845,6 +1864,24 @@ async function layoutAlgoChange(event) {
 			console.log(document.getElementById("viewport-drawer-force-directed"))
 			console.log(document.getElementById("viewport-drawer-force-directed-reset-start"))
 
+		} else if (selectedOption === "Force Directed Radial") {
+			console.log("Force Directed Radial algo selected");
+
+			var layoutAlgoPanels = document.getElementsByClassName("layout-algo");
+			// Loop through each element and set its display to 'none'
+			for (var i = 0; i < layoutAlgoPanels.length; i++) {
+				layoutAlgoPanels[i].style.display = "none";
+			}
+
+			viewportDrawerForceDirected = document.getElementById("viewport-drawer-force-directed-radial")
+			viewportDrawerForceDirected.style.display = "block"
+
+			viewportDrawerForceDirectedResetStart = document.getElementById("viewport-drawer-force-directed-radial-reset-start")
+			viewportDrawerForceDirectedResetStart.style.display = "block"
+
+			console.log(document.getElementById("viewport-drawer-force-directed-radial"))
+			console.log(document.getElementById("viewport-drawer-force-directed-radial-reset-start"))
+
 		} else if (selectedOption === "Vertical") {
 			console.log("Vertical algo selected");
 
@@ -1984,20 +2021,109 @@ function viewportDrawerLayoutForceDirected() {
 	console.log("nodeGapValue", nodeGapValue);
 
 	cy.layout({
-			fit: true,
+
 			name: "cola",
+			nodeGap: 5,
+			edgeLength: 100,
 			animate: true,
 			randomize: false,
-			maxSimulationTime: 400,
+			maxSimulationTime: 1500,
+
 			edgeLength: function(e) {
-				return edgeLengthValue / e.data("weight");
+				// console.log("edgeLengthValue", edgeLengthValue);
+				// console.log("edgeLengthValue*100 / e.data", edgeLengthValue*100 / e.data("weight"));
+
+				return edgeLengthValue * 100 / e.data("weight");
 			},
 			nodeGap: function(e) {
+				// console.log("nodeGapValue", nodeGapValue);
+				// console.log("nodeGapValue*100 / e.data", nodeGapValue / e.data("weight"));
+
 				return nodeGapValue / e.data("weight");
 			},
 		})
 		.run();
+	var api = cy.expandCollapse({
+		layoutBy: null, // null means use existing layout
+		undoable: false,
+		fisheye: false,
+		animationDuration: 10, // when animate is true, the duration in milliseconds of the animation
+		animate: true
+	});
+
+	// Example collapse/expand after some delay
+	// Make sure the '#parent' node exists in your loaded elements
+	setTimeout(function() {
+		var parent = cy.$('#parent'); // Ensure that '#parent' is actually present in dataCytoMarshall.json
+		api.collapse(parent);
+
+		setTimeout(function() {
+			api.expand(parent);
+		}, 2000);
+	}, 2000);
 }
+
+function viewportDrawerLayoutForceDirectedRadial() {
+
+	edgeLengthSlider = document.getElementById("force-directed-radial-slider-link-lenght");
+	const edgeLengthValue = parseFloat(edgeLengthSlider.value);
+	console.log("edgeLengthValue", edgeLengthValue);
+
+	// Map TopoViewerGroupLevel to weights (lower levels = higher weight)	
+	const nodeWeights = {};
+	cy.nodes().forEach((node) => {
+		const level = node.data('extraData')?.labels?.TopoViewerGroupLevel ?
+			parseInt(node.data('extraData').labels.TopoViewerGroupLevel) :
+			1; // Default level to 1 if missing
+		nodeWeights[node.id()] = 1 / level; // Higher weight for lower levels
+	});
+
+	// Adjust edge styles to avoid overlaps
+	cy.edges().forEach((edge) => {
+		edge.style({
+			'curve-style': 'unbundled-bezier', // Use curved edges
+			'control-point-step-size': 20, // Distance for control points
+		});
+	});
+
+	// Apply Cola layout with weights and better edge handling
+	cy.layout({
+		name: 'cola',
+		fit: true, // Automatically fit the layout to the viewport
+		nodeSpacing: 30,
+		edgeLength: (edge) => {
+			const sourceWeight = nodeWeights[edge.source().id()] || 1;
+			const targetWeight = nodeWeights[edge.target().id()] || 1;
+			return (1 * edgeLengthValue) / (sourceWeight + targetWeight); // Shorter edges for higher-weight nodes
+		},
+		edgeSymDiffLength: 10, // Symmetrical edge separation to reduce overlaps
+		nodeDimensionsIncludeLabels: true, // Adjust layout considering node labels
+		animate: true,
+		maxSimulationTime: 2000,
+		avoidOverlap: true, // Prevents node overlaps
+	}).run();
+
+	var api = cy.expandCollapse({
+		layoutBy: null,
+		undoable: false,
+		fisheye: false,
+		animationDuration: 10, // when animate is true, the duration in milliseconds of the animation
+		animate: true
+	});
+
+	// Example collapse/expand after some time:
+	setTimeout(function() {
+		var parent = cy.$('#parent');
+		api.collapse(parent);
+
+		setTimeout(function() {
+			api.expand(parent);
+		}, 2000);
+	}, 2000);
+}
+
+
+
 
 function viewportDrawerLayoutVertical() {
 	nodevGap = document.getElementById("vertical-layout-slider-node-v-gap");
@@ -2088,7 +2214,124 @@ function viewportDrawerLayoutVertical() {
 		});
 		cy.fit();
 	}, delay);
+
+	var api = cy.expandCollapse({
+		layoutBy: null, // null means use existing layout
+		undoable: false,
+		fisheye: false,
+		animationDuration: 10, // when animate is true, the duration in milliseconds of the animation
+		animate: true
+	});
+
+	// Example collapse/expand after some delay
+	// Make sure the '#parent' node exists in your loaded elements
+	setTimeout(function() {
+		var parent = cy.$('#parent'); // Ensure that '#parent' is actually present in dataCytoMarshall.json
+		api.collapse(parent);
+
+		setTimeout(function() {
+			api.expand(parent);
+		}, 2000);
+	}, 2000);
 }
+
+
+
+// function viewportDrawerLayoutVertical() {
+// 	nodevGap = document.getElementById("vertical-layout-slider-node-v-gap");
+// 	groupvGap = document.getElementById("vertical-layout-slider-group-v-gap");
+
+// 	const nodevGapValue = parseFloat(nodevGap.value);
+// 	const groupvGapValue = parseFloat(groupvGap.value);
+
+// 	console.log("nodevGapValue", nodevGapValue);
+// 	console.log("groupvGapValue", groupvGapValue);
+
+// 	const xOffset = parseFloat(nodevGapValue);
+// 	const yOffset = parseFloat(groupvGapValue);
+
+// 	console.log("yOffset", yOffset);
+// 	console.log("xOffset", xOffset);
+
+// 	const delay = 100;
+
+// 	setTimeout(() => {
+// 		// Position child nodes within parent nodes
+// 		cy.nodes().forEach(function (node) {
+// 			if (node.isParent()) {
+// 				// For each parent node
+// 				const children = node.children();
+// 				const numRows = 1;
+
+// 				const cellWidth = node.width() / children.length;
+
+// 				children.forEach(function (child, index) {
+// 					// Position children in rows
+// 					const xPos = index * (cellWidth + xOffset);
+// 					const yPos = 0;
+
+// 					// Set the position of each child node
+// 					child.position({
+// 						x: xPos,
+// 						y: yPos,
+// 					});
+// 				});
+// 			}
+// 		});
+
+// 		let parentCounts = {};
+// 		let maxWidth = 0;
+// 		const centerX = 0; // Centered horizontally
+// 		const centerY = cy.height() / 2;
+
+// 		// Count children of each parent node
+// 		cy.nodes().forEach(function (node) {
+// 			if (node.isParent()) {
+// 				const childrenCount = node.children().length;
+// 				parentCounts[node.id()] = childrenCount;
+// 			}
+// 		});
+
+// 		// Determine the maximum width of parent nodes
+// 		cy.nodes().forEach(function (node) {
+// 			if (node.isParent()) {
+// 				const width = node.width();
+// 				if (width > maxWidth) {
+// 					maxWidth = width;
+// 					console.log("ParentMaxWidth: ", maxWidth);
+// 				}
+// 			}
+// 		});
+
+// 		const divisionFactor = maxWidth / 2;
+// 		console.log("divisionFactor: ", divisionFactor);
+
+// 		// Sort parent nodes by TopoViewerGroupLevel (lower levels appear higher)
+// 		const sortedParents = cy.nodes().filter(node => node.isParent()).sort((a, b) => {
+// 			const levelA = parseInt(a.data('extraData')?.labels?.TopoViewerGroupLevel || 999, 10);
+// 			const levelB = parseInt(b.data('extraData')?.labels?.TopoViewerGroupLevel || 999, 10);
+// 			return levelA - levelB; // Ascending order of levels
+// 		});
+
+// 		let yPos = 0;
+
+// 		// Position parent nodes vertically, honoring TopoViewerGroupLevel
+// 		sortedParents.forEach(function (parent) {
+// 			const parentWidth = parent.width();
+// 			const xPos = centerX - parentWidth / divisionFactor;
+
+// 			parent.position({
+// 				x: xPos,
+// 				y: yPos,
+// 			});
+
+// 			yPos += yOffset; // Adjust vertical spacing between parents
+// 		});
+
+// 		cy.fit();
+// 	}, delay);
+// }
+
 
 function viewportDrawerLayoutHorizontal() {
 	nodehGap = document.getElementById("horizontal-layout-slider-node-h-gap");
@@ -2177,6 +2420,25 @@ function viewportDrawerLayoutHorizontal() {
 
 		cy.fit();
 	}, delay);
+
+	var api = cy.expandCollapse({
+		layoutBy: null, // null means use existing layout
+		undoable: false,
+		fisheye: false,
+		animationDuration: 10, // when animate is true, the duration in milliseconds of the animation
+		animate: true
+	});
+
+	// Example collapse/expand after some delay
+	// Make sure the '#parent' node exists in your loaded elements
+	setTimeout(function() {
+		var parent = cy.$('#parent'); // Ensure that '#parent' is actually present in dataCytoMarshall.json
+		api.collapse(parent);
+
+		setTimeout(function() {
+			api.expand(parent);
+		}, 2000);
+	}, 2000);
 }
 
 

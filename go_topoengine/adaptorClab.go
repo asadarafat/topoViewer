@@ -62,15 +62,17 @@ type ClabTopoV2 struct {
 		MgmtIpv6PrefixLength int    `json:"mgmt-ipv6-prefix-length"`
 		MacAddress           string `json:"mac-address"`
 		Labels               struct {
-			ClabMgmtNetBridge string `json:"clab-mgmt-net-bridge"`
-			ClabNodeGroup     string `json:"clab-node-group"`
-			ClabNodeKind      string `json:"clab-node-kind"`
-			ClabNodeLabDir    string `json:"clab-node-lab-dir"`
-			ClabNodeName      string `json:"clab-node-name"`
-			ClabNodeType      string `json:"clab-node-type"`
-			ClabTopoFile      string `json:"clab-topo-file"`
-			Containerlab      string `json:"containerlab"`
-			TopoViewerRole    string `json:"topoViewer-role"`
+			ClabMgmtNetBridge    string `json:"clab-mgmt-net-bridge"`
+			ClabNodeGroup        string `json:"clab-node-group"`
+			ClabNodeKind         string `json:"clab-node-kind"`
+			ClabNodeLabDir       string `json:"clab-node-lab-dir"`
+			ClabNodeName         string `json:"clab-node-name"`
+			ClabNodeType         string `json:"clab-node-type"`
+			ClabTopoFile         string `json:"clab-topo-file"`
+			Containerlab         string `json:"containerlab"`
+			TopoViewerRole       string `json:"topoViewer-role"`
+			TopoViewerGroup      string `json:"topoViewer-group"`
+			TopoViewerGroupLevel string `json:"topoViewer-groupLevel"`
 		} `json:"labels"`
 	} `json:"nodes"`
 	Links []struct {
@@ -223,6 +225,11 @@ func (cyTopo *CytoTopology) UnmarshalContainerLabTopoV2(topoFile []byte, clabHos
 			cytoJson.Data.Parent = node.Group
 		}
 
+		if len(node.Labels.TopoViewerGroup) != 0 && len(node.Labels.TopoViewerGroupLevel) != 0 {
+			// combine to be "Data Center Spine:1"
+			cytoJson.Data.Parent = node.Labels.TopoViewerGroup + ":" + node.Labels.TopoViewerGroupLevel
+		}
+
 		// create list of parent nodes
 		topoviewerParentList = append(topoviewerParentList, cytoJson.Data.Parent)
 
@@ -249,15 +256,17 @@ func (cyTopo *CytoTopology) UnmarshalContainerLabTopoV2(topoFile []byte, clabHos
 			"mgmtIpv6AddressLength": node.MgmtIpv6PrefixLength,
 			"macAddress":            node.MacAddress,
 			"labels": struct {
-				ClabMgmtNetBridge string
-				ClabNodeGroup     string
-				ClabNodeKind      string
-				ClabNodeLabDir    string
-				ClabNodeName      string
-				ClabNodeType      string
-				ClabTopoFile      string
-				Containerlab      string
-				TopoViewerRole    string
+				ClabMgmtNetBridge    string
+				ClabNodeGroup        string
+				ClabNodeKind         string
+				ClabNodeLabDir       string
+				ClabNodeName         string
+				ClabNodeType         string
+				ClabTopoFile         string
+				Containerlab         string
+				TopoViewerRole       string
+				TopoViewerGroup      string
+				TopoViewerGroupLevel string
 			}{
 				node.Labels.ClabMgmtNetBridge,
 				node.Labels.ClabNodeGroup,
@@ -268,6 +277,8 @@ func (cyTopo *CytoTopology) UnmarshalContainerLabTopoV2(topoFile []byte, clabHos
 				node.Labels.ClabTopoFile,
 				node.Labels.Containerlab,
 				node.Labels.TopoViewerRole,
+				node.Labels.TopoViewerGroup,
+				node.Labels.TopoViewerGroupLevel,
 			},
 		}
 
@@ -302,20 +313,25 @@ func (cyTopo *CytoTopology) UnmarshalContainerLabTopoV2(topoFile []byte, clabHos
 	uniqTopoviewerParentList := lo.Uniq(topoviewerParentList)
 	log.Debug("Unique Parent List: ", uniqTopoviewerParentList)
 
-	// add Parent Nodes Per topoviewerRoleList
+	// add Parent Nodes Per group or TopoViewerGroup
 	for _, n := range uniqTopoviewerParentList {
+
+		// n is "Data Center Spine:1"
+
 		cytoJson.Group = "nodes"
 		cytoJson.Data.Parent = ""
 		cytoJson.Grabbable = true
 		cytoJson.Selectable = true
 		cytoJson.Data.ID = n
-		cytoJson.Data.Name = n
-		cytoJson.Data.TopoViewerRole = n
+		cytoJson.Data.Name = strings.Split(n, ":")[0]
+		cytoJson.Data.TopoViewerRole = "group"
 		cytoJson.Data.Weight = "1000"
 		cytoJson.Data.ExtraData = map[string]interface{}{
-			"clabServerUsername": Username,
-			"weight":             "2",
-			"name":               "",
+			"clabServerUsername":   Username,
+			"weight":               "2",
+			"name":                 "",
+			"topoViewerGroup":      strings.Split(n, ":")[0],
+			"topoViewerGroupLevel": strings.Split(n, ":")[1],
 		}
 		cytoJsonList = append(cytoJsonList, cytoJson)
 	}
@@ -326,6 +342,9 @@ func (cyTopo *CytoTopology) UnmarshalContainerLabTopoV2(topoFile []byte, clabHos
 		cytoJson.Selectable = true
 
 		cytoJson.Data.ID = "Clab-Link" + strconv.Itoa(i)
+		cytoJson.Data.Name = "Clab-Link" + strconv.Itoa(i)
+		cytoJson.Data.TopoViewerRole = "link"
+
 		cytoJson.Data.Weight = "3"
 		cytoJson.Data.Source = link.A.Node
 		cytoJson.Data.Target = link.Z.Node

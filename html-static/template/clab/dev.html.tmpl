@@ -129,6 +129,7 @@
 								<select id="select-layout-algo" onchange="layoutAlgoChange(event)">
 									<option>Select Layout Algorithm</option>
 									<option>Force Directed</option>
+									<option>Force Directed Radial</option>
 									<option>Vertical</option>
 									<option>Horizontal</option>
 								</select>
@@ -144,7 +145,7 @@
 									<label class="label is-size-7 has-text-right px-auto" >Link Lenght</label>
 								</div>
 								<div  class="column pb-1 is-5">
-									<input id="force-directed-slider-link-lenght" class="slider" step="1" min="1" max="10" type="range"  style="width: 130px;">								
+									<input id="force-directed-slider-link-lenght" class="slider" step="1" min="1" max="1000" type="range"  style="width: 130px;">								
 								</div>
 							</div>
 							<div class="columns" >
@@ -152,7 +153,7 @@
 									<label class="label is-size-7 has-text-right px-auto" >Node Gap</label>
 								</div>
 								<div  class="column is-5">
-									<input id="force-directed-slider-node-gap" class="slider" step="1" min="1" max="100" type="range"  style="width: 130px;">								
+									<input id="force-directed-slider-node-gap" class="slider" step="1" min="1" max="10" type="range"  style="width: 130px;">								
 								</div>
 							</div>
 						</div>
@@ -164,6 +165,31 @@
 							<div class="buttons">
 								<button class="button is-link is-outlined is-small">Reset</button>
 								<button href="#" onclick="viewportDrawerLayoutForceDirected(event)" class="button is-link is-outlined is-small">Start</button>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="panel-block layout-algo p-0" id="viewport-drawer-force-directed-radial" style="display: none;" >
+					<div  class="column my-auto is-11">
+						<div  class="panel-content">
+	
+							<div class="columns py-auto" >
+								<div  class="column is-5">
+									<label class="label is-size-7 has-text-right px-auto" >Link<br>Lenght</label>
+								</div>
+								<div  class="column pb-1 is-5">
+									<input id="force-directed-radial-slider-link-lenght" class="slider" step="1" min="1" max="500" type="range"  style="width: 130px;">								
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="panel-block layout-algo p-0 pb-2" id="viewport-drawer-force-directed-radial-reset-start" style="display: none;">
+					<div  class="column p-0 is-flex-direction-column">
+						<div  class="column is-12 is-flex is-justify-content-flex-end">
+							<div class="buttons">
+								<button class="button is-link is-outlined is-small">Reset</button>
+								<button href="#" onclick="viewportDrawerLayoutForceDirectedRadial(event)" class="button is-link is-outlined is-small">Start</button>
 							</div>
 						</div>
 					</div>
@@ -358,13 +384,23 @@
 				<div id="viewport-drawer-clab-editor-content-02" class="panel-block layout-algo p-0" style="display: none;">
 					<div  class="column pb-0 is-12">
 						<div class="content p-0 mb-2 is-small">
-							<p>
-								<strong>Hint:</strong><br>
-								(Shift + Click) on the viewport to add a node, or on the source-node and then click the target-node to create a link.
-							</p>
-							<p>
-								(Alt + Click) on a node to delete the node and its reference edges, or on a link to delete the link.
-							</p>
+							<div class="px-0 py-0" style="max-height: 125px; overflow-y: auto;">
+								<div class="content is-small pb-2">
+									<p>
+										<strong>Hint:</strong><br>
+										(Shift + Click) on the viewport to add a node, or on the source-node and then click the target-node to create a link.
+									</p>
+									<p>
+										(Alt + Click) on a node to delete the node and its reference edges, or on a link to delete the link.
+									</p>
+									<p>
+										Drag an orphan node onto a group node to include it as part of the group.
+									</p>
+									<p>
+										Control + Click on a child node within a group to make it an orphan node.
+									</p>
+								</div>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -938,14 +974,20 @@
 			</div>
 
 			<script src="js/library/lodash.min.js?ver=1"></script>
+
 			<script src="js/library/cola.min.js?ver=1"></script>
 			<script src="js/library/popper.js?ver=1"></script>
 			<script src="js/library/tippy.all.js?ver=1"></script>
 			<script src="js/library/cytoscape.min.js?ver=1"></script>
+			<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 			<script src="js/library/cytoscape-cola.js?ver=1"></script>
 			<script src="js/library/cytoscape-popper.js?ver=1"></script>
 			<script src="js/library/cytoscape-grid-guide.min.js?ver=1"></script>
 			<script src="js/library/cytoscape-edgehandles.min.js?ver=1"></script>
+			<!-- Expand-Collapse Extension -->
+			<script src="https://cdn.jsdelivr.net/npm/cytoscape-expand-collapse@4.1.1/cytoscape-expand-collapse.min.js"></script>
+
 			<script src="js/library/js-yaml.min.js?ver=1"></script>
 			<script src="js/library/monaco-loader.js?ver=1"></script>
 

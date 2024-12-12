@@ -231,7 +231,12 @@ async function showPanelNodeEditor(node) {
 	// Set the node group in the editor
 	const nodeGroupLabel = document.getElementById("panel-node-editor-group");
 	if (nodeGroupLabel) {
-		nodeGroupLabel.value = 'data-center';
+		const parentNode = node.parent();
+		// Get the parent node's label
+		const parentLabel = parentNode.data('name'); 
+		console.log('Parent Node Label:', parentLabel);
+
+		nodeGroupLabel.value = parentLabel;
 	}
 
 	// Display the node editor panel
