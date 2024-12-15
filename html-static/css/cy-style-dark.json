@@ -350,18 +350,21 @@
       "source-label": "data(sourceEndpoint)",
       "target-label": "data(targetEndpoint)",
       "arrow-scale": "0.5",
-      "color": "#000000",
+      "source-text-color": "#000000",
+      "target-text-color": "#000000",
       "text-outline-width": "0.3px",
       "text-outline-color": "#FFFFFF",
       "text-background-color": "#CACBCC",  
       "text-background-opacity": 0.7,      
       "text-background-shape": "roundrectangle",  
       "text-background-padding": "1px",    
-      "curve-style": "unbundled-bezier",
+      "curve-style": "bezier",
       "control-point-step-size": 20,
       "opacity": "1",
       "line-color": "#969799",
       "width": "1.5",
+      "label": " ",
+
       "overlay-padding": "2px"
     }
   },

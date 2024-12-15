@@ -25,6 +25,8 @@ document.addEventListener("DOMContentLoaded", async function() {
 	initializeDropdownListeners();
 	initViewportDrawerClabEditoCheckboxToggle()
 
+
+
 	// Reusable function to initialize a WebSocket connection
 	function initializeWebSocket(url, onMessageCallback) {
 		const protocol = location.protocol === "https:" ? "wss://" : "ws://";
@@ -95,6 +97,39 @@ document.addEventListener("DOMContentLoaded", async function() {
 		},
 	);
 
+	// helper functions for cytoscapePopper
+	function popperFactory(ref, content, opts) {
+		const popperOptions = {
+			middleware: [
+				FloatingUIDOM.flip(),
+				FloatingUIDOM.shift({
+					limiter: FloatingUIDOM.limitShift()
+				})
+			],
+			...opts,
+		};
+
+		function update() {
+			FloatingUIDOM.computePosition(ref, content, popperOptions).then(({
+				x,
+				y
+			}) => {
+				Object.assign(content.style, {
+					left: `${x}px`,
+					top: `${y}px`,
+				});
+			});
+		}
+		update();
+		return {
+			update
+		};
+	}
+
+	// init cytoscapePopper
+	cytoscape.use(cytoscapePopper(popperFactory));
+
+
 	//- Instantiate Cytoscape.js
 	cy = cytoscape({
 		container: document.getElementById("cy"),
@@ -110,6 +145,9 @@ document.addEventListener("DOMContentLoaded", async function() {
 		selectionType: 'additive' // Allow additive selection
 
 	});
+
+
+
 
 	// Listen for selection events
 	cy.on('select', 'node', (event) => {
@@ -405,7 +443,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 			topoViewerNode = cy.filter('node[name = "topoviewer"]');
 			topoViewerNode.remove();
 
-			var api = cy.expandCollapse({
+			var cyExpandCollapse = cy.expandCollapse({
 				layoutBy: null, // null means use existing layout
 				undoable: false,
 				fisheye: false,
@@ -417,12 +455,13 @@ document.addEventListener("DOMContentLoaded", async function() {
 			// Make sure the '#parent' node exists in your loaded elements
 			setTimeout(function() {
 				var parent = cy.$('#parent'); // Ensure that '#parent' is actually present in dataCytoMarshall.json
-				api.collapse(parent);
+				cyExpandCollapse.collapse(parent);
 
 				setTimeout(function() {
-					api.expand(parent);
+					cyExpandCollapse.expand(parent);
 				}, 2000);
 			}, 2000);
+
 		})
 		.catch((error) => {
 			console.error("Error loading graph data:", error);
@@ -702,6 +741,9 @@ document.addEventListener("DOMContentLoaded", async function() {
 			}
 		});
 
+		// Assign middle labels
+		assignMiddleLabels(clickedEdge);
+
 		// Usage: Initialize the listener and get a live checker function
 		const isViewportDrawerClabEditorCheckboxChecked = setupCheckboxListener('#viewport-drawer-clab-editor-content-01 .checkbox-input');
 
@@ -710,6 +752,18 @@ document.addEventListener("DOMContentLoaded", async function() {
 			console.log("deleted Edge: ", clickedEdge.data("source"), clickedEdge.data("target"));
 
 			deleteEdgeToEditorToFile(clickedEdge)
+
+		}
+		if (event.originalEvent.altKey && isViewportDrawerClabEditorCheckboxChecked && clickedEdge.data("editor") !== "true") {
+			console.log("Alt + Click is enabled");
+			bulmaToast.toast({
+				message: `Hey there, that link’s locked down read-only, so no deleting it. 😎👊`,
+				type: "is-warning is-size-6 p-3",
+				duration: 4000,
+				position: "top-center",
+				closeOnClick: true,
+			});
+
 
 		}
 		if (clickedEdge.data("editor") !== "true") {
@@ -918,6 +972,148 @@ document.addEventListener("DOMContentLoaded", async function() {
 			`Boom! Just generated ${numNodesToGenerate} nodes with some random edges. That's how we roll!`,
 		);
 	}
+
+
+	function assignMiddleLabels(edge) {
+		console.log("assignMiddleLabels");
+	
+		if (!edge || !edge.isEdge()) {
+			console.error("Input is not a valid edge.");
+			return;
+		}
+	
+		const source = edge.source().id();
+		const target = edge.target().id();
+	
+		// Find all edges connecting the same source and target nodes
+		const connectedEdges = edge.cy().edges().filter((e) => {
+			const eSource = e.source().id();
+			const eTarget = e.target().id();
+			return (
+				(eSource === source && eTarget === target) ||
+				(eSource === target && eTarget === source)
+			);
+		});
+	
+		console.log("connectedEdges: ", connectedEdges);
+	
+		// If only one edge exists, no label is needed
+		if (connectedEdges.length === 1) {
+			connectedEdges.forEach((e) => e.removeData("edgeGroup"));
+			return;
+		}
+	
+		// Check if the label already exists
+		const groupId = `${source}-${target}`;
+		if (document.getElementById(`label-${groupId}`)) {
+			console.log(`Label for group ${groupId} already exists.`);
+			return;
+		}
+	
+		// Create a single label for all parallel edges
+		const labelDiv = document.createElement("div");
+		labelDiv.classList.add("popper-div");
+		labelDiv.id = `label-${groupId}`; // Unique ID for the label
+		labelDiv.innerHTML = `<a href="javascript:void(0);">+</a>`;
+	
+		document.body.appendChild(labelDiv);
+	
+		// Use Popper to position the label in the middle of one edge
+		const popper = edge.popper({
+			content: () => labelDiv,
+		});
+	
+		function updatePosition() {
+			popper.update();
+		}
+	
+		function updateFontSize() {
+			const zoomLevel = edge.cy().zoom();
+			const fontSize = 7 * zoomLevel;
+			const borderSize = 1 * zoomLevel;
+			const strokeWidth = 0.2 * zoomLevel;
+	
+			labelDiv.style.fontSize = `${fontSize}px`;
+			labelDiv.style.borderRadius = `${borderSize}px`;
+			labelDiv.style.webkitTextStroke = `${strokeWidth}px white`;
+		}
+	
+		// Initial updates
+		updateFontSize();
+		updatePosition();
+	
+		// Attach event listeners for updates
+		edge.cy().on("pan zoom resize", () => {
+			updatePosition();
+			updateFontSize();
+		});
+	
+		// Handle label click
+		labelDiv.addEventListener("click", () => {
+			toggleParallelEdges(edge, groupId, connectedEdges);
+			bulmaToast.toast({
+				message: `You clicked on the label of edge: ${edge.id()}`,
+				type: "is-warning is-size-6 p-3",
+				duration: 4000,
+				position: "top-center",
+				closeOnClick: true,
+			});
+		});
+	
+		// Remove the label on graph click
+		// edge.cy().once("click", () => {
+		// 	labelDiv.remove();
+		// });
+	}
+	
+	function toggleParallelEdges(edge, groupId, connectedEdges) {
+		const source = edge.data("source");
+		const target = edge.data("target");
+	
+		// Find all edges connecting the same source and target nodes
+		const parallelEdges = edge.cy().edges().filter((e) => {
+			const eSource = e.source().id();
+			const eTarget = e.target().id();
+			return (
+				(eSource === source && eTarget === target) ||
+				(eSource === target && eTarget === source)
+			);
+		});
+	
+		const allHidden = parallelEdges.filter((e) => e.id() !== edge.id() && e.hidden()).length > 0;
+	
+		if (allHidden) {
+			// Expand parallel edges
+			parallelEdges.show();
+	
+			// Remove the popper label
+			const label = document.getElementById(`label-${groupId}`);
+			if (label) {
+				label.remove();
+			}
+	
+			console.log(`Expanded parallel edges for edge: ${edge.id()}`);
+		} else {
+			// Collapse parallel edges except the clicked one
+			connectedEdges.forEach((parallelEdge) => {
+				if (parallelEdge.id() !== edge.id()) {
+					parallelEdge.hide();
+				}
+			});
+	
+			// Update the popper label to show the collapsed state
+			const label = document.getElementById(`label-${groupId}`);
+			if (label) {
+				label.innerHTML = `<a href="javascript:void(0);">${connectedEdges.length}</a>`;
+				label.style.display = "block";
+			}
+	
+			console.log(`Collapsed parallel edges for edge: ${edge.id()}`);
+		}
+	}
+	
+	
+	
 
 	function spawnNodeEvent(event) {
 		//- Add a click event listener to the 'Submit' button in the hidden form
@@ -2043,7 +2239,7 @@ function viewportDrawerLayoutForceDirected() {
 			},
 		})
 		.run();
-	var api = cy.expandCollapse({
+	var cyExpandCollapse = cy.expandCollapse({
 		layoutBy: null, // null means use existing layout
 		undoable: false,
 		fisheye: false,
@@ -2055,10 +2251,10 @@ function viewportDrawerLayoutForceDirected() {
 	// Make sure the '#parent' node exists in your loaded elements
 	setTimeout(function() {
 		var parent = cy.$('#parent'); // Ensure that '#parent' is actually present in dataCytoMarshall.json
-		api.collapse(parent);
+		cyExpandCollapse.collapse(parent);
 
 		setTimeout(function() {
-			api.expand(parent);
+			cyExpandCollapse.expand(parent);
 		}, 2000);
 	}, 2000);
 }
@@ -2081,7 +2277,7 @@ function viewportDrawerLayoutForceDirectedRadial() {
 	// Adjust edge styles to avoid overlaps
 	cy.edges().forEach((edge) => {
 		edge.style({
-			'curve-style': 'unbundled-bezier', // Use curved edges
+			'curve-style': 'bezier', // Use curved edges
 			'control-point-step-size': 20, // Distance for control points
 		});
 	});
@@ -2103,7 +2299,7 @@ function viewportDrawerLayoutForceDirectedRadial() {
 		avoidOverlap: true, // Prevents node overlaps
 	}).run();
 
-	var api = cy.expandCollapse({
+	var cyExpandCollapse = cy.expandCollapse({
 		layoutBy: null,
 		undoable: false,
 		fisheye: false,
@@ -2114,10 +2310,10 @@ function viewportDrawerLayoutForceDirectedRadial() {
 	// Example collapse/expand after some time:
 	setTimeout(function() {
 		var parent = cy.$('#parent');
-		api.collapse(parent);
+		cyExpandCollapse.collapse(parent);
 
 		setTimeout(function() {
-			api.expand(parent);
+			cyExpandCollapse.expand(parent);
 		}, 2000);
 	}, 2000);
 }
@@ -2215,7 +2411,7 @@ function viewportDrawerLayoutVertical() {
 		cy.fit();
 	}, delay);
 
-	var api = cy.expandCollapse({
+	var cyExpandCollapse = cy.expandCollapse({
 		layoutBy: null, // null means use existing layout
 		undoable: false,
 		fisheye: false,
@@ -2227,110 +2423,13 @@ function viewportDrawerLayoutVertical() {
 	// Make sure the '#parent' node exists in your loaded elements
 	setTimeout(function() {
 		var parent = cy.$('#parent'); // Ensure that '#parent' is actually present in dataCytoMarshall.json
-		api.collapse(parent);
+		cyExpandCollapse.collapse(parent);
 
 		setTimeout(function() {
-			api.expand(parent);
+			cyExpandCollapse.expand(parent);
 		}, 2000);
 	}, 2000);
 }
-
-
-
-// function viewportDrawerLayoutVertical() {
-// 	nodevGap = document.getElementById("vertical-layout-slider-node-v-gap");
-// 	groupvGap = document.getElementById("vertical-layout-slider-group-v-gap");
-
-// 	const nodevGapValue = parseFloat(nodevGap.value);
-// 	const groupvGapValue = parseFloat(groupvGap.value);
-
-// 	console.log("nodevGapValue", nodevGapValue);
-// 	console.log("groupvGapValue", groupvGapValue);
-
-// 	const xOffset = parseFloat(nodevGapValue);
-// 	const yOffset = parseFloat(groupvGapValue);
-
-// 	console.log("yOffset", yOffset);
-// 	console.log("xOffset", xOffset);
-
-// 	const delay = 100;
-
-// 	setTimeout(() => {
-// 		// Position child nodes within parent nodes
-// 		cy.nodes().forEach(function (node) {
-// 			if (node.isParent()) {
-// 				// For each parent node
-// 				const children = node.children();
-// 				const numRows = 1;
-
-// 				const cellWidth = node.width() / children.length;
-
-// 				children.forEach(function (child, index) {
-// 					// Position children in rows
-// 					const xPos = index * (cellWidth + xOffset);
-// 					const yPos = 0;
-
-// 					// Set the position of each child node
-// 					child.position({
-// 						x: xPos,
-// 						y: yPos,
-// 					});
-// 				});
-// 			}
-// 		});
-
-// 		let parentCounts = {};
-// 		let maxWidth = 0;
-// 		const centerX = 0; // Centered horizontally
-// 		const centerY = cy.height() / 2;
-
-// 		// Count children of each parent node
-// 		cy.nodes().forEach(function (node) {
-// 			if (node.isParent()) {
-// 				const childrenCount = node.children().length;
-// 				parentCounts[node.id()] = childrenCount;
-// 			}
-// 		});
-
-// 		// Determine the maximum width of parent nodes
-// 		cy.nodes().forEach(function (node) {
-// 			if (node.isParent()) {
-// 				const width = node.width();
-// 				if (width > maxWidth) {
-// 					maxWidth = width;
-// 					console.log("ParentMaxWidth: ", maxWidth);
-// 				}
-// 			}
-// 		});
-
-// 		const divisionFactor = maxWidth / 2;
-// 		console.log("divisionFactor: ", divisionFactor);
-
-// 		// Sort parent nodes by TopoViewerGroupLevel (lower levels appear higher)
-// 		const sortedParents = cy.nodes().filter(node => node.isParent()).sort((a, b) => {
-// 			const levelA = parseInt(a.data('extraData')?.labels?.TopoViewerGroupLevel || 999, 10);
-// 			const levelB = parseInt(b.data('extraData')?.labels?.TopoViewerGroupLevel || 999, 10);
-// 			return levelA - levelB; // Ascending order of levels
-// 		});
-
-// 		let yPos = 0;
-
-// 		// Position parent nodes vertically, honoring TopoViewerGroupLevel
-// 		sortedParents.forEach(function (parent) {
-// 			const parentWidth = parent.width();
-// 			const xPos = centerX - parentWidth / divisionFactor;
-
-// 			parent.position({
-// 				x: xPos,
-// 				y: yPos,
-// 			});
-
-// 			yPos += yOffset; // Adjust vertical spacing between parents
-// 		});
-
-// 		cy.fit();
-// 	}, delay);
-// }
 
 
 function viewportDrawerLayoutHorizontal() {
@@ -2421,7 +2520,7 @@ function viewportDrawerLayoutHorizontal() {
 		cy.fit();
 	}, delay);
 
-	var api = cy.expandCollapse({
+	var cyExpandCollapse = cy.expandCollapse({
 		layoutBy: null, // null means use existing layout
 		undoable: false,
 		fisheye: false,
@@ -2433,10 +2532,10 @@ function viewportDrawerLayoutHorizontal() {
 	// Make sure the '#parent' node exists in your loaded elements
 	setTimeout(function() {
 		var parent = cy.$('#parent'); // Ensure that '#parent' is actually present in dataCytoMarshall.json
-		api.collapse(parent);
+		cyExpandCollapse.collapse(parent);
 
 		setTimeout(function() {
-			api.expand(parent);
+			cyExpandCollapse.expand(parent);
 		}, 2000);
 	}, 2000);
 }

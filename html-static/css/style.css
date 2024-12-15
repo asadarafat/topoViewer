@@ -10,6 +10,32 @@ body {
   position: absolute;
 }
 
+.popper-div {
+  border: 1px solid;
+  background:rgba(202, 203, 204, 0.7);
+  border: 1px solid #aaa; /* Optional: A border to enhance visibility */
+  border-radius: 10px; /* Adjust for more or less curve */
+  padding: 0.2em; /* Adds space inside the element */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Optional: Subtle shadow for a modern look */
+
+  z-index: 99999;
+  width: max-content;
+  position: absolute;
+}
+
+.popper-div a {
+  text-decoration: none;
+  color: black;
+  font-weight: bold; 
+  outline-color: #FFFFFF;
+  z-index: 99999;
+
+}
+
+.popper-div a:hover {
+  text-decoration: underline;
+}
+
 
 .has-background-4a {
   z-index: 9999;

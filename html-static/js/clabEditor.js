@@ -727,7 +727,7 @@ async function clabEditorDeleteNode(nodeId) {
 
 		// Notify the user of the successful operation
 		bulmaToast.toast({
-			message: `Node "${nodeId}" and its associated links have been successfully deleted.`,
+			message: `Yo bro, node ${nodeId} and all its links just got totally wiped out! 🗑️💥`,
 			type: "is-warning",
 			duration: 3000,
 			position: "top-center",
@@ -848,7 +848,7 @@ async function clabEditorDeleteEdge(edge) {
 
 		// Notify the user of the successful operation
 		bulmaToast.toast({
-			message: `Link between "${sourceNodeName}" and "${targetNodeName}" has been successfully deleted.`,
+			message: `Yo bro, the link between ${sourceNodeName} and ${targetNodeName} is history, all nuked and gone! 🙌🔥`,
 			type: "is-warning",
 			duration: 3000,
 			position: "top-center",
