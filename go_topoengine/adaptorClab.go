@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"os/exec"
+	"regexp"
 	"strings"
 	"time"
 
@@ -25,6 +26,8 @@ import (
 	"golang.org/x/crypto/ssh"
 
 	log "github.com/sirupsen/logrus"
+
+	tools "github.com/asadarafat/topoViewer/go_tools"
 )
 
 type ClabTopoV2 struct {
@@ -131,6 +134,7 @@ type ClabNetemInterfaceData struct {
 	Jitter     string `json:"jitter"`
 	PacketLoss string `json:"packet_loss"`
 	Rate       string `json:"rate"`
+	Corruption string `json:"corruption"`
 }
 
 // func (cyTopo *CytoTopology) InitLogger() {
@@ -1274,7 +1278,7 @@ func (cyTopo *CytoTopology) SendSnmpGetNodeEndpoint(targetAddress string, target
 
 }
 
-func (cyTopo *CytoTopology) ParseCLIOutput(cliOutput []byte, nodeId, interfaceFilter string) (ClabNetemInterfaceData, error) {
+func (cyTopo *CytoTopology) ParseCLIOutputClab(cliOutput []byte, nodeId, interfaceFilter string) (ClabNetemInterfaceData, error) {
 	// Convert bytes to string
 	cliOutputStr := string(cliOutput)
 	lines := strings.Split(cliOutputStr, "\n")
@@ -1299,7 +1303,7 @@ func (cyTopo *CytoTopology) ParseCLIOutput(cliOutput []byte, nodeId, interfaceFi
 		})
 
 		// Ensure we have enough fields
-		if len(fields) < 5 {
+		if len(fields) < 6 {
 			continue
 		}
 
@@ -1311,10 +1315,184 @@ func (cyTopo *CytoTopology) ParseCLIOutput(cliOutput []byte, nodeId, interfaceFi
 			Jitter:     fields[2],
 			PacketLoss: fields[3],
 			Rate:       fields[4],
+			Corruption: fields[5],
 		}
 
 		// Append to the list of eth3 data
 		results = append(results, data)
 	}
 	return results[0], nil
+}
+func (cyTopo *CytoTopology) ParseCLIOutputClab060(cliOutput []byte, nodeId, interfaceFilter string) (ClabNetemInterfaceData, error) {
+	// Convert bytes to string
+	cliOutputStr := string(cliOutput)
+
+	// Strip ANSI escape sequences using regex
+	reANSI := regexp.MustCompile(`\x1b\[[0-9;]*[a-zA-Z]`)
+	cleanedOutput := reANSI.ReplaceAllString(cliOutputStr, "")
+
+	// Split the cleaned output into lines
+	lines := strings.Split(cleanedOutput, "\n")
+
+	var results []ClabNetemInterfaceData
+
+	// Iterate over the lines to find and parse the relevant data
+	for _, line := range lines {
+		// Remove leading/trailing box-drawing characters
+		line = strings.Trim(line, " │")
+
+		// Skip header and separator lines
+		if strings.Contains(line, "Interface") || strings.Contains(line, "───────") {
+			continue
+		}
+
+		// Check if the line contains the filtered interface
+		if !strings.HasPrefix(line, interfaceFilter) {
+			continue
+		}
+
+		// Clean the line by replacing all instances of '│' with '|'
+		line = strings.ReplaceAll(line, "│", "|")
+
+		// Split the line into fields based on '|'
+		fields := strings.Split(line, "|")
+
+		// Trim whitespace from each field
+		for i := range fields {
+			fields[i] = strings.TrimSpace(fields[i])
+		}
+
+		log.Info("fields: ", fields)
+
+		// Ensure we have enough fields
+		if len(fields) < 6 {
+			log.Warnf("Skipping line due to insufficient fields: %s", line)
+			continue
+		}
+
+		// Create a new instance of ClabNetemInterfaceData and populate it
+		data := ClabNetemInterfaceData{
+			Node:       nodeId,
+			Interface:  fields[0],
+			Delay:      fields[1],
+			Jitter:     fields[2],
+			PacketLoss: fields[3],
+			Rate:       fields[4],
+			Corruption: fields[5],
+		}
+
+		// Append to results
+		results = append(results, data)
+	}
+
+	// Return the first result, if available
+	if len(results) == 0 {
+		return ClabNetemInterfaceData{}, fmt.Errorf("no matching data found for interface: %s", interfaceFilter)
+	}
+
+	log.Info("Parsed result: ", results[0])
+	return results[0], nil
+}
+
+// // isVersionHigher executes an SSH command, extracts the version, and compares it
+// func (cyTopo *CytoTopology) IsClabVersionHigher(hostname, port, user, pass, serverAddr, targetVersion string) (bool, error) {
+// 	// Execute the SSH command to get the clab version
+// 	cliOutputClabVersion, err := tools.SshSudo(
+// 		hostname,
+// 		port,
+// 		user,
+// 		pass,
+// 		serverAddr,
+// 		`clab version | grep "version:"`,
+// 	)
+// 	if err != nil {
+// 		return false, err
+// 	}
+
+// 	// Use regex to extract the version number
+// 	versionRegex := regexp.MustCompile(`version:\s*([\d.]+)`)
+// 	match := versionRegex.FindStringSubmatch(string(cliOutputClabVersion))
+// 	if len(match) < 2 {
+// 		return false, nil // Return false if version extraction fails
+// 	}
+
+// 	// Extracted version string
+// 	extractedVersion := strings.TrimSpace(match[1])
+
+// 	// Split versions into parts and compare
+// 	currentParts := strings.Split(extractedVersion, ".")
+// 	targetParts := strings.Split(targetVersion, ".")
+
+// 	for i := 0; i < len(targetParts); i++ {
+// 		if len(currentParts) <= i {
+// 			return false, nil
+// 		}
+
+// 		currentNum, _ := strconv.Atoi(currentParts[i])
+// 		targetNum, _ := strconv.Atoi(targetParts[i])
+
+// 		if currentNum > targetNum {
+// 			return true, nil
+// 		} else if currentNum < targetNum {
+// 			return false, nil
+// 		}
+// 	}
+
+// 	return false, nil
+// }
+
+// IsClabVersionHigher executes an SSH command, extracts the version, and compares it
+func (cyTopo *CytoTopology) IsClabVersionHigher(hostname, port, user, pass, serverAddr, targetVersion string) (bool, error) {
+	// Execute the SSH command to get the clab version
+	cliOutputClabVersion, err := tools.SshSudo(
+		hostname,
+		port,
+		user,
+		pass,
+		serverAddr,
+		`clab version | grep "version:"`,
+	)
+	if err != nil {
+		return false, err
+	}
+
+	// Use regex to extract the version number
+	versionRegex := regexp.MustCompile(`version:\s*([\d.]+)`)
+	match := versionRegex.FindStringSubmatch(string(cliOutputClabVersion))
+	if len(match) < 2 {
+		return false, nil // Return false if version extraction fails
+	}
+
+	// Extracted version string
+	extractedVersion := strings.TrimSpace(match[1])
+
+	// Split versions into parts
+	currentParts := strings.Split(extractedVersion, ".")
+	targetParts := strings.Split(targetVersion, ".")
+
+	// Compare each part
+	maxParts := len(currentParts)
+	if len(targetParts) > maxParts {
+		maxParts = len(targetParts)
+	}
+
+	for i := 0; i < maxParts; i++ {
+		currentNum, targetNum := 0, 0
+		if i < len(currentParts) {
+			currentNum, _ = strconv.Atoi(currentParts[i])
+		}
+		if i < len(targetParts) {
+			targetNum, _ = strconv.Atoi(targetParts[i])
+		}
+
+		// Compare parts numerically
+		if currentNum > targetNum {
+			return true, nil
+		} else if currentNum < targetNum {
+			return false, nil
+		}
+	}
+
+	// If all parts are equal, the version is not higher
+	return false, nil
 }

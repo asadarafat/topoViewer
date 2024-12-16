@@ -777,66 +777,101 @@ func Clab(_ *cobra.Command, _ []string) error {
 
 		}).Methods("POST")
 
-	//// API endpoint to get clab-link-impairment value
-	router.HandleFunc("/clab-link-impairment",
-		func(w http.ResponseWriter, r *http.Request) {
-			log.Infof("<cmd-clab><I><clab-link-impairment(): GET method")
+	// API endpoint to get clab-link-impairment value
+	router.HandleFunc("/clab-link-impairment", func(w http.ResponseWriter, r *http.Request) {
 
-			query := r.URL.Query()
+		clabUser := confClab.GetString("clab-user")
+		clabHost := confClab.GetStringSlice("allowed-hostnames")[0]
+		clabPass := confClab.GetString("clab-pass")
 
-			queriesList := make([]string, 0)
-			for _, values := range query {
-				queriesList = append(queriesList, values...)
-			}
+		clabHandlers.ClabEdgeGetImpairment(
+			w,
+			r,
+			&cyTopo,
 
-			// paramaters := "Received parameters:\n"
+			clabUser,
+			clabPass,
+			clabHost,
+			clabServerAddress,
+		)
+		// log.Infof("<cmd-clab><I><clab-link-impairment(): GET method")
 
-			// for key, values := range query {
-			// 	for _, value := range values {
-			// 		paramaters += fmt.Sprintf("%s: %s\n", key, value)
-			// 	}
-			// }
+		// // Parse query parameters
+		// query := r.URL.Query()
+		// queriesList := make([]string, 0)
+		// for _, values := range query {
+		// 	queriesList = append(queriesList, values...)
+		// }
 
-			// log.Infof("<cmd-clab><I><clab-link-impairment() GET method response: %s", paramaters)
+		// if len(queriesList) < 2 {
+		// 	http.Error(w, "Invalid query parameters", http.StatusBadRequest)
+		// 	log.Info("<cmd-clab><I><clab-link-impairment() - Insufficient query parameters")
+		// 	return
+		// }
 
-			nodeId := queriesList[0]
-			interfaceId := queriesList[1]
+		// nodeId, interfaceId := queriesList[0], queriesList[1]
+		// clabUser := confClab.GetString("clab-user")
+		// clabHost := confClab.GetStringSlice("allowed-hostnames")[0]
+		// clabPass := confClab.GetString("clab-pass")
+		// command := fmt.Sprintf("/usr/bin/containerlab tools netem show -n %s", nodeId)
 
-			clabUser := confClab.GetString("clab-user")
-			clabHost := confClab.GetStringSlice("allowed-hostnames")
-			clabPass := confClab.GetString("clab-pass")
-			command := fmt.Sprintf("/usr/bin/containerlab tools netem show -n %s", nodeId)
+		// log.Infof("<cmd-clab><I><clab-link-impairment() - queriesList: %v", queriesList)
+		// log.Infof("<cmd-clab><I><clab-link-impairment() - nodeId: %s", nodeId)
+		// log.Infof("<cmd-clab><I><clab-link-impairment() - interfaceId: %s", interfaceId)
+		// log.Infof("<cmd-clab><I><clab-link-impairment() - command: %s", command)
 
-			log.Info("<cmd-clab><I><clab-link-impairment() - queriesList: ", queriesList)
-			log.Info("<cmd-clab><I><clab-link-impairment() - nodeId: ", nodeId)
-			log.Info("<cmd-clab><I><clab-link-impairment() - interfaceId: ", interfaceId)
-			log.Info("<cmd-clab><I><clab-link-impairment() - command: ", command)
+		// // Execute SSH command
+		// cliOutput, err := tools.SshSudo(clabHost, "22", clabUser, clabPass, clabServerAddress, command)
+		// if err != nil {
+		// 	log.Infof("<cmd-clab><I><clab-link-impairment() - Error executing SSH command: %v", err)
+		// 	http.Error(w, "Error executing SSH command", http.StatusInternalServerError)
+		// 	return
+		// }
 
-			cliOutput, err := tools.SshSudo(clabHost[0], "22", clabUser, clabPass, clabServerAddress, command)
-			if err != nil {
-				log.Error("<cmd-clab><I><clab-link-impairment() - GET: ", err)
-				return
-			}
+		// log.Infof("<cmd-clab><I><clab-link-impairment() - cliOutput: %s", cliOutput)
 
-			parseCliOutput, err := cyTopo.ParseCLIOutput(cliOutput, nodeId, interfaceId)
-			if err != nil {
-				log.Error("<cmd-clab><I><clab-link-impairment() - GET: ", err)
-				return
-			}
+		// // Check clab version
+		// clabVersion := "0.60"
+		// isHigher, err := cyTopo.IsClabVersionHigher(clabHost, "22", clabUser, clabPass, clabServerAddress, clabVersion)
+		// if err != nil {
+		// 	log.Infof("<cmd-clab><I><clab-link-impairment() - Error checking clab version: %v", err)
+		// 	http.Error(w, "Error checking clab version", http.StatusInternalServerError)
+		// 	return
+		// }
 
-			log.Info("<cmd-clab><I><clab-link-impairment() - ClabNetemInterfaceData: ", parseCliOutput)
+		// log.Infof("<cmd-clab><I><clab-link-impairment() - Is version higher than %s? %v", clabVersion, isHigher)
 
-			// Create a response JSON object
-			responseData := map[string]interface{}{
-				"result":      "clab-link-impairment endpoint GET executed",
-				"return data": parseCliOutput,
-				"error":       err,
-			}
+		// // Parse CLI output based on version
+		// var parseCliOutput interface{}
+		// if isHigher {
+		// 	log.Info("<cmd-clab><I><clab-link-impairment() - Version is higher than 0.60")
+		// 	parseCliOutput, err = cyTopo.ParseCLIOutputClab060(cliOutput, nodeId, interfaceId)
+		// } else {
+		// 	log.Info("<cmd-clab><I><clab-link-impairment() - Version is lower than or equal to 0.60")
+		// 	parseCliOutput, err = cyTopo.ParseCLIOutputClab(cliOutput, nodeId, interfaceId)
+		// }
 
-			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(responseData)
+		// if err != nil {
+		// 	log.Infof("<cmd-clab><I><clab-link-impairment() - Error parsing CLI output: %v", err)
+		// 	http.Error(w, "Error parsing CLI output", http.StatusInternalServerError)
+		// 	return
+		// }
 
-		}).Methods("GET")
+		// log.Infof("<cmd-clab><I><clab-link-impairment() - ClabNetemInterfaceData: %v", parseCliOutput)
+
+		// // Respond with JSON
+		// responseData := map[string]interface{}{
+		// 	"result":      "clab-link-impairment endpoint GET executed",
+		// 	"return data": parseCliOutput,
+		// 	"error":       nil,
+		// }
+
+		// w.Header().Set("Content-Type", "application/json")
+		// if err := json.NewEncoder(w).Encode(responseData); err != nil {
+		// 	log.Infof("<cmd-clab><I><clab-link-impairment() - Error encoding JSON response: %v", err)
+		// 	http.Error(w, "Failed to encode JSON response", http.StatusInternalServerError)
+		// }
+	}).Methods("GET")
 
 	//// API endpoint to get clab-link-mac value
 	router.HandleFunc("/clab-link-mac",
@@ -844,25 +879,27 @@ func Clab(_ *cobra.Command, _ []string) error {
 			// sourceContainer := "clab-demo-Spine-01"
 			// targetContainer := "clab-demo-Leaf-03"
 
-			query := r.URL.Query()
+			// query := r.URL.Query()
 
-			queriesList := make([]string, 0)
-			for _, values := range query {
-				queriesList = append(queriesList, values...)
-			}
+			// queriesList := make([]string, 0)
+			// for _, values := range query {
+			// 	queriesList = append(queriesList, values...)
+			// }
 
-			log.Info("<cmd-clab><I><clab-link-mac() - queriesList: ", queriesList)
+			// log.Info("<cmd-clab><I><clab-link-mac() - queriesList: ", queriesList)
 
-			// Call the function to get Docker connected interfaces
-			data, err := cyTopo.GetDockerConnectedInterfacesViaUnixSocket(queriesList[0], queriesList[1])
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
-				return
-			}
+			// // Call the function to get Docker connected interfaces
+			// data, err := cyTopo.GetDockerConnectedInterfacesViaUnixSocket(queriesList[0], queriesList[1])
+			// if err != nil {
+			// 	http.Error(w, err.Error(), http.StatusInternalServerError)
+			// 	return
+			// }
 
-			w.WriteHeader(http.StatusOK)
-			w.Write(data)
-			log.Infof("Docker Network Info: %s", data)
+			// w.WriteHeader(http.StatusOK)
+			// w.Write(data)
+			// log.Infof("Docker Network Info: %s", data)
+
+			clabHandlers.ClabEdgeGetMacAddress(w, r, &cyTopo)
 		}).Methods("GET")
 
 	//// API endpoint to get compute-resource-usage
