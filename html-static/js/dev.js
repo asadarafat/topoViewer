@@ -1633,7 +1633,13 @@ async function sshCliCommandCopy(event) {
 		// Check if the clipboard API is available
 		if (navigator.clipboard && navigator.clipboard.writeText) {
 			navigator.clipboard.writeText(sshCopyString).then(function() {
-				alert('Text copied to clipboard');
+				bulmaToast.toast({
+					message: `Hey there, text cpied to clipboard. 😎`,
+					type: "is-warning is-size-6 p-3",
+					duration: 4000,
+					position: "top-center",
+					closeOnClick: true,
+				});
 			}).catch(function(error) {
 				console.error('Could not copy text: ', error);
 			});
@@ -1646,7 +1652,13 @@ async function sshCliCommandCopy(event) {
 			textArea.select();
 			try {
 				document.execCommand('copy');
-				alert('Text copied to clipboard');
+				bulmaToast.toast({
+					message: `Hey there, text cpied to clipboard. 😎`,
+					type: "is-warning is-size-6 p-3",
+					duration: 4000,
+					position: "top-center",
+					closeOnClick: true,
+				});
 			} catch (err) {
 				console.error('Fallback: Oops, unable to copy', err);
 			}

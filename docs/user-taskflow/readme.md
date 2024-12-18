@@ -27,3 +27,9 @@
 
     https://github.com/user-attachments/assets/0d3d23d2-70c1-41c4-ad6b-47f7afd9c9e3
     
+- **Lauch Web-Based SSH**:  
+  From the Node Properties Panel, select **`SSH - Copy To Clipboard`**.
+  - **Demo**:  
+  
+    https://github.com/user-attachments/assets/61a8cb39-d914-46e0-8e00-d1b7029bb51a
+    
