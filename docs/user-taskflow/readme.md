@@ -22,5 +22,8 @@
 ## Node Actions
 
 - **Lauch Web-Based SSH**:  
-  From Node Properties Panel, select `SSH - Launch Web-Based`.
+  From the Node Properties Panel, select **`SSH - Launch Web-Based`**. A new browser tab will open, providing access to a web-based console.
   - **Demo**:  
+
+    https://github.com/user-attachments/assets/0d3d23d2-70c1-41c4-ad6b-47f7afd9c9e3
+    

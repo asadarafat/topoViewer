@@ -16,7 +16,7 @@
 	var split1 = routerId.toString().split("?");
 	console.log(split1[1].split("=")[1])
 
-	document.title = `TopoViewer::${split1[0]}`;
+	document.title = `TopoViewer::${split1[1].split("=")[1]}`;
 
 
 	// Initialize the terminal with the desired options
