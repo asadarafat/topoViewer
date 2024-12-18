@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"math/rand"
 	"net/http"
 	"os"
@@ -21,7 +20,6 @@ import (
 	topoengine "github.com/asadarafat/topoViewer/go_topoengine"
 	xtermjs "github.com/asadarafat/topoViewer/go_xtermjs"
 
-	"github.com/gosnmp/gosnmp"
 	"github.com/usvc/go-config"
 
 	log "github.com/sirupsen/logrus"
@@ -422,149 +420,6 @@ func Clab(_ *cobra.Command, _ []string) error {
 
 		})
 
-	//// API endpoint to get actual-nodes-endpoints label
-	//// API endpoint to get actual-nodes-endpoints label
-	router.HandleFunc("/actual-nodes-endpoints",
-		func(w http.ResponseWriter, r *http.Request) {
-
-			log.Infof("<go_cloudshellwrapper><E>getAllNodeEndpointDetail - Function is called")
-
-			// Loading the dataCytoMarshall-{{clab-node-name}}.json
-			dataCytoMarshallPath := path.Join(workingDirectory, fmt.Sprintf("./html-public/%s/dataCytoMarshall.json", cyTopo.ClabTopoDataV2.Name))
-
-			log.Infof("################## %s", dataCytoMarshallPath)
-			log.Infof("Loading dataCytoMarshall-%s.json from: '%s'", cyTopo.ClabTopoDataV2.Name, dataCytoMarshallPath)
-
-			file, err := os.Open(dataCytoMarshallPath)
-			if err != nil {
-				log.Errorf("<go_cloudshellwrapper><E>getAllNodeEndpointDetail - Error opening dataCytoMarshall-{{clab-node-name}}.json %s>", err)
-				return
-			}
-			defer file.Close()
-
-			// Read the file contents
-			byteValue, err := io.ReadAll(file)
-			if err != nil {
-				log.Errorf("<go_cloudshellwrapper><E>getAllNodeEndpointDetail - Error reading dataCytoMarshall-{{clab-node-name}}.json %s>", err)
-				return
-			}
-
-			// load dataCytoMarshall-{{lab-name}}.json
-			var cytoElements []topoengine.CytoJson
-			err = json.Unmarshal(byteValue, &cytoElements)
-			if err != nil {
-				log.Errorf("<go_cloudshellwrapper><E>getAllNodeEndpointDetail - Error unmarshal dataCytoMarshall-{{clab-node-name}}.json %s>", err)
-				return
-			}
-
-			// build list of nodes
-			var nodeSrosList []string
-
-			for _, cytoElementNode := range cytoElements {
-				if cytoElementNode.Group == "nodes" {
-					if extraData, ok := cytoElementNode.Data.ExtraData.(map[string]interface{}); ok {
-						if kind, ok := extraData["kind"].(string); ok {
-
-							// if kind, ok := extraData["kind"].(string); ok {
-							if kind == "vr-sros" {
-								nodeSrosList = append(nodeSrosList, extraData["longname"].(string))
-							}
-						}
-					}
-				}
-			}
-			log.Infof("<go_cloudshellwrapper><I>getAllNodeEndpointDetail - List of SROS node as input for snmp-walk: %s>", nodeSrosList)
-
-			// build list of Node PortInfo map with snmpWalk
-			nodesPortInfo := make(map[string][]topoengine.PortInfo)
-
-			for _, nodeSros := range nodeSrosList {
-				log.Infof("<go_cloudshellwrapper><I>getAllNodeEndpointDetail - Attempt snmpwalk to %s...>", nodeSros)
-
-				_, sourceNodeSnmpWalkIfList, _ := cyTopo.SendSnmpGetNodeEndpoint(nodeSros, "public", gosnmp.Version2c)
-				for key, interfaces := range sourceNodeSnmpWalkIfList { // combining map from sourceNodeSnmpWalkIfList
-					nodesPortInfo[key] = append(nodesPortInfo[key], interfaces...)
-				}
-			}
-
-			for i, cytoElement := range cytoElements {
-				if cytoElement.Group == "edges" {
-
-					log.Infof("<go_cloudshellwrapper><I>getAllNodeEndpointDetail - Edge id %s>", cytoElement.Data.ID)
-
-					extraData := cytoElement.Data.ExtraData.(map[string]interface{})
-
-					log.Debugf("<go_cloudshellwrapper><D>getAllNodeEndpointDetail - ########### Before snmpwalk ><###########>")
-					log.Debugf("<go_cloudshellwrapper><D>getAllNodeEndpointDetail - clabSourceLongName: %s>", extraData["clabSourceLongName"].(string))
-					log.Debugf("<go_cloudshellwrapper><D>getAllNodeEndpointDetail - sourceEndpoint: %s>", cytoElement.Data.SourceEndpoint)
-					log.Debugf("<go_cloudshellwrapper><D>getAllNodeEndpointDetail - clabTargetLongName: %s>", extraData["clabTargetLongName"].(string))
-					log.Debugf("<go_cloudshellwrapper><D>getAllNodeEndpointDetail - targetEndpoint: %s>", cytoElement.Data.TargetEndpoint)
-
-					for _, nodeSros := range nodeSrosList {
-						clabSourceLongName := extraData["clabSourceLongName"].(string)
-						log.Infof("<go_cloudshellwrapper><I>getAllNodeEndpointDetail - clabSourceLongName: %s>", clabSourceLongName)
-
-						if clabSourceLongName == nodeSros && len(nodesPortInfo[clabSourceLongName]) > 0 {
-							if strings.HasPrefix(cytoElement.Data.SourceEndpoint, "eth") {
-								SourceEndpointPortIndexStr := strings.TrimPrefix(cytoElement.Data.SourceEndpoint, "eth") /// if it is already snmp'ed then no eth
-								SourceEndpointPortIndexInt, _ := strconv.Atoi(SourceEndpointPortIndexStr)
-								cytoElement.Data.SourceEndpoint = nodesPortInfo[clabSourceLongName][SourceEndpointPortIndexInt-1].IfName
-
-								log.Debugf("<go_cloudshellwrapper><D>getAllNodeEndpointDetail - NEW cytoElement.Data.SourceEndpoint: %s>", cytoElement.Data.SourceEndpoint)
-
-								cytoElements[i] = cytoElement
-							}
-						}
-
-						clabTargetLongName := extraData["clabTargetLongName"].(string)
-						log.Infof("<go_cloudshellwrapper><D>getAllNodeEndpointDetail - clabTargetLongName: %s>", clabTargetLongName)
-
-						if clabTargetLongName == nodeSros && len(nodesPortInfo[clabTargetLongName]) > 0 {
-							if strings.HasPrefix(cytoElement.Data.TargetEndpoint, "eth") {
-
-								TargetEndpointPortIndexStr := strings.TrimPrefix(cytoElement.Data.TargetEndpoint, "eth")
-								TargetEndpointPortIndexInt, _ := strconv.Atoi(TargetEndpointPortIndexStr)
-								cytoElement.Data.TargetEndpoint = nodesPortInfo[clabTargetLongName][TargetEndpointPortIndexInt-1].IfName
-
-								log.Debugf("<go_cloudshellwrapper><D>getAllNodeEndpointDetail - NEW cytoElement.Data.TargetEndpoint: %s>", cytoElement.Data.TargetEndpoint)
-
-								cytoElements[i] = cytoElement
-
-							}
-						}
-					}
-
-					log.Debugf("<go_cloudshellwrapper><D>getAllNodeEndpointDetail - ########### After snmpwalk ><###########>")
-					log.Debugf("<go_cloudshellwrapper><D>getAllNodeEndpointDetail - clabSourceLongName: %s>", extraData["clabSourceLongName"].(string))
-					log.Debugf("<go_cloudshellwrapper><D>getAllNodeEndpointDetail - sourceEndpoint: %s>", cytoElement.Data.SourceEndpoint)
-					log.Debugf("<go_cloudshellwrapper><D>getAllNodeEndpointDetail - clabTargetLongName: %s>", extraData["clabTargetLongName"].(string))
-					log.Debugf("<go_cloudshellwrapper><D>getAllNodeEndpointDetail - targetEndpoint: %s>", cytoElement.Data.TargetEndpoint)
-
-					log.Infof("<go_cloudshellwrapper><D>getAllNodeEndpointDetail - cytoElement: %v>", cytoElement)
-
-				}
-			}
-
-			jsonBytesCytoUiAfterSnmpwalk, err := json.MarshalIndent(cytoElements, "", "  ")
-			if err != nil {
-				log.Error(err)
-				panic(err)
-			}
-			log.Infof("<go_cloudshellwrapper><D>getAllNodeEndpointDetail - jsonBytesCytoUiAfterSnmpwalk Result: %v", string(jsonBytesCytoUiAfterSnmpwalk))
-			cyTopo.PrintjsonBytesCytoUiV2(jsonBytesCytoUiAfterSnmpwalk)
-
-			// w.Write([]byte(VersionInfo))          // send modifiedJSON as response to browser
-
-			// w.Write([]byte("ok"))
-
-			// w.WriteHeader(http.StatusOK)
-			// w.Write(jsonBytesCytoUiAfterSnmpwalk) // send modifiedJSON as response to browser
-
-			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(jsonBytesCytoUiAfterSnmpwalk)
-
-		}).Methods("GET")
-
 	router.HandleFunc("/reload",
 		func(w http.ResponseWriter, r *http.Request) {
 			// Perform your operations here...
@@ -624,7 +479,6 @@ func Clab(_ *cobra.Command, _ []string) error {
 		})
 
 	//// websocketUptime endpoint
-	//// websocketUptime endpoint
 	router.HandleFunc("/uptime",
 		func(w http.ResponseWriter, r *http.Request) {
 			var message time.Duration
@@ -670,7 +524,6 @@ func Clab(_ *cobra.Command, _ []string) error {
 			}
 		})
 
-	// // websocketcontainerNodeStatus endpoint
 	// // websocketcontainerNodeStatus endpoint
 	router.HandleFunc("/containerNodeStatus",
 		func(w http.ResponseWriter, r *http.Request) {
@@ -725,184 +578,6 @@ func Clab(_ *cobra.Command, _ []string) error {
 			}
 		})
 
-	//// API endpoint to trigger clab-link-impairment
-	router.HandleFunc("/clab-link-impairment",
-		func(w http.ResponseWriter, r *http.Request) {
-
-			// Parse the request body
-			var requestData map[string]interface{}
-			if err := json.NewDecoder(r.Body).Decode(&requestData); err != nil {
-				http.Error(w, "Invalid request body", http.StatusBadRequest)
-				return
-			}
-
-			// Access the parameters
-			log.Info(requestData)
-
-			clabUser := confClab.GetString("clab-user")
-			clabHost := confClab.GetStringSlice("allowed-hostnames")
-			clabPass := confClab.GetString("clab-pass")
-			command := requestData["param1"].(string)
-
-			log.Info("command: ", command)
-
-			returnData, err := tools.SshSudo(clabHost[0], "22", clabUser, clabPass, clabServerAddress, command)
-
-			log.Info(returnData)
-
-			// Create a response JSON object
-			responseData := map[string]interface{}{
-				"result":      "clab-link-impairment endpoint POST executed",
-				"return data": returnData,
-				"error":       err,
-			}
-
-			// Marshal the response JSON object into a JSON string
-			jsonResponse, err := json.Marshal(responseData)
-			if err != nil {
-				http.Error(w, "Failed to marshal response data", http.StatusInternalServerError)
-				return
-			}
-
-			// Set the response Content-Type header
-			w.Header().Set("Content-Type", "application/json")
-
-			// Write the JSON response to the client
-			_, err = w.Write(jsonResponse)
-			if err != nil {
-				// Handle the error (e.g., log it)
-				http.Error(w, "Failed to write response", http.StatusInternalServerError)
-				return
-			}
-
-		}).Methods("POST")
-
-	// API endpoint to get clab-link-impairment value
-	router.HandleFunc("/clab-link-impairment", func(w http.ResponseWriter, r *http.Request) {
-
-		clabUser := confClab.GetString("clab-user")
-		clabHost := confClab.GetStringSlice("allowed-hostnames")[0]
-		clabPass := confClab.GetString("clab-pass")
-
-		clabHandlers.ClabEdgeGetImpairment(
-			w,
-			r,
-			&cyTopo,
-
-			clabUser,
-			clabPass,
-			clabHost,
-			clabServerAddress,
-		)
-		// log.Infof("<cmd-clab><I><clab-link-impairment(): GET method")
-
-		// // Parse query parameters
-		// query := r.URL.Query()
-		// queriesList := make([]string, 0)
-		// for _, values := range query {
-		// 	queriesList = append(queriesList, values...)
-		// }
-
-		// if len(queriesList) < 2 {
-		// 	http.Error(w, "Invalid query parameters", http.StatusBadRequest)
-		// 	log.Info("<cmd-clab><I><clab-link-impairment() - Insufficient query parameters")
-		// 	return
-		// }
-
-		// nodeId, interfaceId := queriesList[0], queriesList[1]
-		// clabUser := confClab.GetString("clab-user")
-		// clabHost := confClab.GetStringSlice("allowed-hostnames")[0]
-		// clabPass := confClab.GetString("clab-pass")
-		// command := fmt.Sprintf("/usr/bin/containerlab tools netem show -n %s", nodeId)
-
-		// log.Infof("<cmd-clab><I><clab-link-impairment() - queriesList: %v", queriesList)
-		// log.Infof("<cmd-clab><I><clab-link-impairment() - nodeId: %s", nodeId)
-		// log.Infof("<cmd-clab><I><clab-link-impairment() - interfaceId: %s", interfaceId)
-		// log.Infof("<cmd-clab><I><clab-link-impairment() - command: %s", command)
-
-		// // Execute SSH command
-		// cliOutput, err := tools.SshSudo(clabHost, "22", clabUser, clabPass, clabServerAddress, command)
-		// if err != nil {
-		// 	log.Infof("<cmd-clab><I><clab-link-impairment() - Error executing SSH command: %v", err)
-		// 	http.Error(w, "Error executing SSH command", http.StatusInternalServerError)
-		// 	return
-		// }
-
-		// log.Infof("<cmd-clab><I><clab-link-impairment() - cliOutput: %s", cliOutput)
-
-		// // Check clab version
-		// clabVersion := "0.60"
-		// isHigher, err := cyTopo.IsClabVersionHigher(clabHost, "22", clabUser, clabPass, clabServerAddress, clabVersion)
-		// if err != nil {
-		// 	log.Infof("<cmd-clab><I><clab-link-impairment() - Error checking clab version: %v", err)
-		// 	http.Error(w, "Error checking clab version", http.StatusInternalServerError)
-		// 	return
-		// }
-
-		// log.Infof("<cmd-clab><I><clab-link-impairment() - Is version higher than %s? %v", clabVersion, isHigher)
-
-		// // Parse CLI output based on version
-		// var parseCliOutput interface{}
-		// if isHigher {
-		// 	log.Info("<cmd-clab><I><clab-link-impairment() - Version is higher than 0.60")
-		// 	parseCliOutput, err = cyTopo.ParseCLIOutputClab060(cliOutput, nodeId, interfaceId)
-		// } else {
-		// 	log.Info("<cmd-clab><I><clab-link-impairment() - Version is lower than or equal to 0.60")
-		// 	parseCliOutput, err = cyTopo.ParseCLIOutputClab(cliOutput, nodeId, interfaceId)
-		// }
-
-		// if err != nil {
-		// 	log.Infof("<cmd-clab><I><clab-link-impairment() - Error parsing CLI output: %v", err)
-		// 	http.Error(w, "Error parsing CLI output", http.StatusInternalServerError)
-		// 	return
-		// }
-
-		// log.Infof("<cmd-clab><I><clab-link-impairment() - ClabNetemInterfaceData: %v", parseCliOutput)
-
-		// // Respond with JSON
-		// responseData := map[string]interface{}{
-		// 	"result":      "clab-link-impairment endpoint GET executed",
-		// 	"return data": parseCliOutput,
-		// 	"error":       nil,
-		// }
-
-		// w.Header().Set("Content-Type", "application/json")
-		// if err := json.NewEncoder(w).Encode(responseData); err != nil {
-		// 	log.Infof("<cmd-clab><I><clab-link-impairment() - Error encoding JSON response: %v", err)
-		// 	http.Error(w, "Failed to encode JSON response", http.StatusInternalServerError)
-		// }
-	}).Methods("GET")
-
-	//// API endpoint to get clab-link-mac value
-	router.HandleFunc("/clab-link-mac",
-		func(w http.ResponseWriter, r *http.Request) {
-			// sourceContainer := "clab-demo-Spine-01"
-			// targetContainer := "clab-demo-Leaf-03"
-
-			// query := r.URL.Query()
-
-			// queriesList := make([]string, 0)
-			// for _, values := range query {
-			// 	queriesList = append(queriesList, values...)
-			// }
-
-			// log.Info("<cmd-clab><I><clab-link-mac() - queriesList: ", queriesList)
-
-			// // Call the function to get Docker connected interfaces
-			// data, err := cyTopo.GetDockerConnectedInterfacesViaUnixSocket(queriesList[0], queriesList[1])
-			// if err != nil {
-			// 	http.Error(w, err.Error(), http.StatusInternalServerError)
-			// 	return
-			// }
-
-			// w.WriteHeader(http.StatusOK)
-			// w.Write(data)
-			// log.Infof("Docker Network Info: %s", data)
-
-			clabHandlers.ClabEdgeGetMacAddress(w, r, &cyTopo)
-		}).Methods("GET")
-
-	//// API endpoint to get compute-resource-usage
 	//// API endpoint to get compute-resource-usage
 	router.HandleFunc("/compute-resource-usage",
 		func(w http.ResponseWriter, r *http.Request) {
@@ -973,22 +648,6 @@ func Clab(_ *cobra.Command, _ []string) error {
 
 		}).Methods("GET")
 
-	// router.HandleFunc("/reload-topo", func(w http.ResponseWriter, r *http.Request) {
-	// 	// Call the reload function
-	// 	err := reloadTopoFile()
-
-	// 	// Handle error and return appropriate response
-	// 	if err != nil {
-	// 		http.Error(w, "Failed to reload topology file: "+err.Error(), http.StatusInternalServerError)
-	// 		return
-	// 	}
-
-	// 	// Send success response
-	// 	w.Header().Set("Content-Type", "application/json")
-	// 	response := map[string]string{"message": "Topology file reloaded successfully"}
-	// 	json.NewEncoder(w).Encode(response)
-	// }).Methods("POST")
-
 	router.HandleFunc("/reload-topo", func(w http.ResponseWriter, r *http.Request) {
 		// Call the reload function
 		err := reloadTopoFile()
@@ -1004,6 +663,28 @@ func Clab(_ *cobra.Command, _ []string) error {
 		response := map[string]string{"message": "Topology file reloaded successfully"}
 		json.NewEncoder(w).Encode(response)
 	}).Methods("GET")
+
+	//// API endpoint to trigger clab-link-impairment
+	router.HandleFunc("/clab-link-impairment",
+		func(w http.ResponseWriter, r *http.Request) {
+			clabHandlers.ClabEdgeSetImpairment(w, r, &cyTopo, confClab.GetString("clab-user"), confClab.GetString("clab-pass"), confClab.GetStringSlice("allowed-hostnames")[0], clabServerAddress)
+		}).Methods("POST")
+
+	// API endpoint to get clab-link-impairment value
+	router.HandleFunc("/clab-link-impairment", func(w http.ResponseWriter, r *http.Request) {
+		clabHandlers.ClabEdgeGetImpairment(w, r, &cyTopo, confClab.GetString("clab-user"), confClab.GetString("clab-pass"), confClab.GetStringSlice("allowed-hostnames")[0], clabServerAddress)
+	}).Methods("GET")
+
+	// API endpoint to get clab-link-mac value
+	router.HandleFunc("/clab-link-mac", func(w http.ResponseWriter, r *http.Request) {
+		clabHandlers.ClabEdgeGetMacAddress(w, r, &cyTopo)
+	}).Methods("GET")
+
+	// API endpoint to get actual-nodes-endpoints label
+	router.HandleFunc("/actual-nodes-endpoints",
+		func(w http.ResponseWriter, r *http.Request) {
+			clabHandlers.ClabEdgeGetActualPortViaSnmp(w, r, &cyTopo, workingDirectory)
+		}).Methods("GET")
 
 	router.HandleFunc("/container-compute-resource-usage", func(w http.ResponseWriter, r *http.Request) {
 		clabHandlers.ContainerComputeResourceUsage(w, r)
@@ -1133,5 +814,4 @@ func Clab(_ *cobra.Command, _ []string) error {
 
 	log.Infof("starting server on interface:port '%s'...", listenOnAddress)
 	return server.ListenAndServe()
-
 }

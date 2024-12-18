@@ -2,6 +2,9 @@
 
 `TopoViewer` is a network visualization tool that converts topology data into a Cytoscape graph model, allowing you to visualize your network using [Cytoscape.js](https://js.cytoscape.org).
 
+![Group Visualization](./docs/containerlab-topology-definition-enhancement/containerlab-topology-definition-group.png)
+
+
 The project is structured with a Go-based backend that processes and visualizes network topologies, converting data (currently supporting Container Lab) into a graph model for display. The frontend is a web application built with HTML and JavaScript libraries, including Cytoscape.js for graph visualization and Xterm.js for interactive shell access in the browser. When deployed on the same host as Container Lab, the application can directly access Container Lab nodes through the browser interface.
 
 The codebase is organized into several folders prefixed with `go_`, each serving a specific purpose:
@@ -27,4 +30,3 @@ For Quick Start, refer to the [Quick Start Guide](https://github.com/asadarafat/
 
 TopoViewer offers support for [enhanced containerlab topology definition](docs/containerlab-topology-definition-enhancement/readme.md), providing additional features for more intuitive network visualizations.
 
-> **Note**: Exposing your shell via a browser can be risky. Use at your own risk.

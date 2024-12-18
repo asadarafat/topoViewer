@@ -775,9 +775,9 @@ document.addEventListener("DOMContentLoaded", async function() {
 			}
 
 			document.getElementById("panel-link-name").textContent = `${clickedEdge.data("source")} --- ${clickedEdge.data("target")}`
-			document.getElementById("panel-link-endpoint-a-name").textContent = `${clickedEdge.data("source")}`
+			document.getElementById("panel-link-endpoint-a-name").textContent = `${clickedEdge.data("source")} :: ${clickedEdge.data("sourceEndpoint")}`
 			document.getElementById("panel-link-endpoint-a-mac-address").textContent = "getting the MAC address"
-			document.getElementById("panel-link-endpoint-b-name").textContent = `${clickedEdge.data("target")}`
+			document.getElementById("panel-link-endpoint-b-name").textContent = `${clickedEdge.data("target")} :: ${clickedEdge.data("targetEndpoint")}`
 			document.getElementById("panel-link-endpoint-b-mac-address").textContent = "getting the MAC address"
 
 			// setting clabSourceLinkArgsList
@@ -1047,23 +1047,22 @@ document.addEventListener("DOMContentLoaded", async function() {
 			updatePosition();
 			updateFontSize();
 		});
+
+		// Attach event listener for element movement
+		edge.cy().on("position", "node, edge", () => {
+			updatePosition();
+			updateFontSize();
+		});
 	
 		// Handle label click
 		labelDiv.addEventListener("click", () => {
 			toggleParallelEdges(edge, groupId, connectedEdges);
-			bulmaToast.toast({
-				message: `You clicked on the label of edge: ${edge.id()}`,
-				type: "is-warning is-size-6 p-3",
-				duration: 4000,
-				position: "top-center",
-				closeOnClick: true,
-			});
 		});
 	
 		// Remove the label on graph click
-		// edge.cy().once("click", () => {
-		// 	labelDiv.remove();
-		// });
+		edge.cy().once("click", () => {
+			labelDiv.remove();
+		});
 	}
 	
 	function toggleParallelEdges(edge, groupId, connectedEdges) {
@@ -1092,7 +1091,15 @@ document.addEventListener("DOMContentLoaded", async function() {
 				label.remove();
 			}
 	
-			console.log(`Expanded parallel edges for edge: ${edge.id()}`);
+			console.log(`Expanded parallel edges for ${groupId}`);
+			bulmaToast.toast({
+				message: `Expanded parallel edges for ${groupId}`,
+				type: "is-warning is-size-6 p-3",
+				duration: 4000,
+				position: "top-center",
+				closeOnClick: true,
+			});
+
 		} else {
 			// Collapse parallel edges except the clicked one
 			connectedEdges.forEach((parallelEdge) => {
@@ -1108,7 +1115,14 @@ document.addEventListener("DOMContentLoaded", async function() {
 				label.style.display = "block";
 			}
 	
-			console.log(`Collapsed parallel edges for edge: ${edge.id()}`);
+			console.log(`Collapsed parallel edges for ${groupId}`);
+			bulmaToast.toast({
+				message: `Collapsed parallel edges for ${groupId}`,
+				type: "is-warning is-size-6 p-3",
+				duration: 4000,
+				position: "top-center",
+				closeOnClick: true,
+			});
 		}
 	}
 	
@@ -1645,75 +1659,58 @@ async function sshCliCommandCopy(event) {
 }
 
 
-
 async function linkImpairmentClab(event, impairDirection) {
-	console.log("linkImpairmentClab - globalSelectedEdge: ", globalSelectedEdge)
-	var edgeId = globalSelectedEdge
-	try {
-		environments = await getEnvironments(event);
-		console.log("linkImpairment - environments: ", environments)
+    console.log("linkImpairmentClab - globalSelectedEdge: ", globalSelectedEdge);
+    var edgeId = globalSelectedEdge;
 
-		var deploymentType = environments["deployment-type"]
-		var command
+    try {
+        const environments = await getEnvironments(event);
+        console.log("linkImpairment - environments: ", environments);
 
-		cytoTopologyJson = environments["EnvCyTopoJsonBytes"]
-		edgeData = findCytoElementById(cytoTopologyJson, edgeId)
+        const deploymentType = environments["deployment-type"];
+        const cytoTopologyJson = environments["EnvCyTopoJsonBytes"];
+        const edgeData = findCytoElementById(cytoTopologyJson, edgeId);
 
-		console.log("linkImpairment- edgeData: ", edgeData)
-		console.log("linkImpairment- edgeSource: ", edgeData["data"]["source"])
+        console.log("linkImpairment - edgeData: ", edgeData);
 
-		clabUser = edgeData["data"]["extraData"]["clabServerUsername"]
-		clabServerAddress = environments["clab-server-address"]
-		clabSourceLongName = edgeData["data"]["extraData"]["clabSourceLongName"]
-		clabSourcePort = edgeData["data"]["extraData"]["clabSourcePort"]
+        const clabUser = edgeData["data"]["extraData"]["clabServerUsername"];
+        const clabServerAddress = environments["clab-server-address"];
+        const clabSourceLongName = edgeData["data"]["extraData"]["clabSourceLongName"];
+        const clabSourcePort = edgeData["data"]["extraData"]["clabSourcePort"];
+        const clabTargetLongName = edgeData["data"]["extraData"]["clabTargetLongName"];
+        const clabTargetPort = edgeData["data"]["extraData"]["clabTargetPort"];
 
-		clabTargetLongName = edgeData["data"]["extraData"]["clabTargetLongName"]
-		clabTargetPort = edgeData["data"]["extraData"]["clabTargetPort"]
+        const getValues = (endpoint) => ({
+            delay: parseInt(document.getElementById(`panel-link-endpoint-${endpoint}-delay`).value, 10),
+            jitter: parseInt(document.getElementById(`panel-link-endpoint-${endpoint}-jitter`).value, 10),
+            rate: parseInt(document.getElementById(`panel-link-endpoint-${endpoint}-rate`).value, 10),
+            loss: parseInt(document.getElementById(`panel-link-endpoint-${endpoint}-loss`).value, 10),
+        });
 
-		if (impairDirection == "a-to-b") {
-			console.log("linkImpairment - impairDirection: ", impairDirection)
+        if (impairDirection === "a-to-b" || impairDirection === "bidirectional") {
+            const { delay, jitter, rate, loss } = getValues("a");
+            const command = deploymentType === "container"
+                ? `ssh ${clabUser}@${clabServerAddress} /usr/bin/containerlab tools netem set -n ${clabSourceLongName} -i ${clabSourcePort} --delay ${delay}ms --jitter ${jitter}ms --rate ${rate} --loss ${loss}`
+                : `/usr/bin/containerlab tools netem set -n ${clabSourceLongName} -i ${clabSourcePort} --delay ${delay}ms --jitter ${jitter}ms --rate ${rate} --loss ${loss}`;
 
-			delayValue = document.getElementById("panel-link-endpoint-a-delay").value
-			jitterValue = document.getElementById("panel-link-endpoint-a-jitter").value
-			rateValue = document.getElementById("panel-link-endpoint-a-rate").value
-			lossValue = document.getElementById("panel-link-endpoint-a-loss").value
+            console.log(`linkImpairment - deployment ${deploymentType}, command: ${command}`);
+            await sendRequestToEndpointPost("/clab-link-impairment", [command]);
+        }
 
-			if (deploymentType == "container") {
-				command = `ssh ${clabUser}@${clabServerAddress} /usr/bin/containerlab tools netem set -n ${clabSourceLongName} -i ${clabSourcePort} --delay ${delayValue}ms --jitter ${jitterValue}ms --rate ${rateValue} --loss ${lossValue}`
-			} else if (deploymentType == "colocated") {
-				command = `/usr/bin/containerlab tools netem set -n ${clabSourceLongName} -i ${clabSourcePort} --delay ${delayValue}ms --jitter ${jitterValue}ms --rate ${rateValue} --loss ${lossValue}`
-			}
+        if (impairDirection === "b-to-a" || impairDirection === "bidirectional") {
+            const { delay, jitter, rate, loss } = getValues("b");
+            const command = deploymentType === "container"
+                ? `ssh ${clabUser}@${clabServerAddress} /usr/bin/containerlab tools netem set -n ${clabTargetLongName} -i ${clabTargetPort} --delay ${delay}ms --jitter ${jitter}ms --rate ${rate} --loss ${loss}`
+                : `/usr/bin/containerlab tools netem set -n ${clabTargetLongName} -i ${clabTargetPort} --delay ${delay}ms --jitter ${jitter}ms --rate ${rate} --loss ${loss}`;
 
-			console.log(`linkImpairment - deployment ${deploymentType}, command: ${command}`)
-			var postPayload = []
-			postPayload[0] = command
-			await sendRequestToEndpointPost("/clab-link-impairment", postPayload)
-
-
-		} else if (impairDirection == "b-to-a") {
-			console.log("linkImpairment - impairDirection: ", impairDirection)
-
-			delayValue = document.getElementById("panel-link-endpoint-b-delay").value
-			jitterValue = document.getElementById("panel-link-endpoint-b-jitter").value
-			rateValue = document.getElementById("panel-link-endpoint-b-rate").value
-			lossValue = document.getElementById("panel-link-endpoint-b-loss").value
-
-			if (deploymentType == "container") {
-				command = `ssh ${clabUser}@${clabServerAddress} /usr/bin/containerlab tools netem set -n ${clabTargetLongName} -i ${clabTargetPort} --delay ${delayValue}ms --jitter ${jitterValue}ms --rate ${rateValue} --loss ${lossValue}`
-			} else if (deploymentType == "colocated") {
-				command = `/usr/bin/containerlab tools netem set -n ${clabTargetLongName} -i ${clabTargetPort} --delay ${delayValue}ms --jitter ${jitterValue}ms --rate ${rateValue} --loss ${lossValue}`
-			}
-
-			console.log(`linkImpairment - deployment ${deploymentType}, command: ${command}`)
-			var postPayload = []
-			postPayload[0] = command
-			await sendRequestToEndpointPost("/clab-link-impairment", postPayload)
-		}
-
-	} catch (error) {
-		console.error('Error executing linkImpairment configuration:', error);
-	}
+            console.log(`linkImpairment - deployment ${deploymentType}, command: ${command}`);
+            await sendRequestToEndpointPost("/clab-link-impairment", [command]);
+        }
+    } catch (error) {
+        console.error("Error executing linkImpairment configuration:", error);
+    }
 }
+
 
 
 async function linkWireshark(event, option, endpoint) {
