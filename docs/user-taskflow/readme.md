@@ -1,6 +1,4 @@
 # User Taskflow
-Here’s the refined version with a business casual tone and a subtle touch of “bro mode” flair:
-
 The following sections break down how to get the most out of TopoViewer. From navigating the interface to interacting with objects and unlocking its core features, we’ve got you covered. Each action comes with a demo link to keep things straightforward and ensure you hit the ground running.
 
 ## Viewport Navigation
