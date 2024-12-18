@@ -14,6 +14,13 @@
 - **Clear Properties Panel**:  
   Click anywhere outside a node or edge to remove the Properties Panel.
 
-- **Demo**:  
+  - **Demo**:  
 
-  https://github.com/user-attachments/assets/1cf19f2c-6d27-41d2-8ab9-6792e85988ba
+    https://github.com/user-attachments/assets/1cf19f2c-6d27-41d2-8ab9-6792e85988ba
+
+
+## Node Actions
+
+- **Lauch Web-Based SSH**:  
+  From Node Properties Panel, select `SSH - Launch Web-Based`.
+  - **Demo**:  
