@@ -30,6 +30,13 @@
 - **Lauch Web-Based SSH**:  
   From the Node Properties Panel, select **`SSH - Copy To Clipboard`**.
   - **Demo**:  
-  
+
     https://github.com/user-attachments/assets/61a8cb39-d914-46e0-8e00-d1b7029bb51a
+    
+- **Backup-Restore Config**:  
+  From the Node Properties Panel, select **`Backup-Restore Config`**.
+  Supported Kind  `nokia_srl`, `nokia_sros`, `juniper_vmx`, `juniper_vmx`, `cisco_xrv`
+  - **Demo**:  
+
+    https://github.com/user-attachments/assets/d18214fc-32f9-4658-b33f-53832b2794a4
     

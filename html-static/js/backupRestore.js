@@ -257,6 +257,8 @@ async function handleLoadRunningConfig(event) {
 		loadFileContentModified(`${routerName}-running.cfg`);
 		hideLoadingSpinnerGlobal()
 
+		
+
 	} catch (error) {
 		console.error('Error executing load running configuration:', error);
 	}
@@ -306,6 +308,26 @@ async function handleRestoreConfig(event) {
 		console.log("handleRestoreConfig - postPayload : ", postPayload);
 		await sendRequestToEndpointPost("/node-backup-restore", postPayload);
 		loadFileList(routerName);
+
+		// update running config
+		// Create an object with attributes and values
+		var payload = {
+			routerKind: routerKind,
+			routerID: routerID,
+			routerUsername: routerUsername,
+			routerPassword: routerPassword,
+			configNamePrefix: routerName,
+			backupPath: `${workingDirectory}/html-public/${clabName}/node-backup/${routerName}`,
+			action: "running"
+		};
+
+		var postPayloadJSON = JSON.stringify(payload);
+		postPayload[0] = postPayloadJSON;
+		await sendRequestToEndpointPost("/node-backup-restore", postPayload);
+
+		// loadFileList(routerName);
+		loadFileContentModified(`${routerName}-running.cfg`);
+
 		hideLoadingSpinnerGlobal()
 
 	} catch (error) {
