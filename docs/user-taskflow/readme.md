@@ -50,3 +50,12 @@ The following sections break down how to get the most out of TopoViewer. From na
   
     https://github.com/user-attachments/assets/d18214fc-32f9-4658-b33f-53832b2794a4
     
+
+
+## Edge Actions
+
+- **Impairment**:  
+  From the Link Properties Panel, select **`Impairment`** and enter impairment values.
+  - **Demo**:  
+  
+    https://github.com/user-attachments/assets/9538ec57-7fa7-4dd7-8dcc-4ecd00a7f4dc

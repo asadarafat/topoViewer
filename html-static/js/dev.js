@@ -824,6 +824,11 @@ document.addEventListener("DOMContentLoaded", async function() {
 					document.getElementById("panel-link-endpoint-a-loss").value = clabSourceLinkImpairmentClabData["return data"]["packet_loss"].replace(/%$/, '');
 				}
 
+				if (clabSourceLinkImpairmentClabData["return data"]["corruption"] == "N/A") {
+					document.getElementById("panel-link-endpoint-a-corruption").value = '0'
+				} else {
+					document.getElementById("panel-link-endpoint-a-corruption").value = clabSourceLinkImpairmentClabData["return data"]["corruption"].replace(/%$/, '');
+				}
 
 			} else {
 				console.log("Empty or invalid JSON response received");
@@ -863,6 +868,11 @@ document.addEventListener("DOMContentLoaded", async function() {
 					document.getElementById("panel-link-endpoint-b-loss").value = clabTargetLinkImpairmentClabData["return data"]["packet_loss"].replace(/%$/, '');
 				}
 
+				if (clabTargetLinkImpairmentClabData["return data"]["corruption"] == "N/A") {
+					document.getElementById("panel-link-endpoint-b-corruption").value = '0'
+				} else {
+					document.getElementById("panel-link-endpoint-b-corruption").value = clabTargetLinkImpairmentClabData["return data"]["corruption"].replace(/%$/, '');
+				}
 
 			} else {
 				console.log("Empty or invalid JSON response received");
@@ -1697,23 +1707,25 @@ async function linkImpairmentClab(event, impairDirection) {
             jitter: parseInt(document.getElementById(`panel-link-endpoint-${endpoint}-jitter`).value, 10),
             rate: parseInt(document.getElementById(`panel-link-endpoint-${endpoint}-rate`).value, 10),
             loss: parseInt(document.getElementById(`panel-link-endpoint-${endpoint}-loss`).value, 10),
+			corruption: parseInt(document.getElementById(`panel-link-endpoint-${endpoint}-corruption`).value, 10),
+
         });
 
         if (impairDirection === "a-to-b" || impairDirection === "bidirectional") {
-            const { delay, jitter, rate, loss } = getValues("a");
+            const { delay, jitter, rate, loss, corruption} = getValues("a");
             const command = deploymentType === "container"
-                ? `ssh ${clabUser}@${clabServerAddress} /usr/bin/containerlab tools netem set -n ${clabSourceLongName} -i ${clabSourcePort} --delay ${delay}ms --jitter ${jitter}ms --rate ${rate} --loss ${loss}`
-                : `/usr/bin/containerlab tools netem set -n ${clabSourceLongName} -i ${clabSourcePort} --delay ${delay}ms --jitter ${jitter}ms --rate ${rate} --loss ${loss}`;
+                ? `ssh ${clabUser}@${clabServerAddress} /usr/bin/containerlab tools netem set -n ${clabSourceLongName} -i ${clabSourcePort} --delay ${delay}ms --jitter ${jitter}ms --rate ${rate} --loss ${loss} --corruption ${corruption}` 
+                : `/usr/bin/containerlab tools netem set -n ${clabSourceLongName} -i ${clabSourcePort} --delay ${delay}ms --jitter ${jitter}ms --rate ${rate} --loss ${loss} --corruption ${corruption}` ;
 
             console.log(`linkImpairment - deployment ${deploymentType}, command: ${command}`);
             await sendRequestToEndpointPost("/clab-link-impairment", [command]);
         }
 
         if (impairDirection === "b-to-a" || impairDirection === "bidirectional") {
-            const { delay, jitter, rate, loss } = getValues("b");
+            const { delay, jitter, rate, loss, corruption } = getValues("b");
             const command = deploymentType === "container"
-                ? `ssh ${clabUser}@${clabServerAddress} /usr/bin/containerlab tools netem set -n ${clabTargetLongName} -i ${clabTargetPort} --delay ${delay}ms --jitter ${jitter}ms --rate ${rate} --loss ${loss}`
-                : `/usr/bin/containerlab tools netem set -n ${clabTargetLongName} -i ${clabTargetPort} --delay ${delay}ms --jitter ${jitter}ms --rate ${rate} --loss ${loss}`;
+                ? `ssh ${clabUser}@${clabServerAddress} /usr/bin/containerlab tools netem set -n ${clabTargetLongName} -i ${clabTargetPort} --delay ${delay}ms --jitter ${jitter}ms --rate ${rate} --loss ${loss} --corruption ${corruption}` 
+                : `/usr/bin/containerlab tools netem set -n ${clabTargetLongName} -i ${clabTargetPort} --delay ${delay}ms --jitter ${jitter}ms --rate ${rate} --loss ${loss} --corruption ${corruption}` ;
 
             console.log(`linkImpairment - deployment ${deploymentType}, command: ${command}`);
             await sendRequestToEndpointPost("/clab-link-impairment", [command]);
