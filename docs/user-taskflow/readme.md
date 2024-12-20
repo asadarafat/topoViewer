@@ -59,3 +59,12 @@ The following sections break down how to get the most out of TopoViewer. From na
   - **Demo**:  
   
     https://github.com/user-attachments/assets/9538ec57-7fa7-4dd7-8dcc-4ecd00a7f4dc
+
+
+- **Launch EdgeShark**:  
+  `Prerequisite: EdgeShark must be installed on the Container Lab host.`  
+  Follow the installation guide here: [EdgeShark Integration](https://containerlab.dev/manual/wireshark/#edgeshark-integration)
+
+  From the Link Properties Panel, select **`Launch EdgeShark`**
+  - **Demo**:  
+    https://github.com/user-attachments/assets/45f76602-65ff-4e21-b521-22adf61040a0
