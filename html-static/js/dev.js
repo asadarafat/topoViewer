@@ -800,6 +800,16 @@ document.addEventListener("DOMContentLoaded", async function() {
 			document.getElementById("panel-link-endpoint-a-mac-address").textContent = actualLinkMacPair[0].sourceIfMac
 			document.getElementById("panel-link-endpoint-b-mac-address").textContent = actualLinkMacPair[0].targetIfMac
 
+
+			// Render the source sub-interface items dynamically
+			const sourceSubInterfaces = ["└ Sub-Interface .2", "└ Sub-Interface .1", "└ REZVAN BACOT"];
+			renderSubInterfaces(sourceSubInterfaces, 'endpoint-a-edgeshark', 'endpoint-a-clipboard');
+
+			// Render the target sub-interface items dynamically
+			const targetSubInterfaces = ["└ Sub-Interface .11", "└ Sub-Interface .12"];
+			renderSubInterfaces(targetSubInterfaces, 'endpoint-b-edgeshark', 'endpoint-b-clipboard');
+
+
 			// setting default impairment endpoint-a values by getting the data from clab via /clab-link-impairment GET API
 			clabSourceLinkArgsList = [`${clickedEdge.data("extraData").clabSourceLongName}`, `${clickedEdge.data("extraData").clabSourcePort}`]
 			clabSourceLinkImpairmentClabData = await sendRequestToEndpointGetV2("/clab-link-impairment", clabSourceLinkArgsList)
@@ -1795,6 +1805,12 @@ async function linkWireshark(event, option, endpoint) {
 
 		} else if (option == "edgeShark") {
 			if (endpoint == "source") {
+
+				const containerNames = ["clab-demo-ci-Leaf-02", "clab-demo-ci-Spine-01"];
+				const networkInterfaces = ["e1-1-1", "e1-2-1", "e1-3-1"];
+				
+				setupWiresharkModal("wiresharkModal", containerNames, networkInterfaces);
+					
 				baseUrl = `packetflix:ws://${clabServerAddress}:5001/capture?`;
 
 				netNsResponse = await sendRequestToEndpointGetV2("/clab-node-network-namespace", argsList = [clabSourceLongName])
@@ -2998,3 +3014,91 @@ function pathFinderDijkstraDrawer(cy) {
 function sleep(ms) {
 	return new Promise((resolve) => setTimeout(resolve, ms));
 }
+
+///
+// Helper function to render only sub-interface items dynamically
+function renderSubInterfaces(subInterfaces, referenceElementAfterId, referenceElementBeforeId) {
+	// Constants for container, reference elements, and click handler
+	const containerSelectorId = 'panel-link-action-dropdown-menu-dropdown-content'; // The container where dropdown items are rendered
+	// const referenceElementAfterId = 'endpoint-a-edgeshark'; // ID of the starting reference element
+	// const referenceElementBeforeId = 'endpoint-a-clipboard'; // ID of the ending reference element
+	const onClickHandler = (event, subInterface) => {
+	  console.log(`Clicked on: ${subInterface}`);
+	  // Add your custom logic here
+	};
+  
+	// Find the container where the dropdown items are rendered
+	const containerElement = document.getElementById(containerSelectorId);
+	if (!containerElement) {
+	  console.error("Container element not found.");
+	  return;
+	}
+  
+	// Find the reference elements
+	const referenceElementAfter = document.getElementById(referenceElementAfterId);
+	const referenceElementBefore = document.getElementById(referenceElementBeforeId);
+	if (!referenceElementAfter || !referenceElementBefore) {
+	  console.error("Reference elements not found.");
+	  return;
+	}
+  
+	// Remove all <a> nodes between referenceElementAfter and referenceElementBefore
+	let currentNode = referenceElementAfter.nextSibling;
+	while (currentNode && currentNode !== referenceElementBefore) {
+	  const nextNode = currentNode.nextSibling; // Store next node before removal
+	  if (currentNode.nodeName === 'A') {
+		currentNode.remove();
+	  }
+	  currentNode = nextNode; // Move to the next node
+	}
+  
+	// Dynamically generate and insert sub-interface items
+	subInterfaces.forEach(subInterface => {
+	  const a = document.createElement("a");
+	  a.className = "dropdown-item label has-text-weight-normal is-small py-0";
+	  a.style.display = "flex";
+	  a.style.justifyContent = "flex-end";
+	  a.textContent = subInterface;
+	  a.onclick = (event) => onClickHandler(event, subInterface);
+  
+	  // Insert after the reference element
+	  insertAfter(a, referenceElementAfter);
+	});
+  }
+  
+  // Helper function to insert an element after a reference element
+  function insertAfter(newNode, referenceNode) {
+	referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
+  }
+
+  function addWiresharkIcon() {
+	// Find the target node
+	const targetNode = document.getElementById("endpoint-a-edgeshark");
+	if (!targetNode) {
+	  console.error("Target node not found.");
+	  return;
+	}
+  
+	// Create the <img> element for the SVG icon
+	const imgIcon = document.createElement("img");
+	imgIcon.src = "https://raw.githubusercontent.com/siemens/edgeshark/refs/heads/main/icons/_media/icons/Capture.svg";
+	imgIcon.alt = "Wireshark Icon"; // Accessible description
+	imgIcon.style.width = "20px";
+	imgIcon.style.height = "20px";
+	imgIcon.style.marginTop = "0px"; // Add spacing between the label and the icon
+	imgIcon.style.marginBottom = "0px"; // Add spacing between the label and the icon
+
+	imgIcon.style.marginLeft = "4px"; // Add spacing between the label and the icon
+	imgIcon.style.marginRight = "0px"; // Add spacing between the label and the icon
+
+  
+	// Add the white filter
+	imgIcon.style.filter = "invert(100%)"; // Makes the SVG appear white
+  
+	// Append the image after the label
+	targetNode.append(imgIcon);
+  }
+  
+  // Call the function to add the icon
+  addWiresharkIcon();
+  

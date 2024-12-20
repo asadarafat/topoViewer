@@ -170,6 +170,11 @@ body {
   transform: translateY(60px);
 }
 
+.text-right {
+  text-align: right;
+  display: block;
+}
+
 #panel-node {
   top: 85px;
   right: 40px;

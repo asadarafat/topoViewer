@@ -684,17 +684,22 @@
 													</span>
 													</button>
 												</div>
+												
 												<div class="dropdown-menu" id="panel-link-action-dropdown-menu" role="menu">
-													<div class="dropdown-content">
+													<div class="dropdown-content" id="panel-link-action-dropdown-menu-dropdown-content">
 														<a onclick="linkImpairmentClab(event, 'bidirectional');" class="dropdown-item label has-text-weight-normal is-small py-0" id="panel-link-action-impairment-B->A">Apply Impairment</a>						
 														<hr class="dropdown-divider" />
-														<a onclick="linkWireshark(event, 'edgeShark', 'source');" class="dropdown-item label has-text-weight-normal is-small py-0">Wireshark A - Launch EdgeShark</a>
-														<a onclick="linkWireshark(event, 'copy', 'source');" class="dropdown-item label has-text-weight-normal is-small py-0">Wireshark A - Copy to Clipboard</a>
+														<a onclick="linkWireshark(event, 'edgeShark', 'source');" class="dropdown-item label has-text-weight-normal is-small py-0" id="endpoint-a-edgeshark">Endpoint-A EdgeShark</a>
+														
+									
+
+														<a onclick="linkWireshark(event, 'copy', 'source');" class="dropdown-item label has-text-weight-normal is-small py-0" id="endpoint-a-clipboard">Endpoint-A Clipboard</a>
 														<hr class="dropdown-divider" />
-														<a onclick="linkWireshark(event, 'edgeShark', 'target');" class="dropdown-item label has-text-weight-normal is-small py-0">Wireshark B - Launch EdgeShark</a>
-														<a onclick="linkWireshark(event, 'copy', 'target');" class="dropdown-item label has-text-weight-normal is-small py-0">Wireshark B - Copy to Clipboard</a>
+														<a onclick="linkWireshark(event, 'edgeShark', 'target');" class="dropdown-item label has-text-weight-normal is-small py-0"id="endpoint-b-edgeshark">Endpoint-B EdgeShark</a>
+														<a onclick="linkWireshark(event, 'copy', 'target');" class="dropdown-item label has-text-weight-normal is-small py-0" id="endpoint-b-clipboard">Endpoint-B Clipboard</a>
 													</div>
 												</div>
+												
 											</div>
 										</div>
 									</div>
@@ -984,6 +989,46 @@
 								<div class="content is-small pb-2" id="panel-topoviewer-about-content">
 								</div>
 							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Modal -->
+			<div class="modal" id="wiresharkModal">
+				<div class="modal-background"></div>
+				<div class="modal-content">
+					<div class="box">
+						<h2 class="title is-4">Launch Wireshark</h2>
+						<div class="field">
+							<label class="label" for="subInterfaceId">Sub Interface ID:</label>
+							<div class="control">
+								<input class="input" type="text" id="subInterfaceId" placeholder="Enter Sub Interface ID">
+							</div>
+						</div>
+						<div class="field">
+							<label class="label" for="containerName">Container Name:</label>
+							<div class="control">
+								<div class="select">
+									<select id="containerName"></select>
+								</div>
+							</div>
+						</div>
+						<div class="field">
+							<label class="label" for="networkInterface">Network Interface:</label>
+							<div class="control">
+								<div class="select">
+									<select id="networkInterface"></select>
+								</div>
+							</div>
+						</div>
+						<div class="field">
+							<label class="label">URL Preview:</label>
+							<div id="urlPreview" class="content has-background-light p-2"></div>
+						</div>
+						<div class="buttons">
+							<button class="button is-success" id="launchButton">Launch</button>
+							<button class="button is-danger" id="customCloseModal">Cancel</button>
 						</div>
 					</div>
 				</div>
