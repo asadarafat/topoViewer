@@ -524,55 +524,52 @@ func Clab(_ *cobra.Command, _ []string) error {
 			}
 		})
 
-	// // websocketcontainerNodeStatus endpoint
 	router.HandleFunc("/containerNodeStatus",
 		func(w http.ResponseWriter, r *http.Request) {
-			// Upgrade this connection to a WebSocket connection
+			// Upgrade HTTP connection to WebSocket
 			containerNodeStatus, err := upgrader.Upgrade(w, r, nil)
 			if err != nil {
-				log.Info(err)
-				return // Return to exit the handler if WebSocket upgrade fails
+				log.Errorf("Failed to upgrade WebSocket: %v", err)
+				return
 			}
-			defer func() {
-				containerNodeStatus.Close() // Close the WebSocket connection when the handler exits
-			}()
+			defer containerNodeStatus.Close()
 
-			log.Infof("containerNodeStatus endpoint called")
+			log.Info("containerNodeStatus WebSocket connection established")
 
+			// Get configuration values
 			clabUser := confClab.GetString("clab-user")
 			log.Infof("clabUser: '%s'", clabUser)
+
 			clabHost := confClab.GetStringSlice("allowed-hostnames")
+			if len(clabHost) == 0 {
+				log.Error("No clab host configured")
+				return
+			}
 			log.Infof("clabHost: '%s'", clabHost[0])
-			clabPass := confClab.GetString("clab-pass")
-			log.Infof("clabPass: '%s'", clabPass)
 
-			// simulating containerNodeStatus...
-			// Add the new connection to the active connections list
-
+			// Start streaming container statuses
 			for {
 				select {
 				case <-r.Context().Done():
-					log.Info("WebSocket connection closed due to client disconnect")
-					return // Return to exit the loop when the client disconnects
+					log.Info("WebSocket connection closed by client")
+					return
 				default:
-					for _, n := range cyTopo.ClabTopoDataV2.Nodes {
-						// get docker status via unix socket
-						x, err := cyTopo.GetDockerNodeStatusViaUnixSocket(n.Longname, clabHost[0])
-
-						//fmt.Print(cyTopo.GetDockerConnectedInterfacesViaUnixSocket("clab-demo-Spine-02", "clab-demo-Leaf-02"))
-
+					for _, node := range cyTopo.ClabTopoDataV2.Nodes {
+						// Fetch Docker status for each node
+						dockerStatus, err := clabHandlers.GetDockerNodeStatusViaUnixSocket(node.Longname, clabHost[0])
 						if err != nil {
-							log.Error(err)
-							return // Return to exit the handler if an error occurs
+							log.Errorf("Error fetching Docker status for node %s: %v", node.Longname, err)
+							continue // Skip the node and proceed with the next one
 						}
 
-						err = containerNodeStatus.WriteMessage(websocket.TextMessage, x)
-						if err != nil {
-							log.Info(err)
-							return // Return to exit the handler if write fails
+						// Send Docker status to WebSocket client
+						if err := containerNodeStatus.WriteMessage(websocket.TextMessage, dockerStatus); err != nil {
+							log.Errorf("Error sending message to WebSocket: %v", err)
+							return
 						}
 					}
-					// Pause for a short duration (e.g., 5 seconds)
+
+					// Pause to avoid overwhelming the client
 					time.Sleep(5 * time.Second)
 				}
 			}
@@ -664,19 +661,31 @@ func Clab(_ *cobra.Command, _ []string) error {
 		json.NewEncoder(w).Encode(response)
 	}).Methods("GET")
 
-	//// API endpoint to trigger clab-link-impairment
-	router.HandleFunc("/clab-link-impairment",
-		func(w http.ResponseWriter, r *http.Request) {
-			clabHandlers.ClabEdgeSetImpairment(w, r, &cyTopo, confClab.GetString("clab-user"), confClab.GetString("clab-pass"), confClab.GetStringSlice("allowed-hostnames")[0], clabServerAddress)
-		}).Methods("POST")
+	// // API endpoint to get container namespace
+	// router.HandleFunc("/clab/{container_id}/network-namespace",
+	// 	func(w http.ResponseWriter, r *http.Request) {
+	// 		vars := mux.Vars(r)
+	// 		containerID := vars["container_id"]
+	// 		clabHandlers.GetDockerNetworkNamespaceIDViaUnixSocket(w, r, &cyTopo, containerID)
+	// 	}).Methods("GET")
+
+	// API endpoint to get container namespace
+	router.HandleFunc("/clab-node-network-namespace", func(w http.ResponseWriter, r *http.Request) {
+		clabHandlers.GetDockerNetworkNamespaceIDViaUnixSocket(w, r, &cyTopo)
+	}).Methods("GET")
+
+	// API endpoint to set clab-link-impairment
+	router.HandleFunc("/clab-link-impairment", func(w http.ResponseWriter, r *http.Request) {
+		clabHandlers.ClabEdgeSetImpairment(w, r, &cyTopo, confClab.GetString("clab-user"), confClab.GetString("clab-pass"), confClab.GetStringSlice("allowed-hostnames")[0], clabServerAddress)
+	}).Methods("POST")
 
 	// API endpoint to get clab-link-impairment value
 	router.HandleFunc("/clab-link-impairment", func(w http.ResponseWriter, r *http.Request) {
 		clabHandlers.ClabEdgeGetImpairment(w, r, &cyTopo, confClab.GetString("clab-user"), confClab.GetString("clab-pass"), confClab.GetStringSlice("allowed-hostnames")[0], clabServerAddress)
 	}).Methods("GET")
 
-	// API endpoint to get clab-link-mac value
-	router.HandleFunc("/clab-link-mac", func(w http.ResponseWriter, r *http.Request) {
+	// API endpoint to get clab-link-macaddress value
+	router.HandleFunc("/clab-link-macaddress", func(w http.ResponseWriter, r *http.Request) {
 		clabHandlers.ClabEdgeGetMacAddress(w, r, &cyTopo)
 	}).Methods("GET")
 

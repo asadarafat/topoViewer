@@ -784,7 +784,16 @@ document.addEventListener("DOMContentLoaded", async function() {
 			clabLinkMacArgsList = [`${clickedEdge.data("extraData").clabSourceLongName}`, `${clickedEdge.data("extraData").clabTargetLongName}`]
 
 			// setting MAC address endpoint-a values by getting the data from clab via /clab-link-mac GET API
-			const actualLinkMacPair = await sendRequestToEndpointGetV2("/clab-link-mac", clabLinkMacArgsList)
+			const actualLinkMacPair = await sendRequestToEndpointGetV2("/clab-link-macaddress", clabLinkMacArgsList)
+
+			// // Testing to not pass the paramters in clabSourceLinkArgsList
+			// source_container =`${clickedEdge.data("extraData").clabSourceLongName}`
+			// target_container =`${clickedEdge.data("extraData").clabTargetLongName}`
+
+			// // setting MAC address endpoint-a values by getting the data from clab via /clab/link/${source_container}/${target_container}/mac GET API
+			// const actualLinkMacPair = await sendRequestToEndpointGetV2(`/clab/link/${source_container}/${target_container}/mac-address`, clabLinkMacArgsList=[])
+
+
 			console.log("actualLinkMacPair-Source: ", actualLinkMacPair[0].sourceIfMac)
 			console.log("actualLinkMacPair-Target: ", actualLinkMacPair[0].targetIfMac)
 
@@ -794,6 +803,12 @@ document.addEventListener("DOMContentLoaded", async function() {
 			// setting default impairment endpoint-a values by getting the data from clab via /clab-link-impairment GET API
 			clabSourceLinkArgsList = [`${clickedEdge.data("extraData").clabSourceLongName}`, `${clickedEdge.data("extraData").clabSourcePort}`]
 			clabSourceLinkImpairmentClabData = await sendRequestToEndpointGetV2("/clab-link-impairment", clabSourceLinkArgsList)
+			
+			// sourceNodeId = `${clickedEdge.data("extraData").clabSourceLongName}`
+			// sourceNodeInterfaceId = `${clickedEdge.data("extraData").clabSourcePort}`
+
+			// clabSourceLinkArgsList = []
+			// clabSourceLinkImpairmentClabData = await sendRequestToEndpointGetV2(`/clab/link/${sourceNodeId}/${sourceNodeInterfaceId}/impairment`, clabSourceLinkArgsList)
 
 			if (clabSourceLinkImpairmentClabData && typeof clabSourceLinkImpairmentClabData === 'object' && Object.keys(clabSourceLinkImpairmentClabData).length > 0) {
 				hideLoadingSpinnerGlobal();
@@ -838,6 +853,12 @@ document.addEventListener("DOMContentLoaded", async function() {
 			// setting default impairment endpoint-b values by getting the data from clab via /clab-link-impairment GET API
 			clabTargetLinkArgsList = [`${clickedEdge.data("extraData").clabTargetLongName}`, `${clickedEdge.data("extraData").clabTargetPort}`]
 			clabTargetLinkImpairmentClabData = await sendRequestToEndpointGetV2("/clab-link-impairment", clabTargetLinkArgsList)
+
+			// targetNodeId = `${clickedEdge.data("extraData").clabTargetLongName}`
+			// targetNodeInterfaceId = `${clickedEdge.data("extraData").clabTargetPort}`
+
+			// clabTargetLinkArgsList = []
+			// clabTargetLinkImpairmentClabData = await sendRequestToEndpointGetV2(`/clab/link/${targetNodeId}/${targetNodeInterfaceId}/impairment`, clabSourceLinkArgsList)
 
 			if (clabTargetLinkImpairmentClabData && typeof clabTargetLinkImpairmentClabData === 'object' && Object.keys(clabTargetLinkImpairmentClabData).length > 0) {
 				hideLoadingSpinnerGlobal();
@@ -1775,14 +1796,24 @@ async function linkWireshark(event, option, endpoint) {
 		} else if (option == "edgeShark") {
 			if (endpoint == "source") {
 				baseUrl = `packetflix:ws://${clabServerAddress}:5001/capture?`;
-				urlParams = `container={"network-interfaces":["${clabSourcePort}"],"name":"${clabSourceLongName.toLocaleLowerCase()}","type":"docker","prefix":""}&nif=${clabSourcePort}`;
+
+				netNsResponse = await sendRequestToEndpointGetV2("/clab-node-network-namespace", argsList = [clabSourceLongName])
+				console.log("linkWireshark - netNsSource: ", netNsResponse.namespace_id.slice(netNsResponse.namespace_id.indexOf("[") + 1, netNsResponse.namespace_id.indexOf("]")))
+				netNsIdSource = netNsResponse.namespace_id.slice(netNsResponse.namespace_id.indexOf("[") + 1, netNsResponse.namespace_id.indexOf("]"))
+
+				urlParams = `container={"netns":${netNsIdSource},"network-interfaces":["${clabSourcePort}"],"name":"${clabSourceLongName.toLocaleLowerCase()}","type":"docker","prefix":""}&nif=${clabSourcePort}`;
 				edgeSharkHref = baseUrl + urlParams;
 				console.log("linkWireshark - edgeSharkHref: ", edgeSharkHref)
 				window.open(edgeSharkHref);
 
 			} else if (endpoint == "target") {
 				baseUrl = `packetflix:ws://${clabServerAddress}:5001/capture?`;
-				urlParams = `container={"network-interfaces":["${clabTargetPort}"],"name":"${clabTargetLongName.toLocaleLowerCase()}","type":"docker","prefix":""}&nif=${clabTargetPort}`;
+
+				netNsResponse = await sendRequestToEndpointGetV2("/clab-node-network-namespace", argsList = [clabTargetLongName])
+				console.log("linkWireshark - netNsSource: ", netNsResponse.namespace_id.slice(netNsResponse.namespace_id.indexOf("[") + 1, netNsResponse.namespace_id.indexOf("]")))
+				netNsIdTarget = netNsResponse.namespace_id.slice(netNsResponse.namespace_id.indexOf("[") + 1, netNsResponse.namespace_id.indexOf("]"))
+
+				urlParams = `container={"netns":${netNsIdTarget},"network-interfaces":["${clabSourcePort}"],"name":"${clabSourceLongName.toLocaleLowerCase()}","type":"docker","prefix":""}&nif=${clabSourcePort}`;
 				edgeSharkHref = baseUrl + urlParams;
 				console.log("linkWireshark - edgeSharkHref: ", edgeSharkHref)
 				window.open(edgeSharkHref);
