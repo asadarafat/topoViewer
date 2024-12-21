@@ -793,12 +793,54 @@ document.addEventListener("DOMContentLoaded", async function() {
 			// // setting MAC address endpoint-a values by getting the data from clab via /clab/link/${source_container}/${target_container}/mac GET API
 			// const actualLinkMacPair = await sendRequestToEndpointGetV2(`/clab/link/${source_container}/${target_container}/mac-address`, clabLinkMacArgsList=[])
 
+			sourceClabNode = `${clickedEdge.data("extraData").clabSourceLongName}`
+			targetClabNode = `${clickedEdge.data("extraData").clabTargetLongName}`
+			sourceIfName = `${clickedEdge.data("sourceEndpoint")}`
+			targetIfName = `${clickedEdge.data("targetEndpoint")}`
 
-			console.log("actualLinkMacPair-Source: ", actualLinkMacPair[0].sourceIfMac)
-			console.log("actualLinkMacPair-Target: ", actualLinkMacPair[0].targetIfMac)
+			const getMacAddressesResult = getMacAddresses(actualLinkMacPair, sourceClabNode, targetClabNode, sourceIfName, targetIfName);
+			if (typeof getMacAddressesResult === "object") { // Ensure result is an object
+				console.log("Source If MAC:", getMacAddressesResult.sourceIfMac); // Access sourceIfMac
+				console.log("Target If MAC:", getMacAddressesResult.targetIfMac); // Access targetIfMac
 
-			document.getElementById("panel-link-endpoint-a-mac-address").textContent = actualLinkMacPair[0].sourceIfMac
-			document.getElementById("panel-link-endpoint-b-mac-address").textContent = actualLinkMacPair[0].targetIfMac
+				document.getElementById("panel-link-endpoint-a-mac-address").textContent = getMacAddressesResult.sourceIfMac
+				document.getElementById("panel-link-endpoint-b-mac-address").textContent = getMacAddressesResult.targetIfMac
+	
+			} else {
+				console.log(getMacAddressesResult); // Handle error message
+
+				document.getElementById("panel-link-endpoint-a-mac-address").textContent = "Oops, no MAC address here!"
+				document.getElementById("panel-link-endpoint-b-mac-address").textContent = "Oops, no MAC address here!"
+			}
+
+
+
+			function getMacAddresses(data, sourceClabNode, targetClabNode, sourceIfName, targetIfName) {
+				const result = data.find(item =>
+					item.sourceClabNode === sourceClabNode &&
+					item.targetClabNode === targetClabNode &&
+					item.sourceIfName === sourceIfName &&
+					item.targetIfName === targetIfName
+				);
+
+				if (result) {
+					return {
+						sourceIfMac: result.sourceIfMac,
+						targetIfMac: result.targetIfMac
+					};
+				} else {
+					return "No matching data found.";
+				}
+			}
+
+
+
+
+			// console.log("actualLinkMacPair-Source: ", actualLinkMacPair[0].sourceIfMac)
+			// console.log("actualLinkMacPair-Target: ", actualLinkMacPair[0].targetIfMac)
+
+			// document.getElementById("panel-link-endpoint-a-mac-address").textContent = getMacAddressesResult.sourceIfMac
+			// document.getElementById("panel-link-endpoint-b-mac-address").textContent = getMacAddressesResult.targetIfMac
 
 
 			// Render the source sub-interface items dynamically
@@ -813,7 +855,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 			// setting default impairment endpoint-a values by getting the data from clab via /clab-link-impairment GET API
 			clabSourceLinkArgsList = [`${clickedEdge.data("extraData").clabSourceLongName}`, `${clickedEdge.data("extraData").clabSourcePort}`]
 			clabSourceLinkImpairmentClabData = await sendRequestToEndpointGetV2("/clab-link-impairment", clabSourceLinkArgsList)
-			
+
 			// sourceNodeId = `${clickedEdge.data("extraData").clabSourceLongName}`
 			// sourceNodeInterfaceId = `${clickedEdge.data("extraData").clabSourcePort}`
 
@@ -1017,15 +1059,15 @@ document.addEventListener("DOMContentLoaded", async function() {
 
 	function assignMiddleLabels(edge) {
 		console.log("assignMiddleLabels");
-	
+
 		if (!edge || !edge.isEdge()) {
 			console.error("Input is not a valid edge.");
 			return;
 		}
-	
+
 		const source = edge.source().id();
 		const target = edge.target().id();
-	
+
 		// Find all edges connecting the same source and target nodes
 		const connectedEdges = edge.cy().edges().filter((e) => {
 			const eSource = e.source().id();
@@ -1035,54 +1077,54 @@ document.addEventListener("DOMContentLoaded", async function() {
 				(eSource === target && eTarget === source)
 			);
 		});
-	
+
 		console.log("connectedEdges: ", connectedEdges);
-	
+
 		// If only one edge exists, no label is needed
 		if (connectedEdges.length === 1) {
 			connectedEdges.forEach((e) => e.removeData("edgeGroup"));
 			return;
 		}
-	
+
 		// Check if the label already exists
 		const groupId = `${source}-${target}`;
 		if (document.getElementById(`label-${groupId}`)) {
 			console.log(`Label for group ${groupId} already exists.`);
 			return;
 		}
-	
+
 		// Create a single label for all parallel edges
 		const labelDiv = document.createElement("div");
 		labelDiv.classList.add("popper-div");
 		labelDiv.id = `label-${groupId}`; // Unique ID for the label
 		labelDiv.innerHTML = `<a href="javascript:void(0);">+</a>`;
-	
+
 		document.body.appendChild(labelDiv);
-	
+
 		// Use Popper to position the label in the middle of one edge
 		const popper = edge.popper({
 			content: () => labelDiv,
 		});
-	
+
 		function updatePosition() {
 			popper.update();
 		}
-	
+
 		function updateFontSize() {
 			const zoomLevel = edge.cy().zoom();
 			const fontSize = 7 * zoomLevel;
 			const borderSize = 1 * zoomLevel;
 			const strokeWidth = 0.2 * zoomLevel;
-	
+
 			labelDiv.style.fontSize = `${fontSize}px`;
 			labelDiv.style.borderRadius = `${borderSize}px`;
 			labelDiv.style.webkitTextStroke = `${strokeWidth}px white`;
 		}
-	
+
 		// Initial updates
 		updateFontSize();
 		updatePosition();
-	
+
 		// Attach event listeners for updates
 		edge.cy().on("pan zoom resize", () => {
 			updatePosition();
@@ -1094,22 +1136,22 @@ document.addEventListener("DOMContentLoaded", async function() {
 			updatePosition();
 			updateFontSize();
 		});
-	
+
 		// Handle label click
 		labelDiv.addEventListener("click", () => {
 			toggleParallelEdges(edge, groupId, connectedEdges);
 		});
-	
+
 		// Remove the label on graph click
 		edge.cy().once("click", () => {
 			labelDiv.remove();
 		});
 	}
-	
+
 	function toggleParallelEdges(edge, groupId, connectedEdges) {
 		const source = edge.data("source");
 		const target = edge.data("target");
-	
+
 		// Find all edges connecting the same source and target nodes
 		const parallelEdges = edge.cy().edges().filter((e) => {
 			const eSource = e.source().id();
@@ -1119,19 +1161,19 @@ document.addEventListener("DOMContentLoaded", async function() {
 				(eSource === target && eTarget === source)
 			);
 		});
-	
+
 		const allHidden = parallelEdges.filter((e) => e.id() !== edge.id() && e.hidden()).length > 0;
-	
+
 		if (allHidden) {
 			// Expand parallel edges
 			parallelEdges.show();
-	
+
 			// Remove the popper label
 			const label = document.getElementById(`label-${groupId}`);
 			if (label) {
 				label.remove();
 			}
-	
+
 			console.log(`Expanded parallel edges for ${groupId}`);
 			bulmaToast.toast({
 				message: `Expanded parallel edges for ${groupId}`,
@@ -1148,14 +1190,14 @@ document.addEventListener("DOMContentLoaded", async function() {
 					parallelEdge.hide();
 				}
 			});
-	
+
 			// Update the popper label to show the collapsed state
 			const label = document.getElementById(`label-${groupId}`);
 			if (label) {
 				label.innerHTML = `<a href="javascript:void(0);">${connectedEdges.length}</a>`;
 				label.style.display = "block";
 			}
-	
+
 			console.log(`Collapsed parallel edges for ${groupId}`);
 			bulmaToast.toast({
 				message: `Collapsed parallel edges for ${groupId}`,
@@ -1166,9 +1208,9 @@ document.addEventListener("DOMContentLoaded", async function() {
 			});
 		}
 	}
-	
-	
-	
+
+
+
 
 	function spawnNodeEvent(event) {
 		//- Add a click event listener to the 'Submit' button in the hidden form
@@ -1713,57 +1755,69 @@ async function sshCliCommandCopy(event) {
 
 
 async function linkImpairmentClab(event, impairDirection) {
-    console.log("linkImpairmentClab - globalSelectedEdge: ", globalSelectedEdge);
-    var edgeId = globalSelectedEdge;
+	console.log("linkImpairmentClab - globalSelectedEdge: ", globalSelectedEdge);
+	var edgeId = globalSelectedEdge;
 
-    try {
-        const environments = await getEnvironments(event);
-        console.log("linkImpairment - environments: ", environments);
+	try {
+		const environments = await getEnvironments(event);
+		console.log("linkImpairment - environments: ", environments);
 
-        const deploymentType = environments["deployment-type"];
-        const cytoTopologyJson = environments["EnvCyTopoJsonBytes"];
-        const edgeData = findCytoElementById(cytoTopologyJson, edgeId);
+		const deploymentType = environments["deployment-type"];
+		const cytoTopologyJson = environments["EnvCyTopoJsonBytes"];
+		const edgeData = findCytoElementById(cytoTopologyJson, edgeId);
 
-        console.log("linkImpairment - edgeData: ", edgeData);
+		console.log("linkImpairment - edgeData: ", edgeData);
 
-        const clabUser = edgeData["data"]["extraData"]["clabServerUsername"];
-        const clabServerAddress = environments["clab-server-address"];
-        const clabSourceLongName = edgeData["data"]["extraData"]["clabSourceLongName"];
-        const clabSourcePort = edgeData["data"]["extraData"]["clabSourcePort"];
-        const clabTargetLongName = edgeData["data"]["extraData"]["clabTargetLongName"];
-        const clabTargetPort = edgeData["data"]["extraData"]["clabTargetPort"];
+		const clabUser = edgeData["data"]["extraData"]["clabServerUsername"];
+		const clabServerAddress = environments["clab-server-address"];
+		const clabSourceLongName = edgeData["data"]["extraData"]["clabSourceLongName"];
+		const clabSourcePort = edgeData["data"]["extraData"]["clabSourcePort"];
+		const clabTargetLongName = edgeData["data"]["extraData"]["clabTargetLongName"];
+		const clabTargetPort = edgeData["data"]["extraData"]["clabTargetPort"];
 
-        const getValues = (endpoint) => ({
-            delay: parseInt(document.getElementById(`panel-link-endpoint-${endpoint}-delay`).value, 10),
-            jitter: parseInt(document.getElementById(`panel-link-endpoint-${endpoint}-jitter`).value, 10),
-            rate: parseInt(document.getElementById(`panel-link-endpoint-${endpoint}-rate`).value, 10),
-            loss: parseInt(document.getElementById(`panel-link-endpoint-${endpoint}-loss`).value, 10),
+		const getValues = (endpoint) => ({
+			delay: parseInt(document.getElementById(`panel-link-endpoint-${endpoint}-delay`).value, 10),
+			jitter: parseInt(document.getElementById(`panel-link-endpoint-${endpoint}-jitter`).value, 10),
+			rate: parseInt(document.getElementById(`panel-link-endpoint-${endpoint}-rate`).value, 10),
+			loss: parseInt(document.getElementById(`panel-link-endpoint-${endpoint}-loss`).value, 10),
 			corruption: parseInt(document.getElementById(`panel-link-endpoint-${endpoint}-corruption`).value, 10),
 
-        });
+		});
 
-        if (impairDirection === "a-to-b" || impairDirection === "bidirectional") {
-            const { delay, jitter, rate, loss, corruption} = getValues("a");
-            const command = deploymentType === "container"
-                ? `ssh ${clabUser}@${clabServerAddress} /usr/bin/containerlab tools netem set -n ${clabSourceLongName} -i ${clabSourcePort} --delay ${delay}ms --jitter ${jitter}ms --rate ${rate} --loss ${loss} --corruption ${corruption}` 
-                : `/usr/bin/containerlab tools netem set -n ${clabSourceLongName} -i ${clabSourcePort} --delay ${delay}ms --jitter ${jitter}ms --rate ${rate} --loss ${loss} --corruption ${corruption}` ;
+		if (impairDirection === "a-to-b" || impairDirection === "bidirectional") {
+			const {
+				delay,
+				jitter,
+				rate,
+				loss,
+				corruption
+			} = getValues("a");
+			const command = deploymentType === "container" ?
+				`ssh ${clabUser}@${clabServerAddress} /usr/bin/containerlab tools netem set -n ${clabSourceLongName} -i ${clabSourcePort} --delay ${delay}ms --jitter ${jitter}ms --rate ${rate} --loss ${loss} --corruption ${corruption}` :
+				`/usr/bin/containerlab tools netem set -n ${clabSourceLongName} -i ${clabSourcePort} --delay ${delay}ms --jitter ${jitter}ms --rate ${rate} --loss ${loss} --corruption ${corruption}`;
 
-            console.log(`linkImpairment - deployment ${deploymentType}, command: ${command}`);
-            await sendRequestToEndpointPost("/clab-link-impairment", [command]);
-        }
+			console.log(`linkImpairment - deployment ${deploymentType}, command: ${command}`);
+			await sendRequestToEndpointPost("/clab-link-impairment", [command]);
+		}
 
-        if (impairDirection === "b-to-a" || impairDirection === "bidirectional") {
-            const { delay, jitter, rate, loss, corruption } = getValues("b");
-            const command = deploymentType === "container"
-                ? `ssh ${clabUser}@${clabServerAddress} /usr/bin/containerlab tools netem set -n ${clabTargetLongName} -i ${clabTargetPort} --delay ${delay}ms --jitter ${jitter}ms --rate ${rate} --loss ${loss} --corruption ${corruption}` 
-                : `/usr/bin/containerlab tools netem set -n ${clabTargetLongName} -i ${clabTargetPort} --delay ${delay}ms --jitter ${jitter}ms --rate ${rate} --loss ${loss} --corruption ${corruption}` ;
+		if (impairDirection === "b-to-a" || impairDirection === "bidirectional") {
+			const {
+				delay,
+				jitter,
+				rate,
+				loss,
+				corruption
+			} = getValues("b");
+			const command = deploymentType === "container" ?
+				`ssh ${clabUser}@${clabServerAddress} /usr/bin/containerlab tools netem set -n ${clabTargetLongName} -i ${clabTargetPort} --delay ${delay}ms --jitter ${jitter}ms --rate ${rate} --loss ${loss} --corruption ${corruption}` :
+				`/usr/bin/containerlab tools netem set -n ${clabTargetLongName} -i ${clabTargetPort} --delay ${delay}ms --jitter ${jitter}ms --rate ${rate} --loss ${loss} --corruption ${corruption}`;
 
-            console.log(`linkImpairment - deployment ${deploymentType}, command: ${command}`);
-            await sendRequestToEndpointPost("/clab-link-impairment", [command]);
-        }
-    } catch (error) {
-        console.error("Error executing linkImpairment configuration:", error);
-    }
+			console.log(`linkImpairment - deployment ${deploymentType}, command: ${command}`);
+			await sendRequestToEndpointPost("/clab-link-impairment", [command]);
+		}
+	} catch (error) {
+		console.error("Error executing linkImpairment configuration:", error);
+	}
 }
 
 
@@ -1808,9 +1862,9 @@ async function linkWireshark(event, option, endpoint) {
 
 				const containerNames = ["clab-demo-ci-Leaf-02", "clab-demo-ci-Spine-01"];
 				const networkInterfaces = ["e1-1-1", "e1-2-1", "e1-3-1"];
-				
+
 				setupWiresharkModal("wiresharkModal", containerNames, networkInterfaces);
-					
+
 				baseUrl = `packetflix:ws://${clabServerAddress}:5001/capture?`;
 
 				netNsResponse = await sendRequestToEndpointGetV2("/clab-node-network-namespace", argsList = [clabSourceLongName])
@@ -3023,82 +3077,138 @@ function renderSubInterfaces(subInterfaces, referenceElementAfterId, referenceEl
 	// const referenceElementAfterId = 'endpoint-a-edgeshark'; // ID of the starting reference element
 	// const referenceElementBeforeId = 'endpoint-a-clipboard'; // ID of the ending reference element
 	const onClickHandler = (event, subInterface) => {
-	  console.log(`Clicked on: ${subInterface}`);
-	  // Add your custom logic here
+		console.log(`Clicked on: ${subInterface}`);
+		// Add your custom logic here
 	};
-  
+
 	// Find the container where the dropdown items are rendered
 	const containerElement = document.getElementById(containerSelectorId);
 	if (!containerElement) {
-	  console.error("Container element not found.");
-	  return;
+		console.error("Container element not found.");
+		return;
 	}
-  
+
 	// Find the reference elements
 	const referenceElementAfter = document.getElementById(referenceElementAfterId);
 	const referenceElementBefore = document.getElementById(referenceElementBeforeId);
 	if (!referenceElementAfter || !referenceElementBefore) {
-	  console.error("Reference elements not found.");
-	  return;
+		console.error("Reference elements not found.");
+		return;
 	}
-  
+
 	// Remove all <a> nodes between referenceElementAfter and referenceElementBefore
 	let currentNode = referenceElementAfter.nextSibling;
 	while (currentNode && currentNode !== referenceElementBefore) {
-	  const nextNode = currentNode.nextSibling; // Store next node before removal
-	  if (currentNode.nodeName === 'A') {
-		currentNode.remove();
-	  }
-	  currentNode = nextNode; // Move to the next node
+		const nextNode = currentNode.nextSibling; // Store next node before removal
+		if (currentNode.nodeName === 'A') {
+			currentNode.remove();
+		}
+		currentNode = nextNode; // Move to the next node
 	}
-  
+
 	// Dynamically generate and insert sub-interface items
 	subInterfaces.forEach(subInterface => {
-	  const a = document.createElement("a");
-	  a.className = "dropdown-item label has-text-weight-normal is-small py-0";
-	  a.style.display = "flex";
-	  a.style.justifyContent = "flex-end";
-	  a.textContent = subInterface;
-	  a.onclick = (event) => onClickHandler(event, subInterface);
-  
-	  // Insert after the reference element
-	  insertAfter(a, referenceElementAfter);
-	});
-  }
-  
-  // Helper function to insert an element after a reference element
-  function insertAfter(newNode, referenceNode) {
-	referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
-  }
+		const a = document.createElement("a");
+		a.className = "dropdown-item label has-text-weight-normal is-small py-0";
+		a.style.display = "flex";
+		a.style.justifyContent = "flex-end";
+		a.textContent = subInterface;
+		a.onclick = (event) => onClickHandler(event, subInterface);
 
-  function addWiresharkIcon() {
+		// Insert after the reference element
+		insertAfter(a, referenceElementAfter);
+	});
+}
+
+// Helper function to insert an element after a reference element
+function insertAfter(newNode, referenceNode) {
+	referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
+}
+
+function addWiresharkIcon() {
 	// Find the target node
 	const targetNode = document.getElementById("endpoint-a-edgeshark");
 	if (!targetNode) {
-	  console.error("Target node not found.");
-	  return;
+		console.error("Target node not found.");
+		return;
 	}
-  
+
+	// Ensure the target node uses flexbox for alignment
+	targetNode.style.display = "flex";
+	targetNode.style.alignItems = "center";
+
 	// Create the <img> element for the SVG icon
 	const imgIcon = document.createElement("img");
 	imgIcon.src = "https://raw.githubusercontent.com/siemens/edgeshark/refs/heads/main/icons/_media/icons/Capture.svg";
 	imgIcon.alt = "Wireshark Icon"; // Accessible description
 	imgIcon.style.width = "20px";
 	imgIcon.style.height = "20px";
-	imgIcon.style.marginTop = "0px"; // Add spacing between the label and the icon
-	imgIcon.style.marginBottom = "0px"; // Add spacing between the label and the icon
-
 	imgIcon.style.marginLeft = "4px"; // Add spacing between the label and the icon
-	imgIcon.style.marginRight = "0px"; // Add spacing between the label and the icon
 
-  
-	// Add the white filter
-	imgIcon.style.filter = "invert(100%)"; // Makes the SVG appear white
-  
+	// Add CSS class for gradient animation
+	imgIcon.classList.add("gradient-animation");
+
 	// Append the image after the label
 	targetNode.append(imgIcon);
-  }
-  
-  // Call the function to add the icon
-  addWiresharkIcon();
-  
+
+	// Add dynamic style for gradient animation
+	const style = document.createElement("style");
+	style.textContent = `
+        @keyframes gradientColorChange {
+            0% { filter: invert(100%) hue-rotate(0deg); } /* White */
+            50% { filter: invert(50%) hue-rotate(220deg); } /* Grey */
+            100% { filter: invert(100%) hue-rotate(0deg); } /* Back to White */
+        }
+        .gradient-animation {
+            animation: gradientColorChange 3s infinite;
+        }
+    `;
+	document.head.appendChild(style);
+}
+
+// Call the function to add the icon
+addWiresharkIcon();
+
+
+// function addWiresharkIcon() {
+//     // Find the target node
+//     const targetNode = document.getElementById("endpoint-a-edgeshark");
+//     if (!targetNode) {
+//         console.error("Target node not found.");
+//         return;
+//     }
+
+//     // Ensure the target node uses flexbox for alignment
+//     targetNode.style.display = "flex";
+//     targetNode.style.alignItems = "center";
+
+//     // Create a container for the icon
+//     const iconContainer = document.createElement("div");
+//     iconContainer.style.width = "20px";
+//     iconContainer.style.height = "20px";
+//     iconContainer.style.marginLeft = "4px";
+//     iconContainer.style.backgroundImage = "linear-gradient(90deg, white, #00bfff, white)"; // Neon blue
+//     iconContainer.style.backgroundSize = "200% 200%"; // For smooth transitions
+//     iconContainer.style.animation = "colorGradient 3s infinite"; // Animation to shift gradient
+//     iconContainer.style.maskImage = "url('https://raw.githubusercontent.com/siemens/edgeshark/refs/heads/main/icons/_media/icons/Capture.svg')";
+//     iconContainer.style.maskSize = "contain";
+//     iconContainer.style.maskRepeat = "no-repeat";
+//     iconContainer.style.maskPosition = "center";
+
+//     // Append the container after the label
+//     targetNode.append(iconContainer);
+
+//     // Add dynamic style for gradient animation
+//     const style = document.createElement("style");
+//     style.textContent = `
+//         @keyframes colorGradient {
+//             0% { background-position: 0% 50%; }
+//             50% { background-position: 100% 50%; }
+//             100% { background-position: 0% 50%; }
+//         }
+//     `;
+//     document.head.appendChild(style);
+// }
+
+// // Call the function to add the icon
+// addWiresharkIcon();
