@@ -689,11 +689,15 @@ func Clab(_ *cobra.Command, _ []string) error {
 		clabHandlers.ClabEdgeGetMacAddress(w, r, &cyTopo)
 	}).Methods("GET")
 
+	// API endpoint to get clab-link-subinterfaces value
+	router.HandleFunc("/clab-link-subinterfaces", func(w http.ResponseWriter, r *http.Request) {
+		clabHandlers.GetDockerSubInterfacesViaUnixSocket(w, r, &cyTopo)
+	}).Methods("GET")
+
 	// API endpoint to get actual-nodes-endpoints label
-	router.HandleFunc("/actual-nodes-endpoints",
-		func(w http.ResponseWriter, r *http.Request) {
-			clabHandlers.ClabEdgeGetActualPortViaSnmp(w, r, &cyTopo, workingDirectory)
-		}).Methods("GET")
+	router.HandleFunc("/actual-nodes-endpoints", func(w http.ResponseWriter, r *http.Request) {
+		clabHandlers.ClabEdgeGetActualPortViaSnmp(w, r, &cyTopo, workingDirectory)
+	}).Methods("GET")
 
 	router.HandleFunc("/container-compute-resource-usage", func(w http.ResponseWriter, r *http.Request) {
 		clabHandlers.ContainerComputeResourceUsage(w, r)

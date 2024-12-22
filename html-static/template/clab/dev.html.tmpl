@@ -690,13 +690,12 @@
 														<a onclick="linkImpairmentClab(event, 'bidirectional');" class="dropdown-item label has-text-weight-normal is-small py-0" id="panel-link-action-impairment-B->A">Apply Impairment</a>						
 														<hr class="dropdown-divider" />
 														<a onclick="linkWireshark(event, 'edgeShark', 'source');" class="dropdown-item label has-text-weight-normal is-small py-0" id="endpoint-a-edgeshark">Endpoint-A EdgeShark</a>
-														
-									
-
-														<a onclick="linkWireshark(event, 'copy', 'source');" class="dropdown-item label has-text-weight-normal is-small py-0" id="endpoint-a-clipboard">Endpoint-A Clipboard</a>
+														<a onclick="linkWireshark(event, 'copy', 'source');" class="dropdown-item label has-text-weight-normal is-small py-0" id="endpoint-a-clipboard">Endpoint-A Wireshark Clipboard</a>
+														<a class="dropdown-item label has-text-weight-normal is-small py-0" id="endpoint-a-bottom"></a>
 														<hr class="dropdown-divider" />
 														<a onclick="linkWireshark(event, 'edgeShark', 'target');" class="dropdown-item label has-text-weight-normal is-small py-0"id="endpoint-b-edgeshark">Endpoint-B EdgeShark</a>
 														<a onclick="linkWireshark(event, 'copy', 'target');" class="dropdown-item label has-text-weight-normal is-small py-0" id="endpoint-b-clipboard">Endpoint-B Clipboard</a>
+														<a class="dropdown-item label has-text-weight-normal is-small py-0" id="endpoint-b-bottom"></a>
 													</div>
 												</div>
 												
@@ -994,7 +993,7 @@
 				</div>
 			</div>
 
-			<!-- Modal -->
+			
 			<div class="modal" id="wiresharkModal">
 				<div class="modal-background"></div>
 				<div class="modal-content">

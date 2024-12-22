@@ -630,6 +630,12 @@ document.addEventListener("DOMContentLoaded", async function() {
 	cy.on("click", "node", async function(event) {
 		console.log("isEdgeHandlerActive after node click: ", isEdgeHandlerActive);
 
+		environments = await getEnvironments(event);
+		console.log("sshWebBased - environments: ", environments)
+
+		cytoTopologyJson = environments["EnvCyTopoJsonBytes"]
+		clabServerAddress = environments["clab-server-address"]
+
 		// Ignore the click event if edge handler is active
 		if (isEdgeHandlerActive) {
 			return;
@@ -814,7 +820,6 @@ document.addEventListener("DOMContentLoaded", async function() {
 			}
 
 
-
 			function getMacAddresses(data, sourceClabNode, targetClabNode, sourceIfName, targetIfName) {
 				const result = data.find(item =>
 					item.sourceClabNode === sourceClabNode &&
@@ -833,123 +838,59 @@ document.addEventListener("DOMContentLoaded", async function() {
 				}
 			}
 
+			// Setting default impairment values for endpoint A
+			let clabSourceLinkArgsList = [
+				clickedEdge.data("extraData").clabSourceLongName,
+				clickedEdge.data("extraData").clabSourcePort
+			];
+			let clabSourceLinkImpairmentClabData = await sendRequestToEndpointGetV3("/clab-link-impairment", clabSourceLinkArgsList);
 
-
-
-			// console.log("actualLinkMacPair-Source: ", actualLinkMacPair[0].sourceIfMac)
-			// console.log("actualLinkMacPair-Target: ", actualLinkMacPair[0].targetIfMac)
-
-			// document.getElementById("panel-link-endpoint-a-mac-address").textContent = getMacAddressesResult.sourceIfMac
-			// document.getElementById("panel-link-endpoint-b-mac-address").textContent = getMacAddressesResult.targetIfMac
-
-
-			// Render the source sub-interface items dynamically
-			const sourceSubInterfaces = ["└ Sub-Interface .2", "└ Sub-Interface .1", "└ REZVAN BACOT"];
-			renderSubInterfaces(sourceSubInterfaces, 'endpoint-a-edgeshark', 'endpoint-a-clipboard');
-
-			// Render the target sub-interface items dynamically
-			const targetSubInterfaces = ["└ Sub-Interface .11", "└ Sub-Interface .12"];
-			renderSubInterfaces(targetSubInterfaces, 'endpoint-b-edgeshark', 'endpoint-b-clipboard');
-
-
-			// setting default impairment endpoint-a values by getting the data from clab via /clab-link-impairment GET API
-			clabSourceLinkArgsList = [`${clickedEdge.data("extraData").clabSourceLongName}`, `${clickedEdge.data("extraData").clabSourcePort}`]
-			clabSourceLinkImpairmentClabData = await sendRequestToEndpointGetV2("/clab-link-impairment", clabSourceLinkArgsList)
-
-			// sourceNodeId = `${clickedEdge.data("extraData").clabSourceLongName}`
-			// sourceNodeInterfaceId = `${clickedEdge.data("extraData").clabSourcePort}`
-
-			// clabSourceLinkArgsList = []
-			// clabSourceLinkImpairmentClabData = await sendRequestToEndpointGetV2(`/clab/link/${sourceNodeId}/${sourceNodeInterfaceId}/impairment`, clabSourceLinkArgsList)
-
-			if (clabSourceLinkImpairmentClabData && typeof clabSourceLinkImpairmentClabData === 'object' && Object.keys(clabSourceLinkImpairmentClabData).length > 0) {
+			if (clabSourceLinkImpairmentClabData && typeof clabSourceLinkImpairmentClabData === "object" && Object.keys(clabSourceLinkImpairmentClabData).length > 0) {
 				hideLoadingSpinnerGlobal();
-				console.log("Valid non-empty JSON response received:", clabSourceLinkImpairmentClabData);
-				console.log("Valid non-empty JSON response received: clabSourceLinkImpairmentClabData returnd data", clabSourceLinkImpairmentClabData["return data"]["delay"]);
+				console.log("Valid non-empty JSON response received for endpoint A:", clabSourceLinkImpairmentClabData);
 
-				if (clabSourceLinkImpairmentClabData["return data"]["delay"] == "N/A") {
-					document.getElementById("panel-link-endpoint-a-delay").value = '0'
-				} else {
-					document.getElementById("panel-link-endpoint-a-delay").value = clabSourceLinkImpairmentClabData["return data"]["delay"].replace(/ms$/, '');
-				}
+				const sourceDelay = clabSourceLinkImpairmentClabData["return data"]["delay"];
+				const sourceJitter = clabSourceLinkImpairmentClabData["return data"]["jitter"];
+				const sourceRate = clabSourceLinkImpairmentClabData["return data"]["rate"];
+				const sourcePacketLoss = clabSourceLinkImpairmentClabData["return data"]["packet_loss"];
+				const sourceCorruption = clabSourceLinkImpairmentClabData["return data"]["corruption"];
 
-				if (clabSourceLinkImpairmentClabData["return data"]["jitter"] == "N/A") {
-					document.getElementById("panel-link-endpoint-a-jitter").value = '0'
-				} else {
-					document.getElementById("panel-link-endpoint-a-jitter").value = clabSourceLinkImpairmentClabData["return data"]["jitter"].replace(/ms$/, '');
-				}
-
-				if (clabSourceLinkImpairmentClabData["return data"]["rate"] == "N/A") {
-					document.getElementById("panel-link-endpoint-a-rate").value = '0'
-				} else {
-					document.getElementById("panel-link-endpoint-a-rate").value = clabSourceLinkImpairmentClabData["return data"]["rate"]
-				}
-
-				if (clabSourceLinkImpairmentClabData["return data"]["packet_loss"] == "N/A") {
-					document.getElementById("panel-link-endpoint-a-loss").value = '0'
-				} else {
-					document.getElementById("panel-link-endpoint-a-loss").value = clabSourceLinkImpairmentClabData["return data"]["packet_loss"].replace(/%$/, '');
-				}
-
-				if (clabSourceLinkImpairmentClabData["return data"]["corruption"] == "N/A") {
-					document.getElementById("panel-link-endpoint-a-corruption").value = '0'
-				} else {
-					document.getElementById("panel-link-endpoint-a-corruption").value = clabSourceLinkImpairmentClabData["return data"]["corruption"].replace(/%$/, '');
-				}
-
+				document.getElementById("panel-link-endpoint-a-delay").value = sourceDelay === "N/A" ? "0" : sourceDelay.replace(/ms$/, "");
+				document.getElementById("panel-link-endpoint-a-jitter").value = sourceJitter === "N/A" ? "0" : sourceJitter.replace(/ms$/, "");
+				document.getElementById("panel-link-endpoint-a-rate").value = sourceRate === "N/A" ? "0" : sourceRate;
+				document.getElementById("panel-link-endpoint-a-loss").value = sourcePacketLoss === "N/A" ? "0" : sourcePacketLoss.replace(/%$/, "");
+				document.getElementById("panel-link-endpoint-a-corruption").value = sourceCorruption === "N/A" ? "0" : sourceCorruption.replace(/%$/, "");
 			} else {
-				console.log("Empty or invalid JSON response received");
+				console.log("Empty or invalid JSON response received for endpoint A");
 			}
 
+			// sleep(1000)
+			// Setting default impairment values for endpoint B
+			let clabTargetLinkArgsList = [
+				clickedEdge.data("extraData").clabTargetLongName,
+				clickedEdge.data("extraData").clabTargetPort
+			];
+			let clabTargetLinkImpairmentClabData = await sendRequestToEndpointGetV3("/clab-link-impairment", clabTargetLinkArgsList);
 
-			// setting default impairment endpoint-b values by getting the data from clab via /clab-link-impairment GET API
-			clabTargetLinkArgsList = [`${clickedEdge.data("extraData").clabTargetLongName}`, `${clickedEdge.data("extraData").clabTargetPort}`]
-			clabTargetLinkImpairmentClabData = await sendRequestToEndpointGetV2("/clab-link-impairment", clabTargetLinkArgsList)
-
-			// targetNodeId = `${clickedEdge.data("extraData").clabTargetLongName}`
-			// targetNodeInterfaceId = `${clickedEdge.data("extraData").clabTargetPort}`
-
-			// clabTargetLinkArgsList = []
-			// clabTargetLinkImpairmentClabData = await sendRequestToEndpointGetV2(`/clab/link/${targetNodeId}/${targetNodeInterfaceId}/impairment`, clabSourceLinkArgsList)
-
-			if (clabTargetLinkImpairmentClabData && typeof clabTargetLinkImpairmentClabData === 'object' && Object.keys(clabTargetLinkImpairmentClabData).length > 0) {
+			if (clabTargetLinkImpairmentClabData && typeof clabTargetLinkImpairmentClabData === "object" && Object.keys(clabTargetLinkImpairmentClabData).length > 0) {
 				hideLoadingSpinnerGlobal();
-				console.log("Valid non-empty JSON response received:", clabTargetLinkImpairmentClabData);
-				console.log("Valid non-empty JSON response received: clabTargetLinkImpairmentClabData returnd data", clabTargetLinkImpairmentClabData["return data"]["delay"]);
+				console.log("Valid non-empty JSON response received for endpoint B:", clabTargetLinkImpairmentClabData);
 
-				if (clabTargetLinkImpairmentClabData["return data"]["delay"] == "N/A") {
-					document.getElementById("panel-link-endpoint-b-delay").value = '0'
-				} else {
-					document.getElementById("panel-link-endpoint-b-delay").value = clabTargetLinkImpairmentClabData["return data"]["delay"].replace(/ms$/, '');
-				}
+				const targetDelay = clabTargetLinkImpairmentClabData["return data"]["delay"];
+				const targetJitter = clabTargetLinkImpairmentClabData["return data"]["jitter"];
+				const targetRate = clabTargetLinkImpairmentClabData["return data"]["rate"];
+				const targetPacketLoss = clabTargetLinkImpairmentClabData["return data"]["packet_loss"];
+				const targetCorruption = clabTargetLinkImpairmentClabData["return data"]["corruption"];
 
-				if (clabTargetLinkImpairmentClabData["return data"]["jitter"] == "N/A") {
-					document.getElementById("panel-link-endpoint-b-jitter").value = '0'
-				} else {
-					document.getElementById("panel-link-endpoint-b-jitter").value = clabTargetLinkImpairmentClabData["return data"]["jitter"].replace(/ms$/, '');
-				}
-
-				if (clabTargetLinkImpairmentClabData["return data"]["rate"] == "N/A") {
-					document.getElementById("panel-link-endpoint-b-rate").value = '0'
-				} else {
-					document.getElementById("panel-link-endpoint-b-rate").value = clabTargetLinkImpairmentClabData["return data"]["rate"]
-				}
-
-				if (clabTargetLinkImpairmentClabData["return data"]["packet_loss"] == "N/A") {
-					document.getElementById("panel-link-endpoint-b-loss").value = '0'
-				} else {
-					document.getElementById("panel-link-endpoint-b-loss").value = clabTargetLinkImpairmentClabData["return data"]["packet_loss"].replace(/%$/, '');
-				}
-
-				if (clabTargetLinkImpairmentClabData["return data"]["corruption"] == "N/A") {
-					document.getElementById("panel-link-endpoint-b-corruption").value = '0'
-				} else {
-					document.getElementById("panel-link-endpoint-b-corruption").value = clabTargetLinkImpairmentClabData["return data"]["corruption"].replace(/%$/, '');
-				}
-
+				document.getElementById("panel-link-endpoint-b-delay").value = targetDelay === "N/A" ? "0" : targetDelay.replace(/ms$/, "");
+				document.getElementById("panel-link-endpoint-b-jitter").value = targetJitter === "N/A" ? "0" : targetJitter.replace(/ms$/, "");
+				document.getElementById("panel-link-endpoint-b-rate").value = targetRate === "N/A" ? "0" : targetRate;
+				document.getElementById("panel-link-endpoint-b-loss").value = targetPacketLoss === "N/A" ? "0" : targetPacketLoss.replace(/%$/, "");
+				document.getElementById("panel-link-endpoint-b-corruption").value = targetCorruption === "N/A" ? "0" : targetCorruption.replace(/%$/, "");
 			} else {
-				console.log("Empty or invalid JSON response received");
+				console.log("Empty or invalid JSON response received for endpoint B");
 			}
+
 
 			// set selected edge-id to global variable
 			globalSelectedEdge = clickedEdge.data("id")
@@ -1820,121 +1761,352 @@ async function linkImpairmentClab(event, impairDirection) {
 	}
 }
 
+async function linkWireshark(event, option, endpoint, referenceElementAfterId) {
+    console.log("linkWireshark - globalSelectedEdge: ", globalSelectedEdge);
+    console.log("linkWireshark - option: ", option);
+    console.log("linkWireshark - endpoint: ", endpoint);
+    console.log("linkWireshark - referenceElementAfterId: ", referenceElementAfterId);
 
+    const edgeId = globalSelectedEdge;
 
-async function linkWireshark(event, option, endpoint) {
-	console.log("linkWireshark - globalSelectedEdge: ", globalSelectedEdge)
-	var edgeId = globalSelectedEdge
-	try {
-		environments = await getEnvironments(event);
-		console.log("linkWireshark - environments: ", environments)
+    try {
+        const environments = await getEnvironments(event);
+        console.log("linkWireshark - environments: ", environments);
 
-		var deploymentType = environments["deployment-type"]
+        const deploymentType = environments["deployment-type"];
+        const cytoTopologyJson = environments["EnvCyTopoJsonBytes"];
+        const edgeData = findCytoElementById(cytoTopologyJson, edgeId);
 
-		cytoTopologyJson = environments["EnvCyTopoJsonBytes"]
-		edgeData = findCytoElementById(cytoTopologyJson, edgeId)
+        console.log("linkWireshark- edgeData: ", edgeData);
 
-		console.log("linkWireshark- edgeData: ", edgeData)
-		console.log("linkWireshark- edgeSource: ", edgeData["data"]["source"])
+        const {
+            clabServerUsername: clabUser,
+            clabSourceLongName,
+            clabSourcePort,
+            clabTargetLongName,
+            clabTargetPort
+        } = edgeData.data.extraData;
 
-		clabUser = edgeData["data"]["extraData"]["clabServerUsername"]
-		clabServerAddress = environments["clab-server-address"]
+        const clabServerAddress = environments["clab-server-address"];
 
-		clabSourceLongName = edgeData["data"]["extraData"]["clabSourceLongName"]
-		clabSourcePort = edgeData["data"]["extraData"]["clabSourcePort"]
+        const openWindow = (href) => {
+            console.log("Opening URL: ", href);
+            window.open(href);
+        };
 
-		clabTargetLongName = edgeData["data"]["extraData"]["clabTargetLongName"]
-		clabTargetPort = edgeData["data"]["extraData"]["clabTargetPort"]
+        const copyToClipboard = (text) => {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(() => {
+                    bulmaToast.toast({
+                        message: `Hey, now you can paste the link to your terminal console. 😎`,
+                        type: "is-warning is-size-6 p-3",
+                        duration: 4000,
+                        position: "top-center",
+                        closeOnClick: true,
+                    });
+                }).catch(console.error);
+            } else {
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    bulmaToast.toast({
+                        message: `Hey, now you can paste the link to your terminal console. 😎`,
+                        type: "is-warning is-size-6 p-3",
+                        duration: 4000,
+                        position: "top-center",
+                        closeOnClick: true,
+                    });
+                } catch (err) {
+                    console.error('Fallback: Unable to copy', err);
+                }
+                document.body.removeChild(textArea);
+            }
+        };
 
-		if (option == "app") {
-			if (endpoint == "source") {
-				wiresharkHref = `clab-capture://${clabUser}@${clabServerAddress}?${clabSourceLongName}?${clabSourcePort}`
-				console.log("linkWireshark- wiresharkHref: ", wiresharkHref)
+        const buildEdgeSharkHref = async (longName, port) => {
+            const netNsResponse = await sendRequestToEndpointGetV2("/clab-node-network-namespace", [longName]);
+            const netNsId = netNsResponse.namespace_id.match(/\[(.*?)\]/)[1];
+            return `packetflix:ws://${clabServerAddress}:5001/capture?container={"netns":${netNsId},"network-interfaces":["${port}"],"name":"${longName.toLowerCase()}","type":"docker","prefix":""}&nif=${port}`;
+        };
 
-			} else if (endpoint == "target") {
-				wiresharkHref = `clab-capture://${clabUser}@${clabServerAddress}?${clabTargetLongName}?${clabTargetPort}`
-				console.log("linkWireshark- wiresharkHref: ", wiresharkHref)
-			}
-			window.open(wiresharkHref);
+        switch (option) {
+            case "app":
+                const wiresharkHref = `clab-capture://${clabUser}@${clabServerAddress}?${endpoint === "source" ? clabSourceLongName : clabTargetLongName}?${endpoint === "source" ? clabSourcePort : clabTargetPort}`;
+                openWindow(wiresharkHref);
+                break;
 
-		} else if (option == "edgeShark") {
-			if (endpoint == "source") {
+            case "edgeSharkInterface":
+                const edgeSharkHref = await buildEdgeSharkHref(endpoint === "source" ? clabSourceLongName : clabTargetLongName, endpoint === "source" ? clabSourcePort : clabTargetPort);
+                openWindow(edgeSharkHref);
+                break;
 
-				const containerNames = ["clab-demo-ci-Leaf-02", "clab-demo-ci-Spine-01"];
-				const networkInterfaces = ["e1-1-1", "e1-2-1", "e1-3-1"];
+            case "edgeSharkSubInterface":
+                if (referenceElementAfterId === "endpoint-a-edgeshark" || referenceElementAfterId === "endpoint-b-edgeshark") {
+                    const longName = referenceElementAfterId === "endpoint-a-edgeshark" ? clabSourceLongName : clabTargetLongName;
+                    const subInterfaceHref = await buildEdgeSharkHref(longName, endpoint);
+                    openWindow(subInterfaceHref);
+                } else if (referenceElementAfterId.includes("clipboard")) {
+                    const longName = referenceElementAfterId === "endpoint-a-clipboard" ? clabSourceLongName : clabTargetLongName;
+                    const sshCommand = `ssh ${clabUser}@${clabServerAddress} "sudo -S /sbin/ip netns exec ${longName} tcpdump -U -nni ${endpoint} -w -" | wireshark -k -i -`;
+                    copyToClipboard(sshCommand);
+                }
+                break;
 
-				setupWiresharkModal("wiresharkModal", containerNames, networkInterfaces);
-
-				baseUrl = `packetflix:ws://${clabServerAddress}:5001/capture?`;
-
-				netNsResponse = await sendRequestToEndpointGetV2("/clab-node-network-namespace", argsList = [clabSourceLongName])
-				console.log("linkWireshark - netNsSource: ", netNsResponse.namespace_id.slice(netNsResponse.namespace_id.indexOf("[") + 1, netNsResponse.namespace_id.indexOf("]")))
-				netNsIdSource = netNsResponse.namespace_id.slice(netNsResponse.namespace_id.indexOf("[") + 1, netNsResponse.namespace_id.indexOf("]"))
-
-				urlParams = `container={"netns":${netNsIdSource},"network-interfaces":["${clabSourcePort}"],"name":"${clabSourceLongName.toLocaleLowerCase()}","type":"docker","prefix":""}&nif=${clabSourcePort}`;
-				edgeSharkHref = baseUrl + urlParams;
-				console.log("linkWireshark - edgeSharkHref: ", edgeSharkHref)
-				window.open(edgeSharkHref);
-
-			} else if (endpoint == "target") {
-				baseUrl = `packetflix:ws://${clabServerAddress}:5001/capture?`;
-
-				netNsResponse = await sendRequestToEndpointGetV2("/clab-node-network-namespace", argsList = [clabTargetLongName])
-				console.log("linkWireshark - netNsSource: ", netNsResponse.namespace_id.slice(netNsResponse.namespace_id.indexOf("[") + 1, netNsResponse.namespace_id.indexOf("]")))
-				netNsIdTarget = netNsResponse.namespace_id.slice(netNsResponse.namespace_id.indexOf("[") + 1, netNsResponse.namespace_id.indexOf("]"))
-
-				urlParams = `container={"netns":${netNsIdTarget},"network-interfaces":["${clabSourcePort}"],"name":"${clabSourceLongName.toLocaleLowerCase()}","type":"docker","prefix":""}&nif=${clabSourcePort}`;
-				edgeSharkHref = baseUrl + urlParams;
-				console.log("linkWireshark - edgeSharkHref: ", edgeSharkHref)
-				window.open(edgeSharkHref);
-			}
-
-		} else if (option == "copy") {
-			if (endpoint == "source") {
-				if (deploymentType == "container") {
-					wiresharkSshCommand = `ssh ${clabUser}@${clabServerAddress} "sudo -S /sbin/ip netns exec ${clabSourceLongName} tcpdump -U -nni ${clabSourcePort} -w -" | wireshark -k -i -`
-				} else if (deploymentType == "colocated") {
-					wiresharkSshCommand = `ssh ${clabUser}@${clabServerAddress} "sudo -S /sbin/ip netns exec ${clabSourceLongName} tcpdump -U -nni ${clabSourcePort} -w -" | wireshark -k -i -`
-				}
-			} else if (endpoint == "target") {
-				if (deploymentType == "container") {
-					wiresharkSshCommand = `ssh ${clabUser}@${clabServerAddress} "sudo -S /sbin/ip netns exec ${clabTargetLongName} tcpdump -U -nni ${clabTargetPort} -w -" | wireshark -k -i -`
-				} else if (deploymentType == "colocated") {
-					wiresharkSshCommand = `ssh ${clabUser}@${clabServerAddress} "sudo -S /sbin/ip netns exec ${clabTargetLongName} tcpdump -U -nni ${clabTargetPort} -w -" | wireshark -k -i -`
-				}
-			}
-
-			console.log("linkWireshark- wiresharkSShCommand: ", wiresharkSshCommand)
-
-			// Check if the clipboard API is available
-			if (navigator.clipboard && navigator.clipboard.writeText) {
-				navigator.clipboard.writeText(wiresharkSshCommand).then(function() {
-					alert('Text copied to clipboard');
-				}).catch(function(error) {
-					console.error('Could not copy text: ', error);
-				});
-			} else {
-				// Fallback method for older browsers
-				let textArea = document.createElement('textarea');
-				textArea.value = wiresharkSshCommand;
-				document.body.appendChild(textArea);
-				textArea.focus();
-				textArea.select();
-				try {
-					document.execCommand('copy');
-					alert('Text copied to clipboard');
-				} catch (err) {
-					console.error('Fallback: Oops, unable to copy', err);
-				}
-				document.body.removeChild(textArea);
-			}
-
-		}
-
-	} catch (error) {
-		console.error('Error executing linkImpairment configuration:', error);
-	}
+            case "copy":
+                const longName = endpoint === "source" ? clabSourceLongName : clabTargetLongName;
+                const port = endpoint === "source" ? clabSourcePort : clabTargetPort;
+                const sshCommand = `ssh ${clabUser}@${clabServerAddress} "sudo -S /sbin/ip netns exec ${longName} tcpdump -U -nni ${port} -w -" | wireshark -k -i -`;
+                copyToClipboard(sshCommand);
+                break;
+        }
+    } catch (error) {
+        console.error("Error executing linkWireshark configuration:", error);
+    }
 }
+
+
+// async function linkWireshark(event, option, endpoint, referenceElementAfterId) {
+// 	console.log("linkWireshark - globalSelectedEdge: ", globalSelectedEdge)
+// 	console.log("linkWireshark - option: ", option)
+// 	console.log("linkWireshark - endpoint: ", endpoint)
+// 	console.log("linkWireshark - referenceElementAfterId: ", referenceElementAfterId)
+
+
+// 	var edgeId = globalSelectedEdge
+// 	try {
+// 		environments = await getEnvironments(event);
+// 		console.log("linkWireshark - environments: ", environments)
+
+// 		var deploymentType = environments["deployment-type"]
+
+// 		cytoTopologyJson = environments["EnvCyTopoJsonBytes"]
+// 		edgeData = findCytoElementById(cytoTopologyJson, edgeId)
+
+// 		console.log("linkWireshark- edgeData: ", edgeData)
+// 		console.log("linkWireshark- edgeSource: ", edgeData["data"]["source"])
+
+// 		clabUser = edgeData["data"]["extraData"]["clabServerUsername"]
+// 		clabServerAddress = environments["clab-server-address"]
+
+// 		clabSourceLongName = edgeData["data"]["extraData"]["clabSourceLongName"]
+// 		clabSourcePort = edgeData["data"]["extraData"]["clabSourcePort"]
+
+// 		clabTargetLongName = edgeData["data"]["extraData"]["clabTargetLongName"]
+// 		clabTargetPort = edgeData["data"]["extraData"]["clabTargetPort"]
+
+// 		if (option == "app") {
+// 			if (endpoint == "source") {
+// 				wiresharkHref = `clab-capture://${clabUser}@${clabServerAddress}?${clabSourceLongName}?${clabSourcePort}`
+// 				console.log("linkWireshark- wiresharkHref: ", wiresharkHref)
+
+// 			} else if (endpoint == "target") {
+// 				wiresharkHref = `clab-capture://${clabUser}@${clabServerAddress}?${clabTargetLongName}?${clabTargetPort}`
+// 				console.log("linkWireshark- wiresharkHref: ", wiresharkHref)
+// 			}
+// 			window.open(wiresharkHref);
+
+// 		} else if (option == "edgeSharkInterface") {
+// 			if (endpoint == "source") {
+// 				baseUrl = `packetflix:ws://${clabServerAddress}:5001/capture?`;
+
+// 				netNsResponse = await sendRequestToEndpointGetV2("/clab-node-network-namespace", argsList = [clabSourceLongName])
+// 				console.log("linkWireshark - netNsSource: ", netNsResponse.namespace_id.slice(netNsResponse.namespace_id.indexOf("[") + 1, netNsResponse.namespace_id.indexOf("]")))
+// 				netNsIdSource = netNsResponse.namespace_id.slice(netNsResponse.namespace_id.indexOf("[") + 1, netNsResponse.namespace_id.indexOf("]"))
+
+// 				urlParams = `container={"netns":${netNsIdSource},"network-interfaces":["${clabSourcePort}"],"name":"${clabSourceLongName.toLocaleLowerCase()}","type":"docker","prefix":""}&nif=${clabSourcePort}`;
+// 				edgeSharkHref = baseUrl + urlParams;
+// 				console.log("linkWireshark - edgeSharkHref: ", edgeSharkHref)
+// 				window.open(edgeSharkHref);
+
+// 			} else if (endpoint == "target") {
+// 				baseUrl = `packetflix:ws://${clabServerAddress}:5001/capture?`;
+
+// 				netNsResponse = await sendRequestToEndpointGetV2("/clab-node-network-namespace", argsList = [clabTargetLongName])
+// 				console.log("linkWireshark - netNsSource: ", netNsResponse.namespace_id.slice(netNsResponse.namespace_id.indexOf("[") + 1, netNsResponse.namespace_id.indexOf("]")))
+// 				netNsIdTarget = netNsResponse.namespace_id.slice(netNsResponse.namespace_id.indexOf("[") + 1, netNsResponse.namespace_id.indexOf("]"))
+
+// 				urlParams = `container={"netns":${netNsIdTarget},"network-interfaces":["${clabSourcePort}"],"name":"${clabSourceLongName.toLocaleLowerCase()}","type":"docker","prefix":""}&nif=${clabSourcePort}`;
+// 				edgeSharkHref = baseUrl + urlParams;
+// 				console.log("linkWireshark - edgeSharkHref: ", edgeSharkHref)
+// 				window.open(edgeSharkHref);
+// 			}
+
+// 		} else if (option == "edgeSharkSubInterface") {
+// 			if (referenceElementAfterId == "endpoint-a-edgeshark") {
+// 				baseUrl = `packetflix:ws://${clabServerAddress}:5001/capture?`;
+
+// 				netNsResponse = await sendRequestToEndpointGetV2("/clab-node-network-namespace", argsList = [clabSourceLongName])
+// 				console.log("linkWireshark - netNsSource: ", netNsResponse.namespace_id.slice(netNsResponse.namespace_id.indexOf("[") + 1, netNsResponse.namespace_id.indexOf("]")))
+// 				netNsIdSource = netNsResponse.namespace_id.slice(netNsResponse.namespace_id.indexOf("[") + 1, netNsResponse.namespace_id.indexOf("]"))
+
+// 				urlParams = `container={"netns":${netNsIdSource},"network-interfaces":["${endpoint}"],"name":"${clabSourceLongName.toLocaleLowerCase()}","type":"docker","prefix":""}&nif=${endpoint}`;
+// 				edgeSharkHref = baseUrl + urlParams;
+// 				console.log("linkWireshark - edgeSharkHref: ", edgeSharkHref)
+// 				window.open(edgeSharkHref);
+// 			} 
+// 			if (referenceElementAfterId == "endpoint-b-edgeshark") {
+// 				console.log("linkWireshark - endpoint-b-edgeshark")
+// 				baseUrl = `packetflix:ws://${clabServerAddress}:5001/capture?`;
+
+// 				netNsResponse = await sendRequestToEndpointGetV2("/clab-node-network-namespace", argsList = [clabTargetLongName])
+// 				console.log("linkWireshark - netNsSource: ", netNsResponse.namespace_id.slice(netNsResponse.namespace_id.indexOf("[") + 1, netNsResponse.namespace_id.indexOf("]")))
+// 				netNsIdTarget = netNsResponse.namespace_id.slice(netNsResponse.namespace_id.indexOf("[") + 1, netNsResponse.namespace_id.indexOf("]"))
+
+// 				urlParams = `container={"netns":${netNsIdTarget},"network-interfaces":["${endpoint}"],"name":"${clabSourceLongName.toLocaleLowerCase()}","type":"docker","prefix":""}&nif=${endpoint}`;
+// 				edgeSharkHref = baseUrl + urlParams;
+// 				console.log("linkWireshark - edgeSharkHref: ", edgeSharkHref)
+// 				window.open(edgeSharkHref);
+// 			}
+// 			if (referenceElementAfterId == "endpoint-a-clipboard") {
+// 				console.log("linkWireshark - endpoint-a-clipboard")
+// 				if (deploymentType == "container") {
+// 					wiresharkSshCommand = `ssh ${clabUser}@${clabServerAddress} "sudo -S /sbin/ip netns exec ${clabSourceLongName} tcpdump -U -nni ${endpoint} -w -" | wireshark -k -i -`
+// 				} else if (deploymentType == "colocated") {
+// 					wiresharkSshCommand = `ssh ${clabUser}@${clabServerAddress} "sudo -S /sbin/ip netns exec ${clabSourceLongName} tcpdump -U -nni ${endpoint} -w -" | wireshark -k -i -`
+// 				}
+// 				// Check if the clipboard API is available
+// 			if (navigator.clipboard && navigator.clipboard.writeText) {
+// 				navigator.clipboard.writeText(wiresharkSshCommand).then(function() {
+// 					bulmaToast.toast({
+// 						message: `Hey, now you can paste the link to your terminal console. 😎`,
+// 						type: "is-warning is-size-6 p-3",
+// 						duration: 4000,
+// 						position: "top-center",
+// 						closeOnClick: true,
+// 					});
+// 				}).catch(function(error) {
+// 					console.error('Could not copy text: ', error);
+// 				});
+// 			} else {
+// 				// Fallback method for older browsers
+// 				let textArea = document.createElement('textarea');
+// 				textArea.value = wiresharkSshCommand;
+// 				document.body.appendChild(textArea);
+// 				textArea.focus();
+// 				textArea.select();
+// 				try {
+// 					document.execCommand('copy');
+// 					// alert('Text copied to clipboard');
+// 					bulmaToast.toast({
+// 						message: `Hey, now you can paste the link to your terminal console. 😎`,
+// 						type: "is-warning is-size-6 p-3",
+// 						duration: 4000,
+// 						position: "top-center",
+// 						closeOnClick: true,
+// 					});
+// 				} catch (err) {
+// 					console.error('Fallback: Oops, unable to copy', err);
+// 				}
+// 				document.body.removeChild(textArea);
+// 			}
+// 			}
+// 			if (referenceElementAfterId == "endpoint-b-clipboard") {
+// 				console.log("linkWireshark - endpoint-b-clipboard")
+// 				if (deploymentType == "container") {
+// 					wiresharkSshCommand = `ssh ${clabUser}@${clabServerAddress} "sudo -S /sbin/ip netns exec ${clabTargetLongName} tcpdump -U -nni ${endpoint} -w -" | wireshark -k -i -`
+// 				} else if (deploymentType == "colocated") {
+// 					wiresharkSshCommand = `ssh ${clabUser}@${clabServerAddress} "sudo -S /sbin/ip netns exec ${clabTargetLongName} tcpdump -U -nni ${endpoint} -w -" | wireshark -k -i -`
+// 				}
+// 				// Check if the clipboard API is available
+// 			if (navigator.clipboard && navigator.clipboard.writeText) {
+// 				navigator.clipboard.writeText(wiresharkSshCommand).then(function() {
+// 					bulmaToast.toast({
+// 						message: `Hey, now you can paste the link to your terminal console. 😎`,
+// 						type: "is-warning is-size-6 p-3",
+// 						duration: 4000,
+// 						position: "top-center",
+// 						closeOnClick: true,
+// 					});
+// 				}).catch(function(error) {
+// 					console.error('Could not copy text: ', error);
+// 				});
+// 			} else {
+// 				// Fallback method for older browsers
+// 				let textArea = document.createElement('textarea');
+// 				textArea.value = wiresharkSshCommand;
+// 				document.body.appendChild(textArea);
+// 				textArea.focus();
+// 				textArea.select();
+// 				try {
+// 					document.execCommand('copy');
+// 					// alert('Text copied to clipboard');
+// 					bulmaToast.toast({
+// 						message: `Hey, now you can paste the link to your terminal console. 😎`,
+// 						type: "is-warning is-size-6 p-3",
+// 						duration: 4000,
+// 						position: "top-center",
+// 						closeOnClick: true,
+// 					});
+// 				} catch (err) {
+// 					console.error('Fallback: Oops, unable to copy', err);
+// 				}
+// 				document.body.removeChild(textArea);
+// 			}
+// 			}
+			
+
+// 		} else if (option == "copy") {
+// 			if (endpoint == "source") {
+// 				if (deploymentType == "container") {
+// 					wiresharkSshCommand = `ssh ${clabUser}@${clabServerAddress} "sudo -S /sbin/ip netns exec ${clabSourceLongName} tcpdump -U -nni ${clabSourcePort} -w -" | wireshark -k -i -`
+// 				} else if (deploymentType == "colocated") {
+// 					wiresharkSshCommand = `ssh ${clabUser}@${clabServerAddress} "sudo -S /sbin/ip netns exec ${clabSourceLongName} tcpdump -U -nni ${clabSourcePort} -w -" | wireshark -k -i -`
+// 				}
+// 			} else if (endpoint == "target") {
+// 				if (deploymentType == "container") {
+// 					wiresharkSshCommand = `ssh ${clabUser}@${clabServerAddress} "sudo -S /sbin/ip netns exec ${clabTargetLongName} tcpdump -U -nni ${clabTargetPort} -w -" | wireshark -k -i -`
+// 				} else if (deploymentType == "colocated") {
+// 					wiresharkSshCommand = `ssh ${clabUser}@${clabServerAddress} "sudo -S /sbin/ip netns exec ${clabTargetLongName} tcpdump -U -nni ${clabTargetPort} -w -" | wireshark -k -i -`
+// 				}
+// 			}
+
+// 			console.log("linkWireshark- wiresharkSShCommand: ", wiresharkSshCommand)
+
+// 			// Check if the clipboard API is available
+// 			if (navigator.clipboard && navigator.clipboard.writeText) {
+// 				navigator.clipboard.writeText(wiresharkSshCommand).then(function() {
+// 					bulmaToast.toast({
+// 						message: `Hey, now you can paste the link to your terminal console. 😎`,
+// 						type: "is-warning is-size-6 p-3",
+// 						duration: 4000,
+// 						position: "top-center",
+// 						closeOnClick: true,
+// 					});
+// 				}).catch(function(error) {
+// 					console.error('Could not copy text: ', error);
+// 				});
+// 			} else {
+// 				// Fallback method for older browsers
+// 				let textArea = document.createElement('textarea');
+// 				textArea.value = wiresharkSshCommand;
+// 				document.body.appendChild(textArea);
+// 				textArea.focus();
+// 				textArea.select();
+// 				try {
+// 					document.execCommand('copy');
+// 					// alert('Text copied to clipboard');
+// 					bulmaToast.toast({
+// 						message: `Hey, now you can paste the link to your terminal console. 😎`,
+// 						type: "is-warning is-size-6 p-3",
+// 						duration: 4000,
+// 						position: "top-center",
+// 						closeOnClick: true,
+// 					});
+// 				} catch (err) {
+// 					console.error('Fallback: Oops, unable to copy', err);
+// 				}
+// 				document.body.removeChild(textArea);
+// 			}
+
+// 		}
+
+// 	} catch (error) {
+// 		console.error('Error executing linkImpairment configuration:', error);
+// 	}
+// }
 
 async function showPanelLogMessages(event) {
 	document.getElementById("panel-log-messages").style.display = "block";
@@ -3069,105 +3241,136 @@ function sleep(ms) {
 	return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-///
 // Helper function to render only sub-interface items dynamically
-function renderSubInterfaces(subInterfaces, referenceElementAfterId, referenceElementBeforeId) {
-	// Constants for container, reference elements, and click handler
-	const containerSelectorId = 'panel-link-action-dropdown-menu-dropdown-content'; // The container where dropdown items are rendered
-	// const referenceElementAfterId = 'endpoint-a-edgeshark'; // ID of the starting reference element
-	// const referenceElementBeforeId = 'endpoint-a-clipboard'; // ID of the ending reference element
-	const onClickHandler = (event, subInterface) => {
-		console.log(`Clicked on: ${subInterface}`);
-		// Add your custom logic here
-	};
+async function renderSubInterfaces(subInterfaces, referenceElementAfterId, referenceElementBeforeId) {
+    // Constants for container, reference elements, and click handler
+    const containerSelectorId = 'panel-link-action-dropdown-menu-dropdown-content'; // The container where dropdown items are rendered
+    const onClickHandler = (event, subInterface) => {
+        console.log(`Clicked on: ${subInterface}`);
+        // Add your custom logic here
+		linkWireshark(event, "edgeSharkSubInterface", subInterface, referenceElementAfterId)
 
-	// Find the container where the dropdown items are rendered
-	const containerElement = document.getElementById(containerSelectorId);
-	if (!containerElement) {
-		console.error("Container element not found.");
-		return;
-	}
+    };
 
-	// Find the reference elements
-	const referenceElementAfter = document.getElementById(referenceElementAfterId);
-	const referenceElementBefore = document.getElementById(referenceElementBeforeId);
-	if (!referenceElementAfter || !referenceElementBefore) {
-		console.error("Reference elements not found.");
-		return;
-	}
+    // Find the container where the dropdown items are rendered
+    const containerElement = document.getElementById(containerSelectorId);
+    if (!containerElement) {
+        console.error("Container element not found.");
+        return;
+    }
 
-	// Remove all <a> nodes between referenceElementAfter and referenceElementBefore
-	let currentNode = referenceElementAfter.nextSibling;
-	while (currentNode && currentNode !== referenceElementBefore) {
-		const nextNode = currentNode.nextSibling; // Store next node before removal
-		if (currentNode.nodeName === 'A') {
-			currentNode.remove();
-		}
-		currentNode = nextNode; // Move to the next node
-	}
+    // Find the reference elements
+    const referenceElementAfter = document.getElementById(referenceElementAfterId);
+    const referenceElementBefore = document.getElementById(referenceElementBeforeId);
+    if (!referenceElementAfter || !referenceElementBefore) {
+        console.error("Reference elements not found.");
+        return;
+    }
 
-	// Dynamically generate and insert sub-interface items
-	subInterfaces.forEach(subInterface => {
-		const a = document.createElement("a");
-		a.className = "dropdown-item label has-text-weight-normal is-small py-0";
-		a.style.display = "flex";
-		a.style.justifyContent = "flex-end";
-		a.textContent = subInterface;
-		a.onclick = (event) => onClickHandler(event, subInterface);
+    // Remove all <a> nodes between referenceElementAfter and referenceElementBefore
+    let currentNode = referenceElementAfter.nextSibling;
+    while (currentNode && currentNode !== referenceElementBefore) {
+        const nextNode = currentNode.nextSibling; // Store next node before removal
+        if (currentNode.nodeName === 'A') {
+            currentNode.remove();
+        }
+        currentNode = nextNode; // Move to the next node
+    }
 
-		// Insert after the reference element
-		insertAfter(a, referenceElementAfter);
-	});
+    // If subInterfaces is empty, just return after clearing nodes
+    if (!subInterfaces || subInterfaces.length === 0) {
+        console.log("No sub-interfaces to render. Cleared existing items.");
+        return;
+    }
+
+    // Dynamically generate and insert sub-interface items
+    subInterfaces.forEach(subInterface => {
+        const a = document.createElement("a");
+        a.className = "dropdown-item label has-text-weight-normal is-small py-0";
+        a.style.display = "flex";
+        a.style.justifyContent = "flex-end";
+        a.textContent = `└ Sub-Interface ${subInterface}`;
+        a.onclick = (event) => onClickHandler(event, subInterface);
+
+        // Insert after the reference element
+        insertAfter(a, referenceElementAfter);
+    });
 }
+
 
 // Helper function to insert an element after a reference element
 function insertAfter(newNode, referenceNode) {
 	referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
 }
 
-function addWiresharkIcon() {
-	// Find the target node
-	const targetNode = document.getElementById("endpoint-a-edgeshark");
-	if (!targetNode) {
-		console.error("Target node not found.");
-		return;
-	}
+function addSvgIcon(targetHtmlId, svgIcon, altName, position, size) {
+    // Find the target node
+    const targetNode = document.getElementById(targetHtmlId);
+    if (!targetNode) {
+        console.error(`Target node with ID "${targetHtmlId}" not found.`);
+        return;
+    }
 
-	// Ensure the target node uses flexbox for alignment
-	targetNode.style.display = "flex";
-	targetNode.style.alignItems = "center";
+    // Ensure the target node uses flexbox for alignment
+    targetNode.style.display = "flex";
+    targetNode.style.alignItems = "center";
 
-	// Create the <img> element for the SVG icon
-	const imgIcon = document.createElement("img");
-	imgIcon.src = "https://raw.githubusercontent.com/siemens/edgeshark/refs/heads/main/icons/_media/icons/Capture.svg";
-	imgIcon.alt = "Wireshark Icon"; // Accessible description
-	imgIcon.style.width = "20px";
-	imgIcon.style.height = "20px";
-	imgIcon.style.marginLeft = "4px"; // Add spacing between the label and the icon
+    // Create the <img> element for the SVG icon
+    const imgIcon = document.createElement("img");
+    imgIcon.src = svgIcon;
+    imgIcon.alt = altName; // Accessible description
+    imgIcon.style.width = size;
+    imgIcon.style.height = size;
+    imgIcon.style.marginLeft = position === "after" ? "4px" : "0"; // Add spacing between the label and the icon if "after"
+    imgIcon.style.marginRight = position === "before" ? "4px" : "0"; // Add spacing if "before"
 
-	// Add CSS class for gradient animation
-	imgIcon.classList.add("gradient-animation");
+    // Add CSS class for gradient animation
+    imgIcon.classList.add("gradient-animation");
 
-	// Append the image after the label
-	targetNode.append(imgIcon);
+    // Insert the image based on the position
+    if (position === "after") {
+        // Append the image after the label
+        targetNode.append(imgIcon);
+    } else if (position === "before") {
+        // Insert the image before the label
+        targetNode.prepend(imgIcon);
+    } else {
+        console.error(
+            `Invalid position "${position}" specified. Use "after" or "before".`
+        );
+        return;
+    }
 
-	// Add dynamic style for gradient animation
-	const style = document.createElement("style");
-	style.textContent = `
+    // Add dynamic style for gradient animation
+    const style = document.createElement("style");
+    style.textContent = `
         @keyframes gradientColorChange {
-            0% { filter: invert(100%) hue-rotate(0deg); } /* White */
-            50% { filter: invert(50%) hue-rotate(220deg); } /* Grey */
-            100% { filter: invert(100%) hue-rotate(0deg); } /* Back to White */
+            0% { filter: invert(100%); } /* White */
+            20% { filter: invert(85%); } /* Light Grey */
+            40% { filter: invert(60%); } /* Dark Grey */
+            60% { filter: invert(40%); } /* Very Dark Grey */
+            80% { filter: invert(60%); } /* Back to Dark Grey */
+            100% { filter: invert(100%); } /* Back to White */
         }
         .gradient-animation {
-            animation: gradientColorChange 3s infinite;
+            animation: gradientColorChange 3600s infinite;
         }
     `;
-	document.head.appendChild(style);
+    document.head.appendChild(style);
 }
 
-// Call the function to add the icon
-addWiresharkIcon();
+
+addSvgIcon("endpoint-a-edgeshark", "images/svg-wireshark.svg", "Wireshark Icon", "before", "20px");
+addSvgIcon("endpoint-b-edgeshark", "images/svg-wireshark.svg", "Wireshark Icon", "before", "20px");
+
+
+addSvgIcon("endpoint-a-clipboard", "images/svg-copy.svg", "Clipboard Icon", "before", "20px");
+addSvgIcon("endpoint-b-clipboard", "images/svg-copy.svg", "Clipboard Icon", "before", "20px");
+
+
+addSvgIcon("panel-link-action-impairment-B->A", "images/svg-impairment.svg", "Impairment Icon", "before", "15px");
+
+
 
 
 // function addWiresharkIcon() {
