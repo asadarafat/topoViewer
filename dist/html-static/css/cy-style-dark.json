@@ -23,7 +23,7 @@
       "color": "#F5F5F5",
       "text-outline-color": "#3C3E41",
       "text-outline-width": "0.3px",
-      "text-background-color": "#FFFF",  
+      "text-background-color": "#000000",  
       "text-background-opacity": 0.7,      
       "text-background-shape": "roundrectangle",  
       "text-background-padding": "1px",   
@@ -97,6 +97,15 @@
       "background-color": "#FD1C03",
       "border-width": "0.5",
       "border-color": "#AD0000"
+    }
+  },
+  {
+    "selector": "node[topoViewerRole=\"router\"]",
+    "style": {
+      "width": "14",
+      "height": "14",
+      "background-image": "images/clab-pe-light-blue.png",
+      "background-fit": "cover"
     }
   },
   {
@@ -197,11 +206,22 @@
     "style": {
       "width": "8",
       "height": "8",
-      "background-image": "images/clab-bridge-light-blue.png",
+      "background-image": "images/clab-bridge-light-grey.png",
       "background-fit": "cover"
     }
   },
   
+  {
+    "selector": "node[topoViewerRole=\"router\"][editor=\"true\"]",
+    "style": {
+      "width": "14",
+      "height": "14",
+      "background-image": "images/clab-pe-dark-blue.png",
+      "background-fit": "cover",
+      "border-width": "0.5px",
+      "border-color": "#32CD32" 
+    }
+  },
   {
     "selector": "node[topoViewerRole=\"pe\"][editor=\"true\"]",
     "style": {
@@ -313,7 +333,7 @@
     "style": {
       "width": "8",
       "height": "8",
-      "background-image": "images/clab-bridge-light-blue.png",
+      "background-image": "images/clab-bridge-light-grey.png",
       "background-fit": "cover",
       "border-width": "0.5px",
       "border-color": "#32CD32" 
@@ -330,7 +350,8 @@
       "source-label": "data(sourceEndpoint)",
       "target-label": "data(targetEndpoint)",
       "arrow-scale": "0.5",
-      "color": "#FFFF",
+      "source-text-color": "#000000",
+      "target-text-color": "#000000",
       "text-outline-width": "0.3px",
       "text-outline-color": "#FFFFFF",
       "text-background-color": "#CACBCC",  
@@ -338,12 +359,16 @@
       "text-background-shape": "roundrectangle",  
       "text-background-padding": "1px",    
       "curve-style": "bezier",
+      "control-point-step-size": 20,
       "opacity": "1",
       "line-color": "#969799",
       "width": "1.5",
+      "label": " ",
+
       "overlay-padding": "2px"
     }
   },
+
   {
     "selector": ".edgeEndpointLabel",
     "style": {
@@ -364,6 +389,7 @@
       "text-outline-color": "#282828"
     }
   },
+
   {"selector": "edge.filtered", "style": {"opacity": "0"}},
 
   {"selector": ".spf", "style": 

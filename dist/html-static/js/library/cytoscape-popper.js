@@ -1,13 +1,13 @@
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
-		module.exports = factory(require("popper.js"));
+		module.exports = factory();
 	else if(typeof define === 'function' && define.amd)
-		define(["popper.js"], factory);
+		define([], factory);
 	else if(typeof exports === 'object')
-		exports["cytoscapePopper"] = factory(require("popper.js"));
+		exports["cytoscapePopper"] = factory();
 	else
-		root["cytoscapePopper"] = factory(root["Popper"]);
-})(this, function(__WEBPACK_EXTERNAL_MODULE_8__) {
+		root["cytoscapePopper"] = factory();
+})(this, function() {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -83,52 +83,19 @@ return /******/ (function(modules) { // webpackBootstrap
 "use strict";
 
 
-// Simple, internal Object.assign() polyfill for options objects etc.
-
-module.exports = Object.assign != null ? Object.assign.bind(Object) : function (tgt) {
-  for (var _len = arguments.length, srcs = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-    srcs[_key - 1] = arguments[_key];
-  }
-
-  srcs.forEach(function (src) {
-    Object.keys(src).forEach(function (k) {
-      return tgt[k] = src[k];
-    });
-  });
-
-  return tgt;
-};
-
-/***/ }),
-/* 1 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
 var _require = __webpack_require__(5),
     getBoundingBox = _require.getBoundingBox;
 
-// Create a popper reference object
-// https://popper.js.org/popper-documentation.html#referenceObject
+// Create a popper virtual element (aka popper v1 reference object)
+// https://popper.js.org/docs/v2/virtual-elements/
 
 
 function getRef(target, opts) {
-  var renderedDimensions = opts.renderedDimensions;
 
   //Define popper reference object and cy reference  object
-
   var refObject = {
     getBoundingClientRect: function getBoundingClientRect() {
       return getBoundingBox(target, opts);
-    },
-
-    get clientWidth() {
-      return renderedDimensions(target).w;
-    },
-
-    get clientHeight() {
-      return renderedDimensions(target).h;
     }
   };
 
@@ -138,36 +105,51 @@ function getRef(target, opts) {
 module.exports = { getRef: getRef };
 
 /***/ }),
+/* 1 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+// Simple, internal Object.assign() polyfill for options objects etc.
+
+module.exports = Object.assign != null ? Object.assign.bind(Object) : function (tgt) {
+  for (var _len = arguments.length, srcs = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+    srcs[_key - 1] = arguments[_key];
+  }
+
+  srcs.forEach(function (src) {
+    if (src !== null && src !== undefined) {
+      Object.keys(src).forEach(function (k) {
+        return tgt[k] = src[k];
+      });
+    }
+  });
+
+  return tgt;
+};
+
+/***/ }),
 /* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var assign = __webpack_require__(0);
-
-var _require = __webpack_require__(1),
+var _require = __webpack_require__(0),
     getRef = _require.getRef;
 
 var _require2 = __webpack_require__(6),
     getContent = _require2.getContent;
 
-var popperDefaults = {};
-
-//Fix Popper.js webpack import conflict (Use .default if using webpack)
-var Popper = __webpack_require__(8);
-var EsmWebpackPopper = Popper.default;
-if (EsmWebpackPopper != null && EsmWebpackPopper.Defaults != null) {
-  Popper = Popper.default;
-}
-
 // Create a new popper object for a core or element target
+
+
 function getPopper(target, opts) {
   var refObject = getRef(target, opts);
   var content = getContent(target, opts.content);
-  var popperOpts = assign({}, popperDefaults, opts.popper);
 
-  return new Popper(refObject, content, popperOpts);
+  return target.popperFactory(refObject, content, opts.popper);
 }
 
 module.exports = { getPopper: getPopper };
@@ -179,12 +161,12 @@ module.exports = { getPopper: getPopper };
 "use strict";
 
 
-var assign = __webpack_require__(0);
+var assign = __webpack_require__(1);
 
 var _require = __webpack_require__(2),
     getPopper = _require.getPopper;
 
-var _require2 = __webpack_require__(1),
+var _require2 = __webpack_require__(0),
     getRef = _require2.getRef;
 
 function popper(opts) {
@@ -201,7 +183,7 @@ function popperRef(opts) {
 
 function createOptionsObject(target, opts) {
   var renderedDimensions = function renderedDimensions(el) {
-    return { w: el.renderedWidth(), h: el.renderedHeight() };
+    return el.isNode() ? { w: el.renderedWidth(), h: el.renderedHeight() } : { w: 3, h: 3 };
   };
   var renderedPosition = function renderedPosition(el) {
     return el.isNode() ? getRenderedCenter(el, renderedDimensions) : getRenderedMidpoint(el);
@@ -261,12 +243,12 @@ module.exports = { popper: popper, popperRef: popperRef };
 "use strict";
 
 
-var assign = __webpack_require__(0);
+var assign = __webpack_require__(1);
 
 var _require = __webpack_require__(2),
     getPopper = _require.getPopper;
 
-var _require2 = __webpack_require__(1),
+var _require2 = __webpack_require__(0),
     getRef = _require2.getRef;
 
 function popper(opts) {
@@ -291,7 +273,7 @@ function createOptionsObject(target, opts) {
     renderedDimensions: function renderedDimensions() {
       return { w: 3, h: 3 };
     },
-    redneredPosition: function redneredPosition() {
+    renderedPosition: function renderedPosition() {
       return { x: 0, y: 0 };
     },
     popper: {},
@@ -368,36 +350,31 @@ module.exports = { getContent: getContent };
 "use strict";
 
 
-/* global cytoscape */
-
 var coreImpl = __webpack_require__(4);
 var collectionImpl = __webpack_require__(3);
 
 // registers the extension on a cytoscape lib ref
-var register = function register(cytoscape) {
-  if (!cytoscape) {
-    return;
-  } // can't register if cytoscape unspecified
+var registerFactory = function registerFactory(popperFactory) {
+  if (typeof popperFactory !== "function") {
+    throw new Error('Provide \'popperFactory\' before registering the module');
+  }
 
-  // register with cytoscape.js
-  cytoscape('core', 'popper', coreImpl.popper); //Cytoscape Core
-  cytoscape('collection', 'popper', collectionImpl.popper); //Cytoscape Collections
-  cytoscape('core', 'popperRef', coreImpl.popperRef); //Cytoscape Core for References
-  cytoscape('collection', 'popperRef', collectionImpl.popperRef); //Cytoscape Collections for References
+  return function register(cytoscape) {
+    if (!cytoscape) {
+      return;
+    } // can't register if cytoscape unspecified
+
+    // register with cytoscape.js
+    cytoscape('core', 'popperFactory', popperFactory); // Cytoscape Core factory
+    cytoscape('collection', 'popperFactory', popperFactory); //Cytoscape Collections factory
+    cytoscape('core', 'popper', coreImpl.popper); //Cytoscape Core
+    cytoscape('collection', 'popper', collectionImpl.popper); //Cytoscape Collections
+    cytoscape('core', 'popperRef', coreImpl.popperRef); //Cytoscape Core for References
+    cytoscape('collection', 'popperRef', collectionImpl.popperRef); //Cytoscape Collections for References
+  };
 };
 
-if (typeof cytoscape !== 'undefined') {
-  // expose to global cytoscape (i.e. window.cytoscape)
-  register(cytoscape);
-}
-
-module.exports = register;
-
-/***/ }),
-/* 8 */
-/***/ (function(module, exports) {
-
-module.exports = __WEBPACK_EXTERNAL_MODULE_8__;
+module.exports = registerFactory;
 
 /***/ })
 /******/ ]);

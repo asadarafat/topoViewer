@@ -5,18 +5,18 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>TopoViewer</title>
 		<link rel="stylesheet" href="js/library/bulma-1-0-0.min.css?ver=1">
-		<!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css"> -->
+		
 
 		<link href="css/style.css?ver=1" rel="stylesheet"/>
 
 		<script src="js/library/fontawesome-6-4-2.js?ver=1"></script>
-		<!-- <script defer src="https://use.fontawesome.com/releases/v6.4.2/js/all.js"></script> -->
+		
 
 		<script src="js/library/bulma-slider.min.js?ver=1"></script>
-		<!-- <script src="https://cdn.jsdelivr.net/npm/bulma-extensions@4.0.1/bulma-slider/dist/js/bulma-slider.min.js"></script> -->
+		
 
 		<script src="js/library/bulma-toast.min.js?ver=1"></script>
-		<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/bulma-toast/2.4.0/bulma-toast.min.js"></script> -->
+		
 	</head>
 	<body>
 		<nav class="level m-0 px-3 py-1 has-background-4a">
@@ -129,6 +129,7 @@
 								<select id="select-layout-algo" onchange="layoutAlgoChange(event)">
 									<option>Select Layout Algorithm</option>
 									<option>Force Directed</option>
+									<option>Force Directed Radial</option>
 									<option>Vertical</option>
 									<option>Horizontal</option>
 								</select>
@@ -144,7 +145,7 @@
 									<label class="label is-size-7 has-text-right px-auto" >Link Lenght</label>
 								</div>
 								<div  class="column pb-1 is-5">
-									<input id="force-directed-slider-link-lenght" class="slider" step="1" min="1" max="10" type="range"  style="width: 130px;">								
+									<input id="force-directed-slider-link-lenght" class="slider" step="1" min="1" max="1000" type="range"  style="width: 130px;">								
 								</div>
 							</div>
 							<div class="columns" >
@@ -152,7 +153,7 @@
 									<label class="label is-size-7 has-text-right px-auto" >Node Gap</label>
 								</div>
 								<div  class="column is-5">
-									<input id="force-directed-slider-node-gap" class="slider" step="1" min="1" max="100" type="range"  style="width: 130px;">								
+									<input id="force-directed-slider-node-gap" class="slider" step="1" min="1" max="10" type="range"  style="width: 130px;">								
 								</div>
 							</div>
 						</div>
@@ -164,6 +165,31 @@
 							<div class="buttons">
 								<button class="button is-link is-outlined is-small">Reset</button>
 								<button href="#" onclick="viewportDrawerLayoutForceDirected(event)" class="button is-link is-outlined is-small">Start</button>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="panel-block layout-algo p-0" id="viewport-drawer-force-directed-radial" style="display: none;" >
+					<div  class="column my-auto is-11">
+						<div  class="panel-content">
+	
+							<div class="columns py-auto" >
+								<div  class="column is-5">
+									<label class="label is-size-7 has-text-right px-auto" >Link<br>Lenght</label>
+								</div>
+								<div  class="column pb-1 is-5">
+									<input id="force-directed-radial-slider-link-lenght" class="slider" step="1" min="1" max="500" type="range"  style="width: 130px;">								
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="panel-block layout-algo p-0 pb-2" id="viewport-drawer-force-directed-radial-reset-start" style="display: none;">
+					<div  class="column p-0 is-flex-direction-column">
+						<div  class="column is-12 is-flex is-justify-content-flex-end">
+							<div class="buttons">
+								<button class="button is-link is-outlined is-small">Reset</button>
+								<button href="#" onclick="viewportDrawerLayoutForceDirectedRadial(event)" class="button is-link is-outlined is-small">Start</button>
 							</div>
 						</div>
 					</div>
@@ -358,15 +384,23 @@
 				<div id="viewport-drawer-clab-editor-content-02" class="panel-block layout-algo p-0" style="display: none;">
 					<div  class="column pb-0 is-12">
 						<div class="content p-0 mb-2 is-small">
-							<p>
-								<strong>Hint:</strong><br>
-								(Shift + Click) on the viewport to add a node, or on the source-node and then click the target-node to create a link.
-							</p>
-							<p>
-								(Alt + Click) on a node to delete the node and its reference edges.
-							</p>
-							
-							
+							<div class="px-0 py-0" style="max-height: 125px; overflow-y: auto;">
+								<div class="content is-small pb-2">
+									<p>
+										<strong>Hint:</strong><br>
+										(Shift + Click) on the viewport to add a node, or on the source-node and then click the target-node to create a link.
+									</p>
+									<p>
+										(Alt + Click) on a node to delete the node and its reference edges, or on a link to delete the link.
+									</p>
+									<p>
+										Drag an orphan node onto a group node to include it as part of the group.
+									</p>
+									<p>
+										Control + Click on a child node within a group to make it an orphan node.
+									</p>
+								</div>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -650,17 +684,21 @@
 													</span>
 													</button>
 												</div>
+												
 												<div class="dropdown-menu" id="panel-link-action-dropdown-menu" role="menu">
-													<div class="dropdown-content">
-														<a onclick="linkImpairmentClab(event, 'a-to-b');" class="dropdown-item label has-text-weight-normal is-small py-0" id="panel-link-action-impairment-A->B">Apply Impairment</a>						
+													<div class="dropdown-content" id="panel-link-action-dropdown-menu-dropdown-content">
+														<a onclick="linkImpairmentClab(event, 'bidirectional');" class="dropdown-item label has-text-weight-normal is-small py-0" id="panel-link-action-impairment-B->A">Apply Impairment</a>						
 														<hr class="dropdown-divider" />
-														<a onclick="linkWireshark(event, 'edgeShark', 'source');" class="dropdown-item label has-text-weight-normal is-small py-0">Wireshark A - Launch EdgeShark</a>
-														<a onclick="linkWireshark(event, 'copy', 'source');" class="dropdown-item label has-text-weight-normal is-small py-0">Wireshark A - Copy to Clipboard</a>
+														<a onclick="linkWireshark(event, 'edgeSharkInterface', 'source', null);" class="dropdown-item label has-text-weight-normal is-small py-0" id="endpoint-a-edgeshark">Caputre E.Point-A</a>
+														<a onclick="linkWireshark(event, 'copy', 'source');" class="dropdown-item label has-text-weight-normal is-small py-0" id="endpoint-a-clipboard">Capture E.Point-A Clipboard</a>
+														<a class="dropdown-item label has-text-weight-normal is-small py-0" id="endpoint-a-bottom"></a>
 														<hr class="dropdown-divider" />
-														<a onclick="linkWireshark(event, 'edgeShark', 'target');" class="dropdown-item label has-text-weight-normal is-small py-0">Wireshark B - Launch EdgeShark</a>
-														<a onclick="linkWireshark(event, 'copy', 'target');" class="dropdown-item label has-text-weight-normal is-small py-0">Wireshark B - Copy to Clipboard</a>
+														<a onclick="linkWireshark(event, 'edgeSharkInterface', 'target');" class="dropdown-item label has-text-weight-normal is-small py-0"id="endpoint-b-edgeshark">Caputre E.Point-B</a>
+														<a onclick="linkWireshark(event, 'copy', 'target');" class="dropdown-item label has-text-weight-normal is-small py-0" id="endpoint-b-clipboard">Capture E.Point-B Clipboard</a>
+														<a class="dropdown-item label has-text-weight-normal is-small py-0" id="endpoint-b-bottom"></a>
 													</div>
 												</div>
+												
 											</div>
 										</div>
 									</div>
@@ -750,6 +788,14 @@
 									</div>
 								</div>
 							</div>
+							<div  class="column my-auto is-11">
+								<div  class="panel-content">
+									<div class="columns py-auto" >
+										<div  class="column is-4 p-1"><label class="label is-size-7 has-text-right has-text-weight-medium px-auto" >Corruption (%)</label></div>
+										<div class="column is-8 p-1 pl-3" ><input class="input is-size-7 has-text-left link-impairment-widht has-text-weight-normal mr-0 is-max-content" type="text" id="panel-link-endpoint-a-corruption" value="link-corruption-placeholder"/></div>
+									</div>
+								</div>
+							</div>
 						</div>
 					</panel-block-impairment-a-b>
 					<panel-block-impairment-b-a  class="panel-block p-0" id="panel-block-impairment-b-a">
@@ -791,6 +837,14 @@
 									<div class="columns py-auto" >
 										<div  class="column is-4 p-1"><label class="label is-size-7 has-text-right has-text-weight-medium px-auto" >Loss (%)</label></div>
 										<div class="column is-8 p-1 pl-3" ><input class="input is-size-7 has-text-left link-impairment-widht has-text-weight-normal mr-0 is-max-content" type="text" id="panel-link-endpoint-b-loss" value="link-loss-placeholder"/></div>
+									</div>
+								</div>
+							</div>
+							<div  class="column my-auto is-11">
+								<div  class="panel-content">
+									<div class="columns py-auto" >
+										<div  class="column is-4 p-1"><label class="label is-size-7 has-text-right has-text-weight-medium px-auto" >Corruption (%)</label></div>
+										<div class="column is-8 p-1 pl-3" ><input class="input is-size-7 has-text-left link-impairment-widht has-text-weight-normal mr-0 is-max-content" type="text" id="panel-link-endpoint-b-corruption" value="link-corruption-placeholder"/></div>
 									</div>
 								</div>
 							</div>
@@ -888,8 +942,8 @@
 										<li>Click on nodes and links to explore your network.</li>
 										<li>Use the settings menu to show/hide link endpoint labels.</li>
 										<li>Analyze network traffic using Wireshark integration.</li>
-										<li>For advanced network analysis, download our client package.</li>
-										<li>Visit our GitHub repository for more details <a href="https/github.com/asadarafat/topoViewer">https/github.com/asadarafat/topoViewer</a>.</li>
+										<li>For advanced Wireshark integration, download EdgeShark client package.</li>
+										<li>Visit GitHub repository for more details <a href="https/github.com/asadarafat/topoViewer">https/github.com/asadarafat/topoViewer</a>.</li>
 									</ul>
 									<p>
 										I hope you find TopoViewer a valuable tool for your network management needs. If you have any questions or feedback, please don't hesitate to reach out to me.
@@ -939,33 +993,84 @@
 				</div>
 			</div>
 
+			
+			<div class="modal" id="wiresharkModal">
+				<div class="modal-background"></div>
+				<div class="modal-content">
+					<div class="box">
+						<h2 class="title is-4">Launch Wireshark</h2>
+						<div class="field">
+							<label class="label" for="subInterfaceId">Sub Interface ID:</label>
+							<div class="control">
+								<input class="input" type="text" id="subInterfaceId" placeholder="Enter Sub Interface ID">
+							</div>
+						</div>
+						<div class="field">
+							<label class="label" for="containerName">Container Name:</label>
+							<div class="control">
+								<div class="select">
+									<select id="containerName"></select>
+								</div>
+							</div>
+						</div>
+						<div class="field">
+							<label class="label" for="networkInterface">Network Interface:</label>
+							<div class="control">
+								<div class="select">
+									<select id="networkInterface"></select>
+								</div>
+							</div>
+						</div>
+						<div class="field">
+							<label class="label">URL Preview:</label>
+							<div id="urlPreview" class="content has-background-light p-2"></div>
+						</div>
+						<div class="buttons">
+							<button class="button is-success" id="launchButton">Launch</button>
+							<button class="button is-danger" id="customCloseModal">Cancel</button>
+						</div>
+					</div>
+				</div>
+			</div>
+
 			<script src="js/library/lodash.min.js?ver=1"></script>
+
 			<script src="js/library/cola.min.js?ver=1"></script>
 			<script src="js/library/popper.js?ver=1"></script>
 			<script src="js/library/tippy.all.js?ver=1"></script>
 			<script src="js/library/cytoscape.min.js?ver=1"></script>
+			<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 			<script src="js/library/cytoscape-cola.js?ver=1"></script>
 			<script src="js/library/cytoscape-popper.js?ver=1"></script>
 			<script src="js/library/cytoscape-grid-guide.min.js?ver=1"></script>
 			<script src="js/library/cytoscape-edgehandles.min.js?ver=1"></script>
+			
+			<script src="https://cdn.jsdelivr.net/npm/cytoscape-expand-collapse@4.1.1/cytoscape-expand-collapse.min.js"></script>
+
+			
+			<script src="https://unpkg.com/@floating-ui/core@1.5.0"></script>
+			<script src="https://unpkg.com/@floating-ui/dom@1.5.3"></script>
+			<script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape-popper/4.0.1/cytoscape-popper.js"></script>
+			
 			<script src="js/library/js-yaml.min.js?ver=1"></script>
 			<script src="js/library/monaco-loader.js?ver=1"></script>
 
 
 
 
-			<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.10.0/lodash.min.js"></script> -->
-			<!-- <script src="https://unpkg.com/webcola@3.3.8/WebCola/cola.min.js"></script> -->
-			<!-- <script src="https://unpkg.com/popper.js@1.14.4/dist/umd/popper.js"></script> -->
-			<!-- <script src="https://unpkg.com/tippy.js@2.6.0/dist/tippy.all.js"></script> -->
-			<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.19.0/cytoscape.min.js"></script> -->
-			<!-- <script src="https://unpkg.com/cytoscape-cola@2.2.3/cytoscape-cola.js"></script> -->
-			<!-- <script src="https://unpkg.com/cytoscape-popper@1.0.2/cytoscape-popper.js"></script> -->
-			<!-- <script src="https://cdn.jsdelivr.net/npm/cytoscape-grid-guide@2.3.3/cytoscape-grid-guide.min.js"></script> -->
-			<!-- <script src="https://cdn.jsdelivr.net/npm/cytoscape-edgehandles/cytoscape-edgehandles.min.js"></script> -->
-			<!-- <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script> -->
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
 			<script src="js/dev.js?ver=1"></script>
-			<!-- <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.50.0/min/vs/loader.js"></script> -->
+			
 			<script src="/js/backupRestore.js?ver=1"></script>
 			<script src="/js/clabEditor.js?ver=1"></script>
 			<script src="/js/common.js?ver=1"></script>

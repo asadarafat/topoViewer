@@ -1,5 +1,3 @@
-
-
 var files = [];
 var filteredFiles = [];
 var OriginalModelFileName;
@@ -27,30 +25,32 @@ const supportedRouterKindsDefaultCredential = [
 
 // Function to check if a router kind is supported
 function isRouterKindSupported(routerKind) {
-    return supportedRouterKindsDefaultCredential.some(function(entry) {
-        const kind = entry[0]; // Extract the router kind from the entry
-        return kind === routerKind;
-    });
+	return supportedRouterKindsDefaultCredential.some(function(entry) {
+		const kind = entry[0]; // Extract the router kind from the entry
+		return kind === routerKind;
+	});
 }
 
 function getCredentialsForRouterKind(routerKind) {
-    // Find the entry for the given router kind
-    const credentialEntry = supportedRouterKindsDefaultCredential.find(function(entry) {
-        const kind = entry[0];
-        return kind === routerKind;
-    });
+	// Find the entry for the given router kind
+	const credentialEntry = supportedRouterKindsDefaultCredential.find(function(entry) {
+		const kind = entry[0];
+		return kind === routerKind;
+	});
 
-    // Check if the credential entry was found
-    if (credentialEntry) {
-        const [, user, password] = credentialEntry; // Destructure to get user and password
-        return { user, password };
-    }
+	// Check if the credential entry was found
+	if (credentialEntry) {
+		const [, user, password] = credentialEntry; // Destructure to get user and password
+		return {
+			user,
+			password
+		};
+	}
 
-    return null; // Return null if not found
+	return null; // Return null if not found
 }
 
 async function backupRestoreNodeConfig(event) {
-	
 	// init environments variables
 	environments = await getEnvironments(event);
 	console.log("linkImpairment - environments: ", environments)
@@ -64,17 +64,16 @@ async function backupRestoreNodeConfig(event) {
 	routerUsername = credentials.user
 	routerPassword = credentials.password
 
-    // console.log("backupRestoreNodeConfig - credentials: ", routerUsername + ":" + routerPassword)
+	// console.log("backupRestoreNodeConfig - credentials: ", routerUsername + ":" + routerPassword)
 	// console.log("backupRestoreNodeConfig - routerName: ", routerName)
-    console.log("backupRestoreNodeConfig - routerID: ", routerID)
+	console.log("backupRestoreNodeConfig - routerID: ", routerID)
 
 	// if (supportedRouterKinds.includes(routerKind)) {
-	if (isRouterKindSupported(routerKind)) { 
-
+	if (isRouterKindSupported(routerKind)) {
 
 		// init the backupRestore monaco editor
 		initializeMonacoEditor()
-		
+
 		// init the running config to be loaded
 		handleLoadRunningConfig(event)
 
@@ -87,7 +86,6 @@ async function backupRestoreNodeConfig(event) {
 		}
 
 		try {
-
 			document.getElementById("panel-backup-restore").style.display = "block";
 			document.getElementById("panel-backup-restore").style.height = "calc(85vh - 50px)";
 			document.getElementById("editor-container").style.height = "calc(80vh - 80px)";
@@ -110,29 +108,28 @@ async function backupRestoreNodeConfig(event) {
 			const searchInput = document.getElementById('search-input');
 			searchInput.addEventListener('input', (event) => {
 				const filter = event.target.value.toLowerCase();
-				console.log ("filter", filter)
+				console.log("filter", filter)
 				filterFileList(filter);
-			
-		});
 
-		// Add event listener to the buttonRestoreConfig
-		const buttonRestoreConfig = document.getElementById('buttonRestoreConfig');
-		buttonRestoreConfig.addEventListener('click', handleRestoreConfig);
+			});
 
-		// Add event listener to the buttonBackupConfig
-		const buttonBackupConfig = document.getElementById('buttonBackupConfig');
-		buttonBackupConfig.addEventListener('click', handleBackupConfig);
+			// Add event listener to the buttonRestoreConfig
+			const buttonRestoreConfig = document.getElementById('buttonRestoreConfig');
+			buttonRestoreConfig.addEventListener('click', handleRestoreConfig);
 
-		// Add event listener to the buttonLoadRunningConfig
-		const buttonLoadRunningConfig = document.getElementById('buttonLoadRunningConfig');
-		buttonLoadRunningConfig.addEventListener('click', handleLoadRunningConfig);
+			// Add event listener to the buttonBackupConfig
+			const buttonBackupConfig = document.getElementById('buttonBackupConfig');
+			buttonBackupConfig.addEventListener('click', handleBackupConfig);
+
+			// Add event listener to the buttonLoadRunningConfig
+			const buttonLoadRunningConfig = document.getElementById('buttonLoadRunningConfig');
+			buttonLoadRunningConfig.addEventListener('click', handleLoadRunningConfig);
 
 
 		} catch (error) {
 			console.error('Error executing restore configuration:', error);
 		}
 	} else {
-
 		appendMessage(
 			`Router Kind ${routerKind} is not supported for backup-restore`,
 		);
@@ -143,80 +140,74 @@ async function backupRestoreNodeConfig(event) {
 			position: "top-center",
 			closeOnClick: true,
 		});
-		
-    }  
-
-
-
+	}
 }
 
 // Function to initialize the Monaco Editor with default content
 function initializeMonacoEditor() {
-    // Create the original and modified models with default messages
-    const originalModel = monaco.editor.createModel(
-        'Please select the configuration file you wish to restore.. \nthen click "Restore Saved Config. \nThe selected config will be displayed here. \n\n\nMeanwhile please enjoy this  poem.\n \n Die Eule \n ----\n Abends gegen neune \n In der alten scheune \n Hört man ien Geheule \n So ruft die Schleireule \n Schlafen nachts die Leute \n Jagt sie ihre Beute \n Schuhu Schuhu \n Um mitternacht ist Ruh\n\n',
-        'text/plain'
-    );	
-    const modifiedModel = monaco.editor.createModel(
-        'Please click the "Backup Running Config" button to save the current configuration. \nThe results of the backup will be displayed here.',
-        'text/plain'
-    );
+	// Create the original and modified models with default messages
+	const originalModel = monaco.editor.createModel(
+		'Please select the configuration file you wish to restore.. \nthen click "Restore Saved Config. \nThe selected config will be displayed here. \n\n\nMeanwhile please enjoy this poem.\n \n Die Eule \n ----\n Abends gegen neune \n In der alten scheune \n Hört man ein Geheule \n So ruft die Schleireule \n Schlafen nachts die Leute \n Jagt sie ihre Beute \n Schuhu Schuhu \n Um mitternacht ist Ruh\n\n',
+		'text/plain'
+	);
+	const modifiedModel = monaco.editor.createModel(
+		'Please click the "Backup Running Config" button to save the current configuration. \nThe results of the backup will be displayed here.',
+		'text/plain'
+	);
 
-    // Set up the diff editor with the created models
-    diffEditor.setModel({
-        original: originalModel,
-        modified: modifiedModel
-    });
+	// Set up the diff editor with the created models
+	diffEditor.setModel({
+		original: originalModel,
+		modified: modifiedModel
+	});
 }
 
 // Monaco Editor setup
 require.config({
-    paths: {
-        'vs': 'https://cdn.jsdelivr.net/npm/monaco-editor@0.50.0/min/vs'
-    }
+	paths: {
+		'vs': 'https://cdn.jsdelivr.net/npm/monaco-editor@0.50.0/min/vs'
+	}
 });
 
 
 require(['vs/editor/editor.main'], function() {
-    const colorScheme = detectColorScheme();
-    let vsCodeTheme = "vs"; // Default theme
-    if (colorScheme === "dark") {
-        vsCodeTheme = "vs-dark";
-    } else if (colorScheme !== "light") {
-        console.log("unsupported colorScheme: ", colorScheme);
-    }
+	const colorScheme = detectColorScheme();
+	let vsCodeTheme = "vs"; // Default theme
+	if (colorScheme === "dark") {
+		vsCodeTheme = "vs-dark";
+	} else if (colorScheme !== "light") {
+		console.log("unsupported colorScheme: ", colorScheme);
+	}
 
-    // Initialize the Monaco Editor with configuration options
-    window.diffEditor = monaco.editor.createDiffEditor(document.getElementById('editor-container'), {
-        theme: vsCodeTheme,
-        originalEditable: false,
-        readOnly: true,
-        smoothScrolling: false,
-        fontFamily: "menlo",
-        fontSize: 11,
-        fontLigatures: true,
-        enableSplitViewResizing: true,
-        automaticLayout: true,
-        splitViewDefaultRatio: 0.52,
-        renderGutterMenu: false,
-    });
+	// Initialize the Monaco Editor with configuration options
+	window.diffEditor = monaco.editor.createDiffEditor(document.getElementById('editor-container'), {
+		theme: vsCodeTheme,
+		originalEditable: false,
+		readOnly: true,
+		smoothScrolling: false,
+		fontFamily: "menlo",
+		fontSize: 11,
+		fontLigatures: true,
+		enableSplitViewResizing: true,
+		automaticLayout: true,
+		splitViewDefaultRatio: 0.52,
+		renderGutterMenu: false,
+	});
 
-    // Call the initialization function to set default content
-    initializeMonacoEditor();
+	// Call the initialization function to set default content
+	initializeMonacoEditor();
 
-    // Ensure the editor layout adjusts when the window resizes
-    window.addEventListener('resize', () => {
-        diffEditor.layout();
-    });
+	// Ensure the editor layout adjusts when the window resizes
+	window.addEventListener('resize', () => {
+		diffEditor.layout();
+	});
 
-    // Adjust the layout after initialization
-    diffEditor.layout();
+	// Adjust the layout after initialization
+	diffEditor.layout();
 });
 
 // Function to handle loading running configuration
 async function handleLoadRunningConfig(event) {
-
-	
 	event.preventDefault(); // Prevent default form submission if inside a form
 	var configName = OriginalModelFileName;
 
@@ -229,21 +220,20 @@ async function handleLoadRunningConfig(event) {
 	const arg02 = routerName; // Replace with actual arguments as needed
 	const arg03 = 'get'; // Replace with actual arguments as needed
 
-
 	try {
 		actionName = "backupRestoreScript";
 
 		showLoadingSpinnerGlobal()
 		appendMessage(
-            "Loading Running Config",
-        );
-        bulmaToast.toast({
-            message: `Alright, we're Loading the Running Config. Stay chill, folks. 😎👨‍💻`,
-            type: "is-warning is-size-6 p-3",
-            duration: 4000,
-            position: "top-center",
-            closeOnClick: true,
-        });
+			"Loading Running Config",
+		);
+		bulmaToast.toast({
+			message: `Alright, we're Loading the Running Config. Stay chill, folks. 😎👨‍💻`,
+			type: "is-warning is-size-6 p-3",
+			duration: 4000,
+			position: "top-center",
+			closeOnClick: true,
+		});
 
 		console.log("handleLoadRunningConfig - showLoadingSpinner")
 		var postPayload = [];
@@ -265,66 +255,85 @@ async function handleLoadRunningConfig(event) {
 
 		loadFileList(routerName);
 		loadFileContentModified(`${routerName}-running.cfg`);
-
 		hideLoadingSpinnerGlobal()
+
+		
 
 	} catch (error) {
 		console.error('Error executing load running configuration:', error);
 	}
-
-	
 }
 
 // Function to handle restore configuration
-	async function handleRestoreConfig(event) {
-		event.preventDefault(); // Prevent default form submission if inside a form
-		var configName = OriginalModelFileName;
+async function handleRestoreConfig(event) {
+	event.preventDefault(); // Prevent default form submission if inside a form
+	var configName = OriginalModelFileName;
 
-		// Output the values to console
-		console.log('############################################################');
-		console.log('routerID:', routerID);
-		console.log('routerName:', routerName);
-		console.log("OriginalModelFileName: ", OriginalModelFileName);
-		console.log("configName: ", configName);
+	// Output the values to console
+	console.log('############################################################');
+	console.log('routerID:', routerID);
+	console.log('routerName:', routerName);
+	console.log("OriginalModelFileName: ", OriginalModelFileName);
+	console.log("configName: ", configName);
 
-		try {
-			actionName = "backupRestoreScript";
+	try {
+		actionName = "backupRestoreScript";
 
-			showLoadingSpinnerGlobal()
-			appendMessage(
-				"Restoring up the Config",
-			);
-			bulmaToast.toast({
-				message: `Alright, we're restoring the config. Stay chill, folks. 😎👨‍💻`,
-				type: "is-warning is-size-6 p-3",
-				duration: 4000,
-				position: "top-center",
-				closeOnClick: true,
-			});
-			var postPayload = [];
+		showLoadingSpinnerGlobal()
+		appendMessage(
+			"Restoring up the Config",
+		);
+		bulmaToast.toast({
+			message: `Alright, we're restoring the config. Stay chill, folks. 😎👨‍💻`,
+			type: "is-warning is-size-6 p-3",
+			duration: 4000,
+			position: "top-center",
+			closeOnClick: true,
+		});
+		var postPayload = [];
 
-			// Create an object with attributes and values
-			var payload = {
-				routerKind: routerKind,
-				routerID: routerID,
-				routerUsername: routerUsername,
-				routerPassword: routerPassword,
-				configNamePrefix: configName,
-				backupPath: `${workingDirectory}/html-public/${clabName}/node-backup/${routerName}`,
-				action: "restore"
-			};
+		// Create an object with attributes and values
+		var payload = {
+			routerKind: routerKind,
+			routerID: routerID,
+			routerUsername: routerUsername,
+			routerPassword: routerPassword,
+			configNamePrefix: configName,
+			backupPath: `${workingDirectory}/html-public/${clabName}/node-backup/${routerName}`,
+			action: "restore"
+		};
 
-			var postPayloadJSON = JSON.stringify(payload);
-			postPayload[0] = postPayloadJSON;
-			console.log("handleRestoreConfig - postPayload : ", postPayload);
-			await sendRequestToEndpointPost("/node-backup-restore", postPayload);
-			loadFileList(routerName);
-			hideLoadingSpinnerGlobal()
+		var postPayloadJSON = JSON.stringify(payload);
+		postPayload[0] = postPayloadJSON;
+		console.log("handleRestoreConfig - postPayload : ", postPayload);
+		await sendRequestToEndpointPost("/node-backup-restore", postPayload);
+		loadFileList(routerName);
 
-		} catch (error) {
-			console.error('Error executing restore configuration:', error);
-		}
+		// update running config
+		// Create an object with attributes and values
+		var payload = {
+			routerKind: routerKind,
+			routerID: routerID,
+			routerUsername: routerUsername,
+			routerPassword: routerPassword,
+			configNamePrefix: routerName,
+			backupPath: `${workingDirectory}/html-public/${clabName}/node-backup/${routerName}`,
+			action: "running"
+		};
+
+		var postPayloadJSON = JSON.stringify(payload);
+		postPayload[0] = postPayloadJSON;
+		await sendRequestToEndpointPost("/node-backup-restore", postPayload);
+
+		// loadFileList(routerName);
+		loadFileContentModified(`${routerName}-running.cfg`);
+
+		hideLoadingSpinnerGlobal()
+
+	} catch (error) {
+		console.error('Error executing restore configuration:', error);
 	}
+}
 
 // Function to handle backup configuration
 async function handleBackupConfig(event) {
@@ -341,20 +350,20 @@ async function handleBackupConfig(event) {
 	const arg02 = routerName; // Replace with actual arguments as needed
 	const arg03 = 'backup'; // Replace with actual arguments as needed
 
-	try {		
+	try {
 		actionName = "backupRestoreScript";
 
 		showLoadingSpinnerGlobal()
 		appendMessage(
-            "Backing up the Config",
-        );
-        bulmaToast.toast({
-            message: `Alright, we're making the config backup. Stay chill, folks. 😎👨‍💻`,
-            type: "is-warning is-size-6 p-3",
-            duration: 4000,
-            position: "top-center",
-            closeOnClick: true,
-        });
+			"Backing up the Config",
+		);
+		bulmaToast.toast({
+			message: `Alright, we're making the config backup. Stay chill, folks. 😎👨‍💻`,
+			type: "is-warning is-size-6 p-3",
+			duration: 4000,
+			position: "top-center",
+			closeOnClick: true,
+		});
 
 		var postPayload = [];
 
@@ -428,10 +437,8 @@ function renderFileList(fileList) {
 }
 
 function filterFileList(filter) {
-
 	console.log("filteredFiles() - filter: ", filter)
 	console.log("filteredFiles() - files: ", files)
-
 
 	filteredFiles = files.filter(file => file.toLowerCase().includes(filter));
 
@@ -460,8 +467,6 @@ function loadFileContentOriginal(fileName) {
 	fetch(`/file?RouterName=${encodeURIComponent(routerName)}&name=${encodeURIComponent(fileName)}`)
 		.then(response => response.json())
 		.then(data => {
-			
-
 			if (data.success) {
 				const originalModel = monaco.editor.createModel(data.content, 'text/plain');
 				diffEditor.setModel({
@@ -500,8 +505,6 @@ function loadFileContentModified(fileName) {
 	fetch(`/file?RouterName=${encodeURIComponent(routerName)}&name=${encodeURIComponent(fileName)}`)
 		.then(response => response.json())
 		.then(data => {
-			
-
 			if (data.success) {
 				const modifiedModel = monaco.editor.createModel(data.content, 'text/plain');
 				diffEditor.setModel({
@@ -515,9 +518,7 @@ function loadFileContentModified(fileName) {
 			hideLoadingSpinnerGlobal();
 		})
 		.catch(error => {
-			
 			console.error('Error fetching file content:', error);
 			hideLoadingSpinnerGlobal();
 		});
 }
-
