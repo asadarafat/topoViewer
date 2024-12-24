@@ -149,7 +149,7 @@
     "style": {
       "width": "12",
       "height": "12",
-      "background-image": "images/clab-dcgw-dark-blue.png",
+      "background-image": "images/clab-dcgw-light-blue.png",
       "background-fit": "cover"
     }
   },

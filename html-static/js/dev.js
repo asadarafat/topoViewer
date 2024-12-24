@@ -23,6 +23,8 @@ document.addEventListener("DOMContentLoaded", async function() {
 	initializeDropdownTopoViewerRoleListeners();
 	initializeDropdownListeners();
 	initViewportDrawerClabEditoCheckboxToggle()
+	
+	insertAndColorSvg("nokia-logo", "white")
 
 	// Reusable function to initialize a WebSocket connection
 	function initializeWebSocket(url, onMessageCallback) {
@@ -882,16 +884,11 @@ document.addEventListener("DOMContentLoaded", async function() {
 				console.log("Empty or invalid JSON response received for endpoint B");
 			}
 
-
+			//render sourceSubInterfaces
 			let clabSourceSubInterfacesArgList = [
 				clickedEdge.data("extraData").clabSourceLongName,
 				clickedEdge.data("extraData").clabSourcePort
 			];
-
-
-			//render sourceSubInterfaces
-
-
 			let clabSourceSubInterfacesClabData = await sendRequestToEndpointGetV3("/clab-link-subinterfaces", clabSourceSubInterfacesArgList);
 			console.log("clabSourceSubInterfacesClabData: ", clabSourceSubInterfacesClabData);
 
@@ -911,17 +908,22 @@ document.addEventListener("DOMContentLoaded", async function() {
 
 			} else if (Array.isArray(clabSourceSubInterfacesClabData)) {
 				console.log("No sub-interfaces found. The input data array is empty.");
+				renderSubInterfaces(null, 'endpoint-a-edgeshark', 'endpoint-a-clipboard');
+				renderSubInterfaces(null, 'endpoint-a-clipboard', 'endpoint-a-bottom');		
 			} else {
 				console.log("No sub-interfaces found. The input data is null, undefined, or not an array.");
+				renderSubInterfaces(null, 'endpoint-a-edgeshark', 'endpoint-a-clipboard');
+				renderSubInterfaces(null, 'endpoint-a-clipboard', 'endpoint-a-bottom');		
 			}
 
 
-			// renderSubInterfaces(sourceSubInterfaces, "endpoint-a-edgeshark", "endpoint-a-clipboard", "edgeshark")
-			// renderSubInterfaces(sourceSubInterfaces, "endpoint-a-clipboard", "endpoint-a-bottom", "clipboard")
-
 
 			//render targetSubInterfaces
-			let clabTargetSubInterfacesClabData = await sendRequestToEndpointGetV3("/clab-link-subinterfaces", clabSourceSubInterfacesArgList);
+			let clabTargetSubInterfacesArgList = [
+				clickedEdge.data("extraData").clabTargetLongName,
+				clickedEdge.data("extraData").clabTargetPort
+			];
+			let clabTargetSubInterfacesClabData = await sendRequestToEndpointGetV3("/clab-link-subinterfaces", clabTargetSubInterfacesArgList);
 			console.log("clabTargetSubInterfacesClabData: ", clabTargetSubInterfacesClabData);
 
 			if (Array.isArray(clabTargetSubInterfacesClabData) && clabTargetSubInterfacesClabData.length > 0) {
@@ -934,17 +936,15 @@ document.addEventListener("DOMContentLoaded", async function() {
 				renderSubInterfaces(TargetSubInterfaces, 'endpoint-b-edgeshark', 'endpoint-b-clipboard');
 				renderSubInterfaces(TargetSubInterfaces, 'endpoint-b-clipboard', 'endpoint-b-bottom');
 
-			} else if (Array.isArray(clabSourceSubInterfacesClabData)) {
+			} else if (Array.isArray(clabTargetSubInterfacesClabData)) {
 				console.log("No sub-interfaces found. The input data array is empty.");
+				renderSubInterfaces(null, 'endpoint-b-edgeshark', 'endpoint-b-clipboard');
+				renderSubInterfaces(null, 'endpoint-b-clipboard', 'endpoint-b-bottom');	
 			} else {
 				console.log("No sub-interfaces found. The input data is null, undefined, or not an array.");
+				renderSubInterfaces(null, 'endpoint-b-edgeshark', 'endpoint-b-clipboard');
+				renderSubInterfaces(null, 'endpoint-b-clipboard', 'endpoint-b-bottom');	
 			}
-
-			// let TargetSubInterfaces = clabTargetSubInterfacesClabData.map(
-			// 	item => `${item.ifname}`
-			// );
-			// renderSubInterfaces(TargetSubInterfaces, "endpoint-b-edgeshark", "endpoint-b-clipboard", "edgeshark")
-			// renderSubInterfaces(TargetSubInterfaces, "endpoint-b-clipboard", "endpoint-b-bottom", "clipboard")
 
 
 			// set selected edge-id to global variable
@@ -2561,226 +2561,223 @@ function viewportDrawerLayoutForceDirectedRadial() {
 	}, 2000);
 }
 
-
-
-
 function viewportDrawerLayoutVertical() {
-	nodevGap = document.getElementById("vertical-layout-slider-node-v-gap");
-	groupvGap = document.getElementById("vertical-layout-slider-group-v-gap");
+    // Retrieve the sliders for node and group vertical gaps
+    const nodevGap = document.getElementById("vertical-layout-slider-node-v-gap");
+    const groupvGap = document.getElementById("vertical-layout-slider-group-v-gap");
 
-	const nodevGapValue = parseFloat(nodevGap.value);
-	const groupvGapValue = parseFloat(groupvGap.value);
+    // Parse the slider values for horizontal and vertical gaps
+    const nodevGapValue = parseFloat(nodevGap.value); // Gap between child nodes within a parent
+    const groupvGapValue = parseFloat(groupvGap.value); // Gap between parent nodes
 
-	console.log("nodevGapValue", nodevGapValue);
-	console.log("groupvGapValue", groupvGapValue);
+    const delay = 100; // Delay to ensure layout updates after rendering
 
-	const xOffset = parseFloat(nodevGapValue);
-	const yOffset = parseFloat(groupvGapValue);
+    setTimeout(() => {
+        // Step 1: Position child nodes within their respective parents
+        cy.nodes().forEach(function (node) {
+            if (node.isParent()) {
+                const children = node.children(); // Get the children of the current parent node
+                const cellWidth = node.width() / children.length; // Calculate the width for each child node
 
-	console.log("yOffset", yOffset);
-	console.log("xOffset", xOffset);
+                // Position child nodes evenly spaced within the parent node
+                children.forEach(function (child, index) {
+                    const xPos = index * (cellWidth + nodevGapValue); // Horizontal position for the child
+                    const yPos = 0; // Keep child nodes on the same vertical level
 
-	const delay = 100;
+                    child.position({
+                        x: xPos,
+                        y: yPos
+                    });
+                });
+            }
+        });
 
-	setTimeout(() => {
-		cy.nodes().forEach(function(node) {
-			if (node.isParent()) {
-				// For each parent node
-				const children = node.children();
-				const numRows = 1;
+        // Step 2: Sort parent nodes by their group level and ID for vertical stacking
+        const sortedParents = cy.nodes()
+            .filter(node => node.isParent()) // Only process parent nodes
+            .sort((a, b) => {
+                // Extract group levels for primary sorting
+                const groupLevelA = parseInt(a.data('extraData')?.topoViewerGroupLevel || 0, 10);
+                const groupLevelB = parseInt(b.data('extraData')?.topoViewerGroupLevel || 0, 10);
 
-				const cellWidth = node.width() / children.length;
-				// const xOffset = 5
+                if (groupLevelA !== groupLevelB) {
+                    return groupLevelA - groupLevelB; // Sort by group level in ascending order
+                }
+                // Secondary sorting by node ID (alphabetical order)
+                return a.data('id').localeCompare(b.data('id'));
+            });
 
-				children.forEach(function(child, index) {
-					// Position children in rows
-					const xPos = index * (cellWidth + xOffset);
-					const yPos = 0;
+        let yPos = 0; // Starting vertical position for parent nodes
+        let maxWidth = 0; // Initialize variable to store the maximum parent width
+        const centerX = 0; // Define the horizontal center reference
 
-					// Set the position of each child node
-					child.position({
-						x: xPos,
-						y: yPos
-					});
-				});
-			}
-		});
+        // Step 3: Find the widest parent node
+        cy.nodes().forEach(function (node) {
+            if (node.isParent()) {
+                const width = node.width();
+                if (width > maxWidth) {
+                    maxWidth = width; // Update maxWidth with the widest parent node's width
+                    console.log("ParentMaxWidth: ", maxWidth);
+                }
+            }
+        });
 
-		var parentCounts = {};
-		var maxWidth = 0;
-		var centerX = 0;
-		var centerY = cy.height() / 2;
+        // Calculate division factor for aligning parent nodes
+        const divisionFactor = maxWidth / 2;
+        console.log("Division Factor: ", divisionFactor);
 
-		// Count children of each parent node
-		cy.nodes().forEach(function(node) {
-			if (node.isParent()) {
-				const childrenCount = node.children().length;
-				parentCounts[node.id()] = childrenCount;
-			}
-		});
+        // Step 4: Position parent nodes vertically and align them relative to the widest parent node
+        sortedParents.forEach(function (parentNode) {
+            const parentWidth = parentNode.width();
 
-		cy.nodes().forEach(function(node) {
-			if (node.isParent()) {
-				const width = node.width();
-				if (width > maxWidth) {
-					maxWidth = width;
-					console.log("ParentMaxWidth: ", maxWidth);
-				}
-			}
-		});
+            // Calculate horizontal position relative to the widest parent
+            const xPos = centerX - parentWidth / divisionFactor;
 
-		const divisionFactor = maxWidth / 2;
-		console.log("divisionFactor: ", divisionFactor);
+            // Position the parent node
+            parentNode.position({
+                x: xPos,
+                y: yPos
+            });
 
-		// Sort parent nodes by child count in ascending order
-		const sortedParents = Object.keys(parentCounts).sort(
-			(a, b) => parentCounts[a] - parentCounts[b],
-		);
+            console.log(`Parent Node '${parentNode.id()}' positioned at x: ${xPos}, y: ${yPos}`);
 
-		let yPos = 0;
-		// const yOffset = 50;
+            // Increment vertical position for the next parent
+            yPos += groupvGapValue;
+        });
 
-		// Position parent nodes vertically and center them horizontally
-		sortedParents.forEach(function(parentId) {
-			const parent = cy.getElementById(parentId);
-			const xPos = centerX - parent.width() / divisionFactor;
-			// to the left compared to the center of the widest parent node.
-			parent.position({
-				x: xPos,
-				y: yPos
-			});
-			yPos += yOffset;
-		});
-		cy.fit();
-	}, delay);
+        // Step 5: Adjust the viewport to fit the updated layout
+        cy.fit();
 
-	var cyExpandCollapse = cy.expandCollapse({
-		layoutBy: null, // null means use existing layout
-		undoable: false,
-		fisheye: false,
-		animationDuration: 10, // when animate is true, the duration in milliseconds of the animation
-		animate: true
-	});
+    }, delay);
 
-	// Example collapse/expand after some delay
-	// Make sure the '#parent' node exists in your loaded elements
-	setTimeout(function() {
-		var parent = cy.$('#parent'); // Ensure that '#parent' is actually present in dataCytoMarshall.json
-		cyExpandCollapse.collapse(parent);
+    // Step 6: Expand/collapse functionality for parent nodes (optional)
+    const cyExpandCollapse = cy.expandCollapse({
+        layoutBy: null, // Use the existing layout
+        undoable: false, // Disable undo functionality
+        fisheye: false, // Disable fisheye view for expanded/collapsed nodes
+        animationDuration: 10, // Duration of animations in milliseconds
+        animate: true // Enable animation for expand/collapse
+    });
 
-		setTimeout(function() {
-			cyExpandCollapse.expand(parent);
-		}, 2000);
-	}, 2000);
+    // Example: Demonstrate expand/collapse behavior with a specific parent node
+    setTimeout(function () {
+        const parent = cy.$('#parent'); // Replace '#parent' with the actual parent node ID if needed
+        cyExpandCollapse.collapse(parent); // Collapse the parent node
+
+        setTimeout(function () {
+            cyExpandCollapse.expand(parent); // Re-expand the parent node after a delay
+        }, 2000); // Wait 2 seconds before expanding
+    }, 2000);
 }
 
 
 function viewportDrawerLayoutHorizontal() {
-	nodehGap = document.getElementById("horizontal-layout-slider-node-h-gap");
-	grouphGap = document.getElementById("horizontal-layout-slider-group-h-gap");
+    // Retrieve the sliders for node and group horizontal gaps
+    const nodehGap = document.getElementById("horizontal-layout-slider-node-h-gap");
+    const grouphGap = document.getElementById("horizontal-layout-slider-group-h-gap");
 
-	const horizontalNodeGap = parseFloat(nodehGap.value);
-	const horizontalGroupGap = parseFloat(grouphGap.value);
+    // Parse the slider values for horizontal and vertical gaps
+    const nodehGapValue = parseFloat(nodehGap.value)*10; // Gap between child nodes within a parent
+    const grouphGapValue = parseFloat(grouphGap.value); // Gap between parent nodes
 
-	console.log("nodevGapValue", horizontalNodeGap);
-	console.log("groupvGapValue", horizontalGroupGap);
+    const delay = 100; // Delay to ensure layout updates after rendering
 
-	const yOffset = parseFloat(horizontalNodeGap);
-	const xOffset = parseFloat(horizontalGroupGap);
+    setTimeout(() => {
+        // Step 1: Position child nodes within their respective parents
+        cy.nodes().forEach(function (node) {
+            if (node.isParent()) {
+                const children = node.children(); // Get the children of the current parent node
+                const cellHeight = node.height() / children.length; // Calculate the height for each child node
 
-	console.log("yOffset", yOffset);
-	console.log("xOffset", xOffset);
+                // Position child nodes evenly spaced within the parent node
+                children.forEach(function (child, index) {
+                    const xPos = 0; // Keep child nodes on the same horizontal level
+                    const yPos = index * (cellHeight + nodehGapValue); // Vertical position for the child
 
-	const delay = 100;
-	setTimeout(() => {
-		cy.nodes().forEach(function(node) {
-			if (node.isParent()) {
-				// For each parent node
-				const children = node.children();
-				const numColumns = 1;
-				const cellHeight = node.height() / children.length;
-				// const yOffset = 5;
+                    child.position({
+                        x: xPos,
+                        y: yPos
+                    });
+                });
+            }
+        });
 
-				children.forEach(function(child, index) {
-					// Position children in columns
-					const xPos = 0;
-					const yPos = index * (cellHeight + yOffset);
+        // Step 2: Sort parent nodes by their group level and ID for horizontal stacking
+        const sortedParents = cy.nodes()
+            .filter(node => node.isParent()) // Only process parent nodes
+            .sort((a, b) => {
+                // Extract group levels for primary sorting
+                const groupLevelA = parseInt(a.data('extraData')?.topoViewerGroupLevel || 0, 10);
+                const groupLevelB = parseInt(b.data('extraData')?.topoViewerGroupLevel || 0, 10);
 
-					// Set the position of each child node
-					child.position({
-						x: xPos,
-						y: yPos
-					});
-				});
-			}
-		});
+                if (groupLevelA !== groupLevelB) {
+                    return groupLevelA - groupLevelB; // Sort by group level in ascending order
+                }
+                // Secondary sorting by node ID (alphabetical order)
+                return a.data('id').localeCompare(b.data('id'));
+            });
 
-		var parentCounts = {};
-		var maxHeight = 0;
-		var centerX = cy.width() / 2;
-		var centerY = cy.height() / 2;
+        let xPos = 0; // Starting horizontal position for parent nodes
+        let maxHeight = 0; // Initialize variable to store the maximum parent height
+        const centerY = 0; // Define the vertical center reference
 
-		// Count children of each parent node
-		cy.nodes().forEach(function(node) {
-			if (node.isParent()) {
-				const childrenCount = node.children().length;
-				parentCounts[node.id()] = childrenCount;
-			}
-		});
+        // Step 3: Find the tallest parent node
+        cy.nodes().forEach(function (node) {
+            if (node.isParent()) {
+                const height = node.height();
+                if (height > maxHeight) {
+                    maxHeight = height; // Update maxHeight with the tallest parent node's height
+                    console.log("ParentMaxHeight: ", maxHeight);
+                }
+            }
+        });
 
-		cy.nodes().forEach(function(node) {
-			if (node.isParent()) {
-				const height = node.height();
-				if (height > maxHeight) {
-					maxHeight = height;
-					console.log("ParentMaxHeight: ", maxHeight);
-				}
-			}
-		});
+        // Calculate division factor for aligning parent nodes
+        const divisionFactor = maxHeight / 2;
+        console.log("Division Factor: ", divisionFactor);
 
-		const divisionFactor = maxHeight / 2;
-		console.log("divisionFactor: ", divisionFactor);
+        // Step 4: Position parent nodes horizontally and align them relative to the tallest parent node
+        sortedParents.forEach(function (parentNode) {
+            const parentHeight = parentNode.height();
 
-		// Sort parent nodes by child count in ascending order
-		const sortedParents = Object.keys(parentCounts).sort(
-			(a, b) => parentCounts[a] - parentCounts[b],
-		);
+            // Calculate vertical position relative to the tallest parent
+            const yPos = centerY - parentHeight / divisionFactor;
 
-		let xPos = 0;
-		// const xOffset = 50;
+            // Position the parent node
+            parentNode.position({
+                x: xPos,
+                y: yPos
+            });
 
-		// Position parent nodes horizontally and center them vertically
-		sortedParents.forEach(function(parentId) {
-			const parent = cy.getElementById(parentId);
-			const yPos = centerY - parent.height() / divisionFactor;
-			parent.position({
-				x: xPos,
-				y: yPos
-			});
-			xPos -= xOffset;
-		});
+            console.log(`Parent Node '${parentNode.id()}' positioned at x: ${xPos}, y: ${yPos}`);
 
-		cy.fit();
-	}, delay);
+            // Increment horizontal position for the next parent
+            xPos += grouphGapValue;
+        });
 
-	var cyExpandCollapse = cy.expandCollapse({
-		layoutBy: null, // null means use existing layout
-		undoable: false,
-		fisheye: false,
-		animationDuration: 10, // when animate is true, the duration in milliseconds of the animation
-		animate: true
-	});
+        // Step 5: Adjust the viewport to fit the updated layout
+        cy.fit();
 
-	// Example collapse/expand after some delay
-	// Make sure the '#parent' node exists in your loaded elements
-	setTimeout(function() {
-		var parent = cy.$('#parent'); // Ensure that '#parent' is actually present in dataCytoMarshall.json
-		cyExpandCollapse.collapse(parent);
+    }, delay);
 
-		setTimeout(function() {
-			cyExpandCollapse.expand(parent);
-		}, 2000);
-	}, 2000);
+    // Step 6: Expand/collapse functionality for parent nodes (optional)
+    const cyExpandCollapse = cy.expandCollapse({
+        layoutBy: null, // Use the existing layout
+        undoable: false, // Disable undo functionality
+        fisheye: false, // Disable fisheye view for expanded/collapsed nodes
+        animationDuration: 10, // Duration of animations in milliseconds
+        animate: true // Enable animation for expand/collapse
+    });
+
+    // Example: Demonstrate expand/collapse behavior with a specific parent node
+    setTimeout(function () {
+        const parent = cy.$('#parent'); // Replace '#parent' with the actual parent node ID if needed
+        cyExpandCollapse.collapse(parent); // Collapse the parent node
+
+        setTimeout(function () {
+            cyExpandCollapse.expand(parent); // Re-expand the parent node after a delay
+        }, 2000); // Wait 2 seconds before expanding
+    }, 2000);
 }
 
 
@@ -2987,7 +2984,42 @@ function initViewportDrawerClabEditoCheckboxToggle() {
 	});
 }
 
+/**
+ * Dynamically inserts an inline SVG and modifies its color.
+ * @param {string} containerId - The ID of the container where the SVG will be added.
+ * @param {string} color - The color to apply to the SVG's `fill` attribute.
+ */
+function insertAndColorSvg(containerId, color) {
+	const container = document.getElementById(containerId);
 
+	if (!container) {
+		console.error(`Container with ID ${containerId} not found.`);
+		return;
+	}
+
+	// Define the SVG content
+	const svgContent = `
+		<svg width="110" height="25" viewBox="0 0 170 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+			<path d="M117.514 1.21646L117.514 38.7835H123.148L123.148 1.21646H117.514ZM57.3221 0.57473C46.3463 0.574681 37.8303 8.56332 37.8303 20C37.8303 31.9517 46.3463 39.4255 57.3221 39.4253C68.2979 39.4251 76.8314 31.9517 76.8139 20C76.798 9.16418 68.2979 0.574779 57.3221 0.57473ZM71.1901 20C71.1901 28.4666 64.9812 34.0774 57.3221 34.0774C49.663 34.0774 43.4541 28.4666 43.4541 20C43.4541 11.687 49.663 5.92265 57.3221 5.92265C64.9812 5.92265 71.1901 11.687 71.1901 20ZM0 3.39001e-06V38.7835H5.74992L5.74992 13.1531L35.6298 40V31.9591L0 3.39001e-06ZM81.0513 20L101.961 38.7836H110.345L89.4038 20L110.345 1.21644H101.961L81.0513 20ZM170 38.7835H163.802L159.27 30.4644H138.742L134.209 38.7835H128.011L135.517 24.9176H156.322L145.948 5.64789L149.006 0L149.006 3.76291e-05L149.006 0L170 38.7835Z" fill="#005AFF"/>
+		</svg>
+	`;
+
+	// Parse the SVG string into a DOM element
+	const parser = new DOMParser();
+	const svgElement = parser.parseFromString(svgContent, 'image/svg+xml').documentElement;
+
+	// Modify the fill color of the SVG
+	svgElement.querySelector('path').setAttribute('fill', color);
+
+	// Append the SVG to the container
+	container.innerHTML = '';
+	container.appendChild(svgElement);
+}
+
+// Call the function during initialization
+document.addEventListener('DOMContentLoaded', () => {
+	insertAndColorSvg('nokia-logo', 'white');
+});
 
 // aarafat-tag:
 //// REFACTOR END
@@ -3190,50 +3222,51 @@ function sleep(ms) {
 	return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-// Helper function to render only sub-interface items dynamically
+
+
 async function renderSubInterfaces(subInterfaces, referenceElementAfterId, referenceElementBeforeId, edgeSharkClipboardToggle) {
-	// Constants for container, reference elements, and click handler
-	const containerSelectorId = 'panel-link-action-dropdown-menu-dropdown-content'; // The container where dropdown items are rendered
+	const containerSelectorId = 'panel-link-action-dropdown-menu-dropdown-content';
 
 	const onClickHandler = (event, subInterface) => {
 		console.log(`Clicked on: ${subInterface}`);
-		// Add your custom logic here
-		linkWireshark(event, "edgeSharkSubInterface", subInterface, referenceElementAfterId)
+		linkWireshark(event, "edgeSharkSubInterface", subInterface, referenceElementAfterId);
 	};
 
-
-	// Find the container where the dropdown items are rendered
+	// Validate container
 	const containerElement = document.getElementById(containerSelectorId);
 	if (!containerElement) {
-		console.error("Container element not found.");
+		console.error(`Container element with ID "${containerSelectorId}" not found.`);
 		return;
 	}
 
-	// Find the reference elements
+	// Validate reference elements
 	const referenceElementAfter = document.getElementById(referenceElementAfterId);
 	const referenceElementBefore = document.getElementById(referenceElementBeforeId);
 	if (!referenceElementAfter || !referenceElementBefore) {
-		console.error("Reference elements not found.");
+		console.error(`Reference elements not found: afterId="${referenceElementAfterId}", beforeId="${referenceElementBeforeId}".`);
 		return;
 	}
 
-	// Remove all <a> nodes between referenceElementAfter and referenceElementBefore
+	// Remove all elements between referenceElementAfter and referenceElementBefore
 	let currentNode = referenceElementAfter.nextSibling;
 	while (currentNode && currentNode !== referenceElementBefore) {
-		const nextNode = currentNode.nextSibling; // Store next node before removal
-		if (currentNode.nodeName === 'A') {
-			currentNode.remove();
-		}
-		currentNode = nextNode; // Move to the next node
+		const nextNode = currentNode.nextSibling;
+		currentNode.remove(); // Remove the current node
+		currentNode = nextNode;
 	}
 
-	// If subInterfaces is empty, just return after clearing nodes
-	if (!subInterfaces || subInterfaces.length === 0) {
-		console.log("No sub-interfaces to render. Cleared existing items.");
+	// Handle case when subInterfaces is null
+	if (!subInterfaces) {
+		console.log("Sub-interfaces is null. Cleared existing items and performed no further actions.");
+		// Optionally, you could display a placeholder message or take other actions:
+		// const placeholder = document.createElement("div");
+		// placeholder.textContent = "No sub-interfaces available.";
+		// placeholder.style.textAlign = "center";
+		// insertAfter(placeholder, referenceElementAfter);
 		return;
 	}
 
-	// Dynamically generate and insert sub-interface items
+	// Add new sub-interface items
 	subInterfaces.forEach(subInterface => {
 		const a = document.createElement("a");
 		a.className = "dropdown-item label has-text-weight-normal is-small py-0";
@@ -3242,10 +3275,11 @@ async function renderSubInterfaces(subInterfaces, referenceElementAfterId, refer
 		a.textContent = `└ Sub-Interface ${subInterface}`;
 		a.onclick = (event) => onClickHandler(event, subInterface);
 
-		// Insert after the reference element
 		insertAfter(a, referenceElementAfter);
 	});
 }
+
+
 
 
 // Helper function to insert an element after a reference element
