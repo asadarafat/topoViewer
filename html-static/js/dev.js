@@ -1877,7 +1877,7 @@ async function linkWireshark(event, option, endpoint, referenceElementAfterId) {
 				console.log("linkWireshark - netNsSource: ", netNsResponse.namespace_id.slice(netNsResponse.namespace_id.indexOf("[") + 1, netNsResponse.namespace_id.indexOf("]")))
 				netNsIdTarget = netNsResponse.namespace_id.slice(netNsResponse.namespace_id.indexOf("[") + 1, netNsResponse.namespace_id.indexOf("]"))
 
-				urlParams = `container={"netns":${netNsIdTarget},"network-interfaces":["${clabSourcePort}"],"name":"${clabSourceLongName.toLocaleLowerCase()}","type":"docker","prefix":""}&nif=${clabSourcePort}`;
+				urlParams = `container={"netns":${netNsIdTarget},"network-interfaces":["${clabTargetPort}"],"name":"${clabTargetLongName.toLocaleLowerCase()}","type":"docker","prefix":""}&nif=${clabTargetPort}`;
 				edgeSharkHref = baseUrl + urlParams;
 				console.log("linkWireshark - edgeSharkHref: ", edgeSharkHref)
 				window.open(edgeSharkHref);
