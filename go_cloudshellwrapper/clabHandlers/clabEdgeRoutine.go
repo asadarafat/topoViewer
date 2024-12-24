@@ -35,9 +35,32 @@ func ClabEdgeGetMacAddress(w http.ResponseWriter, r *http.Request, cyTopo *topoe
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	w.Write(data)
-	log.Infof("Docker Network Info: %s", data)
+	// w.WriteHeader(http.StatusOK)
+	// w.Write(data)
+	// log.Infof("Docker Network Info: %s", data)
+
+	// data is a []byte that (we assume) contains JSON like "[{...},{...}]"
+	var parsedData interface{}
+	if err := json.Unmarshal(data, &parsedData); err != nil {
+		// If we fail here, it means `data` wasn't valid JSON
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Now "parsedData" is a Go representation of your JSON (slice/map).
+	// Let's build our responseData with that as a nested structure.
+	responseData := map[string]interface{}{
+		"result": "clab-link-macaddress endpoint GET executed",
+		"data":   parsedData, // Put the JSON as a nested slice or map
+		"error":  nil,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(responseData); err != nil {
+		log.Infof("Error encoding JSON response: %v", err)
+		http.Error(w, "Failed to encode JSON response", http.StatusInternalServerError)
+	}
+
 }
 
 func ClabEdgeGetImpairment(w http.ResponseWriter, r *http.Request, cyTopo *topoengine.CytoTopology, clabUser string, clabPass string, clabHost string, clabServerAddress string) {
@@ -109,9 +132,9 @@ func ClabEdgeGetImpairment(w http.ResponseWriter, r *http.Request, cyTopo *topoe
 
 	// Respond with JSON
 	responseData := map[string]interface{}{
-		"result":      "clab-link-impairment endpoint GET executed",
-		"return data": parseCliOutput,
-		"error":       nil,
+		"result": "clab-link-impairment endpoint GET executed",
+		"data":   parseCliOutput,
+		"error":  nil,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -145,9 +168,9 @@ func ClabEdgeSetImpairment(w http.ResponseWriter, r *http.Request, cyTopo *topoe
 
 	// Create a response JSON object
 	responseData := map[string]interface{}{
-		"result":      "clab-link-impairment endpoint POST executed",
-		"return data": returnData,
-		"error":       err,
+		"result": "clab-link-impairment endpoint POST executed",
+		"data":   returnData,
+		"error":  err,
 	}
 
 	// Marshal the response JSON object into a JSON string
@@ -405,7 +428,7 @@ func ClabEdgeGetActualPortViaSnmp(w http.ResponseWriter, r *http.Request, cyTopo
 // 	// Respond with JSON
 // 	responseData := map[string]interface{}{
 // 		"result":      "clab-link-impairment endpoint GET executed",
-// 		"return data": parseCliOutput,
+// 		"data": parseCliOutput,
 // 		"error":       nil,
 // 	}
 

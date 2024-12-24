@@ -11,7 +11,6 @@ var globalSelectedEdge
 var linkEndpointVisibility = true;
 var nodeContainerStatusVisibility = false;
 
-
 var globalShellUrl = "/js/cloudshell"
 
 var labName
@@ -24,8 +23,6 @@ document.addEventListener("DOMContentLoaded", async function() {
 	initializeDropdownTopoViewerRoleListeners();
 	initializeDropdownListeners();
 	initViewportDrawerClabEditoCheckboxToggle()
-
-
 
 	// Reusable function to initialize a WebSocket connection
 	function initializeWebSocket(url, onMessageCallback) {
@@ -147,8 +144,6 @@ document.addEventListener("DOMContentLoaded", async function() {
 	});
 
 
-
-
 	// Listen for selection events
 	cy.on('select', 'node', (event) => {
 		const selectedNodes = cy.$('node:selected');
@@ -173,8 +168,6 @@ document.addEventListener("DOMContentLoaded", async function() {
 		cy.$('#node1, #node2').select(); // Select node1 and node2 after 2 seconds
 		console.log('Programmatic selection: node1 and node2');
 	}, 2000);
-
-
 
 	// Helper function to check if a node is inside a parent
 	function isNodeInsideParent(node, parent) {
@@ -216,8 +209,6 @@ document.addEventListener("DOMContentLoaded", async function() {
 		}
 
 	})
-
-
 
 	// Initialize edgehandles with configuration
 	const eh = cy.edgehandles({
@@ -310,8 +301,6 @@ document.addEventListener("DOMContentLoaded", async function() {
 				`eth${endpointNum}`;
 		}
 
-
-
 		// Calculate next available source and target endpoints
 		const sourceEndpoint = getNextEndpoint(sourceNode.id(), true);
 		const targetEndpoint = getNextEndpoint(targetNode.id(), false);
@@ -322,7 +311,6 @@ document.addEventListener("DOMContentLoaded", async function() {
 
 		// Add editor flag to the edge data
 		addedEdge.data('editor', 'true');
-
 
 		await showPanelContainerlabEditor(event)
 
@@ -480,7 +468,6 @@ document.addEventListener("DOMContentLoaded", async function() {
 	document.body.appendChild(hoverText);
 
 
-
 	let shiftKeyDown = false;
 	// Detect when Shift is pressed or released
 	document.addEventListener('keydown', (event) => {
@@ -522,8 +509,6 @@ document.addEventListener("DOMContentLoaded", async function() {
 			ctrlKeyDown = false;
 		}
 	});
-
-
 
 	//- Toggle the Panel(s) when clicking on the cy container
 	document.getElementById("cy").addEventListener("click", function(event) {
@@ -788,19 +773,14 @@ document.addEventListener("DOMContentLoaded", async function() {
 			document.getElementById("panel-link-endpoint-b-name").textContent = `${clickedEdge.data("target")} :: ${clickedEdge.data("targetEndpoint")}`
 			document.getElementById("panel-link-endpoint-b-mac-address").textContent = "getting the MAC address"
 
-			// setting clabSubnetArgsList
-			clabSubnetArgsList = [`${clickedEdge.data("extraData").clabSourceLongName}`, `${clickedEdge.data("extraData").clabTargetLongName}`]
-
-			// getting the data from clab via /clab-link-subinterfaces GET API
-			const subInterfaces = await sendRequestToEndpointGetV3("/clab-link-subinterfaces", clabSubnetArgsList)
-			console.log("subInterfaces: ", subInterfaces)
-
 
 			// setting clabSourceLinkArgsList
 			clabLinkMacArgsList = [`${clickedEdge.data("extraData").clabSourceLongName}`, `${clickedEdge.data("extraData").clabTargetLongName}`]
 
 			// setting MAC address endpoint-a values by getting the data from clab via /clab-link-mac GET API
-			const actualLinkMacPair = await sendRequestToEndpointGetV2("/clab-link-macaddress", clabLinkMacArgsList)
+			const actualLinkMacPair = await sendRequestToEndpointGetV3("/clab-link-macaddress", clabLinkMacArgsList)
+
+			console.log("actualLinkMacPair: ", actualLinkMacPair)
 
 			// // Testing to not pass the paramters in clabSourceLinkArgsList
 			// source_container =`${clickedEdge.data("extraData").clabSourceLongName}`
@@ -814,14 +794,14 @@ document.addEventListener("DOMContentLoaded", async function() {
 			sourceIfName = `${clickedEdge.data("sourceEndpoint")}`
 			targetIfName = `${clickedEdge.data("targetEndpoint")}`
 
-			const getMacAddressesResult = getMacAddresses(actualLinkMacPair, sourceClabNode, targetClabNode, sourceIfName, targetIfName);
+			const getMacAddressesResult = getMacAddresses(actualLinkMacPair["data"], sourceClabNode, targetClabNode, sourceIfName, targetIfName);
 			if (typeof getMacAddressesResult === "object") { // Ensure result is an object
 				console.log("Source If MAC:", getMacAddressesResult.sourceIfMac); // Access sourceIfMac
 				console.log("Target If MAC:", getMacAddressesResult.targetIfMac); // Access targetIfMac
 
 				document.getElementById("panel-link-endpoint-a-mac-address").textContent = getMacAddressesResult.sourceIfMac
 				document.getElementById("panel-link-endpoint-b-mac-address").textContent = getMacAddressesResult.targetIfMac
-	
+
 			} else {
 				console.log(getMacAddressesResult); // Handle error message
 
@@ -853,17 +833,18 @@ document.addEventListener("DOMContentLoaded", async function() {
 				clickedEdge.data("extraData").clabSourceLongName,
 				clickedEdge.data("extraData").clabSourcePort
 			];
+
 			let clabSourceLinkImpairmentClabData = await sendRequestToEndpointGetV3("/clab-link-impairment", clabSourceLinkArgsList);
 
 			if (clabSourceLinkImpairmentClabData && typeof clabSourceLinkImpairmentClabData === "object" && Object.keys(clabSourceLinkImpairmentClabData).length > 0) {
 				hideLoadingSpinnerGlobal();
 				console.log("Valid non-empty JSON response received for endpoint A:", clabSourceLinkImpairmentClabData);
 
-				const sourceDelay = clabSourceLinkImpairmentClabData["return data"]["delay"];
-				const sourceJitter = clabSourceLinkImpairmentClabData["return data"]["jitter"];
-				const sourceRate = clabSourceLinkImpairmentClabData["return data"]["rate"];
-				const sourcePacketLoss = clabSourceLinkImpairmentClabData["return data"]["packet_loss"];
-				const sourceCorruption = clabSourceLinkImpairmentClabData["return data"]["corruption"];
+				const sourceDelay = clabSourceLinkImpairmentClabData["data"]["delay"];
+				const sourceJitter = clabSourceLinkImpairmentClabData["data"]["jitter"];
+				const sourceRate = clabSourceLinkImpairmentClabData["data"]["rate"];
+				const sourcePacketLoss = clabSourceLinkImpairmentClabData["data"]["packet_loss"];
+				const sourceCorruption = clabSourceLinkImpairmentClabData["data"]["corruption"];
 
 				document.getElementById("panel-link-endpoint-a-delay").value = sourceDelay === "N/A" ? "0" : sourceDelay.replace(/ms$/, "");
 				document.getElementById("panel-link-endpoint-a-jitter").value = sourceJitter === "N/A" ? "0" : sourceJitter.replace(/ms$/, "");
@@ -886,11 +867,11 @@ document.addEventListener("DOMContentLoaded", async function() {
 				hideLoadingSpinnerGlobal();
 				console.log("Valid non-empty JSON response received for endpoint B:", clabTargetLinkImpairmentClabData);
 
-				const targetDelay = clabTargetLinkImpairmentClabData["return data"]["delay"];
-				const targetJitter = clabTargetLinkImpairmentClabData["return data"]["jitter"];
-				const targetRate = clabTargetLinkImpairmentClabData["return data"]["rate"];
-				const targetPacketLoss = clabTargetLinkImpairmentClabData["return data"]["packet_loss"];
-				const targetCorruption = clabTargetLinkImpairmentClabData["return data"]["corruption"];
+				const targetDelay = clabTargetLinkImpairmentClabData["data"]["delay"];
+				const targetJitter = clabTargetLinkImpairmentClabData["data"]["jitter"];
+				const targetRate = clabTargetLinkImpairmentClabData["data"]["rate"];
+				const targetPacketLoss = clabTargetLinkImpairmentClabData["data"]["packet_loss"];
+				const targetCorruption = clabTargetLinkImpairmentClabData["data"]["corruption"];
 
 				document.getElementById("panel-link-endpoint-b-delay").value = targetDelay === "N/A" ? "0" : targetDelay.replace(/ms$/, "");
 				document.getElementById("panel-link-endpoint-b-jitter").value = targetJitter === "N/A" ? "0" : targetJitter.replace(/ms$/, "");
@@ -900,6 +881,70 @@ document.addEventListener("DOMContentLoaded", async function() {
 			} else {
 				console.log("Empty or invalid JSON response received for endpoint B");
 			}
+
+
+			let clabSourceSubInterfacesArgList = [
+				clickedEdge.data("extraData").clabSourceLongName,
+				clickedEdge.data("extraData").clabSourcePort
+			];
+
+
+			//render sourceSubInterfaces
+
+
+			let clabSourceSubInterfacesClabData = await sendRequestToEndpointGetV3("/clab-link-subinterfaces", clabSourceSubInterfacesArgList);
+			console.log("clabSourceSubInterfacesClabData: ", clabSourceSubInterfacesClabData);
+
+			// let sourceSubInterfaces = clabSourceSubInterfacesClabData.map(
+			// 	item => `${item.ifname}`
+			// );
+
+			if (Array.isArray(clabSourceSubInterfacesClabData) && clabSourceSubInterfacesClabData.length > 0) {
+				// Map sub-interfaces with prefix
+				const sourceSubInterfaces = clabSourceSubInterfacesClabData.map(
+					item => `${item.ifname}`
+				);
+
+				// Render sub-interfaces
+				renderSubInterfaces(sourceSubInterfaces, 'endpoint-a-edgeshark', 'endpoint-a-clipboard');
+				renderSubInterfaces(sourceSubInterfaces, 'endpoint-a-clipboard', 'endpoint-a-bottom');
+
+			} else if (Array.isArray(clabSourceSubInterfacesClabData)) {
+				console.log("No sub-interfaces found. The input data array is empty.");
+			} else {
+				console.log("No sub-interfaces found. The input data is null, undefined, or not an array.");
+			}
+
+
+			// renderSubInterfaces(sourceSubInterfaces, "endpoint-a-edgeshark", "endpoint-a-clipboard", "edgeshark")
+			// renderSubInterfaces(sourceSubInterfaces, "endpoint-a-clipboard", "endpoint-a-bottom", "clipboard")
+
+
+			//render targetSubInterfaces
+			let clabTargetSubInterfacesClabData = await sendRequestToEndpointGetV3("/clab-link-subinterfaces", clabSourceSubInterfacesArgList);
+			console.log("clabTargetSubInterfacesClabData: ", clabTargetSubInterfacesClabData);
+
+			if (Array.isArray(clabTargetSubInterfacesClabData) && clabTargetSubInterfacesClabData.length > 0) {
+				// Map sub-interfaces with prefix
+				const TargetSubInterfaces = clabTargetSubInterfacesClabData.map(
+					item => `${item.ifname}`
+				);
+
+				// Render sub-interfaces
+				renderSubInterfaces(TargetSubInterfaces, 'endpoint-b-edgeshark', 'endpoint-b-clipboard');
+				renderSubInterfaces(TargetSubInterfaces, 'endpoint-b-clipboard', 'endpoint-b-bottom');
+
+			} else if (Array.isArray(clabSourceSubInterfacesClabData)) {
+				console.log("No sub-interfaces found. The input data array is empty.");
+			} else {
+				console.log("No sub-interfaces found. The input data is null, undefined, or not an array.");
+			}
+
+			// let TargetSubInterfaces = clabTargetSubInterfacesClabData.map(
+			// 	item => `${item.ifname}`
+			// );
+			// renderSubInterfaces(TargetSubInterfaces, "endpoint-b-edgeshark", "endpoint-b-clipboard", "edgeshark")
+			// renderSubInterfaces(TargetSubInterfaces, "endpoint-b-clipboard", "endpoint-b-bottom", "clipboard")
 
 
 			// set selected edge-id to global variable
@@ -1771,112 +1816,6 @@ async function linkImpairmentClab(event, impairDirection) {
 	}
 }
 
-// async function linkWireshark(event, option, endpoint, referenceElementAfterId) {
-//     console.log("linkWireshark - globalSelectedEdge: ", globalSelectedEdge);
-//     console.log("linkWireshark - option: ", option);
-//     console.log("linkWireshark - endpoint: ", endpoint);
-//     console.log("linkWireshark - referenceElementAfterId: ", referenceElementAfterId);
-
-//     const edgeId = globalSelectedEdge;
-
-//     try {
-//         const environments = await getEnvironments(event);
-//         console.log("linkWireshark - environments: ", environments);
-
-//         const deploymentType = environments["deployment-type"];
-//         const cytoTopologyJson = environments["EnvCyTopoJsonBytes"];
-//         const edgeData = findCytoElementById(cytoTopologyJson, edgeId);
-
-//         console.log("linkWireshark- edgeData: ", edgeData);
-
-//         const {
-//             clabServerUsername: clabUser,
-//             clabSourceLongName,
-//             clabSourcePort,
-//             clabTargetLongName,
-//             clabTargetPort
-//         } = edgeData.data.extraData;
-
-//         const clabServerAddress = environments["clab-server-address"];
-
-//         const openWindow = (href) => {
-//             console.log("Opening URL: ", href);
-//             window.open(href);
-//         };
-
-//         const copyToClipboard = (text) => {
-//             if (navigator.clipboard && navigator.clipboard.writeText) {
-//                 navigator.clipboard.writeText(text).then(() => {
-//                     bulmaToast.toast({
-//                         message: `Hey, now you can paste the link to your terminal console. 😎`,
-//                         type: "is-warning is-size-6 p-3",
-//                         duration: 4000,
-//                         position: "top-center",
-//                         closeOnClick: true,
-//                     });
-//                 }).catch(console.error);
-//             } else {
-//                 const textArea = document.createElement('textarea');
-//                 textArea.value = text;
-//                 document.body.appendChild(textArea);
-//                 textArea.select();
-//                 try {
-//                     document.execCommand('copy');
-//                     bulmaToast.toast({
-//                         message: `Hey, now you can paste the link to your terminal console. 😎`,
-//                         type: "is-warning is-size-6 p-3",
-//                         duration: 4000,
-//                         position: "top-center",
-//                         closeOnClick: true,
-//                     });
-//                 } catch (err) {
-//                     console.error('Fallback: Unable to copy', err);
-//                 }
-//                 document.body.removeChild(textArea);
-//             }
-//         };
-
-//         const buildEdgeSharkHref = async (longName, port) => {
-//             const netNsResponse = await sendRequestToEndpointGetV2("/clab-node-network-namespace", [longName]);
-//             const netNsId = netNsResponse.namespace_id.match(/\[(.*?)\]/)[1];
-//             return `packetflix:ws://${clabServerAddress}:5001/capture?container={"netns":${netNsId},"network-interfaces":["${port}"],"name":"${longName.toLowerCase()}","type":"docker","prefix":""}&nif=${port}`;
-//         };
-
-//         switch (option) {
-//             case "app":
-//                 const wiresharkHref = `clab-capture://${clabUser}@${clabServerAddress}?${endpoint === "source" ? clabSourceLongName : clabTargetLongName}?${endpoint === "source" ? clabSourcePort : clabTargetPort}`;
-//                 openWindow(wiresharkHref);
-//                 break;
-
-//             case "edgeSharkInterface":
-//                 const edgeSharkHref = await buildEdgeSharkHref(endpoint === "source" ? clabSourceLongName : clabTargetLongName, endpoint === "source" ? clabSourcePort : clabTargetPort);
-//                 openWindow(edgeSharkHref);
-//                 break;
-
-//             case "edgeSharkSubInterface":
-//                 if (referenceElementAfterId === "endpoint-a-edgeshark" || referenceElementAfterId === "endpoint-b-edgeshark") {
-//                     const longName = referenceElementAfterId === "endpoint-a-edgeshark" ? clabSourceLongName : clabTargetLongName;
-//                     const subInterfaceHref = await buildEdgeSharkHref(longName, endpoint);
-//                     openWindow(subInterfaceHref);
-//                 } else if (referenceElementAfterId.includes("clipboard")) {
-//                     const longName = referenceElementAfterId === "endpoint-a-clipboard" ? clabSourceLongName : clabTargetLongName;
-//                     const sshCommand = `ssh ${clabUser}@${clabServerAddress} "sudo -S /sbin/ip netns exec ${longName} tcpdump -U -nni ${endpoint} -w -" | wireshark -k -i -`;
-//                     copyToClipboard(sshCommand);
-//                 }
-//                 break;
-
-//             case "copy":
-//                 const longName = endpoint === "source" ? clabSourceLongName : clabTargetLongName;
-//                 const port = endpoint === "source" ? clabSourcePort : clabTargetPort;
-//                 const sshCommand = `ssh ${clabUser}@${clabServerAddress} "sudo -S /sbin/ip netns exec ${longName} tcpdump -U -nni ${port} -w -" | wireshark -k -i -`;
-//                 copyToClipboard(sshCommand);
-//                 break;
-//         }
-//     } catch (error) {
-//         console.error("Error executing linkWireshark configuration:", error);
-//     }
-// }
-
 
 async function linkWireshark(event, option, endpoint, referenceElementAfterId) {
 	console.log("linkWireshark - globalSelectedEdge: ", globalSelectedEdge)
@@ -1922,7 +1861,7 @@ async function linkWireshark(event, option, endpoint, referenceElementAfterId) {
 			if (endpoint == "source") {
 				baseUrl = `packetflix:ws://${clabServerAddress}:5001/capture?`;
 
-				netNsResponse = await sendRequestToEndpointGetV2("/clab-node-network-namespace", argsList = [clabSourceLongName])
+				netNsResponse = await sendRequestToEndpointGetV3("/clab-node-network-namespace", argsList = [clabSourceLongName])
 				console.log("linkWireshark - netNsSource: ", netNsResponse.namespace_id.slice(netNsResponse.namespace_id.indexOf("[") + 1, netNsResponse.namespace_id.indexOf("]")))
 				netNsIdSource = netNsResponse.namespace_id.slice(netNsResponse.namespace_id.indexOf("[") + 1, netNsResponse.namespace_id.indexOf("]"))
 
@@ -1934,7 +1873,7 @@ async function linkWireshark(event, option, endpoint, referenceElementAfterId) {
 			} else if (endpoint == "target") {
 				baseUrl = `packetflix:ws://${clabServerAddress}:5001/capture?`;
 
-				netNsResponse = await sendRequestToEndpointGetV2("/clab-node-network-namespace", argsList = [clabTargetLongName])
+				netNsResponse = await sendRequestToEndpointGetV3("/clab-node-network-namespace", argsList = [clabTargetLongName])
 				console.log("linkWireshark - netNsSource: ", netNsResponse.namespace_id.slice(netNsResponse.namespace_id.indexOf("[") + 1, netNsResponse.namespace_id.indexOf("]")))
 				netNsIdTarget = netNsResponse.namespace_id.slice(netNsResponse.namespace_id.indexOf("[") + 1, netNsResponse.namespace_id.indexOf("]"))
 
@@ -1948,7 +1887,7 @@ async function linkWireshark(event, option, endpoint, referenceElementAfterId) {
 			if (referenceElementAfterId == "endpoint-a-edgeshark") {
 				baseUrl = `packetflix:ws://${clabServerAddress}:5001/capture?`;
 
-				netNsResponse = await sendRequestToEndpointGetV2("/clab-node-network-namespace", argsList = [clabSourceLongName])
+				netNsResponse = await sendRequestToEndpointGetV3("/clab-node-network-namespace", argsList = [clabSourceLongName])
 				console.log("linkWireshark - netNsSource: ", netNsResponse.namespace_id.slice(netNsResponse.namespace_id.indexOf("[") + 1, netNsResponse.namespace_id.indexOf("]")))
 				netNsIdSource = netNsResponse.namespace_id.slice(netNsResponse.namespace_id.indexOf("[") + 1, netNsResponse.namespace_id.indexOf("]"))
 
@@ -1956,12 +1895,12 @@ async function linkWireshark(event, option, endpoint, referenceElementAfterId) {
 				edgeSharkHref = baseUrl + urlParams;
 				console.log("linkWireshark - edgeSharkHref: ", edgeSharkHref)
 				window.open(edgeSharkHref);
-			} 
+			}
 			if (referenceElementAfterId == "endpoint-b-edgeshark") {
 				console.log("linkWireshark - endpoint-b-edgeshark")
 				baseUrl = `packetflix:ws://${clabServerAddress}:5001/capture?`;
 
-				netNsResponse = await sendRequestToEndpointGetV2("/clab-node-network-namespace", argsList = [clabTargetLongName])
+				netNsResponse = await sendRequestToEndpointGetV3("/clab-node-network-namespace", argsList = [clabTargetLongName])
 				console.log("linkWireshark - netNsSource: ", netNsResponse.namespace_id.slice(netNsResponse.namespace_id.indexOf("[") + 1, netNsResponse.namespace_id.indexOf("]")))
 				netNsIdTarget = netNsResponse.namespace_id.slice(netNsResponse.namespace_id.indexOf("[") + 1, netNsResponse.namespace_id.indexOf("]"))
 
@@ -1978,40 +1917,40 @@ async function linkWireshark(event, option, endpoint, referenceElementAfterId) {
 					wiresharkSshCommand = `ssh ${clabUser}@${clabServerAddress} "sudo -S /sbin/ip netns exec ${clabSourceLongName} tcpdump -U -nni ${endpoint} -w -" | wireshark -k -i -`
 				}
 				// Check if the clipboard API is available
-			if (navigator.clipboard && navigator.clipboard.writeText) {
-				navigator.clipboard.writeText(wiresharkSshCommand).then(function() {
-					bulmaToast.toast({
-						message: `Hey, now you can paste the link to your terminal console. 😎`,
-						type: "is-warning is-size-6 p-3",
-						duration: 4000,
-						position: "top-center",
-						closeOnClick: true,
+				if (navigator.clipboard && navigator.clipboard.writeText) {
+					navigator.clipboard.writeText(wiresharkSshCommand).then(function() {
+						bulmaToast.toast({
+							message: `Hey, now you can paste the link to your terminal console. 😎`,
+							type: "is-warning is-size-6 p-3",
+							duration: 4000,
+							position: "top-center",
+							closeOnClick: true,
+						});
+					}).catch(function(error) {
+						console.error('Could not copy text: ', error);
 					});
-				}).catch(function(error) {
-					console.error('Could not copy text: ', error);
-				});
-			} else {
-				// Fallback method for older browsers
-				let textArea = document.createElement('textarea');
-				textArea.value = wiresharkSshCommand;
-				document.body.appendChild(textArea);
-				textArea.focus();
-				textArea.select();
-				try {
-					document.execCommand('copy');
-					// alert('Text copied to clipboard');
-					bulmaToast.toast({
-						message: `Hey, now you can paste the link to your terminal console. 😎`,
-						type: "is-warning is-size-6 p-3",
-						duration: 4000,
-						position: "top-center",
-						closeOnClick: true,
-					});
-				} catch (err) {
-					console.error('Fallback: Oops, unable to copy', err);
+				} else {
+					// Fallback method for older browsers
+					let textArea = document.createElement('textarea');
+					textArea.value = wiresharkSshCommand;
+					document.body.appendChild(textArea);
+					textArea.focus();
+					textArea.select();
+					try {
+						document.execCommand('copy');
+						// alert('Text copied to clipboard');
+						bulmaToast.toast({
+							message: `Hey, now you can paste the link to your terminal console. 😎`,
+							type: "is-warning is-size-6 p-3",
+							duration: 4000,
+							position: "top-center",
+							closeOnClick: true,
+						});
+					} catch (err) {
+						console.error('Fallback: Oops, unable to copy', err);
+					}
+					document.body.removeChild(textArea);
 				}
-				document.body.removeChild(textArea);
-			}
 			}
 			if (referenceElementAfterId == "endpoint-b-clipboard") {
 				console.log("linkWireshark - endpoint-b-clipboard")
@@ -2021,42 +1960,42 @@ async function linkWireshark(event, option, endpoint, referenceElementAfterId) {
 					wiresharkSshCommand = `ssh ${clabUser}@${clabServerAddress} "sudo -S /sbin/ip netns exec ${clabTargetLongName} tcpdump -U -nni ${endpoint} -w -" | wireshark -k -i -`
 				}
 				// Check if the clipboard API is available
-			if (navigator.clipboard && navigator.clipboard.writeText) {
-				navigator.clipboard.writeText(wiresharkSshCommand).then(function() {
-					bulmaToast.toast({
-						message: `Hey, now you can paste the link to your terminal console. 😎`,
-						type: "is-warning is-size-6 p-3",
-						duration: 4000,
-						position: "top-center",
-						closeOnClick: true,
+				if (navigator.clipboard && navigator.clipboard.writeText) {
+					navigator.clipboard.writeText(wiresharkSshCommand).then(function() {
+						bulmaToast.toast({
+							message: `Hey, now you can paste the link to your terminal console. 😎`,
+							type: "is-warning is-size-6 p-3",
+							duration: 4000,
+							position: "top-center",
+							closeOnClick: true,
+						});
+					}).catch(function(error) {
+						console.error('Could not copy text: ', error);
 					});
-				}).catch(function(error) {
-					console.error('Could not copy text: ', error);
-				});
-			} else {
-				// Fallback method for older browsers
-				let textArea = document.createElement('textarea');
-				textArea.value = wiresharkSshCommand;
-				document.body.appendChild(textArea);
-				textArea.focus();
-				textArea.select();
-				try {
-					document.execCommand('copy');
-					// alert('Text copied to clipboard');
-					bulmaToast.toast({
-						message: `Hey, now you can paste the link to your terminal console. 😎`,
-						type: "is-warning is-size-6 p-3",
-						duration: 4000,
-						position: "top-center",
-						closeOnClick: true,
-					});
-				} catch (err) {
-					console.error('Fallback: Oops, unable to copy', err);
+				} else {
+					// Fallback method for older browsers
+					let textArea = document.createElement('textarea');
+					textArea.value = wiresharkSshCommand;
+					document.body.appendChild(textArea);
+					textArea.focus();
+					textArea.select();
+					try {
+						document.execCommand('copy');
+						// alert('Text copied to clipboard');
+						bulmaToast.toast({
+							message: `Hey, now you can paste the link to your terminal console. 😎`,
+							type: "is-warning is-size-6 p-3",
+							duration: 4000,
+							position: "top-center",
+							closeOnClick: true,
+						});
+					} catch (err) {
+						console.error('Fallback: Oops, unable to copy', err);
+					}
+					document.body.removeChild(textArea);
 				}
-				document.body.removeChild(textArea);
 			}
-			}
-			
+
 
 		} else if (option == "copy") {
 			if (endpoint == "source") {
@@ -3252,59 +3191,60 @@ function sleep(ms) {
 }
 
 // Helper function to render only sub-interface items dynamically
-async function renderSubInterfaces(subInterfaces, referenceElementAfterId, referenceElementBeforeId) {
-    // Constants for container, reference elements, and click handler
-    const containerSelectorId = 'panel-link-action-dropdown-menu-dropdown-content'; // The container where dropdown items are rendered
-    const onClickHandler = (event, subInterface) => {
-        console.log(`Clicked on: ${subInterface}`);
-        // Add your custom logic here
+async function renderSubInterfaces(subInterfaces, referenceElementAfterId, referenceElementBeforeId, edgeSharkClipboardToggle) {
+	// Constants for container, reference elements, and click handler
+	const containerSelectorId = 'panel-link-action-dropdown-menu-dropdown-content'; // The container where dropdown items are rendered
+
+	const onClickHandler = (event, subInterface) => {
+		console.log(`Clicked on: ${subInterface}`);
+		// Add your custom logic here
 		linkWireshark(event, "edgeSharkSubInterface", subInterface, referenceElementAfterId)
+	};
 
-    };
 
-    // Find the container where the dropdown items are rendered
-    const containerElement = document.getElementById(containerSelectorId);
-    if (!containerElement) {
-        console.error("Container element not found.");
-        return;
-    }
+	// Find the container where the dropdown items are rendered
+	const containerElement = document.getElementById(containerSelectorId);
+	if (!containerElement) {
+		console.error("Container element not found.");
+		return;
+	}
 
-    // Find the reference elements
-    const referenceElementAfter = document.getElementById(referenceElementAfterId);
-    const referenceElementBefore = document.getElementById(referenceElementBeforeId);
-    if (!referenceElementAfter || !referenceElementBefore) {
-        console.error("Reference elements not found.");
-        return;
-    }
+	// Find the reference elements
+	const referenceElementAfter = document.getElementById(referenceElementAfterId);
+	const referenceElementBefore = document.getElementById(referenceElementBeforeId);
+	if (!referenceElementAfter || !referenceElementBefore) {
+		console.error("Reference elements not found.");
+		return;
+	}
 
-    // Remove all <a> nodes between referenceElementAfter and referenceElementBefore
-    let currentNode = referenceElementAfter.nextSibling;
-    while (currentNode && currentNode !== referenceElementBefore) {
-        const nextNode = currentNode.nextSibling; // Store next node before removal
-        if (currentNode.nodeName === 'A') {
-            currentNode.remove();
-        }
-        currentNode = nextNode; // Move to the next node
-    }
+	// Remove all <a> nodes between referenceElementAfter and referenceElementBefore
+	let currentNode = referenceElementAfter.nextSibling;
+	while (currentNode && currentNode !== referenceElementBefore) {
+		const nextNode = currentNode.nextSibling; // Store next node before removal
+		if (currentNode.nodeName === 'A') {
+			currentNode.remove();
+		}
+		currentNode = nextNode; // Move to the next node
+	}
 
-    // If subInterfaces is empty, just return after clearing nodes
-    if (!subInterfaces || subInterfaces.length === 0) {
-        console.log("No sub-interfaces to render. Cleared existing items.");
-        return;
-    }
+	// If subInterfaces is empty, just return after clearing nodes
+	if (!subInterfaces || subInterfaces.length === 0) {
+		console.log("No sub-interfaces to render. Cleared existing items.");
+		return;
+	}
 
-    // Dynamically generate and insert sub-interface items
-    subInterfaces.forEach(subInterface => {
-        const a = document.createElement("a");
-        a.className = "dropdown-item label has-text-weight-normal is-small py-0";
-        a.style.display = "flex";
-        a.style.justifyContent = "flex-end";
-        a.textContent = `└ Sub-Interface ${subInterface}`;
-        a.onclick = (event) => onClickHandler(event, subInterface);
+	// Dynamically generate and insert sub-interface items
+	subInterfaces.forEach(subInterface => {
+		const a = document.createElement("a");
+		a.className = "dropdown-item label has-text-weight-normal is-small py-0";
+		a.style.display = "flex";
+		a.style.justifyContent = "flex-end";
+		a.textContent = `└ Sub-Interface ${subInterface}`;
+		a.onclick = (event) => onClickHandler(event, subInterface);
 
-        // Insert after the reference element
-        insertAfter(a, referenceElementAfter);
-    });
+		// Insert after the reference element
+		insertAfter(a, referenceElementAfter);
+	});
 }
 
 
@@ -3314,46 +3254,46 @@ function insertAfter(newNode, referenceNode) {
 }
 
 function addSvgIcon(targetHtmlId, svgIcon, altName, position, size) {
-    // Find the target node
-    const targetNode = document.getElementById(targetHtmlId);
-    if (!targetNode) {
-        console.error(`Target node with ID "${targetHtmlId}" not found.`);
-        return;
-    }
+	// Find the target node
+	const targetNode = document.getElementById(targetHtmlId);
+	if (!targetNode) {
+		console.error(`Target node with ID "${targetHtmlId}" not found.`);
+		return;
+	}
 
-    // Ensure the target node uses flexbox for alignment
-    targetNode.style.display = "flex";
-    targetNode.style.alignItems = "center";
+	// Ensure the target node uses flexbox for alignment
+	targetNode.style.display = "flex";
+	targetNode.style.alignItems = "center";
 
-    // Create the <img> element for the SVG icon
-    const imgIcon = document.createElement("img");
-    imgIcon.src = svgIcon;
-    imgIcon.alt = altName; // Accessible description
-    imgIcon.style.width = size;
-    imgIcon.style.height = size;
-    imgIcon.style.marginLeft = position === "after" ? "4px" : "0"; // Add spacing between the label and the icon if "after"
-    imgIcon.style.marginRight = position === "before" ? "4px" : "0"; // Add spacing if "before"
+	// Create the <img> element for the SVG icon
+	const imgIcon = document.createElement("img");
+	imgIcon.src = svgIcon;
+	imgIcon.alt = altName; // Accessible description
+	imgIcon.style.width = size;
+	imgIcon.style.height = size;
+	imgIcon.style.marginLeft = position === "after" ? "4px" : "0"; // Add spacing between the label and the icon if "after"
+	imgIcon.style.marginRight = position === "before" ? "4px" : "0"; // Add spacing if "before"
 
-    // Add CSS class for gradient animation
-    imgIcon.classList.add("gradient-animation");
+	// Add CSS class for gradient animation
+	imgIcon.classList.add("gradient-animation");
 
-    // Insert the image based on the position
-    if (position === "after") {
-        // Append the image after the label
-        targetNode.append(imgIcon);
-    } else if (position === "before") {
-        // Insert the image before the label
-        targetNode.prepend(imgIcon);
-    } else {
-        console.error(
-            `Invalid position "${position}" specified. Use "after" or "before".`
-        );
-        return;
-    }
+	// Insert the image based on the position
+	if (position === "after") {
+		// Append the image after the label
+		targetNode.append(imgIcon);
+	} else if (position === "before") {
+		// Insert the image before the label
+		targetNode.prepend(imgIcon);
+	} else {
+		console.error(
+			`Invalid position "${position}" specified. Use "after" or "before".`
+		);
+		return;
+	}
 
-    // Add dynamic style for gradient animation
-    const style = document.createElement("style");
-    style.textContent = `
+	// Add dynamic style for gradient animation
+	const style = document.createElement("style");
+	style.textContent = `
         @keyframes gradientColorChange {
             0% { filter: invert(100%); } /* White */
             20% { filter: invert(85%); } /* Light Grey */
@@ -3366,7 +3306,7 @@ function addSvgIcon(targetHtmlId, svgIcon, altName, position, size) {
             animation: gradientColorChange 3600s infinite;
         }
     `;
-    document.head.appendChild(style);
+	document.head.appendChild(style);
 }
 
 
