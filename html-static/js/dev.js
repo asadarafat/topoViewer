@@ -128,7 +128,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 			const divider = document.getElementById('divider');
 			const dataDisplay = document.getElementById('data-display');
 			const rootDiv = document.getElementById('root-div');
-			const togglePanelButton = document.getElementById('toggle-panel');
+			const togglePanelButton = document.getElementById('toggle-panel-data-display-expand');
 		  
 			// Check for required elements
 			if (!divider || !dataDisplay || !rootDiv || !togglePanelButton) {
@@ -186,16 +186,18 @@ document.addEventListener("DOMContentLoaded", async function() {
 				// Add or remove transparency
 				if ((dataDisplayWidth / rootDivWidth) * 100 > 60) {
 				  dataDisplay.classList.add('transparent');
+
 				} else {
 				  dataDisplay.classList.remove('transparent');
+				// Debounce the animation
+					debounce(() => {
+						console.log('Fitting Cytoscape to new size with animation');
+						animateFit();
+					}, 500); // Delay of 500ms
 				}
 			  }
 		  
-			  // Debounce the animation
-			  debounce(() => {
-				console.log('Fitting Cytoscape to new size with animation');
-				animateFit();
-			  }, 500); // Delay of 500ms
+
 			});
 		  
 			document.addEventListener('mouseup', () => {
@@ -211,14 +213,14 @@ document.addEventListener("DOMContentLoaded", async function() {
 				dataDisplay.style.width = '30%';
 				rootDiv.style.width = '70%';
 				divider.style.left = '70%';
-				togglePanelButton.textContent = 'Hide';
+				// togglePanelButton.textContent = 'Hide';
 				dataDisplay.classList.remove('transparent');
 			  } else {
 				// Collapse to 5%
-				dataDisplay.style.width = '5%';
-				rootDiv.style.width = '95%';
-				divider.style.left = '95%';
-				togglePanelButton.textContent = 'Show';
+				dataDisplay.style.width = '0.4%';
+				rootDiv.style.width = '99.6%';
+				divider.style.left = '99.6%';
+				// togglePanelButton.textContent = 'Show';
 				dataDisplay.classList.add('transparent');
 			  }
 		  

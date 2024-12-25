@@ -145,10 +145,10 @@ body {
       width: 30%;
       height: 100%;
       z-index: 11;
-      background: rgba(24,24, 24,  0.95);
+      background-color: rgba(40, 40, 40, 1);
       border: none;
       overflow-y: auto;
-      transition: 0.3s ease;
+      /* transition: 0.3s ease; */
     }
 
     /* Semi-transparency styling */
@@ -162,7 +162,7 @@ body {
       position: absolute;
       top: 55px;
       left: 70%;
-      width: 5px;
+      width: 0px;
       height: 100%;
       z-index: 12;
       cursor: ew-resize;
@@ -174,7 +174,7 @@ body {
 
     /* Divider button styling */
     #divider button {
-      transform: rotate(90deg);
+      /* transform: rotate(90deg); */
       background: #007bff;
       color: white;
       border: none;
