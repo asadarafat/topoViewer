@@ -37,8 +37,19 @@ body {
 }
 
 
-
-/* .column {
+.has-background-4a {
+  z-index: 9999;
+  background-color:rgba(70,86, 246, 1);
+  box-shadow: 0px 3px 6px rgba(255, 255, 255, 0.4);
+}
+.panel-block {
+  background-color: white;
+}
+.panel {
+  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.4);
+  background-color: white;
+}
+.column {
   background-color: white;
 }
 .box {
@@ -53,71 +64,91 @@ body {
 }
 #sidebar {
   background-color: white;
-} */
+}
 
 #edgeLength, #nodeSpacing #nodeGap {
   width: 100%;
 }
-/* #cy { */
-  /* height: 100vh; */
-  /* position: fixed; */
-  /* left: 0em; */
-  /* right: 0em; */
-  /* top: 5em; */
-  /* bottom: 5em; */
- /* z-index: 0; /* Background */
-/* } */
 
-#cy { 
-  width: 100%;
-  height: 100%;
-  position: absolute;
+#cy-original {
+  height: 100vh;
+  position: fixed;
+  left: 0em;
+  right: 0em;
+  top: 5em;
+  bottom: 0em;
   z-index: 0; /* Background */
 }
 
-    /* Root div for Cytoscape container */
-    #root-div {
+    /* Cytoscape container styling */
+    #cy {
+      position: absolute;
+      top: 0;
+      left: 0;
       width: 100%;
-      height: 70%;
-      position: relative;
-      z-index: 1; /* Background */
-
+      left: 0em;
+      right: 0em;
+      top: 5em;
+      height: 100%;
+      z-index: 0; /* Background */
     }
+
+    #root-div {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 60%;
+      left: 0em;
+      right: 0em;
+      top: 5em;
+      height: 100%;
+      z-index: 0; /* Background */
+    }
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
 
     /* Data display panel */
     #data-display {
-      width: 100%;
-      height: 30%;
-      position: relative;
-      background: rgba(24,24, 24,  0.95);
-      border-top: 1px solid #ccc;
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 40%;
+      height: 100%;
+      z-index: 1;
+      background-color: rgba(40, 40, 40, 1);
+      border-left: 1px solid #ccc;
       overflow-y: auto;
-      position: relative;
-      z-index: 11;
-      transition: 0.3s ease;
+      transition: background 0.3s ease;
     }
 
     /* Semi-transparency styling */
     #data-display.transparent {
-      background:rgba(24,24, 24, 0.90 );
-      z-index: 11;
+      background: rgba(100, 100, 100, 0.9);
     }
 
-    /* Divider styling */
+    /* Draggable divider styling */
     #divider {
-      position: relative; /* Ensure a stacking context */
-      width: 100%;
-      height: 5px;
-      cursor: ns-resize;
+      position: absolute;
+      top: 0;
+      left: 60%;
+      width: 10px;
+      height: 100%;
+      z-index: 2;
+      cursor: ew-resize;
       background: #ccc;
       display: flex;
       align-items: center;
       justify-content: center;
-      z-index: 12;
     }
 
     /* Divider button styling */
     #divider button {
+      transform: rotate(90deg);
       background: #007bff;
       color: white;
       border: none;
@@ -125,12 +156,6 @@ body {
       cursor: pointer;
       font-size: 14px;
     }
-    
-html, body {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-}
 
 #logo {
   top: 20px;
@@ -279,12 +304,8 @@ html, body {
 }
 
 #panel-introduction {
-  bottom: 10px;
-  right: 40px;
-  width: 340px;
-  max-height: 700px;
   overflow-y: auto;
-  position: fixed;
+  max-height: 100%; 
 }
 
 #panel-log-messages {
@@ -315,9 +336,10 @@ html, body {
 }
 
 #panel-backup-restore {
-  top: 85px;
-  right: 40px;
-  max-height: 700px;
+  top: 100px;
+  right: 100px;
+  left: 100px;
+  height: calc(85vh - 50px);
   position: fixed;
   display: block;
 }
@@ -378,7 +400,7 @@ html, body {
 [data-theme=dark], 
 .theme-dark {
   .has-background-4a {
-    z-index: 0;
+    z-index: 9999;
     background-color:rgba(24,24, 24, 1);
     box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.4);
   }
@@ -440,7 +462,7 @@ html, body {
 [data-theme=light], 
 .theme-light {
   .has-background-4a {
-    z-index: 1;
+    z-index: 9999;
     background-color:rgba(70,86, 246, 1);
     box-shadow: 0px 3px 6px rgba(255, 255, 255, 0.4);
  }

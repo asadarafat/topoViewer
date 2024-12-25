@@ -17,6 +17,117 @@ var labName
 var deploymentType
 
 document.addEventListener("DOMContentLoaded", async function() {
+	
+	function initializeResizingLogic() {
+		// Get elements with checks
+		const divider = document.getElementById('divider');
+		const dataDisplay = document.getElementById('data-display');
+		const rootDiv = document.getElementById('root-div');
+		const togglePanelButton = document.getElementById('toggle-panel');
+	  
+		// Check for required elements
+		if (!divider || !dataDisplay || !rootDiv || !togglePanelButton) {
+		  console.warn('One or more required elements for resizing logic are missing. Initialization aborted.');
+		  return;
+		}
+	  
+		let isDragging = false;
+		let resizeTimeout;
+	  
+		// Debounce function
+		function debounce(func, delay) {
+		  clearTimeout(resizeTimeout);
+		  resizeTimeout = setTimeout(func, delay);
+		}
+	  
+		// Function to animate cy.fit()
+		function animateFit() {
+		  if (typeof cy.animate === 'function') {
+			cy.animate({
+			  fit: {
+				padding: 10, // Add padding around the graph
+			  },
+			  duration: 500, // Animation duration in milliseconds
+			});
+		  } else {
+			console.warn('Cytoscape instance does not support animate. Skipping animation.');
+		  }
+		}
+	  
+		// Handle dragging
+		divider.addEventListener('mousedown', () => {
+		  isDragging = true;
+		  document.body.style.cursor = 'ns-resize';
+		});
+	  
+		document.addEventListener('mousemove', (e) => {
+		  if (!isDragging) return;
+	  
+		  const screenHeight = window.innerHeight;
+		  const offsetY = e.clientY;
+		  const minHeight = 5; // Minimum height for data display
+		  const maxHeight = screenHeight * 0.95; // Maximum height for data display
+	  
+		  const dataDisplayHeight = screenHeight - offsetY;
+		  if (dataDisplayHeight >= minHeight && dataDisplayHeight <= maxHeight) {
+			const rootDivHeight = screenHeight - dataDisplayHeight;
+	  
+			// Update heights
+			dataDisplay.style.height = `${(dataDisplayHeight / screenHeight) * 100}%`;
+			rootDiv.style.height = `${(rootDivHeight / screenHeight) * 100}%`;
+	  
+			// Add or remove transparency
+			if ((dataDisplayHeight / screenHeight) * 100 > 60) {
+			  dataDisplay.classList.add('transparent');
+			} else {
+			  dataDisplay.classList.remove('transparent');
+			}
+		  }
+	  
+		  // Debounce the animation
+		  debounce(() => {
+			console.log('Fitting Cytoscape to new size with animation');
+			animateFit();
+		  }, 500); // Delay of 500ms
+		});
+	  
+		document.addEventListener('mouseup', () => {
+		  isDragging = false;
+		  document.body.style.cursor = 'default';
+		});
+	  
+		// Toggle panel visibility
+		togglePanelButton.addEventListener('click', () => {
+		  const isHidden = parseFloat(dataDisplay.style.height) <= 5;
+		  if (isHidden) {
+			// Restore to default
+			dataDisplay.style.height = '30%';
+			rootDiv.style.height = '70%';
+			togglePanelButton.textContent = 'Hide';
+			dataDisplay.classList.remove('transparent');
+		  } else {
+			// Collapse to 5%
+			dataDisplay.style.height = '5%';
+			rootDiv.style.height = '95%';
+			togglePanelButton.textContent = 'Show';
+			dataDisplay.classList.add('transparent');
+		  }
+	  
+		  // Animate fit after toggling
+		  debounce(() => {
+			console.log('Fitting Cytoscape to new size with animation');
+			animateFit();
+		  }, 500); // Delay of 500ms
+		});
+	  }
+	  
+
+	  
+	// Call the function during initialization
+	initializeResizingLogic(cy);
+	  
+	  
+
 
 	detectColorScheme()
 	await changeTitle()
@@ -2185,11 +2296,13 @@ async function getActualNodesEndpoints(event) {
 function viewportButtonsZoomToFit() {
 	const initialZoom = cy.zoom();
 	appendMessage(`Bro, initial zoom level is "${initialZoom}".`);
+	console.log(`Bro, initial zoom level is "${initialZoom}".`);
 	// Fit all nodes possible with padding
 	// Fit all nodes possible with padding
 	cy.fit();
 	const currentZoom = cy.zoom();
 	appendMessage(`And now the zoom level is "${currentZoom}".`);
+	console.log(`And now the zoom level is "${currentZoom}".`);
 }
 
 function viewportButtonsLayoutAlgo() {
