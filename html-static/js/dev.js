@@ -8,7 +8,7 @@ var cy
 var globalSelectedNode
 var globalSelectedEdge
 
-var linkEndpointVisibility = true;
+var linkEndpointVisibility = false;
 var nodeContainerStatusVisibility = false;
 
 var globalShellUrl = "/js/cloudshell"
@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 	initializeDropdownTopoViewerRoleListeners();
 	initializeDropdownListeners();
 	initViewportDrawerClabEditoCheckboxToggle()
-	
+
 	insertAndColorSvg("nokia-logo", "white")
 
 	// Reusable function to initialize a WebSocket connection
@@ -129,7 +129,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 	cytoscape.use(cytoscapePopper(popperFactory));
 
 
-	//- Instantiate Cytoscape.js
+	// Instantiate Cytoscape.js
 	cy = cytoscape({
 		container: document.getElementById("cy"),
 		elements: [],
@@ -160,7 +160,13 @@ document.addEventListener("DOMContentLoaded", async function() {
 	// Optionally, reset the style when nodes are unselected
 	cy.on('unselect', 'node', (event) => {
 		// Clear inline styles for all nodes
-		cy.nodes().removeStyle();
+		loadCytoStyle(cy);
+		console.log('Remaining selected nodes:', cy.$('node:selected').map(n => n.id()));
+	});
+
+	// Optionally, reset the style when edges are unselected
+	cy.on('unselect', 'edge', (event) => {
+		// Clear inline styles for all nodes
 		loadCytoStyle(cy);
 		console.log('Remaining selected nodes:', cy.$('node:selected').map(n => n.id()));
 	});
@@ -322,45 +328,6 @@ document.addEventListener("DOMContentLoaded", async function() {
 
 	loadCytoStyle(cy);
 
-	function loadCytoStyle(cy) {
-		cy.nodes().removeStyle();
-		// detect light or dark mode
-		const colorScheme = detectColorScheme();
-		console.log('The user prefers:', colorScheme);
-
-		//- Load and apply Cytoscape styles from cy-style.json using fetch
-		if (colorScheme == "light") {
-			fetch("css/cy-style-dark.json")
-				.then((response) => response.json())
-				.then((styles) => {
-					cy.style().fromJson(styles).update();
-				})
-				.catch((error) => {
-					console.error(
-						"Oops, we hit a snag! Couldnt load the cyto styles, bro.",
-						error,
-					);
-					appendMessage(
-						`Oops, we hit a snag! Couldnt load the cyto styles, bro.: ${error}`,
-					);
-				});
-		} else if (colorScheme == "dark") {
-			fetch("css/cy-style-dark.json")
-				.then((response) => response.json())
-				.then((styles) => {
-					cy.style().fromJson(styles).update();
-				})
-				.catch((error) => {
-					console.error(
-						"Oops, we hit a snag! Couldnt load the cyto styles, bro.",
-						error,
-					);
-					appendMessage(
-						`Oops, we hit a snag! Couldnt load the cyto styles, bro.: ${error}`,
-					);
-				});
-		}
-	}
 
 	// Enable grid guide extension
 	cy.gridGuide({
@@ -418,7 +385,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 		.then((elements) => {
 			// Add the elements to the Cytoscape instance
 			cy.add(elements);
-			//- run layout
+			// run layout
 			const layout = cy.layout({
 				name: "cola",
 				nodeGap: 5,
@@ -456,6 +423,9 @@ document.addEventListener("DOMContentLoaded", async function() {
 		.catch((error) => {
 			console.error("Error loading graph data:", error);
 		});
+
+
+
 	// Instantiate hover text element
 	const hoverText = document.createElement("box");
 	hoverText.classList.add(
@@ -512,7 +482,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 		}
 	});
 
-	//- Toggle the Panel(s) when clicking on the cy container
+	// Toggle the Panel(s) when clicking on the cy container
 	document.getElementById("cy").addEventListener("click", function(event) {
 
 		console.log("cy container clicked");
@@ -520,8 +490,8 @@ document.addEventListener("DOMContentLoaded", async function() {
 		console.log("nodeClicked: ", nodeClicked);
 		console.log("edgeClicked: ", edgeClicked);
 
-		//- This code will be executed when you click anywhere in the Cytoscape container
-		//- You can add logic specific to the container here
+		// This code will be executed when you click anywhere in the Cytoscape container
+		// You can add logic specific to the container here
 
 		if (!nodeClicked && !edgeClicked) {
 			console.log("!nodeClicked  -- !edgeClicked");
@@ -909,11 +879,11 @@ document.addEventListener("DOMContentLoaded", async function() {
 			} else if (Array.isArray(clabSourceSubInterfacesClabData)) {
 				console.log("No sub-interfaces found. The input data array is empty.");
 				renderSubInterfaces(null, 'endpoint-a-edgeshark', 'endpoint-a-clipboard');
-				renderSubInterfaces(null, 'endpoint-a-clipboard', 'endpoint-a-bottom');		
+				renderSubInterfaces(null, 'endpoint-a-clipboard', 'endpoint-a-bottom');
 			} else {
 				console.log("No sub-interfaces found. The input data is null, undefined, or not an array.");
 				renderSubInterfaces(null, 'endpoint-a-edgeshark', 'endpoint-a-clipboard');
-				renderSubInterfaces(null, 'endpoint-a-clipboard', 'endpoint-a-bottom');		
+				renderSubInterfaces(null, 'endpoint-a-clipboard', 'endpoint-a-bottom');
 			}
 
 
@@ -939,11 +909,11 @@ document.addEventListener("DOMContentLoaded", async function() {
 			} else if (Array.isArray(clabTargetSubInterfacesClabData)) {
 				console.log("No sub-interfaces found. The input data array is empty.");
 				renderSubInterfaces(null, 'endpoint-b-edgeshark', 'endpoint-b-clipboard');
-				renderSubInterfaces(null, 'endpoint-b-clipboard', 'endpoint-b-bottom');	
+				renderSubInterfaces(null, 'endpoint-b-clipboard', 'endpoint-b-bottom');
 			} else {
 				console.log("No sub-interfaces found. The input data is null, undefined, or not an array.");
 				renderSubInterfaces(null, 'endpoint-b-edgeshark', 'endpoint-b-clipboard');
-				renderSubInterfaces(null, 'endpoint-b-clipboard', 'endpoint-b-bottom');	
+				renderSubInterfaces(null, 'endpoint-b-clipboard', 'endpoint-b-bottom');
 			}
 
 
@@ -958,30 +928,30 @@ document.addEventListener("DOMContentLoaded", async function() {
 
 	function generateNodesEvent(event) {
 		// Your event handling logic here
-		//- Add a click event listener to the 'Generate' button
-		//- Get the number of node from the input field
+		// Add a click event listener to the 'Generate' button
+		// Get the number of node from the input field
 		// Your event handling logic here
-		//- Add a click event listener to the 'Generate' button
-		//- Get the number of node from the input field
+		// Add a click event listener to the 'Generate' button
+		// Get the number of node from the input field
 		console.log("generateNodesButton clicked");
 		const numNodes = document.getElementById("generateNodesInput").value;
 		console.log(numNodes);
-		//- Check if the number of node is empty
+		// Check if the number of node is empty
 		if (numNodes === null) {
-			//- if node number empty do nothing
+			// if node number empty do nothing
 			return;
 		}
 		const numNodesToGenerate = parseInt(numNodes, 10);
-		//- Check if the number of node is positive
+		// Check if the number of node is positive
 		if (isNaN(numNodesToGenerate) || numNodesToGenerate <= 0) {
-			//- Invalid input
-			//- Invalid input
+			// Invalid input
+			// Invalid input
 			appendMessage(
 				"Error:" + "Bro, you gotta enter a valid positive number, come on!",
 			);
 			return;
 		}
-		//- Generate nodes with random positions
+		// Generate nodes with random positions
 		for (let i = 0; i < numNodesToGenerate; i++) {
 			const nodeName = `node-${i + 1}`;
 			const newNode = {
@@ -995,18 +965,18 @@ document.addEventListener("DOMContentLoaded", async function() {
 					y: Math.random() * 400,
 				},
 			};
-			//-cy.add(newNode);
+			//cy.add(newNode);
 			try {
 				cy.add(newNode);
-				//- throw new Error('This is an example exception');
+				// throw new Error('This is an example exception');
 			} catch (error) {
-				//- Log the exception to the console
+				// Log the exception to the console
 				console.error("An exception occurred:", error);
-				//- Log the exception to notification message to the textarea
+				// Log the exception to notification message to the textarea
 				appendMessage("An exception occurred:" + error);
 			}
 		}
-		//- Generate random edges between nodes
+		// Generate random edges between nodes
 		for (let i = 0; i < numNodesToGenerate; i++) {
 			const sourceNode = `node-${i + 1}`;
 			const targetNode = `node-${Math.floor(Math.random() * numNodesToGenerate) + 1}`;
@@ -1022,16 +992,16 @@ document.addEventListener("DOMContentLoaded", async function() {
 				};
 				try {
 					cy.add(newEdge);
-					//- throw new Error('This is an example exception');
+					// throw new Error('This is an example exception');
 				} catch (error) {
-					//- Log the exception to the console
+					// Log the exception to the console
 					console.error("An exception occurred:", error);
-					//- Log the exception to notification message to the textarea
+					// Log the exception to notification message to the textarea
 					appendMessage("An exception occurred::" + error);
 				}
 			}
 		}
-		//- run layout
+		// run layout
 		const layout = cy.layout({
 			name: "cola",
 			nodeGap: 5,
@@ -1041,7 +1011,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 			maxSimulationTime: 1500,
 		});
 		layout.run();
-		//-//- Append a notification message to the textarea
+		//// Append a notification message to the textarea
 		console.log(
 			"Info: " +
 			`Boom! Just generated ${numNodesToGenerate} nodes with some random edges. That's how we roll!`,
@@ -1209,23 +1179,23 @@ document.addEventListener("DOMContentLoaded", async function() {
 
 
 	function spawnNodeEvent(event) {
-		//- Add a click event listener to the 'Submit' button in the hidden form
-		//- Get the node name from the input field
+		// Add a click event listener to the 'Submit' button in the hidden form
+		// Get the node name from the input field
 		const nodeName = document.getElementById("nodeName").value;
 		console.log(nodeName);
-		//- Check if a node name is empty
+		// Check if a node name is empty
 		if (nodeName == "") {
-			//- append message in textArea
+			// append message in textArea
 			appendMessage("Error: Enter node name.");
 			return;
 		}
-		//- Check if a node with the same name already exists
+		// Check if a node with the same name already exists
 		if (cy.$(`node[id = "${nodeName}"]`).length > 0) {
-			//- append message in textArea
+			// append message in textArea
 			appendMessage("Error: Node with this name already exists.");
 			return;
 		}
-		//- Create a new node element
+		// Create a new node element
 		const newNode = {
 			group: "nodes",
 			data: {
@@ -1234,9 +1204,9 @@ document.addEventListener("DOMContentLoaded", async function() {
 				label: nodeName,
 			},
 		};
-		//- Add the new node to Cytoscape.js
+		// Add the new node to Cytoscape.js
 		cy.add(newNode);
-		//- Randomize the positions and center the graph
+		// Randomize the positions and center the graph
 		const layout = cy.layout({
 			name: "cola",
 			nodeGap: 5,
@@ -1246,7 +1216,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 			maxSimulationTime: 1500,
 		});
 		layout.run();
-		//- Append a notification message to the textarea
+		// Append a notification message to the textarea
 		console.log("Info: " + `Nice! Node "${nodeName}" added successfully.`);
 		appendMessage("Info: " + `Nice! Node "${nodeName}" added successfully.`);
 	}
@@ -1254,7 +1224,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 	function zoomToFitDrawer() {
 		const initialZoom = cy.zoom();
 		appendMessage(`Bro, initial zoom level is "${initialZoom}".`);
-		//- Fit all nodes possible with padding
+		// Fit all nodes possible with padding
 		cy.fit();
 		const currentZoom = cy.zoom();
 		appendMessage(`And now the zoom level is "${currentZoom}".`);
@@ -1263,9 +1233,9 @@ document.addEventListener("DOMContentLoaded", async function() {
 	function pathFinderDijkstraEvent(event) {
 		// Usage example:
 		// highlightShortestPath('node-a', 'node-b'); // Replace with your source and target node IDs
-		//- Function to get the default node style from cy-style.json
-		//- weight: (edge) => 1, // You can adjust the weight function if needed
-		//- weight: (edge) => edge.data('distance')
+		// Function to get the default node style from cy-style.json
+		// weight: (edge) => 1, // You can adjust the weight function if needed
+		// weight: (edge) => edge.data('distance')
 
 		console.log("im triggered");
 
@@ -1337,10 +1307,10 @@ document.addEventListener("DOMContentLoaded", async function() {
 				edge.addClass("spf");
 			});
 
-			//- Zoom out on the node
+			// Zoom out on the node
 			cy.fit();
 
-			//- Zoom in on the node
+			// Zoom in on the node
 			cy.animate({
 				zoom: {
 					level: 5,
@@ -1494,27 +1464,27 @@ document.addEventListener("DOMContentLoaded", async function() {
 	// 
 
 
-	//- Function to get the default node style from cy-style.json
+	// Function to get the default node style from cy-style.json
 	async function getDefaultNodeStyle(node) {
 		try {
-			//- Fetch the cy-style.json file
+			// Fetch the cy-style.json file
 			const response = await fetch("cy-style.json");
-			//- Check if the response is successful (status code 200)
+			// Check if the response is successful (status code 200)
 			if (!response.ok) {
 				throw new Error(
 					`Failed to fetch cy-style.json (${response.status} ${response.statusText})`,
 				);
 			}
-			//- Parse the JSON response
+			// Parse the JSON response
 			const styleData = await response.json();
-			//- Extract the default node style from the loaded JSON
-			//- Adjust this based on your JSON structure
+			// Extract the default node style from the loaded JSON
+			// Adjust this based on your JSON structure
 			const defaultNodeStyle = styleData[0].style;
 			return defaultNodeStyle;
 		} catch (error) {
 			console.error("Error loading cy-style.json:", error);
 			appendMessage(`Error loading cy-style.json: ${error}`);
-			//- Return a default style in case of an error
+			// Return a default style in case of an error
 			return {
 				"background-color": "blue",
 				"border-color": "gray",
@@ -1523,7 +1493,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 		}
 	}
 
-	///-logMessagesPanel Function to add a click event listener to the copy button
+	///logMessagesPanel Function to add a click event listener to the copy button
 	const copyButton = document.getElementById("copyToClipboardButton");
 	copyButton.className = "button is-smallest-element";
 	copyButton.addEventListener("click", copyToClipboard);
@@ -2061,7 +2031,7 @@ async function showPanelLogMessages(event) {
 	document.getElementById("panel-log-messages").style.display = "block";
 }
 
-///-logMessagesPanel Function to add a click event listener to the close button
+///logMessagesPanel Function to add a click event listener to the close button
 document.getElementById("panel-log-messages-close-button").addEventListener("click", () => {
 	document.getElementById("panel-log-messages").style.display = "none";
 });
@@ -2215,8 +2185,8 @@ async function getActualNodesEndpoints(event) {
 function viewportButtonsZoomToFit() {
 	const initialZoom = cy.zoom();
 	appendMessage(`Bro, initial zoom level is "${initialZoom}".`);
-	//- Fit all nodes possible with padding
-	//- Fit all nodes possible with padding
+	// Fit all nodes possible with padding
+	// Fit all nodes possible with padding
 	cy.fit();
 	const currentZoom = cy.zoom();
 	appendMessage(`And now the zoom level is "${currentZoom}".`);
@@ -2235,24 +2205,24 @@ function viewportButtonsLayoutAlgo() {
 
 
 function viewportNodeFindEvent(event) {
-	//- Get a reference to your Cytoscape instance (assuming it's named 'cy')
-	//- const cy = window.cy; //- Replace 'window.cy' with your actual Cytoscape instance
-	//- Find the node with the specified name
+	// Get a reference to your Cytoscape instance (assuming it's named 'cy')
+	// const cy = window.cy; // Replace 'window.cy' with your actual Cytoscape instance
+	// Find the node with the specified name
 	const nodeName = document.getElementById("viewport-drawer-topology-overview-content-edit").value;
 	const node = cy.$(`node[name = "${nodeName}"]`);
-	//- Check if the node exists
+	// Check if the node exists
 	if (node.length > 0) {
 		console.log("Info: " + 'Sweet! Node "' + nodeName + '" is in the house.');
 		appendMessage("Info: " + 'Sweet! Node "' + nodeName + '" is in the house.');
-		//- Apply a highlight style to the node
+		// Apply a highlight style to the node
 		node.style({
 			"border-color": "red",
 			"border-width": "2px",
 			"background-color": "yellow",
 		});
-		//- Zoom out on the node
+		// Zoom out on the node
 		cy.fit();
-		//- Zoom in on the node
+		// Zoom in on the node
 		cy.animate({
 			zoom: {
 				level: 5,
@@ -2401,15 +2371,23 @@ function viewportButtonsLabelEndpoint() {
 		cy.edges().forEach(function(edge) {
 			edge.style("text-opacity", 0);
 			edge.style("text-background-opacity", 0);
-
-
 			linkEndpointVisibility = false;
 		});
+
+
 	} else {
 		cy.edges().forEach(function(edge) {
+
+			// // Reset styles to defaults from the stylesheet
+			// loadCytoStyle(cy); // Reapply the Cytoscape stylesheet
+
+			// avoidEdgeLabelOverlap(cy);
+
 			edge.style("text-opacity", 1);
 			edge.style("text-background-opacity", 0.7);
 			linkEndpointVisibility = true;
+
+
 		});
 	}
 }
@@ -2562,222 +2540,222 @@ function viewportDrawerLayoutForceDirectedRadial() {
 }
 
 function viewportDrawerLayoutVertical() {
-    // Retrieve the sliders for node and group vertical gaps
-    const nodevGap = document.getElementById("vertical-layout-slider-node-v-gap");
-    const groupvGap = document.getElementById("vertical-layout-slider-group-v-gap");
+	// Retrieve the sliders for node and group vertical gaps
+	const nodevGap = document.getElementById("vertical-layout-slider-node-v-gap");
+	const groupvGap = document.getElementById("vertical-layout-slider-group-v-gap");
 
-    // Parse the slider values for horizontal and vertical gaps
-    const nodevGapValue = parseFloat(nodevGap.value); // Gap between child nodes within a parent
-    const groupvGapValue = parseFloat(groupvGap.value); // Gap between parent nodes
+	// Parse the slider values for horizontal and vertical gaps
+	const nodevGapValue = parseFloat(nodevGap.value); // Gap between child nodes within a parent
+	const groupvGapValue = parseFloat(groupvGap.value); // Gap between parent nodes
 
-    const delay = 100; // Delay to ensure layout updates after rendering
+	const delay = 100; // Delay to ensure layout updates after rendering
 
-    setTimeout(() => {
-        // Step 1: Position child nodes within their respective parents
-        cy.nodes().forEach(function (node) {
-            if (node.isParent()) {
-                const children = node.children(); // Get the children of the current parent node
-                const cellWidth = node.width() / children.length; // Calculate the width for each child node
+	setTimeout(() => {
+		// Step 1: Position child nodes within their respective parents
+		cy.nodes().forEach(function(node) {
+			if (node.isParent()) {
+				const children = node.children(); // Get the children of the current parent node
+				const cellWidth = node.width() / children.length; // Calculate the width for each child node
 
-                // Position child nodes evenly spaced within the parent node
-                children.forEach(function (child, index) {
-                    const xPos = index * (cellWidth + nodevGapValue); // Horizontal position for the child
-                    const yPos = 0; // Keep child nodes on the same vertical level
+				// Position child nodes evenly spaced within the parent node
+				children.forEach(function(child, index) {
+					const xPos = index * (cellWidth + nodevGapValue); // Horizontal position for the child
+					const yPos = 0; // Keep child nodes on the same vertical level
 
-                    child.position({
-                        x: xPos,
-                        y: yPos
-                    });
-                });
-            }
-        });
+					child.position({
+						x: xPos,
+						y: yPos
+					});
+				});
+			}
+		});
 
-        // Step 2: Sort parent nodes by their group level and ID for vertical stacking
-        const sortedParents = cy.nodes()
-            .filter(node => node.isParent()) // Only process parent nodes
-            .sort((a, b) => {
-                // Extract group levels for primary sorting
-                const groupLevelA = parseInt(a.data('extraData')?.topoViewerGroupLevel || 0, 10);
-                const groupLevelB = parseInt(b.data('extraData')?.topoViewerGroupLevel || 0, 10);
+		// Step 2: Sort parent nodes by their group level and ID for vertical stacking
+		const sortedParents = cy.nodes()
+			.filter(node => node.isParent()) // Only process parent nodes
+			.sort((a, b) => {
+				// Extract group levels for primary sorting
+				const groupLevelA = parseInt(a.data('extraData')?.topoViewerGroupLevel || 0, 10);
+				const groupLevelB = parseInt(b.data('extraData')?.topoViewerGroupLevel || 0, 10);
 
-                if (groupLevelA !== groupLevelB) {
-                    return groupLevelA - groupLevelB; // Sort by group level in ascending order
-                }
-                // Secondary sorting by node ID (alphabetical order)
-                return a.data('id').localeCompare(b.data('id'));
-            });
+				if (groupLevelA !== groupLevelB) {
+					return groupLevelA - groupLevelB; // Sort by group level in ascending order
+				}
+				// Secondary sorting by node ID (alphabetical order)
+				return a.data('id').localeCompare(b.data('id'));
+			});
 
-        let yPos = 0; // Starting vertical position for parent nodes
-        let maxWidth = 0; // Initialize variable to store the maximum parent width
-        const centerX = 0; // Define the horizontal center reference
+		let yPos = 0; // Starting vertical position for parent nodes
+		let maxWidth = 0; // Initialize variable to store the maximum parent width
+		const centerX = 0; // Define the horizontal center reference
 
-        // Step 3: Find the widest parent node
-        cy.nodes().forEach(function (node) {
-            if (node.isParent()) {
-                const width = node.width();
-                if (width > maxWidth) {
-                    maxWidth = width; // Update maxWidth with the widest parent node's width
-                    console.log("ParentMaxWidth: ", maxWidth);
-                }
-            }
-        });
+		// Step 3: Find the widest parent node
+		cy.nodes().forEach(function(node) {
+			if (node.isParent()) {
+				const width = node.width();
+				if (width > maxWidth) {
+					maxWidth = width; // Update maxWidth with the widest parent node's width
+					console.log("ParentMaxWidth: ", maxWidth);
+				}
+			}
+		});
 
-        // Calculate division factor for aligning parent nodes
-        const divisionFactor = maxWidth / 2;
-        console.log("Division Factor: ", divisionFactor);
+		// Calculate division factor for aligning parent nodes
+		const divisionFactor = maxWidth / 2;
+		console.log("Division Factor: ", divisionFactor);
 
-        // Step 4: Position parent nodes vertically and align them relative to the widest parent node
-        sortedParents.forEach(function (parentNode) {
-            const parentWidth = parentNode.width();
+		// Step 4: Position parent nodes vertically and align them relative to the widest parent node
+		sortedParents.forEach(function(parentNode) {
+			const parentWidth = parentNode.width();
 
-            // Calculate horizontal position relative to the widest parent
-            const xPos = centerX - parentWidth / divisionFactor;
+			// Calculate horizontal position relative to the widest parent
+			const xPos = centerX - parentWidth / divisionFactor;
 
-            // Position the parent node
-            parentNode.position({
-                x: xPos,
-                y: yPos
-            });
+			// Position the parent node
+			parentNode.position({
+				x: xPos,
+				y: yPos
+			});
 
-            console.log(`Parent Node '${parentNode.id()}' positioned at x: ${xPos}, y: ${yPos}`);
+			console.log(`Parent Node '${parentNode.id()}' positioned at x: ${xPos}, y: ${yPos}`);
 
-            // Increment vertical position for the next parent
-            yPos += groupvGapValue;
-        });
+			// Increment vertical position for the next parent
+			yPos += groupvGapValue;
+		});
 
-        // Step 5: Adjust the viewport to fit the updated layout
-        cy.fit();
+		// Step 5: Adjust the viewport to fit the updated layout
+		cy.fit();
 
-    }, delay);
+	}, delay);
 
-    // Step 6: Expand/collapse functionality for parent nodes (optional)
-    const cyExpandCollapse = cy.expandCollapse({
-        layoutBy: null, // Use the existing layout
-        undoable: false, // Disable undo functionality
-        fisheye: false, // Disable fisheye view for expanded/collapsed nodes
-        animationDuration: 10, // Duration of animations in milliseconds
-        animate: true // Enable animation for expand/collapse
-    });
+	// Step 6: Expand/collapse functionality for parent nodes (optional)
+	const cyExpandCollapse = cy.expandCollapse({
+		layoutBy: null, // Use the existing layout
+		undoable: false, // Disable undo functionality
+		fisheye: false, // Disable fisheye view for expanded/collapsed nodes
+		animationDuration: 10, // Duration of animations in milliseconds
+		animate: true // Enable animation for expand/collapse
+	});
 
-    // Example: Demonstrate expand/collapse behavior with a specific parent node
-    setTimeout(function () {
-        const parent = cy.$('#parent'); // Replace '#parent' with the actual parent node ID if needed
-        cyExpandCollapse.collapse(parent); // Collapse the parent node
+	// Example: Demonstrate expand/collapse behavior with a specific parent node
+	setTimeout(function() {
+		const parent = cy.$('#parent'); // Replace '#parent' with the actual parent node ID if needed
+		cyExpandCollapse.collapse(parent); // Collapse the parent node
 
-        setTimeout(function () {
-            cyExpandCollapse.expand(parent); // Re-expand the parent node after a delay
-        }, 2000); // Wait 2 seconds before expanding
-    }, 2000);
+		setTimeout(function() {
+			cyExpandCollapse.expand(parent); // Re-expand the parent node after a delay
+		}, 2000); // Wait 2 seconds before expanding
+	}, 2000);
 }
 
 
 function viewportDrawerLayoutHorizontal() {
-    // Retrieve the sliders for node and group horizontal gaps
-    const nodehGap = document.getElementById("horizontal-layout-slider-node-h-gap");
-    const grouphGap = document.getElementById("horizontal-layout-slider-group-h-gap");
+	// Retrieve the sliders for node and group horizontal gaps
+	const nodehGap = document.getElementById("horizontal-layout-slider-node-h-gap");
+	const grouphGap = document.getElementById("horizontal-layout-slider-group-h-gap");
 
-    // Parse the slider values for horizontal and vertical gaps
-    const nodehGapValue = parseFloat(nodehGap.value)*10; // Gap between child nodes within a parent
-    const grouphGapValue = parseFloat(grouphGap.value); // Gap between parent nodes
+	// Parse the slider values for horizontal and vertical gaps
+	const nodehGapValue = parseFloat(nodehGap.value) * 10; // Gap between child nodes within a parent
+	const grouphGapValue = parseFloat(grouphGap.value); // Gap between parent nodes
 
-    const delay = 100; // Delay to ensure layout updates after rendering
+	const delay = 100; // Delay to ensure layout updates after rendering
 
-    setTimeout(() => {
-        // Step 1: Position child nodes within their respective parents
-        cy.nodes().forEach(function (node) {
-            if (node.isParent()) {
-                const children = node.children(); // Get the children of the current parent node
-                const cellHeight = node.height() / children.length; // Calculate the height for each child node
+	setTimeout(() => {
+		// Step 1: Position child nodes within their respective parents
+		cy.nodes().forEach(function(node) {
+			if (node.isParent()) {
+				const children = node.children(); // Get the children of the current parent node
+				const cellHeight = node.height() / children.length; // Calculate the height for each child node
 
-                // Position child nodes evenly spaced within the parent node
-                children.forEach(function (child, index) {
-                    const xPos = 0; // Keep child nodes on the same horizontal level
-                    const yPos = index * (cellHeight + nodehGapValue); // Vertical position for the child
+				// Position child nodes evenly spaced within the parent node
+				children.forEach(function(child, index) {
+					const xPos = 0; // Keep child nodes on the same horizontal level
+					const yPos = index * (cellHeight + nodehGapValue); // Vertical position for the child
 
-                    child.position({
-                        x: xPos,
-                        y: yPos
-                    });
-                });
-            }
-        });
+					child.position({
+						x: xPos,
+						y: yPos
+					});
+				});
+			}
+		});
 
-        // Step 2: Sort parent nodes by their group level and ID for horizontal stacking
-        const sortedParents = cy.nodes()
-            .filter(node => node.isParent()) // Only process parent nodes
-            .sort((a, b) => {
-                // Extract group levels for primary sorting
-                const groupLevelA = parseInt(a.data('extraData')?.topoViewerGroupLevel || 0, 10);
-                const groupLevelB = parseInt(b.data('extraData')?.topoViewerGroupLevel || 0, 10);
+		// Step 2: Sort parent nodes by their group level and ID for horizontal stacking
+		const sortedParents = cy.nodes()
+			.filter(node => node.isParent()) // Only process parent nodes
+			.sort((a, b) => {
+				// Extract group levels for primary sorting
+				const groupLevelA = parseInt(a.data('extraData')?.topoViewerGroupLevel || 0, 10);
+				const groupLevelB = parseInt(b.data('extraData')?.topoViewerGroupLevel || 0, 10);
 
-                if (groupLevelA !== groupLevelB) {
-                    return groupLevelA - groupLevelB; // Sort by group level in ascending order
-                }
-                // Secondary sorting by node ID (alphabetical order)
-                return a.data('id').localeCompare(b.data('id'));
-            });
+				if (groupLevelA !== groupLevelB) {
+					return groupLevelA - groupLevelB; // Sort by group level in ascending order
+				}
+				// Secondary sorting by node ID (alphabetical order)
+				return a.data('id').localeCompare(b.data('id'));
+			});
 
-        let xPos = 0; // Starting horizontal position for parent nodes
-        let maxHeight = 0; // Initialize variable to store the maximum parent height
-        const centerY = 0; // Define the vertical center reference
+		let xPos = 0; // Starting horizontal position for parent nodes
+		let maxHeight = 0; // Initialize variable to store the maximum parent height
+		const centerY = 0; // Define the vertical center reference
 
-        // Step 3: Find the tallest parent node
-        cy.nodes().forEach(function (node) {
-            if (node.isParent()) {
-                const height = node.height();
-                if (height > maxHeight) {
-                    maxHeight = height; // Update maxHeight with the tallest parent node's height
-                    console.log("ParentMaxHeight: ", maxHeight);
-                }
-            }
-        });
+		// Step 3: Find the tallest parent node
+		cy.nodes().forEach(function(node) {
+			if (node.isParent()) {
+				const height = node.height();
+				if (height > maxHeight) {
+					maxHeight = height; // Update maxHeight with the tallest parent node's height
+					console.log("ParentMaxHeight: ", maxHeight);
+				}
+			}
+		});
 
-        // Calculate division factor for aligning parent nodes
-        const divisionFactor = maxHeight / 2;
-        console.log("Division Factor: ", divisionFactor);
+		// Calculate division factor for aligning parent nodes
+		const divisionFactor = maxHeight / 2;
+		console.log("Division Factor: ", divisionFactor);
 
-        // Step 4: Position parent nodes horizontally and align them relative to the tallest parent node
-        sortedParents.forEach(function (parentNode) {
-            const parentHeight = parentNode.height();
+		// Step 4: Position parent nodes horizontally and align them relative to the tallest parent node
+		sortedParents.forEach(function(parentNode) {
+			const parentHeight = parentNode.height();
 
-            // Calculate vertical position relative to the tallest parent
-            const yPos = centerY - parentHeight / divisionFactor;
+			// Calculate vertical position relative to the tallest parent
+			const yPos = centerY - parentHeight / divisionFactor;
 
-            // Position the parent node
-            parentNode.position({
-                x: xPos,
-                y: yPos
-            });
+			// Position the parent node
+			parentNode.position({
+				x: xPos,
+				y: yPos
+			});
 
-            console.log(`Parent Node '${parentNode.id()}' positioned at x: ${xPos}, y: ${yPos}`);
+			console.log(`Parent Node '${parentNode.id()}' positioned at x: ${xPos}, y: ${yPos}`);
 
-            // Increment horizontal position for the next parent
-            xPos += grouphGapValue;
-        });
+			// Increment horizontal position for the next parent
+			xPos += grouphGapValue;
+		});
 
-        // Step 5: Adjust the viewport to fit the updated layout
-        cy.fit();
+		// Step 5: Adjust the viewport to fit the updated layout
+		cy.fit();
 
-    }, delay);
+	}, delay);
 
-    // Step 6: Expand/collapse functionality for parent nodes (optional)
-    const cyExpandCollapse = cy.expandCollapse({
-        layoutBy: null, // Use the existing layout
-        undoable: false, // Disable undo functionality
-        fisheye: false, // Disable fisheye view for expanded/collapsed nodes
-        animationDuration: 10, // Duration of animations in milliseconds
-        animate: true // Enable animation for expand/collapse
-    });
+	// Step 6: Expand/collapse functionality for parent nodes (optional)
+	const cyExpandCollapse = cy.expandCollapse({
+		layoutBy: null, // Use the existing layout
+		undoable: false, // Disable undo functionality
+		fisheye: false, // Disable fisheye view for expanded/collapsed nodes
+		animationDuration: 10, // Duration of animations in milliseconds
+		animate: true // Enable animation for expand/collapse
+	});
 
-    // Example: Demonstrate expand/collapse behavior with a specific parent node
-    setTimeout(function () {
-        const parent = cy.$('#parent'); // Replace '#parent' with the actual parent node ID if needed
-        cyExpandCollapse.collapse(parent); // Collapse the parent node
+	// Example: Demonstrate expand/collapse behavior with a specific parent node
+	setTimeout(function() {
+		const parent = cy.$('#parent'); // Replace '#parent' with the actual parent node ID if needed
+		cyExpandCollapse.collapse(parent); // Collapse the parent node
 
-        setTimeout(function () {
-            cyExpandCollapse.expand(parent); // Re-expand the parent node after a delay
-        }, 2000); // Wait 2 seconds before expanding
-    }, 2000);
+		setTimeout(function() {
+			cyExpandCollapse.expand(parent); // Re-expand the parent node after a delay
+		}, 2000); // Wait 2 seconds before expanding
+	}, 2000);
 }
 
 
@@ -3021,11 +2999,123 @@ document.addEventListener('DOMContentLoaded', () => {
 	insertAndColorSvg('nokia-logo', 'white');
 });
 
+
+function avoidEdgeLabelOverlap(cy) {
+
+	console.log("avoidEdgeLabelOverlap called");
+	// Helper function to calculate edge length
+	function calculateEdgeLength(edge) {
+		const sourcePos = edge.source().position();
+		const targetPos = edge.target().position();
+		const dx = targetPos.x - sourcePos.x;
+		const dy = targetPos.y - sourcePos.y;
+		return Math.sqrt(dx * dx + dy * dy); // Euclidean distance
+	}
+
+	// Group edges by their source and target nodes
+	const edgesGroupedBySource = {};
+	const edgesGroupedByTarget = {};
+
+	cy.edges().forEach(edge => {
+		// Group edges by source node
+		const source = edge.data('source');
+		if (!edgesGroupedBySource[source]) edgesGroupedBySource[source] = [];
+		edgesGroupedBySource[source].push(edge);
+
+		// Group edges by target node
+		const target = edge.data('target');
+		if (!edgesGroupedByTarget[target]) edgesGroupedByTarget[target] = [];
+		edgesGroupedByTarget[target].push(edge);
+	});
+
+	// Adjust source-text-offset for source nodes with more than one edge
+	for (const source in edgesGroupedBySource) {
+		const edges = edgesGroupedBySource[source];
+		if (edges.length > 1) { // Apply adjustment only if more than one edge
+			edges.forEach((edge, index) => {
+				const baseOffset = parseFloat(edge.style('source-text-offset')) || 20; // Use default if undefined
+				const edgeLength = calculateEdgeLength(edge); // Calculate edge length
+				const maxOffset = edgeLength; // Ensure the offset doesn't exceed half the edge length
+				const calculatedOffset = Math.min((baseOffset / 2) + (index * 5), maxOffset); // Cap the offset
+				edge.style('source-text-offset', calculatedOffset); // Apply the capped offset
+			});
+		}
+	}
+
+	// Adjust target-text-offset for target nodes with more than one edge
+	for (const target in edgesGroupedByTarget) {
+		const edges = edgesGroupedByTarget[target];
+		if (edges.length > 1) { // Apply adjustment only if more than one edge
+			edges.forEach((edge, index) => {
+				const baseOffset = parseFloat(edge.style('target-text-offset')) || 20; // Use default if undefined
+				const edgeLength = calculateEdgeLength(edge); // Calculate edge length
+				const maxOffset = edgeLength; // Ensure the offset doesn't exceed half the edge length
+				const calculatedOffset = Math.min((baseOffset / 2) + (index * 5), maxOffset); // Cap the offset
+				edge.style('target-text-offset', calculatedOffset); // Apply the capped offset
+			});
+		}
+	}
+}
+
+
+
+
+function loadCytoStyle(cy) {
+	cy.nodes().removeStyle();
+	cy.edges().removeStyle();
+
+	// detect light or dark mode
+	const colorScheme = detectColorScheme();
+	console.log('The user prefers:', colorScheme);
+
+	// Load and apply Cytoscape styles from cy-style.json using fetch
+	if (colorScheme == "light") {
+		fetch("css/cy-style-dark.json")
+			.then((response) => response.json())
+			.then((styles) => {
+				cy.style().fromJson(styles).update();
+			})
+			.catch((error) => {
+				console.error(
+					"Oops, we hit a snag! Couldnt load the cyto styles, bro.",
+					error,
+				);
+				appendMessage(
+					`Oops, we hit a snag! Couldnt load the cyto styles, bro.: ${error}`,
+				);
+			});
+	} else if (colorScheme == "dark") {
+		fetch("css/cy-style-dark.json")
+			.then((response) => response.json())
+			.then((styles) => {
+				cy.style().fromJson(styles).update();
+			})
+			.catch((error) => {
+				console.error(
+					"Oops, we hit a snag! Couldnt load the cyto styles, bro.",
+					error,
+				);
+				appendMessage(
+					`Oops, we hit a snag! Couldnt load the cyto styles, bro.: ${error}`,
+				);
+			});
+	}
+
+	avoidEdgeLabelOverlap(cy);
+
+	if (linkEndpointVisibility) { // doing this because default is true and text-opacity is 0 and text-background-opacity is 0
+		cy.edges().forEach(function(edge) {
+			edge.style("text-opacity", 1);
+			edge.style("text-background-opacity", 0.7);
+		});
+	}
+
+}
 // aarafat-tag:
 //// REFACTOR END
 
 // logMessagesPanel manager
-///-logMessagesPanel Function to append message function
+///logMessagesPanel Function to append message function
 function appendMessage(message) {
 	// const textarea = document.getElementById('notificationTextarea');
 	const textarea = document.getElementById("notificationTextarea");
@@ -3038,28 +3128,28 @@ function appendMessage(message) {
 }
 
 function nodeFindDrawer(cy) {
-	//- Get a reference to your Cytoscape instance (assuming it's named 'cy')
-	//- const cy = window.cy; //- Replace 'window.cy' with your actual Cytoscape instance
-	//- Find the node with the specified name
+	// Get a reference to your Cytoscape instance (assuming it's named 'cy')
+	// const cy = window.cy; // Replace 'window.cy' with your actual Cytoscape instance
+	// Find the node with the specified name
 	const nodeName = document.getElementById(
 		"panelBlock-viewportButtons-buttonfindNode-divPanelBlock-columnContainerlabelFindNodeNodeName-panelContentlabelFindNodeNodeName-columnsPanelContentlabelFindNodeNodeName-labelColumnlabelFindNodeNodeName-inputColumnlabelFindNodeNodeName-labellabelFindNodeNodeName",
 	).value;
 
 	const node = cy.$(`node[name = "${nodeName}"]`);
-	//- Check if the node exists
+	// Check if the node exists
 	if (node.length > 0) {
 		// console
 		console.log("Info: " + 'Sweet! Node "' + nodeName + '" is in the house.');
 		appendMessage("Info: " + 'Sweet! Node "' + nodeName + '" is in the house.');
-		//- Apply a highlight style to the node
+		// Apply a highlight style to the node
 		node.style({
 			"border-color": "red",
 			"border-width": "2px",
 			"background-color": "yellow",
 		});
-		//- Zoom out on the node
+		// Zoom out on the node
 		cy.fit();
-		//- Zoom in on the node
+		// Zoom in on the node
 		cy.animate({
 			zoom: {
 				level: 5,
@@ -3087,9 +3177,9 @@ function nodeFindDrawer(cy) {
 function pathFinderDijkstraDrawer(cy) {
 	// Usage example:
 	// highlightShortestPath('node-a', 'node-b'); // Replace with your source and target node IDs
-	//- Function to get the default node style from cy-style.json
-	//- weight: (edge) => 1, // You can adjust the weight function if needed
-	//- weight: (edge) => edge.data('distance')
+	// Function to get the default node style from cy-style.json
+	// weight: (edge) => 1, // You can adjust the weight function if needed
+	// weight: (edge) => edge.data('distance')
 	console.log("im triggered");
 
 	// Remove existing highlight from all edges
@@ -3155,10 +3245,10 @@ function pathFinderDijkstraDrawer(cy) {
 		shortestPathEdges.forEach((edge) => {
 			edge.addClass("spf");
 		});
-		//- Zoom out on the node
+		// Zoom out on the node
 		cy.fit();
 
-		//- Zoom in on the node
+		// Zoom in on the node
 		cy.animate({
 			zoom: {
 				level: 5,
