@@ -18,110 +18,217 @@ var deploymentType
 
 document.addEventListener("DOMContentLoaded", async function() {
 	
-	function initializeResizingLogic() {
-		// Get elements with checks
-		const divider = document.getElementById('divider');
-		const dataDisplay = document.getElementById('data-display');
-		const rootDiv = document.getElementById('root-div');
-		const togglePanelButton = document.getElementById('toggle-panel');
+	// hortizontal layout
+	// function initializeResizingLogic() {
+	// 	// Get elements with checks
+	// 	const divider = document.getElementById('divider');
+	// 	const dataDisplay = document.getElementById('data-display');
+	// 	const rootDiv = document.getElementById('root-div');
+	// 	const togglePanelButton = document.getElementById('toggle-panel');
 	  
-		// Check for required elements
-		if (!divider || !dataDisplay || !rootDiv || !togglePanelButton) {
-		  console.warn('One or more required elements for resizing logic are missing. Initialization aborted.');
-		  return;
-		}
+	// 	// Check for required elements
+	// 	if (!divider || !dataDisplay || !rootDiv || !togglePanelButton) {
+	// 	  console.warn('One or more required elements for resizing logic are missing. Initialization aborted.');
+	// 	  return;
+	// 	}
 	  
-		let isDragging = false;
-		let resizeTimeout;
+	// 	let isDragging = false;
+	// 	let resizeTimeout;
 	  
-		// Debounce function
-		function debounce(func, delay) {
-		  clearTimeout(resizeTimeout);
-		  resizeTimeout = setTimeout(func, delay);
-		}
+	// 	// Debounce function
+	// 	function debounce(func, delay) {
+	// 	  clearTimeout(resizeTimeout);
+	// 	  resizeTimeout = setTimeout(func, delay);
+	// 	}
 	  
-		// Function to animate cy.fit()
-		function animateFit() {
-		  if (typeof cy.animate === 'function') {
-			cy.animate({
-			  fit: {
-				padding: 10, // Add padding around the graph
-			  },
-			  duration: 500, // Animation duration in milliseconds
-			});
-		  } else {
-			console.warn('Cytoscape instance does not support animate. Skipping animation.');
-		  }
-		}
+	// 	// Function to animate cy.fit()
+	// 	function animateFit() {
+	// 	  if (typeof cy.animate === 'function') {
+	// 		cy.animate({
+	// 		  fit: {
+	// 			padding: 10, // Add padding around the graph
+	// 		  },
+	// 		  duration: 500, // Animation duration in milliseconds
+	// 		});
+	// 	  } else {
+	// 		console.warn('Cytoscape instance does not support animate. Skipping animation.');
+	// 	  }
+	// 	}
 	  
-		// Handle dragging
-		divider.addEventListener('mousedown', () => {
-		  isDragging = true;
-		  document.body.style.cursor = 'ns-resize';
-		});
+	// 	// Handle dragging
+	// 	divider.addEventListener('mousedown', () => {
+	// 	  isDragging = true;
+	// 	  document.body.style.cursor = 'ns-resize';
+	// 	});
 	  
-		document.addEventListener('mousemove', (e) => {
-		  if (!isDragging) return;
+	// 	document.addEventListener('mousemove', (e) => {
+	// 	  if (!isDragging) return;
 	  
-		  const screenHeight = window.innerHeight;
-		  const offsetY = e.clientY;
-		  const minHeight = 5; // Minimum height for data display
-		  const maxHeight = screenHeight * 0.95; // Maximum height for data display
+	// 	  const screenHeight = window.innerHeight;
+	// 	  const offsetY = e.clientY;
+	// 	  const minHeight = 5; // Minimum height for data display
+	// 	  const maxHeight = screenHeight * 0.95; // Maximum height for data display
 	  
-		  const dataDisplayHeight = screenHeight - offsetY;
-		  if (dataDisplayHeight >= minHeight && dataDisplayHeight <= maxHeight) {
-			const rootDivHeight = screenHeight - dataDisplayHeight;
+	// 	  const dataDisplayHeight = screenHeight - offsetY;
+	// 	  if (dataDisplayHeight >= minHeight && dataDisplayHeight <= maxHeight) {
+	// 		const rootDivHeight = screenHeight - dataDisplayHeight;
 	  
-			// Update heights
-			dataDisplay.style.height = `${(dataDisplayHeight / screenHeight) * 100}%`;
-			rootDiv.style.height = `${(rootDivHeight / screenHeight) * 100}%`;
+	// 		// Update heights
+	// 		dataDisplay.style.height = `${(dataDisplayHeight / screenHeight) * 100}%`;
+	// 		rootDiv.style.height = `${(rootDivHeight / screenHeight) * 100}%`;
 	  
-			// Add or remove transparency
-			if ((dataDisplayHeight / screenHeight) * 100 > 60) {
-			  dataDisplay.classList.add('transparent');
-			} else {
-			  dataDisplay.classList.remove('transparent');
-			}
-		  }
+	// 		// Add or remove transparency
+	// 		if ((dataDisplayHeight / screenHeight) * 100 > 60) {
+	// 		  dataDisplay.classList.add('transparent');
+	// 		} else {
+	// 		  dataDisplay.classList.remove('transparent');
+	// 		}
+	// 	  }
 	  
-		  // Debounce the animation
-		  debounce(() => {
-			console.log('Fitting Cytoscape to new size with animation');
-			animateFit();
-		  }, 500); // Delay of 500ms
-		});
+	// 	  // Debounce the animation
+	// 	  debounce(() => {
+	// 		console.log('Fitting Cytoscape to new size with animation');
+	// 		animateFit();
+	// 	  }, 500); // Delay of 500ms
+	// 	});
 	  
-		document.addEventListener('mouseup', () => {
-		  isDragging = false;
-		  document.body.style.cursor = 'default';
-		});
+	// 	document.addEventListener('mouseup', () => {
+	// 	  isDragging = false;
+	// 	  document.body.style.cursor = 'default';
+	// 	});
 	  
-		// Toggle panel visibility
-		togglePanelButton.addEventListener('click', () => {
-		  const isHidden = parseFloat(dataDisplay.style.height) <= 5;
-		  if (isHidden) {
-			// Restore to default
-			dataDisplay.style.height = '30%';
-			rootDiv.style.height = '70%';
-			togglePanelButton.textContent = 'Hide';
-			dataDisplay.classList.remove('transparent');
-		  } else {
-			// Collapse to 5%
-			dataDisplay.style.height = '5%';
-			rootDiv.style.height = '95%';
-			togglePanelButton.textContent = 'Show';
-			dataDisplay.classList.add('transparent');
-		  }
+	// 	// Toggle panel visibility
+	// 	togglePanelButton.addEventListener('click', () => {
+	// 	  const isHidden = parseFloat(dataDisplay.style.height) <= 5;
+	// 	  if (isHidden) {
+	// 		// Restore to default
+	// 		dataDisplay.style.height = '30%';
+	// 		rootDiv.style.height = '70%';
+	// 		togglePanelButton.textContent = 'Hide';
+	// 		dataDisplay.classList.remove('transparent');
+	// 	  } else {
+	// 		// Collapse to 5%
+	// 		dataDisplay.style.height = '5%';
+	// 		rootDiv.style.height = '95%';
+	// 		togglePanelButton.textContent = 'Show';
+	// 		dataDisplay.classList.add('transparent');
+	// 	  }
 	  
-		  // Animate fit after toggling
-		  debounce(() => {
-			console.log('Fitting Cytoscape to new size with animation');
-			animateFit();
-		  }, 500); // Delay of 500ms
-		});
-	  }
-	  
+	// 	  // Animate fit after toggling
+	// 	  debounce(() => {
+	// 		console.log('Fitting Cytoscape to new size with animation');
+	// 		animateFit();
+	// 	  }, 500); // Delay of 500ms
+	// 	});
+	//   }
 
+	// vertical layout
+	function initializeResizingLogic() {
+			// Get elements with checks
+			const divider = document.getElementById('divider');
+			const dataDisplay = document.getElementById('data-display');
+			const rootDiv = document.getElementById('root-div');
+			const togglePanelButton = document.getElementById('toggle-panel');
+		  
+			// Check for required elements
+			if (!divider || !dataDisplay || !rootDiv || !togglePanelButton) {
+			  console.warn('One or more required elements for resizing logic are missing. Initialization aborted.');
+			  return;
+			}
+		  
+			let isDragging = false;
+			let resizeTimeout;
+		  
+			// Debounce function
+			function debounce(func, delay) {
+			  clearTimeout(resizeTimeout);
+			  resizeTimeout = setTimeout(func, delay);
+			}
+		  
+			// Function to animate cy.fit()
+			function animateFit() {
+			  if (typeof cy.animate === 'function') {
+				cy.animate({
+				  fit: {
+					padding: 10, // Add padding around the graph
+				  },
+				  duration: 500, // Animation duration in milliseconds
+				});
+			  } else {
+				console.warn('Cytoscape instance does not support animate. Skipping animation.');
+			  }
+			}
+		  
+			// Handle dragging
+			divider.addEventListener('mousedown', () => {
+			  isDragging = true;
+			  document.body.style.cursor = 'ew-resize';
+			});
+		  
+			document.addEventListener('mousemove', (e) => {
+			  if (!isDragging) return;
+		  
+			  const screenWidth = window.innerWidth;
+			  const offsetX = e.clientX;
+			  const minWidth = 5; // Minimum height for data display
+			  const maxWidth = screenWidth * 0.95; // Maximum height for data display
+		  
+			  const dataDisplayWidth = screenWidth - offsetX;
+			  if (dataDisplayWidth >= minWidth && dataDisplayWidth <= maxWidth) {
+				const rootDivWidth = screenWidth - dataDisplayWidth;
+		  
+				// Update heights
+				dataDisplay.style.width = `${(dataDisplayWidth / screenWidth) * 100}%`;
+				rootDiv.style.width = `${(rootDivWidth / screenWidth) * 100}%`;
+				divider.style.left = `${(rootDivWidth / screenWidth) * 100}%`;
+
+		  
+				// Add or remove transparency
+				if ((dataDisplayWidth / rootDivWidth) * 100 > 60) {
+				  dataDisplay.classList.add('transparent');
+				} else {
+				  dataDisplay.classList.remove('transparent');
+				}
+			  }
+		  
+			  // Debounce the animation
+			  debounce(() => {
+				console.log('Fitting Cytoscape to new size with animation');
+				animateFit();
+			  }, 500); // Delay of 500ms
+			});
+		  
+			document.addEventListener('mouseup', () => {
+			  isDragging = false;
+			  document.body.style.cursor = 'default';
+			});
+		  
+			// Toggle panel visibility
+			togglePanelButton.addEventListener('click', () => {
+			  const isHidden = parseFloat(dataDisplay.style.width) <= 5;
+			  if (isHidden) {
+				// Restore to default
+				dataDisplay.style.width = '30%';
+				rootDiv.style.width = '70%';
+				divider.style.left = '70%';
+				togglePanelButton.textContent = 'Hide';
+				dataDisplay.classList.remove('transparent');
+			  } else {
+				// Collapse to 5%
+				dataDisplay.style.width = '5%';
+				rootDiv.style.width = '95%';
+				divider.style.left = '95%';
+				togglePanelButton.textContent = 'Show';
+				dataDisplay.classList.add('transparent');
+			  }
+		  
+			  // Animate fit after toggling
+			  debounce(() => {
+				console.log('Fitting Cytoscape to new size with animation');
+				animateFit();
+			  }, 500); // Delay of 500ms
+			});
+		  }
 	  
 	// Call the function during initialization
 	initializeResizingLogic(cy);
