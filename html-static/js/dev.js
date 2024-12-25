@@ -8,7 +8,7 @@ var cy
 var globalSelectedNode
 var globalSelectedEdge
 
-var linkEndpointVisibility = false;
+var linkEndpointVisibility = true;
 var nodeContainerStatusVisibility = false;
 
 var globalShellUrl = "/js/cloudshell"
@@ -3103,10 +3103,10 @@ function loadCytoStyle(cy) {
 
 	avoidEdgeLabelOverlap(cy);
 
-	if (linkEndpointVisibility) { // doing this because default is true and text-opacity is 0 and text-background-opacity is 0
+	if (!linkEndpointVisibility) { // doing this because default is true and text-opacity is 1 and text-background-opacity is 0.7
 		cy.edges().forEach(function(edge) {
-			edge.style("text-opacity", 1);
-			edge.style("text-background-opacity", 0.7);
+			edge.style("text-opacity", 0);
+			edge.style("text-background-opacity", 0);
 		});
 	}
 
