@@ -724,9 +724,9 @@ document.addEventListener("DOMContentLoaded", async function() {
 	});
 
 	// Toggle the Panel(s) when clicking on the cy container
-	document.getElementById("cy").addEventListener("click", function(event) {
+	document.getElementById("cy").addEventListener("click", async function(event) {
 
-		console.info("cy container clicked");
+		console.info("cy container clicked init");
 		console.info("isPanel01Cy: ", isPanel01Cy);
 		console.info("nodeClicked: ", nodeClicked);
 		console.info("edgeClicked: ", edgeClicked);
@@ -771,9 +771,6 @@ document.addEventListener("DOMContentLoaded", async function() {
 		}
 		nodeClicked = false;
 		edgeClicked = false;
-
-		appendMessage(`"isPanel01Cy-cy: " ${isPanel01Cy}`);
-		appendMessage(`"nodeClicked: " ${nodeClicked}`);
 	});
 
 	// Listen for tap or click on the Cytoscape canvas
@@ -826,6 +823,20 @@ document.addEventListener("DOMContentLoaded", async function() {
 
 	// Click event listener for nodes
 	cy.on("click", "node", async function(event) {
+
+
+		console.info("node clicked init");
+		console.info("isPanel01Cy: ", isPanel01Cy);
+		console.info("nodeClicked: ", nodeClicked);
+		console.info("edgeClicked: ", edgeClicked);
+
+		nodeClicked = true;
+
+		console.info("node clicked after");
+		console.info("isPanel01Cy: ", isPanel01Cy);
+		console.info("nodeClicked: ", nodeClicked);
+		console.info("edgeClicked: ", edgeClicked);
+
 		console.info("isEdgeHandlerActive after node click: ", isEdgeHandlerActive);
 
 		environments = await getEnvironments(event);
@@ -839,7 +850,8 @@ document.addEventListener("DOMContentLoaded", async function() {
 			return;
 		}
 		const node = event.target;
-		nodeClicked = true;
+
+
 
 		console.info("editor Node: ", node.data("editor"));
 
@@ -908,12 +920,43 @@ document.addEventListener("DOMContentLoaded", async function() {
 
 				appendMessage(`"isPanel01Cy-cy: " ${isPanel01Cy}`);
 				appendMessage(`"nodeClicked: " ${nodeClicked}`);
+
+
+				///
+				if (document.getElementById("data-display-panel-node").style.display === "none") {
+					document.getElementById("data-display-panel-node").style.display = "block";
+				} else {
+					document.getElementById("data-display-panel-node").style.display = "none";
+				}
+				
+				document.getElementById("data-display-panel-node-name").textContent = node.data("extraData").longname;
+				document.getElementById("data-display-panel-node-status").textContent = node.data("containerDockerExtraAttribute").status;
+				document.getElementById("data-display-panel-node-kind").textContent = node.data("extraData").kind;
+				document.getElementById("data-display-panel-node-image").textContent = node.data("extraData").image;
+				document.getElementById("data-display-panel-node-mgmtipv4").textContent = node.data("extraData").mgmtIpv4Addresss;
+				document.getElementById("data-display-panel-node-mgmtipv6").textContent = node.data("extraData").mgmtIpv6Address;
+				document.getElementById("data-display-panel-node-fqdn").textContent = node.data("extraData").fqdn;
+				document.getElementById("data-display-panel-node-group").textContent = node.data("extraData").group;
+				document.getElementById("data-display-panel-node-topoviewerrole").textContent = node.data("topoViewerRole");
+				
+				// Set selected node-long-name to global variable
+				globalSelectedNode = node.data("extraData").longname;
+				console.info("internal: ", globalSelectedNode);
+				
+				appendMessage(`"isPanel01Cy-cy: " ${isPanel01Cy}`);
+				appendMessage(`"nodeClicked: " ${nodeClicked}`);
+				///
 			}
 		}
 	});
 
 	// Click event listener for edges
 	cy.on("click", "edge", async function(event) {
+
+		console.info("edge clicked init");
+		console.info("isPanel01Cy: ", isPanel01Cy);
+		console.info("nodeClicked: ", nodeClicked);
+		console.info("edgeClicked: ", edgeClicked);
 
 		// Remove all Overlayed Panel
 		// Get all elements with the class "panel-overlay"
@@ -926,8 +969,15 @@ document.addEventListener("DOMContentLoaded", async function() {
 		// This code will be executed when you click on a node
 		// You can add logic specific to nodes here
 		const clickedEdge = event.target;
-		const defaultEdgeColor = "#969799";
 		edgeClicked = true;
+
+
+		console.info("edge clicked after");
+		console.info("isPanel01Cy: ", isPanel01Cy);
+		console.info("nodeClicked: ", nodeClicked);
+		console.info("edgeClicked: ", edgeClicked);
+
+		const defaultEdgeColor = "#969799";
 
 		console.info(defaultEdgeColor);
 

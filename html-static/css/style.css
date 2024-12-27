@@ -127,6 +127,10 @@ body {
   z-index: 11;
   background-color: rgba(40, 40, 40, 1);
   border: none;
+  display: flex;
+  justify-content: flex-start; /* Aligns content at the top */
+
+
   /* overflow-y: auto; */
   /* transition: 0.3s ease; */
 }
@@ -213,6 +217,11 @@ body {
 }
 .button {
   height: 24px;
+
+}
+.button-data-display {
+  height: 20px; 
+
 }
 .button-modal {
   height: 30px;
@@ -261,6 +270,22 @@ body {
 .text-right {
   text-align: right;
   display: block;
+}
+
+.data-display-sharp {
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+#panel-data-display-sharp  {
+  top: 85px;
+  right: 40px;
+  width: 340px;
+  max-height: 700px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: fixed;
+  z-index: 21;
 }
 
 #panel-node {
