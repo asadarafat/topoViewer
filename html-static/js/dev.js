@@ -17,7 +17,7 @@ var labName
 var deploymentType
 
 document.addEventListener("DOMContentLoaded", async function() {
-	
+
 	// hortizontal layout
 	// function initializeResizingLogic() {
 	// 	// Get elements with checks
@@ -25,22 +25,22 @@ document.addEventListener("DOMContentLoaded", async function() {
 	// 	const dataDisplay = document.getElementById('data-display');
 	// 	const rootDiv = document.getElementById('root-div');
 	// 	const togglePanelButton = document.getElementById('toggle-panel');
-	  
+
 	// 	// Check for required elements
 	// 	if (!divider || !dataDisplay || !rootDiv || !togglePanelButton) {
 	// 	  console.warn('One or more required elements for resizing logic are missing. Initialization aborted.');
 	// 	  return;
 	// 	}
-	  
+
 	// 	let isDragging = false;
 	// 	let resizeTimeout;
-	  
+
 	// 	// Debounce function
 	// 	function debounce(func, delay) {
 	// 	  clearTimeout(resizeTimeout);
 	// 	  resizeTimeout = setTimeout(func, delay);
 	// 	}
-	  
+
 	// 	// Function to animate cy.fit()
 	// 	function animateFit() {
 	// 	  if (typeof cy.animate === 'function') {
@@ -54,29 +54,29 @@ document.addEventListener("DOMContentLoaded", async function() {
 	// 		console.warn('Cytoscape instance does not support animate. Skipping animation.');
 	// 	  }
 	// 	}
-	  
+
 	// 	// Handle dragging
 	// 	divider.addEventListener('mousedown', () => {
 	// 	  isDragging = true;
 	// 	  document.body.style.cursor = 'ns-resize';
 	// 	});
-	  
+
 	// 	document.addEventListener('mousemove', (e) => {
 	// 	  if (!isDragging) return;
-	  
+
 	// 	  const screenHeight = window.innerHeight;
 	// 	  const offsetY = e.clientY;
 	// 	  const minHeight = 5; // Minimum height for data display
 	// 	  const maxHeight = screenHeight * 0.95; // Maximum height for data display
-	  
+
 	// 	  const dataDisplayHeight = screenHeight - offsetY;
 	// 	  if (dataDisplayHeight >= minHeight && dataDisplayHeight <= maxHeight) {
 	// 		const rootDivHeight = screenHeight - dataDisplayHeight;
-	  
+
 	// 		// Update heights
 	// 		dataDisplay.style.height = `${(dataDisplayHeight / screenHeight) * 100}%`;
 	// 		rootDiv.style.height = `${(rootDivHeight / screenHeight) * 100}%`;
-	  
+
 	// 		// Add or remove transparency
 	// 		if ((dataDisplayHeight / screenHeight) * 100 > 60) {
 	// 		  dataDisplay.classList.add('transparent');
@@ -84,19 +84,19 @@ document.addEventListener("DOMContentLoaded", async function() {
 	// 		  dataDisplay.classList.remove('transparent');
 	// 		}
 	// 	  }
-	  
+
 	// 	  // Debounce the animation
 	// 	  debounce(() => {
-	// 		console.log('Fitting Cytoscape to new size with animation');
+	// 		console.info('Fitting Cytoscape to new size with animation');
 	// 		animateFit();
 	// 	  }, 500); // Delay of 500ms
 	// 	});
-	  
+
 	// 	document.addEventListener('mouseup', () => {
 	// 	  isDragging = false;
 	// 	  document.body.style.cursor = 'default';
 	// 	});
-	  
+
 	// 	// Toggle panel visibility
 	// 	togglePanelButton.addEventListener('click', () => {
 	// 	  const isHidden = parseFloat(dataDisplay.style.height) <= 5;
@@ -113,10 +113,10 @@ document.addEventListener("DOMContentLoaded", async function() {
 	// 		togglePanelButton.textContent = 'Show';
 	// 		dataDisplay.classList.add('transparent');
 	// 	  }
-	  
+
 	// 	  // Animate fit after toggling
 	// 	  debounce(() => {
-	// 		console.log('Fitting Cytoscape to new size with animation');
+	// 		console.info('Fitting Cytoscape to new size with animation');
 	// 		animateFit();
 	// 	  }, 500); // Delay of 500ms
 	// 	});
@@ -124,118 +124,139 @@ document.addEventListener("DOMContentLoaded", async function() {
 
 	// vertical layout
 	function initializeResizingLogic() {
-			// Get elements with checks
-			const divider = document.getElementById('divider');
-			const dataDisplay = document.getElementById('data-display');
-			const rootDiv = document.getElementById('root-div');
-			const togglePanelButton = document.getElementById('toggle-panel-data-display-expand');
-		  
-			// Check for required elements
-			if (!divider || !dataDisplay || !rootDiv || !togglePanelButton) {
-			  console.warn('One or more required elements for resizing logic are missing. Initialization aborted.');
-			  return;
-			}
-		  
-			let isDragging = false;
-			let resizeTimeout;
-		  
-			// Debounce function
-			function debounce(func, delay) {
-			  clearTimeout(resizeTimeout);
-			  resizeTimeout = setTimeout(func, delay);
-			}
-		  
-			// Function to animate cy.fit()
-			function animateFit() {
-			  if (typeof cy.animate === 'function') {
+		// Get elements with checks
+		const divider = document.getElementById('divider');
+		const dataDisplay = document.getElementById('data-display');
+		const rootDiv = document.getElementById('root-div');
+		const togglePanelButtonExpand = document.getElementById('toggle-panel-data-display-expand');
+		const togglePanelButtonCollapse = document.getElementById('toggle-panel-data-display-collapse');
+
+
+
+		// Check for required elements
+		if (!divider || !dataDisplay || !rootDiv || !togglePanelButtonExpand) {
+			console.warn('One or more required elements for resizing logic are missing. Initialization aborted.');
+			return;
+		}
+
+		let isDragging = false;
+		let resizeTimeout;
+
+		// Debounce function
+		function debounce(func, delay) {
+			clearTimeout(resizeTimeout);
+			resizeTimeout = setTimeout(func, delay);
+		}
+
+		// Function to animate cy.fit()
+		function animateFit() {
+			if (typeof cy.animate === 'function') {
 				cy.animate({
-				  fit: {
-					padding: 10, // Add padding around the graph
-				  },
-				  duration: 500, // Animation duration in milliseconds
+					fit: {
+						padding: 10, // Add padding around the graph
+					},
+					duration: 500, // Animation duration in milliseconds
 				});
-			  } else {
+			} else {
 				console.warn('Cytoscape instance does not support animate. Skipping animation.');
-			  }
 			}
-		  
-			// Handle dragging
-			divider.addEventListener('mousedown', () => {
-			  isDragging = true;
-			  document.body.style.cursor = 'ew-resize';
-			});
-		  
-			document.addEventListener('mousemove', (e) => {
-			  if (!isDragging) return;
-		  
-			  const screenWidth = window.innerWidth;
-			  const offsetX = e.clientX;
-			  const minWidth = 5; // Minimum height for data display
-			  const maxWidth = screenWidth * 0.95; // Maximum height for data display
-		  
-			  const dataDisplayWidth = screenWidth - offsetX;
-			  if (dataDisplayWidth >= minWidth && dataDisplayWidth <= maxWidth) {
+		}
+
+		// Handle dragging
+		divider.addEventListener('mousedown', () => {
+			isDragging = true;
+			document.body.style.cursor = 'ew-resize';
+		});
+
+		document.addEventListener('mousemove', (e) => {
+			if (!isDragging) return;
+
+			const screenWidth = window.innerWidth;
+			const offsetX = e.clientX;
+			const minWidth = 5; // Minimum height for data display
+			const maxWidth = screenWidth * 0.95; // Maximum height for data display
+
+			const dataDisplayWidth = screenWidth - offsetX;
+			if (dataDisplayWidth >= minWidth && dataDisplayWidth <= maxWidth) {
 				const rootDivWidth = screenWidth - dataDisplayWidth;
-		  
+
 				// Update heights
 				dataDisplay.style.width = `${(dataDisplayWidth / screenWidth) * 100}%`;
 				rootDiv.style.width = `${(rootDivWidth / screenWidth) * 100}%`;
 				divider.style.left = `${(rootDivWidth / screenWidth) * 100}%`;
 
-		  
+				console.info('togglePanelButtonExpand - parseFloat(dataDisplay.style.width): ', parseFloat(dataDisplay.style.width));
+
+
 				// Add or remove transparency
 				if ((dataDisplayWidth / rootDivWidth) * 100 > 60) {
-				  dataDisplay.classList.add('transparent');
+					dataDisplay.classList.add('transparent');
 
 				} else {
-				  dataDisplay.classList.remove('transparent');
-				// Debounce the animation
+					dataDisplay.classList.remove('transparent');
+					// Debounce the animation
 					debounce(() => {
-						console.log('Fitting Cytoscape to new size with animation');
+						console.info('Fitting Cytoscape to new size with animation');
 						animateFit();
 					}, 500); // Delay of 500ms
 				}
-			  }
-		  
+			}
 
-			});
-		  
-			document.addEventListener('mouseup', () => {
-			  isDragging = false;
-			  document.body.style.cursor = 'default';
-			});
-		  
-			// Toggle panel visibility
-			togglePanelButton.addEventListener('click', () => {
-			  const isHidden = parseFloat(dataDisplay.style.width) <= 5;
-			  if (isHidden) {
-				// Restore to default
-				dataDisplay.style.width = '30%';
-				rootDiv.style.width = '70%';
-				divider.style.left = '70%';
-				// togglePanelButton.textContent = 'Hide';
-				dataDisplay.classList.remove('transparent');
-			  } else {
-				// Collapse to 5%
-				dataDisplay.style.width = '0.4%';
-				rootDiv.style.width = '99.6%';
-				divider.style.left = '99.6%';
-				// togglePanelButton.textContent = 'Show';
-				dataDisplay.classList.add('transparent');
-			  }
-		  
-			  // Animate fit after toggling
-			  debounce(() => {
-				console.log('Fitting Cytoscape to new size with animation');
+
+		});
+
+		document.addEventListener('mouseup', () => {
+			isDragging = false;
+			document.body.style.cursor = 'default';
+		});
+
+		// Toggle panel visibility
+		togglePanelButtonExpand.addEventListener('click', () => {
+
+			// Full data display
+
+
+			dataDisplay.style.width = '93%';
+			// rootDiv.style.width = '10%';
+			divider.style.left = '7%';
+			dataDisplay.classList.add('transparent');
+
+			// const divider = document.getElementById('divider');
+			// divider.style.display = 'block';
+
+			//   // Animate fit after toggling
+			//   debounce(() => {
+			// 	console.info('Fitting Cytoscape to new size with animation');
+			// 	animateFit();
+			//   }, 500); // Delay of 500ms
+
+		});
+
+		// Toggle panel visibility
+		togglePanelButtonCollapse.addEventListener('click', () => {
+
+			// hide data display
+			dataDisplay.style.width = '1.5%';
+			rootDiv.style.width = '98.5%';
+			divider.style.left = '98.5%';
+			dataDisplay.classList.remove('transparent');
+
+			// const divider = document.getElementById('divider');
+			// divider.style.display = 'none';
+
+			// Animate fit after toggling
+			debounce(() => {
+				console.info('Fitting Cytoscape to new size with animation');
 				animateFit();
-			  }, 500); // Delay of 500ms
-			});
-		  }
-	  
+			}, 500); // Delay of 500ms
+
+		});
+	}
+
 	// Call the function during initialization
 	initializeResizingLogic(cy);
-	  
-	  
+
+
 
 
 	detectColorScheme()
@@ -252,19 +273,19 @@ document.addEventListener("DOMContentLoaded", async function() {
 		const socket = new WebSocket(protocol + location.host + url);
 
 		socket.onopen = () => {
-			console.log(`Successfully connected WebSocket to ${url}`);
+			console.info(`Successfully connected WebSocket to ${url}`);
 			if (socket.readyState === WebSocket.OPEN) {
 				socket.send(`Hi From the WebSocketClient-${url}`);
 			}
 		};
 
 		socket.onclose = (event) => {
-			console.log(`Socket to ${url} closed: `, event);
+			console.info(`Socket to ${url} closed: `, event);
 			socket.send("Client Closed!");
 		};
 
 		socket.onerror = (error) => {
-			console.log(`Socket to ${url} error: `, error);
+			console.info(`Socket to ${url} error: `, error);
 		};
 
 		socket.onmessage = onMessageCallback;
@@ -278,8 +299,8 @@ document.addEventListener("DOMContentLoaded", async function() {
 		labName = environments["clab-name"]
 		deploymentType = environments["deploymentType"]
 
-		console.log("initializeWebSocket - getEnvironments", environments)
-		console.log("initializeWebSocket - labName", environments["clab-name"])
+		console.info("initializeWebSocket - getEnvironments", environments)
+		console.info("initializeWebSocket - labName", environments["clab-name"])
 
 		const string01 = "Containerlab Topology: " + labName;
 		const string02 = " ::: Uptime: " + msgUptime.data;
@@ -288,7 +309,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 		const messageBody = string01 + string02;
 
 		ClabSubtitle.innerText = messageBody;
-		console.log(ClabSubtitle.innerText);
+		console.info(ClabSubtitle.innerText);
 	});
 
 	// WebSocket for ContainerNodeStatus
@@ -302,7 +323,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 					State
 				} = JSON.parse(msgContainerNodeStatus.data);
 				setNodeContainerStatus(Names, Status);
-				console.log(JSON.parse(msgContainerNodeStatus.data));
+				console.info(JSON.parse(msgContainerNodeStatus.data));
 
 				const IPAddress = JSON.parse(msgContainerNodeStatus.data).Networks.Networks.clab.IPAddress;
 				const GlobalIPv6Address = JSON.parse(msgContainerNodeStatus.data).Networks.Networks.clab.GlobalIPv6Address
@@ -374,27 +395,27 @@ document.addEventListener("DOMContentLoaded", async function() {
 			'border-width': 2,
 			'border-color': '#ff0000'
 		});
-		console.log('Selected nodes:', selectedNodes.map(n => n.id()));
+		console.info('Selected nodes:', selectedNodes.map(n => n.id()));
 	});
 
 	// Optionally, reset the style when nodes are unselected
 	cy.on('unselect', 'node', (event) => {
 		// Clear inline styles for all nodes
 		loadCytoStyle(cy);
-		console.log('Remaining selected nodes:', cy.$('node:selected').map(n => n.id()));
+		console.info('Remaining selected nodes:', cy.$('node:selected').map(n => n.id()));
 	});
 
 	// Optionally, reset the style when edges are unselected
 	cy.on('unselect', 'edge', (event) => {
 		// Clear inline styles for all nodes
 		loadCytoStyle(cy);
-		console.log('Remaining selected nodes:', cy.$('node:selected').map(n => n.id()));
+		console.info('Remaining selected nodes:', cy.$('node:selected').map(n => n.id()));
 	});
 
 	// Programmatic selection of nodes
 	setTimeout(() => {
 		cy.$('#node1, #node2').select(); // Select node1 and node2 after 2 seconds
-		console.log('Programmatic selection: node1 and node2');
+		console.info('Programmatic selection: node1 and node2');
 	}, 2000);
 
 	// Helper function to check if a node is inside a parent
@@ -430,7 +451,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 				draggedNode.move({
 					parent: assignedParent.id()
 				});
-				console.log(`${draggedNode.id()} became a child of ${assignedParent.id()}`);
+				console.info(`${draggedNode.id()} became a child of ${assignedParent.id()}`);
 				showPanelNodeEditor(draggedNode)
 			}
 			// to release the node from the parent, alt + shift + click on the node.
@@ -465,8 +486,8 @@ document.addEventListener("DOMContentLoaded", async function() {
 	let isEdgeHandlerActive = false; // Flag to track if edge handler is active
 
 	cy.on('ehcomplete', async (event, sourceNode, targetNode, addedEdge) => {
-		console.log(`Edge created from ${sourceNode.id()} to ${targetNode.id()}`);
-		console.log("Added edge:", addedEdge);
+		console.info(`Edge created from ${sourceNode.id()} to ${targetNode.id()}`);
+		console.info("Added edge:", addedEdge);
 
 		// Reset the edge handler flag after a short delay
 		setTimeout(() => {
@@ -705,27 +726,27 @@ document.addEventListener("DOMContentLoaded", async function() {
 	// Toggle the Panel(s) when clicking on the cy container
 	document.getElementById("cy").addEventListener("click", function(event) {
 
-		console.log("cy container clicked");
-		console.log("isPanel01Cy: ", isPanel01Cy);
-		console.log("nodeClicked: ", nodeClicked);
-		console.log("edgeClicked: ", edgeClicked);
+		console.info("cy container clicked");
+		console.info("isPanel01Cy: ", isPanel01Cy);
+		console.info("nodeClicked: ", nodeClicked);
+		console.info("edgeClicked: ", edgeClicked);
 
 		// This code will be executed when you click anywhere in the Cytoscape container
 		// You can add logic specific to the container here
 
 		if (!nodeClicked && !edgeClicked) {
-			console.log("!nodeClicked  -- !edgeClicked");
+			console.info("!nodeClicked  -- !edgeClicked");
 			if (!isPanel01Cy) {
-				console.log("!isPanel01Cy: ");
+				console.info("!isPanel01Cy: ");
 				// Remove all Overlayed Panel
 				// Get all elements with the class "panel-overlay"
 				var panelOverlays = document.getElementsByClassName("panel-overlay");
 
-				console.log("panelOverlays: ", panelOverlays);
+				console.info("panelOverlays: ", panelOverlays);
 
 				// Loop through each element and set its display to 'none'
 				for (var i = 0; i < panelOverlays.length; i++) {
-					console.log
+					console.info
 					panelOverlays[i].style.display = "none";
 				}
 
@@ -805,10 +826,10 @@ document.addEventListener("DOMContentLoaded", async function() {
 
 	// Click event listener for nodes
 	cy.on("click", "node", async function(event) {
-		console.log("isEdgeHandlerActive after node click: ", isEdgeHandlerActive);
+		console.info("isEdgeHandlerActive after node click: ", isEdgeHandlerActive);
 
 		environments = await getEnvironments(event);
-		console.log("sshWebBased - environments: ", environments)
+		console.info("sshWebBased - environments: ", environments)
 
 		cytoTopologyJson = environments["EnvCyTopoJsonBytes"]
 		clabServerAddress = environments["clab-server-address"]
@@ -820,7 +841,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 		const node = event.target;
 		nodeClicked = true;
 
-		console.log("editor Node: ", node.data("editor"));
+		console.info("editor Node: ", node.data("editor"));
 
 		if (!node.isParent()) {
 			// Usage: Initialize the listener and get a live checker function
@@ -828,30 +849,30 @@ document.addEventListener("DOMContentLoaded", async function() {
 
 			// Check if Shift + Alt is pressed and the node is a child
 			if (event.originalEvent.ctrlKey && node.isChild() && isViewportDrawerClabEditorCheckboxChecked) {
-				console.log(`Orphaning node: ${node.id()} from parent: ${node.parent().id()}`);
+				console.info(`Orphaning node: ${node.id()} from parent: ${node.parent().id()}`);
 
 				// Make the node orphan
 				node.move({
 					parent: null
 				});
-				console.log(`${node.id()} is now an orphan`);
+				console.info(`${node.id()} is now an orphan`);
 			}
 
 			if (event.originalEvent.shiftKey && isViewportDrawerClabEditorCheckboxChecked) { // Start edge creation on Shift and the isViewportDrawerClabEditorCheckboxChecked 
-				console.log("Shift + Click");
-				console.log("edgeHandler Node: ", node.data("extraData").longname);
+				console.info("Shift + Click");
+				console.info("edgeHandler Node: ", node.data("extraData").longname);
 
 				// Set the edge handler flag
 				isEdgeHandlerActive = true;
 				// Start the edge handler from the clicked node
 				eh.start(node);
 
-				console.log("Node is an editor node");
+				console.info("Node is an editor node");
 				showPanelNodeEditor(node) // after this cy.on('ehcomplete') is called, the 'ehcomplete' event will be triggered
 			}
 			if (event.originalEvent.altKey && isViewportDrawerClabEditorCheckboxChecked && (node.data("editor") === "true")) { // node deletion on Alt and the isViewportDrawerClabEditorCheckboxChecked 
-				console.log("Alt + Click is enabled");
-				console.log("deleted Node: ", node.data("extraData").longname);
+				console.info("Alt + Click is enabled");
+				console.info("deleted Node: ", node.data("extraData").longname);
 				deleteNodeToEditorToFile(node)
 			}
 			if ((node.data("editor") === "true")) {
@@ -862,9 +883,9 @@ document.addEventListener("DOMContentLoaded", async function() {
 				for (let i = 0; i < panelOverlays.length; i++) {
 					panelOverlays[i].style.display = "none";
 				}
-				console.log(node);
-				console.log(node.data("containerDockerExtraAttribute").status);
-				console.log(node.data("extraData"));
+				console.info(node);
+				console.info(node.data("containerDockerExtraAttribute").status);
+				console.info(node.data("extraData"));
 				if (document.getElementById("panel-node").style.display === "none") {
 					document.getElementById("panel-node").style.display = "block";
 				} else {
@@ -883,7 +904,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 
 				// Set selected node-long-name to global variable
 				globalSelectedNode = node.data("extraData").longname;
-				console.log("internal: ", globalSelectedNode);
+				console.info("internal: ", globalSelectedNode);
 
 				appendMessage(`"isPanel01Cy-cy: " ${isPanel01Cy}`);
 				appendMessage(`"nodeClicked: " ${nodeClicked}`);
@@ -908,7 +929,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 		const defaultEdgeColor = "#969799";
 		edgeClicked = true;
 
-		console.log(defaultEdgeColor);
+		console.info(defaultEdgeColor);
 
 		// Change the color of the clicked edge (for example, to blue)
 		if (clickedEdge.data("editor") === "true") {
@@ -933,14 +954,14 @@ document.addEventListener("DOMContentLoaded", async function() {
 		const isViewportDrawerClabEditorCheckboxChecked = setupCheckboxListener('#viewport-drawer-clab-editor-content-01 .checkbox-input');
 
 		if (event.originalEvent.altKey && isViewportDrawerClabEditorCheckboxChecked && clickedEdge.data("editor") === "true") {
-			console.log("Alt + Click is enabled");
-			console.log("deleted Edge: ", clickedEdge.data("source"), clickedEdge.data("target"));
+			console.info("Alt + Click is enabled");
+			console.info("deleted Edge: ", clickedEdge.data("source"), clickedEdge.data("target"));
 
 			deleteEdgeToEditorToFile(clickedEdge)
 
 		}
 		if (event.originalEvent.altKey && isViewportDrawerClabEditorCheckboxChecked && clickedEdge.data("editor") !== "true") {
-			console.log("Alt + Click is enabled");
+			console.info("Alt + Click is enabled");
 			bulmaToast.toast({
 				message: `Hey there, that link’s locked down read-only, so no deleting it. 😎👊`,
 				type: "is-warning is-size-6 p-3",
@@ -972,7 +993,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 			// setting MAC address endpoint-a values by getting the data from clab via /clab-link-mac GET API
 			const actualLinkMacPair = await sendRequestToEndpointGetV3("/clab-link-macaddress", clabLinkMacArgsList)
 
-			console.log("actualLinkMacPair: ", actualLinkMacPair)
+			console.info("actualLinkMacPair: ", actualLinkMacPair)
 
 			// // Testing to not pass the paramters in clabSourceLinkArgsList
 			// source_container =`${clickedEdge.data("extraData").clabSourceLongName}`
@@ -988,14 +1009,14 @@ document.addEventListener("DOMContentLoaded", async function() {
 
 			const getMacAddressesResult = getMacAddresses(actualLinkMacPair["data"], sourceClabNode, targetClabNode, sourceIfName, targetIfName);
 			if (typeof getMacAddressesResult === "object") { // Ensure result is an object
-				console.log("Source If MAC:", getMacAddressesResult.sourceIfMac); // Access sourceIfMac
-				console.log("Target If MAC:", getMacAddressesResult.targetIfMac); // Access targetIfMac
+				console.info("Source If MAC:", getMacAddressesResult.sourceIfMac); // Access sourceIfMac
+				console.info("Target If MAC:", getMacAddressesResult.targetIfMac); // Access targetIfMac
 
 				document.getElementById("panel-link-endpoint-a-mac-address").textContent = getMacAddressesResult.sourceIfMac
 				document.getElementById("panel-link-endpoint-b-mac-address").textContent = getMacAddressesResult.targetIfMac
 
 			} else {
-				console.log(getMacAddressesResult); // Handle error message
+				console.info(getMacAddressesResult); // Handle error message
 
 				document.getElementById("panel-link-endpoint-a-mac-address").textContent = "Oops, no MAC address here!"
 				document.getElementById("panel-link-endpoint-b-mac-address").textContent = "Oops, no MAC address here!"
@@ -1030,7 +1051,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 
 			if (clabSourceLinkImpairmentClabData && typeof clabSourceLinkImpairmentClabData === "object" && Object.keys(clabSourceLinkImpairmentClabData).length > 0) {
 				hideLoadingSpinnerGlobal();
-				console.log("Valid non-empty JSON response received for endpoint A:", clabSourceLinkImpairmentClabData);
+				console.info("Valid non-empty JSON response received for endpoint A:", clabSourceLinkImpairmentClabData);
 
 				const sourceDelay = clabSourceLinkImpairmentClabData["data"]["delay"];
 				const sourceJitter = clabSourceLinkImpairmentClabData["data"]["jitter"];
@@ -1044,7 +1065,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 				document.getElementById("panel-link-endpoint-a-loss").value = sourcePacketLoss === "N/A" ? "0" : sourcePacketLoss.replace(/%$/, "");
 				document.getElementById("panel-link-endpoint-a-corruption").value = sourceCorruption === "N/A" ? "0" : sourceCorruption.replace(/%$/, "");
 			} else {
-				console.log("Empty or invalid JSON response received for endpoint A");
+				console.info("Empty or invalid JSON response received for endpoint A");
 			}
 
 			// sleep(1000)
@@ -1057,7 +1078,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 
 			if (clabTargetLinkImpairmentClabData && typeof clabTargetLinkImpairmentClabData === "object" && Object.keys(clabTargetLinkImpairmentClabData).length > 0) {
 				hideLoadingSpinnerGlobal();
-				console.log("Valid non-empty JSON response received for endpoint B:", clabTargetLinkImpairmentClabData);
+				console.info("Valid non-empty JSON response received for endpoint B:", clabTargetLinkImpairmentClabData);
 
 				const targetDelay = clabTargetLinkImpairmentClabData["data"]["delay"];
 				const targetJitter = clabTargetLinkImpairmentClabData["data"]["jitter"];
@@ -1071,7 +1092,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 				document.getElementById("panel-link-endpoint-b-loss").value = targetPacketLoss === "N/A" ? "0" : targetPacketLoss.replace(/%$/, "");
 				document.getElementById("panel-link-endpoint-b-corruption").value = targetCorruption === "N/A" ? "0" : targetCorruption.replace(/%$/, "");
 			} else {
-				console.log("Empty or invalid JSON response received for endpoint B");
+				console.info("Empty or invalid JSON response received for endpoint B");
 			}
 
 			//render sourceSubInterfaces
@@ -1080,7 +1101,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 				clickedEdge.data("extraData").clabSourcePort
 			];
 			let clabSourceSubInterfacesClabData = await sendRequestToEndpointGetV3("/clab-link-subinterfaces", clabSourceSubInterfacesArgList);
-			console.log("clabSourceSubInterfacesClabData: ", clabSourceSubInterfacesClabData);
+			console.info("clabSourceSubInterfacesClabData: ", clabSourceSubInterfacesClabData);
 
 			// let sourceSubInterfaces = clabSourceSubInterfacesClabData.map(
 			// 	item => `${item.ifname}`
@@ -1097,11 +1118,11 @@ document.addEventListener("DOMContentLoaded", async function() {
 				renderSubInterfaces(sourceSubInterfaces, 'endpoint-a-clipboard', 'endpoint-a-bottom');
 
 			} else if (Array.isArray(clabSourceSubInterfacesClabData)) {
-				console.log("No sub-interfaces found. The input data array is empty.");
+				console.info("No sub-interfaces found. The input data array is empty.");
 				renderSubInterfaces(null, 'endpoint-a-edgeshark', 'endpoint-a-clipboard');
 				renderSubInterfaces(null, 'endpoint-a-clipboard', 'endpoint-a-bottom');
 			} else {
-				console.log("No sub-interfaces found. The input data is null, undefined, or not an array.");
+				console.info("No sub-interfaces found. The input data is null, undefined, or not an array.");
 				renderSubInterfaces(null, 'endpoint-a-edgeshark', 'endpoint-a-clipboard');
 				renderSubInterfaces(null, 'endpoint-a-clipboard', 'endpoint-a-bottom');
 			}
@@ -1114,7 +1135,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 				clickedEdge.data("extraData").clabTargetPort
 			];
 			let clabTargetSubInterfacesClabData = await sendRequestToEndpointGetV3("/clab-link-subinterfaces", clabTargetSubInterfacesArgList);
-			console.log("clabTargetSubInterfacesClabData: ", clabTargetSubInterfacesClabData);
+			console.info("clabTargetSubInterfacesClabData: ", clabTargetSubInterfacesClabData);
 
 			if (Array.isArray(clabTargetSubInterfacesClabData) && clabTargetSubInterfacesClabData.length > 0) {
 				// Map sub-interfaces with prefix
@@ -1127,11 +1148,11 @@ document.addEventListener("DOMContentLoaded", async function() {
 				renderSubInterfaces(TargetSubInterfaces, 'endpoint-b-clipboard', 'endpoint-b-bottom');
 
 			} else if (Array.isArray(clabTargetSubInterfacesClabData)) {
-				console.log("No sub-interfaces found. The input data array is empty.");
+				console.info("No sub-interfaces found. The input data array is empty.");
 				renderSubInterfaces(null, 'endpoint-b-edgeshark', 'endpoint-b-clipboard');
 				renderSubInterfaces(null, 'endpoint-b-clipboard', 'endpoint-b-bottom');
 			} else {
-				console.log("No sub-interfaces found. The input data is null, undefined, or not an array.");
+				console.info("No sub-interfaces found. The input data is null, undefined, or not an array.");
 				renderSubInterfaces(null, 'endpoint-b-edgeshark', 'endpoint-b-clipboard');
 				renderSubInterfaces(null, 'endpoint-b-clipboard', 'endpoint-b-bottom');
 			}
@@ -1153,9 +1174,9 @@ document.addEventListener("DOMContentLoaded", async function() {
 		// Your event handling logic here
 		// Add a click event listener to the 'Generate' button
 		// Get the number of node from the input field
-		console.log("generateNodesButton clicked");
+		console.info("generateNodesButton clicked");
 		const numNodes = document.getElementById("generateNodesInput").value;
-		console.log(numNodes);
+		console.info(numNodes);
 		// Check if the number of node is empty
 		if (numNodes === null) {
 			// if node number empty do nothing
@@ -1232,7 +1253,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 		});
 		layout.run();
 		//// Append a notification message to the textarea
-		console.log(
+		console.info(
 			"Info: " +
 			`Boom! Just generated ${numNodesToGenerate} nodes with some random edges. That's how we roll!`,
 		);
@@ -1244,7 +1265,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 
 
 	function assignMiddleLabels(edge) {
-		console.log("assignMiddleLabels");
+		console.info("assignMiddleLabels");
 
 		if (!edge || !edge.isEdge()) {
 			console.error("Input is not a valid edge.");
@@ -1264,7 +1285,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 			);
 		});
 
-		console.log("connectedEdges: ", connectedEdges);
+		console.info("connectedEdges: ", connectedEdges);
 
 		// If only one edge exists, no label is needed
 		if (connectedEdges.length === 1) {
@@ -1275,7 +1296,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 		// Check if the label already exists
 		const groupId = `${source}-${target}`;
 		if (document.getElementById(`label-${groupId}`)) {
-			console.log(`Label for group ${groupId} already exists.`);
+			console.info(`Label for group ${groupId} already exists.`);
 			return;
 		}
 
@@ -1360,7 +1381,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 				label.remove();
 			}
 
-			console.log(`Expanded parallel edges for ${groupId}`);
+			console.info(`Expanded parallel edges for ${groupId}`);
 			bulmaToast.toast({
 				message: `Expanded parallel edges for ${groupId}`,
 				type: "is-warning is-size-6 p-3",
@@ -1384,7 +1405,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 				label.style.display = "block";
 			}
 
-			console.log(`Collapsed parallel edges for ${groupId}`);
+			console.info(`Collapsed parallel edges for ${groupId}`);
 			bulmaToast.toast({
 				message: `Collapsed parallel edges for ${groupId}`,
 				type: "is-warning is-size-6 p-3",
@@ -1402,7 +1423,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 		// Add a click event listener to the 'Submit' button in the hidden form
 		// Get the node name from the input field
 		const nodeName = document.getElementById("nodeName").value;
-		console.log(nodeName);
+		console.info(nodeName);
 		// Check if a node name is empty
 		if (nodeName == "") {
 			// append message in textArea
@@ -1437,7 +1458,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 		});
 		layout.run();
 		// Append a notification message to the textarea
-		console.log("Info: " + `Nice! Node "${nodeName}" added successfully.`);
+		console.info("Info: " + `Nice! Node "${nodeName}" added successfully.`);
 		appendMessage("Info: " + `Nice! Node "${nodeName}" added successfully.`);
 	}
 
@@ -1457,7 +1478,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 		// weight: (edge) => 1, // You can adjust the weight function if needed
 		// weight: (edge) => edge.data('distance')
 
-		console.log("im triggered");
+		console.info("im triggered");
 
 		// Remove existing highlight from all edges
 		cy.edges().forEach((edge) => {
@@ -1476,7 +1497,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 		const sourceNode = cy.$(`node[id="${sourceNodeId}"]`);
 		const targetNode = cy.$(`node[id="${targetNodeId}"]`);
 
-		console.log(
+		console.info(
 			"Info: " +
 			"Let's find the path from-" +
 			sourceNodeId +
@@ -1513,7 +1534,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 		});
 		// Get the shortest path from Dijkstra result
 		const shortestPathEdges = dijkstraResult.pathTo(targetNode);
-		console.log(shortestPathEdges);
+		console.info(shortestPathEdges);
 
 		// Check if there is a valid path (shortestPathEdges is not empty)
 		if (shortestPathEdges.length > 1) {
@@ -1545,7 +1566,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 				},
 				duration: 1500,
 			});
-			console.log(
+			console.info(
 				"Info: " +
 				"Yo, check it out! Shorthest Path from-" +
 				sourceNodeId +
@@ -1561,12 +1582,12 @@ document.addEventListener("DOMContentLoaded", async function() {
 				targetNodeId +
 				" has been found, below is the path trace..",
 			);
-			console.log(shortestPathEdges);
+			console.info(shortestPathEdges);
 
 			shortestPathEdges.forEach((edge) => {
-				console.log("Edge ID:", edge.id());
-				console.log("Source Node ID:", edge.source().id());
-				console.log("Target Node ID:", edge.target().id());
+				console.info("Edge ID:", edge.id());
+				console.info("Source Node ID:", edge.source().id());
+				console.info("Target Node ID:", edge.target().id());
 
 				edgeId = edge.id();
 				sourceNodeId = edge.source().id();
@@ -1627,7 +1648,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 				) {
 					statusGreenNode.show();
 					statusRedNode.hide();
-					console.log(
+					console.info(
 						"nodeContainerStatusVisibility: " + nodeContainerStatusVisibility,
 					);
 				} else if (
@@ -1854,8 +1875,8 @@ async function initEnv() {
 	labName = await environments["clab-name"]
 	deploymentType = await environments["deployment-type"]
 
-	console.log("Lab-Name: ", labName)
-	console.log("DeploymentType: ", deploymentType)
+	console.info("Lab-Name: ", labName)
+	console.info("DeploymentType: ", deploymentType)
 	return environments, labName
 }
 
@@ -1863,20 +1884,20 @@ async function changeTitle() {
 	environments = await getEnvironments();
 	labName = await environments["clab-name"]
 
-	console.log("changeTitle() - labName: ", labName)
+	console.info("changeTitle() - labName: ", labName)
 	document.title = `TopoViewer::${labName}`;
 }
 
 async function sshWebBased(event) {
-	console.log("sshWebBased: ", globalSelectedNode)
+	console.info("sshWebBased: ", globalSelectedNode)
 	var routerName = globalSelectedNode
 	try {
 		environments = await getEnvironments(event);
-		console.log("sshWebBased - environments: ", environments)
+		console.info("sshWebBased - environments: ", environments)
 		cytoTopologyJson = environments["EnvCyTopoJsonBytes"]
 		routerData = findCytoElementByLongname(cytoTopologyJson, routerName)
 
-		console.log("sshWebBased: ", `${globalShellUrl}?RouterID=${routerData["data"]["extraData"]["mgmtIpv4Addresss"]}?RouterName=${routerName}`)
+		console.info("sshWebBased: ", `${globalShellUrl}?RouterID=${routerData["data"]["extraData"]["mgmtIpv4Addresss"]}?RouterName=${routerName}`)
 
 		window.open(`${globalShellUrl}?RouterID=${routerData["data"]["extraData"]["mgmtIpv4Addresss"]}?RouterName=${routerName}`);
 
@@ -1886,11 +1907,11 @@ async function sshWebBased(event) {
 }
 
 async function sshCliCommandCopy(event) {
-	console.log("sshWebBased: ", globalSelectedNode)
+	console.info("sshWebBased: ", globalSelectedNode)
 	var routerName = globalSelectedNode
 	try {
 		environments = await getEnvironments(event);
-		console.log("sshWebBased - environments: ", environments)
+		console.info("sshWebBased - environments: ", environments)
 
 		cytoTopologyJson = environments["EnvCyTopoJsonBytes"]
 		clabServerAddress = environments["clab-server-address"]
@@ -1941,18 +1962,18 @@ async function sshCliCommandCopy(event) {
 
 
 async function linkImpairmentClab(event, impairDirection) {
-	console.log("linkImpairmentClab - globalSelectedEdge: ", globalSelectedEdge);
+	console.info("linkImpairmentClab - globalSelectedEdge: ", globalSelectedEdge);
 	var edgeId = globalSelectedEdge;
 
 	try {
 		const environments = await getEnvironments(event);
-		console.log("linkImpairment - environments: ", environments);
+		console.info("linkImpairment - environments: ", environments);
 
 		const deploymentType = environments["deployment-type"];
 		const cytoTopologyJson = environments["EnvCyTopoJsonBytes"];
 		const edgeData = findCytoElementById(cytoTopologyJson, edgeId);
 
-		console.log("linkImpairment - edgeData: ", edgeData);
+		console.info("linkImpairment - edgeData: ", edgeData);
 
 		const clabUser = edgeData["data"]["extraData"]["clabServerUsername"];
 		const clabServerAddress = environments["clab-server-address"];
@@ -1982,7 +2003,7 @@ async function linkImpairmentClab(event, impairDirection) {
 				`ssh ${clabUser}@${clabServerAddress} /usr/bin/containerlab tools netem set -n ${clabSourceLongName} -i ${clabSourcePort} --delay ${delay}ms --jitter ${jitter}ms --rate ${rate} --loss ${loss} --corruption ${corruption}` :
 				`/usr/bin/containerlab tools netem set -n ${clabSourceLongName} -i ${clabSourcePort} --delay ${delay}ms --jitter ${jitter}ms --rate ${rate} --loss ${loss} --corruption ${corruption}`;
 
-			console.log(`linkImpairment - deployment ${deploymentType}, command: ${command}`);
+			console.info(`linkImpairment - deployment ${deploymentType}, command: ${command}`);
 			await sendRequestToEndpointPost("/clab-link-impairment", [command]);
 		}
 
@@ -1998,7 +2019,7 @@ async function linkImpairmentClab(event, impairDirection) {
 				`ssh ${clabUser}@${clabServerAddress} /usr/bin/containerlab tools netem set -n ${clabTargetLongName} -i ${clabTargetPort} --delay ${delay}ms --jitter ${jitter}ms --rate ${rate} --loss ${loss} --corruption ${corruption}` :
 				`/usr/bin/containerlab tools netem set -n ${clabTargetLongName} -i ${clabTargetPort} --delay ${delay}ms --jitter ${jitter}ms --rate ${rate} --loss ${loss} --corruption ${corruption}`;
 
-			console.log(`linkImpairment - deployment ${deploymentType}, command: ${command}`);
+			console.info(`linkImpairment - deployment ${deploymentType}, command: ${command}`);
 			await sendRequestToEndpointPost("/clab-link-impairment", [command]);
 		}
 	} catch (error) {
@@ -2008,24 +2029,24 @@ async function linkImpairmentClab(event, impairDirection) {
 
 
 async function linkWireshark(event, option, endpoint, referenceElementAfterId) {
-	console.log("linkWireshark - globalSelectedEdge: ", globalSelectedEdge)
-	console.log("linkWireshark - option: ", option)
-	console.log("linkWireshark - endpoint: ", endpoint)
-	console.log("linkWireshark - referenceElementAfterId: ", referenceElementAfterId)
+	console.info("linkWireshark - globalSelectedEdge: ", globalSelectedEdge)
+	console.info("linkWireshark - option: ", option)
+	console.info("linkWireshark - endpoint: ", endpoint)
+	console.info("linkWireshark - referenceElementAfterId: ", referenceElementAfterId)
 
 
 	var edgeId = globalSelectedEdge
 	try {
 		environments = await getEnvironments(event);
-		console.log("linkWireshark - environments: ", environments)
+		console.info("linkWireshark - environments: ", environments)
 
 		var deploymentType = environments["deployment-type"]
 
 		cytoTopologyJson = environments["EnvCyTopoJsonBytes"]
 		edgeData = findCytoElementById(cytoTopologyJson, edgeId)
 
-		console.log("linkWireshark- edgeData: ", edgeData)
-		console.log("linkWireshark- edgeSource: ", edgeData["data"]["source"])
+		console.info("linkWireshark- edgeData: ", edgeData)
+		console.info("linkWireshark- edgeSource: ", edgeData["data"]["source"])
 
 		clabUser = edgeData["data"]["extraData"]["clabServerUsername"]
 		clabServerAddress = environments["clab-server-address"]
@@ -2039,11 +2060,11 @@ async function linkWireshark(event, option, endpoint, referenceElementAfterId) {
 		if (option == "app") {
 			if (endpoint == "source") {
 				wiresharkHref = `clab-capture://${clabUser}@${clabServerAddress}?${clabSourceLongName}?${clabSourcePort}`
-				console.log("linkWireshark- wiresharkHref: ", wiresharkHref)
+				console.info("linkWireshark- wiresharkHref: ", wiresharkHref)
 
 			} else if (endpoint == "target") {
 				wiresharkHref = `clab-capture://${clabUser}@${clabServerAddress}?${clabTargetLongName}?${clabTargetPort}`
-				console.log("linkWireshark- wiresharkHref: ", wiresharkHref)
+				console.info("linkWireshark- wiresharkHref: ", wiresharkHref)
 			}
 			window.open(wiresharkHref);
 
@@ -2052,24 +2073,24 @@ async function linkWireshark(event, option, endpoint, referenceElementAfterId) {
 				baseUrl = `packetflix:ws://${clabServerAddress}:5001/capture?`;
 
 				netNsResponse = await sendRequestToEndpointGetV3("/clab-node-network-namespace", argsList = [clabSourceLongName])
-				console.log("linkWireshark - netNsSource: ", netNsResponse.namespace_id.slice(netNsResponse.namespace_id.indexOf("[") + 1, netNsResponse.namespace_id.indexOf("]")))
+				console.info("linkWireshark - netNsSource: ", netNsResponse.namespace_id.slice(netNsResponse.namespace_id.indexOf("[") + 1, netNsResponse.namespace_id.indexOf("]")))
 				netNsIdSource = netNsResponse.namespace_id.slice(netNsResponse.namespace_id.indexOf("[") + 1, netNsResponse.namespace_id.indexOf("]"))
 
 				urlParams = `container={"netns":${netNsIdSource},"network-interfaces":["${clabSourcePort}"],"name":"${clabSourceLongName.toLocaleLowerCase()}","type":"docker","prefix":""}&nif=${clabSourcePort}`;
 				edgeSharkHref = baseUrl + urlParams;
-				console.log("linkWireshark - edgeSharkHref: ", edgeSharkHref)
+				console.info("linkWireshark - edgeSharkHref: ", edgeSharkHref)
 				window.open(edgeSharkHref);
 
 			} else if (endpoint == "target") {
 				baseUrl = `packetflix:ws://${clabServerAddress}:5001/capture?`;
 
 				netNsResponse = await sendRequestToEndpointGetV3("/clab-node-network-namespace", argsList = [clabTargetLongName])
-				console.log("linkWireshark - netNsSource: ", netNsResponse.namespace_id.slice(netNsResponse.namespace_id.indexOf("[") + 1, netNsResponse.namespace_id.indexOf("]")))
+				console.info("linkWireshark - netNsSource: ", netNsResponse.namespace_id.slice(netNsResponse.namespace_id.indexOf("[") + 1, netNsResponse.namespace_id.indexOf("]")))
 				netNsIdTarget = netNsResponse.namespace_id.slice(netNsResponse.namespace_id.indexOf("[") + 1, netNsResponse.namespace_id.indexOf("]"))
 
 				urlParams = `container={"netns":${netNsIdTarget},"network-interfaces":["${clabTargetPort}"],"name":"${clabTargetLongName.toLocaleLowerCase()}","type":"docker","prefix":""}&nif=${clabTargetPort}`;
 				edgeSharkHref = baseUrl + urlParams;
-				console.log("linkWireshark - edgeSharkHref: ", edgeSharkHref)
+				console.info("linkWireshark - edgeSharkHref: ", edgeSharkHref)
 				window.open(edgeSharkHref);
 			}
 
@@ -2078,29 +2099,29 @@ async function linkWireshark(event, option, endpoint, referenceElementAfterId) {
 				baseUrl = `packetflix:ws://${clabServerAddress}:5001/capture?`;
 
 				netNsResponse = await sendRequestToEndpointGetV3("/clab-node-network-namespace", argsList = [clabSourceLongName])
-				console.log("linkWireshark - netNsSource: ", netNsResponse.namespace_id.slice(netNsResponse.namespace_id.indexOf("[") + 1, netNsResponse.namespace_id.indexOf("]")))
+				console.info("linkWireshark - netNsSource: ", netNsResponse.namespace_id.slice(netNsResponse.namespace_id.indexOf("[") + 1, netNsResponse.namespace_id.indexOf("]")))
 				netNsIdSource = netNsResponse.namespace_id.slice(netNsResponse.namespace_id.indexOf("[") + 1, netNsResponse.namespace_id.indexOf("]"))
 
 				urlParams = `container={"netns":${netNsIdSource},"network-interfaces":["${endpoint}"],"name":"${clabSourceLongName.toLocaleLowerCase()}","type":"docker","prefix":""}&nif=${endpoint}`;
 				edgeSharkHref = baseUrl + urlParams;
-				console.log("linkWireshark - edgeSharkHref: ", edgeSharkHref)
+				console.info("linkWireshark - edgeSharkHref: ", edgeSharkHref)
 				window.open(edgeSharkHref);
 			}
 			if (referenceElementAfterId == "endpoint-b-edgeshark") {
-				console.log("linkWireshark - endpoint-b-edgeshark")
+				console.info("linkWireshark - endpoint-b-edgeshark")
 				baseUrl = `packetflix:ws://${clabServerAddress}:5001/capture?`;
 
 				netNsResponse = await sendRequestToEndpointGetV3("/clab-node-network-namespace", argsList = [clabTargetLongName])
-				console.log("linkWireshark - netNsSource: ", netNsResponse.namespace_id.slice(netNsResponse.namespace_id.indexOf("[") + 1, netNsResponse.namespace_id.indexOf("]")))
+				console.info("linkWireshark - netNsSource: ", netNsResponse.namespace_id.slice(netNsResponse.namespace_id.indexOf("[") + 1, netNsResponse.namespace_id.indexOf("]")))
 				netNsIdTarget = netNsResponse.namespace_id.slice(netNsResponse.namespace_id.indexOf("[") + 1, netNsResponse.namespace_id.indexOf("]"))
 
 				urlParams = `container={"netns":${netNsIdTarget},"network-interfaces":["${endpoint}"],"name":"${clabSourceLongName.toLocaleLowerCase()}","type":"docker","prefix":""}&nif=${endpoint}`;
 				edgeSharkHref = baseUrl + urlParams;
-				console.log("linkWireshark - edgeSharkHref: ", edgeSharkHref)
+				console.info("linkWireshark - edgeSharkHref: ", edgeSharkHref)
 				window.open(edgeSharkHref);
 			}
 			if (referenceElementAfterId == "endpoint-a-clipboard") {
-				console.log("linkWireshark - endpoint-a-clipboard")
+				console.info("linkWireshark - endpoint-a-clipboard")
 				if (deploymentType == "container") {
 					wiresharkSshCommand = `ssh ${clabUser}@${clabServerAddress} "sudo -S /sbin/ip netns exec ${clabSourceLongName} tcpdump -U -nni ${endpoint} -w -" | wireshark -k -i -`
 				} else if (deploymentType == "colocated") {
@@ -2143,7 +2164,7 @@ async function linkWireshark(event, option, endpoint, referenceElementAfterId) {
 				}
 			}
 			if (referenceElementAfterId == "endpoint-b-clipboard") {
-				console.log("linkWireshark - endpoint-b-clipboard")
+				console.info("linkWireshark - endpoint-b-clipboard")
 				if (deploymentType == "container") {
 					wiresharkSshCommand = `ssh ${clabUser}@${clabServerAddress} "sudo -S /sbin/ip netns exec ${clabTargetLongName} tcpdump -U -nni ${endpoint} -w -" | wireshark -k -i -`
 				} else if (deploymentType == "colocated") {
@@ -2202,7 +2223,7 @@ async function linkWireshark(event, option, endpoint, referenceElementAfterId) {
 				}
 			}
 
-			console.log("linkWireshark- wiresharkSShCommand: ", wiresharkSshCommand)
+			console.info("linkWireshark- wiresharkSShCommand: ", wiresharkSshCommand)
 
 			// Check if the clipboard API is available
 			if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -2268,7 +2289,7 @@ async function showPanelTopoViewerClient(event) {
 	}
 
 	environments = await getEnvironments(event);
-	console.log("linkImpairment - environments: ", environments)
+	console.info("linkImpairment - environments: ", environments)
 
 	clabServerAddress = environments["clab-server-address"]
 	clabServerPort = environments["clab-server-port"]
@@ -2306,7 +2327,7 @@ async function showPanelAbout(event) {
 	}
 
 	environments = await getEnvironments(event);
-	console.log("linkImpairment - environments: ", environments)
+	console.info("linkImpairment - environments: ", environments)
 
 	topoViewerVersion = environments["topoviewer-version"]
 
@@ -2383,7 +2404,7 @@ async function getActualNodesEndpoints(event) {
 		// Handle the response data
 		if (CyTopoJson && typeof CyTopoJson === 'object' && Object.keys(CyTopoJson).length > 0) {
 			hideLoadingSpinnerGlobal();
-			console.log("Valid non-empty JSON response received:", CyTopoJson);
+			console.info("Valid non-empty JSON response received:", CyTopoJson);
 
 			hideLoadingSpinnerGlobal();
 
@@ -2393,7 +2414,7 @@ async function getActualNodesEndpoints(event) {
 
 			hideLoadingSpinnerGlobal();
 
-			console.log("Empty or invalid JSON response received");
+			console.info("Empty or invalid JSON response received");
 		}
 	} catch (error) {
 		hideLoadingSpinnerGlobal();
@@ -2405,13 +2426,13 @@ async function getActualNodesEndpoints(event) {
 function viewportButtonsZoomToFit() {
 	const initialZoom = cy.zoom();
 	appendMessage(`Bro, initial zoom level is "${initialZoom}".`);
-	console.log(`Bro, initial zoom level is "${initialZoom}".`);
+	console.info(`Bro, initial zoom level is "${initialZoom}".`);
 	// Fit all nodes possible with padding
 	// Fit all nodes possible with padding
 	cy.fit();
 	const currentZoom = cy.zoom();
 	appendMessage(`And now the zoom level is "${currentZoom}".`);
-	console.log(`And now the zoom level is "${currentZoom}".`);
+	console.info(`And now the zoom level is "${currentZoom}".`);
 }
 
 function viewportButtonsLayoutAlgo() {
@@ -2434,7 +2455,7 @@ function viewportNodeFindEvent(event) {
 	const node = cy.$(`node[name = "${nodeName}"]`);
 	// Check if the node exists
 	if (node.length > 0) {
-		console.log("Info: " + 'Sweet! Node "' + nodeName + '" is in the house.');
+		console.info("Info: " + 'Sweet! Node "' + nodeName + '" is in the house.');
 		appendMessage("Info: " + 'Sweet! Node "' + nodeName + '" is in the house.');
 		// Apply a highlight style to the node
 		node.style({
@@ -2472,13 +2493,13 @@ function viewportNodeFindEvent(event) {
 async function layoutAlgoChange(event) {
 
 	try {
-		console.log("layoutAlgoChange clicked");
+		console.info("layoutAlgoChange clicked");
 
 		var selectElement = document.getElementById("select-layout-algo");
 		var selectedOption = selectElement.value;
 
 		if (selectedOption === "Force Directed") {
-			console.log("Force Directed algo selected");
+			console.info("Force Directed algo selected");
 
 			var layoutAlgoPanels = document.getElementsByClassName("layout-algo");
 			// Loop through each element and set its display to 'none'
@@ -2492,11 +2513,11 @@ async function layoutAlgoChange(event) {
 			viewportDrawerForceDirectedResetStart = document.getElementById("viewport-drawer-force-directed-reset-start")
 			viewportDrawerForceDirectedResetStart.style.display = "block"
 
-			console.log(document.getElementById("viewport-drawer-force-directed"))
-			console.log(document.getElementById("viewport-drawer-force-directed-reset-start"))
+			console.info(document.getElementById("viewport-drawer-force-directed"))
+			console.info(document.getElementById("viewport-drawer-force-directed-reset-start"))
 
 		} else if (selectedOption === "Force Directed Radial") {
-			console.log("Force Directed Radial algo selected");
+			console.info("Force Directed Radial algo selected");
 
 			var layoutAlgoPanels = document.getElementsByClassName("layout-algo");
 			// Loop through each element and set its display to 'none'
@@ -2510,11 +2531,11 @@ async function layoutAlgoChange(event) {
 			viewportDrawerForceDirectedResetStart = document.getElementById("viewport-drawer-force-directed-radial-reset-start")
 			viewportDrawerForceDirectedResetStart.style.display = "block"
 
-			console.log(document.getElementById("viewport-drawer-force-directed-radial"))
-			console.log(document.getElementById("viewport-drawer-force-directed-radial-reset-start"))
+			console.info(document.getElementById("viewport-drawer-force-directed-radial"))
+			console.info(document.getElementById("viewport-drawer-force-directed-radial-reset-start"))
 
 		} else if (selectedOption === "Vertical") {
-			console.log("Vertical algo selected");
+			console.info("Vertical algo selected");
 
 			var layoutAlgoPanels = document.getElementsByClassName("layout-algo");
 			// Loop through each element and set its display to 'none'
@@ -2528,11 +2549,11 @@ async function layoutAlgoChange(event) {
 			viewportDrawerForceDirectedResetStart = document.getElementById("viewport-drawer-dc-vertical-reset-start")
 			viewportDrawerForceDirectedResetStart.style.display = "block"
 
-			console.log(document.getElementById("viewport-drawer-dc-vertical"))
-			console.log(document.getElementById("viewport-drawer-dc-vertical-reset-start"))
+			console.info(document.getElementById("viewport-drawer-dc-vertical"))
+			console.info(document.getElementById("viewport-drawer-dc-vertical-reset-start"))
 
 		} else if (selectedOption === "Horizontal") {
-			console.log("Horizontal algo selected");
+			console.info("Horizontal algo selected");
 
 			var layoutAlgoPanels = document.getElementsByClassName("layout-algo");
 			// Loop through each element and set its display to 'none'
@@ -2546,8 +2567,8 @@ async function layoutAlgoChange(event) {
 			viewportDrawerForceDirectedResetStart = document.getElementById("viewport-drawer-dc-horizontal-reset-start")
 			viewportDrawerForceDirectedResetStart.style.display = "block"
 
-			console.log(document.getElementById("viewport-drawer-dc-horizontal"))
-			console.log(document.getElementById("viewport-drawer-dc-horizontal-reset-start"))
+			console.info(document.getElementById("viewport-drawer-dc-horizontal"))
+			console.info(document.getElementById("viewport-drawer-dc-horizontal-reset-start"))
 		}
 
 	} catch (error) {
@@ -2564,7 +2585,7 @@ function viewportButtonsTopologyOverview() {
 		viewportDrawer[i].style.display = "none";
 	}
 
-	console.log("viewportButtonsTopologyOverview clicked")
+	console.info("viewportButtonsTopologyOverview clicked")
 	viewportDrawerLayout = document.getElementById("viewport-drawer-topology-overview")
 	viewportDrawerLayout.style.display = "block"
 
@@ -2579,7 +2600,7 @@ function viewportButtonsTopologyCapture() {
 		viewportDrawer[i].style.display = "none";
 	}
 
-	console.log("viewportButtonsTopologyCapture clicked")
+	console.info("viewportButtonsTopologyCapture clicked")
 
 	viewportDrawerCapture = document.getElementById("viewport-drawer-capture-sceenshoot")
 	viewportDrawerCapture.style.display = "block"
@@ -2617,7 +2638,7 @@ function viewportButtonsLabelEndpoint() {
 function viewportButtonContainerStatusVisibility() {
 	if (nodeContainerStatusVisibility) {
 		nodeContainerStatusVisibility = false;
-		console.log(
+		console.info(
 			"nodeContainerStatusVisibility: " + nodeContainerStatusVisibility,
 		);
 		appendMessage(
@@ -2632,7 +2653,7 @@ function viewportButtonContainerStatusVisibility() {
 		});
 	} else {
 		nodeContainerStatusVisibility = true;
-		console.log(
+		console.info(
 			"nodeContainerStatusVisibility: " + nodeContainerStatusVisibility,
 		);
 		appendMessage(
@@ -2656,8 +2677,8 @@ function viewportDrawerLayoutForceDirected() {
 	const edgeLengthValue = parseFloat(edgeLengthSlider.value);
 	const nodeGapValue = parseFloat(nodeGapSlider.value);
 
-	console.log("edgeLengthValue", edgeLengthValue);
-	console.log("nodeGapValue", nodeGapValue);
+	console.info("edgeLengthValue", edgeLengthValue);
+	console.info("nodeGapValue", nodeGapValue);
 
 	cy.layout({
 
@@ -2669,14 +2690,14 @@ function viewportDrawerLayoutForceDirected() {
 			maxSimulationTime: 1500,
 
 			edgeLength: function(e) {
-				// console.log("edgeLengthValue", edgeLengthValue);
-				// console.log("edgeLengthValue*100 / e.data", edgeLengthValue*100 / e.data("weight"));
+				// console.info("edgeLengthValue", edgeLengthValue);
+				// console.info("edgeLengthValue*100 / e.data", edgeLengthValue*100 / e.data("weight"));
 
 				return edgeLengthValue * 100 / e.data("weight");
 			},
 			nodeGap: function(e) {
-				// console.log("nodeGapValue", nodeGapValue);
-				// console.log("nodeGapValue*100 / e.data", nodeGapValue / e.data("weight"));
+				// console.info("nodeGapValue", nodeGapValue);
+				// console.info("nodeGapValue*100 / e.data", nodeGapValue / e.data("weight"));
 
 				return nodeGapValue / e.data("weight");
 			},
@@ -2706,7 +2727,11 @@ function viewportDrawerLayoutForceDirectedRadial() {
 
 	edgeLengthSlider = document.getElementById("force-directed-radial-slider-link-lenght");
 	const edgeLengthValue = parseFloat(edgeLengthSlider.value);
-	console.log("edgeLengthValue", edgeLengthValue);
+	console.info("edgeLengthValue", edgeLengthValue);
+
+	nodeGapSlider = document.getElementById("force-directed-radial-slider-node-gap");
+	const nodeGapValue = parseFloat(nodeGapSlider.value);
+	console.info("edgeLengthValue", nodeGapValue);
 
 	// Map TopoViewerGroupLevel to weights (lower levels = higher weight)	
 	const nodeWeights = {};
@@ -2729,7 +2754,7 @@ function viewportDrawerLayoutForceDirectedRadial() {
 	cy.layout({
 		name: 'cola',
 		fit: true, // Automatically fit the layout to the viewport
-		nodeSpacing: 30,
+		nodeSpacing: nodeGapValue, // Gap between nodes
 		edgeLength: (edge) => {
 			const sourceWeight = nodeWeights[edge.source().id()] || 1;
 			const targetWeight = nodeWeights[edge.target().id()] || 1;
@@ -2745,7 +2770,7 @@ function viewportDrawerLayoutForceDirectedRadial() {
 	var cyExpandCollapse = cy.expandCollapse({
 		layoutBy: null,
 		undoable: false,
-		fisheye: false,
+		fisheye: true,
 		animationDuration: 10, // when animate is true, the duration in milliseconds of the animation
 		animate: true
 	});
@@ -2817,14 +2842,14 @@ function viewportDrawerLayoutVertical() {
 				const width = node.width();
 				if (width > maxWidth) {
 					maxWidth = width; // Update maxWidth with the widest parent node's width
-					console.log("ParentMaxWidth: ", maxWidth);
+					console.info("ParentMaxWidth: ", maxWidth);
 				}
 			}
 		});
 
 		// Calculate division factor for aligning parent nodes
 		const divisionFactor = maxWidth / 2;
-		console.log("Division Factor: ", divisionFactor);
+		console.info("Division Factor: ", divisionFactor);
 
 		// Step 4: Position parent nodes vertically and align them relative to the widest parent node
 		sortedParents.forEach(function(parentNode) {
@@ -2839,7 +2864,7 @@ function viewportDrawerLayoutVertical() {
 				y: yPos
 			});
 
-			console.log(`Parent Node '${parentNode.id()}' positioned at x: ${xPos}, y: ${yPos}`);
+			console.info(`Parent Node '${parentNode.id()}' positioned at x: ${xPos}, y: ${yPos}`);
 
 			// Increment vertical position for the next parent
 			yPos += groupvGapValue;
@@ -2927,14 +2952,14 @@ function viewportDrawerLayoutHorizontal() {
 				const height = node.height();
 				if (height > maxHeight) {
 					maxHeight = height; // Update maxHeight with the tallest parent node's height
-					console.log("ParentMaxHeight: ", maxHeight);
+					console.info("ParentMaxHeight: ", maxHeight);
 				}
 			}
 		});
 
 		// Calculate division factor for aligning parent nodes
 		const divisionFactor = maxHeight / 2;
-		console.log("Division Factor: ", divisionFactor);
+		console.info("Division Factor: ", divisionFactor);
 
 		// Step 4: Position parent nodes horizontally and align them relative to the tallest parent node
 		sortedParents.forEach(function(parentNode) {
@@ -2949,7 +2974,7 @@ function viewportDrawerLayoutHorizontal() {
 				y: yPos
 			});
 
-			console.log(`Parent Node '${parentNode.id()}' positioned at x: ${xPos}, y: ${yPos}`);
+			console.info(`Parent Node '${parentNode.id()}' positioned at x: ${xPos}, y: ${yPos}`);
 
 			// Increment horizontal position for the next parent
 			xPos += grouphGapValue;
@@ -2982,7 +3007,7 @@ function viewportDrawerLayoutHorizontal() {
 
 
 function viewportDrawerCaptureButton() {
-	console.log("viewportDrawerCaptureButton() - clicked")
+	console.info("viewportDrawerCaptureButton() - clicked")
 
 	// Get all checkbox inputs within the specific div
 	const checkboxes = document.querySelectorAll('#viewport-drawer-capture-sceenshoot-content .checkbox-input');
@@ -2998,7 +3023,7 @@ function viewportDrawerCaptureButton() {
 		}
 	});
 
-	console.log("viewportDrawerCaptureButton() - ", selectedOptions)
+	console.info("viewportDrawerCaptureButton() - ", selectedOptions)
 
 	if (selectedOptions.length === 0) {
 		bulmaToast.toast({
@@ -3055,7 +3080,7 @@ async function captureAndSaveViewportAsDrawIo(cy) {
 
 	function createMxCellForNode(node, imageURL) {
 		if (node.isParent()) {
-			console.log("createMxCellForNode - node.isParent()", node.isParent());
+			console.info("createMxCellForNode - node.isParent()", node.isParent());
 			// Use a tiny transparent SVG as a placeholder for the image
 			return `
                 <mxCell id="${node.id()}" value="${node.data("id")}" style="shape=image;imageAspect=0;aspect=fixed;verticalLabelPosition=bottom;verticalAlign=top;image=${imageURL};imageBackground=#8F96AC;imageBorder=#F2F2F2;strokeWidth=0.5;perimeterSpacing=10;opacity=30;fontSize=4;spacingTop=-7;" parent="1" vertex="1">
@@ -3143,7 +3168,7 @@ function viewportButtonsClabEditor() {
 		viewportDrawer[i].style.display = "none";
 	}
 
-	console.log("viewportButtonsClabEditor clicked")
+	console.info("viewportButtonsClabEditor clicked")
 
 	viewportDrawerCapture = document.getElementById("viewport-drawer-clab-editor")
 	viewportDrawerCapture.style.display = "block"
@@ -3165,8 +3190,8 @@ function setupCheckboxListener(checkboxSelector) {
 	}
 
 	const isChecked = checkbox.checked; // Returns true if checked, false otherwise
-	console.log(`${checkboxSelector}:`);
-	console.log(isChecked);
+	console.info(`${checkboxSelector}:`);
+	console.info(isChecked);
 
 	return isChecked;
 }
@@ -3224,7 +3249,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function avoidEdgeLabelOverlap(cy) {
 
-	console.log("avoidEdgeLabelOverlap called");
+	console.info("avoidEdgeLabelOverlap called");
 	// Helper function to calculate edge length
 	function calculateEdgeLength(edge) {
 		const sourcePos = edge.source().position();
@@ -3288,7 +3313,7 @@ function loadCytoStyle(cy) {
 
 	// detect light or dark mode
 	const colorScheme = detectColorScheme();
-	console.log('The user prefers:', colorScheme);
+	console.info('The user prefers:', colorScheme);
 
 	// Load and apply Cytoscape styles from cy-style.json using fetch
 	if (colorScheme == "light") {
@@ -3361,7 +3386,7 @@ function nodeFindDrawer(cy) {
 	// Check if the node exists
 	if (node.length > 0) {
 		// console
-		console.log("Info: " + 'Sweet! Node "' + nodeName + '" is in the house.');
+		console.info("Info: " + 'Sweet! Node "' + nodeName + '" is in the house.');
 		appendMessage("Info: " + 'Sweet! Node "' + nodeName + '" is in the house.');
 		// Apply a highlight style to the node
 		node.style({
@@ -3402,7 +3427,7 @@ function pathFinderDijkstraDrawer(cy) {
 	// Function to get the default node style from cy-style.json
 	// weight: (edge) => 1, // You can adjust the weight function if needed
 	// weight: (edge) => edge.data('distance')
-	console.log("im triggered");
+	console.info("im triggered");
 
 	// Remove existing highlight from all edges
 	cy.edges().forEach((edge) => {
@@ -3421,7 +3446,7 @@ function pathFinderDijkstraDrawer(cy) {
 	const sourceNode = cy.$(`node[id="${sourceNodeId}"]`);
 	const targetNode = cy.$(`node[id="${targetNodeId}"]`);
 
-	console.log(
+	console.info(
 		"Info: " +
 		"Let's find the path from-" +
 		sourceNodeId +
@@ -3459,7 +3484,7 @@ function pathFinderDijkstraDrawer(cy) {
 	});
 	// Get the shortest path from Dijkstra result
 	const shortestPathEdges = dijkstraResult.pathTo(targetNode);
-	console.log(shortestPathEdges);
+	console.info(shortestPathEdges);
 
 	// Check if there is a valid path (shortestPathEdges is not empty)
 	if (shortestPathEdges.length > 1) {
@@ -3486,7 +3511,7 @@ function pathFinderDijkstraDrawer(cy) {
 			duration: 1500,
 		});
 		// throw log
-		console.log(
+		console.info(
 			"Info: " +
 			"Yo, check it out! Shorthest Path from-" +
 			sourceNodeId +
@@ -3502,12 +3527,12 @@ function pathFinderDijkstraDrawer(cy) {
 			targetNodeId +
 			" has been found, below is the path trace..",
 		);
-		console.log(shortestPathEdges);
+		console.info(shortestPathEdges);
 
 		shortestPathEdges.forEach((edge) => {
-			console.log("Edge ID:", edge.id());
-			console.log("Source Node ID:", edge.source().id());
-			console.log("Target Node ID:", edge.target().id());
+			console.info("Edge ID:", edge.id());
+			console.info("Source Node ID:", edge.source().id());
+			console.info("Target Node ID:", edge.target().id());
 
 			edgeId = edge.id();
 			sourceNodeId = edge.source().id();
@@ -3540,7 +3565,7 @@ async function renderSubInterfaces(subInterfaces, referenceElementAfterId, refer
 	const containerSelectorId = 'panel-link-action-dropdown-menu-dropdown-content';
 
 	const onClickHandler = (event, subInterface) => {
-		console.log(`Clicked on: ${subInterface}`);
+		console.info(`Clicked on: ${subInterface}`);
 		linkWireshark(event, "edgeSharkSubInterface", subInterface, referenceElementAfterId);
 	};
 
@@ -3569,7 +3594,7 @@ async function renderSubInterfaces(subInterfaces, referenceElementAfterId, refer
 
 	// Handle case when subInterfaces is null
 	if (!subInterfaces) {
-		console.log("Sub-interfaces is null. Cleared existing items and performed no further actions.");
+		console.info("Sub-interfaces is null. Cleared existing items and performed no further actions.");
 		// Optionally, you could display a placeholder message or take other actions:
 		// const placeholder = document.createElement("div");
 		// placeholder.textContent = "No sub-interfaces available.";
