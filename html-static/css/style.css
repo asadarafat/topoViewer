@@ -1,5 +1,6 @@
 html, body {
   height: 100%;
+  width: 100%;
   margin: 0;
   padding: 0;
   overflow-y: hidden; /* Prevents vertical scrollbar DISABLE THIS FOR DEBUG */
@@ -108,7 +109,10 @@ body {
 
 /* vertical split layout */
 /* vertical split layout */
+
+
 /* Root div for Cytoscape container */
+
 #root-div {
   height: 100%; 
   width: 70%;
@@ -121,7 +125,8 @@ body {
 #data-display {
   position: absolute;
   top: 55px;
-  right: 0;
+  /* right: 0; */
+  left: 70%;
   width: 30%;
   height: 100%;
   z-index: 11;

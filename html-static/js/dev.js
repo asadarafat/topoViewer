@@ -170,22 +170,32 @@ document.addEventListener("DOMContentLoaded", async function() {
 
 		document.addEventListener('mousemove', (e) => {
 			if (!isDragging) return;
-
+		  
 			const screenWidth = window.innerWidth;
-			const offsetX = e.clientX;
-			const minWidth = 5; // Minimum height for data display
-			const maxWidth = screenWidth * 0.95; // Maximum height for data display
-
+			const offsetX = e.clientX;            // divider’s X from the LEFT
+			const minWidth = 5;                   // Minimum width in pixels for data-display
+			const maxWidth = screenWidth * 1;  // Maximum width in pixels for data-display
+		  
+			// dataDisplayWidth is from divider to right edge:
 			const dataDisplayWidth = screenWidth - offsetX;
+			
 			if (dataDisplayWidth >= minWidth && dataDisplayWidth <= maxWidth) {
-				const rootDivWidth = screenWidth - dataDisplayWidth;
-
-				// Update heights
-				dataDisplay.style.width = `${(dataDisplayWidth / screenWidth) * 100}%`;
-				rootDiv.style.width = `${(rootDivWidth / screenWidth) * 100}%`;
-				divider.style.left = `${(rootDivWidth / screenWidth) * 100}%`;
-
-				console.info('togglePanelButtonExpand - parseFloat(dataDisplay.style.width): ', parseFloat(dataDisplay.style.width));
+			  // The rest (from left edge to divider) is rootDivWidth
+			  const rootDivWidth = offsetX;
+			  
+			  // Convert to percentage
+			  const rootDivPercent       = (rootDivWidth / screenWidth)       * 100;
+			  const dataDisplayPercent   = (dataDisplayWidth / screenWidth)   * 100;
+			  
+			  // Position the divider at the same left as rootDiv’s right edge
+			  divider.style.left = rootDivPercent + '%';
+			  
+			  // rootDiv occupies the left portion
+			  rootDiv.style.width = rootDivPercent + '%';
+			  
+			  // dataDisplay starts where rootDiv ends
+			  dataDisplay.style.left  = rootDivPercent + '%';
+			  dataDisplay.style.width = dataDisplayPercent + '%';
 
 
 				// Add or remove transparency
@@ -212,37 +222,27 @@ document.addEventListener("DOMContentLoaded", async function() {
 
 		// Toggle panel visibility
 		togglePanelButtonExpand.addEventListener('click', () => {
-
-			// Full data display
-
-
-			dataDisplay.style.width = '93%';
-			// rootDiv.style.width = '10%';
-			divider.style.left = '7%';
+			// rootDiv gets ~7%; dataDisplay gets ~93%
+			// rootDiv.style.width         = '27%';
+			divider.style.left          = '7%';
+			dataDisplay.style.left      = '7%';
+			dataDisplay.style.width     = '93%';
 			dataDisplay.classList.add('transparent');
-
-			// const divider = document.getElementById('divider');
-			// divider.style.display = 'block';
-
-			//   // Animate fit after toggling
-			//   debounce(() => {
-			// 	console.info('Fitting Cytoscape to new size with animation');
-			// 	animateFit();
-			//   }, 500); // Delay of 500ms
-
-		});
+		  });
 
 		// Toggle panel visibility
 		togglePanelButtonCollapse.addEventListener('click', () => {
-
-			// hide data display
-			dataDisplay.style.width = '1.5%';
-			rootDiv.style.width = '98.5%';
-			divider.style.left = '98.5%';
+			// rootDiv gets ~98.5%; dataDisplay ~1.5%
+			rootDiv.style.width         = '98.5%';
+			divider.style.left          = '98.5%';
+			dataDisplay.style.left      = '98.5%';
+			dataDisplay.style.width     = '1.5%';
 			dataDisplay.classList.remove('transparent');
 
-			// const divider = document.getElementById('divider');
-			// divider.style.display = 'none';
+
+			console.info('togglePanelButtonExpand - dataDisplay.style.width: ', dataDisplay.style.width);
+			console.info('togglePanelButtonExpand - rootDiv.style.width: ', rootDiv.style.width);
+			console.info('togglePanelButtonExpand - divider.style.left: ', divider.style.left);
 
 			// Animate fit after toggling
 			debounce(() => {
