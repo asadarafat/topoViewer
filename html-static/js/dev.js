@@ -2736,58 +2736,128 @@ function viewportButtonContainerStatusVisibility() {
 }
 
 
+// function viewportDrawerLayoutForceDirected() {
+// 	edgeLengthSlider = document.getElementById("force-directed-slider-link-lenght");
+// 	nodeGapSlider = document.getElementById("force-directed-slider-node-gap");
+
+// 	const edgeLengthValue = parseFloat(edgeLengthSlider.value);
+// 	const nodeGapValue = parseFloat(nodeGapSlider.value);
+
+// 	console.info("edgeLengthValue", edgeLengthValue);
+// 	console.info("nodeGapValue", nodeGapValue);
+
+// 	cy.layout({
+
+// 			name: "cola",
+// 			nodeGap: 5,
+// 			edgeLength: 100,
+// 			animate: true,
+// 			randomize: false,
+// 			maxSimulationTime: 1500,
+
+// 			edgeLength: function(e) {
+// 				// console.info("edgeLengthValue", edgeLengthValue);
+// 				// console.info("edgeLengthValue*100 / e.data", edgeLengthValue*100 / e.data("weight"));
+
+// 				return edgeLengthValue * 100 / e.data("weight");
+// 			},
+// 			nodeGap: function(e) {
+// 				// console.info("nodeGapValue", nodeGapValue);
+// 				// console.info("nodeGapValue*100 / e.data", nodeGapValue / e.data("weight"));
+
+// 				return nodeGapValue / e.data("weight");
+// 			},
+// 		})
+// 		.run();
+// 	var cyExpandCollapse = cy.expandCollapse({
+// 		layoutBy: null, // null means use existing layout
+// 		undoable: false,
+// 		fisheye: false,
+// 		animationDuration: 10, // when animate is true, the duration in milliseconds of the animation
+// 		animate: true
+// 	});
+
+// 	// Example collapse/expand after some delay
+// 	// Make sure the '#parent' node exists in your loaded elements
+// 	setTimeout(function() {
+// 		var parent = cy.$('#parent'); // Ensure that '#parent' is actually present in dataCytoMarshall.json
+// 		cyExpandCollapse.collapse(parent);
+
+// 		setTimeout(function() {
+// 			cyExpandCollapse.expand(parent);
+// 		}, 2000);
+// 	}, 2000);
+// }
+
+
 function viewportDrawerLayoutForceDirected() {
-	edgeLengthSlider = document.getElementById("force-directed-slider-link-lenght");
-	nodeGapSlider = document.getElementById("force-directed-slider-node-gap");
+    const edgeLengthSlider = document.getElementById("force-directed-slider-link-lenght");
+    const nodeGapSlider = document.getElementById("force-directed-slider-node-gap");
 
-	const edgeLengthValue = parseFloat(edgeLengthSlider.value);
-	const nodeGapValue = parseFloat(nodeGapSlider.value);
+    const edgeLengthValue = parseFloat(edgeLengthSlider.value);
+    const nodeGapValue = parseFloat(nodeGapSlider.value);
 
-	console.info("edgeLengthValue", edgeLengthValue);
-	console.info("nodeGapValue", nodeGapValue);
+    console.info("edgeLengthValue", edgeLengthValue);
+    console.info("nodeGapValue", nodeGapValue);
 
-	cy.layout({
+    // Calculate the layout for the optic layer (Layer-1)
+    cy.layout({
+        name: "cola",
+        nodeSpacing: function (node) {
+            return nodeGapValue;
+        },
+        edgeLength: function (edge) {
+            return edgeLengthValue * 100 / edge.data("weight");
+        },
+        animate: true,
+        randomize: false,
+        maxSimulationTime: 1500
+    }).run();
 
-			name: "cola",
-			nodeGap: 5,
-			edgeLength: 100,
-			animate: true,
-			randomize: false,
-			maxSimulationTime: 1500,
+    // Get the bounding box of Layer-1 optic nodes
+    const opticLayerNodes = cy.nodes('[parent="layer1"]');
+    const opticBBox = opticLayerNodes.boundingBox();
 
-			edgeLength: function(e) {
-				// console.info("edgeLengthValue", edgeLengthValue);
-				// console.info("edgeLengthValue*100 / e.data", edgeLengthValue*100 / e.data("weight"));
+    // Set layer offsets
+    const layerOffsets = {
+        layer2: opticBBox.y2 + 100, // L2 nodes below Optic layer
+        layer3: opticBBox.y2 + 300, // IP/MPLS nodes below L2 layer
+        layer4: opticBBox.y2 + 500 // VPN nodes below IP/MPLS layer
+    };
 
-				return edgeLengthValue * 100 / e.data("weight");
-			},
-			nodeGap: function(e) {
-				// console.info("nodeGapValue", nodeGapValue);
-				// console.info("nodeGapValue*100 / e.data", nodeGapValue / e.data("weight"));
+    // Position the nodes for each layer while preserving x-coordinates
+    ["layer2", "layer3", "layer4"].forEach((layer, index) => {
+        const layerNodes = cy.nodes(`[parent="${layer}"]`);
+        const offsetY = layerOffsets[layer];
 
-				return nodeGapValue / e.data("weight");
-			},
-		})
-		.run();
-	var cyExpandCollapse = cy.expandCollapse({
-		layoutBy: null, // null means use existing layout
-		undoable: false,
-		fisheye: false,
-		animationDuration: 10, // when animate is true, the duration in milliseconds of the animation
-		animate: true
-	});
+        layerNodes.positions((node, i) => {
+            return {
+                x: opticLayerNodes[i % opticLayerNodes.length].position("x"), // Align x with Layer-1
+                y: opticLayerNodes[i % opticLayerNodes.length].position("y") + offsetY
+            };
+        });
+    });
 
-	// Example collapse/expand after some delay
-	// Make sure the '#parent' node exists in your loaded elements
-	setTimeout(function() {
-		var parent = cy.$('#parent'); // Ensure that '#parent' is actually present in dataCytoMarshall.json
-		cyExpandCollapse.collapse(parent);
-
+    // Optionally, apply animations for expanding and collapsing nodes
+    const cyExpandCollapse = cy.expandCollapse({
+        layoutBy: null, // Use existing layout
+        undoable: false,
+        fisheye: false,
+        animationDuration: 10, // Duration of animation
+        animate: true
+    });
+		// Example collapse/expand after some delay
+		// Make sure the '#parent' node exists in your loaded elements
 		setTimeout(function() {
-			cyExpandCollapse.expand(parent);
+			var parent = cy.$('#parent'); // Ensure that '#parent' is actually present in dataCytoMarshall.json
+			cyExpandCollapse.collapse(parent);
+
+			setTimeout(function() {
+				cyExpandCollapse.expand(parent);
+			}, 2000);
 		}, 2000);
-	}, 2000);
 }
+
 
 function viewportDrawerLayoutForceDirectedRadial() {
 
@@ -3438,9 +3508,9 @@ function loadCytoStyle(cy) {
 	const svgString = `
 	<svg width="480px" height="240px" viewBox="0 0 48 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 	<path d="M0 24 L12 0 L48 0 L36 24 Z" 
-		stroke="white" 
+		stroke="rgba(200, 200, 200, 0.7)" 
 		stroke-width="1" 
-		fill="none"
+		fill="rgba(40, 40, 40, 0.6)"
 		vector-effect="non-scaling-stroke"/>
 	</svg>`;
 
