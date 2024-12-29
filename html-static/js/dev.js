@@ -16,6 +16,8 @@ var globalShellUrl = "/js/cloudshell"
 var labName
 var deploymentType
 
+var multiLayerViewPortState = false;
+
 document.addEventListener("DOMContentLoaded", async function() {
 
 	// hortizontal layout
@@ -252,6 +254,16 @@ document.addEventListener("DOMContentLoaded", async function() {
 
 		});
 	}
+
+
+
+
+
+
+
+
+
+
 
 	// Call the function during initialization
 	initializeResizingLogic(cy);
@@ -2657,6 +2669,10 @@ function viewportButtonsTopologyCapture() {
 
 	viewportDrawerCaptureContent = document.getElementById("viewport-drawer-capture-sceenshoot-content")
 	viewportDrawerCaptureContent.style.display = "block"
+
+	viewportDrawerCaptureButton = document.getElementById("viewport-drawer-capture-sceenshoot-button")
+	viewportDrawerCaptureButton.style.display = "block"
+
 }
 
 function viewportButtonsLabelEndpoint() {
@@ -3365,12 +3381,18 @@ function loadCytoStyle(cy) {
 	const colorScheme = detectColorScheme();
 	console.info('The user prefers:', colorScheme);
 
+	console.log("multiLayerViewPortState", multiLayerViewPortState);
+
 	// Load and apply Cytoscape styles from cy-style.json using fetch
 	if (colorScheme == "light") {
 		fetch("css/cy-style-dark.json")
 			.then((response) => response.json())
 			.then((styles) => {
 				cy.style().fromJson(styles).update();
+				if (multiLayerViewPortState) {
+					// Initialize Cytoscape (assuming cy is already created)
+					parentNodeSvgBackground(cy, svgString);
+				}
 			})
 			.catch((error) => {
 				console.error(
@@ -3386,6 +3408,10 @@ function loadCytoStyle(cy) {
 			.then((response) => response.json())
 			.then((styles) => {
 				cy.style().fromJson(styles).update();
+				if (multiLayerViewPortState) {
+					// Initialize Cytoscape (assuming cy is already created)
+					parentNodeSvgBackground(cy, svgString);
+				}
 			})
 			.catch((error) => {
 				console.error(
@@ -3407,6 +3433,68 @@ function loadCytoStyle(cy) {
 		});
 	}
 
+
+	// Your SVG string
+	const svgString = `
+	<svg width="480px" height="240px" viewBox="0 0 48 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+	<path d="M0 24 L12 0 L48 0 L36 24 Z" 
+		stroke="white" 
+		stroke-width="1" 
+		fill="none"
+		vector-effect="non-scaling-stroke"/>
+	</svg>`;
+
+	/**
+	 * Function to dynamically set an SVG as the background-image for Cytoscape.js parent nodes
+	 * @param {object} cy - Cytoscape.js instance
+	 * @param {string} svgString - SVG string to be used as the background
+	 */
+	function parentNodeSvgBackground(cy, svgString) {
+		// Helper function to convert SVG to Base64
+		function svgToBase64(svg) {
+			return `data:image/svg+xml;base64,${btoa(svg)}`;
+		}
+
+		// Convert the SVG to Base64
+		const base64SVG = svgToBase64(svgString);
+
+		// Update Cytoscape style dynamically for parent nodes
+		cy.style()
+			.selector('node:parent')
+			.style({
+				'shape': 'rectangle',
+				'background-image': base64SVG,
+				'background-color': 'rgba(100, 100, 100, 1)',
+				'background-opacity': 0,
+				'background-image-containment': 'inside',
+				'border-width': '0px',
+				'background-fit': 'cover',
+				'background-clip': 'none',
+				'bounds-expansion': '10px, 100px, 10px, 100px',
+				'padding': '30px',
+			})
+			.update();
+			console.log("parentNodeSvgBackground called");
+			console.log("parentNodeSvgBackground called - base64SVG", base64SVG);
+
+	}
+
+
+}
+
+function multiLayerViewPortToggle() {
+	if (multiLayerViewPortState == false) {
+		multiLayerViewPortState = true; // toggle
+		console.log("multiLayerViewPortState toggle to true", multiLayerViewPortState);
+
+		loadCytoStyle(cy)
+	}
+	else{
+		multiLayerViewPortState = false; // toggle
+		console.log("multiLayerViewPortState toggle to false", multiLayerViewPortState);
+
+		loadCytoStyle(cy)
+	}
 }
 // aarafat-tag:
 //// REFACTOR END
