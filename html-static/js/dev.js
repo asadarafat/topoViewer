@@ -3447,13 +3447,22 @@ function viewportButtonsClabEditor() {
 
 	console.info("viewportButtonsClabEditor clicked")
 
-	viewportDrawerCapture = document.getElementById("viewport-drawer-clab-editor")
-	viewportDrawerCapture.style.display = "block"
+	viewportDrawerClabEditor = document.getElementById("viewport-drawer-clab-editor")
+	viewportDrawerClabEditor.style.display = "block"
 
-	viewportDrawerCaptureContent = document.getElementById("viewport-drawer-clab-editor-content-01")
-	viewportDrawerCaptureContent.style.display = "block"
-	viewportDrawerCaptureContent = document.getElementById("viewport-drawer-clab-editor-content-02")
-	viewportDrawerCaptureContent.style.display = "block"
+	console.log("viewportDrawerClabEditor", viewportDrawerClabEditor)
+
+	viewportDrawerClabEditorContent01 = document.getElementById("viewport-drawer-clab-editor-content-01")
+	viewportDrawerClabEditorContent01.style.display = "block"
+
+	console.log("viewportDrawerClabEditorContent01", viewportDrawerClabEditorContent01)
+
+	viewportDrawerClabEditorContent02 = document.getElementById("viewport-drawer-clab-editor-content-02")
+	viewportDrawerClabEditorContent02.style.display = "block"
+
+	console.log("viewportDrawerClabEditorContent02", viewportDrawerClabEditorContent02)
+
+	
 }
 
 function viewportButtonsGeoMapPan() {

@@ -311,7 +311,7 @@ body {
   overflow-y: auto;
   overflow-x: hidden;
   position: fixed;
-  z-index: 21;
+  z-index: 991;
 }
 
 #panel-node-editor {
