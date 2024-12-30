@@ -43,34 +43,36 @@ type ClabTopoV2 struct {
 		} `json:"config"`
 	} `json:"clab"`
 	Nodes []struct {
-		ID                   string `json:"id"`
-		Index                string `json:"index"`
-		Shortname            string `json:"shortname"`
-		Longname             string `json:"longname"`
-		Fqdn                 string `json:"fqdn"`
-		Group                string `json:"group"`
-		Labdir               string `json:"labdir"`
-		Kind                 string `json:"kind"`
-		Image                string `json:"image"`
-		MgmtNet              string `json:"mgmt-net"`
-		MgmtIntf             string `json:"mgmt-intf"`
-		MgmtIpv4Address      string `json:"mgmt-ipv4-address"`
-		MgmtIpv4PrefixLength int    `json:"mgmt-ipv4-prefix-length"`
-		MgmtIpv6Address      string `json:"mgmt-ipv6-address"`
-		MgmtIpv6PrefixLength int    `json:"mgmt-ipv6-prefix-length"`
-		MacAddress           string `json:"mac-address"`
-		Labels               struct {
-			ClabMgmtNetBridge    string `json:"clab-mgmt-net-bridge"`
-			ClabNodeGroup        string `json:"clab-node-group"`
-			ClabNodeKind         string `json:"clab-node-kind"`
-			ClabNodeLabDir       string `json:"clab-node-lab-dir"`
-			ClabNodeName         string `json:"clab-node-name"`
-			ClabNodeType         string `json:"clab-node-type"`
-			ClabTopoFile         string `json:"clab-topo-file"`
-			Containerlab         string `json:"containerlab"`
-			TopoViewerRole       string `json:"topoViewer-role"`
-			TopoViewerGroup      string `json:"topoViewer-group"`
-			TopoViewerGroupLevel string `json:"topoViewer-groupLevel"`
+		ID                   string   `json:"id"`
+		Index                string   `json:"index"`
+		Shortname            string   `json:"shortname"`
+		Longname             string   `json:"longname"`
+		Fqdn                 string   `json:"fqdn"`
+		Group                string   `json:"group"`
+		Labdir               string   `json:"labdir"`
+		Kind                 string   `json:"kind"`
+		Image                string   `json:"image"`
+		MgmtNet              string   `json:"mgmt-net"`
+		MgmtIntf             string   `json:"mgmt-intf"`
+		MgmtIpv4Address      string   `json:"mgmt-ipv4-address"`
+		MgmtIpv4PrefixLength int      `json:"mgmt-ipv4-prefix-length"`
+		MgmtIpv6Address      string   `json:"mgmt-ipv6-address"`
+		MgmtIpv6PrefixLength int      `json:"mgmt-ipv6-prefix-length"`
+		MacAddress           string   `json:"mac-address"`
+		Labels               struct { // labels can be removed as it is not used - there is inline interfcace data assigment
+			ClabMgmtNetBridge                string `json:"clab-mgmt-net-bridge"`
+			ClabNodeGroup                    string `json:"clab-node-group"`
+			ClabNodeKind                     string `json:"clab-node-kind"`
+			ClabNodeLabDir                   string `json:"clab-node-lab-dir"`
+			ClabNodeName                     string `json:"clab-node-name"`
+			ClabNodeType                     string `json:"clab-node-type"`
+			ClabTopoFile                     string `json:"clab-topo-file"`
+			Containerlab                     string `json:"containerlab"`
+			TopoViewerRole                   string `json:"topoViewer-role"`
+			TopoViewerGroup                  string `json:"topoViewer-group"`
+			TopoViewerGroupLevel             string `json:"topoViewer-groupLevel"`
+			TopoViewerGeoCoordinateLatitude  string `json:"topoViewer-geoCoordinateLat"`
+			TopoViewerGeoCoordinateLongitude string `json:"topoViewer-geoCoordinateLng"`
 		} `json:"labels"`
 	} `json:"nodes"`
 	Links []struct {
@@ -219,6 +221,8 @@ func (cyTopo *CytoTopology) UnmarshalContainerLabTopoV2(topoFile []byte, clabHos
 		cytoJson.Data.Weight = "30"
 		cytoJson.Data.Name = node.ID
 		cytoJson.Data.TopoViewerRole = node.Labels.TopoViewerRole
+		cytoJson.Data.Lat = node.Labels.TopoViewerGeoCoordinateLatitude
+		cytoJson.Data.Lng = node.Labels.TopoViewerGeoCoordinateLongitude
 
 		if len(node.Group) != 0 {
 			cytoJson.Data.Parent = node.Group
@@ -266,6 +270,8 @@ func (cyTopo *CytoTopology) UnmarshalContainerLabTopoV2(topoFile []byte, clabHos
 				TopoViewerRole       string
 				TopoViewerGroup      string
 				TopoViewerGroupLevel string
+				// TopoViewerGeoCoordinateLatitude  string
+				// TopoViewerGeoCoordinateLongitude string
 			}{
 				node.Labels.ClabMgmtNetBridge,
 				node.Labels.ClabNodeGroup,
@@ -278,6 +284,8 @@ func (cyTopo *CytoTopology) UnmarshalContainerLabTopoV2(topoFile []byte, clabHos
 				node.Labels.TopoViewerRole,
 				node.Labels.TopoViewerGroup,
 				node.Labels.TopoViewerGroupLevel,
+				// node.Labels.TopoViewerGeoCoordinateLatitude,
+				// node.Labels.TopoViewerGeoCoordinateLongitude,
 			},
 		}
 
@@ -287,6 +295,8 @@ func (cyTopo *CytoTopology) UnmarshalContainerLabTopoV2(topoFile []byte, clabHos
 		cytoJsonNodeStatusRed.Data.ID = node.ID + "-statusRed"
 		cytoJsonNodeStatusRed.Data.Weight = "30"
 		cytoJsonNodeStatusRed.Data.Name = node.ID + "-statusRed"
+		cytoJsonNodeStatusRed.Data.Lat = node.Labels.TopoViewerGeoCoordinateLatitude
+		cytoJsonNodeStatusRed.Data.Lng = node.Labels.TopoViewerGeoCoordinateLongitude
 
 		if len(node.Group) != 0 {
 			cytoJsonNodeStatusRed.Data.Parent = node.Group
@@ -298,6 +308,8 @@ func (cyTopo *CytoTopology) UnmarshalContainerLabTopoV2(topoFile []byte, clabHos
 		cytoJsonNodeStatusGreen.Data.ID = node.ID + "-statusGreen"
 		cytoJsonNodeStatusGreen.Data.Weight = "30"
 		cytoJsonNodeStatusGreen.Data.Name = node.ID + "-statusGreen"
+		cytoJsonNodeStatusGreen.Data.Lat = node.Labels.TopoViewerGeoCoordinateLatitude
+		cytoJsonNodeStatusGreen.Data.Lng = node.Labels.TopoViewerGeoCoordinateLongitude
 
 		if len(node.Group) != 0 {
 			cytoJsonNodeStatusGreen.Data.Parent = node.Group

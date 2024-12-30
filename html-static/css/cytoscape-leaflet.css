@@ -1,7 +1,8 @@
 .cy-leaflet-toggle {
     position: absolute;
+    display: none;
     /* left: 0; */
-    /* top: 75px; */
+    top: 75px;
     left: 0;
     bottom: 0;
     margin: 10px;

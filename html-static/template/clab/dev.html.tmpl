@@ -7,7 +7,11 @@
 		<link rel="stylesheet" href="js/library/bulma-1-0-0.min.css?ver=1">
 		
 
-		<link href="css/style.css?ver=1" rel="stylesheet"/>
+		<link rel="stylesheet" href="css/style.css?ver=1" />
+
+		<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+		<link rel="stylesheet" href="css/cytoscape-leaflet.css?ver=1" /> 
+
 
 		<script src="js/library/fontawesome-6-4-2.js?ver=1"></script>
 		
@@ -16,9 +20,12 @@
 		
 
 		<script src="js/library/bulma-toast.min.js?ver=1"></script>
+
+
 		
 	</head>
 	<body>
+
 		<nav class="level m-0 px-3 py-1 has-background-4a">
 			<div>
 				<p class="title    m-0 px-1 py-0   is-4 is-unselectable has-text-weight-normal has-text-white"> TopoViewer</p>
@@ -26,30 +33,34 @@
 			</div>
 			<div class="level-right">
 				<div id="nokia-logo">
-					<img id="nokia-logo-img" src="images/nokia-logo.svg" width="100" hspace="10" vspace="5">
+				<img id="nokia-logo-img" src="images/nokia-logo.svg" width="100" hspace="10" vspace="5">
 				</div>
 			<div class="level-item">
 				<div class="dropdown is-hoverable is-right">
-					<div class="dropdown-trigger">
-						<button class="button is-small">
-						<i class="icon fas fa-bars" aria-hidden="true"></i>
-						</button>
+				<div class="dropdown-trigger">
+					<button class="button is-small">
+					<i class="icon fas fa-bars" aria-hidden="true"></i>
+					</button>
+				</div>
+				<div class="dropdown-menu" id="dropdown-menu" role="menu">
+					<div class="dropdown-content">
+					<a id="about" href="#" onclick="showPanelAbout(event);" class="dropdown-item label has-text-weight-normal is-small py-0">About TopoViewer</a>                      
+					<hr class="dropdown-divider py-0">
+					<a id="getAllEndpointDetail" href="#" onclick="getActualNodesEndpoints(event);" class="dropdown-item label has-text-weight-normal is-small py-0">Action - Retrieve Actual Endpoint Label</a>     
+					<a id="logMessagesDropdownItem" href="#" onclick="showPanelLogMessages(event);" class="dropdown-item label has-text-weight-normal is-small py-0">Action - Log Messages</a>       
+					<a id="clabYamlEditorItem"     href="#" onclick="showPanelContainerlabEditor();"       class="dropdown-item label has-text-weight-normal is-small py-0">Action - Containerlab Editor</a>                  
+					<hr class="dropdown-divider py-0">
+					<a id="clabClientDropdownItem" href="#" onclick="showPanelTopoViewerClient();"        class="dropdown-item label has-text-weight-normal is-small py-0">TopoViewer Helper App</a>                  
 					</div>
-					<div class="dropdown-menu" id="dropdown-menu" role="menu">
-						<div class="dropdown-content">
-							<a id="about" href="#" onclick="showPanelAbout(event);" class="dropdown-item label has-text-weight-normal is-small py-0">About TopoViewer</a>                      
-							<hr class="dropdown-divider py-0">
-							<a id="getAllEndpointDetail" href="#" onclick="getActualNodesEndpoints(event);" class="dropdown-item label has-text-weight-normal is-small py-0">Action - Retrieve Actual Endpoint Label</a>     
-							<a id="logMessagesDropdownItem" href="#" onclick="showPanelLogMessages(event);" class="dropdown-item label has-text-weight-normal is-small py-0">Action - Log Messages</a>       
-							<a id="clabYamlEditorItem"     href="#" onclick="showPanelContainerlabEditor();"       class="dropdown-item label has-text-weight-normal is-small py-0">Action - Containerlab Editor</a>                  
-							<hr class="dropdown-divider py-0">
-							<a id="clabClientDropdownItem" href="#" onclick="showPanelTopoViewerClient();"        class="dropdown-item label has-text-weight-normal is-small py-0">TopoViewer Helper App</a>                  
-						</div>
-					</div>
+				</div>
 				</div>
 			</div>
 		</nav>
+
 		<div id="root-div">
+
+			<div id="cy-leaflet"></div>
+      
 			<div id="cy"></div>
 			<div id="loading-spinner-global" class="loading" style="display: none;">
 				<button id="loading-spinner-global-button" class="button is-loading is-large">
@@ -60,7 +71,7 @@
 					</span>
 				</button>
 			</div>
-			<div id="viewport-buttons" class="box p-2 is-flex" style="display: block; height: 260px;">
+			<div id="viewport-buttons" class="box p-2 is-flex" style="display: block; height: auto;">
 				<div class="is-flex is-flex-direction-column is-justify-content-space-evenly">
 					<p class="control p-0">
 						<a  id="viewport-zoom-to-fit" href="#" onclick="viewportButtonsZoomToFit(event)" class="button px-4 py-4 is-smallest-element" style="outline: none;">
@@ -105,12 +116,42 @@
 						</a>
 					</p>
 					<p class="control p-0">
-						<a  id="viewport-topology-capture" href="#" onclick="viewportButtonsClabEditor(event)" class="button px-4 py-4 is-smallest-element" style="outline: none;">
+						<a  id="viewport-clab-editor" href="#" onclick="viewportButtonsClabEditor(event)" class="button px-4 py-4 is-smallest-element" style="outline: none;">
 						<span class="icon is-small">
 						<i class="fa-solid fa-pen-to-square"></i>
 						</span>
 						</a>
 					</p>
+					<p class="control p-0">
+						<a  id="viewport-multi-layer" href="#" onclick="viewportButtonsMultiLayerViewPortToggle(event)" class="button px-4 py-4 is-smallest-element" style="outline: none;">
+						<span class="icon is-small">
+						<i class="fa-solid fa-layer-group"></i>
+						</span>
+						</a>
+					</p>
+
+					<!-- Divider -->
+					<hr id="viewport-geo-map-divider" class="my-1 viewport-geo-map is-hidden" style="border-top: 1px solid #dbdbdb;">
+					
+					<!-- Button 9 -->
+					<p class="control p-0">
+						<a id="viewport-geo-map-pan" href="#" onclick="viewportButtonsGeoMapPan(event)" class="button px-4 py-4 is-smallest-element viewport-geo-map is-hidden" style="outline: none;">
+							<span class="icon is-small">
+								<i class="fa-solid fa-hand"></i>
+							</span>
+						</a>
+					</p>
+
+					<!-- Button 10 -->
+					<p class="control p-0">
+						<a id="viewport-geo-map-edit" href="#" onclick="viewportButtonsGeoMapEdit(event)" class="button px-4 py-4 is-smallest-element viewport-geo-map is-hidden" style="outline: none;">
+							<span class="icon is-small">
+								<i class="fa-solid fa-arrow-pointer"></i>
+							</span>
+						</a>
+					</p>
+
+
 				</div>
 			</div>
 			<div id="viewport-drawer-layout" class="panel p-1 is-1 viewport-drawer" style="display: none; height: 260px; width: 300px;">
@@ -128,10 +169,11 @@
 							<div class="select p-0 is-small">
 								<select id="select-layout-algo" onchange="layoutAlgoChange(event)">
 									<option>Select Layout Algorithm</option>
-									<option>Force Directed</option>
+									<!-- <option>Force Directed</option> -->
 									<option>Force Directed Radial</option>
 									<option>Vertical</option>
 									<option>Horizontal</option>
+									<option>GeoMap</option>
 								</select>
 							</div>
 						</div>
@@ -163,8 +205,8 @@
 					<div  class="column p-0 is-flex-direction-column">
 						<div  class="column is-12 is-flex is-justify-content-flex-end">
 							<div class="buttons">
-								<button class="button is-link is-outlined is-small">Reset</button>
-								<button href="#" onclick="viewportDrawerLayoutForceDirected(event)" class="button is-link is-outlined is-small">Start</button>
+								<!-- <button class="button is-link is-outlined is-small">Reset</button> -->
+								<button href="#" onclick="viewportDrawerLayoutForceDirected(event)" class="button is-link is-outlined is-small">Enable</button>
 							</div>
 						</div>
 					</div>
@@ -181,6 +223,14 @@
 									<input id="force-directed-radial-slider-link-lenght" class="slider" step="1" min="1" max="500" type="range"  style="width: 130px;">								
 								</div>
 							</div>
+							<div class="columns" >
+								<div  class="column is-5">
+									<label class="label is-size-7 has-text-right px-auto" >Node Gap</label>
+								</div>
+								<div  class="column is-5">
+									<input id="force-directed-radial-slider-node-gap" class="slider" step="1" min="1" max="100" type="range"  style="width: 130px;">								
+								</div>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -188,8 +238,8 @@
 					<div  class="column p-0 is-flex-direction-column">
 						<div  class="column is-12 is-flex is-justify-content-flex-end">
 							<div class="buttons">
-								<button class="button is-link is-outlined is-small">Reset</button>
-								<button href="#" onclick="viewportDrawerLayoutForceDirectedRadial(event)" class="button is-link is-outlined is-small">Start</button>
+								<!-- <button class="button is-link is-outlined is-small">Reset</button> -->
+								<button href="#" onclick="viewportDrawerLayoutForceDirectedRadial(event)" class="button is-link is-outlined is-small">Enable</button>
 							</div>
 						</div>
 					</div>
@@ -220,8 +270,8 @@
 					<div  class="column p-0 is-flex-direction-column">
 						<div  class="column is-12 is-flex is-justify-content-flex-end">
 							<div class="buttons">
-								<button class="button is-link is-outlined is-small">Reset</button>
-								<button href="#" onclick="viewportDrawerLayoutVertical(event)" class="button is-link is-outlined is-small">Start</button>
+								<!-- <button class="button is-link is-outlined is-small">Reset</button> -->
+								<button href="#" onclick="viewportDrawerLayoutVertical(event)" class="button is-link is-outlined is-small">Enable</button>
 							</div>
 						</div>
 					</div>
@@ -252,13 +302,35 @@
 					<div  class="column p-0 is-flex-direction-column">
 						<div  class="column is-12 is-flex is-justify-content-flex-end">
 							<div class="buttons">
-								<button class="button is-link is-outlined is-small">Reset</button>
-								<button href="#" onclick="viewportDrawerLayoutHorizontal(event)" class="button is-link is-outlined is-small">Start</button>
+								<!-- <button class="button is-link is-outlined is-small">Reset</button> -->
+								<button href="#" onclick="viewportDrawerLayoutHorizontal(event)" class="button is-link is-outlined is-small">Enable</button>
 							</div>
 						</div>
 					</div>
 				</div>
+				<div class="panel-block layout-algo p-0" id="viewport-drawer-geo-map" style="display: none;">
+					<div  class="column my-auto is-11">
+						<div  class="panel-content">
+						</div>
+					</div>
+				</div>
+				<div class="panel-block layout-algo p-0 pb-2" id="viewport-drawer-geo-map-reset-start" style="display: none;">
+					<div  class="column p-0 is-flex-direction-column">
+						<div  class="column is-12 is-flex is-justify-content-flex-end">
+							<div class="buttons">
+								<!-- <button class="button is-link is-outlined is-small">Reset</button> -->
+								<button href="#" onclick="viewportDrawerDisableGeoMap(event)" class="button is-link is-outlined is-small">Disable</button>
+								<button href="#" onclick="viewportDrawerLayoutGeoMap(event)" class="button is-link is-outlined is-small">Enable</button>
+
+							</div>
+						</div>
+					</div>
+				</div>
+
 			</div>
+
+
+
 			<div id="viewport-drawer-topology-overview" class="panel p-1 is-1 viewport-drawer" style="display: none; height: 260px; width: 300px;">
 				<div class="panel-block p-0 pb-2">
 					<div  class="column p-0 is-flex-direction-column">
@@ -339,7 +411,7 @@
 						</div>
 					</div>
 				</div>
-				<div class="panel-block layout-algo p-0 pb-2" id="viewport-drawer-capture-sceenshoot" style="display: block;">
+				<div class="panel-block layout-algo p-0 pb-2" id="viewport-drawer-capture-sceenshoot-button" style="display: block;">
 					<div  class="column p-0 is-flex-direction-column">
 						<div  class="column is-12 is-flex is-justify-content-flex-end">
 							<div class="buttons">
@@ -1033,6 +1105,10 @@
 				</div>
 			</div>
 
+			<script src="https://cdn.jsdelivr.net/npm/consola/dist/consola.browser.min.js"></script>
+			<script src="https://unpkg.com/leaflet@1.7.1"></script>
+
+
 			<script src="js/library/lodash.min.js?ver=1"></script>
 
 			<script src="js/library/cola.min.js?ver=1"></script>
@@ -1041,6 +1117,7 @@
 			<script src="js/library/cytoscape.min.js?ver=1"></script>
 			<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
+			<script src="js/library/cytoscape-leaflet.min.js?ver=1"></script>
 			<script src="js/library/cytoscape-cola.min.js?ver=1"></script>
 			<script src="js/library/cytoscape-popper.min.js?ver=1"></script>
 			<script src="js/library/cytoscape-grid-guide.min.js?ver=1"></script>
@@ -1068,12 +1145,170 @@
 			
 			
 			
-			
+
 			<script src="js/dev.js?ver=1"></script>
 			
 			<script src="/js/backupRestore.js?ver=1"></script>
 			<script src="/js/clabEditor.js?ver=1"></script>
 			<script src="/js/common.js?ver=1"></script>
 		</div>
+
+		<!-- Draggable divider with button -->
+		<div id="divider">
+			<div class="columns is-flex is-flex-direction-row m-0 p-0">
+				<div class="column is-flex is-flex-direction-row m-0 p-0">
+				<div class="field has-addons ">
+					<p class="control">
+					<button class="button button-data-display is-link" id="toggle-panel-data-display-expand">
+						<span class="icon is-small">
+						<i class="fa-solid fa-chevron-left"></i>
+						</span>
+					</button>
+					</p>
+					<p class="control">
+					<button class="button button-data-display is-link " id="toggle-panel-data-display-collapse">
+						<span class="icon is-small">
+						<i class="fa-solid fa-chevron-right"></i>
+						</span>
+					</button>
+					</p>
+				</div>        
+				</div>
+			</div>
+		</div>
+		
+		<!-- Data display panel -->
+		<div id="data-display">
+			
+			<div class="panel is-dark">
+				<!-- Title as Panel Block with Button -->
+				<div class="panel-block is-flex is-justify-content-space-between">
+				  <span class="has-text-weight-bold is-size-4">Service Details</span>
+				  <button class="button is-dark" aria-label="more options">
+					<span class="icon">
+					  <i class="fas fa-ellipsis-v" aria-hidden="true"></i>
+					</span>
+				  </button>
+				</div>
+				<div class="panel-block service-details-container">
+				  <!-- Service Information -->
+				  <div class="service-details-container">
+					<div class="columns is-mobile is-vcentered">
+					  <div class="column is-one-third has-text-right pb-0">
+						<strong>Name:</strong>
+					  </div>
+					  <div class="column is-two-thirds has-text-left pb-0">
+						l2vpn-tldp-1001
+					  </div>
+					</div>
+					<div class="columns is-mobile is-vcentered">
+					  <div class="column is-one-third has-text-right pb-0">
+						<strong>Provisioning:</strong>
+					  </div>
+					  <div class="column is-two-thirds has-text-left pb-0">
+						<span class="has-text-success">✔ Success</span>
+					  </div>
+					</div>
+					<div class="columns is-mobile is-vcentered">
+					  <div class="column is-one-third has-text-right pb-0">
+						<strong>Health:</strong>
+					  </div>
+					  <div class="column is-two-thirds has-text-left pb-0">
+						<span class="has-text-success">✔ Good</span>
+					  </div>
+					</div>
+					<div class="columns is-mobile is-vcentered">
+					  <div class="column is-one-third has-text-right">
+						<strong>Monitoring Settings:</strong>
+					  </div>
+					  <div class="column is-two-thirds has-text-left">
+						Advanced | Gold_L2VPN_ConfigProfile system
+					  </div>
+					</div>
+				  </div>
+				</div>
+				<div class="panel-tabs">
+				  <a class="is-active">Health</a>
+				  <a>Transport</a>
+				  <a>Configuration</a>
+				</div>
+				<div class="panel-block" 
+				  style="
+					display: flex; 
+					justify-content: center; 
+					overflow-x: auto; 
+					height: 200px;
+					padding: 0;
+				  ">
+				  <!-- Inline-flex container that holds all the metric boxes -->
+				  <div class="px-2" style="
+					display: inline-flex; 
+					flex-wrap: nowrap; 
+					align-items: center;
+					min-width: 800px; /* Adjust as needed */
+				  ">
+					<!-- Jitter Box -->
+					<div style="margin: 0 1rem;">
+					  <div class="box has-text-centered is-dark" style="width: 200px;">
+						<p><strong>Jitter-RT</strong></p>
+						<p>Max. 80 MSEC</p>
+						<p class="has-text-success">
+						  <strong>0.000</strong> MSEC avg ✔
+						</p>
+					  </div>
+					</div>
+		
+					<!-- Latency Box 1 -->
+					<div style="margin: 0 1rem;">
+					  <div class="box has-text-centered is-dark" style="width: 200px;">
+						<p><strong>Latency-RT</strong></p>
+						<p>Max. 500 MSEC</p>
+						<p class="has-text-success">
+						  <strong>0.004</strong> MSEC avg ✔
+						</p>
+					  </div>
+					</div>
+		
+					<!-- Latency Box 2 -->
+					<div style="margin: 0 1rem;">
+					  <div class="box has-text-centered is-dark" style="width: 200px;">
+						<p><strong>Latency-RT</strong></p>
+						<p>Max. 500 MSEC</p>
+						<p class="has-text-success">
+						  <strong>0.004</strong> MSEC avg ✔
+						</p>
+					  </div>
+					</div>
+		
+					<!-- Latency Box 3 -->
+					<div style="margin: 0 1rem;">
+					  <div class="box has-text-centered is-dark" style="width: 200px;">
+						<p><strong>Latency-RT</strong></p>
+						<p>Max. 500 MSEC</p>
+						<p class="has-text-success">
+						  <strong>0.004</strong> MSEC avg ✔
+						</p>
+					  </div>
+					</div>
+		   
+		
+			
+					<!-- Additional boxes if needed... -->
+				  </div>
+				</div>
+		
+				  
+				
+				<div class="panel-block">
+				  <!-- Active Symptoms -->
+				  <div class="container">
+					<p class="title is-6">Active Symptoms</p>
+					<!-- Tabulator Grid -->
+					<div id="tabulator-grid"></div>
+				  </div>
+				</div>
+			  </div>
+		</div>
+    
 	</body>
 </html>

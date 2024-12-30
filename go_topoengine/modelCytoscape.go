@@ -30,6 +30,8 @@ type CytoJson struct {
 		TopoViewerRole string `json:"topoViewerRole"`
 		SourceEndpoint string `json:"sourceEndpoint"`
 		TargetEndpoint string `json:"targetEndpoint"`
+		Lat            string `json:"lat"`
+		Lng            string `json:"lng"`
 
 		// Extra Fields
 		ExtraData interface{} `json:"extraData,omitempty"`
