@@ -268,10 +268,6 @@ document.addEventListener("DOMContentLoaded", async function() {
 
 
 
-
-
-
-
 	// Call the function during initialization
 	initializeResizingLogic(cy);
 
@@ -651,7 +647,6 @@ document.addEventListener("DOMContentLoaded", async function() {
 			// For example, logging them to the console
 			console.log("Updated Elements:", updatedElements);
 
-				
 			// Add the elements to the Cytoscape instance
 			cy.add(updatedElements);
 			// run layout
@@ -664,32 +659,6 @@ document.addEventListener("DOMContentLoaded", async function() {
 				maxSimulationTime: 1500,
 			});
 			layout.run();
-
-			// topoViewerNode = cy.filter('node[name = "topoviewer"]');
-			// topoViewerStatusGreenNode = cy.filter('node[name = "topoviewer-statusGreen"]');
-			// topoViewerStatusRedNode = cy.filter('node[name = "topoviewer-statusRed"]');
-
-			// console.log("topoViewerNodeData: ", topoViewerNode.data());
-
-			// topoViewerNode.data({
-			//   lat: 53.5 + Math.random() * 0.1, // Near Germany,
-			//   lng: 10.0 + Math.random() * 0.1, // Near Germany,
-			// });
-
-			// topoViewerStatusGreenNode.data({
-			// 	lat: 53.5 + Math.random() * 0.1, // Near Germany,
-			// 	lng: 10.0 + Math.random() * 0.1, // Near Germany,
-			//   });
-
-			//   topoViewerStatusRedNode.data({
-			// 	lat: 53.5 + Math.random() * 0.1, // Near Germany,
-			// 	lng: 10.0 + Math.random() * 0.1, // Near Germany,
-			//   });
-
-			// console.log('topoViewerNode data updated:', topoViewerNode.data());
-			// console.log('topoViewerStatusGreenNode data updated:', topoViewerStatusGreenNode.data());
-			// console.log('topoViewerStatusRedNode data updated:', topoViewerStatusRedNode.data());
-
 
 			// remove node topoviewer
 			topoViewerNode = cy.filter('node[name = "topoviewer"]');
@@ -2460,33 +2429,33 @@ async function showPanelAbout(event) {
 	document.getElementById("panel-topoviewer-about-content").innerHTML = htmlContent;
 }
 
-async function sidebarButtonFitScreen(event) {
+// async function sidebarButtonFitScreen(event) {
 
-	// --sidebar-button-background-color-default: rgba(54,58, 69, 1);
-	// --sidebar-button-background-color-active:  rgba(76, 82, 97, 1);
+// 	// --sidebar-button-background-color-default: rgba(54,58, 69, 1);
+// 	// --sidebar-button-background-color-active:  rgba(76, 82, 97, 1);
 
-	var sidebarButtonFitScreen = document.getElementById("sidebar-button-fit-screen")
-	const sidebarButtonColorDefault = getComputedStyle(sidebarButtonFitScreen).getPropertyValue('--sidebar-button-background-color-default');
-	const sidebarButtonColorActive = getComputedStyle(sidebarButtonFitScreen).getPropertyValue('--sidebar-button-background-color-active');
+// 	var sidebarButtonFitScreen = document.getElementById("sidebar-button-fit-screen")
+// 	const sidebarButtonColorDefault = getComputedStyle(sidebarButtonFitScreen).getPropertyValue('--sidebar-button-background-color-default');
+// 	const sidebarButtonColorActive = getComputedStyle(sidebarButtonFitScreen).getPropertyValue('--sidebar-button-background-color-active');
 
-	drawer = document.getElementById("drawer")
-	if (drawer.style.display === 'block') {
-		drawer.style.display = 'none';
-		var sidebarButtonFitScreen = document.getElementById("sidebar-button-fit-screen")
-		sidebarButtonFitScreen.style.background = sidebarButtonColorDefault.trim();
-		sidebarButtonFitScreen.style.border = sidebarButtonColorActive.trim();
-	} else {
-		drawer.style.display = 'block';
-		var sidebarButtons = document.getElementsByClassName("is-sidebar");
-		// Loop through each element and set its display to 'none'
-		for (var i = 0; i < sidebarButtons.length; i++) {
-			sidebarButtons[i].style.background = sidebarButtonColorDefault.trim();
-			sidebarButtons[i].style.border = sidebarButtonColorDefault.trim();
-		}
-		sidebarButtonFitScreen.style.background = sidebarButtonColorActive.trim();
-	}
+// 	drawer = document.getElementById("drawer")
+// 	if (drawer.style.display === 'block') {
+// 		drawer.style.display = 'none';
+// 		var sidebarButtonFitScreen = document.getElementById("sidebar-button-fit-screen")
+// 		sidebarButtonFitScreen.style.background = sidebarButtonColorDefault.trim();
+// 		sidebarButtonFitScreen.style.border = sidebarButtonColorActive.trim();
+// 	} else {
+// 		drawer.style.display = 'block';
+// 		var sidebarButtons = document.getElementsByClassName("is-sidebar");
+// 		// Loop through each element and set its display to 'none'
+// 		for (var i = 0; i < sidebarButtons.length; i++) {
+// 			sidebarButtons[i].style.background = sidebarButtonColorDefault.trim();
+// 			sidebarButtons[i].style.border = sidebarButtonColorDefault.trim();
+// 		}
+// 		sidebarButtonFitScreen.style.background = sidebarButtonColorActive.trim();
+// 	}
 
-}
+// }
 
 async function getActualNodesEndpoints(event) {
 	try {
@@ -2800,59 +2769,6 @@ function viewportButtonContainerStatusVisibility() {
 	}
 }
 
-
-// function viewportDrawerLayoutForceDirected() {
-// 	edgeLengthSlider = document.getElementById("force-directed-slider-link-lenght");
-// 	nodeGapSlider = document.getElementById("force-directed-slider-node-gap");
-
-// 	const edgeLengthValue = parseFloat(edgeLengthSlider.value);
-// 	const nodeGapValue = parseFloat(nodeGapSlider.value);
-
-// 	console.info("edgeLengthValue", edgeLengthValue);
-// 	console.info("nodeGapValue", nodeGapValue);
-
-// 	cy.layout({
-
-// 			name: "cola",
-// 			nodeGap: 5,
-// 			edgeLength: 100,
-// 			animate: true,
-// 			randomize: false,
-// 			maxSimulationTime: 1500,
-
-// 			edgeLength: function(e) {
-// 				// console.info("edgeLengthValue", edgeLengthValue);
-// 				// console.info("edgeLengthValue*100 / e.data", edgeLengthValue*100 / e.data("weight"));
-
-// 				return edgeLengthValue * 100 / e.data("weight");
-// 			},
-// 			nodeGap: function(e) {
-// 				// console.info("nodeGapValue", nodeGapValue);
-// 				// console.info("nodeGapValue*100 / e.data", nodeGapValue / e.data("weight"));
-
-// 				return nodeGapValue / e.data("weight");
-// 			},
-// 		})
-// 		.run();
-// 	var cyExpandCollapse = cy.expandCollapse({
-// 		layoutBy: null, // null means use existing layout
-// 		undoable: false,
-// 		fisheye: false,
-// 		animationDuration: 10, // when animate is true, the duration in milliseconds of the animation
-// 		animate: true
-// 	});
-
-// 	// Example collapse/expand after some delay
-// 	// Make sure the '#parent' node exists in your loaded elements
-// 	setTimeout(function() {
-// 		var parent = cy.$('#parent'); // Ensure that '#parent' is actually present in dataCytoMarshall.json
-// 		cyExpandCollapse.collapse(parent);
-
-// 		setTimeout(function() {
-// 			cyExpandCollapse.expand(parent);
-// 		}, 2000);
-// 	}, 2000);
-// }
 
 
 function viewportDrawerLayoutForceDirected() {
@@ -3241,27 +3157,14 @@ function viewportDrawerLayoutGeoMap() {
         isGeoMapInitialized = true;
     }
 
+	loadCytoStyle(cy); // Reapply the Cytoscape stylesheet
+	  
     // Apply GeoMap layout
     cy.layout({
         name: 'preset',
         fit: false,
         positions: function (node) {
             let data = node.data();
-
-
-            // // Assign random lat/lng if missing
-            // if ((data.lat = "") || (data.lng = "")) {
-            //     data.lat = 53.5 + Math.random() * 0.1; // Near Germany
-            //     data.lng = 10 + Math.random() * 0.1;
-
-            //     node.data('lat', Number(data.lat));
-            //     node.data('lng', Number(data.lng));
-            // }
-
-			// if (data.id === "topoviewer") {
-			// 	console.log("topoviewer data.lat, data.lng", data.lat, data.lng)
-			// }
-
 
             // Convert lat/lng to container point
 			console.log("node.id", node.id())
@@ -3273,21 +3176,6 @@ function viewportDrawerLayoutGeoMap() {
 
             return { x: point.x, y: point.y };
 
-
-
-		
-            // // Assign random lat/lng if missing
-            // if (!('TopoViewerGeoCoordinateLatitude' in data('extraData').labels) || !('TopoViewerGeoCoordinateLongitude' in data('extraData').labels)) {
-            //     // data.lat = -6.2 + Math.random() * 0.1; // Near Jakarta
-            //     // data.lng = 106.8 + Math.random() * 0.1;
-
-            //     // node.data('lat', data.lat);
-            //     // node.data('lng', data.lng);
-            // }
-
-            // // Convert lat/lng to container point
-            // const point = cytoscapeLeafletMap.latLngToContainerPoint([data('extraData').labels.TopoViewerGeoCoordinateLatitude, data('extraData').labels.TopoViewerGeoCoordinateLongitude]);
-            // return { x: point.x, y: point.y };
         }
     }).run();
 
@@ -3374,6 +3262,8 @@ function viewportDrawerDisableGeoMap() {
     // disableGeoMapNodeEditing();
 
     isGeoMapInitialized = false;
+
+	loadCytoStyle(cy); // Reapply the Cytoscape stylesheet
 
     console.log("GeoMap has been disabled and reverted to default Cytoscape layout.");
 }
@@ -3744,10 +3634,13 @@ function loadCytoStyle(cy) {
 					`Oops, we hit a snag! Couldnt load the cyto styles, bro.: ${error}`,
 				);
 			});
+			
 	} else if (colorScheme == "dark") {
 		fetch("css/cy-style-dark.json")
 			.then((response) => response.json())
 			.then((styles) => {
+
+				console.log("isGeoMapInitialized", isGeoMapInitialized);
 				cy.style().fromJson(styles).update();
 				if (multiLayerViewPortState) {
 					// Initialize Cytoscape (assuming cy is already created)
@@ -3816,11 +3709,102 @@ function loadCytoStyle(cy) {
 			})
 			.update();
 			console.log("parentNodeSvgBackground called");
-			console.log("parentNodeSvgBackground called - base64SVG", base64SVG);
-
+			console.log("parentNodeSvgBackground called - base64SVG", base64SVG)
 	}
 
+	// if GeoMap is initialized, then apply the multipliers to style
+	if (isGeoMapInitialized) {
+		// Define a JSON object for styles and multipliers
+		const nodeStyleMultipliers = {
+			'width': 4,
+			'height': 4,
+			'font-size': 4,
+			'min-zoomed-font-size': 4,
+			'overlay-padding': 4,
+			'text-background-padding': 4,
+			// Add more styles here if needed
+		};
+		
+		// Apply the multipliers to the nodes
+		cy.nodes().forEach(node => { 			
 
+			const newStyles = {}; 																	// Prepare a new style object dynamically
+			Object.keys(nodeStyleMultipliers).forEach(styleProp => { 								// Iterate over the style parameters in the JSON object
+				let currentValue = node.style(styleProp); 											// Get the current style value
+				let newValue = parseFloat(currentValue) * nodeStyleMultipliers[styleProp]; 			// Extract the numeric part and apply the multiplier
+				newStyles[styleProp] = `${newValue}px`; 											// Update the style with the new value and add the 'px' unit back
+				});
+			node.style(newStyles); 			// Apply the updated styles to the node
+		});
+
+		// Define a JSON object for styles and multipliers
+		const edgeStyleMultipliers = {
+			'width': 4,
+			'font-size': 4,
+			'overlay-padding': 4,
+			'text-background-padding': 4,
+			// Add more styles here if needed
+		};	
+		
+		// Apply the multipliers to the edges
+		cy.edges().forEach(edge => {
+			const newStyles = {}; 																	// Prepare a new style object dynamically
+			Object.keys(edgeStyleMultipliers).forEach(styleProp => { 								// Iterate over the style parameters in the JSON object
+				let currentValue = edge.style(styleProp); 											// Get the current style value
+				let newValue = parseFloat(currentValue) * edgeStyleMultipliers[styleProp]; 			// Extract the numeric part and apply the multiplier
+				newStyles[styleProp] = `${newValue}px`; 											// Update the style with the new value and add the 'px' unit back
+			});
+			edge.style(newStyles); 			// Apply the updated styles to the edge
+		});
+
+		parents = cy.nodes(':parent'); 		
+		const parentNodeStyleMultipliers = { 														// Define a JSON object for styles and multipliers
+			"border-width": 4,	
+			// Add more styles here if needed
+		};	
+
+		// Apply the multipliers to the parent nodes
+		parents.forEach(parent => {
+			const newStyles = {}; 																	// Prepare a new style object dynamically
+			Object.keys(parentNodeStyleMultipliers).forEach(styleProp => { 							// Iterate over the style parameters in the JSON object
+				let currentValue = parent.style(styleProp); 										// Get the current style value
+				let newValue = parseFloat(currentValue) * parentNodeStyleMultipliers[styleProp]; 	// Extract the numeric part and apply the multiplier
+				newStyles[styleProp] = `${newValue}px`; 											// Update the style with the new value and add the 'px' unit back
+			});
+			parent.style(newStyles); 			// Apply the updated styles to the parent
+		});
+		console.log("parentNode list - parents", parents)
+
+		parents.forEach(parent => {
+			parent.style('background-color',  "rgba(40, 40, 40, 0.5)"); 	
+			parent.style('border-color',  "rgba(76, 82, 97, 1)" ); 			
+		});
+		
+		// const multiplier = 0.5; 											// Darken by 50%
+		// parents.forEach(parent => {
+		// 	let currentColor = parent.style('background-color');
+		// 	let newColor = darkenHexColor(currentColor, multiplier); 		// Darken the color
+		// 	parent.style('background-color', newColor); 						// Apply the new color
+		// });
+
+		// function darkenHexColor(hex, multiplier) {
+		// 	// Remove the hash (#) if present
+		// 	hex = hex.replace('#', '');
+		  
+		// 	// Parse the hex color into RGB components
+		// 	let r = parseInt(hex.slice(0, 2), 16);
+		// 	let g = parseInt(hex.slice(2, 4), 16);
+		// 	let b = parseInt(hex.slice(4, 6), 16);
+		  
+		// 	// Apply the multiplier to each component and clamp to [0, 255]
+		// 	r = Math.max(0, Math.min(255, Math.floor(r * multiplier)));
+		// 	g = Math.max(0, Math.min(255, Math.floor(g * multiplier)));
+		// 	b = Math.max(0, Math.min(255, Math.floor(b * multiplier)));
+		  
+		// 	// Convert the components back to hex and return the new color
+		// 	return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+		// }
+	}
 }
 
 function viewportButtonsMultiLayerViewPortToggle() {
@@ -3872,7 +3856,7 @@ function assignMissingLatLng(dataArray) {
 	  // Check and assign missing latitude
 	  if (!data.lat || data.lat.trim() === "") {
 		// Assign normalized lat + random value between 0 and 0.1
-		const newLat = averageLat + Math.random() * 0.1;
+		const newLat = averageLat + Math.random() * 0.9;
 		data.lat = newLat.toFixed(15).toString(); // Convert back to string with precision
 		console.log(`Assigned new lat for ID ${data.id}: ${data.lat}`);
 	  } else {
@@ -3884,7 +3868,7 @@ function assignMissingLatLng(dataArray) {
 	  // Check and assign missing longitude
 	  if (!data.lng || data.lng.trim() === "") {
 		// Assign normalized lng + random value between 0 and 0.1
-		const newLng = averageLng + Math.random() * 0.1;
+		const newLng = averageLng + Math.random() * 0.9;
 		data.lng = newLng.toFixed(15).toString(); // Convert back to string with precision
 		console.log(`Assigned new lng for ID ${data.id}: ${data.lng}`);
 	  } else {

@@ -135,7 +135,7 @@
 					
 					
 					<p class="control p-0">
-						<a id="viewport-geo-map-pan" href="#" onclick="viewportButtonsGeoMapPan(event)" class="button px-4 py-4 is-smallest-element viewport-geo-map is-hidden" style="outline: none;">
+						<a id="viewport-geo-map-pan" href="#" onclick="viewportButtonsGeoMapPan(event)" class="button px-4 py-4 is-smallest-element viewport-geo-map is-hidden is-inverted" style="outline: none;">
 							<span class="icon is-small">
 								<i class="fa-solid fa-hand"></i>
 							</span>
@@ -144,7 +144,7 @@
 
 					
 					<p class="control p-0">
-						<a id="viewport-geo-map-edit" href="#" onclick="viewportButtonsGeoMapEdit(event)" class="button px-4 py-4 is-smallest-element viewport-geo-map is-hidden" style="outline: none;">
+						<a id="viewport-geo-map-edit" href="#" onclick="viewportButtonsGeoMapEdit(event)" class="button px-4 py-4 is-smallest-element viewport-geo-map is-hidden is-inverted" style="outline: none;">
 							<span class="icon is-small">
 								<i class="fa-solid fa-arrow-pointer"></i>
 							</span>
@@ -154,7 +154,7 @@
 
 				</div>
 			</div>
-			<div id="viewport-drawer-layout" class="panel p-1 is-1 viewport-drawer" style="display: none; height: 260px; width: 300px;">
+			<div id="viewport-drawer-layout" class="panel p-1 is-1 viewport-drawer" style="display: none; height: 286px; ">
 				<div class="panel-block p-0 pb-2">
 					<div  class="column p-0 is-flex-direction-column">
 						<div  class="column pb-0 is-12">
@@ -169,7 +169,6 @@
 							<div class="select p-0 is-small">
 								<select id="select-layout-algo" onchange="layoutAlgoChange(event)">
 									<option>Select Layout Algorithm</option>
-									
 									<option>Force Directed Radial</option>
 									<option>Vertical</option>
 									<option>Horizontal</option>
@@ -302,7 +301,6 @@
 					<div  class="column p-0 is-flex-direction-column">
 						<div  class="column is-12 is-flex is-justify-content-flex-end">
 							<div class="buttons">
-								
 								<button href="#" onclick="viewportDrawerLayoutHorizontal(event)" class="button is-link is-outlined is-small">Enable</button>
 							</div>
 						</div>
@@ -311,6 +309,25 @@
 				<div class="panel-block layout-algo p-0" id="viewport-drawer-geo-map" style="display: none;">
 					<div  class="column my-auto is-11">
 						<div  class="panel-content">
+							<div class="content p-0 mb-2 is-small">
+								<div class="px-0 py-0" style="max-height: 73px; overflow-y: auto;">
+									<div class="content is-small pb-2">
+									  <p>
+										<strong>Hint:</strong><br>
+										 	Click <strong>Enable</strong> button to activate Geo Positioning layout algorithm.
+									  </p>
+									  <p>
+											Click the <i class="fa-solid fa-hand"></i> <strong>Pan</strong> icon to navigate the map, 
+											or the <i class="fa-solid fa-arrow-pointer"></i> <strong>Edit</strong> icon to interact 
+											with nodes and edges. Both icons are located in the viewport buttons. 
+									  </p>
+									  <p>
+											Note that Pan and Edit modes are mutually exclusive, and Edit mode is active by default.
+									  </p>
+									</div>
+								  </div>
+								  
+							</div>
 						</div>
 					</div>
 				</div>
@@ -318,20 +335,17 @@
 					<div  class="column p-0 is-flex-direction-column">
 						<div  class="column is-12 is-flex is-justify-content-flex-end">
 							<div class="buttons">
-								
 								<button href="#" onclick="viewportDrawerDisableGeoMap(event)" class="button is-link is-outlined is-small">Disable</button>
 								<button href="#" onclick="viewportDrawerLayoutGeoMap(event)" class="button is-link is-outlined is-small">Enable</button>
-
 							</div>
 						</div>
 					</div>
 				</div>
-
 			</div>
 
 
 
-			<div id="viewport-drawer-topology-overview" class="panel p-1 is-1 viewport-drawer" style="display: none; height: 260px; width: 300px;">
+			<div id="viewport-drawer-topology-overview" class="panel p-1 is-1 viewport-drawer" style="display: none; ">
 				<div class="panel-block p-0 pb-2">
 					<div  class="column p-0 is-flex-direction-column">
 						<div  class="column pb-0 is-12">
@@ -370,7 +384,7 @@
 					</div>
 				</div>
 			</div>
-			<div id="viewport-drawer-capture-sceenshoot" class="panel p-1 is-1 viewport-drawer" style="display: none; height: 260px; width: 300px;">
+			<div id="viewport-drawer-capture-sceenshoot" class="panel p-1 is-1 viewport-drawer" style="display: none; ">
 				<div class="panel-block p-0 pb-2">
 					<div  class="column p-0 is-flex-direction-column">
 						<div  class="column pb-0 is-12">
@@ -422,7 +436,7 @@
 				</div>
 			</div>
 
-			<div id="viewport-drawer-clab-editor" class="panel p-1 is-1 viewport-drawer" style="display: none; height: 260px; width: 300px;">
+			<div id="viewport-drawer-clab-editor" class="panel p-1 is-1 viewport-drawer" style="display: none; ">
 				<div class="panel-block p-0 pb-2">
 					<div  class="column p-0 is-flex-direction-column">
 						<div  class="column pb-0 is-12">
