@@ -130,10 +130,10 @@
 						</a>
 					</p>
 
-					<!-- Divider -->
+					
 					<hr id="viewport-geo-map-divider" class="my-1 viewport-geo-map is-hidden" style="border-top: 1px solid #dbdbdb;">
 					
-					<!-- Button 9 -->
+					
 					<p class="control p-0">
 						<a id="viewport-geo-map-pan" href="#" onclick="viewportButtonsGeoMapPan(event)" class="button px-4 py-4 is-smallest-element viewport-geo-map is-hidden" style="outline: none;">
 							<span class="icon is-small">
@@ -142,7 +142,7 @@
 						</a>
 					</p>
 
-					<!-- Button 10 -->
+					
 					<p class="control p-0">
 						<a id="viewport-geo-map-edit" href="#" onclick="viewportButtonsGeoMapEdit(event)" class="button px-4 py-4 is-smallest-element viewport-geo-map is-hidden" style="outline: none;">
 							<span class="icon is-small">
@@ -169,11 +169,11 @@
 							<div class="select p-0 is-small">
 								<select id="select-layout-algo" onchange="layoutAlgoChange(event)">
 									<option>Select Layout Algorithm</option>
-									<!-- <option>Force Directed</option> -->
+									
 									<option>Force Directed Radial</option>
 									<option>Vertical</option>
 									<option>Horizontal</option>
-									<option>GeoMap</option>
+									<option>Geo Positioning</option>
 								</select>
 							</div>
 						</div>
@@ -205,7 +205,7 @@
 					<div  class="column p-0 is-flex-direction-column">
 						<div  class="column is-12 is-flex is-justify-content-flex-end">
 							<div class="buttons">
-								<!-- <button class="button is-link is-outlined is-small">Reset</button> -->
+								
 								<button href="#" onclick="viewportDrawerLayoutForceDirected(event)" class="button is-link is-outlined is-small">Enable</button>
 							</div>
 						</div>
@@ -238,7 +238,7 @@
 					<div  class="column p-0 is-flex-direction-column">
 						<div  class="column is-12 is-flex is-justify-content-flex-end">
 							<div class="buttons">
-								<!-- <button class="button is-link is-outlined is-small">Reset</button> -->
+								
 								<button href="#" onclick="viewportDrawerLayoutForceDirectedRadial(event)" class="button is-link is-outlined is-small">Enable</button>
 							</div>
 						</div>
@@ -270,7 +270,7 @@
 					<div  class="column p-0 is-flex-direction-column">
 						<div  class="column is-12 is-flex is-justify-content-flex-end">
 							<div class="buttons">
-								<!-- <button class="button is-link is-outlined is-small">Reset</button> -->
+								
 								<button href="#" onclick="viewportDrawerLayoutVertical(event)" class="button is-link is-outlined is-small">Enable</button>
 							</div>
 						</div>
@@ -302,7 +302,7 @@
 					<div  class="column p-0 is-flex-direction-column">
 						<div  class="column is-12 is-flex is-justify-content-flex-end">
 							<div class="buttons">
-								<!-- <button class="button is-link is-outlined is-small">Reset</button> -->
+								
 								<button href="#" onclick="viewportDrawerLayoutHorizontal(event)" class="button is-link is-outlined is-small">Enable</button>
 							</div>
 						</div>
@@ -318,7 +318,7 @@
 					<div  class="column p-0 is-flex-direction-column">
 						<div  class="column is-12 is-flex is-justify-content-flex-end">
 							<div class="buttons">
-								<!-- <button class="button is-link is-outlined is-small">Reset</button> -->
+								
 								<button href="#" onclick="viewportDrawerDisableGeoMap(event)" class="button is-link is-outlined is-small">Disable</button>
 								<button href="#" onclick="viewportDrawerLayoutGeoMap(event)" class="button is-link is-outlined is-small">Enable</button>
 
@@ -415,7 +415,7 @@
 					<div  class="column p-0 is-flex-direction-column">
 						<div  class="column is-12 is-flex is-justify-content-flex-end">
 							<div class="buttons">
-								<button href="#" onclick="viewportDrawerCaptureButton(event)" class="button is-link is-outlined is-small">Capture</button>
+								<button href="#" onclick="viewportDrawerCaptureFunc(event)" class="button is-link is-outlined is-small">Capture</button>
 							</div>
 						</div>
 					</div>
@@ -1154,6 +1154,9 @@
 		</div>
 
 
+		
+		
+		
     
 	</body>
 </html>

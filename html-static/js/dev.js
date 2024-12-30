@@ -643,8 +643,17 @@ document.addEventListener("DOMContentLoaded", async function() {
 
 		.then((response) => response.json())
 		.then((elements) => {
+
+			// Process the data to assign missing lat and lng
+			const updatedElements = assignMissingLatLng(elements);
+
+			// Now, you can use updatedElements as needed
+			// For example, logging them to the console
+			console.log("Updated Elements:", updatedElements);
+
+				
 			// Add the elements to the Cytoscape instance
-			cy.add(elements);
+			cy.add(updatedElements);
 			// run layout
 			const layout = cy.layout({
 				name: "cola",
@@ -655,6 +664,32 @@ document.addEventListener("DOMContentLoaded", async function() {
 				maxSimulationTime: 1500,
 			});
 			layout.run();
+
+			// topoViewerNode = cy.filter('node[name = "topoviewer"]');
+			// topoViewerStatusGreenNode = cy.filter('node[name = "topoviewer-statusGreen"]');
+			// topoViewerStatusRedNode = cy.filter('node[name = "topoviewer-statusRed"]');
+
+			// console.log("topoViewerNodeData: ", topoViewerNode.data());
+
+			// topoViewerNode.data({
+			//   lat: 53.5 + Math.random() * 0.1, // Near Germany,
+			//   lng: 10.0 + Math.random() * 0.1, // Near Germany,
+			// });
+
+			// topoViewerStatusGreenNode.data({
+			// 	lat: 53.5 + Math.random() * 0.1, // Near Germany,
+			// 	lng: 10.0 + Math.random() * 0.1, // Near Germany,
+			//   });
+
+			//   topoViewerStatusRedNode.data({
+			// 	lat: 53.5 + Math.random() * 0.1, // Near Germany,
+			// 	lng: 10.0 + Math.random() * 0.1, // Near Germany,
+			//   });
+
+			// console.log('topoViewerNode data updated:', topoViewerNode.data());
+			// console.log('topoViewerStatusGreenNode data updated:', topoViewerStatusGreenNode.data());
+			// console.log('topoViewerStatusRedNode data updated:', topoViewerStatusRedNode.data());
+
 
 			// remove node topoviewer
 			topoViewerNode = cy.filter('node[name = "topoviewer"]');
@@ -2644,7 +2679,7 @@ async function layoutAlgoChange(event) {
 			console.info(document.getElementById("viewport-drawer-dc-horizontal"))
 			console.info(document.getElementById("viewport-drawer-dc-horizontal-reset-start"))
 
-		}	else if (selectedOption === "GeoMap") {
+		}	else if (selectedOption === "Geo Positioning") {
 			console.info("GeoMap algo selected");
 
 			var layoutAlgoPanels = document.getElementsByClassName("layout-algo");
@@ -3215,13 +3250,18 @@ function viewportDrawerLayoutGeoMap() {
 
 
             // // Assign random lat/lng if missing
-            // if (!('lat' in data) || !('lng' in data)) {
-            //     data.lat = -6.2 + Math.random() * 0.1; // Near Jakarta
-            //     data.lng = 106.8 + Math.random() * 0.1;
+            // if ((data.lat = "") || (data.lng = "")) {
+            //     data.lat = 53.5 + Math.random() * 0.1; // Near Germany
+            //     data.lng = 10 + Math.random() * 0.1;
 
             //     node.data('lat', Number(data.lat));
             //     node.data('lng', Number(data.lng));
             // }
+
+			// if (data.id === "topoviewer") {
+			// 	console.log("topoviewer data.lat, data.lng", data.lat, data.lng)
+			// }
+
 
             // Convert lat/lng to container point
 			console.log("node.id", node.id())
@@ -3230,6 +3270,7 @@ function viewportDrawerLayoutGeoMap() {
 
             const point = cytoscapeLeafletMap.latLngToContainerPoint([Number(data.lat), Number(data.lng)]);
 			console.log("point: ", point.x, point.y)
+
             return { x: point.x, y: point.y };
 
 
@@ -3352,7 +3393,7 @@ function toggleGeoMap() {
 }
 
 
-function viewportDrawerCaptureButton() {
+function viewportDrawerCaptureFunc() {
 	console.info("viewportDrawerCaptureButton() - clicked")
 
 	// Get all checkbox inputs within the specific div
@@ -3796,6 +3837,67 @@ function viewportButtonsMultiLayerViewPortToggle() {
 		loadCytoStyle(cy)
 	}
 }
+
+// Function to process the data
+function assignMissingLatLng(dataArray) {
+	// Arrays to store existing lat and lng values
+	const existingLats = [];
+	const existingLngs = [];
+  
+	// First pass: Collect existing lat and lng values
+	dataArray.forEach(item => {
+	  const data = item.data;
+	  if (data.lat && data.lat.trim() !== "") {
+		const lat = parseFloat(data.lat);
+		if (!isNaN(lat)) {
+		  existingLats.push(lat);
+		}
+	  }
+	  if (data.lng && data.lng.trim() !== "") {
+		const lng = parseFloat(data.lng);
+		if (!isNaN(lng)) {
+		  existingLngs.push(lng);
+		}
+	  }
+	});
+  
+	// Compute the average (mean) of existing lat and lng
+	const averageLat = existingLats.length > 0 ? existingLats.reduce((a, b) => a + b, 0) / existingLats.length : 0;
+	const averageLng = existingLngs.length > 0 ? existingLngs.reduce((a, b) => a + b, 0) / existingLngs.length : 0;
+  
+	// Second pass: Assign missing lat and lng
+	dataArray.forEach(item => {
+	  const data = item.data;
+  
+	  // Check and assign missing latitude
+	  if (!data.lat || data.lat.trim() === "") {
+		// Assign normalized lat + random value between 0 and 0.1
+		const newLat = averageLat + Math.random() * 0.1;
+		data.lat = newLat.toFixed(15).toString(); // Convert back to string with precision
+		console.log(`Assigned new lat for ID ${data.id}: ${data.lat}`);
+	  } else {
+		// Optionally, normalize existing lat
+		const normalizedLat = parseFloat(data.lat);
+		data.lat = normalizedLat.toFixed(15).toString();
+	  }
+  
+	  // Check and assign missing longitude
+	  if (!data.lng || data.lng.trim() === "") {
+		// Assign normalized lng + random value between 0 and 0.1
+		const newLng = averageLng + Math.random() * 0.1;
+		data.lng = newLng.toFixed(15).toString(); // Convert back to string with precision
+		console.log(`Assigned new lng for ID ${data.id}: ${data.lng}`);
+	  } else {
+		// Optionally, normalize existing lng
+		const normalizedLng = parseFloat(data.lng);
+		data.lng = normalizedLng.toFixed(15).toString();
+	  }
+	});
+  
+	return dataArray;
+  }
+
+  
 // aarafat-tag:
 //// REFACTOR END
 

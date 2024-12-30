@@ -221,6 +221,14 @@ func (cyTopo *CytoTopology) UnmarshalContainerLabTopoV2(topoFile []byte, clabHos
 		cytoJson.Data.Weight = "30"
 		cytoJson.Data.Name = node.ID
 		cytoJson.Data.TopoViewerRole = node.Labels.TopoViewerRole
+		// if node.ID == "topoviewer" {
+		// 	cytoJson.Data.Lat = "51.45664108633426"
+		// 	cytoJson.Data.Lng = "7.00441511803141"
+
+		// } else {
+		// 	cytoJson.Data.Lat = node.Labels.TopoViewerGeoCoordinateLatitude
+		// 	cytoJson.Data.Lng = node.Labels.TopoViewerGeoCoordinateLongitude
+		// }
 		cytoJson.Data.Lat = node.Labels.TopoViewerGeoCoordinateLatitude
 		cytoJson.Data.Lng = node.Labels.TopoViewerGeoCoordinateLongitude
 
@@ -295,6 +303,7 @@ func (cyTopo *CytoTopology) UnmarshalContainerLabTopoV2(topoFile []byte, clabHos
 		cytoJsonNodeStatusRed.Data.ID = node.ID + "-statusRed"
 		cytoJsonNodeStatusRed.Data.Weight = "30"
 		cytoJsonNodeStatusRed.Data.Name = node.ID + "-statusRed"
+		// defaulting to the same lat and lng as the last-node
 		cytoJsonNodeStatusRed.Data.Lat = node.Labels.TopoViewerGeoCoordinateLatitude
 		cytoJsonNodeStatusRed.Data.Lng = node.Labels.TopoViewerGeoCoordinateLongitude
 
@@ -308,6 +317,7 @@ func (cyTopo *CytoTopology) UnmarshalContainerLabTopoV2(topoFile []byte, clabHos
 		cytoJsonNodeStatusGreen.Data.ID = node.ID + "-statusGreen"
 		cytoJsonNodeStatusGreen.Data.Weight = "30"
 		cytoJsonNodeStatusGreen.Data.Name = node.ID + "-statusGreen"
+		// defaulting to the same lat and lng as the last-node
 		cytoJsonNodeStatusGreen.Data.Lat = node.Labels.TopoViewerGeoCoordinateLatitude
 		cytoJsonNodeStatusGreen.Data.Lng = node.Labels.TopoViewerGeoCoordinateLongitude
 
@@ -337,6 +347,9 @@ func (cyTopo *CytoTopology) UnmarshalContainerLabTopoV2(topoFile []byte, clabHos
 		cytoJson.Data.Name = strings.Split(n, ":")[0]
 		cytoJson.Data.TopoViewerRole = "group"
 		cytoJson.Data.Weight = "1000"
+		// defaulting to the same lat and lng as the last-node
+		// cytoJson.Data.Lat = "51.45664108633426"
+		// cytoJson.Data.Lng = "7.00441511803141"
 		cytoJson.Data.ExtraData = map[string]interface{}{
 			"clabServerUsername":   Username,
 			"weight":               "2",

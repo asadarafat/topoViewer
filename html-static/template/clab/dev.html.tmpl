@@ -130,10 +130,10 @@
 						</a>
 					</p>
 
-					<!-- Divider -->
+					
 					<hr id="viewport-geo-map-divider" class="my-1 viewport-geo-map is-hidden" style="border-top: 1px solid #dbdbdb;">
 					
-					<!-- Button 9 -->
+					
 					<p class="control p-0">
 						<a id="viewport-geo-map-pan" href="#" onclick="viewportButtonsGeoMapPan(event)" class="button px-4 py-4 is-smallest-element viewport-geo-map is-hidden" style="outline: none;">
 							<span class="icon is-small">
@@ -142,7 +142,7 @@
 						</a>
 					</p>
 
-					<!-- Button 10 -->
+					
 					<p class="control p-0">
 						<a id="viewport-geo-map-edit" href="#" onclick="viewportButtonsGeoMapEdit(event)" class="button px-4 py-4 is-smallest-element viewport-geo-map is-hidden" style="outline: none;">
 							<span class="icon is-small">
@@ -169,11 +169,11 @@
 							<div class="select p-0 is-small">
 								<select id="select-layout-algo" onchange="layoutAlgoChange(event)">
 									<option>Select Layout Algorithm</option>
-									<!-- <option>Force Directed</option> -->
+									
 									<option>Force Directed Radial</option>
 									<option>Vertical</option>
 									<option>Horizontal</option>
-									<option>GeoMap</option>
+									<option>Geo Positioning</option>
 								</select>
 							</div>
 						</div>
@@ -205,7 +205,7 @@
 					<div  class="column p-0 is-flex-direction-column">
 						<div  class="column is-12 is-flex is-justify-content-flex-end">
 							<div class="buttons">
-								<!-- <button class="button is-link is-outlined is-small">Reset</button> -->
+								
 								<button href="#" onclick="viewportDrawerLayoutForceDirected(event)" class="button is-link is-outlined is-small">Enable</button>
 							</div>
 						</div>
@@ -238,7 +238,7 @@
 					<div  class="column p-0 is-flex-direction-column">
 						<div  class="column is-12 is-flex is-justify-content-flex-end">
 							<div class="buttons">
-								<!-- <button class="button is-link is-outlined is-small">Reset</button> -->
+								
 								<button href="#" onclick="viewportDrawerLayoutForceDirectedRadial(event)" class="button is-link is-outlined is-small">Enable</button>
 							</div>
 						</div>
@@ -270,7 +270,7 @@
 					<div  class="column p-0 is-flex-direction-column">
 						<div  class="column is-12 is-flex is-justify-content-flex-end">
 							<div class="buttons">
-								<!-- <button class="button is-link is-outlined is-small">Reset</button> -->
+								
 								<button href="#" onclick="viewportDrawerLayoutVertical(event)" class="button is-link is-outlined is-small">Enable</button>
 							</div>
 						</div>
@@ -302,7 +302,7 @@
 					<div  class="column p-0 is-flex-direction-column">
 						<div  class="column is-12 is-flex is-justify-content-flex-end">
 							<div class="buttons">
-								<!-- <button class="button is-link is-outlined is-small">Reset</button> -->
+								
 								<button href="#" onclick="viewportDrawerLayoutHorizontal(event)" class="button is-link is-outlined is-small">Enable</button>
 							</div>
 						</div>
@@ -318,7 +318,7 @@
 					<div  class="column p-0 is-flex-direction-column">
 						<div  class="column is-12 is-flex is-justify-content-flex-end">
 							<div class="buttons">
-								<!-- <button class="button is-link is-outlined is-small">Reset</button> -->
+								
 								<button href="#" onclick="viewportDrawerDisableGeoMap(event)" class="button is-link is-outlined is-small">Disable</button>
 								<button href="#" onclick="viewportDrawerLayoutGeoMap(event)" class="button is-link is-outlined is-small">Enable</button>
 
@@ -415,7 +415,7 @@
 					<div  class="column p-0 is-flex-direction-column">
 						<div  class="column is-12 is-flex is-justify-content-flex-end">
 							<div class="buttons">
-								<button href="#" onclick="viewportDrawerCaptureButton(event)" class="button is-link is-outlined is-small">Capture</button>
+								<button href="#" onclick="viewportDrawerCaptureFunc(event)" class="button is-link is-outlined is-small">Capture</button>
 							</div>
 						</div>
 					</div>
@@ -1153,7 +1153,7 @@
 			<script src="/js/common.js?ver=1"></script>
 		</div>
 
-		<!-- Draggable divider with button -->
+		
 		<div id="divider">
 			<div class="columns is-flex is-flex-direction-row m-0 p-0">
 				<div class="column is-flex is-flex-direction-row m-0 p-0">
@@ -1177,11 +1177,11 @@
 			</div>
 		</div>
 		
-		<!-- Data display panel -->
+		
 		<div id="data-display">
 			
 			<div class="panel is-dark">
-				<!-- Title as Panel Block with Button -->
+				
 				<div class="panel-block is-flex is-justify-content-space-between">
 				  <span class="has-text-weight-bold is-size-4">Service Details</span>
 				  <button class="button is-dark" aria-label="more options">
@@ -1191,7 +1191,7 @@
 				  </button>
 				</div>
 				<div class="panel-block service-details-container">
-				  <!-- Service Information -->
+				  
 				  <div class="service-details-container">
 					<div class="columns is-mobile is-vcentered">
 					  <div class="column is-one-third has-text-right pb-0">
@@ -1240,14 +1240,14 @@
 					height: 200px;
 					padding: 0;
 				  ">
-				  <!-- Inline-flex container that holds all the metric boxes -->
+				  
 				  <div class="px-2" style="
 					display: inline-flex; 
 					flex-wrap: nowrap; 
 					align-items: center;
 					min-width: 800px; /* Adjust as needed */
 				  ">
-					<!-- Jitter Box -->
+					
 					<div style="margin: 0 1rem;">
 					  <div class="box has-text-centered is-dark" style="width: 200px;">
 						<p><strong>Jitter-RT</strong></p>
@@ -1258,7 +1258,7 @@
 					  </div>
 					</div>
 		
-					<!-- Latency Box 1 -->
+					
 					<div style="margin: 0 1rem;">
 					  <div class="box has-text-centered is-dark" style="width: 200px;">
 						<p><strong>Latency-RT</strong></p>
@@ -1269,7 +1269,7 @@
 					  </div>
 					</div>
 		
-					<!-- Latency Box 2 -->
+					
 					<div style="margin: 0 1rem;">
 					  <div class="box has-text-centered is-dark" style="width: 200px;">
 						<p><strong>Latency-RT</strong></p>
@@ -1280,7 +1280,7 @@
 					  </div>
 					</div>
 		
-					<!-- Latency Box 3 -->
+					
 					<div style="margin: 0 1rem;">
 					  <div class="box has-text-centered is-dark" style="width: 200px;">
 						<p><strong>Latency-RT</strong></p>
@@ -1293,17 +1293,17 @@
 		   
 		
 			
-					<!-- Additional boxes if needed... -->
+					
 				  </div>
 				</div>
 		
 				  
 				
 				<div class="panel-block">
-				  <!-- Active Symptoms -->
+				  
 				  <div class="container">
 					<p class="title is-6">Active Symptoms</p>
-					<!-- Tabulator Grid -->
+					
 					<div id="tabulator-grid"></div>
 				  </div>
 				</div>
