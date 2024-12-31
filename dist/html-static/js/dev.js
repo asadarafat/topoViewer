@@ -16,13 +16,267 @@ var globalShellUrl = "/js/cloudshell"
 var labName
 var deploymentType
 
+var multiLayerViewPortState = false;
+
+// cytoscape-leaflet variables
+var isGeoMapInitialized = false;
+var cytoscapeLeafletMap;
+var cytoscapeLeafletLeaf;
+
+
+
 document.addEventListener("DOMContentLoaded", async function() {
+
+	// hortizontal layout
+	// function initializeResizingLogic() {
+	// 	// Get elements with checks
+	// 	const divider = document.getElementById('divider');
+	// 	const dataDisplay = document.getElementById('data-display');
+	// 	const rootDiv = document.getElementById('root-div');
+	// 	const togglePanelButton = document.getElementById('toggle-panel');
+
+	// 	// Check for required elements
+	// 	if (!divider || !dataDisplay || !rootDiv || !togglePanelButton) {
+	// 	  console.warn('One or more required elements for resizing logic are missing. Initialization aborted.');
+	// 	  return;
+	// 	}
+
+	// 	let isDragging = false;
+	// 	let resizeTimeout;
+
+	// 	// Debounce function
+	// 	function debounce(func, delay) {
+	// 	  clearTimeout(resizeTimeout);
+	// 	  resizeTimeout = setTimeout(func, delay);
+	// 	}
+
+	// 	// Function to animate cy.fit()
+	// 	function animateFit() {
+	// 	  if (typeof cy.animate === 'function') {
+	// 		cy.animate({
+	// 		  fit: {
+	// 			padding: 10, // Add padding around the graph
+	// 		  },
+	// 		  duration: 500, // Animation duration in milliseconds
+	// 		});
+	// 	  } else {
+	// 		console.warn('Cytoscape instance does not support animate. Skipping animation.');
+	// 	  }
+	// 	}
+
+	// 	// Handle dragging
+	// 	divider.addEventListener('mousedown', () => {
+	// 	  isDragging = true;
+	// 	  document.body.style.cursor = 'ns-resize';
+	// 	});
+
+	// 	document.addEventListener('mousemove', (e) => {
+	// 	  if (!isDragging) return;
+
+	// 	  const screenHeight = window.innerHeight;
+	// 	  const offsetY = e.clientY;
+	// 	  const minHeight = 5; // Minimum height for data display
+	// 	  const maxHeight = screenHeight * 0.95; // Maximum height for data display
+
+	// 	  const dataDisplayHeight = screenHeight - offsetY;
+	// 	  if (dataDisplayHeight >= minHeight && dataDisplayHeight <= maxHeight) {
+	// 		const rootDivHeight = screenHeight - dataDisplayHeight;
+
+	// 		// Update heights
+	// 		dataDisplay.style.height = `${(dataDisplayHeight / screenHeight) * 100}%`;
+	// 		rootDiv.style.height = `${(rootDivHeight / screenHeight) * 100}%`;
+
+	// 		// Add or remove transparency
+	// 		if ((dataDisplayHeight / screenHeight) * 100 > 60) {
+	// 		  dataDisplay.classList.add('transparent');
+	// 		} else {
+	// 		  dataDisplay.classList.remove('transparent');
+	// 		}
+	// 	  }
+
+	// 	  // Debounce the animation
+	// 	  debounce(() => {
+	// 		console.info('Fitting Cytoscape to new size with animation');
+	// 		animateFit();
+	// 	  }, 500); // Delay of 500ms
+	// 	});
+
+	// 	document.addEventListener('mouseup', () => {
+	// 	  isDragging = false;
+	// 	  document.body.style.cursor = 'default';
+	// 	});
+
+	// 	// Toggle panel visibility
+	// 	togglePanelButton.addEventListener('click', () => {
+	// 	  const isHidden = parseFloat(dataDisplay.style.height) <= 5;
+	// 	  if (isHidden) {
+	// 		// Restore to default
+	// 		dataDisplay.style.height = '30%';
+	// 		rootDiv.style.height = '70%';
+	// 		togglePanelButton.textContent = 'Hide';
+	// 		dataDisplay.classList.remove('transparent');
+	// 	  } else {
+	// 		// Collapse to 5%
+	// 		dataDisplay.style.height = '5%';
+	// 		rootDiv.style.height = '95%';
+	// 		togglePanelButton.textContent = 'Show';
+	// 		dataDisplay.classList.add('transparent');
+	// 	  }
+
+	// 	  // Animate fit after toggling
+	// 	  debounce(() => {
+	// 		console.info('Fitting Cytoscape to new size with animation');
+	// 		animateFit();
+	// 	  }, 500); // Delay of 500ms
+	// 	});
+	//   }
+
+	// vertical layout
+	function initializeResizingLogic() {
+		// Get elements with checks
+		const divider = document.getElementById('divider');
+		const dataDisplay = document.getElementById('data-display');
+		const rootDiv = document.getElementById('root-div');
+		const togglePanelButtonExpand = document.getElementById('toggle-panel-data-display-expand');
+		const togglePanelButtonCollapse = document.getElementById('toggle-panel-data-display-collapse');
+
+		// Check for required elements
+		if (!divider || !dataDisplay || !rootDiv || !togglePanelButtonExpand) {
+			console.warn('One or more required elements for resizing logic are missing. Initialization aborted.');
+			return;
+		}
+
+		let isDragging = false;
+		let resizeTimeout;
+
+		// Debounce function
+		function debounce(func, delay) {
+			clearTimeout(resizeTimeout);
+			resizeTimeout = setTimeout(func, delay);
+		}
+
+		// Function to animate cy.fit()
+		function animateFit() {
+			if (typeof cy.animate === 'function') {
+				cy.animate({
+					fit: {
+						padding: 10, // Add padding around the graph
+					},
+					duration: 500, // Animation duration in milliseconds
+				});
+			} else {
+				console.warn('Cytoscape instance does not support animate. Skipping animation.');
+			}
+		}
+
+		// Handle dragging
+		divider.addEventListener('mousedown', () => {
+			isDragging = true;
+			document.body.style.cursor = 'ew-resize';
+		});
+
+		document.addEventListener('mousemove', (e) => {
+			if (!isDragging) return;
+
+			const screenWidth = window.innerWidth;
+			const offsetX = e.clientX; // divider’s X from the LEFT
+			const minWidth = 5; // Minimum width in pixels for data-display
+			const maxWidth = screenWidth * 1; // Maximum width in pixels for data-display
+
+			// dataDisplayWidth is from divider to right edge:
+			const dataDisplayWidth = screenWidth - offsetX;
+
+			if (dataDisplayWidth >= minWidth && dataDisplayWidth <= maxWidth) {
+				// The rest (from left edge to divider) is rootDivWidth
+				const rootDivWidth = offsetX;
+
+				// Convert to percentage
+				const rootDivPercent = (rootDivWidth / screenWidth) * 100;
+				const dataDisplayPercent = (dataDisplayWidth / screenWidth) * 100;
+
+				// Position the divider at the same left as rootDiv’s right edge
+				divider.style.left = rootDivPercent + '%';
+
+				// rootDiv occupies the left portion
+				rootDiv.style.width = rootDivPercent + '%';
+
+				// dataDisplay starts where rootDiv ends
+				dataDisplay.style.left = rootDivPercent + '%';
+				dataDisplay.style.width = dataDisplayPercent + '%';
+
+
+				// Add or remove transparency
+				if ((dataDisplayWidth / rootDivWidth) * 100 > 60) {
+					dataDisplay.classList.add('transparent');
+
+				} else {
+					dataDisplay.classList.remove('transparent');
+					// Debounce the animation
+					debounce(() => {
+						console.info('Fitting Cytoscape to new size with animation');
+						animateFit();
+					}, 500); // Delay of 500ms
+				}
+			}
+
+
+		});
+
+		document.addEventListener('mouseup', () => {
+			isDragging = false;
+			document.body.style.cursor = 'default';
+		});
+
+		// Toggle panel visibility
+		togglePanelButtonExpand.addEventListener('click', () => {
+			// rootDiv gets ~7%; dataDisplay gets ~93%
+			// rootDiv.style.width         = '27%';
+			divider.style.left = '7%';
+			dataDisplay.style.left = '7%';
+			dataDisplay.style.width = '93%';
+			dataDisplay.classList.add('transparent');
+		});
+
+		// Toggle panel visibility
+		togglePanelButtonCollapse.addEventListener('click', () => {
+			// rootDiv gets ~98.5%; dataDisplay ~1.5%
+			rootDiv.style.width = '98.5%';
+			divider.style.left = '98.5%';
+			dataDisplay.style.left = '98.5%';
+			dataDisplay.style.width = '1.5%';
+			dataDisplay.classList.remove('transparent');
+
+
+			console.info('togglePanelButtonExpand - dataDisplay.style.width: ', dataDisplay.style.width);
+			console.info('togglePanelButtonExpand - rootDiv.style.width: ', rootDiv.style.width);
+			console.info('togglePanelButtonExpand - divider.style.left: ', divider.style.left);
+
+			// Animate fit after toggling
+			debounce(() => {
+				console.info('Fitting Cytoscape to new size with animation');
+				animateFit();
+			}, 500); // Delay of 500ms
+
+		});
+	}
+
+
+
+
+	// Call the function during initialization
+	initializeResizingLogic(cy);
+
+
+
 
 	detectColorScheme()
 	await changeTitle()
 	initializeDropdownTopoViewerRoleListeners();
 	initializeDropdownListeners();
 	initViewportDrawerClabEditoCheckboxToggle()
+	initViewportDrawerGeoMapCheckboxToggle()
+
+	insertAndColorSvg("nokia-logo", "white")
 
 	// Reusable function to initialize a WebSocket connection
 	function initializeWebSocket(url, onMessageCallback) {
@@ -30,19 +284,19 @@ document.addEventListener("DOMContentLoaded", async function() {
 		const socket = new WebSocket(protocol + location.host + url);
 
 		socket.onopen = () => {
-			console.log(`Successfully connected WebSocket to ${url}`);
+			console.info(`Successfully connected WebSocket to ${url}`);
 			if (socket.readyState === WebSocket.OPEN) {
 				socket.send(`Hi From the WebSocketClient-${url}`);
 			}
 		};
 
 		socket.onclose = (event) => {
-			console.log(`Socket to ${url} closed: `, event);
+			console.info(`Socket to ${url} closed: `, event);
 			socket.send("Client Closed!");
 		};
 
 		socket.onerror = (error) => {
-			console.log(`Socket to ${url} error: `, error);
+			console.info(`Socket to ${url} error: `, error);
 		};
 
 		socket.onmessage = onMessageCallback;
@@ -56,8 +310,8 @@ document.addEventListener("DOMContentLoaded", async function() {
 		labName = environments["clab-name"]
 		deploymentType = environments["deploymentType"]
 
-		console.log("initializeWebSocket - getEnvironments", environments)
-		console.log("initializeWebSocket - labName", environments["clab-name"])
+		console.info("initializeWebSocket - getEnvironments", environments)
+		console.info("initializeWebSocket - labName", environments["clab-name"])
 
 		const string01 = "Containerlab Topology: " + labName;
 		const string02 = " ::: Uptime: " + msgUptime.data;
@@ -66,7 +320,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 		const messageBody = string01 + string02;
 
 		ClabSubtitle.innerText = messageBody;
-		console.log(ClabSubtitle.innerText);
+		console.info(ClabSubtitle.innerText);
 	});
 
 	// WebSocket for ContainerNodeStatus
@@ -80,7 +334,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 					State
 				} = JSON.parse(msgContainerNodeStatus.data);
 				setNodeContainerStatus(Names, Status);
-				console.log(JSON.parse(msgContainerNodeStatus.data));
+				console.info(JSON.parse(msgContainerNodeStatus.data));
 
 				const IPAddress = JSON.parse(msgContainerNodeStatus.data).Networks.Networks.clab.IPAddress;
 				const GlobalIPv6Address = JSON.parse(msgContainerNodeStatus.data).Networks.Networks.clab.GlobalIPv6Address
@@ -127,7 +381,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 	cytoscape.use(cytoscapePopper(popperFactory));
 
 
-	//- Instantiate Cytoscape.js
+	// Instantiate Cytoscape.js
 	cy = cytoscape({
 		container: document.getElementById("cy"),
 		elements: [],
@@ -152,21 +406,27 @@ document.addEventListener("DOMContentLoaded", async function() {
 			'border-width': 2,
 			'border-color': '#ff0000'
 		});
-		console.log('Selected nodes:', selectedNodes.map(n => n.id()));
+		console.info('Selected nodes:', selectedNodes.map(n => n.id()));
 	});
 
 	// Optionally, reset the style when nodes are unselected
 	cy.on('unselect', 'node', (event) => {
 		// Clear inline styles for all nodes
-		cy.nodes().removeStyle();
 		loadCytoStyle(cy);
-		console.log('Remaining selected nodes:', cy.$('node:selected').map(n => n.id()));
+		console.info('Remaining selected nodes:', cy.$('node:selected').map(n => n.id()));
+	});
+
+	// Optionally, reset the style when edges are unselected
+	cy.on('unselect', 'edge', (event) => {
+		// Clear inline styles for all nodes
+		loadCytoStyle(cy);
+		console.info('Remaining selected nodes:', cy.$('node:selected').map(n => n.id()));
 	});
 
 	// Programmatic selection of nodes
 	setTimeout(() => {
 		cy.$('#node1, #node2').select(); // Select node1 and node2 after 2 seconds
-		console.log('Programmatic selection: node1 and node2');
+		console.info('Programmatic selection: node1 and node2');
 	}, 2000);
 
 	// Helper function to check if a node is inside a parent
@@ -202,7 +462,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 				draggedNode.move({
 					parent: assignedParent.id()
 				});
-				console.log(`${draggedNode.id()} became a child of ${assignedParent.id()}`);
+				console.info(`${draggedNode.id()} became a child of ${assignedParent.id()}`);
 				showPanelNodeEditor(draggedNode)
 			}
 			// to release the node from the parent, alt + shift + click on the node.
@@ -237,8 +497,8 @@ document.addEventListener("DOMContentLoaded", async function() {
 	let isEdgeHandlerActive = false; // Flag to track if edge handler is active
 
 	cy.on('ehcomplete', async (event, sourceNode, targetNode, addedEdge) => {
-		console.log(`Edge created from ${sourceNode.id()} to ${targetNode.id()}`);
-		console.log("Added edge:", addedEdge);
+		console.info(`Edge created from ${sourceNode.id()} to ${targetNode.id()}`);
+		console.info("Added edge:", addedEdge);
 
 		// Reset the edge handler flag after a short delay
 		setTimeout(() => {
@@ -320,45 +580,6 @@ document.addEventListener("DOMContentLoaded", async function() {
 
 	loadCytoStyle(cy);
 
-	function loadCytoStyle(cy) {
-		cy.nodes().removeStyle();
-		// detect light or dark mode
-		const colorScheme = detectColorScheme();
-		console.log('The user prefers:', colorScheme);
-
-		//- Load and apply Cytoscape styles from cy-style.json using fetch
-		if (colorScheme == "light") {
-			fetch("css/cy-style-dark.json")
-				.then((response) => response.json())
-				.then((styles) => {
-					cy.style().fromJson(styles).update();
-				})
-				.catch((error) => {
-					console.error(
-						"Oops, we hit a snag! Couldnt load the cyto styles, bro.",
-						error,
-					);
-					appendMessage(
-						`Oops, we hit a snag! Couldnt load the cyto styles, bro.: ${error}`,
-					);
-				});
-		} else if (colorScheme == "dark") {
-			fetch("css/cy-style-dark.json")
-				.then((response) => response.json())
-				.then((styles) => {
-					cy.style().fromJson(styles).update();
-				})
-				.catch((error) => {
-					console.error(
-						"Oops, we hit a snag! Couldnt load the cyto styles, bro.",
-						error,
-					);
-					appendMessage(
-						`Oops, we hit a snag! Couldnt load the cyto styles, bro.: ${error}`,
-					);
-				});
-		}
-	}
 
 	// Enable grid guide extension
 	cy.gridGuide({
@@ -414,9 +635,17 @@ document.addEventListener("DOMContentLoaded", async function() {
 
 		.then((response) => response.json())
 		.then((elements) => {
+
+			// Process the data to assign missing lat and lng
+			const updatedElements = assignMissingLatLng(elements);
+
+			// Now, you can use updatedElements as needed
+			// For example, logging them to the console
+			console.log("Updated Elements:", updatedElements);
+
 			// Add the elements to the Cytoscape instance
-			cy.add(elements);
-			//- run layout
+			cy.add(updatedElements);
+			// run layout
 			const layout = cy.layout({
 				name: "cola",
 				nodeGap: 5,
@@ -454,6 +683,9 @@ document.addEventListener("DOMContentLoaded", async function() {
 		.catch((error) => {
 			console.error("Error loading graph data:", error);
 		});
+
+
+
 	// Instantiate hover text element
 	const hoverText = document.createElement("box");
 	hoverText.classList.add(
@@ -510,30 +742,30 @@ document.addEventListener("DOMContentLoaded", async function() {
 		}
 	});
 
-	//- Toggle the Panel(s) when clicking on the cy container
-	document.getElementById("cy").addEventListener("click", function(event) {
+	// Toggle the Panel(s) when clicking on the cy container
+	document.getElementById("cy").addEventListener("click", async function(event) {
 
-		console.log("cy container clicked");
-		console.log("isPanel01Cy: ", isPanel01Cy);
-		console.log("nodeClicked: ", nodeClicked);
-		console.log("edgeClicked: ", edgeClicked);
+		console.info("cy container clicked init");
+		console.info("isPanel01Cy: ", isPanel01Cy);
+		console.info("nodeClicked: ", nodeClicked);
+		console.info("edgeClicked: ", edgeClicked);
 
-		//- This code will be executed when you click anywhere in the Cytoscape container
-		//- You can add logic specific to the container here
+		// This code will be executed when you click anywhere in the Cytoscape container
+		// You can add logic specific to the container here
 
 		if (!nodeClicked && !edgeClicked) {
-			console.log("!nodeClicked  -- !edgeClicked");
+			console.info("!nodeClicked  -- !edgeClicked");
 			if (!isPanel01Cy) {
-				console.log("!isPanel01Cy: ");
+				console.info("!isPanel01Cy: ");
 				// Remove all Overlayed Panel
 				// Get all elements with the class "panel-overlay"
 				var panelOverlays = document.getElementsByClassName("panel-overlay");
 
-				console.log("panelOverlays: ", panelOverlays);
+				console.info("panelOverlays: ", panelOverlays);
 
 				// Loop through each element and set its display to 'none'
 				for (var i = 0; i < panelOverlays.length; i++) {
-					console.log
+					console.info
 					panelOverlays[i].style.display = "none";
 				}
 
@@ -558,9 +790,6 @@ document.addEventListener("DOMContentLoaded", async function() {
 		}
 		nodeClicked = false;
 		edgeClicked = false;
-
-		appendMessage(`"isPanel01Cy-cy: " ${isPanel01Cy}`);
-		appendMessage(`"nodeClicked: " ${nodeClicked}`);
 	});
 
 	// Listen for tap or click on the Cytoscape canvas
@@ -613,10 +842,24 @@ document.addEventListener("DOMContentLoaded", async function() {
 
 	// Click event listener for nodes
 	cy.on("click", "node", async function(event) {
-		console.log("isEdgeHandlerActive after node click: ", isEdgeHandlerActive);
+
+
+		console.info("node clicked init");
+		console.info("isPanel01Cy: ", isPanel01Cy);
+		console.info("nodeClicked: ", nodeClicked);
+		console.info("edgeClicked: ", edgeClicked);
+
+		nodeClicked = true;
+
+		console.info("node clicked after");
+		console.info("isPanel01Cy: ", isPanel01Cy);
+		console.info("nodeClicked: ", nodeClicked);
+		console.info("edgeClicked: ", edgeClicked);
+
+		console.info("isEdgeHandlerActive after node click: ", isEdgeHandlerActive);
 
 		environments = await getEnvironments(event);
-		console.log("sshWebBased - environments: ", environments)
+		console.info("sshWebBased - environments: ", environments)
 
 		cytoTopologyJson = environments["EnvCyTopoJsonBytes"]
 		clabServerAddress = environments["clab-server-address"]
@@ -626,9 +869,10 @@ document.addEventListener("DOMContentLoaded", async function() {
 			return;
 		}
 		const node = event.target;
-		nodeClicked = true;
 
-		console.log("editor Node: ", node.data("editor"));
+
+
+		console.info("editor Node: ", node.data("editor"));
 
 		if (!node.isParent()) {
 			// Usage: Initialize the listener and get a live checker function
@@ -636,30 +880,30 @@ document.addEventListener("DOMContentLoaded", async function() {
 
 			// Check if Shift + Alt is pressed and the node is a child
 			if (event.originalEvent.ctrlKey && node.isChild() && isViewportDrawerClabEditorCheckboxChecked) {
-				console.log(`Orphaning node: ${node.id()} from parent: ${node.parent().id()}`);
+				console.info(`Orphaning node: ${node.id()} from parent: ${node.parent().id()}`);
 
 				// Make the node orphan
 				node.move({
 					parent: null
 				});
-				console.log(`${node.id()} is now an orphan`);
+				console.info(`${node.id()} is now an orphan`);
 			}
 
 			if (event.originalEvent.shiftKey && isViewportDrawerClabEditorCheckboxChecked) { // Start edge creation on Shift and the isViewportDrawerClabEditorCheckboxChecked 
-				console.log("Shift + Click");
-				console.log("edgeHandler Node: ", node.data("extraData").longname);
+				console.info("Shift + Click");
+				console.info("edgeHandler Node: ", node.data("extraData").longname);
 
 				// Set the edge handler flag
 				isEdgeHandlerActive = true;
 				// Start the edge handler from the clicked node
 				eh.start(node);
 
-				console.log("Node is an editor node");
+				console.info("Node is an editor node");
 				showPanelNodeEditor(node) // after this cy.on('ehcomplete') is called, the 'ehcomplete' event will be triggered
 			}
 			if (event.originalEvent.altKey && isViewportDrawerClabEditorCheckboxChecked && (node.data("editor") === "true")) { // node deletion on Alt and the isViewportDrawerClabEditorCheckboxChecked 
-				console.log("Alt + Click is enabled");
-				console.log("deleted Node: ", node.data("extraData").longname);
+				console.info("Alt + Click is enabled");
+				console.info("deleted Node: ", node.data("extraData").longname);
 				deleteNodeToEditorToFile(node)
 			}
 			if ((node.data("editor") === "true")) {
@@ -670,9 +914,9 @@ document.addEventListener("DOMContentLoaded", async function() {
 				for (let i = 0; i < panelOverlays.length; i++) {
 					panelOverlays[i].style.display = "none";
 				}
-				console.log(node);
-				console.log(node.data("containerDockerExtraAttribute").status);
-				console.log(node.data("extraData"));
+				console.info(node);
+				console.info(node.data("containerDockerExtraAttribute").status);
+				console.info(node.data("extraData"));
 				if (document.getElementById("panel-node").style.display === "none") {
 					document.getElementById("panel-node").style.display = "block";
 				} else {
@@ -691,16 +935,47 @@ document.addEventListener("DOMContentLoaded", async function() {
 
 				// Set selected node-long-name to global variable
 				globalSelectedNode = node.data("extraData").longname;
-				console.log("internal: ", globalSelectedNode);
+				console.info("internal: ", globalSelectedNode);
 
 				appendMessage(`"isPanel01Cy-cy: " ${isPanel01Cy}`);
 				appendMessage(`"nodeClicked: " ${nodeClicked}`);
+
+
+				///
+				if (document.getElementById("data-display-panel-node").style.display === "none") {
+					document.getElementById("data-display-panel-node").style.display = "block";
+				} else {
+					document.getElementById("data-display-panel-node").style.display = "none";
+				}
+
+				document.getElementById("data-display-panel-node-name").textContent = node.data("extraData").longname;
+				document.getElementById("data-display-panel-node-status").textContent = node.data("containerDockerExtraAttribute").status;
+				document.getElementById("data-display-panel-node-kind").textContent = node.data("extraData").kind;
+				document.getElementById("data-display-panel-node-image").textContent = node.data("extraData").image;
+				document.getElementById("data-display-panel-node-mgmtipv4").textContent = node.data("extraData").mgmtIpv4Addresss;
+				document.getElementById("data-display-panel-node-mgmtipv6").textContent = node.data("extraData").mgmtIpv6Address;
+				document.getElementById("data-display-panel-node-fqdn").textContent = node.data("extraData").fqdn;
+				document.getElementById("data-display-panel-node-group").textContent = node.data("extraData").group;
+				document.getElementById("data-display-panel-node-topoviewerrole").textContent = node.data("topoViewerRole");
+
+				// Set selected node-long-name to global variable
+				globalSelectedNode = node.data("extraData").longname;
+				console.info("internal: ", globalSelectedNode);
+
+				appendMessage(`"isPanel01Cy-cy: " ${isPanel01Cy}`);
+				appendMessage(`"nodeClicked: " ${nodeClicked}`);
+				///
 			}
 		}
 	});
 
 	// Click event listener for edges
 	cy.on("click", "edge", async function(event) {
+
+		console.info("edge clicked init");
+		console.info("isPanel01Cy: ", isPanel01Cy);
+		console.info("nodeClicked: ", nodeClicked);
+		console.info("edgeClicked: ", edgeClicked);
 
 		// Remove all Overlayed Panel
 		// Get all elements with the class "panel-overlay"
@@ -713,10 +988,17 @@ document.addEventListener("DOMContentLoaded", async function() {
 		// This code will be executed when you click on a node
 		// You can add logic specific to nodes here
 		const clickedEdge = event.target;
-		const defaultEdgeColor = "#969799";
 		edgeClicked = true;
 
-		console.log(defaultEdgeColor);
+
+		console.info("edge clicked after");
+		console.info("isPanel01Cy: ", isPanel01Cy);
+		console.info("nodeClicked: ", nodeClicked);
+		console.info("edgeClicked: ", edgeClicked);
+
+		const defaultEdgeColor = "#969799";
+
+		console.info(defaultEdgeColor);
 
 		// Change the color of the clicked edge (for example, to blue)
 		if (clickedEdge.data("editor") === "true") {
@@ -741,14 +1023,14 @@ document.addEventListener("DOMContentLoaded", async function() {
 		const isViewportDrawerClabEditorCheckboxChecked = setupCheckboxListener('#viewport-drawer-clab-editor-content-01 .checkbox-input');
 
 		if (event.originalEvent.altKey && isViewportDrawerClabEditorCheckboxChecked && clickedEdge.data("editor") === "true") {
-			console.log("Alt + Click is enabled");
-			console.log("deleted Edge: ", clickedEdge.data("source"), clickedEdge.data("target"));
+			console.info("Alt + Click is enabled");
+			console.info("deleted Edge: ", clickedEdge.data("source"), clickedEdge.data("target"));
 
 			deleteEdgeToEditorToFile(clickedEdge)
 
 		}
 		if (event.originalEvent.altKey && isViewportDrawerClabEditorCheckboxChecked && clickedEdge.data("editor") !== "true") {
-			console.log("Alt + Click is enabled");
+			console.info("Alt + Click is enabled");
 			bulmaToast.toast({
 				message: `Hey there, that link’s locked down read-only, so no deleting it. 😎👊`,
 				type: "is-warning is-size-6 p-3",
@@ -760,6 +1042,15 @@ document.addEventListener("DOMContentLoaded", async function() {
 
 		}
 		if (clickedEdge.data("editor") !== "true") {
+
+			addSvgIcon("endpoint-a-edgeshark", "images/svg-wireshark.svg", "Wireshark Icon", "before", "20px");
+			addSvgIcon("endpoint-b-edgeshark", "images/svg-wireshark.svg", "Wireshark Icon", "before", "20px");
+
+			addSvgIcon("endpoint-a-clipboard", "images/svg-copy.svg", "Clipboard Icon", "before", "20px");
+			addSvgIcon("endpoint-b-clipboard", "images/svg-copy.svg", "Clipboard Icon", "before", "20px");
+
+			addSvgIcon("panel-link-action-impairment-B->A", "images/svg-impairment.svg", "Impairment Icon", "before", "15px");
+
 			document.getElementById("panel-link").style.display = "none";
 			if (document.getElementById("panel-link").style.display === "none") {
 				document.getElementById("panel-link").style.display = "block";
@@ -780,11 +1071,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 			// setting MAC address endpoint-a values by getting the data from clab via /clab-link-mac GET API
 			const actualLinkMacPair = await sendRequestToEndpointGetV3("/clab-link-macaddress", clabLinkMacArgsList)
 
-			console.log("actualLinkMacPair: ", actualLinkMacPair)
-
-			// // Testing to not pass the paramters in clabSourceLinkArgsList
-			// source_container =`${clickedEdge.data("extraData").clabSourceLongName}`
-			// target_container =`${clickedEdge.data("extraData").clabTargetLongName}`
+			console.info("actualLinkMacPair: ", actualLinkMacPair)
 
 			// // setting MAC address endpoint-a values by getting the data from clab via /clab/link/${source_container}/${target_container}/mac GET API
 			// const actualLinkMacPair = await sendRequestToEndpointGetV2(`/clab/link/${source_container}/${target_container}/mac-address`, clabLinkMacArgsList=[])
@@ -796,14 +1083,14 @@ document.addEventListener("DOMContentLoaded", async function() {
 
 			const getMacAddressesResult = getMacAddresses(actualLinkMacPair["data"], sourceClabNode, targetClabNode, sourceIfName, targetIfName);
 			if (typeof getMacAddressesResult === "object") { // Ensure result is an object
-				console.log("Source If MAC:", getMacAddressesResult.sourceIfMac); // Access sourceIfMac
-				console.log("Target If MAC:", getMacAddressesResult.targetIfMac); // Access targetIfMac
+				console.info("Source If MAC:", getMacAddressesResult.sourceIfMac); // Access sourceIfMac
+				console.info("Target If MAC:", getMacAddressesResult.targetIfMac); // Access targetIfMac
 
 				document.getElementById("panel-link-endpoint-a-mac-address").textContent = getMacAddressesResult.sourceIfMac
 				document.getElementById("panel-link-endpoint-b-mac-address").textContent = getMacAddressesResult.targetIfMac
 
 			} else {
-				console.log(getMacAddressesResult); // Handle error message
+				console.info(getMacAddressesResult); // Handle error message
 
 				document.getElementById("panel-link-endpoint-a-mac-address").textContent = "Oops, no MAC address here!"
 				document.getElementById("panel-link-endpoint-b-mac-address").textContent = "Oops, no MAC address here!"
@@ -838,7 +1125,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 
 			if (clabSourceLinkImpairmentClabData && typeof clabSourceLinkImpairmentClabData === "object" && Object.keys(clabSourceLinkImpairmentClabData).length > 0) {
 				hideLoadingSpinnerGlobal();
-				console.log("Valid non-empty JSON response received for endpoint A:", clabSourceLinkImpairmentClabData);
+				console.info("Valid non-empty JSON response received for endpoint A:", clabSourceLinkImpairmentClabData);
 
 				const sourceDelay = clabSourceLinkImpairmentClabData["data"]["delay"];
 				const sourceJitter = clabSourceLinkImpairmentClabData["data"]["jitter"];
@@ -852,7 +1139,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 				document.getElementById("panel-link-endpoint-a-loss").value = sourcePacketLoss === "N/A" ? "0" : sourcePacketLoss.replace(/%$/, "");
 				document.getElementById("panel-link-endpoint-a-corruption").value = sourceCorruption === "N/A" ? "0" : sourceCorruption.replace(/%$/, "");
 			} else {
-				console.log("Empty or invalid JSON response received for endpoint A");
+				console.info("Empty or invalid JSON response received for endpoint A");
 			}
 
 			// sleep(1000)
@@ -865,7 +1152,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 
 			if (clabTargetLinkImpairmentClabData && typeof clabTargetLinkImpairmentClabData === "object" && Object.keys(clabTargetLinkImpairmentClabData).length > 0) {
 				hideLoadingSpinnerGlobal();
-				console.log("Valid non-empty JSON response received for endpoint B:", clabTargetLinkImpairmentClabData);
+				console.info("Valid non-empty JSON response received for endpoint B:", clabTargetLinkImpairmentClabData);
 
 				const targetDelay = clabTargetLinkImpairmentClabData["data"]["delay"];
 				const targetJitter = clabTargetLinkImpairmentClabData["data"]["jitter"];
@@ -879,25 +1166,16 @@ document.addEventListener("DOMContentLoaded", async function() {
 				document.getElementById("panel-link-endpoint-b-loss").value = targetPacketLoss === "N/A" ? "0" : targetPacketLoss.replace(/%$/, "");
 				document.getElementById("panel-link-endpoint-b-corruption").value = targetCorruption === "N/A" ? "0" : targetCorruption.replace(/%$/, "");
 			} else {
-				console.log("Empty or invalid JSON response received for endpoint B");
+				console.info("Empty or invalid JSON response received for endpoint B");
 			}
 
-
+			//render sourceSubInterfaces
 			let clabSourceSubInterfacesArgList = [
 				clickedEdge.data("extraData").clabSourceLongName,
 				clickedEdge.data("extraData").clabSourcePort
 			];
-
-
-			//render sourceSubInterfaces
-
-
 			let clabSourceSubInterfacesClabData = await sendRequestToEndpointGetV3("/clab-link-subinterfaces", clabSourceSubInterfacesArgList);
-			console.log("clabSourceSubInterfacesClabData: ", clabSourceSubInterfacesClabData);
-
-			// let sourceSubInterfaces = clabSourceSubInterfacesClabData.map(
-			// 	item => `${item.ifname}`
-			// );
+			console.info("clabSourceSubInterfacesClabData: ", clabSourceSubInterfacesClabData);
 
 			if (Array.isArray(clabSourceSubInterfacesClabData) && clabSourceSubInterfacesClabData.length > 0) {
 				// Map sub-interfaces with prefix
@@ -910,19 +1188,23 @@ document.addEventListener("DOMContentLoaded", async function() {
 				renderSubInterfaces(sourceSubInterfaces, 'endpoint-a-clipboard', 'endpoint-a-bottom');
 
 			} else if (Array.isArray(clabSourceSubInterfacesClabData)) {
-				console.log("No sub-interfaces found. The input data array is empty.");
+				console.info("No sub-interfaces found. The input data array is empty.");
+				renderSubInterfaces(null, 'endpoint-a-edgeshark', 'endpoint-a-clipboard');
+				renderSubInterfaces(null, 'endpoint-a-clipboard', 'endpoint-a-bottom');
 			} else {
-				console.log("No sub-interfaces found. The input data is null, undefined, or not an array.");
+				console.info("No sub-interfaces found. The input data is null, undefined, or not an array.");
+				renderSubInterfaces(null, 'endpoint-a-edgeshark', 'endpoint-a-clipboard');
+				renderSubInterfaces(null, 'endpoint-a-clipboard', 'endpoint-a-bottom');
 			}
 
 
-			// renderSubInterfaces(sourceSubInterfaces, "endpoint-a-edgeshark", "endpoint-a-clipboard", "edgeshark")
-			// renderSubInterfaces(sourceSubInterfaces, "endpoint-a-clipboard", "endpoint-a-bottom", "clipboard")
-
-
 			//render targetSubInterfaces
-			let clabTargetSubInterfacesClabData = await sendRequestToEndpointGetV3("/clab-link-subinterfaces", clabSourceSubInterfacesArgList);
-			console.log("clabTargetSubInterfacesClabData: ", clabTargetSubInterfacesClabData);
+			let clabTargetSubInterfacesArgList = [
+				clickedEdge.data("extraData").clabTargetLongName,
+				clickedEdge.data("extraData").clabTargetPort
+			];
+			let clabTargetSubInterfacesClabData = await sendRequestToEndpointGetV3("/clab-link-subinterfaces", clabTargetSubInterfacesArgList);
+			console.info("clabTargetSubInterfacesClabData: ", clabTargetSubInterfacesClabData);
 
 			if (Array.isArray(clabTargetSubInterfacesClabData) && clabTargetSubInterfacesClabData.length > 0) {
 				// Map sub-interfaces with prefix
@@ -934,17 +1216,15 @@ document.addEventListener("DOMContentLoaded", async function() {
 				renderSubInterfaces(TargetSubInterfaces, 'endpoint-b-edgeshark', 'endpoint-b-clipboard');
 				renderSubInterfaces(TargetSubInterfaces, 'endpoint-b-clipboard', 'endpoint-b-bottom');
 
-			} else if (Array.isArray(clabSourceSubInterfacesClabData)) {
-				console.log("No sub-interfaces found. The input data array is empty.");
+			} else if (Array.isArray(clabTargetSubInterfacesClabData)) {
+				console.info("No sub-interfaces found. The input data array is empty.");
+				renderSubInterfaces(null, 'endpoint-b-edgeshark', 'endpoint-b-clipboard');
+				renderSubInterfaces(null, 'endpoint-b-clipboard', 'endpoint-b-bottom');
 			} else {
-				console.log("No sub-interfaces found. The input data is null, undefined, or not an array.");
+				console.info("No sub-interfaces found. The input data is null, undefined, or not an array.");
+				renderSubInterfaces(null, 'endpoint-b-edgeshark', 'endpoint-b-clipboard');
+				renderSubInterfaces(null, 'endpoint-b-clipboard', 'endpoint-b-bottom');
 			}
-
-			// let TargetSubInterfaces = clabTargetSubInterfacesClabData.map(
-			// 	item => `${item.ifname}`
-			// );
-			// renderSubInterfaces(TargetSubInterfaces, "endpoint-b-edgeshark", "endpoint-b-clipboard", "edgeshark")
-			// renderSubInterfaces(TargetSubInterfaces, "endpoint-b-clipboard", "endpoint-b-bottom", "clipboard")
 
 
 			// set selected edge-id to global variable
@@ -958,30 +1238,30 @@ document.addEventListener("DOMContentLoaded", async function() {
 
 	function generateNodesEvent(event) {
 		// Your event handling logic here
-		//- Add a click event listener to the 'Generate' button
-		//- Get the number of node from the input field
+		// Add a click event listener to the 'Generate' button
+		// Get the number of node from the input field
 		// Your event handling logic here
-		//- Add a click event listener to the 'Generate' button
-		//- Get the number of node from the input field
-		console.log("generateNodesButton clicked");
+		// Add a click event listener to the 'Generate' button
+		// Get the number of node from the input field
+		console.info("generateNodesButton clicked");
 		const numNodes = document.getElementById("generateNodesInput").value;
-		console.log(numNodes);
-		//- Check if the number of node is empty
+		console.info(numNodes);
+		// Check if the number of node is empty
 		if (numNodes === null) {
-			//- if node number empty do nothing
+			// if node number empty do nothing
 			return;
 		}
 		const numNodesToGenerate = parseInt(numNodes, 10);
-		//- Check if the number of node is positive
+		// Check if the number of node is positive
 		if (isNaN(numNodesToGenerate) || numNodesToGenerate <= 0) {
-			//- Invalid input
-			//- Invalid input
+			// Invalid input
+			// Invalid input
 			appendMessage(
 				"Error:" + "Bro, you gotta enter a valid positive number, come on!",
 			);
 			return;
 		}
-		//- Generate nodes with random positions
+		// Generate nodes with random positions
 		for (let i = 0; i < numNodesToGenerate; i++) {
 			const nodeName = `node-${i + 1}`;
 			const newNode = {
@@ -995,18 +1275,18 @@ document.addEventListener("DOMContentLoaded", async function() {
 					y: Math.random() * 400,
 				},
 			};
-			//-cy.add(newNode);
+			//cy.add(newNode);
 			try {
 				cy.add(newNode);
-				//- throw new Error('This is an example exception');
+				// throw new Error('This is an example exception');
 			} catch (error) {
-				//- Log the exception to the console
+				// Log the exception to the console
 				console.error("An exception occurred:", error);
-				//- Log the exception to notification message to the textarea
+				// Log the exception to notification message to the textarea
 				appendMessage("An exception occurred:" + error);
 			}
 		}
-		//- Generate random edges between nodes
+		// Generate random edges between nodes
 		for (let i = 0; i < numNodesToGenerate; i++) {
 			const sourceNode = `node-${i + 1}`;
 			const targetNode = `node-${Math.floor(Math.random() * numNodesToGenerate) + 1}`;
@@ -1022,16 +1302,16 @@ document.addEventListener("DOMContentLoaded", async function() {
 				};
 				try {
 					cy.add(newEdge);
-					//- throw new Error('This is an example exception');
+					// throw new Error('This is an example exception');
 				} catch (error) {
-					//- Log the exception to the console
+					// Log the exception to the console
 					console.error("An exception occurred:", error);
-					//- Log the exception to notification message to the textarea
+					// Log the exception to notification message to the textarea
 					appendMessage("An exception occurred::" + error);
 				}
 			}
 		}
-		//- run layout
+		// run layout
 		const layout = cy.layout({
 			name: "cola",
 			nodeGap: 5,
@@ -1041,8 +1321,8 @@ document.addEventListener("DOMContentLoaded", async function() {
 			maxSimulationTime: 1500,
 		});
 		layout.run();
-		//-//- Append a notification message to the textarea
-		console.log(
+		//// Append a notification message to the textarea
+		console.info(
 			"Info: " +
 			`Boom! Just generated ${numNodesToGenerate} nodes with some random edges. That's how we roll!`,
 		);
@@ -1054,7 +1334,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 
 
 	function assignMiddleLabels(edge) {
-		console.log("assignMiddleLabels");
+		console.info("assignMiddleLabels");
 
 		if (!edge || !edge.isEdge()) {
 			console.error("Input is not a valid edge.");
@@ -1074,7 +1354,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 			);
 		});
 
-		console.log("connectedEdges: ", connectedEdges);
+		console.info("connectedEdges: ", connectedEdges);
 
 		// If only one edge exists, no label is needed
 		if (connectedEdges.length === 1) {
@@ -1085,7 +1365,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 		// Check if the label already exists
 		const groupId = `${source}-${target}`;
 		if (document.getElementById(`label-${groupId}`)) {
-			console.log(`Label for group ${groupId} already exists.`);
+			console.info(`Label for group ${groupId} already exists.`);
 			return;
 		}
 
@@ -1170,7 +1450,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 				label.remove();
 			}
 
-			console.log(`Expanded parallel edges for ${groupId}`);
+			console.info(`Expanded parallel edges for ${groupId}`);
 			bulmaToast.toast({
 				message: `Expanded parallel edges for ${groupId}`,
 				type: "is-warning is-size-6 p-3",
@@ -1194,7 +1474,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 				label.style.display = "block";
 			}
 
-			console.log(`Collapsed parallel edges for ${groupId}`);
+			console.info(`Collapsed parallel edges for ${groupId}`);
 			bulmaToast.toast({
 				message: `Collapsed parallel edges for ${groupId}`,
 				type: "is-warning is-size-6 p-3",
@@ -1209,23 +1489,23 @@ document.addEventListener("DOMContentLoaded", async function() {
 
 
 	function spawnNodeEvent(event) {
-		//- Add a click event listener to the 'Submit' button in the hidden form
-		//- Get the node name from the input field
+		// Add a click event listener to the 'Submit' button in the hidden form
+		// Get the node name from the input field
 		const nodeName = document.getElementById("nodeName").value;
-		console.log(nodeName);
-		//- Check if a node name is empty
+		console.info(nodeName);
+		// Check if a node name is empty
 		if (nodeName == "") {
-			//- append message in textArea
+			// append message in textArea
 			appendMessage("Error: Enter node name.");
 			return;
 		}
-		//- Check if a node with the same name already exists
+		// Check if a node with the same name already exists
 		if (cy.$(`node[id = "${nodeName}"]`).length > 0) {
-			//- append message in textArea
+			// append message in textArea
 			appendMessage("Error: Node with this name already exists.");
 			return;
 		}
-		//- Create a new node element
+		// Create a new node element
 		const newNode = {
 			group: "nodes",
 			data: {
@@ -1234,9 +1514,9 @@ document.addEventListener("DOMContentLoaded", async function() {
 				label: nodeName,
 			},
 		};
-		//- Add the new node to Cytoscape.js
+		// Add the new node to Cytoscape.js
 		cy.add(newNode);
-		//- Randomize the positions and center the graph
+		// Randomize the positions and center the graph
 		const layout = cy.layout({
 			name: "cola",
 			nodeGap: 5,
@@ -1246,15 +1526,15 @@ document.addEventListener("DOMContentLoaded", async function() {
 			maxSimulationTime: 1500,
 		});
 		layout.run();
-		//- Append a notification message to the textarea
-		console.log("Info: " + `Nice! Node "${nodeName}" added successfully.`);
+		// Append a notification message to the textarea
+		console.info("Info: " + `Nice! Node "${nodeName}" added successfully.`);
 		appendMessage("Info: " + `Nice! Node "${nodeName}" added successfully.`);
 	}
 
 	function zoomToFitDrawer() {
 		const initialZoom = cy.zoom();
 		appendMessage(`Bro, initial zoom level is "${initialZoom}".`);
-		//- Fit all nodes possible with padding
+		// Fit all nodes possible with padding
 		cy.fit();
 		const currentZoom = cy.zoom();
 		appendMessage(`And now the zoom level is "${currentZoom}".`);
@@ -1263,11 +1543,11 @@ document.addEventListener("DOMContentLoaded", async function() {
 	function pathFinderDijkstraEvent(event) {
 		// Usage example:
 		// highlightShortestPath('node-a', 'node-b'); // Replace with your source and target node IDs
-		//- Function to get the default node style from cy-style.json
-		//- weight: (edge) => 1, // You can adjust the weight function if needed
-		//- weight: (edge) => edge.data('distance')
+		// Function to get the default node style from cy-style.json
+		// weight: (edge) => 1, // You can adjust the weight function if needed
+		// weight: (edge) => edge.data('distance')
 
-		console.log("im triggered");
+		console.info("im triggered");
 
 		// Remove existing highlight from all edges
 		cy.edges().forEach((edge) => {
@@ -1286,7 +1566,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 		const sourceNode = cy.$(`node[id="${sourceNodeId}"]`);
 		const targetNode = cy.$(`node[id="${targetNodeId}"]`);
 
-		console.log(
+		console.info(
 			"Info: " +
 			"Let's find the path from-" +
 			sourceNodeId +
@@ -1323,7 +1603,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 		});
 		// Get the shortest path from Dijkstra result
 		const shortestPathEdges = dijkstraResult.pathTo(targetNode);
-		console.log(shortestPathEdges);
+		console.info(shortestPathEdges);
 
 		// Check if there is a valid path (shortestPathEdges is not empty)
 		if (shortestPathEdges.length > 1) {
@@ -1337,10 +1617,10 @@ document.addEventListener("DOMContentLoaded", async function() {
 				edge.addClass("spf");
 			});
 
-			//- Zoom out on the node
+			// Zoom out on the node
 			cy.fit();
 
-			//- Zoom in on the node
+			// Zoom in on the node
 			cy.animate({
 				zoom: {
 					level: 5,
@@ -1355,7 +1635,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 				},
 				duration: 1500,
 			});
-			console.log(
+			console.info(
 				"Info: " +
 				"Yo, check it out! Shorthest Path from-" +
 				sourceNodeId +
@@ -1371,12 +1651,12 @@ document.addEventListener("DOMContentLoaded", async function() {
 				targetNodeId +
 				" has been found, below is the path trace..",
 			);
-			console.log(shortestPathEdges);
+			console.info(shortestPathEdges);
 
 			shortestPathEdges.forEach((edge) => {
-				console.log("Edge ID:", edge.id());
-				console.log("Source Node ID:", edge.source().id());
-				console.log("Target Node ID:", edge.target().id());
+				console.info("Edge ID:", edge.id());
+				console.info("Source Node ID:", edge.source().id());
+				console.info("Target Node ID:", edge.target().id());
 
 				edgeId = edge.id();
 				sourceNodeId = edge.source().id();
@@ -1437,7 +1717,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 				) {
 					statusGreenNode.show();
 					statusRedNode.hide();
-					console.log(
+					console.info(
 						"nodeContainerStatusVisibility: " + nodeContainerStatusVisibility,
 					);
 				} else if (
@@ -1494,27 +1774,27 @@ document.addEventListener("DOMContentLoaded", async function() {
 	// 
 
 
-	//- Function to get the default node style from cy-style.json
+	// Function to get the default node style from cy-style.json
 	async function getDefaultNodeStyle(node) {
 		try {
-			//- Fetch the cy-style.json file
+			// Fetch the cy-style.json file
 			const response = await fetch("cy-style.json");
-			//- Check if the response is successful (status code 200)
+			// Check if the response is successful (status code 200)
 			if (!response.ok) {
 				throw new Error(
 					`Failed to fetch cy-style.json (${response.status} ${response.statusText})`,
 				);
 			}
-			//- Parse the JSON response
+			// Parse the JSON response
 			const styleData = await response.json();
-			//- Extract the default node style from the loaded JSON
-			//- Adjust this based on your JSON structure
+			// Extract the default node style from the loaded JSON
+			// Adjust this based on your JSON structure
 			const defaultNodeStyle = styleData[0].style;
 			return defaultNodeStyle;
 		} catch (error) {
 			console.error("Error loading cy-style.json:", error);
 			appendMessage(`Error loading cy-style.json: ${error}`);
-			//- Return a default style in case of an error
+			// Return a default style in case of an error
 			return {
 				"background-color": "blue",
 				"border-color": "gray",
@@ -1523,7 +1803,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 		}
 	}
 
-	///-logMessagesPanel Function to add a click event listener to the copy button
+	///logMessagesPanel Function to add a click event listener to the copy button
 	const copyButton = document.getElementById("copyToClipboardButton");
 	copyButton.className = "button is-smallest-element";
 	copyButton.addEventListener("click", copyToClipboard);
@@ -1664,8 +1944,8 @@ async function initEnv() {
 	labName = await environments["clab-name"]
 	deploymentType = await environments["deployment-type"]
 
-	console.log("Lab-Name: ", labName)
-	console.log("DeploymentType: ", deploymentType)
+	console.info("Lab-Name: ", labName)
+	console.info("DeploymentType: ", deploymentType)
 	return environments, labName
 }
 
@@ -1673,20 +1953,20 @@ async function changeTitle() {
 	environments = await getEnvironments();
 	labName = await environments["clab-name"]
 
-	console.log("changeTitle() - labName: ", labName)
+	console.info("changeTitle() - labName: ", labName)
 	document.title = `TopoViewer::${labName}`;
 }
 
 async function sshWebBased(event) {
-	console.log("sshWebBased: ", globalSelectedNode)
+	console.info("sshWebBased: ", globalSelectedNode)
 	var routerName = globalSelectedNode
 	try {
 		environments = await getEnvironments(event);
-		console.log("sshWebBased - environments: ", environments)
+		console.info("sshWebBased - environments: ", environments)
 		cytoTopologyJson = environments["EnvCyTopoJsonBytes"]
 		routerData = findCytoElementByLongname(cytoTopologyJson, routerName)
 
-		console.log("sshWebBased: ", `${globalShellUrl}?RouterID=${routerData["data"]["extraData"]["mgmtIpv4Addresss"]}?RouterName=${routerName}`)
+		console.info("sshWebBased: ", `${globalShellUrl}?RouterID=${routerData["data"]["extraData"]["mgmtIpv4Addresss"]}?RouterName=${routerName}`)
 
 		window.open(`${globalShellUrl}?RouterID=${routerData["data"]["extraData"]["mgmtIpv4Addresss"]}?RouterName=${routerName}`);
 
@@ -1696,11 +1976,11 @@ async function sshWebBased(event) {
 }
 
 async function sshCliCommandCopy(event) {
-	console.log("sshWebBased: ", globalSelectedNode)
+	console.info("sshWebBased: ", globalSelectedNode)
 	var routerName = globalSelectedNode
 	try {
 		environments = await getEnvironments(event);
-		console.log("sshWebBased - environments: ", environments)
+		console.info("sshWebBased - environments: ", environments)
 
 		cytoTopologyJson = environments["EnvCyTopoJsonBytes"]
 		clabServerAddress = environments["clab-server-address"]
@@ -1751,18 +2031,18 @@ async function sshCliCommandCopy(event) {
 
 
 async function linkImpairmentClab(event, impairDirection) {
-	console.log("linkImpairmentClab - globalSelectedEdge: ", globalSelectedEdge);
+	console.info("linkImpairmentClab - globalSelectedEdge: ", globalSelectedEdge);
 	var edgeId = globalSelectedEdge;
 
 	try {
 		const environments = await getEnvironments(event);
-		console.log("linkImpairment - environments: ", environments);
+		console.info("linkImpairment - environments: ", environments);
 
 		const deploymentType = environments["deployment-type"];
 		const cytoTopologyJson = environments["EnvCyTopoJsonBytes"];
 		const edgeData = findCytoElementById(cytoTopologyJson, edgeId);
 
-		console.log("linkImpairment - edgeData: ", edgeData);
+		console.info("linkImpairment - edgeData: ", edgeData);
 
 		const clabUser = edgeData["data"]["extraData"]["clabServerUsername"];
 		const clabServerAddress = environments["clab-server-address"];
@@ -1792,7 +2072,7 @@ async function linkImpairmentClab(event, impairDirection) {
 				`ssh ${clabUser}@${clabServerAddress} /usr/bin/containerlab tools netem set -n ${clabSourceLongName} -i ${clabSourcePort} --delay ${delay}ms --jitter ${jitter}ms --rate ${rate} --loss ${loss} --corruption ${corruption}` :
 				`/usr/bin/containerlab tools netem set -n ${clabSourceLongName} -i ${clabSourcePort} --delay ${delay}ms --jitter ${jitter}ms --rate ${rate} --loss ${loss} --corruption ${corruption}`;
 
-			console.log(`linkImpairment - deployment ${deploymentType}, command: ${command}`);
+			console.info(`linkImpairment - deployment ${deploymentType}, command: ${command}`);
 			await sendRequestToEndpointPost("/clab-link-impairment", [command]);
 		}
 
@@ -1808,7 +2088,7 @@ async function linkImpairmentClab(event, impairDirection) {
 				`ssh ${clabUser}@${clabServerAddress} /usr/bin/containerlab tools netem set -n ${clabTargetLongName} -i ${clabTargetPort} --delay ${delay}ms --jitter ${jitter}ms --rate ${rate} --loss ${loss} --corruption ${corruption}` :
 				`/usr/bin/containerlab tools netem set -n ${clabTargetLongName} -i ${clabTargetPort} --delay ${delay}ms --jitter ${jitter}ms --rate ${rate} --loss ${loss} --corruption ${corruption}`;
 
-			console.log(`linkImpairment - deployment ${deploymentType}, command: ${command}`);
+			console.info(`linkImpairment - deployment ${deploymentType}, command: ${command}`);
 			await sendRequestToEndpointPost("/clab-link-impairment", [command]);
 		}
 	} catch (error) {
@@ -1818,24 +2098,24 @@ async function linkImpairmentClab(event, impairDirection) {
 
 
 async function linkWireshark(event, option, endpoint, referenceElementAfterId) {
-	console.log("linkWireshark - globalSelectedEdge: ", globalSelectedEdge)
-	console.log("linkWireshark - option: ", option)
-	console.log("linkWireshark - endpoint: ", endpoint)
-	console.log("linkWireshark - referenceElementAfterId: ", referenceElementAfterId)
+	console.info("linkWireshark - globalSelectedEdge: ", globalSelectedEdge)
+	console.info("linkWireshark - option: ", option)
+	console.info("linkWireshark - endpoint: ", endpoint)
+	console.info("linkWireshark - referenceElementAfterId: ", referenceElementAfterId)
 
 
 	var edgeId = globalSelectedEdge
 	try {
 		environments = await getEnvironments(event);
-		console.log("linkWireshark - environments: ", environments)
+		console.info("linkWireshark - environments: ", environments)
 
 		var deploymentType = environments["deployment-type"]
 
 		cytoTopologyJson = environments["EnvCyTopoJsonBytes"]
 		edgeData = findCytoElementById(cytoTopologyJson, edgeId)
 
-		console.log("linkWireshark- edgeData: ", edgeData)
-		console.log("linkWireshark- edgeSource: ", edgeData["data"]["source"])
+		console.info("linkWireshark- edgeData: ", edgeData)
+		console.info("linkWireshark- edgeSource: ", edgeData["data"]["source"])
 
 		clabUser = edgeData["data"]["extraData"]["clabServerUsername"]
 		clabServerAddress = environments["clab-server-address"]
@@ -1849,11 +2129,11 @@ async function linkWireshark(event, option, endpoint, referenceElementAfterId) {
 		if (option == "app") {
 			if (endpoint == "source") {
 				wiresharkHref = `clab-capture://${clabUser}@${clabServerAddress}?${clabSourceLongName}?${clabSourcePort}`
-				console.log("linkWireshark- wiresharkHref: ", wiresharkHref)
+				console.info("linkWireshark- wiresharkHref: ", wiresharkHref)
 
 			} else if (endpoint == "target") {
 				wiresharkHref = `clab-capture://${clabUser}@${clabServerAddress}?${clabTargetLongName}?${clabTargetPort}`
-				console.log("linkWireshark- wiresharkHref: ", wiresharkHref)
+				console.info("linkWireshark- wiresharkHref: ", wiresharkHref)
 			}
 			window.open(wiresharkHref);
 
@@ -1862,24 +2142,24 @@ async function linkWireshark(event, option, endpoint, referenceElementAfterId) {
 				baseUrl = `packetflix:ws://${clabServerAddress}:5001/capture?`;
 
 				netNsResponse = await sendRequestToEndpointGetV3("/clab-node-network-namespace", argsList = [clabSourceLongName])
-				console.log("linkWireshark - netNsSource: ", netNsResponse.namespace_id.slice(netNsResponse.namespace_id.indexOf("[") + 1, netNsResponse.namespace_id.indexOf("]")))
+				console.info("linkWireshark - netNsSource: ", netNsResponse.namespace_id.slice(netNsResponse.namespace_id.indexOf("[") + 1, netNsResponse.namespace_id.indexOf("]")))
 				netNsIdSource = netNsResponse.namespace_id.slice(netNsResponse.namespace_id.indexOf("[") + 1, netNsResponse.namespace_id.indexOf("]"))
 
 				urlParams = `container={"netns":${netNsIdSource},"network-interfaces":["${clabSourcePort}"],"name":"${clabSourceLongName.toLocaleLowerCase()}","type":"docker","prefix":""}&nif=${clabSourcePort}`;
 				edgeSharkHref = baseUrl + urlParams;
-				console.log("linkWireshark - edgeSharkHref: ", edgeSharkHref)
+				console.info("linkWireshark - edgeSharkHref: ", edgeSharkHref)
 				window.open(edgeSharkHref);
 
 			} else if (endpoint == "target") {
 				baseUrl = `packetflix:ws://${clabServerAddress}:5001/capture?`;
 
 				netNsResponse = await sendRequestToEndpointGetV3("/clab-node-network-namespace", argsList = [clabTargetLongName])
-				console.log("linkWireshark - netNsSource: ", netNsResponse.namespace_id.slice(netNsResponse.namespace_id.indexOf("[") + 1, netNsResponse.namespace_id.indexOf("]")))
+				console.info("linkWireshark - netNsSource: ", netNsResponse.namespace_id.slice(netNsResponse.namespace_id.indexOf("[") + 1, netNsResponse.namespace_id.indexOf("]")))
 				netNsIdTarget = netNsResponse.namespace_id.slice(netNsResponse.namespace_id.indexOf("[") + 1, netNsResponse.namespace_id.indexOf("]"))
 
-				urlParams = `container={"netns":${netNsIdTarget},"network-interfaces":["${clabSourcePort}"],"name":"${clabSourceLongName.toLocaleLowerCase()}","type":"docker","prefix":""}&nif=${clabSourcePort}`;
+				urlParams = `container={"netns":${netNsIdTarget},"network-interfaces":["${clabTargetPort}"],"name":"${clabTargetLongName.toLocaleLowerCase()}","type":"docker","prefix":""}&nif=${clabTargetPort}`;
 				edgeSharkHref = baseUrl + urlParams;
-				console.log("linkWireshark - edgeSharkHref: ", edgeSharkHref)
+				console.info("linkWireshark - edgeSharkHref: ", edgeSharkHref)
 				window.open(edgeSharkHref);
 			}
 
@@ -1888,29 +2168,29 @@ async function linkWireshark(event, option, endpoint, referenceElementAfterId) {
 				baseUrl = `packetflix:ws://${clabServerAddress}:5001/capture?`;
 
 				netNsResponse = await sendRequestToEndpointGetV3("/clab-node-network-namespace", argsList = [clabSourceLongName])
-				console.log("linkWireshark - netNsSource: ", netNsResponse.namespace_id.slice(netNsResponse.namespace_id.indexOf("[") + 1, netNsResponse.namespace_id.indexOf("]")))
+				console.info("linkWireshark - netNsSource: ", netNsResponse.namespace_id.slice(netNsResponse.namespace_id.indexOf("[") + 1, netNsResponse.namespace_id.indexOf("]")))
 				netNsIdSource = netNsResponse.namespace_id.slice(netNsResponse.namespace_id.indexOf("[") + 1, netNsResponse.namespace_id.indexOf("]"))
 
 				urlParams = `container={"netns":${netNsIdSource},"network-interfaces":["${endpoint}"],"name":"${clabSourceLongName.toLocaleLowerCase()}","type":"docker","prefix":""}&nif=${endpoint}`;
 				edgeSharkHref = baseUrl + urlParams;
-				console.log("linkWireshark - edgeSharkHref: ", edgeSharkHref)
+				console.info("linkWireshark - edgeSharkHref: ", edgeSharkHref)
 				window.open(edgeSharkHref);
 			}
 			if (referenceElementAfterId == "endpoint-b-edgeshark") {
-				console.log("linkWireshark - endpoint-b-edgeshark")
+				console.info("linkWireshark - endpoint-b-edgeshark")
 				baseUrl = `packetflix:ws://${clabServerAddress}:5001/capture?`;
 
 				netNsResponse = await sendRequestToEndpointGetV3("/clab-node-network-namespace", argsList = [clabTargetLongName])
-				console.log("linkWireshark - netNsSource: ", netNsResponse.namespace_id.slice(netNsResponse.namespace_id.indexOf("[") + 1, netNsResponse.namespace_id.indexOf("]")))
+				console.info("linkWireshark - netNsSource: ", netNsResponse.namespace_id.slice(netNsResponse.namespace_id.indexOf("[") + 1, netNsResponse.namespace_id.indexOf("]")))
 				netNsIdTarget = netNsResponse.namespace_id.slice(netNsResponse.namespace_id.indexOf("[") + 1, netNsResponse.namespace_id.indexOf("]"))
 
 				urlParams = `container={"netns":${netNsIdTarget},"network-interfaces":["${endpoint}"],"name":"${clabSourceLongName.toLocaleLowerCase()}","type":"docker","prefix":""}&nif=${endpoint}`;
 				edgeSharkHref = baseUrl + urlParams;
-				console.log("linkWireshark - edgeSharkHref: ", edgeSharkHref)
+				console.info("linkWireshark - edgeSharkHref: ", edgeSharkHref)
 				window.open(edgeSharkHref);
 			}
 			if (referenceElementAfterId == "endpoint-a-clipboard") {
-				console.log("linkWireshark - endpoint-a-clipboard")
+				console.info("linkWireshark - endpoint-a-clipboard")
 				if (deploymentType == "container") {
 					wiresharkSshCommand = `ssh ${clabUser}@${clabServerAddress} "sudo -S /sbin/ip netns exec ${clabSourceLongName} tcpdump -U -nni ${endpoint} -w -" | wireshark -k -i -`
 				} else if (deploymentType == "colocated") {
@@ -1953,7 +2233,7 @@ async function linkWireshark(event, option, endpoint, referenceElementAfterId) {
 				}
 			}
 			if (referenceElementAfterId == "endpoint-b-clipboard") {
-				console.log("linkWireshark - endpoint-b-clipboard")
+				console.info("linkWireshark - endpoint-b-clipboard")
 				if (deploymentType == "container") {
 					wiresharkSshCommand = `ssh ${clabUser}@${clabServerAddress} "sudo -S /sbin/ip netns exec ${clabTargetLongName} tcpdump -U -nni ${endpoint} -w -" | wireshark -k -i -`
 				} else if (deploymentType == "colocated") {
@@ -2012,7 +2292,7 @@ async function linkWireshark(event, option, endpoint, referenceElementAfterId) {
 				}
 			}
 
-			console.log("linkWireshark- wiresharkSShCommand: ", wiresharkSshCommand)
+			console.info("linkWireshark- wiresharkSShCommand: ", wiresharkSshCommand)
 
 			// Check if the clipboard API is available
 			if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -2061,7 +2341,7 @@ async function showPanelLogMessages(event) {
 	document.getElementById("panel-log-messages").style.display = "block";
 }
 
-///-logMessagesPanel Function to add a click event listener to the close button
+///logMessagesPanel Function to add a click event listener to the close button
 document.getElementById("panel-log-messages-close-button").addEventListener("click", () => {
 	document.getElementById("panel-log-messages").style.display = "none";
 });
@@ -2078,7 +2358,7 @@ async function showPanelTopoViewerClient(event) {
 	}
 
 	environments = await getEnvironments(event);
-	console.log("linkImpairment - environments: ", environments)
+	console.info("linkImpairment - environments: ", environments)
 
 	clabServerAddress = environments["clab-server-address"]
 	clabServerPort = environments["clab-server-port"]
@@ -2116,7 +2396,7 @@ async function showPanelAbout(event) {
 	}
 
 	environments = await getEnvironments(event);
-	console.log("linkImpairment - environments: ", environments)
+	console.info("linkImpairment - environments: ", environments)
 
 	topoViewerVersion = environments["topoviewer-version"]
 
@@ -2145,33 +2425,33 @@ async function showPanelAbout(event) {
 	document.getElementById("panel-topoviewer-about-content").innerHTML = htmlContent;
 }
 
-async function sidebarButtonFitScreen(event) {
+// async function sidebarButtonFitScreen(event) {
 
-	// --sidebar-button-background-color-default: rgba(54,58, 69, 1);
-	// --sidebar-button-background-color-active:  rgba(76, 82, 97, 1);
+// 	// --sidebar-button-background-color-default: rgba(54,58, 69, 1);
+// 	// --sidebar-button-background-color-active:  rgba(76, 82, 97, 1);
 
-	var sidebarButtonFitScreen = document.getElementById("sidebar-button-fit-screen")
-	const sidebarButtonColorDefault = getComputedStyle(sidebarButtonFitScreen).getPropertyValue('--sidebar-button-background-color-default');
-	const sidebarButtonColorActive = getComputedStyle(sidebarButtonFitScreen).getPropertyValue('--sidebar-button-background-color-active');
+// 	var sidebarButtonFitScreen = document.getElementById("sidebar-button-fit-screen")
+// 	const sidebarButtonColorDefault = getComputedStyle(sidebarButtonFitScreen).getPropertyValue('--sidebar-button-background-color-default');
+// 	const sidebarButtonColorActive = getComputedStyle(sidebarButtonFitScreen).getPropertyValue('--sidebar-button-background-color-active');
 
-	drawer = document.getElementById("drawer")
-	if (drawer.style.display === 'block') {
-		drawer.style.display = 'none';
-		var sidebarButtonFitScreen = document.getElementById("sidebar-button-fit-screen")
-		sidebarButtonFitScreen.style.background = sidebarButtonColorDefault.trim();
-		sidebarButtonFitScreen.style.border = sidebarButtonColorActive.trim();
-	} else {
-		drawer.style.display = 'block';
-		var sidebarButtons = document.getElementsByClassName("is-sidebar");
-		// Loop through each element and set its display to 'none'
-		for (var i = 0; i < sidebarButtons.length; i++) {
-			sidebarButtons[i].style.background = sidebarButtonColorDefault.trim();
-			sidebarButtons[i].style.border = sidebarButtonColorDefault.trim();
-		}
-		sidebarButtonFitScreen.style.background = sidebarButtonColorActive.trim();
-	}
+// 	drawer = document.getElementById("drawer")
+// 	if (drawer.style.display === 'block') {
+// 		drawer.style.display = 'none';
+// 		var sidebarButtonFitScreen = document.getElementById("sidebar-button-fit-screen")
+// 		sidebarButtonFitScreen.style.background = sidebarButtonColorDefault.trim();
+// 		sidebarButtonFitScreen.style.border = sidebarButtonColorActive.trim();
+// 	} else {
+// 		drawer.style.display = 'block';
+// 		var sidebarButtons = document.getElementsByClassName("is-sidebar");
+// 		// Loop through each element and set its display to 'none'
+// 		for (var i = 0; i < sidebarButtons.length; i++) {
+// 			sidebarButtons[i].style.background = sidebarButtonColorDefault.trim();
+// 			sidebarButtons[i].style.border = sidebarButtonColorDefault.trim();
+// 		}
+// 		sidebarButtonFitScreen.style.background = sidebarButtonColorActive.trim();
+// 	}
 
-}
+// }
 
 async function getActualNodesEndpoints(event) {
 	try {
@@ -2193,7 +2473,7 @@ async function getActualNodesEndpoints(event) {
 		// Handle the response data
 		if (CyTopoJson && typeof CyTopoJson === 'object' && Object.keys(CyTopoJson).length > 0) {
 			hideLoadingSpinnerGlobal();
-			console.log("Valid non-empty JSON response received:", CyTopoJson);
+			console.info("Valid non-empty JSON response received:", CyTopoJson);
 
 			hideLoadingSpinnerGlobal();
 
@@ -2203,7 +2483,7 @@ async function getActualNodesEndpoints(event) {
 
 			hideLoadingSpinnerGlobal();
 
-			console.log("Empty or invalid JSON response received");
+			console.info("Empty or invalid JSON response received");
 		}
 	} catch (error) {
 		hideLoadingSpinnerGlobal();
@@ -2215,11 +2495,18 @@ async function getActualNodesEndpoints(event) {
 function viewportButtonsZoomToFit() {
 	const initialZoom = cy.zoom();
 	appendMessage(`Bro, initial zoom level is "${initialZoom}".`);
-	//- Fit all nodes possible with padding
-	//- Fit all nodes possible with padding
+	console.info(`Bro, initial zoom level is "${initialZoom}".`);
+	// Fit all nodes possible with padding
+	// Fit all nodes possible with padding
 	cy.fit();
 	const currentZoom = cy.zoom();
 	appendMessage(`And now the zoom level is "${currentZoom}".`);
+	console.info(`And now the zoom level is "${currentZoom}".`);
+
+	// cytoscapeLeafletLeaf instance map to fit nodes
+	cytoscapeLeafletLeaf.fit();
+	console.log("cytoscapeLeafletLeaf.fit()")
+
 }
 
 function viewportButtonsLayoutAlgo() {
@@ -2235,24 +2522,24 @@ function viewportButtonsLayoutAlgo() {
 
 
 function viewportNodeFindEvent(event) {
-	//- Get a reference to your Cytoscape instance (assuming it's named 'cy')
-	//- const cy = window.cy; //- Replace 'window.cy' with your actual Cytoscape instance
-	//- Find the node with the specified name
+	// Get a reference to your Cytoscape instance (assuming it's named 'cy')
+	// const cy = window.cy; // Replace 'window.cy' with your actual Cytoscape instance
+	// Find the node with the specified name
 	const nodeName = document.getElementById("viewport-drawer-topology-overview-content-edit").value;
 	const node = cy.$(`node[name = "${nodeName}"]`);
-	//- Check if the node exists
+	// Check if the node exists
 	if (node.length > 0) {
-		console.log("Info: " + 'Sweet! Node "' + nodeName + '" is in the house.');
+		console.info("Info: " + 'Sweet! Node "' + nodeName + '" is in the house.');
 		appendMessage("Info: " + 'Sweet! Node "' + nodeName + '" is in the house.');
-		//- Apply a highlight style to the node
+		// Apply a highlight style to the node
 		node.style({
 			"border-color": "red",
 			"border-width": "2px",
 			"background-color": "yellow",
 		});
-		//- Zoom out on the node
+		// Zoom out on the node
 		cy.fit();
-		//- Zoom in on the node
+		// Zoom in on the node
 		cy.animate({
 			zoom: {
 				level: 5,
@@ -2280,13 +2567,13 @@ function viewportNodeFindEvent(event) {
 async function layoutAlgoChange(event) {
 
 	try {
-		console.log("layoutAlgoChange clicked");
+		console.info("layoutAlgoChange clicked");
 
 		var selectElement = document.getElementById("select-layout-algo");
 		var selectedOption = selectElement.value;
 
 		if (selectedOption === "Force Directed") {
-			console.log("Force Directed algo selected");
+			console.info("Force Directed algo selected");
 
 			var layoutAlgoPanels = document.getElementsByClassName("layout-algo");
 			// Loop through each element and set its display to 'none'
@@ -2300,11 +2587,11 @@ async function layoutAlgoChange(event) {
 			viewportDrawerForceDirectedResetStart = document.getElementById("viewport-drawer-force-directed-reset-start")
 			viewportDrawerForceDirectedResetStart.style.display = "block"
 
-			console.log(document.getElementById("viewport-drawer-force-directed"))
-			console.log(document.getElementById("viewport-drawer-force-directed-reset-start"))
+			console.info(document.getElementById("viewport-drawer-force-directed"))
+			console.info(document.getElementById("viewport-drawer-force-directed-reset-start"))
 
 		} else if (selectedOption === "Force Directed Radial") {
-			console.log("Force Directed Radial algo selected");
+			console.info("Force Directed Radial algo selected");
 
 			var layoutAlgoPanels = document.getElementsByClassName("layout-algo");
 			// Loop through each element and set its display to 'none'
@@ -2318,11 +2605,11 @@ async function layoutAlgoChange(event) {
 			viewportDrawerForceDirectedResetStart = document.getElementById("viewport-drawer-force-directed-radial-reset-start")
 			viewportDrawerForceDirectedResetStart.style.display = "block"
 
-			console.log(document.getElementById("viewport-drawer-force-directed-radial"))
-			console.log(document.getElementById("viewport-drawer-force-directed-radial-reset-start"))
+			console.info(document.getElementById("viewport-drawer-force-directed-radial"))
+			console.info(document.getElementById("viewport-drawer-force-directed-radial-reset-start"))
 
 		} else if (selectedOption === "Vertical") {
-			console.log("Vertical algo selected");
+			console.info("Vertical algo selected");
 
 			var layoutAlgoPanels = document.getElementsByClassName("layout-algo");
 			// Loop through each element and set its display to 'none'
@@ -2336,11 +2623,11 @@ async function layoutAlgoChange(event) {
 			viewportDrawerForceDirectedResetStart = document.getElementById("viewport-drawer-dc-vertical-reset-start")
 			viewportDrawerForceDirectedResetStart.style.display = "block"
 
-			console.log(document.getElementById("viewport-drawer-dc-vertical"))
-			console.log(document.getElementById("viewport-drawer-dc-vertical-reset-start"))
+			console.info(document.getElementById("viewport-drawer-dc-vertical"))
+			console.info(document.getElementById("viewport-drawer-dc-vertical-reset-start"))
 
 		} else if (selectedOption === "Horizontal") {
-			console.log("Horizontal algo selected");
+			console.info("Horizontal algo selected");
 
 			var layoutAlgoPanels = document.getElementsByClassName("layout-algo");
 			// Loop through each element and set its display to 'none'
@@ -2354,8 +2641,29 @@ async function layoutAlgoChange(event) {
 			viewportDrawerForceDirectedResetStart = document.getElementById("viewport-drawer-dc-horizontal-reset-start")
 			viewportDrawerForceDirectedResetStart.style.display = "block"
 
-			console.log(document.getElementById("viewport-drawer-dc-horizontal"))
-			console.log(document.getElementById("viewport-drawer-dc-horizontal-reset-start"))
+			console.info(document.getElementById("viewport-drawer-dc-horizontal"))
+			console.info(document.getElementById("viewport-drawer-dc-horizontal-reset-start"))
+
+		} else if (selectedOption === "Geo Positioning") {
+			console.info("GeoMap algo selected");
+
+			var layoutAlgoPanels = document.getElementsByClassName("layout-algo");
+			// Loop through each element and set its display to 'none'
+			for (var i = 0; i < layoutAlgoPanels.length; i++) {
+				layoutAlgoPanels[i].style.display = "none";
+			}
+
+			viewportDrawerGeoMap = document.getElementById("viewport-drawer-geo-map")
+			viewportDrawerGeoMap.style.display = "block"
+
+			viewportDrawerGeoMapContent01 = document.getElementById("viewport-drawer-geo-map-content-01")
+			viewportDrawerGeoMapContent01.style.display = "block"
+
+			viewportDrawerGeoMapResetStart = document.getElementById("viewport-drawer-geo-map-reset-start")
+			viewportDrawerGeoMapResetStart.style.display = "block"
+
+			console.info(document.getElementById("viewport-drawer-geo-map"))
+			console.info(document.getElementById("viewport-drawer-geo-map-reset-start"))
 		}
 
 	} catch (error) {
@@ -2372,7 +2680,7 @@ function viewportButtonsTopologyOverview() {
 		viewportDrawer[i].style.display = "none";
 	}
 
-	console.log("viewportButtonsTopologyOverview clicked")
+	console.info("viewportButtonsTopologyOverview clicked")
 	viewportDrawerLayout = document.getElementById("viewport-drawer-topology-overview")
 	viewportDrawerLayout.style.display = "block"
 
@@ -2387,13 +2695,16 @@ function viewportButtonsTopologyCapture() {
 		viewportDrawer[i].style.display = "none";
 	}
 
-	console.log("viewportButtonsTopologyCapture clicked")
+	console.info("viewportButtonsTopologyCapture clicked")
 
 	viewportDrawerCapture = document.getElementById("viewport-drawer-capture-sceenshoot")
 	viewportDrawerCapture.style.display = "block"
 
 	viewportDrawerCaptureContent = document.getElementById("viewport-drawer-capture-sceenshoot-content")
 	viewportDrawerCaptureContent.style.display = "block"
+
+	viewportDrawerCaptureButton = document.getElementById("viewport-drawer-capture-sceenshoot-button")
+	viewportDrawerCaptureButton.style.display = "block"
 }
 
 function viewportButtonsLabelEndpoint() {
@@ -2401,10 +2712,9 @@ function viewportButtonsLabelEndpoint() {
 		cy.edges().forEach(function(edge) {
 			edge.style("text-opacity", 0);
 			edge.style("text-background-opacity", 0);
-
-
 			linkEndpointVisibility = false;
 		});
+
 	} else {
 		cy.edges().forEach(function(edge) {
 			edge.style("text-opacity", 1);
@@ -2417,7 +2727,7 @@ function viewportButtonsLabelEndpoint() {
 function viewportButtonContainerStatusVisibility() {
 	if (nodeContainerStatusVisibility) {
 		nodeContainerStatusVisibility = false;
-		console.log(
+		console.info(
 			"nodeContainerStatusVisibility: " + nodeContainerStatusVisibility,
 		);
 		appendMessage(
@@ -2432,7 +2742,7 @@ function viewportButtonContainerStatusVisibility() {
 		});
 	} else {
 		nodeContainerStatusVisibility = true;
-		console.log(
+		console.info(
 			"nodeContainerStatusVisibility: " + nodeContainerStatusVisibility,
 		);
 		appendMessage(
@@ -2449,47 +2759,63 @@ function viewportButtonContainerStatusVisibility() {
 }
 
 
+
 function viewportDrawerLayoutForceDirected() {
-	edgeLengthSlider = document.getElementById("force-directed-slider-link-lenght");
-	nodeGapSlider = document.getElementById("force-directed-slider-node-gap");
+	const edgeLengthSlider = document.getElementById("force-directed-slider-link-lenght");
+	const nodeGapSlider = document.getElementById("force-directed-slider-node-gap");
 
 	const edgeLengthValue = parseFloat(edgeLengthSlider.value);
 	const nodeGapValue = parseFloat(nodeGapSlider.value);
 
-	console.log("edgeLengthValue", edgeLengthValue);
-	console.log("nodeGapValue", nodeGapValue);
+	console.info("edgeLengthValue", edgeLengthValue);
+	console.info("nodeGapValue", nodeGapValue);
 
+	// Calculate the layout for the optic layer (Layer-1)
 	cy.layout({
+		name: "cola",
+		nodeSpacing: function(node) {
+			return nodeGapValue;
+		},
+		edgeLength: function(edge) {
+			return edgeLengthValue * 100 / edge.data("weight");
+		},
+		animate: true,
+		randomize: false,
+		maxSimulationTime: 1500
+	}).run();
 
-			name: "cola",
-			nodeGap: 5,
-			edgeLength: 100,
-			animate: true,
-			randomize: false,
-			maxSimulationTime: 1500,
+	// Get the bounding box of Layer-1 optic nodes
+	const opticLayerNodes = cy.nodes('[parent="layer1"]');
+	const opticBBox = opticLayerNodes.boundingBox();
 
-			edgeLength: function(e) {
-				// console.log("edgeLengthValue", edgeLengthValue);
-				// console.log("edgeLengthValue*100 / e.data", edgeLengthValue*100 / e.data("weight"));
+	// Set layer offsets
+	const layerOffsets = {
+		layer2: opticBBox.y2 + 100, // L2 nodes below Optic layer
+		layer3: opticBBox.y2 + 300, // IP/MPLS nodes below L2 layer
+		layer4: opticBBox.y2 + 500 // VPN nodes below IP/MPLS layer
+	};
 
-				return edgeLengthValue * 100 / e.data("weight");
-			},
-			nodeGap: function(e) {
-				// console.log("nodeGapValue", nodeGapValue);
-				// console.log("nodeGapValue*100 / e.data", nodeGapValue / e.data("weight"));
+	// Position the nodes for each layer while preserving x-coordinates
+	["layer2", "layer3", "layer4"].forEach((layer, index) => {
+		const layerNodes = cy.nodes(`[parent="${layer}"]`);
+		const offsetY = layerOffsets[layer];
 
-				return nodeGapValue / e.data("weight");
-			},
-		})
-		.run();
-	var cyExpandCollapse = cy.expandCollapse({
-		layoutBy: null, // null means use existing layout
-		undoable: false,
-		fisheye: false,
-		animationDuration: 10, // when animate is true, the duration in milliseconds of the animation
-		animate: true
+		layerNodes.positions((node, i) => {
+			return {
+				x: opticLayerNodes[i % opticLayerNodes.length].position("x"), // Align x with Layer-1
+				y: opticLayerNodes[i % opticLayerNodes.length].position("y") + offsetY
+			};
+		});
 	});
 
+	// Optionally, apply animations for expanding and collapsing nodes
+	const cyExpandCollapse = cy.expandCollapse({
+		layoutBy: null, // Use existing layout
+		undoable: false,
+		fisheye: false,
+		animationDuration: 10, // Duration of animation
+		animate: true
+	});
 	// Example collapse/expand after some delay
 	// Make sure the '#parent' node exists in your loaded elements
 	setTimeout(function() {
@@ -2506,7 +2832,11 @@ function viewportDrawerLayoutForceDirectedRadial() {
 
 	edgeLengthSlider = document.getElementById("force-directed-radial-slider-link-lenght");
 	const edgeLengthValue = parseFloat(edgeLengthSlider.value);
-	console.log("edgeLengthValue", edgeLengthValue);
+	console.info("edgeLengthValue", edgeLengthValue);
+
+	nodeGapSlider = document.getElementById("force-directed-radial-slider-node-gap");
+	const nodeGapValue = parseFloat(nodeGapSlider.value);
+	console.info("edgeLengthValue", nodeGapValue);
 
 	// Map TopoViewerGroupLevel to weights (lower levels = higher weight)	
 	const nodeWeights = {};
@@ -2529,7 +2859,7 @@ function viewportDrawerLayoutForceDirectedRadial() {
 	cy.layout({
 		name: 'cola',
 		fit: true, // Automatically fit the layout to the viewport
-		nodeSpacing: 30,
+		nodeSpacing: nodeGapValue, // Gap between nodes
 		edgeLength: (edge) => {
 			const sourceWeight = nodeWeights[edge.source().id()] || 1;
 			const targetWeight = nodeWeights[edge.target().id()] || 1;
@@ -2545,7 +2875,7 @@ function viewportDrawerLayoutForceDirectedRadial() {
 	var cyExpandCollapse = cy.expandCollapse({
 		layoutBy: null,
 		undoable: false,
-		fisheye: false,
+		fisheye: true,
 		animationDuration: 10, // when animate is true, the duration in milliseconds of the animation
 		animate: true
 	});
@@ -2561,43 +2891,29 @@ function viewportDrawerLayoutForceDirectedRadial() {
 	}, 2000);
 }
 
-
-
-
 function viewportDrawerLayoutVertical() {
-	nodevGap = document.getElementById("vertical-layout-slider-node-v-gap");
-	groupvGap = document.getElementById("vertical-layout-slider-group-v-gap");
+	// Retrieve the sliders for node and group vertical gaps
+	const nodevGap = document.getElementById("vertical-layout-slider-node-v-gap");
+	const groupvGap = document.getElementById("vertical-layout-slider-group-v-gap");
 
-	const nodevGapValue = parseFloat(nodevGap.value);
-	const groupvGapValue = parseFloat(groupvGap.value);
+	// Parse the slider values for horizontal and vertical gaps
+	const nodevGapValue = parseFloat(nodevGap.value); // Gap between child nodes within a parent
+	const groupvGapValue = parseFloat(groupvGap.value); // Gap between parent nodes
 
-	console.log("nodevGapValue", nodevGapValue);
-	console.log("groupvGapValue", groupvGapValue);
-
-	const xOffset = parseFloat(nodevGapValue);
-	const yOffset = parseFloat(groupvGapValue);
-
-	console.log("yOffset", yOffset);
-	console.log("xOffset", xOffset);
-
-	const delay = 100;
+	const delay = 100; // Delay to ensure layout updates after rendering
 
 	setTimeout(() => {
+		// Step 1: Position child nodes within their respective parents
 		cy.nodes().forEach(function(node) {
 			if (node.isParent()) {
-				// For each parent node
-				const children = node.children();
-				const numRows = 1;
+				const children = node.children(); // Get the children of the current parent node
+				const cellWidth = node.width() / children.length; // Calculate the width for each child node
 
-				const cellWidth = node.width() / children.length;
-				// const xOffset = 5
-
+				// Position child nodes evenly spaced within the parent node
 				children.forEach(function(child, index) {
-					// Position children in rows
-					const xPos = index * (cellWidth + xOffset);
-					const yPos = 0;
+					const xPos = index * (cellWidth + nodevGapValue); // Horizontal position for the child
+					const yPos = 0; // Keep child nodes on the same vertical level
 
-					// Set the position of each child node
 					child.position({
 						x: xPos,
 						y: yPos
@@ -2606,107 +2922,108 @@ function viewportDrawerLayoutVertical() {
 			}
 		});
 
-		var parentCounts = {};
-		var maxWidth = 0;
-		var centerX = 0;
-		var centerY = cy.height() / 2;
+		// Step 2: Sort parent nodes by their group level and ID for vertical stacking
+		const sortedParents = cy.nodes()
+			.filter(node => node.isParent()) // Only process parent nodes
+			.sort((a, b) => {
+				// Extract group levels for primary sorting
+				const groupLevelA = parseInt(a.data('extraData')?.topoViewerGroupLevel || 0, 10);
+				const groupLevelB = parseInt(b.data('extraData')?.topoViewerGroupLevel || 0, 10);
 
-		// Count children of each parent node
-		cy.nodes().forEach(function(node) {
-			if (node.isParent()) {
-				const childrenCount = node.children().length;
-				parentCounts[node.id()] = childrenCount;
-			}
-		});
+				if (groupLevelA !== groupLevelB) {
+					return groupLevelA - groupLevelB; // Sort by group level in ascending order
+				}
+				// Secondary sorting by node ID (alphabetical order)
+				return a.data('id').localeCompare(b.data('id'));
+			});
 
+		let yPos = 0; // Starting vertical position for parent nodes
+		let maxWidth = 0; // Initialize variable to store the maximum parent width
+		const centerX = 0; // Define the horizontal center reference
+
+		// Step 3: Find the widest parent node
 		cy.nodes().forEach(function(node) {
 			if (node.isParent()) {
 				const width = node.width();
 				if (width > maxWidth) {
-					maxWidth = width;
-					console.log("ParentMaxWidth: ", maxWidth);
+					maxWidth = width; // Update maxWidth with the widest parent node's width
+					console.info("ParentMaxWidth: ", maxWidth);
 				}
 			}
 		});
 
+		// Calculate division factor for aligning parent nodes
 		const divisionFactor = maxWidth / 2;
-		console.log("divisionFactor: ", divisionFactor);
+		console.info("Division Factor: ", divisionFactor);
 
-		// Sort parent nodes by child count in ascending order
-		const sortedParents = Object.keys(parentCounts).sort(
-			(a, b) => parentCounts[a] - parentCounts[b],
-		);
+		// Step 4: Position parent nodes vertically and align them relative to the widest parent node
+		sortedParents.forEach(function(parentNode) {
+			const parentWidth = parentNode.width();
 
-		let yPos = 0;
-		// const yOffset = 50;
+			// Calculate horizontal position relative to the widest parent
+			const xPos = centerX - parentWidth / divisionFactor;
 
-		// Position parent nodes vertically and center them horizontally
-		sortedParents.forEach(function(parentId) {
-			const parent = cy.getElementById(parentId);
-			const xPos = centerX - parent.width() / divisionFactor;
-			// to the left compared to the center of the widest parent node.
-			parent.position({
+			// Position the parent node
+			parentNode.position({
 				x: xPos,
 				y: yPos
 			});
-			yPos += yOffset;
+
+			console.info(`Parent Node '${parentNode.id()}' positioned at x: ${xPos}, y: ${yPos}`);
+
+			// Increment vertical position for the next parent
+			yPos += groupvGapValue;
 		});
+
+		// Step 5: Adjust the viewport to fit the updated layout
 		cy.fit();
+
 	}, delay);
 
-	var cyExpandCollapse = cy.expandCollapse({
-		layoutBy: null, // null means use existing layout
-		undoable: false,
-		fisheye: false,
-		animationDuration: 10, // when animate is true, the duration in milliseconds of the animation
-		animate: true
+	// Step 6: Expand/collapse functionality for parent nodes (optional)
+	const cyExpandCollapse = cy.expandCollapse({
+		layoutBy: null, // Use the existing layout
+		undoable: false, // Disable undo functionality
+		fisheye: false, // Disable fisheye view for expanded/collapsed nodes
+		animationDuration: 10, // Duration of animations in milliseconds
+		animate: true // Enable animation for expand/collapse
 	});
 
-	// Example collapse/expand after some delay
-	// Make sure the '#parent' node exists in your loaded elements
+	// Example: Demonstrate expand/collapse behavior with a specific parent node
 	setTimeout(function() {
-		var parent = cy.$('#parent'); // Ensure that '#parent' is actually present in dataCytoMarshall.json
-		cyExpandCollapse.collapse(parent);
+		const parent = cy.$('#parent'); // Replace '#parent' with the actual parent node ID if needed
+		cyExpandCollapse.collapse(parent); // Collapse the parent node
 
 		setTimeout(function() {
-			cyExpandCollapse.expand(parent);
-		}, 2000);
+			cyExpandCollapse.expand(parent); // Re-expand the parent node after a delay
+		}, 2000); // Wait 2 seconds before expanding
 	}, 2000);
 }
 
 
 function viewportDrawerLayoutHorizontal() {
-	nodehGap = document.getElementById("horizontal-layout-slider-node-h-gap");
-	grouphGap = document.getElementById("horizontal-layout-slider-group-h-gap");
+	// Retrieve the sliders for node and group horizontal gaps
+	const nodehGap = document.getElementById("horizontal-layout-slider-node-h-gap");
+	const grouphGap = document.getElementById("horizontal-layout-slider-group-h-gap");
 
-	const horizontalNodeGap = parseFloat(nodehGap.value);
-	const horizontalGroupGap = parseFloat(grouphGap.value);
+	// Parse the slider values for horizontal and vertical gaps
+	const nodehGapValue = parseFloat(nodehGap.value) * 10; // Gap between child nodes within a parent
+	const grouphGapValue = parseFloat(grouphGap.value); // Gap between parent nodes
 
-	console.log("nodevGapValue", horizontalNodeGap);
-	console.log("groupvGapValue", horizontalGroupGap);
+	const delay = 100; // Delay to ensure layout updates after rendering
 
-	const yOffset = parseFloat(horizontalNodeGap);
-	const xOffset = parseFloat(horizontalGroupGap);
-
-	console.log("yOffset", yOffset);
-	console.log("xOffset", xOffset);
-
-	const delay = 100;
 	setTimeout(() => {
+		// Step 1: Position child nodes within their respective parents
 		cy.nodes().forEach(function(node) {
 			if (node.isParent()) {
-				// For each parent node
-				const children = node.children();
-				const numColumns = 1;
-				const cellHeight = node.height() / children.length;
-				// const yOffset = 5;
+				const children = node.children(); // Get the children of the current parent node
+				const cellHeight = node.height() / children.length; // Calculate the height for each child node
 
+				// Position child nodes evenly spaced within the parent node
 				children.forEach(function(child, index) {
-					// Position children in columns
-					const xPos = 0;
-					const yPos = index * (cellHeight + yOffset);
+					const xPos = 0; // Keep child nodes on the same horizontal level
+					const yPos = index * (cellHeight + nodehGapValue); // Vertical position for the child
 
-					// Set the position of each child node
 					child.position({
 						x: xPos,
 						y: yPos
@@ -2715,77 +3032,86 @@ function viewportDrawerLayoutHorizontal() {
 			}
 		});
 
-		var parentCounts = {};
-		var maxHeight = 0;
-		var centerX = cy.width() / 2;
-		var centerY = cy.height() / 2;
+		// Step 2: Sort parent nodes by their group level and ID for horizontal stacking
+		const sortedParents = cy.nodes()
+			.filter(node => node.isParent()) // Only process parent nodes
+			.sort((a, b) => {
+				// Extract group levels for primary sorting
+				const groupLevelA = parseInt(a.data('extraData')?.topoViewerGroupLevel || 0, 10);
+				const groupLevelB = parseInt(b.data('extraData')?.topoViewerGroupLevel || 0, 10);
 
-		// Count children of each parent node
-		cy.nodes().forEach(function(node) {
-			if (node.isParent()) {
-				const childrenCount = node.children().length;
-				parentCounts[node.id()] = childrenCount;
-			}
-		});
+				if (groupLevelA !== groupLevelB) {
+					return groupLevelA - groupLevelB; // Sort by group level in ascending order
+				}
+				// Secondary sorting by node ID (alphabetical order)
+				return a.data('id').localeCompare(b.data('id'));
+			});
 
+		let xPos = 0; // Starting horizontal position for parent nodes
+		let maxHeight = 0; // Initialize variable to store the maximum parent height
+		const centerY = 0; // Define the vertical center reference
+
+		// Step 3: Find the tallest parent node
 		cy.nodes().forEach(function(node) {
 			if (node.isParent()) {
 				const height = node.height();
 				if (height > maxHeight) {
-					maxHeight = height;
-					console.log("ParentMaxHeight: ", maxHeight);
+					maxHeight = height; // Update maxHeight with the tallest parent node's height
+					console.info("ParentMaxHeight: ", maxHeight);
 				}
 			}
 		});
 
+		// Calculate division factor for aligning parent nodes
 		const divisionFactor = maxHeight / 2;
-		console.log("divisionFactor: ", divisionFactor);
+		console.info("Division Factor: ", divisionFactor);
 
-		// Sort parent nodes by child count in ascending order
-		const sortedParents = Object.keys(parentCounts).sort(
-			(a, b) => parentCounts[a] - parentCounts[b],
-		);
+		// Step 4: Position parent nodes horizontally and align them relative to the tallest parent node
+		sortedParents.forEach(function(parentNode) {
+			const parentHeight = parentNode.height();
 
-		let xPos = 0;
-		// const xOffset = 50;
+			// Calculate vertical position relative to the tallest parent
+			const yPos = centerY - parentHeight / divisionFactor;
 
-		// Position parent nodes horizontally and center them vertically
-		sortedParents.forEach(function(parentId) {
-			const parent = cy.getElementById(parentId);
-			const yPos = centerY - parent.height() / divisionFactor;
-			parent.position({
+			// Position the parent node
+			parentNode.position({
 				x: xPos,
 				y: yPos
 			});
-			xPos -= xOffset;
+
+			console.info(`Parent Node '${parentNode.id()}' positioned at x: ${xPos}, y: ${yPos}`);
+
+			// Increment horizontal position for the next parent
+			xPos += grouphGapValue;
 		});
 
+		// Step 5: Adjust the viewport to fit the updated layout
 		cy.fit();
+
 	}, delay);
 
-	var cyExpandCollapse = cy.expandCollapse({
-		layoutBy: null, // null means use existing layout
-		undoable: false,
-		fisheye: false,
-		animationDuration: 10, // when animate is true, the duration in milliseconds of the animation
-		animate: true
+	// Step 6: Expand/collapse functionality for parent nodes (optional)
+	const cyExpandCollapse = cy.expandCollapse({
+		layoutBy: null, // Use the existing layout
+		undoable: false, // Disable undo functionality
+		fisheye: false, // Disable fisheye view for expanded/collapsed nodes
+		animationDuration: 10, // Duration of animations in milliseconds
+		animate: true // Enable animation for expand/collapse
 	});
 
-	// Example collapse/expand after some delay
-	// Make sure the '#parent' node exists in your loaded elements
+	// Example: Demonstrate expand/collapse behavior with a specific parent node
 	setTimeout(function() {
-		var parent = cy.$('#parent'); // Ensure that '#parent' is actually present in dataCytoMarshall.json
-		cyExpandCollapse.collapse(parent);
+		const parent = cy.$('#parent'); // Replace '#parent' with the actual parent node ID if needed
+		cyExpandCollapse.collapse(parent); // Collapse the parent node
 
 		setTimeout(function() {
-			cyExpandCollapse.expand(parent);
-		}, 2000);
+			cyExpandCollapse.expand(parent); // Re-expand the parent node after a delay
+		}, 2000); // Wait 2 seconds before expanding
 	}, 2000);
 }
 
-
-function viewportDrawerCaptureButton() {
-	console.log("viewportDrawerCaptureButton() - clicked")
+function viewportDrawerCaptureFunc() {
+	console.info("viewportDrawerCaptureButton() - clicked")
 
 	// Get all checkbox inputs within the specific div
 	const checkboxes = document.querySelectorAll('#viewport-drawer-capture-sceenshoot-content .checkbox-input');
@@ -2801,7 +3127,7 @@ function viewportDrawerCaptureButton() {
 		}
 	});
 
-	console.log("viewportDrawerCaptureButton() - ", selectedOptions)
+	console.info("viewportDrawerCaptureButton() - ", selectedOptions)
 
 	if (selectedOptions.length === 0) {
 		bulmaToast.toast({
@@ -2858,7 +3184,7 @@ async function captureAndSaveViewportAsDrawIo(cy) {
 
 	function createMxCellForNode(node, imageURL) {
 		if (node.isParent()) {
-			console.log("createMxCellForNode - node.isParent()", node.isParent());
+			console.info("createMxCellForNode - node.isParent()", node.isParent());
 			// Use a tiny transparent SVG as a placeholder for the image
 			return `
                 <mxCell id="${node.id()}" value="${node.data("id")}" style="shape=image;imageAspect=0;aspect=fixed;verticalLabelPosition=bottom;verticalAlign=top;image=${imageURL};imageBackground=#8F96AC;imageBorder=#F2F2F2;strokeWidth=0.5;perimeterSpacing=10;opacity=30;fontSize=4;spacingTop=-7;" parent="1" vertex="1">
@@ -2946,16 +3272,45 @@ function viewportButtonsClabEditor() {
 		viewportDrawer[i].style.display = "none";
 	}
 
-	console.log("viewportButtonsClabEditor clicked")
+	console.info("viewportButtonsClabEditor clicked")
 
-	viewportDrawerCapture = document.getElementById("viewport-drawer-clab-editor")
-	viewportDrawerCapture.style.display = "block"
+	viewportDrawerClabEditor = document.getElementById("viewport-drawer-clab-editor")
+	viewportDrawerClabEditor.style.display = "block"
 
-	viewportDrawerCaptureContent = document.getElementById("viewport-drawer-clab-editor-content-01")
-	viewportDrawerCaptureContent.style.display = "block"
-	viewportDrawerCaptureContent = document.getElementById("viewport-drawer-clab-editor-content-02")
-	viewportDrawerCaptureContent.style.display = "block"
+	console.log("viewportDrawerClabEditor", viewportDrawerClabEditor)
+
+	viewportDrawerClabEditorContent01 = document.getElementById("viewport-drawer-clab-editor-content-01")
+	viewportDrawerClabEditorContent01.style.display = "block"
+
+	console.log("viewportDrawerClabEditorContent01", viewportDrawerClabEditorContent01)
+
+	viewportDrawerClabEditorContent02 = document.getElementById("viewport-drawer-clab-editor-content-02")
+	viewportDrawerClabEditorContent02.style.display = "block"
+
+	console.log("viewportDrawerClabEditorContent02", viewportDrawerClabEditorContent02)
+
+
 }
+
+function viewportButtonsGeoMapPan() {
+	console.log("viewportButtonsGeoMapEdit clicked..")
+	console.log("cytoscapeLeafletMap", cytoscapeLeafletMap)
+
+	cytoscapeLeafletLeaf.cy.container().style.pointerEvents = 'none';
+	cytoscapeLeafletLeaf.setZoomControlOpacity("");
+	cytoscapeLeafletLeaf.map.dragging.enable();
+}
+
+function viewportButtonsGeoMapEdit() {
+	console.log("viewportButtonsGeoMapEdit clicked..")
+	console.log("cytoscapeLeafletMap", cytoscapeLeafletMap)
+
+	cytoscapeLeafletLeaf.cy.container().style.pointerEvents = '';
+	cytoscapeLeafletLeaf.setZoomControlOpacity(0.5);
+	cytoscapeLeafletLeaf.map.dragging.disable();
+}
+
+
 
 // Define a function to get the checkbox state and attach the event listener
 function setupCheckboxListener(checkboxSelector) {
@@ -2968,32 +3323,399 @@ function setupCheckboxListener(checkboxSelector) {
 	}
 
 	const isChecked = checkbox.checked; // Returns true if checked, false otherwise
-	console.log(`${checkboxSelector}:`);
-	console.log(isChecked);
+	console.info(`${checkboxSelector}:`);
+	console.info(isChecked);
 
 	return isChecked;
 }
 
+// Define a function to show the Clab Editor panel and maintain mutual exclusivity with the GeoMap panel
 function initViewportDrawerClabEditoCheckboxToggle() {
-	const checkbox = document.querySelector('#viewport-drawer-clab-editor-content-01 .checkbox-input');
+	const checkboxClabEditor = document.querySelector('#viewport-drawer-clab-editor-content-01 .checkbox-input');
+	const checkboxGeoMap = document.querySelector('#viewport-drawer-geo-map-content-01 .checkbox-input');
 
-	checkbox.addEventListener('change', function() {
-		if (checkbox.checked) {
+	checkboxClabEditor.addEventListener('change', function() {
+		if (checkboxClabEditor.checked) {
+			checkboxGeoMap.checked = false;
 			showPanelContainerlabEditor();
-			return isChecked;
+			viewportDrawerDisableGeoMap();
 		} else {
 			closePanelContainerlabEditor();
 		}
 	});
 }
 
+// Define a function to show the GeoMap panel and maintain mutual exclusivity with the Clab Editor panel
+function initViewportDrawerGeoMapCheckboxToggle() {
+	const checkboxClabEditor = document.querySelector('#viewport-drawer-clab-editor-content-01 .checkbox-input');
+	const checkboxGeoMap = document.querySelector('#viewport-drawer-geo-map-content-01 .checkbox-input');
+
+	checkboxGeoMap.addEventListener('change', function() {
+		if (checkboxGeoMap.checked) {
+			checkboxClabEditor.checked = false;
+			viewportDrawerLayoutGeoMap();
+			closePanelContainerlabEditor();
+		} else {
+			viewportDrawerDisableGeoMap();
+		}
+	});
+}
+
+/**
+ * Dynamically inserts an inline SVG and modifies its color.
+ * @param {string} containerId - The ID of the container where the SVG will be added.
+ * @param {string} color - The color to apply to the SVG's `fill` attribute.
+ */
+function insertAndColorSvg(containerId, color) {
+	const container = document.getElementById(containerId);
+
+	if (!container) {
+		console.error(`Container with ID ${containerId} not found.`);
+		return;
+	}
+
+	// Define the SVG content
+	const svgContent = `
+		<svg width="110" height="25" viewBox="0 0 170 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+			<path d="M117.514 1.21646L117.514 38.7835H123.148L123.148 1.21646H117.514ZM57.3221 0.57473C46.3463 0.574681 37.8303 8.56332 37.8303 20C37.8303 31.9517 46.3463 39.4255 57.3221 39.4253C68.2979 39.4251 76.8314 31.9517 76.8139 20C76.798 9.16418 68.2979 0.574779 57.3221 0.57473ZM71.1901 20C71.1901 28.4666 64.9812 34.0774 57.3221 34.0774C49.663 34.0774 43.4541 28.4666 43.4541 20C43.4541 11.687 49.663 5.92265 57.3221 5.92265C64.9812 5.92265 71.1901 11.687 71.1901 20ZM0 3.39001e-06V38.7835H5.74992L5.74992 13.1531L35.6298 40V31.9591L0 3.39001e-06ZM81.0513 20L101.961 38.7836H110.345L89.4038 20L110.345 1.21644H101.961L81.0513 20ZM170 38.7835H163.802L159.27 30.4644H138.742L134.209 38.7835H128.011L135.517 24.9176H156.322L145.948 5.64789L149.006 0L149.006 3.76291e-05L149.006 0L170 38.7835Z" fill="#005AFF"/>
+		</svg>
+	`;
+
+	// Parse the SVG string into a DOM element
+	const parser = new DOMParser();
+	const svgElement = parser.parseFromString(svgContent, 'image/svg+xml').documentElement;
+
+	// Modify the fill color of the SVG
+	svgElement.querySelector('path').setAttribute('fill', color);
+
+	// Append the SVG to the container
+	container.innerHTML = '';
+	container.appendChild(svgElement);
+}
+
+// Call the function during initialization
+document.addEventListener('DOMContentLoaded', () => {
+	insertAndColorSvg('nokia-logo', 'white');
+});
+
+
+function avoidEdgeLabelOverlap(cy) {
+
+	console.info("avoidEdgeLabelOverlap called");
+	// Helper function to calculate edge length
+	function calculateEdgeLength(edge) {
+		const sourcePos = edge.source().position();
+		const targetPos = edge.target().position();
+		const dx = targetPos.x - sourcePos.x;
+		const dy = targetPos.y - sourcePos.y;
+		return Math.sqrt(dx * dx + dy * dy); // Euclidean distance
+	}
+
+	// Group edges by their source and target nodes
+	const edgesGroupedBySource = {};
+	const edgesGroupedByTarget = {};
+
+	cy.edges().forEach(edge => {
+		// Group edges by source node
+		const source = edge.data('source');
+		if (!edgesGroupedBySource[source]) edgesGroupedBySource[source] = [];
+		edgesGroupedBySource[source].push(edge);
+
+		// Group edges by target node
+		const target = edge.data('target');
+		if (!edgesGroupedByTarget[target]) edgesGroupedByTarget[target] = [];
+		edgesGroupedByTarget[target].push(edge);
+	});
+
+	// Adjust source-text-offset for source nodes with more than one edge
+	for (const source in edgesGroupedBySource) {
+		const edges = edgesGroupedBySource[source];
+		if (edges.length > 1) { // Apply adjustment only if more than one edge
+			edges.forEach((edge, index) => {
+				const baseOffset = parseFloat(edge.style('source-text-offset')) || 20; // Use default if undefined
+				const edgeLength = calculateEdgeLength(edge); // Calculate edge length
+				const maxOffset = edgeLength; // Ensure the offset doesn't exceed half the edge length
+				const calculatedOffset = Math.min((baseOffset / 2) + (index * 5), maxOffset); // Cap the offset
+				edge.style('source-text-offset', calculatedOffset); // Apply the capped offset
+			});
+		}
+	}
+
+	// Adjust target-text-offset for target nodes with more than one edge
+	for (const target in edgesGroupedByTarget) {
+		const edges = edgesGroupedByTarget[target];
+		if (edges.length > 1) { // Apply adjustment only if more than one edge
+			edges.forEach((edge, index) => {
+				const baseOffset = parseFloat(edge.style('target-text-offset')) || 20; // Use default if undefined
+				const edgeLength = calculateEdgeLength(edge); // Calculate edge length
+				const maxOffset = edgeLength; // Ensure the offset doesn't exceed half the edge length
+				const calculatedOffset = Math.min((baseOffset / 2) + (index * 5), maxOffset); // Cap the offset
+				edge.style('target-text-offset', calculatedOffset); // Apply the capped offset
+			});
+		}
+	}
+}
+
+
+
+
+function loadCytoStyle(cy) {
+	cy.nodes().removeStyle();
+	cy.edges().removeStyle();
+
+	// detect light or dark mode
+	const colorScheme = detectColorScheme();
+	console.info('The user prefers:', colorScheme);
+
+	console.log("multiLayerViewPortState", multiLayerViewPortState);
+
+	// Load and apply Cytoscape styles from cy-style.json using fetch
+	if (colorScheme == "light") {
+		fetch("css/cy-style-dark.json")
+			.then((response) => response.json())
+			.then((styles) => {
+				cy.style().fromJson(styles).update();
+				if (multiLayerViewPortState) {
+					// Initialize Cytoscape (assuming cy is already created)
+					parentNodeSvgBackground(cy, svgString);
+				}
+			})
+			.catch((error) => {
+				console.error(
+					"Oops, we hit a snag! Couldnt load the cyto styles, bro.",
+					error,
+				);
+				appendMessage(
+					`Oops, we hit a snag! Couldnt load the cyto styles, bro.: ${error}`,
+				);
+			});
+
+	} else if (colorScheme == "dark") {
+		fetch("css/cy-style-dark.json")
+			.then((response) => response.json())
+			.then((styles) => {
+
+				console.log("isGeoMapInitialized", isGeoMapInitialized);
+				cy.style().fromJson(styles).update();
+				if (multiLayerViewPortState) {
+					// Initialize Cytoscape (assuming cy is already created)
+					parentNodeSvgBackground(cy, svgString);
+				}
+			})
+			.catch((error) => {
+				console.error(
+					"Oops, we hit a snag! Couldnt load the cyto styles, bro.",
+					error,
+				);
+				appendMessage(
+					`Oops, we hit a snag! Couldnt load the cyto styles, bro.: ${error}`,
+				);
+			});
+	}
+
+	avoidEdgeLabelOverlap(cy);
+
+	if (!linkEndpointVisibility) { // doing this because default is true and text-opacity is 1 and text-background-opacity is 0.7
+		cy.edges().forEach(function(edge) {
+			edge.style("text-opacity", 0);
+			edge.style("text-background-opacity", 0);
+		});
+	}
+
+
+	// Your SVG string
+	const svgString = `
+	<svg width="480px" height="240px" viewBox="0 0 48 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+	<path d="M0 24 L12 0 L48 0 L36 24 Z" 
+		stroke="rgba(200, 200, 200, 0.7)" 
+		stroke-width="1" 
+		fill="rgba(40, 40, 40, 0.6)"
+		vector-effect="non-scaling-stroke"/>
+	</svg>`;
+
+	/**
+	 * Function to dynamically set an SVG as the background-image for Cytoscape.js parent nodes
+	 * @param {object} cy - Cytoscape.js instance
+	 * @param {string} svgString - SVG string to be used as the background
+	 */
+	function parentNodeSvgBackground(cy, svgString) {
+		// Helper function to convert SVG to Base64
+		function svgToBase64(svg) {
+			return `data:image/svg+xml;base64,${btoa(svg)}`;
+		}
+
+		// Convert the SVG to Base64
+		const base64SVG = svgToBase64(svgString);
+
+		// Update Cytoscape style dynamically for parent nodes
+		cy.style()
+			.selector('node:parent')
+			.style({
+				'shape': 'rectangle',
+				'background-image': base64SVG,
+				'background-color': 'rgba(100, 100, 100, 1)',
+				'background-opacity': 0,
+				'background-image-containment': 'inside',
+				'border-width': '0px',
+				'background-fit': 'cover',
+				'background-clip': 'none',
+				'bounds-expansion': '10px, 100px, 10px, 100px',
+				'padding': '30px',
+			})
+			.update();
+		console.log("parentNodeSvgBackground called");
+		console.log("parentNodeSvgBackground called - base64SVG", base64SVG)
+	}
+
+	// if GeoMap is initialized, then apply the multipliers to style
+	if (isGeoMapInitialized) {
+		// Define a JSON object for styles and multipliers
+		const nodeStyleMultipliers = {
+			'width': 4,
+			'height': 4,
+			'font-size': 4,
+			'min-zoomed-font-size': 4,
+			'overlay-padding': 4,
+			'text-background-padding': 4,
+			// Add more styles here if needed
+		};
+
+		// Apply the multipliers to the nodes
+		cy.nodes().forEach(node => {
+
+			const newStyles = {}; // Prepare a new style object dynamically
+			Object.keys(nodeStyleMultipliers).forEach(styleProp => { // Iterate over the style parameters in the JSON object
+				let currentValue = node.style(styleProp); // Get the current style value
+				let newValue = parseFloat(currentValue) * nodeStyleMultipliers[styleProp]; // Extract the numeric part and apply the multiplier
+				newStyles[styleProp] = `${newValue}px`; // Update the style with the new value and add the 'px' unit back
+			});
+			node.style(newStyles); // Apply the updated styles to the node
+		});
+
+		// Define a JSON object for styles and multipliers
+		const edgeStyleMultipliers = {
+			'width': 4,
+			'font-size': 4,
+			'overlay-padding': 4,
+			'text-background-padding': 4,
+			// Add more styles here if needed
+		};
+
+		// Apply the multipliers to the edges
+		cy.edges().forEach(edge => {
+			const newStyles = {}; // Prepare a new style object dynamically
+			Object.keys(edgeStyleMultipliers).forEach(styleProp => { // Iterate over the style parameters in the JSON object
+				let currentValue = edge.style(styleProp); // Get the current style value
+				let newValue = parseFloat(currentValue) * edgeStyleMultipliers[styleProp]; // Extract the numeric part and apply the multiplier
+				newStyles[styleProp] = `${newValue}px`; // Update the style with the new value and add the 'px' unit back
+			});
+			edge.style(newStyles); // Apply the updated styles to the edge
+		});
+
+		parents = cy.nodes(':parent');
+		const parentNodeStyleMultipliers = { // Define a JSON object for styles and multipliers
+			"border-width": 4,
+			// Add more styles here if needed
+		};
+
+		// Apply the multipliers to the parent nodes
+		parents.forEach(parent => {
+			const newStyles = {}; // Prepare a new style object dynamically
+			Object.keys(parentNodeStyleMultipliers).forEach(styleProp => { // Iterate over the style parameters in the JSON object
+				let currentValue = parent.style(styleProp); // Get the current style value
+				let newValue = parseFloat(currentValue) * parentNodeStyleMultipliers[styleProp]; // Extract the numeric part and apply the multiplier
+				newStyles[styleProp] = `${newValue}px`; // Update the style with the new value and add the 'px' unit back
+			});
+			parent.style(newStyles); // Apply the updated styles to the parent
+		});
+		console.log("parentNode list - parents", parents)
+
+		parents.forEach(parent => {
+			parent.style('background-color', "rgba(40, 40, 40, 0.5)");
+			parent.style('border-color', "rgba(76, 82, 97, 1)");
+		});
+	}
+}
+
+function viewportButtonsMultiLayerViewPortToggle() {
+	if (multiLayerViewPortState == false) {
+		multiLayerViewPortState = true; // toggle
+		console.log("multiLayerViewPortState toggle to true", multiLayerViewPortState);
+
+		loadCytoStyle(cy)
+	} else {
+		multiLayerViewPortState = false; // toggle
+		console.log("multiLayerViewPortState toggle to false", multiLayerViewPortState);
+
+		loadCytoStyle(cy)
+	}
+}
+
+// Function to process the data
+function assignMissingLatLng(dataArray) {
+	// Arrays to store existing lat and lng values
+	const existingLats = [];
+	const existingLngs = [];
+
+	// First pass: Collect existing lat and lng values
+	dataArray.forEach(item => {
+		const data = item.data;
+		if (data.lat && data.lat.trim() !== "") {
+			const lat = parseFloat(data.lat);
+			if (!isNaN(lat)) {
+				existingLats.push(lat);
+			}
+		}
+		if (data.lng && data.lng.trim() !== "") {
+			const lng = parseFloat(data.lng);
+			if (!isNaN(lng)) {
+				existingLngs.push(lng);
+			}
+		}
+	});
+
+	// Compute the average (mean) of existing lat and lng
+	const averageLat = existingLats.length > 0 ? existingLats.reduce((a, b) => a + b, 0) / existingLats.length : 0;
+	const averageLng = existingLngs.length > 0 ? existingLngs.reduce((a, b) => a + b, 0) / existingLngs.length : 0;
+
+	// Second pass: Assign missing lat and lng
+	dataArray.forEach(item => {
+		const data = item.data;
+
+		// Check and assign missing latitude
+		if (!data.lat || data.lat.trim() === "") {
+			// Assign normalized lat + random value between 0 and 0.1
+			const newLat = averageLat + Math.random() * 0.9;
+			data.lat = newLat.toFixed(15).toString(); // Convert back to string with precision
+			console.log(`Assigned new lat for ID ${data.id}: ${data.lat}`);
+		} else {
+			// Optionally, normalize existing lat
+			const normalizedLat = parseFloat(data.lat);
+			data.lat = normalizedLat.toFixed(15).toString();
+		}
+
+		// Check and assign missing longitude
+		if (!data.lng || data.lng.trim() === "") {
+			// Assign normalized lng + random value between 0 and 0.1
+			const newLng = averageLng + Math.random() * 0.9;
+			data.lng = newLng.toFixed(15).toString(); // Convert back to string with precision
+			console.log(`Assigned new lng for ID ${data.id}: ${data.lng}`);
+		} else {
+			// Optionally, normalize existing lng
+			const normalizedLng = parseFloat(data.lng);
+			data.lng = normalizedLng.toFixed(15).toString();
+		}
+	});
+
+	return dataArray;
+}
 
 
 // aarafat-tag:
 //// REFACTOR END
 
 // logMessagesPanel manager
-///-logMessagesPanel Function to append message function
+///logMessagesPanel Function to append message function
 function appendMessage(message) {
 	// const textarea = document.getElementById('notificationTextarea');
 	const textarea = document.getElementById("notificationTextarea");
@@ -3006,28 +3728,28 @@ function appendMessage(message) {
 }
 
 function nodeFindDrawer(cy) {
-	//- Get a reference to your Cytoscape instance (assuming it's named 'cy')
-	//- const cy = window.cy; //- Replace 'window.cy' with your actual Cytoscape instance
-	//- Find the node with the specified name
+	// Get a reference to your Cytoscape instance (assuming it's named 'cy')
+	// const cy = window.cy; // Replace 'window.cy' with your actual Cytoscape instance
+	// Find the node with the specified name
 	const nodeName = document.getElementById(
 		"panelBlock-viewportButtons-buttonfindNode-divPanelBlock-columnContainerlabelFindNodeNodeName-panelContentlabelFindNodeNodeName-columnsPanelContentlabelFindNodeNodeName-labelColumnlabelFindNodeNodeName-inputColumnlabelFindNodeNodeName-labellabelFindNodeNodeName",
 	).value;
 
 	const node = cy.$(`node[name = "${nodeName}"]`);
-	//- Check if the node exists
+	// Check if the node exists
 	if (node.length > 0) {
 		// console
-		console.log("Info: " + 'Sweet! Node "' + nodeName + '" is in the house.');
+		console.info("Info: " + 'Sweet! Node "' + nodeName + '" is in the house.');
 		appendMessage("Info: " + 'Sweet! Node "' + nodeName + '" is in the house.');
-		//- Apply a highlight style to the node
+		// Apply a highlight style to the node
 		node.style({
 			"border-color": "red",
 			"border-width": "2px",
 			"background-color": "yellow",
 		});
-		//- Zoom out on the node
+		// Zoom out on the node
 		cy.fit();
-		//- Zoom in on the node
+		// Zoom in on the node
 		cy.animate({
 			zoom: {
 				level: 5,
@@ -3055,10 +3777,10 @@ function nodeFindDrawer(cy) {
 function pathFinderDijkstraDrawer(cy) {
 	// Usage example:
 	// highlightShortestPath('node-a', 'node-b'); // Replace with your source and target node IDs
-	//- Function to get the default node style from cy-style.json
-	//- weight: (edge) => 1, // You can adjust the weight function if needed
-	//- weight: (edge) => edge.data('distance')
-	console.log("im triggered");
+	// Function to get the default node style from cy-style.json
+	// weight: (edge) => 1, // You can adjust the weight function if needed
+	// weight: (edge) => edge.data('distance')
+	console.info("im triggered");
 
 	// Remove existing highlight from all edges
 	cy.edges().forEach((edge) => {
@@ -3077,7 +3799,7 @@ function pathFinderDijkstraDrawer(cy) {
 	const sourceNode = cy.$(`node[id="${sourceNodeId}"]`);
 	const targetNode = cy.$(`node[id="${targetNodeId}"]`);
 
-	console.log(
+	console.info(
 		"Info: " +
 		"Let's find the path from-" +
 		sourceNodeId +
@@ -3115,7 +3837,7 @@ function pathFinderDijkstraDrawer(cy) {
 	});
 	// Get the shortest path from Dijkstra result
 	const shortestPathEdges = dijkstraResult.pathTo(targetNode);
-	console.log(shortestPathEdges);
+	console.info(shortestPathEdges);
 
 	// Check if there is a valid path (shortestPathEdges is not empty)
 	if (shortestPathEdges.length > 1) {
@@ -3123,10 +3845,10 @@ function pathFinderDijkstraDrawer(cy) {
 		shortestPathEdges.forEach((edge) => {
 			edge.addClass("spf");
 		});
-		//- Zoom out on the node
+		// Zoom out on the node
 		cy.fit();
 
-		//- Zoom in on the node
+		// Zoom in on the node
 		cy.animate({
 			zoom: {
 				level: 5,
@@ -3142,7 +3864,7 @@ function pathFinderDijkstraDrawer(cy) {
 			duration: 1500,
 		});
 		// throw log
-		console.log(
+		console.info(
 			"Info: " +
 			"Yo, check it out! Shorthest Path from-" +
 			sourceNodeId +
@@ -3158,12 +3880,12 @@ function pathFinderDijkstraDrawer(cy) {
 			targetNodeId +
 			" has been found, below is the path trace..",
 		);
-		console.log(shortestPathEdges);
+		console.info(shortestPathEdges);
 
 		shortestPathEdges.forEach((edge) => {
-			console.log("Edge ID:", edge.id());
-			console.log("Source Node ID:", edge.source().id());
-			console.log("Target Node ID:", edge.target().id());
+			console.info("Edge ID:", edge.id());
+			console.info("Source Node ID:", edge.source().id());
+			console.info("Target Node ID:", edge.target().id());
 
 			edgeId = edge.id();
 			sourceNodeId = edge.source().id();
@@ -3190,50 +3912,51 @@ function sleep(ms) {
 	return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-// Helper function to render only sub-interface items dynamically
+
+
 async function renderSubInterfaces(subInterfaces, referenceElementAfterId, referenceElementBeforeId, edgeSharkClipboardToggle) {
-	// Constants for container, reference elements, and click handler
-	const containerSelectorId = 'panel-link-action-dropdown-menu-dropdown-content'; // The container where dropdown items are rendered
+	const containerSelectorId = 'panel-link-action-dropdown-menu-dropdown-content';
 
 	const onClickHandler = (event, subInterface) => {
-		console.log(`Clicked on: ${subInterface}`);
-		// Add your custom logic here
-		linkWireshark(event, "edgeSharkSubInterface", subInterface, referenceElementAfterId)
+		console.info(`Clicked on: ${subInterface}`);
+		linkWireshark(event, "edgeSharkSubInterface", subInterface, referenceElementAfterId);
 	};
 
-
-	// Find the container where the dropdown items are rendered
+	// Validate container
 	const containerElement = document.getElementById(containerSelectorId);
 	if (!containerElement) {
-		console.error("Container element not found.");
+		console.error(`Container element with ID "${containerSelectorId}" not found.`);
 		return;
 	}
 
-	// Find the reference elements
+	// Validate reference elements
 	const referenceElementAfter = document.getElementById(referenceElementAfterId);
 	const referenceElementBefore = document.getElementById(referenceElementBeforeId);
 	if (!referenceElementAfter || !referenceElementBefore) {
-		console.error("Reference elements not found.");
+		console.error(`Reference elements not found: afterId="${referenceElementAfterId}", beforeId="${referenceElementBeforeId}".`);
 		return;
 	}
 
-	// Remove all <a> nodes between referenceElementAfter and referenceElementBefore
+	// Remove all elements between referenceElementAfter and referenceElementBefore
 	let currentNode = referenceElementAfter.nextSibling;
 	while (currentNode && currentNode !== referenceElementBefore) {
-		const nextNode = currentNode.nextSibling; // Store next node before removal
-		if (currentNode.nodeName === 'A') {
-			currentNode.remove();
-		}
-		currentNode = nextNode; // Move to the next node
+		const nextNode = currentNode.nextSibling;
+		currentNode.remove(); // Remove the current node
+		currentNode = nextNode;
 	}
 
-	// If subInterfaces is empty, just return after clearing nodes
-	if (!subInterfaces || subInterfaces.length === 0) {
-		console.log("No sub-interfaces to render. Cleared existing items.");
+	// Handle case when subInterfaces is null
+	if (!subInterfaces) {
+		console.info("Sub-interfaces is null. Cleared existing items and performed no further actions.");
+		// Optionally, you could display a placeholder message or take other actions:
+		// const placeholder = document.createElement("div");
+		// placeholder.textContent = "No sub-interfaces available.";
+		// placeholder.style.textAlign = "center";
+		// insertAfter(placeholder, referenceElementAfter);
 		return;
 	}
 
-	// Dynamically generate and insert sub-interface items
+	// Add new sub-interface items
 	subInterfaces.forEach(subInterface => {
 		const a = document.createElement("a");
 		a.className = "dropdown-item label has-text-weight-normal is-small py-0";
@@ -3242,10 +3965,11 @@ async function renderSubInterfaces(subInterfaces, referenceElementAfterId, refer
 		a.textContent = `└ Sub-Interface ${subInterface}`;
 		a.onclick = (event) => onClickHandler(event, subInterface);
 
-		// Insert after the reference element
 		insertAfter(a, referenceElementAfter);
 	});
 }
+
+
 
 
 // Helper function to insert an element after a reference element
@@ -3310,58 +4034,3 @@ function addSvgIcon(targetHtmlId, svgIcon, altName, position, size) {
 }
 
 
-addSvgIcon("endpoint-a-edgeshark", "images/svg-wireshark.svg", "Wireshark Icon", "before", "20px");
-addSvgIcon("endpoint-b-edgeshark", "images/svg-wireshark.svg", "Wireshark Icon", "before", "20px");
-
-
-addSvgIcon("endpoint-a-clipboard", "images/svg-copy.svg", "Clipboard Icon", "before", "20px");
-addSvgIcon("endpoint-b-clipboard", "images/svg-copy.svg", "Clipboard Icon", "before", "20px");
-
-
-addSvgIcon("panel-link-action-impairment-B->A", "images/svg-impairment.svg", "Impairment Icon", "before", "15px");
-
-
-
-
-// function addWiresharkIcon() {
-//     // Find the target node
-//     const targetNode = document.getElementById("endpoint-a-edgeshark");
-//     if (!targetNode) {
-//         console.error("Target node not found.");
-//         return;
-//     }
-
-//     // Ensure the target node uses flexbox for alignment
-//     targetNode.style.display = "flex";
-//     targetNode.style.alignItems = "center";
-
-//     // Create a container for the icon
-//     const iconContainer = document.createElement("div");
-//     iconContainer.style.width = "20px";
-//     iconContainer.style.height = "20px";
-//     iconContainer.style.marginLeft = "4px";
-//     iconContainer.style.backgroundImage = "linear-gradient(90deg, white, #00bfff, white)"; // Neon blue
-//     iconContainer.style.backgroundSize = "200% 200%"; // For smooth transitions
-//     iconContainer.style.animation = "colorGradient 3s infinite"; // Animation to shift gradient
-//     iconContainer.style.maskImage = "url('https://raw.githubusercontent.com/siemens/edgeshark/refs/heads/main/icons/_media/icons/Capture.svg')";
-//     iconContainer.style.maskSize = "contain";
-//     iconContainer.style.maskRepeat = "no-repeat";
-//     iconContainer.style.maskPosition = "center";
-
-//     // Append the container after the label
-//     targetNode.append(iconContainer);
-
-//     // Add dynamic style for gradient animation
-//     const style = document.createElement("style");
-//     style.textContent = `
-//         @keyframes colorGradient {
-//             0% { background-position: 0% 50%; }
-//             50% { background-position: 100% 50%; }
-//             100% { background-position: 0% 50%; }
-//         }
-//     `;
-//     document.head.appendChild(style);
-// }
-
-// // Call the function to add the icon
-// addWiresharkIcon();

@@ -140,8 +140,6 @@ document.addEventListener("DOMContentLoaded", async function() {
 		const togglePanelButtonExpand = document.getElementById('toggle-panel-data-display-expand');
 		const togglePanelButtonCollapse = document.getElementById('toggle-panel-data-display-collapse');
 
-
-
 		// Check for required elements
 		if (!divider || !dataDisplay || !rootDiv || !togglePanelButtonExpand) {
 			console.warn('One or more required elements for resizing logic are missing. Initialization aborted.');
@@ -179,32 +177,32 @@ document.addEventListener("DOMContentLoaded", async function() {
 
 		document.addEventListener('mousemove', (e) => {
 			if (!isDragging) return;
-		  
+
 			const screenWidth = window.innerWidth;
-			const offsetX = e.clientX;            // divider’s X from the LEFT
-			const minWidth = 5;                   // Minimum width in pixels for data-display
-			const maxWidth = screenWidth * 1;  // Maximum width in pixels for data-display
-		  
+			const offsetX = e.clientX; // divider’s X from the LEFT
+			const minWidth = 5; // Minimum width in pixels for data-display
+			const maxWidth = screenWidth * 1; // Maximum width in pixels for data-display
+
 			// dataDisplayWidth is from divider to right edge:
 			const dataDisplayWidth = screenWidth - offsetX;
-			
+
 			if (dataDisplayWidth >= minWidth && dataDisplayWidth <= maxWidth) {
-			  // The rest (from left edge to divider) is rootDivWidth
-			  const rootDivWidth = offsetX;
-			  
-			  // Convert to percentage
-			  const rootDivPercent       = (rootDivWidth / screenWidth)       * 100;
-			  const dataDisplayPercent   = (dataDisplayWidth / screenWidth)   * 100;
-			  
-			  // Position the divider at the same left as rootDiv’s right edge
-			  divider.style.left = rootDivPercent + '%';
-			  
-			  // rootDiv occupies the left portion
-			  rootDiv.style.width = rootDivPercent + '%';
-			  
-			  // dataDisplay starts where rootDiv ends
-			  dataDisplay.style.left  = rootDivPercent + '%';
-			  dataDisplay.style.width = dataDisplayPercent + '%';
+				// The rest (from left edge to divider) is rootDivWidth
+				const rootDivWidth = offsetX;
+
+				// Convert to percentage
+				const rootDivPercent = (rootDivWidth / screenWidth) * 100;
+				const dataDisplayPercent = (dataDisplayWidth / screenWidth) * 100;
+
+				// Position the divider at the same left as rootDiv’s right edge
+				divider.style.left = rootDivPercent + '%';
+
+				// rootDiv occupies the left portion
+				rootDiv.style.width = rootDivPercent + '%';
+
+				// dataDisplay starts where rootDiv ends
+				dataDisplay.style.left = rootDivPercent + '%';
+				dataDisplay.style.width = dataDisplayPercent + '%';
 
 
 				// Add or remove transparency
@@ -233,19 +231,19 @@ document.addEventListener("DOMContentLoaded", async function() {
 		togglePanelButtonExpand.addEventListener('click', () => {
 			// rootDiv gets ~7%; dataDisplay gets ~93%
 			// rootDiv.style.width         = '27%';
-			divider.style.left          = '7%';
-			dataDisplay.style.left      = '7%';
-			dataDisplay.style.width     = '93%';
+			divider.style.left = '7%';
+			dataDisplay.style.left = '7%';
+			dataDisplay.style.width = '93%';
 			dataDisplay.classList.add('transparent');
-		  });
+		});
 
 		// Toggle panel visibility
 		togglePanelButtonCollapse.addEventListener('click', () => {
 			// rootDiv gets ~98.5%; dataDisplay ~1.5%
-			rootDiv.style.width         = '98.5%';
-			divider.style.left          = '98.5%';
-			dataDisplay.style.left      = '98.5%';
-			dataDisplay.style.width     = '1.5%';
+			rootDiv.style.width = '98.5%';
+			divider.style.left = '98.5%';
+			dataDisplay.style.left = '98.5%';
+			dataDisplay.style.width = '1.5%';
 			dataDisplay.classList.remove('transparent');
 
 
@@ -261,9 +259,6 @@ document.addEventListener("DOMContentLoaded", async function() {
 
 		});
 	}
-
-
-
 
 
 
@@ -952,7 +947,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 				} else {
 					document.getElementById("data-display-panel-node").style.display = "none";
 				}
-				
+
 				document.getElementById("data-display-panel-node-name").textContent = node.data("extraData").longname;
 				document.getElementById("data-display-panel-node-status").textContent = node.data("containerDockerExtraAttribute").status;
 				document.getElementById("data-display-panel-node-kind").textContent = node.data("extraData").kind;
@@ -962,11 +957,11 @@ document.addEventListener("DOMContentLoaded", async function() {
 				document.getElementById("data-display-panel-node-fqdn").textContent = node.data("extraData").fqdn;
 				document.getElementById("data-display-panel-node-group").textContent = node.data("extraData").group;
 				document.getElementById("data-display-panel-node-topoviewerrole").textContent = node.data("topoViewerRole");
-				
+
 				// Set selected node-long-name to global variable
 				globalSelectedNode = node.data("extraData").longname;
 				console.info("internal: ", globalSelectedNode);
-				
+
 				appendMessage(`"isPanel01Cy-cy: " ${isPanel01Cy}`);
 				appendMessage(`"nodeClicked: " ${nodeClicked}`);
 				///
@@ -1047,6 +1042,15 @@ document.addEventListener("DOMContentLoaded", async function() {
 
 		}
 		if (clickedEdge.data("editor") !== "true") {
+
+			addSvgIcon("endpoint-a-edgeshark", "images/svg-wireshark.svg", "Wireshark Icon", "before", "20px");
+			addSvgIcon("endpoint-b-edgeshark", "images/svg-wireshark.svg", "Wireshark Icon", "before", "20px");
+
+			addSvgIcon("endpoint-a-clipboard", "images/svg-copy.svg", "Clipboard Icon", "before", "20px");
+			addSvgIcon("endpoint-b-clipboard", "images/svg-copy.svg", "Clipboard Icon", "before", "20px");
+
+			addSvgIcon("panel-link-action-impairment-B->A", "images/svg-impairment.svg", "Impairment Icon", "before", "15px");
+
 			document.getElementById("panel-link").style.display = "none";
 			if (document.getElementById("panel-link").style.display === "none") {
 				document.getElementById("panel-link").style.display = "block";
@@ -1068,10 +1072,6 @@ document.addEventListener("DOMContentLoaded", async function() {
 			const actualLinkMacPair = await sendRequestToEndpointGetV3("/clab-link-macaddress", clabLinkMacArgsList)
 
 			console.info("actualLinkMacPair: ", actualLinkMacPair)
-
-			// // Testing to not pass the paramters in clabSourceLinkArgsList
-			// source_container =`${clickedEdge.data("extraData").clabSourceLongName}`
-			// target_container =`${clickedEdge.data("extraData").clabTargetLongName}`
 
 			// // setting MAC address endpoint-a values by getting the data from clab via /clab/link/${source_container}/${target_container}/mac GET API
 			// const actualLinkMacPair = await sendRequestToEndpointGetV2(`/clab/link/${source_container}/${target_container}/mac-address`, clabLinkMacArgsList=[])
@@ -1177,10 +1177,6 @@ document.addEventListener("DOMContentLoaded", async function() {
 			let clabSourceSubInterfacesClabData = await sendRequestToEndpointGetV3("/clab-link-subinterfaces", clabSourceSubInterfacesArgList);
 			console.info("clabSourceSubInterfacesClabData: ", clabSourceSubInterfacesClabData);
 
-			// let sourceSubInterfaces = clabSourceSubInterfacesClabData.map(
-			// 	item => `${item.ifname}`
-			// );
-
 			if (Array.isArray(clabSourceSubInterfacesClabData) && clabSourceSubInterfacesClabData.length > 0) {
 				// Map sub-interfaces with prefix
 				const sourceSubInterfaces = clabSourceSubInterfacesClabData.map(
@@ -1200,7 +1196,6 @@ document.addEventListener("DOMContentLoaded", async function() {
 				renderSubInterfaces(null, 'endpoint-a-edgeshark', 'endpoint-a-clipboard');
 				renderSubInterfaces(null, 'endpoint-a-clipboard', 'endpoint-a-bottom');
 			}
-
 
 
 			//render targetSubInterfaces
@@ -2649,7 +2644,7 @@ async function layoutAlgoChange(event) {
 			console.info(document.getElementById("viewport-drawer-dc-horizontal"))
 			console.info(document.getElementById("viewport-drawer-dc-horizontal-reset-start"))
 
-		}	else if (selectedOption === "Geo Positioning") {
+		} else if (selectedOption === "Geo Positioning") {
 			console.info("GeoMap algo selected");
 
 			var layoutAlgoPanels = document.getElementsByClassName("layout-algo");
@@ -2710,7 +2705,6 @@ function viewportButtonsTopologyCapture() {
 
 	viewportDrawerCaptureButton = document.getElementById("viewport-drawer-capture-sceenshoot-button")
 	viewportDrawerCaptureButton.style.display = "block"
-
 }
 
 function viewportButtonsLabelEndpoint() {
@@ -2720,7 +2714,6 @@ function viewportButtonsLabelEndpoint() {
 			edge.style("text-background-opacity", 0);
 			linkEndpointVisibility = false;
 		});
-
 
 	} else {
 		cy.edges().forEach(function(edge) {
@@ -2768,71 +2761,71 @@ function viewportButtonContainerStatusVisibility() {
 
 
 function viewportDrawerLayoutForceDirected() {
-    const edgeLengthSlider = document.getElementById("force-directed-slider-link-lenght");
-    const nodeGapSlider = document.getElementById("force-directed-slider-node-gap");
+	const edgeLengthSlider = document.getElementById("force-directed-slider-link-lenght");
+	const nodeGapSlider = document.getElementById("force-directed-slider-node-gap");
 
-    const edgeLengthValue = parseFloat(edgeLengthSlider.value);
-    const nodeGapValue = parseFloat(nodeGapSlider.value);
+	const edgeLengthValue = parseFloat(edgeLengthSlider.value);
+	const nodeGapValue = parseFloat(nodeGapSlider.value);
 
-    console.info("edgeLengthValue", edgeLengthValue);
-    console.info("nodeGapValue", nodeGapValue);
+	console.info("edgeLengthValue", edgeLengthValue);
+	console.info("nodeGapValue", nodeGapValue);
 
-    // Calculate the layout for the optic layer (Layer-1)
-    cy.layout({
-        name: "cola",
-        nodeSpacing: function (node) {
-            return nodeGapValue;
-        },
-        edgeLength: function (edge) {
-            return edgeLengthValue * 100 / edge.data("weight");
-        },
-        animate: true,
-        randomize: false,
-        maxSimulationTime: 1500
-    }).run();
+	// Calculate the layout for the optic layer (Layer-1)
+	cy.layout({
+		name: "cola",
+		nodeSpacing: function(node) {
+			return nodeGapValue;
+		},
+		edgeLength: function(edge) {
+			return edgeLengthValue * 100 / edge.data("weight");
+		},
+		animate: true,
+		randomize: false,
+		maxSimulationTime: 1500
+	}).run();
 
-    // Get the bounding box of Layer-1 optic nodes
-    const opticLayerNodes = cy.nodes('[parent="layer1"]');
-    const opticBBox = opticLayerNodes.boundingBox();
+	// Get the bounding box of Layer-1 optic nodes
+	const opticLayerNodes = cy.nodes('[parent="layer1"]');
+	const opticBBox = opticLayerNodes.boundingBox();
 
-    // Set layer offsets
-    const layerOffsets = {
-        layer2: opticBBox.y2 + 100, // L2 nodes below Optic layer
-        layer3: opticBBox.y2 + 300, // IP/MPLS nodes below L2 layer
-        layer4: opticBBox.y2 + 500 // VPN nodes below IP/MPLS layer
-    };
+	// Set layer offsets
+	const layerOffsets = {
+		layer2: opticBBox.y2 + 100, // L2 nodes below Optic layer
+		layer3: opticBBox.y2 + 300, // IP/MPLS nodes below L2 layer
+		layer4: opticBBox.y2 + 500 // VPN nodes below IP/MPLS layer
+	};
 
-    // Position the nodes for each layer while preserving x-coordinates
-    ["layer2", "layer3", "layer4"].forEach((layer, index) => {
-        const layerNodes = cy.nodes(`[parent="${layer}"]`);
-        const offsetY = layerOffsets[layer];
+	// Position the nodes for each layer while preserving x-coordinates
+	["layer2", "layer3", "layer4"].forEach((layer, index) => {
+		const layerNodes = cy.nodes(`[parent="${layer}"]`);
+		const offsetY = layerOffsets[layer];
 
-        layerNodes.positions((node, i) => {
-            return {
-                x: opticLayerNodes[i % opticLayerNodes.length].position("x"), // Align x with Layer-1
-                y: opticLayerNodes[i % opticLayerNodes.length].position("y") + offsetY
-            };
-        });
-    });
+		layerNodes.positions((node, i) => {
+			return {
+				x: opticLayerNodes[i % opticLayerNodes.length].position("x"), // Align x with Layer-1
+				y: opticLayerNodes[i % opticLayerNodes.length].position("y") + offsetY
+			};
+		});
+	});
 
-    // Optionally, apply animations for expanding and collapsing nodes
-    const cyExpandCollapse = cy.expandCollapse({
-        layoutBy: null, // Use existing layout
-        undoable: false,
-        fisheye: false,
-        animationDuration: 10, // Duration of animation
-        animate: true
-    });
-		// Example collapse/expand after some delay
-		// Make sure the '#parent' node exists in your loaded elements
+	// Optionally, apply animations for expanding and collapsing nodes
+	const cyExpandCollapse = cy.expandCollapse({
+		layoutBy: null, // Use existing layout
+		undoable: false,
+		fisheye: false,
+		animationDuration: 10, // Duration of animation
+		animate: true
+	});
+	// Example collapse/expand after some delay
+	// Make sure the '#parent' node exists in your loaded elements
+	setTimeout(function() {
+		var parent = cy.$('#parent'); // Ensure that '#parent' is actually present in dataCytoMarshall.json
+		cyExpandCollapse.collapse(parent);
+
 		setTimeout(function() {
-			var parent = cy.$('#parent'); // Ensure that '#parent' is actually present in dataCytoMarshall.json
-			cyExpandCollapse.collapse(parent);
-
-			setTimeout(function() {
-				cyExpandCollapse.expand(parent);
-			}, 2000);
+			cyExpandCollapse.expand(parent);
 		}, 2000);
+	}, 2000);
 }
 
 function viewportDrawerLayoutForceDirectedRadial() {
@@ -3296,7 +3289,7 @@ function viewportButtonsClabEditor() {
 
 	console.log("viewportDrawerClabEditorContent02", viewportDrawerClabEditorContent02)
 
-	
+
 }
 
 function viewportButtonsGeoMapPan() {
@@ -3496,7 +3489,7 @@ function loadCytoStyle(cy) {
 					`Oops, we hit a snag! Couldnt load the cyto styles, bro.: ${error}`,
 				);
 			});
-			
+
 	} else if (colorScheme == "dark") {
 		fetch("css/cy-style-dark.json")
 			.then((response) => response.json())
@@ -3570,8 +3563,8 @@ function loadCytoStyle(cy) {
 				'padding': '30px',
 			})
 			.update();
-			console.log("parentNodeSvgBackground called");
-			console.log("parentNodeSvgBackground called - base64SVG", base64SVG)
+		console.log("parentNodeSvgBackground called");
+		console.log("parentNodeSvgBackground called - base64SVG", base64SVG)
 	}
 
 	// if GeoMap is initialized, then apply the multipliers to style
@@ -3586,17 +3579,17 @@ function loadCytoStyle(cy) {
 			'text-background-padding': 4,
 			// Add more styles here if needed
 		};
-		
-		// Apply the multipliers to the nodes
-		cy.nodes().forEach(node => { 			
 
-			const newStyles = {}; 																	// Prepare a new style object dynamically
-			Object.keys(nodeStyleMultipliers).forEach(styleProp => { 								// Iterate over the style parameters in the JSON object
-				let currentValue = node.style(styleProp); 											// Get the current style value
-				let newValue = parseFloat(currentValue) * nodeStyleMultipliers[styleProp]; 			// Extract the numeric part and apply the multiplier
-				newStyles[styleProp] = `${newValue}px`; 											// Update the style with the new value and add the 'px' unit back
-				});
-			node.style(newStyles); 			// Apply the updated styles to the node
+		// Apply the multipliers to the nodes
+		cy.nodes().forEach(node => {
+
+			const newStyles = {}; // Prepare a new style object dynamically
+			Object.keys(nodeStyleMultipliers).forEach(styleProp => { // Iterate over the style parameters in the JSON object
+				let currentValue = node.style(styleProp); // Get the current style value
+				let newValue = parseFloat(currentValue) * nodeStyleMultipliers[styleProp]; // Extract the numeric part and apply the multiplier
+				newStyles[styleProp] = `${newValue}px`; // Update the style with the new value and add the 'px' unit back
+			});
+			node.style(newStyles); // Apply the updated styles to the node
 		});
 
 		// Define a JSON object for styles and multipliers
@@ -3606,66 +3599,41 @@ function loadCytoStyle(cy) {
 			'overlay-padding': 4,
 			'text-background-padding': 4,
 			// Add more styles here if needed
-		};	
-		
+		};
+
 		// Apply the multipliers to the edges
 		cy.edges().forEach(edge => {
-			const newStyles = {}; 																	// Prepare a new style object dynamically
-			Object.keys(edgeStyleMultipliers).forEach(styleProp => { 								// Iterate over the style parameters in the JSON object
-				let currentValue = edge.style(styleProp); 											// Get the current style value
-				let newValue = parseFloat(currentValue) * edgeStyleMultipliers[styleProp]; 			// Extract the numeric part and apply the multiplier
-				newStyles[styleProp] = `${newValue}px`; 											// Update the style with the new value and add the 'px' unit back
+			const newStyles = {}; // Prepare a new style object dynamically
+			Object.keys(edgeStyleMultipliers).forEach(styleProp => { // Iterate over the style parameters in the JSON object
+				let currentValue = edge.style(styleProp); // Get the current style value
+				let newValue = parseFloat(currentValue) * edgeStyleMultipliers[styleProp]; // Extract the numeric part and apply the multiplier
+				newStyles[styleProp] = `${newValue}px`; // Update the style with the new value and add the 'px' unit back
 			});
-			edge.style(newStyles); 			// Apply the updated styles to the edge
+			edge.style(newStyles); // Apply the updated styles to the edge
 		});
 
-		parents = cy.nodes(':parent'); 		
-		const parentNodeStyleMultipliers = { 														// Define a JSON object for styles and multipliers
-			"border-width": 4,	
+		parents = cy.nodes(':parent');
+		const parentNodeStyleMultipliers = { // Define a JSON object for styles and multipliers
+			"border-width": 4,
 			// Add more styles here if needed
-		};	
+		};
 
 		// Apply the multipliers to the parent nodes
 		parents.forEach(parent => {
-			const newStyles = {}; 																	// Prepare a new style object dynamically
-			Object.keys(parentNodeStyleMultipliers).forEach(styleProp => { 							// Iterate over the style parameters in the JSON object
-				let currentValue = parent.style(styleProp); 										// Get the current style value
-				let newValue = parseFloat(currentValue) * parentNodeStyleMultipliers[styleProp]; 	// Extract the numeric part and apply the multiplier
-				newStyles[styleProp] = `${newValue}px`; 											// Update the style with the new value and add the 'px' unit back
+			const newStyles = {}; // Prepare a new style object dynamically
+			Object.keys(parentNodeStyleMultipliers).forEach(styleProp => { // Iterate over the style parameters in the JSON object
+				let currentValue = parent.style(styleProp); // Get the current style value
+				let newValue = parseFloat(currentValue) * parentNodeStyleMultipliers[styleProp]; // Extract the numeric part and apply the multiplier
+				newStyles[styleProp] = `${newValue}px`; // Update the style with the new value and add the 'px' unit back
 			});
-			parent.style(newStyles); 			// Apply the updated styles to the parent
+			parent.style(newStyles); // Apply the updated styles to the parent
 		});
 		console.log("parentNode list - parents", parents)
 
 		parents.forEach(parent => {
-			parent.style('background-color',  "rgba(40, 40, 40, 0.5)"); 	
-			parent.style('border-color',  "rgba(76, 82, 97, 1)" ); 			
+			parent.style('background-color', "rgba(40, 40, 40, 0.5)");
+			parent.style('border-color', "rgba(76, 82, 97, 1)");
 		});
-		
-		// const multiplier = 0.5; 											// Darken by 50%
-		// parents.forEach(parent => {
-		// 	let currentColor = parent.style('background-color');
-		// 	let newColor = darkenHexColor(currentColor, multiplier); 		// Darken the color
-		// 	parent.style('background-color', newColor); 						// Apply the new color
-		// });
-
-		// function darkenHexColor(hex, multiplier) {
-		// 	// Remove the hash (#) if present
-		// 	hex = hex.replace('#', '');
-		  
-		// 	// Parse the hex color into RGB components
-		// 	let r = parseInt(hex.slice(0, 2), 16);
-		// 	let g = parseInt(hex.slice(2, 4), 16);
-		// 	let b = parseInt(hex.slice(4, 6), 16);
-		  
-		// 	// Apply the multiplier to each component and clamp to [0, 255]
-		// 	r = Math.max(0, Math.min(255, Math.floor(r * multiplier)));
-		// 	g = Math.max(0, Math.min(255, Math.floor(g * multiplier)));
-		// 	b = Math.max(0, Math.min(255, Math.floor(b * multiplier)));
-		  
-		// 	// Convert the components back to hex and return the new color
-		// 	return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
-		// }
 	}
 }
 
@@ -3675,8 +3643,7 @@ function viewportButtonsMultiLayerViewPortToggle() {
 		console.log("multiLayerViewPortState toggle to true", multiLayerViewPortState);
 
 		loadCytoStyle(cy)
-	}
-	else{
+	} else {
 		multiLayerViewPortState = false; // toggle
 		console.log("multiLayerViewPortState toggle to false", multiLayerViewPortState);
 
@@ -3689,61 +3656,61 @@ function assignMissingLatLng(dataArray) {
 	// Arrays to store existing lat and lng values
 	const existingLats = [];
 	const existingLngs = [];
-  
+
 	// First pass: Collect existing lat and lng values
 	dataArray.forEach(item => {
-	  const data = item.data;
-	  if (data.lat && data.lat.trim() !== "") {
-		const lat = parseFloat(data.lat);
-		if (!isNaN(lat)) {
-		  existingLats.push(lat);
+		const data = item.data;
+		if (data.lat && data.lat.trim() !== "") {
+			const lat = parseFloat(data.lat);
+			if (!isNaN(lat)) {
+				existingLats.push(lat);
+			}
 		}
-	  }
-	  if (data.lng && data.lng.trim() !== "") {
-		const lng = parseFloat(data.lng);
-		if (!isNaN(lng)) {
-		  existingLngs.push(lng);
+		if (data.lng && data.lng.trim() !== "") {
+			const lng = parseFloat(data.lng);
+			if (!isNaN(lng)) {
+				existingLngs.push(lng);
+			}
 		}
-	  }
 	});
-  
+
 	// Compute the average (mean) of existing lat and lng
 	const averageLat = existingLats.length > 0 ? existingLats.reduce((a, b) => a + b, 0) / existingLats.length : 0;
 	const averageLng = existingLngs.length > 0 ? existingLngs.reduce((a, b) => a + b, 0) / existingLngs.length : 0;
-  
+
 	// Second pass: Assign missing lat and lng
 	dataArray.forEach(item => {
-	  const data = item.data;
-  
-	  // Check and assign missing latitude
-	  if (!data.lat || data.lat.trim() === "") {
-		// Assign normalized lat + random value between 0 and 0.1
-		const newLat = averageLat + Math.random() * 0.9;
-		data.lat = newLat.toFixed(15).toString(); // Convert back to string with precision
-		console.log(`Assigned new lat for ID ${data.id}: ${data.lat}`);
-	  } else {
-		// Optionally, normalize existing lat
-		const normalizedLat = parseFloat(data.lat);
-		data.lat = normalizedLat.toFixed(15).toString();
-	  }
-  
-	  // Check and assign missing longitude
-	  if (!data.lng || data.lng.trim() === "") {
-		// Assign normalized lng + random value between 0 and 0.1
-		const newLng = averageLng + Math.random() * 0.9;
-		data.lng = newLng.toFixed(15).toString(); // Convert back to string with precision
-		console.log(`Assigned new lng for ID ${data.id}: ${data.lng}`);
-	  } else {
-		// Optionally, normalize existing lng
-		const normalizedLng = parseFloat(data.lng);
-		data.lng = normalizedLng.toFixed(15).toString();
-	  }
-	});
-  
-	return dataArray;
-  }
+		const data = item.data;
 
-  
+		// Check and assign missing latitude
+		if (!data.lat || data.lat.trim() === "") {
+			// Assign normalized lat + random value between 0 and 0.1
+			const newLat = averageLat + Math.random() * 0.9;
+			data.lat = newLat.toFixed(15).toString(); // Convert back to string with precision
+			console.log(`Assigned new lat for ID ${data.id}: ${data.lat}`);
+		} else {
+			// Optionally, normalize existing lat
+			const normalizedLat = parseFloat(data.lat);
+			data.lat = normalizedLat.toFixed(15).toString();
+		}
+
+		// Check and assign missing longitude
+		if (!data.lng || data.lng.trim() === "") {
+			// Assign normalized lng + random value between 0 and 0.1
+			const newLng = averageLng + Math.random() * 0.9;
+			data.lng = newLng.toFixed(15).toString(); // Convert back to string with precision
+			console.log(`Assigned new lng for ID ${data.id}: ${data.lng}`);
+		} else {
+			// Optionally, normalize existing lng
+			const normalizedLng = parseFloat(data.lng);
+			data.lng = normalizedLng.toFixed(15).toString();
+		}
+	});
+
+	return dataArray;
+}
+
+
 // aarafat-tag:
 //// REFACTOR END
 
@@ -4067,10 +4034,3 @@ function addSvgIcon(targetHtmlId, svgIcon, altName, position, size) {
 }
 
 
-addSvgIcon("endpoint-a-edgeshark", "images/svg-wireshark.svg", "Wireshark Icon", "before", "20px");
-addSvgIcon("endpoint-b-edgeshark", "images/svg-wireshark.svg", "Wireshark Icon", "before", "20px");
-
-addSvgIcon("endpoint-a-clipboard", "images/svg-copy.svg", "Clipboard Icon", "before", "20px");
-addSvgIcon("endpoint-b-clipboard", "images/svg-copy.svg", "Clipboard Icon", "before", "20px");
-
-addSvgIcon("panel-link-action-impairment-B->A", "images/svg-impairment.svg", "Impairment Icon", "before", "15px");

@@ -48,7 +48,6 @@
 					<hr class="dropdown-divider py-0">
 					<a id="getAllEndpointDetail" href="#" onclick="getActualNodesEndpoints(event);" class="dropdown-item label has-text-weight-normal is-small py-0">Action - Retrieve Actual Endpoint Label</a>     
 					<a id="logMessagesDropdownItem" href="#" onclick="showPanelLogMessages(event);" class="dropdown-item label has-text-weight-normal is-small py-0">Action - Log Messages</a>       
-					<a id="clabYamlEditorItem"     href="#" onclick="showPanelContainerlabEditor();"       class="dropdown-item label has-text-weight-normal is-small py-0">Action - Containerlab Editor</a>                  
 					<hr class="dropdown-divider py-0">
 					<a id="clabClientDropdownItem" href="#" onclick="showPanelTopoViewerClient();"        class="dropdown-item label has-text-weight-normal is-small py-0">TopoViewer Helper App</a>                  
 					</div>
@@ -349,16 +348,7 @@
 						</div>
 					</div>
 				</div>
-				<!-- <div class="panel-block layout-algo p-0 pb-2" id="viewport-drawer-geo-map-reset-start" style="display: none;">
-					<div  class="column p-0 is-flex-direction-column">
-						<div  class="column is-12 is-flex is-justify-content-flex-end">
-							<div class="buttons">
-								<button href="#" onclick="viewportDrawerDisableGeoMap(event)" class="button is-link is-outlined is-small">Disable</button>
-								<button href="#" onclick="viewportDrawerLayoutGeoMap(event)" class="button is-link is-outlined is-small">Enable</button>
-							</div>
-						</div>
-					</div>
-				</div> -->
+	
 			</div>
 
 
@@ -1138,9 +1128,7 @@
 				</div>
 			</div>
 
-			<script src="https://cdn.jsdelivr.net/npm/consola/dist/consola.browser.min.js"></script>
 			<script src="https://unpkg.com/leaflet@1.7.1"></script>
-
 
 			<script src="js/library/lodash.min.js?ver=1"></script>
 
@@ -1156,12 +1144,11 @@
 			<script src="js/library/cytoscape-grid-guide.min.js?ver=1"></script>
 			<script src="js/library/cytoscape-edgehandles.min.js?ver=1"></script>
 			
-			<script src="https://cdn.jsdelivr.net/npm/cytoscape-expand-collapse@4.1.1/cytoscape-expand-collapse.min.js"></script>
+			<script src="js/library/cytoscape-expand-collapse.min.js"></script>
 
 			
 			<script src="https://unpkg.com/@floating-ui/core@1.5.0"></script>
 			<script src="https://unpkg.com/@floating-ui/dom@1.5.3"></script>
-			<script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape-popper/4.0.1/cytoscape-popper.js"></script>
 			
 			<script src="js/library/js-yaml.min.js?ver=1"></script>
 			<script src="js/library/monaco-loader.js?ver=1"></script>

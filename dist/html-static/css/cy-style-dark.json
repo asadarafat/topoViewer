@@ -28,7 +28,7 @@
       "text-background-shape": "roundrectangle",  
       "text-background-padding": "1px",   
       "overlay-padding": "0.3px",
-      "z-index": "10"
+      "z-index": "2"
     }
   },
   {
@@ -40,7 +40,7 @@
       "width": "10px",
       "height": "10x",
       "font-size": "8px",
-      "z-index": "1"
+      "z-index": "2"
     }
   },
   {
@@ -149,7 +149,7 @@
     "style": {
       "width": "12",
       "height": "12",
-      "background-image": "images/clab-dcgw-dark-blue.png",
+      "background-image": "images/clab-dcgw-light-blue.png",
       "background-fit": "cover"
     }
   },
@@ -344,17 +344,18 @@
     "selector": "edge",
     "style": {
       "targetArrowShape": "none",
-      "source-text-offset": 13,
-      "target-text-offset": 13,
-      "font-size": "7px",
+      "font-size": "5px",
       "source-label": "data(sourceEndpoint)",
       "target-label": "data(targetEndpoint)",
+      "source-text-offset": 20,
+      "target-text-offset": 20,
       "arrow-scale": "0.5",
       "source-text-color": "#000000",
       "target-text-color": "#000000",
       "text-outline-width": "0.3px",
       "text-outline-color": "#FFFFFF",
-      "text-background-color": "#CACBCC",  
+      "text-background-color": "#CACBCC", 
+      "text-opacity" : 1, 
       "text-background-opacity": 0.7,      
       "text-background-shape": "roundrectangle",  
       "text-background-padding": "1px",    
@@ -364,21 +365,12 @@
       "line-color": "#969799",
       "width": "1.5",
       "label": " ",
-
       "overlay-padding": "2px"
-    }
-  },
-
-  {
-    "selector": ".edgeEndpointLabel",
-    "style": {
-      "source-label": "data(sourceEndpoint)",
-      "target-label": "data(targetEndpoint)"
     }
   },
   {"selector": "node.unhighlighted", "style": {"opacity": "0.2"}},
   {"selector": "edge.unhighlighted", "style": {"opacity": "0.05"}},
-  {"selector": ".highlighted", "style": {"z-index": "999999"}},
+  {"selector": ".highlighted", "style": {"z-index": "3"}},
   {
     "selector": "node.highlighted",
     "style": {
