@@ -2724,17 +2724,9 @@ function viewportButtonsLabelEndpoint() {
 
 	} else {
 		cy.edges().forEach(function(edge) {
-
-			// // Reset styles to defaults from the stylesheet
-			// loadCytoStyle(cy); // Reapply the Cytoscape stylesheet
-
-			// avoidEdgeLabelOverlap(cy);
-
 			edge.style("text-opacity", 1);
 			edge.style("text-background-opacity", 0.7);
 			linkEndpointVisibility = true;
-
-
 		});
 	}
 }
