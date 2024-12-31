@@ -1043,14 +1043,6 @@ document.addEventListener("DOMContentLoaded", async function() {
 		}
 		if (clickedEdge.data("editor") !== "true") {
 
-			addSvgIcon("endpoint-a-edgeshark", "images/svg-wireshark.svg", "Wireshark Icon", "before", "20px");
-			addSvgIcon("endpoint-b-edgeshark", "images/svg-wireshark.svg", "Wireshark Icon", "before", "20px");
-
-			addSvgIcon("endpoint-a-clipboard", "images/svg-copy.svg", "Clipboard Icon", "before", "20px");
-			addSvgIcon("endpoint-b-clipboard", "images/svg-copy.svg", "Clipboard Icon", "before", "20px");
-
-			addSvgIcon("panel-link-action-impairment-B->A", "images/svg-impairment.svg", "Impairment Icon", "before", "15px");
-
 			document.getElementById("panel-link").style.display = "none";
 			if (document.getElementById("panel-link").style.display === "none") {
 				document.getElementById("panel-link").style.display = "block";
@@ -4032,5 +4024,13 @@ function addSvgIcon(targetHtmlId, svgIcon, altName, position, size) {
     `;
 	document.head.appendChild(style);
 }
+
+addSvgIcon("endpoint-a-edgeshark", "images/svg-wireshark.svg", "Wireshark Icon", "before", "20px");
+addSvgIcon("endpoint-b-edgeshark", "images/svg-wireshark.svg", "Wireshark Icon", "before", "20px");
+
+addSvgIcon("endpoint-a-clipboard", "images/svg-copy.svg", "Clipboard Icon", "before", "20px");
+addSvgIcon("endpoint-b-clipboard", "images/svg-copy.svg", "Clipboard Icon", "before", "20px");
+
+addSvgIcon("panel-link-action-impairment-B->A", "images/svg-impairment.svg", "Impairment Icon", "before", "15px");
 
 
