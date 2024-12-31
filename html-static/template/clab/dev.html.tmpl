@@ -306,6 +306,22 @@
 						</div>
 					</div>
 				</div>
+				<div class="panel-block layout-algo p-0" id="viewport-drawer-geo-map-content-01"  style="display: none;">
+					<div  class="column my-auto is-11">
+						<div  class="panel-content">
+							<div class="columns py-auto" >
+								<div  class="column is-5">
+									<label class="label is-size-7 has-text-right px-auto" >Enable</label>
+								</div>
+								<div  class="column pb-1 is-5">
+									<label class="checkbox is-size-7">
+									<input class="checkbox-input" type="checkbox" value="option01">
+									</label>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
 				<div class="panel-block layout-algo p-0" id="viewport-drawer-geo-map" style="display: none;">
 					<div  class="column my-auto is-11">
 						<div  class="panel-content">
@@ -314,7 +330,7 @@
 									<div class="content is-small pb-2">
 									  <p>
 										<strong>Hint:</strong><br>
-										 	Click <strong>Enable</strong> button to activate Geo Positioning layout algorithm.
+										 	Check the enable checkbox to activate Geo Positioning layout algorithm.
 									  </p>
 									  <p>
 											Click the <i class="fa-solid fa-hand"></i> <strong>Pan</strong> icon to navigate the map, 
@@ -325,7 +341,7 @@
 											Note that Pan and Edit modes are mutually exclusive, and Edit mode is active by default. 
 										</p>	
 										<p>
-											To switch to a different layout, first turn off the Geo Positioning layout by clicking the Disable button.  
+											To switch to a different layout, first turn off the Geo Positioning layout by uncheck the enable checkbox.  
 										</p>	
 									</div>
 								</div>
@@ -333,7 +349,7 @@
 						</div>
 					</div>
 				</div>
-				<div class="panel-block layout-algo p-0 pb-2" id="viewport-drawer-geo-map-reset-start" style="display: none;">
+				<!-- <div class="panel-block layout-algo p-0 pb-2" id="viewport-drawer-geo-map-reset-start" style="display: none;">
 					<div  class="column p-0 is-flex-direction-column">
 						<div  class="column is-12 is-flex is-justify-content-flex-end">
 							<div class="buttons">
@@ -342,7 +358,7 @@
 							</div>
 						</div>
 					</div>
-				</div>
+				</div> -->
 			</div>
 
 
@@ -1166,7 +1182,8 @@
 			<script src="js/dev.js?ver=1"></script>
 			
 			<script src="/js/backupRestore.js?ver=1"></script>
-			<script src="/js/clabEditor.js?ver=1"></script>
+			<script src="/js/managerClabEditor.js?ver=1"></script>
+			<script src="/js/managerLayoutAlgo.js?ver=1"></script>
 			<script src="/js/common.js?ver=1"></script>
 		</div>
 

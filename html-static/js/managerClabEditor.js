@@ -25,6 +25,10 @@ let monacoEditorReady = new Promise((resolve) => {
 	});
 });
 
+
+
+
+
 function showPanelContainerlabEditor(event) {
 	// Wait until the Monaco Editor is initialized
 	monacoEditorReady;
@@ -773,6 +777,7 @@ async function deleteEdgeToEditorToFile(edge) {
 		alert(`Failed to delete edge between "${sourceNode}" and "${targetNode}": ${error.message}`);
 	}
 }
+
 async function clabEditorDeleteEdge(edge) {
 	// Ensure the Monaco Editor is initialized
 	await monacoEditorReady;

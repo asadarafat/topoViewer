@@ -279,6 +279,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 	initializeDropdownTopoViewerRoleListeners();
 	initializeDropdownListeners();
 	initViewportDrawerClabEditoCheckboxToggle()
+	initViewportDrawerGeoMapCheckboxToggle()
 
 	insertAndColorSvg("nokia-logo", "white")
 
@@ -2660,6 +2661,9 @@ async function layoutAlgoChange(event) {
 			viewportDrawerGeoMap = document.getElementById("viewport-drawer-geo-map")
 			viewportDrawerGeoMap.style.display = "block"
 
+			viewportDrawerGeoMapContent01 = document.getElementById("viewport-drawer-geo-map-content-01")
+			viewportDrawerGeoMapContent01.style.display = "block"
+
 			viewportDrawerGeoMapResetStart = document.getElementById("viewport-drawer-geo-map-reset-start")
 			viewportDrawerGeoMapResetStart.style.display = "block"
 
@@ -3121,166 +3125,166 @@ function viewportDrawerLayoutHorizontal() {
 	}, 2000);
 }
 
-// Function to initialize Leaflet map and apply GeoMap layout
-// Function to initialize and enable GeoMap
-function viewportDrawerLayoutGeoMap() {
-	// cytoscape-leaflet global variables
-	// var isGeoMapInitialized = false;
-	// var cytoscapeLeafletMap;
-	// var cytoscapeLeafletLeaf;
+// // Function to initialize Leaflet map and apply GeoMap layout
+// // Function to initialize and enable GeoMap
+// function viewportDrawerLayoutGeoMap() {
+// 	// cytoscape-leaflet global variables
+// 	// var isGeoMapInitialized = false;
+// 	// var cytoscapeLeafletMap;
+// 	// var cytoscapeLeafletLeaf;
 
-    if (!isGeoMapInitialized) {
-        // Show Leaflet container
-        var leafletContainer = document.getElementById('cy-leaflet');
-        if (leafletContainer) {
-            leafletContainer.style.display = 'block';
-        }
+//     if (!isGeoMapInitialized) {
+//         // Show Leaflet container
+//         var leafletContainer = document.getElementById('cy-leaflet');
+//         if (leafletContainer) {
+//             leafletContainer.style.display = 'block';
+//         }
 
-        // Initialize Cytoscape-Leaflet
-        cytoscapeLeafletLeaf = cy.leaflet({
-            container: leafletContainer
-        });
+//         // Initialize Cytoscape-Leaflet
+//         cytoscapeLeafletLeaf = cy.leaflet({
+//             container: leafletContainer
+//         });
 
-        // Remove default tile layer
-        cytoscapeLeafletLeaf.map.removeLayer(cytoscapeLeafletLeaf.defaultTileLayer);
+//         // Remove default tile layer
+//         cytoscapeLeafletLeaf.map.removeLayer(cytoscapeLeafletLeaf.defaultTileLayer);
 
-        // Assign map reference
-        cytoscapeLeafletMap = cytoscapeLeafletLeaf.map;
+//         // Assign map reference
+//         cytoscapeLeafletMap = cytoscapeLeafletLeaf.map;
 
-        // Add custom tile layer
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png', {
-            attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
-            subdomains: 'abcd',
-            maxZoom: 19
-        }).addTo(cytoscapeLeafletMap);
+//         // Add custom tile layer
+//         L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png', {
+//             attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+//             subdomains: 'abcd',
+//             maxZoom: 19
+//         }).addTo(cytoscapeLeafletMap);
 
-        isGeoMapInitialized = true;
-    }
+//         isGeoMapInitialized = true;
+//     }
 
-	loadCytoStyle(cy); // Reapply the Cytoscape stylesheet
+// 	loadCytoStyle(cy); // Reapply the Cytoscape stylesheet
 	  
-    // Apply GeoMap layout
-    cy.layout({
-        name: 'preset',
-        fit: false,
-        positions: function (node) {
-            let data = node.data();
+//     // Apply GeoMap layout
+//     cy.layout({
+//         name: 'preset',
+//         fit: false,
+//         positions: function (node) {
+//             let data = node.data();
 
-            // Convert lat/lng to container point
-			console.log("node.id", node.id())
-			console.log("data.lat, data.lng", data.lat,  data.lng)
-			console.log("Number(data.lat), Number(data.lng)", Number(data.lat), Number(data.lng))
+//             // Convert lat/lng to container point
+// 			console.log("node.id", node.id())
+// 			console.log("data.lat, data.lng", data.lat,  data.lng)
+// 			console.log("Number(data.lat), Number(data.lng)", Number(data.lat), Number(data.lng))
 
-            const point = cytoscapeLeafletMap.latLngToContainerPoint([Number(data.lat), Number(data.lng)]);
-			console.log("point: ", point.x, point.y)
+//             const point = cytoscapeLeafletMap.latLngToContainerPoint([Number(data.lat), Number(data.lng)]);
+// 			console.log("point: ", point.x, point.y)
 
-            return { x: point.x, y: point.y };
+//             return { x: point.x, y: point.y };
 
-        }
-    }).run();
+//         }
+//     }).run();
 
-	// cytoscapeLeafletLeaf instance map to fit nodes
-	cytoscapeLeafletLeaf.fit();
-	console.log("cytoscapeLeafletLeaf.fit()")
+// 	// cytoscapeLeafletLeaf instance map to fit nodes
+// 	cytoscapeLeafletLeaf.fit();
+// 	console.log("cytoscapeLeafletLeaf.fit()")
 
-    // Show GeoMap buttons
-    var viewportDrawerGeoMapElements = document.getElementsByClassName("viewport-geo-map");
-    for (var i = 0; i < viewportDrawerGeoMapElements.length; i++) {
-        viewportDrawerGeoMapElements[i].classList.remove('is-hidden');
-    }
+//     // Show GeoMap buttons
+//     var viewportDrawerGeoMapElements = document.getElementsByClassName("viewport-geo-map");
+//     for (var i = 0; i < viewportDrawerGeoMapElements.length; i++) {
+//         viewportDrawerGeoMapElements[i].classList.remove('is-hidden');
+//     }
 
-    // Enable node editing
-    viewportButtonsGeoMapEdit();
+//     // Enable node editing
+//     viewportButtonsGeoMapEdit();
 
-    console.log("GeoMap has been enabled.");
-}
+//     console.log("GeoMap has been enabled.");
+// }
 
-// Function to disable GeoMap and revert to default layout
-function viewportDrawerDisableGeoMap() {
-	// cytoscape-leaflet global variables
-	// var isGeoMapInitialized = false;
-	// var cytoscapeLeafletMap;
-	// var cytoscapeLeafletLeaf;
-    if (!isGeoMapInitialized) {
-        console.log("GeoMap is not initialized.");
-        return;
-    }
+// // Function to disable GeoMap and revert to default layout
+// function viewportDrawerDisableGeoMap() {
+// 	// cytoscape-leaflet global variables
+// 	// var isGeoMapInitialized = false;
+// 	// var cytoscapeLeafletMap;
+// 	// var cytoscapeLeafletLeaf;
+//     if (!isGeoMapInitialized) {
+//         console.log("GeoMap is not initialized.");
+//         return;
+//     }
 
-    // Hide Leaflet container
-    var leafletContainer = document.getElementById('cy-leaflet');
-    if (leafletContainer) {
-        leafletContainer.style.display = 'none';
-    }
+//     // Hide Leaflet container
+//     var leafletContainer = document.getElementById('cy-leaflet');
+//     if (leafletContainer) {
+//         leafletContainer.style.display = 'none';
+//     }
 
-	// destroy cytoscapeLeafletLeaf instance
-	cytoscapeLeafletLeaf.destroy();
+// 	// destroy cytoscapeLeafletLeaf instance
+// 	cytoscapeLeafletLeaf.destroy();
 
-    // Revert to default Cytoscape layout
-	const layout = cy.layout({
-		name: "cola",
-		nodeGap: 5,
-		edgeLength: 100,
-		animate: true,
-		randomize: false,
-		maxSimulationTime: 1500,
-	});
-	layout.run();
+//     // Revert to default Cytoscape layout
+// 	const layout = cy.layout({
+// 		name: "cola",
+// 		nodeGap: 5,
+// 		edgeLength: 100,
+// 		animate: true,
+// 		randomize: false,
+// 		maxSimulationTime: 1500,
+// 	});
+// 	layout.run();
 
-	// remove node topoviewer
-	topoViewerNode = cy.filter('node[name = "topoviewer"]');
-	topoViewerNode.remove();
+// 	// remove node topoviewer
+// 	topoViewerNode = cy.filter('node[name = "topoviewer"]');
+// 	topoViewerNode.remove();
 
-	var cyExpandCollapse = cy.expandCollapse({
-		layoutBy: null, // null means use existing layout
-		undoable: false,
-		fisheye: false,
-		animationDuration: 10, // when animate is true, the duration in milliseconds of the animation
-		animate: true
-	});
+// 	var cyExpandCollapse = cy.expandCollapse({
+// 		layoutBy: null, // null means use existing layout
+// 		undoable: false,
+// 		fisheye: false,
+// 		animationDuration: 10, // when animate is true, the duration in milliseconds of the animation
+// 		animate: true
+// 	});
 
-	// Example collapse/expand after some delay
-	// Make sure the '#parent' node exists in your loaded elements
-	setTimeout(function() {
-		var parent = cy.$('#parent'); // Ensure that '#parent' is actually present in dataCytoMarshall.json
-		cyExpandCollapse.collapse(parent);
+// 	// Example collapse/expand after some delay
+// 	// Make sure the '#parent' node exists in your loaded elements
+// 	setTimeout(function() {
+// 		var parent = cy.$('#parent'); // Ensure that '#parent' is actually present in dataCytoMarshall.json
+// 		cyExpandCollapse.collapse(parent);
 
-		setTimeout(function() {
-			cyExpandCollapse.expand(parent);
-		}, 2000);
-	}, 2000);
+// 		setTimeout(function() {
+// 			cyExpandCollapse.expand(parent);
+// 		}, 2000);
+// 	}, 2000);
 
-    // Hide GeoMap buttons
-    var viewportDrawerGeoMapElements = document.getElementsByClassName("viewport-geo-map");
-    for (var i = 0; i < viewportDrawerGeoMapElements.length; i++) {
-        if (!viewportDrawerGeoMapElements[i].classList.contains('is-hidden')) {
-            viewportDrawerGeoMapElements[i].classList.add('is-hidden');
-        }
-    }
+//     // Hide GeoMap buttons
+//     var viewportDrawerGeoMapElements = document.getElementsByClassName("viewport-geo-map");
+//     for (var i = 0; i < viewportDrawerGeoMapElements.length; i++) {
+//         if (!viewportDrawerGeoMapElements[i].classList.contains('is-hidden')) {
+//             viewportDrawerGeoMapElements[i].classList.add('is-hidden');
+//         }
+//     }
 
-    // Optionally, disable node editing if enabled
-    // For example:
-    // disableGeoMapNodeEditing();
+//     // Optionally, disable node editing if enabled
+//     // For example:
+//     // disableGeoMapNodeEditing();
 
-    isGeoMapInitialized = false;
+//     isGeoMapInitialized = false;
 
-	loadCytoStyle(cy); // Reapply the Cytoscape stylesheet
+// 	loadCytoStyle(cy); // Reapply the Cytoscape stylesheet
 
-    console.log("GeoMap has been disabled and reverted to default Cytoscape layout.");
-}
+//     console.log("GeoMap has been disabled and reverted to default Cytoscape layout.");
+// }
 
-// Function to toggle GeoMap on and off
-function toggleGeoMap() {
-    var leafletContainer = document.getElementById('cy-leaflet');
-    var isGeoMapEnabled = leafletContainer && leafletContainer.style.display !== 'none';
+// // Function to toggle GeoMap on and off
+// function toggleGeoMap() {
+//     var leafletContainer = document.getElementById('cy-leaflet');
+//     var isGeoMapEnabled = leafletContainer && leafletContainer.style.display !== 'none';
 
-    if (isGeoMapEnabled) {
-        // Disable GeoMap
-        viewportDrawerDisableGeoMap();
-    } else {
-        // Enable GeoMap
-        viewportDrawerLayoutGeoMap();
-    }
-}
+//     if (isGeoMapEnabled) {
+//         // Disable GeoMap
+//         viewportDrawerDisableGeoMap();
+//     } else {
+//         // Enable GeoMap
+//         viewportDrawerLayoutGeoMap();
+//     }
+// }
 
 
 function viewportDrawerCaptureFunc() {
@@ -3502,15 +3506,34 @@ function setupCheckboxListener(checkboxSelector) {
 	return isChecked;
 }
 
+// Define a function to show the Clab Editor panel and maintain mutual exclusivity with the GeoMap panel
 function initViewportDrawerClabEditoCheckboxToggle() {
-	const checkbox = document.querySelector('#viewport-drawer-clab-editor-content-01 .checkbox-input');
+	const checkboxClabEditor = document.querySelector('#viewport-drawer-clab-editor-content-01 .checkbox-input');
+	const checkboxGeoMap = document.querySelector('#viewport-drawer-geo-map-content-01 .checkbox-input');
 
-	checkbox.addEventListener('change', function() {
-		if (checkbox.checked) {
+	checkboxClabEditor.addEventListener('change', function() {
+		if (checkboxClabEditor.checked) {
+			checkboxGeoMap.checked = false;
 			showPanelContainerlabEditor();
-			return isChecked;
+			viewportDrawerDisableGeoMap();
 		} else {
 			closePanelContainerlabEditor();
+		}
+	});
+}
+
+// Define a function to show the GeoMap panel and maintain mutual exclusivity with the Clab Editor panel
+function initViewportDrawerGeoMapCheckboxToggle() {
+	const checkboxClabEditor = document.querySelector('#viewport-drawer-clab-editor-content-01 .checkbox-input');
+	const checkboxGeoMap = document.querySelector('#viewport-drawer-geo-map-content-01 .checkbox-input');
+
+	checkboxGeoMap.addEventListener('change', function() {
+		if (checkboxGeoMap.checked) {
+			checkboxClabEditor.checked = false;
+			viewportDrawerLayoutGeoMap();
+			closePanelContainerlabEditor();
+		} else {
+			viewportDrawerDisableGeoMap();
 		}
 	});
 }
