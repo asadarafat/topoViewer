@@ -1,16 +1,6 @@
 {
-	"name": "Go",
-	"image": "mcr.microsoft.com/devcontainers/go:0-1.20-bullseye",
+	"image": "ghcr.io/srl-labs/containerlab/clab-devcontainer:0.59.0",
 	"features": {
-		"ghcr.io/devcontainers/features/node:1": {
-			"version": "lts"
-		},
-		"ghcr.io/devcontainers/features/git:1": {},
-		"ghcr.io/devcontainers/features/git-lfs:1": {},
-		"ghcr.io/devcontainers/features/github-cli:1": {},
-		"ghcr.io/devcontainers/features/go:1": {},
-		"ghcr.io/devcontainers/features/sshd:1": {},
-		"ghcr.io/guiyomh/features/goreleaser:0": {}
 	},
 
 	// Configure tool-specific properties.
