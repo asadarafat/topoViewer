@@ -21,7 +21,18 @@ sudo chown -R $(whoami):$(whoami) *
 git add .
 git commit -m "$COMMIT_MESSAGE"
 
-# Push changes to the remote repository
-git push
+# Attempt to push changes to the remote repository
+if ! git push; then
+  echo "Push failed due to divergence. Attempting to resolve..."
+  
+  # Pull remote changes and rebase
+  if ! git pull --rebase; then
+    echo "Rebase failed. Forcing the push to resolve divergence."
+    git push --force
+  else
+    # Push changes after successful rebase
+    git push
+  fi
+fi
 
 echo "Ownership changed, files committed, and changes pushed successfully!"
