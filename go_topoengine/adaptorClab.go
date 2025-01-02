@@ -221,6 +221,12 @@ func (cyTopo *CytoTopology) UnmarshalContainerLabTopoV2(topoFile []byte, clabHos
 		cytoJson.Data.Weight = "30"
 		cytoJson.Data.Name = node.ID
 		cytoJson.Data.TopoViewerRole = node.Labels.TopoViewerRole
+		if len(node.Labels.TopoViewerRole) != 0 {
+			cytoJson.Data.TopoViewerRole = node.Labels.TopoViewerRole
+		} else {
+			// defaulting to "PE"
+			cytoJson.Data.TopoViewerRole = "pe"
+		}
 		// if node.ID == "topoviewer" {
 		// 	cytoJson.Data.Lat = "51.45664108633426"
 		// 	cytoJson.Data.Lng = "7.00441511803141"
@@ -239,6 +245,9 @@ func (cyTopo *CytoTopology) UnmarshalContainerLabTopoV2(topoFile []byte, clabHos
 		if len(node.Labels.TopoViewerGroup) != 0 && len(node.Labels.TopoViewerGroupLevel) != 0 {
 			// combine to be "Data Center Spine:1"
 			cytoJson.Data.Parent = node.Labels.TopoViewerGroup + ":" + node.Labels.TopoViewerGroupLevel
+		} else {
+			// defaulting to "topoviewer:1"
+			cytoJson.Data.Parent = "topoviewer:1"
 		}
 
 		// create list of parent nodes
@@ -346,6 +355,7 @@ func (cyTopo *CytoTopology) UnmarshalContainerLabTopoV2(topoFile []byte, clabHos
 		cytoJson.Data.ID = n
 		cytoJson.Data.Name = strings.Split(n, ":")[0]
 		cytoJson.Data.TopoViewerRole = "group"
+
 		cytoJson.Data.Weight = "1000"
 		// defaulting to the same lat and lng as the last-node
 		// cytoJson.Data.Lat = "51.45664108633426"

@@ -660,6 +660,10 @@ document.addEventListener("DOMContentLoaded", async function() {
 			topoViewerNode = cy.filter('node[name = "topoviewer"]');
 			topoViewerNode.remove();
 
+			// remove node TopoViewerParentNode
+			topoViewerParentNode = cy.filter('node[name = "TopoViewer:1"]');
+			topoViewerParentNode.remove();
+
 			var cyExpandCollapse = cy.expandCollapse({
 				layoutBy: null, // null means use existing layout
 				undoable: false,
