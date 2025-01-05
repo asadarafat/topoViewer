@@ -14,6 +14,7 @@ import (
 	"path"
 	"time"
 
+	tools "github.com/asadarafat/topoViewer/go_tools"
 	topoengine "github.com/asadarafat/topoViewer/go_topoengine"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
@@ -40,7 +41,7 @@ type DockerNodeStatus struct {
 	Status       string      `json:"Status"`
 }
 
-func GetDockerNetworkNamespaceIDViaUnixSocket(w http.ResponseWriter, r *http.Request, cyTopo *topoengine.CytoTopology) {
+func GetDockerNetworkNamespaceIDViaUnixSocket(w http.ResponseWriter, r *http.Request, cyTopo *topoengine.CytoTopology, deploymentType string, clabUser string, clabPass string, clabHost string, clabServerAddress string) {
 
 	// Parse query parameters
 	query := r.URL.Query()
@@ -84,12 +85,31 @@ func GetDockerNetworkNamespaceIDViaUnixSocket(w http.ResponseWriter, r *http.Req
 		return
 	}
 
+	var netNamespaceID string
 	nsPath := path.Join("/proc", fmt.Sprint(containerPID), "ns", "net")
-	netNamespaceID, err := os.Readlink(nsPath)
-	if err != nil {
-		http.Error(w, "Failed to read network namespace link", http.StatusInternalServerError)
-		log.Errorf("Failed to read network namespace link: %v", err)
-		return
+	if deploymentType == "container" {
+
+		command := fmt.Sprintf("readlink %s", nsPath)
+
+		// Execute SSH command
+		cliOutput, err := tools.SshSudo(clabHost, "22", clabUser, clabPass, clabServerAddress, command)
+		if err != nil {
+			log.Infof("Error executing SSH command: %v", err)
+			http.Error(w, "Error executing SSH command", http.StatusInternalServerError)
+			return
+		}
+
+		log.Infof("cliOutput: %s", cliOutput)
+
+		netNamespaceID = string(cliOutput)
+
+	} else { // colocated
+		netNamespaceID, err = os.Readlink(nsPath)
+		if err != nil {
+			http.Error(w, "Failed to read network namespace link", http.StatusInternalServerError)
+			log.Errorf("Failed to read network namespace link: %v", err)
+			return
+		}
 	}
 
 	response := map[string]string{

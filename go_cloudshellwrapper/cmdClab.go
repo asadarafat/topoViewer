@@ -671,7 +671,7 @@ func Clab(_ *cobra.Command, _ []string) error {
 
 	// API endpoint to get container namespace
 	router.HandleFunc("/clab-node-network-namespace", func(w http.ResponseWriter, r *http.Request) {
-		clabHandlers.GetDockerNetworkNamespaceIDViaUnixSocket(w, r, &cyTopo)
+		clabHandlers.GetDockerNetworkNamespaceIDViaUnixSocket(w, r, &cyTopo, deploymentType, confClab.GetString("clab-user"), confClab.GetString("clab-pass"), confClab.GetStringSlice("allowed-hostnames")[0], clabServerAddress)
 	}).Methods("GET")
 
 	// API endpoint to set clab-link-impairment
