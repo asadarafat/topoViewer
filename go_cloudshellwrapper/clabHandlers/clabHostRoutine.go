@@ -14,6 +14,8 @@ import (
 	"path"
 	"time"
 
+	"regexp"
+
 	tools "github.com/asadarafat/topoViewer/go_tools"
 	topoengine "github.com/asadarafat/topoViewer/go_topoengine"
 	"github.com/docker/docker/api/types"
@@ -101,7 +103,17 @@ func GetDockerNetworkNamespaceIDViaUnixSocket(w http.ResponseWriter, r *http.Req
 
 		log.Infof("cliOutput: %s", cliOutput)
 
-		netNamespaceID = string(cliOutput)
+		// Define the regular expression to match "net:[number]"
+		re := regexp.MustCompile(`net:\[\d+\]`)
+
+		// Find the first match in the cliOutput
+		cliOutputParsedNamespace := re.FindString(string(cliOutput))
+		if cliOutputParsedNamespace == "" {
+			log.Error("No cliOutputParsedNamespace found")
+		}
+
+		log.Infof("cliOutputParsedNamespace: %s", cliOutputParsedNamespace)
+		netNamespaceID = cliOutputParsedNamespace
 
 	} else { // colocated
 		netNamespaceID, err = os.Readlink(nsPath)
