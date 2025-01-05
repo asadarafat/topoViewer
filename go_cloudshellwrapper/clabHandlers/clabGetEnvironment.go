@@ -18,6 +18,7 @@ type Environments struct {
 	EnvWorkingDirectory     string `json:"working-directory"`
 	EnvClabName             string `json:"clab-name"`
 	EnvClabServerAddress    string `json:"clab-server-address"`
+	EnvAllowedHostname      string `json:"clab-allowed-hostname"`
 	EnvClabServerPort       string `json:"clab-server-port"`
 	EnvDeploymentType       string `json:"deployment-type"`
 	EnvTopoViewerVersion    string `json:"topoviewer-version"`
@@ -56,7 +57,8 @@ func GetEnvironmentsHandler(w http.ResponseWriter, r *http.Request, cyTopo *topo
 	environments := Environments{
 		EnvWorkingDirectory:     confClab.GetString("workdir"),
 		EnvClabName:             cyTopo.ClabTopoDataV2.Name,
-		EnvClabServerAddress:    confClab.GetStringSlice("allowed-hostnames")[0],
+		EnvClabServerAddress:    confClab.GetString("clab-server-address"),
+		EnvAllowedHostname:      confClab.GetStringSlice("allowed-hostnames")[0],
 		EnvClabServerPort:       fmt.Sprintf("%d", confClab.GetInt("server-port")),
 		EnvDeploymentType:       confClab.GetString("deployment-type"),
 		EnvTopoViewerVersion:    VersionInfo,

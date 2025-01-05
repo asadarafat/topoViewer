@@ -2114,7 +2114,11 @@ async function linkWireshark(event, option, endpoint, referenceElementAfterId) {
 		console.info("linkWireshark- edgeSource: ", edgeData["data"]["source"])
 
 		clabUser = edgeData["data"]["extraData"]["clabServerUsername"]
+
+		clabAllowedHostname = environments["clab-allowed-hostname"]
+
 		clabServerAddress = environments["clab-server-address"]
+
 
 		clabSourceLongName = edgeData["data"]["extraData"]["clabSourceLongName"]
 		clabSourcePort = edgeData["data"]["extraData"]["clabSourcePort"]
@@ -2135,7 +2139,7 @@ async function linkWireshark(event, option, endpoint, referenceElementAfterId) {
 
 		} else if (option == "edgeSharkInterface") {
 			if (endpoint == "source") {
-				baseUrl = `packetflix:ws://${clabServerAddress}:5001/capture?`;
+				baseUrl = `packetflix:ws://${clabAllowedHostname}:5001/capture?`;
 
 				netNsResponse = await sendRequestToEndpointGetV3("/clab-node-network-namespace", argsList = [clabSourceLongName])
 				console.info("linkWireshark - netNsSource: ", netNsResponse.namespace_id.slice(netNsResponse.namespace_id.indexOf("[") + 1, netNsResponse.namespace_id.indexOf("]")))
@@ -2147,7 +2151,7 @@ async function linkWireshark(event, option, endpoint, referenceElementAfterId) {
 				window.open(edgeSharkHref);
 
 			} else if (endpoint == "target") {
-				baseUrl = `packetflix:ws://${clabServerAddress}:5001/capture?`;
+				baseUrl = `packetflix:ws://${clabAllowedHostname}:5001/capture?`;
 
 				netNsResponse = await sendRequestToEndpointGetV3("/clab-node-network-namespace", argsList = [clabTargetLongName])
 				console.info("linkWireshark - netNsSource: ", netNsResponse.namespace_id.slice(netNsResponse.namespace_id.indexOf("[") + 1, netNsResponse.namespace_id.indexOf("]")))
@@ -2161,7 +2165,7 @@ async function linkWireshark(event, option, endpoint, referenceElementAfterId) {
 
 		} else if (option == "edgeSharkSubInterface") {
 			if (referenceElementAfterId == "endpoint-a-edgeshark") {
-				baseUrl = `packetflix:ws://${clabServerAddress}:5001/capture?`;
+				baseUrl = `packetflix:ws://${clabAllowedHostname}:5001/capture?`;
 
 				netNsResponse = await sendRequestToEndpointGetV3("/clab-node-network-namespace", argsList = [clabSourceLongName])
 				console.info("linkWireshark - netNsSource: ", netNsResponse.namespace_id.slice(netNsResponse.namespace_id.indexOf("[") + 1, netNsResponse.namespace_id.indexOf("]")))
@@ -2174,7 +2178,7 @@ async function linkWireshark(event, option, endpoint, referenceElementAfterId) {
 			}
 			if (referenceElementAfterId == "endpoint-b-edgeshark") {
 				console.info("linkWireshark - endpoint-b-edgeshark")
-				baseUrl = `packetflix:ws://${clabServerAddress}:5001/capture?`;
+				baseUrl = `packetflix:ws://${clabAllowedHostname}:5001/capture?`;
 
 				netNsResponse = await sendRequestToEndpointGetV3("/clab-node-network-namespace", argsList = [clabTargetLongName])
 				console.info("linkWireshark - netNsSource: ", netNsResponse.namespace_id.slice(netNsResponse.namespace_id.indexOf("[") + 1, netNsResponse.namespace_id.indexOf("]")))
@@ -2188,9 +2192,9 @@ async function linkWireshark(event, option, endpoint, referenceElementAfterId) {
 			if (referenceElementAfterId == "endpoint-a-clipboard") {
 				console.info("linkWireshark - endpoint-a-clipboard")
 				if (deploymentType == "container") {
-					wiresharkSshCommand = `ssh ${clabUser}@${clabServerAddress} "sudo -S /sbin/ip netns exec ${clabSourceLongName} tcpdump -U -nni ${endpoint} -w -" | wireshark -k -i -`
+					wiresharkSshCommand = `ssh ${clabUser}@${clabAllowedHostname} "sudo -S /sbin/ip netns exec ${clabSourceLongName} tcpdump -U -nni ${endpoint} -w -" | wireshark -k -i -`
 				} else if (deploymentType == "colocated") {
-					wiresharkSshCommand = `ssh ${clabUser}@${clabServerAddress} "sudo -S /sbin/ip netns exec ${clabSourceLongName} tcpdump -U -nni ${endpoint} -w -" | wireshark -k -i -`
+					wiresharkSshCommand = `ssh ${clabUser}@${clabAllowedHostname} "sudo -S /sbin/ip netns exec ${clabSourceLongName} tcpdump -U -nni ${endpoint} -w -" | wireshark -k -i -`
 				}
 				// Check if the clipboard API is available
 				if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -2231,9 +2235,9 @@ async function linkWireshark(event, option, endpoint, referenceElementAfterId) {
 			if (referenceElementAfterId == "endpoint-b-clipboard") {
 				console.info("linkWireshark - endpoint-b-clipboard")
 				if (deploymentType == "container") {
-					wiresharkSshCommand = `ssh ${clabUser}@${clabServerAddress} "sudo -S /sbin/ip netns exec ${clabTargetLongName} tcpdump -U -nni ${endpoint} -w -" | wireshark -k -i -`
+					wiresharkSshCommand = `ssh ${clabUser}@${clabAllowedHostname} "sudo -S /sbin/ip netns exec ${clabTargetLongName} tcpdump -U -nni ${endpoint} -w -" | wireshark -k -i -`
 				} else if (deploymentType == "colocated") {
-					wiresharkSshCommand = `ssh ${clabUser}@${clabServerAddress} "sudo -S /sbin/ip netns exec ${clabTargetLongName} tcpdump -U -nni ${endpoint} -w -" | wireshark -k -i -`
+					wiresharkSshCommand = `ssh ${clabUser}@${clabAllowedHostname} "sudo -S /sbin/ip netns exec ${clabTargetLongName} tcpdump -U -nni ${endpoint} -w -" | wireshark -k -i -`
 				}
 				// Check if the clipboard API is available
 				if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -2276,15 +2280,15 @@ async function linkWireshark(event, option, endpoint, referenceElementAfterId) {
 		} else if (option == "copy") {
 			if (endpoint == "source") {
 				if (deploymentType == "container") {
-					wiresharkSshCommand = `ssh ${clabUser}@${clabServerAddress} "sudo -S /sbin/ip netns exec ${clabSourceLongName} tcpdump -U -nni ${clabSourcePort} -w -" | wireshark -k -i -`
+					wiresharkSshCommand = `ssh ${clabUser}@${clabAllowedHostname} "sudo -S /sbin/ip netns exec ${clabSourceLongName} tcpdump -U -nni ${clabSourcePort} -w -" | wireshark -k -i -`
 				} else if (deploymentType == "colocated") {
-					wiresharkSshCommand = `ssh ${clabUser}@${clabServerAddress} "sudo -S /sbin/ip netns exec ${clabSourceLongName} tcpdump -U -nni ${clabSourcePort} -w -" | wireshark -k -i -`
+					wiresharkSshCommand = `ssh ${clabUser}@${clabAllowedHostname} "sudo -S /sbin/ip netns exec ${clabSourceLongName} tcpdump -U -nni ${clabSourcePort} -w -" | wireshark -k -i -`
 				}
 			} else if (endpoint == "target") {
 				if (deploymentType == "container") {
-					wiresharkSshCommand = `ssh ${clabUser}@${clabServerAddress} "sudo -S /sbin/ip netns exec ${clabTargetLongName} tcpdump -U -nni ${clabTargetPort} -w -" | wireshark -k -i -`
+					wiresharkSshCommand = `ssh ${clabUser}@${clabAllowedHostname} "sudo -S /sbin/ip netns exec ${clabTargetLongName} tcpdump -U -nni ${clabTargetPort} -w -" | wireshark -k -i -`
 				} else if (deploymentType == "colocated") {
-					wiresharkSshCommand = `ssh ${clabUser}@${clabServerAddress} "sudo -S /sbin/ip netns exec ${clabTargetLongName} tcpdump -U -nni ${clabTargetPort} -w -" | wireshark -k -i -`
+					wiresharkSshCommand = `ssh ${clabUser}@${clabAllowedHostname} "sudo -S /sbin/ip netns exec ${clabTargetLongName} tcpdump -U -nni ${clabTargetPort} -w -" | wireshark -k -i -`
 				}
 			}
 
