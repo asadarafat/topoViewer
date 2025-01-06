@@ -39,7 +39,10 @@ clab-topo-nokia-ServiceProvider-lab.yml
 clab-topo-nokia-ServiceProvider-lab.yml.bak
 .clab-topo-nokia-ServiceProvider-lab.yml.bak
 
-clab-demo-ci
+clab-demo
+clab-demo/**
+clab-demo.yaml
+clab-demo.yaml.bak
 
 .dgf-nsp.yml.bak
 dgf-nsp.yml
