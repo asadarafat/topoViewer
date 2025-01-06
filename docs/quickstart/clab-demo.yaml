@@ -4,7 +4,7 @@ topology:
   nodes:
     topoviewer:
       kind: linux
-      image: ghcr.io/asadarafat/topoviewer:nightly-24.11.24
+      image: ghcr.io/asadarafat/topoviewer:nightly-25.01.08
       ports:
         - ${TOPOVIEWER_SERVER_PORT}:${TOPOVIEWER_SERVER_PORT}
       startup-delay: 5
@@ -13,11 +13,12 @@ topology:
         - clab-demo-output.yaml:/opt/topoviewer/local-bind/clab-demo-output.yaml:ro
       env:
         ### These are the environment variables for topoviewer container
-        ALLOWED_HOSTNAME: "${TOPOVIEWER_HOST_CLAB}"
+        ALLOWED_HOSTNAME: "${TOPOVIEWER_HOST_CLAB}" ## TopoViewer server hostname.
+        CLAB_ADDRESS_SERVER: "${TOPOVIEWER_CLAB_ADDRESS}" ## Option to set containerlab server, 172.20.20.1 is containerlab's management network default-gateway. If this not set ALLOWED_HOSTNAME will be used as CLAB_ADDRESS_SERVER.
         CLAB_USER: "${TOPOVIEWER_HOST_CLAB_USER}"
         CLAB_PASS: "${TOPOVIEWER_HOST_CLAB_PASS}"
         SERVER_PORT: "${TOPOVIEWER_SERVER_PORT}"
-        CLAB_TOPO_YAML: clab-demo-output.yaml
+        CLAB_TOPO_YAML: ${TOPOVIEWER_CLAB_TOPO_YAML}
       labels:
         topoviewer-role: controller
       exec:
