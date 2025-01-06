@@ -27,7 +27,11 @@ export TOPOVIEWER_HOST_CLAB_PASS="vscode"
 export TOPOVIEWER_SERVER_PORT="8080"
 export TOPOVIEWER_CLAB_TOPO_YAML="clab-demo.yaml"
 
+# Upgrade containterlab
 clab version upgrade
+
+# Delete existing TOPOVIEWER_CLAB_TOPO_YAML
+rm -f $TOPOVIEWER_CLAB_TOPO_YAML
 
 # Download the TopoViewer YAML file
 curl -o "$TOPOVIEWER_CLAB_TOPO_YAML" -L "https://raw.githubusercontent.com/asadarafat/topoViewer/refs/heads/development/docs/quickstart/clab-demo.yaml"
