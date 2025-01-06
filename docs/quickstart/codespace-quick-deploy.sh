@@ -33,4 +33,4 @@ clab version upgrade
 curl -o "$TOPOVIEWER_CLAB_TOPO_YAML" -L "https://raw.githubusercontent.com/asadarafat/topoViewer/refs/heads/development/docs/quickstart/clab-demo.yaml"
 
 # Deploy the topology using containerlab
-clab deploy -t "$TOPOVIEWER_CLAB_TOPO_YAML"
+clab deploy -t "$TOPOVIEWER_CLAB_TOPO_YAML --debug"
