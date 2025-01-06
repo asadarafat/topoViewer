@@ -280,9 +280,13 @@ func Clab(_ *cobra.Command, _ []string) error {
 		}
 		workingDirectory = path.Join(wd, workingDirectory)
 	}
+
 	deploymentType := confClab.GetString("deployment-type")
 
 	clabServerAddress := confClab.GetString("clab-server-address")
+	if clabServerAddress == "" {
+		clabServerAddress = allowedHostnames[0]
+	}
 
 	// log.Infof("topology file path    : '%s'", workingDirectory+"/"+topoClab)
 	log.Infof("====== Start up Parameter ======")
