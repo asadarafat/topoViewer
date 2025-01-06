@@ -1,7 +1,11 @@
 {
-	"image": "ghcr.io/srl-labs/containerlab/clab-devcontainer:0.59.0",
+	// "image": "ghcr.io/srl-labs/containerlab/clab-devcontainer:0.59.0",
+	"image": "ghcr.io/asadarafat/containerlab/devcontainer-dind:sha-f38baa6",
 	"features": {
 	},
+	"remoteUser": "vscode",
+    "postCreateCommand": "curl -sL https://github.com/siemens/edgeshark/raw/main/deployments/wget/docker-compose.yaml | DOCKER_DEFAULT_PLATFORM=linux/amd64 docker compose -f - up -d",
+
 
 	// Configure tool-specific properties.
 	"customizations": {
