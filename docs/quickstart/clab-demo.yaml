@@ -128,9 +128,6 @@ topology:
     - endpoints: ["Spine-02:e1-4", "Leaf-04:e1-4"]
     - endpoints: ["Spine-02:e1-5", "BorderLeaf-02:e1-1"]
 
-    - endpoints: ["BorderLeaf-01:e1-5", "DCGW-01:eth1"]
-    - endpoints: ["BorderLeaf-02:e1-5", "DCGW-02:e1-1"]
-
 
 
 

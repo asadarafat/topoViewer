@@ -20,12 +20,12 @@ echo "vscode:vscode" | chpasswd
 echo "KexAlgorithms diffie-hellman-group1-sha1,curve25519-sha256@libssh.org,ecdh-sha2-nistp256,ecdh-sha2-nistp384,ecdh-sha2-nistp521,diffie-hellman-group-exchange-sha256,diffie-hellman-group14-sha1" >> /etc/ssh/ssh_config
 
 # Export environment variables for TopoViewer
-export TOPOVIEWER_HOST_CLAB=127.0.0.1
-export TOPOVIEWER_CLAB_ADDRESS=172.20.20.1
-export TOPOVIEWER_HOST_CLAB_USER=vscode
-export TOPOVIEWER_HOST_CLAB_PASS=vscode
-export TOPOVIEWER_SERVER_PORT=8080
-export TOPOVIEWER_CLAB_TOPO_YAML=clab-demo-output.yaml
+export TOPOVIEWER_HOST_CLAB="127.0.0.1"
+export TOPOVIEWER_CLAB_ADDRESS="172.20.20.1"
+export TOPOVIEWER_HOST_CLAB_USER="vscode"
+export TOPOVIEWER_HOST_CLAB_PASS="vscode"
+export TOPOVIEWER_SERVER_PORT="8080"
+export TOPOVIEWER_CLAB_TOPO_YAML="clab-demo-output.yaml"
 
 clab version upgrade
 
@@ -33,4 +33,4 @@ clab version upgrade
 curl -o "$TOPOVIEWER_CLAB_TOPO_YAML" -L "https://raw.githubusercontent.com/asadarafat/topoViewer/refs/heads/development/docs/quickstart/clab-demo.yaml"
 
 # Deploy the topology using containerlab
-clab deploy -t "$TOPOVIEWER_CLAB_TOPO_YAML --debug"
+clab deploy -t "$TOPOVIEWER_CLAB_TOPO_YAML" --debug
