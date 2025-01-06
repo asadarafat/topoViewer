@@ -25,7 +25,7 @@ export TOPOVIEWER_CLAB_ADDRESS="172.20.20.1"
 export TOPOVIEWER_HOST_CLAB_USER="vscode"
 export TOPOVIEWER_HOST_CLAB_PASS="vscode"
 export TOPOVIEWER_SERVER_PORT="8080"
-export TOPOVIEWER_CLAB_TOPO_YAML="clab-demo-output.yaml"
+export TOPOVIEWER_CLAB_TOPO_YAML="codespace-clab-demo.yaml"
 
 clab version upgrade
 
