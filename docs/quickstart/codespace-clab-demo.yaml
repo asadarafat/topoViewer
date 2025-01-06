@@ -10,7 +10,7 @@ topology:
       startup-delay: 2
       binds:
         - /var/run/docker.sock:/var/run/docker.sock:ro
-        - clab-demo-output.yaml:/opt/topoviewer/local-bind/clab-demo-output.yaml:ro
+        - clab-demo-output.yaml:/opt/topoviewer/local-bind/${TOPOVIEWER_CLAB_TOPO_YAML}:ro
       env:
         ### These are the environment variables for topoviewer container
         ALLOWED_HOSTNAME: "${TOPOVIEWER_HOST_CLAB}" ## TopoViewer server hostname.
@@ -127,6 +127,9 @@ topology:
     - endpoints: ["Spine-02:e1-3", "Leaf-03:e1-4"]
     - endpoints: ["Spine-02:e1-4", "Leaf-04:e1-4"]
     - endpoints: ["Spine-02:e1-5", "BorderLeaf-02:e1-1"]
+
+    - endpoints: ["BorderLeaf-01:e1-5", "DCGW-01:eth1"]
+    - endpoints: ["BorderLeaf-02:e1-5", "DCGW-02:e1-1"]
 
 
 

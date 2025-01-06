@@ -1,0 +1,484 @@
+{
+  "name": "demo",
+  "type": "clab",
+  "clab": {
+    "config": {
+      "prefix": "clab",
+      "mgmt": {
+        "network": "clab",
+        "bridge": "br-f29f0071d9aa",
+        "ipv4-subnet": "172.20.20.0/24",
+        "ipv4-gw": "172.20.20.1",
+        "ipv6-subnet": "3fff:172:20:20::/64",
+        "ipv6-gw": "3fff:172:20:20::1",
+        "mtu": 1500,
+        "external-access": true
+      }
+    }
+  },
+  "nodes": {
+    "BorderLeaf-01": {
+      "index": "0",
+      "shortname": "BorderLeaf-01",
+      "longname": "clab-demo-BorderLeaf-01",
+      "fqdn": "BorderLeaf-01.demo.io",
+      "group": "Data Center Leaf",
+      "labdir": "/workspaces/topoViewer/clab-demo/BorderLeaf-01",
+      "kind": "srl",
+      "image": "ghcr.io/nokia/srlinux:24.10.1",
+      "mgmt-net": "",
+      "mgmt-intf": "",
+      "mgmt-ipv4-address": "172.20.20.6",
+      "mgmt-ipv4-prefix-length": 24,
+      "mgmt-ipv6-address": "3fff:172:20:20::6",
+      "mgmt-ipv6-prefix-length": 64,
+      "mac-address": "1a:6a:00:00:00:00",
+      "labels": {
+        "clab-mgmt-net-bridge": "br-f29f0071d9aa",
+        "clab-node-group": "Data Center Leaf",
+        "clab-node-kind": "srl",
+        "clab-node-lab-dir": "/workspaces/topoViewer/clab-demo/BorderLeaf-01",
+        "clab-node-name": "BorderLeaf-01",
+        "clab-node-type": "ixrd2l",
+        "clab-owner": "vscode",
+        "clab-topo-file": "/workspaces/topoViewer/codespace-clab-demo.yaml",
+        "containerlab": "demo",
+        "topoViewer-group": "Data Center Leaf",
+        "topoViewer-groupLevel": "2",
+        "topoViewer-role": "leaf"
+      },
+      "port-bindings": [
+      ]
+    },
+    "BorderLeaf-02": {
+      "index": "1",
+      "shortname": "BorderLeaf-02",
+      "longname": "clab-demo-BorderLeaf-02",
+      "fqdn": "BorderLeaf-02.demo.io",
+      "group": "Data Center Leaf",
+      "labdir": "/workspaces/topoViewer/clab-demo/BorderLeaf-02",
+      "kind": "srl",
+      "image": "ghcr.io/nokia/srlinux:24.10.1",
+      "mgmt-net": "",
+      "mgmt-intf": "",
+      "mgmt-ipv4-address": "172.20.20.9",
+      "mgmt-ipv4-prefix-length": 24,
+      "mgmt-ipv6-address": "3fff:172:20:20::9",
+      "mgmt-ipv6-prefix-length": 64,
+      "mac-address": "1a:48:01:00:00:00",
+      "labels": {
+        "clab-mgmt-net-bridge": "br-f29f0071d9aa",
+        "clab-node-group": "Data Center Leaf",
+        "clab-node-kind": "srl",
+        "clab-node-lab-dir": "/workspaces/topoViewer/clab-demo/BorderLeaf-02",
+        "clab-node-name": "BorderLeaf-02",
+        "clab-node-type": "ixrd2l",
+        "clab-owner": "vscode",
+        "clab-topo-file": "/workspaces/topoViewer/codespace-clab-demo.yaml",
+        "containerlab": "demo",
+        "topoViewer-group": "Data Center Leaf",
+        "topoViewer-groupLevel": "2",
+        "topoViewer-role": "leaf"
+      },
+      "port-bindings": [
+      ]
+    },
+    "Leaf-01": {
+      "index": "2",
+      "shortname": "Leaf-01",
+      "longname": "clab-demo-Leaf-01",
+      "fqdn": "Leaf-01.demo.io",
+      "group": "Data Center Leaf",
+      "labdir": "/workspaces/topoViewer/clab-demo/Leaf-01",
+      "kind": "srl",
+      "image": "ghcr.io/nokia/srlinux:24.10.1",
+      "mgmt-net": "",
+      "mgmt-intf": "",
+      "mgmt-ipv4-address": "172.20.20.7",
+      "mgmt-ipv4-prefix-length": 24,
+      "mgmt-ipv6-address": "3fff:172:20:20::7",
+      "mgmt-ipv6-prefix-length": 64,
+      "mac-address": "1a:4c:02:00:00:00",
+      "labels": {
+        "clab-mgmt-net-bridge": "br-f29f0071d9aa",
+        "clab-node-group": "Data Center Leaf",
+        "clab-node-kind": "srl",
+        "clab-node-lab-dir": "/workspaces/topoViewer/clab-demo/Leaf-01",
+        "clab-node-name": "Leaf-01",
+        "clab-node-type": "ixrd2l",
+        "clab-owner": "vscode",
+        "clab-topo-file": "/workspaces/topoViewer/codespace-clab-demo.yaml",
+        "containerlab": "demo",
+        "topoViewer-group": "Data Center Leaf",
+        "topoViewer-groupLevel": "2",
+        "topoViewer-role": "leaf"
+      },
+      "port-bindings": [
+      ]
+    },
+    "Leaf-02": {
+      "index": "3",
+      "shortname": "Leaf-02",
+      "longname": "clab-demo-Leaf-02",
+      "fqdn": "Leaf-02.demo.io",
+      "group": "Data Center Leaf",
+      "labdir": "/workspaces/topoViewer/clab-demo/Leaf-02",
+      "kind": "srl",
+      "image": "ghcr.io/nokia/srlinux:24.10.1",
+      "mgmt-net": "",
+      "mgmt-intf": "",
+      "mgmt-ipv4-address": "172.20.20.2",
+      "mgmt-ipv4-prefix-length": 24,
+      "mgmt-ipv6-address": "3fff:172:20:20::2",
+      "mgmt-ipv6-prefix-length": 64,
+      "mac-address": "1a:61:03:00:00:00",
+      "labels": {
+        "clab-mgmt-net-bridge": "br-f29f0071d9aa",
+        "clab-node-group": "Data Center Leaf",
+        "clab-node-kind": "srl",
+        "clab-node-lab-dir": "/workspaces/topoViewer/clab-demo/Leaf-02",
+        "clab-node-name": "Leaf-02",
+        "clab-node-type": "ixrd2l",
+        "clab-owner": "vscode",
+        "clab-topo-file": "/workspaces/topoViewer/codespace-clab-demo.yaml",
+        "containerlab": "demo",
+        "topoViewer-group": "Data Center Leaf",
+        "topoViewer-groupLevel": "2",
+        "topoViewer-role": "leaf"
+      },
+      "port-bindings": [
+      ]
+    },
+    "Leaf-03": {
+      "index": "4",
+      "shortname": "Leaf-03",
+      "longname": "clab-demo-Leaf-03",
+      "fqdn": "Leaf-03.demo.io",
+      "group": "Data Center Leaf",
+      "labdir": "/workspaces/topoViewer/clab-demo/Leaf-03",
+      "kind": "srl",
+      "image": "ghcr.io/nokia/srlinux:24.10.1",
+      "mgmt-net": "",
+      "mgmt-intf": "",
+      "mgmt-ipv4-address": "172.20.20.8",
+      "mgmt-ipv4-prefix-length": 24,
+      "mgmt-ipv6-address": "3fff:172:20:20::8",
+      "mgmt-ipv6-prefix-length": 64,
+      "mac-address": "1a:d4:04:00:00:00",
+      "labels": {
+        "clab-mgmt-net-bridge": "br-f29f0071d9aa",
+        "clab-node-group": "Data Center Leaf",
+        "clab-node-kind": "srl",
+        "clab-node-lab-dir": "/workspaces/topoViewer/clab-demo/Leaf-03",
+        "clab-node-name": "Leaf-03",
+        "clab-node-type": "ixrd2l",
+        "clab-owner": "vscode",
+        "clab-topo-file": "/workspaces/topoViewer/codespace-clab-demo.yaml",
+        "containerlab": "demo",
+        "topoViewer-group": "Data Center Leaf",
+        "topoViewer-groupLevel": "2",
+        "topoViewer-role": "leaf"
+      },
+      "port-bindings": [
+      ]
+    },
+    "Leaf-04": {
+      "index": "5",
+      "shortname": "Leaf-04",
+      "longname": "clab-demo-Leaf-04",
+      "fqdn": "Leaf-04.demo.io",
+      "group": "Data Center Leaf",
+      "labdir": "/workspaces/topoViewer/clab-demo/Leaf-04",
+      "kind": "srl",
+      "image": "ghcr.io/nokia/srlinux:24.10.1",
+      "mgmt-net": "",
+      "mgmt-intf": "",
+      "mgmt-ipv4-address": "172.20.20.4",
+      "mgmt-ipv4-prefix-length": 24,
+      "mgmt-ipv6-address": "3fff:172:20:20::4",
+      "mgmt-ipv6-prefix-length": 64,
+      "mac-address": "1a:a3:05:00:00:00",
+      "labels": {
+        "clab-mgmt-net-bridge": "br-f29f0071d9aa",
+        "clab-node-group": "Data Center Leaf",
+        "clab-node-kind": "srl",
+        "clab-node-lab-dir": "/workspaces/topoViewer/clab-demo/Leaf-04",
+        "clab-node-name": "Leaf-04",
+        "clab-node-type": "ixrd2l",
+        "clab-owner": "vscode",
+        "clab-topo-file": "/workspaces/topoViewer/codespace-clab-demo.yaml",
+        "containerlab": "demo",
+        "topoViewer-group": "Data Center Leaf",
+        "topoViewer-groupLevel": "2",
+        "topoViewer-role": "leaf"
+      },
+      "port-bindings": [
+      ]
+    },
+    "Spine-01": {
+      "index": "6",
+      "shortname": "Spine-01",
+      "longname": "clab-demo-Spine-01",
+      "fqdn": "Spine-01.demo.io",
+      "group": "Data Center Spine",
+      "labdir": "/workspaces/topoViewer/clab-demo/Spine-01",
+      "kind": "srl",
+      "image": "ghcr.io/nokia/srlinux:24.10.1",
+      "mgmt-net": "",
+      "mgmt-intf": "",
+      "mgmt-ipv4-address": "172.20.20.3",
+      "mgmt-ipv4-prefix-length": 24,
+      "mgmt-ipv6-address": "3fff:172:20:20::3",
+      "mgmt-ipv6-prefix-length": 64,
+      "mac-address": "1a:4a:06:00:00:00",
+      "labels": {
+        "clab-mgmt-net-bridge": "br-f29f0071d9aa",
+        "clab-node-group": "Data Center Spine",
+        "clab-node-kind": "srl",
+        "clab-node-lab-dir": "/workspaces/topoViewer/clab-demo/Spine-01",
+        "clab-node-name": "Spine-01",
+        "clab-node-type": "ixrd2l",
+        "clab-owner": "vscode",
+        "clab-topo-file": "/workspaces/topoViewer/codespace-clab-demo.yaml",
+        "containerlab": "demo",
+        "topoViewer-geoCoordinateLat": "-7.670799192884443",
+        "topoViewer-geoCoordinateLng": "109.66040155645494",
+        "topoViewer-group": "Data Center Spine",
+        "topoViewer-groupLevel": "1",
+        "topoViewer-role": "spine"
+      },
+      "port-bindings": [
+      ]
+    },
+    "Spine-02": {
+      "index": "7",
+      "shortname": "Spine-02",
+      "longname": "clab-demo-Spine-02",
+      "fqdn": "Spine-02.demo.io",
+      "group": "Data Center Spine",
+      "labdir": "/workspaces/topoViewer/clab-demo/Spine-02",
+      "kind": "srl",
+      "image": "ghcr.io/nokia/srlinux:24.10.1",
+      "mgmt-net": "",
+      "mgmt-intf": "",
+      "mgmt-ipv4-address": "172.20.20.5",
+      "mgmt-ipv4-prefix-length": 24,
+      "mgmt-ipv6-address": "3fff:172:20:20::5",
+      "mgmt-ipv6-prefix-length": 64,
+      "mac-address": "1a:1e:07:00:00:00",
+      "labels": {
+        "clab-mgmt-net-bridge": "br-f29f0071d9aa",
+        "clab-node-group": "Data Center Spine",
+        "clab-node-kind": "srl",
+        "clab-node-lab-dir": "/workspaces/topoViewer/clab-demo/Spine-02",
+        "clab-node-name": "Spine-02",
+        "clab-node-type": "ixrd2l",
+        "clab-owner": "vscode",
+        "clab-topo-file": "/workspaces/topoViewer/codespace-clab-demo.yaml",
+        "containerlab": "demo",
+        "topoViewer-group": "Data Center Spine",
+        "topoViewer-groupLevel": "1",
+        "topoViewer-role": "spine"
+      },
+      "port-bindings": [
+      ]
+    },
+    "topoviewer": {
+      "index": "8",
+      "shortname": "topoviewer",
+      "longname": "clab-demo-topoviewer",
+      "fqdn": "topoviewer.demo.io",
+      "group": "",
+      "labdir": "/workspaces/topoViewer/clab-demo/topoviewer",
+      "kind": "linux",
+      "image": "ghcr.io/asadarafat/topoviewer:nightly-25.01.08",
+      "mgmt-net": "",
+      "mgmt-intf": "",
+      "mgmt-ipv4-address": "172.20.20.10",
+      "mgmt-ipv4-prefix-length": 24,
+      "mgmt-ipv6-address": "3fff:172:20:20::a",
+      "mgmt-ipv6-prefix-length": 64,
+      "mac-address": "",
+      "labels": {
+        "clab-mgmt-net-bridge": "br-f29f0071d9aa",
+        "clab-node-group": "",
+        "clab-node-kind": "linux",
+        "clab-node-lab-dir": "/workspaces/topoViewer/clab-demo/topoviewer",
+        "clab-node-name": "topoviewer",
+        "clab-node-type": "",
+        "clab-owner": "vscode",
+        "clab-topo-file": "/workspaces/topoViewer/codespace-clab-demo.yaml",
+        "containerlab": "demo",
+        "topoViewer-role": "controller"
+      },
+      "port-bindings": [
+        {
+          "host-ip": "0.0.0.0",
+          "host-port": 8080,
+          "port": 8080,
+          "protocol": "tcp"
+        },
+        {
+          "host-ip": "::",
+          "host-port": 8080,
+          "port": 8080,
+          "protocol": "tcp"
+        },
+        {
+          "host-ip": "",
+          "host-port": 0,
+          "port": 22,
+          "protocol": "tcp"
+        },
+        {
+          "host-ip": "",
+          "host-port": 0,
+          "port": 514,
+          "protocol": "tcp"
+        }
+      ]
+    }
+  },
+  "links": [
+    {
+      "a": {
+        "node": "Spine-01",
+        "interface": "e1-1",
+        "mac": "aa:c1:ab:e5:11:83",
+        "peer": "z"
+      },
+      "z": {
+        "node": "Leaf-01",
+        "interface": "e1-1",
+        "mac": "aa:c1:ab:b7:5e:ae",
+        "peer": "a"
+      }
+    },
+    {
+      "a": {
+        "node": "Spine-01",
+        "interface": "e1-2",
+        "mac": "aa:c1:ab:cc:06:f5",
+        "peer": "z"
+      },
+      "z": {
+        "node": "Leaf-02",
+        "interface": "e1-1",
+        "mac": "aa:c1:ab:87:0d:ff",
+        "peer": "a"
+      }
+    },
+    {
+      "a": {
+        "node": "Spine-01",
+        "interface": "e1-3",
+        "mac": "aa:c1:ab:c2:63:f3",
+        "peer": "z"
+      },
+      "z": {
+        "node": "Leaf-03",
+        "interface": "e1-3",
+        "mac": "aa:c1:ab:7d:89:59",
+        "peer": "a"
+      }
+    },
+    {
+      "a": {
+        "node": "Spine-01",
+        "interface": "e1-4",
+        "mac": "aa:c1:ab:cf:f7:8a",
+        "peer": "z"
+      },
+      "z": {
+        "node": "Leaf-04",
+        "interface": "e1-3",
+        "mac": "aa:c1:ab:06:6d:a1",
+        "peer": "a"
+      }
+    },
+    {
+      "a": {
+        "node": "Spine-01",
+        "interface": "e1-5",
+        "mac": "aa:c1:ab:d3:2d:c2",
+        "peer": "z"
+      },
+      "z": {
+        "node": "BorderLeaf-01",
+        "interface": "e1-1",
+        "mac": "aa:c1:ab:25:df:cf",
+        "peer": "a"
+      }
+    },
+    {
+      "a": {
+        "node": "Spine-02",
+        "interface": "e1-1",
+        "mac": "aa:c1:ab:63:ef:b9",
+        "peer": "z"
+      },
+      "z": {
+        "node": "Leaf-01",
+        "interface": "e1-2",
+        "mac": "aa:c1:ab:30:66:ce",
+        "peer": "a"
+      }
+    },
+    {
+      "a": {
+        "node": "Spine-02",
+        "interface": "e1-2",
+        "mac": "aa:c1:ab:45:02:f5",
+        "peer": "z"
+      },
+      "z": {
+        "node": "Leaf-02",
+        "interface": "e1-2",
+        "mac": "aa:c1:ab:cc:4c:6e",
+        "peer": "a"
+      }
+    },
+    {
+      "a": {
+        "node": "Spine-02",
+        "interface": "e1-3",
+        "mac": "aa:c1:ab:5b:9d:52",
+        "peer": "z"
+      },
+      "z": {
+        "node": "Leaf-03",
+        "interface": "e1-4",
+        "mac": "aa:c1:ab:d4:91:03",
+        "peer": "a"
+      }
+    },
+    {
+      "a": {
+        "node": "Spine-02",
+        "interface": "e1-4",
+        "mac": "aa:c1:ab:1b:94:4f",
+        "peer": "z"
+      },
+      "z": {
+        "node": "Leaf-04",
+        "interface": "e1-4",
+        "mac": "aa:c1:ab:5e:c1:d7",
+        "peer": "a"
+      }
+    },
+    {
+      "a": {
+        "node": "Spine-02",
+        "interface": "e1-5",
+        "mac": "aa:c1:ab:65:ae:57",
+        "peer": "z"
+      },
+      "z": {
+        "node": "BorderLeaf-02",
+        "interface": "e1-1",
+        "mac": "aa:c1:ab:69:4f:b5",
+        "peer": "a"
+      }
+    }
+  ]
+}
