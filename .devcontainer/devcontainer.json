@@ -12,6 +12,6 @@
 	  }
 	},
 	"forwardPorts": [5001, 8080],
-	"postCreateCommand": "curl -sL https://raw.githubusercontent.com/asadarafat/topoViewer/refs/heads/development/docs/quickstart/quick-deploy-codespace.sh | sudo bash"
+	"postCreateCommand": "curl -sL https://raw.githubusercontent.com/asadarafat/topoViewer/refs/heads/development/docs/quickstart/codespace-quick-deploy.sh | sudo bash"
   }
   
