@@ -21,6 +21,7 @@ echo "KexAlgorithms diffie-hellman-group1-sha1,curve25519-sha256@libssh.org,ecdh
 
 # Export environment variables for TopoViewer
 export TOPOVIEWER_HOST_CLAB="localhost"
+export TOPOVIEWER_HOST_CLAB01="127.0.0.1"
 export TOPOVIEWER_CLAB_ADDRESS="172.20.20.1"
 export TOPOVIEWER_HOST_CLAB_USER="vscode"
 export TOPOVIEWER_HOST_CLAB_PASS="vscode"
