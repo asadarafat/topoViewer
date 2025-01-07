@@ -4,7 +4,7 @@ topology:
   nodes:
     topoviewer:
       kind: linux
-      image: ghcr.io/asadarafat/topoviewer:nightly-25.01.09
+      image: ghcr.io/asadarafat/topoviewer:nightly-25.01.11 # ALLOWED_HOSTNAME and ALLOWED_HOSTNAME01
       ports:
         - 8080:8080
       startup-delay: 2
