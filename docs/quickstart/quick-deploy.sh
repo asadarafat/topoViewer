@@ -38,6 +38,8 @@ else
 fi
 export TOPOVIEWER_HOST_CLAB
 export TOPOVIEWER_SERVER_PORT
+export TOPOVIEWER_CLAB_ADDRESS="172.20.20.1"
+
 
 # Prompting for remaining inputs
 ask_for_input "TOPOVIEWER_HOST_CLAB_USER" "Enter the CLAB user"
