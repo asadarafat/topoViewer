@@ -23,24 +23,24 @@ echo "Copy TopoViewer Binary..."
 mv topoviewer dist/topoviewer
 cp -r config dist
 
-echo "Create clab client windows package..."
-rm -f tools/clab-client-windows/ClabCapture.app.zip
-rm -f tools/clab-client-windows/ClabPumbaDelay.app.zip
-zip tools/clab-client-windows/ClabCapture.app.zip tools/clab-client-windows/clabcapture.bat  tools/clab-client-windows/clab-capture.reg  tools/clab-client-windows/clab-capture-readme.MD
-# zip tools/clab-client-windows/ClabPumbaDelay.app.zip   tools/clab-client-windows/clabpumba.bat    tools/clab-client-windows/clab-pumba.reg    tools/clab-client-windows/clab-pumba-readme.MD
+# echo "Create clab client windows package..."
+# rm -f tools/clab-client-windows/ClabCapture.app.zip
+# rm -f tools/clab-client-windows/ClabPumbaDelay.app.zip
+# zip tools/clab-client-windows/ClabCapture.app.zip tools/clab-client-windows/clabcapture.bat  tools/clab-client-windows/clab-capture.reg  tools/clab-client-windows/clab-capture-readme.MD
+# # zip tools/clab-client-windows/ClabPumbaDelay.app.zip   tools/clab-client-windows/clabpumba.bat    tools/clab-client-windows/clab-pumba.reg    tools/clab-client-windows/clab-pumba-readme.MD
 
-echo "Copy clab client packages..."
-mkdir dist/clab-client-mac
-cp -r tools/clab-client-mac/ClabCapture.app.zip dist/clab-client-mac/ClabCapture.app.zip
+# echo "Copy clab client packages..."
+# mkdir dist/clab-client-mac
+# cp -r tools/clab-client-mac/ClabCapture.app.zip dist/clab-client-mac/ClabCapture.app.zip
 
-mkdir dist/clab-client-windows
-chmod 775 tools/clab-client-windows/*
-cp tools/clab-client-windows/ClabCapture.app.zip dist/clab-client-windows/ClabCapture.app.zip
-# cp tools/clab-client-windows/ClabPumbaDelay.app.zip dist/clab-client-windows/ClabPumbaDelay.app.zip
-chmod 775 dist/clab-client-windows/*
+# mkdir dist/clab-client-windows
+# chmod 775 tools/clab-client-windows/*
+# cp tools/clab-client-windows/ClabCapture.app.zip dist/clab-client-windows/ClabCapture.app.zip
+# # cp tools/clab-client-windows/ClabPumbaDelay.app.zip dist/clab-client-windows/ClabPumbaDelay.app.zip
+# chmod 775 dist/clab-client-windows/*
 
-echo "Clab export template..."
-cp rawTopoFile/clab-topo-export-template-example/clab-topo-new-version-cytoscape.tmpl dist/clab-topoviewer.tmpl
+# echo "Clab export template..."
+# cp rawTopoFile/clab-topo-export-template-example/clab-topo-new-version-cytoscape.tmpl dist/clab-topoviewer.tmpl
 
 rm -rR html-static/clab-client
 mkdir html-static/clab-client

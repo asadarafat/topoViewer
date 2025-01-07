@@ -20,7 +20,7 @@ echo "vscode:vscode" | chpasswd
 echo "KexAlgorithms diffie-hellman-group1-sha1,curve25519-sha256@libssh.org,ecdh-sha2-nistp256,ecdh-sha2-nistp384,ecdh-sha2-nistp521,diffie-hellman-group-exchange-sha256,diffie-hellman-group14-sha1" >> /etc/ssh/ssh_config
 
 # Export environment variables for TopoViewer
-export TOPOVIEWER_HOST_CLAB="127.0.0.1"
+export TOPOVIEWER_HOST_CLAB="localhost"
 export TOPOVIEWER_CLAB_ADDRESS="172.20.20.1"
 export TOPOVIEWER_HOST_CLAB_USER="vscode"
 export TOPOVIEWER_HOST_CLAB_PASS="vscode"
