@@ -28,13 +28,13 @@ ask_for_input() {
 }
 
 # Prompt for the host input and parse if it contains a port
-read -p "Enter the clab-server-hostname:port (e.g., nsp-clab1.nice.nokia.net:8081): " host_input
+read -p "Enter the clab-server-hostname:port (e.g., nsp-clab1.nice.nokia.net:8080): " host_input
 if [[ $host_input == *:* ]]; then
   TOPOVIEWER_HOST_CLAB="${host_input%:*}"
   TOPOVIEWER_SERVER_PORT="${host_input##*:}"
 else
   TOPOVIEWER_HOST_CLAB="$host_input"
-  TOPOVIEWER_SERVER_PORT="default_port" # Replace with a default port if needed
+  TOPOVIEWER_SERVER_PORT="8080" # Replace with a default port if needed
 fi
 export TOPOVIEWER_HOST_CLAB
 export TOPOVIEWER_SERVER_PORT
@@ -65,11 +65,14 @@ envsubst < "$TEMPLATE_FILE" > "$OUTPUT_FILE"
 
 echo "Generated $OUTPUT_FILE with the substituted environment variables."
 
+# set TOPOVIEWER_CLAB_TOPO_YAML = clab-demo-output.yaml
 TOPOVIEWER_CLAB_TOPO_YAML="$OUTPUT_FILE"
-
 
 # Run the clab deploy command with the generated file
 echo "Running clab deploy with the generated configuration..."
+
+sudo clab destroy -t "$TOPOVIEWER_CLAB_TOPO_YAML" 
+
 sudo clab deploy -t "$TOPOVIEWER_CLAB_TOPO_YAML" --reconfigure
 
 # Obfuscate the CLAB_PASS in both output files
