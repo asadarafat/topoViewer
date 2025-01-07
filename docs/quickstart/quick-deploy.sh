@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Download the file and set it as TOPOVIEWER_CLAB_TOPO_YAML
-TOPOVIEWER_CLAB_TOPO_YAML="clab-demo-output.yaml"
+TOPOVIEWER_CLAB_TOPO_YAML="clab-demo.yaml"
 curl -o "$TOPOVIEWER_CLAB_TOPO_YAML" -L "https://raw.githubusercontent.com/asadarafat/topoViewer/refs/heads/development/docs/quickstart/clab-demo.yaml"
 if [[ $? -ne 0 ]]; then
   echo "Failed to download the topology YAML file."
@@ -65,9 +65,12 @@ envsubst < "$TEMPLATE_FILE" > "$OUTPUT_FILE"
 
 echo "Generated $OUTPUT_FILE with the substituted environment variables."
 
+TOPOVIEWER_CLAB_TOPO_YAML="$OUTPUT_FILE"
+
+
 # Run the clab deploy command with the generated file
 echo "Running clab deploy with the generated configuration..."
-sudo clab deploy -t "$OUTPUT_FILE" --reconfigure
+sudo clab deploy -t "$TOPOVIEWER_CLAB_TOPO_YAML" --reconfigure
 
 # Obfuscate the CLAB_PASS in both output files
 sed -i "s/CLAB_PASS: \"$TOPOVIEWER_HOST_CLAB_PASS\"/CLAB_PASS: \"****\"/" "$OUTPUT_FILE"
