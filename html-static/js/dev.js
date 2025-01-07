@@ -2117,8 +2117,12 @@ async function linkWireshark(event, option, endpoint, referenceElementAfterId) {
 
 		clabAllowedHostname = environments["clab-allowed-hostname"]
 
-		clabServerAddress = environments["clab-server-address"]
+		clabAllowedHostname01 = environments["clab-allowed-hostname01"]
+		if (clabAllowedHostname01 == ""){
+			clabAllowedHostname01 =clabAllowedHostname
+		}
 
+		clabServerAddress = environments["clab-server-address"]
 
 		clabSourceLongName = edgeData["data"]["extraData"]["clabSourceLongName"]
 		clabSourcePort = edgeData["data"]["extraData"]["clabSourcePort"]
@@ -2139,7 +2143,7 @@ async function linkWireshark(event, option, endpoint, referenceElementAfterId) {
 
 		} else if (option == "edgeSharkInterface") {
 			if (endpoint == "source") {
-				baseUrl = `packetflix:ws://${clabAllowedHostname}:5001/capture?`;
+				baseUrl = `packetflix:ws://${clabAllowedHostname01}:5001/capture?`;
 
 				netNsResponse = await sendRequestToEndpointGetV3("/clab-node-network-namespace", argsList = [clabSourceLongName])
 				console.info("linkWireshark - netNsSource: ", netNsResponse.namespace_id.slice(netNsResponse.namespace_id.indexOf("[") + 1, netNsResponse.namespace_id.indexOf("]")))
@@ -2151,7 +2155,7 @@ async function linkWireshark(event, option, endpoint, referenceElementAfterId) {
 				window.open(edgeSharkHref);
 
 			} else if (endpoint == "target") {
-				baseUrl = `packetflix:ws://${clabAllowedHostname}:5001/capture?`;
+				baseUrl = `packetflix:ws://${clabAllowedHostname01}:5001/capture?`;
 
 				netNsResponse = await sendRequestToEndpointGetV3("/clab-node-network-namespace", argsList = [clabTargetLongName])
 				console.info("linkWireshark - netNsSource: ", netNsResponse.namespace_id.slice(netNsResponse.namespace_id.indexOf("[") + 1, netNsResponse.namespace_id.indexOf("]")))
@@ -2165,7 +2169,7 @@ async function linkWireshark(event, option, endpoint, referenceElementAfterId) {
 
 		} else if (option == "edgeSharkSubInterface") {
 			if (referenceElementAfterId == "endpoint-a-edgeshark") {
-				baseUrl = `packetflix:ws://${clabAllowedHostname}:5001/capture?`;
+				baseUrl = `packetflix:ws://${clabAllowedHostname01}:5001/capture?`;
 
 				netNsResponse = await sendRequestToEndpointGetV3("/clab-node-network-namespace", argsList = [clabSourceLongName])
 				console.info("linkWireshark - netNsSource: ", netNsResponse.namespace_id.slice(netNsResponse.namespace_id.indexOf("[") + 1, netNsResponse.namespace_id.indexOf("]")))
@@ -2178,7 +2182,7 @@ async function linkWireshark(event, option, endpoint, referenceElementAfterId) {
 			}
 			if (referenceElementAfterId == "endpoint-b-edgeshark") {
 				console.info("linkWireshark - endpoint-b-edgeshark")
-				baseUrl = `packetflix:ws://${clabAllowedHostname}:5001/capture?`;
+				baseUrl = `packetflix:ws://${clabAllowedHostname01}:5001/capture?`;
 
 				netNsResponse = await sendRequestToEndpointGetV3("/clab-node-network-namespace", argsList = [clabTargetLongName])
 				console.info("linkWireshark - netNsSource: ", netNsResponse.namespace_id.slice(netNsResponse.namespace_id.indexOf("[") + 1, netNsResponse.namespace_id.indexOf("]")))
