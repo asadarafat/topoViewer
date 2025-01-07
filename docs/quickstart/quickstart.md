@@ -30,26 +30,29 @@ This quick start guide will help you deploy topoViewer using Containerlab and ge
 The `clab-demo.yaml` file configures the main `topoviewer` container and additional network elements, including Spine and Leaf nodes. Here’s an outline of the main `topoviewer` node:
 
 ```yaml
-topology:  
+topology:
   nodes:
     topoviewer:
       kind: linux
-      image: ghcr.io/asadarafat/topoviewer:nightly-24.10.30
+      image: ghcr.io/asadarafat/topoviewer:nightly-25.01.09
       ports:
-        - ${TOPOVIEWER_SERVER_PORT}:${TOPOVIEWER_SERVER_PORT}
-      startup-delay: 5
+        - 8080:8080
+      startup-delay: 2
       binds:
         - /var/run/docker.sock:/var/run/docker.sock:ro
-        - clab-demo-output.yaml:/opt/topoviewer/local-bind/clab-demo-output.yaml:ro
+        - ${TOPOVIEWER_CLAB_TOPO_YAML}:/opt/topoviewer/local-bind/${TOPOVIEWER_CLAB_TOPO_YAML}:ro
       env:
-        ALLOWED_HOSTNAME: "${TOPOVIEWER_HOST_CLAB}"
+        ### These are the environment variables for topoviewer container
+        ALLOWED_HOSTNAME: "${TOPOVIEWER_HOST_CLAB}" ## TopoViewer server hostname.
+        CLAB_ADDRESS_SERVER: "${TOPOVIEWER_CLAB_ADDRESS}" ## Option to set containerlab server, 172.20.20.1 is containerlab's management network default-gateway. If this not set ALLOWED_HOSTNAME will be used as CLAB_ADDRESS_SERVER.
         CLAB_USER: "${TOPOVIEWER_HOST_CLAB_USER}"
         CLAB_PASS: "${TOPOVIEWER_HOST_CLAB_PASS}"
         SERVER_PORT: "${TOPOVIEWER_SERVER_PORT}"
-        CLAB_TOPO_YAML: clab-demo-output.yaml
+        CLAB_TOPO_YAML: ${TOPOVIEWER_CLAB_TOPO_YAML}
       labels:
-        topoviewer-role: controller
+        topoViewer-role: controller
       exec:
+        ## This is the entrypoint script of topoviewer container
         - '/opt/topoviewer/entrypoint.sh'
     ...
 ```

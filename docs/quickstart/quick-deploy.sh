@@ -1,13 +1,15 @@
 #!/bin/bash
 
 # Download the file and set it as TOPOVIEWER_CLAB_TOPO_YAML
-TOPOVIEWER_CLAB_TOPO_YAML="clab-demo.yaml"
+TOPOVIEWER_CLAB_TOPO_YAML="clab-demo-output.yaml"
 curl -o "$TOPOVIEWER_CLAB_TOPO_YAML" -L "https://raw.githubusercontent.com/asadarafat/topoViewer/refs/heads/development/docs/quickstart/clab-demo.yaml"
 if [[ $? -ne 0 ]]; then
   echo "Failed to download the topology YAML file."
   exit 1
 fi
 echo "Downloaded topology file: $TOPOVIEWER_CLAB_TOPO_YAML"
+
+export TOPOVIEWER_CLAB_TOPO_YAML
 
 # Function to prompt user and save input as environment variables
 ask_for_input() {
