@@ -55,12 +55,24 @@ func GetEnvironmentsHandler(w http.ResponseWriter, r *http.Request, cyTopo *topo
 		existingData = []map[string]interface{}{}
 	}
 
+	var hostname01 string
+
+	allowedHostnames := confClab.GetStringSlice("allowed-hostnames")
+	if len(allowedHostnames) == 1 {
+		hostname01 = "127.0.0.1"
+	} else if len(allowedHostnames) > 1 {
+		hostname01 = allowedHostnames[1]
+	} else {
+		// Handle case where there are no allowed hostnames or log an error
+		hostname01 = "default-hostname" // or handle as needed
+	}
+
 	environments := Environments{
 		EnvWorkingDirectory:     confClab.GetString("workdir"),
 		EnvClabName:             cyTopo.ClabTopoDataV2.Name,
 		EnvClabServerAddress:    confClab.GetString("clab-server-address"),
 		EnvAllowedHostname:      confClab.GetStringSlice("allowed-hostnames")[0],
-		EnvAllowedHostname01:    confClab.GetStringSlice("allowed-hostnames")[1],
+		EnvAllowedHostname01:    hostname01,
 		EnvClabServerPort:       fmt.Sprintf("%d", confClab.GetInt("server-port")),
 		EnvDeploymentType:       confClab.GetString("deployment-type"),
 		EnvTopoViewerVersion:    VersionInfo,
