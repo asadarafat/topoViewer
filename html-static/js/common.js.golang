@@ -33,80 +33,22 @@ async function callGoFunction(goFunctionName, arg01, arg02, arg03) {
 }
 
 
-// async function getEnvironments(event) {
-// 	try {
-// 		const environments = await sendRequestToEndpointGetV2("/get-environments");
-
-// 		// Handle the response data
-// 		if (environments && typeof environments === 'object' && Object.keys(environments).length > 0) {
-// 			console.log("Valid non-empty JSON response received:", environments);
-// 			return environments
-
-// 		} else {
-// 			console.log("Empty or invalid JSON response received");
-// 		}
-// 	} catch (error) {
-// 		console.error("Error occurred:", error);
-// 		// Handle errors as needed
-// 	}
-// }
-
-/**
- * Fetches environment configurations based on the deployment type.
- * 
- * @param {Event} event - The event triggering the function.
- * @returns {Promise<Object|null>} - Returns the environments object or null if an error occurs.
- */
 async function getEnvironments(event) {
-    // Define deployment type using const to prevent reassignment and scope pollution
-    // const deploymentType = "vs-code";
+	try {
+		const environments = await sendRequestToEndpointGetV2("/get-environments");
 
-    if (isVscodeDeployment == true) {
-        try {
-            // Await the fetch call to ensure the promise resolves before proceeding
-            const response = await fetch(window.jsonFileUrlDataEnvironment);
+		// Handle the response data
+		if (environments && typeof environments === 'object' && Object.keys(environments).length > 0) {
+			console.log("Valid non-empty JSON response received:", environments);
+			return environments
 
-            // Check if the response is successful
-            if (!response.ok) {
-                throw new Error(`Network response was not ok: ${response.status} ${response.statusText}`);
-            }
-
-            // Await the JSON parsing of the response
-            const environments = await response.json();
-
-            // Log the fetched environments for debugging purposes
-            console.log("Fetched Environments:", environments);
-
-            // Return the parsed environments object
-            return environments;
-
-        } catch (error) {
-            // Log any errors that occur during the fetch or parsing process
-            console.error("Error occurred while fetching environments:", error);
-            // Optionally, handle the error further or rethrow
-            return null;
-        }
-
-    } else {
-        try {
-            // Await the custom function that sends a request to an endpoint
-            const environments = await sendRequestToEndpointGetV2("/get-environments");
-
-            // Validate the response data
-            if (environments && typeof environments === 'object' && Object.keys(environments).length > 0) {
-                console.log("Valid non-empty JSON response received:", environments);
-                return environments;
-            } else {
-                console.log("Empty or invalid JSON response received");
-                return null;
-            }
-        } catch (error) {
-            // Log any errors that occur during the request
-            console.error("Error occurred while fetching environments from endpoint:", error);
-            // Optionally, handle the error further or rethrow
-            return null;
-        }
-    }
+		} else {
+			console.log("Empty or invalid JSON response received");
+		}
+	} catch (error) {
+		console.error("Error occurred:", error);
+		// Handle errors as needed
+	}
 }
 
 
