@@ -14,7 +14,6 @@ var nodeContainerStatusVisibility = false;
 var globalShellUrl = "/js/cloudshell"
 
 var labName
-var deploymentType
 
 var multiLayerViewPortState = false;
 
@@ -23,113 +22,99 @@ var isGeoMapInitialized = false;
 var cytoscapeLeafletMap;
 var cytoscapeLeafletLeaf;
 
+var isVscodeDeployment = `${window.isVscodeDeployment}`
 
 
-document.addEventListener("DOMContentLoaded", async function() {
 
-	// hortizontal layout
-	// function initializeResizingLogic() {
-	// 	// Get elements with checks
-	// 	const divider = document.getElementById('divider');
-	// 	const dataDisplay = document.getElementById('data-display');
-	// 	const rootDiv = document.getElementById('root-div');
-	// 	const togglePanelButton = document.getElementById('toggle-panel');
 
-	// 	// Check for required elements
-	// 	if (!divider || !dataDisplay || !rootDiv || !togglePanelButton) {
-	// 	  console.warn('One or more required elements for resizing logic are missing. Initialization aborted.');
-	// 	  return;
-	// 	}
+/// VS-CODE BackEnd messaging handler
 
-	// 	let isDragging = false;
-	// 	let resizeTimeout;
+require.config({
+	paths: {
+		'vs': 'https://cdn.jsdelivr.net/npm/monaco-editor@0.50.0/min/vs'
+	}
+});
 
-	// 	// Debounce function
-	// 	function debounce(func, delay) {
-	// 	  clearTimeout(resizeTimeout);
-	// 	  resizeTimeout = setTimeout(func, delay);
-	// 	}
+// Example: Load Monaco Editor on DOMContentLoaded or similar
+document.addEventListener('DOMContentLoaded', function () {
+	require(['vs/editor/editor.main'], function () {
+		// Monaco is now loaded
+		// You can set up your editor or do any post-load logic here
+		console.log("Monaco Editor is initialized.");
 
-	// 	// Function to animate cy.fit()
-	// 	function animateFit() {
-	// 	  if (typeof cy.animate === 'function') {
-	// 		cy.animate({
-	// 		  fit: {
-	// 			padding: 10, // Add padding around the graph
-	// 		  },
-	// 		  duration: 500, // Animation duration in milliseconds
-	// 		});
-	// 	  } else {
-	// 		console.warn('Cytoscape instance does not support animate. Skipping animation.');
-	// 	  }
-	// 	}
+		// You might set up your editor here, for example:
+		// window.monacoEditor = monaco.editor.create(document.getElementById('editorContainer'), ...);
+	});
+});
 
-	// 	// Handle dragging
-	// 	divider.addEventListener('mousedown', () => {
-	// 	  isDragging = true;
-	// 	  document.body.style.cursor = 'ns-resize';
-	// 	});
+// Acquire the VS Code API handle
+const vsCode = acquireVsCodeApi();
 
-	// 	document.addEventListener('mousemove', (e) => {
-	// 	  if (!isDragging) return;
+// Keep track of pending requests in a Map (requestId -> {resolve, reject})
+const pendingRequests = new Map();
+let requestCounter = 0;
 
-	// 	  const screenHeight = window.innerHeight;
-	// 	  const offsetY = e.clientY;
-	// 	  const minHeight = 5; // Minimum height for data display
-	// 	  const maxHeight = screenHeight * 0.95; // Maximum height for data display
+/**
+ * backendGet(functionName, payload)
+ *
+ * Sends a message to the VS Code extension requesting
+ * that the specified backend function be invoked with `payload`.
+ * Returns a Promise that resolves with the result from the extension.
+ */
+function backendGet(functionName, payload) {
+	return new Promise((resolve, reject) => {
+		// Create a unique requestId
+		const requestId = `req_${Date.now()}_${++requestCounter}`;
 
-	// 	  const dataDisplayHeight = screenHeight - offsetY;
-	// 	  if (dataDisplayHeight >= minHeight && dataDisplayHeight <= maxHeight) {
-	// 		const rootDivHeight = screenHeight - dataDisplayHeight;
+		// Store resolve/reject so we can resolve the Promise when the backend responds
+		pendingRequests.set(requestId, { resolve, reject });
 
-	// 		// Update heights
-	// 		dataDisplay.style.height = `${(dataDisplayHeight / screenHeight) * 100}%`;
-	// 		rootDiv.style.height = `${(rootDivHeight / screenHeight) * 100}%`;
+		// Send a message to the extension
+		vsCode.postMessage({
+			type: 'backendGet',
+			requestId: requestId,
+			functionName: functionName,
+			payload: payload
+		});
+	});
+}
 
-	// 		// Add or remove transparency
-	// 		if ((dataDisplayHeight / screenHeight) * 100 > 60) {
-	// 		  dataDisplay.classList.add('transparent');
-	// 		} else {
-	// 		  dataDisplay.classList.remove('transparent');
-	// 		}
-	// 	  }
+window.addEventListener('message', (event) => {
+	const msg = event.data; // The data sent from the extension
 
-	// 	  // Debounce the animation
-	// 	  debounce(() => {
-	// 		console.info('Fitting Cytoscape to new size with animation');
-	// 		animateFit();
-	// 	  }, 500); // Delay of 500ms
-	// 	});
+	if (msg && msg.type === 'backendGetResponse') {
+		const { requestId, result, error } = msg;
+		// Look up the pending request
+		const pending = pendingRequests.get(requestId);
+		if (!pending) {
+			console.warn("Got response for unknown requestId:", requestId);
+			return;
+		}
 
-	// 	document.addEventListener('mouseup', () => {
-	// 	  isDragging = false;
-	// 	  document.body.style.cursor = 'default';
-	// 	});
+		// Clean up
+		pendingRequests.delete(requestId);
 
-	// 	// Toggle panel visibility
-	// 	togglePanelButton.addEventListener('click', () => {
-	// 	  const isHidden = parseFloat(dataDisplay.style.height) <= 5;
-	// 	  if (isHidden) {
-	// 		// Restore to default
-	// 		dataDisplay.style.height = '30%';
-	// 		rootDiv.style.height = '70%';
-	// 		togglePanelButton.textContent = 'Hide';
-	// 		dataDisplay.classList.remove('transparent');
-	// 	  } else {
-	// 		// Collapse to 5%
-	// 		dataDisplay.style.height = '5%';
-	// 		rootDiv.style.height = '95%';
-	// 		togglePanelButton.textContent = 'Show';
-	// 		dataDisplay.classList.add('transparent');
-	// 	  }
+		// If the extension signaled an error, reject, else resolve
+		if (error) {
+			pending.reject(new Error(error));
+		} else {
+			pending.resolve(result);
+		}
+	}
+});
 
-	// 	  // Animate fit after toggling
-	// 	  debounce(() => {
-	// 		console.info('Fitting Cytoscape to new size with animation');
-	// 		animateFit();
-	// 	  }, 500); // Delay of 500ms
-	// 	});
-	//   }
+// using backendGt
+async function runMyBackendCall() {
+	try {
+		const response = await backendGet("backendFuncBB", { foo: "bar" });
+		console.log("############### Success from backend:", response);
+	} catch (err) {
+		console.error("############### Backend call failed:", err);
+	}
+}
+
+
+document.addEventListener("DOMContentLoaded", async function () {
 
 	// vertical layout
 	function initializeResizingLogic() {
@@ -260,14 +245,14 @@ document.addEventListener("DOMContentLoaded", async function() {
 		});
 	}
 
-
-
+	if (isVscodeDeployment == true) {
+		// aarafat-tag: vs-code
+		initUptime();
+		runMyBackendCall()
+	}
 
 	// Call the function during initialization
 	initializeResizingLogic(cy);
-
-
-
 
 	detectColorScheme()
 	await changeTitle()
@@ -304,8 +289,54 @@ document.addEventListener("DOMContentLoaded", async function() {
 		return socket;
 	}
 
-	// WebSocket for uptime
-	const socketUptime = initializeWebSocket("/uptime", async (msgUptime) => {
+	if (deploymentType != "vs-code") {
+		// deploymenType !vs-code
+		// WebSocket for uptime
+		const socketUptime = initializeWebSocket("/uptime", async (msgUptime) => {
+			environments = await getEnvironments();
+			labName = environments["clab-name"]
+			deploymentType = environments["deploymentType"]
+
+			console.info("initializeWebSocket - getEnvironments", environments)
+			console.info("initializeWebSocket - labName", environments["clab-name"])
+
+			const string01 = "Containerlab Topology: " + labName;
+			const string02 = " ::: Uptime: " + msgUptime.data;
+
+			const ClabSubtitle = document.getElementById("ClabSubtitle");
+			const messageBody = string01 + string02;
+
+			ClabSubtitle.innerText = messageBody;
+			console.info(ClabSubtitle.innerText);
+		});
+		// WebSocket for ContainerNodeStatus
+		const socketContainerNodeStatusInitial = initializeWebSocket(
+			"/containerNodeStatus",
+			(msgContainerNodeStatus) => {
+				try {
+					const {
+						Names,
+						Status,
+						State
+					} = JSON.parse(msgContainerNodeStatus.data);
+					setNodeContainerStatus(Names, Status);
+					console.info(JSON.parse(msgContainerNodeStatus.data));
+
+					const IPAddress = JSON.parse(msgContainerNodeStatus.data).Networks.Networks.clab.IPAddress;
+					const GlobalIPv6Address = JSON.parse(msgContainerNodeStatus.data).Networks.Networks.clab.GlobalIPv6Address
+
+
+					setNodeDataWithContainerAttribute(Names, Status, State, IPAddress, GlobalIPv6Address);
+
+				} catch (error) {
+					console.error("Error parsing JSON:", error);
+				}
+			},
+		);
+	}
+
+	// deploymenType vs-code
+	async function initUptime() {
 		environments = await getEnvironments();
 		labName = environments["clab-name"]
 		deploymentType = environments["deploymentType"]
@@ -314,39 +345,16 @@ document.addEventListener("DOMContentLoaded", async function() {
 		console.info("initializeWebSocket - labName", environments["clab-name"])
 
 		const string01 = "Containerlab Topology: " + labName;
-		const string02 = " ::: Uptime: " + msgUptime.data;
+		const string02 = " ::: Uptime: " + "msgUptime.data";
 
 		const ClabSubtitle = document.getElementById("ClabSubtitle");
 		const messageBody = string01 + string02;
 
 		ClabSubtitle.innerText = messageBody;
 		console.info(ClabSubtitle.innerText);
-	});
-
-	// WebSocket for ContainerNodeStatus
-	const socketContainerNodeStatusInitial = initializeWebSocket(
-		"/containerNodeStatus",
-		(msgContainerNodeStatus) => {
-			try {
-				const {
-					Names,
-					Status,
-					State
-				} = JSON.parse(msgContainerNodeStatus.data);
-				setNodeContainerStatus(Names, Status);
-				console.info(JSON.parse(msgContainerNodeStatus.data));
-
-				const IPAddress = JSON.parse(msgContainerNodeStatus.data).Networks.Networks.clab.IPAddress;
-				const GlobalIPv6Address = JSON.parse(msgContainerNodeStatus.data).Networks.Networks.clab.GlobalIPv6Address
+	}
 
 
-				setNodeDataWithContainerAttribute(Names, Status, State, IPAddress, GlobalIPv6Address);
-
-			} catch (error) {
-				console.error("Error parsing JSON:", error);
-			}
-		},
-	);
 
 	// helper functions for cytoscapePopper
 	function popperFactory(ref, content, opts) {
@@ -391,7 +399,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 				"background-color": "#3498db",
 				label: "data(label)",
 			},
-		}, ],
+		},],
 		boxSelectionEnabled: true,
 		selectionType: 'additive' // Allow additive selection
 
@@ -480,11 +488,11 @@ document.addEventListener("DOMContentLoaded", async function() {
 		snapFrequency: 150, // the number of times per second (Hz) that snap checks done (lower is less expensive)
 		noEdgeEventsInDraw: false, // set events:no to edges during draws, prevents mouseouts on compounds
 		disableBrowserGestures: false, // during an edge drawing gesture, disable browser gestures such as two-finger trackpad swipe and pinch-to-zoom
-		canConnect: function(sourceNode, targetNode) {
+		canConnect: function (sourceNode, targetNode) {
 			// whether an edge can be created between source and target
 			return !sourceNode.same(targetNode) && !sourceNode.isParent() && !targetNode.isParent();
 		},
-		edgeParams: function(sourceNode, targetNode) {
+		edgeParams: function (sourceNode, targetNode) {
 			// for edges between the specified source and target
 			// return element object to be passed to cy.add() for edge
 			return {};
@@ -629,15 +637,39 @@ document.addEventListener("DOMContentLoaded", async function() {
 		parentSpacing: -1
 	});
 
-	// Fetch and load element data from a JSON file
-	// Main Version EDITOR
-	fetch("dataCytoMarshall.json")
+	var jsonFileUrlDataCytoMarshall
+
+	if (isVscodeDeployment == true) {
+		jsonFileUrlDataCytoMarshall = window.jsonFileUrlDataCytoMarshall
+	} else {
+		jsonFileUrlDataCytoMarshall = "dataCytoMarshall.json"
+	}
+
+	// Fetch and load element data from a JSON file , jsonFileUrl absolut path of dataCytoMarshall.json
+	// Main Version EDITOR 
+	console.log(`deployment-type: ${isVscodeDeployment}`)
+	console.log(`jsonFileUrlDataCytoMarshall: ${jsonFileUrlDataCytoMarshall}`)
+
+
+	fetch(jsonFileUrlDataCytoMarshall)
 
 		.then((response) => response.json())
 		.then((elements) => {
 
 			// Process the data to assign missing lat and lng
-			const updatedElements = assignMissingLatLng(elements);
+			var updatedElements
+			if (isVscodeDeployment == true) {
+				updatedElements = (elements);
+			} else {
+				updatedElements = assignMissingLatLng(elements);
+			}
+
+			// deploymentType != vs-code
+			// const updatedElements = assignMissingLatLng(elements);
+
+			// deploymentType == vs-code
+			// const updatedElements = (elements);
+
 
 			// Now, you can use updatedElements as needed
 			// For example, logging them to the console
@@ -674,11 +706,11 @@ document.addEventListener("DOMContentLoaded", async function() {
 
 			// Example collapse/expand after some delay
 			// Make sure the '#parent' node exists in your loaded elements
-			setTimeout(function() {
+			setTimeout(function () {
 				var parent = cy.$('#parent'); // Ensure that '#parent' is actually present in dataCytoMarshall.json
 				cyExpandCollapse.collapse(parent);
 
-				setTimeout(function() {
+				setTimeout(function () {
 					cyExpandCollapse.expand(parent);
 				}, 2000);
 			}, 2000);
@@ -747,7 +779,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 	});
 
 	// Toggle the Panel(s) when clicking on the cy container
-	document.getElementById("cy").addEventListener("click", async function(event) {
+	document.getElementById("cy").addEventListener("click", async function (event) {
 
 		console.info("cy container clicked init");
 		console.info("isPanel01Cy: ", isPanel01Cy);
@@ -783,7 +815,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 				var ViewPortDrawerElements =
 					document.getElementsByClassName("ViewPortDrawer");
 				var ViewPortDrawerArray = Array.from(ViewPortDrawerElements);
-				ViewPortDrawerArray.forEach(function(element) {
+				ViewPortDrawerArray.forEach(function (element) {
 					element.style.display = "none";
 				});
 
@@ -845,7 +877,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 	});
 
 	// Click event listener for nodes
-	cy.on("click", "node", async function(event) {
+	cy.on("click", "node", async function (event) {
 
 
 		console.info("node clicked init");
@@ -919,7 +951,8 @@ document.addEventListener("DOMContentLoaded", async function() {
 					panelOverlays[i].style.display = "none";
 				}
 				console.info(node);
-				console.info(node.data("containerDockerExtraAttribute").status);
+				// arafat-tag: vs-code
+				// console.info(node.data("containerDockerExtraAttribute").status); aarafat-tag: vs-code
 				console.info(node.data("extraData"));
 				if (document.getElementById("panel-node").style.display === "none") {
 					document.getElementById("panel-node").style.display = "block";
@@ -928,7 +961,8 @@ document.addEventListener("DOMContentLoaded", async function() {
 				}
 
 				document.getElementById("panel-node-name").textContent = node.data("extraData").longname;
-				document.getElementById("panel-node-status").textContent = node.data("containerDockerExtraAttribute").status;
+				// arafat-tag: vs-code
+				// document.getElementById("panel-node-status").textContent = node.data("containerDockerExtraAttribute").status;
 				document.getElementById("panel-node-kind").textContent = node.data("extraData").kind;
 				document.getElementById("panel-node-image").textContent = node.data("extraData").image;
 				document.getElementById("panel-node-mgmtipv4").textContent = node.data("extraData").mgmtIpv4Addresss;
@@ -953,7 +987,8 @@ document.addEventListener("DOMContentLoaded", async function() {
 				}
 
 				document.getElementById("data-display-panel-node-name").textContent = node.data("extraData").longname;
-				document.getElementById("data-display-panel-node-status").textContent = node.data("containerDockerExtraAttribute").status;
+				// arafat-tag: vs-code
+				// document.getElementById("data-display-panel-node-status").textContent = node.data("containerDockerExtraAttribute").status;
 				document.getElementById("data-display-panel-node-kind").textContent = node.data("extraData").kind;
 				document.getElementById("data-display-panel-node-image").textContent = node.data("extraData").image;
 				document.getElementById("data-display-panel-node-mgmtipv4").textContent = node.data("extraData").mgmtIpv4Addresss;
@@ -974,7 +1009,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 	});
 
 	// Click event listener for edges
-	cy.on("click", "edge", async function(event) {
+	cy.on("click", "edge", async function (event) {
 
 		console.info("edge clicked init");
 		console.info("isPanel01Cy: ", isPanel01Cy);
@@ -1012,7 +1047,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 		}
 
 		// Revert the color of other edges that were not clicked (e.g., back to their default color)
-		cy.edges().forEach(function(edge) {
+		cy.edges().forEach(function (edge) {
 			if (edge !== clickedEdge) {
 				edge.style("line-color", defaultEdgeColor);
 			}
@@ -1675,7 +1710,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 	}
 
 	function setNodeContainerStatus(containerNodeName, containerNodeStatus) {
-		cy.nodes().forEach(function(node) {
+		cy.nodes().forEach(function (node) {
 			var nodeId = node.data("id");
 
 			// Find the corresponding status nodes based on node ID
@@ -1740,7 +1775,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 	}
 
 	function setNodeDataWithContainerAttribute(containerNodeName, status, state, IPAddress, GlobalIPv6Address) {
-		cy.nodes().forEach(function(node) {
+		cy.nodes().forEach(function (node) {
 			var nodeId = node.data("id");
 			if (containerNodeName.includes(nodeId)) {
 				var containerDockerExtraAttributeData = {
@@ -1829,7 +1864,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 			`${modalId}-modalBackgroundId`,
 		);
 
-		modalBackground.addEventListener("click", function() {
+		modalBackground.addEventListener("click", function () {
 			const modal = modalBackground.parentNode;
 			modal.classList.remove("is-active");
 		});
@@ -1878,14 +1913,14 @@ document.addEventListener("DOMContentLoaded", async function() {
 
 		// create event listener
 		const performActionButton = document.getElementById("performActionButton");
-		performActionButton.addEventListener("click", function() {
+		performActionButton.addEventListener("click", function () {
 			const checkboxName = "checkboxSaveViewPort";
 			const checkboxes = document.querySelectorAll(
 				`input[type="checkbox"][name="${checkboxName}"]`,
 			);
 			const selectedOptions = [];
 
-			checkboxes.forEach(function(checkbox) {
+			checkboxes.forEach(function (checkbox) {
 				if (checkbox.checked) {
 					selectedOptions.push(checkbox.value);
 				}
@@ -1987,7 +2022,7 @@ async function sshCliCommandCopy(event) {
 
 		// Check if the clipboard API is available
 		if (navigator.clipboard && navigator.clipboard.writeText) {
-			navigator.clipboard.writeText(sshCopyString).then(function() {
+			navigator.clipboard.writeText(sshCopyString).then(function () {
 				bulmaToast.toast({
 					message: `Hey there, text cpied to clipboard. 😎`,
 					type: "is-warning is-size-6 p-3",
@@ -1995,7 +2030,7 @@ async function sshCliCommandCopy(event) {
 					position: "top-center",
 					closeOnClick: true,
 				});
-			}).catch(function(error) {
+			}).catch(function (error) {
 				console.error('Could not copy text: ', error);
 			});
 		} else {
@@ -2118,8 +2153,8 @@ async function linkWireshark(event, option, endpoint, referenceElementAfterId) {
 		clabAllowedHostname = environments["clab-allowed-hostname"]
 
 		clabAllowedHostname01 = environments["clab-allowed-hostname01"]
-		if (clabAllowedHostname01 == ""){
-			clabAllowedHostname01 =clabAllowedHostname
+		if (clabAllowedHostname01 == "") {
+			clabAllowedHostname01 = clabAllowedHostname
 		}
 
 		clabServerAddress = environments["clab-server-address"]
@@ -2202,7 +2237,7 @@ async function linkWireshark(event, option, endpoint, referenceElementAfterId) {
 				}
 				// Check if the clipboard API is available
 				if (navigator.clipboard && navigator.clipboard.writeText) {
-					navigator.clipboard.writeText(wiresharkSshCommand).then(function() {
+					navigator.clipboard.writeText(wiresharkSshCommand).then(function () {
 						bulmaToast.toast({
 							message: `Hey, now you can paste the link to your terminal console. 😎`,
 							type: "is-warning is-size-6 p-3",
@@ -2210,7 +2245,7 @@ async function linkWireshark(event, option, endpoint, referenceElementAfterId) {
 							position: "top-center",
 							closeOnClick: true,
 						});
-					}).catch(function(error) {
+					}).catch(function (error) {
 						console.error('Could not copy text: ', error);
 					});
 				} else {
@@ -2245,7 +2280,7 @@ async function linkWireshark(event, option, endpoint, referenceElementAfterId) {
 				}
 				// Check if the clipboard API is available
 				if (navigator.clipboard && navigator.clipboard.writeText) {
-					navigator.clipboard.writeText(wiresharkSshCommand).then(function() {
+					navigator.clipboard.writeText(wiresharkSshCommand).then(function () {
 						bulmaToast.toast({
 							message: `Hey, now you can paste the link to your terminal console. 😎`,
 							type: "is-warning is-size-6 p-3",
@@ -2253,7 +2288,7 @@ async function linkWireshark(event, option, endpoint, referenceElementAfterId) {
 							position: "top-center",
 							closeOnClick: true,
 						});
-					}).catch(function(error) {
+					}).catch(function (error) {
 						console.error('Could not copy text: ', error);
 					});
 				} else {
@@ -2300,7 +2335,7 @@ async function linkWireshark(event, option, endpoint, referenceElementAfterId) {
 
 			// Check if the clipboard API is available
 			if (navigator.clipboard && navigator.clipboard.writeText) {
-				navigator.clipboard.writeText(wiresharkSshCommand).then(function() {
+				navigator.clipboard.writeText(wiresharkSshCommand).then(function () {
 					bulmaToast.toast({
 						message: `Hey, now you can paste the link to your terminal console. 😎`,
 						type: "is-warning is-size-6 p-3",
@@ -2308,7 +2343,7 @@ async function linkWireshark(event, option, endpoint, referenceElementAfterId) {
 						position: "top-center",
 						closeOnClick: true,
 					});
-				}).catch(function(error) {
+				}).catch(function (error) {
 					console.error('Could not copy text: ', error);
 				});
 			} else {
@@ -2403,6 +2438,9 @@ async function showPanelAbout(event) {
 	console.info("linkImpairment - environments: ", environments)
 
 	topoViewerVersion = environments["topoviewer-version"]
+
+	console.log("environments:", environments)
+	console.log("topoViewerVersion:", topoViewerVersion)
 
 	document.getElementById("panel-topoviewer-about").style.display = "block";
 
@@ -2713,14 +2751,14 @@ function viewportButtonsTopologyCapture() {
 
 function viewportButtonsLabelEndpoint() {
 	if (linkEndpointVisibility) {
-		cy.edges().forEach(function(edge) {
+		cy.edges().forEach(function (edge) {
 			edge.style("text-opacity", 0);
 			edge.style("text-background-opacity", 0);
 			linkEndpointVisibility = false;
 		});
 
 	} else {
-		cy.edges().forEach(function(edge) {
+		cy.edges().forEach(function (edge) {
 			edge.style("text-opacity", 1);
 			edge.style("text-background-opacity", 0.7);
 			linkEndpointVisibility = true;
@@ -2777,10 +2815,10 @@ function viewportDrawerLayoutForceDirected() {
 	// Calculate the layout for the optic layer (Layer-1)
 	cy.layout({
 		name: "cola",
-		nodeSpacing: function(node) {
+		nodeSpacing: function (node) {
 			return nodeGapValue;
 		},
-		edgeLength: function(edge) {
+		edgeLength: function (edge) {
 			return edgeLengthValue * 100 / edge.data("weight");
 		},
 		animate: true,
@@ -2822,11 +2860,11 @@ function viewportDrawerLayoutForceDirected() {
 	});
 	// Example collapse/expand after some delay
 	// Make sure the '#parent' node exists in your loaded elements
-	setTimeout(function() {
+	setTimeout(function () {
 		var parent = cy.$('#parent'); // Ensure that '#parent' is actually present in dataCytoMarshall.json
 		cyExpandCollapse.collapse(parent);
 
-		setTimeout(function() {
+		setTimeout(function () {
 			cyExpandCollapse.expand(parent);
 		}, 2000);
 	}, 2000);
@@ -2885,11 +2923,11 @@ function viewportDrawerLayoutForceDirectedRadial() {
 	});
 
 	// Example collapse/expand after some time:
-	setTimeout(function() {
+	setTimeout(function () {
 		var parent = cy.$('#parent');
 		cyExpandCollapse.collapse(parent);
 
-		setTimeout(function() {
+		setTimeout(function () {
 			cyExpandCollapse.expand(parent);
 		}, 2000);
 	}, 2000);
@@ -2908,13 +2946,13 @@ function viewportDrawerLayoutVertical() {
 
 	setTimeout(() => {
 		// Step 1: Position child nodes within their respective parents
-		cy.nodes().forEach(function(node) {
+		cy.nodes().forEach(function (node) {
 			if (node.isParent()) {
 				const children = node.children(); // Get the children of the current parent node
 				const cellWidth = node.width() / children.length; // Calculate the width for each child node
 
 				// Position child nodes evenly spaced within the parent node
-				children.forEach(function(child, index) {
+				children.forEach(function (child, index) {
 					const xPos = index * (cellWidth + nodevGapValue); // Horizontal position for the child
 					const yPos = 0; // Keep child nodes on the same vertical level
 
@@ -2946,7 +2984,7 @@ function viewportDrawerLayoutVertical() {
 		const centerX = 0; // Define the horizontal center reference
 
 		// Step 3: Find the widest parent node
-		cy.nodes().forEach(function(node) {
+		cy.nodes().forEach(function (node) {
 			if (node.isParent()) {
 				const width = node.width();
 				if (width > maxWidth) {
@@ -2961,7 +2999,7 @@ function viewportDrawerLayoutVertical() {
 		console.info("Division Factor: ", divisionFactor);
 
 		// Step 4: Position parent nodes vertically and align them relative to the widest parent node
-		sortedParents.forEach(function(parentNode) {
+		sortedParents.forEach(function (parentNode) {
 			const parentWidth = parentNode.width();
 
 			// Calculate horizontal position relative to the widest parent
@@ -2994,11 +3032,11 @@ function viewportDrawerLayoutVertical() {
 	});
 
 	// Example: Demonstrate expand/collapse behavior with a specific parent node
-	setTimeout(function() {
+	setTimeout(function () {
 		const parent = cy.$('#parent'); // Replace '#parent' with the actual parent node ID if needed
 		cyExpandCollapse.collapse(parent); // Collapse the parent node
 
-		setTimeout(function() {
+		setTimeout(function () {
 			cyExpandCollapse.expand(parent); // Re-expand the parent node after a delay
 		}, 2000); // Wait 2 seconds before expanding
 	}, 2000);
@@ -3018,13 +3056,13 @@ function viewportDrawerLayoutHorizontal() {
 
 	setTimeout(() => {
 		// Step 1: Position child nodes within their respective parents
-		cy.nodes().forEach(function(node) {
+		cy.nodes().forEach(function (node) {
 			if (node.isParent()) {
 				const children = node.children(); // Get the children of the current parent node
 				const cellHeight = node.height() / children.length; // Calculate the height for each child node
 
 				// Position child nodes evenly spaced within the parent node
-				children.forEach(function(child, index) {
+				children.forEach(function (child, index) {
 					const xPos = 0; // Keep child nodes on the same horizontal level
 					const yPos = index * (cellHeight + nodehGapValue); // Vertical position for the child
 
@@ -3056,7 +3094,7 @@ function viewportDrawerLayoutHorizontal() {
 		const centerY = 0; // Define the vertical center reference
 
 		// Step 3: Find the tallest parent node
-		cy.nodes().forEach(function(node) {
+		cy.nodes().forEach(function (node) {
 			if (node.isParent()) {
 				const height = node.height();
 				if (height > maxHeight) {
@@ -3071,7 +3109,7 @@ function viewportDrawerLayoutHorizontal() {
 		console.info("Division Factor: ", divisionFactor);
 
 		// Step 4: Position parent nodes horizontally and align them relative to the tallest parent node
-		sortedParents.forEach(function(parentNode) {
+		sortedParents.forEach(function (parentNode) {
 			const parentHeight = parentNode.height();
 
 			// Calculate vertical position relative to the tallest parent
@@ -3104,11 +3142,11 @@ function viewportDrawerLayoutHorizontal() {
 	});
 
 	// Example: Demonstrate expand/collapse behavior with a specific parent node
-	setTimeout(function() {
+	setTimeout(function () {
 		const parent = cy.$('#parent'); // Replace '#parent' with the actual parent node ID if needed
 		cyExpandCollapse.collapse(parent); // Collapse the parent node
 
-		setTimeout(function() {
+		setTimeout(function () {
 			cyExpandCollapse.expand(parent); // Re-expand the parent node after a delay
 		}, 2000); // Wait 2 seconds before expanding
 	}, 2000);
@@ -3202,7 +3240,7 @@ async function captureAndSaveViewportAsDrawIo(cy) {
 		}
 	}
 
-	cy.nodes().forEach(function(node) {
+	cy.nodes().forEach(function (node) {
 		const svgBase64 = svgBase64ByRole[node.data("topoViewerRole")] || (node.isParent() ? 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMSIgaGVpZ2h0PSIxIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciLz4=' : null);
 
 		if (svgBase64) {
@@ -3217,7 +3255,7 @@ async function captureAndSaveViewportAsDrawIo(cy) {
 	});
 
 
-	cy.edges().forEach(function(edge) {
+	cy.edges().forEach(function (edge) {
 		mxCells.push(`
             <mxCell id="${edge.data("id")}" value="" style="endArrow=none;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;strokeWidth=1;strokeColor=#969799;opacity=60;" parent="1" source="${edge.data("source")}" target="${edge.data("target")}" edge="1">
                 <mxGeometry width="50" height="50" relative="1" as="geometry" />
@@ -3338,7 +3376,7 @@ function initViewportDrawerClabEditoCheckboxToggle() {
 	const checkboxClabEditor = document.querySelector('#viewport-drawer-clab-editor-content-01 .checkbox-input');
 	const checkboxGeoMap = document.querySelector('#viewport-drawer-geo-map-content-01 .checkbox-input');
 
-	checkboxClabEditor.addEventListener('change', function() {
+	checkboxClabEditor.addEventListener('change', function () {
 		if (checkboxClabEditor.checked) {
 			checkboxGeoMap.checked = false;
 			showPanelContainerlabEditor();
@@ -3354,7 +3392,7 @@ function initViewportDrawerGeoMapCheckboxToggle() {
 	const checkboxClabEditor = document.querySelector('#viewport-drawer-clab-editor-content-01 .checkbox-input');
 	const checkboxGeoMap = document.querySelector('#viewport-drawer-geo-map-content-01 .checkbox-input');
 
-	checkboxGeoMap.addEventListener('change', function() {
+	checkboxGeoMap.addEventListener('change', function () {
 		if (checkboxGeoMap.checked) {
 			checkboxClabEditor.checked = false;
 			viewportDrawerLayoutGeoMap();
@@ -3470,57 +3508,541 @@ function loadCytoStyle(cy) {
 	// detect light or dark mode
 	const colorScheme = detectColorScheme();
 	console.info('The user prefers:', colorScheme);
-
 	console.log("multiLayerViewPortState", multiLayerViewPortState);
 
-	// Load and apply Cytoscape styles from cy-style.json using fetch
-	if (colorScheme == "light") {
-		fetch("css/cy-style-dark.json")
-			.then((response) => response.json())
-			.then((styles) => {
-				cy.style().fromJson(styles).update();
-				if (multiLayerViewPortState) {
-					// Initialize Cytoscape (assuming cy is already created)
-					parentNodeSvgBackground(cy, svgString);
-				}
-			})
-			.catch((error) => {
-				console.error(
-					"Oops, we hit a snag! Couldnt load the cyto styles, bro.",
-					error,
-				);
-				appendMessage(
-					`Oops, we hit a snag! Couldnt load the cyto styles, bro.: ${error}`,
-				);
-			});
+	// // Load and apply Cytoscape styles from cy-style.json using fetch
+	// if (colorScheme == "light") {
 
-	} else if (colorScheme == "dark") {
-		fetch("css/cy-style-dark.json")
-			.then((response) => response.json())
-			.then((styles) => {
+	// 	// fetch("css/cy-style-dark.json")
+	// 	fetch(window.jsonFileUrlDataCytoStyleDark)
 
-				console.log("isGeoMapInitialized", isGeoMapInitialized);
-				cy.style().fromJson(styles).update();
-				if (multiLayerViewPortState) {
-					// Initialize Cytoscape (assuming cy is already created)
-					parentNodeSvgBackground(cy, svgString);
-				}
-			})
-			.catch((error) => {
-				console.error(
-					"Oops, we hit a snag! Couldnt load the cyto styles, bro.",
-					error,
-				);
-				appendMessage(
-					`Oops, we hit a snag! Couldnt load the cyto styles, bro.: ${error}`,
-				);
-			});
+
+
+	// 		.then((response) => response.json())
+	// 		.then((styles) => {
+	// 			cy.style().fromJson(styles).update();
+	// 			if (multiLayerViewPortState) {
+	// 				// Initialize Cytoscape (assuming cy is already created)
+	// 				parentNodeSvgBackground(cy, svgString);
+	// 			}
+	// 		})
+	// 		.catch((error) => {
+	// 			console.error(
+	// 				"Oops, we hit a snag! Couldnt load the cyto styles, bro.",
+	// 				error,
+	// 			);
+	// 			appendMessage(
+	// 				`Oops, we hit a snag! Couldnt load the cyto styles, bro.: ${error}`,
+	// 			);
+	// 		});
+
+	// } else if (colorScheme == "dark") {
+	// 	// fetch("css/cy-style-dark.json")
+	// 	fetch(window.jsonFileUrlDataCytoStyleDark)
+
+	// 		.then((response) => response.json())
+	// 		.then((styles) => {
+
+	// 			console.log("isGeoMapInitialized", isGeoMapInitialized);
+	// 			cy.style().fromJson(styles).update();
+	// 			if (multiLayerViewPortState) {
+	// 				// Initialize Cytoscape (assuming cy is already created)
+	// 				parentNodeSvgBackground(cy, svgString);
+	// 			}
+	// 		})
+	// 		.catch((error) => {
+	// 			console.error(
+	// 				"Oops, we hit a snag! Couldnt load the cyto styles, bro.",
+	// 				error,
+	// 			);
+	// 			appendMessage(
+	// 				`Oops, we hit a snag! Couldnt load the cyto styles, bro.: ${error}`,
+	// 			);
+	// 		});
+	// }
+	// Determine the JSON file URL based on color scheme
+
+
+	// VS-CODE start 
+	let jsonFileUrl;
+	if (colorScheme === "dark") {
+		jsonFileUrl = window.jsonFileUrlDataCytoStyleDark;
+	} else {
+		jsonFileUrl = window.jsonFileUrlDataCytoStyleDark;
 	}
+
+	const cytoscapeStyles = [
+		{
+			"selector": "core",
+			"style": {
+				"selection-box-color": "#AAD8FF",
+				"selection-box-border-color": "#8BB0D0",
+				"selection-box-opacity": "0.5"
+			}
+		},
+		{
+			"selector": "node",
+			"style": {
+				"shape": "rectangle",
+				"width": "10",
+				"height": "10",
+				"content": "data(name)",
+				"label": "data(name)",
+				"font-size": "7px",
+				"text-valign": "bottom",
+				"text-halign": "center",
+				"background-color": "#8F96AC",
+				"min-zoomed-font-size": "7px",
+				"color": "#F5F5F5",
+				"text-outline-color": "#3C3E41",
+				"text-outline-width": "0.3px",
+				"text-background-color": "#000000",
+				"text-background-opacity": 0.7,
+				"text-background-shape": "roundrectangle",
+				"text-background-padding": "1px",
+				"overlay-padding": "0.3px",
+				"z-index": "2"
+			}
+		},
+		{
+			"selector": "node[?attr]",
+			"style": {
+				"shape": "rectangle",
+				"background-color": "#aaa",
+				"text-outline-color": "#aaa",
+				"width": "10px",
+				"height": "10x",
+				"font-size": "8px",
+				"z-index": "2"
+			}
+		},
+		{
+			"selector": "node[?query]",
+			"style": { "background-clip": "none", "background-fit": "contain" }
+		},
+		{
+			"selector": "node:parent",
+			"style": {
+				"shape": "rectangle",
+				"border-width": "0.5px",
+				"border-color": "#DDDDDD",
+				"background-color": "#d9d9d9",
+				"background-opacity": "0.2",
+				"color": "#EBECF0",
+				"text-outline-color": "#000000",
+				"width": "3px",
+				"height": "3x",
+				"font-size": "8px",
+				"z-index": "1"
+			}
+		},
+		{
+			"selector": "node:selected",
+			"style": {
+				"border-width": "1.5px",
+				"border-color": "#282828",
+				"border-opacity": "0.5",
+				"background-color": "#77828C",
+				"text-outline-color": "#282828"
+			}
+		},
+		{
+			"selector": "node[name*=\"statusGreen\"]",
+			"style": {
+				"display": "none",
+				"shape": "ellipse",
+				"label": " ",
+				"width": "4",
+				"height": "4",
+				"background-color": "#F5F5F5",
+				"border-width": "0.5",
+				"border-color": "#00A500"
+			}
+		},
+		{
+			"selector": "node[name*=\"statusRed\"]",
+			"style": {
+				"display": "none",
+				"shape": "ellipse",
+				"label": " ",
+				"width": "4",
+				"height": "4",
+				"background-color": "#FD1C03",
+				"border-width": "0.5",
+				"border-color": "#AD0000"
+			}
+		},
+		{
+			"selector": "node[topoViewerRole=\"router\"]",
+			"style": {
+				"width": "14",
+				"height": "14",
+				"background-image": `${window.imagesUrl}/clab-pe-light-blue.png`,
+				"background-fit": "cover"
+			}
+		},
+		{
+			"selector": "node[topoViewerRole=\"pe\"]",
+			"style": {
+				"width": "14",
+				"height": "14",
+				"background-image": `${window.imagesUrl}/clab-pe-light-blue.png`,
+				"background-fit": "cover"
+			}
+		},
+		{
+			"selector": "node[topoViewerRole=\"p\"]",
+			"style": {
+				"width": "14",
+				"height": "14",
+				"background-image": `${window.imagesUrl}/clab-pe-dark-blue.png`,
+				"background-fit": "cover"
+			}
+		},
+		{
+			"selector": "node[topoViewerRole=\"controller\"]",
+			"style": {
+				"width": "14",
+				"height": "14",
+				"background-image": `${window.imagesUrl}/clab-controller-light-blue.png`,
+				"background-fit": "cover"
+			}
+		},
+		{
+			"selector": "node[topoViewerRole=\"pon\"]",
+			"style": {
+				"width": "12",
+				"height": "12",
+				"background-image": `${window.imagesUrl}/clab-pon-dark-blue.png`,
+				"background-fit": "cover"
+			}
+		},
+		{
+			"selector": "node[topoViewerRole=\"dcgw\"]",
+			"style": {
+				"width": "12",
+				"height": "12",
+				"background-image": `${window.imagesUrl}/clab-dcgw-light-blue.png`,
+				"background-fit": "cover"
+			}
+		},
+		{
+			"selector": "node[topoViewerRole=\"leaf\"]",
+			"style": {
+				"background-image": `${window.imagesUrl}/clab-leaf-light-blue.png`,
+				"background-fit": "cover"
+			}
+		},
+		{
+			"selector": "node[topoViewerRole=\"leaf-svg\"]",
+			"style": {
+				"background-image": "data:image/svg+xml;base64,PHN2ZyB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWw6c3BhY2U9InByZXNlcnZlIiBzdHlsZT0iZW5hYmxlLWJhY2tncm91bmQ6bmV3IDAgMCAxMjAgMTIwOyIgdmlld0JveD0iMCAwIDEyMCAxMjAiIHk9IjBweCIgeD0iMHB4IiBpZD0iTGF5ZXJfMSIgdmVyc2lvbj0iMS4xIj4mI3hhOzxzdHlsZSB0eXBlPSJ0ZXh0L2NzcyI+LnN0MCB7IGZpbGw6IHJnYigwLCA5MCwgMjU1KTsgfSAuc3QxIHsgZmlsbDogbm9uZTsgc3Ryb2tlOiByZ2IoMjU1LCAyNTUsIDI1NSk7IHN0cm9rZS13aWR0aDogNDsgc3Ryb2tlLWxpbmVjYXA6IHJvdW5kOyBzdHJva2UtbGluZWpvaW46IHJvdW5kOyBzdHJva2UtbWl0ZXJsaW1pdDogMTA7IH0gLnN0MiB7IGZpbGw6IHJnYigyNTUsIDI1NSwgMjU1KTsgfSAuc3QzIHsgZmlsbDogbm9uZTsgc3Ryb2tlOiByZ2IoMjU1LCAyNTUsIDI1NSk7IHN0cm9rZS13aWR0aDogNDsgc3Ryb2tlLW1pdGVybGltaXQ6IDEwOyB9IC5zdDQgeyBmaWxsOiBub25lOyBzdHJva2U6IHJnYigyNTUsIDI1NSwgMjU1KTsgc3Ryb2tlLXdpZHRoOiA0OyBzdHJva2UtbGluZWNhcDogcm91bmQ7IHN0cm9rZS1saW5lam9pbjogcm91bmQ7IH0gLnN0NSB7IGZpbGw6IHJnYigyNTUsIDI1NSwgMjU1KTsgc3Ryb2tlOiByZ2IoMjU1LCAyNTUsIDI1NSk7IHN0cm9rZS13aWR0aDogNDsgc3Ryb2tlLWxpbmVjYXA6IHJvdW5kOyBzdHJva2UtbGluZWpvaW46IHJvdW5kOyBzdHJva2UtbWl0ZXJsaW1pdDogMTA7IH0gLnN0NiB7IGZpbGw6IG5vbmU7IHN0cm9rZTogcmdiKDI1NSwgMjU1LCAyNTUpOyBzdHJva2Utd2lkdGg6IDQuMjMzMzsgc3Ryb2tlLWxpbmVjYXA6IHJvdW5kOyBzdHJva2UtbGluZWpvaW46IHJvdW5kOyBzdHJva2UtbWl0ZXJsaW1pdDogMTA7IH0gLnN0NyB7IGZpbGw6IG5vbmU7IHN0cm9rZTogcmdiKDI1NSwgMjU1LCAyNTUpOyBzdHJva2Utd2lkdGg6IDQ7IHN0cm9rZS1saW5lY2FwOiByb3VuZDsgc3Ryb2tlLW1pdGVybGltaXQ6IDEwOyB9IC5zdDggeyBmaWxsOiByZ2IoMjU1LCAyNTUsIDI1NSk7IHN0cm9rZTogcmdiKDI1NSwgMjU1LCAyNTUpOyBzdHJva2Utd2lkdGg6IDQ7IHN0cm9rZS1taXRlcmxpbWl0OiAxMDsgfSAuc3Q5IHsgZmlsbDogcmdiKDI1NSwgMjU1LCAyNTUpOyBzdHJva2U6IHJnYigyNTUsIDI1NSwgMjU1KTsgc3Ryb2tlLXdpZHRoOiA0OyB9IC5zdDEwIHsgZmlsbDogbm9uZTsgc3Ryb2tlOiByZ2IoMjU1LCAyNTUsIDI1NSk7IHN0cm9rZS13aWR0aDogNDsgfSAuc3QxMSB7IGZpbGw6IHJnYigzOCwgMzgsIDM4KTsgc3Ryb2tlOiByZ2IoMjU1LCAyNTUsIDI1NSk7IHN0cm9rZS13aWR0aDogNC4yMzMzOyB9IC5zdDEyIHsgZmlsbC1ydWxlOiBldmVub2RkOyBjbGlwLXJ1bGU6IGV2ZW5vZGQ7IGZpbGw6IG5vbmU7IHN0cm9rZTogcmdiKDI1NSwgMjU1LCAyNTUpOyBzdHJva2Utd2lkdGg6IDQ7IHN0cm9rZS1taXRlcmxpbWl0OiAxMDsgfSAuc3QxMyB7IGZpbGwtcnVsZTogZXZlbm9kZDsgY2xpcC1ydWxlOiBldmVub2RkOyBmaWxsOiByZ2IoMjU1LCAyNTUsIDI1NSk7IHN0cm9rZTogcmdiKDI1NSwgMjU1LCAyNTUpOyBzdHJva2Utd2lkdGg6IDQ7IH0gLnN0MTQgeyBmaWxsOiBub25lOyBzdHJva2U6IHJnYigyNTUsIDI1NSwgMjU1KTsgc3Ryb2tlLXdpZHRoOiA0LjIzMzM7IHN0cm9rZS1saW5lY2FwOiByb3VuZDsgc3Ryb2tlLWxpbmVqb2luOiByb3VuZDsgfSAuc3QxNSB7IGZpbGw6IG5vbmU7IHN0cm9rZTogcmdiKDI1NSwgMjU1LCAyNTUpOyBzdHJva2Utd2lkdGg6IDQ7IHN0cm9rZS1saW5lY2FwOiByb3VuZDsgfSAuc3QxNiB7IGZpbGw6IHJnYigyNTUsIDI1NSwgMjU1KTsgc3Ryb2tlOiByZ2IoMjU1LCAyNTUsIDI1NSk7IHN0cm9rZS1taXRlcmxpbWl0OiAxMDsgfSAuc3QxNyB7IGZpbGw6IHJnYigzOCwgMzgsIDM4KTsgc3Ryb2tlOiByZ2IoMjU1LCAyNTUsIDI1NSk7IHN0cm9rZS13aWR0aDogNDsgc3Ryb2tlLW1pdGVybGltaXQ6IDEwOyB9IC5zdDE4IHsgZmlsbDogcmdiKDI1NSwgMjU1LCAyNTUpOyBzdHJva2U6IHJnYigyNTUsIDI1NSwgMjU1KTsgc3Ryb2tlLXdpZHRoOiA0OyBzdHJva2UtbGluZWNhcDogcm91bmQ7IHN0cm9rZS1saW5lam9pbjogcm91bmQ7IH0gPC9zdHlsZT4mI3hhOzxyZWN0IGhlaWdodD0iMTIwIiB3aWR0aD0iMTIwIiBjbGFzcz0ic3QwIi8+JiN4YTs8Zz4mI3hhOwk8cGF0aCBkPSJNOTEuNSwyNy4zbDcuNiw3LjZjMS4zLDEuMywxLjMsMy4xLDAsNC4zbC03LjYsNy43IiBjbGFzcz0ic3QxIi8+JiN4YTsJPHBhdGggZD0iTTI4LjUsNDYuOWwtNy42LTcuNmMtMS4zLTEuMy0xLjMtMy4xLDAtNC4zbDcuNi03LjciIGNsYXNzPSJzdDEiLz4mI3hhOwk8cGF0aCBkPSJNOTEuNSw3My4xbDcuNiw3LjZjMS4zLDEuMywxLjMsMy4xLDAsNC4zbC03LjYsNy43IiBjbGFzcz0ic3QxIi8+JiN4YTsJPHBhdGggZD0iTTI4LjUsOTIuN2wtNy42LTcuNmMtMS4zLTEuMy0xLjMtMy4xLDAtNC4zbDcuNi03LjciIGNsYXNzPSJzdDEiLz4mI3hhOwk8Zz4mI3hhOwkJPHBhdGggZD0iTTk2LjYsMzYuOEg2Ny45bC0xNiw0NS45SDIzLjIiIGNsYXNzPSJzdDEiLz4mI3hhOwkJPHBhdGggZD0iTTk2LjYsODIuN0g2Ny45bC0xNi00NS45SDIzLjIiIGNsYXNzPSJzdDEiLz4mI3hhOwk8L2c+JiN4YTs8L2c+JiN4YTs8L3N2Zz4=",
+				"background-fit": "cover"
+			}
+		},
+		{
+			"selector": "node[topoViewerRole=\"rgw\"]",
+			"style": {
+				"background-image": `${window.imagesUrl}/clab-rgw-light-blue.png`,
+				"background-fit": "cover"
+			}
+		},
+		{
+			"selector": "node[topoViewerRole=\"super-spine\"]",
+			"style": {
+				"width": "12",
+				"height": "12",
+				"background-image": `${window.imagesUrl}/clab-spine-dark-blue.png`,
+				"background-fit": "cover"
+			}
+		},
+		{
+			"selector": "node[topoViewerRole=\"spine\"]",
+			"style": {
+				"width": "12",
+				"height": "12",
+				"background-image": `${window.imagesUrl}/clab-spine-light-blue.png`,
+				"background-fit": "cover"
+			}
+		},
+		{
+			"selector": "node[topoViewerRole=\"server\"]",
+			"style": {
+				"width": "12",
+				"height": "12",
+				"background-image": `${window.imagesUrl}/clab-server-dark-blue.png`,
+				"background-fit": "cover"
+			}
+		},
+		{
+			"selector": "node[topoViewerRole=\"bridge\"]",
+			"style": {
+				"width": "8",
+				"height": "8",
+				"background-image": `${window.imagesUrl}/clab-bridge-light-grey.png`,
+				"background-fit": "cover"
+			}
+		},
+
+		{
+			"selector": "node[topoViewerRole=\"router\"][editor=\"true\"]",
+			"style": {
+				"width": "14",
+				"height": "14",
+				"background-image": `${window.imagesUrl}/clab-pe-dark-blue.png`,
+				"background-fit": "cover",
+				"border-width": "0.5px",
+				"border-color": "#32CD32"
+			}
+		},
+		{
+			"selector": "node[topoViewerRole=\"pe\"][editor=\"true\"]",
+			"style": {
+				"width": "14",
+				"height": "14",
+				"background-image": `${window.imagesUrl}/clab-pe-dark-blue.png`,
+				"background-fit": "cover",
+				"border-width": "0.5px",
+				"border-color": "#32CD32"
+			}
+		},
+		{
+			"selector": "node[topoViewerRole=\"p\"][editor=\"true\"]",
+			"style": {
+				"width": "14",
+				"height": "14",
+				"background-image": `${window.imagesUrl}/clab-pe-dark-blue.png`,
+				"background-fit": "cover",
+				"border-width": "0.5px",
+				"border-color": "#32CD32"
+			}
+		},
+		{
+			"selector": "node[topoViewerRole=\"controller\"][editor=\"true\"]",
+			"style": {
+				"width": "14",
+				"height": "14",
+				"background-image": `${window.imagesUrl}/clab-controller-light-blue.png`,
+				"background-fit": "cover",
+				"border-width": "0.5px",
+				"border-color": "#32CD32"
+			}
+		},
+		{
+			"selector": "node[topoViewerRole=\"pon\"][editor=\"true\"]",
+			"style": {
+				"width": "12",
+				"height": "12",
+				"background-image": `${window.imagesUrl}/clab-pon-dark-blue.png`,
+				"background-fit": "cover",
+				"border-width": "0.5px",
+				"border-color": "#32CD32"
+			}
+		},
+		{
+			"selector": "node[topoViewerRole=\"dcgw\"][editor=\"true\"]",
+			"style": {
+				"width": "12",
+				"height": "12",
+				"background-image": `${window.imagesUrl}/clab-dcgw-dark-blue.png`,
+				"background-fit": "cover",
+				"border-width": "0.5px",
+				"border-color": "#32CD32"
+			}
+		},
+		{
+			"selector": "node[topoViewerRole=\"leaf\"][editor=\"true\"]",
+			"style": {
+				"background-image": `${window.imagesUrl}/clab-leaf-light-blue.png`,
+				"background-fit": "cover",
+				"border-width": "0.5px",
+				"border-color": "#32CD32"
+			}
+		},
+		{
+			"selector": "node[topoViewerRole=\"rgw\"][editor=\"true\"]",
+			"style": {
+				"background-image": `${window.imagesUrl}/clab-rgw-light-blue.png`,
+				"background-fit": "cover",
+				"border-width": "0.5px",
+				"border-color": "#32CD32"
+			}
+		},
+		{
+			"selector": "node[topoViewerRole=\"super-spine\"][editor=\"true\"]",
+			"style": {
+				"width": "12",
+				"height": "12",
+				"background-image": `${window.imagesUrl}/clab-spine-dark-blue.png`,
+				"background-fit": "cover",
+				"border-width": "0.5px",
+				"border-color": "#32CD32"
+			}
+		},
+		{
+			"selector": "node[topoViewerRole=\"spine\"][editor=\"true\"]",
+			"style": {
+				"width": "12",
+				"height": "12",
+				"background-image": `${window.imagesUrl}/clab-spine-light-blue.png`,
+				"background-fit": "cover",
+				"border-width": "0.5px",
+				"border-color": "#32CD32"
+			}
+		},
+		{
+			"selector": "node[topoViewerRole=\"server\"][editor=\"true\"]",
+			"style": {
+				"width": "12",
+				"height": "12",
+				"background-image": `${window.imagesUrl}/clab-server-dark-blue.png`,
+				"background-fit": "cover",
+				"border-width": "0.5px",
+				"border-color": "#32CD32"
+			}
+		},
+		{
+			"selector": "node[topoViewerRole=\"bridge\"][editor=\"true\"]",
+			"style": {
+				"width": "8",
+				"height": "8",
+				"background-image": `${window.imagesUrl}/clab-bridge-light-grey.png`,
+				"background-fit": "cover",
+				"border-width": "0.5px",
+				"border-color": "#32CD32"
+			}
+		},
+
+		{
+			"selector": "edge",
+			"style": {
+				"targetArrowShape": "none",
+				"font-size": "5px",
+				"source-label": "data(sourceEndpoint)",
+				"target-label": "data(targetEndpoint)",
+				"source-text-offset": 20,
+				"target-text-offset": 20,
+				"arrow-scale": "0.5",
+				"source-text-color": "#000000",
+				"target-text-color": "#000000",
+				"text-outline-width": "0.3px",
+				"text-outline-color": "#FFFFFF",
+				"text-background-color": "#CACBCC",
+				"text-opacity": 1,
+				"text-background-opacity": 0.7,
+				"text-background-shape": "roundrectangle",
+				"text-background-padding": "1px",
+				"curve-style": "bezier",
+				"control-point-step-size": 20,
+				"opacity": "1",
+				"line-color": "#969799",
+				"width": "1.5",
+				"label": " ",
+				"overlay-padding": "2px"
+			}
+		},
+		{ "selector": "node.unhighlighted", "style": { "opacity": "0.2" } },
+		{ "selector": "edge.unhighlighted", "style": { "opacity": "0.05" } },
+		{ "selector": ".highlighted", "style": { "z-index": "3" } },
+		{
+			"selector": "node.highlighted",
+			"style": {
+				"border-width": "7px",
+				"border-color": "#282828",
+				"border-opacity": "0.5",
+				"background-color": "#282828",
+				"text-outline-color": "#282828"
+			}
+		},
+
+		{ "selector": "edge.filtered", "style": { "opacity": "0" } },
+
+		{
+			"selector": ".spf", "style":
+			{
+				"opacity": "1",
+				"line-color": "#FF0000",
+				"line-style": "solid"
+			}
+		},
+
+		{
+			"selector": ".eh-handle",
+			"style": {
+				"background-color": "red",
+				"width": 2,
+				"height": 2,
+				"shape": "ellipse",
+				"overlay-opacity": 0,
+				"border-width": 2,
+				"border-opacity": 0
+			}
+		},
+
+		{
+			"selector": ".eh-hover",
+			"style": {
+				"background-color": "red"
+			}
+		},
+
+		{
+			"selector": ".eh-source",
+			"style": {
+				"border-width": 2,
+				"border-color": "red"
+			}
+		},
+
+		{
+			"selector": ".eh-target",
+			"style": {
+				"border-width": 2,
+				"border-color": "red"
+			}
+		},
+
+		{
+			"selector": ".eh-preview, .eh-ghost-edge",
+			"style": {
+				"background-color": "red",
+				"line-color": "red",
+				"target-arrow-color": "red",
+				"source-arrow-color": "red"
+			}
+		},
+		{
+			"selector": ".eh-ghost-edge.eh-preview-active",
+			"style": {
+				"opacity": 0
+			}
+		},
+
+
+
+		{ "selector": "edge[group=\"coexp\"]", "style": { "line-color": "#d0b7d5" } },
+		{ "selector": "edge[group=\"coloc\"]", "style": { "line-color": "#a0b3dc" } },
+		{ "selector": "edge[group=\"gi\"]", "style": { "line-color": "#90e190" } },
+		{ "selector": "edge[group=\"path\"]", "style": { "line-color": "#9bd8de" } },
+		{ "selector": "edge[group=\"pi\"]", "style": { "line-color": "#eaa2a2" } },
+		{ "selector": "edge[group=\"predict\"]", "style": { "line-color": "#f6c384" } },
+		{ "selector": "edge[group=\"spd\"]", "style": { "line-color": "#dad4a2" } },
+		{ "selector": "edge[group=\"spd_attr\"]", "style": { "line-color": "#D0D0D0" } },
+		{ "selector": "edge[group=\"reg\"]", "style": { "line-color": "#D0D0D0" } },
+		{ "selector": "edge[group=\"reg_attr\"]", "style": { "line-color": "#D0D0D0" } },
+		{ "selector": "edge[group=\"user\"]", "style": { "line-color": "#f0ec86" } }
+	]
+
+	// Apply the styles defined in the constant
+	cy.style().fromJson(cytoscapeStyles).update();
+
+	console.log("Cytoscape styles applied successfully.");
+	// VS-CODE end 
 
 	avoidEdgeLabelOverlap(cy);
 
 	if (!linkEndpointVisibility) { // doing this because default is true and text-opacity is 1 and text-background-opacity is 0.7
-		cy.edges().forEach(function(edge) {
+		cy.edges().forEach(function (edge) {
 			edge.style("text-opacity", 0);
 			edge.style("text-background-opacity", 0);
 		});
@@ -4037,12 +4559,23 @@ function addSvgIcon(targetHtmlId, svgIcon, altName, position, size) {
 	document.head.appendChild(style);
 }
 
-addSvgIcon("endpoint-a-edgeshark", "images/svg-wireshark.svg", "Wireshark Icon", "before", "20px");
-addSvgIcon("endpoint-b-edgeshark", "images/svg-wireshark.svg", "Wireshark Icon", "before", "20px");
-
-addSvgIcon("endpoint-a-clipboard", "images/svg-copy.svg", "Clipboard Icon", "before", "20px");
-addSvgIcon("endpoint-b-clipboard", "images/svg-copy.svg", "Clipboard Icon", "before", "20px");
-
-addSvgIcon("panel-link-action-impairment-B->A", "images/svg-impairment.svg", "Impairment Icon", "before", "15px");
 
 
+if (isVscodeDeployment == true) {
+
+	console.log(`image-URI is ${window.imagesUrl}`)
+    addSvgIcon("endpoint-a-edgeshark", `${window.imagesUrl}svg-wireshark.svg`, "Wireshark Icon", "before", "20px");
+    addSvgIcon("endpoint-b-edgeshark", `${window.imagesUrl}/svg-wireshark.svg`, "Wireshark Icon", "before", "20px");
+    addSvgIcon("endpoint-a-clipboard", `${window.imagesUrl}/svg-copy.svg`, "Clipboard Icon", "before", "20px");
+    addSvgIcon("endpoint-b-clipboard", `${window.imagesUrl}/svg-copy.svg`, "Clipboard Icon", "before", "20px");
+    addSvgIcon("panel-link-action-impairment-B->A", `${window.imagesUrl}/svg-impairment.svg`, "Impairment Icon", "before", "15px");
+} else {
+    addSvgIcon("endpoint-a-edgeshark", "images/svg-wireshark.svg", "Wireshark Icon", "before", "20px");
+    addSvgIcon("endpoint-b-edgeshark", "images/svg-wireshark.svg", "Wireshark Icon", "before", "20px");
+    addSvgIcon("endpoint-a-clipboard", "images/svg-copy.svg", "Clipboard Icon", "before", "20px");
+    addSvgIcon("endpoint-b-clipboard", "images/svg-copy.svg", "Clipboard Icon", "before", "20px");
+    addSvgIcon("panel-link-action-impairment-B->A", "images/svg-impairment.svg", "Impairment Icon", "before", "15px");
+}
+
+
+// ASAD

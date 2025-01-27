@@ -43,6 +43,9 @@ clab-demo
 clab-demo/**
 clab-demo.yaml
 clab-demo.yaml.bak
+.clab-demo.clab.yaml.bak
+clab-demo-asad
+clab-demo-asad/**
 
 .dgf-nsp.yml.bak
 dgf-nsp.yml
@@ -52,3 +55,4 @@ dgf-nsp/**
 
 .cache/**
 
+vscode-extension/*

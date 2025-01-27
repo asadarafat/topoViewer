@@ -2,5 +2,6 @@
     "files.associations": {
         "/actions/*": "yaml",
         "/workflows/*": "yaml"
-    }
+    },
+    "liveServer.settings.multiRootWorkspaceName": "topoViewer"
 }
