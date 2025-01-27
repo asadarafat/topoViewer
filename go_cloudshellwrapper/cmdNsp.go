@@ -333,15 +333,10 @@ func Nsp(_ *cobra.Command, _ []string) error {
 		router.PathPrefix("/").Handler(http.FileServer(http.Dir(publicAssetsDirectoryHtml)))
 
 		//create html-public files
-		htmlPublicPrefixPath := "./html-public/"
-		htmlStaticPrefixPath := "./html-static/"
-		htmlTemplatePath := "./html-static/template/nsp/"
+		os.Mkdir(HtmlPublicPrefixPath+"IetfTopology-MultiLayer"+"/images", 0755)
 
-		//create html-public files
-		os.Mkdir(htmlPublicPrefixPath+"IetfTopology-MultiLayer"+"/images", 0755)
-
-		sourceImageFolder := htmlStaticPrefixPath + "images"
-		destinationImageFolder := htmlPublicPrefixPath + "IetfTopology-MultiLayer" + "/images"
+		sourceImageFolder := HtmlStaticPrefixPath + "images"
+		destinationImageFolder := HtmlStaticPrefixPath + "IetfTopology-MultiLayer" + "/images"
 		err := cp.Copy(sourceImageFolder, destinationImageFolder)
 		log.Error("Copying images folder error: ", err)
 
@@ -353,8 +348,8 @@ func Nsp(_ *cobra.Command, _ []string) error {
 		}
 
 		// os.Mkdir(htmlPublicPrefixPath+cyTopo.ClabTopoData.ClabTopoName, 0755) // already created in cytoscapemodel library
-		createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "index.tmpl", "IetfTopology-MultiLayer"+"/"+"index.html", indexHtmldata)
-		createHtmlPublicFiles(htmlTemplatePath, htmlPublicPrefixPath, "cy-style.tmpl", "IetfTopology-MultiLayer"+"/"+"cy-style.json", indexHtmldata)
+		createHtmlPublicFiles(HtmlTemplatePath, HtmlPublicPrefixPath, "index.tmpl", "IetfTopology-MultiLayer"+"/"+"index.html", indexHtmldata)
+		createHtmlPublicFiles(HtmlTemplatePath, HtmlPublicPrefixPath, "cy-style.tmpl", "IetfTopology-MultiLayer"+"/"+"cy-style.json", indexHtmldata)
 
 		// topoPrefixName := "NspIetfTopoLayer2" // should be added with NSP server ip address
 

@@ -165,7 +165,7 @@ func (cyTopo *CytoTopology) GenerateClabTopoFromYaml(clabYamlTopoFile string) (s
 	topoDataF, _ := os.Create(clabJsonTopoFilePath)
 
 	ctx, _ := context.WithCancel(context.Background())
-	c.GenerateExports(ctx, topoDataF, "./html-static/template/clab/clab-cytoscape-export.tmpl")
+	c.GenerateExports(ctx, topoDataF, "./html-template/clab/clab-cytoscape-export.tmpl")
 
 	log.Infof("clab json topology succesfully generated, location of the file is %s", clabJsonTopoFilePath)
 
