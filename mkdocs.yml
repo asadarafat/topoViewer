@@ -1,8 +1,8 @@
 site_name: TopoViewer
 site_description: Declarative graph renderer for network, infrastructure, and service-topology diagrams.
-site_url: https://asadarafat.github.io/topoviewer/
-repo_url: https://github.com/asadarafat/topoviewer
-repo_name: asadarafat/topoviewer
+site_url: https://asadarafat.github.io/topoViewer/
+repo_url: https://github.com/asadarafat/topoViewer
+repo_name: asadarafat/topoViewer
 
 docs_dir: docs
 site_dir: site
@@ -40,6 +40,10 @@ markdown_extensions:
   - md_in_html
   - pymdownx.details
   - pymdownx.superfences
+  - pymdownx.snippets:
+      base_path:
+        - .
+      check_paths: true
   - pymdownx.tabbed:
       alternate_style: true
   - pymdownx.highlight

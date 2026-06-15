@@ -51,6 +51,21 @@ python3 -m pip install -e packages/mkdocs-topoviewer mkdocs-material
 mkdocs build --strict
 ```
 
+Preview the GitHub Pages site locally:
+
+```bash
+npm run docs:serve
+```
+
+This creates `.venv-docs`, installs the local MkDocs plugin in editable mode,
+syncs generated docs, builds the viewer assets, and serves `mkdocs.yml` at
+`http://127.0.0.1:8000/`. For Markdown-only review when assets are already
+current, use:
+
+```bash
+npm run docs:serve:fast
+```
+
 Build the MkDocs plugin wheel:
 
 ```bash

@@ -1,5 +1,5 @@
 version: "0.2"
-docsRoot: /Users/aarafat/_projects/intent/DG_25_6_v2/TopoViewer/docs
+docsRoot: docs
 examples:
   - id: graph-basic
     title: Graph basic

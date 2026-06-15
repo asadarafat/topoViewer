@@ -98,7 +98,7 @@ function indentBlock(value, spaces = 4) {
 function generatedCatalog(catalog) {
   return {
     version: catalog.version,
-    docsRoot: toPosix(docsRoot),
+    docsRoot: toPosix(path.relative(repoRoot, docsRoot) || '.'),
     examples: (catalog.examples || []).map((example) => {
       const expected = readYaml(path.join(caseDir(example), 'expected.yaml'));
       return {

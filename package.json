@@ -24,7 +24,13 @@
     "pack:check": "npm --workspace topoviewer run pack:check",
     "wheel:mkdocs": "rm -rf .artifacts/wheels && python3 -m pip wheel packages/mkdocs-topoviewer --no-deps -w .artifacts/wheels",
     "inspect:wheel": "python3 scripts/inspect-mkdocs-wheel.py .artifacts/wheels",
-    "mkdocs:build": "mkdocs build --strict",
+    "docs:setup": "bash scripts/local-mkdocs.sh setup",
+    "docs:build": "bash scripts/local-mkdocs.sh build",
+    "docs:build:fast": "TOPOVIEWER_DOCS_SKIP_VIEWER_BUILD=1 bash scripts/local-mkdocs.sh build",
+    "docs:serve": "bash scripts/local-mkdocs.sh serve",
+    "docs:serve:fast": "TOPOVIEWER_DOCS_SKIP_VIEWER_BUILD=1 bash scripts/local-mkdocs.sh serve",
+    "docs:clean": "bash scripts/local-mkdocs.sh clean",
+    "mkdocs:build": "bash scripts/local-mkdocs.sh build",
     "ci": "npm run sync:docs && npm run validate:schemas && npm run validate:semantics && npm run build && npm test && npm run pack:check && npm run sync:mkdocs-assets && npm run wheel:mkdocs && npm run inspect:wheel"
   },
   "overrides": {
