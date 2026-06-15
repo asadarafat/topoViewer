@@ -1,0 +1,25 @@
+schema: spec-driven
+
+context: |
+  TopoViewer is a TypeScript/React monorepo for declarative graph rendering.
+  The npm package lives in packages/topoviewer and exposes React/browser/rendering APIs.
+  The MkDocs plugin lives in packages/mkdocs-topoviewer and consumes built browser assets.
+  Public docs are generated from packages/topoviewer/docs into docs/topoviewer.
+  Use OpenSpec here as durable engineering planning, not as a runtime dependency.
+
+rules:
+  proposal:
+    - Keep public positioning separate from implementation detail.
+    - Identify package and documentation impact explicitly.
+  specs:
+    - Use SHALL or MUST for normative behavior.
+    - Use scenario headings with exactly four hashes.
+    - Prefer testable operator workflows over vague feature descriptions.
+  design:
+    - Separate runtime contracts from UI controls.
+    - Include performance and rendering trade-offs for dense graphs.
+    - Preserve existing graph schema compatibility unless a migration is explicitly planned.
+  tasks:
+    - Write or update tests before implementation tasks where feasible.
+    - Keep tasks small enough to complete in one coding session.
+    - Include local and remote validation commands.
