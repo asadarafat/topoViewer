@@ -156,10 +156,80 @@ Rollback is straightforward for early phases because new behavior can remain opt
 **Risk: Existing diagrams change unexpectedly**
 -> Mitigation: make attention features opt-in until defaults are explicitly changed and covered by visual regression tests.
 
-## Open Questions
+## Resolved Design Questions
 
-- Should grouping eventually have a first-class `graph.groups` model, or should regions, parent-child nodes, labels, and paths remain sufficient?
-- Which `data.*` keys should receive built-in severity semantics versus staying host-defined?
-- How much default UI belongs in `TopoViewer` versus `TopoViewerWorkbench`?
-- How should attention state be represented in embeddable URLs or Markdown blocks?
-- Which export formats can reliably preserve dimming, aggregation, and label-priority state without host-specific behavior?
+### Grouping model
+
+Use existing regions, parent-child nodes, labels, and paths first. Do not add a first-class `graph.groups` model in the initial attention-engine implementation.
+
+The current model already gives authors several grouping tools:
+
+- `graph.regions` for spatial, administrative, or operational boundaries.
+- Parent-child nodes for containment.
+- Labels for semantic groups such as role, tenant, site, service, vendor, or failure domain.
+- Paths for ordered service, traffic, or dependency relationships.
+
+Only add `graph.groups` later if implementation work exposes real cases that cannot be modeled cleanly with those primitives. Deferring this keeps the schema smaller while the runtime attention behavior is proven.
+
+### Built-in severity semantics
+
+Provide a small default convention for common `data.*` severity fields, but keep it host-overrideable.
+
+Initial built-in scoring hints should recognize:
+
+- `data.severity`
+- `data.status`
+- `data.health`
+- `data.alarmSeverity`
+- `data.operState`
+- `data.adminState`
+- `data.changedAt`
+- `data.revision`
+
+Common values such as `critical`, `major`, `minor`, `warning`, `degraded`, `down`, `maintenance`, and `changed` can contribute to attention scoring. Hosts must be able to override or extend the mapping because inventory, alarm, and observability systems use different field names and value vocabularies.
+
+### Default UI boundary
+
+Keep `TopoViewer` focused on runtime state, rendering, callbacks, and default visual treatment. Put richer controls in `TopoViewerWorkbench`.
+
+`TopoViewer` should accept attention props and render focused, related, context, dimmed, hidden, aggregate, and suppressed states. It should not force embedders to accept a built-in investigation UI.
+
+`TopoViewerWorkbench` should own operator controls such as focus mode, dependency depth, dim/hide mode, label density, aggregate expansion, search, and focused-result navigation.
+
+### URL and Markdown representation
+
+Represent attention state as a compact serializable object.
+
+URLs should encode lightweight, shareable current-view state, for example:
+
+```text
+#focus=path:svc-1001&mode=dim-context&depth=2
+```
+
+Markdown blocks should encode authored default state explicitly:
+
+```yaml
+attention:
+  focus:
+    pathIds: [svc-1001]
+    mode: dim-context
+    dependency:
+      direction: both
+      depth: 2
+  labels:
+    density: focused
+```
+
+Use URLs for transient sharing and Markdown for durable documentation defaults.
+
+### Export formats
+
+Make SVG the first reliable export target for preserving attention state. SVG is closest to the current rendered visual model and can preserve dimming, aggregation, label priority, and styling as inspectable vector output.
+
+Support PNG as a rendered snapshot after SVG/DOM export is stable. Treat PDF as a later hardening target, likely through SVG or image embedding, unless explicit layout guarantees are added.
+
+Export reliability target:
+
+- SVG: must preserve active attention state.
+- PNG: should preserve active attention state as a snapshot.
+- PDF: best effort until the export pipeline has explicit layout guarantees.
