@@ -7,6 +7,11 @@ TopoViewer is a monorepo for declarative graph rendering packages.
 
 TopoViewer is a declarative graph renderer for network, infrastructure, and service-topology diagrams. It turns YAML graph definitions and selector stylesheets into interactive topology views, embeddable documentation diagrams, and exportable visual assets.
 
+## Legacy History
+
+Pre-refresh history before the 2026-06-15 standalone rewrite is preserved at
+https://github.com/asadarafat/topoViewer-legacy.
+
 ## Packages
 
 | Package | Runtime | Published as | Responsibility |
