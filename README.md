@@ -71,6 +71,7 @@ npm run sync:mkdocs-assets
 - Monorepo boundary: [packages/topoviewer/docs/monorepo.md](packages/topoviewer/docs/monorepo.md)
 - MkDocs plugin: [packages/mkdocs-topoviewer/README.md](packages/mkdocs-topoviewer/README.md)
 - Production guardrails: [packages/topoviewer/docs/production.md](packages/topoviewer/docs/production.md)
+- Topology attention roadmap: [packages/topoviewer/docs/attention-roadmap.md](packages/topoviewer/docs/attention-roadmap.md)
 
 ## Repository Quality Gates
 
