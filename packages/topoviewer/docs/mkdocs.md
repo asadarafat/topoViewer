@@ -1,0 +1,110 @@
+# MkDocs Embed
+
+TopoViewer ships a browser embed bundle in:
+
+- `topoviewer/embed/topoviewer-embed.iife.js`
+- `topoviewer/embed/topoviewer-embed.css`
+
+Install the MkDocs integration as a Python package:
+
+```bash
+pip install mkdocs-topoviewer
+```
+
+Then enable the plugin:
+
+```yaml
+plugins:
+  - search
+  - topoviewer
+```
+
+## Markdown Authoring
+
+````markdown
+```topoviewer
+topology: ./topoviewer-topo.yaml
+stylesheet: ./topoviewer-style.yaml
+height: 640px
+title: MV network SR-TE service path
+controls: true
+controlsOpen: false
+```
+````
+
+The fenced-block options are covered by `schemas/topoviewer-mkdocs-block.schema.json`. Keep the block small; detailed topology and styling belong in external YAML files.
+
+Options:
+
+| Option | Use |
+|---|---|
+| `topology` | Required path to topology YAML, relative to the Markdown file. |
+| `stylesheet` | Optional path to stylesheet YAML, relative to the Markdown file. |
+| `height` | CSS height for the viewport. |
+| `width` | Optional CSS width. Defaults to the available content width. |
+| `title` | Optional caption/title. |
+| `controls` | Show layer/display controls. Defaults to `true`. |
+| `controlsOpen` | Open controls panel initially. Defaults to `false`. |
+
+## Asset Sync
+
+From `DG_25_6_v2/TopoViewer`:
+
+```bash
+npm run build
+npm run sync:mkdocs
+```
+
+This copies the built embed files into the sibling Python package:
+
+```text
+../mkdocs-topoviewer/mkdocs_topoviewer/assets/
+```
+
+It also syncs canonical feature examples from `examples/test-cases/` into the configured MkDocs docs tree. The default target is the temporary sibling RTFM tree:
+
+```text
+../../../rtfm/docs/
+```
+
+Use `--docs-root` when generating docs somewhere else:
+
+```bash
+node scripts/sync-examples.mjs --docs-root ./docs
+```
+
+Run `npm run sync:mkdocs-assets` when only the embed bundle changed, or `npm run sync:examples` when example YAML, README prose, expected assertions, or generated docs pages changed. Run `npm run check:examples` in CI to verify the generated docs files have not drifted from the package catalog.
+
+## MkDocs Plugin Behavior
+
+The plugin:
+
+- Rewrites fenced `topoviewer` blocks into `<div class="topoviewer-embed">` containers.
+- Resolves topology and stylesheet files relative to the Markdown page.
+- Injects the embed CSS and JavaScript.
+- Uses MkDocs Material palette variables so light/dark mode follows the site theme.
+
+If the topology or stylesheet YAML cannot be loaded, the embed renders a visible error block instead of failing silently.
+
+## Direct HTML Embed
+
+For non-MkDocs pages, include the bundle and add a container:
+
+```html
+<link rel="stylesheet" href="/assets/topoviewer/topoviewer-embed.css">
+<script defer src="/assets/topoviewer/topoviewer-embed.iife.js"></script>
+
+<div
+  class="topoviewer-embed"
+  data-topology="/diagrams/topology.yaml"
+  data-stylesheet="/diagrams/stylesheet.yaml"
+  data-controls="true"
+  style="height: 640px"
+></div>
+```
+
+The bundle mounts all `.topoviewer-embed` containers on page load. If content is injected after page load, call:
+
+```js
+window.TopoViewerEmbed.mountAll();
+```

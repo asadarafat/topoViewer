@@ -1,0 +1,67 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://topoviewer.dev/schemas/topoviewer-stylesheet.schema.json",
+  "title": "TopoViewer stylesheet document",
+  "description": "Stylesheet-only TopoViewer YAML document.",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string"
+    },
+    "layout": {
+      "$ref": "topoviewer.schema.json#/definitions/layout"
+    },
+    "limits": {
+      "$ref": "topoviewer.schema.json#/definitions/limits"
+    },
+    "icons": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "topoviewer.schema.json#/definitions/icon"
+      }
+    },
+    "labelFields": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "toggles": {
+      "type": "array",
+      "items": {
+        "$ref": "topoviewer.schema.json#/definitions/toggle"
+      }
+    },
+    "stylesheet": {
+      "type": "array",
+      "items": {
+        "$ref": "topoviewer.schema.json#/definitions/styleRule"
+      }
+    }
+  },
+  "anyOf": [
+    {
+      "properties": {
+        "stylesheet": true
+      },
+      "required": ["stylesheet"]
+    },
+    {
+      "properties": {
+        "icons": true
+      },
+      "required": ["icons"]
+    },
+    {
+      "properties": {
+        "layout": true
+      },
+      "required": ["layout"]
+    }
+  ]
+}

@@ -1,0 +1,273 @@
+version: "0.2"
+docsRoot: /Users/aarafat/_projects/intent/DG_25_6_v2/TopoViewer/docs
+examples:
+  - id: graph-basic
+    title: Graph basic
+    feature: graph
+    path: graph/basic
+    page: topoviewer/reference/graph/basic
+    renderable: true
+    topology: docs/topoviewer/examples/graph/basic/topology.yaml
+    stylesheet: docs/topoviewer/examples/graph/basic/stylesheet.yaml
+    expected: docs/topoviewer/examples/graph/basic/expected.yaml
+    readme: docs/topoviewer/examples/graph/basic/README.md
+  - id: graph-labels-and-data
+    title: Labels and data
+    feature: graph
+    path: graph/labels-and-data
+    page: topoviewer/reference/graph/labels-and-data
+    renderable: true
+    topology: docs/topoviewer/examples/graph/labels-and-data/topology.yaml
+    stylesheet: docs/topoviewer/examples/graph/labels-and-data/stylesheet.yaml
+    expected: docs/topoviewer/examples/graph/labels-and-data/expected.yaml
+    readme: docs/topoviewer/examples/graph/labels-and-data/README.md
+  - id: graph-parent-child-nodes
+    title: Parent and child nodes
+    feature: graph
+    path: graph/parent-child-nodes
+    page: topoviewer/reference/graph/parent-child-nodes
+    renderable: true
+    topology: docs/topoviewer/examples/graph/parent-child-nodes/topology.yaml
+    stylesheet: docs/topoviewer/examples/graph/parent-child-nodes/stylesheet.yaml
+    expected: docs/topoviewer/examples/graph/parent-child-nodes/expected.yaml
+    readme: docs/topoviewer/examples/graph/parent-child-nodes/README.md
+  - id: edges-curve-styles
+    title: Edge curve styles
+    feature: edges
+    path: edges/curve-styles
+    page: topoviewer/reference/edges/curve-styles
+    renderable: true
+    topology: docs/topoviewer/examples/edges/curve-styles/topology.yaml
+    stylesheet: docs/topoviewer/examples/edges/curve-styles/stylesheet.yaml
+    expected: docs/topoviewer/examples/edges/curve-styles/expected.yaml
+    readme: docs/topoviewer/examples/edges/curve-styles/README.md
+  - id: edges-arrows-dashes-labels
+    title: Arrows, dashes, and labels
+    feature: edges
+    path: edges/arrows-dashes-labels
+    page: topoviewer/reference/edges/arrows-dashes-labels
+    renderable: true
+    topology: docs/topoviewer/examples/edges/arrows-dashes-labels/topology.yaml
+    stylesheet: docs/topoviewer/examples/edges/arrows-dashes-labels/stylesheet.yaml
+    expected: docs/topoviewer/examples/edges/arrows-dashes-labels/expected.yaml
+    readme: docs/topoviewer/examples/edges/arrows-dashes-labels/README.md
+  - id: edges-floating-anchors
+    title: Floating anchors
+    feature: edges
+    path: edges/floating-anchors
+    page: topoviewer/reference/edges/floating-anchors
+    renderable: true
+    topology: docs/topoviewer/examples/edges/floating-anchors/topology.yaml
+    stylesheet: docs/topoviewer/examples/edges/floating-anchors/stylesheet.yaml
+    expected: docs/topoviewer/examples/edges/floating-anchors/expected.yaml
+    readme: docs/topoviewer/examples/edges/floating-anchors/README.md
+  - id: edges-parent-link-pipe
+    title: Parent link pipe
+    feature: edges
+    path: edges/parent-link-pipe
+    page: topoviewer/reference/edges/parent-link-pipe
+    renderable: true
+    topology: docs/topoviewer/examples/edges/parent-link-pipe/topology.yaml
+    stylesheet: docs/topoviewer/examples/edges/parent-link-pipe/stylesheet.yaml
+    expected: docs/topoviewer/examples/edges/parent-link-pipe/expected.yaml
+    readme: docs/topoviewer/examples/edges/parent-link-pipe/README.md
+  - id: paths-sequenced-path
+    title: Sequenced path
+    feature: paths
+    path: paths/sequenced-path
+    page: topoviewer/reference/paths/sequenced-path
+    renderable: true
+    topology: docs/topoviewer/examples/paths/sequenced-path/topology.yaml
+    stylesheet: docs/topoviewer/examples/paths/sequenced-path/stylesheet.yaml
+    expected: docs/topoviewer/examples/paths/sequenced-path/expected.yaml
+    readme: docs/topoviewer/examples/paths/sequenced-path/README.md
+  - id: paths-stitched-child-path
+    title: Stitched child path
+    feature: paths
+    path: paths/stitched-child-path
+    page: topoviewer/reference/paths/stitched-child-path
+    renderable: true
+    topology: docs/topoviewer/examples/paths/stitched-child-path/topology.yaml
+    stylesheet: docs/topoviewer/examples/paths/stitched-child-path/stylesheet.yaml
+    expected: docs/topoviewer/examples/paths/stitched-child-path/expected.yaml
+    readme: docs/topoviewer/examples/paths/stitched-child-path/README.md
+  - id: regions-nested-regions
+    title: Nested regions
+    feature: regions
+    path: regions/nested-regions
+    page: topoviewer/reference/regions/nested-regions
+    renderable: true
+    topology: docs/topoviewer/examples/regions/nested-regions/topology.yaml
+    stylesheet: docs/topoviewer/examples/regions/nested-regions/stylesheet.yaml
+    expected: docs/topoviewer/examples/regions/nested-regions/expected.yaml
+    readme: docs/topoviewer/examples/regions/nested-regions/README.md
+  - id: regions-overlapping-regions
+    title: Overlapping regions
+    feature: regions
+    path: regions/overlapping-regions
+    page: topoviewer/reference/regions/overlapping-regions
+    renderable: true
+    topology: docs/topoviewer/examples/regions/overlapping-regions/topology.yaml
+    stylesheet: docs/topoviewer/examples/regions/overlapping-regions/stylesheet.yaml
+    expected: docs/topoviewer/examples/regions/overlapping-regions/expected.yaml
+    readme: docs/topoviewer/examples/regions/overlapping-regions/README.md
+  - id: regions-draggable-regions
+    title: Draggable regions
+    feature: regions
+    path: regions/draggable-regions
+    page: topoviewer/reference/regions/draggable-regions
+    renderable: true
+    topology: docs/topoviewer/examples/regions/draggable-regions/topology.yaml
+    stylesheet: docs/topoviewer/examples/regions/draggable-regions/stylesheet.yaml
+    expected: docs/topoviewer/examples/regions/draggable-regions/expected.yaml
+    readme: docs/topoviewer/examples/regions/draggable-regions/README.md
+  - id: shapes-two-dimensional
+    title: Two-dimensional shapes
+    feature: shapes
+    path: shapes/two-dimensional
+    page: topoviewer/reference/shapes/two-dimensional
+    renderable: true
+    topology: docs/topoviewer/examples/shapes/two-dimensional/topology.yaml
+    stylesheet: docs/topoviewer/examples/shapes/two-dimensional/stylesheet.yaml
+    expected: docs/topoviewer/examples/shapes/two-dimensional/expected.yaml
+    readme: docs/topoviewer/examples/shapes/two-dimensional/README.md
+  - id: shapes-three-dimensional
+    title: Three-dimensional shapes
+    feature: shapes
+    path: shapes/three-dimensional
+    page: topoviewer/reference/shapes/three-dimensional
+    renderable: true
+    topology: docs/topoviewer/examples/shapes/three-dimensional/topology.yaml
+    stylesheet: docs/topoviewer/examples/shapes/three-dimensional/stylesheet.yaml
+    expected: docs/topoviewer/examples/shapes/three-dimensional/expected.yaml
+    readme: docs/topoviewer/examples/shapes/three-dimensional/README.md
+  - id: shapes-rotation
+    title: Shape rotation
+    feature: shapes
+    path: shapes/rotation
+    page: topoviewer/reference/shapes/rotation
+    renderable: true
+    topology: docs/topoviewer/examples/shapes/rotation/topology.yaml
+    stylesheet: docs/topoviewer/examples/shapes/rotation/stylesheet.yaml
+    expected: docs/topoviewer/examples/shapes/rotation/expected.yaml
+    readme: docs/topoviewer/examples/shapes/rotation/README.md
+  - id: callouts-markdown
+    title: Markdown callouts
+    feature: callouts
+    path: callouts/markdown
+    page: topoviewer/reference/callouts/markdown
+    renderable: true
+    topology: docs/topoviewer/examples/callouts/markdown/topology.yaml
+    stylesheet: docs/topoviewer/examples/callouts/markdown/stylesheet.yaml
+    expected: docs/topoviewer/examples/callouts/markdown/expected.yaml
+    readme: docs/topoviewer/examples/callouts/markdown/README.md
+  - id: callouts-pins-and-leaders
+    title: Pins and leaders
+    feature: callouts
+    path: callouts/pins-and-leaders
+    page: topoviewer/reference/callouts/pins-and-leaders
+    renderable: true
+    topology: docs/topoviewer/examples/callouts/pins-and-leaders/topology.yaml
+    stylesheet: docs/topoviewer/examples/callouts/pins-and-leaders/stylesheet.yaml
+    expected: docs/topoviewer/examples/callouts/pins-and-leaders/expected.yaml
+    readme: docs/topoviewer/examples/callouts/pins-and-leaders/README.md
+  - id: callouts-image-embed
+    title: Image embed callout
+    feature: callouts
+    path: callouts/image-embed
+    page: topoviewer/reference/callouts/image-embed
+    renderable: true
+    topology: docs/topoviewer/examples/callouts/image-embed/topology.yaml
+    stylesheet: docs/topoviewer/examples/callouts/image-embed/stylesheet.yaml
+    expected: docs/topoviewer/examples/callouts/image-embed/expected.yaml
+    readme: docs/topoviewer/examples/callouts/image-embed/README.md
+  - id: styling-selectors
+    title: Selector styling
+    feature: styling
+    path: styling/selectors
+    page: topoviewer/reference/styling/selectors
+    renderable: true
+    topology: docs/topoviewer/examples/styling/selectors/topology.yaml
+    stylesheet: docs/topoviewer/examples/styling/selectors/stylesheet.yaml
+    expected: docs/topoviewer/examples/styling/selectors/expected.yaml
+    readme: docs/topoviewer/examples/styling/selectors/README.md
+  - id: styling-inline-style-override
+    title: Inline style override
+    feature: styling
+    path: styling/inline-style-override
+    page: topoviewer/reference/styling/inline-style-override
+    renderable: true
+    topology: docs/topoviewer/examples/styling/inline-style-override/topology.yaml
+    stylesheet: docs/topoviewer/examples/styling/inline-style-override/stylesheet.yaml
+    expected: docs/topoviewer/examples/styling/inline-style-override/expected.yaml
+    readme: docs/topoviewer/examples/styling/inline-style-override/README.md
+  - id: styling-theme-light-dark
+    title: Light and dark theme variables
+    feature: styling
+    path: styling/theme-light-dark
+    page: topoviewer/reference/styling/theme-light-dark
+    renderable: true
+    topology: docs/topoviewer/examples/styling/theme-light-dark/topology.yaml
+    stylesheet: docs/topoviewer/examples/styling/theme-light-dark/stylesheet.yaml
+    expected: docs/topoviewer/examples/styling/theme-light-dark/expected.yaml
+    readme: docs/topoviewer/examples/styling/theme-light-dark/README.md
+  - id: layout-manual
+    title: Manual layout
+    feature: layout
+    path: layout/manual
+    page: topoviewer/reference/layout/manual
+    renderable: true
+    topology: docs/topoviewer/examples/layout/manual/topology.yaml
+    stylesheet: docs/topoviewer/examples/layout/manual/stylesheet.yaml
+    expected: docs/topoviewer/examples/layout/manual/expected.yaml
+    readme: docs/topoviewer/examples/layout/manual/README.md
+  - id: layout-force
+    title: Force layout
+    feature: layout
+    path: layout/force
+    page: topoviewer/reference/layout/force
+    renderable: true
+    topology: docs/topoviewer/examples/layout/force/topology.yaml
+    stylesheet: docs/topoviewer/examples/layout/force/stylesheet.yaml
+    expected: docs/topoviewer/examples/layout/force/expected.yaml
+    readme: docs/topoviewer/examples/layout/force/README.md
+  - id: validation-broken-reference
+    title: Broken reference validation
+    feature: validation
+    path: validation/broken-reference
+    page: topoviewer/reference/validation/broken-reference
+    renderable: false
+    topology: docs/topoviewer/examples/validation/broken-reference/topology.yaml
+    stylesheet: docs/topoviewer/examples/validation/broken-reference/stylesheet.yaml
+    expected: docs/topoviewer/examples/validation/broken-reference/expected.yaml
+    readme: docs/topoviewer/examples/validation/broken-reference/README.md
+  - id: validation-unsafe-image
+    title: Unsafe image validation
+    feature: validation
+    path: validation/unsafe-image
+    page: topoviewer/reference/validation/unsafe-image
+    renderable: false
+    topology: docs/topoviewer/examples/validation/unsafe-image/topology.yaml
+    stylesheet: docs/topoviewer/examples/validation/unsafe-image/stylesheet.yaml
+    expected: docs/topoviewer/examples/validation/unsafe-image/expected.yaml
+    readme: docs/topoviewer/examples/validation/unsafe-image/README.md
+  - id: validation-limit-exceeded
+    title: Renderer limit validation
+    feature: validation
+    path: validation/limit-exceeded
+    page: topoviewer/reference/validation/limit-exceeded
+    renderable: false
+    topology: docs/topoviewer/examples/validation/limit-exceeded/topology.yaml
+    stylesheet: docs/topoviewer/examples/validation/limit-exceeded/stylesheet.yaml
+    expected: docs/topoviewer/examples/validation/limit-exceeded/expected.yaml
+    readme: docs/topoviewer/examples/validation/limit-exceeded/README.md
+  - id: integration-complete-network-demo
+    title: Complete network demo
+    feature: integration
+    path: integration/complete-network-demo
+    page: topoviewer/complete-network-demo
+    renderable: true
+    topology: docs/topoviewer/examples/integration/complete-network-demo/topology.yaml
+    stylesheet: docs/topoviewer/examples/integration/complete-network-demo/stylesheet.yaml
+    expected: docs/topoviewer/examples/integration/complete-network-demo/expected.yaml
+    readme: docs/topoviewer/examples/integration/complete-network-demo/README.md

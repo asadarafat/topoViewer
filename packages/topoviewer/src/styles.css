@@ -1,0 +1,478 @@
+:root {
+  --topoviewer-bg: #0b1118;
+  --topoviewer-bg-radial-a: rgba(45, 139, 232, 0.16);
+  --topoviewer-bg-radial-b: rgba(83, 182, 109, 0.08);
+  --topoviewer-bg-end: #0b1017;
+  --topoviewer-fg: #e7edf4;
+  --topoviewer-fg-strong: #edf4ff;
+  --topoviewer-fg-muted: #9db2cf;
+  --topoviewer-panel-bg: rgba(13, 20, 29, 0.96);
+  --topoviewer-surface-bg: rgba(17, 24, 32, 0.86);
+  --topoviewer-chip-bg: rgba(22, 32, 44, 0.86);
+  --topoviewer-chip-hover-bg: rgba(45, 139, 232, 0.28);
+  --topoviewer-button-bg: rgba(41, 59, 77, 0.72);
+  --topoviewer-border: rgba(120, 143, 170, 0.28);
+  --topoviewer-border-strong: rgba(120, 143, 170, 0.34);
+  --topoviewer-accent: #3da1ff;
+  --topoviewer-edge-default: rgba(45, 139, 232, 0.78);
+  --topoviewer-region-label-bg: rgba(17, 24, 32, 0.82);
+  --topoviewer-region-label-fg: #f4f9ff;
+  --topoviewer-edge-label-bg: rgba(17, 24, 32, 0.86);
+  --topoviewer-edge-label-border: #2d3846;
+  --topoviewer-node-shadow: 0 1px 4px rgba(0, 0, 0, 0.26);
+  --topoviewer-panel-shadow: 0 14px 34px rgba(0, 0, 0, 0.36);
+  --topoviewer-label-shadow: 0 8px 18px rgba(0, 0, 0, 0.36);
+}
+
+.topoviewer {
+  width: 100%;
+  height: 100%;
+  min-height: 420px;
+  background:
+    radial-gradient(circle at 30% 20%, var(--topoviewer-bg-radial-a), transparent 28%),
+    radial-gradient(circle at 76% 72%, var(--topoviewer-bg-radial-b), transparent 30%),
+    linear-gradient(135deg, var(--topoviewer-bg) 0%, var(--topoviewer-bg) 52%, var(--topoviewer-bg-end) 100%);
+  color: var(--topoviewer-fg);
+}
+
+.topoviewer-embed-shell {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  min-height: 420px;
+  background: var(--topoviewer-bg);
+}
+
+.topoviewer-embed-controls {
+  display: grid;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--topoviewer-border);
+  border-radius: 10px;
+  background: var(--topoviewer-panel-bg);
+  box-shadow: var(--topoviewer-panel-shadow);
+  backdrop-filter: blur(8px);
+}
+
+.topoviewer-embed-control-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.topoviewer-embed-control-label {
+  color: var(--topoviewer-fg-muted);
+  font-size: 10px;
+  font-weight: 760;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.topoviewer-embed-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 8px;
+  color: var(--topoviewer-fg);
+  border: 1px solid var(--topoviewer-border);
+  border-radius: 999px;
+  background: var(--topoviewer-chip-bg);
+  font-size: 11px;
+  line-height: 1;
+  user-select: none;
+}
+
+.topoviewer-embed-check input {
+  width: 12px;
+  height: 12px;
+  margin: 0;
+  accent-color: var(--topoviewer-accent);
+}
+
+.topoviewer-embed-controls button {
+  padding: 4px 9px;
+  color: var(--topoviewer-fg-strong);
+  border: 1px solid var(--topoviewer-border-strong);
+  border-radius: 999px;
+  background: var(--topoviewer-button-bg);
+  font-size: 11px;
+  font-weight: 680;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.topoviewer-embed-controls button:hover {
+  background: var(--topoviewer-chip-hover-bg);
+}
+
+.topoviewer-embed-viewport {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.topoviewer-embed-controls-overlay {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  right: 62px;
+  z-index: 12;
+  pointer-events: none;
+}
+
+.topoviewer-embed-controls-overlay .topoviewer-embed-controls {
+  pointer-events: auto;
+}
+
+.topoviewer .react-flow {
+  --xy-background-color: transparent;
+  --xy-edge-stroke-default: var(--topoviewer-edge-default);
+  --xy-node-background-color-default: transparent;
+  color: var(--topoviewer-fg);
+}
+
+.topoviewer-node {
+  width: 82px;
+  min-height: 60px;
+  display: grid;
+  justify-items: center;
+  gap: 3px;
+  padding: 0;
+  border: 0;
+  box-sizing: border-box;
+  color: var(--topoviewer-fg);
+  background: transparent;
+  box-shadow: none;
+  cursor: grab;
+}
+
+.topoviewer-node * {
+  cursor: inherit;
+}
+
+.react-flow__node.dragging .topoviewer-node {
+  cursor: grabbing;
+}
+
+.topoviewer-node-icon {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #fff;
+  font-weight: 900;
+  font-size: 12px;
+  background: var(--topoviewer-node-fill, #929aa8);
+  border: 4px solid var(--topoviewer-node-stroke, #d9e0ea);
+  box-shadow: var(--topoviewer-node-shadow);
+}
+
+.topoviewer-node-icon-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+}
+
+.topoviewer-node-label {
+  color: var(--topoviewer-fg-strong);
+  font-weight: 620;
+  font-size: 10px;
+  line-height: 1.1;
+  text-align: center;
+}
+
+.topoviewer-node-parent {
+  align-content: start;
+  padding: 10px 12px 14px;
+  border: 1px solid var(--topoviewer-border-strong);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--topoviewer-surface-bg) 74%, transparent);
+  box-shadow: var(--topoviewer-node-shadow);
+}
+
+.topoviewer-node-parent .topoviewer-node-label {
+  margin-top: 1px;
+}
+
+.topoviewer-node-child {
+  align-content: center;
+}
+
+.topoviewer-node-label p {
+  margin: 0;
+}
+
+.topoviewer-node-label strong {
+  font-weight: 850;
+}
+
+.topoviewer-node-label em {
+  font-style: italic;
+}
+
+.topoviewer-node-label u {
+  text-underline-offset: 2px;
+}
+
+.topoviewer-node-label s {
+  opacity: 0.82;
+}
+
+.topoviewer-node-label code {
+  padding: 0 2px;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--topoviewer-panel) 84%, transparent);
+  font-size: 0.92em;
+}
+
+.topoviewer-node-label img {
+  max-width: 100%;
+  max-height: 18px;
+  vertical-align: middle;
+}
+
+.topoviewer-node-meta {
+  color: var(--topoviewer-fg-muted);
+  font-size: 8px;
+  line-height: 1.15;
+  text-align: center;
+}
+
+.topoviewer-region {
+  width: 100%;
+  height: 100%;
+  border: 1px solid var(--topoviewer-region-stroke, rgba(55, 169, 216, 0.42));
+  border-radius: 4px;
+  background: var(--topoviewer-region-fill, rgba(76, 201, 240, 0.12));
+  cursor: grab;
+}
+
+.react-flow__node-region.dragging .topoviewer-region {
+  cursor: grabbing;
+}
+
+.topoviewer-region-label {
+  position: absolute;
+  top: 12px;
+  left: 18px;
+  padding: 4px 7px;
+  border: 1px solid var(--topoviewer-border);
+  border-radius: 3px;
+  color: var(--topoviewer-region-label-fg);
+  background: var(--topoviewer-region-label-bg);
+  font-size: 10px;
+  font-weight: 720;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.topoviewer-shape {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  background: transparent;
+  border: 0;
+  box-sizing: border-box;
+  cursor: grab;
+}
+
+.react-flow__node.dragging .topoviewer-shape {
+  cursor: grabbing;
+}
+
+.topoviewer-shape-geometry {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.topoviewer-callout {
+  width: 100%;
+  min-height: 100%;
+  overflow: hidden;
+  color: #101820;
+  background: rgba(211, 242, 255, 0.94);
+  border: 2px solid rgba(84, 201, 245, 0.72);
+  border-radius: 5px;
+  box-shadow: 0 0 12px rgba(84, 201, 245, 0.42);
+  box-sizing: border-box;
+  cursor: grab;
+}
+
+.react-flow__node.dragging .topoviewer-callout {
+  cursor: grabbing;
+}
+
+.topoviewer-callout-title {
+  padding: 9px 14px;
+  color: #050a12;
+  background: rgba(188, 232, 250, 0.88);
+  font-size: 18px;
+  font-weight: 850;
+  line-height: 1.15;
+}
+
+.topoviewer-callout-body {
+  margin: 0;
+  padding: 12px 18px 14px;
+  color: #111827;
+  font-size: 14px;
+  line-height: 1.24;
+}
+
+.topoviewer-callout-body p,
+.topoviewer-callout-body ul,
+.topoviewer-callout-body ol,
+.topoviewer-callout-body h3,
+.topoviewer-callout-body h4,
+.topoviewer-callout-body h5,
+.topoviewer-callout-body h6 {
+  margin: 0;
+}
+
+.topoviewer-callout-body p + p,
+.topoviewer-callout-body p + ul,
+.topoviewer-callout-body p + ol,
+.topoviewer-callout-body ul + p,
+.topoviewer-callout-body ol + p,
+.topoviewer-callout-body h3 + p,
+.topoviewer-callout-body h4 + p,
+.topoviewer-callout-body h5 + p,
+.topoviewer-callout-body h6 + p {
+  margin-top: 8px;
+}
+
+.topoviewer-callout-body ul,
+.topoviewer-callout-body ol {
+  padding-left: 18px;
+}
+
+.topoviewer-callout-body code {
+  padding: 1px 4px;
+  border-radius: 3px;
+  background: rgba(15, 23, 42, 0.10);
+  font-size: 0.92em;
+}
+
+.topoviewer-callout-body img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 8px auto 0;
+  border-radius: 6px;
+}
+
+.topoviewer-callout-body li + li {
+  margin-top: 5px;
+}
+
+.topoviewer-pin {
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.topoviewer-edge-label {
+  z-index: 40;
+  padding: 3px 6px;
+  border-radius: 3px;
+  color: var(--topoviewer-fg-strong);
+  background: var(--topoviewer-edge-label-bg);
+  border: 1px solid var(--topoviewer-edge-label-border);
+  font-size: 10px;
+  font-weight: 650;
+  box-shadow: var(--topoviewer-label-shadow);
+}
+
+.topoviewer-edge-paint-layer {
+  position: absolute;
+  z-index: 8;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.topoviewer .react-flow__edgelabel-renderer {
+  z-index: 40;
+}
+
+.topoviewer-edge-visible-path {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+
+.topoviewer-edge-pipe-border,
+.topoviewer-edge-pipe-fill,
+.topoviewer-edge-lane {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+
+.topoviewer-edge-pipe-border {
+  stroke-linecap: round;
+}
+
+.topoviewer-edge-lane-stub {
+  stroke-linecap: round;
+}
+
+.topoviewer .react-flow__handle {
+  width: 1px;
+  height: 1px;
+  min-width: 1px;
+  min-height: 1px;
+  border: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.topoviewer-reactflow-controls {
+  overflow: hidden;
+  border: 1px solid var(--topoviewer-border-strong);
+  border-radius: 8px;
+  background: var(--topoviewer-surface-bg);
+  box-shadow: var(--topoviewer-panel-shadow);
+  backdrop-filter: blur(8px);
+}
+
+.topoviewer-reactflow-controls .react-flow__controls-button {
+  width: 34px;
+  height: 34px;
+  border-bottom-color: var(--topoviewer-border);
+  color: var(--topoviewer-fg-strong);
+  background: var(--topoviewer-panel-bg);
+}
+
+.topoviewer-reactflow-controls .react-flow__controls-button:hover {
+  background: var(--topoviewer-chip-hover-bg);
+}
+
+.topoviewer-reactflow-controls .topoviewer-controls-toggle.is-open {
+  color: var(--topoviewer-accent);
+  background: var(--topoviewer-chip-hover-bg);
+}
+
+.topoviewer-reactflow-controls .react-flow__controls-button svg {
+  max-width: 15px;
+  max-height: 15px;
+  fill: currentColor;
+  stroke: currentColor;
+}

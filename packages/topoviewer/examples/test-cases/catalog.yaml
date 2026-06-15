@@ -1,0 +1,299 @@
+version: "0.2"
+examples:
+  - id: graph-basic
+    title: Graph basic
+    feature: graph
+    path: graph/basic
+    page: topoviewer/reference/graph/basic
+    summary: A minimal graph with two nodes and one named link.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Graph basic
+  - id: graph-labels-and-data
+    title: Labels and data
+    feature: graph
+    path: graph/labels-and-data
+    page: topoviewer/reference/graph/labels-and-data
+    summary: Classification lives in `labels`; operational values live in `data`.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Labels and data
+  - id: graph-parent-child-nodes
+    title: Parent and child nodes
+    feature: graph
+    path: graph/parent-child-nodes
+    page: topoviewer/reference/graph/parent-child-nodes
+    summary: Logical nodes can be nested inside physical parent nodes.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Parent and child nodes
+  - id: edges-curve-styles
+    title: Edge curve styles
+    feature: edges
+    path: edges/curve-styles
+    page: topoviewer/reference/edges/curve-styles
+    summary: Different `curveStyle` values produce different edge routing models.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Edge curve styles
+  - id: edges-arrows-dashes-labels
+    title: Arrows, dashes, and labels
+    feature: edges
+    path: edges/arrows-dashes-labels
+    page: topoviewer/reference/edges/arrows-dashes-labels
+    summary: Edges can carry labels, arrows, and dash patterns without changing topology semantics.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Arrows, dashes, and labels
+  - id: edges-floating-anchors
+    title: Floating anchors
+    feature: edges
+    path: edges/floating-anchors
+    page: topoviewer/reference/edges/floating-anchors
+    summary: Floating anchors connect to the nearest point on each node boundary.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Floating anchors
+  - id: edges-parent-link-pipe
+    title: Parent link pipe
+    feature: edges
+    path: edges/parent-link-pipe
+    page: topoviewer/reference/edges/parent-link-pipe
+    summary: A child link can be visually carried inside a parent transport link.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Parent link pipe
+  - id: paths-sequenced-path
+    title: Sequenced path
+    feature: paths
+    path: paths/sequenced-path
+    page: topoviewer/reference/paths/sequenced-path
+    summary: A path sequence models ordered traversal through graph nodes.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Sequenced path
+  - id: paths-stitched-child-path
+    title: Stitched child path
+    feature: paths
+    path: paths/stitched-child-path
+    page: topoviewer/reference/paths/stitched-child-path
+    summary: A child service path can stitch from child endpoints into a parent transport path.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Stitched child path
+  - id: regions-nested-regions
+    title: Nested regions
+    feature: regions
+    path: regions/nested-regions
+    page: topoviewer/reference/regions/nested-regions
+    summary: Regions can be nested so broad domains contain smaller domains.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Nested regions
+  - id: regions-overlapping-regions
+    title: Overlapping regions
+    feature: regions
+    path: regions/overlapping-regions
+    page: topoviewer/reference/regions/overlapping-regions
+    summary: A shared node can be a member of multiple regions.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Overlapping regions
+  - id: regions-draggable-regions
+    title: Draggable regions
+    feature: regions
+    path: regions/draggable-regions
+    page: topoviewer/reference/regions/draggable-regions
+    summary: Regions can be selectable and draggable hulls.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Draggable regions
+  - id: shapes-two-dimensional
+    title: Two-dimensional shapes
+    feature: shapes
+    path: shapes/two-dimensional
+    page: topoviewer/reference/shapes/two-dimensional
+    summary: 2D geometry primitives are diagram objects, not graph facts.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Two-dimensional shapes
+  - id: shapes-three-dimensional
+    title: Three-dimensional shapes
+    feature: shapes
+    path: shapes/three-dimensional
+    page: topoviewer/reference/shapes/three-dimensional
+    summary: 3D geometry primitives are available for common diagram metaphors.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Three-dimensional shapes
+  - id: shapes-rotation
+    title: Shape rotation
+    feature: shapes
+    path: shapes/rotation
+    page: topoviewer/reference/shapes/rotation
+    summary: Shape geometry can be rotated directly or through a stylesheet rule.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Shape rotation
+  - id: callouts-markdown
+    title: Markdown callouts
+    feature: callouts
+    path: callouts/markdown
+    page: topoviewer/reference/callouts/markdown
+    summary: Callout bodies support markdown, inline formatting, and images.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Markdown callouts
+  - id: callouts-pins-and-leaders
+    title: Pins and leaders
+    feature: callouts
+    path: callouts/pins-and-leaders
+    page: topoviewer/reference/callouts/pins-and-leaders
+    summary: Leaders can attach to named pins instead of object centers.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Pins and leaders
+  - id: callouts-image-embed
+    title: Image embed callout
+    feature: callouts
+    path: callouts/image-embed
+    page: topoviewer/reference/callouts/image-embed
+    summary: Image embeds are allowed when the URL is safe.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Image embed callout
+  - id: styling-selectors
+    title: Selector styling
+    feature: styling
+    path: styling/selectors
+    page: topoviewer/reference/styling/selectors
+    summary: Selector rules classify objects by kind, id, labels, or data.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Selector styling
+  - id: styling-inline-style-override
+    title: Inline style override
+    feature: styling
+    path: styling/inline-style-override
+    page: topoviewer/reference/styling/inline-style-override
+    summary: Inline `style` overrides are local escape hatches on individual objects.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Inline style override
+  - id: styling-theme-light-dark
+    title: Light and dark theme variables
+    feature: styling
+    path: styling/theme-light-dark
+    page: topoviewer/reference/styling/theme-light-dark
+    summary: Theme-aware styles should use TopoViewer CSS variables.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Light and dark theme variables
+  - id: layout-manual
+    title: Manual layout
+    feature: layout
+    path: layout/manual
+    page: topoviewer/reference/layout/manual
+    summary: Manual layout preserves authored positions.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Manual layout
+  - id: layout-force
+    title: Force layout
+    feature: layout
+    path: layout/force
+    page: topoviewer/reference/layout/force
+    summary: Force layout computes positions when the author omits coordinates.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Force layout
+  - id: validation-broken-reference
+    title: Broken reference validation
+    feature: validation
+    path: validation/broken-reference
+    page: topoviewer/reference/validation/broken-reference
+    summary: The semantic linter catches links that reference missing nodes.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Broken reference validation
+  - id: validation-unsafe-image
+    title: Unsafe image validation
+    feature: validation
+    path: validation/unsafe-image
+    page: topoviewer/reference/validation/unsafe-image
+    summary: The semantic linter rejects unsafe image references.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Unsafe image validation
+  - id: validation-limit-exceeded
+    title: Renderer limit validation
+    feature: validation
+    path: validation/limit-exceeded
+    page: topoviewer/reference/validation/limit-exceeded
+    summary: Renderer limits fail fast before a diagram becomes unsafe or unusable.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Renderer limit validation
+  - id: integration-complete-network-demo
+    title: Complete network demo
+    feature: integration
+    path: integration/complete-network-demo
+    page: topoviewer/complete-network-demo
+    summary: An integrated network example combining graph facts, regions, child nodes, paths, shapes, and callouts.
+    render:
+      height: 640px
+      controls: true
+      controlsOpen: false
+      title: Complete network demo

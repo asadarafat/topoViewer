@@ -1,0 +1,47 @@
+graph:
+  id: arrows-dashes-labels
+  layers:
+    - id: controller
+      name: Controller
+  nodes:
+    - id: PCC
+      name: PCC
+      labels:
+        node: router
+      layers:
+        - controller
+      position:
+        - 130
+        - 160
+    - id: PCE
+      name: PCE
+      labels:
+        node: controller
+      layers:
+        - controller
+      position:
+        - 490
+        - 160
+  links:
+    - id: pcep-request
+      name: PCEP request
+      source: PCC
+      target: PCE
+      labels:
+        link: control
+        direction: request
+      layers:
+        - controller
+    - id: pcep-reply
+      name: PCEP reply
+      source: PCE
+      target: PCC
+      labels:
+        link: control
+        direction: reply
+      layers:
+        - controller
+toggles:
+  - id: showEdgeLabels
+    name: Show labels
+    default: true

@@ -1,0 +1,887 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Declarative Layered Network Topology Renderer</title>
+  <script src="https://unpkg.com/cytoscape@3.30.4/dist/cytoscape.min.js"></script>
+  <style>
+    :root {
+      --bg: #07111f;
+      --panel: rgba(12, 25, 45, 0.92);
+      --panel-2: rgba(15, 31, 55, 0.86);
+      --line: rgba(155, 183, 221, 0.22);
+      --text: #e9f2ff;
+      --muted: #94a9c7;
+      --accent: #42d392;
+      --cyan: #4cc9f0;
+      --orange: #ffb454;
+      --pink: #ff6b9a;
+      --red: #ff5c7a;
+      --yellow: #ffd166;
+      --blue: #6ea8fe;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 18% 18%, rgba(76, 201, 240, 0.18), transparent 28%),
+        radial-gradient(circle at 84% 18%, rgba(255, 180, 84, 0.14), transparent 26%),
+        linear-gradient(135deg, #07111f 0%, #08192c 54%, #0d1324 100%);
+      font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .app {
+      display: grid;
+      grid-template-columns: 340px 1fr 360px;
+      grid-template-rows: 72px 1fr;
+      width: 100%;
+      height: 100%;
+    }
+
+    header {
+      grid-column: 1 / 4;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(4, 13, 25, 0.74);
+      backdrop-filter: blur(14px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .mark {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border-radius: 14px;
+      color: #06121f;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--accent), var(--cyan));
+      box-shadow: 0 14px 36px rgba(76, 201, 240, 0.24);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 18px;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .status-strip {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .pill {
+      padding: 7px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.045);
+    }
+
+    .sidebar,
+    .inspector {
+      min-height: 0;
+      padding: 16px;
+      border-right: 1px solid var(--line);
+      background: var(--panel);
+      overflow: auto;
+    }
+
+    .inspector {
+      border-right: 0;
+      border-left: 1px solid var(--line);
+    }
+
+    .card {
+      padding: 14px;
+      margin-bottom: 14px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: var(--panel-2);
+      box-shadow: 0 16px 42px rgba(0, 0, 0, 0.18);
+    }
+
+    .card h2 {
+      margin: 0 0 10px;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #cfe0ff;
+    }
+
+    .view-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    button,
+    label.toggle {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.045);
+      cursor: pointer;
+      transition: 140ms ease;
+    }
+
+    button {
+      padding: 11px 12px;
+      text-align: left;
+      font-weight: 700;
+    }
+
+    button:hover,
+    label.toggle:hover {
+      border-color: rgba(76, 201, 240, 0.56);
+      background: rgba(76, 201, 240, 0.11);
+    }
+
+    button.active {
+      border-color: rgba(66, 211, 146, 0.82);
+      background: linear-gradient(135deg, rgba(66, 211, 146, 0.18), rgba(76, 201, 240, 0.11));
+      box-shadow: inset 3px 0 0 var(--accent);
+    }
+
+    label.toggle {
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      gap: 10px;
+      align-items: start;
+      padding: 10px;
+      margin-bottom: 8px;
+    }
+
+    input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      accent-color: var(--accent);
+      transform: translateY(2px);
+    }
+
+    .toggle-title {
+      display: block;
+      font-weight: 750;
+      font-size: 13px;
+    }
+
+    .toggle-help {
+      display: block;
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .canvas-wrap {
+      min-width: 0;
+      min-height: 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #cy {
+      width: 100%;
+      height: 100%;
+    }
+
+    .legend {
+      position: absolute;
+      left: 18px;
+      bottom: 18px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      max-width: calc(100% - 36px);
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(4, 13, 25, 0.78);
+      backdrop-filter: blur(10px);
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .swatch {
+      width: 22px;
+      height: 4px;
+      border-radius: 999px;
+      background: var(--blue);
+    }
+
+    .swatch.physical { background: #6ea8fe; }
+    .swatch.igp { background: #42d392; }
+    .swatch.bgp { background: #ffb454; }
+    .swatch.transport { background: #ff6b9a; }
+    .swatch.service { background: #b197fc; }
+
+    .inspector-empty {
+      color: var(--muted);
+      line-height: 1.45;
+      font-size: 13px;
+    }
+
+    .kv {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      gap: 8px;
+      padding: 7px 0;
+      border-bottom: 1px dashed rgba(155, 183, 221, 0.18);
+      font-size: 12px;
+    }
+
+    .kv .key {
+      color: var(--muted);
+    }
+
+    .kv .value {
+      color: #f5f9ff;
+      word-break: break-word;
+    }
+
+    .mini-code {
+      padding: 12px;
+      margin: 0;
+      border-radius: 14px;
+      color: #d9e8ff;
+      background: rgba(2, 9, 19, 0.72);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 11px;
+      line-height: 1.45;
+      white-space: pre-wrap;
+      overflow: auto;
+    }
+
+    .small-note {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    @media (max-width: 1120px) {
+      .app {
+        grid-template-columns: 290px 1fr;
+      }
+
+      .inspector {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="brand">
+        <div class="mark">G</div>
+        <div>
+          <h1>Declarative Layered Network Graph Renderer</h1>
+          <div class="subtitle">Cytoscape.js target, graph-first schema, layer projections, runtime toggles, declarative icons.</div>
+        </div>
+      </div>
+      <div class="status-strip">
+        <span class="pill" id="active-view-label">View: physical</span>
+        <span class="pill" id="graph-counts">0 nodes / 0 edges</span>
+      </div>
+    </header>
+
+    <aside class="sidebar">
+      <section class="card">
+        <h2>Views</h2>
+        <div class="view-list" id="view-list"></div>
+      </section>
+
+      <section class="card">
+        <h2>Toggles</h2>
+        <div id="toggle-list"></div>
+      </section>
+
+      <section class="card">
+        <h2>Model Rule</h2>
+        <p class="small-note">
+          The topology data describes facts. The theme describes icons and style.
+          The selected view and toggles compile a projection into Cytoscape nodes and edges.
+        </p>
+      </section>
+    </aside>
+
+    <main class="canvas-wrap">
+      <div id="cy"></div>
+      <div class="legend">
+        <span class="legend-item"><i class="swatch physical"></i>physical</span>
+        <span class="legend-item"><i class="swatch igp"></i>IGP</span>
+        <span class="legend-item"><i class="swatch bgp"></i>BGP</span>
+        <span class="legend-item"><i class="swatch transport"></i>transport path</span>
+        <span class="legend-item"><i class="swatch service"></i>service dependency</span>
+      </div>
+    </main>
+
+    <aside class="inspector">
+      <section class="card">
+        <h2>Inspector</h2>
+        <div id="inspector">
+          <p class="inspector-empty">Click any node or edge to inspect the declarative data that produced it.</p>
+        </div>
+      </section>
+      <section class="card">
+        <h2>Active Projection</h2>
+        <pre class="mini-code" id="projection-debug"></pre>
+      </section>
+    </aside>
+  </div>
+
+  <script>
+    const topologySpec = {
+      graph: {
+        id: 'mv-network',
+        modelVersion: 1,
+        layers: [
+          { id: 'physical', label: 'Physical' },
+          { id: 'igp', label: 'IGP' },
+          { id: 'bgp', label: 'BGP' },
+          { id: 'transport', label: 'Transport Tunnel' },
+          { id: 'service', label: 'Service' },
+          { id: 'controller', label: 'Controller' },
+          { id: 'access', label: 'Access / CE' }
+        ],
+        elements: {
+          nodes: [
+            { data: { id: 'R01', label: 'R01', kind: 'router', vendor: 'nokia', role: 'PE', layers: ['physical', 'igp', 'bgp', 'transport', 'service'], loopback: '25.0.1.1' } },
+            { data: { id: 'R02', label: 'R02', kind: 'router', vendor: 'cisco', role: 'PE', layers: ['physical', 'igp', 'bgp', 'transport'], loopback: '25.0.1.2' } },
+            { data: { id: 'R03', label: 'R03', kind: 'router', vendor: 'juniper', role: 'P', layers: ['physical', 'igp', 'transport'], loopback: '25.0.1.3' } },
+            { data: { id: 'R04', label: 'R04', kind: 'router', vendor: 'nokia', role: 'PE', layers: ['physical', 'igp', 'bgp', 'transport', 'service'], loopback: '25.0.1.4' } },
+            { data: { id: 'R05', label: 'R05', kind: 'router', vendor: 'nokia', role: 'ABR', layers: ['physical', 'igp', 'bgp', 'transport', 'controller'], loopback: '25.0.1.5' } },
+            { data: { id: 'R06', label: 'R06', kind: 'router', vendor: 'cisco', role: 'ASBR', layers: ['physical', 'igp', 'bgp', 'transport'], loopback: '25.0.1.6' } },
+            { data: { id: 'R07', label: 'R07', kind: 'router', vendor: 'cisco', role: 'ASBR', layers: ['physical', 'igp', 'bgp', 'transport'], loopback: '25.0.1.7' } },
+            { data: { id: 'R08', label: 'R08', kind: 'router', vendor: 'juniper', role: 'P', layers: ['physical', 'igp', 'transport'], loopback: '25.0.1.8' } },
+            { data: { id: 'R09', label: 'R09', kind: 'router', vendor: 'nokia', role: 'PE', layers: ['physical', 'igp', 'bgp', 'transport', 'service'], loopback: '25.0.1.9' } },
+            { data: { id: 'R10', label: 'R10', kind: 'router', vendor: 'juniper', role: 'PE', layers: ['physical', 'igp', 'bgp', 'transport'], loopback: '25.0.1.10' } },
+
+            { data: { id: 'NSP', label: 'NSP', kind: 'controller', icon: 'controller.nsp', layers: ['controller'], managementIp: '100.124.182.193' } },
+            { data: { id: 'VSR-NRC', label: 'VSR-NRC', kind: 'controller', icon: 'controller.nrc', layers: ['controller', 'bgp'], loopback: '99.1.1.1' } },
+
+            { data: { id: 'svc-1321-r01', label: 'L3VPN 1321', kind: 'service-instance', layers: ['service'], parent: 'R01', serviceId: 1321, serviceType: 'l3vpn' } },
+            { data: { id: 'svc-1321-r09', label: 'L3VPN 1321', kind: 'service-instance', layers: ['service'], parent: 'R09', serviceId: 1321, serviceType: 'l3vpn' } },
+            { data: { id: 'srv6-6101-r04', label: 'SRv6 6101', kind: 'service-instance', layers: ['service'], parent: 'R04', serviceId: 6101, serviceType: 'srv6-l3vpn' } },
+            { data: { id: 'CE01', label: 'CE01', kind: 'client', icon: 'client.generic', layers: ['access'], parent: 'R01' } },
+            { data: { id: 'CE09', label: 'CE09', kind: 'client', icon: 'client.generic', layers: ['access'], parent: 'R09' } }
+          ],
+          edges: [
+            { data: { id: 'phy-R01-R02', source: 'R01', target: 'R02', kind: 'physical-link', layers: ['physical'], ifA: '1/1/1', ifB: 'Gi0/0/0/0' } },
+            { data: { id: 'phy-R01-R03', source: 'R01', target: 'R03', kind: 'physical-link', layers: ['physical'], ifA: '1/1/2', ifB: 'ge-0/0/1' } },
+            { data: { id: 'phy-R01-R04', source: 'R01', target: 'R04', kind: 'physical-link', layers: ['physical'], ifA: '1/1/3', ifB: '1/1/3' } },
+            { data: { id: 'phy-R02-R04', source: 'R02', target: 'R04', kind: 'physical-link', layers: ['physical'] } },
+            { data: { id: 'phy-R03-R05', source: 'R03', target: 'R05', kind: 'physical-link', layers: ['physical'] } },
+            { data: { id: 'phy-R04-R05', source: 'R04', target: 'R05', kind: 'physical-link', layers: ['physical'] } },
+            { data: { id: 'phy-R05-R06', source: 'R05', target: 'R06', kind: 'physical-link', layers: ['physical'] } },
+            { data: { id: 'phy-R06-R07', source: 'R06', target: 'R07', kind: 'physical-link', layers: ['physical'] } },
+            { data: { id: 'phy-R07-R09', source: 'R07', target: 'R09', kind: 'physical-link', layers: ['physical'] } },
+            { data: { id: 'phy-R08-R10', source: 'R08', target: 'R10', kind: 'physical-link', layers: ['physical'] } },
+            { data: { id: 'phy-R09-R10', source: 'R09', target: 'R10', kind: 'physical-link', layers: ['physical'] } },
+
+            { data: { id: 'isis-R01-R02', source: 'R01', target: 'R02', kind: 'igp-adjacency', layers: ['igp'], protocol: 'isis', level: 'L1', metric: 10, relatesTo: ['phy-R01-R02'] } },
+            { data: { id: 'isis-R01-R04', source: 'R01', target: 'R04', kind: 'igp-adjacency', layers: ['igp'], protocol: 'isis', level: 'L1', metric: 25, relatesTo: ['phy-R01-R04'] } },
+            { data: { id: 'isis-R03-R05', source: 'R03', target: 'R05', kind: 'igp-adjacency', layers: ['igp'], protocol: 'isis', level: 'L1', metric: 10, relatesTo: ['phy-R03-R05'] } },
+            { data: { id: 'isis-R06-R07', source: 'R06', target: 'R07', kind: 'igp-adjacency', layers: ['igp'], protocol: 'isis', level: 'L2', metric: 10, relatesTo: ['phy-R06-R07'] } },
+            { data: { id: 'isis-R07-R09', source: 'R07', target: 'R09', kind: 'igp-adjacency', layers: ['igp'], protocol: 'isis', level: 'L2', metric: 10, relatesTo: ['phy-R07-R09'] } },
+            { data: { id: 'isis-R09-R10', source: 'R09', target: 'R10', kind: 'igp-adjacency', layers: ['igp'], protocol: 'isis', level: 'L2', metric: 10, relatesTo: ['phy-R09-R10'] } },
+
+            { data: { id: 'bgpls-R05-VSR', source: 'R05', target: 'VSR-NRC', kind: 'control-plane-session', layers: ['bgp', 'controller'], protocol: 'bgp-ls', afiSafi: ['bgp-ls'] } },
+            { data: { id: 'bgpls-R09-VSR', source: 'R09', target: 'VSR-NRC', kind: 'control-plane-session', layers: ['bgp', 'controller'], protocol: 'bgp-ls', afiSafi: ['bgp-ls'] } },
+            { data: { id: 'pcep-R01-NSP', source: 'R01', target: 'NSP', kind: 'control-plane-session', layers: ['controller'], protocol: 'pcep', delegated: true } },
+            { data: { id: 'pcep-R09-NSP', source: 'R09', target: 'NSP', kind: 'control-plane-session', layers: ['controller'], protocol: 'pcep', delegated: true } },
+
+            { data: { id: 'svc-edge-1321-a', source: 'svc-1321-r01', target: 'svc-1321-r09', kind: 'service-dependency', layers: ['service'], serviceId: 1321, transport: 'lsp-epe-1321-forward' } },
+            { data: { id: 'access-CE01-R01', source: 'CE01', target: 'svc-1321-r01', kind: 'service-attachment', layers: ['access', 'service'] } },
+            { data: { id: 'access-CE09-R09', source: 'CE09', target: 'svc-1321-r09', kind: 'service-attachment', layers: ['access', 'service'] } }
+          ]
+        },
+        overlays: {
+          paths: [
+            {
+              id: 'lsp-r01-r04-primary',
+              label: 'SR-TE primary R01->R04',
+              kind: 'transport-path',
+              layers: ['transport'],
+              sequence: ['R01', 'R04'],
+              data: { protocol: 'sr-te', controller: 'nsp-pce', pathProfile: 1006, pathGroup: 1006012, strictHopsInCli: false }
+            },
+            {
+              id: 'lsp-r01-r04-standby',
+              label: 'SR-TE standby R01->R04',
+              kind: 'transport-path',
+              layers: ['transport'],
+              sequence: ['R01', 'R02', 'R04'],
+              data: { protocol: 'sr-te', controller: 'nsp-pce', pathProfile: 1006, pathGroup: 1006012, strictHopsInCli: false }
+            },
+            {
+              id: 'lsp-epe-1321-forward',
+              label: 'EPE 1321 forward',
+              kind: 'transport-path',
+              layers: ['transport', 'service'],
+              sequence: ['R01', 'R03', 'R05', 'R06', 'R07', 'R09'],
+              data: { protocol: 'sr-te', serviceId: 1321, controller: 'nsp-pce', strictHopsInCli: false }
+            },
+            {
+              id: 'lsp-epe-1321-return',
+              label: 'EPE 1321 return',
+              kind: 'transport-path',
+              layers: ['transport', 'service'],
+              sequence: ['R09', 'R07', 'R06', 'R05', 'R03', 'R01'],
+              data: { protocol: 'sr-te', serviceId: 1321, controller: 'nsp-pce', strictHopsInCli: false }
+            }
+          ]
+        },
+        relationships: [
+          { id: 'rel-svc-1321-transport', kind: 'uses-transport', source: 'svc-1321-r01', target: 'lsp-epe-1321-forward' },
+          { id: 'rel-svc-1321-return', kind: 'uses-transport', source: 'svc-1321-r09', target: 'lsp-epe-1321-return' }
+        ]
+      },
+
+      views: [
+        { id: 'physical', label: 'Physical', includeLayers: ['physical'] },
+        { id: 'igp', label: 'IGP over Physical', includeLayers: ['physical', 'igp'] },
+        { id: 'bgp', label: 'BGP / Controller', includeLayers: ['physical', 'bgp', 'controller'] },
+        { id: 'transport', label: 'Transport Tunnel', includeLayers: ['physical', 'igp', 'transport'] },
+        { id: 'service', label: 'Service over Transport', includeLayers: ['physical', 'transport', 'service'] }
+      ],
+
+      toggles: [
+        {
+          id: 'showServices',
+          label: 'Show services inside nodes',
+          help: 'Adds service-layer nodes and contains each instance inside its parent router.',
+          default: false,
+          includeLayers: ['service'],
+          containment: { enabled: true, parentField: 'parent', mode: 'compound' }
+        },
+        {
+          id: 'showClients',
+          label: 'Show CE / clients',
+          help: 'Adds access-layer endpoint objects. These can also be contained inside parent nodes.',
+          default: false,
+          includeLayers: ['access'],
+          containment: { enabled: true, parentField: 'parent', mode: 'compound' }
+        },
+        {
+          id: 'showController',
+          label: 'Show controller objects',
+          help: 'Adds NSP, VSR-NRC, PCEP, and BGP-LS control-plane objects.',
+          default: true,
+          includeLayers: ['controller']
+        },
+        {
+          id: 'showMetrics',
+          label: 'Show metrics / labels',
+          help: 'Uses style overrides to expose metric, protocol, and service labels on edges.',
+          default: false,
+          styleOverrides: [
+            { selector: 'edge[metric]', style: { label: 'data(metric)' } },
+            { selector: 'edge[protocol]', style: { label: 'data(protocol)' } },
+            { selector: 'edge[serviceId]', style: { label: 'data(serviceId)' } }
+          ]
+        },
+        {
+          id: 'showPathNames',
+          label: 'Show path names',
+          help: 'Labels derived overlay path segments with the path name.',
+          default: false,
+          styleOverrides: [
+            { selector: 'edge[kind = "transport-path-segment"]', style: { label: 'data(pathLabel)' } }
+          ]
+        }
+      ],
+
+      theme: {
+        iconCatalog: {
+          'router.generic': { glyph: 'R', fill: '#6ea8fe', stroke: '#d8e8ff' },
+          'router.nokia': { glyph: 'N', fill: '#1148ff', stroke: '#b8c7ff' },
+          'router.cisco': { glyph: 'C', fill: '#16a3b8', stroke: '#c8fbff' },
+          'router.juniper': { glyph: 'J', fill: '#2fb344', stroke: '#d7ffdf' },
+          'controller.nsp': { glyph: 'NSP', fill: '#ffb454', stroke: '#ffe4b8' },
+          'controller.nrc': { glyph: 'NRC', fill: '#ffd166', stroke: '#fff2bd' },
+          'service.l3vpn': { glyph: 'VPN', fill: '#b197fc', stroke: '#eee5ff' },
+          'service.srv6': { glyph: 'v6', fill: '#ff6b9a', stroke: '#ffd1df' },
+          'client.generic': { glyph: 'CE', fill: '#42d392', stroke: '#d8ffed' }
+        },
+        iconRules: [
+          { selector: 'node[kind = "router"][vendor = "nokia"]', icon: 'router.nokia' },
+          { selector: 'node[kind = "router"][vendor = "cisco"]', icon: 'router.cisco' },
+          { selector: 'node[kind = "router"][vendor = "juniper"]', icon: 'router.juniper' },
+          { selector: 'node[kind = "router"]', icon: 'router.generic' },
+          { selector: 'node[kind = "service-instance"][serviceType = "l3vpn"]', icon: 'service.l3vpn' },
+          { selector: 'node[kind = "service-instance"][serviceType = "srv6-l3vpn"]', icon: 'service.srv6' },
+          { selector: 'node[kind = "client"]', icon: 'client.generic' }
+        ],
+        styleRules: [
+          { selector: 'edge[kind = "physical-link"]', style: { 'line-color': '#6ea8fe', 'target-arrow-shape': 'none', width: 2, opacity: 0.48 } },
+          { selector: 'edge[kind = "igp-adjacency"]', style: { 'line-color': '#42d392', 'target-arrow-color': '#42d392', 'line-style': 'dashed', width: 3, opacity: 0.82 } },
+          { selector: 'edge[kind = "control-plane-session"]', style: { 'line-color': '#ffb454', 'target-arrow-color': '#ffb454', 'line-style': 'dotted', width: 3, opacity: 0.9 } },
+          { selector: 'edge[kind = "transport-path-segment"]', style: { 'line-color': '#ff6b9a', 'target-arrow-color': '#ff6b9a', width: 7, opacity: 0.86, 'curve-style': 'bezier', 'control-point-step-size': 74 } },
+          { selector: 'edge[kind = "service-dependency"]', style: { 'line-color': '#b197fc', 'target-arrow-color': '#b197fc', width: 4, opacity: 0.9 } },
+          { selector: 'edge[kind = "service-attachment"]', style: { 'line-color': '#42d392', 'target-arrow-color': '#42d392', width: 3, opacity: 0.8 } },
+          { selector: 'node[kind = "controller"]', style: { width: 72, height: 72, 'border-color': '#ffd166', 'border-width': 2 } },
+          { selector: 'node[kind = "service-instance"]', style: { width: 58, height: 42, 'font-size': 8, 'border-color': '#d9c8ff', 'border-width': 2 } },
+          { selector: 'node[kind = "client"]', style: { width: 46, height: 40, 'font-size': 8 } }
+        ]
+      },
+
+      layout: {
+        positions: {
+          R01: { x: 110, y: 220 },
+          R02: { x: 270, y: 110 },
+          R03: { x: 285, y: 335 },
+          R04: { x: 430, y: 220 },
+          R05: { x: 590, y: 220 },
+          R06: { x: 760, y: 115 },
+          R07: { x: 925, y: 115 },
+          R08: { x: 760, y: 340 },
+          R09: { x: 1085, y: 220 },
+          R10: { x: 925, y: 340 },
+          NSP: { x: 595, y: 35 },
+          'VSR-NRC': { x: 595, y: 420 },
+          'svc-1321-r01': { x: 98, y: 216 },
+          'svc-1321-r09': { x: 1073, y: 216 },
+          'srv6-6101-r04': { x: 418, y: 216 },
+          CE01: { x: 38, y: 300 },
+          CE09: { x: 1165, y: 300 }
+        }
+      }
+    };
+
+    const state = {
+      viewId: 'physical',
+      toggles: Object.fromEntries(topologySpec.toggles.map((toggle) => [toggle.id, toggle.default])),
+      runtimePositions: {}
+    };
+
+    const cy = cytoscape({
+      container: document.getElementById('cy'),
+      elements: [],
+      wheelSensitivity: 0.18,
+      minZoom: 0.25,
+      maxZoom: 2.4,
+      style: activeStylesheet()
+    });
+
+    function activeStylesheet() {
+      return [
+        {
+          selector: 'node',
+          style: {
+            label: 'data(label)',
+            color: '#e9f2ff',
+            'font-size': 11,
+            'font-weight': 700,
+            'text-outline-color': '#07111f',
+            'text-outline-width': 3,
+            'text-valign': 'bottom',
+            'text-halign': 'center',
+            'text-margin-y': 8,
+            width: 64,
+            height: 64,
+            shape: 'round-rectangle',
+            'background-color': '#17243a',
+            'background-image': 'data(iconUrl)',
+            'background-fit': 'contain',
+            'background-clip': 'none',
+            'background-opacity': 1,
+            'border-width': 1,
+            'border-color': 'rgba(233, 242, 255, 0.28)'
+          }
+        },
+        {
+          selector: 'node:parent',
+          style: {
+            label: 'data(label)',
+            shape: 'round-rectangle',
+            'background-color': 'rgba(19, 39, 68, 0.38)',
+            'background-opacity': 0.75,
+            'background-image': 'none',
+            'border-width': 2,
+            'border-color': 'rgba(110, 168, 254, 0.62)',
+            'padding': 28,
+            'text-valign': 'top',
+            'text-halign': 'center',
+            'text-margin-y': -8
+          }
+        },
+        {
+          selector: 'edge',
+          style: {
+            label: '',
+            color: '#d9e8ff',
+            'font-size': 10,
+            'font-weight': 700,
+            'text-outline-color': '#07111f',
+            'text-outline-width': 3,
+            'curve-style': 'bezier',
+            'target-arrow-shape': 'triangle',
+            'line-color': '#6ea8fe',
+            'target-arrow-color': '#6ea8fe',
+            width: 2,
+            opacity: 0.7
+          }
+        },
+        {
+          selector: ':selected',
+          style: {
+            'border-width': 4,
+            'border-color': '#42d392',
+            'line-color': '#42d392',
+            'target-arrow-color': '#42d392'
+          }
+        },
+        ...topologySpec.theme.styleRules,
+        ...flattenActiveStyleOverrides()
+      ];
+    }
+
+    function includesAny(values, selected) {
+      return (values || []).some((value) => selected.has(value));
+    }
+
+    function selectedLayers() {
+      const view = topologySpec.views.find((candidate) => candidate.id === state.viewId);
+      const layers = new Set(view.includeLayers);
+      topologySpec.toggles.forEach((toggle) => {
+        if (!state.toggles[toggle.id]) return;
+        (toggle.includeLayers || []).forEach((layer) => layers.add(layer));
+      });
+      return layers;
+    }
+
+    function activeContainment() {
+      const enabled = topologySpec.toggles
+        .filter((toggle) => state.toggles[toggle.id] && toggle.containment && toggle.containment.enabled)
+        .map((toggle) => toggle.containment);
+      return enabled[0] || null;
+    }
+
+    function flattenActiveStyleOverrides() {
+      return topologySpec.toggles
+        .filter((toggle) => state.toggles[toggle.id])
+        .flatMap((toggle) => toggle.styleOverrides || []);
+    }
+
+    function iconSvg(icon) {
+      const glyph = icon.glyph || '?';
+      const fill = icon.fill || '#6ea8fe';
+      const stroke = icon.stroke || '#e9f2ff';
+      const svg = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96">
+          <defs>
+            <linearGradient id="g" x1="0" x2="1" y1="0" y2="1">
+              <stop offset="0%" stop-color="${fill}"/>
+              <stop offset="100%" stop-color="#08182c"/>
+            </linearGradient>
+          </defs>
+          <rect x="8" y="8" width="80" height="80" rx="22" fill="url(#g)" stroke="${stroke}" stroke-width="4"/>
+          <circle cx="24" cy="26" r="4" fill="${stroke}" opacity="0.85"/>
+          <circle cx="72" cy="70" r="4" fill="${stroke}" opacity="0.85"/>
+          <path d="M24 70 C34 48, 62 48, 72 26" fill="none" stroke="${stroke}" stroke-width="5" stroke-linecap="round" opacity="0.82"/>
+          <text x="48" y="56" text-anchor="middle" font-family="Arial, sans-serif" font-size="${glyph.length > 2 ? 20 : 30}" font-weight="800" fill="white">${glyph}</text>
+        </svg>`;
+      return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+    }
+
+    function resolveIcon(iconId) {
+      const icon = topologySpec.theme.iconCatalog[iconId] || topologySpec.theme.iconCatalog['router.generic'];
+      return iconSvg(icon);
+    }
+
+    function compileElements() {
+      const layers = selectedLayers();
+      const containment = activeContainment();
+      const includedNodes = new Map();
+
+      topologySpec.graph.elements.nodes.forEach((node) => {
+        if (!includesAny(node.data.layers, layers)) return;
+
+        const data = { ...node.data };
+        data.iconUrl = data.icon ? resolveIcon(data.icon) : resolveIcon('router.generic');
+
+        if (!containment || !data[containment.parentField]) {
+          delete data.parent;
+        }
+
+        includedNodes.set(data.id, { group: 'nodes', data, position: positionFor(data.id) });
+      });
+
+      const elements = Array.from(includedNodes.values());
+
+      topologySpec.graph.elements.edges.forEach((edge) => {
+        if (!includesAny(edge.data.layers, layers)) return;
+        if (!includedNodes.has(edge.data.source) || !includedNodes.has(edge.data.target)) return;
+        elements.push({ group: 'edges', data: { ...edge.data } });
+      });
+
+      topologySpec.graph.overlays.paths.forEach((path) => {
+        if (!includesAny(path.layers, layers)) return;
+        for (let index = 0; index < path.sequence.length - 1; index += 1) {
+          const source = path.sequence[index];
+          const target = path.sequence[index + 1];
+          if (!includedNodes.has(source) || !includedNodes.has(target)) continue;
+          elements.push({
+            group: 'edges',
+            data: {
+              id: `${path.id}-seg-${index}`,
+              source,
+              target,
+              kind: 'transport-path-segment',
+              layers: path.layers,
+              pathId: path.id,
+              pathLabel: path.label,
+              sequenceIndex: index + 1,
+              ...path.data
+            }
+          });
+        }
+      });
+
+      return { elements, layers: Array.from(layers).sort() };
+    }
+
+    function positionFor(id) {
+      return state.runtimePositions[id] || topologySpec.layout.positions[id] || { x: 0, y: 0 };
+    }
+
+    function applyIconRules() {
+      topologySpec.theme.iconRules.forEach((rule) => {
+        cy.nodes(rule.selector).forEach((node) => {
+          if (node.data('icon')) return;
+          node.data('iconUrl', resolveIcon(rule.icon));
+        });
+      });
+    }
+
+    function render() {
+      const compiled = compileElements();
+      cy.elements().forEach((element) => {
+        if (element.isNode()) {
+          state.runtimePositions[element.id()] = element.position();
+        }
+      });
+      cy.elements().remove();
+      cy.add(compiled.elements);
+      applyIconRules();
+      cy.style().fromJson(activeStylesheet()).update();
+      cy.layout({ name: 'preset', fit: true, padding: 55, animate: false }).run();
+      updateCounts(compiled);
+      updateDebug(compiled);
+    }
+
+    function updateCounts(compiled) {
+      const nodeCount = compiled.elements.filter((element) => element.group === 'nodes').length;
+      const edgeCount = compiled.elements.filter((element) => element.group === 'edges').length;
+      const view = topologySpec.views.find((candidate) => candidate.id === state.viewId);
+      document.getElementById('active-view-label').textContent = `View: ${view.label}`;
+      document.getElementById('graph-counts').textContent = `${nodeCount} nodes / ${edgeCount} edges`;
+    }
+
+    function updateDebug(compiled) {
+      const enabledToggles = Object.entries(state.toggles)
+        .filter(([, enabled]) => enabled)
+        .map(([id]) => id);
+      document.getElementById('projection-debug').textContent = JSON.stringify({
+        view: state.viewId,
+        enabledToggles,
+        includedLayers: compiled.layers
+      }, null, 2);
+    }
+
+    function renderControls() {
+      const viewList = document.getElementById('view-list');
+      topologySpec.views.forEach((view) => {
+        const button = document.createElement('button');
+        button.textContent = view.label;
+        button.dataset.view = view.id;
+        button.addEventListener('click', () => {
+          state.viewId = view.id;
+          document.querySelectorAll('[data-view]').forEach((item) => item.classList.toggle('active', item.dataset.view === view.id));
+          render();
+        });
+        button.classList.toggle('active', view.id === state.viewId);
+        viewList.appendChild(button);
+      });
+
+      const toggleList = document.getElementById('toggle-list');
+      topologySpec.toggles.forEach((toggle) => {
+        const label = document.createElement('label');
+        label.className = 'toggle';
+        label.innerHTML = `
+          <input type="checkbox" ${state.toggles[toggle.id] ? 'checked' : ''} />
+          <span>
+            <span class="toggle-title">${toggle.label}</span>
+            <span class="toggle-help">${toggle.help || ''}</span>
+          </span>`;
+        label.querySelector('input').addEventListener('change', (event) => {
+          state.toggles[toggle.id] = event.target.checked;
+          render();
+        });
+        toggleList.appendChild(label);
+      });
+    }
+
+    function inspectElement(element) {
+      const data = element.data();
+      const rows = Object.entries(data)
+        .filter(([key]) => key !== 'iconUrl')
+        .map(([key, value]) => `
+          <div class="kv">
+            <div class="key">${key}</div>
+            <div class="value">${Array.isArray(value) || typeof value === 'object' ? JSON.stringify(value) : value}</div>
+          </div>`)
+        .join('');
+      document.getElementById('inspector').innerHTML = rows;
+    }
+
+    renderControls();
+    render();
+
+    cy.on('tap', 'node, edge', (event) => inspectElement(event.target));
+    cy.on('dragfree', 'node', (event) => {
+      state.runtimePositions[event.target.id()] = event.target.position();
+    });
+    cy.on('tap', (event) => {
+      if (event.target === cy) {
+        document.getElementById('inspector').innerHTML = '<p class="inspector-empty">Click any node or edge to inspect the declarative data that produced it.</p>';
+      }
+    });
+
+    window.addEventListener('resize', () => cy.resize());
+  </script>
+</body>
+</html>

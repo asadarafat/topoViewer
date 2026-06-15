@@ -1,0 +1,8 @@
+renderable: false
+visualSnapshot: false
+dom: {}
+assertions: {}
+semantic:
+  errors:
+    - unsafe-image-reference
+  warnings: []

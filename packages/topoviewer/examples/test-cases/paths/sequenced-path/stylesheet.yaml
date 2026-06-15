@@ -1,0 +1,36 @@
+layout:
+  mode: manual
+  width: 720
+  height: 330
+icons:
+  router:
+    glyph: R
+    fill: "#2563eb"
+    stroke: "#bfdbfe"
+  service:
+    glyph: VPN
+    fill: "#7c3aed"
+    stroke: "#ddd6fe"
+  controller:
+    glyph: NSP
+    fill: "#f59e0b"
+    stroke: "#fde68a"
+labelFields:
+  - name
+stylesheet:
+  - selector: node
+    style:
+      icon: router
+      width: 84
+      height: 60
+      borderWidth: 3
+      labelColor: var(--topoviewer-fg-strong)
+      labelFontWeight: 800
+  - selector: path[labels.protocol = "sr-te"]
+    style:
+      label: SR-TE
+      curveStyle: smooth-taxi
+      lineColor: "#fb7185"
+      lineWidth: 3
+      targetArrowShape: triangle
+      animated: true

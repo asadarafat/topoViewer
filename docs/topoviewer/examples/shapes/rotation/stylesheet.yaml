@@ -1,0 +1,15 @@
+layout:
+  mode: manual
+  width: 700
+  height: 340
+stylesheet:
+  - selector: shape
+    style:
+      fill: rgba(56, 189, 248, 0.18)
+      stroke: rgba(125, 211, 252, 0.86)
+      borderWidth: 2
+  - selector: shape[labels.rotation = "styled"]
+    style:
+      rotation: -6
+      fill: rgba(168, 85, 247, 0.18)
+      stroke: rgba(216, 180, 254, 0.86)

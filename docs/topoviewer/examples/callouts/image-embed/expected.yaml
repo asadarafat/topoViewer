@@ -1,0 +1,10 @@
+renderable: true
+visualSnapshot: false
+dom:
+  visibleCallouts: 1
+assertions:
+  markdownCallout: true
+  imageEmbed: true
+semantic:
+  errors: []
+  warnings: []

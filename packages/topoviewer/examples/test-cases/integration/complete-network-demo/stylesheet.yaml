@@ -1,0 +1,326 @@
+layout:
+  mode: force
+  width: 1280
+  height: 720
+  iterations: 220
+  linkDistance: 185
+  chargeStrength: -620
+  collideRadius: 66
+icons:
+  router.generic:
+    glyph: R
+    fill: var(--topoviewer-router-generic-fill)
+    stroke: var(--topoviewer-router-generic-stroke)
+  router.nokia:
+    glyph: "N"
+    alt: Nokia router
+    svg: |
+      <svg
+        xmlns:xlink="http://www.w3.org/1999/xlink"
+        xmlns="http://www.w3.org/2000/svg"
+        xml:space="preserve"
+        style="enable-background:new 0 0 120 120;"
+        viewBox="0 0 120 120"
+        y="0px"
+        x="0px"
+        id="Layer_1"
+        version="1.1"
+        width="120px"
+        height="120px"
+        fill="none"
+      >
+        <style type="text/css">
+          .st0 { fill: #001135; }
+          .st1 { fill: none; stroke: #FFFFFF; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; stroke-miterlimit: 10; }
+        </style>
+        <rect height="120" width="120" class="st0" />
+        <g>
+          <g>
+            <path d="M71.7,19.7V48h28" class="st1" />
+            <path d="M91.2,38.5l7.5,7.6c1.3,1.3,1.3,3.1,0,4.3L91.1,58" class="st1" />
+          </g>
+          <g>
+            <path d="M20,47.8h28.4v-28" class="st1" />
+            <path d="M38.8,28.3l7.6-7.5c1.3-1.3,3.1-1.3,4.3,0l7.7,7.6" class="st1" />
+          </g>
+          <g>
+            <path d="M48,100.3V72H20" class="st1" />
+            <path d="M28.5,81.5L21,73.9c-1.3-1.3-1.3-3.1,0-4.3l7.6-7.7" class="st1" />
+          </g>
+          <g>
+            <path d="M100,71.9H71.6v28" class="st1" />
+            <path d="M81.2,91.4l-7.6,7.5c-1.3,1.3-3.1,1.3-4.3,0l-7.7-7.6" class="st1" />
+          </g>
+        </g>
+      </svg>
+    fill: var(--topoviewer-router-nokia-fill)
+    stroke: var(--topoviewer-router-nokia-stroke)
+  router.cisco:
+    glyph: C
+    fill: var(--topoviewer-router-cisco-fill)
+    stroke: var(--topoviewer-router-cisco-stroke)
+  router.juniper:
+    glyph: J
+    fill: var(--topoviewer-router-juniper-fill)
+    stroke: var(--topoviewer-router-juniper-stroke)
+  controller.nsp:
+    glyph: NSP
+    alt: NSP controller
+    svg: |
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96">
+        <defs>
+          <linearGradient id="screen" x1="14" y1="18" x2="82" y2="70" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#ffcf7a"/>
+            <stop offset="1" stop-color="#ff8f3d"/>
+          </linearGradient>
+        </defs>
+        <rect x="8" y="14" width="80" height="58" rx="12" fill="url(#screen)" stroke="#ffe8bd" stroke-width="5"/>
+        <path d="M26 82h44M40 72v10M56 72v10" stroke="#ffe8bd" stroke-width="6" stroke-linecap="round"/>
+        <path d="M24 37h18M24 49h34M24 61h22" stroke="#38210c" stroke-width="5" stroke-linecap="round" opacity="0.78"/>
+        <circle cx="70" cy="39" r="8" fill="#38210c" opacity="0.82"/>
+      </svg>
+    fill: var(--topoviewer-controller-nsp-fill)
+    stroke: var(--topoviewer-controller-nsp-stroke)
+  controller.nrc:
+    glyph: NRC
+    fill: var(--topoviewer-controller-nrc-fill)
+    stroke: var(--topoviewer-controller-nrc-stroke)
+  service.l3vpn:
+    glyph: VPN
+    fill: var(--topoviewer-service-l3vpn-fill)
+    stroke: var(--topoviewer-service-l3vpn-stroke)
+labelFields:
+  - name
+stylesheet:
+  - selector: node
+    style:
+      icon: router.generic
+      width: 82
+      height: 60
+      backgroundColor: var(--topoviewer-router-generic-fill)
+      borderColor: var(--topoviewer-router-generic-stroke)
+      borderWidth: 4
+      zIndex: 10
+      draggable: true
+      selectable: true
+  - selector: node[labels.vendor = "nokia"]
+    style:
+      icon: router.nokia
+      iconSize: 46
+      backgroundColor: transparent
+      borderWidth: 0
+      shape: rectangle
+  - selector: node[labels.vendor = "cisco"]
+    style:
+      icon: router.cisco
+  - selector: node[labels.vendor = "juniper"]
+    style:
+      icon: router.juniper
+  - selector: node[labels.app = "nsp"]
+    style:
+      icon: controller.nsp
+      iconSize: 48
+      backgroundColor: transparent
+      borderWidth: 0
+  - selector: node[labels.node = "service"][labels.service = "l3vpn"]
+    style:
+      icon: service.l3vpn
+      width: 84
+      zIndex: 20
+  - selector: link[labels.link = "physical"]
+    style:
+      label: Physical
+      curveStyle: straight
+      lineColor: var(--topoviewer-link-physical)
+      lineWidth: 1
+      targetArrowShape: none
+      opacity: 0.88
+  - selector: link[labels.protocol = "bgp-ls"]
+    style:
+      label: BGP-LS
+      curveStyle: taxi
+      lineColor: var(--topoviewer-link-bgpls)
+      lineWidth: 1
+      lineDashPattern: 3 6
+      targetArrowShape: triangle
+  - selector: link[labels.protocol = "pcep"]
+    style:
+      label: PCEP
+      curveStyle: unbundled-bezier
+      lineColor: var(--topoviewer-link-pcep)
+      lineWidth: 1
+      lineDashPattern: 3 6
+      targetArrowShape: triangle
+  - selector: link[labels.link = "service"]
+    style:
+      label: Service overlay
+      curveStyle: bezier
+      lineColor: var(--topoviewer-link-service)
+      lineWidth: 1
+      targetArrowShape: triangle
+  - selector: path[labels.protocol = "sr-te"]
+    style:
+      label: Transport path
+      curveStyle: smooth-taxi
+      lineColor: var(--topoviewer-path-srte)
+      lineWidth: 1
+      targetArrowShape: triangle
+      animated: true
+      opacity: 0.9
+  - selector: region
+    style:
+      backgroundColor: var(--topoviewer-region-default-bg)
+      borderColor: var(--topoviewer-region-default-border)
+      borderWidth: 1
+      zIndex: -20
+      selectable: true
+      draggable: true
+  - selector: region[id = "isis-l1"]
+    style:
+      backgroundColor: var(--topoviewer-region-isis-bg)
+      borderColor: var(--topoviewer-region-isis-border)
+  - selector: region[id = "as65000"]
+    style:
+      backgroundColor: var(--topoviewer-region-as-bg)
+      borderColor: var(--topoviewer-region-as-border)
+      zIndex: -30
+  - selector: shape
+    style:
+      backgroundColor: rgba(15, 23, 42, 0.88)
+      borderColor: rgba(148, 163, 184, 0.45)
+      borderWidth: 1
+      labelColor: "#dbeafe"
+      labelFontSize: 12
+      labelFontWeight: 800
+      bodyColor: "#a8b3c7"
+      bodyFontSize: 10
+      bodyLineHeight: 1.35
+      zIndex: -5
+      selectable: true
+  - selector: shape[labels.shape = "canvas"]
+    style:
+      backgroundColor: rgba(2, 6, 23, 0.58)
+      borderColor: rgba(125, 211, 252, 0.20)
+      borderWidth: 1
+      zIndex: -80
+  - selector: shape[labels.shape = "band"]
+    style:
+      backgroundColor: rgba(30, 41, 59, 0.35)
+      borderColor: rgba(148, 163, 184, 0.20)
+      borderWidth: 1
+      labelColor: rgba(226, 232, 240, 0.72)
+      labelFontSize: 11
+      labelFontWeight: 800
+      textAlign: left
+      zIndex: -70
+  - selector: shape[labels.plane = "controller"]
+    style:
+      backgroundColor: rgba(251, 146, 60, 0.10)
+      borderColor: rgba(251, 191, 36, 0.30)
+  - selector: shape[labels.plane = "transport"]
+    style:
+      backgroundColor: rgba(56, 189, 248, 0.08)
+      borderColor: rgba(56, 189, 248, 0.28)
+  - selector: shape[labels.plane = "service"]
+    style:
+      backgroundColor: rgba(168, 85, 247, 0.08)
+      borderColor: rgba(216, 180, 254, 0.24)
+  - selector: shape[labels.shape = "database"]
+    style:
+      shape: cylinder
+      fill: rgba(14, 165, 233, 0.18)
+      stroke: rgba(125, 211, 252, 0.76)
+      borderWidth: 2
+      boxShadow: 0 18px 38px rgba(2, 132, 199, 0.20)
+      zIndex: 16
+  - selector: shape[labels.shape = "sap"]
+    style:
+      shape: rectangle
+      fill: rgba(168, 85, 247, 0.18)
+      stroke: rgba(216, 180, 254, 0.85)
+      borderWidth: 2
+      boxShadow: 0 10px 24px rgba(88, 28, 135, 0.28)
+      zIndex: 18
+  - selector: shape[labels.shape = "label-stack"]
+    style:
+      shape: cuboid
+      fill: rgba(190, 24, 93, 0.20)
+      stroke: rgba(251, 113, 133, 0.84)
+      borderWidth: 2
+      boxShadow: 0 12px 30px rgba(190, 24, 93, 0.20)
+      zIndex: 22
+  - selector: shape[labels.shape = "packet"]
+    style:
+      shape: prism
+      fill: rgba(125, 211, 252, 0.38)
+      stroke: rgba(224, 242, 254, 0.88)
+      borderWidth: 2
+      zIndex: 24
+  - selector: callout[labels.leader = true]
+    style:
+      curveStyle: smoothstep
+      anchor: fixed
+      lineColor: rgba(203, 213, 225, 0.66)
+      lineWidth: 1
+      targetArrowShape: triangle
+      arrowColor: rgba(203, 213, 225, 0.78)
+      zIndex: 28
+  - selector: callout[labels.callout = "service-access"]
+    style:
+      label: Access binding
+      lineColor: rgba(216, 180, 254, 0.88)
+      arrowColor: rgba(216, 180, 254, 0.88)
+      lineDashPattern: 5 5
+      curveStyle: smooth-taxi
+  - selector: callout[labels.callout = "telemetry-feed"]
+    style:
+      label: Topology feed
+      curveStyle: taxi
+      lineColor: rgba(251, 191, 36, 0.82)
+      arrowColor: rgba(251, 191, 36, 0.82)
+      lineDashPattern: 4 6
+  - selector: callout[labels.callout = "packet-flow"]
+    style:
+      label: Encapsulated traffic
+      curveStyle: smooth-taxi
+      lineColor: rgba(244, 114, 182, 0.86)
+      arrowColor: rgba(244, 114, 182, 0.86)
+      animated: true
+  - selector: callout[labels.callout = "srrp"]
+    style:
+      label: Dashed callout line
+      curveStyle: straight
+      lineColor: rgba(74, 222, 128, 0.74)
+      arrowColor: rgba(74, 222, 128, 0.74)
+      lineDashPattern: 9 7
+  - selector: callout
+    style:
+      backgroundColor: rgba(15, 23, 42, 0.94)
+      borderColor: rgba(148, 163, 184, 0.42)
+      borderWidth: 1
+      borderRadius: 14
+      titleBackgroundColor: rgba(30, 41, 59, 0.88)
+      titleColor: "#f8fafc"
+      titleFontSize: 13
+      titleFontWeight: 900
+      bodyColor: "#cbd5e1"
+      bodyFontSize: 11
+      bodyLineHeight: 1.38
+      boxShadow: 0 16px 38px rgba(0, 0, 0, 0.26)
+      zIndex: 42
+  - selector: callout[labels.callout = "model"]
+    style:
+      borderColor: rgba(125, 211, 252, 0.78)
+      titleBackgroundColor: rgba(14, 116, 144, 0.42)
+  - selector: callout[labels.callout = "controller"]
+    style:
+      borderColor: rgba(251, 191, 36, 0.76)
+      titleBackgroundColor: rgba(180, 83, 9, 0.42)
+  - selector: callout[labels.callout = "anchor"]
+    style:
+      borderColor: rgba(216, 180, 254, 0.78)
+      titleBackgroundColor: rgba(107, 33, 168, 0.42)
+  - selector: callout[labels.callout = "export"]
+    style:
+      borderColor: rgba(74, 222, 128, 0.72)
+      titleBackgroundColor: rgba(21, 128, 61, 0.38)

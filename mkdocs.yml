@@ -1,0 +1,71 @@
+site_name: TopoViewer
+site_description: Declarative graph renderer for network, infrastructure, and service-topology diagrams.
+site_url: https://asadarafat.github.io/topoviewer/
+repo_url: https://github.com/asadarafat/topoviewer
+repo_name: asadarafat/topoviewer
+
+docs_dir: docs
+site_dir: site
+
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - navigation.indexes
+    - navigation.top
+    - toc.follow
+    - content.tabs.link
+    - content.code.copy
+  palette:
+    - scheme: default
+      primary: blue
+      accent: cyan
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - scheme: slate
+      primary: blue
+      accent: cyan
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+
+plugins:
+  - search
+  - topoviewer
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.highlight
+
+nav:
+  - Home: index.md
+  - Model:
+      - Authoring: topoviewer/authoring.md
+      - Reference Model: topoviewer/reference-model.md
+      - Stylesheet: topoviewer/stylesheet.md
+      - YAML Schemas: topoviewer/schemas.md
+  - Integration:
+      - React: topoviewer/react.md
+      - MkDocs: topoviewer/mkdocs.md
+      - Monorepo: topoviewer/monorepo.md
+  - Production:
+      - Hardening: topoviewer/production.md
+      - Release: topoviewer/release.md
+  - Examples:
+      - Graph: topoviewer/reference/graph/index.md
+      - Edges: topoviewer/reference/edges/index.md
+      - Paths: topoviewer/reference/paths/index.md
+      - Regions: topoviewer/reference/regions/index.md
+      - Shapes: topoviewer/reference/shapes/index.md
+      - Callouts: topoviewer/reference/callouts/index.md
+      - Styling: topoviewer/reference/styling/index.md
+      - Layout: topoviewer/reference/layout/index.md
+      - Validation: topoviewer/reference/validation/index.md
+      - Complete Network Demo: topoviewer/complete-network-demo/index.md

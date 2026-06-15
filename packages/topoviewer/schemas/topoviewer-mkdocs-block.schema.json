@@ -1,0 +1,45 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://topoviewer.dev/schemas/topoviewer-mkdocs-block.schema.json",
+  "title": "TopoViewer MkDocs fenced block",
+  "description": "Configuration accepted inside a MkDocs topoviewer fenced block.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["topology"],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "topology": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Path to topology YAML, relative to the Markdown file."
+    },
+    "stylesheet": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Path to stylesheet YAML, relative to the Markdown file."
+    },
+    "height": {
+      "type": "string",
+      "minLength": 1,
+      "description": "CSS height for the viewport, for example 640px."
+    },
+    "width": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Optional CSS width for the embed wrapper."
+    },
+    "title": {
+      "type": "string"
+    },
+    "controls": {
+      "type": "boolean",
+      "default": true
+    },
+    "controlsOpen": {
+      "type": "boolean",
+      "default": false
+    }
+  }
+}

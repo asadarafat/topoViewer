@@ -1,0 +1,35 @@
+TopoViewer Early Access License
+
+Copyright (c) 2026 Asad Arafat.
+
+TopoViewer is distributed under an Insiders-style release model during early
+development:
+
+1. Early-access builds, documentation, examples, and experimental features may
+   be used for evaluation, demos, internal development, and feedback by people
+   who have been granted access by the copyright holder.
+
+2. Redistribution, resale, public mirroring, public package publication, or
+   sublicensing of early-access builds is not permitted unless a separate
+   written agreement grants that right.
+
+3. Early-access features are not intended to remain permanently paywalled.
+   The project direction is that features graduate into the public/free package
+   after they become stable, documented, and supportable.
+
+4. Insiders receive earlier access to new capabilities, preview documentation,
+   examples, and the priority feedback loop that shapes the public release.
+
+5. This license does not grant rights to trademarks, private customer material,
+   proprietary icon sets, private lab data, credentials, or third-party content
+   that may appear near the project.
+
+6. The software is provided "as is", without warranty of any kind, express or
+   implied, including but not limited to the warranties of merchantability,
+   fitness for a particular purpose, and noninfringement. In no event shall the
+   copyright holder be liable for any claim, damages, or other liability arising
+   from use of the software.
+
+When a feature graduates to the public/free channel, its public license terms
+will be stated in that release. Until then, use of early-access material is
+limited to the access granted above or in a separate written agreement.

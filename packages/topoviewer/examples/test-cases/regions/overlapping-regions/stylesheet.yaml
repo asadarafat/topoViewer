@@ -1,0 +1,58 @@
+layout:
+  mode: manual
+  width: 760
+  height: 380
+icons:
+  router:
+    glyph: R
+    fill: "#2563eb"
+    stroke: "#bfdbfe"
+  service:
+    glyph: VPN
+    fill: "#7c3aed"
+    stroke: "#ddd6fe"
+  controller:
+    glyph: NSP
+    fill: "#f59e0b"
+    stroke: "#fde68a"
+labelFields:
+  - name
+stylesheet:
+  - selector: node
+    style:
+      icon: router
+      width: 84
+      height: 60
+      borderWidth: 3
+      labelColor: var(--topoviewer-fg-strong)
+      labelFontWeight: 800
+  - selector: link
+    style:
+      label: Link
+      lineColor: "#60a5fa"
+      lineWidth: 1
+      targetArrowShape: none
+      labelColor: var(--topoviewer-fg-strong)
+      textBackgroundColor: var(--topoviewer-edge-label-bg)
+  - selector: region
+    style:
+      backgroundColor: rgba(14, 165, 233, 0.11)
+      borderColor: rgba(125, 211, 252, 0.58)
+      borderWidth: 1
+      labelColor: var(--topoviewer-region-label-fg)
+      draggable: true
+      selectable: true
+      zIndex: -20
+  - selector: region[labels.level = "l1"]
+    style:
+      backgroundColor: rgba(34, 197, 94, 0.12)
+      borderColor: rgba(134, 239, 172, 0.62)
+  - selector: region[labels.level = "l2"]
+    style:
+      backgroundColor: rgba(168, 85, 247, 0.12)
+      borderColor: rgba(216, 180, 254, 0.62)
+  - selector: region[id = "as65000"]
+    style:
+      backgroundColor: rgba(251, 146, 60, 0.10)
+      borderColor: rgba(251, 191, 36, 0.50)
+      zIndex: -40

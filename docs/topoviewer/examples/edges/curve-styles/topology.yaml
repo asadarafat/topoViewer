@@ -1,0 +1,92 @@
+graph:
+  id: curve-styles
+  layers:
+    - id: transport
+      name: Transport
+  nodes:
+    - id: A
+      name: A
+      labels:
+        node: router
+      layers:
+        - transport
+      position:
+        - 80
+        - 190
+    - id: B
+      name: Straight
+      labels:
+        node: router
+      layers:
+        - transport
+      position:
+        - 360
+        - 70
+    - id: C
+      name: Taxi
+      labels:
+        node: router
+      layers:
+        - transport
+      position:
+        - 360
+        - 150
+    - id: D
+      name: Smooth
+      labels:
+        node: router
+      layers:
+        - transport
+      position:
+        - 360
+        - 230
+    - id: E
+      name: Bezier
+      labels:
+        node: router
+      layers:
+        - transport
+      position:
+        - 360
+        - 310
+  links:
+    - id: edge-0
+      name: straight
+      source: A
+      target: B
+      labels:
+        link: transport
+        curve: straight
+      layers:
+        - transport
+    - id: edge-1
+      name: taxi
+      source: A
+      target: C
+      labels:
+        link: transport
+        curve: taxi
+      layers:
+        - transport
+    - id: edge-2
+      name: smooth-taxi
+      source: A
+      target: D
+      labels:
+        link: transport
+        curve: smooth-taxi
+      layers:
+        - transport
+    - id: edge-3
+      name: unbundled-bezier
+      source: A
+      target: E
+      labels:
+        link: transport
+        curve: unbundled-bezier
+      layers:
+        - transport
+toggles:
+  - id: showEdgeLabels
+    name: Show labels
+    default: true

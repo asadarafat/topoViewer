@@ -1,0 +1,674 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://topoviewer.dev/schemas/topoviewer.schema.json",
+  "title": "TopoViewer document",
+  "description": "Combined TopoViewer topology and stylesheet document.",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string"
+    },
+    "graph": {
+      "$ref": "#/definitions/graph"
+    },
+    "diagram": {
+      "$ref": "#/definitions/diagram"
+    },
+    "toggles": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/toggle"
+      }
+    },
+    "layout": {
+      "$ref": "#/definitions/layout"
+    },
+    "limits": {
+      "$ref": "#/definitions/limits"
+    },
+    "icons": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/icon"
+      }
+    },
+    "labelFields": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "stylesheet": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/styleRule"
+      }
+    }
+  },
+  "definitions": {
+    "scalar": {
+      "type": ["string", "number", "boolean"]
+    },
+    "labels": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/scalar"
+      }
+    },
+    "data": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "style": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "limits": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "maxNodes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "maxEdges": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "maxPathSegments": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "maxLabels": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "maxCallouts": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "maxShapes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "maxImageBytes": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "position": {
+      "oneOf": [
+        {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "type": "number"
+          }
+        },
+        {
+          "type": "object",
+          "required": ["x", "y"],
+          "additionalProperties": true,
+          "properties": {
+            "x": {
+              "type": "number"
+            },
+            "y": {
+              "type": "number"
+            }
+          }
+        }
+      ]
+    },
+    "size": {
+      "oneOf": [
+        {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "type": "number"
+          }
+        },
+        {
+          "type": "object",
+          "required": ["width", "height"],
+          "additionalProperties": true,
+          "properties": {
+            "width": {
+              "type": "number"
+            },
+            "height": {
+              "type": "number"
+            }
+          }
+        }
+      ]
+    },
+    "body": {
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "pin": {
+      "type": "object",
+      "required": ["id"],
+      "additionalProperties": true,
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "position": {
+          "$ref": "#/definitions/position"
+        },
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        }
+      }
+    },
+    "graphEntity": {
+      "type": "object",
+      "required": ["id"],
+      "additionalProperties": true,
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "name": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "labels": {
+          "$ref": "#/definitions/labels"
+        },
+        "data": {
+          "$ref": "#/definitions/data"
+        },
+        "layers": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "style": {
+          "$ref": "#/definitions/style"
+        },
+        "icon": {
+          "type": "string"
+        }
+      }
+    },
+    "layer": {
+      "type": "object",
+      "required": ["id"],
+      "additionalProperties": true,
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "node": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/graphEntity"
+        },
+        {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "position": {
+              "$ref": "#/definitions/position"
+            },
+            "parent": {
+              "type": "string"
+            },
+            "pins": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/pin"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "link": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/graphEntity"
+        },
+        {
+          "type": "object",
+          "required": ["source", "target"],
+          "additionalProperties": true,
+          "properties": {
+            "source": {
+              "type": "string",
+              "minLength": 1
+            },
+            "target": {
+              "type": "string",
+              "minLength": 1
+            },
+            "parent": {
+              "type": "string"
+            }
+          }
+        }
+      ]
+    },
+    "path": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/graphEntity"
+        },
+        {
+          "type": "object",
+          "additionalProperties": true,
+          "anyOf": [
+            {
+              "properties": {
+                "sequence": {
+                  "type": "array",
+                  "minItems": 2,
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              },
+              "required": ["sequence"]
+            },
+            {
+              "properties": {
+                "source": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "target": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "parent": {
+                  "type": "string"
+                }
+              },
+              "required": ["source", "target", "parent"]
+            }
+          ],
+          "properties": {
+            "sequence": {
+              "type": "array",
+              "minItems": 2,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "source": {
+              "type": "string",
+              "minLength": 1
+            },
+            "target": {
+              "type": "string",
+              "minLength": 1
+            },
+            "parent": {
+              "type": "string"
+            }
+          }
+        }
+      ]
+    },
+    "region": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/graphEntity"
+        },
+        {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "members": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "parent": {
+              "type": "string"
+            },
+            "padding": {
+              "type": "number"
+            },
+            "paddingX": {
+              "type": "number"
+            },
+            "paddingY": {
+              "type": "number"
+            },
+            "headerPadding": {
+              "type": "number"
+            },
+            "nodeWidth": {
+              "type": "number"
+            },
+            "nodeHeight": {
+              "type": "number"
+            },
+            "minWidth": {
+              "type": "number"
+            },
+            "minHeight": {
+              "type": "number"
+            },
+            "parentPadding": {
+              "type": "number"
+            },
+            "parentPaddingX": {
+              "type": "number"
+            },
+            "parentPaddingY": {
+              "type": "number"
+            }
+          }
+        }
+      ]
+    },
+    "graph": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "layers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/layer"
+          }
+        },
+        "nodes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/node"
+          }
+        },
+        "links": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/link"
+          }
+        },
+        "paths": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/path"
+          }
+        },
+        "regions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/region"
+          }
+        }
+      }
+    },
+    "shape": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/graphEntity"
+        },
+        {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "type": {
+              "enum": [
+                "circle",
+                "triangle",
+                "square",
+                "rectangle",
+                "pentagon",
+                "hexagon",
+                "octagon",
+                "ellipse",
+                "semicircle",
+                "trapezoid",
+                "parallelogram",
+                "rhombus",
+                "kite",
+                "star",
+                "cube",
+                "cuboid",
+                "sphere",
+                "cone",
+                "cylinder",
+                "pyramid",
+                "prism"
+              ]
+            },
+            "position": {
+              "$ref": "#/definitions/position"
+            },
+            "size": {
+              "$ref": "#/definitions/size"
+            },
+            "rotation": {
+              "type": "number"
+            },
+            "locked": {
+              "type": "boolean"
+            },
+            "pins": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/pin"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "callout": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/graphEntity"
+        },
+        {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "position": {
+              "$ref": "#/definitions/position"
+            },
+            "size": {
+              "$ref": "#/definitions/size"
+            },
+            "title": {
+              "type": "string"
+            },
+            "body": {
+              "$ref": "#/definitions/body"
+            },
+            "markdown": {
+              "$ref": "#/definitions/body"
+            },
+            "align": {
+              "enum": ["left", "center", "right"]
+            },
+            "source": {
+              "type": "string"
+            },
+            "sourcePosition": {
+              "$ref": "#/definitions/position"
+            },
+            "target": {
+              "type": "string"
+            },
+            "targetPin": {
+              "type": "string"
+            },
+            "targetPosition": {
+              "$ref": "#/definitions/position"
+            },
+            "sourcePin": {
+              "type": "string"
+            },
+            "leader": {
+              "$ref": "#/definitions/style"
+            },
+            "locked": {
+              "type": "boolean"
+            },
+            "pins": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/pin"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "diagram": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "shapes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/shape"
+          }
+        },
+        "callouts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/callout"
+          }
+        }
+      }
+    },
+    "toggle": {
+      "type": "object",
+      "required": ["id"],
+      "additionalProperties": true,
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "name": {
+          "type": "string"
+        },
+        "default": {
+          "type": "boolean"
+        }
+      }
+    },
+    "layout": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "mode": {
+          "enum": ["manual", "force"]
+        },
+        "width": {
+          "type": "number"
+        },
+        "height": {
+          "type": "number"
+        },
+        "iterations": {
+          "type": "number"
+        },
+        "linkDistance": {
+          "type": "number"
+        },
+        "chargeStrength": {
+          "type": "number"
+        },
+        "collideRadius": {
+          "type": "number"
+        },
+        "centerStrength": {
+          "type": "number"
+        }
+      }
+    },
+    "icon": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "glyph": {
+          "type": "string"
+        },
+        "fill": {
+          "type": "string"
+        },
+        "stroke": {
+          "type": "string"
+        },
+        "svg": {
+          "type": "string"
+        },
+        "src": {
+          "type": "string"
+        },
+        "alt": {
+          "type": "string"
+        }
+      }
+    },
+    "styleRule": {
+      "type": "object",
+      "required": ["selector"],
+      "additionalProperties": true,
+      "properties": {
+        "selector": {
+          "type": "string",
+          "minLength": 1,
+          "examples": [
+            "node",
+            "node[labels.vendor = \"nokia\"]",
+            "link[labels.protocol = \"pcep\"]",
+            "path[labels.protocol = \"sr-te\"]",
+            "region[id = \"as65000\"]"
+          ]
+        },
+        "style": {
+          "$ref": "#/definitions/style"
+        }
+      }
+    }
+  }
+}

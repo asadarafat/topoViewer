@@ -1,0 +1,72 @@
+graph:
+  id: parent-child-nodes
+  layers:
+    - id: transport
+      name: Transport
+    - id: service
+      name: Service
+  nodes:
+    - id: PE1
+      name: PE1
+      labels:
+        node: router
+      layers:
+        - transport
+        - service
+      position:
+        - 160
+        - 170
+    - id: PE2
+      name: PE2
+      labels:
+        node: router
+      layers:
+        - transport
+        - service
+      position:
+        - 520
+        - 170
+    - id: vrf-a
+      name: "**VRF** 1321"
+      labels:
+        node: service
+      parent: PE1
+      layers:
+        - service
+      position:
+        - 160
+        - 260
+    - id: vrf-b
+      name: "**VRF** 1321"
+      labels:
+        node: service
+      parent: PE2
+      layers:
+        - service
+      position:
+        - 520
+        - 260
+  links:
+    - id: pe1-pe2
+      name: PE1 to PE2 transport link
+      source: PE1
+      target: PE2
+      labels:
+        link: transport
+      layers:
+        - transport
+    - id: vrf-a-vrf-b
+      name: L3VPN overlay
+      source: vrf-a
+      target: vrf-b
+      labels:
+        link: service
+      layers:
+        - service
+toggles:
+  - id: showChildNodesInsideParents
+    name: Show child nodes inside parents
+    default: true
+  - id: showEdgeLabels
+    name: Show labels
+    default: true

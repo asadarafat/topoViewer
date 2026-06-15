@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mkdocs-topoviewer"
+version = "0.1.0"
+description = "MkDocs plugin for embedding TopoViewer declarative topology diagrams."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { file = "LICENSE" }
+authors = [
+  { name = "Asad Arafat" }
+]
+keywords = [
+  "mkdocs",
+  "topology",
+  "network",
+  "diagram",
+  "topoviewer"
+]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Plugins",
+  "Framework :: MkDocs",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Topic :: Documentation"
+]
+dependencies = [
+  "mkdocs>=1.5,<2",
+  "PyYAML>=6.0"
+]
+
+[project.urls]
+Homepage = "https://github.com/asadarafat/topoviewer"
+Repository = "https://github.com/asadarafat/topoviewer"
+Issues = "https://github.com/asadarafat/topoviewer/issues"
+
+[project.entry-points."mkdocs.plugins"]
+topoviewer = "mkdocs_topoviewer.plugin:TopoViewerPlugin"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["mkdocs_topoviewer*"]
+
+[tool.setuptools.package-data]
+mkdocs_topoviewer = ["assets/*"]

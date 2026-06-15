@@ -1,0 +1,88 @@
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  color: #e7edf4;
+  background: #0b1118;
+}
+
+.topoviewer-workbench {
+  display: grid;
+  grid-template-columns: minmax(390px, 34%) 1fr;
+  width: 100%;
+  height: 100%;
+  padding: 10px;
+  gap: 10px;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    radial-gradient(circle at 12% 10%, rgba(45, 139, 232, 0.20), transparent 26%),
+    linear-gradient(135deg, #0a1017 0%, #0d151f 54%, #090e15 100%);
+  background-size: 28px 28px, 28px 28px, auto, auto;
+}
+
+.topoviewer-workbench-left,
+.topoviewer-workbench-main {
+  min-width: 0;
+  min-height: 0;
+  border: 1px solid #2d3846;
+  overflow: hidden;
+}
+
+.topoviewer-workbench-left {
+  display: grid;
+  grid-template-rows: auto auto auto auto 1fr auto;
+}
+
+.topoviewer-workbench-header {
+  padding: 14px;
+  border-bottom: 1px solid #2d3846;
+  background: linear-gradient(180deg, #162232, #101923);
+}
+
+.topoviewer-controls,
+.topoviewer-panel-section {
+  padding: 10px;
+  border-bottom: 1px solid #2d3846;
+}
+
+.topoviewer-check {
+  margin: 0;
+  padding-right: 9px;
+  border: 1px solid #354150;
+  border-radius: 999px;
+  background: #17212c;
+}
+
+.topoviewer-check .MuiFormControlLabel-label {
+  padding-right: 2px;
+  color: #d7e1ee;
+  font-size: 11px;
+}
+
+.topoviewer-editor {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  min-height: 0;
+}
+
+.topoviewer-editor .MuiTabs-root {
+  border-bottom: 1px solid #2d3846;
+  background: #101820;
+}
+
+.topoviewer-editor .monaco-editor,
+.topoviewer-editor .monaco-editor-background,
+.topoviewer-editor .monaco-editor .margin {
+  background: #0c1219;
+}
+
+.topoviewer-workbench-footer {
+  min-height: 40px;
+  padding: 9px 14px;
+  border-top: 1px solid #2d3846;
+  background: #101820;
+}

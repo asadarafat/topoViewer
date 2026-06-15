@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://topoviewer.dev/schemas/topoviewer-topology.schema.json",
+  "title": "TopoViewer topology document",
+  "description": "Topology-only TopoViewer YAML document.",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string"
+    },
+    "graph": {
+      "$ref": "topoviewer.schema.json#/definitions/graph"
+    },
+    "diagram": {
+      "$ref": "topoviewer.schema.json#/definitions/diagram"
+    },
+    "toggles": {
+      "type": "array",
+      "items": {
+        "$ref": "topoviewer.schema.json#/definitions/toggle"
+      }
+    },
+    "layout": {
+      "$ref": "topoviewer.schema.json#/definitions/layout"
+    },
+    "limits": {
+      "$ref": "topoviewer.schema.json#/definitions/limits"
+    }
+  },
+  "required": ["graph"]
+}

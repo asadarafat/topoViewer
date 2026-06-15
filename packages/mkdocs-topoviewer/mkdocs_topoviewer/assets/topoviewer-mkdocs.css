@@ -1,0 +1,115 @@
+.md-typeset .topoviewer-figure {
+  --topoviewer-bg: var(--md-code-bg-color);
+  --topoviewer-bg-radial-a: color-mix(in srgb, var(--md-accent-fg-color) 12%, transparent);
+  --topoviewer-bg-radial-b: color-mix(in srgb, var(--md-primary-fg-color) 8%, transparent);
+  --topoviewer-bg-end: var(--md-default-bg-color);
+  --topoviewer-fg: var(--md-default-fg-color);
+  --topoviewer-fg-strong: var(--md-default-fg-color);
+  --topoviewer-fg-muted: var(--md-default-fg-color--light);
+  --topoviewer-panel-bg: color-mix(in srgb, var(--md-default-bg-color) 92%, var(--md-default-fg-color) 8%);
+  --topoviewer-surface-bg: color-mix(in srgb, var(--md-default-bg-color) 84%, var(--md-default-fg-color) 16%);
+  --topoviewer-chip-bg: color-mix(in srgb, var(--md-default-bg-color) 88%, var(--md-accent-fg-color) 12%);
+  --topoviewer-chip-hover-bg: color-mix(in srgb, var(--md-default-bg-color) 72%, var(--md-accent-fg-color) 28%);
+  --topoviewer-button-bg: color-mix(in srgb, var(--md-default-bg-color) 80%, var(--md-default-fg-color) 20%);
+  --topoviewer-border: color-mix(in srgb, var(--md-default-fg-color) 18%, transparent);
+  --topoviewer-border-strong: color-mix(in srgb, var(--md-default-fg-color) 28%, transparent);
+  --topoviewer-accent: var(--md-accent-fg-color);
+  --topoviewer-edge-default: var(--md-accent-fg-color);
+  --topoviewer-region-label-bg: color-mix(in srgb, var(--md-default-bg-color) 88%, transparent);
+  --topoviewer-region-label-fg: var(--md-default-fg-color);
+  --topoviewer-edge-label-bg: color-mix(in srgb, var(--md-default-bg-color) 90%, transparent);
+  --topoviewer-edge-label-border: color-mix(in srgb, var(--md-default-fg-color) 20%, transparent);
+  --topoviewer-node-shadow: 0 1px 4px color-mix(in srgb, var(--md-default-fg-color) 18%, transparent);
+  --topoviewer-panel-shadow: 0 12px 28px color-mix(in srgb, var(--md-default-fg-color) 12%, transparent);
+  --topoviewer-label-shadow: 0 8px 18px color-mix(in srgb, var(--md-default-fg-color) 10%, transparent);
+  --topoviewer-router-generic-fill: #4f8cff;
+  --topoviewer-router-generic-stroke: #cfe0ff;
+  --topoviewer-router-nokia-fill: #1248ff;
+  --topoviewer-router-nokia-stroke: #b8c7ff;
+  --topoviewer-router-cisco-fill: #008aa1;
+  --topoviewer-router-cisco-stroke: #c8fbff;
+  --topoviewer-router-juniper-fill: #238636;
+  --topoviewer-router-juniper-stroke: #d7ffdf;
+  --topoviewer-controller-nsp-fill: #b46300;
+  --topoviewer-controller-nsp-stroke: #ffe4b8;
+  --topoviewer-controller-nrc-fill: #8a6a00;
+  --topoviewer-controller-nrc-stroke: #fff2bd;
+  --topoviewer-service-l3vpn-fill: #8358d4;
+  --topoviewer-service-l3vpn-stroke: #eee5ff;
+  --topoviewer-link-physical: #3578e5;
+  --topoviewer-link-bgpls: #b46300;
+  --topoviewer-link-pcep: #8a6a00;
+  --topoviewer-link-service: #8358d4;
+  --topoviewer-path-srte: #d6336c;
+  --topoviewer-region-default-bg: color-mix(in srgb, #1c7ed6 4%, transparent);
+  --topoviewer-region-default-border: color-mix(in srgb, #1c7ed6 62%, transparent);
+  --topoviewer-region-isis-bg: color-mix(in srgb, #2b8a3e 4%, transparent);
+  --topoviewer-region-isis-border: color-mix(in srgb, #2b8a3e 62%, transparent);
+  --topoviewer-region-as-bg: color-mix(in srgb, #f08c00 3%, transparent);
+  --topoviewer-region-as-border: color-mix(in srgb, #f08c00 56%, transparent);
+  display: block;
+  width: var(--topoviewer-width, 100%);
+  max-width: calc(100vw - 2rem);
+  margin: 1.4rem 0 1.4rem 50%;
+  transform: translateX(-50%);
+}
+
+[data-md-color-scheme="slate"] .md-typeset .topoviewer-figure {
+  --topoviewer-bg: #0b1118;
+  --topoviewer-bg-radial-a: rgba(45, 139, 232, 0.16);
+  --topoviewer-bg-radial-b: rgba(83, 182, 109, 0.08);
+  --topoviewer-bg-end: #0b1017;
+  --topoviewer-panel-bg: rgba(13, 20, 29, 0.96);
+  --topoviewer-surface-bg: rgba(17, 24, 32, 0.86);
+  --topoviewer-chip-bg: rgba(22, 32, 44, 0.86);
+  --topoviewer-chip-hover-bg: rgba(45, 139, 232, 0.28);
+  --topoviewer-button-bg: rgba(41, 59, 77, 0.72);
+  --topoviewer-region-label-bg: rgba(17, 24, 32, 0.82);
+  --topoviewer-edge-label-bg: rgba(17, 24, 32, 0.86);
+  --topoviewer-router-generic-fill: #6ea8fe;
+  --topoviewer-router-cisco-fill: #16a3b8;
+  --topoviewer-router-juniper-fill: #2fb344;
+  --topoviewer-controller-nsp-fill: #ffb454;
+  --topoviewer-controller-nrc-fill: #ffd166;
+  --topoviewer-service-l3vpn-fill: #b197fc;
+  --topoviewer-link-physical: #6ea8fe;
+  --topoviewer-link-bgpls: #ffb454;
+  --topoviewer-link-pcep: #ffd166;
+  --topoviewer-link-service: #b197fc;
+  --topoviewer-path-srte: #ff6b9a;
+  --topoviewer-region-default-bg: rgba(76, 201, 240, 0.06);
+  --topoviewer-region-default-border: rgba(76, 201, 240, 0.62);
+  --topoviewer-region-isis-bg: rgba(66, 211, 146, 0.06);
+  --topoviewer-region-isis-border: rgba(66, 211, 146, 0.62);
+  --topoviewer-region-as-bg: rgba(255, 180, 84, 0.05);
+  --topoviewer-region-as-border: rgba(255, 180, 84, 0.56);
+}
+
+.topoviewer-title {
+  margin: 0 0 0.45rem;
+  color: var(--md-default-fg-color);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.topoviewer-embed {
+  min-height: 420px;
+  overflow: hidden;
+  border: 1px solid var(--topoviewer-border-strong);
+  border-radius: 0.55rem;
+  background: var(--topoviewer-bg);
+  box-shadow: var(--topoviewer-panel-shadow);
+}
+
+.topoviewer-error {
+  height: 100%;
+  min-height: 180px;
+  margin: 0;
+  padding: 1rem;
+  overflow: auto;
+  color: #ffd7d7;
+  background: #2a1114;
+  border: 1px solid rgba(255, 107, 107, 0.45);
+  white-space: pre-wrap;
+}

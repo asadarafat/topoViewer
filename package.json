@@ -1,0 +1,36 @@
+{
+  "name": "topoviewer-monorepo",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Monorepo for TopoViewer packages.",
+  "workspaces": [
+    "packages/topoviewer"
+  ],
+  "scripts": {
+    "dev": "npm --workspace topoviewer run dev",
+    "clean": "npm --workspace topoviewer run clean",
+    "build": "npm --workspace topoviewer run build",
+    "sync:mkdocs-assets": "npm --workspace topoviewer run sync:mkdocs-assets",
+    "sync:docs-site": "node scripts/sync-docs-site.mjs",
+    "sync:examples": "npm --workspace topoviewer run sync:examples",
+    "sync:docs": "npm run sync:docs-site && npm run sync:examples",
+    "check:examples": "npm --workspace topoviewer run check:examples",
+    "sync:mkdocs": "npm --workspace topoviewer run sync:mkdocs",
+    "validate:schemas": "npm --workspace topoviewer run validate:schemas",
+    "validate:semantics": "npm --workspace topoviewer run validate:semantics",
+    "test": "npm --workspace topoviewer run test",
+    "test:headed": "npm --workspace topoviewer run test:headed",
+    "test:all": "npm --workspace topoviewer run test:all",
+    "pack:check": "npm --workspace topoviewer run pack:check",
+    "wheel:mkdocs": "rm -rf .artifacts/wheels && python3 -m pip wheel packages/mkdocs-topoviewer --no-deps -w .artifacts/wheels",
+    "inspect:wheel": "python3 scripts/inspect-mkdocs-wheel.py .artifacts/wheels",
+    "mkdocs:build": "mkdocs build --strict",
+    "ci": "npm run sync:docs && npm run validate:schemas && npm run validate:semantics && npm run build && npm test && npm run pack:check && npm run sync:mkdocs-assets && npm run wheel:mkdocs && npm run inspect:wheel"
+  },
+  "overrides": {
+    "monaco-editor": "0.53.0"
+  },
+  "engines": {
+    "node": ">=20.19"
+  }
+}

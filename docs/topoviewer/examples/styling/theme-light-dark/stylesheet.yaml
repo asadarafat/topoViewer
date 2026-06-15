@@ -1,0 +1,27 @@
+layout:
+  mode: manual
+  width: 640
+  height: 320
+icons:
+  router:
+    glyph: R
+    fill: var(--topoviewer-router-generic-fill)
+    stroke: var(--topoviewer-router-generic-stroke)
+labelFields:
+  - name
+stylesheet:
+  - selector: node
+    style:
+      icon: router
+      width: 84
+      height: 60
+      backgroundColor: var(--topoviewer-router-generic-fill)
+      borderColor: var(--topoviewer-router-generic-stroke)
+      labelColor: var(--topoviewer-fg-strong)
+      borderWidth: 3
+  - selector: link
+    style:
+      label: Theme-aware
+      lineColor: var(--topoviewer-link-physical)
+      labelColor: var(--topoviewer-fg-strong)
+      textBackgroundColor: var(--topoviewer-edge-label-bg)

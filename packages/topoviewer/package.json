@@ -1,0 +1,111 @@
+{
+  "name": "topoviewer",
+  "version": "0.1.0",
+  "description": "Declarative graph renderer for network, infrastructure, and service-topology diagrams.",
+  "keywords": [
+    "topology",
+    "network",
+    "graph",
+    "react-flow",
+    "mkdocs",
+    "yaml",
+    "diagram"
+  ],
+  "license": "SEE LICENSE IN LICENSE",
+  "homepage": "https://github.com/asadarafat/topoviewer#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/asadarafat/topoviewer.git"
+  },
+  "bugs": {
+    "url": "https://github.com/asadarafat/topoviewer/issues"
+  },
+  "type": "commonjs",
+  "main": "./dist/topoviewer.umd.js",
+  "module": "./dist/topoviewer.mjs",
+  "types": "./dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/topoviewer.mjs",
+      "require": "./dist/topoviewer.umd.js"
+    },
+    "./style.css": "./dist/topoviewer.css",
+    "./embed/topoviewer-embed.css": "./dist/embed/topoviewer-embed.css",
+    "./embed/topoviewer-embed.iife.js": "./dist/embed/topoviewer-embed.iife.js",
+    "./schemas/topoviewer.schema.json": "./schemas/topoviewer.schema.json",
+    "./schemas/topoviewer-topology.schema.json": "./schemas/topoviewer-topology.schema.json",
+    "./schemas/topoviewer-stylesheet.schema.json": "./schemas/topoviewer-stylesheet.schema.json",
+    "./schemas/topoviewer-mkdocs-block.schema.json": "./schemas/topoviewer-mkdocs-block.schema.json",
+    "./schemas/topoviewer-examples-catalog.schema.json": "./schemas/topoviewer-examples-catalog.schema.json",
+    "./schemas/topoviewer-examples-manifest.schema.json": "./schemas/topoviewer-examples-manifest.schema.json",
+    "./schemas/topoviewer-test-expected.schema.json": "./schemas/topoviewer-test-expected.schema.json",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "docs",
+    "examples",
+    "schemas",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": [
+    "*.css",
+    "**/*.css"
+  ],
+  "engines": {
+    "node": ">=20.19"
+  },
+  "scripts": {
+    "dev": "vite --host 127.0.0.1 --port 5173 --strictPort",
+    "clean:dist": "rm -rf dist",
+    "clean": "rm -rf dist test-results playwright-report",
+    "build": "npm run clean:dist && npm run build:lib && npm run build:embed",
+    "build:lib": "vite build && tsc -p tsconfig.build.json",
+    "build:embed": "vite build --config vite.embed.config.ts",
+    "prepack": "npm run build",
+    "pack:check": "npm run build && npm pack --dry-run",
+    "sync:mkdocs-assets": "node scripts/sync-mkdocs-assets.js",
+    "sync:examples": "node scripts/sync-examples.mjs",
+    "check:examples": "node scripts/sync-examples.mjs --check",
+    "sync:mkdocs": "npm run sync:mkdocs-assets && npm run sync:examples",
+    "validate:schemas": "npm run check:examples && node scripts/validate-yaml-schemas.mjs",
+    "validate:semantics": "npm run build:lib && node scripts/lint-topoviewer.mjs",
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:all": "npm run build && npm run validate:schemas && npm run validate:semantics && npm test"
+  },
+  "dependencies": {
+    "d3-force": "^3.0.0",
+    "html-to-image": "^1.11.13",
+    "jspdf": "^4.2.1",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@monaco-editor/react": "^4.7.0",
+    "@mui/icons-material": "^9.1.1",
+    "@mui/material": "^9.1.1",
+    "@playwright/test": "^1.60.0",
+    "@types/d3-force": "^3.0.10",
+    "@types/js-yaml": "^4.0.9",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^6.0.2",
+    "@xyflow/react": "^12.10.2",
+    "ajv": "^8.17.1",
+    "js-yaml": "^4.1.0",
+    "monaco-editor": "^0.53.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "typescript": "^5.9.3",
+    "vite": "^8.0.16"
+  },
+  "peerDependencies": {
+    "@xyflow/react": "^12.10.0",
+    "react": ">=18",
+    "react-dom": ">=18"
+  }
+}

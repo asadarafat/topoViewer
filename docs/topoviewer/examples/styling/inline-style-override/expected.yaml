@@ -1,0 +1,10 @@
+renderable: true
+visualSnapshot: false
+dom:
+  graphNodes: 2
+  minVisibleEdges: 1
+assertions:
+  inlineStyleOverride: true
+semantic:
+  errors: []
+  warnings: []

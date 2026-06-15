@@ -1,0 +1,2191 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Declarative Network Topology YAML to React Flow</title>
+  <link rel="stylesheet" href="https://unpkg.com/@xyflow/react@12.10.2/dist/style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
+  <script type="importmap">
+    {
+      "imports": {
+        "react": "https://esm.sh/react@18.3.1",
+        "react-dom": "https://esm.sh/react-dom@18.3.1",
+        "react-dom/client": "https://esm.sh/react-dom@18.3.1/client",
+        "react/jsx-runtime": "https://esm.sh/react@18.3.1/jsx-runtime"
+      }
+    }
+  </script>
+  <style>
+    :root {
+      --bg: #0b1118;
+      --chrome: #111820;
+      --panel: #151d27;
+      --panel-2: #1b2531;
+      --panel-3: #202c39;
+      --line: #2d3846;
+      --line-soft: rgba(164, 179, 199, 0.16);
+      --text: #e7edf4;
+      --muted: #9aa8b8;
+      --green: #53b66d;
+      --cyan: #37a9d8;
+      --orange: #d99b28;
+      --pink: #d95478;
+      --purple: #9b83d8;
+      --blue: #2d8be8;
+      --blue-strong: #3da1ff;
+      --danger: #e45b6a;
+      --shadow: rgba(0, 0, 0, 0.36);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body,
+    #root {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      color: var(--text);
+      background:
+        linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+        radial-gradient(circle at 12% 10%, rgba(45, 139, 232, 0.20), transparent 26%),
+        radial-gradient(circle at 82% 16%, rgba(55, 169, 216, 0.11), transparent 30%),
+        linear-gradient(135deg, #0a1017 0%, #0d151f 54%, #090e15 100%);
+      background-size: 28px 28px, 28px 28px, auto, auto, auto;
+      font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .app {
+      display: grid;
+      grid-template-columns: minmax(380px, 34%) 1fr;
+      width: 100%;
+      height: 100%;
+      padding: 10px;
+      gap: 10px;
+      background: rgba(5, 9, 14, 0.34);
+    }
+
+    .left,
+    .right {
+      min-width: 0;
+      min-height: 0;
+      position: relative;
+    }
+
+    .left {
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      overflow: hidden;
+      background: color-mix(in srgb, var(--chrome) 94%, black 6%);
+      box-shadow: 0 18px 44px var(--shadow);
+    }
+
+    .right {
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 75% 18%, rgba(45, 139, 232, 0.10), transparent 32%),
+        #0b1118;
+      box-shadow: 0 18px 44px var(--shadow);
+    }
+
+    header {
+      padding: 14px 14px 12px;
+      border-bottom: 1px solid var(--line);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.035), transparent),
+        var(--panel);
+    }
+
+    h1 {
+      margin: 0;
+      color: #f4f7fb;
+      font-size: 16px;
+      font-weight: 650;
+      letter-spacing: 0.1px;
+    }
+
+    .subtitle {
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.4;
+    }
+
+    .control-stack {
+      display: grid;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .control-block {
+      display: grid;
+      gap: 7px;
+      padding: 10px;
+      border: 1px solid var(--line-soft);
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.025);
+    }
+
+    .control-title {
+      color: #c8d2de;
+      font-size: 10px;
+      font-weight: 720;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .action-grid,
+    .layer-grid,
+    .toggles {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    button {
+      border: 1px solid #3a4655;
+      border-radius: 4px;
+      color: var(--text);
+      background: linear-gradient(180deg, #243140, #1a2430);
+      font: inherit;
+      padding: 7px 10px;
+      cursor: pointer;
+      font-weight: 650;
+      font-size: 12px;
+      box-shadow: inset 0 1px rgba(255, 255, 255, 0.05);
+    }
+
+    button.primary {
+      border-color: #1f72bd;
+      color: #f3f9ff;
+      background: linear-gradient(180deg, #247fcf, #1768af);
+    }
+
+    button.active {
+      border-color: var(--blue-strong);
+      color: #ecfbff;
+      background: linear-gradient(180deg, #224763, #18364e);
+    }
+
+    .toggle,
+    .layer-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 8px;
+      border: 1px solid #354150;
+      border-radius: 4px;
+      color: var(--muted);
+      background: #17212c;
+      font-size: 11px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .layer-chip.active,
+    .toggle.active {
+      border-color: #2d8be8;
+      color: #eef7ff;
+      background: rgba(45, 139, 232, 0.22);
+    }
+
+    .toggle input,
+    .layer-chip input {
+      accent-color: var(--blue);
+    }
+
+    .editor-panel {
+      display: grid;
+      grid-template-rows: auto 1fr;
+      min-height: 0;
+    }
+
+    .editor-tabs {
+      display: flex;
+      gap: 4px;
+      padding: 7px 8px;
+      border-bottom: 1px solid var(--line);
+      background: #101820;
+    }
+
+    .editor-tab {
+      padding: 6px 10px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 680;
+    }
+
+    textarea {
+      width: 100%;
+      height: 100%;
+      resize: none;
+      border: 0;
+      outline: 0;
+      padding: 14px 16px;
+      color: #cfdae8;
+      background: #0c1219;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12px;
+      line-height: 1.48;
+      tab-size: 2;
+    }
+
+    .status {
+      min-height: 40px;
+      padding: 9px 14px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      background: #101820;
+      font-size: 11px;
+      line-height: 1.4;
+    }
+
+    .status.error {
+      color: #ffd4dd;
+      background: rgba(255, 92, 122, 0.12);
+    }
+
+    .crash {
+      display: grid;
+      place-items: center;
+      width: 100%;
+      height: 100%;
+      padding: 24px;
+      color: #ffd4dd;
+      background: #0b1118;
+      font: 13px/1.5 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      white-space: pre-wrap;
+    }
+
+    .network-viewport {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 35% 28%, rgba(45, 139, 232, 0.16), transparent 28%),
+        radial-gradient(circle at 70% 70%, rgba(83, 182, 109, 0.08), transparent 30%),
+        linear-gradient(135deg, #0b1118 0%, #0f1721 52%, #0b1017 100%);
+    }
+
+    .flow-shell {
+      position: absolute;
+      inset: 0;
+      background: transparent;
+    }
+
+    .react-flow {
+      --xy-background-color: transparent;
+      --xy-edge-stroke-default: rgba(45, 139, 232, 0.78);
+      --xy-edge-stroke-width-default: 2;
+      --xy-node-border-default: 1px solid rgba(164, 179, 199, 0.32);
+      --xy-node-background-color-default: transparent;
+      color: var(--text);
+    }
+
+    .react-flow__controls {
+      border: 1px solid var(--line);
+      border-radius: 0;
+      overflow: hidden;
+      box-shadow: 0 14px 32px var(--shadow);
+    }
+
+    .react-flow__controls-button {
+      border-bottom: 1px solid var(--line);
+      background: #242424;
+      color: #f2f2f2;
+    }
+
+    .react-flow__minimap {
+      background: rgba(11, 17, 24, 0.92);
+      border: 1px solid var(--line);
+      border-radius: 0;
+      overflow: hidden;
+    }
+
+    .network-node {
+      width: 82px;
+      min-height: 60px;
+      display: grid;
+      justify-items: center;
+      gap: 3px;
+      padding: 0;
+      border: 0;
+      color: var(--text);
+      background: transparent;
+      box-shadow: none;
+      cursor: grab;
+    }
+
+    .network-node * {
+      cursor: inherit;
+    }
+
+    .react-flow__node.dragging .network-node {
+      cursor: grabbing;
+    }
+
+    .network-node .icon {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      color: #fff;
+      font-weight: 900;
+      font-size: 12px;
+      background: var(--node-fill, #929aa8);
+      border: 4px solid var(--node-stroke, #d9e0ea);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.26);
+    }
+
+    .network-node .label {
+      color: #edf4ff;
+      font-weight: 620;
+      font-size: 10px;
+      line-height: 1.1;
+      text-align: center;
+    }
+
+    .network-node .meta {
+      color: #9db2cf;
+      font-size: 8px;
+      line-height: 1.15;
+      text-align: center;
+    }
+
+    .region-node {
+      width: 100%;
+      height: 100%;
+      border: 1px solid var(--region-stroke, rgba(55, 169, 216, 0.42));
+      border-radius: 4px;
+      background: var(--region-fill, rgba(76, 201, 240, 0.12));
+      box-shadow: none;
+      cursor: default;
+    }
+
+    .react-flow__node-region.draggable .region-node {
+      cursor: grab;
+    }
+
+    .react-flow__node-region.dragging .region-node {
+      cursor: grabbing;
+    }
+
+    .region-node .region-label {
+      position: absolute;
+      top: 12px;
+      left: 18px;
+      padding: 4px 7px;
+      border: 1px solid var(--line-soft);
+      border-radius: 3px;
+      color: #f4f9ff;
+      background: rgba(17, 24, 32, 0.82);
+      font-size: 10px;
+      font-weight: 720;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .react-flow__node-region {
+      z-index: 0;
+    }
+
+    .react-flow__node-region:not(.draggable) {
+      pointer-events: none !important;
+    }
+
+    .react-flow__edge {
+      opacity: 1;
+      filter: drop-shadow(0 0 3px rgba(5, 9, 14, 0.72));
+    }
+
+    .edge-label {
+      padding: 3px 6px;
+      border-radius: 3px;
+      color: #eaf4ff;
+      background: rgba(17, 24, 32, 0.86);
+      border: 1px solid var(--line);
+      font-size: 10px;
+      font-weight: 650;
+      box-shadow: 0 8px 18px var(--shadow);
+    }
+
+    .react-flow__handle {
+      width: 1px;
+      height: 1px;
+      min-width: 1px;
+      min-height: 1px;
+      border: 0;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    @media (max-width: 980px) {
+      .app {
+        grid-template-columns: 1fr;
+        grid-template-rows: 45% 55%;
+        padding: 8px;
+      }
+
+      .left {
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script>
+    window.__showPrototypeError = function showPrototypeError(error) {
+      const root = document.getElementById('root');
+      const detail = error && (error.stack || error.message || error.reason || String(error));
+      if (root) {
+        root.innerHTML = '';
+        const pre = document.createElement('pre');
+        pre.className = 'crash';
+        pre.textContent = detail || 'Unknown prototype runtime error';
+        root.appendChild(pre);
+      }
+    };
+    window.addEventListener('error', (event) => window.__showPrototypeError(event.error || event.message));
+    window.addEventListener('unhandledrejection', (event) => window.__showPrototypeError(event.reason));
+  </script>
+
+  <script type="module">
+    import React, { useCallback, useEffect, useMemo, useState } from 'react';
+    import { createRoot } from 'react-dom/client';
+    import {
+      Background,
+      BaseEdge,
+      EdgeLabelRenderer,
+      Handle,
+      MarkerType,
+      Position,
+      ReactFlow,
+      ReactFlowProvider,
+      applyNodeChanges,
+      getBezierPath,
+      getSimpleBezierPath,
+      getSmoothStepPath,
+      getStraightPath,
+      useInternalNode,
+      useEdgesState,
+      useNodesState
+    } from 'https://esm.sh/@xyflow/react@12.10.2?external=react,react-dom';
+
+    const initialTopologyYaml = `graph:
+  id: mv-network
+
+  layers:
+    - id: physical
+      name: Physical
+    - id: igp
+      name: IGP
+    - id: bgp
+      name: BGP / Controller
+    - id: transport
+      name: Transport
+    - id: service
+      name: Service
+
+  nodes:
+    - id: R01
+      name: R01
+      labels: { node: router, vendor: nokia, role: pe }
+      data:
+        routerId: 25.0.1.1
+      layers: [physical, igp, bgp, transport, service]
+      position: [80, 230]
+
+    - id: R02
+      name: R02
+      labels: { node: router, vendor: cisco, role: pe }
+      data:
+        routerId: 25.0.1.2
+      layers: [physical, igp, transport]
+      position: [260, 105]
+
+    - id: R03
+      name: R03
+      labels: { node: router, vendor: juniper, role: p }
+      data:
+        routerId: 25.0.1.3
+      layers: [physical, igp, transport]
+      position: [270, 355]
+
+    - id: R04
+      name: R04
+      labels: { node: router, vendor: nokia, role: pe }
+      data:
+        routerId: 25.0.1.4
+      layers: [physical, igp, bgp, transport, service]
+      position: [450, 230]
+
+    - id: R05
+      name: R05
+      labels: { node: router, vendor: nokia, role: abr }
+      data:
+        routerId: 25.0.1.5
+      layers: [physical, igp, bgp, transport]
+      position: [640, 230]
+
+    - id: R06
+      name: R06
+      labels: { node: router, vendor: cisco, role: asbr }
+      data:
+        routerId: 25.0.1.6
+      layers: [physical, igp, bgp, transport]
+      position: [820, 120]
+
+    - id: R07
+      name: R07
+      labels: { node: router, vendor: cisco, role: asbr }
+      data:
+        routerId: 25.0.1.7
+      layers: [physical, igp, bgp, transport]
+      position: [1010, 120]
+
+    - id: R08
+      name: R08
+      labels: { node: router, vendor: juniper, role: p }
+      data:
+        routerId: 25.0.1.8
+      layers: [physical, igp, transport]
+      position: [820, 360]
+
+    - id: R09
+      name: R09
+      labels: { node: router, vendor: nokia, role: pe }
+      data:
+        routerId: 25.0.1.9
+      layers: [physical, igp, bgp, transport, service]
+      position: [1190, 230]
+
+    - id: R10
+      name: R10
+      labels: { node: router, vendor: juniper, role: pe }
+      data:
+        routerId: 25.0.1.10
+      layers: [physical, igp, bgp, transport]
+      position: [1010, 360]
+
+    - id: NSP
+      name: NSP
+      labels: { node: controller, app: nsp }
+      icon: controller.nsp
+      data:
+        function: path-control
+      layers: [bgp]
+      position: [645, 30]
+
+    - id: VSR-NRC
+      name: VSR-NRC
+      labels: { node: controller, app: vsr-nrc }
+      icon: controller.nrc
+      data:
+        function: bgp-ls-relay
+      layers: [bgp]
+      position: [645, 455]
+
+    - id: br1
+      name: br1
+      labels: { node: bridge, role: external-attachment }
+      data:
+        function: containerlab-bridge
+      layers: [physical]
+      position: [1320, 115]
+
+    - id: client-01
+      name: client-01
+      labels: { node: client, role: ce }
+      layers: [physical, service]
+      position: [20, 330]
+
+    - id: client-02
+      name: client-02
+      labels: { node: client, role: ce }
+      layers: [physical, service]
+      position: [220, 20]
+
+    - id: client-03
+      name: client-03
+      labels: { node: client, role: ce }
+      layers: [physical, service]
+      position: [220, 455]
+
+    - id: client-04
+      name: client-04
+      labels: { node: client, role: ce }
+      layers: [physical, service]
+      position: [450, 335]
+
+    - id: client-05
+      name: client-05
+      labels: { node: client, role: ce }
+      layers: [physical, service]
+      position: [640, 330]
+
+    - id: client-06
+      name: client-06
+      labels: { node: client, role: ce }
+      layers: [physical, service]
+      position: [820, 20]
+
+    - id: client-07
+      name: client-07
+      labels: { node: client, role: ce }
+      layers: [physical, service]
+      position: [1010, 20]
+
+    - id: client-08
+      name: client-08
+      labels: { node: client, role: ce }
+      layers: [physical, service]
+      position: [820, 465]
+
+    - id: client-09
+      name: client-09
+      labels: { node: client, role: ce }
+      layers: [physical, service]
+      position: [1280, 330]
+
+    - id: client-10
+      name: client-10
+      labels: { node: client, role: ce }
+      layers: [physical, service]
+      position: [1010, 465]
+
+    - id: svc-1321-r01
+      name: L3VPN 1321
+      labels: { node: service, service: l3vpn }
+      data:
+        serviceId: 1321
+      parent: R01
+      layers: [service]
+      position: [80, 330]
+
+    - id: svc-1321-r09
+      name: L3VPN 1321
+      labels: { node: service, service: l3vpn }
+      data:
+        serviceId: 1321
+      parent: R09
+      layers: [service]
+      position: [1190, 330]
+
+  links:
+    - id: phy-R01-R02
+      source: R01
+      target: R02
+      labels: { link: physical, role: core }
+      data:
+        endpoints: ["R01-nokia:1/1/2", "R02-cisco:Gi0/0/0/0"]
+      layers: [physical]
+
+    - id: phy-R01-R03
+      source: R01
+      target: R03
+      labels: { link: physical, role: core }
+      data:
+        endpoints: ["R01-nokia:1/1/1", "R03-juniper:ge-0/0/1"]
+      layers: [physical]
+
+    - id: phy-R01-R04
+      source: R01
+      target: R04
+      labels: { link: physical, role: core }
+      data:
+        endpoints: ["R01-nokia:1/1/3", "R04-nokia:1/1/3"]
+      layers: [physical]
+
+    - id: phy-R04-R03
+      source: R04
+      target: R03
+      labels: { link: physical, role: core }
+      data:
+        endpoints: ["R04-nokia:1/1/5", "R03-juniper:ge-0/0/3"]
+      layers: [physical]
+
+    - id: phy-R02-R03
+      source: R02
+      target: R03
+      labels: { link: physical, role: core }
+      data:
+        endpoints: ["R02-cisco:Gi0/0/0/2", "R03-juniper:ge-0/0/2"]
+      layers: [physical]
+
+    - id: phy-R02-R04
+      source: R02
+      target: R04
+      labels: { link: physical, role: core }
+      data:
+        endpoints: ["R02-cisco:Gi0/0/0/1", "R04-nokia:1/1/2"]
+      layers: [physical]
+
+    - id: phy-R03-R05
+      source: R03
+      target: R05
+      labels: { link: physical, role: core }
+      data:
+        endpoints: ["R05-nokia:1/1/6", "R03-juniper:ge-0/0/0"]
+      layers: [physical]
+
+    - id: phy-R06-R05
+      source: R06
+      target: R05
+      labels: { link: physical, role: core }
+      data:
+        endpoints: ["R06-cisco:Gi0/0/0/1", "R05-nokia:1/1/4"]
+      layers: [physical]
+
+    - id: phy-R06-R03
+      source: R06
+      target: R03
+      labels: { link: physical, role: core }
+      data:
+        endpoints: ["R06-cisco:Gi0/0/0/4", "R03-juniper:ge-0/0/4"]
+      layers: [physical]
+
+    - id: phy-R04-R06
+      source: R04
+      target: R06
+      labels: { link: physical, role: core }
+      data:
+        endpoints: ["R04-nokia:1/1/4", "R06-cisco:Gi0/0/0/0"]
+      layers: [physical]
+
+    - id: phy-R04-R05
+      source: R04
+      target: R05
+      labels: { link: physical, role: core }
+      data:
+        endpoints: ["R04-nokia:1/1/1", "R05-nokia:1/1/2"]
+      layers: [physical]
+
+    - id: phy-R05-R07
+      source: R05
+      target: R07
+      labels: { link: physical, role: core }
+      data:
+        endpoints: ["R05-nokia:1/1/3", "R07-cisco:Gi0/0/0/0"]
+      layers: [physical]
+
+    - id: phy-R08-R05
+      source: R08
+      target: R05
+      labels: { link: physical, role: core }
+      data:
+        endpoints: ["R08-juniper:ge-0/0/4", "R05-nokia:1/1/5"]
+      layers: [physical]
+
+    - id: phy-R06-R07
+      source: R06
+      target: R07
+      labels: { link: physical, role: core }
+      data:
+        endpoints: ["R06-cisco:Gi0/0/0/2", "R07-cisco:Gi0/0/0/2"]
+      layers: [physical]
+
+    - id: phy-R06-R08
+      source: R06
+      target: R08
+      labels: { link: physical, role: core }
+      data:
+        endpoints: ["R06-cisco:Gi0/0/0/3", "R08-juniper:ge-0/0/1"]
+      layers: [physical]
+
+    - id: phy-R08-R07
+      source: R08
+      target: R07
+      labels: { link: physical, role: core }
+      data:
+        endpoints: ["R08-juniper:ge-0/0/2", "R07-cisco:Gi0/0/0/3"]
+      layers: [physical]
+
+    - id: phy-R07-R09
+      source: R07
+      target: R09
+      labels: { link: physical, role: core }
+      data:
+        endpoints: ["R07-cisco:Gi0/0/0/1", "R09-nokia:1/1/1"]
+      layers: [physical]
+
+    - id: phy-R10-R07
+      source: R10
+      target: R07
+      labels: { link: physical, role: core }
+      data:
+        endpoints: ["R10-juniper:ge-0/0/2", "R07-cisco:Gi0/0/0/4"]
+      layers: [physical]
+
+    - id: phy-R08-R09
+      source: R08
+      target: R09
+      labels: { link: physical, role: core }
+      data:
+        endpoints: ["R08-juniper:ge-0/0/3", "R09-nokia:1/1/3"]
+      layers: [physical]
+
+    - id: phy-R08-R10
+      source: R08
+      target: R10
+      labels: { link: physical, role: core }
+      data:
+        endpoints: ["R08-juniper:ge-0/0/0", "R10-juniper:ge-0/0/1"]
+      layers: [physical]
+
+    - id: phy-R09-R10
+      source: R09
+      target: R10
+      labels: { link: physical, role: core }
+      data:
+        endpoints: ["R10-juniper:ge-0/0/0", "R09-nokia:1/1/2"]
+      layers: [physical]
+
+    - id: phy-br1-R09-tll2-eth1
+      source: br1
+      target: R09
+      labels: { link: physical, role: controller-attachment }
+      data:
+        endpoints: ["br1:to-NSP-VSR-NRC-TLL2-eth1", "R09-nokia:1/1/5"]
+      layers: [physical]
+
+    - id: phy-br1-R05-tll2-eth2
+      source: br1
+      target: R05
+      labels: { link: physical, role: controller-attachment }
+      data:
+        endpoints: ["br1:to-NSP-VSR-NRC-TLL2-eth2", "R05-nokia:1/1/7"]
+      layers: [physical]
+
+    - id: phy-br1-R09-tkr2-eth1
+      source: br1
+      target: R09
+      labels: { link: physical, role: controller-attachment }
+      data:
+        endpoints: ["br1:to-NSP-VSR-NRC-TKR2-eth1", "R09-nokia:1/1/9"]
+      layers: [physical]
+
+    - id: phy-br1-R05-tkr2-eth2
+      source: br1
+      target: R05
+      labels: { link: physical, role: controller-attachment }
+      data:
+        endpoints: ["br1:to-NSP-VSR-NRC-TKR2-eth2", "R05-nokia:1/1/9"]
+      layers: [physical]
+
+    - id: phy-br1-R01-mediation-tkr02-eth1
+      source: br1
+      target: R01
+      labels: { link: physical, role: controller-attachment }
+      data:
+        endpoints: ["br1:to-NSP-MEDIATION-TKR02-cisco-eth1", "R01-nokia:1/1/8"]
+      layers: [physical]
+
+    - id: phy-client-02-R02
+      source: client-02
+      target: R02
+      labels: { link: physical, role: client-access }
+      data:
+        endpoints: ["client-02:eth1", "R02-cisco:Gi0/0/0/7"]
+      layers: [physical]
+
+    - id: phy-client-06-R06
+      source: client-06
+      target: R06
+      labels: { link: physical, role: client-access }
+      data:
+        endpoints: ["client-06:eth1", "R06-cisco:Gi0/0/0/7"]
+      layers: [physical]
+
+    - id: phy-client-07-R07
+      source: client-07
+      target: R07
+      labels: { link: physical, role: client-access }
+      data:
+        endpoints: ["client-07:eth1", "R07-cisco:Gi0/0/0/7"]
+      layers: [physical]
+
+    - id: phy-client-01-R01
+      source: client-01
+      target: R01
+      labels: { link: physical, role: client-access }
+      data:
+        endpoints: ["client-01:eth1", "R01-nokia:1/1/4"]
+      layers: [physical]
+
+    - id: phy-client-03-R03
+      source: client-03
+      target: R03
+      labels: { link: physical, role: client-access }
+      data:
+        endpoints: ["client-03:eth1", "R03-juniper:ge-0/0/5"]
+      layers: [physical]
+
+    - id: phy-client-04-R04
+      source: client-04
+      target: R04
+      labels: { link: physical, role: client-access }
+      data:
+        endpoints: ["client-04:eth1", "R04-nokia:1/1/6"]
+      layers: [physical]
+
+    - id: phy-client-05-R05
+      source: client-05
+      target: R05
+      labels: { link: physical, role: client-access }
+      data:
+        endpoints: ["client-05:eth1", "R05-nokia:1/1/8"]
+      layers: [physical]
+
+    - id: phy-client-08-R08
+      source: client-08
+      target: R08
+      labels: { link: physical, role: client-access }
+      data:
+        endpoints: ["client-08:eth1", "R08-juniper:ge-0/0/5"]
+      layers: [physical]
+
+    - id: phy-client-09-R09
+      source: client-09
+      target: R09
+      labels: { link: physical, role: client-access }
+      data:
+        endpoints: ["client-09:eth1", "R09-nokia:1/1/6"]
+      layers: [physical]
+
+    - id: phy-client-10-R10
+      source: client-10
+      target: R10
+      labels: { link: physical, role: client-access }
+      data:
+        endpoints: ["client-10:eth1", "R10-juniper:ge-0/0/3"]
+      layers: [physical]
+
+    - id: isis-R01-R04
+      source: R01
+      target: R04
+      labels: { link: igp, protocol: isis }
+      data:
+        metric: 25
+        delayMs: 10
+      layers: [igp]
+
+    - id: isis-R01-R02
+      source: R01
+      target: R02
+      labels: { link: igp, protocol: isis }
+      data:
+        metric: 10
+        delayMs: 5
+      layers: [igp]
+
+    - id: bgpls-R05-VSR
+      source: R05
+      target: VSR-NRC
+      labels: { link: bgp, protocol: bgp-ls }
+      layers: [bgp]
+
+    - id: pcep-R01-NSP
+      source: R01
+      target: NSP
+      labels: { link: bgp, protocol: pcep }
+      layers: [bgp]
+
+    - id: svc-1321
+      source: svc-1321-r01
+      target: svc-1321-r09
+      labels: { link: service, service: l3vpn }
+      data:
+        serviceId: 1321
+      layers: [service]
+
+  paths:
+    - id: srte-1321-forward
+      name: SR-TE 1321
+      labels: { path: transport, protocol: sr-te }
+      data:
+        serviceId: 1321
+      layers: [transport, service]
+      sequence: [R01, R03, R05, R06, R07, R09]
+
+    - id: srte-r01-r04-standby
+      name: SR-TE standby
+      labels: { path: transport, protocol: sr-te }
+      data:
+        pathProfile: 1006
+      layers: [transport]
+      sequence: [R01, R02, R04]
+
+  regions:
+    - id: isis-l1
+      name: IS-IS L1
+      labels: { region: igp, protocol: isis }
+      data:
+        level: 1
+      parent: as65000
+      layers: [igp]
+      members: [R01, R02, R03, R04, R05]
+
+    - id: isis-l2
+      name: IS-IS L2
+      labels: { region: igp, protocol: isis }
+      data:
+        level: 2
+      parent: as65000
+      layers: [igp]
+      members: [R05, R06, R07, R08, R09, R10]
+
+    - id: as65000
+      name: AS 65000
+      labels: { region: bgp }
+      data:
+        asn: 65000
+      layers: [igp, bgp]
+      members: [R01, R02, R03, R04, R05, R06, R07, R08, R09, R10]
+
+toggles:
+  - id: showRegions
+    name: Show regions
+    default: true
+
+  - id: showServicesInsideNodes
+    name: Show services inside nodes
+    default: false
+
+  - id: showEdgeLabels
+    name: Show link/path labels
+    default: false
+`;
+
+    const initialStylesheetYaml = `icons:
+  router.generic: { glyph: R, fill: "#6ea8fe", stroke: "#d8e8ff" }
+  router.nokia: { glyph: N, fill: "#1148ff", stroke: "#b8c7ff" }
+  router.cisco: { glyph: C, fill: "#16a3b8", stroke: "#c8fbff" }
+  router.juniper: { glyph: J, fill: "#2fb344", stroke: "#d7ffdf" }
+  controller.nsp: { glyph: NSP, fill: "#ffb454", stroke: "#ffe4b8" }
+  controller.nrc: { glyph: NRC, fill: "#ffd166", stroke: "#fff2bd" }
+  service.l3vpn: { glyph: VPN, fill: "#b197fc", stroke: "#eee5ff" }
+  client.linux: { glyph: C, fill: "#2f3a4a", stroke: "#cbd5e1" }
+  infra.bridge: { glyph: BR, fill: "#1f2937", stroke: "#93c5fd" }
+
+labelFields: [name]
+
+# Authoring model: graph facts plus a Cytoscape-style selector stylesheet.
+# Rendering engine: React Flow.
+# Compiler rule: stylesheet.style is graph vocabulary; React Flow props are internal output.
+stylesheet:
+  - selector: node
+    style:
+      shape: ellipse
+      icon: router.generic
+      width: 82
+      height: 60
+      backgroundColor: "#6ea8fe"
+      borderColor: "#d8e8ff"
+      borderWidth: 4
+      labelColor: "#edf4ff"
+      labelFontSize: 10
+      labelFontWeight: 620
+      metaColor: "#9db2cf"
+      metaFontSize: 8
+      zIndex: 10
+      draggable: true
+      selectable: true
+
+  - selector: node[labels.node = "service"][labels.service = "l3vpn"]
+    style:
+      icon: service.l3vpn
+      width: 84
+      borderColor: "#ede5ff"
+      zIndex: 20
+
+  - selector: node[labels.node = "client"]
+    style:
+      shape: roundrectangle
+      icon: client.linux
+      width: 78
+      height: 58
+      backgroundColor: "#2f3a4a"
+      borderColor: "#cbd5e1"
+      borderWidth: 2
+      zIndex: 12
+
+  - selector: node[labels.node = "bridge"]
+    style:
+      shape: roundrectangle
+      icon: infra.bridge
+      width: 82
+      height: 58
+      backgroundColor: "#1f2937"
+      borderColor: "#93c5fd"
+      borderWidth: 2
+      zIndex: 12
+
+  - selector: node[labels.vendor = "nokia"]
+    style:
+      icon: router.nokia
+
+  - selector: node[labels.vendor = "cisco"]
+    style:
+      icon: router.cisco
+
+  - selector: node[labels.vendor = "juniper"]
+    style:
+      icon: router.juniper
+
+  - selector: link[labels.link = "physical"]
+    style:
+      label: Physical
+      curveStyle: straight
+      lineColor: "#6ea8fe"
+      lineWidth: 2
+      lineStyle: solid
+      targetArrowShape: none
+      labelColor: "#eaf4ff"
+      labelFontSize: 10
+      labelFontWeight: 650
+      opacity: 0.95
+      interactionWidth: 14
+
+  - selector: link[labels.protocol = "isis"]
+    style:
+      label: IGP
+      curveStyle: smooth-taxi
+      lineColor: "#42d392"
+      lineWidth: 3
+      lineStyle: dashed
+      targetArrowShape: triangle
+      arrowColor: "#42d392"
+      labelColor: "#eaf4ff"
+      labelFontSize: 10
+      labelFontWeight: 650
+      opacity: 0.92
+      interactionWidth: 18
+
+  - selector: link[labels.protocol = "bgp-ls"]
+    style:
+      label: BGP-LS
+      curveStyle: taxi
+      lineColor: "#ffb454"
+      lineWidth: 3
+      lineDashPattern: "3 6"
+      targetArrowShape: triangle
+      arrowColor: "#ffb454"
+      labelColor: "#eaf4ff"
+      labelFontSize: 10
+      labelFontWeight: 650
+      interactionWidth: 16
+
+  - selector: link[labels.protocol = "pcep"]
+    style:
+      label: PCEP
+      curveStyle: unbundled-bezier
+      lineColor: "#ffd166"
+      lineWidth: 3
+      lineDashPattern: "3 6"
+      targetArrowShape: triangle
+      arrowColor: "#ffd166"
+      labelColor: "#eaf4ff"
+      labelFontSize: 10
+      labelFontWeight: 650
+      interactionWidth: 16
+
+  - selector: link[labels.link = "service"]
+    style:
+      label: Service overlay
+      curveStyle: bezier
+      lineColor: "#b197fc"
+      lineWidth: 4
+      lineStyle: solid
+      targetArrowShape: triangle
+      arrowColor: "#b197fc"
+      labelColor: "#eaf4ff"
+      labelFontSize: 10
+      labelFontWeight: 650
+
+  - selector: path[labels.protocol = "sr-te"]
+    style:
+      label: Transport path
+      curveStyle: smooth-taxi
+      lineColor: "#ff6b9a"
+      lineWidth: 6
+      lineStyle: solid
+      targetArrowShape: triangle
+      arrowColor: "#ff6b9a"
+      labelColor: "#eaf4ff"
+      labelFontSize: 10
+      labelFontWeight: 650
+      animated: true
+      opacity: 0.96
+      interactionWidth: 24
+
+  - selector: region
+    style:
+      shape: roundrectangle
+      backgroundColor: rgba(76, 201, 240, 0.12)
+      borderColor: rgba(76, 201, 240, 0.62)
+      borderWidth: 1
+      labelColor: "#f4f9ff"
+      labelBackgroundColor: rgba(17, 24, 32, 0.82)
+      zIndex: 2
+      selectable: true
+      draggable: true
+
+  - selector: region[id = "isis-l1"]
+    style:
+      backgroundColor: rgba(66, 211, 146, 0.12)
+      borderColor: rgba(66, 211, 146, 0.62)
+
+  - selector: region[id = "as65000"]
+    style:
+      backgroundColor: rgba(255, 180, 84, 0.10)
+      borderColor: rgba(255, 180, 84, 0.56)
+      zIndex: 1
+      selectable: true
+      draggable: true
+`;
+
+    function NetworkNode({ data }) {
+      const icon = data.iconSpec || { glyph: 'R', fill: '#6ea8fe', stroke: '#d8e8ff' };
+      const labelText = displayName(data);
+      const labelsText = formatLabels(data.labels || data.kind);
+      return React.createElement('div', { className: 'network-node node-drag-handle', style: data.nodeStyle || {} },
+        React.createElement(Handle, { type: 'target', position: Position.Left }),
+        React.createElement('div', {
+          className: 'icon',
+          style: {
+            '--node-fill': icon.fill,
+            '--node-stroke': icon.stroke,
+            ...(data.iconStyle || {})
+          }
+        }, icon.glyph),
+        React.createElement('div', { className: 'label', style: data.labelStyle || data.nameStyle || {} }, labelText),
+        React.createElement('div', { className: 'meta', style: data.metaStyle || {} }, labelsText || ''),
+        React.createElement(Handle, { type: 'source', position: Position.Right })
+      );
+    }
+
+    function displayName(entity) {
+      return entity?.name || entity?.label || entity?.id || '';
+    }
+
+    function formatLabels(labels) {
+      if (Array.isArray(labels)) return labels.join(' / ');
+      if (labels && typeof labels === 'object') {
+        return Object.entries(labels).map(([key, value]) => `${key}:${value}`).join(' / ');
+      }
+      return labels || '';
+    }
+
+    function RegionNode({ data }) {
+      return React.createElement('div', {
+        className: 'region-node region-drag-handle',
+        style: {
+          '--region-fill': data.fill,
+          '--region-stroke': data.stroke,
+          borderWidth: data.borderWidth,
+          borderRadius: data.borderRadius
+        }
+      }, React.createElement('div', { className: 'region-label', style: data.labelStyle || {} }, displayName(data)));
+    }
+
+    function internalNodeBox(node) {
+      const position = node?.internals?.positionAbsolute || node?.positionAbsolute || node?.position || { x: 0, y: 0 };
+      const width = node?.measured?.width || node?.width || node?.data?.nodeStyle?.width || 82;
+      const height = node?.measured?.height || node?.height || node?.data?.nodeStyle?.minHeight || 60;
+      const anchor = node?.data?.edgeAnchor;
+      if (anchor) {
+        const anchorWidth = Number(anchor.width || width);
+        const anchorHeight = Number(anchor.height || height);
+        const anchorX = Number(anchor.x ?? (width - anchorWidth) / 2);
+        const anchorY = Number(anchor.y ?? 0);
+        return {
+          x: position.x + anchorX,
+          y: position.y + anchorY,
+          width: anchorWidth,
+          height: anchorHeight,
+          centerX: position.x + anchorX + anchorWidth / 2,
+          centerY: position.y + anchorY + anchorHeight / 2
+        };
+      }
+      return {
+        x: position.x,
+        y: position.y,
+        width,
+        height,
+        centerX: position.x + width / 2,
+        centerY: position.y + height / 2
+      };
+    }
+
+    function floatingSide(sourceBox, targetBox) {
+      const dx = targetBox.centerX - sourceBox.centerX;
+      const dy = targetBox.centerY - sourceBox.centerY;
+      if (Math.abs(dx) > Math.abs(dy)) return dx >= 0 ? Position.Right : Position.Left;
+      return dy >= 0 ? Position.Bottom : Position.Top;
+    }
+
+    function floatingPoint(box, side) {
+      if (side === Position.Left) return { x: box.x, y: box.centerY };
+      if (side === Position.Right) return { x: box.x + box.width, y: box.centerY };
+      if (side === Position.Top) return { x: box.centerX, y: box.y };
+      return { x: box.centerX, y: box.y + box.height };
+    }
+
+    function floatingEndpoints(sourceNode, targetNode, fallback) {
+      if (!sourceNode || !targetNode) return fallback;
+      const sourceBox = internalNodeBox(sourceNode);
+      const targetBox = internalNodeBox(targetNode);
+      const sourcePosition = floatingSide(sourceBox, targetBox);
+      const targetPosition = floatingSide(targetBox, sourceBox);
+      const sourcePoint = floatingPoint(sourceBox, sourcePosition);
+      const targetPoint = floatingPoint(targetBox, targetPosition);
+      return {
+        sourceX: sourcePoint.x,
+        sourceY: sourcePoint.y,
+        targetX: targetPoint.x,
+        targetY: targetPoint.y,
+        sourcePosition,
+        targetPosition
+      };
+    }
+
+    function edgePathForCurve(curveType, props) {
+      if (curveType === 'straight') return getStraightPath(props);
+      if (curveType === 'step') return getSmoothStepPath({ ...props, borderRadius: 0 });
+      if (curveType === 'smoothstep') return getSmoothStepPath(props);
+      if (curveType === 'simplebezier') return getSimpleBezierPath(props);
+      return getBezierPath(props);
+    }
+
+    function FloatingEdge(props) {
+      const sourceNode = useInternalNode(props.source);
+      const targetNode = useInternalNode(props.target);
+      const endpoints = floatingEndpoints(sourceNode, targetNode, props);
+      const curveType = props.data?.curveType || 'default';
+      const [edgePath, labelX, labelY] = edgePathForCurve(curveType, { ...props, ...endpoints });
+      const htmlLabelStyle = {
+        color: props.labelStyle?.fill,
+        fontSize: props.labelStyle?.fontSize,
+        fontWeight: props.labelStyle?.fontWeight,
+        background: props.labelBgStyle?.fill
+      };
+      return React.createElement(React.Fragment, null,
+        React.createElement(BaseEdge, {
+          id: props.id,
+          path: edgePath,
+          markerStart: props.markerStart,
+          markerEnd: props.markerEnd,
+          style: props.style,
+          interactionWidth: props.interactionWidth
+        }),
+        props.label
+          ? React.createElement(EdgeLabelRenderer, null,
+            React.createElement('div', {
+              className: 'edge-label',
+              style: {
+                ...withoutUndefined(htmlLabelStyle),
+                position: 'absolute',
+                transform: `translate(-50%, -50%) translate(${labelX}px, ${labelY}px)`,
+                pointerEvents: 'all'
+              }
+            }, props.label))
+          : null
+      );
+    }
+
+    const nodeTypes = { network: NetworkNode, region: RegionNode };
+    const edgeTypes = { floating: FloatingEdge };
+
+    function defaultLayerIds(spec) {
+      return spec.graph?.layers?.map((layer) => layer.id) || [];
+    }
+
+    function layerSetFor(selectedLayerIds) {
+      return new Set(selectedLayerIds || []);
+    }
+
+    function intersects(values, layers) {
+      return (values || []).some((value) => layers.has(value));
+    }
+
+    function parseSelector(selector = '') {
+      const trimmed = selector.trim();
+      const type = trimmed.match(/^[a-zA-Z][\w-]*/)?.[0] || '';
+      const conditions = [];
+      const conditionPattern = /\[\s*([\w.-]+)\s*(=|~=)\s*(?:"([^"]*)"|'([^']*)'|([^\]]+?))\s*\]/g;
+      let match;
+      while ((match = conditionPattern.exec(trimmed)) !== null) {
+        conditions.push({
+          field: match[1],
+          op: match[2],
+          value: (match[3] ?? match[4] ?? match[5] ?? '').trim()
+        });
+      }
+      return { type, conditions };
+    }
+
+    function valueAt(entity, field) {
+      return field.split('.').reduce((value, key) => value?.[key], entity);
+    }
+
+    function styleSubject(entity) {
+      return { ...(entity.data || {}), ...entity };
+    }
+
+    function conditionMatches(entity, condition) {
+      const actual = valueAt(entity, condition.field);
+      if (condition.op === '~=') {
+        return Array.isArray(actual)
+          ? actual.map(String).includes(condition.value)
+          : String(actual || '').split(/\s+/).includes(condition.value);
+      }
+      if (Array.isArray(actual)) return actual.map(String).includes(condition.value);
+      return String(actual) === condition.value;
+    }
+
+    function selectorMatches(kind, entity, selector) {
+      const parsed = parseSelector(selector);
+      if (parsed.type !== kind) return false;
+      return parsed.conditions.every((condition) => conditionMatches(entity, condition));
+    }
+
+    function isPlainObject(value) {
+      return value !== null && typeof value === 'object' && !Array.isArray(value);
+    }
+
+    function mergePlainObjects(base = {}, overlay = {}) {
+      return Object.entries(overlay).reduce((result, [key, value]) => {
+        if (isPlainObject(result[key]) && isPlainObject(value)) {
+          return { ...result, [key]: mergePlainObjects(result[key], value) };
+        }
+        return { ...result, [key]: value };
+      }, { ...base });
+    }
+
+    function applyStyle(kind, entity, spec) {
+      const subject = styleSubject(entity);
+      const rules = spec.stylesheet || [];
+      const matchedStyle = rules.reduce((style, rule) => {
+        if (!selectorMatches(kind, subject, rule.selector)) return style;
+        return mergePlainObjects(style, rule.style || {});
+      }, {});
+      return typeof entity.style === 'object' && entity.style !== null
+        ? mergePlainObjects(matchedStyle, entity.style)
+        : matchedStyle;
+    }
+
+    function iconForStyle(style, entity, spec) {
+      const icons = spec.icons || {};
+      const iconKey = style.icon || entity.icon || entity.data?.icon || 'router.generic';
+      return icons[iconKey] || icons['router.generic'] || { glyph: 'R', fill: '#6ea8fe', stroke: '#d8e8ff' };
+    }
+
+    function edgeLabel(entity, spec, enabled, fallbackLabel = '') {
+      if (!enabled) return '';
+      const subject = styleSubject(entity);
+      const fields = [...(spec.labelFields || ['name']), 'label'];
+      const value = fields.map((field) => valueAt(subject, field)).find((item) => item !== undefined && item !== null && item !== '');
+      if (Array.isArray(value)) return value.join(' / ');
+      return value === undefined ? fallbackLabel : String(value);
+    }
+
+    function colorWithOpacity(color, opacity) {
+      if (color === undefined || color === null || opacity === undefined || opacity === null) return color;
+      const text = String(color).trim();
+      if (!text.startsWith('#')) return text;
+      const hex = text.slice(1);
+      if (![3, 6].includes(hex.length)) return text;
+      const expanded = hex.length === 3 ? hex.split('').map((char) => char + char).join('') : hex;
+      const value = Number.parseInt(expanded, 16);
+      if (Number.isNaN(value)) return text;
+      const red = (value >> 16) & 255;
+      const green = (value >> 8) & 255;
+      const blue = value & 255;
+      return `rgba(${red}, ${green}, ${blue}, ${opacity})`;
+    }
+
+    function mapLineDash(style = {}) {
+      if (style.lineDashPattern !== undefined) return style.lineDashPattern;
+      const lineStyle = String(style.lineStyle || 'solid').toLowerCase();
+      if (lineStyle === 'dashed') return '8 6';
+      if (lineStyle === 'dotted') return '2 6';
+      return '';
+    }
+
+    function mapCurveStyle(style = {}) {
+      const curveStyle = String(style.curveStyle || 'bezier').toLowerCase();
+      if (['straight', 'haystack'].includes(curveStyle)) return 'straight';
+      if (['segments', 'taxi'].includes(curveStyle)) return 'step';
+      if (['smooth-taxi', 'smoothstep'].includes(curveStyle)) return 'smoothstep';
+      if (['simplebezier', 'unbundled-bezier'].includes(curveStyle)) return 'simplebezier';
+      return 'default';
+    }
+
+    function mapArrowShape(shape, color) {
+      const arrowShape = String(shape || 'none').toLowerCase();
+      if (['none', 'no-arrow'].includes(arrowShape)) return undefined;
+      if (['triangle', 'vee', 'arrow', 'arrowclosed'].includes(arrowShape)) {
+        return { type: MarkerType.ArrowClosed, color };
+      }
+      return { type: MarkerType.ArrowClosed, color };
+    }
+
+    function valueOrDefault(value, fallback) {
+      return value === undefined || value === null ? fallback : value;
+    }
+
+    function withoutUndefined(value) {
+      if (!isPlainObject(value)) return value;
+      return Object.fromEntries(Object.entries(value).filter(([, item]) => item !== undefined));
+    }
+
+    function compileNodeRenderStyle(style = {}, entity, spec) {
+      const icon = iconForStyle(style, entity, spec);
+      const width = valueOrDefault(style.width, 82);
+      const height = valueOrDefault(style.height, 60);
+      const iconWidth = valueOrDefault(style.iconWidth ?? style.iconSize, 34);
+      const iconHeight = valueOrDefault(style.iconHeight ?? style.iconSize, 34);
+      const shape = String(style.shape || 'ellipse').toLowerCase();
+      const borderRadius = shape === 'rectangle' ? 0 : shape === 'roundrectangle' ? 8 : '50%';
+      return {
+        flow: withoutUndefined({
+          type: 'network',
+          draggable: style.draggable !== false,
+          selectable: style.selectable !== false,
+          dragHandle: '.node-drag-handle',
+          hidden: style.display === 'none',
+          zIndex: valueOrDefault(style.zIndex, 10),
+          style: withoutUndefined({
+            width,
+            opacity: style.opacity
+          })
+        }),
+        data: {
+          iconSpec: icon,
+          edgeAnchor: {
+            x: (width - iconWidth) / 2,
+            y: 0,
+            width: iconWidth,
+            height: iconHeight
+          },
+          nodeStyle: withoutUndefined({
+            width,
+            minHeight: height
+          }),
+          iconStyle: withoutUndefined({
+            width: iconWidth,
+            height: iconHeight,
+            borderRadius,
+            borderColor: style.borderColor || icon.stroke,
+            borderWidth: style.borderWidth,
+            backgroundColor: style.backgroundColor || icon.fill,
+            color: style.iconColor
+          }),
+          labelStyle: withoutUndefined({
+            color: style.labelColor,
+            fontSize: style.labelFontSize,
+            fontWeight: style.labelFontWeight
+          }),
+          metaStyle: withoutUndefined({
+            color: style.metaColor,
+            fontSize: style.metaFontSize,
+            fontWeight: style.metaFontWeight
+          })
+        }
+      };
+    }
+
+    function compileEdgeRenderStyle(style = {}, entity, spec, labelsEnabled) {
+      const lineColor = style.lineColor || '#6ea8fe';
+      const label = edgeLabel(entity, spec, labelsEnabled, style.label);
+      const curveType = mapCurveStyle(style);
+      const anchor = String(style.anchor || 'floating').toLowerCase();
+      return withoutUndefined({
+        type: anchor === 'floating' ? 'floating' : curveType,
+        animated: !!style.animated,
+        hidden: style.display === 'none',
+        interactionWidth: valueOrDefault(style.interactionWidth, Math.max(12, Number(style.lineWidth || 2) + 10)),
+        zIndex: style.zIndex,
+        markerStart: mapArrowShape(style.sourceArrowShape, style.arrowColor || lineColor),
+        markerEnd: mapArrowShape(style.targetArrowShape, style.arrowColor || lineColor),
+        label: label || undefined,
+        labelStyle: withoutUndefined({
+          fill: style.labelColor,
+          fontSize: style.labelFontSize,
+          fontWeight: style.labelFontWeight
+        }),
+        labelShowBg: style.textBackgroundColor !== undefined ? true : undefined,
+        labelBgStyle: withoutUndefined({
+          fill: colorWithOpacity(style.textBackgroundColor, style.textBackgroundOpacity)
+        }),
+        labelBgPadding: style.textBackgroundPadding,
+        labelBgBorderRadius: style.textBackgroundBorderRadius,
+        data: {
+          anchor,
+          curveType
+        },
+        style: withoutUndefined({
+          stroke: lineColor,
+          strokeWidth: style.lineWidth,
+          strokeDasharray: mapLineDash(style),
+          opacity: style.opacity
+        })
+      });
+    }
+
+    function compileRegionRenderStyle(style = {}, bounds) {
+      const borderWidth = valueOrDefault(style.borderWidth, 1);
+      const shape = String(style.shape || 'roundrectangle').toLowerCase();
+      const borderRadius = shape === 'rectangle' ? 0 : shape === 'ellipse' ? '50%' : 4;
+      return {
+        flow: withoutUndefined({
+          type: 'region',
+          selectable: style.selectable === true,
+          draggable: style.draggable === true,
+          dragHandle: style.draggable === true ? '.region-drag-handle' : undefined,
+          hidden: style.display === 'none' ? true : undefined,
+          width: bounds.width,
+          height: bounds.height,
+          zIndex: valueOrDefault(style.zIndex, -20),
+          style: withoutUndefined({
+            width: bounds.width,
+            height: bounds.height,
+            zIndex: valueOrDefault(style.zIndex, -20),
+            opacity: style.opacity
+          })
+        }),
+        data: {
+          fill: style.backgroundColor || 'rgba(76, 201, 240, 0.12)',
+          stroke: style.borderColor || 'rgba(76, 201, 240, 0.62)',
+          borderWidth,
+          borderRadius,
+          labelStyle: withoutUndefined({
+            color: style.labelColor,
+            background: style.labelBackgroundColor
+          })
+        }
+      };
+    }
+
+    function normalizePosition(position) {
+      if (Array.isArray(position)) return { x: Number(position[0] || 0), y: Number(position[1] || 0) };
+      if (position && typeof position === 'object') return { x: Number(position.x || 0), y: Number(position.y || 0) };
+      return { x: 0, y: 0 };
+    }
+
+    function regionBounds(region, nodeById, regions = []) {
+      const points = (region.members || [])
+        .map((id) => nodeById.get(id))
+        .filter(Boolean)
+        .map((node) => normalizePosition(node.position));
+      if (!points.length) return null;
+      const padding = region.padding ?? 88;
+      const nestingHeader = regions.some((candidate) => candidate.parent === region.id) ? 88 : 0;
+      const xs = points.map((point) => point.x);
+      const ys = points.map((point) => point.y);
+      const minX = Math.min(...xs) - padding;
+      const minY = Math.min(...ys) - padding - nestingHeader;
+      const maxX = Math.max(...xs) + padding + 88;
+      const maxY = Math.max(...ys) + padding + 74;
+      return {
+        x: minX,
+        y: minY,
+        width: Math.max(180, maxX - minX),
+        height: Math.max(120, maxY - minY)
+      };
+    }
+
+    function unionBounds(boundsList) {
+      const validBounds = boundsList.filter(Boolean);
+      if (!validBounds.length) return null;
+      const minX = Math.min(...validBounds.map((bounds) => bounds.x));
+      const minY = Math.min(...validBounds.map((bounds) => bounds.y));
+      const maxX = Math.max(...validBounds.map((bounds) => bounds.x + bounds.width));
+      const maxY = Math.max(...validBounds.map((bounds) => bounds.y + bounds.height));
+      return {
+        x: minX,
+        y: minY,
+        width: maxX - minX,
+        height: maxY - minY
+      };
+    }
+
+    function expandBounds(bounds, padding) {
+      if (!bounds) return null;
+      return {
+        x: bounds.x - padding,
+        y: bounds.y - padding,
+        width: bounds.width + padding * 2,
+        height: bounds.height + padding * 2
+      };
+    }
+
+    function regionDepth(region, regionById) {
+      let depth = 0;
+      let current = region;
+      const seen = new Set();
+      while (current?.parent && !seen.has(current.parent)) {
+        seen.add(current.parent);
+        const parent = regionById.get(current.parent);
+        if (!parent) break;
+        depth += 1;
+        current = parent;
+      }
+      return depth;
+    }
+
+    function buildRegionBoundsMap(regions, layers, nodeById) {
+      const visibleRegions = (regions || []).filter((region) => intersects(region.layers, layers));
+      const regionById = new Map(visibleRegions.map((region) => [region.id, region]));
+      const childrenByParentId = visibleRegions.reduce((children, region) => {
+        if (!region.parent) return children;
+        const current = children.get(region.parent) || [];
+        current.push(region.id);
+        children.set(region.parent, current);
+        return children;
+      }, new Map());
+      const boundsById = new Map();
+      const deepestFirst = [...visibleRegions].sort((a, b) => regionDepth(b, regionById) - regionDepth(a, regionById));
+
+      deepestFirst.forEach((region) => {
+        const ownBounds = regionBounds(region, nodeById, regions || []);
+        const childBounds = (childrenByParentId.get(region.id) || []).map((childId) => boundsById.get(childId));
+        const mergedBounds = unionBounds([ownBounds, ...childBounds]);
+        if (!mergedBounds) return;
+        const parentPadding = childBounds.some(Boolean) ? Number(region.parentPadding ?? 42) : 0;
+        boundsById.set(region.id, expandBounds(mergedBounds, parentPadding));
+      });
+
+      return boundsById;
+    }
+
+    function createRegionNode(region, bounds, visualStyle, spec) {
+      const rendered = compileRegionRenderStyle(visualStyle, bounds, spec);
+      return {
+        ...rendered.flow,
+        id: `region:${region.id}`,
+        type: rendered.flow.type || 'region',
+        position: { x: bounds.x, y: bounds.y },
+        data: {
+          ...region,
+          ...(region.data || {}),
+          ...rendered.data
+        },
+        style: { ...(rendered.flow.style || {}) }
+      };
+    }
+
+    function isDraggableRegion(region, spec) {
+      return applyStyle('region', region, spec).draggable === true;
+    }
+
+    function buildRegionNodes(regions, layers, nodeById, spec) {
+      const boundsById = buildRegionBoundsMap(regions || [], layers, nodeById);
+      return (regions || []).flatMap((region) => {
+        if (!intersects(region.layers, layers)) return [];
+        const bounds = boundsById.get(region.id);
+        const visualStyle = applyStyle('region', region, spec);
+        return bounds ? [createRegionNode(region, bounds, visualStyle, spec)] : [];
+      });
+    }
+
+    function withDynamicRegions(networkNodes, compiled) {
+      const nonRegionNodes = networkNodes.filter((node) => node.type !== 'region');
+      const nodeById = new Map(nonRegionNodes.map((node) => [node.id, node]));
+      const regionNodes = compiled.showRegions
+        ? buildRegionNodes(compiled.regions, new Set(compiled.layers), nodeById, compiled.spec)
+        : [];
+      return [...regionNodes, ...nonRegionNodes];
+    }
+
+    function styledNodeDimensions(entity, spec) {
+      const style = applyStyle('node', entity, spec);
+      return {
+        width: valueOrDefault(style.width, 82),
+        height: valueOrDefault(style.height, 60)
+      };
+    }
+
+    function childNodePosition(child, parent, siblingIndex, spec) {
+      const parentBox = styledNodeDimensions(parent || {}, spec);
+      const childBox = styledNodeDimensions(child, spec);
+      return {
+        x: (parentBox.width - childBox.width) / 2,
+        y: parentBox.height + 14 + siblingIndex * (childBox.height + 14)
+      };
+    }
+
+    function regionIdFromNodeId(nodeId = '') {
+      return nodeId.replace(/^region:/, '');
+    }
+
+    function regionDragDeltas(changes, currentNodes) {
+      const nodeById = new Map(currentNodes.map((node) => [node.id, node]));
+      return changes.reduce((deltas, change) => {
+        if (change.type !== 'position' || !change.id?.startsWith('region:') || !change.position) return deltas;
+        const current = nodeById.get(change.id);
+        if (!current) return deltas;
+        const currentPosition = normalizePosition(current.position);
+        const dx = change.position.x - currentPosition.x;
+        const dy = change.position.y - currentPosition.y;
+        if (dx === 0 && dy === 0) return deltas;
+        deltas.set(regionIdFromNodeId(change.id), { dx, dy });
+        return deltas;
+      }, new Map());
+    }
+
+    function translateRegionMembers(nodes, deltas, compiled) {
+      if (!deltas.size) return nodes;
+      const regionById = new Map((compiled.regions || []).map((region) => [region.id, region]));
+      const movementByNodeId = new Map();
+      deltas.forEach(({ dx, dy }, regionId) => {
+        const region = regionById.get(regionId);
+        (region?.members || []).forEach((memberId) => {
+          const current = movementByNodeId.get(memberId) || { dx: 0, dy: 0 };
+          movementByNodeId.set(memberId, { dx: current.dx + dx, dy: current.dy + dy });
+        });
+      });
+      return nodes.map((node) => {
+        if (node.type === 'region') return node;
+        const movement = movementByNodeId.get(node.id);
+        if (!movement) return node;
+        const position = normalizePosition(node.position);
+        return {
+          ...node,
+          position: {
+            x: position.x + movement.dx,
+            y: position.y + movement.dy
+          }
+        };
+      });
+    }
+
+    function compileFlow(spec, selectedLayerIds, toggles) {
+      const graph = spec.graph || {};
+      const layers = layerSetFor(selectedLayerIds);
+      const includedNodeIds = new Set();
+      const graphNodes = graph.nodes || [];
+      const graphNodeById = new Map(graphNodes.map((node) => [node.id, node]));
+      const visibleSourceNodeIds = new Set(graphNodes.filter((node) => intersects(node.layers, layers)).map((node) => node.id));
+      const childCountByParentId = new Map();
+      const networkNodes = [];
+
+      graphNodes.forEach((node) => {
+        if (!intersects(node.layers, layers)) return;
+        includedNodeIds.add(node.id);
+        const parentNode = graphNodeById.get(node.parent);
+        const shouldContain = toggles.showServicesInsideNodes && node.parent && visibleSourceNodeIds.has(node.parent);
+        const siblingIndex = shouldContain ? childCountByParentId.get(node.parent) || 0 : 0;
+        if (shouldContain) childCountByParentId.set(node.parent, siblingIndex + 1);
+        const visualStyle = applyStyle('node', node, spec);
+        const rendered = compileNodeRenderStyle(visualStyle, node, spec);
+        const nodeData = mergePlainObjects(
+          { ...node, ...(node.data || {}) },
+          rendered.data || {}
+        );
+        networkNodes.push({
+          ...rendered.flow,
+          id: node.id,
+          type: rendered.flow.type || 'network',
+          dataParentId: shouldContain ? node.parent : undefined,
+          position: shouldContain ? childNodePosition(node, parentNode, siblingIndex, spec) : normalizePosition(node.position),
+          data: nodeData,
+          style: { ...(rendered.flow.style || {}) },
+          zIndex: rendered.flow.zIndex ?? 10
+        });
+      });
+
+      const visibleNodeById = new Map(networkNodes.map((node) => [node.id, node]));
+      const regionNodes = toggles.showRegions !== false
+        ? buildRegionNodes(graph.regions || [], layers, visibleNodeById, spec)
+        : [];
+      const parentedNetworkNodes = networkNodes.map((node) => {
+        if (node.dataParentId) {
+          const { dataParentId, ...rest } = node;
+          return { ...rest, parentId: dataParentId };
+        }
+        const { dataParentId, ...rest } = node;
+        return rest;
+      });
+
+      const flowEdges = [];
+      (graph.links || []).forEach((link) => {
+        if (!intersects(link.layers, layers)) return;
+        if (!includedNodeIds.has(link.source) || !includedNodeIds.has(link.target)) return;
+        const visualStyle = applyStyle('link', link, spec);
+        const rendered = compileEdgeRenderStyle(visualStyle, link, spec, toggles.showEdgeLabels);
+        const edgeData = mergePlainObjects(
+          { ...link, ...(link.data || {}) },
+          rendered.data || {}
+        );
+        flowEdges.push({
+          ...rendered,
+          id: link.id,
+          source: link.source,
+          target: link.target,
+          data: edgeData
+        });
+      });
+
+      (graph.paths || []).forEach((path) => {
+        if (!intersects(path.layers, layers)) return;
+        for (let index = 0; index < path.sequence.length - 1; index += 1) {
+          const source = path.sequence[index];
+          const target = path.sequence[index + 1];
+          if (!includedNodeIds.has(source) || !includedNodeIds.has(target)) continue;
+          const visualStyle = applyStyle('path', path, spec);
+          const rendered = compileEdgeRenderStyle(visualStyle, path, spec, toggles.showEdgeLabels);
+          const edgeData = mergePlainObjects(
+            { ...path, ...(path.data || {}) },
+            rendered.data || {}
+          );
+          flowEdges.push({
+            ...rendered,
+            id: `${path.id}:${index}`,
+            source,
+            target,
+            data: edgeData
+          });
+        }
+      });
+
+      return {
+        nodes: [...regionNodes, ...parentedNetworkNodes],
+        edges: flowEdges,
+        layers: Array.from(layers).sort(),
+        regions: graph.regions || [],
+        showRegions: toggles.showRegions !== false,
+        spec
+      };
+    }
+
+    function FlowCanvas({ compiled }) {
+      const [nodes, setNodes] = useNodesState(compiled.nodes);
+      const [edges, setEdges, onEdgesChange] = useEdgesState(compiled.edges);
+
+      React.useEffect(() => {
+        setNodes(compiled.nodes);
+        setEdges(compiled.edges);
+      }, [compiled, setNodes, setEdges]);
+
+      const onNodesChange = useCallback((changes) => {
+        setNodes((currentNodes) => {
+          const regionDeltas = regionDragDeltas(changes, currentNodes);
+          const changedNodes = applyNodeChanges(changes, currentNodes);
+          const translatedNodes = translateRegionMembers(changedNodes, regionDeltas, compiled);
+          return withDynamicRegions(translatedNodes, compiled);
+        });
+      }, [compiled, setNodes]);
+
+      return React.createElement(ReactFlow, {
+        nodes,
+        edges,
+        onNodesChange,
+        onEdgesChange,
+        nodeTypes,
+        edgeTypes,
+        fitView: true,
+        fitViewOptions: { padding: 0.08 },
+        minZoom: 0.2,
+        maxZoom: 2.2,
+        nodesDraggable: true,
+        elementsSelectable: true,
+        proOptions: { hideAttribution: true }
+      },
+        React.createElement(Background, { color: 'rgba(126, 139, 154, 0.20)', gap: 24 })
+      );
+    }
+
+    class ErrorBoundary extends React.Component {
+      constructor(props) {
+        super(props);
+        this.state = { error: null };
+      }
+
+      static getDerivedStateFromError(error) {
+        return { error };
+      }
+
+      componentDidCatch(error, info) {
+        console.error(error, info);
+      }
+
+      render() {
+        if (!this.state.error) return this.props.children;
+        const detail = this.state.error.stack || this.state.error.message || String(this.state.error);
+        return React.createElement('pre', { className: 'crash' }, detail);
+      }
+    }
+
+    function composeSpec(topologyDoc, stylesheetDoc) {
+      return {
+        ...(topologyDoc || {}),
+        ...(stylesheetDoc || {}),
+        graph: topologyDoc?.graph || {},
+        toggles: topologyDoc?.toggles || []
+      };
+    }
+
+    function parseInitialSpec() {
+      return composeSpec(jsyaml.load(initialTopologyYaml), jsyaml.load(initialStylesheetYaml));
+    }
+
+    function App() {
+      const [activeEditorTab, setActiveEditorTab] = useState('topology');
+      const [topologyYamlText, setTopologyYamlText] = useState(initialTopologyYaml);
+      const [stylesheetYamlText, setStylesheetYamlText] = useState(initialStylesheetYaml);
+      const [parsed, setParsed] = useState(() => parseInitialSpec());
+      const [status, setStatus] = useState({ type: 'ok', text: 'Live YAML parsed. Edit either tab to update the rendered view.' });
+      const [selectedLayers, setSelectedLayers] = useState(() => defaultLayerIds(parseInitialSpec()));
+      const [toggleState, setToggleState] = useState(() => {
+        const spec = parseInitialSpec();
+        return Object.fromEntries((spec.toggles || []).map((toggle) => [toggle.id, toggle.default !== false]));
+      });
+
+      const compiled = useMemo(() => compileFlow(parsed, selectedLayers, toggleState), [parsed, selectedLayers, toggleState]);
+
+      const applyYaml = useCallback(() => {
+        try {
+          const next = composeSpec(jsyaml.load(topologyYamlText), jsyaml.load(stylesheetYamlText));
+          const validLayerIds = new Set(next.graph?.layers?.map((layer) => layer.id) || []);
+          setParsed(next);
+          setSelectedLayers((currentLayers) => {
+            const retainedLayers = currentLayers.filter((layerId) => validLayerIds.has(layerId));
+            return retainedLayers.length ? retainedLayers : defaultLayerIds(next);
+          });
+          setToggleState((currentToggles) => Object.fromEntries((next.toggles || []).map((toggle) => [
+            toggle.id,
+            currentToggles[toggle.id] ?? toggle.default !== false
+          ])));
+          setStatus({ type: 'ok', text: `Live rendered ${next.graph?.nodes?.length || 0} nodes, ${next.graph?.links?.length || 0} links, ${next.graph?.paths?.length || 0} paths, ${next.graph?.regions?.length || 0} regions.` });
+        } catch (error) {
+          setStatus({ type: 'error', text: error.message });
+        }
+      }, [topologyYamlText, stylesheetYamlText]);
+
+      useEffect(() => {
+        const timer = window.setTimeout(applyYaml, 250);
+        return () => window.clearTimeout(timer);
+      }, [applyYaml]);
+
+      const layerCatalog = parsed.graph?.layers || [];
+
+      const setAllLayers = useCallback(() => {
+        setSelectedLayers(layerCatalog.map((layer) => layer.id));
+      }, [layerCatalog]);
+
+      const setNoLayers = useCallback(() => {
+        setSelectedLayers([]);
+      }, []);
+
+      const toggleLayer = useCallback((layerId, checked) => {
+        setSelectedLayers((current) => {
+          const next = new Set(current);
+          if (checked) next.add(layerId);
+          else next.delete(layerId);
+          return Array.from(next);
+        });
+      }, []);
+
+      return React.createElement('div', { className: 'app' },
+        React.createElement('section', { className: 'left' },
+          React.createElement('header', null,
+            React.createElement('h1', null, 'Declarative YAML to React Flow'),
+            React.createElement('div', { className: 'subtitle' }, 'Authoring model: graph facts plus a Cytoscape-style selector stylesheet. React Flow is only the rendering engine.'),
+            React.createElement('div', { className: 'control-stack' },
+              React.createElement('div', { className: 'control-block' },
+                React.createElement('div', { className: 'control-title' }, 'Actions'),
+                React.createElement('div', { className: 'action-grid' },
+                  React.createElement('button', { className: 'primary', onClick: applyYaml }, 'Apply now'),
+                  React.createElement('button', { className: selectedLayers.length === layerCatalog.length ? 'active' : '', onClick: setAllLayers }, 'All layers'),
+                  React.createElement('button', { className: selectedLayers.length === 0 ? 'active' : '', onClick: setNoLayers }, 'No layers')
+                )
+              ),
+              React.createElement('div', { className: 'control-block' },
+                React.createElement('div', { className: 'control-title' }, 'Layers'),
+                React.createElement('div', { className: 'layer-grid' },
+                  layerCatalog.map((layer) => {
+                    const checked = selectedLayers.includes(layer.id);
+                    return React.createElement('label', { className: `layer-chip ${checked ? 'active' : ''}`, key: layer.id },
+                      React.createElement('input', {
+                        type: 'checkbox',
+                        checked,
+                        onChange: (event) => toggleLayer(layer.id, event.target.checked)
+                      }),
+                      displayName(layer)
+                    );
+                  })
+                )
+              ),
+              React.createElement('div', { className: 'control-block' },
+                React.createElement('div', { className: 'control-title' }, 'Display knobs'),
+                React.createElement('div', { className: 'toggles' },
+                  (parsed.toggles || []).map((toggle) => {
+                    const checked = !!toggleState[toggle.id];
+                    return React.createElement('label', { className: `toggle ${checked ? 'active' : ''}`, key: toggle.id },
+                      React.createElement('input', {
+                        type: 'checkbox',
+                        checked,
+                        onChange: (event) => setToggleState((current) => ({ ...current, [toggle.id]: event.target.checked }))
+                      }),
+                      displayName(toggle)
+                    );
+                  })
+                )
+              )
+            )
+          ),
+          React.createElement('div', { className: 'editor-panel' },
+            React.createElement('div', { className: 'editor-tabs' },
+              React.createElement('button', {
+                className: `editor-tab ${activeEditorTab === 'topology' ? 'active' : ''}`,
+                onClick: () => setActiveEditorTab('topology')
+              }, 'Topology YAML'),
+              React.createElement('button', {
+                className: `editor-tab ${activeEditorTab === 'stylesheet' ? 'active' : ''}`,
+                onClick: () => setActiveEditorTab('stylesheet')
+              }, 'Stylesheet YAML')
+            ),
+            React.createElement('textarea', {
+              value: activeEditorTab === 'topology' ? topologyYamlText : stylesheetYamlText,
+              spellCheck: false,
+              onChange: (event) => {
+                if (activeEditorTab === 'topology') setTopologyYamlText(event.target.value);
+                else setStylesheetYamlText(event.target.value);
+              }
+            })
+          ),
+          React.createElement('div', { className: `status ${status.type === 'error' ? 'error' : ''}` }, status.text)
+        ),
+        React.createElement('section', { className: 'right' },
+          React.createElement('div', { className: 'network-viewport' },
+            React.createElement('div', { className: 'flow-shell' },
+              React.createElement(ReactFlowProvider, null,
+                React.createElement(FlowCanvas, { compiled })
+              )
+            )
+          )
+        )
+      );
+    }
+
+    createRoot(document.getElementById('root')).render(
+      React.createElement(ErrorBoundary, null, React.createElement(App))
+    );
+  </script>
+</body>
+</html>

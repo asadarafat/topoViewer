@@ -1,0 +1,15 @@
+renderable: true
+visualSnapshot: false
+dom:
+  graphNodes: 9
+  shapes: 9
+  minVisibleEdges: 1
+  minRegions: 3
+assertions:
+  controls: true
+  deepZoomMin: 2.2
+  svgIcons: true
+  themeVariables: true
+semantic:
+  errors: []
+  warnings: []
