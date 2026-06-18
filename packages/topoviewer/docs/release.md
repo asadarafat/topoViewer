@@ -1,8 +1,8 @@
-# Insiders Release Checklist
+# Release Checklist
 
-TopoViewer uses an Insiders-style release model during early development. The monorepo root is marked `private` to prevent accidental workspace publication. The `packages/topoviewer` package is publish-shaped so release candidates can be inspected with `npm pack --dry-run` and published intentionally to an approved npm registry.
+TopoViewer is licensed under Apache-2.0. The monorepo root is marked `private` to prevent accidental workspace publication. The `packages/topoviewer` package is publish-shaped so release candidates can be inspected with `npm pack --dry-run` and published intentionally to an approved npm registry.
 
-The release goal for now is package quality and safe early access: the core renderer should remain installable, testable, and embeddable while preview capability is distributed only through approved insiders channels. Stable capabilities should graduate into the public/free channel after they are documented and supportable.
+The release goal is package quality and intentional distribution: the core renderer should remain installable, testable, embeddable, and generic, with private/customer-specific material kept out of the public packages.
 
 ## Local Validation
 
@@ -90,7 +90,7 @@ Do not publish directly from this development workspace.
 
 Before any external distribution:
 
-1. Confirm the channel: insiders preview, public/free release, or customer-specific private package.
+1. Confirm the channel: public release, internal preview, or customer-specific private package.
 2. Confirm package ownership, final npm package name, repository URL, issue tracker, and support channel.
 3. Keep the public package generic. Do not mix customer-owned diagrams, proprietary icon sets, credentials, or lab-only data into the package.
 4. Use `TopoViewerExtension` packages for private customer integrations, custom node/edge types, importers, policy checks, or enterprise-only workflows.
@@ -101,19 +101,19 @@ Before any external distribution:
 
 Recommended future distribution shape:
 
-- `topoviewer`: public/free generic React renderer, schemas, compiler, and embed bundle.
-- `mkdocs-topoviewer`: public/free Python MkDocs wrapper that vendors the approved browser bundle.
-- `@topoviewer-insiders/*` or a private registry equivalent: preview builds for supporters and early adopters.
+- `topoviewer`: public generic React renderer, schemas, compiler, and embed bundle.
+- `mkdocs-topoviewer`: public Python MkDocs wrapper that vendors the approved browser bundle.
+- Internal preview packages or a private registry equivalent: pre-release validation builds.
 - Private customer packages: customer-owned templates, proprietary icon libraries, policy checks, and deployment-specific import/export workflows.
 
 Do not publish generated test artifacts, local videos, screenshots, or MkDocs build output.
 
-## Graduation Rule
+## Public Readiness Rule
 
-A feature should move from insiders to public/free when it has:
+A generic feature should be included in a public release when it has:
 
 - A stable YAML model and schema coverage.
 - Documentation with at least one focused example.
 - Playwright coverage for the important UI behavior.
 - No customer-specific dependencies or private assets.
-- A supportable migration path if the early-access syntax changes.
+- A supportable migration path if the authored syntax changes.

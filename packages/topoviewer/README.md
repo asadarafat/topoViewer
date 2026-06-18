@@ -25,18 +25,17 @@ The authoring model is intentionally not React Flow-specific:
 - The compiler maps graph facts plus matching style rules into React Flow nodes and edges.
 - Layout is auto-layout-assisted by default with deterministic force-directed placement. Manual positions are treated as layout seeds, not as the only valid placement mechanism.
 
-## Insiders Release Model
+## Release Model
 
-TopoViewer follows an Insiders-style release model during early development. The package remains marked `private` to prevent accidental public npm publication from this workspace, but the product direction is not a permanent closed-source paywall.
+TopoViewer is licensed under Apache-2.0. The monorepo root remains marked `private` to prevent accidental workspace publication, while the `packages/topoviewer` package is publish-shaped for intentional npm releases.
 
-The intended channel split is:
+The intended package split is:
 
-- `topoviewer`: the free public package target for stable renderer, schemas, compiler, React component, and embeddable browser bundle features.
-- `mkdocs-topoviewer`: the free public package target for the MkDocs plugin that vendors the approved browser bundle.
-- Insiders channel: early access to new capabilities, preview docs, examples, rough edges, and the feedback loop before those features graduate.
+- `topoviewer`: the public React renderer, schemas, compiler, and embeddable browser bundle.
+- `mkdocs-topoviewer`: the public MkDocs plugin that vendors the approved browser bundle.
 - Private or customer-specific packages: customer-owned templates, proprietary icon packs, private importers, private policy checks, or deployment-specific server-side workflows that should not be generalized.
 
-The monetization seam is time and support, not permanent feature withholding. Insiders get features earlier and can shape them; once a capability is stable, documented, and supportable, it should graduate into the public/free package. Extension packages remain useful for truly private material or customer-specific integrations.
+Extension packages remain useful for truly private material or customer-specific integrations, but generic renderer capabilities should stay in the Apache-2.0 public packages.
 
 ## SVG Icons
 
@@ -65,7 +64,7 @@ Use `src` instead of `svg` when the icon already exists as a URL or data URI.
 
 ## Quick Start
 
-Target consumer install after approved package publication:
+Target consumer install after package publication:
 
 ```bash
 npm install topoviewer @xyflow/react react react-dom

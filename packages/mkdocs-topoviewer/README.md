@@ -2,7 +2,7 @@
 
 `mkdocs-topoviewer` is the MkDocs plugin wrapper for TopoViewer. It lets MkDocs users install TopoViewer with pip and embed declarative topology diagrams with a fenced Markdown block.
 
-This package follows the same Insiders-style release model as TopoViewer. Early-access builds can be distributed through an approved insiders channel while stable features are expected to graduate into the public/free package. The target user experience after approved publication is still a normal pip install.
+This package is licensed under Apache-2.0, like TopoViewer. It is publish-shaped for intentional public Python package releases, while private/customer-specific material should stay in separate packages or private indexes.
 
 ## Repository Boundary
 
@@ -22,7 +22,7 @@ The dependency direction is one way: build TopoViewer first, then vendor its bro
 
 ## Install
 
-Target install after public package graduation:
+Target install after package publication:
 
 ```bash
 pip install mkdocs-topoviewer
@@ -34,7 +34,7 @@ Local development install:
 pip install -e packages/mkdocs-topoviewer
 ```
 
-Insiders or private distribution should use the same package name through an approved package index:
+Private distribution should use an approved package index:
 
 ```bash
 pip install --index-url https://<private-index>/simple mkdocs-topoviewer
@@ -103,6 +103,6 @@ The plugin package should remain independently buildable and publishable. Do not
 ## Release Model
 
 - `mkdocs-topoviewer` is the MkDocs wrapper for the stable TopoViewer browser bundle.
-- Insiders may receive preview plugin builds before a feature graduates.
-- Public/free plugin releases should contain only stable behavior, docs, schemas, and vendored assets.
+- Public plugin releases should contain stable behavior, docs, schemas, and vendored assets.
+- Internal preview builds should use approved private package indexes.
 - Customer-specific templates, private assets, or proprietary importers belong in separate private packages, not in this generic plugin.
