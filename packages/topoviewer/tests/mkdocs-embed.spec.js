@@ -78,6 +78,17 @@ function currentZoomScript() {
   return Number(match[1].split(',')[0]);
 }
 
+async function clickZoomControl(page, direction, count) {
+  const selector = direction === 'in' ? '.react-flow__controls-zoomin' : '.react-flow__controls-zoomout';
+  for (let index = 0; index < Number(count || 0); index += 1) {
+    const control = page.locator(selector);
+    const disabled = await control.evaluate((element) => element.disabled);
+    if (disabled) break;
+    await control.click();
+    await page.waitForTimeout(90);
+  }
+}
+
 async function openExample(page, example) {
   await page.goto(exampleUrl(example), { waitUntil: 'domcontentloaded' });
   await page.waitForSelector('.topoviewer-embed', { timeout: 30000 });
@@ -93,10 +104,26 @@ async function expectNoInvalidGeometry(page) {
   expect(invalidPathCount).toBe(0);
 }
 
+function collectBrowserErrors(page, browserErrors) {
+  page.on('pageerror', (error) => browserErrors.push(error.message));
+  page.on('response', (response) => {
+    if (response.status() >= 400) {
+      browserErrors.push(`HTTP ${response.status()}: ${response.url()}`);
+    }
+  });
+  page.on('console', (message) => {
+    if (message.type() !== 'error') return;
+    const text = message.text();
+    if (text.startsWith('Failed to load resource:')) return;
+    browserErrors.push(text);
+  });
+}
+
 async function expectNoBrowserErrors(page, browserErrors) {
   const actionableErrors = browserErrors.filter((line) => {
     if (line.includes('Download the React DevTools')) return false;
     if (line.includes('gitlabe2.ext.net.nokia.com/api/v4/projects/aarafat%2Frtfm')) return false;
+    if (line.includes('api.github.com/repos/asadarafat/topoViewer')) return false;
     if (line.includes('blocked by CORS policy')) return false;
     if (line.includes('Failed to load resource: net::ERR_FAILED')) return false;
     return true;
@@ -160,14 +187,52 @@ async function expectControlAssertions(page, example) {
     if (await page.locator('.topoviewer-embed-controls-overlay').count() === 0) {
       await page.locator('.topoviewer-controls-toggle').click();
     }
-    for (let index = 0; index < 20; index += 1) {
-      const disabled = await page.locator('.react-flow__controls-zoomin').evaluate((element) => element.disabled);
-      if (disabled) break;
-      await page.locator('.react-flow__controls-zoomin').click();
-      await page.waitForTimeout(80);
-    }
+    await clickZoomControl(page, 'in', 20);
     const zoom = await page.evaluate(currentZoomScript);
     expect(zoom).toBeGreaterThan(assertions.deepZoomMin);
+  }
+
+  if (assertions.initialVisibleEdges !== undefined) {
+    await expect(page.locator('.topoviewer-edge-visible-path')).toHaveCount(Number(assertions.initialVisibleEdges));
+  }
+  if (assertions.linkAggregateEdges !== undefined) {
+    await expect(page.locator('.topoviewer-edge-aggregate')).toHaveCount(Number(assertions.linkAggregateEdges));
+  }
+  if (assertions.edgeLabelText) {
+    await expect(page.locator('.topoviewer-edge-label', { hasText: String(assertions.edgeLabelText) })).toBeVisible();
+  }
+
+  if (assertions.zoomInClicks) {
+    await clickZoomControl(page, 'in', assertions.zoomInClicks);
+  }
+  if (assertions.zoomInMinZoom !== undefined) {
+    const zoom = await page.evaluate(currentZoomScript);
+    expect(zoom).toBeGreaterThanOrEqual(Number(assertions.zoomInMinZoom));
+  }
+  if (assertions.zoomedGraphNodes !== undefined) {
+    await expect.poll(async () => page.locator('.react-flow__node-network').count()).toBe(Number(assertions.zoomedGraphNodes));
+  }
+  if (assertions.zoomedMinVisibleEdges !== undefined) {
+    await expect.poll(async () => page.locator('.topoviewer-edge-visible-path').count()).toBeGreaterThanOrEqual(Number(assertions.zoomedMinVisibleEdges));
+  }
+  if (assertions.zoomedMinRegions !== undefined) {
+    await expect.poll(async () => page.locator('.react-flow__node-region').count()).toBeGreaterThanOrEqual(Number(assertions.zoomedMinRegions));
+  }
+  if (assertions.zoomOutClicks) {
+    await clickZoomControl(page, 'out', assertions.zoomOutClicks);
+  }
+  if (assertions.zoomOutMaxZoom !== undefined) {
+    const zoom = await page.evaluate(currentZoomScript);
+    expect(zoom).toBeLessThanOrEqual(Number(assertions.zoomOutMaxZoom));
+  }
+  if (assertions.zoomedOutGraphNodes !== undefined) {
+    await expect.poll(async () => page.locator('.react-flow__node-network').count()).toBe(Number(assertions.zoomedOutGraphNodes));
+  }
+  if (assertions.zoomedOutMinVisibleEdges !== undefined) {
+    await expect.poll(async () => page.locator('.topoviewer-edge-visible-path').count()).toBeGreaterThanOrEqual(Number(assertions.zoomedOutMinVisibleEdges));
+  }
+  if (assertions.zoomedOutRegions !== undefined) {
+    await expect.poll(async () => page.locator('.react-flow__node-region').count()).toBe(Number(assertions.zoomedOutRegions));
   }
 
   if (assertions.parentLinkPipe) {
@@ -183,6 +248,101 @@ async function expectControlAssertions(page, example) {
     await expect(page.locator('.react-flow__node-pin')).toHaveCount(2);
     await expect(page.locator('.react-flow__edge[data-id="access-line:leader"]')).toBeVisible();
     await expect(page.locator('.react-flow__edge[data-id="pin-callout:leader"]')).toBeVisible();
+  }
+
+  if (assertions.attentionClickNode) {
+    await page.locator(`.react-flow__node[data-id="${assertions.attentionClickNode}"]`).click({ force: true });
+  }
+  if (assertions.attentionClickEdge) {
+    await page.locator(`.react-flow__edge[data-id="${assertions.attentionClickEdge}"]`).click({ force: true });
+  }
+
+  if (assertions.expandClickNode) {
+    await page.locator(`.react-flow__node[data-id="${assertions.expandClickNode}"]`).click({ force: true });
+  }
+  if (assertions.expandClickEdge) {
+    await page.locator(`.react-flow__edge[data-id="${assertions.expandClickEdge}"]`).click({ force: true });
+  }
+  if (assertions.expandedGraphNodes !== undefined) {
+    await expect(page.locator('.react-flow__node-network')).toHaveCount(Number(assertions.expandedGraphNodes));
+  }
+  if (assertions.expandedVisibleEdges !== undefined) {
+    await expect(page.locator('.topoviewer-edge-visible-path')).toHaveCount(Number(assertions.expandedVisibleEdges));
+  }
+  if (assertions.expandedUniqueEdgeTransforms !== undefined) {
+    await expect.poll(async () => page.locator('.topoviewer-edge-visible-path').evaluateAll((paths) => {
+      return new Set(paths.map((item) => item.getAttribute('transform') || 'none')).size;
+    })).toBe(Number(assertions.expandedUniqueEdgeTransforms));
+  }
+  if (assertions.expandedUniqueEdgePaths !== undefined) {
+    await expect.poll(async () => page.locator('.topoviewer-edge-visible-path').evaluateAll((paths) => {
+      return new Set(paths.map((item) => item.getAttribute('d') || '')).size;
+    })).toBe(Number(assertions.expandedUniqueEdgePaths));
+  }
+  if (assertions.expandedMinVisibleEdges !== undefined) {
+    await expect.poll(async () => page.locator('.topoviewer-edge-visible-path').count()).toBeGreaterThanOrEqual(Number(assertions.expandedMinVisibleEdges));
+  }
+  if (assertions.expandedMinRegions !== undefined) {
+    await expect.poll(async () => page.locator('.react-flow__node-region').count()).toBeGreaterThanOrEqual(Number(assertions.expandedMinRegions));
+  }
+  if (assertions.collapseClickNode) {
+    await page.locator(`.react-flow__node[data-id="${assertions.collapseClickNode}"]`).click({ force: true });
+  }
+  if (assertions.collapsedGraphNodes !== undefined) {
+    await expect(page.locator('.react-flow__node-network')).toHaveCount(Number(assertions.collapsedGraphNodes));
+  }
+  if (assertions.collapsedMinVisibleEdges !== undefined) {
+    await expect.poll(async () => page.locator('.topoviewer-edge-visible-path').count()).toBeGreaterThanOrEqual(Number(assertions.collapsedMinVisibleEdges));
+  }
+  if (assertions.collapsedRegions !== undefined) {
+    await expect(page.locator('.react-flow__node-region')).toHaveCount(Number(assertions.collapsedRegions));
+  }
+  if (assertions.linkAggregateEdgesAfterExpand !== undefined) {
+    await expect(page.locator('.topoviewer-edge-aggregate')).toHaveCount(Number(assertions.linkAggregateEdgesAfterExpand));
+  }
+
+  if (assertions.attentionFocusedNodes !== undefined) {
+    await expect(page.locator('.topoviewer-node-attention-focused')).toHaveCount(Number(assertions.attentionFocusedNodes));
+  }
+  if (assertions.attentionFocusedEdges !== undefined) {
+    await expect(page.locator('.topoviewer-edge-attention-focused')).toHaveCount(Number(assertions.attentionFocusedEdges));
+  }
+  if (assertions.attentionRelatedNodes !== undefined) {
+    await expect(page.locator('.topoviewer-node-attention-related')).toHaveCount(Number(assertions.attentionRelatedNodes));
+  }
+  if (assertions.attentionRelatedEdges !== undefined) {
+    await expect(page.locator('.topoviewer-edge-attention-related')).toHaveCount(Number(assertions.attentionRelatedEdges));
+  }
+  if (assertions.attentionDimmedNodes !== undefined) {
+    expect(await page.locator('.topoviewer-node-attention-dimmed').count()).toBeGreaterThanOrEqual(Number(assertions.attentionDimmedNodes));
+  }
+  if (assertions.attentionDimmedEdges !== undefined) {
+    expect(await page.locator('.topoviewer-edge-attention-dimmed').count()).toBeGreaterThanOrEqual(Number(assertions.attentionDimmedEdges));
+  }
+  if (assertions.attentionHiddenNodes !== undefined) {
+    await expect(page.locator('.react-flow__node-network.hidden')).toHaveCount(Number(assertions.attentionHiddenNodes));
+  }
+  if (assertions.attentionHiddenEdges !== undefined) {
+    await expect(page.locator('.react-flow__edge.hidden')).toHaveCount(Number(assertions.attentionHiddenEdges));
+  }
+  if (assertions.visibleEdges !== undefined) {
+    await expect(page.locator('.topoviewer-edge-visible-path')).toHaveCount(Number(assertions.visibleEdges));
+  }
+
+  if (assertions.attentionResetClickPane) {
+    await page.locator('.react-flow__pane').click({ position: { x: 8, y: 8 }, force: true });
+  }
+  if (assertions.attentionFocusedNodesAfterReset !== undefined) {
+    await expect(page.locator('.topoviewer-node-attention-focused')).toHaveCount(Number(assertions.attentionFocusedNodesAfterReset));
+  }
+  if (assertions.attentionFocusedEdgesAfterReset !== undefined) {
+    await expect(page.locator('.topoviewer-edge-attention-focused')).toHaveCount(Number(assertions.attentionFocusedEdgesAfterReset));
+  }
+  if (assertions.attentionDimmedNodesAfterReset !== undefined) {
+    await expect(page.locator('.topoviewer-node-attention-dimmed')).toHaveCount(Number(assertions.attentionDimmedNodesAfterReset));
+  }
+  if (assertions.attentionDimmedEdgesAfterReset !== undefined) {
+    await expect(page.locator('.topoviewer-edge-attention-dimmed')).toHaveCount(Number(assertions.attentionDimmedEdgesAfterReset));
   }
 }
 
@@ -206,10 +366,7 @@ test.describe('MkDocs TopoViewer documented examples', () => {
     test(`renders documented example: ${example.id}`, async ({ page }) => {
       test.skip(!hasPublicExample(example), `MkDocs example output is missing: ${pageIndexPath(example)}`);
       const browserErrors = [];
-      page.on('pageerror', (error) => browserErrors.push(error.message));
-      page.on('console', (message) => {
-        if (message.type() === 'error') browserErrors.push(message.text());
-      });
+      collectBrowserErrors(page, browserErrors);
 
       await openExample(page, example);
       await expectGenericExample(page, example);
@@ -237,7 +394,7 @@ test.describe('MkDocs TopoViewer documented examples', () => {
 
     for (const example of graphExamples) {
       await expect(page.locator('main h2', { hasText: example.title })).toBeVisible();
-      await expect(page.locator('.md-nav--secondary')).toContainText(example.title);
+      await expect(page.locator('.md-nav--secondary').first()).toContainText(example.title);
     }
 
     await expect(page.locator('.topoviewer-embed')).toHaveCount(graphExamples.length);

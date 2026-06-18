@@ -1,5 +1,6 @@
 import hashlib
 import html
+import json
 import posixpath
 import re
 import textwrap
@@ -98,6 +99,7 @@ class TopoViewerPlugin(BasePlugin):
         controls = "true" if _fence_bool(config, "controls", True) else "false"
         controls_open = "true" if _fence_bool(config, "controlsOpen", False) else "false"
         title = str(config.get("title") or "").strip()
+        attention = config.get("attention")
         seed = f"{page.file.src_uri}:{ordinal}:{topology_source}:{stylesheet_source}"
         embed_id = f"topoviewer-{hashlib.sha1(seed.encode('utf-8')).hexdigest()[:10]}"
 
@@ -111,6 +113,9 @@ class TopoViewerPlugin(BasePlugin):
         ]
         if stylesheet_url:
             attributes.insert(3, f'data-stylesheet="{html.escape(stylesheet_url, quote=True)}"')
+        if attention is not None:
+            attention_json = json.dumps(attention, separators=(",", ":"), sort_keys=True)
+            attributes.append(f'data-attention="{html.escape(attention_json, quote=True)}"')
 
         caption = f'<figcaption class="topoviewer-title">{html.escape(title)}</figcaption>\n' if title else ""
         return (
