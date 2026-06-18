@@ -11,6 +11,7 @@ npm run build
 npm run sync:examples
 npm run validate:schemas
 npm run validate:semantics
+npm run benchmark:attention:smoke
 npm test
 npm run test:all
 ```
@@ -20,7 +21,29 @@ npm run test:all
 - `build` type-checks the TypeScript package, emits declarations, and builds both the library bundle and embeddable IIFE bundle.
 - `validate:schemas` first runs `check:examples`, then validates canonical test cases, generated docs example files, and MkDocs fenced blocks.
 - `validate:semantics` runs the TopoViewer semantic linter against package examples and canonical feature test cases.
+- `benchmark:attention:smoke` builds the public library bundle and runs the CI-safe 1000-node dense attention benchmark threshold.
 - `test` runs Playwright tests against the TypeScript workbench and the MkDocs embed integration.
+
+## Dense Attention Benchmarks
+
+Dense fixtures are generated on demand rather than committed as large artifacts. The generator creates repeatable topology documents with labels, regions, paths, links, parent-child relationships, and operational `data.*` fields.
+
+```bash
+npm run dense:fixture -- --nodes 1000 --output .artifacts/dense-fixtures/topology-{nodes}.yaml
+npm run dense:fixture -- --nodes 1000,5000,10000
+```
+
+The attention benchmark writes structured JSON with parse, validation, index build, reduction placeholder, layout, first render, and focus update timings. CI uses only the 1000-node smoke benchmark; larger runs are local comparison tools.
+
+```bash
+npm run benchmark:attention:smoke
+npm run benchmark:attention:local
+npm run benchmark:attention -- --nodes 5000 --output .artifacts/benchmarks/attention-5000.json
+```
+
+Benchmark reports are written under `.artifacts/`, which is intentionally ignored by git. Compare the `timingsMs` object between runs when evaluating attention-engine or rendering changes.
+
+Latest local 1000-node smoke run for the initial attention engine completed in about 433 ms total, with index build around 104 ms and focus update around 2.4 ms. That points to index construction as the meaningful attention-specific cost, so the implementation adds stable source-graph and attention-state cache keys before considering viewport culling, worker offload, Canvas, or WebGL. Those heavier rendering changes should stay gated on larger benchmark evidence.
 
 ## DRY Example Contract
 

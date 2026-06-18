@@ -18,6 +18,10 @@
     "sync:mkdocs": "npm --workspace topoviewer run sync:mkdocs",
     "validate:schemas": "npm --workspace topoviewer run validate:schemas",
     "validate:semantics": "npm --workspace topoviewer run validate:semantics",
+    "dense:fixture": "npm --workspace topoviewer run dense:fixture",
+    "benchmark:attention": "npm --workspace topoviewer run benchmark:attention",
+    "benchmark:attention:smoke": "npm --workspace topoviewer run benchmark:attention:smoke",
+    "benchmark:attention:local": "npm --workspace topoviewer run benchmark:attention:local",
     "test": "npm --workspace topoviewer run test",
     "test:headed": "npm --workspace topoviewer run test:headed",
     "test:all": "npm --workspace topoviewer run test:all",
@@ -31,12 +35,13 @@
     "docs:serve:fast": "TOPOVIEWER_DOCS_SKIP_VIEWER_BUILD=1 bash scripts/local-mkdocs.sh serve",
     "docs:clean": "bash scripts/local-mkdocs.sh clean",
     "mkdocs:build": "bash scripts/local-mkdocs.sh build",
-    "ci": "npm run sync:docs && npm run validate:schemas && npm run validate:semantics && npm run build && npm test && npm run pack:check && npm run sync:mkdocs-assets && npm run wheel:mkdocs && npm run inspect:wheel"
+    "ci": "node scripts/run-node24.mjs npm run ci:node24",
+    "ci:node24": "npm run sync:docs && npm run validate:schemas && npm run validate:semantics && npm run build && npm test && npm run benchmark:attention:smoke && npm run pack:check && npm run sync:mkdocs-assets && npm run wheel:mkdocs && npm run inspect:wheel"
   },
   "overrides": {
     "monaco-editor": "0.53.0"
   },
   "engines": {
-    "node": ">=20.19"
+    "node": ">=24 <25"
   }
 }

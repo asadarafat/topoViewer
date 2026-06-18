@@ -55,7 +55,7 @@
     "**/*.css"
   ],
   "engines": {
-    "node": ">=20.19"
+    "node": ">=24 <25"
   },
   "scripts": {
     "dev": "vite --host 127.0.0.1 --port 5173 --strictPort",
@@ -72,7 +72,12 @@
     "sync:mkdocs": "npm run sync:mkdocs-assets && npm run sync:examples",
     "validate:schemas": "npm run check:examples && node scripts/validate-yaml-schemas.mjs",
     "validate:semantics": "npm run build:lib && node scripts/lint-topoviewer.mjs",
-    "test": "playwright test",
+    "dense:fixture": "node scripts/generate-dense-fixture.mjs",
+    "benchmark:attention": "node scripts/benchmark-attention.mjs",
+    "benchmark:attention:smoke": "npm run build:lib && node scripts/benchmark-attention.mjs --nodes 1000 --assert-smoke",
+    "benchmark:attention:local": "npm run build:lib && node scripts/benchmark-attention.mjs --nodes 1000,5000,10000 --output .artifacts/benchmarks/attention.json",
+    "test:unit": "vitest run tests/unit",
+    "test": "npm run test:unit && playwright test",
     "test:headed": "playwright test --headed",
     "test:all": "npm run build && npm run validate:schemas && npm run validate:semantics && npm test"
   },
@@ -101,7 +106,8 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "typescript": "^5.9.3",
-    "vite": "^8.0.16"
+    "vite": "^8.0.16",
+    "vitest": "^4.1.9"
   },
   "peerDependencies": {
     "@xyflow/react": "^12.10.0",
