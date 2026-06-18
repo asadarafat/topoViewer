@@ -48,6 +48,17 @@ TopoViewer SHALL support aggregate overview graphs for dense source topologies.
 - **WHEN** an aggregate object is rendered
 - **THEN** it SHALL expose child counts and severity summaries for labels, tooltips, and stylesheets
 
+#### Scenario: Viewport-driven aggregate disclosure
+- **WHEN** an aggregate configuration declares viewport zoom thresholds
+- **THEN** the embed SHALL collapse matching groups below the collapse threshold
+- **AND** SHALL expand matching groups above the expansion threshold
+- **AND** SHALL keep the source topology unchanged
+
+#### Scenario: Link grouping threshold
+- **WHEN** visible links share a grouping key and meet the configured threshold
+- **THEN** the reduction pipeline SHALL render one aggregate link for that group
+- **AND** SHALL preserve member link IDs, count, endpoint, and layer metadata for drill-down, labels, stylesheets, and export
+
 ### Requirement: Importance scoring
 TopoViewer SHALL calculate deterministic and explainable importance scores for visible graph objects.
 
@@ -73,10 +84,11 @@ TopoViewer SHALL treat labels as a limited attention budget rather than renderin
 ### Requirement: Operator focus modes
 TopoViewer SHALL provide first-class focus modes for common operator workflows.
 
-#### Scenario: Path focus
-- **WHEN** a caller focuses a path
-- **THEN** path members SHALL be emphasized
-- **AND** non-path context SHALL be dimmed by default rather than removed
+#### Scenario: Object focus
+- **WHEN** a caller focuses a node, link, path, or region
+- **THEN** that object SHALL be emphasized
+- **AND** path focus SHALL emphasize path members
+- **AND** unrelated context SHALL be dimmed by default rather than removed
 
 #### Scenario: Blast-radius focus
 - **WHEN** a caller focuses blast radius from a seed object and depth

@@ -21,6 +21,7 @@ Expose a runtime API for selecting focused, related, and context objects by sele
 ### 4. Add progressive disclosure
 
 Support aggregate overview graphs for dense environments without mutating the source graph. Aggregates preserve counts, severity summaries, and membership references.
+Viewport thresholds can expand detail as users zoom in and collapse overview summaries as users zoom out. Parallel-link grouping can summarize dense link bundles by endpoint and layer thresholds.
 
 ### 5. Add explainable importance scoring
 
@@ -28,7 +29,7 @@ Rank visible objects using deterministic scoring factors such as focus match, pa
 
 ### 6. Add operator focus workflows
 
-Support path focus, upstream/downstream dependency focus, blast-radius focus, and change focus while retaining dimmed context by default.
+Support object focus, path focus as a specific object workflow, upstream/downstream dependency focus, blast-radius focus, and change focus while retaining dimmed context by default.
 
 ### 7. Add scale-first rendering guardrails
 
