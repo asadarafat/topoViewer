@@ -138,6 +138,10 @@ function renderBlock(example, expected, markdownFile = pageFile(example)) {
   ];
   if (render.width) lines.push(`width: ${render.width}`);
   if (render.title || example.title) lines.push(`title: ${render.title || example.title}`);
+  if (render.attention) {
+    lines.push('attention:');
+    lines.push(indentBlock(dumpYaml(render.attention).trimEnd(), 2));
+  }
   lines.push('```');
   return lines.join('\n');
 }
@@ -146,6 +150,7 @@ function exampleTabsMarkdown(example, expected, markdownFile) {
   const topologyInclude = includePath(docsExamplePath(example, 'topology.yaml'));
   const stylesheetInclude = includePath(docsExamplePath(example, 'stylesheet.yaml'));
   const viewport = renderBlock(example, expected, markdownFile);
+  const render = example.render || {};
   const topologySnippet = [
     '```yaml',
     `--8<-- "${topologyInclude}"`,
@@ -156,8 +161,15 @@ function exampleTabsMarkdown(example, expected, markdownFile) {
     `--8<-- "${stylesheetInclude}"`,
     '```'
   ].join('\n');
+  const attentionSnippet = render.attention
+    ? [
+      '```yaml',
+      dumpYaml({ attention: render.attention }).trimEnd(),
+      '```'
+    ].join('\n')
+    : undefined;
 
-  return [
+  const tabs = [
     '=== "Live Viewport"',
     '',
     indentBlock(viewport),
@@ -169,7 +181,18 @@ function exampleTabsMarkdown(example, expected, markdownFile) {
     '=== "Stylesheet YAML"',
     '',
     indentBlock(stylesheetSnippet)
-  ].join('\n');
+  ];
+
+  if (attentionSnippet) {
+    tabs.push(
+      '',
+      '=== "Attention YAML"',
+      '',
+      indentBlock(attentionSnippet)
+    );
+  }
+
+  return tabs.join('\n');
 }
 
 function pageMarkdown(example) {

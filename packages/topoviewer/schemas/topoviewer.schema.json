@@ -30,6 +30,9 @@
     "limits": {
       "$ref": "#/definitions/limits"
     },
+    "attention": {
+      "$ref": "topoviewer-mkdocs-block.schema.json#/definitions/attention"
+    },
     "icons": {
       "type": "object",
       "additionalProperties": {

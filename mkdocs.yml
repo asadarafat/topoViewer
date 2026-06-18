@@ -53,6 +53,7 @@ nav:
       - Authoring: topoviewer/authoring.md
       - Reference Model: topoviewer/reference-model.md
       - Stylesheet: topoviewer/stylesheet.md
+      - Attention: topoviewer/attention.md
       - YAML Schemas: topoviewer/schemas.md
   - Integration:
       - React: topoviewer/react.md
@@ -66,6 +67,7 @@ nav:
       - Graph: topoviewer/reference/graph/index.md
       - Edges: topoviewer/reference/edges/index.md
       - Paths: topoviewer/reference/paths/index.md
+      - Attention: topoviewer/reference/attention/index.md
       - Regions: topoviewer/reference/regions/index.md
       - Shapes: topoviewer/reference/shapes/index.md
       - Callouts: topoviewer/reference/callouts/index.md

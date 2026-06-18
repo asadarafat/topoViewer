@@ -134,17 +134,25 @@ Links, paths, and callout lines share the same edge style keys.
 
 | Key | Values | Use |
 |---|---|---|
-| `curveStyle` | `straight`, `haystack`, `segments`, `taxi`, `smooth-taxi`, `smoothstep`, `simplebezier`, `unbundled-bezier`, `bezier` | Edge route shape. |
+| `curveStyle`, `curve-style` | `straight`, `haystack`, `segments`, `taxi`, `smooth-taxi`, `smoothstep`, `simplebezier`, `unbundled-bezier`, `bezier` | Edge route shape. `bezier` separates same-endpoint parallel edges by varying control-point curvature. |
 | `anchor` | `floating`, `fixed` | `floating` is default and attaches edges to the visible node icon. |
-| `lineColor` | CSS color | Stroke color. |
-| `lineWidth` | number | Stroke width. Defaults to 1. |
+| `lineColor`, `line-color` | CSS color | Stroke color. |
+| `lineWidth`, `line-width`, `width` | number | Stroke width. Defaults to 1. |
 | `pipe` | boolean | Renders a parent link/path as a pipe/corridor. Automatically enabled when the object has visible child links or child paths. |
 | `pipeWidth` | number | Width of the parent pipe fill. |
 | `pipeFill`, `pipeOpacity` | CSS color, number | Fill color and opacity for the parent pipe. |
 | `pipeBorderColor`, `pipeBorderWidth` | CSS color, number | Outer pipe border styling. |
+| `controlPointStepSize`, `control-point-step-size` | number | Distance between same-endpoint `bezier` edge control points. This follows Cytoscape's bundled Bezier edge model. |
+| `controlPointDistance`, `control-point-distance` | number | Manual Bezier control-point distance for one edge. Same values intentionally overlap. |
+| `controlPointWeight`, `control-point-weight` | number | Control-point weight from source to target. Defaults to `0.5`. |
 | `laneWidth`, `laneGap` | number | Child link/path lane width and spacing when it is carried by a parent link or parent path. |
-| `lineStyle` | `solid`, `dashed`, `dotted` | Convenience dash style. |
-| `lineDashPattern` | string | Explicit SVG dash pattern, for example `3 6`. |
+| `lineStyle`, `line-style` | `solid`, `dashed`, `dotted` | Convenience dash style. |
+| `lineDashPattern`, `line-dash-pattern` | string or number list | Explicit SVG dash pattern, for example `3 6` or `[3, 6]`. |
+| `lineDashOffset`, `line-dash-offset` | number | Dash offset for animated or phase-shifted dashed edges. |
+| `lineCap`, `line-cap` | `butt`, `round`, `square` | SVG stroke cap. |
+| `lineOpacity`, `line-opacity` | number | Edge line opacity without changing label opacity. |
+| `lineOutlineWidth`, `line-outline-width` | number | Draws an outline behind the edge line. |
+| `lineOutlineColor`, `line-outline-color` | CSS color | Edge line outline color. |
 | `targetArrowShape`, `sourceArrowShape` | `none`, `triangle` | Arrow marker. Any non-none value renders an arrow. |
 | `arrowColor` | CSS color | Marker color. Defaults to line color. |
 | `label` | string | Fallback edge label. |

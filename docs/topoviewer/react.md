@@ -59,11 +59,21 @@ export function Diagram() {
 
 ```ts
 import {
+  attentionSourceKey,
+  attentionStateKey,
   TopoViewer,
+  buildAttentionIndex,
+  buildAttentionIndexCached,
   compileTopoGraph,
   computeLayoutPositions,
+  deriveAggregateGraph,
+  deriveAttentionPresentation,
+  explainAttentionScore,
   lintTopoDocument,
   rebuildRegionNodes,
+  resolveAttentionPresentationCached,
+  resolveFocusQuery,
+  scoreAttention,
   topoviewerToPdf,
   topoviewerToPng,
   topoviewerToSvg,
@@ -74,6 +84,14 @@ import {
 | Export | Use |
 |---|---|
 | `TopoViewer` | React component. |
+| `buildAttentionIndex` | Builds immutable lookup tables for graph IDs, labels, data fields, paths, regions, parent-child relationships, and adjacency. |
+| `buildAttentionIndexCached` | Reuses compatible attention indexes by stable graph hash for repeated focus interactions. |
+| `attentionSourceKey` / `attentionStateKey` | Returns stable keys for graph content and attention query state. |
+| `resolveFocusQuery` | Resolves semantic focus queries into focused, related, context, and hidden object ID sets with reason metadata. |
+| `deriveAggregateGraph` | Produces aggregate overview documents from regions, parent-child relationships, or label-defined groups without mutating the source graph. |
+| `scoreAttention` / `deriveAttentionPresentation` | Calculates explainable scores and default visual states for focused, related, dimmed, hidden, aggregate, and suppressed objects. |
+| `explainAttentionScore` | Returns the score reasons for one object. |
+| `resolveAttentionPresentationCached` | Resolves focus, scoring, and presentation with cache keys based on source graph and attention state. |
 | `validateTopoDocument` | Runtime validation for topology/stylesheet documents. |
 | `lintTopoDocument` | Semantic lint for references, parent relationships, names, layers, selectors, limits, and unsafe references. |
 | `compileTopoGraph` | Converts a TopoViewer document into React Flow-compatible nodes and edges. |
@@ -103,7 +121,95 @@ await downloadTopoViewerPdf(element, {
 
 The export helper targets the internal React Flow viewport when present, so graph objects, shapes, callouts, and callout lines are captured together.
 
+Focused and aggregate views export the current rendered attention state. SVG is the most inspectable target for preserving dimming, hidden context, aggregate objects, and label priority; PNG/PDF are snapshots of that rendered viewport.
+
 The package also exports TypeScript types for topology documents, graph entities, style rules, layout config, toggles, and component props.
+
+## Attention Queries
+
+The attention runtime APIs are UI-independent. Build an index once for a topology document, then resolve focus queries for paths, regions, labels, data fields, selectors, or dependency traversal. See [Topology attention](attention.md) for the full TypeScript reference, aggregation examples, scoring options, and MkDocs syntax.
+
+```ts
+import { buildAttentionIndex, resolveFocusQuery } from 'topoviewer';
+
+const index = buildAttentionIndex(documentSpec);
+
+const pathFocus = resolveFocusQuery(index, {
+  pathIds: ['svc-1001'],
+  mode: 'dim-context'
+});
+
+const blastRadius = resolveFocusQuery(index, {
+  ids: ['pe-1'],
+  dependency: {
+    from: ['pe-1'],
+    direction: 'both',
+    depth: 2
+  },
+  mode: 'hide-context'
+});
+
+const changedSinceRevision = resolveFocusQuery(index, {
+  changes: {
+    since: '2026-06-01T00:00:00Z',
+    revision: 41
+  },
+  mode: 'dim-context'
+});
+
+console.log(Array.from(pathFocus.focusedIds));
+console.log(blastRadius.reasons.get('pe-1'));
+console.log(Array.from(changedSinceRevision.focusedIds));
+```
+
+`changes.since` checks common timestamp fields under `data.*`, including `changedAt`, `updatedAt`, `lastChangedAt`, and `modifiedAt`. `changes.revision` checks common revision fields such as `revision`, `version`, `changeRevision`, and `updatedRevision`. Numeric revisions are treated as increasing counters; opaque string revisions are treated as changed when they differ from the baseline.
+
+For repeated focus interactions, use the cached helpers around the same document facts:
+
+```ts
+import { resolveAttentionPresentationCached } from 'topoviewer';
+
+const presentation = resolveAttentionPresentationCached(documentSpec, {
+  query: {
+    pathIds: ['svc-1001'],
+    mode: 'dim-context'
+  }
+});
+```
+
+The React component reads a top-level `document.attention` block as the document default. The `attention` prop accepts the same state directly and overrides the document default for controlled React views:
+
+```tsx
+<TopoViewer
+  document={documentSpec}
+  attention={{
+    query: {
+      ids: ['pe-1'],
+      dependency: { from: ['pe-1'], direction: 'both', depth: 2 },
+      mode: 'dim-context'
+    }
+  }}
+/>
+```
+
+## Attention Metadata
+
+TopoViewer keeps attention metadata generic. Put operational signals in `data.*` and select them through focus queries, scoring, or host-owned UI:
+
+```yaml
+graph:
+  nodes:
+    - id: pe-1
+      labels:
+        role: pe
+        site: fra
+      data:
+        severity: critical
+        changedAt: "2026-06-12T09:15:00Z"
+        revision: 42
+```
+
+Built-in scoring recognizes common values such as `critical`, `major`, `minor`, `warning`, `degraded`, `down`, `maintenance`, and `changed` under fields like `severity`, `status`, `health`, `alarmSeverity`, `operState`, and `adminState`. Hosts can still define their own data fields and selectors without changing the graph schema.
 
 ## Component Props
 
@@ -113,8 +219,11 @@ The package also exports TypeScript types for topology documents, graph entities
 | `selectedLayerIds` | `string[]` | Visible layers. Defaults to all defined layers. |
 | `toggles` | `TopoViewerToggles` | Display toggles such as `showRegions`, `showChildNodesInsideParents`, and `showEdgeLabels`. |
 | `layout` | `LayoutConfig` | Optional runtime layout override. |
+| `attention` | object | Optional focus query or precomputed attention presentation. Overrides `document.attention` when provided. |
 | `extensions` | `TopoViewerExtension[]` | Optional extension hooks for private or project-specific node/edge types and compile transforms. |
 | `controlPanelToggle` | object | Enables the in-viewport controls button used by embeds. |
+| `onObjectClick` | function | Called when a rendered node or edge is clicked; useful for controlled attention state. |
+| `onPaneClick` | function | Called when empty viewport space is clicked; use it to clear controlled attention state. |
 | `className` | string | Extra class on the root container. |
 | `style` | React CSSProperties | Inline root style, commonly used for height. |
 

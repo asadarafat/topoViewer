@@ -1,0 +1,1 @@
+Viewport collapse demonstrates zoom-aware progressive disclosure. The topology starts zoomed out with two collapsed region summaries; zoom in to expand the regions and reveal the four member nodes. Zoom back out to collapse the regions into summaries again.

@@ -46,6 +46,50 @@ Options:
 | `controls` | Show layer/display controls. Defaults to `true`. |
 | `controlsOpen` | Open controls panel initially. Defaults to `false`. |
 
+## Attention Blocks
+
+The topology file can include a top-level `attention:` block for its default view. The fenced block can also pass runtime attention state when this specific rendered view should override the topology default.
+
+Object focus:
+
+```yaml
+topology: ./topology.yaml
+stylesheet: ./stylesheet.yaml
+attention:
+  query:
+    pathIds: [critical-path]
+    mode: dim-context
+```
+
+Change focus:
+
+```yaml
+topology: ./topology.yaml
+stylesheet: ./stylesheet.yaml
+attention:
+  query:
+    changes:
+      since: "2026-06-10T00:00:00Z"
+    mode: dim-context
+```
+
+Collapsed region:
+
+```yaml
+topology: ./topology.yaml
+stylesheet: ./stylesheet.yaml
+attention:
+  aggregate:
+    groups:
+      - id: access-metro
+        by: region
+        regionId: access-metro
+        label: Access metro
+    expandOnClick: true
+```
+
+See [Topology attention](attention.md) for the complete attention block reference, [Authoring for attention](authoring.md#authoring-for-attention) for what to declare in topology YAML, and [Attention examples](reference/attention/index.md) for live examples with topology and stylesheet source.
+
 ## Asset Sync
 
 From `DG_25_6_v2/TopoViewer`:

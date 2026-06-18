@@ -29,6 +29,9 @@
     },
     "limits": {
       "$ref": "topoviewer.schema.json#/definitions/limits"
+    },
+    "attention": {
+      "$ref": "topoviewer-mkdocs-block.schema.json#/definitions/attention"
     }
   },
   "required": ["graph"]

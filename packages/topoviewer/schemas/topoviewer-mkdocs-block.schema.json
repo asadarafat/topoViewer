@@ -40,6 +40,347 @@
     "controlsOpen": {
       "type": "boolean",
       "default": false
+    },
+    "attention": {
+      "$ref": "#/definitions/attention"
+    }
+  },
+  "definitions": {
+    "scalar": {
+      "type": ["string", "number", "boolean"]
+    },
+    "scalarValueOrList": {
+      "oneOf": [
+        {
+          "$ref": "#/definitions/scalar"
+        },
+        {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/scalar"
+          }
+        }
+      ]
+    },
+    "stringList": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "focusDependencyQuery": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["from", "direction", "depth"],
+      "properties": {
+        "from": {
+          "$ref": "#/definitions/stringList"
+        },
+        "direction": {
+          "enum": ["upstream", "downstream", "both"]
+        },
+        "depth": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "focusChangeQuery": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "since": {
+          "type": ["string", "number"]
+        },
+        "timestampFields": {
+          "$ref": "#/definitions/stringList"
+        },
+        "revision": {
+          "type": ["string", "number"]
+        },
+        "revisionFields": {
+          "$ref": "#/definitions/stringList"
+        }
+      }
+    },
+    "focusQuery": {
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "ids": {
+          "$ref": "#/definitions/stringList"
+        },
+        "labels": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/scalarValueOrList"
+          }
+        },
+        "data": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "pathIds": {
+          "$ref": "#/definitions/stringList"
+        },
+        "regionIds": {
+          "$ref": "#/definitions/stringList"
+        },
+        "selectors": {
+          "$ref": "#/definitions/stringList"
+        },
+        "dependency": {
+          "$ref": "#/definitions/focusDependencyQuery"
+        },
+        "changes": {
+          "$ref": "#/definitions/focusChangeQuery"
+        },
+        "mode": {
+          "enum": ["highlight", "dim-context", "hide-context"]
+        }
+      }
+    },
+    "aggregateGroup": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "by"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "label": {
+          "type": "string"
+        },
+        "by": {
+          "enum": ["region", "parent", "label"]
+        },
+        "regionId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "parentId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "key": {
+          "type": "string",
+          "minLength": 1
+        },
+        "value": {
+          "$ref": "#/definitions/scalar"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "by": {
+                "const": "region"
+              }
+            },
+            "required": ["by"]
+          },
+          "then": {
+            "properties": {
+              "regionId": true
+            },
+            "required": ["regionId"]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "by": {
+                "const": "parent"
+              }
+            },
+            "required": ["by"]
+          },
+          "then": {
+            "properties": {
+              "parentId": true
+            },
+            "required": ["parentId"]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "by": {
+                "const": "label"
+              }
+            },
+            "required": ["by"]
+          },
+          "then": {
+            "properties": {
+              "key": true,
+              "value": true
+            },
+            "required": ["key", "value"]
+          }
+        }
+      ]
+    },
+    "aggregate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["groups"],
+      "properties": {
+        "groups": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/aggregateGroup"
+          }
+        },
+        "expandedGroupIds": {
+          "$ref": "#/definitions/stringList"
+        },
+        "expandOnClick": {
+          "type": "boolean",
+          "default": true
+        },
+        "viewport": {
+          "$ref": "#/definitions/aggregateViewport"
+        }
+      }
+    },
+    "aggregateViewport": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "groupIds": {
+          "$ref": "#/definitions/stringList"
+        },
+        "collapseBelowZoom": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "expandAboveZoom": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "hysteresis": {
+          "type": "number",
+          "minimum": 0,
+          "default": 0
+        }
+      }
+    },
+    "linkGroupingViewport": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "groupBelowZoom": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "ungroupAboveZoom": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "hysteresis": {
+          "type": "number",
+          "minimum": 0,
+          "default": 0
+        }
+      }
+    },
+    "linkGrouping": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "threshold": {
+          "type": "integer",
+          "minimum": 2,
+          "default": 2
+        },
+        "by": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "enum": ["endpoints", "layer"]
+          },
+          "default": ["endpoints", "layer"]
+        },
+        "expandedGroupIds": {
+          "$ref": "#/definitions/stringList"
+        },
+        "expandOnClick": {
+          "type": "boolean",
+          "default": true
+        },
+        "viewport": {
+          "$ref": "#/definitions/linkGroupingViewport"
+        }
+      }
+    },
+    "attentionLinks": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "grouping": {
+          "$ref": "#/definitions/linkGrouping"
+        }
+      }
+    },
+    "attention": {
+      "type": "object",
+      "additionalProperties": false,
+      "anyOf": [
+        {
+          "properties": {
+            "query": true
+          },
+          "required": ["query"]
+        },
+        {
+          "properties": {
+            "interactive": true
+          },
+          "required": ["interactive"]
+        },
+        {
+          "properties": {
+            "aggregate": true
+          },
+          "required": ["aggregate"]
+        },
+        {
+          "properties": {
+            "links": true
+          },
+          "required": ["links"]
+        }
+      ],
+      "properties": {
+        "query": {
+          "$ref": "#/definitions/focusQuery"
+        },
+        "interactive": {
+          "type": "boolean",
+          "default": false
+        },
+        "clickMode": {
+          "enum": ["highlight", "dim-context", "hide-context"]
+        },
+        "aggregate": {
+          "$ref": "#/definitions/aggregate"
+        },
+        "links": {
+          "$ref": "#/definitions/attentionLinks"
+        }
+      }
     }
   }
 }

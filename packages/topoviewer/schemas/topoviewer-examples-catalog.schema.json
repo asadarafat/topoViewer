@@ -62,6 +62,9 @@
               },
               "controlsOpen": {
                 "type": "boolean"
+              },
+              "attention": {
+                "$ref": "topoviewer-mkdocs-block.schema.json#/definitions/attention"
               }
             }
           }

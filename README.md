@@ -31,7 +31,7 @@ React users should install the npm package. MkDocs users should install the Pyth
 
 Requirements:
 
-- Node.js `>=20.19`
+- Node.js 24 LTS
 - Python `>=3.9` for the MkDocs plugin and documentation build
 
 Install and run from the monorepo root:
@@ -86,6 +86,7 @@ npm run sync:mkdocs-assets
 - Monorepo boundary: [packages/topoviewer/docs/monorepo.md](packages/topoviewer/docs/monorepo.md)
 - MkDocs plugin: [packages/mkdocs-topoviewer/README.md](packages/mkdocs-topoviewer/README.md)
 - Production guardrails: [packages/topoviewer/docs/production.md](packages/topoviewer/docs/production.md)
+- Topology attention examples: [docs/topoviewer/reference/attention/index.md](docs/topoviewer/reference/attention/index.md)
 - Topology attention roadmap: [packages/topoviewer/docs/attention-roadmap.md](packages/topoviewer/docs/attention-roadmap.md)
 
 ## Repository Quality Gates

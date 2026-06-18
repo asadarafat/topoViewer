@@ -5,6 +5,7 @@ nav:
       - Graph: reference/graph/index.md
       - Edges: reference/edges/index.md
       - Paths: reference/paths/index.md
+      - Attention: reference/attention/index.md
       - Regions: reference/regions/index.md
       - Shapes: reference/shapes/index.md
       - Callouts: reference/callouts/index.md

@@ -99,6 +99,116 @@ examples:
       controls: true
       controlsOpen: false
       title: Stitched child path
+  - id: attention-object-focus
+    title: Object focus
+    feature: attention
+    path: attention/object-focus
+    page: topoviewer/reference/attention/object-focus
+    summary: Click one topology object to highlight it while dimming the surrounding context.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Object focus
+  - id: attention-change-focus
+    title: Change focus
+    feature: attention
+    path: attention/change-focus
+    page: topoviewer/reference/attention/change-focus
+    summary: Focus objects with recent change metadata while preserving topology context.
+    render:
+      height: 520px
+      controls: true
+      controlsOpen: false
+      title: Change focus
+  - id: attention-region-collapse
+    title: Region collapse
+    feature: attention
+    path: attention/region-collapse
+    page: topoviewer/reference/attention/region-collapse
+    summary: Collapse a region into an aggregate summary, then click it to expand member nodes.
+    render:
+      height: 500px
+      controls: true
+      controlsOpen: false
+      title: Region collapse
+  - id: attention-viewport-collapse
+    title: Viewport collapse
+    feature: attention
+    path: attention/viewport-collapse
+    page: topoviewer/reference/attention/viewport-collapse
+    summary: Collapse and expand aggregate regions automatically as users zoom out and in.
+    render:
+      height: 500px
+      controls: true
+      controlsOpen: false
+      title: Viewport collapse
+  - id: attention-link-grouping
+    title: Link grouping
+    feature: attention
+    path: attention/link-grouping
+    page: topoviewer/reference/attention/link-grouping
+    summary: Group parallel links by endpoint and layer when the count crosses a threshold.
+    render:
+      height: 440px
+      controls: true
+      controlsOpen: false
+      title: Link grouping
+  - id: attention-query-primitives
+    title: Query primitives
+    feature: attention
+    path: attention/query-primitives
+    page: topoviewer/reference/attention/query-primitives
+    summary: Focus by explicit IDs, labels, data fields, and stylesheet-compatible selectors.
+    render:
+      height: 460px
+      controls: true
+      controlsOpen: false
+      title: Query primitives
+  - id: attention-region-focus
+    title: Region focus
+    feature: attention
+    path: attention/region-focus
+    page: topoviewer/reference/attention/region-focus
+    summary: Focus a region and its member nodes while preserving surrounding context.
+    render:
+      height: 460px
+      controls: true
+      controlsOpen: false
+      title: Region focus
+  - id: attention-dependency-focus
+    title: Dependency focus
+    feature: attention
+    path: attention/dependency-focus
+    page: topoviewer/reference/attention/dependency-focus
+    summary: Traverse directed topology relationships to show downstream blast radius.
+    render:
+      height: 460px
+      controls: true
+      controlsOpen: false
+      title: Dependency focus
+  - id: attention-hide-context
+    title: Hide context
+    feature: attention
+    path: attention/hide-context
+    page: topoviewer/reference/attention/hide-context
+    summary: Use hide-context mode when the focused set should be isolated instead of dimmed.
+    render:
+      height: 440px
+      controls: true
+      controlsOpen: false
+      title: Hide context
+  - id: attention-parent-label-collapse
+    title: Parent and label collapse
+    feature: attention
+    path: attention/parent-label-collapse
+    page: topoviewer/reference/attention/parent-label-collapse
+    summary: Collapse parent-child objects and label-defined groups into aggregate summaries.
+    render:
+      height: 500px
+      controls: true
+      controlsOpen: false
+      title: Parent and label collapse
   - id: regions-nested-regions
     title: Nested regions
     feature: regions

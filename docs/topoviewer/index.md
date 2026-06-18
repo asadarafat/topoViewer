@@ -27,6 +27,19 @@ TopoViewer renders declarative graph and diagram documents from YAML. The canoni
 - [Sequenced path](reference/paths/sequenced-path/index.md): A path sequence models ordered traversal through graph nodes.
 - [Stitched child path](reference/paths/stitched-child-path/index.md): A child service path can stitch from child endpoints into a parent transport path.
 
+### Attention
+
+- [Object focus](reference/attention/object-focus/index.md): Click one topology object to highlight it while dimming the surrounding context.
+- [Change focus](reference/attention/change-focus/index.md): Focus objects with recent change metadata while preserving topology context.
+- [Region collapse](reference/attention/region-collapse/index.md): Collapse a region into an aggregate summary, then click it to expand member nodes.
+- [Viewport collapse](reference/attention/viewport-collapse/index.md): Collapse and expand aggregate regions automatically as users zoom out and in.
+- [Link grouping](reference/attention/link-grouping/index.md): Group parallel links by endpoint and layer when the count crosses a threshold.
+- [Query primitives](reference/attention/query-primitives/index.md): Focus by explicit IDs, labels, data fields, and stylesheet-compatible selectors.
+- [Region focus](reference/attention/region-focus/index.md): Focus a region and its member nodes while preserving surrounding context.
+- [Dependency focus](reference/attention/dependency-focus/index.md): Traverse directed topology relationships to show downstream blast radius.
+- [Hide context](reference/attention/hide-context/index.md): Use hide-context mode when the focused set should be isolated instead of dimmed.
+- [Parent and label collapse](reference/attention/parent-label-collapse/index.md): Collapse parent-child objects and label-defined groups into aggregate summaries.
+
 ### Regions
 
 - [Nested regions](reference/regions/nested-regions/index.md): Regions can be nested so broad domains contain smaller domains.

@@ -1,0 +1,78 @@
+graph:
+  id: attention-region-focus
+  layers:
+    - id: physical
+      name: Physical
+  nodes:
+    - id: AGG-1
+      name: AGG-1
+      labels:
+        node: router
+        role: aggregation
+      data:
+        severity: major
+      layers: [physical]
+      position: [220, 130]
+    - id: ACC-1
+      name: ACC-1
+      labels:
+        node: router
+        role: access
+      data:
+        severity: normal
+      layers: [physical]
+      position: [90, 270]
+    - id: ACC-2
+      name: ACC-2
+      labels:
+        node: router
+        role: access
+      data:
+        severity: normal
+      layers: [physical]
+      position: [350, 270]
+    - id: PE-1
+      name: PE-1
+      labels:
+        node: router
+        role: pe
+      data:
+        severity: normal
+      layers: [physical]
+      position: [590, 190]
+  links:
+    - id: agg-acc-1
+      name: AGG-1 to ACC-1
+      source: AGG-1
+      target: ACC-1
+      labels:
+        link: access
+      layers: [physical]
+    - id: agg-acc-2
+      name: AGG-1 to ACC-2
+      source: AGG-1
+      target: ACC-2
+      labels:
+        link: access
+      layers: [physical]
+    - id: agg-pe-1
+      name: AGG-1 to PE-1
+      source: AGG-1
+      target: PE-1
+      labels:
+        link: uplink
+      layers: [physical]
+  regions:
+    - id: access-metro
+      name: Access metro
+      members: [AGG-1, ACC-1, ACC-2]
+      labels:
+        region: metro
+      layers: [physical]
+      padding: 70
+      minWidth: 420
+      minHeight: 260
+attention:
+  query:
+    regionIds: [access-metro]
+    mode: dim-context

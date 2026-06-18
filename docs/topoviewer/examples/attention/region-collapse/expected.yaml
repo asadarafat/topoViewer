@@ -1,0 +1,17 @@
+renderable: true
+visualSnapshot: false
+dom:
+  graphNodes: 2
+  minVisibleEdges: 1
+assertions:
+  expandClickNode: aggregate:access-metro
+  expandedGraphNodes: 4
+  expandedMinVisibleEdges: 3
+  expandedMinRegions: 1
+  collapseClickNode: region:access-metro
+  collapsedGraphNodes: 2
+  collapsedMinVisibleEdges: 1
+  collapsedRegions: 0
+semantic:
+  errors: []
+  warnings: []

@@ -1,0 +1,52 @@
+layout:
+  mode: manual
+  width: 700
+  height: 420
+icons:
+  router:
+    glyph: R
+    fill: "#2563eb"
+    stroke: "#bfdbfe"
+  controller:
+    glyph: NOC
+    fill: "#f59e0b"
+    stroke: "#fde68a"
+labelFields:
+  - name
+stylesheet:
+  - selector: node
+    style:
+      icon: router
+      width: 82
+      height: 60
+      borderWidth: 3
+      labelColor: var(--topoviewer-fg-strong)
+      labelFontWeight: 800
+  - selector: node[labels.role = "control"]
+    style:
+      icon: controller
+      width: 92
+      borderColor: "#facc15"
+      backgroundColor: "#f59e0b"
+  - selector: node[data.severity = "major"]
+    style:
+      borderColor: "#fed7aa"
+      backgroundColor: "#f97316"
+  - selector: link
+    style:
+      curveStyle: smooth-step
+      lineColor: "#64748b"
+      lineWidth: 1.6
+      targetArrowShape: none
+      opacity: 0.78
+  - selector: link[labels.protocol = "telemetry"]
+    style:
+      label: Telemetry
+      curveStyle: bezier
+      lineColor: "#22c55e"
+      lineDashPattern: 3 4
+      targetArrowShape: triangle
+  - selector: link[data.status = "degraded"]
+    style:
+      lineColor: "#f97316"
+      lineWidth: 3

@@ -60,6 +60,132 @@ Nodes, links, paths, regions, shapes, and callouts share the same base fields.
 
 Use `labels` for classification, such as `node: router`, `vendor: nokia`, or `protocol: pcep`. Use `data` for values, such as `metric: 20`, `delayMs: 5`, or `sidCount: 3`.
 
+## Authoring For Attention
+
+Attention is driven by graph facts, not by hand-authored highlight styling. The topology YAML declares what exists and how objects relate, and can include a top-level `attention:` block when the focused view is the default for that topology. MkDocs `attention:` blocks, React props, or a workbench/operator UI can override that default for a specific rendered view. See [Topology attention](attention.md) for the full MkDocs and TypeScript API reference.
+
+| To focus by | Declare in topology YAML |
+|---|---|
+| Specific object | Stable `id` values on nodes, links, paths, regions, shapes, or callouts. |
+| Type, role, site, tenant, vendor, protocol | `labels` key/value pairs. |
+| Severity, health, status, counters, timestamps | `data` key/value pairs. |
+| Service or transport route | `graph.paths[].sequence`. |
+| Site, domain, failure area, collapsed scope | `graph.regions[].members` and optional region hierarchy. |
+| Containment | `parent` on child nodes, links, paths, or regions. |
+| Dependency or blast radius | Links and paths with correct direction and adjacency. |
+
+Put `attention:` in `topology.yaml` when it describes the default view for that topology. Use a MkDocs block, React prop, or host UI state when a specific rendered instance needs to override that default.
+
+Object focus starts with stable object IDs. This example declares a path so the host can focus the path object and its traversed nodes:
+
+```yaml
+graph:
+  nodes:
+    - id: CORE-1
+    - id: CORE-2
+    - id: EDGE-1
+  paths:
+    - id: critical-path
+      name: Critical path
+      sequence: [CORE-1, CORE-2, EDGE-1]
+```
+
+Then the topology can choose that object as its default focus, or a host can pass the same block as an override:
+
+```yaml
+attention:
+  query:
+    pathIds: [critical-path]
+    mode: dim-context
+```
+
+Expected result: the selected object is focused; for a path, its segments and traversed nodes are focused while unrelated topology remains visible but muted.
+
+Change focus starts with operational facts in `data`:
+
+```yaml
+graph:
+  nodes:
+    - id: CORE-1
+      data:
+        status: degraded
+        changedAt: "2026-06-15T10:30:00Z"
+  links:
+    - id: core-1-core-2
+      source: CORE-1
+      target: CORE-2
+      data:
+        changedAt: "2026-06-15T10:32:00Z"
+```
+
+Then the runtime query selects recent changes:
+
+```yaml
+attention:
+  query:
+    changes:
+      since: "2026-06-10T00:00:00Z"
+    mode: dim-context
+```
+
+Expected result: objects with timestamp fields newer than `since` are focused. Revision fields only participate when the query also declares `changes.revision`.
+
+Region collapse starts with a real region:
+
+```yaml
+graph:
+  nodes:
+    - id: AGG-1
+    - id: ACC-1
+    - id: ACC-2
+  regions:
+    - id: access-metro
+      name: Access metro
+      members: [AGG-1, ACC-1, ACC-2]
+```
+
+Then the embed chooses to aggregate that region:
+
+```yaml
+attention:
+  aggregate:
+    groups:
+      - id: access-metro
+        by: region
+        regionId: access-metro
+        label: Access metro
+    expandOnClick: true
+```
+
+Expected result: the region starts as one aggregate summary node; clicking the summary expands the member nodes, internal links, and region hull. Clicking the expanded region hull collapses it back into the summary node.
+
+For large views, add viewport thresholds so overview and detail change with zoom:
+
+```yaml
+attention:
+  aggregate:
+    groups:
+      - id: access-metro
+        by: region
+        regionId: access-metro
+    viewport:
+      collapseBelowZoom: 0.85
+      expandAboveZoom: 1.15
+```
+
+Use link grouping when many visible links connect the same endpoint pair:
+
+```yaml
+attention:
+  links:
+    grouping:
+      threshold: 2
+      by: [endpoints, layer]
+      expandOnClick: true
+```
+
+Expected result: parallel links in the same layer render as one summary link with `data.members` and `data.count`; clicking the summary expands the member links.
+
 ## Layers
 
 Layers are orthogonal visibility groups. They are not fixed by TopoViewer.

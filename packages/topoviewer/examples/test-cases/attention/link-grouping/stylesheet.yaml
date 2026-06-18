@@ -1,0 +1,46 @@
+icons:
+  router:
+    glyph: PE
+    fill: "#2563eb"
+    stroke: "#bfdbfe"
+labelFields:
+  - name
+stylesheet:
+  - selector: node
+    style:
+      icon: router
+      width: 86
+      height: 62
+      borderWidth: 3
+      labelColor: var(--topoviewer-fg-strong)
+      labelFontWeight: 800
+  - selector: link
+    style:
+      curve-style: bezier
+      control-point-step-size: 34
+      line-color: "#64748b"
+      width: 2.2
+      targetArrowShape: none
+      labelColor: "#1e293b"
+      textBackgroundColor: "#f8fafc"
+      textBackgroundOpacity: 0.95
+  - selector: link[id = "pe-1-pe-2-a"]
+    style:
+      line-color: "#0f766e"
+      width: 3
+  - selector: link[id = "pe-1-pe-2-b"]
+    style:
+      line-color: "#2563eb"
+      width: 3
+  - selector: link[id = "pe-1-pe-2-c"]
+    style:
+      line-color: "#dc2626"
+      width: 3
+  - selector: link[isLinkAggregate = "true"]
+    style:
+      line-color: "#8b5cf6"
+      width: 4
+      line-dash-pattern: "10 5"
+      labelColor: "#312e81"
+      textBackgroundColor: "#ede9fe"
+      textBackgroundOpacity: 0.96

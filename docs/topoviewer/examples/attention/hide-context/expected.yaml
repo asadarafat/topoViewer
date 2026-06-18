@@ -1,0 +1,10 @@
+renderable: true
+visualSnapshot: false
+dom:
+  graphNodes: 2
+assertions:
+  attentionFocusedNodes: 2
+  visibleEdges: 0
+semantic:
+  errors: []
+  warnings: []

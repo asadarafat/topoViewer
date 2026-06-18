@@ -1,0 +1,90 @@
+graph:
+  id: attention-dependency-focus
+  layers:
+    - id: physical
+      name: Physical
+    - id: control
+      name: Control
+  nodes:
+    - id: CORE-1
+      name: CORE-1
+      labels:
+        node: router
+        role: core
+      data:
+        severity: critical
+      layers: [physical]
+      position: [90, 190]
+    - id: DIST-1
+      name: DIST-1
+      labels:
+        node: router
+        role: distribution
+      data:
+        severity: major
+      layers: [physical]
+      position: [300, 190]
+    - id: ACCESS-1
+      name: ACCESS-1
+      labels:
+        node: router
+        role: access
+      data:
+        severity: normal
+      layers: [physical]
+      position: [540, 90]
+    - id: ACCESS-2
+      name: ACCESS-2
+      labels:
+        node: router
+        role: access
+      data:
+        severity: normal
+      layers: [physical]
+      position: [540, 290]
+    - id: NOC
+      name: NOC
+      labels:
+        node: controller
+        role: control
+      data:
+        severity: warning
+      layers: [control]
+      position: [300, 340]
+  links:
+    - id: core-dist
+      name: CORE-1 to DIST-1
+      source: CORE-1
+      target: DIST-1
+      labels:
+        link: physical
+      layers: [physical]
+    - id: dist-access-1
+      name: DIST-1 to ACCESS-1
+      source: DIST-1
+      target: ACCESS-1
+      labels:
+        link: physical
+      layers: [physical]
+    - id: dist-access-2
+      name: DIST-1 to ACCESS-2
+      source: DIST-1
+      target: ACCESS-2
+      labels:
+        link: physical
+      layers: [physical]
+    - id: core-noc
+      name: CORE-1 to NOC telemetry
+      source: CORE-1
+      target: NOC
+      labels:
+        link: control
+        protocol: telemetry
+      layers: [control]
+attention:
+  query:
+    dependency:
+      from: [CORE-1]
+      direction: downstream
+      depth: 2
+    mode: dim-context

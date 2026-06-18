@@ -1,0 +1,21 @@
+renderable: true
+visualSnapshot: false
+dom:
+  graphNodes: 2
+  minVisibleEdges: 1
+  minRegions: 0
+assertions:
+  zoomInClicks: 12
+  zoomInMinZoom: 2.0
+  zoomedGraphNodes: 4
+  zoomedMinVisibleEdges: 3
+  zoomedMinRegions: 2
+  zoomOutClicks: 10
+  zoomOutMaxZoom: 1.4
+  zoomedOutGraphNodes: 2
+  zoomedOutMinVisibleEdges: 1
+  zoomedOutRegions: 0
+semantic:
+  errors: []
+  warnings:
+    - unused-selector

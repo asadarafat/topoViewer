@@ -9,8 +9,10 @@ It keeps graph facts in YAML, visual policy in selector stylesheets, and rendere
 - [Authoring model](topoviewer/authoring.md)
 - [Reference model](topoviewer/reference-model.md)
 - [Stylesheet](topoviewer/stylesheet.md)
+- [Topology attention](topoviewer/attention.md)
 - [MkDocs embed](topoviewer/mkdocs.md)
 - [Production hardening](topoviewer/production.md)
+- [Attention examples](topoviewer/reference/attention/index.md)
 - [Topology attention roadmap](topoviewer/attention-roadmap.md)
 
 ## Packages
