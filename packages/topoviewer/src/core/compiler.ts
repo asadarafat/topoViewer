@@ -102,6 +102,40 @@ function pathHasSequence(path: GraphPath): path is GraphPath & { sequence: strin
   return Array.isArray(path.sequence) && path.sequence.length >= 2;
 }
 
+function linkLayerKey(link: GraphLink): string {
+  return link.layers?.length ? [...link.layers].sort().join('|') : 'default';
+}
+
+function parallelLinkKey(link: GraphLink): string {
+  const endpoints = [link.source, link.target].sort();
+  return `${endpoints[0]}::${endpoints[1]}::${linkLayerKey(link)}`;
+}
+
+function parallelLinkLanes(links: readonly GraphLink[]): Map<string, { groupId: string; index: number; count: number }> {
+  const groups = new Map<string, GraphLink[]>();
+  links
+    .filter((link) => !link.parent)
+    .forEach((link) => {
+      const key = parallelLinkKey(link);
+      const group = groups.get(key) || [];
+      group.push(link);
+      groups.set(key, group);
+    });
+
+  const lanes = new Map<string, { groupId: string; index: number; count: number }>();
+  groups.forEach((group, groupId) => {
+    if (group.length < 2) return;
+    group.forEach((link, index) => {
+      lanes.set(link.id, { groupId, index, count: group.length });
+    });
+  });
+  return lanes;
+}
+
+function styleValue(style: Record<string, unknown>, ...keys: string[]): unknown {
+  return keys.map((key) => style[key]).find((item) => item !== undefined && item !== null);
+}
+
 function compileShapeNodes(
   shapes: DiagramShape[],
   selectedLayers: Set<string>,
@@ -421,6 +455,7 @@ function buildEdges(
   const visiblePaths = paths.filter((path) => intersects(path.layers, selectedLayers));
   const pathById = new Map(visiblePaths.filter(pathHasSequence).map((path) => [path.id, path]));
   const childPathsByParentId = new Map<string, GraphPath[]>();
+  const linkLanes = parallelLinkLanes(visibleLinks);
 
   visibleLinks.forEach((link) => {
     if (!link.parent || !linkById.has(link.parent)) return;
@@ -459,6 +494,18 @@ function buildEdges(
     if (hasChildLanes) {
       edgeData.isPipe = true;
       edgeData.childLinkCount = childLinksByParentId.get(link.id)?.length || 0;
+    }
+    const parallelLane = !parentLink && !hasChildLanes ? linkLanes.get(link.id) : undefined;
+    if (parallelLane) {
+      const controlPointStepSize = styleValue(visualStyle, 'controlPointStepSize', 'control-point-step-size');
+      const laneGap = styleValue(visualStyle, 'laneGap', 'lane-gap') ?? controlPointStepSize ?? 14;
+      edgeData.isLane = true;
+      edgeData.parallelLinkGroup = parallelLane.groupId;
+      edgeData.laneIndex = parallelLane.index;
+      edgeData.laneCount = parallelLane.count;
+      edgeData.laneGap = laneGap;
+      edgeData.controlPointStepSize = controlPointStepSize ?? laneGap;
+      edgeData.laneWidth = styleValue(visualStyle, 'laneWidth', 'lane-width') ?? styleValue(visualStyle, 'lineWidth', 'line-width', 'width') ?? 3;
     }
     if (parentLink && laneIndex !== undefined) {
       edgeData.isLane = true;

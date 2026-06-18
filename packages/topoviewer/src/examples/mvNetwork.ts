@@ -13,7 +13,7 @@ export const mvNetworkTopology: TopologyDocument = {
     nodes: [
       { id: 'R01', name: 'R01', labels: { node: 'router', vendor: 'nokia', role: 'pe' }, layers: ['physical', 'igp', 'bgp', 'transport', 'service'], position: [90, 260] },
       { id: 'R03', name: 'R03', labels: { node: 'router', vendor: 'juniper', role: 'p' }, layers: ['physical', 'igp', 'transport'], position: [320, 360] },
-      { id: 'R05', name: 'R05', labels: { node: 'router', vendor: 'nokia', role: 'abr' }, layers: ['physical', 'igp', 'bgp', 'transport'], position: [610, 260] },
+      { id: 'R05', name: 'R05', labels: { node: 'router', vendor: 'nokia', role: 'abr' }, data: { changedAt: '2026-06-12T09:15:00Z', revision: 42, severity: 'warning' }, layers: ['physical', 'igp', 'bgp', 'transport'], position: [610, 260] },
       { id: 'R07', name: 'R07', labels: { node: 'router', vendor: 'cisco', role: 'asbr' }, layers: ['physical', 'igp', 'bgp', 'transport'], position: [900, 170] },
       { id: 'R09', name: 'R09', labels: { node: 'router', vendor: 'nokia', role: 'pe' }, layers: ['physical', 'igp', 'bgp', 'transport', 'service'], position: [1110, 260] },
       { id: 'NSP', name: 'NSP', labels: { node: 'controller', app: 'nsp' }, icon: 'controller.nsp', layers: ['bgp'], position: [610, 70] },
@@ -28,7 +28,7 @@ export const mvNetworkTopology: TopologyDocument = {
       { id: 'phy-R03-R05', name: 'R03 to R05 physical link', source: 'R03', target: 'R05', labels: { link: 'physical', role: 'core' }, layers: ['physical'] },
       { id: 'phy-R05-R07', name: 'R05 to R07 physical link', source: 'R05', target: 'R07', labels: { link: 'physical', role: 'core' }, layers: ['physical'] },
       { id: 'phy-R07-R09', name: 'R07 to R09 physical link', source: 'R07', target: 'R09', labels: { link: 'physical', role: 'core' }, layers: ['physical'] },
-      { id: 'bgpls-R05-VSR', name: 'R05 to VSR-NRC BGP-LS session', source: 'R05', target: 'VSR-NRC', labels: { link: 'bgp', protocol: 'bgp-ls' }, layers: ['bgp'] },
+      { id: 'bgpls-R05-VSR', name: 'R05 to VSR-NRC BGP-LS session', source: 'R05', target: 'VSR-NRC', labels: { link: 'bgp', protocol: 'bgp-ls' }, data: { changedAt: '2026-06-12T09:20:00Z', revision: 43 }, layers: ['bgp'] },
       { id: 'pcep-R01-NSP', name: 'R01 to NSP PCEP session', source: 'R01', target: 'NSP', labels: { link: 'bgp', protocol: 'pcep' }, layers: ['bgp'] },
       { id: 'pcep-R09-NSP', name: 'R09 to NSP PCEP session', source: 'R09', target: 'NSP', labels: { link: 'bgp', protocol: 'pcep' }, layers: ['bgp'] },
       { id: 'transport-1321-carrier', name: 'SR-TE carrier for service 1321', source: 'R01', target: 'R09', labels: { link: 'transport', protocol: 'sr-te', role: 'carrier' }, layers: ['service'] },

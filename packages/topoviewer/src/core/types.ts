@@ -1,4 +1,11 @@
 import type { ComponentType, CSSProperties } from 'react';
+import type {
+  AggregateGroupDefinition,
+  AttentionPresentationResult,
+  AttentionViewportPolicy,
+  FocusQuery,
+  LinkGroupingOptions
+} from './attention/types';
 
 export type Scalar = string | number | boolean;
 export type Labels = Record<string, Scalar>;
@@ -159,6 +166,21 @@ export interface RendererLimits {
   maxImageBytes?: number;
 }
 
+export interface TopoDocumentAttention {
+  query?: FocusQuery;
+  interactive?: boolean;
+  clickMode?: FocusQuery['mode'];
+  aggregate?: {
+    groups?: AggregateGroupDefinition[];
+    expandedGroupIds?: string[];
+    expandOnClick?: boolean;
+    viewport?: AttentionViewportPolicy;
+  };
+  links?: {
+    grouping?: LinkGroupingOptions;
+  };
+}
+
 export interface GraphDefinition {
   id?: string;
   layers?: LayerDefinition[];
@@ -175,6 +197,7 @@ export interface TopologyDocument {
   toggles?: ToggleDefinition[];
   layout?: LayoutConfig;
   limits?: RendererLimits;
+  attention?: TopoDocumentAttention;
 }
 
 export interface IconSpec {
@@ -241,6 +264,10 @@ export interface CompiledNodeData extends GraphNode {
   bodyStyle?: CSSProperties;
   headerStyle?: CSSProperties;
   bodyHtml?: string;
+  attentionState?: string;
+  attentionScore?: number;
+  attentionReasons?: readonly string[];
+  attentionLabelPriority?: string;
 }
 
 export interface CompiledGraph {
@@ -264,17 +291,37 @@ export interface TopoViewerExtension {
   toolbarActions?: unknown[];
 }
 
+export interface TopoViewerObjectClick {
+  id: string;
+  runtimeId: string;
+  element: 'node' | 'edge';
+  data: Record<string, unknown>;
+}
+
+export interface TopoViewerViewport {
+  x: number;
+  y: number;
+  zoom: number;
+}
+
 export interface TopoViewerProps {
   document: TopoDocument;
   selectedLayerIds?: string[];
   toggles?: TopoViewerToggles;
   layout?: LayoutConfig;
+  attention?: {
+    query?: FocusQuery;
+    presentation?: AttentionPresentationResult;
+  };
   extensions?: TopoViewerExtension[];
   controlPanelToggle?: {
     enabled?: boolean;
     open?: boolean;
     onToggle?: () => void;
   };
+  onObjectClick?: (object: TopoViewerObjectClick) => void;
+  onPaneClick?: () => void;
+  onViewportChange?: (viewport: TopoViewerViewport) => void;
   className?: string;
   style?: CSSProperties;
 }

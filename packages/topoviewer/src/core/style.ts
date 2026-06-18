@@ -180,20 +180,31 @@ function colorWithOpacity(color: unknown, opacity: unknown): string | undefined 
   return `rgba(${red}, ${green}, ${blue}, ${opacity})`;
 }
 
+function styleValue(style: StyleDeclaration, ...keys: string[]): unknown {
+  return keys.map((key) => style[key]).find((item) => item !== undefined && item !== null);
+}
+
+function dashPattern(value: unknown): string {
+  if (Array.isArray(value)) return value.join(' ');
+  return String(value);
+}
+
 function mapLineDash(style: StyleDeclaration): string {
-  if (style.lineDashPattern !== undefined) return String(style.lineDashPattern);
-  const lineStyle = String(style.lineStyle || 'solid').toLowerCase();
+  const explicitPattern = styleValue(style, 'lineDashPattern', 'line-dash-pattern');
+  if (explicitPattern !== undefined) return dashPattern(explicitPattern);
+  const lineStyle = String(styleValue(style, 'lineStyle', 'line-style') || 'solid').toLowerCase();
   if (lineStyle === 'dashed') return '8 6';
   if (lineStyle === 'dotted') return '2 6';
   return '';
 }
 
 function mapCurveStyle(style: StyleDeclaration): string {
-  const curveStyle = String(style.curveStyle || 'bezier').toLowerCase();
+  const curveStyle = String(styleValue(style, 'curveStyle', 'curve-style') || 'bezier').toLowerCase();
   if (['straight', 'haystack'].includes(curveStyle)) return 'straight';
   if (['segments', 'taxi'].includes(curveStyle)) return 'step';
-  if (['smooth-taxi', 'smoothstep'].includes(curveStyle)) return 'smoothstep';
+  if (['round-segments', 'round-taxi', 'smooth-taxi', 'smooth-step', 'smoothstep'].includes(curveStyle)) return 'smoothstep';
   if (['simplebezier', 'unbundled-bezier'].includes(curveStyle)) return 'simplebezier';
+  if (curveStyle === 'bezier') return 'bezier';
   return 'default';
 }
 
@@ -262,14 +273,15 @@ export function compileNodeStyle(style: StyleDeclaration, entity: GraphEntity, s
 }
 
 export function compileEdgeStyle(style: StyleDeclaration, entity: GraphEntity, spec: StylesheetDocument, labelsEnabled: boolean) {
-  const lineColor = String(style.lineColor || '#6ea8fe');
+  const lineColor = String(styleValue(style, 'lineColor', 'line-color') || '#6ea8fe');
   const label = edgeLabel(entity, spec, labelsEnabled, String(style.label || ''));
   const curveType = mapCurveStyle(style);
   const anchor = String(style.anchor || 'floating').toLowerCase();
-  const lineWidth = Number(style.lineWidth || 1);
+  const lineWidth = Number(styleValue(style, 'lineWidth', 'line-width', 'width') || 1);
+  const lineOpacity = styleValue(style, 'lineOpacity', 'line-opacity', 'opacity');
 
   return withoutUndefined({
-    type: anchor === 'floating' ? 'floating' : curveType,
+    type: anchor === 'floating' ? 'floating' : curveType === 'bezier' ? 'default' : curveType,
     animated: !!style.animated,
     hidden: style.display === 'none',
     interactionWidth: valueOrDefault(style.interactionWidth as number | undefined, Math.max(12, lineWidth + 10)),
@@ -294,14 +306,24 @@ export function compileEdgeStyle(style: StyleDeclaration, entity: GraphEntity, s
       pipeBorderColor: style.pipeBorderColor || style.lineColor,
       pipeBorderWidth: style.pipeBorderWidth,
       pipeOpacity: style.pipeOpacity,
-      laneWidth: style.laneWidth,
-      laneGap: style.laneGap
+      laneWidth: styleValue(style, 'laneWidth', 'lane-width'),
+      laneGap: styleValue(style, 'laneGap', 'lane-gap'),
+      controlPointStepSize: styleValue(style, 'controlPointStepSize', 'control-point-step-size'),
+      controlPointDistance: styleValue(style, 'controlPointDistance', 'control-point-distance'),
+      controlPointWeight: styleValue(style, 'controlPointWeight', 'control-point-weight'),
+      edgeDistances: styleValue(style, 'edgeDistances', 'edge-distances'),
+      lineCap: styleValue(style, 'lineCap', 'line-cap'),
+      lineOutlineWidth: styleValue(style, 'lineOutlineWidth', 'line-outline-width'),
+      lineOutlineColor: styleValue(style, 'lineOutlineColor', 'line-outline-color'),
+      lineOpacity
     },
     style: withoutUndefined({
       stroke: lineColor,
       strokeWidth: lineWidth,
       strokeDasharray: mapLineDash(style),
-      opacity: style.opacity
+      strokeDashoffset: styleValue(style, 'lineDashOffset', 'line-dash-offset'),
+      strokeLinecap: styleValue(style, 'lineCap', 'line-cap'),
+      opacity: lineOpacity
     })
   });
 }

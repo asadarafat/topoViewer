@@ -152,6 +152,11 @@
   cursor: inherit;
 }
 
+.topoviewer-node:focus-visible .topoviewer-node-icon {
+  outline: 2px solid #f8fafc;
+  outline-offset: 3px;
+}
+
 .react-flow__node.dragging .topoviewer-node {
   cursor: grabbing;
 }
@@ -242,6 +247,58 @@
   font-size: 8px;
   line-height: 1.15;
   text-align: center;
+}
+
+.topoviewer-node-attention-focused .topoviewer-node-icon {
+  box-shadow:
+    0 0 0 4px rgba(96, 165, 250, 0.28),
+    0 0 18px rgba(96, 165, 250, 0.56),
+    var(--topoviewer-node-shadow);
+}
+
+.topoviewer-node-attention-related .topoviewer-node-icon {
+  box-shadow:
+    0 0 0 3px rgba(104, 211, 145, 0.22),
+    0 0 14px rgba(104, 211, 145, 0.38),
+    var(--topoviewer-node-shadow);
+}
+
+.topoviewer-node-attention-dimmed,
+.topoviewer-node-attention-suppressed {
+  filter: saturate(0.74);
+}
+
+.topoviewer-node-attention-aggregate .topoviewer-node-icon,
+.topoviewer-node-label-priority-aggregate .topoviewer-node-icon {
+  width: 42px;
+  height: 30px;
+  border-radius: 8px;
+}
+
+.topoviewer-node-label-priority-low .topoviewer-node-meta,
+.topoviewer-node-label-priority-hidden .topoviewer-node-label,
+.topoviewer-node-label-priority-hidden .topoviewer-node-meta {
+  display: none;
+}
+
+.topoviewer-label-density-minimal .topoviewer-node-label-priority-low .topoviewer-node-label,
+.topoviewer-label-density-minimal .topoviewer-node-label-priority-low .topoviewer-node-meta,
+.topoviewer-label-density-minimal .topoviewer-node-label-priority-medium .topoviewer-node-meta {
+  display: none;
+}
+
+.topoviewer-label-density-minimal .topoviewer-edge-label[data-label-priority="low"],
+.topoviewer-label-density-minimal .topoviewer-edge-label[data-label-priority="medium"] {
+  display: none;
+}
+
+.topoviewer-label-density-dense .topoviewer-node-label-priority-low .topoviewer-node-meta {
+  display: block;
+}
+
+.topoviewer-label-density-dense .topoviewer-edge-label[data-label-priority="low"],
+.topoviewer-label-density-dense .topoviewer-edge-label[data-label-priority="medium"] {
+  display: block;
 }
 
 .topoviewer-region {
@@ -415,6 +472,27 @@
   stroke-linecap: round;
   stroke-linejoin: round;
   pointer-events: none;
+}
+
+.topoviewer-edge-attention-focused {
+  filter: drop-shadow(0 0 5px rgba(96, 165, 250, 0.76));
+}
+
+.topoviewer-edge-attention-related {
+  filter: drop-shadow(0 0 4px rgba(104, 211, 145, 0.46));
+}
+
+.topoviewer-edge-aggregate {
+  filter: drop-shadow(0 0 5px rgba(139, 92, 246, 0.28));
+}
+
+.topoviewer-edge-attention-dimmed,
+.topoviewer-edge-attention-suppressed {
+  stroke-opacity: 0.36;
+}
+
+.topoviewer-edge-label[data-label-priority="hidden"] {
+  display: none;
 }
 
 .topoviewer-edge-pipe-border,

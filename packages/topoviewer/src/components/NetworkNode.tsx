@@ -23,12 +23,26 @@ export function NetworkNode({ data }: { data: CompiledNodeData }) {
     'topoviewer-node',
     'topoviewer-node-drag',
     data.containedChildCount ? 'topoviewer-node-parent' : '',
-    data.isContainedChild ? 'topoviewer-node-child' : ''
+    data.isContainedChild ? 'topoviewer-node-child' : '',
+    data.attentionState ? `topoviewer-node-attention-${data.attentionState}` : '',
+    data.attentionLabelPriority ? `topoviewer-node-label-priority-${data.attentionLabelPriority}` : ''
   ].filter(Boolean).join(' ');
   const labelHtml = data.labelHtml;
+  const isNavigableAttentionNode = data.attentionState === 'focused' || data.attentionState === 'related';
+  const accessibleLabel = [
+    displayName(data),
+    data.attentionState ? `attention ${data.attentionState}` : ''
+  ].filter(Boolean).join(', ');
 
   return (
-    <div className={className} style={data.nodeStyle} role="group" aria-label={displayName(data)}>
+    <div
+      className={className}
+      style={data.nodeStyle}
+      role="group"
+      aria-current={data.attentionState === 'focused' ? 'true' : undefined}
+      aria-label={accessibleLabel}
+      tabIndex={isNavigableAttentionNode ? 0 : -1}
+    >
       <Handle type="target" position={Position.Left} />
       <div
         className="topoviewer-node-icon"

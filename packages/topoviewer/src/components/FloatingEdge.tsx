@@ -82,7 +82,12 @@ function floatingEndpoints(sourceNode: ReturnType<typeof useInternalNode> | unde
   };
 }
 
-function edgePathForCurve(curveType: string, props: EdgeProps) {
+function edgePathForCurve(curveType: string, props: EdgeProps, data: Record<string, unknown>, endpoints: ReturnType<typeof floatingEndpoints>) {
+  if (curveType === 'bezier') {
+    const distance = bezierControlPointDistance(data);
+    if (distance !== undefined) return quadraticBezierPathForEndpoints(props, endpoints, distance, numeric(data.controlPointWeight, 0.5));
+    return getBezierPath(props);
+  }
   if (curveType === 'straight') return getStraightPath(props);
   if (curveType === 'step') return getSmoothStepPath({ ...props, borderRadius: 0 });
   if (curveType === 'smoothstep') return getSmoothStepPath(props);
@@ -103,12 +108,16 @@ function numeric(value: unknown, fallback: number): number {
   return Number.isFinite(next) ? next : fallback;
 }
 
-function laneOffset(data: Record<string, unknown>, endpoints: ReturnType<typeof floatingEndpoints>): { x: number; y: number } {
-  if (!data.isLane) return { x: 0, y: 0 };
+function laneOffsetDistance(data: Record<string, unknown>): number {
+  if (!data.isLane) return 0;
   const laneCount = Math.max(1, numeric(data.laneCount, 1));
   const laneIndex = Math.min(laneCount - 1, Math.max(0, numeric(data.laneIndex, 0)));
   const laneGap = numeric(data.laneGap, 5);
-  const offset = (laneIndex - (laneCount - 1) / 2) * laneGap;
+  return (laneIndex - (laneCount - 1) / 2) * laneGap;
+}
+
+function laneOffset(data: Record<string, unknown>, endpoints: ReturnType<typeof floatingEndpoints>): { x: number; y: number } {
+  const offset = laneOffsetDistance(data);
   if (offset === 0) return { x: 0, y: 0 };
 
   const dx = endpoints.targetX - endpoints.sourceX;
@@ -118,6 +127,37 @@ function laneOffset(data: Record<string, unknown>, endpoints: ReturnType<typeof 
     x: (-dy / length) * offset,
     y: (dx / length) * offset
   };
+}
+
+function bezierControlPointDistance(data: Record<string, unknown>): number | undefined {
+  if (data.controlPointDistance !== undefined) return numeric(data.controlPointDistance, 0);
+  if (!data.parallelLinkGroup) return undefined;
+  const stepSize = numeric(data.controlPointStepSize, numeric(data.laneGap, 40));
+  return laneOffsetDistance({ ...data, laneGap: stepSize });
+}
+
+function quadraticBezierPathForEndpoints(
+  props: EdgeProps,
+  endpoints: ReturnType<typeof floatingEndpoints>,
+  distance: number,
+  weight: number
+): [string, number, number] {
+  if (distance === 0) {
+    const [path, labelX, labelY] = getStraightPath({ ...props, ...endpoints });
+    return [path, labelX, labelY];
+  }
+  const sourceX = Number(endpoints.sourceX);
+  const sourceY = Number(endpoints.sourceY);
+  const targetX = Number(endpoints.targetX);
+  const targetY = Number(endpoints.targetY);
+  const dx = targetX - sourceX;
+  const dy = targetY - sourceY;
+  const length = Math.sqrt(dx * dx + dy * dy) || 1;
+  const controlX = sourceX + dx * weight + (-dy / length) * distance;
+  const controlY = sourceY + dy * weight + (dx / length) * distance;
+  const labelX = sourceX * 0.25 + controlX * 0.5 + targetX * 0.25;
+  const labelY = sourceY * 0.25 + controlY * 0.5 + targetY * 0.25;
+  return [`M ${sourceX},${sourceY} Q ${controlX},${controlY} ${targetX},${targetY}`, labelX, labelY];
 }
 
 function pathTransform(offset: { x: number; y: number }): string | undefined {
@@ -149,6 +189,20 @@ function laneStyle(props: EdgeProps, data: Record<string, unknown>): CSSProperti
   };
 }
 
+function lineOutlineStyle(props: EdgeProps, data: Record<string, unknown>): CSSProperties | undefined {
+  const outlineWidth = numeric(data.lineOutlineWidth, 0);
+  if (outlineWidth <= 0) return undefined;
+  return {
+    ...props.style,
+    stroke: String(data.lineOutlineColor || '#0f172a'),
+    strokeWidth: numeric(props.style?.strokeWidth, 1) + outlineWidth * 2,
+    strokeDasharray: props.style?.strokeDasharray,
+    strokeDashoffset: props.style?.strokeDashoffset,
+    strokeLinecap: props.style?.strokeLinecap,
+    opacity: numeric(data.lineOpacity, numeric(props.style?.opacity, 1))
+  };
+}
+
 export function FloatingEdge(props: EdgeProps) {
   const data = edgeData(props);
   const sourceNode = useInternalNode(props.source);
@@ -157,11 +211,16 @@ export function FloatingEdge(props: EdgeProps) {
   const originalTargetNode = useInternalNode(String(data.originalTarget || props.target));
   const endpoints = floatingEndpoints(sourceNode, targetNode, props);
   const curveType = String(props.data?.curveType || 'default');
-  const [edgePath, labelX, labelY] = edgePathForCurve(curveType, { ...props, ...endpoints });
-  const offset = laneOffset(data, endpoints);
+  const attentionState = data.attentionState ? `topoviewer-edge-attention-${data.attentionState}` : '';
+  const attentionLabelPriority = data.attentionLabelPriority ? `topoviewer-edge-label-priority-${data.attentionLabelPriority}` : '';
+  const [edgePath, labelX, labelY] = edgePathForCurve(curveType, { ...props, ...endpoints }, data, endpoints);
+  const usesBundledBezierLane = curveType === 'bezier' && !!data.parallelLinkGroup;
+  const offset = usesBundledBezierLane ? { x: 0, y: 0 } : laneOffset(data, endpoints);
   const transform = pathTransform(offset);
   const isPipe = !!data.isPipe || data.pipe === true;
   const isLane = !!data.isLane;
+  const isLinkAggregate = data.isLinkAggregate === true || data.isLinkAggregate === 'true';
+  const outlineStyle = !isPipe ? lineOutlineStyle(props, data) : undefined;
   const hasSourceLaneStub = isLane && !!data.originalSource;
   const hasTargetLaneStub = isLane && !!data.originalTarget;
   const sourceStubEndpoints = hasSourceLaneStub
@@ -202,12 +261,24 @@ export function FloatingEdge(props: EdgeProps) {
               style={paintedLaneStyle}
             />
           ) : null}
+          {outlineStyle ? (
+            <path
+              className="topoviewer-edge-line-outline"
+              d={edgePath}
+              transform={transform}
+              style={outlineStyle}
+            />
+          ) : null}
           <path
             className={[
               'topoviewer-edge-visible-path',
               isPipe ? 'topoviewer-edge-pipe-fill' : '',
-              isLane ? 'topoviewer-edge-lane' : ''
+              isLane ? 'topoviewer-edge-lane' : '',
+              isLinkAggregate ? 'topoviewer-edge-aggregate' : '',
+              attentionState
             ].filter(Boolean).join(' ')}
+            data-link-aggregate={isLinkAggregate ? 'true' : undefined}
+            data-link-count={isLinkAggregate ? String(data.count || '') : undefined}
             d={edgePath}
             markerStart={props.markerStart as string | undefined}
             markerEnd={(hasTargetLaneStub || data.suppressLaneMarker) ? undefined : props.markerEnd as string | undefined}
@@ -236,6 +307,8 @@ export function FloatingEdge(props: EdgeProps) {
         <EdgeLabelRenderer>
           <div
             className="topoviewer-edge-label"
+            data-attention-state={data.attentionState || undefined}
+            data-label-priority={data.attentionLabelPriority || undefined}
             style={{
               color: props.labelStyle?.fill,
               fontSize: props.labelStyle?.fontSize,

@@ -9,8 +9,10 @@ import {
 } from '@xyflow/react';
 import { useCallback, useEffect, useMemo } from 'react';
 import { compileTopoGraph } from '../core/compiler';
+import { resolveAttentionPresentationCached } from '../core/attention/cache';
 import { assertRendererLimits } from '../core/limits';
 import { migrateTopoToggles } from '../core/migration';
+import type { AttentionPresentation, AttentionPresentationResult } from '../core/attention';
 import type { CompiledGraph, TopoDocument, TopoViewerExtensionContext, TopoViewerProps } from '../core/types';
 import { CalloutNode } from './CalloutNode';
 import { FloatingEdge } from './FloatingEdge';
@@ -53,11 +55,80 @@ function applyAfterCompileExtensions(
   }, graph);
 }
 
+function sourceObjectId(compiledObject: Record<string, unknown>): string {
+  const data = (compiledObject.data || {}) as Record<string, unknown>;
+  return String(data.id || compiledObject.id || '');
+}
+
+function decoratedAttentionData(data: Record<string, unknown>, attention: AttentionPresentation | undefined) {
+  if (!attention) return data;
+  return {
+    ...data,
+    attentionState: attention.state,
+    attentionScore: attention.score,
+    attentionReasons: attention.reasons,
+    attentionLabelPriority: attention.labelPriority
+  };
+}
+
+function attentionOpacity(state: string | undefined): number | undefined {
+  if (state === 'dimmed') return 0.28;
+  if (state === 'suppressed') return 0.12;
+  return undefined;
+}
+
+function applyAttentionToCompiledGraph(graph: CompiledGraph, presentation: AttentionPresentationResult | undefined): CompiledGraph {
+  if (!presentation) return graph;
+
+  return {
+    ...graph,
+    nodes: graph.nodes.map((node) => {
+      const attention = presentation.items.get(sourceObjectId(node));
+      if (!attention) return node;
+      const hidden = attention.state === 'hidden' || attention.state === 'suppressed';
+      const opacity = attentionOpacity(attention.state);
+      return {
+        ...node,
+        hidden,
+        zIndex: attention.state === 'focused' ? 120 : attention.state === 'related' ? 90 : node.zIndex,
+        data: decoratedAttentionData((node.data || {}) as Record<string, unknown>, attention),
+        style: {
+          ...((node.style || {}) as Record<string, unknown>),
+          ...(opacity !== undefined ? { opacity } : {})
+        }
+      };
+    }),
+    edges: graph.edges.map((edge) => {
+      const attention = presentation.items.get(sourceObjectId(edge));
+      if (!attention) return edge;
+      const hidden = attention.state === 'hidden' || attention.state === 'suppressed';
+      const opacity = attentionOpacity(attention.state);
+      return {
+        ...edge,
+        hidden,
+        zIndex: attention.state === 'focused' ? 110 : attention.state === 'related' ? 80 : edge.zIndex,
+        data: decoratedAttentionData((edge.data || {}) as Record<string, unknown>, attention),
+        style: {
+          ...((edge.style || {}) as Record<string, unknown>),
+          ...(opacity !== undefined ? { opacity } : {})
+        }
+      };
+    })
+  };
+}
+
+function resolveAttentionPresentation(document: TopoDocument, attention: TopoViewerProps['attention']): AttentionPresentationResult | undefined {
+  return resolveAttentionPresentationCached(document, attention || document.attention);
+}
+
 function TopoFlow({
   compiled,
   document,
   showRegions,
   controlPanelToggle,
+  onObjectClick,
+  onPaneClick,
+  onViewportChange,
   nodeTypes,
   edgeTypes
 }: {
@@ -65,6 +136,9 @@ function TopoFlow({
   document: TopoViewerProps['document'];
   showRegions: boolean;
   controlPanelToggle?: TopoViewerProps['controlPanelToggle'];
+  onObjectClick?: TopoViewerProps['onObjectClick'];
+  onPaneClick?: TopoViewerProps['onPaneClick'];
+  onViewportChange?: TopoViewerProps['onViewportChange'];
   nodeTypes: Record<string, unknown>;
   edgeTypes: Record<string, unknown>;
 }) {
@@ -92,6 +166,26 @@ function TopoFlow({
       edges={edges}
       onNodesChange={onNodesChange}
       onEdgesChange={onEdgesChange}
+      onNodeClick={onObjectClick ? (_event, node) => {
+        const runtimeNode = node as unknown as Record<string, unknown>;
+        return onObjectClick({
+          id: sourceObjectId(runtimeNode),
+          runtimeId: String(runtimeNode.id),
+          element: 'node',
+          data: (runtimeNode.data || {}) as Record<string, unknown>
+        });
+      } : undefined}
+      onEdgeClick={onObjectClick ? (_event, edge) => {
+        const runtimeEdge = edge as unknown as Record<string, unknown>;
+        return onObjectClick({
+          id: sourceObjectId(runtimeEdge),
+          runtimeId: String(runtimeEdge.id),
+          element: 'edge',
+          data: (runtimeEdge.data || {}) as Record<string, unknown>
+        });
+      } : undefined}
+      onPaneClick={onPaneClick}
+      onMoveEnd={onViewportChange ? (_event, viewport) => onViewportChange(viewport) : undefined}
       nodeTypes={nodeTypes as never}
       edgeTypes={edgeTypes as never}
       fitView
@@ -113,8 +207,12 @@ export function TopoViewer({
   selectedLayerIds,
   toggles,
   layout,
+  attention,
   extensions,
   controlPanelToggle,
+  onObjectClick,
+  onPaneClick,
+  onViewportChange,
   className = '',
   style
 }: TopoViewerProps) {
@@ -143,13 +241,17 @@ export function TopoViewer({
   const { compiled, preparedDocument } = useMemo(() => {
     const nextDocument = applyBeforeCompileExtensions(document, extensionContext, effectiveExtensions);
     assertRendererLimits(nextDocument);
-    const compiledGraph = compileTopoGraph(nextDocument, effectiveLayers, effectiveToggles, layout);
+    const attentionPresentation = resolveAttentionPresentation(nextDocument, attention);
+    const compiledGraph = applyAttentionToCompiledGraph(
+      compileTopoGraph(nextDocument, effectiveLayers, effectiveToggles, layout),
+      attentionPresentation
+    );
     const nextContext = { ...extensionContext, document: nextDocument };
     return {
       preparedDocument: nextDocument,
       compiled: applyAfterCompileExtensions(compiledGraph, nextContext, effectiveExtensions)
     };
-  }, [document, effectiveExtensions, effectiveLayers, effectiveToggles, extensionContext, layout]);
+  }, [attention, document, effectiveExtensions, effectiveLayers, effectiveToggles, extensionContext, layout]);
 
   return (
     <div className={`topoviewer ${className}`} style={style} role="img" aria-label={document.graph?.id || 'TopoViewer diagram'}>
@@ -159,6 +261,9 @@ export function TopoViewer({
           document={preparedDocument}
           showRegions={effectiveToggles.showRegions !== false}
           controlPanelToggle={controlPanelToggle}
+          onObjectClick={onObjectClick}
+          onPaneClick={onPaneClick}
+          onViewportChange={onViewportChange}
           nodeTypes={nodeTypes}
           edgeTypes={edgeTypes}
         />

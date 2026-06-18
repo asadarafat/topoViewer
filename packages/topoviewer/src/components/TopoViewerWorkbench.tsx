@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import yaml from 'js-yaml';
 import {
   Alert,
@@ -7,20 +7,40 @@ import {
   Checkbox,
   CssBaseline,
   FormControlLabel,
+  IconButton,
+  MenuItem,
   Paper,
   Stack,
   Tab,
   Tabs,
   ThemeProvider,
+  TextField,
+  Tooltip,
   Typography,
   createTheme
 } from '@mui/material';
+import SkipNextIcon from '@mui/icons-material/SkipNext';
+import SkipPreviousIcon from '@mui/icons-material/SkipPrevious';
 import Editor from '@monaco-editor/react';
 import { TopoViewer } from './TopoViewer';
 import { mvNetworkStylesheet, mvNetworkTopology } from '../examples/mvNetwork';
 import type { TopoDocument, TopoViewerToggles } from '../core/types';
+import {
+  buildAttentionIndex,
+  deriveAggregateGraph,
+  resolveFocusQuery,
+  type AggregateGroupDefinition,
+  type AttentionGraphIndex,
+  type FocusDependencyDirection,
+  type FocusPresentationMode,
+  type FocusQuery
+} from '../core/attention';
 import { validateTopoDocument } from '../core/validation';
 import './workbench.css';
+
+type FocusKind = 'id' | 'changes';
+type AggregateMode = 'none' | 'region' | 'parent' | 'role';
+type LabelDensity = 'auto' | 'minimal' | 'dense';
 
 function composeSpec(topologyText: string, stylesheetText: string): TopoDocument {
   const topology = yaml.load(topologyText) as TopoDocument;
@@ -35,6 +55,56 @@ function composeSpec(topologyText: string, stylesheetText: string): TopoDocument
 
 const initialTopologyYaml = yaml.dump(mvNetworkTopology, { lineWidth: 120, noRefs: true });
 const initialStylesheetYaml = yaml.dump(mvNetworkStylesheet, { lineWidth: 120, noRefs: true });
+
+function splitIds(value: string): string[] {
+  return value.split(/[\s,]+/).map((entry) => entry.trim()).filter(Boolean);
+}
+
+function parseRevision(value: string): string | number | undefined {
+  const trimmed = value.trim();
+  if (!trimmed) return undefined;
+  const numeric = Number(trimmed);
+  return Number.isFinite(numeric) ? numeric : trimmed;
+}
+
+function aggregateGroupDefinitions(mode: AggregateMode, spec: TopoDocument, index: AttentionGraphIndex): AggregateGroupDefinition[] {
+  const graph = spec.graph || {};
+  if (mode === 'region') {
+    return (graph.regions || []).map((region) => ({
+      id: `region:${region.id}`,
+      by: 'region',
+      regionId: region.id,
+      label: region.name || region.label || region.id
+    }));
+  }
+  if (mode === 'parent') {
+    return (graph.nodes || []).flatMap((node) => (
+      index.getChildren(node.id).length
+        ? [{
+            id: `parent:${node.id}`,
+            by: 'parent' as const,
+            parentId: node.id,
+            label: node.name || node.label || node.id
+          }]
+        : []
+    ));
+  }
+  if (mode === 'role') {
+    const roleValues = new Set((graph.nodes || []).map((node) => node.labels?.role).filter(Boolean).map(String));
+    return Array.from(roleValues).flatMap((role) => (
+      index.getByLabel('role', role).length > 1
+        ? [{
+            id: `role:${role}`,
+            by: 'label' as const,
+            key: 'role',
+            value: role,
+            label: role
+          }]
+        : []
+    ));
+  }
+  return [];
+}
 
 const theme = createTheme({
   palette: {
@@ -90,6 +160,17 @@ export function TopoViewerWorkbench() {
   const [stylesheetText, setStylesheetText] = useState(initialStylesheetYaml);
   const [selectedLayers, setSelectedLayers] = useState<string[]>(mvNetworkTopology.graph?.layers?.map((layer) => layer.id) || []);
   const [toggles, setToggles] = useState<TopoViewerToggles>(() => Object.fromEntries((mvNetworkTopology.toggles || []).map((toggle) => [toggle.id, toggle.default !== false])));
+  const [focusKind, setFocusKind] = useState<FocusKind>('id');
+  const [attentionSeed, setAttentionSeed] = useState('');
+  const [attentionChangedSince, setAttentionChangedSince] = useState('2026-06-01T00:00:00Z');
+  const [attentionRevision, setAttentionRevision] = useState('41');
+  const [attentionMode, setAttentionMode] = useState<FocusPresentationMode>('dim-context');
+  const [attentionDirection, setAttentionDirection] = useState<FocusDependencyDirection>('both');
+  const [attentionDepth, setAttentionDepth] = useState(2);
+  const [aggregateMode, setAggregateMode] = useState<AggregateMode>('none');
+  const [expandedGroupText, setExpandedGroupText] = useState('');
+  const [labelDensity, setLabelDensity] = useState<LabelDensity>('auto');
+  const [activeFocusIndex, setActiveFocusIndex] = useState(0);
   const [layoutRun, setLayoutRun] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
@@ -103,7 +184,73 @@ export function TopoViewerWorkbench() {
     }
   }, [stylesheetText, topologyText]);
 
-  const layerCatalog = spec.graph?.layers || [];
+  const sourceAttentionIndex = useMemo(() => buildAttentionIndex(spec), [spec]);
+  const aggregateGroups = useMemo(() => aggregateGroupDefinitions(aggregateMode, spec, sourceAttentionIndex), [aggregateMode, sourceAttentionIndex, spec]);
+  const viewerDocument = useMemo(() => {
+    if (aggregateMode === 'none' || !aggregateGroups.length) return spec;
+    return deriveAggregateGraph(spec, sourceAttentionIndex, {
+      groups: aggregateGroups,
+      expandedGroupIds: splitIds(expandedGroupText)
+    }).document;
+  }, [aggregateGroups, aggregateMode, expandedGroupText, sourceAttentionIndex, spec]);
+  const viewerAttentionIndex = useMemo(() => buildAttentionIndex(viewerDocument), [viewerDocument]);
+  const layerCatalog = viewerDocument.graph?.layers || [];
+  const attentionQuery = useMemo<FocusQuery | undefined>(() => {
+    if (focusKind === 'changes') {
+      return {
+        changes: {
+          since: attentionChangedSince.trim() || undefined,
+          revision: parseRevision(attentionRevision)
+        },
+        mode: attentionMode
+      };
+    }
+
+    const id = attentionSeed.trim();
+    if (!id) return undefined;
+    const graph = viewerDocument.graph || {};
+    const isNode = (graph.nodes || []).some((node) => node.id === id);
+    const isLink = (graph.links || []).some((link) => link.id === id);
+    const isPath = (graph.paths || []).some((path) => path.id === id);
+    const isRegion = (graph.regions || []).some((region) => region.id === id);
+    if (!isNode && !isLink && !isPath && !isRegion) return undefined;
+    return {
+      ids: [id],
+      pathIds: isPath ? [id] : undefined,
+      regionIds: isRegion ? [id] : undefined,
+      dependency: isNode ? {
+        from: [id],
+        direction: attentionDirection,
+        depth: attentionDepth
+      } : undefined,
+      mode: attentionMode
+    };
+  }, [attentionChangedSince, attentionDepth, attentionDirection, attentionMode, attentionRevision, attentionSeed, focusKind, viewerDocument]);
+  const attentionResultIds = useMemo(() => {
+    if (!attentionQuery) return [];
+    try {
+      return Array.from(resolveFocusQuery(viewerAttentionIndex, attentionQuery).focusedIds);
+    } catch (_error) {
+      return [];
+    }
+  }, [attentionQuery, viewerAttentionIndex]);
+  const attentionSeedKnown = focusKind !== 'id' || !attentionSeed.trim() || !!attentionQuery;
+  const activeFocusId = attentionResultIds[activeFocusIndex] || '';
+
+  useEffect(() => {
+    setActiveFocusIndex(0);
+  }, [attentionQuery]);
+
+  useEffect(() => {
+    setActiveFocusIndex((current) => Math.min(current, Math.max(0, attentionResultIds.length - 1)));
+  }, [attentionResultIds.length]);
+
+  const moveFocusResult = (delta: number) => {
+    setActiveFocusIndex((current) => {
+      if (!attentionResultIds.length) return 0;
+      return (current + delta + attentionResultIds.length) % attentionResultIds.length;
+    });
+  };
 
   return (
     <ThemeProvider theme={theme}>
@@ -165,6 +312,148 @@ export function TopoViewerWorkbench() {
             </Stack>
           </Stack>
 
+          <Stack className="topoviewer-panel-section" spacing={0.75}>
+            <Typography variant="overline" color="text.secondary">Attention</Typography>
+            <Stack direction="row" spacing={1} useFlexGap sx={{ flexWrap: 'wrap' }}>
+              <TextField
+                select
+                label="Focus"
+                size="small"
+                value={focusKind}
+                onChange={(event) => setFocusKind(event.target.value as FocusKind)}
+                sx={{ minWidth: 120 }}
+              >
+                <MenuItem value="id">ID</MenuItem>
+                <MenuItem value="changes">Changed</MenuItem>
+              </TextField>
+              <TextField
+                label="Focus ID"
+                size="small"
+                value={attentionSeed}
+                disabled={focusKind !== 'id'}
+                error={!attentionSeedKnown}
+                helperText={attentionSeedKnown ? ' ' : 'Unknown ID'}
+                onChange={(event) => setAttentionSeed(event.target.value)}
+                sx={{ minWidth: 150 }}
+              />
+              <TextField
+                label="Changed Since"
+                size="small"
+                value={attentionChangedSince}
+                disabled={focusKind !== 'changes'}
+                onChange={(event) => setAttentionChangedSince(event.target.value)}
+                sx={{ minWidth: 202 }}
+              />
+              <TextField
+                label="Base Revision"
+                size="small"
+                value={attentionRevision}
+                disabled={focusKind !== 'changes'}
+                onChange={(event) => setAttentionRevision(event.target.value)}
+                sx={{ width: 128 }}
+              />
+              <TextField
+                select
+                label="Mode"
+                size="small"
+                value={attentionMode}
+                onChange={(event) => setAttentionMode(event.target.value as FocusPresentationMode)}
+                sx={{ minWidth: 132 }}
+              >
+                <MenuItem value="dim-context">Dim</MenuItem>
+                <MenuItem value="hide-context">Hide</MenuItem>
+                <MenuItem value="highlight">Highlight</MenuItem>
+              </TextField>
+              <TextField
+                select
+                label="Direction"
+                size="small"
+                value={attentionDirection}
+                disabled={focusKind !== 'id'}
+                onChange={(event) => setAttentionDirection(event.target.value as FocusDependencyDirection)}
+                sx={{ minWidth: 132 }}
+              >
+                <MenuItem value="both">Both</MenuItem>
+                <MenuItem value="downstream">Downstream</MenuItem>
+                <MenuItem value="upstream">Upstream</MenuItem>
+              </TextField>
+              <TextField
+                label="Depth"
+                size="small"
+                type="number"
+                value={attentionDepth}
+                disabled={focusKind !== 'id'}
+                onChange={(event) => setAttentionDepth(Math.max(0, Number(event.target.value) || 0))}
+                slotProps={{ htmlInput: { min: 0, max: 6 } }}
+                sx={{ width: 88 }}
+              />
+              <TextField
+                select
+                label="Aggregate"
+                size="small"
+                value={aggregateMode}
+                onChange={(event) => setAggregateMode(event.target.value as AggregateMode)}
+                sx={{ minWidth: 132 }}
+              >
+                <MenuItem value="none">None</MenuItem>
+                <MenuItem value="region">Region</MenuItem>
+                <MenuItem value="parent">Parent</MenuItem>
+                <MenuItem value="role">Role</MenuItem>
+              </TextField>
+              <TextField
+                label="Expanded Groups"
+                size="small"
+                value={expandedGroupText}
+                disabled={aggregateMode === 'none'}
+                onChange={(event) => setExpandedGroupText(event.target.value)}
+                sx={{ minWidth: 178 }}
+              />
+              <TextField
+                select
+                label="Labels"
+                size="small"
+                value={labelDensity}
+                onChange={(event) => setLabelDensity(event.target.value as LabelDensity)}
+                sx={{ minWidth: 120 }}
+              >
+                <MenuItem value="auto">Auto</MenuItem>
+                <MenuItem value="minimal">Minimal</MenuItem>
+                <MenuItem value="dense">Dense</MenuItem>
+              </TextField>
+              <Tooltip title="Previous focused result">
+                <span>
+                  <IconButton
+                    aria-label="Previous focus result"
+                    disabled={!attentionResultIds.length}
+                    onClick={() => moveFocusResult(-1)}
+                    size="small"
+                  >
+                    <SkipPreviousIcon fontSize="small" />
+                  </IconButton>
+                </span>
+              </Tooltip>
+              <Tooltip title="Next focused result">
+                <span>
+                  <IconButton
+                    aria-label="Next focus result"
+                    disabled={!attentionResultIds.length}
+                    onClick={() => moveFocusResult(1)}
+                    size="small"
+                  >
+                    <SkipNextIcon fontSize="small" />
+                  </IconButton>
+                </span>
+              </Tooltip>
+              <Button onClick={() => {
+                setAttentionSeed('');
+                setFocusKind('id');
+              }}>Clear</Button>
+            </Stack>
+            <Typography role="status" aria-live="polite" variant="caption" color="text.secondary">
+              Focus result {attentionResultIds.length ? activeFocusIndex + 1 : 0}/{attentionResultIds.length}{activeFocusId ? `: ${activeFocusId}` : ''}
+            </Typography>
+          </Stack>
+
           <Box className="topoviewer-editor">
             <Tabs
               value={activeTab}
@@ -201,7 +490,7 @@ export function TopoViewerWorkbench() {
               <Alert severity="error" variant="outlined">{error}</Alert>
             ) : (
               <Typography variant="caption" color="text.secondary">
-                Rendered {spec.graph?.nodes?.length || 0} nodes, {spec.graph?.links?.length || 0} links, {spec.graph?.paths?.length || 0} paths.
+                Rendered {viewerDocument.graph?.nodes?.length || 0} nodes, {viewerDocument.graph?.links?.length || 0} links, {viewerDocument.graph?.paths?.length || 0} paths.
               </Typography>
             )}
           </Box>
@@ -210,10 +499,12 @@ export function TopoViewerWorkbench() {
         <Paper component="main" className="topoviewer-workbench-main" elevation={8}>
           <TopoViewer
             key={layoutRun}
-            document={spec}
+            document={viewerDocument}
             selectedLayerIds={selectedLayers}
             toggles={toggles}
-            layout={{ mode: 'force', ...(spec.layout || {}) }}
+            layout={{ mode: 'force', ...(viewerDocument.layout || {}) }}
+            attention={attentionQuery ? { query: attentionQuery } : undefined}
+            className={`topoviewer-label-density-${labelDensity}`}
           />
         </Paper>
       </Box>
