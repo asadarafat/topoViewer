@@ -28,8 +28,10 @@
 - [x] 4.3 Preserve child membership references, child counts, link counts, and severity summaries on aggregates
 - [x] 4.4 Add expand/collapse state tests proving unrelated layout inputs remain stable
 - [x] 4.5 Add stylesheet hooks and default aggregate presentation
-- [x] 4.6 Add viewport-driven aggregate collapse and expansion from declarative zoom thresholds
+- [x] 4.6 Add optional viewport-driven aggregate collapse and expansion from declarative zoom thresholds
 - [x] 4.7 Add threshold-based grouped links with member references and documented examples
+- [x] 4.8 Keep the public dense-collapse example compact and move the generated 300-node regional topology to a stress fixture
+- [x] 4.9 Reframe public dense examples around explicit click drill-down, with zoom policy documented as advanced behavior
 
 ## 5. Importance Scoring And Labels
 

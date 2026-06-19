@@ -1,5 +1,5 @@
 graph:
-  id: attention-viewport-collapse
+  id: attention-advanced-zoom-policy
   layers:
     - id: physical
       name: Physical
@@ -105,8 +105,8 @@ attention:
         label: East metro
     expandOnClick: true
     viewport:
-      collapseBelowZoom: 1.4
-      expandAboveZoom: 2.0
+      collapseBelowZoom: 1
+      expandAboveZoom: 1.35
 layout:
   mode: manual
   width: 1120

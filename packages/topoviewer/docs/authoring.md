@@ -159,7 +159,7 @@ attention:
 
 Expected result: the region starts as one aggregate summary node; clicking the summary expands the member nodes, internal links, and region hull. Clicking the expanded region hull collapses it back into the summary node.
 
-For large views, add viewport thresholds so overview and detail change with zoom:
+For controlled operations, prefer explicit drill-down over zoom-triggered detail. Viewport thresholds are available when an embedding experience intentionally wants map-style overview/detail transitions, but they should not replace click expansion for ordinary topology inspection:
 
 ```yaml
 attention:

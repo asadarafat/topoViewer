@@ -83,31 +83,58 @@ Region collapse demonstrates progressive disclosure. The access metro region sta
     --8<-- "docs/topoviewer/examples/attention/region-collapse/stylesheet.yaml"
     ```
 
-## Viewport collapse
+## Dense summary drill-down
 
-Viewport collapse demonstrates zoom-aware progressive disclosure. The topology starts zoomed out with two collapsed region summaries; zoom in to expand the regions and reveal the four member nodes. Zoom back out to collapse the regions into summaries again.
+Dense summary drill-down keeps a busy topology useful without making zoom decide what the operator meant. The overview shows one summary per metro, including hidden node count, link count, and worst severity. The PE full mesh between metros is represented as counted aggregate links instead of a pile of individual transport links. Click a metro summary to inspect that region while the rest of the topology stays compressed; drag the expanded region hull to reposition its members, or click the hull to collapse it again.
 
 === "Live Viewport"
 
     ```topoviewer
-    topology: ../../examples/attention/viewport-collapse/topology.yaml
-    stylesheet: ../../examples/attention/viewport-collapse/stylesheet.yaml
-    height: 500px
+    topology: ../../examples/attention/dense-summary-drilldown/topology.yaml
+    stylesheet: ../../examples/attention/dense-summary-drilldown/stylesheet.yaml
+    height: 560px
     controls: true
     controlsOpen: false
-    title: Viewport collapse
+    title: Dense summary drill-down
     ```
 
 === "Topology YAML"
 
     ```yaml
-    --8<-- "docs/topoviewer/examples/attention/viewport-collapse/topology.yaml"
+    --8<-- "docs/topoviewer/examples/attention/dense-summary-drilldown/topology.yaml"
     ```
 
 === "Stylesheet YAML"
 
     ```yaml
-    --8<-- "docs/topoviewer/examples/attention/viewport-collapse/stylesheet.yaml"
+    --8<-- "docs/topoviewer/examples/attention/dense-summary-drilldown/stylesheet.yaml"
+    ```
+
+## Advanced zoom policy
+
+Advanced zoom policy is an optional host-controlled behavior for map-style overview/detail transitions. The recommended operator workflow is still explicit: click an aggregate summary to expand it, then click the expanded region hull or parent object to collapse it. Use zoom thresholds only when the embedding experience intentionally wants detail to follow viewport scale.
+
+=== "Live Viewport"
+
+    ```topoviewer
+    topology: ../../examples/attention/advanced-zoom-policy/topology.yaml
+    stylesheet: ../../examples/attention/advanced-zoom-policy/stylesheet.yaml
+    height: 500px
+    controls: true
+    controlsOpen: false
+    title: Advanced zoom policy
+    ```
+
+=== "Topology YAML"
+
+    ```yaml
+    --8<-- "docs/topoviewer/examples/attention/advanced-zoom-policy/topology.yaml"
+    ```
+
+=== "Stylesheet YAML"
+
+    ```yaml
+    --8<-- "docs/topoviewer/examples/attention/advanced-zoom-policy/stylesheet.yaml"
     ```
 
 ## Link grouping

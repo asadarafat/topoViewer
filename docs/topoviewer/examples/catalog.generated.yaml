@@ -121,16 +121,26 @@ examples:
     stylesheet: docs/topoviewer/examples/attention/region-collapse/stylesheet.yaml
     expected: docs/topoviewer/examples/attention/region-collapse/expected.yaml
     readme: docs/topoviewer/examples/attention/region-collapse/README.md
-  - id: attention-viewport-collapse
-    title: Viewport collapse
+  - id: attention-dense-summary-drilldown
+    title: Dense summary drill-down
     feature: attention
-    path: attention/viewport-collapse
-    page: topoviewer/reference/attention/viewport-collapse
+    path: attention/dense-summary-drilldown
+    page: topoviewer/reference/attention/dense-summary-drilldown
     renderable: true
-    topology: docs/topoviewer/examples/attention/viewport-collapse/topology.yaml
-    stylesheet: docs/topoviewer/examples/attention/viewport-collapse/stylesheet.yaml
-    expected: docs/topoviewer/examples/attention/viewport-collapse/expected.yaml
-    readme: docs/topoviewer/examples/attention/viewport-collapse/README.md
+    topology: docs/topoviewer/examples/attention/dense-summary-drilldown/topology.yaml
+    stylesheet: docs/topoviewer/examples/attention/dense-summary-drilldown/stylesheet.yaml
+    expected: docs/topoviewer/examples/attention/dense-summary-drilldown/expected.yaml
+    readme: docs/topoviewer/examples/attention/dense-summary-drilldown/README.md
+  - id: attention-advanced-zoom-policy
+    title: Advanced zoom policy
+    feature: attention
+    path: attention/advanced-zoom-policy
+    page: topoviewer/reference/attention/advanced-zoom-policy
+    renderable: true
+    topology: docs/topoviewer/examples/attention/advanced-zoom-policy/topology.yaml
+    stylesheet: docs/topoviewer/examples/attention/advanced-zoom-policy/stylesheet.yaml
+    expected: docs/topoviewer/examples/attention/advanced-zoom-policy/expected.yaml
+    readme: docs/topoviewer/examples/attention/advanced-zoom-policy/README.md
   - id: attention-link-grouping
     title: Link grouping
     feature: attention

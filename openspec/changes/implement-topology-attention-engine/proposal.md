@@ -21,7 +21,7 @@ Expose a runtime API for selecting focused, related, and context objects by sele
 ### 4. Add progressive disclosure
 
 Support aggregate overview graphs for dense environments without mutating the source graph. Aggregates preserve counts, severity summaries, and membership references.
-Viewport thresholds can expand detail as users zoom in and collapse overview summaries as users zoom out. Parallel-link grouping can summarize dense link bundles by endpoint and layer thresholds.
+Explicit click-to-expand drill-down is the primary operator workflow because it preserves user intent. Viewport thresholds can remain as an optional host policy for map-style overview/detail transitions. Parallel-link grouping can summarize dense link bundles by endpoint and layer thresholds.
 
 ### 5. Add explainable importance scoring
 

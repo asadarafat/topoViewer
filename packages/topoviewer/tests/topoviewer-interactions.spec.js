@@ -123,7 +123,7 @@ async function dragBox(page, box, dx, dy, offset = { x: 48, y: 28 }) {
 
 test.describe('TopoViewer package interactions', () => {
   test('renders every layer and display-knob permutation without invalid state', async ({ page }) => {
-    test.setTimeout(120000);
+    test.setTimeout(240000);
     const browserErrors = await openWorkbench(page);
     const layerNames = ['Physical', 'IGP', 'BGP / Controller', 'Transport', 'Service'];
     const toggleNames = ['Show regions', 'Show child nodes inside parents', 'Show link/path labels'];

@@ -90,6 +90,17 @@ This allows:
 - Cache invalidation keyed by source hash plus focus/reduction state.
 - Future comparison between raw and aggregate views.
 
+Public examples should teach the operator workflow with compact authored
+topologies. Large generated graphs belong in stress fixtures and benchmarks, not
+as the primary documentation surface. The public dense-collapse example should
+show summary metadata, counted aggregate links, and drill-down behavior without
+making users read hundreds of generated YAML lines.
+
+Explicit click-to-expand behavior should be the primary dense-topology pattern.
+Zoom-driven expansion is useful only as an advanced host policy for experiences
+that deliberately mimic map-scale overview/detail transitions; it is too
+implicit for the default operator workflow.
+
 ### 4. Keep scoring deterministic and inspectable
 
 Scoring should start with explicit weighted factors, not machine-learned or host-specific heuristics. Each score includes reasons. This supports author debugging and test assertions.

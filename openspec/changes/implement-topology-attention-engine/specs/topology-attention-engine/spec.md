@@ -46,18 +46,31 @@ TopoViewer SHALL support aggregate overview graphs for dense source topologies.
 
 #### Scenario: Aggregates expose summaries
 - **WHEN** an aggregate object is rendered
-- **THEN** it SHALL expose child counts and severity summaries for labels, tooltips, and stylesheets
+- **THEN** it SHALL expose child counts, link counts, and severity summaries for labels, tooltips, and stylesheets
 
-#### Scenario: Viewport-driven aggregate disclosure
+#### Scenario: Operator-controlled aggregate drill-down
+- **WHEN** an aggregate configuration enables click expansion
+- **THEN** clicking a collapsed aggregate summary SHALL expand that group
+- **AND** clicking the expanded region hull or parent object SHALL collapse that group when the aggregate was derived from that object
+- **AND** unrelated aggregate groups SHALL remain collapsed unless the caller or operator explicitly expands them
+
+#### Scenario: Optional viewport aggregate policy
 - **WHEN** an aggregate configuration declares viewport zoom thresholds
 - **THEN** the embed SHALL collapse matching groups below the collapse threshold
 - **AND** SHALL expand matching groups above the expansion threshold
 - **AND** SHALL keep the source topology unchanged
+- **AND** public documentation SHALL present this as an advanced host policy, not the default operator workflow
 
 #### Scenario: Link grouping threshold
 - **WHEN** visible links share a grouping key and meet the configured threshold
 - **THEN** the reduction pipeline SHALL render one aggregate link for that group
 - **AND** SHALL preserve member link IDs, count, endpoint, and layer metadata for drill-down, labels, stylesheets, and export
+
+#### Scenario: Documentation uses compact authored examples
+- **WHEN** aggregate and link-grouping behavior is documented for dense topology
+- **THEN** the public example SHALL use a compact authored graph that shows summaries, counted links, and drill-down
+- **AND** larger generated dense graphs SHALL remain available as stress fixtures or benchmarks
+- **AND** the public dense example SHALL demonstrate explicit click drill-down rather than zoom-triggered disclosure
 
 ### Requirement: Importance scoring
 TopoViewer SHALL calculate deterministic and explainable importance scores for visible graph objects.

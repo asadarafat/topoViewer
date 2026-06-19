@@ -288,7 +288,21 @@ attention:
     expandOnClick: true
 ```
 
-Expand and collapse groups from zoom:
+Prefer explicit drill-down for operator control. Keep summaries collapsed in the overview, then let the operator expand and collapse the group they intend to inspect:
+
+```yaml
+attention:
+  aggregate:
+    groups:
+      - id: access-metro
+        by: region
+        regionId: access-metro
+        label: Access metro
+    expandedGroupIds: []
+    expandOnClick: true
+```
+
+Zoom thresholds are available as an advanced host policy, but they should not be the default way to teach or operate dense topology views. Use them only when the embedding experience intentionally wants map-style overview/detail transitions:
 
 ```yaml
 attention:
@@ -304,11 +318,18 @@ attention:
       expandAboveZoom: 1.15
 ```
 
-At low zoom, the group is rendered as one aggregate summary. At high zoom, the source members and region hull are rendered again. `viewport.groupIds` can limit the policy to specific aggregate groups.
+At low zoom, the group is rendered as one aggregate summary. At high zoom, the source members and region hull are rendered again. `viewport.groupIds` can limit the policy to specific aggregate groups. The source topology is unchanged either way.
 
 Aggregate nodes expose summary data:
 
 ```yaml
+labels:
+  aggregate: 'true'
+  aggregateBy: region
+  nodes: 3
+  links: 3
+  severity: major
+  major: 1
 data:
   isAggregate: true
   aggregateId: access-metro
@@ -320,6 +341,10 @@ data:
     major: 1
     normal: 2
 ```
+
+Use the label fields for at-a-glance styling and visible metadata. Use the
+`data.*` fields when a host app needs exact membership, counts, or drill-down
+details.
 
 ### Link Grouping
 
@@ -470,7 +495,7 @@ Use `expandedGroupIds` to leave specific groups expanded while other groups stay
 
 When `expandOnClick` is enabled, clicking a collapsed aggregate summary expands it. For region and parent aggregates, clicking the expanded source region hull or parent node collapses that group again.
 
-When link grouping `expandOnClick` is enabled, clicking an aggregate link expands only that link group. Zoom policies can group or ungroup links automatically without changing the source topology.
+When link grouping `expandOnClick` is enabled, clicking an aggregate link expands only that link group. Optional zoom policies can group or ungroup links automatically without changing the source topology, but click expansion is the more predictable default for operator workflows.
 
 ### Render With React
 

@@ -32,7 +32,8 @@ TopoViewer renders declarative graph and diagram documents from YAML. The canoni
 - [Object focus](reference/attention/object-focus/index.md): Click one topology object to highlight it while dimming the surrounding context.
 - [Change focus](reference/attention/change-focus/index.md): Focus objects with recent change metadata while preserving topology context.
 - [Region collapse](reference/attention/region-collapse/index.md): Collapse a region into an aggregate summary, then click it to expand member nodes.
-- [Viewport collapse](reference/attention/viewport-collapse/index.md): Collapse and expand aggregate regions automatically as users zoom out and in.
+- [Dense summary drill-down](reference/attention/dense-summary-drilldown/index.md): Keep dense metro topologies readable with summary nodes, counted full-mesh links, and explicit click-to-expand drill-down.
+- [Advanced zoom policy](reference/attention/advanced-zoom-policy/index.md): Optionally bind aggregate expansion to zoom thresholds when a host needs map-style overview/detail transitions.
 - [Link grouping](reference/attention/link-grouping/index.md): Group parallel links by endpoint and layer when the count crosses a threshold.
 - [Query primitives](reference/attention/query-primitives/index.md): Focus by explicit IDs, labels, data fields, and stylesheet-compatible selectors.
 - [Region focus](reference/attention/region-focus/index.md): Focus a region and its member nodes while preserving surrounding context.

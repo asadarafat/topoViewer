@@ -1,0 +1,87 @@
+icons:
+  pe:
+    glyph: PE
+    fill: '#7c3aed'
+    stroke: '#ddd6fe'
+  agg:
+    glyph: A
+    fill: '#0369a1'
+    stroke: '#bae6fd'
+  edge:
+    glyph: E
+    fill: '#0f766e'
+    stroke: '#ccfbf1'
+labelFields:
+  - name
+  - label
+  - count
+stylesheet:
+  - selector: node
+    style:
+      width: 42
+      height: 34
+      borderWidth: 1.4
+      labelFontSize: 9
+      labelColor: var(--topoviewer-fg-muted)
+  - selector: node[labels.role="pe"]
+    style:
+      icon: pe
+      width: 58
+      height: 42
+      borderWidth: 2.4
+      labelFontWeight: 800
+      labelColor: '#4c1d95'
+  - selector: node[labels.role="aggregation"]
+    style:
+      icon: agg
+      width: 50
+      height: 38
+      borderWidth: 2
+  - selector: node[labels.role="edge"]
+    style:
+      icon: edge
+  - selector: node[isAggregate = "true"]
+    style:
+      width: 160
+      height: 92
+      backgroundColor: '#1e1b4b'
+      borderColor: '#c4b5fd'
+      borderWidth: 3
+      labelColor: '#f5f3ff'
+      labelFontSize: 15
+      labelFontWeight: 900
+  - selector: link
+    style:
+      curveStyle: bezier
+      controlPointStepSize: 36
+      lineColor: '#94a3b8'
+      lineWidth: 1.2
+      targetArrowShape: none
+      opacity: 0.5
+  - selector: link[labels.relation="inter-region-full-mesh"]
+    style:
+      lineColor: '#7c3aed'
+      lineWidth: 1.8
+      opacity: 0.42
+  - selector: link[aggregate = "true"]
+    style:
+      lineColor: '#7c3aed'
+      lineWidth: 4
+      lineDashPattern: 12 6
+      opacity: 0.9
+  - selector: link[isLinkAggregate = "true"]
+    style:
+      lineColor: '#7c3aed'
+      lineWidth: 4
+      lineDashPattern: 12 6
+      labelColor: '#312e81'
+      textBackgroundColor: '#ede9fe'
+      textBackgroundOpacity: 0.96
+      opacity: 0.95
+  - selector: region
+    style:
+      backgroundColor: '#0ea5e91a'
+      borderColor: '#38bdf8aa'
+      borderWidth: 1.2
+      borderRadius: 8
+      zIndex: -30

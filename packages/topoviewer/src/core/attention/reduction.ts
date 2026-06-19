@@ -87,6 +87,27 @@ function severitySummary(memberIds: readonly string[], nodeById: Map<string, Gra
   }, {});
 }
 
+function severityRank(value: string): number {
+  const order: Record<string, number> = {
+    critical: 5,
+    major: 4,
+    minor: 3,
+    warning: 3,
+    normal: 2,
+    up: 2,
+    unknown: 1
+  };
+  return order[value.toLowerCase()] || 1;
+}
+
+function worstSeverity(summary: Readonly<Record<string, number>>): string {
+  return Object.keys(summary).sort((left, right) => severityRank(right) - severityRank(left))[0] || 'unknown';
+}
+
+function countLabel(count: number, singular: string): string {
+  return `${count} ${count === 1 ? singular : `${singular}s`}`;
+}
+
 function nodePosition(node: GraphNode): { x: number; y: number } | undefined {
   const position = node.position;
   if (Array.isArray(position)) return { x: Number(position[0] || 0), y: Number(position[1] || 0) };
@@ -113,13 +134,20 @@ function groupLinkCount(memberIds: readonly string[], links: readonly GraphLink[
 }
 
 function createAggregateNode(group: AggregateGroupDefinition, summary: AggregateGroupSummary, nodeById: Map<string, GraphNode>): GraphNode {
+  const criticalCount = summary.severitySummary.critical || 0;
+  const majorCount = summary.severitySummary.major || 0;
   return {
     id: summary.aggregateNodeId,
     name: group.label || `Aggregate ${group.id}`,
     label: group.label || `${summary.childCount} objects`,
     labels: {
       aggregate: 'true',
-      aggregateBy: group.by
+      aggregateBy: group.by,
+      nodes: summary.childCount,
+      links: summary.linkCount,
+      severity: worstSeverity(summary.severitySummary),
+      ...(criticalCount ? { critical: criticalCount } : {}),
+      ...(majorCount ? { major: majorCount } : {})
     },
     layers: ['physical'],
     position: aggregatePosition(summary.memberIds, nodeById),
@@ -153,7 +181,9 @@ function remapLinks(links: readonly GraphLink[], memberToAggregate: Map<string, 
       const key = `${source}->${target}`;
       const current = aggregateLinks.get(key);
       if (current) {
-        current.data.count = Number(current.data.count || 1) + 1;
+        const count = Number(current.data.count || 1) + 1;
+        current.label = countLabel(count, 'link');
+        current.data.count = count;
         current.data.members = [...(current.data.members as string[]), link.id];
         return;
       }
@@ -161,6 +191,7 @@ function remapLinks(links: readonly GraphLink[], memberToAggregate: Map<string, 
         id: `aggregate-link:${source}:${target}`,
         source,
         target,
+        label: countLabel(1, 'link'),
         labels: { aggregate: 'true' as Scalar },
         layers: link.layers ? [...link.layers] : ['physical'],
         data: {

@@ -5,13 +5,13 @@ dom:
   minVisibleEdges: 1
   minRegions: 0
 assertions:
-  zoomInClicks: 12
-  zoomInMinZoom: 2.0
+  zoomInClicks: 3
+  zoomInMinZoom: 1.35
   zoomedGraphNodes: 4
   zoomedMinVisibleEdges: 3
   zoomedMinRegions: 2
-  zoomOutClicks: 10
-  zoomOutMaxZoom: 1.4
+  zoomOutClicks: 6
+  zoomOutMaxZoom: 1
   zoomedOutGraphNodes: 2
   zoomedOutMinVisibleEdges: 1
   zoomedOutRegions: 0
