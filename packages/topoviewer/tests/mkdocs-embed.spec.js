@@ -89,6 +89,38 @@ async function clickZoomControl(page, direction, count) {
   }
 }
 
+async function clickNodeById(page, id) {
+  const node = page.locator(`.react-flow__node[data-id="${id}"]`);
+  if (String(id).startsWith('region:')) {
+    const box = await node.boundingBox();
+    const viewport = page.viewportSize();
+    if (box && viewport) {
+      const point = await page.evaluate(({ targetId, left, right, top, bottom }) => {
+        for (let y = top + 6; y < bottom - 6; y += 16) {
+          for (let x = left + 6; x < right - 6; x += 16) {
+            const hitId = document.elementFromPoint(x, y)?.closest('.react-flow__node')?.getAttribute('data-id');
+            if (hitId === targetId) return { x, y };
+          }
+        }
+        return undefined;
+      }, {
+        targetId: id,
+        left: Math.max(0, box.x),
+        right: Math.min(viewport.width, box.x + box.width),
+        top: Math.max(0, box.y),
+        bottom: Math.min(viewport.height, box.y + box.height)
+      });
+      if (point) {
+        await page.mouse.click(point.x, point.y);
+        await page.waitForTimeout(120);
+        return;
+      }
+    }
+  }
+  await node.click({ force: true });
+  await page.waitForTimeout(120);
+}
+
 async function openExample(page, example) {
   await page.goto(exampleUrl(example), { waitUntil: 'domcontentloaded' });
   await page.waitForSelector('.topoviewer-embed', { timeout: 30000 });
@@ -148,10 +180,10 @@ async function expectGenericExample(page, example) {
     await expect(page.locator('.topoviewer-callout')).toHaveCount(expected.visibleCallouts);
   }
   if (expected.minVisibleEdges !== undefined) {
-    expect(await page.locator('.topoviewer-edge-visible-path').count()).toBeGreaterThanOrEqual(expected.minVisibleEdges);
+    await expect.poll(async () => page.locator('.topoviewer-edge-visible-path').count()).toBeGreaterThanOrEqual(expected.minVisibleEdges);
   }
   if (expected.minRegions !== undefined) {
-    expect(await page.locator('.react-flow__node-region').count()).toBeGreaterThanOrEqual(expected.minRegions);
+    await expect.poll(async () => page.locator('.react-flow__node-region').count()).toBeGreaterThanOrEqual(expected.minRegions);
   }
 }
 
@@ -198,8 +230,22 @@ async function expectControlAssertions(page, example) {
   if (assertions.linkAggregateEdges !== undefined) {
     await expect(page.locator('.topoviewer-edge-aggregate')).toHaveCount(Number(assertions.linkAggregateEdges));
   }
+  if (assertions.edgeLabels) {
+    await expect(page.locator('.topoviewer-edge-label').first()).toBeVisible();
+  }
   if (assertions.edgeLabelText) {
-    await expect(page.locator('.topoviewer-edge-label', { hasText: String(assertions.edgeLabelText) })).toBeVisible();
+    const edgeLabels = page.locator('.topoviewer-edge-label', { hasText: String(assertions.edgeLabelText) });
+    if (assertions.edgeLabelTextCount !== undefined) {
+      await expect(edgeLabels).toHaveCount(Number(assertions.edgeLabelTextCount));
+    } else {
+      await expect(edgeLabels.first()).toBeVisible();
+    }
+  }
+  if (assertions.sourceEdgeLabelText) {
+    await expect(page.locator('.topoviewer-edge-label-source', { hasText: String(assertions.sourceEdgeLabelText) }).first()).toBeVisible();
+  }
+  if (assertions.targetEdgeLabelText) {
+    await expect(page.locator('.topoviewer-edge-label-target', { hasText: String(assertions.targetEdgeLabelText) }).first()).toBeVisible();
   }
 
   if (assertions.zoomInClicks) {
@@ -251,14 +297,14 @@ async function expectControlAssertions(page, example) {
   }
 
   if (assertions.attentionClickNode) {
-    await page.locator(`.react-flow__node[data-id="${assertions.attentionClickNode}"]`).click({ force: true });
+    await clickNodeById(page, assertions.attentionClickNode);
   }
   if (assertions.attentionClickEdge) {
     await page.locator(`.react-flow__edge[data-id="${assertions.attentionClickEdge}"]`).click({ force: true });
   }
 
   if (assertions.expandClickNode) {
-    await page.locator(`.react-flow__node[data-id="${assertions.expandClickNode}"]`).click({ force: true });
+    await clickNodeById(page, assertions.expandClickNode);
   }
   if (assertions.expandClickEdge) {
     await page.locator(`.react-flow__edge[data-id="${assertions.expandClickEdge}"]`).click({ force: true });
@@ -286,7 +332,7 @@ async function expectControlAssertions(page, example) {
     await expect.poll(async () => page.locator('.react-flow__node-region').count()).toBeGreaterThanOrEqual(Number(assertions.expandedMinRegions));
   }
   if (assertions.collapseClickNode) {
-    await page.locator(`.react-flow__node[data-id="${assertions.collapseClickNode}"]`).click({ force: true });
+    await clickNodeById(page, assertions.collapseClickNode);
   }
   if (assertions.collapsedGraphNodes !== undefined) {
     await expect(page.locator('.react-flow__node-network')).toHaveCount(Number(assertions.collapsedGraphNodes));
