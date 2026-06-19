@@ -360,7 +360,7 @@ attention:
       expandOnClick: true
 ```
 
-The default grouping key is `[endpoints, layer]`, which keeps unrelated links separate and only summarizes links between the same visible endpoint pair in the same layer. The aggregate link keeps `data.members`, `data.count`, and `data.isLinkAggregate` for labels, styling, export, and click-to-expand behavior. When the group is expanded, same-endpoint links using `curve-style: bezier` are drawn as bundled quadratic Bezier edges with distinct control-point curvature. Set `control-point-step-size` in the link style when the default separation needs to be stronger.
+The default grouping key is `[endpoints, layer]`, which keeps unrelated links separate and only summarizes links between the same visible endpoint pair in the same layer. The aggregate link keeps `data.members`, `data.count`, and `data.isLinkAggregate` for labels, styling, export, and click-to-expand behavior. When the group is expanded, same-endpoint links using `curveStyle: bezier` are drawn as bundled quadratic Bezier edges with distinct control-point curvature. Set `controlPointStepSize` in the link style when the default separation needs to be stronger.
 
 Link grouping can also follow viewport zoom:
 

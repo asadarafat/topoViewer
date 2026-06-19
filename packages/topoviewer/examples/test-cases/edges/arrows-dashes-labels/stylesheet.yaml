@@ -52,14 +52,14 @@ stylesheet:
       targetArrowShape: triangle
   - selector: link[labels.direction = "reply"]
     style:
-      source-label: source PCE
-      target-label: target PCC
-      source-label-x-offset: -46
-      source-label-y-offset: 32
-      target-label-x-offset: 46
-      target-label-y-offset: 32
+      sourceLabel: source PCE
+      targetLabel: target PCC
+      sourceLabelXOffset: -46
+      sourceLabelYOffset: 32
+      targetLabelXOffset: 46
+      targetLabelYOffset: 32
       curveStyle: bezier
-      control-point-distance: -78
+      controlPointDistance: -78
       lineColor: "#38bdf8"
       lineDashPattern: 2 5
       targetArrowShape: triangle

@@ -132,35 +132,36 @@ Hardcoded pale labels such as `#e5e7eb` look good in dark mode but disappear in 
 
 Links, paths, and callout lines share the same edge style keys.
 Edge labels, including source and target endpoint labels, render when the `showEdgeLabels` toggle is enabled.
+TopoViewer style keys are canonical `camelCase` in both TypeScript and Stylesheet YAML.
 
 | Key | Values | Use |
 |---|---|---|
-| `curveStyle`, `curve-style` | `straight`, `haystack`, `segments`, `taxi`, `smooth-taxi`, `smoothstep`, `simplebezier`, `unbundled-bezier`, `bezier` | Edge route shape. `bezier` separates same-endpoint parallel edges by varying control-point curvature. |
+| `curveStyle` | `straight`, `haystack`, `segments`, `taxi`, `smooth-taxi`, `smoothstep`, `simplebezier`, `unbundled-bezier`, `bezier` | Edge route shape. `bezier` separates same-endpoint parallel edges by varying control-point curvature. |
 | `anchor` | `floating`, `fixed` | `floating` is default and attaches edges to the visible node icon. |
-| `lineColor`, `line-color` | CSS color | Stroke color. |
-| `lineWidth`, `line-width`, `width` | number | Stroke width. Defaults to 1. |
+| `lineColor` | CSS color | Stroke color. |
+| `lineWidth` | number | Stroke width. Defaults to 1. |
 | `pipe` | boolean | Renders a parent link/path as a pipe/corridor. Automatically enabled when the object has visible child links or child paths. |
 | `pipeWidth` | number | Width of the parent pipe fill. |
 | `pipeFill`, `pipeOpacity` | CSS color, number | Fill color and opacity for the parent pipe. |
 | `pipeBorderColor`, `pipeBorderWidth` | CSS color, number | Outer pipe border styling. |
-| `controlPointStepSize`, `control-point-step-size` | number | Distance between same-endpoint `bezier` edge control points. This follows Cytoscape's bundled Bezier edge model. |
-| `controlPointDistance`, `control-point-distance` | number | Manual Bezier control-point distance for one edge. Same values intentionally overlap. |
-| `controlPointWeight`, `control-point-weight` | number | Control-point weight from source to target. Defaults to `0.5`. |
+| `controlPointStepSize` | number | Distance between same-endpoint `bezier` edge control points. This follows Cytoscape's bundled Bezier edge model. |
+| `controlPointDistance` | number | Manual Bezier control-point distance for one edge. Same values intentionally overlap. |
+| `controlPointWeight` | number | Control-point weight from source to target. Defaults to `0.5`. |
 | `laneWidth`, `laneGap` | number | Child link/path lane width and spacing when it is carried by a parent link or parent path. |
-| `lineStyle`, `line-style` | `solid`, `dashed`, `dotted` | Convenience dash style. |
-| `lineDashPattern`, `line-dash-pattern` | string or number list | Explicit SVG dash pattern, for example `3 6` or `[3, 6]`. |
-| `lineDashOffset`, `line-dash-offset` | number | Dash offset for animated or phase-shifted dashed edges. |
-| `lineCap`, `line-cap` | `butt`, `round`, `square` | SVG stroke cap. |
-| `lineOpacity`, `line-opacity` | number | Edge line opacity without changing label opacity. |
-| `lineOutlineWidth`, `line-outline-width` | number | Draws an outline behind the edge line. |
-| `lineOutlineColor`, `line-outline-color` | CSS color | Edge line outline color. |
+| `lineStyle` | `solid`, `dashed`, `dotted` | Convenience dash style. |
+| `lineDashPattern` | string or number list | Explicit SVG dash pattern, for example `3 6` or `[3, 6]`. |
+| `lineDashOffset` | number | Dash offset for animated or phase-shifted dashed edges. |
+| `lineCap` | `butt`, `round`, `square` | SVG stroke cap. |
+| `lineOpacity` | number | Edge line opacity without changing label opacity. |
+| `lineOutlineWidth` | number | Draws an outline behind the edge line. |
+| `lineOutlineColor` | CSS color | Edge line outline color. |
 | `targetArrowShape`, `sourceArrowShape` | `none`, `triangle` | Arrow marker. Any non-none value renders an arrow. |
 | `arrowColor` | CSS color | Marker color. Defaults to line color. |
 | `label` | string | Fallback edge label. |
-| `sourceLabel`, `source-label` | string | Label rendered at the source endpoint. |
-| `targetLabel`, `target-label` | string | Label rendered at the target endpoint. |
-| `sourceLabelXOffset`, `source-label-x-offset`, `sourceLabelYOffset`, `source-label-y-offset` | number | Pixel offsets applied to the source endpoint label. |
-| `targetLabelXOffset`, `target-label-x-offset`, `targetLabelYOffset`, `target-label-y-offset` | number | Pixel offsets applied to the target endpoint label. |
+| `sourceLabel` | string | Label rendered at the source endpoint. |
+| `targetLabel` | string | Label rendered at the target endpoint. |
+| `sourceLabelXOffset`, `sourceLabelYOffset` | number | Pixel offsets applied to the source endpoint label. |
+| `targetLabelXOffset`, `targetLabelYOffset` | number | Pixel offsets applied to the target endpoint label. |
 | `labelColor`, `labelFontSize`, `labelFontWeight` | CSS values | Edge label typography. |
 | `textBackgroundColor`, `textBackgroundOpacity` | CSS color, number | Edge label backing. |
 | `animated` | boolean | Enables React Flow edge animation. |

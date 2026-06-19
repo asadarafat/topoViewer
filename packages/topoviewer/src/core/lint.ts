@@ -48,6 +48,15 @@ function objectLayerIssues(entity: GraphEntity, knownLayers: Set<string>, path: 
   ));
 }
 
+function styleKeyIssues(style: Record<string, unknown> | undefined, path: string): LintIssue[] {
+  if (!style || typeof style !== 'object') return [];
+  return Object.keys(style).flatMap((key) => (
+    key.includes('-')
+      ? [issue('error', 'non-canonical-style-key', `Style key "${key}" is not supported; use camelCase style keys.`, `${path}.${key}`)]
+      : []
+  ));
+}
+
 function hasSequence(path: GraphPath): path is GraphPath & { sequence: string[] } {
   return Array.isArray(path.sequence) && path.sequence.length >= 2;
 }
@@ -103,6 +112,7 @@ export function lintTopoDocument(input: TopoDocument, options: LintOptions = {})
   (graph.nodes || []).forEach((node, index) => {
     addEntity(seenIds, issues, 'node', node, `graph.nodes[${index}]`, requireNames);
     issues.push(...objectLayerIssues(node, knownLayers, `graph.nodes[${index}]`));
+    issues.push(...styleKeyIssues(node.style, `graph.nodes[${index}].style`));
     if (node.parent && !nodeIds.has(node.parent)) {
       issues.push(issue('error', 'broken-parent', `Node "${node.id}" parent "${node.parent}" does not exist as a node.`, `graph.nodes[${index}].parent`));
     }
@@ -111,6 +121,7 @@ export function lintTopoDocument(input: TopoDocument, options: LintOptions = {})
   (graph.links || []).forEach((link: GraphLink, index) => {
     addEntity(seenIds, issues, 'link', link, `graph.links[${index}]`, requireNames);
     issues.push(...objectLayerIssues(link, knownLayers, `graph.links[${index}]`));
+    issues.push(...styleKeyIssues(link.style, `graph.links[${index}].style`));
     if (!nodeIds.has(link.source)) issues.push(issue('error', 'broken-source', `Link "${link.id}" source "${link.source}" does not exist.`, `graph.links[${index}].source`));
     if (!nodeIds.has(link.target)) issues.push(issue('error', 'broken-target', `Link "${link.id}" target "${link.target}" does not exist.`, `graph.links[${index}].target`));
     if (link.parent && !linkIds.has(link.parent)) {
@@ -121,6 +132,7 @@ export function lintTopoDocument(input: TopoDocument, options: LintOptions = {})
   (graph.paths || []).forEach((path, index) => {
     addEntity(seenIds, issues, 'path', path, `graph.paths[${index}]`, requireNames);
     issues.push(...objectLayerIssues(path, knownLayers, `graph.paths[${index}]`));
+    issues.push(...styleKeyIssues(path.style, `graph.paths[${index}].style`));
     if (hasSequence(path)) {
       path.sequence.forEach((nodeId, sequenceIndex) => {
         if (!nodeIds.has(nodeId)) {
@@ -151,6 +163,7 @@ export function lintTopoDocument(input: TopoDocument, options: LintOptions = {})
   (graph.regions || []).forEach((region, index) => {
     addEntity(seenIds, issues, 'region', region, `graph.regions[${index}]`, requireNames);
     issues.push(...objectLayerIssues(region, knownLayers, `graph.regions[${index}]`));
+    issues.push(...styleKeyIssues(region.style, `graph.regions[${index}].style`));
     (region.members || []).forEach((member, memberIndex) => {
       if (!nodeIds.has(member) && !regionIds.has(member)) {
         issues.push(issue('error', 'broken-region-member', `Region "${region.id}" member "${member}" does not exist as a node or region.`, `graph.regions[${index}].members[${memberIndex}]`));
@@ -164,17 +177,21 @@ export function lintTopoDocument(input: TopoDocument, options: LintOptions = {})
   (diagram.shapes || []).forEach((shape, index) => {
     addEntity(seenIds, issues, 'shape', shape, `diagram.shapes[${index}]`, false);
     issues.push(...objectLayerIssues(shape, knownLayers, `diagram.shapes[${index}]`));
+    issues.push(...styleKeyIssues(shape.style, `diagram.shapes[${index}].style`));
   });
 
   (diagram.callouts || []).forEach((callout, index) => {
     addEntity(seenIds, issues, 'callout', callout, `diagram.callouts[${index}]`, false);
     issues.push(...objectLayerIssues(callout, knownLayers, `diagram.callouts[${index}]`));
+    issues.push(...styleKeyIssues(callout.style, `diagram.callouts[${index}].style`));
+    issues.push(...styleKeyIssues(callout.leader, `diagram.callouts[${index}].leader`));
     if (callout.target && !nodeIds.has(callout.target) && !seenIds.has(callout.target)) {
       issues.push(issue('error', 'broken-callout-target', `Callout "${callout.id}" target "${callout.target}" does not exist.`, `diagram.callouts[${index}].target`));
     }
   });
 
   (document.stylesheet || []).forEach((rule, index) => {
+    issues.push(...styleKeyIssues(rule.style, `stylesheet[${index}].style`));
     if (!selectorTargetsGeneratedObject(rule.selector) && !selectorHasMatch(rule, document)) {
       issues.push(issue('warning', 'unused-selector', `Stylesheet selector "${rule.selector}" does not match any current object.`, `stylesheet[${index}].selector`));
     }

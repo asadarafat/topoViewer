@@ -6,7 +6,17 @@ import { migrateTopoDocument } from './migration';
 const scalarSchema = z.union([z.string(), z.number(), z.boolean()]);
 const labelsSchema = z.record(scalarSchema);
 const dataSchema = z.record(z.unknown());
-const styleSchema = z.record(z.unknown());
+const styleSchema = z.record(z.unknown()).superRefine((style, ctx) => {
+  for (const key of Object.keys(style)) {
+    if (key.includes('-')) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `Style key "${key}" is not supported; use camelCase style keys.`,
+        path: [key]
+      });
+    }
+  }
+});
 
 const positionSchema = z.union([
   z.tuple([z.number(), z.number()]),

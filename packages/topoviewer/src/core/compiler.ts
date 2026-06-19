@@ -132,10 +132,6 @@ function parallelLinkLanes(links: readonly GraphLink[]): Map<string, { groupId: 
   return lanes;
 }
 
-function styleValue(style: Record<string, unknown>, ...keys: string[]): unknown {
-  return keys.map((key) => style[key]).find((item) => item !== undefined && item !== null);
-}
-
 function compileShapeNodes(
   shapes: DiagramShape[],
   selectedLayers: Set<string>,
@@ -497,15 +493,15 @@ function buildEdges(
     }
     const parallelLane = !parentLink && !hasChildLanes ? linkLanes.get(link.id) : undefined;
     if (parallelLane) {
-      const controlPointStepSize = styleValue(visualStyle, 'controlPointStepSize', 'control-point-step-size');
-      const laneGap = styleValue(visualStyle, 'laneGap', 'lane-gap') ?? controlPointStepSize ?? 14;
+      const controlPointStepSize = visualStyle.controlPointStepSize;
+      const laneGap = visualStyle.laneGap ?? controlPointStepSize ?? 14;
       edgeData.isLane = true;
       edgeData.parallelLinkGroup = parallelLane.groupId;
       edgeData.laneIndex = parallelLane.index;
       edgeData.laneCount = parallelLane.count;
       edgeData.laneGap = laneGap;
       edgeData.controlPointStepSize = controlPointStepSize ?? laneGap;
-      edgeData.laneWidth = styleValue(visualStyle, 'laneWidth', 'lane-width') ?? styleValue(visualStyle, 'lineWidth', 'line-width', 'width') ?? 3;
+      edgeData.laneWidth = visualStyle.laneWidth ?? visualStyle.lineWidth ?? 3;
     }
     if (parentLink && laneIndex !== undefined) {
       edgeData.isLane = true;

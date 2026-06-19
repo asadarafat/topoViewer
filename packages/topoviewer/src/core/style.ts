@@ -180,26 +180,22 @@ function colorWithOpacity(color: unknown, opacity: unknown): string | undefined 
   return `rgba(${red}, ${green}, ${blue}, ${opacity})`;
 }
 
-function styleValue(style: StyleDeclaration, ...keys: string[]): unknown {
-  return keys.map((key) => style[key]).find((item) => item !== undefined && item !== null);
-}
-
 function dashPattern(value: unknown): string {
   if (Array.isArray(value)) return value.join(' ');
   return String(value);
 }
 
 function mapLineDash(style: StyleDeclaration): string {
-  const explicitPattern = styleValue(style, 'lineDashPattern', 'line-dash-pattern');
+  const explicitPattern = style.lineDashPattern;
   if (explicitPattern !== undefined) return dashPattern(explicitPattern);
-  const lineStyle = String(styleValue(style, 'lineStyle', 'line-style') || 'solid').toLowerCase();
+  const lineStyle = String(style.lineStyle || 'solid').toLowerCase();
   if (lineStyle === 'dashed') return '8 6';
   if (lineStyle === 'dotted') return '2 6';
   return '';
 }
 
 function mapCurveStyle(style: StyleDeclaration): string {
-  const curveStyle = String(styleValue(style, 'curveStyle', 'curve-style') || 'bezier').toLowerCase();
+  const curveStyle = String(style.curveStyle || 'bezier').toLowerCase();
   if (['straight', 'haystack'].includes(curveStyle)) return 'straight';
   if (['segments', 'taxi'].includes(curveStyle)) return 'step';
   if (['round-segments', 'round-taxi', 'smooth-taxi', 'smooth-step', 'smoothstep'].includes(curveStyle)) return 'smoothstep';
@@ -273,14 +269,14 @@ export function compileNodeStyle(style: StyleDeclaration, entity: GraphEntity, s
 }
 
 export function compileEdgeStyle(style: StyleDeclaration, entity: GraphEntity, spec: StylesheetDocument, labelsEnabled: boolean) {
-  const lineColor = String(styleValue(style, 'lineColor', 'line-color') || '#6ea8fe');
+  const lineColor = String(style.lineColor || '#6ea8fe');
   const label = edgeLabel(entity, spec, labelsEnabled, String(style.label || ''));
-  const sourceLabel = labelsEnabled ? styleValue(style, 'sourceLabel', 'source-label') : undefined;
-  const targetLabel = labelsEnabled ? styleValue(style, 'targetLabel', 'target-label') : undefined;
+  const sourceLabel = labelsEnabled ? style.sourceLabel : undefined;
+  const targetLabel = labelsEnabled ? style.targetLabel : undefined;
   const curveType = mapCurveStyle(style);
   const anchor = String(style.anchor || 'floating').toLowerCase();
-  const lineWidth = Number(styleValue(style, 'lineWidth', 'line-width', 'width') || 1);
-  const lineOpacity = styleValue(style, 'lineOpacity', 'line-opacity', 'opacity');
+  const lineWidth = Number(style.lineWidth || 1);
+  const lineOpacity = style.lineOpacity ?? style.opacity;
 
   return withoutUndefined({
     type: anchor === 'floating' ? 'floating' : curveType === 'bezier' ? 'default' : curveType,
@@ -308,29 +304,29 @@ export function compileEdgeStyle(style: StyleDeclaration, entity: GraphEntity, s
       pipeBorderColor: style.pipeBorderColor || style.lineColor,
       pipeBorderWidth: style.pipeBorderWidth,
       pipeOpacity: style.pipeOpacity,
-      laneWidth: styleValue(style, 'laneWidth', 'lane-width'),
-      laneGap: styleValue(style, 'laneGap', 'lane-gap'),
-      controlPointStepSize: styleValue(style, 'controlPointStepSize', 'control-point-step-size'),
-      controlPointDistance: styleValue(style, 'controlPointDistance', 'control-point-distance'),
-      controlPointWeight: styleValue(style, 'controlPointWeight', 'control-point-weight'),
-      edgeDistances: styleValue(style, 'edgeDistances', 'edge-distances'),
-      lineCap: styleValue(style, 'lineCap', 'line-cap'),
-      lineOutlineWidth: styleValue(style, 'lineOutlineWidth', 'line-outline-width'),
-      lineOutlineColor: styleValue(style, 'lineOutlineColor', 'line-outline-color'),
+      laneWidth: style.laneWidth,
+      laneGap: style.laneGap,
+      controlPointStepSize: style.controlPointStepSize,
+      controlPointDistance: style.controlPointDistance,
+      controlPointWeight: style.controlPointWeight,
+      edgeDistances: style.edgeDistances,
+      lineCap: style.lineCap,
+      lineOutlineWidth: style.lineOutlineWidth,
+      lineOutlineColor: style.lineOutlineColor,
       lineOpacity,
       sourceLabel: sourceLabel === undefined ? undefined : String(sourceLabel),
       targetLabel: targetLabel === undefined ? undefined : String(targetLabel),
-      sourceLabelXOffset: styleValue(style, 'sourceLabelXOffset', 'source-label-x-offset', 'sourceLabelOffsetX', 'source-label-offset-x'),
-      sourceLabelYOffset: styleValue(style, 'sourceLabelYOffset', 'source-label-y-offset', 'sourceLabelOffsetY', 'source-label-offset-y'),
-      targetLabelXOffset: styleValue(style, 'targetLabelXOffset', 'target-label-x-offset', 'targetLabelOffsetX', 'target-label-offset-x'),
-      targetLabelYOffset: styleValue(style, 'targetLabelYOffset', 'target-label-y-offset', 'targetLabelOffsetY', 'target-label-offset-y')
+      sourceLabelXOffset: style.sourceLabelXOffset,
+      sourceLabelYOffset: style.sourceLabelYOffset,
+      targetLabelXOffset: style.targetLabelXOffset,
+      targetLabelYOffset: style.targetLabelYOffset
     },
     style: withoutUndefined({
       stroke: lineColor,
       strokeWidth: lineWidth,
       strokeDasharray: mapLineDash(style),
-      strokeDashoffset: styleValue(style, 'lineDashOffset', 'line-dash-offset'),
-      strokeLinecap: styleValue(style, 'lineCap', 'line-cap'),
+      strokeDashoffset: style.lineDashOffset,
+      strokeLinecap: style.lineCap,
       opacity: lineOpacity
     })
   });

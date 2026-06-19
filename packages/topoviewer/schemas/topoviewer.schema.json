@@ -69,6 +69,11 @@
     },
     "style": {
       "type": "object",
+      "propertyNames": {
+        "not": {
+          "pattern": "-"
+        }
+      },
       "additionalProperties": true
     },
     "limits": {

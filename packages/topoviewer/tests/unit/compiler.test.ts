@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { compileTopoGraph, type TopoDocument } from '../../src';
+import { compileTopoGraph, validateTopoDocument, type TopoDocument } from '../../src';
+import { compileEdgeStyle } from '../../src/core/style';
 
 describe('compileTopoGraph', () => {
   it('compiles edge endpoint labels and offsets when edge labels are enabled', () => {
@@ -23,8 +24,8 @@ describe('compileTopoGraph', () => {
             targetLabel: 'target side',
             sourceLabelXOffset: -8,
             sourceLabelYOffset: -12,
-            'target-label-x-offset': 8,
-            'target-label-y-offset': 12
+            targetLabelXOffset: 8,
+            targetLabelYOffset: 12
           }
         }
       ]
@@ -59,7 +60,7 @@ describe('compileTopoGraph', () => {
         ]
       },
       stylesheet: [
-        { selector: 'link', style: { 'curve-style': 'bezier', 'control-point-step-size': 18, width: 3, 'line-color': '#2563eb' } }
+        { selector: 'link', style: { curveStyle: 'bezier', controlPointStepSize: 18, lineWidth: 3, lineColor: '#2563eb' } }
       ]
     };
 
@@ -78,5 +79,38 @@ describe('compileTopoGraph', () => {
       expect.objectContaining({ stroke: '#2563eb', strokeWidth: 3 })
     ]);
     expect(new Set(laneData.map((data) => data.parallelLinkGroup)).size).toBe(1);
+  });
+
+  it('rejects kebab-case style keys during document validation', () => {
+    const document: TopoDocument = {
+      version: '1.0',
+      graph: {
+        nodes: [
+          { id: 'a', name: 'A', position: [0, 0] },
+          { id: 'b', name: 'B', position: [100, 0] }
+        ],
+        links: [
+          { id: 'a-b', source: 'a', target: 'b' }
+        ]
+      },
+      stylesheet: [
+        { selector: 'link', style: { 'line-color': '#dc2626' } }
+      ]
+    };
+
+    expect(() => validateTopoDocument(document)).toThrow(/line-color/);
+  });
+
+  it('does not normalize kebab-case style keys inside edge style compilation', () => {
+    const edge = compileEdgeStyle(
+      { 'curve-style': 'straight', 'line-color': '#dc2626', width: 8 },
+      { id: 'a-b', source: 'a', target: 'b' },
+      {},
+      true
+    );
+
+    expect(edge.type).toBe('floating');
+    expect(edge.style).toEqual(expect.objectContaining({ stroke: '#6ea8fe', strokeWidth: 1 }));
+    expect((edge.data as Record<string, unknown>).curveType).toBe('bezier');
   });
 });
