@@ -202,6 +202,18 @@ async function expectControlAssertions(page, example) {
     expect(await page.locator('.topoviewer-node-icon-image[src^="data:image/svg+xml"]').count()).toBeGreaterThan(0);
   }
 
+  if (assertions.nodeShapeTypes) {
+    for (const shapeType of String(assertions.nodeShapeTypes).split(',').map((item) => item.trim()).filter(Boolean)) {
+      await expect(page.locator(`.topoviewer-node-geometry[data-node-shape="${shapeType}"]`).first()).toBeVisible();
+    }
+  }
+
+  if (assertions.customPolygonShape) {
+    await expect(page.locator('.topoviewer-node-geometry[data-node-shape="polygon"] polygon.topoviewer-node-geometry-shape').first()).toBeVisible();
+    const points = await page.locator('.topoviewer-node-geometry[data-node-shape="polygon"] polygon.topoviewer-node-geometry-shape').first().getAttribute('points');
+    expect(points).toContain('50,10');
+  }
+
   if (assertions.themeVariables) {
     const lightBackground = await page.locator('.topoviewer-figure').evaluate((element) => {
       return getComputedStyle(element).getPropertyValue('--topoviewer-bg').trim();

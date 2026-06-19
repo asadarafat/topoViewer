@@ -33,6 +33,28 @@ examples:
       controls: true
       controlsOpen: false
       title: Parent and child nodes
+  - id: nodes-named-node-shapes
+    title: Named node shapes
+    feature: nodes
+    path: nodes/named-node-shapes
+    page: topoviewer/reference/nodes/named-node-shapes
+    summary: Node body shape can encode device or service role without changing graph facts.
+    render:
+      height: 440px
+      controls: true
+      controlsOpen: false
+      title: Named node shapes
+  - id: nodes-custom-polygon-shape
+    title: Custom polygon node
+    feature: nodes
+    path: nodes/custom-polygon-shape
+    page: topoviewer/reference/nodes/custom-polygon-shape
+    summary: Polygon node bodies use normalized x/y point pairs through `shapePolygonPoints`.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Custom polygon node
   - id: edges-curve-styles
     title: Edge curve styles
     feature: edges

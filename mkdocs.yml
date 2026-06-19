@@ -64,6 +64,7 @@ nav:
       - Release: topoviewer/release.md
   - Examples:
       - Graph: topoviewer/reference/graph/index.md
+      - Nodes: topoviewer/reference/nodes/index.md
       - Edges: topoviewer/reference/edges/index.md
       - Paths: topoviewer/reference/paths/index.md
       - Attention: topoviewer/reference/attention/index.md

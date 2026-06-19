@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { GEOMETRY_SHAPES } from './types';
+import { parseNodeShapePoints } from './nodeShapes';
 import type { TopoDocument } from './types';
 import { migrateTopoDocument } from './migration';
 
@@ -15,6 +16,14 @@ const styleSchema = z.record(z.unknown()).superRefine((style, ctx) => {
         path: [key]
       });
     }
+  }
+  const polygonPoints = parseNodeShapePoints(style.shapePolygonPoints);
+  if (polygonPoints.error) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: polygonPoints.error,
+      path: ['shapePolygonPoints']
+    });
   }
 });
 

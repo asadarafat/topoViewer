@@ -1,4 +1,5 @@
 import { rendererLimitViolations } from './limits';
+import { normalizeNodeShape, parseNodeShapePoints } from './nodeShapes';
 import { selectorMatches } from './selector';
 import type { GraphEntity, GraphLink, GraphPath, StyleRule, TopoDocument } from './types';
 import { validateTopoDocument } from './validation';
@@ -57,6 +58,28 @@ function styleKeyIssues(style: Record<string, unknown> | undefined, path: string
   ));
 }
 
+function selectorKind(selector: string): string {
+  return selector.trim().match(/^[a-zA-Z][\w-]*/)?.[0] || '';
+}
+
+function nodeShapeStyleIssues(style: Record<string, unknown> | undefined, path: string): LintIssue[] {
+  if (!style || typeof style !== 'object') return [];
+  const issues: LintIssue[] = [];
+  if (style.shape !== undefined && !normalizeNodeShape(style.shape)) {
+    issues.push(issue(
+      'error',
+      'unsupported-node-shape',
+      `Node shape "${String(style.shape)}" is not supported; use a canonical TopoViewer node shape value.`,
+      `${path}.shape`
+    ));
+  }
+  const polygonPoints = parseNodeShapePoints(style.shapePolygonPoints);
+  if (polygonPoints.error) {
+    issues.push(issue('error', 'invalid-node-shape-polygon', polygonPoints.error, `${path}.shapePolygonPoints`));
+  }
+  return issues;
+}
+
 function hasSequence(path: GraphPath): path is GraphPath & { sequence: string[] } {
   return Array.isArray(path.sequence) && path.sequence.length >= 2;
 }
@@ -113,6 +136,7 @@ export function lintTopoDocument(input: TopoDocument, options: LintOptions = {})
     addEntity(seenIds, issues, 'node', node, `graph.nodes[${index}]`, requireNames);
     issues.push(...objectLayerIssues(node, knownLayers, `graph.nodes[${index}]`));
     issues.push(...styleKeyIssues(node.style, `graph.nodes[${index}].style`));
+    issues.push(...nodeShapeStyleIssues(node.style, `graph.nodes[${index}].style`));
     if (node.parent && !nodeIds.has(node.parent)) {
       issues.push(issue('error', 'broken-parent', `Node "${node.id}" parent "${node.parent}" does not exist as a node.`, `graph.nodes[${index}].parent`));
     }
@@ -192,6 +216,9 @@ export function lintTopoDocument(input: TopoDocument, options: LintOptions = {})
 
   (document.stylesheet || []).forEach((rule, index) => {
     issues.push(...styleKeyIssues(rule.style, `stylesheet[${index}].style`));
+    if (selectorKind(rule.selector) === 'node') {
+      issues.push(...nodeShapeStyleIssues(rule.style, `stylesheet[${index}].style`));
+    }
     if (!selectorTargetsGeneratedObject(rule.selector) && !selectorHasMatch(rule, document)) {
       issues.push(issue('warning', 'unused-selector', `Stylesheet selector "${rule.selector}" does not match any current object.`, `stylesheet[${index}].selector`));
     }

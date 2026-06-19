@@ -2,6 +2,7 @@ import { MarkerType } from '@xyflow/react';
 import { matchingRules } from './selector';
 import { mergePlainObjects, valueOrDefault, withoutUndefined } from './object';
 import { isSafeImageReference } from './security';
+import { nodeShapePointsToSvg, normalizeNodeShape, parseNodeShapePoints } from './nodeShapes';
 import type { DiagramCallout, DiagramShape, GraphEntity, IconSpec, StyleDeclaration, StylesheetDocument } from './types';
 
 export function applyStyle(kind: string, entity: GraphEntity, spec: StylesheetDocument): StyleDeclaration {
@@ -216,8 +217,11 @@ export function compileNodeStyle(style: StyleDeclaration, entity: GraphEntity, s
   const height = Number(valueOrDefault(style.height as number | undefined, 60));
   const iconWidth = Number(valueOrDefault((style.iconWidth ?? style.iconSize) as number | undefined, 34));
   const iconHeight = Number(valueOrDefault((style.iconHeight ?? style.iconSize) as number | undefined, 34));
-  const shape = String(style.shape || 'ellipse').toLowerCase();
-  const borderRadius = shape === 'rectangle' ? 0 : shape === 'roundrectangle' ? 8 : '50%';
+  const shape = normalizeNodeShape(style.shape) || 'ellipse';
+  const shapePoints = parseNodeShapePoints(style.shapePolygonPoints).points;
+  const fill = String(style.backgroundColor || icon.fill);
+  const stroke = String(style.borderColor || icon.stroke);
+  const borderWidth = Number(valueOrDefault(style.borderWidth as number | undefined, 4));
 
   return {
     flow: withoutUndefined({
@@ -234,6 +238,8 @@ export function compileNodeStyle(style: StyleDeclaration, entity: GraphEntity, s
     }),
     data: {
       iconSpec: icon,
+      nodeShapeType: shape,
+      nodeShapePoints: shape === 'polygon' ? nodeShapePointsToSvg(shapePoints) : undefined,
       labelHtml: markdownToHtml(displayName(entity)),
       edgeAnchor: {
         x: (width - iconWidth) / 2,
@@ -248,11 +254,15 @@ export function compileNodeStyle(style: StyleDeclaration, entity: GraphEntity, s
       iconStyle: withoutUndefined({
         width: iconWidth,
         height: iconHeight,
-        borderRadius,
-        borderColor: style.borderColor || icon.stroke,
-        borderWidth: style.borderWidth,
-        backgroundColor: style.backgroundColor || icon.fill,
+        borderColor: stroke,
+        borderWidth,
+        backgroundColor: fill,
         color: style.iconColor
+      }),
+      nodeShapeStyle: withoutUndefined({
+        fill,
+        stroke,
+        strokeWidth: borderWidth
       }),
       labelStyle: withoutUndefined({
         color: style.labelColor,

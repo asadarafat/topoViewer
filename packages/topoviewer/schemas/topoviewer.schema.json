@@ -74,6 +74,30 @@
           "pattern": "-"
         }
       },
+      "properties": {
+        "shape": {
+          "type": "string",
+          "description": "Shape name. For graph nodes, use canonical TopoViewer node shape values such as ellipse, rectangle, roundRectangle, hexagon, star, or polygon."
+        },
+        "shapePolygonPoints": {
+          "description": "Custom graph-node polygon points in normalized [-1, 1] x/y coordinate space.",
+          "oneOf": [
+            {
+              "type": "array",
+              "minItems": 6,
+              "items": {
+                "type": "number",
+                "minimum": -1,
+                "maximum": 1
+              }
+            },
+            {
+              "type": "string",
+              "minLength": 1
+            }
+          ]
+        }
+      },
       "additionalProperties": true
     },
     "limits": {

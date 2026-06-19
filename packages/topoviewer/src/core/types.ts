@@ -6,6 +6,7 @@ import type {
   FocusQuery,
   LinkGroupingOptions
 } from './attention/types';
+import type { NodeShapeName } from './nodeShapes';
 
 export type Scalar = string | number | boolean;
 export type Labels = Record<string, Scalar>;
@@ -247,6 +248,9 @@ export interface CompiledNodeData extends GraphNode {
   edgeAnchor?: Bounds;
   nodeStyle?: CSSProperties;
   iconStyle?: CSSProperties;
+  nodeShapeType?: NodeShapeName;
+  nodeShapePoints?: string;
+  nodeShapeStyle?: CSSProperties;
   labelHtml?: string;
   labelStyle?: CSSProperties;
   metaStyle?: CSSProperties;

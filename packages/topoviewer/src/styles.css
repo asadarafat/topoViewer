@@ -153,8 +153,13 @@
 }
 
 .topoviewer-node:focus-visible .topoviewer-node-icon {
-  outline: 2px solid #f8fafc;
-  outline-offset: 3px;
+  outline: 0;
+}
+
+.topoviewer-node:focus-visible .topoviewer-node-geometry {
+  filter:
+    drop-shadow(0 0 0 #f8fafc)
+    drop-shadow(0 0 5px rgba(248, 250, 252, 0.82));
 }
 
 .react-flow__node.dragging .topoviewer-node {
@@ -162,17 +167,46 @@
 }
 
 .topoviewer-node-icon {
+  position: relative;
   width: 34px;
   height: 34px;
   display: grid;
   place-items: center;
-  border-radius: 50%;
   color: #fff;
   font-weight: 900;
   font-size: 12px;
-  background: var(--topoviewer-node-fill, #929aa8);
-  border: 4px solid var(--topoviewer-node-stroke, #d9e0ea);
-  box-shadow: var(--topoviewer-node-shadow);
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+.topoviewer-node-geometry {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.26));
+}
+
+.topoviewer-node-geometry-shape {
+  vector-effect: non-scaling-stroke;
+}
+
+.topoviewer-node-icon-content {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  width: 62%;
+  height: 62%;
+  place-items: center;
+  overflow: hidden;
+  line-height: 1;
+  text-align: center;
+  pointer-events: none;
+  user-select: none;
 }
 
 .topoviewer-node-icon-image {
@@ -250,17 +284,25 @@
 }
 
 .topoviewer-node-attention-focused .topoviewer-node-icon {
-  box-shadow:
-    0 0 0 4px rgba(96, 165, 250, 0.28),
-    0 0 18px rgba(96, 165, 250, 0.56),
-    var(--topoviewer-node-shadow);
+  box-shadow: none;
+}
+
+.topoviewer-node-attention-focused .topoviewer-node-geometry {
+  filter:
+    drop-shadow(0 0 0 rgba(96, 165, 250, 0.28))
+    drop-shadow(0 0 10px rgba(96, 165, 250, 0.56))
+    drop-shadow(0 1px 3px rgba(0, 0, 0, 0.26));
 }
 
 .topoviewer-node-attention-related .topoviewer-node-icon {
-  box-shadow:
-    0 0 0 3px rgba(104, 211, 145, 0.22),
-    0 0 14px rgba(104, 211, 145, 0.38),
-    var(--topoviewer-node-shadow);
+  box-shadow: none;
+}
+
+.topoviewer-node-attention-related .topoviewer-node-geometry {
+  filter:
+    drop-shadow(0 0 0 rgba(104, 211, 145, 0.22))
+    drop-shadow(0 0 8px rgba(104, 211, 145, 0.38))
+    drop-shadow(0 1px 3px rgba(0, 0, 0, 0.26));
 }
 
 .topoviewer-node-attention-dimmed,
@@ -270,8 +312,8 @@
 
 .topoviewer-node-attention-aggregate .topoviewer-node-icon,
 .topoviewer-node-label-priority-aggregate .topoviewer-node-icon {
-  width: 42px;
-  height: 30px;
+  width: 42px !important;
+  height: 30px !important;
   border-radius: 8px;
 }
 

@@ -1,0 +1,68 @@
+graph:
+  id: named-node-shapes
+  layers:
+    - id: physical
+      name: Physical
+  nodes:
+    - id: rr-1
+      name: RR 1
+      labels:
+        role: route-reflector
+      layers: [physical]
+      position: [92, 150]
+    - id: pe-1
+      name: PE 1
+      labels:
+        role: pe
+      layers: [physical]
+      position: [230, 82]
+    - id: fw-1
+      name: FW
+      labels:
+        role: firewall
+      layers: [physical]
+      position: [230, 220]
+    - id: svc-1
+      name: VPN
+      labels:
+        role: service
+      layers: [physical]
+      position: [392, 82]
+    - id: client-1
+      name: Client
+      labels:
+        role: client
+      layers: [physical]
+      position: [552, 82]
+    - id: agg-1
+      name: Metro
+      labels:
+        role: aggregate
+      layers: [physical]
+      position: [392, 220]
+  links:
+    - id: rr-pe
+      name: RR to PE
+      source: rr-1
+      target: pe-1
+      layers: [physical]
+    - id: rr-fw
+      name: RR to firewall
+      source: rr-1
+      target: fw-1
+      layers: [physical]
+    - id: pe-svc
+      name: PE to VPN service
+      source: pe-1
+      target: svc-1
+      layers: [physical]
+    - id: svc-client
+      name: VPN to client
+      source: svc-1
+      target: client-1
+      layers: [physical]
+    - id: fw-agg
+      name: Firewall to metro
+      source: fw-1
+      target: agg-1
+      layers: [physical]

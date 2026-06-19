@@ -21,8 +21,10 @@ export {
 export { CURRENT_SCHEMA_VERSION, migrateTopoDocument, migrateTopoToggles } from './core/migration';
 export { validateTopoDocument } from './core/validation';
 export { lintTopoDocument } from './core/lint';
+export { NODE_SHAPES, normalizeNodeShape, parseNodeShapePoints } from './core/nodeShapes';
 export type { StaticExportOptions, StaticPdfExportOptions } from './core/export';
 export type { LintIssue, LintOptions } from './core/lint';
+export type { NodeShapeName, NodeShapePoint, ParsedNodeShapePoints } from './core/nodeShapes';
 export type {
   AttentionGraphIndex,
   AttentionGraphInput,

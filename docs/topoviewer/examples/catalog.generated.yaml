@@ -31,6 +31,26 @@ examples:
     stylesheet: docs/topoviewer/examples/graph/parent-child-nodes/stylesheet.yaml
     expected: docs/topoviewer/examples/graph/parent-child-nodes/expected.yaml
     readme: docs/topoviewer/examples/graph/parent-child-nodes/README.md
+  - id: nodes-named-node-shapes
+    title: Named node shapes
+    feature: nodes
+    path: nodes/named-node-shapes
+    page: topoviewer/reference/nodes/named-node-shapes
+    renderable: true
+    topology: docs/topoviewer/examples/nodes/named-node-shapes/topology.yaml
+    stylesheet: docs/topoviewer/examples/nodes/named-node-shapes/stylesheet.yaml
+    expected: docs/topoviewer/examples/nodes/named-node-shapes/expected.yaml
+    readme: docs/topoviewer/examples/nodes/named-node-shapes/README.md
+  - id: nodes-custom-polygon-shape
+    title: Custom polygon node
+    feature: nodes
+    path: nodes/custom-polygon-shape
+    page: topoviewer/reference/nodes/custom-polygon-shape
+    renderable: true
+    topology: docs/topoviewer/examples/nodes/custom-polygon-shape/topology.yaml
+    stylesheet: docs/topoviewer/examples/nodes/custom-polygon-shape/stylesheet.yaml
+    expected: docs/topoviewer/examples/nodes/custom-polygon-shape/expected.yaml
+    readme: docs/topoviewer/examples/nodes/custom-polygon-shape/README.md
   - id: edges-curve-styles
     title: Edge curve styles
     feature: edges

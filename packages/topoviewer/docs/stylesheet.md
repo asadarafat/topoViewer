@@ -115,7 +115,8 @@ Hardcoded pale labels such as `#e5e7eb` look good in dark mode but disappear in 
 | `iconSize` | number | Sets equal icon width and height. |
 | `iconWidth`, `iconHeight` | number | Sets asymmetric icon size. |
 | `width`, `height` | number | Node body size. |
-| `shape` | `ellipse`, `rectangle`, `roundrectangle` | Icon container shape. |
+| `shape` | node shape name | Node body shape. |
+| `shapePolygonPoints` | number array or string | Custom polygon points when `shape: polygon` is used. |
 | `backgroundColor` | CSS color | Icon fill/background. |
 | `borderColor` | CSS color | Icon border. |
 | `borderWidth` | number | Icon border width. |
@@ -127,6 +128,29 @@ Hardcoded pale labels such as `#e5e7eb` look good in dark mode but disappear in 
 | `display` | `none` | Hide object. |
 | `draggable` | boolean | Defaults to true. |
 | `selectable` | boolean | Defaults to true. |
+
+Supported node body shapes are `ellipse`, `triangle`, `rectangle`, `roundRectangle`, `bottomRoundRectangle`, `cutRectangle`, `barrel`, `rhomboid`, `diamond`, `pentagon`, `hexagon`, `concaveHexagon`, `heptagon`, `octagon`, `star`, `tag`, `vee`, and `polygon`.
+
+Use canonical camelCase for multi-word values:
+
+```yaml
+stylesheet:
+  - selector: node[labels.role = "firewall"]
+    style:
+      shape: cutRectangle
+      backgroundColor: "#fee2e2"
+      borderColor: "#b91c1c"
+```
+
+Custom polygons use normalized x/y pairs in the `[-1, 1]` coordinate space. Values may be an array of numbers or a space-separated string:
+
+```yaml
+stylesheet:
+  - selector: node[labels.role = "site"]
+    style:
+      shape: polygon
+      shapePolygonPoints: "0 -1 0.92 -0.12 0.58 1 -0.58 1 -0.92 -0.12"
+```
 
 ## Link and Path Style Keys
 

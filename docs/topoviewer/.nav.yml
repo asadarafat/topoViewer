@@ -3,6 +3,7 @@ nav:
   - Overview: index.md
   - Reference:
       - Graph: reference/graph/index.md
+      - Nodes: reference/nodes/index.md
       - Edges: reference/edges/index.md
       - Paths: reference/paths/index.md
       - Attention: reference/attention/index.md

@@ -15,6 +15,11 @@ TopoViewer renders declarative graph and diagram documents from YAML. The canoni
 - [Labels and data](reference/graph/labels-and-data/index.md): Classification lives in `labels`; operational values live in `data`.
 - [Parent and child nodes](reference/graph/parent-child-nodes/index.md): Logical nodes can be nested inside physical parent nodes.
 
+### Nodes
+
+- [Named node shapes](reference/nodes/named-node-shapes/index.md): Node body shape can encode device or service role without changing graph facts.
+- [Custom polygon node](reference/nodes/custom-polygon-shape/index.md): Polygon node bodies use normalized x/y point pairs through `shapePolygonPoints`.
+
 ### Edges
 
 - [Edge curve styles](reference/edges/curve-styles/index.md): Different `curveStyle` values produce different edge routing models.

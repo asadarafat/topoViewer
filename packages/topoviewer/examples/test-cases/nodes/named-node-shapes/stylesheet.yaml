@@ -1,0 +1,67 @@
+layout:
+  mode: manual
+  width: 720
+  height: 360
+icons:
+  rr:
+    glyph: RR
+    fill: "#334155"
+    stroke: "#cbd5e1"
+  pe:
+    glyph: PE
+    fill: "#2563eb"
+    stroke: "#bfdbfe"
+  firewall:
+    glyph: FW
+    fill: "#dc2626"
+    stroke: "#fecaca"
+  service:
+    glyph: VPN
+    fill: "#7c3aed"
+    stroke: "#ddd6fe"
+  client:
+    glyph: C
+    fill: "#059669"
+    stroke: "#bbf7d0"
+  aggregate:
+    glyph: M
+    fill: "#0891b2"
+    stroke: "#cffafe"
+stylesheet:
+  - selector: node
+    style:
+      width: 106
+      height: 82
+      iconSize: 56
+      borderWidth: 3
+      labelFontWeight: 800
+      labelColor: var(--topoviewer-fg-strong)
+  - selector: node[labels.role = "route-reflector"]
+    style:
+      icon: rr
+      shape: diamond
+  - selector: node[labels.role = "pe"]
+    style:
+      icon: pe
+      shape: hexagon
+  - selector: node[labels.role = "firewall"]
+    style:
+      icon: firewall
+      shape: cutRectangle
+  - selector: node[labels.role = "service"]
+    style:
+      icon: service
+      shape: concaveHexagon
+  - selector: node[labels.role = "client"]
+    style:
+      icon: client
+      shape: vee
+  - selector: node[labels.role = "aggregate"]
+    style:
+      icon: aggregate
+      shape: roundRectangle
+  - selector: link
+    style:
+      lineColor: "#94a3b8"
+      lineWidth: 2
+      targetArrowShape: none
