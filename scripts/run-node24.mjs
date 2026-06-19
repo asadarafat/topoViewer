@@ -20,7 +20,7 @@ if (process.env.TOPOVIEWER_NODE24_REEXEC === '1') {
   process.exit(1);
 }
 
-console.error(`TopoViewer CI requires Node.js ${REQUIRED_MAJOR} LTS; current Node.js is ${process.versions.node}. Re-running with node@${REQUIRED_MAJOR}.`);
+console.error(`TopoViewer requires Node.js ${REQUIRED_MAJOR} LTS; current Node.js is ${process.versions.node}. Re-running with node@${REQUIRED_MAJOR}.`);
 
 exitWith(spawnCommand('npx', [
   '-y',

@@ -2,11 +2,15 @@
 
 This directory holds durable engineering plans for TopoViewer.
 
-OpenSpec is used here as a lightweight project structure, not as a runtime dependency. Long-lived design and implementation plans live under `openspec/changes/<change-id>/` until they are implemented and archived.
+OpenSpec is used here as a lightweight project structure, not as a runtime dependency. Active design and implementation plans live under `openspec/changes/<change-id>/`; implemented plans move to `openspec/archive/<date>-<change-id>/`.
 
 Current active plans:
 
-- `changes/implement-topology-attention-engine/` - topology attention engine SDD/TDD plan.
+- None.
+
+Archived plans:
+
+- `archive/2026-06-19-implement-topology-attention-engine/` - implemented topology attention engine SDD/TDD plan.
 
 ## Artifact Model
 

@@ -16,12 +16,16 @@ ensure_venv() {
     "$VENV_DIR/bin/python" -m pip install -e "$ROOT_DIR/packages/mkdocs-topoviewer" mkdocs-material
 }
 
+npm_node24() {
+    node "$ROOT_DIR/scripts/run-node24.mjs" npm "$@"
+}
+
 prepare_docs() {
-    npm run sync:docs
+    npm_node24 run sync:docs
 
     if [[ "${TOPOVIEWER_DOCS_SKIP_VIEWER_BUILD:-0}" != "1" ]]; then
-        npm run build
-        npm run sync:mkdocs-assets
+        npm_node24 run build
+        npm_node24 run sync:mkdocs-assets
     fi
 }
 

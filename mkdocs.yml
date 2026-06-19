@@ -61,7 +61,6 @@ nav:
       - Monorepo: topoviewer/monorepo.md
   - Production:
       - Hardening: topoviewer/production.md
-      - Attention Roadmap: topoviewer/attention-roadmap.md
       - Release: topoviewer/release.md
   - Examples:
       - Graph: topoviewer/reference/graph/index.md
