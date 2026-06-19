@@ -6,11 +6,16 @@ OpenSpec is used here as a lightweight project structure, not as a runtime depen
 
 Current active plans:
 
-- `changes/implement-declarative-node-shapes/` - declarative node shape style support.
-- `changes/make-camelcase-canonical-style-keys/` - make camelCase the canonical public style key casing.
+- `changes/implement-parallel-zensical-docs/` - build and publish Zensical documentation in parallel with MkDocs.
+
+Current studies:
+
+- None.
 
 Archived plans:
 
+- `archive/2026-06-19-implement-declarative-node-shapes/` - implemented declarative node shape style support.
+- `archive/2026-06-19-make-camelcase-canonical-style-keys/` - implemented canonical camelCase style key casing.
 - `archive/2026-06-19-implement-topology-attention-engine/` - implemented topology attention engine SDD/TDD plan.
 
 ## Artifact Model
