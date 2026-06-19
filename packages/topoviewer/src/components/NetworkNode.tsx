@@ -81,7 +81,7 @@ function NodeShapeSvg({
       return <polygon points={polygonPoints || points([[50, 8], [92, 50], [50, 92], [8, 50]])} {...common} />;
     case 'ellipse':
     default:
-      return <ellipse cx="50" cy="50" rx="40" ry="34" {...common} />;
+      return <circle cx="50" cy="50" r="40" {...common} />;
   }
 }
 
