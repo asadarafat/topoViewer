@@ -1,0 +1,87 @@
+[project]
+site_name = "TopoViewer Zensical"
+site_description = "Parallel Zensical documentation preview for TopoViewer."
+site_author = "TopoViewer contributors"
+site_url = "https://asadarafat.github.io/topoViewer/zensical/"
+docs_dir = "docs-zensical"
+site_dir = "site/zensical"
+dev_addr = "127.0.0.1:8002"
+copyright = "Copyright &copy; 2026 TopoViewer contributors"
+repo_url = "https://github.com/asadarafat/topoViewer"
+repo_name = "asadarafat/topoViewer"
+extra_css = [
+  "assets/topoviewer/topoviewer-embed.css",
+  "assets/topoviewer/topoviewer-zensical.css",
+]
+extra_javascript = [
+  "assets/topoviewer/topoviewer-embed.iife.js",
+  "assets/topoviewer/topoviewer-zensical.js",
+]
+# BEGIN GENERATED ZENSICAL NAV
+nav = [
+  { "Overview" = "index.md" },
+  { "Model" = [
+    { "Authoring" = "topoviewer/authoring.md" },
+    { "Reference Model" = "topoviewer/reference-model.md" },
+    { "Stylesheet" = "topoviewer/stylesheet.md" },
+    { "Attention" = "topoviewer/attention.md" },
+    { "YAML Schemas" = "topoviewer/schemas.md" }
+  ] },
+  { "Integration" = [
+    { "React" = "topoviewer/react.md" },
+    { "MkDocs" = "topoviewer/mkdocs.md" },
+    { "Monorepo" = "topoviewer/monorepo.md" }
+  ] },
+  { "Production" = [
+    { "Hardening" = "topoviewer/production.md" },
+    { "Release" = "topoviewer/release.md" }
+  ] },
+  { "Examples" = [
+    { "Graph" = "topoviewer/reference/graph/index.md" },
+    { "Nodes" = "topoviewer/reference/nodes/index.md" },
+    { "Edges" = "topoviewer/reference/edges/index.md" },
+    { "Paths" = "topoviewer/reference/paths/index.md" },
+    { "Attention" = "topoviewer/reference/attention/index.md" },
+    { "Regions" = "topoviewer/reference/regions/index.md" },
+    { "Shapes" = "topoviewer/reference/shapes/index.md" },
+    { "Callouts" = "topoviewer/reference/callouts/index.md" },
+    { "Styling" = "topoviewer/reference/styling/index.md" },
+    { "Layout" = "topoviewer/reference/layout/index.md" },
+    { "Validation" = "topoviewer/reference/validation/index.md" },
+    { "Complete Network Demo" = "topoviewer/complete-network-demo/index.md" }
+  ] },
+  { "Zensical" = [
+    { "Embed Adapter" = "examples/topoviewer.md" }
+  ] }
+]
+# END GENERATED ZENSICAL NAV
+
+[project.theme]
+language = "en"
+features = [
+  "content.code.copy",
+  "content.tabs.link",
+  "navigation.footer",
+  "navigation.instant",
+  "navigation.sections",
+  "navigation.top",
+]
+
+[[project.theme.palette]]
+scheme = "default"
+toggle.icon = "lucide/sun"
+toggle.name = "Switch to dark mode"
+
+[[project.theme.palette]]
+scheme = "slate"
+toggle.icon = "lucide/moon"
+toggle.name = "Switch to light mode"
+
+[project.markdown_extensions.admonition]
+[project.markdown_extensions.attr_list]
+[project.markdown_extensions.md_in_html]
+[project.markdown_extensions.pymdownx.details]
+[project.markdown_extensions.pymdownx.superfences]
+[project.markdown_extensions.pymdownx.tabbed]
+alternate_style = true
+[project.markdown_extensions.pymdownx.highlight]

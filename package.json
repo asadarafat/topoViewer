@@ -12,6 +12,8 @@
     "clean": "npm --workspace topoviewer run clean",
     "build": "npm --workspace topoviewer run build",
     "sync:mkdocs-assets": "npm --workspace topoviewer run sync:mkdocs-assets",
+    "sync:zensical-assets": "node scripts/sync-zensical-assets.mjs",
+    "sync:zensical-docs": "node scripts/sync-zensical-docs.mjs",
     "sync:docs-site": "node scripts/sync-docs-site.mjs",
     "sync:examples": "npm --workspace topoviewer run sync:examples",
     "sync:docs": "npm run sync:docs-site && npm run sync:examples",
@@ -29,15 +31,20 @@
     "pack:check": "npm --workspace topoviewer run pack:check",
     "wheel:mkdocs": "rm -rf .artifacts/wheels && python3 -m pip wheel packages/mkdocs-topoviewer --no-deps -w .artifacts/wheels",
     "inspect:wheel": "python3 scripts/inspect-mkdocs-wheel.py .artifacts/wheels",
+    "validate:zensical": "node scripts/check-zensical-build.mjs",
     "docs:setup": "bash scripts/local-mkdocs.sh setup",
     "docs:build": "bash scripts/local-mkdocs.sh build",
+    "docs:build:parallel": "bash scripts/build-parallel-docs.sh",
     "docs:build:fast": "TOPOVIEWER_DOCS_SKIP_VIEWER_BUILD=1 bash scripts/local-mkdocs.sh build",
     "docs:serve": "bash scripts/local-mkdocs.sh serve",
     "docs:serve:fast": "TOPOVIEWER_DOCS_SKIP_VIEWER_BUILD=1 bash scripts/local-mkdocs.sh serve",
     "docs:clean": "bash scripts/local-mkdocs.sh clean",
     "mkdocs:build": "bash scripts/local-mkdocs.sh build",
+    "zensical:setup": "bash scripts/local-zensical.sh setup",
+    "zensical:build": "bash scripts/local-zensical.sh build && npm run validate:zensical",
+    "zensical:serve": "bash scripts/local-zensical.sh serve",
     "ci": "node scripts/run-node24.mjs npm run ci:node24",
-    "ci:node24": "npm run sync:docs && npm run validate:schemas && npm run validate:semantics && npm run build && npm test && npm run benchmark:attention:smoke && npm run pack:check && npm run sync:mkdocs-assets && npm run wheel:mkdocs && npm run inspect:wheel"
+    "ci:node24": "npm run sync:docs && npm run validate:schemas && npm run validate:semantics && npm run build && npm test && npm run benchmark:attention:smoke && npm run pack:check && npm run sync:mkdocs-assets && npm run wheel:mkdocs && npm run inspect:wheel && TOPOVIEWER_ZENSICAL_SKIP_VIEWER_BUILD=1 npm run zensical:build"
   },
   "overrides": {
     "monaco-editor": "0.53.0"

@@ -57,6 +57,15 @@ cd packages/mkdocs-topoviewer
 python -m pip install -e .
 ```
 
+When validating the public documentation targets from the repository root:
+
+```bash
+npm run docs:serve
+npm run zensical:serve
+```
+
+MkDocs serves the canonical documentation site at `http://127.0.0.1:8000/topoViewer/` by default. Zensical serves the parallel preview site at `http://127.0.0.1:8002/` by default. Use `npm run docs:build:parallel` to build the combined GitHub Pages artifact with MkDocs at `site/` and Zensical at `site/zensical/`.
+
 When validating the RTFM integration, the RTFM Makefile can build a local wheel from `mkdocs-topoviewer` and install it into the vanilla MkDocs Material container. That keeps the docs build close to the eventual user install model while still using local source during development.
 
 ## Release Flow
