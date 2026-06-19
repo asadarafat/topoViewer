@@ -131,6 +131,7 @@ Hardcoded pale labels such as `#e5e7eb` look good in dark mode but disappear in 
 ## Link and Path Style Keys
 
 Links, paths, and callout lines share the same edge style keys.
+Edge labels, including source and target endpoint labels, render when the `showEdgeLabels` toggle is enabled.
 
 | Key | Values | Use |
 |---|---|---|
@@ -156,6 +157,10 @@ Links, paths, and callout lines share the same edge style keys.
 | `targetArrowShape`, `sourceArrowShape` | `none`, `triangle` | Arrow marker. Any non-none value renders an arrow. |
 | `arrowColor` | CSS color | Marker color. Defaults to line color. |
 | `label` | string | Fallback edge label. |
+| `sourceLabel`, `source-label` | string | Label rendered at the source endpoint. |
+| `targetLabel`, `target-label` | string | Label rendered at the target endpoint. |
+| `sourceLabelXOffset`, `source-label-x-offset`, `sourceLabelYOffset`, `source-label-y-offset` | number | Pixel offsets applied to the source endpoint label. |
+| `targetLabelXOffset`, `target-label-x-offset`, `targetLabelYOffset`, `target-label-y-offset` | number | Pixel offsets applied to the target endpoint label. |
 | `labelColor`, `labelFontSize`, `labelFontWeight` | CSS values | Edge label typography. |
 | `textBackgroundColor`, `textBackgroundOpacity` | CSS color, number | Edge label backing. |
 | `animated` | boolean | Enables React Flow edge animation. |

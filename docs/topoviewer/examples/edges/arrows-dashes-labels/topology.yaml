@@ -24,7 +24,7 @@ graph:
         - 160
   links:
     - id: pcep-request
-      name: PCEP request
+      name: Path request
       source: PCC
       target: PCE
       labels:
@@ -33,7 +33,7 @@ graph:
       layers:
         - controller
     - id: pcep-reply
-      name: PCEP reply
+      name: Path reply
       source: PCE
       target: PCC
       labels:

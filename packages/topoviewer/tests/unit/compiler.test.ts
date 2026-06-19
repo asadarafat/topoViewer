@@ -2,6 +2,47 @@ import { describe, expect, it } from 'vitest';
 import { compileTopoGraph, type TopoDocument } from '../../src';
 
 describe('compileTopoGraph', () => {
+  it('compiles edge endpoint labels and offsets when edge labels are enabled', () => {
+    const document: TopoDocument = {
+      version: '1.0',
+      graph: {
+        layers: [{ id: 'transport', name: 'Transport' }],
+        nodes: [
+          { id: 'a', name: 'A', layers: ['transport'], position: [0, 0] },
+          { id: 'b', name: 'B', layers: ['transport'], position: [240, 0] }
+        ],
+        links: [
+          { id: 'a-b', name: 'A-B', source: 'a', target: 'b', layers: ['transport'] }
+        ]
+      },
+      stylesheet: [
+        {
+          selector: 'link',
+          style: {
+            sourceLabel: 'source side',
+            targetLabel: 'target side',
+            sourceLabelXOffset: -8,
+            sourceLabelYOffset: -12,
+            'target-label-x-offset': 8,
+            'target-label-y-offset': 12
+          }
+        }
+      ]
+    };
+
+    const compiled = compileTopoGraph(document, ['transport'], { showEdgeLabels: true });
+    const edgeData = compiled.edges[0].data as Record<string, unknown>;
+
+    expect(edgeData).toMatchObject({
+      sourceLabel: 'source side',
+      targetLabel: 'target side',
+      sourceLabelXOffset: -8,
+      sourceLabelYOffset: -12,
+      targetLabelXOffset: 8,
+      targetLabelYOffset: 12
+    });
+  });
+
   it('assigns lane metadata to visible parallel links', () => {
     const document: TopoDocument = {
       version: '1.0',

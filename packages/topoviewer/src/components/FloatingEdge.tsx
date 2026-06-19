@@ -165,6 +165,23 @@ function pathTransform(offset: { x: number; y: number }): string | undefined {
   return `translate(${offset.x} ${offset.y})`;
 }
 
+function textValue(value: unknown): string {
+  if (value === undefined || value === null) return '';
+  return String(value);
+}
+
+function labelStyle(props: EdgeProps, x: number, y: number): CSSProperties {
+  return {
+    color: props.labelStyle?.fill,
+    fontSize: props.labelStyle?.fontSize,
+    fontWeight: props.labelStyle?.fontWeight,
+    background: props.labelBgStyle?.fill,
+    position: 'absolute',
+    transform: `translate(-50%, -50%) translate(${x}px, ${y}px)`,
+    pointerEvents: 'all'
+  };
+}
+
 function pipeStyle(props: EdgeProps, data: Record<string, unknown>, role: 'border' | 'fill'): CSSProperties {
   const baseStroke = String(props.style?.stroke || '#6ea8fe');
   const pipeWidth = numeric(data.pipeWidth, numeric(props.style?.strokeWidth, 1) + 14);
@@ -242,6 +259,12 @@ export function FloatingEdge(props: EdgeProps) {
   const [sourceStubPath] = stitchedSourceStubEndpoints ? straightPathForEndpoints(props, stitchedSourceStubEndpoints) : [''];
   const [targetStubPath] = stitchedTargetStubEndpoints ? straightPathForEndpoints(props, stitchedTargetStubEndpoints) : [''];
   const paintedLaneStyle = isLane ? laneStyle(props, data) : props.style;
+  const sourceLabel = textValue(data.sourceLabel);
+  const targetLabel = textValue(data.targetLabel);
+  const sourceLabelX = endpoints.sourceX + offset.x + numeric(data.sourceLabelXOffset, 0);
+  const sourceLabelY = endpoints.sourceY + offset.y + numeric(data.sourceLabelYOffset, 0);
+  const targetLabelX = endpoints.targetX + offset.x + numeric(data.targetLabelXOffset, 0);
+  const targetLabelY = endpoints.targetY + offset.y + numeric(data.targetLabelYOffset, 0);
 
   return (
     <>
@@ -306,20 +329,36 @@ export function FloatingEdge(props: EdgeProps) {
       {props.label ? (
         <EdgeLabelRenderer>
           <div
-            className="topoviewer-edge-label"
+            className="topoviewer-edge-label topoviewer-edge-label-center"
             data-attention-state={data.attentionState || undefined}
             data-label-priority={data.attentionLabelPriority || undefined}
-            style={{
-              color: props.labelStyle?.fill,
-              fontSize: props.labelStyle?.fontSize,
-              fontWeight: props.labelStyle?.fontWeight,
-              background: props.labelBgStyle?.fill,
-              position: 'absolute',
-              transform: `translate(-50%, -50%) translate(${labelX + offset.x}px, ${labelY + offset.y}px)`,
-              pointerEvents: 'all'
-            }}
+            style={labelStyle(props, labelX + offset.x, labelY + offset.y)}
           >
             {props.label}
+          </div>
+        </EdgeLabelRenderer>
+      ) : null}
+      {sourceLabel ? (
+        <EdgeLabelRenderer>
+          <div
+            className="topoviewer-edge-label topoviewer-edge-label-source"
+            data-attention-state={data.attentionState || undefined}
+            data-label-priority={data.attentionLabelPriority || undefined}
+            style={labelStyle(props, sourceLabelX, sourceLabelY)}
+          >
+            {sourceLabel}
+          </div>
+        </EdgeLabelRenderer>
+      ) : null}
+      {targetLabel ? (
+        <EdgeLabelRenderer>
+          <div
+            className="topoviewer-edge-label topoviewer-edge-label-target"
+            data-attention-state={data.attentionState || undefined}
+            data-label-priority={data.attentionLabelPriority || undefined}
+            style={labelStyle(props, targetLabelX, targetLabelY)}
+          >
+            {targetLabel}
           </div>
         </EdgeLabelRenderer>
       ) : null}

@@ -5,7 +5,7 @@ hide:
 
 # Arrows, dashes, and labels
 
-Arrows, dashes, and labels are edge styling. This lets one topology model express direction, control-plane semantics, and state without inventing extra graph objects.
+Arrows, dashes, and labels are edge styling. The request and reply links use opposite directions, so the endpoint labels make it clear that `sourceLabel` follows the edge source and `targetLabel` follows the edge target. The x/y offsets pull the labels away from the node icons.
 
 === "Live Viewport"
 

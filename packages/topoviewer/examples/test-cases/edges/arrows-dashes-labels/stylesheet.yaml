@@ -28,7 +28,6 @@ stylesheet:
       labelFontWeight: 800
   - selector: link
     style:
-      label: Link
       lineColor: "#60a5fa"
       lineWidth: 1
       targetArrowShape: none
@@ -40,15 +39,27 @@ stylesheet:
       width: 104
   - selector: link[labels.direction = "request"]
     style:
-      label: request
-      curveStyle: unbundled-bezier
+      sourceLabel: source PCC
+      targetLabel: target PCE
+      sourceLabelXOffset: 46
+      sourceLabelYOffset: -32
+      targetLabelXOffset: -46
+      targetLabelYOffset: -32
+      curveStyle: bezier
+      controlPointDistance: -78
       lineColor: "#fbbf24"
       lineDashPattern: 5 5
       targetArrowShape: triangle
   - selector: link[labels.direction = "reply"]
     style:
-      label: reply
-      curveStyle: unbundled-bezier
+      source-label: source PCE
+      target-label: target PCC
+      source-label-x-offset: -46
+      source-label-y-offset: 32
+      target-label-x-offset: 46
+      target-label-y-offset: 32
+      curveStyle: bezier
+      control-point-distance: -78
       lineColor: "#38bdf8"
       lineDashPattern: 2 5
       targetArrowShape: triangle

@@ -275,6 +275,8 @@ export function compileNodeStyle(style: StyleDeclaration, entity: GraphEntity, s
 export function compileEdgeStyle(style: StyleDeclaration, entity: GraphEntity, spec: StylesheetDocument, labelsEnabled: boolean) {
   const lineColor = String(styleValue(style, 'lineColor', 'line-color') || '#6ea8fe');
   const label = edgeLabel(entity, spec, labelsEnabled, String(style.label || ''));
+  const sourceLabel = labelsEnabled ? styleValue(style, 'sourceLabel', 'source-label') : undefined;
+  const targetLabel = labelsEnabled ? styleValue(style, 'targetLabel', 'target-label') : undefined;
   const curveType = mapCurveStyle(style);
   const anchor = String(style.anchor || 'floating').toLowerCase();
   const lineWidth = Number(styleValue(style, 'lineWidth', 'line-width', 'width') || 1);
@@ -315,7 +317,13 @@ export function compileEdgeStyle(style: StyleDeclaration, entity: GraphEntity, s
       lineCap: styleValue(style, 'lineCap', 'line-cap'),
       lineOutlineWidth: styleValue(style, 'lineOutlineWidth', 'line-outline-width'),
       lineOutlineColor: styleValue(style, 'lineOutlineColor', 'line-outline-color'),
-      lineOpacity
+      lineOpacity,
+      sourceLabel: sourceLabel === undefined ? undefined : String(sourceLabel),
+      targetLabel: targetLabel === undefined ? undefined : String(targetLabel),
+      sourceLabelXOffset: styleValue(style, 'sourceLabelXOffset', 'source-label-x-offset', 'sourceLabelOffsetX', 'source-label-offset-x'),
+      sourceLabelYOffset: styleValue(style, 'sourceLabelYOffset', 'source-label-y-offset', 'sourceLabelOffsetY', 'source-label-offset-y'),
+      targetLabelXOffset: styleValue(style, 'targetLabelXOffset', 'target-label-x-offset', 'targetLabelOffsetX', 'target-label-offset-x'),
+      targetLabelYOffset: styleValue(style, 'targetLabelYOffset', 'target-label-y-offset', 'targetLabelOffsetY', 'target-label-offset-y')
     },
     style: withoutUndefined({
       stroke: lineColor,
