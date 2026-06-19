@@ -6,7 +6,8 @@ OpenSpec is used here as a lightweight project structure, not as a runtime depen
 
 Current active plans:
 
-- None.
+- `changes/implement-declarative-node-shapes/` - declarative node shape style support.
+- `changes/make-camelcase-canonical-style-keys/` - make camelCase the canonical public style key casing.
 
 Archived plans:
 
