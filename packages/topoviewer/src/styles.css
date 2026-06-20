@@ -15,8 +15,8 @@
   --topoviewer-border-strong: rgba(120, 143, 170, 0.34);
   --topoviewer-accent: #3da1ff;
   --topoviewer-edge-default: rgba(45, 139, 232, 0.78);
-  --topoviewer-region-label-bg: rgba(17, 24, 32, 0.82);
-  --topoviewer-region-label-fg: #f4f9ff;
+  --topoviewer-region-label-bg: var(--topoviewer-surface-bg);
+  --topoviewer-region-label-fg: var(--topoviewer-fg-strong);
   --topoviewer-edge-label-bg: rgba(17, 24, 32, 0.86);
   --topoviewer-edge-label-border: #2d3846;
   --topoviewer-node-shadow: 0 1px 4px rgba(0, 0, 0, 0.26);

@@ -15,8 +15,8 @@
   --topoviewer-border-strong: color-mix(in srgb, var(--md-default-fg-color, #e7edf4) 28%, transparent);
   --topoviewer-accent: var(--md-accent-fg-color, #3da1ff);
   --topoviewer-edge-default: var(--md-accent-fg-color, #3da1ff);
-  --topoviewer-region-label-bg: color-mix(in srgb, var(--md-default-bg-color, #0b1017) 88%, transparent);
-  --topoviewer-region-label-fg: var(--md-default-fg-color, #e7edf4);
+  --topoviewer-region-label-bg: color-mix(in srgb, var(--md-default-bg-color, #0b1017) 92%, var(--topoviewer-fg-strong) 8%);
+  --topoviewer-region-label-fg: var(--topoviewer-fg-strong);
   --topoviewer-edge-label-bg: color-mix(in srgb, var(--md-default-bg-color, #0b1017) 90%, transparent);
   --topoviewer-edge-label-border: color-mix(in srgb, var(--md-default-fg-color, #e7edf4) 20%, transparent);
   --topoviewer-node-shadow: 0 1px 4px color-mix(in srgb, var(--md-default-fg-color, #e7edf4) 18%, transparent);

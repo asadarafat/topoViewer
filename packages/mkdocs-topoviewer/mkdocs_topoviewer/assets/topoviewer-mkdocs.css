@@ -15,8 +15,8 @@
   --topoviewer-border-strong: color-mix(in srgb, var(--md-default-fg-color) 28%, transparent);
   --topoviewer-accent: var(--md-accent-fg-color);
   --topoviewer-edge-default: var(--md-accent-fg-color);
-  --topoviewer-region-label-bg: color-mix(in srgb, var(--md-default-bg-color) 88%, transparent);
-  --topoviewer-region-label-fg: var(--md-default-fg-color);
+  --topoviewer-region-label-bg: color-mix(in srgb, var(--md-default-bg-color) 92%, var(--md-default-fg-color) 8%);
+  --topoviewer-region-label-fg: var(--topoviewer-fg-strong);
   --topoviewer-edge-label-bg: color-mix(in srgb, var(--md-default-bg-color) 90%, transparent);
   --topoviewer-edge-label-border: color-mix(in srgb, var(--md-default-fg-color) 20%, transparent);
   --topoviewer-node-shadow: 0 1px 4px color-mix(in srgb, var(--md-default-fg-color) 18%, transparent);
@@ -59,12 +59,16 @@
   --topoviewer-bg-radial-a: rgba(45, 139, 232, 0.16);
   --topoviewer-bg-radial-b: rgba(83, 182, 109, 0.08);
   --topoviewer-bg-end: #0b1017;
+  --topoviewer-fg: #e7edf4;
+  --topoviewer-fg-strong: #edf4ff;
+  --topoviewer-fg-muted: #9db2cf;
   --topoviewer-panel-bg: rgba(13, 20, 29, 0.96);
   --topoviewer-surface-bg: rgba(17, 24, 32, 0.86);
   --topoviewer-chip-bg: rgba(22, 32, 44, 0.86);
   --topoviewer-chip-hover-bg: rgba(45, 139, 232, 0.28);
   --topoviewer-button-bg: rgba(41, 59, 77, 0.72);
-  --topoviewer-region-label-bg: rgba(17, 24, 32, 0.82);
+  --topoviewer-region-label-bg: rgba(17, 24, 32, 0.88);
+  --topoviewer-region-label-fg: var(--topoviewer-fg-strong);
   --topoviewer-edge-label-bg: rgba(17, 24, 32, 0.86);
   --topoviewer-router-generic-fill: #6ea8fe;
   --topoviewer-router-cisco-fill: #16a3b8;
