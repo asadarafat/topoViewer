@@ -1,8 +1,8 @@
 renderable: true
 visualSnapshot: false
 dom:
-  graphNodes: 7
-  minVisibleEdges: 8
+  graphNodes: 5
+  minVisibleEdges: 5
   minRegions: 3
 assertions:
   controls: true

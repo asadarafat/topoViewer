@@ -581,8 +581,8 @@ examples:
     topology: docs/topoviewer/examples/integration/real-network-underlay/topology.yaml
     stylesheet: docs/topoviewer/examples/integration/real-network-underlay/stylesheet.yaml
     expected:
-      graphNodes: 7
-      minVisibleEdges: 8
+      graphNodes: 4
+      minVisibleEdges: 3
       minRegions: 3
     readme: docs/topoviewer/examples/integration/real-network-underlay/README.md
   - id: integration-real-network-bgp
@@ -594,10 +594,23 @@ examples:
     topology: docs/topoviewer/examples/integration/real-network-bgp/topology.yaml
     stylesheet: docs/topoviewer/examples/integration/real-network-bgp/stylesheet.yaml
     expected:
-      graphNodes: 7
-      minVisibleEdges: 8
+      graphNodes: 5
+      minVisibleEdges: 5
       minRegions: 3
     readme: docs/topoviewer/examples/integration/real-network-bgp/README.md
+  - id: integration-real-network-transport-layer
+    title: Real network transport layer
+    feature: integration
+    path: integration/real-network-transport-layer
+    page: topoviewer/real-network-demo/transport-layer
+    renderable: true
+    topology: docs/topoviewer/examples/integration/real-network-transport-layer/topology.yaml
+    stylesheet: docs/topoviewer/examples/integration/real-network-transport-layer/stylesheet.yaml
+    expected:
+      graphNodes: 5
+      minVisibleEdges: 8
+      minRegions: 3
+    readme: docs/topoviewer/examples/integration/real-network-transport-layer/README.md
   - id: integration-real-network-service-path
     title: Real network service path
     feature: integration
@@ -608,7 +621,7 @@ examples:
     stylesheet: docs/topoviewer/examples/integration/real-network-service-path/stylesheet.yaml
     expected:
       graphNodes: 7
-      minVisibleEdges: 8
+      minVisibleEdges: 13
       minRegions: 3
     readme: docs/topoviewer/examples/integration/real-network-service-path/README.md
   - id: integration-real-network-failure-view
@@ -621,7 +634,7 @@ examples:
     stylesheet: docs/topoviewer/examples/integration/real-network-failure-view/stylesheet.yaml
     expected:
       graphNodes: 7
-      minVisibleEdges: 8
+      minVisibleEdges: 13
       minRegions: 3
     readme: docs/topoviewer/examples/integration/real-network-failure-view/README.md
   - id: integration-complete-network-demo

@@ -4,31 +4,30 @@ layout:
   height: 520
 icons:
   router.pe:
-    glyph: PE
+    glyph: ""
     fill: "#2563eb"
     stroke: "#bfdbfe"
   router.p:
-    glyph: P
+    glyph: ""
     fill: "#0f766e"
     stroke: "#99f6e4"
   router.rr:
-    glyph: RR
+    glyph: ""
     fill: "#7c3aed"
     stroke: "#ddd6fe"
   router.ce:
-    glyph: CE
-    fill: "#f59e0b"
-    stroke: "#fde68a"
-labelFields:
-  - name
+    glyph: ""
+    fill: "#ff9800"
+    stroke: "#ffe0b2"
+labelFields: []
 stylesheet:
   - selector: node
     style:
-      icon: router.p
-      width: 86
-      height: 62
-      iconSize: 34
       shape: roundRectangle
+      icon: router.p
+      width: 112
+      height: 82
+      iconSize: 52
       backgroundColor: "#ffffff"
       borderColor: "#94a3b8"
       borderWidth: 2
@@ -36,16 +35,20 @@ stylesheet:
       labelFontSize: 12
       labelFontWeight: 800
       labelBackgroundColor: "#ffffff"
-      labelBackgroundOpacity: 0.90
       labelPadding: 4
+      metaColor: "transparent"
+      metaFontSize: 0
       statusColor: "#22c55e"
       statusPlacement: topRight
-      statusSize: 12
+      statusSize: 11
   - selector: node[labels.role = "pe"]
     style:
       icon: router.pe
       shape: hexagon
       borderColor: "#2563eb"
+      underlayColor: "#bfdbfe"
+      underlayOpacity: 0.24
+      underlayPadding: 8
   - selector: node[labels.role = "p"]
     style:
       icon: router.p
@@ -54,12 +57,30 @@ stylesheet:
   - selector: node[labels.role = "rr"]
     style:
       icon: router.rr
+      shape: diamond
       borderColor: "#7c3aed"
-      opacity: 0.82
+      badgeLabel: RR
+      badgeBackgroundColor: "#7c3aed"
+      badgeColor: "#ffffff"
+      badgeBorderColor: "#ddd6fe"
+      underlayColor: "#ddd6fe"
+      underlayOpacity: 0.16
+      underlayPadding: 8
   - selector: node[labels.role = "ce"]
     style:
       icon: router.ce
       shape: rectangle
+      width: 94
+      height: 64
+      iconSize: 38
+      borderColor: "#ff9800"
+      badgeLabel: VPN
+      badgeBackgroundColor: "#ff9800"
+      badgeColor: "#ffffff"
+      badgeBorderColor: "#ffe0b2"
+      underlayColor: "#fff3e0"
+      underlayOpacity: 0.72
+      underlayPadding: 8
   - selector: node[data.severity = "critical"]
     style:
       statusColor: "#dc2626"
@@ -82,15 +103,45 @@ stylesheet:
       badgeBorderColor: "#fde68a"
   - selector: link
     style:
-      curveStyle: bezier
-      lineColor: "#94a3b8"
-      lineWidth: 1
-      lineOpacity: 0.40
+      curveStyle: straight
+      lineColor: "#64748b"
+      lineWidth: 4
       targetArrowShape: none
       labelColor: "#475569"
       labelFontSize: 11
       textBackgroundColor: "#ffffff"
-      textBackgroundOpacity: 0.92
+  - selector: link[labels.layer = "underlay"]
+    style:
+      curveStyle: straight
+      lineColor: "#64748b"
+      lineWidth: 4
+  - selector: link[labels.protocol = "bgp"]
+    style:
+      label: BGP
+      sourceLabel: iBGP
+      targetLabel: RR
+      curveStyle: unbundled-bezier
+      lineColor: "#7c3aed"
+      lineWidth: 2
+      lineStyle: dashed
+      lineDashPattern: 7 7
+      lineOpacity: 0.42
+      targetArrowShape: triangle
+      targetArrowColor: "#7c3aed"
+      sourceLabelColor: "#7c3aed"
+      targetLabelColor: "#7c3aed"
+      textBackgroundColor: "#ffffff"
+  - selector: link[labels.tenant = "payments"]
+    style:
+      label: access
+      curveStyle: smooth-taxi
+      lineColor: "#ff9800"
+      lineWidth: 5
+      lineOpacity: 0.95
+      targetArrowShape: triangle
+      targetArrowColor: "#ff9800"
+      textBackgroundColor: "#ffffff"
+      labelColor: "#e65100"
   - selector: link[data.severity = "critical"]
     style:
       label: fiber cut
@@ -105,23 +156,55 @@ stylesheet:
       lineColor: "#f59e0b"
       lineWidth: 5
       lineOpacity: 1
+  - selector: path[labels.path = "transport"]
+    style:
+      label: SR transport
+      curveStyle: smooth-taxi
+      lineColor: "#0288d1"
+      lineWidth: 4
+      lineOpacity: 0.72
+      pipe: true
+      pipeWidth: 26
+      pipeFill: "#0288d1"
+      pipeBorderColor: "#0288d1"
+      pipeOpacity: 0.14
+      targetArrowShape: triangle
+      targetArrowColor: "#0288d1"
+      textBackgroundColor: "#ffffff"
+      labelColor: "#01579b"
+      labelFontSize: 11
+  - selector: path[labels.service = "payments"]
+    style:
+      label: Payments L3VPN
+      curveStyle: smooth-taxi
+      lineColor: "#d32f2f"
+      lineWidth: 4
+      laneWidth: 8
+      laneGap: 10
+      lineOpacity: 0.98
+      targetArrowShape: triangle
+      targetArrowColor: "#d32f2f"
+      animated: true
+      textBackgroundColor: "#ffffff"
+      labelColor: "#c62828"
+      labelFontSize: 11
   - selector: path[data.severity = "critical"]
     style:
       label: impacted service
-      curveStyle: smooth-taxi
       lineColor: "#fb7185"
       lineWidth: 5
       lineDashPattern: 8 6
-      targetArrowShape: triangle
       targetArrowColor: "#fb7185"
   - selector: region
     style:
-      backgroundColor: "rgba(254, 226, 226, 0.58)"
+      backgroundColor: "rgba(254, 226, 226, 0.24)"
       borderColor: "rgba(248, 113, 113, 0.55)"
       borderWidth: 1
-      labelColor: "#991b1b"
+      labelColor: var(--topoviewer-region-label-fg)
       labelFontSize: 12
       labelFontWeight: 800
+      labelPosition: topCenter
+      labelMargin: 12
       zIndex: -20
       selectable: true
       draggable: true

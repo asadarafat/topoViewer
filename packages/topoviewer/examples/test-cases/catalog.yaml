@@ -539,6 +539,8 @@ examples:
       controls: true
       controlsOpen: false
       title: Real network underlay
+      selectedLayerIds:
+        - underlay
   - id: integration-real-network-bgp
     title: Real network BGP
     feature: integration
@@ -550,6 +552,24 @@ examples:
       controls: true
       controlsOpen: false
       title: Real network BGP
+      selectedLayerIds:
+        - underlay
+        - bgp
+  - id: integration-real-network-transport-layer
+    title: Real network transport layer
+    feature: integration
+    path: integration/real-network-transport-layer
+    page: topoviewer/real-network-demo/transport-layer
+    summary: A transport layer view that adds the programmed SR path on top of the real network BGP view.
+    render:
+      height: 520px
+      controls: true
+      controlsOpen: false
+      title: Real network transport layer
+      selectedLayerIds:
+        - underlay
+        - bgp
+        - transport
   - id: integration-real-network-service-path
     title: Real network service path
     feature: integration
@@ -561,6 +581,11 @@ examples:
       controls: true
       controlsOpen: false
       title: Real network service path
+      selectedLayerIds:
+        - underlay
+        - bgp
+        - transport
+        - service
       attention:
         query:
           pathIds:
@@ -577,6 +602,12 @@ examples:
       controls: true
       controlsOpen: false
       title: Real network failure view
+      selectedLayerIds:
+        - underlay
+        - bgp
+        - transport
+        - service
+        - operations
       attention:
         query:
           data:

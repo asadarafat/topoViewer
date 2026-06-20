@@ -5,6 +5,8 @@ graph:
       name: Underlay
     - id: bgp
       name: BGP
+    - id: transport
+      name: Transport
     - id: service
       name: Service
     - id: operations
@@ -27,8 +29,8 @@ graph:
         site: fra
       data:
         status: ok
-      layers: [underlay, bgp, service, operations]
-      position: [160, 270]
+      layers: [underlay, bgp, transport, service, operations]
+      position: [160, 250]
     - id: p-ams-1
       name: AMS-P1
       labels:
@@ -36,8 +38,8 @@ graph:
         site: ams
       data:
         status: ok
-      layers: [underlay, service, operations]
-      position: [360, 170]
+      layers: [underlay, transport, service, operations]
+      position: [380, 250]
     - id: rr-ams-1
       name: AMS-RR1
       labels:
@@ -47,7 +49,7 @@ graph:
       data:
         status: ok
       layers: [bgp]
-      position: [560, 72]
+      position: [490, 108]
     - id: p-par-1
       name: PAR-P1
       labels:
@@ -56,8 +58,8 @@ graph:
       data:
         status: critical
         severity: critical
-      layers: [underlay, service, operations]
-      position: [560, 340]
+      layers: [underlay, transport, service, operations]
+      position: [600, 250]
     - id: pe-lon-1
       name: LON-PE1
       labels:
@@ -66,8 +68,8 @@ graph:
       data:
         status: degraded
         severity: major
-      layers: [underlay, bgp, service, operations]
-      position: [800, 270]
+      layers: [underlay, bgp, transport, service, operations]
+      position: [820, 250]
     - id: ce-lon
       name: CE-LON
       labels:
@@ -77,7 +79,7 @@ graph:
       data:
         status: ok
       layers: [service]
-      position: [918, 382]
+      position: [932, 382]
   links:
     - id: access-fra
       name: Payments CE to FRA PE
@@ -96,7 +98,7 @@ graph:
       labels:
         layer: underlay
         media: fiber
-      layers: [underlay, operations]
+      layers: [underlay]
       data:
         capacity: 400G
         status: ok
@@ -107,7 +109,7 @@ graph:
       labels:
         layer: underlay
         media: fiber
-      layers: [underlay, operations]
+      layers: [underlay]
       data:
         capacity: 400G
         status: critical
@@ -119,23 +121,11 @@ graph:
       labels:
         layer: underlay
         media: fiber
-      layers: [underlay, operations]
+      layers: [underlay]
       data:
         capacity: 400G
         status: degraded
         severity: major
-    - id: underlay-fra-par
-      name: FRA to PAR express
-      source: pe-fra-1
-      target: p-par-1
-      labels:
-        layer: underlay
-        media: fiber
-        role: backup
-      layers: [underlay, operations]
-      data:
-        capacity: 100G
-        status: ok
     - id: bgp-fra-rr
       name: FRA PE to route reflector
       source: pe-fra-1
@@ -167,15 +157,37 @@ graph:
       data:
         status: ok
   paths:
+    - id: transport-fra-lon-primary
+      name: FRA to LON SR Policy
+      labels:
+        layer: transport
+        path: transport
+        protocol: sr-te
+      layers: [transport]
+      data:
+        status: active
+        bandwidthReserved: 80G
+        latencyMs: 11.8
+      sequence:
+        - pe-fra-1
+        - p-ams-1
+        - p-par-1
+        - pe-lon-1
     - id: payments-primary
       name: Payments L3VPN primary
+      source: ce-fra
+      target: ce-lon
+      parent: transport-fra-lon-primary
       labels:
+        path: service
         service: payments
         type: l3vpn
-      layers: [service, operations]
+      layers: [service]
       data:
         status: degraded
         severity: critical
+        vpnId: payments
+        bandwidth: 20G
       sequence:
         - ce-fra
         - pe-fra-1
@@ -188,37 +200,36 @@ graph:
       name: Frankfurt edge
       labels:
         site: fra
-      layers: [underlay, bgp, service, operations]
+      layers: [underlay]
       members:
-        - ce-fra
         - pe-fra-1
       paddingX: 28
       paddingY: 24
-      nodeWidth: 86
-      nodeHeight: 64
+      headerPadding: 34
+      nodeWidth: 112
+      nodeHeight: 82
     - id: transit-core
       name: Transit core
       labels:
         site: core
-      layers: [underlay, bgp, service, operations]
+      layers: [underlay]
       members:
         - p-ams-1
-        - rr-ams-1
         - p-par-1
       paddingX: 34
       paddingY: 28
-      headerPadding: 28
-      nodeWidth: 86
-      nodeHeight: 64
+      headerPadding: 34
+      nodeWidth: 112
+      nodeHeight: 82
     - id: lon-metro
       name: London edge
       labels:
         site: lon
-      layers: [underlay, bgp, service, operations]
+      layers: [underlay]
       members:
         - pe-lon-1
-        - ce-lon
       paddingX: 28
       paddingY: 24
-      nodeWidth: 86
-      nodeHeight: 64
+      headerPadding: 34
+      nodeWidth: 112
+      nodeHeight: 82

@@ -2,16 +2,18 @@ renderable: true
 visualSnapshot: false
 dom:
   graphNodes: 7
-  minVisibleEdges: 8
+  minVisibleEdges: 13
   minRegions: 3
 assertions:
   controls: true
-  nodeBadgesMin: 2
+  edgeMarkersMin: 10
+  nodeBadgesMin: 5
   nodeOutlinesMin: 2
   nodeStatusesMin: 7
   attentionFocusedNodes: 1
-  attentionFocusedEdges: 6
+  attentionFocusedEdges: 4
   attentionDimmedNodes: 6
+  attentionDimmedEdges: 9
 semantic:
   errors: []
   warnings: []

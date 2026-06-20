@@ -59,6 +59,7 @@ nav = [
     { "YAML to Network Diagram" = "topoviewer/yaml-to-diagram/index.md" },
     { "Real Network Underlay" = "topoviewer/real-network-demo/underlay/index.md" },
     { "Real Network BGP" = "topoviewer/real-network-demo/bgp/index.md" },
+    { "Real Network Transport Layer" = "topoviewer/real-network-demo/transport-layer/index.md" },
     { "Real Network Service Path" = "topoviewer/real-network-demo/service-path/index.md" },
     { "Real Network Failure View" = "topoviewer/real-network-demo/failure-view/index.md" },
     { "Complete Network Demo" = "topoviewer/complete-network-demo/index.md" }

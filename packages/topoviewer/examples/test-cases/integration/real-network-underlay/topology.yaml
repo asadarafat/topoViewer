@@ -96,7 +96,7 @@ graph:
       labels:
         layer: underlay
         media: fiber
-      layers: [underlay, operations]
+      layers: [underlay]
       data:
         capacity: 400G
         status: ok
@@ -107,7 +107,7 @@ graph:
       labels:
         layer: underlay
         media: fiber
-      layers: [underlay, operations]
+      layers: [underlay]
       data:
         capacity: 400G
         status: critical
@@ -119,7 +119,7 @@ graph:
       labels:
         layer: underlay
         media: fiber
-      layers: [underlay, operations]
+      layers: [underlay]
       data:
         capacity: 400G
         status: degraded
@@ -160,7 +160,7 @@ graph:
       labels:
         service: payments
         type: l3vpn
-      layers: [service, operations]
+      layers: [service]
       data:
         status: degraded
         severity: critical

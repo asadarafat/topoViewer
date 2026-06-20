@@ -5,6 +5,8 @@ graph:
       name: Underlay
     - id: bgp
       name: BGP
+    - id: transport
+      name: Transport
     - id: service
       name: Service
     - id: operations
@@ -27,7 +29,7 @@ graph:
         site: fra
       data:
         status: ok
-      layers: [underlay, bgp, service, operations]
+      layers: [underlay, bgp, transport, service, operations]
       position: [160, 250]
     - id: p-ams-1
       name: AMS-P1
@@ -36,7 +38,7 @@ graph:
         site: ams
       data:
         status: ok
-      layers: [underlay, service, operations]
+      layers: [underlay, transport, service, operations]
       position: [380, 250]
     - id: rr-ams-1
       name: AMS-RR1
@@ -47,7 +49,7 @@ graph:
       data:
         status: ok
       layers: [bgp]
-      position: [560, 72]
+      position: [490, 108]
     - id: p-par-1
       name: PAR-P1
       labels:
@@ -56,7 +58,7 @@ graph:
       data:
         status: critical
         severity: critical
-      layers: [underlay, service, operations]
+      layers: [underlay, transport, service, operations]
       position: [600, 250]
     - id: pe-lon-1
       name: LON-PE1
@@ -66,7 +68,7 @@ graph:
       data:
         status: degraded
         severity: major
-      layers: [underlay, bgp, service, operations]
+      layers: [underlay, bgp, transport, service, operations]
       position: [820, 250]
     - id: ce-lon
       name: CE-LON
@@ -155,6 +157,22 @@ graph:
       data:
         status: ok
   paths:
+    - id: transport-fra-lon-primary
+      name: FRA to LON SR Policy
+      labels:
+        layer: transport
+        path: transport
+        protocol: sr-te
+      layers: [transport]
+      data:
+        status: active
+        bandwidthReserved: 80G
+        latencyMs: 11.8
+      sequence:
+        - pe-fra-1
+        - p-ams-1
+        - p-par-1
+        - pe-lon-1
     - id: payments-primary
       name: Payments L3VPN primary
       labels:

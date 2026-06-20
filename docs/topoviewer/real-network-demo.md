@@ -1,6 +1,6 @@
 # Real Network Demo
 
-This demo uses one compact provider topology and renders it four ways: underlay, BGP, service path, and failure view. The point is not to create four unrelated diagrams. The point is that one set of graph facts can answer four operational questions.
+This demo uses one compact provider topology and renders it five ways: underlay, BGP, transport layer, service path, and failure view. The point is not to create five unrelated diagrams. The point is that one set of graph facts can answer five operational questions.
 
 ## Underlay
 
@@ -15,6 +15,8 @@ Transport capacity, media, and backup links are the primary signal.
     controls: true
     controlsOpen: false
     title: Real network underlay
+    selectedLayerIds:
+      - underlay
     ```
 
 === "Topology YAML"
@@ -42,6 +44,9 @@ Route reflector sessions become the dominant objects while the underlay remains 
     controls: true
     controlsOpen: false
     title: Real network BGP
+    selectedLayerIds:
+      - underlay
+      - bgp
     ```
 
 === "Topology YAML"
@@ -56,9 +61,40 @@ Route reflector sessions become the dominant objects while the underlay remains 
     --8<-- "docs/topoviewer/examples/integration/real-network-bgp/stylesheet.yaml"
     ```
 
+## Transport Layer
+
+The programmed SR transport path is added on top of the BGP view so the forwarding intent is visible without losing control-plane context.
+
+=== "Live Viewport"
+
+    ```topoviewer
+    topology: examples/integration/real-network-transport-layer/topology.yaml
+    stylesheet: examples/integration/real-network-transport-layer/stylesheet.yaml
+    height: 520px
+    controls: true
+    controlsOpen: false
+    title: Real network transport layer
+    selectedLayerIds:
+      - underlay
+      - bgp
+      - transport
+    ```
+
+=== "Topology YAML"
+
+    ```yaml
+    --8<-- "docs/topoviewer/examples/integration/real-network-transport-layer/topology.yaml"
+    ```
+
+=== "Stylesheet YAML"
+
+    ```yaml
+    --8<-- "docs/topoviewer/examples/integration/real-network-transport-layer/stylesheet.yaml"
+    ```
+
 ## Service Path
 
-The Payments L3VPN path is focused so the traversed nodes and path segments stand out.
+The Payments L3VPN is added on top of the transport layer. Customer edge nodes and access links appear at the sides, while the service lane follows the SR transport carrier through the core.
 
 === "Live Viewport"
 
@@ -69,6 +105,11 @@ The Payments L3VPN path is focused so the traversed nodes and path segments stan
     controls: true
     controlsOpen: false
     title: Real network service path
+    selectedLayerIds:
+      - underlay
+      - bgp
+      - transport
+      - service
     attention:
       query:
         pathIds:
@@ -111,6 +152,12 @@ Critical and major objects stay bright, healthy context stays visible but muted,
     controls: true
     controlsOpen: false
     title: Real network failure view
+    selectedLayerIds:
+      - underlay
+      - bgp
+      - transport
+      - service
+      - operations
     attention:
       query:
         data:

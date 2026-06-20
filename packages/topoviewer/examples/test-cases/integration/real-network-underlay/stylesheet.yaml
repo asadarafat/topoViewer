@@ -85,7 +85,7 @@ stylesheet:
   - selector: region
     style:
       borderWidth: 1
-      labelColor: "#334155"
+      labelColor: var(--topoviewer-region-label-fg)
       labelFontSize: 12
       labelFontWeight: 800
       labelPosition: topCenter

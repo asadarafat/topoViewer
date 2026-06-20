@@ -4,31 +4,30 @@ layout:
   height: 520
 icons:
   router.pe:
-    glyph: PE
+    glyph: ""
     fill: "#2563eb"
     stroke: "#bfdbfe"
   router.p:
-    glyph: P
+    glyph: ""
     fill: "#0f766e"
     stroke: "#99f6e4"
   router.rr:
-    glyph: RR
+    glyph: ""
     fill: "#7c3aed"
     stroke: "#ddd6fe"
   router.ce:
-    glyph: CE
+    glyph: ""
     fill: "#f59e0b"
     stroke: "#fde68a"
-labelFields:
-  - name
+labelFields: []
 stylesheet:
   - selector: node
     style:
-      icon: router.p
-      width: 82
-      height: 60
-      iconSize: 32
       shape: roundRectangle
+      icon: router.p
+      width: 112
+      height: 82
+      iconSize: 52
       backgroundColor: "#ffffff"
       borderColor: "#94a3b8"
       borderWidth: 2
@@ -36,43 +35,55 @@ stylesheet:
       labelFontSize: 12
       labelFontWeight: 800
       labelBackgroundColor: "#ffffff"
-      labelBackgroundOpacity: 0.88
       labelPadding: 4
-      opacity: 0.72
+      metaColor: "transparent"
+      metaFontSize: 0
+      statusColor: "#22c55e"
+      statusPlacement: topRight
+      statusSize: 11
   - selector: node[labels.role = "pe"]
     style:
       icon: router.pe
       shape: hexagon
       borderColor: "#2563eb"
-      opacity: 1
       underlayColor: "#bfdbfe"
       underlayOpacity: 0.24
       underlayPadding: 8
+  - selector: node[labels.role = "p"]
+    style:
+      icon: router.p
+      shape: ellipse
+      borderColor: "#0f766e"
   - selector: node[labels.role = "rr"]
     style:
       icon: router.rr
       shape: diamond
       borderColor: "#7c3aed"
-      opacity: 1
       badgeLabel: RR
       badgeBackgroundColor: "#7c3aed"
       badgeColor: "#ffffff"
       badgeBorderColor: "#ddd6fe"
+      underlayColor: "#ddd6fe"
+      underlayOpacity: 0.28
+      underlayPadding: 10
   - selector: node[labels.role = "ce"]
     style:
       icon: router.ce
-      opacity: 0.55
+      display: none
   - selector: link
     style:
-      curveStyle: bezier
-      lineColor: "#94a3b8"
-      lineWidth: 1
-      lineOpacity: 0.35
+      curveStyle: straight
+      lineColor: "#64748b"
+      lineWidth: 4
       targetArrowShape: none
       labelColor: "#475569"
       labelFontSize: 11
       textBackgroundColor: "#ffffff"
-      textBackgroundOpacity: 0.92
+  - selector: link[labels.layer = "underlay"]
+    style:
+      curveStyle: straight
+      lineColor: "#64748b"
+      lineWidth: 4
   - selector: link[labels.protocol = "bgp"]
     style:
       label: BGP established
@@ -88,17 +99,21 @@ stylesheet:
       targetArrowColor: "#7c3aed"
       sourceLabelColor: "#7c3aed"
       targetLabelColor: "#7c3aed"
+      textBackgroundColor: "#ffffff"
+  - selector: link[labels.tenant = "payments"]
+    style:
+      display: none
   - selector: path
     style:
-      lineOpacity: 0.12
+      display: none
   - selector: region
     style:
-      backgroundColor: "rgba(168, 85, 247, 0.10)"
-      borderColor: "rgba(216, 180, 254, 0.56)"
       borderWidth: 1
-      labelColor: "#334155"
+      labelColor: var(--topoviewer-region-label-fg)
       labelFontSize: 12
       labelFontWeight: 800
+      labelPosition: topCenter
+      labelMargin: 12
       zIndex: -20
       selectable: true
       draggable: true

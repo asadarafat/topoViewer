@@ -26,6 +26,8 @@ const requiredFiles = [
   'assets/topoviewer/examples/graph/basic/stylesheet.yaml',
   'assets/topoviewer/examples/integration/real-network-underlay/topology.yaml',
   'assets/topoviewer/examples/integration/real-network-underlay/stylesheet.yaml',
+  'assets/topoviewer/examples/integration/real-network-transport-layer/topology.yaml',
+  'assets/topoviewer/examples/integration/real-network-transport-layer/stylesheet.yaml',
   'assets/topoviewer/examples/attention/object-focus/topology.yaml',
   'assets/topoviewer/examples/attention/object-focus/stylesheet.yaml'
 ];
@@ -72,7 +74,16 @@ for (const needle of [
   'class="topoviewer-embed"',
   'data-topology="../../assets/topoviewer/examples/integration/real-network-underlay/topology.yaml"',
   'data-stylesheet="../../assets/topoviewer/examples/integration/real-network-underlay/stylesheet.yaml"',
+  'data-selected-layer-ids="[&quot;underlay&quot;]"',
+  'data-topology="../../assets/topoviewer/examples/integration/real-network-bgp/topology.yaml"',
+  'data-selected-layer-ids="[&quot;underlay&quot;,&quot;bgp&quot;]"',
+  'data-topology="../../assets/topoviewer/examples/integration/real-network-transport-layer/topology.yaml"',
+  'data-stylesheet="../../assets/topoviewer/examples/integration/real-network-transport-layer/stylesheet.yaml"',
+  'data-selected-layer-ids="[&quot;underlay&quot;,&quot;bgp&quot;,&quot;transport&quot;]"',
   'data-topology="../../assets/topoviewer/examples/integration/real-network-service-path/topology.yaml"',
+  'data-selected-layer-ids="[&quot;underlay&quot;,&quot;bgp&quot;,&quot;transport&quot;,&quot;service&quot;]"',
+  'data-topology="../../assets/topoviewer/examples/integration/real-network-failure-view/topology.yaml"',
+  'data-selected-layer-ids="[&quot;underlay&quot;,&quot;bgp&quot;,&quot;transport&quot;,&quot;service&quot;,&quot;operations&quot;]"',
   'data-attention="{&quot;query&quot;:{&quot;pathIds&quot;:[&quot;payments-primary&quot;],&quot;mode&quot;:&quot;dim-context&quot;}}"'
 ]) {
   if (!realNetworkHtml.includes(needle)) {

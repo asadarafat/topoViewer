@@ -5,7 +5,7 @@ hide:
 
 # Real network BGP
 
-The BGP view keeps the same topology but changes the question. The route reflector and PE sessions become the dominant objects, while transport links remain as context so the control plane is not detached from the network it describes.
+The BGP view starts from the real network underlay and adds the route reflector plus PE-to-RR sessions. Transport links remain straight grey context, while the BGP overlay carries the control-plane question.
 
 === "Live Viewport"
 
@@ -16,6 +16,9 @@ The BGP view keeps the same topology but changes the question. The route reflect
     controls: true
     controlsOpen: false
     title: Real network BGP
+    selectedLayerIds:
+      - underlay
+      - bgp
     ```
 
 === "Topology YAML"

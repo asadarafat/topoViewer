@@ -16,6 +16,12 @@ The failure view turns operational state into attention. Critical and major obje
     controls: true
     controlsOpen: false
     title: Real network failure view
+    selectedLayerIds:
+      - underlay
+      - bgp
+      - transport
+      - service
+      - operations
     attention:
       query:
         data:

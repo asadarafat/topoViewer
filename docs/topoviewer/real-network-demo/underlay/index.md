@@ -16,6 +16,8 @@ The underlay view shows only the physical routed core: PE and P routers, straigh
     controls: true
     controlsOpen: false
     title: Real network underlay
+    selectedLayerIds:
+      - underlay
     ```
 
 === "Topology YAML"

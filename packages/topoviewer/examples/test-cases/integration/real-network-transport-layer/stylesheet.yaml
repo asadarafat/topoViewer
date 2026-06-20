@@ -17,8 +17,8 @@ icons:
     stroke: "#ddd6fe"
   router.ce:
     glyph: ""
-    fill: "#ff9800"
-    stroke: "#ffe0b2"
+    fill: "#f59e0b"
+    stroke: "#fde68a"
 labelFields: []
 stylesheet:
   - selector: node
@@ -64,43 +64,12 @@ stylesheet:
       badgeColor: "#ffffff"
       badgeBorderColor: "#ddd6fe"
       underlayColor: "#ddd6fe"
-      underlayOpacity: 0.16
+      underlayOpacity: 0.22
       underlayPadding: 8
   - selector: node[labels.role = "ce"]
     style:
       icon: router.ce
-      shape: rectangle
-      width: 94
-      height: 64
-      iconSize: 38
-      borderColor: "#ff9800"
-      badgeLabel: VPN
-      badgeBackgroundColor: "#ff9800"
-      badgeColor: "#ffffff"
-      badgeBorderColor: "#ffe0b2"
-      underlayColor: "#fff3e0"
-      underlayOpacity: 0.72
-      underlayPadding: 8
-  - selector: node[data.severity = "critical"]
-    style:
-      statusColor: "#dc2626"
-      outlineColor: "#dc2626"
-      outlineWidth: 6
-      outlineOpacity: 1
-      badgeLabel: CRIT
-      badgeBackgroundColor: "#dc2626"
-      badgeColor: "#ffffff"
-      badgeBorderColor: "#fecaca"
-  - selector: node[data.severity = "major"]
-    style:
-      statusColor: "#f59e0b"
-      outlineColor: "#f59e0b"
-      outlineWidth: 5
-      outlineOpacity: 0.94
-      badgeLabel: MAJ
-      badgeBackgroundColor: "#f59e0b"
-      badgeColor: "#ffffff"
-      badgeBorderColor: "#fde68a"
+      display: none
   - selector: link
     style:
       curveStyle: straight
@@ -117,15 +86,15 @@ stylesheet:
       lineWidth: 4
   - selector: link[labels.protocol = "bgp"]
     style:
-      label: BGP
+      label: BGP established
       sourceLabel: iBGP
       targetLabel: RR
       curveStyle: unbundled-bezier
       lineColor: "#7c3aed"
-      lineWidth: 2
+      lineWidth: 3
       lineStyle: dashed
       lineDashPattern: 7 7
-      lineOpacity: 0.42
+      lineOpacity: 0.72
       targetArrowShape: triangle
       targetArrowColor: "#7c3aed"
       sourceLabelColor: "#7c3aed"
@@ -133,72 +102,28 @@ stylesheet:
       textBackgroundColor: "#ffffff"
   - selector: link[labels.tenant = "payments"]
     style:
-      label: access
-      curveStyle: smooth-taxi
-      lineColor: "#ff9800"
-      lineWidth: 5
-      lineOpacity: 0.95
-      targetArrowShape: triangle
-      targetArrowColor: "#ff9800"
-      textBackgroundColor: "#ffffff"
-      labelColor: "#e65100"
-  - selector: link[data.severity = "critical"]
-    style:
-      label: fiber cut
-      lineColor: "#dc2626"
-      lineWidth: 6
-      lineStyle: dashed
-      lineDashPattern: 10 6
-      lineOpacity: 1
-  - selector: link[data.severity = "major"]
-    style:
-      label: degraded
-      lineColor: "#f59e0b"
-      lineWidth: 5
-      lineOpacity: 1
+      display: none
   - selector: path[labels.path = "transport"]
     style:
       label: SR transport
       curveStyle: smooth-taxi
       lineColor: "#0288d1"
-      lineWidth: 4
-      lineOpacity: 0.72
-      pipe: true
-      pipeWidth: 26
-      pipeFill: "#0288d1"
-      pipeBorderColor: "#0288d1"
-      pipeOpacity: 0.14
+      lineWidth: 8
+      lineOpacity: 0.96
       targetArrowShape: triangle
       targetArrowColor: "#0288d1"
+      animated: true
       textBackgroundColor: "#ffffff"
       labelColor: "#01579b"
       labelFontSize: 11
+      underlayColor: "#e0f2fe"
+      underlayOpacity: 0.72
+      underlayPadding: 10
   - selector: path[labels.service = "payments"]
     style:
-      label: Payments L3VPN
-      curveStyle: smooth-taxi
-      lineColor: "#d32f2f"
-      lineWidth: 4
-      laneWidth: 8
-      laneGap: 10
-      lineOpacity: 0.98
-      targetArrowShape: triangle
-      targetArrowColor: "#d32f2f"
-      animated: true
-      textBackgroundColor: "#ffffff"
-      labelColor: "#c62828"
-      labelFontSize: 11
-  - selector: path[data.severity = "critical"]
-    style:
-      label: impacted service
-      lineColor: "#fb7185"
-      lineWidth: 5
-      lineDashPattern: 8 6
-      targetArrowColor: "#fb7185"
+      display: none
   - selector: region
     style:
-      backgroundColor: "rgba(254, 226, 226, 0.24)"
-      borderColor: "rgba(248, 113, 113, 0.55)"
       borderWidth: 1
       labelColor: var(--topoviewer-region-label-fg)
       labelFontSize: 12
