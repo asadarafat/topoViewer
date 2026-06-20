@@ -130,6 +130,38 @@ async function openExample(page, example) {
   await page.waitForSelector('.topoviewer-embed', { timeout: 30000 });
 }
 
+async function openEmbedControls(page) {
+  if (await page.locator('.topoviewer-embed-controls').count() === 0) {
+    await page.locator('.topoviewer-controls-toggle').first().click();
+  }
+  await expect(page.locator('.topoviewer-embed-controls').first()).toBeVisible();
+}
+
+async function setLayerChecked(page, layerName, checked) {
+  const input = page.locator('.topoviewer-embed-check', { hasText: layerName }).locator('input').first();
+  if ((await input.isChecked()) !== checked) {
+    await input.click();
+  }
+  if (checked) {
+    await expect(input).toBeChecked();
+  } else {
+    await expect(input).not.toBeChecked();
+  }
+  await page.waitForTimeout(250);
+}
+
+async function expectRenderedCounts(page, { nodes, edges, regions }) {
+  if (nodes !== undefined) {
+    await expect(page.locator('.react-flow__node-network')).toHaveCount(nodes);
+  }
+  if (edges !== undefined) {
+    await expect.poll(async () => page.locator('.topoviewer-edge-visible-path').count()).toBe(edges);
+  }
+  if (regions !== undefined) {
+    await expect(page.locator('.react-flow__node-region')).toHaveCount(regions);
+  }
+}
+
 async function expectNoInvalidGeometry(page) {
   const invalidPathCount = await page.locator('svg path').evaluateAll((paths) => {
     return paths.filter((item) => {
@@ -550,17 +582,62 @@ test.describe('MkDocs TopoViewer documented examples', () => {
     await page.goto(`${baseURL}/${pagePath}/`, { waitUntil: 'domcontentloaded' });
     await expect(page.locator('main h1', { hasText: 'Real Network Demo' })).toBeVisible();
 
-    for (const heading of ['Underlay', 'BGP', 'Service Path', 'Failure View']) {
+    for (const heading of ['Underlay', 'BGP', 'Transport Layer', 'Service Path', 'Failure View']) {
       await expect(page.locator('main h2', { hasText: heading })).toBeVisible();
     }
 
-    await expect(page.locator('.topoviewer-embed')).toHaveCount(4);
+    await expect(page.locator('.topoviewer-embed')).toHaveCount(5);
     await expect(page.locator('main .tabbed-labels label', { hasText: 'Expected YAML' })).toHaveCount(0);
     await expect(page.locator('main .tabbed-labels label', { hasText: 'Attention YAML' })).toHaveCount(2);
-    await expect(page.locator('.topoviewer-embed[data-topology*="real-network-underlay/topology.yaml"]')).toHaveCount(1);
-    await expect(page.locator('.topoviewer-embed[data-topology*="real-network-bgp/topology.yaml"]')).toHaveCount(1);
-    await expect(page.locator('.topoviewer-embed[data-topology*="real-network-service-path/topology.yaml"]')).toHaveCount(1);
-    await expect(page.locator('.topoviewer-embed[data-topology*="real-network-failure-view/topology.yaml"]')).toHaveCount(1);
+    const underlayEmbed = page.locator('.topoviewer-embed[data-topology*="real-network-underlay/topology.yaml"]');
+    await expect(underlayEmbed).toHaveCount(1);
+    await expect(underlayEmbed).toHaveAttribute('data-selected-layer-ids', '["underlay"]');
+    const bgpEmbed = page.locator('.topoviewer-embed[data-topology*="real-network-bgp/topology.yaml"]');
+    await expect(bgpEmbed).toHaveCount(1);
+    await expect(bgpEmbed).toHaveAttribute('data-selected-layer-ids', '["underlay","bgp"]');
+    const transportEmbed = page.locator('.topoviewer-embed[data-topology*="real-network-transport-layer/topology.yaml"]');
+    await expect(transportEmbed).toHaveCount(1);
+    await expect(transportEmbed).toHaveAttribute('data-selected-layer-ids', '["underlay","bgp","transport"]');
+    const serviceEmbed = page.locator('.topoviewer-embed[data-topology*="real-network-service-path/topology.yaml"]');
+    await expect(serviceEmbed).toHaveCount(1);
+    await expect(serviceEmbed).toHaveAttribute('data-selected-layer-ids', '["underlay","bgp","transport","service"]');
+    const failureEmbed = page.locator('.topoviewer-embed[data-topology*="real-network-failure-view/topology.yaml"]');
+    await expect(failureEmbed).toHaveCount(1);
+    await expect(failureEmbed).toHaveAttribute('data-selected-layer-ids', '["underlay","bgp","transport","service","operations"]');
+  });
+
+  test('real network layer controls hide unchecked layer-owned geometry', async ({ page }) => {
+    const bgpPagePath = 'topoviewer/real-network-demo/bgp';
+    const transportPagePath = 'topoviewer/real-network-demo/transport-layer';
+    test.skip(!fs.existsSync(publicPageIndexPath(bgpPagePath)), `Real network BGP output is missing: ${publicPageIndexPath(bgpPagePath)}`);
+    test.skip(!fs.existsSync(publicPageIndexPath(transportPagePath)), `Real network transport output is missing: ${publicPageIndexPath(transportPagePath)}`);
+
+    await page.goto(`${baseURL}/${bgpPagePath}/`, { waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('.react-flow__renderer', { timeout: 30000 });
+    await expectRenderedCounts(page, { nodes: 5, edges: 5, regions: 3 });
+    await openEmbedControls(page);
+
+    await setLayerChecked(page, 'Underlay', false);
+    await expectRenderedCounts(page, { nodes: 3, edges: 2, regions: 0 });
+    await expect(page.locator('.react-flow__node[data-id="p-ams-1"]')).toHaveCount(0);
+    await expect(page.locator('.react-flow__node[data-id="p-par-1"]')).toHaveCount(0);
+
+    await setLayerChecked(page, 'Underlay', true);
+    await setLayerChecked(page, 'BGP', false);
+    await expectRenderedCounts(page, { nodes: 4, edges: 3, regions: 3 });
+    await expect(page.locator('.react-flow__node[data-id="rr-ams-1"]')).toHaveCount(0);
+
+    await page.goto(`${baseURL}/${transportPagePath}/`, { waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('.react-flow__renderer', { timeout: 30000 });
+    await expectRenderedCounts(page, { nodes: 5, edges: 8, regions: 3 });
+    await openEmbedControls(page);
+
+    await setLayerChecked(page, 'BGP', false);
+    await expectRenderedCounts(page, { nodes: 4, edges: 6, regions: 3 });
+    await expect(page.locator('.react-flow__node[data-id="rr-ams-1"]')).toHaveCount(0);
+
+    await setLayerChecked(page, 'Underlay', false);
+    await expectRenderedCounts(page, { nodes: 4, edges: 3, regions: 0 });
   });
 
   test('renders callout markdown headings, inline formatting, and embedded images', async ({ page }) => {
