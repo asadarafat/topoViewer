@@ -1,0 +1,70 @@
+layout:
+  mode: manual
+  width: 660
+  height: 340
+icons:
+  core:
+    glyph: C
+    fill: "#1d4ed8"
+    stroke: "#bfdbfe"
+  edge:
+    glyph: E
+    fill: "#0891b2"
+    stroke: "#cffafe"
+  db:
+    glyph: DB
+    fill: "#7c3aed"
+    stroke: "#ddd6fe"
+  service:
+    glyph: API
+    fill: "#059669"
+    stroke: "#bbf7d0"
+stylesheet:
+  - selector: node
+    style:
+      width: 120
+      height: 76
+      iconSize: 46
+      borderWidth: 3
+      labelColor: var(--topoviewer-fg-strong)
+      labelFontWeight: 800
+      labelBackgroundColor: var(--topoviewer-panel-bg)
+      labelBackgroundOpacity: 0.94
+      labelBorderColor: var(--topoviewer-border)
+      labelBorderWidth: 1
+      labelPadding: 4
+      labelTextMaxWidth: 116
+      labelTextOverflow: ellipsis
+  - selector: node[labels.role = "core"]
+    style:
+      icon: core
+      shape: hexagon
+      labelPosition: top
+      labelYOffset: -4
+  - selector: node[labels.role = "edge"]
+    style:
+      icon: edge
+      shape: roundRectangle
+      labelPosition: right
+      labelTextWrap: wrap
+      labelTextMaxWidth: 96
+  - selector: node[labels.role = "database"]
+    style:
+      icon: db
+      shape: barrel
+      labelPosition: left
+      labelXOffset: -4
+  - selector: node[labels.role = "service"]
+    style:
+      icon: service
+      shape: ellipse
+      labelPosition: center
+      labelColor: "#052e16"
+      labelBackgroundColor: "#dcfce7"
+      labelBackgroundOpacity: 0.9
+  - selector: link
+    style:
+      curveStyle: bezier
+      lineColor: "#94a3b8"
+      lineWidth: 2
+      targetArrowShape: none

@@ -120,9 +120,26 @@ Hardcoded pale labels such as `#e5e7eb` look good in dark mode but disappear in 
 | `backgroundColor` | CSS color | Icon fill/background. |
 | `borderColor` | CSS color | Icon border. |
 | `borderWidth` | number | Icon border width. |
+| `borderStyle` | `solid`, `dashed`, `dotted` | Node body border pattern. |
+| `borderDashPattern` | string or number list | Explicit SVG dash pattern for the node body border. |
+| `borderOpacity` | number `0..1` | Node body border opacity. |
+| `outlineColor`, `outlineWidth`, `outlineOpacity` | CSS color, number, number `0..1` | Visual outline around the node body. Does not change graph geometry. |
+| `underlayColor`, `underlayPadding`, `underlayOpacity` | CSS color, number, number `0..1` | Visual underlay behind the node body. Does not change graph geometry. |
 | `iconColor` | CSS color | Glyph color. |
+| `iconOpacity` | number `0..1` | Icon glyph/image opacity. |
+| `iconPadding` | number | Insets icon content inside the icon box. |
+| `iconFit` | `contain`, `cover`, `fill` | Object-fit behavior for SVG/image icons. |
+| `iconBackgroundColor` | CSS color | Background behind icon content inside the node body. |
 | `labelColor`, `labelFontSize`, `labelFontWeight` | CSS values | Node label typography. Use markdown in the node `name` or `label` for bold, italic, underline, and strikethrough spans. |
+| `labelPosition` | `top`, `right`, `bottom`, `left`, `center` | Places the label relative to the node body. Defaults to `bottom`. |
+| `labelXOffset`, `labelYOffset` | number | Pixel offsets applied after label placement. |
+| `labelTextWrap`, `labelTextMaxWidth`, `labelTextOverflow`, `labelTextAlign` | `none` or `wrap`, number, `clip` or `ellipsis`, CSS text-align | Label wrapping and overflow controls. |
+| `labelBackgroundColor`, `labelBackgroundOpacity` | CSS color, number `0..1` | Label backing for contrast. |
+| `labelBorderColor`, `labelBorderWidth`, `labelPadding`, `labelOpacity` | CSS color, number, number, number `0..1` | Label box border, padding, and opacity. |
+| `minZoomedLabelFontSize` | number | Hides the label when viewport zoom would make its effective font smaller than this value. |
 | `metaColor`, `metaFontSize`, `metaFontWeight` | CSS values | Node metadata typography. |
+| `badgeLabel`, `badgeColor`, `badgeBackgroundColor`, `badgeBorderColor`, `badgePosition` | string/number, CSS colors, position | Compact node badge. Positions are `topLeft`, `topRight`, `bottomLeft`, and `bottomRight`. |
+| `statusColor`, `statusPlacement`, `statusSize` | CSS color, position, number | Compact status marker. Placements are `topLeft`, `topRight`, `bottomLeft`, `bottomRight`, and `center`. |
 | `opacity` | number | Node opacity. |
 | `zIndex` | number | Draw order. |
 | `display` | `none` | Hide object. |
@@ -151,6 +168,8 @@ stylesheet:
       shape: polygon
       shapePolygonPoints: "0 -1 0.92 -0.12 0.58 1 -0.58 1 -0.92 -0.12"
 ```
+
+Badges and status markers are intentionally compact. For dense aggregate nodes, TopoViewer can use attention aggregate summary data as defaults: hidden member count becomes a badge, and known worst severity becomes a status color. Explicit stylesheet or per-node style keys override those generated defaults.
 
 ## Link and Path Style Keys
 

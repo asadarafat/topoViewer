@@ -55,6 +55,39 @@ examples:
       controls: true
       controlsOpen: false
       title: Custom polygon node
+  - id: nodes-label-placement
+    title: Node label placement
+    feature: nodes
+    path: nodes/label-placement
+    page: topoviewer/reference/nodes/label-placement
+    summary: Node labels can be placed around or inside node bodies with wrapping and backing controls.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Node label placement
+  - id: nodes-border-outline-underlay
+    title: Border, outline, and underlay
+    feature: nodes
+    path: nodes/border-outline-underlay
+    page: topoviewer/reference/nodes/border-outline-underlay
+    summary: Node border, outline, and underlay controls provide operational emphasis without changing graph facts.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Border, outline, and underlay
+  - id: nodes-icon-fit-and-badges
+    title: Icon fit and badges
+    feature: nodes
+    path: nodes/icon-fit-and-badges
+    page: topoviewer/reference/nodes/icon-fit-and-badges
+    summary: Icon fit, badges, and status markers add compact node-level signals.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Icon fit and badges
   - id: edges-curve-styles
     title: Edge curve styles
     feature: edges
@@ -275,6 +308,17 @@ examples:
       controls: true
       controlsOpen: false
       title: Parent and label collapse
+  - id: attention-aggregate-badge-status
+    title: Aggregate badge and status
+    feature: attention
+    path: attention/aggregate-badge-status
+    page: topoviewer/reference/attention/aggregate-badge-status
+    summary: Collapsed aggregate summaries can expose hidden member count and worst severity as compact node cues.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Aggregate badge and status
   - id: regions-nested-regions
     title: Nested regions
     feature: regions

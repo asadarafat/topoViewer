@@ -208,6 +208,68 @@ async function expectControlAssertions(page, example) {
     }
   }
 
+  if (assertions.nodeLabelPositions) {
+    for (const position of String(assertions.nodeLabelPositions).split(',').map((item) => item.trim()).filter(Boolean)) {
+      await expect(page.locator(`.topoviewer-node-label[data-label-position="${position}"]`).first()).toBeVisible();
+    }
+  }
+
+  if (assertions.nodeLabelsWithBackgroundMin !== undefined) {
+    await expect.poll(async () => page.locator('.topoviewer-node-label').evaluateAll((labels) => {
+      return labels.filter((label) => {
+        const style = getComputedStyle(label);
+        return style.backgroundColor && style.backgroundColor !== 'rgba(0, 0, 0, 0)' && style.backgroundColor !== 'transparent';
+      }).length;
+    })).toBeGreaterThanOrEqual(Number(assertions.nodeLabelsWithBackgroundMin));
+  }
+
+  if (assertions.nodeOutlinesMin !== undefined) {
+    await expect.poll(async () => page.locator('.topoviewer-node-geometry-outline').evaluateAll((shapes) => {
+      return shapes.filter((shape) => {
+        const style = getComputedStyle(shape);
+        return style.display !== 'none' && Number.parseFloat(style.strokeWidth || '0') > 0;
+      }).length;
+    })).toBeGreaterThanOrEqual(Number(assertions.nodeOutlinesMin));
+  }
+
+  if (assertions.nodeUnderlaysMin !== undefined) {
+    await expect.poll(async () => page.locator('.topoviewer-node-geometry-underlay').evaluateAll((shapes) => {
+      return shapes.filter((shape) => {
+        const style = getComputedStyle(shape);
+        return style.display !== 'none' && style.fill && style.fill !== 'none' && style.fill !== 'rgba(0, 0, 0, 0)';
+      }).length;
+    })).toBeGreaterThanOrEqual(Number(assertions.nodeUnderlaysMin));
+  }
+
+  if (assertions.nodeBorderDashMin !== undefined) {
+    await expect.poll(async () => page.locator('.topoviewer-node-geometry-shape').evaluateAll((shapes) => {
+      return shapes.filter((shape) => {
+        const style = getComputedStyle(shape);
+        return style.strokeDasharray && style.strokeDasharray !== 'none';
+      }).length;
+    })).toBeGreaterThanOrEqual(Number(assertions.nodeBorderDashMin));
+  }
+
+  if (assertions.nodeBadgesMin !== undefined) {
+    await expect(page.locator('.topoviewer-node-badge')).toHaveCount(Number(assertions.nodeBadgesMin));
+  }
+
+  if (assertions.nodeBadgeText) {
+    await expect(page.locator('.topoviewer-node-badge', { hasText: String(assertions.nodeBadgeText) }).first()).toBeVisible();
+  }
+
+  if (assertions.nodeStatusesMin !== undefined) {
+    await expect(page.locator('.topoviewer-node-status')).toHaveCount(Number(assertions.nodeStatusesMin));
+  }
+
+  if (assertions.iconFitValues) {
+    for (const fit of String(assertions.iconFitValues).split(',').map((item) => item.trim()).filter(Boolean)) {
+      await expect.poll(async () => page.locator('.topoviewer-node-icon-image').evaluateAll((images, value) => {
+        return images.some((image) => getComputedStyle(image).objectFit === value);
+      }, fit)).toBe(true);
+    }
+  }
+
   if (assertions.customPolygonShape) {
     await expect(page.locator('.topoviewer-node-geometry[data-node-shape="polygon"] polygon.topoviewer-node-geometry-shape').first()).toBeVisible();
     const points = await page.locator('.topoviewer-node-geometry[data-node-shape="polygon"] polygon.topoviewer-node-geometry-shape').first().getAttribute('points');

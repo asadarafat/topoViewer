@@ -1,0 +1,38 @@
+graph:
+  id: node-border-outline-underlay
+  layers:
+    - id: physical
+      name: Physical
+  nodes:
+    - id: PE-1
+      name: PE-1
+      labels:
+        role: pe
+        state: normal
+      layers: [physical]
+      position: [110, 160]
+    - id: FW-1
+      name: FW-1
+      labels:
+        role: firewall
+        state: warning
+      layers: [physical]
+      position: [310, 160]
+    - id: APP-1
+      name: APP-1
+      labels:
+        role: app
+        state: critical
+      layers: [physical]
+      position: [510, 160]
+  links:
+    - id: pe-fw
+      name: PE to firewall
+      source: PE-1
+      target: FW-1
+      layers: [physical]
+    - id: fw-app
+      name: Firewall to app
+      source: FW-1
+      target: APP-1
+      layers: [physical]

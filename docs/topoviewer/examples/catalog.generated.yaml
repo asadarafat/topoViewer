@@ -51,6 +51,36 @@ examples:
     stylesheet: docs/topoviewer/examples/nodes/custom-polygon-shape/stylesheet.yaml
     expected: docs/topoviewer/examples/nodes/custom-polygon-shape/expected.yaml
     readme: docs/topoviewer/examples/nodes/custom-polygon-shape/README.md
+  - id: nodes-label-placement
+    title: Node label placement
+    feature: nodes
+    path: nodes/label-placement
+    page: topoviewer/reference/nodes/label-placement
+    renderable: true
+    topology: docs/topoviewer/examples/nodes/label-placement/topology.yaml
+    stylesheet: docs/topoviewer/examples/nodes/label-placement/stylesheet.yaml
+    expected: docs/topoviewer/examples/nodes/label-placement/expected.yaml
+    readme: docs/topoviewer/examples/nodes/label-placement/README.md
+  - id: nodes-border-outline-underlay
+    title: Border, outline, and underlay
+    feature: nodes
+    path: nodes/border-outline-underlay
+    page: topoviewer/reference/nodes/border-outline-underlay
+    renderable: true
+    topology: docs/topoviewer/examples/nodes/border-outline-underlay/topology.yaml
+    stylesheet: docs/topoviewer/examples/nodes/border-outline-underlay/stylesheet.yaml
+    expected: docs/topoviewer/examples/nodes/border-outline-underlay/expected.yaml
+    readme: docs/topoviewer/examples/nodes/border-outline-underlay/README.md
+  - id: nodes-icon-fit-and-badges
+    title: Icon fit and badges
+    feature: nodes
+    path: nodes/icon-fit-and-badges
+    page: topoviewer/reference/nodes/icon-fit-and-badges
+    renderable: true
+    topology: docs/topoviewer/examples/nodes/icon-fit-and-badges/topology.yaml
+    stylesheet: docs/topoviewer/examples/nodes/icon-fit-and-badges/stylesheet.yaml
+    expected: docs/topoviewer/examples/nodes/icon-fit-and-badges/expected.yaml
+    readme: docs/topoviewer/examples/nodes/icon-fit-and-badges/README.md
   - id: edges-curve-styles
     title: Edge curve styles
     feature: edges
@@ -251,6 +281,16 @@ examples:
     stylesheet: docs/topoviewer/examples/attention/parent-label-collapse/stylesheet.yaml
     expected: docs/topoviewer/examples/attention/parent-label-collapse/expected.yaml
     readme: docs/topoviewer/examples/attention/parent-label-collapse/README.md
+  - id: attention-aggregate-badge-status
+    title: Aggregate badge and status
+    feature: attention
+    path: attention/aggregate-badge-status
+    page: topoviewer/reference/attention/aggregate-badge-status
+    renderable: true
+    topology: docs/topoviewer/examples/attention/aggregate-badge-status/topology.yaml
+    stylesheet: docs/topoviewer/examples/attention/aggregate-badge-status/stylesheet.yaml
+    expected: docs/topoviewer/examples/attention/aggregate-badge-status/expected.yaml
+    readme: docs/topoviewer/examples/attention/aggregate-badge-status/README.md
   - id: regions-nested-regions
     title: Nested regions
     feature: regions

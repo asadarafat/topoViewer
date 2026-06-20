@@ -1,0 +1,49 @@
+layout:
+  mode: manual
+  width: 650
+  height: 360
+icons:
+  router:
+    glyph: R
+    fill: "#2563eb"
+    stroke: "#bfdbfe"
+stylesheet:
+  - selector: node
+    style:
+      icon: router
+      width: 92
+      height: 68
+      iconSize: 46
+      borderWidth: 3
+      labelColor: var(--topoviewer-fg-strong)
+      labelFontWeight: 800
+  - selector: node[isAggregate = "true"]
+    style:
+      shape: roundRectangle
+      labelPosition: bottom
+      badgeBackgroundColor: "#fee2e2"
+      badgeColor: "#991b1b"
+      badgeBorderColor: "#fecaca"
+      statusPlacement: topRight
+      statusSize: 13
+      outlineColor: "#dc2626"
+      outlineWidth: 4
+      outlineOpacity: 0.72
+      underlayColor: "#fee2e2"
+      underlayPadding: 10
+      underlayOpacity: 0.58
+  - selector: node[labels.role = "pe"]
+    style:
+      backgroundColor: "#16a34a"
+      borderColor: "#bbf7d0"
+  - selector: link
+    style:
+      lineColor: "#94a3b8"
+      lineWidth: 2
+      targetArrowShape: none
+  - selector: region
+    style:
+      backgroundColor: "#0ea5e922"
+      borderColor: "#38bdf8aa"
+      borderWidth: 1
+      zIndex: -20

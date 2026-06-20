@@ -55,3 +55,84 @@ Use `shape: polygon` with `shapePolygonPoints` when a domain needs a recognizabl
     ```yaml
     --8<-- "docs/topoviewer/examples/nodes/custom-polygon-shape/stylesheet.yaml"
     ```
+
+## Node label placement
+
+Node label placement keeps labels readable when node shapes, labels, and nearby links compete for space. This example places labels above, beside, and inside four nodes while keeping graph facts unchanged.
+
+=== "Live Viewport"
+
+    ```topoviewer
+    topology: ../../examples/nodes/label-placement/topology.yaml
+    stylesheet: ../../examples/nodes/label-placement/stylesheet.yaml
+    height: 420px
+    controls: true
+    controlsOpen: false
+    title: Node label placement
+    ```
+
+=== "Topology YAML"
+
+    ```yaml
+    --8<-- "docs/topoviewer/examples/nodes/label-placement/topology.yaml"
+    ```
+
+=== "Stylesheet YAML"
+
+    ```yaml
+    --8<-- "docs/topoviewer/examples/nodes/label-placement/stylesheet.yaml"
+    ```
+
+## Border, outline, and underlay
+
+Border, outline, and underlay styles create operational emphasis without changing the topology. Warning and critical nodes stand out through stroke pattern, outline, and underlay while the normal peer stays visually quiet.
+
+=== "Live Viewport"
+
+    ```topoviewer
+    topology: ../../examples/nodes/border-outline-underlay/topology.yaml
+    stylesheet: ../../examples/nodes/border-outline-underlay/stylesheet.yaml
+    height: 420px
+    controls: true
+    controlsOpen: false
+    title: Border, outline, and underlay
+    ```
+
+=== "Topology YAML"
+
+    ```yaml
+    --8<-- "docs/topoviewer/examples/nodes/border-outline-underlay/topology.yaml"
+    ```
+
+=== "Stylesheet YAML"
+
+    ```yaml
+    --8<-- "docs/topoviewer/examples/nodes/border-outline-underlay/stylesheet.yaml"
+    ```
+
+## Icon fit and badges
+
+Icon fit, badges, and status markers let a small node carry asset, count, and health cues. Use badges for compact values and status markers for color-coded state.
+
+=== "Live Viewport"
+
+    ```topoviewer
+    topology: ../../examples/nodes/icon-fit-and-badges/topology.yaml
+    stylesheet: ../../examples/nodes/icon-fit-and-badges/stylesheet.yaml
+    height: 420px
+    controls: true
+    controlsOpen: false
+    title: Icon fit and badges
+    ```
+
+=== "Topology YAML"
+
+    ```yaml
+    --8<-- "docs/topoviewer/examples/nodes/icon-fit-and-badges/topology.yaml"
+    ```
+
+=== "Stylesheet YAML"
+
+    ```yaml
+    --8<-- "docs/topoviewer/examples/nodes/icon-fit-and-badges/stylesheet.yaml"
+    ```

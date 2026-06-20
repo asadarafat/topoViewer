@@ -19,6 +19,9 @@ TopoViewer renders declarative graph and diagram documents from YAML. The canoni
 
 - [Named node shapes](reference/nodes/named-node-shapes/index.md): Node body shape can encode device or service role without changing graph facts.
 - [Custom polygon node](reference/nodes/custom-polygon-shape/index.md): Polygon node bodies use normalized x/y point pairs through `shapePolygonPoints`.
+- [Node label placement](reference/nodes/label-placement/index.md): Node labels can be placed around or inside node bodies with wrapping and backing controls.
+- [Border, outline, and underlay](reference/nodes/border-outline-underlay/index.md): Node border, outline, and underlay controls provide operational emphasis without changing graph facts.
+- [Icon fit and badges](reference/nodes/icon-fit-and-badges/index.md): Icon fit, badges, and status markers add compact node-level signals.
 
 ### Edges
 
@@ -48,6 +51,7 @@ TopoViewer renders declarative graph and diagram documents from YAML. The canoni
 - [Dependency focus](reference/attention/dependency-focus/index.md): Traverse directed topology relationships to show downstream blast radius.
 - [Hide context](reference/attention/hide-context/index.md): Use hide-context mode when the focused set should be isolated instead of dimmed.
 - [Parent and label collapse](reference/attention/parent-label-collapse/index.md): Collapse parent-child objects and label-defined groups into aggregate summaries.
+- [Aggregate badge and status](reference/attention/aggregate-badge-status/index.md): Collapsed aggregate summaries can expose hidden member count and worst severity as compact node cues.
 
 ### Regions
 

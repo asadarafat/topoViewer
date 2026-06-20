@@ -12,5 +12,4 @@ assertions:
   linkAggregateEdgesAfterExpand: 0
 semantic:
   errors: []
-  warnings:
-    - unused-selector
+  warnings: []
