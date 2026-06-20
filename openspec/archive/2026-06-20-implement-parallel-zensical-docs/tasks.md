@@ -47,4 +47,4 @@
 - [x] 6.4 Run `npm run ci`
 - [x] 6.5 Manually verify local Zensical preview renders the TopoViewer embed
 - [x] 6.6 Verify mirrored Zensical TopoViewer pages render live examples locally
-- [ ] 6.7 Verify remote GitHub Pages exposes both `/topoViewer/` and `/topoViewer/zensical/`
+- [x] 6.7 Verify remote GitHub Pages exposes both `/topoViewer/` and `/topoViewer/zensical/`
