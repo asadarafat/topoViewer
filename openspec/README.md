@@ -6,7 +6,7 @@ OpenSpec is used here as a lightweight project structure, not as a runtime depen
 
 Current active plans:
 
-- None.
+- `changes/enhance-node-style-controls/` - planned practical node styling for labels, borders, outlines, underlays, icon fit, aggregate badges, and status markers.
 
 Current studies:
 
