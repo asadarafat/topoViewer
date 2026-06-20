@@ -4,7 +4,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 VENV_DIR="${TOPOVIEWER_DOCS_VENV:-$ROOT_DIR/.venv-docs}"
 HOST="${TOPOVIEWER_DOCS_HOST:-127.0.0.1}"
-PORT="${TOPOVIEWER_DOCS_PORT:-8000}"
+PORT="${TOPOVIEWER_DOCS_PORT:-8001}"
 ACTION="${1:-serve}"
 
 ensure_venv() {
@@ -29,6 +29,10 @@ prepare_docs() {
     fi
 }
 
+check_port() {
+    node "$ROOT_DIR/scripts/check-port-free.mjs" "MkDocs" "$HOST" "$PORT"
+}
+
 case "$ACTION" in
     setup)
         ensure_venv
@@ -39,8 +43,11 @@ case "$ACTION" in
         "$VENV_DIR/bin/mkdocs" build --strict
         ;;
     serve)
+        check_port
         ensure_venv
-        prepare_docs
+        if [[ "${TOPOVIEWER_DOCS_SKIP_PREP:-0}" != "1" ]]; then
+            prepare_docs
+        fi
         exec "$VENV_DIR/bin/mkdocs" serve --dev-addr "$HOST:$PORT"
         ;;
     clean)
@@ -53,7 +60,8 @@ Usage: $0 {setup|build|serve|clean}
 Environment:
   TOPOVIEWER_DOCS_VENV                 Virtualenv path, default .venv-docs
   TOPOVIEWER_DOCS_HOST                 Serve host, default 127.0.0.1
-  TOPOVIEWER_DOCS_PORT                 Serve port, default 8000
+  TOPOVIEWER_DOCS_PORT                 Serve port, default 8001
+  TOPOVIEWER_DOCS_SKIP_PREP=1          Internal: skip sync/build before serving
   TOPOVIEWER_DOCS_SKIP_VIEWER_BUILD=1  Skip npm build and asset sync for docs-only review
 EOF
         exit 2

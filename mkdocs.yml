@@ -58,6 +58,7 @@ nav:
   - Integration:
       - React: topoviewer/react.md
       - MkDocs: topoviewer/mkdocs.md
+      - Zensical: topoviewer/zensical.md
       - Monorepo: topoviewer/monorepo.md
   - Production:
       - Hardening: topoviewer/production.md

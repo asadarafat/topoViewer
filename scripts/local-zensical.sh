@@ -32,6 +32,10 @@ prepare_zensical() {
     npm_node24 run sync:zensical-assets
 }
 
+check_port() {
+    node "$ROOT_DIR/scripts/check-port-free.mjs" "Zensical" "$HOST" "$PORT"
+}
+
 case "$ACTION" in
     setup)
         ensure_venv
@@ -42,8 +46,11 @@ case "$ACTION" in
         "$VENV_DIR/bin/zensical" build --clean --config-file "$CONFIG"
         ;;
     serve)
+        check_port
         ensure_venv
-        prepare_zensical
+        if [[ "${TOPOVIEWER_ZENSICAL_SKIP_PREP:-0}" != "1" ]]; then
+            prepare_zensical
+        fi
         exec "$VENV_DIR/bin/zensical" serve --config-file "$CONFIG" --dev-addr "$HOST:$PORT"
         ;;
     clean)
@@ -59,6 +66,7 @@ Environment:
   TOPOVIEWER_ZENSICAL_PORT                Serve port, default 8002
   TOPOVIEWER_ZENSICAL_CONFIG              Config path, default zensical.toml
   TOPOVIEWER_ZENSICAL_VERSION             Zensical version, default 0.0.45
+  TOPOVIEWER_ZENSICAL_SKIP_PREP=1         Internal: skip sync/build before serving
   TOPOVIEWER_ZENSICAL_SKIP_VIEWER_BUILD=1 Skip npm build and only sync existing embed assets
 EOF
         exit 2

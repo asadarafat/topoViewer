@@ -51,19 +51,23 @@ python3 -m pip install -e packages/mkdocs-topoviewer mkdocs-material
 mkdocs build --strict
 ```
 
-Preview the GitHub Pages site locally:
+Preview the GitHub Pages sites locally:
 
 ```bash
-npm run docs:serve
+npm run docs:preview
 ```
 
-This creates `.venv-docs`, installs the local MkDocs plugin in editable mode,
-syncs generated docs, builds the viewer assets, and serves `mkdocs.yml` at
-`http://127.0.0.1:8000/`. For Markdown-only review when assets are already
-current, use:
+This creates the local documentation virtualenvs, syncs generated docs, builds
+the viewer assets once, then serves MkDocs at
+`http://127.0.0.1:8001/topoViewer/` and Zensical at
+`http://127.0.0.1:8002/topoViewer/zensical/`. If either fixed port is already
+in use, the command exits with a port-specific error so you can release the
+port and rerun it.
+
+For Markdown-only review when assets are already current, use:
 
 ```bash
-npm run docs:serve:fast
+npm run docs:preview:fast
 ```
 
 Build the MkDocs plugin wheel:

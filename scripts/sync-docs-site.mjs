@@ -44,6 +44,7 @@ It keeps graph facts in YAML, visual policy in selector stylesheets, and rendere
 - [Stylesheet](topoviewer/stylesheet.md)
 - [Topology attention](topoviewer/attention.md)
 - [MkDocs embed](topoviewer/mkdocs.md)
+- [Zensical adapter](topoviewer/zensical.md)
 - [Production hardening](topoviewer/production.md)
 - [Attention examples](topoviewer/reference/attention/index.md)
 

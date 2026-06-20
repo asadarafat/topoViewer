@@ -38,6 +38,8 @@
     "docs:build:fast": "TOPOVIEWER_DOCS_SKIP_VIEWER_BUILD=1 bash scripts/local-mkdocs.sh build",
     "docs:serve": "bash scripts/local-mkdocs.sh serve",
     "docs:serve:fast": "TOPOVIEWER_DOCS_SKIP_VIEWER_BUILD=1 bash scripts/local-mkdocs.sh serve",
+    "docs:preview": "bash scripts/local-docs-preview.sh",
+    "docs:preview:fast": "TOPOVIEWER_DOCS_SKIP_VIEWER_BUILD=1 TOPOVIEWER_ZENSICAL_SKIP_VIEWER_BUILD=1 bash scripts/local-docs-preview.sh",
     "docs:clean": "bash scripts/local-mkdocs.sh clean",
     "mkdocs:build": "bash scripts/local-mkdocs.sh build",
     "zensical:setup": "bash scripts/local-zensical.sh setup",
