@@ -24,6 +24,7 @@ import {
   opacityNumber,
   worstSeverityColor,
 } from './nodeStyle';
+import { normalizeRegionLabelPosition, regionLabelMargin } from './regionStyle';
 import type { DiagramCallout, DiagramShape, GraphEntity, IconSpec, StyleDeclaration, StylesheetDocument } from './types';
 
 export function applyStyle(kind: string, entity: GraphEntity, spec: StylesheetDocument): StyleDeclaration {
@@ -534,6 +535,11 @@ export function compileRegionStyle(style: StyleDeclaration, width: number, heigh
   const borderWidth = Number(valueOrDefault(style.borderWidth as number | undefined, 1));
   const shape = String(style.shape || 'roundrectangle').toLowerCase();
   const borderRadius = shape === 'rectangle' ? 0 : shape === 'ellipse' ? '50%' : 4;
+  const labelPosition = normalizeRegionLabelPosition(style.labelPosition) || 'topLeft';
+  const explicitLabelMargin = regionLabelMargin(style.labelMargin);
+  const defaultMargin = explicitLabelMargin ?? 12;
+  const legacyLeftMargin = style.labelPosition === undefined && style.labelMargin === undefined ? 18 : defaultMargin;
+  const labelPlacementStyle = regionLabelPlacementStyle(labelPosition, defaultMargin, legacyLeftMargin);
 
   return {
     flow: withoutUndefined({
@@ -558,10 +564,44 @@ export function compileRegionStyle(style: StyleDeclaration, width: number, heigh
       borderRadius,
       labelStyle: withoutUndefined({
         color: style.labelColor,
-        background: style.labelBackgroundColor
+        background: style.labelBackgroundColor,
+        fontSize: style.labelFontSize,
+        fontWeight: style.labelFontWeight,
+        ...labelPlacementStyle
       })
     }
   };
+}
+
+function regionLabelPlacementStyle(position: string, margin: number, leftMargin = margin) {
+  const reset = { top: 'auto', right: 'auto', bottom: 'auto', left: 'auto', transform: 'none' };
+  const verticalCenter = { top: '50%', transform: 'translateY(-50%)' };
+  const horizontalCenter = { left: '50%', transform: 'translateX(-50%)' };
+
+  switch (position) {
+    case 'topCenter':
+      return { ...reset, top: margin, ...horizontalCenter };
+    case 'topRight':
+    case 'rightTop':
+      return { ...reset, top: margin, right: margin };
+    case 'rightCenter':
+      return { ...reset, ...verticalCenter, right: margin };
+    case 'rightBottom':
+    case 'bottomRight':
+      return { ...reset, right: margin, bottom: margin };
+    case 'bottomCenter':
+      return { ...reset, bottom: margin, ...horizontalCenter };
+    case 'bottomLeft':
+    case 'leftBottom':
+      return { ...reset, bottom: margin, left: leftMargin };
+    case 'leftTop':
+    case 'topLeft':
+      return { ...reset, top: margin, left: leftMargin };
+    case 'leftCenter':
+      return { ...reset, ...verticalCenter, left: leftMargin };
+    default:
+      return { ...reset, top: margin, left: leftMargin };
+  }
 }
 
 function normalizeSize(value: unknown, fallbackWidth: number, fallbackHeight: number): { width: number; height: number } {

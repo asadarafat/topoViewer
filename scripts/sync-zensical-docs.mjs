@@ -6,8 +6,10 @@ import yaml from 'js-yaml';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const sourceDocsRoot = path.join(repoRoot, 'docs', 'topoviewer');
+const sourceAssetsRoot = path.join(repoRoot, 'docs', 'assets');
 const sourceExamplesRoot = path.join(sourceDocsRoot, 'examples');
 const zensicalDocsRoot = path.join(repoRoot, 'docs-zensical');
+const targetAssetsRoot = path.join(zensicalDocsRoot, 'assets');
 const targetDocsRoot = path.join(zensicalDocsRoot, 'topoviewer');
 const targetExamplesRoot = path.join(zensicalDocsRoot, 'assets', 'topoviewer', 'examples');
 const mkdocsConfigPath = path.join(repoRoot, 'mkdocs.yml');
@@ -66,6 +68,16 @@ function copyTree(sourceRoot, targetRoot) {
   }
 }
 
+function copyTreeInto(sourceRoot, targetRoot) {
+  if (!fs.existsSync(sourceRoot)) return;
+  for (const source of listFiles(sourceRoot)) {
+    const relative = path.relative(sourceRoot, source);
+    const target = path.join(targetRoot, relative);
+    fs.mkdirSync(path.dirname(target), { recursive: true });
+    fs.copyFileSync(source, target);
+  }
+}
+
 function escapeHtml(value) {
   return String(value)
     .replaceAll('&', '&amp;')
@@ -95,8 +107,14 @@ function exampleTargetForSource(sourcePath) {
   return path.join(targetExamplesRoot, path.relative(sourceExamplesRoot, sourcePath));
 }
 
+function outputPageDirectory(markdownPath) {
+  const parsed = path.parse(markdownPath);
+  if (parsed.base === 'index.md') return path.dirname(markdownPath);
+  return path.join(parsed.dir, parsed.name);
+}
+
 function relativeUrl(fromMarkdownPath, targetPath) {
-  return normalizeSeparators(path.relative(path.dirname(fromMarkdownPath), targetPath));
+  return normalizeSeparators(path.relative(outputPageDirectory(fromMarkdownPath), targetPath));
 }
 
 function renderTopoViewerEmbed(config, sourceMarkdownPath, targetMarkdownPath, ordinal) {
@@ -272,6 +290,7 @@ function syncZensicalNav() {
   }
 }
 
+copyTreeInto(sourceAssetsRoot, targetAssetsRoot);
 copyTree(sourceExamplesRoot, targetExamplesRoot);
 syncMarkdownDocs();
 syncZensicalNav();

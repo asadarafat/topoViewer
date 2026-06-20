@@ -117,7 +117,7 @@ Use `--docs-root` when generating docs somewhere else:
 node scripts/sync-examples.mjs --docs-root ./docs
 ```
 
-Run `npm run sync:mkdocs-assets` when only the embed bundle changed, or `npm run sync:examples` when example YAML, README prose, expected assertions, or generated docs pages changed. Run `npm run check:examples` in CI to verify the generated docs files have not drifted from the package catalog.
+Run `npm run sync:mkdocs-assets` when only the embed bundle changed, or `npm run sync:examples` when example YAML, README prose, internal expected assertions, or generated docs pages changed. Run `npm run check:examples` in CI to verify the generated docs files have not drifted from the package catalog. The internal `expected.yaml` files stay in `examples/test-cases/**` and are not published as MkDocs or Zensical page tabs.
 
 ## MkDocs Plugin Behavior
 

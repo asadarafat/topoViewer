@@ -99,7 +99,31 @@
         },
         "labelPosition": {
           "type": "string",
-          "enum": ["top", "right", "bottom", "left", "center"]
+          "enum": [
+            "top",
+            "right",
+            "bottom",
+            "left",
+            "center",
+            "topLeft",
+            "topCenter",
+            "topRight",
+            "rightTop",
+            "rightCenter",
+            "rightBottom",
+            "bottomRight",
+            "bottomCenter",
+            "bottomLeft",
+            "leftTop",
+            "leftCenter",
+            "leftBottom"
+          ],
+          "description": "Node labels support top, right, bottom, left, and center. Region labels support topLeft, topCenter, topRight, rightTop, rightCenter, rightBottom, bottomRight, bottomCenter, bottomLeft, leftTop, leftCenter, and leftBottom."
+        },
+        "labelMargin": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Uniform region-label margin in pixels from the selected region edge."
         },
         "labelXOffset": {
           "type": "number"

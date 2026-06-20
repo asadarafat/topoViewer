@@ -1,0 +1,100 @@
+layout:
+  mode: manual
+  width: 980
+  height: 520
+icons:
+  router.pe:
+    glyph: PE
+    fill: "#2563eb"
+    stroke: "#bfdbfe"
+  router.p:
+    glyph: P
+    fill: "#0f766e"
+    stroke: "#99f6e4"
+  router.rr:
+    glyph: RR
+    fill: "#7c3aed"
+    stroke: "#ddd6fe"
+  router.ce:
+    glyph: CE
+    fill: "#f59e0b"
+    stroke: "#fde68a"
+labelFields:
+  - name
+stylesheet:
+  - selector: node
+    style:
+      icon: router.p
+      width: 86
+      height: 62
+      iconSize: 34
+      shape: roundRectangle
+      backgroundColor: "#ffffff"
+      borderColor: "#94a3b8"
+      borderWidth: 2
+      labelColor: "#0f172a"
+      labelFontSize: 12
+      labelFontWeight: 800
+      labelBackgroundColor: "#ffffff"
+      labelBackgroundOpacity: 0.90
+      labelPadding: 4
+  - selector: node[labels.role = "pe"]
+    style:
+      icon: router.pe
+      shape: hexagon
+      borderColor: "#2563eb"
+  - selector: node[labels.role = "p"]
+    style:
+      icon: router.p
+      shape: ellipse
+      borderColor: "#0f766e"
+  - selector: node[labels.role = "rr"]
+    style:
+      icon: router.rr
+      opacity: 0.70
+  - selector: node[labels.role = "ce"]
+    style:
+      icon: router.ce
+      shape: rectangle
+      borderColor: "#f59e0b"
+      badgeLabel: VPN
+      badgeBackgroundColor: "#f59e0b"
+      badgeColor: "#ffffff"
+      badgeBorderColor: "#fde68a"
+  - selector: link
+    style:
+      curveStyle: bezier
+      lineColor: "#94a3b8"
+      lineWidth: 1
+      lineOpacity: 0.32
+      targetArrowShape: none
+      labelColor: "#475569"
+      labelFontSize: 11
+      textBackgroundColor: "#ffffff"
+      textBackgroundOpacity: 0.92
+  - selector: link[labels.tenant = "payments"]
+    style:
+      label: access
+      lineColor: "#f59e0b"
+      lineWidth: 4
+      lineOpacity: 1
+  - selector: path[labels.service = "payments"]
+    style:
+      label: Payments L3VPN
+      curveStyle: smooth-taxi
+      lineColor: "#fb7185"
+      lineWidth: 6
+      targetArrowShape: triangle
+      targetArrowColor: "#fb7185"
+      animated: true
+  - selector: region
+    style:
+      backgroundColor: "rgba(168, 85, 247, 0.12)"
+      borderColor: "rgba(216, 180, 254, 0.62)"
+      borderWidth: 1
+      labelColor: "#7c3aed"
+      labelFontSize: 12
+      labelFontWeight: 800
+      zIndex: -20
+      selectable: true
+      draggable: true

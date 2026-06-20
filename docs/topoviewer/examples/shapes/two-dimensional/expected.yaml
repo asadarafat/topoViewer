@@ -1,9 +1,0 @@
-renderable: true
-visualSnapshot: false
-dom:
-  shapes: 14
-assertions:
-  geometryOnlyShapes: true
-semantic:
-  errors: []
-  warnings: []

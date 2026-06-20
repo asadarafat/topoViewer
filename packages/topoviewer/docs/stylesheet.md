@@ -242,10 +242,14 @@ This is a practical TopoViewer subset rather than full Cytoscape edge parity. Se
 | `borderWidth` | number | Region border width. |
 | `shape` | `roundrectangle`, `rectangle`, `ellipse` | Region hull shape. |
 | `labelColor`, `labelBackgroundColor` | CSS values | Region label treatment. |
+| `labelPosition` | `topLeft`, `topCenter`, `topRight`, `rightTop`, `rightCenter`, `rightBottom`, `bottomRight`, `bottomCenter`, `bottomLeft`, `leftTop`, `leftCenter`, `leftBottom` | Region label anchor. Defaults to `topLeft`. |
+| `labelMargin` | number | Region label margin in pixels from the selected region edge. |
 | `draggable` | boolean | Regions are draggable only when explicitly true. |
 | `selectable` | boolean | Regions are selectable only when explicitly true. |
 | `opacity` | number | Region opacity. |
 | `zIndex` | number | Draw order. Defaults behind nodes. |
+
+`labelMargin` moves the label relative to the region border; it does not resize the hull. Use region sizing fields such as `headerPadding`, `paddingX`, and `paddingY` when the label needs reserved interior space away from member nodes.
 
 ## Shape Style Keys
 

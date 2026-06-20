@@ -224,6 +224,76 @@ describe('compileTopoGraph', () => {
     ]));
   });
 
+  it('compiles region label placement and margin controls', () => {
+    const document: TopoDocument = {
+      version: '1.0',
+      graph: {
+        layers: [{ id: 'site' }],
+        nodes: [
+          { id: 'a', name: 'A', layers: ['site'], position: [0, 0] }
+        ],
+        regions: [
+          {
+            id: 'region-a',
+            name: 'Region A',
+            layers: ['site'],
+            members: ['a'],
+            style: {
+              labelPosition: 'bottomCenter',
+              labelMargin: 18,
+              labelColor: '#0f172a',
+              labelBackgroundColor: '#e0f2fe'
+            }
+          }
+        ]
+      }
+    };
+
+    const compiled = compileTopoGraph(document, ['site']);
+    const region = compiled.nodes.find((node) => node.id === 'region:region-a');
+
+    expect(region?.data).toMatchObject({
+      fill: 'rgba(76, 201, 240, 0.12)',
+      stroke: 'rgba(76, 201, 240, 0.62)'
+    });
+    expect(region?.data?.labelStyle).toMatchObject({
+      color: '#0f172a',
+      background: '#e0f2fe',
+      top: 'auto',
+      right: 'auto',
+      bottom: 18,
+      left: '50%',
+      transform: 'translateX(-50%)'
+    });
+  });
+
+  it('reports invalid region label placement controls', () => {
+    const document: TopoDocument = {
+      version: '1.0',
+      graph: {
+        layers: [{ id: 'site' }],
+        nodes: [{ id: 'a', layers: ['site'], position: [0, 0] }],
+        regions: [
+          {
+            id: 'region-a',
+            layers: ['site'],
+            members: ['a'],
+            style: {
+              labelPosition: 'rightBoottom',
+              labelMargin: -4
+            }
+          }
+        ]
+      }
+    };
+
+    const issues = lintTopoDocument(document, { requireNames: false });
+    expect(issues.map((entry) => entry.code)).toEqual(expect.arrayContaining([
+      'unsupported-region-label-position',
+      'invalid-region-label-margin'
+    ]));
+  });
+
   it('builds deterministic endpoint spacing, segment, and taxi geometry', () => {
     const spaced = applyEndpointSpacing({ sourceX: 0, sourceY: 0, targetX: 20, targetY: 0 }, 20, 20);
     expect(spaced.sourceX).toBeCloseTo(6);

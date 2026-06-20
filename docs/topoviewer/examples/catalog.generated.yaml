@@ -9,7 +9,9 @@ examples:
     renderable: true
     topology: docs/topoviewer/examples/graph/basic/topology.yaml
     stylesheet: docs/topoviewer/examples/graph/basic/stylesheet.yaml
-    expected: docs/topoviewer/examples/graph/basic/expected.yaml
+    expected:
+      graphNodes: 2
+      minVisibleEdges: 1
     readme: docs/topoviewer/examples/graph/basic/README.md
   - id: graph-labels-and-data
     title: Labels and data
@@ -19,7 +21,9 @@ examples:
     renderable: true
     topology: docs/topoviewer/examples/graph/labels-and-data/topology.yaml
     stylesheet: docs/topoviewer/examples/graph/labels-and-data/stylesheet.yaml
-    expected: docs/topoviewer/examples/graph/labels-and-data/expected.yaml
+    expected:
+      graphNodes: 2
+      minVisibleEdges: 1
     readme: docs/topoviewer/examples/graph/labels-and-data/README.md
   - id: graph-parent-child-nodes
     title: Parent and child nodes
@@ -29,7 +33,9 @@ examples:
     renderable: true
     topology: docs/topoviewer/examples/graph/parent-child-nodes/topology.yaml
     stylesheet: docs/topoviewer/examples/graph/parent-child-nodes/stylesheet.yaml
-    expected: docs/topoviewer/examples/graph/parent-child-nodes/expected.yaml
+    expected:
+      graphNodes: 4
+      minVisibleEdges: 1
     readme: docs/topoviewer/examples/graph/parent-child-nodes/README.md
   - id: nodes-named-node-shapes
     title: Named node shapes
@@ -39,7 +45,9 @@ examples:
     renderable: true
     topology: docs/topoviewer/examples/nodes/named-node-shapes/topology.yaml
     stylesheet: docs/topoviewer/examples/nodes/named-node-shapes/stylesheet.yaml
-    expected: docs/topoviewer/examples/nodes/named-node-shapes/expected.yaml
+    expected:
+      graphNodes: 6
+      minVisibleEdges: 5
     readme: docs/topoviewer/examples/nodes/named-node-shapes/README.md
   - id: nodes-custom-polygon-shape
     title: Custom polygon node
@@ -49,7 +57,9 @@ examples:
     renderable: true
     topology: docs/topoviewer/examples/nodes/custom-polygon-shape/topology.yaml
     stylesheet: docs/topoviewer/examples/nodes/custom-polygon-shape/stylesheet.yaml
-    expected: docs/topoviewer/examples/nodes/custom-polygon-shape/expected.yaml
+    expected:
+      graphNodes: 3
+      minVisibleEdges: 2
     readme: docs/topoviewer/examples/nodes/custom-polygon-shape/README.md
   - id: nodes-label-placement
     title: Node label placement
@@ -59,7 +69,9 @@ examples:
     renderable: true
     topology: docs/topoviewer/examples/nodes/label-placement/topology.yaml
     stylesheet: docs/topoviewer/examples/nodes/label-placement/stylesheet.yaml
-    expected: docs/topoviewer/examples/nodes/label-placement/expected.yaml
+    expected:
+      graphNodes: 4
+      minVisibleEdges: 4
     readme: docs/topoviewer/examples/nodes/label-placement/README.md
   - id: nodes-border-outline-underlay
     title: Border, outline, and underlay
@@ -69,7 +81,9 @@ examples:
     renderable: true
     topology: docs/topoviewer/examples/nodes/border-outline-underlay/topology.yaml
     stylesheet: docs/topoviewer/examples/nodes/border-outline-underlay/stylesheet.yaml
-    expected: docs/topoviewer/examples/nodes/border-outline-underlay/expected.yaml
+    expected:
+      graphNodes: 3
+      minVisibleEdges: 2
     readme: docs/topoviewer/examples/nodes/border-outline-underlay/README.md
   - id: nodes-icon-fit-and-badges
     title: Icon fit and badges
@@ -79,7 +93,9 @@ examples:
     renderable: true
     topology: docs/topoviewer/examples/nodes/icon-fit-and-badges/topology.yaml
     stylesheet: docs/topoviewer/examples/nodes/icon-fit-and-badges/stylesheet.yaml
-    expected: docs/topoviewer/examples/nodes/icon-fit-and-badges/expected.yaml
+    expected:
+      graphNodes: 3
+      minVisibleEdges: 2
     readme: docs/topoviewer/examples/nodes/icon-fit-and-badges/README.md
   - id: edges-curve-styles
     title: Edge curve styles
@@ -89,7 +105,9 @@ examples:
     renderable: true
     topology: docs/topoviewer/examples/edges/curve-styles/topology.yaml
     stylesheet: docs/topoviewer/examples/edges/curve-styles/stylesheet.yaml
-    expected: docs/topoviewer/examples/edges/curve-styles/expected.yaml
+    expected:
+      graphNodes: 5
+      minVisibleEdges: 4
     readme: docs/topoviewer/examples/edges/curve-styles/README.md
   - id: edges-arrows-dashes-labels
     title: Arrows, dashes, and labels
@@ -99,7 +117,9 @@ examples:
     renderable: true
     topology: docs/topoviewer/examples/edges/arrows-dashes-labels/topology.yaml
     stylesheet: docs/topoviewer/examples/edges/arrows-dashes-labels/stylesheet.yaml
-    expected: docs/topoviewer/examples/edges/arrows-dashes-labels/expected.yaml
+    expected:
+      graphNodes: 2
+      minVisibleEdges: 2
     readme: docs/topoviewer/examples/edges/arrows-dashes-labels/README.md
   - id: edges-arrow-label-controls
     title: Arrow and label controls
@@ -109,7 +129,9 @@ examples:
     renderable: true
     topology: docs/topoviewer/examples/edges/arrow-label-controls/topology.yaml
     stylesheet: docs/topoviewer/examples/edges/arrow-label-controls/stylesheet.yaml
-    expected: docs/topoviewer/examples/edges/arrow-label-controls/expected.yaml
+    expected:
+      graphNodes: 3
+      minVisibleEdges: 2
     readme: docs/topoviewer/examples/edges/arrow-label-controls/README.md
   - id: edges-endpoint-spacing-routing
     title: Endpoint spacing and routing
@@ -119,7 +141,9 @@ examples:
     renderable: true
     topology: docs/topoviewer/examples/edges/endpoint-spacing-routing/topology.yaml
     stylesheet: docs/topoviewer/examples/edges/endpoint-spacing-routing/stylesheet.yaml
-    expected: docs/topoviewer/examples/edges/endpoint-spacing-routing/expected.yaml
+    expected:
+      graphNodes: 4
+      minVisibleEdges: 2
     readme: docs/topoviewer/examples/edges/endpoint-spacing-routing/README.md
   - id: edges-gradient-and-interaction
     title: Gradient and interaction flags
@@ -129,7 +153,9 @@ examples:
     renderable: true
     topology: docs/topoviewer/examples/edges/gradient-and-interaction/topology.yaml
     stylesheet: docs/topoviewer/examples/edges/gradient-and-interaction/stylesheet.yaml
-    expected: docs/topoviewer/examples/edges/gradient-and-interaction/expected.yaml
+    expected:
+      graphNodes: 4
+      minVisibleEdges: 2
     readme: docs/topoviewer/examples/edges/gradient-and-interaction/README.md
   - id: edges-floating-anchors
     title: Floating anchors
@@ -139,7 +165,9 @@ examples:
     renderable: true
     topology: docs/topoviewer/examples/edges/floating-anchors/topology.yaml
     stylesheet: docs/topoviewer/examples/edges/floating-anchors/stylesheet.yaml
-    expected: docs/topoviewer/examples/edges/floating-anchors/expected.yaml
+    expected:
+      graphNodes: 2
+      minVisibleEdges: 1
     readme: docs/topoviewer/examples/edges/floating-anchors/README.md
   - id: edges-parent-link-pipe
     title: Parent link pipe
@@ -149,7 +177,9 @@ examples:
     renderable: true
     topology: docs/topoviewer/examples/edges/parent-link-pipe/topology.yaml
     stylesheet: docs/topoviewer/examples/edges/parent-link-pipe/stylesheet.yaml
-    expected: docs/topoviewer/examples/edges/parent-link-pipe/expected.yaml
+    expected:
+      graphNodes: 4
+      minVisibleEdges: 1
     readme: docs/topoviewer/examples/edges/parent-link-pipe/README.md
   - id: paths-sequenced-path
     title: Sequenced path
@@ -159,7 +189,9 @@ examples:
     renderable: true
     topology: docs/topoviewer/examples/paths/sequenced-path/topology.yaml
     stylesheet: docs/topoviewer/examples/paths/sequenced-path/stylesheet.yaml
-    expected: docs/topoviewer/examples/paths/sequenced-path/expected.yaml
+    expected:
+      graphNodes: 3
+      minVisibleEdges: 2
     readme: docs/topoviewer/examples/paths/sequenced-path/README.md
   - id: paths-stitched-child-path
     title: Stitched child path
@@ -169,7 +201,9 @@ examples:
     renderable: true
     topology: docs/topoviewer/examples/paths/stitched-child-path/topology.yaml
     stylesheet: docs/topoviewer/examples/paths/stitched-child-path/stylesheet.yaml
-    expected: docs/topoviewer/examples/paths/stitched-child-path/expected.yaml
+    expected:
+      graphNodes: 7
+      minVisibleEdges: 1
     readme: docs/topoviewer/examples/paths/stitched-child-path/README.md
   - id: attention-object-focus
     title: Object focus
@@ -179,7 +213,9 @@ examples:
     renderable: true
     topology: docs/topoviewer/examples/attention/object-focus/topology.yaml
     stylesheet: docs/topoviewer/examples/attention/object-focus/stylesheet.yaml
-    expected: docs/topoviewer/examples/attention/object-focus/expected.yaml
+    expected:
+      graphNodes: 4
+      minVisibleEdges: 5
     readme: docs/topoviewer/examples/attention/object-focus/README.md
   - id: attention-change-focus
     title: Change focus
@@ -189,7 +225,9 @@ examples:
     renderable: true
     topology: docs/topoviewer/examples/attention/change-focus/topology.yaml
     stylesheet: docs/topoviewer/examples/attention/change-focus/stylesheet.yaml
-    expected: docs/topoviewer/examples/attention/change-focus/expected.yaml
+    expected:
+      graphNodes: 5
+      minVisibleEdges: 5
     readme: docs/topoviewer/examples/attention/change-focus/README.md
   - id: attention-region-collapse
     title: Region collapse
@@ -199,7 +237,9 @@ examples:
     renderable: true
     topology: docs/topoviewer/examples/attention/region-collapse/topology.yaml
     stylesheet: docs/topoviewer/examples/attention/region-collapse/stylesheet.yaml
-    expected: docs/topoviewer/examples/attention/region-collapse/expected.yaml
+    expected:
+      graphNodes: 2
+      minVisibleEdges: 1
     readme: docs/topoviewer/examples/attention/region-collapse/README.md
   - id: attention-dense-summary-drilldown
     title: Dense summary drill-down
@@ -209,7 +249,10 @@ examples:
     renderable: true
     topology: docs/topoviewer/examples/attention/dense-summary-drilldown/topology.yaml
     stylesheet: docs/topoviewer/examples/attention/dense-summary-drilldown/stylesheet.yaml
-    expected: docs/topoviewer/examples/attention/dense-summary-drilldown/expected.yaml
+    expected:
+      graphNodes: 3
+      minVisibleEdges: 3
+      minRegions: 0
     readme: docs/topoviewer/examples/attention/dense-summary-drilldown/README.md
   - id: attention-advanced-zoom-policy
     title: Advanced zoom policy
@@ -219,7 +262,10 @@ examples:
     renderable: true
     topology: docs/topoviewer/examples/attention/advanced-zoom-policy/topology.yaml
     stylesheet: docs/topoviewer/examples/attention/advanced-zoom-policy/stylesheet.yaml
-    expected: docs/topoviewer/examples/attention/advanced-zoom-policy/expected.yaml
+    expected:
+      graphNodes: 2
+      minVisibleEdges: 1
+      minRegions: 0
     readme: docs/topoviewer/examples/attention/advanced-zoom-policy/README.md
   - id: attention-link-grouping
     title: Link grouping
@@ -229,7 +275,8 @@ examples:
     renderable: true
     topology: docs/topoviewer/examples/attention/link-grouping/topology.yaml
     stylesheet: docs/topoviewer/examples/attention/link-grouping/stylesheet.yaml
-    expected: docs/topoviewer/examples/attention/link-grouping/expected.yaml
+    expected:
+      graphNodes: 2
     readme: docs/topoviewer/examples/attention/link-grouping/README.md
   - id: attention-query-primitives
     title: Query primitives
@@ -239,7 +286,9 @@ examples:
     renderable: true
     topology: docs/topoviewer/examples/attention/query-primitives/topology.yaml
     stylesheet: docs/topoviewer/examples/attention/query-primitives/stylesheet.yaml
-    expected: docs/topoviewer/examples/attention/query-primitives/expected.yaml
+    expected:
+      graphNodes: 5
+      minVisibleEdges: 4
     readme: docs/topoviewer/examples/attention/query-primitives/README.md
   - id: attention-region-focus
     title: Region focus
@@ -249,7 +298,10 @@ examples:
     renderable: true
     topology: docs/topoviewer/examples/attention/region-focus/topology.yaml
     stylesheet: docs/topoviewer/examples/attention/region-focus/stylesheet.yaml
-    expected: docs/topoviewer/examples/attention/region-focus/expected.yaml
+    expected:
+      graphNodes: 4
+      minVisibleEdges: 3
+      minRegions: 1
     readme: docs/topoviewer/examples/attention/region-focus/README.md
   - id: attention-dependency-focus
     title: Dependency focus
@@ -259,7 +311,9 @@ examples:
     renderable: true
     topology: docs/topoviewer/examples/attention/dependency-focus/topology.yaml
     stylesheet: docs/topoviewer/examples/attention/dependency-focus/stylesheet.yaml
-    expected: docs/topoviewer/examples/attention/dependency-focus/expected.yaml
+    expected:
+      graphNodes: 5
+      minVisibleEdges: 4
     readme: docs/topoviewer/examples/attention/dependency-focus/README.md
   - id: attention-hide-context
     title: Hide context
@@ -269,7 +323,8 @@ examples:
     renderable: true
     topology: docs/topoviewer/examples/attention/hide-context/topology.yaml
     stylesheet: docs/topoviewer/examples/attention/hide-context/stylesheet.yaml
-    expected: docs/topoviewer/examples/attention/hide-context/expected.yaml
+    expected:
+      graphNodes: 2
     readme: docs/topoviewer/examples/attention/hide-context/README.md
   - id: attention-parent-label-collapse
     title: Parent and label collapse
@@ -279,7 +334,9 @@ examples:
     renderable: true
     topology: docs/topoviewer/examples/attention/parent-label-collapse/topology.yaml
     stylesheet: docs/topoviewer/examples/attention/parent-label-collapse/stylesheet.yaml
-    expected: docs/topoviewer/examples/attention/parent-label-collapse/expected.yaml
+    expected:
+      graphNodes: 4
+      minVisibleEdges: 3
     readme: docs/topoviewer/examples/attention/parent-label-collapse/README.md
   - id: attention-aggregate-badge-status
     title: Aggregate badge and status
@@ -289,7 +346,9 @@ examples:
     renderable: true
     topology: docs/topoviewer/examples/attention/aggregate-badge-status/topology.yaml
     stylesheet: docs/topoviewer/examples/attention/aggregate-badge-status/stylesheet.yaml
-    expected: docs/topoviewer/examples/attention/aggregate-badge-status/expected.yaml
+    expected:
+      graphNodes: 2
+      minVisibleEdges: 1
     readme: docs/topoviewer/examples/attention/aggregate-badge-status/README.md
   - id: regions-nested-regions
     title: Nested regions
@@ -299,7 +358,10 @@ examples:
     renderable: true
     topology: docs/topoviewer/examples/regions/nested-regions/topology.yaml
     stylesheet: docs/topoviewer/examples/regions/nested-regions/stylesheet.yaml
-    expected: docs/topoviewer/examples/regions/nested-regions/expected.yaml
+    expected:
+      graphNodes: 3
+      minVisibleEdges: 1
+      minRegions: 2
     readme: docs/topoviewer/examples/regions/nested-regions/README.md
   - id: regions-overlapping-regions
     title: Overlapping regions
@@ -309,8 +371,24 @@ examples:
     renderable: true
     topology: docs/topoviewer/examples/regions/overlapping-regions/topology.yaml
     stylesheet: docs/topoviewer/examples/regions/overlapping-regions/stylesheet.yaml
-    expected: docs/topoviewer/examples/regions/overlapping-regions/expected.yaml
+    expected:
+      graphNodes: 3
+      minVisibleEdges: 1
+      minRegions: 3
     readme: docs/topoviewer/examples/regions/overlapping-regions/README.md
+  - id: regions-region-label-placement
+    title: Region label placement
+    feature: regions
+    path: regions/region-label-placement
+    page: topoviewer/reference/regions/region-label-placement
+    renderable: true
+    topology: docs/topoviewer/examples/regions/region-label-placement/topology.yaml
+    stylesheet: docs/topoviewer/examples/regions/region-label-placement/stylesheet.yaml
+    expected:
+      graphNodes: 2
+      minVisibleEdges: 1
+      minRegions: 2
+    readme: docs/topoviewer/examples/regions/region-label-placement/README.md
   - id: regions-draggable-regions
     title: Draggable regions
     feature: regions
@@ -319,7 +397,10 @@ examples:
     renderable: true
     topology: docs/topoviewer/examples/regions/draggable-regions/topology.yaml
     stylesheet: docs/topoviewer/examples/regions/draggable-regions/stylesheet.yaml
-    expected: docs/topoviewer/examples/regions/draggable-regions/expected.yaml
+    expected:
+      graphNodes: 2
+      minVisibleEdges: 1
+      minRegions: 1
     readme: docs/topoviewer/examples/regions/draggable-regions/README.md
   - id: shapes-two-dimensional
     title: Two-dimensional shapes
@@ -329,7 +410,8 @@ examples:
     renderable: true
     topology: docs/topoviewer/examples/shapes/two-dimensional/topology.yaml
     stylesheet: docs/topoviewer/examples/shapes/two-dimensional/stylesheet.yaml
-    expected: docs/topoviewer/examples/shapes/two-dimensional/expected.yaml
+    expected:
+      shapes: 14
     readme: docs/topoviewer/examples/shapes/two-dimensional/README.md
   - id: shapes-three-dimensional
     title: Three-dimensional shapes
@@ -339,7 +421,8 @@ examples:
     renderable: true
     topology: docs/topoviewer/examples/shapes/three-dimensional/topology.yaml
     stylesheet: docs/topoviewer/examples/shapes/three-dimensional/stylesheet.yaml
-    expected: docs/topoviewer/examples/shapes/three-dimensional/expected.yaml
+    expected:
+      shapes: 7
     readme: docs/topoviewer/examples/shapes/three-dimensional/README.md
   - id: shapes-rotation
     title: Shape rotation
@@ -349,7 +432,8 @@ examples:
     renderable: true
     topology: docs/topoviewer/examples/shapes/rotation/topology.yaml
     stylesheet: docs/topoviewer/examples/shapes/rotation/stylesheet.yaml
-    expected: docs/topoviewer/examples/shapes/rotation/expected.yaml
+    expected:
+      shapes: 3
     readme: docs/topoviewer/examples/shapes/rotation/README.md
   - id: callouts-markdown
     title: Markdown callouts
@@ -359,7 +443,9 @@ examples:
     renderable: true
     topology: docs/topoviewer/examples/callouts/markdown/topology.yaml
     stylesheet: docs/topoviewer/examples/callouts/markdown/stylesheet.yaml
-    expected: docs/topoviewer/examples/callouts/markdown/expected.yaml
+    expected:
+      graphNodes: 1
+      visibleCallouts: 1
     readme: docs/topoviewer/examples/callouts/markdown/README.md
   - id: callouts-pins-and-leaders
     title: Pins and leaders
@@ -369,7 +455,11 @@ examples:
     renderable: true
     topology: docs/topoviewer/examples/callouts/pins-and-leaders/topology.yaml
     stylesheet: docs/topoviewer/examples/callouts/pins-and-leaders/stylesheet.yaml
-    expected: docs/topoviewer/examples/callouts/pins-and-leaders/expected.yaml
+    expected:
+      graphNodes: 1
+      shapes: 1
+      visibleCallouts: 1
+      minVisibleEdges: 2
     readme: docs/topoviewer/examples/callouts/pins-and-leaders/README.md
   - id: callouts-image-embed
     title: Image embed callout
@@ -379,7 +469,8 @@ examples:
     renderable: true
     topology: docs/topoviewer/examples/callouts/image-embed/topology.yaml
     stylesheet: docs/topoviewer/examples/callouts/image-embed/stylesheet.yaml
-    expected: docs/topoviewer/examples/callouts/image-embed/expected.yaml
+    expected:
+      visibleCallouts: 1
     readme: docs/topoviewer/examples/callouts/image-embed/README.md
   - id: styling-selectors
     title: Selector styling
@@ -389,7 +480,9 @@ examples:
     renderable: true
     topology: docs/topoviewer/examples/styling/selectors/topology.yaml
     stylesheet: docs/topoviewer/examples/styling/selectors/stylesheet.yaml
-    expected: docs/topoviewer/examples/styling/selectors/expected.yaml
+    expected:
+      graphNodes: 2
+      minVisibleEdges: 1
     readme: docs/topoviewer/examples/styling/selectors/README.md
   - id: styling-inline-style-override
     title: Inline style override
@@ -399,7 +492,9 @@ examples:
     renderable: true
     topology: docs/topoviewer/examples/styling/inline-style-override/topology.yaml
     stylesheet: docs/topoviewer/examples/styling/inline-style-override/stylesheet.yaml
-    expected: docs/topoviewer/examples/styling/inline-style-override/expected.yaml
+    expected:
+      graphNodes: 2
+      minVisibleEdges: 1
     readme: docs/topoviewer/examples/styling/inline-style-override/README.md
   - id: styling-theme-light-dark
     title: Light and dark theme variables
@@ -409,7 +504,9 @@ examples:
     renderable: true
     topology: docs/topoviewer/examples/styling/theme-light-dark/topology.yaml
     stylesheet: docs/topoviewer/examples/styling/theme-light-dark/stylesheet.yaml
-    expected: docs/topoviewer/examples/styling/theme-light-dark/expected.yaml
+    expected:
+      graphNodes: 2
+      minVisibleEdges: 1
     readme: docs/topoviewer/examples/styling/theme-light-dark/README.md
   - id: layout-manual
     title: Manual layout
@@ -419,7 +516,9 @@ examples:
     renderable: true
     topology: docs/topoviewer/examples/layout/manual/topology.yaml
     stylesheet: docs/topoviewer/examples/layout/manual/stylesheet.yaml
-    expected: docs/topoviewer/examples/layout/manual/expected.yaml
+    expected:
+      graphNodes: 3
+      minVisibleEdges: 2
     readme: docs/topoviewer/examples/layout/manual/README.md
   - id: layout-force
     title: Force layout
@@ -429,7 +528,9 @@ examples:
     renderable: true
     topology: docs/topoviewer/examples/layout/force/topology.yaml
     stylesheet: docs/topoviewer/examples/layout/force/stylesheet.yaml
-    expected: docs/topoviewer/examples/layout/force/expected.yaml
+    expected:
+      graphNodes: 5
+      minVisibleEdges: 5
     readme: docs/topoviewer/examples/layout/force/README.md
   - id: validation-broken-reference
     title: Broken reference validation
@@ -439,7 +540,6 @@ examples:
     renderable: false
     topology: docs/topoviewer/examples/validation/broken-reference/topology.yaml
     stylesheet: docs/topoviewer/examples/validation/broken-reference/stylesheet.yaml
-    expected: docs/topoviewer/examples/validation/broken-reference/expected.yaml
     readme: docs/topoviewer/examples/validation/broken-reference/README.md
   - id: validation-unsafe-image
     title: Unsafe image validation
@@ -449,7 +549,6 @@ examples:
     renderable: false
     topology: docs/topoviewer/examples/validation/unsafe-image/topology.yaml
     stylesheet: docs/topoviewer/examples/validation/unsafe-image/stylesheet.yaml
-    expected: docs/topoviewer/examples/validation/unsafe-image/expected.yaml
     readme: docs/topoviewer/examples/validation/unsafe-image/README.md
   - id: validation-limit-exceeded
     title: Renderer limit validation
@@ -459,8 +558,72 @@ examples:
     renderable: false
     topology: docs/topoviewer/examples/validation/limit-exceeded/topology.yaml
     stylesheet: docs/topoviewer/examples/validation/limit-exceeded/stylesheet.yaml
-    expected: docs/topoviewer/examples/validation/limit-exceeded/expected.yaml
     readme: docs/topoviewer/examples/validation/limit-exceeded/README.md
+  - id: integration-yaml-to-network-diagram
+    title: YAML to network diagram
+    feature: integration
+    path: integration/yaml-to-network-diagram
+    page: topoviewer/yaml-to-diagram
+    renderable: true
+    topology: docs/topoviewer/examples/integration/yaml-to-network-diagram/topology.yaml
+    stylesheet: docs/topoviewer/examples/integration/yaml-to-network-diagram/stylesheet.yaml
+    expected:
+      graphNodes: 7
+      minVisibleEdges: 8
+      minRegions: 3
+    readme: docs/topoviewer/examples/integration/yaml-to-network-diagram/README.md
+  - id: integration-real-network-underlay
+    title: Real network underlay
+    feature: integration
+    path: integration/real-network-underlay
+    page: topoviewer/real-network-demo/underlay
+    renderable: true
+    topology: docs/topoviewer/examples/integration/real-network-underlay/topology.yaml
+    stylesheet: docs/topoviewer/examples/integration/real-network-underlay/stylesheet.yaml
+    expected:
+      graphNodes: 7
+      minVisibleEdges: 8
+      minRegions: 3
+    readme: docs/topoviewer/examples/integration/real-network-underlay/README.md
+  - id: integration-real-network-bgp
+    title: Real network BGP
+    feature: integration
+    path: integration/real-network-bgp
+    page: topoviewer/real-network-demo/bgp
+    renderable: true
+    topology: docs/topoviewer/examples/integration/real-network-bgp/topology.yaml
+    stylesheet: docs/topoviewer/examples/integration/real-network-bgp/stylesheet.yaml
+    expected:
+      graphNodes: 7
+      minVisibleEdges: 8
+      minRegions: 3
+    readme: docs/topoviewer/examples/integration/real-network-bgp/README.md
+  - id: integration-real-network-service-path
+    title: Real network service path
+    feature: integration
+    path: integration/real-network-service-path
+    page: topoviewer/real-network-demo/service-path
+    renderable: true
+    topology: docs/topoviewer/examples/integration/real-network-service-path/topology.yaml
+    stylesheet: docs/topoviewer/examples/integration/real-network-service-path/stylesheet.yaml
+    expected:
+      graphNodes: 7
+      minVisibleEdges: 8
+      minRegions: 3
+    readme: docs/topoviewer/examples/integration/real-network-service-path/README.md
+  - id: integration-real-network-failure-view
+    title: Real network failure view
+    feature: integration
+    path: integration/real-network-failure-view
+    page: topoviewer/real-network-demo/failure-view
+    renderable: true
+    topology: docs/topoviewer/examples/integration/real-network-failure-view/topology.yaml
+    stylesheet: docs/topoviewer/examples/integration/real-network-failure-view/stylesheet.yaml
+    expected:
+      graphNodes: 7
+      minVisibleEdges: 8
+      minRegions: 3
+    readme: docs/topoviewer/examples/integration/real-network-failure-view/README.md
   - id: integration-complete-network-demo
     title: Complete network demo
     feature: integration
@@ -469,5 +632,9 @@ examples:
     renderable: true
     topology: docs/topoviewer/examples/integration/complete-network-demo/topology.yaml
     stylesheet: docs/topoviewer/examples/integration/complete-network-demo/stylesheet.yaml
-    expected: docs/topoviewer/examples/integration/complete-network-demo/expected.yaml
+    expected:
+      graphNodes: 9
+      shapes: 9
+      minVisibleEdges: 1
+      minRegions: 3
     readme: docs/topoviewer/examples/integration/complete-network-demo/README.md

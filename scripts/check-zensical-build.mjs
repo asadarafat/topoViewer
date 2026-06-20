@@ -7,11 +7,16 @@ const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'
 const zensicalSite = path.join(repoRoot, 'site/zensical');
 const adapterPage = path.join(zensicalSite, 'examples/topoviewer/index.html');
 const mirroredExamplePage = path.join(zensicalSite, 'topoviewer/reference/attention/object-focus/index.html');
+const realNetworkDemoPage = path.join(zensicalSite, 'topoviewer/real-network-demo/index.html');
+const whyTopoViewerPage = path.join(zensicalSite, 'topoviewer/why-topoviewer/index.html');
 const mirroredExampleSource = path.join(repoRoot, 'docs-zensical/topoviewer/reference/attention/object-focus/index.md');
 const requiredFiles = [
   'index.html',
   'examples/topoviewer/index.html',
   'topoviewer/index.html',
+  'topoviewer/real-network-demo/index.html',
+  'topoviewer/why-topoviewer/index.html',
+  'assets/topoviewer-yaml-to-diagram.svg',
   'topoviewer/reference/attention/object-focus/index.html',
   'assets/topoviewer/topoviewer-embed.css',
   'assets/topoviewer/topoviewer-embed.iife.js',
@@ -19,6 +24,8 @@ const requiredFiles = [
   'assets/topoviewer/topoviewer-zensical.js',
   'assets/topoviewer/examples/graph/basic/topology.yaml',
   'assets/topoviewer/examples/graph/basic/stylesheet.yaml',
+  'assets/topoviewer/examples/integration/real-network-underlay/topology.yaml',
+  'assets/topoviewer/examples/integration/real-network-underlay/stylesheet.yaml',
   'assets/topoviewer/examples/attention/object-focus/topology.yaml',
   'assets/topoviewer/examples/attention/object-focus/stylesheet.yaml'
 ];
@@ -57,6 +64,31 @@ for (const needle of [
 ]) {
   if (!mirroredHtml.includes(needle)) {
     fail(`Mirrored Zensical TopoViewer page does not include expected content: ${needle}`);
+  }
+}
+
+const realNetworkHtml = fs.readFileSync(realNetworkDemoPage, 'utf8');
+for (const needle of [
+  'class="topoviewer-embed"',
+  'data-topology="../../assets/topoviewer/examples/integration/real-network-underlay/topology.yaml"',
+  'data-stylesheet="../../assets/topoviewer/examples/integration/real-network-underlay/stylesheet.yaml"',
+  'data-topology="../../assets/topoviewer/examples/integration/real-network-service-path/topology.yaml"',
+  'data-attention="{&quot;query&quot;:{&quot;pathIds&quot;:[&quot;payments-primary&quot;],&quot;mode&quot;:&quot;dim-context&quot;}}"'
+]) {
+  if (!realNetworkHtml.includes(needle)) {
+    fail(`Zensical real network demo page does not include expected content: ${needle}`);
+  }
+}
+if (realNetworkHtml.includes('data-topology="../assets/topoviewer/examples/')) {
+  fail('Zensical real network demo page has root-relative embed paths computed from the Markdown file instead of the generated page directory.');
+}
+
+const whyTopoViewerHtml = fs.readFileSync(whyTopoViewerPage, 'utf8');
+for (const needle of [
+  '<img alt="YAML to rendered network diagram" src="../../assets/topoviewer-yaml-to-diagram.svg"',
+]) {
+  if (!whyTopoViewerHtml.includes(needle)) {
+    fail(`Zensical Why TopoViewer page does not include expected inline image: ${needle}`);
   }
 }
 

@@ -3,9 +3,36 @@
 [![CI](https://github.com/asadarafat/topoviewer/actions/workflows/ci.yml/badge.svg)](https://github.com/asadarafat/topoviewer/actions/workflows/ci.yml)
 [![Docs](https://github.com/asadarafat/topoviewer/actions/workflows/docs.yml/badge.svg)](https://github.com/asadarafat/topoviewer/actions/workflows/docs.yml)
 
-TopoViewer is a monorepo for declarative graph rendering packages.
+TopoViewer turns YAML topology facts and selector stylesheets into interactive network, infrastructure, and service-topology diagrams.
 
-TopoViewer is a declarative graph renderer for network, infrastructure, and service-topology diagrams. It turns YAML graph definitions and selector stylesheets into interactive topology views, embeddable documentation diagrams, and exportable visual assets.
+![TopoViewer YAML to rendered network diagram](docs/assets/topoviewer-yaml-to-diagram.svg)
+
+The static visual above is a README companion to the canonical
+`integration/yaml-to-network-diagram` example. Refresh or validate the live
+source with `npm run sync:docs` and the MkDocs/Zensical preview commands below.
+
+```yaml
+graph:
+  nodes:
+    - id: pe-fra-1
+      labels: { role: pe, site: fra }
+    - id: rr-ams-1
+      labels: { role: rr, protocol: bgp }
+  links:
+    - id: bgp-fra-rr
+      source: pe-fra-1
+      target: rr-ams-1
+      labels: { protocol: bgp }
+```
+
+The same source model can render underlay, BGP, service path, and failure views without redrawing the network by hand.
+
+- [Try the YAML to diagram example](docs/topoviewer/yaml-to-diagram/index.md)
+- [Open the real network demo](docs/topoviewer/real-network-demo.md)
+- [Read why TopoViewer exists](docs/topoviewer/why-topoviewer.md)
+- [Review the integration roadmap](docs/topoviewer/integration-roadmap.md)
+
+TopoViewer is a monorepo for the renderer package, MkDocs plugin, examples, schemas, and documentation build.
 
 ## Legacy History
 

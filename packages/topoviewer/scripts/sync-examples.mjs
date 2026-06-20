@@ -87,6 +87,15 @@ function boolText(value, fallback) {
   return value === undefined ? String(fallback) : String(value);
 }
 
+function compactExpectedMetadata(expected) {
+  const dom = expected.dom || {};
+  const keys = ['graphNodes', 'shapes', 'visibleCallouts', 'minVisibleEdges', 'minRegions'];
+  const metadata = Object.fromEntries(keys
+    .filter((key) => dom[key] !== undefined)
+    .map((key) => [key, dom[key]]));
+  return Object.keys(metadata).length ? metadata : undefined;
+}
+
 function indentBlock(value, spaces = 4) {
   const prefix = ' '.repeat(spaces);
   return value
@@ -101,6 +110,7 @@ function generatedCatalog(catalog) {
     docsRoot: toPosix(path.relative(repoRoot, docsRoot) || '.'),
     examples: (catalog.examples || []).map((example) => {
       const expected = readYaml(path.join(caseDir(example), 'expected.yaml'));
+      const expectedMetadata = compactExpectedMetadata(expected);
       return {
         id: example.id,
         title: example.title,
@@ -110,7 +120,7 @@ function generatedCatalog(catalog) {
         renderable: expected.renderable,
         topology: includePath(docsExamplePath(example, 'topology.yaml')),
         stylesheet: includePath(docsExamplePath(example, 'stylesheet.yaml')),
-        expected: includePath(docsExamplePath(example, 'expected.yaml')),
+        ...(expectedMetadata ? { expected: expectedMetadata } : {}),
         readme: includePath(docsExamplePath(example, 'README.md'))
       };
     })
@@ -313,8 +323,7 @@ for (const example of catalog.examples || []) {
   const targets = [
     ['topology.yaml', docsExamplePath(example, 'topology.yaml')],
     ['stylesheet.yaml', docsExamplePath(example, 'stylesheet.yaml')],
-    ['README.md', docsExamplePath(example, 'README.md')],
-    ['expected.yaml', docsExamplePath(example, 'expected.yaml')]
+    ['README.md', docsExamplePath(example, 'README.md')]
   ];
 
   for (const [sourceName, targetRelative] of targets) {

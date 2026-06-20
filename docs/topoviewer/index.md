@@ -57,6 +57,7 @@ TopoViewer renders declarative graph and diagram documents from YAML. The canoni
 
 - [Nested regions](reference/regions/nested-regions/index.md): Regions can be nested so broad domains contain smaller domains.
 - [Overlapping regions](reference/regions/overlapping-regions/index.md): A shared node can be a member of multiple regions.
+- [Region label placement](reference/regions/region-label-placement/index.md): Region labels can be anchored around the hull with an explicit margin.
 - [Draggable regions](reference/regions/draggable-regions/index.md): Regions can be selectable and draggable hulls.
 
 ### Shapes
@@ -90,6 +91,11 @@ TopoViewer renders declarative graph and diagram documents from YAML. The canoni
 
 ### Integration
 
+- [YAML to network diagram](yaml-to-diagram/index.md): A compact before/after example that turns topology YAML and a stylesheet into a rendered network diagram.
+- [Real network underlay](real-network-demo/underlay/index.md): A provider underlay view that foregrounds transport capacity, media, and backup links.
+- [Real network BGP](real-network-demo/bgp/index.md): A BGP view that makes route reflector sessions visible while keeping the underlay as context.
+- [Real network service path](real-network-demo/service-path/index.md): A service path view that focuses the customer L3VPN path across the same provider topology.
+- [Real network failure view](real-network-demo/failure-view/index.md): A failure view that focuses critical objects and keeps the impacted service path traceable.
 - [Complete network demo](complete-network-demo/index.md): An integrated network example combining graph facts, regions, child nodes, paths, shapes, and callouts.
 
 The important rule is simple: if an object is part of the topology, model it under `graph.*`. If it explains the topology visually, model it under `diagram.*`.

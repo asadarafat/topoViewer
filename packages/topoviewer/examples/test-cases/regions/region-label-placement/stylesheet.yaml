@@ -1,0 +1,44 @@
+icons:
+  router:
+    glyph: R
+    fill: "#1976d2"
+    stroke: "#bbdefb"
+labelFields:
+  - name
+stylesheet:
+  - selector: node
+    style:
+      icon: router
+      width: 92
+      height: 68
+      borderWidth: 3
+      borderColor: "#1565c0"
+      labelColor: var(--topoviewer-fg-strong)
+      labelFontWeight: 800
+  - selector: link
+    style:
+      lineColor: "#42a5f5"
+      lineWidth: 2
+      targetArrowShape: none
+      labelColor: var(--topoviewer-fg-strong)
+      textBackgroundColor: var(--topoviewer-edge-label-bg)
+  - selector: region
+    style:
+      backgroundColor: rgba(25, 118, 210, 0.10)
+      borderColor: rgba(66, 165, 245, 0.68)
+      borderWidth: 1
+      labelColor: var(--topoviewer-region-label-fg)
+      labelBackgroundColor: var(--topoviewer-region-label-bg)
+      draggable: true
+      selectable: true
+      zIndex: -20
+  - selector: region[labels.placement = "top"]
+    style:
+      labelPosition: topCenter
+      labelMargin: 14
+  - selector: region[labels.placement = "side"]
+    style:
+      labelPosition: rightCenter
+      labelMargin: 14
+      backgroundColor: rgba(46, 125, 50, 0.10)
+      borderColor: rgba(76, 175, 80, 0.72)

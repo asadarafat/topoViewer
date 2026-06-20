@@ -35,6 +35,10 @@ function categoryIndexPath(feature) {
   return path.join(rtfmPublic, 'topoviewer/reference', feature, 'index.html');
 }
 
+function publicPageIndexPath(relativePath) {
+  return path.join(rtfmPublic, relativePath, 'index.html');
+}
+
 function exampleUrl(example) {
   return `${baseURL}/${example.page}/`;
 }
@@ -537,6 +541,26 @@ test.describe('MkDocs TopoViewer documented examples', () => {
     }
 
     await expect(page.locator('.topoviewer-embed')).toHaveCount(graphExamples.length);
+  });
+
+  test('renders the real network demo as one public multi-view page', async ({ page }) => {
+    const pagePath = 'topoviewer/real-network-demo';
+    test.skip(!fs.existsSync(publicPageIndexPath(pagePath)), `Real network demo output is missing: ${publicPageIndexPath(pagePath)}`);
+
+    await page.goto(`${baseURL}/${pagePath}/`, { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('main h1', { hasText: 'Real Network Demo' })).toBeVisible();
+
+    for (const heading of ['Underlay', 'BGP', 'Service Path', 'Failure View']) {
+      await expect(page.locator('main h2', { hasText: heading })).toBeVisible();
+    }
+
+    await expect(page.locator('.topoviewer-embed')).toHaveCount(4);
+    await expect(page.locator('main .tabbed-labels label', { hasText: 'Expected YAML' })).toHaveCount(0);
+    await expect(page.locator('main .tabbed-labels label', { hasText: 'Attention YAML' })).toHaveCount(2);
+    await expect(page.locator('.topoviewer-embed[data-topology*="real-network-underlay/topology.yaml"]')).toHaveCount(1);
+    await expect(page.locator('.topoviewer-embed[data-topology*="real-network-bgp/topology.yaml"]')).toHaveCount(1);
+    await expect(page.locator('.topoviewer-embed[data-topology*="real-network-service-path/topology.yaml"]')).toHaveCount(1);
+    await expect(page.locator('.topoviewer-embed[data-topology*="real-network-failure-view/topology.yaml"]')).toHaveCount(1);
   });
 
   test('renders callout markdown headings, inline formatting, and embedded images', async ({ page }) => {

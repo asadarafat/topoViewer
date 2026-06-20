@@ -1,0 +1,127 @@
+layout:
+  mode: manual
+  width: 980
+  height: 520
+icons:
+  router.pe:
+    glyph: PE
+    fill: "#2563eb"
+    stroke: "#bfdbfe"
+  router.p:
+    glyph: P
+    fill: "#0f766e"
+    stroke: "#99f6e4"
+  router.rr:
+    glyph: RR
+    fill: "#7c3aed"
+    stroke: "#ddd6fe"
+  router.ce:
+    glyph: CE
+    fill: "#f59e0b"
+    stroke: "#fde68a"
+labelFields:
+  - name
+stylesheet:
+  - selector: node
+    style:
+      icon: router.p
+      width: 86
+      height: 62
+      iconSize: 34
+      shape: roundRectangle
+      backgroundColor: "#ffffff"
+      borderColor: "#94a3b8"
+      borderWidth: 2
+      labelColor: "#0f172a"
+      labelFontSize: 12
+      labelFontWeight: 800
+      labelBackgroundColor: "#ffffff"
+      labelBackgroundOpacity: 0.90
+      labelPadding: 4
+      statusColor: "#22c55e"
+      statusPlacement: topRight
+      statusSize: 12
+  - selector: node[labels.role = "pe"]
+    style:
+      icon: router.pe
+      shape: hexagon
+      borderColor: "#2563eb"
+  - selector: node[labels.role = "p"]
+    style:
+      icon: router.p
+      shape: ellipse
+      borderColor: "#0f766e"
+  - selector: node[labels.role = "rr"]
+    style:
+      icon: router.rr
+      borderColor: "#7c3aed"
+      opacity: 0.82
+  - selector: node[labels.role = "ce"]
+    style:
+      icon: router.ce
+      shape: rectangle
+  - selector: node[data.severity = "critical"]
+    style:
+      statusColor: "#dc2626"
+      outlineColor: "#dc2626"
+      outlineWidth: 6
+      outlineOpacity: 1
+      badgeLabel: CRIT
+      badgeBackgroundColor: "#dc2626"
+      badgeColor: "#ffffff"
+      badgeBorderColor: "#fecaca"
+  - selector: node[data.severity = "major"]
+    style:
+      statusColor: "#f59e0b"
+      outlineColor: "#f59e0b"
+      outlineWidth: 5
+      outlineOpacity: 0.94
+      badgeLabel: MAJ
+      badgeBackgroundColor: "#f59e0b"
+      badgeColor: "#ffffff"
+      badgeBorderColor: "#fde68a"
+  - selector: link
+    style:
+      curveStyle: bezier
+      lineColor: "#94a3b8"
+      lineWidth: 1
+      lineOpacity: 0.40
+      targetArrowShape: none
+      labelColor: "#475569"
+      labelFontSize: 11
+      textBackgroundColor: "#ffffff"
+      textBackgroundOpacity: 0.92
+  - selector: link[data.severity = "critical"]
+    style:
+      label: fiber cut
+      lineColor: "#dc2626"
+      lineWidth: 6
+      lineStyle: dashed
+      lineDashPattern: 10 6
+      lineOpacity: 1
+  - selector: link[data.severity = "major"]
+    style:
+      label: degraded
+      lineColor: "#f59e0b"
+      lineWidth: 5
+      lineOpacity: 1
+  - selector: path[data.severity = "critical"]
+    style:
+      label: impacted service
+      curveStyle: smooth-taxi
+      lineColor: "#fb7185"
+      lineWidth: 5
+      lineDashPattern: 8 6
+      targetArrowShape: triangle
+      targetArrowColor: "#fb7185"
+  - selector: region
+    style:
+      backgroundColor: "rgba(254, 226, 226, 0.58)"
+      borderColor: "rgba(248, 113, 113, 0.55)"
+      borderWidth: 1
+      labelColor: "#991b1b"
+      labelFontSize: 12
+      labelFontWeight: 800
+      zIndex: -20
+      selectable: true
+      draggable: true

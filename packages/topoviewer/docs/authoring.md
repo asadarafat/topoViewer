@@ -335,6 +335,8 @@ regions:
 
 Regions are hulls around their member nodes. Parent regions resize around child regions and members. If a shared node belongs to multiple regions, dragging one region recomputes the dependent hulls so the graph stays coherent.
 
+Region labels default to the top-left of the hull using the historical renderer offset: 12 px from the top edge and 18 px from the left edge. For single-node regions, add `headerPadding` when the label remains on the top edge, or move the label with region style keys such as `labelPosition: rightCenter` and `labelMargin: 14`.
+
 Useful region sizing fields:
 
 | Field | Use |
@@ -343,6 +345,19 @@ Useful region sizing fields:
 | `headerPadding` | Extra top room for region labels. |
 | `minWidth`, `minHeight` | Prevent tiny regions. |
 | `parentPadding`, `parentPaddingX`, `parentPaddingY` | Extra parent-region space around child regions. |
+
+```yaml
+regions:
+  - id: single-node-site
+    name: Single Node Site
+    members: [edge-a]
+    layers: [site]
+    paddingX: 54
+    paddingY: 34
+    headerPadding: 34
+    minWidth: 220
+    minHeight: 170
+```
 
 ## Toggles
 

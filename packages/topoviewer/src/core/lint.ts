@@ -30,6 +30,7 @@ import {
   nonNegativeNumber,
   nodeDashPattern,
 } from './nodeStyle';
+import { regionLabelMargin, regionLabelPositions, normalizeRegionLabelPosition } from './regionStyle';
 import { selectorMatches } from './selector';
 import type { GraphEntity, GraphLink, GraphPath, StyleRule, TopoDocument } from './types';
 import { validateTopoDocument } from './validation';
@@ -186,6 +187,19 @@ function nodeStyleIssues(style: Record<string, unknown> | undefined, path: strin
 
   if (style.badgeLabel !== undefined && String(style.badgeLabel).length > 12) {
     issues.push(issue('warning', 'long-node-badge-label', 'badgeLabel should be short enough to fit inside a compact node badge.', `${path}.badgeLabel`));
+  }
+
+  return issues;
+}
+
+function regionStyleIssues(style: Record<string, unknown> | undefined, path: string): LintIssue[] {
+  if (!style || typeof style !== 'object') return [];
+  const issues: LintIssue[] = [
+    ...enumStyleIssue(style, 'labelPosition', path, 'unsupported-region-label-position', regionLabelPositions, normalizeRegionLabelPosition)
+  ];
+
+  if (style.labelMargin !== undefined && regionLabelMargin(style.labelMargin) === undefined) {
+    issues.push(issue('error', 'invalid-region-label-margin', 'labelMargin must be a non-negative number.', `${path}.labelMargin`));
   }
 
   return issues;
@@ -395,6 +409,7 @@ export function lintTopoDocument(input: TopoDocument, options: LintOptions = {})
     addEntity(seenIds, issues, 'region', region, `graph.regions[${index}]`, requireNames);
     issues.push(...objectLayerIssues(region, knownLayers, `graph.regions[${index}]`));
     issues.push(...styleKeyIssues(region.style, `graph.regions[${index}].style`));
+    issues.push(...regionStyleIssues(region.style, `graph.regions[${index}].style`));
     (region.members || []).forEach((member, memberIndex) => {
       if (!nodeIds.has(member) && !regionIds.has(member)) {
         issues.push(issue('error', 'broken-region-member', `Region "${region.id}" member "${member}" does not exist as a node or region.`, `graph.regions[${index}].members[${memberIndex}]`));
@@ -426,6 +441,9 @@ export function lintTopoDocument(input: TopoDocument, options: LintOptions = {})
     issues.push(...styleKeyIssues(rule.style, `stylesheet[${index}].style`));
     if (selectorKind(rule.selector) === 'node') {
       issues.push(...nodeStyleIssues(rule.style, `stylesheet[${index}].style`));
+    }
+    if (selectorKind(rule.selector) === 'region') {
+      issues.push(...regionStyleIssues(rule.style, `stylesheet[${index}].style`));
     }
     if (['link', 'path'].includes(selectorKind(rule.selector))) {
       issues.push(...edgeStyleIssues(rule.style, `stylesheet[${index}].style`));

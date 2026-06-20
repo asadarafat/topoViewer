@@ -341,6 +341,17 @@ examples:
       controls: true
       controlsOpen: false
       title: Overlapping regions
+  - id: regions-region-label-placement
+    title: Region label placement
+    feature: regions
+    path: regions/region-label-placement
+    page: topoviewer/reference/regions/region-label-placement
+    summary: Region labels can be anchored around the hull with an explicit margin.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Region label placement
   - id: regions-draggable-regions
     title: Draggable regions
     feature: regions
@@ -506,6 +517,71 @@ examples:
       controls: true
       controlsOpen: false
       title: Renderer limit validation
+  - id: integration-yaml-to-network-diagram
+    title: YAML to network diagram
+    feature: integration
+    path: integration/yaml-to-network-diagram
+    page: topoviewer/yaml-to-diagram
+    summary: A compact before/after example that turns topology YAML and a stylesheet into a rendered network diagram.
+    render:
+      height: 520px
+      controls: true
+      controlsOpen: false
+      title: YAML to network diagram
+  - id: integration-real-network-underlay
+    title: Real network underlay
+    feature: integration
+    path: integration/real-network-underlay
+    page: topoviewer/real-network-demo/underlay
+    summary: A provider underlay view that foregrounds transport capacity, media, and backup links.
+    render:
+      height: 520px
+      controls: true
+      controlsOpen: false
+      title: Real network underlay
+  - id: integration-real-network-bgp
+    title: Real network BGP
+    feature: integration
+    path: integration/real-network-bgp
+    page: topoviewer/real-network-demo/bgp
+    summary: A BGP view that makes route reflector sessions visible while keeping the underlay as context.
+    render:
+      height: 520px
+      controls: true
+      controlsOpen: false
+      title: Real network BGP
+  - id: integration-real-network-service-path
+    title: Real network service path
+    feature: integration
+    path: integration/real-network-service-path
+    page: topoviewer/real-network-demo/service-path
+    summary: A service path view that focuses the customer L3VPN path across the same provider topology.
+    render:
+      height: 520px
+      controls: true
+      controlsOpen: false
+      title: Real network service path
+      attention:
+        query:
+          pathIds:
+            - payments-primary
+          mode: dim-context
+  - id: integration-real-network-failure-view
+    title: Real network failure view
+    feature: integration
+    path: integration/real-network-failure-view
+    page: topoviewer/real-network-demo/failure-view
+    summary: A failure view that focuses critical objects and keeps the impacted service path traceable.
+    render:
+      height: 520px
+      controls: true
+      controlsOpen: false
+      title: Real network failure view
+      attention:
+        query:
+          data:
+            severity: critical
+          mode: dim-context
   - id: integration-complete-network-demo
     title: Complete network demo
     feature: integration

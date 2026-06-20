@@ -1,0 +1,1 @@
+This before/after example starts with topology YAML and a selector stylesheet, then renders a compact provider network. It shows the core TopoViewer contract: topology facts stay declarative, while visual policy turns roles, protocols, service paths, and operational state into a readable diagram.

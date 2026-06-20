@@ -115,8 +115,7 @@ function docsCaseFiles(example) {
   return {
     topology: path.join(docsRoot, rel, 'topology.yaml'),
     stylesheet: path.join(docsRoot, rel, 'stylesheet.yaml'),
-    readme: path.join(docsRoot, rel, 'README.md'),
-    expected: path.join(docsRoot, rel, 'expected.yaml')
+    readme: path.join(docsRoot, rel, 'README.md')
   };
 }
 
@@ -154,7 +153,6 @@ if (!fs.existsSync(catalogFile)) {
     assertGeneratedCopy(source.topology, generated.topology, `${example.id} topology`);
     assertGeneratedCopy(source.stylesheet, generated.stylesheet, `${example.id} stylesheet`);
     assertGeneratedCopy(source.readme, generated.readme, `${example.id} README`);
-    assertGeneratedCopy(source.expected, generated.expected, `${example.id} expected`);
 
     const markdownFile = pageMarkdownPath(example.page);
     if (!markdownFile) {

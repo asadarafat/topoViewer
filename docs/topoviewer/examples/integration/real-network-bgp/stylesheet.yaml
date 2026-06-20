@@ -1,0 +1,104 @@
+layout:
+  mode: manual
+  width: 980
+  height: 520
+icons:
+  router.pe:
+    glyph: PE
+    fill: "#2563eb"
+    stroke: "#bfdbfe"
+  router.p:
+    glyph: P
+    fill: "#0f766e"
+    stroke: "#99f6e4"
+  router.rr:
+    glyph: RR
+    fill: "#7c3aed"
+    stroke: "#ddd6fe"
+  router.ce:
+    glyph: CE
+    fill: "#f59e0b"
+    stroke: "#fde68a"
+labelFields:
+  - name
+stylesheet:
+  - selector: node
+    style:
+      icon: router.p
+      width: 82
+      height: 60
+      iconSize: 32
+      shape: roundRectangle
+      backgroundColor: "#ffffff"
+      borderColor: "#94a3b8"
+      borderWidth: 2
+      labelColor: "#0f172a"
+      labelFontSize: 12
+      labelFontWeight: 800
+      labelBackgroundColor: "#ffffff"
+      labelBackgroundOpacity: 0.88
+      labelPadding: 4
+      opacity: 0.72
+  - selector: node[labels.role = "pe"]
+    style:
+      icon: router.pe
+      shape: hexagon
+      borderColor: "#2563eb"
+      opacity: 1
+      underlayColor: "#bfdbfe"
+      underlayOpacity: 0.24
+      underlayPadding: 8
+  - selector: node[labels.role = "rr"]
+    style:
+      icon: router.rr
+      shape: diamond
+      borderColor: "#7c3aed"
+      opacity: 1
+      badgeLabel: RR
+      badgeBackgroundColor: "#7c3aed"
+      badgeColor: "#ffffff"
+      badgeBorderColor: "#ddd6fe"
+  - selector: node[labels.role = "ce"]
+    style:
+      icon: router.ce
+      opacity: 0.55
+  - selector: link
+    style:
+      curveStyle: bezier
+      lineColor: "#94a3b8"
+      lineWidth: 1
+      lineOpacity: 0.35
+      targetArrowShape: none
+      labelColor: "#475569"
+      labelFontSize: 11
+      textBackgroundColor: "#ffffff"
+      textBackgroundOpacity: 0.92
+  - selector: link[labels.protocol = "bgp"]
+    style:
+      label: BGP established
+      sourceLabel: iBGP
+      targetLabel: RR
+      curveStyle: unbundled-bezier
+      lineColor: "#7c3aed"
+      lineWidth: 4
+      lineStyle: dashed
+      lineDashPattern: 7 7
+      lineOpacity: 0.96
+      targetArrowShape: triangle
+      targetArrowColor: "#7c3aed"
+      sourceLabelColor: "#7c3aed"
+      targetLabelColor: "#7c3aed"
+  - selector: path
+    style:
+      lineOpacity: 0.12
+  - selector: region
+    style:
+      backgroundColor: "rgba(168, 85, 247, 0.10)"
+      borderColor: "rgba(216, 180, 254, 0.56)"
+      borderWidth: 1
+      labelColor: "#334155"
+      labelFontSize: 12
+      labelFontWeight: 800
+      zIndex: -20
+      selectable: true
+      draggable: true

@@ -83,7 +83,9 @@ describe('style key casing', () => {
               backgroundColor: 'rgba(14, 165, 233, 0.18)',
               borderColor: '#0284c7',
               borderWidth: 2,
-              labelColor: '#0f172a'
+              labelColor: '#0f172a',
+              labelPosition: 'topRight',
+              labelMargin: 16
             }
           }
         ]
@@ -131,6 +133,7 @@ describe('style key casing', () => {
       borderWidth: 3
     });
     expect(region?.data).toMatchObject({ fill: 'rgba(14, 165, 233, 0.18)', stroke: '#0284c7', borderWidth: 2 });
+    expect(record(record(region?.data).labelStyle)).toMatchObject({ top: 16, right: 16, left: 'auto' });
     expect(shape?.data).toMatchObject({ fill: '#111827', stroke: '#f59e0b', borderWidth: 5 });
     expect(record(record(callout?.data).shapeStyle)).toMatchObject({
       backgroundColor: '#f8fafc',
