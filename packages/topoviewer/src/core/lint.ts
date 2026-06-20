@@ -1,3 +1,14 @@
+import {
+  edgeArrowShapes,
+  finiteNumber,
+  normalizeEdgeArrowShape,
+  normalizeGradientStops,
+  normalizeTaxiDirection,
+  numberList,
+  positiveNumber,
+  stringList,
+  taxiDirections,
+} from './edgeStyle';
 import { rendererLimitViolations } from './limits';
 import { normalizeNodeShape, parseNodeShapePoints } from './nodeShapes';
 import { selectorMatches } from './selector';
@@ -80,6 +91,97 @@ function nodeShapeStyleIssues(style: Record<string, unknown> | undefined, path: 
   return issues;
 }
 
+function isValidTaxiTurn(value: unknown): boolean {
+  if (value === undefined) return true;
+  if (finiteNumber(value) !== undefined) return true;
+  if (typeof value === 'string' && /^\s*-?\d+(\.\d+)?%\s*$/.test(value)) return true;
+  return false;
+}
+
+function nonNegativeNumberIssue(
+  style: Record<string, unknown>,
+  key: string,
+  path: string,
+  code: string,
+  label: string,
+): LintIssue[] {
+  return style[key] !== undefined && positiveNumber(style[key]) === undefined
+    ? [issue('error', code, `${label} "${String(style[key])}" must be a non-negative number.`, `${path}.${key}`)]
+    : [];
+}
+
+function edgeStyleIssues(style: Record<string, unknown> | undefined, path: string): LintIssue[] {
+  if (!style || typeof style !== 'object') return [];
+  const issues: LintIssue[] = [];
+
+  (['sourceArrowShape', 'targetArrowShape'] as const).forEach((key) => {
+    if (style[key] !== undefined && !normalizeEdgeArrowShape(style[key])) {
+      issues.push(issue(
+        'error',
+        'unsupported-edge-arrow-shape',
+        `Edge arrow shape "${String(style[key])}" is not supported; use one of ${edgeArrowShapes.join(', ')}.`,
+        `${path}.${key}`
+      ));
+    }
+  });
+
+  ['sourceArrowSize', 'targetArrowSize'].forEach((key) => {
+    issues.push(...nonNegativeNumberIssue(style, key, path, 'invalid-edge-arrow-size', 'Edge arrow size'));
+  });
+
+  ['sourceDistanceFromNode', 'targetDistanceFromNode'].forEach((key) => {
+    issues.push(...nonNegativeNumberIssue(style, key, path, 'invalid-edge-endpoint-distance', 'Edge endpoint distance'));
+  });
+
+  const segmentDistances = numberList(style.segmentDistances);
+  const segmentWeights = numberList(style.segmentWeights);
+  if (style.segmentDistances !== undefined && !segmentDistances) {
+    issues.push(issue('error', 'invalid-edge-segment-controls', 'segmentDistances must be a number or list of numbers.', `${path}.segmentDistances`));
+  }
+  if (style.segmentWeights !== undefined && !segmentWeights) {
+    issues.push(issue('error', 'invalid-edge-segment-controls', 'segmentWeights must be a number or list of numbers.', `${path}.segmentWeights`));
+  }
+  if (segmentDistances && segmentWeights && segmentDistances.length !== segmentWeights.length) {
+    issues.push(issue('error', 'invalid-edge-segment-controls', 'segmentDistances and segmentWeights must contain the same number of entries.', `${path}.segmentWeights`));
+  }
+
+  if (style.taxiDirection !== undefined && !normalizeTaxiDirection(style.taxiDirection)) {
+    issues.push(issue(
+      'error',
+      'invalid-edge-taxi-direction',
+      `taxiDirection "${String(style.taxiDirection)}" is not supported; use one of ${taxiDirections.join(', ')}.`,
+      `${path}.taxiDirection`
+    ));
+  }
+  if (!isValidTaxiTurn(style.taxiTurn)) {
+    issues.push(issue('error', 'invalid-edge-taxi-turn', 'taxiTurn must be a number or percentage string.', `${path}.taxiTurn`));
+  }
+  issues.push(...nonNegativeNumberIssue(style, 'taxiTurnMinDistance', path, 'invalid-edge-taxi-distance', 'taxiTurnMinDistance'));
+
+  if (style.lineFill !== undefined && style.lineFill !== 'solid' && style.lineFill !== 'linearGradient') {
+    issues.push(issue('error', 'invalid-edge-gradient', 'lineFill must be solid or linearGradient.', `${path}.lineFill`));
+  }
+  if (style.lineFill === 'linearGradient') {
+    const colors = stringList(style.lineGradientStopColors);
+    const positions = stringList(style.lineGradientStopPositions);
+    if (!colors || colors.length < 2) {
+      issues.push(issue('error', 'invalid-edge-gradient', 'lineGradientStopColors must provide at least two colors when lineFill is linearGradient.', `${path}.lineGradientStopColors`));
+    } else if (positions && positions.length !== colors.length) {
+      issues.push(issue('error', 'invalid-edge-gradient', 'lineGradientStopPositions must contain the same number of entries as lineGradientStopColors.', `${path}.lineGradientStopPositions`));
+    } else if (!normalizeGradientStops(style.lineGradientStopColors, style.lineGradientStopPositions)) {
+      issues.push(issue('error', 'invalid-edge-gradient', 'lineGradientStopColors and lineGradientStopPositions are not a valid linear gradient definition.', `${path}.lineGradientStopColors`));
+    }
+  }
+
+  (['interactive', 'labelInteractive'] as const).forEach((key) => {
+    if (style[key] !== undefined && typeof style[key] !== 'boolean') {
+      issues.push(issue('error', 'invalid-edge-interaction-flag', `${key} must be a boolean.`, `${path}.${key}`));
+    }
+  });
+
+  return issues;
+}
+
 function hasSequence(path: GraphPath): path is GraphPath & { sequence: string[] } {
   return Array.isArray(path.sequence) && path.sequence.length >= 2;
 }
@@ -146,6 +248,7 @@ export function lintTopoDocument(input: TopoDocument, options: LintOptions = {})
     addEntity(seenIds, issues, 'link', link, `graph.links[${index}]`, requireNames);
     issues.push(...objectLayerIssues(link, knownLayers, `graph.links[${index}]`));
     issues.push(...styleKeyIssues(link.style, `graph.links[${index}].style`));
+    issues.push(...edgeStyleIssues(link.style, `graph.links[${index}].style`));
     if (!nodeIds.has(link.source)) issues.push(issue('error', 'broken-source', `Link "${link.id}" source "${link.source}" does not exist.`, `graph.links[${index}].source`));
     if (!nodeIds.has(link.target)) issues.push(issue('error', 'broken-target', `Link "${link.id}" target "${link.target}" does not exist.`, `graph.links[${index}].target`));
     if (link.parent && !linkIds.has(link.parent)) {
@@ -157,6 +260,7 @@ export function lintTopoDocument(input: TopoDocument, options: LintOptions = {})
     addEntity(seenIds, issues, 'path', path, `graph.paths[${index}]`, requireNames);
     issues.push(...objectLayerIssues(path, knownLayers, `graph.paths[${index}]`));
     issues.push(...styleKeyIssues(path.style, `graph.paths[${index}].style`));
+    issues.push(...edgeStyleIssues(path.style, `graph.paths[${index}].style`));
     if (hasSequence(path)) {
       path.sequence.forEach((nodeId, sequenceIndex) => {
         if (!nodeIds.has(nodeId)) {
@@ -209,6 +313,7 @@ export function lintTopoDocument(input: TopoDocument, options: LintOptions = {})
     issues.push(...objectLayerIssues(callout, knownLayers, `diagram.callouts[${index}]`));
     issues.push(...styleKeyIssues(callout.style, `diagram.callouts[${index}].style`));
     issues.push(...styleKeyIssues(callout.leader, `diagram.callouts[${index}].leader`));
+    issues.push(...edgeStyleIssues(callout.leader, `diagram.callouts[${index}].leader`));
     if (callout.target && !nodeIds.has(callout.target) && !seenIds.has(callout.target)) {
       issues.push(issue('error', 'broken-callout-target', `Callout "${callout.id}" target "${callout.target}" does not exist.`, `diagram.callouts[${index}].target`));
     }
@@ -218,6 +323,9 @@ export function lintTopoDocument(input: TopoDocument, options: LintOptions = {})
     issues.push(...styleKeyIssues(rule.style, `stylesheet[${index}].style`));
     if (selectorKind(rule.selector) === 'node') {
       issues.push(...nodeShapeStyleIssues(rule.style, `stylesheet[${index}].style`));
+    }
+    if (['link', 'path'].includes(selectorKind(rule.selector))) {
+      issues.push(...edgeStyleIssues(rule.style, `stylesheet[${index}].style`));
     }
     if (!selectorTargetsGeneratedObject(rule.selector) && !selectorHasMatch(rule, document)) {
       issues.push(issue('warning', 'unused-selector', `Stylesheet selector "${rule.selector}" does not match any current object.`, `stylesheet[${index}].selector`));

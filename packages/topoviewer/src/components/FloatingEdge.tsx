@@ -10,7 +10,9 @@ import {
   useInternalNode,
   type EdgeProps
 } from '@xyflow/react';
-import type { CSSProperties } from 'react';
+import { useId, type CSSProperties } from 'react';
+import { applyEndpointSpacing, segmentRoute, taxiRoute } from '../core/edgeGeometry';
+import { normalizeTaxiDirection, numberList, stringList } from '../core/edgeStyle';
 import type { Bounds } from '../core/types';
 
 function internalNodeBox(node: ReturnType<typeof useInternalNode> | undefined): Bounds & { centerX: number; centerY: number } | null {
@@ -83,6 +85,17 @@ function floatingEndpoints(sourceNode: ReturnType<typeof useInternalNode> | unde
 }
 
 function edgePathForCurve(curveType: string, props: EdgeProps, data: Record<string, unknown>, endpoints: ReturnType<typeof floatingEndpoints>) {
+  if (data.routeKind === 'segments') {
+    const route = segmentRoute(endpoints, numberList(data.segmentDistances), numberList(data.segmentWeights));
+    if (route) return [route.path, route.labelX, route.labelY] as [string, number, number];
+  }
+
+  if (data.routeKind === 'taxi' && data.taxiRoutingExplicit) {
+    const taxiDirection = normalizeTaxiDirection(data.taxiDirection) || 'auto';
+    const route = taxiRoute(endpoints, taxiDirection, data.taxiTurn as number | string | undefined, numericOrUndefined(data.taxiTurnMinDistance));
+    if (route) return [route.path, route.labelX, route.labelY] as [string, number, number];
+  }
+
   if (curveType === 'bezier') {
     const distance = bezierControlPointDistance(data);
     if (distance !== undefined) return quadraticBezierPathForEndpoints(props, endpoints, distance, numeric(data.controlPointWeight, 0.5));
@@ -106,6 +119,11 @@ function edgeData(props: EdgeProps): Record<string, unknown> {
 function numeric(value: unknown, fallback: number): number {
   const next = Number(value);
   return Number.isFinite(next) ? next : fallback;
+}
+
+function numericOrUndefined(value: unknown): number | undefined {
+  const next = Number(value);
+  return Number.isFinite(next) ? next : undefined;
 }
 
 function laneOffsetDistance(data: Record<string, unknown>): number {
@@ -170,15 +188,27 @@ function textValue(value: unknown): string {
   return String(value);
 }
 
-function labelStyle(props: EdgeProps, x: number, y: number): CSSProperties {
+function labelStyle(props: EdgeProps, data: Record<string, unknown>, x: number, y: number, role: 'center' | 'source' | 'target'): CSSProperties {
+  const prefix = role === 'center' ? '' : role;
+  const roleKey = (suffix: string) => (prefix ? `${prefix}${suffix}` : suffix.charAt(0).toLowerCase() + suffix.slice(1));
+  const labelColor = data[roleKey('LabelColor')] || data.labelColor || props.labelStyle?.fill;
+  const background = data[roleKey('LabelBackgroundColor')] || data.textBackgroundColor || props.labelBgStyle?.fill;
+  const borderWidth = numeric(data[roleKey('LabelBorderWidth')], numeric(data.labelBorderWidth, 0));
+  const borderColor = data[roleKey('LabelBorderColor')] || data.labelBorderColor;
+  const fontSize = data[roleKey('LabelFontSize')] || props.labelStyle?.fontSize;
+  const fontWeight = data[roleKey('LabelFontWeight')] || props.labelStyle?.fontWeight;
+  const fontStyle = data[roleKey('LabelFontStyle')] || data.labelFontStyle || props.labelStyle?.fontStyle;
+
   return {
-    color: props.labelStyle?.fill,
-    fontSize: props.labelStyle?.fontSize,
-    fontWeight: props.labelStyle?.fontWeight,
-    background: props.labelBgStyle?.fill,
+    color: labelColor as CSSProperties['color'],
+    fontSize: fontSize as CSSProperties['fontSize'],
+    fontWeight: fontWeight as CSSProperties['fontWeight'],
+    fontStyle: fontStyle as CSSProperties['fontStyle'],
+    background: background as CSSProperties['background'],
+    border: borderWidth > 0 ? `${borderWidth}px solid ${String(borderColor || 'transparent')}` : undefined,
     position: 'absolute',
     transform: `translate(-50%, -50%) translate(${x}px, ${y}px)`,
-    pointerEvents: 'all'
+    pointerEvents: data.labelInteractive === false ? 'none' : 'all'
   };
 }
 
@@ -220,13 +250,75 @@ function lineOutlineStyle(props: EdgeProps, data: Record<string, unknown>): CSSP
   };
 }
 
+function safeSvgId(value: string): string {
+  return value.replace(/[^A-Za-z0-9_-]/g, '-');
+}
+
+function gradientPaint(data: Record<string, unknown>, endpoints: ReturnType<typeof floatingEndpoints>, id: string) {
+  if (data.lineFill !== 'linearGradient') return undefined;
+  const colors = stringList(data.lineGradientStopColors);
+  if (!colors || colors.length < 2) return undefined;
+  const positions = stringList(data.lineGradientStopPositions);
+  return {
+    id,
+    url: `url(#${id})`,
+    x1: endpoints.sourceX,
+    y1: endpoints.sourceY,
+    x2: endpoints.targetX,
+    y2: endpoints.targetY,
+    stops: colors.map((color, index) => ({
+      color,
+      offset: positions?.[index] || `${Math.round((index / (colors.length - 1)) * 100)}%`
+    }))
+  };
+}
+
+function markerInfo(data: Record<string, unknown>, role: 'source' | 'target', id: string) {
+  const shape = String(data[`${role}ArrowShape`] || 'none');
+  if (shape === 'none') return undefined;
+  return {
+    id,
+    url: `url(#${id})`,
+    shape,
+    color: String(data[`${role}ArrowColor`] || data.arrowColor || data.lineColor || '#6ea8fe'),
+    size: Math.max(4, numeric(data[`${role}ArrowSize`], 10))
+  };
+}
+
+function markerRefX(shape: string): number {
+  if (shape === 'circle' || shape === 'tee') return 5;
+  return 10;
+}
+
+function markerShape(shape: string, color: string) {
+  if (shape === 'vee') {
+    return <path d="M1,1 L10,5 L1,9" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />;
+  }
+  if (shape === 'tee') {
+    return <path d="M5,0 L5,10" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" />;
+  }
+  if (shape === 'circle') {
+    return <circle cx="5" cy="5" r="4" fill={color} />;
+  }
+  if (shape === 'diamond') {
+    return <path d="M1,5 L5,1 L10,5 L5,9 Z" fill={color} />;
+  }
+  return <path d="M0,0 L10,5 L0,10 Z" fill={color} />;
+}
+
 export function FloatingEdge(props: EdgeProps) {
   const data = edgeData(props);
+  const svgId = safeSvgId(`${useId()}-${props.id}`);
   const sourceNode = useInternalNode(props.source);
   const targetNode = useInternalNode(props.target);
   const originalSourceNode = useInternalNode(String(data.originalSource || props.source));
   const originalTargetNode = useInternalNode(String(data.originalTarget || props.target));
-  const endpoints = floatingEndpoints(sourceNode, targetNode, props);
+  const rawEndpoints = floatingEndpoints(sourceNode, targetNode, props);
+  const endpoints = applyEndpointSpacing(
+    rawEndpoints,
+    numeric(data.sourceDistanceFromNode, 0),
+    numeric(data.targetDistanceFromNode, 0)
+  );
   const curveType = String(props.data?.curveType || 'default');
   const attentionState = data.attentionState ? `topoviewer-edge-attention-${data.attentionState}` : '';
   const attentionLabelPriority = data.attentionLabelPriority ? `topoviewer-edge-label-priority-${data.attentionLabelPriority}` : '';
@@ -265,11 +357,59 @@ export function FloatingEdge(props: EdgeProps) {
   const sourceLabelY = endpoints.sourceY + offset.y + numeric(data.sourceLabelYOffset, 0);
   const targetLabelX = endpoints.targetX + offset.x + numeric(data.targetLabelXOffset, 0);
   const targetLabelY = endpoints.targetY + offset.y + numeric(data.targetLabelYOffset, 0);
+  const gradient = gradientPaint(data, endpoints, `${svgId}-gradient`);
+  const sourceMarker = markerInfo(data, 'source', `${svgId}-source-marker`);
+  const targetMarker = markerInfo(data, 'target', `${svgId}-target-marker`);
+  const visibleStyle = isPipe
+    ? pipeStyle(props, data, 'fill')
+    : {
+      ...paintedLaneStyle,
+      stroke: gradient?.url || paintedLaneStyle?.stroke
+    };
 
   return (
     <>
       <ViewportPortal>
         <svg className="topoviewer-edge-paint-layer" aria-hidden="true">
+          {gradient || sourceMarker || targetMarker ? (
+            <defs>
+              {gradient ? (
+                <linearGradient id={gradient.id} gradientUnits="userSpaceOnUse" x1={gradient.x1} y1={gradient.y1} x2={gradient.x2} y2={gradient.y2}>
+                  {gradient.stops.map((stop, index) => (
+                    <stop key={`${index}-${stop.offset}-${stop.color}`} offset={stop.offset} stopColor={stop.color} />
+                  ))}
+                </linearGradient>
+              ) : null}
+              {sourceMarker ? (
+                <marker
+                  id={sourceMarker.id}
+                  viewBox="-1 -1 12 12"
+                  refX={markerRefX(sourceMarker.shape)}
+                  refY="5"
+                  markerWidth={sourceMarker.size}
+                  markerHeight={sourceMarker.size}
+                  markerUnits="userSpaceOnUse"
+                  orient="auto-start-reverse"
+                >
+                  {markerShape(sourceMarker.shape, sourceMarker.color)}
+                </marker>
+              ) : null}
+              {targetMarker ? (
+                <marker
+                  id={targetMarker.id}
+                  viewBox="-1 -1 12 12"
+                  refX={markerRefX(targetMarker.shape)}
+                  refY="5"
+                  markerWidth={targetMarker.size}
+                  markerHeight={targetMarker.size}
+                  markerUnits="userSpaceOnUse"
+                  orient="auto-start-reverse"
+                >
+                  {markerShape(targetMarker.shape, targetMarker.color)}
+                </marker>
+              ) : null}
+            </defs>
+          ) : null}
           {isPipe ? (
             <path
               className="topoviewer-edge-pipe-border"
@@ -303,16 +443,16 @@ export function FloatingEdge(props: EdgeProps) {
             data-link-aggregate={isLinkAggregate ? 'true' : undefined}
             data-link-count={isLinkAggregate ? String(data.count || '') : undefined}
             d={edgePath}
-            markerStart={props.markerStart as string | undefined}
-            markerEnd={(hasTargetLaneStub || data.suppressLaneMarker) ? undefined : props.markerEnd as string | undefined}
+            markerStart={sourceMarker?.url}
+            markerEnd={(hasTargetLaneStub || data.suppressLaneMarker) ? undefined : targetMarker?.url}
             transform={transform}
-            style={isPipe ? pipeStyle(props, data, 'fill') : paintedLaneStyle}
+            style={visibleStyle}
           />
           {hasTargetLaneStub && targetStubPath ? (
             <path
               className="topoviewer-edge-lane topoviewer-edge-lane-stub"
               d={targetStubPath}
-              markerEnd={props.markerEnd as string | undefined}
+              markerEnd={targetMarker?.url}
               style={paintedLaneStyle}
             />
           ) : null}
@@ -321,9 +461,7 @@ export function FloatingEdge(props: EdgeProps) {
       <BaseEdge
         id={props.id}
         path={edgePath}
-        markerStart={props.markerStart}
-        markerEnd={props.markerEnd}
-        style={{ ...props.style, opacity: 0 }}
+        style={{ ...props.style, opacity: 0, pointerEvents: data.interactive === false ? 'none' : undefined }}
         interactionWidth={props.interactionWidth}
       />
       {props.label ? (
@@ -332,7 +470,7 @@ export function FloatingEdge(props: EdgeProps) {
             className="topoviewer-edge-label topoviewer-edge-label-center"
             data-attention-state={data.attentionState || undefined}
             data-label-priority={data.attentionLabelPriority || undefined}
-            style={labelStyle(props, labelX + offset.x, labelY + offset.y)}
+            style={labelStyle(props, data, labelX + offset.x, labelY + offset.y, 'center')}
           >
             {props.label}
           </div>
@@ -344,7 +482,7 @@ export function FloatingEdge(props: EdgeProps) {
             className="topoviewer-edge-label topoviewer-edge-label-source"
             data-attention-state={data.attentionState || undefined}
             data-label-priority={data.attentionLabelPriority || undefined}
-            style={labelStyle(props, sourceLabelX, sourceLabelY)}
+            style={labelStyle(props, data, sourceLabelX, sourceLabelY, 'source')}
           >
             {sourceLabel}
           </div>
@@ -356,7 +494,7 @@ export function FloatingEdge(props: EdgeProps) {
             className="topoviewer-edge-label topoviewer-edge-label-target"
             data-attention-state={data.attentionState || undefined}
             data-label-priority={data.attentionLabelPriority || undefined}
-            style={labelStyle(props, targetLabelX, targetLabelY)}
+            style={labelStyle(props, data, targetLabelX, targetLabelY, 'target')}
           >
             {targetLabel}
           </div>

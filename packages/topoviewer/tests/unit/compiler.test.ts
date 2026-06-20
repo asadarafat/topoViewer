@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { compileTopoGraph, validateTopoDocument, type TopoDocument } from '../../src';
+import { compileTopoGraph, lintTopoDocument, validateTopoDocument, type TopoDocument } from '../../src';
+import { applyEndpointSpacing, segmentRoute, taxiRoute } from '../../src/core/edgeGeometry';
 import { compileEdgeStyle } from '../../src/core/style';
 
 describe('compileTopoGraph', () => {
@@ -112,5 +113,131 @@ describe('compileTopoGraph', () => {
     expect(edge.type).toBe('floating');
     expect(edge.style).toEqual(expect.objectContaining({ stroke: '#6ea8fe', strokeWidth: 1 }));
     expect((edge.data as Record<string, unknown>).curveType).toBe('bezier');
+  });
+
+  it('compiles enhanced edge style controls into renderer data', () => {
+    const edge = compileEdgeStyle(
+      {
+        lineColor: '#2563eb',
+        lineFill: 'linearGradient',
+        lineGradientStopColors: ['#2563eb', '#f97316'],
+        lineGradientStopPositions: ['0%', '100%'],
+        sourceArrowShape: 'circle',
+        targetArrowShape: 'vee',
+        sourceArrowColor: '#16a34a',
+        targetArrowColor: '#dc2626',
+        sourceArrowSize: 12,
+        targetArrowSize: 14,
+        label: 'WAN',
+        labelColor: '#0f172a',
+        labelBorderColor: '#94a3b8',
+        labelBorderWidth: 1,
+        labelFontStyle: 'italic',
+        sourceLabel: '10G',
+        sourceLabelColor: '#0369a1',
+        sourceLabelBackgroundColor: '#e0f2fe',
+        targetLabel: '20G',
+        targetLabelFontWeight: 700,
+        sourceDistanceFromNode: 8,
+        targetDistanceFromNode: 10,
+        curveStyle: 'segments',
+        segmentDistances: [24],
+        segmentWeights: [0.4],
+        interactive: false,
+        labelInteractive: false
+      },
+      { id: 'a-b', source: 'a', target: 'b' },
+      {},
+      true
+    );
+
+    expect(edge.selectable).toBe(false);
+    expect(edge.interactionWidth).toBe(0);
+    expect(edge.labelStyle).toMatchObject({ fill: '#0f172a', fontStyle: 'italic' });
+    expect(edge.data).toMatchObject({
+      routeKind: 'segments',
+      interactive: false,
+      labelInteractive: false,
+      sourceArrowShape: 'circle',
+      targetArrowShape: 'vee',
+      sourceArrowColor: '#16a34a',
+      targetArrowColor: '#dc2626',
+      sourceArrowSize: 12,
+      targetArrowSize: 14,
+      labelBorderColor: '#94a3b8',
+      labelBorderWidth: 1,
+      sourceLabel: '10G',
+      sourceLabelColor: '#0369a1',
+      sourceLabelBackgroundColor: '#e0f2fe',
+      targetLabel: '20G',
+      targetLabelFontWeight: 700,
+      sourceDistanceFromNode: 8,
+      targetDistanceFromNode: 10,
+      segmentDistances: [24],
+      segmentWeights: [0.4],
+      lineFill: 'linearGradient',
+      lineGradientStopColors: ['#2563eb', '#f97316'],
+      lineGradientStopPositions: ['0%', '100%']
+    });
+  });
+
+  it('reports invalid enhanced edge style controls', () => {
+    const document: TopoDocument = {
+      version: '1.0',
+      graph: {
+        nodes: [
+          { id: 'a', position: [0, 0] },
+          { id: 'b', position: [100, 0] }
+        ],
+        links: [
+          {
+            id: 'a-b',
+            source: 'a',
+            target: 'b',
+            style: {
+              targetArrowShape: 'triangle-cross',
+              sourceArrowSize: -1,
+              sourceDistanceFromNode: -4,
+              segmentDistances: [10, 20],
+              segmentWeights: [0.4],
+              taxiDirection: 'diagonal',
+              taxiTurn: 'late',
+              lineFill: 'linearGradient',
+              lineGradientStopColors: ['#111827'],
+              interactive: 'no'
+            }
+          }
+        ]
+      }
+    };
+
+    const issues = lintTopoDocument(document, { requireNames: false });
+    expect(issues.map((entry) => entry.code)).toEqual(expect.arrayContaining([
+      'unsupported-edge-arrow-shape',
+      'invalid-edge-arrow-size',
+      'invalid-edge-endpoint-distance',
+      'invalid-edge-segment-controls',
+      'invalid-edge-taxi-direction',
+      'invalid-edge-taxi-turn',
+      'invalid-edge-gradient',
+      'invalid-edge-interaction-flag'
+    ]));
+  });
+
+  it('builds deterministic endpoint spacing, segment, and taxi geometry', () => {
+    const spaced = applyEndpointSpacing({ sourceX: 0, sourceY: 0, targetX: 20, targetY: 0 }, 20, 20);
+    expect(spaced.sourceX).toBeCloseTo(6);
+    expect(spaced.targetX).toBeCloseTo(14);
+
+    expect(segmentRoute(
+      { sourceX: 0, sourceY: 0, targetX: 100, targetY: 0 },
+      [20],
+      [0.5]
+    )?.path).toBe('M0,0 L50,20 L100,0');
+
+    expect(taxiRoute(
+      { sourceX: 0, sourceY: 0, targetX: 100, targetY: 50 },
+      'horizontal'
+    )?.path).toBe('M0,0 L50,0 L50,50 L100,50');
   });
 });

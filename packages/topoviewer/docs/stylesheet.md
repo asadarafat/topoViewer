@@ -160,7 +160,7 @@ TopoViewer style keys are canonical `camelCase` in both TypeScript and Styleshee
 
 | Key | Values | Use |
 |---|---|---|
-| `curveStyle` | `straight`, `haystack`, `segments`, `taxi`, `smooth-taxi`, `smoothstep`, `simplebezier`, `unbundled-bezier`, `bezier` | Edge route shape. `bezier` separates same-endpoint parallel edges by varying control-point curvature. |
+| `curveStyle` | `straight`, `haystack`, `segments`, `taxi`, `smoothTaxi`, `smoothstep`, `simpleBezier`, `unbundledBezier`, `bezier` | Edge route shape. `bezier` separates same-endpoint parallel edges by varying control-point curvature. |
 | `anchor` | `floating`, `fixed` | `floating` is default and attaches edges to the visible node icon. |
 | `lineColor` | CSS color | Stroke color. |
 | `lineWidth` | number | Stroke width. Defaults to 1. |
@@ -179,20 +179,40 @@ TopoViewer style keys are canonical `camelCase` in both TypeScript and Styleshee
 | `lineOpacity` | number | Edge line opacity without changing label opacity. |
 | `lineOutlineWidth` | number | Draws an outline behind the edge line. |
 | `lineOutlineColor` | CSS color | Edge line outline color. |
-| `targetArrowShape`, `sourceArrowShape` | `none`, `triangle` | Arrow marker. Any non-none value renders an arrow. |
-| `arrowColor` | CSS color | Marker color. Defaults to line color. |
+| `targetArrowShape`, `sourceArrowShape` | `none`, `triangle`, `vee`, `tee`, `circle`, `diamond` | Directional arrow marker shape. |
+| `arrowColor` | CSS color | Shared marker color fallback. Defaults to line color. |
+| `sourceArrowColor`, `targetArrowColor` | CSS color | Directional marker colors. |
+| `sourceArrowSize`, `targetArrowSize` | number | Directional marker sizes. |
+| `sourceDistanceFromNode`, `targetDistanceFromNode` | number | Moves the rendered endpoint inward from the node boundary. Short edges are clamped so the path does not collapse. |
+| `segmentDistances`, `segmentWeights` | number, number list, or string | Explicit bend controls for `curveStyle: segments`. Distances offset from the source-target line; weights place bends between source `0` and target `1`. |
+| `taxiDirection` | `auto`, `vertical`, `downward`, `upward`, `horizontal`, `rightward`, `leftward` | Primary direction for `curveStyle: taxi`. |
+| `taxiTurn`, `taxiTurnMinDistance` | number or percentage string, number | Taxi turn placement and minimum edge length before custom taxi routing applies. |
+| `lineFill` | `solid`, `linearGradient` | Stroke fill model. |
+| `lineGradientStopColors`, `lineGradientStopPositions` | string list or array | Linear gradient stops when `lineFill: linearGradient`. Positions are optional but must match the number of colors when provided. |
 | `label` | string | Fallback edge label. |
 | `sourceLabel` | string | Label rendered at the source endpoint. |
 | `targetLabel` | string | Label rendered at the target endpoint. |
 | `sourceLabelXOffset`, `sourceLabelYOffset` | number | Pixel offsets applied to the source endpoint label. |
 | `targetLabelXOffset`, `targetLabelYOffset` | number | Pixel offsets applied to the target endpoint label. |
-| `labelColor`, `labelFontSize`, `labelFontWeight` | CSS values | Edge label typography. |
+| `labelColor`, `labelFontSize`, `labelFontWeight`, `labelFontStyle` | CSS values | Edge label typography. |
+| `labelBorderColor`, `labelBorderWidth` | CSS color, number | Shared edge label border. |
+| `sourceLabelColor`, `targetLabelColor` | CSS color | Endpoint label color overrides. |
+| `sourceLabelBackgroundColor`, `targetLabelBackgroundColor` | CSS color | Endpoint label background overrides. |
+| `sourceLabelBorderColor`, `targetLabelBorderColor` | CSS color | Endpoint label border color overrides. |
+| `sourceLabelBorderWidth`, `targetLabelBorderWidth` | number | Endpoint label border width overrides. |
+| `sourceLabelFontSize`, `targetLabelFontSize` | CSS value | Endpoint label font-size overrides. |
+| `sourceLabelFontWeight`, `targetLabelFontWeight` | CSS value | Endpoint label font-weight overrides. |
+| `sourceLabelFontStyle`, `targetLabelFontStyle` | CSS value | Endpoint label font-style overrides. |
 | `textBackgroundColor`, `textBackgroundOpacity` | CSS color, number | Edge label backing. |
 | `animated` | boolean | Enables React Flow edge animation. |
 | `interactionWidth` | number | Pointer hit area. Defaults to at least 12. |
+| `interactive` | boolean | Set `false` to render the edge without edge click handling. |
+| `labelInteractive` | boolean | Set `false` to prevent edge labels from receiving pointer events. |
 | `opacity` | number | Edge opacity. |
 | `zIndex` | number | Draw order. |
 | `display` | `none` | Hide object. |
+
+This is a practical TopoViewer subset rather than full Cytoscape edge parity. Self-loop controls, haystack radius, overlay/underlay, ghost effects, radial gradients, and broad transition controls are intentionally not part of the declarative edge surface yet.
 
 ## Region Style Keys
 

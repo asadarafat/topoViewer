@@ -96,6 +96,165 @@
               "minLength": 1
             }
           ]
+        },
+        "sourceArrowShape": {
+          "type": "string",
+          "enum": ["none", "triangle", "vee", "tee", "circle", "diamond"]
+        },
+        "targetArrowShape": {
+          "type": "string",
+          "enum": ["none", "triangle", "vee", "tee", "circle", "diamond"]
+        },
+        "sourceArrowColor": {
+          "type": "string"
+        },
+        "targetArrowColor": {
+          "type": "string"
+        },
+        "sourceArrowSize": {
+          "type": "number",
+          "minimum": 0
+        },
+        "targetArrowSize": {
+          "type": "number",
+          "minimum": 0
+        },
+        "labelBorderColor": {
+          "type": "string"
+        },
+        "labelBorderWidth": {
+          "type": "number",
+          "minimum": 0
+        },
+        "labelFontStyle": {
+          "type": "string"
+        },
+        "sourceLabelColor": {
+          "type": "string"
+        },
+        "sourceLabelBackgroundColor": {
+          "type": "string"
+        },
+        "sourceLabelBorderColor": {
+          "type": "string"
+        },
+        "sourceLabelBorderWidth": {
+          "type": "number",
+          "minimum": 0
+        },
+        "sourceLabelFontSize": {
+          "oneOf": [
+            { "type": "string" },
+            { "type": "number", "minimum": 0 }
+          ]
+        },
+        "sourceLabelFontWeight": {
+          "oneOf": [
+            { "type": "string" },
+            { "type": "number" }
+          ]
+        },
+        "sourceLabelFontStyle": {
+          "type": "string"
+        },
+        "targetLabelColor": {
+          "type": "string"
+        },
+        "targetLabelBackgroundColor": {
+          "type": "string"
+        },
+        "targetLabelBorderColor": {
+          "type": "string"
+        },
+        "targetLabelBorderWidth": {
+          "type": "number",
+          "minimum": 0
+        },
+        "targetLabelFontSize": {
+          "oneOf": [
+            { "type": "string" },
+            { "type": "number", "minimum": 0 }
+          ]
+        },
+        "targetLabelFontWeight": {
+          "oneOf": [
+            { "type": "string" },
+            { "type": "number" }
+          ]
+        },
+        "targetLabelFontStyle": {
+          "type": "string"
+        },
+        "sourceDistanceFromNode": {
+          "type": "number",
+          "minimum": 0
+        },
+        "targetDistanceFromNode": {
+          "type": "number",
+          "minimum": 0
+        },
+        "segmentDistances": {
+          "oneOf": [
+            { "type": "number" },
+            {
+              "type": "array",
+              "items": { "type": "number" }
+            },
+            { "type": "string" }
+          ]
+        },
+        "segmentWeights": {
+          "oneOf": [
+            { "type": "number" },
+            {
+              "type": "array",
+              "items": { "type": "number" }
+            },
+            { "type": "string" }
+          ]
+        },
+        "taxiDirection": {
+          "type": "string",
+          "enum": ["auto", "vertical", "downward", "upward", "horizontal", "rightward", "leftward"]
+        },
+        "taxiTurn": {
+          "oneOf": [
+            { "type": "number" },
+            { "type": "string" }
+          ]
+        },
+        "taxiTurnMinDistance": {
+          "type": "number",
+          "minimum": 0
+        },
+        "lineFill": {
+          "type": "string",
+          "enum": ["solid", "linearGradient"]
+        },
+        "lineGradientStopColors": {
+          "oneOf": [
+            {
+              "type": "array",
+              "items": { "type": "string" },
+              "minItems": 2
+            },
+            { "type": "string" }
+          ]
+        },
+        "lineGradientStopPositions": {
+          "oneOf": [
+            {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            { "type": "string" }
+          ]
+        },
+        "interactive": {
+          "type": "boolean"
+        },
+        "labelInteractive": {
+          "type": "boolean"
         }
       },
       "additionalProperties": true

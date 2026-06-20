@@ -77,6 +77,39 @@ examples:
       controls: true
       controlsOpen: false
       title: Arrows, dashes, and labels
+  - id: edges-arrow-label-controls
+    title: Arrow and label controls
+    feature: edges
+    path: edges/arrow-label-controls
+    page: topoviewer/reference/edges/arrow-label-controls
+    summary: Directional arrow and endpoint label styles can be controlled independently.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Arrow and label controls
+  - id: edges-endpoint-spacing-routing
+    title: Endpoint spacing and routing
+    feature: edges
+    path: edges/endpoint-spacing-routing
+    page: topoviewer/reference/edges/endpoint-spacing-routing
+    summary: Endpoint spacing, segment controls, and taxi controls make edge routes explicit.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Endpoint spacing and routing
+  - id: edges-gradient-and-interaction
+    title: Gradient and interaction flags
+    feature: edges
+    path: edges/gradient-and-interaction
+    page: topoviewer/reference/edges/gradient-and-interaction
+    summary: Linear gradients and interaction flags can be declared directly on edge style rules.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Gradient and interaction flags
   - id: edges-floating-anchors
     title: Floating anchors
     feature: edges

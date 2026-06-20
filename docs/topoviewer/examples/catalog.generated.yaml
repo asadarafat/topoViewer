@@ -71,6 +71,36 @@ examples:
     stylesheet: docs/topoviewer/examples/edges/arrows-dashes-labels/stylesheet.yaml
     expected: docs/topoviewer/examples/edges/arrows-dashes-labels/expected.yaml
     readme: docs/topoviewer/examples/edges/arrows-dashes-labels/README.md
+  - id: edges-arrow-label-controls
+    title: Arrow and label controls
+    feature: edges
+    path: edges/arrow-label-controls
+    page: topoviewer/reference/edges/arrow-label-controls
+    renderable: true
+    topology: docs/topoviewer/examples/edges/arrow-label-controls/topology.yaml
+    stylesheet: docs/topoviewer/examples/edges/arrow-label-controls/stylesheet.yaml
+    expected: docs/topoviewer/examples/edges/arrow-label-controls/expected.yaml
+    readme: docs/topoviewer/examples/edges/arrow-label-controls/README.md
+  - id: edges-endpoint-spacing-routing
+    title: Endpoint spacing and routing
+    feature: edges
+    path: edges/endpoint-spacing-routing
+    page: topoviewer/reference/edges/endpoint-spacing-routing
+    renderable: true
+    topology: docs/topoviewer/examples/edges/endpoint-spacing-routing/topology.yaml
+    stylesheet: docs/topoviewer/examples/edges/endpoint-spacing-routing/stylesheet.yaml
+    expected: docs/topoviewer/examples/edges/endpoint-spacing-routing/expected.yaml
+    readme: docs/topoviewer/examples/edges/endpoint-spacing-routing/README.md
+  - id: edges-gradient-and-interaction
+    title: Gradient and interaction flags
+    feature: edges
+    path: edges/gradient-and-interaction
+    page: topoviewer/reference/edges/gradient-and-interaction
+    renderable: true
+    topology: docs/topoviewer/examples/edges/gradient-and-interaction/topology.yaml
+    stylesheet: docs/topoviewer/examples/edges/gradient-and-interaction/stylesheet.yaml
+    expected: docs/topoviewer/examples/edges/gradient-and-interaction/expected.yaml
+    readme: docs/topoviewer/examples/edges/gradient-and-interaction/README.md
   - id: edges-floating-anchors
     title: Floating anchors
     feature: edges

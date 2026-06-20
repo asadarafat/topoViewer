@@ -6,7 +6,7 @@ OpenSpec is used here as a lightweight project structure, not as a runtime depen
 
 Current active plans:
 
-- `changes/enhance-edge-style-controls/` - expand practical edge styling for arrows, labels, endpoint spacing, routing, gradients, and interaction flags.
+- None.
 
 Current studies:
 
@@ -14,6 +14,7 @@ Current studies:
 
 Archived plans:
 
+- `archive/2026-06-20-enhance-edge-style-controls/` - implemented practical edge styling for arrows, labels, endpoint spacing, routing, gradients, and interaction flags.
 - `archive/2026-06-20-implement-parallel-zensical-docs/` - implemented parallel Zensical documentation build and GitHub Pages publishing.
 - `archive/2026-06-19-implement-declarative-node-shapes/` - implemented declarative node shape style support.
 - `archive/2026-06-19-make-camelcase-canonical-style-keys/` - implemented canonical camelCase style key casing.

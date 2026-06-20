@@ -1,0 +1,66 @@
+layout:
+  mode: manual
+  width: 640
+  height: 320
+icons:
+  router:
+    glyph: R
+    fill: "#2563eb"
+    stroke: "#bfdbfe"
+labelFields:
+  - name
+stylesheet:
+  - selector: node
+    style:
+      icon: router
+      width: 84
+      height: 60
+      borderWidth: 3
+      labelColor: var(--topoviewer-fg-strong)
+      labelFontWeight: 800
+  - selector: link
+    style:
+      curveStyle: bezier
+      lineWidth: 3
+      lineColor: "#2563eb"
+      controlPointDistance: -38
+      sourceArrowShape: circle
+      targetArrowShape: vee
+      sourceArrowColor: "#16a34a"
+      targetArrowColor: "#dc2626"
+      sourceArrowSize: 10
+      targetArrowSize: 13
+      labelColor: var(--topoviewer-fg-strong)
+      labelFontWeight: 800
+      labelFontStyle: italic
+      labelBorderColor: "#94a3b8"
+      labelBorderWidth: 1
+      textBackgroundColor: var(--topoviewer-edge-label-bg)
+      sourceLabelColor: "#0369a1"
+      sourceLabelBackgroundColor: "#e0f2fe"
+      sourceLabelBorderColor: "#38bdf8"
+      sourceLabelBorderWidth: 1
+      sourceLabelXOffset: 36
+      sourceLabelYOffset: -30
+      targetLabelColor: "#991b1b"
+      targetLabelBackgroundColor: "#fee2e2"
+      targetLabelBorderColor: "#f87171"
+      targetLabelBorderWidth: 1
+      targetLabelXOffset: -36
+      targetLabelYOffset: -30
+  - selector: link[labels.class = "gold"]
+    style:
+      label: Gold
+      sourceLabel: ingress 100G
+      targetLabel: core 80G
+      lineColor: "#f59e0b"
+      sourceArrowColor: "#0f766e"
+      targetArrowColor: "#b45309"
+  - selector: link[labels.class = "silver"]
+    style:
+      label: Silver
+      sourceLabel: core 40G
+      targetLabel: egress 40G
+      lineColor: "#64748b"
+      sourceArrowColor: "#475569"
+      targetArrowColor: "#475569"

@@ -245,6 +245,20 @@ async function expectControlAssertions(page, example) {
   if (assertions.edgeLabels) {
     await expect(page.locator('.topoviewer-edge-label').first()).toBeVisible();
   }
+  if (assertions.edgeMarkersMin !== undefined) {
+    await expect.poll(async () => page.locator('svg marker').count()).toBeGreaterThanOrEqual(Number(assertions.edgeMarkersMin));
+  }
+  if (assertions.edgeLinearGradientsMin !== undefined) {
+    await expect.poll(async () => page.locator('svg linearGradient').count()).toBeGreaterThanOrEqual(Number(assertions.edgeLinearGradientsMin));
+  }
+  if (assertions.edgeGradientStopsMin !== undefined) {
+    await expect.poll(async () => page.locator('svg linearGradient stop').count()).toBeGreaterThanOrEqual(Number(assertions.edgeGradientStopsMin));
+  }
+  if (assertions.edgePathsWithMultipleSegmentsMin !== undefined) {
+    await expect.poll(async () => page.locator('.topoviewer-edge-visible-path').evaluateAll((paths) => {
+      return paths.filter((path) => ((path.getAttribute('d') || '').match(/\bL/g) || []).length >= 3).length;
+    })).toBeGreaterThanOrEqual(Number(assertions.edgePathsWithMultipleSegmentsMin));
+  }
   if (assertions.edgeLabelText) {
     const edgeLabels = page.locator('.topoviewer-edge-label', { hasText: String(assertions.edgeLabelText) });
     if (assertions.edgeLabelTextCount !== undefined) {
@@ -258,6 +272,11 @@ async function expectControlAssertions(page, example) {
   }
   if (assertions.targetEdgeLabelText) {
     await expect(page.locator('.topoviewer-edge-label-target', { hasText: String(assertions.targetEdgeLabelText) }).first()).toBeVisible();
+  }
+  if (assertions.labelPointerEventsNoneText) {
+    const label = page.locator('.topoviewer-edge-label', { hasText: String(assertions.labelPointerEventsNoneText) }).first();
+    await expect(label).toBeVisible();
+    await expect.poll(async () => label.evaluate((element) => getComputedStyle(element).pointerEvents)).toBe('none');
   }
 
   if (assertions.zoomInClicks) {

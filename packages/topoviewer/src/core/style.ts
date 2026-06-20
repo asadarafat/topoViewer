@@ -1,8 +1,16 @@
-import { MarkerType } from '@xyflow/react';
 import { matchingRules } from './selector';
 import { mergePlainObjects, valueOrDefault, withoutUndefined } from './object';
 import { isSafeImageReference } from './security';
 import { nodeShapePointsToSvg, normalizeNodeShape, parseNodeShapePoints } from './nodeShapes';
+import {
+  finiteNumber,
+  normalizeCurveStyleToken,
+  normalizeEdgeArrowShape,
+  normalizeGradientStops,
+  normalizeTaxiDirection,
+  numberList,
+  positiveNumber,
+} from './edgeStyle';
 import type { DiagramCallout, DiagramShape, GraphEntity, IconSpec, StyleDeclaration, StylesheetDocument } from './types';
 
 export function applyStyle(kind: string, entity: GraphEntity, spec: StylesheetDocument): StyleDeclaration {
@@ -196,19 +204,20 @@ function mapLineDash(style: StyleDeclaration): string {
 }
 
 function mapCurveStyle(style: StyleDeclaration): string {
-  const curveStyle = String(style.curveStyle || 'bezier').toLowerCase();
+  const curveStyle = normalizeCurveStyleToken(style.curveStyle || 'bezier');
   if (['straight', 'haystack'].includes(curveStyle)) return 'straight';
   if (['segments', 'taxi'].includes(curveStyle)) return 'step';
-  if (['round-segments', 'round-taxi', 'smooth-taxi', 'smooth-step', 'smoothstep'].includes(curveStyle)) return 'smoothstep';
-  if (['simplebezier', 'unbundled-bezier'].includes(curveStyle)) return 'simplebezier';
+  if (['roundsegments', 'roundtaxi', 'smoothtaxi', 'smoothstep'].includes(curveStyle)) return 'smoothstep';
+  if (['simplebezier', 'unbundledbezier'].includes(curveStyle)) return 'simplebezier';
   if (curveStyle === 'bezier') return 'bezier';
   return 'default';
 }
 
-function mapArrowShape(shape: unknown, color: string) {
-  const arrowShape = String(shape || 'none').toLowerCase();
-  if (['none', 'no-arrow'].includes(arrowShape)) return undefined;
-  return { type: MarkerType.ArrowClosed, color };
+function routeKind(style: StyleDeclaration): string | undefined {
+  const curveStyle = normalizeCurveStyleToken(style.curveStyle);
+  if (curveStyle === 'segments' || curveStyle === 'roundsegments') return 'segments';
+  if (curveStyle === 'taxi' || curveStyle === 'roundtaxi' || curveStyle === 'smoothtaxi') return 'taxi';
+  return undefined;
 }
 
 export function compileNodeStyle(style: StyleDeclaration, entity: GraphEntity, spec: StylesheetDocument) {
@@ -287,20 +296,32 @@ export function compileEdgeStyle(style: StyleDeclaration, entity: GraphEntity, s
   const anchor = String(style.anchor || 'floating').toLowerCase();
   const lineWidth = Number(style.lineWidth || 1);
   const lineOpacity = style.lineOpacity ?? style.opacity;
+  const interactive = style.interactive !== false;
+  const lineFill = String(style.lineFill || 'solid');
+  const gradientStops = lineFill === 'linearGradient'
+    ? normalizeGradientStops(style.lineGradientStopColors, style.lineGradientStopPositions)
+    : undefined;
+  const sourceArrowShape = normalizeEdgeArrowShape(style.sourceArrowShape) || 'none';
+  const targetArrowShape = normalizeEdgeArrowShape(style.targetArrowShape) || 'none';
+  const sourceArrowColor = String(style.sourceArrowColor || style.arrowColor || lineColor);
+  const targetArrowColor = String(style.targetArrowColor || style.arrowColor || lineColor);
 
   return withoutUndefined({
     type: anchor === 'floating' ? 'floating' : curveType === 'bezier' ? 'default' : curveType,
     animated: !!style.animated,
     hidden: style.display === 'none',
-    interactionWidth: valueOrDefault(style.interactionWidth as number | undefined, Math.max(12, lineWidth + 10)),
+    selectable: interactive ? undefined : false,
+    focusable: interactive ? undefined : false,
+    interactionWidth: interactive
+      ? valueOrDefault(style.interactionWidth as number | undefined, Math.max(12, lineWidth + 10))
+      : 0,
     zIndex: valueOrDefault(style.zIndex as number | undefined, 6),
-    markerStart: mapArrowShape(style.sourceArrowShape, String(style.arrowColor || lineColor)),
-    markerEnd: mapArrowShape(style.targetArrowShape, String(style.arrowColor || lineColor)),
     label: label || undefined,
     labelStyle: withoutUndefined({
       fill: style.labelColor,
       fontSize: style.labelFontSize,
-      fontWeight: style.labelFontWeight
+      fontWeight: style.labelFontWeight,
+      fontStyle: style.labelFontStyle
     }),
     labelBgStyle: withoutUndefined({
       fill: colorWithOpacity(style.textBackgroundColor, style.textBackgroundOpacity)
@@ -308,6 +329,9 @@ export function compileEdgeStyle(style: StyleDeclaration, entity: GraphEntity, s
     data: {
       anchor,
       curveType,
+      routeKind: routeKind(style),
+      interactive,
+      labelInteractive: style.labelInteractive !== false,
       pipe: style.pipe === true,
       pipeWidth: style.pipeWidth,
       pipeFill: style.pipeFill,
@@ -320,16 +344,55 @@ export function compileEdgeStyle(style: StyleDeclaration, entity: GraphEntity, s
       controlPointDistance: style.controlPointDistance,
       controlPointWeight: style.controlPointWeight,
       edgeDistances: style.edgeDistances,
+      segmentDistances: numberList(style.segmentDistances),
+      segmentWeights: numberList(style.segmentWeights),
+      taxiRoutingExplicit: style.taxiDirection !== undefined || style.taxiTurn !== undefined || style.taxiTurnMinDistance !== undefined,
+      taxiDirection: normalizeTaxiDirection(style.taxiDirection),
+      taxiTurn: style.taxiTurn,
+      taxiTurnMinDistance: positiveNumber(style.taxiTurnMinDistance),
+      sourceDistanceFromNode: positiveNumber(style.sourceDistanceFromNode),
+      targetDistanceFromNode: positiveNumber(style.targetDistanceFromNode),
       lineCap: style.lineCap,
       lineOutlineWidth: style.lineOutlineWidth,
       lineOutlineColor: style.lineOutlineColor,
       lineOpacity,
+      lineFill,
+      lineGradientStopColors: gradientStops?.colors,
+      lineGradientStopPositions: gradientStops?.positions,
+      sourceArrowShape,
+      targetArrowShape,
+      sourceArrowColor,
+      targetArrowColor,
+      sourceArrowSize: positiveNumber(style.sourceArrowSize),
+      targetArrowSize: positiveNumber(style.targetArrowSize),
+      labelBorderColor: style.labelBorderColor,
+      labelBorderWidth: finiteNumber(style.labelBorderWidth),
+      labelFontStyle: style.labelFontStyle,
       sourceLabel: sourceLabel === undefined ? undefined : String(sourceLabel),
       targetLabel: targetLabel === undefined ? undefined : String(targetLabel),
+      sourceLabelColor: style.sourceLabelColor,
+      sourceLabelBackgroundColor: style.sourceLabelBackgroundColor,
+      sourceLabelBorderColor: style.sourceLabelBorderColor,
+      sourceLabelBorderWidth: finiteNumber(style.sourceLabelBorderWidth),
+      sourceLabelFontSize: style.sourceLabelFontSize,
+      sourceLabelFontWeight: style.sourceLabelFontWeight,
+      sourceLabelFontStyle: style.sourceLabelFontStyle,
+      targetLabelColor: style.targetLabelColor,
+      targetLabelBackgroundColor: style.targetLabelBackgroundColor,
+      targetLabelBorderColor: style.targetLabelBorderColor,
+      targetLabelBorderWidth: finiteNumber(style.targetLabelBorderWidth),
+      targetLabelFontSize: style.targetLabelFontSize,
+      targetLabelFontWeight: style.targetLabelFontWeight,
+      targetLabelFontStyle: style.targetLabelFontStyle,
       sourceLabelXOffset: style.sourceLabelXOffset,
       sourceLabelYOffset: style.sourceLabelYOffset,
       targetLabelXOffset: style.targetLabelXOffset,
-      targetLabelYOffset: style.targetLabelYOffset
+      targetLabelYOffset: style.targetLabelYOffset,
+      labelColor: style.labelColor,
+      labelFontSize: finiteNumber(style.labelFontSize),
+      labelFontWeight: style.labelFontWeight,
+      textBackgroundColor: colorWithOpacity(style.textBackgroundColor, style.textBackgroundOpacity),
+      textBackgroundOpacity: style.textBackgroundOpacity
     },
     style: withoutUndefined({
       stroke: lineColor,

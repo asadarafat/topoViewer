@@ -24,6 +24,9 @@ TopoViewer renders declarative graph and diagram documents from YAML. The canoni
 
 - [Edge curve styles](reference/edges/curve-styles/index.md): Different `curveStyle` values produce different edge routing models.
 - [Arrows, dashes, and labels](reference/edges/arrows-dashes-labels/index.md): Edges can carry labels, arrows, and dash patterns without changing topology semantics.
+- [Arrow and label controls](reference/edges/arrow-label-controls/index.md): Directional arrow and endpoint label styles can be controlled independently.
+- [Endpoint spacing and routing](reference/edges/endpoint-spacing-routing/index.md): Endpoint spacing, segment controls, and taxi controls make edge routes explicit.
+- [Gradient and interaction flags](reference/edges/gradient-and-interaction/index.md): Linear gradients and interaction flags can be declared directly on edge style rules.
 - [Floating anchors](reference/edges/floating-anchors/index.md): Floating anchors connect to the nearest point on each node boundary.
 - [Parent link pipe](reference/edges/parent-link-pipe/index.md): A child link can be visually carried inside a parent transport link.
 

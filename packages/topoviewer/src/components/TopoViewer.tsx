@@ -177,11 +177,15 @@ function TopoFlow({
       } : undefined}
       onEdgeClick={onObjectClick ? (_event, edge) => {
         const runtimeEdge = edge as unknown as Record<string, unknown>;
+        const data = (runtimeEdge.data || {}) as Record<string, unknown>;
+        if (data.interactive === false) {
+          return undefined;
+        }
         return onObjectClick({
           id: sourceObjectId(runtimeEdge),
           runtimeId: String(runtimeEdge.id),
           element: 'edge',
-          data: (runtimeEdge.data || {}) as Record<string, unknown>
+          data
         });
       } : undefined}
       onPaneClick={onPaneClick}
