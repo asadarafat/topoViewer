@@ -30,24 +30,26 @@ Research anchors:
 
 ### Requirement: Infrahub first integration shape
 
-TopoViewer SHALL prefer a schema-aware export workflow for Infrahub before any
-embedded UI integration.
+TopoViewer SHALL prefer an in-platform OpsMill/Infrahub extension or artifact
+workflow before any external export workflow.
 
-#### Scenario: First Infrahub integration is scoped as export
+#### Scenario: First Infrahub integration is scoped as an in-platform extension
 
 - **WHEN** Infrahub integration work is planned
 - **THEN** the first shape SHALL be:
 
 ```text
-Infrahub GraphQL/Python SDK -> mapping profile -> TopoViewer topology.yaml
+Infrahub extension/artifact workflow -> schema-aware mapping profile -> TopoViewer view or published artifact
 ```
 
-- **AND** later work MAY generate TopoViewer artifacts from Infrahub branches or
-  transforms
+- **AND** the integration SHALL fit Infrahub branches, transforms, artifacts,
+  and schema-defined objects before treating standalone YAML export as the
+  primary user workflow
 
 #### Scenario: Infrahub mapping profiles are user-owned
 
-- **WHEN** an Infrahub adapter maps graph data into TopoViewer
+- **WHEN** an Infrahub plugin, extension, or artifact workflow maps graph data
+  into TopoViewer
 - **THEN** the mapping SHALL be explicit and schema-aware
 - **AND** it SHALL NOT hardcode a single vendor, service, or infrastructure
   schema into TopoViewer core
@@ -60,6 +62,8 @@ TopoViewer SHALL document realistic Infrahub use cases before implementation.
 
 - **WHEN** Infrahub use cases are documented
 - **THEN** they SHALL include intended network topology generated from graph data
+- **AND** they SHALL include in-platform preview or artifact publishing tied to
+  Infrahub data
 - **AND** they MAY include service dependency, ownership, and architecture
   documentation views
 
@@ -88,3 +92,5 @@ implementation plan.
 - **WHEN** Infrahub artifacts or transforms are mentioned
 - **THEN** the roadmap SHALL identify authentication, workspace, branch, and
   artifact publishing behavior as prototype questions
+- **AND** it SHALL NOT imply OpsMill/Infrahub support is shipped until a working
+  in-platform integration exists

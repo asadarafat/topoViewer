@@ -77,9 +77,10 @@ realistic use cases are, and what integration shape should come first.
 
 The public roadmap page or section should then explain integration direction:
 
-- NetBox: topology/data import and inventory-driven diagram generation;
-- OpsMill/Infrahub: graph-native infrastructure data import, intended-state
-  topology views, and branch/diff-driven diagrams;
+- NetBox: in-platform plugin for inventory-driven diagram views and optional
+  YAML export;
+- OpsMill/Infrahub: in-platform extension or artifact workflow for graph-native
+  intended-state views and branch/diff-driven diagrams;
 - MkDocs: supported today as a plugin with live YAML examples;
 - Grafana: planned panel or embeddable runtime integration for operational
   dashboards;

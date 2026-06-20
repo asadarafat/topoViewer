@@ -23,31 +23,32 @@ Research anchors:
 - **WHEN** the roadmap explains why NetBox integration is feasible
 - **THEN** it SHALL reference NetBox REST or GraphQL as the likely data access
   path
-- **AND** it SHALL frame plugin embedding as a later, higher-maintenance option
+- **AND** it SHALL frame NetBox plugin embedding as the intended first product
+  integration shape
 
 ### Requirement: NetBox first integration shape
 
-TopoViewer SHALL prefer an external NetBox generator or adapter before a NetBox
-plugin.
+TopoViewer SHALL prefer an in-platform NetBox plugin before an external NetBox
+generator or adapter.
 
-#### Scenario: First NetBox integration is scoped as a generator
+#### Scenario: First NetBox integration is scoped as a plugin
 
 - **WHEN** NetBox integration work is planned
 - **THEN** the first shape SHALL be:
 
 ```text
-NetBox REST/GraphQL -> mapping profile -> TopoViewer topology.yaml + stylesheet.yaml
+NetBox plugin -> NetBox models/API -> mapping profile -> embedded TopoViewer view + optional YAML export
 ```
 
-- **AND** the integration SHALL prove topology mapping before committing to
-  NetBox plugin packaging
+- **AND** the integration SHALL prove topology mapping inside NetBox before
+  treating external YAML generation as the primary user workflow
 
 #### Scenario: NetBox mapping profiles are explicit
 
-- **WHEN** a NetBox adapter maps data into TopoViewer
+- **WHEN** a NetBox plugin maps data into TopoViewer
 - **THEN** the mapping SHALL allow installation-specific roles, tags, custom
   fields, tenants, circuits, devices, interfaces, and cables
-- **AND** the adapter SHALL NOT assume one universal NetBox object taxonomy
+- **AND** the plugin SHALL NOT assume one universal NetBox object taxonomy
 
 ### Requirement: NetBox use cases
 
@@ -58,7 +59,10 @@ TopoViewer SHALL document realistic NetBox use cases before implementation.
 - **WHEN** NetBox use cases are documented
 - **THEN** they SHALL include site, rack, device, interface, cable, and circuit
   topology diagrams
-- **AND** they MAY include MkDocs documentation generation from NetBox snapshots
+- **AND** they SHALL include in-NetBox topology tabs or panels for relevant
+  inventory objects
+- **AND** they MAY include MkDocs documentation generation from NetBox plugin
+  snapshots
 
 #### Scenario: Operational overlays require additional data
 
@@ -79,8 +83,10 @@ implementation plan.
 - **THEN** physical cabling SHALL NOT be presented as automatically equivalent
   to logical routing, BGP, service, or dependency topology
 
-#### Scenario: NetBox plugin is not promised prematurely
+#### Scenario: NetBox plugin risks are explicit
 
 - **WHEN** NetBox plugin embedding is mentioned
 - **THEN** the roadmap SHALL identify version compatibility, permissions, UI
   integration, and deployment lifecycle as unresolved risks
+- **AND** it SHALL NOT imply plugin support is shipped until a working plugin
+  package exists

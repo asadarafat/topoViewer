@@ -102,8 +102,20 @@ examples.
 - **WHEN** the demo page is opened
 - **THEN** it SHALL include underlay, BGP, service path, and failure view
   scenarios
-- **AND** each scenario SHALL expose a live viewport, topology YAML, stylesheet
-  YAML, and expected assertions when following the existing example pattern
+- **AND** each scenario SHALL expose a live viewport, topology YAML, and
+  stylesheet YAML
+- **AND** scenarios with declarative attention SHALL expose Attention YAML
+- **AND** `expected.yaml` SHALL NOT be shown in MkDocs or Zensical public pages
+
+#### Scenario: Expected assertions stay internal
+
+- **WHEN** examples are generated for public documentation
+- **THEN** `expected.yaml` SHALL remain in
+  `packages/topoviewer/examples/test-cases/**/expected.yaml`
+- **AND** expected assertion data SHALL be used by generated test catalog
+  metadata, CI, Playwright, schema validation, and semantic validation
+- **AND** generated MkDocs or Zensical public pages SHALL NOT include
+  `Expected YAML` tabs or public `expected.yaml` includes
 
 #### Scenario: Demo uses realistic topology cues
 
@@ -151,3 +163,5 @@ public entry points.
   docs SHALL remain reachable
 - **AND** existing example-generation workflows SHALL continue to use canonical
   `camelCase` YAML and stylesheet keys
+- **AND** generated public examples SHALL show only Live Viewport, Topology
+  YAML, Stylesheet YAML, and Attention YAML when relevant

@@ -11,7 +11,7 @@ be, and what must not be promised.
 Define the NetBox integration roadmap as a standalone OpenSpec change:
 
 - establish NetBox as a feasible inventory source, not supported today;
-- prefer an external REST/GraphQL generator before a NetBox plugin;
+- prefer an in-platform NetBox plugin before an external generator;
 - document inventory-driven topology use cases;
 - document risks around operational state, physical-versus-logical topology,
   plugin lifecycle, and installation-specific mapping.
@@ -26,7 +26,8 @@ Define the NetBox integration roadmap as a standalone OpenSpec change:
 ## Impact
 
 - Public integration roadmap wording for NetBox.
-- Future adapter design for NetBox-to-TopoViewer YAML generation.
+- Future NetBox plugin design for embedded TopoViewer views and optional YAML
+  export.
 - No renderer, schema, MkDocs, or package implementation in this change.
 
 ## Non-Goals

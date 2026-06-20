@@ -10,7 +10,7 @@ studied, implemented, or archived independently.
 Define the OpsMill/Infrahub integration roadmap as a standalone OpenSpec change:
 
 - establish Infrahub as a feasible graph-native integration candidate;
-- prefer schema-aware GraphQL/Python SDK export before embedded UI integration;
+- prefer an in-platform extension or artifact workflow before standalone export;
 - document intended-state, branch/diff, service dependency, and artifact use
   cases;
 - document risks around flexible schemas, mapping profiles, authentication, and
@@ -27,12 +27,13 @@ Define the OpsMill/Infrahub integration roadmap as a standalone OpenSpec change:
 ## Impact
 
 - Public integration roadmap wording for OpsMill/Infrahub.
-- Future adapter design for Infrahub-to-TopoViewer YAML generation.
+- Future in-platform OpsMill/Infrahub integration design for TopoViewer views,
+  artifacts, and optional YAML export.
 - No renderer, schema, MkDocs, or package implementation in this change.
 
 ## Non-Goals
 
 - Building an Infrahub adapter.
-- Building an Infrahub plugin or embedded UI.
+- Building an Infrahub plugin, extension, artifact workflow, or embedded UI.
 - Claiming Infrahub integration is supported.
 - Hardcoding one Infrahub schema into TopoViewer core.

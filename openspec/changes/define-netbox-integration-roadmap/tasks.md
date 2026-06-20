@@ -1,7 +1,7 @@
 ## 1. Roadmap Definition
 
 - [ ] 1.1 Verify NetBox REST, GraphQL, and plugin documentation references
-- [ ] 1.2 Define the first NetBox integration shape as external YAML generation
+- [ ] 1.2 Define the first NetBox integration shape as an in-platform NetBox plugin
 - [ ] 1.3 Capture inventory-driven topology use cases
 - [ ] 1.4 Capture operational-state and physical-versus-logical topology limits
 - [ ] 1.5 Write public roadmap wording that avoids claiming support before implementation

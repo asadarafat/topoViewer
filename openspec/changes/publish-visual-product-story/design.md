@@ -5,7 +5,7 @@
 The implementation should keep existing documentation boundaries:
 
 - `packages/topoviewer/examples/test-cases/**` remains the source of truth for
-  demo YAML, stylesheets, expected assertions, and Playwright coverage.
+  demo YAML, stylesheets, internal expected assertions, and Playwright coverage.
 - `packages/topoviewer/docs/**` remains the source of truth for authored docs.
 - `docs/topoviewer/**` remains generated MkDocs output.
 - Zensical content is synced from the shared docs subset where possible.
@@ -85,9 +85,10 @@ use cases, risks, and wording constraints.
 
 The standalone integration changes should cover:
 
-- NetBox topology/data import and inventory-driven diagram generation.
-- OpsMill/Infrahub graph-native infrastructure import, intended-state views, and
-  branch/diff-driven diagrams.
+- NetBox in-platform plugin for inventory-driven diagram views and optional
+  YAML export.
+- OpsMill/Infrahub in-platform extension or artifact workflow for graph-native
+  intended-state views and branch/diff-driven diagrams.
 - Grafana panel or embeddable runtime feasibility for operational dashboards.
 - VS Code authoring preview, schema validation, semantic lint, and example
   workflow.
@@ -95,8 +96,8 @@ The standalone integration changes should cover:
 Use explicit public status labels:
 
 - **Supported**: MkDocs fenced-block plugin and React/TypeScript package.
-- **Feasibility**: NetBox and OpsMill/Infrahub data-source generation
-  until a mapping prototype exists.
+- **Feasibility**: NetBox and OpsMill/Infrahub in-platform integration
+  until plugin, extension, or artifact prototypes exist.
 - **Planned**: VS Code preview and authoring support after authoring contracts
   stabilize.
 - **Exploratory**: any item that lacks a concrete implementation direction.
@@ -111,6 +112,7 @@ At minimum, implementation should verify:
 - README links resolve locally where possible;
 - demo examples render in Playwright;
 - demo page contains live viewport, topology YAML, and stylesheet YAML;
+- public MkDocs and Zensical pages do not expose `expected.yaml`;
 - generated screenshot, if added, can be refreshed or is documented as derived
   from a named example.
 
