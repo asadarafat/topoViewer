@@ -154,6 +154,10 @@ function renderTopoViewerEmbed(config, sourceMarkdownPath, targetMarkdownPath, o
     const attention = JSON.stringify(config.attention);
     attributes.push(`data-attention="${escapeHtml(attention)}"`);
   }
+  if (config.selectedLayerIds !== undefined) {
+    const selectedLayerIds = JSON.stringify(config.selectedLayerIds);
+    attributes.push(`data-selected-layer-ids="${escapeHtml(selectedLayerIds)}"`);
+  }
 
   const caption = title ? [`<figcaption class="topoviewer-title">${escapeHtml(title)}</figcaption>`] : [];
   const embedDiv = `<div ${attributes.join(' ')}></div>`;

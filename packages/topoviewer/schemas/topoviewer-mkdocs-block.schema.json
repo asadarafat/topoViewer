@@ -41,6 +41,10 @@
       "type": "boolean",
       "default": false
     },
+    "selectedLayerIds": {
+      "$ref": "#/definitions/stringList",
+      "description": "Initial checked layer IDs for the embed. Defaults to all graph layers."
+    },
     "attention": {
       "$ref": "#/definitions/attention"
     }

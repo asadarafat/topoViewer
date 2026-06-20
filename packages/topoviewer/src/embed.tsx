@@ -30,6 +30,7 @@ type EmbedElement = HTMLElement & {
     stylesheet?: string;
     controls?: string;
     controlsOpen?: string;
+    selectedLayerIds?: string;
     attention?: string;
     topoviewerMounted?: string;
   };
@@ -63,6 +64,24 @@ function parseAttention(raw: string | undefined): EmbedAttention | undefined {
   }
 
   return parsed as EmbedAttention;
+}
+
+function parseSelectedLayerIds(raw: string | undefined): string[] | undefined {
+  if (!raw) return undefined;
+
+  const parsed = JSON.parse(raw);
+  if (!Array.isArray(parsed) || !parsed.every((item) => typeof item === 'string')) {
+    throw new Error('TopoViewer embed selectedLayerIds must be a JSON string array.');
+  }
+
+  return parsed;
+}
+
+function initialLayerIds(layers: LayerDefinition[], selectedLayerIds: string[] | undefined): string[] {
+  if (!selectedLayerIds) return layers.map((layer) => layer.id);
+
+  const availableLayerIds = new Set(layers.map((layer) => layer.id));
+  return [...new Set(selectedLayerIds)].filter((layerId) => availableLayerIds.has(layerId));
 }
 
 function defaultToggles(document: TopoDocument): TopoViewerToggles {
@@ -208,12 +227,14 @@ function EmbeddedTopoViewer({
   documentSpec,
   attention,
   controlsEnabled = true,
-  controlsDefaultOpen = false
+  controlsDefaultOpen = false,
+  initialSelectedLayerIds
 }: {
   documentSpec: TopoDocument;
   attention?: EmbedAttention;
   controlsEnabled?: boolean;
   controlsDefaultOpen?: boolean;
+  initialSelectedLayerIds?: string[];
 }) {
   const effectiveAttention = attention || documentSpec.attention;
   const aggregateConfig = effectiveAttention?.aggregate;
@@ -258,7 +279,7 @@ function EmbeddedTopoViewer({
   const layers = useMemo(() => viewerDocument.graph?.layers || [], [viewerDocument]);
   const toggleDefinitions = useMemo(() => viewerDocument.toggles || [], [viewerDocument]);
   const graphSets = useMemo(() => graphObjectSets(viewerDocument), [viewerDocument]);
-  const [selectedLayerIds, setSelectedLayerIds] = useState(() => layers.map((layer) => layer.id));
+  const [selectedLayerIds, setSelectedLayerIds] = useState(() => initialLayerIds(layers, initialSelectedLayerIds));
   const [toggles, setToggles] = useState<TopoViewerToggles>(() => defaultToggles(viewerDocument));
   const [controlsOpen, setControlsOpen] = useState(controlsDefaultOpen);
   const [attentionQuery, setAttentionQuery] = useState<FocusQuery | undefined>(() => effectiveAttention?.query);
@@ -403,6 +424,7 @@ async function mount(container: EmbedElement): Promise<void> {
 
   const documentSpec = composeSpec(topology, stylesheet);
   const attention = parseAttention(container.dataset.attention);
+  const selectedLayerIds = parseSelectedLayerIds(container.dataset.selectedLayerIds);
   const root = createRoot(container);
   root.render(
     <EmbeddedTopoViewer
@@ -410,6 +432,7 @@ async function mount(container: EmbedElement): Promise<void> {
       attention={attention}
       controlsEnabled={container.dataset.controls !== 'false'}
       controlsDefaultOpen={container.dataset.controlsOpen === 'true'}
+      initialSelectedLayerIds={selectedLayerIds}
     />
   );
 }

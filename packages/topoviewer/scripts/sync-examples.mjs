@@ -148,6 +148,10 @@ function renderBlock(example, expected, markdownFile = pageFile(example)) {
   ];
   if (render.width) lines.push(`width: ${render.width}`);
   if (render.title || example.title) lines.push(`title: ${render.title || example.title}`);
+  if (render.selectedLayerIds) {
+    lines.push('selectedLayerIds:');
+    lines.push(indentBlock(dumpYaml(render.selectedLayerIds).trimEnd(), 2));
+  }
   if (render.attention) {
     lines.push('attention:');
     lines.push(indentBlock(dumpYaml(render.attention).trimEnd(), 2));

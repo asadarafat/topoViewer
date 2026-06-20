@@ -29,6 +29,7 @@ height: 640px
 title: MV network SR-TE service path
 controls: true
 controlsOpen: false
+selectedLayerIds: [underlay]
 ```
 ````
 
@@ -45,6 +46,7 @@ Options:
 | `title` | Optional caption/title. |
 | `controls` | Show layer/display controls. Defaults to `true`. |
 | `controlsOpen` | Open controls panel initially. Defaults to `false`. |
+| `selectedLayerIds` | Initial checked layer IDs for this embed. Defaults to all graph layers. |
 
 ## Attention Blocks
 
