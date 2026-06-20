@@ -11,6 +11,19 @@ import {
   numberList,
   positiveNumber,
 } from './edgeStyle';
+import {
+  dashPatternForBorderStyle,
+  nodeDashPattern,
+  nonNegativeNumber,
+  normalizeNodeBadgePosition,
+  normalizeNodeIconFit,
+  normalizeNodeLabelPosition,
+  normalizeNodeLabelTextOverflow,
+  normalizeNodeLabelTextWrap,
+  normalizeNodeStatusPlacement,
+  opacityNumber,
+  worstSeverityColor,
+} from './nodeStyle';
 import type { DiagramCallout, DiagramShape, GraphEntity, IconSpec, StyleDeclaration, StylesheetDocument } from './types';
 
 export function applyStyle(kind: string, entity: GraphEntity, spec: StylesheetDocument): StyleDeclaration {
@@ -194,6 +207,52 @@ function dashPattern(value: unknown): string {
   return String(value);
 }
 
+function cssPixel(value: unknown): string | number | undefined {
+  const parsed = finiteNumber(value);
+  return parsed !== undefined ? `${parsed}px` : undefined;
+}
+
+function cssPadding(value: unknown): string | number | undefined {
+  const parsed = nonNegativeNumber(value);
+  return parsed !== undefined ? `${parsed}px` : undefined;
+}
+
+function labelWhiteSpace(value: unknown): string | undefined {
+  const wrap = normalizeNodeLabelTextWrap(value);
+  if (wrap === 'wrap') return 'normal';
+  if (wrap === 'none') return 'nowrap';
+  return undefined;
+}
+
+function labelOverflow(value: unknown): string | undefined {
+  const overflow = normalizeNodeLabelTextOverflow(value);
+  if (overflow === 'ellipsis' || overflow === 'clip') return 'hidden';
+  return undefined;
+}
+
+function labelTextOverflow(value: unknown): string | undefined {
+  return normalizeNodeLabelTextOverflow(value);
+}
+
+function aggregateSeverity(entity: GraphEntity): string | undefined {
+  const severity = entity.labels?.severity;
+  return severity === undefined ? undefined : String(severity);
+}
+
+function aggregateBadgeLabel(style: StyleDeclaration, entity: GraphEntity): string | undefined {
+  if (style.badgeLabel !== undefined) return String(style.badgeLabel);
+  if (entity.data?.isAggregate === true && entity.data.childCount !== undefined) {
+    return String(entity.data.childCount);
+  }
+  return undefined;
+}
+
+function aggregateStatusColor(style: StyleDeclaration, entity: GraphEntity): unknown {
+  if (style.statusColor !== undefined) return style.statusColor;
+  if (entity.data?.isAggregate === true) return worstSeverityColor(aggregateSeverity(entity));
+  return undefined;
+}
+
 function mapLineDash(style: StyleDeclaration): string {
   const explicitPattern = style.lineDashPattern;
   if (explicitPattern !== undefined) return dashPattern(explicitPattern);
@@ -231,6 +290,16 @@ export function compileNodeStyle(style: StyleDeclaration, entity: GraphEntity, s
   const fill = String(style.backgroundColor || icon.fill);
   const stroke = String(style.borderColor || icon.stroke);
   const borderWidth = Number(valueOrDefault(style.borderWidth as number | undefined, 4));
+  const borderStyleDash = nodeDashPattern(style.borderDashPattern) || dashPatternForBorderStyle(style.borderStyle);
+  const borderOpacity = opacityNumber(style.borderOpacity);
+  const outlineWidth = nonNegativeNumber(style.outlineWidth);
+  const underlayPadding = nonNegativeNumber(style.underlayPadding);
+  const labelPosition = normalizeNodeLabelPosition(style.labelPosition) || 'bottom';
+  const badgeLabel = aggregateBadgeLabel(style, entity);
+  const badgePosition = normalizeNodeBadgePosition(style.badgePosition) || 'topRight';
+  const statusColor = aggregateStatusColor(style, entity);
+  const statusPlacement = normalizeNodeStatusPlacement(style.statusPlacement) || 'bottomRight';
+  const iconFit = normalizeNodeIconFit(style.iconFit);
 
   return {
     flow: withoutUndefined({
@@ -258,7 +327,11 @@ export function compileNodeStyle(style: StyleDeclaration, entity: GraphEntity, s
       },
       nodeStyle: withoutUndefined({
         width,
-        minHeight: height
+        minHeight: height,
+        '--topoviewer-node-icon-width': `${iconWidth}px`,
+        '--topoviewer-node-icon-height': `${iconHeight}px`,
+        '--topoviewer-node-label-x-offset': cssPixel(style.labelXOffset) || '0px',
+        '--topoviewer-node-label-y-offset': cssPixel(style.labelYOffset) || '0px'
       }),
       iconStyle: withoutUndefined({
         width: iconWidth,
@@ -266,22 +339,74 @@ export function compileNodeStyle(style: StyleDeclaration, entity: GraphEntity, s
         borderColor: stroke,
         borderWidth,
         backgroundColor: fill,
-        color: style.iconColor
+        color: style.iconColor,
+        opacity: opacityNumber(style.iconOpacity)
+      }),
+      iconContentStyle: withoutUndefined({
+        padding: cssPadding(style.iconPadding),
+        backgroundColor: style.iconBackgroundColor,
+        opacity: opacityNumber(style.iconOpacity)
+      }),
+      iconImageStyle: withoutUndefined({
+        objectFit: iconFit
       }),
       nodeShapeStyle: withoutUndefined({
         fill,
         stroke,
-        strokeWidth: borderWidth
+        strokeWidth: borderWidth,
+        strokeDasharray: borderStyleDash,
+        strokeOpacity: borderOpacity
       }),
+      nodeOutlineStyle: withoutUndefined({
+        fill: 'none',
+        stroke: style.outlineColor,
+        strokeWidth: outlineWidth,
+        strokeOpacity: opacityNumber(style.outlineOpacity),
+        display: outlineWidth !== undefined && style.outlineColor !== undefined ? undefined : 'none'
+      }),
+      nodeUnderlayStyle: withoutUndefined({
+        fill: style.underlayColor,
+        fillOpacity: opacityNumber(style.underlayOpacity),
+        stroke: 'none',
+        display: underlayPadding !== undefined && style.underlayColor !== undefined ? undefined : 'none',
+        '--topoviewer-node-underlay-scale-x': underlayPadding === undefined ? undefined : String(1 + (underlayPadding * 2) / Math.max(iconWidth, 1)),
+        '--topoviewer-node-underlay-scale-y': underlayPadding === undefined ? undefined : String(1 + (underlayPadding * 2) / Math.max(iconHeight, 1))
+      }),
+      labelPosition,
+      labelMinZoom: nonNegativeNumber(style.minZoomedLabelFontSize),
       labelStyle: withoutUndefined({
         color: style.labelColor,
         fontSize: style.labelFontSize,
-        fontWeight: style.labelFontWeight
+        fontWeight: style.labelFontWeight,
+        opacity: opacityNumber(style.labelOpacity),
+        backgroundColor: colorWithOpacity(style.labelBackgroundColor, style.labelBackgroundOpacity),
+        borderColor: style.labelBorderColor,
+        borderWidth: nonNegativeNumber(style.labelBorderWidth),
+        borderStyle: style.labelBorderColor || style.labelBorderWidth !== undefined ? 'solid' : undefined,
+        padding: cssPadding(style.labelPadding),
+        maxWidth: cssPixel(style.labelTextMaxWidth),
+        whiteSpace: labelWhiteSpace(style.labelTextWrap),
+        overflow: labelOverflow(style.labelTextOverflow),
+        textOverflow: labelTextOverflow(style.labelTextOverflow),
+        textAlign: style.labelTextAlign
       }),
       metaStyle: withoutUndefined({
         color: style.metaColor,
         fontSize: style.metaFontSize,
         fontWeight: style.metaFontWeight
+      }),
+      badgeLabel,
+      badgePosition,
+      badgeStyle: withoutUndefined({
+        color: style.badgeColor,
+        backgroundColor: style.badgeBackgroundColor,
+        borderColor: style.badgeBorderColor
+      }),
+      statusPlacement,
+      statusStyle: statusColor === undefined ? undefined : withoutUndefined({
+        backgroundColor: statusColor,
+        width: cssPixel(style.statusSize),
+        height: cssPixel(style.statusSize)
       })
     }
   };

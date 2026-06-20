@@ -11,6 +11,25 @@ import {
 } from './edgeStyle';
 import { rendererLimitViolations } from './limits';
 import { normalizeNodeShape, parseNodeShapePoints } from './nodeShapes';
+import {
+  nodeBadgePositions,
+  nodeBorderStyles,
+  nodeIconFitValues,
+  nodeLabelPositions,
+  nodeLabelTextOverflowValues,
+  nodeLabelTextWrapValues,
+  nodeStatusPlacements,
+  normalizeNodeBadgePosition,
+  normalizeNodeBorderStyle,
+  normalizeNodeIconFit,
+  normalizeNodeLabelPosition,
+  normalizeNodeLabelTextOverflow,
+  normalizeNodeLabelTextWrap,
+  normalizeNodeStatusPlacement,
+  opacityNumber,
+  nonNegativeNumber,
+  nodeDashPattern,
+} from './nodeStyle';
 import { selectorMatches } from './selector';
 import type { GraphEntity, GraphLink, GraphPath, StyleRule, TopoDocument } from './types';
 import { validateTopoDocument } from './validation';
@@ -88,6 +107,87 @@ function nodeShapeStyleIssues(style: Record<string, unknown> | undefined, path: 
   if (polygonPoints.error) {
     issues.push(issue('error', 'invalid-node-shape-polygon', polygonPoints.error, `${path}.shapePolygonPoints`));
   }
+  return issues;
+}
+
+function enumStyleIssue(
+  style: Record<string, unknown>,
+  key: string,
+  path: string,
+  code: string,
+  values: readonly string[],
+  normalize: (value: unknown) => unknown
+): LintIssue[] {
+  if (style[key] === undefined || normalize(style[key])) return [];
+  return [issue(
+    'error',
+    code,
+    `${key} "${String(style[key])}" is not supported; use one of ${values.join(', ')}.`,
+    `${path}.${key}`
+  )];
+}
+
+function opacityStyleIssue(style: Record<string, unknown>, key: string, path: string): LintIssue[] {
+  if (style[key] === undefined || opacityNumber(style[key]) !== undefined) return [];
+  return [issue('error', 'invalid-node-opacity', `${key} must be a number between 0 and 1.`, `${path}.${key}`)];
+}
+
+function nodeNonNegativeNumberIssue(style: Record<string, unknown>, key: string, path: string): LintIssue[] {
+  if (style[key] === undefined || nonNegativeNumber(style[key]) !== undefined) return [];
+  return [issue('error', 'invalid-node-style-number', `${key} must be a non-negative number.`, `${path}.${key}`)];
+}
+
+function nodeStyleIssues(style: Record<string, unknown> | undefined, path: string): LintIssue[] {
+  if (!style || typeof style !== 'object') return [];
+  const issues: LintIssue[] = [
+    ...nodeShapeStyleIssues(style, path),
+    ...enumStyleIssue(style, 'labelPosition', path, 'unsupported-node-label-position', nodeLabelPositions, normalizeNodeLabelPosition),
+    ...enumStyleIssue(style, 'labelTextWrap', path, 'unsupported-node-label-wrap', nodeLabelTextWrapValues, normalizeNodeLabelTextWrap),
+    ...enumStyleIssue(style, 'labelTextOverflow', path, 'unsupported-node-label-overflow', nodeLabelTextOverflowValues, normalizeNodeLabelTextOverflow),
+    ...enumStyleIssue(style, 'borderStyle', path, 'unsupported-node-border-style', nodeBorderStyles, normalizeNodeBorderStyle),
+    ...enumStyleIssue(style, 'iconFit', path, 'unsupported-node-icon-fit', nodeIconFitValues, normalizeNodeIconFit),
+    ...enumStyleIssue(style, 'badgePosition', path, 'unsupported-node-badge-position', nodeBadgePositions, normalizeNodeBadgePosition),
+    ...enumStyleIssue(style, 'statusPlacement', path, 'unsupported-node-status-placement', nodeStatusPlacements, normalizeNodeStatusPlacement)
+  ];
+
+  [
+    'labelBackgroundOpacity',
+    'labelOpacity',
+    'borderOpacity',
+    'outlineOpacity',
+    'underlayOpacity',
+    'iconOpacity'
+  ].forEach((key) => {
+    issues.push(...opacityStyleIssue(style, key, path));
+  });
+
+  [
+    'labelTextMaxWidth',
+    'labelBorderWidth',
+    'labelPadding',
+    'minZoomedLabelFontSize',
+    'outlineWidth',
+    'underlayPadding',
+    'iconPadding',
+    'statusSize'
+  ].forEach((key) => {
+    issues.push(...nodeNonNegativeNumberIssue(style, key, path));
+  });
+
+  ['labelXOffset', 'labelYOffset'].forEach((key) => {
+    if (style[key] !== undefined && finiteNumber(style[key]) === undefined) {
+      issues.push(issue('error', 'invalid-node-style-number', `${key} must be a finite number.`, `${path}.${key}`));
+    }
+  });
+
+  if (style.borderDashPattern !== undefined && nodeDashPattern(style.borderDashPattern) === undefined) {
+    issues.push(issue('error', 'invalid-node-border-dash-pattern', 'borderDashPattern must be a number or list of numbers.', `${path}.borderDashPattern`));
+  }
+
+  if (style.badgeLabel !== undefined && String(style.badgeLabel).length > 12) {
+    issues.push(issue('warning', 'long-node-badge-label', 'badgeLabel should be short enough to fit inside a compact node badge.', `${path}.badgeLabel`));
+  }
+
   return issues;
 }
 
@@ -212,7 +312,10 @@ function selectorHasMatch(rule: StyleRule, document: TopoDocument): boolean {
 }
 
 function selectorTargetsGeneratedObject(selector: string): boolean {
-  return /\[\s*labels\.leader\s*=/.test(selector);
+  return /\[\s*labels\.leader\s*=/.test(selector)
+    || /\[\s*isAggregate\s*=/.test(selector)
+    || /\[\s*aggregate\s*=/.test(selector)
+    || /\[\s*isLinkAggregate\s*=/.test(selector);
 }
 
 function unsafeImageReference(value: string): boolean {
@@ -238,7 +341,7 @@ export function lintTopoDocument(input: TopoDocument, options: LintOptions = {})
     addEntity(seenIds, issues, 'node', node, `graph.nodes[${index}]`, requireNames);
     issues.push(...objectLayerIssues(node, knownLayers, `graph.nodes[${index}]`));
     issues.push(...styleKeyIssues(node.style, `graph.nodes[${index}].style`));
-    issues.push(...nodeShapeStyleIssues(node.style, `graph.nodes[${index}].style`));
+    issues.push(...nodeStyleIssues(node.style, `graph.nodes[${index}].style`));
     if (node.parent && !nodeIds.has(node.parent)) {
       issues.push(issue('error', 'broken-parent', `Node "${node.id}" parent "${node.parent}" does not exist as a node.`, `graph.nodes[${index}].parent`));
     }
@@ -322,7 +425,7 @@ export function lintTopoDocument(input: TopoDocument, options: LintOptions = {})
   (document.stylesheet || []).forEach((rule, index) => {
     issues.push(...styleKeyIssues(rule.style, `stylesheet[${index}].style`));
     if (selectorKind(rule.selector) === 'node') {
-      issues.push(...nodeShapeStyleIssues(rule.style, `stylesheet[${index}].style`));
+      issues.push(...nodeStyleIssues(rule.style, `stylesheet[${index}].style`));
     }
     if (['link', 'path'].includes(selectorKind(rule.selector))) {
       issues.push(...edgeStyleIssues(rule.style, `stylesheet[${index}].style`));

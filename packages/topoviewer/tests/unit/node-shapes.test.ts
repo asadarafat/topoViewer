@@ -113,4 +113,154 @@ describe('declarative node shapes', () => {
       expect.objectContaining({ path: 'stylesheet[0].style.shape' })
     ]);
   });
+
+  it('compiles enhanced node style controls into renderer data', () => {
+    const document: TopoDocument = {
+      graph: {
+        layers: [{ id: 'physical' }],
+        nodes: [
+          {
+            id: 'agg-1',
+            name: 'Aggregate 1',
+            labels: { severity: 'critical' },
+            data: { isAggregate: true, childCount: 42 },
+            layers: ['physical'],
+            position: [0, 0]
+          }
+        ]
+      },
+      icons: {
+        router: {
+          glyph: 'R',
+          fill: '#1d4ed8',
+          stroke: '#bfdbfe'
+        }
+      },
+      stylesheet: [
+        {
+          selector: 'node',
+          style: {
+            icon: 'router',
+            labelPosition: 'right',
+            labelXOffset: 6,
+            labelYOffset: -2,
+            labelTextWrap: 'wrap',
+            labelTextMaxWidth: 96,
+            labelTextOverflow: 'ellipsis',
+            labelBackgroundColor: '#f8fafc',
+            labelBackgroundOpacity: 0.92,
+            labelBorderColor: '#94a3b8',
+            labelBorderWidth: 1,
+            labelPadding: 4,
+            labelOpacity: 0.94,
+            minZoomedLabelFontSize: 7,
+            borderStyle: 'dashed',
+            borderDashPattern: [7, 3],
+            borderOpacity: 0.72,
+            outlineColor: '#f97316',
+            outlineWidth: 4,
+            outlineOpacity: 0.8,
+            underlayColor: '#fef3c7',
+            underlayPadding: 10,
+            underlayOpacity: 0.55,
+            iconOpacity: 0.86,
+            iconPadding: 3,
+            iconFit: 'cover',
+            iconBackgroundColor: '#0f172a',
+            badgeBackgroundColor: '#fee2e2',
+            badgeColor: '#991b1b',
+            statusSize: 12
+          }
+        }
+      ]
+    };
+
+    const compiled = compileTopoGraph(document, ['physical']);
+    const data = compiled.nodes[0].data as Record<string, unknown>;
+
+    expect(data).toMatchObject({
+      labelPosition: 'right',
+      labelMinZoom: 7,
+      badgeLabel: '42',
+      badgePosition: 'topRight',
+      statusPlacement: 'bottomRight'
+    });
+    expect(data.nodeShapeStyle).toMatchObject({
+      strokeDasharray: '7 3',
+      strokeOpacity: 0.72
+    });
+    expect(data.nodeOutlineStyle).toMatchObject({
+      stroke: '#f97316',
+      strokeWidth: 4,
+      strokeOpacity: 0.8
+    });
+    expect(data.nodeUnderlayStyle).toMatchObject({
+      fill: '#fef3c7',
+      fillOpacity: 0.55
+    });
+    expect(data.iconContentStyle).toMatchObject({
+      padding: '3px',
+      backgroundColor: '#0f172a',
+      opacity: 0.86
+    });
+    expect(data.iconImageStyle).toMatchObject({ objectFit: 'cover' });
+    expect(data.labelStyle).toMatchObject({
+      backgroundColor: 'rgba(248, 250, 252, 0.92)',
+      borderColor: '#94a3b8',
+      borderWidth: 1,
+      maxWidth: '96px',
+      whiteSpace: 'normal',
+      overflow: 'hidden',
+      textOverflow: 'ellipsis'
+    });
+    expect(data.badgeStyle).toMatchObject({
+      color: '#991b1b',
+      backgroundColor: '#fee2e2'
+    });
+    expect(data.statusStyle).toMatchObject({
+      backgroundColor: '#dc2626',
+      width: '12px',
+      height: '12px'
+    });
+  });
+
+  it('reports invalid enhanced node style controls', () => {
+    const issues = lintTopoDocument({
+      graph: {
+        nodes: [
+          {
+            id: 'bad',
+            style: {
+              labelPosition: 'inside-right',
+              labelTextWrap: 'balance',
+              labelTextOverflow: 'fade',
+              borderStyle: 'double',
+              borderDashPattern: 'late',
+              iconFit: 'scale-down',
+              badgePosition: 'upperRight',
+              statusPlacement: 'edge',
+              labelOpacity: 1.4,
+              underlayPadding: -1,
+              labelXOffset: 'far',
+              badgeLabel: 'far too much badge text'
+            }
+          }
+        ]
+      }
+    }, { requireNames: false });
+
+    expect(issues.map((entry) => entry.code)).toEqual(expect.arrayContaining([
+      'unsupported-node-label-position',
+      'unsupported-node-label-wrap',
+      'unsupported-node-label-overflow',
+      'unsupported-node-border-style',
+      'unsupported-node-icon-fit',
+      'unsupported-node-badge-position',
+      'unsupported-node-status-placement',
+      'invalid-node-opacity',
+      'invalid-node-style-number',
+      'invalid-node-border-dash-pattern',
+      'long-node-badge-label'
+    ]));
+  });
 });

@@ -22,9 +22,27 @@ export { CURRENT_SCHEMA_VERSION, migrateTopoDocument, migrateTopoToggles } from 
 export { validateTopoDocument } from './core/validation';
 export { lintTopoDocument } from './core/lint';
 export { NODE_SHAPES, normalizeNodeShape, parseNodeShapePoints } from './core/nodeShapes';
+export {
+  nodeBadgePositions,
+  nodeBorderStyles,
+  nodeIconFitValues,
+  nodeLabelPositions,
+  nodeLabelTextOverflowValues,
+  nodeLabelTextWrapValues,
+  nodeStatusPlacements
+} from './core/nodeStyle';
 export type { StaticExportOptions, StaticPdfExportOptions } from './core/export';
 export type { LintIssue, LintOptions } from './core/lint';
 export type { NodeShapeName, NodeShapePoint, ParsedNodeShapePoints } from './core/nodeShapes';
+export type {
+  NodeBadgePosition,
+  NodeBorderStyle,
+  NodeIconFit,
+  NodeLabelPosition,
+  NodeLabelTextOverflow,
+  NodeLabelTextWrap,
+  NodeStatusPlacement
+} from './core/nodeStyle';
 export type {
   AttentionGraphIndex,
   AttentionGraphInput,

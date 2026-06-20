@@ -17,5 +17,4 @@ assertions:
   zoomedOutRegions: 0
 semantic:
   errors: []
-  warnings:
-    - unused-selector
+  warnings: []

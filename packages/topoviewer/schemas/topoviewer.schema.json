@@ -97,6 +97,141 @@
             }
           ]
         },
+        "labelPosition": {
+          "type": "string",
+          "enum": ["top", "right", "bottom", "left", "center"]
+        },
+        "labelXOffset": {
+          "type": "number"
+        },
+        "labelYOffset": {
+          "type": "number"
+        },
+        "labelTextWrap": {
+          "type": "string",
+          "enum": ["none", "wrap"]
+        },
+        "labelTextMaxWidth": {
+          "type": "number",
+          "minimum": 0
+        },
+        "labelTextOverflow": {
+          "type": "string",
+          "enum": ["clip", "ellipsis"]
+        },
+        "labelTextAlign": {
+          "type": "string"
+        },
+        "labelBackgroundColor": {
+          "type": "string"
+        },
+        "labelBackgroundOpacity": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "labelOpacity": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "labelPadding": {
+          "type": "number",
+          "minimum": 0
+        },
+        "minZoomedLabelFontSize": {
+          "type": "number",
+          "minimum": 0
+        },
+        "borderStyle": {
+          "type": "string",
+          "enum": ["solid", "dashed", "dotted"]
+        },
+        "borderDashPattern": {
+          "oneOf": [
+            { "type": "number" },
+            {
+              "type": "array",
+              "items": { "type": "number" }
+            },
+            { "type": "string" }
+          ]
+        },
+        "borderOpacity": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "outlineColor": {
+          "type": "string"
+        },
+        "outlineWidth": {
+          "type": "number",
+          "minimum": 0
+        },
+        "outlineOpacity": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "underlayColor": {
+          "type": "string"
+        },
+        "underlayPadding": {
+          "type": "number",
+          "minimum": 0
+        },
+        "underlayOpacity": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "iconOpacity": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "iconPadding": {
+          "type": "number",
+          "minimum": 0
+        },
+        "iconFit": {
+          "type": "string",
+          "enum": ["contain", "cover", "fill"]
+        },
+        "iconBackgroundColor": {
+          "type": "string"
+        },
+        "badgeLabel": {
+          "oneOf": [
+            { "type": "string" },
+            { "type": "number" }
+          ]
+        },
+        "badgeColor": {
+          "type": "string"
+        },
+        "badgeBackgroundColor": {
+          "type": "string"
+        },
+        "badgeBorderColor": {
+          "type": "string"
+        },
+        "badgePosition": {
+          "type": "string",
+          "enum": ["topLeft", "topRight", "bottomLeft", "bottomRight"]
+        },
+        "statusColor": {
+          "type": "string"
+        },
+        "statusPlacement": {
+          "type": "string",
+          "enum": ["topLeft", "topRight", "bottomLeft", "bottomRight", "center"]
+        },
+        "statusSize": {
+          "type": "number",
+          "minimum": 0
+        },
         "sourceArrowShape": {
           "type": "string",
           "enum": ["none", "triangle", "vee", "tee", "circle", "diamond"]
