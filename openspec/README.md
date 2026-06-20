@@ -6,7 +6,11 @@ OpenSpec is used here as a lightweight project structure, not as a runtime depen
 
 Current active plans:
 
-- None.
+- `changes/publish-visual-product-story/` - planned visual first impression, before/after demo, Why TopoViewer section, integration roadmap, and real network demo page.
+- `changes/define-netbox-integration-roadmap/` - planned NetBox feasibility, use cases, first integration shape, and roadmap wording constraints.
+- `changes/define-opsmill-infrahub-integration-roadmap/` - planned OpsMill/Infrahub feasibility, use cases, first integration shape, and roadmap wording constraints.
+- `changes/define-grafana-integration-roadmap/` - planned Grafana feasibility, use cases, first integration shape, and roadmap wording constraints.
+- `changes/define-vscode-integration-roadmap/` - planned VS Code feasibility, use cases, first integration shape, and roadmap wording constraints.
 
 Current studies:
 
