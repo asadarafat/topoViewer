@@ -6,7 +6,7 @@ OpenSpec is used here as a lightweight project structure, not as a runtime depen
 
 Current active plans:
 
-- `changes/enhance-node-style-controls/` - planned practical node styling for labels, borders, outlines, underlays, icon fit, aggregate badges, and status markers.
+- None.
 
 Current studies:
 
@@ -14,6 +14,7 @@ Current studies:
 
 Archived plans:
 
+- `archive/2026-06-20-enhance-node-style-controls/` - implemented practical node styling for labels, borders, outlines, underlays, icon fit, aggregate badges, and status markers.
 - `archive/2026-06-20-enhance-edge-style-controls/` - implemented practical edge styling for arrows, labels, endpoint spacing, routing, gradients, and interaction flags.
 - `archive/2026-06-20-implement-parallel-zensical-docs/` - implemented parallel Zensical documentation build and GitHub Pages publishing.
 - `archive/2026-06-19-implement-declarative-node-shapes/` - implemented declarative node shape style support.
