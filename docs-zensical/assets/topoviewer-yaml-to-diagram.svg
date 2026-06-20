@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="620" viewBox="0 0 1200 620" role="img" aria-labelledby="title desc">
-  <title id="title">TopoViewer YAML to rendered network diagram</title>
-  <desc id="desc">A split visual showing topology YAML on the left and a rendered provider network diagram on the right.</desc>
+  <title id="title">TopoViewer YAML to rendered network underlay diagram</title>
+  <desc id="desc">A split visual showing topology YAML on the left and the Real Network Demo underlay view on the right.</desc>
   <defs>
     <linearGradient id="page" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#f8fafc"/>
@@ -16,39 +16,33 @@
       .small { font: 600 13px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #475569; }
       .code { font: 600 15px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; fill: #0f172a; }
       .muted { fill: #64748b; }
-      .region { fill: #ecfeff; stroke: #67e8f9; stroke-width: 2; stroke-dasharray: 8 8; }
-      .region-alt { fill: #f5f3ff; stroke: #c4b5fd; stroke-width: 2; stroke-dasharray: 8 8; }
-      .underlay { stroke: #0f766e; stroke-width: 8; stroke-linecap: round; fill: none; }
-      .backup { stroke: #0891b2; stroke-width: 5; stroke-linecap: round; fill: none; stroke-dasharray: 12 10; }
-      .bgp { stroke: #7c3aed; stroke-width: 4; stroke-linecap: round; fill: none; stroke-dasharray: 9 8; }
-      .service { stroke: #db2777; stroke-width: 7; stroke-linecap: round; fill: none; }
+      .region { fill: rgba(241, 245, 249, 0.72); stroke: #94a3b8; stroke-width: 1.6; stroke-dasharray: 8 8; }
+      .underlay { stroke: #64748b; stroke-width: 8; stroke-linecap: round; fill: none; }
       .router-pe { fill: #2563eb; stroke: #bfdbfe; stroke-width: 5; }
       .router-p { fill: #0f766e; stroke: #99f6e4; stroke-width: 5; }
-      .router-rr { fill: #7c3aed; stroke: #ddd6fe; stroke-width: 5; }
-      .router-ce { fill: #f97316; stroke: #fed7aa; stroke-width: 5; }
-      .node-text { font: 900 18px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #ffffff; text-anchor: middle; dominant-baseline: central; }
       .node-label { font: 800 14px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #0f172a; text-anchor: middle; }
+      .region-label { font: 800 13px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #334155; text-anchor: middle; }
     </style>
   </defs>
 
   <rect width="1200" height="620" rx="34" fill="url(#page)"/>
-  <text x="54" y="62" class="title">Topology YAML becomes an interactive network view</text>
-  <text x="54" y="96" class="small">The same graph facts drive underlay, BGP, service path, and failure views.</text>
+  <text x="54" y="62" class="title">Topology YAML becomes an interactive underlay view</text>
+  <text x="54" y="96" class="small">The same provider topology used by Real Network Demo starts as readable graph facts.</text>
 
   <g filter="url(#shadow)">
     <rect x="54" y="130" width="420" height="410" rx="18" class="panel"/>
     <text x="84" y="170" class="label">Topology YAML</text>
     <text x="84" y="210" class="code">graph:</text>
-    <text x="104" y="238" class="code muted">nodes:</text>
-    <text x="124" y="266" class="code">- id: pe-fra-1</text>
-    <text x="124" y="294" class="code">  labels: { role: pe }</text>
-    <text x="124" y="322" class="code">- id: rr-ams-1</text>
-    <text x="104" y="358" class="code muted">links:</text>
-    <text x="124" y="386" class="code">- source: pe-fra-1</text>
-    <text x="124" y="414" class="code">  target: rr-ams-1</text>
-    <text x="124" y="442" class="code">  labels: { protocol: bgp }</text>
-    <text x="104" y="478" class="code muted">paths:</text>
-    <text x="124" y="506" class="code">- id: payments-primary</text>
+    <text x="104" y="238" class="code muted">layers:</text>
+    <text x="124" y="266" class="code">- id: underlay</text>
+    <text x="104" y="302" class="code muted">nodes:</text>
+    <text x="124" y="330" class="code">- id: pe-fra-1</text>
+    <text x="124" y="358" class="code">  labels: { role: pe }</text>
+    <text x="124" y="386" class="code">- id: p-ams-1</text>
+    <text x="104" y="422" class="code muted">links:</text>
+    <text x="124" y="450" class="code">- source: pe-fra-1</text>
+    <text x="124" y="478" class="code">  target: p-ams-1</text>
+    <text x="124" y="506" class="code">  layers: [underlay]</text>
   </g>
 
   <path d="M505 335h94" stroke="#475569" stroke-width="5" stroke-linecap="round"/>
@@ -56,40 +50,27 @@
 
   <g filter="url(#shadow)">
     <rect x="638" y="130" width="508" height="410" rx="18" class="panel"/>
-    <text x="668" y="170" class="label">Rendered TopoViewer diagram</text>
-    <rect x="688" y="214" width="170" height="250" rx="28" class="region"/>
-    <rect x="860" y="186" width="210" height="306" rx="28" class="region-alt"/>
-    <text x="773" y="446" class="small">Frankfurt edge</text>
-    <text x="965" y="474" class="small">Transit core</text>
+    <text x="668" y="170" class="label">Rendered Real Network underlay</text>
 
-    <path d="M750 368 C796 304 833 267 884 254" class="underlay"/>
-    <path d="M884 254 C936 264 955 332 1002 348" class="underlay"/>
-    <path d="M750 368 C850 410 923 419 1002 348" class="backup"/>
-    <path d="M750 368 C826 180 967 144 1030 226" class="bgp"/>
-    <path d="M710 420 C774 368 824 313 884 254 C936 264 955 332 1002 348 C1044 374 1072 406 1104 420" class="service"/>
+    <rect x="684" y="232" width="136" height="176" rx="24" class="region"/>
+    <rect x="822" y="232" width="228" height="176" rx="24" class="region"/>
+    <rect x="1052" y="232" width="78" height="176" rx="24" class="region"/>
+    <text x="752" y="258" class="region-label">Frankfurt edge</text>
+    <text x="936" y="258" class="region-label">Transit core</text>
+    <text x="1091" y="258" class="region-label">London edge</text>
 
-    <circle cx="710" cy="420" r="33" class="router-ce"/>
-    <text x="710" y="420" class="node-text">CE</text>
-    <text x="710" y="474" class="node-label">CE-FRA</text>
+    <path d="M752 320L884 320L1000 320L1104 320" class="underlay"/>
 
-    <polygon points="750,319 792,344 792,392 750,417 708,392 708,344" class="router-pe"/>
-    <text x="750" y="368" class="node-text">PE</text>
-    <text x="750" y="310" class="node-label">FRA-PE1</text>
+    <polygon points="752,271 796,296 796,344 752,369 708,344 708,296" class="router-pe"/>
+    <text x="752" y="396" class="node-label">FRA-PE1</text>
 
-    <circle cx="884" cy="254" r="34" class="router-p"/>
-    <text x="884" y="254" class="node-text">P</text>
-    <text x="884" y="200" class="node-label">AMS-P1</text>
+    <circle cx="884" cy="320" r="42" class="router-p"/>
+    <text x="884" y="396" class="node-label">AMS-P1</text>
 
-    <rect x="994" y="190" width="72" height="72" rx="18" transform="rotate(45 1030 226)" class="router-rr"/>
-    <text x="1030" y="226" class="node-text">RR</text>
-    <text x="1030" y="169" class="node-label">AMS-RR1</text>
+    <circle cx="1000" cy="320" r="42" class="router-p"/>
+    <text x="1000" y="396" class="node-label">PAR-P1</text>
 
-    <circle cx="1002" cy="348" r="34" class="router-p"/>
-    <text x="1002" y="348" class="node-text">P</text>
-    <text x="1002" y="402" class="node-label">PAR-P1</text>
-
-    <polygon points="1104,371 1146,396 1146,444 1104,469 1062,444 1062,396" class="router-pe"/>
-    <text x="1104" y="420" class="node-text">PE</text>
-    <text x="1104" y="365" class="node-label">LON-PE1</text>
+    <polygon points="1104,271 1148,296 1148,344 1104,369 1060,344 1060,296" class="router-pe"/>
+    <text x="1104" y="396" class="node-label">LON-PE1</text>
   </g>
 </svg>

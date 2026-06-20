@@ -14,9 +14,4 @@ nav:
       - Layout: reference/layout/index.md
       - Validation: reference/validation/index.md
   - YAML to network diagram: yaml-to-diagram/index.md
-  - Real network underlay: real-network-demo/underlay/index.md
-  - Real network BGP: real-network-demo/bgp/index.md
-  - Real network transport layer: real-network-demo/transport-layer/index.md
-  - Real network service path: real-network-demo/service-path/index.md
-  - Real network failure view: real-network-demo/failure-view/index.md
-  - Complete network demo: complete-network-demo/index.md
+  - Real network demo: real-network-demo.md

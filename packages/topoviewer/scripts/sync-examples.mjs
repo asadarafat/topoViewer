@@ -271,6 +271,33 @@ function pageNavPath(example) {
   return `${relative}/index.md`;
 }
 
+function isRealNetworkExample(example) {
+  return String(example.path || '').startsWith('integration/real-network-');
+}
+
+function isHiddenPublicIntegrationExample(example) {
+  return String(example.path || '') === 'integration/complete-network-demo';
+}
+
+function integrationNavItems(examples) {
+  const items = [];
+  let realNetworkAdded = false;
+  for (const example of examples) {
+    if (isHiddenPublicIntegrationExample(example)) {
+      continue;
+    }
+    if (isRealNetworkExample(example)) {
+      if (!realNetworkAdded) {
+        items.push({ 'Real network demo': 'real-network-demo.md' });
+        realNetworkAdded = true;
+      }
+      continue;
+    }
+    items.push({ [example.title]: pageNavPath(example) });
+  }
+  return items;
+}
+
 function navDocument(catalog) {
   const groups = groupExamples(catalog.examples || []);
   const reference = [];
@@ -283,7 +310,7 @@ function navDocument(catalog) {
     nav: [
       { Overview: 'index.md' },
       { Reference: reference },
-      ...((groups.get('integration') || []).map((example) => ({ [example.title]: pageNavPath(example) })))
+      ...integrationNavItems(groups.get('integration') || [])
     ]
   };
 }
@@ -306,7 +333,18 @@ function indexMarkdown(catalog) {
 
   for (const [feature, examples] of groups.entries()) {
     lines.push(`### ${featureTitle(feature)}`, '');
+    let realNetworkAdded = false;
     for (const example of examples) {
+      if (isHiddenPublicIntegrationExample(example)) {
+        continue;
+      }
+      if (isRealNetworkExample(example)) {
+        if (!realNetworkAdded) {
+          lines.push('- [Real network demo](real-network-demo.md): One provider topology rendered as underlay, BGP, transport, service path, and failure views.');
+          realNetworkAdded = true;
+        }
+        continue;
+      }
       lines.push(`- [${example.title}](${pageNavPath(example)}): ${example.summary}`);
     }
     lines.push('');

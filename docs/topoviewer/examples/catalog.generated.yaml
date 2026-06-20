@@ -568,8 +568,8 @@ examples:
     topology: docs/topoviewer/examples/integration/yaml-to-network-diagram/topology.yaml
     stylesheet: docs/topoviewer/examples/integration/yaml-to-network-diagram/stylesheet.yaml
     expected:
-      graphNodes: 7
-      minVisibleEdges: 8
+      graphNodes: 4
+      minVisibleEdges: 3
       minRegions: 3
     readme: docs/topoviewer/examples/integration/yaml-to-network-diagram/README.md
   - id: integration-real-network-underlay

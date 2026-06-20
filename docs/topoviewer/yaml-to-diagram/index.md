@@ -5,7 +5,7 @@ hide:
 
 # YAML to network diagram
 
-This before/after example starts with topology YAML and a selector stylesheet, then renders a compact provider network. It shows the core TopoViewer contract: topology facts stay declarative, while visual policy turns roles, protocols, service paths, and operational state into a readable diagram.
+This before/after example starts with topology YAML and a selector stylesheet, then renders the underlay slice from the Real Network Demo. It shows the core TopoViewer contract: graph facts stay declarative, while visual policy turns router roles, regions, layers, and operational state into a readable network diagram.
 
 === "Live Viewport"
 
@@ -16,6 +16,8 @@ This before/after example starts with topology YAML and a selector stylesheet, t
     controls: true
     controlsOpen: false
     title: YAML to network diagram
+    selectedLayerIds:
+      - underlay
     ```
 
 === "Topology YAML"

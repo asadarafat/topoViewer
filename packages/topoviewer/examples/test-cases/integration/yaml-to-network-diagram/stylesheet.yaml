@@ -4,44 +4,43 @@ layout:
   height: 520
 icons:
   router.pe:
-    glyph: PE
+    glyph: ""
     fill: "#2563eb"
     stroke: "#bfdbfe"
   router.p:
-    glyph: P
+    glyph: ""
     fill: "#0f766e"
     stroke: "#99f6e4"
   router.rr:
-    glyph: RR
+    glyph: ""
     fill: "#7c3aed"
     stroke: "#ddd6fe"
   router.ce:
-    glyph: CE
-    fill: "#f97316"
-    stroke: "#fed7aa"
-labelFields:
-  - name
+    glyph: ""
+    fill: "#f59e0b"
+    stroke: "#fde68a"
+labelFields: []
 stylesheet:
   - selector: node
     style:
       shape: roundRectangle
       icon: router.p
-      width: 86
-      height: 62
-      iconSize: 34
-      backgroundColor: "#f8fafc"
-      borderColor: "#64748b"
+      width: 112
+      height: 82
+      iconSize: 52
+      backgroundColor: "#ffffff"
+      borderColor: "#94a3b8"
       borderWidth: 2
       labelColor: "#0f172a"
       labelFontSize: 12
       labelFontWeight: 800
       labelBackgroundColor: "#ffffff"
-      labelBackgroundOpacity: 0.86
       labelPadding: 4
-      labelPosition: bottom
+      metaColor: "transparent"
+      metaFontSize: 0
       statusColor: "#22c55e"
       statusPlacement: topRight
-      statusSize: 12
+      statusSize: 11
   - selector: node[labels.role = "pe"]
     style:
       icon: router.pe
@@ -55,81 +54,42 @@ stylesheet:
   - selector: node[labels.role = "rr"]
     style:
       icon: router.rr
-      shape: diamond
-      borderColor: "#7c3aed"
-      labelPosition: top
+      display: none
   - selector: node[labels.role = "ce"]
     style:
       icon: router.ce
-      shape: rectangle
-      width: 78
-      height: 54
-      borderColor: "#f97316"
-  - selector: node[data.status = "critical"]
-    style:
-      statusColor: "#dc2626"
-      badgeLabel: HOT
-      badgeBackgroundColor: "#fee2e2"
-      badgeColor: "#991b1b"
-      badgeBorderColor: "#dc2626"
-  - selector: node[data.status = "degraded"]
-    style:
-      statusColor: "#f59e0b"
-      badgeLabel: DEG
-      badgeBackgroundColor: "#fef3c7"
-      badgeColor: "#92400e"
-      badgeBorderColor: "#f59e0b"
+      display: none
   - selector: link
     style:
-      curveStyle: bezier
+      curveStyle: straight
       lineColor: "#64748b"
-      lineWidth: 2
-      lineOpacity: 0.82
-      labelColor: "#334155"
+      lineWidth: 4
+      targetArrowShape: none
+      labelColor: "#475569"
       labelFontSize: 11
       textBackgroundColor: "#ffffff"
-      textBackgroundOpacity: 0.92
-      targetArrowShape: none
   - selector: link[labels.layer = "underlay"]
     style:
-      label: 400G underlay
-      lineColor: "#0f766e"
-      lineWidth: 3
+      curveStyle: straight
+      lineColor: "#64748b"
+      lineWidth: 4
   - selector: link[labels.protocol = "bgp"]
     style:
-      label: BGP
-      curveStyle: unbundled-bezier
-      lineColor: "#7c3aed"
-      lineStyle: dashed
-      lineDashPattern: 7 7
-      targetArrowShape: triangle
-      targetArrowColor: "#7c3aed"
+      display: none
   - selector: link[labels.tenant = "payments"]
     style:
-      label: access
-      lineColor: "#f97316"
-      lineWidth: 2
-  - selector: path[labels.service = "payments"]
+      display: none
+  - selector: path
     style:
-      label: Payments path
-      curveStyle: smooth-taxi
-      lineColor: "#db2777"
-      lineWidth: 4
-      targetArrowShape: triangle
-      targetArrowColor: "#db2777"
-      animated: true
+      display: none
   - selector: region
     style:
-      backgroundColor: "rgba(241, 245, 249, 0.70)"
-      borderColor: "rgba(100, 116, 139, 0.45)"
       borderWidth: 1
-      labelColor: "#334155"
+      labelColor: var(--topoviewer-region-label-fg)
       labelFontSize: 12
       labelFontWeight: 800
+      labelPosition: topCenter
+      labelMargin: 12
       zIndex: -20
       selectable: true
       draggable: true
-  - selector: region[id = "transit-core"]
-    style:
-      backgroundColor: "rgba(236, 253, 245, 0.62)"
-      borderColor: "rgba(20, 184, 166, 0.45)"

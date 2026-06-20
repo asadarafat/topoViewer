@@ -522,12 +522,14 @@ examples:
     feature: integration
     path: integration/yaml-to-network-diagram
     page: topoviewer/yaml-to-diagram
-    summary: A compact before/after example that turns topology YAML and a stylesheet into a rendered network diagram.
+    summary: A compact before/after example using the same provider underlay slice as the Real Network Demo.
     render:
       height: 520px
       controls: true
       controlsOpen: false
       title: YAML to network diagram
+      selectedLayerIds:
+        - underlay
   - id: integration-real-network-underlay
     title: Real network underlay
     feature: integration
