@@ -1,6 +1,7 @@
 export { TopoViewer } from './components/TopoViewer';
 export { compileTopoGraph, rebuildRegionNodes } from './core/compiler';
 export { computeLayoutPositions } from './core/layout';
+export { applyStyle } from './core/style';
 export { downloadTopoViewerPdf, downloadTopoViewerPng, downloadTopoViewerSvg, topoviewerToPdf, topoviewerToPng, topoviewerToSvg } from './core/export';
 export { assertRendererLimits, DEFAULT_RENDERER_LIMITS, effectiveRendererLimits, rendererLimitUsage, rendererLimitViolations } from './core/limits';
 export {
@@ -100,6 +101,7 @@ export type {
   TopologyDocument,
   TopoViewerExtension,
   TopoViewerExtensionContext,
+  TopoViewerNodePositionChange,
   TopoViewerObjectClick,
   TopoViewerViewport,
   TopoViewerProps,

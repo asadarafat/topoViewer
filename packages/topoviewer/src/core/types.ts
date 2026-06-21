@@ -324,6 +324,13 @@ export interface TopoViewerViewport {
   zoom: number;
 }
 
+export interface TopoViewerNodePositionChange {
+  id: string;
+  runtimeId: string;
+  position: { x: number; y: number };
+  data: Record<string, unknown>;
+}
+
 export interface TopoViewerProps {
   document: TopoDocument;
   selectedLayerIds?: string[];
@@ -342,6 +349,7 @@ export interface TopoViewerProps {
   };
   onObjectClick?: (object: TopoViewerObjectClick) => void;
   onPaneClick?: () => void;
+  onNodePositionChange?: (change: TopoViewerNodePositionChange) => void;
   onViewportChange?: (viewport: TopoViewerViewport) => void;
   className?: string;
   style?: CSSProperties;

@@ -158,6 +158,7 @@ function TopoFlow({
   controlPanelToggle,
   onObjectClick,
   onPaneClick,
+  onNodePositionChange,
   onViewportChange,
   nodeTypes,
   edgeTypes
@@ -168,6 +169,7 @@ function TopoFlow({
   controlPanelToggle?: TopoViewerProps['controlPanelToggle'];
   onObjectClick?: TopoViewerProps['onObjectClick'];
   onPaneClick?: TopoViewerProps['onPaneClick'];
+  onNodePositionChange?: TopoViewerProps['onNodePositionChange'];
   onViewportChange?: TopoViewerProps['onViewportChange'];
   nodeTypes: Record<string, unknown>;
   edgeTypes: Record<string, unknown>;
@@ -229,6 +231,19 @@ function TopoFlow({
         });
       } : undefined}
       onPaneClick={onPaneClick}
+      onNodeDragStop={onNodePositionChange ? (_event, node) => {
+        const runtimeNode = node as unknown as Record<string, unknown>;
+        const position = (runtimeNode.position || {}) as { x?: number; y?: number };
+        return onNodePositionChange({
+          id: sourceObjectId(runtimeNode),
+          runtimeId: String(runtimeNode.id),
+          position: {
+            x: Number(position.x || 0),
+            y: Number(position.y || 0)
+          },
+          data: (runtimeNode.data || {}) as Record<string, unknown>
+        });
+      } : undefined}
       onMoveEnd={onViewportChange ? (_event, viewport) => onViewportChange(viewport) : undefined}
       nodeTypes={nodeTypes as never}
       edgeTypes={edgeTypes as never}
@@ -257,6 +272,7 @@ export function TopoViewer({
   controlPanelToggle,
   onObjectClick,
   onPaneClick,
+  onNodePositionChange,
   onViewportChange,
   className = '',
   style
@@ -308,6 +324,7 @@ export function TopoViewer({
           controlPanelToggle={controlPanelToggle}
           onObjectClick={onObjectClick}
           onPaneClick={onPaneClick}
+          onNodePositionChange={onNodePositionChange}
           onViewportChange={onViewportChange}
           nodeTypes={nodeTypes}
           edgeTypes={edgeTypes}
