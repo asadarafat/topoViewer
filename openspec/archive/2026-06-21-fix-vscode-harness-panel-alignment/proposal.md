@@ -5,8 +5,7 @@ left rail is starting to show layout debt. The audit found that the UI can look
 misaligned or incomplete even though the underlying workflows work:
 
 - Inspect style rows are too dense on desktop and can clip horizontally because
-  `Style key`, `Style value`, provenance, reset, and remove actions compete on
-  one row.
+  `Style key`, `Style value`, reset, and remove actions compete on one row.
 - The default desktop rail can hide the `Layers` tab behind tab scroll buttons,
   making the mode switcher feel unstable.
 - In the stacked responsive layout, the tab strip can render without the active
@@ -22,8 +21,7 @@ authoring proof point for the future VS Code extension.
 
 ## What Changes
 
-- Redesign Inspect row layout so dense rows wrap or stack predictably inside the
-  rail.
+- Redesign Inspect row layout so dense rows fit predictably inside the rail.
 - Ensure mode tabs fit or scroll consistently without hiding common modes at the
   default one-third rail width.
 - Fix the responsive stacked layout so the active mode panel is visible before

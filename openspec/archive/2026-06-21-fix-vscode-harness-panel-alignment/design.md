@@ -8,8 +8,8 @@ stacked responsive widths.
 Observed issues:
 
 - At default desktop width, the Inspect panel style rows are visually crowded.
-  Long style labels, provenance chips, Reset, and Remove cannot reliably share a
-  single row.
+  Long style labels, Reset, and Remove cannot reliably share a single row unless
+  the controls shrink predictably.
 - At default desktop width, not all mode tabs are visible; `Layers` can be
   hidden behind the tab scroll affordance even though it is a primary mode.
 - At stacked responsive width, the active rail panel can collapse so the user
@@ -28,17 +28,17 @@ control into one line.
 Recommended structure:
 
 - Labels/Data rows:
-  - key and value controls share the first row;
-  - row actions sit in a compact second row or trailing action area;
-  - controls may wrap at narrow widths.
+  - key, value, and Remove share one compact row;
+  - key/value controls shrink and truncate internally instead of pushing the
+    action out of the rail.
 - Style rows:
-  - style key and value controls are the primary row;
-  - provenance chip and Reset/Remove actions are a secondary row;
-  - secondary actions align consistently across rows;
+  - style key, style value, Reset, and Remove share one compact row;
+  - action buttons stay compact so Reset and Remove remain visible at the
+    supported rail widths;
   - long values should truncate inside controls, not push the row wider.
 
-This keeps dense Inspect controls readable without making the panel feel like a
-table squeezed into a sidebar.
+This keeps Inspect rows visually direct while avoiding the earlier clipped
+single-row behavior.
 
 ### Mode Tabs
 

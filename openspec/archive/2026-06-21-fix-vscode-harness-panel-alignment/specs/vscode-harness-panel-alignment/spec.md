@@ -9,9 +9,9 @@ horizontal clipping inside the authoring rail.
 
 - **WHEN** a selected object has several effective style rows
 - **THEN** Inspect SHALL show key/value controls without clipping
-- **AND** provenance and row actions SHALL remain visible
-- **AND** the row SHALL wrap or stack secondary actions when the rail is too
-  narrow for a single-line layout
+- **AND** Reset and Remove actions SHALL remain visible
+- **AND** the row SHALL keep the style key, style value, Reset, and Remove
+  controls on one compact visual row at supported rail widths
 
 #### Scenario: Label and data rows remain editable
 
