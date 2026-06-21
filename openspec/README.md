@@ -9,6 +9,9 @@ Current active plans:
 - `changes/define-netbox-integration-roadmap/` - planned NetBox feasibility, use cases, first integration shape, and roadmap wording constraints.
 - `changes/define-opsmill-infrahub-integration-roadmap/` - planned OpsMill/Infrahub feasibility, use cases, first integration shape, and roadmap wording constraints.
 - `changes/define-grafana-integration-roadmap/` - planned Grafana feasibility, use cases, first integration shape, and roadmap wording constraints.
+- `changes/fix-vscode-harness-panel-alignment/` - planned harness rail, panel, tab, and editor alignment fixes from the UI audit.
+- `changes/improve-vscode-harness-workspace-persistence/` - planned browser harness template/custom topology persistence and YAML copy workflow.
+- `changes/improve-vscode-style-value-editor/` - planned type-aware Inspect style value editor for enum, boolean, number, color, and text style values.
 
 Current studies:
 
@@ -16,6 +19,7 @@ Current studies:
 
 Archived plans:
 
+- `archive/2026-06-21-improve-vscode-harness-relationship-authoring/` - implemented explicit Connection/Path authoring, relationship editing, node-position persistence, Inspect sync, editor diagnostics, and Playwright coverage.
 - `archive/2026-06-21-improve-vscode-harness-ui/` - implemented resizable canvas-first harness layout, compact Build/Inspect/YAML/Attention/Layers authoring rail, structured object insertion, Attention editing, fixtures, and Playwright coverage.
 - `archive/2026-06-20-define-vscode-integration-roadmap/` - implemented experimental VS Code extension package, browser harness, use cases, and release-boundary wording constraints.
 - `archive/2026-06-20-publish-visual-product-story/` - implemented visual first impression, before/after demo, Why TopoViewer section, integration roadmap, and real network demo page.
