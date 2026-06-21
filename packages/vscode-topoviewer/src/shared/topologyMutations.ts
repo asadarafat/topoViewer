@@ -46,8 +46,31 @@ export interface UpdateObjectOptions {
   layerId?: string;
   position?: { x: number; y: number };
   labels?: Record<string, unknown>;
+  labelsReplace?: Record<string, unknown>;
   data?: Record<string, unknown>;
+  dataReplace?: Record<string, unknown>;
   style?: Record<string, unknown>;
+  styleReplace?: Record<string, unknown>;
+}
+
+export interface UpsertGraphLinkOptions {
+  id?: string;
+  name?: string;
+  selectedLayerIds: string[];
+  source: string;
+  target: string;
+}
+
+export interface UpsertGraphPathOptions {
+  id?: string;
+  name?: string;
+  selectedLayerIds: string[];
+  sequence: string[];
+}
+
+export interface UpdateNodePositionOptions {
+  nodeId: string;
+  position: { x: number; y: number };
 }
 
 export interface AttentionFocusOptions {
@@ -185,6 +208,30 @@ function firstGraphNodeIds(document: Record<string, any>, count: number): string
 function selectedNodeIdsOrFallback(document: Record<string, any>, selectedObjects: TopoObjectSelection[], count: number): string[] {
   const selected = selectedIds(selectedObjects, 'node');
   return selected.length >= count ? selected.slice(0, count) : firstGraphNodeIds(document, count);
+}
+
+function graphNodes(document: Record<string, any>): any[] {
+  return Array.isArray(document.graph?.nodes) ? document.graph.nodes : [];
+}
+
+function graphNodeIds(document: Record<string, any>): Set<string> {
+  return new Set(graphNodes(document).map((node) => String(node.id || '')).filter(Boolean));
+}
+
+function requireGraphNodeIds(document: Record<string, any>, ids: string[]) {
+  const available = graphNodeIds(document);
+  ids.forEach((id) => {
+    if (!available.has(id)) throw new Error(`Node "${id}" does not exist.`);
+  });
+}
+
+function normalizedPathSequence(sequence: string[]): string[] {
+  const normalized = sequence.map((id) => id.trim()).filter(Boolean);
+  if (normalized.length < 2) throw new Error('Path requires at least source and target nodes.');
+  if (normalized[0] === normalized[normalized.length - 1]) {
+    throw new Error('Path source and target must be different.');
+  }
+  return normalized;
 }
 
 export function findObject(document: Record<string, any> | TopoDocument | undefined, selection: TopoObjectSelection | undefined): any | undefined {
@@ -442,17 +489,113 @@ export function updateTopoObject(text: string, options: UpdateObjectOptions): Mu
         ...options.labels
       };
     }
+    if (options.labelsReplace) {
+      if (Object.keys(options.labelsReplace).length > 0) {
+        object.labels = options.labelsReplace;
+      } else {
+        delete object.labels;
+      }
+    }
     if (options.data && Object.keys(options.data).length > 0) {
       object.data = {
         ...(object.data && typeof object.data === 'object' ? object.data : {}),
         ...options.data
       };
     }
+    if (options.dataReplace) {
+      if (Object.keys(options.dataReplace).length > 0) {
+        object.data = options.dataReplace;
+      } else {
+        delete object.data;
+      }
+    }
     if (options.style && Object.keys(options.style).length > 0) {
       object.style = {
         ...(object.style && typeof object.style === 'object' ? object.style : {}),
         ...options.style
       };
+    }
+    if (options.styleReplace) {
+      if (Object.keys(options.styleReplace).length > 0) {
+        object.style = options.styleReplace;
+      } else {
+        delete object.style;
+      }
+    }
+  });
+}
+
+export function upsertGraphLink(text: string, options: UpsertGraphLinkOptions): MutationResult {
+  return mutateTopologyText(text, (document) => {
+    if (!options.source || !options.target) throw new Error('Connection source and target are required.');
+    if (options.source === options.target) throw new Error('Connection source and target must be different.');
+    requireGraphNodeIds(document, [options.source, options.target]);
+
+    const graph = ensureGraph(document);
+    const links = ensureArray(graph, 'links');
+    const existing = options.id ? links.find((link) => link.id === options.id) : undefined;
+    const layerId = defaultLayerId(document, options.selectedLayerIds);
+
+    if (options.id && !existing) throw new Error(`Link "${options.id}" no longer exists.`);
+    if (existing) {
+      existing.source = options.source;
+      existing.target = options.target;
+      if (options.name !== undefined) existing.name = options.name;
+      return;
+    }
+
+    links.push({
+      id: nextId(document, 'link'),
+      name: options.name || 'New Link',
+      source: options.source,
+      target: options.target,
+      labels: { layer: layerId },
+      layers: [layerId]
+    });
+  });
+}
+
+export function upsertGraphPath(text: string, options: UpsertGraphPathOptions): MutationResult {
+  return mutateTopologyText(text, (document) => {
+    const sequence = normalizedPathSequence(options.sequence);
+    requireGraphNodeIds(document, sequence);
+
+    const graph = ensureGraph(document);
+    const paths = ensureArray(graph, 'paths');
+    const existing = options.id ? paths.find((path) => path.id === options.id) : undefined;
+    const layerId = defaultLayerId(document, options.selectedLayerIds);
+
+    if (options.id && !existing) throw new Error(`Path "${options.id}" no longer exists.`);
+    if (existing) {
+      existing.sequence = sequence;
+      delete existing.source;
+      delete existing.target;
+      if (options.name !== undefined) existing.name = options.name;
+      return;
+    }
+
+    paths.push({
+      id: nextId(document, 'path'),
+      name: options.name || 'New Path',
+      labels: { path: layerId },
+      layers: [layerId],
+      sequence
+    });
+  });
+}
+
+export function updateGraphNodePosition(text: string, options: UpdateNodePositionOptions): MutationResult {
+  return mutateTopologyText(text, (document) => {
+    const node = graphNodes(document).find((candidate) => candidate.id === options.nodeId);
+    if (!node) throw new Error(`Node "${options.nodeId}" no longer exists.`);
+    const x = Math.round(options.position.x);
+    const y = Math.round(options.position.y);
+    if (Array.isArray(node.position)) {
+      node.position = [x, y];
+    } else if (node.position && typeof node.position === 'object') {
+      node.position = { x, y };
+    } else {
+      node.position = [x, y];
     }
   });
 }

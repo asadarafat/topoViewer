@@ -68,10 +68,6 @@ body,
   letter-spacing: 0;
 }
 
-.topoviewer-vscode-message {
-  margin: var(--topoviewer-vscode-space-1-5);
-}
-
 .topoviewer-vscode-workspace {
   flex: 1 1 auto;
   min-height: 0;
@@ -216,9 +212,13 @@ body,
   flex-direction: column;
 }
 
-.topoviewer-vscode-fixture {
+.topoviewer-vscode-template-control {
   flex: 0 0 auto;
   margin-bottom: var(--topoviewer-vscode-space-1-5);
+}
+
+.topoviewer-vscode-fixture {
+  flex: 0 0 auto;
 }
 
 .topoviewer-vscode-mode-tabs {
@@ -236,15 +236,30 @@ body,
   outline-offset: calc(var(--topoviewer-vscode-focus-width) * -1);
 }
 
+.topoviewer-vscode-diagnostic-strip .MuiAlert-message {
+  width: 100%;
+  min-width: 0;
+}
+
+.topoviewer-vscode-status-row {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--topoviewer-vscode-space-1);
+}
+
+.topoviewer-vscode-status-summary {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .topoviewer-vscode-selection-summary {
   flex: 0 0 auto;
-  align-self: flex-start;
-  padding: var(--topoviewer-vscode-space-half) var(--topoviewer-vscode-space-1);
-  margin-top: var(--topoviewer-vscode-space-half);
-  border: 1px solid color-mix(in srgb, var(--vscode-panel-border, #d7dee8) 72%, transparent);
-  border-radius: var(--topoviewer-vscode-radius);
-  background: color-mix(in srgb, var(--vscode-sideBar-background, #ffffff) 82%, transparent);
   color: var(--vscode-descriptionForeground, #475569);
+  white-space: nowrap;
 }
 
 .topoviewer-vscode-yaml-tabs {
@@ -280,6 +295,42 @@ body,
   text-align: center;
 }
 
+.topoviewer-vscode-relationship-composer {
+  padding: var(--topoviewer-vscode-space-1);
+  border: 1px solid color-mix(in srgb, var(--vscode-panel-border, #d7dee8) 78%, transparent);
+  border-radius: var(--topoviewer-vscode-radius);
+  background: color-mix(in srgb, var(--vscode-sideBar-background, #ffffff) 62%, transparent);
+}
+
+.topoviewer-vscode-transit-row {
+  align-items: center;
+  min-width: 0;
+}
+
+.topoviewer-vscode-transit-row .MuiTypography-root {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.topoviewer-vscode-key-value-row,
+.topoviewer-vscode-style-row {
+  align-items: center;
+  min-width: 0;
+}
+
+.topoviewer-vscode-key-value-row .MuiTextField-root,
+.topoviewer-vscode-style-row .MuiFormControl-root,
+.topoviewer-vscode-style-row .MuiTextField-root {
+  min-width: 0;
+}
+
+.topoviewer-vscode-style-row .MuiChip-root {
+  flex: 0 0 auto;
+}
+
 .topoviewer-vscode-attention-section {
   border: 1px solid color-mix(in srgb, var(--vscode-panel-border, #d7dee8) 78%, transparent);
   background: transparent;
@@ -296,12 +347,55 @@ body,
 }
 
 .topoviewer-vscode-editor {
+  position: relative;
   flex: 1 1 auto;
   min-height: 0;
   margin-top: 0.75em;
   border: 1px solid var(--vscode-panel-border, #d7dee8);
   border-radius: var(--topoviewer-vscode-radius);
   overflow: hidden;
+}
+
+.topoviewer-vscode-editor .topoviewer-vscode-yaml-copy {
+  position: absolute;
+  top: var(--topoviewer-vscode-space-1);
+  right: var(--topoviewer-vscode-space-1);
+  z-index: 10;
+  border: 1px solid color-mix(in srgb, var(--vscode-panel-border, #d7dee8) 58%, transparent);
+  opacity: 0.72;
+  background: color-mix(in srgb, var(--vscode-sideBar-background, #ffffff) 78%, transparent);
+  backdrop-filter: blur(8px);
+}
+
+.topoviewer-vscode-editor .topoviewer-vscode-yaml-copy:hover,
+.topoviewer-vscode-editor .topoviewer-vscode-yaml-copy:focus-visible {
+  opacity: 1;
+  background: color-mix(in srgb, var(--vscode-sideBar-background, #ffffff) 90%, transparent);
+}
+
+.topoviewer-vscode-diagnostic-line--error {
+  background: color-mix(in srgb, #d32f2f 12%, transparent);
+}
+
+.topoviewer-vscode-diagnostic-line--warning {
+  background: color-mix(in srgb, #ed6c02 12%, transparent);
+}
+
+.topoviewer-vscode-diagnostic-glyph::before {
+  content: "";
+  display: block;
+  width: 0.625em;
+  height: 0.625em;
+  margin: 0.35em auto 0;
+  border-radius: 999em;
+}
+
+.topoviewer-vscode-diagnostic-glyph--error::before {
+  background: #d32f2f;
+}
+
+.topoviewer-vscode-diagnostic-glyph--warning::before {
+  background: #ed6c02;
 }
 
 .topoviewer-vscode-shell--light .topoviewer-vscode-editor .monaco-editor,

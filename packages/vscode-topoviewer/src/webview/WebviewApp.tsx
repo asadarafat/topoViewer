@@ -18,6 +18,7 @@ import {
   FormHelperText,
   IconButton,
   InputLabel,
+  ListSubheader,
   MenuItem,
   Paper,
   Select,
@@ -29,13 +30,14 @@ import {
   Tooltip,
   Typography
 } from '@mui/material';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import LightModeIcon from '@mui/icons-material/LightMode';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
 import RefreshIcon from '@mui/icons-material/Refresh';
-import { TopoViewer, type TopoDocument, type TopoViewerObjectClick } from 'topoviewer';
+import { applyStyle, TopoViewer, type StyleDeclaration, type TopoDocument, type TopoViewerNodePositionChange, type TopoViewerObjectClick } from 'topoviewer';
 import type { HarnessFixture, TopoViewerWebviewHost, ValidationResult, WebviewState } from '../shared/types';
 import {
   clearAttention,
@@ -50,12 +52,15 @@ import {
   objectIdsByKind,
   resolveSelectionFromObject,
   sameSelection,
+  updateGraphNodePosition,
   updateAttentionFocus,
   updateAttentionInteraction,
   updateAttentionLinkGrouping,
   updateAttentionMatcher,
   updateAttentionRegionAggregation,
   updateTopoObject,
+  upsertGraphLink,
+  upsertGraphPath,
   type AttentionFocusKind,
   type InsertObjectType,
   type TopoObjectPreset,
@@ -82,6 +87,28 @@ interface TopologyTransaction {
   label: string;
   previousText: string;
   nextText: string;
+}
+
+interface StyleEditorRow {
+  id: string;
+  key: string;
+  originalKey: string;
+  originalValue: string;
+  source: 'inline' | 'stylesheet' | 'new';
+  value: string;
+}
+
+type StyleValueDataType = 'text' | 'enum' | 'boolean' | 'integer' | 'number' | 'color';
+
+interface KeyValueEditorRow {
+  id: string;
+  key: string;
+  value: string;
+}
+
+interface StyleValueDefinition {
+  dataType: StyleValueDataType;
+  options?: string[];
 }
 
 const splitStorageKey = 'topoviewer.vscodeHarness.splitPercent.v2';
@@ -366,6 +393,326 @@ const styleOptionsByKind: Record<TopoObjectSelection['kind'], Array<{ key: strin
   ]
 };
 
+const nodeShapeValues = [
+  'ellipse',
+  'triangle',
+  'rectangle',
+  'roundRectangle',
+  'bottomRoundRectangle',
+  'cutRectangle',
+  'barrel',
+  'rhomboid',
+  'diamond',
+  'pentagon',
+  'hexagon',
+  'concaveHexagon',
+  'heptagon',
+  'octagon',
+  'star',
+  'tag',
+  'vee',
+  'polygon'
+];
+const nodeLabelPositionValues = ['top', 'right', 'bottom', 'left', 'center'];
+const nodeCornerPositionValues = ['topLeft', 'topRight', 'bottomLeft', 'bottomRight'];
+const nodeStatusPlacementValues = [...nodeCornerPositionValues, 'center'];
+const regionLabelPositionValues = [
+  'topLeft',
+  'topCenter',
+  'topRight',
+  'rightTop',
+  'rightCenter',
+  'rightBottom',
+  'bottomRight',
+  'bottomCenter',
+  'bottomLeft',
+  'leftTop',
+  'leftCenter',
+  'leftBottom'
+];
+const edgeCurveStyleValues = ['straight', 'bezier', 'unbundledBezier', 'segments', 'roundSegments', 'taxi', 'roundTaxi', 'smoothTaxi', 'haystack'];
+const edgeArrowShapeValues = ['none', 'triangle', 'vee', 'tee', 'circle', 'diamond'];
+const edgeTaxiDirectionValues = ['auto', 'vertical', 'downward', 'upward', 'horizontal', 'rightward', 'leftward'];
+const diagramShapeValues = [
+  'rectangle',
+  'circle',
+  'triangle',
+  'square',
+  'pentagon',
+  'hexagon',
+  'octagon',
+  'ellipse',
+  'semicircle',
+  'trapezoid',
+  'parallelogram',
+  'rhombus',
+  'kite',
+  'star',
+  'cube',
+  'cuboid',
+  'sphere',
+  'cone',
+  'cylinder',
+  'pyramid',
+  'prism'
+];
+const regionShapeValues = ['rectangle', 'roundRectangle', 'ellipse'];
+const booleanStyleKeys = new Set([
+  'animated',
+  'draggable',
+  'interactive',
+  'labelInteractive',
+  'pipe',
+  'selectable'
+]);
+const integerStyleKeys = new Set([
+  'badgeBorderWidth',
+  'bodyFontSize',
+  'borderRadius',
+  'borderWidth',
+  'controlPointStepSize',
+  'height',
+  'iconHeight',
+  'iconPadding',
+  'iconSize',
+  'iconWidth',
+  'interactionWidth',
+  'labelBorderWidth',
+  'labelFontSize',
+  'labelMargin',
+  'labelPadding',
+  'labelTextMaxWidth',
+  'labelXOffset',
+  'labelYOffset',
+  'lineOutlineWidth',
+  'lineWidth',
+  'minZoomedLabelFontSize',
+  'outlineWidth',
+  'pipeBorderWidth',
+  'pipeWidth',
+  'rotation',
+  'sourceArrowSize',
+  'sourceDistanceFromNode',
+  'sourceLabelBorderWidth',
+  'sourceLabelFontSize',
+  'sourceLabelXOffset',
+  'sourceLabelYOffset',
+  'statusSize',
+  'strokeWidth',
+  'targetArrowSize',
+  'targetDistanceFromNode',
+  'targetLabelBorderWidth',
+  'targetLabelFontSize',
+  'targetLabelXOffset',
+  'targetLabelYOffset',
+  'titleFontSize',
+  'underlayPadding',
+  'width',
+  'zIndex'
+]);
+const numberStyleKeys = new Set([
+  'arrowScale',
+  'borderOpacity',
+  'bodyLineHeight',
+  'controlPointDistance',
+  'controlPointWeight',
+  'iconOpacity',
+  'labelBackgroundOpacity',
+  'labelOpacity',
+  'lineDashOffset',
+  'lineOpacity',
+  'loopDirection',
+  'loopSweep',
+  'opacity',
+  'outlineOpacity',
+  'pipeOpacity',
+  'sourceArrowSize',
+  'sourceDistanceFromNode',
+  'targetArrowSize',
+  'targetDistanceFromNode',
+  'textBackgroundOpacity',
+  'underlayOpacity'
+]);
+const styleEnumOptionsByKey: Record<string, string[]> = {
+  anchor: ['floating', 'center'],
+  borderStyle: ['solid', 'dashed', 'dotted'],
+  curveStyle: edgeCurveStyleValues,
+  display: ['element', 'none'],
+  edgeDistances: ['intersection', 'nodePosition', 'endpoints'],
+  iconFit: ['contain', 'cover', 'fill'],
+  labelTextAlign: ['left', 'center', 'right'],
+  labelTextOverflow: ['clip', 'ellipsis'],
+  labelTextWrap: ['none', 'wrap'],
+  lineCap: ['butt', 'round', 'square'],
+  lineFill: ['solid', 'linearGradient'],
+  lineStyle: ['solid', 'dashed', 'dotted'],
+  badgePosition: nodeCornerPositionValues,
+  statusPlacement: nodeStatusPlacementValues,
+  sourceArrowShape: edgeArrowShapeValues,
+  targetArrowShape: edgeArrowShapeValues,
+  taxiDirection: edgeTaxiDirectionValues,
+  textAlign: ['left', 'center', 'right'],
+  textBackgroundShape: ['rectangle', 'roundRectangle'],
+  textBorderStyle: ['solid', 'dashed', 'dotted', 'double'],
+  textTransform: ['none', 'uppercase', 'lowercase']
+};
+
+function styleValueDefinitionForKey(kind: TopoObjectSelection['kind'], key: string): StyleValueDefinition {
+  if (isColorStyleKey(key)) return { dataType: 'color' };
+  if (key === 'shape') {
+    if (kind === 'shape') return { dataType: 'enum', options: diagramShapeValues };
+    if (kind === 'region') return { dataType: 'enum', options: regionShapeValues };
+    return { dataType: 'enum', options: nodeShapeValues };
+  }
+  if (key === 'labelPosition') {
+    return {
+      dataType: 'enum',
+      options: kind === 'region' ? regionLabelPositionValues : nodeLabelPositionValues
+    };
+  }
+  const options = styleEnumOptionsByKey[key];
+  if (options) return { dataType: 'enum', options };
+  if (booleanStyleKeys.has(key)) return { dataType: 'boolean' };
+  if (integerStyleKeys.has(key)) return { dataType: 'integer' };
+  if (numberStyleKeys.has(key)) return { dataType: 'number' };
+  return { dataType: 'text' };
+}
+
+function isColorStyleKey(key: string) {
+  return key === 'color' || key.endsWith('Color') || key === 'fill' || key === 'pipeFill' || key === 'stroke';
+}
+
+function colorInputValue(value: string) {
+  return colorPickerValue(value) || '#1976d2';
+}
+
+function colorPickerValue(value: string) {
+  const trimmed = value.trim();
+  if (!trimmed) return '#1976d2';
+  const shortHex = trimmed.match(/^#([0-9a-fA-F]{3})$/);
+  if (shortHex) {
+    return `#${shortHex[1].split('').map((char) => char + char).join('')}`.toLowerCase();
+  }
+  return /^#[0-9a-fA-F]{6}$/.test(trimmed) ? trimmed.toLowerCase() : undefined;
+}
+
+function styleValueToInput(value: unknown): string {
+  if (value === undefined || value === null) return '';
+  if (Array.isArray(value)) return value.join(' ');
+  return String(value);
+}
+
+function rowValueToInput(value: unknown): string {
+  if (value === undefined || value === null) return '';
+  if (typeof value === 'object') return JSON.stringify(value);
+  return String(value);
+}
+
+function parseStyleValue(key: string, value: string): unknown {
+  const trimmed = value.trim();
+  if (booleanStyleKeys.has(key)) {
+    if (trimmed.toLowerCase() === 'true') return true;
+    if (trimmed.toLowerCase() === 'false') return false;
+  }
+  if (integerStyleKeys.has(key)) {
+    const numberValue = Number(trimmed);
+    if (Number.isFinite(numberValue)) return Math.round(numberValue);
+  }
+  if (numberStyleKeys.has(key)) {
+    const numberValue = Number(trimmed);
+    if (Number.isFinite(numberValue)) return numberValue;
+  }
+  return trimmed;
+}
+
+function effectiveStyleForObject(kind: TopoObjectSelection['kind'], object: any | undefined, document?: TopoDocument): StyleDeclaration {
+  if (!object || !document) return {};
+  return applyStyle(kind, object, document);
+}
+
+function inlineStyleForObject(object: any | undefined): Record<string, unknown> {
+  return cloneRecord(object?.style) || {};
+}
+
+function styleSourceForKey(object: any | undefined, key: string): StyleEditorRow['source'] {
+  return Object.prototype.hasOwnProperty.call(inlineStyleForObject(object), key) ? 'inline' : 'stylesheet';
+}
+
+function styleRowsForObject(kind: TopoObjectSelection['kind'], object: any | undefined, document?: TopoDocument): StyleEditorRow[] {
+  const style = effectiveStyleForObject(kind, object, document);
+  const entries = Object.entries(style);
+  if (entries.length) {
+    return entries.map(([key, value], index) => ({
+      id: `style-${key}-${index}`,
+      key,
+      originalKey: key,
+      originalValue: styleValueToInput(value),
+      source: styleSourceForKey(object, key),
+      value: styleValueToInput(value)
+    }));
+  }
+  return [{
+    id: 'style-new-0',
+    key: styleOptionsByKind[kind][0]?.key || '',
+    originalKey: '',
+    originalValue: '',
+    source: 'new',
+    value: ''
+  }];
+}
+
+function keyValueRowsForObject(object: any | undefined, key: 'labels' | 'data'): KeyValueEditorRow[] {
+  const record = cloneRecord(object?.[key]) || {};
+  const entries = Object.entries(record);
+  if (!entries.length) {
+    return [{ id: `${key}-new-0`, key: '', value: '' }];
+  }
+  return entries.map(([entryKey, value], index) => ({
+    id: `${key}-${entryKey}-${index}`,
+    key: entryKey,
+    value: rowValueToInput(value)
+  }));
+}
+
+function recordFromRows(rows: KeyValueEditorRow[]): Record<string, unknown> {
+  return rows.reduce<Record<string, unknown>>((record, row) => {
+    const key = row.key.trim();
+    if (!key) return record;
+    record[key] = row.value;
+    return record;
+  }, {});
+}
+
+function styleOptionLabel(kind: TopoObjectSelection['kind'], key: string) {
+  return styleOptionsByKind[kind].find((option) => option.key === key)?.label || key;
+}
+
+function styleGroupForKey(kind: TopoObjectSelection['kind'], key: string) {
+  if (kind === 'link' || kind === 'path') {
+    if (key.includes('Arrow')) return 'Arrows';
+    if (key.includes('Label') || key.startsWith('label') || key.startsWith('sourceLabel') || key.startsWith('targetLabel') || key.startsWith('text')) return 'Labels';
+    if (key.includes('Distance') || key.includes('control') || key.includes('segment') || key.includes('taxi') || key === 'curveStyle' || key === 'edgeDistances') return 'Routing';
+    if (key.startsWith('line')) return 'Line';
+    return 'General';
+  }
+  if (key.startsWith('label') || key.startsWith('meta')) return 'Labels';
+  if (key.startsWith('badge') || key.startsWith('status')) return 'Status';
+  if (key.startsWith('icon')) return 'Icon';
+  if (key.includes('border') || key.includes('outline') || key.includes('underlay')) return 'Border and underlay';
+  if (['width', 'height', 'shape', 'shapePolygonPoints', 'zIndex', 'rotation'].includes(key)) return 'Geometry';
+  if (['display', 'draggable', 'selectable', 'opacity', 'interactive'].includes(key)) return 'Interaction';
+  return 'General';
+}
+
+function groupedStyleOptions(kind: TopoObjectSelection['kind']) {
+  const groups = new Map<string, Array<{ key: string; label: string }>>();
+  styleOptionsByKind[kind].forEach((option) => {
+    const group = styleGroupForKey(kind, option.key);
+    groups.set(group, [...(groups.get(group) || []), option]);
+  });
+  return Array.from(groups.entries());
+}
+
 function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
 }
@@ -477,6 +824,42 @@ function focusKindLabel(focusKind: AttentionFocusKind) {
   return 'Regions';
 }
 
+function selectedNodeIds(selection: TopoObjectSelection[]) {
+  return selection.filter((object) => object.kind === 'node').map((object) => object.id);
+}
+
+function positionOf(value: unknown): { x: number; y: number } | undefined {
+  if (Array.isArray(value)) return { x: Number(value[0] || 0), y: Number(value[1] || 0) };
+  if (value && typeof value === 'object') {
+    const position = value as { x?: number; y?: number };
+    return { x: Number(position.x || 0), y: Number(position.y || 0) };
+  }
+  return undefined;
+}
+
+function pathSequenceFromObject(path: any): string[] {
+  if (Array.isArray(path?.sequence)) return path.sequence.map(String);
+  return [path?.source, path?.target].map((id) => String(id || '')).filter(Boolean);
+}
+
+function sequenceFromControls(source: string, transitIds: string[], target: string) {
+  const transit = transitIds.filter((id, index) => id && id !== source && id !== target && transitIds.indexOf(id) === index);
+  return [source, ...transit, target].filter(Boolean);
+}
+
+function sameRoundedPosition(a: { x: number; y: number } | undefined, b: { x: number; y: number }) {
+  return !!a && Math.round(a.x) === Math.round(b.x) && Math.round(a.y) === Math.round(b.y);
+}
+
+function editorDocumentForTab(tab: number): 'topology' | 'stylesheet' {
+  return tab === 0 ? 'topology' : 'stylesheet';
+}
+
+function clampLine(line: number | undefined, maxLine: number) {
+  if (!line || !Number.isFinite(line)) return 1;
+  return Math.min(maxLine, Math.max(1, Math.round(line)));
+}
+
 export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppProps) {
   const [state, setState] = useState<WebviewState>();
   const [fixtures, setFixtures] = useState<HarnessFixture[]>([]);
@@ -496,13 +879,17 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
   const [inspectorLayerId, setInspectorLayerId] = useState('');
   const [inspectorX, setInspectorX] = useState('');
   const [inspectorY, setInspectorY] = useState('');
-  const [labelKey, setLabelKey] = useState('');
-  const [labelValue, setLabelValue] = useState('');
-  const [dataKey, setDataKey] = useState('');
-  const [dataValue, setDataValue] = useState('');
-  const [styleKey, setStyleKey] = useState('');
-  const [styleValue, setStyleValue] = useState('');
+  const [labelRows, setLabelRows] = useState<KeyValueEditorRow[]>([]);
+  const [dataRows, setDataRows] = useState<KeyValueEditorRow[]>([]);
+  const [styleRows, setStyleRows] = useState<StyleEditorRow[]>([]);
   const [presetName, setPresetName] = useState('');
+  const [relationshipComposer, setRelationshipComposer] = useState<'link' | 'path'>();
+  const [linkSourceId, setLinkSourceId] = useState('');
+  const [linkTargetId, setLinkTargetId] = useState('');
+  const [pathSourceId, setPathSourceId] = useState('');
+  const [pathTargetId, setPathTargetId] = useState('');
+  const [pathTransitIds, setPathTransitIds] = useState<string[]>([]);
+  const [pathTransitCandidate, setPathTransitCandidate] = useState('');
   const [attentionFocusKind, setAttentionFocusKind] = useState<AttentionFocusKind>('pathIds');
   const [attentionFocusId, setAttentionFocusId] = useState('');
   const [attentionMode, setAttentionMode] = useState('dim-context');
@@ -515,6 +902,9 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
   const [attentionRegionId, setAttentionRegionId] = useState('');
   const [attentionExpandOnClick, setAttentionExpandOnClick] = useState(true);
   const [linkGroupingThreshold, setLinkGroupingThreshold] = useState('2');
+  const editorRef = useRef<any>(null);
+  const monacoRef = useRef<any>(null);
+  const diagnosticDecorationsRef = useRef<any>(null);
   const workspaceRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -552,6 +942,19 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
   }, [host]);
 
   useEffect(() => {
+    if (host.kind !== 'browser') return undefined;
+    (window as unknown as { __topoviewerHarnessState?: WebviewState }).__topoviewerHarnessState = state;
+    return () => {
+      delete (window as unknown as { __topoviewerHarnessState?: WebviewState }).__topoviewerHarnessState;
+    };
+  }, [host.kind, state]);
+
+  useEffect(() => {
+    if (!state || !host.saveState) return;
+    host.saveState(state);
+  }, [host, state]);
+
+  useEffect(() => {
     let mounted = true;
     async function validate() {
       if (!state) return;
@@ -580,17 +983,29 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
   }, [host, state]);
 
   const visibleDocument = useMemo(() => validation.document as TopoDocument | undefined, [validation.document]);
+  const graphNodes = visibleDocument?.graph?.nodes || [];
+  const nodeNameById = useMemo(() => new Map(graphNodes.map((node) => [node.id, node.name || node.label || node.id])), [graphNodes]);
   const hasErrors = validation.diagnostics.some((diagnostic) => diagnostic.severity === 'error');
   const diagnosticSeverity: 'success' | 'warning' | 'error' = hasErrors ? 'error' : validation.diagnostics.length > 0 ? 'warning' : 'success';
   const diagnosticSummary = validation.diagnostics.length === 0
     ? 'No diagnostics'
     : `${validation.diagnostics.length} diagnostic${validation.diagnostics.length === 1 ? '' : 's'}: ${validation.diagnostics[0]?.code}`;
+  const messageSeverity: 'success' | 'warning' = message?.toLowerCase().includes('requires') || message?.toLowerCase().includes('must') ? 'warning' : 'success';
+  const statusSeverity = hasErrors ? diagnosticSeverity : message ? messageSeverity : diagnosticSeverity;
+  const statusSummary = hasErrors ? diagnosticSummary : message || diagnosticSummary;
   const shellClassName = `topoviewer-vscode-shell${themeMode ? ` topoviewer-vscode-shell--${themeMode}` : ''}`;
   const nextThemeMode = themeMode === 'dark' ? 'light' : 'dark';
   const editorTheme = themeMode === 'light' ? 'light' : 'vs-dark';
   const editorValue = tab === 0 ? state?.topologyText || '' : state?.stylesheetText || '';
+  const editorLabel = tab === 0 ? 'Topology YAML' : 'Stylesheet YAML';
   const selectedPrimary = selectedObjects[0];
   const selectedPrimaryObject = useMemo(() => findObject(visibleDocument, selectedPrimary), [selectedPrimary, visibleDocument]);
+  const selectedPrimaryStyle = useMemo(() => (
+    selectedPrimary
+      ? effectiveStyleForObject(selectedPrimary.kind, selectedPrimaryObject, visibleDocument)
+      : {}
+  ), [selectedPrimary, selectedPrimaryObject, visibleDocument]);
+  const selectedFixture = fixtures.find((fixture) => fixture.id === state?.fixtureId);
   const currentAttention = visibleDocument?.attention;
   const attentionSummary = currentAttention
     ? [
@@ -601,8 +1016,11 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
     ].filter(Boolean).join(' / ') || 'configured'
     : 'off';
   const availableFocusIds = objectIdsByKind(visibleDocument, attentionFocusKind);
+  const selectedGraphNodeIds = selectedNodeIds(selectedObjects);
+  const pathTransitOptions = graphNodes.filter((node) => node.id !== pathSourceId && node.id !== pathTargetId && !pathTransitIds.includes(node.id));
   const activeModeIndex = modeIndex(mode);
   const availableStyleOptions = selectedPrimary ? styleOptionsByKind[selectedPrimary.kind] : [];
+  const availableStyleOptionGroups = selectedPrimary ? groupedStyleOptions(selectedPrimary.kind) : [];
   const insertObjectGroups = useMemo(() => baseInsertObjectGroups.map((group) => (
     group.title !== 'Presets'
       ? group
@@ -618,6 +1036,65 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
         ]
       }
   )), [savedPresets]);
+
+  const updateEditorDiagnostics = useCallback(() => {
+    const editor = editorRef.current;
+    const monaco = monacoRef.current;
+    const model = editor?.getModel?.();
+    if (!editor || !monaco || !model) return;
+
+    const targetDocument = editorDocumentForTab(tab);
+    const diagnostics = validation.diagnostics.filter((diagnostic) => (
+      diagnostic.document ? diagnostic.document === targetDocument : targetDocument === 'topology'
+    ));
+    const lineCount = Math.max(1, model.getLineCount?.() || 1);
+    const markers = diagnostics.map((diagnostic) => {
+      const lineNumber = clampLine(diagnostic.line, lineCount);
+      const maxColumn = Math.max(2, model.getLineMaxColumn?.(lineNumber) || 2);
+      const startColumn = Math.min(maxColumn - 1, Math.max(1, Math.round(diagnostic.column || 1)));
+      return {
+        severity: diagnostic.severity === 'error'
+          ? monaco.MarkerSeverity.Error
+          : monaco.MarkerSeverity.Warning,
+        message: diagnostic.message,
+        source: 'TopoViewer',
+        startLineNumber: lineNumber,
+        startColumn,
+        endLineNumber: lineNumber,
+        endColumn: maxColumn
+      };
+    });
+
+    monaco.editor.setModelMarkers(model, 'topoviewer', markers);
+    const decorations = diagnostics.map((diagnostic) => {
+      const lineNumber = clampLine(diagnostic.line, lineCount);
+      return {
+        range: new monaco.Range(lineNumber, 1, lineNumber, 1),
+        options: {
+          className: diagnostic.severity === 'error'
+            ? 'topoviewer-vscode-diagnostic-line topoviewer-vscode-diagnostic-line--error'
+            : 'topoviewer-vscode-diagnostic-line topoviewer-vscode-diagnostic-line--warning',
+          glyphMarginClassName: diagnostic.severity === 'error'
+            ? 'topoviewer-vscode-diagnostic-glyph topoviewer-vscode-diagnostic-glyph--error'
+            : 'topoviewer-vscode-diagnostic-glyph topoviewer-vscode-diagnostic-glyph--warning',
+          isWholeLine: true,
+          overviewRuler: {
+            color: diagnostic.severity === 'error' ? '#d32f2f' : '#ed6c02',
+            position: monaco.editor.OverviewRulerLane.Right
+          }
+        }
+      };
+    });
+    if (diagnosticDecorationsRef.current?.set) {
+      diagnosticDecorationsRef.current.set(decorations);
+    } else if (editor.createDecorationsCollection) {
+      diagnosticDecorationsRef.current = editor.createDecorationsCollection(decorations);
+    }
+  }, [tab, validation.diagnostics]);
+
+  useEffect(() => {
+    updateEditorDiagnostics();
+  }, [editorValue, updateEditorDiagnostics]);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -643,19 +1120,31 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
       setInspectorX('');
       setInspectorY('');
       setPresetName('');
+      setLabelRows([]);
+      setDataRows([]);
+      setStyleRows([]);
       return;
     }
     setInspectorName(selectedPrimaryObject.name || '');
     setInspectorLayerId(selectedPrimaryObject.layers?.[0] || defaultLayerId(visibleDocument, selectedLayerIds));
     setPresetName(`${selectedPrimaryObject.name || selectedPrimaryObject.label || selectedPrimary.id} preset`);
-    setStyleKey((current) => styleOptionsByKind[selectedPrimary.kind].some((option) => option.key === current)
-      ? current
-      : styleOptionsByKind[selectedPrimary.kind][0]?.key || '');
-    const position = Array.isArray(selectedPrimaryObject.position)
-      ? { x: selectedPrimaryObject.position[0], y: selectedPrimaryObject.position[1] }
-      : selectedPrimaryObject.position;
+    setLabelRows(keyValueRowsForObject(selectedPrimaryObject, 'labels'));
+    setDataRows(keyValueRowsForObject(selectedPrimaryObject, 'data'));
+    setStyleRows(styleRowsForObject(selectedPrimary.kind, selectedPrimaryObject, visibleDocument));
+    const position = positionOf(selectedPrimaryObject.position);
     setInspectorX(position?.x !== undefined ? String(position.x) : '');
     setInspectorY(position?.y !== undefined ? String(position.y) : '');
+    if (selectedPrimary.kind === 'link') {
+      setLinkSourceId(String(selectedPrimaryObject.source || ''));
+      setLinkTargetId(String(selectedPrimaryObject.target || ''));
+    }
+    if (selectedPrimary.kind === 'path') {
+      const sequence = pathSequenceFromObject(selectedPrimaryObject);
+      setPathSourceId(sequence[0] || '');
+      setPathTargetId(sequence[sequence.length - 1] || '');
+      setPathTransitIds(sequence.slice(1, -1));
+      setPathTransitCandidate('');
+    }
   }, [selectedLayerIds, selectedPrimary, selectedPrimaryObject, visibleDocument]);
 
   useEffect(() => {
@@ -757,9 +1246,88 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
     }
   }
 
+  async function refreshFixtures() {
+    if (!host.listFixtures) return;
+    setFixtures(await host.listFixtures());
+  }
+
+  async function createTopology() {
+    if (!host.createTopology) return;
+    setLoading(true);
+    try {
+      setSelectedObjects([]);
+      setUndoStack([]);
+      setRedoStack([]);
+      const nextState = await host.createTopology();
+      await refreshFixtures();
+      setState(nextState);
+      flash('Created topology');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function saveTopology() {
+    if (!state || !host.saveState) return;
+    await host.saveState(state);
+    await refreshFixtures();
+    flash('Saved topology');
+  }
+
+  async function revertTopology() {
+    if (!state || !host.revertState) return;
+    setLoading(true);
+    try {
+      setSelectedObjects([]);
+      setUndoStack([]);
+      setRedoStack([]);
+      const nextState = await host.revertState(state);
+      await refreshFixtures();
+      setState(nextState);
+      flash(selectedFixture?.kind === 'saved' ? 'Removed saved topology' : 'Reverted template');
+    } finally {
+      setLoading(false);
+    }
+  }
+
   async function exportImage() {
     await host.exportImage();
     flash('Export command sent');
+  }
+
+  async function copyYamlToClipboard() {
+    try {
+      let copied = false;
+      if (navigator.clipboard?.writeText) {
+        try {
+          await navigator.clipboard.writeText(editorValue);
+          copied = true;
+        } catch {
+          copied = false;
+        }
+      }
+      if (!copied) {
+        const textarea = document.createElement('textarea');
+        textarea.value = editorValue;
+        textarea.setAttribute('readonly', '');
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+      }
+      flash(`Copied ${editorLabel}`);
+    } catch (error) {
+      flash(error instanceof Error ? error.message : 'Copy failed');
+    }
+  }
+
+  function handleEditorMount(editor: any, monaco: any) {
+    editorRef.current = editor;
+    monacoRef.current = monaco;
+    diagnosticDecorationsRef.current = editor.createDecorationsCollection?.([]);
+    updateEditorDiagnostics();
   }
 
   function selectObject(selection: TopoObjectSelection, modifiers?: TopoViewerObjectClick['modifiers']) {
@@ -777,9 +1345,46 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
     const selection = resolveSelectionFromObject(visibleDocument, object.id);
     if (!selection) return;
     selectObject(selection, object.modifiers);
+    if (mode === 'attention') {
+      const focusKind = focusKindForSelection(selection.kind);
+      if (!focusKind) return;
+      setAttentionFocusKind(focusKind);
+      setAttentionFocusId(selection.id);
+      applyAttentionFocus([selection.id], focusKind);
+    }
+  }
+
+  function openRelationshipComposer(kind: 'link' | 'path') {
+    const selectedNodes = selectedGraphNodeIds;
+    setRelationshipComposer(kind);
+    if (kind === 'link') {
+      if (selectedNodes.length >= 2) {
+        setLinkSourceId(selectedNodes[0]);
+        setLinkTargetId(selectedNodes[1]);
+      } else {
+        setLinkSourceId((current) => current || graphNodes[0]?.id || '');
+        setLinkTargetId((current) => current || graphNodes.find((node) => node.id !== (selectedNodes[0] || linkSourceId || graphNodes[0]?.id))?.id || '');
+      }
+      return;
+    }
+
+    if (selectedNodes.length >= 2) {
+      setPathSourceId(selectedNodes[0]);
+      setPathTargetId(selectedNodes[selectedNodes.length - 1]);
+      setPathTransitIds(selectedNodes.slice(1, -1));
+    } else {
+      setPathSourceId((current) => current || graphNodes[0]?.id || '');
+      setPathTargetId((current) => current || graphNodes.find((node) => node.id !== (selectedNodes[0] || pathSourceId || graphNodes[0]?.id))?.id || '');
+      setPathTransitIds([]);
+    }
+    setPathTransitCandidate('');
   }
 
   function insertObject(type: InsertObjectType) {
+    if (type === 'link' || type === 'path') {
+      openRelationshipComposer(type);
+      return;
+    }
     setTab(0);
     applyTopologyTransaction(`Insert ${type}`, (topologyText) => insertTopoObject(topologyText, {
       type,
@@ -788,12 +1393,85 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
     }));
   }
 
+  function createConnection() {
+    setTab(0);
+    applyTopologyTransaction('Create connection', (topologyText) => upsertGraphLink(topologyText, {
+      selectedLayerIds,
+      source: linkSourceId,
+      target: linkTargetId
+    }));
+  }
+
+  function createPath() {
+    setTab(0);
+    applyTopologyTransaction('Create path', (topologyText) => upsertGraphPath(topologyText, {
+      selectedLayerIds,
+      sequence: sequenceFromControls(pathSourceId, pathTransitIds, pathTargetId)
+    }));
+  }
+
+  function applyRelationshipInspector() {
+    if (!selectedPrimary) return;
+    setTab(0);
+    if (selectedPrimary.kind === 'link') {
+      applyTopologyTransaction('Update link endpoints', (topologyText) => upsertGraphLink(topologyText, {
+        id: selectedPrimary.id,
+        name: inspectorName,
+        selectedLayerIds,
+        source: linkSourceId,
+        target: linkTargetId
+      }));
+      return;
+    }
+    if (selectedPrimary.kind === 'path') {
+      applyTopologyTransaction('Update path sequence', (topologyText) => upsertGraphPath(topologyText, {
+        id: selectedPrimary.id,
+        name: inspectorName,
+        selectedLayerIds,
+        sequence: sequenceFromControls(pathSourceId, pathTransitIds, pathTargetId)
+      }));
+    }
+  }
+
+  function addPathTransitNode() {
+    if (!pathTransitCandidate || pathTransitIds.includes(pathTransitCandidate)) return;
+    if (pathTransitCandidate === pathSourceId || pathTransitCandidate === pathTargetId) return;
+    setPathTransitIds((current) => [...current, pathTransitCandidate]);
+    setPathTransitCandidate('');
+  }
+
+  function movePathTransitNode(index: number, direction: -1 | 1) {
+    setPathTransitIds((current) => {
+      const nextIndex = index + direction;
+      if (nextIndex < 0 || nextIndex >= current.length) return current;
+      const next = [...current];
+      [next[index], next[nextIndex]] = [next[nextIndex], next[index]];
+      return next;
+    });
+  }
+
+  function removePathTransitNode(id: string) {
+    setPathTransitIds((current) => current.filter((candidate) => candidate !== id));
+  }
+
   function insertPreset(preset: TopoObjectPreset) {
     setTab(0);
     applyTopologyTransaction(`Insert preset ${preset.name}`, (topologyText) => insertTopoPreset(topologyText, {
       preset,
       selectedLayerIds,
       selectedObjects
+    }));
+  }
+
+  function handleNodePositionChange(change: TopoViewerNodePositionChange) {
+    if (hasErrors) return;
+    const selection: TopoObjectSelection = { kind: 'node', id: change.id };
+    const node = findObject(visibleDocument, selection);
+    if (!node || sameRoundedPosition(positionOf(node.position), change.position)) return;
+    setTab(0);
+    applyTopologyTransaction('Move node', (topologyText) => updateGraphNodePosition(topologyText, {
+      nodeId: change.id,
+      position: change.position
     }));
   }
 
@@ -815,29 +1493,200 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
     }));
   }
 
-  function applyKeyValue(kind: 'labels' | 'data' | 'style') {
+  function updateKeyValueRow(kind: 'labels' | 'data', rowId: string, patch: Partial<KeyValueEditorRow>) {
+    const updateRows = kind === 'labels' ? setLabelRows : setDataRows;
+    updateRows((current) => current.map((row) => (row.id === rowId ? { ...row, ...patch } : row)));
+  }
+
+  function addKeyValueRow(kind: 'labels' | 'data') {
+    const updateRows = kind === 'labels' ? setLabelRows : setDataRows;
+    updateRows((current) => [...current, {
+      id: `${kind}-new-${Date.now()}`,
+      key: '',
+      value: ''
+    }]);
+  }
+
+  function removeKeyValueRow(kind: 'labels' | 'data', rowId: string) {
+    const updateRows = kind === 'labels' ? setLabelRows : setDataRows;
+    updateRows((current) => {
+      const next = current.filter((row) => row.id !== rowId);
+      return next.length ? next : [{ id: `${kind}-new-${Date.now()}`, key: '', value: '' }];
+    });
+  }
+
+  function applyKeyValueRows(kind: 'labels' | 'data') {
     if (!selectedPrimary) return;
-    const key = kind === 'labels' ? labelKey.trim() : kind === 'data' ? dataKey.trim() : styleKey.trim();
-    const value = kind === 'labels' ? labelValue.trim() : kind === 'data' ? dataValue.trim() : styleValue.trim();
-    if (!key) return;
+    const rows = kind === 'labels' ? labelRows : dataRows;
+    const record = recordFromRows(rows);
     setTab(0);
     applyTopologyTransaction(`Update ${kind}`, (topologyText) => updateTopoObject(topologyText, {
       selection: selectedPrimary,
       ...(kind === 'labels'
-        ? { labels: { [key]: value } }
-        : kind === 'data'
-          ? { data: { [key]: value } }
-          : { style: { [key]: value } })
+        ? { labelsReplace: record }
+        : { dataReplace: record })
     }));
-    if (kind === 'labels') {
-      setLabelKey('');
-      setLabelValue('');
-    } else if (kind === 'data') {
-      setDataKey('');
-      setDataValue('');
-    } else {
-      setStyleValue('');
+  }
+
+  function updateStyleRow(rowId: string, patch: Partial<StyleEditorRow>) {
+    setStyleRows((current) => current.map((row) => (row.id === rowId ? { ...row, ...patch } : row)));
+  }
+
+  function updateStyleRowKey(rowId: string, key: string) {
+    const existingValue = styleValueToInput(selectedPrimaryStyle[key]);
+    updateStyleRow(rowId, {
+      key,
+      originalKey: key,
+      originalValue: existingValue,
+      source: existingValue ? styleSourceForKey(selectedPrimaryObject, key) : 'new',
+      value: existingValue || (isColorStyleKey(key) ? colorInputValue('') : '')
+    });
+  }
+
+  function addStyleRow() {
+    if (!selectedPrimary) return;
+    const usedKeys = new Set(styleRows.map((row) => row.key).filter(Boolean));
+    const nextKey = availableStyleOptions.find((option) => !usedKeys.has(option.key))?.key || availableStyleOptions[0]?.key || '';
+    setStyleRows((current) => [
+      ...current,
+      {
+        id: `style-new-${Date.now()}`,
+        key: nextKey,
+        originalKey: nextKey,
+        originalValue: styleValueToInput(selectedPrimaryStyle[nextKey]),
+        source: selectedPrimaryStyle[nextKey] !== undefined ? styleSourceForKey(selectedPrimaryObject, nextKey) : 'new',
+        value: styleValueToInput(selectedPrimaryStyle[nextKey])
+      }
+    ]);
+  }
+
+  function removeStyleRow(rowId: string) {
+    setStyleRows((current) => {
+      const next = current.filter((row) => row.id !== rowId);
+      return next.length ? next : [{
+        id: `style-new-${Date.now()}`,
+        key: availableStyleOptions[0]?.key || '',
+        originalKey: '',
+        originalValue: '',
+        source: 'new',
+        value: ''
+      }];
+    });
+  }
+
+  function applyStyleRows() {
+    if (!selectedPrimary || !selectedPrimaryObject) return;
+    const style = inlineStyleForObject(selectedPrimaryObject);
+    let changed = false;
+    styleRows.forEach((row) => {
+      const key = row.key.trim();
+      if (!key) return;
+      if (row.originalKey && row.originalKey !== key && row.source === 'inline') {
+        delete style[row.originalKey];
+        changed = true;
+      }
+      if (row.source === 'new' && !row.value.trim()) return;
+      if (row.source === 'new' || row.value !== row.originalValue || row.originalKey !== key) {
+        style[key] = parseStyleValue(key, row.value);
+        changed = true;
+      }
+    });
+    if (!changed) {
+      flash('No style changes');
+      return;
     }
+    setTab(0);
+    applyTopologyTransaction('Update style', (topologyText) => updateTopoObject(topologyText, {
+      selection: selectedPrimary,
+      styleReplace: style
+    }));
+  }
+
+  function resetStyleRow(row: StyleEditorRow) {
+    if (!selectedPrimary || !selectedPrimaryObject) return;
+    if (row.source !== 'inline') {
+      updateStyleRow(row.id, { value: row.originalValue });
+      return;
+    }
+    const key = row.originalKey || row.key;
+    const style = inlineStyleForObject(selectedPrimaryObject);
+    delete style[key];
+    setTab(0);
+    applyTopologyTransaction(`Reset ${styleOptionLabel(selectedPrimary.kind, key)}`, (topologyText) => updateTopoObject(topologyText, {
+      selection: selectedPrimary,
+      styleReplace: style
+    }));
+  }
+
+  function renderStyleValueInput(row: StyleEditorRow, definition: StyleValueDefinition) {
+    const labelId = `inspector-style-value-${row.id}`;
+    if (definition.dataType === 'enum' || definition.dataType === 'boolean') {
+      const options = definition.dataType === 'boolean' ? ['true', 'false'] : definition.options || [];
+      return (
+        <FormControl fullWidth size="small">
+          <InputLabel id={labelId}>Style value</InputLabel>
+          <Select
+            labelId={labelId}
+            label="Style value"
+            value={row.value}
+            onChange={(event) => updateStyleRow(row.id, { value: String(event.target.value) })}
+          >
+            <MenuItem value="">Unset</MenuItem>
+            {options.map((option) => (
+              <MenuItem key={option} value={option}>{option}</MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      );
+    }
+
+    if (definition.dataType === 'color') {
+      const pickerValue = colorPickerValue(row.value);
+      if (!pickerValue) {
+        return (
+          <TextField
+            fullWidth
+            size="small"
+            label="Style value"
+            value={row.value}
+            onChange={(event) => updateStyleRow(row.id, { value: event.target.value })}
+          />
+        );
+      }
+      return (
+        <TextField
+          fullWidth
+          size="small"
+          label="Style value"
+          type="color"
+          value={pickerValue}
+          onChange={(event) => updateStyleRow(row.id, { value: event.target.value })}
+        />
+      );
+    }
+
+    if (definition.dataType === 'integer' || definition.dataType === 'number') {
+      return (
+        <TextField
+          fullWidth
+          size="small"
+          label="Style value"
+          type="number"
+          value={row.value}
+          onChange={(event) => updateStyleRow(row.id, { value: event.target.value })}
+        />
+      );
+    }
+
+    return (
+      <TextField
+        fullWidth
+        size="small"
+        label="Style value"
+        value={row.value}
+        onChange={(event) => updateStyleRow(row.id, { value: event.target.value })}
+      />
+    );
   }
 
   function deleteSelection() {
@@ -957,8 +1806,6 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
         </Toolbar>
       </AppBar>
 
-      {message && <Alert severity={message.toLowerCase().includes('requires') || message.toLowerCase().includes('must') ? 'warning' : 'success'} className="topoviewer-vscode-message">{message}</Alert>}
-
       <Box
         ref={workspaceRef}
         className={`topoviewer-vscode-workspace${resizing ? ' topoviewer-vscode-workspace--resizing' : ''}`}
@@ -967,20 +1814,29 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
         <Box className="topoviewer-vscode-rail">
           <Paper className={`topoviewer-vscode-source topoviewer-vscode-source--${mode}`} elevation={0}>
             {host.kind === 'browser' && (
-              <FormControl size="small" className="topoviewer-vscode-fixture">
-                <InputLabel id="fixture-label" shrink>Fixture</InputLabel>
-                <Select
-                  labelId="fixture-label"
-                  label="Fixture"
-                  notched
-                  value={state?.fixtureId || ''}
-                  onChange={(event) => reloadFixture(String(event.target.value))}
-                >
-                  {fixtures.map((fixture) => (
-                    <MenuItem key={fixture.id} value={fixture.id}>{fixture.name}</MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+              <Stack className="topoviewer-vscode-template-control" spacing={1}>
+                <FormControl size="small" className="topoviewer-vscode-fixture">
+                  <InputLabel id="fixture-label" shrink>Template</InputLabel>
+                  <Select
+                    labelId="fixture-label"
+                    label="Template"
+                    notched
+                    value={state?.fixtureId || ''}
+                    onChange={(event) => reloadFixture(String(event.target.value))}
+                  >
+                    {fixtures.map((fixture) => (
+                      <MenuItem key={fixture.id} value={fixture.id}>{fixture.name}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+                <Stack direction="row" spacing={1} useFlexGap sx={{ flexWrap: 'wrap' }}>
+                  <Button size="small" onClick={createTopology}>New topology</Button>
+                  <Button size="small" onClick={saveTopology}>Save</Button>
+                  <Button size="small" disabled={!state?.fixtureId} onClick={revertTopology}>
+                    {selectedFixture?.kind === 'saved' ? 'Remove saved' : 'Revert template'}
+                  </Button>
+                </Stack>
+              </Stack>
             )}
 
             <Box className="topoviewer-vscode-mode-tabs">
@@ -997,12 +1853,14 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
                 ))}
               </Tabs>
             </Box>
-            <Alert severity={diagnosticSeverity} className="topoviewer-vscode-diagnostic-strip">
-              <Typography variant="caption">{diagnosticSummary}</Typography>
+            <Alert severity={statusSeverity} className="topoviewer-vscode-diagnostic-strip">
+              <Box className="topoviewer-vscode-status-row">
+                <Typography className="topoviewer-vscode-status-summary" variant="caption">{statusSummary}</Typography>
+                {selectedObjects.length > 0 && (
+                  <Typography className="topoviewer-vscode-selection-summary" variant="caption">{selectionSummary(selectedObjects)}</Typography>
+                )}
+              </Box>
             </Alert>
-            {selectedObjects.length > 0 && (
-              <Typography className="topoviewer-vscode-selection-summary" variant="caption">{selectionSummary(selectedObjects)}</Typography>
-            )}
 
             <HarnessTabPanel value={activeModeIndex} index={modeIndex('build')} className="topoviewer-vscode-mode-pane topoviewer-vscode-build-pane">
               <Stack className="topoviewer-vscode-mode-pane-scroll" spacing={2}>
@@ -1031,6 +1889,88 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
                     </Stack>
                   </Stack>
                 ))}
+                {relationshipComposer && (
+                  <Stack className="topoviewer-vscode-relationship-composer" spacing={1}>
+                    <Stack direction="row" sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
+                      <Box>
+                        <Typography variant="subtitle2">
+                          {relationshipComposer === 'link' ? 'Connection endpoints' : 'Path sequence'}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          {relationshipComposer === 'link'
+                            ? 'Choose source and target nodes.'
+                            : 'Choose source, optional transit nodes, and target.'}
+                        </Typography>
+                      </Box>
+                      <Button size="small" onClick={() => setRelationshipComposer(undefined)}>Close</Button>
+                    </Stack>
+
+                    {relationshipComposer === 'link' ? (
+                      <Stack spacing={1}>
+                        <FormControl fullWidth size="small">
+                          <InputLabel id="connection-source-label">Connection source</InputLabel>
+                          <Select labelId="connection-source-label" label="Connection source" value={linkSourceId} onChange={(event) => setLinkSourceId(String(event.target.value))}>
+                            {graphNodes.map((node) => <MenuItem key={node.id} value={node.id}>{nodeNameById.get(node.id)}</MenuItem>)}
+                          </Select>
+                        </FormControl>
+                        <FormControl fullWidth size="small">
+                          <InputLabel id="connection-target-label">Connection target</InputLabel>
+                          <Select labelId="connection-target-label" label="Connection target" value={linkTargetId} onChange={(event) => setLinkTargetId(String(event.target.value))}>
+                            {graphNodes.map((node) => <MenuItem key={node.id} value={node.id}>{nodeNameById.get(node.id)}</MenuItem>)}
+                          </Select>
+                        </FormControl>
+                        <Button
+                          size="small"
+                          variant="contained"
+                          disabled={hasErrors || !linkSourceId || !linkTargetId || linkSourceId === linkTargetId}
+                          onClick={createConnection}
+                        >
+                          Create connection
+                        </Button>
+                      </Stack>
+                    ) : (
+                      <Stack spacing={1}>
+                        <FormControl fullWidth size="small">
+                          <InputLabel id="path-source-label">Path source</InputLabel>
+                          <Select labelId="path-source-label" label="Path source" value={pathSourceId} onChange={(event) => setPathSourceId(String(event.target.value))}>
+                            {graphNodes.map((node) => <MenuItem key={node.id} value={node.id}>{nodeNameById.get(node.id)}</MenuItem>)}
+                          </Select>
+                        </FormControl>
+                        <Stack direction="row" spacing={1}>
+                          <FormControl fullWidth size="small">
+                            <InputLabel id="path-transit-label">Add transit node</InputLabel>
+                            <Select labelId="path-transit-label" label="Add transit node" value={pathTransitCandidate} onChange={(event) => setPathTransitCandidate(String(event.target.value))}>
+                              {pathTransitOptions.map((node) => <MenuItem key={node.id} value={node.id}>{nodeNameById.get(node.id)}</MenuItem>)}
+                            </Select>
+                          </FormControl>
+                          <Button size="small" disabled={!pathTransitCandidate} onClick={addPathTransitNode}>Add</Button>
+                        </Stack>
+                        {pathTransitIds.map((nodeId, index) => (
+                          <Stack key={nodeId} className="topoviewer-vscode-transit-row" direction="row" spacing={0.5}>
+                            <Typography variant="caption">{nodeNameById.get(nodeId) || nodeId}</Typography>
+                            <Button size="small" disabled={index === 0} onClick={() => movePathTransitNode(index, -1)}>Up</Button>
+                            <Button size="small" disabled={index === pathTransitIds.length - 1} onClick={() => movePathTransitNode(index, 1)}>Down</Button>
+                            <Button size="small" onClick={() => removePathTransitNode(nodeId)}>Remove</Button>
+                          </Stack>
+                        ))}
+                        <FormControl fullWidth size="small">
+                          <InputLabel id="path-target-label">Path target</InputLabel>
+                          <Select labelId="path-target-label" label="Path target" value={pathTargetId} onChange={(event) => setPathTargetId(String(event.target.value))}>
+                            {graphNodes.map((node) => <MenuItem key={node.id} value={node.id}>{nodeNameById.get(node.id)}</MenuItem>)}
+                          </Select>
+                        </FormControl>
+                        <Button
+                          size="small"
+                          variant="contained"
+                          disabled={hasErrors || !pathSourceId || !pathTargetId || pathSourceId === pathTargetId}
+                          onClick={createPath}
+                        >
+                          Create path
+                        </Button>
+                      </Stack>
+                    )}
+                  </Stack>
+                )}
               </Stack>
             </HarnessTabPanel>
 
@@ -1055,36 +1995,146 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
                       {validation.layers.map((layer) => <MenuItem key={layer.id} value={layer.id}>{layer.name || layer.id}</MenuItem>)}
                     </Select>
                   </FormControl>
+                  {selectedPrimary.kind === 'link' && (
+                    <Stack className="topoviewer-vscode-relationship-composer" spacing={1}>
+                      <Typography variant="subtitle2">Link endpoints</Typography>
+                      <FormControl fullWidth size="small">
+                        <InputLabel id="link-source-label">Link source</InputLabel>
+                        <Select labelId="link-source-label" label="Link source" value={linkSourceId} onChange={(event) => setLinkSourceId(String(event.target.value))}>
+                          {graphNodes.map((node) => <MenuItem key={node.id} value={node.id}>{nodeNameById.get(node.id)}</MenuItem>)}
+                        </Select>
+                      </FormControl>
+                      <FormControl fullWidth size="small">
+                        <InputLabel id="link-target-label">Link target</InputLabel>
+                        <Select labelId="link-target-label" label="Link target" value={linkTargetId} onChange={(event) => setLinkTargetId(String(event.target.value))}>
+                          {graphNodes.map((node) => <MenuItem key={node.id} value={node.id}>{nodeNameById.get(node.id)}</MenuItem>)}
+                        </Select>
+                      </FormControl>
+                      <Button
+                        size="small"
+                        disabled={hasErrors || !linkSourceId || !linkTargetId || linkSourceId === linkTargetId}
+                        onClick={applyRelationshipInspector}
+                      >
+                        Apply relationship
+                      </Button>
+                    </Stack>
+                  )}
+                  {selectedPrimary.kind === 'path' && (
+                    <Stack className="topoviewer-vscode-relationship-composer" spacing={1}>
+                      <Typography variant="subtitle2">Path sequence</Typography>
+                      <FormControl fullWidth size="small">
+                        <InputLabel id="inspector-path-source-label">Path source</InputLabel>
+                        <Select labelId="inspector-path-source-label" label="Path source" value={pathSourceId} onChange={(event) => setPathSourceId(String(event.target.value))}>
+                          {graphNodes.map((node) => <MenuItem key={node.id} value={node.id}>{nodeNameById.get(node.id)}</MenuItem>)}
+                        </Select>
+                      </FormControl>
+                      <Stack direction="row" spacing={1}>
+                        <FormControl fullWidth size="small">
+                          <InputLabel id="inspector-path-transit-label">Add transit node</InputLabel>
+                          <Select labelId="inspector-path-transit-label" label="Add transit node" value={pathTransitCandidate} onChange={(event) => setPathTransitCandidate(String(event.target.value))}>
+                            {pathTransitOptions.map((node) => <MenuItem key={node.id} value={node.id}>{nodeNameById.get(node.id)}</MenuItem>)}
+                          </Select>
+                        </FormControl>
+                        <Button size="small" disabled={!pathTransitCandidate} onClick={addPathTransitNode}>Add</Button>
+                      </Stack>
+                      {pathTransitIds.map((nodeId, index) => (
+                        <Stack key={nodeId} className="topoviewer-vscode-transit-row" direction="row" spacing={0.5}>
+                          <Typography variant="caption">{nodeNameById.get(nodeId) || nodeId}</Typography>
+                          <Button size="small" disabled={index === 0} onClick={() => movePathTransitNode(index, -1)}>Up</Button>
+                          <Button size="small" disabled={index === pathTransitIds.length - 1} onClick={() => movePathTransitNode(index, 1)}>Down</Button>
+                          <Button size="small" onClick={() => removePathTransitNode(nodeId)}>Remove</Button>
+                        </Stack>
+                      ))}
+                      <FormControl fullWidth size="small">
+                        <InputLabel id="inspector-path-target-label">Path target</InputLabel>
+                        <Select labelId="inspector-path-target-label" label="Path target" value={pathTargetId} onChange={(event) => setPathTargetId(String(event.target.value))}>
+                          {graphNodes.map((node) => <MenuItem key={node.id} value={node.id}>{nodeNameById.get(node.id)}</MenuItem>)}
+                        </Select>
+                      </FormControl>
+                      <Button
+                        size="small"
+                        disabled={hasErrors || !pathSourceId || !pathTargetId || pathSourceId === pathTargetId}
+                        onClick={applyRelationshipInspector}
+                      >
+                        Apply relationship
+                      </Button>
+                    </Stack>
+                  )}
                   <Stack direction="row" spacing={1}>
                     <TextField size="small" label="X" value={inspectorX} onChange={(event) => setInspectorX(event.target.value)} />
                     <TextField size="small" label="Y" value={inspectorY} onChange={(event) => setInspectorY(event.target.value)} />
                   </Stack>
-                  <Stack direction="row" spacing={1}>
-                    <TextField size="small" label="Label key" value={labelKey} onChange={(event) => setLabelKey(event.target.value)} />
-                    <TextField size="small" label="Value" value={labelValue} onChange={(event) => setLabelValue(event.target.value)} />
-                    <Button size="small" onClick={() => applyKeyValue('labels')}>Add</Button>
-                  </Stack>
-                  <Stack direction="row" spacing={1}>
-                    <TextField size="small" label="Data key" value={dataKey} onChange={(event) => setDataKey(event.target.value)} />
-                    <TextField size="small" label="Value" value={dataValue} onChange={(event) => setDataValue(event.target.value)} />
-                    <Button size="small" onClick={() => applyKeyValue('data')}>Add</Button>
+                  <Stack spacing={1}>
+                    <Typography variant="subtitle2">Labels</Typography>
+                    {labelRows.map((row, index) => (
+                      <Stack key={row.id} className="topoviewer-vscode-key-value-row" direction="row" spacing={1} data-label-row-key={row.key}>
+                        <TextField size="small" label="Label key" value={row.key} onChange={(event) => updateKeyValueRow('labels', row.id, { key: event.target.value })} />
+                        <TextField size="small" label="Label value" value={row.value} onChange={(event) => updateKeyValueRow('labels', row.id, { value: event.target.value })} />
+                        <Button size="small" disabled={labelRows.length === 1 && index === 0 && !row.key} onClick={() => removeKeyValueRow('labels', row.id)}>Remove</Button>
+                      </Stack>
+                    ))}
+                    <Stack direction="row" spacing={1}>
+                      <Button size="small" onClick={() => addKeyValueRow('labels')}>Add label row</Button>
+                      <Button size="small" onClick={() => applyKeyValueRows('labels')}>Apply labels</Button>
+                    </Stack>
                   </Stack>
                   <Stack spacing={1}>
-                    <FormControl fullWidth size="small">
-                      <InputLabel id="inspector-style-key-label">Style key</InputLabel>
-                      <Select
-                        labelId="inspector-style-key-label"
-                        label="Style key"
-                        value={styleKey}
-                        onChange={(event) => setStyleKey(String(event.target.value))}
-                      >
-                        {availableStyleOptions.map((option) => (
-                          <MenuItem key={option.key} value={option.key}>{option.label}</MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                    <TextField fullWidth size="small" label="Style value" value={styleValue} onChange={(event) => setStyleValue(event.target.value)} />
-                    <Button size="small" onClick={() => applyKeyValue('style')}>Add style</Button>
+                    <Typography variant="subtitle2">Data</Typography>
+                    {dataRows.map((row, index) => (
+                      <Stack key={row.id} className="topoviewer-vscode-key-value-row" direction="row" spacing={1} data-data-row-key={row.key}>
+                        <TextField size="small" label="Data key" value={row.key} onChange={(event) => updateKeyValueRow('data', row.id, { key: event.target.value })} />
+                        <TextField size="small" label="Data value" value={row.value} onChange={(event) => updateKeyValueRow('data', row.id, { value: event.target.value })} />
+                        <Button size="small" disabled={dataRows.length === 1 && index === 0 && !row.key} onClick={() => removeKeyValueRow('data', row.id)}>Remove</Button>
+                      </Stack>
+                    ))}
+                    <Stack direction="row" spacing={1}>
+                      <Button size="small" onClick={() => addKeyValueRow('data')}>Add data row</Button>
+                      <Button size="small" onClick={() => applyKeyValueRows('data')}>Apply data</Button>
+                    </Stack>
+                  </Stack>
+                  <Stack spacing={1}>
+                    <Typography variant="subtitle2">Style</Typography>
+                    {styleRows.map((row, index) => {
+                      const valueDefinition = selectedPrimary
+                        ? styleValueDefinitionForKey(selectedPrimary.kind, row.key)
+                        : { dataType: 'text' as const };
+                      const keyLabelId = `inspector-style-key-${row.id}`;
+                      return (
+                        <Stack key={row.id} className="topoviewer-vscode-style-row" direction="row" spacing={1} data-style-row-key={row.key}>
+                          <FormControl fullWidth size="small">
+                            <InputLabel id={keyLabelId}>Style key</InputLabel>
+                            <Select
+                              labelId={keyLabelId}
+                              label="Style key"
+                              value={row.key}
+                              onChange={(event) => updateStyleRowKey(row.id, String(event.target.value))}
+                            >
+                              {availableStyleOptionGroups.flatMap(([group, options]) => [
+                                <ListSubheader key={`${group}-header`}>{group}</ListSubheader>,
+                                ...options.map((option) => (
+                                  <MenuItem key={option.key} value={option.key}>{option.label}</MenuItem>
+                                ))
+                              ])}
+                            </Select>
+                          </FormControl>
+                          {renderStyleValueInput(row, valueDefinition)}
+                          <Chip size="small" label={row.source} variant={row.source === 'inline' ? 'filled' : 'outlined'} />
+                          <Button
+                            size="small"
+                            aria-label={`Reset ${styleOptionLabel(selectedPrimary.kind, row.key)} style override`}
+                            disabled={row.source !== 'inline' && row.value === row.originalValue}
+                            onClick={() => resetStyleRow(row)}
+                          >
+                            Reset
+                          </Button>
+                          <Button size="small" disabled={styleRows.length === 1 && index === 0 && !selectedPrimaryObject?.style} onClick={() => removeStyleRow(row.id)}>Remove</Button>
+                        </Stack>
+                      );
+                    })}
+                    <Stack direction="row" spacing={1}>
+                      <Button size="small" onClick={addStyleRow}>Add style row</Button>
+                      <Button size="small" onClick={applyStyleRows}>Apply styles</Button>
+                    </Stack>
                   </Stack>
                   <Stack spacing={1}>
                     <Typography variant="subtitle2">Preset</Typography>
@@ -1105,18 +2155,31 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
                 <Tab label="Stylesheet YAML" />
               </Tabs>
               <Box className="topoviewer-vscode-editor">
+                <Tooltip title={`Copy ${editorLabel}`}>
+                  <IconButton
+                    aria-label={`Copy ${editorLabel}`}
+                    className="topoviewer-vscode-yaml-copy"
+                    size="small"
+                    onClick={copyYamlToClipboard}
+                  >
+                    <ContentCopyIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
                 <Editor
                   height="100%"
                   language="yaml"
                   theme={editorTheme}
                   value={editorValue}
+                  onMount={handleEditorMount}
                   onChange={(value) => setState((current) => current
                     ? (tab === 0 ? { ...current, topologyText: value || '' } : { ...current, stylesheetText: value || '' })
                     : current)}
                   options={{
                     automaticLayout: true,
                     fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
+                    glyphMargin: true,
                     minimap: { enabled: false },
+                    padding: { top: 40 },
                     renderLineHighlight: 'gutter',
                     scrollBeyondLastLine: false,
                     tabSize: 2,
@@ -1380,6 +2443,7 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
               toggles={{ showRegions: true }}
               onObjectClick={handleObjectClick}
               onPaneClick={() => setSelectedObjects([])}
+              onNodePositionChange={handleNodePositionChange}
             />
           )}
         </Paper>

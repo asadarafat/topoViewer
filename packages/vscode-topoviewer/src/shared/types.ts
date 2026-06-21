@@ -12,10 +12,14 @@ export interface WebviewState {
 
 export interface HarnessFixture {
   id: string;
+  kind?: 'template' | 'saved';
   name: string;
 }
 
 export interface WebviewDiagnostic {
+  column?: number;
+  document?: 'topology' | 'stylesheet';
+  line?: number;
   severity: 'error' | 'warning';
   source: 'schema' | 'semantic' | 'host';
   code: string;
@@ -32,8 +36,11 @@ export interface ValidationResult {
 export interface TopoViewerWebviewHost {
   readonly kind: 'vscode' | 'browser';
   loadInitialState(): Promise<WebviewState>;
+  createTopology?(): Promise<WebviewState>;
   listFixtures?(): Promise<HarnessFixture[]>;
   loadFixture?(id: string): Promise<WebviewState>;
+  revertState?(state: WebviewState): Promise<WebviewState>;
+  saveState?(state: WebviewState): Promise<void> | void;
   validate(state: WebviewState): Promise<ValidationResult>;
   openDocs(target: string): Promise<void>;
   exportImage(): Promise<void>;
