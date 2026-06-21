@@ -73,9 +73,16 @@ export class BrowserHarnessHostAdapter implements TopoViewerWebviewHost {
   }
 
   async listFixtures(): Promise<HarnessFixture[]> {
-    const response = await fetch('/fixtures');
-    if (!response.ok) throw new Error(`Failed to load fixtures: ${response.status}`);
-    const templates = await response.json() as HarnessFixture[];
+    let templates: HarnessFixture[];
+    try {
+      const response = await fetch(this.assetUrl('fixtures/index.json'));
+      if (!response.ok) throw new Error(`Failed to load fixture index: ${response.status}`);
+      templates = await response.json() as HarnessFixture[];
+    } catch {
+      const response = await fetch('/fixtures');
+      if (!response.ok) throw new Error(`Failed to load fixtures: ${response.status}`);
+      templates = await response.json() as HarnessFixture[];
+    }
     return [
       ...templates.map((fixture) => ({ ...fixture, kind: 'template' as const })),
       ...this.loadCustomFixtures()
@@ -98,16 +105,16 @@ export class BrowserHarnessHostAdapter implements TopoViewerWebviewHost {
     }
 
     const [topology, stylesheet] = await Promise.all([
-      fetch(`/fixtures/${id}/topology.yaml`),
-      fetch(`/fixtures/${id}/stylesheet.yaml`)
+      fetch(this.assetUrl(`fixtures/${id}/topology.yaml`)),
+      fetch(this.assetUrl(`fixtures/${id}/stylesheet.yaml`))
     ]);
     if (!topology.ok || !stylesheet.ok) {
       throw new Error(`Failed to load fixture "${id}".`);
     }
     const baseState = {
       fixtureId: id,
-      topologyPath: `/fixtures/${id}/topology.yaml`,
-      stylesheetPath: `/fixtures/${id}/stylesheet.yaml`,
+      topologyPath: this.assetUrl(`fixtures/${id}/topology.yaml`),
+      stylesheetPath: this.assetUrl(`fixtures/${id}/stylesheet.yaml`),
       topologyText: await topology.text(),
       stylesheetText: await stylesheet.text()
     };
@@ -226,22 +233,32 @@ export class BrowserHarnessHostAdapter implements TopoViewerWebviewHost {
   }
 
   async validate(state: WebviewState): Promise<ValidationResult> {
-    const response = await fetch('/validate', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify(state)
-    });
-    if (!response.ok) throw new Error(`Validation failed: ${response.status}`);
-    return response.json();
+    return Promise.resolve(validateSources(state));
   }
 
   openDocs(target: string): Promise<void> {
-    window.open(`/${target}`, '_blank', 'noopener,noreferrer');
+    window.open(new URL(`../${target.replace(/^\/+/, '')}`, this.pageBaseUrl()).toString(), '_blank', 'noopener,noreferrer');
     return Promise.resolve();
   }
 
   exportImage(): Promise<void> {
     window.dispatchEvent(new CustomEvent('topoviewer-export-mock'));
     return Promise.resolve();
+  }
+
+  private assetUrl(path: string): string {
+    return new URL(path.replace(/^\/+/, ''), this.pageBaseUrl()).toString();
+  }
+
+  private pageBaseUrl(): URL {
+    const base = new URL(window.location.href);
+    base.search = '';
+    base.hash = '';
+    if (base.pathname.endsWith('/index.html')) {
+      base.pathname = base.pathname.slice(0, -'index.html'.length);
+    } else if (!base.pathname.endsWith('/')) {
+      base.pathname = `${base.pathname}/`;
+    }
+    return base;
   }
 }

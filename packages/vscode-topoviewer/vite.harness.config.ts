@@ -2,13 +2,15 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import react from '@vitejs/plugin-react';
-import { defineConfig, type Plugin } from 'vite';
+import { defineConfig, type Plugin, type ResolvedConfig } from 'vite';
 import { validateSources } from './src/shared/validation';
 
 const packageRoot = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(packageRoot, '../..');
 const packageFixtureRoot = path.join(packageRoot, 'fixtures');
 const exampleFixtureRoot = path.join(repoRoot, 'packages/topoviewer/examples/test-cases');
+const harnessBase = process.env.TOPOVIEWER_HARNESS_BASE || '/topoViewer/harness/';
+const harnessOutDir = process.env.TOPOVIEWER_HARNESS_OUT_DIR || path.join(repoRoot, 'site/harness');
 
 const fixtures = [
   {
@@ -82,12 +84,42 @@ function fixtureFile(id: string, fileName: 'topology.yaml' | 'stylesheet.yaml') 
   return filePath;
 }
 
+function copyStaticFixtures(outDir: string) {
+  const targetRoot = path.join(outDir, 'fixtures');
+  fs.rmSync(targetRoot, { recursive: true, force: true });
+  fs.mkdirSync(targetRoot, { recursive: true });
+  fs.writeFileSync(
+    path.join(targetRoot, 'index.json'),
+    `${JSON.stringify(fixtures.map(({ id, name }) => ({ id, name })), null, 2)}\n`
+  );
+
+  for (const fixture of fixtures) {
+    const targetDirectory = path.join(targetRoot, fixture.id);
+    fs.mkdirSync(targetDirectory, { recursive: true });
+    for (const fileName of ['topology.yaml', 'stylesheet.yaml'] as const) {
+      const source = fixtureFile(fixture.id, fileName);
+      if (!source) throw new Error(`Harness fixture "${fixture.id}" is missing ${fileName}.`);
+      fs.copyFileSync(source, path.join(targetDirectory, fileName));
+    }
+  }
+}
+
 function fixtureApi(): Plugin {
+  let resolvedConfig: ResolvedConfig | undefined;
+
   return {
     name: 'topoviewer-vscode-fixture-api',
+    configResolved(config) {
+      resolvedConfig = config;
+    },
     configureServer(server) {
       server.middlewares.use(async (request, response, next) => {
         const url = new URL(request.url || '/', 'http://127.0.0.1');
+        if (request.method === 'GET' && url.pathname === '/fixtures/index.json') {
+          sendJson(response, fixtures.map(({ id, name }) => ({ id, name })));
+          return;
+        }
+
         if (request.method === 'GET' && url.pathname === '/fixtures') {
           sendJson(response, fixtures.map(({ id, name }) => ({ id, name })));
           return;
@@ -120,11 +152,19 @@ function fixtureApi(): Plugin {
 
         next();
       });
+    },
+    closeBundle() {
+      if (resolvedConfig?.command !== 'build') return;
+      const outDir = path.isAbsolute(resolvedConfig.build.outDir)
+        ? resolvedConfig.build.outDir
+        : path.join(resolvedConfig.root, resolvedConfig.build.outDir);
+      copyStaticFixtures(outDir);
     }
   };
 }
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
+  base: command === 'build' ? harnessBase : '/',
   root: packageRoot,
   plugins: [fixtureApi(), react()],
   resolve: {
@@ -136,5 +176,9 @@ export default defineConfig({
     host: '127.0.0.1',
     port: 5174,
     strictPort: true
+  },
+  build: {
+    outDir: harnessOutDir,
+    emptyOutDir: true
   }
-});
+}));

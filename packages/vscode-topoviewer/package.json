@@ -77,6 +77,8 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "vscode:harness": "node ../../scripts/run-node24.mjs npm run vscode:harness:node24",
     "vscode:harness:node24": "npm --workspace topoviewer run build:lib && vite --host 127.0.0.1 --port 5174 --strictPort --config vite.harness.config.ts",
+    "vscode:harness:build": "node ../../scripts/run-node24.mjs npm run vscode:harness:build:node24",
+    "vscode:harness:build:node24": "npm --workspace topoviewer run build:lib && vite build --config vite.harness.config.ts",
     "test:vscode-harness": "node ../../scripts/run-node24.mjs npm run test:vscode-harness:node24",
     "test:vscode-harness:node24": "npm --workspace topoviewer run build:lib && playwright test --config playwright.config.js"
   },

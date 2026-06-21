@@ -31,8 +31,9 @@ The same source model can render underlay, BGP, service path, and failure views 
 - [Open the real network demo](docs/topoviewer/real-network-demo.md)
 - [Read why TopoViewer exists](docs/topoviewer/why-topoviewer.md)
 - [Review the integration roadmap](docs/topoviewer/integration-roadmap.md)
+- [Open the browser authoring harness](https://asadarafat.github.io/topoViewer/harness/)
 
-TopoViewer is a monorepo for the renderer package, MkDocs plugin, examples, schemas, and documentation build.
+TopoViewer is a monorepo for the renderer package, MkDocs plugin, VS Code authoring harness, examples, schemas, and documentation build.
 
 ## Legacy History
 
@@ -45,6 +46,7 @@ https://github.com/asadarafat/topoViewer-legacy.
 |---|---|---|---|
 | `packages/topoviewer` | Node, browser, React | `topoviewer` | Renderer, compiler, schemas, React component, and embeddable browser bundle |
 | `packages/mkdocs-topoviewer` | Python, MkDocs | `mkdocs-topoviewer` | MkDocs fenced-block adapter and vendored browser assets |
+| `packages/vscode-topoviewer` | VS Code, browser, Vite | Experimental package | VS Code preview extension and static browser authoring harness |
 
 The dependency direction is one way:
 
@@ -97,6 +99,21 @@ For Markdown-only review when assets are already current, use:
 npm run docs:preview:fast
 ```
 
+The published GitHub Pages artifact is assembled under `site/` with three
+targets:
+
+| Target | Published URL | Local command |
+|---|---|---|
+| MkDocs documentation | `https://asadarafat.github.io/topoViewer/` | `npm run docs:preview` |
+| Zensical documentation | `https://asadarafat.github.io/topoViewer/zensical/` | `npm run docs:preview` |
+| Browser authoring harness | `https://asadarafat.github.io/topoViewer/harness/` | `npm run vscode:harness` |
+
+For a local static Pages artifact that includes all three targets, run:
+
+```bash
+npm run docs:build:parallel
+```
+
 Build the MkDocs plugin wheel:
 
 ```bash
@@ -109,6 +126,12 @@ Refresh the MkDocs plugin vendored browser assets after changing renderer behavi
 ```bash
 npm run build
 npm run sync:mkdocs-assets
+```
+
+Build and inspect the static browser harness that GitHub Pages publishes:
+
+```bash
+npm run vscode:harness:build
 ```
 
 ## Package Docs
@@ -131,11 +154,14 @@ npm run validate:schemas
 npm run validate:semantics
 npm run build
 npm test
+npm run test:vscode-harness
+npm run vscode:harness:build
 npm run pack:check
 npm run sync:mkdocs-assets
 npm run wheel:mkdocs
 npm run inspect:wheel
 mkdocs build --strict
+TOPOVIEWER_ZENSICAL_SKIP_VIEWER_BUILD=1 npm run zensical:build
 ```
 
 CI runs the same gates. The package is not considered production-ready when local-only generated output is required for success.

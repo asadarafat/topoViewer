@@ -53,6 +53,9 @@ jobs:
       - name: Run Playwright tests
         run: npm test
 
+      - name: Build VS Code browser harness
+        run: npm run vscode:harness:build
+
       - name: Inspect npm package contents
         run: npm run pack:check
 
