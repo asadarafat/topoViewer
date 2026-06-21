@@ -9,7 +9,6 @@ Current active plans:
 - `changes/define-netbox-integration-roadmap/` - planned NetBox feasibility, use cases, first integration shape, and roadmap wording constraints.
 - `changes/define-opsmill-infrahub-integration-roadmap/` - planned OpsMill/Infrahub feasibility, use cases, first integration shape, and roadmap wording constraints.
 - `changes/define-grafana-integration-roadmap/` - planned Grafana feasibility, use cases, first integration shape, and roadmap wording constraints.
-- `changes/define-vscode-integration-roadmap/` - planned VS Code feasibility, use cases, first integration shape, and roadmap wording constraints.
 
 Current studies:
 
@@ -17,6 +16,8 @@ Current studies:
 
 Archived plans:
 
+- `archive/2026-06-21-improve-vscode-harness-ui/` - implemented resizable canvas-first harness layout, compact Build/Inspect/YAML/Attention/Layers authoring rail, structured object insertion, Attention editing, fixtures, and Playwright coverage.
+- `archive/2026-06-20-define-vscode-integration-roadmap/` - implemented experimental VS Code extension package, browser harness, use cases, and release-boundary wording constraints.
 - `archive/2026-06-20-publish-visual-product-story/` - implemented visual first impression, before/after demo, Why TopoViewer section, integration roadmap, and real network demo page.
 - `archive/2026-06-20-add-region-label-placement/` - implemented explicit region label anchors, margins, validation, docs, and examples.
 - `archive/2026-06-20-enhance-node-style-controls/` - implemented practical node styling for labels, borders, outlines, underlays, icon fit, aggregate badges, and status markers.
