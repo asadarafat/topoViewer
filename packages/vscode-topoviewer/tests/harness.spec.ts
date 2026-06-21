@@ -1,5 +1,19 @@
 import { expect, test } from '@playwright/test';
 
+type YamlCompletion = {
+  detail?: string;
+  documentation?: string;
+  insertText?: string;
+  label: string;
+};
+
+type StyleValueDataType = 'text' | 'enum' | 'boolean' | 'integer' | 'number' | 'color';
+
+type HarnessStyleMetadata = {
+  optionsByKind: Record<string, Array<{ key: string; label: string }>>;
+  valueTypesByKind: Record<string, Record<string, { dataType: StyleValueDataType; options?: string[] }>>;
+};
+
 async function topologyText(page: import('@playwright/test').Page) {
   await page.waitForFunction(() => !!(window as any).__topoviewerHarnessState?.topologyText || !!(window as any).monaco?.editor?.getModels?.()[0]);
   return page.evaluate(() => {
@@ -11,6 +25,11 @@ async function topologyText(page: import('@playwright/test').Page) {
   });
 }
 
+async function stylesheetText(page: import('@playwright/test').Page) {
+  await page.waitForFunction(() => !!(window as any).__topoviewerHarnessState?.stylesheetText);
+  return page.evaluate(() => (window as any).__topoviewerHarnessState.stylesheetText as string);
+}
+
 async function setTopologyText(page: import('@playwright/test').Page, text: string) {
   await page.waitForFunction(() => !!(window as any).monaco?.editor?.getModels?.()[0]);
   await page.evaluate((value) => {
@@ -19,6 +38,33 @@ async function setTopologyText(page: import('@playwright/test').Page, text: stri
     (topologyModel || models[0]).setValue(value);
   }, text);
   await page.waitForFunction((value) => (window as any).__topoviewerHarnessState?.topologyText === value, text);
+}
+
+async function yamlCompletions(
+  page: import('@playwright/test').Page,
+  request: { document: 'topology' | 'stylesheet'; text: string; lineNumber: number; column: number }
+) {
+  await page.waitForFunction(() => !!(window as any).__topoviewerYamlIntelligence?.completions);
+  return page.evaluate((completionRequest) => (
+    (window as any).__topoviewerYamlIntelligence.completions(completionRequest) as YamlCompletion[]
+  ), request);
+}
+
+async function yamlStyleMetadata(page: import('@playwright/test').Page) {
+  await page.waitForFunction(() => !!(window as any).__topoviewerYamlIntelligence?.styleMetadata);
+  return page.evaluate(() => (
+    (window as any).__topoviewerYamlIntelligence.styleMetadata() as HarnessStyleMetadata
+  ));
+}
+
+async function yamlHover(
+  page: import('@playwright/test').Page,
+  request: { document: 'topology' | 'stylesheet'; text: string; lineNumber: number; column: number }
+) {
+  await page.waitForFunction(() => !!(window as any).__topoviewerYamlIntelligence?.hover);
+  return page.evaluate((hoverRequest) => (
+    (window as any).__topoviewerYamlIntelligence.hover(hoverRequest) as { contents: string } | undefined
+  ), request);
 }
 
 async function chooseOption(page: import('@playwright/test').Page, combobox: import('@playwright/test').Locator, optionName: string) {
@@ -37,7 +83,7 @@ async function waitForHarnessState(page: import('@playwright/test').Page) {
 }
 
 async function revertTemplateState(page: import('@playwright/test').Page) {
-  const revert = page.getByRole('button', { name: 'Revert template' });
+  const revert = page.getByRole('button', { name: /^(Revert template|Remove saved)$/ });
   if (!(await revert.isVisible())) return;
   await revert.click();
   await waitForHarnessState(page);
@@ -73,6 +119,63 @@ async function railWidth(page: import('@playwright/test').Page) {
   return box!.width;
 }
 
+async function panelOverflowIssues(panel: import('@playwright/test').Locator) {
+  return panel.evaluate((pane) => {
+    const scroll = pane.querySelector('.topoviewer-vscode-mode-pane-scroll') || pane;
+    const bounds = scroll.getBoundingClientRect();
+    const candidates = Array.from(pane.querySelectorAll([
+      '.topoviewer-vscode-key-value-row',
+      '.MuiFormControl-root',
+      '.MuiTextField-root',
+      '.MuiInputBase-root',
+      '.MuiButton-root',
+      '.MuiChip-root'
+    ].join(',')));
+
+    return candidates.flatMap((candidate) => {
+      if (candidate.closest('.monaco-editor')) return [];
+      const rect = candidate.getBoundingClientRect();
+      const style = window.getComputedStyle(candidate);
+      if (rect.width <= 0 || rect.height <= 0 || style.display === 'none' || style.visibility === 'hidden') return [];
+      const intersectsViewport = rect.bottom > bounds.top && rect.top < bounds.bottom;
+      if (!intersectsViewport) return [];
+      const failures: string[] = [];
+      if (rect.left < bounds.left - 1 || rect.right > bounds.right + 1) {
+        const label = candidate.getAttribute('aria-label') || candidate.textContent?.trim() || candidate.className.toString();
+        failures.push(`horizontal overflow: ${label}`);
+      }
+      if (rect.top < bounds.top - 1) {
+        const label = candidate.getAttribute('aria-label') || candidate.textContent?.trim() || candidate.className.toString();
+        failures.push(`top clipped: ${label}`);
+      }
+      return failures;
+    });
+  });
+}
+
+async function expectActivePanelBeforePreview(page: import('@playwright/test').Page, panelSelector: string) {
+  const panelBox = await page.locator(panelSelector).boundingBox();
+  const previewBox = await page.locator('.topoviewer-vscode-preview').boundingBox();
+  expect(panelBox).not.toBeNull();
+  expect(previewBox).not.toBeNull();
+  expect(panelBox!.height).toBeGreaterThan(80);
+  expect(previewBox!.y).toBeGreaterThan(panelBox!.y + panelBox!.height - 1);
+}
+
+async function expectSameVisualRow(row: import('@playwright/test').Locator, controls: import('@playwright/test').Locator[]) {
+  const rowBox = await row.boundingBox();
+  expect(rowBox).not.toBeNull();
+  const centers = [];
+  for (const control of controls) {
+    const box = await control.boundingBox();
+    expect(box).not.toBeNull();
+    centers.push(box!.y + box!.height / 2);
+  }
+  const minCenter = Math.min(...centers);
+  const maxCenter = Math.max(...centers);
+  expect(maxCenter - minCenter).toBeLessThan(rowBox!.height / 2);
+}
+
 test('renders the browser harness with fixtures, diagnostics, layers, preview, and export wiring', async ({ page }) => {
   await page.goto('/');
 
@@ -84,6 +187,9 @@ test('renders the browser harness with fixtures, diagnostics, layers, preview, a
   await expect(page.locator('#topoviewer-authoring-tabpanel-0')).toBeVisible();
   await expect(page.locator('#topoviewer-authoring-tabpanel-4')).toBeHidden();
   await expect(page.locator('.topoviewer-vscode-mode-tabs')).toBeVisible();
+  for (const tabName of ['Build', 'Inspect', 'YAML', 'Attention', 'Layers']) {
+    await expect(page.getByRole('tab', { name: tabName, exact: true })).toBeVisible();
+  }
   await expect(page.getByText('Primitives')).toBeVisible();
   await expect(page.getByRole('button', { name: 'Insert Node' })).toBeVisible();
   await expect(page.getByText('Presets')).toBeVisible();
@@ -184,6 +290,21 @@ test('uses a stacked narrow viewport fallback without horizontal page overflow',
 
   await expect(page.getByRole('separator', { name: /resize authoring column and canvas/i })).toBeHidden();
   await expect(page.locator('.topoviewer-vscode-preview')).toBeVisible();
+  await expect(page.getByText('Primitives')).toBeVisible();
+  await expectActivePanelBeforePreview(page, '.topoviewer-vscode-build-pane');
+
+  await page.getByRole('tab', { name: 'Inspect', exact: true }).click();
+  await expect(page.getByText('Select a canvas object')).toBeVisible();
+  await expectActivePanelBeforePreview(page, '.topoviewer-vscode-inspector-pane');
+
+  await page.getByRole('tab', { name: 'YAML', exact: true }).click();
+  await expect(page.locator('.topoviewer-vscode-editor .monaco-editor')).toBeVisible();
+  await expectActivePanelBeforePreview(page, '.topoviewer-vscode-yaml-pane');
+
+  await page.getByRole('tab', { name: 'Attention', exact: true }).click();
+  await expect(page.getByText('Object focus')).toBeVisible();
+  await expectActivePanelBeforePreview(page, '.topoviewer-vscode-attention-pane');
+
   const hasHorizontalOverflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1);
   expect(hasHorizontalOverflow).toBeFalsy();
 });
@@ -269,6 +390,43 @@ test('keeps relationship composer controls compact at the minimum authoring rail
     });
   });
   expect(clippedControls).toEqual([]);
+});
+
+test('keeps Inspect semantic key/value rows aligned at the default authoring rail width', async ({ page }) => {
+  await page.goto('/');
+  await waitForHarnessReady(page);
+
+  await page.locator('.react-flow__node').filter({ hasText: 'FRA-PE' }).click();
+  const inspector = page.locator('.topoviewer-vscode-inspector-pane');
+  await expect(inspector.getByLabel('Object name')).toHaveValue('node:fra-pe');
+  await inspector.getByText('Labels', { exact: true }).scrollIntoViewIfNeeded();
+  expect(await panelOverflowIssues(inspector)).toEqual([]);
+  await expect(inspector.locator('.topoviewer-vscode-style-row')).toHaveCount(0);
+  await expect(inspector.getByRole('button', { name: 'Apply styles' })).toHaveCount(0);
+
+  const labelRow = inspector.locator('[data-label-row-key="role"]');
+  await expectSameVisualRow(labelRow, [
+    labelRow.locator('.MuiTextField-root').nth(0),
+    labelRow.locator('.MuiTextField-root').nth(1),
+    labelRow.getByRole('button', { name: 'Remove' })
+  ]);
+});
+
+test('keeps Inspect semantic key/value rows aligned at the minimum authoring rail width', async ({ page }) => {
+  await page.addInitScript(() => {
+    window.localStorage.setItem('topoviewer.vscodeHarness.splitPercent.v2', '24');
+  });
+  await page.goto('/');
+  await waitForHarnessReady(page);
+
+  await page.locator('.react-flow__node').filter({ hasText: 'FRA-PE' }).click();
+  const inspector = page.locator('.topoviewer-vscode-inspector-pane');
+  await expect(inspector.getByLabel('Object name')).toHaveValue('node:fra-pe');
+  await inspector.getByText('Labels', { exact: true }).scrollIntoViewIfNeeded();
+  expect(await panelOverflowIssues(inspector)).toEqual([]);
+  await inspector.getByText('Data', { exact: true }).scrollIntoViewIfNeeded();
+  expect(await panelOverflowIssues(inspector)).toEqual([]);
+  await expect(inspector.locator('.topoviewer-vscode-style-row')).toHaveCount(0);
 });
 
 test('prefills relationship composers from selected nodes', async ({ page }) => {
@@ -404,7 +562,7 @@ test('undoes and redoes created connection YAML', async ({ page }) => {
 test('authors and edits explicit connections and path sequences', async ({ page }) => {
   await page.goto('/');
   await waitForHarnessReady(page);
-  if ((await topologyText(page)).includes('id: link-1')) {
+  if (/\bid: link-\d+\b/.test(await topologyText(page))) {
     await revertTemplateState(page);
     await waitForHarnessReady(page);
   }
@@ -571,47 +729,18 @@ test('updates selected object properties and deletes with reversible YAML mutati
   await dataRows.last().getByLabel('Data key').fill('ticket');
   await dataRows.last().getByLabel('Data value').fill('INC-1');
   await inspector.getByRole('button', { name: 'Apply data' }).click();
-
-  const shapeStyleRow = inspector.locator('[data-style-row-key="shape"]').first();
-  const borderColorStyleRow = inspector.locator('[data-style-row-key="borderColor"]').first();
-  const widthStyleRow = inspector.locator('[data-style-row-key="width"]').first();
-  await expect(shapeStyleRow.getByText('stylesheet')).toBeVisible();
-  await expect(shapeStyleRow.getByRole('combobox', { name: 'Style value' })).toHaveText('hexagon');
-  await expect(borderColorStyleRow.getByLabel('Style value')).toHaveAttribute('type', 'color');
-  await expect(borderColorStyleRow.getByLabel('Style value')).toHaveValue('#1976d2');
-  await expect(widthStyleRow.getByRole('spinbutton', { name: 'Style value' })).toHaveAttribute('type', 'number');
-  await expect(widthStyleRow.getByRole('spinbutton', { name: 'Style value' })).toHaveValue('96');
-
-  await chooseOption(page, shapeStyleRow.getByRole('combobox', { name: 'Style value' }), 'diamond');
-  await borderColorStyleRow.getByLabel('Style value').fill('#42a5f5');
-  await expect(borderColorStyleRow.getByLabel('Style value')).toHaveValue('#42a5f5');
-  await widthStyleRow.getByRole('spinbutton', { name: 'Style value' }).fill('104');
-  await inspector.getByRole('button', { name: 'Add style row' }).click();
-  await inspector.locator('[data-style-row-key]').last().getByRole('combobox', { name: 'Style key' }).click();
-  await page.getByRole('option', { name: 'Draggable', exact: true }).click();
-  await chooseOption(page, inspector.locator('[data-style-row-key="draggable"]').getByRole('combobox', { name: 'Style value' }), 'false');
-  await inspector.getByRole('button', { name: 'Apply styles' }).click();
+  await expect(inspector.locator('.topoviewer-vscode-style-row')).toHaveCount(0);
+  await expect(inspector.getByRole('button', { name: 'Apply styles' })).toHaveCount(0);
 
   await expect.poll(() => topologyText(page)).toContain('owner: core');
   await expect.poll(() => topologyText(page)).toContain('ticket: INC-1');
-  await expect.poll(() => topologyText(page)).toContain('shape: diamond');
-  await expect.poll(() => topologyText(page)).toContain('borderColor: "#42a5f5"');
-  await expect.poll(() => topologyText(page)).toContain('width: 104');
-  await expect.poll(() => topologyText(page)).toContain('draggable: false');
-  await expect.poll(() => topologyText(page)).not.toContain('height: 76');
 
-  await inspector.locator('[data-style-row-key="shape"]').getByRole('button', { name: 'Reset Shape style override' }).click();
-  await expect.poll(() => topologyText(page)).not.toContain('shape: diamond');
-  await expect(inspector.locator('[data-style-row-key="shape"]').getByText('stylesheet')).toBeVisible();
-  await expect(inspector.locator('[data-style-row-key="shape"]').getByRole('combobox', { name: 'Style value' })).toHaveText('hexagon');
-
-  await inspector.getByLabel('Preset name').fill('Blue PE');
+  await inspector.getByLabel('Preset name').fill('Edited PE');
   await inspector.getByRole('button', { name: 'Save as preset' }).click();
   await page.getByRole('tab', { name: 'Build', exact: true }).click();
-  await expect(page.getByRole('button', { name: 'Insert Blue PE' })).toBeVisible();
-  await page.getByRole('button', { name: 'Insert Blue PE' }).click();
-  await expect.poll(() => topologyText(page)).toContain('name: Blue PE');
-  await expect.poll(() => topologyText(page)).toContain('borderColor: "#42a5f5"');
+  await expect(page.getByRole('button', { name: 'Insert Edited PE' })).toBeVisible();
+  await page.getByRole('button', { name: 'Insert Edited PE' }).click();
+  await expect.poll(() => topologyText(page)).toContain('name: Edited PE');
 
   await page.getByRole('tab', { name: 'Inspect', exact: true }).click();
   await inspector.getByRole('button', { name: 'Delete' }).click();
@@ -639,6 +768,225 @@ test('preserves invalid Monaco content when a structured mutation cannot be appl
   await expect.poll(() => topologyText(page)).toBe('graph: [');
 });
 
+test('suggests topology keys and node references in YAML intelligence', async ({ page }) => {
+  await page.goto('/');
+  await waitForHarnessReady(page);
+
+  const nodeKeySuggestions = await yamlCompletions(page, {
+    document: 'topology',
+    text: 'graph:\n  nodes:\n    - ',
+    lineNumber: 3,
+    column: 7
+  });
+  expect(nodeKeySuggestions.map((suggestion) => suggestion.label)).toEqual(expect.arrayContaining([
+    'id',
+    'name',
+    'labels',
+    'data',
+    'layers',
+    'position'
+  ]));
+
+  const sourceSuggestions = await yamlCompletions(page, {
+    document: 'topology',
+    text: 'graph:\n  links:\n    - source: ',
+    lineNumber: 3,
+    column: 15
+  });
+  expect(sourceSuggestions.map((suggestion) => suggestion.label)).toEqual(expect.arrayContaining([
+    'fra-pe',
+    'ams-p',
+    'lon-pe'
+  ]));
+
+  const hover = await yamlHover(page, {
+    document: 'topology',
+    text: 'graph:\n  links:\n    - source: fra-pe',
+    lineNumber: 3,
+    column: 8
+  });
+  expect(hover?.contents).toContain('Source graph node ID');
+});
+
+test('suggests stylesheet selectors, style keys, and typed values in YAML intelligence', async ({ page }) => {
+  await page.goto('/');
+  await waitForHarnessReady(page);
+
+  const selectorSuggestions = await yamlCompletions(page, {
+    document: 'stylesheet',
+    text: 'stylesheet:\n  - selector: ',
+    lineNumber: 2,
+    column: 15
+  });
+  expect(selectorSuggestions.map((suggestion) => suggestion.label)).toEqual(expect.arrayContaining([
+    'node',
+    'node[id = "fra-pe"]',
+    'node[labels.role = "pe"]',
+    'node[data.status = "ok"]'
+  ]));
+
+  const styleKeySuggestions = await yamlCompletions(page, {
+    document: 'stylesheet',
+    text: 'stylesheet:\n  - selector: node\n    style:\n      ',
+    lineNumber: 4,
+    column: 7
+  });
+  expect(styleKeySuggestions.map((suggestion) => suggestion.label)).toEqual(expect.arrayContaining([
+    'shape',
+    'borderColor',
+    'labelPosition'
+  ]));
+
+  const enumSuggestions = await yamlCompletions(page, {
+    document: 'stylesheet',
+    text: 'stylesheet:\n  - selector: node\n    style:\n      shape: ',
+    lineNumber: 4,
+    column: 14
+  });
+  expect(enumSuggestions.map((suggestion) => suggestion.label)).toEqual(expect.arrayContaining([
+    'ellipse',
+    'hexagon',
+    'diamond'
+  ]));
+
+  const colorSuggestions = await yamlCompletions(page, {
+    document: 'stylesheet',
+    text: 'stylesheet:\n  - selector: node\n    style:\n      borderColor: ',
+    lineNumber: 4,
+    column: 20
+  });
+  expect(colorSuggestions.map((suggestion) => suggestion.label)).toEqual(expect.arrayContaining([
+    '#1976d2',
+    '#42a5f5',
+    '#d32f2f',
+    '#2e7d32'
+  ]));
+
+  const integerSuggestions = await yamlCompletions(page, {
+    document: 'stylesheet',
+    text: 'stylesheet:\n  - selector: node\n    style:\n      width: ',
+    lineNumber: 4,
+    column: 14
+  });
+  expect(integerSuggestions.map((suggestion) => suggestion.label)).toEqual(expect.arrayContaining([
+    '0',
+    '16',
+    '96'
+  ]));
+  expect(integerSuggestions.map((suggestion) => suggestion.label)).not.toContain('#1976d2');
+
+  const hover = await yamlHover(page, {
+    document: 'stylesheet',
+    text: 'stylesheet:\n  - selector: node\n    style:\n      borderColor: "#1976d2"',
+    lineNumber: 4,
+    column: 12
+  });
+  expect(hover?.contents).toContain('Border color');
+});
+
+test('covers every stylesheet style key and value type in YAML intelligence', async ({ page }) => {
+  await page.goto('/');
+  await waitForHarnessReady(page);
+
+  const metadata = await yamlStyleMetadata(page);
+  const seenDataTypes = new Set<StyleValueDataType>();
+
+  for (const [kind, options] of Object.entries(metadata.optionsByKind)) {
+    const suggestions = await yamlCompletions(page, {
+      document: 'stylesheet',
+      text: `stylesheet:\n  - selector: ${kind}\n    style:\n      `,
+      lineNumber: 4,
+      column: 7
+    });
+    const suggestionsByLabel = new Map(suggestions.map((suggestion) => [suggestion.label, suggestion]));
+
+    for (const option of options) {
+      const suggestion = suggestionsByLabel.get(option.key);
+      expect(suggestion, `${kind}.${option.key} should be suggested`).toBeTruthy();
+      expect(suggestion?.detail, `${kind}.${option.key} should include a grouping detail`).toBeTruthy();
+      expect(suggestion?.documentation, `${kind}.${option.key} should document its value type`).toContain('Value type:');
+    }
+  }
+
+  for (const [kind, definitions] of Object.entries(metadata.valueTypesByKind)) {
+    for (const [key, definition] of Object.entries(definitions)) {
+      seenDataTypes.add(definition.dataType);
+      const valueLine = `      ${key}: `;
+      const suggestions = await yamlCompletions(page, {
+        document: 'stylesheet',
+        text: `stylesheet:\n  - selector: ${kind}\n    style:\n${valueLine}`,
+        lineNumber: 4,
+        column: valueLine.length + 1
+      });
+      const labels = suggestions.map((suggestion) => suggestion.label);
+
+      if (definition.dataType === 'enum') {
+        expect(labels, `${kind}.${key} should suggest every enum value`).toEqual(expect.arrayContaining(definition.options || []));
+        continue;
+      }
+      if (definition.dataType === 'boolean') {
+        expect(labels, `${kind}.${key} should suggest boolean values`).toEqual(expect.arrayContaining(['true', 'false']));
+        continue;
+      }
+      if (definition.dataType === 'color') {
+        expect(labels, `${kind}.${key} should suggest palette colors`).toEqual(expect.arrayContaining(['#1976d2', '#42a5f5', '#d32f2f', '#2e7d32']));
+        continue;
+      }
+      if (definition.dataType === 'integer') {
+        expect(labels, `${kind}.${key} should suggest integer values`).toEqual(expect.arrayContaining(['0', '16', '96']));
+        expect(labels, `${kind}.${key} should not suggest color values`).not.toContain('#1976d2');
+        continue;
+      }
+      if (definition.dataType === 'number') {
+        expect(labels, `${kind}.${key} should suggest numeric values`).toEqual(expect.arrayContaining(['0', '0.5', '1']));
+        expect(labels, `${kind}.${key} should not suggest color values`).not.toContain('#1976d2');
+        continue;
+      }
+      expect(labels, `${kind}.${key} text values should stay free-form`).toHaveLength(0);
+    }
+  }
+
+  expect([...seenDataTypes].sort()).toEqual(['boolean', 'color', 'enum', 'integer', 'number', 'text']);
+});
+
+test('creates a selected node style rule and opens YAML suggestions', async ({ page }) => {
+  await page.goto('/');
+  await waitForHarnessReady(page);
+
+  await page.locator('.react-flow__node').filter({ hasText: 'FRA-PE' }).click();
+  await page.getByRole('tab', { name: 'YAML', exact: true }).click();
+  await page.getByRole('button', { name: 'Style in YAML' }).click();
+  await expect(page.getByRole('tab', { name: 'Stylesheet YAML' })).toHaveAttribute('aria-selected', 'true');
+  await expect.poll(() => stylesheetText(page)).toContain('selector: node[id = "fra-pe"]');
+  await expect.poll(() => stylesheetText(page)).toContain('opacity: 1');
+  await expect(page.locator('.suggest-widget')).toBeVisible();
+  await expect(page.locator('.monaco-list-row').filter({ hasText: 'backgroundColor' }).first()).toBeVisible();
+
+  await page.keyboard.press('Escape');
+  const beforeHelp = await stylesheetText(page);
+  await page.keyboard.type('?');
+  await expect(page.locator('.suggest-widget')).toBeVisible();
+  await expect.poll(() => stylesheetText(page)).toBe(beforeHelp);
+  await page.keyboard.press('Escape');
+  await revertTemplateState(page);
+});
+
+test('creates selected link and path style rules with object-specific selectors', async ({ page }) => {
+  await page.goto('/');
+  await waitForHarnessReady(page);
+
+  await page.waitForSelector('[data-testid="rf__edge-underlay-fra-ams"]', { state: 'attached' });
+  await page.locator('[data-testid="rf__edge-underlay-fra-ams"]').dispatchEvent('click');
+  await page.getByRole('button', { name: 'Style in YAML' }).click();
+  await expect.poll(() => stylesheetText(page)).toContain('selector: link[id = "underlay-fra-ams"]');
+
+  await page.waitForSelector('[data-testid="rf__edge-payments-path:0"]', { state: 'attached' });
+  await page.locator('[data-testid="rf__edge-payments-path:0"]').dispatchEvent('click');
+  await page.getByRole('button', { name: 'Style in YAML' }).click();
+  await expect.poll(() => stylesheetText(page)).toContain('selector: path[id = "payments-path"]');
+  await revertTemplateState(page);
+});
+
 test('authors attention focus, interaction, aggregation, and link grouping YAML', async ({ page }) => {
   await page.goto('/');
   await waitForHarnessReady(page);
@@ -652,7 +1000,7 @@ test('authors attention focus, interaction, aggregation, and link grouping YAML'
   await expect(attention.getByText('Dim keeps context visible. Hide removes non-matching objects.')).toBeVisible();
   await expect.poll(() => topologyText(page)).toContain('ids:');
   await expect.poll(() => topologyText(page)).toContain('- lon-pe');
-  await page.locator('.react-flow__node').filter({ hasText: 'FRA-PE' }).click();
+  await page.locator('.react-flow__node').filter({ hasText: 'FRA-PE' }).dispatchEvent('click');
   await expect(attention.getByRole('combobox', { name: 'Object' })).toHaveText('fra-pe');
   await expect.poll(() => topologyText(page)).toContain('- fra-pe');
 

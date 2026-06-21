@@ -18,7 +18,6 @@ import {
   FormHelperText,
   IconButton,
   InputLabel,
-  ListSubheader,
   MenuItem,
   Paper,
   Select,
@@ -37,7 +36,7 @@ import LightModeIcon from '@mui/icons-material/LightMode';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
 import RefreshIcon from '@mui/icons-material/Refresh';
-import { applyStyle, TopoViewer, type StyleDeclaration, type TopoDocument, type TopoViewerNodePositionChange, type TopoViewerObjectClick } from 'topoviewer';
+import { TopoViewer, type TopoDocument, type TopoViewerNodePositionChange, type TopoViewerObjectClick } from 'topoviewer';
 import type { HarnessFixture, TopoViewerWebviewHost, ValidationResult, WebviewState } from '../shared/types';
 import {
   clearAttention,
@@ -83,19 +82,12 @@ interface HarnessTabPanelProps {
   value: number;
 }
 
-interface TopologyTransaction {
+interface DocumentTransaction {
   label: string;
-  previousText: string;
-  nextText: string;
-}
-
-interface StyleEditorRow {
-  id: string;
-  key: string;
-  originalKey: string;
-  originalValue: string;
-  source: 'inline' | 'stylesheet' | 'new';
-  value: string;
+  previousStylesheetText: string;
+  previousTopologyText: string;
+  nextStylesheetText: string;
+  nextTopologyText: string;
 }
 
 type StyleValueDataType = 'text' | 'enum' | 'boolean' | 'integer' | 'number' | 'color';
@@ -109,6 +101,37 @@ interface KeyValueEditorRow {
 interface StyleValueDefinition {
   dataType: StyleValueDataType;
   options?: string[];
+}
+
+type YamlAuthoringDocument = 'topology' | 'stylesheet';
+
+interface YamlAuthoringSuggestion {
+  detail?: string;
+  documentation?: string;
+  insertText?: string;
+  isSnippet?: boolean;
+  kind: 'key' | 'reference' | 'selector' | 'snippet' | 'value';
+  label: string;
+}
+
+interface YamlAuthoringHover {
+  contents: string;
+}
+
+interface YamlAuthoringRequest {
+  document: YamlAuthoringDocument;
+  layers: Array<{ id: string; name?: string }>;
+  lineNumber: number;
+  column: number;
+  text: string;
+  topoDocument?: TopoDocument;
+}
+
+interface PendingYamlFocus {
+  column: number;
+  document: YamlAuthoringDocument;
+  lineNumber: number;
+  showSuggestions?: boolean;
 }
 
 const splitStorageKey = 'topoviewer.vscodeHarness.splitPercent.v2';
@@ -578,87 +601,34 @@ function styleValueDefinitionForKey(kind: TopoObjectSelection['kind'], key: stri
   return { dataType: 'text' };
 }
 
+function styleMetadataForYamlIntelligence() {
+  const kinds = Object.keys(styleOptionsByKind) as TopoObjectSelection['kind'][];
+  return {
+    optionsByKind: Object.fromEntries(
+      kinds.map((kind) => [kind, styleOptionsByKind[kind]])
+    ) as Record<TopoObjectSelection['kind'], Array<{ key: string; label: string }>>,
+    valueTypesByKind: Object.fromEntries(
+      kinds.map((kind) => [
+        kind,
+        Object.fromEntries(
+          styleOptionsByKind[kind].map((option) => [
+            option.key,
+            styleValueDefinitionForKey(kind, option.key)
+          ])
+        )
+      ])
+    ) as Record<TopoObjectSelection['kind'], Record<string, StyleValueDefinition>>
+  };
+}
+
 function isColorStyleKey(key: string) {
   return key === 'color' || key.endsWith('Color') || key === 'fill' || key === 'pipeFill' || key === 'stroke';
-}
-
-function colorInputValue(value: string) {
-  return colorPickerValue(value) || '#1976d2';
-}
-
-function colorPickerValue(value: string) {
-  const trimmed = value.trim();
-  if (!trimmed) return '#1976d2';
-  const shortHex = trimmed.match(/^#([0-9a-fA-F]{3})$/);
-  if (shortHex) {
-    return `#${shortHex[1].split('').map((char) => char + char).join('')}`.toLowerCase();
-  }
-  return /^#[0-9a-fA-F]{6}$/.test(trimmed) ? trimmed.toLowerCase() : undefined;
-}
-
-function styleValueToInput(value: unknown): string {
-  if (value === undefined || value === null) return '';
-  if (Array.isArray(value)) return value.join(' ');
-  return String(value);
 }
 
 function rowValueToInput(value: unknown): string {
   if (value === undefined || value === null) return '';
   if (typeof value === 'object') return JSON.stringify(value);
   return String(value);
-}
-
-function parseStyleValue(key: string, value: string): unknown {
-  const trimmed = value.trim();
-  if (booleanStyleKeys.has(key)) {
-    if (trimmed.toLowerCase() === 'true') return true;
-    if (trimmed.toLowerCase() === 'false') return false;
-  }
-  if (integerStyleKeys.has(key)) {
-    const numberValue = Number(trimmed);
-    if (Number.isFinite(numberValue)) return Math.round(numberValue);
-  }
-  if (numberStyleKeys.has(key)) {
-    const numberValue = Number(trimmed);
-    if (Number.isFinite(numberValue)) return numberValue;
-  }
-  return trimmed;
-}
-
-function effectiveStyleForObject(kind: TopoObjectSelection['kind'], object: any | undefined, document?: TopoDocument): StyleDeclaration {
-  if (!object || !document) return {};
-  return applyStyle(kind, object, document);
-}
-
-function inlineStyleForObject(object: any | undefined): Record<string, unknown> {
-  return cloneRecord(object?.style) || {};
-}
-
-function styleSourceForKey(object: any | undefined, key: string): StyleEditorRow['source'] {
-  return Object.prototype.hasOwnProperty.call(inlineStyleForObject(object), key) ? 'inline' : 'stylesheet';
-}
-
-function styleRowsForObject(kind: TopoObjectSelection['kind'], object: any | undefined, document?: TopoDocument): StyleEditorRow[] {
-  const style = effectiveStyleForObject(kind, object, document);
-  const entries = Object.entries(style);
-  if (entries.length) {
-    return entries.map(([key, value], index) => ({
-      id: `style-${key}-${index}`,
-      key,
-      originalKey: key,
-      originalValue: styleValueToInput(value),
-      source: styleSourceForKey(object, key),
-      value: styleValueToInput(value)
-    }));
-  }
-  return [{
-    id: 'style-new-0',
-    key: styleOptionsByKind[kind][0]?.key || '',
-    originalKey: '',
-    originalValue: '',
-    source: 'new',
-    value: ''
-  }];
 }
 
 function keyValueRowsForObject(object: any | undefined, key: 'labels' | 'data'): KeyValueEditorRow[] {
@@ -683,10 +653,6 @@ function recordFromRows(rows: KeyValueEditorRow[]): Record<string, unknown> {
   }, {});
 }
 
-function styleOptionLabel(kind: TopoObjectSelection['kind'], key: string) {
-  return styleOptionsByKind[kind].find((option) => option.key === key)?.label || key;
-}
-
 function styleGroupForKey(kind: TopoObjectSelection['kind'], key: string) {
   if (kind === 'link' || kind === 'path') {
     if (key.includes('Arrow')) return 'Arrows';
@@ -704,13 +670,459 @@ function styleGroupForKey(kind: TopoObjectSelection['kind'], key: string) {
   return 'General';
 }
 
-function groupedStyleOptions(kind: TopoObjectSelection['kind']) {
-  const groups = new Map<string, Array<{ key: string; label: string }>>();
-  styleOptionsByKind[kind].forEach((option) => {
-    const group = styleGroupForKey(kind, option.key);
-    groups.set(group, [...(groups.get(group) || []), option]);
+const paletteValueSuggestions = [
+  { label: '#1976d2', detail: 'Material UI primary' },
+  { label: '#42a5f5', detail: 'Material UI primary light' },
+  { label: '#1565c0', detail: 'Material UI primary dark' },
+  { label: '#9c27b0', detail: 'Material UI secondary' },
+  { label: '#d32f2f', detail: 'Material UI error' },
+  { label: '#ed6c02', detail: 'Material UI warning' },
+  { label: '#0288d1', detail: 'Material UI info' },
+  { label: '#2e7d32', detail: 'Material UI success' }
+];
+
+const integerValueSuggestions = ['0', '1', '2', '4', '8', '12', '16', '24', '32', '48', '64', '96'];
+const numberValueSuggestions = ['0', '0.25', '0.5', '0.75', '1', '1.5', '2', '4', '8', '16'];
+
+const topologyKeyDocumentation: Record<string, string> = {
+  attention: 'Attention defines focus, dimming, collapse, and link grouping behavior.',
+  data: 'Data stores operational or host-defined metadata used by styling and attention queries.',
+  graph: 'Graph contains layers, nodes, links, paths, and regions.',
+  id: 'Stable object identifier used by references, selectors, URLs, and tests.',
+  labels: 'Labels classify objects for styling, filtering, attention, and docs examples.',
+  layers: 'Layer IDs decide which layer toggles control this object.',
+  links: 'Links describe direct relationships between source and target nodes.',
+  name: 'Human-readable display name for an object.',
+  nodes: 'Nodes are the primary graph objects rendered in the topology.',
+  paths: 'Paths describe ordered node sequences for services, transport, or flows.',
+  position: 'Explicit canvas coordinates. Dragging a node in the harness updates this field.',
+  regions: 'Regions group graph objects visually and semantically.',
+  sequence: 'Ordered node IDs traversed by a path.',
+  source: 'Source graph node ID for a link.',
+  target: 'Target graph node ID for a link.'
+};
+
+const stylesheetKeyDocumentation: Record<string, string> = {
+  selector: 'Selector choosing which objects this stylesheet rule affects.',
+  style: 'Style declaration applied to every object matched by the selector.'
+};
+
+function lineAt(text: string, lineNumber: number) {
+  return text.split(/\r?\n/)[Math.max(0, lineNumber - 1)] || '';
+}
+
+function linePrefix(text: string, lineNumber: number, column: number) {
+  return lineAt(text, lineNumber).slice(0, Math.max(0, column - 1));
+}
+
+function lineIndent(line: string) {
+  return line.match(/^\s*/)?.[0].length || 0;
+}
+
+function yamlPathAtLine(text: string, lineNumber: number) {
+  const stack: Array<{ indent: number; key: string }> = [];
+  text.split(/\r?\n/).slice(0, Math.max(0, lineNumber)).forEach((line) => {
+    const match = line.match(/^(\s*)(?:-\s*)?([A-Za-z][A-Za-z0-9_]*)\s*:/);
+    if (!match) return;
+    const indent = match[1]?.length || 0;
+    while (stack.length && stack[stack.length - 1].indent >= indent) stack.pop();
+    stack.push({ indent, key: match[2] });
   });
-  return Array.from(groups.entries());
+  return stack.map((entry) => entry.key);
+}
+
+function currentYamlKey(request: YamlAuthoringRequest) {
+  const prefix = linePrefix(request.text, request.lineNumber, request.column);
+  return prefix.match(/(?:^|\s)([A-Za-z][A-Za-z0-9]*)\s*:\s*[^:]*$/)?.[1];
+}
+
+function isKeyContext(request: YamlAuthoringRequest) {
+  const prefix = linePrefix(request.text, request.lineNumber, request.column).trim();
+  return prefix === '' || prefix === '-' || /^-?\s*[A-Za-z][A-Za-z0-9]*$/.test(prefix);
+}
+
+function isStylesheetStyleContext(request: YamlAuthoringRequest) {
+  const lines = request.text.split(/\r?\n/);
+  const currentIndent = lineIndent(lines[Math.max(0, request.lineNumber - 1)] || '');
+  for (let index = request.lineNumber - 2; index >= 0; index -= 1) {
+    const line = lines[index];
+    if (!line.trim()) continue;
+    const indent = lineIndent(line);
+    if (/^\s*style:\s*$/.test(line) && indent < currentIndent) return true;
+    if (/^\s*-\s*selector:/.test(line) && indent < currentIndent) return false;
+    if (/^\s*stylesheet:\s*$/.test(line) && indent < currentIndent) return false;
+  }
+  return false;
+}
+
+function selectorKindForContext(request: YamlAuthoringRequest): TopoObjectSelection['kind'] {
+  const lines = request.text.split(/\r?\n/);
+  const allowed = new Set<TopoObjectSelection['kind']>(['node', 'link', 'path', 'region', 'callout', 'shape']);
+  for (let index = request.lineNumber - 1; index >= 0; index -= 1) {
+    const kind = lines[index]?.match(/selector:\s*["']?([A-Za-z][A-Za-z0-9_-]*)/)?.[1];
+    if (allowed.has(kind as TopoObjectSelection['kind'])) return kind as TopoObjectSelection['kind'];
+  }
+  return 'node';
+}
+
+function fieldValuePairs(objects: any[], field: 'labels' | 'data') {
+  const pairs: Array<{ key: string; value: string }> = [];
+  objects.forEach((object) => {
+    const record = object?.[field];
+    if (!record || typeof record !== 'object' || Array.isArray(record)) return;
+    Object.entries(record).forEach(([key, value]) => {
+      if (value === undefined || value === null || typeof value === 'object') return;
+      pairs.push({ key, value: String(value) });
+    });
+  });
+  return pairs;
+}
+
+function uniqueByLabel(suggestions: YamlAuthoringSuggestion[]) {
+  const seen = new Set<string>();
+  return suggestions.filter((suggestion) => {
+    if (seen.has(suggestion.label)) return false;
+    seen.add(suggestion.label);
+    return true;
+  });
+}
+
+function objectCollection(document: TopoDocument | undefined, kind: TopoObjectSelection['kind']): any[] {
+  if (!document) return [];
+  if (kind === 'node') return document.graph?.nodes || [];
+  if (kind === 'link') return document.graph?.links || [];
+  if (kind === 'path') return document.graph?.paths || [];
+  if (kind === 'region') return document.graph?.regions || [];
+  if (kind === 'callout') return document.diagram?.callouts || [];
+  return document.diagram?.shapes || [];
+}
+
+function allAuthorableObjects(document: TopoDocument | undefined) {
+  return (['node', 'link', 'path', 'region', 'callout', 'shape'] as const).flatMap((kind) => objectCollection(document, kind));
+}
+
+function layerIdsForSuggestions(request: YamlAuthoringRequest) {
+  const graphLayerIds = (request.topoDocument?.graph?.layers || []).map((layer: any) => String(layer.id)).filter(Boolean);
+  return [...new Set([...request.layers.map((layer) => layer.id), ...graphLayerIds])];
+}
+
+function referenceSuggestions(values: string[], detail: string): YamlAuthoringSuggestion[] {
+  return values.map((value) => ({
+    detail,
+    documentation: detail,
+    insertText: value,
+    kind: 'reference',
+    label: value
+  }));
+}
+
+function topologyKeySuggestions(path: string[]): YamlAuthoringSuggestion[] {
+  const root = [
+    { label: 'graph', insertText: 'graph:\n  nodes: []', documentation: topologyKeyDocumentation.graph },
+    { label: 'attention', insertText: 'attention:\n  query:\n    mode: dim-context', documentation: topologyKeyDocumentation.attention }
+  ];
+  const graph = ['layers', 'nodes', 'links', 'paths', 'regions'].map((label) => ({
+    label,
+    insertText: `${label}:`,
+    documentation: topologyKeyDocumentation[label]
+  }));
+  const commonObject = ['id', 'name', 'labels', 'data', 'layers'].map((label) => ({
+    label,
+    insertText: `${label}: `,
+    documentation: topologyKeyDocumentation[label]
+  }));
+  if (path[path.length - 1] === 'graph') return graph.map((suggestion) => ({ ...suggestion, kind: 'key' as const }));
+  if (path.includes('nodes')) {
+    return [...commonObject, { label: 'position', insertText: 'position: [0, 0]', documentation: topologyKeyDocumentation.position }]
+      .map((suggestion) => ({ ...suggestion, kind: 'key' as const }));
+  }
+  if (path.includes('links')) {
+    return [...commonObject, { label: 'source', insertText: 'source: ', documentation: topologyKeyDocumentation.source }, { label: 'target', insertText: 'target: ', documentation: topologyKeyDocumentation.target }]
+      .map((suggestion) => ({ ...suggestion, kind: 'key' as const }));
+  }
+  if (path.includes('paths')) {
+    return [...commonObject, { label: 'sequence', insertText: 'sequence:\n  - ', documentation: topologyKeyDocumentation.sequence }]
+      .map((suggestion) => ({ ...suggestion, kind: 'key' as const }));
+  }
+  if (path.includes('regions')) {
+    return [...commonObject, { label: 'members', insertText: 'members: []', documentation: 'Object IDs included in the region.' }]
+      .map((suggestion) => ({ ...suggestion, kind: 'key' as const }));
+  }
+  return root.map((suggestion) => ({ ...suggestion, kind: 'key' as const }));
+}
+
+function topologySnippetSuggestions(): YamlAuthoringSuggestion[] {
+  return [
+    {
+      label: 'node snippet',
+      insertText: '- id: ${1:node-id}\n  name: ${2:Node}\n  position: [${3:0}, ${4:0}]',
+      isSnippet: true,
+      kind: 'snippet',
+      documentation: 'Insert a graph node.'
+    },
+    {
+      label: 'link snippet',
+      insertText: '- id: ${1:link-id}\n  source: ${2:source-node}\n  target: ${3:target-node}',
+      isSnippet: true,
+      kind: 'snippet',
+      documentation: 'Insert a graph link.'
+    },
+    {
+      label: 'path snippet',
+      insertText: '- id: ${1:path-id}\n  sequence:\n    - ${2:source-node}\n    - ${3:target-node}',
+      isSnippet: true,
+      kind: 'snippet',
+      documentation: 'Insert an ordered graph path.'
+    },
+    {
+      label: 'region snippet',
+      insertText: '- id: ${1:region-id}\n  name: ${2:Region}\n  members:\n    - ${3:node-id}',
+      isSnippet: true,
+      kind: 'snippet',
+      documentation: 'Insert a graph region.'
+    },
+    {
+      label: 'attention snippet',
+      insertText: 'attention:\n  query:\n    ids:\n      - ${1:object-id}\n    mode: dim-context',
+      isSnippet: true,
+      kind: 'snippet',
+      documentation: 'Insert object focus attention.'
+    }
+  ];
+}
+
+function selectorSuggestions(request: YamlAuthoringRequest): YamlAuthoringSuggestion[] {
+  const kinds: TopoObjectSelection['kind'][] = ['node', 'link', 'path', 'region', 'callout', 'shape'];
+  const objects = allAuthorableObjects(request.topoDocument);
+  const idSuggestions = kinds.flatMap((kind) => objectCollection(request.topoDocument, kind).map((object) => ({
+    detail: `${kind} id selector`,
+    insertText: `${kind}[id = "${String(object.id)}"]`,
+    kind: 'selector' as const,
+    label: `${kind}[id = "${String(object.id)}"]`
+  })));
+  const labelSuggestions = fieldValuePairs(objects, 'labels').flatMap(({ key, value }) => kinds.map((kind) => ({
+    detail: 'label selector',
+    insertText: `${kind}[labels.${key} = "${value}"]`,
+    kind: 'selector' as const,
+    label: `${kind}[labels.${key} = "${value}"]`
+  })));
+  const dataSuggestions = fieldValuePairs(objects, 'data').flatMap(({ key, value }) => kinds.map((kind) => ({
+    detail: 'data selector',
+    insertText: `${kind}[data.${key} = "${value}"]`,
+    kind: 'selector' as const,
+    label: `${kind}[data.${key} = "${value}"]`
+  })));
+  return uniqueByLabel([
+    ...kinds.map((kind) => ({
+      detail: 'object kind selector',
+      insertText: kind,
+      kind: 'selector' as const,
+      label: kind
+    })),
+    ...idSuggestions,
+    ...labelSuggestions,
+    ...dataSuggestions
+  ]);
+}
+
+function styleKeySuggestions(kind: TopoObjectSelection['kind']): YamlAuthoringSuggestion[] {
+  return styleOptionsByKind[kind].map((option) => ({
+    detail: styleGroupForKey(kind, option.key),
+    documentation: `${option.label} style for ${kind} objects. Value type: ${styleValueDefinitionForKey(kind, option.key).dataType}.`,
+    insertText: `${option.key}: `,
+    kind: 'key',
+    label: option.key
+  }));
+}
+
+function styleValueSuggestions(kind: TopoObjectSelection['kind'], key: string): YamlAuthoringSuggestion[] {
+  const definition = styleValueDefinitionForKey(kind, key);
+  if (definition.dataType === 'enum') {
+    return (definition.options || []).map((option) => ({
+      detail: `${key} value`,
+      insertText: option,
+      kind: 'value',
+      label: option
+    }));
+  }
+  if (definition.dataType === 'boolean') {
+    return ['true', 'false'].map((option) => ({
+      detail: `${key} boolean value`,
+      insertText: option,
+      kind: 'value',
+      label: option
+    }));
+  }
+  if (definition.dataType === 'color') {
+    return paletteValueSuggestions.map((palette) => ({
+      detail: palette.detail,
+      documentation: `${palette.detail} color token.`,
+      insertText: `"${palette.label}"`,
+      kind: 'value',
+      label: palette.label
+    }));
+  }
+  if (definition.dataType === 'integer' || definition.dataType === 'number') {
+    const values = definition.dataType === 'integer' ? integerValueSuggestions : numberValueSuggestions;
+    return values.map((value) => ({
+      detail: `${key} ${definition.dataType} value`,
+      documentation: `Numeric ${definition.dataType} value for ${key}.`,
+      insertText: value,
+      kind: 'value',
+      label: value
+    }));
+  }
+  return [];
+}
+
+function stylesheetSnippetSuggestions(): YamlAuthoringSuggestion[] {
+  return [{
+    label: 'stylesheet rule snippet',
+    insertText: '- selector: ${1:node}\n  style:\n    ${2:backgroundColor}: "${3:#1976d2}"',
+    isSnippet: true,
+    kind: 'snippet',
+    documentation: 'Insert a selector style rule.'
+  }];
+}
+
+function wordAtColumn(line: string, column: number) {
+  const index = Math.max(0, Math.min(line.length, column - 1));
+  const matches = line.matchAll(/[A-Za-z][A-Za-z0-9]*/g);
+  for (const match of matches) {
+    const start = match.index || 0;
+    const end = start + match[0].length;
+    if (index >= start && index <= end) return match[0];
+  }
+  return undefined;
+}
+
+function lineNumberForIndex(text: string, index: number) {
+  return text.slice(0, Math.max(0, index)).split(/\r?\n/).length;
+}
+
+function selectorIdValue(value: string) {
+  return value.replace(/"/g, '\\"');
+}
+
+function stylesheetSelectorForSelection(selection: TopoObjectSelection) {
+  return `${selection.kind}[id = "${selectorIdValue(selection.id)}"]`;
+}
+
+function selectorLineMatches(line: string, selector: string) {
+  const trimmed = line.trim();
+  return trimmed === `- selector: ${selector}`
+    || trimmed === `selector: ${selector}`
+    || trimmed === `- selector: "${selector.replace(/"/g, '\\"')}"`
+    || trimmed === `selector: "${selector.replace(/"/g, '\\"')}"`;
+}
+
+function locateStyleRuleCursor(text: string, selector: string): PendingYamlFocus | undefined {
+  const lines = text.split(/\r?\n/);
+  const selectorIndex = lines.findIndex((line) => selectorLineMatches(line, selector));
+  if (selectorIndex === -1) return undefined;
+  for (let index = selectorIndex + 1; index < lines.length; index += 1) {
+    if (/^\s*-\s*selector\s*:/.test(lines[index])) break;
+    if (/^\s*style\s*:/.test(lines[index])) {
+      const styleIndent = lineIndent(lines[index]);
+      for (let candidate = index + 1; candidate < lines.length; candidate += 1) {
+        if (/^\s*-\s*selector\s*:/.test(lines[candidate])) break;
+        if (lines[candidate].trim() === '' && lineIndent(lines[candidate]) > styleIndent) {
+          return { document: 'stylesheet', lineNumber: candidate + 1, column: lineIndent(lines[candidate]) + 1, showSuggestions: true };
+        }
+      }
+      return { document: 'stylesheet', lineNumber: index + 1, column: lines[index].length + 1, showSuggestions: true };
+    }
+  }
+  return { document: 'stylesheet', lineNumber: selectorIndex + 1, column: lines[selectorIndex].length + 1, showSuggestions: true };
+}
+
+function ensureStyleRule(text: string, selector: string): { focus: PendingYamlFocus; inserted: boolean; text: string } {
+  const existing = locateStyleRuleCursor(text, selector);
+  if (existing) return { focus: existing, inserted: false, text };
+
+  const trimmed = text.trimEnd();
+  const lines = trimmed ? trimmed.split(/\r?\n/) : [];
+  if (!lines.some((line) => /^\s*stylesheet\s*:/.test(line))) {
+    lines.push('stylesheet:');
+  }
+  lines.push(`  - selector: ${selector}`);
+  lines.push('    style:');
+  lines.push('      opacity: 1');
+  lines.push('      ');
+  const nextText = `${lines.join('\n')}\n`;
+  return {
+    focus: {
+      column: 7,
+      document: 'stylesheet',
+      lineNumber: lineNumberForIndex(nextText, nextText.lastIndexOf('      \n')),
+      showSuggestions: true
+    },
+    inserted: true,
+    text: nextText
+  };
+}
+
+function yamlAuthoringSuggestions(request: YamlAuthoringRequest): YamlAuthoringSuggestion[] {
+  const path = yamlPathAtLine(request.text, request.lineNumber);
+  const key = currentYamlKey(request);
+  const prefix = linePrefix(request.text, request.lineNumber, request.column);
+  if (request.document === 'topology') {
+    const nodeIds = (request.topoDocument?.graph?.nodes || []).map((node) => node.id);
+    if (key === 'source' || key === 'target' || path.includes('sequence')) {
+      return referenceSuggestions(nodeIds, 'Graph node ID');
+    }
+    if (key === 'layers' || path.includes('layers')) {
+      return referenceSuggestions(layerIdsForSuggestions(request), 'Layer ID');
+    }
+    return uniqueByLabel([
+      ...(isKeyContext(request) ? topologyKeySuggestions(path) : []),
+      ...(prefix.trim() === '' || prefix.trim() === '-' ? topologySnippetSuggestions() : [])
+    ]);
+  }
+
+  if (key === 'selector') return selectorSuggestions(request);
+  if (isStylesheetStyleContext(request)) {
+    const selectorKind = selectorKindForContext(request);
+    if (key && prefix.includes(':')) {
+      return styleValueSuggestions(selectorKind, key);
+    }
+    if (isKeyContext(request)) return styleKeySuggestions(selectorKind);
+  }
+  if (isKeyContext(request)) {
+    return uniqueByLabel([
+      { label: 'selector', insertText: 'selector: ', kind: 'key', documentation: stylesheetKeyDocumentation.selector },
+      { label: 'style', insertText: 'style:', kind: 'key', documentation: stylesheetKeyDocumentation.style },
+      ...stylesheetSnippetSuggestions()
+    ]);
+  }
+  return [];
+}
+
+function yamlAuthoringHover(request: YamlAuthoringRequest): YamlAuthoringHover | undefined {
+  const line = lineAt(request.text, request.lineNumber);
+  const word = wordAtColumn(line, request.column);
+  if (!word) return undefined;
+  if (request.document === 'topology' && topologyKeyDocumentation[word]) {
+    return { contents: topologyKeyDocumentation[word] };
+  }
+  if (request.document === 'stylesheet') {
+    if (stylesheetKeyDocumentation[word]) return { contents: stylesheetKeyDocumentation[word] };
+    const selectorKind = selectorKindForContext(request);
+    const option = styleOptionsByKind[selectorKind].find((candidate) => candidate.key === word);
+    if (option) {
+      const definition = styleValueDefinitionForKey(selectorKind, word);
+      return { contents: `${option.label} style for ${selectorKind} objects. Value type: ${definition.dataType}.` };
+    }
+  }
+  return undefined;
+}
+
+function monacoSuggestionKind(monaco: any, suggestion: YamlAuthoringSuggestion) {
+  if (suggestion.kind === 'snippet') return monaco.languages.CompletionItemKind.Snippet;
+  if (suggestion.kind === 'selector') return monaco.languages.CompletionItemKind.Reference;
+  if (suggestion.kind === 'reference') return monaco.languages.CompletionItemKind.Value;
+  if (suggestion.kind === 'value') return monaco.languages.CompletionItemKind.Value;
+  return monaco.languages.CompletionItemKind.Property;
 }
 
 function clamp(value: number, min: number, max: number) {
@@ -873,15 +1285,14 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
   const [resizing, setResizing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<string>();
-  const [undoStack, setUndoStack] = useState<TopologyTransaction[]>([]);
-  const [redoStack, setRedoStack] = useState<TopologyTransaction[]>([]);
+  const [undoStack, setUndoStack] = useState<DocumentTransaction[]>([]);
+  const [redoStack, setRedoStack] = useState<DocumentTransaction[]>([]);
   const [inspectorName, setInspectorName] = useState('');
   const [inspectorLayerId, setInspectorLayerId] = useState('');
   const [inspectorX, setInspectorX] = useState('');
   const [inspectorY, setInspectorY] = useState('');
   const [labelRows, setLabelRows] = useState<KeyValueEditorRow[]>([]);
   const [dataRows, setDataRows] = useState<KeyValueEditorRow[]>([]);
-  const [styleRows, setStyleRows] = useState<StyleEditorRow[]>([]);
   const [presetName, setPresetName] = useState('');
   const [relationshipComposer, setRelationshipComposer] = useState<'link' | 'path'>();
   const [linkSourceId, setLinkSourceId] = useState('');
@@ -902,9 +1313,12 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
   const [attentionRegionId, setAttentionRegionId] = useState('');
   const [attentionExpandOnClick, setAttentionExpandOnClick] = useState(true);
   const [linkGroupingThreshold, setLinkGroupingThreshold] = useState('2');
+  const [editorReady, setEditorReady] = useState(false);
+  const [pendingYamlFocus, setPendingYamlFocus] = useState<PendingYamlFocus>();
   const editorRef = useRef<any>(null);
   const monacoRef = useRef<any>(null);
   const diagnosticDecorationsRef = useRef<any>(null);
+  const editorHelpDisposableRef = useRef<any>(null);
   const workspaceRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -1000,11 +1414,6 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
   const editorLabel = tab === 0 ? 'Topology YAML' : 'Stylesheet YAML';
   const selectedPrimary = selectedObjects[0];
   const selectedPrimaryObject = useMemo(() => findObject(visibleDocument, selectedPrimary), [selectedPrimary, visibleDocument]);
-  const selectedPrimaryStyle = useMemo(() => (
-    selectedPrimary
-      ? effectiveStyleForObject(selectedPrimary.kind, selectedPrimaryObject, visibleDocument)
-      : {}
-  ), [selectedPrimary, selectedPrimaryObject, visibleDocument]);
   const selectedFixture = fixtures.find((fixture) => fixture.id === state?.fixtureId);
   const currentAttention = visibleDocument?.attention;
   const attentionSummary = currentAttention
@@ -1019,8 +1428,6 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
   const selectedGraphNodeIds = selectedNodeIds(selectedObjects);
   const pathTransitOptions = graphNodes.filter((node) => node.id !== pathSourceId && node.id !== pathTargetId && !pathTransitIds.includes(node.id));
   const activeModeIndex = modeIndex(mode);
-  const availableStyleOptions = selectedPrimary ? styleOptionsByKind[selectedPrimary.kind] : [];
-  const availableStyleOptionGroups = selectedPrimary ? groupedStyleOptions(selectedPrimary.kind) : [];
   const insertObjectGroups = useMemo(() => baseInsertObjectGroups.map((group) => (
     group.title !== 'Presets'
       ? group
@@ -1097,6 +1504,98 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
   }, [editorValue, updateEditorDiagnostics]);
 
   useEffect(() => {
+    const editor = editorRef.current;
+    if (!pendingYamlFocus || !editorReady || !editor || mode !== 'yaml' || pendingYamlFocus.document !== editorDocumentForTab(tab)) return;
+    const frame = window.requestAnimationFrame(() => {
+      editor.focus();
+      editor.setPosition({ lineNumber: pendingYamlFocus.lineNumber, column: pendingYamlFocus.column });
+      editor.revealLineInCenterIfOutsideViewport?.(pendingYamlFocus.lineNumber);
+      if (pendingYamlFocus.showSuggestions) {
+        editor.trigger('topoviewer', 'editor.action.triggerSuggest', {});
+      }
+      setPendingYamlFocus(undefined);
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [editorReady, editorValue, mode, pendingYamlFocus, tab]);
+
+  useEffect(() => {
+    if (host.kind !== 'browser') return undefined;
+    const helper = {
+      completions: (request: Omit<YamlAuthoringRequest, 'layers' | 'topoDocument'>) => yamlAuthoringSuggestions({
+        ...request,
+        layers: validation.layers,
+        topoDocument: visibleDocument
+      }),
+      hover: (request: Omit<YamlAuthoringRequest, 'layers' | 'topoDocument'>) => yamlAuthoringHover({
+        ...request,
+        layers: validation.layers,
+        topoDocument: visibleDocument
+      }),
+      styleMetadata: styleMetadataForYamlIntelligence
+    };
+    (window as unknown as { __topoviewerYamlIntelligence?: typeof helper }).__topoviewerYamlIntelligence = helper;
+    return () => {
+      delete (window as unknown as { __topoviewerYamlIntelligence?: typeof helper }).__topoviewerYamlIntelligence;
+    };
+  }, [host.kind, validation.layers, visibleDocument]);
+
+  useEffect(() => {
+    const monaco = monacoRef.current;
+    if (!editorReady || !monaco) return undefined;
+    const completionProvider = monaco.languages.registerCompletionItemProvider('yaml', {
+      triggerCharacters: [' ', ':', '-', '"', "'"],
+      provideCompletionItems(model: any, position: any) {
+        const word = model.getWordUntilPosition(position);
+        const range = new monaco.Range(position.lineNumber, word.startColumn, position.lineNumber, word.endColumn);
+        const suggestions = yamlAuthoringSuggestions({
+          column: position.column,
+          document: editorDocumentForTab(tab),
+          layers: validation.layers,
+          lineNumber: position.lineNumber,
+          text: model.getValue(),
+          topoDocument: visibleDocument
+        }).map((suggestion) => ({
+          detail: suggestion.detail,
+          documentation: suggestion.documentation,
+          insertText: suggestion.insertText || suggestion.label,
+          insertTextRules: suggestion.isSnippet
+            ? monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet
+            : undefined,
+          kind: monacoSuggestionKind(monaco, suggestion),
+          label: suggestion.label,
+          range
+        }));
+        return { suggestions };
+      }
+    });
+    const hoverProvider = monaco.languages.registerHoverProvider('yaml', {
+      provideHover(model: any, position: any) {
+        const hover = yamlAuthoringHover({
+          column: position.column,
+          document: editorDocumentForTab(tab),
+          layers: validation.layers,
+          lineNumber: position.lineNumber,
+          text: model.getValue(),
+          topoDocument: visibleDocument
+        });
+        if (!hover) return undefined;
+        const word = model.getWordAtPosition(position);
+        const range = word
+          ? new monaco.Range(position.lineNumber, word.startColumn, position.lineNumber, word.endColumn)
+          : undefined;
+        return {
+          contents: [{ value: hover.contents }],
+          range
+        };
+      }
+    });
+    return () => {
+      completionProvider.dispose();
+      hoverProvider.dispose();
+    };
+  }, [editorReady, tab, validation.layers, visibleDocument]);
+
+  useEffect(() => {
     if (typeof window !== 'undefined') {
       window.localStorage.setItem(splitStorageKey, String(splitPercent));
     }
@@ -1122,7 +1621,6 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
       setPresetName('');
       setLabelRows([]);
       setDataRows([]);
-      setStyleRows([]);
       return;
     }
     setInspectorName(selectedPrimaryObject.name || '');
@@ -1130,7 +1628,6 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
     setPresetName(`${selectedPrimaryObject.name || selectedPrimaryObject.label || selectedPrimary.id} preset`);
     setLabelRows(keyValueRowsForObject(selectedPrimaryObject, 'labels'));
     setDataRows(keyValueRowsForObject(selectedPrimaryObject, 'data'));
-    setStyleRows(styleRowsForObject(selectedPrimary.kind, selectedPrimaryObject, visibleDocument));
     const position = positionOf(selectedPrimaryObject.position);
     setInspectorX(position?.x !== undefined ? String(position.x) : '');
     setInspectorY(position?.y !== undefined ? String(position.y) : '');
@@ -1199,15 +1696,26 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
     window.setTimeout(() => setMessage(undefined), 1800);
   }
 
-  function applyTopologyTransaction(label: string, update: (topologyText: string) => { text: string }) {
+  function applyDocumentTransaction(
+    label: string,
+    update: (current: WebviewState) => Partial<Pick<WebviewState, 'stylesheetText' | 'topologyText'>>
+  ) {
     setState((current) => {
       if (!current) return current;
       try {
-        const result = update(current.topologyText);
-        setUndoStack((stack) => [...stack, { label, previousText: current.topologyText, nextText: result.text }]);
+        const result = update(current);
+        const nextTopologyText = result.topologyText ?? current.topologyText;
+        const nextStylesheetText = result.stylesheetText ?? current.stylesheetText;
+        setUndoStack((stack) => [...stack, {
+          label,
+          previousTopologyText: current.topologyText,
+          previousStylesheetText: current.stylesheetText,
+          nextTopologyText,
+          nextStylesheetText
+        }]);
         setRedoStack([]);
         flash(label);
-        return { ...current, topologyText: result.text };
+        return { ...current, topologyText: nextTopologyText, stylesheetText: nextStylesheetText };
       } catch (error) {
         flash(error instanceof Error ? error.message : String(error));
         return current;
@@ -1215,12 +1723,22 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
     });
   }
 
+  function applyTopologyTransaction(label: string, update: (topologyText: string) => { text: string }) {
+    applyDocumentTransaction(label, (current) => ({
+      topologyText: update(current.topologyText).text
+    }));
+  }
+
   function undoTopology() {
     const transaction = undoStack[undoStack.length - 1];
     if (!transaction) return;
     setUndoStack((stack) => stack.slice(0, -1));
     setRedoStack((stack) => [...stack, transaction]);
-    setState((current) => current ? { ...current, topologyText: transaction.previousText } : current);
+    setState((current) => current ? {
+      ...current,
+      topologyText: transaction.previousTopologyText,
+      stylesheetText: transaction.previousStylesheetText
+    } : current);
     flash(`Undo ${transaction.label}`);
   }
 
@@ -1229,7 +1747,11 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
     if (!transaction) return;
     setRedoStack((stack) => stack.slice(0, -1));
     setUndoStack((stack) => [...stack, transaction]);
-    setState((current) => current ? { ...current, topologyText: transaction.nextText } : current);
+    setState((current) => current ? {
+      ...current,
+      topologyText: transaction.nextTopologyText,
+      stylesheetText: transaction.nextStylesheetText
+    } : current);
     flash(`Redo ${transaction.label}`);
   }
 
@@ -1323,10 +1845,48 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
     }
   }
 
+  function showYamlSuggestions() {
+    setMode('yaml');
+    window.requestAnimationFrame(() => {
+      const editor = editorRef.current;
+      if (!editor) return;
+      editor.focus();
+      editor.trigger('topoviewer', 'editor.action.triggerSuggest', {});
+    });
+  }
+
+  function styleSelectionInYaml() {
+    if (!selectedPrimary || !state) {
+      flash('Select an object to style');
+      return;
+    }
+    const selector = stylesheetSelectorForSelection(selectedPrimary);
+    const result = ensureStyleRule(state.stylesheetText || '', selector);
+    setMode('yaml');
+    setTab(1);
+    setPendingYamlFocus(result.focus);
+    if (!result.inserted) {
+      flash(`Focused ${selector}`);
+      return;
+    }
+    applyDocumentTransaction('Create style rule', () => ({
+      stylesheetText: result.text
+    }));
+  }
+
   function handleEditorMount(editor: any, monaco: any) {
     editorRef.current = editor;
     monacoRef.current = monaco;
     diagnosticDecorationsRef.current = editor.createDecorationsCollection?.([]);
+    editorHelpDisposableRef.current?.dispose?.();
+    editorHelpDisposableRef.current = editor.onKeyDown((event: any) => {
+      if (event.browserEvent?.key !== '?') return;
+      event.preventDefault();
+      event.stopPropagation();
+      editor.focus();
+      window.requestAnimationFrame(() => editor.trigger('topoviewer', 'editor.action.triggerSuggest', {}));
+    });
+    setEditorReady(true);
     updateEditorDiagnostics();
   }
 
@@ -1525,168 +2085,7 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
       ...(kind === 'labels'
         ? { labelsReplace: record }
         : { dataReplace: record })
-    }));
-  }
-
-  function updateStyleRow(rowId: string, patch: Partial<StyleEditorRow>) {
-    setStyleRows((current) => current.map((row) => (row.id === rowId ? { ...row, ...patch } : row)));
-  }
-
-  function updateStyleRowKey(rowId: string, key: string) {
-    const existingValue = styleValueToInput(selectedPrimaryStyle[key]);
-    updateStyleRow(rowId, {
-      key,
-      originalKey: key,
-      originalValue: existingValue,
-      source: existingValue ? styleSourceForKey(selectedPrimaryObject, key) : 'new',
-      value: existingValue || (isColorStyleKey(key) ? colorInputValue('') : '')
-    });
-  }
-
-  function addStyleRow() {
-    if (!selectedPrimary) return;
-    const usedKeys = new Set(styleRows.map((row) => row.key).filter(Boolean));
-    const nextKey = availableStyleOptions.find((option) => !usedKeys.has(option.key))?.key || availableStyleOptions[0]?.key || '';
-    setStyleRows((current) => [
-      ...current,
-      {
-        id: `style-new-${Date.now()}`,
-        key: nextKey,
-        originalKey: nextKey,
-        originalValue: styleValueToInput(selectedPrimaryStyle[nextKey]),
-        source: selectedPrimaryStyle[nextKey] !== undefined ? styleSourceForKey(selectedPrimaryObject, nextKey) : 'new',
-        value: styleValueToInput(selectedPrimaryStyle[nextKey])
-      }
-    ]);
-  }
-
-  function removeStyleRow(rowId: string) {
-    setStyleRows((current) => {
-      const next = current.filter((row) => row.id !== rowId);
-      return next.length ? next : [{
-        id: `style-new-${Date.now()}`,
-        key: availableStyleOptions[0]?.key || '',
-        originalKey: '',
-        originalValue: '',
-        source: 'new',
-        value: ''
-      }];
-    });
-  }
-
-  function applyStyleRows() {
-    if (!selectedPrimary || !selectedPrimaryObject) return;
-    const style = inlineStyleForObject(selectedPrimaryObject);
-    let changed = false;
-    styleRows.forEach((row) => {
-      const key = row.key.trim();
-      if (!key) return;
-      if (row.originalKey && row.originalKey !== key && row.source === 'inline') {
-        delete style[row.originalKey];
-        changed = true;
-      }
-      if (row.source === 'new' && !row.value.trim()) return;
-      if (row.source === 'new' || row.value !== row.originalValue || row.originalKey !== key) {
-        style[key] = parseStyleValue(key, row.value);
-        changed = true;
-      }
-    });
-    if (!changed) {
-      flash('No style changes');
-      return;
-    }
-    setTab(0);
-    applyTopologyTransaction('Update style', (topologyText) => updateTopoObject(topologyText, {
-      selection: selectedPrimary,
-      styleReplace: style
-    }));
-  }
-
-  function resetStyleRow(row: StyleEditorRow) {
-    if (!selectedPrimary || !selectedPrimaryObject) return;
-    if (row.source !== 'inline') {
-      updateStyleRow(row.id, { value: row.originalValue });
-      return;
-    }
-    const key = row.originalKey || row.key;
-    const style = inlineStyleForObject(selectedPrimaryObject);
-    delete style[key];
-    setTab(0);
-    applyTopologyTransaction(`Reset ${styleOptionLabel(selectedPrimary.kind, key)}`, (topologyText) => updateTopoObject(topologyText, {
-      selection: selectedPrimary,
-      styleReplace: style
-    }));
-  }
-
-  function renderStyleValueInput(row: StyleEditorRow, definition: StyleValueDefinition) {
-    const labelId = `inspector-style-value-${row.id}`;
-    if (definition.dataType === 'enum' || definition.dataType === 'boolean') {
-      const options = definition.dataType === 'boolean' ? ['true', 'false'] : definition.options || [];
-      return (
-        <FormControl fullWidth size="small">
-          <InputLabel id={labelId}>Style value</InputLabel>
-          <Select
-            labelId={labelId}
-            label="Style value"
-            value={row.value}
-            onChange={(event) => updateStyleRow(row.id, { value: String(event.target.value) })}
-          >
-            <MenuItem value="">Unset</MenuItem>
-            {options.map((option) => (
-              <MenuItem key={option} value={option}>{option}</MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-      );
-    }
-
-    if (definition.dataType === 'color') {
-      const pickerValue = colorPickerValue(row.value);
-      if (!pickerValue) {
-        return (
-          <TextField
-            fullWidth
-            size="small"
-            label="Style value"
-            value={row.value}
-            onChange={(event) => updateStyleRow(row.id, { value: event.target.value })}
-          />
-        );
-      }
-      return (
-        <TextField
-          fullWidth
-          size="small"
-          label="Style value"
-          type="color"
-          value={pickerValue}
-          onChange={(event) => updateStyleRow(row.id, { value: event.target.value })}
-        />
-      );
-    }
-
-    if (definition.dataType === 'integer' || definition.dataType === 'number') {
-      return (
-        <TextField
-          fullWidth
-          size="small"
-          label="Style value"
-          type="number"
-          value={row.value}
-          onChange={(event) => updateStyleRow(row.id, { value: event.target.value })}
-        />
-      );
-    }
-
-    return (
-      <TextField
-        fullWidth
-        size="small"
-        label="Style value"
-        value={row.value}
-        onChange={(event) => updateStyleRow(row.id, { value: event.target.value })}
-      />
-    );
+      }));
   }
 
   function deleteSelection() {
@@ -1783,6 +2182,9 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
         '--topoviewer-vscode-space-1-5': theme.spacing(1.5),
         '--topoviewer-vscode-space-2': theme.spacing(2),
         '--topoviewer-vscode-space-3-5': theme.spacing(3.5),
+        '--topoviewer-vscode-stacked-panel-min': theme.spacing(28),
+        '--topoviewer-vscode-stacked-panel-max': theme.spacing(54),
+        '--topoviewer-vscode-stacked-yaml-min': theme.spacing(44),
         '--topoviewer-vscode-stacked-preview-min': theme.spacing(65)
       })}
     >
@@ -1843,9 +2245,7 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
               <Tabs
                 value={activeModeIndex}
                 onChange={(_event, nextIndex: number) => setMode(harnessModes[nextIndex])}
-                allowScrollButtonsMobile
-                scrollButtons="auto"
-                variant="scrollable"
+                variant="fullWidth"
                 aria-label="Authoring mode"
               >
                 {harnessModes.map((candidate, index) => (
@@ -2093,55 +2493,12 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
                     </Stack>
                   </Stack>
                   <Stack spacing={1}>
-                    <Typography variant="subtitle2">Style</Typography>
-                    {styleRows.map((row, index) => {
-                      const valueDefinition = selectedPrimary
-                        ? styleValueDefinitionForKey(selectedPrimary.kind, row.key)
-                        : { dataType: 'text' as const };
-                      const keyLabelId = `inspector-style-key-${row.id}`;
-                      return (
-                        <Stack key={row.id} className="topoviewer-vscode-style-row" direction="row" spacing={1} data-style-row-key={row.key}>
-                          <FormControl fullWidth size="small">
-                            <InputLabel id={keyLabelId}>Style key</InputLabel>
-                            <Select
-                              labelId={keyLabelId}
-                              label="Style key"
-                              value={row.key}
-                              onChange={(event) => updateStyleRowKey(row.id, String(event.target.value))}
-                            >
-                              {availableStyleOptionGroups.flatMap(([group, options]) => [
-                                <ListSubheader key={`${group}-header`}>{group}</ListSubheader>,
-                                ...options.map((option) => (
-                                  <MenuItem key={option.key} value={option.key}>{option.label}</MenuItem>
-                                ))
-                              ])}
-                            </Select>
-                          </FormControl>
-                          {renderStyleValueInput(row, valueDefinition)}
-                          <Chip size="small" label={row.source} variant={row.source === 'inline' ? 'filled' : 'outlined'} />
-                          <Button
-                            size="small"
-                            aria-label={`Reset ${styleOptionLabel(selectedPrimary.kind, row.key)} style override`}
-                            disabled={row.source !== 'inline' && row.value === row.originalValue}
-                            onClick={() => resetStyleRow(row)}
-                          >
-                            Reset
-                          </Button>
-                          <Button size="small" disabled={styleRows.length === 1 && index === 0 && !selectedPrimaryObject?.style} onClick={() => removeStyleRow(row.id)}>Remove</Button>
-                        </Stack>
-                      );
-                    })}
-                    <Stack direction="row" spacing={1}>
-                      <Button size="small" onClick={addStyleRow}>Add style row</Button>
-                      <Button size="small" onClick={applyStyleRows}>Apply styles</Button>
-                    </Stack>
-                  </Stack>
-                  <Stack spacing={1}>
                     <Typography variant="subtitle2">Preset</Typography>
                     <TextField fullWidth size="small" label="Preset name" value={presetName} onChange={(event) => setPresetName(event.target.value)} />
                     <Button size="small" onClick={saveSelectionAsPreset}>Save as preset</Button>
                   </Stack>
                   <Stack direction="row" spacing={1}>
+                    <Button size="small" onClick={styleSelectionInYaml}>Style in YAML</Button>
                     <Button size="small" variant="contained" onClick={applyInspector}>Apply properties</Button>
                     <Button size="small" color="error" onClick={deleteSelection}>Delete</Button>
                   </Stack>
@@ -2154,6 +2511,10 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
                 <Tab label="Topology YAML" />
                 <Tab label="Stylesheet YAML" />
               </Tabs>
+              <Stack className="topoviewer-vscode-yaml-actions" direction="row" spacing={1}>
+                <Button size="small" disabled={!selectedPrimary} onClick={styleSelectionInYaml}>Style in YAML</Button>
+                <Button size="small" onClick={showYamlSuggestions}>Suggestions</Button>
+              </Stack>
               <Box className="topoviewer-vscode-editor">
                 <Tooltip title={`Copy ${editorLabel}`}>
                   <IconButton
@@ -2183,6 +2544,7 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
                     renderLineHighlight: 'gutter',
                     scrollBeyondLastLine: false,
                     tabSize: 2,
+                    wordBasedSuggestions: 'off',
                     wordWrap: 'off',
                     scrollbar: {
                       horizontal: 'auto',
