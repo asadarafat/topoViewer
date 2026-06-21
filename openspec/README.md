@@ -9,7 +9,6 @@ Current active plans:
 - `changes/define-netbox-integration-roadmap/` - planned NetBox feasibility, use cases, first integration shape, and roadmap wording constraints.
 - `changes/define-opsmill-infrahub-integration-roadmap/` - planned OpsMill/Infrahub feasibility, use cases, first integration shape, and roadmap wording constraints.
 - `changes/define-grafana-integration-roadmap/` - planned Grafana feasibility, use cases, first integration shape, and roadmap wording constraints.
-- `changes/improve-vscode-yaml-authoring-intelligence/` - planned semantic Inspect simplification and schema-derived Monaco YAML suggestions.
 
 Current studies:
 
@@ -17,6 +16,7 @@ Current studies:
 
 Archived plans:
 
+- `archive/2026-06-21-improve-vscode-yaml-authoring-intelligence/` - implemented semantic Inspect simplification, schema-derived Monaco YAML suggestions, selected-object style rule discovery, and exhaustive style key/value regression coverage.
 - `archive/2026-06-21-improve-vscode-style-value-editor/` - implemented type-aware Inspect style value editor for enum, boolean, number, color, and text style values.
 - `archive/2026-06-21-improve-vscode-harness-workspace-persistence/` - implemented browser harness template/custom topology persistence and YAML copy workflow.
 - `archive/2026-06-21-fix-vscode-harness-panel-alignment/` - implemented harness rail, panel, tab, and editor alignment fixes from the UI audit.
