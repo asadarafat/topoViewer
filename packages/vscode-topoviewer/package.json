@@ -1,0 +1,108 @@
+{
+  "name": "vscode-topoviewer",
+  "displayName": "TopoViewer",
+  "version": "0.1.0",
+  "private": true,
+  "license": "Apache-2.0",
+  "description": "VS Code authoring preview extension for TopoViewer topology YAML.",
+  "publisher": "asadarafat",
+  "type": "module",
+  "main": "./dist/extension.cjs",
+  "engines": {
+    "node": ">=24 <25",
+    "vscode": "^1.95.0"
+  },
+  "categories": [
+    "Visualization",
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:topoviewer.openPreview",
+    "onCommand:topoviewer.openPreviewToSide"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "topoviewer.openPreview",
+        "title": "TopoViewer: Open Preview"
+      },
+      {
+        "command": "topoviewer.openPreviewToSide",
+        "title": "TopoViewer: Open Preview to Side"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "topoviewer.openPreviewToSide",
+          "when": "resourceExtname == .yaml || resourceExtname == .yml",
+          "group": "navigation"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "topoviewer.openPreview",
+          "when": "resourceExtname == .yaml || resourceExtname == .yml",
+          "group": "navigation"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "TopoViewer",
+      "properties": {
+        "topoviewer.preview.defaultStylesheet": {
+          "type": "string",
+          "default": "stylesheet.yaml",
+          "description": "Default stylesheet filename to pair with a TopoViewer topology YAML file."
+        },
+        "topoviewer.preview.defaultTopology": {
+          "type": "string",
+          "default": "topology.yaml",
+          "description": "Default topology filename to pair with a TopoViewer stylesheet YAML file."
+        }
+      }
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "package.json"
+  ],
+  "scripts": {
+    "clean": "rm -rf dist test-results playwright-report",
+    "build": "node ../../scripts/run-node24.mjs npm run build:node24",
+    "build:node24": "npm --workspace topoviewer run build:lib && npm run build:webview && npm run build:extension && npm run typecheck",
+    "build:webview": "vite build --config vite.webview.config.ts",
+    "build:extension": "node scripts/build-extension.mjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "vscode:harness": "node ../../scripts/run-node24.mjs npm run vscode:harness:node24",
+    "vscode:harness:node24": "npm --workspace topoviewer run build:lib && vite --host 127.0.0.1 --port 5174 --strictPort --config vite.harness.config.ts",
+    "test:vscode-harness": "node ../../scripts/run-node24.mjs npm run test:vscode-harness:node24",
+    "test:vscode-harness:node24": "npm --workspace topoviewer run build:lib && playwright test --config playwright.config.js"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@monaco-editor/react": "^4.7.0",
+    "@mui/icons-material": "^9.1.1",
+    "@mui/material": "^9.1.1",
+    "@xyflow/react": "^12.10.2",
+    "js-yaml": "^4.1.0",
+    "monaco-editor": "^0.53.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "topoviewer": "0.1.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.60.0",
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^22.10.2",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@types/vscode": "^1.95.0",
+    "@vitejs/plugin-react": "^6.0.2",
+    "esbuild": "^0.27.2",
+    "typescript": "^5.9.3",
+    "vite": "^8.0.16"
+  }
+}

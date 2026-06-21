@@ -311,6 +311,11 @@ export interface TopoViewerObjectClick {
   runtimeId: string;
   element: 'node' | 'edge';
   data: Record<string, unknown>;
+  modifiers?: {
+    ctrlKey: boolean;
+    metaKey: boolean;
+    shiftKey: boolean;
+  };
 }
 
 export interface TopoViewerViewport {
@@ -322,6 +327,7 @@ export interface TopoViewerViewport {
 export interface TopoViewerProps {
   document: TopoDocument;
   selectedLayerIds?: string[];
+  selectedObjectIds?: string[];
   toggles?: TopoViewerToggles;
   layout?: LayoutConfig;
   attention?: {

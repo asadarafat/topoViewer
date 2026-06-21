@@ -5,12 +5,16 @@
   "license": "Apache-2.0",
   "description": "Monorepo for TopoViewer packages.",
   "workspaces": [
-    "packages/topoviewer"
+    "packages/topoviewer",
+    "packages/vscode-topoviewer"
   ],
   "scripts": {
     "dev": "npm --workspace topoviewer run dev",
+    "vscode:harness": "node scripts/run-node24.mjs npm run vscode:harness:node24",
+    "vscode:harness:node24": "npm --workspace vscode-topoviewer run vscode:harness:node24",
     "clean": "npm --workspace topoviewer run clean",
-    "build": "npm --workspace topoviewer run build",
+    "build": "node scripts/run-node24.mjs npm run build:node24",
+    "build:node24": "npm --workspace topoviewer run build && npm --workspace vscode-topoviewer run build:node24",
     "sync:mkdocs-assets": "npm --workspace topoviewer run sync:mkdocs-assets",
     "sync:zensical-assets": "node scripts/sync-zensical-assets.mjs",
     "sync:zensical-docs": "node scripts/sync-zensical-docs.mjs",
@@ -26,6 +30,8 @@
     "benchmark:attention:smoke": "npm --workspace topoviewer run benchmark:attention:smoke",
     "benchmark:attention:local": "npm --workspace topoviewer run benchmark:attention:local",
     "test": "npm --workspace topoviewer run test",
+    "test:vscode-harness": "node scripts/run-node24.mjs npm run test:vscode-harness:node24",
+    "test:vscode-harness:node24": "npm --workspace vscode-topoviewer run test:vscode-harness:node24",
     "test:headed": "npm --workspace topoviewer run test:headed",
     "test:all": "npm --workspace topoviewer run test:all",
     "pack:check": "npm --workspace topoviewer run pack:check",
@@ -46,7 +52,7 @@
     "zensical:build": "bash scripts/local-zensical.sh build && npm run validate:zensical",
     "zensical:serve": "bash scripts/local-zensical.sh serve",
     "ci": "node scripts/run-node24.mjs npm run ci:node24",
-    "ci:node24": "npm run sync:docs && npm run validate:schemas && npm run validate:semantics && npm run build && npm test && npm run benchmark:attention:smoke && npm run pack:check && npm run sync:mkdocs-assets && npm run wheel:mkdocs && npm run inspect:wheel && TOPOVIEWER_ZENSICAL_SKIP_VIEWER_BUILD=1 npm run zensical:build"
+    "ci:node24": "npm run sync:docs && npm run validate:schemas && npm run validate:semantics && npm run build && npm test && npm run test:vscode-harness && npm run benchmark:attention:smoke && npm run pack:check && npm run sync:mkdocs-assets && npm run wheel:mkdocs && npm run inspect:wheel && TOPOVIEWER_ZENSICAL_SKIP_VIEWER_BUILD=1 npm run zensical:build"
   },
   "overrides": {
     "monaco-editor": "0.53.0"

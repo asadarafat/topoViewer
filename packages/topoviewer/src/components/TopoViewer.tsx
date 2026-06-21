@@ -117,6 +117,36 @@ function applyAttentionToCompiledGraph(graph: CompiledGraph, presentation: Atten
   };
 }
 
+function applySelectionToCompiledGraph(graph: CompiledGraph, selectedObjectIds: string[] | undefined): CompiledGraph {
+  if (!selectedObjectIds?.length) return graph;
+  const selected = new Set(selectedObjectIds);
+  return {
+    ...graph,
+    nodes: graph.nodes.map((node) => {
+      const selectedNode = selected.has(sourceObjectId(node));
+      return selectedNode ? {
+        ...node,
+        selected: true,
+        data: {
+          ...((node.data || {}) as Record<string, unknown>),
+          topoviewerSelected: true
+        }
+      } : node;
+    }),
+    edges: graph.edges.map((edge) => {
+      const selectedEdge = selected.has(sourceObjectId(edge));
+      return selectedEdge ? {
+        ...edge,
+        selected: true,
+        data: {
+          ...((edge.data || {}) as Record<string, unknown>),
+          topoviewerSelected: true
+        }
+      } : edge;
+    })
+  };
+}
+
 function resolveAttentionPresentation(document: TopoDocument, attention: TopoViewerProps['attention']): AttentionPresentationResult | undefined {
   return resolveAttentionPresentationCached(document, attention || document.attention);
 }
@@ -172,7 +202,12 @@ function TopoFlow({
           id: sourceObjectId(runtimeNode),
           runtimeId: String(runtimeNode.id),
           element: 'node',
-          data: (runtimeNode.data || {}) as Record<string, unknown>
+          data: (runtimeNode.data || {}) as Record<string, unknown>,
+          modifiers: {
+            ctrlKey: _event.ctrlKey,
+            metaKey: _event.metaKey,
+            shiftKey: _event.shiftKey
+          }
         });
       } : undefined}
       onEdgeClick={onObjectClick ? (_event, edge) => {
@@ -185,7 +220,12 @@ function TopoFlow({
           id: sourceObjectId(runtimeEdge),
           runtimeId: String(runtimeEdge.id),
           element: 'edge',
-          data
+          data,
+          modifiers: {
+            ctrlKey: _event.ctrlKey,
+            metaKey: _event.metaKey,
+            shiftKey: _event.shiftKey
+          }
         });
       } : undefined}
       onPaneClick={onPaneClick}
@@ -209,6 +249,7 @@ function TopoFlow({
 export function TopoViewer({
   document,
   selectedLayerIds,
+  selectedObjectIds,
   toggles,
   layout,
   attention,
@@ -253,9 +294,9 @@ export function TopoViewer({
     const nextContext = { ...extensionContext, document: nextDocument };
     return {
       preparedDocument: nextDocument,
-      compiled: applyAfterCompileExtensions(compiledGraph, nextContext, effectiveExtensions)
+      compiled: applySelectionToCompiledGraph(applyAfterCompileExtensions(compiledGraph, nextContext, effectiveExtensions), selectedObjectIds)
     };
-  }, [attention, document, effectiveExtensions, effectiveLayers, effectiveToggles, extensionContext, layout]);
+  }, [attention, document, effectiveExtensions, effectiveLayers, effectiveToggles, extensionContext, layout, selectedObjectIds]);
 
   return (
     <div className={`topoviewer ${className}`} style={style} role="img" aria-label={document.graph?.id || 'TopoViewer diagram'}>

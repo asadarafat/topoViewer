@@ -100,6 +100,7 @@ export type {
   TopologyDocument,
   TopoViewerExtension,
   TopoViewerExtensionContext,
+  TopoViewerObjectClick,
   TopoViewerViewport,
   TopoViewerProps,
   TopoViewerToggles

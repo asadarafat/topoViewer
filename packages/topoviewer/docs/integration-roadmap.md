@@ -1,6 +1,6 @@
 # Integration Roadmap
 
-TopoViewer currently supports the React/TypeScript package, the MkDocs plugin, and a static Zensical adapter. Other integrations are roadmap items and are not supported packages yet.
+TopoViewer currently supports the React/TypeScript package, the MkDocs plugin, and a static Zensical adapter. VS Code has an experimental package in this repo. Other integrations are roadmap items and are not supported packages yet.
 
 ## Status Summary
 
@@ -11,7 +11,7 @@ TopoViewer currently supports the React/TypeScript package, the MkDocs plugin, a
 | Zensical | Supported adapter | Build the mirrored Zensical site from shared docs and static TopoViewer embed assets. |
 | NetBox | Feasibility | Build a NetBox plugin that renders TopoViewer diagrams inside NetBox from inventory and mapping profiles. |
 | OpsMill / Infrahub | Feasibility | Build an in-platform OpsMill/Infrahub extension that publishes TopoViewer views or artifacts from graph data. |
-| VS Code | Planned | Provide authoring preview, schema validation, semantic lint, example workflow, and export commands. |
+| VS Code | Experimental package | Use `packages/vscode-topoviewer` for a Material UI authoring preview, schema validation, semantic lint, fixture workflow, browser-test harness, and export command wiring. |
 | Grafana | Exploratory | Spike a panel plugin that maps Grafana data frames or JSON payloads into TopoViewer props. |
 
 ## NetBox
@@ -51,11 +51,19 @@ Infrahub schemas are flexible, so any plugin or extension must use explicit mapp
 
 ## VS Code
 
-VS Code is the likely authoring integration after the docs and examples are stable:
+VS Code now has an experimental authoring package in `packages/vscode-topoviewer`:
 
 ```text
-topology.yaml + stylesheet.yaml -> schema validation + semantic lint -> live preview webview
+topology.yaml + stylesheet.yaml -> schema validation + semantic lint -> Material UI live preview webview
 ```
+
+Current shape:
+
+- command-based preview for `.yaml` and `.yml` authoring files;
+- configurable pairing between `topology.yaml` and `stylesheet.yaml`;
+- shared React and Material UI webview used by VS Code and the browser harness;
+- schema validation and semantic lint from the existing TopoViewer package;
+- layer toggles, source tabs, diagnostics, docs link, and export command wiring.
 
 Use cases:
 
@@ -63,6 +71,21 @@ Use cases:
 - schema validation and completion;
 - semantic diagnostics for missing references and invalid selectors;
 - commands to create examples, open docs, run validation, and export screenshots.
+
+Local browser harness:
+
+```bash
+npm run vscode:harness
+npm run test:vscode-harness
+```
+
+The browser harness runs on a strict fixed local Vite server at
+`127.0.0.1:5174`, loads fixture topology and stylesheet files, calls local
+validation, and supports Playwright tests before extension-only manual testing
+is treated as sufficient.
+
+VS Code remains experimental, not supported, until there is a documented install
+path, release artifact, and release validation path.
 
 ## Grafana
 
