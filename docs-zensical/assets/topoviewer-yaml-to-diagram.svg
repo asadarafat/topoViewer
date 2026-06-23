@@ -1,76 +1,198 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="620" viewBox="0 0 1200 620" role="img" aria-labelledby="title desc">
-  <title id="title">TopoViewer YAML to rendered network underlay diagram</title>
-  <desc id="desc">A split visual showing topology YAML on the left and the Real Network Demo underlay view on the right.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="560" viewBox="0 0 1280 560" role="img" aria-labelledby="title desc">
+  <title id="title">YAML to rendered network diagram</title>
+  <desc id="desc">A before and after render of the same network topology facts and style.</desc>
+
   <defs>
     <linearGradient id="page" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#f8fafc"/>
-      <stop offset="1" stop-color="#eef2ff"/>
+      <stop offset="0%" stop-color="#f8fafc"/>
+      <stop offset="100%" stop-color="#eef2ff"/>
     </linearGradient>
-    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#475569" flood-opacity="0.18"/>
+    <linearGradient id="panel" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#f8fafc"/>
+    </linearGradient>
+    <linearGradient id="rightBg" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#f9fafb"/>
+      <stop offset="100%" stop-color="#f3f4f6"/>
+    </linearGradient>
+    <marker id="arrow" orient="auto" markerWidth="10" markerHeight="10" refX="9" refY="3">
+      <path d="M0,0 L10,3 L0,6 Z" fill="#475569"/>
+    </marker>
+    <filter id="lift" x="-18%" y="-18%" width="145%" height="145%">
+      <feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#334155" flood-opacity="0.09"/>
     </filter>
     <style>
-      .panel { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.4; }
-      .title { font: 800 28px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #0f172a; }
-      .label { font: 700 16px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #334155; }
-      .small { font: 600 13px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #475569; }
-      .code { font: 600 15px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; fill: #0f172a; }
-      .muted { fill: #64748b; }
-      .region { fill: rgba(241, 245, 249, 0.72); stroke: #94a3b8; stroke-width: 1.6; stroke-dasharray: 8 8; }
-      .underlay { stroke: #64748b; stroke-width: 8; stroke-linecap: round; fill: none; }
-      .router-pe { fill: #2563eb; stroke: #bfdbfe; stroke-width: 5; }
-      .router-p { fill: #0f766e; stroke: #99f6e4; stroke-width: 5; }
-      .node-label { font: 800 14px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #0f172a; text-anchor: middle; }
-      .region-label { font: 800 13px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #334155; text-anchor: middle; }
+      .page { fill: url(#page); }
+      .panel {
+        fill: url(#panel);
+        stroke: #cbd5e1;
+        stroke-width: 1.2;
+      }
+      .headline {
+        font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-weight: 700;
+        fill: #0f172a;
+      }
+      .sub {
+        font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-size: 18px;
+        fill: #334155;
+      }
+      .label {
+        font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-size: 15px;
+        font-weight: 700;
+        fill: #1e293b;
+      }
+      .code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace;
+        font-size: 13px;
+        fill: #0f172a;
+      }
+      .code-key {
+        fill: #1d4ed8;
+      }
+      .code-str {
+        fill: #166534;
+      }
+      .code-lit {
+        fill: #7c3aed;
+      }
+      .pane-title {
+        font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-size: 15px;
+        font-weight: 700;
+        fill: #0f172a;
+      }
+      .canvas {
+        fill: url(#rightBg);
+        stroke: #d1d5db;
+        stroke-width: 1.2;
+      }
+      .node {
+        stroke-width: 3;
+      }
+      .node-a { fill: #1e3a8a; stroke: #bfdbfe; }
+      .node-b { fill: #7c3aed; stroke: #ddd6fe; }
+      .node-c { fill: #0369a1; stroke: #7dd3fc; }
+      .region {
+        fill: #dbeafe;
+        fill-opacity: 0.42;
+        stroke: #93c5fd;
+        stroke-width: 1.4;
+        stroke-dasharray: 10 7;
+      }
+      .edge {
+        fill: none;
+        stroke: #64748b;
+        stroke-width: 4.2;
+        stroke-linecap: round;
+        marker-end: url(#arrow);
+      }
+      .edge-label {
+        font-size: 12px;
+        font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        fill: #1f2937;
+      }
+      .nlabel {
+        font-size: 14px;
+        font-weight: 700;
+        fill: #0f172a;
+        text-anchor: middle;
+        font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      }
+      .label-sub {
+        font-size: 10px;
+        fill: #1f2937;
+        text-anchor: middle;
+        font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      }
+      .chip {
+        fill: #f1f5f9;
+        stroke: #cbd5e1;
+        stroke-width: 1;
+      }
+      .chip-text {
+        font-size: 12px;
+        fill: #334155;
+        font-weight: 600;
+        font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      }
     </style>
   </defs>
 
-  <rect width="1200" height="620" rx="34" fill="url(#page)"/>
-  <text x="54" y="62" class="title">Topology YAML becomes an interactive underlay view</text>
-  <text x="54" y="96" class="small">The same provider topology used by Real Network Demo starts as readable graph facts.</text>
+  <rect x="0" y="0" width="1280" height="560" rx="28" class="page"/>
 
-  <g filter="url(#shadow)">
-    <rect x="54" y="130" width="420" height="410" rx="18" class="panel"/>
-    <text x="84" y="170" class="label">Topology YAML</text>
-    <text x="84" y="210" class="code">graph:</text>
-    <text x="104" y="238" class="code muted">layers:</text>
-    <text x="124" y="266" class="code">- id: underlay</text>
-    <text x="104" y="302" class="code muted">nodes:</text>
-    <text x="124" y="330" class="code">- id: pe-fra-1</text>
-    <text x="124" y="358" class="code">  labels: { role: pe }</text>
-    <text x="124" y="386" class="code">- id: p-ams-1</text>
-    <text x="104" y="422" class="code muted">links:</text>
-    <text x="124" y="450" class="code">- source: pe-fra-1</text>
-    <text x="124" y="478" class="code">  target: p-ams-1</text>
-    <text x="124" y="506" class="code">  layers: [underlay]</text>
+  <text x="48" y="54" class="headline" font-size="36">From YAML to a network diagram</text>
+  <text x="48" y="84" class="sub">The same facts become the same rendered topology with one stylesheet.</text>
+
+  <g filter="url(#lift)" transform="translate(40,108)">
+    <rect x="0" y="0" width="460" height="398" rx="16" class="panel"/>
+    <text x="24" y="34" class="pane-title">Topology YAML</text>
+    <rect x="20" y="52" width="420" height="314" rx="12" fill="#0f172a"/>
+
+    <text x="34" y="78" class="code" fill="#38bdf8">graph:</text>
+    <text x="34" y="102" class="code"><tspan class="code-key">  layers:</tspan> [{ <tspan class="code-lit">id</tspan>: <tspan class="code-str">'underlay'</tspan> }]</text>
+    <text x="34" y="132" class="code"><tspan class="code-key">  nodes:</tspan></text>
+    <text x="50" y="156" class="code">- <tspan class="code-lit">id</tspan>: <tspan class="code-str">fra-pe-1</tspan></text>
+    <text x="78" y="178" class="code">labels: { role: <tspan class="code-str">pe</tspan> }</text>
+    <text x="50" y="204" class="code">- <tspan class="code-lit">id</tspan>: <tspan class="code-str">ams-p1</tspan></text>
+    <text x="78" y="226" class="code">labels: { role: <tspan class="code-str">pe</tspan> }</text>
+    <text x="50" y="252" class="code">- <tspan class="code-lit">id</tspan>: <tspan class="code-str">par-p1</tspan></text>
+    <text x="78" y="274" class="code">labels: { role: <tspan class="code-str">p</tspan> }</text>
+
+    <text x="34" y="308" class="code"><tspan class="code-key">  links:</tspan></text>
+    <text x="50" y="332" class="code">- source: <tspan class="code-str">fra-pe-1</tspan></text>
+    <text x="50" y="354" class="code">  target: <tspan class="code-str">ams-p1</tspan></text>
+    <text x="50" y="376" class="code">  layers: [ <tspan class="code-lit">underlay</tspan> ]</text>
   </g>
 
-  <path d="M505 335h94" stroke="#475569" stroke-width="5" stroke-linecap="round"/>
-  <path d="M586 316l28 19-28 19z" fill="#475569"/>
+  <path d="M509 338 L551 338" stroke="#64748b" stroke-width="4" stroke-linecap="round" fill="none"/>
+  <path d="M541 328 L556 338 L541 348" fill="none" stroke="#64748b" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
 
-  <g filter="url(#shadow)">
-    <rect x="638" y="130" width="508" height="410" rx="18" class="panel"/>
-    <text x="668" y="170" class="label">Rendered Real Network underlay</text>
+  <g filter="url(#lift)" transform="translate(560,108)">
+    <rect x="0" y="0" width="680" height="398" rx="16" class="panel"/>
+    <text x="24" y="34" class="pane-title">Rendered Real Network underlay</text>
 
-    <rect x="684" y="232" width="136" height="176" rx="24" class="region"/>
-    <rect x="822" y="232" width="228" height="176" rx="24" class="region"/>
-    <rect x="1052" y="232" width="78" height="176" rx="24" class="region"/>
-    <text x="752" y="258" class="region-label">Frankfurt edge</text>
-    <text x="936" y="258" class="region-label">Transit core</text>
-    <text x="1091" y="258" class="region-label">London edge</text>
+    <rect x="20" y="56" width="640" height="314" rx="12" class="canvas"/>
 
-    <path d="M752 320L884 320L1000 320L1104 320" class="underlay"/>
+    <rect x="56" y="122" width="176" height="190" rx="12" class="region"/>
+    <rect x="276" y="122" width="196" height="190" rx="12" class="region"/>
+    <rect x="520" y="122" width="112" height="190" rx="12" class="region"/>
+    <text x="144" y="108" class="label">FRANKFURT EDGE</text>
+    <text x="374" y="108" class="label">TRANSIT CORE</text>
+    <text x="576" y="108" class="label">LONDON EDGE</text>
 
-    <polygon points="752,271 796,296 796,344 752,369 708,344 708,296" class="router-pe"/>
-    <text x="752" y="396" class="node-label">FRA-PE1</text>
+    <path d="M144 217 H374 H470" class="edge"/>
+    <path d="M470 217 H576" class="edge"/>
 
-    <circle cx="884" cy="320" r="42" class="router-p"/>
-    <text x="884" y="396" class="node-label">AMS-P1</text>
+    <g>
+      <polygon points="158 158 190 178 190 218 158 238 126 218 126 178" class="node node-a"/>
+      <text x="158" y="264" class="nlabel">FRA-PE1</text>
+      <text x="158" y="279" class="label-sub">PE</text>
+      <circle cx="374" cy="217" r="32" class="node node-b"/>
+      <text x="374" y="262" class="nlabel">AMS-P1</text>
+      <text x="374" y="277" class="label-sub">P</text>
+      <circle cx="520" cy="217" r="32" class="node node-b"/>
+      <text x="520" y="262" class="nlabel">PAR-P1</text>
+      <text x="520" y="277" class="label-sub">P</text>
+      <polygon points="598 158 630 178 630 218 598 238 566 218 566 178" class="node node-c"/>
+      <text x="598" y="264" class="nlabel">LON-PE1</text>
+      <text x="598" y="279" class="label-sub">PE</text>
+    </g>
 
-    <circle cx="1000" cy="320" r="42" class="router-p"/>
-    <text x="1000" y="396" class="node-label">PAR-P1</text>
+    <text x="560" y="94" class="chip-text" fill="#334155">Applied stylesheet: <tspan fill="#0284c7" font-weight="700">link: underlay</tspan></text>
 
-    <polygon points="1104,271 1148,296 1148,344 1104,369 1060,344 1060,296" class="router-pe"/>
-    <text x="1104" y="396" class="node-label">LON-PE1</text>
+    <g transform="translate(42,370)">
+      <rect width="118" height="28" rx="14" class="chip"/>
+      <text x="14" y="19" class="chip-text">No mockups</text>
+      <rect x="126" y="0" width="118" height="28" rx="14" class="chip"/>
+      <text x="140" y="19" class="chip-text">Rendered in-page</text>
+      <rect x="252" y="0" width="122" height="28" rx="14" class="chip"/>
+      <text x="266" y="19" class="chip-text">Live semantics</text>
+    </g>
+
+    <text x="620" y="382" class="edge-label">live links</text>
+    <text x="620" y="398" class="edge-label">+ attention focus</text>
   </g>
 </svg>

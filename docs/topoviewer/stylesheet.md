@@ -111,42 +111,40 @@ Hardcoded pale labels such as `#e5e7eb` look good in dark mode but disappear in 
 
 | Key | Values | Use |
 |---|---|---|
-| `icon` | icon key | Selects an icon from `icons`. |
-| `iconSize` | number | Sets equal icon width and height. |
-| `iconWidth`, `iconHeight` | number | Sets asymmetric icon size. |
-| `width`, `height` | number | Node body size. |
-| `shape` | node shape name | Node body shape. |
-| `shapePolygonPoints` | number array or string | Custom polygon points when `shape: polygon` is used. |
+| `icon` | `string` icon key in `icons` | Selects an icon from `icons`. |
+| `iconSize` | `number` (px) | Sets equal icon width and height. |
+| `iconWidth`, `iconHeight` | `number` (px), independent axes allowed | Sets asymmetric icon size. |
+| `width`, `height` | `number` (px) | Node body size. |
+| `shape` | `ellipse`, `triangle`, `rectangle`, `roundRectangle`, `bottomRoundRectangle`, `cutRectangle`, `barrel`, `rhomboid`, `diamond`, `pentagon`, `hexagon`, `concaveHexagon`, `heptagon`, `octagon`, `star`, `tag`, `vee`, `polygon` | Node body shape. |
+| `shapePolygonPoints` | `number[]` or string of numbers (`x y x y ...`), even length >= 6, each value `-1..1` | Custom polygon points when `shape: polygon` is used. |
 | `backgroundColor` | CSS color | Icon fill/background. |
 | `borderColor` | CSS color | Icon border. |
-| `borderWidth` | number | Icon border width. |
+| `borderWidth` | `number` (px, >=0) | Icon border width. |
 | `borderStyle` | `solid`, `dashed`, `dotted` | Node body border pattern. |
-| `borderDashPattern` | string or number list | Explicit SVG dash pattern for the node body border. |
-| `borderOpacity` | number `0..1` | Node body border opacity. |
-| `outlineColor`, `outlineWidth`, `outlineOpacity` | CSS color, number, number `0..1` | Visual outline around the node body. Does not change graph geometry. |
-| `underlayColor`, `underlayPadding`, `underlayOpacity` | CSS color, number, number `0..1` | Visual underlay behind the node body. Does not change graph geometry. |
+| `borderDashPattern` | `number`, `number[]`, or space/comma-separated string | Explicit SVG dash pattern for node body border. |
+| `borderOpacity` | `number` `0..1` | Node body border opacity. |
+| `outlineColor`, `outlineWidth`, `outlineOpacity` | CSS color, `number` (px, >=0), `number` `0..1` | Visual outline around the node body. Does not change geometry. |
+| `underlayColor`, `underlayPadding`, `underlayOpacity` | CSS color, `number` (px, >=0), `number` `0..1` | Visual underlay behind the node body. Does not change geometry. |
 | `iconColor` | CSS color | Glyph color. |
-| `iconOpacity` | number `0..1` | Icon glyph/image opacity. |
-| `iconPadding` | number | Insets icon content inside the icon box. |
+| `iconOpacity` | `number` `0..1` | Glyph or image opacity. |
+| `iconPadding` | `number` (px, >=0) | Insets icon content inside the icon box. |
 | `iconFit` | `contain`, `cover`, `fill` | Object-fit behavior for SVG/image icons. |
 | `iconBackgroundColor` | CSS color | Background behind icon content inside the node body. |
-| `labelColor`, `labelFontSize`, `labelFontWeight` | CSS values | Node label typography. Use markdown in the node `name` or `label` for bold, italic, underline, and strikethrough spans. |
-| `labelPosition` | `top`, `right`, `bottom`, `left`, `center` | Places the label relative to the node body. Defaults to `bottom`. |
-| `labelXOffset`, `labelYOffset` | number | Pixel offsets applied after label placement. |
-| `labelTextWrap`, `labelTextMaxWidth`, `labelTextOverflow`, `labelTextAlign` | `none` or `wrap`, number, `clip` or `ellipsis`, CSS text-align | Label wrapping and overflow controls. |
-| `labelBackgroundColor`, `labelBackgroundOpacity` | CSS color, number `0..1` | Label backing for contrast. |
-| `labelBorderColor`, `labelBorderWidth`, `labelPadding`, `labelOpacity` | CSS color, number, number, number `0..1` | Label box border, padding, and opacity. |
-| `minZoomedLabelFontSize` | number | Hides the label when viewport zoom would make its effective font smaller than this value. |
-| `metaColor`, `metaFontSize`, `metaFontWeight` | CSS values | Node metadata typography. |
-| `badgeLabel`, `badgeColor`, `badgeBackgroundColor`, `badgeBorderColor`, `badgePosition` | string/number, CSS colors, position | Compact node badge. Positions are `topLeft`, `topRight`, `bottomLeft`, and `bottomRight`. |
-| `statusColor`, `statusPlacement`, `statusSize` | CSS color, position, number | Compact status marker. Placements are `topLeft`, `topRight`, `bottomLeft`, `bottomRight`, and `center`. |
-| `opacity` | number | Node opacity. |
-| `zIndex` | number | Draw order. |
+| `labelColor`, `labelFontSize`, `labelFontWeight` | CSS color, CSS font size, CSS font weight | Node label typography. Use markdown in the node `name` or `label` for bold/italic/underline/strikethrough. |
+| `labelPosition` | `top`, `right`, `bottom`, `left`, `center`, plus all region positions | Places the node label. Defaults to `bottom`. |
+| `labelXOffset`, `labelYOffset` | `number` (px, can be negative) | Pixel offsets applied after label placement. |
+| `labelTextWrap`, `labelTextMaxWidth`, `labelTextOverflow`, `labelTextAlign` | `none`, `wrap`, `number` (px, >=0), `clip`, `ellipsis`, CSS text align | Label wrapping and overflow controls. |
+| `labelBackgroundColor`, `labelBackgroundOpacity` | CSS color, `number` `0..1` | Label backing for contrast. |
+| `labelBorderColor`, `labelBorderWidth`, `labelPadding`, `labelOpacity` | CSS color, `number` (px), `number` (px), `number` `0..1` | Label box border, padding, and opacity. |
+| `minZoomedLabelFontSize` | `number` (px, >=0) | Hide label when effective font is too small at the current zoom. |
+| `metaColor`, `metaFontSize`, `metaFontWeight` | CSS color, CSS font size, CSS font weight | Node metadata typography. |
+| `badgeLabel`, `badgeColor`, `badgeBackgroundColor`, `badgeBorderColor`, `badgePosition` | `string`/`number` label, CSS colors, `topLeft`, `topRight`, `bottomLeft`, `bottomRight` | Compact node badge. |
+| `statusColor`, `statusPlacement`, `statusSize` | CSS color, `topLeft`, `topRight`, `bottomLeft`, `bottomRight`, `center`, `number` (px, >0) | Compact node status marker. |
+| `opacity` | `number` `0..1` | Node opacity. |
+| `zIndex` | `number` (integer preferred) | Draw order. |
 | `display` | `none` | Hide object. |
-| `draggable` | boolean | Defaults to true. |
-| `selectable` | boolean | Defaults to true. |
-
-Supported node body shapes are `ellipse`, `triangle`, `rectangle`, `roundRectangle`, `bottomRoundRectangle`, `cutRectangle`, `barrel`, `rhomboid`, `diamond`, `pentagon`, `hexagon`, `concaveHexagon`, `heptagon`, `octagon`, `star`, `tag`, `vee`, and `polygon`.
+| `draggable` | `boolean` | Defaults to true. |
+| `selectable` | `boolean` | Defaults to true. |
 
 Use canonical camelCase for multi-word values:
 
@@ -179,56 +177,57 @@ TopoViewer style keys are canonical `camelCase` in both TypeScript and Styleshee
 
 | Key | Values | Use |
 |---|---|---|
-| `curveStyle` | `straight`, `haystack`, `segments`, `taxi`, `smoothTaxi`, `smoothstep`, `simpleBezier`, `unbundledBezier`, `bezier` | Edge route shape. `bezier` separates same-endpoint parallel edges by varying control-point curvature. |
+| `curveStyle` | `straight`, `haystack`, `segments`, `roundSegments`, `taxi`, `roundTaxi`, `smoothTaxi`, `smoothstep`, `simpleBezier`, `unbundledBezier`, `bezier` (case-insensitive aliases allowed) | Edge route shape. `bezier` separates same-endpoint parallel edges by varying control-point curvature. |
 | `anchor` | `floating`, `fixed` | `floating` is default and attaches edges to the visible node icon. |
 | `lineColor` | CSS color | Stroke color. |
-| `lineWidth` | number | Stroke width. Defaults to 1. |
-| `pipe` | boolean | Renders a parent link/path as a pipe/corridor. Automatically enabled when the object has visible child links or child paths. |
-| `pipeWidth` | number | Width of the parent pipe fill. |
-| `pipeFill`, `pipeOpacity` | CSS color, number | Fill color and opacity for the parent pipe. |
-| `pipeBorderColor`, `pipeBorderWidth` | CSS color, number | Outer pipe border styling. |
-| `controlPointStepSize` | number | Distance between same-endpoint `bezier` edge control points. This follows Cytoscape's bundled Bezier edge model. |
-| `controlPointDistance` | number | Manual Bezier control-point distance for one edge. Same values intentionally overlap. |
-| `controlPointWeight` | number | Control-point weight from source to target. Defaults to `0.5`. |
-| `laneWidth`, `laneGap` | number | Child link/path lane width and spacing when it is carried by a parent link or parent path. |
+| `lineWidth` | `number` (px, >=0) | Stroke width. Defaults to 1. |
+| `pipe` | `boolean` | Renders a parent link/path as a pipe/corridor. Automatically enabled for links/paths with visible children. |
+| `pipeWidth` | `number` (px, >=0) | Width of the parent pipe fill. |
+| `pipeFill`, `pipeOpacity` | CSS color, `number` `0..1` | Fill color and opacity for the parent pipe. |
+| `pipeBorderColor`, `pipeBorderWidth` | CSS color, `number` (px, >=0) | Outer pipe border styling. |
+| `controlPointStepSize` | `number` | Distance between same-endpoint `bezier` edge control points. |
+| `controlPointDistance` | `number` | Manual Bezier control-point distance for one edge. |
+| `controlPointWeight` | `number` (typically `0..1`) | Control-point weight from source to target. Defaults to `0.5`. |
+| `laneWidth`, `laneGap` | `number` (px) | Child link/path lane width and spacing for a parent link/path. |
 | `lineStyle` | `solid`, `dashed`, `dotted` | Convenience dash style. |
-| `lineDashPattern` | string or number list | Explicit SVG dash pattern, for example `3 6` or `[3, 6]`. |
-| `lineDashOffset` | number | Dash offset for animated or phase-shifted dashed edges. |
-| `lineCap` | `butt`, `round`, `square` | SVG stroke cap. |
-| `lineOpacity` | number | Edge line opacity without changing label opacity. |
-| `lineOutlineWidth` | number | Draws an outline behind the edge line. |
+| `lineDashPattern` | `string`, `number`, or `number[]` | Explicit dash pattern for the edge path, for example `3 6` or `[3, 6]`. |
+| `lineDashOffset` | `number` | Dash offset for animated or phase-shifted dashed edges. |
+| `lineCap` | `butt`, `round`, `square` | SVG stroke cap style. |
+| `lineOpacity` | `number` `0..1` | Edge line opacity without changing label opacity. |
+| `lineOutlineWidth` | `number` (px, >=0) | Draws an outline behind the edge line. |
 | `lineOutlineColor` | CSS color | Edge line outline color. |
 | `targetArrowShape`, `sourceArrowShape` | `none`, `triangle`, `vee`, `tee`, `circle`, `diamond` | Directional arrow marker shape. |
 | `arrowColor` | CSS color | Shared marker color fallback. Defaults to line color. |
 | `sourceArrowColor`, `targetArrowColor` | CSS color | Directional marker colors. |
-| `sourceArrowSize`, `targetArrowSize` | number | Directional marker sizes. |
-| `sourceDistanceFromNode`, `targetDistanceFromNode` | number | Moves the rendered endpoint inward from the node boundary. Short edges are clamped so the path does not collapse. |
-| `segmentDistances`, `segmentWeights` | number, number list, or string | Explicit bend controls for `curveStyle: segments`. Distances offset from the source-target line; weights place bends between source `0` and target `1`. |
+| `sourceArrowSize`, `targetArrowSize` | `number` (px, >=0) | Directional marker sizes. |
+| `sourceDistanceFromNode`, `targetDistanceFromNode` | `number` (px, >=0) | Moves endpoints inward from node boundary; short edges are clamped. |
+| `edgeDistances` | `auto`, `intersection`, `node-position`, `endpoints` | Endpoint anchoring model for React Flow edge types. |
+| `segmentDistances`, `segmentWeights` | `number`, `number[]`, or space/comma-separated string | Explicit bend controls for `curveStyle: segments`/`roundSegments`. |
 | `taxiDirection` | `auto`, `vertical`, `downward`, `upward`, `horizontal`, `rightward`, `leftward` | Primary direction for `curveStyle: taxi`. |
-| `taxiTurn`, `taxiTurnMinDistance` | number or percentage string, number | Taxi turn placement and minimum edge length before custom taxi routing applies. |
+| `taxiTurn`, `taxiTurnMinDistance` | `number` or percentage string, `number` (px, >=0) | Taxi turn placement and minimum edge length before custom taxi routing applies. |
 | `lineFill` | `solid`, `linearGradient` | Stroke fill model. |
-| `lineGradientStopColors`, `lineGradientStopPositions` | string list or array | Linear gradient stops when `lineFill: linearGradient`. Positions are optional but must match the number of colors when provided. |
+| `lineGradientStopColors`, `lineGradientStopPositions` | string list (array/string), percentage list optional | Linear gradient stops when `lineFill: linearGradient`. Positions must match stops count if set. |
 | `label` | string | Fallback edge label. |
 | `sourceLabel` | string | Label rendered at the source endpoint. |
 | `targetLabel` | string | Label rendered at the target endpoint. |
-| `sourceLabelXOffset`, `sourceLabelYOffset` | number | Pixel offsets applied to the source endpoint label. |
-| `targetLabelXOffset`, `targetLabelYOffset` | number | Pixel offsets applied to the target endpoint label. |
-| `labelColor`, `labelFontSize`, `labelFontWeight`, `labelFontStyle` | CSS values | Edge label typography. |
-| `labelBorderColor`, `labelBorderWidth` | CSS color, number | Shared edge label border. |
+| `sourceLabelXOffset`, `sourceLabelYOffset` | `number` (px) | Pixel offsets applied to source endpoint label. |
+| `targetLabelXOffset`, `targetLabelYOffset` | `number` (px) | Pixel offsets applied to target endpoint label. |
+| `labelColor`, `labelFontSize`, `labelFontWeight`, `labelFontStyle` | CSS color, font-size, font-weight, font-style | Edge label typography. |
+| `labelBorderColor`, `labelBorderWidth` | CSS color, `number` (px) | Shared edge label border. |
 | `sourceLabelColor`, `targetLabelColor` | CSS color | Endpoint label color overrides. |
 | `sourceLabelBackgroundColor`, `targetLabelBackgroundColor` | CSS color | Endpoint label background overrides. |
 | `sourceLabelBorderColor`, `targetLabelBorderColor` | CSS color | Endpoint label border color overrides. |
-| `sourceLabelBorderWidth`, `targetLabelBorderWidth` | number | Endpoint label border width overrides. |
-| `sourceLabelFontSize`, `targetLabelFontSize` | CSS value | Endpoint label font-size overrides. |
-| `sourceLabelFontWeight`, `targetLabelFontWeight` | CSS value | Endpoint label font-weight overrides. |
-| `sourceLabelFontStyle`, `targetLabelFontStyle` | CSS value | Endpoint label font-style overrides. |
-| `textBackgroundColor`, `textBackgroundOpacity` | CSS color, number | Edge label backing. |
-| `animated` | boolean | Enables React Flow edge animation. |
-| `interactionWidth` | number | Pointer hit area. Defaults to at least 12. |
-| `interactive` | boolean | Set `false` to render the edge without edge click handling. |
-| `labelInteractive` | boolean | Set `false` to prevent edge labels from receiving pointer events. |
-| `opacity` | number | Edge opacity. |
-| `zIndex` | number | Draw order. |
+| `sourceLabelBorderWidth`, `targetLabelBorderWidth` | `number` (px) | Endpoint label border width overrides. |
+| `sourceLabelFontSize`, `targetLabelFontSize` | CSS font size | Endpoint label font-size overrides. |
+| `sourceLabelFontWeight`, `targetLabelFontWeight` | CSS font weight | Endpoint label font-weight overrides. |
+| `sourceLabelFontStyle`, `targetLabelFontStyle` | CSS font style | Endpoint label font-style overrides. |
+| `textBackgroundColor`, `textBackgroundOpacity` | CSS color, `number` `0..1` | Edge label backing. |
+| `animated` | `boolean` | Enables edge animation. |
+| `interactionWidth` | `number` (px, >=12 typical) | Pointer hit area. |
+| `interactive` | `boolean` | Set `false` to disable edge click/hover handling. |
+| `labelInteractive` | `boolean` | Set `false` to disable pointer events on edge labels. |
+| `opacity` | `number` `0..1` | Edge opacity. |
+| `zIndex` | `number` (integer preferred) | Draw order. |
 | `display` | `none` | Hide object. |
 
 This is a practical TopoViewer subset rather than full Cytoscape edge parity. Self-loop controls, haystack radius, overlay/underlay, ghost effects, radial gradients, and broad transition controls are intentionally not part of the declarative edge surface yet.
@@ -239,15 +238,15 @@ This is a practical TopoViewer subset rather than full Cytoscape edge parity. Se
 |---|---|---|
 | `backgroundColor` | CSS color | Region fill. |
 | `borderColor` | CSS color | Region border. |
-| `borderWidth` | number | Region border width. |
+| `borderWidth` | `number` (px, >=0) | Region border width. |
 | `shape` | `roundrectangle`, `rectangle`, `ellipse` | Region hull shape. |
-| `labelColor`, `labelBackgroundColor` | CSS values | Region label treatment. |
+| `labelColor`, `labelBackgroundColor` | CSS color | Region label treatment. |
 | `labelPosition` | `topLeft`, `topCenter`, `topRight`, `rightTop`, `rightCenter`, `rightBottom`, `bottomRight`, `bottomCenter`, `bottomLeft`, `leftTop`, `leftCenter`, `leftBottom` | Region label anchor. Defaults to `topLeft`. |
-| `labelMargin` | number | Region label margin in pixels from the selected region edge. |
-| `draggable` | boolean | Regions are draggable only when explicitly true. |
-| `selectable` | boolean | Regions are selectable only when explicitly true. |
-| `opacity` | number | Region opacity. |
-| `zIndex` | number | Draw order. Defaults behind nodes. |
+| `labelMargin` | `number` (px, >=0) | Region label margin from the selected edge. |
+| `draggable` | `boolean` | Regions are draggable only when explicitly true. |
+| `selectable` | `boolean` | Regions are selectable only when explicitly true. |
+| `opacity` | `number` `0..1` | Region opacity. |
+| `zIndex` | `number` | Draw order. Defaults behind nodes. |
 
 `labelMargin` moves the label relative to the region border; it does not resize the hull. Use region sizing fields such as `headerPadding`, `paddingX`, and `paddingY` when the label needs reserved interior space away from member nodes.
 
@@ -257,15 +256,15 @@ Shapes are geometry-only diagram primitives under `diagram.shapes`. Use callouts
 
 | Key | Values | Use |
 |---|---|---|
-| `shape` | Geometry type | Overrides the shape type declared on the object. |
-| `width`, `height` | number | Default size when the shape does not declare `size`. |
-| `fill` or `backgroundColor` | CSS color | Shape fill. |
-| `stroke` or `borderColor`, `borderWidth` | CSS color, number | Shape outline. |
-| `rotation` or `rotate` | number | Rotates the geometry in degrees around the shape center. |
-| `boxShadow` | CSS shadow | Presentation depth for the shape container. |
-| `opacity` | number | Shape opacity. |
-| `zIndex` | number | Draw order. |
-| `draggable`, `selectable` | boolean | Interactive behavior unless the shape is `locked`. |
+| `shape` | `circle`, `triangle`, `square`, `rectangle`, `pentagon`, `hexagon`, `octagon`, `ellipse`, `semicircle`, `trapezoid`, `parallelogram`, `rhombus`, `kite`, `star`, `cube`, `cuboid`, `sphere`, `cone`, `cylinder`, `pyramid`, `prism` | Overrides the shape type declared on the object. |
+| `width`, `height` | `number` (px) | Default size when the shape does not declare `size`. |
+| `fill`, `backgroundColor` | CSS color | Shape fill. |
+| `stroke`, `borderColor`, `borderWidth` | CSS color, CSS color, `number` (px, >=0) | Shape outline. |
+| `rotation`, `rotate` | `number` (degrees) | Rotates the geometry in degrees around center. |
+| `boxShadow` | CSS `box-shadow` | Presentation depth for the shape container. |
+| `opacity` | `number` `0..1` | Shape opacity. |
+| `zIndex` | `number` | Draw order. |
+| `draggable`, `selectable` | `boolean` | Interactive behavior unless the shape is `locked`. |
 
 Supported 2D geometry types are `circle`, `triangle`, `square`, `rectangle`, `pentagon`, `hexagon`, `octagon`, `ellipse`, `semicircle`, `trapezoid`, `parallelogram`, `rhombus`, `kite`, and `star`.
 
@@ -278,14 +277,14 @@ Callouts are markdown text boxes and line-only relationships under `diagram.call
 | Key | Values | Use |
 |---|---|---|
 | `backgroundColor` | CSS color | Callout body fill. |
-| `borderColor`, `borderWidth`, `borderRadius` | CSS values | Callout border treatment. |
-| `titleBackgroundColor`, `titleColor`, `titleFontSize`, `titleFontWeight` | CSS values | Header treatment. |
-| `bodyColor`, `bodyFontSize`, `bodyFontWeight`, `bodyLineHeight` | CSS values | Markdown body treatment. |
-| `textAlign` or `align` | `left`, `center`, `right` | Markdown alignment. |
-| `boxShadow` | CSS shadow | Slide-friendly emphasis. |
-| `opacity` | number | Callout opacity. |
-| `zIndex` | number | Draw order. |
-| `draggable`, `selectable` | boolean | Interactive behavior unless the callout is `locked`. |
+| `borderColor`, `borderWidth`, `borderRadius` | CSS color, `number` (px), `number` (px) | Callout border treatment. |
+| `titleBackgroundColor`, `titleColor`, `titleFontSize`, `titleFontWeight` | CSS color, CSS color, CSS font size, CSS font weight | Header treatment. |
+| `bodyColor`, `bodyFontSize`, `bodyFontWeight`, `bodyLineHeight` | CSS color, CSS font size, CSS font weight, CSS line-height | Markdown body treatment. |
+| `textAlign`, `align` | `left`, `center`, `right` | Markdown alignment. |
+| `boxShadow` | CSS `box-shadow` | Emphasis layer behind the callout. |
+| `opacity` | `number` `0..1` | Callout opacity. |
+| `zIndex` | `number` | Draw order. |
+| `draggable`, `selectable` | `boolean` | Interactive behavior unless the callout is `locked`. |
 
 Callouts that define `source`/`target`, `sourcePosition`, or `targetPosition` use the link/path edge keys above for their line styling.
 

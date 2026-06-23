@@ -91,7 +91,6 @@ TopoViewer renders declarative graph and diagram documents from YAML. The canoni
 
 ### Integration
 
-- [YAML to network diagram](yaml-to-diagram/index.md): A compact before/after example using the same provider underlay slice as the Real Network Demo.
 - [Real network demo](real-network-demo.md): One provider topology rendered as underlay, BGP, transport, service path, and failure views.
 
 The important rule is simple: if an object is part of the topology, model it under `graph.*`. If it explains the topology visually, model it under `diagram.*`.
