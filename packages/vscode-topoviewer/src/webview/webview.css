@@ -193,6 +193,11 @@ body,
   backdrop-filter: blur(10px);
 }
 
+.topoviewer-vscode-preview .topoviewer .topoviewer-reactflow-controls.top-right {
+  top: var(--topoviewer-vscode-space-1-5);
+  right: var(--topoviewer-vscode-space-1-5);
+}
+
 .topoviewer-vscode-source {
   flex: 1 1 auto;
   min-height: 0;
@@ -215,6 +220,7 @@ body,
 .topoviewer-vscode-template-control {
   flex: 0 0 auto;
   margin-bottom: var(--topoviewer-vscode-space-1-5);
+  margin-top: calc(var(--topoviewer-vscode-space-1-5) - var(--topoviewer-vscode-space-1));
 }
 
 .topoviewer-vscode-fixture {

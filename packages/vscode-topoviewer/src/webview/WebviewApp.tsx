@@ -34,7 +34,6 @@ import DarkModeIcon from '@mui/icons-material/DarkMode';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import LightModeIcon from '@mui/icons-material/LightMode';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import { TopoViewer, type TopoDocument, type TopoViewerNodePositionChange, type TopoViewerObjectClick } from 'topoviewer';
 import type { HarnessFixture, TopoViewerWebviewHost, ValidationResult, WebviewState } from '../shared/types';
@@ -2793,7 +2792,6 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
             <Button size="small" disabled={!undoStack.length} onClick={undoTopology}>Undo</Button>
             <Button size="small" disabled={!redoStack.length} onClick={redoTopology}>Redo</Button>
             <Button size="small" startIcon={<OpenInNewIcon />} onClick={() => host.openDocs('topoviewer/integration-roadmap/')}>Docs</Button>
-            <Button size="small" variant="contained" startIcon={<PhotoCameraIcon />} onClick={exportImage}>Export</Button>
           </Box>
           {loading && <CircularProgress />}
           {!loading && hasErrors && <Alert severity="error">Fix diagnostics before the preview can render.</Alert>}
@@ -2802,6 +2800,7 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
               document={visibleDocument}
               selectedLayerIds={selectedLayerIds}
               selectedObjectIds={selectedObjectIds(selectedObjects)}
+              onExport={exportImage}
               toggles={{ showRegions: true }}
               onObjectClick={handleObjectClick}
               onPaneClick={() => setSelectedObjects([])}

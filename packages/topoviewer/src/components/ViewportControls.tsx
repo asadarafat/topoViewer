@@ -1,4 +1,5 @@
 import { ControlButton, Controls } from '@xyflow/react';
+import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
 import type { ReactNode } from 'react';
 import type { TopoViewerProps } from '../core/types';
 
@@ -13,8 +14,15 @@ function ControlsPanelIcon() {
   );
 }
 
-export function ViewportControls({ controlPanelToggle }: { controlPanelToggle?: TopoViewerProps['controlPanelToggle'] }) {
+export function ViewportControls({
+  controlPanelToggle,
+  onExport
+}: {
+  controlPanelToggle?: TopoViewerProps['controlPanelToggle'];
+  onExport?: TopoViewerProps['onExport'];
+}) {
   let toggleButton: ReactNode = null;
+  let exportButton: ReactNode = null;
 
   if (controlPanelToggle?.enabled) {
     toggleButton = (
@@ -31,6 +39,19 @@ export function ViewportControls({ controlPanelToggle }: { controlPanelToggle?: 
     );
   }
 
+  if (onExport) {
+    exportButton = (
+      <ControlButton
+        aria-label="Export viewport"
+        title="Export viewport image"
+        onClick={onExport}
+        type="button"
+      >
+        <PhotoCameraIcon />
+      </ControlButton>
+    );
+  }
+
   return (
     <Controls
       aria-label="Viewport controls"
@@ -40,6 +61,7 @@ export function ViewportControls({ controlPanelToggle }: { controlPanelToggle?: 
       showInteractive={false}
     >
       {toggleButton}
+      {exportButton}
     </Controls>
   );
 }

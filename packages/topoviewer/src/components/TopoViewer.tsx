@@ -156,6 +156,7 @@ function TopoFlow({
   document,
   showRegions,
   controlPanelToggle,
+  onExport,
   onObjectClick,
   onPaneClick,
   onNodePositionChange,
@@ -167,6 +168,7 @@ function TopoFlow({
   document: TopoViewerProps['document'];
   showRegions: boolean;
   controlPanelToggle?: TopoViewerProps['controlPanelToggle'];
+  onExport?: TopoViewerProps['onExport'];
   onObjectClick?: TopoViewerProps['onObjectClick'];
   onPaneClick?: TopoViewerProps['onPaneClick'];
   onNodePositionChange?: TopoViewerProps['onNodePositionChange'];
@@ -256,7 +258,10 @@ function TopoFlow({
       proOptions={{ hideAttribution: true }}
     >
       <Background color="rgba(126, 139, 154, 0.20)" gap={24} />
-      <ViewportControls controlPanelToggle={controlPanelToggle} />
+      <ViewportControls
+        controlPanelToggle={controlPanelToggle}
+        onExport={onExport}
+      />
     </ReactFlow>
   );
 }
@@ -274,6 +279,7 @@ export function TopoViewer({
   onPaneClick,
   onNodePositionChange,
   onViewportChange,
+  onExport,
   className = '',
   style
 }: TopoViewerProps) {
@@ -322,6 +328,7 @@ export function TopoViewer({
           document={preparedDocument}
           showRegions={effectiveToggles.showRegions !== false}
           controlPanelToggle={controlPanelToggle}
+          onExport={onExport}
           onObjectClick={onObjectClick}
           onPaneClick={onPaneClick}
           onNodePositionChange={onNodePositionChange}
