@@ -35,7 +35,7 @@ const index = `# TopoViewer
 
 TopoViewer turns YAML topology facts and selector stylesheets into interactive network, infrastructure, and service-topology diagrams.
 
-![TopoViewer YAML to rendered network diagram](assets/topoviewer-yaml-to-diagram.svg)
+![TopoViewer YAML to rendered network diagram](assets/topoviewer-yaml-to-diagram.png)
 
 It keeps graph facts in YAML, visual policy in selector stylesheets, and renderer behavior behind testable package boundaries.
 

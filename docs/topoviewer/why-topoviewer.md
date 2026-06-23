@@ -2,7 +2,7 @@
 
 TopoViewer turns topology facts into repeatable, inspectable network diagrams. It is built for teams that want diagrams to live close to source data, documentation, and tests instead of being redrawn by hand.
 
-![YAML to rendered network diagram](../assets/topoviewer-yaml-to-diagram.svg)
+![YAML to rendered network diagram](../assets/topoviewer-yaml-to-diagram.png)
 
 ## What Makes It Different
 

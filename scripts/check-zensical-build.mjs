@@ -16,7 +16,7 @@ const requiredFiles = [
   'topoviewer/index.html',
   'topoviewer/real-network-demo/index.html',
   'topoviewer/why-topoviewer/index.html',
-  'assets/topoviewer-yaml-to-diagram.svg',
+  'assets/topoviewer-yaml-to-diagram.png',
   'topoviewer/reference/attention/object-focus/index.html',
   'assets/topoviewer/topoviewer-embed.css',
   'assets/topoviewer/topoviewer-embed.iife.js',
@@ -96,7 +96,7 @@ if (realNetworkHtml.includes('data-topology="../assets/topoviewer/examples/')) {
 
 const whyTopoViewerHtml = fs.readFileSync(whyTopoViewerPage, 'utf8');
 for (const needle of [
-  '<img alt="YAML to rendered network diagram" src="../../assets/topoviewer-yaml-to-diagram.svg"',
+  '<img alt="YAML to rendered network diagram" src="../../assets/topoviewer-yaml-to-diagram.png"',
 ]) {
   if (!whyTopoViewerHtml.includes(needle)) {
     fail(`Zensical Why TopoViewer page does not include expected inline image: ${needle}`);
