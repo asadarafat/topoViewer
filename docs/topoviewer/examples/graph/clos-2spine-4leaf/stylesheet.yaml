@@ -1,0 +1,37 @@
+layout:
+  mode: manual
+  width: 860
+  height: 420
+icons:
+  spine:
+    glyph: SP
+    fill: "#1d4ed8"
+    stroke: "#bfdbfe"
+  leaf:
+    glyph: LF
+    fill: "#2563eb"
+    stroke: "#bfdbfe"
+labelFields:
+  - name
+stylesheet:
+  - selector: node[labels.node = "spine"]
+    style:
+      icon: spine
+      width: 98
+      height: 62
+      borderWidth: 3
+      labelFontWeight: 800
+  - selector: node[labels.node = "leaf"]
+    style:
+      icon: leaf
+      width: 86
+      height: 54
+      borderWidth: 2
+      labelFontWeight: 800
+  - selector: link
+    style:
+      lineWidth: 2
+      lineColor: "#60a5fa"
+      targetArrowShape: none
+      label: Link
+      textBackgroundColor: var(--topoviewer-edge-label-bg)
