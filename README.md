@@ -3,13 +3,56 @@
 [![CI](https://github.com/asadarafat/topoviewer/actions/workflows/ci.yml/badge.svg)](https://github.com/asadarafat/topoviewer/actions/workflows/ci.yml)
 [![Docs](https://github.com/asadarafat/topoviewer/actions/workflows/docs.yml/badge.svg)](https://github.com/asadarafat/topoviewer/actions/workflows/docs.yml)
 
-TopoViewer turns YAML topology facts and selector stylesheets into interactive network, infrastructure, and service-topology diagrams.
+TopoViewer is a production-oriented topology visualization toolkit for teams that
+need diagrams to stay in sync with network reality.
 
-![TopoViewer YAML to rendered network diagram](docs/assets/topoviewer-yaml-to-diagram.svg)
+It solves a common failure mode: topology diagrams are often treated as static images,
+so they drift away from source data the moment operations changes. TopoViewer
+keeps the diagram model in data and the visual policy in style, then renders both
+consistently across docs, apps, and interactive tooling.
 
-The static visual above is a README companion to the canonical
-`integration/yaml-to-network-diagram` example. Refresh or validate the live
-source with `npm run sync:docs` and the MkDocs/Zensical preview commands below.
+![TopoViewer YAML to rendered network diagram](docs/assets/topoviewer-yaml-to-diagram.png)
+
+## Get a first result in 30 seconds
+
+```bash
+git clone https://github.com/asadarafat/topoviewer.git
+cd topoviewer
+npm ci
+npm run docs:preview
+```
+
+Then open:
+
+- `http://127.0.0.1:8001/topoViewer/` (MkDocs docs)
+- `http://127.0.0.1:8002/topoViewer/zensical/` (Zensical docs)
+- the URL shown by `npm run vscode:harness` (authoring harness)
+
+Expected output after this:
+
+- A rendered topology from the `yaml-to-diagram` example appears instantly.
+- Layer toggles and attention behavior are usable from the docs examples.
+- The same source model can be switched across underlay/BGP/service/failure views.
+
+## Why teams use TopoViewer
+
+- **Source of truth in YAML:** topology facts (`graph`, `nodes`, `links`, `paths`,
+  `regions`) are authored separately from rendering policy (`stylesheet`).
+- **Reusable views from one model:** switch layers (underlay, BGP, service, failure)
+  without rebuilding the whole diagram.
+- **Attention-focused cognition:** highlight paths, mute context, collapse regions, and
+  keep dense environments understandable.
+- **Integration-ready:** the same model powers a React package, MkDocs plugin,
+  Zensical embed, and browser harness workflow.
+- **Production gates built in:** schema validation, semantic linting, and UI/fixture
+  coverage are part of repository workflows.
+
+## What you can do with it now
+
+- Render editable topology and stylesheet YAML directly in docs.
+- Build operational diagrams that reflect intent and can evolve with CI.
+- Create dense network views with region management and attention behavior.
+- Export rendered outputs for documentation, design reviews, and handoff.
 
 ```yaml
 graph:
@@ -25,127 +68,85 @@ graph:
       labels: { protocol: bgp }
 ```
 
-The same source model can render underlay, BGP, service path, and failure views without redrawing the network by hand.
+The same data can drive underlay/BGP/service/failure views by toggling layer visibility
+and attention rules.
 
-- [Try the YAML to diagram example](docs/topoviewer/yaml-to-diagram/index.md)
-- [Open the real network demo](docs/topoviewer/real-network-demo.md)
-- [Read why TopoViewer exists](docs/topoviewer/why-topoviewer.md)
-- [Review the integration roadmap](docs/topoviewer/integration-roadmap.md)
-- [Open the browser authoring harness](https://asadarafat.github.io/topoViewer/harness/)
+## Quick links
 
-TopoViewer is a monorepo for the renderer package, MkDocs plugin, VS Code authoring harness, examples, schemas, and documentation build.
+- [Why TopoViewer](docs/topoviewer/why-topoviewer.md)
+- [YAML to diagram](docs/topoviewer/yaml-to-diagram/index.md)
+- [Real network demo](docs/topoviewer/real-network-demo.md)
+- [Attention examples](docs/topoviewer/reference/attention/index.md)
+- [Integration roadmap](docs/topoviewer/integration-roadmap.md)
+- [Docs preview: MkDocs](https://asadarafat.github.io/topoViewer/)
+- [Docs preview: Zensical](https://asadarafat.github.io/topoViewer/zensical/)
+- [Authoring harness](https://asadarafat.github.io/topoViewer/harness/)
 
-## Legacy History
+## Package layout
 
-Pre-refresh history before the 2026-06-15 standalone rewrite is preserved at
-https://github.com/asadarafat/topoViewer-legacy.
+- `packages/topoviewer` → `topoviewer` package (React renderer, compiler, schemas,
+  embeddable browser bundle)
+- `packages/mkdocs-topoviewer` → `mkdocs-topoviewer` (MkDocs plugin + vendored viewer
+  assets)
+- `packages/vscode-topoviewer` → experimental VS Code/browser authoring harness
 
-## Packages
+The data model flows from `packages/topoviewer` into `dist/embed`, then into docs adapters.
 
-| Package | Runtime | Published as | Responsibility |
-|---|---|---|---|
-| `packages/topoviewer` | Node, browser, React | `topoviewer` | Renderer, compiler, schemas, React component, and embeddable browser bundle |
-| `packages/mkdocs-topoviewer` | Python, MkDocs | `mkdocs-topoviewer` | MkDocs fenced-block adapter and vendored browser assets |
-| `packages/vscode-topoviewer` | VS Code, browser, Vite | Experimental package | VS Code preview extension and static browser authoring harness |
+## Run locally
 
-The dependency direction is one way:
-
-```text
-packages/topoviewer source -> dist/embed browser bundle -> packages/mkdocs-topoviewer vendored assets
-```
-
-React users should install the npm package. MkDocs users should install the Python plugin. Keeping those packages separate avoids forcing frontend build tooling into documentation builds.
-
-## Development
-
-Requirements:
+### Prerequisites
 
 - Node.js 24 LTS
-- Python `>=3.9` for the MkDocs plugin and documentation build
+- Python 3.9+ (for MkDocs plugin workflows)
 
-Install and run from the monorepo root:
+### Core commands
 
 ```bash
 npm ci
-npm run dev
 npm run build
 npm run test:all
 ```
 
-Build the documentation site:
-
-```bash
-npm run sync:docs
-python3 -m pip install -e packages/mkdocs-topoviewer mkdocs-material
-mkdocs build --strict
-```
-
-Preview the GitHub Pages sites locally:
+### Docs and previews
 
 ```bash
 npm run docs:preview
 ```
 
-This creates the local documentation virtualenvs, syncs generated docs, builds
-the viewer assets once, then serves MkDocs at
-`http://127.0.0.1:8001/topoViewer/` and Zensical at
-`http://127.0.0.1:8002/topoViewer/zensical/`. If either fixed port is already
-in use, the command exits with a port-specific error so you can release the
-port and rerun it.
+This serves:
 
-For Markdown-only review when assets are already current, use:
+- MkDocs: `http://127.0.0.1:8001/topoViewer/`
+- Zensical: `http://127.0.0.1:8002/topoViewer/zensical/`
+- Harness (separate command): `npm run vscode:harness`
+
+Use `npm run vscode:harness` if you want to edit YAML directly and watch live updates in the browser authoring pane.
+
+### Install for consumers
+
+If you want to use TopoViewer as a package:
+
+```bash
+npm install topoviewer
+python3 -m pip install mkdocs-topoviewer
+```
+
+### Browser-only review
+
+When generated assets are already current:
 
 ```bash
 npm run docs:preview:fast
 ```
 
-The published GitHub Pages artifact is assembled under `site/` with three
-targets:
-
-| Target | Published URL | Local command |
-|---|---|---|
-| MkDocs documentation | `https://asadarafat.github.io/topoViewer/` | `npm run docs:preview` |
-| Zensical documentation | `https://asadarafat.github.io/topoViewer/zensical/` | `npm run docs:preview` |
-| Browser authoring harness | `https://asadarafat.github.io/topoViewer/harness/` | `npm run vscode:harness` |
-
-For a local static Pages artifact that includes all three targets, run:
+For a local artifact containing all publish targets:
 
 ```bash
 npm run docs:build:parallel
 ```
 
-Build the MkDocs plugin wheel:
+## Production readiness checks
 
-```bash
-npm run wheel:mkdocs
-npm run inspect:wheel
-```
-
-Refresh the MkDocs plugin vendored browser assets after changing renderer behavior:
-
-```bash
-npm run build
-npm run sync:mkdocs-assets
-```
-
-Build and inspect the static browser harness that GitHub Pages publishes:
-
-```bash
-npm run vscode:harness:build
-```
-
-## Package Docs
-
-- Renderer package: [packages/topoviewer/README.md](packages/topoviewer/README.md)
-- Monorepo boundary: [packages/topoviewer/docs/monorepo.md](packages/topoviewer/docs/monorepo.md)
-- MkDocs plugin: [packages/mkdocs-topoviewer/README.md](packages/mkdocs-topoviewer/README.md)
-- Production guardrails: [packages/topoviewer/docs/production.md](packages/topoviewer/docs/production.md)
-- Topology attention examples: [docs/topoviewer/reference/attention/index.md](docs/topoviewer/reference/attention/index.md)
-- Topology attention roadmap: [packages/topoviewer/docs/attention-roadmap.md](packages/topoviewer/docs/attention-roadmap.md)
-
-## Repository Quality Gates
-
-Before publishing or merging a release candidate:
+Run before releases or major merges:
 
 ```bash
 npm ci
@@ -164,4 +165,17 @@ mkdocs build --strict
 TOPOVIEWER_ZENSICAL_SKIP_VIEWER_BUILD=1 npm run zensical:build
 ```
 
-CI runs the same gates. The package is not considered production-ready when local-only generated output is required for success.
+CI runs the same set of checks.
+
+## Further documentation
+
+- Renderer package: [packages/topoviewer/README.md](packages/topoviewer/README.md)
+- Plugin docs: [packages/mkdocs-topoviewer/README.md](packages/mkdocs-topoviewer/README.md)
+- Repository architecture: [packages/topoviewer/docs/monorepo.md](packages/topoviewer/docs/monorepo.md)
+- Production quality model: [packages/topoviewer/docs/production.md](packages/topoviewer/docs/production.md)
+- Attention roadmap: [packages/topoviewer/docs/attention-roadmap.md](packages/topoviewer/docs/attention-roadmap.md)
+
+## Legacy history
+
+The historical pre-refresh repository is preserved at
+[topoViewer-legacy](https://github.com/asadarafat/topoViewer-legacy).
