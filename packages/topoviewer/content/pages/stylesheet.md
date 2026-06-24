@@ -146,7 +146,7 @@ Hardcoded pale labels such as `#e5e7eb` look good in dark mode but disappear in 
 | `draggable` | boolean | Defaults to true. |
 | `selectable` | boolean | Defaults to true. |
 
-Supported node body shapes are `ellipse`, `triangle`, `rectangle`, `roundRectangle`, `bottomRoundRectangle`, `cutRectangle`, `barrel`, `rhomboid`, `diamond`, `pentagon`, `hexagon`, `concaveHexagon`, `heptagon`, `octagon`, `star`, `tag`, `vee`, and `polygon`.
+Supported node body shapes are `ellipse`, `circle`, `triangle`, `square`, `rectangle`, `roundRectangle`, `bottomRoundRectangle`, `cutRectangle`, `barrel`, `rhomboid`, `diamond`, `pentagon`, `hexagon`, `concaveHexagon`, `heptagon`, `octagon`, `star`, `tag`, `vee`, and `polygon`.
 
 Use canonical camelCase for multi-word values:
 

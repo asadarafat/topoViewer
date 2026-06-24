@@ -1,10 +1,10 @@
 renderable: true
 visualSnapshot: false
 dom:
-  graphNodes: 6
-  minVisibleEdges: 5
+  graphNodes: 8
+  minVisibleEdges: 7
 assertions:
-  nodeShapeTypes: roundRectangle,hexagon,cutRectangle,concaveHexagon,diamond,vee
+  nodeShapeTypes: circle,square,roundRectangle,hexagon,cutRectangle,concaveHexagon,diamond,vee
 semantic:
   errors: []
   warnings: []

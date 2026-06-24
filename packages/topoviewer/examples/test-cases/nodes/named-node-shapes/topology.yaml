@@ -4,43 +4,60 @@ graph:
     - id: physical
       name: Physical
   nodes:
+    - id: core-1
+      name: Core
+      labels:
+        role: core
+      layers: [physical]
+      position: [92, 90]
     - id: rr-1
       name: RR 1
       labels:
         role: route-reflector
       layers: [physical]
-      position: [92, 150]
+      position: [252, 90]
     - id: pe-1
       name: PE 1
       labels:
         role: pe
       layers: [physical]
-      position: [230, 82]
-    - id: fw-1
-      name: FW
-      labels:
-        role: firewall
-      layers: [physical]
-      position: [230, 220]
-    - id: svc-1
-      name: VPN
-      labels:
-        role: service
-      layers: [physical]
-      position: [392, 82]
+      position: [412, 90]
     - id: client-1
       name: Client
       labels:
         role: client
       layers: [physical]
-      position: [552, 82]
+      position: [572, 90]
+    - id: fw-1
+      name: FW
+      labels:
+        role: firewall
+      layers: [physical]
+      position: [172, 260]
+    - id: svc-1
+      name: VPN
+      labels:
+        role: service
+      layers: [physical]
+      position: [332, 260]
     - id: agg-1
       name: Metro
       labels:
         role: aggregate
       layers: [physical]
-      position: [392, 220]
+      position: [492, 260]
+    - id: sw-1
+      name: SW
+      labels:
+        role: switch
+      layers: [physical]
+      position: [652, 260]
   links:
+    - id: core-rr
+      name: Core to RR
+      source: core-1
+      target: rr-1
+      layers: [physical]
     - id: rr-pe
       name: RR to PE
       source: rr-1
@@ -65,4 +82,9 @@ graph:
       name: Firewall to metro
       source: fw-1
       target: agg-1
+      layers: [physical]
+    - id: agg-sw
+      name: Metro to switch
+      source: agg-1
+      target: sw-1
       layers: [physical]

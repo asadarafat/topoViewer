@@ -59,8 +59,8 @@ examples:
     topology: docs/topoviewer/examples/nodes/named-node-shapes/topology.yaml
     stylesheet: docs/topoviewer/examples/nodes/named-node-shapes/stylesheet.yaml
     expected:
-      graphNodes: 6
-      minVisibleEdges: 5
+      graphNodes: 8
+      minVisibleEdges: 7
     readme: docs/topoviewer/examples/nodes/named-node-shapes/README.md
   - id: nodes-custom-polygon-shape
     title: Custom polygon node
