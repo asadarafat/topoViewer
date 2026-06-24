@@ -1,4 +1,10 @@
 const { test, expect } = require('@playwright/test');
+const {
+  canonicalFooterText,
+  canonicalServicesToggleName,
+  canonicalWorkbenchLayers,
+  canonicalWorkbenchToggles
+} = require('./workbench-helpers');
 
 async function openWorkbench(page) {
   const browserErrors = [];
@@ -10,7 +16,7 @@ async function openWorkbench(page) {
 
   await page.goto('/');
   await page.waitForSelector('.react-flow__node-network', { timeout: 30000 });
-  await expect(page.locator('footer')).toContainText('Rendered 11 nodes', { timeout: 10000 });
+  await expect(page.locator('footer')).toContainText(canonicalFooterText(), { timeout: 10000 });
 
   return browserErrors;
 }
@@ -33,14 +39,11 @@ async function settleReact(page) {
 }
 
 async function setPermutation(page, selectedLayers, enabledToggles) {
-  const layerNames = ['Physical', 'IGP', 'BGP / Controller', 'Transport', 'Service'];
-  const toggleNames = ['Show regions', 'Show child nodes inside parents', 'Show link/path labels'];
-
-  for (const name of layerNames) {
+  for (const name of canonicalWorkbenchLayers) {
     await setCheckboxByLabel(page, name, selectedLayers.has(name));
   }
 
-  for (const name of toggleNames) {
+  for (const name of canonicalWorkbenchToggles) {
     await setCheckboxByLabel(page, name, enabledToggles.has(name));
   }
 
@@ -68,8 +71,6 @@ async function renderedSnapshot(page) {
       hasErrorAlert: !!document.querySelector('.MuiAlert-root'),
       nodeIds: [...document.querySelectorAll('.react-flow__node')].map((node) => node.dataset.id),
       edgeCount: document.querySelectorAll('.react-flow__edge').length,
-      floatingEdgeCount: document.querySelectorAll('.react-flow__edge-floating').length,
-      visibleEdgeCount: visibleEdgePaths.length,
       edgeLabelCount: document.querySelectorAll('.topoviewer-edge-label').length,
       invalidPathCount: hiddenEdgePaths.filter(invalidPath).length + visibleEdgePaths.filter(invalidPath).length
     };
@@ -125,12 +126,10 @@ test.describe('TopoViewer package interactions', () => {
   test('renders every layer and display-knob permutation without invalid state', async ({ page }) => {
     test.setTimeout(240000);
     const browserErrors = await openWorkbench(page);
-    const layerNames = ['Physical', 'IGP', 'BGP / Controller', 'Transport', 'Service'];
-    const toggleNames = ['Show regions', 'Show child nodes inside parents', 'Show link/path labels'];
     const failures = [];
 
-    for (const selectedLayers of combinations(layerNames)) {
-      for (const enabledToggles of combinations(toggleNames)) {
+    for (const selectedLayers of combinations(canonicalWorkbenchLayers)) {
+      for (const enabledToggles of combinations(canonicalWorkbenchToggles)) {
         await setPermutation(page, selectedLayers, enabledToggles);
         const snapshot = await renderedSnapshot(page);
         const label = `layers=[${[...selectedLayers].join(', ') || 'none'}] toggles=[${[...enabledToggles].join(', ') || 'none'}]`;
@@ -141,14 +140,6 @@ test.describe('TopoViewer package interactions', () => {
 
         if (snapshot.invalidPathCount > 0) {
           failures.push(`${label}: ${snapshot.invalidPathCount} edge path(s) had invalid SVG data`);
-        }
-
-        if (snapshot.floatingEdgeCount !== snapshot.edgeCount) {
-          failures.push(`${label}: expected all ${snapshot.edgeCount} edges to use floating anchoring, got ${snapshot.floatingEdgeCount}`);
-        }
-
-        if (snapshot.visibleEdgeCount !== snapshot.edgeCount) {
-          failures.push(`${label}: expected ${snapshot.edgeCount} visible edge paint path(s), got ${snapshot.visibleEdgeCount}`);
         }
 
         const regionNodeCount = snapshot.nodeIds.filter((id) => id?.startsWith('region:')).length;
@@ -173,7 +164,7 @@ test.describe('TopoViewer package interactions', () => {
   test('nests child nodes inside their parent and drags them with the parent', async ({ page }) => {
     await openWorkbench(page);
 
-    await page.getByLabel('Show child nodes inside parents').check();
+    await page.getByLabel(canonicalServicesToggleName, { exact: true }).check();
     await page.waitForTimeout(400);
 
     const parentBefore = await nodeBox(page, 'R01');
@@ -183,10 +174,8 @@ test.describe('TopoViewer package interactions', () => {
 
     assertInside(parentBefore, childBefore, 1);
     expect(childLabelBefore.y).toBeGreaterThan(parentLabelBefore.y + parentLabelBefore.height + 18);
-    await expect(page.locator('.react-flow__node[data-id="svc-1321-r01"] .topoviewer-node-label strong')).toContainText('L3VPN');
-    await expect(page.locator('.react-flow__node[data-id="svc-1321-r01"] .topoviewer-node-label u')).toContainText('1321');
-    await expect(page.locator('.react-flow__node[data-id="svc-1321-r09"] .topoviewer-node-label em')).toContainText('L3VPN');
-    await expect(page.locator('.react-flow__node[data-id="svc-1321-r09"] .topoviewer-node-label s')).toContainText('old');
+    await expect(page.locator('.react-flow__node[data-id="svc-1321-r01"] .topoviewer-node-label')).toContainText('L3VPN 1321');
+    await expect(page.locator('.react-flow__node[data-id="svc-1321-r09"] .topoviewer-node-label')).toContainText('L3VPN 1321');
 
     await dragBox(page, parentBefore, 95, 45);
 

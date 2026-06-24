@@ -1,0 +1,18 @@
+.topoviewer-figure {
+  margin: 1.5rem 0;
+  width: var(--topoviewer-width, 100%);
+}
+
+.topoviewer-figure .topoviewer-title {
+  color: var(--md-default-fg-color--light, #475569);
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+}
+
+.topoviewer-figure .topoviewer-embed {
+  border: 1px solid var(--md-default-fg-color--lightest, #d8dee9);
+  border-radius: 0.5rem;
+  min-height: 320px;
+  overflow: hidden;
+}

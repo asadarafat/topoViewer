@@ -70,17 +70,13 @@
   ],
   "scripts": {
     "clean": "rm -rf dist test-results playwright-report",
-    "build": "node ../../scripts/run-node24.mjs npm run build:node24",
-    "build:node24": "npm --workspace topoviewer run build:lib && npm run build:webview && npm run build:extension && npm run typecheck",
+    "build": "node ../../scripts/require-node24.mjs && npm --workspace topoviewer run build:lib && npm run build:webview && npm run build:extension && npm run typecheck",
     "build:webview": "vite build --config vite.webview.config.ts",
     "build:extension": "node scripts/build-extension.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "vscode:harness": "node ../../scripts/run-node24.mjs npm run vscode:harness:node24",
-    "vscode:harness:node24": "npm --workspace topoviewer run build:lib && vite --host 127.0.0.1 --port 5174 --strictPort --config vite.harness.config.ts",
-    "vscode:harness:build": "node ../../scripts/run-node24.mjs npm run vscode:harness:build:node24",
-    "vscode:harness:build:node24": "npm --workspace topoviewer run build:lib && vite build --config vite.harness.config.ts",
-    "test:vscode-harness": "node ../../scripts/run-node24.mjs npm run test:vscode-harness:node24",
-    "test:vscode-harness:node24": "npm --workspace topoviewer run build:lib && playwright test --config playwright.config.js"
+    "vscode:harness": "node ../../scripts/require-node24.mjs && npm --workspace topoviewer run build:lib && vite --host 127.0.0.1 --port 5174 --strictPort --config vite.harness.config.ts",
+    "vscode:harness:build": "node ../../scripts/require-node24.mjs && npm --workspace topoviewer run build:lib && vite build --config vite.harness.config.ts",
+    "test:vscode-harness": "node ../../scripts/require-node24.mjs && npm --workspace topoviewer run build:lib && playwright test --config playwright.config.js"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

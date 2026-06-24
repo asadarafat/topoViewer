@@ -146,6 +146,14 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
   }, [host.kind, state]);
 
   useEffect(() => {
+    if (host.kind !== 'browser') return undefined;
+    (window as unknown as { __topoviewerHarnessValidation?: ValidationResult }).__topoviewerHarnessValidation = validation;
+    return () => {
+      delete (window as unknown as { __topoviewerHarnessValidation?: ValidationResult }).__topoviewerHarnessValidation;
+    };
+  }, [host.kind, validation]);
+
+  useEffect(() => {
     if (!state || !host.saveState) return;
     host.saveState(state);
   }, [host, state]);

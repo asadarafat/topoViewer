@@ -4,11 +4,11 @@ const fs = require('node:fs');
 const path = require('node:path');
 const yaml = require('js-yaml');
 
-const rtfmRoot = path.resolve(__dirname, '../../../../rtfm');
+const packageRoot = path.resolve(__dirname, '..');
+const repoRoot = path.resolve(packageRoot, '../..');
 const rtfmPublic = process.env.TOPOVIEWER_MKDOCS_PUBLIC
   ? path.resolve(process.env.TOPOVIEWER_MKDOCS_PUBLIC)
-  : path.join(rtfmRoot, 'public');
-const packageRoot = path.resolve(__dirname, '..');
+  : path.join(repoRoot, 'site');
 const catalogPath = path.join(packageRoot, 'examples/test-cases/catalog.yaml');
 
 function readYaml(filePath) {

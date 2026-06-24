@@ -1,6 +1,7 @@
 module.exports = {
   testDir: './tests',
   testIgnore: ['**/unit/**'],
+  snapshotPathTemplate: '{testDir}/{testFilePath}-snapshots/{arg}-linux{ext}',
   timeout: 30000,
   reporter: [['list']],
   webServer: {

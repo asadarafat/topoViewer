@@ -10,13 +10,10 @@
   ],
   "scripts": {
     "dev": "npm --workspace topoviewer run dev",
-    "vscode:harness": "node scripts/run-node24.mjs npm run vscode:harness:node24",
-    "vscode:harness:node24": "npm --workspace vscode-topoviewer run vscode:harness:node24",
-    "vscode:harness:build": "node scripts/run-node24.mjs npm run vscode:harness:build:node24",
-    "vscode:harness:build:node24": "npm --workspace vscode-topoviewer run vscode:harness:build:node24 && npm run validate:vscode-harness-build",
+    "vscode:harness": "node scripts/require-node24.mjs && npm --workspace vscode-topoviewer run vscode:harness",
+    "vscode:harness:build": "node scripts/require-node24.mjs && npm --workspace vscode-topoviewer run vscode:harness:build && npm run validate:vscode-harness-build",
     "clean": "npm --workspace topoviewer run clean",
-    "build": "node scripts/run-node24.mjs npm run build:node24",
-    "build:node24": "npm --workspace topoviewer run build && npm --workspace vscode-topoviewer run build:node24",
+    "build": "node scripts/require-node24.mjs && npm --workspace topoviewer run build && npm --workspace vscode-topoviewer run build",
     "sync:mkdocs-assets": "npm --workspace topoviewer run sync:mkdocs-assets",
     "sync:zensical-assets": "node scripts/sync-zensical-assets.mjs",
     "sync:zensical-docs": "node scripts/sync-zensical-docs.mjs",
@@ -41,8 +38,7 @@
     "lint:cpd:report": "jscpd --config .jscpd.json --reporters console --no-tips",
     "quality": "npm run lint && npm --workspace vscode-topoviewer run typecheck",
     "test": "npm --workspace topoviewer run test",
-    "test:vscode-harness": "node scripts/run-node24.mjs npm run test:vscode-harness:node24",
-    "test:vscode-harness:node24": "npm --workspace vscode-topoviewer run test:vscode-harness:node24",
+    "test:vscode-harness": "node scripts/require-node24.mjs && npm --workspace vscode-topoviewer run test:vscode-harness",
     "test:headed": "npm --workspace topoviewer run test:headed",
     "test:all": "npm --workspace topoviewer run test:all",
     "transfer:bundle": "node scripts/create-manual-transfer.mjs",
@@ -63,8 +59,7 @@
     "zensical:setup": "bash scripts/local-zensical.sh setup",
     "zensical:build": "bash scripts/local-zensical.sh build && npm run validate:zensical",
     "zensical:serve": "bash scripts/local-zensical.sh serve",
-    "ci": "node scripts/run-node24.mjs npm run ci:node24",
-    "ci:node24": "npm run sync:docs && npm run lint && npm run validate:schemas && npm run validate:semantics && npm run build && npm test && npm run test:vscode-harness && npm run vscode:harness:build && npm run benchmark:attention:smoke && npm run pack:check && npm run sync:mkdocs-assets && npm run wheel:mkdocs && npm run inspect:wheel && TOPOVIEWER_ZENSICAL_SKIP_VIEWER_BUILD=1 npm run zensical:build"
+    "ci": "node scripts/require-node24.mjs && node scripts/ci.mjs"
   },
   "overrides": {
     "monaco-editor": "0.53.0"

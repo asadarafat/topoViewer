@@ -3,21 +3,31 @@ import {
   chooseOption,
   expectActivePanelBeforePreview,
   expectSameVisualRow,
+  graphNodeByLabel,
   nodePosition,
   panelOverflowIssues,
   railWidth,
   revertTemplateState,
+  selectGraphNodes,
   setTopologyText,
+  showAllHarnessLayers,
   stylesheetText,
   topologyText,
   waitForHarnessReady,
   waitForHarnessState,
+  waitForValidatedGraphObject,
   yamlCompletions,
   yamlHover,
   yamlObjectBlock,
   yamlStyleMetadata,
   type StyleValueDataType
 } from './harness-helpers';
+
+function matchingGeneratedObjectId(text: string, prefix: 'link' | 'path', requiredLines: string[]) {
+  const idPattern = new RegExp(`(?:^|\\n)\\s*- id: (${prefix}-\\d+)`, 'g');
+  const ids = [...text.matchAll(idPattern)].map((match) => match[1]).filter(Boolean);
+  return ids.find((id) => requiredLines.every((line) => yamlObjectBlock(text, id).includes(line))) || '';
+}
 
 test('renders the browser harness with fixtures, diagnostics, layers, preview, and export wiring', async ({ page }) => {
   await page.goto('/');
@@ -276,9 +286,8 @@ test('prefills relationship composers from selected nodes', async ({ page }) => 
   await page.goto('/');
   await waitForHarnessReady(page);
 
-  await page.locator('.react-flow__node').filter({ hasText: 'FRA-PE' }).click();
-  await page.locator('.react-flow__node').filter({ hasText: 'AMS-P' }).click({ modifiers: ['Control'] });
-  await page.locator('.react-flow__node').filter({ hasText: 'LON-PE' }).click({ modifiers: ['Control'] });
+  await selectGraphNodes(page, ['FRA-PE', 'AMS-P', 'LON-PE']);
+  await expect(page.locator('.topoviewer-vscode-diagnostic-strip')).toContainText('3 node selected');
   await page.getByRole('tab', { name: 'Build', exact: true }).click();
 
   const build = page.locator('.topoviewer-vscode-build-pane');
@@ -307,10 +316,10 @@ test('supports authoring modes, selection, multi-select, and blank-canvas clear'
   await expect(page.getByRole('tab', { name: 'Layers', exact: true })).toHaveAttribute('aria-selected', 'true');
   await page.getByRole('tab', { name: 'Build', exact: true }).click();
 
-  await page.locator('.react-flow__node').filter({ hasText: 'FRA-PE' }).click();
+  await graphNodeByLabel(page, 'FRA-PE').click();
   await expect(page.locator('.topoviewer-vscode-diagnostic-strip')).toContainText('1 node selected');
   await expect(page.getByRole('tab', { name: 'Inspect', exact: true })).toHaveAttribute('aria-selected', 'true');
-  await page.locator('.react-flow__node').filter({ hasText: 'AMS-P' }).click({ modifiers: ['Control'] });
+  await graphNodeByLabel(page, 'AMS-P').click({ modifiers: ['Shift'] });
   await expect(page.locator('.topoviewer-vscode-diagnostic-strip')).toContainText('2 node selected');
   await page.locator('.react-flow__pane').click({ position: { x: 24, y: 120 } });
   await expect(page.getByText('Select a canvas object')).toBeVisible();
@@ -409,6 +418,7 @@ test('authors and edits explicit connections and path sequences', async ({ page 
     await revertTemplateState(page);
     await waitForHarnessReady(page);
   }
+  await showAllHarnessLayers(page);
   const build = page.locator('.topoviewer-vscode-build-pane');
 
   await build.getByRole('button', { name: 'Insert Connection' }).click();
@@ -416,33 +426,32 @@ test('authors and edits explicit connections and path sequences', async ({ page 
   await chooseOption(page, build.getByRole('combobox', { name: 'Connection source' }), 'FRA-PE');
   await chooseOption(page, build.getByRole('combobox', { name: 'Connection target' }), 'LON-PE');
   await build.getByRole('button', { name: 'Create connection' }).click();
-  await expect.poll(() => topologyText(page)).toContain('id: link-1');
+  let createdLinkId = '';
+  await expect.poll(async () => {
+    createdLinkId = matchingGeneratedObjectId(await topologyText(page), 'link', ['source: fra-pe', 'target: lon-pe']);
+    return createdLinkId;
+  }).toMatch(/^link-\d+$/);
   await expect.poll(() => topologyText(page)).toContain('source: fra-pe');
   await expect.poll(() => topologyText(page)).toContain('target: lon-pe');
-  const createdEdge = page.locator('[data-testid="rf__edge-link-1"]');
+  await waitForValidatedGraphObject(page, 'links', createdLinkId);
+  const createdEdge = page.locator(`[data-testid^="rf__edge-${createdLinkId}"]`).first();
   await expect(createdEdge).toBeAttached({ timeout: 10000 });
 
   await createdEdge.dispatchEvent('click');
   const inspector = page.locator('.topoviewer-vscode-inspector-pane');
-  await expect(inspector.getByLabel('Object name')).toHaveValue('link:link-1');
+  await expect(inspector.getByLabel('Object name')).toHaveValue(`link:${createdLinkId}`);
   await chooseOption(page, inspector.getByRole('combobox', { name: 'Link target' }), 'AMS-P');
   await inspector.getByRole('button', { name: 'Apply relationship' }).click();
   await expect.poll(async () => {
-    const text = await topologyText(page);
-    const block = text.slice(text.indexOf('id: link-1'), text.indexOf('paths:'));
-    return block;
+    return yamlObjectBlock(await topologyText(page), createdLinkId);
   }).toContain('target: ams-p');
   await page.getByRole('button', { name: 'Undo' }).click();
   await expect.poll(async () => {
-    const text = await topologyText(page);
-    const block = text.slice(text.indexOf('id: link-1'), text.indexOf('paths:'));
-    return block;
+    return yamlObjectBlock(await topologyText(page), createdLinkId);
   }).toContain('target: lon-pe');
   await page.getByRole('button', { name: 'Redo' }).click();
   await expect.poll(async () => {
-    const text = await topologyText(page);
-    const block = text.slice(text.indexOf('id: link-1'), text.indexOf('paths:'));
-    return block;
+    return yamlObjectBlock(await topologyText(page), createdLinkId);
   }).toContain('target: ams-p');
 
   await page.getByRole('tab', { name: 'Build', exact: true }).click();
@@ -456,22 +465,26 @@ test('authors and edits explicit connections and path sequences', async ({ page 
   await build.getByRole('button', { name: 'Add' }).click();
   await build.locator('.topoviewer-vscode-transit-row').filter({ hasText: 'AMS-P' }).getByRole('button', { name: 'Down' }).click();
   await build.getByRole('button', { name: 'Create path' }).click();
-  await expect.poll(() => topologyText(page)).toContain('id: path-1');
+  let createdPathId = '';
+  await expect.poll(async () => {
+    createdPathId = matchingGeneratedObjectId(await topologyText(page), 'path', ['- fra-pe', '- lon-pe', '- ams-p', '- noc']);
+    return createdPathId;
+  }).toMatch(/^path-\d+$/);
+  await waitForValidatedGraphObject(page, 'paths', createdPathId);
   await expect.poll(() => topologyText(page)).toContain('sequence:');
   await expect.poll(() => topologyText(page)).toContain('- fra-pe');
   await expect.poll(() => topologyText(page)).toContain('- lon-pe');
   await expect.poll(() => topologyText(page)).toContain('- ams-p');
   await expect.poll(() => topologyText(page)).toContain('- noc');
   await expect.poll(async () => {
-    const text = await topologyText(page);
-    const block = text.slice(text.indexOf('id: path-1'), text.indexOf('regions:'));
+    const block = yamlObjectBlock(await topologyText(page), createdPathId);
     return block.indexOf('- lon-pe') < block.indexOf('- ams-p');
   }).toBeTruthy();
 
   await page.getByRole('button', { name: 'Undo' }).click();
-  await expect.poll(() => topologyText(page)).not.toContain('id: path-1');
+  await expect.poll(() => topologyText(page)).not.toContain(`id: ${createdPathId}`);
   await page.getByRole('button', { name: 'Redo' }).click();
-  await expect.poll(() => topologyText(page)).toContain('id: path-1');
+  await expect.poll(() => topologyText(page)).toContain(`id: ${createdPathId}`);
 });
 
 test('edits existing path sequences in Inspector with undo and redo', async ({ page }) => {
@@ -817,6 +830,7 @@ test('creates a selected node style rule and opens YAML suggestions', async ({ p
 test('creates selected link and path style rules with object-specific selectors', async ({ page }) => {
   await page.goto('/');
   await waitForHarnessReady(page);
+  await showAllHarnessLayers(page);
 
   await page.waitForSelector('[data-testid="rf__edge-underlay-fra-ams"]', { state: 'attached' });
   await page.locator('[data-testid="rf__edge-underlay-fra-ams"]').dispatchEvent('click');

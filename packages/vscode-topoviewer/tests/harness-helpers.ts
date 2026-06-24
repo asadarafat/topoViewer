@@ -78,8 +78,39 @@ export async function waitForHarnessReady(page: Page) {
   await expect(page.locator('.react-flow__node').filter({ hasText: 'FRA-PE' })).toBeVisible();
 }
 
+export function graphNodeByLabel(page: Page, label: string) {
+  return page.locator('.react-flow__node').filter({ hasText: label });
+}
+
+export async function selectGraphNodes(page: Page, labels: string[]) {
+  for (const [index, label] of labels.entries()) {
+    await graphNodeByLabel(page, label).click(index === 0 ? undefined : { modifiers: ['Shift'] });
+  }
+}
+
+export async function showAllHarnessLayers(page: Page) {
+  await page.getByRole('tab', { name: 'Layers', exact: true }).click();
+  const checkboxes = page.locator('.topoviewer-vscode-layers-pane input[type="checkbox"]');
+  const count = await checkboxes.count();
+  for (let index = 0; index < count; index += 1) {
+    const checkbox = checkboxes.nth(index);
+    if (!(await checkbox.isChecked())) {
+      await checkbox.check();
+    }
+  }
+  await page.getByRole('tab', { name: 'Build', exact: true }).click();
+}
+
 export async function waitForHarnessState(page: Page) {
   await page.waitForFunction(() => !!(window as any).__topoviewerHarnessState?.topologyText);
+}
+
+export async function waitForValidatedGraphObject(page: Page, collection: 'links' | 'paths', id: string) {
+  await page.waitForFunction(([targetCollection, targetId]) => {
+    const graph = (window as any).__topoviewerHarnessValidation?.document?.graph;
+    return Array.isArray(graph?.[targetCollection])
+      && graph[targetCollection].some((object: { id?: string }) => object.id === targetId);
+  }, [collection, id]);
 }
 
 export async function revertTemplateState(page: Page) {

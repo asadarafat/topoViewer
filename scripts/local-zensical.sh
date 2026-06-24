@@ -60,18 +60,19 @@ ensure_venv() {
     "$VENV_DIR/bin/python" -m pip install "zensical==$ZENSICAL_VERSION"
 }
 
-npm_node24() {
-    node "$ROOT_DIR/scripts/run-node24.mjs" npm "$@"
+npm_repo() {
+    node "$ROOT_DIR/scripts/require-node24.mjs"
+    npm "$@"
 }
 
 prepare_zensical() {
-    npm_node24 run sync:docs
-    npm_node24 run sync:zensical-docs
+    npm_repo run sync:docs
+    npm_repo run sync:zensical-docs
 
     if [[ "${TOPOVIEWER_ZENSICAL_SKIP_VIEWER_BUILD:-0}" != "1" ]]; then
-        npm_node24 run build
+        npm_repo run build
     fi
-    npm_node24 run sync:zensical-assets
+    npm_repo run sync:zensical-assets
 }
 
 check_port() {

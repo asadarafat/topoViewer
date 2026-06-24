@@ -14,26 +14,27 @@ check_port() {
     node "$ROOT_DIR/scripts/check-port-free.mjs" "$label" "$host" "$port"
 }
 
-npm_node24() {
-    node "$ROOT_DIR/scripts/run-node24.mjs" npm "$@"
+npm_repo() {
+    node "$ROOT_DIR/scripts/require-node24.mjs"
+    npm "$@"
 }
 
 prepare_preview() {
     bash "$ROOT_DIR/scripts/local-mkdocs.sh" setup
     bash "$ROOT_DIR/scripts/local-zensical.sh" setup
 
-    npm_node24 run sync:docs
+    npm_repo run sync:docs
 
     if [[ "${TOPOVIEWER_DOCS_SKIP_VIEWER_BUILD:-0}" != "1" || "${TOPOVIEWER_ZENSICAL_SKIP_VIEWER_BUILD:-0}" != "1" ]]; then
-        npm_node24 run build
+        npm_repo run build
     fi
 
     if [[ "${TOPOVIEWER_DOCS_SKIP_VIEWER_BUILD:-0}" != "1" ]]; then
-        npm_node24 run sync:mkdocs-assets
+        npm_repo run sync:mkdocs-assets
     fi
 
-    npm_node24 run sync:zensical-docs
-    npm_node24 run sync:zensical-assets
+    npm_repo run sync:zensical-docs
+    npm_repo run sync:zensical-assets
 }
 
 cleanup() {
