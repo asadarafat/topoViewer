@@ -32,28 +32,36 @@ async function setCheckboxByLabel(page, name, checked) {
   }
 }
 
-async function settleReact(page) {
+function isNavigationRace(error) {
+  const message = String(error?.message || error);
+  return message.includes('Execution context was destroyed')
+    || message.includes('Cannot find context')
+    || message.includes('navigation');
+}
+
+async function waitForWorkbenchReady(page) {
+  await page.waitForLoadState('domcontentloaded', { timeout: 10000 }).catch(() => {});
+  await page.waitForSelector('.react-flow__node-network', { timeout: 30000 });
+}
+
+async function withNavigationRetry(page, action) {
   for (let attempt = 0; attempt < 3; attempt += 1) {
     try {
-      await page.evaluate(() => new Promise((resolve) => {
-        requestAnimationFrame(() => requestAnimationFrame(resolve));
-      }));
-      return;
+      return await action();
     } catch (error) {
-      const message = String(error?.message || error);
-      const isNavigationRace = message.includes('Execution context was destroyed')
-        || message.includes('Cannot find context')
-        || message.includes('navigation');
-      if (!isNavigationRace) throw error;
+      if (!isNavigationRace(error)) throw error;
 
-      await page.waitForLoadState('domcontentloaded', { timeout: 10000 }).catch(() => {});
-      await page.waitForSelector('.react-flow__node-network', { timeout: 30000 });
+      await waitForWorkbenchReady(page);
     }
   }
 
-  await page.evaluate(() => new Promise((resolve) => {
+  return action();
+}
+
+async function settleReact(page) {
+  await withNavigationRetry(page, () => page.evaluate(() => new Promise((resolve) => {
     requestAnimationFrame(() => requestAnimationFrame(resolve));
-  }));
+  })));
 }
 
 async function setPermutation(page, selectedLayers, enabledToggles) {
@@ -86,7 +94,7 @@ function combinations(items) {
 }
 
 async function renderedSnapshot(page) {
-  return page.evaluate(() => {
+  return withNavigationRetry(page, () => page.evaluate(() => {
     const hiddenEdgePaths = [...document.querySelectorAll('.react-flow__edge-path')];
     const visibleEdgePaths = [...document.querySelectorAll('.topoviewer-edge-visible-path')];
     const invalidPath = (pathElement) => {
@@ -100,7 +108,7 @@ async function renderedSnapshot(page) {
       edgeLabelCount: document.querySelectorAll('.topoviewer-edge-label').length,
       invalidPathCount: hiddenEdgePaths.filter(invalidPath).length + visibleEdgePaths.filter(invalidPath).length
     };
-  });
+  }));
 }
 
 async function nodeBox(page, id) {
