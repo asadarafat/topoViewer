@@ -287,6 +287,57 @@ describe('compileTopoGraph', () => {
     })).toThrow(/targetLabelZIndex/);
   });
 
+  it('reports empty color style values caused by unquoted YAML hex colors', () => {
+    const issues = lintTopoDocument({
+      version: '1.0',
+      graph: {
+        nodes: [
+          { id: 'a', name: 'A', position: [0, 0] }
+        ]
+      },
+      stylesheet: [
+        {
+          selector: 'node',
+          style: {
+            labelBackgroundColor: null
+          }
+        }
+      ]
+    } as TopoDocument, { requireNames: false });
+
+    expect(issues).toContainEqual(expect.objectContaining({
+      severity: 'error',
+      code: 'invalid-style-color',
+      path: 'stylesheet[0].style.labelBackgroundColor'
+    }));
+  });
+
+  it('applies label background opacity to eight-digit hex colors', () => {
+    const compiled = compileTopoGraph({
+      version: '1.0',
+      graph: {
+        layers: [{ id: 'underlay' }],
+        nodes: [
+          { id: 'a', name: 'A', layers: ['underlay'], position: [0, 0] }
+        ]
+      },
+      stylesheet: [
+        {
+          selector: 'node',
+          style: {
+            labelBackgroundColor: '#d19d02ff',
+            labelBackgroundOpacity: 0.5
+          }
+        }
+      ]
+    }, ['underlay']);
+
+    const nodeData = compiled.nodes[0]?.data as CompiledNodeData;
+    expect(nodeData.labelStyle).toMatchObject({
+      backgroundColor: 'rgba(209, 157, 2, 0.5)'
+    });
+  });
+
   it('does not normalize kebab-case style keys inside edge style compilation', () => {
     const link: GraphLink = { id: 'a-b', source: 'a', target: 'b' };
     const edge = compileEdgeStyle(

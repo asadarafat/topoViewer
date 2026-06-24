@@ -110,8 +110,24 @@ function styleKeyIssues(style: Record<string, unknown> | undefined, path: string
     if ((key === 'labelZIndex' || key === 'sourceLabelZIndex' || key === 'targetLabelZIndex') && finiteNumber(style[key]) === undefined) {
       issues.push(issue('error', 'invalid-label-z-index', `${key} must be a finite number.`, `${path}.${key}`));
     }
+    if (style[key] === null && isColorStyleKey(key)) {
+      issues.push(issue(
+        'error',
+        'invalid-style-color',
+        `${key} is empty. Quote hex colors in YAML, for example '${key}: "#d19d02ff"'.`,
+        `${path}.${key}`
+      ));
+    }
     return issues;
   });
+}
+
+function isColorStyleKey(key: string): boolean {
+  return key === 'color'
+    || key === 'fill'
+    || key === 'stroke'
+    || key.endsWith('Color')
+    || key.endsWith('Colors');
 }
 
 function selectorKind(selector: string): string {

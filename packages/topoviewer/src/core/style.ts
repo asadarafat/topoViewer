@@ -193,14 +193,17 @@ function colorWithOpacity(color: unknown, opacity: unknown): string | undefined 
   const text = String(color).trim();
   if (!text.startsWith('#')) return text;
   const hex = text.slice(1);
-  if (![3, 6].includes(hex.length)) return text;
-  const expanded = hex.length === 3 ? hex.split('').map((char) => char + char).join('') : hex;
+  if (![3, 4, 6, 8].includes(hex.length)) return text;
+  const expanded = [3, 4].includes(hex.length) ? hex.split('').map((char) => char + char).join('') : hex;
   const value = Number.parseInt(expanded, 16);
-  if (Number.isNaN(value)) return text;
-  const red = (value >> 16) & 255;
-  const green = (value >> 8) & 255;
-  const blue = value & 255;
-  return `rgba(${red}, ${green}, ${blue}, ${opacity})`;
+  const opacityValue = opacityNumber(opacity);
+  if (Number.isNaN(value) || opacityValue === undefined) return text;
+  const hasAlpha = expanded.length === 8;
+  const red = hasAlpha ? (value >> 24) & 255 : (value >> 16) & 255;
+  const green = hasAlpha ? (value >> 16) & 255 : (value >> 8) & 255;
+  const blue = hasAlpha ? (value >> 8) & 255 : value & 255;
+  const alpha = hasAlpha ? Math.round(((value & 255) / 255) * opacityValue * 1000) / 1000 : opacityValue;
+  return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
 }
 
 function dashPattern(value: unknown): string {
