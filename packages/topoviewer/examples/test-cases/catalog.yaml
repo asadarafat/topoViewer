@@ -236,7 +236,9 @@ examples:
     feature: attention
     path: attention/dense-summary-drilldown
     page: topoviewer/reference/attention/dense-summary-drilldown
-    summary: Keep dense metro topologies readable with summary nodes, counted full-mesh links, and explicit click-to-expand drill-down.
+    summary: >-
+      Keep dense metro topologies readable with summary nodes, counted full-mesh links, and explicit click-to-expand
+      drill-down.
     render:
       height: 560px
       controls: true

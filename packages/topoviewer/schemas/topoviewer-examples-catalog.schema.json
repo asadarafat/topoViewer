@@ -34,6 +34,28 @@
             "type": "string",
             "pattern": "^[a-z0-9][a-z0-9-]*(/[a-z0-9][a-z0-9-]*)*$"
           },
+          "sourcePath": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9-]*(/[a-z0-9][a-z0-9-]*)*$"
+          },
+          "sourceFiles": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "readme": {
+                "$ref": "#/definitions/sourceFile"
+              },
+              "topology": {
+                "$ref": "#/definitions/sourceFile"
+              },
+              "stylesheet": {
+                "$ref": "#/definitions/sourceFile"
+              },
+              "expected": {
+                "$ref": "#/definitions/sourceFile"
+              }
+            }
+          },
           "page": {
             "type": "string",
             "pattern": "^[a-z0-9][a-z0-9-]*(/[a-z0-9][a-z0-9-]*)*$"
@@ -78,6 +100,12 @@
           }
         }
       }
+    }
+  },
+  "definitions": {
+    "sourceFile": {
+      "type": "string",
+      "pattern": "^[a-z0-9_][a-z0-9_.-]*(/[a-z0-9_][a-z0-9_.-]*)*$"
     }
   }
 }

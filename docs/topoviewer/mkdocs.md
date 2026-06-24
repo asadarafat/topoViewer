@@ -107,7 +107,7 @@ This copies the built embed files into the sibling Python package:
 ../mkdocs-topoviewer/mkdocs_topoviewer/assets/
 ```
 
-It also syncs canonical feature examples from `examples/test-cases/` into the configured MkDocs docs tree. The default target is the temporary sibling RTFM tree:
+It also syncs canonical feature examples from `packages/topoviewer/content/examples/` into the configured MkDocs docs tree through the generated package examples projection. The default target is the temporary sibling RTFM tree:
 
 ```text
 ../../../rtfm/docs/
@@ -119,7 +119,7 @@ Use `--docs-root` when generating docs somewhere else:
 node scripts/sync-examples.mjs --docs-root ./docs
 ```
 
-Run `npm run sync:mkdocs-assets` when only the embed bundle changed, or `npm run sync:examples` when example YAML, README prose, internal expected assertions, or generated docs pages changed. Run `npm run check:examples` in CI to verify the generated docs files have not drifted from the package catalog. The internal `expected.yaml` files stay in `examples/test-cases/**` and are not published as MkDocs or Zensical page tabs.
+Run `npm run sync:mkdocs-assets` when only the embed bundle changed, or `npm run sync:docs` when content pages, example YAML, README prose, internal expected assertions, or generated docs pages changed. Run `npm run check:examples` in CI to verify the generated docs files have not drifted from `packages/topoviewer/content/**`. The internal `expected.yaml` files stay in the package example projection and are not published as MkDocs or Zensical page tabs.
 
 ## MkDocs Plugin Behavior
 

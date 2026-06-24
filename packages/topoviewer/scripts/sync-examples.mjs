@@ -2,13 +2,15 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import yaml from 'js-yaml';
+import { sourceFileFor } from '../../../scripts/lib/content-examples.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const packageRoot = path.resolve(__dirname, '..');
 const monorepoRoot = path.resolve(packageRoot, '../..');
 const repoRoot = monorepoRoot;
 const defaultDocsRoot = path.join(monorepoRoot, 'docs');
-const catalogFile = path.join(packageRoot, 'examples/test-cases/catalog.yaml');
+const contentExamplesRoot = path.join(packageRoot, 'content/examples');
+const catalogFile = path.join(contentExamplesRoot, 'catalog.yaml');
 const checkOnly = process.argv.includes('--check');
 
 function argValue(name) {
@@ -51,8 +53,12 @@ function toPosix(value) {
   return value.split(path.sep).join(path.posix.sep);
 }
 
-function caseDir(example) {
-  return path.join(packageRoot, 'examples/test-cases', example.path);
+function exampleSourceFile(example, fileName) {
+  return sourceFileFor(contentExamplesRoot, example, fileName);
+}
+
+function readExampleFile(example, fileName) {
+  return readText(exampleSourceFile(example, fileName));
 }
 
 function docsExamplePath(example, fileName) {
@@ -109,7 +115,7 @@ function generatedCatalog(catalog) {
     version: catalog.version,
     docsRoot: toPosix(path.relative(repoRoot, docsRoot) || '.'),
     examples: (catalog.examples || []).map((example) => {
-      const expected = readYaml(path.join(caseDir(example), 'expected.yaml'));
+      const expected = readYaml(exampleSourceFile(example, 'expected.yaml'));
       const expectedMetadata = compactExpectedMetadata(expected);
       return {
         id: example.id,
@@ -210,9 +216,8 @@ function exampleTabsMarkdown(example, expected, markdownFile) {
 }
 
 function pageMarkdown(example) {
-  const dir = caseDir(example);
-  const readme = readText(path.join(dir, 'README.md')).trim();
-  const expected = readYaml(path.join(dir, 'expected.yaml'));
+  const readme = readExampleFile(example, 'README.md').trim();
+  const expected = readYaml(exampleSourceFile(example, 'expected.yaml'));
 
   return [
     '---',
@@ -239,9 +244,8 @@ function categoryMarkdown(feature, examples) {
   ];
 
   for (const example of examples) {
-    const dir = caseDir(example);
-    const readme = readText(path.join(dir, 'README.md')).trim();
-    const expected = readYaml(path.join(dir, 'expected.yaml'));
+    const readme = readExampleFile(example, 'README.md').trim();
+    const expected = readYaml(exampleSourceFile(example, 'expected.yaml'));
     lines.push(`## ${example.title}`, '', readme, '', exampleTabsMarkdown(example, expected, markdownFile), '');
   }
 
@@ -320,7 +324,7 @@ function indexMarkdown(catalog) {
   const lines = [
     '# TopoViewer Reference',
     '',
-    'TopoViewer renders declarative graph and diagram documents from YAML. The canonical examples on this site are generated from `examples/test-cases/` in the npm package so each documented behavior has one matching test fixture.',
+    'TopoViewer renders declarative graph and diagram documents from YAML. The canonical examples on this site are generated from `packages/topoviewer/content/examples/` so each documented behavior has one matching test fixture.',
     '',
     '| Model | YAML section | Purpose |',
     '|---|---|---|',
@@ -361,7 +365,6 @@ if (!fs.existsSync(catalogFile)) {
 const catalog = readYaml(catalogFile);
 
 for (const example of catalog.examples || []) {
-  const dir = caseDir(example);
   const targets = [
     ['topology.yaml', docsExamplePath(example, 'topology.yaml')],
     ['stylesheet.yaml', docsExamplePath(example, 'stylesheet.yaml')],
@@ -369,7 +372,7 @@ for (const example of catalog.examples || []) {
   ];
 
   for (const [sourceName, targetRelative] of targets) {
-    const source = path.join(dir, sourceName);
+    const source = exampleSourceFile(example, sourceName);
     const target = path.join(docsRoot, targetRelative);
     if (!fs.existsSync(source)) {
       throw new Error(`Example ${example.id} source file is missing: ${source}`);

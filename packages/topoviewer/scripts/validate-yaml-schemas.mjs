@@ -58,6 +58,7 @@ for (const schema of schemas) {
 }
 
 const checks = [];
+const contentCatalogFile = path.join(packageRoot, 'content/examples/catalog.yaml');
 const catalogFile = path.join(packageRoot, 'examples/test-cases/catalog.yaml');
 const generatedCatalogFile = path.join(docsRoot, 'topoviewer/examples/catalog.generated.yaml');
 
@@ -129,6 +130,16 @@ function assertGeneratedCopy(source, target, label) {
   if (sourceText !== targetText) {
     fail(`${label} generated file is out of sync: ${toPosix(path.relative(repoRoot, target))}`);
   }
+}
+
+if (fs.existsSync(contentCatalogFile)) {
+  validateNow(
+    'canonical content examples catalog',
+    'https://topoviewer.dev/schemas/topoviewer-examples-catalog.schema.json',
+    readYaml(contentCatalogFile)
+  );
+} else {
+  fail(`Canonical content examples catalog is missing: ${contentCatalogFile}`);
 }
 
 if (!fs.existsSync(catalogFile)) {

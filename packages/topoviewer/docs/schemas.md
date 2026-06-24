@@ -94,16 +94,16 @@ Schema validation is not semantic validation. Run `npm run validate:semantics` t
 Documented examples are authored in one place:
 
 ```text
-examples/test-cases/catalog.yaml
-examples/test-cases/<feature>/<case>/topology.yaml
-examples/test-cases/<feature>/<case>/stylesheet.yaml
-examples/test-cases/<feature>/<case>/README.md
-examples/test-cases/<feature>/<case>/expected.yaml
+content/examples/catalog.yaml
+content/examples/<feature>/<case>/topology.yaml
+content/examples/<feature>/<case>/stylesheet.yaml
+content/examples/<feature>/<case>/README.md
+content/examples/<feature>/<case>/expected.yaml
 ```
 
 One test case equals one documented behavior. The topology and stylesheet define the fixture, `README.md` becomes the generated docs prose, and `expected.yaml` stays internal to CI. It defines DOM counts, feature assertions, semantic lint expectations, and the visual snapshot flag; it is not copied into MkDocs or Zensical public pages.
 
-Run `npm run sync:examples` to generate docs files from the canonical package catalog. The default target is `../../../rtfm/docs` from this package, matching the local RTFM checkout beside the monorepo. Use `node scripts/sync-examples.mjs --docs-root ./docs` for a repo-local MkDocs site or GitHub Pages docs tree. Run `npm run check:examples` to fail when generated docs drift from the canonical sources.
+Run `npm run sync:docs` to generate package projections and docs files from the canonical content root. Use `node scripts/sync-examples.mjs --docs-root ./docs` only when regenerating the MkDocs example projection after `npm run sync:content`. Run `npm run check:examples` to fail when generated docs drift from the canonical sources.
 
 ## Local Validation
 

@@ -1,6 +1,6 @@
 # TopoViewer Reference
 
-TopoViewer renders declarative graph and diagram documents from YAML. The canonical examples on this site are generated from `examples/test-cases/` in the npm package so each documented behavior has one matching test fixture.
+TopoViewer renders declarative graph and diagram documents from YAML. The canonical examples on this site are generated from `packages/topoviewer/content/examples/` so each documented behavior has one matching test fixture.
 
 | Model | YAML section | Purpose |
 |---|---|---|
