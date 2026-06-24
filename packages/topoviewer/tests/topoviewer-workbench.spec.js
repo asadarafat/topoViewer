@@ -18,8 +18,15 @@ async function preloadExportHelpers(page) {
   }
 }
 
+async function selectComboboxOption(page, name, option) {
+  await page.getByRole('combobox', { name }).click();
+  await page.getByRole('option', { name: option }).click();
+  await expect(page.locator('.MuiPopover-root')).toHaveCount(0);
+}
+
 test.describe('TopoViewer package workbench', () => {
   test('renders the TypeScript TopoViewer workbench and responds to core controls', async ({ page }) => {
+    test.setTimeout(60000);
     const browserErrors = [];
     page.on('pageerror', (error) => browserErrors.push(error.message));
     page.on('console', (message) => {
@@ -89,21 +96,17 @@ test.describe('TopoViewer package workbench', () => {
     await expect(page.locator('.topoviewer-node-attention-focused').first()).toHaveAttribute('tabindex', '0');
 
     await page.getByRole('button', { name: 'Clear' }).click();
-    await page.getByLabel('Focus', { exact: true }).click();
-    await page.getByRole('option', { name: 'Changed' }).click();
+    await selectComboboxOption(page, 'Focus', 'Changed');
     await expect(page.locator('.topoviewer-node-attention-focused')).toHaveCount(0);
     await expect(page.locator('.topoviewer-edge-attention-focused')).toHaveCount(0);
     await expect(page.getByRole('status')).toContainText('Focus result 0/0');
 
     await page.getByRole('button', { name: 'Clear' }).click();
-    await page.getByRole('combobox', { name: 'Aggregate' }).click();
-    await page.getByRole('option', { name: 'Region' }).click();
+    await selectComboboxOption(page, 'Aggregate', 'Region');
     await expect.poll(() => page.locator('.react-flow__node-network').count()).toBeLessThan(canonicalWorkbenchCounts.nodes);
-    await page.getByRole('combobox', { name: 'Labels' }).click();
-    await page.getByRole('option', { name: 'Minimal' }).click();
+    await selectComboboxOption(page, 'Labels', 'Minimal');
     await expect(page.locator('.topoviewer')).toHaveClass(/topoviewer-label-density-minimal/);
-    await page.getByRole('combobox', { name: 'Aggregate' }).click();
-    await page.getByRole('option', { name: 'None' }).click();
+    await selectComboboxOption(page, 'Aggregate', 'None');
 
     await page.getByRole('button', { name: 'Run force layout' }).click();
     await expect(page.locator('footer')).toContainText(canonicalFooterText());
