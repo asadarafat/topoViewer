@@ -491,8 +491,7 @@ test('edits existing path sequences in Inspector with undo and redo', async ({ p
   await page.goto('/');
   await waitForHarnessReady(page);
 
-  await page.waitForSelector('[data-testid="rf__edge-payments-path:0"]', { state: 'attached' });
-  await page.locator('[data-testid="rf__edge-payments-path:0"]').dispatchEvent('click');
+  await selectHarnessObject(page, 'path', 'payments-path');
   const inspector = page.locator('.topoviewer-vscode-inspector-pane');
   await expect(inspector.getByLabel('Object name')).toHaveValue('path:payments-path');
   await chooseOption(page, inspector.getByRole('combobox', { name: 'Path target' }), 'NOC');
@@ -832,13 +831,11 @@ test('creates selected link and path style rules with object-specific selectors'
   await waitForHarnessReady(page);
   await showAllHarnessLayers(page);
 
-  await page.waitForSelector('[data-testid="rf__edge-underlay-fra-ams"]', { state: 'attached' });
-  await page.locator('[data-testid="rf__edge-underlay-fra-ams"]').dispatchEvent('click');
+  await selectHarnessObject(page, 'link', 'underlay-fra-ams');
   await page.getByRole('button', { name: 'Style in YAML' }).click();
   await expect.poll(() => stylesheetText(page)).toContain('selector: link[id = "underlay-fra-ams"]');
 
-  await page.waitForSelector('[data-testid="rf__edge-payments-path:0"]', { state: 'attached' });
-  await page.locator('[data-testid="rf__edge-payments-path:0"]').dispatchEvent('click');
+  await selectHarnessObject(page, 'path', 'payments-path');
   await page.getByRole('button', { name: 'Style in YAML' }).click();
   await expect.poll(() => stylesheetText(page)).toContain('selector: path[id = "payments-path"]');
   await revertTemplateState(page);

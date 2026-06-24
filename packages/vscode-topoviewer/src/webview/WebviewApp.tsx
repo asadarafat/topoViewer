@@ -46,6 +46,7 @@ import {
 import { AuthoringRail } from './AuthoringRail';
 import { PreviewPanel, ResizeDivider, ShellHeader, webviewShellSx } from './WebviewChrome';
 import { HarnessTabPanel, a11yProps, baseInsertObjectGroups, clamp, clampLine, defaultSplitPercent, editorDocumentForTab, focusKindLabel, harnessModes, initialSavedPresets, initialSplitPercent, maxSplitPercent, mergeLayerSelection, minSplitPercent, modeIndex, modeLabel, pathSequenceFromObject, positionOf, presetFromObject, presetStorageKey, sameRoundedPosition, selectedNodeIds, selectedObjectIds, selectionSummary, sequenceFromControls, splitStorageKey, type DocumentTransaction, type HarnessMode } from './webviewAppSupport';
+import { useBrowserHarnessActions } from './harnessActions';
 import './webview.css';
 
 interface WebviewAppProps {
@@ -53,7 +54,6 @@ interface WebviewAppProps {
   themeMode?: 'light' | 'dark';
   onToggleThemeMode?: () => void;
 }
-
 export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppProps) {
   const [state, setState] = useState<WebviewState>();
   const [fixtures, setFixtures] = useState<HarnessFixture[]>([]);
@@ -704,22 +704,7 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
     }
   }
 
-  useEffect(() => {
-    if (host.kind !== 'browser') return undefined;
-    (window as unknown as {
-      __topoviewerHarnessActions?: {
-        selectObject: (selection: TopoObjectSelection) => void;
-      };
-    }).__topoviewerHarnessActions = {
-      selectObject(selection) {
-        setSelectedObjects([selection]);
-        setMode('inspect');
-      }
-    };
-    return () => {
-      delete (window as unknown as { __topoviewerHarnessActions?: unknown }).__topoviewerHarnessActions;
-    };
-  }, [host.kind]);
+  useBrowserHarnessActions(host, { selectObject });
 
   function openRelationshipComposer(kind: 'link' | 'path') {
     const selectedNodes = selectedGraphNodeIds;
