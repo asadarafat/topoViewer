@@ -477,6 +477,17 @@ examples:
       controls: true
       controlsOpen: false
       title: Light and dark theme variables
+  - id: styling-label-z-index
+    title: Label z-index
+    feature: styling
+    path: styling/label-z-index
+    page: topoviewer/reference/styling/label-z-index
+    summary: Labels can draw in their own layer without changing object, edge, or region draw order.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Label z-index
   - id: layout-manual
     title: Manual layout
     feature: layout

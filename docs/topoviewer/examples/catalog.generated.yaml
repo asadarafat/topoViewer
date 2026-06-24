@@ -521,6 +521,19 @@ examples:
       graphNodes: 2
       minVisibleEdges: 1
     readme: docs/topoviewer/examples/styling/theme-light-dark/README.md
+  - id: styling-label-z-index
+    title: Label z-index
+    feature: styling
+    path: styling/label-z-index
+    page: topoviewer/reference/styling/label-z-index
+    renderable: true
+    topology: docs/topoviewer/examples/styling/label-z-index/topology.yaml
+    stylesheet: docs/topoviewer/examples/styling/label-z-index/stylesheet.yaml
+    expected:
+      graphNodes: 2
+      minVisibleEdges: 1
+      minRegions: 1
+    readme: docs/topoviewer/examples/styling/label-z-index/README.md
   - id: layout-manual
     title: Manual layout
     feature: layout

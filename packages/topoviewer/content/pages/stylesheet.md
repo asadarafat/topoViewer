@@ -136,6 +136,7 @@ Hardcoded pale labels such as `#e5e7eb` look good in dark mode but disappear in 
 | `labelTextWrap`, `labelTextMaxWidth`, `labelTextOverflow`, `labelTextAlign` | `none` or `wrap`, number, `clip` or `ellipsis`, CSS text-align | Label wrapping and overflow controls. |
 | `labelBackgroundColor`, `labelBackgroundOpacity` | CSS color, number `0..1` | Label backing for contrast. |
 | `labelBorderColor`, `labelBorderWidth`, `labelPadding`, `labelOpacity` | CSS color, number, number, number `0..1` | Label box border, padding, and opacity. |
+| `labelZIndex` | number | Draw order for the node label only. Use `zIndex` for the node body. |
 | `minZoomedLabelFontSize` | number | Hides the label when viewport zoom would make its effective font smaller than this value. |
 | `metaColor`, `metaFontSize`, `metaFontWeight` | CSS values | Node metadata typography. |
 | `badgeLabel`, `badgeColor`, `badgeBackgroundColor`, `badgeBorderColor`, `badgePosition` | string/number, CSS colors, position | Compact node badge. Positions are `topLeft`, `topRight`, `bottomLeft`, and `bottomRight`. |
@@ -215,6 +216,7 @@ TopoViewer style keys are canonical `camelCase` in both TypeScript and Styleshee
 | `targetLabelXOffset`, `targetLabelYOffset` | number | Pixel offsets applied to the target endpoint label. |
 | `labelColor`, `labelFontSize`, `labelFontWeight`, `labelFontStyle` | CSS values | Edge label typography. |
 | `labelBorderColor`, `labelBorderWidth` | CSS color, number | Shared edge label border. |
+| `labelZIndex` | number | Draw order for the center edge label. Also acts as fallback draw order for endpoint labels. Use `zIndex` for the edge line. |
 | `sourceLabelColor`, `targetLabelColor` | CSS color | Endpoint label color overrides. |
 | `sourceLabelBackgroundColor`, `targetLabelBackgroundColor` | CSS color | Endpoint label background overrides. |
 | `sourceLabelBorderColor`, `targetLabelBorderColor` | CSS color | Endpoint label border color overrides. |
@@ -222,6 +224,7 @@ TopoViewer style keys are canonical `camelCase` in both TypeScript and Styleshee
 | `sourceLabelFontSize`, `targetLabelFontSize` | CSS value | Endpoint label font-size overrides. |
 | `sourceLabelFontWeight`, `targetLabelFontWeight` | CSS value | Endpoint label font-weight overrides. |
 | `sourceLabelFontStyle`, `targetLabelFontStyle` | CSS value | Endpoint label font-style overrides. |
+| `sourceLabelZIndex`, `targetLabelZIndex` | number | Draw order for endpoint labels. Overrides `labelZIndex` for that endpoint. |
 | `textBackgroundColor`, `textBackgroundOpacity` | CSS color, number | Edge label backing. |
 | `animated` | boolean | Enables React Flow edge animation. |
 | `interactionWidth` | number | Pointer hit area. Defaults to at least 12. |
@@ -244,6 +247,7 @@ This is a practical TopoViewer subset rather than full Cytoscape edge parity. Se
 | `labelColor`, `labelBackgroundColor` | CSS values | Region label treatment. |
 | `labelPosition` | `topLeft`, `topCenter`, `topRight`, `rightTop`, `rightCenter`, `rightBottom`, `bottomRight`, `bottomCenter`, `bottomLeft`, `leftTop`, `leftCenter`, `leftBottom` | Region label anchor. Defaults to `topLeft`. |
 | `labelMargin` | number | Region label margin in pixels from the selected region edge. |
+| `labelZIndex` | number | Draw order for the region label only. Use `zIndex` for the region hull. |
 | `draggable` | boolean | Regions are draggable only when explicitly true. |
 | `selectable` | boolean | Regions are selectable only when explicitly true. |
 | `opacity` | number | Region opacity. |

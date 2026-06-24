@@ -78,6 +78,7 @@ TopoViewer renders declarative graph and diagram documents from YAML. The canoni
 - [Selector styling](reference/styling/selectors/index.md): Selector rules classify objects by kind, id, labels, or data.
 - [Inline style override](reference/styling/inline-style-override/index.md): Inline `style` overrides are local escape hatches on individual objects.
 - [Light and dark theme variables](reference/styling/theme-light-dark/index.md): Theme-aware styles should use TopoViewer CSS variables.
+- [Label z-index](reference/styling/label-z-index/index.md): Labels can draw in their own layer without changing object, edge, or region draw order.
 
 ### Layout
 
