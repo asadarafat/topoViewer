@@ -294,6 +294,123 @@ describe('compileTopoGraph', () => {
     ]));
   });
 
+  it('warns when renderable entities omit layer membership', () => {
+    const document: TopoDocument = {
+      version: '1.0',
+      graph: {
+        layers: [{ id: 'site' }],
+        nodes: [
+          { id: 'a', position: [0, 0] },
+          { id: 'b', position: [100, 0] }
+        ],
+        links: [
+          { id: 'a-b', source: 'a', target: 'b' }
+        ],
+        paths: [
+          { id: 'path-a-b', sequence: ['a', 'b'] }
+        ],
+        regions: [
+          {
+            id: 'region-a',
+            members: ['a']
+          }
+        ]
+      },
+      diagram: {
+        shapes: [
+          { id: 'shape-a', position: [40, 40] }
+        ],
+        connectors: [
+          { id: 'connector-a-shape', source: 'a', target: 'shape-a' }
+        ],
+        callouts: [
+          { id: 'callout-a', position: [80, 80], title: 'A', target: 'a' }
+        ]
+      }
+    };
+
+    const issues = lintTopoDocument(document, { requireNames: false });
+    expect(issues).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        severity: 'warning',
+        code: 'missing-node-layers',
+        path: 'graph.nodes[0].layers'
+      }),
+      expect.objectContaining({
+        severity: 'warning',
+        code: 'missing-link-layers',
+        path: 'graph.links[0].layers'
+      }),
+      expect.objectContaining({
+        severity: 'warning',
+        code: 'missing-path-layers',
+        path: 'graph.paths[0].layers'
+      }),
+      expect.objectContaining({
+        severity: 'warning',
+        code: 'missing-region-layers',
+        path: 'graph.regions[0].layers'
+      }),
+      expect.objectContaining({
+        severity: 'warning',
+        code: 'missing-shape-layers',
+        path: 'diagram.shapes[0].layers'
+      }),
+      expect.objectContaining({
+        severity: 'warning',
+        code: 'missing-connector-layers',
+        path: 'diagram.connectors[0].layers'
+      }),
+      expect.objectContaining({
+        severity: 'warning',
+        code: 'missing-callout-layers',
+        path: 'diagram.callouts[0].layers'
+      })
+    ]));
+  });
+
+  it('reports broken connector and callout visual anchors', () => {
+    const document: TopoDocument = {
+      version: '1.0',
+      graph: {
+        layers: [{ id: 'site' }],
+        nodes: [
+          { id: 'a', layers: ['site'], position: [0, 0], pins: [{ id: 'east', x: 20, y: 0 }] }
+        ]
+      },
+      diagram: {
+        connectors: [
+          {
+            id: 'connector-b-c',
+            layers: ['site'],
+            source: 'b',
+            sourcePin: 'west',
+            target: 'a',
+            targetPin: 'missing'
+          }
+        ],
+        callouts: [
+          {
+            id: 'callout-a',
+            layers: ['site'],
+            position: [80, 80],
+            title: 'A',
+            sourcePin: 'missing-source-pin',
+            target: 'b'
+          }
+        ]
+      }
+    };
+
+    const issues = lintTopoDocument(document, { requireNames: false });
+    expect(issues.map((entry) => entry.code)).toEqual(expect.arrayContaining([
+      'broken-connector-source',
+      'broken-connector-target-pin',
+      'broken-callout-source-pin',
+      'broken-callout-target'
+    ]));
+  });
+
   it('builds deterministic endpoint spacing, segment, and taxi geometry', () => {
     const spaced = applyEndpointSpacing({ sourceX: 0, sourceY: 0, targetX: 20, targetY: 0 }, 20, 20);
     expect(spaced.sourceX).toBeCloseTo(6);

@@ -35,3 +35,14 @@ stylesheet:
       targetArrowShape: none
       label: Link
       textBackgroundColor: var(--topoviewer-edge-label-bg)
+  - selector: region
+    style:
+      backgroundColor: "rgba(219, 234, 254, 0.42)"
+      borderColor: "#1d4ed8"
+      borderWidth: 2
+      labelColor: "#1e3a8a"
+      labelFontSize: 12
+      labelFontWeight: 800
+      labelPosition: topCenter
+      labelMargin: 10
+      zIndex: -20

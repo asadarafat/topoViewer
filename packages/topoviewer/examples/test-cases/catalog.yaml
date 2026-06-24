@@ -33,6 +33,17 @@ examples:
       controls: true
       controlsOpen: false
       title: Parent and child nodes
+  - id: graph-clos-2spine-4leaf
+    title: CLOS 2-spine 4-leaf
+    feature: graph
+    path: graph/clos-2spine-4leaf
+    page: topoviewer/reference/graph/clos-2spine-4leaf
+    summary: A compact data center fabric with two spine switches, four leaf switches, and full leaf-to-spine mesh links.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: CLOS 2-spine 4-leaf
   - id: nodes-named-node-shapes
     title: Named node shapes
     feature: nodes

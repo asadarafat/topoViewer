@@ -5,10 +5,11 @@ import { fileURLToPath } from 'node:url';
 import yaml from 'js-yaml';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const sourceDocsRoot = path.join(repoRoot, 'docs', 'topoviewer');
+const sourceDocsRoot = path.join(repoRoot, 'docs');
+const sourceTopoviewerRoot = path.join(sourceDocsRoot, 'topoviewer');
 const sourceAssetsRoot = path.join(repoRoot, 'docs', 'assets');
-const sourceExamplesRoot = path.join(sourceDocsRoot, 'examples');
-const zensicalDocsRoot = path.join(repoRoot, 'docs-zensical');
+const sourceExamplesRoot = path.join(sourceTopoviewerRoot, 'examples');
+const zensicalDocsRoot = path.join(repoRoot, '.artifacts', 'zensical-docs');
 const targetAssetsRoot = path.join(zensicalDocsRoot, 'assets');
 const targetDocsRoot = path.join(zensicalDocsRoot, 'topoviewer');
 const targetExamplesRoot = path.join(zensicalDocsRoot, 'assets', 'topoviewer', 'examples');
@@ -211,14 +212,17 @@ function adaptMarkdown(markdown, sourceMarkdownPath, targetMarkdownPath) {
 }
 
 function syncMarkdownDocs() {
-  cleanDirectory(targetDocsRoot);
+  cleanDirectory(zensicalDocsRoot);
   for (const source of listFiles(sourceDocsRoot)) {
     const relative = path.relative(sourceDocsRoot, source);
     const parts = relative.split(path.sep);
-    if (parts[0] === 'examples' || relative === '.nav.yml' || !source.endsWith('.md')) {
+    if (parts[0] === 'topoviewer' && parts[1] === 'examples') {
       continue;
     }
-    const target = path.join(targetDocsRoot, relative);
+    if (relative === '.nav.yml' || !source.endsWith('.md')) {
+      continue;
+    }
+    const target = path.join(zensicalDocsRoot, relative);
     writeText(target, adaptMarkdown(readText(source), source, target));
   }
 }
@@ -260,7 +264,7 @@ function generateZensicalNav() {
     ...mirroredNav,
     {
       title: 'Zensical',
-      children: [{ title: 'Embed Adapter', path: 'examples/topoviewer.md' }],
+      children: [{ title: 'Embed Adapter', path: 'topoviewer/zensical-embed.md' }],
     },
   ];
   return [
@@ -294,9 +298,9 @@ function syncZensicalNav() {
   }
 }
 
+syncMarkdownDocs();
 copyTreeInto(sourceAssetsRoot, targetAssetsRoot);
 copyTree(sourceExamplesRoot, targetExamplesRoot);
-syncMarkdownDocs();
 syncZensicalNav();
 
-console.log(`synced Zensical docs from ${path.relative(repoRoot, sourceDocsRoot)}`);
+console.log(`synced Zensical docs from ${path.relative(repoRoot, sourceDocsRoot)} into ${path.relative(repoRoot, zensicalDocsRoot)}`);

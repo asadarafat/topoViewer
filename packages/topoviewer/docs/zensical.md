@@ -6,7 +6,7 @@ The working model is:
 
 ```text
 TopoViewer build -> browser embed CSS/JS
-docs/topoviewer -> generated docs-zensical/topoviewer
+docs/ -> generated .artifacts/zensical-docs
 Zensical config -> loads static assets
 adapter JavaScript -> mounts .topoviewer-embed blocks
 ```
@@ -22,7 +22,7 @@ The repository uses:
 - `zensical.toml` to configure Zensical.
 - `extra_css` to load `assets/topoviewer/topoviewer-embed.css` and the Zensical adapter CSS.
 - `extra_javascript` to load `assets/topoviewer/topoviewer-embed.iife.js` and the Zensical adapter script.
-- `docs-zensical/assets/topoviewer/topoviewer-zensical.js` to call `window.TopoViewerEmbed.mountAll()`.
+- `docs/assets/topoviewer/topoviewer-zensical.js` to call `window.TopoViewerEmbed.mountAll()`.
 
 The adapter subscribes to Zensical's `document$` observable when available, so embeds are remounted after instant navigation. The TopoViewer embed bundle is idempotent and skips containers that are already mounted.
 
@@ -93,19 +93,15 @@ The lowercase `http://127.0.0.1:8002/topoviewer/zensical/` route is the mirrored
 
 The durable source files are:
 
-- `docs/topoviewer/**` for canonical TopoViewer documentation.
-- `docs-zensical/index.md` for the Zensical landing page.
-- `docs-zensical/examples/topoviewer.md` for the Zensical adapter example.
-- `docs-zensical/assets/topoviewer/topoviewer-zensical.css` and `topoviewer-zensical.js`.
+- `docs/**` for canonical TopoViewer documentation.
+- `docs/topoviewer/zensical-embed.md` for the Zensical adapter example.
+- `docs/assets/topoviewer/topoviewer-zensical.css` and `topoviewer-zensical.js`.
 - `scripts/sync-zensical-docs.mjs`.
 - `scripts/sync-zensical-assets.mjs`.
 
-These files are generated and ignored:
+These generated files are ignored and recreated for Zensical builds:
 
-- `docs-zensical/topoviewer/**`
-- `docs-zensical/assets/topoviewer/examples/**`
-- `docs-zensical/assets/topoviewer/topoviewer-embed.css`
-- `docs-zensical/assets/topoviewer/topoviewer-embed.iife.js`
+- `.artifacts/zensical-docs/**`
 
 ## Why Not A Plugin Yet
 

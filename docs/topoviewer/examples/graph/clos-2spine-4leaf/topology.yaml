@@ -3,6 +3,19 @@ graph:
   layers:
     - id: underlay
       name: Underlay
+  regions:
+    - id: spines
+      name: Spines
+      labels:
+        tier: spine
+      layers:
+        - underlay
+      paddingX: 42
+      paddingY: 22
+      minHeight: 132
+      members:
+        - Spine-1
+        - Spine-2
   nodes:
     - id: Spine-1
       name: Spine-1

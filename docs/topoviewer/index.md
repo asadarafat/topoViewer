@@ -14,6 +14,7 @@ TopoViewer renders declarative graph and diagram documents from YAML. The canoni
 - [Graph basic](reference/graph/basic/index.md): A minimal graph with two nodes and one named link.
 - [Labels and data](reference/graph/labels-and-data/index.md): Classification lives in `labels`; operational values live in `data`.
 - [Parent and child nodes](reference/graph/parent-child-nodes/index.md): Logical nodes can be nested inside physical parent nodes.
+- [CLOS 2-spine 4-leaf](reference/graph/clos-2spine-4leaf/index.md): A compact data center fabric with two spine switches, four leaf switches, and full leaf-to-spine mesh links.
 
 ### Nodes
 

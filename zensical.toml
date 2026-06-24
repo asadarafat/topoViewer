@@ -3,7 +3,7 @@ site_name = "TopoViewer Zensical"
 site_description = "Parallel Zensical documentation preview for TopoViewer."
 site_author = "TopoViewer contributors"
 site_url = "https://asadarafat.github.io/topoViewer/zensical/"
-docs_dir = "docs-zensical"
+docs_dir = ".artifacts/zensical-docs"
 site_dir = "site/zensical"
 dev_addr = "127.0.0.1:8002"
 copyright = "Copyright &copy; 2026 TopoViewer contributors"
@@ -36,7 +36,6 @@ nav = [
     { "React" = "topoviewer/react.md" },
     { "MkDocs" = "topoviewer/mkdocs.md" },
     { "Zensical" = "topoviewer/zensical.md" },
-    { "Roadmap" = "topoviewer/integration-roadmap.md" },
     { "Monorepo" = "topoviewer/monorepo.md" }
   ] },
   { "Production" = [
@@ -55,11 +54,10 @@ nav = [
     { "Styling" = "topoviewer/reference/styling/index.md" },
     { "Layout" = "topoviewer/reference/layout/index.md" },
     { "Validation" = "topoviewer/reference/validation/index.md" },
-    { "YAML to Network Diagram" = "topoviewer/yaml-to-diagram/index.md" },
     { "Real Network Demo" = "topoviewer/real-network-demo.md" }
   ] },
   { "Zensical" = [
-    { "Embed Adapter" = "examples/topoviewer.md" }
+    { "Embed Adapter" = "topoviewer/zensical-embed.md" }
   ] }
 ]
 # END GENERATED ZENSICAL NAV

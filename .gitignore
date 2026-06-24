@@ -9,9 +9,6 @@ packages/*/*.egg-info/
 .donotpush/
 .venv*/
 site/
-docs-zensical/topoviewer/
-docs-zensical/assets/topoviewer/examples/
-docs-zensical/assets/topoviewer/topoviewer-embed.css
-docs-zensical/assets/topoviewer/topoviewer-embed.iife.js
 .DS_Store
 __pycache__/
+topoviewer-changes.patch

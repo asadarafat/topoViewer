@@ -5,14 +5,15 @@ import yaml from 'js-yaml';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const zensicalSite = path.join(repoRoot, 'site/zensical');
-const adapterPage = path.join(zensicalSite, 'examples/topoviewer/index.html');
+const zensicalDocsRoot = path.join(repoRoot, '.artifacts/zensical-docs');
+const adapterPage = path.join(zensicalSite, 'topoviewer/zensical-embed/index.html');
 const mirroredExamplePage = path.join(zensicalSite, 'topoviewer/reference/attention/object-focus/index.html');
 const realNetworkDemoPage = path.join(zensicalSite, 'topoviewer/real-network-demo/index.html');
 const whyTopoViewerPage = path.join(zensicalSite, 'topoviewer/why-topoviewer/index.html');
-const mirroredExampleSource = path.join(repoRoot, 'docs-zensical/topoviewer/reference/attention/object-focus/index.md');
+const mirroredExampleSource = path.join(zensicalDocsRoot, 'topoviewer/reference/attention/object-focus/index.md');
 const requiredFiles = [
   'index.html',
-  'examples/topoviewer/index.html',
+  'topoviewer/zensical-embed/index.html',
   'topoviewer/index.html',
   'topoviewer/real-network-demo/index.html',
   'topoviewer/why-topoviewer/index.html',
@@ -113,8 +114,8 @@ if (mirroredSource.includes('--8<--')) {
   fail('Generated Zensical source page still contains an unexpanded snippet directive.');
 }
 
-const topologyPath = path.join(repoRoot, 'docs-zensical/assets/topoviewer/examples/attention/object-focus/topology.yaml');
-const stylesheetPath = path.join(repoRoot, 'docs-zensical/assets/topoviewer/examples/attention/object-focus/stylesheet.yaml');
+const topologyPath = path.join(zensicalDocsRoot, 'assets/topoviewer/examples/attention/object-focus/topology.yaml');
+const stylesheetPath = path.join(zensicalDocsRoot, 'assets/topoviewer/examples/attention/object-focus/stylesheet.yaml');
 const topology = yaml.load(fs.readFileSync(topologyPath, 'utf8')) || {};
 const stylesheet = yaml.load(fs.readFileSync(stylesheetPath, 'utf8')) || {};
 const { validateTopoDocument, lintTopoDocument } = await import(pathToFileURL(path.join(repoRoot, 'packages/topoviewer/dist/topoviewer.mjs')));

@@ -37,6 +37,19 @@ examples:
       graphNodes: 4
       minVisibleEdges: 1
     readme: docs/topoviewer/examples/graph/parent-child-nodes/README.md
+  - id: graph-clos-2spine-4leaf
+    title: CLOS 2-spine 4-leaf
+    feature: graph
+    path: graph/clos-2spine-4leaf
+    page: topoviewer/reference/graph/clos-2spine-4leaf
+    renderable: true
+    topology: docs/topoviewer/examples/graph/clos-2spine-4leaf/topology.yaml
+    stylesheet: docs/topoviewer/examples/graph/clos-2spine-4leaf/stylesheet.yaml
+    expected:
+      graphNodes: 6
+      minVisibleEdges: 8
+      minRegions: 1
+    readme: docs/topoviewer/examples/graph/clos-2spine-4leaf/README.md
   - id: nodes-named-node-shapes
     title: Named node shapes
     feature: nodes

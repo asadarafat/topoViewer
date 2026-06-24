@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const sourceDir = path.join(repoRoot, 'packages/topoviewer/dist/embed');
-const targetDir = path.join(repoRoot, 'docs-zensical/assets/topoviewer');
+const targetDir = path.join(repoRoot, '.artifacts/zensical-docs/assets/topoviewer');
 const files = ['topoviewer-embed.css', 'topoviewer-embed.iife.js'];
 
 if (!fs.existsSync(sourceDir)) {

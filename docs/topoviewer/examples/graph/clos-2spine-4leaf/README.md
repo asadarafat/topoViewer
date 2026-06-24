@@ -1,9 +1,5 @@
-A compact **2-spine, 4-leaf CLOS** example using manual layout.
+A compact **2-spine, 4-leaf CLOS** fixture with manual layout.
 
-This is the smallest meaningful fabric pattern:
-
-- Two spine nodes.
-- Four leaf nodes.
-- Full mesh between each leaf and both spines (8 links).
-
-Use it as a CLOS baseline for style and attention experiments.
+- 2 spine nodes
+- 4 leaf nodes
+- 8 full-mesh fabric links (each leaf to both spines)
