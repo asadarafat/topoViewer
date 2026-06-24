@@ -1,0 +1,40 @@
+icons:
+  router:
+    glyph: ""
+    fill: "#1976d2"
+    stroke: "#90caf9"
+  ops:
+    glyph: ""
+    fill: "#2e7d32"
+    stroke: "#a5d6a7"
+labelFields: []
+stylesheet:
+  - selector: node
+    style:
+      icon: router
+      shape: ellipse
+      width: 92
+      height: 76
+      borderColor: "#1976d2"
+      borderWidth: 2
+      labelColor: "#0f172a"
+      labelFontWeight: 800
+      labelBackgroundColor: "#ffffff"
+      labelPadding: 4
+  - selector: node[labels.role = "ops"]
+    style:
+      icon: ops
+      shape: roundRectangle
+      borderColor: "#2e7d32"
+  - selector: link
+    style:
+      curveStyle: bezier
+      lineColor: "#1976d2"
+      lineWidth: 4
+      targetArrowShape: none
+  - selector: link[labels.layer = "observability"]
+    style:
+      curveStyle: smooth-taxi
+      lineColor: "#2e7d32"
+      targetArrowShape: triangle
+      targetArrowColor: "#2e7d32"

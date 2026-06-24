@@ -78,5 +78,6 @@ nav:
       - Callouts: topoviewer/reference/callouts/index.md
       - Styling: topoviewer/reference/styling/index.md
       - Layout: topoviewer/reference/layout/index.md
+      - Harness: topoviewer/reference/harness/index.md
       - Validation: topoviewer/reference/validation/index.md
       - Real Network Demo: topoviewer/real-network-demo.md

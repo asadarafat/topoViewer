@@ -1,0 +1,6 @@
+renderable: true
+visualSnapshot: false
+assertions: {}
+semantic:
+  errors: []
+  warnings: []

@@ -37,19 +37,6 @@ examples:
       graphNodes: 4
       minVisibleEdges: 1
     readme: docs/topoviewer/examples/graph/parent-child-nodes/README.md
-  - id: graph-clos-2spine-4leaf
-    title: CLOS 2-spine 4-leaf
-    feature: graph
-    path: graph/clos-2spine-4leaf
-    page: topoviewer/reference/graph/clos-2spine-4leaf
-    renderable: true
-    topology: docs/topoviewer/examples/graph/clos-2spine-4leaf/topology.yaml
-    stylesheet: docs/topoviewer/examples/graph/clos-2spine-4leaf/stylesheet.yaml
-    expected:
-      graphNodes: 6
-      minVisibleEdges: 8
-      minRegions: 1
-    readme: docs/topoviewer/examples/graph/clos-2spine-4leaf/README.md
   - id: nodes-named-node-shapes
     title: Named node shapes
     feature: nodes
@@ -558,6 +545,64 @@ examples:
       graphNodes: 5
       minVisibleEdges: 5
     readme: docs/topoviewer/examples/layout/force/README.md
+  - id: harness-layered-network
+    title: Layered network authoring
+    feature: harness
+    path: harness/layered-network
+    page: topoviewer/reference/harness/layered-network
+    renderable: true
+    topology: docs/topoviewer/examples/harness/layered-network/topology.yaml
+    stylesheet: docs/topoviewer/examples/harness/layered-network/stylesheet.yaml
+    readme: docs/topoviewer/examples/harness/layered-network/README.md
+  - id: harness-clos-2spine-4leaf
+    title: CLOS 2-spine 4-leaf
+    feature: harness
+    path: harness/clos-2spine-4leaf
+    page: topoviewer/reference/harness/clos-2spine-4leaf
+    renderable: true
+    topology: docs/topoviewer/examples/harness/clos-2spine-4leaf/topology.yaml
+    stylesheet: docs/topoviewer/examples/harness/clos-2spine-4leaf/stylesheet.yaml
+    expected:
+      graphNodes: 6
+      minVisibleEdges: 8
+      minRegions: 1
+    readme: docs/topoviewer/examples/harness/clos-2spine-4leaf/README.md
+  - id: harness-insert-workflow
+    title: Insert workflow
+    feature: harness
+    path: harness/insert-workflow
+    page: topoviewer/reference/harness/insert-workflow
+    renderable: true
+    topology: docs/topoviewer/examples/harness/insert-workflow/topology.yaml
+    stylesheet: docs/topoviewer/examples/harness/insert-workflow/stylesheet.yaml
+    readme: docs/topoviewer/examples/harness/insert-workflow/README.md
+  - id: harness-attention-workflow
+    title: Attention workflow
+    feature: harness
+    path: harness/attention-workflow
+    page: topoviewer/reference/harness/attention-workflow
+    renderable: true
+    topology: docs/topoviewer/examples/harness/attention-workflow/topology.yaml
+    stylesheet: docs/topoviewer/examples/harness/attention-workflow/stylesheet.yaml
+    readme: docs/topoviewer/examples/harness/attention-workflow/README.md
+  - id: harness-inspector-workflow
+    title: Inspector workflow
+    feature: harness
+    path: harness/inspector-workflow
+    page: topoviewer/reference/harness/inspector-workflow
+    renderable: true
+    topology: docs/topoviewer/examples/harness/inspector-workflow/topology.yaml
+    stylesheet: docs/topoviewer/examples/harness/inspector-workflow/stylesheet.yaml
+    readme: docs/topoviewer/examples/harness/inspector-workflow/README.md
+  - id: harness-dense-links
+    title: Dense link grouping
+    feature: harness
+    path: harness/dense-links
+    page: topoviewer/reference/harness/dense-links
+    renderable: true
+    topology: docs/topoviewer/examples/harness/dense-links/topology.yaml
+    stylesheet: docs/topoviewer/examples/harness/dense-links/stylesheet.yaml
+    readme: docs/topoviewer/examples/harness/dense-links/README.md
   - id: validation-broken-reference
     title: Broken reference validation
     feature: validation

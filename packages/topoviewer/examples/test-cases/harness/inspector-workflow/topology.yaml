@@ -1,0 +1,65 @@
+graph:
+  id: vscode-inspector-workflow
+  layers:
+    - id: access
+      name: Access
+    - id: security
+      name: Security
+    - id: annotations
+      name: Annotations
+  nodes:
+    - id: access-a
+      name: Access A
+      labels:
+        role: router
+        site: a
+      data:
+        status: ok
+        owner: network
+      layers: [access, security]
+      position: [180, 250]
+    - id: firewall
+      name: Firewall
+      labels:
+        role: firewall
+        policy: inspect
+      data:
+        status: active
+        revision: 12
+      layers: [security]
+      position: [420, 250]
+    - id: app
+      name: App
+      labels:
+        role: service
+      data:
+        status: active
+      layers: [access]
+      position: [660, 250]
+  links:
+    - id: access-a-firewall
+      name: Access to firewall
+      source: access-a
+      target: firewall
+      labels:
+        layer: security
+      layers: [security]
+    - id: firewall-app
+      name: Firewall to app
+      source: firewall
+      target: app
+      labels:
+        layer: access
+      layers: [access]
+diagram:
+  callouts:
+    - id: inspector-note
+      title: Inspector
+      body: Edit name, layer, labels, data, and position.
+      target: firewall
+      size: [178, 70]
+      layers: [annotations]
+layout:
+  mode: manual
+  width: 840
+  height: 500

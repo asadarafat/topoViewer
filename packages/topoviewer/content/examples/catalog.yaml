@@ -33,17 +33,6 @@ examples:
       controls: true
       controlsOpen: false
       title: Parent and child nodes
-  - id: graph-clos-2spine-4leaf
-    title: CLOS 2-spine 4-leaf
-    feature: graph
-    path: graph/clos-2spine-4leaf
-    page: topoviewer/reference/graph/clos-2spine-4leaf
-    summary: A compact data center fabric with two spine switches, four leaf switches, and full leaf-to-spine mesh links.
-    render:
-      height: 420px
-      controls: true
-      controlsOpen: false
-      title: CLOS 2-spine 4-leaf
   - id: nodes-named-node-shapes
     title: Named node shapes
     feature: nodes
@@ -362,6 +351,10 @@ examples:
     path: regions/region-label-placement
     page: topoviewer/reference/regions/region-label-placement
     summary: Region labels can be anchored around the hull with an explicit margin.
+    harness:
+      id: region-label-placement
+      name: Region label placement
+      order: 70
     render:
       height: 420px
       controls: true
@@ -510,6 +503,96 @@ examples:
       controls: true
       controlsOpen: false
       title: Force layout
+  - id: harness-layered-network
+    title: Layered network authoring
+    feature: harness
+    path: harness/layered-network
+    page: topoviewer/reference/harness/layered-network
+    summary: The default browser harness template for layered network authoring.
+    harness:
+      id: layered-network
+      name: Layered network authoring
+      order: 10
+    render:
+      height: 520px
+      controls: true
+      controlsOpen: false
+      title: Layered network authoring
+  - id: harness-clos-2spine-4leaf
+    title: CLOS 2-spine 4-leaf
+    feature: harness
+    path: harness/clos-2spine-4leaf
+    page: topoviewer/reference/harness/clos-2spine-4leaf
+    summary: A compact data center fabric template with two spine switches, four leaf switches, and full leaf-to-spine mesh links.
+    harness:
+      id: clos-2spine-4leaf
+      name: CLOS 2-spine 4-leaf
+      order: 20
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: CLOS 2-spine 4-leaf
+  - id: harness-insert-workflow
+    title: Insert workflow
+    feature: harness
+    path: harness/insert-workflow
+    page: topoviewer/reference/harness/insert-workflow
+    summary: A browser harness template for inserting nodes, links, paths, regions, and notes.
+    harness:
+      id: insert-workflow
+      name: Insert workflow
+      order: 30
+    render:
+      height: 520px
+      controls: true
+      controlsOpen: false
+      title: Insert workflow
+  - id: harness-attention-workflow
+    title: Attention workflow
+    feature: harness
+    path: harness/attention-workflow
+    page: topoviewer/reference/harness/attention-workflow
+    summary: A browser harness template for editing attention focus, aggregation, and link grouping.
+    harness:
+      id: attention-workflow
+      name: Attention workflow
+      order: 40
+    render:
+      height: 520px
+      controls: true
+      controlsOpen: false
+      title: Attention workflow
+  - id: harness-inspector-workflow
+    title: Inspector workflow
+    feature: harness
+    path: harness/inspector-workflow
+    page: topoviewer/reference/harness/inspector-workflow
+    summary: A browser harness template for inspecting object labels, data, positions, and relationships.
+    harness:
+      id: inspector-workflow
+      name: Inspector workflow
+      order: 50
+    render:
+      height: 520px
+      controls: true
+      controlsOpen: false
+      title: Inspector workflow
+  - id: harness-dense-links
+    title: Dense link grouping
+    feature: harness
+    path: harness/dense-links
+    page: topoviewer/reference/harness/dense-links
+    summary: A browser harness template for parallel link grouping and bundle threshold editing.
+    harness:
+      id: dense-links
+      name: Dense link grouping
+      order: 60
+    render:
+      height: 500px
+      controls: true
+      controlsOpen: false
+      title: Dense link grouping
   - id: validation-broken-reference
     title: Broken reference validation
     feature: validation

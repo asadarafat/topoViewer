@@ -1,0 +1,53 @@
+icons:
+  router:
+    glyph: ""
+    fill: "#1976d2"
+    stroke: "#90caf9"
+  service:
+    glyph: ""
+    fill: "#ff9800"
+    stroke: "#ffe0b2"
+  ops:
+    glyph: "!"
+    fill: "#d32f2f"
+    stroke: "#ffcdd2"
+labelFields: []
+stylesheet:
+  - selector: node
+    style:
+      icon: router
+      shape: ellipse
+      width: 92
+      height: 76
+      borderColor: "#1976d2"
+      borderWidth: 2
+      labelColor: "#0f172a"
+      labelFontWeight: 800
+      labelBackgroundColor: "#ffffff"
+      labelPadding: 4
+  - selector: node[labels.role = "service"]
+    style:
+      icon: service
+      shape: roundRectangle
+      width: 130
+      height: 64
+      borderColor: "#ff9800"
+  - selector: node[labels.role = "ops"]
+    style:
+      icon: ops
+      shape: octagon
+      borderColor: "#d32f2f"
+  - selector: link
+    style:
+      curveStyle: smooth-taxi
+      lineColor: "#64748b"
+      lineWidth: 4
+      targetArrowShape: triangle
+      targetArrowColor: "#64748b"
+  - selector: region
+    style:
+      backgroundColor: "rgba(25, 118, 210, 0.08)"
+      borderColor: "rgba(25, 118, 210, 0.34)"
+      labelPosition: topCenter
+      labelMargin: 12
+      labelColor: var(--topoviewer-region-label-fg)

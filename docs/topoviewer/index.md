@@ -14,7 +14,6 @@ TopoViewer renders declarative graph and diagram documents from YAML. The canoni
 - [Graph basic](reference/graph/basic/index.md): A minimal graph with two nodes and one named link.
 - [Labels and data](reference/graph/labels-and-data/index.md): Classification lives in `labels`; operational values live in `data`.
 - [Parent and child nodes](reference/graph/parent-child-nodes/index.md): Logical nodes can be nested inside physical parent nodes.
-- [CLOS 2-spine 4-leaf](reference/graph/clos-2spine-4leaf/index.md): A compact data center fabric with two spine switches, four leaf switches, and full leaf-to-spine mesh links.
 
 ### Nodes
 
@@ -84,6 +83,15 @@ TopoViewer renders declarative graph and diagram documents from YAML. The canoni
 
 - [Manual layout](reference/layout/manual/index.md): Manual layout preserves authored positions.
 - [Force layout](reference/layout/force/index.md): Force layout computes positions when the author omits coordinates.
+
+### Harness
+
+- [Layered network authoring](reference/harness/layered-network/index.md): The default browser harness template for layered network authoring.
+- [CLOS 2-spine 4-leaf](reference/harness/clos-2spine-4leaf/index.md): A compact data center fabric template with two spine switches, four leaf switches, and full leaf-to-spine mesh links.
+- [Insert workflow](reference/harness/insert-workflow/index.md): A browser harness template for inserting nodes, links, paths, regions, and notes.
+- [Attention workflow](reference/harness/attention-workflow/index.md): A browser harness template for editing attention focus, aggregation, and link grouping.
+- [Inspector workflow](reference/harness/inspector-workflow/index.md): A browser harness template for inspecting object labels, data, positions, and relationships.
+- [Dense link grouping](reference/harness/dense-links/index.md): A browser harness template for parallel link grouping and bundle threshold editing.
 
 ### Validation
 

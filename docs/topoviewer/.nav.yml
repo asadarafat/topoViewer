@@ -12,6 +12,7 @@ nav:
       - Callouts: reference/callouts/index.md
       - Styling: reference/styling/index.md
       - Layout: reference/layout/index.md
+      - Harness: reference/harness/index.md
       - Validation: reference/validation/index.md
   - YAML to network diagram: yaml-to-diagram/index.md
   - Real network demo: real-network-demo.md
