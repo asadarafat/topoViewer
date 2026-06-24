@@ -50,6 +50,14 @@ async function setPermutation(page, selectedLayers, enabledToggles) {
   await settleReact(page);
 }
 
+async function waitForRegionVisibility(page, expectsRegions) {
+  await expect.poll(async () => {
+    const snapshot = await renderedSnapshot(page);
+    const regionNodeCount = snapshot.nodeIds.filter((id) => id?.startsWith('region:')).length;
+    return expectsRegions ? regionNodeCount > 0 : regionNodeCount === 0;
+  }).toBe(true);
+}
+
 function combinations(items) {
   const states = [];
   const total = 2 ** items.length;
@@ -131,8 +139,12 @@ test.describe('TopoViewer package interactions', () => {
     for (const selectedLayers of combinations(canonicalWorkbenchLayers)) {
       for (const enabledToggles of combinations(canonicalWorkbenchToggles)) {
         await setPermutation(page, selectedLayers, enabledToggles);
-        const snapshot = await renderedSnapshot(page);
         const label = `layers=[${[...selectedLayers].join(', ') || 'none'}] toggles=[${[...enabledToggles].join(', ') || 'none'}]`;
+        const expectsRegions = enabledToggles.has('Show regions') && (
+          selectedLayers.has('IGP') || selectedLayers.has('BGP / Controller')
+        );
+        await waitForRegionVisibility(page, expectsRegions);
+        const snapshot = await renderedSnapshot(page);
 
         if (snapshot.hasErrorAlert) {
           failures.push(`${label}: renderer reported an alert`);
@@ -143,9 +155,6 @@ test.describe('TopoViewer package interactions', () => {
         }
 
         const regionNodeCount = snapshot.nodeIds.filter((id) => id?.startsWith('region:')).length;
-        const expectsRegions = enabledToggles.has('Show regions') && (
-          selectedLayers.has('IGP') || selectedLayers.has('BGP / Controller')
-        );
         if (!expectsRegions && regionNodeCount !== 0) {
           failures.push(`${label}: rendered ${regionNodeCount} region node(s) when regions should be hidden`);
         }

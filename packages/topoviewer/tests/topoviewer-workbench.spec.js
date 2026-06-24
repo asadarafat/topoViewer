@@ -62,7 +62,8 @@ test.describe('TopoViewer package workbench', () => {
     await expect(page.locator('.topoviewer-edge-attention-focused')).toHaveCount(4);
     await expect(page.locator('.topoviewer-node-attention-dimmed').first()).toBeVisible();
     const focusedExports = await page.locator('.topoviewer').evaluate(async (element) => {
-      const { topoviewerToPdf, topoviewerToPng, topoviewerToSvg } = window.__topoviewerExportHelpers;
+      const helpers = window.__topoviewerExportHelpers || await import('/src/core/export.ts');
+      const { topoviewerToPdf, topoviewerToPng, topoviewerToSvg } = helpers;
       const dataUrl = await topoviewerToSvg(element);
       const payload = dataUrl.slice(dataUrl.indexOf(',') + 1);
       const svg = dataUrl.includes(';base64,') ? atob(payload) : decodeURIComponent(payload);
