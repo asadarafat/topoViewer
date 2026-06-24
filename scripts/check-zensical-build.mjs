@@ -11,6 +11,7 @@ const mirroredExamplePage = path.join(zensicalSite, 'topoviewer/reference/attent
 const realNetworkDemoPage = path.join(zensicalSite, 'topoviewer/real-network-demo/index.html');
 const whyTopoViewerPage = path.join(zensicalSite, 'topoviewer/why-topoviewer/index.html');
 const mirroredExampleSource = path.join(zensicalDocsRoot, 'topoviewer/reference/attention/object-focus/index.md');
+const zensicalCssPath = path.join(zensicalSite, 'assets/topoviewer/topoviewer-zensical.css');
 const requiredFiles = [
   'index.html',
   'topoviewer/zensical-embed/index.html',
@@ -56,6 +57,21 @@ for (const needle of [
 ]) {
   if (!adapterHtml.includes(needle)) {
     fail(`Zensical adapter page does not include expected content: ${needle}`);
+  }
+}
+if (!adapterHtml.includes('--topoviewer-width: 960px;')) {
+  fail('Zensical adapter page does not use the standard 960px default TopoViewer width.');
+}
+
+const zensicalCss = fs.readFileSync(zensicalCssPath, 'utf8');
+for (const needle of [
+  '.md-typeset .topoviewer-figure',
+  'width: var(--topoviewer-width, 100%)',
+  'max-width: calc(100vw - 2rem)',
+  'min-height: 420px'
+]) {
+  if (!zensicalCss.includes(needle)) {
+    fail(`Zensical TopoViewer CSS does not include expected viewport sizing rule: ${needle}`);
   }
 }
 

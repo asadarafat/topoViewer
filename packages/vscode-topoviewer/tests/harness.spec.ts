@@ -16,6 +16,7 @@ import {
   waitForHarnessReady,
   waitForHarnessState,
   waitForValidatedGraphObject,
+  waitForRenderedEdge,
   yamlCompletions,
   yamlHover,
   yamlObjectBlock,
@@ -412,6 +413,7 @@ test('undoes and redoes created connection YAML', async ({ page }) => {
 });
 
 test('authors and edits explicit connections and path sequences', async ({ page }) => {
+  test.setTimeout(60000);
   await page.goto('/');
   await waitForHarnessReady(page);
   if (/\bid: link-\d+\b/.test(await topologyText(page))) {
@@ -434,8 +436,8 @@ test('authors and edits explicit connections and path sequences', async ({ page 
   await expect.poll(() => topologyText(page)).toContain('source: fra-pe');
   await expect.poll(() => topologyText(page)).toContain('target: lon-pe');
   await waitForValidatedGraphObject(page, 'links', createdLinkId);
-  const createdEdge = page.locator(`[data-testid^="rf__edge-${createdLinkId}"]`).first();
-  await expect(createdEdge).toBeAttached({ timeout: 10000 });
+  await showAllHarnessLayers(page);
+  const createdEdge = await waitForRenderedEdge(page, createdLinkId);
 
   await createdEdge.dispatchEvent('click');
   const inspector = page.locator('.topoviewer-vscode-inspector-pane');

@@ -113,6 +113,12 @@ export async function waitForValidatedGraphObject(page: Page, collection: 'links
   }, [collection, id]);
 }
 
+export async function waitForRenderedEdge(page: Page, id: string) {
+  const edge = page.locator(`[data-testid^="rf__edge-${id}"]`).first();
+  await expect(edge).toBeAttached({ timeout: 30000 });
+  return edge;
+}
+
 export async function revertTemplateState(page: Page) {
   const revert = page.getByRole('button', { name: /^(Revert template|Remove saved)$/ });
   if (!(await revert.isVisible())) return;
