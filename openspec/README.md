@@ -10,6 +10,7 @@ Current active plans:
 - `changes/define-netbox-integration-roadmap/` - planned NetBox feasibility, use cases, first integration shape, and roadmap wording constraints.
 - `changes/define-opsmill-infrahub-integration-roadmap/` - planned OpsMill/Infrahub feasibility, use cases, first integration shape, and roadmap wording constraints.
 - `changes/define-grafana-integration-roadmap/` - planned Grafana feasibility, use cases, first integration shape, and roadmap wording constraints.
+- `changes/add-label-z-index-style-control/` - planned canonical `labelZIndex` style control for independent label draw order across dense topology views.
 
 Current studies:
 
