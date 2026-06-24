@@ -77,7 +77,7 @@ async function setPermutation(page, selectedLayers, enabledToggles) {
 }
 
 async function waitForRegionVisibility(page, expectsRegions, label) {
-  let lastSnapshot = { nodeIds: [] };
+  let lastSnapshot = { nodeIds: [], allNodeIds: [] };
   try {
     await expect.poll(async () => {
       lastSnapshot = await renderedSnapshot(page);
@@ -93,7 +93,8 @@ async function waitForRegionVisibility(page, expectsRegions, label) {
       `${label}: region visibility did not settle`,
       `expected=${expectsRegions ? 'visible' : 'hidden'}`,
       `lastRegionNodeCount=${regionNodeCount}`,
-      `lastNodeIds=[${lastSnapshot.nodeIds.join(', ')}]`,
+      `lastVisibleNodeIds=[${lastSnapshot.nodeIds.join(', ')}]`,
+      `lastAllNodeIds=[${lastSnapshot.allNodeIds.join(', ')}]`,
       String(error?.message || error)
     ].join('\n'));
   }
@@ -110,6 +111,17 @@ function combinations(items) {
 
 async function renderedSnapshot(page) {
   return withNavigationRetry(page, () => page.evaluate(() => {
+    const isVisible = (element) => {
+      const style = getComputedStyle(element);
+      const rect = element.getBoundingClientRect();
+      return style.display !== 'none'
+        && style.visibility !== 'hidden'
+        && Number.parseFloat(style.opacity || '1') !== 0
+        && rect.width > 0
+        && rect.height > 0;
+    };
+    const nodeElements = [...document.querySelectorAll('.react-flow__node')];
+    const edgeLabelElements = [...document.querySelectorAll('.topoviewer-edge-label')];
     const hiddenEdgePaths = [...document.querySelectorAll('.react-flow__edge-path')];
     const visibleEdgePaths = [...document.querySelectorAll('.topoviewer-edge-visible-path')];
     const invalidPath = (pathElement) => {
@@ -118,9 +130,10 @@ async function renderedSnapshot(page) {
     };
     return {
       hasErrorAlert: !!document.querySelector('.MuiAlert-root'),
-      nodeIds: [...document.querySelectorAll('.react-flow__node')].map((node) => node.dataset.id),
+      nodeIds: nodeElements.filter(isVisible).map((node) => node.dataset.id),
+      allNodeIds: nodeElements.map((node) => node.dataset.id),
       edgeCount: document.querySelectorAll('.react-flow__edge').length,
-      edgeLabelCount: document.querySelectorAll('.topoviewer-edge-label').length,
+      edgeLabelCount: edgeLabelElements.filter(isVisible).length,
       invalidPathCount: hiddenEdgePaths.filter(invalidPath).length + visibleEdgePaths.filter(invalidPath).length
     };
   }));
