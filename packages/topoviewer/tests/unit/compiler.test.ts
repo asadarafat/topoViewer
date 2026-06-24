@@ -3,7 +3,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import yaml from 'js-yaml';
-import { compileTopoGraph, lintTopoDocument, validateTopoDocument, type TopoDocument, type TopoViewerToggles } from '../../src';
+import { compileTopoGraph, lintTopoDocument, validateTopoDocument, type GraphLink, type TopoDocument, type TopoViewerToggles } from '../../src';
+import type { CompiledNodeData } from '../../src/core/types';
 import { applyEndpointSpacing, segmentRoute, taxiRoute } from '../../src/core/edgeGeometry';
 import { compileEdgeStyle } from '../../src/core/style';
 
@@ -170,9 +171,10 @@ describe('compileTopoGraph', () => {
   });
 
   it('does not normalize kebab-case style keys inside edge style compilation', () => {
+    const link: GraphLink = { id: 'a-b', source: 'a', target: 'b' };
     const edge = compileEdgeStyle(
       { 'curve-style': 'straight', 'line-color': '#dc2626', width: 8 },
-      { id: 'a-b', source: 'a', target: 'b' },
+      link,
       {},
       true
     );
@@ -183,6 +185,7 @@ describe('compileTopoGraph', () => {
   });
 
   it('compiles enhanced edge style controls into renderer data', () => {
+    const link: GraphLink = { id: 'a-b', source: 'a', target: 'b' };
     const edge = compileEdgeStyle(
       {
         lineColor: '#2563eb',
@@ -213,7 +216,7 @@ describe('compileTopoGraph', () => {
         interactive: false,
         labelInteractive: false
       },
-      { id: 'a-b', source: 'a', target: 'b' },
+      link,
       {},
       true
     );
@@ -323,7 +326,8 @@ describe('compileTopoGraph', () => {
       fill: 'rgba(76, 201, 240, 0.12)',
       stroke: 'rgba(76, 201, 240, 0.62)'
     });
-    expect(region?.data?.labelStyle).toMatchObject({
+    const regionData = region?.data as CompiledNodeData | undefined;
+    expect(regionData?.labelStyle).toMatchObject({
       color: '#0f172a',
       background: '#e0f2fe',
       top: 'auto',

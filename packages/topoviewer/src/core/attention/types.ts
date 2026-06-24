@@ -210,8 +210,8 @@ export interface LinkAggregateGroupSummary {
   readonly count: number;
 }
 
-export interface AggregateGraphResult {
-  readonly document: AttentionTopoDocument;
+export interface AggregateGraphResult<Document extends AttentionTopoDocument = AttentionTopoDocument> {
+  readonly document: Document;
   readonly groups: readonly AggregateGroupSummary[];
   readonly linkGroups: readonly LinkAggregateGroupSummary[];
 }

@@ -353,7 +353,7 @@ function remapRegions(regions: readonly GraphRegion[], memberToAggregate: Map<st
   });
 }
 
-export function deriveAggregateGraph(source: TopoDocument, index: AttentionGraphIndex, options: DeriveAggregateGraphOptions): AggregateGraphResult {
+export function deriveAggregateGraph(source: TopoDocument, index: AttentionGraphIndex, options: DeriveAggregateGraphOptions): AggregateGraphResult<TopoDocument> {
   const graph = source.graph || {};
   const nodes = graph.nodes || [];
   const links = graph.links || [];
