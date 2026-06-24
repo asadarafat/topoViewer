@@ -371,6 +371,19 @@ async function expectControlAssertions(page, example) {
   if (assertions.targetEdgeLabelText) {
     await expect(page.locator('.topoviewer-edge-label-target', { hasText: String(assertions.targetEdgeLabelText) }).first()).toBeVisible();
   }
+  if (assertions.labelZIndexValues) {
+    const expectedValues = String(assertions.labelZIndexValues)
+      .split(',')
+      .map((item) => item.trim())
+      .filter(Boolean);
+    await expect.poll(async () => page.locator('[data-label-z-index]').count()).toBeGreaterThanOrEqual(expectedValues.length);
+    const renderedValues = await page.locator('[data-label-z-index]').evaluateAll((labels) => (
+      labels.map((label) => label.getAttribute('data-label-z-index')).filter(Boolean)
+    ));
+    expectedValues.forEach((value) => {
+      expect(renderedValues).toContain(value);
+    });
+  }
   if (assertions.labelPointerEventsNoneText) {
     const label = page.locator('.topoviewer-edge-label', { hasText: String(assertions.labelPointerEventsNoneText) }).first();
     await expect(label).toBeVisible();

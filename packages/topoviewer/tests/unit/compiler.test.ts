@@ -113,6 +113,98 @@ describe('compileTopoGraph', () => {
     });
   });
 
+  it('compiles independent label z-index metadata for nodes, regions, and edge labels', () => {
+    const document: TopoDocument = {
+      version: '1.0',
+      graph: {
+        layers: [{ id: 'physical', name: 'Physical' }],
+        nodes: [
+          {
+            id: 'a',
+            name: 'A',
+            layers: ['physical'],
+            position: [0, 0],
+            style: { labelZIndex: 70 }
+          },
+          {
+            id: 'b',
+            name: 'B',
+            layers: ['physical'],
+            position: [160, 0]
+          }
+        ],
+        links: [
+          {
+            id: 'a-b',
+            name: 'A-B',
+            source: 'a',
+            target: 'b',
+            layers: ['physical'],
+            style: {
+              label: 'Link',
+              labelZIndex: 80,
+              sourceLabel: 'src',
+              sourceLabelZIndex: 81,
+              targetLabel: 'dst',
+              targetLabelZIndex: 82
+            }
+          }
+        ],
+        regions: [
+          {
+            id: 'region-a',
+            name: 'Region A',
+            layers: ['physical'],
+            members: ['a'],
+            style: { labelZIndex: 60, labelPosition: 'topRight', labelMargin: 18 }
+          }
+        ]
+      },
+      diagram: {
+        shapes: [
+          {
+            id: 'shape-1',
+            layers: ['physical'],
+            position: [0, 160],
+            size: [120, 60],
+            style: { labelZIndex: 40 }
+          }
+        ],
+        callouts: [
+          {
+            id: 'callout-1',
+            layers: ['physical'],
+            position: [220, 160],
+            title: 'Note',
+            body: 'Label z-index metadata',
+            style: { labelZIndex: 45 }
+          }
+        ]
+      }
+    };
+
+    const compiled = compileTopoGraph(document, ['physical'], { showRegions: true, showEdgeLabels: true });
+    const node = compiled.nodes.find((item) => item.id === 'a');
+    const region = compiled.nodes.find((item) => item.id === 'region:region-a');
+    const shape = compiled.nodes.find((item) => item.id === 'shape-1');
+    const callout = compiled.nodes.find((item) => item.id === 'callout-1');
+    const edge = compiled.edges.find((item) => item.id === 'a-b');
+
+    expect(node?.data).toMatchObject({ labelZIndex: 70 });
+    expect(shape?.data).toMatchObject({ labelZIndex: 40 });
+    expect(callout?.data).toMatchObject({ labelZIndex: 45 });
+    expect(region?.data).toMatchObject({
+      labelZIndex: 60,
+      labelPosition: 'topRight',
+      labelMargin: 18
+    });
+    expect(edge?.data).toMatchObject({
+      labelZIndex: 80,
+      sourceLabelZIndex: 81,
+      targetLabelZIndex: 82
+    });
+  });
+
   it('assigns lane metadata to visible parallel links', () => {
     const document: TopoDocument = {
       version: '1.0',
@@ -168,6 +260,31 @@ describe('compileTopoGraph', () => {
     };
 
     expect(() => validateTopoDocument(document)).toThrow(/line-color/);
+  });
+
+  it('rejects non-canonical label z-index casing and invalid values', () => {
+    expect(() => validateTopoDocument({
+      version: '1.0',
+      graph: {
+        nodes: [
+          { id: 'a', style: { labelZindex: 70 } }
+        ]
+      }
+    })).toThrow(/labelZIndex/);
+
+    expect(() => validateTopoDocument({
+      version: '1.0',
+      stylesheet: [
+        { selector: 'link', style: { labelZIndex: 'above' } }
+      ]
+    })).toThrow(/finite number/);
+
+    expect(() => validateTopoDocument({
+      version: '1.0',
+      stylesheet: [
+        { selector: 'link', style: { targetLabelZindex: 100 } }
+      ]
+    })).toThrow(/targetLabelZIndex/);
   });
 
   it('does not normalize kebab-case style keys inside edge style compilation', () => {
