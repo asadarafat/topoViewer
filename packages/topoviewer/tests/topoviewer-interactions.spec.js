@@ -76,12 +76,27 @@ async function setPermutation(page, selectedLayers, enabledToggles) {
   await settleReact(page);
 }
 
-async function waitForRegionVisibility(page, expectsRegions) {
-  await expect.poll(async () => {
-    const snapshot = await renderedSnapshot(page);
-    const regionNodeCount = snapshot.nodeIds.filter((id) => id?.startsWith('region:')).length;
-    return expectsRegions ? regionNodeCount > 0 : regionNodeCount === 0;
-  }).toBe(true);
+async function waitForRegionVisibility(page, expectsRegions, label) {
+  let lastSnapshot = { nodeIds: [] };
+  try {
+    await expect.poll(async () => {
+      lastSnapshot = await renderedSnapshot(page);
+      const regionNodeCount = lastSnapshot.nodeIds.filter((id) => id?.startsWith('region:')).length;
+      return expectsRegions ? regionNodeCount > 0 : regionNodeCount === 0;
+    }, {
+      intervals: [100, 250, 500, 1000],
+      timeout: 15000
+    }).toBe(true);
+  } catch (error) {
+    const regionNodeCount = lastSnapshot.nodeIds.filter((id) => id?.startsWith('region:')).length;
+    throw new Error([
+      `${label}: region visibility did not settle`,
+      `expected=${expectsRegions ? 'visible' : 'hidden'}`,
+      `lastRegionNodeCount=${regionNodeCount}`,
+      `lastNodeIds=[${lastSnapshot.nodeIds.join(', ')}]`,
+      String(error?.message || error)
+    ].join('\n'));
+  }
 }
 
 function combinations(items) {
@@ -169,7 +184,7 @@ test.describe('TopoViewer package interactions', () => {
         const expectsRegions = enabledToggles.has('Show regions') && (
           selectedLayers.has('IGP') || selectedLayers.has('BGP / Controller')
         );
-        await waitForRegionVisibility(page, expectsRegions);
+        await waitForRegionVisibility(page, expectsRegions, label);
         const snapshot = await renderedSnapshot(page);
 
         if (snapshot.hasErrorAlert) {
