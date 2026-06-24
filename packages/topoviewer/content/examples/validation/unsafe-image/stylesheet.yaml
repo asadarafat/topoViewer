@@ -1,0 +1,14 @@
+layout:
+  mode: manual
+  width: 420
+  height: 260
+icons:
+  unsafe:
+    src: javascript:alert(1)
+    alt: unsafe
+stylesheet:
+  - selector: node
+    style:
+      icon: unsafe
+      width: 84
+      height: 60

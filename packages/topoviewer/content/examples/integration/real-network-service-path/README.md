@@ -1,0 +1,1 @@
+The service path view starts from the real network transport layer and adds the Payments L3VPN. Customer edge nodes and access links appear at the sides, while the service lane is stitched over the SR transport path through the provider core.

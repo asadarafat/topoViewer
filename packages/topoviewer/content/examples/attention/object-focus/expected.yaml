@@ -1,0 +1,19 @@
+renderable: true
+visualSnapshot: false
+dom:
+  graphNodes: 4
+  minVisibleEdges: 5
+assertions:
+  attentionClickEdge: checkout-flow:0
+  attentionFocusedNodes: 3
+  attentionFocusedEdges: 2
+  attentionDimmedNodes: 1
+  attentionDimmedEdges: 3
+  attentionResetClickPane: true
+  attentionFocusedNodesAfterReset: 0
+  attentionFocusedEdgesAfterReset: 0
+  attentionDimmedNodesAfterReset: 0
+  attentionDimmedEdgesAfterReset: 0
+semantic:
+  errors: []
+  warnings: []

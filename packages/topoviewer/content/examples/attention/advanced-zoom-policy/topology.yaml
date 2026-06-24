@@ -1,0 +1,113 @@
+graph:
+  id: attention-advanced-zoom-policy
+  layers:
+    - id: physical
+      name: Physical
+  nodes:
+    - id: WEST-1
+      name: WEST-1
+      labels:
+        role: aggregation
+        site: west
+      data:
+        severity: normal
+      layers:
+        - physical
+      position:
+        - 0
+        - 90
+    - id: WEST-2
+      name: WEST-2
+      labels:
+        role: access
+        site: west
+      data:
+        severity: major
+      layers:
+        - physical
+      position:
+        - 220
+        - 90
+    - id: EAST-1
+      name: EAST-1
+      labels:
+        role: aggregation
+        site: east
+      data:
+        severity: normal
+      layers:
+        - physical
+      position:
+        - 720
+        - 90
+    - id: EAST-2
+      name: EAST-2
+      labels:
+        role: access
+        site: east
+      data:
+        severity: critical
+      layers:
+        - physical
+      position:
+        - 940
+        - 90
+  links:
+    - id: west-access
+      name: West access
+      source: WEST-1
+      target: WEST-2
+      layers:
+        - physical
+    - id: metro-backbone
+      name: Metro backbone
+      source: WEST-2
+      target: EAST-1
+      layers:
+        - physical
+    - id: east-access
+      name: East access
+      source: EAST-1
+      target: EAST-2
+      layers:
+        - physical
+  regions:
+    - id: west-metro
+      name: West metro
+      members:
+        - WEST-1
+        - WEST-2
+      layers:
+        - physical
+      padding: 70
+      minWidth: 330
+      minHeight: 210
+    - id: east-metro
+      name: East metro
+      members:
+        - EAST-1
+        - EAST-2
+      layers:
+        - physical
+      padding: 70
+      minWidth: 330
+      minHeight: 210
+attention:
+  aggregate:
+    groups:
+      - id: west-metro
+        by: region
+        regionId: west-metro
+        label: West metro
+      - id: east-metro
+        by: region
+        regionId: east-metro
+        label: East metro
+    expandOnClick: true
+    viewport:
+      collapseBelowZoom: 1
+      expandAboveZoom: 1.35
+layout:
+  mode: manual
+  width: 1120
+  height: 300

@@ -1,0 +1,119 @@
+layout:
+  mode: manual
+  width: 980
+  height: 520
+icons:
+  router.pe:
+    glyph: ""
+    fill: "#2563eb"
+    stroke: "#bfdbfe"
+  router.p:
+    glyph: ""
+    fill: "#0f766e"
+    stroke: "#99f6e4"
+  router.rr:
+    glyph: ""
+    fill: "#7c3aed"
+    stroke: "#ddd6fe"
+  router.ce:
+    glyph: ""
+    fill: "#f59e0b"
+    stroke: "#fde68a"
+labelFields: []
+stylesheet:
+  - selector: node
+    style:
+      shape: roundRectangle
+      icon: router.p
+      width: 112
+      height: 82
+      iconSize: 52
+      backgroundColor: "#ffffff"
+      borderColor: "#94a3b8"
+      borderWidth: 2
+      labelColor: "#0f172a"
+      labelFontSize: 12
+      labelFontWeight: 800
+      labelBackgroundColor: "#ffffff"
+      labelPadding: 4
+      metaColor: "transparent"
+      metaFontSize: 0
+      statusColor: "#22c55e"
+      statusPlacement: topRight
+      statusSize: 11
+  - selector: node[labels.role = "pe"]
+    style:
+      icon: router.pe
+      shape: hexagon
+      borderColor: "#2563eb"
+      underlayColor: "#bfdbfe"
+      underlayOpacity: 0.24
+      underlayPadding: 8
+  - selector: node[labels.role = "p"]
+    style:
+      icon: router.p
+      shape: ellipse
+      borderColor: "#0f766e"
+  - selector: node[labels.role = "rr"]
+    style:
+      icon: router.rr
+      shape: diamond
+      borderColor: "#7c3aed"
+      badgeLabel: RR
+      badgeBackgroundColor: "#7c3aed"
+      badgeColor: "#ffffff"
+      badgeBorderColor: "#ddd6fe"
+      underlayColor: "#ddd6fe"
+      underlayOpacity: 0.28
+      underlayPadding: 10
+  - selector: node[labels.role = "ce"]
+    style:
+      icon: router.ce
+      display: none
+  - selector: link
+    style:
+      curveStyle: straight
+      lineColor: "#64748b"
+      lineWidth: 4
+      targetArrowShape: none
+      labelColor: "#475569"
+      labelFontSize: 11
+      textBackgroundColor: "#ffffff"
+  - selector: link[labels.layer = "underlay"]
+    style:
+      curveStyle: straight
+      lineColor: "#64748b"
+      lineWidth: 4
+  - selector: link[labels.protocol = "bgp"]
+    style:
+      label: BGP established
+      sourceLabel: iBGP
+      targetLabel: RR
+      curveStyle: unbundled-bezier
+      lineColor: "#7c3aed"
+      lineWidth: 4
+      lineStyle: dashed
+      lineDashPattern: 7 7
+      lineOpacity: 0.96
+      targetArrowShape: triangle
+      targetArrowColor: "#7c3aed"
+      sourceLabelColor: "#7c3aed"
+      targetLabelColor: "#7c3aed"
+      textBackgroundColor: "#ffffff"
+  - selector: link[labels.tenant = "payments"]
+    style:
+      display: none
+  - selector: path
+    style:
+      display: none
+  - selector: region
+    style:
+      borderWidth: 1
+      labelColor: var(--topoviewer-region-label-fg)
+      labelFontSize: 12
+      labelFontWeight: 800
+      labelPosition: topCenter
+      labelMargin: 12
+      zIndex: -20
+      selectable: true
+      draggable: true

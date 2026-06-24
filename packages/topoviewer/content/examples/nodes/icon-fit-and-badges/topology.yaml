@@ -1,0 +1,38 @@
+graph:
+  id: node-icon-fit-and-badges
+  layers:
+    - id: physical
+      name: Physical
+  nodes:
+    - id: SENSOR-1
+      name: Sensor
+      labels:
+        role: sensor
+        state: normal
+      layers: [physical]
+      position: [110, 160]
+    - id: CAMERA-1
+      name: Camera
+      labels:
+        role: camera
+        state: warning
+      layers: [physical]
+      position: [310, 160]
+    - id: GATEWAY-1
+      name: Gateway
+      labels:
+        role: gateway
+        state: critical
+      layers: [physical]
+      position: [510, 160]
+  links:
+    - id: sensor-camera
+      name: Sensor to camera
+      source: SENSOR-1
+      target: CAMERA-1
+      layers: [physical]
+    - id: camera-gateway
+      name: Camera to gateway
+      source: CAMERA-1
+      target: GATEWAY-1
+      layers: [physical]

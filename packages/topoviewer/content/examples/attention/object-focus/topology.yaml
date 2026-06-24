@@ -1,0 +1,91 @@
+graph:
+  id: attention-object-focus
+  layers:
+    - id: service
+      name: Service
+  nodes:
+    - id: client
+      name: Client
+      labels:
+        role: endpoint
+      data:
+        severity: normal
+      layers:
+        - service
+      position:
+        - 80
+        - 180
+    - id: edge
+      name: Edge
+      labels:
+        role: gateway
+      data:
+        severity: normal
+      layers:
+        - service
+      position:
+        - 270
+        - 180
+    - id: api
+      name: API
+      labels:
+        role: service
+      data:
+        severity: critical
+      layers:
+        - service
+      position:
+        - 460
+        - 180
+    - id: cache
+      name: Cache
+      labels:
+        role: support
+      data:
+        severity: normal
+      layers:
+        - service
+      position:
+        - 460
+        - 320
+  links:
+    - id: link-client-edge
+      name: Client to edge
+      source: client
+      target: edge
+      labels:
+        link: service
+      layers:
+        - service
+    - id: link-edge-api
+      name: Edge to API
+      source: edge
+      target: api
+      labels:
+        link: service
+      layers:
+        - service
+    - id: link-api-cache
+      name: API to cache
+      source: api
+      target: cache
+      labels:
+        link: support
+      layers:
+        - service
+  paths:
+    - id: checkout-flow
+      name: Checkout flow
+      sequence:
+        - client
+        - edge
+        - api
+      labels:
+        path: service
+      data:
+        severity: critical
+      layers:
+        - service
+attention:
+  interactive: true
+  clickMode: dim-context

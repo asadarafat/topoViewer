@@ -1,0 +1,13 @@
+renderable: true
+visualSnapshot: false
+dom:
+  graphNodes: 5
+  minVisibleEdges: 5
+assertions:
+  attentionFocusedNodes: 1
+  attentionFocusedEdges: 1
+  attentionDimmedNodes: 4
+  attentionDimmedEdges: 4
+semantic:
+  errors: []
+  warnings: []

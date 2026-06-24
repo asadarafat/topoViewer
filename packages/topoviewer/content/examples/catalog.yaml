@@ -1,0 +1,647 @@
+version: "0.2"
+examples:
+  - id: graph-basic
+    title: Graph basic
+    feature: graph
+    path: graph/basic
+    page: topoviewer/reference/graph/basic
+    summary: A minimal graph with two nodes and one named link.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Graph basic
+  - id: graph-labels-and-data
+    title: Labels and data
+    feature: graph
+    path: graph/labels-and-data
+    page: topoviewer/reference/graph/labels-and-data
+    summary: Classification lives in `labels`; operational values live in `data`.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Labels and data
+  - id: graph-parent-child-nodes
+    title: Parent and child nodes
+    feature: graph
+    path: graph/parent-child-nodes
+    page: topoviewer/reference/graph/parent-child-nodes
+    summary: Logical nodes can be nested inside physical parent nodes.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Parent and child nodes
+  - id: graph-clos-2spine-4leaf
+    title: CLOS 2-spine 4-leaf
+    feature: graph
+    path: graph/clos-2spine-4leaf
+    page: topoviewer/reference/graph/clos-2spine-4leaf
+    summary: A compact data center fabric with two spine switches, four leaf switches, and full leaf-to-spine mesh links.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: CLOS 2-spine 4-leaf
+  - id: nodes-named-node-shapes
+    title: Named node shapes
+    feature: nodes
+    path: nodes/named-node-shapes
+    page: topoviewer/reference/nodes/named-node-shapes
+    summary: Node body shape can encode device or service role without changing graph facts.
+    render:
+      height: 440px
+      controls: true
+      controlsOpen: false
+      title: Named node shapes
+  - id: nodes-custom-polygon-shape
+    title: Custom polygon node
+    feature: nodes
+    path: nodes/custom-polygon-shape
+    page: topoviewer/reference/nodes/custom-polygon-shape
+    summary: Polygon node bodies use normalized x/y point pairs through `shapePolygonPoints`.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Custom polygon node
+  - id: nodes-label-placement
+    title: Node label placement
+    feature: nodes
+    path: nodes/label-placement
+    page: topoviewer/reference/nodes/label-placement
+    summary: Node labels can be placed around or inside node bodies with wrapping and backing controls.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Node label placement
+  - id: nodes-border-outline-underlay
+    title: Border, outline, and underlay
+    feature: nodes
+    path: nodes/border-outline-underlay
+    page: topoviewer/reference/nodes/border-outline-underlay
+    summary: Node border, outline, and underlay controls provide operational emphasis without changing graph facts.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Border, outline, and underlay
+  - id: nodes-icon-fit-and-badges
+    title: Icon fit and badges
+    feature: nodes
+    path: nodes/icon-fit-and-badges
+    page: topoviewer/reference/nodes/icon-fit-and-badges
+    summary: Icon fit, badges, and status markers add compact node-level signals.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Icon fit and badges
+  - id: edges-curve-styles
+    title: Edge curve styles
+    feature: edges
+    path: edges/curve-styles
+    page: topoviewer/reference/edges/curve-styles
+    summary: Different `curveStyle` values produce different edge routing models.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Edge curve styles
+  - id: edges-arrows-dashes-labels
+    title: Arrows, dashes, and labels
+    feature: edges
+    path: edges/arrows-dashes-labels
+    page: topoviewer/reference/edges/arrows-dashes-labels
+    summary: Edges can carry labels, arrows, and dash patterns without changing topology semantics.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Arrows, dashes, and labels
+  - id: edges-arrow-label-controls
+    title: Arrow and label controls
+    feature: edges
+    path: edges/arrow-label-controls
+    page: topoviewer/reference/edges/arrow-label-controls
+    summary: Directional arrow and endpoint label styles can be controlled independently.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Arrow and label controls
+  - id: edges-endpoint-spacing-routing
+    title: Endpoint spacing and routing
+    feature: edges
+    path: edges/endpoint-spacing-routing
+    page: topoviewer/reference/edges/endpoint-spacing-routing
+    summary: Endpoint spacing, segment controls, and taxi controls make edge routes explicit.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Endpoint spacing and routing
+  - id: edges-gradient-and-interaction
+    title: Gradient and interaction flags
+    feature: edges
+    path: edges/gradient-and-interaction
+    page: topoviewer/reference/edges/gradient-and-interaction
+    summary: Linear gradients and interaction flags can be declared directly on edge style rules.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Gradient and interaction flags
+  - id: edges-floating-anchors
+    title: Floating anchors
+    feature: edges
+    path: edges/floating-anchors
+    page: topoviewer/reference/edges/floating-anchors
+    summary: Floating anchors connect to the nearest point on each node boundary.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Floating anchors
+  - id: edges-parent-link-pipe
+    title: Parent link pipe
+    feature: edges
+    path: edges/parent-link-pipe
+    page: topoviewer/reference/edges/parent-link-pipe
+    summary: A child link can be visually carried inside a parent transport link.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Parent link pipe
+  - id: paths-sequenced-path
+    title: Sequenced path
+    feature: paths
+    path: paths/sequenced-path
+    page: topoviewer/reference/paths/sequenced-path
+    summary: A path sequence models ordered traversal through graph nodes.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Sequenced path
+  - id: paths-stitched-child-path
+    title: Stitched child path
+    feature: paths
+    path: paths/stitched-child-path
+    page: topoviewer/reference/paths/stitched-child-path
+    summary: A child service path can stitch from child endpoints into a parent transport path.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Stitched child path
+  - id: attention-object-focus
+    title: Object focus
+    feature: attention
+    path: attention/object-focus
+    page: topoviewer/reference/attention/object-focus
+    summary: Click one topology object to highlight it while dimming the surrounding context.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Object focus
+  - id: attention-change-focus
+    title: Change focus
+    feature: attention
+    path: attention/change-focus
+    page: topoviewer/reference/attention/change-focus
+    summary: Focus objects with recent change metadata while preserving topology context.
+    render:
+      height: 520px
+      controls: true
+      controlsOpen: false
+      title: Change focus
+  - id: attention-region-collapse
+    title: Region collapse
+    feature: attention
+    path: attention/region-collapse
+    page: topoviewer/reference/attention/region-collapse
+    summary: Collapse a region into an aggregate summary, then click it to expand member nodes.
+    sourceFiles:
+      stylesheet: _shared/attention-region-style.yaml
+    render:
+      height: 500px
+      controls: true
+      controlsOpen: false
+      title: Region collapse
+  - id: attention-dense-summary-drilldown
+    title: Dense summary drill-down
+    feature: attention
+    path: attention/dense-summary-drilldown
+    page: topoviewer/reference/attention/dense-summary-drilldown
+    summary: Keep dense metro topologies readable with summary nodes, counted full-mesh links, and explicit click-to-expand drill-down.
+    render:
+      height: 560px
+      controls: true
+      controlsOpen: false
+      title: Dense summary drill-down
+  - id: attention-advanced-zoom-policy
+    title: Advanced zoom policy
+    feature: attention
+    path: attention/advanced-zoom-policy
+    page: topoviewer/reference/attention/advanced-zoom-policy
+    summary: Optionally bind aggregate expansion to zoom thresholds when a host needs map-style overview/detail transitions.
+    render:
+      height: 500px
+      controls: true
+      controlsOpen: false
+      title: Advanced zoom policy
+  - id: attention-link-grouping
+    title: Link grouping
+    feature: attention
+    path: attention/link-grouping
+    page: topoviewer/reference/attention/link-grouping
+    summary: Group parallel links by endpoint and layer when the count crosses a threshold.
+    render:
+      height: 440px
+      controls: true
+      controlsOpen: false
+      title: Link grouping
+  - id: attention-query-primitives
+    title: Query primitives
+    feature: attention
+    path: attention/query-primitives
+    page: topoviewer/reference/attention/query-primitives
+    summary: Focus by explicit IDs, labels, data fields, and stylesheet-compatible selectors.
+    render:
+      height: 460px
+      controls: true
+      controlsOpen: false
+      title: Query primitives
+  - id: attention-region-focus
+    title: Region focus
+    feature: attention
+    path: attention/region-focus
+    page: topoviewer/reference/attention/region-focus
+    summary: Focus a region and its member nodes while preserving surrounding context.
+    sourceFiles:
+      stylesheet: _shared/attention-region-style.yaml
+    render:
+      height: 460px
+      controls: true
+      controlsOpen: false
+      title: Region focus
+  - id: attention-dependency-focus
+    title: Dependency focus
+    feature: attention
+    path: attention/dependency-focus
+    page: topoviewer/reference/attention/dependency-focus
+    summary: Traverse directed topology relationships to show downstream blast radius.
+    render:
+      height: 460px
+      controls: true
+      controlsOpen: false
+      title: Dependency focus
+  - id: attention-hide-context
+    title: Hide context
+    feature: attention
+    path: attention/hide-context
+    page: topoviewer/reference/attention/hide-context
+    summary: Use hide-context mode when the focused set should be isolated instead of dimmed.
+    render:
+      height: 440px
+      controls: true
+      controlsOpen: false
+      title: Hide context
+  - id: attention-parent-label-collapse
+    title: Parent and label collapse
+    feature: attention
+    path: attention/parent-label-collapse
+    page: topoviewer/reference/attention/parent-label-collapse
+    summary: Collapse parent-child objects and label-defined groups into aggregate summaries.
+    render:
+      height: 500px
+      controls: true
+      controlsOpen: false
+      title: Parent and label collapse
+  - id: attention-aggregate-badge-status
+    title: Aggregate badge and status
+    feature: attention
+    path: attention/aggregate-badge-status
+    page: topoviewer/reference/attention/aggregate-badge-status
+    summary: Collapsed aggregate summaries can expose hidden member count and worst severity as compact node cues.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Aggregate badge and status
+  - id: regions-nested-regions
+    title: Nested regions
+    feature: regions
+    path: regions/nested-regions
+    page: topoviewer/reference/regions/nested-regions
+    summary: Regions can be nested so broad domains contain smaller domains.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Nested regions
+  - id: regions-overlapping-regions
+    title: Overlapping regions
+    feature: regions
+    path: regions/overlapping-regions
+    page: topoviewer/reference/regions/overlapping-regions
+    summary: A shared node can be a member of multiple regions.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Overlapping regions
+  - id: regions-region-label-placement
+    title: Region label placement
+    feature: regions
+    path: regions/region-label-placement
+    page: topoviewer/reference/regions/region-label-placement
+    summary: Region labels can be anchored around the hull with an explicit margin.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Region label placement
+  - id: regions-draggable-regions
+    title: Draggable regions
+    feature: regions
+    path: regions/draggable-regions
+    page: topoviewer/reference/regions/draggable-regions
+    summary: Regions can be selectable and draggable hulls.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Draggable regions
+  - id: shapes-two-dimensional
+    title: Two-dimensional shapes
+    feature: shapes
+    path: shapes/two-dimensional
+    page: topoviewer/reference/shapes/two-dimensional
+    summary: 2D geometry primitives are diagram objects, not graph facts.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Two-dimensional shapes
+  - id: shapes-three-dimensional
+    title: Three-dimensional shapes
+    feature: shapes
+    path: shapes/three-dimensional
+    page: topoviewer/reference/shapes/three-dimensional
+    summary: 3D geometry primitives are available for common diagram metaphors.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Three-dimensional shapes
+  - id: shapes-rotation
+    title: Shape rotation
+    feature: shapes
+    path: shapes/rotation
+    page: topoviewer/reference/shapes/rotation
+    summary: Shape geometry can be rotated directly or through a stylesheet rule.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Shape rotation
+  - id: callouts-markdown
+    title: Markdown callouts
+    feature: callouts
+    path: callouts/markdown
+    page: topoviewer/reference/callouts/markdown
+    summary: Callout bodies support markdown, inline formatting, and images.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Markdown callouts
+  - id: callouts-pins-and-leaders
+    title: Pins and leaders
+    feature: callouts
+    path: callouts/pins-and-leaders
+    page: topoviewer/reference/callouts/pins-and-leaders
+    summary: Leaders can attach to named pins instead of object centers.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Pins and leaders
+  - id: callouts-image-embed
+    title: Image embed callout
+    feature: callouts
+    path: callouts/image-embed
+    page: topoviewer/reference/callouts/image-embed
+    summary: Image embeds are allowed when the URL is safe.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Image embed callout
+  - id: styling-selectors
+    title: Selector styling
+    feature: styling
+    path: styling/selectors
+    page: topoviewer/reference/styling/selectors
+    summary: Selector rules classify objects by kind, id, labels, or data.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Selector styling
+  - id: styling-inline-style-override
+    title: Inline style override
+    feature: styling
+    path: styling/inline-style-override
+    page: topoviewer/reference/styling/inline-style-override
+    summary: Inline `style` overrides are local escape hatches on individual objects.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Inline style override
+  - id: styling-theme-light-dark
+    title: Light and dark theme variables
+    feature: styling
+    path: styling/theme-light-dark
+    page: topoviewer/reference/styling/theme-light-dark
+    summary: Theme-aware styles should use TopoViewer CSS variables.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Light and dark theme variables
+  - id: layout-manual
+    title: Manual layout
+    feature: layout
+    path: layout/manual
+    page: topoviewer/reference/layout/manual
+    summary: Manual layout preserves authored positions.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Manual layout
+  - id: layout-force
+    title: Force layout
+    feature: layout
+    path: layout/force
+    page: topoviewer/reference/layout/force
+    summary: Force layout computes positions when the author omits coordinates.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Force layout
+  - id: validation-broken-reference
+    title: Broken reference validation
+    feature: validation
+    path: validation/broken-reference
+    page: topoviewer/reference/validation/broken-reference
+    summary: The semantic linter catches links that reference missing nodes.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Broken reference validation
+  - id: validation-unsafe-image
+    title: Unsafe image validation
+    feature: validation
+    path: validation/unsafe-image
+    page: topoviewer/reference/validation/unsafe-image
+    summary: The semantic linter rejects unsafe image references.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Unsafe image validation
+  - id: validation-limit-exceeded
+    title: Renderer limit validation
+    feature: validation
+    path: validation/limit-exceeded
+    page: topoviewer/reference/validation/limit-exceeded
+    summary: Renderer limits fail fast before a diagram becomes unsafe or unusable.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Renderer limit validation
+  - id: integration-yaml-to-network-diagram
+    title: YAML to network diagram
+    feature: integration
+    path: integration/yaml-to-network-diagram
+    sourceFiles:
+      topology: integration/real-network-underlay/topology.yaml
+      stylesheet: integration/real-network-underlay/stylesheet.yaml
+      expected: integration/real-network-underlay/expected.yaml
+    page: topoviewer/yaml-to-diagram
+    summary: A compact before/after example using the same provider underlay slice as the Real Network Demo.
+    render:
+      height: 520px
+      controls: true
+      controlsOpen: false
+      title: YAML to network diagram
+      selectedLayerIds:
+        - underlay
+  - id: integration-real-network-underlay
+    title: Real network underlay
+    feature: integration
+    path: integration/real-network-underlay
+    page: topoviewer/real-network-demo/underlay
+    summary: A provider underlay view that foregrounds transport capacity, media, and backup links.
+    render:
+      height: 520px
+      controls: true
+      controlsOpen: false
+      title: Real network underlay
+      selectedLayerIds:
+        - underlay
+  - id: integration-real-network-bgp
+    title: Real network BGP
+    feature: integration
+    path: integration/real-network-bgp
+    page: topoviewer/real-network-demo/bgp
+    summary: A BGP view that makes route reflector sessions visible while keeping the underlay as context.
+    render:
+      height: 520px
+      controls: true
+      controlsOpen: false
+      title: Real network BGP
+      selectedLayerIds:
+        - underlay
+        - bgp
+  - id: integration-real-network-transport-layer
+    title: Real network transport layer
+    feature: integration
+    path: integration/real-network-transport-layer
+    page: topoviewer/real-network-demo/transport-layer
+    summary: A transport layer view that adds the programmed SR path on top of the real network BGP view.
+    render:
+      height: 520px
+      controls: true
+      controlsOpen: false
+      title: Real network transport layer
+      selectedLayerIds:
+        - underlay
+        - bgp
+        - transport
+  - id: integration-real-network-service-path
+    title: Real network service path
+    feature: integration
+    path: integration/real-network-service-path
+    page: topoviewer/real-network-demo/service-path
+    summary: A service path view that focuses the customer L3VPN path across the same provider topology.
+    render:
+      height: 520px
+      controls: true
+      controlsOpen: false
+      title: Real network service path
+      selectedLayerIds:
+        - underlay
+        - bgp
+        - transport
+        - service
+      attention:
+        query:
+          pathIds:
+            - payments-primary
+          mode: dim-context
+  - id: integration-real-network-failure-view
+    title: Real network failure view
+    feature: integration
+    path: integration/real-network-failure-view
+    page: topoviewer/real-network-demo/failure-view
+    summary: A failure view that focuses critical objects and keeps the impacted service path traceable.
+    render:
+      height: 520px
+      controls: true
+      controlsOpen: false
+      title: Real network failure view
+      selectedLayerIds:
+        - underlay
+        - bgp
+        - transport
+        - service
+        - operations
+      attention:
+        query:
+          data:
+            severity: critical
+          mode: dim-context
+  - id: integration-complete-network-demo
+    title: Complete network demo
+    feature: integration
+    path: integration/complete-network-demo
+    page: topoviewer/complete-network-demo
+    summary: An integrated network example combining graph facts, regions, child nodes, paths, shapes, and callouts.
+    render:
+      height: 640px
+      controls: true
+      controlsOpen: false
+      title: Complete network demo

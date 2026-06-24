@@ -1,0 +1,68 @@
+graph:
+  id: parent-link-pipe
+  layers:
+    - id: transport
+      name: Transport
+    - id: service
+      name: Service
+  nodes:
+    - id: PE1
+      name: PE1
+      labels:
+        node: router
+      layers:
+        - transport
+        - service
+      position:
+        - 130
+        - 170
+    - id: PE2
+      name: PE2
+      labels:
+        node: router
+      layers:
+        - transport
+        - service
+      position:
+        - 520
+        - 170
+    - id: svc-a
+      name: VPN A
+      labels:
+        node: service
+      parent: PE1
+      layers:
+        - service
+    - id: svc-b
+      name: VPN B
+      labels:
+        node: service
+      parent: PE2
+      layers:
+        - service
+  links:
+    - id: transport-link
+      name: SR-TE transport pipe
+      source: PE1
+      target: PE2
+      labels:
+        link: transport
+      layers:
+        - transport
+        - service
+    - id: service-link
+      name: Service carried inside transport
+      source: svc-a
+      target: svc-b
+      parent: transport-link
+      labels:
+        link: service
+      layers:
+        - service
+toggles:
+  - id: showChildNodesInsideParents
+    name: Show child nodes inside parents
+    default: true
+  - id: showEdgeLabels
+    name: Show labels
+    default: true

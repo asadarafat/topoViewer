@@ -1,0 +1,625 @@
+graph:
+  id: mv-network
+  layers:
+    - id: physical
+      name: Physical
+    - id: igp
+      name: IGP
+    - id: bgp
+      name: BGP / Controller
+    - id: transport
+      name: Transport
+    - id: service
+      name: Service
+    - id: diagram
+      name: Diagram primitives
+  nodes:
+    - id: R01
+      name: R01
+      labels:
+        node: router
+        vendor: nokia
+        role: pe
+      layers:
+        - physical
+        - igp
+        - bgp
+        - transport
+        - service
+      position:
+        - 90
+        - 260
+    - id: R03
+      name: R03
+      labels:
+        node: router
+        vendor: juniper
+        role: p
+      layers:
+        - physical
+        - igp
+        - transport
+      position:
+        - 320
+        - 360
+    - id: R05
+      name: R05
+      labels:
+        node: router
+        vendor: nokia
+        role: abr
+      layers:
+        - physical
+        - igp
+        - bgp
+        - transport
+      position:
+        - 610
+        - 260
+    - id: R07
+      name: R07
+      labels:
+        node: router
+        vendor: cisco
+        role: asbr
+      layers:
+        - physical
+        - igp
+        - bgp
+        - transport
+      position:
+        - 900
+        - 170
+    - id: R09
+      name: R09
+      labels:
+        node: router
+        vendor: nokia
+        role: pe
+      layers:
+        - physical
+        - igp
+        - bgp
+        - transport
+        - service
+      position:
+        - 1110
+        - 260
+    - id: NSP
+      name: NSP
+      labels:
+        node: controller
+        app: nsp
+      icon: controller.nsp
+      layers:
+        - bgp
+      position:
+        - 610
+        - 70
+    - id: VSR-NRC
+      name: VSR-NRC
+      labels:
+        node: controller
+        app: vsr-nrc
+      icon: controller.nrc
+      layers:
+        - bgp
+      position:
+        - 610
+        - 500
+    - id: svc-1321-r01
+      name: L3VPN 1321
+      labels:
+        node: service
+        service: l3vpn
+      parent: R01
+      layers:
+        - service
+      position:
+        - 90
+        - 350
+    - id: svc-1321-r09
+      name: L3VPN 1321
+      labels:
+        node: service
+        service: l3vpn
+      parent: R09
+      layers:
+        - service
+      position:
+        - 1110
+        - 350
+  links:
+    - id: phy-R01-R03
+      name: R01 to R03 physical link
+      source: R01
+      target: R03
+      labels:
+        link: physical
+        role: core
+      layers:
+        - physical
+    - id: phy-R03-R05
+      name: R03 to R05 physical link
+      source: R03
+      target: R05
+      labels:
+        link: physical
+        role: core
+      layers:
+        - physical
+    - id: phy-R05-R07
+      name: R05 to R07 physical link
+      source: R05
+      target: R07
+      labels:
+        link: physical
+        role: core
+      layers:
+        - physical
+    - id: phy-R07-R09
+      name: R07 to R09 physical link
+      source: R07
+      target: R09
+      labels:
+        link: physical
+        role: core
+      layers:
+        - physical
+    - id: bgpls-R05-VSR
+      name: R05 to VSR-NRC BGP-LS feed
+      source: R05
+      target: VSR-NRC
+      labels:
+        link: bgp
+        protocol: bgp-ls
+      layers:
+        - bgp
+    - id: pcep-R01-NSP
+      name: R01 to NSP PCEP session
+      source: R01
+      target: NSP
+      labels:
+        link: bgp
+        protocol: pcep
+      layers:
+        - bgp
+    - id: pcep-R09-NSP
+      name: R09 to NSP PCEP session
+      source: R09
+      target: NSP
+      labels:
+        link: bgp
+        protocol: pcep
+      layers:
+        - bgp
+    - id: svc-1321
+      name: L3VPN 1321 service overlay
+      source: svc-1321-r01
+      target: svc-1321-r09
+      labels:
+        link: service
+        service: l3vpn
+      layers:
+        - service
+  paths:
+    - id: srte-1321-forward
+      name: SR-TE 1321
+      labels:
+        path: transport
+        protocol: sr-te
+      layers:
+        - transport
+        - service
+      sequence:
+        - R01
+        - R03
+        - R05
+        - R07
+        - R09
+  regions:
+    - id: isis-l1
+      name: IS-IS L1
+      paddingX: 34
+      paddingY: 12
+      nodeWidth: 82
+      nodeHeight: 60
+      minHeight: 110
+      labels:
+        region: igp
+        protocol: isis
+      parent: as65000
+      layers:
+        - igp
+      members:
+        - R01
+        - R03
+        - R05
+    - id: isis-l2
+      name: IS-IS L2
+      paddingX: 34
+      paddingY: 12
+      nodeWidth: 82
+      nodeHeight: 60
+      minHeight: 110
+      labels:
+        region: igp
+        protocol: isis
+      parent: as65000
+      layers:
+        - igp
+      members:
+        - R05
+        - R07
+        - R09
+    - id: as65000
+      name: AS 65000
+      paddingX: 46
+      paddingY: 18
+      headerPadding: 28
+      nodeWidth: 82
+      nodeHeight: 60
+      parentPaddingX: 18
+      parentPaddingY: 10
+      minHeight: 150
+      labels:
+        region: bgp
+      layers:
+        - igp
+        - bgp
+      members:
+        - R01
+        - R03
+        - R05
+        - R07
+        - R09
+diagram:
+  shapes:
+    - id: canvas-frame
+      name: Documentation frame
+      type: rectangle
+      locked: true
+      position:
+        - 26
+        - 22
+      size:
+        - 1228
+        - 666
+      labels:
+        shape: canvas
+      layers:
+        - diagram
+    - id: transport-plane-band
+      name: Transport plane
+      type: rectangle
+      locked: true
+      position:
+        - 54
+        - 206
+      size:
+        - 1174
+        - 174
+      labels:
+        shape: band
+        plane: transport
+      layers:
+        - transport
+        - diagram
+    - id: controller-plane-band
+      name: Controller plane
+      type: rectangle
+      locked: true
+      position:
+        - 322
+        - 38
+      size:
+        - 630
+        - 96
+      labels:
+        shape: band
+        plane: controller
+      layers:
+        - bgp
+        - diagram
+    - id: service-plane-band
+      name: Service overlay
+      type: rectangle
+      locked: true
+      position:
+        - 54
+        - 396
+      size:
+        - 1174
+        - 120
+      labels:
+        shape: band
+        plane: service
+      layers:
+        - service
+        - diagram
+    - id: route-db
+      name: Topology DB
+      type: cylinder
+      position:
+        - 470
+        - 560
+      size:
+        - 280
+        - 96
+      labels:
+        shape: database
+      layers:
+        - bgp
+        - diagram
+    - id: r01-sap
+      name: R01 AC
+      type: rectangle
+      position:
+        - 70
+        - 438
+      size:
+        - 180
+        - 36
+      labels:
+        shape: sap
+        side: left
+      layers:
+        - service
+        - diagram
+      pins:
+        - id: service
+          position:
+            - 176
+            - 18
+        - id: access
+          position:
+            - 4
+            - 18
+    - id: r09-sap
+      name: R09 AC
+      type: rectangle
+      position:
+        - 1030
+        - 438
+      size:
+        - 180
+        - 36
+      labels:
+        shape: sap
+        side: right
+      layers:
+        - service
+        - diagram
+      pins:
+        - id: service
+          position:
+            - 4
+            - 18
+        - id: access
+          position:
+            - 176
+            - 18
+    - id: packet-sid-list
+      name: SR-MPLS stack
+      type: cuboid
+      position:
+        - 458
+        - 154
+      size:
+        - 364
+        - 70
+      labels:
+        shape: label-stack
+      layers:
+        - transport
+        - diagram
+    - id: packet-glyph
+      name: Packet glyph
+      type: prism
+      position:
+        - 828
+        - 236
+      size:
+        - 82
+        - 48
+      labels:
+        shape: packet
+      layers:
+        - transport
+        - diagram
+  callouts:
+    - id: route-db-note
+      title: BGP-LS topology database
+      markdown: |
+        - Node, link, and TE attributes
+        - Consumed by Path Control/PCE
+      target: route-db
+      position:
+        - 772
+        - 552
+      size:
+        - 238
+        - 94
+      labels:
+        callout: database-note
+      layers:
+        - bgp
+        - diagram
+    - id: sid-list-note
+      title: Head-end imposed SID list
+      markdown: |
+        Adjacency SID -> adjacency SID -> adjacency SID.
+        The same model can show SR-TE, RSVP, SR Policy, or service paths.
+      target: packet-sid-list
+      position:
+        - 828
+        - 136
+      size:
+        - 316
+        - 104
+      labels:
+        callout: sid-list-note
+      layers:
+        - transport
+        - diagram
+    - id: note-rich-text
+      title: Diagram primitive layer
+      markdown: |
+        Shapes and callouts are not topology facts.
+        They explain how the topology should be read.
+      position:
+        - 922
+        - 548
+      size:
+        - 286
+        - 92
+      labels:
+        callout: primitive-note
+      layers:
+        - diagram
+    - id: r01-ac-to-service
+      name: AC to service endpoint
+      source: r01-sap
+      sourcePin: service
+      target: svc-1321-r01
+      labels:
+        callout: service-access
+      layers:
+        - service
+        - diagram
+    - id: r09-service-to-ac
+      name: Service endpoint to AC
+      source: svc-1321-r09
+      target: r09-sap
+      targetPin: service
+      labels:
+        callout: service-access
+      layers:
+        - service
+        - diagram
+    - id: bgpls-feed-to-db
+      name: BGP-LS feed
+      source: VSR-NRC
+      target: route-db
+      labels:
+        callout: telemetry-feed
+        protocol: bgp-ls
+      layers:
+        - bgp
+        - diagram
+    - id: db-to-controller
+      name: Topology consumed by PCE
+      source: route-db
+      target: NSP
+      labels:
+        callout: telemetry-feed
+        protocol: nsp-internal
+      layers:
+        - bgp
+        - diagram
+    - id: packet-follows-srte
+      name: Packet follows programmed path
+      source: packet-sid-list
+      target: packet-glyph
+      labels:
+        callout: packet-flow
+      layers:
+        - transport
+        - diagram
+    - id: srrp-decorative-arrow
+      name: Example dashed line-only callout
+      sourcePosition:
+        - 870
+        - 594
+      targetPosition:
+        - 1010
+        - 594
+      labels:
+        callout: srrp
+      layers:
+        - diagram
+    - id: callout-semantic-model
+      title: Semantic graph stays clean
+      position:
+        - 74
+        - 42
+      size:
+        - 310
+        - 122
+      markdown: |
+        - Routers, links, regions, services, and LSP paths live under `graph.*`.
+        - Diagram notes are separate visual objects, not fake topology.
+      target: R05
+      labels:
+        callout: model
+      layers:
+        - diagram
+      pins:
+        - id: tip
+          position:
+            - 310
+            - 76
+      sourcePin: tip
+    - id: callout-controller
+      title: Controller visibility
+      position:
+        - 898
+        - 42
+      size:
+        - 306
+        - 120
+      markdown: |
+        - BGP-LS feeds topology into NSP.
+        - PCEP delegates LSP computation and path updates.
+      target: NSP
+      labels:
+        callout: controller
+      layers:
+        - bgp
+        - diagram
+    - id: callout-pin-anchor
+      title: Callout pin targets
+      position:
+        - 268
+        - 418
+      size:
+        - 300
+        - 116
+      markdown: |
+        - The access callout attaches to the SAP `service` pin.
+        - The service node remains nested inside the physical PE.
+      target: r01-sap
+      targetPin: service
+      labels:
+        callout: anchor
+      layers:
+        - service
+        - diagram
+    - id: callout-documentation-frame
+      title: Stable documentation frame
+      position:
+        - 804
+        - 628
+      size:
+        - 330
+        - 96
+      markdown: |
+        A locked callout or shape can create a stable visual boundary for
+        documentation, screenshots, or slide export.
+      targetPosition:
+        - 1242
+        - 682
+      labels:
+        callout: export
+      layers:
+        - diagram
+toggles:
+  - id: showRegions
+    name: Show regions
+    default: true
+  - id: showServicesInsideNodes
+    name: Show services inside nodes
+    default: true
+  - id: showEdgeLabels
+    name: Show link/path labels
+    default: false

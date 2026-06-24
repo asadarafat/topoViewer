@@ -1,0 +1,10 @@
+renderable: true
+visualSnapshot: false
+dom:
+  shapes: 7
+assertions:
+  geometryOnlyShapes: true
+  threeDimensionalShapes: true
+semantic:
+  errors: []
+  warnings: []
