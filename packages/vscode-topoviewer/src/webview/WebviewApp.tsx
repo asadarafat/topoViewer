@@ -704,6 +704,23 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
     }
   }
 
+  useEffect(() => {
+    if (host.kind !== 'browser') return undefined;
+    (window as unknown as {
+      __topoviewerHarnessActions?: {
+        selectObject: (selection: TopoObjectSelection) => void;
+      };
+    }).__topoviewerHarnessActions = {
+      selectObject(selection) {
+        setSelectedObjects([selection]);
+        setMode('inspect');
+      }
+    };
+    return () => {
+      delete (window as unknown as { __topoviewerHarnessActions?: unknown }).__topoviewerHarnessActions;
+    };
+  }, [host.kind]);
+
   function openRelationshipComposer(kind: 'link' | 'path') {
     const selectedNodes = selectedGraphNodeIds;
     setRelationshipComposer(kind);

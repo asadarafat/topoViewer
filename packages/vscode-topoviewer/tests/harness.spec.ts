@@ -8,6 +8,7 @@ import {
   panelOverflowIssues,
   railWidth,
   revertTemplateState,
+  selectHarnessObject,
   selectGraphNodes,
   setTopologyText,
   showAllHarnessLayers,
@@ -16,7 +17,6 @@ import {
   waitForHarnessReady,
   waitForHarnessState,
   waitForValidatedGraphObject,
-  waitForRenderedEdge,
   yamlCompletions,
   yamlHover,
   yamlObjectBlock,
@@ -437,9 +437,7 @@ test('authors and edits explicit connections and path sequences', async ({ page 
   await expect.poll(() => topologyText(page)).toContain('target: lon-pe');
   await waitForValidatedGraphObject(page, 'links', createdLinkId);
   await showAllHarnessLayers(page);
-  const createdEdge = await waitForRenderedEdge(page, createdLinkId);
-
-  await createdEdge.dispatchEvent('click');
+  await selectHarnessObject(page, 'link', createdLinkId);
   const inspector = page.locator('.topoviewer-vscode-inspector-pane');
   await expect(inspector.getByLabel('Object name')).toHaveValue(`link:${createdLinkId}`);
   await chooseOption(page, inspector.getByRole('combobox', { name: 'Link target' }), 'AMS-P');

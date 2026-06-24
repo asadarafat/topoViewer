@@ -113,10 +113,12 @@ export async function waitForValidatedGraphObject(page: Page, collection: 'links
   }, [collection, id]);
 }
 
-export async function waitForRenderedEdge(page: Page, id: string) {
-  const edge = page.locator(`[data-testid^="rf__edge-${id}"]`).first();
-  await expect(edge).toBeAttached({ timeout: 30000 });
-  return edge;
+export async function selectHarnessObject(page: Page, kind: 'node' | 'link' | 'path' | 'region' | 'shape' | 'callout', id: string) {
+  await page.waitForFunction(() => !!(window as any).__topoviewerHarnessActions?.selectObject);
+  await page.evaluate((selection) => {
+    (window as any).__topoviewerHarnessActions.selectObject(selection);
+  }, { kind, id });
+  await expect(page.getByRole('tab', { name: 'Inspect', exact: true })).toHaveAttribute('aria-selected', 'true');
 }
 
 export async function revertTemplateState(page: Page) {
