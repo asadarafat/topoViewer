@@ -33,6 +33,24 @@ async function setCheckboxByLabel(page, name, checked) {
 }
 
 async function settleReact(page) {
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try {
+      await page.evaluate(() => new Promise((resolve) => {
+        requestAnimationFrame(() => requestAnimationFrame(resolve));
+      }));
+      return;
+    } catch (error) {
+      const message = String(error?.message || error);
+      const isNavigationRace = message.includes('Execution context was destroyed')
+        || message.includes('Cannot find context')
+        || message.includes('navigation');
+      if (!isNavigationRace) throw error;
+
+      await page.waitForLoadState('domcontentloaded', { timeout: 10000 }).catch(() => {});
+      await page.waitForSelector('.react-flow__node-network', { timeout: 30000 });
+    }
+  }
+
   await page.evaluate(() => new Promise((resolve) => {
     requestAnimationFrame(() => requestAnimationFrame(resolve));
   }));
