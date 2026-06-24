@@ -77,7 +77,7 @@
       "properties": {
         "shape": {
           "type": "string",
-          "description": "Shape name. For graph nodes, use canonical TopoViewer node shape values such as ellipse, rectangle, roundRectangle, hexagon, star, or polygon."
+          "description": "Shape name. For graph nodes, use canonical TopoViewer node shape values such as ellipse, circle, square, rectangle, roundRectangle, hexagon, star, or polygon."
         },
         "shapePolygonPoints": {
           "description": "Custom graph-node polygon points in normalized [-1, 1] x/y coordinate space.",

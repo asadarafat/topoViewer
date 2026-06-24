@@ -55,6 +55,10 @@ function NodeShapeSvg({
   switch (type) {
     case 'triangle':
       return <polygon points={points([[50, 8], [92, 88], [8, 88]])} {...common} />;
+    case 'circle':
+      return <circle cx="50" cy="50" r="40" {...common} />;
+    case 'square':
+      return <rect x="16" y="16" width="68" height="68" rx="2" {...common} />;
     case 'rectangle':
       return <rect x="10" y="18" width="80" height="64" rx="2" {...common} />;
     case 'roundRectangle':
@@ -89,7 +93,7 @@ function NodeShapeSvg({
       return <polygon points={polygonPoints || points([[50, 8], [92, 50], [50, 92], [8, 50]])} {...common} />;
     case 'ellipse':
     default:
-      return <circle cx="50" cy="50" r="40" {...common} />;
+      return <ellipse cx="50" cy="50" rx="40" ry="28" {...common} />;
   }
 }
 

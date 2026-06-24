@@ -255,7 +255,9 @@ export const styleOptionsByKind: Record<TopoObjectSelection['kind'], Array<{ key
 
 const nodeShapeValues = [
   'ellipse',
+  'circle',
   'triangle',
+  'square',
   'rectangle',
   'roundRectangle',
   'bottomRoundRectangle',
@@ -511,4 +513,3 @@ export function styleGroupForKey(kind: TopoObjectSelection['kind'], key: string)
   if (['display', 'draggable', 'selectable', 'opacity', 'interactive'].includes(key)) return 'Interaction';
   return 'General';
 }
-

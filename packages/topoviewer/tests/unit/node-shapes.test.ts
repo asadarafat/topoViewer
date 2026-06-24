@@ -15,14 +15,18 @@ describe('declarative node shapes', () => {
         nodes: [
           { id: 'pe-1', name: 'PE 1', layers: ['physical'], position: [0, 0] },
           { id: 'fw-1', name: 'FW 1', layers: ['physical'], position: [160, 0] },
-          { id: 'svc-1', name: 'SVC 1', layers: ['physical'], position: [320, 0] }
+          { id: 'svc-1', name: 'SVC 1', layers: ['physical'], position: [320, 0] },
+          { id: 'circle-1', name: 'Circle 1', layers: ['physical'], position: [480, 0] },
+          { id: 'square-1', name: 'Square 1', layers: ['physical'], position: [640, 0] }
         ]
       },
       stylesheet: [
         { selector: 'node', style: { iconSize: 48, borderWidth: 3 } },
         { selector: 'node[id = "pe-1"]', style: { shape: 'roundRectangle', backgroundColor: '#dbeafe', borderColor: '#1d4ed8' } },
         { selector: 'node[id = "fw-1"]', style: { shape: 'cutRectangle', backgroundColor: '#fee2e2', borderColor: '#b91c1c' } },
-        { selector: 'node[id = "svc-1"]', style: { shape: 'concaveHexagon', backgroundColor: '#ede9fe', borderColor: '#6d28d9' } }
+        { selector: 'node[id = "svc-1"]', style: { shape: 'concaveHexagon', backgroundColor: '#ede9fe', borderColor: '#6d28d9' } },
+        { selector: 'node[id = "circle-1"]', style: { shape: 'circle', backgroundColor: '#ccfbf1', borderColor: '#0f766e' } },
+        { selector: 'node[id = "square-1"]', style: { shape: 'square', backgroundColor: '#ffedd5', borderColor: '#ea580c' } }
       ]
     };
 
@@ -35,6 +39,8 @@ describe('declarative node shapes', () => {
     });
     expect(byId.get('fw-1')).toMatchObject({ nodeShapeType: 'cutRectangle' });
     expect(byId.get('svc-1')).toMatchObject({ nodeShapeType: 'concaveHexagon' });
+    expect(byId.get('circle-1')).toMatchObject({ nodeShapeType: 'circle' });
+    expect(byId.get('square-1')).toMatchObject({ nodeShapeType: 'square' });
   });
 
   it('parses custom polygon points from arrays and strings', () => {

@@ -1,6 +1,8 @@
 export const NODE_SHAPES = [
   'ellipse',
+  'circle',
   'triangle',
+  'square',
   'rectangle',
   'roundRectangle',
   'bottomRoundRectangle',
