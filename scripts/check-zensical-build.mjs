@@ -59,19 +59,31 @@ for (const needle of [
     fail(`Zensical adapter page does not include expected content: ${needle}`);
   }
 }
-if (!adapterHtml.includes('--topoviewer-width: 960px;')) {
-  fail('Zensical adapter page does not use the standard 960px default TopoViewer width.');
+if (!adapterHtml.includes('--topoviewer-width: 100%;')) {
+  fail('Zensical adapter page does not use the standard article-width TopoViewer default.');
 }
 
 const zensicalCss = fs.readFileSync(zensicalCssPath, 'utf8');
 for (const needle of [
   '.md-typeset .topoviewer-figure',
   'width: var(--topoviewer-width, 100%)',
-  'max-width: calc(100vw - 2rem)',
+  'max-width: 100%',
   'min-height: 420px'
 ]) {
   if (!zensicalCss.includes(needle)) {
     fail(`Zensical TopoViewer CSS does not include expected viewport sizing rule: ${needle}`);
+  }
+}
+
+const zensicalJs = fs.readFileSync(path.join(zensicalSite, 'assets/topoviewer/topoviewer-zensical.js'), 'utf8');
+for (const needle of [
+  'MutationObserver',
+  'window.zensical.document$',
+  'requestAnimationFrame',
+  "window.dispatchEvent(new Event('resize'))"
+]) {
+  if (!zensicalJs.includes(needle)) {
+    fail(`Zensical TopoViewer adapter does not include expected lifecycle hook: ${needle}`);
   }
 }
 

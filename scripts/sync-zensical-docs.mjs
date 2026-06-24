@@ -132,7 +132,7 @@ function renderTopoViewerEmbed(config, sourceMarkdownPath, targetMarkdownPath, o
   const topologyUrl = relativeUrl(targetMarkdownPath, topologyTarget);
   const stylesheetUrl = stylesheetTarget ? relativeUrl(targetMarkdownPath, stylesheetTarget) : '';
   const height = escapeHtml(config.height || '560px');
-  const width = escapeHtml(config.width || '960px');
+  const width = escapeHtml(config.width || '100%');
   const controls = parseFenceBool(config, 'controls', true) ? 'true' : 'false';
   const controlsOpen = parseFenceBool(config, 'controlsOpen', false) ? 'true' : 'false';
   const title = String(config.title || '').trim();
