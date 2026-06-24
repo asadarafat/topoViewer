@@ -325,6 +325,10 @@
   vertical-align: middle;
 }
 
+.topoviewer-label-overlay {
+  pointer-events: none;
+}
+
 .topoviewer-node-meta {
   color: var(--topoviewer-fg-muted);
   font-size: 8px;
@@ -456,6 +460,11 @@
 .topoviewer-label-density-minimal .topoviewer-node-label-priority-low .topoviewer-node-label,
 .topoviewer-label-density-minimal .topoviewer-node-label-priority-low .topoviewer-node-meta,
 .topoviewer-label-density-minimal .topoviewer-node-label-priority-medium .topoviewer-node-meta {
+  display: none;
+}
+
+.topoviewer-label-density-minimal .topoviewer-label-overlay[data-label-priority="low"],
+.topoviewer-label-density-minimal .topoviewer-label-overlay[data-label-priority="medium"] {
   display: none;
 }
 

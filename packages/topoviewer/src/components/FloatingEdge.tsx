@@ -188,7 +188,18 @@ function textValue(value: unknown): string {
   return String(value);
 }
 
-function labelStyle(props: EdgeProps, data: Record<string, unknown>, x: number, y: number, role: 'center' | 'source' | 'target'): CSSProperties {
+type EdgeLabelRole = 'center' | 'source' | 'target';
+
+function labelZIndex(data: Record<string, unknown>, role: EdgeLabelRole): number | undefined {
+  const roleValue = role === 'source'
+    ? data.sourceLabelZIndex
+    : role === 'target'
+      ? data.targetLabelZIndex
+      : undefined;
+  return numericOrUndefined(roleValue ?? data.labelZIndex);
+}
+
+function labelStyle(props: EdgeProps, data: Record<string, unknown>, x: number, y: number, role: EdgeLabelRole): CSSProperties {
   const prefix = role === 'center' ? '' : role;
   const roleKey = (suffix: string) => (prefix ? `${prefix}${suffix}` : suffix.charAt(0).toLowerCase() + suffix.slice(1));
   const labelColor = data[roleKey('LabelColor')] || data.labelColor || props.labelStyle?.fill;
@@ -198,6 +209,7 @@ function labelStyle(props: EdgeProps, data: Record<string, unknown>, x: number, 
   const fontSize = data[roleKey('LabelFontSize')] || props.labelStyle?.fontSize;
   const fontWeight = data[roleKey('LabelFontWeight')] || props.labelStyle?.fontWeight;
   const fontStyle = data[roleKey('LabelFontStyle')] || data.labelFontStyle || props.labelStyle?.fontStyle;
+  const zIndex = labelZIndex(data, role);
 
   return {
     color: labelColor as CSSProperties['color'],
@@ -207,9 +219,36 @@ function labelStyle(props: EdgeProps, data: Record<string, unknown>, x: number, 
     background: background as CSSProperties['background'],
     border: borderWidth > 0 ? `${borderWidth}px solid ${String(borderColor || 'transparent')}` : undefined,
     position: 'absolute',
+    zIndex,
     transform: `translate(-50%, -50%) translate(${x}px, ${y}px)`,
     pointerEvents: data.labelInteractive === false ? 'none' : 'all'
   };
+}
+
+function renderEdgeLabel(
+  props: EdgeProps,
+  data: Record<string, unknown>,
+  value: string,
+  x: number,
+  y: number,
+  role: EdgeLabelRole
+) {
+  const zIndex = labelZIndex(data, role);
+  const label = (
+    <div
+      className={`topoviewer-edge-label topoviewer-edge-label-${role}`}
+      data-attention-state={data.attentionState || undefined}
+      data-label-priority={data.attentionLabelPriority || undefined}
+      data-label-z-index={zIndex}
+      style={labelStyle(props, data, x, y, role)}
+    >
+      {value}
+    </div>
+  );
+
+  return zIndex === undefined
+    ? <EdgeLabelRenderer>{label}</EdgeLabelRenderer>
+    : <ViewportPortal>{label}</ViewportPortal>;
 }
 
 function pipeStyle(props: EdgeProps, data: Record<string, unknown>, role: 'border' | 'fill'): CSSProperties {
@@ -463,42 +502,9 @@ export function FloatingEdge(props: EdgeProps) {
         style={{ ...props.style, opacity: 0, pointerEvents: data.interactive === false ? 'none' : undefined }}
         interactionWidth={props.interactionWidth}
       />
-      {props.label ? (
-        <EdgeLabelRenderer>
-          <div
-            className="topoviewer-edge-label topoviewer-edge-label-center"
-            data-attention-state={data.attentionState || undefined}
-            data-label-priority={data.attentionLabelPriority || undefined}
-            style={labelStyle(props, data, labelX + offset.x, labelY + offset.y, 'center')}
-          >
-            {props.label}
-          </div>
-        </EdgeLabelRenderer>
-      ) : null}
-      {sourceLabel ? (
-        <EdgeLabelRenderer>
-          <div
-            className="topoviewer-edge-label topoviewer-edge-label-source"
-            data-attention-state={data.attentionState || undefined}
-            data-label-priority={data.attentionLabelPriority || undefined}
-            style={labelStyle(props, data, sourceLabelX, sourceLabelY, 'source')}
-          >
-            {sourceLabel}
-          </div>
-        </EdgeLabelRenderer>
-      ) : null}
-      {targetLabel ? (
-        <EdgeLabelRenderer>
-          <div
-            className="topoviewer-edge-label topoviewer-edge-label-target"
-            data-attention-state={data.attentionState || undefined}
-            data-label-priority={data.attentionLabelPriority || undefined}
-            style={labelStyle(props, data, targetLabelX, targetLabelY, 'target')}
-          >
-            {targetLabel}
-          </div>
-        </EdgeLabelRenderer>
-      ) : null}
+      {props.label ? renderEdgeLabel(props, data, String(props.label), labelX + offset.x, labelY + offset.y, 'center') : null}
+      {sourceLabel ? renderEdgeLabel(props, data, sourceLabel, sourceLabelX, sourceLabelY, 'source') : null}
+      {targetLabel ? renderEdgeLabel(props, data, targetLabel, targetLabelX, targetLabelY, 'target') : null}
     </>
   );
 }

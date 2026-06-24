@@ -16,6 +16,7 @@ import type { AttentionPresentation, AttentionPresentationResult } from '../core
 import type { CompiledGraph, TopoDocument, TopoViewerExtensionContext, TopoViewerProps } from '../core/types';
 import { CalloutNode } from './CalloutNode';
 import { FloatingEdge } from './FloatingEdge';
+import { LabelOverlay } from './LabelOverlay';
 import { NetworkNode } from './NetworkNode';
 import { PinNode } from './PinNode';
 import { RegionNode } from './RegionNode';
@@ -258,6 +259,7 @@ function TopoFlow({
       proOptions={{ hideAttribution: true }}
     >
       <Background color="rgba(126, 139, 154, 0.20)" gap={24} />
+      <LabelOverlay nodes={nodes as never[]} />
       <ViewportControls
         controlPanelToggle={controlPanelToggle}
         onExport={onExport}

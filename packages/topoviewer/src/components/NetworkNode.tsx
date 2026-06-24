@@ -142,6 +142,7 @@ export function NetworkNode({ data }: { data: CompiledNodeData }) {
     data.attentionLabelPriority ? `topoviewer-node-label-priority-${data.attentionLabelPriority}` : ''
   ].filter(Boolean).join(' ');
   const labelHtml = data.labelHtml;
+  const rendersOverlayLabel = data.labelZIndex !== undefined;
   const isNavigableAttentionNode = data.attentionState === 'focused' || data.attentionState === 'related';
   const accessibleLabel = [
     displayName(data),
@@ -221,14 +222,16 @@ export function NetworkNode({ data }: { data: CompiledNodeData }) {
           />
         ) : null}
       </div>
-      <div
-        className="topoviewer-node-label"
-        style={labelStyle}
-        data-label-position={data.labelPosition || 'bottom'}
-        {...(labelHtml ? { dangerouslySetInnerHTML: { __html: labelHtml } } : {})}
-      >
-        {labelHtml ? null : displayName(data)}
-      </div>
+      {rendersOverlayLabel ? null : (
+        <div
+          className="topoviewer-node-label"
+          style={labelStyle}
+          data-label-position={data.labelPosition || 'bottom'}
+          {...(labelHtml ? { dangerouslySetInnerHTML: { __html: labelHtml } } : {})}
+        >
+          {labelHtml ? null : displayName(data)}
+        </div>
+      )}
       <div className="topoviewer-node-meta" style={data.metaStyle}>{formatLabels(data.labels)}</div>
       <Handle type="source" position={Position.Right} />
     </div>
