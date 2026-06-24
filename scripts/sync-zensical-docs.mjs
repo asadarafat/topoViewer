@@ -11,7 +11,6 @@ const sourceAssetsRoot = path.join(repoRoot, 'docs', 'assets');
 const sourceExamplesRoot = path.join(sourceTopoviewerRoot, 'examples');
 const zensicalDocsRoot = path.join(repoRoot, '.artifacts', 'zensical-docs');
 const targetAssetsRoot = path.join(zensicalDocsRoot, 'assets');
-const targetDocsRoot = path.join(zensicalDocsRoot, 'topoviewer');
 const targetExamplesRoot = path.join(zensicalDocsRoot, 'assets', 'topoviewer', 'examples');
 const mkdocsConfigPath = path.join(repoRoot, 'mkdocs.yml');
 const zensicalConfigPath = path.join(repoRoot, 'zensical.toml');

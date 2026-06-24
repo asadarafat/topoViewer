@@ -1,0 +1,25 @@
+{
+  "threshold": 1,
+  "minLines": 10,
+  "minTokens": 80,
+  "reporters": ["threshold"],
+  "formats": ["typescript", "tsx", "javascript"],
+  "path": [
+    "packages/topoviewer/src",
+    "packages/topoviewer/scripts",
+    "packages/topoviewer/tests",
+    "packages/vscode-topoviewer/src",
+    "packages/vscode-topoviewer/scripts",
+    "packages/vscode-topoviewer/tests",
+    "scripts"
+  ],
+  "ignore": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/site/**",
+    "**/.artifacts/**",
+    "**/playwright-report/**",
+    "**/test-results/**",
+    "**/*.d.ts"
+  ]
+}

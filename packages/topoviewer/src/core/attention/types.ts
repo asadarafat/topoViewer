@@ -1,22 +1,58 @@
-import type {
-  GraphDefinition,
-  GraphLink,
-  GraphNode,
-  GraphPath,
-  GraphRegion,
-  Scalar,
-  TopoDocument
-} from '../types';
+type Scalar = string | number | boolean;
+type AttentionDataBag = Record<string, unknown>;
+type AttentionLabels = Record<string, Scalar>;
+
+interface AttentionEntity {
+  readonly id: string;
+  readonly name?: string;
+  readonly label?: string;
+  readonly labels?: AttentionLabels;
+  readonly data?: AttentionDataBag;
+  readonly layers?: string[];
+}
+
+export interface AttentionGraphNode extends AttentionEntity {
+  readonly parent?: string;
+}
+
+export interface AttentionGraphLink extends AttentionEntity {
+  readonly source: string;
+  readonly target: string;
+  readonly parent?: string;
+}
+
+export interface AttentionGraphPath extends AttentionEntity {
+  readonly sequence?: string[];
+  readonly source?: string;
+  readonly target?: string;
+  readonly parent?: string;
+}
+
+export interface AttentionGraphRegion extends AttentionEntity {
+  readonly members?: string[];
+  readonly parent?: string;
+}
+
+export interface AttentionGraphDefinition {
+  readonly nodes?: AttentionGraphNode[];
+  readonly links?: AttentionGraphLink[];
+  readonly paths?: AttentionGraphPath[];
+  readonly regions?: AttentionGraphRegion[];
+}
+
+export interface AttentionTopoDocument {
+  readonly graph?: AttentionGraphDefinition;
+}
 
 export type AttentionObjectKind = 'node' | 'link' | 'path' | 'region';
 
-export type AttentionGraphInput = TopoDocument | GraphDefinition;
+export type AttentionGraphInput = AttentionTopoDocument | AttentionGraphDefinition;
 
 export interface AttentionObjectByKind {
-  node: GraphNode;
-  link: GraphLink;
-  path: GraphPath;
-  region: GraphRegion;
+  node: AttentionGraphNode;
+  link: AttentionGraphLink;
+  path: AttentionGraphPath;
+  region: AttentionGraphRegion;
 }
 
 export interface AttentionIndexedObject<K extends AttentionObjectKind = AttentionObjectKind> {
@@ -175,7 +211,7 @@ export interface LinkAggregateGroupSummary {
 }
 
 export interface AggregateGraphResult {
-  readonly document: TopoDocument;
+  readonly document: AttentionTopoDocument;
   readonly groups: readonly AggregateGroupSummary[];
   readonly linkGroups: readonly LinkAggregateGroupSummary[];
 }

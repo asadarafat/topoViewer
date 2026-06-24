@@ -9,16 +9,37 @@ TopoViewer is a declarative graph renderer. Keep contributions aligned with that
 
 ## Development Setup
 
-Use Node.js `>=20.19` and Python `>=3.9`.
+Use Node.js `>=24 <25` and Python `>=3.10`.
 
 ```bash
 npm ci
 npm run sync:docs
+npm run lint
 npm run validate:schemas
 npm run validate:semantics
 npm run build
 npm test
 ```
+
+Run the focused static gates while iterating:
+
+```bash
+npm run lint:code-health # max 1000 lines per source/test/script file
+npm run lint:ts          # oxlint correctness checks
+npm run lint:deps        # dependency-cruiser cycle/boundary checks
+npm run lint:cpd         # jscpd duplicate-code threshold
+npm run lint:cpd:report  # inspect duplicate blocks when needed
+```
+
+Move a local dirty worktree to another machine without pushing:
+
+```bash
+npm run transfer:bundle
+```
+
+The bundle is written under `.artifacts/manual-transfer/` by default and includes
+tracked edits, deletions, and untracked git-visible files. Pass ignored or
+external files explicitly with `--extra /path/to/file`.
 
 Build and inspect release artifacts:
 
@@ -70,6 +91,7 @@ Do not commit local lab material, credentials, customer diagrams, generated vide
 
 - `npm run validate:schemas`
 - `npm run validate:semantics`
+- `npm run lint`
 - `npm run build`
 - `npm test`
 - `npm run pack:check`

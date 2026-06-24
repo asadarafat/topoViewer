@@ -32,11 +32,20 @@
     "benchmark:attention": "npm --workspace topoviewer run benchmark:attention",
     "benchmark:attention:smoke": "npm --workspace topoviewer run benchmark:attention:smoke",
     "benchmark:attention:local": "npm --workspace topoviewer run benchmark:attention:local",
+    "lint": "npm run lint:code-health && npm run lint:ts && npm run lint:deps && npm run lint:cpd",
+    "lint:code-health": "node scripts/check-code-health.mjs",
+    "lint:ts": "oxlint packages/topoviewer/src packages/topoviewer/scripts packages/topoviewer/tests packages/vscode-topoviewer/src packages/vscode-topoviewer/scripts packages/vscode-topoviewer/tests scripts --ignore-path .gitignore",
+    "lint:deps": "depcruise --config .dependency-cruiser.cjs packages/topoviewer/src packages/topoviewer/scripts packages/topoviewer/tests packages/vscode-topoviewer/src packages/vscode-topoviewer/scripts packages/vscode-topoviewer/tests scripts",
+    "lint:circular": "npm run lint:deps",
+    "lint:cpd": "jscpd --config .jscpd.json --no-tips",
+    "lint:cpd:report": "jscpd --config .jscpd.json --reporters console --no-tips",
+    "quality": "npm run lint && npm --workspace vscode-topoviewer run typecheck",
     "test": "npm --workspace topoviewer run test",
     "test:vscode-harness": "node scripts/run-node24.mjs npm run test:vscode-harness:node24",
     "test:vscode-harness:node24": "npm --workspace vscode-topoviewer run test:vscode-harness:node24",
     "test:headed": "npm --workspace topoviewer run test:headed",
     "test:all": "npm --workspace topoviewer run test:all",
+    "transfer:bundle": "node scripts/create-manual-transfer.mjs",
     "pack:check": "npm --workspace topoviewer run pack:check",
     "wheel:mkdocs": "rm -rf .artifacts/wheels && python3 -m pip wheel packages/mkdocs-topoviewer --no-deps -w .artifacts/wheels",
     "inspect:wheel": "python3 scripts/inspect-mkdocs-wheel.py .artifacts/wheels",
@@ -55,12 +64,17 @@
     "zensical:build": "bash scripts/local-zensical.sh build && npm run validate:zensical",
     "zensical:serve": "bash scripts/local-zensical.sh serve",
     "ci": "node scripts/run-node24.mjs npm run ci:node24",
-    "ci:node24": "npm run sync:docs && npm run validate:schemas && npm run validate:semantics && npm run build && npm test && npm run test:vscode-harness && npm run vscode:harness:build && npm run benchmark:attention:smoke && npm run pack:check && npm run sync:mkdocs-assets && npm run wheel:mkdocs && npm run inspect:wheel && TOPOVIEWER_ZENSICAL_SKIP_VIEWER_BUILD=1 npm run zensical:build"
+    "ci:node24": "npm run sync:docs && npm run lint && npm run validate:schemas && npm run validate:semantics && npm run build && npm test && npm run test:vscode-harness && npm run vscode:harness:build && npm run benchmark:attention:smoke && npm run pack:check && npm run sync:mkdocs-assets && npm run wheel:mkdocs && npm run inspect:wheel && TOPOVIEWER_ZENSICAL_SKIP_VIEWER_BUILD=1 npm run zensical:build"
   },
   "overrides": {
     "monaco-editor": "0.53.0"
   },
   "engines": {
     "node": ">=24 <25"
+  },
+  "devDependencies": {
+    "dependency-cruiser": "^17.4.3",
+    "jscpd": "^5.0.11",
+    "oxlint": "^1.71.0"
   }
 }

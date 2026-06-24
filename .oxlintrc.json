@@ -1,0 +1,7 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "rules": {
+    "eslint/no-control-regex": "off",
+    "unicorn/no-useless-fallback-in-spread": "off"
+  }
+}

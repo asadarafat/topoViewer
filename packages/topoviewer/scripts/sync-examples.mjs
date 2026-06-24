@@ -301,7 +301,7 @@ function integrationNavItems(examples) {
 function navDocument(catalog) {
   const groups = groupExamples(catalog.examples || []);
   const reference = [];
-  for (const [feature, examples] of groups.entries()) {
+  for (const feature of groups.keys()) {
     if (feature === 'integration') continue;
     reference.push({ [featureTitle(feature)]: `reference/${feature}/index.md` });
   }

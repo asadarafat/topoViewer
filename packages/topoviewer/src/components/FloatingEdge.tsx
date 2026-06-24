@@ -321,7 +321,6 @@ export function FloatingEdge(props: EdgeProps) {
   );
   const curveType = String(props.data?.curveType || 'default');
   const attentionState = data.attentionState ? `topoviewer-edge-attention-${data.attentionState}` : '';
-  const attentionLabelPriority = data.attentionLabelPriority ? `topoviewer-edge-label-priority-${data.attentionLabelPriority}` : '';
   const [edgePath, labelX, labelY] = edgePathForCurve(curveType, { ...props, ...endpoints }, data, endpoints);
   const usesBundledBezierLane = curveType === 'bezier' && !!data.parallelLinkGroup;
   const offset = usesBundledBezierLane ? { x: 0, y: 0 } : laneOffset(data, endpoints);

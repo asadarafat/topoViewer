@@ -23,7 +23,6 @@ import SkipNextIcon from '@mui/icons-material/SkipNext';
 import SkipPreviousIcon from '@mui/icons-material/SkipPrevious';
 import Editor from '@monaco-editor/react';
 import { TopoViewer } from './TopoViewer';
-import { mvNetworkStylesheet, mvNetworkTopology } from '../examples/mvNetwork';
 import type { TopoDocument, TopoViewerToggles } from '../core/types';
 import {
   buildAttentionIndex,
@@ -42,7 +41,22 @@ type FocusKind = 'id' | 'changes';
 type AggregateMode = 'none' | 'region' | 'parent' | 'role';
 type LabelDensity = 'auto' | 'minimal' | 'dense';
 
+const initialTopologyYamlUrl = new URL('../../examples/test-cases/integration/complete-network-demo/topology.yaml', import.meta.url);
+const initialStylesheetYamlUrl = new URL('../../examples/test-cases/integration/complete-network-demo/stylesheet.yaml', import.meta.url);
+const emptyWorkbenchDocument: TopoDocument = { graph: { id: 'workbench-loading' }, toggles: [] };
+
+async function fetchText(url: URL): Promise<string> {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`Failed to load ${url.pathname}: ${response.status} ${response.statusText}`);
+  }
+  return response.text();
+}
+
 function composeSpec(topologyText: string, stylesheetText: string): TopoDocument {
+  if (!topologyText.trim() && !stylesheetText.trim()) {
+    return validateTopoDocument(emptyWorkbenchDocument, 'Workbench YAML');
+  }
   const topology = yaml.load(topologyText) as TopoDocument;
   const stylesheet = yaml.load(stylesheetText) as TopoDocument;
   return validateTopoDocument({
@@ -52,9 +66,6 @@ function composeSpec(topologyText: string, stylesheetText: string): TopoDocument
     toggles: topology?.toggles || []
   }, 'Workbench YAML');
 }
-
-const initialTopologyYaml = yaml.dump(mvNetworkTopology, { lineWidth: 120, noRefs: true });
-const initialStylesheetYaml = yaml.dump(mvNetworkStylesheet, { lineWidth: 120, noRefs: true });
 
 function splitIds(value: string): string[] {
   return value.split(/[\s,]+/).map((entry) => entry.trim()).filter(Boolean);
@@ -156,10 +167,10 @@ const theme = createTheme({
 
 export function TopoViewerWorkbench() {
   const [activeTab, setActiveTab] = useState<'topology' | 'stylesheet'>('topology');
-  const [topologyText, setTopologyText] = useState(initialTopologyYaml);
-  const [stylesheetText, setStylesheetText] = useState(initialStylesheetYaml);
-  const [selectedLayers, setSelectedLayers] = useState<string[]>(mvNetworkTopology.graph?.layers?.map((layer) => layer.id) || []);
-  const [toggles, setToggles] = useState<TopoViewerToggles>(() => Object.fromEntries((mvNetworkTopology.toggles || []).map((toggle) => [toggle.id, toggle.default !== false])));
+  const [topologyText, setTopologyText] = useState('');
+  const [stylesheetText, setStylesheetText] = useState('');
+  const [selectedLayers, setSelectedLayers] = useState<string[]>([]);
+  const [toggles, setToggles] = useState<TopoViewerToggles>({});
   const [focusKind, setFocusKind] = useState<FocusKind>('id');
   const [attentionSeed, setAttentionSeed] = useState('');
   const [attentionChangedSince, setAttentionChangedSince] = useState('2026-06-01T00:00:00Z');
@@ -174,13 +185,38 @@ export function TopoViewerWorkbench() {
   const [layoutRun, setLayoutRun] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    let cancelled = false;
+
+    Promise.all([
+      fetchText(initialTopologyYamlUrl),
+      fetchText(initialStylesheetYamlUrl)
+    ]).then(([nextTopologyText, nextStylesheetText]) => {
+      if (cancelled) return;
+      const nextTopologyYaml = nextTopologyText.trimEnd();
+      const nextTopologyDocument = yaml.load(nextTopologyYaml) as TopoDocument;
+      setTopologyText(nextTopologyYaml);
+      setStylesheetText(nextStylesheetText.trimEnd());
+      setSelectedLayers(nextTopologyDocument.graph?.layers?.map((layer) => layer.id) || []);
+      setToggles(Object.fromEntries((nextTopologyDocument.toggles || []).map((toggle) => [toggle.id, toggle.default !== false])));
+    }).catch((loadError) => {
+      if (!cancelled) {
+        setError(loadError instanceof Error ? loadError.message : String(loadError));
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const spec = useMemo(() => {
     try {
       setError(null);
       return composeSpec(topologyText, stylesheetText);
     } catch (parseError) {
       setError(parseError instanceof Error ? parseError.message : String(parseError));
-      return composeSpec(initialTopologyYaml, initialStylesheetYaml);
+      return validateTopoDocument(emptyWorkbenchDocument, 'Workbench YAML');
     }
   }, [stylesheetText, topologyText]);
 
@@ -230,7 +266,7 @@ export function TopoViewerWorkbench() {
     if (!attentionQuery) return [];
     try {
       return Array.from(resolveFocusQuery(viewerAttentionIndex, attentionQuery).focusedIds);
-    } catch (_error) {
+    } catch {
       return [];
     }
   }, [attentionQuery, viewerAttentionIndex]);

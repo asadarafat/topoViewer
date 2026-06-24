@@ -66,7 +66,7 @@ async function waitForServer(url) {
     try {
       const response = await fetch(url);
       if (response.ok) return;
-    } catch (_error) {
+    } catch {
       await new Promise((resolve) => setTimeout(resolve, 150));
     }
   }
