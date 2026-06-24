@@ -258,6 +258,9 @@ export interface CompiledNodeData extends GraphNode {
   labelHtml?: string;
   labelStyle?: CSSProperties;
   labelPosition?: string;
+  labelMargin?: number;
+  labelLeftMargin?: number;
+  labelZIndex?: number;
   labelMinZoom?: number;
   metaStyle?: CSSProperties;
   badgeLabel?: string;

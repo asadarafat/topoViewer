@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { GEOMETRY_SHAPES } from './types';
+import { finiteNumber } from './edgeStyle';
 import { parseNodeShapePoints } from './nodeShapes';
 import type { TopoDocument } from './types';
 import { migrateTopoDocument } from './migration';
@@ -7,12 +8,36 @@ import { migrateTopoDocument } from './migration';
 const scalarSchema = z.union([z.string(), z.number(), z.boolean()]);
 const labelsSchema = z.record(scalarSchema);
 const dataSchema = z.record(z.unknown());
+const canonicalStyleKeyByLowercase = new Map([
+  ['labelzindex', 'labelZIndex'],
+  ['sourcelabelzindex', 'sourceLabelZIndex'],
+  ['targetlabelzindex', 'targetLabelZIndex']
+]);
+
 const styleSchema = z.record(z.unknown()).superRefine((style, ctx) => {
   for (const key of Object.keys(style)) {
     if (key.includes('-')) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: `Style key "${key}" is not supported; use camelCase style keys.`,
+        path: [key]
+      });
+      continue;
+    }
+
+    const canonicalKey = canonicalStyleKeyByLowercase.get(key.toLowerCase());
+    if (canonicalKey && canonicalKey !== key) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `Style key "${key}" is not supported; use "${canonicalKey}".`,
+        path: [key]
+      });
+    }
+
+    if ((key === 'labelZIndex' || key === 'sourceLabelZIndex' || key === 'targetLabelZIndex') && finiteNumber(style[key]) === undefined) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `${key} must be a finite number.`,
         path: [key]
       });
     }

@@ -89,13 +89,29 @@ function layerMembershipIssues(kind: string, entity: GraphEntity, path: string):
   return [issue('warning', `missing-${kind}-layers`, `${titleCase(kind)} "${entity.id}" will not render until it declares at least one layer.`, `${path}.layers`)];
 }
 
+const canonicalStyleKeyByLowercase = new Map([
+  ['labelzindex', 'labelZIndex'],
+  ['sourcelabelzindex', 'sourceLabelZIndex'],
+  ['targetlabelzindex', 'targetLabelZIndex']
+]);
+
 function styleKeyIssues(style: Record<string, unknown> | undefined, path: string): LintIssue[] {
   if (!style || typeof style !== 'object') return [];
-  return Object.keys(style).flatMap((key) => (
-    key.includes('-')
-      ? [issue('error', 'non-canonical-style-key', `Style key "${key}" is not supported; use camelCase style keys.`, `${path}.${key}`)]
-      : []
-  ));
+  return Object.keys(style).flatMap((key) => {
+    const issues: LintIssue[] = [];
+    if (key.includes('-')) {
+      issues.push(issue('error', 'non-canonical-style-key', `Style key "${key}" is not supported; use camelCase style keys.`, `${path}.${key}`));
+      return issues;
+    }
+    const canonicalKey = canonicalStyleKeyByLowercase.get(key.toLowerCase());
+    if (canonicalKey && canonicalKey !== key) {
+      issues.push(issue('error', 'non-canonical-style-key', `Style key "${key}" is not supported; use "${canonicalKey}".`, `${path}.${key}`));
+    }
+    if ((key === 'labelZIndex' || key === 'sourceLabelZIndex' || key === 'targetLabelZIndex') && finiteNumber(style[key]) === undefined) {
+      issues.push(issue('error', 'invalid-label-z-index', `${key} must be a finite number.`, `${path}.${key}`));
+    }
+    return issues;
+  });
 }
 
 function selectorKind(selector: string): string {

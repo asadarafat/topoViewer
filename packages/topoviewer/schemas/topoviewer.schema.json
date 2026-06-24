@@ -288,6 +288,13 @@
         "labelFontStyle": {
           "type": "string"
         },
+        "labelZIndex": {
+          "oneOf": [
+            { "type": "number" },
+            { "type": "string", "minLength": 1 }
+          ],
+          "description": "Independent label draw order. Use zIndex for the object body or edge line."
+        },
         "sourceLabelColor": {
           "type": "string"
         },
@@ -316,6 +323,13 @@
         "sourceLabelFontStyle": {
           "type": "string"
         },
+        "sourceLabelZIndex": {
+          "oneOf": [
+            { "type": "number" },
+            { "type": "string", "minLength": 1 }
+          ],
+          "description": "Independent draw order for the source endpoint edge label. Falls back to labelZIndex when omitted."
+        },
         "targetLabelColor": {
           "type": "string"
         },
@@ -343,6 +357,13 @@
         },
         "targetLabelFontStyle": {
           "type": "string"
+        },
+        "targetLabelZIndex": {
+          "oneOf": [
+            { "type": "number" },
+            { "type": "string", "minLength": 1 }
+          ],
+          "description": "Independent draw order for the target endpoint edge label. Falls back to labelZIndex when omitted."
         },
         "sourceDistanceFromNode": {
           "type": "number",

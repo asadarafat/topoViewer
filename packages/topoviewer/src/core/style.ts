@@ -374,6 +374,7 @@ export function compileNodeStyle(style: StyleDeclaration, entity: GraphEntity, s
         '--topoviewer-node-underlay-scale-y': underlayPadding === undefined ? undefined : String(1 + (underlayPadding * 2) / Math.max(iconHeight, 1))
       }),
       labelPosition,
+      labelZIndex: finiteNumber(style.labelZIndex),
       labelMinZoom: nonNegativeNumber(style.minZoomedLabelFontSize),
       labelStyle: withoutUndefined({
         color: style.labelColor,
@@ -510,6 +511,9 @@ export function compileEdgeStyle(style: StyleDeclaration, entity: GraphEntity, s
       targetLabelFontSize: style.targetLabelFontSize,
       targetLabelFontWeight: style.targetLabelFontWeight,
       targetLabelFontStyle: style.targetLabelFontStyle,
+      labelZIndex: finiteNumber(style.labelZIndex),
+      sourceLabelZIndex: finiteNumber(style.sourceLabelZIndex),
+      targetLabelZIndex: finiteNumber(style.targetLabelZIndex),
       sourceLabelXOffset: style.sourceLabelXOffset,
       sourceLabelYOffset: style.sourceLabelYOffset,
       targetLabelXOffset: style.targetLabelXOffset,
@@ -562,6 +566,10 @@ export function compileRegionStyle(style: StyleDeclaration, width: number, heigh
       stroke: String(style.borderColor || 'rgba(76, 201, 240, 0.62)'),
       borderWidth,
       borderRadius,
+      labelPosition,
+      labelMargin: defaultMargin,
+      labelLeftMargin: legacyLeftMargin,
+      labelZIndex: finiteNumber(style.labelZIndex),
       labelStyle: withoutUndefined({
         color: style.labelColor,
         background: style.labelBackgroundColor,
@@ -660,6 +668,7 @@ export function compileShapeStyle(style: StyleDeclaration, entity: DiagramShape)
         width: size.width,
         minHeight: size.height
       },
+      labelZIndex: finiteNumber(style.labelZIndex),
       shapeStyle: withoutUndefined({
         width: size.width,
         height: size.height,
@@ -704,6 +713,7 @@ export function compileCalloutStyle(style: StyleDeclaration, entity: DiagramCall
         width: size.width,
         minHeight: size.height
       },
+      labelZIndex: finiteNumber(style.labelZIndex),
       shapeStyle: withoutUndefined({
         width: size.width,
         minHeight: size.height,
