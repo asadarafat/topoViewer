@@ -332,18 +332,28 @@ test('inserts objects into structured topology YAML and supports undo and redo',
   await waitForHarnessReady(page);
 
   await expect(page.getByText('New Node')).toHaveCount(0);
+  const undoButton = page.getByRole('button', { name: 'Undo' });
+  const redoButton = page.getByRole('button', { name: 'Redo' });
+  await expect(undoButton).toBeDisabled();
+  await expect(redoButton).toBeDisabled();
+
   await page.getByRole('button', { name: 'Insert Node' }).click();
   await expect(page.locator('.react-flow__node').filter({ hasText: 'New Node' })).toBeVisible();
   await page.getByRole('tab', { name: 'YAML', exact: true }).click();
   await expect.poll(() => topologyText(page)).toContain('id: node-1');
   await expect.poll(() => topologyText(page)).toContain('layers:');
+  await expect(undoButton).toBeEnabled();
+  await expect(redoButton).toBeDisabled();
 
-  await page.getByRole('button', { name: 'Undo' }).click();
-  await expect(page.locator('.topoviewer-vscode-diagnostic-strip')).toContainText('Undo Insert node');
+  await undoButton.click();
   await expect.poll(() => topologyText(page)).not.toContain('id: node-1');
-  await page.getByRole('button', { name: 'Redo' }).click();
-  await expect(page.locator('.topoviewer-vscode-diagnostic-strip')).toContainText('Redo Insert node');
+  await expect(undoButton).toBeDisabled();
+  await expect(redoButton).toBeEnabled();
+
+  await redoButton.click();
   await expect.poll(() => topologyText(page)).toContain('id: node-1');
+  await expect(undoButton).toBeEnabled();
+  await expect(redoButton).toBeDisabled();
 });
 
 test('creates saved topologies, reverts templates, and copies YAML', async ({ page }) => {
