@@ -2,54 +2,84 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import react from '@vitejs/plugin-react';
+import yaml from 'js-yaml';
 import { defineConfig, type Plugin, type ResolvedConfig } from 'vite';
 import { validateSources } from './src/shared/validation';
 
 const packageRoot = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(packageRoot, '../..');
-const packageFixtureRoot = path.join(packageRoot, 'fixtures');
-const exampleFixtureRoot = path.join(repoRoot, 'packages/topoviewer/examples/test-cases');
+const contentExamplesRoot = path.join(repoRoot, 'packages/topoviewer/content/examples');
+const contentExamplesCatalog = path.join(contentExamplesRoot, 'catalog.yaml');
 const harnessBase = process.env.TOPOVIEWER_HARNESS_BASE || '/topoViewer/harness/';
 const harnessOutDir = process.env.TOPOVIEWER_HARNESS_OUT_DIR || path.join(repoRoot, 'site/harness');
 
-const fixtures = [
-  {
-    id: 'layered-network',
-    name: 'Layered network authoring',
-    root: packageFixtureRoot,
-    directory: 'layered-network'
-  },
-  {
-    id: 'insert-workflow',
-    name: 'Insert workflow',
-    root: packageFixtureRoot,
-    directory: 'insert-workflow'
-  },
-  {
-    id: 'attention-workflow',
-    name: 'Attention workflow',
-    root: packageFixtureRoot,
-    directory: 'attention-workflow'
-  },
-  {
-    id: 'inspector-workflow',
-    name: 'Inspector workflow',
-    root: packageFixtureRoot,
-    directory: 'inspector-workflow'
-  },
-  {
-    id: 'dense-links',
-    name: 'Dense link grouping',
-    root: packageFixtureRoot,
-    directory: 'dense-links'
-  },
-  {
-    id: 'region-label-placement',
-    name: 'Region label placement',
-    root: exampleFixtureRoot,
-    directory: 'regions/region-label-placement'
+type ExampleFileKey = 'topology' | 'stylesheet';
+
+interface ContentExample {
+  id: string;
+  title: string;
+  path: string;
+  sourcePath?: string;
+  sourceFiles?: Partial<Record<ExampleFileKey, string>>;
+  harness?: boolean | {
+    id?: string;
+    name?: string;
+    order?: number;
+  };
+}
+
+interface HarnessFixtureSource {
+  id: string;
+  name: string;
+  order: number;
+  topologyFile: string;
+  stylesheetFile: string;
+}
+
+function exampleSourceFile(example: ContentExample, key: ExampleFileKey) {
+  const fileName = key === 'topology' ? 'topology.yaml' : 'stylesheet.yaml';
+  const configured = example.sourceFiles?.[key];
+  const source = path.join(contentExamplesRoot, configured || example.sourcePath || example.path, fileName);
+  const relativePath = path.relative(contentExamplesRoot, source);
+  if (relativePath.startsWith('..') || path.isAbsolute(relativePath)) {
+    throw new Error(`Harness fixture source resolves outside canonical content examples: ${source}`);
   }
-];
+  return source;
+}
+
+function harnessMetadata(example: ContentExample) {
+  if (!example.harness) return undefined;
+  return typeof example.harness === 'object' ? example.harness : {};
+}
+
+function loadHarnessFixtures(): HarnessFixtureSource[] {
+  if (!fs.existsSync(contentExamplesCatalog)) {
+    throw new Error(`Canonical content catalog is missing: ${contentExamplesCatalog}`);
+  }
+
+  const catalog = yaml.load(fs.readFileSync(contentExamplesCatalog, 'utf8')) as { examples?: ContentExample[] } | undefined;
+  const fixtureIds = new Set<string>();
+  return (catalog?.examples || [])
+    .flatMap((example): HarnessFixtureSource[] => {
+      const metadata = harnessMetadata(example);
+      if (!metadata) return [];
+      const fixture: HarnessFixtureSource = {
+        id: metadata.id || example.id,
+        name: metadata.name || example.title,
+        order: metadata.order ?? Number.MAX_SAFE_INTEGER,
+        topologyFile: exampleSourceFile(example, 'topology'),
+        stylesheetFile: exampleSourceFile(example, 'stylesheet')
+      };
+      if (fixtureIds.has(fixture.id)) {
+        throw new Error(`Duplicate harness fixture id in canonical catalog: ${fixture.id}`);
+      }
+      fixtureIds.add(fixture.id);
+      return [fixture];
+    })
+    .sort((left, right) => left.order - right.order || left.name.localeCompare(right.name) || left.id.localeCompare(right.id));
+}
+
+const fixtures = loadHarnessFixtures();
 
 function readRequestBody(request: import('node:http').IncomingMessage): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -79,7 +109,7 @@ function fixtureById(id: string) {
 function fixtureFile(id: string, fileName: 'topology.yaml' | 'stylesheet.yaml') {
   const fixture = fixtureById(id);
   if (!fixture) return undefined;
-  const filePath = path.join(fixture.root, fixture.directory, fileName);
+  const filePath = fileName === 'topology.yaml' ? fixture.topologyFile : fixture.stylesheetFile;
   if (!fs.existsSync(filePath)) return undefined;
   return filePath;
 }

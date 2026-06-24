@@ -936,6 +936,7 @@ test('reports missing companion files through validation diagnostics', async ({ 
 test('harness fixtures do not expose empty layers', async ({ request }) => {
   const fixtures = await (await request.get('/fixtures')).json() as Array<{ id: string }>;
   expect(fixtures.map((fixture) => fixture.id)).toEqual(expect.arrayContaining([
+    'clos-2spine-4leaf',
     'insert-workflow',
     'attention-workflow',
     'inspector-workflow',

@@ -7,14 +7,17 @@ const harnessSite = path.join(repoRoot, 'site/harness');
 
 const requiredFiles = [
   'index.html',
-  'fixtures/index.json',
-  'fixtures/layered-network/topology.yaml',
-  'fixtures/layered-network/stylesheet.yaml',
-  'fixtures/insert-workflow/topology.yaml',
-  'fixtures/attention-workflow/topology.yaml',
-  'fixtures/inspector-workflow/topology.yaml',
-  'fixtures/dense-links/topology.yaml',
-  'fixtures/region-label-placement/topology.yaml'
+  'fixtures/index.json'
+];
+
+const expectedFixtureIds = [
+  'layered-network',
+  'clos-2spine-4leaf',
+  'insert-workflow',
+  'attention-workflow',
+  'inspector-workflow',
+  'dense-links',
+  'region-label-placement'
 ];
 
 function fail(message) {
@@ -46,7 +49,16 @@ if (!assets.some((file) => file.endsWith('.css'))) {
 }
 
 const fixtures = JSON.parse(fs.readFileSync(path.join(harnessSite, 'fixtures/index.json'), 'utf8'));
-for (const fixtureId of ['layered-network', 'insert-workflow', 'attention-workflow', 'inspector-workflow', 'dense-links', 'region-label-placement']) {
+for (const fixture of fixtures) {
+  for (const fileName of ['topology.yaml', 'stylesheet.yaml']) {
+    const fixtureFile = path.join(harnessSite, 'fixtures', fixture.id, fileName);
+    if (!fs.existsSync(fixtureFile)) {
+      fail(`VS Code harness fixture "${fixture.id}" is missing ${fileName}.`);
+    }
+  }
+}
+
+for (const fixtureId of expectedFixtureIds) {
   if (!fixtures.some((fixture) => fixture.id === fixtureId)) {
     fail(`VS Code harness fixture index is missing ${fixtureId}.`);
   }
