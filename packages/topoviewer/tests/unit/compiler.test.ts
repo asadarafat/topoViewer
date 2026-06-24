@@ -1,9 +1,76 @@
 import { describe, expect, it } from 'vitest';
-import { compileTopoGraph, lintTopoDocument, validateTopoDocument, type TopoDocument } from '../../src';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import yaml from 'js-yaml';
+import { compileTopoGraph, lintTopoDocument, validateTopoDocument, type TopoDocument, type TopoViewerToggles } from '../../src';
 import { applyEndpointSpacing, segmentRoute, taxiRoute } from '../../src/core/edgeGeometry';
 import { compileEdgeStyle } from '../../src/core/style';
 
+const testDir = path.dirname(fileURLToPath(import.meta.url));
+const completeNetworkDemoDir = path.resolve(testDir, '../../examples/test-cases/integration/complete-network-demo');
+
+function readYamlFile(fileName: string): Record<string, unknown> {
+  return (yaml.load(fs.readFileSync(path.join(completeNetworkDemoDir, fileName), 'utf8')) || {}) as Record<string, unknown>;
+}
+
+function readCompleteNetworkDemo(): TopoDocument {
+  return {
+    ...readYamlFile('topology.yaml'),
+    ...readYamlFile('stylesheet.yaml')
+  } as TopoDocument;
+}
+
+function combinations(items: string[]): string[][] {
+  const states: string[][] = [];
+  const total = 2 ** items.length;
+  for (let mask = 0; mask < total; mask += 1) {
+    states.push(items.filter((_, index) => (mask & (1 << index)) !== 0));
+  }
+  return states;
+}
+
 describe('compileTopoGraph', () => {
+  it('compiles complete demo layer and display-control permutations deterministically', () => {
+    const document = readCompleteNetworkDemo();
+    const layerIds = (document.graph?.layers || [])
+      .map((layer) => layer.id)
+      .filter((id) => id !== 'diagram');
+    const toggleIds = (document.toggles || []).map((toggle) => toggle.id);
+
+    for (const selectedLayerIds of combinations(layerIds)) {
+      for (const enabledToggleIds of combinations(toggleIds)) {
+        const enabledToggles = new Set(enabledToggleIds);
+        const toggles = Object.fromEntries(toggleIds.map((id) => [id, enabledToggles.has(id)])) as TopoViewerToggles;
+        const compiled = compileTopoGraph(document, selectedLayerIds, toggles);
+        const nodeIds = new Set(compiled.nodes.map((node) => String(node.id)));
+        const regionCount = compiled.nodes.filter((node) => String(node.id).startsWith('region:')).length;
+        const edgeLabelCount = compiled.edges.filter((edge) => Boolean(edge.label)).length;
+
+        compiled.edges.forEach((edge) => {
+          expect(nodeIds.has(String(edge.source)), `${edge.id}: source ${edge.source} should be compiled`).toBe(true);
+          expect(nodeIds.has(String(edge.target)), `${edge.id}: target ${edge.target} should be compiled`).toBe(true);
+        });
+
+        if (!toggles.showRegions) {
+          expect(regionCount).toBe(0);
+        }
+
+        if (toggles.showRegions && (selectedLayerIds.includes('igp') || selectedLayerIds.includes('bgp'))) {
+          expect(regionCount).toBeGreaterThan(0);
+        }
+
+        if (toggles.showRegions && !selectedLayerIds.includes('igp') && !selectedLayerIds.includes('bgp')) {
+          expect(regionCount).toBe(0);
+        }
+
+        if (!toggles.showEdgeLabels) {
+          expect(edgeLabelCount).toBe(0);
+        }
+      }
+    }
+  });
+
   it('compiles edge endpoint labels and offsets when edge labels are enabled', () => {
     const document: TopoDocument = {
       version: '1.0',

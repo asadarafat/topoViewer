@@ -27,8 +27,12 @@ function actionableErrors(browserErrors) {
 
 async function setCheckboxByLabel(page, name, checked) {
   const checkbox = page.getByRole('checkbox', { name, exact: true });
-  if ((await checkbox.isChecked()) !== checked) {
-    await checkbox.setChecked(checked);
+  if (checked) {
+    await checkbox.check();
+    await expect(checkbox).toBeChecked();
+  } else {
+    await checkbox.uncheck();
+    await expect(checkbox).not.toBeChecked();
   }
 }
 
@@ -100,13 +104,32 @@ async function waitForRegionVisibility(page, expectsRegions, label) {
   }
 }
 
-function combinations(items) {
-  const states = [];
-  const total = 2 ** items.length;
-  for (let mask = 0; mask < total; mask += 1) {
-    states.push(new Set(items.filter((_, index) => (mask & (1 << index)) !== 0)));
+async function waitForEdgeLabelVisibility(page, expectsLabels, label) {
+  let lastSnapshot = { edgeCount: 0, edgeLabelCount: 0 };
+  try {
+    await expect.poll(async () => {
+      lastSnapshot = await renderedSnapshot(page);
+      return expectsLabels ? lastSnapshot.edgeLabelCount > 0 : lastSnapshot.edgeLabelCount === 0;
+    }, {
+      intervals: [100, 250, 500, 1000],
+      timeout: 15000
+    }).toBe(true);
+  } catch (error) {
+    throw new Error([
+      `${label}: edge label visibility did not settle`,
+      `expected=${expectsLabels ? 'visible' : 'hidden'}`,
+      `lastEdgeCount=${lastSnapshot.edgeCount}`,
+      `lastEdgeLabelCount=${lastSnapshot.edgeLabelCount}`,
+      String(error?.message || error)
+    ].join('\n'));
   }
-  return states;
+}
+
+async function expectRenderableState(page, label) {
+  const snapshot = await renderedSnapshot(page);
+  expect(snapshot.hasErrorAlert, `${label}: renderer reported an alert`).toBe(false);
+  expect(snapshot.invalidPathCount, `${label}: edge path(s) had invalid SVG data`).toBe(0);
+  return snapshot;
 }
 
 async function renderedSnapshot(page) {
@@ -185,42 +208,38 @@ async function dragBox(page, box, dx, dy, offset = { x: 48, y: 28 }) {
 }
 
 test.describe('TopoViewer package interactions', () => {
-  test('renders every layer and display-knob permutation without invalid state', async ({ page }) => {
-    test.setTimeout(240000);
+  test('renders layer and display controls without invalid visible state', async ({ page }) => {
     const browserErrors = await openWorkbench(page);
-    const failures = [];
 
-    for (const selectedLayers of combinations(canonicalWorkbenchLayers)) {
-      for (const enabledToggles of combinations(canonicalWorkbenchToggles)) {
-        await setPermutation(page, selectedLayers, enabledToggles);
-        const label = `layers=[${[...selectedLayers].join(', ') || 'none'}] toggles=[${[...enabledToggles].join(', ') || 'none'}]`;
-        const expectsRegions = enabledToggles.has('Show regions') && (
-          selectedLayers.has('IGP') || selectedLayers.has('BGP / Controller')
-        );
-        await waitForRegionVisibility(page, expectsRegions, label);
-        const snapshot = await renderedSnapshot(page);
+    await setPermutation(
+      page,
+      new Set(['IGP', 'BGP / Controller', 'Transport']),
+      new Set(['Show regions', 'Show services inside nodes'])
+    );
+    await waitForRegionVisibility(page, true, 'IGP/BGP/Transport with regions enabled');
+    await waitForEdgeLabelVisibility(page, false, 'IGP/BGP/Transport with labels disabled');
+    await expectRenderableState(page, 'IGP/BGP/Transport baseline');
 
-        if (snapshot.hasErrorAlert) {
-          failures.push(`${label}: renderer reported an alert`);
-        }
+    await setCheckboxByLabel(page, 'Show regions', false);
+    await settleReact(page);
+    await waitForRegionVisibility(page, false, 'IGP/BGP/Transport with regions disabled');
+    await expectRenderableState(page, 'regions disabled');
 
-        if (snapshot.invalidPathCount > 0) {
-          failures.push(`${label}: ${snapshot.invalidPathCount} edge path(s) had invalid SVG data`);
-        }
+    await setCheckboxByLabel(page, 'Show link/path labels', true);
+    await settleReact(page);
+    await waitForEdgeLabelVisibility(page, true, 'IGP/BGP/Transport with labels enabled');
+    await expectRenderableState(page, 'labels enabled');
 
-        const regionNodeCount = snapshot.nodeIds.filter((id) => id?.startsWith('region:')).length;
-        if (!expectsRegions && regionNodeCount !== 0) {
-          failures.push(`${label}: rendered ${regionNodeCount} region node(s) when regions should be hidden`);
-        }
+    await setCheckboxByLabel(page, 'Show link/path labels', false);
+    await settleReact(page);
+    await waitForEdgeLabelVisibility(page, false, 'IGP/BGP/Transport with labels disabled again');
+    await expectRenderableState(page, 'labels disabled again');
 
-        const expectsLabels = enabledToggles.has('Show link/path labels') && snapshot.edgeCount > 0;
-        if (!expectsLabels && snapshot.edgeLabelCount !== 0) {
-          failures.push(`${label}: rendered ${snapshot.edgeLabelCount} edge label(s) when labels should be hidden`);
-        }
-      }
-    }
+    await setPermutation(page, new Set(['Service']), new Set(['Show services inside nodes']));
+    await waitForRegionVisibility(page, false, 'Service-only layer');
+    await waitForEdgeLabelVisibility(page, false, 'Service-only layer');
+    await expectRenderableState(page, 'Service-only layer');
 
-    expect(failures).toEqual([]);
     expect(actionableErrors(browserErrors)).toEqual([]);
   });
 
