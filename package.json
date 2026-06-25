@@ -27,6 +27,7 @@
     "validate:schemas": "npm --workspace topoviewer run validate:schemas",
     "validate:semantics": "npm --workspace topoviewer run validate:semantics",
     "validate:vscode-harness-build": "node scripts/check-vscode-harness-build.mjs",
+    "docs:smoke": "node scripts/require-node24.mjs && node scripts/smoke-docs-site.mjs",
     "dense:fixture": "npm --workspace topoviewer run dense:fixture",
     "benchmark:attention": "npm --workspace topoviewer run benchmark:attention",
     "benchmark:attention:smoke": "npm --workspace topoviewer run benchmark:attention:smoke",
@@ -62,7 +63,18 @@
     "zensical:setup": "bash scripts/local-zensical.sh setup",
     "zensical:build": "bash scripts/local-zensical.sh build && npm run validate:zensical",
     "zensical:serve": "bash scripts/local-zensical.sh serve",
-    "ci": "node scripts/require-node24.mjs && node scripts/ci.mjs"
+    "ci": "node scripts/require-node24.mjs && node scripts/ci.mjs",
+    "ci:env": "node scripts/require-node24.mjs && node scripts/ci.mjs --lane env",
+    "ci:generated": "node scripts/require-node24.mjs && node scripts/ci.mjs --lane generated",
+    "ci:quality": "node scripts/require-node24.mjs && node scripts/ci.mjs --lane quality",
+    "ci:schemas": "node scripts/require-node24.mjs && node scripts/ci.mjs --lane schemas",
+    "ci:build": "node scripts/require-node24.mjs && node scripts/ci.mjs --lane build",
+    "ci:docs": "node scripts/require-node24.mjs && node scripts/ci.mjs --lane docs",
+    "ci:test:topoviewer": "node scripts/require-node24.mjs && node scripts/ci.mjs --lane test:topoviewer",
+    "ci:test:harness": "node scripts/require-node24.mjs && node scripts/ci.mjs --lane test:harness",
+    "ci:perf:smoke": "node scripts/require-node24.mjs && node scripts/ci.mjs --lane perf:smoke",
+    "ci:package": "node scripts/require-node24.mjs && node scripts/ci.mjs --lane package",
+    "ci:remote-parity": "node scripts/require-node24.mjs && node scripts/ci.mjs --remote-parity"
   },
   "overrides": {
     "monaco-editor": "0.53.0"

@@ -34,5 +34,46 @@ jobs:
       - name: Install Chromium for Playwright
         run: npx playwright install --with-deps chromium
 
-      - name: Run CI
-        run: npm run ci
+      - name: Report environment
+        run: npm run ci:env
+
+      - name: Check generated content
+        run: npm run ci:generated
+
+      - name: Lint and typecheck
+        run: npm run ci:quality
+
+      - name: Validate schemas and semantics
+        run: npm run ci:schemas
+
+      - name: Build packages and synced assets
+        run: npm run ci:build
+
+      - name: Build and smoke documentation targets
+        run: npm run ci:docs
+
+      - name: Test TopoViewer package
+        run: npm run ci:test:topoviewer
+
+      - name: Test VS Code harness
+        run: npm run ci:test:harness
+
+      - name: Run performance smoke
+        run: npm run ci:perf:smoke
+
+      - name: Inspect package artifacts
+        run: npm run ci:package
+
+      - name: Upload failure artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-failure-artifacts
+          if-no-files-found: ignore
+          path: |
+            site
+            .artifacts
+            packages/topoviewer/test-results
+            packages/topoviewer/playwright-report
+            packages/vscode-topoviewer/test-results
+            packages/vscode-topoviewer/playwright-report

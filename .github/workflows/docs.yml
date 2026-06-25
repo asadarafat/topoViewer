@@ -43,24 +43,33 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install mkdocs-material
 
-      - name: Build viewer and plugin assets
+      - name: Install Chromium for Playwright
+        run: npx playwright install --with-deps chromium
+
+      - name: Report environment
+        run: npm run ci:env
+
+      - name: Build and smoke documentation targets
+        run: npm run ci:docs
+
+      - name: Build MkDocs wheel
         run: |
-          npm run build
-          npm run sync:mkdocs-assets
           npm run wheel:mkdocs
           python -m pip install .artifacts/wheels/*.whl
 
-      - name: Generate documentation pages
-        run: npm run sync:docs
-
-      - name: Build MkDocs site
-        run: mkdocs build --strict
-
-      - name: Build Zensical site
-        run: TOPOVIEWER_ZENSICAL_SKIP_VIEWER_BUILD=1 npm run zensical:build
-
-      - name: Build VS Code browser harness
-        run: npm run vscode:harness:build
+      - name: Upload failure artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs-failure-artifacts
+          if-no-files-found: ignore
+          path: |
+            site
+            .artifacts
+            packages/topoviewer/test-results
+            packages/topoviewer/playwright-report
+            packages/vscode-topoviewer/test-results
+            packages/vscode-topoviewer/playwright-report
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v5
