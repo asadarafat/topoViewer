@@ -650,7 +650,11 @@ test('applies and reverts YAML drafts without live canvas mutation', async ({ pa
 
   await page.getByRole('button', { name: 'Apply', exact: true }).click();
   await expect.poll(() => topologyText(page)).toContain('name: FRA-PE-Draft');
-  await expect(graphNodeByLabel(page, 'FRA-PE-Draft')).toBeVisible();
+  await expect.poll(() => page.evaluate(() => {
+    const document = (window as any).__topoviewerHarnessValidation?.document;
+    return document?.graph?.nodes?.find((node: { id: string }) => node.id === 'fra-pe')?.name;
+  })).toBe('FRA-PE-Draft');
+  await expect(graphNodeByLabel(page, 'FRA-PE-Draft')).toHaveCount(1);
   await expect(page.getByRole('button', { name: 'Apply', exact: true })).toBeDisabled();
 
   const revertedDraft = (await topologyText(page)).replace('name: FRA-PE-Draft', 'name: FRA-PE-Revert-Candidate');
@@ -660,7 +664,12 @@ test('applies and reverts YAML drafts without live canvas mutation', async ({ pa
 
   await expect.poll(() => topologyText(page)).toContain('name: FRA-PE-Draft');
   await expect.poll(() => topologyText(page)).not.toContain('name: FRA-PE-Revert-Candidate');
-  await expect(graphNodeByLabel(page, 'FRA-PE-Draft')).toBeVisible();
+  await expect.poll(() => page.evaluate(() => {
+    const document = (window as any).__topoviewerHarnessValidation?.document;
+    return document?.graph?.nodes?.find((node: { id: string }) => node.id === 'fra-pe')?.name;
+  })).toBe('FRA-PE-Draft');
+  await expect(graphNodeByLabel(page, 'FRA-PE-Draft')).toHaveCount(1);
+  await expect(graphNodeByLabel(page, 'FRA-PE-Revert-Candidate')).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'Revert draft' })).toBeDisabled();
 });
 
