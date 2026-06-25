@@ -3,7 +3,7 @@ import '../../../topoviewer/src/styles.css';
 import { Alert, AppBar, Box, Button, Chip, CircularProgress, IconButton, Paper, Toolbar, Tooltip, Typography } from '@mui/material';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 import LightModeIcon from '@mui/icons-material/LightMode';
-import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import MenuBookIcon from '@mui/icons-material/MenuBook';
 import { TopoViewer, type TopoDocument, type TopoViewerNodePositionChange, type TopoViewerObjectClick } from 'topoviewer';
 import type { Dispatch, RefObject, SetStateAction } from 'react';
 import type { Theme } from '@mui/material/styles';
@@ -36,7 +36,6 @@ interface PreviewPanelProps {
   handleObjectClick: (object: TopoViewerObjectClick) => void;
   hasErrors: boolean;
   hasExportBlockers: boolean;
-  host: TopoViewerWebviewHost;
   loading: boolean;
   previewRef: RefObject<HTMLDivElement>;
   redoStack: DocumentTransaction[];
@@ -76,6 +75,11 @@ export function ShellHeader({ host, nextThemeMode, onToggleThemeMode, themeMode 
         <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>TopoViewer</Typography>
         <Chip size="small" label={host.kind === 'browser' ? 'Browser harness' : 'VS Code webview'} color={host.kind === 'browser' ? 'info' : 'primary'} />
         <Box sx={{ flex: 1 }} />
+        <Tooltip title="Open TopoViewer docs">
+          <IconButton aria-label="Open TopoViewer docs" color="inherit" size="small" onClick={() => host.openDocs('topoviewer/integration-roadmap/')}>
+            <MenuBookIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
         {themeMode && onToggleThemeMode && (
           <Tooltip title={`Switch to ${nextThemeMode} mode`}>
             <IconButton aria-label={`Switch to ${nextThemeMode} mode`} color="inherit" size="small" onClick={onToggleThemeMode}>
@@ -118,13 +122,12 @@ export function ResizeDivider({ clamp, defaultSplitPercent, maxSplitPercent, min
   );
 }
 
-export function PreviewPanel({ exportImage, exportTooltip, handleNodePositionChange, handleObjectClick, hasErrors, hasExportBlockers, host, loading, previewRef, redoStack, redoTopology, selectedLayerIds, selectedObjectIds, setSelectedObjects, undoStack, undoTopology, visibleDocument }: PreviewPanelProps) {
+export function PreviewPanel({ exportImage, exportTooltip, handleNodePositionChange, handleObjectClick, hasErrors, hasExportBlockers, loading, previewRef, redoStack, redoTopology, selectedLayerIds, selectedObjectIds, setSelectedObjects, undoStack, undoTopology, visibleDocument }: PreviewPanelProps) {
   return (
     <Paper className="topoviewer-vscode-preview" elevation={0} ref={previewRef}>
       <Box className="topoviewer-vscode-preview-actions">
         <Button size="small" disabled={!undoStack.length} onClick={undoTopology}>Undo</Button>
         <Button size="small" disabled={!redoStack.length} onClick={redoTopology}>Redo</Button>
-        <Button size="small" startIcon={<OpenInNewIcon />} onClick={() => host.openDocs('topoviewer/integration-roadmap/')}>Docs</Button>
       </Box>
       {loading && <CircularProgress />}
       {!loading && hasErrors && <Alert severity="error">Fix diagnostics before the preview can render.</Alert>}

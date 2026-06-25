@@ -984,7 +984,7 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
 
         <ResizeDivider clamp={clamp} defaultSplitPercent={defaultSplitPercent} maxSplitPercent={maxSplitPercent} minSplitPercent={minSplitPercent} setResizing={setResizing} setSplitPercent={setSplitPercent} splitPercent={splitPercent} updateSplitFromClientX={updateSplitFromClientX} />
 
-        <PreviewPanel exportImage={exportImage} exportTooltip={exportTooltip} handleNodePositionChange={handleNodePositionChange} handleObjectClick={handleObjectClick} hasErrors={appliedHasErrors} hasExportBlockers={hasExportBlockers} host={host} loading={loading} previewRef={previewRef} redoStack={redoStack} redoTopology={redoTopology} selectedLayerIds={selectedLayerIds} selectedObjectIds={selectedObjectIds(selectedObjects)} setSelectedObjects={setSelectedObjects} undoStack={undoStack} undoTopology={undoTopology} visibleDocument={visibleDocument} />
+        <PreviewPanel exportImage={exportImage} exportTooltip={exportTooltip} handleNodePositionChange={handleNodePositionChange} handleObjectClick={handleObjectClick} hasErrors={appliedHasErrors} hasExportBlockers={hasExportBlockers} loading={loading} previewRef={previewRef} redoStack={redoStack} redoTopology={redoTopology} selectedLayerIds={selectedLayerIds} selectedObjectIds={selectedObjectIds(selectedObjects)} setSelectedObjects={setSelectedObjects} undoStack={undoStack} undoTopology={undoTopology} visibleDocument={visibleDocument} />
       </Box>
     </Box>
   );
