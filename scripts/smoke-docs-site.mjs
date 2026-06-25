@@ -1,25 +1,13 @@
 #!/usr/bin/env node
 
 import fs from 'node:fs';
-import http from 'node:http';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from '@playwright/test';
+import { createDocsStaticServer, pagesBasePath } from './lib/docs-static-server.mjs';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const siteRoot = path.join(repoRoot, 'site');
-const pagesBasePath = '/TopoViewer';
-
-const mimeTypes = new Map([
-  ['.css', 'text/css; charset=utf-8'],
-  ['.html', 'text/html; charset=utf-8'],
-  ['.js', 'text/javascript; charset=utf-8'],
-  ['.json', 'application/json; charset=utf-8'],
-  ['.png', 'image/png'],
-  ['.svg', 'image/svg+xml'],
-  ['.yaml', 'application/yaml; charset=utf-8'],
-  ['.yml', 'application/yaml; charset=utf-8']
-]);
 
 function fail(message) {
   console.error(message);
@@ -28,59 +16,6 @@ function fail(message) {
 
 if (!fs.existsSync(siteRoot)) {
   fail('Docs smoke requires a built site/ directory. Run npm run ci:docs or npm run docs:build first.');
-}
-
-function pathForRequest(requestUrl) {
-  const parsed = new URL(requestUrl, 'http://127.0.0.1');
-  let urlPath = decodeURIComponent(parsed.pathname);
-  if (urlPath === pagesBasePath) {
-    urlPath = '/';
-  } else if (urlPath.startsWith(`${pagesBasePath}/`)) {
-    urlPath = urlPath.slice(pagesBasePath.length);
-  }
-
-  let absolutePath = path.resolve(siteRoot, `.${urlPath}`);
-  if (!absolutePath.startsWith(siteRoot)) {
-    return undefined;
-  }
-
-  if (fs.existsSync(absolutePath) && fs.statSync(absolutePath).isDirectory()) {
-    absolutePath = path.join(absolutePath, 'index.html');
-  } else if (!fs.existsSync(absolutePath) && !path.extname(absolutePath)) {
-    absolutePath = path.join(absolutePath, 'index.html');
-  }
-
-  if (!absolutePath.startsWith(siteRoot)) {
-    return undefined;
-  }
-  return absolutePath;
-}
-
-function createStaticServer() {
-  const server = http.createServer((request, response) => {
-    const absolutePath = pathForRequest(request.url || '/');
-    if (!absolutePath || !fs.existsSync(absolutePath) || fs.statSync(absolutePath).isDirectory()) {
-      response.writeHead(404, { 'content-type': 'text/plain; charset=utf-8' });
-      response.end('Not found');
-      return;
-    }
-
-    const contentType = mimeTypes.get(path.extname(absolutePath)) || 'application/octet-stream';
-    response.writeHead(200, { 'content-type': contentType });
-    fs.createReadStream(absolutePath).pipe(response);
-  });
-
-  return new Promise((resolve, reject) => {
-    server.once('error', reject);
-    server.listen(0, '127.0.0.1', () => {
-      const address = server.address();
-      if (!address || typeof address === 'string') {
-        reject(new Error('Could not determine docs smoke server address.'));
-        return;
-      }
-      resolve({ server, baseUrl: `http://127.0.0.1:${address.port}` });
-    });
-  });
 }
 
 async function assertNoTopoViewerError(page, label) {
@@ -108,7 +43,7 @@ async function assertEmbedRendered(page, label, minimumNodes = 1, minimumEdges =
 }
 
 async function run() {
-  const { server, baseUrl } = await createStaticServer();
+  const { server, baseUrl } = await createDocsStaticServer({ siteRoot });
   const browser = await chromium.launch();
   const failures = [];
 
@@ -135,19 +70,19 @@ async function run() {
     const checks = [
       {
         label: 'MkDocs graph basic',
-        url: `${baseUrl}/TopoViewer/topoviewer/reference/graph/basic/`,
+        url: `${baseUrl}${pagesBasePath}/docs/mkdocs/topoviewer/reference/graph/basic/`,
         nodes: 2,
         edges: 1
       },
       {
         label: 'Zensical attention object focus',
-        url: `${baseUrl}/TopoViewer/zensical/topoviewer/reference/attention/object-focus/`,
+        url: `${baseUrl}${pagesBasePath}/docs/zensical/topoviewer/reference/attention/object-focus/`,
         nodes: 2,
         edges: 1
       },
       {
         label: 'VS Code browser harness',
-        url: `${baseUrl}/TopoViewer/harness/`,
+        url: `${baseUrl}${pagesBasePath}/harness/`,
         harness: true
       }
     ];

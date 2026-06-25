@@ -130,7 +130,7 @@ class TopoViewerPreviewPanel {
       await this.postState();
     }
     if (message.type === 'openDocs') {
-      await vscode.env.openExternal(vscode.Uri.parse(`https://asadarafat.github.io/TopoViewer/${message.target || ''}`));
+      await vscode.env.openExternal(vscode.Uri.parse(`https://asadarafat.github.io/topoviewer/docs/mkdocs/${message.target || ''}`));
     }
     if (isExportViewportMessage(message)) {
       await this.saveExport(message);

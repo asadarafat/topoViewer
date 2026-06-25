@@ -19,6 +19,7 @@
     "sync:zensical-docs": "node scripts/sync-zensical-docs.mjs",
     "sync:content": "node scripts/sync-content.mjs",
     "check:content": "node scripts/sync-content.mjs --check",
+    "pages:redirects": "node scripts/write-pages-redirects.mjs",
     "sync:docs-site": "node scripts/sync-docs-site.mjs",
     "sync:examples": "npm --workspace topoviewer run sync:examples",
     "sync:docs": "npm run sync:content && npm run sync:docs-site && npm run sync:examples",

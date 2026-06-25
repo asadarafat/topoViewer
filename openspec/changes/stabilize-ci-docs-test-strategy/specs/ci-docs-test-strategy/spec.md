@@ -165,7 +165,7 @@ Docs deployment SHALL validate the built artifact before GitHub Pages deploy.
 
 #### Scenario: Zensical built-site smoke
 
-- Given Zensical has built `site/zensical/**`
+- Given Zensical has built `site/docs/zensical/**`
 - When docs smoke validation runs
 - Then at least one representative TopoViewer Zensical embed SHALL load
   topology, stylesheet, and rendered graph content successfully

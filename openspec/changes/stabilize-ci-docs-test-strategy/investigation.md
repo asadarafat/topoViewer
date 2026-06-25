@@ -77,4 +77,4 @@ Docs conclusion:
   browser validation before deploy. Static checks could pass while Zensical or
   MkDocs live viewports need refresh or have bad base paths.
 - The new `docs:smoke` opens the built `site/**` artifact under the GitHub Pages
-  `/TopoViewer/` path and validates MkDocs, Zensical, and harness rendering.
+  `/topoviewer/` path and validates MkDocs, Zensical, and harness rendering.

@@ -61,7 +61,7 @@
 - [x] 6.1 Add a MkDocs built-site smoke test for at least one representative TopoViewer embed
 - [x] 6.2 Add a Zensical built-site smoke test for at least one representative TopoViewer embed
 - [x] 6.3 Add a Zensical lifecycle test that catches "requires manual refresh" regressions
-- [x] 6.4 Add a browser harness static-site smoke test for `/TopoViewer/harness/`
+- [x] 6.4 Add a browser harness static-site smoke test for `/topoviewer/harness/`
 - [x] 6.5 Validate representative selected-layer and attention attributes in deployed docs artifacts
 - [x] 6.6 Keep smoke tests local to built `site/**`, not the public GitHub Pages URL
 

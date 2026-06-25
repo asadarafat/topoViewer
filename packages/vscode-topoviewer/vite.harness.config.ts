@@ -10,7 +10,7 @@ const packageRoot = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(packageRoot, '../..');
 const contentExamplesRoot = path.join(repoRoot, 'packages/topoviewer/content/examples');
 const contentExamplesCatalog = path.join(contentExamplesRoot, 'catalog.yaml');
-const harnessBase = process.env.TOPOVIEWER_HARNESS_BASE || '/TopoViewer/harness/';
+const harnessBase = process.env.TOPOVIEWER_HARNESS_BASE || '/topoviewer/harness/';
 const harnessOutDir = process.env.TOPOVIEWER_HARNESS_OUT_DIR || path.join(repoRoot, 'site/harness');
 
 type ExampleFileKey = 'topology' | 'stylesheet';

@@ -4,7 +4,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import yaml from 'js-yaml';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const zensicalSite = path.join(repoRoot, 'site/zensical');
+const zensicalSite = path.join(repoRoot, 'site/docs/zensical');
 const zensicalDocsRoot = path.join(repoRoot, '.artifacts/zensical-docs');
 const adapterPage = path.join(zensicalSite, 'topoviewer/zensical-embed/index.html');
 const mirroredExamplePage = path.join(zensicalSite, 'topoviewer/reference/attention/object-focus/index.html');

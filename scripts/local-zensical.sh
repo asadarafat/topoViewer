@@ -97,7 +97,7 @@ case "$ACTION" in
         exec "$VENV_DIR/bin/zensical" serve --config-file "$CONFIG" --dev-addr "$HOST:$PORT"
         ;;
     clean)
-        rm -rf "$VENV_DIR" "$ROOT_DIR/site/zensical" "$ZENSICAL_DOCS_DIR"
+        rm -rf "$VENV_DIR" "$ROOT_DIR/site/docs/zensical" "$ZENSICAL_DOCS_DIR"
         ;;
     *)
         cat >&2 <<EOF

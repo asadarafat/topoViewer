@@ -3,7 +3,7 @@
 TopoViewer is intended to live as two separately published packages in one repository:
 
 ```text
-TopoViewer/
+topoviewer/
   package.json            # npm workspace orchestrator
   packages/
     topoviewer/           # npm package: topoviewer
@@ -76,7 +76,7 @@ When validating the public documentation targets from the repository root:
 npm run docs:preview
 ```
 
-MkDocs serves the canonical documentation site at `http://127.0.0.1:8001/TopoViewer/`. Zensical serves the parallel preview site at `http://127.0.0.1:8002/TopoViewer/zensical/`. The preview command fails instead of selecting another port when either fixed port is already in use. Use `npm run docs:build:parallel` to build the combined GitHub Pages artifact with MkDocs at `site/` and Zensical at `site/zensical/`.
+`npm run docs:preview` serves the combined GitHub Pages artifact from one local port. MkDocs is available at `http://127.0.0.1:8001/topoviewer/docs/mkdocs/`, Zensical is available at `http://127.0.0.1:8001/topoviewer/docs/zensical/`, and the browser harness is available at `http://127.0.0.1:8001/topoviewer/harness/`. The preview command fails instead of selecting another port when the fixed port is already in use. Use `npm run docs:build:parallel` to build the combined GitHub Pages artifact with MkDocs at `site/docs/mkdocs/`, Zensical at `site/docs/zensical/`, and the harness at `site/harness/`.
 
 After building the static site, run:
 
@@ -85,7 +85,7 @@ npm run docs:smoke
 ```
 
 That opens the built MkDocs, Zensical, and harness pages through Chromium using
-the same `/TopoViewer/` path shape as GitHub Pages.
+the same `/topoviewer/` path shape as GitHub Pages.
 
 When validating the RTFM integration, the RTFM Makefile can build a local wheel from `mkdocs-topoviewer` and install it into the vanilla MkDocs Material container. That keeps the docs build close to the eventual user install model while still using local source during development.
 

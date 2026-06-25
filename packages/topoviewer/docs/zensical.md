@@ -82,12 +82,12 @@ Local preview uses the same path shape as the published GitHub Pages site, but w
 
 | Target | Local preview | Published GitHub Pages |
 | --- | --- | --- |
-| MkDocs | `http://127.0.0.1:8001/TopoViewer/` | `https://asadarafat.github.io/TopoViewer/` |
-| Zensical | `http://127.0.0.1:8002/TopoViewer/zensical/` | `https://asadarafat.github.io/TopoViewer/zensical/` |
+| MkDocs | `http://127.0.0.1:8001/topoviewer/docs/mkdocs/` | `https://asadarafat.github.io/topoviewer/docs/mkdocs/` |
+| Zensical | `http://127.0.0.1:8001/topoviewer/docs/zensical/` | `https://asadarafat.github.io/topoviewer/docs/zensical/` |
 
 If either local port is already in use, the serve command exits with a clear error instead of selecting another port. Release the port and rerun the command.
 
-The lowercase `http://127.0.0.1:8002/topoviewer/zensical/` route is the mirrored TopoViewer Integration page for this adapter, not the Zensical site root.
+When running the targeted `npm run zensical:serve` command, Zensical still uses its own development server. The production-like `npm run docs:preview` command is the preferred local review path because it serves MkDocs, Zensical, and the browser harness from the same `/topoviewer/` base.
 
 ## Generated Files
 

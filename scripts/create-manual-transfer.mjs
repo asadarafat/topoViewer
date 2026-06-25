@@ -125,7 +125,7 @@ function writeApplyInstructions(stagingDir, patchFileName, diffCount, extras) {
     '## Apply Repo Patch',
     '',
     '```bash',
-    'cd /path/to/TopoViewer',
+    'cd /path/to/topoviewer',
     'git status --short',
     `git apply --check /path/to/${patchFileName}`,
     `git apply /path/to/${patchFileName}`,

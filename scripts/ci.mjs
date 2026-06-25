@@ -79,6 +79,7 @@ const laneDefinitions = {
     step('build Zensical site', 'npm', ['run', 'zensical:build'], { env: { TOPOVIEWER_ZENSICAL_SKIP_VIEWER_BUILD: '1' } }),
     step('check Zensical generated config is committed', 'node', ['scripts/check-git-clean.mjs', ...ZENSICAL_GENERATED_PATHS]),
     step('build VS Code harness site', 'npm', ['run', 'vscode:harness:build']),
+    step('write Pages redirects', 'npm', ['run', 'pages:redirects']),
     step('smoke built docs site', 'npm', ['run', 'docs:smoke'])
   ],
   'test:topoviewer': [

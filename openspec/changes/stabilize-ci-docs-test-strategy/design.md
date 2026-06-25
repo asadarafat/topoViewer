@@ -306,7 +306,7 @@ Preview commands should fail clearly when their fixed ports are occupied,
 because users need stable URLs:
 
 - MkDocs: `127.0.0.1:8001`
-- Zensical: `127.0.0.1:8002`
+- Zensical targeted serve: `127.0.0.1:8002`
 - harness: Vite's configured harness port
 
 Test commands should not depend on those preview ports. Under `CI=true`, they
@@ -456,9 +456,9 @@ Coverage:
 - live smoke test against `site/`:
   - MkDocs home loads;
   - a representative MkDocs TopoViewer embed hydrates;
-  - Zensical route `/TopoViewer/zensical/` loads;
+  - Zensical route `/topoviewer/docs/zensical/` loads;
   - a representative Zensical embed hydrates without manual refresh;
-  - `/TopoViewer/harness/` loads the browser harness shell and fixture index.
+  - `/topoviewer/harness/` loads the browser harness shell and fixture index.
 
 Recommendations:
 
