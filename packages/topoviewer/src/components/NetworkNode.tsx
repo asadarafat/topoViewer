@@ -55,46 +55,46 @@ function NodeShapeSvg({
 
   switch (type) {
     case 'triangle':
-      return <polygon points={points([[50, 8], [92, 88], [8, 88]])} {...common} />;
+      return <polygon points={points([[50, 0], [100, 100], [0, 100]])} {...common} />;
     case 'circle':
-      return <circle cx="50" cy="50" r="40" {...common} />;
+      return <circle cx="50" cy="50" r="50" {...common} />;
     case 'square':
-      return <rect x="16" y="16" width="68" height="68" rx="2" {...common} />;
+      return <rect x="0" y="0" width="100" height="100" rx="2" {...common} />;
     case 'rectangle':
-      return <rect x="10" y="18" width="80" height="64" rx="2" {...common} />;
+      return <rect x="0" y="0" width="100" height="100" rx="2" {...common} />;
     case 'roundRectangle':
-      return <rect x="10" y="18" width="80" height="64" rx="13" {...common} />;
+      return <rect x="0" y="0" width="100" height="100" rx="13" {...common} />;
     case 'bottomRoundRectangle':
-      return <path d="M10 16 H90 V62 Q90 84 68 84 H32 Q10 84 10 62 Z" {...common} />;
+      return <path d="M0 0 H100 V72 Q100 100 72 100 H28 Q0 100 0 72 Z" {...common} />;
     case 'cutRectangle':
-      return <polygon points={points([[24, 12], [90, 12], [90, 76], [76, 90], [10, 90], [10, 24]])} {...common} />;
+      return <polygon points={points([[18, 0], [100, 0], [100, 82], [82, 100], [0, 100], [0, 18]])} {...common} />;
     case 'barrel':
-      return <path d="M22 12 C12 28 12 72 22 88 H78 C88 72 88 28 78 12 Z" {...common} />;
+      return <path d="M18 0 C0 18 0 82 18 100 H82 C100 82 100 18 82 0 Z" {...common} />;
     case 'rhomboid':
-      return <polygon points={points([[30, 14], [92, 14], [70, 86], [8, 86]])} {...common} />;
+      return <polygon points={points([[28, 0], [100, 0], [72, 100], [0, 100]])} {...common} />;
     case 'diamond':
-      return <polygon points={points([[50, 8], [92, 50], [50, 92], [8, 50]])} {...common} />;
+      return <polygon points={points([[50, 0], [100, 50], [50, 100], [0, 50]])} {...common} />;
     case 'pentagon':
-      return <polygon points={points([[50, 7], [92, 38], [76, 90], [24, 90], [8, 38]])} {...common} />;
+      return <polygon points={points([[50, 0], [100, 36], [82, 100], [18, 100], [0, 36]])} {...common} />;
     case 'hexagon':
-      return <polygon points={points([[28, 10], [72, 10], [92, 50], [72, 90], [28, 90], [8, 50]])} {...common} />;
+      return <polygon points={points([[25, 0], [75, 0], [100, 50], [75, 100], [25, 100], [0, 50]])} {...common} />;
     case 'concaveHexagon':
-      return <polygon points={points([[22, 10], [78, 10], [62, 50], [78, 90], [22, 90], [38, 50]])} {...common} />;
+      return <polygon points={points([[0, 0], [100, 0], [66, 50], [100, 100], [0, 100], [34, 50]])} {...common} />;
     case 'heptagon':
-      return <polygon points={points([[50, 7], [82, 20], [94, 52], [74, 88], [26, 88], [6, 52], [18, 20]])} {...common} />;
+      return <polygon points={points([[50, 0], [86, 14], [100, 50], [78, 100], [22, 100], [0, 50], [14, 14]])} {...common} />;
     case 'octagon':
-      return <polygon points={points([[32, 10], [68, 10], [90, 32], [90, 68], [68, 90], [32, 90], [10, 68], [10, 32]])} {...common} />;
+      return <polygon points={points([[30, 0], [70, 0], [100, 30], [100, 70], [70, 100], [30, 100], [0, 70], [0, 30]])} {...common} />;
     case 'star':
-      return <polygon points={points([[50, 7], [61, 34], [91, 34], [67, 54], [76, 86], [50, 67], [24, 86], [33, 54], [9, 34], [39, 34]])} {...common} />;
+      return <polygon points={points([[50, 0], [63, 33], [100, 33], [70, 55], [82, 100], [50, 73], [18, 100], [30, 55], [0, 33], [37, 33]])} {...common} />;
     case 'tag':
-      return <polygon points={points([[10, 20], [68, 20], [92, 50], [68, 80], [10, 80]])} {...common} />;
+      return <polygon points={points([[0, 0], [70, 0], [100, 50], [70, 100], [0, 100]])} {...common} />;
     case 'vee':
-      return <polygon points={points([[9, 14], [50, 48], [91, 14], [74, 90], [50, 68], [26, 90]])} {...common} />;
+      return <polygon points={points([[0, 0], [50, 40], [100, 0], [78, 100], [50, 74], [22, 100]])} {...common} />;
     case 'polygon':
-      return <polygon points={polygonPoints || points([[50, 8], [92, 50], [50, 92], [8, 50]])} {...common} />;
+      return <polygon points={polygonPoints || points([[50, 0], [100, 50], [50, 100], [0, 50]])} {...common} />;
     case 'ellipse':
     default:
-      return <ellipse cx="50" cy="50" rx="40" ry="28" {...common} />;
+      return <ellipse cx="50" cy="50" rx="50" ry="50" {...common} />;
   }
 }
 
@@ -167,6 +167,7 @@ export function NetworkNode({ data }: { data: CompiledNodeData }) {
         <svg
           className="topoviewer-node-geometry"
           viewBox="0 0 100 100"
+          preserveAspectRatio="none"
           role="presentation"
           focusable="false"
           data-node-shape={nodeShapeType}
