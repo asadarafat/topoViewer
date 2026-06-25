@@ -12,6 +12,7 @@ Current active plans:
 - `changes/define-opsmill-infrahub-integration-roadmap/` - planned OpsMill/Infrahub feasibility, use cases, first integration shape, and roadmap wording constraints.
 - `changes/define-grafana-integration-roadmap/` - planned Grafana feasibility, use cases, first integration shape, and roadmap wording constraints.
 - `changes/add-label-z-index-style-control/` - planned canonical `labelZIndex` style control for independent label draw order across dense topology views.
+- `changes/harden-vscode-harness-authoring-ux/` - planned browser harness and VS Code authoring UX hardening for real export, context-aware YAML assist, reliable keyboard behavior, candidate/apply editing, and durable diagnostics.
 
 Current studies:
 

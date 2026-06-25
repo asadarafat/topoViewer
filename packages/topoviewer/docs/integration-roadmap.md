@@ -11,7 +11,7 @@ TopoViewer currently supports the React/TypeScript package, the MkDocs plugin, a
 | Zensical | Supported adapter | Build the mirrored Zensical site from shared docs and static TopoViewer embed assets. |
 | NetBox | Feasibility | Build a NetBox plugin that renders TopoViewer diagrams inside NetBox from inventory and mapping profiles. |
 | OpsMill / Infrahub | Feasibility | Build an in-platform OpsMill/Infrahub extension that publishes TopoViewer views or artifacts from graph data. |
-| VS Code | Experimental package | Use `packages/vscode-topoviewer` for a Material UI authoring preview, schema validation, semantic lint, fixture workflow, browser-test harness, and export command wiring. |
+| VS Code | Experimental package | Use `packages/vscode-topoviewer` for a Material UI authoring preview, schema-backed YAML assist, candidate Apply/Revert workflow, semantic diagnostics, fixture workflow, browser-test harness, and PNG export wiring. |
 | Grafana | Exploratory | Spike a panel plugin that maps Grafana data frames or JSON payloads into TopoViewer props. |
 
 ## NetBox
@@ -54,7 +54,7 @@ Infrahub schemas are flexible, so any plugin or extension must use explicit mapp
 VS Code now has an experimental authoring package in `packages/vscode-topoviewer`:
 
 ```text
-topology.yaml + stylesheet.yaml -> schema validation + semantic lint -> Material UI live preview webview
+topology.yaml + stylesheet.yaml -> schema-backed YAML assist -> candidate Apply/Revert -> semantic lint -> Material UI live preview webview
 ```
 
 Current shape:
@@ -62,13 +62,16 @@ Current shape:
 - command-based preview for `.yaml` and `.yml` authoring files;
 - configurable pairing between `topology.yaml` and `stylesheet.yaml`;
 - shared React and Material UI webview used by VS Code and the browser harness;
-- schema validation and semantic lint from the existing TopoViewer package;
-- layer toggles, source tabs, diagnostics, docs link, and export command wiring.
+- schema validation, schema-backed key suggestions, style-value suggestions, and semantic lint from the existing TopoViewer package;
+- candidate editing where YAML drafts do not mutate the canvas until Apply succeeds;
+- durable diagnostics with line navigation and editor markers;
+- layer toggles, source tabs, docs link, and PNG export wiring for browser and VS Code hosts.
 
 Use cases:
 
 - live preview while editing YAML;
-- schema validation and completion;
+- schema validation, indentation-aware YAML assist, and typed style-value completion;
+- safe YAML draft review before changing the rendered canvas;
 - semantic diagnostics for missing references and invalid selectors;
 - commands to create examples, open docs, run validation, and export screenshots.
 
