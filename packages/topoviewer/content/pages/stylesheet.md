@@ -109,12 +109,38 @@ stylesheet:
 
 Hardcoded pale labels such as `#e5e7eb` look good in dark mode but disappear in light mode because `labelColor` is compiled into an inline style and overrides the theme fallback.
 
+## Node sizing
+
+Use `width` and `height` for the visible node body. The node shape, border, underlay, edge anchor, and default icon/image area use this body size.
+
+Use `iconSize`, `iconWidth`, or `iconHeight` only when the icon glyph or image should be smaller than the body.
+
+```yaml
+stylesheet:
+  - selector: node
+    style:
+      shape: square
+      width: 120
+      height: 120
+```
+
+```yaml
+stylesheet:
+  - selector: node
+    style:
+      shape: square
+      width: 120
+      height: 120
+      iconSize: 72
+      iconFit: contain
+```
+
 | Key | Values | Use |
 |---|---|---|
 | `icon` | icon key | Selects an icon from `icons`. |
-| `iconSize` | number | Sets equal icon width and height. |
-| `iconWidth`, `iconHeight` | number | Sets asymmetric icon size. |
-| `width`, `height` | number | Node body size. |
+| `width`, `height` | number | Visible node body size. Also sets the default edge anchor and default icon/image area. |
+| `iconSize` | number | Sets equal inner icon/image width and height when it should differ from the body. |
+| `iconWidth`, `iconHeight` | number | Sets asymmetric inner icon/image size when it should differ from the body. |
 | `shape` | node shape name | Node body shape. |
 | `shapePolygonPoints` | number array or string | Custom polygon points when `shape: polygon` is used. |
 | `backgroundColor` | CSS color | Icon fill/background. |

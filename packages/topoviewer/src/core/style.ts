@@ -287,8 +287,8 @@ export function compileNodeStyle(style: StyleDeclaration, entity: GraphEntity, s
   const icon = iconForStyle(style, entity, spec);
   const width = Number(valueOrDefault(style.width as number | undefined, 82));
   const height = Number(valueOrDefault(style.height as number | undefined, 60));
-  const iconWidth = Number(valueOrDefault((style.iconWidth ?? style.iconSize) as number | undefined, 34));
-  const iconHeight = Number(valueOrDefault((style.iconHeight ?? style.iconSize) as number | undefined, 34));
+  const iconWidth = Number(valueOrDefault((style.iconWidth ?? style.iconSize) as number | undefined, width));
+  const iconHeight = Number(valueOrDefault((style.iconHeight ?? style.iconSize) as number | undefined, height));
   const shape = normalizeNodeShape(style.shape) || 'ellipse';
   const shapePoints = parseNodeShapePoints(style.shapePolygonPoints).points;
   const fill = String(style.backgroundColor || icon.fill);
@@ -324,22 +324,22 @@ export function compileNodeStyle(style: StyleDeclaration, entity: GraphEntity, s
       nodeShapePoints: shape === 'polygon' ? nodeShapePointsToSvg(shapePoints) : undefined,
       labelHtml: markdownToHtml(displayName(entity)),
       edgeAnchor: {
-        x: (width - iconWidth) / 2,
+        x: 0,
         y: 0,
-        width: iconWidth,
-        height: iconHeight
+        width,
+        height
       },
       nodeStyle: withoutUndefined({
         width,
         minHeight: height,
-        '--topoviewer-node-icon-width': `${iconWidth}px`,
-        '--topoviewer-node-icon-height': `${iconHeight}px`,
+        '--topoviewer-node-icon-width': `${width}px`,
+        '--topoviewer-node-icon-height': `${height}px`,
         '--topoviewer-node-label-x-offset': cssPixel(style.labelXOffset) || '0px',
         '--topoviewer-node-label-y-offset': cssPixel(style.labelYOffset) || '0px'
       }),
       iconStyle: withoutUndefined({
-        width: iconWidth,
-        height: iconHeight,
+        width,
+        height,
         borderColor: stroke,
         borderWidth,
         backgroundColor: fill,
@@ -347,6 +347,8 @@ export function compileNodeStyle(style: StyleDeclaration, entity: GraphEntity, s
         opacity: opacityNumber(style.iconOpacity)
       }),
       iconContentStyle: withoutUndefined({
+        width: iconWidth,
+        height: iconHeight,
         padding: cssPadding(style.iconPadding),
         backgroundColor: style.iconBackgroundColor,
         opacity: opacityNumber(style.iconOpacity)
@@ -373,8 +375,8 @@ export function compileNodeStyle(style: StyleDeclaration, entity: GraphEntity, s
         fillOpacity: opacityNumber(style.underlayOpacity),
         stroke: 'none',
         display: underlayPadding !== undefined && style.underlayColor !== undefined ? undefined : 'none',
-        '--topoviewer-node-underlay-scale-x': underlayPadding === undefined ? undefined : String(1 + (underlayPadding * 2) / Math.max(iconWidth, 1)),
-        '--topoviewer-node-underlay-scale-y': underlayPadding === undefined ? undefined : String(1 + (underlayPadding * 2) / Math.max(iconHeight, 1))
+        '--topoviewer-node-underlay-scale-x': underlayPadding === undefined ? undefined : String(1 + (underlayPadding * 2) / Math.max(width, 1)),
+        '--topoviewer-node-underlay-scale-y': underlayPadding === undefined ? undefined : String(1 + (underlayPadding * 2) / Math.max(height, 1))
       }),
       labelPosition,
       labelZIndex: finiteNumber(style.labelZIndex),

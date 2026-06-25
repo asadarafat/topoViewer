@@ -11,7 +11,7 @@ graph:
       layers:
         - underlay
       position:
-        - 212
+        - 306
         - 69
     - id: Spine-2
       name: Spine-2
@@ -29,8 +29,8 @@ graph:
       layers:
         - underlay
       position:
-        - 99
-        - 301
+        - 159
+        - 293
     - id: Leaf-2
       name: Leaf-2
       labels:

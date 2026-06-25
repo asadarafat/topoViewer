@@ -205,6 +205,112 @@ describe('compileTopoGraph', () => {
     });
   });
 
+  it('uses width and height as the visible node body size', () => {
+    const compiled = compileTopoGraph({
+      version: '1.0',
+      graph: {
+        layers: [{ id: 'physical', name: 'Physical' }],
+        nodes: [
+          { id: 'router-1', name: 'Router 1', layers: ['physical'], position: [0, 0] }
+        ]
+      },
+      stylesheet: [
+        {
+          selector: 'node',
+          style: {
+            shape: 'square',
+            width: 120,
+            height: 120
+          }
+        }
+      ]
+    }, ['physical']);
+
+    const node = compiled.nodes[0];
+    const nodeData = node?.data as CompiledNodeData;
+
+    expect(node?.style).toMatchObject({ width: 120 });
+    expect(nodeData.nodeStyle).toMatchObject({
+      width: 120,
+      minHeight: 120,
+      '--topoviewer-node-icon-width': '120px',
+      '--topoviewer-node-icon-height': '120px'
+    });
+    expect(nodeData.iconStyle).toMatchObject({
+      width: 120,
+      height: 120
+    });
+    expect(nodeData.iconContentStyle).toMatchObject({
+      width: 120,
+      height: 120
+    });
+    expect(nodeData.edgeAnchor).toMatchObject({
+      x: 0,
+      y: 0,
+      width: 120,
+      height: 120
+    });
+  });
+
+  it('uses icon size controls as inner icon content overrides', () => {
+    const compiled = compileTopoGraph({
+      version: '1.0',
+      graph: {
+        layers: [{ id: 'physical', name: 'Physical' }],
+        nodes: [
+          { id: 'router-1', name: 'Router 1', layers: ['physical'], position: [0, 0] },
+          { id: 'router-2', name: 'Router 2', layers: ['physical'], position: [200, 0], labels: { size: 'wide' } }
+        ]
+      },
+      stylesheet: [
+        {
+          selector: 'node',
+          style: {
+            width: 120,
+            height: 96,
+            iconSize: 64
+          }
+        },
+        {
+          selector: 'node[labels.size = "wide"]',
+          style: {
+            iconWidth: 88,
+            iconHeight: 52
+          }
+        }
+      ]
+    }, ['physical']);
+
+    const router1 = compiled.nodes.find((node) => node.id === 'router-1')?.data as CompiledNodeData;
+    const router2 = compiled.nodes.find((node) => node.id === 'router-2')?.data as CompiledNodeData;
+
+    expect(router1.iconStyle).toMatchObject({
+      width: 120,
+      height: 96
+    });
+    expect(router1.iconContentStyle).toMatchObject({
+      width: 64,
+      height: 64
+    });
+    expect(router1.edgeAnchor).toMatchObject({
+      width: 120,
+      height: 96
+    });
+
+    expect(router2.iconStyle).toMatchObject({
+      width: 120,
+      height: 96
+    });
+    expect(router2.iconContentStyle).toMatchObject({
+      width: 88,
+      height: 52
+    });
+    expect(router2.edgeAnchor).toMatchObject({
+      width: 120,
+      height: 96
+    });
+  });
+
   it('assigns lane metadata to visible parallel links', () => {
     const document: TopoDocument = {
       version: '1.0',

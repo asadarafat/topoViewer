@@ -61,17 +61,18 @@ stylesheet:
     style:
       icon: router.nokia
       shape: square
-      width: 98
-      height: 62
+      width: 120
+      height: 120
       borderWidth: 4
       labelFontWeight: 800
       labelBackgroundColor: "#d19d02ff"
       labelBackgroundOpacity: 1
-      labelZIndex: 1
+      labelZIndex: 10
+      labelYOffset: 10
+      labelPadding: 2
   - selector: link
     style:
       lineWidth: 2
-      lineColor: "#60a5fa"
       targetArrowShape: none
       curveStyle: straight
       label: Link
