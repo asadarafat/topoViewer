@@ -251,7 +251,7 @@ test('keeps Inspect semantic key/value rows aligned at the default authoring rai
   await page.goto('/');
   await waitForHarnessReady(page);
 
-  await page.locator('.react-flow__node').filter({ hasText: 'FRA-PE' }).click();
+  await graphNodeByLabel(page, 'FRA-PE').click();
   const inspector = page.locator('.topoviewer-vscode-inspector-pane');
   await expect(inspector.getByLabel('Object name')).toHaveValue('node:fra-pe');
   await inspector.getByText('Labels', { exact: true }).scrollIntoViewIfNeeded();
@@ -274,7 +274,7 @@ test('keeps Inspect semantic key/value rows aligned at the minimum authoring rai
   await page.goto('/');
   await waitForHarnessReady(page);
 
-  await page.locator('.react-flow__node').filter({ hasText: 'FRA-PE' }).click();
+  await graphNodeByLabel(page, 'FRA-PE').click();
   const inspector = page.locator('.topoviewer-vscode-inspector-pane');
   await expect(inspector.getByLabel('Object name')).toHaveValue('node:fra-pe');
   await inspector.getByText('Labels', { exact: true }).scrollIntoViewIfNeeded();
@@ -339,7 +339,7 @@ test('inserts objects into structured topology YAML and supports undo and redo',
   await expect(redoButton).toBeDisabled();
 
   await page.getByRole('button', { name: 'Insert Node' }).click();
-  await expect(page.locator('.react-flow__node').filter({ hasText: 'New Node' })).toBeVisible();
+  await expect(graphNodeByLabel(page, 'New Node')).toBeVisible();
   await page.getByRole('tab', { name: 'YAML', exact: true }).click();
   await expect.poll(() => topologyText(page)).toContain('id: node-1');
   await expect.poll(() => topologyText(page)).toContain('layers:');
@@ -367,7 +367,7 @@ test('creates saved topologies, reverts templates, and copies YAML', async ({ pa
   await expect.poll(() => topologyText(page)).toContain('id: custom-topology');
 
   await page.getByRole('button', { name: 'Insert Node' }).click();
-  await expect(page.locator('.react-flow__node').filter({ hasText: 'New Node' })).toBeVisible();
+  await expect(graphNodeByLabel(page, 'New Node')).toBeVisible();
   await expect.poll(() => topologyText(page)).toContain('id: node-1');
   await page.getByRole('button', { name: 'Save', exact: true }).click();
   await expect(page.locator('.topoviewer-vscode-diagnostic-strip')).toContainText('Saved topology');
@@ -533,7 +533,7 @@ test('persists dragged node positions into topology YAML with undo and redo', as
   const before = nodePosition(await topologyText(page), 'fra-pe');
   expect(before).toEqual({ x: 150, y: 260 });
 
-  const node = page.locator('.react-flow__node').filter({ hasText: 'FRA-PE' }).first();
+  const node = graphNodeByLabel(page, 'FRA-PE').first();
   const box = await node.boundingBox();
   expect(box).not.toBeNull();
   await page.mouse.move(box!.x + box!.width / 2, box!.y + box!.height / 2);
@@ -566,7 +566,7 @@ test('updates selected object properties and deletes with reversible YAML mutati
   await page.goto('/');
   await waitForHarnessReady(page);
 
-  await page.locator('.react-flow__node').filter({ hasText: 'FRA-PE' }).click();
+  await graphNodeByLabel(page, 'FRA-PE').click();
   const inspector = page.locator('.topoviewer-vscode-inspector-pane');
   await expect(inspector.getByLabel('Object name')).toHaveValue('node:fra-pe');
   await expect(inspector.getByLabel('Display name')).toHaveValue('FRA-PE');
@@ -677,7 +677,7 @@ test('creates a selected node style rule and opens YAML suggestions', async ({ p
   await page.goto('/');
   await waitForHarnessReady(page);
 
-  await page.locator('.react-flow__node').filter({ hasText: 'FRA-PE' }).click();
+  await graphNodeByLabel(page, 'FRA-PE').click();
   await page.getByRole('tab', { name: 'YAML', exact: true }).click();
   await page.getByRole('button', { name: 'Style in YAML' }).click();
   await expect(page.getByRole('tab', { name: 'Stylesheet YAML' })).toHaveAttribute('aria-selected', 'true');
@@ -717,14 +717,14 @@ test('authors attention focus, interaction, aggregation, and link grouping YAML'
 
   await page.getByRole('tab', { name: 'Attention', exact: true }).click();
   const attention = page.locator('.topoviewer-vscode-attention-pane');
-  await page.locator('.react-flow__node').filter({ hasText: 'LON-PE' }).click();
+  await graphNodeByLabel(page, 'LON-PE').click();
   await expect(page.locator('.topoviewer-vscode-diagnostic-strip')).toContainText('1 node selected');
   await expect(attention.getByRole('combobox', { name: 'Focus' })).toHaveText('Nodes');
   await expect(attention.getByRole('combobox', { name: 'Object' })).toHaveText('lon-pe');
   await expect(attention.getByText('Dim keeps context visible. Hide removes non-matching objects.')).toBeVisible();
   await expect.poll(() => topologyText(page)).toContain('ids:');
   await expect.poll(() => topologyText(page)).toContain('- lon-pe');
-  await page.locator('.react-flow__node').filter({ hasText: 'FRA-PE' }).dispatchEvent('click');
+  await graphNodeByLabel(page, 'FRA-PE').dispatchEvent('click');
   await expect(attention.getByRole('combobox', { name: 'Object' })).toHaveText('fra-pe');
   await expect.poll(() => topologyText(page)).toContain('- fra-pe');
 

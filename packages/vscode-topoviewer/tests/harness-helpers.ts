@@ -107,11 +107,13 @@ export async function chooseOption(page: Page, combobox: Locator, optionName: st
 export async function waitForHarnessReady(page: Page) {
   await expect(page.getByText('No diagnostics')).toBeVisible();
   await page.waitForFunction(() => (window as any).__topoviewerHarnessState?.topologyText?.includes('id: fra-pe'));
-  await expect(page.locator('.react-flow__node').filter({ hasText: 'FRA-PE' })).toBeVisible();
+  await expect(graphNodeByLabel(page, 'FRA-PE')).toBeVisible();
 }
 
 export function graphNodeByLabel(page: Page, label: string) {
-  return page.locator('.react-flow__node').filter({ hasText: label });
+  const exact = JSON.stringify(label);
+  const prefixed = JSON.stringify(`${label},`);
+  return page.locator(`.topoviewer-node[aria-label=${exact}], .topoviewer-node[aria-label^=${prefixed}]`);
 }
 
 export async function selectGraphNodes(page: Page, labels: string[]) {
