@@ -12,7 +12,6 @@ Current active plans:
 - `changes/define-opsmill-infrahub-integration-roadmap/` - planned OpsMill/Infrahub feasibility, use cases, first integration shape, and roadmap wording constraints.
 - `changes/define-grafana-integration-roadmap/` - planned Grafana feasibility, use cases, first integration shape, and roadmap wording constraints.
 - `changes/add-label-z-index-style-control/` - planned canonical `labelZIndex` style control for independent label draw order across dense topology views.
-- `changes/harden-vscode-harness-authoring-ux/` - planned browser harness and VS Code authoring UX hardening for real export, context-aware YAML assist, reliable keyboard behavior, candidate/apply editing, and durable diagnostics.
 
 Current studies:
 
@@ -20,6 +19,7 @@ Current studies:
 
 Archived plans:
 
+- `archive/2026-06-25-harden-vscode-harness-authoring-ux/` - implemented browser harness and VS Code authoring UX hardening for real PNG export, schema-backed YAML assist, reliable keyboard behavior, candidate/apply editing, durable diagnostics, and remote CI validation.
 - `archive/2026-06-21-improve-vscode-yaml-authoring-intelligence/` - implemented semantic Inspect simplification, schema-derived Monaco YAML suggestions, selected-object style rule discovery, and exhaustive style key/value regression coverage.
 - `archive/2026-06-21-improve-vscode-style-value-editor/` - implemented type-aware Inspect style value editor for enum, boolean, number, color, and text style values.
 - `archive/2026-06-21-improve-vscode-harness-workspace-persistence/` - implemented browser harness template/custom topology persistence and YAML copy workflow.
