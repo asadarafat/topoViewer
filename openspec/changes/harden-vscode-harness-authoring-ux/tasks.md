@@ -80,5 +80,5 @@
 - [x] 9.2 Run `npm run ci:test:harness`
 - [x] 9.3 Run `npm run ci:quality`
 - [x] 9.4 Run `npm run vscode:harness:build`
-- [ ] 9.5 Run `npm run ci`
+- [x] 9.5 Run `npm run ci`
 - [ ] 9.6 Push and confirm GitHub `CI` and `Docs` pass before archiving
