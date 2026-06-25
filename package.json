@@ -40,7 +40,7 @@
     "lint:circular": "npm run lint:deps",
     "lint:cpd": "jscpd --config .jscpd.json --no-tips",
     "lint:cpd:report": "jscpd --config .jscpd.json --reporters console --no-tips",
-    "quality": "npm run lint && npm --workspace vscode-topoviewer run typecheck",
+    "quality": "npm --workspace topoviewer run build:types && npm run lint && npm --workspace vscode-topoviewer run typecheck",
     "test": "npm --workspace topoviewer run test",
     "test:vscode-harness": "node scripts/require-node24.mjs && npm --workspace vscode-topoviewer run test:vscode-harness",
     "test:headed": "npm --workspace topoviewer run test:headed",
