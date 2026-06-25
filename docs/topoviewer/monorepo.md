@@ -40,14 +40,27 @@ pip install mkdocs-topoviewer
 
 ## Local Development Flow
 
+Run commands from the repository root unless a package-specific script is
+needed. The root scripts are the stable interface used by GitHub Actions.
+
+| Task | Command |
+|---|---|
+| Full CI parity | `npm run ci` |
+| Remote-style local run | `npm run ci:remote-parity` |
+| Generated content drift | `npm run ci:generated` |
+| Code quality | `npm run ci:quality` |
+| Schema and semantic checks | `npm run ci:schemas` |
+| Package and asset build | `npm run ci:build` |
+| MkDocs, Zensical, and harness docs build | `npm run ci:docs` |
+| Renderer tests | `npm run ci:test:topoviewer` |
+| Browser harness tests | `npm run ci:test:harness` |
+
 When changing renderer behavior:
 
 ```bash
-cd packages/topoviewer
-npm install
 npm run build
 npm run sync:mkdocs-assets
-npm run test:all
+npm run ci:test:topoviewer
 ```
 
 When changing only the MkDocs plugin:
@@ -65,7 +78,37 @@ npm run docs:preview
 
 MkDocs serves the canonical documentation site at `http://127.0.0.1:8001/topoViewer/`. Zensical serves the parallel preview site at `http://127.0.0.1:8002/topoViewer/zensical/`. The preview command fails instead of selecting another port when either fixed port is already in use. Use `npm run docs:build:parallel` to build the combined GitHub Pages artifact with MkDocs at `site/` and Zensical at `site/zensical/`.
 
+After building the static site, run:
+
+```bash
+npm run docs:smoke
+```
+
+That opens the built MkDocs, Zensical, and harness pages through Chromium using
+the same `/topoViewer/` path shape as GitHub Pages.
+
 When validating the RTFM integration, the RTFM Makefile can build a local wheel from `mkdocs-topoviewer` and install it into the vanilla MkDocs Material container. That keeps the docs build close to the eventual user install model while still using local source during development.
+
+## Command Naming Contract
+
+Scripts follow a small vocabulary:
+
+| Prefix | Meaning |
+|---|---|
+| `dev:*` / unprefixed dev commands | Start a local development server. |
+| `serve:*` / `docs:serve` | Serve an already prepared local preview. |
+| `sync:*` | Write generated content or copied assets from canonical sources. |
+| `check:*` | Check for generated drift without making durable changes. |
+| `validate:*` | Validate schemas, semantics, or built artifacts. |
+| `build:*` / `build` | Produce local build output. |
+| `test:*` | Run focused tests. |
+| `ci:*` | Run the exact gate shape expected by GitHub Actions. |
+| `pack:*` / `wheel:*` | Inspect publishable npm or Python artifacts. |
+| `clean:*` / `clean` | Remove generated build or report output. |
+
+New scripts should fit this vocabulary. If a command writes tracked files, its
+name should start with `sync:` or the command should be documented as a build
+step that intentionally refreshes vendored assets.
 
 ## Release Flow
 

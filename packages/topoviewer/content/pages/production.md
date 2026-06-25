@@ -4,15 +4,40 @@ This document defines the production guardrails for TopoViewer as a general diag
 
 ## Validation Gates
 
-Run both gates in CI:
+Use the repository-root CI lanes for production validation. They are the same
+commands used by GitHub Actions, so a local failure maps to the same remote
+gate.
 
 ```bash
-npm run validate:schemas
-npm run validate:semantics
-npm test
+npm run ci:generated
+npm run ci:quality
+npm run ci:schemas
+npm run ci:build
+npm run ci:docs
+npm run ci:test:topoviewer
+npm run ci:test:harness
+npm run ci:perf:smoke
+npm run ci:package
 ```
 
-JSON Schema catches malformed shape. Semantic lint catches broken meaning:
+`npm run ci` runs the same lanes in order. `npm run ci:remote-parity` runs the
+full lane set with `CI=true` and `NODE_ENV=test`, which is useful when a local
+machine has a server already running or a cached browser state that could hide
+a GitHub Actions failure.
+
+| Lane | Purpose |
+|---|---|
+| `ci:generated` | Regenerates docs/examples and fails if committed generated files are stale. |
+| `ci:quality` | Runs code-health checks, Oxlint, TypeScript checks, dependency boundaries, and copy-paste detection. |
+| `ci:schemas` | Validates YAML schemas and semantic graph linting. |
+| `ci:build` | Builds packages and verifies vendored MkDocs embed assets are committed. |
+| `ci:docs` | Builds MkDocs, Zensical, and the browser harness, then opens the built `site/` artifact in Chromium. |
+| `ci:test:topoviewer` | Runs unit and Playwright tests for the renderer package. |
+| `ci:test:harness` | Runs Playwright tests for the VS Code browser harness. |
+| `ci:perf:smoke` | Enforces the attention-engine smoke benchmark. |
+| `ci:package` | Runs npm pack inspection and MkDocs wheel inspection. |
+
+JSON Schema catches malformed document shape. Semantic lint catches broken meaning:
 
 - Duplicate IDs.
 - Missing names on graph objects.
@@ -24,6 +49,58 @@ JSON Schema catches malformed shape. Semantic lint catches broken meaning:
 - Unused stylesheet selectors.
 - Unsafe image references.
 - Renderer limit violations.
+
+The docs smoke gate catches deployment-specific behavior that static tests miss:
+
+- MkDocs embeds render graph nodes and visible links without `.topoviewer-error`.
+- Zensical embeds hydrate without requiring a manual browser refresh.
+- The browser harness loads under the GitHub Pages `/topoViewer/harness/` base path.
+
+## Generated Artifact Contract
+
+TopoViewer has generated files because one canonical content tree feeds npm
+examples, MkDocs pages, Zensical pages, and package docs. The mutation rule is:
+
+| Prefix | Contract |
+|---|---|
+| `sync:*` | May write generated sources or projection files. Review and commit the diff. |
+| `check:*` | Must report drift without leaving source changes. |
+| `validate:*` | Must validate inputs and should not leave generated source changes. |
+| `test:*` | May write test artifacts under ignored report directories only. |
+| `ci:*` | May run sync/build steps, but must fail if generated files required by the repository are left dirty. |
+
+If `ci:generated`, `ci:build`, or `ci:docs` fails with a stale generated-file
+message, run the matching sync/build command locally, review the exact diff,
+and commit it with the source change.
+
+## Failure Triage
+
+Classify CI failures before changing code:
+
+| Classification | Signal | Response |
+|---|---|---|
+| Product regression | The same command fails locally and the output is genuinely wrong. | Fix product code or fixtures and keep/add regression coverage. |
+| Generated artifact drift | A sync/build step changes tracked projections or vendored assets. | Run the matching `sync:*` or build step, review the diff, and commit it. |
+| Environment drift | GitHub differs from local Node, npm, Python, browser, OS, or env vars. | Compare `ci:env` output and reproduce with `npm run ci:remote-parity`. |
+| Server orchestration drift | Playwright attaches to a stale server or wrong port. | Run under `CI=true`; CI-mode Playwright must start its own server. |
+| Browser timing or hydration drift | The page needs a manual refresh or a selector is asserted before hydration. | Wait for durable rendered DOM state, not arbitrary timeouts. |
+| Brittle assertion | The test checks SVG string spacing, transient status text, or overly tight pixel values. | Assert durable YAML, object state, graph semantics, or documented tolerances. |
+| Resource/performance flake | The runner is constrained but the behavior is correct. | Preserve traces and metrics before adjusting budgets. |
+| Command contract drift | A command name hides mutation or differs from GitHub workflow behavior. | Move behavior behind the correct command prefix and update the docs. |
+
+Remote-only failure workflow:
+
+```bash
+gh run view <run-id> --log-failed
+npm run ci:env
+npm run ci:remote-parity
+```
+
+Use the failing named lane first when the GitHub step identifies one, for
+example `npm run ci:test:harness` or `npm run ci:docs`. Do not retry a required
+CI test to hide a regression. A temporary retry is acceptable only when there is
+a tracked flaky-browser issue and the first failure preserves trace, screenshot,
+console output, environment report, and generated artifacts.
 
 ## Renderer Limits
 
