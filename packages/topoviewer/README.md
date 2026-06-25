@@ -122,7 +122,7 @@ controls: true
 - [Extension boundary](docs/react.md#extensions): custom node/edge types and compile hooks for private or project-specific add-ons.
 - [MkDocs embed](docs/mkdocs.md): fenced-block syntax, direct HTML embed, and asset sync.
 - [Monorepo package boundary](docs/monorepo.md): why `topoviewer` and `mkdocs-topoviewer` stay as separate packages in one repository.
-- [Attention examples](https://asadarafat.github.io/topoViewer/topoviewer/reference/attention/): live examples for object focus and change focus in dense topology views.
+- [Attention examples](https://asadarafat.github.io/TopoViewer/topoviewer/reference/attention/): live examples for object focus and change focus in dense topology views.
 - [Release checklist](docs/release.md): validation, dependency boundaries, pack contents, and publish steps.
 
 ## Development

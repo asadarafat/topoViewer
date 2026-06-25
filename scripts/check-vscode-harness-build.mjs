@@ -33,7 +33,7 @@ for (const file of requiredFiles) {
 }
 
 const indexHtml = fs.readFileSync(path.join(harnessSite, 'index.html'), 'utf8');
-for (const needle of ['/topoViewer/harness/assets/', 'type="module"']) {
+for (const needle of ['/TopoViewer/harness/assets/', 'type="module"']) {
   if (!indexHtml.includes(needle)) {
     fail(`VS Code harness index.html does not include expected content: ${needle}`);
   }

@@ -54,7 +54,7 @@ The docs smoke gate catches deployment-specific behavior that static tests miss:
 
 - MkDocs embeds render graph nodes and visible links without `.topoviewer-error`.
 - Zensical embeds hydrate without requiring a manual browser refresh.
-- The browser harness loads under the GitHub Pages `/topoViewer/harness/` base path.
+- The browser harness loads under the GitHub Pages `/TopoViewer/harness/` base path.
 
 ## Generated Artifact Contract
 

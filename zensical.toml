@@ -2,7 +2,7 @@
 site_name = "TopoViewer Zensical"
 site_description = "Parallel Zensical documentation preview for TopoViewer."
 site_author = "TopoViewer contributors"
-site_url = "https://asadarafat.github.io/topoViewer/zensical/"
+site_url = "https://asadarafat.github.io/TopoViewer/zensical/"
 docs_dir = ".artifacts/zensical-docs"
 site_dir = "site/zensical"
 dev_addr = "127.0.0.1:8002"

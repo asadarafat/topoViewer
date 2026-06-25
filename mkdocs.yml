@@ -1,6 +1,6 @@
 site_name: TopoViewer
 site_description: Declarative graph renderer for network, infrastructure, and service-topology diagrams.
-site_url: https://asadarafat.github.io/topoViewer/
+site_url: https://asadarafat.github.io/TopoViewer/
 repo_url: https://github.com/asadarafat/TopoViewer
 repo_name: asadarafat/TopoViewer
 

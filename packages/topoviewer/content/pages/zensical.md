@@ -82,8 +82,8 @@ Local preview uses the same path shape as the published GitHub Pages site, but w
 
 | Target | Local preview | Published GitHub Pages |
 | --- | --- | --- |
-| MkDocs | `http://127.0.0.1:8001/topoViewer/` | `https://asadarafat.github.io/topoViewer/` |
-| Zensical | `http://127.0.0.1:8002/topoViewer/zensical/` | `https://asadarafat.github.io/topoViewer/zensical/` |
+| MkDocs | `http://127.0.0.1:8001/TopoViewer/` | `https://asadarafat.github.io/TopoViewer/` |
+| Zensical | `http://127.0.0.1:8002/TopoViewer/zensical/` | `https://asadarafat.github.io/TopoViewer/zensical/` |
 
 If either local port is already in use, the serve command exits with a clear error instead of selecting another port. Release the port and rerun the command.
 

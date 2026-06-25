@@ -111,8 +111,8 @@ function readmeMarkdown() {
   return `${generatedNotice('packages/topoviewer/content/pages/_fragments/*.md')}
 # TopoViewer
 
-[![CI](https://github.com/asadarafat/topoviewer/actions/workflows/ci.yml/badge.svg)](https://github.com/asadarafat/topoviewer/actions/workflows/ci.yml)
-[![Docs](https://github.com/asadarafat/topoviewer/actions/workflows/docs.yml/badge.svg)](https://github.com/asadarafat/topoviewer/actions/workflows/docs.yml)
+[![CI](https://github.com/asadarafat/TopoViewer/actions/workflows/ci.yml/badge.svg)](https://github.com/asadarafat/TopoViewer/actions/workflows/ci.yml)
+[![Docs](https://github.com/asadarafat/TopoViewer/actions/workflows/docs.yml/badge.svg)](https://github.com/asadarafat/TopoViewer/actions/workflows/docs.yml)
 
 ${positioning}
 
@@ -127,16 +127,16 @@ product views, authoring previews, exported diagrams, and CI-backed examples.
 ## First Result
 
 \`\`\`bash
-git clone https://github.com/asadarafat/topoviewer.git
-cd topoviewer
+git clone https://github.com/asadarafat/TopoViewer.git
+cd TopoViewer
 npm ci
 npm run docs:preview
 \`\`\`
 
 Open:
 
-- MkDocs: \`http://127.0.0.1:8001/topoViewer/\`
-- Zensical: \`http://127.0.0.1:8002/topoViewer/zensical/\`
+- MkDocs: \`http://127.0.0.1:8001/TopoViewer/\`
+- Zensical: \`http://127.0.0.1:8002/TopoViewer/zensical/\`
 - Harness: run \`npm run vscode:harness\` and open the printed URL
 
 ## Integration Surfaces
@@ -145,13 +145,13 @@ ${integrations}
 
 ## Quick Links
 
-- [Published docs](https://asadarafat.github.io/topoViewer/)
+- [Published docs](https://asadarafat.github.io/TopoViewer/)
 - [Why TopoViewer](docs/topoviewer/why-topoviewer.md)
 - [YAML to diagram](docs/topoviewer/yaml-to-diagram/index.md)
 - [Real network demo](docs/topoviewer/real-network-demo.md)
 - [Attention examples](docs/topoviewer/reference/attention/index.md)
 - [Integration roadmap](docs/topoviewer/integration-roadmap.md)
-- [Browser authoring harness](https://asadarafat.github.io/topoViewer/harness/)
+- [Browser authoring harness](https://asadarafat.github.io/TopoViewer/harness/)
 
 ## Development
 

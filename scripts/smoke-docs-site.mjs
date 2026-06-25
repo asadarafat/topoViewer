@@ -8,6 +8,7 @@ import { chromium } from '@playwright/test';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const siteRoot = path.join(repoRoot, 'site');
+const pagesBasePath = '/TopoViewer';
 
 const mimeTypes = new Map([
   ['.css', 'text/css; charset=utf-8'],
@@ -32,10 +33,10 @@ if (!fs.existsSync(siteRoot)) {
 function pathForRequest(requestUrl) {
   const parsed = new URL(requestUrl, 'http://127.0.0.1');
   let urlPath = decodeURIComponent(parsed.pathname);
-  if (urlPath === '/topoViewer') {
+  if (urlPath === pagesBasePath) {
     urlPath = '/';
-  } else if (urlPath.startsWith('/topoViewer/')) {
-    urlPath = urlPath.slice('/topoViewer'.length);
+  } else if (urlPath.startsWith(`${pagesBasePath}/`)) {
+    urlPath = urlPath.slice(pagesBasePath.length);
   }
 
   let absolutePath = path.resolve(siteRoot, `.${urlPath}`);
@@ -134,19 +135,19 @@ async function run() {
     const checks = [
       {
         label: 'MkDocs graph basic',
-        url: `${baseUrl}/topoViewer/topoviewer/reference/graph/basic/`,
+        url: `${baseUrl}/TopoViewer/topoviewer/reference/graph/basic/`,
         nodes: 2,
         edges: 1
       },
       {
         label: 'Zensical attention object focus',
-        url: `${baseUrl}/topoViewer/zensical/topoviewer/reference/attention/object-focus/`,
+        url: `${baseUrl}/TopoViewer/zensical/topoviewer/reference/attention/object-focus/`,
         nodes: 2,
         edges: 1
       },
       {
         label: 'VS Code browser harness',
-        url: `${baseUrl}/topoViewer/harness/`,
+        url: `${baseUrl}/TopoViewer/harness/`,
         harness: true
       }
     ];

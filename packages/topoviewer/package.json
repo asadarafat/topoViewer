@@ -12,13 +12,13 @@
     "diagram"
   ],
   "license": "Apache-2.0",
-  "homepage": "https://github.com/asadarafat/topoviewer#readme",
+  "homepage": "https://github.com/asadarafat/TopoViewer#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/asadarafat/topoviewer.git"
+    "url": "git+https://github.com/asadarafat/TopoViewer.git"
   },
   "bugs": {
-    "url": "https://github.com/asadarafat/topoviewer/issues"
+    "url": "https://github.com/asadarafat/TopoViewer/issues"
   },
   "type": "commonjs",
   "main": "./dist/topoviewer.umd.js",

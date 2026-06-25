@@ -56,8 +56,8 @@ check_port "Zensical" "$ZENSICAL_HOST" "$ZENSICAL_PORT"
 
 prepare_preview
 
-echo "[topoviewer] MkDocs:   http://$DOCS_HOST:$DOCS_PORT/topoViewer/"
-echo "[topoviewer] Zensical: http://$ZENSICAL_HOST:$ZENSICAL_PORT/topoViewer/zensical/"
+echo "[topoviewer] MkDocs:   http://$DOCS_HOST:$DOCS_PORT/TopoViewer/"
+echo "[topoviewer] Zensical: http://$ZENSICAL_HOST:$ZENSICAL_PORT/TopoViewer/zensical/"
 
 trap 'cleanup; exit 130' INT
 trap 'cleanup; exit 143' TERM

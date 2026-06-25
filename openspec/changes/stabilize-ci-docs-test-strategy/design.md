@@ -456,9 +456,9 @@ Coverage:
 - live smoke test against `site/`:
   - MkDocs home loads;
   - a representative MkDocs TopoViewer embed hydrates;
-  - Zensical route `/topoViewer/zensical/` loads;
+  - Zensical route `/TopoViewer/zensical/` loads;
   - a representative Zensical embed hydrates without manual refresh;
-  - `/topoViewer/harness/` loads the browser harness shell and fixture index.
+  - `/TopoViewer/harness/` loads the browser harness shell and fixture index.
 
 Recommendations:
 
