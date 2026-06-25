@@ -191,7 +191,7 @@ async function expectNoBrowserErrors(page, browserErrors) {
   const actionableErrors = browserErrors.filter((line) => {
     if (line.includes('Download the React DevTools')) return false;
     if (line.includes('gitlabe2.ext.net.nokia.com/api/v4/projects/aarafat%2Frtfm')) return false;
-    if (line.includes('api.github.com/repos/asadarafat/topoViewer')) return false;
+    if (line.includes('api.github.com/repos/asadarafat/TopoViewer')) return false;
     if (line.includes('blocked by CORS policy')) return false;
     if (line.includes('Failed to load resource: net::ERR_FAILED')) return false;
     return true;

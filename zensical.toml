@@ -7,8 +7,8 @@ docs_dir = ".artifacts/zensical-docs"
 site_dir = "site/zensical"
 dev_addr = "127.0.0.1:8002"
 copyright = "Copyright &copy; 2026 TopoViewer contributors"
-repo_url = "https://github.com/asadarafat/topoViewer"
-repo_name = "asadarafat/topoViewer"
+repo_url = "https://github.com/asadarafat/TopoViewer"
+repo_name = "asadarafat/TopoViewer"
 extra_css = [
   "assets/topoviewer/topoviewer-embed.css",
   "assets/topoviewer/topoviewer-zensical.css",
