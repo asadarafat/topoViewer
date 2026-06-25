@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { Box } from '@mui/material';
-import type { TopoDocument, TopoViewerNodePositionChange, TopoViewerObjectClick } from 'topoviewer';
-import type { HarnessFixture, TopoViewerWebviewHost, ValidationResult, WebviewState } from '../shared/types';
+import { downloadTopoViewerPng, topoviewerToPng, type TopoDocument, type TopoViewerNodePositionChange, type TopoViewerObjectClick } from 'topoviewer';
+import type { HarnessFixture, TopoViewerWebviewHost, ValidationResult, WebviewDiagnostic, WebviewState } from '../shared/types';
 import {
   clearAttention,
   defaultLayerId,
@@ -31,22 +31,18 @@ import {
 import {
   keyValueRowsForObject,
   recordFromRows,
-  styleMetadataForYamlIntelligence,
   type KeyValueEditorRow
 } from './webviewStyleMetadata';
 import {
   ensureStyleRule,
-  monacoSuggestionKind,
   stylesheetSelectorForSelection,
-  yamlAuthoringHover,
-  yamlAuthoringSuggestions,
-  type PendingYamlFocus,
-  type YamlAuthoringRequest
+  type PendingYamlFocus
 } from './webviewYamlAuthoring';
 import { AuthoringRail } from './AuthoringRail';
 import { PreviewPanel, ResizeDivider, ShellHeader, webviewShellSx } from './WebviewChrome';
-import { HarnessTabPanel, a11yProps, baseInsertObjectGroups, clamp, clampLine, defaultSplitPercent, editorDocumentForTab, focusKindLabel, harnessModes, initialSavedPresets, initialSplitPercent, maxSplitPercent, mergeLayerSelection, minSplitPercent, modeIndex, modeLabel, pathSequenceFromObject, positionOf, presetFromObject, presetStorageKey, sameRoundedPosition, selectedNodeIds, selectedObjectIds, selectionSummary, sequenceFromControls, splitStorageKey, type DocumentTransaction, type HarnessMode } from './webviewAppSupport';
+import { HarnessTabPanel, a11yProps, baseInsertObjectGroups, clamp, defaultSplitPercent, focusKindLabel, harnessModes, initialSavedPresets, initialSplitPercent, maxSplitPercent, mergeLayerSelection, minSplitPercent, modeIndex, modeLabel, pathSequenceFromObject, positionOf, presetFromObject, presetStorageKey, sameRoundedPosition, selectedNodeIds, selectedObjectIds, selectionSummary, sequenceFromControls, splitStorageKey, type DocumentTransaction, type HarnessMode } from './webviewAppSupport';
 import { useBrowserHarnessActions } from './harnessActions';
+import { useBrowserYamlIntelligence, useDraftValidation, useMonacoDiagnostics, usePendingYamlFocus, useYamlEditorMount, useYamlMonacoProviders } from './webviewEditorHooks';
 import './webview.css';
 
 interface WebviewAppProps {
@@ -56,8 +52,11 @@ interface WebviewAppProps {
 }
 export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppProps) {
   const [state, setState] = useState<WebviewState>();
+  const [draftTopologyText, setDraftTopologyText] = useState('');
+  const [draftStylesheetText, setDraftStylesheetText] = useState('');
   const [fixtures, setFixtures] = useState<HarnessFixture[]>([]);
   const [validation, setValidation] = useState<ValidationResult>({ diagnostics: [], layers: [] });
+  const [draftValidation, setDraftValidation] = useState<ValidationResult>({ diagnostics: [], layers: [] });
   const [selectedLayerIds, setSelectedLayerIds] = useState<string[]>([]);
   const [selectedObjects, setSelectedObjects] = useState<TopoObjectSelection[]>([]);
   const [savedPresets, setSavedPresets] = useState<TopoObjectPreset[]>(initialSavedPresets);
@@ -67,6 +66,8 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
   const [resizing, setResizing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<string>();
+  const [exportStatus, setExportStatus] = useState<'idle' | 'exporting' | 'complete' | 'error'>('idle');
+  const [yamlAssistEmptyMessage, setYamlAssistEmptyMessage] = useState<string>();
   const [undoStack, setUndoStack] = useState<DocumentTransaction[]>([]);
   const [redoStack, setRedoStack] = useState<DocumentTransaction[]>([]);
   const [inspectorName, setInspectorName] = useState('');
@@ -101,7 +102,14 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
   const monacoRef = useRef<any>(null);
   const diagnosticDecorationsRef = useRef<any>(null);
   const editorHelpDisposableRef = useRef<any>(null);
+  const editorContextRef = useRef<{
+    layers: ValidationResult['layers'];
+    tab: number;
+    visibleDocument?: TopoDocument;
+  }>({ layers: [], tab: 0 });
   const workspaceRef = useRef<HTMLDivElement | null>(null);
+  const previewRef = useRef<HTMLDivElement | null>(null);
+  const draftDirty = !!state && (draftTopologyText !== state.topologyText || draftStylesheetText !== state.stylesheetText);
 
   useEffect(() => {
     let mounted = true;
@@ -113,7 +121,7 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
           host.listFixtures?.() || Promise.resolve([])
         ]);
         if (!mounted) return;
-        setState(initialState);
+        commitLoadedState(initialState);
         setFixtures(availableFixtures);
       } catch (error) {
         if (mounted) {
@@ -144,6 +152,24 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
       delete (window as unknown as { __topoviewerHarnessState?: WebviewState }).__topoviewerHarnessState;
     };
   }, [host.kind, state]);
+
+  useEffect(() => {
+    if (host.kind !== 'browser') return undefined;
+    (window as unknown as {
+      __topoviewerHarnessDraft?: {
+        dirty: boolean;
+        stylesheetText: string;
+        topologyText: string;
+      };
+    }).__topoviewerHarnessDraft = {
+      dirty: draftDirty,
+      stylesheetText: draftStylesheetText,
+      topologyText: draftTopologyText
+    };
+    return () => {
+      delete (window as unknown as { __topoviewerHarnessDraft?: unknown }).__topoviewerHarnessDraft;
+    };
+  }, [draftDirty, draftStylesheetText, draftTopologyText, host.kind]);
 
   useEffect(() => {
     if (host.kind !== 'browser') return undefined;
@@ -186,21 +212,48 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
     };
   }, [host, state]);
 
+  useDraftValidation({ draftDirty, draftStylesheetText, draftTopologyText, host, setDraftValidation, state, validation });
+
   const visibleDocument = useMemo(() => validation.document as TopoDocument | undefined, [validation.document]);
   const graphNodes = visibleDocument?.graph?.nodes || [];
   const nodeNameById = useMemo(() => new Map(graphNodes.map((node) => [node.id, node.name || node.label || node.id])), [graphNodes]);
-  const hasErrors = validation.diagnostics.some((diagnostic) => diagnostic.severity === 'error');
-  const diagnosticSeverity: 'success' | 'warning' | 'error' = hasErrors ? 'error' : validation.diagnostics.length > 0 ? 'warning' : 'success';
-  const diagnosticSummary = validation.diagnostics.length === 0
+  const activeValidation = draftDirty ? draftValidation : validation;
+  const activeDiagnostics = activeValidation.diagnostics;
+  const appliedHasErrors = validation.diagnostics.some((diagnostic) => diagnostic.severity === 'error');
+  const activeHasErrors = activeDiagnostics.some((diagnostic) => diagnostic.severity === 'error');
+  const hasErrors = appliedHasErrors || activeHasErrors;
+  const hasExportBlockers = hasErrors || exportStatus === 'exporting';
+  const exportTooltip = exportStatus === 'exporting'
+    ? 'Export already in progress'
+    : hasErrors
+      ? 'Fix diagnostics before exporting'
+      : undefined;
+  const diagnosticSeverity: 'success' | 'warning' | 'error' = activeHasErrors ? 'error' : activeDiagnostics.length > 0 ? 'warning' : 'success';
+  const diagnosticSummary = activeDiagnostics.length === 0
     ? 'No diagnostics'
-    : `${validation.diagnostics.length} diagnostic${validation.diagnostics.length === 1 ? '' : 's'}: ${validation.diagnostics[0]?.code}`;
+    : `${activeDiagnostics.length} diagnostic${activeDiagnostics.length === 1 ? '' : 's'}: ${activeDiagnostics[0]?.code}`;
   const messageSeverity: 'success' | 'warning' = message?.toLowerCase().includes('requires') || message?.toLowerCase().includes('must') ? 'warning' : 'success';
-  const statusSeverity = hasErrors ? diagnosticSeverity : message ? messageSeverity : diagnosticSeverity;
-  const statusSummary = hasErrors ? diagnosticSummary : message || diagnosticSummary;
+  const exportSummary = exportStatus === 'exporting'
+    ? 'Exporting viewport image...'
+    : exportStatus === 'complete'
+      ? 'Export complete'
+      : exportStatus === 'error'
+        ? 'Export failed'
+        : undefined;
+  const statusSeverity = activeHasErrors
+    ? diagnosticSeverity
+    : exportStatus === 'error'
+      ? 'warning'
+      : message
+        ? messageSeverity
+        : diagnosticSeverity;
+  const statusSummary = activeHasErrors
+    ? diagnosticSummary
+    : exportSummary || message || (draftDirty ? `YAML draft has unapplied changes. ${diagnosticSummary}` : diagnosticSummary);
   const shellClassName = `topoviewer-vscode-shell${themeMode ? ` topoviewer-vscode-shell--${themeMode}` : ''}`;
   const nextThemeMode = themeMode === 'dark' ? 'light' : 'dark';
   const editorTheme = themeMode === 'light' ? 'light' : 'vs-dark';
-  const editorValue = tab === 0 ? state?.topologyText || '' : state?.stylesheetText || '';
+  const editorValue = tab === 0 ? draftTopologyText : draftStylesheetText;
   const editorLabel = tab === 0 ? 'Topology YAML' : 'Stylesheet YAML';
   const selectedPrimary = selectedObjects[0];
   const selectedPrimaryObject = useMemo(() => findObject(visibleDocument, selectedPrimary), [selectedPrimary, visibleDocument]);
@@ -234,156 +287,31 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
       }
   )), [savedPresets]);
 
-  const updateEditorDiagnostics = useCallback(() => {
-    const editor = editorRef.current;
-    const monaco = monacoRef.current;
-    const model = editor?.getModel?.();
-    if (!editor || !monaco || !model) return;
-
-    const targetDocument = editorDocumentForTab(tab);
-    const diagnostics = validation.diagnostics.filter((diagnostic) => (
-      diagnostic.document ? diagnostic.document === targetDocument : targetDocument === 'topology'
-    ));
-    const lineCount = Math.max(1, model.getLineCount?.() || 1);
-    const markers = diagnostics.map((diagnostic) => {
-      const lineNumber = clampLine(diagnostic.line, lineCount);
-      const maxColumn = Math.max(2, model.getLineMaxColumn?.(lineNumber) || 2);
-      const startColumn = Math.min(maxColumn - 1, Math.max(1, Math.round(diagnostic.column || 1)));
-      return {
-        severity: diagnostic.severity === 'error'
-          ? monaco.MarkerSeverity.Error
-          : monaco.MarkerSeverity.Warning,
-        message: diagnostic.message,
-        source: 'TopoViewer',
-        startLineNumber: lineNumber,
-        startColumn,
-        endLineNumber: lineNumber,
-        endColumn: maxColumn
-      };
-    });
-
-    monaco.editor.setModelMarkers(model, 'topoviewer', markers);
-    const decorations = diagnostics.map((diagnostic) => {
-      const lineNumber = clampLine(diagnostic.line, lineCount);
-      return {
-        range: new monaco.Range(lineNumber, 1, lineNumber, 1),
-        options: {
-          className: diagnostic.severity === 'error'
-            ? 'topoviewer-vscode-diagnostic-line topoviewer-vscode-diagnostic-line--error'
-            : 'topoviewer-vscode-diagnostic-line topoviewer-vscode-diagnostic-line--warning',
-          glyphMarginClassName: diagnostic.severity === 'error'
-            ? 'topoviewer-vscode-diagnostic-glyph topoviewer-vscode-diagnostic-glyph--error'
-            : 'topoviewer-vscode-diagnostic-glyph topoviewer-vscode-diagnostic-glyph--warning',
-          isWholeLine: true,
-          overviewRuler: {
-            color: diagnostic.severity === 'error' ? '#d32f2f' : '#ed6c02',
-            position: monaco.editor.OverviewRulerLane.Right
-          }
-        }
-      };
-    });
-    if (diagnosticDecorationsRef.current?.set) {
-      diagnosticDecorationsRef.current.set(decorations);
-    } else if (editor.createDecorationsCollection) {
-      diagnosticDecorationsRef.current = editor.createDecorationsCollection(decorations);
-    }
-  }, [tab, validation.diagnostics]);
-
   useEffect(() => {
-    updateEditorDiagnostics();
-  }, [editorValue, updateEditorDiagnostics]);
-
-  useEffect(() => {
-    const editor = editorRef.current;
-    if (!pendingYamlFocus || !editorReady || !editor || mode !== 'yaml' || pendingYamlFocus.document !== editorDocumentForTab(tab)) return;
-    const frame = window.requestAnimationFrame(() => {
-      editor.focus();
-      editor.setPosition({ lineNumber: pendingYamlFocus.lineNumber, column: pendingYamlFocus.column });
-      editor.revealLineInCenterIfOutsideViewport?.(pendingYamlFocus.lineNumber);
-      if (pendingYamlFocus.showSuggestions) {
-        editor.trigger('topoviewer', 'editor.action.triggerSuggest', {});
-      }
-      setPendingYamlFocus(undefined);
-    });
-    return () => window.cancelAnimationFrame(frame);
-  }, [editorReady, editorValue, mode, pendingYamlFocus, tab]);
-
-  useEffect(() => {
-    if (host.kind !== 'browser') return undefined;
-    const helper = {
-      completions: (request: Omit<YamlAuthoringRequest, 'layers' | 'topoDocument'>) => yamlAuthoringSuggestions({
-        ...request,
-        layers: validation.layers,
-        topoDocument: visibleDocument
-      }),
-      hover: (request: Omit<YamlAuthoringRequest, 'layers' | 'topoDocument'>) => yamlAuthoringHover({
-        ...request,
-        layers: validation.layers,
-        topoDocument: visibleDocument
-      }),
-      styleMetadata: styleMetadataForYamlIntelligence
+    editorContextRef.current = {
+      layers: validation.layers,
+      tab,
+      visibleDocument
     };
-    (window as unknown as { __topoviewerYamlIntelligence?: typeof helper }).__topoviewerYamlIntelligence = helper;
-    return () => {
-      delete (window as unknown as { __topoviewerYamlIntelligence?: typeof helper }).__topoviewerYamlIntelligence;
-    };
-  }, [host.kind, validation.layers, visibleDocument]);
+  }, [tab, validation.layers, visibleDocument]);
 
-  useEffect(() => {
-    const monaco = monacoRef.current;
-    if (!editorReady || !monaco) return undefined;
-    const completionProvider = monaco.languages.registerCompletionItemProvider('yaml', {
-      triggerCharacters: [' ', ':', '-', '"', "'"],
-      provideCompletionItems(model: any, position: any) {
-        const word = model.getWordUntilPosition(position);
-        const range = new monaco.Range(position.lineNumber, word.startColumn, position.lineNumber, word.endColumn);
-        const suggestions = yamlAuthoringSuggestions({
-          column: position.column,
-          document: editorDocumentForTab(tab),
-          layers: validation.layers,
-          lineNumber: position.lineNumber,
-          text: model.getValue(),
-          topoDocument: visibleDocument
-        }).map((suggestion) => ({
-          detail: suggestion.detail,
-          documentation: suggestion.documentation,
-          insertText: suggestion.insertText || suggestion.label,
-          insertTextRules: suggestion.isSnippet
-            ? monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet
-            : undefined,
-          kind: monacoSuggestionKind(monaco, suggestion),
-          label: suggestion.label,
-          range
-        }));
-        return { suggestions };
-      }
-    });
-    const hoverProvider = monaco.languages.registerHoverProvider('yaml', {
-      provideHover(model: any, position: any) {
-        const hover = yamlAuthoringHover({
-          column: position.column,
-          document: editorDocumentForTab(tab),
-          layers: validation.layers,
-          lineNumber: position.lineNumber,
-          text: model.getValue(),
-          topoDocument: visibleDocument
-        });
-        if (!hover) return undefined;
-        const word = model.getWordAtPosition(position);
-        const range = word
-          ? new monaco.Range(position.lineNumber, word.startColumn, position.lineNumber, word.endColumn)
-          : undefined;
-        return {
-          contents: [{ value: hover.contents }],
-          range
-        };
-      }
-    });
-    return () => {
-      completionProvider.dispose();
-      hoverProvider.dispose();
-    };
-  }, [editorReady, tab, validation.layers, visibleDocument]);
+  const updateEditorDiagnostics = useMonacoDiagnostics({ activeDiagnostics, diagnosticDecorationsRef, editorRef, editorValue, monacoRef, tab });
+  usePendingYamlFocus({ editorReady, editorRef, editorValue, mode, pendingYamlFocus, setPendingYamlFocus, tab });
+  useBrowserYamlIntelligence({ hostKind: host.kind, validationLayers: validation.layers, visibleDocument });
+  useYamlMonacoProviders({ editorReady, monacoRef, tab, validationLayers: validation.layers, visibleDocument });
+  const { handleEditorMount, showYamlSuggestions } = useYamlEditorMount({
+    diagnosticDecorationsRef,
+    editorContextRef,
+    editorHelpDisposableRef,
+    editorRef,
+    flash,
+    hostKind: host.kind,
+    monacoRef,
+    setEditorReady,
+    setMode,
+    setYamlAssistEmptyMessage,
+    updateEditorDiagnostics
+  });
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -486,10 +414,24 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
     window.setTimeout(() => setMessage(undefined), 1800);
   }
 
+  function commitLoadedState(nextState: WebviewState | undefined) {
+    setState(nextState);
+    setDraftTopologyText(nextState?.topologyText || '');
+    setDraftStylesheetText(nextState?.stylesheetText || '');
+    if (!nextState) {
+      setDraftValidation({ diagnostics: [], layers: [] });
+    }
+  }
+
   function applyDocumentTransaction(
     label: string,
     update: (current: WebviewState) => Partial<Pick<WebviewState, 'stylesheetText' | 'topologyText'>>
   ) {
+    if (draftDirty) {
+      setMode('yaml');
+      flash('Apply or revert the YAML draft first');
+      return;
+    }
     setState((current) => {
       if (!current) return current;
       try {
@@ -505,6 +447,8 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
         }]);
         setRedoStack([]);
         flash(label);
+        setDraftTopologyText(nextTopologyText);
+        setDraftStylesheetText(nextStylesheetText);
         return { ...current, topologyText: nextTopologyText, stylesheetText: nextStylesheetText };
       } catch (error) {
         flash(error instanceof Error ? error.message : String(error));
@@ -529,6 +473,8 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
       topologyText: transaction.previousTopologyText,
       stylesheetText: transaction.previousStylesheetText
     } : current);
+    setDraftTopologyText(transaction.previousTopologyText);
+    setDraftStylesheetText(transaction.previousStylesheetText);
     flash(`Undo ${transaction.label}`);
   }
 
@@ -542,6 +488,8 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
       topologyText: transaction.nextTopologyText,
       stylesheetText: transaction.nextStylesheetText
     } : current);
+    setDraftTopologyText(transaction.nextTopologyText);
+    setDraftStylesheetText(transaction.nextStylesheetText);
     flash(`Redo ${transaction.label}`);
   }
 
@@ -552,7 +500,7 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
       setSelectedObjects([]);
       setUndoStack([]);
       setRedoStack([]);
-      setState(await host.loadFixture(id));
+      commitLoadedState(await host.loadFixture(id));
     } finally {
       setLoading(false);
     }
@@ -572,7 +520,7 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
       setRedoStack([]);
       const nextState = await host.createTopology();
       await refreshFixtures();
-      setState(nextState);
+      commitLoadedState(nextState);
       flash('Created topology');
     } finally {
       setLoading(false);
@@ -595,7 +543,7 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
       setRedoStack([]);
       const nextState = await host.revertState(state);
       await refreshFixtures();
-      setState(nextState);
+      commitLoadedState(nextState);
       flash(selectedFixture?.kind === 'saved' ? 'Removed saved topology' : 'Reverted template');
     } finally {
       setLoading(false);
@@ -603,8 +551,32 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
   }
 
   async function exportImage() {
-    await host.exportImage();
-    flash('Export command sent');
+    const target = previewRef.current?.querySelector('.topoviewer') as HTMLElement | null;
+    if (!target) {
+      flash('Export target is not ready');
+      return;
+    }
+    if (hasExportBlockers) {
+      flash('Fix diagnostics before exporting');
+      return;
+    }
+    const fileName = `${visibleDocument?.graph?.id || state?.fixtureId || 'topoviewer'}.png`;
+    setExportStatus('exporting');
+    try {
+      if (host.kind === 'browser') {
+        await downloadTopoViewerPng(target, { fileName, backgroundColor: themeMode === 'dark' ? '#0b1118' : '#f8fafc' });
+      } else {
+        const dataUrl = await topoviewerToPng(target, { backgroundColor: themeMode === 'dark' ? '#0b1118' : '#f8fafc' });
+        await host.exportImage({ dataUrl, fileName, format: 'png' });
+      }
+      setExportStatus('complete');
+      flash(`Exported ${fileName}`);
+    } catch (error) {
+      setExportStatus('error');
+      flash(error instanceof Error ? error.message : 'Export failed');
+    } finally {
+      window.setTimeout(() => setExportStatus('idle'), 1800);
+    }
   }
 
   async function copyYamlToClipboard() {
@@ -635,14 +607,49 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
     }
   }
 
-  function showYamlSuggestions() {
+  function openDiagnostic(diagnostic: WebviewDiagnostic) {
     setMode('yaml');
-    window.requestAnimationFrame(() => {
-      const editor = editorRef.current;
-      if (!editor) return;
-      editor.focus();
-      editor.trigger('topoviewer', 'editor.action.triggerSuggest', {});
+    setTab(diagnostic.document === 'stylesheet' ? 1 : 0);
+    setPendingYamlFocus({
+      column: diagnostic.column || 1,
+      document: diagnostic.document || 'topology',
+      lineNumber: diagnostic.line || 1
     });
+  }
+
+  async function applyYamlDraft() {
+    if (!state) return;
+    const draftState = {
+      ...state,
+      topologyText: draftTopologyText,
+      stylesheetText: draftStylesheetText
+    };
+    const result = await host.validate(draftState);
+    setDraftValidation(result);
+    if (result.diagnostics.some((diagnostic) => diagnostic.severity === 'error')) {
+      flash('Fix YAML diagnostics before applying');
+      return;
+    }
+    setUndoStack((stack) => [...stack, {
+      label: 'Apply YAML draft',
+      previousTopologyText: state.topologyText,
+      previousStylesheetText: state.stylesheetText,
+      nextTopologyText: draftTopologyText,
+      nextStylesheetText: draftStylesheetText
+    }]);
+    setRedoStack([]);
+    setState(draftState);
+    setValidation(result);
+    setSelectedLayerIds((current) => mergeLayerSelection(current, result.layers));
+    flash('Applied YAML draft');
+  }
+
+  function revertYamlDraft() {
+    if (!state) return;
+    setDraftTopologyText(state.topologyText);
+    setDraftStylesheetText(state.stylesheetText);
+    setDraftValidation(validation);
+    flash('Reverted YAML draft');
   }
 
   function styleSelectionInYaml() {
@@ -662,22 +669,6 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
     applyDocumentTransaction('Create style rule', () => ({
       stylesheetText: result.text
     }));
-  }
-
-  function handleEditorMount(editor: any, monaco: any) {
-    editorRef.current = editor;
-    monacoRef.current = monaco;
-    diagnosticDecorationsRef.current = editor.createDecorationsCollection?.([]);
-    editorHelpDisposableRef.current?.dispose?.();
-    editorHelpDisposableRef.current = editor.onKeyDown((event: any) => {
-      if (event.browserEvent?.key !== '?') return;
-      event.preventDefault();
-      event.stopPropagation();
-      editor.focus();
-      window.requestAnimationFrame(() => editor.trigger('topoviewer', 'editor.action.triggerSuggest', {}));
-    });
-    setEditorReady(true);
-    updateEditorDiagnostics();
   }
 
   function selectObject(selection: TopoObjectSelection, modifiers?: TopoViewerObjectClick['modifiers']) {
@@ -959,25 +950,25 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
   }
 
   const authoringRailProps = {
-    HarnessTabPanel, activeModeIndex, addKeyValueRow, addPathTransitNode, a11yProps, applyAggregation,
+    HarnessTabPanel, activeDiagnostics, activeModeIndex, addKeyValueRow, addPathTransitNode, a11yProps, applyAggregation,
     applyAttentionFocus, applyAttentionMatcher, applyInspector, applyInteraction, applyKeyValueRows, applyLinkGrouping,
     applyRelationshipInspector, attentionClickMode, attentionDataKey, attentionDataValue, attentionExpandOnClick,
     attentionFocusId, attentionFocusKind, attentionInteractive, attentionLabelKey, attentionLabelValue, attentionMode,
-    attentionRegionId, attentionSummary, availableFocusIds, copyYamlToClipboard, createConnection, createPath,
+    attentionRegionId, attentionSummary, applyYamlDraft, availableFocusIds, copyYamlToClipboard, createConnection, createPath,
     createTopology, currentAttention, dataRows, deleteSelection, editorLabel, editorTheme, editorValue, fixtures,
     focusKindLabel, graphNodes, handleEditorMount, harnessModes, hasErrors, host, insertObject, insertObjectGroups,
     insertPreset, inspectorLayerId, inspectorName, inspectorX, inspectorY, labelRows, linkGroupingThreshold,
-    linkSourceId, linkTargetId, mode, modeIndex, modeLabel, movePathTransitNode, nodeNameById, pathSourceId,
+    linkSourceId, linkTargetId, mode, modeIndex, modeLabel, movePathTransitNode, nodeNameById, openDiagnostic, pathSourceId,
     pathTargetId, pathTransitCandidate, pathTransitIds, pathTransitOptions, presetName, relationshipComposer,
-    reloadFixture, removeKeyValueRow, removePathTransitNode, resetAttention, revertTopology, saveSelectionAsPreset,
+    reloadFixture, removeKeyValueRow, removePathTransitNode, resetAttention, revertTopology, revertYamlDraft, saveSelectionAsPreset,
     saveTopology, selectedFixture, selectedLayerIds, selectedObjects, selectedPrimary, selectionSummary,
     setAttentionClickMode, setAttentionDataKey, setAttentionDataValue, setAttentionExpandOnClick, setAttentionFocusId,
     setAttentionFocusKind, setAttentionInteractive, setAttentionLabelKey, setAttentionLabelValue, setAttentionMode,
     setAttentionRegionId, setInspectorLayerId, setInspectorName, setInspectorX, setInspectorY, setLinkGroupingThreshold,
     setLinkSourceId, setLinkTargetId, setMode, setPathSourceId, setPathTargetId, setPathTransitCandidate,
-    setPresetName, setRelationshipComposer, setSelectedLayerIds, setState, setTab, showYamlSuggestions, state,
+    setDraftStylesheetText, setDraftTopologyText, setPresetName, setRelationshipComposer, setSelectedLayerIds, setTab, showYamlSuggestions, state,
     statusSeverity, statusSummary, styleSelectionInYaml, tab, updateKeyValueRow, useSelectionForAttention,
-    validation, visibleDocument
+    validation, visibleDocument, draftDirty, yamlAssistEmptyMessage
   };
 
   return (
@@ -993,7 +984,7 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
 
         <ResizeDivider clamp={clamp} defaultSplitPercent={defaultSplitPercent} maxSplitPercent={maxSplitPercent} minSplitPercent={minSplitPercent} setResizing={setResizing} setSplitPercent={setSplitPercent} splitPercent={splitPercent} updateSplitFromClientX={updateSplitFromClientX} />
 
-        <PreviewPanel exportImage={exportImage} handleNodePositionChange={handleNodePositionChange} handleObjectClick={handleObjectClick} hasErrors={hasErrors} host={host} loading={loading} redoStack={redoStack} redoTopology={redoTopology} selectedLayerIds={selectedLayerIds} selectedObjectIds={selectedObjectIds(selectedObjects)} setSelectedObjects={setSelectedObjects} setState={setState} state={state} undoStack={undoStack} undoTopology={undoTopology} visibleDocument={visibleDocument} />
+        <PreviewPanel exportImage={exportImage} exportTooltip={exportTooltip} handleNodePositionChange={handleNodePositionChange} handleObjectClick={handleObjectClick} hasErrors={appliedHasErrors} hasExportBlockers={hasExportBlockers} host={host} loading={loading} previewRef={previewRef} redoStack={redoStack} redoTopology={redoTopology} selectedLayerIds={selectedLayerIds} selectedObjectIds={selectedObjectIds(selectedObjects)} setSelectedObjects={setSelectedObjects} setState={setState} state={state} undoStack={undoStack} undoTopology={undoTopology} visibleDocument={visibleDocument} />
       </Box>
     </Box>
   );

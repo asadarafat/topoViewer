@@ -1,4 +1,8 @@
 import type { TopoDocument } from 'topoviewer';
+import topoviewerSchema from 'topoviewer/schemas/topoviewer.schema.json';
+import topoviewerMkdocsBlockSchema from 'topoviewer/schemas/topoviewer-mkdocs-block.schema.json';
+import topoviewerStylesheetSchema from 'topoviewer/schemas/topoviewer-stylesheet.schema.json';
+import topoviewerTopologySchema from 'topoviewer/schemas/topoviewer-topology.schema.json';
 import type { TopoObjectSelection } from '../shared/topologyMutations';
 import {
   styleGroupForKey,
@@ -37,6 +41,30 @@ export interface PendingYamlFocus {
   showSuggestions?: boolean;
 }
 
+type JsonSchema = {
+  $ref?: string;
+  additionalProperties?: boolean | JsonSchema;
+  allOf?: JsonSchema[];
+  anyOf?: JsonSchema[];
+  description?: string;
+  enum?: unknown[];
+  items?: JsonSchema;
+  oneOf?: JsonSchema[];
+  properties?: Record<string, JsonSchema | boolean>;
+  type?: string | string[];
+};
+
+const schemaDocuments = {
+  'topoviewer.schema.json': topoviewerSchema as unknown as JsonSchema,
+  'topoviewer-mkdocs-block.schema.json': topoviewerMkdocsBlockSchema as unknown as JsonSchema,
+  'topoviewer-stylesheet.schema.json': topoviewerStylesheetSchema as unknown as JsonSchema,
+  'topoviewer-topology.schema.json': topoviewerTopologySchema as unknown as JsonSchema
+};
+
+const topologyRootSchema = topoviewerTopologySchema as unknown as JsonSchema;
+const stylesheetRootSchema = topoviewerStylesheetSchema as unknown as JsonSchema;
+const baseSchema = topoviewerSchema as unknown as JsonSchema;
+const attentionSchema = topoviewerMkdocsBlockSchema as unknown as JsonSchema;
 
 const paletteValueSuggestions = [
   { label: '#1976d2', detail: 'Material UI primary' },
@@ -87,6 +115,65 @@ function lineIndent(line: string) {
   return line.match(/^\s*/)?.[0].length || 0;
 }
 
+function resolveSchemaRef(ref: string, fallbackSchema: JsonSchema): JsonSchema | undefined {
+  const [documentName, pointer = ''] = ref.includes('#') ? ref.split('#') : ['', ref];
+  const source = documentName
+    ? schemaDocuments[documentName as keyof typeof schemaDocuments]
+    : fallbackSchema;
+  if (!source || !pointer.startsWith('/')) return undefined;
+  return pointer
+    .slice(1)
+    .split('/')
+    .reduce<JsonSchema | undefined>((current, segment) => {
+      if (!current) return undefined;
+      const key = segment.replace(/~1/g, '/').replace(/~0/g, '~');
+      return (current as Record<string, JsonSchema | undefined>)[key];
+    }, source);
+}
+
+function mergeSchemaProperties(target: Record<string, JsonSchema>, source?: Record<string, JsonSchema | boolean>) {
+  Object.entries(source || {}).forEach(([key, value]) => {
+    if (typeof value === 'boolean') return;
+    target[key] = value;
+  });
+}
+
+function collectSchemaProperties(schema: JsonSchema | undefined, fallbackSchema: JsonSchema, seen = new Set<JsonSchema>()): Record<string, JsonSchema> {
+  if (!schema || seen.has(schema)) return {};
+  seen.add(schema);
+  if (schema.$ref) {
+    return collectSchemaProperties(resolveSchemaRef(schema.$ref, fallbackSchema), fallbackSchema, seen);
+  }
+  const properties: Record<string, JsonSchema> = {};
+  mergeSchemaProperties(properties, schema.properties);
+  [...(schema.allOf || []), ...(schema.anyOf || []), ...(schema.oneOf || [])].forEach((child) => {
+    mergeSchemaProperties(properties, collectSchemaProperties(child, fallbackSchema, seen));
+  });
+  return properties;
+}
+
+function schemaDefinitionProperties(schema: JsonSchema, definitionName: string) {
+  return collectSchemaProperties(resolveSchemaRef(`#/definitions/${definitionName}`, schema), schema);
+}
+
+function schemaPropertySuggestions(properties: Record<string, JsonSchema>, fallbackDocs: Record<string, string> = {}): YamlAuthoringSuggestion[] {
+  return Object.entries(properties).map(([key, schema]) => {
+    const enumValues = schema.enum?.map((value) => String(value)).join(', ');
+    const valueHint = enumValues
+      ? ` Accepted values: ${enumValues}.`
+      : schema.type
+        ? ` Value type: ${Array.isArray(schema.type) ? schema.type.join(' | ') : schema.type}.`
+        : '';
+    return {
+      detail: 'TopoViewer schema key',
+      documentation: `${schema.description || fallbackDocs[key] || `TopoViewer ${key} field.`}${valueHint}`,
+      insertText: `${key}: `,
+      kind: 'key',
+      label: key
+    };
+  });
+}
+
 function yamlPathAtLine(text: string, lineNumber: number) {
   const stack: Array<{ indent: number; key: string }> = [];
   text.split(/\r?\n/).slice(0, Math.max(0, lineNumber)).forEach((line) => {
@@ -107,6 +194,27 @@ function currentYamlKey(request: YamlAuthoringRequest) {
 function isKeyContext(request: YamlAuthoringRequest) {
   const prefix = linePrefix(request.text, request.lineNumber, request.column).trim();
   return prefix === '' || prefix === '-' || /^-?\s*[A-Za-z][A-Za-z0-9]*$/.test(prefix);
+}
+
+function isInsideQuotedScalar(prefix: string) {
+  const singleQuotes = (prefix.match(/'/g) || []).length;
+  const doubleQuotes = (prefix.match(/"/g) || []).length;
+  return singleQuotes % 2 === 1 || doubleQuotes % 2 === 1;
+}
+
+function isCommentContext(prefix: string) {
+  const commentIndex = prefix.indexOf('#');
+  return commentIndex !== -1 && !isInsideQuotedScalar(prefix.slice(0, commentIndex));
+}
+
+function isScalarValueContext(prefix: string) {
+  return /:\s+\S/.test(prefix) || /^\s*-\s+\S/.test(prefix);
+}
+
+export function shouldOpenYamlHelp(request: YamlAuthoringRequest) {
+  const prefix = linePrefix(request.text, request.lineNumber, request.column);
+  if (isCommentContext(prefix) || isInsideQuotedScalar(prefix) || isScalarValueContext(prefix)) return false;
+  return isKeyContext(request) || prefix.trim().endsWith(':');
 }
 
 function isStylesheetStyleContext(request: YamlAuthoringRequest) {
@@ -184,39 +292,101 @@ function referenceSuggestions(values: string[], detail: string): YamlAuthoringSu
   }));
 }
 
+function invalidIndentSuggestion(message: string): YamlAuthoringSuggestion[] {
+  return [{
+    detail: 'Indentation correction',
+    documentation: message,
+    insertText: 'style:\n      ',
+    isSnippet: true,
+    kind: 'snippet',
+    label: 'fix indentation'
+  }];
+}
+
+function valueRecordKeySuggestions(request: YamlAuthoringRequest, field: 'labels' | 'data'): YamlAuthoringSuggestion[] {
+  const pairs = fieldValuePairs(allAuthorableObjects(request.topoDocument), field);
+  return uniqueByLabel([
+    ...pairs.map(({ key, value }) => ({
+      detail: `${field} key`,
+      documentation: `Existing ${field} key. Example value: ${value}.`,
+      insertText: `${key}: `,
+      kind: 'key' as const,
+      label: key
+    })),
+    {
+      detail: `${field} entry`,
+      documentation: `Add a ${field} key/value pair.`,
+      insertText: '${1:key}: ${2:value}',
+      isSnippet: true,
+      kind: 'snippet' as const,
+      label: `${field} entry`
+    }
+  ]);
+}
+
+function numericCoordinateSuggestions(key: string): YamlAuthoringSuggestion[] {
+  return ['0', '80', '160', '240', '320', '480', '640'].map((value) => ({
+    detail: `${key} coordinate`,
+    documentation: `Numeric coordinate value for ${key}.`,
+    insertText: value,
+    kind: 'value' as const,
+    label: value
+  }));
+}
+
+function stylesheetIndentIssue(request: YamlAuthoringRequest): YamlAuthoringSuggestion[] | undefined {
+  const lines = request.text.split(/\r?\n/);
+  const currentLine = lines[Math.max(0, request.lineNumber - 1)] || '';
+  const currentIndent = lineIndent(currentLine);
+  if (currentLine.trim() || currentIndent < 4) return undefined;
+  for (let index = request.lineNumber - 2; index >= 0; index -= 1) {
+    const line = lines[index];
+    if (!line.trim()) continue;
+    if (/^\s*style:\s*$/.test(line) && lineIndent(line) < currentIndent) return undefined;
+    if (/^\s*-\s*selector:/.test(line) && lineIndent(line) < currentIndent) {
+      return invalidIndentSuggestion('This line is indented under a stylesheet rule but no style: mapping exists yet.');
+    }
+    if (/^\s*stylesheet:\s*$/.test(line)) return undefined;
+  }
+  return undefined;
+}
+
+function topologySchemaPropertiesForPath(path: string[]) {
+  if (path[path.length - 1] === 'graph') return schemaDefinitionProperties(baseSchema, 'graph');
+  if (path.includes('nodes')) return schemaDefinitionProperties(baseSchema, 'node');
+  if (path.includes('links')) return schemaDefinitionProperties(baseSchema, 'link');
+  if (path.includes('paths')) return schemaDefinitionProperties(baseSchema, 'path');
+  if (path.includes('regions')) return schemaDefinitionProperties(baseSchema, 'region');
+  if (path[path.length - 1] === 'diagram') return schemaDefinitionProperties(baseSchema, 'diagram');
+  if (path.includes('shapes')) return schemaDefinitionProperties(baseSchema, 'shape');
+  if (path.includes('callouts')) return schemaDefinitionProperties(baseSchema, 'callout');
+  if (path.includes('layout')) return schemaDefinitionProperties(baseSchema, 'layout');
+  if (path.includes('limits')) return schemaDefinitionProperties(baseSchema, 'limits');
+  if (path.includes('toggles')) return schemaDefinitionProperties(baseSchema, 'toggle');
+  if (path[path.length - 1] === 'attention') return schemaDefinitionProperties(attentionSchema, 'attention');
+  if (path.includes('query')) return schemaDefinitionProperties(attentionSchema, 'focusQuery');
+  if (path.includes('aggregate') && path.includes('groups')) return schemaDefinitionProperties(attentionSchema, 'aggregateGroup');
+  if (path.includes('aggregate')) return schemaDefinitionProperties(attentionSchema, 'aggregate');
+  if (path.includes('grouping')) return schemaDefinitionProperties(attentionSchema, 'linkGrouping');
+  if (path.includes('attention') && path.includes('links')) return schemaDefinitionProperties(attentionSchema, 'attentionLinks');
+  return collectSchemaProperties(topologyRootSchema, topologyRootSchema);
+}
+
+function stylesheetSchemaPropertiesForPath(path: string[]) {
+  if (path.includes('icons')) return schemaDefinitionProperties(baseSchema, 'icon');
+  if (path.includes('layout')) return schemaDefinitionProperties(baseSchema, 'layout');
+  if (path.includes('limits')) return schemaDefinitionProperties(baseSchema, 'limits');
+  if (path.includes('toggles')) return schemaDefinitionProperties(baseSchema, 'toggle');
+  if (path.includes('stylesheet')) return schemaDefinitionProperties(baseSchema, 'styleRule');
+  return collectSchemaProperties(stylesheetRootSchema, stylesheetRootSchema);
+}
+
 function topologyKeySuggestions(path: string[]): YamlAuthoringSuggestion[] {
-  const root = [
-    { label: 'graph', insertText: 'graph:\n  nodes: []', documentation: topologyKeyDocumentation.graph },
-    { label: 'attention', insertText: 'attention:\n  query:\n    mode: dim-context', documentation: topologyKeyDocumentation.attention }
-  ];
-  const graph = ['layers', 'nodes', 'links', 'paths', 'regions'].map((label) => ({
-    label,
-    insertText: `${label}:`,
-    documentation: topologyKeyDocumentation[label]
-  }));
-  const commonObject = ['id', 'name', 'labels', 'data', 'layers'].map((label) => ({
-    label,
-    insertText: `${label}: `,
-    documentation: topologyKeyDocumentation[label]
-  }));
-  if (path[path.length - 1] === 'graph') return graph.map((suggestion) => ({ ...suggestion, kind: 'key' as const }));
-  if (path.includes('nodes')) {
-    return [...commonObject, { label: 'position', insertText: 'position: [0, 0]', documentation: topologyKeyDocumentation.position }]
-      .map((suggestion) => ({ ...suggestion, kind: 'key' as const }));
-  }
-  if (path.includes('links')) {
-    return [...commonObject, { label: 'source', insertText: 'source: ', documentation: topologyKeyDocumentation.source }, { label: 'target', insertText: 'target: ', documentation: topologyKeyDocumentation.target }]
-      .map((suggestion) => ({ ...suggestion, kind: 'key' as const }));
-  }
-  if (path.includes('paths')) {
-    return [...commonObject, { label: 'sequence', insertText: 'sequence:\n  - ', documentation: topologyKeyDocumentation.sequence }]
-      .map((suggestion) => ({ ...suggestion, kind: 'key' as const }));
-  }
-  if (path.includes('regions')) {
-    return [...commonObject, { label: 'members', insertText: 'members: []', documentation: 'Object IDs included in the region.' }]
-      .map((suggestion) => ({ ...suggestion, kind: 'key' as const }));
-  }
-  return root.map((suggestion) => ({ ...suggestion, kind: 'key' as const }));
+  return schemaPropertySuggestions(topologySchemaPropertiesForPath(path), topologyKeyDocumentation);
+}
+
+function stylesheetSchemaKeySuggestions(path: string[]): YamlAuthoringSuggestion[] {
+  return schemaPropertySuggestions(stylesheetSchemaPropertiesForPath(path), stylesheetKeyDocumentation);
 }
 
 function topologySnippetSuggestions(): YamlAuthoringSuggestion[] {
@@ -436,6 +606,15 @@ export function yamlAuthoringSuggestions(request: YamlAuthoringRequest): YamlAut
   const prefix = linePrefix(request.text, request.lineNumber, request.column);
   if (request.document === 'topology') {
     const nodeIds = (request.topoDocument?.graph?.nodes || []).map((node) => node.id);
+    if (path.includes('labels')) {
+      return valueRecordKeySuggestions(request, 'labels');
+    }
+    if (path.includes('data')) {
+      return valueRecordKeySuggestions(request, 'data');
+    }
+    if (path.includes('position')) {
+      return numericCoordinateSuggestions('position');
+    }
     if (key === 'source' || key === 'target' || path.includes('sequence')) {
       return referenceSuggestions(nodeIds, 'Graph node ID');
     }
@@ -448,6 +627,8 @@ export function yamlAuthoringSuggestions(request: YamlAuthoringRequest): YamlAut
     ]);
   }
 
+  const indentIssue = stylesheetIndentIssue(request);
+  if (indentIssue) return indentIssue;
   if (key === 'selector') return selectorSuggestions(request);
   if (isStylesheetStyleContext(request)) {
     const selectorKind = selectorKindForContext(request);
@@ -458,8 +639,7 @@ export function yamlAuthoringSuggestions(request: YamlAuthoringRequest): YamlAut
   }
   if (isKeyContext(request)) {
     return uniqueByLabel([
-      { label: 'selector', insertText: 'selector: ', kind: 'key', documentation: stylesheetKeyDocumentation.selector },
-      { label: 'style', insertText: 'style:', kind: 'key', documentation: stylesheetKeyDocumentation.style },
+      ...stylesheetSchemaKeySuggestions(path),
       ...stylesheetSnippetSuggestions()
     ]);
   }
@@ -492,4 +672,3 @@ export function monacoSuggestionKind(monaco: any, suggestion: YamlAuthoringSugge
   if (suggestion.kind === 'value') return monaco.languages.CompletionItemKind.Value;
   return monaco.languages.CompletionItemKind.Property;
 }
-

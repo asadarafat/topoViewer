@@ -6,7 +6,7 @@ import LightModeIcon from '@mui/icons-material/LightMode';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import { TopoViewer, type TopoDocument, type TopoViewerNodePositionChange, type TopoViewerObjectClick } from 'topoviewer';
-import type { Dispatch, SetStateAction } from 'react';
+import type { Dispatch, RefObject, SetStateAction } from 'react';
 import type { Theme } from '@mui/material/styles';
 import type { TopoViewerWebviewHost, WebviewState } from '../shared/types';
 import type { TopoObjectSelection } from '../shared/topologyMutations';
@@ -32,11 +32,14 @@ interface ResizeDividerProps {
 
 interface PreviewPanelProps {
   exportImage: () => Promise<void>;
+  exportTooltip?: string;
   handleNodePositionChange: (change: TopoViewerNodePositionChange) => void;
   handleObjectClick: (object: TopoViewerObjectClick) => void;
   hasErrors: boolean;
+  hasExportBlockers: boolean;
   host: TopoViewerWebviewHost;
   loading: boolean;
+  previewRef: RefObject<HTMLDivElement>;
   redoStack: DocumentTransaction[];
   redoTopology: () => void;
   selectedLayerIds: string[];
@@ -118,9 +121,9 @@ export function ResizeDivider({ clamp, defaultSplitPercent, maxSplitPercent, min
   );
 }
 
-export function PreviewPanel({ exportImage, handleNodePositionChange, handleObjectClick, hasErrors, host, loading, redoStack, redoTopology, selectedLayerIds, selectedObjectIds, setSelectedObjects, setState, state, undoStack, undoTopology, visibleDocument }: PreviewPanelProps) {
+export function PreviewPanel({ exportImage, exportTooltip, handleNodePositionChange, handleObjectClick, hasErrors, hasExportBlockers, host, loading, previewRef, redoStack, redoTopology, selectedLayerIds, selectedObjectIds, setSelectedObjects, setState, state, undoStack, undoTopology, visibleDocument }: PreviewPanelProps) {
   return (
-    <Paper className="topoviewer-vscode-preview" elevation={0}>
+    <Paper className="topoviewer-vscode-preview" elevation={0} ref={previewRef}>
       <Box className="topoviewer-vscode-preview-actions">
         <Button size="small" startIcon={<RefreshIcon />} onClick={() => state && setState({ ...state })}>Validate</Button>
         <Button size="small" disabled={!undoStack.length} onClick={undoTopology}>Undo</Button>
@@ -134,6 +137,8 @@ export function PreviewPanel({ exportImage, handleNodePositionChange, handleObje
           document={visibleDocument}
           selectedLayerIds={selectedLayerIds}
           selectedObjectIds={selectedObjectIds}
+          exportDisabled={hasExportBlockers}
+          exportTooltip={exportTooltip}
           onExport={exportImage}
           toggles={{ showRegions: true }}
           onObjectClick={handleObjectClick}

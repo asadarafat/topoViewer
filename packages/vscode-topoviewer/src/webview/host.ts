@@ -1,5 +1,5 @@
 import { validateSources } from '../shared/validation';
-import type { HarnessFixture, TopoViewerWebviewHost, ValidationResult, WebviewState } from '../shared/types';
+import type { ExportImagePayload, HarnessFixture, TopoViewerWebviewHost, ValidationResult, WebviewState } from '../shared/types';
 
 declare global {
   interface Window {
@@ -10,6 +10,10 @@ declare global {
 }
 
 type PendingResolver = (state: WebviewState) => void;
+
+export function exportViewportMessage(payload: ExportImagePayload) {
+  return { type: 'exportViewport' as const, ...payload };
+}
 
 export class VsCodeHostAdapter implements TopoViewerWebviewHost {
   readonly kind = 'vscode' as const;
@@ -51,8 +55,8 @@ export class VsCodeHostAdapter implements TopoViewerWebviewHost {
     return Promise.resolve();
   }
 
-  exportImage(): Promise<void> {
-    this.vscode?.postMessage({ type: 'exportImage' });
+  exportImage(payload: ExportImagePayload): Promise<void> {
+    this.vscode?.postMessage(exportViewportMessage(payload));
     return Promise.resolve();
   }
 }
@@ -241,8 +245,7 @@ export class BrowserHarnessHostAdapter implements TopoViewerWebviewHost {
     return Promise.resolve();
   }
 
-  exportImage(): Promise<void> {
-    window.dispatchEvent(new CustomEvent('topoviewer-export-mock'));
+  exportImage(_payload: ExportImagePayload): Promise<void> {
     return Promise.resolve();
   }
 

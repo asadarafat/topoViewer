@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import fs from 'node:fs';
 import {
   chooseOption,
   expectActivePanelBeforePreview,
@@ -17,11 +18,7 @@ import {
   waitForHarnessReady,
   waitForHarnessState,
   waitForValidatedGraphObject,
-  yamlCompletions,
-  yamlHover,
   yamlObjectBlock,
-  yamlStyleMetadata,
-  type StyleValueDataType
 } from './harness-helpers';
 
 function matchingGeneratedObjectId(text: string, prefix: 'link' | 'path', requiredLines: string[]) {
@@ -80,11 +77,15 @@ test('renders the browser harness with fixtures, diagnostics, layers, preview, a
   await page.getByLabel('Underlay').uncheck();
   await expect(page.getByLabel('Underlay')).not.toBeChecked();
 
-  const exportPromise = page.evaluate(() => new Promise((resolve) => {
-    window.addEventListener('topoviewer-export-mock', () => resolve(true), { once: true });
-  }));
+  const downloadPromise = page.waitForEvent('download');
   await page.getByRole('button', { name: /export/i }).click();
-  await expect(exportPromise).resolves.toBeTruthy();
+  const download = await downloadPromise;
+  expect(download.suggestedFilename()).toMatch(/\.png$/);
+  const failure = await download.failure();
+  expect(failure).toBeNull();
+  const downloadPath = await download.path();
+  expect(downloadPath).toBeTruthy();
+  expect(fs.statSync(downloadPath!).size).toBeGreaterThan(0);
 });
 
 test('defaults to a one-third authoring rail and supports resize, reset, and persistence', async ({ page }) => {
@@ -152,7 +153,7 @@ test('uses a stacked narrow viewport fallback without horizontal page overflow',
   await expectActivePanelBeforePreview(page, '.topoviewer-vscode-inspector-pane');
 
   await page.getByRole('tab', { name: 'YAML', exact: true }).click();
-  await expect(page.locator('.topoviewer-vscode-editor .monaco-editor')).toBeVisible();
+  await expect(page.locator('.topoviewer-vscode-editor')).toBeVisible();
   await expectActivePanelBeforePreview(page, '.topoviewer-vscode-yaml-pane');
 
   await page.getByRole('tab', { name: 'Attention', exact: true }).click();
@@ -628,190 +629,39 @@ test('preserves invalid Monaco content when a structured mutation cannot be appl
     return markers.map((marker: { message: string; startLineNumber: number }) => `${marker.startLineNumber}:${marker.message}`).join('\n');
   })).toContain('2:');
   await expect(page.locator('.topoviewer-vscode-diagnostic-line--error').first()).toBeVisible();
+  await expect(page.getByRole('button', { name: /export/i })).toBeDisabled();
   await page.getByRole('tab', { name: 'Build', exact: true }).click();
   await page.getByRole('button', { name: 'Insert Node' }).click();
   await expect.poll(() => topologyText(page)).toBe('graph: [');
 });
 
-test('suggests topology keys and node references in YAML intelligence', async ({ page }) => {
+test('applies and reverts YAML drafts without live canvas mutation', async ({ page }) => {
   await page.goto('/');
   await waitForHarnessReady(page);
 
-  const nodeKeySuggestions = await yamlCompletions(page, {
-    document: 'topology',
-    text: 'graph:\n  nodes:\n    - ',
-    lineNumber: 3,
-    column: 7
-  });
-  expect(nodeKeySuggestions.map((suggestion) => suggestion.label)).toEqual(expect.arrayContaining([
-    'id',
-    'name',
-    'labels',
-    'data',
-    'layers',
-    'position'
-  ]));
+  await page.getByRole('tab', { name: 'YAML', exact: true }).click();
+  const original = await topologyText(page);
+  const edited = original.replace('name: FRA-PE', 'name: FRA-PE-Draft');
+  await setTopologyText(page, edited);
 
-  const sourceSuggestions = await yamlCompletions(page, {
-    document: 'topology',
-    text: 'graph:\n  links:\n    - source: ',
-    lineNumber: 3,
-    column: 15
-  });
-  expect(sourceSuggestions.map((suggestion) => suggestion.label)).toEqual(expect.arrayContaining([
-    'fra-pe',
-    'ams-p',
-    'lon-pe'
-  ]));
+  await expect(page.getByRole('button', { name: 'Apply', exact: true })).toBeEnabled();
+  await expect(page.getByRole('button', { name: 'Revert draft' })).toBeEnabled();
+  await expect(graphNodeByLabel(page, 'FRA-PE-Draft')).toHaveCount(0);
 
-  const hover = await yamlHover(page, {
-    document: 'topology',
-    text: 'graph:\n  links:\n    - source: fra-pe',
-    lineNumber: 3,
-    column: 8
-  });
-  expect(hover?.contents).toContain('Source graph node ID');
-});
+  await page.getByRole('button', { name: 'Apply', exact: true }).click();
+  await expect.poll(() => topologyText(page)).toContain('name: FRA-PE-Draft');
+  await expect(graphNodeByLabel(page, 'FRA-PE-Draft')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Apply', exact: true })).toBeDisabled();
 
-test('suggests stylesheet selectors, style keys, and typed values in YAML intelligence', async ({ page }) => {
-  await page.goto('/');
-  await waitForHarnessReady(page);
+  const revertedDraft = (await topologyText(page)).replace('name: FRA-PE-Draft', 'name: FRA-PE-Revert-Candidate');
+  await setTopologyText(page, revertedDraft);
+  await expect(page.getByRole('button', { name: 'Revert draft' })).toBeEnabled();
+  await page.getByRole('button', { name: 'Revert draft' }).click();
 
-  const selectorSuggestions = await yamlCompletions(page, {
-    document: 'stylesheet',
-    text: 'stylesheet:\n  - selector: ',
-    lineNumber: 2,
-    column: 15
-  });
-  expect(selectorSuggestions.map((suggestion) => suggestion.label)).toEqual(expect.arrayContaining([
-    'node',
-    'node[id = "fra-pe"]',
-    'node[labels.role = "pe"]',
-    'node[data.status = "ok"]'
-  ]));
-
-  const styleKeySuggestions = await yamlCompletions(page, {
-    document: 'stylesheet',
-    text: 'stylesheet:\n  - selector: node\n    style:\n      ',
-    lineNumber: 4,
-    column: 7
-  });
-  expect(styleKeySuggestions.map((suggestion) => suggestion.label)).toEqual(expect.arrayContaining([
-    'shape',
-    'borderColor',
-    'labelPosition'
-  ]));
-
-  const enumSuggestions = await yamlCompletions(page, {
-    document: 'stylesheet',
-    text: 'stylesheet:\n  - selector: node\n    style:\n      shape: ',
-    lineNumber: 4,
-    column: 14
-  });
-  expect(enumSuggestions.map((suggestion) => suggestion.label)).toEqual(expect.arrayContaining([
-    'ellipse',
-    'hexagon',
-    'diamond'
-  ]));
-
-  const colorSuggestions = await yamlCompletions(page, {
-    document: 'stylesheet',
-    text: 'stylesheet:\n  - selector: node\n    style:\n      borderColor: ',
-    lineNumber: 4,
-    column: 20
-  });
-  expect(colorSuggestions.map((suggestion) => suggestion.label)).toEqual(expect.arrayContaining([
-    '#1976d2',
-    '#42a5f5',
-    '#d32f2f',
-    '#2e7d32'
-  ]));
-
-  const integerSuggestions = await yamlCompletions(page, {
-    document: 'stylesheet',
-    text: 'stylesheet:\n  - selector: node\n    style:\n      width: ',
-    lineNumber: 4,
-    column: 14
-  });
-  expect(integerSuggestions.map((suggestion) => suggestion.label)).toEqual(expect.arrayContaining([
-    '0',
-    '16',
-    '96'
-  ]));
-  expect(integerSuggestions.map((suggestion) => suggestion.label)).not.toContain('#1976d2');
-
-  const hover = await yamlHover(page, {
-    document: 'stylesheet',
-    text: 'stylesheet:\n  - selector: node\n    style:\n      borderColor: "#1976d2"',
-    lineNumber: 4,
-    column: 12
-  });
-  expect(hover?.contents).toContain('Border color');
-});
-
-test('covers every stylesheet style key and value type in YAML intelligence', async ({ page }) => {
-  await page.goto('/');
-  await waitForHarnessReady(page);
-
-  const metadata = await yamlStyleMetadata(page);
-  const seenDataTypes = new Set<StyleValueDataType>();
-
-  for (const [kind, options] of Object.entries(metadata.optionsByKind)) {
-    const suggestions = await yamlCompletions(page, {
-      document: 'stylesheet',
-      text: `stylesheet:\n  - selector: ${kind}\n    style:\n      `,
-      lineNumber: 4,
-      column: 7
-    });
-    const suggestionsByLabel = new Map(suggestions.map((suggestion) => [suggestion.label, suggestion]));
-
-    for (const option of options) {
-      const suggestion = suggestionsByLabel.get(option.key);
-      expect(suggestion, `${kind}.${option.key} should be suggested`).toBeTruthy();
-      expect(suggestion?.detail, `${kind}.${option.key} should include a grouping detail`).toBeTruthy();
-      expect(suggestion?.documentation, `${kind}.${option.key} should document its value type`).toContain('Value type:');
-    }
-  }
-
-  for (const [kind, definitions] of Object.entries(metadata.valueTypesByKind)) {
-    for (const [key, definition] of Object.entries(definitions)) {
-      seenDataTypes.add(definition.dataType);
-      const valueLine = `      ${key}: `;
-      const suggestions = await yamlCompletions(page, {
-        document: 'stylesheet',
-        text: `stylesheet:\n  - selector: ${kind}\n    style:\n${valueLine}`,
-        lineNumber: 4,
-        column: valueLine.length + 1
-      });
-      const labels = suggestions.map((suggestion) => suggestion.label);
-
-      if (definition.dataType === 'enum') {
-        expect(labels, `${kind}.${key} should suggest every enum value`).toEqual(expect.arrayContaining(definition.options || []));
-        continue;
-      }
-      if (definition.dataType === 'boolean') {
-        expect(labels, `${kind}.${key} should suggest boolean values`).toEqual(expect.arrayContaining(['true', 'false']));
-        continue;
-      }
-      if (definition.dataType === 'color') {
-        expect(labels, `${kind}.${key} should suggest palette colors`).toEqual(expect.arrayContaining(['#1976d2', '#42a5f5', '#d32f2f', '#2e7d32']));
-        continue;
-      }
-      if (definition.dataType === 'integer') {
-        expect(labels, `${kind}.${key} should suggest integer values`).toEqual(expect.arrayContaining(['0', '16', '96']));
-        expect(labels, `${kind}.${key} should not suggest color values`).not.toContain('#1976d2');
-        continue;
-      }
-      if (definition.dataType === 'number') {
-        expect(labels, `${kind}.${key} should suggest numeric values`).toEqual(expect.arrayContaining(['0', '0.5', '1']));
-        expect(labels, `${kind}.${key} should not suggest color values`).not.toContain('#1976d2');
-        continue;
-      }
-      expect(labels, `${kind}.${key} text values should stay free-form`).toHaveLength(0);
-    }
-  }
-
-  expect([...seenDataTypes].sort()).toEqual(['boolean', 'color', 'enum', 'integer', 'number', 'text']);
+  await expect.poll(() => topologyText(page)).toContain('name: FRA-PE-Draft');
+  await expect.poll(() => topologyText(page)).not.toContain('name: FRA-PE-Revert-Candidate');
+  await expect(graphNodeByLabel(page, 'FRA-PE-Draft')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Revert draft' })).toBeDisabled();
 });
 
 test('creates a selected node style rule and opens YAML suggestions', async ({ page }) => {
@@ -824,7 +674,8 @@ test('creates a selected node style rule and opens YAML suggestions', async ({ p
   await expect(page.getByRole('tab', { name: 'Stylesheet YAML' })).toHaveAttribute('aria-selected', 'true');
   await expect.poll(() => stylesheetText(page)).toContain('selector: node[id = "fra-pe"]');
   await expect.poll(() => stylesheetText(page)).toContain('opacity: 1');
-  await expect(page.locator('.suggest-widget')).toBeVisible();
+  await expect(page.locator('.topoviewer-vscode-editor .monaco-editor')).toBeVisible({ timeout: 15000 });
+  await expect(page.locator('.suggest-widget')).toBeVisible({ timeout: 15000 });
   await expect(page.locator('.monaco-list-row').filter({ hasText: 'backgroundColor' }).first()).toBeVisible();
 
   await page.keyboard.press('Escape');

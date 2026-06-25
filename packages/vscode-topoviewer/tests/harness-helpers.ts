@@ -15,8 +15,10 @@ export type HarnessStyleMetadata = {
 };
 
 export async function topologyText(page: Page) {
-  await page.waitForFunction(() => !!(window as any).__topoviewerHarnessState?.topologyText || !!(window as any).monaco?.editor?.getModels?.()[0]);
+  await page.waitForFunction(() => !!(window as any).__topoviewerHarnessDraft?.topologyText || !!(window as any).__topoviewerHarnessState?.topologyText || !!(window as any).monaco?.editor?.getModels?.()[0]);
   return page.evaluate(() => {
+    const draft = (window as any).__topoviewerHarnessDraft;
+    if (draft?.topologyText) return draft.topologyText as string;
     const harnessState = (window as any).__topoviewerHarnessState;
     if (harnessState?.topologyText) return harnessState.topologyText as string;
     const models = (window as any).monaco.editor.getModels();
@@ -26,8 +28,8 @@ export async function topologyText(page: Page) {
 }
 
 export async function stylesheetText(page: Page) {
-  await page.waitForFunction(() => !!(window as any).__topoviewerHarnessState?.stylesheetText);
-  return page.evaluate(() => (window as any).__topoviewerHarnessState.stylesheetText as string);
+  await page.waitForFunction(() => !!(window as any).__topoviewerHarnessDraft?.stylesheetText || !!(window as any).__topoviewerHarnessState?.stylesheetText);
+  return page.evaluate(() => ((window as any).__topoviewerHarnessDraft?.stylesheetText || (window as any).__topoviewerHarnessState.stylesheetText) as string);
 }
 
 export async function setTopologyText(page: Page, text: string) {
@@ -37,7 +39,7 @@ export async function setTopologyText(page: Page, text: string) {
     const topologyModel = models.find((model: { getValue: () => string }) => model.getValue().includes('graph:'));
     (topologyModel || models[0]).setValue(value);
   }, text);
-  await page.waitForFunction((value) => (window as any).__topoviewerHarnessState?.topologyText === value, text);
+  await page.waitForFunction((value) => (window as any).__topoviewerHarnessDraft?.topologyText === value, text);
 }
 
 export async function yamlCompletions(
@@ -65,6 +67,36 @@ export async function yamlHover(
   return page.evaluate((hoverRequest) => (
     (window as any).__topoviewerYamlIntelligence.hover(hoverRequest) as { contents: string } | undefined
   ), request);
+}
+
+export async function yamlShouldOpenHelp(
+  page: Page,
+  request: { document: 'topology' | 'stylesheet'; text: string; lineNumber: number; column: number }
+) {
+  await page.waitForFunction(() => !!(window as any).__topoviewerYamlIntelligence?.shouldOpenHelp);
+  return page.evaluate((helpRequest) => (
+    (window as any).__topoviewerYamlIntelligence.shouldOpenHelp(helpRequest) as boolean
+  ), request);
+}
+
+export async function focusYamlEditorAt(page: Page, lineNumber: number, column: number) {
+  await page.waitForFunction(() => !!(window as any).__topoviewerHarnessEditor?.focusAt);
+  await page.evaluate(([line, col]) => {
+    (window as any).__topoviewerHarnessEditor.focusAt(line, col);
+    (document.querySelector('.monaco-editor textarea') as HTMLTextAreaElement | null)?.focus();
+  }, [lineNumber, column]);
+}
+
+export async function yamlSuggestionWidgetVisible(page: Page) {
+  await page.waitForFunction(() => !!(window as any).__topoviewerHarnessEditor?.suggestionVisible);
+  return page.evaluate(() => (window as any).__topoviewerHarnessEditor.suggestionVisible() as boolean);
+}
+
+export async function typeYamlEditorText(page: Page, text: string) {
+  await page.waitForFunction(() => !!(window as any).__topoviewerHarnessEditor?.typeText);
+  await page.evaluate((value) => {
+    (window as any).__topoviewerHarnessEditor.typeText(value);
+  }, text);
 }
 
 export async function chooseOption(page: Page, combobox: Locator, optionName: string) {

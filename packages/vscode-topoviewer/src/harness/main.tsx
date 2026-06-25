@@ -6,6 +6,15 @@ import { WebviewApp } from '../webview/WebviewApp';
 import { BrowserHarnessHostAdapter } from '../webview/host';
 import { createTopoViewerTheme } from '../webview/theme';
 
+function classifyBenignBrowserLayoutNoise() {
+  window.addEventListener('error', (event) => {
+    if (String(event.message || '').includes('ResizeObserver loop completed with undelivered notifications')) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+    }
+  }, true);
+}
+
 function browserSystemMode(): PaletteMode {
   return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 }
@@ -40,6 +49,8 @@ function BrowserHarnessRoot() {
     </ThemeProvider>
   );
 }
+
+classifyBenignBrowserLayoutNoise();
 
 createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>

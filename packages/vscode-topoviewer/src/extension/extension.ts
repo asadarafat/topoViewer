@@ -12,6 +12,17 @@ interface PreviewState {
   stylesheetMissing?: boolean;
 }
 
+interface ExportViewportMessage {
+  type: 'exportViewport';
+  format?: 'png' | 'svg';
+  fileName?: string;
+  dataUrl?: string;
+}
+
+function isExportViewportMessage(message: { type?: string } | ExportViewportMessage): message is ExportViewportMessage {
+  return message.type === 'exportViewport';
+}
+
 function nonce() {
   return crypto.randomBytes(16).toString('hex');
 }
@@ -114,15 +125,42 @@ class TopoViewerPreviewPanel {
 </html>`;
   }
 
-  private async handleMessage(message: { type?: string; target?: string }) {
+  private async handleMessage(message: { type?: string; target?: string } | ExportViewportMessage) {
     if (message.type === 'ready' || message.type === 'requestState') {
       await this.postState();
     }
     if (message.type === 'openDocs') {
       await vscode.env.openExternal(vscode.Uri.parse(`https://asadarafat.github.io/topoViewer/${message.target || ''}`));
     }
-    if (message.type === 'exportImage') {
-      void vscode.window.showInformationMessage('TopoViewer export is handled inside the preview webview.');
+    if (isExportViewportMessage(message)) {
+      await this.saveExport(message);
+    }
+  }
+
+  private async saveExport(message: ExportViewportMessage) {
+    const format = message.format || 'png';
+    const dataUrl = message.dataUrl || '';
+    const payload = dataUrl.match(/^data:[^;]+;base64,(.+)$/)?.[1];
+    if (!payload) {
+      void vscode.window.showErrorMessage('TopoViewer export did not include a valid image payload.');
+      return;
+    }
+
+    const target = await vscode.window.showSaveDialog({
+      defaultUri: vscode.Uri.file(path.join(
+        vscode.workspace.workspaceFolders?.[0]?.uri.fsPath || this.context.extensionPath,
+        message.fileName || `topoviewer.${format}`
+      )),
+      filters: format === 'svg' ? { SVG: ['svg'] } : { PNG: ['png'] },
+      saveLabel: 'Export TopoViewer viewport'
+    });
+    if (!target) return;
+
+    await vscode.workspace.fs.writeFile(target, Buffer.from(payload, 'base64'));
+    const open = 'Open';
+    const result = await vscode.window.showInformationMessage(`Exported ${path.basename(target.fsPath)}.`, open);
+    if (result === open) {
+      await vscode.env.openExternal(target);
     }
   }
 

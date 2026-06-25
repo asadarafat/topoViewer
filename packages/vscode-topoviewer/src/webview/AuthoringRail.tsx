@@ -27,7 +27,8 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import type { Dispatch, SetStateAction } from 'react';
 import type { TopoDocument } from 'topoviewer';
-import type { HarnessFixture, ValidationResult, WebviewState } from '../shared/types';
+import type { HarnessFixture, ValidationResult } from '../shared/types';
+import type { WebviewDiagnostic } from '../shared/types';
 import type { AttentionFocusKind } from '../shared/topologyMutations';
 import type { HarnessMode } from './webviewAppSupport';
 import type { KeyValueEditorRow } from './webviewStyleMetadata';
@@ -44,14 +45,16 @@ type AuthoringRailProps = Record<string, any> & {
   pathTransitOptions: any[];
   selectedLayerIds: string[];
   setSelectedLayerIds: Dispatch<SetStateAction<string[]>>;
-  setState: Dispatch<SetStateAction<WebviewState | undefined>>;
   validation: ValidationResult;
   visibleDocument?: TopoDocument;
+  activeDiagnostics: WebviewDiagnostic[];
+  yamlAssistEmptyMessage?: string;
 };
 
 export function AuthoringRail(props: AuthoringRailProps) {
   const {
   HarnessTabPanel,
+  activeDiagnostics,
   activeModeIndex,
   addKeyValueRow,
   addPathTransitNode,
@@ -64,6 +67,7 @@ export function AuthoringRail(props: AuthoringRailProps) {
   applyKeyValueRows,
   applyLinkGrouping,
   applyRelationshipInspector,
+  applyYamlDraft,
   attentionClickMode,
   attentionDataKey,
   attentionDataValue,
@@ -84,6 +88,7 @@ export function AuthoringRail(props: AuthoringRailProps) {
   currentAttention,
   dataRows,
   deleteSelection,
+  draftDirty,
   editorLabel,
   editorTheme,
   editorValue,
@@ -116,12 +121,14 @@ export function AuthoringRail(props: AuthoringRailProps) {
   pathTransitIds,
   pathTransitOptions,
   presetName,
+  openDiagnostic,
   relationshipComposer,
   reloadFixture,
   removeKeyValueRow,
   removePathTransitNode,
   resetAttention,
   revertTopology,
+  revertYamlDraft,
   saveSelectionAsPreset,
   saveTopology,
   selectedFixture,
@@ -154,8 +161,9 @@ export function AuthoringRail(props: AuthoringRailProps) {
   setPresetName,
   setRelationshipComposer,
   setSelectedLayerIds,
-  setState,
   setTab,
+  setDraftStylesheetText,
+  setDraftTopologyText,
   showYamlSuggestions,
   state,
   statusSeverity,
@@ -165,7 +173,8 @@ export function AuthoringRail(props: AuthoringRailProps) {
   updateKeyValueRow,
   useSelectionForAttention,
   validation,
-  visibleDocument
+  visibleDocument,
+  yamlAssistEmptyMessage
   } = props;
 
   return (
@@ -217,6 +226,22 @@ export function AuthoringRail(props: AuthoringRailProps) {
                 )}
               </Box>
             </Alert>
+            {activeDiagnostics.length > 0 && (
+              <Stack className="topoviewer-vscode-diagnostic-list" spacing={0.5}>
+                {activeDiagnostics.slice(0, 4).map((diagnostic: WebviewDiagnostic, index: number) => (
+                  <Button
+                    key={`${diagnostic.code}-${diagnostic.document || 'document'}-${diagnostic.line || 1}-${index}`}
+                    className="topoviewer-vscode-diagnostic-item"
+                    color={diagnostic.severity === 'error' ? 'error' : 'warning'}
+                    size="small"
+                    onClick={() => openDiagnostic(diagnostic)}
+                  >
+                    <span>{diagnostic.document || 'topology'}:{diagnostic.line || 1}</span>
+                    <span>{diagnostic.code}</span>
+                  </Button>
+                ))}
+              </Stack>
+            )}
 
             <HarnessTabPanel value={activeModeIndex} index={modeIndex('build')} className="topoviewer-vscode-mode-pane topoviewer-vscode-build-pane">
               <Stack className="topoviewer-vscode-mode-pane-scroll" spacing={2}>
@@ -469,8 +494,15 @@ export function AuthoringRail(props: AuthoringRailProps) {
               </Tabs>
               <Stack className="topoviewer-vscode-yaml-actions" direction="row" spacing={1}>
                 <Button size="small" disabled={!selectedPrimary} onClick={styleSelectionInYaml}>Style in YAML</Button>
-                <Button size="small" onClick={showYamlSuggestions}>Suggestions</Button>
+                <Button size="small" onClick={showYamlSuggestions}>YAML assist</Button>
+                <Button size="small" variant="contained" disabled={!draftDirty} onClick={applyYamlDraft}>Apply</Button>
+                <Button size="small" disabled={!draftDirty} onClick={revertYamlDraft}>Revert draft</Button>
               </Stack>
+              {yamlAssistEmptyMessage && (
+                <Alert severity="info" className="topoviewer-vscode-yaml-assist-empty">
+                  {yamlAssistEmptyMessage}
+                </Alert>
+              )}
               <Box className="topoviewer-vscode-editor">
                 <Tooltip title={`Copy ${editorLabel}`}>
                   <IconButton
@@ -488,9 +520,7 @@ export function AuthoringRail(props: AuthoringRailProps) {
                   theme={editorTheme}
                   value={editorValue}
                   onMount={handleEditorMount}
-                  onChange={(value) => setState((current) => current
-                    ? (tab === 0 ? { ...current, topologyText: value || '' } : { ...current, stylesheetText: value || '' })
-                    : current)}
+                  onChange={(value) => (tab === 0 ? setDraftTopologyText(value || '') : setDraftStylesheetText(value || ''))}
                   options={{
                     automaticLayout: true,
                     fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',

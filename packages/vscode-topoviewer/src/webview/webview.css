@@ -476,9 +476,23 @@ body,
 }
 
 .topoviewer-vscode-diagnostic-list {
-  flex: 1 1 auto;
-  min-height: 0;
+  flex: 0 0 auto;
+  max-height: calc(var(--topoviewer-vscode-space-3-5) * 4);
   overflow: auto;
+  margin-top: var(--topoviewer-vscode-space-1);
+}
+
+.topoviewer-vscode-diagnostic-item {
+  justify-content: space-between;
+  gap: var(--topoviewer-vscode-space-1);
+  text-align: left;
+}
+
+.topoviewer-vscode-diagnostic-item span:last-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 @media (max-width: 1100px) {

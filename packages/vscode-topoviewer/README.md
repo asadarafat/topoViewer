@@ -45,6 +45,28 @@ The harness starts in the browser system color scheme from
 `prefers-color-scheme`. Use the toolbar theme button to switch between light and
 dark while reviewing the webview UI.
 
+### Authoring Workflow
+
+YAML edits are drafts. Editing `Topology YAML` or `Stylesheet YAML` does not
+immediately mutate the canvas. Use `Apply` to validate and render the draft, or
+`Revert draft` to restore the last applied YAML. Build, Inspect, and Attention
+mutations are blocked while a draft is dirty so UI edits do not race with
+unapplied text edits.
+
+`YAML assist` opens Monaco completions for the current cursor context. Pressing
+Space keeps normal text entry behavior. Press `Ctrl+Space` or `?` at structural
+YAML locations for help; literal `?` remains editable inside comments, quoted
+strings, and scalar values.
+
+Diagnostics are durable below the fixture selector. Click a diagnostic to switch
+to the matching YAML document and reveal the reported line.
+
+### Export
+
+In the browser harness, the viewport export control downloads a PNG named from
+the graph or fixture ID. In VS Code, the webview generates the PNG payload and
+the extension host opens a save dialog before writing the file.
+
 ## Test
 
 ```bash
@@ -53,4 +75,5 @@ npm run test:vscode-harness
 
 The Playwright harness verifies fixture loading, diagnostics, preview rendering,
 Monaco editor rendering, layer toggles, preview action placement, export wiring,
-missing companion-file diagnostics, and browser theme-mode behavior.
+YAML assist behavior, candidate Apply/Revert behavior, missing companion-file
+diagnostics, and browser theme-mode behavior.

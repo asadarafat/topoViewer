@@ -4,6 +4,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>TopoViewer VS Code Harness</title>
+    <script>
+      window.addEventListener('error', function (event) {
+        if (String(event.message || '').includes('ResizeObserver loop completed with undelivered notifications')) {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+        }
+      }, true);
+    </script>
   </head>
   <body>
     <div id="root"></div>

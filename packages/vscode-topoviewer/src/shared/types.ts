@@ -33,6 +33,12 @@ export interface ValidationResult {
   layers: Array<{ id: string; name?: string; objectCount: number }>;
 }
 
+export interface ExportImagePayload {
+  dataUrl: string;
+  fileName: string;
+  format: 'png' | 'svg';
+}
+
 export interface TopoViewerWebviewHost {
   readonly kind: 'vscode' | 'browser';
   loadInitialState(): Promise<WebviewState>;
@@ -43,5 +49,5 @@ export interface TopoViewerWebviewHost {
   saveState?(state: WebviewState): Promise<void> | void;
   validate(state: WebviewState): Promise<ValidationResult>;
   openDocs(target: string): Promise<void>;
-  exportImage(): Promise<void>;
+  exportImage(payload: ExportImagePayload): Promise<void>;
 }
