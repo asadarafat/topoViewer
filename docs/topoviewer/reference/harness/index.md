@@ -106,6 +106,10 @@ Use it to exercise object focus, path focus, dense link grouping, and region agg
     controls: true
     controlsOpen: false
     title: Attention workflow
+    selectedLayerIds:
+      - underlay
+      - service
+      - operations
     ```
 
 === "Topology YAML"

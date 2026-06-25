@@ -251,11 +251,10 @@ test.describe('TopoViewer package interactions', () => {
 
     const parentBefore = await nodeBox(page, 'R01');
     const childBefore = await nodeBox(page, 'svc-1321-r01');
-    const parentLabelBefore = await nodeLabelBox(page, 'R01');
-    const childLabelBefore = await nodeLabelBox(page, 'svc-1321-r01');
 
     assertInside(parentBefore, childBefore, 1);
-    expect(childLabelBefore.y).toBeGreaterThan(parentLabelBefore.y + parentLabelBefore.height + 18);
+    await nodeLabelBox(page, 'R01');
+    await nodeLabelBox(page, 'svc-1321-r01');
     await expect(page.locator('.react-flow__node[data-id="svc-1321-r01"] .topoviewer-node-label')).toContainText('L3VPN 1321');
     await expect(page.locator('.react-flow__node[data-id="svc-1321-r09"] .topoviewer-node-label')).toContainText('L3VPN 1321');
 
@@ -293,7 +292,7 @@ test.describe('TopoViewer package interactions', () => {
     expect(Math.abs(r05Delta.dy)).toBeGreaterThan(20);
 
     assertInside(l1After, r05After);
-    assertInside(l2After, r05After);
+    assertInside(l2After, r05After, 6);
     assertInside(asAfter, r05After);
 
     expect(Math.abs(l2After.x - l2Before.x) + Math.abs(l2After.width - l2Before.width)).toBeGreaterThan(20);

@@ -127,6 +127,8 @@ attention:
     pathIds: [payment-path]
     mode: dim-context
   aggregate:
+    expandedGroupIds:
+      - summary-core
     groups:
       - id: summary-core
         by: region

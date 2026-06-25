@@ -13,8 +13,8 @@ stylesheet:
   - selector: node
     style:
       icon: router
-      width: 86
-      height: 60
+      width: 52
+      height: 52
       borderWidth: 3
       labelColor: var(--topoviewer-fg-strong)
       labelFontWeight: 800

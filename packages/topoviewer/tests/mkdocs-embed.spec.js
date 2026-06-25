@@ -354,7 +354,7 @@ async function expectControlAssertions(page, example) {
   }
   if (assertions.edgePathsWithMultipleSegmentsMin !== undefined) {
     await expect.poll(async () => page.locator('.topoviewer-edge-visible-path').evaluateAll((paths) => {
-      return paths.filter((path) => ((path.getAttribute('d') || '').match(/\bL/g) || []).length >= 3).length;
+      return paths.filter((path) => ((path.getAttribute('d') || '').match(/[Ll]/g) || []).length >= 3).length;
     })).toBeGreaterThanOrEqual(Number(assertions.edgePathsWithMultipleSegmentsMin));
   }
   if (assertions.edgeLabelText) {

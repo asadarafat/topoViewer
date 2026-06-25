@@ -562,6 +562,10 @@ examples:
       height: 520px
       controls: true
       controlsOpen: false
+      selectedLayerIds:
+        - underlay
+        - service
+        - operations
       title: Attention workflow
   - id: harness-inspector-workflow
     title: Inspector workflow
