@@ -2,18 +2,13 @@ import { z } from 'zod';
 import { GEOMETRY_SHAPES } from './types';
 import { finiteNumber } from './edgeStyle';
 import { parseNodeShapePoints } from './nodeShapes';
+import { canonicalStyleKeyByLowercase } from './styleDefaults';
 import type { TopoDocument } from './types';
 import { migrateTopoDocument } from './migration';
 
 const scalarSchema = z.union([z.string(), z.number(), z.boolean()]);
 const labelsSchema = z.record(scalarSchema);
 const dataSchema = z.record(z.unknown());
-const canonicalStyleKeyByLowercase = new Map([
-  ['labelzindex', 'labelZIndex'],
-  ['sourcelabelzindex', 'sourceLabelZIndex'],
-  ['targetlabelzindex', 'targetLabelZIndex']
-]);
-
 const styleSchema = z.record(z.unknown()).superRefine((style, ctx) => {
   for (const key of Object.keys(style)) {
     if (key.includes('-')) {

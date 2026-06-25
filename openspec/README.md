@@ -12,6 +12,7 @@ Current active plans:
 - `changes/define-opsmill-infrahub-integration-roadmap/` - planned OpsMill/Infrahub feasibility, use cases, first integration shape, and roadmap wording constraints.
 - `changes/define-grafana-integration-roadmap/` - planned Grafana feasibility, use cases, first integration shape, and roadmap wording constraints.
 - `changes/add-label-z-index-style-control/` - planned canonical `labelZIndex` style control for independent label draw order across dense topology views.
+- `changes/centralize-style-defaults-registry/` - planned canonical style defaults registry so runtime, docs, schema, and YAML assist describe the same defaults.
 - `changes/normalize-public-docs-url-layout/` - planned lowercase public repository/Pages URL contract and combined MkDocs, Zensical, and harness deployment layout.
 
 Current studies:

@@ -2,7 +2,8 @@ import { Handle, Position, useViewport } from '@xyflow/react';
 import type { CSSProperties, SVGAttributes } from 'react';
 import { displayName, formatLabels } from '../core/style';
 import { sanitizeSvg } from '../core/security';
-import type { NodeShapeName } from '../core/nodeShapes';
+import { type NodeShapeName } from '../core/nodeShapes';
+import { DEFAULT_NODE_SHAPE } from '../core/styleDefaults';
 import type { CompiledNodeData } from '../core/types';
 
 type Point = [number, number];
@@ -109,7 +110,7 @@ export function NetworkNode({ data }: { data: CompiledNodeData }) {
   const nodeOutlineStyle = (data.nodeOutlineStyle || {}) as CSSProperties;
   const nodeUnderlayStyle = (data.nodeUnderlayStyle || {}) as CSSProperties;
   const labelStyle = (data.labelStyle || {}) as CSSProperties;
-  const nodeShapeType = data.nodeShapeType || 'ellipse';
+  const nodeShapeType = data.nodeShapeType || DEFAULT_NODE_SHAPE;
   const fill = String(nodeShapeStyle.fill || iconStyle.backgroundColor || icon.fill || '#929aa8');
   const stroke = String(nodeShapeStyle.stroke || iconStyle.borderColor || icon.stroke || '#d9e0ea');
   const strokeWidth = Number(nodeShapeStyle.strokeWidth || iconStyle.borderWidth || 4);

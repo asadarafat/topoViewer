@@ -1,0 +1,359 @@
+import { edgeArrowShapes, taxiDirections } from './edgeStyle';
+import { NODE_SHAPES, type NodeShapeName } from './nodeShapes';
+import {
+  nodeBadgePositions,
+  nodeBorderStyles,
+  nodeIconFitValues,
+  nodeLabelPositions,
+  nodeLabelTextOverflowValues,
+  nodeLabelTextWrapValues,
+  nodeStatusPlacements
+} from './nodeStyle';
+import { regionLabelPositions } from './regionStyle';
+import { GEOMETRY_SHAPES } from './types';
+
+export type StyleTargetKind = 'node' | 'link' | 'path' | 'region' | 'shape' | 'callout';
+export type StyleValueDataType = 'text' | 'enum' | 'boolean' | 'integer' | 'number' | 'color' | 'numberList';
+
+export type StyleDefault =
+  | { kind: 'value'; value: string | number | boolean }
+  | { description: string; fallback?: string | number | boolean; from: string; kind: 'derived' }
+  | { description: string; kind: 'none' };
+
+export interface StyleKeyDefinition {
+  dataType: StyleValueDataType;
+  default: StyleDefault;
+  key: string;
+  label: string;
+  targets: StyleTargetKind[];
+  use: string;
+  values?: string[];
+}
+
+export const DEFAULT_NODE_SHAPE: NodeShapeName = 'square';
+
+const edgeCurveStyleValues = ['straight', 'bezier', 'unbundledBezier', 'simpleBezier', 'segments', 'roundSegments', 'taxi', 'roundTaxi', 'smoothTaxi', 'smoothstep', 'haystack'];
+const edgeAnchorValues = ['floating', 'fixed'];
+const edgeLineFillValues = ['solid', 'linearGradient'];
+const lineStyleValues = ['solid', 'dashed', 'dotted'];
+const lineCapValues = ['butt', 'round', 'square'];
+const displayValues = ['element', 'none'];
+const textAlignValues = ['left', 'center', 'right'];
+const commonLabelKeys = new Set(['labelColor', 'labelFontSize', 'labelFontWeight', 'labelFontStyle', 'labelZIndex']);
+
+const none = (description = 'No TopoViewer default; the key only applies when authored.'): StyleDefault => ({ kind: 'none', description });
+const value = (next: string | number | boolean): StyleDefault => ({ kind: 'value', value: next });
+const derived = (from: string, description: string, fallback?: string | number | boolean): StyleDefault => ({ kind: 'derived', from, description, fallback });
+
+function def(
+  targets: StyleTargetKind[],
+  key: string,
+  label: string,
+  dataType: StyleValueDataType,
+  use: string,
+  defaultValue: StyleDefault = none(),
+  values?: readonly string[]
+): StyleKeyDefinition {
+  return {
+    dataType,
+    default: defaultValue,
+    key,
+    label,
+    targets,
+    use,
+    values: values ? [...values] : undefined
+  };
+}
+
+const nodeDefinitions = [
+  def(['node'], 'shape', 'Shape', 'enum', 'Node body shape.', value(DEFAULT_NODE_SHAPE), NODE_SHAPES),
+  def(['node'], 'shapePolygonPoints', 'Polygon points', 'text', 'Custom polygon points when shape is polygon.'),
+  def(['node'], 'width', 'Body width', 'integer', 'Visible node body width.', value(82)),
+  def(['node'], 'height', 'Body height', 'integer', 'Visible node body height.', value(60)),
+  def(['node'], 'backgroundColor', 'Background color', 'color', 'Node body fill.', derived('icon.fill', 'Falls back to the selected icon fill.', '#6ea8fe')),
+  def(['node'], 'borderColor', 'Border color', 'color', 'Node body border color.', derived('icon.stroke', 'Falls back to the selected icon stroke.', '#d8e8ff')),
+  def(['node'], 'borderWidth', 'Border width', 'integer', 'Node body border width.', value(4)),
+  def(['node'], 'borderStyle', 'Border style', 'enum', 'Node body border pattern.', value('solid'), nodeBorderStyles),
+  def(['node'], 'borderDashPattern', 'Border dash pattern', 'numberList', 'Explicit SVG dash pattern for the node body border.'),
+  def(['node'], 'borderOpacity', 'Border opacity', 'number', 'Node body border opacity.'),
+  def(['node'], 'outlineColor', 'Outline color', 'color', 'Visual outline color around the node body.'),
+  def(['node'], 'outlineWidth', 'Outline width', 'integer', 'Visual outline width around the node body.'),
+  def(['node'], 'outlineOpacity', 'Outline opacity', 'number', 'Visual outline opacity around the node body.'),
+  def(['node'], 'underlayColor', 'Underlay color', 'color', 'Visual underlay fill behind the node body.'),
+  def(['node'], 'underlayPadding', 'Underlay padding', 'integer', 'Visual underlay padding around the node body.'),
+  def(['node'], 'underlayOpacity', 'Underlay opacity', 'number', 'Visual underlay opacity.'),
+  def(['node'], 'icon', 'Icon', 'text', 'Icon key selected from icons.', derived('style.icon, entity.icon, data.icon', 'Falls back to router.generic when no icon is selected.', 'router.generic')),
+  def(['node'], 'iconSize', 'Inner icon size', 'integer', 'Equal inner icon/image width and height.'),
+  def(['node'], 'iconWidth', 'Inner icon width', 'integer', 'Inner icon/image width.', derived('iconSize or width', 'Falls back to iconSize, then node width.')),
+  def(['node'], 'iconHeight', 'Inner icon height', 'integer', 'Inner icon/image height.', derived('iconSize or height', 'Falls back to iconSize, then node height.')),
+  def(['node'], 'iconColor', 'Icon color', 'color', 'Text glyph color.'),
+  def(['node'], 'iconFit', 'Icon fit', 'enum', 'Object-fit behavior for SVG/image icons.', derived('CSS', 'Falls back to the stylesheet image default.', 'contain'), nodeIconFitValues),
+  def(['node'], 'iconPadding', 'Icon padding', 'integer', 'Insets icon content inside the icon box.'),
+  def(['node'], 'iconBackgroundColor', 'Icon background', 'color', 'Background behind icon content inside the node body.'),
+  def(['node'], 'iconOpacity', 'Icon opacity', 'number', 'Icon glyph/image opacity.'),
+  def(['node'], 'labelPosition', 'Label position', 'enum', 'Node label placement.', value('bottom'), nodeLabelPositions),
+  def(['node'], 'labelColor', 'Label color', 'color', 'Node label color.', derived('CSS theme', 'Falls back to --topoviewer-fg-strong.')),
+  def(['node'], 'labelFontSize', 'Label font size', 'integer', 'Node label font size.', derived('CSS', 'Falls back to the node label CSS font size.', 10)),
+  def(['node'], 'labelFontWeight', 'Label font weight', 'text', 'Node label font weight.', derived('CSS', 'Falls back to the node label CSS font weight.', 620)),
+  def(['node'], 'labelOpacity', 'Label opacity', 'number', 'Node label opacity.'),
+  def(['node'], 'labelBackgroundColor', 'Label background', 'color', 'Node label background color.'),
+  def(['node'], 'labelBackgroundOpacity', 'Label background opacity', 'number', 'Node label background opacity.'),
+  def(['node'], 'labelBorderColor', 'Label border color', 'color', 'Node label border color.'),
+  def(['node'], 'labelBorderWidth', 'Label border width', 'integer', 'Node label border width.', derived('CSS', 'Falls back to the node label CSS border width.', 0)),
+  def(['node'], 'labelPadding', 'Label padding', 'integer', 'Node label padding.'),
+  def(['node'], 'labelTextMaxWidth', 'Label max width', 'integer', 'Node label maximum width.'),
+  def(['node'], 'labelTextWrap', 'Label wrap', 'enum', 'Node label wrapping behavior.', none(), nodeLabelTextWrapValues),
+  def(['node'], 'labelTextOverflow', 'Label overflow', 'enum', 'Node label overflow behavior.', none(), nodeLabelTextOverflowValues),
+  def(['node'], 'labelTextAlign', 'Label alignment', 'enum', 'Node label text alignment.', derived('CSS', 'Falls back to centered node label text.', 'center'), textAlignValues),
+  def(['node'], 'labelXOffset', 'Label X offset', 'integer', 'Pixel X offset after label placement.', value(0)),
+  def(['node'], 'labelYOffset', 'Label Y offset', 'integer', 'Pixel Y offset after label placement.', value(0)),
+  def(['node'], 'labelZIndex', 'Label z index', 'integer', 'Independent draw order for the node label.'),
+  def(['node'], 'minZoomedLabelFontSize', 'Min zoom label size', 'integer', 'Hide label below this effective zoomed font size.'),
+  def(['node'], 'metaColor', 'Meta color', 'color', 'Node metadata color.'),
+  def(['node'], 'metaFontSize', 'Meta font size', 'integer', 'Node metadata font size.'),
+  def(['node'], 'metaFontWeight', 'Meta font weight', 'text', 'Node metadata font weight.'),
+  def(['node'], 'badgeLabel', 'Badge label', 'text', 'Compact node badge label.', derived('aggregate childCount', 'Aggregate nodes can derive badge text from hidden member count.')),
+  def(['node'], 'badgePosition', 'Badge position', 'enum', 'Compact node badge placement.', value('topRight'), nodeBadgePositions),
+  def(['node'], 'badgeColor', 'Badge color', 'color', 'Compact node badge text color.'),
+  def(['node'], 'badgeBackgroundColor', 'Badge background', 'color', 'Compact node badge background color.'),
+  def(['node'], 'badgeBorderColor', 'Badge border color', 'color', 'Compact node badge border color.'),
+  def(['node'], 'statusColor', 'Status color', 'color', 'Compact status marker color.', derived('aggregate severity', 'Aggregate nodes can derive status color from worst known severity.')),
+  def(['node'], 'statusPlacement', 'Status placement', 'enum', 'Compact status marker placement.', value('bottomRight'), nodeStatusPlacements),
+  def(['node'], 'statusSize', 'Status size', 'integer', 'Compact status marker size.'),
+  def(['node'], 'display', 'Display', 'enum', 'Set none to hide the node.', value('element'), displayValues),
+  def(['node'], 'draggable', 'Draggable', 'boolean', 'Whether the node can be dragged.', value(true)),
+  def(['node'], 'selectable', 'Selectable', 'boolean', 'Whether the node can be selected.', value(true)),
+  def(['node'], 'opacity', 'Opacity', 'number', 'Node opacity.'),
+  def(['node'], 'zIndex', 'Z index', 'integer', 'Draw order for the node body.', value(10))
+] satisfies StyleKeyDefinition[];
+
+const edgeDefinitions = [
+  def(['link', 'path'], 'label', 'Label', 'text', 'Fallback center edge label.'),
+  def(['link', 'path'], 'lineColor', 'Line color', 'color', 'Edge stroke color.', value('#6ea8fe')),
+  def(['link', 'path'], 'lineWidth', 'Line width', 'integer', 'Edge stroke width.', value(1)),
+  def(['link', 'path'], 'lineStyle', 'Line style', 'enum', 'Convenience line dash style.', value('solid'), lineStyleValues),
+  def(['link', 'path'], 'lineDashPattern', 'Dash pattern', 'numberList', 'Explicit SVG line dash pattern.'),
+  def(['link', 'path'], 'lineDashOffset', 'Dash offset', 'number', 'SVG dash phase offset.'),
+  def(['link', 'path'], 'lineCap', 'Line cap', 'enum', 'SVG stroke line cap.', none(), lineCapValues),
+  def(['link'], 'lineOutlineWidth', 'Line outline width', 'integer', 'Outline width behind the edge line.'),
+  def(['link'], 'lineOutlineColor', 'Line outline color', 'color', 'Outline color behind the edge line.'),
+  def(['link', 'path'], 'lineOpacity', 'Line opacity', 'number', 'Line opacity without changing label opacity.'),
+  def(['link'], 'lineFill', 'Line fill', 'enum', 'Line fill model.', value('solid'), edgeLineFillValues),
+  def(['link'], 'lineGradientStopColors', 'Gradient colors', 'text', 'Gradient stop colors when lineFill is linearGradient.'),
+  def(['link'], 'lineGradientStopPositions', 'Gradient positions', 'text', 'Gradient stop positions when lineFill is linearGradient.'),
+  def(['link', 'path'], 'curveStyle', 'Curve style', 'enum', 'Edge route shape.', value('bezier'), edgeCurveStyleValues),
+  def(['link', 'path'], 'anchor', 'Anchor', 'enum', 'Endpoint anchoring model.', value('floating'), edgeAnchorValues),
+  def(['link', 'path'], 'controlPointStepSize', 'Control point step', 'integer', 'Distance between same-endpoint Bezier control points.'),
+  def(['link', 'path'], 'controlPointDistance', 'Control point distance', 'number', 'Manual Bezier control-point distance.'),
+  def(['link', 'path'], 'controlPointWeight', 'Control point weight', 'number', 'Manual Bezier control-point weight.', value(0.5)),
+  def(['link', 'path'], 'edgeDistances', 'Edge distances', 'enum', 'Cytoscape-compatible edge distance hint.', none(), ['intersection', 'nodePosition', 'endpoints']),
+  def(['link', 'path'], 'segmentDistances', 'Segment distances', 'numberList', 'Explicit bend distances for segment routing.'),
+  def(['link', 'path'], 'segmentWeights', 'Segment weights', 'numberList', 'Explicit bend weights for segment routing.'),
+  def(['link', 'path'], 'taxiDirection', 'Taxi direction', 'enum', 'Primary taxi routing direction.', value('auto'), taxiDirections),
+  def(['link', 'path'], 'taxiTurn', 'Taxi turn', 'text', 'Taxi turn placement.'),
+  def(['link', 'path'], 'taxiTurnMinDistance', 'Taxi turn minimum', 'integer', 'Minimum edge length before custom taxi routing applies.'),
+  def(['link'], 'sourceDistanceFromNode', 'Source distance', 'integer', 'Move rendered source endpoint inward from node boundary.'),
+  def(['link'], 'targetDistanceFromNode', 'Target distance', 'integer', 'Move rendered target endpoint inward from node boundary.'),
+  def(['link', 'path'], 'arrowColor', 'Arrow color', 'color', 'Shared arrow color fallback.', derived('lineColor', 'Falls back to the edge line color.')),
+  def(['link', 'path'], 'targetArrowShape', 'Target arrow', 'enum', 'Target arrow marker shape.', value('none'), edgeArrowShapes),
+  def(['link', 'path'], 'targetArrowColor', 'Target arrow color', 'color', 'Target arrow marker color.', derived('arrowColor or lineColor', 'Falls back to arrowColor, then lineColor.')),
+  def(['link', 'path'], 'targetArrowSize', 'Target arrow size', 'integer', 'Target arrow marker size.'),
+  def(['link', 'path'], 'sourceArrowShape', 'Source arrow', 'enum', 'Source arrow marker shape.', value('none'), edgeArrowShapes),
+  def(['link', 'path'], 'sourceArrowColor', 'Source arrow color', 'color', 'Source arrow marker color.', derived('arrowColor or lineColor', 'Falls back to arrowColor, then lineColor.')),
+  def(['link', 'path'], 'sourceArrowSize', 'Source arrow size', 'integer', 'Source arrow marker size.'),
+  def(['link', 'path'], 'labelColor', 'Label color', 'color', 'Center edge label color.', derived('CSS theme', 'Falls back to --topoviewer-fg-strong.')),
+  def(['link', 'path'], 'labelFontSize', 'Label font size', 'integer', 'Center edge label font size.', derived('CSS', 'Falls back to edge label CSS font size.', 10)),
+  def(['link', 'path'], 'labelFontWeight', 'Label font weight', 'text', 'Center edge label font weight.', derived('CSS', 'Falls back to edge label CSS font weight.', 650)),
+  def(['link', 'path'], 'labelFontStyle', 'Label font style', 'text', 'Center edge label font style.'),
+  def(['link'], 'labelBorderColor', 'Label border color', 'color', 'Shared edge label border color.', derived('CSS theme', 'Falls back to --topoviewer-edge-label-border.')),
+  def(['link'], 'labelBorderWidth', 'Label border width', 'integer', 'Shared edge label border width.', derived('CSS', 'Falls back to edge label CSS border width.', 1)),
+  def(['link'], 'textBackgroundColor', 'Label background', 'color', 'Shared edge label background.', derived('CSS theme', 'Falls back to --topoviewer-edge-label-bg.')),
+  def(['link'], 'textBackgroundOpacity', 'Label background opacity', 'number', 'Shared edge label background opacity.'),
+  def(['link', 'path'], 'labelZIndex', 'Label z index', 'integer', 'Draw order for the center edge label.'),
+  def(['link', 'path'], 'sourceLabel', 'Source label', 'text', 'Label rendered near the source endpoint.'),
+  def(['link'], 'sourceLabelColor', 'Source label color', 'color', 'Source endpoint label color.'),
+  def(['link'], 'sourceLabelBackgroundColor', 'Source label background', 'color', 'Source endpoint label background.'),
+  def(['link'], 'sourceLabelBorderColor', 'Source label border color', 'color', 'Source endpoint label border color.'),
+  def(['link'], 'sourceLabelBorderWidth', 'Source label border width', 'integer', 'Source endpoint label border width.'),
+  def(['link'], 'sourceLabelFontSize', 'Source label font size', 'integer', 'Source endpoint label font size.'),
+  def(['link'], 'sourceLabelFontWeight', 'Source label font weight', 'text', 'Source endpoint label font weight.'),
+  def(['link'], 'sourceLabelFontStyle', 'Source label font style', 'text', 'Source endpoint label font style.'),
+  def(['link', 'path'], 'sourceLabelZIndex', 'Source label z index', 'integer', 'Source endpoint label draw order.', derived('labelZIndex', 'Falls back to labelZIndex when omitted.')),
+  def(['link', 'path'], 'targetLabel', 'Target label', 'text', 'Label rendered near the target endpoint.'),
+  def(['link'], 'targetLabelColor', 'Target label color', 'color', 'Target endpoint label color.'),
+  def(['link'], 'targetLabelBackgroundColor', 'Target label background', 'color', 'Target endpoint label background.'),
+  def(['link'], 'targetLabelBorderColor', 'Target label border color', 'color', 'Target endpoint label border color.'),
+  def(['link'], 'targetLabelBorderWidth', 'Target label border width', 'integer', 'Target endpoint label border width.'),
+  def(['link'], 'targetLabelFontSize', 'Target label font size', 'integer', 'Target endpoint label font size.'),
+  def(['link'], 'targetLabelFontWeight', 'Target label font weight', 'text', 'Target endpoint label font weight.'),
+  def(['link'], 'targetLabelFontStyle', 'Target label font style', 'text', 'Target endpoint label font style.'),
+  def(['link', 'path'], 'targetLabelZIndex', 'Target label z index', 'integer', 'Target endpoint label draw order.', derived('labelZIndex', 'Falls back to labelZIndex when omitted.')),
+  def(['link', 'path'], 'sourceLabelXOffset', 'Source label X offset', 'integer', 'Pixel X offset applied to the source endpoint label.'),
+  def(['link', 'path'], 'sourceLabelYOffset', 'Source label Y offset', 'integer', 'Pixel Y offset applied to the source endpoint label.'),
+  def(['link', 'path'], 'targetLabelXOffset', 'Target label X offset', 'integer', 'Pixel X offset applied to the target endpoint label.'),
+  def(['link', 'path'], 'targetLabelYOffset', 'Target label Y offset', 'integer', 'Pixel Y offset applied to the target endpoint label.'),
+  def(['path'], 'laneWidth', 'Lane width', 'integer', 'Child path lane width.', derived('lineWidth', 'Falls back to lineWidth, then 3.')),
+  def(['path'], 'laneGap', 'Lane gap', 'integer', 'Child path lane spacing.', value(5)),
+  def(['path'], 'pipe', 'Pipe', 'boolean', 'Render a parent path as a pipe corridor.', derived('child paths', 'Automatically enabled when the object has visible child paths.')),
+  def(['path'], 'pipeWidth', 'Pipe width', 'integer', 'Width of the parent pipe fill.', derived('lineWidth', 'Falls back to lineWidth plus 14, with minimum 18.')),
+  def(['path'], 'pipeFill', 'Pipe fill', 'color', 'Fill color for the parent pipe.', derived('lineColor', 'Falls back to lineColor.')),
+  def(['path'], 'pipeBorderColor', 'Pipe border color', 'color', 'Outer pipe border color.', derived('lineColor', 'Falls back to lineColor.')),
+  def(['path'], 'pipeBorderWidth', 'Pipe border width', 'integer', 'Outer pipe border width.', value(2)),
+  def(['path'], 'pipeOpacity', 'Pipe opacity', 'number', 'Parent pipe opacity.', value(0.18)),
+  def(['path'], 'animated', 'Animated', 'boolean', 'Enable React Flow edge animation.', value(false)),
+  def(['link', 'path'], 'interactive', 'Interactive', 'boolean', 'Whether edge click handling and focus are enabled.', value(true)),
+  def(['link'], 'interactionWidth', 'Interaction width', 'integer', 'Pointer hit area.', derived('lineWidth', 'Defaults to max(12, lineWidth + 10).')),
+  def(['link'], 'labelInteractive', 'Label interactive', 'boolean', 'Whether edge labels receive pointer events.', value(true)),
+  def(['link', 'path'], 'display', 'Display', 'enum', 'Set none to hide the edge.', value('element'), displayValues),
+  def(['link', 'path'], 'opacity', 'Opacity', 'number', 'Edge opacity.'),
+  def(['link', 'path'], 'zIndex', 'Z index', 'integer', 'Draw order for the edge line.', value(6))
+] satisfies StyleKeyDefinition[];
+
+const regionDefinitions = [
+  def(['region'], 'shape', 'Shape', 'enum', 'Region hull shape.', value('roundRectangle'), ['roundRectangle', 'rectangle', 'ellipse']),
+  def(['region'], 'backgroundColor', 'Background color', 'color', 'Region fill.', value('rgba(76, 201, 240, 0.12)')),
+  def(['region'], 'borderColor', 'Border color', 'color', 'Region border color.', value('rgba(76, 201, 240, 0.62)')),
+  def(['region'], 'borderWidth', 'Border width', 'integer', 'Region border width.', value(1)),
+  def(['region'], 'labelPosition', 'Label position', 'enum', 'Region label anchor.', value('topLeft'), regionLabelPositions),
+  def(['region'], 'labelMargin', 'Label margin', 'integer', 'Region label margin from the selected region edge.', value(12)),
+  def(['region'], 'labelColor', 'Label color', 'color', 'Region label color.', derived('CSS theme', 'Falls back to region label CSS/theme styling.')),
+  def(['region'], 'labelBackgroundColor', 'Label background', 'color', 'Region label background.'),
+  def(['region'], 'labelFontSize', 'Label font size', 'integer', 'Region label font size.'),
+  def(['region'], 'labelFontWeight', 'Label font weight', 'text', 'Region label font weight.'),
+  def(['region'], 'labelZIndex', 'Label z index', 'integer', 'Independent draw order for the region label.'),
+  def(['region'], 'draggable', 'Draggable', 'boolean', 'Whether the region hull can be dragged.', value(false)),
+  def(['region'], 'selectable', 'Selectable', 'boolean', 'Whether the region hull can be selected.', value(false)),
+  def(['region'], 'opacity', 'Opacity', 'number', 'Region opacity.'),
+  def(['region'], 'zIndex', 'Z index', 'integer', 'Draw order for the region hull.', value(-20))
+] satisfies StyleKeyDefinition[];
+
+const shapeDefinitions = [
+  def(['shape'], 'shape', 'Shape', 'enum', 'Diagram shape geometry.', derived('diagram.shapes[].type', 'Falls back to the object type, then rectangle.', 'rectangle'), GEOMETRY_SHAPES),
+  def(['shape'], 'fill', 'Fill', 'color', 'Shape fill.', value('rgba(38, 54, 72, 0.82)')),
+  def(['shape'], 'stroke', 'Stroke', 'color', 'Shape stroke.', value('rgba(148, 163, 184, 0.64)')),
+  def(['shape'], 'strokeWidth', 'Stroke width', 'integer', 'Shape stroke width.', value(2)),
+  def(['shape'], 'backgroundColor', 'Background color', 'color', 'Alias-style fill input for shape fill.', derived('fill', 'Falls back to fill when authored.')),
+  def(['shape'], 'borderColor', 'Border color', 'color', 'Alias-style stroke input for shape stroke.', derived('stroke', 'Falls back to stroke when authored.')),
+  def(['shape'], 'borderWidth', 'Border width', 'integer', 'Alias-style stroke width input for shape stroke width.', derived('strokeWidth', 'Falls back to strokeWidth when authored.')),
+  def(['shape'], 'rotation', 'Rotation', 'integer', 'Geometry rotation in degrees.', derived('diagram.shapes[].rotation', 'Falls back to object rotation, then 0.', 0)),
+  def(['shape'], 'boxShadow', 'Box shadow', 'text', 'Presentation depth for the shape container.'),
+  def(['shape'], 'width', 'Width', 'integer', 'Default shape width when the object has no size.', value(180)),
+  def(['shape'], 'height', 'Height', 'integer', 'Default shape height when the object has no size.', value(72)),
+  def(['shape'], 'display', 'Display', 'enum', 'Set none to hide the shape.', value('element'), displayValues),
+  def(['shape'], 'draggable', 'Draggable', 'boolean', 'Whether the shape can be dragged unless locked.', value(true)),
+  def(['shape'], 'selectable', 'Selectable', 'boolean', 'Whether the shape can be selected unless locked.', value(false)),
+  def(['shape'], 'opacity', 'Opacity', 'number', 'Shape opacity.'),
+  def(['shape'], 'zIndex', 'Z index', 'integer', 'Draw order for the shape.', value(-10)),
+  def(['shape'], 'labelZIndex', 'Label z index', 'integer', 'Independent draw order for a shape label where rendered.')
+] satisfies StyleKeyDefinition[];
+
+const calloutDefinitions = [
+  def(['callout'], 'backgroundColor', 'Background color', 'color', 'Callout body fill.'),
+  def(['callout'], 'borderColor', 'Border color', 'color', 'Callout border color.'),
+  def(['callout'], 'borderWidth', 'Border width', 'integer', 'Callout border width.'),
+  def(['callout'], 'color', 'Text color', 'color', 'Shared callout text color.'),
+  def(['callout'], 'titleColor', 'Title color', 'color', 'Callout title color.', derived('color', 'Falls back to shared text color.')),
+  def(['callout'], 'titleBackgroundColor', 'Title background', 'color', 'Callout title background.'),
+  def(['callout'], 'titleFontSize', 'Title font size', 'integer', 'Callout title font size.'),
+  def(['callout'], 'titleFontWeight', 'Title font weight', 'text', 'Callout title font weight.'),
+  def(['callout'], 'bodyColor', 'Body color', 'color', 'Callout body text color.', derived('color', 'Falls back to shared text color.')),
+  def(['callout'], 'bodyFontSize', 'Body font size', 'integer', 'Callout body font size.'),
+  def(['callout'], 'bodyFontWeight', 'Body font weight', 'text', 'Callout body font weight.'),
+  def(['callout'], 'bodyLineHeight', 'Body line height', 'number', 'Callout body line height.'),
+  def(['callout'], 'textAlign', 'Text alignment', 'enum', 'Callout markdown text alignment.', value('left'), textAlignValues),
+  def(['callout'], 'borderRadius', 'Border radius', 'integer', 'Callout border radius.'),
+  def(['callout'], 'boxShadow', 'Box shadow', 'text', 'Presentation depth for the callout box.'),
+  def(['callout'], 'width', 'Width', 'integer', 'Default callout width when the object has no size.', value(320)),
+  def(['callout'], 'height', 'Height', 'integer', 'Default callout height when the object has no size.', value(120)),
+  def(['callout'], 'display', 'Display', 'enum', 'Set none to hide the callout.', value('element'), displayValues),
+  def(['callout'], 'draggable', 'Draggable', 'boolean', 'Whether the callout can be dragged unless locked.', value(true)),
+  def(['callout'], 'selectable', 'Selectable', 'boolean', 'Whether the callout can be selected unless locked.', value(false)),
+  def(['callout'], 'opacity', 'Opacity', 'number', 'Callout opacity.'),
+  def(['callout'], 'zIndex', 'Z index', 'integer', 'Draw order for the callout.', value(30)),
+  def(['callout'], 'labelZIndex', 'Label z index', 'integer', 'Independent draw order for a callout label where rendered.')
+] satisfies StyleKeyDefinition[];
+
+export const styleDefinitions = [
+  ...nodeDefinitions,
+  ...edgeDefinitions,
+  ...regionDefinitions,
+  ...shapeDefinitions,
+  ...calloutDefinitions
+] as const satisfies readonly StyleKeyDefinition[];
+
+export const styleDefinitionsByKind: Record<StyleTargetKind, StyleKeyDefinition[]> = {
+  node: styleDefinitions.filter((definition) => definition.targets.includes('node')),
+  link: styleDefinitions.filter((definition) => definition.targets.includes('link')),
+  path: styleDefinitions.filter((definition) => definition.targets.includes('path')),
+  region: styleDefinitions.filter((definition) => definition.targets.includes('region')),
+  shape: styleDefinitions.filter((definition) => definition.targets.includes('shape')),
+  callout: styleDefinitions.filter((definition) => definition.targets.includes('callout'))
+};
+
+const definitionByKindAndKey = new Map<string, StyleKeyDefinition>();
+styleDefinitionsByKind.node.concat(
+  styleDefinitionsByKind.link,
+  styleDefinitionsByKind.path,
+  styleDefinitionsByKind.region,
+  styleDefinitionsByKind.shape,
+  styleDefinitionsByKind.callout
+).forEach((definition) => {
+  definition.targets.forEach((kind) => {
+    definitionByKindAndKey.set(`${kind}:${definition.key}`, definition);
+  });
+});
+
+export const canonicalStyleKeyByLowercase = new Map<string, string>();
+styleDefinitions.forEach((definition) => {
+  canonicalStyleKeyByLowercase.set(definition.key.toLowerCase(), definition.key);
+});
+
+export function styleDefinitionForKey(kind: StyleTargetKind, key: string): StyleKeyDefinition | undefined {
+  return definitionByKindAndKey.get(`${kind}:${key}`);
+}
+
+export function styleDefaultDefinition(kind: StyleTargetKind, key: string): StyleDefault | undefined {
+  return styleDefinitionForKey(kind, key)?.default;
+}
+
+export function styleDefaultValue(kind: StyleTargetKind, key: string): string | number | boolean | undefined {
+  const defaultDefinition = styleDefaultDefinition(kind, key);
+  return defaultDefinition?.kind === 'value' ? defaultDefinition.value : undefined;
+}
+
+export function styleDefaultNumber(kind: StyleTargetKind, key: string, fallback: number): number {
+  const next = styleDefaultValue(kind, key);
+  return typeof next === 'number' ? next : fallback;
+}
+
+export function styleDefaultSummary(definition: StyleKeyDefinition): string {
+  if (definition.default.kind === 'value') return `Defaults to ${String(definition.default.value)}.`;
+  if (definition.default.kind === 'derived') {
+    const fallback = definition.default.fallback === undefined ? '' : ` Fallback: ${String(definition.default.fallback)}.`;
+    return `${definition.default.description}${fallback}`;
+  }
+  return definition.default.description;
+}
+
+export function styleValueDefinitionForKey(kind: StyleTargetKind, key: string): { dataType: StyleValueDataType; options?: string[] } {
+  const definition = styleDefinitionForKey(kind, key);
+  return {
+    dataType: definition?.dataType || 'text',
+    options: definition?.values
+  };
+}
+
+export function isColorStyleKey(key: string): boolean {
+  const definition = styleDefinitions.find((candidate) => candidate.key === key);
+  return definition?.dataType === 'color'
+    || key === 'color'
+    || key.endsWith('Color')
+    || key.endsWith('Colors')
+    || key === 'fill'
+    || key === 'pipeFill'
+    || key === 'stroke';
+}
+
+export function isCommonLabelStyleKey(key: string): boolean {
+  return commonLabelKeys.has(key);
+}

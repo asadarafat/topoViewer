@@ -6,6 +6,7 @@ import topoviewerTopologySchema from 'topoviewer/schemas/topoviewer-topology.sch
 import type { TopoObjectSelection } from '../shared/topologyMutations';
 import {
   styleGroupForKey,
+  styleDocumentationForKey,
   styleOptionsByKind,
   styleValueDefinitionForKey
 } from './webviewStyleMetadata';
@@ -466,7 +467,7 @@ function selectorSuggestions(request: YamlAuthoringRequest): YamlAuthoringSugges
 function styleKeySuggestions(kind: TopoObjectSelection['kind']): YamlAuthoringSuggestion[] {
   return styleOptionsByKind[kind].map((option) => ({
     detail: styleGroupForKey(kind, option.key),
-    documentation: `${option.label} style for ${kind} objects. Value type: ${styleValueDefinitionForKey(kind, option.key).dataType}.`,
+    documentation: styleDocumentationForKey(kind, option.key),
     insertText: `${option.key}: `,
     kind: 'key',
     label: option.key
@@ -658,8 +659,7 @@ export function yamlAuthoringHover(request: YamlAuthoringRequest): YamlAuthoring
     const selectorKind = selectorKindForContext(request);
     const option = styleOptionsByKind[selectorKind].find((candidate) => candidate.key === word);
     if (option) {
-      const definition = styleValueDefinitionForKey(selectorKind, word);
-      return { contents: `${option.label} style for ${selectorKind} objects. Value type: ${definition.dataType}.` };
+      return { contents: styleDocumentationForKey(selectorKind, word) };
     }
   }
   return undefined;

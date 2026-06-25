@@ -13,6 +13,7 @@ import {
 import { useId, type CSSProperties } from 'react';
 import { applyEndpointSpacing, segmentRoute, taxiRoute } from '../core/edgeGeometry';
 import { normalizeTaxiDirection, numberList, stringList } from '../core/edgeStyle';
+import { styleDefaultNumber } from '../core/styleDefaults';
 import type { Bounds } from '../core/types';
 
 function internalNodeBox(node: ReturnType<typeof useInternalNode> | undefined): Bounds & { centerX: number; centerY: number } | null {
@@ -22,8 +23,8 @@ function internalNodeBox(node: ReturnType<typeof useInternalNode> | undefined): 
     data?: { nodeStyle?: { width?: number; minHeight?: number }; edgeAnchor?: Bounds };
   };
   const position = runtimeNode.internals?.positionAbsolute || runtimeNode.positionAbsolute || runtimeNode.position || { x: 0, y: 0 };
-  const width = runtimeNode.measured?.width || runtimeNode.width || Number(runtimeNode.data?.nodeStyle?.width || 82);
-  const height = runtimeNode.measured?.height || runtimeNode.height || Number(runtimeNode.data?.nodeStyle?.minHeight || 60);
+  const width = runtimeNode.measured?.width || runtimeNode.width || Number(runtimeNode.data?.nodeStyle?.width || styleDefaultNumber('node', 'width', 82));
+  const height = runtimeNode.measured?.height || runtimeNode.height || Number(runtimeNode.data?.nodeStyle?.minHeight || styleDefaultNumber('node', 'height', 60));
   const anchor = runtimeNode.data?.edgeAnchor;
 
   if (anchor) {

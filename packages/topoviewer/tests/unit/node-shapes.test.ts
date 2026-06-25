@@ -8,6 +8,25 @@ import {
 } from '../../src';
 
 describe('declarative node shapes', () => {
+  it('uses square as the default node body shape', () => {
+    const document: TopoDocument = {
+      graph: {
+        layers: [{ id: 'physical' }],
+        nodes: [
+          { id: 'default-1', name: 'Default 1', layers: ['physical'], position: [0, 0] }
+        ]
+      },
+      stylesheet: [
+        { selector: 'node', style: { iconSize: 48, borderWidth: 3 } }
+      ]
+    };
+
+    const compiled = compileTopoGraph(document, ['physical']);
+    const data = compiled.nodes[0].data as Record<string, unknown>;
+
+    expect(data.nodeShapeType).toBe('square');
+  });
+
   it('compiles canonical named node shape values into node body metadata', () => {
     const document: TopoDocument = {
       graph: {

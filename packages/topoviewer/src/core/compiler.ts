@@ -3,6 +3,7 @@ import { computeLayoutPositions } from './layout';
 import { assertRendererLimits } from './limits';
 import { mergePlainObjects } from './object';
 import { buildRegionBoundsMap } from './regions';
+import { styleDefaultNumber } from './styleDefaults';
 import type {
   CompiledGraph,
   DiagramCallout,
@@ -67,8 +68,8 @@ function childNodesInsideParentsEnabled(toggles: TopoViewerToggles): boolean {
 
 function nodeDimensions(style: Record<string, unknown> | undefined): { width: number; height: number } {
   return {
-    width: Number(style?.width || 82),
-    height: Number(style?.height || 60)
+    width: Number(style?.width || styleDefaultNumber('node', 'width', 82)),
+    height: Number(style?.height || styleDefaultNumber('node', 'height', 60))
   };
 }
 

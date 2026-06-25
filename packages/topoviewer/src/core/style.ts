@@ -2,6 +2,7 @@ import { matchingRules } from './selector';
 import { mergePlainObjects, valueOrDefault, withoutUndefined } from './object';
 import { isSafeImageReference } from './security';
 import { nodeShapePointsToSvg, normalizeNodeShape, parseNodeShapePoints } from './nodeShapes';
+import { DEFAULT_NODE_SHAPE, styleDefaultNumber, styleDefaultValue } from './styleDefaults';
 import {
   finiteNumber,
   normalizeCurveStyleToken,
@@ -267,7 +268,7 @@ function mapLineDash(style: StyleDeclaration): string {
 }
 
 function mapCurveStyle(style: StyleDeclaration): string {
-  const curveStyle = normalizeCurveStyleToken(style.curveStyle || 'bezier');
+  const curveStyle = normalizeCurveStyleToken(style.curveStyle || styleDefaultValue('link', 'curveStyle') || 'bezier');
   if (['straight', 'haystack'].includes(curveStyle)) return 'straight';
   if (['segments', 'taxi'].includes(curveStyle)) return 'step';
   if (['roundsegments', 'roundtaxi', 'smoothtaxi', 'smoothstep'].includes(curveStyle)) return 'smoothstep';
@@ -285,24 +286,24 @@ function routeKind(style: StyleDeclaration): string | undefined {
 
 export function compileNodeStyle(style: StyleDeclaration, entity: GraphEntity, spec: StylesheetDocument) {
   const icon = iconForStyle(style, entity, spec);
-  const width = Number(valueOrDefault(style.width as number | undefined, 82));
-  const height = Number(valueOrDefault(style.height as number | undefined, 60));
+  const width = Number(valueOrDefault(style.width as number | undefined, styleDefaultNumber('node', 'width', 82)));
+  const height = Number(valueOrDefault(style.height as number | undefined, styleDefaultNumber('node', 'height', 60)));
   const iconWidth = Number(valueOrDefault((style.iconWidth ?? style.iconSize) as number | undefined, width));
   const iconHeight = Number(valueOrDefault((style.iconHeight ?? style.iconSize) as number | undefined, height));
-  const shape = normalizeNodeShape(style.shape) || 'ellipse';
+  const shape = normalizeNodeShape(style.shape) || DEFAULT_NODE_SHAPE;
   const shapePoints = parseNodeShapePoints(style.shapePolygonPoints).points;
   const fill = String(style.backgroundColor || icon.fill);
   const stroke = String(style.borderColor || icon.stroke);
-  const borderWidth = Number(valueOrDefault(style.borderWidth as number | undefined, 4));
+  const borderWidth = Number(valueOrDefault(style.borderWidth as number | undefined, styleDefaultNumber('node', 'borderWidth', 4)));
   const borderStyleDash = nodeDashPattern(style.borderDashPattern) || dashPatternForBorderStyle(style.borderStyle);
   const borderOpacity = opacityNumber(style.borderOpacity);
   const outlineWidth = nonNegativeNumber(style.outlineWidth);
   const underlayPadding = nonNegativeNumber(style.underlayPadding);
-  const labelPosition = normalizeNodeLabelPosition(style.labelPosition) || 'bottom';
+  const labelPosition = normalizeNodeLabelPosition(style.labelPosition) || String(styleDefaultValue('node', 'labelPosition') || 'bottom');
   const badgeLabel = aggregateBadgeLabel(style, entity);
-  const badgePosition = normalizeNodeBadgePosition(style.badgePosition) || 'topRight';
+  const badgePosition = normalizeNodeBadgePosition(style.badgePosition) || String(styleDefaultValue('node', 'badgePosition') || 'topRight');
   const statusColor = aggregateStatusColor(style, entity);
-  const statusPlacement = normalizeNodeStatusPlacement(style.statusPlacement) || 'bottomRight';
+  const statusPlacement = normalizeNodeStatusPlacement(style.statusPlacement) || String(styleDefaultValue('node', 'statusPlacement') || 'bottomRight');
   const iconFit = normalizeNodeIconFit(style.iconFit);
 
   return {
@@ -312,7 +313,7 @@ export function compileNodeStyle(style: StyleDeclaration, entity: GraphEntity, s
       selectable: style.selectable !== false,
       dragHandle: '.topoviewer-node-drag',
       hidden: style.display === 'none',
-      zIndex: valueOrDefault(style.zIndex as number | undefined, 10),
+      zIndex: valueOrDefault(style.zIndex as number | undefined, styleDefaultNumber('node', 'zIndex', 10)),
       style: withoutUndefined({
         width,
         opacity: style.opacity
@@ -420,16 +421,16 @@ export function compileNodeStyle(style: StyleDeclaration, entity: GraphEntity, s
 }
 
 export function compileEdgeStyle(style: StyleDeclaration, entity: GraphEntity, spec: StylesheetDocument, labelsEnabled: boolean) {
-  const lineColor = String(style.lineColor || '#6ea8fe');
+  const lineColor = String(style.lineColor || styleDefaultValue('link', 'lineColor') || '#6ea8fe');
   const label = edgeLabel(entity, spec, labelsEnabled, String(style.label || ''));
   const sourceLabel = labelsEnabled ? style.sourceLabel : undefined;
   const targetLabel = labelsEnabled ? style.targetLabel : undefined;
   const curveType = mapCurveStyle(style);
-  const anchor = String(style.anchor || 'floating').toLowerCase();
-  const lineWidth = Number(style.lineWidth || 1);
+  const anchor = String(style.anchor || styleDefaultValue('link', 'anchor') || 'floating').toLowerCase();
+  const lineWidth = Number(style.lineWidth || styleDefaultNumber('link', 'lineWidth', 1));
   const lineOpacity = style.lineOpacity ?? style.opacity;
   const interactive = style.interactive !== false;
-  const lineFill = String(style.lineFill || 'solid');
+  const lineFill = String(style.lineFill || styleDefaultValue('link', 'lineFill') || 'solid');
   const gradientStops = lineFill === 'linearGradient'
     ? normalizeGradientStops(style.lineGradientStopColors, style.lineGradientStopPositions)
     : undefined;
@@ -447,7 +448,7 @@ export function compileEdgeStyle(style: StyleDeclaration, entity: GraphEntity, s
     interactionWidth: interactive
       ? valueOrDefault(style.interactionWidth as number | undefined, Math.max(12, lineWidth + 10))
       : 0,
-    zIndex: valueOrDefault(style.zIndex as number | undefined, 6),
+    zIndex: valueOrDefault(style.zIndex as number | undefined, styleDefaultNumber('link', 'zIndex', 6)),
     label: label || undefined,
     labelStyle: withoutUndefined({
       fill: style.labelColor,
@@ -541,12 +542,12 @@ export function compileEdgeStyle(style: StyleDeclaration, entity: GraphEntity, s
 }
 
 export function compileRegionStyle(style: StyleDeclaration, width: number, height: number) {
-  const borderWidth = Number(valueOrDefault(style.borderWidth as number | undefined, 1));
-  const shape = String(style.shape || 'roundrectangle').toLowerCase();
+  const borderWidth = Number(valueOrDefault(style.borderWidth as number | undefined, styleDefaultNumber('region', 'borderWidth', 1)));
+  const shape = String(style.shape || styleDefaultValue('region', 'shape') || 'roundRectangle').toLowerCase();
   const borderRadius = shape === 'rectangle' ? 0 : shape === 'ellipse' ? '50%' : 4;
-  const labelPosition = normalizeRegionLabelPosition(style.labelPosition) || 'topLeft';
+  const labelPosition = normalizeRegionLabelPosition(style.labelPosition) || String(styleDefaultValue('region', 'labelPosition') || 'topLeft');
   const explicitLabelMargin = regionLabelMargin(style.labelMargin);
-  const defaultMargin = explicitLabelMargin ?? 12;
+  const defaultMargin = explicitLabelMargin ?? styleDefaultNumber('region', 'labelMargin', 12);
   const legacyLeftMargin = style.labelPosition === undefined && style.labelMargin === undefined ? 18 : defaultMargin;
   const labelPlacementStyle = regionLabelPlacementStyle(labelPosition, defaultMargin, legacyLeftMargin);
 
@@ -558,17 +559,17 @@ export function compileRegionStyle(style: StyleDeclaration, width: number, heigh
       dragHandle: style.draggable === true ? '.topoviewer-region-drag' : undefined,
       width,
       height,
-      zIndex: valueOrDefault(style.zIndex as number | undefined, -20),
+      zIndex: valueOrDefault(style.zIndex as number | undefined, styleDefaultNumber('region', 'zIndex', -20)),
       style: withoutUndefined({
         width,
         height,
-        zIndex: valueOrDefault(style.zIndex as number | undefined, -20),
+        zIndex: valueOrDefault(style.zIndex as number | undefined, styleDefaultNumber('region', 'zIndex', -20)),
         opacity: style.opacity
       })
     }),
     data: {
-      fill: String(style.backgroundColor || 'rgba(76, 201, 240, 0.12)'),
-      stroke: String(style.borderColor || 'rgba(76, 201, 240, 0.62)'),
+      fill: String(style.backgroundColor || styleDefaultValue('region', 'backgroundColor') || 'rgba(76, 201, 240, 0.12)'),
+      stroke: String(style.borderColor || styleDefaultValue('region', 'borderColor') || 'rgba(76, 201, 240, 0.62)'),
       borderWidth,
       borderRadius,
       labelPosition,
@@ -635,11 +636,11 @@ function normalizeSize(value: unknown, fallbackWidth: number, fallbackHeight: nu
 }
 
 export function compileShapeStyle(style: StyleDeclaration, entity: DiagramShape) {
-  const size = normalizeSize(entity.size, Number(style.width || 180), Number(style.height || 72));
-  const shapeType = String(style.shape || entity.type || 'rectangle').toLowerCase();
-  const fill = String(style.fill || style.backgroundColor || 'rgba(38, 54, 72, 0.82)');
-  const stroke = String(style.stroke || style.borderColor || 'rgba(148, 163, 184, 0.64)');
-  const borderWidth = Number(valueOrDefault(style.borderWidth as number | undefined, 2));
+  const size = normalizeSize(entity.size, Number(style.width || styleDefaultNumber('shape', 'width', 180)), Number(style.height || styleDefaultNumber('shape', 'height', 72)));
+  const shapeType = String(style.shape || entity.type || styleDefaultValue('shape', 'shape') || 'rectangle').toLowerCase();
+  const fill = String(style.fill || style.backgroundColor || styleDefaultValue('shape', 'fill') || 'rgba(38, 54, 72, 0.82)');
+  const stroke = String(style.stroke || style.borderColor || styleDefaultValue('shape', 'stroke') || 'rgba(148, 163, 184, 0.64)');
+  const borderWidth = Number(valueOrDefault(style.borderWidth as number | undefined, styleDefaultNumber('shape', 'strokeWidth', 2)));
   const rotation = Number(valueOrDefault((style.rotation ?? style.rotate) as number | undefined, entity.rotation || 0));
 
   return {
@@ -649,7 +650,7 @@ export function compileShapeStyle(style: StyleDeclaration, entity: DiagramShape)
       selectable: style.selectable === true && entity.locked !== true,
       dragHandle: entity.locked === true ? undefined : '.topoviewer-shape-drag',
       hidden: style.display === 'none',
-      zIndex: valueOrDefault(style.zIndex as number | undefined, -10),
+      zIndex: valueOrDefault(style.zIndex as number | undefined, styleDefaultNumber('shape', 'zIndex', -10)),
       style: withoutUndefined({
         width: size.width,
         height: size.height,
@@ -686,8 +687,8 @@ export function compileShapeStyle(style: StyleDeclaration, entity: DiagramShape)
 }
 
 export function compileCalloutStyle(style: StyleDeclaration, entity: DiagramCallout) {
-  const size = normalizeSize(entity.size, Number(style.width || 320), Number(style.height || 120));
-  const align = String(entity.align || style.align || style.textAlign || 'left');
+  const size = normalizeSize(entity.size, Number(style.width || styleDefaultNumber('callout', 'width', 320)), Number(style.height || styleDefaultNumber('callout', 'height', 120)));
+  const align = String(entity.align || style.align || style.textAlign || styleDefaultValue('callout', 'textAlign') || 'left');
   const markdown = entity.markdown !== undefined ? entity.markdown : entity.body;
 
   return {
@@ -697,7 +698,7 @@ export function compileCalloutStyle(style: StyleDeclaration, entity: DiagramCall
       selectable: style.selectable === true && entity.locked !== true,
       dragHandle: entity.locked === true ? undefined : '.topoviewer-callout-drag',
       hidden: style.display === 'none',
-      zIndex: valueOrDefault(style.zIndex as number | undefined, 30),
+      zIndex: valueOrDefault(style.zIndex as number | undefined, styleDefaultNumber('callout', 'zIndex', 30)),
       style: withoutUndefined({
         width: size.width,
         minHeight: size.height,

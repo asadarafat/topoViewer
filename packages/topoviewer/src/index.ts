@@ -24,6 +24,20 @@ export { validateTopoDocument } from './core/validation';
 export { lintTopoDocument } from './core/lint';
 export { NODE_SHAPES, normalizeNodeShape, parseNodeShapePoints } from './core/nodeShapes';
 export {
+  DEFAULT_NODE_SHAPE,
+  canonicalStyleKeyByLowercase,
+  isColorStyleKey,
+  isCommonLabelStyleKey,
+  styleDefaultDefinition,
+  styleDefaultNumber,
+  styleDefaultSummary,
+  styleDefaultValue,
+  styleDefinitionForKey,
+  styleDefinitions,
+  styleDefinitionsByKind,
+  styleValueDefinitionForKey
+} from './core/styleDefaults';
+export {
   nodeBadgePositions,
   nodeBorderStyles,
   nodeIconFitValues,
@@ -35,6 +49,7 @@ export {
 export type { StaticExportOptions, StaticPdfExportOptions } from './core/export';
 export type { LintIssue, LintOptions } from './core/lint';
 export type { NodeShapeName, NodeShapePoint, ParsedNodeShapePoints } from './core/nodeShapes';
+export type { StyleDefault, StyleKeyDefinition, StyleTargetKind, StyleValueDataType } from './core/styleDefaults';
 export type {
   NodeBadgePosition,
   NodeBorderStyle,

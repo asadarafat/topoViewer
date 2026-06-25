@@ -32,6 +32,7 @@ import {
 } from './nodeStyle';
 import { regionLabelMargin, regionLabelPositions, normalizeRegionLabelPosition } from './regionStyle';
 import { selectorMatches } from './selector';
+import { canonicalStyleKeyByLowercase, isColorStyleKey } from './styleDefaults';
 import type { DiagramCallout, DiagramConnector, GraphEntity, GraphLink, GraphPath, StyleRule, TopoDocument } from './types';
 import { validateTopoDocument } from './validation';
 
@@ -89,12 +90,6 @@ function layerMembershipIssues(kind: string, entity: GraphEntity, path: string):
   return [issue('warning', `missing-${kind}-layers`, `${titleCase(kind)} "${entity.id}" will not render until it declares at least one layer.`, `${path}.layers`)];
 }
 
-const canonicalStyleKeyByLowercase = new Map([
-  ['labelzindex', 'labelZIndex'],
-  ['sourcelabelzindex', 'sourceLabelZIndex'],
-  ['targetlabelzindex', 'targetLabelZIndex']
-]);
-
 function styleKeyIssues(style: Record<string, unknown> | undefined, path: string): LintIssue[] {
   if (!style || typeof style !== 'object') return [];
   return Object.keys(style).flatMap((key) => {
@@ -120,14 +115,6 @@ function styleKeyIssues(style: Record<string, unknown> | undefined, path: string
     }
     return issues;
   });
-}
-
-function isColorStyleKey(key: string): boolean {
-  return key === 'color'
-    || key === 'fill'
-    || key === 'stroke'
-    || key.endsWith('Color')
-    || key.endsWith('Colors');
 }
 
 function selectorKind(selector: string): string {
