@@ -355,6 +355,8 @@ export interface TopoViewerProps {
   onNodePositionChange?: (change: TopoViewerNodePositionChange) => void;
   onViewportChange?: (viewport: TopoViewerViewport) => void;
   onExport?: () => void;
+  exportDisabled?: boolean;
+  exportTooltip?: string;
   className?: string;
   style?: CSSProperties;
 }

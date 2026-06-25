@@ -157,6 +157,8 @@ function TopoFlow({
   document,
   showRegions,
   controlPanelToggle,
+  exportDisabled,
+  exportTooltip,
   onExport,
   onObjectClick,
   onPaneClick,
@@ -169,6 +171,8 @@ function TopoFlow({
   document: TopoViewerProps['document'];
   showRegions: boolean;
   controlPanelToggle?: TopoViewerProps['controlPanelToggle'];
+  exportDisabled?: TopoViewerProps['exportDisabled'];
+  exportTooltip?: TopoViewerProps['exportTooltip'];
   onExport?: TopoViewerProps['onExport'];
   onObjectClick?: TopoViewerProps['onObjectClick'];
   onPaneClick?: TopoViewerProps['onPaneClick'];
@@ -262,6 +266,8 @@ function TopoFlow({
       <LabelOverlay nodes={nodes as never[]} />
       <ViewportControls
         controlPanelToggle={controlPanelToggle}
+        exportDisabled={exportDisabled}
+        exportTooltip={exportTooltip}
         onExport={onExport}
       />
     </ReactFlow>
@@ -277,6 +283,8 @@ export function TopoViewer({
   attention,
   extensions,
   controlPanelToggle,
+  exportDisabled,
+  exportTooltip,
   onObjectClick,
   onPaneClick,
   onNodePositionChange,
@@ -330,6 +338,8 @@ export function TopoViewer({
           document={preparedDocument}
           showRegions={effectiveToggles.showRegions !== false}
           controlPanelToggle={controlPanelToggle}
+          exportDisabled={exportDisabled}
+          exportTooltip={exportTooltip}
           onExport={onExport}
           onObjectClick={onObjectClick}
           onPaneClick={onPaneClick}

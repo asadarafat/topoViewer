@@ -16,9 +16,13 @@ function ControlsPanelIcon() {
 
 export function ViewportControls({
   controlPanelToggle,
+  exportDisabled,
+  exportTooltip,
   onExport
 }: {
   controlPanelToggle?: TopoViewerProps['controlPanelToggle'];
+  exportDisabled?: TopoViewerProps['exportDisabled'];
+  exportTooltip?: TopoViewerProps['exportTooltip'];
   onExport?: TopoViewerProps['onExport'];
 }) {
   let toggleButton: ReactNode = null;
@@ -39,12 +43,13 @@ export function ViewportControls({
     );
   }
 
-  if (onExport) {
+  if (onExport || exportDisabled) {
     exportButton = (
       <ControlButton
         aria-label="Export viewport"
-        title="Export viewport image"
-        onClick={onExport}
+        disabled={exportDisabled}
+        title={exportTooltip || 'Export viewport image'}
+        onClick={exportDisabled ? undefined : onExport}
         type="button"
       >
         <PhotoCameraIcon />
