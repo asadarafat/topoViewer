@@ -66,6 +66,7 @@ import {
   rendererLimitViolations,
   DEFAULT_RENDERER_LIMITS,
   applyStyle,
+  computeClosLayoutPositions,
   computeLayoutPositions,
   rebuildRegionNodes,
   compileTopoGraph,
@@ -101,6 +102,8 @@ import {
   type GraphNode,
   type GraphLink,
   type GraphRegion,
+  type ClosInferLabelRole,
+  type ClosLayoutOptions,
   type LayoutConfig,
   topoviewerToPdf,
   topoviewerToPng,
@@ -127,12 +130,13 @@ import {
 |---|---|
 | `TopoViewer` | React component. |
 | `TopoViewerProps`, `TopoViewerObjectClick`, `TopoViewerNodePositionChange`, `TopoViewerViewport`, `TopoViewerExtension` | Canonical component props and event payload types. |
-| `TopoDocument`, `LayoutConfig`, `GraphNode`, `GraphLink`, `GraphRegion`, `TopoDocumentAttention`, `TopoViewerToggles` | Main schema and runtime contract types for integration layers. |
+| `TopoDocument`, `LayoutConfig`, `ClosLayoutOptions`, `ClosInferLabelRole`, `GraphNode`, `GraphLink`, `GraphRegion`, `TopoDocumentAttention`, `TopoViewerToggles` | Main schema and runtime contract types for integration layers. |
 | `attentionSourceKey`, `attentionStateKey` | Stable cache keys for graph content and attention query state. |
 | `LintIssue` / `LintOptions` | Static linting result shapes and lint options. |
 | `compileTopoGraph` | Converts a TopoViewer document into React Flow-compatible nodes and edges. |
 | `rebuildRegionNodes` | Recomputes region hull and containment geometry after graph changes. |
-| `computeLayoutPositions` | Executes layout for graph nodes. |
+| `computeLayoutPositions` | Executes the selected layout mode for graph nodes. |
+| `computeClosLayoutPositions` | Executes the generic CLOS layout engine directly for tests or custom host workflows. |
 | `applyStyle` | Applies a stylesheet style declaration against a base style object using existing style resolvers. |
 | `buildAttentionIndex` / `buildAttentionIndexCached` | Builds immutable attention indexes and cache-aware reuse variant. |
 | `resolveFocusQuery` | Resolves semantic focus input into focused/related/context/hidden object sets. |

@@ -10,54 +10,36 @@ graph:
         node: spine
       layers:
         - underlay
-      position:
-        - 306
-        - 69
     - id: Spine-2
       name: Spine-2
       labels:
         node: spine
       layers:
         - underlay
-      position:
-        - 452
-        - 70
     - id: Leaf-1
       name: Leaf-1
       labels:
         node: leaf
       layers:
         - underlay
-      position:
-        - 159
-        - 293
     - id: Leaf-2
       name: Leaf-2
       labels:
         node: leaf
       layers:
         - underlay
-      position:
-        - 295
-        - 305
     - id: Leaf-3
       name: Leaf-3
       labels:
         node: leaf
       layers:
         - underlay
-      position:
-        - 468
-        - 301
     - id: Leaf-4
       name: Leaf-4
       labels:
         node: leaf
       layers:
         - underlay
-      position:
-        - 650
-        - 300
   links:
     - id: Spine-1-Leaf-1
       name: Spine-1 to Leaf-1

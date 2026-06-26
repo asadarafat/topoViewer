@@ -12,7 +12,7 @@ A TopoViewer document may be split into topology and stylesheet YAML, or compose
 | `graph` | Semantic graph facts: layers, nodes, links, paths, and regions. |
 | `diagram` | Explanatory primitives: shapes, callouts, and pin/connector helpers. |
 | `toggles` | Reader-visible display switches. |
-| `layout` | Layout policy and force-layout knobs. |
+| `layout` | Layout policy for `manual`, `force`, or `clos` placement. |
 | `limits` | Renderer guardrails for maximum objects and embedded image bytes. |
 | `icons` | Named reusable icon definitions. |
 | `labelFields` | Ordered fields used for labels when a style rule does not override `label`. |
@@ -96,6 +96,41 @@ Layers are author-controlled visibility groups. They are not fixed to networking
 - `failure-domain`
 
 Objects may belong to multiple layers.
+
+## Layout
+
+`layout.mode` controls node placement:
+
+| Mode | Behavior |
+|---|---|
+| `manual` | Uses authored node positions. |
+| `force` | Runs deterministic force layout from authored seed positions. |
+| `clos` | Infers stage-constrained CLOS-like rows or columns from graph structure, directed hierarchy, endpoint counts, and optional hints. |
+
+`clos` is generic. It does not require data-center-specific roles. Use
+`layout.inferLabelRole` when labels/data should explicitly override fuzzy
+inference; it is not enabled by default. Without explicit hints, directed
+`source` -> `target` links define the root-to-leaf order when they form a clear
+hierarchy, and low endpoint count is used as a fuzzy fallback when direction is
+not usable. Use `layout.clos.stageKey`, `stageOrder`, and `groupKey` when the
+topology has a direct stage field or authored taxonomy should control stage and
+group order.
+
+Practical rules:
+
+- Generic stage-like fields such as `labels.stage`, `data.stage`, `labels.tier`,
+  and `labels.level` may be used as direct stage hints.
+- `labels.node`, `labels.role`, and similar labels are classifiers for selectors
+  and filters. They do not control CLOS stages unless referenced by `stageKey`
+  or mapped through `inferLabelRole`.
+- The automatic root side is inferred from directed hierarchy first. A node with
+  many downstream links can still be placed below a lower-degree upstream node
+  when link direction makes that hierarchy clear.
+- TopoViewer does not use a `rootNodeIds` YAML field for CLOS layout. If the
+  automatic hierarchy is not enough, author a stage field and use `stageKey` or
+  switch to `manual`.
+- Use `force` for organic meshes and cyclic graphs where staged rows would imply
+  a false hierarchy.
 
 ## Labels
 

@@ -92,7 +92,63 @@ layout:
   centerStrength: 0.05
 ```
 
-`manual` uses supplied positions as-is. `force` treats supplied positions as deterministic seeds and computes a readable layout.
+`manual` uses supplied positions as-is. `force` treats supplied positions as deterministic seeds and computes a readable layout. `clos` computes stage-constrained placement from graph structure, directed hierarchy, endpoint counts, and optional hints.
+
+For automatic CLOS layout, keep the stylesheet focused on layout geometry and
+author links from earlier stage to later stage. Directed `source` -> `target`
+links are the strongest automatic root signal. Low endpoint count is used as a
+fuzzy fallback only when direction is not usable.
+Generic stage fields such as `labels.stage`, `data.stage`, `labels.tier`, or
+`labels.level` can act as direct stage hints. Domain labels such as
+`labels.node` and `labels.role` are not stage hints by default.
+
+```yaml
+layout:
+  mode: clos
+  width: 860
+  height: 420
+  clos:
+    direction: topToBottom
+    nodeGap: 168
+    groupGap: 208
+```
+
+`labels.node`, `labels.role`, and similar classifier fields remain styling and
+filter metadata by default:
+
+```yaml
+stylesheet:
+  - selector: node[labels.node = "spine"]
+    style:
+      outlineColor: "#9c27b0"
+      outlineWidth: 4
+```
+
+Those labels do not move nodes unless they are explicitly referenced by a layout
+hint. Use `stageKey` when your topology already has a direct stage field and you
+want to make that stage source explicit:
+
+```yaml
+layout:
+  mode: clos
+  clos:
+    stageKey: labels.stage
+    stageOrder: [core, aggregation, access]
+    groupKey: labels.site
+```
+
+Use `inferLabelRole` only when an existing role vocabulary should be mapped to
+stages without adding a dedicated stage field:
+
+```yaml
+layout:
+  mode: clos
+  inferLabelRole:
+    - stage-1: p
+    - stage-2: pe
+    - stage-3: agg
+    - stage-4: access
+```
 
 ## Default Behavior
 

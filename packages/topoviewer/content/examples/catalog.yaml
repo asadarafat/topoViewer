@@ -503,6 +503,17 @@ examples:
       controls: true
       controlsOpen: false
       title: Force layout
+  - id: layout-clos
+    title: CLOS layout
+    feature: layout
+    path: layout/clos
+    page: topoviewer/reference/layout/clos
+    summary: CLOS layout infers staged placement from graph structure.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: CLOS layout
   - id: harness-layered-network
     title: Layered network authoring
     feature: harness

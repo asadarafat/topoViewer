@@ -1,0 +1,35 @@
+layout:
+  mode: clos
+  width: 760
+  height: 420
+  clos:
+    direction: topToBottom
+    maxStages: 10
+    nodeGap: 180
+    groupGap: 220
+icons:
+  stage:
+    glyph: "•"
+    fill: "#1976d2"
+    stroke: "#90caf9"
+labelFields:
+  - name
+stylesheet:
+  - selector: node
+    style:
+      icon: stage
+      shape: square
+      width: 72
+      height: 56
+      borderWidth: 3
+      labelColor: var(--topoviewer-fg-strong)
+      labelFontWeight: 800
+      labelBackgroundColor: var(--topoviewer-panel-bg)
+      labelBackgroundOpacity: 0.92
+      labelPadding: 3
+  - selector: link
+    style:
+      curveStyle: straight
+      lineColor: "#42a5f5"
+      lineWidth: 3
+      targetArrowShape: none

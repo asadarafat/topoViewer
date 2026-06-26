@@ -34,7 +34,7 @@ a GitHub Actions failure.
 | `ci:docs` | Builds MkDocs, Zensical, and the browser harness, then opens the built `site/` artifact in Chromium. |
 | `ci:test:topoviewer` | Runs unit and Playwright tests for the renderer package. |
 | `ci:test:harness` | Runs Playwright tests for the VS Code browser harness. |
-| `ci:perf:smoke` | Enforces the attention-engine smoke benchmark. |
+| `ci:perf:smoke` | Enforces attention-engine and CLOS layout smoke benchmarks. |
 | `ci:package` | Runs npm pack inspection and MkDocs wheel inspection. |
 
 JSON Schema catches malformed document shape. Semantic lint catches broken meaning:
@@ -55,6 +55,54 @@ The docs smoke gate catches deployment-specific behavior that static tests miss:
 - MkDocs embeds render graph nodes and visible links without `.topoviewer-error`.
 - Zensical embeds hydrate without requiring a manual browser refresh.
 - The browser harness loads under the GitHub Pages `/topoviewer/harness/` base path.
+
+## Performance Budgets
+
+Performance gates are intentionally split by responsibility:
+
+- `benchmark:attention:smoke` covers dense attention indexing, focus updates,
+  graph reduction, and first compile behavior.
+- `benchmark:clos:smoke` covers layout-only CLOS placement without React,
+  browser APIs, or the harness.
+
+The CLOS smoke benchmark uses a deterministic synthetic graph:
+
+| Fixture | Value |
+|---|---:|
+| Nodes | 1000 |
+| Links | 2520 |
+| Stages | 5 |
+| Stage counts | 158, 211, 264, 210, 157 |
+| Layout mode | `clos` |
+
+The CI smoke budget is deliberately looser than a developer laptop baseline so
+GitHub runner variance does not hide real regressions behind flaky thresholds:
+
+| Measurement | CI smoke threshold |
+|---|---:|
+| Fixture generation | 250 ms |
+| Median CLOS layout | 2000 ms |
+| Max CLOS layout round | 4000 ms |
+| Generation + median layout | 2200 ms |
+
+Current local Node 24 baseline recorded with `npm run benchmark:clos -- --nodes
+1000 --rounds 7`:
+
+| Measurement | Local result |
+|---|---:|
+| Fixture generation | 17.507 ms |
+| Median CLOS layout | 37.271 ms |
+| Max CLOS layout round | 39.687 ms |
+| Generation + median layout | 54.778 ms |
+
+Interaction budgets for production authoring and embedded docs:
+
+| Surface | Budget |
+|---|---|
+| Default interactive diagrams | Stay within the default renderer limits unless the host explicitly raises them. |
+| 1k-node CLOS apply/layout | Complete layout in the `benchmark:clos:smoke` median budget before handing positioned nodes to React Flow. |
+| Dense operational views | Prefer layers, regions, aggregates, and attention state over rendering every repeated service or endpoint. |
+| Browser harness and docs smoke | Assert durable rendered graph state instead of transient status text or fixed sleeps. |
 
 ## Generated Artifact Contract
 

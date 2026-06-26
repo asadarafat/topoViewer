@@ -1,7 +1,11 @@
 layout:
-  mode: manual
+  mode: clos
   width: 860
   height: 420
+  clos:
+    direction: topToBottom
+    nodeGap: 168
+    groupGap: 208
 icons:
   router.spine:
     glyph: S

@@ -35,6 +35,109 @@ layout:
   mode: force
 ```
 
+## Layout Modes
+
+TopoViewer supports three layout modes:
+
+| Mode | Use |
+|---|---|
+| `manual` | Use authored `position` values exactly. |
+| `force` | Use authored positions as seeds, then run deterministic force layout. |
+| `clos` | Infer a layer-constrained CLOS-like graph layout from visible nodes and links. |
+
+Use `clos` when the graph is a multi-stage fabric or dependency lattice where
+stages matter more than force-directed clustering. The engine is generic: it
+does not know that a node is a spine, leaf, gateway, or service unless you
+explicitly make those labels part of the layout contract.
+
+The default workflow is:
+
+1. Set `layout.mode: clos`.
+2. Omit manual node `position` values unless you intentionally pin nodes.
+3. Author links in the intended root-to-leaf direction. `source` is the upstream
+   or earlier-stage node; `target` is the downstream or later-stage node.
+4. Keep `labels.node`, `labels.role`, and similar fields for styling, filtering,
+   and layer controls.
+5. Add `stageKey`, `stageOrder`, or `inferLabelRole` only when the graph is
+   ambiguous or an existing taxonomy must control stages.
+
+Directed `source` -> `target` links are the strongest automatic root-to-leaf
+signal. When direction is not usable, lower endpoint count is used as a fuzzy
+root-side signal for ambiguous fabrics. A high-fanout node is not automatically
+treated as root if the directed hierarchy says it belongs in a lower stage.
+Generic stage-like fields such as `labels.stage`, `data.stage`, `labels.tier`,
+or `labels.level` can also act as direct stage hints. Domain labels such as
+`labels.node: spine` and `labels.role: pe` do not.
+
+Automatic CLOS layout only needs layout options and directed graph links:
+
+```yaml
+layout:
+  mode: clos
+  width: 860
+  height: 420
+  clos:
+    direction: topToBottom
+    nodeGap: 168
+    groupGap: 208
+
+graph:
+  nodes:
+    - id: Spine-1
+      name: Spine-1
+      labels:
+        node: spine
+    - id: Leaf-1
+      name: Leaf-1
+      labels:
+        node: leaf
+  links:
+    - id: Spine-1-Leaf-1
+      source: Spine-1
+      target: Leaf-1
+```
+
+`labels.node: spine` and `labels.node: leaf` can be used by the stylesheet, but
+they do not decide stages in this automatic form.
+
+Use `stageKey` when your topology already has a direct stage field and you want
+to make that stage source explicit:
+
+```yaml
+layout:
+  mode: clos
+  clos:
+    stageKey: labels.stage
+    stageOrder: [core, aggregation, access]
+    groupKey: labels.site
+```
+
+For ambiguous legacy role vocabularies, opt in to label-role inference:
+
+```yaml
+layout:
+  mode: clos
+  inferLabelRole:
+    - stage-1: p
+    - stage-2: pe
+    - stage-3: agg
+    - stage-4: access
+```
+
+`inferLabelRole` scans classifier values such as labels, data, type, label, and
+icon. It is strictly opt-in. Without this block, `labels.role`, `labels.node`,
+and similar domain labels stay ordinary graph metadata and do not become stage
+rules.
+
+The `CLOS 2-spine 4-leaf` harness template is the practical automatic-layout
+example: it has no manual node positions and no `stageKey`. Directed fabric
+links place the spines above the leaves; `labels.node` only drives icon and
+outline styling.
+
+Use `manual` instead of `clos` when the diagram is hand-composed or has an
+operator-approved placement. Use `force` when the graph is cyclic, mesh-heavy,
+or does not have a meaningful staged direction.
+
 When embedded in MkDocs, the topology and stylesheet are normally loaded as separate files:
 
 ```yaml
@@ -219,7 +322,7 @@ nodes:
     position: [90, 260]
 ```
 
-`position` can be either `[x, y]` or `{ x: 90, y: 260 }`. The list form is preferred for compact YAML. In force-layout mode, positions are seeds; the layout engine may adjust them.
+`position` can be either `[x, y]` or `{ x: 90, y: 260 }`. The list form is preferred for compact YAML. In `force` mode, positions are seeds; in `clos` mode, positions are ignored unless the node is listed in `layout.clos.pinnedNodeIds` with `preservePinned: true`.
 
 Any logical child node can be nested inside a parent node with `parent`. A service endpoint inside a router is one common example, but the model is generic. When `showChildNodesInsideParents` is enabled, TopoViewer auto-expands the parent node around its visible children and positions the children inside the parent bounds.
 

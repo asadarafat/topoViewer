@@ -545,6 +545,18 @@ examples:
       graphNodes: 5
       minVisibleEdges: 5
     readme: docs/topoviewer/examples/layout/force/README.md
+  - id: layout-clos
+    title: CLOS layout
+    feature: layout
+    path: layout/clos
+    page: topoviewer/reference/layout/clos
+    renderable: true
+    topology: docs/topoviewer/examples/layout/clos/topology.yaml
+    stylesheet: docs/topoviewer/examples/layout/clos/stylesheet.yaml
+    expected:
+      graphNodes: 6
+      minVisibleEdges: 8
+    readme: docs/topoviewer/examples/layout/clos/README.md
   - id: harness-layered-network
     title: Layered network authoring
     feature: harness
