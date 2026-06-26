@@ -72,10 +72,10 @@ npm run build
 npm run sync:mkdocs
 ```
 
-Then validate the MkDocs site from `DG_25_6_v2/rtfm`. The RTFM Makefile builds a wheel from the local `mkdocs-topoviewer` symlink and installs that wheel into the vanilla MkDocs container before running the build:
+Then validate the MkDocs site from your MkDocs validation workspace. For example, if a validation site is checked out next to this repository and its Makefile builds a wheel from the local `mkdocs-topoviewer` package:
 
 ```bash
-cd ../rtfm
+cd ../my-mkdocs-site
 make docs MKDOCS_BUILD_FLAGS=--clean
 ```
 

@@ -4,8 +4,9 @@ TopoViewer is tested as a browser-rendered package because the important behavio
 
 ## Commands
 
+From the repository root:
+
 ```bash
-cd DG_25_6_v2/TopoViewer
 npm install
 npm run build
 npm run sync:content

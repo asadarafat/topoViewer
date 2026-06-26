@@ -8,7 +8,7 @@ The study is based on:
 
 - The current TopoViewer browser embed bundle and MkDocs plugin implementation in this repository.
 - Zensical public documentation available on 2026-06-19.
-- The absence of a local Zensical project checkout under `/Users/aarafat/_projects`, so project-specific Zensical code paths were not inspected.
+- The absence of a local Zensical project checkout during the study, so project-specific Zensical code paths were not inspected.
 
 ## Current TopoViewer Embed Model
 
