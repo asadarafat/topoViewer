@@ -157,6 +157,12 @@ function schemaDefinitionProperties(schema: JsonSchema, definitionName: string) 
   return collectSchemaProperties(resolveSchemaRef(`#/definitions/${definitionName}`, schema), schema);
 }
 
+function isClosLayoutPath(path: string[]): boolean {
+  const layoutIndex = path.lastIndexOf('layout');
+  if (layoutIndex === -1) return false;
+  return path.slice(layoutIndex + 1).includes('clos');
+}
+
 function schemaPropertySuggestions(properties: Record<string, JsonSchema>, fallbackDocs: Record<string, string> = {}): YamlAuthoringSuggestion[] {
   return Object.entries(properties).map(([key, schema]) => {
     const enumValues = schema.enum?.map((value) => String(value)).join(', ');
@@ -361,6 +367,7 @@ function topologySchemaPropertiesForPath(path: string[]) {
   if (path[path.length - 1] === 'diagram') return schemaDefinitionProperties(baseSchema, 'diagram');
   if (path.includes('shapes')) return schemaDefinitionProperties(baseSchema, 'shape');
   if (path.includes('callouts')) return schemaDefinitionProperties(baseSchema, 'callout');
+  if (isClosLayoutPath(path)) return schemaDefinitionProperties(baseSchema, 'closLayout');
   if (path.includes('layout')) return schemaDefinitionProperties(baseSchema, 'layout');
   if (path.includes('limits')) return schemaDefinitionProperties(baseSchema, 'limits');
   if (path.includes('toggles')) return schemaDefinitionProperties(baseSchema, 'toggle');
@@ -375,6 +382,7 @@ function topologySchemaPropertiesForPath(path: string[]) {
 
 function stylesheetSchemaPropertiesForPath(path: string[]) {
   if (path.includes('icons')) return schemaDefinitionProperties(baseSchema, 'icon');
+  if (isClosLayoutPath(path)) return schemaDefinitionProperties(baseSchema, 'closLayout');
   if (path.includes('layout')) return schemaDefinitionProperties(baseSchema, 'layout');
   if (path.includes('limits')) return schemaDefinitionProperties(baseSchema, 'limits');
   if (path.includes('toggles')) return schemaDefinitionProperties(baseSchema, 'toggle');

@@ -326,8 +326,26 @@ test('uses TopoViewer schemas for stylesheet root, icon, layout, and style-rule 
     'mode',
     'width',
     'height',
+    'inferLabelRole',
+    'clos',
     'iterations',
     'linkDistance'
+  ]));
+
+  const closLayoutSuggestions = await yamlCompletions(page, {
+    document: 'stylesheet',
+    text: 'layout:\n  clos:\n    ',
+    lineNumber: 3,
+    column: 5
+  });
+  expect(closLayoutSuggestions.map((suggestion) => suggestion.label)).toEqual(expect.arrayContaining([
+    'direction',
+    'stageKey',
+    'stageOrder',
+    'inferLabelRole',
+    'groupKey',
+    'preservePinned',
+    'pinnedNodeIds'
   ]));
 
   const iconSuggestions = await yamlCompletions(page, {
