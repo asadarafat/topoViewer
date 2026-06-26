@@ -66,7 +66,7 @@
 - [x] 7.2 Run `npm run ci:schemas`
 - [x] 7.3 Run `npm --workspace vscode-topoviewer run test:vscode-harness`
 - [x] 7.4 Run `npm run docs:build`
-- [ ] 7.5 Run `npm run ci` after committing generated docs/examples; current uncommitted generated files intentionally trip the generated-files gate.
+- [x] 7.5 Run `npm run ci` after committing generated docs/examples.
 
 ## 8. Public API Hardening
 
