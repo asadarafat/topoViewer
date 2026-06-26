@@ -43,17 +43,17 @@
 - [x] 4.2 Add or tighten checks for committed MkDocs embed assets after `sync:mkdocs-assets`
 - [x] 4.3 Add or tighten checks for Zensical generated source and asset drift
 - [x] 4.4 Add or tighten checks for browser harness static fixture index drift
-- [ ] 4.5 Ensure failure output names the canonical source file and stale projection file
+- [x] 4.5 Improve generated-drift failure output so it names both the canonical source area and stale projection path, not only the dirty generated path
 
 # 5. Playwright Hardening
 
 - [x] 5.1 Set package Playwright server reuse to `false` under `CI=true`
 - [x] 5.2 Set harness Playwright server reuse to `false` under `CI=true`
-- [ ] 5.3 Add a clear server/build marker check so tests do not attach to stale local servers
-- [ ] 5.4 Replace brittle SVG path formatting assertions with path-command or geometry-aware checks
-- [ ] 5.5 Replace transient status-only assertions with durable YAML, object state, or button state assertions
-- [ ] 5.6 Review geometry assertions and name tolerances where pixel drift is acceptable
-- [ ] 5.7 Ensure console error filtering is explicit and does not hide actionable errors
+- [x] 5.3 Add a clear server/build marker check so tests prove the served app belongs to the current checkout and do not attach to stale local servers
+- [x] 5.4 Replace brittle SVG path formatting assertions with path-command or geometry-aware checks
+- [x] 5.5 Remove or pair remaining transient status-only assertions with durable YAML, object state, button state, or API response assertions
+- [x] 5.6 Review geometry assertions and document named tolerances where pixel drift is acceptable
+- [x] 5.7 Make console error filtering explicit per suite so expected third-party noise is allowlisted and actionable errors remain failures
 - [x] 5.8 Keep traces and screenshots retained on failure
 
 # 6. Docs Smoke Coverage
@@ -68,8 +68,8 @@
 # 7. Performance And Stress Policy
 
 - [x] 7.1 Keep the 1k-node attention benchmark as required smoke coverage
-- [ ] 7.2 Define where 10k-node stress runs live: scheduled workflow, manual workflow, or local-only command
-- [ ] 7.3 Document performance budgets for default fixtures, dense fixtures, and stress fixtures
+- [x] 7.2 Define where 10k-node stress runs live: scheduled workflow, manual workflow, or local-only command
+- [x] 7.3 Extend the current performance-budget docs with explicit default, dense, and stress-fixture policy and thresholds
 - [x] 7.4 Preserve benchmark output as CI artifacts if a performance gate fails
 
 # 8. Documentation
@@ -79,7 +79,7 @@
 - [x] 8.3 Document the remote-only failure triage process using `gh run view --log-failed`
 - [x] 8.4 Document when retries are allowed and why retries must not hide regressions
 - [x] 8.5 Document the npm command taxonomy and mutation rules
-- [ ] 8.6 Document any retained compatibility aliases and any deprecated command names
+- [x] 8.6 Document retained npm aliases and any deprecated command names beyond the already documented YAML/toggle compatibility aliases
 - [x] 8.7 Update `openspec/README.md` when this change is implemented or archived
 
 # 9. Validation
@@ -107,6 +107,18 @@ Local targeted validation completed on the active patch set:
 - [x] `npm run ci:package`
 - [x] `git diff --check`
 
-`npm run ci` and `npm run ci:remote-parity` intentionally remain for the clean
-commit/remote verification stage because `ci:generated` and `ci:docs` fail by
-design while this patch set is uncommitted and generated projections are dirty.
+Latest local implementation validation on 2026-06-26:
+
+- [x] `npm run ci:quality`
+- [x] `npm run sync:docs`
+- [x] `npm run ci:generated` intentionally failed on this uncommitted patch with the new source/projection drift message
+- [x] `CI=true npm run ci:test:topoviewer`
+- [x] `CI=true npm run ci:test:harness`
+
+Task cleanup audit on 2026-06-26:
+
+- `5.4` is complete: current SVG path tests assert valid path data, command
+  structure, route visibility, or unique path counts rather than exact SVG path
+  string formatting.
+- The remaining unchecked tasks are intentionally limited to clean-tree full
+  local validation, push, and remote `CI`/`Docs` confirmation.

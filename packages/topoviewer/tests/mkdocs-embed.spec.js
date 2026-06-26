@@ -26,6 +26,14 @@ function loadExamples() {
 
 const examples = loadExamples();
 const renderableExamples = examples.filter((example) => example.expected?.renderable !== false);
+const MKDOCS_ALLOWED_BROWSER_ERROR_PATTERNS = [
+  /Download the React DevTools/,
+  /gitlabe2\.ext\.net\.nokia\.com\/api\/v4\/projects\/aarafat%2Frtfm/,
+  /api\.github\.com\/repos\/asadarafat\/topoviewer/,
+  /blocked by CORS policy/,
+  /Failed to load resource: net::ERR_FAILED/,
+  /^Failed to load resource:/
+];
 
 function pageIndexPath(example) {
   return path.join(rtfmPublic, example.page, 'index.html');
@@ -182,19 +190,13 @@ function collectBrowserErrors(page, browserErrors) {
   page.on('console', (message) => {
     if (message.type() !== 'error') return;
     const text = message.text();
-    if (text.startsWith('Failed to load resource:')) return;
     browserErrors.push(text);
   });
 }
 
 async function expectNoBrowserErrors(page, browserErrors) {
   const actionableErrors = browserErrors.filter((line) => {
-    if (line.includes('Download the React DevTools')) return false;
-    if (line.includes('gitlabe2.ext.net.nokia.com/api/v4/projects/aarafat%2Frtfm')) return false;
-    if (line.includes('api.github.com/repos/asadarafat/topoviewer')) return false;
-    if (line.includes('blocked by CORS policy')) return false;
-    if (line.includes('Failed to load resource: net::ERR_FAILED')) return false;
-    return true;
+    return !MKDOCS_ALLOWED_BROWSER_ERROR_PATTERNS.some((pattern) => pattern.test(line));
   });
   expect(actionableErrors).toEqual([]);
   await expectNoInvalidGeometry(page);

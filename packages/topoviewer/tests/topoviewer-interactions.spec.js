@@ -5,6 +5,12 @@ const {
   canonicalWorkbenchLayers,
   canonicalWorkbenchToggles
 } = require('./workbench-helpers');
+const { expectCurrentServerMarker } = require('./server-marker');
+
+const NODE_CONTAINMENT_TOLERANCE_PX = 3;
+const ALLOWED_BROWSER_ERROR_PATTERNS = [
+  /Download the React DevTools/
+];
 
 async function openWorkbench(page) {
   const browserErrors = [];
@@ -14,6 +20,7 @@ async function openWorkbench(page) {
     if (message.type() === 'error') browserErrors.push(message.text());
   });
 
+  await expectCurrentServerMarker(page, 'topoviewer');
   await page.goto('/');
   await page.waitForSelector('.react-flow__node-network', { timeout: 30000 });
   await expect(page.locator('footer')).toContainText(canonicalFooterText(), { timeout: 10000 });
@@ -22,7 +29,7 @@ async function openWorkbench(page) {
 }
 
 function actionableErrors(browserErrors) {
-  return browserErrors.filter((line) => !line.includes('Download the React DevTools'));
+  return browserErrors.filter((line) => !ALLOWED_BROWSER_ERROR_PATTERNS.some((pattern) => pattern.test(line)));
 }
 
 async function setCheckboxByLabel(page, name, checked) {
@@ -178,7 +185,7 @@ async function nodeLabelBox(page, id) {
   return box;
 }
 
-function assertInside(outer, inner, tolerance = 3) {
+function assertInside(outer, inner, tolerance = NODE_CONTAINMENT_TOLERANCE_PX) {
   expect(inner.x).toBeGreaterThanOrEqual(outer.x - tolerance);
   expect(inner.y).toBeGreaterThanOrEqual(outer.y - tolerance);
   expect(inner.x + inner.width).toBeLessThanOrEqual(outer.x + outer.width + tolerance);

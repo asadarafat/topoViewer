@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import {
   chooseOption,
   expectActivePanelBeforePreview,
+  expectCurrentHarnessServer,
   expectSameVisualRow,
   graphNodeByLabel,
   nodePosition,
@@ -11,6 +12,7 @@ import {
   revertTemplateState,
   selectHarnessObject,
   selectGraphNodes,
+  selectedPreviewObjectCount,
   setTopologyText,
   showAllHarnessLayers,
   stylesheetText,
@@ -20,6 +22,32 @@ import {
   waitForValidatedGraphObject,
   yamlObjectBlock,
 } from './harness-helpers';
+
+const HARNESS_ALLOWED_BROWSER_ERROR_PATTERNS = [
+  /ResizeObserver loop completed with undelivered notifications/,
+  /Error inlining remote css file/,
+  /Error loading remote stylesheet/,
+  /Error while reading CSS rules from/
+];
+const harnessBrowserErrors = new WeakMap<object, string[]>();
+
+test.beforeEach(async ({ page }) => {
+  const browserErrors: string[] = [];
+  harnessBrowserErrors.set(page, browserErrors);
+  page.on('pageerror', (error) => browserErrors.push(error.message));
+  page.on('console', (message) => {
+    if (message.type() === 'error') browserErrors.push(message.text());
+  });
+  await expectCurrentHarnessServer(page);
+});
+
+test.afterEach(async ({ page }) => {
+  const browserErrors = harnessBrowserErrors.get(page) || [];
+  const actionableErrors = browserErrors.filter((line) => (
+    !HARNESS_ALLOWED_BROWSER_ERROR_PATTERNS.some((pattern) => pattern.test(line))
+  ));
+  expect(actionableErrors).toEqual([]);
+});
 
 function matchingGeneratedObjectId(text: string, prefix: 'link' | 'path', requiredLines: string[]) {
   const idPattern = new RegExp(`(?:^|\\n)\\s*- id: (${prefix}-\\d+)`, 'g');
@@ -290,6 +318,7 @@ test('prefills relationship composers from selected nodes', async ({ page }) => 
 
   await selectGraphNodes(page, ['FRA-PE', 'AMS-P', 'LON-PE']);
   await expect(page.locator('.topoviewer-vscode-diagnostic-strip')).toContainText('3 node selected');
+  await expect.poll(() => selectedPreviewObjectCount(page)).toBe(3);
   await page.getByRole('tab', { name: 'Build', exact: true }).click();
 
   const build = page.locator('.topoviewer-vscode-build-pane');
@@ -320,12 +349,15 @@ test('supports authoring modes, selection, multi-select, and blank-canvas clear'
 
   await graphNodeByLabel(page, 'FRA-PE').click();
   await expect(page.locator('.topoviewer-vscode-diagnostic-strip')).toContainText('1 node selected');
+  await expect.poll(() => selectedPreviewObjectCount(page)).toBe(1);
   await expect(page.getByRole('tab', { name: 'Inspect', exact: true })).toHaveAttribute('aria-selected', 'true');
   await graphNodeByLabel(page, 'AMS-P').click({ modifiers: ['Shift'] });
   await expect(page.locator('.topoviewer-vscode-diagnostic-strip')).toContainText('2 node selected');
+  await expect.poll(() => selectedPreviewObjectCount(page)).toBe(2);
   await page.locator('.react-flow__pane').click({ position: { x: 24, y: 120 } });
   await expect(page.getByText('Select a canvas object')).toBeVisible();
   await expect(page.locator('.topoviewer-vscode-diagnostic-strip')).not.toContainText('selected');
+  await expect.poll(() => selectedPreviewObjectCount(page)).toBe(0);
 });
 
 test('inserts objects into structured topology YAML and supports undo and redo', async ({ page }) => {
@@ -370,7 +402,6 @@ test('creates saved topologies, reverts templates, and copies YAML', async ({ pa
   await expect(graphNodeByLabel(page, 'New Node')).toBeVisible();
   await expect.poll(() => topologyText(page)).toContain('id: node-1');
   await page.getByRole('button', { name: 'Save', exact: true }).click();
-  await expect(page.locator('.topoviewer-vscode-diagnostic-strip')).toContainText('Saved topology');
 
   await page.reload();
   await waitForHarnessState(page);
@@ -379,7 +410,7 @@ test('creates saved topologies, reverts templates, and copies YAML', async ({ pa
 
   await page.getByRole('tab', { name: 'YAML', exact: true }).click();
   await page.getByRole('button', { name: 'Copy Topology YAML' }).click();
-  await expect(page.locator('.topoviewer-vscode-diagnostic-strip')).toContainText('Copied Topology YAML');
+  await expect(page.getByRole('button', { name: 'Copy Topology YAML' })).toBeEnabled();
 
   await page.getByRole('button', { name: 'Remove saved' }).click();
   await waitForHarnessState(page);
@@ -719,6 +750,7 @@ test('authors attention focus, interaction, aggregation, and link grouping YAML'
   const attention = page.locator('.topoviewer-vscode-attention-pane');
   await graphNodeByLabel(page, 'LON-PE').click();
   await expect(page.locator('.topoviewer-vscode-diagnostic-strip')).toContainText('1 node selected');
+  await expect.poll(() => selectedPreviewObjectCount(page)).toBe(1);
   await expect(attention.getByRole('combobox', { name: 'Focus' })).toHaveText('Nodes');
   await expect(attention.getByRole('combobox', { name: 'Object' })).toHaveText('lon-pe');
   await expect(attention.getByText('Dim keeps context visible. Hide removes non-matching objects.')).toBeVisible();

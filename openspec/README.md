@@ -6,7 +6,6 @@ OpenSpec is used here as a lightweight project structure, not as a runtime depen
 
 Current active plans:
 
-- `changes/stabilize-ci-docs-test-strategy/` - planned investigation and implementation of a more observable, deterministic CI/Docs test strategy for local/GitHub parity, generated artifacts, Playwright stability, and Pages validation.
 - `changes/define-netbox-integration-roadmap/` - planned NetBox feasibility, use cases, first integration shape, and roadmap wording constraints.
 - `changes/define-opsmill-infrahub-integration-roadmap/` - planned OpsMill/Infrahub feasibility, use cases, first integration shape, and roadmap wording constraints.
 - `changes/define-grafana-integration-roadmap/` - planned Grafana feasibility, use cases, first integration shape, and roadmap wording constraints.
@@ -19,6 +18,7 @@ Current studies:
 
 Archived plans:
 
+- `archive/2026-06-26-stabilize-ci-docs-test-strategy/` - implemented observable, deterministic CI/Docs test strategy hardening for local/GitHub parity, generated artifacts, Playwright stability, command taxonomy, stress policy, and Pages validation.
 - `archive/2026-06-26-normalize-public-docs-url-layout/` - implemented lowercase public repository/Pages URL contract and combined MkDocs, Zensical, and harness deployment layout.
 - `archive/2026-06-26-make-content-root-canonical/` - implemented single editable `packages/topoviewer/content/**` source root with generated docs/example projections, canonical "Topology as Code" product messaging, and duplicate fixture cleanup.
 - `archive/2026-06-26-implement-graph-clos-layout-directive/` - implemented generic, inference-driven CLOS graph layout directive with multi-stage support and optional stage/group hints.

@@ -104,6 +104,20 @@ Interaction budgets for production authoring and embedded docs:
 | Dense operational views | Prefer layers, regions, aggregates, and attention state over rendering every repeated service or endpoint. |
 | Browser harness and docs smoke | Assert durable rendered graph state instead of transient status text or fixed sleeps. |
 
+Stress fixtures are intentionally outside the required CI gate. The policy is:
+
+| Class | Size | Command home | Required gate |
+|---|---:|---|---|
+| Default | Up to the renderer defaults | Normal examples, docs, and harness fixtures | `npm run ci` |
+| Dense smoke | 1000 CLOS nodes and 2520 links | `npm run benchmark:clos:smoke` | `npm run ci:perf:smoke` |
+| Local stress | 10000-node synthetic graphs | `npm run benchmark:clos -- --nodes 10000 --rounds 3` | Manual before changing layout complexity |
+
+10k-node runs are useful for profiling algorithmic changes, but they are not
+published as browser harness templates and are not part of every pull-request
+gate. If a change improves or regresses stress behavior, record the timing in
+the change discussion and keep the required CI smoke threshold focused on the
+1k-node production interaction budget.
+
 ## Generated Artifact Contract
 
 TopoViewer has generated files because one canonical content tree feeds npm
@@ -118,8 +132,9 @@ examples, MkDocs pages, Zensical pages, and package docs. The mutation rule is:
 | `ci:*` | May run sync/build steps, but must fail if generated files required by the repository are left dirty. |
 
 If `ci:generated`, `ci:build`, or `ci:docs` fails with a stale generated-file
-message, run the matching sync/build command locally, review the exact diff,
-and commit it with the source change.
+message, read the reported canonical source area and generated projection path,
+run the matching sync/build command locally, review the exact diff, and commit
+it with the source change.
 
 ## Failure Triage
 

@@ -1,4 +1,9 @@
 import { expect, type Locator, type Page } from '@playwright/test';
+import { execFileSync } from 'node:child_process';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
 
 export type YamlCompletion = {
   detail?: string;
@@ -13,6 +18,24 @@ export type HarnessStyleMetadata = {
   optionsByKind: Record<string, Array<{ key: string; label: string }>>;
   valueTypesByKind: Record<string, Record<string, { dataType: StyleValueDataType; options?: string[] }>>;
 };
+
+function currentGitSha() {
+  return execFileSync('git', ['rev-parse', '--short=12', 'HEAD'], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'ignore']
+  }).trim();
+}
+
+export async function expectCurrentHarnessServer(page: Page) {
+  const response = await page.request.get('/__topoviewer-test-marker.json');
+  expect(response.ok(), 'served harness should expose the TopoViewer test marker').toBe(true);
+  const marker = await response.json();
+  expect(marker).toEqual({
+    package: 'vscode-topoviewer-harness',
+    gitSha: currentGitSha()
+  });
+}
 
 export async function topologyText(page: Page) {
   await page.waitForFunction(() => !!(window as any).__topoviewerHarnessDraft?.topologyText || !!(window as any).__topoviewerHarnessState?.topologyText || !!(window as any).monaco?.editor?.getModels?.()[0]);
@@ -120,6 +143,10 @@ export async function selectGraphNodes(page: Page, labels: string[]) {
   for (const [index, label] of labels.entries()) {
     await graphNodeByLabel(page, label).click(index === 0 ? undefined : { modifiers: ['Shift'] });
   }
+}
+
+export async function selectedPreviewObjectCount(page: Page) {
+  return page.locator('.react-flow__node.selected, .react-flow__edge.selected').count();
 }
 
 export async function showAllHarnessLayers(page: Page) {

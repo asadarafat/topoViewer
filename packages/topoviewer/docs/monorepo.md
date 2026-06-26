@@ -110,6 +110,28 @@ New scripts should fit this vocabulary. If a command writes tracked files, its
 name should start with `sync:` or the command should be documented as a build
 step that intentionally refreshes vendored assets.
 
+## Retained Command Aliases
+
+Keep the named `ci:*` lanes as the production contract. A few older or narrower
+commands remain because they are convenient for local development or package
+workflows:
+
+| Command | Current role | Preferred production gate |
+|---|---|---|
+| `npm run test` | Renderer package test alias. | `npm run ci:test:topoviewer` |
+| `npm run test:vscode-harness` | Browser harness test alias. | `npm run ci:test:harness` |
+| `npm run docs:build` | Full MkDocs build with local setup behavior. | `npm run ci:docs` |
+| `npm run docs:build:fast` | MkDocs build when the viewer bundle is already built. | `npm run ci:docs` |
+| `npm run docs:serve` | Serve MkDocs directly for focused page work. | `npm run docs:preview` for Pages parity |
+| `npm run docs:serve:fast` | Serve MkDocs directly without rebuilding the viewer. | `npm run docs:preview` for Pages parity |
+| `npm run mkdocs:build` | Compatibility alias for the MkDocs build path. | `npm run docs:build` or `npm run ci:docs` |
+| `npm run zensical:build` | Focused Zensical build. | `npm run ci:docs` |
+| `npm run vscode:harness` | Browser harness development server. | `npm run ci:test:harness` for validation |
+
+Do not add new aliases for GitHub-facing behavior unless they improve the
+command taxonomy. Prefer adding a named `ci:*` lane or a focused `sync:*`,
+`check:*`, `validate:*`, `build:*`, or `test:*` command.
+
 ## Release Flow
 
 Release these as independent artifacts, even when the version numbers are intentionally aligned:

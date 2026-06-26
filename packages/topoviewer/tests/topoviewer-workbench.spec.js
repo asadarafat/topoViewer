@@ -1,5 +1,14 @@
 const { test, expect } = require('@playwright/test');
 const { canonicalFooterText, canonicalWorkbenchCounts } = require('./workbench-helpers');
+const { expectCurrentServerMarker } = require('./server-marker');
+
+const WORKBENCH_SCREENSHOT_MAX_DIFF_RATIO = 0.06;
+const ALLOWED_BROWSER_ERROR_PATTERNS = [
+  /Download the React DevTools/,
+  /Error inlining remote css file/,
+  /Error loading remote stylesheet/,
+  /Error while reading CSS rules from/
+];
 
 async function preloadExportHelpers(page) {
   for (let attempt = 0; attempt < 3; attempt += 1) {
@@ -33,6 +42,7 @@ test.describe('TopoViewer package workbench', () => {
       if (message.type() === 'error') browserErrors.push(message.text());
     });
 
+    await expectCurrentServerMarker(page, 'topoviewer');
     await page.goto('/');
     await expect(page.getByRole('heading', { name: 'TopoViewer' })).toBeVisible();
     await page.waitForSelector('.react-flow__node-network', { timeout: 30000 });
@@ -112,15 +122,13 @@ test.describe('TopoViewer package workbench', () => {
     await expect(page.locator('footer')).toContainText(canonicalFooterText());
 
     const actionableErrors = browserErrors.filter((line) => (
-      !line.includes('Download the React DevTools')
-      && !line.includes('Error inlining remote css file')
-      && !line.includes('Error loading remote stylesheet')
-      && !line.includes('Error while reading CSS rules from')
+      !ALLOWED_BROWSER_ERROR_PATTERNS.some((pattern) => pattern.test(line))
     ));
     expect(actionableErrors).toEqual([]);
   });
 
   test('matches the reference workbench rendering screenshot', async ({ page }) => {
+    await expectCurrentServerMarker(page, 'topoviewer');
     await page.goto('/');
     await page.waitForSelector('.react-flow__node-network', { timeout: 30000 });
     await page.getByRole('checkbox', { name: 'Show link/path labels', exact: true }).check();
@@ -128,7 +136,7 @@ test.describe('TopoViewer package workbench', () => {
 
     await expect(page.locator('.topoviewer-workbench-main')).toHaveScreenshot('topoviewer-workbench-main.png', {
       animations: 'disabled',
-      maxDiffPixelRatio: 0.06
+      maxDiffPixelRatio: WORKBENCH_SCREENSHOT_MAX_DIFF_RATIO
     });
   });
 });

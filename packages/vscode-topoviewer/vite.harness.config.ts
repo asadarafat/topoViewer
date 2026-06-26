@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import react from '@vitejs/plugin-react';
 import yaml from 'js-yaml';
@@ -12,6 +13,10 @@ const contentExamplesRoot = path.join(repoRoot, 'packages/topoviewer/content/exa
 const contentExamplesCatalog = path.join(contentExamplesRoot, 'catalog.yaml');
 const harnessBase = process.env.TOPOVIEWER_HARNESS_BASE || '/topoviewer/harness/';
 const harnessOutDir = process.env.TOPOVIEWER_HARNESS_OUT_DIR || path.join(repoRoot, 'site/harness');
+const serverMarker = {
+  package: 'vscode-topoviewer-harness',
+  gitSha: readGitSha()
+};
 
 type ExampleFileKey = 'topology' | 'stylesheet';
 
@@ -90,6 +95,18 @@ function readRequestBody(request: import('node:http').IncomingMessage): Promise<
   });
 }
 
+function readGitSha() {
+  try {
+    return execFileSync('git', ['rev-parse', '--short=12', 'HEAD'], {
+      cwd: repoRoot,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore']
+    }).trim();
+  } catch {
+    return 'unknown';
+  }
+}
+
 function sendJson(response: import('node:http').ServerResponse, value: unknown, statusCode = 200) {
   response.statusCode = statusCode;
   response.setHeader('content-type', 'application/json; charset=utf-8');
@@ -145,6 +162,12 @@ function fixtureApi(): Plugin {
     configureServer(server) {
       server.middlewares.use(async (request, response, next) => {
         const url = new URL(request.url || '/', 'http://127.0.0.1');
+        if (request.method === 'GET' && url.pathname === '/__topoviewer-test-marker.json') {
+          response.setHeader('cache-control', 'no-store');
+          sendJson(response, serverMarker);
+          return;
+        }
+
         if (request.method === 'GET' && url.pathname === '/fixtures/index.json') {
           sendJson(response, fixtures.map(({ id, name }) => ({ id, name })));
           return;
