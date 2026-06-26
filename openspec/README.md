@@ -14,6 +14,8 @@ Current active plans:
 - `changes/add-label-z-index-style-control/` - planned canonical `labelZIndex` style control for independent label draw order across dense topology views.
 - `changes/centralize-style-defaults-registry/` - planned canonical style defaults registry so runtime, docs, schema, and YAML assist describe the same defaults.
 - `changes/normalize-public-docs-url-layout/` - planned lowercase public repository/Pages URL contract and combined MkDocs, Zensical, and harness deployment layout.
+- `changes/implement-graph-clos-layout-directive/` - planned generic, inference-driven CLOS graph layout directive with multi-stage support and optional stage/group hints.
+- `changes/restore-renderer-surface-parity/` - planned shared composition, viewport, theme, and regression-test contract so harness, MkDocs, and Zensical render the same topology/style YAML consistently.
 
 Current studies:
 
