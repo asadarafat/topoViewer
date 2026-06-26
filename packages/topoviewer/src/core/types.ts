@@ -146,8 +146,26 @@ export interface ToggleDefinition {
   default?: boolean;
 }
 
+export type ClosLayoutDirection = 'topToBottom' | 'bottomToTop' | 'leftToRight' | 'rightToLeft';
+export type ClosInferLabelRole = Record<string, string | string[]> | Array<Record<string, string | string[]>>;
+
+export interface ClosLayoutOptions {
+  direction?: ClosLayoutDirection;
+  stageCount?: number | 'auto';
+  maxStages?: number;
+  stageKey?: string | 'auto';
+  stageOrder?: string[];
+  inferLabelRole?: ClosInferLabelRole;
+  groupKey?: string | 'auto';
+  preservePinned?: boolean;
+  pinnedNodeIds?: string[];
+  stageGap?: number;
+  nodeGap?: number;
+  groupGap?: number;
+}
+
 export interface LayoutConfig {
-  mode?: 'manual' | 'force';
+  mode?: 'manual' | 'force' | 'clos';
   width?: number;
   height?: number;
   iterations?: number;
@@ -155,6 +173,8 @@ export interface LayoutConfig {
   chargeStrength?: number;
   collideRadius?: number;
   centerStrength?: number;
+  inferLabelRole?: ClosInferLabelRole;
+  clos?: ClosLayoutOptions;
 }
 
 export interface RendererLimits {

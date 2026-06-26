@@ -971,7 +971,7 @@
       "additionalProperties": true,
       "properties": {
         "mode": {
-          "enum": ["manual", "force"]
+          "enum": ["manual", "force", "clos"]
         },
         "width": {
           "type": "number"
@@ -992,6 +992,110 @@
           "type": "number"
         },
         "centerStrength": {
+          "type": "number"
+        },
+        "inferLabelRole": {
+          "$ref": "#/definitions/inferLabelRole"
+        },
+        "clos": {
+          "$ref": "#/definitions/closLayout"
+        }
+      }
+    },
+    "inferLabelRole": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "closLayout": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "direction": {
+          "enum": ["topToBottom", "bottomToTop", "leftToRight", "rightToLeft"]
+        },
+        "stageCount": {
+          "oneOf": [
+            {
+              "type": "number",
+              "minimum": 1
+            },
+            {
+              "const": "auto"
+            }
+          ]
+        },
+        "maxStages": {
+          "type": "number",
+          "minimum": 1
+        },
+        "stageKey": {
+          "type": "string"
+        },
+        "stageOrder": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "inferLabelRole": {
+          "$ref": "#/definitions/inferLabelRole"
+        },
+        "groupKey": {
+          "type": "string"
+        },
+        "preservePinned": {
+          "type": "boolean"
+        },
+        "pinnedNodeIds": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "stageGap": {
+          "type": "number"
+        },
+        "nodeGap": {
+          "type": "number"
+        },
+        "groupGap": {
           "type": "number"
         }
       }

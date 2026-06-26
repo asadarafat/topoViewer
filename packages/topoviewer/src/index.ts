@@ -1,5 +1,6 @@
 export { TopoViewer } from './components/TopoViewer';
 export { compileTopoGraph, rebuildRegionNodes } from './core/compiler';
+export { analyzeClosLayoutDiagnostics, computeClosLayoutPositions } from './core/closLayout';
 export { computeLayoutPositions } from './core/layout';
 export { applyStyle } from './core/style';
 export { downloadTopoViewerPdf, downloadTopoViewerPng, downloadTopoViewerSvg, topoviewerToPdf, topoviewerToPng, topoviewerToSvg } from './core/export';
@@ -48,6 +49,7 @@ export {
 } from './core/nodeStyle';
 export type { StaticExportOptions, StaticPdfExportOptions } from './core/export';
 export type { LintIssue, LintOptions } from './core/lint';
+export type { ClosLayoutDiagnostic } from './core/closLayout';
 export type { NodeShapeName, NodeShapePoint, ParsedNodeShapePoints } from './core/nodeShapes';
 export type { StyleDefault, StyleKeyDefinition, StyleTargetKind, StyleValueDataType } from './core/styleDefaults';
 export type {
@@ -95,6 +97,9 @@ export type {
 } from './core/attention';
 export type { AttentionRuntimeState } from './core/attention/cache';
 export type {
+  ClosLayoutDirection,
+  ClosInferLabelRole,
+  ClosLayoutOptions,
   DiagramCallout,
   DiagramConnector,
   DiagramDefinition,

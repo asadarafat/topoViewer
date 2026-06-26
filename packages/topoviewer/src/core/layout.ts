@@ -1,5 +1,6 @@
 import { forceCenter, forceCollide, forceLink, forceManyBody, forceSimulation } from 'd3-force';
 import type { GraphLink, GraphNode, LayoutConfig } from './types';
+import { computeClosLayoutPositions } from './closLayout';
 
 export interface LayoutPosition {
   x: number;
@@ -41,6 +42,7 @@ export function computeLayoutPositions(nodes: GraphNode[], links: GraphLink[], l
   });
 
   if (mode === 'manual' || nodes.length === 0) return positions;
+  if (mode === 'clos') return computeClosLayoutPositions(nodes, links, layout);
 
   const width = layout.width || 1280;
   const height = layout.height || 720;

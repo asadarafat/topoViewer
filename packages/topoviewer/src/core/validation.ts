@@ -52,6 +52,11 @@ const positionSchema = z.union([
   z.object({ x: z.number(), y: z.number() }).passthrough()
 ]);
 
+const inferLabelRoleSchema = z.union([
+  z.record(z.union([z.string(), z.array(z.string())])),
+  z.array(z.record(z.union([z.string(), z.array(z.string())])))
+]);
+
 const sizeSchema = z.union([
   z.tuple([z.number(), z.number()]),
   z.object({ width: z.number(), height: z.number() }).passthrough()
@@ -66,15 +71,32 @@ const pinSchema = z.object({
   y: z.number().optional()
 }).passthrough();
 
+const closLayoutSchema = z.object({
+  direction: z.enum(['topToBottom', 'bottomToTop', 'leftToRight', 'rightToLeft']).optional(),
+  stageCount: z.union([z.number().int().positive(), z.literal('auto')]).optional(),
+  maxStages: z.number().int().positive().optional(),
+  stageKey: z.string().optional(),
+  stageOrder: z.array(z.string().min(1)).optional(),
+  inferLabelRole: inferLabelRoleSchema.optional(),
+  groupKey: z.string().optional(),
+  preservePinned: z.boolean().optional(),
+  pinnedNodeIds: z.array(z.string().min(1)).optional(),
+  stageGap: z.number().optional(),
+  nodeGap: z.number().optional(),
+  groupGap: z.number().optional()
+}).passthrough();
+
 const layoutSchema = z.object({
-  mode: z.enum(['manual', 'force']).optional(),
+  mode: z.enum(['manual', 'force', 'clos']).optional(),
   width: z.number().optional(),
   height: z.number().optional(),
   iterations: z.number().optional(),
   linkDistance: z.number().optional(),
   chargeStrength: z.number().optional(),
   collideRadius: z.number().optional(),
-  centerStrength: z.number().optional()
+  centerStrength: z.number().optional(),
+  inferLabelRole: inferLabelRoleSchema.optional(),
+  clos: closLayoutSchema.optional()
 }).passthrough();
 
 const limitsSchema = z.object({

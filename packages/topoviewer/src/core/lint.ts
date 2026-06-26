@@ -9,6 +9,7 @@ import {
   stringList,
   taxiDirections,
 } from './edgeStyle';
+import { analyzeClosLayoutDiagnostics } from './closLayout';
 import { rendererLimitViolations } from './limits';
 import { normalizeNodeShape, parseNodeShapePoints } from './nodeShapes';
 import {
@@ -328,6 +329,23 @@ function hasSequence(path: GraphPath): path is GraphPath & { sequence: string[] 
   return Array.isArray(path.sequence) && path.sequence.length >= 2;
 }
 
+function layoutDiagnosticLinks(links: GraphLink[], paths: GraphPath[]): GraphLink[] {
+  return [
+    ...links,
+    ...paths.flatMap((path) => {
+      if (hasSequence(path)) {
+        return path.sequence.slice(0, -1).map((source, index) => ({
+          ...path,
+          id: `${path.id}:${index}`,
+          source,
+          target: path.sequence[index + 1]
+        }));
+      }
+      return path.source && path.target ? [{ ...path, source: path.source, target: path.target }] : [];
+    })
+  ];
+}
+
 function hasCalloutBox(callout: DiagramCallout): boolean {
   return !!(callout.position || callout.title || callout.body || callout.markdown);
 }
@@ -555,6 +573,11 @@ export function lintTopoDocument(input: TopoDocument, options: LintOptions = {})
   rendererLimitViolations(document).forEach((message) => {
     issues.push(issue('error', 'renderer-limit', message, 'limits'));
   });
+
+  analyzeClosLayoutDiagnostics(graph.nodes || [], layoutDiagnosticLinks(graph.links || [], graph.paths || []), document.layout || {})
+    .forEach((diagnostic) => {
+      issues.push(issue('warning', diagnostic.code, diagnostic.message, diagnostic.path));
+    });
 
   return issues;
 }
