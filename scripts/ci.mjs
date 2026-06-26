@@ -89,7 +89,8 @@ const laneDefinitions = {
     step('test VS Code harness', 'npm', ['run', 'test:vscode-harness'])
   ],
   'perf:smoke': [
-    step('attention smoke benchmark', 'npm', ['run', 'benchmark:attention:smoke'])
+    step('attention smoke benchmark', 'npm', ['run', 'benchmark:attention:smoke']),
+    step('CLOS layout smoke benchmark', 'npm', ['run', 'benchmark:clos:smoke'])
   ],
   package: [
     step('pack check', 'npm', ['run', 'pack:check']),
