@@ -4,35 +4,35 @@ graph:
     - id: physical
       name: Physical
   nodes:
-    - id: SENSOR-1
-      name: Sensor
+    - id: ICON-CONTAIN
+      name: Contain
       labels:
-        role: sensor
+        role: contain
         state: normal
       layers: [physical]
       position: [110, 160]
-    - id: CAMERA-1
-      name: Camera
+    - id: ICON-COVER
+      name: Cover
       labels:
-        role: camera
+        role: cover
         state: warning
       layers: [physical]
       position: [310, 160]
-    - id: GATEWAY-1
-      name: Gateway
+    - id: ICON-FILL
+      name: Fill
       labels:
-        role: gateway
+        role: fill
         state: critical
       layers: [physical]
       position: [510, 160]
   links:
-    - id: sensor-camera
-      name: Sensor to camera
-      source: SENSOR-1
-      target: CAMERA-1
+    - id: contain-cover
+      name: Contain to cover
+      source: ICON-CONTAIN
+      target: ICON-COVER
       layers: [physical]
-    - id: camera-gateway
-      name: Camera to gateway
-      source: CAMERA-1
-      target: GATEWAY-1
+    - id: cover-fill
+      name: Cover to fill
+      source: ICON-COVER
+      target: ICON-FILL
       layers: [physical]

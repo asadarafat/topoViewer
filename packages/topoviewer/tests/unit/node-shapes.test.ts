@@ -319,7 +319,22 @@ describe('declarative node shapes', () => {
       backgroundColor: '#0f172a',
       opacity: 0.86
     });
-    expect(data.iconImageStyle).toMatchObject({ objectFit: 'cover' });
+    expect(data.iconImageStyle).toMatchObject({
+      position: 'absolute',
+      inset: 0,
+      width: '100%',
+      height: '100%',
+      minWidth: 0,
+      minHeight: 0,
+      maxWidth: 'none',
+      maxHeight: 'none',
+      display: 'block',
+      alignSelf: 'stretch',
+      justifySelf: 'stretch',
+      aspectRatio: 'auto',
+      objectPosition: 'center',
+      objectFit: 'cover'
+    });
     expect(data.labelStyle).toMatchObject({
       backgroundColor: 'rgba(248, 250, 252, 0.92)',
       borderColor: '#94a3b8',

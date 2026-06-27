@@ -206,6 +206,18 @@ stylesheet:
       iconFit: contain
 ```
 
+## Icon fit
+
+`iconFit` controls how SVG and image icons are fitted inside the icon box. The icon box comes from `iconSize`, `iconWidth`/`iconHeight`, or the node body size when no icon-specific size is authored.
+
+| Value | Behavior | Use when |
+|---|---|---|
+| `contain` | Preserves the icon aspect ratio and keeps the full icon visible. Empty space may appear on two sides. | The whole asset must be visible, such as vendor logos or router glyphs. |
+| `cover` | Preserves the icon aspect ratio and fills the icon box. Parts of the icon may be clipped. | The icon is decorative or crop-safe and should fill the node. |
+| `fill` | Stretches the icon to exactly match the icon box. Aspect ratio is not preserved. | The SVG was designed for the same box ratio, or intentional stretching is acceptable. |
+
+Use `contain` as the safe default. Use `fill` carefully because it can distort icons when `iconWidth` and `iconHeight` do not match the source SVG viewBox ratio. Some SVG assets also define their own aspect-ratio behavior; when an SVG should visibly stretch under `fill`, author the SVG root with `preserveAspectRatio="none"`.
+
 | Key | Values | Use |
 |---|---|---|
 | `icon` | icon key | Selects an icon from `icons`. Defaults through `style.icon`, object `icon`, `data.icon`, then `router.generic`. |
@@ -225,7 +237,7 @@ stylesheet:
 | `iconColor` | CSS color | Glyph color. |
 | `iconOpacity` | number `0..1` | Icon glyph/image opacity. |
 | `iconPadding` | number | Insets icon content inside the icon box. |
-| `iconFit` | `contain`, `cover`, `fill` | Object-fit behavior for SVG/image icons. Defaults through the CSS image default, currently `contain`. |
+| `iconFit` | `contain` keeps the full icon visible; `cover` fills the box while preserving aspect ratio and may crop; `fill` stretches to the box and may distort. | Object-fit behavior for SVG/image icons. Defaults through the CSS image default, currently `contain`. |
 | `iconBackgroundColor` | CSS color | Background behind icon content inside the node body. |
 | `labelColor`, `labelFontSize`, `labelFontWeight` | CSS values | Node label typography. Use markdown in the node `name` or `label` for bold, italic, underline, and strikethrough spans. |
 | `labelPosition` | `top`, `right`, `bottom`, `left`, `center` | Places the label relative to the node body. Defaults to `bottom`. |

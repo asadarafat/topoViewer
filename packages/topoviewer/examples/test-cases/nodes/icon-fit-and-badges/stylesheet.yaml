@@ -3,65 +3,56 @@ layout:
   width: 640
   height: 320
 icons:
-  sensor:
-    alt: Sensor icon
+  wideSignal:
+    alt: Wide signal icon used to compare iconFit modes
     svg: |
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-        <rect x="8" y="8" width="48" height="48" rx="14" fill="#38bdf8"/>
-        <circle cx="32" cy="32" r="10" fill="#0f172a"/>
-      </svg>
-  camera:
-    alt: Camera icon
-    svg: |
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 48">
-        <rect x="6" y="10" width="58" height="30" rx="8" fill="#f59e0b"/>
-        <polygon points="64,18 90,8 90,40 64,30" fill="#92400e"/>
-      </svg>
-  gateway:
-    alt: Gateway icon
-    svg: |
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 96">
-        <rect x="8" y="8" width="32" height="80" rx="10" fill="#dc2626"/>
-        <circle cx="24" cy="28" r="5" fill="white"/>
-        <circle cx="24" cy="48" r="5" fill="white"/>
-        <circle cx="24" cy="68" r="5" fill="white"/>
+      <svg xmlns="http://www.w3.org/2000/svg" width="180" height="54" viewBox="0 0 180 54" preserveAspectRatio="none">
+        <rect width="180" height="54" rx="8" fill="#0f172a"/>
+        <rect x="6" y="6" width="48" height="42" rx="6" fill="#42a5f5"/>
+        <rect x="66" y="6" width="48" height="42" rx="6" fill="#ff9800"/>
+        <rect x="126" y="6" width="48" height="42" rx="6" fill="#4caf50"/>
+        <circle cx="30" cy="27" r="13" fill="#ffffff"/>
+        <path d="M81 14h18v26H81z" fill="#ffffff"/>
+        <path d="M150 11l18 32h-36z" fill="#ffffff"/>
+        <path d="M8 27h164" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-dasharray="10 7" opacity="0.55"/>
       </svg>
 stylesheet:
   - selector: node
     style:
-      width: 112
-      height: 82
-      iconSize: 58
+      width: 118
+      height: 104
+      iconWidth: 72
+      iconHeight: 72
       shape: roundRectangle
       borderWidth: 3
-      iconPadding: 4
-      iconBackgroundColor: "#0f172a"
+      iconPadding: 0
+      iconBackgroundColor: "#f8fafc"
       labelColor: var(--topoviewer-fg-strong)
       labelFontWeight: 800
       badgeColor: "#0f172a"
       badgeBackgroundColor: "#f8fafc"
       badgeBorderColor: "#94a3b8"
       statusSize: 12
-  - selector: node[labels.role = "sensor"]
+  - selector: node[labels.role = "contain"]
     style:
-      icon: sensor
+      icon: wideSignal
       iconFit: contain
-      badgeLabel: "12"
+      badgeLabel: "full"
       statusColor: "#22c55e"
       statusPlacement: bottomRight
-  - selector: node[labels.role = "camera"]
+  - selector: node[labels.role = "cover"]
     style:
-      icon: camera
+      icon: wideSignal
       iconFit: cover
-      badgeLabel: "4"
+      badgeLabel: "crop"
       badgePosition: topLeft
       statusColor: "#f59e0b"
       statusPlacement: bottomLeft
-  - selector: node[labels.role = "gateway"]
+  - selector: node[labels.role = "fill"]
     style:
-      icon: gateway
+      icon: wideSignal
       iconFit: fill
-      badgeLabel: "1"
+      badgeLabel: "stretch"
       badgePosition: topRight
       statusColor: "#dc2626"
       statusPlacement: topRight
