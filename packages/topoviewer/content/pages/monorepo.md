@@ -52,6 +52,7 @@ needed. The root scripts are the stable interface used by GitHub Actions.
 | Schema and semantic checks | `npm run ci:schemas` |
 | Package and asset build | `npm run ci:build` |
 | MkDocs, Zensical, and harness docs build | `npm run ci:docs` |
+| Renderer surface parity | `npm run ci:render-parity` |
 | Renderer tests | `npm run ci:test:topoviewer` |
 | Browser harness tests | `npm run ci:test:harness` |
 
@@ -82,10 +83,13 @@ After building the static site, run:
 
 ```bash
 npm run docs:smoke
+npm run render:parity
 ```
 
-That opens the built MkDocs, Zensical, and harness pages through Chromium using
-the same `/topoviewer/` path shape as GitHub Pages.
+Those checks open the built MkDocs, Zensical, and harness pages through
+Chromium using the same `/topoviewer/` path shape as GitHub Pages. The renderer
+parity check compares only the TopoViewer viewport so page chrome differences
+do not hide renderer drift.
 
 When validating the RTFM integration, the RTFM Makefile can build a local wheel from `mkdocs-topoviewer` and install it into the vanilla MkDocs Material container. That keeps the docs build close to the eventual user install model while still using local source during development.
 

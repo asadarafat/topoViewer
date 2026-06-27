@@ -14,6 +14,7 @@ npm run ci:quality
 npm run ci:schemas
 npm run ci:build
 npm run ci:docs
+npm run ci:render-parity
 npm run ci:test:topoviewer
 npm run ci:test:harness
 npm run ci:perf:smoke
@@ -32,6 +33,7 @@ a GitHub Actions failure.
 | `ci:schemas` | Validates YAML schemas and semantic graph linting. |
 | `ci:build` | Builds packages and verifies vendored MkDocs embed assets are committed. |
 | `ci:docs` | Builds MkDocs, Zensical, and the browser harness, then opens the built `site/` artifact in Chromium. |
+| `ci:render-parity` | Opens the same canonical fixtures through harness, MkDocs embed assets, and Zensical embed assets, then compares viewer-only DOM geometry and screenshots. |
 | `ci:test:topoviewer` | Runs unit and Playwright tests for the renderer package. |
 | `ci:test:harness` | Runs Playwright tests for the VS Code browser harness. |
 | `ci:perf:smoke` | Enforces attention-engine and CLOS layout smoke benchmarks. |
@@ -55,6 +57,15 @@ The docs smoke gate catches deployment-specific behavior that static tests miss:
 - MkDocs embeds render graph nodes and visible links without `.topoviewer-error`.
 - Zensical embeds hydrate without requiring a manual browser refresh.
 - The browser harness loads under the GitHub Pages `/topoviewer/harness/` base path.
+
+The renderer parity gate is narrower than docs smoke. It treats the browser
+harness as the golden authoring surface, then renders the same canonical YAML
+fixtures through MkDocs and Zensical using a fixed viewport and parity theme.
+Allowed differences are page chrome, surrounding documentation layout, and
+non-parity wrapper themes. Not allowed: different graph geometry, missing
+edges, changed label placement, changed icon fit, style default drift, or
+different topology/stylesheet composition. The screenshots are stored under
+`.artifacts/render-parity` for local review.
 
 ## Performance Budgets
 
