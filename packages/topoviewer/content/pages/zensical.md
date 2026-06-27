@@ -46,7 +46,7 @@ The Zensical sync step rewrites those fences into plain static HTML:
 ```html
 <figure class="topoviewer-figure" style="--topoviewer-width: 100%;">
   <figcaption class="topoviewer-title">Object focus</figcaption>
-  <div class="topoviewer-embed" data-topology="..." data-stylesheet="..." style="height: 420px;"></div>
+  <div class="topoviewer-embed topoviewer-parity-theme" data-topology="..." data-stylesheet="..." style="height: 420px;"></div>
 </figure>
 ```
 

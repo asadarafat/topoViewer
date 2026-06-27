@@ -344,6 +344,11 @@ Built-in scoring recognizes common values such as `critical`, `major`, `minor`, 
 | `className` | `string` | Extra class on the root container. |
 | `style` | `React.CSSProperties` | Inline root style, commonly used for height. |
 
+TopoViewer uses React Flow `fitView` so oversized diagrams fit into the
+available viewport, but automatic fit is capped at `zoom: 1`. React Flow's
+default scale is therefore the upper bound: small diagrams are not enlarged
+beyond authored coordinates, while large diagrams can still scale down.
+
 ## Production Checklist
 
 - [ ] Validate documents with `validateTopoDocument` before rendering and show line-oriented errors to users.

@@ -282,7 +282,10 @@ export interface CompiledNodeData extends GraphNode {
   labelLeftMargin?: number;
   labelZIndex?: number;
   labelMinZoom?: number;
+  regionBoundsWidth?: number;
+  regionBoundsHeight?: number;
   metaStyle?: CSSProperties;
+  metaVisible?: boolean;
   badgeLabel?: string;
   badgePosition?: string;
   badgeStyle?: CSSProperties;

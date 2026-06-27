@@ -89,9 +89,25 @@ function parityHtml(surface, fixture) {
         min-height: ${viewerSize.height}px;
         border-radius: 0;
       }
+
+      /*
+       * Simulate common documentation theme resets. TopoViewer may inherit
+       * color variables from host pages, but host CSS must not change SVG,
+       * image, control, or graph geometry.
+       */
+      .docs-host svg,
+      .docs-host img {
+        max-width: 100%;
+        height: auto;
+      }
+
+      .docs-host button {
+        padding: 0.625em 1em;
+        line-height: 1.6;
+      }
     </style>
   </head>
-  <body>
+  <body class="docs-host">
     <div
       class="topoviewer-embed topoviewer-parity-theme"
       data-topology="${fixtureRoot}/topology.yaml"
@@ -128,6 +144,11 @@ async function waitForRenderer(page, label) {
   await page.waitForSelector('.topoviewer', { timeout: 30000 });
   await page.waitForFunction(() => !document.querySelector('.topoviewer-error'), undefined, { timeout: 30000 });
   await page.waitForFunction(() => document.querySelectorAll('.topoviewer .react-flow__node').length > 0, undefined, { timeout: 30000 });
+  await page.waitForFunction(() => {
+    const edgeCount = document.querySelectorAll('.topoviewer .react-flow__edge').length;
+    const visiblePathCount = document.querySelectorAll('.topoviewer .topoviewer-edge-visible-path').length;
+    return edgeCount === 0 || visiblePathCount >= edgeCount;
+  }, undefined, { timeout: 30000 });
   await page.waitForTimeout(250);
   const errors = await page.locator('.topoviewer-error').allTextContents();
   if (errors.length > 0) {
@@ -151,6 +172,10 @@ async function surfaceMetrics(page) {
     const text = (element) => (element.textContent || '').replace(/\s+/g, ' ').trim();
     const computed = (element) => window.getComputedStyle(element);
     const entries = (selector) => Array.from(root.querySelectorAll(selector));
+    const viewportTransform = computed(root.querySelector('.react-flow__viewport')).transform;
+    const viewportZoom = viewportTransform && viewportTransform !== 'none'
+      ? Math.round(new DOMMatrixReadOnly(viewportTransform).a * 1000) / 1000
+      : 1;
     const edgePaths = entries('.topoviewer-edge-visible-path').map((element) => {
       const style = computed(element);
       return {
@@ -168,6 +193,22 @@ async function surfaceMetrics(page) {
       className: element.className,
       rect: rectOf(element)
     }));
+    const nodeGeometryBoxes = entries('.topoviewer-node-icon > .topoviewer-node-geometry').map((element) => ({
+      className: element.className.baseVal || element.className,
+      rect: rectOf(element)
+    }));
+    const nodeShapeBoxes = entries('.topoviewer-node-geometry-shape').map((element) => ({
+      className: element.className.baseVal || element.className,
+      rect: rectOf(element)
+    }));
+    const standaloneShapeGeometryBoxes = entries('.topoviewer-shape > .topoviewer-shape-geometry').map((element) => ({
+      className: element.className.baseVal || element.className,
+      rect: rectOf(element)
+    }));
+    const edgePaintLayerBoxes = entries('.react-flow__edge .topoviewer-edge-paint-layer').map((element) => ({
+      className: element.className.baseVal || element.className,
+      rect: rectOf(element)
+    }));
     const nodeBoxes = entries('.react-flow__node').map((element) => ({
       className: element.className,
       rect: rectOf(element)
@@ -182,8 +223,13 @@ async function surfaceMetrics(page) {
         labels: labelBoxes.length,
         icons: iconBoxes.length
       },
+      viewportZoom,
       edgePaths,
       iconBoxes,
+      nodeGeometryBoxes,
+      nodeShapeBoxes,
+      standaloneShapeGeometryBoxes,
+      edgePaintLayerBoxes,
       labelBoxes,
       nodeBoxes
     };
@@ -193,8 +239,13 @@ async function surfaceMetrics(page) {
 function comparableMetrics(metrics) {
   return {
     counts: metrics.counts,
+    viewportZoom: metrics.viewportZoom,
     edgePaths: sortObjects([...metrics.edgePaths]),
     iconBoxes: sortObjects([...metrics.iconBoxes]),
+    nodeGeometryBoxes: sortObjects([...metrics.nodeGeometryBoxes]),
+    nodeShapeBoxes: sortObjects([...metrics.nodeShapeBoxes]),
+    standaloneShapeGeometryBoxes: sortObjects([...metrics.standaloneShapeGeometryBoxes]),
+    edgePaintLayerBoxes: sortObjects([...metrics.edgePaintLayerBoxes]),
     labelBoxes: sortObjects([...metrics.labelBoxes]),
     nodeBoxes: sortObjects([...metrics.nodeBoxes])
   };
@@ -318,8 +369,14 @@ async function run() {
     for (const fixture of fixtures) {
       try {
         const harness = await collectSurface(page, harnessUrl(baseUrl, fixture), 'harness', fixture);
+        if (harness.metrics.viewportZoom > 1.001) {
+          throw new Error(`${fixture.id} harness viewport zoom ${harness.metrics.viewportZoom} exceeds the React Flow default scale cap`);
+        }
         for (const surface of ['mkdocs', 'zensical']) {
           const docs = await collectSurface(page, docsUrl(baseUrl, surface, fixture), surface, fixture);
+          if (docs.metrics.viewportZoom > 1.001) {
+            throw new Error(`${fixture.id} ${surface} viewport zoom ${docs.metrics.viewportZoom} exceeds the React Flow default scale cap`);
+          }
           assertDeepEqual(`${fixture.id} ${surface} DOM`, harness.metrics, docs.metrics);
           const ratio = await visualDiffRatio(page, harness.screenshot, docs.screenshot);
           if (ratio > maxVisualDiffRatio) {

@@ -358,9 +358,14 @@ export function compileTopoGraph(
 }
 
 export function rebuildRegionNodes(regions: GraphRegion[], selectedLayers: Set<string>, networkNodes: Array<Record<string, unknown>>, spec: TopoDocument) {
-  const nodeById = new Map<string, GraphNode>(networkNodes.map((node) => [
+  const nodeById = new Map<string, GraphNode & { regionBoundsWidth?: number; regionBoundsHeight?: number }>(networkNodes.map((node) => [
     String(node.id),
-    { id: String(node.id), position: node.position as GraphNode['position'] }
+    {
+      id: String(node.id),
+      position: node.position as GraphNode['position'],
+      regionBoundsWidth: (node.data as { regionBoundsWidth?: number } | undefined)?.regionBoundsWidth,
+      regionBoundsHeight: (node.data as { regionBoundsHeight?: number } | undefined)?.regionBoundsHeight
+    }
   ]));
   const boundsById = buildRegionBoundsMap(regions, selectedLayers, nodeById);
 

@@ -125,10 +125,10 @@ Run `npm run sync:mkdocs-assets` when only the embed bundle changed, or `npm run
 
 The plugin:
 
-- Rewrites fenced `topoviewer` blocks into `<div class="topoviewer-embed">` containers.
+- Rewrites fenced `topoviewer` blocks into `<div class="topoviewer-embed topoviewer-parity-theme">` containers.
 - Resolves topology and stylesheet files relative to the Markdown page.
 - Injects the embed CSS and JavaScript.
-- Uses MkDocs Material palette variables so light/dark mode follows the site theme.
+- Uses the canonical TopoViewer viewport theme so rendered diagrams match the browser harness, MkDocs, and Zensical surfaces.
 
 If the topology or stylesheet YAML cannot be loaded, the embed renders a visible error block instead of failing silently.
 
@@ -141,7 +141,7 @@ For non-MkDocs pages, include the bundle and add a container:
 <script defer src="/assets/topoviewer/topoviewer-embed.iife.js"></script>
 
 <div
-  class="topoviewer-embed"
+  class="topoviewer-embed topoviewer-parity-theme"
   data-topology="/diagrams/topology.yaml"
   data-stylesheet="/diagrams/stylesheet.yaml"
   data-controls="true"

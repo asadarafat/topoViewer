@@ -51,7 +51,7 @@ for (const needle of [
   'topoviewer-embed.css',
   'topoviewer-embed.iife.js',
   'topoviewer-zensical.js',
-  'class="topoviewer-embed"',
+  'class="topoviewer-embed topoviewer-parity-theme"',
   'data-topology="../../assets/topoviewer/examples/graph/basic/topology.yaml"',
   'data-stylesheet="../../assets/topoviewer/examples/graph/basic/stylesheet.yaml"'
 ]) {
@@ -89,7 +89,7 @@ for (const needle of [
 
 const mirroredHtml = fs.readFileSync(mirroredExamplePage, 'utf8');
 for (const needle of [
-  'class="topoviewer-embed"',
+  'class="topoviewer-embed topoviewer-parity-theme"',
   'data-topology="../../../../assets/topoviewer/examples/attention/object-focus/topology.yaml"',
   'data-stylesheet="../../../../assets/topoviewer/examples/attention/object-focus/stylesheet.yaml"'
 ]) {
@@ -100,7 +100,7 @@ for (const needle of [
 
 const realNetworkHtml = fs.readFileSync(realNetworkDemoPage, 'utf8');
 for (const needle of [
-  'class="topoviewer-embed"',
+  'class="topoviewer-embed topoviewer-parity-theme"',
   'data-topology="../../assets/topoviewer/examples/integration/real-network-underlay/topology.yaml"',
   'data-stylesheet="../../assets/topoviewer/examples/integration/real-network-underlay/stylesheet.yaml"',
   'data-selected-layer-ids="[&quot;underlay&quot;]"',

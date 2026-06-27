@@ -48,13 +48,17 @@
   --topoviewer-node-shadow: 0 1px 4px rgba(0, 0, 0, 0.26);
   --topoviewer-panel-shadow: 0 14px 34px rgba(0, 0, 0, 0.28);
   --topoviewer-label-shadow: 0 8px 18px rgba(0, 0, 0, 0.32);
-  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 .topoviewer {
   width: 100%;
   height: 100%;
   min-height: 420px;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 16px;
+  line-height: 1;
+  letter-spacing: 0;
   background:
     radial-gradient(circle at 30% 20%, var(--topoviewer-bg-radial-a), transparent 28%),
     radial-gradient(circle at 76% 72%, var(--topoviewer-bg-radial-b), transparent 30%),
@@ -67,6 +71,41 @@
 .topoviewer *::before,
 .topoviewer *::after {
   box-sizing: border-box;
+}
+
+/* Documentation hosts may theme TopoViewer colors through CSS variables, but
+   renderer geometry must not inherit page-level SVG/image sizing resets. */
+.topoviewer .topoviewer-node-icon > .topoviewer-node-geometry,
+.topoviewer .topoviewer-shape > .topoviewer-shape-geometry,
+.topoviewer .react-flow__edge .topoviewer-edge-paint-layer {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  min-width: 0;
+  min-height: 0;
+  aspect-ratio: auto;
+  vertical-align: baseline;
+}
+
+.topoviewer .react-flow__edge .topoviewer-edge-paint-layer {
+  width: 1px;
+  height: 1px;
+}
+
+.topoviewer .topoviewer-node-icon-content > .topoviewer-node-icon-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  min-width: 0;
+  min-height: 0;
+  aspect-ratio: auto;
+  object-fit: contain;
+  object-position: center;
+  vertical-align: baseline;
 }
 
 .topoviewer-embed-shell {
@@ -243,10 +282,14 @@
   display: grid;
   width: 62%;
   height: 62%;
+  align-content: center;
+  justify-content: center;
   place-items: center;
   overflow: hidden;
   box-sizing: border-box;
+  font-family: inherit;
   line-height: 1;
+  letter-spacing: 0;
   text-align: center;
   pointer-events: none;
   user-select: none;
@@ -257,6 +300,7 @@
   width: 100%;
   height: 100%;
   object-fit: contain;
+  object-position: center;
   pointer-events: none;
   user-select: none;
 }
@@ -264,16 +308,21 @@
 .topoviewer-node-label {
   position: relative;
   z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   max-width: 100%;
   box-sizing: border-box;
   color: var(--topoviewer-fg-strong);
   font-weight: 620;
   font-size: 10px;
   line-height: 1.1;
+  letter-spacing: 0;
   text-align: center;
   border-radius: 3px;
   border-style: solid;
   border-width: 0;
+  overflow-wrap: anywhere;
   transform: translate(var(--topoviewer-node-label-x-offset, 0), var(--topoviewer-node-label-y-offset, 0));
 }
 
@@ -367,10 +416,13 @@
 }
 
 .topoviewer-node-meta {
+  max-width: max(var(--topoviewer-node-icon-width, 34px), 11rem);
   color: var(--topoviewer-fg-muted);
   font-size: 8px;
-  line-height: 1.15;
+  line-height: 1.2;
+  letter-spacing: 0;
   text-align: center;
+  overflow-wrap: anywhere;
 }
 
 .topoviewer-node-badge {
@@ -389,6 +441,7 @@
   font-size: 9px;
   font-weight: 850;
   line-height: 1.1;
+  letter-spacing: 0;
   text-align: center;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -669,6 +722,7 @@
   font-size: 10px;
   font-weight: 650;
   line-height: 1.5;
+  letter-spacing: 0;
   box-shadow: var(--topoviewer-label-shadow);
 }
 
@@ -754,9 +808,11 @@
 .topoviewer-reactflow-controls .react-flow__controls-button {
   width: 34px;
   height: 34px;
+  padding: 0;
   border-bottom-color: var(--topoviewer-border);
   color: var(--topoviewer-fg-strong);
   background: var(--topoviewer-panel-bg);
+  line-height: 1;
 }
 
 .topoviewer-reactflow-controls .react-flow__controls-button:hover {
@@ -769,8 +825,13 @@
 }
 
 .topoviewer-reactflow-controls .react-flow__controls-button svg {
-  max-width: 15px;
-  max-height: 15px;
+  width: 15px;
+  height: 15px;
+  max-width: none;
+  max-height: none;
+  min-width: 0;
+  min-height: 0;
+  aspect-ratio: auto;
   fill: currentColor;
   stroke: currentColor;
 }

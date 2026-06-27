@@ -252,6 +252,59 @@ describe('compileTopoGraph', () => {
     });
   });
 
+  it('preserves square and circle body aspect ratio by default', () => {
+    const compiled = compileTopoGraph({
+      version: '1.0',
+      graph: {
+        layers: [{ id: 'physical', name: 'Physical' }],
+        nodes: [
+          { id: 'square-router', name: 'Square router', layers: ['physical'], position: [0, 0] },
+          { id: 'circle-router', name: 'Circle router', layers: ['physical'], position: [180, 0] },
+          { id: 'ellipse-router', name: 'Ellipse router', layers: ['physical'], position: [360, 0] }
+        ]
+      },
+      stylesheet: [
+        {
+          selector: 'node',
+          style: {
+            width: 84,
+            height: 60
+          }
+        },
+        {
+          selector: 'node[id = "circle-router"]',
+          style: {
+            shape: 'circle'
+          }
+        },
+        {
+          selector: 'node[id = "ellipse-router"]',
+          style: {
+            shape: 'ellipse'
+          }
+        }
+      ]
+    }, ['physical']);
+
+    const byId = new Map(compiled.nodes.map((node) => [node.id, node.data as CompiledNodeData]));
+
+    expect(byId.get('square-router')).toMatchObject({
+      nodeShapeType: 'square',
+      iconStyle: { width: 84, height: 60 },
+      iconContentStyle: { width: 60, height: 60 }
+    });
+    expect(byId.get('circle-router')).toMatchObject({
+      nodeShapeType: 'circle',
+      iconStyle: { width: 84, height: 60 },
+      iconContentStyle: { width: 60, height: 60 }
+    });
+    expect(byId.get('ellipse-router')).toMatchObject({
+      nodeShapeType: 'ellipse',
+      iconStyle: { width: 84, height: 60 },
+      iconContentStyle: { width: 84, height: 60 }
+    });
+  });
+
   it('uses icon size controls as inner icon content overrides', () => {
     const compiled = compileTopoGraph({
       version: '1.0',
@@ -441,6 +494,37 @@ describe('compileTopoGraph', () => {
     const nodeData = compiled.nodes[0]?.data as CompiledNodeData;
     expect(nodeData.labelStyle).toMatchObject({
       backgroundColor: 'rgba(209, 157, 2, 0.5)'
+    });
+  });
+
+  it('marks transparent and zero-size node metadata as hidden', () => {
+    const compiled = compileTopoGraph({
+      version: '1.0',
+      graph: {
+        layers: [{ id: 'underlay' }],
+        nodes: [
+          { id: 'transparent-meta', name: 'Transparent', labels: { meta: 'transparent', role: 'pe' }, layers: ['underlay'], position: [0, 0] },
+          { id: 'zero-meta', name: 'Zero', labels: { meta: 'zero', role: 'p' }, layers: ['underlay'], position: [160, 0] },
+          { id: 'visible-meta', name: 'Visible', labels: { meta: 'visible', role: 'rr' }, layers: ['underlay'], position: [320, 0] }
+        ]
+      },
+      stylesheet: [
+        { selector: 'node[labels.meta = "transparent"]', style: { metaColor: 'transparent' } },
+        { selector: 'node[labels.meta = "zero"]', style: { metaFontSize: 0 } },
+        { selector: 'node[labels.meta = "visible"]', style: { metaColor: '#94a3b8', metaFontSize: 9 } }
+      ]
+    }, ['underlay']);
+
+    const transparentMeta = compiled.nodes.find((node) => node.id === 'transparent-meta')?.data as CompiledNodeData;
+    const zeroMeta = compiled.nodes.find((node) => node.id === 'zero-meta')?.data as CompiledNodeData;
+    const visibleMeta = compiled.nodes.find((node) => node.id === 'visible-meta')?.data as CompiledNodeData;
+
+    expect(transparentMeta.metaVisible).toBe(false);
+    expect(zeroMeta.metaVisible).toBe(false);
+    expect(visibleMeta.metaVisible).toBe(true);
+    expect(visibleMeta.metaStyle).toMatchObject({
+      color: '#94a3b8',
+      fontSize: 9
     });
   });
 

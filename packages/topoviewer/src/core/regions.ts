@@ -1,5 +1,10 @@
 import type { Bounds, GraphNode, GraphRegion } from './types';
 
+type RegionMemberNode = Pick<GraphNode, 'id' | 'position'> & {
+  regionBoundsWidth?: number;
+  regionBoundsHeight?: number;
+};
+
 export function normalizePosition(position: GraphNode['position']): { x: number; y: number } {
   if (Array.isArray(position)) return { x: Number(position[0] || 0), y: Number(position[1] || 0) };
   if (position && typeof position === 'object') return { x: Number(position.x || 0), y: Number(position.y || 0) };
@@ -35,6 +40,14 @@ function expandBounds(bounds: Bounds, paddingX: number, paddingY = paddingX): Bo
   };
 }
 
+function regionMemberWidth(node: RegionMemberNode, fallback: number): number {
+  return numberOrDefault(node.regionBoundsWidth, fallback);
+}
+
+function regionMemberHeight(node: RegionMemberNode, fallback: number): number {
+  return numberOrDefault(node.regionBoundsHeight, fallback);
+}
+
 function regionDepth(region: GraphRegion, regionById: Map<string, GraphRegion>): number {
   let depth = 0;
   let current: GraphRegion | undefined = region;
@@ -51,13 +64,12 @@ function regionDepth(region: GraphRegion, regionById: Map<string, GraphRegion>):
   return depth;
 }
 
-function regionBounds(region: GraphRegion, nodeById: Map<string, GraphNode>, regions: GraphRegion[]): Bounds | null {
-  const points = (region.members || [])
+function regionBounds(region: GraphRegion, nodeById: Map<string, RegionMemberNode>, regions: GraphRegion[]): Bounds | null {
+  const nodes = (region.members || [])
     .map((id) => nodeById.get(id))
-    .filter(Boolean)
-    .map((node) => normalizePosition(node!.position));
+    .filter(Boolean) as RegionMemberNode[];
 
-  if (!points.length) return null;
+  if (!nodes.length) return null;
 
   const padding = numberOrDefault(region.padding, 88);
   const paddingX = numberOrDefault(region.paddingX, padding);
@@ -68,12 +80,19 @@ function regionBounds(region: GraphRegion, nodeById: Map<string, GraphNode>, reg
   const minHeight = numberOrDefault(region.minHeight, 120);
   const defaultHeaderPadding = regions.some((candidate) => candidate.parent === region.id) ? 88 : 0;
   const headerPadding = numberOrDefault(region.headerPadding, defaultHeaderPadding);
+  const points = nodes.map((node) => normalizePosition(node.position));
   const xs = points.map((point) => point.x);
   const ys = points.map((point) => point.y);
   const minX = Math.min(...xs) - paddingX;
   const minY = Math.min(...ys) - paddingY - headerPadding;
-  const maxX = Math.max(...xs) + paddingX + nodeWidth;
-  const maxY = Math.max(...ys) + paddingY + nodeHeight;
+  const maxX = Math.max(...nodes.map((node) => {
+    const point = normalizePosition(node.position);
+    return point.x + regionMemberWidth(node, nodeWidth);
+  })) + paddingX;
+  const maxY = Math.max(...nodes.map((node) => {
+    const point = normalizePosition(node.position);
+    return point.y + regionMemberHeight(node, nodeHeight);
+  })) + paddingY;
 
   return {
     x: minX,
@@ -83,7 +102,7 @@ function regionBounds(region: GraphRegion, nodeById: Map<string, GraphNode>, reg
   };
 }
 
-export function buildRegionBoundsMap(regions: GraphRegion[], selectedLayerIds: Set<string>, nodeById: Map<string, GraphNode>): Map<string, Bounds> {
+export function buildRegionBoundsMap(regions: GraphRegion[], selectedLayerIds: Set<string>, nodeById: Map<string, RegionMemberNode>): Map<string, Bounds> {
   const visibleRegions = regions.filter((region) => (region.layers || []).some((layerId) => selectedLayerIds.has(layerId)));
   const regionById = new Map(visibleRegions.map((region) => [region.id, region]));
   const childrenByParentId = visibleRegions.reduce((children, region) => {

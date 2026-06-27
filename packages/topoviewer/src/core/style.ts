@@ -222,6 +222,46 @@ function cssPadding(value: unknown): string | number | undefined {
   return parsed !== undefined ? `${parsed}px` : undefined;
 }
 
+function isZeroNumber(value: unknown): boolean {
+  const parsed = finiteNumber(value);
+  return parsed === 0;
+}
+
+function isTransparentColor(value: unknown): boolean {
+  if (value === undefined || value === null) return false;
+  const text = String(value).trim().toLowerCase().replace(/\s+/g, '');
+  if (text === 'transparent') return true;
+  if (text === '#0000' || text === '#00000000') return true;
+  const rgba = text.match(/^rgba?\((.+)\)$/);
+  if (!rgba) return false;
+  const parts = rgba[1].split(',');
+  return parts.length === 4 && finiteNumber(parts[3]) === 0;
+}
+
+function estimatedNodeLabelHeight(style: StyleDeclaration): number {
+  const fontSize = finiteNumber(style.labelFontSize) ?? 10;
+  const padding = nonNegativeNumber(style.labelPadding) ?? 0;
+  return fontSize * 1.1 + padding * 2;
+}
+
+function estimatedNodeMetaHeight(entity: GraphEntity, style: StyleDeclaration): number {
+  const text = formatLabels(entity.labels);
+  if (!text || isTransparentColor(style.metaColor) || isZeroNumber(style.metaFontSize)) return 0;
+  const fontSize = finiteNumber(style.metaFontSize) ?? 8;
+  const lineHeight = fontSize * 1.2;
+  const lines = Math.max(1, Math.ceil(text.length / 28));
+  return lineHeight * lines;
+}
+
+function estimatedRegionNodeHeight(entity: GraphEntity, style: StyleDeclaration, bodyHeight: number, labelPosition: string, rendersOverlayLabel: boolean): number {
+  const stackGap = 3;
+  const labelHeight = !rendersOverlayLabel && labelPosition === 'bottom' ? estimatedNodeLabelHeight(style) : 0;
+  const metaHeight = estimatedNodeMetaHeight(entity, style);
+  return bodyHeight
+    + (labelHeight > 0 ? stackGap + labelHeight : 0)
+    + (metaHeight > 0 ? stackGap + metaHeight : 0);
+}
+
 function labelWhiteSpace(value: unknown): string | undefined {
   const wrap = normalizeNodeLabelTextWrap(value);
   if (wrap === 'wrap') return 'normal';
@@ -288,9 +328,13 @@ export function compileNodeStyle(style: StyleDeclaration, entity: GraphEntity, s
   const icon = iconForStyle(style, entity, spec);
   const width = Number(valueOrDefault(style.width as number | undefined, styleDefaultNumber('node', 'width', 82)));
   const height = Number(valueOrDefault(style.height as number | undefined, styleDefaultNumber('node', 'height', 60)));
-  const iconWidth = Number(valueOrDefault((style.iconWidth ?? style.iconSize) as number | undefined, width));
-  const iconHeight = Number(valueOrDefault((style.iconHeight ?? style.iconSize) as number | undefined, height));
   const shape = normalizeNodeShape(style.shape) || DEFAULT_NODE_SHAPE;
+  const preservesShapeAspectRatio = shape === 'circle' || shape === 'square';
+  const aspectLockedSize = Math.min(width, height);
+  const defaultIconWidth = preservesShapeAspectRatio ? aspectLockedSize : width;
+  const defaultIconHeight = preservesShapeAspectRatio ? aspectLockedSize : height;
+  const iconWidth = Number(valueOrDefault((style.iconWidth ?? style.iconSize) as number | undefined, defaultIconWidth));
+  const iconHeight = Number(valueOrDefault((style.iconHeight ?? style.iconSize) as number | undefined, defaultIconHeight));
   const shapePoints = parseNodeShapePoints(style.shapePolygonPoints).points;
   const fill = String(style.backgroundColor || icon.fill);
   const stroke = String(style.borderColor || icon.stroke);
@@ -300,11 +344,13 @@ export function compileNodeStyle(style: StyleDeclaration, entity: GraphEntity, s
   const outlineWidth = nonNegativeNumber(style.outlineWidth);
   const underlayPadding = nonNegativeNumber(style.underlayPadding);
   const labelPosition = normalizeNodeLabelPosition(style.labelPosition) || String(styleDefaultValue('node', 'labelPosition') || 'bottom');
+  const rendersOverlayLabel = finiteNumber(style.labelZIndex) !== undefined;
   const badgeLabel = aggregateBadgeLabel(style, entity);
   const badgePosition = normalizeNodeBadgePosition(style.badgePosition) || String(styleDefaultValue('node', 'badgePosition') || 'topRight');
   const statusColor = aggregateStatusColor(style, entity);
   const statusPlacement = normalizeNodeStatusPlacement(style.statusPlacement) || String(styleDefaultValue('node', 'statusPlacement') || 'bottomRight');
   const iconFit = normalizeNodeIconFit(style.iconFit);
+  const metaVisible = !isTransparentColor(style.metaColor) && !isZeroNumber(style.metaFontSize);
 
   return {
     flow: withoutUndefined({
@@ -338,6 +384,8 @@ export function compileNodeStyle(style: StyleDeclaration, entity: GraphEntity, s
         '--topoviewer-node-label-x-offset': cssPixel(style.labelXOffset) || '0px',
         '--topoviewer-node-label-y-offset': cssPixel(style.labelYOffset) || '0px'
       }),
+      regionBoundsWidth: width,
+      regionBoundsHeight: estimatedRegionNodeHeight(entity, style, height, labelPosition, rendersOverlayLabel),
       iconStyle: withoutUndefined({
         width,
         height,
@@ -403,6 +451,7 @@ export function compileNodeStyle(style: StyleDeclaration, entity: GraphEntity, s
         fontSize: style.metaFontSize,
         fontWeight: style.metaFontWeight
       }),
+      metaVisible,
       badgeLabel,
       badgePosition,
       badgeStyle: withoutUndefined({

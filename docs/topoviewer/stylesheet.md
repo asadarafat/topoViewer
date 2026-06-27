@@ -207,10 +207,10 @@ stylesheet:
 | Key | Values | Use |
 |---|---|---|
 | `icon` | icon key | Selects an icon from `icons`. Defaults through `style.icon`, object `icon`, `data.icon`, then `router.generic`. |
-| `width`, `height` | number | Visible node body size. Also sets the default edge anchor and default icon/image area. Defaults to `82` x `60`. |
+| `width`, `height` | number | Visible node body size. Also sets the default edge anchor. Defaults to `82` x `60`. For `square` and `circle`, the visible body keeps a 1:1 aspect ratio using the smaller dimension and is centered inside the configured box. |
 | `iconSize` | number | Sets equal inner icon/image width and height when it should differ from the body. |
-| `iconWidth`, `iconHeight` | number | Sets asymmetric inner icon/image size when it should differ from the body. Defaults to `iconSize`, then node body size. |
-| `shape` | node shape name | Node body shape. Defaults to `square`. |
+| `iconWidth`, `iconHeight` | number | Sets asymmetric inner icon/image size when it should differ from the body. Defaults to `iconSize`, then the visible body size. For `square` and `circle`, that default is the smaller of `width` and `height`. |
+| `shape` | `square`, `circle`, `ellipse`, `triangle`, `rectangle`, `roundRectangle`, `bottomRoundRectangle`, `cutRectangle`, `barrel`, `rhomboid`, `diamond`, `pentagon`, `hexagon`, `concaveHexagon`, `heptagon`, `octagon`, `star`, `tag`, `vee`, `polygon` | Node body shape. Defaults to `square`. Use `rectangle` or `ellipse` when the body should intentionally stretch to different `width` and `height` values. |
 | `shapePolygonPoints` | number array or string | Custom polygon points when `shape: polygon` is used. |
 | `backgroundColor` | CSS color | Icon fill/background. Defaults to the selected icon `fill`. |
 | `borderColor` | CSS color | Icon border. Defaults to the selected icon `stroke`. |
@@ -241,8 +241,6 @@ stylesheet:
 | `display` | `element`, `none` | Hide object with `none`; default is `element`. |
 | `draggable` | boolean | Defaults to true. |
 | `selectable` | boolean | Defaults to true. |
-
-Supported node body shapes are `ellipse`, `circle`, `triangle`, `square`, `rectangle`, `roundRectangle`, `bottomRoundRectangle`, `cutRectangle`, `barrel`, `rhomboid`, `diamond`, `pentagon`, `hexagon`, `concaveHexagon`, `heptagon`, `octagon`, `star`, `tag`, `vee`, and `polygon`.
 
 Use canonical camelCase for multi-word values:
 

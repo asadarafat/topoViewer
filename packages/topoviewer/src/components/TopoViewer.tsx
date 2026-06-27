@@ -255,7 +255,7 @@ function TopoFlow({
       nodeTypes={nodeTypes as never}
       edgeTypes={edgeTypes as never}
       fitView
-      fitViewOptions={{ padding: 0.06 }}
+      fitViewOptions={{ padding: 0.06, maxZoom: 1 }}
       minZoom={0.2}
       maxZoom={8}
       nodesDraggable

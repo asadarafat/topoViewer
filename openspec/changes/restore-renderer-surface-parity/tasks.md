@@ -52,3 +52,23 @@
 - [ ] 7.5 Run `npm run ci:docs`
 - [x] 7.6 Run the new renderer parity lane locally
 - [ ] 7.7 Run full `npm run ci` after generated outputs are committed
+
+# 8. Scale, Shape, And Hull Follow-Up
+
+- [x] 8.1 Record Playwright evidence for `graph/basic` harness/docs zoom and node stack differences
+- [x] 8.2 Cap automatic React Flow fit zoom at `1` for initial fit and fit-to-screen controls
+- [x] 8.3 Preserve `square` and `circle` body aspect ratio while keeping `rectangle` and `ellipse` stretched
+- [x] 8.4 Default inner icon/image size to the visible body size for aspect-preserving node shapes
+- [x] 8.5 Update stylesheet and React usage docs with scale and shape semantics
+- [x] 8.6 Add unit and renderer parity coverage for the new scale/shape contract
+- [x] 8.7 Recompute region hulls from compiled node stack dimensions
+
+# 9. Documentation CSS Geometry Boundary
+
+- [x] 9.1 Record Playwright evidence that MkDocs and Zensical host CSS leaked SVG sizing into `graph/basic`
+- [x] 9.2 Define that documentation surfaces may override color variables only, not sizing, padding, line-height, SVG/image sizing, or shape geometry
+- [x] 9.3 Add scoped TopoViewer CSS rules that protect node SVGs, shape SVGs, icon images, text metrics, edge paint SVGs, and viewport control geometry
+- [x] 9.4 Extend renderer parity metrics to compare SVG geometry boxes, not just node/icon container boxes
+- [x] 9.5 Add docs-like hostile SVG/image/button CSS resets to renderer parity pages
+- [x] 9.6 Rebuild docs assets and verify MkDocs/Zensical `graph/basic` geometry matches harness
+- [x] 9.7 Rerun renderer parity and quality checks after generated assets refresh

@@ -106,7 +106,7 @@ class TopoViewerPlugin(BasePlugin):
 
         attributes = [
             f'id="{embed_id}"',
-            'class="topoviewer-embed"',
+            'class="topoviewer-embed topoviewer-parity-theme"',
             f'data-topology="{html.escape(topology_url, quote=True)}"',
             f'data-controls="{controls}"',
             f'data-controls-open="{controls_open}"',

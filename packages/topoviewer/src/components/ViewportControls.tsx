@@ -61,7 +61,7 @@ export function ViewportControls({
     <Controls
       aria-label="Viewport controls"
       className="topoviewer-reactflow-controls"
-      fitViewOptions={{ padding: 0.06, duration: 220 }}
+      fitViewOptions={{ padding: 0.06, maxZoom: 1, duration: 220 }}
       position="top-right"
       showInteractive={false}
     >

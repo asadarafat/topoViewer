@@ -140,7 +140,7 @@ function renderTopoViewerEmbed(config, sourceMarkdownPath, targetMarkdownPath, o
   const embedId = `topoviewer-${crypto.createHash('sha1').update(seed).digest('hex').slice(0, 10)}`;
   const attributes = [
     `id="${embedId}"`,
-    'class="topoviewer-embed"',
+    'class="topoviewer-embed topoviewer-parity-theme"',
     `data-topology="${escapeHtml(topologyUrl)}"`,
     `data-controls="${controls}"`,
     `data-controls-open="${controlsOpen}"`,

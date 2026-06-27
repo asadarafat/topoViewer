@@ -111,6 +111,7 @@ export function NetworkNode({ data }: { data: CompiledNodeData }) {
   const nodeUnderlayStyle = (data.nodeUnderlayStyle || {}) as CSSProperties;
   const labelStyle = (data.labelStyle || {}) as CSSProperties;
   const nodeShapeType = data.nodeShapeType || DEFAULT_NODE_SHAPE;
+  const preservesShapeAspectRatio = nodeShapeType === 'circle' || nodeShapeType === 'square';
   const fill = String(nodeShapeStyle.fill || iconStyle.backgroundColor || icon.fill || '#929aa8');
   const stroke = String(nodeShapeStyle.stroke || iconStyle.borderColor || icon.stroke || '#d9e0ea');
   const strokeWidth = Number(nodeShapeStyle.strokeWidth || iconStyle.borderWidth || 4);
@@ -143,6 +144,8 @@ export function NetworkNode({ data }: { data: CompiledNodeData }) {
     data.attentionLabelPriority ? `topoviewer-node-label-priority-${data.attentionLabelPriority}` : ''
   ].filter(Boolean).join(' ');
   const labelHtml = data.labelHtml;
+  const metaText = formatLabels(data.labels);
+  const rendersMeta = data.metaVisible !== false && metaText !== '';
   const rendersOverlayLabel = data.labelZIndex !== undefined;
   const isNavigableAttentionNode = data.attentionState === 'focused' || data.attentionState === 'related';
   const accessibleLabel = [
@@ -167,7 +170,7 @@ export function NetworkNode({ data }: { data: CompiledNodeData }) {
         <svg
           className="topoviewer-node-geometry"
           viewBox="0 0 100 100"
-          preserveAspectRatio="none"
+          preserveAspectRatio={preservesShapeAspectRatio ? 'xMidYMid meet' : 'none'}
           role="presentation"
           focusable="false"
           data-node-shape={nodeShapeType}
@@ -234,7 +237,7 @@ export function NetworkNode({ data }: { data: CompiledNodeData }) {
           {labelHtml ? null : displayName(data)}
         </div>
       )}
-      <div className="topoviewer-node-meta" style={data.metaStyle}>{formatLabels(data.labels)}</div>
+      {rendersMeta ? <div className="topoviewer-node-meta" style={data.metaStyle}>{metaText}</div> : null}
       <Handle type="source" position={Position.Right} />
     </div>
   );
