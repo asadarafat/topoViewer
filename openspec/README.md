@@ -9,6 +9,7 @@ Current active plans:
 - `changes/define-netbox-integration-roadmap/` - planned NetBox feasibility, use cases, first integration shape, and roadmap wording constraints.
 - `changes/define-opsmill-infrahub-integration-roadmap/` - planned OpsMill/Infrahub feasibility, use cases, first integration shape, and roadmap wording constraints.
 - `changes/define-grafana-integration-roadmap/` - phased Grafana feasibility roadmap covering panel/harness parity, Prometheus weathermap, interactive runtime state, operational dashboards/docs, and later Codespaces portability.
+- `changes/implement-grafana-panel-phase-1/` - planned first Grafana executable slice: panel package scaffold, canonical harness fixture parity, fixture selector, generated fixture projection, and pinned local Grafana smoke.
 
 Current studies:
 
