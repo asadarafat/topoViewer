@@ -10,7 +10,6 @@ Current active plans:
 - `changes/define-opsmill-infrahub-integration-roadmap/` - planned OpsMill/Infrahub feasibility, use cases, first integration shape, and roadmap wording constraints.
 - `changes/define-grafana-integration-roadmap/` - planned Grafana feasibility, use cases, first integration shape, and roadmap wording constraints.
 - `changes/centralize-style-defaults-registry/` - planned canonical style defaults registry so runtime, docs, schema, and YAML assist describe the same defaults.
-- `changes/restore-renderer-surface-parity/` - planned shared composition, viewport, theme, and regression-test contract so harness, MkDocs, and Zensical render the same topology/style YAML consistently.
 
 Current studies:
 
@@ -18,6 +17,7 @@ Current studies:
 
 Archived plans:
 
+- `archive/2026-06-27-restore-renderer-surface-parity/` - implemented shared composition, viewport scale, shape semantics, region bounds, CSS geometry isolation, and renderer parity checks so harness, MkDocs, and Zensical render the same topology/style YAML consistently.
 - `archive/2026-06-26-stabilize-ci-docs-test-strategy/` - implemented observable, deterministic CI/Docs test strategy hardening for local/GitHub parity, generated artifacts, Playwright stability, command taxonomy, stress policy, and Pages validation.
 - `archive/2026-06-26-normalize-public-docs-url-layout/` - implemented lowercase public repository/Pages URL contract and combined MkDocs, Zensical, and harness deployment layout.
 - `archive/2026-06-26-make-content-root-canonical/` - implemented single editable `packages/topoviewer/content/**` source root with generated docs/example projections, canonical "Topology as Code" product messaging, and duplicate fixture cleanup.

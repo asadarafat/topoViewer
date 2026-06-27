@@ -49,9 +49,9 @@
 - [x] 7.2 Run `npm run ci:schemas`
 - [x] 7.3 Run `npm run ci:test:topoviewer`
 - [x] 7.4 Run `npm run ci:test:harness`
-- [ ] 7.5 Run `npm run ci:docs`
+- [x] 7.5 Run `npm run ci:docs`
 - [x] 7.6 Run the new renderer parity lane locally
-- [ ] 7.7 Run full `npm run ci` after generated outputs are committed
+- [x] 7.7 Run full `npm run ci` after generated outputs are committed
 
 # 8. Scale, Shape, And Hull Follow-Up
 
