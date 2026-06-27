@@ -205,3 +205,20 @@ Phase 1 validation has two levels:
 - `layered-network` and `clos-2spine-4leaf` have local Grafana smoke
   screenshots.
 - Public docs still mark Grafana as exploratory.
+
+### Phase 1 Findings
+
+- Grafana `13.1.0` expects panel modules to load as AMD. A Vite/Rolldown ESM
+  plugin build is not sufficient for the Grafana plugin loader, so Phase 1 uses
+  a small Webpack build for `module.js`.
+- The fixture projection works best as a generated TypeScript module inside the
+  panel package. That keeps Phase 1 self-contained and avoids introducing a
+  static lab data service before telemetry exists.
+- Local smoke needs an explicit Playwright locale of `en-US`; otherwise Grafana
+  can inherit host locale strings that browser `Intl` rejects.
+- The lab keeps `3000` as the documented default, but scripts support
+  `GRAFANA_HTTP_PORT` and `GRAFANA_URL` overrides because developer machines
+  often already run Grafana or another service on `3000`.
+- Full `npm run ci` cannot pass while generated README/docs projections are
+  uncommitted. Commit this patch before using the full CI command as the final
+  archive gate.

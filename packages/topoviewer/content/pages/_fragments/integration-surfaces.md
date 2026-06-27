@@ -14,6 +14,7 @@ authoring surface.
   NetBox inventory and platform data inside NetBox.
 - OpsMill/Infrahub is a roadmap plugin surface for visualizing topology derived
   from Infrahub network topology and inventory data inside that platform.
-- Grafana remains a roadmap dashboard surface for operational topology panels
-  if the standalone Grafana integration plan is retained.
-
+- Grafana has an exploratory local panel spike for operational topology
+  dashboards; the Phase 2 lab adds a Prometheus-backed weathermap slice, but
+  supported packaging, signing, Containerlab, and persistence remain roadmap
+  work.

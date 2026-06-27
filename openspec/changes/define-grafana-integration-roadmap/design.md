@@ -58,9 +58,10 @@ Current sequence:
 ```text
 define-grafana-integration-roadmap
   -> implement-grafana-panel-phase-1
-  -> archive phase 1 after validation
   -> create implement-grafana-panel-phase-2
-  -> update roadmap only if phase 1 findings require it
+  -> archive phase 1 after generated-output commit and final full CI
+  -> implement phase 2
+  -> update roadmap only when phase findings change later assumptions
 ```
 
 This keeps the roadmap durable while each implementation phase stays small
@@ -75,12 +76,15 @@ packages/topoviewer/content/examples/catalog.yaml
   -> entries with `harness:` metadata
   -> topology.yaml / stylesheet.yaml from packages/topoviewer/content/examples/**
   -> browser harness fixtures
-  -> Grafana lab generated projections
+  -> generated Grafana panel fixture module
 ```
 
-Grafana may generate lab projections under `labs/grafana-topoviewer/data/generated/`
-or `.artifacts/grafana-lab/`, but canonical topology and stylesheet YAML remain
-under `packages/topoviewer/content/examples/**`.
+Phase 1 generates `packages/grafana-topoviewer-panel/src/generated/harnessFixtures.ts`
+so the exploratory panel can load all harness fixtures without a separate static
+data service. Future phases may add lab-only projections under
+`.artifacts/grafana-lab/` if Prometheus or Containerlab fixtures require runtime
+data, but canonical topology and stylesheet YAML remain under
+`packages/topoviewer/content/examples/**`.
 
 Initial required harness fixtures:
 
@@ -145,5 +149,6 @@ Grafana must not rewrite canonical topology YAML or stylesheet YAML.
 ### Roadmap Language
 
 Public docs should call Grafana exploratory until at least Phase 2 passes
-locally. Do not claim supported Grafana integration until panel packaging,
-telemetry mapping, interaction state, docs, and repeatable validation are done.
+locally. Phase 1 may be described as a local exploratory panel spike. Do not
+claim supported Grafana integration until panel packaging, telemetry mapping,
+interaction state, docs, and repeatable validation are done.

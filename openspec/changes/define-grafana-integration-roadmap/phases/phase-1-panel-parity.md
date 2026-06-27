@@ -11,17 +11,22 @@ harness fixtures without duplicating topology or stylesheet YAML.
 packages/grafana-topoviewer-panel/
   package.json
   plugin.json
+  webpack.config.cjs
+  scripts/build-plugin.mjs
   src/module.ts
   src/TopoViewerPanel.tsx
   src/panelOptions.ts
-  src/dataFrameAdapter.ts
   src/harnessFixtureCatalog.ts
   src/runtimeModel.ts
   src/types.ts
-  tests/dataFrameAdapter.test.ts
+  src/generated/harnessFixtures.ts
   tests/harnessFixtureCatalog.test.ts
   tests/panelOptions.test.ts
+  tests/runtimeModel.test.ts
 ```
+
+Grafana loads panel plugin modules as AMD bundles. Phase 1 should use a
+Grafana-compatible Webpack build instead of a Vite/Rolldown ESM build.
 
 ### Fixture Discovery
 
@@ -38,29 +43,52 @@ packages/grafana-topoviewer-panel/
 - reject duplicate fixture IDs;
 - sort by order, name, then ID.
 
-### Local Lab Projection
+### Fixture Projection
 
-Add generated fixture projection only:
+Add generated TypeScript fixture projection only:
+
+```text
+scripts/lib/grafana-harness-fixtures.mjs
+scripts/sync-grafana-harness-fixtures.mjs
+scripts/check-grafana-harness-fixtures.mjs
+packages/grafana-topoviewer-panel/src/generated/harnessFixtures.ts
+```
+
+The generated module embeds fixture metadata plus topology and stylesheet YAML
+strings. Generated files are derived from canonical content. They are not the
+source of truth.
+
+### Local Lab
+
+Add a pinned Grafana-only lab:
 
 ```text
 labs/grafana-topoviewer/
-  data/generated/fixtures/index.json
-  data/generated/fixtures/<fixture-id>/topology.yaml
-  data/generated/fixtures/<fixture-id>/stylesheet.yaml
-  scripts/list-harness-fixtures.mjs
-  scripts/sync-harness-fixtures.mjs
+  .env
+  docker-compose.yml
+  grafana/provisioning/dashboards/dashboards.yaml
+  grafana/dashboards/topoviewer-phase-1.json
+  scripts/check-port.mjs
+  scripts/check-versions.mjs
+  scripts/up.sh
+  scripts/down.sh
+  scripts/smoke-grafana-phase-1.mjs
 ```
 
-Generated files are derived from canonical content. They are not the source of
-truth.
+Phase 1 must not add Prometheus, telemetry injectors, or Containerlab. Those
+belong in Phase 2.
 
 ### Root Commands
 
 ```json
 {
+  "grafana:fixtures:sync": "node scripts/sync-grafana-harness-fixtures.mjs",
+  "grafana:fixtures:check": "node scripts/check-grafana-harness-fixtures.mjs",
   "grafana:panel:build": "npm --workspace grafana-topoviewer-panel run build",
-  "grafana:lab:list-fixtures": "node labs/grafana-topoviewer/scripts/list-harness-fixtures.mjs",
-  "grafana:lab:sync-fixtures": "node labs/grafana-topoviewer/scripts/sync-harness-fixtures.mjs"
+  "grafana:panel:test": "npm --workspace grafana-topoviewer-panel run test",
+  "grafana:lab:up": "bash labs/grafana-topoviewer/scripts/up.sh",
+  "grafana:lab:down": "bash labs/grafana-topoviewer/scripts/down.sh",
+  "grafana:lab:smoke:phase1": "node labs/grafana-topoviewer/scripts/smoke-grafana-phase-1.mjs"
 }
 ```
 

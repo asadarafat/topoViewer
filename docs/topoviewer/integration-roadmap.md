@@ -12,7 +12,7 @@ TopoViewer currently supports the React/TypeScript package, the MkDocs plugin, a
 | NetBox | Feasibility | Build a NetBox plugin that renders TopoViewer diagrams inside NetBox from inventory and mapping profiles. |
 | OpsMill / Infrahub | Feasibility | Build an in-platform OpsMill/Infrahub extension that publishes TopoViewer views or artifacts from graph data. |
 | VS Code | Experimental package | Use `packages/vscode-topoviewer` for a Material UI authoring preview, schema-backed YAML assist, candidate Apply/Revert workflow, semantic diagnostics, fixture workflow, browser-test harness, and PNG export wiring. |
-| Grafana | Exploratory | Spike a panel plugin that maps Grafana data frames or JSON payloads into TopoViewer props. |
+| Grafana | Exploratory panel spike | Render canonical harness fixtures and a local Prometheus-backed weathermap inside a pinned Grafana lab. |
 
 ## NetBox
 
@@ -92,7 +92,51 @@ path, release artifact, and release validation path.
 
 ## Grafana
 
-Grafana is useful for operational dashboards, but it needs a panel spike before it can be called planned support:
+Grafana is useful for operational dashboards. Phase 1 proves a local exploratory panel can render the same canonical harness fixtures as the browser harness:
+
+```text
+packages/topoviewer/content/examples/** -> generated panel fixture module -> Grafana panel -> TopoViewer runtime
+```
+
+Phase 2 adds a local Prometheus weathermap slice:
+
+```text
+topology link IDs + Prometheus labels -> Grafana data frames -> TopoViewer runtime overlay
+```
+
+Local commands:
+
+```bash
+npm run grafana:fixtures:check
+npm run grafana:injector:test
+npm run grafana:panel:test
+npm run grafana:panel:build
+npm run grafana:lab:up
+npm run grafana:lab:smoke:phase1
+npm run grafana:lab:smoke:phase2
+npm run grafana:lab:inject -- link-failure
+npm run grafana:lab:down
+```
+
+Use `GRAFANA_HTTP_PORT=<port>`, `PROMETHEUS_HTTP_PORT=<port>`, and
+`TELEMETRY_INJECTOR_HTTP_PORT=<port>` with `grafana:lab:up` if local ports are
+already occupied. Use matching `GRAFANA_URL`, `PROMETHEUS_URL`, and
+`TELEMETRY_INJECTOR_URL` values with the smoke commands.
+
+Telemetry mapping requires stable topology identifiers:
+
+| Prometheus label | Purpose |
+| --- | --- |
+| `fixture_id` | Selects the matching harness fixture telemetry set. |
+| `link_id` | Primary join key to `graph.links[].id`. |
+| `source` / `target` | Fallback join key when a metric does not carry `link_id`. |
+| `site` / `pod` | Dashboard filtering and troubleshooting labels. |
+
+The panel keeps canonical topology and stylesheet YAML immutable. Grafana data
+frames are converted into runtime overlays that update link color, width, style,
+label, and endpoint status markers.
+
+Grafana is still exploratory because the supported operational surface needs later phases:
 
 ```text
 Grafana data frames / JSON model -> TopoViewer props -> operational topology panel
@@ -105,7 +149,8 @@ Use cases:
 - customer or service path next to latency, traffic, or error panels;
 - NOC view that focuses affected nodes and dims healthy context.
 
-Risks include plugin signing, data-frame mapping, dashboard refresh behavior, CSP, and dense-topology performance.
+Risks include plugin signing, dashboard refresh behavior, CSP, interaction
+persistence, Containerlab integration, and dense-topology performance.
 
 ## Roadmap Rule
 
