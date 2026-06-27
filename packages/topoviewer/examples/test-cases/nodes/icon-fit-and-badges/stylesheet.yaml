@@ -7,7 +7,6 @@ icons:
     alt: Wide signal icon used to compare iconFit modes
     svg: |
       <svg xmlns="http://www.w3.org/2000/svg" width="180" height="54" viewBox="0 0 180 54" preserveAspectRatio="none">
-        <rect width="180" height="54" rx="8" fill="#0f172a"/>
         <rect x="6" y="6" width="48" height="42" rx="6" fill="#42a5f5"/>
         <rect x="66" y="6" width="48" height="42" rx="6" fill="#ff9800"/>
         <rect x="126" y="6" width="48" height="42" rx="6" fill="#4caf50"/>
@@ -19,14 +18,12 @@ icons:
 stylesheet:
   - selector: node
     style:
-      width: 118
-      height: 104
-      iconWidth: 72
-      iconHeight: 72
-      shape: roundRectangle
+      width: 180
+      height: 180
+      shape: circle
       borderWidth: 3
       iconPadding: 0
-      iconBackgroundColor: "#f8fafc"
+      backgroundColor: "#f8fafc"
       labelColor: var(--topoviewer-fg-strong)
       labelFontWeight: 800
       badgeColor: "#0f172a"

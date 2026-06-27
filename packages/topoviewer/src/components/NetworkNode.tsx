@@ -2,15 +2,9 @@ import { Handle, Position, useViewport } from '@xyflow/react';
 import type { CSSProperties, SVGAttributes } from 'react';
 import { displayName, formatLabels } from '../core/style';
 import { sanitizeSvg } from '../core/security';
-import { type NodeShapeName } from '../core/nodeShapes';
+import { nodeShapeGeometry, type NodeShapeName } from '../core/nodeShapes';
 import { DEFAULT_NODE_SHAPE } from '../core/styleDefaults';
 import type { CompiledNodeData } from '../core/types';
-
-type Point = [number, number];
-
-function points(values: Point[]): string {
-  return values.map(([x, y]) => `${x},${y}`).join(' ');
-}
 
 function svgToDataUri(svg: string): string {
   return `data:image/svg+xml;utf8,${encodeURIComponent(sanitizeSvg(svg))}`;
@@ -42,6 +36,7 @@ function NodeShapeSvg({
   strokeWidth: number;
   transform?: string;
 }) {
+  const geometry = nodeShapeGeometry(type, polygonPoints);
   const common: SVGAttributes<SVGElement> = {
     className,
     fill,
@@ -52,49 +47,20 @@ function NodeShapeSvg({
     strokeLinejoin: 'round',
     strokeLinecap: 'round'
   };
+  const attributes = geometry.attributes as SVGAttributes<SVGElement>;
 
-  switch (type) {
-    case 'triangle':
-      return <polygon points={points([[50, 0], [100, 100], [0, 100]])} {...common} />;
+  switch (geometry.element) {
     case 'circle':
-      return <circle cx="50" cy="50" r="50" {...common} />;
-    case 'square':
-      return <rect x="0" y="0" width="100" height="100" rx="2" {...common} />;
-    case 'rectangle':
-      return <rect x="0" y="0" width="100" height="100" rx="2" {...common} />;
-    case 'roundRectangle':
-      return <rect x="0" y="0" width="100" height="100" rx="13" {...common} />;
-    case 'bottomRoundRectangle':
-      return <path d="M0 0 H100 V72 Q100 100 72 100 H28 Q0 100 0 72 Z" {...common} />;
-    case 'cutRectangle':
-      return <polygon points={points([[18, 0], [100, 0], [100, 82], [82, 100], [0, 100], [0, 18]])} {...common} />;
-    case 'barrel':
-      return <path d="M18 0 C0 18 0 82 18 100 H82 C100 82 100 18 82 0 Z" {...common} />;
-    case 'rhomboid':
-      return <polygon points={points([[28, 0], [100, 0], [72, 100], [0, 100]])} {...common} />;
-    case 'diamond':
-      return <polygon points={points([[50, 0], [100, 50], [50, 100], [0, 50]])} {...common} />;
-    case 'pentagon':
-      return <polygon points={points([[50, 0], [100, 36], [82, 100], [18, 100], [0, 36]])} {...common} />;
-    case 'hexagon':
-      return <polygon points={points([[25, 0], [75, 0], [100, 50], [75, 100], [25, 100], [0, 50]])} {...common} />;
-    case 'concaveHexagon':
-      return <polygon points={points([[0, 0], [100, 0], [66, 50], [100, 100], [0, 100], [34, 50]])} {...common} />;
-    case 'heptagon':
-      return <polygon points={points([[50, 0], [86, 14], [100, 50], [78, 100], [22, 100], [0, 50], [14, 14]])} {...common} />;
-    case 'octagon':
-      return <polygon points={points([[30, 0], [70, 0], [100, 30], [100, 70], [70, 100], [30, 100], [0, 70], [0, 30]])} {...common} />;
-    case 'star':
-      return <polygon points={points([[50, 0], [63, 33], [100, 33], [70, 55], [82, 100], [50, 73], [18, 100], [30, 55], [0, 33], [37, 33]])} {...common} />;
-    case 'tag':
-      return <polygon points={points([[0, 0], [70, 0], [100, 50], [70, 100], [0, 100]])} {...common} />;
-    case 'vee':
-      return <polygon points={points([[0, 0], [50, 40], [100, 0], [78, 100], [50, 74], [22, 100]])} {...common} />;
-    case 'polygon':
-      return <polygon points={polygonPoints || points([[50, 0], [100, 50], [50, 100], [0, 50]])} {...common} />;
+      return <circle {...attributes} {...common} />;
     case 'ellipse':
+      return <ellipse {...attributes} {...common} />;
+    case 'path':
+      return <path {...attributes} {...common} />;
+    case 'rect':
+      return <rect {...attributes} {...common} />;
+    case 'polygon':
     default:
-      return <ellipse cx="50" cy="50" rx="50" ry="50" {...common} />;
+      return <polygon {...attributes} {...common} />;
   }
 }
 
@@ -109,6 +75,10 @@ export function NetworkNode({ data }: { data: CompiledNodeData }) {
   const nodeShapeStyle = (data.nodeShapeStyle || {}) as CSSProperties;
   const nodeOutlineStyle = (data.nodeOutlineStyle || {}) as CSSProperties;
   const nodeUnderlayStyle = (data.nodeUnderlayStyle || {}) as CSSProperties;
+  const nodeStrokeOverlayStyle: CSSProperties = {
+    strokeDasharray: nodeShapeStyle.strokeDasharray,
+    strokeOpacity: nodeShapeStyle.strokeOpacity
+  };
   const labelStyle = (data.labelStyle || {}) as CSSProperties;
   const nodeShapeType = data.nodeShapeType || DEFAULT_NODE_SHAPE;
   const preservesShapeAspectRatio = nodeShapeType === 'circle' || nodeShapeType === 'square';
@@ -198,9 +168,8 @@ export function NetworkNode({ data }: { data: CompiledNodeData }) {
             type={nodeShapeType}
             polygonPoints={data.nodeShapePoints}
             fill={fill}
-            stroke={stroke}
-            strokeWidth={strokeWidth}
-            style={nodeShapeStyle}
+            stroke="none"
+            strokeWidth={0}
           />
         </svg>
         <span className="topoviewer-node-icon-content" style={iconContentStyle}>
@@ -210,6 +179,23 @@ export function NetworkNode({ data }: { data: CompiledNodeData }) {
             icon.glyph
           )}
         </span>
+        <svg
+          className="topoviewer-node-geometry topoviewer-node-geometry-stroke-overlay"
+          viewBox="0 0 100 100"
+          preserveAspectRatio={preservesShapeAspectRatio ? 'xMidYMid meet' : 'none'}
+          role="presentation"
+          focusable="false"
+          data-node-shape={nodeShapeType}
+        >
+          <NodeShapeSvg
+            type={nodeShapeType}
+            polygonPoints={data.nodeShapePoints}
+            fill="none"
+            stroke={stroke}
+            strokeWidth={strokeWidth}
+            style={nodeStrokeOverlayStyle}
+          />
+        </svg>
         {data.badgeLabel ? (
           <span
             className="topoviewer-node-badge"

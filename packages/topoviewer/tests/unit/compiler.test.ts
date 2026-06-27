@@ -305,7 +305,7 @@ describe('compileTopoGraph', () => {
     });
   });
 
-  it('uses icon size controls as inner icon content overrides', () => {
+  it('keeps the icon fit boundary aligned to the node body', () => {
     const compiled = compileTopoGraph({
       version: '1.0',
       graph: {
@@ -342,8 +342,8 @@ describe('compileTopoGraph', () => {
       height: 96
     });
     expect(router1.iconContentStyle).toMatchObject({
-      width: 64,
-      height: 64
+      width: 120,
+      height: 96
     });
     expect(router1.edgeAnchor).toMatchObject({
       width: 120,
@@ -355,8 +355,8 @@ describe('compileTopoGraph', () => {
       height: 96
     });
     expect(router2.iconContentStyle).toMatchObject({
-      width: 88,
-      height: 52
+      width: 120,
+      height: 96
     });
     expect(router2.edgeAnchor).toMatchObject({
       width: 120,

@@ -8,6 +8,10 @@ import {
 } from '../../src';
 
 describe('declarative node shapes', () => {
+  function decodedMask(style: Record<string, unknown> | undefined): string {
+    return decodeURIComponent(String(style?.maskImage || ''));
+  }
+
   it('uses rectangle as the default node body shape', () => {
     const document: TopoDocument = {
       graph: {
@@ -77,6 +81,41 @@ describe('declarative node shapes', () => {
     expect(circleData.nodeShapeType).toBe('circle');
     expect(circleData.edgeAnchor).toMatchObject({ width: 64, height: 64 });
     expect(circleData.iconStyle).toMatchObject({ width: 64, height: 64 });
+  });
+
+  it('clips icon content to the node body shape', () => {
+    const compiled = compileTopoGraph({
+      graph: {
+        layers: [{ id: 'physical' }],
+        nodes: [
+          { id: 'circle-1', name: 'Circle 1', layers: ['physical'], position: [0, 0] },
+          { id: 'triangle-1', name: 'Triangle 1', layers: ['physical'], position: [160, 0] },
+          { id: 'polygon-1', name: 'Polygon 1', layers: ['physical'], position: [320, 0] }
+        ]
+      },
+      stylesheet: [
+        { selector: 'node', style: { iconWidth: 100, iconHeight: 100 } },
+        { selector: 'node[id = "circle-1"]', style: { shape: 'circle', width: 120 } },
+        { selector: 'node[id = "triangle-1"]', style: { shape: 'triangle' } },
+        {
+          selector: 'node[id = "polygon-1"]',
+          style: {
+            shape: 'polygon',
+            shapePolygonPoints: [0, -1, 1, 0.2, 0.35, 1, -1, 0.2]
+          }
+        }
+      ]
+    }, ['physical']);
+
+    const byId = new Map(compiled.nodes.map((node) => [node.id, node.data as Record<string, unknown>]));
+
+    expect(byId.get('circle-1')?.iconContentStyle).toMatchObject({
+      width: 120,
+      height: 120
+    });
+    expect(decodedMask(byId.get('circle-1')?.iconContentStyle as Record<string, unknown>)).toContain('<circle cx="50" cy="50" r="50" fill="#000"/>');
+    expect(decodedMask(byId.get('triangle-1')?.iconContentStyle as Record<string, unknown>)).toContain('<polygon points="50,0 100,100 0,100" fill="#000"/>');
+    expect(decodedMask(byId.get('polygon-1')?.iconContentStyle as Record<string, unknown>)).toContain('<polygon points="50,10 90,58 64,90 10,58" fill="#000"/>');
   });
 
   it('compiles canonical named node shape values into node body metadata', () => {

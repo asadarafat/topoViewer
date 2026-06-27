@@ -182,7 +182,7 @@ Hardcoded pale labels such as `#e5e7eb` look good in dark mode but disappear in 
 
 Use `width` and `height` for the visible node body. The node shape, border, underlay, edge anchor, and default icon/image area use this body size.
 
-Use `iconSize`, `iconWidth`, or `iconHeight` only when the icon glyph or image should be smaller than the body.
+Use `iconPadding` when the icon glyph or image should sit inside the body with an inset.
 
 If `shape` is omitted, nodes use `rectangle`, so `width` and `height` stretch the body independently. Use `square` or `circle` only when the body must keep a 1:1 aspect ratio. For those aspect-locked shapes, either provide equal `width` and `height`, or provide only one dimension and TopoViewer derives the other. Unequal `width` and `height` on `square` or `circle` is a semantic validation error.
 
@@ -208,22 +208,22 @@ stylesheet:
 
 ## Icon fit
 
-`iconFit` controls how SVG and image icons are fitted inside the icon box. The icon box comes from `iconSize`, `iconWidth`/`iconHeight`, or the node body size when no icon-specific size is authored.
+`iconFit` controls how SVG and image icons are fitted inside the node body. The node body is the fitting and clipping boundary, so circular and polygonal nodes do not expose a square icon background. Use `iconPadding` when the icon needs inset spacing inside the node boundary.
 
 | Value | Behavior | Use when |
 |---|---|---|
 | `contain` | Preserves the icon aspect ratio and keeps the full icon visible. Empty space may appear on two sides. | The whole asset must be visible, such as vendor logos or router glyphs. |
-| `cover` | Preserves the icon aspect ratio and fills the icon box. Parts of the icon may be clipped. | The icon is decorative or crop-safe and should fill the node. |
-| `fill` | Stretches the icon to exactly match the icon box. Aspect ratio is not preserved. | The SVG was designed for the same box ratio, or intentional stretching is acceptable. |
+| `cover` | Preserves the icon aspect ratio and fills the node body. Parts of the icon may be clipped. | The icon is decorative or crop-safe and should fill the node. |
+| `fill` | Stretches the icon to exactly match the node body. Aspect ratio is not preserved. | The SVG was designed for the same box ratio, or intentional stretching is acceptable. |
 
-Use `contain` as the safe default. Use `fill` carefully because it can distort icons when `iconWidth` and `iconHeight` do not match the source SVG viewBox ratio. Some SVG assets also define their own aspect-ratio behavior; when an SVG should visibly stretch under `fill`, author the SVG root with `preserveAspectRatio="none"`.
+Use `contain` as the safe default. Use `fill` carefully because it can distort icons when the node body does not match the source SVG viewBox ratio. Some SVG assets also define their own aspect-ratio behavior; when an SVG should visibly stretch under `fill`, author the SVG root with `preserveAspectRatio="none"`.
 
 | Key | Values | Use |
 |---|---|---|
 | `icon` | icon key | Selects an icon from `icons`. Defaults through `style.icon`, object `icon`, `data.icon`, then `router.generic`. |
 | `width`, `height` | number | Visible node body size. Also sets the default edge anchor. Defaults to `82` x `60`. For `square` and `circle`, use equal dimensions, or provide only one dimension and TopoViewer derives the other. Unequal dimensions are invalid for `square` and `circle`. |
-| `iconSize` | number | Sets equal inner icon/image width and height when it should differ from the body. |
-| `iconWidth`, `iconHeight` | number | Sets asymmetric inner icon/image size when it should differ from the body. Defaults to `iconSize`, then the visible body size. |
+| `iconSize` | number | Accepted for compatibility; the current renderer fits icons to the node body. Prefer `iconPadding`. |
+| `iconWidth`, `iconHeight` | number | Accepted for compatibility; the current renderer fits icons to the node body. Prefer `iconPadding`. |
 | `shape` | `rectangle`, `square`, `circle`, `ellipse`, `triangle`, `roundRectangle`, `bottomRoundRectangle`, `cutRectangle`, `barrel`, `rhomboid`, `diamond`, `pentagon`, `hexagon`, `concaveHexagon`, `heptagon`, `octagon`, `star`, `tag`, `vee`, `polygon` | Node body shape. Defaults to `rectangle`. Use `square` or `circle` only for equal-aspect bodies; use `rectangle` or `ellipse` when the body should intentionally stretch to different `width` and `height` values. |
 | `shapePolygonPoints` | number array or string | Custom polygon points when `shape: polygon` is used. |
 | `backgroundColor` | CSS color | Icon fill/background. Defaults to the selected icon `fill`. |
@@ -236,7 +236,7 @@ Use `contain` as the safe default. Use `fill` carefully because it can distort i
 | `underlayColor`, `underlayPadding`, `underlayOpacity` | CSS color, number, number `0..1` | Visual underlay behind the node body. Does not change graph geometry. |
 | `iconColor` | CSS color | Glyph color. |
 | `iconOpacity` | number `0..1` | Icon glyph/image opacity. |
-| `iconPadding` | number | Insets icon content inside the icon box. |
+| `iconPadding` | number | Insets icon content inside the node body. |
 | `iconFit` | `contain` keeps the full icon visible; `cover` fills the box while preserving aspect ratio and may crop; `fill` stretches to the box and may distort. | Object-fit behavior for SVG/image icons. Defaults through the CSS image default, currently `contain`. |
 | `iconBackgroundColor` | CSS color | Background behind icon content inside the node body. |
 | `labelColor`, `labelFontSize`, `labelFontWeight` | CSS values | Node label typography. Use markdown in the node `name` or `label` for bold, italic, underline, and strikethrough spans. |

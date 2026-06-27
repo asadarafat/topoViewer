@@ -92,8 +92,6 @@ stylesheet:
       height: 48
       borderWidth: 3
       borderColor: "#90caf9"
-      iconWidth: 48
-      iconHeight: 48
       iconFit: contain
       iconPadding: 0
       labelFontWeight: 800

@@ -1,7 +1,7 @@
 import { matchingRules } from './selector';
 import { mergePlainObjects, valueOrDefault, withoutUndefined } from './object';
 import { isSafeImageReference } from './security';
-import { nodeShapePointsToSvg, normalizeNodeShape, parseNodeShapePoints } from './nodeShapes';
+import { nodeShapeGeometry, nodeShapeGeometryToSvgElement, nodeShapePointsToSvg, normalizeNodeShape, parseNodeShapePoints, type NodeShapeName, type NodeShapePoint } from './nodeShapes';
 import { DEFAULT_NODE_SHAPE, styleDefaultNumber, styleDefaultValue } from './styleDefaults';
 import {
   finiteNumber,
@@ -361,14 +361,28 @@ function resolveNodeBodyBox(style: StyleDeclaration, shape: string): NodeBodyBox
   };
 }
 
+function iconClipForNodeShape(shape: NodeShapeName, polygonPoints: readonly NodeShapePoint[] | undefined) {
+  const geometry = nodeShapeGeometry(shape, nodeShapePointsToSvg(polygonPoints));
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">${nodeShapeGeometryToSvgElement(geometry, { fill: '#000' })}</svg>`;
+  const mask = `url("data:image/svg+xml;utf8,${encodeURIComponent(svg)}")`;
+  return {
+    maskImage: mask,
+    maskPosition: 'center',
+    maskRepeat: 'no-repeat',
+    maskSize: '100% 100%',
+    WebkitMaskImage: mask,
+    WebkitMaskPosition: 'center',
+    WebkitMaskRepeat: 'no-repeat',
+    WebkitMaskSize: '100% 100%'
+  };
+}
+
 export function compileNodeStyle(style: StyleDeclaration, entity: GraphEntity, spec: StylesheetDocument) {
   const icon = iconForStyle(style, entity, spec);
   const shape = normalizeNodeShape(style.shape) || DEFAULT_NODE_SHAPE;
   const bodyBox = resolveNodeBodyBox(style, shape);
   const width = bodyBox.bodyWidth;
   const height = bodyBox.bodyHeight;
-  const iconWidth = Number(valueOrDefault((style.iconWidth ?? style.iconSize) as number | undefined, width));
-  const iconHeight = Number(valueOrDefault((style.iconHeight ?? style.iconSize) as number | undefined, height));
   const shapePoints = parseNodeShapePoints(style.shapePolygonPoints).points;
   const fill = String(style.backgroundColor || icon.fill);
   const stroke = String(style.borderColor || icon.stroke);
@@ -384,6 +398,7 @@ export function compileNodeStyle(style: StyleDeclaration, entity: GraphEntity, s
   const statusColor = aggregateStatusColor(style, entity);
   const statusPlacement = normalizeNodeStatusPlacement(style.statusPlacement) || String(styleDefaultValue('node', 'statusPlacement') || 'bottomRight');
   const iconFit = normalizeNodeIconFit(style.iconFit);
+  const iconClipStyle = iconClipForNodeShape(shape, shapePoints);
   const metaVisible = !isTransparentColor(style.metaColor) && !isZeroNumber(style.metaFontSize);
 
   return {
@@ -430,11 +445,12 @@ export function compileNodeStyle(style: StyleDeclaration, entity: GraphEntity, s
         opacity: opacityNumber(style.iconOpacity)
       }),
       iconContentStyle: withoutUndefined({
-        width: iconWidth,
-        height: iconHeight,
+        width,
+        height,
         padding: cssPadding(style.iconPadding),
         backgroundColor: style.iconBackgroundColor,
-        opacity: opacityNumber(style.iconOpacity)
+        opacity: opacityNumber(style.iconOpacity),
+        ...iconClipStyle
       }),
       iconImageStyle: withoutUndefined({
         position: 'absolute',

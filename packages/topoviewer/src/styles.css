@@ -276,6 +276,10 @@
   pointer-events: none;
 }
 
+.topoviewer-node-geometry-stroke-overlay {
+  z-index: 2;
+}
+
 .topoviewer-node-icon-content {
   position: relative;
   z-index: 1;
