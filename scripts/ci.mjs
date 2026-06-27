@@ -19,6 +19,10 @@ const ZENSICAL_GENERATED_PATHS = [
   'zensical.toml'
 ];
 
+const GRAFANA_GENERATED_PATHS = [
+  'packages/grafana-topoviewer-panel/src/generated/harnessFixtures.ts'
+];
+
 const args = process.argv.slice(2);
 const remoteParity = args.includes('--remote-parity');
 const selectedLane = parseLane(args);
@@ -70,6 +74,11 @@ const laneDefinitions = {
     checkGeneratedStep('check generated docs are committed', GENERATED_DOC_PATHS, {
       sourceArea: 'packages/topoviewer/content/**, docs source templates, and README source content',
       projectionArea: 'README.md, docs/topoviewer/**, packages/topoviewer/docs/**, and packages/topoviewer/examples/**'
+    }),
+    step('sync Grafana harness fixtures', 'npm', ['run', 'grafana:fixtures:sync']),
+    checkGeneratedStep('check Grafana harness fixtures are committed', GRAFANA_GENERATED_PATHS, {
+      sourceArea: 'packages/topoviewer/content/examples/** harness examples',
+      projectionArea: 'packages/grafana-topoviewer-panel/src/generated/harnessFixtures.ts'
     })
   ],
   quality: [

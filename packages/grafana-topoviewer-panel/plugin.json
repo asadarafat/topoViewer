@@ -1,0 +1,36 @@
+{
+  "$schema": "https://raw.githubusercontent.com/grafana/grafana/main/docs/sources/developers/plugins/plugin.schema.json",
+  "type": "panel",
+  "name": "TopoViewer",
+  "id": "asadarafat-topoviewer-panel",
+  "module": "module.js",
+  "info": {
+    "description": "Exploratory TopoViewer panel for rendering canonical topology-as-code harness fixtures.",
+    "author": {
+      "name": "TopoViewer"
+    },
+    "keywords": [
+      "topology",
+      "network",
+      "graph",
+      "topoviewer"
+    ],
+    "logos": {
+      "small": "img/logo.svg",
+      "large": "img/logo.svg"
+    },
+    "links": [
+      {
+        "name": "Documentation",
+        "url": "https://asadarafat.github.io/topoviewer/"
+      }
+    ],
+    "screenshots": [],
+    "version": "0.1.0",
+    "updated": "2026-06-27"
+  },
+  "dependencies": {
+    "grafanaDependency": ">=13.1.0",
+    "plugins": []
+  }
+}

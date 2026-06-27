@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="TopoViewer">
+  <rect width="64" height="64" rx="14" fill="#0f172a"/>
+  <path d="M17 34h30" stroke="#42a5f5" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="17" cy="34" r="8" fill="#1976d2" stroke="#bfdbfe" stroke-width="4"/>
+  <circle cx="47" cy="34" r="8" fill="#2e7d32" stroke="#c8e6c9" stroke-width="4"/>
+  <path d="M32 16v12m0 8v12" stroke="#ff9800" stroke-width="5" stroke-linecap="round"/>
+</svg>
