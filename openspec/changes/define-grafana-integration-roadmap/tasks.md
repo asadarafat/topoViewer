@@ -60,3 +60,4 @@
 - [ ] 7.3 Review Phase 1 scope to ensure it is buildable without Prometheus
 - [ ] 7.4 Review Phase 2 scope to ensure it is a narrow weathermap slice
 - [ ] 7.5 Review docs requirements for the full authoring-to-telemetry workflow
+- [ ] 7.6 Review the phase lifecycle: implement phase, validate, archive, create next phase spec, update roadmap only when findings require it

@@ -15,6 +15,22 @@ canonical harness fixture catalog
 
 No telemetry is included in this phase.
 
+### Phase Handoff
+
+When Phase 1 passes:
+
+1. Archive `openspec/changes/implement-grafana-panel-phase-1`.
+2. Create `openspec/changes/implement-grafana-panel-phase-2`.
+3. Use `define-grafana-integration-roadmap/phases/phase-2-prometheus-weathermap.md`
+   as the starting point for Phase 2.
+4. Update `define-grafana-integration-roadmap` only if Phase 1 changed the
+   roadmap, acceptance boundary, fixture strategy, or Grafana package/lab
+   assumptions.
+
+Phase 1 should not quietly absorb Phase 2 work. If Prometheus, telemetry rules,
+or Containerlab become necessary, stop and promote that work into the Phase 2
+OpenSpec.
+
 ### Package Shape
 
 ```text

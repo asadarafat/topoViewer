@@ -70,3 +70,10 @@
 - [ ] 7.4 Run `npm run grafana:panel:build`
 - [ ] 7.5 Run local `npm run grafana:lab:smoke:phase1`
 - [ ] 7.6 Run existing `npm run ci`
+
+## 8. Phase Handoff
+
+- [ ] 8.1 Record Phase 1 findings that affect Phase 2 assumptions
+- [ ] 8.2 Update `define-grafana-integration-roadmap` only if Phase 1 findings change the roadmap
+- [ ] 8.3 Archive `implement-grafana-panel-phase-1` after validation passes
+- [ ] 8.4 Create `implement-grafana-panel-phase-2` for Prometheus weathermap work

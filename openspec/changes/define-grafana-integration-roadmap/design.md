@@ -36,6 +36,36 @@ Detailed implementation notes live in:
 - `phases/phase-4-operational-usecases-docs.md`
 - `phases/phase-5-codespaces.md`
 
+### Execution Sequence
+
+Each phase should become its own implementation OpenSpec before code changes
+start. Do not implement directly from this roadmap.
+
+The lifecycle is:
+
+```text
+1. Create phase implementation OpenSpec.
+2. Implement the phase.
+3. Validate the phase against its acceptance criteria.
+4. Archive the phase implementation OpenSpec.
+5. Update this roadmap only if implementation changed the direction, phase
+   boundary, or next-phase assumptions.
+6. Create the next phase implementation OpenSpec.
+```
+
+Current sequence:
+
+```text
+define-grafana-integration-roadmap
+  -> implement-grafana-panel-phase-1
+  -> archive phase 1 after validation
+  -> create implement-grafana-panel-phase-2
+  -> update roadmap only if phase 1 findings require it
+```
+
+This keeps the roadmap durable while each implementation phase stays small
+enough to review, test, and archive independently.
+
 ### Canonical Fixture Contract
 
 Grafana must use the same fixture source as the browser harness:
