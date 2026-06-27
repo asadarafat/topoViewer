@@ -156,7 +156,7 @@ Style defaults are defined in TopoViewer's canonical style defaults registry. Ru
 
 Important defaults:
 
-- Nodes default to `shape: square`, `width: 82`, `height: 60`, `borderWidth: 4`, `labelPosition: bottom`, `badgePosition: topRight`, `statusPlacement: bottomRight`, `draggable: true`, `selectable: true`, and `zIndex: 10`.
+- Nodes default to `shape: rectangle`, `width: 82`, `height: 60`, `borderWidth: 4`, `labelPosition: bottom`, `badgePosition: topRight`, `statusPlacement: bottomRight`, `draggable: true`, `selectable: true`, and `zIndex: 10`.
 - Node `backgroundColor` and `borderColor` are derived from the selected icon's `fill` and `stroke`.
 - Links and paths default to `curveStyle: bezier`, `anchor: floating`, `lineColor: #6ea8fe`, `lineWidth: 1`, `lineStyle: solid`, `lineFill: solid`, no arrows, `interactive: true`, `labelInteractive: true`, and `zIndex: 6`.
 - Regions default to `shape: roundRectangle`, `labelPosition: topLeft`, `labelMargin: 12`, `borderWidth: 1`, non-draggable, non-selectable, and `zIndex: -20`.
@@ -184,6 +184,8 @@ Use `width` and `height` for the visible node body. The node shape, border, unde
 
 Use `iconSize`, `iconWidth`, or `iconHeight` only when the icon glyph or image should be smaller than the body.
 
+If `shape` is omitted, nodes use `rectangle`, so `width` and `height` stretch the body independently. Use `square` or `circle` only when the body must keep a 1:1 aspect ratio. For those aspect-locked shapes, either provide equal `width` and `height`, or provide only one dimension and TopoViewer derives the other. Unequal `width` and `height` on `square` or `circle` is a semantic validation error.
+
 ```yaml
 stylesheet:
   - selector: node
@@ -207,10 +209,10 @@ stylesheet:
 | Key | Values | Use |
 |---|---|---|
 | `icon` | icon key | Selects an icon from `icons`. Defaults through `style.icon`, object `icon`, `data.icon`, then `router.generic`. |
-| `width`, `height` | number | Visible node body size. Also sets the default edge anchor. Defaults to `82` x `60`. For `square` and `circle`, the visible body keeps a 1:1 aspect ratio using the smaller dimension and is centered inside the configured box. |
+| `width`, `height` | number | Visible node body size. Also sets the default edge anchor. Defaults to `82` x `60`. For `square` and `circle`, use equal dimensions, or provide only one dimension and TopoViewer derives the other. Unequal dimensions are invalid for `square` and `circle`. |
 | `iconSize` | number | Sets equal inner icon/image width and height when it should differ from the body. |
-| `iconWidth`, `iconHeight` | number | Sets asymmetric inner icon/image size when it should differ from the body. Defaults to `iconSize`, then the visible body size. For `square` and `circle`, that default is the smaller of `width` and `height`. |
-| `shape` | `square`, `circle`, `ellipse`, `triangle`, `rectangle`, `roundRectangle`, `bottomRoundRectangle`, `cutRectangle`, `barrel`, `rhomboid`, `diamond`, `pentagon`, `hexagon`, `concaveHexagon`, `heptagon`, `octagon`, `star`, `tag`, `vee`, `polygon` | Node body shape. Defaults to `square`. Use `rectangle` or `ellipse` when the body should intentionally stretch to different `width` and `height` values. |
+| `iconWidth`, `iconHeight` | number | Sets asymmetric inner icon/image size when it should differ from the body. Defaults to `iconSize`, then the visible body size. |
+| `shape` | `rectangle`, `square`, `circle`, `ellipse`, `triangle`, `roundRectangle`, `bottomRoundRectangle`, `cutRectangle`, `barrel`, `rhomboid`, `diamond`, `pentagon`, `hexagon`, `concaveHexagon`, `heptagon`, `octagon`, `star`, `tag`, `vee`, `polygon` | Node body shape. Defaults to `rectangle`. Use `square` or `circle` only for equal-aspect bodies; use `rectangle` or `ellipse` when the body should intentionally stretch to different `width` and `height` values. |
 | `shapePolygonPoints` | number array or string | Custom polygon points when `shape: polygon` is used. |
 | `backgroundColor` | CSS color | Icon fill/background. Defaults to the selected icon `fill`. |
 | `borderColor` | CSS color | Icon border. Defaults to the selected icon `stroke`. |

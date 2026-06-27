@@ -48,6 +48,8 @@ stylesheet:
     style:
       icon: core
       shape: circle
+      width: 78
+      height: 78
   - selector: node[labels.role = "route-reflector"]
     style:
       icon: rr
@@ -76,6 +78,8 @@ stylesheet:
     style:
       icon: switch
       shape: square
+      width: 78
+      height: 78
   - selector: link
     style:
       lineColor: "#94a3b8"
