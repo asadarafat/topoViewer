@@ -11,6 +11,7 @@ Current active plans:
 - `changes/define-grafana-integration-roadmap/` - planned Grafana feasibility, use cases, first integration shape, and roadmap wording constraints.
 - `changes/centralize-style-defaults-registry/` - planned canonical style defaults registry so runtime, docs, schema, and YAML assist describe the same defaults.
 - `changes/make-default-node-shape-rectangle/` - planned node default contract change so omitted `shape` renders as rectangle, while square/circle are explicit aspect-locked choices.
+- `changes/make-docs-production-grade/` - planned documentation audit and production-grade docs overhaul covering IA, guides, references, examples, integrations, and docs quality gates.
 
 Current studies:
 
