@@ -9,9 +9,6 @@ Current active plans:
 - `changes/define-netbox-integration-roadmap/` - planned NetBox feasibility, use cases, first integration shape, and roadmap wording constraints.
 - `changes/define-opsmill-infrahub-integration-roadmap/` - planned OpsMill/Infrahub feasibility, use cases, first integration shape, and roadmap wording constraints.
 - `changes/define-grafana-integration-roadmap/` - planned Grafana feasibility, use cases, first integration shape, and roadmap wording constraints.
-- `changes/centralize-style-defaults-registry/` - planned canonical style defaults registry so runtime, docs, schema, and YAML assist describe the same defaults.
-- `changes/make-default-node-shape-rectangle/` - planned node default contract change so omitted `shape` renders as rectangle, while square/circle are explicit aspect-locked choices.
-- `changes/make-docs-production-grade/` - planned documentation audit and production-grade docs overhaul covering IA, guides, references, examples, integrations, and docs quality gates.
 
 Current studies:
 
@@ -19,6 +16,9 @@ Current studies:
 
 Archived plans:
 
+- `archive/2026-06-27-centralize-style-defaults-registry/` - implemented canonical style defaults metadata so runtime, docs, schema checks, semantic lint, YAML assist, and harness metadata use the same style key/default contract.
+- `archive/2026-06-27-make-default-node-shape-rectangle/` - implemented rectangle as the default node shape, aspect-locked square/circle validation, shared body box sizing, docs, YAML assist, examples, and CI validation.
+- `archive/2026-06-27-make-docs-production-grade/` - implemented production-grade documentation IA, guides, complete references, richer examples, integration handbooks, docs quality gates, full CI validation, and visual MkDocs/Zensical review.
 - `archive/2026-06-27-restore-renderer-surface-parity/` - implemented shared composition, viewport scale, shape semantics, region bounds, CSS geometry isolation, and renderer parity checks so harness, MkDocs, and Zensical render the same topology/style YAML consistently.
 - `archive/2026-06-26-stabilize-ci-docs-test-strategy/` - implemented observable, deterministic CI/Docs test strategy hardening for local/GitHub parity, generated artifacts, Playwright stability, command taxonomy, stress policy, and Pages validation.
 - `archive/2026-06-26-normalize-public-docs-url-layout/` - implemented lowercase public repository/Pages URL contract and combined MkDocs, Zensical, and harness deployment layout.

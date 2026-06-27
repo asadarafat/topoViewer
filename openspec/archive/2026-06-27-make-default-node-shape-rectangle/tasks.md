@@ -49,8 +49,4 @@
 - [x] 6.2 Run semantic lint/schema checks
 - [x] 6.3 Run docs sync and docs build
 - [x] 6.4 Run VS Code harness tests if YAML assist metadata changes
-- [ ] 6.5 Run full `npm run ci`
-
-Note: full `npm run ci` includes generated projection drift checks. Those checks
-are expected to fail while the regenerated docs/examples are intentionally
-uncommitted; run the full command after committing the generated outputs.
+- [x] 6.5 Run full `npm run ci`

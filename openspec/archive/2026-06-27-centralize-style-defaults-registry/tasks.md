@@ -51,10 +51,4 @@
 - [x] 7.3 Run YAML authoring/harness tests that cover style suggestions
 - [x] 7.4 Run `npm run sync:docs`
 - [x] 7.5 Run `npm run docs:build:fast`
-- [ ] 7.6 Run `npm run ci`
-
-Note: `npm run ci` currently stops at generated-file cleanliness gates because
-this implementation intentionally changes generated docs/assets that are not
-committed yet. The underlying lanes were validated individually where possible:
-quality, schemas, semantic validation, MkDocs build, Zensical build, harness
-build, TopoViewer Playwright tests, and VS Code harness Playwright tests.
+- [x] 7.6 Run `npm run ci`
