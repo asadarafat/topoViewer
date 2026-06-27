@@ -5,9 +5,24 @@ hide:
 
 # Dense link grouping
 
+## What This Demonstrates
+
 A compact harness template for parallel links and link grouping.
 
 Use it to tune bundle threshold behavior without loading a large topology.
+
+## Expected Result
+
+The live viewport should render "Dense link grouping" without blocking diagnostics. It should show: A browser harness template for parallel link grouping and bundle threshold editing.
+
+## What To Inspect
+
+- Use the example as an authoring template in the browser harness.
+- Apply changes and confirm the rendered viewport stays in sync with YAML.
+
+## Use When
+
+Use this pattern when building browser or VS Code authoring workflows.
 
 === "Live Viewport"
 

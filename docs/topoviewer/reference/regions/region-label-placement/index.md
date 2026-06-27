@@ -5,7 +5,22 @@ hide:
 
 # Region label placement
 
+## What This Demonstrates
+
 Region label placement keeps small or single-node regions readable. Use `labelPosition` and `labelMargin` in region styles to anchor the label on a region edge, then use `headerPadding`, `paddingX`, or `paddingY` on the region when the label needs reserved interior space.
+
+## Expected Result
+
+The live viewport should render "Region label placement" without blocking diagnostics. It should show: Region labels can be anchored around the hull with an explicit margin. The test metadata expects `graphNodes`: `2`, `minVisibleEdges`: `1`, `minRegions`: `2`.
+
+## What To Inspect
+
+- Inspect `graph.regions` membership and label placement.
+- Check padding and region style keys that prevent overlap with member nodes.
+
+## Use When
+
+Use this pattern when grouping nodes into sites, racks, pods, domains, or ownership boundaries.
 
 === "Live Viewport"
 

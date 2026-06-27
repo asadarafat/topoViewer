@@ -5,7 +5,22 @@ hide:
 
 # Arrows, dashes, and labels
 
+## What This Demonstrates
+
 Arrows, dashes, and labels are edge styling. The request and reply links use opposite directions, so the endpoint labels make it clear that `sourceLabel` follows the edge source and `targetLabel` follows the edge target. The x/y offsets pull the labels away from the node icons.
+
+## Expected Result
+
+The live viewport should render "Arrows, dashes, and labels" without blocking diagnostics. It should show: Edges can carry labels, arrows, and dash patterns without changing topology semantics. The test metadata expects `graphNodes`: `2`, `minVisibleEdges`: `2`.
+
+## What To Inspect
+
+- Inspect `graph.links` for endpoint IDs and labels.
+- Compare line, arrow, label, and curve style keys in the stylesheet.
+
+## Use When
+
+Use this pattern when link readability, routing, arrowheads, or edge labels matter.
 
 === "Live Viewport"
 

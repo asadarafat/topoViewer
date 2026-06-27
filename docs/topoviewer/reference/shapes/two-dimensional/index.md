@@ -5,7 +5,22 @@ hide:
 
 # Two-dimensional shapes
 
+## What This Demonstrates
+
 2D shapes are geometry-only primitives. They are deliberately separate from graph nodes so decorative geometry does not pollute topology truth.
+
+## Expected Result
+
+The live viewport should render "Two-dimensional shapes" without blocking diagnostics. It should show: 2D geometry primitives are diagram objects, not graph facts. The test metadata expects `shapes`: `14`.
+
+## What To Inspect
+
+- Inspect `diagram.shapes` and confirm they are visual explanation objects, not graph facts.
+- Check shape geometry, fill, stroke, z-index, and label behavior.
+
+## Use When
+
+Use this pattern when adding visual explanation objects around a graph.
 
 === "Live Viewport"
 

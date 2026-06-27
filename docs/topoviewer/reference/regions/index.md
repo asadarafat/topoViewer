@@ -4,7 +4,22 @@ These examples document the regions behaviors from the canonical TopoViewer test
 
 ## Nested regions
 
+### What This Demonstrates
+
 Nested regions let broad domains contain narrower regions. In this case the AS region contains an IS-IS L1 region and the member routers.
+
+### Expected Result
+
+The live viewport should render "Nested regions" without blocking diagnostics. It should show: Regions can be nested so broad domains contain smaller domains. The test metadata expects `graphNodes`: `3`, `minVisibleEdges`: `1`, `minRegions`: `2`.
+
+### What To Inspect
+
+- Inspect `graph.regions` membership and label placement.
+- Check padding and region style keys that prevent overlap with member nodes.
+
+### Use When
+
+Use this pattern when grouping nodes into sites, racks, pods, domains, or ownership boundaries.
 
 === "Live Viewport"
 
@@ -31,7 +46,22 @@ Nested regions let broad domains contain narrower regions. In this case the AS r
 
 ## Overlapping regions
 
+### What This Demonstrates
+
 Overlapping regions are important for network diagrams because some routers, such as ABRs, belong to two scopes at once. R05 is intentionally inside both IS-IS L1 and IS-IS L2.
+
+### Expected Result
+
+The live viewport should render "Overlapping regions" without blocking diagnostics. It should show: A shared node can be a member of multiple regions. The test metadata expects `graphNodes`: `3`, `minVisibleEdges`: `1`, `minRegions`: `3`.
+
+### What To Inspect
+
+- Inspect `graph.regions` membership and label placement.
+- Check padding and region style keys that prevent overlap with member nodes.
+
+### Use When
+
+Use this pattern when grouping nodes into sites, racks, pods, domains, or ownership boundaries.
 
 === "Live Viewport"
 
@@ -58,7 +88,22 @@ Overlapping regions are important for network diagrams because some routers, suc
 
 ## Region label placement
 
+### What This Demonstrates
+
 Region label placement keeps small or single-node regions readable. Use `labelPosition` and `labelMargin` in region styles to anchor the label on a region edge, then use `headerPadding`, `paddingX`, or `paddingY` on the region when the label needs reserved interior space.
+
+### Expected Result
+
+The live viewport should render "Region label placement" without blocking diagnostics. It should show: Region labels can be anchored around the hull with an explicit margin. The test metadata expects `graphNodes`: `2`, `minVisibleEdges`: `1`, `minRegions`: `2`.
+
+### What To Inspect
+
+- Inspect `graph.regions` membership and label placement.
+- Check padding and region style keys that prevent overlap with member nodes.
+
+### Use When
+
+Use this pattern when grouping nodes into sites, racks, pods, domains, or ownership boundaries.
 
 === "Live Viewport"
 
@@ -85,7 +130,22 @@ Region label placement keeps small or single-node regions readable. Use `labelPo
 
 ## Draggable regions
 
+### What This Demonstrates
+
 Regions can be interactive hulls. Setting `draggable: true` and `selectable: true` in the stylesheet makes the region behave like an editable scope object.
+
+### Expected Result
+
+The live viewport should render "Draggable regions" without blocking diagnostics. It should show: Regions can be selectable and draggable hulls. The test metadata expects `graphNodes`: `2`, `minVisibleEdges`: `1`, `minRegions`: `1`.
+
+### What To Inspect
+
+- Inspect `graph.regions` membership and label placement.
+- Check padding and region style keys that prevent overlap with member nodes.
+
+### Use When
+
+Use this pattern when grouping nodes into sites, racks, pods, domains, or ownership boundaries.
 
 === "Live Viewport"
 

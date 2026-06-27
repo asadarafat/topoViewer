@@ -5,9 +5,24 @@ hide:
 
 # Insert workflow
 
+## What This Demonstrates
+
 An authoring harness template for adding nodes, links, regions, paths, and notes from the Build panel.
 
 The graph keeps every declared layer populated so layer toggles remain useful while authoring.
+
+## Expected Result
+
+The live viewport should render "Insert workflow" without blocking diagnostics. It should show: A browser harness template for inserting nodes, links, paths, regions, and notes.
+
+## What To Inspect
+
+- Use the example as an authoring template in the browser harness.
+- Apply changes and confirm the rendered viewport stays in sync with YAML.
+
+## Use When
+
+Use this pattern when building browser or VS Code authoring workflows.
 
 === "Live Viewport"
 

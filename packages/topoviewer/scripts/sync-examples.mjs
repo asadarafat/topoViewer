@@ -215,8 +215,140 @@ function exampleTabsMarkdown(example, expected, markdownFile) {
   return tabs.join('\n');
 }
 
-function pageMarkdown(example) {
+function featureInspectHints(feature) {
+  const hints = {
+    attention: [
+      'Review the attention state in the live viewport and compare it with the optional Attention YAML tab.',
+      'Check which objects stay prominent and which objects are dimmed, collapsed, or summarized.'
+    ],
+    callouts: [
+      'Inspect `diagram.callouts` for visual notes that do not change graph semantics.',
+      'Check the stylesheet rule that controls callout color, border, and text treatment.'
+    ],
+    edges: [
+      'Inspect `graph.links` for endpoint IDs and labels.',
+      'Compare line, arrow, label, and curve style keys in the stylesheet.'
+    ],
+    graph: [
+      'Inspect `graph.nodes`, `graph.links`, and object labels.',
+      'Check how the stylesheet turns semantic facts into visual presentation.'
+    ],
+    harness: [
+      'Use the example as an authoring template in the browser harness.',
+      'Apply changes and confirm the rendered viewport stays in sync with YAML.'
+    ],
+    layout: [
+      'Inspect `layout` options and node positions.',
+      'Check whether positions are authored manually, inferred, or preserved by layout settings.'
+    ],
+    nodes: [
+      'Inspect node labels, data, icon definitions, and body shape settings.',
+      'Compare label, badge, status, icon, border, and underlay style keys.'
+    ],
+    paths: [
+      'Inspect `graph.paths` and the nodes or links they traverse.',
+      'Check lane, pipe, label, and arrow styling for service-path readability.'
+    ],
+    regions: [
+      'Inspect `graph.regions` membership and label placement.',
+      'Check padding and region style keys that prevent overlap with member nodes.'
+    ],
+    shapes: [
+      'Inspect `diagram.shapes` and confirm they are visual explanation objects, not graph facts.',
+      'Check shape geometry, fill, stroke, z-index, and label behavior.'
+    ],
+    styling: [
+      'Inspect selector order and the style keys applied by each rule.',
+      'Compare broad defaults with more specific label or data selectors.'
+    ],
+    validation: [
+      'Inspect the invalid or edge-case YAML and the expected diagnostic behavior.',
+      'Use this example to understand what CI should reject.'
+    ]
+  };
+  return hints[feature] || [
+    'Inspect the topology YAML for semantic objects.',
+    'Inspect the stylesheet YAML for the visual contract.'
+  ];
+}
+
+function featureUseWhen(feature) {
+  const useWhen = {
+    attention: 'Use this pattern when a dense graph needs focus, dimming, aggregation, or label-priority behavior.',
+    callouts: 'Use this pattern when the diagram needs explanatory annotations without changing graph semantics.',
+    edges: 'Use this pattern when link readability, routing, arrowheads, or edge labels matter.',
+    graph: 'Use this pattern when modeling the core semantic graph.',
+    harness: 'Use this pattern when building browser or VS Code authoring workflows.',
+    layout: 'Use this pattern when positions should be repeatable, inferred, or constrained by topology structure.',
+    nodes: 'Use this pattern when node identity, iconography, labels, status, or shape treatment matters.',
+    paths: 'Use this pattern when visualizing service paths, dependency paths, or multi-hop routes.',
+    regions: 'Use this pattern when grouping nodes into sites, racks, pods, domains, or ownership boundaries.',
+    shapes: 'Use this pattern when adding visual explanation objects around a graph.',
+    styling: 'Use this pattern when building reusable visual rules from labels and data.',
+    validation: 'Use this pattern when documenting lint, schema, or invalid-input behavior.'
+  };
+  return useWhen[feature] || 'Use this pattern when documenting a reusable TopoViewer behavior.';
+}
+
+function expectedResultMarkdown(example, expected) {
+  if (expected.renderable === false) {
+    return 'This fixture should not render as a normal topology. It should produce the documented validation behavior without hiding the diagnostic.';
+  }
+
+  const metadata = compactExpectedMetadata(expected);
+  const details = metadata
+    ? Object.entries(metadata)
+      .map(([key, value]) => `\`${key}\`: \`${JSON.stringify(value)}\``)
+      .join(', ')
+    : undefined;
+
+  return [
+    `The live viewport should render "${example.title}" without blocking diagnostics.`,
+    example.summary ? `It should show: ${example.summary}` : undefined,
+    details ? `The test metadata expects ${details}.` : undefined
+  ].filter(Boolean).join(' ');
+}
+
+function requiredExampleSections(readme) {
+  return [
+    'What This Demonstrates',
+    'Expected Result',
+    'What To Inspect',
+    'Use When'
+  ].every((heading) => new RegExp(`^#{2,6}\\s+${heading}\\s*$`, 'm').test(readme));
+}
+
+function exampleIntroMarkdown(example, expected, headingLevel = 2) {
   const readme = readExampleFile(example, 'README.md').trim();
+  if (requiredExampleSections(readme)) {
+    return readme;
+  }
+
+  const heading = '#'.repeat(headingLevel);
+  const inspect = featureInspectHints(example.feature)
+    .map((hint) => `- ${hint}`)
+    .join('\n');
+
+  return [
+    `${heading} What This Demonstrates`,
+    '',
+    readme,
+    '',
+    `${heading} Expected Result`,
+    '',
+    expectedResultMarkdown(example, expected),
+    '',
+    `${heading} What To Inspect`,
+    '',
+    inspect,
+    '',
+    `${heading} Use When`,
+    '',
+    featureUseWhen(example.feature)
+  ].join('\n');
+}
+
+function pageMarkdown(example) {
   const expected = readYaml(exampleSourceFile(example, 'expected.yaml'));
 
   return [
@@ -227,7 +359,7 @@ function pageMarkdown(example) {
     '',
     `# ${example.title}`,
     '',
-    readme,
+    exampleIntroMarkdown(example, expected, 2),
     '',
     exampleTabsMarkdown(example, expected, pageFile(example)),
     ''
@@ -244,9 +376,8 @@ function categoryMarkdown(feature, examples) {
   ];
 
   for (const example of examples) {
-    const readme = readExampleFile(example, 'README.md').trim();
     const expected = readYaml(exampleSourceFile(example, 'expected.yaml'));
-    lines.push(`## ${example.title}`, '', readme, '', exampleTabsMarkdown(example, expected, markdownFile), '');
+    lines.push(`## ${example.title}`, '', exampleIntroMarkdown(example, expected, 3), '', exampleTabsMarkdown(example, expected, markdownFile), '');
   }
 
   return lines.join('\n');

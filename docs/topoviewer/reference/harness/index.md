@@ -4,9 +4,24 @@ These examples document the harness behaviors from the canonical TopoViewer test
 
 ## Layered network authoring
 
+### What This Demonstrates
+
 The default authoring harness template.
 
 It combines underlay, BGP, service, and operations layers in one small topology so the harness can demonstrate layer toggles, relationship editing, attention, and diagnostics without starting from an empty graph.
+
+### Expected Result
+
+The live viewport should render "Layered network authoring" without blocking diagnostics. It should show: The default browser harness template for layered network authoring.
+
+### What To Inspect
+
+- Use the example as an authoring template in the browser harness.
+- Apply changes and confirm the rendered viewport stays in sync with YAML.
+
+### Use When
+
+Use this pattern when building browser or VS Code authoring workflows.
 
 === "Live Viewport"
 
@@ -33,6 +48,8 @@ It combines underlay, BGP, service, and operations layers in one small topology 
 
 ## CLOS 2-spine 4-leaf
 
+### What This Demonstrates
+
 A compact **2-spine, 4-leaf CLOS** fixture using `layout.mode: clos`.
 
 - 2 spine nodes
@@ -46,6 +63,19 @@ A compact **2-spine, 4-leaf CLOS** fixture using `layout.mode: clos`.
 Use this fixture as the smallest practical automatic-layout example. If a real
 topology uses undirected or mixed-direction links, add a dedicated stage field
 and reference it with `layout.clos.stageKey`.
+
+### Expected Result
+
+The live viewport should render "CLOS 2-spine 4-leaf" without blocking diagnostics. It should show: A compact data center fabric template with two spine switches, four leaf switches, and full leaf-to-spine mesh links. The test metadata expects `graphNodes`: `6`, `minVisibleEdges`: `8`, `minRegions`: `1`.
+
+### What To Inspect
+
+- Use the example as an authoring template in the browser harness.
+- Apply changes and confirm the rendered viewport stays in sync with YAML.
+
+### Use When
+
+Use this pattern when building browser or VS Code authoring workflows.
 
 === "Live Viewport"
 
@@ -72,9 +102,24 @@ and reference it with `layout.clos.stageKey`.
 
 ## Insert workflow
 
+### What This Demonstrates
+
 An authoring harness template for adding nodes, links, regions, paths, and notes from the Build panel.
 
 The graph keeps every declared layer populated so layer toggles remain useful while authoring.
+
+### Expected Result
+
+The live viewport should render "Insert workflow" without blocking diagnostics. It should show: A browser harness template for inserting nodes, links, paths, regions, and notes.
+
+### What To Inspect
+
+- Use the example as an authoring template in the browser harness.
+- Apply changes and confirm the rendered viewport stays in sync with YAML.
+
+### Use When
+
+Use this pattern when building browser or VS Code authoring workflows.
 
 === "Live Viewport"
 
@@ -101,9 +146,24 @@ The graph keeps every declared layer populated so layer toggles remain useful wh
 
 ## Attention workflow
 
+### What This Demonstrates
+
 An authoring harness template for editing attention behavior against a small multi-layer service topology.
 
 Use it to exercise object focus, path focus, dense link grouping, and region aggregation from the browser harness.
+
+### Expected Result
+
+The live viewport should render "Attention workflow" without blocking diagnostics. It should show: A browser harness template for editing attention focus, aggregation, and link grouping.
+
+### What To Inspect
+
+- Use the example as an authoring template in the browser harness.
+- Apply changes and confirm the rendered viewport stays in sync with YAML.
+
+### Use When
+
+Use this pattern when building browser or VS Code authoring workflows.
 
 === "Live Viewport"
 
@@ -134,9 +194,24 @@ Use it to exercise object focus, path focus, dense link grouping, and region agg
 
 ## Inspector workflow
 
+### What This Demonstrates
+
 An authoring harness template for inspecting and editing object labels, data, positions, and relationship endpoints.
 
 The topology includes routers, a firewall, a service, links, and a callout so the Inspect panel has varied object types.
+
+### Expected Result
+
+The live viewport should render "Inspector workflow" without blocking diagnostics. It should show: A browser harness template for inspecting object labels, data, positions, and relationships.
+
+### What To Inspect
+
+- Use the example as an authoring template in the browser harness.
+- Apply changes and confirm the rendered viewport stays in sync with YAML.
+
+### Use When
+
+Use this pattern when building browser or VS Code authoring workflows.
 
 === "Live Viewport"
 
@@ -163,9 +238,24 @@ The topology includes routers, a firewall, a service, links, and a callout so th
 
 ## Dense link grouping
 
+### What This Demonstrates
+
 A compact harness template for parallel links and link grouping.
 
 Use it to tune bundle threshold behavior without loading a large topology.
+
+### Expected Result
+
+The live viewport should render "Dense link grouping" without blocking diagnostics. It should show: A browser harness template for parallel link grouping and bundle threshold editing.
+
+### What To Inspect
+
+- Use the example as an authoring template in the browser harness.
+- Apply changes and confirm the rendered viewport stays in sync with YAML.
+
+### Use When
+
+Use this pattern when building browser or VS Code authoring workflows.
 
 === "Live Viewport"
 

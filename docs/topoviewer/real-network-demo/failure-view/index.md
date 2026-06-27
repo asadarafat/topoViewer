@@ -5,7 +5,22 @@ hide:
 
 # Real network failure view
 
+## What This Demonstrates
+
 The failure view turns operational state into attention. Critical and major objects stay bright, healthy context remains visible but muted, and the impacted service path is still traceable through the same underlying topology facts.
+
+## Expected Result
+
+The live viewport should render "Real network failure view" without blocking diagnostics. It should show: A failure view that focuses critical objects and keeps the impacted service path traceable. The test metadata expects `graphNodes`: `7`, `minVisibleEdges`: `13`, `minRegions`: `3`.
+
+## What To Inspect
+
+- Inspect the topology YAML for semantic objects.
+- Inspect the stylesheet YAML for the visual contract.
+
+## Use When
+
+Use this pattern when documenting a reusable TopoViewer behavior.
 
 === "Live Viewport"
 

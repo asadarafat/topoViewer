@@ -4,7 +4,22 @@ These examples document the graph behaviors from the canonical TopoViewer test-c
 
 ## Graph basic
 
+### What This Demonstrates
+
 A minimal TopoViewer graph starts with named nodes and named links. Keep topology facts in `graph.nodes` and `graph.links`; let the stylesheet decide how those facts are presented.
+
+### Expected Result
+
+The live viewport should render "Graph basic" without blocking diagnostics. It should show: A minimal graph with two nodes and one named link. The test metadata expects `graphNodes`: `2`, `minVisibleEdges`: `1`.
+
+### What To Inspect
+
+- Inspect `graph.nodes`, `graph.links`, and object labels.
+- Check how the stylesheet turns semantic facts into visual presentation.
+
+### Use When
+
+Use this pattern when modeling the core semantic graph.
 
 === "Live Viewport"
 
@@ -31,7 +46,22 @@ A minimal TopoViewer graph starts with named nodes and named links. Keep topolog
 
 ## Labels and data
 
+### What This Demonstrates
+
 `labels` are for classification and selector matching. `data` carries facts like metrics, delay, loopback, or counters that tools can inspect without making the visual stylesheet brittle.
+
+### Expected Result
+
+The live viewport should render "Labels and data" without blocking diagnostics. It should show: Classification lives in `labels`; operational values live in `data`. The test metadata expects `graphNodes`: `2`, `minVisibleEdges`: `1`.
+
+### What To Inspect
+
+- Inspect `graph.nodes`, `graph.links`, and object labels.
+- Check how the stylesheet turns semantic facts into visual presentation.
+
+### Use When
+
+Use this pattern when modeling the core semantic graph.
 
 === "Live Viewport"
 
@@ -58,7 +88,22 @@ A minimal TopoViewer graph starts with named nodes and named links. Keep topolog
 
 ## Parent and child nodes
 
+### What This Demonstrates
+
 Parent and child nodes model ownership without losing graph semantics. The child remains selectable and linkable, while the parent can auto-expand when child nesting is enabled.
+
+### Expected Result
+
+The live viewport should render "Parent and child nodes" without blocking diagnostics. It should show: Logical nodes can be nested inside physical parent nodes. The test metadata expects `graphNodes`: `4`, `minVisibleEdges`: `1`.
+
+### What To Inspect
+
+- Inspect `graph.nodes`, `graph.links`, and object labels.
+- Check how the stylesheet turns semantic facts into visual presentation.
+
+### Use When
+
+Use this pattern when modeling the core semantic graph.
 
 === "Live Viewport"
 

@@ -4,7 +4,22 @@ These examples document the shapes behaviors from the canonical TopoViewer test-
 
 ## Two-dimensional shapes
 
+### What This Demonstrates
+
 2D shapes are geometry-only primitives. They are deliberately separate from graph nodes so decorative geometry does not pollute topology truth.
+
+### Expected Result
+
+The live viewport should render "Two-dimensional shapes" without blocking diagnostics. It should show: 2D geometry primitives are diagram objects, not graph facts. The test metadata expects `shapes`: `14`.
+
+### What To Inspect
+
+- Inspect `diagram.shapes` and confirm they are visual explanation objects, not graph facts.
+- Check shape geometry, fill, stroke, z-index, and label behavior.
+
+### Use When
+
+Use this pattern when adding visual explanation objects around a graph.
 
 === "Live Viewport"
 
@@ -31,7 +46,22 @@ These examples document the shapes behaviors from the canonical TopoViewer test-
 
 ## Three-dimensional shapes
 
+### What This Demonstrates
+
 3D shapes cover the common diagram metaphors: cube, cuboid, sphere, cone, cylinder, pyramid, and prism. Use callouts when text needs to sit near them.
+
+### Expected Result
+
+The live viewport should render "Three-dimensional shapes" without blocking diagnostics. It should show: 3D geometry primitives are available for common diagram metaphors. The test metadata expects `shapes`: `7`.
+
+### What To Inspect
+
+- Inspect `diagram.shapes` and confirm they are visual explanation objects, not graph facts.
+- Check shape geometry, fill, stroke, z-index, and label behavior.
+
+### Use When
+
+Use this pattern when adding visual explanation objects around a graph.
 
 === "Live Viewport"
 
@@ -58,7 +88,22 @@ These examples document the shapes behaviors from the canonical TopoViewer test-
 
 ## Shape rotation
 
+### What This Demonstrates
+
 Rotation can be authored on the shape itself or assigned through a selector rule. Text remains a separate callout concern.
+
+### Expected Result
+
+The live viewport should render "Shape rotation" without blocking diagnostics. It should show: Shape geometry can be rotated directly or through a stylesheet rule. The test metadata expects `shapes`: `3`.
+
+### What To Inspect
+
+- Inspect `diagram.shapes` and confirm they are visual explanation objects, not graph facts.
+- Check shape geometry, fill, stroke, z-index, and label behavior.
+
+### Use When
+
+Use this pattern when adding visual explanation objects around a graph.
 
 === "Live Viewport"
 

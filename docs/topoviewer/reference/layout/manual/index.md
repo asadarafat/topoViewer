@@ -5,7 +5,22 @@ hide:
 
 # Manual layout
 
+## What This Demonstrates
+
 Manual layout means the author supplies coordinates. This is the right mode for diagrams where placement carries meaning.
+
+## Expected Result
+
+The live viewport should render "Manual layout" without blocking diagnostics. It should show: Manual layout preserves authored positions. The test metadata expects `graphNodes`: `3`, `minVisibleEdges`: `2`.
+
+## What To Inspect
+
+- Inspect `layout` options and node positions.
+- Check whether positions are authored manually, inferred, or preserved by layout settings.
+
+## Use When
+
+Use this pattern when positions should be repeatable, inferred, or constrained by topology structure.
 
 === "Live Viewport"
 

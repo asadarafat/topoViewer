@@ -4,7 +4,22 @@ These examples document the edges behaviors from the canonical TopoViewer test-c
 
 ## Edge curve styles
 
+### What This Demonstrates
+
 Curve styles are presentation choices. The graph still says A connects to B/C/D/E; the stylesheet controls whether that relationship renders as straight, taxi, smooth-taxi, or unbundled-bezier.
+
+### Expected Result
+
+The live viewport should render "Edge curve styles" without blocking diagnostics. It should show: Different `curveStyle` values produce different edge routing models. The test metadata expects `graphNodes`: `5`, `minVisibleEdges`: `4`.
+
+### What To Inspect
+
+- Inspect `graph.links` for endpoint IDs and labels.
+- Compare line, arrow, label, and curve style keys in the stylesheet.
+
+### Use When
+
+Use this pattern when link readability, routing, arrowheads, or edge labels matter.
 
 === "Live Viewport"
 
@@ -31,7 +46,22 @@ Curve styles are presentation choices. The graph still says A connects to B/C/D/
 
 ## Arrows, dashes, and labels
 
+### What This Demonstrates
+
 Arrows, dashes, and labels are edge styling. The request and reply links use opposite directions, so the endpoint labels make it clear that `sourceLabel` follows the edge source and `targetLabel` follows the edge target. The x/y offsets pull the labels away from the node icons.
+
+### Expected Result
+
+The live viewport should render "Arrows, dashes, and labels" without blocking diagnostics. It should show: Edges can carry labels, arrows, and dash patterns without changing topology semantics. The test metadata expects `graphNodes`: `2`, `minVisibleEdges`: `2`.
+
+### What To Inspect
+
+- Inspect `graph.links` for endpoint IDs and labels.
+- Compare line, arrow, label, and curve style keys in the stylesheet.
+
+### Use When
+
+Use this pattern when link readability, routing, arrowheads, or edge labels matter.
 
 === "Live Viewport"
 
@@ -58,7 +88,22 @@ Arrows, dashes, and labels are edge styling. The request and reply links use opp
 
 ## Arrow and label controls
 
+### What This Demonstrates
+
 Use directional arrow properties when the two ends of an edge need different semantics. This example uses a circle at the source, a vee at the target, and separate endpoint label styles so source and target capacity are readable at a glance.
+
+### Expected Result
+
+The live viewport should render "Arrow and label controls" without blocking diagnostics. It should show: Directional arrow and endpoint label styles can be controlled independently. The test metadata expects `graphNodes`: `3`, `minVisibleEdges`: `2`.
+
+### What To Inspect
+
+- Inspect `graph.links` for endpoint IDs and labels.
+- Compare line, arrow, label, and curve style keys in the stylesheet.
+
+### Use When
+
+Use this pattern when link readability, routing, arrowheads, or edge labels matter.
 
 === "Live Viewport"
 
@@ -85,7 +130,22 @@ Use directional arrow properties when the two ends of an edge need different sem
 
 ## Endpoint spacing and routing
 
+### What This Demonstrates
+
 Endpoint spacing moves the visible line inward from node boundaries. Segment controls make manual bend points explicit, while taxi controls create deterministic right-angled routes without relying on automatic layout guesses.
+
+### Expected Result
+
+The live viewport should render "Endpoint spacing and routing" without blocking diagnostics. It should show: Endpoint spacing, segment controls, and taxi controls make edge routes explicit. The test metadata expects `graphNodes`: `4`, `minVisibleEdges`: `2`.
+
+### What To Inspect
+
+- Inspect `graph.links` for endpoint IDs and labels.
+- Compare line, arrow, label, and curve style keys in the stylesheet.
+
+### Use When
+
+Use this pattern when link readability, routing, arrowheads, or edge labels matter.
 
 === "Live Viewport"
 
@@ -112,7 +172,22 @@ Endpoint spacing moves the visible line inward from node boundaries. Segment con
 
 ## Gradient and interaction flags
 
+### What This Demonstrates
+
 Linear gradients are useful for directional utilization, ownership, or state transitions. `interactive: false` leaves a reference edge visible while removing edge click handling, and `labelInteractive: false` keeps labels from taking pointer events.
+
+### Expected Result
+
+The live viewport should render "Gradient and interaction flags" without blocking diagnostics. It should show: Linear gradients and interaction flags can be declared directly on edge style rules. The test metadata expects `graphNodes`: `4`, `minVisibleEdges`: `2`.
+
+### What To Inspect
+
+- Inspect `graph.links` for endpoint IDs and labels.
+- Compare line, arrow, label, and curve style keys in the stylesheet.
+
+### Use When
+
+Use this pattern when link readability, routing, arrowheads, or edge labels matter.
 
 === "Live Viewport"
 
@@ -139,7 +214,22 @@ Linear gradients are useful for directional utilization, ownership, or state tra
 
 ## Floating anchors
 
+### What This Demonstrates
+
 Floating anchors are the default edge behavior. The renderer computes a boundary attachment point from the node geometry so the line does not terminate at the node center.
+
+### Expected Result
+
+The live viewport should render "Floating anchors" without blocking diagnostics. It should show: Floating anchors connect to the nearest point on each node boundary. The test metadata expects `graphNodes`: `2`, `minVisibleEdges`: `1`.
+
+### What To Inspect
+
+- Inspect `graph.links` for endpoint IDs and labels.
+- Compare line, arrow, label, and curve style keys in the stylesheet.
+
+### Use When
+
+Use this pattern when link readability, routing, arrowheads, or edge labels matter.
 
 === "Live Viewport"
 
@@ -166,7 +256,22 @@ Floating anchors are the default edge behavior. The renderer computes a boundary
 
 ## Parent link pipe
 
+### What This Demonstrates
+
 Parent links let an overlay relationship ride inside a carrier relationship. The service still connects child endpoints, but the visual lane follows the parent transport pipe.
+
+### Expected Result
+
+The live viewport should render "Parent link pipe" without blocking diagnostics. It should show: A child link can be visually carried inside a parent transport link. The test metadata expects `graphNodes`: `4`, `minVisibleEdges`: `1`.
+
+### What To Inspect
+
+- Inspect `graph.links` for endpoint IDs and labels.
+- Compare line, arrow, label, and curve style keys in the stylesheet.
+
+### Use When
+
+Use this pattern when link readability, routing, arrowheads, or edge labels matter.
 
 === "Live Viewport"
 

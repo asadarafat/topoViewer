@@ -4,7 +4,22 @@ These examples document the styling behaviors from the canonical TopoViewer test
 
 ## Selector styling
 
+### What This Demonstrates
+
 Selector styling is the core authoring contract. Topology authors classify objects once; visual rules then match by kind, id, labels, or data.
+
+### Expected Result
+
+The live viewport should render "Selector styling" without blocking diagnostics. It should show: Selector rules classify objects by kind, id, labels, or data. The test metadata expects `graphNodes`: `2`, `minVisibleEdges`: `1`.
+
+### What To Inspect
+
+- Inspect selector order and the style keys applied by each rule.
+- Compare broad defaults with more specific label or data selectors.
+
+### Use When
+
+Use this pattern when building reusable visual rules from labels and data.
 
 === "Live Viewport"
 
@@ -31,7 +46,22 @@ Selector styling is the core authoring contract. Topology authors classify objec
 
 ## Inline style override
 
+### What This Demonstrates
+
 Inline style is an escape hatch. Use it sparingly for one-off emphasis; reusable visual policy still belongs in the stylesheet.
+
+### Expected Result
+
+The live viewport should render "Inline style override" without blocking diagnostics. It should show: Inline `style` overrides are local escape hatches on individual objects. The test metadata expects `graphNodes`: `2`, `minVisibleEdges`: `1`.
+
+### What To Inspect
+
+- Inspect selector order and the style keys applied by each rule.
+- Compare broad defaults with more specific label or data selectors.
+
+### Use When
+
+Use this pattern when building reusable visual rules from labels and data.
 
 === "Live Viewport"
 
@@ -58,7 +88,22 @@ Inline style is an escape hatch. Use it sparingly for one-off emphasis; reusable
 
 ## Light and dark theme variables
 
+### What This Demonstrates
+
 Theme-aware examples should use CSS variables so the same diagram follows MkDocs Material light and dark mode without duplicating the topology.
+
+### Expected Result
+
+The live viewport should render "Light and dark theme variables" without blocking diagnostics. It should show: Theme-aware styles should use TopoViewer CSS variables. The test metadata expects `graphNodes`: `2`, `minVisibleEdges`: `1`.
+
+### What To Inspect
+
+- Inspect selector order and the style keys applied by each rule.
+- Compare broad defaults with more specific label or data selectors.
+
+### Use When
+
+Use this pattern when building reusable visual rules from labels and data.
 
 === "Live Viewport"
 
@@ -85,7 +130,22 @@ Theme-aware examples should use CSS variables so the same diagram follows MkDocs
 
 ## Label z-index
 
+### What This Demonstrates
+
 Use `labelZIndex` when labels need their own draw order without moving the object body, edge line, or region hull. The region label, edge label, endpoint labels, and node labels in this example intentionally use separate label layers.
+
+### Expected Result
+
+The live viewport should render "Label z-index" without blocking diagnostics. It should show: Labels can draw in their own layer without changing object, edge, or region draw order. The test metadata expects `graphNodes`: `2`, `minVisibleEdges`: `1`, `minRegions`: `1`.
+
+### What To Inspect
+
+- Inspect selector order and the style keys applied by each rule.
+- Compare broad defaults with more specific label or data selectors.
+
+### Use When
+
+Use this pattern when building reusable visual rules from labels and data.
 
 === "Live Viewport"
 
