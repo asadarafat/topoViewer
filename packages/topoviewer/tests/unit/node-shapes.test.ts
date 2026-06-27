@@ -8,7 +8,7 @@ import {
 } from '../../src';
 
 describe('declarative node shapes', () => {
-  it('uses square as the default node body shape', () => {
+  it('uses rectangle as the default node body shape', () => {
     const document: TopoDocument = {
       graph: {
         layers: [{ id: 'physical' }],
@@ -24,7 +24,59 @@ describe('declarative node shapes', () => {
     const compiled = compileTopoGraph(document, ['physical']);
     const data = compiled.nodes[0].data as Record<string, unknown>;
 
-    expect(data.nodeShapeType).toBe('square');
+    expect(data.nodeShapeType).toBe('rectangle');
+  });
+
+  it('keeps default rectangle dimensions independent for body and edge anchors', () => {
+    const document: TopoDocument = {
+      graph: {
+        layers: [{ id: 'physical' }],
+        nodes: [
+          { id: 'default-1', name: 'Default 1', layers: ['physical'], position: [0, 0] }
+        ]
+      },
+      stylesheet: [
+        { selector: 'node', style: { width: 96, height: 56 } }
+      ]
+    };
+
+    const compiled = compileTopoGraph(document, ['physical']);
+    const node = compiled.nodes[0];
+    const data = node.data as Record<string, unknown>;
+
+    expect(data.nodeShapeType).toBe('rectangle');
+    expect(node.style).toMatchObject({ width: 96 });
+    expect(data.nodeStyle).toMatchObject({ width: 96, minHeight: 56 });
+    expect(data.iconStyle).toMatchObject({ width: 96, height: 56 });
+    expect(data.edgeAnchor).toMatchObject({ width: 96, height: 56 });
+  });
+
+  it('derives missing square and circle dimensions from the authored dimension', () => {
+    const document: TopoDocument = {
+      graph: {
+        layers: [{ id: 'physical' }],
+        nodes: [
+          { id: 'square-1', name: 'Square 1', layers: ['physical'], position: [0, 0] },
+          { id: 'circle-1', name: 'Circle 1', layers: ['physical'], position: [120, 0] }
+        ]
+      },
+      stylesheet: [
+        { selector: 'node[id = "square-1"]', style: { shape: 'square', width: 96 } },
+        { selector: 'node[id = "circle-1"]', style: { shape: 'circle', height: 64 } }
+      ]
+    };
+
+    const compiled = compileTopoGraph(document, ['physical']);
+    const byId = new Map(compiled.nodes.map((node) => [node.id, node]));
+    const squareData = byId.get('square-1')?.data as Record<string, unknown>;
+    const circleData = byId.get('circle-1')?.data as Record<string, unknown>;
+
+    expect(squareData.nodeShapeType).toBe('square');
+    expect(squareData.edgeAnchor).toMatchObject({ width: 96, height: 96 });
+    expect(squareData.iconStyle).toMatchObject({ width: 96, height: 96 });
+    expect(circleData.nodeShapeType).toBe('circle');
+    expect(circleData.edgeAnchor).toMatchObject({ width: 64, height: 64 });
+    expect(circleData.iconStyle).toMatchObject({ width: 64, height: 64 });
   });
 
   it('compiles canonical named node shape values into node body metadata', () => {
@@ -136,6 +188,45 @@ describe('declarative node shapes', () => {
     expect(issues.filter((issue) => issue.code === 'unsupported-node-shape')).toEqual([
       expect.objectContaining({ path: 'graph.nodes[0].style.shape' }),
       expect.objectContaining({ path: 'stylesheet[0].style.shape' })
+    ]);
+  });
+
+  it('reports unequal square and circle dimensions through semantic lint', () => {
+    const issues = lintTopoDocument({
+      graph: {
+        layers: [{ id: 'physical' }],
+        nodes: [
+          { id: 'square-inline', layers: ['physical'], style: { shape: 'square', width: 96, height: 56 } },
+          { id: 'circle-rule', layers: ['physical'] }
+        ]
+      },
+      stylesheet: [
+        { selector: 'node[id = "circle-rule"]', style: { shape: 'circle', width: 96, height: 56 } }
+      ]
+    }, { requireNames: false });
+
+    expect(issues.filter((issue) => issue.code === 'invalid-node-aspect-dimensions')).toEqual([
+      expect.objectContaining({ path: 'graph.nodes[0].style.height', severity: 'error' }),
+      expect.objectContaining({ path: 'stylesheet[0].style.height', severity: 'error' })
+    ]);
+  });
+
+  it('reports effective unequal square dimensions assembled from multiple matching rules', () => {
+    const issues = lintTopoDocument({
+      graph: {
+        layers: [{ id: 'physical' }],
+        nodes: [
+          { id: 'square-effective', layers: ['physical'] }
+        ]
+      },
+      stylesheet: [
+        { selector: 'node', style: { shape: 'square', width: 96 } },
+        { selector: 'node[id = "square-effective"]', style: { height: 56 } }
+      ]
+    }, { requireNames: false });
+
+    expect(issues.filter((issue) => issue.code === 'invalid-node-aspect-dimensions')).toEqual([
+      expect.objectContaining({ path: 'graph.nodes[0].effectiveStyle.height', severity: 'error' })
     ]);
   });
 

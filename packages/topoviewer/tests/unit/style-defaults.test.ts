@@ -136,7 +136,7 @@ describe('canonical style defaults registry', () => {
     }
 
     [
-      'Defaults to `square`',
+      'Defaults to `rectangle`',
       'Defaults to `82` x `60`',
       'Defaults to `bezier`',
       'Defaults to `roundRectangle`',

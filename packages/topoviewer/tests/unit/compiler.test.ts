@@ -252,13 +252,13 @@ describe('compileTopoGraph', () => {
     });
   });
 
-  it('preserves square and circle body aspect ratio by default', () => {
+  it('uses rectangle by default and aspect-locks explicit circle bodies', () => {
     const compiled = compileTopoGraph({
       version: '1.0',
       graph: {
         layers: [{ id: 'physical', name: 'Physical' }],
         nodes: [
-          { id: 'square-router', name: 'Square router', layers: ['physical'], position: [0, 0] },
+          { id: 'default-router', name: 'Default router', layers: ['physical'], position: [0, 0] },
           { id: 'circle-router', name: 'Circle router', layers: ['physical'], position: [180, 0] },
           { id: 'ellipse-router', name: 'Ellipse router', layers: ['physical'], position: [360, 0] }
         ]
@@ -267,7 +267,6 @@ describe('compileTopoGraph', () => {
         {
           selector: 'node',
           style: {
-            width: 84,
             height: 60
           }
         },
@@ -280,7 +279,8 @@ describe('compileTopoGraph', () => {
         {
           selector: 'node[id = "ellipse-router"]',
           style: {
-            shape: 'ellipse'
+            shape: 'ellipse',
+            width: 84
           }
         }
       ]
@@ -288,14 +288,14 @@ describe('compileTopoGraph', () => {
 
     const byId = new Map(compiled.nodes.map((node) => [node.id, node.data as CompiledNodeData]));
 
-    expect(byId.get('square-router')).toMatchObject({
-      nodeShapeType: 'square',
-      iconStyle: { width: 84, height: 60 },
-      iconContentStyle: { width: 60, height: 60 }
+    expect(byId.get('default-router')).toMatchObject({
+      nodeShapeType: 'rectangle',
+      iconStyle: { width: 82, height: 60 },
+      iconContentStyle: { width: 82, height: 60 }
     });
     expect(byId.get('circle-router')).toMatchObject({
       nodeShapeType: 'circle',
-      iconStyle: { width: 84, height: 60 },
+      iconStyle: { width: 60, height: 60 },
       iconContentStyle: { width: 60, height: 60 }
     });
     expect(byId.get('ellipse-router')).toMatchObject({

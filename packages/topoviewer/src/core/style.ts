@@ -324,17 +324,51 @@ function routeKind(style: StyleDeclaration): string | undefined {
   return undefined;
 }
 
+interface NodeBodyBox {
+  authoredHeight?: number;
+  authoredWidth?: number;
+  bodyHeight: number;
+  bodyWidth: number;
+  defaultHeight: number;
+  defaultWidth: number;
+}
+
+function resolveNodeBodyBox(style: StyleDeclaration, shape: string): NodeBodyBox {
+  const defaultWidth = styleDefaultNumber('node', 'width', 82);
+  const defaultHeight = styleDefaultNumber('node', 'height', 60);
+  const authoredWidth = finiteNumber(style.width);
+  const authoredHeight = finiteNumber(style.height);
+
+  if (shape === 'circle' || shape === 'square') {
+    const size = authoredWidth ?? authoredHeight ?? defaultHeight;
+    return {
+      authoredHeight,
+      authoredWidth,
+      bodyHeight: size,
+      bodyWidth: size,
+      defaultHeight,
+      defaultWidth
+    };
+  }
+
+  return {
+    authoredHeight,
+    authoredWidth,
+    bodyHeight: authoredHeight ?? defaultHeight,
+    bodyWidth: authoredWidth ?? defaultWidth,
+    defaultHeight,
+    defaultWidth
+  };
+}
+
 export function compileNodeStyle(style: StyleDeclaration, entity: GraphEntity, spec: StylesheetDocument) {
   const icon = iconForStyle(style, entity, spec);
-  const width = Number(valueOrDefault(style.width as number | undefined, styleDefaultNumber('node', 'width', 82)));
-  const height = Number(valueOrDefault(style.height as number | undefined, styleDefaultNumber('node', 'height', 60)));
   const shape = normalizeNodeShape(style.shape) || DEFAULT_NODE_SHAPE;
-  const preservesShapeAspectRatio = shape === 'circle' || shape === 'square';
-  const aspectLockedSize = Math.min(width, height);
-  const defaultIconWidth = preservesShapeAspectRatio ? aspectLockedSize : width;
-  const defaultIconHeight = preservesShapeAspectRatio ? aspectLockedSize : height;
-  const iconWidth = Number(valueOrDefault((style.iconWidth ?? style.iconSize) as number | undefined, defaultIconWidth));
-  const iconHeight = Number(valueOrDefault((style.iconHeight ?? style.iconSize) as number | undefined, defaultIconHeight));
+  const bodyBox = resolveNodeBodyBox(style, shape);
+  const width = bodyBox.bodyWidth;
+  const height = bodyBox.bodyHeight;
+  const iconWidth = Number(valueOrDefault((style.iconWidth ?? style.iconSize) as number | undefined, width));
+  const iconHeight = Number(valueOrDefault((style.iconHeight ?? style.iconSize) as number | undefined, height));
   const shapePoints = parseNodeShapePoints(style.shapePolygonPoints).points;
   const fill = String(style.backgroundColor || icon.fill);
   const stroke = String(style.borderColor || icon.stroke);

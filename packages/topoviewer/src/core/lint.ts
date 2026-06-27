@@ -33,6 +33,7 @@ import {
 } from './nodeStyle';
 import { regionLabelMargin, regionLabelPositions, normalizeRegionLabelPosition } from './regionStyle';
 import { selectorMatches } from './selector';
+import { applyStyle } from './style';
 import { canonicalStyleKeyByLowercase, isColorStyleKey } from './styleDefaults';
 import type { DiagramCallout, DiagramConnector, GraphEntity, GraphLink, GraphPath, StyleRule, TopoDocument } from './types';
 import { validateTopoDocument } from './validation';
@@ -122,10 +123,27 @@ function selectorKind(selector: string): string {
   return selector.trim().match(/^[a-zA-Z][\w-]*/)?.[0] || '';
 }
 
+function nodeAspectDimensionIssues(style: Record<string, unknown> | undefined, path: string): LintIssue[] {
+  if (!style || typeof style !== 'object') return [];
+  const shape = normalizeNodeShape(style.shape);
+  const width = finiteNumber(style.width);
+  const height = finiteNumber(style.height);
+  if ((shape === 'circle' || shape === 'square') && width !== undefined && height !== undefined && width !== height) {
+    return [issue(
+      'error',
+      'invalid-node-aspect-dimensions',
+      `shape: ${shape} requires equal width and height. Use equal dimensions, omit one dimension, or use shape: ${shape === 'circle' ? 'ellipse' : 'rectangle'} for a stretched body.`,
+      `${path}.height`
+    )];
+  }
+  return [];
+}
+
 function nodeShapeStyleIssues(style: Record<string, unknown> | undefined, path: string): LintIssue[] {
   if (!style || typeof style !== 'object') return [];
   const issues: LintIssue[] = [];
-  if (style.shape !== undefined && !normalizeNodeShape(style.shape)) {
+  const shape = normalizeNodeShape(style.shape);
+  if (style.shape !== undefined && !shape) {
     issues.push(issue(
       'error',
       'unsupported-node-shape',
@@ -133,6 +151,7 @@ function nodeShapeStyleIssues(style: Record<string, unknown> | undefined, path: 
       `${path}.shape`
     ));
   }
+  issues.push(...nodeAspectDimensionIssues(style, path));
   const polygonPoints = parseNodeShapePoints(style.shapePolygonPoints);
   if (polygonPoints.error) {
     issues.push(issue('error', 'invalid-node-shape-polygon', polygonPoints.error, `${path}.shapePolygonPoints`));
@@ -563,6 +582,12 @@ export function lintTopoDocument(input: TopoDocument, options: LintOptions = {})
       issues.push(issue('warning', 'unused-selector', `Stylesheet selector "${rule.selector}" does not match any current object.`, `stylesheet[${index}].selector`));
     }
   });
+
+  if (!issues.some((item) => item.code === 'invalid-node-aspect-dimensions')) {
+    (graph.nodes || []).forEach((node, index) => {
+      issues.push(...nodeAspectDimensionIssues(applyStyle('node', node, document), `graph.nodes[${index}].effectiveStyle`));
+    });
+  }
 
   Object.entries(document.icons || {}).forEach(([key, icon]) => {
     if (icon.src && unsafeImageReference(icon.src)) {

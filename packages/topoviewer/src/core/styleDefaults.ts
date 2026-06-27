@@ -30,7 +30,7 @@ export interface StyleKeyDefinition {
   values?: string[];
 }
 
-export const DEFAULT_NODE_SHAPE: NodeShapeName = 'square';
+export const DEFAULT_NODE_SHAPE: NodeShapeName = 'rectangle';
 
 const edgeCurveStyleValues = ['straight', 'bezier', 'unbundledBezier', 'simpleBezier', 'segments', 'roundSegments', 'taxi', 'roundTaxi', 'smoothTaxi', 'smoothstep', 'haystack'];
 const edgeAnchorValues = ['floating', 'fixed'];
