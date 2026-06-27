@@ -1,0 +1,43 @@
+services:
+  telemetry-injector:
+    image: ${TELEMETRY_INJECTOR_IMAGE}
+    container_name: topoviewer-telemetry-injector-phase2
+    working_dir: /app
+    command: ["node", "src/server.mjs"]
+    ports:
+      - "${TELEMETRY_INJECTOR_HTTP_PORT}:9108"
+    volumes:
+      - ./telemetry-injector:/app:ro
+
+  prometheus:
+    image: ${PROMETHEUS_IMAGE}
+    container_name: topoviewer-prometheus-phase2
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.enable-lifecycle"
+    ports:
+      - "${PROMETHEUS_HTTP_PORT}:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    depends_on:
+      - telemetry-injector
+
+  grafana:
+    image: ${GRAFANA_IMAGE}
+    container_name: topoviewer-grafana-phase2
+    ports:
+      - "${GRAFANA_HTTP_PORT}:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
+      GF_AUTH_DISABLE_LOGIN_FORM: "true"
+      GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS: asadarafat-topoviewer-panel
+    volumes:
+      - ../../packages/grafana-topoviewer-panel/dist:/var/lib/grafana/plugins/asadarafat-topoviewer-panel:ro
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      - prometheus

@@ -1,0 +1,14 @@
+{
+  "name": "topoviewer-grafana-telemetry-injector",
+  "version": "0.1.0",
+  "private": true,
+  "license": "Apache-2.0",
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.mjs",
+    "test": "node --test tests/scenarios.test.mjs"
+  },
+  "engines": {
+    "node": ">=24 <25"
+  }
+}
