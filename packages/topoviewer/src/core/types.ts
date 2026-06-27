@@ -361,6 +361,8 @@ export interface TopoViewerProps {
   document: TopoDocument;
   selectedLayerIds?: string[];
   selectedObjectIds?: string[];
+  initialViewport?: TopoViewerViewport;
+  nodesDraggable?: boolean;
   toggles?: TopoViewerToggles;
   layout?: LayoutConfig;
   attention?: {

@@ -13,6 +13,14 @@ describe('runtime model', () => {
         infoPercent: 50,
         warningPercent: 80,
         errorPercent: 90
+      },
+      interaction: {
+        enabled: true,
+        allowNodeDrag: true,
+        persistViewport: 'session',
+        persistSelection: 'session',
+        persistNodePositions: 'session',
+        resetOnTopologyIdentityChange: true
       }
     });
   });

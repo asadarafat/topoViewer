@@ -159,6 +159,8 @@ function TopoFlow({
   controlPanelToggle,
   exportDisabled,
   exportTooltip,
+  initialViewport,
+  nodesDraggable = true,
   onExport,
   onObjectClick,
   onPaneClick,
@@ -173,6 +175,8 @@ function TopoFlow({
   controlPanelToggle?: TopoViewerProps['controlPanelToggle'];
   exportDisabled?: TopoViewerProps['exportDisabled'];
   exportTooltip?: TopoViewerProps['exportTooltip'];
+  initialViewport?: TopoViewerProps['initialViewport'];
+  nodesDraggable?: TopoViewerProps['nodesDraggable'];
   onExport?: TopoViewerProps['onExport'];
   onObjectClick?: TopoViewerProps['onObjectClick'];
   onPaneClick?: TopoViewerProps['onPaneClick'];
@@ -254,11 +258,12 @@ function TopoFlow({
       onMoveEnd={onViewportChange ? (_event, viewport) => onViewportChange(viewport) : undefined}
       nodeTypes={nodeTypes as never}
       edgeTypes={edgeTypes as never}
-      fitView
+      defaultViewport={initialViewport}
+      fitView={!initialViewport}
       fitViewOptions={{ padding: 0.06, maxZoom: 1 }}
       minZoom={0.2}
       maxZoom={8}
-      nodesDraggable
+      nodesDraggable={nodesDraggable}
       elementsSelectable
       proOptions={{ hideAttribution: true }}
     >
@@ -285,6 +290,8 @@ export function TopoViewer({
   controlPanelToggle,
   exportDisabled,
   exportTooltip,
+  initialViewport,
+  nodesDraggable,
   onObjectClick,
   onPaneClick,
   onNodePositionChange,
@@ -340,6 +347,8 @@ export function TopoViewer({
           controlPanelToggle={controlPanelToggle}
           exportDisabled={exportDisabled}
           exportTooltip={exportTooltip}
+          initialViewport={initialViewport}
+          nodesDraggable={nodesDraggable}
           onExport={onExport}
           onObjectClick={onObjectClick}
           onPaneClick={onPaneClick}

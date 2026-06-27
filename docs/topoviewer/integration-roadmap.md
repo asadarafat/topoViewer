@@ -12,7 +12,7 @@ TopoViewer currently supports the React/TypeScript package, the MkDocs plugin, a
 | NetBox | Feasibility | Build a NetBox plugin that renders TopoViewer diagrams inside NetBox from inventory and mapping profiles. |
 | OpsMill / Infrahub | Feasibility | Build an in-platform OpsMill/Infrahub extension that publishes TopoViewer views or artifacts from graph data. |
 | VS Code | Experimental package | Use `packages/vscode-topoviewer` for a Material UI authoring preview, schema-backed YAML assist, candidate Apply/Revert workflow, semantic diagnostics, fixture workflow, browser-test harness, and PNG export wiring. |
-| Grafana | Exploratory panel spike | Render canonical harness fixtures and a local Prometheus-backed weathermap inside a pinned Grafana lab. |
+| Grafana | Exploratory panel spike | Render canonical harness fixtures, a local Prometheus-backed weathermap, and local runtime interaction state inside a pinned Grafana lab. |
 
 ## NetBox
 
@@ -136,6 +136,18 @@ The panel keeps canonical topology and stylesheet YAML immutable. Grafana data
 frames are converted into runtime overlays that update link color, width, style,
 label, and endpoint status markers.
 
+Phase 3 adds local interaction state:
+
+| State | Persistence |
+| --- | --- |
+| Viewport pan/zoom | `off`, `session`, or `browser` |
+| Selected and focused objects | `off`, `session`, or `browser` |
+| Local node drag positions | `off`, `session`, or `browser` |
+
+The position overrides are runtime-only. They are applied after canonical
+topology/layout and before telemetry styling. Resetting positions clears local
+overrides without changing Prometheus-derived link or endpoint state.
+
 Grafana is still exploratory because the supported operational surface needs later phases:
 
 ```text
@@ -149,8 +161,8 @@ Use cases:
 - customer or service path next to latency, traffic, or error panels;
 - NOC view that focuses affected nodes and dims healthy context.
 
-Risks include plugin signing, dashboard refresh behavior, CSP, interaction
-persistence, Containerlab integration, and dense-topology performance.
+Risks include plugin signing, dashboard refresh behavior, CSP, dashboard-level
+state persistence, Containerlab integration, and dense-topology performance.
 
 ## Roadmap Rule
 

@@ -39,7 +39,13 @@ describe('panel options', () => {
       'telemetry.enabled',
       'telemetry.infoPercent',
       'telemetry.warningPercent',
-      'telemetry.errorPercent'
+      'telemetry.errorPercent',
+      'interaction.enabled',
+      'interaction.allowNodeDrag',
+      'interaction.persistViewport',
+      'interaction.persistSelection',
+      'interaction.persistNodePositions',
+      'interaction.resetOnTopologyIdentityChange'
     ]);
     expect(builder.calls[0]?.config.defaultValue).toBe('layered-network');
     expect(builder.calls[1]?.config.defaultValue).toBe('auto');
@@ -49,6 +55,12 @@ describe('panel options', () => {
     expect(builder.calls[5]?.config.defaultValue).toBe(50);
     expect(builder.calls[6]?.config.defaultValue).toBe(80);
     expect(builder.calls[7]?.config.defaultValue).toBe(90);
+    expect(builder.calls[8]?.config.defaultValue).toBe(true);
+    expect(builder.calls[9]?.config.defaultValue).toBe(true);
+    expect(builder.calls[10]?.config.defaultValue).toBe('session');
+    expect(builder.calls[11]?.config.defaultValue).toBe('session');
+    expect(builder.calls[12]?.config.defaultValue).toBe('session');
+    expect(builder.calls[13]?.config.defaultValue).toBe(true);
   });
 
   it('offers all generated harness fixtures in the fixture selector', () => {

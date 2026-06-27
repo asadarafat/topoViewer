@@ -1,16 +1,19 @@
 import yaml from 'js-yaml';
 import { composeTopoViewerDocument, type TopoDocument } from 'topoviewer';
 import { defaultHarnessFixture, getHarnessFixture, listHarnessFixtureIds } from './harnessFixtureCatalog';
+import { normalizeInteractionOptions } from './interactionState';
 import {
   DEFAULT_FIXTURE_ID,
   type GrafanaPanelDiagnostic,
   type GrafanaTopoViewerRuntimeModel,
+  type TopoViewerGrafanaInteractionOptions,
   type TopoViewerGrafanaTelemetryOptions,
   type TopoViewerGrafanaPanelOptions
 } from './types';
 
-export interface NormalizedTopoViewerGrafanaPanelOptions extends Required<Omit<TopoViewerGrafanaPanelOptions, 'telemetry'>> {
+export interface NormalizedTopoViewerGrafanaPanelOptions extends Required<Omit<TopoViewerGrafanaPanelOptions, 'telemetry' | 'interaction'>> {
   telemetry: Required<TopoViewerGrafanaTelemetryOptions>;
+  interaction: Required<TopoViewerGrafanaInteractionOptions>;
 }
 
 function parseYamlDocument(source: string, label: string): TopoDocument {
@@ -37,7 +40,8 @@ export function normalizePanelOptions(options: TopoViewerGrafanaPanelOptions | u
       infoPercent: options?.telemetry?.infoPercent ?? 50,
       warningPercent: options?.telemetry?.warningPercent ?? 80,
       errorPercent: options?.telemetry?.errorPercent ?? 90
-    }
+    },
+    interaction: normalizeInteractionOptions(options?.interaction)
   };
 }
 

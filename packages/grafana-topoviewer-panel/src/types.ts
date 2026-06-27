@@ -4,6 +4,7 @@ export const GRAFANA_TOPOVIEWER_PLUGIN_ID = 'asadarafat-topoviewer-panel';
 export const DEFAULT_FIXTURE_ID = 'layered-network';
 
 export type GrafanaTopoViewerThemeMode = 'auto' | 'light' | 'dark';
+export type InteractionPersistenceMode = 'off' | 'session' | 'browser';
 
 export interface TopoViewerGrafanaTelemetryOptions {
   enabled?: boolean;
@@ -12,12 +13,22 @@ export interface TopoViewerGrafanaTelemetryOptions {
   errorPercent?: number;
 }
 
+export interface TopoViewerGrafanaInteractionOptions {
+  enabled?: boolean;
+  allowNodeDrag?: boolean;
+  persistViewport?: InteractionPersistenceMode;
+  persistSelection?: InteractionPersistenceMode;
+  persistNodePositions?: InteractionPersistenceMode;
+  resetOnTopologyIdentityChange?: boolean;
+}
+
 export interface TopoViewerGrafanaPanelOptions {
   fixtureId?: string;
   themeMode?: GrafanaTopoViewerThemeMode;
   showControls?: boolean;
   controlsOpen?: boolean;
   telemetry?: TopoViewerGrafanaTelemetryOptions;
+  interaction?: TopoViewerGrafanaInteractionOptions;
 }
 
 export interface GrafanaHarnessFixture {
@@ -44,6 +55,16 @@ export interface GrafanaTopoViewerRuntimeModel {
   diagnostics: GrafanaPanelDiagnostic[];
   topoviewerProps?: Pick<
     TopoViewerProps,
-    'document' | 'controlPanelToggle' | 'className' | 'extensions' | 'selectedObjectIds' | 'onObjectClick' | 'onPaneClick'
+    | 'document'
+    | 'controlPanelToggle'
+    | 'className'
+    | 'extensions'
+    | 'initialViewport'
+    | 'nodesDraggable'
+    | 'selectedObjectIds'
+    | 'onObjectClick'
+    | 'onPaneClick'
+    | 'onNodePositionChange'
+    | 'onViewportChange'
   >;
 }

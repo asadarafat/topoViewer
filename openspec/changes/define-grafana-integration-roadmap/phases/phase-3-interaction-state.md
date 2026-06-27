@@ -51,6 +51,7 @@ position overrides.
 interaction.enabled: boolean
 interaction.allowNodeDrag: boolean
 interaction.persistViewport: "off" | "session" | "browser"
+interaction.persistSelection: "off" | "session" | "browser"
 interaction.persistNodePositions: "off" | "session" | "browser"
 interaction.resetOnTopologyIdentityChange: boolean
 ```

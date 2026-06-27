@@ -5,9 +5,10 @@ TopoViewer runtime without renderer forks or Grafana-owned topology YAML copies.
 
 Phase 1 renders canonical browser harness fixtures inside a pinned local Grafana
 lab. Phase 2 adds a local Prometheus weathermap slice where deterministic link
-metrics style TopoViewer links and endpoint status markers at runtime.
-Interaction persistence, plugin signing, Containerlab, and supported release
-packaging remain later phases.
+metrics style TopoViewer links and endpoint status markers at runtime. Phase 3
+adds local interaction-state persistence for viewport, selection, and node drag
+overrides. Plugin signing, Containerlab, and supported release packaging remain
+later phases.
 
 ## Commands
 
@@ -74,6 +75,19 @@ http://127.0.0.1:3000/d/topoviewer-phase-2/topoviewer-phase-2-weathermap
 The panel maps Prometheus labels to TopoViewer links using `link_id` first, then
 `source` and `target` as a fallback. Canonical topology YAML and stylesheet YAML
 stay immutable; telemetry is applied as a transient TopoViewer extension.
+
+## Interaction State
+
+The panel can persist runtime interaction state locally:
+
+- viewport pan/zoom;
+- selected and focused objects;
+- local node position overrides from dragging;
+- reset of local node position overrides.
+
+This state is keyed by fixture and graph ID. It is stored in session or browser
+storage depending on panel options. It is not written back to topology YAML,
+stylesheet YAML, or Grafana dashboard JSON.
 
 Stop the lab:
 

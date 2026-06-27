@@ -61,7 +61,9 @@ define-grafana-integration-roadmap
   -> create implement-grafana-panel-phase-2
   -> archive phase 1 after generated-output commit and final full CI
   -> implement phase 2
-  -> update roadmap only when phase findings change later assumptions
+  -> implement-grafana-panel-phase-3
+  -> archive phases after validation and review
+  -> create phase 4 only after interaction-state behavior is accepted
 ```
 
 This keeps the roadmap durable while each implementation phase stays small
