@@ -21,6 +21,8 @@ export {
   resolveAttentionPresentationCached
 } from './core/attention/cache';
 export { CURRENT_SCHEMA_VERSION, migrateTopoDocument, migrateTopoToggles } from './core/migration';
+export { composeTopoViewerDocument } from './core/compose';
+export { defaultTopoViewerToggles } from './core/toggles';
 export { validateTopoDocument } from './core/validation';
 export { lintTopoDocument } from './core/lint';
 export { NODE_SHAPES, normalizeNodeShape, parseNodeShapePoints } from './core/nodeShapes';
@@ -48,6 +50,7 @@ export {
   nodeStatusPlacements
 } from './core/nodeStyle';
 export type { StaticExportOptions, StaticPdfExportOptions } from './core/export';
+export type { ComposeTopoViewerDocumentOptions } from './core/compose';
 export type { LintIssue, LintOptions } from './core/lint';
 export type { ClosLayoutDiagnostic } from './core/closLayout';
 export type { NodeShapeName, NodeShapePoint, ParsedNodeShapePoints } from './core/nodeShapes';

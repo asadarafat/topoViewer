@@ -3,9 +3,10 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import yaml from 'js-yaml';
 import { TopoViewer } from './components/TopoViewer';
 import { buildAttentionIndex, deriveAggregateGraph } from './core/attention';
+import { composeTopoViewerDocument } from './core/compose';
+import { defaultTopoViewerToggles } from './core/toggles';
 import type { LayerDefinition, ToggleDefinition, TopoDocument, TopoViewerProps, TopoViewerToggles } from './core/types';
 import type { AggregateGroupDefinition, AttentionViewportPolicy, LinkGroupingOptions, LinkGroupingViewportPolicy } from './core/attention';
-import { validateTopoDocument } from './core/validation';
 
 type FocusQuery = NonNullable<NonNullable<TopoViewerProps['attention']>['query']>;
 type FocusMode = NonNullable<FocusQuery['mode']>;
@@ -35,15 +36,6 @@ type EmbedElement = HTMLElement & {
     topoviewerMounted?: string;
   };
 };
-
-function composeSpec(topology: TopoDocument, stylesheet: TopoDocument): TopoDocument {
-  return validateTopoDocument({
-    ...(topology || {}),
-    ...(stylesheet || {}),
-    graph: topology?.graph || {},
-    toggles: topology?.toggles || stylesheet?.toggles || []
-  }, 'TopoViewer embed YAML');
-}
 
 async function loadYaml(url: string): Promise<TopoDocument> {
   const response = await fetch(url, { credentials: 'same-origin' });
@@ -82,10 +74,6 @@ function initialLayerIds(layers: LayerDefinition[], selectedLayerIds: string[] |
 
   const availableLayerIds = new Set(layers.map((layer) => layer.id));
   return [...new Set(selectedLayerIds)].filter((layerId) => availableLayerIds.has(layerId));
-}
-
-function defaultToggles(document: TopoDocument): TopoViewerToggles {
-  return Object.fromEntries((document.toggles || []).map((toggle) => [toggle.id, toggle.default !== false]));
 }
 
 function graphObjectSets(document: TopoDocument) {
@@ -280,7 +268,7 @@ function EmbeddedTopoViewer({
   const toggleDefinitions = useMemo(() => viewerDocument.toggles || [], [viewerDocument]);
   const graphSets = useMemo(() => graphObjectSets(viewerDocument), [viewerDocument]);
   const [selectedLayerIds, setSelectedLayerIds] = useState(() => initialLayerIds(layers, initialSelectedLayerIds));
-  const [toggles, setToggles] = useState<TopoViewerToggles>(() => defaultToggles(viewerDocument));
+  const [toggles, setToggles] = useState<TopoViewerToggles>(() => defaultTopoViewerToggles(viewerDocument));
   const [controlsOpen, setControlsOpen] = useState(controlsDefaultOpen);
   const [attentionQuery, setAttentionQuery] = useState<FocusQuery | undefined>(() => effectiveAttention?.query);
   const attentionInteractive = effectiveAttention?.interactive === true;
@@ -422,7 +410,9 @@ async function mount(container: EmbedElement): Promise<void> {
     container.dataset.stylesheet ? loadYaml(container.dataset.stylesheet) : Promise.resolve({})
   ]);
 
-  const documentSpec = composeSpec(topology, stylesheet);
+  const documentSpec = composeTopoViewerDocument(topology, stylesheet, {
+    validationContext: 'TopoViewer embed YAML'
+  });
   const attention = parseAttention(container.dataset.attention);
   const selectedLayerIds = parseSelectedLayerIds(container.dataset.selectedLayerIds);
   const root = createRoot(container);

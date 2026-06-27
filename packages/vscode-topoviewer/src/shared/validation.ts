@@ -1,5 +1,6 @@
 import yaml from 'js-yaml';
 import {
+  composeTopoViewerDocument,
   lintTopoDocument,
   validateTopoDocument,
   type DiagramCallout,
@@ -51,15 +52,7 @@ function parseYamlObject(text: string, source: string, document: 'topology' | 's
 export function composeTopoDocument(state: WebviewState): TopoDocument {
   const topology = parseYamlObject(state.topologyText, 'Topology YAML', 'topology');
   const stylesheet = parseYamlObject(state.stylesheetText, 'Stylesheet YAML', 'stylesheet');
-  return {
-    ...stylesheet,
-    ...topology,
-    layout: topology.layout || stylesheet.layout,
-    limits: topology.limits || stylesheet.limits,
-    icons: stylesheet.icons || topology.icons,
-    labelFields: stylesheet.labelFields || topology.labelFields,
-    stylesheet: stylesheet.stylesheet || topology.stylesheet
-  } as TopoDocument;
+  return composeTopoViewerDocument(topology as TopoDocument, stylesheet as TopoDocument, { validate: false });
 }
 
 function firstValidationPath(message: string): string | undefined {

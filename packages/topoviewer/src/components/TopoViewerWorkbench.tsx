@@ -35,6 +35,7 @@ import {
   type FocusQuery
 } from '../core/attention';
 import { validateTopoDocument } from '../core/validation';
+import { composeTopoViewerDocument } from '../core/compose';
 import './workbench.css';
 
 type FocusKind = 'id' | 'changes';
@@ -59,12 +60,7 @@ function composeSpec(topologyText: string, stylesheetText: string): TopoDocument
   }
   const topology = yaml.load(topologyText) as TopoDocument;
   const stylesheet = yaml.load(stylesheetText) as TopoDocument;
-  return validateTopoDocument({
-    ...(topology || {}),
-    ...(stylesheet || {}),
-    graph: topology?.graph || {},
-    toggles: topology?.toggles || []
-  }, 'Workbench YAML');
+  return composeTopoViewerDocument(topology, stylesheet, { validationContext: 'Workbench YAML' });
 }
 
 function splitIds(value: string): string[] {
