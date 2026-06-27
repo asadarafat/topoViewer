@@ -4,7 +4,7 @@ import { Alert, AppBar, Box, Button, Chip, CircularProgress, IconButton, Paper, 
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 import LightModeIcon from '@mui/icons-material/LightMode';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
-import { TopoViewer, type TopoDocument, type TopoViewerNodePositionChange, type TopoViewerObjectClick } from 'topoviewer';
+import { TopoViewer, defaultTopoViewerToggles, type TopoDocument, type TopoViewerNodePositionChange, type TopoViewerObjectClick } from 'topoviewer';
 import type { Dispatch, RefObject, SetStateAction } from 'react';
 import type { Theme } from '@mui/material/styles';
 import type { TopoViewerWebviewHost } from '../shared/types';
@@ -38,6 +38,7 @@ interface PreviewPanelProps {
   hasExportBlockers: boolean;
   loading: boolean;
   previewRef: RefObject<HTMLDivElement>;
+  parityMode?: boolean;
   redoStack: DocumentTransaction[];
   redoTopology: () => void;
   selectedLayerIds: string[];
@@ -122,13 +123,15 @@ export function ResizeDivider({ clamp, defaultSplitPercent, maxSplitPercent, min
   );
 }
 
-export function PreviewPanel({ exportImage, exportTooltip, handleNodePositionChange, handleObjectClick, hasErrors, hasExportBlockers, loading, previewRef, redoStack, redoTopology, selectedLayerIds, selectedObjectIds, setSelectedObjects, undoStack, undoTopology, visibleDocument }: PreviewPanelProps) {
+export function PreviewPanel({ exportImage, exportTooltip, handleNodePositionChange, handleObjectClick, hasErrors, hasExportBlockers, loading, parityMode = false, previewRef, redoStack, redoTopology, selectedLayerIds, selectedObjectIds, setSelectedObjects, undoStack, undoTopology, visibleDocument }: PreviewPanelProps) {
   return (
-    <Paper className="topoviewer-vscode-preview" elevation={0} ref={previewRef}>
-      <Box className="topoviewer-vscode-preview-actions">
-        <Button size="small" disabled={!undoStack.length} onClick={undoTopology}>Undo</Button>
-        <Button size="small" disabled={!redoStack.length} onClick={redoTopology}>Redo</Button>
-      </Box>
+    <Paper className={`topoviewer-vscode-preview${parityMode ? ' topoviewer-vscode-preview--parity topoviewer-parity-theme' : ''}`} elevation={0} ref={previewRef}>
+      {parityMode ? null : (
+        <Box className="topoviewer-vscode-preview-actions">
+          <Button size="small" disabled={!undoStack.length} onClick={undoTopology}>Undo</Button>
+          <Button size="small" disabled={!redoStack.length} onClick={redoTopology}>Redo</Button>
+        </Box>
+      )}
       {loading && <CircularProgress />}
       {!loading && hasErrors && <Alert severity="error">Fix diagnostics before the preview can render.</Alert>}
       {!loading && !hasErrors && visibleDocument && (
@@ -138,8 +141,8 @@ export function PreviewPanel({ exportImage, exportTooltip, handleNodePositionCha
           selectedObjectIds={selectedObjectIds}
           exportDisabled={hasExportBlockers}
           exportTooltip={exportTooltip}
-          onExport={exportImage}
-          toggles={{ showRegions: true }}
+          onExport={parityMode ? undefined : exportImage}
+          toggles={parityMode ? defaultTopoViewerToggles(visibleDocument) : { showRegions: true }}
           onObjectClick={handleObjectClick}
           onPaneClick={() => setSelectedObjects([])}
           onNodePositionChange={handleNodePositionChange}

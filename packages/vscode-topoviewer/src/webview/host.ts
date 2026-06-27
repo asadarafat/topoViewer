@@ -68,6 +68,9 @@ export class BrowserHarnessHostAdapter implements TopoViewerWebviewHost {
   private readonly stateStoragePrefix = 'topoviewer.vscodeHarness.fixtureState.v1:';
 
   async loadInitialState(): Promise<WebviewState> {
+    const urlState = await this.loadStateFromUrl();
+    if (urlState) return urlState;
+
     const fixtures = await this.listFixtures();
     const activeFixtureId = window.localStorage.getItem(this.activeFixtureKey);
     const fixtureId = activeFixtureId && fixtures.some((fixture) => fixture.id === activeFixtureId)
@@ -122,8 +125,10 @@ export class BrowserHarnessHostAdapter implements TopoViewerWebviewHost {
       topologyText: await topology.text(),
       stylesheetText: await stylesheet.text()
     };
-    const savedState = this.loadSavedState(id);
-    window.localStorage.setItem(this.activeFixtureKey, id);
+    const savedState = this.isParityMode() ? undefined : this.loadSavedState(id);
+    if (!this.isParityMode()) {
+      window.localStorage.setItem(this.activeFixtureKey, id);
+    }
     return savedState
       ? {
         ...baseState,
@@ -176,6 +181,7 @@ export class BrowserHarnessHostAdapter implements TopoViewerWebviewHost {
   }
 
   saveState(state: WebviewState): void {
+    if (this.isParityMode()) return;
     const fixtureId = state.fixtureId;
     if (!fixtureId) return;
     try {
@@ -192,6 +198,41 @@ export class BrowserHarnessHostAdapter implements TopoViewerWebviewHost {
 
   private storageKey(fixtureId: string): string {
     return `${this.stateStoragePrefix}${fixtureId}`;
+  }
+
+  private isParityMode(): boolean {
+    return new URLSearchParams(window.location.search).get('parity') === '1';
+  }
+
+  private async loadStateFromUrl(): Promise<WebviewState | undefined> {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('parity') !== '1') return undefined;
+
+    const fixtureId = params.get('fixture');
+    if (fixtureId) {
+      return this.loadFixture(fixtureId);
+    }
+
+    const topologyPath = params.get('topology');
+    const stylesheetPath = params.get('stylesheet');
+    if (!topologyPath) return undefined;
+
+    const topologyUrl = new URL(topologyPath, window.location.href).toString();
+    const stylesheetUrl = stylesheetPath ? new URL(stylesheetPath, window.location.href).toString() : undefined;
+    const [topology, stylesheet] = await Promise.all([
+      fetch(topologyUrl),
+      stylesheetUrl ? fetch(stylesheetUrl) : Promise.resolve(undefined)
+    ]);
+    if (!topology.ok || (stylesheet && !stylesheet.ok)) {
+      throw new Error('Failed to load parity topology or stylesheet.');
+    }
+    return {
+      fixtureId: params.get('id') || 'renderer-parity',
+      topologyPath: topologyUrl,
+      stylesheetPath: stylesheetUrl,
+      topologyText: await topology.text(),
+      stylesheetText: stylesheet ? await stylesheet.text() : ''
+    };
   }
 
   private isCustomFixture(fixtureId: string): boolean {

@@ -110,6 +110,9 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
   const workspaceRef = useRef<HTMLDivElement | null>(null);
   const previewRef = useRef<HTMLDivElement | null>(null);
   const draftDirty = !!state && (draftTopologyText !== state.topologyText || draftStylesheetText !== state.stylesheetText);
+  const parityMode = host.kind === 'browser'
+    && typeof window !== 'undefined'
+    && new URLSearchParams(window.location.search).get('parity') === '1';
 
   useEffect(() => {
     let mounted = true;
@@ -250,7 +253,7 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
   const statusSummary = activeHasErrors
     ? diagnosticSummary
     : exportSummary || message || (draftDirty ? `YAML draft has unapplied changes. ${diagnosticSummary}` : diagnosticSummary);
-  const shellClassName = `topoviewer-vscode-shell${themeMode ? ` topoviewer-vscode-shell--${themeMode}` : ''}`;
+  const shellClassName = `topoviewer-vscode-shell${themeMode ? ` topoviewer-vscode-shell--${themeMode}` : ''}${parityMode ? ' topoviewer-vscode-shell--parity topoviewer-parity-theme' : ''}`;
   const nextThemeMode = themeMode === 'dark' ? 'light' : 'dark';
   const editorTheme = themeMode === 'light' ? 'light' : 'vs-dark';
   const editorValue = tab === 0 ? draftTopologyText : draftStylesheetText;
@@ -973,19 +976,25 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
 
   return (
     <Box className={shellClassName} data-color-mode={themeMode} sx={webviewShellSx}>
-      <ShellHeader host={host} nextThemeMode={nextThemeMode} onToggleThemeMode={onToggleThemeMode} themeMode={themeMode} />
+      {parityMode ? null : (
+        <ShellHeader host={host} nextThemeMode={nextThemeMode} onToggleThemeMode={onToggleThemeMode} themeMode={themeMode} />
+      )}
 
-      <Box
-        ref={workspaceRef}
-        className={`topoviewer-vscode-workspace${resizing ? ' topoviewer-vscode-workspace--resizing' : ''}`}
-        style={{ '--topoviewer-vscode-rail-width': `${splitPercent}%` } as CSSProperties}
-      >
-        <AuthoringRail {...authoringRailProps} />
+      {parityMode ? (
+        <PreviewPanel exportImage={exportImage} exportTooltip={exportTooltip} handleNodePositionChange={handleNodePositionChange} handleObjectClick={handleObjectClick} hasErrors={appliedHasErrors} hasExportBlockers={hasExportBlockers} loading={loading} parityMode previewRef={previewRef} redoStack={redoStack} redoTopology={redoTopology} selectedLayerIds={selectedLayerIds} selectedObjectIds={[]} setSelectedObjects={setSelectedObjects} undoStack={undoStack} undoTopology={undoTopology} visibleDocument={visibleDocument} />
+      ) : (
+        <Box
+          ref={workspaceRef}
+          className={`topoviewer-vscode-workspace${resizing ? ' topoviewer-vscode-workspace--resizing' : ''}`}
+          style={{ '--topoviewer-vscode-rail-width': `${splitPercent}%` } as CSSProperties}
+        >
+          <AuthoringRail {...authoringRailProps} />
 
-        <ResizeDivider clamp={clamp} defaultSplitPercent={defaultSplitPercent} maxSplitPercent={maxSplitPercent} minSplitPercent={minSplitPercent} setResizing={setResizing} setSplitPercent={setSplitPercent} splitPercent={splitPercent} updateSplitFromClientX={updateSplitFromClientX} />
+          <ResizeDivider clamp={clamp} defaultSplitPercent={defaultSplitPercent} maxSplitPercent={maxSplitPercent} minSplitPercent={minSplitPercent} setResizing={setResizing} setSplitPercent={setSplitPercent} splitPercent={splitPercent} updateSplitFromClientX={updateSplitFromClientX} />
 
-        <PreviewPanel exportImage={exportImage} exportTooltip={exportTooltip} handleNodePositionChange={handleNodePositionChange} handleObjectClick={handleObjectClick} hasErrors={appliedHasErrors} hasExportBlockers={hasExportBlockers} loading={loading} previewRef={previewRef} redoStack={redoStack} redoTopology={redoTopology} selectedLayerIds={selectedLayerIds} selectedObjectIds={selectedObjectIds(selectedObjects)} setSelectedObjects={setSelectedObjects} undoStack={undoStack} undoTopology={undoTopology} visibleDocument={visibleDocument} />
-      </Box>
+          <PreviewPanel exportImage={exportImage} exportTooltip={exportTooltip} handleNodePositionChange={handleNodePositionChange} handleObjectClick={handleObjectClick} hasErrors={appliedHasErrors} hasExportBlockers={hasExportBlockers} loading={loading} previewRef={previewRef} redoStack={redoStack} redoTopology={redoTopology} selectedLayerIds={selectedLayerIds} selectedObjectIds={selectedObjectIds(selectedObjects)} setSelectedObjects={setSelectedObjects} undoStack={undoStack} undoTopology={undoTopology} visibleDocument={visibleDocument} />
+        </Box>
+      )}
     </Box>
   );
 }

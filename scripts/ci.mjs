@@ -109,6 +109,9 @@ const laneDefinitions = {
     step('write Pages redirects', 'npm', ['run', 'pages:redirects']),
     step('smoke built docs site', 'npm', ['run', 'docs:smoke'])
   ],
+  'render-parity': [
+    step('check renderer surface parity', 'npm', ['run', 'render:parity'])
+  ],
   'test:topoviewer': [
     step('test TopoViewer', 'npm', ['test'])
   ],
@@ -133,6 +136,7 @@ const fullLaneOrder = [
   'schemas',
   'build',
   'docs',
+  'render-parity',
   'test:topoviewer',
   'test:harness',
   'perf:smoke',

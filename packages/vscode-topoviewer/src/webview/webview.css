@@ -170,6 +170,31 @@ body,
   min-height: 0;
 }
 
+.topoviewer-vscode-shell--parity {
+  display: block;
+  width: 936px;
+  height: 420px;
+  min-height: 420px;
+  overflow: hidden;
+  background: var(--topoviewer-bg);
+}
+
+.topoviewer-vscode-preview--parity {
+  width: 936px;
+  height: 420px;
+  min-height: 420px;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+}
+
+.topoviewer-vscode-preview--parity > .topoviewer {
+  width: 936px;
+  height: 420px;
+  min-height: 420px;
+  border-radius: 0;
+}
+
 .topoviewer-vscode-preview .react-flow__node.selected {
   filter: drop-shadow(0 0 0.6rem color-mix(in srgb, var(--topoviewer-accent, #1976d2) 46%, transparent));
 }

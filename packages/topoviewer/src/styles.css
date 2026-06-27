@@ -24,6 +24,33 @@
   --topoviewer-label-shadow: 0 8px 18px rgba(0, 0, 0, 0.36);
 }
 
+.topoviewer-parity-theme {
+  --topoviewer-bg: #0b1118;
+  --topoviewer-bg-radial-a: rgba(25, 118, 210, 0.08);
+  --topoviewer-bg-radial-b: rgba(76, 175, 80, 0.06);
+  --topoviewer-bg-end: #0b1118;
+  --topoviewer-fg: #e7edf4;
+  --topoviewer-fg-strong: #f8fafc;
+  --topoviewer-fg-muted: #9db2cf;
+  --topoviewer-panel-bg: rgba(17, 24, 39, 0.94);
+  --topoviewer-surface-bg: rgba(15, 23, 42, 0.9);
+  --topoviewer-chip-bg: rgba(30, 41, 59, 0.9);
+  --topoviewer-chip-hover-bg: rgba(66, 165, 245, 0.18);
+  --topoviewer-button-bg: rgba(30, 41, 59, 0.88);
+  --topoviewer-border: rgba(148, 163, 184, 0.28);
+  --topoviewer-border-strong: rgba(148, 163, 184, 0.38);
+  --topoviewer-accent: #42a5f5;
+  --topoviewer-edge-default: rgba(66, 165, 245, 0.78);
+  --topoviewer-region-label-bg: rgba(17, 24, 39, 0.94);
+  --topoviewer-region-label-fg: #f8fafc;
+  --topoviewer-edge-label-bg: rgba(17, 24, 39, 0.92);
+  --topoviewer-edge-label-border: rgba(148, 163, 184, 0.36);
+  --topoviewer-node-shadow: 0 1px 4px rgba(0, 0, 0, 0.26);
+  --topoviewer-panel-shadow: 0 14px 34px rgba(0, 0, 0, 0.28);
+  --topoviewer-label-shadow: 0 8px 18px rgba(0, 0, 0, 0.32);
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
 .topoviewer {
   width: 100%;
   height: 100%;
@@ -33,6 +60,13 @@
     radial-gradient(circle at 76% 72%, var(--topoviewer-bg-radial-b), transparent 30%),
     linear-gradient(135deg, var(--topoviewer-bg) 0%, var(--topoviewer-bg) 52%, var(--topoviewer-bg-end) 100%);
   color: var(--topoviewer-fg);
+}
+
+.topoviewer,
+.topoviewer *,
+.topoviewer *::before,
+.topoviewer *::after {
+  box-sizing: border-box;
 }
 
 .topoviewer-embed-shell {
@@ -509,6 +543,7 @@
   background: var(--topoviewer-region-label-bg);
   font-size: 10px;
   font-weight: 720;
+  line-height: 1.5;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   white-space: nowrap;
@@ -633,6 +668,7 @@
   border: 1px solid var(--topoviewer-edge-label-border);
   font-size: 10px;
   font-weight: 650;
+  line-height: 1.5;
   box-shadow: var(--topoviewer-label-shadow);
 }
 
