@@ -19,21 +19,20 @@ runtime APIs matter.
 
 ![TopoViewer YAML to rendered network diagram](assets/topoviewer-yaml-to-diagram.png)
 
-## Explore
+## Choose A Path
 
-- [Why TopoViewer?](topoviewer/why-topoviewer.md)
-- [YAML to diagram](topoviewer/yaml-to-diagram/index.md)
-- [Real network demo](topoviewer/real-network-demo.md)
-- [Integration roadmap](topoviewer/integration-roadmap.md)
-- [Authoring model](topoviewer/authoring.md)
-- [Reference model](topoviewer/reference-model.md)
-- [Stylesheet](topoviewer/stylesheet.md)
-- [Topology attention](topoviewer/attention.md)
-- [MkDocs embed](topoviewer/mkdocs.md)
-- [Zensical adapter](topoviewer/zensical.md)
-- [Production hardening](topoviewer/production.md)
+| Need | Start here |
+|---|---|
+| Render your first YAML diagram | [First topology](topoviewer/getting-started.md) |
+| Learn the product position | [Why TopoViewer](topoviewer/why-topoviewer.md) |
+| Style nodes, links, paths, and regions | [Style a topology](topoviewer/style-a-topology.md) |
+| Author interactively | [Browser harness](topoviewer/browser-harness.md) |
+| Embed in documentation | [MkDocs](topoviewer/mkdocs.md) or [Zensical](topoviewer/zensical.md) |
+| Embed in React | [React usage](topoviewer/react.md) |
+| Debug a broken render | [Debug rendering](topoviewer/debugging.md) |
+| Check accepted YAML and API contracts | [YAML schemas](topoviewer/schemas.md), [stylesheet](topoviewer/stylesheet.md), and [TypeScript API](topoviewer/api-reference.md) |
 
-## Surfaces
+## Integration Surfaces
 
 TopoViewer is designed to be used as a library, a documentation embed, and an
 authoring surface.
@@ -59,3 +58,7 @@ authoring surface.
 The feature examples are generated from
 `packages/topoviewer/content/examples`. Each example is both documentation
 and a Playwright-backed test fixture.
+
+- [Feature examples](topoviewer/reference/graph/index.md)
+- [Real network demo](topoviewer/real-network-demo.md)
+- [CLOS layout examples](topoviewer/reference/layout/index.md)

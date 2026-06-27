@@ -20,6 +20,19 @@ A TopoViewer document may be split into topology and stylesheet YAML, or compose
 
 ## Graph Objects
 
+Common graph entity fields:
+
+| Field | Values | Use |
+|---|---|---|
+| `id` | string | Stable object ID. Required for graph objects. |
+| `name` | string | Human-readable object name. Usually used by `labelFields`. |
+| `label` | string | Single fallback label. Prefer `name` plus `labelFields` for new content. |
+| `labels` | object of string, number, or boolean values | Low-cardinality classifier fields for selectors and filtering. |
+| `data` | object | Arbitrary facts such as metrics, severity, inventory IDs, counters, or addresses. |
+| `layers` | string array | Visibility layers that include this object. |
+| `style` | object | Inline style override. Prefer reusable stylesheet rules for shared behavior. |
+| `icon` | string | Icon key override for this object. |
+
 ### Node
 
 A `node` is a semantic thing: router, switch, service endpoint, application, site, tenant, cloud resource, or logical function. Nodes can have `parent` when the child is contained inside another node.
@@ -27,6 +40,12 @@ A `node` is a semantic thing: router, switch, service endpoint, application, sit
 Required: `id`
 
 Recommended: `name`, `labels`, `layers`
+
+| Field | Values | Use |
+|---|---|---|
+| `position` | `[x, y]` or `{ x, y }` | Manual or pinned node position. |
+| `parent` | node ID | Places a child node inside a parent node when child rendering is enabled. |
+| `pins` | array of pins | Named attachment points for callouts or connectors. |
 
 ### Link
 
@@ -37,6 +56,12 @@ Required: `id`, `source`, `target`
 Recommended: `name`, `labels`, `layers`
 
 `parent` on a link means the child link is visually carried by another link. The child keeps its real `source` and `target`, but renders as a lane inside the parent link.
+
+| Field | Values | Use |
+|---|---|---|
+| `source` | node ID | Required source endpoint. |
+| `target` | node ID | Required target endpoint. |
+| `parent` | link ID | Carries this link inside another link as a child lane. |
 
 ### Path
 
@@ -68,19 +93,72 @@ A stitched child path renders as:
 - Lane across every parent path segment.
 - Stub from the last node of the parent path to the child target.
 
+| Field | Values | Use |
+|---|---|---|
+| `sequence` | node ID array | Ordered node traversal for a parent or standalone path. |
+| `source` | node ID | Child path source when stitching into a parent path. |
+| `target` | node ID | Child path target when stitching into a parent path. |
+| `parent` | path ID | Parent sequence that carries the child path. |
+
 ### Region
 
 A `region` is membership and scope: AS, IGP area, site, rack, cloud region, tenant, failure domain, or ownership boundary.
 
 `members` can contain node IDs and region IDs. `parent` creates region hierarchy.
 
+| Field | Values | Use |
+|---|---|---|
+| `members` | node or region ID array | Objects enclosed by the region hull. |
+| `parent` | region ID | Nests this region inside another region. |
+| `padding` | number | Uniform hull padding around members. |
+| `paddingX`, `paddingY` | number | Horizontal and vertical hull padding. |
+| `headerPadding` | number | Extra top space for labels or headers. |
+| `nodeWidth`, `nodeHeight` | number | Fallback member size when a node cannot be measured. |
+| `minWidth`, `minHeight` | number | Minimum hull size. |
+| `parentPadding`, `parentPaddingX`, `parentPaddingY` | number | Padding used when nesting regions. |
+
 ### Shape
 
 A `shape` is a decorative or explanatory primitive. Shapes are not graph facts. Use them for geometry, backgrounds, callout frames, device silhouettes, and slide/document composition.
 
+| Field | Values | Use |
+|---|---|---|
+| `type` | geometry shape name | Shape geometry. Accepted values include `circle`, `triangle`, `square`, `rectangle`, `ellipse`, `cube`, `sphere`, and other geometry primitives. |
+| `position` | `[x, y]` or `{ x, y }` | Shape position. |
+| `size` | `[width, height]` or `{ width, height }` | Shape size. |
+| `rotation` | number | Rotation in degrees. |
+| `locked` | boolean | Prevents authoring tools from moving the shape. |
+| `pins` | array of pins | Named attachment points. |
+
 ### Callout
 
 A `callout` is explanatory text with optional leader line. Callout text supports constrained Markdown. Callouts can target graph objects, shapes, pins, or absolute positions.
+
+| Field | Values | Use |
+|---|---|---|
+| `position` | `[x, y]` or `{ x, y }` | Callout position. |
+| `size` | `[width, height]` or `{ width, height }` | Callout box size. |
+| `title` | string | Optional title line. |
+| `body` | string or string array | Plain or markdown-compatible body text. |
+| `markdown` | string or string array | Explicit markdown body. |
+| `align` | `left`, `center`, `right` | Text alignment. |
+| `source`, `target` | object ID | Optional leader endpoints. |
+| `sourcePin`, `targetPin` | pin ID | Optional named pin endpoints. |
+| `sourcePosition`, `targetPosition` | `[x, y]` or `{ x, y }` | Absolute leader endpoints. |
+| `leader` | style object | Leader line style. |
+| `locked` | boolean | Prevents authoring tools from moving the callout. |
+| `pins` | array of pins | Named attachment points. |
+
+### Pins And Connectors
+
+| Field | Values | Use |
+|---|---|---|
+| `pin.id` | string | Named attachment point. |
+| `pin.position` | `[x, y]` or `{ x, y }` | Pin position relative to its owner. |
+| `pin.x`, `pin.y` | number | Alternate pin coordinate fields. |
+| `connector.source`, `connector.target` | object ID | Visual connector endpoints. |
+| `connector.sourcePin`, `connector.targetPin` | pin ID | Named endpoint pins. |
+| `connector.sourcePosition`, `connector.targetPosition` | `[x, y]` or `{ x, y }` | Absolute connector endpoints. |
 
 ## Layers
 
@@ -97,6 +175,11 @@ Layers are author-controlled visibility groups. They are not fixed to networking
 
 Objects may belong to multiple layers.
 
+| Field | Values | Use |
+|---|---|---|
+| `id` | string | Stable layer ID referenced by objects and render controls. |
+| `name` | string | Reader-facing layer name. |
+
 ## Layout
 
 `layout.mode` controls node placement:
@@ -106,6 +189,35 @@ Objects may belong to multiple layers.
 | `manual` | Uses authored node positions. |
 | `force` | Runs deterministic force layout from authored seed positions. |
 | `clos` | Infers stage-constrained CLOS-like rows or columns from graph structure, directed hierarchy, endpoint counts, and optional hints. |
+
+Common layout fields:
+
+| Field | Values | Use |
+|---|---|---|
+| `mode` | `manual`, `force`, `clos` | Selects the layout engine. |
+| `width`, `height` | number | Viewport coordinate space used by layout and examples. |
+| `iterations` | number | Force layout iteration count. |
+| `linkDistance` | number | Force layout preferred edge length. |
+| `chargeStrength` | number | Force layout repulsion strength. |
+| `collideRadius` | number | Force layout collision radius. |
+| `centerStrength` | number | Force layout centering force. |
+| `clos` | object | Generic CLOS layout options. |
+| `inferLabelRole` | mapping | Compatibility shortcut for CLOS role overrides. Prefer `layout.clos.inferLabelRole`. |
+
+Generic CLOS options:
+
+| Field | Values | Use |
+|---|---|---|
+| `direction` | `topToBottom`, `bottomToTop`, `leftToRight`, `rightToLeft` | Stage direction. |
+| `stageCount` | number or `auto` | Fixed or inferred stage count. |
+| `maxStages` | number | Safety cap for inferred stages. |
+| `stageKey` | label/data path or `auto` | Explicit stage field. |
+| `stageOrder` | string array | Authored stage order. |
+| `inferLabelRole` | mapping or mapping array | Optional classifier-to-stage override. Not enabled by default. |
+| `groupKey` | label/data path or `auto` | Field used to group nodes along the cross axis. |
+| `preservePinned` | boolean | Preserve positions for pinned nodes. |
+| `pinnedNodeIds` | string array | Node IDs whose positions should be preserved. |
+| `stageGap`, `nodeGap`, `groupGap` | number | Spacing controls. |
 
 `clos` is generic. It does not require data-center-specific roles. Use
 `layout.inferLabelRole` when labels/data should explicitly override fuzzy
@@ -132,6 +244,57 @@ Practical rules:
 - Use `force` for organic meshes and cyclic graphs where staged rows would imply
   a false hierarchy.
 
+## Toggles
+
+Top-level `toggles` define reader-visible switches. Runtime `TopoViewerToggles`
+control built-in viewer behavior.
+
+| Field | Values | Use |
+|---|---|---|
+| `toggles[].id` | string | Stable toggle ID. |
+| `toggles[].name` | string | Reader-facing toggle name. |
+| `toggles[].default` | boolean | Initial toggle state. |
+| `showRegions` | boolean | Runtime toggle for region hull visibility. |
+| `showChildNodesInsideParents` | boolean | Runtime toggle for parent-child node rendering. |
+| `showServicesInsideNodes` | boolean | Runtime toggle for service-like child content. |
+| `showEdgeLabels` | boolean | Runtime toggle for edge labels. |
+
+## Limits
+
+Renderer limits fail early before a diagram becomes unsafe or unusable.
+
+| Field | Values | Use |
+|---|---|---|
+| `maxNodes` | number | Maximum graph nodes. |
+| `maxEdges` | number | Maximum rendered links/path segments. |
+| `maxPathSegments` | number | Maximum path segments. |
+| `maxLabels` | number | Maximum rendered labels. |
+| `maxCallouts` | number | Maximum diagram callouts. |
+| `maxShapes` | number | Maximum diagram shapes. |
+| `maxImageBytes` | number | Maximum embedded image/SVG payload size. |
+
+## Icons
+
+Icons are reusable named assets referenced by node style keys or object-level
+`icon`.
+
+| Field | Values | Use |
+|---|---|---|
+| `glyph` | string | Text glyph fallback. |
+| `fill` | color | Default icon fill or node background fallback. |
+| `stroke` | color | Default icon stroke or node border fallback. |
+| `svg` | inline SVG string | Inline vector icon. Subject to safety checks. |
+| `src` | URL or path | External image source. Subject to safety checks. |
+| `alt` | string | Accessible description. |
+
+## Stylesheet
+
+| Field | Values | Use |
+|---|---|---|
+| `stylesheet[].selector` | selector string | Matches object kind, ID, labels, or data. |
+| `stylesheet[].style` | style object | Visual keys from the canonical style registry. |
+| `labelFields` | string array | Ordered field names used to derive labels. |
+
 ## Labels
 
 `labels` are classifier tags used by selectors and filters. Keep labels short, stable, and low-cardinality.
@@ -152,6 +315,26 @@ Avoid putting high-cardinality facts in `labels`; use `data` instead.
 `data` is arbitrary domain metadata. Use it for metrics, counts, IDs, addresses, service counts, SRLGs, circuit IDs, and external references.
 
 The renderer preserves `data`, but style rules should not depend on every possible data field. Use stable labels for styling.
+
+## Attention
+
+Attention is optional. It gives hosts a declarative way to focus, dim,
+aggregate, group, or prioritize labels in dense topologies.
+
+| Field | Values | Use |
+|---|---|---|
+| `attention.query` | focus query | Default focus query for the document. |
+| `attention.interactive` | boolean | Enables interactive focus behavior. |
+| `attention.clickMode` | focus mode | Focus mode used when clicking objects. |
+| `attention.aggregate.groups` | aggregate group definitions | Region, parent, or label groups that can collapse into summaries. |
+| `attention.aggregate.expandedGroupIds` | string array | Aggregate groups expanded by default. |
+| `attention.aggregate.expandOnClick` | boolean | Expand collapsed groups when clicked. |
+| `attention.aggregate.viewport` | viewport policy | Optional zoom/viewport policy for aggregate behavior. |
+| `attention.links.grouping` | link grouping options | Summarize parallel links by endpoint, layer, or authored keys. |
+
+Keep attention defaults practical. Object focus with dimmed context is the
+default authoring expectation; more advanced aggregate and link grouping should
+be declared only when the graph is dense enough to need it.
 
 ## Parent Semantics
 

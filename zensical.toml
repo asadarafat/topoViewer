@@ -20,27 +20,40 @@ extra_javascript = [
 # BEGIN GENERATED ZENSICAL NAV
 nav = [
   { "Overview" = "index.md" },
-  { "Product" = [
+  { "Get Started" = [
+    { "First Topology" = "topoviewer/getting-started.md" },
+    { "Browser Harness" = "topoviewer/browser-harness.md" },
+    { "MkDocs Embed" = "topoviewer/mkdocs.md" },
+    { "React Embed" = "topoviewer/react.md" }
+  ] },
+  { "Concepts" = [
     { "Why TopoViewer" = "topoviewer/why-topoviewer.md" },
     { "YAML to Diagram" = "topoviewer/yaml-to-diagram/index.md" },
-    { "Integration Roadmap" = "topoviewer/integration-roadmap.md" }
-  ] },
-  { "Model" = [
     { "Authoring" = "topoviewer/authoring.md" },
-    { "Reference Model" = "topoviewer/reference-model.md" },
+    { "Glossary" = "topoviewer/glossary.md" }
+  ] },
+  { "Guides" = [
+    { "Style a Topology" = "topoviewer/style-a-topology.md" },
     { "Stylesheet" = "topoviewer/stylesheet.md" },
     { "Attention" = "topoviewer/attention.md" },
-    { "YAML Schemas" = "topoviewer/schemas.md" }
+    { "Layout" = "topoviewer/layout-guide.md" },
+    { "Validate YAML" = "topoviewer/validate-yaml.md" },
+    { "Debug Rendering" = "topoviewer/debugging.md" }
   ] },
-  { "Integration" = [
-    { "React" = "topoviewer/react.md" },
-    { "MkDocs" = "topoviewer/mkdocs.md" },
-    { "Zensical" = "topoviewer/zensical.md" },
+  { "Reference" = [
+    { "Reference Model" = "topoviewer/reference-model.md" },
+    { "YAML Schemas" = "topoviewer/schemas.md" },
+    { "TypeScript API" = "topoviewer/api-reference.md" },
     { "Monorepo" = "topoviewer/monorepo.md" }
+  ] },
+  { "Integrations" = [
+    { "Zensical" = "topoviewer/zensical.md" },
+    { "Integration Roadmap" = "topoviewer/integration-roadmap.md" }
   ] },
   { "Production" = [
     { "Hardening" = "topoviewer/production.md" },
-    { "Release" = "topoviewer/release.md" }
+    { "Release" = "topoviewer/release.md" },
+    { "Documentation Standard" = "topoviewer/docs-standard.md" }
   ] },
   { "Examples" = [
     { "Graph" = "topoviewer/reference/graph/index.md" },
