@@ -130,7 +130,8 @@ class TopoViewerPreviewPanel {
       await this.postState();
     }
     if (message.type === 'openDocs') {
-      await vscode.env.openExternal(vscode.Uri.parse(`https://asadarafat.github.io/topoviewer/docs/mkdocs/${message.target || ''}`));
+      const target = (message.target || 'docs/zensical/').replace(/^\/+/, '');
+      await vscode.env.openExternal(vscode.Uri.parse(`https://asadarafat.github.io/topoviewer/${target}`));
     }
     if (isExportViewportMessage(message)) {
       await this.saveExport(message);

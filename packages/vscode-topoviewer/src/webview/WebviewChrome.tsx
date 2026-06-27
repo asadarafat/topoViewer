@@ -3,7 +3,7 @@ import '../../../topoviewer/src/styles.css';
 import { Alert, AppBar, Box, Button, Chip, CircularProgress, IconButton, Paper, Toolbar, Tooltip, Typography } from '@mui/material';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 import LightModeIcon from '@mui/icons-material/LightMode';
-import MenuBookIcon from '@mui/icons-material/MenuBook';
+import LaunchIcon from '@mui/icons-material/Launch';
 import { TopoViewer, defaultTopoViewerToggles, type TopoDocument, type TopoViewerNodePositionChange, type TopoViewerObjectClick } from 'topoviewer';
 import type { Dispatch, RefObject, SetStateAction } from 'react';
 import type { Theme } from '@mui/material/styles';
@@ -76,10 +76,16 @@ export function ShellHeader({ host, nextThemeMode, onToggleThemeMode, themeMode 
         <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>TopoViewer</Typography>
         <Chip size="small" label={host.kind === 'browser' ? 'Browser harness' : 'VS Code webview'} color={host.kind === 'browser' ? 'info' : 'primary'} />
         <Box sx={{ flex: 1 }} />
-        <Tooltip title="Open TopoViewer docs">
-          <IconButton aria-label="Open TopoViewer docs" color="inherit" size="small" onClick={() => host.openDocs('topoviewer/integration-roadmap/')}>
-            <MenuBookIcon fontSize="small" />
-          </IconButton>
+        <Tooltip title="Open TopoViewer Zensical docs">
+          <Button
+            aria-label="Open TopoViewer Zensical docs"
+            color="inherit"
+            endIcon={<LaunchIcon fontSize="small" />}
+            size="small"
+            onClick={() => host.openDocs('docs/zensical/')}
+          >
+            Docs
+          </Button>
         </Tooltip>
         {themeMode && onToggleThemeMode && (
           <Tooltip title={`Switch to ${nextThemeMode} mode`}>
