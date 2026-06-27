@@ -1,0 +1,401 @@
+#!/usr/bin/env node
+
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import yaml from 'js-yaml';
+import { sourceFileFor } from './lib/content-examples.mjs';
+
+const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const contentPagesRoot = path.join(repoRoot, 'packages/topoviewer/content/pages');
+const contentExamplesRoot = path.join(repoRoot, 'packages/topoviewer/content/examples');
+const docsRoot = path.join(repoRoot, 'docs');
+const packageRoot = path.join(repoRoot, 'packages/topoviewer');
+
+const errors = [];
+
+function readText(filePath) {
+  return fs.readFileSync(filePath, 'utf8');
+}
+
+function readYaml(filePath) {
+  return yaml.load(readText(filePath)) || {};
+}
+
+function relative(filePath) {
+  return path.relative(repoRoot, filePath).split(path.sep).join(path.posix.sep);
+}
+
+function fail(message) {
+  errors.push(message);
+}
+
+function assertFile(filePath, label = relative(filePath)) {
+  if (!fs.existsSync(filePath)) {
+    fail(`Missing ${label}`);
+    return false;
+  }
+  return true;
+}
+
+function listMarkdownFiles(root) {
+  if (!fs.existsSync(root)) return [];
+  const files = [];
+  for (const entry of fs.readdirSync(root, { withFileTypes: true })) {
+    const absolute = path.join(root, entry.name);
+    if (entry.isDirectory()) {
+      files.push(...listMarkdownFiles(absolute));
+    } else if (entry.isFile() && entry.name.endsWith('.md')) {
+      files.push(absolute);
+    }
+  }
+  return files;
+}
+
+function checkRequiredPages() {
+  const required = [
+    'getting-started.md',
+    'style-a-topology.md',
+    'browser-harness.md',
+    'validate-yaml.md',
+    'debugging.md',
+    'layout-guide.md',
+    'api-reference.md',
+    'glossary.md',
+    'docs-standard.md'
+  ];
+
+  for (const page of required) {
+    assertFile(path.join(contentPagesRoot, page), `canonical docs page ${page}`);
+  }
+}
+
+function checkDocsStandard() {
+  const filePath = path.join(contentPagesRoot, 'docs-standard.md');
+  if (!assertFile(filePath)) return;
+  const text = readText(filePath);
+  for (const phrase of [
+    'Required Artifacts',
+    'Page Jobs',
+    'Example README Contract',
+    'Wording Rules',
+    'supported',
+    'experimental',
+    'roadmap'
+  ]) {
+    if (!text.includes(phrase)) {
+      fail(`docs-standard.md must describe ${phrase}`);
+    }
+  }
+}
+
+function checkCatalogDuplicateKeys() {
+  const catalogFile = path.join(contentExamplesRoot, 'catalog.yaml');
+  if (!assertFile(catalogFile)) return;
+  const lines = readText(catalogFile).split('\n');
+  let currentId = undefined;
+  let topLevelKeys = new Map();
+
+  function flush() {
+    if (!currentId) return;
+    for (const [key, occurrences] of topLevelKeys.entries()) {
+      if (occurrences.length > 1) {
+        fail(`Example ${currentId} has duplicate catalog key "${key}" at lines ${occurrences.join(', ')}`);
+      }
+    }
+    topLevelKeys = new Map();
+  }
+
+  lines.forEach((line, index) => {
+    const idMatch = line.match(/^  - id:\s*(.+)\s*$/);
+    if (idMatch) {
+      flush();
+      currentId = idMatch[1].replace(/^"|"$/g, '');
+      topLevelKeys = new Map([['id', [index + 1]]]);
+      return;
+    }
+
+    if (!currentId) return;
+    const keyMatch = line.match(/^    ([A-Za-z0-9_-]+):/);
+    if (!keyMatch) return;
+    const key = keyMatch[1];
+    const occurrences = topLevelKeys.get(key) || [];
+    occurrences.push(index + 1);
+    topLevelKeys.set(key, occurrences);
+  });
+  flush();
+}
+
+function checkExampleSources() {
+  const catalog = readYaml(path.join(contentExamplesRoot, 'catalog.yaml'));
+  const requiredFiles = ['README.md', 'topology.yaml', 'stylesheet.yaml', 'expected.yaml'];
+  for (const example of catalog.examples || []) {
+    for (const fileName of requiredFiles) {
+      const filePath = sourceFileFor(contentExamplesRoot, example, fileName);
+      assertFile(filePath, `${example.id} ${fileName}`);
+    }
+    if (!example.summary || String(example.summary).trim().length < 24) {
+      fail(`Example ${example.id} needs a clear catalog summary.`);
+    }
+  }
+}
+
+function isNodeStyleSelector(selector) {
+  return typeof selector === 'string' && /^node(\b|\[|\.|#|$)/.test(selector.trim());
+}
+
+function checkExampleNodeDimensions() {
+  const catalog = readYaml(path.join(contentExamplesRoot, 'catalog.yaml'));
+  for (const example of catalog.examples || []) {
+    const stylesheetFile = sourceFileFor(contentExamplesRoot, example, 'stylesheet.yaml');
+    if (!fs.existsSync(stylesheetFile)) continue;
+    const stylesheet = readYaml(stylesheetFile);
+    for (const [index, rule] of (stylesheet.stylesheet || []).entries()) {
+      const style = rule.style || {};
+      if (!isNodeStyleSelector(rule.selector)) continue;
+      if (style.width === undefined || style.height === undefined) continue;
+      if (Number(style.width) !== Number(style.height)) continue;
+      const shape = style.shape === undefined ? 'rectangle' : String(style.shape);
+      if (shape === 'rectangle') {
+        fail(`${example.id} stylesheet rule ${index} uses rectangle node dimensions ${style.width}x${style.height}; use non-equal dimensions or an explicit square/circle shape.`);
+      }
+    }
+  }
+}
+
+function styleKeysFromRegistry() {
+  const styleDefaults = readText(path.join(packageRoot, 'src/core/styleDefaults.ts'));
+  const keys = new Set();
+  const matcher = /def\(\s*\[[^\]]+\]\s*,\s*'([^']+)'/g;
+  let match;
+  while ((match = matcher.exec(styleDefaults)) !== null) {
+    keys.add(match[1]);
+  }
+  return [...keys].sort();
+}
+
+function checkStylesheetCoverage() {
+  const stylesheetFile = path.join(contentPagesRoot, 'stylesheet.md');
+  if (!assertFile(stylesheetFile)) return;
+  const text = readText(stylesheetFile);
+  const missing = styleKeysFromRegistry().filter((key) => !new RegExp(`\\\`${key}\\\``).test(text));
+  if (missing.length) {
+    fail(`stylesheet.md is missing style registry keys: ${missing.join(', ')}`);
+  }
+}
+
+function exportedNames() {
+  const indexText = readText(path.join(packageRoot, 'src/index.ts'));
+  const names = new Set();
+
+  for (const match of indexText.matchAll(/export\s+\{\s*([^}]+)\s*\}/g)) {
+    for (const raw of match[1].split(',')) {
+      const name = raw.trim().replace(/\s+as\s+.+$/, '');
+      if (name) names.add(name);
+    }
+  }
+
+  for (const match of indexText.matchAll(/export\s+type\s+\{\s*([^}]+)\s*\}/g)) {
+    for (const raw of match[1].split(',')) {
+      const name = raw.trim().replace(/\s+as\s+.+$/, '');
+      if (name) names.add(name);
+    }
+  }
+
+  return [...names].sort();
+}
+
+function checkApiCoverage() {
+  const apiFile = path.join(contentPagesRoot, 'api-reference.md');
+  if (!assertFile(apiFile)) return;
+  const text = readText(apiFile);
+  const ignoredTypeGroups = new Set([
+    'AttentionGraphInput',
+    'AttentionIndexedObject',
+    'AttentionObjectByKind',
+    'AttentionObjectKind',
+    'FocusDependencyDirection',
+    'FocusDependencyQuery',
+    'FocusChangeQuery',
+    'FocusQueryErrorCode',
+    'AttentionViewportPolicy',
+    'AggregateGroupDefinition',
+    'AggregateGroupKind',
+    'AggregateGroupSummary',
+    'DeriveAggregateGraphOptions',
+    'LabelAggregateGroupDefinition',
+    'LinkAggregateGroupSummary',
+    'LinkGroupingKey',
+    'LinkGroupingOptions',
+    'LinkGroupingViewportPolicy',
+    'ParentAggregateGroupDefinition',
+    'RegionAggregateGroupDefinition',
+    'AttentionLabelPriority',
+    'AttentionPresentation',
+    'AttentionPresentationState',
+    'AttentionScore',
+    'AttentionScoringOptions',
+    'StaticExportOptions',
+    'StaticPdfExportOptions',
+    'ComposeTopoViewerDocumentOptions',
+    'LintIssue',
+    'LintOptions',
+    'ClosLayoutDiagnostic',
+    'NodeShapePoint',
+    'ParsedNodeShapePoints',
+    'NodeBorderStyle',
+    'NodeLabelTextOverflow',
+    'NodeLabelTextWrap'
+  ]);
+  const missing = exportedNames().filter((name) => !ignoredTypeGroups.has(name) && !new RegExp(`\\\`${name}\\\``).test(text));
+  if (missing.length) {
+    fail(`api-reference.md is missing exported names: ${missing.join(', ')}`);
+  }
+}
+
+function withoutFencedCode(markdown) {
+  return markdown.replace(/```[\s\S]*?```/g, '');
+}
+
+function checkLocalLinks() {
+  for (const filePath of listMarkdownFiles(contentPagesRoot)) {
+    if (relative(filePath).includes('/_fragments/')) continue;
+    const text = withoutFencedCode(readText(filePath));
+    for (const match of text.matchAll(/\[[^\]]+\]\(([^)]+)\)/g)) {
+      const target = match[1].split('#')[0];
+      if (!target || /^[a-z]+:/i.test(target) || target.startsWith('#')) continue;
+      if (target.startsWith('http')) continue;
+      if (target.startsWith('topoviewer/')) continue;
+      const resolved = path.resolve(path.dirname(filePath), target);
+      const generatedResolved = path.resolve(docsRoot, 'topoviewer', target);
+      const candidates = [
+        resolved,
+        `${resolved}.md`,
+        path.join(resolved, 'index.md'),
+        generatedResolved,
+        `${generatedResolved}.md`,
+        path.join(generatedResolved, 'index.md'),
+        path.resolve(docsRoot, target),
+        path.resolve(docsRoot, `${target}.md`),
+        path.resolve(docsRoot, target, 'index.md')
+      ];
+      if (!candidates.some((candidate) => fs.existsSync(candidate))) {
+        fail(`${relative(filePath)} has a broken local link: ${target}`);
+      }
+    }
+  }
+}
+
+function checkGeneratedCriticalPages() {
+  const critical = [
+    'docs/index.md',
+    'docs/topoviewer/getting-started.md',
+    'docs/topoviewer/browser-harness.md',
+    'docs/topoviewer/api-reference.md',
+    'docs/topoviewer/docs-standard.md',
+    'docs/topoviewer/reference/graph/index.md'
+  ];
+  for (const page of critical) {
+    assertFile(path.join(repoRoot, page), page);
+  }
+
+  const graphIndex = path.join(docsRoot, 'topoviewer/reference/graph/index.md');
+  if (fs.existsSync(graphIndex)) {
+    const text = readText(graphIndex);
+    for (const heading of ['What This Demonstrates', 'Expected Result', 'What To Inspect', 'Use When']) {
+      if (!text.includes(heading)) {
+        fail(`Generated graph examples page is missing "${heading}" sections.`);
+      }
+    }
+  }
+}
+
+function collectNavTargets(navItems, targets = new Set()) {
+  for (const item of navItems || []) {
+    if (typeof item === 'string') {
+      targets.add(item);
+      continue;
+    }
+    if (!item || typeof item !== 'object') continue;
+    for (const value of Object.values(item)) {
+      if (typeof value === 'string') {
+        targets.add(value);
+      } else if (Array.isArray(value)) {
+        collectNavTargets(value, targets);
+      }
+    }
+  }
+  return targets;
+}
+
+function isAllowedUnnavedDocsPage(relativePath) {
+  return [
+    /^topoviewer\/examples\/.+\/README\.md$/,
+    /^topoviewer\/reference\/[^/]+\/[^/]+\/index\.md$/,
+    /^topoviewer\/real-network-demo\/[^/]+\/index\.md$/
+  ].some((pattern) => pattern.test(relativePath))
+    || [
+      'topoviewer/index.md',
+      'topoviewer/zensical-embed.md',
+      'topoviewer/complete-network-demo/index.md'
+    ].includes(relativePath);
+}
+
+function checkMkDocsNavCoverage() {
+  const mkdocsConfig = readYaml(path.join(repoRoot, 'mkdocs.yml'));
+  const navTargets = collectNavTargets(mkdocsConfig.nav || []);
+  const docsFiles = listMarkdownFiles(docsRoot)
+    .map((filePath) => path.relative(docsRoot, filePath).split(path.sep).join(path.posix.sep));
+
+  const unexpected = docsFiles
+    .filter((filePath) => !navTargets.has(filePath))
+    .filter((filePath) => !isAllowedUnnavedDocsPage(filePath));
+
+  if (unexpected.length) {
+    fail(`Unexpected MkDocs pages are missing from nav or allowlist: ${unexpected.join(', ')}`);
+  }
+}
+
+function checkPublicPathWording() {
+  const forbidden = [
+    'asadarafat.github.io/TopoViewer',
+    'github.com/asadarafat/TopoViewer',
+    '/Users/aarafat/_projects/intent/DG_25_6_v2'
+  ];
+
+  for (const filePath of [
+    ...listMarkdownFiles(contentPagesRoot),
+    ...listMarkdownFiles(docsRoot),
+    path.join(repoRoot, 'README.md')
+  ]) {
+    if (!fs.existsSync(filePath)) continue;
+    const text = readText(filePath);
+    for (const value of forbidden) {
+      if (text.includes(value)) {
+        fail(`${relative(filePath)} contains forbidden public path or slug: ${value}`);
+      }
+    }
+  }
+}
+
+checkRequiredPages();
+checkDocsStandard();
+checkCatalogDuplicateKeys();
+checkExampleSources();
+checkExampleNodeDimensions();
+checkStylesheetCoverage();
+checkApiCoverage();
+checkLocalLinks();
+checkGeneratedCriticalPages();
+checkMkDocsNavCoverage();
+checkPublicPathWording();
+
+if (errors.length) {
+  console.error('Docs lint failed:');
+  for (const error of errors) {
+    console.error(`- ${error}`);
+  }
+  process.exit(1);
+}
+
+console.log('docs lint passed');

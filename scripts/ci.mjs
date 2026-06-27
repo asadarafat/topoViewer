@@ -99,6 +99,7 @@ const laneDefinitions = {
       sourceArea: 'packages/topoviewer/content/**, docs source templates, and README source content',
       projectionArea: 'README.md, docs/topoviewer/**, packages/topoviewer/docs/**, and packages/topoviewer/examples/**'
     }),
+    step('lint documentation contract', 'npm', ['run', 'docs:lint']),
     step('build MkDocs site', 'npm', ['run', 'docs:build:fast']),
     step('build Zensical site', 'npm', ['run', 'zensical:build'], { env: { TOPOVIEWER_ZENSICAL_SKIP_VIEWER_BUILD: '1' } }),
     checkGeneratedStep('check Zensical generated config is committed', ZENSICAL_GENERATED_PATHS, {

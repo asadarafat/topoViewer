@@ -29,6 +29,7 @@
     "validate:semantics": "npm --workspace topoviewer run validate:semantics",
     "validate:vscode-harness-build": "node scripts/check-vscode-harness-build.mjs",
     "docs:smoke": "node scripts/require-node24.mjs && node scripts/smoke-docs-site.mjs",
+    "docs:lint": "node scripts/lint-docs.mjs",
     "render:parity": "node scripts/require-node24.mjs && node scripts/check-renderer-surface-parity.mjs",
     "dense:fixture": "npm --workspace topoviewer run dense:fixture",
     "benchmark:attention": "npm --workspace topoviewer run benchmark:attention --",
