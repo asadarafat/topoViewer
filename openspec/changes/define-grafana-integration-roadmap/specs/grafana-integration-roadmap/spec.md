@@ -1,87 +1,173 @@
 ## ADDED Requirements
 
-### Requirement: Grafana feasibility baseline
+### Requirement: Grafana Roadmap Is Phased
 
-TopoViewer SHALL treat Grafana as a feasible but later-stage operational
-dashboard integration, not as a currently supported integration.
+TopoViewer SHALL treat Grafana integration as a phased roadmap, not a single
+large implementation.
 
-Research anchors:
+#### Scenario: Public Status Is Accurate
 
-- [Grafana plugin tools](https://grafana.com/developers/plugin-tools/)
-- [Panel plugin tutorial](https://grafana.com/developers/plugin-tools/tutorials/build-a-panel-plugin)
-- [Data frames in panel plugins](https://grafana.com/developers/plugin-tools/how-to-guides/panel-plugins/read-data-from-a-data-source)
-- [Plugin signing](https://grafana.com/developers/plugin-tools/publish-a-plugin/sign-a-plugin)
+- **WHEN** public docs mention Grafana
+- **THEN** Grafana SHALL be marked exploratory until at least the local panel
+  parity and Prometheus weathermap phases pass
+- **AND** docs SHALL NOT claim supported Grafana integration before the panel,
+  telemetry mapping, interaction state, docs, and validation are complete
 
-#### Scenario: Grafana roadmap status is accurate
+#### Scenario: Implementation Order Is Enforced
 
-- **WHEN** the public integration roadmap mentions Grafana
-- **THEN** it SHALL mark Grafana as exploratory or planned only after a panel
-  spike proves the data mapping
-- **AND** it SHALL NOT claim Grafana integration is supported
+- **WHEN** implementation begins
+- **THEN** Phase 1 SHALL prove panel rendering and canonical harness fixture
+  parity before Prometheus, interactivity persistence, Codespaces, or expanded
+  use cases are treated as release work
 
-#### Scenario: Grafana feasibility is tied to plugin surface
+### Requirement: Phase 1 Panel Parity
 
-- **WHEN** the roadmap explains why Grafana integration is feasible
-- **THEN** it SHALL identify panel plugin or app plugin development as the likely
-  integration surface
-- **AND** it SHALL identify data-frame mapping as an open design question
+TopoViewer SHALL first prove a Grafana panel can render canonical TopoViewer
+harness fixtures without fixture drift.
 
-### Requirement: Grafana first integration shape
+#### Scenario: Panel Package Wraps TopoViewer
 
-TopoViewer SHALL prefer a small panel-plugin spike before a production Grafana
-plugin.
+- **WHEN** the Grafana panel package is implemented
+- **THEN** it SHALL live in a dedicated package such as
+  `packages/grafana-topoviewer-panel`
+- **AND** it SHALL import and wrap the existing `topoviewer` runtime
+- **AND** it SHALL NOT fork renderer behavior
 
-#### Scenario: First Grafana spike uses static or simple data
+#### Scenario: Grafana Uses Canonical Harness Fixtures
 
-- **WHEN** Grafana integration work is planned
-- **THEN** the first shape SHALL be:
+- **WHEN** Grafana panel demos or tests need topology fixtures
+- **THEN** they SHALL discover fixtures from
+  `packages/topoviewer/content/examples/catalog.yaml` entries with `harness`
+  metadata
+- **AND** discovery SHALL match browser harness semantics for fixture ID, display
+  name, source file resolution, path safety, duplicate detection, and ordering
+- **AND** Grafana SHALL NOT maintain checked-in Grafana-only topology or
+  stylesheet YAML copies for those fixtures
 
-```text
-Grafana data frames / JSON model -> TopoViewer props -> operational topology panel
-```
+#### Scenario: All Harness Fixtures Load
 
-- **AND** the spike SHALL answer data shape, panel option, refresh, and state
-  overlay questions before broader plugin work
+- **WHEN** Phase 1 smoke tests run
+- **THEN** every canonical harness fixture SHALL load in the Grafana panel
+- **AND** the initial required fixture set SHALL include `layered-network`,
+  `clos-2spine-4leaf`, `insert-workflow`, `attention-workflow`,
+  `inspector-workflow`, and `dense-links`
+- **AND** compiled object counts and layer availability SHALL match TopoViewer
+  compiled output for the same topology and stylesheet
 
-#### Scenario: Grafana panel stays operational
+### Requirement: Phase 2 Prometheus Weathermap
 
-- **WHEN** a Grafana panel is designed
-- **THEN** it SHALL focus on dashboard consumption and operational state
-- **AND** it SHALL NOT become the primary TopoViewer topology authoring
-  environment
+TopoViewer SHALL prove real telemetry flow with a narrow Prometheus-driven
+weathermap before broader operational dashboards.
 
-### Requirement: Grafana use cases
+#### Scenario: Local Lab Versions Are Pinned
 
-TopoViewer SHALL document realistic Grafana use cases before implementation.
+- **WHEN** the local lab is implemented
+- **THEN** Grafana SHALL use an exact image tag such as
+  `grafana/grafana:13.1.0`
+- **AND** Prometheus SHALL use an exact image tag such as
+  `prom/prometheus:v3.5.0`
+- **AND** the lab SHALL reject `latest`, unversioned images, and floating
+  major/minor tags
+- **AND** smoke checks SHALL verify running versions
 
-#### Scenario: Operational dashboard views
+#### Scenario: Prometheus Injector Drives Grafana Data Frames
 
-- **WHEN** Grafana use cases are documented
-- **THEN** they SHALL include service topology panels, failure views, alert or
-  metric overlays, and customer or service path visualization
-- **AND** they MAY include NOC views that focus affected nodes and dim healthy
-  context
+- **WHEN** telemetry behavior is validated
+- **THEN** a deterministic injector SHALL mutate Prometheus metrics
+- **AND** Prometheus SHALL scrape the injector
+- **AND** Grafana SHALL query Prometheus through a provisioned data source
+- **AND** the TopoViewer panel SHALL consume resulting Grafana data frames
+- **AND** static Prometheus frame fixtures SHALL NOT be sufficient for Phase 2
+  completion
 
-#### Scenario: Dashboard data requirements are explicit
+#### Scenario: Network Weathermap Works
 
-- **WHEN** Grafana use cases mention live status or time range behavior
-- **THEN** the roadmap SHALL identify required data-frame shape, dashboard
-  variables, refresh behavior, and topology state inputs as unresolved until the
-  spike exists
+- **WHEN** the panel runs the first weathermap vertical slice
+- **THEN** Prometheus link metrics SHALL drive TopoViewer link color, width,
+  line style, label text, and endpoint status markers
+- **AND** users SHALL be able to hover a link, click a link to focus it and its
+  endpoints, filter by dashboard variables, and drag endpoint nodes without
+  breaking metric matching
+- **AND** the first detailed assertions SHOULD use `layered-network` and
+  `clos-2spine-4leaf`
+- **AND** all harness fixtures SHALL still load after telemetry support is
+  enabled
 
-### Requirement: Grafana risks and non-goals
+### Requirement: Phase 3 Interaction State
 
-TopoViewer SHALL make Grafana integration risks explicit in the roadmap or
-implementation plan.
+TopoViewer SHALL support operational interaction inside Grafana without making
+Grafana the source authoring environment.
 
-#### Scenario: Grafana release overhead is acknowledged
+#### Scenario: Runtime Interaction State Is Separate From YAML
 
-- **WHEN** Grafana integration is described
-- **THEN** plugin signing, distribution, dashboard lifecycle, security, and CSP
-  constraints SHALL be listed as risks
+- **WHEN** a user pans, zooms, selects, focuses, or drags a node in Grafana
+- **THEN** the panel SHALL update runtime interaction state
+- **AND** it SHALL NOT rewrite canonical topology YAML or stylesheet YAML
 
-#### Scenario: Dense topology performance is a gate
+#### Scenario: Dragged Positions Survive Refresh When Enabled
 
-- **WHEN** Grafana panel work is planned
-- **THEN** large topology rendering inside dashboard panels SHALL require
-  performance validation before the roadmap can call the integration planned
+- **WHEN** node position persistence is enabled
+- **THEN** dragged positions SHALL survive dashboard refresh while the topology
+  identity is unchanged
+- **AND** position overrides SHALL take precedence over base topology positions
+  and layout results
+- **AND** reset SHALL clear local position overrides without clearing
+  telemetry-derived visual state
+
+#### Scenario: Telemetry And Interaction Do Not Race
+
+- **WHEN** telemetry refreshes while the user has viewport, focus, selection, or
+  drag state
+- **THEN** telemetry SHALL update visual/attention state without clearing user
+  interaction state
+
+### Requirement: Phase 4 Operational Use Cases And Docs
+
+TopoViewer SHALL expand from weathermap into documented operator workflows only
+after the first telemetry slice is proven.
+
+#### Scenario: Node Health Use Case
+
+- **WHEN** node health metrics are implemented
+- **THEN** node up/down, CPU, memory, or temperature metrics SHALL drive status
+  markers, outlines, badges, and aggregate severity
+- **AND** degraded node selection SHALL remain stable across telemetry refresh
+
+#### Scenario: Service Path Use Case
+
+- **WHEN** service SLO metrics breach thresholds
+- **THEN** the affected TopoViewer path SHALL focus, endpoints and transit nodes
+  SHALL highlight, and unrelated context SHALL dim
+- **AND** clearing focus SHALL restore topology context while preserving
+  telemetry warning styles
+
+#### Scenario: Routing Adjacency Use Case
+
+- **WHEN** protocol adjacency metrics indicate failure
+- **THEN** affected nodes SHALL show protocol badges such as `BGP`, `ISIS`, or
+  `OSPF`
+- **AND** protocol overlays SHOULD be independently toggleable from weathermap
+  utilization overlays
+
+#### Scenario: Documentation Covers End-To-End Workflow
+
+- **WHEN** Grafana docs are added
+- **THEN** they SHALL cover authoring in the browser harness, promoting a
+  canonical harness fixture, validating YAML, syncing Grafana projections,
+  selecting the fixture in Grafana, mapping TopoViewer object IDs/labels to
+  Prometheus labels, injecting telemetry, observing visual changes, interacting
+  with the panel, and troubleshooting
+
+### Requirement: Phase 5 Codespaces Portability
+
+TopoViewer SHALL treat Codespaces as a separate feasibility phase after local
+Grafana validation.
+
+#### Scenario: Codespaces Is Not First Proof
+
+- **WHEN** Codespaces work is proposed
+- **THEN** local panel parity and Prometheus weathermap phases SHALL already
+  pass
+- **AND** Codespaces feasibility SHALL separately validate privileges, nested
+  networking, image pulls, port forwarding, persisted workspace state, resource
+  limits, and URL documentation
