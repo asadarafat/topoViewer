@@ -35,6 +35,7 @@
     "grafana:lab:down": "bash labs/grafana-topoviewer/scripts/down.sh",
     "grafana:lab:smoke:phase1": "node scripts/require-node24.mjs && node labs/grafana-topoviewer/scripts/smoke-grafana-phase-1.mjs",
     "grafana:lab:smoke:phase2": "node scripts/require-node24.mjs && node labs/grafana-topoviewer/scripts/smoke-grafana-phase-2.mjs",
+    "grafana:lab:smoke:phase4": "node scripts/require-node24.mjs && node labs/grafana-topoviewer/scripts/smoke-grafana-phase-4.mjs",
     "sync:mkdocs": "npm --workspace topoviewer run sync:mkdocs",
     "validate:schemas": "npm --workspace topoviewer run validate:schemas",
     "validate:semantics": "npm --workspace topoviewer run validate:semantics",

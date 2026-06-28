@@ -1,0 +1,62 @@
+version: 1
+identity:
+  sourceId: clos-2spine-4leaf
+  sourceIdLabel: fixture_id
+mappings:
+  - id: fabric-link-oper-state
+    metric: topoviewer_link_up
+    target:
+      kind: link
+      resolve:
+        by: id
+        metricLabel: link_id
+        sourceLabel: source
+        targetLabel: target
+    value:
+      as: up
+    overlay:
+      lineColorBySeverity: true
+      lineWidthBySeverity: true
+      sourceArrowColorBySeverity: true
+      targetArrowColorBySeverity: true
+      statusMarker: true
+      outlineBySeverity: true
+      label: "{{ severity }}"
+  - id: fabric-link-utilization
+    metric: topoviewer_link_utilization_percent
+    target:
+      kind: link
+      resolve:
+        by: id
+        metricLabel: link_id
+    value:
+      as: utilizationPercent
+    thresholds:
+      info: 50
+      warning: 80
+      error: 90
+    overlay:
+      lineColorBySeverity: true
+      lineWidthBySeverity: true
+      sourceArrowColorBySeverity: true
+      targetArrowColorBySeverity: true
+      statusMarker: true
+      outlineBySeverity: true
+      label: "{{ value | round }}%"
+  - id: fabric-pair-region-health
+    metric: topoviewer_link_errors_total
+    target:
+      kind: region
+      resolve:
+        by: label
+        key: region
+        metricLabel: site
+    value:
+      as: errorsTotal
+    thresholds:
+      warning: 1
+      error: 10
+    overlay:
+      borderColorBySeverity: true
+      backgroundColorBySeverity: true
+      label: "fabric errors {{ value | round }}"

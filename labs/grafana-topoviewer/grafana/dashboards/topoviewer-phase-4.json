@@ -1,0 +1,214 @@
+{
+  "annotations": {
+    "list": []
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "topoviewer-prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 14,
+        "w": 16,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "sourceMode": "mountedBundle",
+        "fixtureId": "layered-network",
+        "mountedBundle": {
+          "bundleRoot": "/etc/topoviewer/bundles",
+          "selectedBundleId": "layered-network"
+        },
+        "themeMode": "auto",
+        "showControls": true,
+        "controlsOpen": false,
+        "telemetry": {
+          "enabled": true,
+          "infoPercent": 50,
+          "warningPercent": 80,
+          "errorPercent": 90
+        }
+      },
+      "pluginVersion": "0.1.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "topoviewer-prometheus"
+          },
+          "editorMode": "code",
+          "expr": "topoviewer_link_up{fixture_id=\"layered-network\"}",
+          "format": "time_series",
+          "instant": true,
+          "legendFormat": "{{link_id}} up",
+          "range": false,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "topoviewer-prometheus"
+          },
+          "editorMode": "code",
+          "expr": "topoviewer_link_utilization_percent{fixture_id=\"layered-network\"}",
+          "format": "time_series",
+          "instant": true,
+          "legendFormat": "{{link_id}} utilization",
+          "range": false,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "topoviewer-prometheus"
+          },
+          "editorMode": "code",
+          "expr": "topoviewer_link_errors_total{fixture_id=\"layered-network\"}",
+          "format": "time_series",
+          "instant": true,
+          "legendFormat": "{{link_id}} errors",
+          "range": false,
+          "refId": "C"
+        }
+      ],
+      "title": "Mounted Layered Network Bundle",
+      "type": "asadarafat-topoviewer-panel"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "topoviewer-prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 14,
+        "w": 8,
+        "x": 16,
+        "y": 0
+      },
+      "id": 2,
+      "options": {
+        "sourceMode": "mountedBundle",
+        "fixtureId": "clos-2spine-4leaf",
+        "mountedBundle": {
+          "bundleRoot": "/etc/topoviewer/bundles",
+          "selectedBundleId": "clos-2spine-4leaf"
+        },
+        "themeMode": "auto",
+        "showControls": true,
+        "controlsOpen": false,
+        "telemetry": {
+          "enabled": true,
+          "infoPercent": 50,
+          "warningPercent": 80,
+          "errorPercent": 90
+        }
+      },
+      "pluginVersion": "0.1.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "topoviewer-prometheus"
+          },
+          "editorMode": "code",
+          "expr": "topoviewer_link_up{fixture_id=\"clos-2spine-4leaf\"}",
+          "format": "time_series",
+          "instant": true,
+          "legendFormat": "{{link_id}} up",
+          "range": false,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "topoviewer-prometheus"
+          },
+          "editorMode": "code",
+          "expr": "topoviewer_link_utilization_percent{fixture_id=\"clos-2spine-4leaf\"}",
+          "format": "time_series",
+          "instant": true,
+          "legendFormat": "{{link_id}} utilization",
+          "range": false,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "topoviewer-prometheus"
+          },
+          "editorMode": "code",
+          "expr": "topoviewer_link_errors_total{fixture_id=\"clos-2spine-4leaf\"}",
+          "format": "time_series",
+          "instant": true,
+          "legendFormat": "{{link_id}} errors",
+          "range": false,
+          "refId": "C"
+        }
+      ],
+      "title": "Mounted CLOS Bundle",
+      "type": "asadarafat-topoviewer-panel"
+    },
+    {
+      "datasource": {
+        "type": "__expr__",
+        "uid": "__expr__"
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 14
+      },
+      "id": 3,
+      "options": {
+        "content": "Phase 4 renders TopoViewer bundles mounted into Grafana at `/etc/topoviewer/bundles`. Each bundle directory contains `*.topo.tv.yaml`, `*.style.tv.yaml`, and `*.mapper.tv.yaml`. Use `npm run grafana:lab:inject -- healthy`, `high-utilization`, or `link-failure` to change the Prometheus-backed overlay.",
+        "mode": "markdown"
+      },
+      "pluginVersion": "13.1.0",
+      "title": "Mounted Bundle Workflow",
+      "type": "text"
+    }
+  ],
+  "refresh": "10s",
+  "schemaVersion": 41,
+  "tags": [
+    "topoviewer",
+    "phase-4",
+    "mounted-bundles"
+  ],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-15m",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "TopoViewer Phase 4 Mounted Bundles",
+  "uid": "topoviewer-phase-4",
+  "version": 1,
+  "weekStart": ""
+}
+

@@ -35,8 +35,10 @@ services:
       GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
       GF_AUTH_DISABLE_LOGIN_FORM: "true"
       GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS: asadarafat-topoviewer-panel
+      TOPOVIEWER_BUNDLE_ROOT: /etc/topoviewer/bundles
     volumes:
       - ../../packages/grafana-topoviewer-panel/dist:/var/lib/grafana/plugins/asadarafat-topoviewer-panel:ro
+      - ./topoviewer-bundles:/etc/topoviewer/bundles:ro
       - ./grafana/provisioning:/etc/grafana/provisioning:ro
       - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
     depends_on:

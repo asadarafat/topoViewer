@@ -1,0 +1,158 @@
+layout:
+  mode: clos
+  width: 860
+  height: 420
+  clos:
+    direction: topToBottom
+    nodeGap: 168
+    groupGap: 208
+icons:
+  router.spine:
+    glyph: S
+    alt: Spine router
+    svg: |
+      <svg
+        xmlns:xlink="http://www.w3.org/1999/xlink"
+        xmlns="http://www.w3.org/2000/svg"
+        xml:space="preserve"
+        style="enable-background:new 0 0 120 120;"
+        viewBox="0 0 120 120"
+        y="0px"
+        x="0px"
+        id="Layer_1"
+        version="1.1"
+        width="120px"
+        height="120px"
+        fill="none"
+      >
+        <style type="text/css">
+          .st0 { fill: #001135; }
+          .st1 { fill: none; stroke: #FFFFFF; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; stroke-miterlimit: 10; }
+        </style>
+        <rect height="120" width="120" class="st0" />
+        <g>
+          <g>
+            <path d="M98,30.1H68L52,89.9H22" class="st1" />
+            <path d="M28,100l-7-8.1c-1.3-1.3-1.3-3.1,0-4.3l7-7.6" class="st1" />
+            <path d="M92,20l7,8.1c1.3,1.3,1.3,3.1,0,4.3L92,40" class="st1" />
+          </g>
+          <g>
+            <path d="M98,89.9H64" class="st1" />
+            <path d="M92,80l7,7.6c1.3,1.3,1.3,3.1,0,4.3l-7,8.1" class="st1" />
+          </g>
+          <g>
+            <path d="M56,30.1H22" class="st1" />
+            <path d="M28,40l-7-7.6c-1.3-1.3-1.3-3.1,0-4.3l7-8.1" class="st1" />
+          </g>
+          <g>
+            <line x1="100" y1="60" x2="72" y2="60" class="st1" />
+            <line x1="20" y1="60" x2="48" y2="60" class="st1" />
+          </g>
+        </g>
+      </svg>
+    fill: "#001135"
+    stroke: "#90caf9"
+  router.leaf:
+    glyph: L
+    alt: Leaf router
+    svg: |
+      <svg
+        xmlns:xlink="http://www.w3.org/1999/xlink"
+        xmlns="http://www.w3.org/2000/svg"
+        xml:space="preserve"
+        style="enable-background:new 0 0 120 120;"
+        viewBox="0 0 120 120"
+        y="0px"
+        x="0px"
+        id="Layer_1"
+        version="1.1"
+        width="120px"
+        height="120px"
+        fill="none"
+      >
+        <style type="text/css">
+          .st0 { fill: #001135; }
+          .st1 { fill: none; stroke: #FFFFFF; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; stroke-miterlimit: 10; }
+        </style>
+        <rect height="120" width="120" class="st0" />
+        <g>
+          <g>
+            <path d="M93.8,39.8h-10.7c-1.8,0-3-1.3-3.1-3.1V25.9" class="st1" />
+            <path d="M99,21.2L83,37.3" class="st1" />
+          </g>
+          <g>
+            <path d="M19.9,33.9V23.2c0-1.8,1.3-3,3.1-3.1h10.8" class="st1" />
+            <path d="M38.9,39L22.8,22.9" class="st1" />
+          </g>
+          <g>
+            <path d="M24.9,80.9h10.7c1.8,0,3,1.3,3.1,3.1v10.8" class="st1" />
+            <path d="M19.9,99.8L36,83.8" class="st1" />
+          </g>
+          <g>
+            <path d="M100,86v10.7c0,1.8-1.3,3-3.1,3.1h-10.8" class="st1" />
+            <path d="M81.1,81L97.1,97" class="st1" />
+          </g>
+          <g>
+            <line x1="100.1" y1="50" x2="20.1" y2="50" class="st1" />
+            <line x1="100.1" y1="60" x2="20.1" y2="60" class="st1" />
+            <line x1="100.1" y1="70" x2="20.1" y2="70" class="st1" />
+          </g>
+        </g>
+      </svg>
+    fill: "#001135"
+    stroke: "#90caf9"
+labelFields:
+  - name
+stylesheet:
+  - selector: region
+    style:
+      labelZIndex: 9
+      backgroundColor: "rgba(25, 118, 210, 0.1)"
+      borderColor: "rgba(66, 165, 245, 0.54)"
+      borderWidth: 2
+      labelPosition: topCenter
+      labelMargin: 12
+      labelColor: var(--topoviewer-region-label-fg)
+      labelBackgroundColor: var(--topoviewer-region-label-bg)
+  - selector: node
+    style:
+      icon: router.leaf
+      shape: square
+      width: 48
+      height: 48
+      borderWidth: 3
+      borderColor: "#90caf9"
+      iconFit: fill
+      iconPadding: 0
+      labelFontWeight: 800
+      labelColor: var(--topoviewer-fg-strong)
+      labelBackgroundColor: var(--topoviewer-panel-bg)
+      labelBackgroundOpacity: 0.92
+      labelBorderColor: var(--topoviewer-border)
+      labelBorderWidth: 1
+      labelZIndex: 10
+      labelYOffset: 8
+      labelPadding: 4
+      metaColor: "transparent"
+  - selector: node[labels.node = "spine"]
+    style:
+      icon: router.spine
+      outlineColor: "#9c27b0"
+      outlineWidth: 4
+      outlineOpacity: 0.55
+      labelPosition: top
+      labelYOffset: -8
+  - selector: node[labels.node = "leaf"]
+    style:
+      icon: router.leaf
+      outlineColor: "#1976d2"
+      outlineWidth: 3
+      outlineOpacity: 0.38
+  - selector: link
+    style:
+      lineWidth: 4
+      lineColor: "#42a5f5"
+      targetArrowShape: none
+      curveStyle: straight
+      label: ""
+      textBackgroundColor: var(--topoviewer-edge-label-bg)

@@ -4,7 +4,7 @@ import { applyTopoViewerPanelOptions } from '../src/panelOptions';
 import type { TopoViewerGrafanaPanelOptions } from '../src/types';
 
 class RecordingBuilder {
-  calls: Array<{ kind: 'select' | 'boolean' | 'number'; config: Record<string, unknown> }> = [];
+  calls: Array<{ kind: 'select' | 'boolean' | 'number' | 'text'; config: Record<string, unknown> }> = [];
 
   addSelect(config: Record<string, unknown>) {
     this.calls.push({ kind: 'select', config });
@@ -20,6 +20,11 @@ class RecordingBuilder {
     this.calls.push({ kind: 'number', config });
     return this;
   }
+
+  addTextInput(config: Record<string, unknown>) {
+    this.calls.push({ kind: 'text', config });
+    return this;
+  }
 }
 
 function asGrafanaBuilder(builder: RecordingBuilder) {
@@ -32,7 +37,11 @@ describe('panel options', () => {
     applyTopoViewerPanelOptions(asGrafanaBuilder(builder));
 
     expect(builder.calls.map((call) => call.config.path)).toEqual([
+      'sourceMode',
       'fixtureId',
+      'mountedBundle.bundleRoot',
+      'mountedBundle.manifestPath',
+      'mountedBundle.selectedBundleId',
       'themeMode',
       'showControls',
       'controlsOpen',
@@ -47,27 +56,31 @@ describe('panel options', () => {
       'interaction.persistNodePositions',
       'interaction.resetOnTopologyIdentityChange'
     ]);
-    expect(builder.calls[0]?.config.defaultValue).toBe('layered-network');
-    expect(builder.calls[1]?.config.defaultValue).toBe('auto');
-    expect(builder.calls[2]?.config.defaultValue).toBe(true);
-    expect(builder.calls[3]?.config.defaultValue).toBe(false);
-    expect(builder.calls[4]?.config.defaultValue).toBe(false);
-    expect(builder.calls[5]?.config.defaultValue).toBe(50);
-    expect(builder.calls[6]?.config.defaultValue).toBe(80);
-    expect(builder.calls[7]?.config.defaultValue).toBe(90);
-    expect(builder.calls[8]?.config.defaultValue).toBe(true);
-    expect(builder.calls[9]?.config.defaultValue).toBe(true);
-    expect(builder.calls[10]?.config.defaultValue).toBe('session');
-    expect(builder.calls[11]?.config.defaultValue).toBe('session');
-    expect(builder.calls[12]?.config.defaultValue).toBe('session');
+    expect(builder.calls[0]?.config.defaultValue).toBe('fixture');
+    expect(builder.calls[1]?.config.defaultValue).toBe('layered-network');
+    expect(builder.calls[2]?.config.defaultValue).toBe('/etc/topoviewer/bundles');
+    expect(builder.calls[3]?.config.defaultValue).toBe('');
+    expect(builder.calls[4]?.config.defaultValue).toBe('');
+    expect(builder.calls[5]?.config.defaultValue).toBe('auto');
+    expect(builder.calls[6]?.config.defaultValue).toBe(true);
+    expect(builder.calls[7]?.config.defaultValue).toBe(false);
+    expect(builder.calls[8]?.config.defaultValue).toBe(false);
+    expect(builder.calls[9]?.config.defaultValue).toBe(50);
+    expect(builder.calls[10]?.config.defaultValue).toBe(80);
+    expect(builder.calls[11]?.config.defaultValue).toBe(90);
+    expect(builder.calls[12]?.config.defaultValue).toBe(true);
     expect(builder.calls[13]?.config.defaultValue).toBe(true);
+    expect(builder.calls[14]?.config.defaultValue).toBe('session');
+    expect(builder.calls[15]?.config.defaultValue).toBe('session');
+    expect(builder.calls[16]?.config.defaultValue).toBe('session');
+    expect(builder.calls[17]?.config.defaultValue).toBe(true);
   });
 
   it('offers all generated harness fixtures in the fixture selector', () => {
     const builder = new RecordingBuilder();
     applyTopoViewerPanelOptions(asGrafanaBuilder(builder));
 
-    const settings = builder.calls[0]?.config.settings as { options: Array<{ value: string; label: string }> };
+    const settings = builder.calls[1]?.config.settings as { options: Array<{ value: string; label: string }> };
     expect(settings.options.map((option) => option.value)).toContain('clos-2spine-4leaf');
     expect(settings.options.map((option) => option.value)).toContain('region-label-placement');
   });
