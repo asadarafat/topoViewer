@@ -19,8 +19,8 @@ type InteractionStorage = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;
 
 const emptyStateTimestamp = '1970-01-01T00:00:00.000Z';
 
-export function topologyIdentityForDocument(document: TopoDocument | undefined, fixtureId: string): string {
-  return `${fixtureId}:${document?.graph?.id || 'unknown'}`;
+export function topologyIdentityForDocument(document: TopoDocument | undefined, topologySourceId: string): string {
+  return `${topologySourceId}:${document?.graph?.id || 'unknown'}`;
 }
 
 export function emptyInteractionState(topologyIdentity: string): PanelInteractionState {

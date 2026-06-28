@@ -26,6 +26,7 @@
       },
       "id": 1,
       "options": {
+        "sourceMode": "fixture",
         "fixtureId": "layered-network",
         "themeMode": "auto",
         "showControls": true,
@@ -138,6 +139,7 @@
       },
       "id": 2,
       "options": {
+        "sourceMode": "fixture",
         "fixtureId": "clos-2spine-4leaf",
         "themeMode": "auto",
         "showControls": true,

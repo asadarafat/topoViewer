@@ -164,7 +164,7 @@ export function applyTopoViewerPanelOptions(builder: PanelOptionsEditorBuilder<T
     .addBooleanSwitch({
       path: 'interaction.resetOnTopologyIdentityChange',
       name: 'Reset on topology change',
-      description: 'Use a separate interaction state key for each fixture and graph identity.',
+      description: 'Use a separate interaction state key for each topology source and graph identity.',
       defaultValue: true
     });
 }

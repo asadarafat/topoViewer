@@ -12,7 +12,7 @@ import {
 } from './telemetryRules';
 
 export interface TelemetryOverlayOptions {
-  fixtureId?: string;
+  sourceId?: string;
   thresholds?: TelemetrySeverityThresholds;
 }
 
@@ -133,7 +133,7 @@ export function createTelemetryOverlay(
   const thresholds = options.thresholds || defaultTelemetryThresholds;
 
   for (const state of states) {
-    if (options.fixtureId && state.fixtureId && state.fixtureId !== options.fixtureId) continue;
+    if (options.sourceId && state.sourceId && state.sourceId !== options.sourceId) continue;
     const link = matchTelemetryState(state, linksById, linksByEndpoint);
     if (!link) {
       diagnostics.push(warning(

@@ -40,15 +40,15 @@ afterEach(() => {
 });
 
 describe('interaction state', () => {
-  it('uses fixture and graph ID as topology identity', () => {
-    expect(topologyIdentityForDocument({ graph: { id: 'graph-a' } }, 'fixture-a')).toBe('fixture-a:graph-a');
+  it('uses topology source and graph ID as topology identity', () => {
+    expect(topologyIdentityForDocument({ graph: { id: 'graph-a' } }, 'source-a')).toBe('source-a:graph-a');
   });
 
   it('persists viewport, selection, and node positions to session storage by default', () => {
     const { sessionStorage } = installWindowStorage();
     const options = normalizeInteractionOptions(undefined);
     const state = {
-      topologyIdentity: 'fixture-a:graph-a',
+      topologyIdentity: 'source-a:graph-a',
       viewport: { x: 10, y: 20, zoom: 1.4 },
       selectedObjectIds: ['node-a'],
       focusedObjectIds: ['node-a', 'link-a'],
@@ -60,8 +60,8 @@ describe('interaction state', () => {
 
     persistInteractionState(state, options);
 
-    expect(sessionStorage.getItem(interactionStateStorageKey('fixture-a:graph-a', 'session'))).toContain('node-a');
-    expect(loadInteractionState('fixture-a:graph-a', options)).toEqual(state);
+    expect(sessionStorage.getItem(interactionStateStorageKey('source-a:graph-a', 'session'))).toContain('node-a');
+    expect(loadInteractionState('source-a:graph-a', options)).toEqual(state);
   });
 
   it('keeps browser and session persistence fields separate', () => {
@@ -73,7 +73,7 @@ describe('interaction state', () => {
     });
 
     persistInteractionState({
-      topologyIdentity: 'fixture-a:graph-a',
+      topologyIdentity: 'source-a:graph-a',
       viewport: { x: 1, y: 2, zoom: 3 },
       selectedObjectIds: ['node-a'],
       nodePositionOverrides: {
@@ -82,7 +82,7 @@ describe('interaction state', () => {
       updatedAt: '2026-06-27T00:00:00.000Z'
     }, options);
 
-    expect(loadInteractionState('fixture-a:graph-a', options)).toMatchObject({
+    expect(loadInteractionState('source-a:graph-a', options)).toMatchObject({
       viewport: { x: 1, y: 2, zoom: 3 },
       selectedObjectIds: ['node-a'],
       nodePositionOverrides: undefined

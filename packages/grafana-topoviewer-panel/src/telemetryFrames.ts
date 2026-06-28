@@ -2,7 +2,7 @@ import type { DataFrame, Field } from '@grafana/data';
 import type { GrafanaPanelDiagnostic } from './types';
 
 export interface GrafanaTelemetryLinkState {
-  fixtureId?: string;
+  sourceId?: string;
   linkId?: string;
   source?: string;
   target?: string;
@@ -38,7 +38,7 @@ const metricPropertyByName: Record<string, TelemetryMetricProperty> = {
   topoviewer_metric_timestamp_seconds: 'timestampSeconds'
 };
 
-const labelKeys = new Set(['fixture_id', 'link_id', 'source', 'target', 'site', 'pod']);
+const labelKeys = new Set(['source_id', 'topology_source_id', 'fixture_id', 'link_id', 'source', 'target', 'site', 'pod']);
 
 function diagnostic(code: string, message: string): GrafanaPanelDiagnostic {
   return { severity: 'warning', code, message };
@@ -97,16 +97,16 @@ function normalizeMetricName(field: Field, frame: DataFrame): string | undefined
 }
 
 function stateKey(input: Partial<GrafanaTelemetryLinkState>): string | undefined {
-  if (input.fixtureId && input.linkId) return `${input.fixtureId}:${input.linkId}`;
+  if (input.sourceId && input.linkId) return `${input.sourceId}:${input.linkId}`;
   if (input.linkId) return input.linkId;
-  if (input.fixtureId && input.source && input.target) return `${input.fixtureId}:${input.source}->${input.target}`;
+  if (input.sourceId && input.source && input.target) return `${input.sourceId}:${input.source}->${input.target}`;
   if (input.source && input.target) return `${input.source}->${input.target}`;
   return undefined;
 }
 
 function applyLabels(target: GrafanaTelemetryLinkState, labels: Record<string, unknown> | undefined) {
   if (!labels) return;
-  target.fixtureId ||= stringValue(labels.fixture_id);
+  target.sourceId ||= stringValue(labels.source_id) || stringValue(labels.topology_source_id) || stringValue(labels.fixture_id);
   target.linkId ||= stringValue(labels.link_id);
   target.source ||= stringValue(labels.source);
   target.target ||= stringValue(labels.target);

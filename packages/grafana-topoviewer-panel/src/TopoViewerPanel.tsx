@@ -201,13 +201,13 @@ export function TopoViewerPanel(props: PanelProps<TopoViewerGrafanaPanelOptions>
     [model.mapper, props.data.series]
   );
   const useMapperTelemetry = normalized.telemetry.enabled && Boolean(model.mapper?.mappings.length);
-  const telemetryFixtureFilter = normalized.sourceMode === 'mountedBundle'
+  const telemetrySourceFilter = normalized.sourceMode === 'mountedBundle'
     ? selectedMountedBundleId || undefined
     : normalized.fixtureId;
   const telemetryOverlay = useMemo(() => {
-    if (!normalized.telemetry.enabled) return createTelemetryOverlay(model.document, [], { fixtureId: telemetryFixtureFilter });
+    if (!normalized.telemetry.enabled) return createTelemetryOverlay(model.document, [], { sourceId: telemetrySourceFilter });
     return createTelemetryOverlay(model.document, telemetryFrames.states, {
-      fixtureId: telemetryFixtureFilter,
+      sourceId: telemetrySourceFilter,
       thresholds: {
         infoPercent: normalized.telemetry.infoPercent,
         warningPercent: normalized.telemetry.warningPercent,
@@ -220,7 +220,7 @@ export function TopoViewerPanel(props: PanelProps<TopoViewerGrafanaPanelOptions>
     normalized.telemetry.errorPercent,
     normalized.telemetry.infoPercent,
     normalized.telemetry.warningPercent,
-    telemetryFixtureFilter,
+    telemetrySourceFilter,
     telemetryFrames.states
   ]);
   const mapperTelemetryOverlay = useMemo(() => {

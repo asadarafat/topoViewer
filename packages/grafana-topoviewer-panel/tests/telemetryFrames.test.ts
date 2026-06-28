@@ -29,7 +29,7 @@ describe('telemetry frame parser', () => {
     expect(result.diagnostics).toEqual([]);
     expect(result.states).toEqual([
       {
-        fixtureId: 'layered-network',
+        sourceId: 'layered-network',
         linkId: 'underlay-ams-lon',
         source: 'ams-p',
         target: 'lon-pe',
@@ -60,7 +60,7 @@ describe('telemetry frame parser', () => {
 
     expect(result.states).toHaveLength(1);
     expect(result.states[0]).toMatchObject({
-      fixtureId: 'clos-2spine-4leaf',
+      sourceId: 'clos-2spine-4leaf',
       linkId: 'Spine-1-Leaf-3',
       up: false,
       errorsTotal: 18
@@ -72,5 +72,29 @@ describe('telemetry frame parser', () => {
 
     expect(result.states).toEqual([]);
     expect(result.diagnostics[0]?.code).toBe('telemetry-empty');
+  });
+
+  it('prefers canonical source labels over legacy fixture labels', () => {
+    const result = parseTelemetryDataFrames([
+      {
+        name: 'topoviewer_link_up',
+        fields: [{
+          name: 'Value',
+          labels: {
+            __name__: 'topoviewer_link_up',
+            source_id: 'mounted-bundle-a',
+            fixture_id: 'legacy-fixture',
+            link_id: 'link-a'
+          },
+          values: [1]
+        }]
+      }
+    ] as unknown as DataFrame[]);
+
+    expect(result.states[0]).toMatchObject({
+      sourceId: 'mounted-bundle-a',
+      linkId: 'link-a',
+      up: true
+    });
   });
 });

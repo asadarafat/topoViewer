@@ -23,6 +23,7 @@
       },
       "id": 1,
       "options": {
+        "sourceMode": "fixture",
         "fixtureId": "layered-network",
         "themeMode": "auto",
         "showControls": true,

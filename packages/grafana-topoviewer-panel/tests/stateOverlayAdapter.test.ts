@@ -19,14 +19,14 @@ describe('telemetry overlay adapter', () => {
   it('matches telemetry by link ID and generates link plus endpoint style overlays', () => {
     const overlay = createTelemetryOverlay(document, [
       {
-        fixtureId: 'layered-network',
+        sourceId: 'layered-network',
         linkId: 'a-b',
         source: 'a',
         target: 'b',
         up: false,
         utilizationPercent: 100
       }
-    ], { fixtureId: 'layered-network' });
+    ], { sourceId: 'layered-network' });
 
     expect(overlay.diagnostics).toEqual([]);
     expect(overlay.linksById['a-b']?.style).toMatchObject({
@@ -43,13 +43,13 @@ describe('telemetry overlay adapter', () => {
   it('matches telemetry by source and target when link ID is absent', () => {
     const overlay = createTelemetryOverlay(document, [
       {
-        fixtureId: 'layered-network',
+        sourceId: 'layered-network',
         source: 'a',
         target: 'b',
         up: true,
         utilizationPercent: 84
       }
-    ], { fixtureId: 'layered-network' });
+    ], { sourceId: 'layered-network' });
 
     expect(overlay.linksById['a-b']?.severity).toBe('warning');
     expect(overlay.linksById['a-b']?.style.lineColor).toBe('#ff9800');
