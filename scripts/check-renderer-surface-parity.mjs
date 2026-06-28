@@ -337,13 +337,41 @@ function docsUrl(baseUrl, surface, fixture) {
   return `${baseUrl}${pagesBasePath}/render-parity/${surface}/${fixture.id}/`;
 }
 
-async function collectSurface(page, url, surface, fixture) {
-  await page.goto(url, { waitUntil: 'commit', timeout: 30000 });
-  await waitForRenderer(page, `${surface}/${fixture.id}`, expectedMinimumEdgePaths(fixture));
-  return {
-    metrics: comparableMetrics(await surfaceMetrics(page)),
-    screenshot: await screenshotViewer(page, surface, fixture)
-  };
+async function newParityPage(browser, baseUrl, failures) {
+  const page = await browser.newPage({
+    viewport: { width: viewerSize.width, height: viewerSize.height },
+    colorScheme: 'dark'
+  });
+  page.on('pageerror', (error) => failures.push(`Browser error: ${error.message}`));
+  page.on('requestfailed', (request) => {
+    const url = request.url();
+    if (url.startsWith(baseUrl) && !url.endsWith('/favicon.ico')) {
+      failures.push(`Request failed: ${request.failure()?.errorText || 'unknown'} ${url}`);
+    }
+  });
+  page.on('response', (response) => {
+    const url = response.url();
+    if (url.startsWith(baseUrl) && response.status() >= 400 && !url.endsWith('/favicon.ico')) {
+      failures.push(`HTTP ${response.status()} ${url}`);
+    }
+  });
+  return page;
+}
+
+async function collectSurface(browser, baseUrl, failures, url, surface, fixture) {
+  const page = await newParityPage(browser, baseUrl, failures);
+  try {
+    await page.goto(url, { waitUntil: 'commit', timeout: 30000 });
+    await waitForRenderer(page, `${surface}/${fixture.id}`, expectedMinimumEdgePaths(fixture));
+    return {
+      metrics: comparableMetrics(await surfaceMetrics(page)),
+      screenshot: await screenshotViewer(page, surface, fixture)
+    };
+  } catch (error) {
+    throw new Error(`${surface}: ${error instanceof Error ? error.message : String(error)}`);
+  } finally {
+    await page.close();
+  }
 }
 
 async function run() {
@@ -355,38 +383,20 @@ async function run() {
   const failures = [];
 
   try {
-    const page = await browser.newPage({
-      viewport: { width: viewerSize.width, height: viewerSize.height },
-      colorScheme: 'dark'
-    });
-
-    page.on('pageerror', (error) => failures.push(`Browser error: ${error.message}`));
-    page.on('requestfailed', (request) => {
-      const url = request.url();
-      if (url.startsWith(baseUrl) && !url.endsWith('/favicon.ico')) {
-        failures.push(`Request failed: ${request.failure()?.errorText || 'unknown'} ${url}`);
-      }
-    });
-    page.on('response', (response) => {
-      const url = response.url();
-      if (url.startsWith(baseUrl) && response.status() >= 400 && !url.endsWith('/favicon.ico')) {
-        failures.push(`HTTP ${response.status()} ${url}`);
-      }
-    });
-
+    const diffPage = await newParityPage(browser, baseUrl, failures);
     for (const fixture of fixtures) {
       try {
-        const harness = await collectSurface(page, harnessUrl(baseUrl, fixture), 'harness', fixture);
+        const harness = await collectSurface(browser, baseUrl, failures, harnessUrl(baseUrl, fixture), 'harness', fixture);
         if (harness.metrics.viewportZoom > 1.001) {
           throw new Error(`${fixture.id} harness viewport zoom ${harness.metrics.viewportZoom} exceeds the React Flow default scale cap`);
         }
         for (const surface of ['mkdocs', 'zensical']) {
-          const docs = await collectSurface(page, docsUrl(baseUrl, surface, fixture), surface, fixture);
+          const docs = await collectSurface(browser, baseUrl, failures, docsUrl(baseUrl, surface, fixture), surface, fixture);
           if (docs.metrics.viewportZoom > 1.001) {
             throw new Error(`${fixture.id} ${surface} viewport zoom ${docs.metrics.viewportZoom} exceeds the React Flow default scale cap`);
           }
           assertDeepEqual(`${fixture.id} ${surface} DOM`, harness.metrics, docs.metrics);
-          const ratio = await visualDiffRatio(page, harness.screenshot, docs.screenshot);
+          const ratio = await visualDiffRatio(diffPage, harness.screenshot, docs.screenshot);
           if (ratio > maxVisualDiffRatio) {
             throw new Error(`${fixture.id} ${surface} visual diff ratio ${ratio.toFixed(4)} exceeds ${maxVisualDiffRatio}`);
           }
@@ -396,6 +406,7 @@ async function run() {
         failures.push(`${fixture.id}: ${error instanceof Error ? error.message : String(error)}`);
       }
     }
+    await diffPage.close();
   } finally {
     await browser.close();
     await new Promise((resolve) => server.close(resolve));
