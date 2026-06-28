@@ -50,9 +50,9 @@
 - [x] 7.2 Run Grafana panel typecheck
 - [x] 7.3 Run `npm run ci:quality`
 - [x] 7.4 Run `npm run grafana:panel:build`
-- [ ] 7.5 Run local Grafana smoke if Docker validation is requested
+- [x] 7.5 Run local Grafana smoke if Docker validation is requested
 
 ## 8. Phase Handoff
 
-- [ ] 8.1 Archive after validation and review
-- [ ] 8.2 Create Phase 4 implementation OpenSpec only after Phase 3 is accepted
+- [x] 8.1 Archive after validation and review
+- [x] 8.2 Create Phase 4 implementation OpenSpec only after Phase 3 is accepted

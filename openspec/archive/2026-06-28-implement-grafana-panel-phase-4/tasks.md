@@ -95,8 +95,8 @@
 
 ## 8. Production Readiness Gate
 
-- [ ] 8.1 Rerun `npm run grafana:lab:smoke:phase4` after manifest and source-diagnostic hardening
-- [ ] 8.2 Run full `npm run ci` after generated outputs are staged or intentionally excluded
-- [ ] 8.3 Verify generated/build outputs are either committed intentionally or absent from the patch
-- [ ] 8.4 Split Phase 4 into reviewable conventional commits
-- [ ] 8.5 Archive `implement-grafana-panel-phase-4` only after the production readiness gate passes
+- [x] 8.1 Rerun `npm run grafana:lab:smoke:phase4` after manifest and source-diagnostic hardening
+- [x] 8.2 Run full `npm run ci` after generated outputs are staged or intentionally excluded
+- [x] 8.3 Verify generated/build outputs are either committed intentionally or absent from the patch
+- [x] 8.4 Split Phase 4 into reviewable conventional commits
+- [x] 8.5 Archive `implement-grafana-panel-phase-4` only after the production readiness gate passes

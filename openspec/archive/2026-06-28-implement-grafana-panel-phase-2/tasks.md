@@ -1,6 +1,6 @@
 ## 1. Phase 1 Handoff
 
-- [ ] 1.1 Confirm `implement-grafana-panel-phase-1` is committed
+- [x] 1.1 Confirm `implement-grafana-panel-phase-1` is committed
 - [x] 1.2 Confirm Phase 1 Grafana panel still builds
 - [x] 1.3 Confirm Phase 1 fixture parity smoke still passes
 - [x] 1.4 Keep Phase 2 public status exploratory
@@ -91,5 +91,5 @@
 
 - [x] 10.1 Record Phase 2 findings that affect Phase 3 assumptions
 - [x] 10.2 Update `define-grafana-integration-roadmap` only if Phase 2 findings change the roadmap
-- [ ] 10.3 Archive `implement-grafana-panel-phase-2` after validation passes
-- [ ] 10.4 Create Phase 3 implementation OpenSpec for interaction-state persistence
+- [x] 10.3 Archive `implement-grafana-panel-phase-2` after validation passes
+- [x] 10.4 Create Phase 3 implementation OpenSpec for interaction-state persistence

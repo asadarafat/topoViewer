@@ -9,10 +9,6 @@ Current active plans:
 - `changes/define-netbox-integration-roadmap/` - planned NetBox feasibility, use cases, first integration shape, and roadmap wording constraints.
 - `changes/define-opsmill-infrahub-integration-roadmap/` - planned OpsMill/Infrahub feasibility, use cases, first integration shape, and roadmap wording constraints.
 - `changes/define-grafana-integration-roadmap/` - phased Grafana feasibility roadmap covering panel/harness parity, Prometheus weathermap, interactive runtime state, mounted bundle mapper foundation, Containerlab telemetry, and later Codespaces portability.
-- `changes/implement-grafana-panel-phase-1/` - planned first Grafana executable slice: panel package scaffold, canonical harness fixture parity, fixture selector, generated fixture projection, and pinned local Grafana smoke.
-- `changes/implement-grafana-panel-phase-2/` - local Grafana/Prometheus weathermap vertical slice with deterministic synthetic telemetry.
-- `changes/implement-grafana-panel-phase-3/` - Grafana runtime interaction state for pan, zoom, selection, focus, and dragged node positions.
-- `changes/implement-grafana-panel-phase-4/` - mounted bundle and mapper foundation for `*.topo.tv.yaml`, `*.style.tv.yaml`, and `*.mapper.tv.yaml` workflows.
 - `changes/implement-grafana-containerlab-phase-5/` - planned Containerlab telemetry lab that reuses the mounted bundle mapper workflow.
 
 Current studies:
@@ -21,6 +17,11 @@ Current studies:
 
 Archived plans:
 
+- `archive/2026-06-28-implement-grafana-panel-phase-4-production-hardening/` - implemented mounted-bundle production defaults, explicit fixture compatibility dashboards, refresh-driven bundle reloads, editable local dashboards, and final Phase 4 readiness hardening.
+- `archive/2026-06-28-implement-grafana-panel-phase-4/` - implemented mounted bundle and mapper foundation for `*.topo.tv.yaml`, `*.style.tv.yaml`, and `*.mapper.tv.yaml` Grafana workflows.
+- `archive/2026-06-28-implement-grafana-panel-phase-3/` - implemented Grafana runtime interaction state for pan, zoom, selection, focus, and dragged node position persistence.
+- `archive/2026-06-28-implement-grafana-panel-phase-2/` - implemented local Grafana/Prometheus weathermap vertical slice with deterministic synthetic telemetry.
+- `archive/2026-06-28-implement-grafana-panel-phase-1/` - implemented first Grafana executable slice with panel package scaffold, canonical harness fixture parity, fixture selector, generated fixture projection, and pinned local Grafana smoke.
 - `archive/2026-06-27-centralize-style-defaults-registry/` - implemented canonical style defaults metadata so runtime, docs, schema checks, semantic lint, YAML assist, and harness metadata use the same style key/default contract.
 - `archive/2026-06-27-make-default-node-shape-rectangle/` - implemented rectangle as the default node shape, aspect-locked square/circle validation, shared body box sizing, docs, YAML assist, examples, and CI validation.
 - `archive/2026-06-27-make-docs-production-grade/` - implemented production-grade documentation IA, guides, complete references, richer examples, integration handbooks, docs quality gates, full CI validation, and visual MkDocs/Zensical review.

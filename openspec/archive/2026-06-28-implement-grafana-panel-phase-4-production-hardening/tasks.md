@@ -35,4 +35,4 @@
 - [x] 5.2 Run Phase 4 smoke against mounted bundles
 - [x] 5.3 Run fixture parity check explicitly to prove compatibility still works
 - [x] 5.4 Run full `npm run ci` after generated outputs are committed or confirmed clean
-- [ ] 5.5 Archive this phase-hardening change only after Phase 4 production readiness passes
+- [x] 5.5 Archive this phase-hardening change only after Phase 4 production readiness passes
