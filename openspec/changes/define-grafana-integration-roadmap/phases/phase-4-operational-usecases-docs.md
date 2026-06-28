@@ -23,8 +23,11 @@ Phase 4 must satisfy these product rules:
 - Grafana loads mounted topology bundles from the container.
 - Each bundle uses canonical suffixes: `*.topo.tv.yaml`, `*.style.tv.yaml`, and
   `*.mapper.tv.yaml`.
-- Generated fixtures remain useful for demos and CI, but they are not the
-  primary user workflow.
+- Mounted bundles are the default and primary Grafana source mode.
+- Generated fixtures remain useful for demos and CI compatibility, but they are
+  deprecated as production input.
+- `npm run grafana:lab:up` starts the production-shaped mounted bundle lab
+  without requiring fixture sync or fixture check.
 - The panel validates source loading, YAML parsing, TopoViewer validation, and
   object mapping before the operator has to debug Grafana query output.
 - Mapping is topology-native: `node_id`, `link_id`, `path_id`, `region_id`,
@@ -201,6 +204,10 @@ site, pod, rack, role, service, tenant
   the plugin for a new topology.
 - A user can mount a bundle root containing multiple topology bundles into
   Grafana and select a bundle in the panel.
+- The default Grafana lab starts from mounted bundles and does not require
+  generated fixture checks.
+- Existing fixture dashboards remain compatibility/demo coverage but are not the
+  production path.
 - A user can see mapping coverage before telemetry is trusted.
 - A user can use starter PromQL from `*.mapper.tv.yaml`.
 - The panel warns on ambiguous endpoint matching and recommends stable IDs.

@@ -25,8 +25,8 @@ behavior or maintain separate topology examples.
 | 1 | Panel package and canonical harness fixture parity | Grafana renders every canonical harness fixture without Grafana-owned YAML copies |
 | 2 | Local Prometheus weathermap vertical slice | Prometheus injector changes link metrics and Grafana panel updates TopoViewer link state |
 | 3 | Interactive panel runtime state | User pan/zoom/select/focus/drag survives refresh according to explicit persistence options |
-| 4 | Mounted bundle source and TopoViewer mapper foundation | A Grafana user mounts bundles containing `*.topo.tv.yaml`, `*.style.tv.yaml`, and `*.mapper.tv.yaml`, validates telemetry binding without catalog edits or plugin rebuilds, and passes the Phase 4 production readiness gate |
-| 5 | Containerlab telemetry lab | Real local lab telemetry drives the same mounted bundle mapper workflow after Phase 4 is archived |
+| 4 | Mounted bundle source, TopoViewer mapper foundation, and production hardening | A Grafana user mounts bundles containing `*.topo.tv.yaml`, `*.style.tv.yaml`, and `*.mapper.tv.yaml`, validates telemetry binding without catalog edits, fixture sync, or plugin rebuilds, and passes the Phase 4 production readiness gate |
+| 5 | Containerlab telemetry lab | Real local lab telemetry drives the same mounted bundle mapper workflow after Phase 4 is hardened and archived |
 | 6 | Codespaces portability | Local Containerlab lab is reproducible first, then Codespaces constraints are proven separately |
 
 Detailed implementation notes live in:
@@ -66,8 +66,10 @@ define-grafana-integration-roadmap
   -> implement-grafana-panel-phase-3
   -> archive phases after validation and review
   -> implement-grafana-panel-phase-4
+  -> implement-grafana-panel-phase-4-production-hardening
   -> run Phase 4 production readiness gate: live phase4 smoke, full npm run ci, generated-output review, conventional commits
   -> archive implement-grafana-panel-phase-4
+  -> archive implement-grafana-panel-phase-4-production-hardening
   -> implement phase 5 Containerlab telemetry only after Phase 4 is archived
   -> create Codespaces portability phase only after local Containerlab telemetry works repeatably
 ```
@@ -75,9 +77,10 @@ define-grafana-integration-roadmap
 This keeps the roadmap durable while each implementation phase stays small
 enough to review, test, and archive independently.
 
-### Canonical Fixture Contract
+### Development Fixture Contract
 
-Grafana must use the same fixture source as the browser harness:
+Grafana fixture mode exists for development, demo, and CI parity. It must use
+the same fixture source as the browser harness:
 
 ```text
 packages/topoviewer/content/examples/catalog.yaml
@@ -87,12 +90,16 @@ packages/topoviewer/content/examples/catalog.yaml
   -> generated Grafana panel fixture module
 ```
 
-Phase 1 generates `packages/grafana-topoviewer-panel/src/generated/harnessFixtures.ts`
-so the exploratory panel can load all harness fixtures without a separate static
-data service. Future phases may add lab-only projections under
-`.artifacts/grafana-lab/` if Prometheus or Containerlab fixtures require runtime
-data, but canonical topology and stylesheet YAML remain under
-`packages/topoviewer/content/examples/**`.
+Phase 1 generates
+`packages/grafana-topoviewer-panel/src/generated/harnessFixtures.ts` so the
+exploratory panel can load all harness fixtures without a separate static data
+service.
+
+After Phase 4 production hardening, generated fixtures are not production input.
+The default Grafana lab and production plugin workflow must use mounted bundles
+containing `*.topo.tv.yaml`, `*.style.tv.yaml`, and `*.mapper.tv.yaml`.
+Fixture checks remain explicit dev/CI commands and must not block
+`npm run grafana:lab:up`.
 
 Initial required harness fixtures:
 

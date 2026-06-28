@@ -151,6 +151,17 @@ interaction-state phases are proven.
 - **AND** invalid source loading, YAML parsing, and TopoViewer validation errors
   SHALL produce actionable panel diagnostics
 
+#### Scenario: Fixture Source Is Deprecated For Production
+
+- **WHEN** Phase 4 production hardening is implemented
+- **THEN** generated harness fixture source SHALL remain available only for
+  backwards-compatible demos, examples, and CI parity
+- **AND** new production-shaped Grafana panels SHALL default to mounted topology
+  bundles
+- **AND** the default local Grafana lab startup SHALL NOT require fixture sync
+  or fixture check
+- **AND** fixture parity SHALL remain covered by explicit dev/CI commands
+
 #### Scenario: Multiple Bundles Are Selectable
 
 - **WHEN** the mounted bundle root contains multiple valid bundles

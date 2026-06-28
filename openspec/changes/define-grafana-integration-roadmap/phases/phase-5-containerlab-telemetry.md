@@ -24,6 +24,8 @@ Containerlab nodes/interfaces/protocol state
 - Phase 3 interaction state survives refresh.
 - Phase 4 mounted bundle source works without catalog edits or plugin rebuild.
 - Mapper schema, YAML assist, coverage diagnostics, and starter PromQL exist.
+- Mounted topology bundles are the default Grafana source mode.
+- The default Grafana lab startup no longer depends on generated fixture checks.
 - Live `npm run grafana:lab:smoke:phase4` passes after the final Phase 4
   manifest and source-diagnostic changes.
 - Full `npm run ci` passes on the final Phase 4 patch set.

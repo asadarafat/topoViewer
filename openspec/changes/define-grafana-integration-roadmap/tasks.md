@@ -49,6 +49,8 @@
 - [x] 5.8 Define object identity mapping docs for TopoViewer IDs/labels to Prometheus labels
 - [x] 5.9 Define troubleshooting docs for source loading, YAML parsing, mapping, metric, refresh, version, and lab startup issues
 - [x] 5.10 Define Phase 4 production readiness gate before archive or Phase 5 implementation
+- [x] 5.11 Define mounted bundles as the production Grafana source and fixture mode as dev/demo/CI compatibility
+- [x] 5.12 Define that `grafana:lab:up` must not require fixture sync/check for production-shaped mounted bundle startup
 
 ## 6. Phase 5: Containerlab Telemetry Lab
 
@@ -57,7 +59,7 @@
 - [x] 6.3 Define narrow telemetry scope for link state, utilization, adjacency, and node health
 - [x] 6.4 Define local start/destroy, mounted bundle, mapper coverage, and artifact acceptance criteria
 - [x] 6.5 Keep Containerlab separate from the deterministic synthetic lab until Phase 4 is stable
-- [x] 6.6 Define Phase 5 as blocked until Phase 4 production readiness passes and is archived
+- [x] 6.6 Define Phase 5 as blocked until Phase 4 production readiness and production hardening pass and are archived
 
 ## 7. Phase 6: Codespaces Portability
 
