@@ -37,27 +37,40 @@
 - [ ] 4.5 Define telemetry refresh behavior while user interaction state exists
 - [ ] 4.6 Define Phase 3 tests for drag persistence and telemetry refresh non-race
 
-## 5. Phase 4: Operational Use Cases And Docs
+## 5. Phase 4: Mounted Bundle Source And Mapper Foundation
 
-- [ ] 5.1 Define node health/capacity dashboard behavior
-- [ ] 5.2 Define service path SLO/blast-radius dashboard behavior
-- [ ] 5.3 Define routing adjacency health dashboard behavior
-- [ ] 5.4 Define end-to-end authoring-to-Grafana-to-telemetry documentation
-- [ ] 5.5 Define object identity mapping docs for TopoViewer IDs/labels to Prometheus labels
-- [ ] 5.6 Define troubleshooting docs for fixture, metric, refresh, version, and lab startup issues
+- [x] 5.1 Define the generic SVG-first panel workflow ergonomics benchmark and why TopoViewer must not copy it
+- [x] 5.2 Define mounted bundle source workflow for `*.topo.tv.yaml`, `*.style.tv.yaml`, and `*.mapper.tv.yaml`
+- [x] 5.3 Define topology-native TopoViewer mapper behavior for IDs, labels, data, starter PromQL, and coverage diagnostics
+- [x] 5.4 Define generic mapper-driven overlay adapters for node, link, path, region, layer, and graph targets
+- [x] 5.5 Define mapping coverage and diagnostics before dedicated operational dashboards
+- [x] 5.6 Defer polished node health, service path, and routing adjacency playbooks to follow-up implementation specs
+- [x] 5.7 Define end-to-end authoring-to-Grafana-to-telemetry documentation
+- [x] 5.8 Define object identity mapping docs for TopoViewer IDs/labels to Prometheus labels
+- [x] 5.9 Define troubleshooting docs for source loading, YAML parsing, mapping, metric, refresh, version, and lab startup issues
+- [x] 5.10 Define Phase 4 production readiness gate before archive or Phase 5 implementation
 
-## 6. Phase 5: Codespaces Portability
+## 6. Phase 5: Containerlab Telemetry Lab
 
-- [ ] 6.1 Define local-lab preconditions before Codespaces work starts
-- [ ] 6.2 Define Containerlab privilege and nested networking checks
-- [ ] 6.3 Define image pull, port forwarding, persistence, and resource-limit checks
-- [ ] 6.4 Define Codespaces go/no-go criteria
+- [x] 6.1 Define local Containerlab telemetry lab preconditions
+- [x] 6.2 Define Containerlab-to-Prometheus-to-Grafana data flow
+- [x] 6.3 Define narrow telemetry scope for link state, utilization, adjacency, and node health
+- [x] 6.4 Define local start/destroy, mounted bundle, mapper coverage, and artifact acceptance criteria
+- [x] 6.5 Keep Containerlab separate from the deterministic synthetic lab until Phase 4 is stable
+- [x] 6.6 Define Phase 5 as blocked until Phase 4 production readiness passes and is archived
 
-## 7. Validation
+## 7. Phase 6: Codespaces Portability
 
-- [ ] 7.1 Review `design.md` against all phase files
-- [ ] 7.2 Review `specs/grafana-integration-roadmap/spec.md` against phased implementation order
-- [ ] 7.3 Review Phase 1 scope to ensure it is buildable without Prometheus
-- [ ] 7.4 Review Phase 2 scope to ensure it is a narrow weathermap slice
-- [ ] 7.5 Review docs requirements for the full authoring-to-telemetry workflow
-- [ ] 7.6 Review the phase lifecycle: implement phase, validate, archive, create next phase spec, update roadmap only when findings require it
+- [ ] 7.1 Define local-lab preconditions before Codespaces work starts
+- [ ] 7.2 Define Containerlab privilege and nested networking checks
+- [ ] 7.3 Define image pull, port forwarding, persistence, and resource-limit checks
+- [ ] 7.4 Define Codespaces go/no-go criteria
+
+## 8. Validation
+
+- [ ] 8.1 Review `design.md` against all phase files
+- [ ] 8.2 Review `specs/grafana-integration-roadmap/spec.md` against phased implementation order
+- [ ] 8.3 Review Phase 1 scope to ensure it is buildable without Prometheus
+- [ ] 8.4 Review Phase 2 scope to ensure it is a narrow weathermap slice
+- [ ] 8.5 Review docs requirements for the full authoring-to-telemetry workflow
+- [x] 8.6 Review the phase lifecycle: implement phase, validate, archive, create next phase spec, update roadmap only when findings require it

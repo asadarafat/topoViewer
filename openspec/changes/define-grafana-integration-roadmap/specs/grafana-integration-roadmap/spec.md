@@ -121,53 +121,154 @@ Grafana the source authoring environment.
 - **THEN** telemetry SHALL update visual/attention state without clearing user
   interaction state
 
-### Requirement: Phase 4 Operational Use Cases And Docs
+### Requirement: Phase 4 Mounted Bundle Source And TopoViewer Mapper Foundation
 
-TopoViewer SHALL expand from weathermap into documented operator workflows only
-after the first telemetry slice is proven.
+TopoViewer SHALL expand from a fixture-backed weathermap into an ergonomic
+topology-as-code Grafana workflow only after the first telemetry slice and
+interaction-state phases are proven.
 
-#### Scenario: Node Health Use Case
+#### Scenario: TopoViewer Beats SVG-First Panel Authoring
 
-- **WHEN** node health metrics are implemented
-- **THEN** node up/down, CPU, memory, or temperature metrics SHALL drive status
-  markers, outlines, badges, and aggregate severity
-- **AND** degraded node selection SHALL remain stable across telemetry refresh
+- **WHEN** a Grafana user has existing TopoViewer topology and stylesheet YAML
+- **THEN** the user SHALL be able to render it in a TopoViewer panel by mounting
+  a bundle root containing `*.topo.tv.yaml`, `*.style.tv.yaml`, and
+  `*.mapper.tv.yaml` files into Grafana
+- **AND** object mapping SHALL use TopoViewer object IDs, labels, and data
+  rather than opaque graphics-layer element IDs
+- **AND** the panel SHALL keep source YAML, mapping, telemetry, and interaction
+  state visibly separated
+- **AND** the user SHALL NOT need to edit `catalog.yaml`, run fixture sync, or
+  rebuild the plugin for each topology
 
-#### Scenario: Service Path Use Case
+#### Scenario: Mounted Bundle Source Exists
 
-- **WHEN** service SLO metrics breach thresholds
-- **THEN** the affected TopoViewer path SHALL focus, endpoints and transit nodes
-  SHALL highlight, and unrelated context SHALL dim
-- **AND** clearing focus SHALL restore topology context while preserving
-  telemetry warning styles
+- **WHEN** Phase 4 source support is implemented
+- **THEN** mounted topology bundles SHALL be the primary production workflow
+- **AND** each discovered bundle SHALL use canonical suffixes:
+  `*.topo.tv.yaml`, `*.style.tv.yaml`, and `*.mapper.tv.yaml`
+- **AND** generated canonical harness fixtures SHALL remain supported only for
+  demos, examples, and CI parity
+- **AND** invalid source loading, YAML parsing, and TopoViewer validation errors
+  SHALL produce actionable panel diagnostics
 
-#### Scenario: Routing Adjacency Use Case
+#### Scenario: Multiple Bundles Are Selectable
 
-- **WHEN** protocol adjacency metrics indicate failure
-- **THEN** affected nodes SHALL show protocol badges such as `BGP`, `ISIS`, or
-  `OSPF`
-- **AND** protocol overlays SHOULD be independently toggleable from weathermap
-  utilization overlays
+- **WHEN** the mounted bundle root contains multiple valid bundles
+- **THEN** the panel SHALL let the user select which bundle to render
+- **AND** changing the selected bundle SHALL reload topology, stylesheet,
+  mapper, diagnostics, mapping coverage, and interaction identity for the
+  selected bundle
+
+#### Scenario: TopoViewer Mapper Is Required For Mounted Workflow
+
+- **WHEN** mounted bundle source is used
+- **THEN** telemetry object binding SHALL be declared in
+  `*.mapper.tv.yaml`
+- **AND** the mapper SHALL define metric selectors, target object kinds,
+  resolver modes, value extraction, thresholds, overlays, and starter query
+  intent
+- **AND** mapper rules SHALL support controlled any-to-any mapping from any
+  supported Grafana metric series to supported TopoViewer target kinds
+- **AND** supported target kinds SHALL include `node`, `link`, `path`,
+  `region`, `layer`, and `graph`
+- **AND** `layer` and `graph` SHALL be treated as aggregate targets
+- **AND** hidden code-only mapping SHALL NOT be the primary production contract
+
+#### Scenario: TopoViewer Mapper Authoring Is Schema Assisted
+
+- **WHEN** users author `*.mapper.tv.yaml`
+- **THEN** the browser harness and VS Code harness SHALL provide schema-backed
+  YAML suggestions
+- **AND** suggestions SHALL include valid mapper keys, enum values, topology
+  object IDs, labels, data keys, join targets, thresholds, overlay modes, and
+  starter PromQL where relevant
+- **AND** the same schema SHALL be reused by Grafana validation, harness assist,
+  documentation, and tests
+
+#### Scenario: Mapper Diagnostics Guide The User
+
+- **WHEN** TopoViewer mapper YAML is configured
+- **THEN** the panel SHALL inspect the compiled topology and show available
+  nodes, links, paths, regions, layers, labels, and data keys
+- **AND** it SHALL recommend stable metric labels such as `node_id`, `link_id`,
+  `path_id`, and `region_id`
+- **AND** it SHALL read or generate starter PromQL for supported telemetry use
+  cases from the mapper/topology pair
+- **AND** it SHALL show matched objects, unmatched telemetry, unmapped topology
+  objects, duplicate mappings, ambiguous endpoint matches, and stale IDs
+- **AND** endpoint-only link matching SHALL warn when parallel links make the
+  match ambiguous
+
+#### Scenario: Generic Runtime Overlay Foundation
+
+- **WHEN** mapper-driven telemetry overlays are implemented
+- **THEN** mapper rules SHALL be able to target node, link, path, region,
+  layer, and graph objects through target-specific runtime overlay adapters
+- **AND** unsupported overlay controls SHALL produce diagnostics instead of
+  hidden failures
+- **AND** overlays SHALL remain runtime-only and SHALL NOT mutate source
+  topology or stylesheet YAML
+
+#### Scenario: Dedicated Operational Playbooks Are Follow-Up Work
+
+- **WHEN** node health, service path SLO, or routing adjacency dashboards are
+  needed
+- **THEN** they SHALL be implemented as follow-up specs that reuse the Phase 4
+  mapper foundation
+- **AND** they SHALL NOT add hard-coded metric behavior to the panel in place of
+  `*.mapper.tv.yaml`
 
 #### Scenario: Documentation Covers End-To-End Workflow
 
 - **WHEN** Grafana docs are added
-- **THEN** they SHALL cover authoring in the browser harness, promoting a
-  canonical harness fixture, validating YAML, syncing Grafana projections,
-  selecting the fixture in Grafana, mapping TopoViewer object IDs/labels to
-  Prometheus labels, injecting telemetry, observing visual changes, interacting
-  with the panel, and troubleshooting
+- **THEN** they SHALL cover authoring in the browser harness or VS Code,
+  authoring schema-backed `*.mapper.tv.yaml` with harness suggestions, creating
+  bundles with canonical suffixes, mounting a bundle root into Grafana,
+  selecting bundles, validating YAML inside Grafana, inspecting discovered
+  topology objects, using mapper starter PromQL, mapping TopoViewer object
+  IDs/labels to Prometheus labels, checking mapping coverage, injecting
+  telemetry, observing visual changes, interacting with the panel, and
+  troubleshooting
 
-### Requirement: Phase 5 Codespaces Portability
+#### Scenario: Phase 4 Must Pass Production Gate Before Phase 5
+
+- **WHEN** Phase 4 implementation appears feature-complete
+- **THEN** it SHALL still rerun live Phase 4 Grafana smoke after the final
+  mounted-bundle manifest and source-diagnostic changes
+- **AND** it SHALL pass full `npm run ci`
+- **AND** generated/build outputs SHALL be reviewed before commit
+- **AND** Phase 4 SHALL be archived before Phase 5 implementation starts
+
+### Requirement: Phase 5 Containerlab Telemetry Lab
+
+TopoViewer SHALL introduce Containerlab only after the local Grafana mounted
+bundle and mapper workflow is stable with deterministic telemetry.
+
+#### Scenario: Containerlab Replaces Synthetic Telemetry After Mapper Stability
+
+- **WHEN** Containerlab work is proposed
+- **THEN** mounted bundle loading, mapper schema validation, mapper coverage,
+  PromQL starters, and runtime overlays SHALL already work locally
+- **AND** `implement-grafana-panel-phase-4` SHALL already be archived after its
+  production readiness gate
+- **AND** Containerlab SHALL be added as a separate local lab command/profile
+  rather than as a dependency of the deterministic synthetic lab
+- **AND** real lab telemetry SHALL still flow through `*.mapper.tv.yaml`
+  instead of through hard-coded panel behavior
+- **AND** the first Containerlab slice SHALL focus on link state,
+  utilization, routing adjacency state, and node health before broad NOC
+  dashboard scope
+
+### Requirement: Phase 6 Codespaces Portability
 
 TopoViewer SHALL treat Codespaces as a separate feasibility phase after local
-Grafana validation.
+Grafana and Containerlab validation.
 
 #### Scenario: Codespaces Is Not First Proof
 
 - **WHEN** Codespaces work is proposed
-- **THEN** local panel parity and Prometheus weathermap phases SHALL already
-  pass
+- **THEN** local panel parity, Prometheus weathermap, mapper workflow, and
+  Containerlab telemetry phases SHALL already pass
 - **AND** Codespaces feasibility SHALL separately validate privileges, nested
   networking, image pulls, port forwarding, persisted workspace state, resource
   limits, and URL documentation

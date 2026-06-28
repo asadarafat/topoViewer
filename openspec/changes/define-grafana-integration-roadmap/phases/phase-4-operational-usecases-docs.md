@@ -1,13 +1,107 @@
-## Phase 4: Operational Use Cases And Documentation
+## Phase 4: Mounted Bundle Source And Mapper Foundation
 
 ### Goal
 
-Expand beyond the weathermap slice into the other operator workflows and
-document the end-to-end authoring-to-telemetry path.
+Turn the exploratory fixture-backed panel into an ergonomic topology-as-code
+Grafana workflow. The user should be able to mount one or more topology bundles
+into the Grafana container, select a bundle, bind telemetry to topology objects
+with explicit mapper rules, validate coverage, and apply runtime overlays
+without relying on generated fixtures or SVG element IDs.
 
-### Use Case: Node Health And Capacity Hotspots
+The benchmark is a generic SVG-first panel workflow. Those workflows can be
+appropriate for arbitrary diagrams, but the happy path depends on external
+drawing authoring and panel-side mapping glue. TopoViewer should be materially
+easier for topology diagrams because topology identity, relationships, labels,
+data, style, and attention behavior already exist in TopoViewer YAML.
 
-Metrics:
+### Ergonomic Product Contract
+
+Phase 4 must satisfy these product rules:
+
+- The primary artifact is TopoViewer topology/style YAML, not SVG.
+- The harness is the authoring tool for topology/style YAML.
+- Grafana loads mounted topology bundles from the container.
+- Each bundle uses canonical suffixes: `*.topo.tv.yaml`, `*.style.tv.yaml`, and
+  `*.mapper.tv.yaml`.
+- Generated fixtures remain useful for demos and CI, but they are not the
+  primary user workflow.
+- The panel validates source loading, YAML parsing, TopoViewer validation, and
+  object mapping before the operator has to debug Grafana query output.
+- Mapping is topology-native: `node_id`, `link_id`, `path_id`, `region_id`,
+  labels, and data fields are first-class.
+- `*.mapper.tv.yaml` declares metric selectors, target object kinds, resolver
+  modes, value extraction, thresholds, overlays, and starter PromQL.
+- Mapper rules are controlled any-to-any: any supported Grafana metric series
+  can target any supported TopoViewer target kind through schema-defined
+  resolvers and target-specific overlay adapters.
+- Supported target kinds include `node`, `link`, `path`, `region`, `layer`, and
+  `graph`, where `layer` and `graph` are aggregate targets.
+- `*.mapper.tv.yaml` is schema-backed and authored with browser/VS Code harness
+  suggestions.
+- The panel shows mapping coverage: matched objects, unmatched telemetry,
+  unmapped topology objects, duplicate mappings, and stale IDs.
+- Runtime interaction remains separate from source YAML.
+- Dedicated node-health, service-path, and routing-adjacency dashboards are
+  follow-up playbooks. Phase 4 provides the mapper foundation they must reuse.
+
+### Mounted Bundle Source
+
+Phase 4 should add a mounted bundle source model:
+
+```text
+/etc/topoviewer/bundles/
+  clos-prod/
+    clos-prod.topo.tv.yaml
+    clos-prod.style.tv.yaml
+    clos-prod.mapper.tv.yaml
+  wan-prod/
+    wan-prod.topo.tv.yaml
+    wan-prod.style.tv.yaml
+    wan-prod.mapper.tv.yaml
+```
+
+The panel frontend cannot directly read container files, so implementation must
+provide a Grafana backend/resource endpoint or equivalent provisioning mechanism
+that discovers bundles and delivers the selected mounted bundle to the panel
+runtime.
+
+### TopoViewer Mapper Diagnostics
+
+Telemetry mapper diagnostics should be the main ergonomic differentiator.
+
+They should inspect the compiled topology, mapper YAML, and Grafana data frames:
+
+- available nodes, links, paths, regions, labels, data keys, and layers;
+- recommended metric labels for the selected object type;
+- starter PromQL from `*.mapper.tv.yaml`;
+- current Grafana query coverage;
+- unmatched telemetry samples and likely intended objects;
+- duplicate or ambiguous mappings;
+- threshold policy that will affect visual severity.
+
+Recommended mapping defaults:
+
+```text
+node_id   -> graph.nodes[].id
+link_id   -> graph.links[].id
+path_id   -> graph.paths[].id
+region_id -> graph.regions[].id
+```
+
+Fallback matching may use `source` + `target` for links, but it must warn when
+parallel links exist because endpoint matching is ambiguous.
+
+Generic resolver modes should include ID matching, label matching, data-field
+matching, endpoint matching, TopoViewer selector matching, aggregate matching,
+and explicit static object ID lists. This keeps the workflow flexible without
+allowing arbitrary JavaScript in mapper YAML.
+
+### Follow-Up Playbook: Node Health And Capacity Hotspots
+
+This is not Phase 4 acceptance. It documents a later operational playbook that
+should consume the generic mapper foundation.
+
+Candidate metrics:
 
 ```text
 topoviewer_node_up{node_id,site,pod,role} 0|1
@@ -16,16 +110,19 @@ topoviewer_node_memory_utilization_percent{node_id,site,pod,role} number
 topoviewer_node_temperature_celsius{node_id,site,pod,role} number
 ```
 
-Expected behavior:
+Expected behavior for the follow-up playbook:
 
 - node status marker maps to health;
 - outline color maps to worst active severity;
 - badge label shows `CPU`, `MEM`, `DOWN`, or reduced metric value;
 - degraded node selection remains stable across telemetry refresh.
 
-### Use Case: Service Path SLO And Blast Radius
+### Follow-Up Playbook: Service Path SLO And Blast Radius
 
-Metrics:
+This is not Phase 4 acceptance. It documents a later operational playbook that
+should consume the generic mapper foundation.
+
+Candidate metrics:
 
 ```text
 topoviewer_service_error_rate{service,path_id,tenant} number
@@ -33,16 +130,19 @@ topoviewer_service_latency_ms{service,path_id,tenant} number
 topoviewer_service_packet_loss_percent{service,path_id,tenant} number
 ```
 
-Expected behavior:
+Expected behavior for the follow-up playbook:
 
 - breached service path is focused;
 - endpoints and transit nodes are highlighted;
 - unrelated context dims;
 - clearing focus restores topology context but keeps telemetry warning styles.
 
-### Use Case: Routing Adjacency Health
+### Follow-Up Playbook: Routing Adjacency Health
 
-Metrics:
+This is not Phase 4 acceptance. It documents a later operational playbook that
+should consume the generic mapper foundation.
+
+Candidate metrics:
 
 ```text
 topoviewer_bgp_session_up{node_id,peer,site} 0|1
@@ -50,7 +150,7 @@ topoviewer_isis_adjacency_up{node_id,peer,site} 0|1
 topoviewer_ospf_neighbor_up{node_id,peer,site} 0|1
 ```
 
-Expected behavior:
+Expected behavior for the follow-up playbook:
 
 - affected nodes show `BGP`, `ISIS`, or `OSPF` badges;
 - matching peer links are highlighted when present;
@@ -60,19 +160,21 @@ Expected behavior:
 
 Docs must cover:
 
-1. Author topology in the browser harness.
-2. Promote it into the canonical harness fixture catalog.
-3. Validate topology YAML and stylesheet YAML.
-4. Build the Grafana panel package.
-5. Start local Grafana/Prometheus/Containerlab lab.
-6. Sync harness fixtures into generated Grafana lab projections.
-7. Select the fixture in Grafana.
-8. Map TopoViewer object IDs/labels to Prometheus labels.
-9. Inject telemetry scenario.
-10. Confirm Prometheus stores the change.
-11. Confirm Grafana query frames carry the data.
-12. Confirm TopoViewer visual state changes.
-13. Interact with the panel: pan, zoom, select, focus, drag, refresh, reset.
+1. Author topology in the browser harness or VS Code.
+2. Author `*.mapper.tv.yaml` with schema-backed harness suggestions.
+3. Save one or more bundles using `*.topo.tv.yaml`, `*.style.tv.yaml`, and
+   `*.mapper.tv.yaml`.
+4. Mount the bundle root into the Grafana container.
+5. Select a bundle in the panel.
+6. Validate topology YAML, stylesheet YAML, and mapper YAML inside Grafana.
+7. Inspect discovered nodes, links, paths, regions, labels, and data keys.
+8. Configure Grafana queries from mapper starter PromQL.
+9. Confirm mapping coverage before relying on visuals.
+10. Inject telemetry scenario.
+11. Confirm Prometheus stores the change.
+12. Confirm Grafana query frames carry the data.
+13. Confirm TopoViewer visual state changes.
+14. Interact with the panel: pan, zoom, select, focus, drag, refresh, reset.
 
 ### Object Identity Mapping
 
@@ -93,7 +195,17 @@ site, pod, rack, role, service, tenant
 
 ### Acceptance
 
-- Each use case has a docs page or section with metrics, PromQL, visual changes,
-  user interactions, and validation steps.
+- A user can create a dashboard panel from existing TopoViewer YAML without
+  creating or editing an SVG.
+- A user does not need to edit the repo catalog, run fixture sync, or rebuild
+  the plugin for a new topology.
+- A user can mount a bundle root containing multiple topology bundles into
+  Grafana and select a bundle in the panel.
+- A user can see mapping coverage before telemetry is trusted.
+- A user can use starter PromQL from `*.mapper.tv.yaml`.
+- The panel warns on ambiguous endpoint matching and recommends stable IDs.
+- Follow-up operational playbooks can reuse the mapper foundation without
+  adding hard-coded metric behavior to the panel.
 - Troubleshooting covers version mismatch, missing fixture, missing telemetry
-  labels, no telemetry update, stale refresh, and lab startup failure.
+  labels, no telemetry update, stale refresh, source-load failure, YAML parse
+  failure, ambiguous mapping, and lab startup failure.

@@ -17,6 +17,15 @@ Define the Grafana integration roadmap as a phased standalone OpenSpec change:
   weathermap;
 - defer interaction persistence, expanded operational dashboards, full docs, and
   Codespaces into later phases;
+- make Phase 4 explicitly ergonomic as a mounted-bundle and mapper foundation:
+  users mount topology bundles containing
+  `*.topo.tv.yaml`, `*.style.tv.yaml`, and `*.mapper.tv.yaml` into the Grafana
+  container instead of copying generic SVG-first panel workflows or editing repo
+  fixtures;
+- benchmark Phase 4 against generic SVG-first panel workflows and require a better
+  topology-as-code workflow: no external SVG editor in the happy path, no manual
+  graphics-layer element-ID mapping, and explicit TopoViewer mapper
+  diagnostics;
 - define TopoViewer as an embedded Grafana panel runtime that can be
   programmatically manipulated by Grafana data frames;
 - define Prometheus telemetry as a primary data source for changing node, link,
@@ -33,7 +42,9 @@ Define the Grafana integration roadmap as a phased standalone OpenSpec change:
   behavior is technically satisfying;
 - treat GitHub Codespaces Containerlab/Grafana as a second-stage portability
   target after the local lab is proven;
-- document operational dashboard use cases;
+- document the mounted bundle/mapper workflow that connects authored topology
+  YAML to Prometheus labels, and record dedicated operational dashboards as
+  follow-up playbooks;
 - document risks around data frames, panel UX, plugin signing, CSP, and dense
   topology performance.
 
@@ -54,6 +65,9 @@ Define the Grafana integration roadmap as a phased standalone OpenSpec change:
   TopoViewer runtime state overlays.
 - Future panel interaction-state contract for viewport state, selected objects,
   focus state, and dragged node position overrides.
+- Future ergonomic mounted-bundle and TopoViewer-mapper contract for turning
+  TopoViewer YAML into Grafana panels without external SVG authoring, catalog
+  edits, fixture sync, or plugin rebuilds.
 - Future harness-fixture parity contract so Grafana, browser harness, docs, and
   renderer parity checks use the same topology and stylesheet sources.
 - Future local lab definition for validating Grafana against Prometheus telemetry
