@@ -73,6 +73,19 @@ interface YamlEditorMountOptions {
   updateEditorDiagnostics: () => void;
 }
 
+interface BrowserHarnessEditorBridge {
+  focusAt(lineNumber: number, column: number): void;
+  getValue(): string;
+  setValue(text: string): void;
+  suggestionVisible(): boolean;
+  typeText(text: string): void;
+}
+
+interface BrowserHarnessWindow {
+  monaco?: unknown;
+  __topoviewerHarnessEditor?: BrowserHarnessEditorBridge;
+}
+
 export function useDraftValidation({
   draftDirty,
   draftStylesheetText,
@@ -349,17 +362,19 @@ export function useYamlEditorMount({
     editorRef.current = editor;
     monacoRef.current = monaco;
     if (hostKind === 'browser') {
-      (window as unknown as {
-        __topoviewerHarnessEditor?: {
-          focusAt(lineNumber: number, column: number): void;
-          suggestionVisible(): boolean;
-          typeText(text: string): void;
-        };
-      }).__topoviewerHarnessEditor = {
+      const harnessWindow = window as unknown as BrowserHarnessWindow;
+      harnessWindow.monaco = monaco;
+      harnessWindow.__topoviewerHarnessEditor = {
         focusAt(lineNumber: number, column: number) {
           editor.focus();
           editor.setPosition({ lineNumber, column });
           editor.revealLineInCenterIfOutsideViewport?.(lineNumber);
+        },
+        getValue() {
+          return editor.getValue();
+        },
+        setValue(text: string) {
+          editor.setValue(text);
         },
         suggestionVisible() {
           return !!document.querySelector('.suggest-widget.visible');

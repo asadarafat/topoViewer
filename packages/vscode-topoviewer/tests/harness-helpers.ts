@@ -57,11 +57,9 @@ export async function stylesheetText(page: Page) {
 }
 
 export async function setTopologyText(page: Page, text: string) {
-  await page.waitForFunction(() => !!(window as any).monaco?.editor?.getModels?.()[0]);
+  await page.waitForFunction(() => !!(window as any).__topoviewerHarnessEditor?.setValue);
   await page.evaluate((value) => {
-    const models = (window as any).monaco.editor.getModels();
-    const topologyModel = models.find((model: { getValue: () => string }) => model.getValue().includes('graph:'));
-    (topologyModel || models[0]).setValue(value);
+    (window as any).__topoviewerHarnessEditor.setValue(value);
   }, text);
   await page.waitForFunction((value) => (window as any).__topoviewerHarnessDraft?.topologyText === value, text);
 }
