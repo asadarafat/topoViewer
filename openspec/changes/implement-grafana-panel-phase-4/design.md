@@ -174,56 +174,40 @@ user-facing workflow.
 ### TopoViewer Mapper YAML
 
 `*.mapper.tv.yaml` is the missing ergonomic artifact. It should make object
-binding explicit and reviewable:
+binding explicit and reviewable without forcing users to write the normalized
+internal mapper shape by hand. The preferred authoring form is `rules:`:
 
 ```yaml
-version: "0.1"
+version: 1
 identity:
   sourceId: clos-prod
-  graphId: clos-prod
-
-queries:
+  sourceIdLabel: source_id
+rules:
   - id: link-utilization
-    datasource: prometheus
-    promql: topoviewer_link_utilization_percent{source_id="clos-prod"}
-
-mappings:
-  - id: link-utilization-to-link
     metric: topoviewer_link_utilization_percent
-    target:
-      kind: link
-      resolve:
-        by: id
-        metricLabel: link_id
-    value:
-      field: value
-      as: utilizationPercent
-    thresholds:
-      info: 50
-      warning: 80
-      error: 90
-    overlay:
-      lineColorBySeverity: true
-      lineWidthBySeverity: true
-      label: "{{ value | round }}%"
-  - id: node-up-to-node
-    metric: topoviewer_node_up
-    target:
-      kind: node
-      resolve:
-        by: id
-        metricLabel: node_id
-    value:
-      field: value
-      as: up
-    overlay:
-      statusMarker: true
-      outlineBySeverity: true
+    select: link
+    join: link_id
+    value: percent
+    states:
+      busy: ">=70"
+      saturated: ">=90"
+    style:
+      default:
+        lineColor: "#4caf50"
+        label: "{{ value | round }}%"
+      busy:
+        lineColor: "#ff9800"
+        lineWidth: 4
+      saturated:
+        lineColor: "#d32f2f"
+        lineWidth: 7
+        label: "{{ state }} {{ value | round }}%"
 ```
 
-The exact YAML shape can evolve during implementation, but the product contract
-is fixed: telemetry binding is explicit in `*.mapper.tv.yaml`, not hidden in code
-or scattered across dashboard JSON.
+The product contract is fixed: telemetry binding is explicit in
+`*.mapper.tv.yaml`, not hidden in code or scattered across dashboard JSON. The
+implementation may normalize `rules:` into canonical `mappings:` internally,
+but the public happy path should remain compact.
 
 The mapper should be any-to-any in the ergonomic sense: any supported Grafana
 metric series can target any supported TopoViewer object kind when the mapper
@@ -236,9 +220,27 @@ Grafana data frame series
   -> metric selector
   -> object resolver
   -> value extractor
-  -> threshold/severity policy
-  -> target-specific runtime overlay
+  -> optional state classification
+  -> runtime TopoViewer style patch
 ```
+
+The production mapper should not be limited to fault-management or link
+weathermap conventions. Its stronger mental model is state-driven runtime
+stylesheet policy:
+
+```text
+Grafana data-frame sample
+  -> mapper metric
+  -> TopoViewer object set
+  -> state name from simple expressions such as "==0" or ">=90"
+  -> style.default plus style.<state>
+```
+
+That lets a user map any supported metric to any available TopoViewer object
+set and then change any supported style key at runtime without mutating
+`*.style.tv.yaml`. Canonical `mappings:` and conditional style patches remain
+available for advanced cases such as label/data joins, endpoint joins,
+aggregate targets, or value/label/field conditions.
 
 Supported target kinds should be:
 
@@ -267,68 +269,50 @@ aggregate           metric resolves a layer/region/graph aggregate
 staticObjectIds     explicit object ID list in mapper YAML
 ```
 
-Examples:
+Compact examples:
 
 ```yaml
-mappings:
-  - id: bgp-peer-down-to-node
-    metric: network_bgp_session_up
-    target:
-      kind: node
-      resolve:
-        by: label
-        metricLabel: router
-        labelKey: hostname
-    value:
-      field: value
-      as: up
-    overlay:
-      badgeLabel: BGP
-      statusMarker: true
-      outlineBySeverity: true
+rules:
+  - id: link-state
+    metric: topoviewer_link_up
+    select: link
+    join: link_id
+    value: up
+    states:
+      down: "==0"
+    style:
+      default:
+        label: UP
+        lineColor: "#4caf50"
+      down:
+        label: DOWN
+        lineColor: "#d32f2f"
+        lineStyle: dashed
 
-  - id: app-error-rate-to-service-path
-    metric: app_error_rate
-    target:
-      kind: path
-      resolve:
-        by: label
-        metricLabel: service
-        labelKey: service
-    value:
-      field: value
-      as: errorRate
-    thresholds:
-      warning: 1
-      error: 5
-    overlay:
-      focusOnError: true
-      dimUnrelated: true
-      lineColorBySeverity: true
-
-  - id: site-health-to-region
-    metric: site_health_score
-    target:
-      kind: region
-      resolve:
-        by: label
-        metricLabel: site
-        labelKey: site
-    value:
-      field: value
-      as: healthScore
-    thresholds:
-      warning: 80
-      error: 60
-      direction: below
-    overlay:
-      borderColorBySeverity: true
-      badgeLabel: "{{ value | round }}%"
+  - id: pe-cpu-runtime-style
+    metric: device_cpu_percent
+    select: node
+    join: node_id
+    value: percent
+    states:
+      busy: ">=80"
+      saturated: ">=90"
+    style:
+      busy:
+        label: "{{ target.id }} CPU {{ value | round }}%"
+        backgroundColor: "#ff9800"
+        borderColor: "#ed6c02"
+      saturated:
+        label: "{{ target.id }} CPU {{ value | round }}%"
+        backgroundColor: "#d32f2f"
+        borderColor: "#c62828"
 ```
 
 This is still controlled, not arbitrary code execution. The user should not
 write JavaScript functions in the mapper. The schema defines the resolver modes,
-value extraction modes, threshold policies, and overlay adapters.
+value extraction modes, state expressions, overlay adapters, and conditional
+style patches. `rules:` is optimized for hand-authoring; canonical `mappings:`
+is the normalized advanced form.
 
 The mapper must be schema-backed. The same schema should power:
 
@@ -342,10 +326,14 @@ Harness suggestions should be topology-aware. When the author edits
 `*.mapper.tv.yaml`, suggestions should include:
 
 - metric families and supported overlay modes;
+- compact `rules:` keys such as `select`, `join`, `value`, `states`, and
+  `style`;
 - valid join labels such as `node_id`, `link_id`, `path_id`, and `region_id`;
 - discovered topology object IDs;
 - discovered labels and data keys from the paired `*.topo.tv.yaml`;
 - valid threshold fields and value types;
+- valid condition keys for value, label, field, and severity checks;
+- TopoViewer style keys and typed style values inside mapper `style:` patches;
 - starter PromQL based on the mapper identity and selected object kind.
 
 The end state should feel like authoring help, not just JSON-schema validation.
@@ -452,18 +440,22 @@ code-only link weathermap path:
 - a telemetry sample can target a node, link, path, region, layer, or graph;
 - mapper rules decide the target kind, resolver mode, value field, threshold
   policy, and runtime overlay behavior;
+- mapper conditions can apply TopoViewer style patches based on value,
+  data-frame label, data-frame field, or computed severity;
+- mapper style patches can use templates such as `{{ value | round }}`,
+  `{{ severity }}`, `{{ metric }}`, `{{ target.id }}`, `{{ label.name }}`, and
+  `{{ field.name }}`;
 - overlay adapters reject unsupported style controls for a target kind;
 - `layer` and `graph` targets can aggregate state and optionally propagate to
   child objects.
 
 All overlays should remain runtime overlays. They must not mutate source YAML.
 This follows Grafana's display-policy model: query/data-frame values are
-evaluated against thresholds and mapping rules, then the visualization changes
-its presentation. In TopoViewer terms, `*.style.tv.yaml` remains the static
-diagram baseline, while `*.mapper.tv.yaml` owns operational thresholds,
-severity colors, and runtime overlay controls. Mapper palettes keep telemetry
-color policy beside telemetry binding so operators can change severity colors
-without editing the static stylesheet or rebuilding the panel.
+classified by mapper rules, then the visualization changes its presentation.
+In TopoViewer terms, `*.style.tv.yaml` remains the static diagram baseline,
+while `*.mapper.tv.yaml` owns runtime states and operational style overlays.
+Mapper palettes remain available for canonical severity helpers, but compact
+rules should prefer explicit `style.default` and `style.<state>` patches.
 
 Dedicated operational playbooks are intentionally deferred:
 

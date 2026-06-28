@@ -9,6 +9,7 @@ TopoViewer publishes JSON Schemas for YAML authoring. They are intended for edit
 | `schemas/topoviewer.schema.json` | Combined topology plus stylesheet document. |
 | `schemas/topoviewer-topology.schema.json` | Topology-only YAML: `graph`, `toggles`, and optional `layout`. |
 | `schemas/topoviewer-stylesheet.schema.json` | Stylesheet-only YAML: `layout`, `icons`, `labelFields`, `toggles`, and `stylesheet`. |
+| `schemas/topoviewer-mapper.schema.json` | Telemetry mapper YAML: metric selectors, TopoViewer targets, resolvers, thresholds, and runtime overlays. |
 | `schemas/topoviewer-mkdocs-block.schema.json` | YAML block used inside a MkDocs `topoviewer` fence. |
 | `schemas/topoviewer-examples-catalog.schema.json` | Canonical package catalog for feature examples and generated docs pages. |
 | `schemas/topoviewer-test-expected.schema.json` | Per-test-case expected render, DOM, semantic-lint, and snapshot contract. |
@@ -20,6 +21,7 @@ The schemas are shipped in the npm package and exported as package subpaths:
 topoviewer/schemas/topoviewer.schema.json
 topoviewer/schemas/topoviewer-topology.schema.json
 topoviewer/schemas/topoviewer-stylesheet.schema.json
+topoviewer/schemas/topoviewer-mapper.schema.json
 topoviewer/schemas/topoviewer-mkdocs-block.schema.json
 topoviewer/schemas/topoviewer-examples-catalog.schema.json
 topoviewer/schemas/topoviewer-examples-manifest.schema.json
@@ -45,6 +47,24 @@ layout:
 stylesheet: []
 ```
 
+For Grafana mapper YAML:
+
+```yaml
+$schema: ../../schemas/topoviewer-mapper.schema.json
+version: 1
+rules:
+  - id: link-utilization
+    metric: topoviewer_link_utilization_percent
+    select: link
+    join: link_id
+    value: percent
+    states:
+      saturated: ">=90"
+    style:
+      saturated:
+        lineColor: "#d32f2f"
+```
+
 ## VS Code YAML Extension
 
 With the Red Hat YAML extension, associate schemas by file pattern:
@@ -54,11 +74,18 @@ With the Red Hat YAML extension, associate schemas by file pattern:
   "yaml.schemas": {
     "./node_modules/topoviewer/schemas/topoviewer-topology.schema.json": [
       "topoviewer-topo.yaml",
-      "**/*.topoviewer-topology.yaml"
+      "**/*.topoviewer-topology.yaml",
+      "**/*.topo.tv.yaml"
     ],
     "./node_modules/topoviewer/schemas/topoviewer-stylesheet.schema.json": [
       "topoviewer-style.yaml",
-      "**/*.topoviewer-style.yaml"
+      "**/*.topoviewer-style.yaml",
+      "**/*.style.tv.yaml"
+    ],
+    "./node_modules/topoviewer/schemas/topoviewer-mapper.schema.json": [
+      "topoviewer-mapper.yaml",
+      "**/*.topoviewer-mapper.yaml",
+      "**/*.mapper.tv.yaml"
     ]
   }
 }
@@ -77,6 +104,10 @@ The schemas are strict for TopoViewer's core graph contract:
 - `version` is a first-class string field for future migrations.
 - `limits` is a first-class renderer guardrail object.
 - MkDocs fenced blocks only allow known embed options.
+- Mapper files require `version: 1` plus compact `rules` or canonical `mappings`.
+- Compact mapper rules use `select`, optional `join`, optional `value`, optional `states`, and state-keyed runtime style patches.
+- Canonical mapper mappings expose target kinds, resolver modes, thresholds, conditions, and overlay controls for advanced cases.
+- Mapper palettes may define severity colors with shorthand strings or `color`/`accent` mappings.
 
 The schemas are intentionally permissive for domain-specific metadata:
 
@@ -120,6 +151,7 @@ The script compiles every schema with AJV strict mode and validates:
 - Local example stylesheet YAML.
 - Local composed TopoViewer document.
 - Local MkDocs fenced-block YAML.
+- Local Grafana TopoViewer bundle mapper YAML when the lab bundle directory exists.
 - The sibling `rtfm` TopoViewer demo files when that tree is present.
 - The canonical feature test-case catalog.
 - The generated docs examples catalog.

@@ -38,9 +38,9 @@ regions, labels, data, layers, and styles.
   selection.
 - Keep generated harness fixtures only as a demo/test fallback, not the primary
   user workflow.
-- Add a TopoViewer mapper schema that declares metric selectors, target object
-  kinds, resolver modes, value extraction, thresholds, overlay behavior, and
-  optional starter queries.
+- Add a TopoViewer mapper schema that supports compact `rules:` for
+  hand-authored metric-to-state-to-style policy, plus canonical `mappings:` for
+  advanced resolver and overlay behavior.
 - Make mapper rules controlled any-to-any: any supported Grafana metric series
   can target any supported TopoViewer object kind through schema-defined
   resolvers and target-specific overlay adapters.
@@ -50,6 +50,9 @@ regions, labels, data, layers, and styles.
   and Grafana data frames.
 - Add generic target-specific runtime overlay support for nodes, links, paths,
   regions, layers, and graphs.
+- Add selector-driven conditional runtime style rules so mapper YAML can change
+  any supported TopoViewer object style from telemetry values, labels, fields,
+  or computed severity.
 - Record node health, service path SLO, and routing adjacency as follow-up
   operational playbooks that consume this mapper foundation.
 - Document the end-to-end workflow from authored YAML to operational Grafana

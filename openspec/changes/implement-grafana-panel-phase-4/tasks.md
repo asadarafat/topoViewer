@@ -42,6 +42,9 @@
 - [x] 3.17 Add tests proving arbitrary supported Prometheus metric names can map to any supported TopoViewer target kind through mapper YAML
 - [x] 3.18 Add aggregate target behavior for `layer` and `graph`, including summary state and optional child-object propagation
 - [x] 3.19 Add mapper-owned severity palette so color policy can be changed in `*.mapper.tv.yaml`
+- [x] 3.20 Add selector-driven conditional style patches so all supported TopoViewer object kinds can be styled from telemetry without fault-management assumptions
+- [x] 3.21 Add compact `rules:` authoring profile that compiles to canonical mapper rules
+- [x] 3.22 Add `states` plus `style.default`/`style.<state>` runtime styling as the preferred simple mapper workflow
 
 ## 4. Mapper Overlay Foundation
 
@@ -53,6 +56,8 @@
 - [x] 4.6 Implement mapper-driven overlay execution so code-only link telemetry becomes compatibility behavior, not the production path
 - [x] 4.7 Record node health, service path SLO, and routing adjacency as follow-up playbooks that consume the generic mapper foundation
 - [x] 4.8 Document and test that mapper overlays behave as runtime display policy, not source stylesheet mutation
+- [x] 4.9 Support conditional style templates for metric value, severity, target ID, data-frame labels, and data-frame fields
+- [x] 4.10 Support state/category templates for compact rule styles without requiring severity terminology
 
 ## 5. UX
 
@@ -76,6 +81,8 @@
 - [x] 6.8 Document fixture mode as demo/CI-only, not the user workflow
 - [x] 6.9 Document why TopoViewer differs from generic SVG-first panel workflows
 - [x] 6.10 Document mapper palette editing and the runtime overlay model
+- [x] 6.11 Document selector-like conditional mapper rules as the preferred generic runtime styling model
+- [x] 6.12 Document compact `rules:` as the preferred authoring model and canonical `mappings:` as the advanced normalized model
 
 ## 7. Validation
 

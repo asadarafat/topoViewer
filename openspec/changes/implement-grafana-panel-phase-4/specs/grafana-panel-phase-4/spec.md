@@ -57,8 +57,10 @@ production workflow.
 
 - **WHEN** a mounted source is used
 - **THEN** telemetry binding SHALL come from `*.mapper.tv.yaml`
-- **AND** the mapper SHALL declare metric selectors, target object kinds,
-  object resolvers, value extraction, thresholds, and overlay behavior
+- **AND** the mapper SHALL support compact `rules:` that declare metric,
+  selector, join label, value semantic, states, and runtime styles
+- **AND** canonical `mappings:` SHALL remain available for advanced object
+  resolvers, value extraction, thresholds, conditions, and overlay behavior
 - **AND** hidden code-only mapper behavior SHALL NOT be the primary production
   contract
 
@@ -66,12 +68,15 @@ production workflow.
 
 - **WHEN** a Grafana data frame contains a supported metric series
 - **THEN** `*.mapper.tv.yaml` SHALL be able to map that series to supported
-  TopoViewer object kinds through schema-defined mapping rules
+  TopoViewer object kinds through schema-defined compact rules or canonical
+  mapping rules
 - **AND** supported target kinds SHALL include `node`, `link`, `path`,
   `region`, `layer`, and `graph`
-- **AND** each mapping rule SHALL explicitly define the metric selector,
-  target kind, resolver mode, value extraction, threshold policy when needed,
-  and overlay adapter
+- **AND** each compact rule SHALL explicitly define metric, `select`, optional
+  `join`, optional `value`, optional `states`, and `style`
+- **AND** each canonical mapping rule SHALL explicitly define the metric
+  selector, target kind, resolver mode, value extraction, threshold policy when
+  needed, and overlay adapter
 - **AND** `layer` and `graph` targets SHALL be treated as aggregate targets
   that can drive summary state, badges, filtering, focus, or child-object
   propagation rather than pretending to be single rendered elements
@@ -121,7 +126,8 @@ production workflow.
 - **WHEN** a user edits `*.mapper.tv.yaml` in the browser or VS Code harness
 - **THEN** YAML assist SHALL suggest valid mapper keys and enum values
 - **AND** it SHALL suggest topology-derived object IDs, labels, data keys, join
-  targets, threshold fields, overlay modes, and starter PromQL where relevant
+  targets, compact rule fields, state expressions, threshold fields, overlay
+  modes, and starter PromQL where relevant
 - **AND** suggestions SHALL respect YAML indentation and cursor context
 
 ### Requirement: Source Diagnostics Are Actionable
@@ -219,6 +225,23 @@ mutating source YAML.
   visual controls for that target kind
 - **AND** unsupported controls SHALL produce mapper diagnostics instead of
   silently failing
+
+#### Scenario: Conditional Runtime Styles Are Selector-Like
+
+- **WHEN** a mapper rule resolves a metric sample to a TopoViewer object set
+- **THEN** compact `rules:` MAY classify values into named states and apply
+  `style.default` plus `style.<state>` runtime style patches
+- **AND** state style string values SHALL support mapper templates for value,
+  rounded value, state/category, metric name, target ID, labels, and fields
+- **AND** canonical `mappings:` MAY apply conditional TopoViewer style patches
+  based on metric value, computed severity, Grafana data-frame labels, or
+  Grafana data-frame fields
+- **AND** selector resolver mode SHALL support styling all matching objects of
+  the selected target kind
+- **AND** conditional styles SHALL be runtime-only overlays and SHALL NOT mutate
+  topology YAML or stylesheet YAML
+- **AND** the mapper contract SHALL NOT require fault-management or weathermap
+  concepts for generic runtime styling
 
 #### Scenario: Aggregate Target Overlay
 

@@ -111,6 +111,14 @@ stays in `*.topo.tv.yaml` and `*.style.tv.yaml`; telemetry events/data frames
 produce runtime overlays through `*.mapper.tv.yaml`. That mirrors Grafana's
 threshold-style visualization model: data is not rewritten, but the panel
 changes color, width, labels, badges, and markers according to current values.
+The mapper can also behave like conditional runtime stylesheet rules:
+
+```text
+metric sample + TopoViewer selector + optional conditions -> style patch
+```
+
+Use this when the dashboard needs to change any supported TopoViewer object
+style from telemetry, not only fault-management or link weathermap colors.
 
 Supported target kinds are:
 
@@ -131,47 +139,70 @@ Supported resolver modes are:
 - `aggregate`
 - `staticObjectIds`
 
-Example:
+Prefer `rules:` for hand-authored mapper YAML. The panel compiles rules into the
+canonical mapper model internally.
 
 ```yaml
 version: 1
 identity:
   sourceId: branch-core
   sourceIdLabel: source_id
-palette:
-  success:
-    color: "#4caf50"
-    accent: "#2e7d32"
-  info:
-    color: "#42a5f5"
-    accent: "#1976d2"
-  warning:
-    color: "#ff9800"
-    accent: "#ed6c02"
-  error:
-    color: "#d32f2f"
-    accent: "#c62828"
-mappings:
+rules:
   - id: link-utilization
     metric: interface_utilization_percent
-    target:
-      kind: link
-      resolve:
-        by: id
-        metricLabel: link_id
-    value:
-      as: utilizationPercent
-    thresholds:
-      info: 50
-      warning: 80
-      error: 90
-    overlay:
-      lineColorBySeverity: true
-      lineWidthBySeverity: true
-      statusMarker: true
-      outlineBySeverity: true
-      label: "{{ value | round }}%"
+    select: link
+    join: link_id
+    value: percent
+    states:
+      busy: ">=70"
+      saturated: ">=90"
+    style:
+      default:
+        lineColor: "#4caf50"
+        label: "{{ value | round }}%"
+      busy:
+        lineColor: "#ff9800"
+        lineWidth: 4
+      saturated:
+        lineColor: "#d32f2f"
+        lineWidth: 7
+        label: "{{ state }} {{ value | round }}%"
 ```
+
+For up/down state, the same shape stays short:
+
+```yaml
+rules:
+  - id: link-state
+    metric: link_up
+    select: link
+    join: link_id
+    value: up
+    states:
+      down: "==0"
+    style:
+      default:
+        label: UP
+        lineColor: "#4caf50"
+      down:
+        label: DOWN
+        lineColor: "#d32f2f"
+        lineStyle: dashed
+```
+
+`select` can be an object kind such as `node` or `link`, or a TopoViewer
+selector such as `node[labels.role = "pe"]`. `join` is the Grafana label that
+carries the selected object ID. `states` maps values into names, and
+`style.default` plus `style.<state>` apply runtime TopoViewer style patches.
+
+Use canonical `mappings:` only when the compact form is not expressive enough,
+for example label/data joins, endpoint joins, aggregate targets, or explicit
+conditions. Canonical condition checks can test computed `severity`, the
+selected metric `value`, a Grafana data-frame `label`, or a Grafana data-frame
+`field`. Condition style patches use TopoViewer style keys and string values
+may use templates such as `{{ value }}`, `{{ value | round }}`,
+`{{ severity }}`, `{{ metric }}`, `{{ target.id }}`, `{{ label.name }}`, and
+`{{ field.name }}`.
 
 Mapper overlays are controlled schema-backed configuration rather than
 arbitrary JavaScript. The schema is exported as:
@@ -249,7 +280,7 @@ The Phase 2 dashboard is:
 http://127.0.0.1:3000/d/topoviewer-phase-2/topoviewer-phase-2-weathermap
 ```
 
-The mounted bundle dashboard is:
+The topology bundle dashboard is:
 
 ```text
 http://127.0.0.1:3000/d/topoviewer-phase-4/topoviewer-phase-4-mounted-bundles

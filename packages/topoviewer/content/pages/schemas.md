@@ -52,12 +52,17 @@ For Grafana mapper YAML:
 ```yaml
 $schema: ../../schemas/topoviewer-mapper.schema.json
 version: 1
-palette:
-  success: "#4caf50"
-  info: "#42a5f5"
-  warning: "#ff9800"
-  error: "#d32f2f"
-mappings: []
+rules:
+  - id: link-utilization
+    metric: topoviewer_link_utilization_percent
+    select: link
+    join: link_id
+    value: percent
+    states:
+      saturated: ">=90"
+    style:
+      saturated:
+        lineColor: "#d32f2f"
 ```
 
 ## VS Code YAML Extension
@@ -99,7 +104,9 @@ The schemas are strict for TopoViewer's core graph contract:
 - `version` is a first-class string field for future migrations.
 - `limits` is a first-class renderer guardrail object.
 - MkDocs fenced blocks only allow known embed options.
-- Mapper files require `version: 1`, explicit `mappings`, known target kinds, known resolver modes, and known overlay controls.
+- Mapper files require `version: 1` plus compact `rules` or canonical `mappings`.
+- Compact mapper rules use `select`, optional `join`, optional `value`, optional `states`, and state-keyed runtime style patches.
+- Canonical mapper mappings expose target kinds, resolver modes, thresholds, conditions, and overlay controls for advanced cases.
 - Mapper palettes may define severity colors with shorthand strings or `color`/`accent` mappings.
 
 The schemas are intentionally permissive for domain-specific metadata:
