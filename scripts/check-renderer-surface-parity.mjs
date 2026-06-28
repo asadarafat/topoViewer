@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from '@playwright/test';
+import yaml from 'js-yaml';
 import { createDocsStaticServer, pagesBasePath } from './lib/docs-static-server.mjs';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -54,6 +55,13 @@ function copyFixture(fixture) {
     }
     fs.copyFileSync(source, path.join(targetRoot, fileName));
   }
+}
+
+function expectedMinimumEdgePaths(fixture) {
+  const topologyPath = path.join(repoRoot, 'packages/topoviewer/content/examples', fixture.sourcePath, 'topology.yaml');
+  const topology = yaml.load(fs.readFileSync(topologyPath, 'utf8'));
+  const graph = topology?.graph || {};
+  return Math.max(graph.links?.length || 0, graph.paths?.length || 0);
 }
 
 function parityHtml(surface, fixture) {
@@ -140,15 +148,15 @@ function sortObjects(values) {
   return values.sort((left, right) => JSON.stringify(left).localeCompare(JSON.stringify(right)));
 }
 
-async function waitForRenderer(page, label) {
+async function waitForRenderer(page, label, expectedMinEdgePaths) {
   await page.waitForSelector('.topoviewer', { timeout: 30000 });
   await page.waitForFunction(() => !document.querySelector('.topoviewer-error'), undefined, { timeout: 30000 });
   await page.waitForFunction(() => document.querySelectorAll('.topoviewer .react-flow__node').length > 0, undefined, { timeout: 30000 });
-  await page.waitForFunction(() => {
+  await page.waitForFunction((minimumEdgePaths) => {
     const edgeCount = document.querySelectorAll('.topoviewer .react-flow__edge').length;
     const visiblePathCount = document.querySelectorAll('.topoviewer .topoviewer-edge-visible-path').length;
-    return edgeCount === 0 || visiblePathCount >= edgeCount;
-  }, undefined, { timeout: 30000 });
+    return visiblePathCount >= minimumEdgePaths && (edgeCount === 0 || visiblePathCount >= edgeCount);
+  }, expectedMinEdgePaths, { timeout: 30000 });
   await page.waitForTimeout(250);
   const errors = await page.locator('.topoviewer-error').allTextContents();
   if (errors.length > 0) {
@@ -331,7 +339,7 @@ function docsUrl(baseUrl, surface, fixture) {
 
 async function collectSurface(page, url, surface, fixture) {
   await page.goto(url, { waitUntil: 'commit', timeout: 30000 });
-  await waitForRenderer(page, `${surface}/${fixture.id}`);
+  await waitForRenderer(page, `${surface}/${fixture.id}`, expectedMinimumEdgePaths(fixture));
   return {
     metrics: comparableMetrics(await surfaceMetrics(page)),
     screenshot: await screenshotViewer(page, surface, fixture)

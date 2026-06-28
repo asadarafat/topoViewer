@@ -130,6 +130,10 @@ export function ResizeDivider({ clamp, defaultSplitPercent, maxSplitPercent, min
 }
 
 export function PreviewPanel({ exportImage, exportTooltip, handleNodePositionChange, handleObjectClick, hasErrors, hasExportBlockers, loading, parityMode = false, previewRef, redoStack, redoTopology, selectedLayerIds, selectedObjectIds, setSelectedObjects, undoStack, undoTopology, visibleDocument }: PreviewPanelProps) {
+  const effectiveSelectedLayerIds = parityMode
+    ? (visibleDocument?.graph?.layers || []).map((layer) => layer.id)
+    : selectedLayerIds;
+
   return (
     <Paper className={`topoviewer-vscode-preview${parityMode ? ' topoviewer-vscode-preview--parity topoviewer-parity-theme' : ''}`} elevation={0} ref={previewRef}>
       {parityMode ? null : (
@@ -143,7 +147,7 @@ export function PreviewPanel({ exportImage, exportTooltip, handleNodePositionCha
       {!loading && !hasErrors && visibleDocument && (
         <TopoViewer
           document={visibleDocument}
-          selectedLayerIds={selectedLayerIds}
+          selectedLayerIds={effectiveSelectedLayerIds}
           selectedObjectIds={selectedObjectIds}
           exportDisabled={hasExportBlockers}
           exportTooltip={exportTooltip}
