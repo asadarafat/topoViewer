@@ -493,3 +493,85 @@ test('covers every stylesheet style key and value type in YAML intelligence', as
 
   expect([...seenDataTypes].sort()).toEqual(['boolean', 'color', 'enum', 'integer', 'number', 'text']);
 });
+
+test('suggests mapper keys, resolver values, object IDs, and metric labels in YAML intelligence', async ({ page }) => {
+  await page.goto('/');
+  await waitForHarnessReady(page);
+
+  const rootSuggestions = await yamlCompletions(page, {
+    document: 'mapper',
+    text: '',
+    lineNumber: 1,
+    column: 1
+  });
+  expect(rootSuggestions.map((suggestion) => suggestion.label)).toEqual(expect.arrayContaining([
+    'version',
+    'identity',
+    'mappings',
+    'mapper document snippet'
+  ]));
+
+  const targetKindSuggestions = await yamlCompletions(page, {
+    document: 'mapper',
+    text: 'version: 1\nmappings:\n  - target:\n      kind: ',
+    lineNumber: 4,
+    column: 13
+  });
+  expect(targetKindSuggestions.map((suggestion) => suggestion.label)).toEqual(expect.arrayContaining([
+    'node',
+    'link',
+    'path',
+    'region',
+    'layer',
+    'graph'
+  ]));
+
+  const resolverSuggestions = await yamlCompletions(page, {
+    document: 'mapper',
+    text: 'version: 1\nmappings:\n  - target:\n      resolve:\n        by: ',
+    lineNumber: 5,
+    column: 13
+  });
+  expect(resolverSuggestions.map((suggestion) => suggestion.label)).toEqual(expect.arrayContaining([
+    'id',
+    'label',
+    'data',
+    'endpoint',
+    'selector',
+    'aggregate',
+    'staticObjectIds'
+  ]));
+
+  const metricLabelSuggestions = await yamlCompletions(page, {
+    document: 'mapper',
+    text: 'version: 1\nidentity:\n  sourceIdLabel: ',
+    lineNumber: 3,
+    column: 18
+  });
+  expect(metricLabelSuggestions.map((suggestion) => suggestion.label)).toEqual(expect.arrayContaining([
+    'source_id',
+    'node_id',
+    'link_id',
+    'path_id',
+    'region_id'
+  ]));
+
+  const objectIdSuggestions = await yamlCompletions(page, {
+    document: 'mapper',
+    text: 'version: 1\nmappings:\n  - target:\n      kind: link\n      resolve:\n        objectIds: ',
+    lineNumber: 6,
+    column: 20
+  });
+  expect(objectIdSuggestions.map((suggestion) => suggestion.label)).toEqual(expect.arrayContaining([
+    'underlay-fra-ams',
+    'bgp-fra-rr'
+  ]));
+
+  const hover = await yamlHover(page, {
+    document: 'mapper',
+    text: 'version: 1\nmappings:\n  - metric: topoviewer_link_up',
+    lineNumber: 3,
+    column: 7
+  });
+  expect(hover?.contents).toContain('Grafana data-frame metric name');
+});

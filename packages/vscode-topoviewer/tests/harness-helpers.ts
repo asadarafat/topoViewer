@@ -2,6 +2,7 @@ import { expect, type Locator, type Page } from '@playwright/test';
 import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import type { YamlAuthoringDocument } from '../src/webview/webviewYamlAuthoring';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
 
@@ -67,7 +68,7 @@ export async function setTopologyText(page: Page, text: string) {
 
 export async function yamlCompletions(
   page: Page,
-  request: { document: 'topology' | 'stylesheet'; text: string; lineNumber: number; column: number }
+  request: { document: YamlAuthoringDocument; text: string; lineNumber: number; column: number }
 ) {
   await page.waitForFunction(() => !!(window as any).__topoviewerYamlIntelligence?.completions);
   return page.evaluate((completionRequest) => (
@@ -84,7 +85,7 @@ export async function yamlStyleMetadata(page: Page) {
 
 export async function yamlHover(
   page: Page,
-  request: { document: 'topology' | 'stylesheet'; text: string; lineNumber: number; column: number }
+  request: { document: YamlAuthoringDocument; text: string; lineNumber: number; column: number }
 ) {
   await page.waitForFunction(() => !!(window as any).__topoviewerYamlIntelligence?.hover);
   return page.evaluate((hoverRequest) => (
@@ -94,7 +95,7 @@ export async function yamlHover(
 
 export async function yamlShouldOpenHelp(
   page: Page,
-  request: { document: 'topology' | 'stylesheet'; text: string; lineNumber: number; column: number }
+  request: { document: YamlAuthoringDocument; text: string; lineNumber: number; column: number }
 ) {
   await page.waitForFunction(() => !!(window as any).__topoviewerYamlIntelligence?.shouldOpenHelp);
   return page.evaluate((helpRequest) => (

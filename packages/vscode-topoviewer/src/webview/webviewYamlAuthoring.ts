@@ -1,4 +1,5 @@
 import type { TopoDocument } from 'topoviewer';
+import topoviewerMapperSchema from 'topoviewer/schemas/topoviewer-mapper.schema.json';
 import topoviewerSchema from 'topoviewer/schemas/topoviewer.schema.json';
 import topoviewerMkdocsBlockSchema from 'topoviewer/schemas/topoviewer-mkdocs-block.schema.json';
 import topoviewerStylesheetSchema from 'topoviewer/schemas/topoviewer-stylesheet.schema.json';
@@ -11,7 +12,7 @@ import {
   styleValueDefinitionForKey
 } from './webviewStyleMetadata';
 
-export type YamlAuthoringDocument = 'topology' | 'stylesheet';
+export type YamlAuthoringDocument = 'topology' | 'stylesheet' | 'mapper';
 
 export interface YamlAuthoringSuggestion {
   detail?: string;
@@ -57,6 +58,7 @@ type JsonSchema = {
 
 const schemaDocuments = {
   'topoviewer.schema.json': topoviewerSchema as unknown as JsonSchema,
+  'topoviewer-mapper.schema.json': topoviewerMapperSchema as unknown as JsonSchema,
   'topoviewer-mkdocs-block.schema.json': topoviewerMkdocsBlockSchema as unknown as JsonSchema,
   'topoviewer-stylesheet.schema.json': topoviewerStylesheetSchema as unknown as JsonSchema,
   'topoviewer-topology.schema.json': topoviewerTopologySchema as unknown as JsonSchema
@@ -64,6 +66,7 @@ const schemaDocuments = {
 
 const topologyRootSchema = topoviewerTopologySchema as unknown as JsonSchema;
 const stylesheetRootSchema = topoviewerStylesheetSchema as unknown as JsonSchema;
+const mapperRootSchema = topoviewerMapperSchema as unknown as JsonSchema;
 const baseSchema = topoviewerSchema as unknown as JsonSchema;
 const attentionSchema = topoviewerMkdocsBlockSchema as unknown as JsonSchema;
 
@@ -102,6 +105,34 @@ const topologyKeyDocumentation: Record<string, string> = {
 const stylesheetKeyDocumentation: Record<string, string> = {
   selector: 'Selector choosing which objects this stylesheet rule affects.',
   style: 'Style declaration applied to every object matched by the selector.'
+};
+
+const mapperKeyDocumentation: Record<string, string> = {
+  badgeLabel: 'Template used for node badge text.',
+  by: 'Resolver mode used to match telemetry to TopoViewer objects.',
+  error: 'Threshold where a value becomes error severity.',
+  field: 'Grafana data-frame field to read; defaults to the sample value.',
+  identity: 'Optional source identity filter before mapper rules are evaluated.',
+  info: 'Threshold where a value becomes info severity.',
+  key: 'TopoViewer labels or data key used by label/data resolvers.',
+  kind: 'TopoViewer target kind affected by this rule.',
+  label: 'Template used for rendered label text.',
+  mappings: 'Metric-to-object mapping rules.',
+  metric: 'Grafana data-frame metric name to match.',
+  metricLabel: 'Telemetry label used as the join value.',
+  objectIds: 'Explicit TopoViewer object IDs for static object matching.',
+  overlay: 'Runtime-only visual overlay controls.',
+  resolve: 'Resolver configuration for the target object kind.',
+  selector: 'TopoViewer selector used by selector resolver.',
+  sourceId: 'Expected source identity value.',
+  sourceIdLabel: 'Telemetry label carrying source identity.',
+  sourceLabel: 'Telemetry label carrying link source node ID.',
+  target: 'TopoViewer target kind and resolver.',
+  targetLabel: 'Telemetry label carrying link target node ID.',
+  thresholds: 'Severity thresholds for numeric metric values.',
+  value: 'Metric value extraction and semantic interpretation.',
+  version: 'Mapper schema version. Use version: 1.',
+  warning: 'Threshold where a value becomes warning severity.'
 };
 
 function lineAt(text: string, lineNumber: number) {
@@ -390,12 +421,27 @@ function stylesheetSchemaPropertiesForPath(path: string[]) {
   return collectSchemaProperties(stylesheetRootSchema, stylesheetRootSchema);
 }
 
+function mapperSchemaPropertiesForPath(path: string[]) {
+  if (path.includes('identity')) return schemaDefinitionProperties(mapperRootSchema, 'identity');
+  if (path.includes('target')) return schemaDefinitionProperties(mapperRootSchema, 'target');
+  if (path.includes('resolve')) return schemaDefinitionProperties(mapperRootSchema, 'resolver');
+  if (path.includes('value')) return schemaDefinitionProperties(mapperRootSchema, 'value');
+  if (path.includes('thresholds')) return schemaDefinitionProperties(mapperRootSchema, 'thresholds');
+  if (path.includes('overlay')) return schemaDefinitionProperties(mapperRootSchema, 'overlay');
+  if (path.includes('mappings')) return schemaDefinitionProperties(mapperRootSchema, 'mapping');
+  return collectSchemaProperties(mapperRootSchema, mapperRootSchema);
+}
+
 function topologyKeySuggestions(path: string[]): YamlAuthoringSuggestion[] {
   return schemaPropertySuggestions(topologySchemaPropertiesForPath(path), topologyKeyDocumentation);
 }
 
 function stylesheetSchemaKeySuggestions(path: string[]): YamlAuthoringSuggestion[] {
   return schemaPropertySuggestions(stylesheetSchemaPropertiesForPath(path), stylesheetKeyDocumentation);
+}
+
+function mapperSchemaKeySuggestions(path: string[]): YamlAuthoringSuggestion[] {
+  return schemaPropertySuggestions(mapperSchemaPropertiesForPath(path), mapperKeyDocumentation);
 }
 
 function topologySnippetSuggestions(): YamlAuthoringSuggestion[] {
@@ -532,6 +578,111 @@ function stylesheetSnippetSuggestions(): YamlAuthoringSuggestion[] {
   }];
 }
 
+const mapperMetricLabelSuggestions = [
+  'source_id',
+  'node_id',
+  'link_id',
+  'path_id',
+  'region_id',
+  'layer_id',
+  'source',
+  'target',
+  'site',
+  'pod',
+  'role',
+  'service',
+  'tenant'
+];
+
+const mapperMetricNameSuggestions = [
+  'topoviewer_link_up',
+  'topoviewer_link_utilization_percent',
+  'topoviewer_link_errors_total',
+  'node_health',
+  'node_cpu_utilization_percent',
+  'service_path_latency_ms',
+  'routing_adjacency_up'
+];
+
+function mapperObjectIds(document: TopoDocument | undefined) {
+  const graph = document?.graph;
+  return {
+    graph: graph?.id ? [graph.id] : [],
+    layer: (graph?.layers || []).map((layer) => layer.id),
+    link: (graph?.links || []).map((link) => link.id),
+    node: (graph?.nodes || []).map((node) => node.id),
+    path: (graph?.paths || []).map((path) => path.id),
+    region: (graph?.regions || []).map((region) => region.id)
+  };
+}
+
+function mapperTargetKindForContext(request: YamlAuthoringRequest) {
+  const lines = request.text.split(/\r?\n/);
+  for (let index = request.lineNumber - 1; index >= 0; index -= 1) {
+    const kind = lines[index]?.match(/kind:\s*["']?(node|link|path|region|layer|graph)/)?.[1];
+    if (kind) return kind as 'node' | 'link' | 'path' | 'region' | 'layer' | 'graph';
+  }
+  return 'node';
+}
+
+function mapperValueSuggestions(request: YamlAuthoringRequest, key: string): YamlAuthoringSuggestion[] {
+  if (key === 'version') return referenceSuggestions(['1'], 'Mapper schema version');
+  if (key === 'kind') return referenceSuggestions(['node', 'link', 'path', 'region', 'layer', 'graph'], 'Mapper target kind');
+  if (key === 'by') return referenceSuggestions(['id', 'label', 'data', 'endpoint', 'selector', 'aggregate', 'staticObjectIds'], 'Mapper resolver mode');
+  if (key === 'direction') return referenceSuggestions(['above', 'below'], 'Threshold direction');
+  if (key === 'as') return referenceSuggestions(['up', 'utilizationPercent', 'errorsTotal', 'latencyMs', 'lossPercent', 'capacityPercent', 'health'], 'Metric value semantics');
+  if (key === 'metric') return referenceSuggestions(mapperMetricNameSuggestions, 'Metric name');
+  if (key === 'metricLabel' || key === 'sourceIdLabel' || key === 'sourceLabel' || key === 'targetLabel') {
+    return referenceSuggestions(mapperMetricLabelSuggestions, 'Telemetry label');
+  }
+  if (key === 'objectIds') {
+    const kind = mapperTargetKindForContext(request);
+    return referenceSuggestions(mapperObjectIds(request.topoDocument)[kind], `${kind} ID`);
+  }
+  if (key === 'selector') return selectorSuggestions(request);
+  if (['info', 'warning', 'error'].includes(key)) return numberValueSuggestions.map((value) => ({
+    detail: 'Threshold value',
+    insertText: value,
+    kind: 'value' as const,
+    label: value
+  }));
+  if ([
+    'lineColorBySeverity',
+    'lineWidthBySeverity',
+    'sourceArrowColorBySeverity',
+    'targetArrowColorBySeverity',
+    'outlineBySeverity',
+    'statusMarker',
+    'backgroundColorBySeverity',
+    'borderColorBySeverity',
+    'propagateToLayerMembers'
+  ].includes(key)) {
+    return referenceSuggestions(['true', 'false'], 'Boolean overlay setting');
+  }
+  if (key === 'label') return referenceSuggestions(['"{{ value | round }}%"', '"{{ severity }}"', '"{{ metric }}"'], 'Overlay label template');
+  if (key === 'badgeLabel') return referenceSuggestions(['"{{ value | round }}"', '"{{ severity }}"'], 'Badge label template');
+  return [];
+}
+
+function mapperSnippetSuggestions(): YamlAuthoringSuggestion[] {
+  return [
+    {
+      label: 'mapper rule snippet',
+      insertText: '- id: ${1:link-utilization}\n  metric: ${2:topoviewer_link_utilization_percent}\n  target:\n    kind: ${3:link}\n    resolve:\n      by: id\n      metricLabel: ${4:link_id}\n  value:\n    as: utilizationPercent\n  thresholds:\n    info: 50\n    warning: 80\n    error: 90\n  overlay:\n    lineColorBySeverity: true\n    lineWidthBySeverity: true\n    label: "{{ value | round }}%"',
+      isSnippet: true,
+      kind: 'snippet',
+      documentation: 'Insert a telemetry mapper rule.'
+    },
+    {
+      label: 'mapper document snippet',
+      insertText: 'version: 1\nidentity:\n  sourceId: ${1:topology-id}\n  sourceIdLabel: ${2:source_id}\nmappings:\n  - id: ${3:link-utilization}\n    metric: ${4:topoviewer_link_utilization_percent}\n    target:\n      kind: link\n      resolve:\n        by: id\n        metricLabel: link_id',
+      isSnippet: true,
+      kind: 'snippet',
+      documentation: 'Insert a complete mapper document skeleton.'
+    }
+  ];
+}
+
 function wordAtColumn(line: string, column: number) {
   const index = Math.max(0, Math.min(line.length, column - 1));
   const matches = line.matchAll(/[A-Za-z][A-Za-z0-9]*/g);
@@ -613,6 +764,16 @@ export function yamlAuthoringSuggestions(request: YamlAuthoringRequest): YamlAut
   const path = yamlPathAtLine(request.text, request.lineNumber);
   const key = currentYamlKey(request);
   const prefix = linePrefix(request.text, request.lineNumber, request.column);
+  if (request.document === 'mapper') {
+    if (key && prefix.includes(':')) return mapperValueSuggestions(request, key);
+    if (isKeyContext(request)) {
+      return uniqueByLabel([
+        ...mapperSchemaKeySuggestions(path),
+        ...(prefix.trim() === '' || prefix.trim() === '-' ? mapperSnippetSuggestions() : [])
+      ]);
+    }
+    return [];
+  }
   if (request.document === 'topology') {
     const nodeIds = (request.topoDocument?.graph?.nodes || []).map((node) => node.id);
     if (path.includes('labels')) {
@@ -669,6 +830,9 @@ export function yamlAuthoringHover(request: YamlAuthoringRequest): YamlAuthoring
     if (option) {
       return { contents: styleDocumentationForKey(selectorKind, word) };
     }
+  }
+  if (request.document === 'mapper' && mapperKeyDocumentation[word]) {
+    return { contents: mapperKeyDocumentation[word] };
   }
   return undefined;
 }
