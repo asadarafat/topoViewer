@@ -775,6 +775,7 @@
 
 .topoviewer-edge-pipe-border,
 .topoviewer-edge-pipe-fill,
+.topoviewer-edge-line-outline,
 .topoviewer-edge-lane {
   fill: none;
   stroke-linecap: round;

@@ -47,9 +47,36 @@ async function assertMountedBundleRendered(page, bundleId) {
   const selector = page.locator('[data-testid="topoviewer-bundle-select"]').first();
   await selector.selectOption(bundleId);
   await page.waitForFunction(() => document.querySelectorAll('.topoviewer .react-flow__node').length > 0);
+  const selectedBundleName = await selector.locator('option:checked').innerText();
+  const selectedTopologyName = (await page.locator('[data-testid="topoviewer-selected-topology-name"]').first().innerText()).trim();
+  if (selectedTopologyName !== selectedBundleName.trim()) {
+    throw new Error(`Mounted bundle ${bundleId} header mismatch: expected "${selectedBundleName.trim()}", got "${selectedTopologyName}".`);
+  }
+  const panelHeaderText = await page.locator('[data-testid="topoviewer-grafana-panel"] > header').first().innerText();
+  if (panelHeaderText.trim().startsWith('TopoViewer\n')) {
+    throw new Error(`Mounted bundle ${bundleId} repeats the Grafana panel title inside the plugin header: ${JSON.stringify(panelHeaderText)}.`);
+  }
   const diagnostics = page.locator('[data-testid="topoviewer-grafana-diagnostics"]');
   if (await diagnostics.count()) {
     throw new Error(`Mounted bundle ${bundleId} rendered diagnostics: ${await diagnostics.first().innerText()}`);
+  }
+}
+
+async function assertEdgeStrokePathsDoNotFill(page, bundleId) {
+  const edgePathFills = await page.locator([
+    '.topoviewer-edge-visible-path',
+    '.topoviewer-edge-line-outline',
+    '.topoviewer-edge-pipe-border',
+    '.topoviewer-edge-pipe-fill',
+    '.topoviewer-edge-lane'
+  ].join(', ')).evaluateAll((paths) => paths.map((path) => ({
+    className: path.getAttribute('class') || '',
+    fillAttribute: path.getAttribute('fill') || '',
+    computedFill: window.getComputedStyle(path).fill
+  })));
+  const filledPaths = edgePathFills.filter((item) => item.computedFill !== 'none');
+  if (filledPaths.length) {
+    throw new Error(`Mounted bundle ${bundleId} rendered filled edge stroke paths: ${JSON.stringify(filledPaths.slice(0, 5))}`);
   }
 }
 
@@ -75,7 +102,9 @@ try {
   await panel.waitFor({ state: 'visible', timeout: 60_000 });
   await assertBundleSelectorUsable(page);
   await assertMountedBundleRendered(page, 'layered-network');
+  await assertEdgeStrokePathsDoNotFill(page, 'layered-network');
   await assertMountedBundleRendered(page, 'clos-2spine-4leaf');
+  await assertEdgeStrokePathsDoNotFill(page, 'clos-2spine-4leaf');
   await panel.screenshot({
     path: path.join(artifactRoot, 'mounted-bundles.png')
   });
@@ -85,4 +114,3 @@ try {
 } finally {
   await browser.close();
 }
-

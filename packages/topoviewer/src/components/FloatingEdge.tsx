@@ -257,12 +257,14 @@ function pipeStyle(props: EdgeProps, data: Record<string, unknown>, role: 'borde
   const pipeWidth = numeric(data.pipeWidth, numeric(props.style?.strokeWidth, 1) + 14);
   if (role === 'border') {
     return {
+      fill: 'none',
       stroke: String(data.pipeBorderColor || baseStroke),
       strokeWidth: pipeWidth + numeric(data.pipeBorderWidth, 2),
       opacity: 0.58
     };
   }
   return {
+    fill: 'none',
     stroke: String(data.pipeFill || baseStroke),
     strokeWidth: pipeWidth,
     opacity: numeric(data.pipeOpacity, 0.18)
@@ -272,6 +274,7 @@ function pipeStyle(props: EdgeProps, data: Record<string, unknown>, role: 'borde
 function laneStyle(props: EdgeProps, data: Record<string, unknown>): CSSProperties {
   return {
     ...props.style,
+    fill: 'none',
     strokeWidth: numeric(data.laneWidth, numeric(props.style?.strokeWidth, 3))
   };
 }
@@ -281,6 +284,7 @@ function lineOutlineStyle(props: EdgeProps, data: Record<string, unknown>): CSSP
   if (outlineWidth <= 0) return undefined;
   return {
     ...props.style,
+    fill: 'none',
     stroke: String(data.lineOutlineColor || '#0f172a'),
     strokeWidth: numeric(props.style?.strokeWidth, 1) + outlineWidth * 2,
     strokeDasharray: props.style?.strokeDasharray,
@@ -292,6 +296,13 @@ function lineOutlineStyle(props: EdgeProps, data: Record<string, unknown>): CSSP
 
 function safeSvgId(value: string): string {
   return value.replace(/[^A-Za-z0-9_-]/g, '-');
+}
+
+function edgePathStyle(style: CSSProperties | undefined): CSSProperties {
+  return {
+    ...(style || {}),
+    fill: 'none'
+  };
 }
 
 function gradientPaint(data: Record<string, unknown>, endpoints: ReturnType<typeof floatingEndpoints>, id: string) {
@@ -401,10 +412,10 @@ export function FloatingEdge(props: EdgeProps) {
   const targetMarker = markerInfo(data, 'target', `${svgId}-target-marker`);
   const visibleStyle = isPipe
     ? pipeStyle(props, data, 'fill')
-    : {
+    : edgePathStyle({
       ...paintedLaneStyle,
       stroke: gradient?.url || paintedLaneStyle?.stroke
-    };
+    });
 
   return (
     <>
@@ -453,6 +464,7 @@ export function FloatingEdge(props: EdgeProps) {
             <path
               className="topoviewer-edge-pipe-border"
               d={edgePath}
+              fill="none"
               style={pipeStyle(props, data, 'border')}
             />
           ) : null}
@@ -460,13 +472,15 @@ export function FloatingEdge(props: EdgeProps) {
             <path
               className="topoviewer-edge-lane topoviewer-edge-lane-stub"
               d={sourceStubPath}
-              style={paintedLaneStyle}
+              fill="none"
+              style={edgePathStyle(paintedLaneStyle)}
             />
           ) : null}
           {outlineStyle ? (
             <path
               className="topoviewer-edge-line-outline"
               d={edgePath}
+              fill="none"
               transform={transform}
               style={outlineStyle}
             />
@@ -485,6 +499,7 @@ export function FloatingEdge(props: EdgeProps) {
             markerStart={sourceMarker?.url}
             markerEnd={(hasTargetLaneStub || data.suppressLaneMarker) ? undefined : targetMarker?.url}
             transform={transform}
+            fill="none"
             style={visibleStyle}
           />
           {hasTargetLaneStub && targetStubPath ? (
@@ -492,7 +507,8 @@ export function FloatingEdge(props: EdgeProps) {
               className="topoviewer-edge-lane topoviewer-edge-lane-stub"
               d={targetStubPath}
               markerEnd={targetMarker?.url}
-              style={paintedLaneStyle}
+              fill="none"
+              style={edgePathStyle(paintedLaneStyle)}
             />
           ) : null}
         </svg>
@@ -500,7 +516,7 @@ export function FloatingEdge(props: EdgeProps) {
       <BaseEdge
         id={props.id}
         path={edgePath}
-        style={{ ...props.style, opacity: 0, pointerEvents: data.interactive === false ? 'none' : undefined }}
+        style={edgePathStyle({ ...props.style, opacity: 0, pointerEvents: data.interactive === false ? 'none' : undefined })}
         interactionWidth={props.interactionWidth}
       />
       {props.label ? renderEdgeLabel(props, data, String(props.label), labelX + offset.x, labelY + offset.y, 'center') : null}
