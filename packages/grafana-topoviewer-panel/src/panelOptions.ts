@@ -10,8 +10,8 @@ import {
 import type { TopoViewerGrafanaPanelOptions } from './types';
 
 export const sourceModeOptions: Array<{ value: GrafanaTopoViewerSourceMode; label: string; description: string }> = [
-  { value: 'fixture', label: 'Harness fixture', description: 'Render generated TopoViewer harness examples bundled with the plugin.' },
-  { value: 'mountedBundle', label: 'Mounted bundle', description: 'Render topology/style/mapper YAML mounted into the Grafana container.' }
+  { value: 'fixture', label: 'Bundled example', description: 'Render generated TopoViewer examples bundled with the plugin for validation and preview workflows.' },
+  { value: 'mountedBundle', label: 'Topology bundle', description: 'Render topology/style/mapper YAML mounted into the Grafana container.' }
 ];
 
 export const themeModeOptions: Array<{ value: GrafanaTopoViewerThemeMode; label: string; description: string }> = [
@@ -31,7 +31,7 @@ export function applyTopoViewerPanelOptions(builder: PanelOptionsEditorBuilder<T
     .addSelect<GrafanaTopoViewerSourceMode, { options: typeof sourceModeOptions }>({
       path: 'sourceMode',
       name: 'Topology source',
-      description: 'Choose whether the panel renders a generated harness fixture or a mounted TopoViewer YAML bundle.',
+      description: 'Choose whether the panel renders a production topology bundle or a bundled example fixture.',
       defaultValue: 'fixture',
       settings: {
         options: sourceModeOptions
@@ -39,8 +39,8 @@ export function applyTopoViewerPanelOptions(builder: PanelOptionsEditorBuilder<T
     })
     .addSelect<string, { options: Array<{ value: string; label: string; description: string }> }>({
       path: 'fixtureId',
-      name: 'Harness fixture',
-      description: 'Canonical TopoViewer harness fixture to render in this exploratory panel.',
+      name: 'Example topology',
+      description: 'Bundled TopoViewer example to render for demos and regression checks.',
       defaultValue: DEFAULT_FIXTURE_ID,
       settings: {
         options: listHarnessFixtureOptions()
@@ -48,20 +48,20 @@ export function applyTopoViewerPanelOptions(builder: PanelOptionsEditorBuilder<T
     })
     .addTextInput({
       path: 'mountedBundle.bundleRoot',
-      name: 'Mounted bundle root',
+      name: 'Bundle root',
       description: 'Container path containing one directory per TopoViewer bundle. Each bundle needs *.topo.tv.yaml, *.style.tv.yaml, and *.mapper.tv.yaml.',
       defaultValue: DEFAULT_MOUNTED_BUNDLE_ROOT
     })
     .addTextInput({
       path: 'mountedBundle.manifestPath',
-      name: 'Mounted bundle manifest',
+      name: 'Bundle manifest',
       description: 'Optional manifest path under the mounted bundle root. Use it to select explicit topology/style/mapper files when suffix discovery is ambiguous.',
       defaultValue: ''
     })
     .addTextInput({
       path: 'mountedBundle.selectedBundleId',
-      name: 'Mounted bundle id',
-      description: 'Optional bundle directory name. If omitted, the panel selects the first discovered complete bundle.',
+      name: 'Selected topology',
+      description: 'Optional topology bundle directory name. If omitted, the panel selects the first discovered complete bundle.',
       defaultValue: ''
     })
     .addSelect<GrafanaTopoViewerThemeMode, { options: typeof themeModeOptions }>({

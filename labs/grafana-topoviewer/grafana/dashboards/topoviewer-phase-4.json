@@ -84,7 +84,7 @@
           "refId": "C"
         }
       ],
-      "title": "Mounted Layered Network Bundle",
+      "title": "TopoViewer",
       "type": "asadarafat-topoviewer-panel"
     },
     {
@@ -162,7 +162,7 @@
           "refId": "C"
         }
       ],
-      "title": "Mounted CLOS Bundle",
+      "title": "TopoViewer",
       "type": "asadarafat-topoviewer-panel"
     },
     {
@@ -186,7 +186,7 @@
         "mode": "markdown"
       },
       "pluginVersion": "13.1.0",
-      "title": "Mounted Bundle Workflow",
+      "title": "Topology Bundle Workflow",
       "type": "text"
     }
   ],
@@ -206,9 +206,8 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "TopoViewer Phase 4 Mounted Bundles",
+  "title": "TopoViewer Phase 4 Topology Bundles",
   "uid": "topoviewer-phase-4",
   "version": 1,
   "weekStart": ""
 }
-

@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "license": "Apache-2.0",
-  "description": "Exploratory Grafana panel plugin for rendering TopoViewer harness fixtures.",
+  "description": "Grafana panel plugin for rendering TopoViewer topology-as-code bundles.",
   "type": "module",
   "scripts": {
     "build": "node ../../scripts/require-node24.mjs && node scripts/build-plugin.mjs",

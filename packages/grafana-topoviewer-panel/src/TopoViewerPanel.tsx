@@ -41,6 +41,26 @@ const panelHeaderStyle: CSSProperties = {
   color: 'var(--text-color, inherit)'
 };
 
+const panelTitleStyle: CSSProperties = {
+  display: 'grid',
+  gap: 2,
+  minWidth: 0
+};
+
+const panelTitlePrimaryStyle: CSSProperties = {
+  fontWeight: 700,
+  lineHeight: 1.2
+};
+
+const panelTitleSecondaryStyle: CSSProperties = {
+  color: 'var(--text-secondary-color, rgba(148, 163, 184, 0.9))',
+  fontSize: 12,
+  lineHeight: 1.2,
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  whiteSpace: 'nowrap'
+};
+
 const fixtureLabelStyle: CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
@@ -160,10 +180,14 @@ export function TopoViewerPanel(props: PanelProps<TopoViewerGrafanaPanelOptions>
     }
   }), [localBundleId, localFixtureId, options]);
   const normalized = useMemo(() => normalizePanelOptions(effectiveOptions), [effectiveOptions]);
+  const fixtureOptions = useMemo(() => listHarnessFixtures(), []);
   const selectedMountedBundleId = normalized.sourceMode === 'mountedBundle'
     ? normalized.mountedBundle.selectedBundleId || bundleIndex?.bundles[0]?.id || ''
     : '';
   const model = useMemo(() => createRuntimeModel(normalized, mountedBundle), [mountedBundle, normalized]);
+  const selectedTopologyName = normalized.sourceMode === 'mountedBundle'
+    ? model.mountedBundle?.bundle.name || bundleIndex?.bundles.find((bundle) => bundle.id === selectedMountedBundleId)?.name || selectedMountedBundleId || 'No topology selected'
+    : model.fixture?.name || fixtureOptions.find((fixture) => fixture.id === normalized.fixtureId)?.name || normalized.fixtureId;
   const sourceIdentity = normalized.sourceMode === 'mountedBundle'
     ? `mounted:${selectedMountedBundleId || normalized.mountedBundle.bundleRoot}`
     : normalized.fixtureId;
@@ -392,7 +416,12 @@ export function TopoViewerPanel(props: PanelProps<TopoViewerGrafanaPanelOptions>
       }}
     >
       <header style={panelHeaderStyle}>
-        <strong>TopoViewer</strong>
+        <div style={panelTitleStyle}>
+          <strong style={panelTitlePrimaryStyle}>TopoViewer</strong>
+          <span data-testid="topoviewer-selected-topology-name" style={panelTitleSecondaryStyle}>
+            {selectedTopologyName}
+          </span>
+        </div>
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
           {Object.keys(activeInteractionState.nodePositionOverrides || {}).length ? (
             <button
@@ -407,9 +436,9 @@ export function TopoViewerPanel(props: PanelProps<TopoViewerGrafanaPanelOptions>
           <label style={fixtureLabelStyle}>
             {normalized.sourceMode === 'mountedBundle' ? (
               <>
-                <span>Bundle</span>
+                <span>Topology</span>
                 <select
-                  aria-label="TopoViewer mounted bundle"
+                  aria-label="TopoViewer topology bundle"
                   data-testid="topoviewer-bundle-select"
                   style={fixtureSelectStyle}
                   value={selectedMountedBundleId}
@@ -426,15 +455,15 @@ export function TopoViewerPanel(props: PanelProps<TopoViewerGrafanaPanelOptions>
               </>
             ) : (
               <>
-                <span>Fixture</span>
+                <span>Example</span>
                 <select
-                  aria-label="TopoViewer harness fixture"
+                  aria-label="TopoViewer example topology"
                   data-testid="topoviewer-fixture-select"
                   style={fixtureSelectStyle}
                   value={normalized.fixtureId}
                   onChange={(event) => onFixtureChange(event.currentTarget.value)}
                 >
-                  {listHarnessFixtures().map((fixture) => (
+                  {fixtureOptions.map((fixture) => (
                     <option key={fixture.id} value={fixture.id}>
                       {fixture.name}
                     </option>

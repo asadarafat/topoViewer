@@ -65,7 +65,7 @@ dashboards use the selected bundle's `*.mapper.tv.yaml`, so a metric can target
 nodes, links, paths, regions, layers, or the whole graph through explicit
 resolver rules.
 
-## Mounted Bundle Workflow
+## Topology Bundle Workflow
 
 The production-shaped workflow is:
 
