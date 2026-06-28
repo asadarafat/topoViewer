@@ -43,18 +43,11 @@ const panelHeaderStyle: CSSProperties = {
 
 const panelTitleStyle: CSSProperties = {
   display: 'grid',
-  gap: 2,
   minWidth: 0
 };
 
-const panelTitlePrimaryStyle: CSSProperties = {
+const selectedTopologyNameStyle: CSSProperties = {
   fontWeight: 700,
-  lineHeight: 1.2
-};
-
-const panelTitleSecondaryStyle: CSSProperties = {
-  color: 'var(--text-secondary-color, rgba(148, 163, 184, 0.9))',
-  fontSize: 12,
   lineHeight: 1.2,
   overflow: 'hidden',
   textOverflow: 'ellipsis',
@@ -160,6 +153,7 @@ function copyText(text: string) {
 
 export function TopoViewerPanel(props: PanelProps<TopoViewerGrafanaPanelOptions>) {
   const { options, width, height } = props;
+  const dataRequestId = props.data.request?.requestId || '';
   const [localFixtureId, setLocalFixtureId] = useState(options.fixtureId);
   const [localBundleId, setLocalBundleId] = useState(options.mountedBundle?.selectedBundleId);
   const [bundleIndex, setBundleIndex] = useState<GrafanaMountedBundleIndex | undefined>();
@@ -300,7 +294,7 @@ export function TopoViewerPanel(props: PanelProps<TopoViewerGrafanaPanelOptions>
     return () => {
       active = false;
     };
-  }, [normalized.mountedBundle.bundleRoot, normalized.mountedBundle.manifestPath, normalized.sourceMode, selectedMountedBundleId]);
+  }, [dataRequestId, normalized.mountedBundle.bundleRoot, normalized.mountedBundle.manifestPath, normalized.sourceMode, selectedMountedBundleId]);
 
   useEffect(() => {
     if (normalized.sourceMode !== 'mountedBundle' || !selectedMountedBundleId) {
@@ -325,7 +319,7 @@ export function TopoViewerPanel(props: PanelProps<TopoViewerGrafanaPanelOptions>
     return () => {
       active = false;
     };
-  }, [normalized.mountedBundle.bundleRoot, normalized.mountedBundle.manifestPath, normalized.sourceMode, selectedMountedBundleId]);
+  }, [dataRequestId, normalized.mountedBundle.bundleRoot, normalized.mountedBundle.manifestPath, normalized.sourceMode, selectedMountedBundleId]);
 
   const updateInteractionState = (updater: (current: PanelInteractionState) => PanelInteractionState) => {
     setInteractionState((current) => {
@@ -417,10 +411,9 @@ export function TopoViewerPanel(props: PanelProps<TopoViewerGrafanaPanelOptions>
     >
       <header style={panelHeaderStyle}>
         <div style={panelTitleStyle}>
-          <strong style={panelTitlePrimaryStyle}>TopoViewer</strong>
-          <span data-testid="topoviewer-selected-topology-name" style={panelTitleSecondaryStyle}>
+          <strong data-testid="topoviewer-selected-topology-name" style={selectedTopologyNameStyle}>
             {selectedTopologyName}
-          </span>
+          </strong>
         </div>
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
           {Object.keys(activeInteractionState.nodePositionOverrides || {}).length ? (

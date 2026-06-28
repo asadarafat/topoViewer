@@ -14,33 +14,44 @@ panel, mapper, data-frame mapping, and interaction contract are stable.
 
 ```bash
 npm run grafana:lab:up
+npm run grafana:lab:smoke:phase4
 npm run grafana:lab:smoke:phase1
 npm run grafana:lab:smoke:phase2
-npm run grafana:lab:smoke:phase4
 npm run grafana:lab:down
 ```
+
+`npm run grafana:lab:up` starts the mounted-bundle lab directly. It does not
+run fixture sync or fixture checks; those remain explicit development and CI
+commands.
 
 The lab defaults to:
 
 - Grafana: `http://127.0.0.1:3000`
-- Phase 1 dashboard: `http://127.0.0.1:3000/d/topoviewer-phase-1/topoviewer-phase-1`
-- Phase 2 dashboard: `http://127.0.0.1:3000/d/topoviewer-phase-2/topoviewer-phase-2-weathermap`
 - Phase 4 dashboard: `http://127.0.0.1:3000/d/topoviewer-phase-4/topoviewer-phase-4-mounted-bundles`
+- Phase 1 fixture parity dashboard: `http://127.0.0.1:3000/d/topoviewer-phase-1/topoviewer-phase-1`
+- Phase 2 legacy weathermap dashboard: `http://127.0.0.1:3000/d/topoviewer-phase-2/topoviewer-phase-2-weathermap`
 - Prometheus: `http://127.0.0.1:9090`
 - Telemetry injector: `http://127.0.0.1:9108/scenario`
+
+The local dashboards are provisioned as editable lab seeds. Grafana UI saves
+write the edited dashboard to Grafana's database for the running lab; they do
+not rewrite the JSON files under `labs/grafana-topoviewer/grafana/dashboards`.
+Update those files separately when an edited dashboard should become the new
+checked-in seed.
 
 If the port is busy:
 
 ```bash
 GRAFANA_HTTP_PORT=3001 PROMETHEUS_HTTP_PORT=9091 TELEMETRY_INJECTOR_HTTP_PORT=9109 npm run grafana:lab:up
+GRAFANA_URL=http://127.0.0.1:3001 npm run grafana:lab:smoke:phase4
 GRAFANA_URL=http://127.0.0.1:3001 npm run grafana:lab:smoke:phase1
 GRAFANA_URL=http://127.0.0.1:3001 PROMETHEUS_URL=http://127.0.0.1:9091 TELEMETRY_INJECTOR_URL=http://127.0.0.1:9109 npm run grafana:lab:smoke:phase2
-GRAFANA_URL=http://127.0.0.1:3001 npm run grafana:lab:smoke:phase4
 ```
 
-The smoke test iterates every canonical harness fixture and captures detailed
-screenshots for `layered-network` and `clos-2spine-4leaf` under
-`.artifacts/grafana-phase-1/`.
+The Phase 1 smoke test iterates every canonical harness fixture and captures
+detailed screenshots for `layered-network` and `clos-2spine-4leaf` under
+`.artifacts/grafana-phase-1/`. The Phase 4 smoke test exercises the mounted
+bundle source and mapper path.
 
 ## Telemetry Scenarios
 
@@ -132,8 +143,8 @@ telemetry thresholds, severity colors, and operational overlays in
 `*.mapper.tv.yaml`.
 
 To manually test a color change, edit the `palette.error.color` value in the
-mounted mapper file, refresh the Phase 4 dashboard or switch the bundle selector
-away and back, and inject a high-utilization or link-failure scenario.
+mounted mapper file, use the Grafana dashboard refresh button or reload the
+browser page, and inject a high-utilization or link-failure scenario.
 
 Use precise IDs for direct joins (`node_id`, `link_id`, `path_id`,
 `region_id`) and labels/data keys for grouping or inventory joins.
@@ -177,7 +188,8 @@ discovery and requires exactly one `*.topo.tv.yaml`, one `*.style.tv.yaml`, and
 one `*.mapper.tv.yaml` per bundle directory.
 
 The old generated fixture flow remains useful for demo parity and regression
-tests. It is not the intended production workflow for user-provided topology.
+tests. It is not the intended production workflow for user-provided topology,
+and it is not required for `npm run grafana:lab:up`.
 
 If the topology renders but no telemetry appears, check:
 

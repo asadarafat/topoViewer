@@ -189,7 +189,7 @@ stylesheet:
     style:
       statusColor: "#ff9800"
       outlineColor: "#ff9800"
-      outlineWidth: 5
+      outlineWidth: 10
       outlineOpacity: 0.9
   - selector: link
     style:

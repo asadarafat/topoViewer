@@ -10,8 +10,8 @@ import {
 import type { TopoViewerGrafanaPanelOptions } from './types';
 
 export const sourceModeOptions: Array<{ value: GrafanaTopoViewerSourceMode; label: string; description: string }> = [
-  { value: 'fixture', label: 'Bundled example', description: 'Render generated TopoViewer examples bundled with the plugin for validation and preview workflows.' },
-  { value: 'mountedBundle', label: 'Topology bundle', description: 'Render topology/style/mapper YAML mounted into the Grafana container.' }
+  { value: 'mountedBundle', label: 'Topology bundle', description: 'Render topology/style/mapper YAML mounted into the Grafana container.' },
+  { value: 'fixture', label: 'Bundled example', description: 'Compatibility mode for generated TopoViewer examples used by demos and CI.' }
 ];
 
 export const themeModeOptions: Array<{ value: GrafanaTopoViewerThemeMode; label: string; description: string }> = [
@@ -32,7 +32,7 @@ export function applyTopoViewerPanelOptions(builder: PanelOptionsEditorBuilder<T
       path: 'sourceMode',
       name: 'Topology source',
       description: 'Choose whether the panel renders a production topology bundle or a bundled example fixture.',
-      defaultValue: 'fixture',
+      defaultValue: 'mountedBundle',
       settings: {
         options: sourceModeOptions
       }

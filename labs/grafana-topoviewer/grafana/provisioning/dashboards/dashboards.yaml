@@ -1,11 +1,12 @@
 apiVersion: 1
 
 providers:
-  - name: TopoViewer Phase 1
+  - name: TopoViewer Local Lab
     orgId: 1
     folder: TopoViewer
     type: file
     disableDeletion: false
+    allowUiUpdates: true
     editable: true
     updateIntervalSeconds: 10
     options:

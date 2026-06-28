@@ -57,7 +57,7 @@ function mountedBundlePayload(overrides: Partial<GrafanaMountedBundlePayload> = 
 describe('runtime model', () => {
   it('normalizes missing panel options', () => {
     expect(normalizePanelOptions(undefined)).toEqual({
-      sourceMode: 'fixture',
+      sourceMode: 'mountedBundle',
       fixtureId: 'layered-network',
       mountedBundle: {
         bundleRoot: '/etc/topoviewer/bundles',
@@ -82,6 +82,10 @@ describe('runtime model', () => {
         resetOnTopologyIdentityChange: true
       }
     });
+  });
+
+  it('infers fixture mode for legacy dashboards that only set fixtureId', () => {
+    expect(normalizePanelOptions({ fixtureId: 'clos-2spine-4leaf' }).sourceMode).toBe('fixture');
   });
 
   it('builds TopoViewer props from the selected generated fixture', () => {

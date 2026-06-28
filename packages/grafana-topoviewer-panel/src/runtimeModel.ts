@@ -6,6 +6,7 @@ import { parseTopoViewerMapperYaml } from './mapperParser';
 import {
   DEFAULT_MOUNTED_BUNDLE_ROOT,
   DEFAULT_FIXTURE_ID,
+  type GrafanaTopoViewerSourceMode,
   type GrafanaPanelDiagnostic,
   type GrafanaMountedBundlePayload,
   type GrafanaTopoViewerRuntimeModel,
@@ -109,9 +110,21 @@ function renderabilityDiagnostics(document: TopoDocument): GrafanaPanelDiagnosti
   return diagnostics;
 }
 
+function inferredSourceMode(options: TopoViewerGrafanaPanelOptions | undefined): GrafanaTopoViewerSourceMode {
+  if (options?.sourceMode) return options.sourceMode;
+
+  const hasMountedBundleConfig = Boolean(
+    options?.mountedBundle?.selectedBundleId ||
+    options?.mountedBundle?.bundleRoot ||
+    options?.mountedBundle?.manifestPath
+  );
+  if (options?.fixtureId && !hasMountedBundleConfig) return 'fixture';
+  return 'mountedBundle';
+}
+
 export function normalizePanelOptions(options: TopoViewerGrafanaPanelOptions | undefined): NormalizedTopoViewerGrafanaPanelOptions {
   return {
-    sourceMode: options?.sourceMode || 'fixture',
+    sourceMode: inferredSourceMode(options),
     fixtureId: options?.fixtureId || DEFAULT_FIXTURE_ID,
     mountedBundle: {
       bundleRoot: options?.mountedBundle?.bundleRoot || DEFAULT_MOUNTED_BUNDLE_ROOT,

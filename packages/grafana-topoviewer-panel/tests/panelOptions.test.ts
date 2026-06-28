@@ -32,7 +32,7 @@ function asGrafanaBuilder(builder: RecordingBuilder) {
 }
 
 describe('panel options', () => {
-  it('registers stable Phase 1 option defaults', () => {
+  it('registers stable production option defaults', () => {
     const builder = new RecordingBuilder();
     applyTopoViewerPanelOptions(asGrafanaBuilder(builder));
 
@@ -56,7 +56,7 @@ describe('panel options', () => {
       'interaction.persistNodePositions',
       'interaction.resetOnTopologyIdentityChange'
     ]);
-    expect(builder.calls[0]?.config.defaultValue).toBe('fixture');
+    expect(builder.calls[0]?.config.defaultValue).toBe('mountedBundle');
     expect(builder.calls[1]?.config.defaultValue).toBe('layered-network');
     expect(builder.calls[2]?.config.defaultValue).toBe('/etc/topoviewer/bundles');
     expect(builder.calls[3]?.config.defaultValue).toBe('');

@@ -12,11 +12,27 @@ remain later phases.
 
 ## Commands
 
+Production-shaped local lab:
+
 ```bash
-npm run grafana:fixtures:check
+npm run grafana:lab:up
+npm run grafana:lab:smoke:phase4
+npm run grafana:lab:down
+```
+
+Panel checks:
+
+```bash
 npm run grafana:injector:test
 npm run grafana:panel:test
 npm run grafana:panel:build
+```
+
+Demo and CI fixture parity:
+
+```bash
+npm run grafana:fixtures:check
+npm run grafana:lab:smoke:phase1
 ```
 
 The build uses Webpack because Grafana panel plugins load AMD modules. Vite ESM
@@ -58,6 +74,9 @@ The panel supports two topology sources:
   and the plugin backend discovers one or more bundle directories.
 - `fixture`: demo and regression workflow. The panel renders generated harness
   fixtures bundled into the frontend.
+
+New panels default to `mountedBundle`. Legacy dashboards that only set
+`fixtureId` keep using fixture mode so old demo dashboards do not break.
 
 Mounted bundles live under `/etc/topoviewer/bundles` by default:
 
@@ -229,7 +248,12 @@ Mapper schema diagnostics include the mapper path, such as
 `mappings[0].target.kind`, so the author can correct the bundle in the harness
 or editor.
 
-## Fixture Source
+## Compatibility Fixture Source
+
+Fixture mode is for bundled examples, demo dashboards, and regression tests. It
+is not the production workflow for user-provided topology. Users should mount
+`*.topo.tv.yaml`, `*.style.tv.yaml`, and `*.mapper.tv.yaml` bundles instead of
+editing the repo catalog, syncing fixtures, or rebuilding the plugin.
 
 Fixtures are generated from:
 
@@ -248,7 +272,12 @@ Regenerate after canonical example changes:
 
 ```bash
 npm run grafana:fixtures:sync
+npm run grafana:fixtures:check
 ```
+
+`npm run grafana:lab:up` does not run fixture sync or fixture checks. Those
+checks stay explicit so the production-shaped mounted-bundle lab is not blocked
+by development fixture drift.
 
 ## Local Grafana
 
@@ -261,9 +290,9 @@ npm run grafana:lab:up
 Run the smoke tests:
 
 ```bash
+npm run grafana:lab:smoke:phase4
 npm run grafana:lab:smoke:phase1
 npm run grafana:lab:smoke:phase2
-npm run grafana:lab:smoke:phase4
 ```
 
 Inject a telemetry scenario:
@@ -274,22 +303,26 @@ npm run grafana:lab:inject -- high-utilization
 npm run grafana:lab:inject -- link-failure
 ```
 
-The Phase 2 dashboard is:
-
-```text
-http://127.0.0.1:3000/d/topoviewer-phase-2/topoviewer-phase-2-weathermap
-```
-
 The topology bundle dashboard is:
 
 ```text
 http://127.0.0.1:3000/d/topoviewer-phase-4/topoviewer-phase-4-mounted-bundles
 ```
 
+The legacy weathermap dashboard is:
+
+```text
+http://127.0.0.1:3000/d/topoviewer-phase-2/topoviewer-phase-2-weathermap
+```
+
 Mounted-bundle telemetry uses the selected `*.mapper.tv.yaml`. Fixture
 dashboards keep the older built-in `topoviewer_link_*` compatibility path for
 demo and regression coverage. Canonical topology YAML and stylesheet YAML stay
 immutable; telemetry is applied as a transient TopoViewer extension.
+
+When mounted YAML changes on disk, use the Grafana dashboard refresh button or
+reload the browser page to refetch `*.topo.tv.yaml`, `*.style.tv.yaml`, and
+`*.mapper.tv.yaml`. The panel also refetches when the selected bundle changes.
 
 ## Interaction State
 
@@ -300,9 +333,10 @@ The panel can persist runtime interaction state locally:
 - local node position overrides from dragging;
 - reset of local node position overrides.
 
-This state is keyed by fixture and graph ID. It is stored in session or browser
-storage depending on panel options. It is not written back to topology YAML,
-stylesheet YAML, or Grafana dashboard JSON.
+This state is keyed by topology source, selected bundle or fixture, and graph
+ID. It is stored in session or browser storage depending on panel options. It
+is not written back to topology YAML, stylesheet YAML, mapper YAML, or Grafana
+dashboard JSON.
 
 Stop the lab:
 
@@ -314,6 +348,7 @@ If port `3000` is already used:
 
 ```bash
 GRAFANA_HTTP_PORT=3001 npm run grafana:lab:up
+GRAFANA_URL=http://127.0.0.1:3001 npm run grafana:lab:smoke:phase4
 GRAFANA_URL=http://127.0.0.1:3001 npm run grafana:lab:smoke:phase1
 GRAFANA_URL=http://127.0.0.1:3001 PROMETHEUS_URL=http://127.0.0.1:9090 TELEMETRY_INJECTOR_URL=http://127.0.0.1:9108 npm run grafana:lab:smoke:phase2
 ```
