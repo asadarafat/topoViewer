@@ -457,6 +457,13 @@ code-only link weathermap path:
   child objects.
 
 All overlays should remain runtime overlays. They must not mutate source YAML.
+This follows Grafana's display-policy model: query/data-frame values are
+evaluated against thresholds and mapping rules, then the visualization changes
+its presentation. In TopoViewer terms, `*.style.tv.yaml` remains the static
+diagram baseline, while `*.mapper.tv.yaml` owns operational thresholds,
+severity colors, and runtime overlay controls. Mapper palettes keep telemetry
+color policy beside telemetry binding so operators can change severity colors
+without editing the static stylesheet or rebuilding the panel.
 
 Dedicated operational playbooks are intentionally deferred:
 

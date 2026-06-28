@@ -507,8 +507,33 @@ test('suggests mapper keys, resolver values, object IDs, and metric labels in YA
   expect(rootSuggestions.map((suggestion) => suggestion.label)).toEqual(expect.arrayContaining([
     'version',
     'identity',
+    'palette',
     'mappings',
     'mapper document snippet'
+  ]));
+
+  const paletteSeveritySuggestions = await yamlCompletions(page, {
+    document: 'mapper',
+    text: 'version: 1\npalette:\n  ',
+    lineNumber: 3,
+    column: 3
+  });
+  expect(paletteSeveritySuggestions.map((suggestion) => suggestion.label)).toEqual(expect.arrayContaining([
+    'success',
+    'info',
+    'warning',
+    'error'
+  ]));
+
+  const paletteColorSuggestions = await yamlCompletions(page, {
+    document: 'mapper',
+    text: 'version: 1\npalette:\n  error:\n    color: ',
+    lineNumber: 4,
+    column: 12
+  });
+  expect(paletteColorSuggestions.map((suggestion) => suggestion.label)).toEqual(expect.arrayContaining([
+    '"#d32f2f"',
+    '"#c62828"'
   ]));
 
   const targetKindSuggestions = await yamlCompletions(page, {

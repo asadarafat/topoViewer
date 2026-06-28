@@ -17,6 +17,9 @@
     "identity": {
       "$ref": "#/definitions/identity"
     },
+    "palette": {
+      "$ref": "#/definitions/severityPalette"
+    },
     "mappings": {
       "type": "array",
       "description": "Metric-to-object mapping rules.",
@@ -40,6 +43,47 @@
           "description": "Telemetry label carrying the source identity."
         }
       }
+    },
+    "severityPalette": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Optional severity color palette used by severity-driven runtime overlays.",
+      "properties": {
+        "success": {
+          "$ref": "#/definitions/severityPaletteEntry"
+        },
+        "info": {
+          "$ref": "#/definitions/severityPaletteEntry"
+        },
+        "warning": {
+          "$ref": "#/definitions/severityPaletteEntry"
+        },
+        "error": {
+          "$ref": "#/definitions/severityPaletteEntry"
+        }
+      }
+    },
+    "severityPaletteEntry": {
+      "description": "Severity color. Use a string shorthand or a mapping when label/accent color should differ from the main overlay color.",
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "color": {
+              "type": "string",
+              "description": "Main overlay color for lines, borders, backgrounds, outlines, and status markers."
+            },
+            "accent": {
+              "type": "string",
+              "description": "Text/accent color for labels derived from this severity."
+            }
+          }
+        }
+      ]
     },
     "mapping": {
       "type": "object",

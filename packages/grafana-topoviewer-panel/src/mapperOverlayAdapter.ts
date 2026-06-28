@@ -13,6 +13,7 @@ import type {
   MapperOverlayPolicy,
   MapperResolver,
   MapperRule,
+  MapperSeverityPalette,
   MapperTargetKind,
   MapperTelemetrySample,
   TopoViewerMapper
@@ -167,12 +168,21 @@ function severityForSample(sample: MapperTelemetrySample, rule: MapperRule): Tel
   return 'success';
 }
 
-function severityColor(severity: TelemetrySeverity): string | undefined {
-  return colorForTelemetrySeverity(severity);
+function paletteEntry(palette: MapperSeverityPalette | undefined, severity: TelemetrySeverity) {
+  if (severity === 'none') return undefined;
+  return palette?.[severity];
 }
 
-function severityAccent(severity: TelemetrySeverity): string | undefined {
-  return accentColorForTelemetrySeverity(severity) || severityColor(severity);
+function severityColor(severity: TelemetrySeverity, palette?: MapperSeverityPalette): string | undefined {
+  const entry = paletteEntry(palette, severity);
+  if (typeof entry === 'string') return entry;
+  return entry?.color || colorForTelemetrySeverity(severity);
+}
+
+function severityAccent(severity: TelemetrySeverity, palette?: MapperSeverityPalette): string | undefined {
+  const entry = paletteEntry(palette, severity);
+  if (typeof entry === 'string') return entry;
+  return entry?.accent || entry?.color || accentColorForTelemetrySeverity(severity) || severityColor(severity, palette);
 }
 
 function renderTemplate(template: string | undefined, sample: MapperTelemetrySample, rule: MapperRule, entity: MapperOverlayEntity, severity: TelemetrySeverity): string | undefined {
@@ -201,11 +211,12 @@ function styleForOverlay(
   sample: MapperTelemetrySample,
   rule: MapperRule,
   entity: MapperOverlayEntity,
-  severity: TelemetrySeverity
+  severity: TelemetrySeverity,
+  palette?: MapperSeverityPalette
 ): StyleDeclaration {
   const overlay = policy || {};
-  const color = severityColor(severity);
-  const accent = severityAccent(severity);
+  const color = severityColor(severity, palette);
+  const accent = severityAccent(severity, palette);
   const style: StyleDeclaration = { ...(overlay.style || {}) };
   const label = renderTemplate(overlay.label, sample, rule, entity, severity);
   const badgeLabel = renderTemplate(overlay.badgeLabel, sample, rule, entity, severity);
@@ -384,9 +395,9 @@ function bucketForKind(overlay: MapperTelemetryOverlay, kind: MapperTargetKind):
   return undefined;
 }
 
-function endpointStyle(policy: MapperOverlayPolicy | undefined, severity: TelemetrySeverity): StyleDeclaration {
+function endpointStyle(policy: MapperOverlayPolicy | undefined, severity: TelemetrySeverity, palette?: MapperSeverityPalette): StyleDeclaration {
   const style: StyleDeclaration = {};
-  const color = severityColor(severity);
+  const color = severityColor(severity, palette);
   if (!color) return style;
   if (policy?.statusMarker) {
     style.statusColor = color;
@@ -499,7 +510,7 @@ export function createMapperTelemetryOverlay(
           const objectKey = `${target.kind}:${target.id}`;
           if (appliedObjectKeys.has(objectKey)) duplicateObjectKeys.add(objectKey);
           appliedObjectKeys.add(objectKey);
-          const style = styleForOverlay(target.kind, rule.overlay, sample, rule, target, severity);
+          const style = styleForOverlay(target.kind, rule.overlay, sample, rule, target, severity, mapper.palette);
           const bucket = bucketForKind(overlay, target.kind);
           if (bucket) mergeOverlayStyle(bucket, severities, target, style, severity);
           if (target.kind === 'link') {
@@ -508,7 +519,7 @@ export function createMapperTelemetryOverlay(
               overlay.linksById[target.id] = { link, sample, rule, severity, style };
             }
             const endpoints = link ? [link.source, link.target] : [];
-            const endpointOverlay = endpointStyle(rule.overlay, severity);
+            const endpointOverlay = endpointStyle(rule.overlay, severity, mapper.palette);
             for (const endpointId of endpoints) {
               mergeOverlayStyle(overlay.nodeStylesById, severities, { kind: 'node', id: endpointId }, endpointOverlay, severity);
             }

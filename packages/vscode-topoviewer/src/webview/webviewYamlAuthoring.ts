@@ -108,8 +108,10 @@ const stylesheetKeyDocumentation: Record<string, string> = {
 };
 
 const mapperKeyDocumentation: Record<string, string> = {
+  accent: 'Optional label/accent color for this severity.',
   badgeLabel: 'Template used for node badge text.',
   by: 'Resolver mode used to match telemetry to TopoViewer objects.',
+  color: 'Main overlay color for this severity.',
   error: 'Threshold where a value becomes error severity.',
   field: 'Grafana data-frame field to read; defaults to the sample value.',
   identity: 'Optional source identity filter before mapper rules are evaluated.',
@@ -122,6 +124,7 @@ const mapperKeyDocumentation: Record<string, string> = {
   metricLabel: 'Telemetry label used as the join value.',
   objectIds: 'Explicit TopoViewer object IDs for static object matching.',
   overlay: 'Runtime-only visual overlay controls.',
+  palette: 'Severity colors used by severity-driven runtime overlays.',
   resolve: 'Resolver configuration for the target object kind.',
   selector: 'TopoViewer selector used by selector resolver.',
   sourceId: 'Expected source identity value.',
@@ -422,6 +425,12 @@ function stylesheetSchemaPropertiesForPath(path: string[]) {
 }
 
 function mapperSchemaPropertiesForPath(path: string[]) {
+  if (path.includes('palette')) {
+    const severityKeys = new Set(['success', 'info', 'warning', 'error']);
+    return severityKeys.has(path[path.length - 1] || '')
+      ? schemaDefinitionProperties(mapperRootSchema, 'severityPaletteEntry')
+      : schemaDefinitionProperties(mapperRootSchema, 'severityPalette');
+  }
   if (path.includes('identity')) return schemaDefinitionProperties(mapperRootSchema, 'identity');
   if (path.includes('target')) return schemaDefinitionProperties(mapperRootSchema, 'target');
   if (path.includes('resolve')) return schemaDefinitionProperties(mapperRootSchema, 'resolver');
@@ -604,6 +613,17 @@ const mapperMetricNameSuggestions = [
   'routing_adjacency_up'
 ];
 
+const mapperSeverityColorSuggestions = [
+  '"#4caf50"',
+  '"#42a5f5"',
+  '"#ff9800"',
+  '"#d32f2f"',
+  '"#2e7d32"',
+  '"#1976d2"',
+  '"#ed6c02"',
+  '"#c62828"'
+];
+
 function mapperObjectIds(document: TopoDocument | undefined) {
   const graph = document?.graph;
   return {
@@ -632,6 +652,11 @@ function mapperValueSuggestions(request: YamlAuthoringRequest, key: string): Yam
   if (key === 'direction') return referenceSuggestions(['above', 'below'], 'Threshold direction');
   if (key === 'as') return referenceSuggestions(['up', 'utilizationPercent', 'errorsTotal', 'latencyMs', 'lossPercent', 'capacityPercent', 'health'], 'Metric value semantics');
   if (key === 'metric') return referenceSuggestions(mapperMetricNameSuggestions, 'Metric name');
+  if (key === 'success') return referenceSuggestions(['"#4caf50"'], 'Success severity color');
+  if (key === 'info') return referenceSuggestions(['"#42a5f5"'], 'Info severity color');
+  if (key === 'warning') return referenceSuggestions(['"#ff9800"'], 'Warning severity color');
+  if (key === 'error') return referenceSuggestions(['"#d32f2f"'], 'Error severity color');
+  if (key === 'color' || key === 'accent') return referenceSuggestions(mapperSeverityColorSuggestions, 'Severity palette color');
   if (key === 'metricLabel' || key === 'sourceIdLabel' || key === 'sourceLabel' || key === 'targetLabel') {
     return referenceSuggestions(mapperMetricLabelSuggestions, 'Telemetry label');
   }
@@ -675,7 +700,7 @@ function mapperSnippetSuggestions(): YamlAuthoringSuggestion[] {
     },
     {
       label: 'mapper document snippet',
-      insertText: 'version: 1\nidentity:\n  sourceId: ${1:topology-id}\n  sourceIdLabel: ${2:source_id}\nmappings:\n  - id: ${3:link-utilization}\n    metric: ${4:topoviewer_link_utilization_percent}\n    target:\n      kind: link\n      resolve:\n        by: id\n        metricLabel: link_id',
+      insertText: 'version: 1\nidentity:\n  sourceId: ${1:topology-id}\n  sourceIdLabel: ${2:source_id}\npalette:\n  success:\n    color: "#4caf50"\n    accent: "#2e7d32"\n  info:\n    color: "#42a5f5"\n    accent: "#1976d2"\n  warning:\n    color: "#ff9800"\n    accent: "#ed6c02"\n  error:\n    color: "#d32f2f"\n    accent: "#c62828"\nmappings:\n  - id: ${3:link-utilization}\n    metric: ${4:topoviewer_link_utilization_percent}\n    target:\n      kind: link\n      resolve:\n        by: id\n        metricLabel: link_id',
       isSnippet: true,
       kind: 'snippet',
       documentation: 'Insert a complete mapper document skeleton.'

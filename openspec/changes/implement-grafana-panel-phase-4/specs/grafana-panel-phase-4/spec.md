@@ -96,6 +96,17 @@ production workflow.
 - **AND** overlays SHALL remain runtime-only and SHALL NOT mutate topology YAML
   or stylesheet YAML
 
+#### Scenario: Mapper Severity Palette Controls Operational Colors
+
+- **WHEN** a mounted bundle defines severity colors in `*.mapper.tv.yaml`
+- **THEN** severity-driven runtime overlays SHALL use that mapper palette
+- **AND** missing palette entries SHALL fall back to the built-in Grafana
+  TopoViewer severity colors
+- **AND** users SHALL be able to change operational colors by editing mapper
+  YAML and reloading the selected mounted bundle
+- **AND** static shape, icon, and baseline styling SHALL remain in
+  `*.style.tv.yaml`
+
 #### Scenario: TopoViewer Mapper Is Schema Backed
 
 - **WHEN** `*.mapper.tv.yaml` support is implemented

@@ -3,6 +3,14 @@ import type { StyleDeclaration } from 'topoviewer';
 export type MapperTargetKind = 'node' | 'link' | 'path' | 'region' | 'layer' | 'graph';
 export type MapperResolverMode = 'id' | 'label' | 'data' | 'endpoint' | 'selector' | 'aggregate' | 'staticObjectIds';
 export type MapperSeverityDirection = 'above' | 'below';
+export type MapperSeverityName = 'success' | 'info' | 'warning' | 'error';
+
+export interface MapperSeverityColor {
+  color?: string;
+  accent?: string;
+}
+
+export type MapperSeverityPalette = Partial<Record<MapperSeverityName, string | MapperSeverityColor>>;
 
 export interface TopoViewerMapper {
   version: 1;
@@ -10,6 +18,7 @@ export interface TopoViewerMapper {
     sourceId?: string;
     sourceIdLabel?: string;
   };
+  palette?: MapperSeverityPalette;
   mappings: MapperRule[];
 }
 

@@ -8,6 +8,10 @@ describe('TopoViewer mapper parser', () => {
       'identity:',
       '  sourceId: layered-network',
       '  sourceIdLabel: fixture_id',
+      'palette:',
+      '  error:',
+      '    color: "#e91e63"',
+      '    accent: "#ad1457"',
       'mappings:',
       '  - id: link-utilization',
       '    metric: topoviewer_link_utilization_percent',
@@ -32,6 +36,10 @@ describe('TopoViewer mapper parser', () => {
       sourceId: 'layered-network',
       sourceIdLabel: 'fixture_id'
     });
+    expect(result.mapper?.palette?.error).toEqual({
+      color: '#e91e63',
+      accent: '#ad1457'
+    });
     expect(result.mapper?.mappings[0]).toMatchObject({
       id: 'link-utilization',
       metric: 'topoviewer_link_utilization_percent',
@@ -42,6 +50,29 @@ describe('TopoViewer mapper parser', () => {
           metricLabel: 'link_id'
         }
       }
+    });
+  });
+
+  it('parses severity palette shorthand colors', () => {
+    const result = parseTopoViewerMapperYaml([
+      'version: 1',
+      'palette:',
+      '  success: "#00c853"',
+      '  warning: "#ffab00"',
+      'mappings:',
+      '  - id: node-health',
+      '    metric: node_health',
+      '    target:',
+      '      kind: node',
+      '      resolve:',
+      '        by: id',
+      '        metricLabel: node_id'
+    ].join('\n'));
+
+    expect(result.diagnostics).toEqual([]);
+    expect(result.mapper?.palette).toEqual({
+      success: '#00c853',
+      warning: '#ffab00'
     });
   });
 

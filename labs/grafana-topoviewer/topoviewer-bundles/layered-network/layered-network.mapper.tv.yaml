@@ -2,6 +2,19 @@ version: 1
 identity:
   sourceId: layered-network
   sourceIdLabel: fixture_id
+palette:
+  success:
+    color: "#4caf50"
+    accent: "#2e7d32"
+  info:
+    color: "#42a5f5"
+    accent: "#1976d2"
+  warning:
+    color: "#ff9800"
+    accent: "#ed6c02"
+  error:
+    color: "#d32f2f"
+    accent: "#c62828"
 mappings:
   - id: link-oper-state
     metric: topoviewer_link_up

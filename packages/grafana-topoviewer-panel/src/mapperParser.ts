@@ -5,6 +5,8 @@ import type {
   MapperResolver,
   MapperResolverMode,
   MapperRule,
+  MapperSeverityName,
+  MapperSeverityPalette,
   MapperTargetKind,
   MapperThresholds,
   MapperValueSelector,
@@ -14,8 +16,10 @@ import type {
 const targetKinds = new Set<MapperTargetKind>(['node', 'link', 'path', 'region', 'layer', 'graph']);
 const resolverModes = new Set<MapperResolverMode>(['id', 'label', 'data', 'endpoint', 'selector', 'aggregate', 'staticObjectIds']);
 const valueAsKinds = new Set(['up', 'utilizationPercent', 'errorsTotal', 'latencyMs', 'lossPercent', 'capacityPercent', 'health']);
-const rootKeys = new Set(['$schema', 'version', 'identity', 'mappings']);
+const severityNames = new Set<MapperSeverityName>(['success', 'info', 'warning', 'error']);
+const rootKeys = new Set(['$schema', 'version', 'identity', 'palette', 'mappings']);
 const identityKeys = new Set(['sourceId', 'sourceIdLabel']);
+const paletteEntryKeys = new Set(['color', 'accent']);
 const mappingKeys = new Set(['id', 'metric', 'target', 'value', 'thresholds', 'overlay']);
 const targetKeys = new Set(['kind', 'resolve']);
 const resolverKeys = new Set(['by', 'metricLabel', 'key', 'sourceLabel', 'targetLabel', 'selector', 'objectIds']);
@@ -120,6 +124,40 @@ function parseThresholds(input: unknown): MapperThresholds | undefined {
   if (input.direction === 'below') thresholds.direction = 'below';
   if (input.direction === 'above') thresholds.direction = 'above';
   return Object.keys(thresholds).length ? thresholds : undefined;
+}
+
+function parsePaletteEntry(input: unknown, diagnostics: GrafanaPanelDiagnostic[], path: string): string | { color?: string; accent?: string } | undefined {
+  if (typeof input === 'string' && input.trim()) return input.trim();
+  if (!isRecord(input)) {
+    diagnostics.push(schemaDiagnostic(path, 'must be a color string or a mapping with color/accent'));
+    return undefined;
+  }
+  diagnostics.push(...unknownKeyDiagnostics(input, paletteEntryKeys, path));
+  const color = stringValue(input.color);
+  const accent = stringValue(input.accent);
+  if (!color && !accent) {
+    diagnostics.push(schemaDiagnostic(path, 'must define color or accent'));
+    return undefined;
+  }
+  return { color, accent };
+}
+
+function parsePalette(input: unknown, diagnostics: GrafanaPanelDiagnostic[]): MapperSeverityPalette | undefined {
+  if (input === undefined) return undefined;
+  if (!isRecord(input)) {
+    diagnostics.push(schemaDiagnostic('palette', 'must be a YAML mapping'));
+    return undefined;
+  }
+  const palette: MapperSeverityPalette = {};
+  for (const key of Object.keys(input).sort()) {
+    if (!severityNames.has(key as MapperSeverityName)) {
+      diagnostics.push(schemaDiagnostic(`palette.${key}`, `must be one of ${Array.from(severityNames).join(', ')}`));
+      continue;
+    }
+    const entry = parsePaletteEntry(input[key], diagnostics, `palette.${key}`);
+    if (entry !== undefined) palette[key as MapperSeverityName] = entry;
+  }
+  return Object.keys(palette).length ? palette : undefined;
 }
 
 function parseValue(input: unknown, diagnostics: GrafanaPanelDiagnostic[], path: string): MapperValueSelector | undefined {
@@ -357,6 +395,7 @@ export function parseTopoViewerMapperYaml(source: string, label = 'TopoViewer ma
       mapper: {
         version: 1,
         identity: sourceId || sourceIdLabel ? { sourceId, sourceIdLabel } : undefined,
+        palette: parsePalette(parsed.palette, diagnostics),
         mappings
       },
       diagnostics

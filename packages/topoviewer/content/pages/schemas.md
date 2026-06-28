@@ -52,6 +52,11 @@ For Grafana mapper YAML:
 ```yaml
 $schema: ../../schemas/topoviewer-mapper.schema.json
 version: 1
+palette:
+  success: "#4caf50"
+  info: "#42a5f5"
+  warning: "#ff9800"
+  error: "#d32f2f"
 mappings: []
 ```
 
@@ -95,6 +100,7 @@ The schemas are strict for TopoViewer's core graph contract:
 - `limits` is a first-class renderer guardrail object.
 - MkDocs fenced blocks only allow known embed options.
 - Mapper files require `version: 1`, explicit `mappings`, known target kinds, known resolver modes, and known overlay controls.
+- Mapper palettes may define severity colors with shorthand strings or `color`/`accent` mappings.
 
 The schemas are intentionally permissive for domain-specific metadata:
 

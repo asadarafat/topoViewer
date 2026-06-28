@@ -84,6 +84,54 @@ describe('mapper telemetry overlay adapter', () => {
     });
   });
 
+  it('uses mapper palette colors for severity-driven overlays', () => {
+    const mapper: TopoViewerMapper = {
+      version: 1,
+      palette: {
+        error: {
+          color: '#e91e63',
+          accent: '#ad1457'
+        }
+      },
+      mappings: [
+        {
+          id: 'utilization',
+          metric: 'topoviewer_link_utilization_percent',
+          target: {
+            kind: 'link',
+            resolve: {
+              by: 'id',
+              metricLabel: 'link_id'
+            }
+          },
+          value: { as: 'utilizationPercent' },
+          thresholds: { error: 90 },
+          overlay: {
+            lineColorBySeverity: true,
+            statusMarker: true,
+            outlineBySeverity: true,
+            label: '{{ value | round }}%'
+          }
+        }
+      ]
+    };
+    const overlay = createMapperTelemetryOverlay(document, mapper, [{
+      metric: 'topoviewer_link_utilization_percent',
+      value: 95,
+      labels: { link_id: 'pe1-p1' },
+      fields: { value: 95 }
+    }]);
+
+    expect(overlay.linkStylesById['pe1-p1']).toMatchObject({
+      lineColor: '#e91e63',
+      labelColor: '#ad1457'
+    });
+    expect(overlay.nodeStylesById.pe1).toMatchObject({
+      statusColor: '#e91e63',
+      outlineColor: '#e91e63'
+    });
+  });
+
   it('maps a metric to a node by data key', () => {
     const mapper: TopoViewerMapper = {
       version: 1,

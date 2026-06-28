@@ -106,6 +106,12 @@ The mapper file is the explicit telemetry binding artifact. It maps Grafana
 data-frame metrics to TopoViewer objects without mutating topology or
 stylesheet YAML.
 
+This is intentionally a runtime display policy. The static diagram contract
+stays in `*.topo.tv.yaml` and `*.style.tv.yaml`; telemetry events/data frames
+produce runtime overlays through `*.mapper.tv.yaml`. That mirrors Grafana's
+threshold-style visualization model: data is not rewritten, but the panel
+changes color, width, labels, badges, and markers according to current values.
+
 Supported target kinds are:
 
 - `node`
@@ -132,6 +138,19 @@ version: 1
 identity:
   sourceId: branch-core
   sourceIdLabel: source_id
+palette:
+  success:
+    color: "#4caf50"
+    accent: "#2e7d32"
+  info:
+    color: "#42a5f5"
+    accent: "#1976d2"
+  warning:
+    color: "#ff9800"
+    accent: "#ed6c02"
+  error:
+    color: "#d32f2f"
+    accent: "#c62828"
 mappings:
   - id: link-utilization
     metric: interface_utilization_percent

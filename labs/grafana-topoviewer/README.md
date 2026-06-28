@@ -89,6 +89,19 @@ version: 1
 identity:
   sourceId: layered-network
   sourceIdLabel: fixture_id
+palette:
+  success:
+    color: "#4caf50"
+    accent: "#2e7d32"
+  info:
+    color: "#42a5f5"
+    accent: "#1976d2"
+  warning:
+    color: "#ff9800"
+    accent: "#ed6c02"
+  error:
+    color: "#d32f2f"
+    accent: "#c62828"
 mappings:
   - id: link-utilization
     metric: topoviewer_link_utilization_percent
@@ -110,6 +123,17 @@ mappings:
       outlineBySeverity: true
       label: "{{ value | round }}%"
 ```
+
+The mapper does not rewrite topology YAML or stylesheet YAML. It behaves like a
+Grafana display policy: telemetry samples are evaluated against mapper rules,
+then TopoViewer receives runtime overlays for the matched objects. Keep the
+normal shape, icon, label, and base color policy in `*.style.tv.yaml`; keep
+telemetry thresholds, severity colors, and operational overlays in
+`*.mapper.tv.yaml`.
+
+To manually test a color change, edit the `palette.error.color` value in the
+mounted mapper file, refresh the Phase 4 dashboard or switch the bundle selector
+away and back, and inject a high-utilization or link-failure scenario.
 
 Use precise IDs for direct joins (`node_id`, `link_id`, `path_id`,
 `region_id`) and labels/data keys for grouping or inventory joins.
