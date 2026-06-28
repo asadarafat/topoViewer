@@ -2,6 +2,81 @@ import { describe, expect, it } from 'vitest';
 import { parseTopoViewerMapperYaml } from '../src/mapperParser';
 
 describe('TopoViewer mapper parser', () => {
+  it('parses compact authoring rules into canonical mapper rules', () => {
+    const result = parseTopoViewerMapperYaml([
+      'version: 1',
+      'rules:',
+      '  - id: link-utilization',
+      '    metric: topoviewer_link_utilization_percent',
+      '    select: link',
+      '    join: link_id',
+      '    value: percent',
+      '    states:',
+      '      busy: ">=70"',
+      '      saturated: ">=90"',
+      '    style:',
+      '      default:',
+      '        lineColor: "#4caf50"',
+      '        label: "{{ value | round }}%"',
+      '      busy:',
+      '        lineColor: "#ff9800"',
+      '        lineWidth: 4',
+      '      saturated:',
+      '        lineColor: "#d32f2f"',
+      '        lineWidth: 7',
+      '        label: "{{ state }} {{ value | round }}%"'
+    ].join('\n'));
+
+    expect(result.diagnostics).toEqual([]);
+    expect(result.mapper?.mappings[0]).toMatchObject({
+      id: 'link-utilization',
+      metric: 'topoviewer_link_utilization_percent',
+      target: {
+        kind: 'link',
+        resolve: {
+          by: 'id',
+          metricLabel: 'link_id'
+        }
+      },
+      value: {
+        as: 'utilizationPercent'
+      },
+      overlay: {
+        style: {
+          lineColor: '#4caf50',
+          label: '{{ value | round }}%'
+        }
+      },
+      conditions: [
+        {
+          id: 'busy',
+          when: {
+            value: {
+              gte: 70
+            }
+          },
+          style: {
+            lineColor: '#ff9800',
+            lineWidth: 4
+          }
+        },
+        {
+          id: 'saturated',
+          when: {
+            value: {
+              gte: 90
+            }
+          },
+          style: {
+            lineColor: '#d32f2f',
+            lineWidth: 7,
+            label: 'saturated {{ value | round }}%'
+          }
+        }
+      ]
+    });
+  });
+
   it('parses explicit metric-to-object mapping rules', () => {
     const result = parseTopoViewerMapperYaml([
       'version: 1',
@@ -28,7 +103,14 @@ describe('TopoViewer mapper parser', () => {
       '      error: 90',
       '    overlay:',
       '      lineColorBySeverity: true',
-      '      label: "{{ value | round }}%"'
+      '      label: "{{ value | round }}%"',
+      '    conditions:',
+      '      - id: hot-link',
+      '        when:',
+      '          severity: error',
+      '        style:',
+      '          label: "hot {{ value | round }}%"',
+      '          lineColor: "#d32f2f"'
     ].join('\n'));
 
     expect(result.diagnostics).toEqual([]);
@@ -49,6 +131,16 @@ describe('TopoViewer mapper parser', () => {
           by: 'id',
           metricLabel: 'link_id'
         }
+      }
+    });
+    expect(result.mapper?.mappings[0]?.conditions?.[0]).toMatchObject({
+      id: 'hot-link',
+      when: {
+        severity: 'error'
+      },
+      style: {
+        label: 'hot {{ value | round }}%',
+        lineColor: '#d32f2f'
       }
     });
   });
@@ -117,6 +209,33 @@ describe('TopoViewer mapper parser', () => {
       code: 'mapper-schema-invalid',
       document: 'mapper',
       path: 'mappings[0].unsupported'
+    }));
+  });
+
+  it('reports invalid condition keys with mapper paths', () => {
+    const result = parseTopoViewerMapperYaml([
+      'version: 1',
+      'mappings:',
+      '  - id: bad-condition',
+      '    metric: device_cpu_percent',
+      '    target:',
+      '      kind: node',
+      '      resolve:',
+      '        by: id',
+      '        metricLabel: node_id',
+      '    conditions:',
+      '      - when:',
+      '          label:',
+      '            eq: pe',
+      '        style:',
+      '          label: PE'
+    ].join('\n'));
+
+    expect(result.diagnostics).toContainEqual(expect.objectContaining({
+      severity: 'error',
+      code: 'mapper-schema-invalid',
+      document: 'mapper',
+      path: 'mappings[0].conditions[0].when.label.key'
     }));
   });
 

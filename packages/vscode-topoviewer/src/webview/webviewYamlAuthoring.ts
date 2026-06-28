@@ -112,29 +112,44 @@ const mapperKeyDocumentation: Record<string, string> = {
   badgeLabel: 'Template used for node badge text.',
   by: 'Resolver mode used to match telemetry to TopoViewer objects.',
   color: 'Main overlay color for this severity.',
+  conditions: 'Conditional runtime style patches evaluated after the base mapper overlay.',
+  contains: 'String containment test for a value, label, or field condition.',
+  eq: 'Exact match condition for a value, label, or field.',
   error: 'Threshold where a value becomes error severity.',
+  exists: 'Presence test for a value, label, or field condition.',
   field: 'Grafana data-frame field to read; defaults to the sample value.',
+  gt: 'Numeric greater-than condition.',
+  gte: 'Numeric greater-than-or-equal condition.',
   identity: 'Optional source identity filter before mapper rules are evaluated.',
   info: 'Threshold where a value becomes info severity.',
   key: 'TopoViewer labels or data key used by label/data resolvers.',
   kind: 'TopoViewer target kind affected by this rule.',
   label: 'Template used for rendered label text.',
+  lt: 'Numeric less-than condition.',
+  lte: 'Numeric less-than-or-equal condition.',
   mappings: 'Metric-to-object mapping rules.',
   metric: 'Grafana data-frame metric name to match.',
   metricLabel: 'Telemetry label used as the join value.',
+  ne: 'Negative exact-match condition for a value, label, or field.',
   objectIds: 'Explicit TopoViewer object IDs for static object matching.',
   overlay: 'Runtime-only visual overlay controls.',
   palette: 'Severity colors used by severity-driven runtime overlays.',
   resolve: 'Resolver configuration for the target object kind.',
+  rules: 'Human-friendly mapper rules. Prefer this for hand-authored mapper YAML.',
   selector: 'TopoViewer selector used by selector resolver.',
+  select: 'TopoViewer object kind or selector affected by this rule.',
+  severity: 'Computed mapper severity for conditional style rules.',
   sourceId: 'Expected source identity value.',
   sourceIdLabel: 'Telemetry label carrying source identity.',
   sourceLabel: 'Telemetry label carrying link source node ID.',
+  style: 'TopoViewer style patch applied by a mapper overlay or condition.',
+  states: 'Named value states such as down, busy, or saturated.',
   target: 'TopoViewer target kind and resolver.',
   targetLabel: 'Telemetry label carrying link target node ID.',
   thresholds: 'Severity thresholds for numeric metric values.',
   value: 'Metric value extraction and semantic interpretation.',
   version: 'Mapper schema version. Use version: 1.',
+  when: 'Condition that must match before a conditional style patch is applied.',
   warning: 'Threshold where a value becomes warning severity.'
 };
 
@@ -265,9 +280,22 @@ function isStylesheetStyleContext(request: YamlAuthoringRequest) {
     const line = lines[index];
     if (!line.trim()) continue;
     const indent = lineIndent(line);
-    if (/^\s*style:\s*$/.test(line) && indent < currentIndent) return true;
+    if (/^\s*(?:-\s*)?style:\s*$/.test(line) && indent < currentIndent) return true;
     if (/^\s*-\s*selector:/.test(line) && indent < currentIndent) return false;
     if (/^\s*stylesheet:\s*$/.test(line) && indent < currentIndent) return false;
+  }
+  return false;
+}
+
+function isMapperStyleContext(request: YamlAuthoringRequest) {
+  const lines = request.text.split(/\r?\n/);
+  const currentIndent = lineIndent(lines[Math.max(0, request.lineNumber - 1)] || '');
+  for (let index = request.lineNumber - 2; index >= 0; index -= 1) {
+    const line = lines[index];
+    if (!line.trim()) continue;
+    const indent = lineIndent(line);
+    if (/^\s*(?:-\s*)?style:\s*$/.test(line) && indent < currentIndent) return true;
+    if (/^\s*(?:overlay|conditions|target|mappings):\s*$/.test(line) && indent < currentIndent) return false;
   }
   return false;
 }
@@ -432,6 +460,19 @@ function mapperSchemaPropertiesForPath(path: string[]) {
       : schemaDefinitionProperties(mapperRootSchema, 'severityPalette');
   }
   if (path.includes('identity')) return schemaDefinitionProperties(mapperRootSchema, 'identity');
+  if (path.includes('rules')) {
+    if (path.includes('style')) return {};
+    return schemaDefinitionProperties(mapperRootSchema, 'authoringRule');
+  }
+  if (path.includes('conditions')) {
+    if (path.includes('style')) return {};
+    if (path.includes('when')) {
+      if (path.includes('label') || path.includes('field')) return schemaDefinitionProperties(mapperRootSchema, 'keyedCondition');
+      if (path.includes('value')) return schemaDefinitionProperties(mapperRootSchema, 'scalarCondition');
+      return schemaDefinitionProperties(mapperRootSchema, 'condition');
+    }
+    return schemaDefinitionProperties(mapperRootSchema, 'conditionalStyle');
+  }
   if (path.includes('target')) return schemaDefinitionProperties(mapperRootSchema, 'target');
   if (path.includes('resolve')) return schemaDefinitionProperties(mapperRootSchema, 'resolver');
   if (path.includes('value')) return schemaDefinitionProperties(mapperRootSchema, 'value');
@@ -641,23 +682,39 @@ function mapperTargetKindForContext(request: YamlAuthoringRequest) {
   for (let index = request.lineNumber - 1; index >= 0; index -= 1) {
     const kind = lines[index]?.match(/kind:\s*["']?(node|link|path|region|layer|graph)/)?.[1];
     if (kind) return kind as 'node' | 'link' | 'path' | 'region' | 'layer' | 'graph';
+    const selectedKind = lines[index]?.match(/select:\s*["']?(node|link|path|region|layer|graph)(?:\s*\[|["']?\s*$)/)?.[1];
+    if (selectedKind) return selectedKind as 'node' | 'link' | 'path' | 'region' | 'layer' | 'graph';
   }
   return 'node';
 }
 
+function mapperStyleKindForContext(request: YamlAuthoringRequest): TopoObjectSelection['kind'] {
+  const kind = mapperTargetKindForContext(request);
+  return Object.prototype.hasOwnProperty.call(styleOptionsByKind, kind)
+    ? kind as TopoObjectSelection['kind']
+    : 'node';
+}
+
 function mapperValueSuggestions(request: YamlAuthoringRequest, key: string): YamlAuthoringSuggestion[] {
+  const path = yamlPathAtLine(request.text, request.lineNumber);
+  if (isMapperStyleContext(request)) return styleValueSuggestions(mapperStyleKindForContext(request), key);
   if (key === 'version') return referenceSuggestions(['1'], 'Mapper schema version');
   if (key === 'kind') return referenceSuggestions(['node', 'link', 'path', 'region', 'layer', 'graph'], 'Mapper target kind');
+  if (key === 'select') return selectorSuggestions(request);
   if (key === 'by') return referenceSuggestions(['id', 'label', 'data', 'endpoint', 'selector', 'aggregate', 'staticObjectIds'], 'Mapper resolver mode');
   if (key === 'direction') return referenceSuggestions(['above', 'below'], 'Threshold direction');
   if (key === 'as') return referenceSuggestions(['up', 'utilizationPercent', 'errorsTotal', 'latencyMs', 'lossPercent', 'capacityPercent', 'health'], 'Metric value semantics');
+  if (key === 'value' && !path.includes('conditions') && !path.includes('when')) {
+    return referenceSuggestions(['percent', 'up', 'errors', 'latency', 'loss', 'capacity', 'health'], 'Rule value semantic');
+  }
+  if (key === 'severity') return referenceSuggestions(['none', 'success', 'info', 'warning', 'error'], 'Computed mapper severity');
   if (key === 'metric') return referenceSuggestions(mapperMetricNameSuggestions, 'Metric name');
   if (key === 'success') return referenceSuggestions(['"#4caf50"'], 'Success severity color');
   if (key === 'info') return referenceSuggestions(['"#42a5f5"'], 'Info severity color');
   if (key === 'warning') return referenceSuggestions(['"#ff9800"'], 'Warning severity color');
   if (key === 'error') return referenceSuggestions(['"#d32f2f"'], 'Error severity color');
   if (key === 'color' || key === 'accent') return referenceSuggestions(mapperSeverityColorSuggestions, 'Severity palette color');
-  if (key === 'metricLabel' || key === 'sourceIdLabel' || key === 'sourceLabel' || key === 'targetLabel') {
+  if (key === 'join' || key === 'metricLabel' || key === 'sourceIdLabel' || key === 'sourceLabel' || key === 'targetLabel') {
     return referenceSuggestions(mapperMetricLabelSuggestions, 'Telemetry label');
   }
   if (key === 'objectIds') {
@@ -684,7 +741,14 @@ function mapperValueSuggestions(request: YamlAuthoringRequest, key: string): Yam
   ].includes(key)) {
     return referenceSuggestions(['true', 'false'], 'Boolean overlay setting');
   }
-  if (key === 'label') return referenceSuggestions(['"{{ value | round }}%"', '"{{ severity }}"', '"{{ metric }}"'], 'Overlay label template');
+  if (key === 'exists') return referenceSuggestions(['true', 'false'], 'Presence condition');
+  if (['gt', 'gte', 'lt', 'lte', 'eq', 'ne'].includes(key)) return numberValueSuggestions.map((value) => ({
+    detail: 'Condition value',
+    insertText: value,
+    kind: 'value' as const,
+    label: value
+  }));
+  if (key === 'label') return referenceSuggestions(['"{{ value | round }}%"', '"{{ severity }}"', '"{{ metric }}"', '"{{ target.id }}"'], 'Overlay label template');
   if (key === 'badgeLabel') return referenceSuggestions(['"{{ value | round }}"', '"{{ severity }}"'], 'Badge label template');
   return [];
 }
@@ -693,17 +757,17 @@ function mapperSnippetSuggestions(): YamlAuthoringSuggestion[] {
   return [
     {
       label: 'mapper rule snippet',
-      insertText: '- id: ${1:link-utilization}\n  metric: ${2:topoviewer_link_utilization_percent}\n  target:\n    kind: ${3:link}\n    resolve:\n      by: id\n      metricLabel: ${4:link_id}\n  value:\n    as: utilizationPercent\n  thresholds:\n    info: 50\n    warning: 80\n    error: 90\n  overlay:\n    lineColorBySeverity: true\n    lineWidthBySeverity: true\n    label: "{{ value | round }}%"',
+      insertText: '- id: ${1:link-utilization}\n  metric: ${2:topoviewer_link_utilization_percent}\n  select: ${3:link}\n  join: ${4:link_id}\n  value: percent\n  states:\n    busy: ">=70"\n    saturated: ">=90"\n  style:\n    default:\n      lineColor: "#4caf50"\n      label: "{{ value | round }}%"\n    busy:\n      lineColor: "#ff9800"\n      lineWidth: 4\n    saturated:\n      lineColor: "#d32f2f"\n      lineWidth: 7\n      label: "{{ state }} {{ value | round }}%"',
       isSnippet: true,
       kind: 'snippet',
-      documentation: 'Insert a telemetry mapper rule.'
+      documentation: 'Insert a compact telemetry mapper rule.'
     },
     {
       label: 'mapper document snippet',
-      insertText: 'version: 1\nidentity:\n  sourceId: ${1:topology-id}\n  sourceIdLabel: ${2:source_id}\npalette:\n  success:\n    color: "#4caf50"\n    accent: "#2e7d32"\n  info:\n    color: "#42a5f5"\n    accent: "#1976d2"\n  warning:\n    color: "#ff9800"\n    accent: "#ed6c02"\n  error:\n    color: "#d32f2f"\n    accent: "#c62828"\nmappings:\n  - id: ${3:link-utilization}\n    metric: ${4:topoviewer_link_utilization_percent}\n    target:\n      kind: link\n      resolve:\n        by: id\n        metricLabel: link_id',
+      insertText: 'version: 1\nidentity:\n  sourceId: ${1:topology-id}\n  sourceIdLabel: ${2:source_id}\nrules:\n  - id: ${3:link-utilization}\n    metric: ${4:topoviewer_link_utilization_percent}\n    select: link\n    join: link_id\n    value: percent\n    states:\n      busy: ">=70"\n      saturated: ">=90"\n    style:\n      default:\n        lineColor: "#4caf50"\n        label: "{{ value | round }}%"\n      busy:\n        lineColor: "#ff9800"\n        lineWidth: 4\n      saturated:\n        lineColor: "#d32f2f"\n        lineWidth: 7',
       isSnippet: true,
       kind: 'snippet',
-      documentation: 'Insert a complete mapper document skeleton.'
+      documentation: 'Insert a compact mapper document skeleton.'
     }
   ];
 }
@@ -791,6 +855,7 @@ export function yamlAuthoringSuggestions(request: YamlAuthoringRequest): YamlAut
   const prefix = linePrefix(request.text, request.lineNumber, request.column);
   if (request.document === 'mapper') {
     if (key && prefix.includes(':')) return mapperValueSuggestions(request, key);
+    if (isMapperStyleContext(request) && isKeyContext(request)) return styleKeySuggestions(mapperStyleKindForContext(request));
     if (isKeyContext(request)) {
       return uniqueByLabel([
         ...mapperSchemaKeySuggestions(path),

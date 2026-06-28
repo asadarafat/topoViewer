@@ -5,7 +5,25 @@
   "description": "Maps Grafana or operational telemetry metrics to TopoViewer objects and runtime overlays.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["version", "mappings"],
+  "required": ["version"],
+  "anyOf": [
+    {
+      "properties": {
+        "rules": {
+          "type": "array"
+        }
+      },
+      "required": ["rules"]
+    },
+    {
+      "properties": {
+        "mappings": {
+          "type": "array"
+        }
+      },
+      "required": ["mappings"]
+    }
+  ],
   "properties": {
     "$schema": {
       "type": "string"
@@ -20,9 +38,16 @@
     "palette": {
       "$ref": "#/definitions/severityPalette"
     },
+    "rules": {
+      "type": "array",
+      "description": "Human-friendly mapper authoring rules. Rules compile to canonical mappings at runtime.",
+      "items": {
+        "$ref": "#/definitions/authoringRule"
+      }
+    },
     "mappings": {
       "type": "array",
-      "description": "Metric-to-object mapping rules.",
+      "description": "Canonical metric-to-object mapping rules. Prefer rules for hand-authored mapper YAML unless the advanced shape is needed.",
       "items": {
         "$ref": "#/definitions/mapping"
       }
@@ -85,6 +110,49 @@
         }
       ]
     },
+    "authoringRule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "metric", "select"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Stable mapper rule identifier."
+        },
+        "metric": {
+          "type": "string",
+          "description": "Grafana data-frame metric name to match."
+        },
+        "select": {
+          "type": "string",
+          "description": "TopoViewer selector or object kind, such as link, node, node[labels.role = \"pe\"], path, region, layer, or graph."
+        },
+        "join": {
+          "type": "string",
+          "description": "Telemetry label carrying the selected object's ID, such as link_id, node_id, path_id, or region_id. Omit for selector-wide rules."
+        },
+        "value": {
+          "type": "string",
+          "description": "Short value semantic. Supported values include percent, utilizationPercent, up, errorsTotal, latencyMs, lossPercent, capacityPercent, and health.",
+          "enum": ["percent", "utilization", "utilizationPercent", "up", "errors", "errorsTotal", "latency", "latencyMs", "loss", "lossPercent", "capacity", "capacityPercent", "health"]
+        },
+        "states": {
+          "type": "object",
+          "description": "State names mapped to simple value expressions. Examples: down: \"==0\", busy: \">=70\", saturated: \">=90\".",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "style": {
+          "type": "object",
+          "description": "Runtime style by state. style.default applies first; style.<state> overrides when the matching states.<state> expression is true.",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      }
+    },
     "mapping": {
       "type": "object",
       "additionalProperties": false,
@@ -109,6 +177,13 @@
         },
         "overlay": {
           "$ref": "#/definitions/overlay"
+        },
+        "conditions": {
+          "type": "array",
+          "description": "Conditional runtime style rules evaluated after the base overlay. Use this for selector-like dynamic style changes from telemetry values.",
+          "items": {
+            "$ref": "#/definitions/conditionalStyle"
+          }
         }
       }
     },
@@ -243,6 +318,123 @@
           "additionalProperties": true
         }
       }
+    },
+    "conditionalStyle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["style"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Optional stable condition identifier for diagnostics and reviews."
+        },
+        "when": {
+          "$ref": "#/definitions/condition"
+        },
+        "style": {
+          "type": "object",
+          "description": "TopoViewer style patch applied when the condition matches. String values may use mapper templates such as {{ value }}, {{ value | round }}, {{ severity }}, {{ metric }}, {{ target.id }}, {{ label.name }}, and {{ field.name }}.",
+          "additionalProperties": true
+        }
+      }
+    },
+    "condition": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "All specified condition fields must match for the style patch to apply.",
+      "properties": {
+        "severity": {
+          "type": "string",
+          "enum": ["none", "success", "info", "warning", "error"]
+        },
+        "value": {
+          "$ref": "#/definitions/scalarCondition"
+        },
+        "label": {
+          "$ref": "#/definitions/keyedCondition"
+        },
+        "field": {
+          "$ref": "#/definitions/keyedCondition"
+        }
+      }
+    },
+    "scalarCondition": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "eq": {
+          "$ref": "#/definitions/conditionScalar"
+        },
+        "ne": {
+          "$ref": "#/definitions/conditionScalar"
+        },
+        "gt": {
+          "type": "number"
+        },
+        "gte": {
+          "type": "number"
+        },
+        "lt": {
+          "type": "number"
+        },
+        "lte": {
+          "type": "number"
+        },
+        "contains": {
+          "type": "string"
+        },
+        "exists": {
+          "type": "boolean"
+        }
+      }
+    },
+    "keyedCondition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key"],
+      "properties": {
+        "key": {
+          "type": "string",
+          "description": "Telemetry label or field key to test."
+        },
+        "eq": {
+          "$ref": "#/definitions/conditionScalar"
+        },
+        "ne": {
+          "$ref": "#/definitions/conditionScalar"
+        },
+        "gt": {
+          "type": "number"
+        },
+        "gte": {
+          "type": "number"
+        },
+        "lt": {
+          "type": "number"
+        },
+        "lte": {
+          "type": "number"
+        },
+        "contains": {
+          "type": "string"
+        },
+        "exists": {
+          "type": "boolean"
+        }
+      }
+    },
+    "conditionScalar": {
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "boolean"
+        }
+      ]
     }
   }
 }

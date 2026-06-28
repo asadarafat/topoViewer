@@ -1,9 +1,15 @@
 import yaml from 'js-yaml';
+import type { StyleDeclaration } from 'topoviewer';
 import type { GrafanaPanelDiagnostic } from './types';
 import type {
+  MapperCondition,
+  MapperConditionScalar,
+  MapperConditionalStyle,
+  MapperKeyedCondition,
   MapperOverlayPolicy,
   MapperResolver,
   MapperResolverMode,
+  MapperScalarCondition,
   MapperRule,
   MapperSeverityName,
   MapperSeverityPalette,
@@ -17,14 +23,19 @@ const targetKinds = new Set<MapperTargetKind>(['node', 'link', 'path', 'region',
 const resolverModes = new Set<MapperResolverMode>(['id', 'label', 'data', 'endpoint', 'selector', 'aggregate', 'staticObjectIds']);
 const valueAsKinds = new Set(['up', 'utilizationPercent', 'errorsTotal', 'latencyMs', 'lossPercent', 'capacityPercent', 'health']);
 const severityNames = new Set<MapperSeverityName>(['success', 'info', 'warning', 'error']);
-const rootKeys = new Set(['$schema', 'version', 'identity', 'palette', 'mappings']);
+const rootKeys = new Set(['$schema', 'version', 'identity', 'palette', 'rules', 'mappings']);
 const identityKeys = new Set(['sourceId', 'sourceIdLabel']);
 const paletteEntryKeys = new Set(['color', 'accent']);
-const mappingKeys = new Set(['id', 'metric', 'target', 'value', 'thresholds', 'overlay']);
+const authoringRuleKeys = new Set(['id', 'metric', 'select', 'join', 'value', 'states', 'style']);
+const mappingKeys = new Set(['id', 'metric', 'target', 'value', 'thresholds', 'overlay', 'conditions']);
 const targetKeys = new Set(['kind', 'resolve']);
 const resolverKeys = new Set(['by', 'metricLabel', 'key', 'sourceLabel', 'targetLabel', 'selector', 'objectIds']);
 const valueKeys = new Set(['field', 'as']);
 const thresholdKeys = new Set(['info', 'warning', 'error', 'direction']);
+const conditionalStyleKeys = new Set(['id', 'when', 'style']);
+const conditionKeys = new Set(['severity', 'value', 'label', 'field']);
+const scalarConditionKeys = new Set(['eq', 'ne', 'gt', 'gte', 'lt', 'lte', 'contains', 'exists']);
+const keyedConditionKeys = new Set(['key', 'eq', 'ne', 'gt', 'gte', 'lt', 'lte', 'contains', 'exists']);
 const overlayKeys = new Set([
   'lineColorBySeverity',
   'lineWidthBySeverity',
@@ -105,6 +116,13 @@ function numberValue(value: unknown): number | undefined {
   return undefined;
 }
 
+function conditionScalarValue(value: unknown): MapperConditionScalar | undefined {
+  if (typeof value === 'string') return value;
+  if (typeof value === 'number' && Number.isFinite(value)) return value;
+  if (typeof value === 'boolean') return value;
+  return undefined;
+}
+
 function unknownKeyDiagnostics(input: Record<string, unknown>, allowed: Set<string>, path: string): GrafanaPanelDiagnostic[] {
   return Object.keys(input)
     .filter((key) => !allowed.has(key))
@@ -175,6 +193,303 @@ function parseValue(input: unknown, diagnostics: GrafanaPanelDiagnostic[], path:
     }
   }
   return Object.keys(value).length ? value : undefined;
+}
+
+function parseScalarCondition(
+  input: unknown,
+  diagnostics: GrafanaPanelDiagnostic[],
+  path: string,
+  keyed: false
+): MapperScalarCondition | undefined;
+function parseScalarCondition(
+  input: unknown,
+  diagnostics: GrafanaPanelDiagnostic[],
+  path: string,
+  keyed: true
+): MapperKeyedCondition | undefined;
+function parseScalarCondition(
+  input: unknown,
+  diagnostics: GrafanaPanelDiagnostic[],
+  path: string,
+  keyed: boolean
+): MapperScalarCondition | MapperKeyedCondition | undefined {
+  if (!isRecord(input)) {
+    diagnostics.push(schemaDiagnostic(path, 'must be a YAML mapping'));
+    return undefined;
+  }
+  diagnostics.push(...unknownKeyDiagnostics(input, keyed ? keyedConditionKeys : scalarConditionKeys, path));
+  const condition: MapperScalarCondition & Partial<MapperKeyedCondition> = {};
+  if (keyed) {
+    const key = stringValue(input.key);
+    if (!key) {
+      diagnostics.push(schemaDiagnostic(`${path}.key`, 'is required for label and field conditions'));
+      return undefined;
+    }
+    condition.key = key;
+  }
+  for (const key of ['eq', 'ne'] as const) {
+    const value = conditionScalarValue(input[key]);
+    if (value !== undefined) condition[key] = value;
+  }
+  for (const key of ['gt', 'gte', 'lt', 'lte'] as const) {
+    if (input[key] === undefined) continue;
+    const numeric = numberValue(input[key]);
+    if (numeric === undefined) {
+      diagnostics.push(schemaDiagnostic(`${path}.${key}`, 'must be a finite number'));
+    } else {
+      condition[key] = numeric;
+    }
+  }
+  const contains = stringValue(input.contains);
+  if (contains) condition.contains = contains;
+  if (typeof input.exists === 'boolean') condition.exists = input.exists;
+  return Object.keys(condition).length ? condition as MapperScalarCondition | MapperKeyedCondition : undefined;
+}
+
+function parseCondition(input: unknown, diagnostics: GrafanaPanelDiagnostic[], path: string): MapperCondition | undefined {
+  if (input === undefined) return undefined;
+  if (!isRecord(input)) {
+    diagnostics.push(schemaDiagnostic(path, 'must be a YAML mapping'));
+    return undefined;
+  }
+  diagnostics.push(...unknownKeyDiagnostics(input, conditionKeys, path));
+  const condition: MapperCondition = {};
+  if (input.severity !== undefined) {
+    const severity = stringValue(input.severity);
+    if (severity === 'none' || severityNames.has(severity as MapperSeverityName)) {
+      condition.severity = severity as MapperCondition['severity'];
+    } else {
+      diagnostics.push(schemaDiagnostic(`${path}.severity`, `must be none or one of ${Array.from(severityNames).join(', ')}`));
+    }
+  }
+  if (input.value !== undefined) {
+    const value = parseScalarCondition(input.value, diagnostics, `${path}.value`, false);
+    if (value) condition.value = value;
+  }
+  if (input.label !== undefined) {
+    const label = parseScalarCondition(input.label, diagnostics, `${path}.label`, true);
+    if (label) condition.label = label;
+  }
+  if (input.field !== undefined) {
+    const field = parseScalarCondition(input.field, diagnostics, `${path}.field`, true);
+    if (field) condition.field = field;
+  }
+  return Object.keys(condition).length ? condition : undefined;
+}
+
+function parseConditionalStyles(input: unknown, diagnostics: GrafanaPanelDiagnostic[], path: string): MapperConditionalStyle[] | undefined {
+  if (input === undefined) return undefined;
+  if (!Array.isArray(input)) {
+    diagnostics.push(schemaDiagnostic(path, 'must be a YAML sequence'));
+    return undefined;
+  }
+  const conditions = input.flatMap((item, index): MapperConditionalStyle[] => {
+    const itemPath = `${path}[${index}]`;
+    if (!isRecord(item)) {
+      diagnostics.push(schemaDiagnostic(itemPath, 'must be a YAML mapping'));
+      return [];
+    }
+    diagnostics.push(...unknownKeyDiagnostics(item, conditionalStyleKeys, itemPath));
+    if (!isRecord(item.style)) {
+      diagnostics.push(schemaDiagnostic(`${itemPath}.style`, 'must define a style mapping'));
+      return [];
+    }
+    const id = stringValue(item.id);
+    const when = parseCondition(item.when, diagnostics, `${itemPath}.when`);
+    return [{
+      id,
+      style: item.style as StyleDeclaration,
+      when
+    }];
+  });
+  return conditions.length ? conditions : undefined;
+}
+
+function parseSelectKind(select: string): { hasPredicate: boolean; kind: MapperTargetKind } | undefined {
+  const match = select.match(/^(node|link|path|region|layer|graph)(?:\s*\[|$)/);
+  if (!match) return undefined;
+  return {
+    hasPredicate: /\[/.test(select),
+    kind: match[1] as MapperTargetKind
+  };
+}
+
+function normalizeAuthoringValue(input: unknown, diagnostics: GrafanaPanelDiagnostic[], path: string): MapperValueSelector | undefined {
+  const value = stringValue(input);
+  if (!value) return undefined;
+  const aliases: Record<string, string> = {
+    capacity: 'capacityPercent',
+    errors: 'errorsTotal',
+    latency: 'latencyMs',
+    loss: 'lossPercent',
+    percent: 'utilizationPercent',
+    utilization: 'utilizationPercent'
+  };
+  const normalized = aliases[value] || value;
+  if (!valueAsKinds.has(normalized)) {
+    diagnostics.push(schemaDiagnostic(path, `must be one of ${Array.from(valueAsKinds).join(', ')} or a supported shorthand such as percent`));
+    return undefined;
+  }
+  return { as: normalized };
+}
+
+function scalarFromToken(input: string): MapperConditionScalar {
+  const value = input.trim().replace(/^["']|["']$/g, '');
+  if (value === 'true') return true;
+  if (value === 'false') return false;
+  const numeric = Number(value);
+  return Number.isFinite(numeric) ? numeric : value;
+}
+
+function parseStateExpression(input: unknown, diagnostics: GrafanaPanelDiagnostic[], path: string): MapperScalarCondition | undefined {
+  const expression = stringValue(input);
+  if (!expression) {
+    diagnostics.push(schemaDiagnostic(path, 'must be a state expression string such as ">=70" or "==0"'));
+    return undefined;
+  }
+  const match = expression.match(/^(>=|<=|>|<|==|!=)\s*(.+)$/);
+  if (!match) return { eq: scalarFromToken(expression) };
+  const value = scalarFromToken(match[2]);
+  if (['>', '>=', '<', '<='].includes(match[1]) && typeof value !== 'number') {
+    diagnostics.push(schemaDiagnostic(path, `operator ${match[1]} requires a numeric value`));
+    return undefined;
+  }
+  if (match[1] === '>') return { gt: value as number };
+  if (match[1] === '>=') return { gte: value as number };
+  if (match[1] === '<') return { lt: value as number };
+  if (match[1] === '<=') return { lte: value as number };
+  if (match[1] === '!=') return { ne: value };
+  return { eq: value };
+}
+
+function replaceStateTemplates(style: StyleDeclaration, state: string): StyleDeclaration {
+  return Object.fromEntries(Object.entries(style).map(([key, value]) => [
+    key,
+    typeof value === 'string'
+      ? value.replace(/\{\{\s*(?:state|category)\s*\}\}/g, state)
+      : value
+  ])) as StyleDeclaration;
+}
+
+function parseAuthoringStates(input: unknown, diagnostics: GrafanaPanelDiagnostic[], path: string): Record<string, MapperScalarCondition> {
+  if (input === undefined) return {};
+  if (!isRecord(input)) {
+    diagnostics.push(schemaDiagnostic(path, 'must be a YAML mapping of state names to expressions'));
+    return {};
+  }
+  const states: Record<string, MapperScalarCondition> = {};
+  for (const [state, expression] of Object.entries(input)) {
+    if (state === 'default') {
+      diagnostics.push(schemaDiagnostic(`${path}.default`, 'is reserved for style.default'));
+      continue;
+    }
+    const condition = parseStateExpression(expression, diagnostics, `${path}.${state}`);
+    if (condition) states[state] = condition;
+  }
+  return states;
+}
+
+function parseAuthoringStyle(
+  input: unknown,
+  states: Record<string, MapperScalarCondition>,
+  diagnostics: GrafanaPanelDiagnostic[],
+  path: string
+): { conditions?: MapperConditionalStyle[]; overlay?: MapperOverlayPolicy } {
+  if (input === undefined) return {};
+  if (!isRecord(input)) {
+    diagnostics.push(schemaDiagnostic(path, 'must be a YAML mapping'));
+    return {};
+  }
+  const overlay: MapperOverlayPolicy = {};
+  const conditions: MapperConditionalStyle[] = [];
+  for (const [state, style] of Object.entries(input)) {
+    if (!isRecord(style)) {
+      diagnostics.push(schemaDiagnostic(`${path}.${state}`, 'must be a TopoViewer style mapping'));
+      continue;
+    }
+    if (state === 'default') {
+      overlay.style = style as StyleDeclaration;
+      continue;
+    }
+    const stateCondition = states[state];
+    if (!stateCondition) {
+      diagnostics.push(schemaDiagnostic(`${path}.${state}`, `does not have a matching states.${state} expression`));
+      continue;
+    }
+    conditions.push({
+      id: state,
+      style: replaceStateTemplates(style as StyleDeclaration, state),
+      when: {
+        value: stateCondition
+      }
+    });
+  }
+  return {
+    conditions: conditions.length ? conditions : undefined,
+    overlay: Object.keys(overlay).length ? overlay : undefined
+  };
+}
+
+function parseAuthoringRule(input: unknown, index: number, diagnostics: GrafanaPanelDiagnostic[]): MapperRule | undefined {
+  const context = `rule ${index + 1}`;
+  const path = `rules[${index}]`;
+  if (!isRecord(input)) {
+    diagnostics.push(diagnostic('error', 'mapper-rule-invalid', `${context} must be a YAML mapping.`, {
+      document: 'mapper',
+      path
+    }));
+    return undefined;
+  }
+  diagnostics.push(...unknownKeyDiagnostics(input, authoringRuleKeys, path));
+  const id = stringValue(input.id) || `rule-${index + 1}`;
+  const metric = stringValue(input.metric);
+  if (!metric) {
+    diagnostics.push(diagnostic('error', 'mapper-rule-metric-missing', `${context} must define metric.`, {
+      document: 'mapper',
+      path: `${path}.metric`
+    }));
+    return undefined;
+  }
+  const select = stringValue(input.select);
+  if (!select) {
+    diagnostics.push(diagnostic('error', 'mapper-rule-select-missing', `${context} must define select.`, {
+      document: 'mapper',
+      path: `${path}.select`
+    }));
+    return undefined;
+  }
+  const selected = parseSelectKind(select);
+  if (!selected) {
+    diagnostics.push(diagnostic('error', 'mapper-rule-select-invalid', `${context} select must start with one of ${Array.from(targetKinds).join(', ')}.`, {
+      document: 'mapper',
+      path: `${path}.select`
+    }));
+    return undefined;
+  }
+  const join = stringValue(input.join);
+  if (input.join !== undefined && !join) {
+    diagnostics.push(schemaDiagnostic(`${path}.join`, 'must be a telemetry label string such as link_id or node_id'));
+    return undefined;
+  }
+  if (join && selected.hasPredicate) {
+    diagnostics.push(schemaDiagnostic(`${path}.join`, 'cannot be combined with a predicate selector; use select: node with join, or use canonical mappings for advanced joins'));
+    return undefined;
+  }
+  const states = parseAuthoringStates(input.states, diagnostics, `${path}.states`);
+  const style = parseAuthoringStyle(input.style, states, diagnostics, `${path}.style`);
+  return {
+    id,
+    metric,
+    target: {
+      kind: selected.kind,
+      resolve: join
+        ? { by: 'id', metricLabel: join }
+        : { by: 'selector', selector: select }
+    },
+    value: normalizeAuthoringValue(input.value, diagnostics, `${path}.value`),
+    overlay: style.overlay,
+    conditions: style.conditions
+  };
 }
 
 function parseOverlay(input: unknown, diagnostics: GrafanaPanelDiagnostic[], path: string): MapperOverlayPolicy | undefined {
@@ -288,7 +603,8 @@ function parseRule(input: unknown, index: number, diagnostics: GrafanaPanelDiagn
     },
     value: parseValue(input.value, diagnostics, `${path}.value`),
     thresholds: parseThresholds(input.thresholds),
-    overlay: parseOverlay(input.overlay, diagnostics, `${path}.overlay`)
+    overlay: parseOverlay(input.overlay, diagnostics, `${path}.overlay`),
+    conditions: parseConditionalStyles(input.conditions, diagnostics, `${path}.conditions`)
   };
 }
 
@@ -371,7 +687,15 @@ export function parseTopoViewerMapperYaml(source: string, label = 'TopoViewer ma
     }
     const sourceId = stringValue(identitySource.sourceId);
     const sourceIdLabel = stringValue(identitySource.sourceIdLabel);
+    const rawRules = Array.isArray(parsed.rules) ? parsed.rules : undefined;
     const rawMappings = Array.isArray(parsed.mappings) ? parsed.mappings : undefined;
+    if (!rawRules && parsed.rules !== undefined) {
+      diagnostics.push(diagnostic('error', 'mapper-rules-invalid', `${label} rules must be a YAML sequence.`, {
+        document: 'mapper',
+        path: 'rules'
+      }));
+      return { diagnostics };
+    }
     if (!rawMappings && parsed.mappings !== undefined) {
       diagnostics.push(diagnostic('error', 'mapper-mappings-invalid', `${label} mappings must be a YAML sequence.`, {
         document: 'mapper',
@@ -379,17 +703,23 @@ export function parseTopoViewerMapperYaml(source: string, label = 'TopoViewer ma
       }));
       return { diagnostics };
     }
-    const mappings = rawMappings
+    const authoringRules = rawRules
+      ? rawRules.map((item, index) => parseAuthoringRule(item, index, diagnostics)).filter((rule): rule is MapperRule => Boolean(rule))
+      : [];
+    const canonicalRules = rawMappings
       ? rawMappings.map((item, index) => parseRule(item, index, diagnostics)).filter((rule): rule is MapperRule => Boolean(rule))
+      : [];
+    const mappings = rawRules || rawMappings
+      ? [...authoringRules, ...canonicalRules]
       : legacyRules(parsed);
-    if (!rawMappings && mappings.length === 0) {
-      diagnostics.push(diagnostic('error', 'mapper-mappings-missing', `${label} must define mappings.`, {
+    if (!rawRules && !rawMappings && mappings.length === 0) {
+      diagnostics.push(diagnostic('error', 'mapper-mappings-missing', `${label} must define rules or mappings.`, {
         document: 'mapper',
-        path: 'mappings'
+        path: 'rules'
       }));
     }
-    if (!rawMappings && mappings.length) {
-      diagnostics.push(diagnostic('info', 'mapper-legacy-shape', `${label} uses the legacy metrics shape; prefer mappings for new bundles.`));
+    if (!rawRules && !rawMappings && mappings.length) {
+      diagnostics.push(diagnostic('info', 'mapper-legacy-shape', `${label} uses the legacy metrics shape; prefer rules for new bundles.`));
     }
     return {
       mapper: {

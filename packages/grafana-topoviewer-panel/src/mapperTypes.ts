@@ -4,6 +4,7 @@ export type MapperTargetKind = 'node' | 'link' | 'path' | 'region' | 'layer' | '
 export type MapperResolverMode = 'id' | 'label' | 'data' | 'endpoint' | 'selector' | 'aggregate' | 'staticObjectIds';
 export type MapperSeverityDirection = 'above' | 'below';
 export type MapperSeverityName = 'success' | 'info' | 'warning' | 'error';
+export type MapperConditionScalar = string | number | boolean;
 
 export interface MapperSeverityColor {
   color?: string;
@@ -29,6 +30,7 @@ export interface MapperRule {
   value?: MapperValueSelector;
   thresholds?: MapperThresholds;
   overlay?: MapperOverlayPolicy;
+  conditions?: MapperConditionalStyle[];
 }
 
 export interface MapperTarget {
@@ -71,6 +73,34 @@ export interface MapperOverlayPolicy {
   label?: string;
   propagateToLayerMembers?: boolean;
   style?: StyleDeclaration;
+}
+
+export interface MapperScalarCondition {
+  contains?: string;
+  eq?: MapperConditionScalar;
+  exists?: boolean;
+  gt?: number;
+  gte?: number;
+  lt?: number;
+  lte?: number;
+  ne?: MapperConditionScalar;
+}
+
+export interface MapperKeyedCondition extends MapperScalarCondition {
+  key: string;
+}
+
+export interface MapperCondition {
+  field?: MapperKeyedCondition;
+  label?: MapperKeyedCondition;
+  severity?: MapperSeverityName | 'none';
+  value?: MapperScalarCondition;
+}
+
+export interface MapperConditionalStyle {
+  id?: string;
+  style: StyleDeclaration;
+  when?: MapperCondition;
 }
 
 export interface MapperTelemetrySample {

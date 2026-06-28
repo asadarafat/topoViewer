@@ -508,6 +508,7 @@ test('suggests mapper keys, resolver values, object IDs, and metric labels in YA
     'version',
     'identity',
     'palette',
+    'rules',
     'mappings',
     'mapper document snippet'
   ]));
@@ -551,6 +552,30 @@ test('suggests mapper keys, resolver values, object IDs, and metric labels in YA
     'graph'
   ]));
 
+  const compactSelectSuggestions = await yamlCompletions(page, {
+    document: 'mapper',
+    text: 'version: 1\nrules:\n  - select: ',
+    lineNumber: 3,
+    column: 13
+  });
+  expect(compactSelectSuggestions.map((suggestion) => suggestion.label)).toEqual(expect.arrayContaining([
+    'node',
+    'link',
+    'node[labels.role = "pe"]'
+  ]));
+
+  const compactJoinSuggestions = await yamlCompletions(page, {
+    document: 'mapper',
+    text: 'version: 1\nrules:\n  - join: ',
+    lineNumber: 3,
+    column: 11
+  });
+  expect(compactJoinSuggestions.map((suggestion) => suggestion.label)).toEqual(expect.arrayContaining([
+    'node_id',
+    'link_id',
+    'path_id'
+  ]));
+
   const resolverSuggestions = await yamlCompletions(page, {
     document: 'mapper',
     text: 'version: 1\nmappings:\n  - target:\n      resolve:\n        by: ',
@@ -565,6 +590,31 @@ test('suggests mapper keys, resolver values, object IDs, and metric labels in YA
     'selector',
     'aggregate',
     'staticObjectIds'
+  ]));
+
+  const conditionSuggestions = await yamlCompletions(page, {
+    document: 'mapper',
+    text: 'version: 1\nmappings:\n  - conditions:\n      - when:\n          ',
+    lineNumber: 5,
+    column: 11
+  });
+  expect(conditionSuggestions.map((suggestion) => suggestion.label)).toEqual(expect.arrayContaining([
+    'severity',
+    'value',
+    'label',
+    'field'
+  ]));
+
+  const conditionStyleSuggestions = await yamlCompletions(page, {
+    document: 'mapper',
+    text: 'version: 1\nmappings:\n  - target:\n      kind: link\n    conditions:\n      - style:\n          ',
+    lineNumber: 7,
+    column: 11
+  });
+  expect(conditionStyleSuggestions.map((suggestion) => suggestion.label)).toEqual(expect.arrayContaining([
+    'lineColor',
+    'lineWidth',
+    'label'
   ]));
 
   const metricLabelSuggestions = await yamlCompletions(page, {

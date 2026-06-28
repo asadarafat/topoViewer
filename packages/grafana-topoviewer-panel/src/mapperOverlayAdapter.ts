@@ -9,10 +9,13 @@ import type {
 } from 'topoviewer';
 import type { GrafanaPanelDiagnostic } from './types';
 import type {
+  MapperCondition,
+  MapperKeyedCondition,
   MapperOverlayEntity,
   MapperOverlayPolicy,
   MapperResolver,
   MapperRule,
+  MapperScalarCondition,
   MapperSeverityPalette,
   MapperTargetKind,
   MapperTelemetrySample,
@@ -205,6 +208,81 @@ function renderTemplate(template: string | undefined, sample: MapperTelemetrySam
   });
 }
 
+function renderStyleTemplates(
+  style: StyleDeclaration | undefined,
+  sample: MapperTelemetrySample,
+  rule: MapperRule,
+  entity: MapperOverlayEntity,
+  severity: TelemetrySeverity
+): StyleDeclaration {
+  if (!style) return {};
+  return Object.fromEntries(Object.entries(style).map(([key, value]) => [
+    key,
+    typeof value === 'string' ? renderTemplate(value, sample, rule, entity, severity) : value
+  ])) as StyleDeclaration;
+}
+
+function scalarEquals(actual: unknown, expected: string | number | boolean): boolean {
+  if (typeof expected === 'boolean') {
+    if (typeof actual === 'boolean') return actual === expected;
+    if (typeof actual === 'number') return (actual > 0) === expected;
+    if (typeof actual === 'string') return ['true', '1', 'up', 'yes'].includes(actual.trim().toLowerCase()) === expected;
+  }
+  const actualNumeric = numericValue(actual);
+  const expectedNumeric = numericValue(expected);
+  if (actualNumeric !== undefined && expectedNumeric !== undefined) return actualNumeric === expectedNumeric;
+  return stringValue(actual) === String(expected);
+}
+
+function scalarConditionMatches(value: unknown, condition: MapperScalarCondition): boolean {
+  const exists = value !== undefined && value !== null && value !== '';
+  if (condition.exists !== undefined && exists !== condition.exists) return false;
+  if (condition.eq !== undefined && !scalarEquals(value, condition.eq)) return false;
+  if (condition.ne !== undefined && scalarEquals(value, condition.ne)) return false;
+  if (condition.contains !== undefined && !stringValue(value)?.includes(condition.contains)) return false;
+  const numeric = numericValue(value);
+  for (const [key, predicate] of [
+    ['gt', (candidate: number, expected: number) => candidate > expected],
+    ['gte', (candidate: number, expected: number) => candidate >= expected],
+    ['lt', (candidate: number, expected: number) => candidate < expected],
+    ['lte', (candidate: number, expected: number) => candidate <= expected]
+  ] as const) {
+    const expected = condition[key];
+    if (expected !== undefined && (numeric === undefined || !predicate(numeric, expected))) return false;
+  }
+  return true;
+}
+
+function keyedConditionMatches(values: Record<string, unknown>, condition: MapperKeyedCondition): boolean {
+  return scalarConditionMatches(values[condition.key], condition);
+}
+
+function conditionMatches(
+  condition: MapperCondition | undefined,
+  sample: MapperTelemetrySample,
+  rule: MapperRule,
+  severity: TelemetrySeverity
+): boolean {
+  if (!condition) return true;
+  if (condition.severity !== undefined && condition.severity !== severity) return false;
+  if (condition.value && !scalarConditionMatches(metricValue(sample, rule), condition.value)) return false;
+  if (condition.label && !keyedConditionMatches(sample.labels, condition.label)) return false;
+  if (condition.field && !keyedConditionMatches(sample.fields, condition.field)) return false;
+  return true;
+}
+
+function conditionalStyleForRule(
+  sample: MapperTelemetrySample,
+  rule: MapperRule,
+  entity: MapperOverlayEntity,
+  severity: TelemetrySeverity
+): StyleDeclaration {
+  return (rule.conditions || []).reduce<StyleDeclaration>((style, condition) => {
+    if (!conditionMatches(condition.when, sample, rule, severity)) return style;
+    return mergeStyle(style, renderStyleTemplates(condition.style, sample, rule, entity, severity));
+  }, {});
+}
+
 function styleForOverlay(
   kind: MapperTargetKind,
   policy: MapperOverlayPolicy | undefined,
@@ -217,7 +295,7 @@ function styleForOverlay(
   const overlay = policy || {};
   const color = severityColor(severity, palette);
   const accent = severityAccent(severity, palette);
-  const style: StyleDeclaration = { ...(overlay.style || {}) };
+  let style: StyleDeclaration = renderStyleTemplates(overlay.style, sample, rule, entity, severity);
   const label = renderTemplate(overlay.label, sample, rule, entity, severity);
   const badgeLabel = renderTemplate(overlay.badgeLabel, sample, rule, entity, severity);
   if (kind === 'link' || kind === 'path') {
@@ -250,6 +328,7 @@ function styleForOverlay(
     if (overlay.backgroundColorBySeverity && color) style.backgroundColor = color;
     if (label !== undefined) style.label = label;
   }
+  style = mergeStyle(style, conditionalStyleForRule(sample, rule, entity, severity));
   return style;
 }
 
