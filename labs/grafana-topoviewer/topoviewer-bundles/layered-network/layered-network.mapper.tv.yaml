@@ -15,62 +15,124 @@ palette:
   error:
     color: "#d32f2f"
     accent: "#c62828"
-mappings:
+rules:
   - id: link-oper-state
     metric: topoviewer_link_up
-    target:
-      kind: link
-      resolve:
-        by: id
-        metricLabel: link_id
-        sourceLabel: source
-        targetLabel: target
-    value:
-      as: up
-    overlay:
-      lineColorBySeverity: true
-      lineWidthBySeverity: true
-      sourceArrowColorBySeverity: true
-      targetArrowColorBySeverity: true
-      statusMarker: true
-      outlineBySeverity: true
-      label: "{{ severity }}"
+    select: link
+    join: link_id
+    value: up
+    states:
+      down: "==0"
+    style:
+      default:
+        label: UP
+        lineColor: "#4caf50"
+        lineWidth: 3
+        lineCap: round
+        lineOutlineWidth: 2
+        lineOutlineColor: "rgba(76, 175, 80, 0.18)"
+        lineOpacity: 0.92
+        labelColor: "#2e7d32"
+        labelFontSize: 11
+        labelFontWeight: 800
+        textBackgroundColor: "rgba(232, 245, 233, 0.94)"
+        textBackgroundOpacity: 0.94
+        labelBorderColor: "rgba(46, 125, 50, 0.28)"
+        labelBorderWidth: 1
+        labelZIndex: 30
+        sourceLabel: tx
+        targetLabel: rx
+        sourceLabelColor: "#2e7d32"
+        targetLabelColor: "#2e7d32"
+        sourceLabelFontSize: 9
+        targetLabelFontSize: 9
+        sourceLabelYOffset: -10
+        targetLabelYOffset: -10
+        sourceLabelZIndex: 29
+        targetLabelZIndex: 29
+        interactionWidth: 18
+        labelInteractive: true
+      down:
+        label: DOWN
+        lineColor: "#d32f2f"
+        lineWidth: 7
+        lineStyle: dashed
+        lineDashPattern: 10 6
+        lineDashOffset: 3
+        lineCap: round
+        lineOutlineWidth: 4
+        lineOutlineColor: "rgba(198, 40, 40, 0.26)"
+        lineOpacity: 1
+        labelColor: "#c62828"
+        labelFontSize: 12
+        labelFontWeight: 900
+        textBackgroundColor: "rgba(255, 235, 238, 0.96)"
+        textBackgroundOpacity: 0.96
+        labelBorderColor: "rgba(198, 40, 40, 0.46)"
+        labelBorderWidth: 1
+        labelZIndex: 40
+        sourceLabel: local alarm
+        targetLabel: remote alarm
+        sourceLabelColor: "#c62828"
+        targetLabelColor: "#c62828"
+        sourceLabelBackgroundColor: "rgba(255, 235, 238, 0.96)"
+        targetLabelBackgroundColor: "rgba(255, 235, 238, 0.96)"
+        sourceLabelBorderColor: "rgba(198, 40, 40, 0.46)"
+        targetLabelBorderColor: "rgba(198, 40, 40, 0.46)"
+        sourceLabelBorderWidth: 1
+        targetLabelBorderWidth: 1
+        sourceLabelFontSize: 10
+        targetLabelFontSize: 10
+        sourceLabelFontWeight: 800
+        targetLabelFontWeight: 800
+        sourceLabelXOffset: -4
+        targetLabelXOffset: 4
+        sourceLabelYOffset: -14
+        targetLabelYOffset: -14
+        sourceLabelZIndex: 39
+        targetLabelZIndex: 39
+        interactionWidth: 24
   - id: link-utilization
     metric: topoviewer_link_utilization_percent
-    target:
-      kind: link
-      resolve:
-        by: id
-        metricLabel: link_id
-    value:
-      as: utilizationPercent
-    thresholds:
-      info: 50
-      warning: 80
-      error: 90
-    overlay:
-      lineColorBySeverity: true
-      lineWidthBySeverity: true
-      sourceArrowColorBySeverity: true
-      targetArrowColorBySeverity: true
-      statusMarker: true
-      outlineBySeverity: true
-      label: "{{ value | round }}%"
+    select: link
+    join: link_id
+    value: percent
+    states:
+      busy: ">=50"
+      high: ">=80"
+      saturated: ">=90"
+    style:
+      default:
+        label: "{{ value | round }}%"
+        lineColor: "#4caf50"
+        lineWidth: 3
+      busy:
+        lineColor: "#42a5f5"
+        lineWidth: 4
+        labelColor: "#1976d2"
+      high:
+        lineColor: "#ff9800"
+        lineWidth: 5
+        labelColor: "#ed6c02"
+      saturated:
+        lineColor: "#d32f2f"
+        lineWidth: 7
+        label: "{{ state }} {{ value | round }}%"
+        labelColor: "#c62828"
   - id: link-errors
     metric: topoviewer_link_errors_total
-    target:
-      kind: link
-      resolve:
-        by: id
-        metricLabel: link_id
-    value:
-      as: errorsTotal
-    thresholds:
-      warning: 1
-      error: 10
-    overlay:
-      lineColorBySeverity: true
-      lineWidthBySeverity: true
-      statusMarker: true
-      outlineBySeverity: true
-      label: "errors {{ value | round }}"
+    select: link
+    join: link_id
+    value: errors
+    states:
+      errored: ">0"
+      critical: ">=10"
+    style:
+      errored:
+        label: "errors {{ value | round }}"
+        lineColor: "#ff9800"
+        lineWidth: 5
+      critical:
+        label: "critical errors {{ value | round }}"
+        lineColor: "#d32f2f"
+        lineWidth: 7
