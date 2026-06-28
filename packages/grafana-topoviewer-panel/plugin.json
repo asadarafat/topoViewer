@@ -4,8 +4,10 @@
   "name": "TopoViewer",
   "id": "asadarafat-topoviewer-panel",
   "module": "module.js",
+  "backend": true,
+  "executable": "gpx_topoviewer-panel",
   "info": {
-    "description": "Exploratory TopoViewer panel for rendering canonical topology-as-code harness fixtures.",
+    "description": "TopoViewer panel for rendering mounted topology-as-code bundles and canonical harness fixtures.",
     "author": {
       "name": "TopoViewer"
     },

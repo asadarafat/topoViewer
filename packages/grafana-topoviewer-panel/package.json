@@ -8,7 +8,7 @@
   "scripts": {
     "build": "node ../../scripts/require-node24.mjs && node scripts/build-plugin.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "node ../../scripts/require-node24.mjs && npm --workspace topoviewer run build:lib && vitest run"
+    "test": "node ../../scripts/require-node24.mjs && npm --workspace topoviewer run build:lib && vitest run && go test ./..."
   },
   "dependencies": {
     "@xyflow/react": "^12.10.2",
@@ -16,9 +16,10 @@
     "topoviewer": "0.1.0"
   },
   "devDependencies": {
-    "@swc/core": "^1.15.0",
     "@grafana/data": "13.1.0",
+    "@grafana/runtime": "13.1.0",
     "@playwright/test": "^1.60.0",
+    "@swc/core": "^1.15.0",
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^22.10.2",
     "@types/react": "^18.3.12",

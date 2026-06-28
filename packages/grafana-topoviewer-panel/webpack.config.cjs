@@ -10,6 +10,7 @@ module.exports = {
   devtool: 'source-map',
   externals: [
     '@grafana/data',
+    '@grafana/runtime',
     'react',
     'react-dom',
     'react/jsx-runtime'

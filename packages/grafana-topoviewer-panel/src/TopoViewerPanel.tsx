@@ -13,10 +13,19 @@ import {
   withInteractionTimestamp,
   type PanelInteractionState
 } from './interactionState';
+import { createMapperTelemetryOverlay, createMapperTelemetryOverlayExtension } from './mapperOverlayAdapter';
+import { parseMapperTelemetryDataFrames } from './mapperTelemetryFrames';
+import { starterPromQlForMapper } from './mapperPromql';
+import { fetchMountedBundle, fetchMountedBundleIndex } from './mountedBundles';
 import { createRuntimeModel, normalizePanelOptions } from './runtimeModel';
 import { createTelemetryOverlay, createTelemetryOverlayExtension } from './stateOverlayAdapter';
 import { parseTelemetryDataFrames } from './telemetryFrames';
-import type { TopoViewerGrafanaPanelOptions } from './types';
+import type {
+  GrafanaMountedBundleIndex,
+  GrafanaMountedBundlePayload,
+  GrafanaPanelDiagnostic,
+  TopoViewerGrafanaPanelOptions
+} from './types';
 
 type MutablePanelProps = PanelProps<TopoViewerGrafanaPanelOptions> & {
   onOptionsChange?: (options: TopoViewerGrafanaPanelOptions) => void;
@@ -57,12 +66,30 @@ const fixtureSelectStyle: CSSProperties = {
 };
 
 const telemetryStatusStyle: CSSProperties = {
-  padding: '4px 8px',
+  padding: '6px 8px',
   border: '1px solid rgba(255, 152, 0, 0.42)',
   borderRadius: 6,
   background: 'rgba(255, 152, 0, 0.12)',
   color: 'var(--text-color, inherit)',
   fontSize: 12
+};
+
+const telemetryDetailsStyle: CSSProperties = {
+  marginTop: 6,
+  display: 'grid',
+  gap: 6
+};
+
+const promqlPreStyle: CSSProperties = {
+  margin: 0,
+  padding: 8,
+  overflow: 'auto',
+  border: '1px solid rgba(148, 163, 184, 0.35)',
+  borderRadius: 6,
+  background: 'rgba(15, 23, 42, 0.18)',
+  color: 'var(--text-color, inherit)',
+  fontSize: 11,
+  lineHeight: 1.45
 };
 
 const resetButtonStyle: CSSProperties = {
@@ -76,9 +103,13 @@ const resetButtonStyle: CSSProperties = {
   padding: '4px 8px'
 };
 
+type TelemetryClickOverlay = {
+  linksById: Record<string, { link: { id: string; source: string; target: string } }>;
+};
+
 function selectedIdsForGrafanaTelemetryClick(
   object: TopoViewerObjectClick,
-  overlay: ReturnType<typeof createTelemetryOverlay>
+  overlay: TelemetryClickOverlay
 ): string[] {
   if (object.element === 'edge') {
     const linkOverlay = overlay.linksById[object.id];
@@ -91,21 +122,54 @@ function selectedIdsForGrafanaTelemetryClick(
   return [object.id, ...incidentLinks];
 }
 
+function mapperCoverageSummary(overlay: ReturnType<typeof createMapperTelemetryOverlay>): string {
+  const { coverage } = overlay;
+  if (!coverage.totalSamples) return 'Mapper ready; waiting for Grafana telemetry frames.';
+  return [
+    `Mapper coverage: ${coverage.resolvedSamples}/${coverage.sourceMatchedSamples || coverage.totalSamples} samples resolved`,
+    `${coverage.appliedObjects} object(s) overlaid`,
+    `${coverage.unresolvedSamples} unresolved`,
+    `${coverage.ambiguousMatches} ambiguous`,
+    `${coverage.duplicateObjectMappings} duplicate`
+  ].join(' · ');
+}
+
+function copyText(text: string) {
+  void navigator.clipboard?.writeText(text);
+}
+
 export function TopoViewerPanel(props: PanelProps<TopoViewerGrafanaPanelOptions>) {
   const { options, width, height } = props;
   const [localFixtureId, setLocalFixtureId] = useState(options.fixtureId);
+  const [localBundleId, setLocalBundleId] = useState(options.mountedBundle?.selectedBundleId);
+  const [bundleIndex, setBundleIndex] = useState<GrafanaMountedBundleIndex | undefined>();
+  const [mountedBundle, setMountedBundle] = useState<GrafanaMountedBundlePayload | undefined>();
+  const [bundleFetchDiagnostic, setBundleFetchDiagnostic] = useState<GrafanaPanelDiagnostic | undefined>();
   useEffect(() => {
     setLocalFixtureId(options.fixtureId);
   }, [options.fixtureId]);
+  useEffect(() => {
+    setLocalBundleId(options.mountedBundle?.selectedBundleId);
+  }, [options.mountedBundle?.selectedBundleId]);
   const effectiveOptions = useMemo(() => ({
     ...options,
-    fixtureId: localFixtureId || options.fixtureId
-  }), [localFixtureId, options]);
+    fixtureId: localFixtureId || options.fixtureId,
+    mountedBundle: {
+      ...options.mountedBundle,
+      selectedBundleId: localBundleId || options.mountedBundle?.selectedBundleId
+    }
+  }), [localBundleId, localFixtureId, options]);
   const normalized = useMemo(() => normalizePanelOptions(effectiveOptions), [effectiveOptions]);
-  const model = useMemo(() => createRuntimeModel(normalized), [normalized]);
+  const selectedMountedBundleId = normalized.sourceMode === 'mountedBundle'
+    ? normalized.mountedBundle.selectedBundleId || bundleIndex?.bundles[0]?.id || ''
+    : '';
+  const model = useMemo(() => createRuntimeModel(normalized, mountedBundle), [mountedBundle, normalized]);
+  const sourceIdentity = normalized.sourceMode === 'mountedBundle'
+    ? `mounted:${selectedMountedBundleId || normalized.mountedBundle.bundleRoot}`
+    : normalized.fixtureId;
   const topologyIdentity = useMemo(
-    () => topologyIdentityForDocument(model.document, normalized.fixtureId),
-    [model.document, normalized.fixtureId]
+    () => topologyIdentityForDocument(model.document, sourceIdentity),
+    [model.document, sourceIdentity]
   );
   const [interactionState, setInteractionState] = useState<PanelInteractionState>(() => (
     loadInteractionState(topologyIdentity, normalized.interaction)
@@ -114,10 +178,18 @@ export function TopoViewerPanel(props: PanelProps<TopoViewerGrafanaPanelOptions>
     ? interactionState
     : loadInteractionState(topologyIdentity, normalized.interaction);
   const telemetryFrames = useMemo(() => parseTelemetryDataFrames(props.data.series), [props.data.series]);
+  const mapperTelemetryFrames = useMemo(
+    () => parseMapperTelemetryDataFrames(props.data.series, model.mapper),
+    [model.mapper, props.data.series]
+  );
+  const useMapperTelemetry = normalized.telemetry.enabled && Boolean(model.mapper?.mappings.length);
+  const telemetryFixtureFilter = normalized.sourceMode === 'mountedBundle'
+    ? selectedMountedBundleId || undefined
+    : normalized.fixtureId;
   const telemetryOverlay = useMemo(() => {
-    if (!normalized.telemetry.enabled) return createTelemetryOverlay(model.document, [], { fixtureId: normalized.fixtureId });
+    if (!normalized.telemetry.enabled) return createTelemetryOverlay(model.document, [], { fixtureId: telemetryFixtureFilter });
     return createTelemetryOverlay(model.document, telemetryFrames.states, {
-      fixtureId: normalized.fixtureId,
+      fixtureId: telemetryFixtureFilter,
       thresholds: {
         infoPercent: normalized.telemetry.infoPercent,
         warningPercent: normalized.telemetry.warningPercent,
@@ -126,29 +198,110 @@ export function TopoViewerPanel(props: PanelProps<TopoViewerGrafanaPanelOptions>
     });
   }, [
     model.document,
-    normalized.fixtureId,
     normalized.telemetry.enabled,
     normalized.telemetry.errorPercent,
     normalized.telemetry.infoPercent,
     normalized.telemetry.warningPercent,
+    telemetryFixtureFilter,
     telemetryFrames.states
   ]);
+  const mapperTelemetryOverlay = useMemo(() => {
+    if (!normalized.telemetry.enabled || !model.mapper) return createMapperTelemetryOverlay(model.document, model.mapper, []);
+    return createMapperTelemetryOverlay(model.document, model.mapper, mapperTelemetryFrames.samples);
+  }, [mapperTelemetryFrames.samples, model.document, model.mapper, normalized.telemetry.enabled]);
+  const mapperPromQlStarters = useMemo(() => starterPromQlForMapper(model.mapper), [model.mapper]);
   const telemetryExtension = useMemo(() => createTelemetryOverlayExtension(telemetryOverlay), [telemetryOverlay]);
+  const mapperTelemetryExtension = useMemo(
+    () => createMapperTelemetryOverlayExtension(mapperTelemetryOverlay),
+    [mapperTelemetryOverlay]
+  );
+  const activeTelemetryOverlay = useMapperTelemetry ? mapperTelemetryOverlay : telemetryOverlay;
+  const activeTelemetryExtension = useMapperTelemetry ? mapperTelemetryExtension : telemetryExtension;
   const positionOverrideExtension = useMemo(
     () => createPositionOverrideExtension(activeInteractionState.nodePositionOverrides),
     [activeInteractionState.nodePositionOverrides]
   );
   const topoviewerExtensions = useMemo(
-    () => [positionOverrideExtension, telemetryExtension].filter((extension): extension is TopoViewerExtension => Boolean(extension)),
-    [positionOverrideExtension, telemetryExtension]
+    () => [positionOverrideExtension, activeTelemetryExtension].filter((extension): extension is TopoViewerExtension => Boolean(extension)),
+    [activeTelemetryExtension, positionOverrideExtension]
   );
   const telemetryDiagnostics = normalized.telemetry.enabled
-    ? [...telemetryFrames.diagnostics, ...telemetryOverlay.diagnostics]
+    ? useMapperTelemetry
+      ? [...mapperTelemetryFrames.diagnostics, ...mapperTelemetryOverlay.diagnostics]
+      : [...telemetryFrames.diagnostics, ...telemetryOverlay.diagnostics]
     : [];
+  const telemetryStatusVisible = normalized.telemetry.enabled && (
+    telemetryDiagnostics.length > 0 || useMapperTelemetry
+  );
 
   useEffect(() => {
     setInteractionState(loadInteractionState(topologyIdentity, normalized.interaction));
   }, [normalized.interaction, topologyIdentity]);
+
+  useEffect(() => {
+    if (normalized.sourceMode !== 'mountedBundle') {
+      setBundleIndex(undefined);
+      setMountedBundle(undefined);
+      setBundleFetchDiagnostic(undefined);
+      return;
+    }
+    let active = true;
+    setBundleFetchDiagnostic(undefined);
+    fetchMountedBundleIndex(normalized.mountedBundle.bundleRoot, normalized.mountedBundle.manifestPath)
+      .then((index) => {
+        if (!active) return;
+        setBundleIndex(index);
+        if (!selectedMountedBundleId && index.bundles[0]?.id) {
+          setLocalBundleId(index.bundles[0].id);
+        }
+        if (!index.bundles.length) {
+          setMountedBundle(undefined);
+          setBundleFetchDiagnostic({
+            severity: 'error',
+            code: 'no-mounted-bundles',
+            message: `No complete TopoViewer bundles were discovered under ${index.root}.`
+          });
+        }
+      })
+      .catch((error: unknown) => {
+        if (!active) return;
+        setBundleIndex(undefined);
+        setMountedBundle(undefined);
+        setBundleFetchDiagnostic({
+          severity: 'error',
+          code: 'bundle-index-fetch-failed',
+          message: error instanceof Error ? error.message : String(error)
+        });
+      });
+    return () => {
+      active = false;
+    };
+  }, [normalized.mountedBundle.bundleRoot, normalized.mountedBundle.manifestPath, normalized.sourceMode, selectedMountedBundleId]);
+
+  useEffect(() => {
+    if (normalized.sourceMode !== 'mountedBundle' || !selectedMountedBundleId) {
+      return;
+    }
+    let active = true;
+    setBundleFetchDiagnostic(undefined);
+    fetchMountedBundle(normalized.mountedBundle.bundleRoot, selectedMountedBundleId, normalized.mountedBundle.manifestPath)
+      .then((payload) => {
+        if (!active) return;
+        setMountedBundle(payload);
+      })
+      .catch((error: unknown) => {
+        if (!active) return;
+        setMountedBundle(undefined);
+        setBundleFetchDiagnostic({
+          severity: 'error',
+          code: 'bundle-fetch-failed',
+          message: error instanceof Error ? error.message : String(error)
+        });
+      });
+    return () => {
+      active = false;
+    };
+  }, [normalized.mountedBundle.bundleRoot, normalized.mountedBundle.manifestPath, normalized.sourceMode, selectedMountedBundleId]);
 
   const updateInteractionState = (updater: (current: PanelInteractionState) => PanelInteractionState) => {
     setInteractionState((current) => {
@@ -167,8 +320,19 @@ export function TopoViewerPanel(props: PanelProps<TopoViewerGrafanaPanelOptions>
     });
   };
 
+  const onBundleChange = (bundleId: string) => {
+    setLocalBundleId(bundleId);
+    (props as MutablePanelProps).onOptionsChange?.({
+      ...options,
+      mountedBundle: {
+        ...options.mountedBundle,
+        selectedBundleId: bundleId
+      }
+    });
+  };
+
   const onObjectClick = (object: TopoViewerObjectClick) => {
-    const selectedObjectIds = selectedIdsForGrafanaTelemetryClick(object, telemetryOverlay);
+    const selectedObjectIds = selectedIdsForGrafanaTelemetryClick(object, activeTelemetryOverlay);
     updateInteractionState((current) => withInteractionTimestamp({
       ...current,
       selectedObjectIds,
@@ -210,6 +374,9 @@ export function TopoViewerPanel(props: PanelProps<TopoViewerGrafanaPanelOptions>
     }));
   };
 
+  const blockingDiagnostics = bundleFetchDiagnostic ? [bundleFetchDiagnostic] : model.diagnostics;
+  const hasBlockingError = blockingDiagnostics.some((diagnostic) => diagnostic.severity === 'error');
+
   return (
     <section
       data-testid="topoviewer-grafana-panel"
@@ -238,25 +405,48 @@ export function TopoViewerPanel(props: PanelProps<TopoViewerGrafanaPanelOptions>
             </button>
           ) : null}
           <label style={fixtureLabelStyle}>
-            <span>Fixture</span>
-            <select
-              aria-label="TopoViewer harness fixture"
-              data-testid="topoviewer-fixture-select"
-              style={fixtureSelectStyle}
-              value={normalized.fixtureId}
-              onChange={(event) => onFixtureChange(event.currentTarget.value)}
-            >
-              {listHarnessFixtures().map((fixture) => (
-                <option key={fixture.id} value={fixture.id}>
-                  {fixture.name}
-                </option>
-              ))}
-            </select>
+            {normalized.sourceMode === 'mountedBundle' ? (
+              <>
+                <span>Bundle</span>
+                <select
+                  aria-label="TopoViewer mounted bundle"
+                  data-testid="topoviewer-bundle-select"
+                  style={fixtureSelectStyle}
+                  value={selectedMountedBundleId}
+                  onChange={(event) => onBundleChange(event.currentTarget.value)}
+                >
+                  {bundleIndex?.bundles.length ? bundleIndex.bundles.map((bundle) => (
+                    <option key={bundle.id} value={bundle.id}>
+                      {bundle.name}
+                    </option>
+                  )) : (
+                    <option value="">No bundles found</option>
+                  )}
+                </select>
+              </>
+            ) : (
+              <>
+                <span>Fixture</span>
+                <select
+                  aria-label="TopoViewer harness fixture"
+                  data-testid="topoviewer-fixture-select"
+                  style={fixtureSelectStyle}
+                  value={normalized.fixtureId}
+                  onChange={(event) => onFixtureChange(event.currentTarget.value)}
+                >
+                  {listHarnessFixtures().map((fixture) => (
+                    <option key={fixture.id} value={fixture.id}>
+                      {fixture.name}
+                    </option>
+                  ))}
+                </select>
+              </>
+            )}
           </label>
         </div>
       </header>
 
-      {model.diagnostics.length ? (
+      {blockingDiagnostics.length ? (
         <div
           data-testid="topoviewer-grafana-diagnostics"
           role="alert"
@@ -264,13 +454,13 @@ export function TopoViewerPanel(props: PanelProps<TopoViewerGrafanaPanelOptions>
             minHeight: 0,
             overflow: 'auto',
             padding: 12,
-            border: '1px solid rgba(211, 47, 47, 0.55)',
+            border: hasBlockingError ? '1px solid rgba(211, 47, 47, 0.55)' : '1px solid rgba(66, 165, 245, 0.45)',
             borderRadius: 8,
-            background: 'rgba(211, 47, 47, 0.12)',
+            background: hasBlockingError ? 'rgba(211, 47, 47, 0.12)' : 'rgba(66, 165, 245, 0.1)',
             color: 'var(--text-color, inherit)'
           }}
         >
-          {model.diagnostics.map((diagnostic) => (
+          {blockingDiagnostics.map((diagnostic) => (
             <p key={diagnostic.code} style={{ margin: '0 0 8px' }}>
               <strong>{diagnostic.code}</strong>: {diagnostic.message}
             </p>
@@ -281,13 +471,43 @@ export function TopoViewerPanel(props: PanelProps<TopoViewerGrafanaPanelOptions>
           style={{
             minHeight: 0,
             display: 'grid',
-            gridTemplateRows: telemetryDiagnostics.length ? 'auto minmax(0, 1fr)' : 'minmax(0, 1fr)',
+            gridTemplateRows: telemetryStatusVisible ? 'auto minmax(0, 1fr)' : 'minmax(0, 1fr)',
             gap: 6
           }}
         >
-          {telemetryDiagnostics.length ? (
+          {telemetryStatusVisible ? (
             <div data-testid="topoviewer-grafana-telemetry-status" style={telemetryStatusStyle}>
-              {telemetryDiagnostics[0]?.message}
+              {useMapperTelemetry ? mapperCoverageSummary(mapperTelemetryOverlay) : telemetryDiagnostics[0]?.message}
+              {useMapperTelemetry ? (
+                <details style={telemetryDetailsStyle}>
+                  <summary>Mapper diagnostics and query starters</summary>
+                  {telemetryDiagnostics.length ? (
+                    <ul style={{ margin: '4px 0', paddingLeft: 18 }}>
+                      {telemetryDiagnostics.map((diagnostic) => (
+                        <li key={`${diagnostic.code}:${diagnostic.message}`}>
+                          <strong>{diagnostic.code}</strong>: {diagnostic.message}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p style={{ margin: '4px 0' }}>No mapper diagnostics.</p>
+                  )}
+                  {mapperPromQlStarters.length ? (
+                    <div style={{ display: 'grid', gap: 6 }}>
+                      <button
+                        onClick={() => copyText(mapperPromQlStarters.map((starter) => starter.query).join('\n'))}
+                        style={resetButtonStyle}
+                        type="button"
+                      >
+                        Copy PromQL
+                      </button>
+                      <pre style={promqlPreStyle}>
+                        {mapperPromQlStarters.map((starter) => `${starter.label}\n${starter.query}`).join('\n\n')}
+                      </pre>
+                    </div>
+                  ) : null}
+                </details>
+              ) : null}
             </div>
           ) : null}
           <TopoViewer

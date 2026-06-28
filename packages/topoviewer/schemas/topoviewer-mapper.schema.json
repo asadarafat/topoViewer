@@ -1,0 +1,204 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://topoviewer.dev/schemas/topoviewer-mapper.schema.json",
+  "title": "TopoViewer mapper document",
+  "description": "Maps Grafana or operational telemetry metrics to TopoViewer objects and runtime overlays.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "mappings"],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "version": {
+      "const": 1,
+      "description": "Mapper schema version."
+    },
+    "identity": {
+      "$ref": "#/definitions/identity"
+    },
+    "mappings": {
+      "type": "array",
+      "description": "Metric-to-object mapping rules.",
+      "items": {
+        "$ref": "#/definitions/mapping"
+      }
+    }
+  },
+  "definitions": {
+    "identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Optional source identity filter applied before mapping telemetry samples.",
+      "properties": {
+        "sourceId": {
+          "type": "string",
+          "description": "Expected source identity value."
+        },
+        "sourceIdLabel": {
+          "type": "string",
+          "description": "Telemetry label carrying the source identity."
+        }
+      }
+    },
+    "mapping": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "metric", "target"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Stable mapping rule identifier."
+        },
+        "metric": {
+          "type": "string",
+          "description": "Grafana data-frame metric name to match."
+        },
+        "target": {
+          "$ref": "#/definitions/target"
+        },
+        "value": {
+          "$ref": "#/definitions/value"
+        },
+        "thresholds": {
+          "$ref": "#/definitions/thresholds"
+        },
+        "overlay": {
+          "$ref": "#/definitions/overlay"
+        }
+      }
+    },
+    "target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "resolve"],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "description": "TopoViewer object kind affected by the metric.",
+          "enum": ["node", "link", "path", "region", "layer", "graph"]
+        },
+        "resolve": {
+          "$ref": "#/definitions/resolver"
+        }
+      }
+    },
+    "resolver": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["by"],
+      "properties": {
+        "by": {
+          "type": "string",
+          "description": "How telemetry labels resolve to TopoViewer objects.",
+          "enum": ["id", "label", "data", "endpoint", "selector", "aggregate", "staticObjectIds"]
+        },
+        "metricLabel": {
+          "type": "string",
+          "description": "Telemetry label used as the primary join value."
+        },
+        "key": {
+          "type": "string",
+          "description": "TopoViewer label or data key used by label/data resolvers."
+        },
+        "sourceLabel": {
+          "type": "string",
+          "description": "Telemetry label carrying source node ID for endpoint matching."
+        },
+        "targetLabel": {
+          "type": "string",
+          "description": "Telemetry label carrying target node ID for endpoint matching."
+        },
+        "selector": {
+          "type": "string",
+          "description": "TopoViewer selector used by selector resolver."
+        },
+        "objectIds": {
+          "type": "array",
+          "description": "Explicit TopoViewer object IDs for static object matching.",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "value": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "field": {
+          "type": "string",
+          "description": "Data-frame field to read. Defaults to the sample value."
+        },
+        "as": {
+          "type": "string",
+          "description": "Semantic interpretation of the metric value.",
+          "enum": ["up", "utilizationPercent", "errorsTotal", "latencyMs", "lossPercent", "capacityPercent", "health"]
+        }
+      }
+    },
+    "thresholds": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "info": {
+          "type": "number"
+        },
+        "warning": {
+          "type": "number"
+        },
+        "error": {
+          "type": "number"
+        },
+        "direction": {
+          "type": "string",
+          "enum": ["above", "below"],
+          "default": "above"
+        }
+      }
+    },
+    "overlay": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "lineColorBySeverity": {
+          "type": "boolean"
+        },
+        "lineWidthBySeverity": {
+          "type": "boolean"
+        },
+        "sourceArrowColorBySeverity": {
+          "type": "boolean"
+        },
+        "targetArrowColorBySeverity": {
+          "type": "boolean"
+        },
+        "outlineBySeverity": {
+          "type": "boolean"
+        },
+        "statusMarker": {
+          "type": "boolean"
+        },
+        "backgroundColorBySeverity": {
+          "type": "boolean"
+        },
+        "borderColorBySeverity": {
+          "type": "boolean"
+        },
+        "badgeLabel": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "propagateToLayerMembers": {
+          "type": "boolean"
+        },
+        "style": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    }
+  }
+}

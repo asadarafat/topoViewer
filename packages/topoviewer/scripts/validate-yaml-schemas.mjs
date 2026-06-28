@@ -41,6 +41,7 @@ const schemas = [
   readJson(schemaPath('topoviewer.schema.json')),
   readJson(schemaPath('topoviewer-topology.schema.json')),
   readJson(schemaPath('topoviewer-stylesheet.schema.json')),
+  readJson(schemaPath('topoviewer-mapper.schema.json')),
   readJson(schemaPath('topoviewer-mkdocs-block.schema.json')),
   readJson(schemaPath('topoviewer-examples-catalog.schema.json')),
   readJson(schemaPath('topoviewer-examples-manifest.schema.json')),
@@ -61,6 +62,7 @@ const checks = [];
 const contentCatalogFile = path.join(packageRoot, 'content/examples/catalog.yaml');
 const catalogFile = path.join(packageRoot, 'examples/test-cases/catalog.yaml');
 const generatedCatalogFile = path.join(docsRoot, 'topoviewer/examples/catalog.generated.yaml');
+const grafanaBundleRoot = path.join(repoRoot, 'labs/grafana-topoviewer/topoviewer-bundles');
 
 function validateNow(name, schemaId, document) {
   checks.push({ name, schemaId, document });
@@ -200,6 +202,24 @@ if (!fs.existsSync(catalogFile)) {
 
 if (fs.existsSync(generatedCatalogFile)) {
   validateNow('generated examples catalog', 'https://topoviewer.dev/schemas/topoviewer-examples-manifest.schema.json', readYaml(generatedCatalogFile));
+}
+
+if (fs.existsSync(grafanaBundleRoot)) {
+  fs.readdirSync(grafanaBundleRoot, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .forEach((entry) => {
+      const bundleDir = path.join(grafanaBundleRoot, entry.name);
+      const mapperFiles = fs.readdirSync(bundleDir)
+        .filter((file) => file.endsWith('.mapper.tv.yaml'))
+        .map((file) => path.join(bundleDir, file));
+      for (const mapperFile of mapperFiles) {
+        validateFile(
+          `Grafana bundle ${entry.name} mapper YAML`,
+          'https://topoviewer.dev/schemas/topoviewer-mapper.schema.json',
+          mapperFile
+        );
+      }
+    });
 }
 
 for (const check of checks) {

@@ -36,6 +36,7 @@
     "./schemas/topoviewer.schema.json": "./schemas/topoviewer.schema.json",
     "./schemas/topoviewer-topology.schema.json": "./schemas/topoviewer-topology.schema.json",
     "./schemas/topoviewer-stylesheet.schema.json": "./schemas/topoviewer-stylesheet.schema.json",
+    "./schemas/topoviewer-mapper.schema.json": "./schemas/topoviewer-mapper.schema.json",
     "./schemas/topoviewer-mkdocs-block.schema.json": "./schemas/topoviewer-mkdocs-block.schema.json",
     "./schemas/topoviewer-examples-catalog.schema.json": "./schemas/topoviewer-examples-catalog.schema.json",
     "./schemas/topoviewer-examples-manifest.schema.json": "./schemas/topoviewer-examples-manifest.schema.json",
