@@ -93,25 +93,55 @@ path, release artifact, and release validation path.
 ## Grafana
 
 Grafana is useful for operational dashboards. The integration direction is a
-mounted TopoViewer bundle plus Grafana data frames, where mapper rules translate
-telemetry samples into runtime overlays without mutating topology or stylesheet
-YAML.
+mounted TopoViewer bundle plus Grafana data frames. Topology, style, and mapper
+YAML are mounted into Grafana as source files; telemetry arrives through Grafana
+queries; mapper rules translate telemetry samples into runtime overlays without
+mutating the mounted topology or stylesheet YAML.
+
+The production contract has three separate responsibilities:
+
+| Responsibility | Owner | Contract |
+| --- | --- | --- |
+| Source documents | User or automation | Mount one `*.topo.tv.yaml`, one `*.style.tv.yaml`, and one `*.mapper.tv.yaml` per bundle. |
+| Bundle loading | TopoViewer plugin backend | Discover bundle directories, reject missing or duplicate canonical files, parse YAML, and expose the selected bundle to the panel. |
+| Runtime overlays | TopoViewer panel frontend | Combine source YAML, Grafana data frames, mapper rules, and local interaction state into a rendered operational topology. |
 
 ```topoviewer
 topology: examples/integration/grafana-telemetry-call-flow/topology.yaml
 stylesheet: examples/integration/grafana-telemetry-call-flow/stylesheet.yaml
-height: 520px
+height: 620px
 controls: true
 controlsOpen: false
 title: Grafana telemetry call flow
 selectedLayerIds:
   - authoring
-  - normalization
+  - source
+  - telemetry
   - runtime
+  - diagnostics
 ```
 
 The same call-flow diagram is also available as a generated example page with
 the topology and stylesheet YAML shown beside the live viewport.
+
+Production flow:
+
+1. Author topology, stylesheet, and mapper YAML in the harness, VS Code preview,
+   or another editor.
+2. Mount those files into Grafana under a bundle directory such as
+   `/etc/topoviewer/bundles/<bundle-id>/`.
+3. The plugin backend discovers bundles and serves the selected source documents
+   to the panel through a resource endpoint.
+4. Grafana queries Prometheus or another configured data source and passes the
+   query result to the panel as data frames.
+5. The panel compiles the mapper, resolves samples to TopoViewer objects, and
+   produces runtime-only overlays.
+6. TopoViewer renders canonical topology and stylesheet YAML plus overlays and
+   local interaction state.
+
+Optional Prometheus recording rules can normalize vendor-specific metrics into
+stable metric names or labels, but they are not the TopoViewer source of truth.
+The source of truth remains the mounted TopoViewer bundle.
 
 Local commands:
 
@@ -182,6 +212,16 @@ topoviewer_link_direction_utilization_percent{fixture_id="clos-2spine-4leaf"}
 Coverage diagnostics distinguish unresolved samples, ambiguous endpoint
 matches, missing parent links, missing or unsupported direction keys, duplicate
 direction overlays, and stale static object references.
+
+Diagnostics should stay visible and actionable:
+
+| Diagnostic area | Examples |
+| --- | --- |
+| Source loading | Missing bundle root, empty bundle root, duplicate `*.topo.tv.yaml`, YAML parse error. |
+| Composition | Empty graph, invalid references, unsupported renderer limit. |
+| Mapper schema | Invalid target kind, invalid join shape, unsupported style key for a target kind. |
+| Query/data | PromQL returns no series, missing value field, missing join label. |
+| Mapping coverage | Unresolved sample, ambiguous endpoint match, duplicate overlay, stale static object ID. |
 
 Phase 3 adds local interaction state:
 

@@ -1,9 +1,9 @@
 renderable: true
 visualSnapshot: false
 dom:
-  graphNodes: 9
-  minVisibleEdges: 9
-  minRegions: 3
+  graphNodes: 13
+  minVisibleEdges: 14
+  minRegions: 4
 assertions:
   controls: true
 semantic:

@@ -676,9 +676,9 @@ examples:
     topology: docs/topoviewer/examples/integration/grafana-telemetry-call-flow/topology.yaml
     stylesheet: docs/topoviewer/examples/integration/grafana-telemetry-call-flow/stylesheet.yaml
     expected:
-      graphNodes: 9
-      minVisibleEdges: 9
-      minRegions: 3
+      graphNodes: 13
+      minVisibleEdges: 14
+      minRegions: 4
     readme: docs/topoviewer/examples/integration/grafana-telemetry-call-flow/README.md
   - id: integration-real-network-underlay
     title: Real network underlay

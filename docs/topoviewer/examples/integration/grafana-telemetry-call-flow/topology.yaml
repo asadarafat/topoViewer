@@ -2,233 +2,372 @@ graph:
   id: grafana-telemetry-call-flow
   layers:
     - id: authoring
-      name: Authoring Bundle
-    - id: normalization
-      name: Prometheus Normalization
+      name: Authoring
+    - id: source
+      name: Mounted Source
+    - id: telemetry
+      name: Telemetry
     - id: runtime
       name: Grafana Runtime
+    - id: diagnostics
+      name: Diagnostics
   nodes:
-    - id: topology-yaml
-      name: topology.yaml
+    - id: harness-authoring
+      name: Harness authoring
       labels:
-        kind: yaml
-        role: topology
+        kind: authoring
+        role: editor
+      data:
+        purpose: Create and validate topology, stylesheet, and mapper YAML.
       layers:
         - authoring
       position:
-        - 105
         - 95
-    - id: stylesheet-yaml
-      name: style.yaml
+        - 155
+    - id: bundle-files
+      name: "*.tv.yaml bundle"
       labels:
         kind: yaml
-        role: stylesheet
+        role: bundle
+      data:
+        files: "*.topo.tv.yaml, *.style.tv.yaml, *.mapper.tv.yaml"
       layers:
         - authoring
+        - source
       position:
-        - 105
-        - 220
-    - id: mapper-yaml
-      name: mapper.yaml
+        - 285
+        - 155
+    - id: mounted-bundle
+      name: /etc/topoviewer
       labels:
-        kind: yaml
-        role: mapper
+        kind: filesystem
+        role: mounted-source
+      data:
+        purpose: Runtime-mounted bundle directory inside Grafana.
       layers:
-        - authoring
+        - source
       position:
-        - 105
-        - 345
-    - id: rule-generator
-      name: rule generator
+        - 475
+        - 155
+    - id: plugin-backend
+      name: Plugin backend
       labels:
-        kind: process
-        role: generator
+        kind: backend
+        role: resource-api
+      data:
+        purpose: Discover bundles, reject duplicate files, parse YAML, and return selected source documents.
       layers:
-        - normalization
+        - runtime
       position:
-        - 305
-        - 95
-    - id: prometheus-rules
-      name: topoviewer-rules.yml
+        - 670
+        - 155
+    - id: panel-runtime
+      name: Panel runtime
       labels:
-        kind: config
-        role: recording-rules
+        kind: frontend
+        role: panel-runtime
+      data:
+        purpose: Compose source YAML with Grafana data frames and runtime state.
       layers:
-        - normalization
+        - runtime
       position:
-        - 505
-        - 95
+        - 870
+        - 155
     - id: prometheus
       name: Prometheus
       labels:
         kind: datasource
-        role: metrics
+        role: metrics-store
+      data:
+        purpose: Stores raw and optional recording-rule metrics.
       layers:
-        - normalization
-        - runtime
+        - telemetry
       position:
-        - 705
-        - 145
-    - id: grafana-frame
-      name: Grafana data frame
+        - 475
+        - 365
+    - id: recording-rules
+      name: optional recording rules
+      labels:
+        kind: config
+        role: recording-rules
+      data:
+        purpose: Optional normalization layer; not required by the TopoViewer contract.
+      layers:
+        - telemetry
+      position:
+        - 285
+        - 365
+    - id: grafana-dataframes
+      name: Grafana data frames
       labels:
         kind: grafana
         role: query-result
+      data:
+        purpose: PromQL results passed to the panel by Grafana.
       layers:
+        - telemetry
         - runtime
       position:
-        - 705
-        - 310
-    - id: mapper-runtime
-      name: mapper runtime
+        - 670
+        - 365
+    - id: mapper-engine
+      name: Mapper engine
       labels:
         kind: process
-        role: overlay-engine
+        role: mapper
+      data:
+        purpose: Resolve metric samples to TopoViewer nodes, links, paths, regions, layers, or graph overlays.
       layers:
         - runtime
       position:
-        - 505
-        - 345
-    - id: topoviewer-panel
-      name: TopoViewer panel
+        - 870
+        - 365
+    - id: runtime-overlays
+      name: Runtime overlays
+      labels:
+        kind: overlay
+        role: style-overlay
+      data:
+        purpose: Apply telemetry-driven style deltas without mutating source YAML.
+      layers:
+        - runtime
+      position:
+        - 1065
+        - 365
+    - id: topoviewer-renderer
+      name: TopoViewer renderer
       labels:
         kind: renderer
-        role: panel
+        role: render-surface
+      data:
+        purpose: Render topology, stylesheet, overlays, and local interaction state.
       layers:
         - runtime
       position:
-        - 305
-        - 345
+        - 1065
+        - 155
+    - id: diagnostics-panel
+      name: Diagnostics
+      labels:
+        kind: diagnostics
+        role: validation
+      data:
+        purpose: Surface source, mapper, query, and mapping-coverage failures.
+      layers:
+        - diagnostics
+        - runtime
+      position:
+        - 870
+        - 525
+    - id: interaction-state
+      name: Interaction state
+      labels:
+        kind: state
+        role: local-state
+      data:
+        purpose: Runtime-only pan, zoom, focus, selection, and drag overrides.
+      layers:
+        - runtime
+      position:
+        - 1065
+        - 525
   links:
-    - id: topology-to-generator
-      name: telemetry bindings
-      source: topology-yaml
-      target: rule-generator
+    - id: authoring-to-bundle
+      name: exports canonical YAML
+      source: harness-authoring
+      target: bundle-files
       labels:
-        flow: rules
+        flow: source
       layers:
-        - normalization
-    - id: generator-to-rules
-      name: writes rules
-      source: rule-generator
-      target: prometheus-rules
+        - authoring
+    - id: bundle-to-mount
+      name: mounted into Grafana
+      source: bundle-files
+      target: mounted-bundle
       labels:
-        flow: rules
+        flow: source
       layers:
-        - normalization
+        - source
+    - id: mount-to-backend
+      name: discover + read
+      source: mounted-bundle
+      target: plugin-backend
+      labels:
+        flow: source
+      layers:
+        - runtime
+    - id: backend-to-panel
+      name: selected bundle docs
+      source: plugin-backend
+      target: panel-runtime
+      labels:
+        flow: source
+      layers:
+        - runtime
     - id: rules-to-prometheus
-      name: loads rules
-      source: prometheus-rules
+      name: optional normalization
+      source: recording-rules
       target: prometheus
       labels:
-        flow: rules
+        flow: optional
       layers:
-        - normalization
-    - id: prometheus-to-grafana
+        - telemetry
+    - id: prometheus-to-dataframes
       name: PromQL samples
       source: prometheus
-      target: grafana-frame
+      target: grafana-dataframes
       labels:
-        flow: metrics
+        flow: telemetry
+      layers:
+        - telemetry
+    - id: dataframes-to-runtime
+      name: query results
+      source: grafana-dataframes
+      target: panel-runtime
+      labels:
+        flow: telemetry
       layers:
         - runtime
-    - id: frame-to-mapper
-      name: samples
-      source: grafana-frame
-      target: mapper-runtime
+    - id: runtime-to-mapper
+      name: topology inventory + mapper rules + samples
+      source: panel-runtime
+      target: mapper-engine
+      labels:
+        flow: mapping
+      layers:
+        - runtime
+    - id: mapper-to-overlays
+      name: matched overlay styles
+      source: mapper-engine
+      target: runtime-overlays
       labels:
         flow: overlay
       layers:
         - runtime
-    - id: mapper-yaml-to-runtime
-      name: mapping rules
-      source: mapper-yaml
-      target: mapper-runtime
+    - id: overlays-to-renderer
+      name: runtime-only style deltas
+      source: runtime-overlays
+      target: topoviewer-renderer
       labels:
         flow: overlay
       layers:
         - runtime
-    - id: topology-to-panel
-      name: graph facts
-      source: topology-yaml
-      target: topoviewer-panel
+    - id: panel-to-renderer
+      name: topology + stylesheet
+      source: panel-runtime
+      target: topoviewer-renderer
       labels:
         flow: render
       layers:
         - runtime
-    - id: stylesheet-to-panel
-      name: visual policy
-      source: stylesheet-yaml
-      target: topoviewer-panel
+    - id: mapper-to-diagnostics
+      name: coverage and schema findings
+      source: mapper-engine
+      target: diagnostics-panel
       labels:
-        flow: render
+        flow: diagnostics
       layers:
-        - runtime
-    - id: mapper-to-panel
-      name: runtime overlay
-      source: mapper-runtime
-      target: topoviewer-panel
+        - diagnostics
+    - id: backend-to-diagnostics
+      name: source validation findings
+      source: plugin-backend
+      target: diagnostics-panel
       labels:
-        flow: overlay
+        flow: diagnostics
+      layers:
+        - diagnostics
+    - id: interaction-to-renderer
+      name: local view state
+      source: interaction-state
+      target: topoviewer-renderer
+      labels:
+        flow: interaction
       layers:
         - runtime
   paths:
-    - id: prometheus-normalization-flow
-      name: Prometheus normalization
+    - id: production-source-flow
+      name: Mounted source flow
       sequence:
-        - topology-yaml
-        - rule-generator
-        - prometheus-rules
-        - prometheus
+        - harness-authoring
+        - bundle-files
+        - mounted-bundle
+        - plugin-backend
+        - panel-runtime
+        - topoviewer-renderer
       labels:
-        path: normalization
+        path: source
       layers:
-        - normalization
-    - id: runtime-overlay-flow
-      name: Runtime overlay
+        - source
+    - id: telemetry-overlay-flow
+      name: Telemetry overlay flow
       sequence:
         - prometheus
-        - grafana-frame
-        - mapper-runtime
-        - topoviewer-panel
+        - grafana-dataframes
+        - panel-runtime
+        - mapper-engine
+        - runtime-overlays
+        - topoviewer-renderer
       labels:
-        path: overlay
+        path: telemetry
       layers:
+        - telemetry
         - runtime
+    - id: diagnostics-flow
+      name: Diagnostics flow
+      sequence:
+        - plugin-backend
+        - diagnostics-panel
+      labels:
+        path: diagnostics
+      layers:
+        - diagnostics
   regions:
-    - id: authoring-bundle
-      name: Mounted bundle
+    - id: authoring-contract
+      name: Authoring contract
       labels:
         region: stage
       members:
-        - topology-yaml
-        - stylesheet-yaml
-        - mapper-yaml
+        - harness-authoring
+        - bundle-files
       layers:
         - authoring
-      paddingX: 38
-      paddingY: 42
-    - id: prometheus-normalization
-      name: Prometheus normalization
+      paddingX: 34
+      paddingY: 44
+    - id: mounted-source
+      name: Mounted bundle source
       labels:
         region: stage
       members:
-        - rule-generator
-        - prometheus-rules
-        - prometheus
+        - mounted-bundle
       layers:
-        - normalization
-      paddingX: 36
-      paddingY: 42
-    - id: grafana-runtime
-      name: Grafana runtime
+        - source
+      paddingX: 34
+      paddingY: 44
+    - id: telemetry-source
+      name: Telemetry source
       labels:
         region: stage
       members:
-        - grafana-frame
-        - mapper-runtime
-        - topoviewer-panel
+        - recording-rules
+        - prometheus
+        - grafana-dataframes
+      layers:
+        - telemetry
+      paddingX: 34
+      paddingY: 44
+    - id: grafana-plugin
+      name: Grafana TopoViewer plugin
+      labels:
+        region: boundary
+      members:
+        - plugin-backend
+        - panel-runtime
+        - mapper-engine
+        - runtime-overlays
+        - topoviewer-renderer
+        - diagnostics-panel
+        - interaction-state
       layers:
         - runtime
       paddingX: 36
-      paddingY: 42
+      paddingY: 48

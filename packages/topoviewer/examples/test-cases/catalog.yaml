@@ -671,17 +671,19 @@ examples:
     path: integration/grafana-telemetry-call-flow
     page: topoviewer/grafana-telemetry-call-flow
     summary: >-
-      A TopoViewer-native call-flow diagram for mounted YAML bundles, Prometheus rules, Grafana data frames, mapper
-      rules, and runtime overlays.
+      A production call-flow diagram for mounted TopoViewer bundles, Grafana plugin boundaries, Prometheus data frames,
+      mapper execution, runtime overlays, and diagnostics.
     render:
-      height: 520px
+      height: 620px
       controls: true
       controlsOpen: false
       title: Grafana telemetry call flow
       selectedLayerIds:
         - authoring
-        - normalization
+        - source
+        - telemetry
         - runtime
+        - diagnostics
   - id: integration-real-network-underlay
     title: Real network underlay
     feature: integration
