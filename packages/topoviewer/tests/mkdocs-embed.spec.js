@@ -345,6 +345,34 @@ async function expectControlAssertions(page, example) {
   if (assertions.edgeLabels) {
     await expect(page.locator('.topoviewer-edge-label').first()).toBeVisible();
   }
+  if (assertions.edgeDashPatterns) {
+    const expectedPatterns = String(assertions.edgeDashPatterns)
+      .split(',')
+      .map((item) => item.trim())
+      .filter(Boolean);
+    const renderedPatterns = await page.locator('.topoviewer-edge-visible-path').evaluateAll((paths) => (
+      paths
+        .map((path) => window.getComputedStyle(path).strokeDasharray.replace(/px/g, '').replace(/,/g, ' ').replace(/\s+/g, ' ').trim())
+        .filter((value) => value && value !== 'none')
+    ));
+    expectedPatterns.forEach((pattern) => {
+      expect(renderedPatterns).toContain(pattern);
+    });
+  }
+  if (assertions.edgeDashOffsets) {
+    const expectedOffsets = String(assertions.edgeDashOffsets)
+      .split(',')
+      .map((item) => item.trim())
+      .filter(Boolean);
+    const renderedOffsets = await page.locator('.topoviewer-edge-visible-path').evaluateAll((paths) => (
+      paths
+        .map((path) => window.getComputedStyle(path).strokeDashoffset.replace(/px/g, '').trim())
+        .filter((value) => value !== '')
+    ));
+    expectedOffsets.forEach((offset) => {
+      expect(renderedOffsets).toContain(offset);
+    });
+  }
   if (assertions.edgeMarkersMin !== undefined) {
     await expect.poll(async () => page.locator('svg marker').count()).toBeGreaterThanOrEqual(Number(assertions.edgeMarkersMin));
   }
