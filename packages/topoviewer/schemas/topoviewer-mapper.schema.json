@@ -125,11 +125,18 @@
         },
         "select": {
           "type": "string",
-          "description": "TopoViewer selector or object kind, such as link, node, node[labels.role = \"pe\"], path, region, layer, or graph."
+          "description": "TopoViewer selector or object kind, such as link, linkDirection, node, node[labels.role = \"pe\"], path, region, layer, or graph."
         },
         "join": {
-          "type": "string",
-          "description": "Telemetry label carrying the selected object's ID, such as link_id, node_id, path_id, or region_id. Omit for selector-wide rules."
+          "description": "Telemetry label carrying the selected object's ID, or a linkDirection join object with link and direction labels. Omit for selector-wide rules.",
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/definitions/linkDirectionJoin"
+            }
+          ]
         },
         "value": {
           "type": "string",
@@ -195,7 +202,7 @@
         "kind": {
           "type": "string",
           "description": "TopoViewer object kind affected by the metric.",
-          "enum": ["node", "link", "path", "region", "layer", "graph"]
+          "enum": ["node", "link", "linkDirection", "path", "region", "layer", "graph"]
         },
         "resolve": {
           "$ref": "#/definitions/resolver"
@@ -215,6 +222,14 @@
         "metricLabel": {
           "type": "string",
           "description": "Telemetry label used as the primary join value."
+        },
+        "linkMetricLabel": {
+          "type": "string",
+          "description": "Telemetry label carrying the parent link ID for linkDirection joins."
+        },
+        "directionMetricLabel": {
+          "type": "string",
+          "description": "Telemetry label carrying sourceToTarget or targetToSource for linkDirection joins."
         },
         "key": {
           "type": "string",
@@ -238,6 +253,21 @@
           "items": {
             "type": "string"
           }
+        }
+      }
+    },
+    "linkDirectionJoin": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["link", "direction"],
+      "properties": {
+        "link": {
+          "type": "string",
+          "description": "Telemetry label carrying the parent TopoViewer link ID."
+        },
+        "direction": {
+          "type": "string",
+          "description": "Telemetry label carrying sourceToTarget or targetToSource."
         }
       }
     },

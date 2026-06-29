@@ -30,10 +30,14 @@ const closLinks = [
 });
 
 function sample(base, utilizationPercent, options = {}) {
+  const txUtilizationPercent = options.txUtilizationPercent ?? Math.min(100, utilizationPercent + 6);
+  const rxUtilizationPercent = options.rxUtilizationPercent ?? Math.max(0, utilizationPercent - 5);
   return {
     ...base,
     up: options.up ?? 1,
     utilizationPercent,
+    txUtilizationPercent,
+    rxUtilizationPercent,
     rxBps: Math.round(utilizationPercent * 4_000_000_000),
     txBps: Math.round(utilizationPercent * 3_200_000_000),
     errorsTotal: options.errorsTotal ?? 0,

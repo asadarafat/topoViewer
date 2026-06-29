@@ -19,7 +19,7 @@ import type {
   TopoViewerMapper
 } from './mapperTypes';
 
-const targetKinds = new Set<MapperTargetKind>(['node', 'link', 'path', 'region', 'layer', 'graph']);
+const targetKinds = new Set<MapperTargetKind>(['node', 'link', 'linkDirection', 'path', 'region', 'layer', 'graph']);
 const resolverModes = new Set<MapperResolverMode>(['id', 'label', 'data', 'endpoint', 'selector', 'aggregate', 'staticObjectIds']);
 const valueAsKinds = new Set(['up', 'utilizationPercent', 'errorsTotal', 'latencyMs', 'lossPercent', 'capacityPercent', 'health']);
 const severityNames = new Set<MapperSeverityName>(['success', 'info', 'warning', 'error']);
@@ -29,7 +29,7 @@ const paletteEntryKeys = new Set(['color', 'accent']);
 const authoringRuleKeys = new Set(['id', 'metric', 'select', 'join', 'value', 'states', 'style']);
 const mappingKeys = new Set(['id', 'metric', 'target', 'value', 'thresholds', 'overlay', 'conditions']);
 const targetKeys = new Set(['kind', 'resolve']);
-const resolverKeys = new Set(['by', 'metricLabel', 'key', 'sourceLabel', 'targetLabel', 'selector', 'objectIds']);
+const resolverKeys = new Set(['by', 'metricLabel', 'linkMetricLabel', 'directionMetricLabel', 'key', 'sourceLabel', 'targetLabel', 'selector', 'objectIds']);
 const valueKeys = new Set(['field', 'as']);
 const thresholdKeys = new Set(['info', 'warning', 'error', 'direction']);
 const conditionalStyleKeys = new Set(['id', 'when', 'style']);
@@ -306,12 +306,49 @@ function parseConditionalStyles(input: unknown, diagnostics: GrafanaPanelDiagnos
 }
 
 function parseSelectKind(select: string): { hasPredicate: boolean; kind: MapperTargetKind } | undefined {
-  const match = select.match(/^(node|link|path|region|layer|graph)(?:\s*\[|$)/);
+  const match = select.match(/^(node|linkDirection|link|path|region|layer|graph)(?:\s*\[|$)/);
   if (!match) return undefined;
   return {
     hasPredicate: /\[/.test(select),
     kind: match[1] as MapperTargetKind
   };
+}
+
+function parseAuthoringJoin(
+  input: unknown,
+  selected: { hasPredicate: boolean; kind: MapperTargetKind },
+  diagnostics: GrafanaPanelDiagnostic[],
+  path: string
+): MapperResolver | undefined {
+  if (input === undefined) {
+    return { by: 'selector', selector: undefined };
+  }
+  const metricLabel = stringValue(input);
+  if (metricLabel) {
+    if (selected.hasPredicate) {
+      diagnostics.push(schemaDiagnostic(path, 'cannot be combined with a predicate selector; use select without join, or use canonical mappings for advanced joins'));
+      return undefined;
+    }
+    return { by: 'id', metricLabel };
+  }
+  if (isRecord(input) && selected.kind === 'linkDirection') {
+    diagnostics.push(...unknownKeyDiagnostics(input, new Set(['link', 'direction']), path));
+    const linkMetricLabel = stringValue(input.link);
+    const directionMetricLabel = stringValue(input.direction);
+    if (!linkMetricLabel || !directionMetricLabel) {
+      diagnostics.push(schemaDiagnostic(path, 'must define link and direction telemetry label names for linkDirection joins'));
+      return undefined;
+    }
+    if (selected.hasPredicate) {
+      diagnostics.push(schemaDiagnostic(path, 'cannot be combined with a predicate selector; use select: linkDirection with link/direction join labels'));
+      return undefined;
+    }
+    return { by: 'id', linkMetricLabel, directionMetricLabel };
+  }
+  diagnostics.push(schemaDiagnostic(path, selected.kind === 'linkDirection'
+    ? 'must be a telemetry label string such as direction_id, or a mapping with link and direction labels'
+    : 'must be a telemetry label string such as link_id or node_id'));
+  return undefined;
 }
 
 function normalizeAuthoringValue(input: unknown, diagnostics: GrafanaPanelDiagnostic[], path: string): MapperValueSelector | undefined {
@@ -466,15 +503,8 @@ function parseAuthoringRule(input: unknown, index: number, diagnostics: GrafanaP
     }));
     return undefined;
   }
-  const join = stringValue(input.join);
-  if (input.join !== undefined && !join) {
-    diagnostics.push(schemaDiagnostic(`${path}.join`, 'must be a telemetry label string such as link_id or node_id'));
-    return undefined;
-  }
-  if (join && selected.hasPredicate) {
-    diagnostics.push(schemaDiagnostic(`${path}.join`, 'cannot be combined with a predicate selector; use select: node with join, or use canonical mappings for advanced joins'));
-    return undefined;
-  }
+  const resolver = parseAuthoringJoin(input.join, selected, diagnostics, `${path}.join`);
+  if (!resolver) return undefined;
   const states = parseAuthoringStates(input.states, diagnostics, `${path}.states`);
   const style = parseAuthoringStyle(input.style, states, diagnostics, `${path}.style`);
   return {
@@ -482,9 +512,9 @@ function parseAuthoringRule(input: unknown, index: number, diagnostics: GrafanaP
     metric,
     target: {
       kind: selected.kind,
-      resolve: join
-        ? { by: 'id', metricLabel: join }
-        : { by: 'selector', selector: select }
+      resolve: input.join === undefined
+        ? { by: 'selector', selector: select }
+        : resolver
     },
     value: normalizeAuthoringValue(input.value, diagnostics, `${path}.value`),
     overlay: style.overlay,
@@ -536,12 +566,16 @@ function parseResolver(input: unknown, diagnostics: GrafanaPanelDiagnostic[], co
   }
   const resolver: MapperResolver = { by: by as MapperResolverMode };
   const metricLabel = stringValue(input.metricLabel);
+  const linkMetricLabel = stringValue(input.linkMetricLabel);
+  const directionMetricLabel = stringValue(input.directionMetricLabel);
   const key = stringValue(input.key);
   const sourceLabel = stringValue(input.sourceLabel);
   const targetLabel = stringValue(input.targetLabel);
   const selector = stringValue(input.selector);
   const objectIds = stringArray(input.objectIds);
   if (metricLabel) resolver.metricLabel = metricLabel;
+  if (linkMetricLabel) resolver.linkMetricLabel = linkMetricLabel;
+  if (directionMetricLabel) resolver.directionMetricLabel = directionMetricLabel;
   if (key) resolver.key = key;
   if (sourceLabel) resolver.sourceLabel = sourceLabel;
   if (targetLabel) resolver.targetLabel = targetLabel;

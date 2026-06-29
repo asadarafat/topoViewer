@@ -156,3 +156,25 @@ stylesheet:
       curveStyle: straight
       label: ""
       textBackgroundColor: var(--topoviewer-edge-label-bg)
+      directionalStrokes: true
+      directionStartGap: 18
+      directionCenterGap: 56
+      directionLabelOffset: 12
+  - selector: linkDirection
+    style:
+      lineWidth: 3
+      lineCap: round
+      labelFontSize: 10
+      labelFontWeight: 800
+      textBackgroundColor: var(--topoviewer-edge-label-bg)
+      labelZIndex: 38
+  - selector: linkDirection[direction = "sourceToTarget"]
+    style:
+      lineColor: "#4caf50"
+      targetArrowShape: triangle
+      targetArrowColor: "#4caf50"
+  - selector: linkDirection[direction = "targetToSource"]
+    style:
+      lineColor: "#ff9800"
+      sourceArrowShape: triangle
+      sourceArrowColor: "#ff9800"

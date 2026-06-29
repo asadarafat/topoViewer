@@ -145,6 +145,46 @@ describe('TopoViewer mapper parser', () => {
     });
   });
 
+  it('parses compact linkDirection rules with link and direction joins', () => {
+    const result = parseTopoViewerMapperYaml([
+      'version: 1',
+      'rules:',
+      '  - id: directional-utilization',
+      '    metric: interface_direction_utilization_percent',
+      '    select: linkDirection',
+      '    join:',
+      '      link: link_id',
+      '      direction: direction',
+      '    value: percent',
+      '    states:',
+      '      busy: ">=70"',
+      '    style:',
+      '      default:',
+      '        label: "{{ value | round }}%"',
+      '        lineColor: "#4caf50"',
+      '      busy:',
+      '        lineColor: "#ff9800"',
+      '        lineWidth: 6'
+    ].join('\n'));
+
+    expect(result.diagnostics).toEqual([]);
+    expect(result.mapper?.mappings[0]).toMatchObject({
+      id: 'directional-utilization',
+      metric: 'interface_direction_utilization_percent',
+      target: {
+        kind: 'linkDirection',
+        resolve: {
+          by: 'id',
+          linkMetricLabel: 'link_id',
+          directionMetricLabel: 'direction'
+        }
+      },
+      value: {
+        as: 'utilizationPercent'
+      }
+    });
+  });
+
   it('parses severity palette shorthand colors', () => {
     const result = parseTopoViewerMapperYaml([
       'version: 1',

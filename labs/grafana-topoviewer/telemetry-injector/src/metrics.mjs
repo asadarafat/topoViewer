@@ -1,6 +1,7 @@
 const metricHelp = {
   topoviewer_link_up: 'Whether a TopoViewer link is operational: 1 up, 0 down.',
   topoviewer_link_utilization_percent: 'Current TopoViewer link utilization percentage.',
+  topoviewer_link_direction_utilization_percent: 'Current TopoViewer directional link utilization percentage.',
   topoviewer_link_rx_bps: 'Current receive rate for a TopoViewer link in bits per second.',
   topoviewer_link_tx_bps: 'Current transmit rate for a TopoViewer link in bits per second.',
   topoviewer_link_errors_total: 'Total observed errors for a TopoViewer link.',
@@ -20,6 +21,7 @@ function labelsForEntry(entry) {
     site: entry.site,
     pod: entry.pod
   };
+  if (entry.direction) labels.direction = entry.direction;
   return Object.entries(labels)
     .map(([key, value]) => `${key}="${escapeLabel(value)}"`)
     .join(',');
@@ -33,10 +35,27 @@ function renderMetric(name, entries, valueForEntry) {
   ].join('\n');
 }
 
+function directionEntries(entries) {
+  return entries.flatMap((entry) => [
+    {
+      ...entry,
+      direction: 'sourceToTarget',
+      directionUtilizationPercent: entry.txUtilizationPercent ?? entry.utilizationPercent
+    },
+    {
+      ...entry,
+      direction: 'targetToSource',
+      directionUtilizationPercent: entry.rxUtilizationPercent ?? entry.utilizationPercent
+    }
+  ]);
+}
+
 export function renderPrometheusMetrics(entries) {
+  const directions = directionEntries(entries);
   const metricBlocks = [
     renderMetric('topoviewer_link_up', entries, (entry) => entry.up),
     renderMetric('topoviewer_link_utilization_percent', entries, (entry) => entry.utilizationPercent),
+    renderMetric('topoviewer_link_direction_utilization_percent', directions, (entry) => entry.directionUtilizationPercent),
     renderMetric('topoviewer_link_rx_bps', entries, (entry) => entry.rxBps),
     renderMetric('topoviewer_link_tx_bps', entries, (entry) => entry.txBps),
     renderMetric('topoviewer_link_errors_total', entries, (entry) => entry.errorsTotal),

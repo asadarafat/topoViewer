@@ -143,6 +143,7 @@ Supported target kinds are:
 
 - `node`
 - `link`
+- `linkDirection`
 - `path`
 - `region`
 - `layer`
@@ -223,6 +224,51 @@ may use templates such as `{{ value }}`, `{{ value | round }}`,
 `{{ severity }}`, `{{ metric }}`, `{{ target.id }}`, `{{ label.name }}`, and
 `{{ field.name }}`.
 
+Directional links use the same compact mapper model, but the most ergonomic
+join uses two stable telemetry labels: the parent `link_id` and the direction
+key from the topology YAML.
+
+```yaml
+rules:
+  - id: directional-utilization
+    metric: interface_direction_utilization_percent
+    select: linkDirection
+    join:
+      link: link_id
+      direction: direction
+    value: percent
+    states:
+      busy: ">=70"
+      saturated: ">=90"
+    style:
+      default:
+        label: "{{ value | round }}%"
+        lineColor: "#4caf50"
+        lineWidth: 4
+      busy:
+        lineColor: "#ff9800"
+        lineWidth: 6
+      saturated:
+        label: "hot {{ value | round }}%"
+        lineColor: "#d32f2f"
+        lineWidth: 8
+```
+
+For this mapper, Prometheus samples should carry labels like
+`link_id="Leaf-1-Spine-1"` and `direction="sourceToTarget"`.
+
+A starter PromQL query for that rule is intentionally plain:
+
+```promql
+topoviewer_link_direction_utilization_percent{fixture_id="clos-2spine-4leaf"}
+```
+
+The panel reads the sample labels, resolves `link_id + direction` to a
+`graph.links[].directions.*` object, and applies the matched style as a runtime
+overlay. A mounted bundle can therefore show `sourceToTarget` as green while
+`targetToSource` is orange, red, dashed, wider, or relabeled from telemetry
+without duplicating the physical link in topology YAML.
+
 Mapper overlays are controlled schema-backed configuration rather than
 arbitrary JavaScript. The schema is exported as:
 
@@ -240,6 +286,10 @@ When telemetry is enabled, the panel shows mapper coverage and diagnostics:
 - unresolved telemetry;
 - ambiguous endpoint matches;
 - duplicate object mappings;
+- missing parent links for `linkDirection` telemetry;
+- missing or unsupported direction keys;
+- duplicate direction mappings;
+- stale static object references;
 - PromQL starter queries derived from the mapper.
 
 Source diagnostics are separated from telemetry diagnostics. YAML parse errors

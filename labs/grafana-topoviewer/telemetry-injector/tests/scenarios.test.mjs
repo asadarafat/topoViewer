@@ -21,6 +21,7 @@ describe('telemetry injector scenarios', () => {
     const metrics = renderPrometheusMetrics(buildScenario('healthy'));
     assert.match(metrics, /topoviewer_link_up\{fixture_id="layered-network",link_id="underlay-fra-ams"/);
     assert.match(metrics, /topoviewer_link_utilization_percent\{fixture_id="clos-2spine-4leaf",link_id="Spine-2-Leaf-4"/);
+    assert.match(metrics, /topoviewer_link_direction_utilization_percent\{fixture_id="clos-2spine-4leaf",link_id="Spine-2-Leaf-4",source="Spine-2",target="Leaf-4",site="fabric",pod="pair-2",direction="sourceToTarget"/);
     assert.match(metrics, /topoviewer_metric_timestamp_seconds/);
   });
 

@@ -119,6 +119,37 @@ rules:
         lineWidth: 7
         label: "{{ state }} {{ value | round }}%"
         labelColor: "#c62828"
+  - id: fabric-direction-utilization
+    metric: topoviewer_link_direction_utilization_percent
+    select: linkDirection
+    join:
+      link: link_id
+      direction: direction
+    value: percent
+    states:
+      busy: ">=50"
+      high: ">=80"
+      saturated: ">=90"
+    style:
+      default:
+        label: "{{ label.direction }} {{ value | round }}%"
+        lineWidth: 3
+      busy:
+        lineColor: "#42a5f5"
+        lineWidth: 4
+        labelColor: "#1976d2"
+      high:
+        lineColor: "#ff9800"
+        lineWidth: 5
+        labelColor: "#ed6c02"
+      saturated:
+        lineColor: "#d32f2f"
+        lineWidth: 7
+        lineStyle: dashed
+        lineOutlineWidth: 3
+        lineOutlineColor: "rgba(211, 47, 47, 0.24)"
+        label: "{{ label.direction }} {{ state }} {{ value | round }}%"
+        labelColor: "#c62828"
 mappings:
   - id: fabric-pair-region-health
     metric: topoviewer_link_errors_total

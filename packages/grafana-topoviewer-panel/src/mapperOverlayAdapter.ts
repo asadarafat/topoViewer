@@ -29,6 +29,9 @@ import {
   type TelemetrySeverity
 } from './telemetryRules';
 
+type LinkDirectionKey = 'sourceToTarget' | 'targetToSource';
+type GraphLinkDirection = NonNullable<GraphLink['directions']>[LinkDirectionKey];
+
 interface InventoryEntity {
   id: string;
   name?: string;
@@ -37,6 +40,9 @@ interface InventoryEntity {
   data?: Record<string, unknown>;
   layers?: string[];
   style?: StyleDeclaration;
+  direction?: string;
+  linkId?: string;
+  parentLinkId?: string;
   source?: string;
   target?: string;
 }
@@ -44,6 +50,8 @@ interface InventoryEntity {
 interface Inventory {
   byKind: Record<MapperTargetKind, InventoryEntity[]>;
   linksById: Map<string, GraphLink>;
+  linkDirectionsById: Map<string, InventoryEntity>;
+  linkDirectionParentsById: Map<string, GraphLink>;
 }
 
 export interface MapperLinkOverlay {
@@ -58,6 +66,7 @@ export interface MapperTelemetryOverlay {
   linksById: Record<string, MapperLinkOverlay>;
   nodeStylesById: Record<string, StyleDeclaration>;
   linkStylesById: Record<string, StyleDeclaration>;
+  linkDirectionStylesById: Record<string, StyleDeclaration>;
   pathStylesById: Record<string, StyleDeclaration>;
   regionStylesById: Record<string, StyleDeclaration>;
   coverage: MapperMappingCoverage;
@@ -76,6 +85,12 @@ export interface MapperMappingCoverage {
   ambiguousMatches: number;
   duplicateObjectMappings: number;
   unmatchedMetricSamples: number;
+  missingParentLinkSamples: number;
+  missingDirectionSamples: number;
+  unsupportedDirectionSamples: number;
+  ambiguousDirectionSamples: number;
+  duplicateDirectionMappings: number;
+  staleObjectMappings: number;
 }
 
 function diagnostic(code: string, message: string): GrafanaPanelDiagnostic {
@@ -111,10 +126,40 @@ function mergeStyle(base: StyleDeclaration | undefined, overlay: StyleDeclaratio
   return { ...(base || {}), ...overlay };
 }
 
+function mergeStyleOrUndefined(base: StyleDeclaration | undefined, overlay: StyleDeclaration | undefined): StyleDeclaration | undefined {
+  const style = mergeStyle(base, overlay);
+  return Object.keys(style).length ? style : undefined;
+}
+
+function linkDirectionId(link: GraphLink, direction: string, value: GraphLinkDirection = {}): string {
+  return value.id || `${link.id}:${direction}`;
+}
+
+function linkDirectionEntities(links: GraphLink[]): InventoryEntity[] {
+  return links.flatMap((link) => Object.entries(link.directions || {}).flatMap(([direction, value]) => {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return [];
+    return [{
+      id: linkDirectionId(link, direction, value),
+      name: value.name || link.name,
+      label: value.label,
+      labels: { ...(link.labels || {}), ...(value.labels || {}), direction },
+      data: { ...(link.data || {}), ...(value.data || {}) },
+      layers: link.layers,
+      style: value.style,
+      direction,
+      linkId: link.id,
+      parentLinkId: link.id,
+      source: link.source,
+      target: link.target
+    }];
+  }));
+}
+
 function createInventory(document: TopoDocument | undefined): Inventory {
   const graph = document?.graph;
   const nodes = graph?.nodes || [];
   const links = graph?.links || [];
+  const linkDirections = linkDirectionEntities(links);
   const paths = graph?.paths || [];
   const regions = graph?.regions || [];
   const layers = (graph?.layers || []).map((layer) => ({
@@ -126,12 +171,18 @@ function createInventory(document: TopoDocument | undefined): Inventory {
     byKind: {
       node: nodes,
       link: links,
+      linkDirection: linkDirections,
       path: paths,
       region: regions,
       layer: layers,
       graph: graphEntity
     },
-    linksById: new Map(links.map((link) => [link.id, link]))
+    linksById: new Map(links.map((link) => [link.id, link])),
+    linkDirectionsById: new Map(linkDirections.map((direction) => [direction.id, direction])),
+    linkDirectionParentsById: new Map(linkDirections.flatMap((direction) => {
+      const link = links.find((candidate) => candidate.id === direction.linkId);
+      return link ? [[direction.id, link] as const] : [];
+    }))
   };
 }
 
@@ -298,7 +349,7 @@ function styleForOverlay(
   let style: StyleDeclaration = renderStyleTemplates(overlay.style, sample, rule, entity, severity);
   const label = renderTemplate(overlay.label, sample, rule, entity, severity);
   const badgeLabel = renderTemplate(overlay.badgeLabel, sample, rule, entity, severity);
-  if (kind === 'link' || kind === 'path') {
+  if (kind === 'link' || kind === 'linkDirection' || kind === 'path') {
     if (overlay.lineColorBySeverity && color) style.lineColor = color;
     if (overlay.sourceArrowColorBySeverity && color) style.sourceArrowColor = color;
     if (overlay.targetArrowColorBySeverity && color) style.targetArrowColor = color;
@@ -346,7 +397,15 @@ function entityValue(entity: InventoryEntity, resolver: MapperResolver): unknown
 }
 
 function resolveById(kind: MapperTargetKind, resolver: MapperResolver, sample: MapperTelemetrySample, inventory: Inventory): InventoryEntity[] {
-  const id = resolver.metricLabel ? sample.labels[resolver.metricLabel] : undefined;
+  if (kind === 'linkDirection' && resolver.linkMetricLabel && resolver.directionMetricLabel) {
+    const linkId = sample.labels[resolver.linkMetricLabel];
+    const direction = sample.labels[resolver.directionMetricLabel];
+    if (!linkId || !direction) return [];
+    return inventory.byKind.linkDirection.filter((entity) => entity.linkId === linkId && entity.direction === direction);
+  }
+  const id = resolver.linkMetricLabel && resolver.directionMetricLabel
+    ? `${sample.labels[resolver.linkMetricLabel]}:${sample.labels[resolver.directionMetricLabel]}`
+    : resolver.metricLabel ? sample.labels[resolver.metricLabel] : undefined;
   if (!id) return [];
   return inventory.byKind[kind].filter((entity) => entity.id === id);
 }
@@ -358,18 +417,18 @@ function resolveByLabelOrData(kind: MapperTargetKind, resolver: MapperResolver, 
 }
 
 function resolveByEndpoint(kind: MapperTargetKind, resolver: MapperResolver, sample: MapperTelemetrySample, inventory: Inventory): InventoryEntity[] {
-  if (kind !== 'link') return [];
+  if (kind !== 'link' && kind !== 'linkDirection') return [];
   const source = resolver.sourceLabel ? sample.labels[resolver.sourceLabel] : undefined;
   const target = resolver.targetLabel ? sample.labels[resolver.targetLabel] : undefined;
   if (!source || !target) return [];
-  return inventory.byKind.link.filter((entity) => (
+  return inventory.byKind[kind].filter((entity) => (
     (entity.source === source && entity.target === target) ||
     (entity.source === target && entity.target === source)
   ));
 }
 
 function parseSelector(selector: string): { kind: MapperTargetKind; path?: string; value?: string } | undefined {
-  const match = selector.match(/^(node|link|path|region|layer|graph)(?:\[(id|labels\.[\w.-]+|data\.[\w.-]+)\s*=\s*["']?([^"'\]]+)["']?\])?$/);
+  const match = selector.match(/^(node|linkDirection|link|path|region|layer|graph)(?:\[(id|direction|linkId|parentLinkId|source|target|labels\.[\w.-]+|data\.[\w.-]+)\s*=\s*["']?([^"'\]]+)["']?\])?$/);
   if (!match) return undefined;
   return {
     kind: match[1] as MapperTargetKind,
@@ -381,6 +440,11 @@ function parseSelector(selector: string): { kind: MapperTargetKind; path?: strin
 function selectorMatches(entity: InventoryEntity, selectorPath: string | undefined, expectedValue: string | undefined): boolean {
   if (!selectorPath) return true;
   if (selectorPath === 'id') return entity.id === expectedValue;
+  if (selectorPath === 'direction') return entity.direction === expectedValue;
+  if (selectorPath === 'linkId') return entity.linkId === expectedValue;
+  if (selectorPath === 'parentLinkId') return entity.parentLinkId === expectedValue;
+  if (selectorPath === 'source') return entity.source === expectedValue;
+  if (selectorPath === 'target') return entity.target === expectedValue;
   if (selectorPath.startsWith('labels.')) return stringValue(entity.labels?.[selectorPath.slice('labels.'.length)]) === expectedValue;
   if (selectorPath.startsWith('data.')) return stringValue(nestedValue(entity.data, selectorPath.slice('data.'.length))) === expectedValue;
   return false;
@@ -428,7 +492,7 @@ function resolveEntities(rule: MapperRule, sample: MapperTelemetrySample, invent
 }
 
 function layerMembers(layerId: string, inventory: Inventory): MapperOverlayEntity[] {
-  return (['node', 'link', 'path', 'region'] as const).flatMap((kind) => (
+  return (['node', 'link', 'linkDirection', 'path', 'region'] as const).flatMap((kind) => (
     inventory.byKind[kind]
       .filter((entity) => entity.layers?.includes(layerId))
       .map((entity) => ({ kind, id: entity.id }))
@@ -436,7 +500,7 @@ function layerMembers(layerId: string, inventory: Inventory): MapperOverlayEntit
 }
 
 function graphMembers(inventory: Inventory): MapperOverlayEntity[] {
-  return (['node', 'link', 'path', 'region'] as const).flatMap((kind) => (
+  return (['node', 'link', 'linkDirection', 'path', 'region'] as const).flatMap((kind) => (
     inventory.byKind[kind].map((entity) => ({ kind, id: entity.id }))
   ));
 }
@@ -469,6 +533,7 @@ function mergeOverlayStyle(
 function bucketForKind(overlay: MapperTelemetryOverlay, kind: MapperTargetKind): StyleBucket | undefined {
   if (kind === 'node') return overlay.nodeStylesById;
   if (kind === 'link') return overlay.linkStylesById;
+  if (kind === 'linkDirection') return overlay.linkDirectionStylesById;
   if (kind === 'path') return overlay.pathStylesById;
   if (kind === 'region') return overlay.regionStylesById;
   return undefined;
@@ -507,11 +572,53 @@ function unsupportedOverlayKeys(rule: MapperRule): string[] {
   }
   const common = new Set(['label', 'style']);
   const link = new Set([...common, 'lineColorBySeverity', 'lineWidthBySeverity', 'sourceArrowColorBySeverity', 'targetArrowColorBySeverity', 'statusMarker', 'outlineBySeverity']);
+  const linkDirection = new Set([...common, 'lineColorBySeverity', 'lineWidthBySeverity', 'sourceArrowColorBySeverity', 'targetArrowColorBySeverity', 'statusMarker', 'outlineBySeverity']);
   const path = new Set([...common, 'lineColorBySeverity', 'lineWidthBySeverity', 'sourceArrowColorBySeverity', 'targetArrowColorBySeverity']);
   const node = new Set([...common, 'statusMarker', 'outlineBySeverity', 'backgroundColorBySeverity', 'badgeLabel']);
   const region = new Set([...common, 'backgroundColorBySeverity', 'borderColorBySeverity']);
-  const allowed = targetKind === 'link' ? link : targetKind === 'path' ? path : targetKind === 'node' ? node : targetKind === 'region' ? region : common;
+  const allowed = targetKind === 'link' ? link : targetKind === 'linkDirection' ? linkDirection : targetKind === 'path' ? path : targetKind === 'node' ? node : targetKind === 'region' ? region : common;
   return activeOverlayKeys(rule.overlay).filter((key) => !allowed.has(key));
+}
+
+function linkDirectionJoinLabels(rule: MapperRule, sample: MapperTelemetrySample): { linkId?: string; direction?: string } {
+  const resolve = rule.target.resolve;
+  return {
+    linkId: resolve.linkMetricLabel ? sample.labels[resolve.linkMetricLabel] : undefined,
+    direction: resolve.directionMetricLabel ? sample.labels[resolve.directionMetricLabel] : undefined
+  };
+}
+
+function classifyLinkDirectionResolutionFailure(
+  rule: MapperRule,
+  sample: MapperTelemetrySample,
+  inventory: Inventory,
+  coverage: MapperMappingCoverage
+): GrafanaPanelDiagnostic | undefined {
+  if (rule.target.kind !== 'linkDirection') return undefined;
+  if (rule.target.resolve.by !== 'id') return undefined;
+  const { linkId, direction } = linkDirectionJoinLabels(rule, sample);
+  if (!linkId || !inventory.linksById.has(linkId)) {
+    coverage.missingParentLinkSamples += 1;
+    return diagnostic(
+      'mapper-link-direction-missing-parent-link',
+      `Metric "${sample.metric}" matched mapper rule "${rule.id}", but parent link "${linkId || '<missing>'}" was not found.`
+    );
+  }
+  if (direction !== 'sourceToTarget' && direction !== 'targetToSource') {
+    coverage.unsupportedDirectionSamples += 1;
+    return diagnostic(
+      'mapper-link-direction-unsupported-direction',
+      `Metric "${sample.metric}" matched mapper rule "${rule.id}", but direction "${direction || '<missing>'}" is not supported. Use sourceToTarget or targetToSource.`
+    );
+  }
+  if (!inventory.byKind.linkDirection.some((entity) => entity.linkId === linkId && entity.direction === direction)) {
+    coverage.missingDirectionSamples += 1;
+    return diagnostic(
+      'mapper-link-direction-missing-direction',
+      `Metric "${sample.metric}" matched mapper rule "${rule.id}", but link "${linkId}" does not declare directions.${direction}.`
+    );
+  }
+  return undefined;
 }
 
 function emptyCoverage(totalSamples: number): MapperMappingCoverage {
@@ -524,7 +631,13 @@ function emptyCoverage(totalSamples: number): MapperMappingCoverage {
     appliedObjects: 0,
     ambiguousMatches: 0,
     duplicateObjectMappings: 0,
-    unmatchedMetricSamples: totalSamples
+    unmatchedMetricSamples: totalSamples,
+    missingParentLinkSamples: 0,
+    missingDirectionSamples: 0,
+    unsupportedDirectionSamples: 0,
+    ambiguousDirectionSamples: 0,
+    duplicateDirectionMappings: 0,
+    staleObjectMappings: 0
   };
 }
 
@@ -537,6 +650,7 @@ export function createMapperTelemetryOverlay(
     linksById: {},
     nodeStylesById: {},
     linkStylesById: {},
+    linkDirectionStylesById: {},
     pathStylesById: {},
     regionStylesById: {},
     coverage: emptyCoverage(samples.length),
@@ -572,17 +686,22 @@ export function createMapperTelemetryOverlay(
       const entities = resolveEntities(rule, sample, inventory, overlay.diagnostics);
       if (!entities.length) {
         overlay.coverage.unresolvedSamples += 1;
-        overlay.diagnostics.push(diagnostic('mapper-target-unmatched', `Metric "${sample.metric}" matched mapper rule "${rule.id}", but no ${rule.target.kind} object was resolved.`));
+        overlay.diagnostics.push(
+          classifyLinkDirectionResolutionFailure(rule, sample, inventory, overlay.coverage)
+          || diagnostic('mapper-target-unmatched', `Metric "${sample.metric}" matched mapper rule "${rule.id}", but no ${rule.target.kind} object was resolved.`)
+        );
         continue;
       }
-      overlay.coverage.resolvedSamples += 1;
       if (rule.target.resolve.by === 'endpoint' && entities.length > 1) {
         overlay.coverage.ambiguousMatches += 1;
+        if (rule.target.kind === 'linkDirection') overlay.coverage.ambiguousDirectionSamples += 1;
         overlay.diagnostics.push(diagnostic(
           'mapper-endpoint-ambiguous',
           `Mapper rule "${rule.id}" endpoint resolver matched ${entities.length} links. Add a stable link_id metric label for parallel links.`
         ));
+        if (rule.target.kind === 'linkDirection') continue;
       }
+      overlay.coverage.resolvedSamples += 1;
       const severity = severityForSample(sample, rule);
       for (const sourceEntity of entities) {
         for (const target of effectiveTargets(rule, sourceEntity, inventory)) {
@@ -592,10 +711,12 @@ export function createMapperTelemetryOverlay(
           const style = styleForOverlay(target.kind, rule.overlay, sample, rule, target, severity, mapper.palette);
           const bucket = bucketForKind(overlay, target.kind);
           if (bucket) mergeOverlayStyle(bucket, severities, target, style, severity);
-          if (target.kind === 'link') {
-            const link = inventory.linksById.get(target.id);
+          if (target.kind === 'link' || target.kind === 'linkDirection') {
+            const link = target.kind === 'link'
+              ? inventory.linksById.get(target.id)
+              : inventory.linkDirectionParentsById.get(target.id);
             if (link && Object.keys(style).length) {
-              overlay.linksById[target.id] = { link, sample, rule, severity, style };
+              if (target.kind === 'link') overlay.linksById[target.id] = { link, sample, rule, severity, style };
             }
             const endpoints = link ? [link.source, link.target] : [];
             const endpointOverlay = endpointStyle(rule.overlay, severity, mapper.palette);
@@ -610,6 +731,8 @@ export function createMapperTelemetryOverlay(
 
   overlay.coverage.appliedObjects = appliedObjectKeys.size;
   overlay.coverage.duplicateObjectMappings = duplicateObjectKeys.size;
+  overlay.coverage.duplicateDirectionMappings = Array.from(duplicateObjectKeys).filter((key) => key.startsWith('linkDirection:')).length;
+  overlay.coverage.staleObjectMappings = overlay.diagnostics.filter((entry) => entry.code === 'mapper-static-object-stale').length;
   overlay.coverage.unmatchedMetricSamples = Math.max(0, overlay.coverage.totalSamples - overlay.coverage.metricMatchedSamples);
   if (duplicateObjectKeys.size) {
     overlay.diagnostics.push(diagnostic(
@@ -629,6 +752,7 @@ export function createMapperTelemetryOverlayExtension(overlay: MapperTelemetryOv
   const hasOverlay = [
     overlay.nodeStylesById,
     overlay.linkStylesById,
+    overlay.linkDirectionStylesById,
     overlay.pathStylesById,
     overlay.regionStylesById
   ].some((bucket) => Object.keys(bucket).length);
@@ -640,19 +764,29 @@ export function createMapperTelemetryOverlayExtension(overlay: MapperTelemetryOv
       if (!graph) return document;
       const nodes = graph.nodes?.map((node: GraphNode) => ({
         ...node,
-        style: mergeStyle(node.style, overlay.nodeStylesById[node.id])
+        style: mergeStyleOrUndefined(node.style, overlay.nodeStylesById[node.id])
       }));
       const links = graph.links?.map((link: GraphLink) => ({
         ...link,
-        style: mergeStyle(link.style, overlay.linkStylesById[link.id])
+        style: mergeStyleOrUndefined(link.style, overlay.linkStylesById[link.id]),
+        directions: link.directions
+          ? Object.fromEntries(Object.entries(link.directions).map(([direction, value]) => {
+            if (!value || typeof value !== 'object' || Array.isArray(value)) return [direction, value];
+            const id = linkDirectionId(link, direction, value);
+            return [direction, {
+              ...value,
+              style: mergeStyleOrUndefined(value.style, overlay.linkDirectionStylesById[id])
+            }];
+          }))
+          : link.directions
       }));
       const paths = graph.paths?.map((path: GraphPath) => ({
         ...path,
-        style: mergeStyle(path.style, overlay.pathStylesById[path.id])
+        style: mergeStyleOrUndefined(path.style, overlay.pathStylesById[path.id])
       }));
       const regions = graph.regions?.map((region: GraphRegion) => ({
         ...region,
-        style: mergeStyle(region.style, overlay.regionStylesById[region.id])
+        style: mergeStyleOrUndefined(region.style, overlay.regionStylesById[region.id])
       }));
       return {
         ...document,

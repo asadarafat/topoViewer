@@ -1,6 +1,6 @@
 import type { StyleDeclaration } from 'topoviewer';
 
-export type MapperTargetKind = 'node' | 'link' | 'path' | 'region' | 'layer' | 'graph';
+export type MapperTargetKind = 'node' | 'link' | 'linkDirection' | 'path' | 'region' | 'layer' | 'graph';
 export type MapperResolverMode = 'id' | 'label' | 'data' | 'endpoint' | 'selector' | 'aggregate' | 'staticObjectIds';
 export type MapperSeverityDirection = 'above' | 'below';
 export type MapperSeverityName = 'success' | 'info' | 'warning' | 'error';
@@ -41,6 +41,8 @@ export interface MapperTarget {
 export interface MapperResolver {
   by: MapperResolverMode;
   metricLabel?: string;
+  linkMetricLabel?: string;
+  directionMetricLabel?: string;
   key?: string;
   sourceLabel?: string;
   targetLabel?: string;

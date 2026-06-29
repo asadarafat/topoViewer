@@ -38,7 +38,7 @@ const metricPropertyByName: Record<string, TelemetryMetricProperty> = {
   topoviewer_metric_timestamp_seconds: 'timestampSeconds'
 };
 
-const labelKeys = new Set(['source_id', 'topology_source_id', 'fixture_id', 'link_id', 'source', 'target', 'site', 'pod']);
+const labelKeys = new Set(['source_id', 'topology_source_id', 'fixture_id', 'link_id', 'direction_id', 'direction', 'source', 'target', 'site', 'pod']);
 
 function diagnostic(code: string, message: string): GrafanaPanelDiagnostic {
   return { severity: 'warning', code, message };

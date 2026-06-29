@@ -82,6 +82,19 @@
           "legendFormat": "{{link_id}} errors",
           "range": false,
           "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "topoviewer-prometheus"
+          },
+          "editorMode": "code",
+          "expr": "topoviewer_link_direction_utilization_percent{fixture_id=\"clos-2spine-4leaf\"}",
+          "format": "time_series",
+          "instant": true,
+          "legendFormat": "{{link_id}} {{direction}} utilization",
+          "range": false,
+          "refId": "D"
         }
       ],
       "title": "TopoViewer",

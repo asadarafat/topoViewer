@@ -15,7 +15,21 @@ const document: TopoDocument = {
       { id: 'p1', name: 'P1', labels: { role: 'p' }, data: { device: 'p1' }, layers: ['underlay'] }
     ],
     links: [
-      { id: 'pe1-p1', source: 'pe1', target: 'p1', labels: { protocol: 'isis' }, layers: ['underlay'] }
+      {
+        id: 'pe1-p1',
+        source: 'pe1',
+        target: 'p1',
+        labels: { protocol: 'isis' },
+        layers: ['underlay'],
+        directions: {
+          sourceToTarget: {
+            label: 'PE1 to P1'
+          },
+          targetToSource: {
+            label: 'P1 to PE1'
+          }
+        }
+      }
     ],
     regions: [
       { id: 'core', name: 'Core', labels: { site: 'core' }, members: ['pe1', 'p1'], layers: ['underlay'] }
@@ -119,6 +133,234 @@ describe('mapper telemetry overlay adapter', () => {
       resolvedSamples: 1,
       appliedObjects: 1
     });
+  });
+
+  it('maps telemetry to one link direction without changing the parent link style', () => {
+    const parsed = parseTopoViewerMapperYaml([
+      'version: 1',
+      'rules:',
+      '  - id: directional-utilization',
+      '    metric: interface_direction_utilization_percent',
+      '    select: linkDirection',
+      '    join:',
+      '      link: link_id',
+      '      direction: direction',
+      '    value: percent',
+      '    states:',
+      '      busy: ">=70"',
+      '    style:',
+      '      default:',
+      '        label: "{{ value | round }}%"',
+      '        lineColor: "#4caf50"',
+      '        lineWidth: 4',
+      '      busy:',
+      '        label: "busy {{ value | round }}%"',
+      '        lineColor: "#ff9800"',
+      '        lineWidth: 7'
+    ].join('\n'));
+
+    expect(parsed.diagnostics).toEqual([]);
+    const overlay = createMapperTelemetryOverlay(document, parsed.mapper, [{
+      metric: 'interface_direction_utilization_percent',
+      value: 82,
+      labels: { link_id: 'pe1-p1', direction: 'sourceToTarget' },
+      fields: { value: 82 }
+    }]);
+
+    expect(overlay.linkStylesById['pe1-p1']).toBeUndefined();
+    expect(overlay.linkDirectionStylesById['pe1-p1:sourceToTarget']).toMatchObject({
+      label: 'busy 82%',
+      lineColor: '#ff9800',
+      lineWidth: 7
+    });
+
+    const extension = createMapperTelemetryOverlayExtension(overlay);
+    const renderedDocument = extension?.beforeCompile?.(document, {
+      document,
+      selectedLayerIds: [],
+      toggles: {}
+    });
+
+    expect(renderedDocument?.graph?.links?.[0]?.style).toBeUndefined();
+    expect(renderedDocument?.graph?.links?.[0]?.directions?.sourceToTarget?.style).toMatchObject({
+      label: 'busy 82%',
+      lineColor: '#ff9800',
+      lineWidth: 7
+    });
+    expect(renderedDocument?.graph?.links?.[0]?.directions?.targetToSource?.style).toBeUndefined();
+  });
+
+  it('resolves link directions by parent link and direction even when the direction has a custom ID', () => {
+    const customDirectionDocument: TopoDocument = {
+      graph: {
+        nodes: [{ id: 'a' }, { id: 'b' }],
+        links: [
+          {
+            id: 'a-b',
+            source: 'a',
+            target: 'b',
+            directions: {
+              sourceToTarget: { id: 'custom-a-to-b' }
+            }
+          }
+        ]
+      }
+    };
+
+    const parsed = parseTopoViewerMapperYaml([
+      'version: 1',
+      'rules:',
+      '  - id: directional-state',
+      '    metric: link_direction_up',
+      '    select: linkDirection',
+      '    join:',
+      '      link: link_id',
+      '      direction: direction',
+      '    value: up',
+      '    states:',
+      '      down: "==0"',
+      '    style:',
+      '      default:',
+      '        lineColor: "#4caf50"',
+      '      down:',
+      '        lineColor: "#d32f2f"'
+    ].join('\n'));
+
+    const overlay = createMapperTelemetryOverlay(customDirectionDocument, parsed.mapper, [{
+      metric: 'link_direction_up',
+      value: 0,
+      labels: { link_id: 'a-b', direction: 'sourceToTarget' },
+      fields: { value: 0 }
+    }]);
+
+    expect(overlay.diagnostics).toEqual([]);
+    expect(overlay.linkDirectionStylesById['custom-a-to-b']).toMatchObject({
+      lineColor: '#d32f2f'
+    });
+    expect(overlay.coverage.resolvedSamples).toBe(1);
+  });
+
+  it('classifies unresolved link direction samples by missing parent, missing direction, and unsupported direction', () => {
+    const parsed = parseTopoViewerMapperYaml([
+      'version: 1',
+      'rules:',
+      '  - id: directional-state',
+      '    metric: link_direction_up',
+      '    select: linkDirection',
+      '    join:',
+      '      link: link_id',
+      '      direction: direction',
+      '    value: up',
+      '    states:',
+      '      down: "==0"',
+      '    style:',
+      '      default:',
+      '        lineColor: "#4caf50"',
+      '      down:',
+      '        lineColor: "#d32f2f"'
+    ].join('\n'));
+
+    const overlay = createMapperTelemetryOverlay(document, parsed.mapper, [
+      {
+        metric: 'link_direction_up',
+        value: 0,
+        labels: { link_id: 'missing-link', direction: 'sourceToTarget' },
+        fields: { value: 0 }
+      },
+      {
+        metric: 'link_direction_up',
+        value: 0,
+        labels: { link_id: 'pe1-p1', direction: 'sideways' },
+        fields: { value: 0 }
+      },
+      {
+        metric: 'link_direction_up',
+        value: 0,
+        labels: { link_id: 'pe1-p1', direction: 'targetToSource' },
+        fields: { value: 0 }
+      }
+    ]);
+
+    expect(overlay.coverage).toMatchObject({
+      totalSamples: 3,
+      resolvedSamples: 1,
+      unresolvedSamples: 2,
+      missingParentLinkSamples: 1,
+      unsupportedDirectionSamples: 1,
+      missingDirectionSamples: 0
+    });
+    expect(overlay.diagnostics.map((diagnostic) => diagnostic.code)).toEqual(expect.arrayContaining([
+      'mapper-link-direction-missing-parent-link',
+      'mapper-link-direction-unsupported-direction'
+    ]));
+  });
+
+  it('reports missing direction declarations and duplicate direction mappings', () => {
+    const oneDirectionDocument: TopoDocument = {
+      graph: {
+        nodes: [{ id: 'a' }, { id: 'b' }],
+        links: [
+          {
+            id: 'a-b',
+            source: 'a',
+            target: 'b',
+            directions: {
+              sourceToTarget: {}
+            }
+          }
+        ]
+      }
+    };
+    const parsed = parseTopoViewerMapperYaml([
+      'version: 1',
+      'rules:',
+      '  - id: directional-state',
+      '    metric: link_direction_up',
+      '    select: linkDirection',
+      '    join:',
+      '      link: link_id',
+      '      direction: direction',
+      '    value: up',
+      '    states:',
+      '      down: "==0"',
+      '    style:',
+      '      default:',
+      '        lineColor: "#4caf50"',
+      '      down:',
+      '        lineColor: "#d32f2f"'
+    ].join('\n'));
+
+    const overlay = createMapperTelemetryOverlay(oneDirectionDocument, parsed.mapper, [
+      {
+        metric: 'link_direction_up',
+        value: 0,
+        labels: { link_id: 'a-b', direction: 'targetToSource' },
+        fields: { value: 0 }
+      },
+      {
+        metric: 'link_direction_up',
+        value: 1,
+        labels: { link_id: 'a-b', direction: 'sourceToTarget' },
+        fields: { value: 1 }
+      },
+      {
+        metric: 'link_direction_up',
+        value: 0,
+        labels: { link_id: 'a-b', direction: 'sourceToTarget' },
+        fields: { value: 0 }
+      }
+    ]);
+
+    expect(overlay.coverage).toMatchObject({
+      resolvedSamples: 2,
+      unresolvedSamples: 1,
+      missingDirectionSamples: 1,
+      duplicateDirectionMappings: 1
+    });
+    expect(overlay.diagnostics.map((diagnostic) => diagnostic.code)).toEqual(expect.arrayContaining([
+      'mapper-link-direction-missing-direction',
+      'mapper-duplicate-object-mapping'
+    ]));
   });
 
   it('uses mapper palette colors for severity-driven overlays', () => {

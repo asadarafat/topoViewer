@@ -124,6 +124,14 @@ function selectedIdsForGrafanaTelemetryClick(
   object: TopoViewerObjectClick,
   overlay: TelemetryClickOverlay
 ): string[] {
+  if (object.element === 'linkDirection') {
+    return [
+      object.id,
+      object.data.linkId,
+      object.data.source,
+      object.data.target
+    ].map((id) => String(id || '')).filter(Boolean);
+  }
   if (object.element === 'edge') {
     const linkOverlay = overlay.linksById[object.id];
     if (!linkOverlay) return [object.id];
@@ -138,13 +146,20 @@ function selectedIdsForGrafanaTelemetryClick(
 function mapperCoverageSummary(overlay: ReturnType<typeof createMapperTelemetryOverlay>): string {
   const { coverage } = overlay;
   if (!coverage.totalSamples) return 'Mapper ready; waiting for Grafana telemetry frames.';
-  return [
+  const parts = [
     `Mapper coverage: ${coverage.resolvedSamples}/${coverage.sourceMatchedSamples || coverage.totalSamples} samples resolved`,
     `${coverage.appliedObjects} object(s) overlaid`,
     `${coverage.unresolvedSamples} unresolved`,
     `${coverage.ambiguousMatches} ambiguous`,
     `${coverage.duplicateObjectMappings} duplicate`
-  ].join(' · ');
+  ];
+  if (coverage.missingParentLinkSamples) parts.push(`${coverage.missingParentLinkSamples} missing parent link`);
+  if (coverage.missingDirectionSamples) parts.push(`${coverage.missingDirectionSamples} missing direction`);
+  if (coverage.unsupportedDirectionSamples) parts.push(`${coverage.unsupportedDirectionSamples} unsupported direction`);
+  if (coverage.ambiguousDirectionSamples) parts.push(`${coverage.ambiguousDirectionSamples} ambiguous direction`);
+  if (coverage.duplicateDirectionMappings) parts.push(`${coverage.duplicateDirectionMappings} duplicate direction`);
+  if (coverage.staleObjectMappings) parts.push(`${coverage.staleObjectMappings} stale object`);
+  return parts.join(' · ');
 }
 
 function copyText(text: string) {
