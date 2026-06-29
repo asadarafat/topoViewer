@@ -1,0 +1,138 @@
+layout:
+  mode: manual
+  width: 880
+  height: 470
+icons:
+  yaml:
+    glyph: YAML
+    fill: "#1976d2"
+    stroke: "#bbdefb"
+  process:
+    glyph: fn
+    fill: "#7b1fa2"
+    stroke: "#e1bee7"
+  config:
+    glyph: REC
+    fill: "#ed6c02"
+    stroke: "#ffe0b2"
+  prometheus:
+    glyph: P
+    fill: "#d32f2f"
+    stroke: "#ffcdd2"
+  grafana:
+    glyph: G
+    fill: "#ff9800"
+    stroke: "#ffe0b2"
+  renderer:
+    glyph: TV
+    fill: "#2e7d32"
+    stroke: "#c8e6c9"
+labelFields:
+  - name
+stylesheet:
+  - selector: region
+    style:
+      backgroundColor: "rgba(25, 118, 210, 0.07)"
+      borderColor: "rgba(66, 165, 245, 0.42)"
+      borderWidth: 2
+      labelPosition: topCenter
+      labelMargin: 12
+      labelColor: var(--topoviewer-region-label-fg)
+      labelBackgroundColor: var(--topoviewer-region-label-bg)
+      labelFontWeight: 800
+      labelZIndex: 20
+  - selector: node
+    style:
+      shape: rectangle
+      width: 132
+      height: 68
+      borderWidth: 3
+      iconWidth: 48
+      iconHeight: 38
+      iconFit: contain
+      iconPadding: 4
+      labelColor: var(--topoviewer-fg-strong)
+      labelBackgroundColor: var(--topoviewer-panel-bg)
+      labelBackgroundOpacity: 0.94
+      labelBorderColor: var(--topoviewer-border)
+      labelBorderWidth: 1
+      labelFontSize: 13
+      labelFontWeight: 800
+      labelZIndex: 30
+      labelYOffset: 8
+      labelPadding: 4
+      metaColor: transparent
+  - selector: node[labels.kind = "yaml"]
+    style:
+      icon: yaml
+      backgroundColor: "#1976d2"
+      borderColor: "#90caf9"
+  - selector: node[labels.kind = "process"]
+    style:
+      icon: process
+      backgroundColor: "#7b1fa2"
+      borderColor: "#ce93d8"
+  - selector: node[labels.kind = "config"]
+    style:
+      icon: config
+      backgroundColor: "#ed6c02"
+      borderColor: "#ffcc80"
+  - selector: node[labels.kind = "datasource"]
+    style:
+      icon: prometheus
+      backgroundColor: "#d32f2f"
+      borderColor: "#ef9a9a"
+  - selector: node[labels.kind = "grafana"]
+    style:
+      icon: grafana
+      backgroundColor: "#ff9800"
+      borderColor: "#ffe0b2"
+  - selector: node[labels.kind = "renderer"]
+    style:
+      icon: renderer
+      backgroundColor: "#2e7d32"
+      borderColor: "#a5d6a7"
+  - selector: link
+    style:
+      curveStyle: smoothTaxi
+      label: ""
+      lineColor: "#78909c"
+      lineWidth: 3
+      targetArrowShape: triangle
+      targetArrowColor: "#78909c"
+      labelColor: var(--topoviewer-fg-strong)
+      labelFontSize: 11
+      textBackgroundColor: var(--topoviewer-edge-label-bg)
+      textBackgroundOpacity: 0.92
+      textBackgroundPadding: 3
+  - selector: link[labels.flow = "rules"]
+    style:
+      lineColor: "#1976d2"
+      targetArrowColor: "#1976d2"
+  - selector: link[labels.flow = "metrics"]
+    style:
+      lineColor: "#d32f2f"
+      targetArrowColor: "#d32f2f"
+  - selector: link[labels.flow = "overlay"]
+    style:
+      lineColor: "#2e7d32"
+      targetArrowColor: "#2e7d32"
+  - selector: link[labels.flow = "render"]
+    style:
+      lineColor: "#9c27b0"
+      targetArrowColor: "#9c27b0"
+  - selector: path
+    style:
+      curveStyle: smoothTaxi
+      label: ""
+      lineWidth: 8
+      laneWidth: 8
+      lineOpacity: 0.16
+      targetArrowShape: none
+      zIndex: -5
+  - selector: path[labels.path = "normalization"]
+    style:
+      lineColor: "#1976d2"
+  - selector: path[labels.path = "overlay"]
+    style:
+      lineColor: "#2e7d32"

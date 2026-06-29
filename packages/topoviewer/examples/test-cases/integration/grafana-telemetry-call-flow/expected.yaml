@@ -1,0 +1,11 @@
+renderable: true
+visualSnapshot: false
+dom:
+  graphNodes: 9
+  minVisibleEdges: 9
+  minRegions: 3
+assertions:
+  controls: true
+semantic:
+  errors: []
+  warnings: []

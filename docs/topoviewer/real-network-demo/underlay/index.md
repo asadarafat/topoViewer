@@ -20,7 +20,7 @@ The live viewport should render "Real network underlay" without blocking diagnos
 
 ## Use When
 
-Use this pattern when documenting a reusable TopoViewer behavior.
+Use this pattern when documenting how TopoViewer fits into another system, dashboard, or operational workflow.
 
 === "Live Viewport"
 

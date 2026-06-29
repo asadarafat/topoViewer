@@ -92,17 +92,26 @@ path, release artifact, and release validation path.
 
 ## Grafana
 
-Grafana is useful for operational dashboards. Phase 1 proves a local exploratory panel can render the same canonical harness fixtures as the browser harness:
+Grafana is useful for operational dashboards. The integration direction is a
+mounted TopoViewer bundle plus Grafana data frames, where mapper rules translate
+telemetry samples into runtime overlays without mutating topology or stylesheet
+YAML.
 
-```text
-packages/topoviewer/content/examples/** -> generated panel fixture module -> Grafana panel -> TopoViewer runtime
+```topoviewer
+topology: examples/integration/grafana-telemetry-call-flow/topology.yaml
+stylesheet: examples/integration/grafana-telemetry-call-flow/stylesheet.yaml
+height: 520px
+controls: true
+controlsOpen: false
+title: Grafana telemetry call flow
+selectedLayerIds:
+  - authoring
+  - normalization
+  - runtime
 ```
 
-Phase 2 adds a local Prometheus weathermap slice:
-
-```text
-topology link IDs + Prometheus labels -> Grafana data frames -> TopoViewer runtime overlay
-```
+The same call-flow diagram is also available as a generated example page with
+the topology and stylesheet YAML shown beside the live viewport.
 
 Local commands:
 

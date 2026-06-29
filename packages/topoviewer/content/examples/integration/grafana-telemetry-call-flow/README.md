@@ -1,0 +1,1 @@
+The Grafana telemetry call flow documents how a mounted TopoViewer bundle becomes an operational dashboard overlay. It uses TopoViewer primitives instead of a text-only sequence diagram: YAML files, rule generation, Prometheus, Grafana data frames, mapper rules, and the rendered panel are all modeled as graph objects.

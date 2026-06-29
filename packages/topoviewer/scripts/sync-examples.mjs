@@ -279,6 +279,7 @@ function featureUseWhen(feature) {
     edges: 'Use this pattern when link readability, routing, arrowheads, or edge labels matter.',
     graph: 'Use this pattern when modeling the core semantic graph.',
     harness: 'Use this pattern when building browser or VS Code authoring workflows.',
+    integration: 'Use this pattern when documenting how TopoViewer fits into another system, dashboard, or operational workflow.',
     layout: 'Use this pattern when positions should be repeatable, inferred, or constrained by topology structure.',
     nodes: 'Use this pattern when node identity, iconography, labels, status, or shape treatment matters.',
     paths: 'Use this pattern when visualizing service paths, dependency paths, or multi-hop routes.',

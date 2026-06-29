@@ -48,7 +48,8 @@ nav = [
   ] },
   { "Integrations" = [
     { "Zensical" = "topoviewer/zensical.md" },
-    { "Integration Roadmap" = "topoviewer/integration-roadmap.md" }
+    { "Integration Roadmap" = "topoviewer/integration-roadmap.md" },
+    { "Grafana Call Flow" = "topoviewer/grafana-telemetry-call-flow/index.md" }
   ] },
   { "Production" = [
     { "Hardening" = "topoviewer/production.md" },
