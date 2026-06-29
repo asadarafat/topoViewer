@@ -35,8 +35,11 @@ import { regionLabelMargin, regionLabelPositions, normalizeRegionLabelPosition }
 import { selectorMatches } from './selector';
 import { applyStyle } from './style';
 import { canonicalStyleKeyByLowercase, isColorStyleKey } from './styleDefaults';
-import type { DiagramCallout, DiagramConnector, GraphEntity, GraphLink, GraphPath, StyleRule, TopoDocument } from './types';
+import { LINK_DIRECTION_KEYS, type LinkDirectionKey } from './types';
+import type { DiagramCallout, DiagramConnector, GraphEntity, GraphLink, GraphLinkDirection, GraphPath, StyleRule, TopoDocument } from './types';
 import { validateTopoDocument } from './validation';
+
+const directionLabelPlacements = ['center', 'source', 'target', 'outside'];
 
 export type LintSeverity = 'error' | 'warning';
 
@@ -291,9 +294,40 @@ function edgeStyleIssues(style: Record<string, unknown> | undefined, path: strin
     issues.push(...nonNegativeNumberIssue(style, key, path, 'invalid-edge-arrow-size', 'Edge arrow size'));
   });
 
+  ['sourceArrowOffset', 'targetArrowOffset'].forEach((key) => {
+    if (style[key] !== undefined && finiteNumber(style[key]) === undefined) {
+      issues.push(issue('error', 'invalid-edge-arrow-offset', `Edge arrow offset "${String(style[key])}" must be a finite number.`, `${path}.${key}`));
+    }
+  });
+
+  ['labelXOffset', 'labelYOffset'].forEach((key) => {
+    if (style[key] !== undefined && finiteNumber(style[key]) === undefined) {
+      issues.push(issue('error', 'invalid-edge-label-offset', `${key} must be a finite number.`, `${path}.${key}`));
+    }
+  });
+
   ['sourceDistanceFromNode', 'targetDistanceFromNode'].forEach((key) => {
     issues.push(...nonNegativeNumberIssue(style, key, path, 'invalid-edge-endpoint-distance', 'Edge endpoint distance'));
   });
+
+  ['directionCenterGap', 'directionStartGap'].forEach((key) => {
+    issues.push(...nonNegativeNumberIssue(style, key, path, 'invalid-link-direction-gap', 'Link direction gap'));
+  });
+
+  if (style.directionalStrokes !== undefined && typeof style.directionalStrokes !== 'boolean') {
+    issues.push(issue('error', 'invalid-link-direction-strokes', 'directionalStrokes must be a boolean.', `${path}.directionalStrokes`));
+  }
+
+  if (
+    style.directionLabelPlacement !== undefined
+    && !directionLabelPlacements.includes(String(style.directionLabelPlacement))
+  ) {
+    issues.push(issue('error', 'invalid-link-direction-label-placement', `directionLabelPlacement must be one of ${directionLabelPlacements.join(', ')}.`, `${path}.directionLabelPlacement`));
+  }
+
+  if (style.directionLabelOffset !== undefined && finiteNumber(style.directionLabelOffset) === undefined) {
+    issues.push(issue('error', 'invalid-link-direction-label-offset', 'directionLabelOffset must be a finite number.', `${path}.directionLabelOffset`));
+  }
 
   const segmentDistances = numberList(style.segmentDistances);
   const segmentWeights = numberList(style.segmentWeights);
@@ -408,12 +442,72 @@ function subjectEntities(document: TopoDocument): Array<{ kind: string; entity: 
   return [
     ...(graph.nodes || []).map((entity) => ({ kind: 'node', entity })),
     ...(graph.links || []).map((entity) => ({ kind: 'link', entity })),
+    ...(graph.links || []).flatMap((link) => linkDirectionEntities(link).map((entity) => ({ kind: 'linkDirection', entity }))),
     ...(graph.paths || []).map((entity) => ({ kind: 'path', entity })),
     ...(graph.regions || []).map((entity) => ({ kind: 'region', entity })),
     ...(document.diagram?.shapes || []).map((entity) => ({ kind: 'shape', entity })),
     ...(document.diagram?.connectors || []).map((entity) => ({ kind: 'connector', entity })),
     ...(document.diagram?.callouts || []).map((entity) => ({ kind: 'callout', entity }))
   ];
+}
+
+function linkDirectionId(link: GraphLink, direction: LinkDirectionKey, value: GraphLinkDirection = {}): string {
+  return value.id || `${link.id}:${direction}`;
+}
+
+function linkDirectionEntities(link: GraphLink): Array<GraphEntity & Record<string, unknown>> {
+  if (!link.directions || typeof link.directions !== 'object') return [];
+  return LINK_DIRECTION_KEYS.flatMap((direction) => {
+    const value = link.directions?.[direction];
+    if (!value || typeof value !== 'object') return [];
+    return [{
+      id: linkDirectionId(link, direction, value),
+      name: value.name,
+      label: value.label,
+      labels: { ...(link.labels || {}), ...(value.labels || {}) },
+      data: { ...(link.data || {}), ...(value.data || {}) },
+      layers: link.layers,
+      style: value.style,
+      source: link.source,
+      target: link.target,
+      linkId: link.id,
+      parentLinkId: link.id,
+      direction
+    }];
+  });
+}
+
+function linkDirectionIssues(link: GraphLink, linkIndex: number, seen: Map<string, string>): LintIssue[] {
+  if (!link.directions || typeof link.directions !== 'object') return [];
+  const issues: LintIssue[] = [];
+  const known = new Set<string>(LINK_DIRECTION_KEYS);
+  Object.keys(link.directions).forEach((key) => {
+    if (!known.has(key)) {
+      issues.push(issue(
+        'error',
+        'invalid-link-direction-key',
+        `Link direction "${key}" is not supported; use sourceToTarget or targetToSource.`,
+        `graph.links[${linkIndex}].directions.${key}`
+      ));
+    }
+  });
+
+  LINK_DIRECTION_KEYS.forEach((direction) => {
+    const value = link.directions?.[direction];
+    if (!value || typeof value !== 'object') return;
+    const id = linkDirectionId(link, direction, value);
+    const path = `graph.links[${linkIndex}].directions.${direction}`;
+    const existing = seen.get(id);
+    if (existing) {
+      issues.push(issue('error', 'duplicate-id', `Duplicate id "${id}" used by ${existing} and linkDirection.`, value.id ? `${path}.id` : path));
+    } else {
+      seen.set(id, 'linkDirection');
+    }
+    issues.push(...styleKeyIssues(value.style, `${path}.style`));
+    issues.push(...edgeStyleIssues(value.style, `${path}.style`));
+  });
+
+  return issues;
 }
 
 function selectorHasMatch(rule: StyleRule, document: TopoDocument): boolean {
@@ -475,6 +569,7 @@ export function lintTopoDocument(input: TopoDocument, options: LintOptions = {})
     if (link.parent && !linkIds.has(link.parent)) {
       issues.push(issue('error', 'broken-parent-link', `Link "${link.id}" parent "${link.parent}" does not exist as a link.`, `graph.links[${index}].parent`));
     }
+    issues.push(...linkDirectionIssues(link, index, seenIds));
   });
 
   (graph.paths || []).forEach((path, index) => {
@@ -575,7 +670,7 @@ export function lintTopoDocument(input: TopoDocument, options: LintOptions = {})
     if (selectorKind(rule.selector) === 'region') {
       issues.push(...regionStyleIssues(rule.style, `stylesheet[${index}].style`));
     }
-    if (['link', 'path', 'connector'].includes(selectorKind(rule.selector))) {
+    if (['link', 'linkDirection', 'path', 'connector'].includes(selectorKind(rule.selector))) {
       issues.push(...edgeStyleIssues(rule.style, `stylesheet[${index}].style`));
     }
     if (!selectorTargetsGeneratedObject(rule.selector) && !selectorHasMatch(rule, document)) {

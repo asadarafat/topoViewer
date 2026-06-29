@@ -12,7 +12,7 @@ import {
 import { regionLabelPositions } from './regionStyle';
 import { GEOMETRY_SHAPES } from './types';
 
-export type StyleTargetKind = 'node' | 'link' | 'path' | 'region' | 'shape' | 'callout';
+export type StyleTargetKind = 'node' | 'link' | 'linkDirection' | 'path' | 'region' | 'shape' | 'callout';
 export type StyleValueDataType = 'text' | 'enum' | 'boolean' | 'integer' | 'number' | 'color' | 'numberList';
 
 export type StyleDefault =
@@ -35,6 +35,7 @@ export const DEFAULT_NODE_SHAPE: NodeShapeName = 'rectangle';
 const edgeCurveStyleValues = ['straight', 'bezier', 'unbundledBezier', 'simpleBezier', 'segments', 'roundSegments', 'taxi', 'roundTaxi', 'smoothTaxi', 'smoothstep', 'haystack'];
 const edgeAnchorValues = ['floating', 'fixed'];
 const edgeLineFillValues = ['solid', 'linearGradient'];
+const directionLabelPlacementValues = ['center', 'source', 'target', 'outside'];
 const lineStyleValues = ['solid', 'dashed', 'dotted'];
 const lineCapValues = ['butt', 'round', 'square'];
 const displayValues = ['element', 'none'];
@@ -105,8 +106,10 @@ const nodeDefinitions = [
   def(['node'], 'labelTextWrap', 'Label wrap', 'enum', 'Node label wrapping behavior.', none(), nodeLabelTextWrapValues),
   def(['node'], 'labelTextOverflow', 'Label overflow', 'enum', 'Node label overflow behavior.', none(), nodeLabelTextOverflowValues),
   def(['node'], 'labelTextAlign', 'Label alignment', 'enum', 'Node label text alignment.', derived('CSS', 'Falls back to centered node label text.', 'center'), textAlignValues),
-  def(['node'], 'labelXOffset', 'Label X offset', 'integer', 'Pixel X offset after label placement.', value(0)),
-  def(['node'], 'labelYOffset', 'Label Y offset', 'integer', 'Pixel Y offset after label placement.', value(0)),
+  def(['node'], 'labelXOffset', 'Label X offset', 'integer', 'Pixel X offset after node label placement.', value(0)),
+  def(['node'], 'labelYOffset', 'Label Y offset', 'integer', 'Pixel Y offset after node label placement.', value(0)),
+  def(['link', 'path'], 'labelXOffset', 'Label X offset', 'integer', 'Pixel X offset for the center edge label relative to the computed midpoint.', none('Directional links auto-offset the center label away from directional labels. Normal links use the midpoint. Explicit 0 pins the label to the midpoint.')),
+  def(['link', 'path'], 'labelYOffset', 'Label Y offset', 'integer', 'Pixel Y offset for the center edge label relative to the computed midpoint.', none('Directional links auto-offset the center label away from directional labels. Normal links use the midpoint. Explicit 0 pins the label to the midpoint.')),
   def(['node'], 'labelZIndex', 'Label z index', 'integer', 'Independent draw order for the node label.'),
   def(['node'], 'minZoomedLabelFontSize', 'Min zoom label size', 'integer', 'Hide label below this effective zoomed font size.'),
   def(['node'], 'metaColor', 'Meta color', 'color', 'Node metadata color.'),
@@ -128,6 +131,11 @@ const nodeDefinitions = [
 ] satisfies StyleKeyDefinition[];
 
 const edgeDefinitions = [
+  def(['link'], 'directionalStrokes', 'Directional strokes', 'boolean', 'Render declared link directions as opposing strokes on one physical link corridor.', value(false)),
+  def(['link'], 'directionCenterGap', 'Direction center gap', 'integer', 'Gap between opposing directional arrowheads near the center of the link.', value(48)),
+  def(['link'], 'directionStartGap', 'Direction start gap', 'integer', 'Inset between node boundary and each visible directional stroke.', value(14)),
+  def(['link'], 'directionLabelPlacement', 'Direction label placement', 'enum', 'Directional label placement on the link corridor.', value('center'), directionLabelPlacementValues),
+  def(['link'], 'directionLabelOffset', 'Direction label offset', 'integer', 'Pixel offset applied to directional labels.'),
   def(['link', 'path'], 'label', 'Label', 'text', 'Fallback center edge label.'),
   def(['link', 'path'], 'lineColor', 'Line color', 'color', 'Edge stroke color.', value('#6ea8fe')),
   def(['link', 'path'], 'lineWidth', 'Line width', 'integer', 'Edge stroke width.', value(1)),
@@ -157,10 +165,12 @@ const edgeDefinitions = [
   def(['link', 'path'], 'arrowColor', 'Arrow color', 'color', 'Shared arrow color fallback.', derived('lineColor', 'Falls back to the edge line color.')),
   def(['link', 'path'], 'targetArrowShape', 'Target arrow', 'enum', 'Target arrow marker shape.', value('none'), edgeArrowShapes),
   def(['link', 'path'], 'targetArrowColor', 'Target arrow color', 'color', 'Target arrow marker color.', derived('arrowColor or lineColor', 'Falls back to arrowColor, then lineColor.')),
-  def(['link', 'path'], 'targetArrowSize', 'Target arrow size', 'integer', 'Target arrow marker size.'),
+  def(['link', 'path'], 'targetArrowSize', 'Target arrow size', 'integer', 'Target arrow marker size.', derived('lineWidth', 'Falls back to the rendered lineWidth.')),
+  def(['link', 'path'], 'targetArrowOffset', 'Target arrow offset', 'number', 'Pixel offset for the target arrowhead. `0` keeps the arrow tip exactly on the rendered stroke endpoint; positive values inset it from that endpoint.', value(0)),
   def(['link', 'path'], 'sourceArrowShape', 'Source arrow', 'enum', 'Source arrow marker shape.', value('none'), edgeArrowShapes),
   def(['link', 'path'], 'sourceArrowColor', 'Source arrow color', 'color', 'Source arrow marker color.', derived('arrowColor or lineColor', 'Falls back to arrowColor, then lineColor.')),
-  def(['link', 'path'], 'sourceArrowSize', 'Source arrow size', 'integer', 'Source arrow marker size.'),
+  def(['link', 'path'], 'sourceArrowSize', 'Source arrow size', 'integer', 'Source arrow marker size.', derived('lineWidth', 'Falls back to the rendered lineWidth.')),
+  def(['link', 'path'], 'sourceArrowOffset', 'Source arrow offset', 'number', 'Pixel offset for the source arrowhead. `0` keeps the arrow tip exactly on the rendered stroke endpoint; positive values inset it from that endpoint.', value(0)),
   def(['link', 'path'], 'labelColor', 'Label color', 'color', 'Center edge label color.', derived('CSS theme', 'Falls back to --topoviewer-fg-strong.')),
   def(['link', 'path'], 'labelFontSize', 'Label font size', 'integer', 'Center edge label font size.', derived('CSS', 'Falls back to edge label CSS font size.', 10)),
   def(['link', 'path'], 'labelFontWeight', 'Label font weight', 'text', 'Center edge label font weight.', derived('CSS', 'Falls back to edge label CSS font weight.', 650)),
@@ -284,6 +294,7 @@ export const styleDefinitions = [
 export const styleDefinitionsByKind: Record<StyleTargetKind, StyleKeyDefinition[]> = {
   node: styleDefinitions.filter((definition) => definition.targets.includes('node')),
   link: styleDefinitions.filter((definition) => definition.targets.includes('link')),
+  linkDirection: styleDefinitions.filter((definition) => definition.targets.includes('link')),
   path: styleDefinitions.filter((definition) => definition.targets.includes('path')),
   region: styleDefinitions.filter((definition) => definition.targets.includes('region')),
   shape: styleDefinitions.filter((definition) => definition.targets.includes('shape')),
@@ -293,6 +304,7 @@ export const styleDefinitionsByKind: Record<StyleTargetKind, StyleKeyDefinition[
 const definitionByKindAndKey = new Map<string, StyleKeyDefinition>();
 styleDefinitionsByKind.node.concat(
   styleDefinitionsByKind.link,
+  styleDefinitionsByKind.linkDirection,
   styleDefinitionsByKind.path,
   styleDefinitionsByKind.region,
   styleDefinitionsByKind.shape,
@@ -301,6 +313,9 @@ styleDefinitionsByKind.node.concat(
   definition.targets.forEach((kind) => {
     definitionByKindAndKey.set(`${kind}:${definition.key}`, definition);
   });
+  if (styleDefinitionsByKind.linkDirection.includes(definition)) {
+    definitionByKindAndKey.set(`linkDirection:${definition.key}`, definition);
+  }
 });
 
 export const canonicalStyleKeyByLowercase = new Map<string, string>();

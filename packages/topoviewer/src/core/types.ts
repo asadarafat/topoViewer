@@ -39,6 +39,19 @@ export interface GraphLink extends GraphEntity {
   source: string;
   target: string;
   parent?: string;
+  directions?: Partial<Record<LinkDirectionKey, GraphLinkDirection>>;
+}
+
+export const LINK_DIRECTION_KEYS = ['sourceToTarget', 'targetToSource'] as const;
+export type LinkDirectionKey = typeof LINK_DIRECTION_KEYS[number];
+
+export interface GraphLinkDirection {
+  id?: string;
+  name?: string;
+  label?: string;
+  labels?: Labels;
+  data?: DataBag;
+  style?: StyleDeclaration;
 }
 
 export interface GraphPath extends GraphEntity {
@@ -335,7 +348,7 @@ export interface TopoViewerExtension {
 export interface TopoViewerObjectClick {
   id: string;
   runtimeId: string;
-  element: 'node' | 'edge';
+  element: 'node' | 'edge' | 'linkDirection';
   data: Record<string, unknown>;
   modifiers?: {
     ctrlKey: boolean;

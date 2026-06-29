@@ -10,9 +10,10 @@ import {
   useInternalNode,
   type EdgeProps
 } from '@xyflow/react';
-import { useId, type CSSProperties } from 'react';
+import { useId, useState, type CSSProperties, type MouseEvent } from 'react';
 import { applyEndpointSpacing, segmentRoute, taxiRoute } from '../core/edgeGeometry';
 import { normalizeTaxiDirection, numberList, stringList } from '../core/edgeStyle';
+import { linkDirectionGeometryForPath, linkDirectionSegment, trimPolylinePathEnd, type LinkDirectionGeometry } from '../core/linkDirectionGeometry';
 import { styleDefaultNumber } from '../core/styleDefaults';
 import type { Bounds } from '../core/types';
 
@@ -191,6 +192,20 @@ function textValue(value: unknown): string {
 
 type EdgeLabelRole = 'center' | 'source' | 'target';
 
+type LinkDirectionKey = 'sourceToTarget' | 'targetToSource';
+
+interface DirectionStroke {
+  id: string;
+  direction: LinkDirectionKey;
+  label?: string;
+  data: Record<string, unknown>;
+  style?: CSSProperties;
+  labelStyle?: CSSProperties;
+  labelBgStyle?: CSSProperties;
+}
+
+type LinkDirectionClickHandler = (event: MouseEvent<SVGPathElement>, direction: DirectionStroke) => void;
+
 function labelZIndex(data: Record<string, unknown>, role: EdgeLabelRole): number | undefined {
   const roleValue = role === 'source'
     ? data.sourceLabelZIndex
@@ -232,7 +247,8 @@ function renderEdgeLabel(
   value: string,
   x: number,
   y: number,
-  role: EdgeLabelRole
+  role: EdgeLabelRole,
+  key?: string
 ) {
   const zIndex = labelZIndex(data, role);
   const label = (
@@ -248,8 +264,8 @@ function renderEdgeLabel(
   );
 
   return zIndex === undefined
-    ? <EdgeLabelRenderer>{label}</EdgeLabelRenderer>
-    : <ViewportPortal>{label}</ViewportPortal>;
+    ? <EdgeLabelRenderer key={key}>{label}</EdgeLabelRenderer>
+    : <ViewportPortal key={key}>{label}</ViewportPortal>;
 }
 
 function pipeStyle(props: EdgeProps, data: Record<string, unknown>, role: 'border' | 'fill'): CSSProperties {
@@ -294,6 +310,22 @@ function lineOutlineStyle(props: EdgeProps, data: Record<string, unknown>): CSSP
   };
 }
 
+function directionLineOutlineStyle(direction: DirectionStroke): CSSProperties | undefined {
+  const outlineWidth = numeric(direction.data.lineOutlineWidth, 0);
+  if (outlineWidth <= 0) return undefined;
+  return {
+    ...direction.style,
+    fill: 'none',
+    stroke: String(direction.data.lineOutlineColor || '#0f172a'),
+    strokeWidth: numeric(direction.style?.strokeWidth, numeric(direction.data.lineWidth, 1)) + outlineWidth * 2,
+    strokeDasharray: direction.style?.strokeDasharray,
+    strokeDashoffset: direction.style?.strokeDashoffset,
+    strokeLinecap: direction.style?.strokeLinecap,
+    opacity: numeric(direction.data.lineOpacity, numeric(direction.style?.opacity, 1)),
+    pointerEvents: 'none'
+  };
+}
+
 function safeSvgId(value: string): string {
   return value.replace(/[^A-Za-z0-9_-]/g, '-');
 }
@@ -305,7 +337,11 @@ function edgePathStyle(style: CSSProperties | undefined): CSSProperties {
   };
 }
 
-function gradientPaint(data: Record<string, unknown>, endpoints: ReturnType<typeof floatingEndpoints>, id: string) {
+function gradientPaint(
+  data: Record<string, unknown>,
+  endpoints: Pick<ReturnType<typeof floatingEndpoints>, 'sourceX' | 'sourceY' | 'targetX' | 'targetY'>,
+  id: string
+) {
   if (data.lineFill !== 'linearGradient') return undefined;
   const colors = stringList(data.lineGradientStopColors);
   if (!colors || colors.length < 2) return undefined;
@@ -324,21 +360,27 @@ function gradientPaint(data: Record<string, unknown>, endpoints: ReturnType<type
   };
 }
 
-function markerInfo(data: Record<string, unknown>, role: 'source' | 'target', id: string) {
+const markerViewBoxSize = 12;
+const markerPathWidth = 10;
+
+function markerInfo(data: Record<string, unknown>, role: 'source' | 'target', id: string, fallbackLineWidth: number) {
   const shape = String(data[`${role}ArrowShape`] || 'none');
   if (shape === 'none') return undefined;
+  const size = numeric(data[`${role}ArrowSize`], fallbackLineWidth);
   return {
     id,
     url: `url(#${id})`,
     shape,
     color: String(data[`${role}ArrowColor`] || data.arrowColor || data.lineColor || '#6ea8fe'),
-    size: Math.max(4, numeric(data[`${role}ArrowSize`], 10))
+    offset: numeric(data[`${role}ArrowOffset`], 0),
+    size
   };
 }
 
-function markerRefX(shape: string): number {
-  if (shape === 'circle' || shape === 'tee') return 5;
-  return 10;
+function markerRefX(shape: string, size: number, offset: number): number {
+  const base = shape === 'circle' || shape === 'tee' ? 5 : 10;
+  const scale = size > 0 ? size / markerViewBoxSize : 1;
+  return base + offset / scale;
 }
 
 function markerShape(shape: string, color: string) {
@@ -357,7 +399,102 @@ function markerShape(shape: string, color: string) {
   return <path d="M0,0 L10,5 L0,10 Z" fill={color} />;
 }
 
+function markerBodyLength(marker: NonNullable<ReturnType<typeof markerInfo>>): number {
+  if (marker.shape === 'tee') return 0;
+  if (marker.shape === 'circle') return marker.size * (8 / markerViewBoxSize);
+  return marker.size * (markerPathWidth / markerViewBoxSize);
+}
+
+function directionStrokeEndTrim(marker: NonNullable<ReturnType<typeof markerInfo>> | undefined, strokeWidth: number, lineCap: unknown): number {
+  if (!marker) return 0;
+  const cap = String(lineCap || '').toLowerCase();
+  const capExtension = cap === 'round' || cap === 'square' ? strokeWidth / 2 : 0;
+  return Math.max(0, markerBodyLength(marker) + marker.offset + capExtension);
+}
+
+function linkDirections(data: Record<string, unknown>): DirectionStroke[] {
+  if (!Array.isArray(data.linkDirections)) return [];
+  return data.linkDirections.flatMap((entry) => {
+    if (!entry || typeof entry !== 'object') return [];
+    const record = entry as Record<string, unknown>;
+    const direction = record.direction === 'sourceToTarget' || record.direction === 'targetToSource'
+      ? record.direction
+      : undefined;
+    if (!direction) return [];
+    return [{
+      id: String(record.id || `${data.id || 'link'}:${direction}`),
+      direction,
+      label: record.label === undefined ? undefined : String(record.label),
+      data: {
+        id: String(record.id || `${data.id || 'link'}:${direction}`),
+        linkId: String(record.linkId || data.id || ''),
+        parentLinkId: String(record.linkId || data.id || ''),
+        source: String(record.source || data.source || ''),
+        target: String(record.target || data.target || ''),
+        direction,
+        ...((record.data && typeof record.data === 'object' ? record.data : {}) as Record<string, unknown>)
+      },
+      style: (record.style && typeof record.style === 'object' ? record.style : undefined) as CSSProperties | undefined,
+      labelStyle: (record.labelStyle && typeof record.labelStyle === 'object' ? record.labelStyle : undefined) as CSSProperties | undefined,
+      labelBgStyle: (record.labelBgStyle && typeof record.labelBgStyle === 'object' ? record.labelBgStyle : undefined) as CSSProperties | undefined
+    }];
+  });
+}
+
+function directionLabelPoint(
+  direction: LinkDirectionKey,
+  geometry: LinkDirectionGeometry,
+  placement: string,
+  offset: number
+) {
+  const segment = linkDirectionSegment(geometry, direction);
+  const base = placement === 'source'
+    ? segment.start
+    : placement === 'target'
+      ? segment.end
+      : segment.center;
+  const directionMultiplier = direction === 'sourceToTarget' ? -1 : 1;
+  return {
+    x: base.x + segment.normal.x * offset * directionMultiplier,
+    y: base.y + segment.normal.y * offset * directionMultiplier
+  };
+}
+
+function directionMarkerRole(direction: LinkDirectionKey): 'source' | 'target' {
+  return direction === 'sourceToTarget' ? 'target' : 'source';
+}
+
+function maximumDirectionStrokeWidth(directions: DirectionStroke[], fallback: number): number {
+  return directions.reduce((width, direction) => {
+    return Math.max(width, numeric(direction.style?.strokeWidth, numeric(direction.data.lineWidth, fallback)));
+  }, fallback);
+}
+
+function centerLabelOffset(
+  data: Record<string, unknown>,
+  directions: DirectionStroke[],
+  geometry: LinkDirectionGeometry | undefined,
+  fallbackLineWidth: number
+): { x: number; y: number } {
+  const explicitX = numericOrUndefined(data.labelXOffset);
+  const explicitY = numericOrUndefined(data.labelYOffset);
+  if (explicitX !== undefined || explicitY !== undefined) {
+    return { x: explicitX || 0, y: explicitY || 0 };
+  }
+  if (!geometry || !directions.length) return { x: 0, y: 0 };
+
+  const segment = linkDirectionSegment(geometry, 'sourceToTarget');
+  const directionLabelOffset = Math.abs(numeric(data.directionLabelOffset, 0));
+  const strokeWidth = maximumDirectionStrokeWidth(directions, fallbackLineWidth);
+  const distance = Math.max(directionLabelOffset + strokeWidth + 14, strokeWidth * 1.5 + 12);
+  return {
+    x: -segment.normal.x * distance,
+    y: -segment.normal.y * distance
+  };
+}
+
 export function FloatingEdge(props: EdgeProps) {
+  const [parentHovered, setParentHovered] = useState(false);
   const data = edgeData(props);
   const svgId = safeSvgId(`${useId()}-${props.id}`);
   const sourceNode = useInternalNode(props.source);
@@ -408,20 +545,53 @@ export function FloatingEdge(props: EdgeProps) {
   const targetLabelX = endpoints.targetX + offset.x + numeric(data.targetLabelXOffset, 0);
   const targetLabelY = endpoints.targetY + offset.y + numeric(data.targetLabelYOffset, 0);
   const gradient = gradientPaint(data, endpoints, `${svgId}-gradient`);
-  const sourceMarker = markerInfo(data, 'source', `${svgId}-source-marker`);
-  const targetMarker = markerInfo(data, 'target', `${svgId}-target-marker`);
+  const lineWidth = numeric(props.style?.strokeWidth, numeric(data.lineWidth, styleDefaultNumber('link', 'lineWidth', 1)));
+  const sourceMarker = markerInfo(data, 'source', `${svgId}-source-marker`, lineWidth);
+  const targetMarker = markerInfo(data, 'target', `${svgId}-target-marker`, lineWidth);
+  const directions = data.directionalStrokes === false ? [] : linkDirections(data);
+  const directionGeometry = directions.length
+    ? linkDirectionGeometryForPath(
+      edgePath,
+      offset,
+      numeric(data.directionStartGap, styleDefaultNumber('link', 'directionStartGap', 14)),
+      numeric(data.directionCenterGap, styleDefaultNumber('link', 'directionCenterGap', 48))
+    )
+    : undefined;
+  const directionClickHandler = data.__topoviewerOnLinkDirectionClick as LinkDirectionClickHandler | undefined;
+  const directionMarkers = directions.map((direction) => ({
+    direction,
+    marker: markerInfo(
+      direction.data,
+      directionMarkerRole(direction.direction),
+      `${svgId}-${safeSvgId(direction.id)}-marker`,
+      numeric(direction.style?.strokeWidth, numeric(direction.data.lineWidth, lineWidth))
+    )
+  }));
+  const directionGradients = directionGeometry ? directions.map((direction) => {
+    const segment = linkDirectionSegment(directionGeometry, direction.direction);
+    return {
+      direction,
+      gradient: gradientPaint(direction.data, {
+        sourceX: segment.start.x,
+        sourceY: segment.start.y,
+        targetX: segment.end.x,
+        targetY: segment.end.y
+      }, `${svgId}-${safeSvgId(direction.id)}-gradient`)
+    };
+  }) : [];
   const visibleStyle = isPipe
     ? pipeStyle(props, data, 'fill')
     : edgePathStyle({
       ...paintedLaneStyle,
       stroke: gradient?.url || paintedLaneStyle?.stroke
     });
+  const centerLabelOffsetPoint = centerLabelOffset(data, directions, directionGeometry, lineWidth);
 
   return (
     <>
       <ViewportPortal>
         <svg className="topoviewer-edge-paint-layer" aria-hidden="true">
-          {gradient || sourceMarker || targetMarker ? (
+          {gradient || sourceMarker || targetMarker || directionMarkers.some(({ marker }) => marker) || directionGradients.some(({ gradient: directionGradient }) => directionGradient) ? (
             <defs>
               {gradient ? (
                 <linearGradient id={gradient.id} gradientUnits="userSpaceOnUse" x1={gradient.x1} y1={gradient.y1} x2={gradient.x2} y2={gradient.y2}>
@@ -434,7 +604,7 @@ export function FloatingEdge(props: EdgeProps) {
                 <marker
                   id={sourceMarker.id}
                   viewBox="-1 -1 12 12"
-                  refX={markerRefX(sourceMarker.shape)}
+                  refX={markerRefX(sourceMarker.shape, sourceMarker.size, sourceMarker.offset)}
                   refY="5"
                   markerWidth={sourceMarker.size}
                   markerHeight={sourceMarker.size}
@@ -448,7 +618,7 @@ export function FloatingEdge(props: EdgeProps) {
                 <marker
                   id={targetMarker.id}
                   viewBox="-1 -1 12 12"
-                  refX={markerRefX(targetMarker.shape)}
+                  refX={markerRefX(targetMarker.shape, targetMarker.size, targetMarker.offset)}
                   refY="5"
                   markerWidth={targetMarker.size}
                   markerHeight={targetMarker.size}
@@ -458,6 +628,36 @@ export function FloatingEdge(props: EdgeProps) {
                   {markerShape(targetMarker.shape, targetMarker.color)}
                 </marker>
               ) : null}
+              {directionMarkers.map(({ marker }) => marker ? (
+                <marker
+                  key={marker.id}
+                  id={marker.id}
+                  viewBox="-1 -1 12 12"
+                  refX={markerRefX(marker.shape, marker.size, marker.offset)}
+                  refY="5"
+                  markerWidth={marker.size}
+                  markerHeight={marker.size}
+                  markerUnits="userSpaceOnUse"
+                  orient="auto-start-reverse"
+                >
+                  {markerShape(marker.shape, marker.color)}
+                </marker>
+              ) : null)}
+              {directionGradients.map(({ gradient: directionGradient }) => directionGradient ? (
+                <linearGradient
+                  key={directionGradient.id}
+                  id={directionGradient.id}
+                  gradientUnits="userSpaceOnUse"
+                  x1={directionGradient.x1}
+                  y1={directionGradient.y1}
+                  x2={directionGradient.x2}
+                  y2={directionGradient.y2}
+                >
+                  {directionGradient.stops.map((stop, index) => (
+                    <stop key={`${index}-${stop.offset}-${stop.color}`} offset={stop.offset} stopColor={stop.color} />
+                  ))}
+                </linearGradient>
+              ) : null)}
             </defs>
           ) : null}
           {isPipe ? (
@@ -502,6 +702,82 @@ export function FloatingEdge(props: EdgeProps) {
             fill="none"
             style={visibleStyle}
           />
+          {directionGeometry ? directions.map((direction) => {
+            const segment = linkDirectionSegment(directionGeometry, direction.direction);
+            const marker = directionMarkers.find((entry) => entry.direction.id === direction.id)?.marker;
+            const directionGradient = directionGradients.find((entry) => entry.direction.id === direction.id)?.gradient;
+            const directionOutlineStyle = directionLineOutlineStyle(direction);
+            const directionAttentionState = direction.data.attentionState ? `topoviewer-edge-attention-${direction.data.attentionState}` : '';
+            const directionSelected = direction.data.topoviewerSelected === true || direction.data.topoviewerSelected === 'true';
+            const strokeWidth = numeric(direction.style?.strokeWidth, numeric(direction.data.lineWidth, numeric(data.lineWidth, 3)));
+            const directionPath = trimPolylinePathEnd(segment.path, directionStrokeEndTrim(marker, strokeWidth, direction.style?.strokeLinecap || direction.data.lineCap));
+            return (
+              <g
+                key={direction.id}
+                className={[
+                  directionSelected ? 'topoviewer-edge-direction-selected' : '',
+                  parentHovered ? 'topoviewer-edge-direction-parent-hover' : ''
+                ].filter(Boolean).join(' ') || undefined}
+              >
+                {directionOutlineStyle ? (
+                  <path
+                    className="topoviewer-edge-direction-outline"
+                    data-link-id={direction.data.linkId ? String(direction.data.linkId) : undefined}
+                    data-direction-id={direction.id}
+                    data-direction={direction.direction}
+                    d={directionPath}
+                    fill="none"
+                    style={directionOutlineStyle}
+                  />
+                ) : null}
+                <path
+                  className={[
+                    'topoviewer-edge-direction-stroke',
+                    `topoviewer-edge-direction-${direction.direction}`,
+                    directionAttentionState || attentionState
+                  ].filter(Boolean).join(' ')}
+                  data-link-id={direction.data.linkId ? String(direction.data.linkId) : undefined}
+                  data-direction-id={direction.id}
+                  data-direction={direction.direction}
+                  d={directionPath}
+                  fill="none"
+                  style={edgePathStyle({
+                    ...direction.style,
+                    stroke: directionGradient?.url || direction.style?.stroke,
+                    pointerEvents: 'none'
+                  })}
+                />
+                {marker ? (
+                  <path
+                    className="topoviewer-edge-direction-marker-carrier"
+                    data-link-id={direction.data.linkId ? String(direction.data.linkId) : undefined}
+                    data-direction-id={direction.id}
+                    data-direction={direction.direction}
+                    d={segment.path}
+                    markerEnd={marker.url}
+                    fill="none"
+                    stroke="transparent"
+                    strokeWidth={0.01}
+                    style={{ pointerEvents: 'none' }}
+                  />
+                ) : null}
+                {directionClickHandler ? (
+                  <path
+                    className="topoviewer-edge-direction-hit-target"
+                    data-link-id={direction.data.linkId ? String(direction.data.linkId) : undefined}
+                    data-direction-id={direction.id}
+                    data-direction={direction.direction}
+                    d={segment.path}
+                    fill="none"
+                    stroke="transparent"
+                    strokeWidth={Math.max(12, strokeWidth + 10)}
+                    style={{ pointerEvents: 'stroke', cursor: 'pointer' }}
+                    onClick={(event) => directionClickHandler(event, direction)}
+                  />
+                ) : null}
+              </g>
+            );
+          }) : null}
           {hasTargetLaneStub && targetStubPath ? (
             <path
               className="topoviewer-edge-lane topoviewer-edge-lane-stub"
@@ -518,10 +794,41 @@ export function FloatingEdge(props: EdgeProps) {
         path={edgePath}
         style={edgePathStyle({ ...props.style, opacity: 0, pointerEvents: data.interactive === false ? 'none' : undefined })}
         interactionWidth={props.interactionWidth}
+        onMouseEnter={() => setParentHovered(true)}
+        onMouseLeave={() => setParentHovered(false)}
       />
-      {props.label ? renderEdgeLabel(props, data, String(props.label), labelX + offset.x, labelY + offset.y, 'center') : null}
+      {props.label ? renderEdgeLabel(
+        props,
+        data,
+        String(props.label),
+        labelX + offset.x + centerLabelOffsetPoint.x,
+        labelY + offset.y + centerLabelOffsetPoint.y,
+        'center'
+      ) : null}
       {sourceLabel ? renderEdgeLabel(props, data, sourceLabel, sourceLabelX, sourceLabelY, 'source') : null}
       {targetLabel ? renderEdgeLabel(props, data, targetLabel, targetLabelX, targetLabelY, 'target') : null}
+      {directionGeometry ? directions.map((direction) => {
+        if (!direction.label) return null;
+        const point = directionLabelPoint(
+          direction.direction,
+          directionGeometry,
+          String(data.directionLabelPlacement || 'center'),
+          numeric(data.directionLabelOffset, 0)
+        );
+        return renderEdgeLabel(
+          {
+            ...props,
+            labelStyle: direction.labelStyle,
+            labelBgStyle: direction.labelBgStyle
+          },
+          direction.data,
+          direction.label,
+          point.x,
+          point.y,
+          'center',
+          direction.id
+        );
+      }) : null}
     </>
   );
 }

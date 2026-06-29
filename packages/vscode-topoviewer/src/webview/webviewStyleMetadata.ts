@@ -30,6 +30,7 @@ function targetKind(kind: TopoObjectSelection['kind']): StyleTargetKind {
 export const styleOptionsByKind: Record<TopoObjectSelection['kind'], Array<{ key: string; label: string }>> = {
   node: styleDefinitionsByKind.node.map(({ key, label }) => ({ key, label })),
   link: styleDefinitionsByKind.link.map(({ key, label }) => ({ key, label })),
+  linkDirection: styleDefinitionsByKind.linkDirection.map(({ key, label }) => ({ key, label })),
   path: styleDefinitionsByKind.path.map(({ key, label }) => ({ key, label })),
   region: styleDefinitionsByKind.region.map(({ key, label }) => ({ key, label })),
   callout: styleDefinitionsByKind.callout.map(({ key, label }) => ({ key, label })),
@@ -105,7 +106,7 @@ export function recordFromRows(rows: KeyValueEditorRow[]): Record<string, unknow
 }
 
 export function styleGroupForKey(kind: TopoObjectSelection['kind'], key: string) {
-  if (kind === 'link' || kind === 'path') {
+  if (kind === 'link' || kind === 'linkDirection' || kind === 'path') {
     if (key.includes('Arrow')) return 'Arrows';
     if (isCommonLabelStyleKey(key) || key.includes('Label') || key.startsWith('sourceLabel') || key.startsWith('targetLabel') || key.startsWith('text')) return 'Labels';
     if (key.includes('Distance') || key.includes('control') || key.includes('segment') || key.includes('taxi') || key === 'curveStyle' || key === 'edgeDistances') return 'Routing';

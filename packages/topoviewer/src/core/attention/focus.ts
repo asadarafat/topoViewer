@@ -237,6 +237,17 @@ function addDependencyMatches(index: AttentionGraphIndex, query: FocusQuery, foc
   }
 }
 
+function addFocusedLinkDirectionContext(index: AttentionGraphIndex, focused: Set<string>, related: Set<string>, reasons: Map<string, string[]>) {
+  focused.forEach((id) => {
+    const object = index.getObject(id);
+    if (object?.kind !== 'linkDirection') return;
+    const parentId = index.getParent(id);
+    if (!parentId || focused.has(parentId)) return;
+    related.add(parentId);
+    addReason(reasons, parentId, `link-direction-parent:${id}`);
+  });
+}
+
 function orderedSet(index: AttentionGraphIndex, ids: Set<string>): ReadonlySet<string> {
   return new Set(index.objectIds.filter((id) => ids.has(id)));
 }
@@ -259,6 +270,7 @@ export function resolveFocusQuery(index: AttentionGraphIndex, query: FocusQuery)
   addSelectorMatches(index, query, focused, reasons);
   addChangeMatches(index, query, focused, reasons);
   addDependencyMatches(index, query, focused, related, reasons);
+  addFocusedLinkDirectionContext(index, focused, related, reasons);
 
   const focusedIds = orderedSet(index, focused);
   const relatedIds = orderedSet(index, new Set(Array.from(related).filter((id) => !focused.has(id))));

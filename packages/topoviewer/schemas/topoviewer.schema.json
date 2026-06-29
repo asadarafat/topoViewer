@@ -278,6 +278,12 @@
           "type": "number",
           "minimum": 0
         },
+        "sourceArrowOffset": {
+          "type": "number"
+        },
+        "targetArrowOffset": {
+          "type": "number"
+        },
         "labelBorderColor": {
           "type": "string"
         },
@@ -372,6 +378,24 @@
         "targetDistanceFromNode": {
           "type": "number",
           "minimum": 0
+        },
+        "directionalStrokes": {
+          "type": "boolean"
+        },
+        "directionCenterGap": {
+          "type": "number",
+          "minimum": 0
+        },
+        "directionStartGap": {
+          "type": "number",
+          "minimum": 0
+        },
+        "directionLabelPlacement": {
+          "type": "string",
+          "enum": ["center", "source", "target", "outside"]
+        },
+        "directionLabelOffset": {
+          "type": "number"
         },
         "segmentDistances": {
           "oneOf": [
@@ -592,6 +616,43 @@
         }
       }
     },
+    "linkDirection": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "name": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "labels": {
+          "$ref": "#/definitions/labels"
+        },
+        "data": {
+          "$ref": "#/definitions/data"
+        },
+        "style": {
+          "$ref": "#/definitions/style"
+        }
+      }
+    },
+    "linkDirections": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "sourceToTarget": {
+          "$ref": "#/definitions/linkDirection"
+        },
+        "targetToSource": {
+          "$ref": "#/definitions/linkDirection"
+        }
+      }
+    },
     "layer": {
       "type": "object",
       "required": ["id"],
@@ -651,6 +712,9 @@
             },
             "parent": {
               "type": "string"
+            },
+            "directions": {
+              "$ref": "#/definitions/linkDirections"
             }
           }
         }

@@ -3,6 +3,7 @@ import { computeLayoutPositions } from './layout';
 import { assertRendererLimits } from './limits';
 import { mergePlainObjects } from './object';
 import { buildRegionBoundsMap } from './regions';
+import { matchingRules } from './selector';
 import { styleDefaultNumber } from './styleDefaults';
 import type {
   CompiledGraph,
@@ -12,14 +13,17 @@ import type {
   DiagramShape,
   GraphEntity,
   GraphLink,
+  GraphLinkDirection,
   GraphNode,
   GraphPath,
   GraphRegion,
+  LinkDirectionKey,
   LayoutConfig,
   PositionTuple,
   TopoDocument,
   TopoViewerToggles
 } from './types';
+import { LINK_DIRECTION_KEYS } from './types';
 import { validateTopoDocument } from './validation';
 
 function defaultLayerIds(spec: TopoDocument): string[] {
@@ -131,6 +135,74 @@ function parallelLinkLanes(links: readonly GraphLink[]): Map<string, { groupId: 
     });
   });
   return lanes;
+}
+
+function linkDirectionId(link: GraphLink, direction: LinkDirectionKey, value: GraphLinkDirection = {}): string {
+  return value.id || `${link.id}:${direction}`;
+}
+
+function linkDirectionEntity(link: GraphLink, direction: LinkDirectionKey, value: GraphLinkDirection = {}): GraphEntity & Record<string, unknown> {
+  return {
+    id: linkDirectionId(link, direction, value),
+    name: value.name,
+    label: value.label,
+    labels: { ...(link.labels || {}), ...(value.labels || {}) },
+    data: { ...(link.data || {}), ...(value.data || {}) },
+    layers: link.layers,
+    style: value.style,
+    source: link.source,
+    target: link.target,
+    linkId: link.id,
+    parentLinkId: link.id,
+    direction
+  };
+}
+
+function applyLinkDirectionStyle(
+  linkStyle: Record<string, unknown>,
+  entity: GraphEntity & Record<string, unknown>,
+  spec: TopoDocument
+): Record<string, unknown> {
+  const matchedDirectionStyle = matchingRules('linkDirection', entity, spec.stylesheet || [])
+    .reduce<Record<string, unknown>>((style, rule) => mergePlainObjects(style, rule.style || {}), {});
+  const withDirectionRules = mergePlainObjects(linkStyle, matchedDirectionStyle);
+  return entity.style && typeof entity.style === 'object'
+    ? mergePlainObjects(withDirectionRules, entity.style)
+    : withDirectionRules;
+}
+
+function compileLinkDirections(
+  link: GraphLink,
+  linkStyle: Record<string, unknown>,
+  spec: TopoDocument,
+  labelsEnabled: boolean
+): Array<Record<string, unknown>> {
+  if (!link.directions || typeof link.directions !== 'object') return [];
+
+  return LINK_DIRECTION_KEYS.flatMap((direction) => {
+    const value = link.directions?.[direction];
+    if (!value || typeof value !== 'object') return [];
+    const entity = linkDirectionEntity(link, direction, value);
+    const visualStyle = applyLinkDirectionStyle(linkStyle, entity, spec);
+    const rendered = compileEdgeStyle(visualStyle, entity, spec, labelsEnabled);
+    const explicitLabel = value.label ?? visualStyle.label;
+    const label = explicitLabel === undefined || explicitLabel === null
+      ? rendered.label
+      : String(explicitLabel);
+    return [{
+      id: entity.id,
+      direction,
+      linkId: link.id,
+      source: link.source,
+      target: link.target,
+      labels: entity.labels,
+      data: mergePlainObjects(entity.data || {}, rendered.data || {}),
+      label: label || undefined,
+      labelStyle: rendered.labelStyle,
+      labelBgStyle: rendered.labelBgStyle,
+      style: rendered.style
+    }];
+  });
 }
 
 function compileShapeNodes(
@@ -493,6 +565,15 @@ function buildEdges(
     }
     const rendered = compileEdgeStyle(visualStyle, link, spec, !!toggles.showEdgeLabels);
     const edgeData = mergePlainObjects({ ...link, ...(link.data || {}) }, rendered.data || {}) as Record<string, unknown>;
+    const linkDirections = compileLinkDirections(link, visualStyle, spec, !!toggles.showEdgeLabels);
+    if (linkDirections.length) {
+      edgeData.directionalStrokes = visualStyle.directionalStrokes ?? true;
+      edgeData.linkDirections = linkDirections;
+      edgeData.directionCenterGap = visualStyle.directionCenterGap;
+      edgeData.directionStartGap = visualStyle.directionStartGap;
+      edgeData.directionLabelPlacement = visualStyle.directionLabelPlacement;
+      edgeData.directionLabelOffset = visualStyle.directionLabelOffset;
+    }
     if (hasChildLanes) {
       edgeData.isPipe = true;
       edgeData.childLinkCount = childLinksByParentId.get(link.id)?.length || 0;

@@ -91,6 +91,8 @@ describe('compileTopoGraph', () => {
           style: {
             sourceLabel: 'source side',
             targetLabel: 'target side',
+            labelXOffset: 4,
+            labelYOffset: -6,
             sourceLabelXOffset: -8,
             sourceLabelYOffset: -12,
             targetLabelXOffset: 8,
@@ -106,6 +108,8 @@ describe('compileTopoGraph', () => {
     expect(edgeData).toMatchObject({
       sourceLabel: 'source side',
       targetLabel: 'target side',
+      labelXOffset: 4,
+      labelYOffset: -6,
       sourceLabelXOffset: -8,
       sourceLabelYOffset: -12,
       targetLabelXOffset: 8,
@@ -556,6 +560,8 @@ describe('compileTopoGraph', () => {
         targetArrowColor: '#dc2626',
         sourceArrowSize: 12,
         targetArrowSize: 14,
+        sourceArrowOffset: 2,
+        targetArrowOffset: -3,
         label: 'WAN',
         labelColor: '#0f172a',
         labelBorderColor: '#94a3b8',
@@ -590,8 +596,11 @@ describe('compileTopoGraph', () => {
       targetArrowShape: 'vee',
       sourceArrowColor: '#16a34a',
       targetArrowColor: '#dc2626',
+      lineWidth: 1,
       sourceArrowSize: 12,
       targetArrowSize: 14,
+      sourceArrowOffset: 2,
+      targetArrowOffset: -3,
       labelBorderColor: '#94a3b8',
       labelBorderWidth: 1,
       sourceLabel: '10G',
@@ -625,6 +634,8 @@ describe('compileTopoGraph', () => {
             style: {
               targetArrowShape: 'triangle-cross',
               sourceArrowSize: -1,
+              targetArrowOffset: 'center',
+              labelYOffset: 'above',
               sourceDistanceFromNode: -4,
               segmentDistances: [10, 20],
               segmentWeights: [0.4],
@@ -643,12 +654,54 @@ describe('compileTopoGraph', () => {
     expect(issues.map((entry) => entry.code)).toEqual(expect.arrayContaining([
       'unsupported-edge-arrow-shape',
       'invalid-edge-arrow-size',
+      'invalid-edge-arrow-offset',
+      'invalid-edge-label-offset',
       'invalid-edge-endpoint-distance',
       'invalid-edge-segment-controls',
       'invalid-edge-taxi-direction',
       'invalid-edge-taxi-turn',
       'invalid-edge-gradient',
       'invalid-edge-interaction-flag'
+    ]));
+  });
+
+  it('reports invalid link direction declarations', () => {
+    const document: TopoDocument = {
+      version: '1.0',
+      graph: {
+        nodes: [
+          { id: 'a', position: [0, 0] },
+          { id: 'b', position: [100, 0] }
+        ],
+        links: [
+          {
+            id: 'a-b',
+            source: 'a',
+            target: 'b',
+            directions: {
+              sourceToTarget: {
+                id: 'a-b',
+                style: { lineWidth: 4 }
+              },
+              upstream: {
+                label: 'invalid'
+              }
+            } as never
+          }
+        ]
+      }
+    };
+
+    const issues = lintTopoDocument(document, { requireNames: false });
+    expect(issues).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        code: 'invalid-link-direction-key',
+        path: 'graph.links[0].directions.upstream'
+      }),
+      expect.objectContaining({
+        code: 'duplicate-id',
+        path: 'graph.links[0].directions.sourceToTarget.id'
+      })
     ]));
   });
 

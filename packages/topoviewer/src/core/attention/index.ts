@@ -9,11 +9,15 @@ import type {
   DataBag,
   GraphDefinition,
   GraphEntity,
+  GraphLink,
+  GraphLinkDirection,
   GraphPath,
   GraphRegion,
+  LinkDirectionKey,
   Scalar,
   TopoDocument
 } from '../types';
+import { LINK_DIRECTION_KEYS } from '../types';
 
 const EMPTY_IDS = Object.freeze([]) as readonly string[];
 const VALUE_SEPARATOR = '\u0000';
@@ -195,6 +199,27 @@ function addParent(entity: GraphEntity & { parent?: string }, parentById: Map<st
   addUnique(childrenByParent, entity.parent, entity.id);
 }
 
+function linkDirectionId(link: GraphLink, direction: LinkDirectionKey, value: GraphLinkDirection = {}): string {
+  return value.id || `${link.id}:${direction}`;
+}
+
+function linkDirectionEntity(link: GraphLink, direction: LinkDirectionKey, value: GraphLinkDirection = {}) {
+  return {
+    id: linkDirectionId(link, direction, value),
+    name: value.name,
+    label: value.label,
+    labels: { ...(link.labels || {}), ...(value.labels || {}), direction },
+    data: { ...(link.data || {}), ...(value.data || {}) },
+    layers: link.layers,
+    direction,
+    linkId: link.id,
+    parentLinkId: link.id,
+    source: link.source,
+    target: link.target,
+    parent: link.id
+  };
+}
+
 function addIndexedObject<K extends AttentionObjectKind>(
   kind: K,
   entity: AttentionObjectByKind[K],
@@ -229,6 +254,7 @@ export function buildAttentionIndex(input: AttentionGraphInput): AttentionGraphI
   const objectIds: string[] = [];
   const nodeIds: string[] = [];
   const linkIds: string[] = [];
+  const linkDirectionIds: string[] = [];
   const pathIds: string[] = [];
   const regionIds: string[] = [];
   const labelPresence = new Map<string, string[]>();
@@ -253,6 +279,20 @@ export function buildAttentionIndex(input: AttentionGraphInput): AttentionGraphI
     addIndexedObject('link', link, objectsById, objectsByKey, objectIds, linkIds, labelPresence, labelValues, dataPresence, dataValues);
     addParent(link, parentById, childrenByParent);
     addDirectedAdjacency(link.source, link.target, outgoing, incoming);
+    LINK_DIRECTION_KEYS.forEach((direction) => {
+      const value = link.directions?.[direction];
+      if (!value || typeof value !== 'object' || Array.isArray(value)) return;
+      const entity = linkDirectionEntity(link, direction, value);
+      addIndexedObject('linkDirection', entity, objectsById, objectsByKey, objectIds, linkDirectionIds, labelPresence, labelValues, dataPresence, dataValues);
+      addParent(entity, parentById, childrenByParent);
+      if (direction === 'sourceToTarget') {
+        addDirectedAdjacency(link.source, entity.id, outgoing, incoming);
+        addDirectedAdjacency(entity.id, link.target, outgoing, incoming);
+      } else {
+        addDirectedAdjacency(link.target, entity.id, outgoing, incoming);
+        addDirectedAdjacency(entity.id, link.source, outgoing, incoming);
+      }
+    });
   });
 
   (graph.paths || []).forEach((path) => {
@@ -290,6 +330,7 @@ export function buildAttentionIndex(input: AttentionGraphInput): AttentionGraphI
     objectIds: freezeIds(objectIds),
     nodeIds: freezeIds(nodeIds),
     linkIds: freezeIds(linkIds),
+    linkDirectionIds: freezeIds(linkDirectionIds),
     pathIds: freezeIds(pathIds),
     regionIds: freezeIds(regionIds),
     getObject: (id: string, kind?: AttentionObjectKind) => (
@@ -299,6 +340,7 @@ export function buildAttentionIndex(input: AttentionGraphInput): AttentionGraphI
     ),
     getNode: (id: string) => objectsByKey.get(objectKey('node', id)) as AttentionIndexedObject<'node'> | undefined,
     getLink: (id: string) => objectsByKey.get(objectKey('link', id)) as AttentionIndexedObject<'link'> | undefined,
+    getLinkDirection: (id: string) => objectsByKey.get(objectKey('linkDirection', id)) as AttentionIndexedObject<'linkDirection'> | undefined,
     getPath: (id: string) => objectsByKey.get(objectKey('path', id)) as AttentionIndexedObject<'path'> | undefined,
     getRegion: (id: string) => objectsByKey.get(objectKey('region', id)) as AttentionIndexedObject<'region'> | undefined,
     getByLabel: (key: string, value?: Scalar) => (

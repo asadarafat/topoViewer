@@ -776,11 +776,25 @@
 .topoviewer-edge-pipe-border,
 .topoviewer-edge-pipe-fill,
 .topoviewer-edge-line-outline,
-.topoviewer-edge-lane {
+.topoviewer-edge-lane,
+.topoviewer-edge-direction-outline,
+.topoviewer-edge-direction-stroke {
   fill: none;
   stroke-linecap: round;
   stroke-linejoin: round;
   pointer-events: none;
+}
+
+.topoviewer-edge-direction-selected .topoviewer-edge-direction-stroke {
+  filter: drop-shadow(0 0 5px #60a5fac2);
+}
+
+.topoviewer-edge-direction-parent-hover .topoviewer-edge-direction-stroke {
+  filter: drop-shadow(0 0 3px rgba(96, 165, 250, 0.58));
+}
+
+.topoviewer-edge-direction-hit-target {
+  pointer-events: stroke;
 }
 
 .topoviewer-edge-pipe-border {

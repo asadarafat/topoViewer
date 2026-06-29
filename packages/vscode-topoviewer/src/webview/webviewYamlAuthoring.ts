@@ -302,7 +302,7 @@ function isMapperStyleContext(request: YamlAuthoringRequest) {
 
 function selectorKindForContext(request: YamlAuthoringRequest): TopoObjectSelection['kind'] {
   const lines = request.text.split(/\r?\n/);
-  const allowed = new Set<TopoObjectSelection['kind']>(['node', 'link', 'path', 'region', 'callout', 'shape']);
+  const allowed = new Set<TopoObjectSelection['kind']>(['node', 'link', 'linkDirection', 'path', 'region', 'callout', 'shape']);
   for (let index = request.lineNumber - 1; index >= 0; index -= 1) {
     const kind = lines[index]?.match(/selector:\s*["']?([A-Za-z][A-Za-z0-9_-]*)/)?.[1];
     if (allowed.has(kind as TopoObjectSelection['kind'])) return kind as TopoObjectSelection['kind'];
@@ -336,6 +336,31 @@ function objectCollection(document: TopoDocument | undefined, kind: TopoObjectSe
   if (!document) return [];
   if (kind === 'node') return document.graph?.nodes || [];
   if (kind === 'link') return document.graph?.links || [];
+  if (kind === 'linkDirection') {
+    return (document.graph?.links || []).flatMap((link: any) => Object.entries(link.directions || {}).flatMap(([direction, value]) => {
+      if (!value || typeof value !== 'object' || Array.isArray(value)) return [];
+      const directionObject = value as Record<string, unknown>;
+      return [{
+        ...directionObject,
+        id: directionObject.id || `${link.id}:${direction}`,
+        direction,
+        labels: {
+          ...(link.labels || {}),
+          ...(directionObject.labels && typeof directionObject.labels === 'object' ? directionObject.labels : {}),
+          direction
+        },
+        data: {
+          ...(link.data || {}),
+          ...(directionObject.data && typeof directionObject.data === 'object' ? directionObject.data : {})
+        },
+        linkId: link.id,
+        parentLinkId: link.id,
+        source: link.source,
+        target: link.target,
+        layers: link.layers
+      }];
+    }));
+  }
   if (kind === 'path') return document.graph?.paths || [];
   if (kind === 'region') return document.graph?.regions || [];
   if (kind === 'callout') return document.diagram?.callouts || [];
@@ -343,7 +368,7 @@ function objectCollection(document: TopoDocument | undefined, kind: TopoObjectSe
 }
 
 function allAuthorableObjects(document: TopoDocument | undefined) {
-  return (['node', 'link', 'path', 'region', 'callout', 'shape'] as const).flatMap((kind) => objectCollection(document, kind));
+  return (['node', 'link', 'linkDirection', 'path', 'region', 'callout', 'shape'] as const).flatMap((kind) => objectCollection(document, kind));
 }
 
 function layerIdsForSuggestions(request: YamlAuthoringRequest) {
@@ -422,6 +447,11 @@ function stylesheetIndentIssue(request: YamlAuthoringRequest): YamlAuthoringSugg
 
 function topologySchemaPropertiesForPath(path: string[]) {
   if (path[path.length - 1] === 'graph') return schemaDefinitionProperties(baseSchema, 'graph');
+  if (path.includes('directions')) {
+    const current = path[path.length - 1];
+    if (current === 'directions') return schemaDefinitionProperties(baseSchema, 'linkDirections');
+    return schemaDefinitionProperties(baseSchema, 'linkDirection');
+  }
   if (path.includes('nodes')) return schemaDefinitionProperties(baseSchema, 'node');
   if (path.includes('links')) return schemaDefinitionProperties(baseSchema, 'link');
   if (path.includes('paths')) return schemaDefinitionProperties(baseSchema, 'path');
@@ -462,6 +492,7 @@ function mapperSchemaPropertiesForPath(path: string[]) {
   if (path.includes('identity')) return schemaDefinitionProperties(mapperRootSchema, 'identity');
   if (path.includes('rules')) {
     if (path.includes('style')) return {};
+    if (path.includes('join')) return schemaDefinitionProperties(mapperRootSchema, 'linkDirectionJoin');
     return schemaDefinitionProperties(mapperRootSchema, 'authoringRule');
   }
   if (path.includes('conditions')) {
@@ -511,6 +542,13 @@ function topologySnippetSuggestions(): YamlAuthoringSuggestion[] {
       documentation: 'Insert a graph link.'
     },
     {
+      label: 'link directions snippet',
+      insertText: 'directions:\n  sourceToTarget:\n    label: ${1:3.2 Gbps}\n  targetToSource:\n    label: ${2:1.1 Gbps}',
+      isSnippet: true,
+      kind: 'snippet',
+      documentation: 'Add source-to-target and target-to-source directional strokes to a graph link.'
+    },
+    {
       label: 'path snippet',
       insertText: '- id: ${1:path-id}\n  sequence:\n    - ${2:source-node}\n    - ${3:target-node}',
       isSnippet: true,
@@ -535,7 +573,7 @@ function topologySnippetSuggestions(): YamlAuthoringSuggestion[] {
 }
 
 function selectorSuggestions(request: YamlAuthoringRequest): YamlAuthoringSuggestion[] {
-  const kinds: TopoObjectSelection['kind'][] = ['node', 'link', 'path', 'region', 'callout', 'shape'];
+  const kinds: TopoObjectSelection['kind'][] = ['node', 'link', 'linkDirection', 'path', 'region', 'callout', 'shape'];
   const objects = allAuthorableObjects(request.topoDocument);
   const idSuggestions = kinds.flatMap((kind) => objectCollection(request.topoDocument, kind).map((object) => ({
     detail: `${kind} id selector`,
@@ -632,6 +670,8 @@ const mapperMetricLabelSuggestions = [
   'source_id',
   'node_id',
   'link_id',
+  'direction_id',
+  'direction',
   'path_id',
   'region_id',
   'layer_id',
@@ -671,6 +711,7 @@ function mapperObjectIds(document: TopoDocument | undefined) {
     graph: graph?.id ? [graph.id] : [],
     layer: (graph?.layers || []).map((layer) => layer.id),
     link: (graph?.links || []).map((link) => link.id),
+    linkDirection: objectCollection(document, 'linkDirection').map((direction) => direction.id),
     node: (graph?.nodes || []).map((node) => node.id),
     path: (graph?.paths || []).map((path) => path.id),
     region: (graph?.regions || []).map((region) => region.id)
@@ -680,10 +721,10 @@ function mapperObjectIds(document: TopoDocument | undefined) {
 function mapperTargetKindForContext(request: YamlAuthoringRequest) {
   const lines = request.text.split(/\r?\n/);
   for (let index = request.lineNumber - 1; index >= 0; index -= 1) {
-    const kind = lines[index]?.match(/kind:\s*["']?(node|link|path|region|layer|graph)/)?.[1];
-    if (kind) return kind as 'node' | 'link' | 'path' | 'region' | 'layer' | 'graph';
-    const selectedKind = lines[index]?.match(/select:\s*["']?(node|link|path|region|layer|graph)(?:\s*\[|["']?\s*$)/)?.[1];
-    if (selectedKind) return selectedKind as 'node' | 'link' | 'path' | 'region' | 'layer' | 'graph';
+    const kind = lines[index]?.match(/kind:\s*["']?(node|linkDirection|link|path|region|layer|graph)/)?.[1];
+    if (kind) return kind as 'node' | 'linkDirection' | 'link' | 'path' | 'region' | 'layer' | 'graph';
+    const selectedKind = lines[index]?.match(/select:\s*["']?(node|linkDirection|link|path|region|layer|graph)(?:\s*\[|["']?\s*$)/)?.[1];
+    if (selectedKind) return selectedKind as 'node' | 'linkDirection' | 'link' | 'path' | 'region' | 'layer' | 'graph';
   }
   return 'node';
 }
@@ -699,9 +740,10 @@ function mapperValueSuggestions(request: YamlAuthoringRequest, key: string): Yam
   const path = yamlPathAtLine(request.text, request.lineNumber);
   if (isMapperStyleContext(request)) return styleValueSuggestions(mapperStyleKindForContext(request), key);
   if (key === 'version') return referenceSuggestions(['1'], 'Mapper schema version');
-  if (key === 'kind') return referenceSuggestions(['node', 'link', 'path', 'region', 'layer', 'graph'], 'Mapper target kind');
+  if (key === 'kind') return referenceSuggestions(['node', 'link', 'linkDirection', 'path', 'region', 'layer', 'graph'], 'Mapper target kind');
   if (key === 'select') return selectorSuggestions(request);
   if (key === 'by') return referenceSuggestions(['id', 'label', 'data', 'endpoint', 'selector', 'aggregate', 'staticObjectIds'], 'Mapper resolver mode');
+  if (path.includes('join') && (key === 'link' || key === 'direction')) return referenceSuggestions(mapperMetricLabelSuggestions, 'Telemetry label');
   if (key === 'direction') return referenceSuggestions(['above', 'below'], 'Threshold direction');
   if (key === 'as') return referenceSuggestions(['up', 'utilizationPercent', 'errorsTotal', 'latencyMs', 'lossPercent', 'capacityPercent', 'health'], 'Metric value semantics');
   if (key === 'value' && !path.includes('conditions') && !path.includes('when')) {

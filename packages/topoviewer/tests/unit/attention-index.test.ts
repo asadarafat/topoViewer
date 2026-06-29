@@ -105,4 +105,38 @@ describe('buildAttentionIndex', () => {
     expect(buildAttentionIndexCached(doc)).toBe(buildAttentionIndexCached(equivalentDoc));
     expect(resolveAttentionPresentationCached(doc, { query })).toBe(resolveAttentionPresentationCached(equivalentDoc, { query }));
   });
+
+  it('indexes link directions as focusable attention objects', () => {
+    const doc = attentionFixture();
+    if (doc.graph?.links?.[0]) {
+      doc.graph.links[0].directions = {
+        sourceToTarget: {
+          label: 'Core to distribution',
+          labels: { directionRole: 'tx' },
+          data: { utilization: 82 }
+        },
+        targetToSource: {
+          label: 'Distribution to core',
+          labels: { directionRole: 'rx' }
+        }
+      };
+    }
+
+    const index = buildAttentionIndex(doc);
+
+    expect(index.linkDirectionIds).toEqual(['core-dist:sourceToTarget', 'core-dist:targetToSource']);
+    expect(index.getLinkDirection('core-dist:sourceToTarget')).toMatchObject({
+      kind: 'linkDirection',
+      entity: {
+        direction: 'sourceToTarget',
+        linkId: 'core-dist',
+        parentLinkId: 'core-dist',
+        source: 'core-1',
+        target: 'dist-1'
+      }
+    });
+    expect(index.getByLabel('directionRole', 'tx')).toEqual(['core-dist:sourceToTarget']);
+    expect(index.getByData('utilization', 82)).toEqual(['core-dist:sourceToTarget']);
+    expect(index.getParent('core-dist:sourceToTarget')).toBe('core-dist');
+  });
 });

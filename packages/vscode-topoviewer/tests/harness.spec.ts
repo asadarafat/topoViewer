@@ -1,5 +1,7 @@
 import { expect, test } from '@playwright/test';
 import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import {
   chooseOption,
   expectActivePanelBeforePreview,
@@ -30,6 +32,7 @@ const HARNESS_ALLOWED_BROWSER_ERROR_PATTERNS = [
   /Error while reading CSS rules from/
 ];
 const harnessBrowserErrors = new WeakMap<object, string[]>();
+const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
 
 test.beforeEach(async ({ page }) => {
   const browserErrors: string[] = [];
@@ -114,6 +117,37 @@ test('renders the browser harness with fixtures, diagnostics, layers, preview, a
   const downloadPath = await download.path();
   expect(downloadPath).toBeTruthy();
   expect(fs.statSync(downloadPath!).size).toBeGreaterThan(0);
+});
+
+test('honors document toggle defaults for edge labels in browser harness preview', async ({ page }) => {
+  const topologyText = fs.readFileSync(path.join(
+    repoRoot,
+    'packages/topoviewer/content/examples/edges/directional-link-strokes/topology.yaml'
+  ), 'utf8');
+  const stylesheetText = fs.readFileSync(path.join(
+    repoRoot,
+    'packages/topoviewer/content/examples/edges/directional-link-strokes/stylesheet.yaml'
+  ), 'utf8');
+
+  await page.addInitScript(({ topologyText: seededTopology, stylesheetText: seededStylesheet }) => {
+    window.localStorage.clear();
+    window.localStorage.setItem('topoviewer.vscodeHarness.customFixtures.v1', JSON.stringify([{
+      id: 'custom-directional-link-strokes',
+      name: 'Custom directional link strokes'
+    }]));
+    window.localStorage.setItem('topoviewer.vscodeHarness.activeFixture.v1', 'custom-directional-link-strokes');
+    window.localStorage.setItem('topoviewer.vscodeHarness.fixtureState.v1:custom-directional-link-strokes', JSON.stringify({
+      fixtureId: 'custom-directional-link-strokes',
+      topologyText: seededTopology,
+      stylesheetText: seededStylesheet
+    }));
+  }, { topologyText, stylesheetText });
+
+  await page.goto('/');
+  await expect(page.getByText('No diagnostics')).toBeVisible();
+  await expect(page.locator('.topoviewer-edge-label', { hasText: 'Leaf-1 to Spine-1' })).toBeVisible();
+  await expect(page.locator('.topoviewer-edge-label', { hasText: '3.2 Gbps' })).toBeVisible();
+  await expect(page.locator('.topoviewer-edge-label', { hasText: '1.1 Gbps' })).toBeVisible();
 });
 
 test('defaults to a one-third authoring rail and supports resize, reset, and persistence', async ({ page }) => {

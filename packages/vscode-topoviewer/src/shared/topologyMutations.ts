@@ -1,7 +1,7 @@
 import yaml from 'js-yaml';
 import type { TopoDocument } from 'topoviewer';
 
-export type TopoObjectKind = 'node' | 'link' | 'path' | 'region' | 'callout' | 'shape';
+export type TopoObjectKind = 'node' | 'link' | 'linkDirection' | 'path' | 'region' | 'callout' | 'shape';
 export type InsertObjectType = 'node' | 'router' | 'service' | 'controller' | 'external' | 'link' | 'path' | 'region' | 'callout' | 'alert';
 export type AttentionFocusKind = 'nodeIds' | 'linkIds' | 'pathIds' | 'regionIds';
 
@@ -210,6 +210,19 @@ function selectedNodeIdsOrFallback(document: Record<string, any>, selectedObject
   return selected.length >= count ? selected.slice(0, count) : firstGraphNodeIds(document, count);
 }
 
+function graphLinkDirectionObjects(document: Record<string, any> | TopoDocument | undefined): any[] {
+  return ((document?.graph?.links || []) as any[]).flatMap((link) => Object.entries(link.directions || {}).flatMap(([direction, value]) => {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return [];
+    return [{
+      ...(value as Record<string, unknown>),
+      id: (value as Record<string, unknown>).id || `${link.id}:${direction}`,
+      direction,
+      linkId: link.id,
+      parentLinkId: link.id
+    }];
+  }));
+}
+
 function graphNodes(document: Record<string, any>): any[] {
   return Array.isArray(document.graph?.nodes) ? document.graph.nodes : [];
 }
@@ -236,6 +249,9 @@ function normalizedPathSequence(sequence: string[]): string[] {
 
 export function findObject(document: Record<string, any> | TopoDocument | undefined, selection: TopoObjectSelection | undefined): any | undefined {
   if (!document || !selection) return undefined;
+  if (selection.kind === 'linkDirection') {
+    return graphLinkDirectionObjects(document).find((item) => item.id === selection.id);
+  }
   if (selection.kind in graphCollectionByKind) {
     const collection = graphCollectionByKind[selection.kind as keyof typeof graphCollectionByKind];
     return (document.graph?.[collection] || []).find((item: any) => item.id === selection.id);
@@ -258,6 +274,7 @@ export function resolveSelectionFromObject(document: TopoDocument | undefined, s
   if (!document || !sourceId) return undefined;
   if ((document.graph?.nodes || []).some((node) => node.id === sourceId)) return { kind: 'node', id: sourceId };
   if ((document.graph?.links || []).some((link) => link.id === sourceId)) return { kind: 'link', id: sourceId };
+  if (graphLinkDirectionObjects(document).some((direction) => direction.id === sourceId)) return { kind: 'linkDirection', id: sourceId };
   if ((document.graph?.paths || []).some((path) => path.id === sourceId)) return { kind: 'path', id: sourceId };
   if ((document.graph?.regions || []).some((region) => region.id === sourceId)) return { kind: 'region', id: sourceId };
   if ((document.diagram?.callouts || []).some((callout) => callout.id === sourceId)) return { kind: 'callout', id: sourceId };
@@ -603,6 +620,7 @@ export function updateGraphNodePosition(text: string, options: UpdateNodePositio
 export function deleteTopoObjects(text: string, selections: TopoObjectSelection[]): MutationResult {
   return mutateTopologyText(text, (document) => {
     for (const selection of selections) {
+      if (selection.kind === 'linkDirection') continue;
       if (selection.kind in graphCollectionByKind) {
         const graph = ensureGraph(document);
         const collection = graphCollectionByKind[selection.kind as keyof typeof graphCollectionByKind];
@@ -676,14 +694,17 @@ export function clearAttention(text: string): MutationResult {
 export function objectIdsByKind(document: TopoDocument | undefined, focusKind: AttentionFocusKind): string[] {
   if (!document) return [];
   if (focusKind === 'nodeIds') return (document.graph?.nodes || []).map((node) => node.id);
-  if (focusKind === 'linkIds') return (document.graph?.links || []).map((link) => link.id);
+  if (focusKind === 'linkIds') return [
+    ...(document.graph?.links || []).map((link) => link.id),
+    ...graphLinkDirectionObjects(document).map((direction) => direction.id)
+  ];
   if (focusKind === 'pathIds') return (document.graph?.paths || []).map((path) => path.id);
   return (document.graph?.regions || []).map((region) => region.id);
 }
 
 export function focusKindForSelection(kind: TopoObjectKind): AttentionFocusKind | undefined {
   if (kind === 'node') return 'nodeIds';
-  if (kind === 'link') return 'linkIds';
+  if (kind === 'link' || kind === 'linkDirection') return 'linkIds';
   if (kind === 'path') return 'pathIds';
   if (kind === 'region') return 'regionIds';
   return undefined;

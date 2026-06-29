@@ -125,4 +125,22 @@ describe('resolveFocusQuery', () => {
       regionIds: ['missing-region']
     })).toThrow(/missing region/);
   });
+
+  it('focuses a link direction while preserving the parent link as related context', () => {
+    const document = attentionFixture();
+    if (document.graph?.links?.[0]) {
+      document.graph.links[0].directions = {
+        sourceToTarget: { label: 'Core to distribution' },
+        targetToSource: { label: 'Distribution to core' }
+      };
+    }
+    const index = buildAttentionIndex(document);
+    const result = resolveFocusQuery(index, {
+      ids: ['core-dist:sourceToTarget']
+    });
+
+    expect(ids(result.focusedIds)).toEqual(['core-dist:sourceToTarget']);
+    expect(ids(result.relatedIds)).toEqual(['core-dist']);
+    expect(result.reasons.get('core-dist')).toEqual(['link-direction-parent:core-dist:sourceToTarget']);
+  });
 });

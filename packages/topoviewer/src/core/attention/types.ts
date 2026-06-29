@@ -19,6 +19,23 @@ export interface AttentionGraphLink extends AttentionEntity {
   readonly source: string;
   readonly target: string;
   readonly parent?: string;
+  readonly directions?: Partial<Record<'sourceToTarget' | 'targetToSource', AttentionGraphLinkDirectionInput>>;
+}
+
+export interface AttentionGraphLinkDirectionInput {
+  readonly id?: string;
+  readonly name?: string;
+  readonly label?: string;
+  readonly labels?: AttentionLabels;
+  readonly data?: AttentionDataBag;
+}
+
+export interface AttentionGraphLinkDirection extends AttentionEntity {
+  readonly direction: 'sourceToTarget' | 'targetToSource';
+  readonly linkId: string;
+  readonly parentLinkId: string;
+  readonly source: string;
+  readonly target: string;
 }
 
 export interface AttentionGraphPath extends AttentionEntity {
@@ -44,13 +61,14 @@ export interface AttentionTopoDocument {
   readonly graph?: AttentionGraphDefinition;
 }
 
-export type AttentionObjectKind = 'node' | 'link' | 'path' | 'region';
+export type AttentionObjectKind = 'node' | 'link' | 'linkDirection' | 'path' | 'region';
 
 export type AttentionGraphInput = AttentionTopoDocument | AttentionGraphDefinition;
 
 export interface AttentionObjectByKind {
   node: AttentionGraphNode;
   link: AttentionGraphLink;
+  linkDirection: AttentionGraphLinkDirection;
   path: AttentionGraphPath;
   region: AttentionGraphRegion;
 }
@@ -65,6 +83,7 @@ export interface AttentionGraphIndex {
   readonly objectIds: readonly string[];
   readonly nodeIds: readonly string[];
   readonly linkIds: readonly string[];
+  readonly linkDirectionIds: readonly string[];
   readonly pathIds: readonly string[];
   readonly regionIds: readonly string[];
 
@@ -72,6 +91,7 @@ export interface AttentionGraphIndex {
   getObject<K extends AttentionObjectKind>(id: string, kind: K): AttentionIndexedObject<K> | undefined;
   getNode(id: string): AttentionIndexedObject<'node'> | undefined;
   getLink(id: string): AttentionIndexedObject<'link'> | undefined;
+  getLinkDirection(id: string): AttentionIndexedObject<'linkDirection'> | undefined;
   getPath(id: string): AttentionIndexedObject<'path'> | undefined;
   getRegion(id: string): AttentionIndexedObject<'region'> | undefined;
 

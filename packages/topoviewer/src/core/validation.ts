@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { GEOMETRY_SHAPES } from './types';
+import { GEOMETRY_SHAPES, LINK_DIRECTION_KEYS } from './types';
 import { finiteNumber } from './edgeStyle';
 import { parseNodeShapePoints } from './nodeShapes';
 import { canonicalStyleKeyByLowercase } from './styleDefaults';
@@ -120,6 +120,19 @@ const graphEntitySchema = z.object({
   icon: z.string().optional()
 }).passthrough();
 
+const linkDirectionSchema = z.object({
+  id: z.string().min(1).optional(),
+  name: z.string().optional(),
+  label: z.string().optional(),
+  labels: labelsSchema.optional(),
+  data: dataSchema.optional(),
+  style: styleSchema.optional()
+}).passthrough();
+
+const linkDirectionsSchema = z.object(Object.fromEntries(
+  LINK_DIRECTION_KEYS.map((key) => [key, linkDirectionSchema.optional()])
+)).passthrough();
+
 const nodeSchema = graphEntitySchema.extend({
   position: positionSchema.optional(),
   parent: z.string().optional(),
@@ -129,7 +142,8 @@ const nodeSchema = graphEntitySchema.extend({
 const linkSchema = graphEntitySchema.extend({
   source: z.string().min(1),
   target: z.string().min(1),
-  parent: z.string().optional()
+  parent: z.string().optional(),
+  directions: linkDirectionsSchema.optional()
 }).passthrough();
 
 const pathSchema = graphEntitySchema.extend({

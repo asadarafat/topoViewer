@@ -101,14 +101,37 @@ function applyAttentionToCompiledGraph(graph: CompiledGraph, presentation: Atten
     }),
     edges: graph.edges.map((edge) => {
       const attention = presentation.items.get(sourceObjectId(edge));
-      if (!attention) return edge;
+      const data = (edge.data || {}) as Record<string, unknown>;
+      const linkDirections = Array.isArray(data.linkDirections)
+        ? data.linkDirections.map((direction) => {
+          if (!direction || typeof direction !== 'object') return direction;
+          const record = direction as Record<string, unknown>;
+          const directionAttention = presentation.items.get(String(record.id || ''));
+          return directionAttention ? {
+            ...record,
+            data: decoratedAttentionData((record.data || {}) as Record<string, unknown>, directionAttention)
+          } : direction;
+        })
+        : undefined;
+      if (!attention) {
+        return linkDirections ? {
+          ...edge,
+          data: {
+            ...data,
+            linkDirections
+          }
+        } : edge;
+      }
       const hidden = attention.state === 'hidden' || attention.state === 'suppressed';
       const opacity = attentionOpacity(attention.state);
       return {
         ...edge,
         hidden,
         zIndex: attention.state === 'focused' ? 110 : attention.state === 'related' ? 80 : edge.zIndex,
-        data: decoratedAttentionData((edge.data || {}) as Record<string, unknown>, attention),
+        data: {
+          ...decoratedAttentionData(data, attention),
+          ...(linkDirections ? { linkDirections } : {})
+        },
         style: {
           ...((edge.style || {}) as Record<string, unknown>),
           ...(opacity !== undefined ? { opacity } : {})
@@ -136,16 +159,71 @@ function applySelectionToCompiledGraph(graph: CompiledGraph, selectedObjectIds: 
     }),
     edges: graph.edges.map((edge) => {
       const selectedEdge = selected.has(sourceObjectId(edge));
+      const data = (edge.data || {}) as Record<string, unknown>;
+      const linkDirections = Array.isArray(data.linkDirections)
+        ? data.linkDirections.map((direction) => {
+          if (!direction || typeof direction !== 'object') return direction;
+          const record = direction as Record<string, unknown>;
+          const selectedDirection = selected.has(String(record.id || ''));
+          return selectedDirection ? {
+            ...record,
+            data: {
+              ...((record.data || {}) as Record<string, unknown>),
+              topoviewerSelected: true
+            }
+          } : direction;
+        })
+        : undefined;
       return selectedEdge ? {
         ...edge,
         selected: true,
         data: {
-          ...((edge.data || {}) as Record<string, unknown>),
+          ...data,
+          ...(linkDirections ? { linkDirections } : {}),
           topoviewerSelected: true
+        }
+      } : linkDirections ? {
+        ...edge,
+        data: {
+          ...data,
+          linkDirections
         }
       } : edge;
     })
   };
+}
+
+function withRuntimeDirectionHandlers(
+  edges: ReturnType<typeof compileTopoGraph>['edges'],
+  onObjectClick: TopoViewerProps['onObjectClick']
+): ReturnType<typeof compileTopoGraph>['edges'] {
+  if (!onObjectClick) return edges;
+  return edges.map((edge) => {
+    const data = (edge.data || {}) as Record<string, unknown>;
+    if (!Array.isArray(data.linkDirections) || !data.linkDirections.length) return edge;
+    return {
+      ...edge,
+      data: {
+        ...data,
+        __topoviewerOnLinkDirectionClick: (event: { stopPropagation: () => void; ctrlKey?: boolean; metaKey?: boolean; shiftKey?: boolean }, direction: Record<string, unknown>) => {
+          event.stopPropagation();
+          const directionData = (direction.data || {}) as Record<string, unknown>;
+          if (data.interactive === false || directionData.interactive === false) return;
+          onObjectClick({
+            id: String(direction.id || directionData.id || ''),
+            runtimeId: `${String(edge.id)}:${String(direction.id || directionData.id || '')}`,
+            element: 'linkDirection',
+            data: directionData,
+            modifiers: {
+              ctrlKey: !!event.ctrlKey,
+              metaKey: !!event.metaKey,
+              shiftKey: !!event.shiftKey
+            }
+          });
+        }
+      }
+    };
+  });
 }
 
 function resolveAttentionPresentation(document: TopoDocument, attention: TopoViewerProps['attention']): AttentionPresentationResult | undefined {
@@ -186,12 +264,12 @@ function TopoFlow({
   edgeTypes: Record<string, unknown>;
 }) {
   const [nodes, setNodes] = useNodesState(compiled.nodes as never[]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(compiled.edges as never[]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(withRuntimeDirectionHandlers(compiled.edges, onObjectClick) as never[]);
 
   useEffect(() => {
     setNodes(compiled.nodes as never[]);
-    setEdges(compiled.edges as never[]);
-  }, [compiled, setEdges, setNodes]);
+    setEdges(withRuntimeDirectionHandlers(compiled.edges, onObjectClick) as never[]);
+  }, [compiled, onObjectClick, setEdges, setNodes]);
 
   const onNodesChange = useCallback((changes: NodeChange[]) => {
     setNodes((currentNodes) => applyTopoNodeChanges({

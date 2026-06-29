@@ -133,6 +133,12 @@ export function PreviewPanel({ exportImage, exportTooltip, handleNodePositionCha
   const effectiveSelectedLayerIds = parityMode
     ? (visibleDocument?.graph?.layers || []).map((layer) => layer.id)
     : selectedLayerIds;
+  const viewerToggles = visibleDocument
+    ? {
+      ...defaultTopoViewerToggles(visibleDocument),
+      showRegions: true
+    }
+    : { showRegions: true };
 
   return (
     <Paper className={`topoviewer-vscode-preview${parityMode ? ' topoviewer-vscode-preview--parity topoviewer-parity-theme' : ''}`} elevation={0} ref={previewRef}>
@@ -152,7 +158,7 @@ export function PreviewPanel({ exportImage, exportTooltip, handleNodePositionCha
           exportDisabled={hasExportBlockers}
           exportTooltip={exportTooltip}
           onExport={parityMode ? undefined : exportImage}
-          toggles={parityMode ? defaultTopoViewerToggles(visibleDocument) : { showRegions: true }}
+          toggles={parityMode ? defaultTopoViewerToggles(visibleDocument) : viewerToggles}
           onObjectClick={handleObjectClick}
           onPaneClick={() => setSelectedObjects([])}
           onNodePositionChange={handleNodePositionChange}
