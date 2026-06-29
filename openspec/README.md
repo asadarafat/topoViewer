@@ -9,7 +9,8 @@ Current active plans:
 - `changes/define-netbox-integration-roadmap/` - planned NetBox feasibility, use cases, first integration shape, and roadmap wording constraints.
 - `changes/define-opsmill-infrahub-integration-roadmap/` - planned OpsMill/Infrahub feasibility, use cases, first integration shape, and roadmap wording constraints.
 - `changes/define-grafana-integration-roadmap/` - phased Grafana feasibility roadmap covering panel/harness parity, Prometheus weathermap, interactive runtime state, mounted bundle mapper foundation, Containerlab telemetry, and later Codespaces portability.
-- `changes/implement-grafana-containerlab-phase-5/` - planned Containerlab telemetry lab that reuses the mounted bundle mapper workflow.
+- `changes/implement-grafana-containerlab-phase-5/` - planned `topoviewer-grafana` Containerlab telemetry lab with SR Linux, gNMIc, Prometheus, mounted TopoViewer bundles, and mapper-driven live overlays.
+- `changes/harden-link-direction-lanes/` - planned production hardening for direction lane geometry, physical parallel-link behavior, direction-specific interaction, attention, mapper coverage, mounted-bundle examples, and cross-surface parity.
 
 Current studies:
 
@@ -17,6 +18,7 @@ Current studies:
 
 Archived plans:
 
+- `archive/2026-06-29-add-link-direction-lanes/` - implemented Phase 1 directional lane primitive for bidirectional telemetry on one physical link, including `link.directions`, `linkDirection` selectors, straight shared-corridor rendering, marker trimming, parent-label avoidance, mapper overlays, docs, and examples.
 - `archive/2026-06-28-implement-grafana-panel-phase-4-production-hardening/` - implemented mounted-bundle production defaults, explicit fixture compatibility dashboards, refresh-driven bundle reloads, editable local dashboards, and final Phase 4 readiness hardening.
 - `archive/2026-06-28-implement-grafana-panel-phase-4/` - implemented mounted bundle and mapper foundation for `*.topo.tv.yaml`, `*.style.tv.yaml`, and `*.mapper.tv.yaml` Grafana workflows.
 - `archive/2026-06-28-implement-grafana-panel-phase-3/` - implemented Grafana runtime interaction state for pan, zoom, selection, focus, and dragged node position persistence.
