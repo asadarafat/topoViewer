@@ -6,9 +6,9 @@ injector. Grafana mounts the local exploratory TopoViewer panel plugin from
 
 Phase 1 proves fixture parity. Phase 2 proves a local Prometheus weathermap
 vertical slice. Phase 4 proves the production workflow: TopoViewer YAML bundles
-mounted into Grafana and selected by the panel backend. Containerlab is
-intentionally not part of this lab yet; it belongs to a later phase after the
-panel, mapper, data-frame mapping, and interaction contract are stable.
+mounted into Grafana and selected by the panel backend. Phase 5 adds a separate
+Containerlab profile that streams SR Linux telemetry through gNMIc and
+Prometheus into the same mounted-bundle mapper path.
 
 ## Run
 
@@ -52,6 +52,245 @@ The Phase 1 smoke test iterates every canonical harness fixture and captures
 detailed screenshots for `layered-network` and `clos-2spine-4leaf` under
 `.artifacts/grafana-phase-1/`. The Phase 4 smoke test exercises the mounted
 bundle source and mapper path.
+
+## Containerlab Phase 5
+
+The Containerlab profile is intentionally separate from the synthetic lab:
+
+```bash
+npm run grafana:clab:up
+npm run grafana:clab:smoke
+npm run grafana:clab:down
+```
+
+The lab defaults to:
+
+- Grafana: `http://127.0.0.1:3001/d/topoviewer-clab/topoviewer-containerlab-phase-5`
+- Prometheus: `http://127.0.0.1:9091`
+- gNMIc Prometheus exporter: `http://127.0.0.1:9804/metrics`
+- TopoViewer telemetry normalizer: `http://127.0.0.1:9110/health`
+
+The Containerlab profile lives under:
+
+```text
+labs/grafana-topoviewer/containerlab/
+  topoviewer-grafana.clab.yml
+  configs/
+  inventory/
+  normalizer/
+  scripts/
+```
+
+The first profile models a compact CLOS-like fabric with two SR Linux spines,
+two SR Linux leaves, two client endpoints, gNMIc, Prometheus, Grafana, and a
+small normalizer service. The normalizer converts live gNMIc output into
+mapper-friendly Prometheus metrics such as:
+
+- `topoviewer_clab_link_up`
+- `topoviewer_clab_link_utilization_percent`
+- `topoviewer_clab_link_direction_utilization_percent`
+- `topoviewer_clab_node_health`
+- `topoviewer_clab_adjacency_up`
+
+Each sample carries stable join labels such as `topology`, `node_id`,
+`link_id`, `source`, `target`, `interface`, and `direction`. The panel does not
+contain SR Linux or Containerlab-specific rendering logic; all visual changes
+come from `clab-clos.mapper.tv.yaml`.
+
+The SR Linux nodes use per-node startup configs with routed subinterfaces and
+static routes:
+
+```text
+client1 192.0.2.10/31
+  -> leaf1 192.0.2.11/31
+  -> spine1/spine2 fabric links
+  -> leaf2 192.0.2.12/31
+  -> client2 192.0.2.13/31
+```
+
+Background keepalive pings prove reachability. For deliberate visible traffic,
+use:
+
+```bash
+npm run grafana:clab:traffic:start
+npm run grafana:clab:traffic:status
+npm run grafana:clab:traffic:stop
+```
+
+The normalizer inventory uses a 10 Mbps telemetry capacity for this compact
+demo so generated client traffic is visible in Grafana without requiring a
+heavy traffic generator.
+
+The mounted bundle is:
+
+```text
+labs/grafana-topoviewer/topoviewer-bundles/clab-clos/
+  clab-clos.topo.tv.yaml
+  clab-clos.style.tv.yaml
+  clab-clos.mapper.tv.yaml
+```
+
+The Grafana container mounts the same bundle root used by the synthetic lab:
+
+```yaml
+volumes:
+  - ../topoviewer-bundles:/etc/topoviewer/bundles:ro
+```
+
+The smoke test captures artifacts under:
+
+```text
+.artifacts/grafana-containerlab/
+  healthy.png
+  high-utilization.png
+  link-failure.png
+  mapper-coverage-*.txt
+  prometheus-targets.json
+  normalizer-metrics-*.prom
+  bundle-index.json
+  versions.json
+```
+
+Host requirements:
+
+- Docker must be running and usable by the current shell.
+- Containerlab must be installed as `containerlab` or `clab`.
+- The current user must have the privileges required to start Containerlab
+  network namespaces and containers.
+- Ports `3001`, `9091`, `9804`, and `9110` must be free unless overridden.
+- Image pulls can be large on the first run because SR Linux, gNMIc,
+  Prometheus, Grafana, and Node images are pinned.
+
+Port overrides follow the same pattern as the synthetic lab:
+
+```bash
+GRAFANA_HTTP_PORT=3011 PROMETHEUS_HTTP_PORT=9191 GNMIC_HTTP_PORT=9805 NORMALIZER_HTTP_PORT=9111 npm run grafana:clab:up
+GRAFANA_URL=http://127.0.0.1:3011 PROMETHEUS_URL=http://127.0.0.1:9191 GNMIC_URL=http://127.0.0.1:9805 NORMALIZER_URL=http://127.0.0.1:9111 npm run grafana:clab:smoke
+```
+
+If startup fails, run:
+
+```bash
+npm run grafana:clab:down
+```
+
+Then check for port conflicts, Docker permission errors, failed image pulls,
+and Prometheus target health.
+
+Remaining limits before a portable Codespaces-style workflow:
+
+- This profile assumes a local host that can run Docker and Containerlab with
+  the required network namespace privileges.
+- The Grafana plugin is mounted from the local `dist` build; signing and
+  packaged installation remain release work.
+- SR Linux image pull time and host CPU/memory requirements are not hidden by
+  the scripts.
+- The synthetic lab remains the CI baseline; the Containerlab lab is the real
+  telemetry validation path.
+
+### Upstream-Candidate Validation
+
+The production-grade Phase 5 direction is the upstream-candidate lab shape: keep
+the existing streaming telemetry lab recognizable, preserve the original
+`Network Telemetry` dashboard, add a `Network Telemetry - TopoViewer` B
+dashboard, mount one TopoViewer bundle, and use Prometheus recording rules for
+stable `link_id` and `direction` labels. That path should not require the
+repo-local normalizer service.
+
+The upstream-candidate lab loads the TopoViewer Grafana panel from a plugin
+install directory inside the lab checkout:
+
+```text
+configs/grafana/plugins/asadarafat-topoviewer-panel/
+```
+
+Release mode should unpack a pinned TopoViewer Grafana panel artifact into that
+directory. Development mode may symlink or copy
+`packages/grafana-topoviewer-panel/dist` into the same directory, but that
+repo-relative path must not appear in the upstream-candidate patch.
+
+Fresh-checkout operator workflow:
+
+```bash
+# 1. Unpack a pinned TopoViewer Grafana panel artifact into:
+#    configs/grafana/plugins/asadarafat-topoviewer-panel/
+
+# 2. Deploy the lab from the upstream-candidate checkout.
+containerlab deploy --topo st.clab.yml
+
+# 3. Start visible client traffic.
+bash traffic.sh start all
+
+# 4. Compare the dashboards in a browser:
+#    Original: http://127.0.0.1:3000/d/ce11ch1funwu8d/network-telemetry
+#    B:        http://127.0.0.1:3000/d/network-telemetry-topoviewer/network-telemetry-topoviewer
+```
+
+The mounted bundle lives under:
+
+```text
+configs/grafana/topoviewer-bundles/st-clos/
+  st-clos.topo.tv.yaml
+  st-clos.style.tv.yaml
+  st-clos.mapper.tv.yaml
+```
+
+The Prometheus recording rules backing the dashboard are:
+
+- `topoviewer_st_link_up{topology="st-clos",link_id="..."}`
+- `topoviewer_st_link_direction_bps{topology="st-clos",link_id="...",direction="sourceToTarget|targetToSource"}`
+
+Those rules are generated from telemetry bindings in `st-clos.topo.tv.yaml`.
+The raw Prometheus labels stay next to the relevant link or direction:
+
+```yaml
+data:
+  telemetry:
+    up:
+      record: topoviewer_st_link_up
+      metric: interface_oper_state
+      labels:
+        source: spine1
+        interface_name: e1-1
+```
+
+Regenerate the rules after changing those bindings:
+
+```bash
+npm run grafana:clab:rules -- \
+  --topology .donotpush/srl-telemetry-lab/configs/grafana/topoviewer-bundles/st-clos/st-clos.topo.tv.yaml \
+  --output .donotpush/srl-telemetry-lab/configs/prometheus/topoviewer-rules.yml
+```
+
+Use `--check` in review or CI to detect drift between topology telemetry
+bindings and generated Prometheus rules.
+
+The checked-in mapper renders direction bandwidth labels with
+`label: "{{ value | bps }}"`, so Grafana rates such as `3580000` are displayed
+as `3.58 Mb/s` on the corresponding directional stroke.
+
+If Grafana treats the provisioned dashboard as read-only, persist edits by
+copying the dashboard JSON back into
+`configs/grafana/dashboards/telemetry-dashboard-topoviewer.json`, or save a
+separate dashboard copy in Grafana for local exploration.
+
+After the upstream-candidate lab is deployed and traffic is running, validate it
+from this repo with:
+
+```bash
+GRAFANA_URL=http://127.0.0.1:3000 \
+PROMETHEUS_URL=http://127.0.0.1:9090 \
+npm run grafana:clab:smoke:upstream
+```
+
+The smoke verifies Grafana health, TopoViewer plugin availability, mounted
+bundle discovery, Prometheus targets, `topoviewer_st_link_up`,
+`topoviewer_st_link_direction_bps`, mapper coverage, and a Playwright
+screenshot. Artifacts are written under `.artifacts/grafana-upstream/`.
+
+This upstream-candidate path is not production grade until the plugin install
+contract works from a fresh lab checkout and the smoke can be run without hidden
+local monorepo state.
 
 ## Telemetry Scenarios
 

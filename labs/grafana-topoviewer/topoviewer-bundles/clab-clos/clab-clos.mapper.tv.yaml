@@ -1,0 +1,163 @@
+version: 1
+identity:
+  sourceId: clab-clos
+  sourceIdLabel: topology
+palette:
+  success:
+    color: "#4caf50"
+    accent: "#2e7d32"
+  info:
+    color: "#42a5f5"
+    accent: "#1976d2"
+  warning:
+    color: "#ff9800"
+    accent: "#ed6c02"
+  error:
+    color: "#d32f2f"
+    accent: "#c62828"
+rules:
+  - id: clab-link-oper-state
+    metric: topoviewer_clab_link_up
+    select: link
+    join: link_id
+    value: up
+    states:
+      down: "==0"
+    style:
+      default:
+        label: UP
+        lineColor: "#4caf50"
+        lineWidth: 4
+        lineCap: round
+        labelColor: "#2e7d32"
+        textBackgroundColor: "rgba(232, 245, 233, 0.94)"
+        labelBorderColor: "rgba(46, 125, 50, 0.28)"
+        labelBorderWidth: 1
+        labelZIndex: 30
+      down:
+        label: DOWN
+        lineColor: "#d32f2f"
+        lineWidth: 8
+        lineStyle: dashed
+        lineDashPattern: 12 7
+        lineDashOffset: 4
+        lineCap: round
+        lineOutlineWidth: 4
+        lineOutlineColor: "rgba(211, 47, 47, 0.22)"
+        labelColor: "#c62828"
+        textBackgroundColor: "rgba(255, 235, 238, 0.96)"
+        labelBorderColor: "rgba(198, 40, 40, 0.46)"
+        labelBorderWidth: 1
+        labelZIndex: 40
+  - id: clab-link-utilization
+    metric: topoviewer_clab_link_utilization_percent
+    select: link
+    join: link_id
+    value: percent
+    states:
+      busy: ">=50"
+      high: ">=80"
+      saturated: ">=90"
+    style:
+      default:
+        label: "{{ value | round }}%"
+        lineColor: "#4caf50"
+        lineWidth: 4
+      busy:
+        lineColor: "#42a5f5"
+        lineWidth: 5
+        labelColor: "#1976d2"
+      high:
+        lineColor: "#ff9800"
+        lineWidth: 6
+        labelColor: "#ed6c02"
+      saturated:
+        label: "{{ state }} {{ value | round }}%"
+        lineColor: "#d32f2f"
+        lineWidth: 8
+        lineStyle: dashed
+        lineDashPattern: 14 6
+        labelColor: "#c62828"
+  - id: clab-direction-utilization
+    metric: topoviewer_clab_link_direction_utilization_percent
+    select: linkDirection
+    join:
+      link: link_id
+      direction: direction
+    value: percent
+    states:
+      busy: ">=50"
+      high: ">=80"
+      saturated: ">=90"
+    style:
+      default:
+        label: "{{ label.direction }} {{ value | round }}%"
+        lineWidth: 3
+        sourceArrowSize: 10
+        targetArrowSize: 10
+      busy:
+        lineColor: "#42a5f5"
+        lineWidth: 4
+        sourceArrowSize: 11
+        targetArrowSize: 11
+        labelColor: "#1976d2"
+      high:
+        lineColor: "#ff9800"
+        lineWidth: 5
+        sourceArrowSize: 13
+        targetArrowSize: 13
+        labelColor: "#ed6c02"
+      saturated:
+        label: "{{ label.direction }} {{ state }} {{ value | round }}%"
+        lineColor: "#d32f2f"
+        lineWidth: 7
+        sourceArrowSize: 16
+        targetArrowSize: 16
+        lineStyle: dashed
+        lineOutlineWidth: 3
+        lineOutlineColor: "rgba(211, 47, 47, 0.22)"
+        labelColor: "#c62828"
+  - id: clab-node-health
+    metric: topoviewer_clab_node_health
+    select: node
+    join: node_id
+    value: health
+    states:
+      unhealthy: "==0"
+    style:
+      default:
+        statusColor: "#4caf50"
+        statusPlacement: topRight
+        badgeLabel: OK
+        badgeBackgroundColor: "#e8f5e9"
+        badgeColor: "#2e7d32"
+        outlineColor: "#4caf50"
+        outlineOpacity: 0.28
+      unhealthy:
+        statusColor: "#d32f2f"
+        statusPlacement: topRight
+        badgeLabel: NODE
+        badgeBackgroundColor: "#ffebee"
+        badgeColor: "#c62828"
+        outlineColor: "#d32f2f"
+        outlineWidth: 6
+        outlineOpacity: 0.78
+  - id: clab-adjacency-state
+    metric: topoviewer_clab_adjacency_up
+    select: link
+    join: link_id
+    value: up
+    states:
+      down: "==0"
+    style:
+      down:
+        sourceLabel: adjacency
+        targetLabel: down
+        sourceLabelColor: "#c62828"
+        targetLabelColor: "#c62828"
+        sourceLabelBackgroundColor: "rgba(255, 235, 238, 0.96)"
+        targetLabelBackgroundColor: "rgba(255, 235, 238, 0.96)"
+        sourceLabelBorderColor: "rgba(198, 40, 40, 0.46)"
+        targetLabelBorderColor: "rgba(198, 40, 40, 0.46)"
+        sourceLabelBorderWidth: 1
+        targetLabelBorderWidth: 1

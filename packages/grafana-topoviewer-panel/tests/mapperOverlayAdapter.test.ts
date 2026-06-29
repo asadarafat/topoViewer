@@ -1,8 +1,14 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import type { TopoDocument } from 'topoviewer';
 import { createMapperTelemetryOverlay, createMapperTelemetryOverlayExtension } from '../src/mapperOverlayAdapter';
 import { parseTopoViewerMapperYaml } from '../src/mapperParser';
 import type { MapperTelemetrySample, TopoViewerMapper } from '../src/mapperTypes';
+
+const testDir = path.dirname(fileURLToPath(import.meta.url));
+const repoRoot = path.resolve(testDir, '../../..');
 
 const document: TopoDocument = {
   graph: {
@@ -190,6 +196,36 @@ describe('mapper telemetry overlay adapter', () => {
     expect(renderedDocument?.graph?.links?.[0]?.directions?.targetToSource?.style).toBeUndefined();
   });
 
+  it('formats link direction bandwidth labels from bps telemetry', () => {
+    const parsed = parseTopoViewerMapperYaml([
+      'version: 1',
+      'rules:',
+      '  - id: directional-bandwidth',
+      '    metric: interface_direction_bps',
+      '    select: linkDirection',
+      '    join:',
+      '      link: link_id',
+      '      direction: direction',
+      '    style:',
+      '      default:',
+      '        label: "{{ value | bps }}"',
+      '        lineWidth: 4'
+    ].join('\n'));
+
+    expect(parsed.diagnostics).toEqual([]);
+    const overlay = createMapperTelemetryOverlay(document, parsed.mapper, [{
+      metric: 'interface_direction_bps',
+      value: 3_580_000,
+      labels: { link_id: 'pe1-p1', direction: 'targetToSource' },
+      fields: { value: 3_580_000 }
+    }]);
+
+    expect(overlay.linkDirectionStylesById['pe1-p1:targetToSource']).toMatchObject({
+      label: '3.58 Mb/s',
+      lineWidth: 4
+    });
+  });
+
   it('resolves link directions by parent link and direction even when the direction has a custom ID', () => {
     const customDirectionDocument: TopoDocument = {
       graph: {
@@ -238,6 +274,87 @@ describe('mapper telemetry overlay adapter', () => {
       lineColor: '#d32f2f'
     });
     expect(overlay.coverage.resolvedSamples).toBe(1);
+  });
+
+  it('applies the checked-in Containerlab CLOS mapper to links, directions, and nodes', () => {
+    const mapperYaml = fs.readFileSync(
+      path.join(repoRoot, 'labs/grafana-topoviewer/topoviewer-bundles/clab-clos/clab-clos.mapper.tv.yaml'),
+      'utf8'
+    );
+    const parsed = parseTopoViewerMapperYaml(mapperYaml, 'clab-clos mapper');
+    expect(parsed.diagnostics).toEqual([]);
+
+    const clabDocument: TopoDocument = {
+      graph: {
+        id: 'clab-clos',
+        nodes: [
+          { id: 'spine1' },
+          { id: 'leaf1' }
+        ],
+        links: [
+          {
+            id: 'spine1-leaf1',
+            source: 'spine1',
+            target: 'leaf1',
+            directions: {
+              sourceToTarget: {},
+              targetToSource: {}
+            }
+          }
+        ]
+      }
+    };
+
+    const overlay = createMapperTelemetryOverlay(clabDocument, parsed.mapper, [
+      {
+        metric: 'topoviewer_clab_link_up',
+        value: 0,
+        labels: { topology: 'clab-clos', link_id: 'spine1-leaf1' },
+        fields: { value: 0 }
+      },
+      {
+        metric: 'topoviewer_clab_link_direction_utilization_percent',
+        value: 95,
+        labels: { topology: 'clab-clos', link_id: 'spine1-leaf1', direction: 'sourceToTarget' },
+        fields: { value: 95 }
+      },
+      {
+        metric: 'topoviewer_clab_node_health',
+        value: 0,
+        labels: { topology: 'clab-clos', node_id: 'leaf1' },
+        fields: { value: 0 }
+      },
+      {
+        metric: 'topoviewer_clab_adjacency_up',
+        value: 0,
+        labels: { topology: 'clab-clos', link_id: 'spine1-leaf1' },
+        fields: { value: 0 }
+      }
+    ]);
+
+    expect(overlay.coverage).toMatchObject({
+      totalSamples: 4,
+      sourceMatchedSamples: 4,
+      metricMatchedSamples: 4,
+      resolvedSamples: 4
+    });
+    expect(overlay.linkStylesById['spine1-leaf1']).toMatchObject({
+      label: 'DOWN',
+      lineColor: '#d32f2f',
+      lineStyle: 'dashed',
+      sourceLabel: 'adjacency',
+      targetLabel: 'down'
+    });
+    expect(overlay.linkDirectionStylesById['spine1-leaf1:sourceToTarget']).toMatchObject({
+      label: 'sourceToTarget saturated 95%',
+      lineColor: '#d32f2f',
+      lineWidth: 7
+    });
+    expect(overlay.nodeStylesById.leaf1).toMatchObject({
+      badgeLabel: 'NODE',
+      outlineColor: '#d32f2f',
+      statusColor: '#d32f2f'
+    });
   });
 
   it('classifies unresolved link direction samples by missing parent, missing direction, and unsupported direction', () => {

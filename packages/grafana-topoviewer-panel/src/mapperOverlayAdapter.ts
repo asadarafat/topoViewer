@@ -239,6 +239,23 @@ function severityAccent(severity: TelemetrySeverity, palette?: MapperSeverityPal
   return entry?.accent || entry?.color || accentColorForTelemetrySeverity(severity) || severityColor(severity, palette);
 }
 
+function formatBitsPerSecond(value: unknown): string {
+  const numeric = numericValue(value);
+  if (numeric === undefined) return '';
+  const absolute = Math.abs(numeric);
+  const units = [
+    { suffix: 'Tb/s', factor: 1_000_000_000_000 },
+    { suffix: 'Gb/s', factor: 1_000_000_000 },
+    { suffix: 'Mb/s', factor: 1_000_000 },
+    { suffix: 'kb/s', factor: 1_000 }
+  ];
+  const unit = units.find((candidate) => absolute >= candidate.factor);
+  if (!unit) return `${Math.round(numeric)} b/s`;
+  const scaled = numeric / unit.factor;
+  const precision = Math.abs(scaled) >= 10 ? 1 : 2;
+  return `${Number(scaled.toFixed(precision))} ${unit.suffix}`;
+}
+
 function renderTemplate(template: string | undefined, sample: MapperTelemetrySample, rule: MapperRule, entity: MapperOverlayEntity, severity: TelemetrySeverity): string | undefined {
   if (!template) return undefined;
   const value = metricValue(sample, rule);
@@ -255,6 +272,7 @@ function renderTemplate(template: string | undefined, sample: MapperTelemetrySam
       const numeric = numericValue(replacement);
       return numeric === undefined ? '' : String(Math.round(numeric));
     }
+    if (rawPipe === 'bps') return formatBitsPerSecond(replacement);
     return replacement === undefined || replacement === null ? '' : String(replacement);
   });
 }

@@ -1,0 +1,108 @@
+layout:
+  mode: manual
+  width: 760
+  height: 620
+icons:
+  srlinux:
+    glyph: SRL
+    fill: "#001135"
+    stroke: "#90caf9"
+  host:
+    glyph: H
+    fill: "#374151"
+    stroke: "#d1d5db"
+labelFields:
+  - name
+stylesheet:
+  - selector: region
+    style:
+      backgroundColor: "rgba(25, 118, 210, 0.08)"
+      borderColor: "rgba(66, 165, 245, 0.34)"
+      borderWidth: 2
+      labelPosition: topCenter
+      labelMargin: 12
+      labelColor: var(--topoviewer-region-label-fg)
+      labelBackgroundColor: var(--topoviewer-region-label-bg)
+      labelZIndex: 5
+      zIndex: -20
+  - selector: node
+    style:
+      icon: srlinux
+      shape: square
+      width: 64
+      height: 64
+      borderWidth: 3
+      labelColor: var(--topoviewer-fg-strong)
+      labelFontWeight: 800
+      labelBackgroundColor: var(--topoviewer-panel-bg)
+      labelBackgroundOpacity: 0.92
+      labelBorderColor: var(--topoviewer-border)
+      labelBorderWidth: 1
+      labelPadding: 4
+      labelYOffset: 8
+      labelZIndex: 20
+      metaColor: transparent
+  - selector: node[labels.role = "spine"]
+    style:
+      outlineColor: "#9c27b0"
+      outlineWidth: 4
+      outlineOpacity: 0.48
+      labelPosition: top
+      labelYOffset: -8
+  - selector: node[labels.role = "leaf"]
+    style:
+      outlineColor: "#1976d2"
+      outlineWidth: 4
+      outlineOpacity: 0.38
+  - selector: node[labels.role = "workload"]
+    style:
+      icon: host
+      width: 52
+      height: 52
+      borderWidth: 2
+      outlineColor: "#9ca3af"
+      outlineWidth: 2
+      outlineOpacity: 0.24
+  - selector: link
+    style:
+      curveStyle: straight
+      anchor: floating
+      lineColor: "rgba(144, 164, 174, 0.74)"
+      lineWidth: 3
+      lineCap: round
+      targetArrowShape: none
+      textBackgroundColor: var(--topoviewer-edge-label-bg)
+      labelColor: var(--topoviewer-fg-strong)
+      interactionWidth: 18
+      directionalStrokes: true
+      directionStartGap: 0
+      directionCenterGap: 54
+      directionLabelOffset: -24
+  - selector: link[labels.link = "access"]
+    style:
+      directionalStrokes: false
+      lineWidth: 2
+      lineColor: "rgba(148, 163, 184, 0.58)"
+      lineStyle: dotted
+  - selector: linkDirection
+    style:
+      lineWidth: 3
+      sourceArrowSize: 10
+      targetArrowSize: 10
+      directionStartGap: 0
+      lineCap: round
+      labelFontSize: 10
+      labelFontWeight: 800
+      labelColor: var(--topoviewer-fg-strong)
+      textBackgroundColor: var(--topoviewer-edge-label-bg)
+      textBackgroundOpacity: 0.92
+  - selector: linkDirection[direction = "sourceToTarget"]
+    style:
+      lineColor: "#4caf50"
+      targetArrowShape: triangle
+      targetArrowColor: "#4caf50"
+  - selector: linkDirection[direction = "targetToSource"]
+    style:
+      lineColor: "#42a5f5"
+      sourceArrowShape: triangle
+      sourceArrowColor: "#42a5f5"

@@ -1,0 +1,208 @@
+{
+  "annotations": {
+    "list": []
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "topoviewer-prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 18,
+        "w": 18,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "controlsOpen": false,
+        "fixtureId": "clos-2spine-4leaf",
+        "interaction": {
+          "allowNodeDrag": true,
+          "enabled": true,
+          "persistNodePositions": "session",
+          "persistSelection": "session",
+          "persistViewport": "session",
+          "resetOnTopologyIdentityChange": true
+        },
+        "mountedBundle": {
+          "bundleRoot": "/etc/topoviewer/bundles",
+          "selectedBundleId": "clab-clos"
+        },
+        "showControls": true,
+        "sourceMode": "mountedBundle",
+        "telemetry": {
+          "enabled": true,
+          "errorPercent": 90,
+          "infoPercent": 50,
+          "warningPercent": 80
+        },
+        "themeMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "topoviewer-prometheus"
+          },
+          "editorMode": "code",
+          "expr": "topoviewer_clab_link_up{topology=\"clab-clos\"}",
+          "format": "time_series",
+          "instant": true,
+          "legendFormat": "{{link_id}} up",
+          "range": false,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "topoviewer-prometheus"
+          },
+          "editorMode": "code",
+          "expr": "topoviewer_clab_link_utilization_percent{topology=\"clab-clos\"}",
+          "format": "time_series",
+          "instant": true,
+          "legendFormat": "{{link_id}} utilization",
+          "range": false,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "topoviewer-prometheus"
+          },
+          "editorMode": "code",
+          "expr": "topoviewer_clab_link_direction_utilization_percent{topology=\"clab-clos\"}",
+          "format": "time_series",
+          "instant": true,
+          "legendFormat": "{{link_id}} {{direction}} utilization",
+          "range": false,
+          "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "topoviewer-prometheus"
+          },
+          "editorMode": "code",
+          "expr": "topoviewer_clab_node_health{topology=\"clab-clos\"}",
+          "format": "time_series",
+          "instant": true,
+          "legendFormat": "{{node_id}} health",
+          "range": false,
+          "refId": "D"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "topoviewer-prometheus"
+          },
+          "editorMode": "code",
+          "expr": "topoviewer_clab_adjacency_up{topology=\"clab-clos\"}",
+          "format": "time_series",
+          "instant": true,
+          "legendFormat": "{{link_id}} adjacency",
+          "range": false,
+          "refId": "E"
+        }
+      ],
+      "title": "TopoViewer Containerlab",
+      "type": "asadarafat-topoviewer-panel"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "topoviewer-prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 6,
+        "x": 18,
+        "y": 0
+      },
+      "id": 2,
+      "options": {
+        "content": "Containerlab Phase 5 validates the mounted-bundle workflow with live SR Linux telemetry collected through gNMIc, normalized into mapper-friendly Prometheus labels, and applied by `clab-clos.mapper.tv.yaml` at runtime. Use `npm run grafana:clab:smoke` to capture before/after artifacts.",
+        "mode": "markdown"
+      },
+      "pluginVersion": "13.1.0",
+      "title": "Workflow",
+      "type": "text"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "topoviewer-prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 6,
+        "x": 18,
+        "y": 9
+      },
+      "id": 3,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "topoviewer-prometheus"
+          },
+          "editorMode": "code",
+          "expr": "up",
+          "instant": true,
+          "legendFormat": "{{job}} {{instance}}",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Scrape Targets",
+      "type": "timeseries"
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 42,
+  "tags": [
+    "topoviewer",
+    "containerlab"
+  ],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-15m",
+    "to": "now"
+  },
+  "timezone": "browser",
+  "title": "TopoViewer Containerlab Phase 5",
+  "uid": "topoviewer-clab",
+  "version": 1
+}

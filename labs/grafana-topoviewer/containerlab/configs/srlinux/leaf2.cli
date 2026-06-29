@@ -1,0 +1,22 @@
+set / system information location "TopoViewer Grafana Phase 5 leaf2"
+set / system information contact "TopoViewer lab"
+set / interface ethernet-1/1 admin-state enable
+set / interface ethernet-1/2 admin-state enable
+set / interface ethernet-1/10 admin-state enable
+set / interface ethernet-1/1 subinterface 0 admin-state enable
+set / interface ethernet-1/2 subinterface 0 admin-state enable
+set / interface ethernet-1/10 subinterface 0 admin-state enable
+set / interface ethernet-1/1 subinterface 0 ipv4 admin-state enable
+set / interface ethernet-1/2 subinterface 0 ipv4 admin-state enable
+set / interface ethernet-1/10 subinterface 0 ipv4 admin-state enable
+set / interface ethernet-1/1 subinterface 0 ipv4 address 10.0.12.1/31
+set / interface ethernet-1/2 subinterface 0 ipv4 address 10.0.22.1/31
+set / interface ethernet-1/10 subinterface 0 ipv4 address 192.0.2.12/31
+set / network-instance default type default
+set / network-instance default admin-state enable
+set / network-instance default interface ethernet-1/1.0
+set / network-instance default interface ethernet-1/2.0
+set / network-instance default interface ethernet-1/10.0
+set / network-instance default next-hop-groups group client1 nexthop 1 ip-address 10.0.12.0
+set / network-instance default next-hop-groups group client1 nexthop 2 ip-address 10.0.22.0
+set / network-instance default static-routes route 192.0.2.10/31 next-hop-group client1

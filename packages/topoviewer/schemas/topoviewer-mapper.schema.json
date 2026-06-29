@@ -363,7 +363,7 @@
         },
         "style": {
           "type": "object",
-          "description": "TopoViewer style patch applied when the condition matches. String values may use mapper templates such as {{ value }}, {{ value | round }}, {{ severity }}, {{ metric }}, {{ target.id }}, {{ label.name }}, and {{ field.name }}.",
+          "description": "TopoViewer style patch applied when the condition matches. String values may use mapper templates such as {{ value }}, {{ value | round }}, {{ value | bps }}, {{ severity }}, {{ metric }}, {{ target.id }}, {{ label.name }}, and {{ field.name }}.",
           "additionalProperties": true
         }
       }

@@ -7,8 +7,9 @@ Phase 1 renders canonical browser harness fixtures inside a pinned local
 Grafana lab. Phase 2 adds a local Prometheus weathermap slice. Phase 3 adds
 local interaction-state persistence for viewport, selection, and node drag
 overrides. Phase 4 adds mounted Topology-as-Code bundles plus mapper-driven
-runtime overlays. Plugin signing, Containerlab, and supported release packaging
-remain later phases.
+runtime overlays. Phase 5 adds an optional Containerlab SR Linux telemetry lab
+that validates the same mounted bundle and mapper path against live Prometheus
+data. Plugin signing and supported release packaging remain later phases.
 
 ## Commands
 
@@ -18,6 +19,14 @@ Production-shaped local lab:
 npm run grafana:lab:up
 npm run grafana:lab:smoke:phase4
 npm run grafana:lab:down
+```
+
+Real telemetry Containerlab lab:
+
+```bash
+npm run grafana:clab:up
+npm run grafana:clab:smoke
+npm run grafana:clab:down
 ```
 
 Panel checks:
@@ -221,8 +230,8 @@ conditions. Canonical condition checks can test computed `severity`, the
 selected metric `value`, a Grafana data-frame `label`, or a Grafana data-frame
 `field`. Condition style patches use TopoViewer style keys and string values
 may use templates such as `{{ value }}`, `{{ value | round }}`,
-`{{ severity }}`, `{{ metric }}`, `{{ target.id }}`, `{{ label.name }}`, and
-`{{ field.name }}`.
+`{{ value | bps }}`, `{{ severity }}`, `{{ metric }}`, `{{ target.id }}`,
+`{{ label.name }}`, and `{{ field.name }}`.
 
 Directional links use the same compact mapper model, but the most ergonomic
 join uses two stable telemetry labels: the parent `link_id` and the direction
@@ -230,26 +239,25 @@ key from the topology YAML.
 
 ```yaml
 rules:
-  - id: directional-utilization
-    metric: interface_direction_utilization_percent
+  - id: directional-bandwidth
+    metric: interface_direction_bps
     select: linkDirection
     join:
       link: link_id
       direction: direction
-    value: percent
     states:
-      busy: ">=70"
-      saturated: ">=90"
+      busy: ">=1000000000"
+      saturated: ">=5000000000"
     style:
       default:
-        label: "{{ value | round }}%"
+        label: "{{ value | bps }}"
         lineColor: "#4caf50"
         lineWidth: 4
       busy:
         lineColor: "#ff9800"
         lineWidth: 6
       saturated:
-        label: "hot {{ value | round }}%"
+        label: "hot {{ value | bps }}"
         lineColor: "#d32f2f"
         lineWidth: 8
 ```
@@ -373,6 +381,121 @@ immutable; telemetry is applied as a transient TopoViewer extension.
 When mounted YAML changes on disk, use the Grafana dashboard refresh button or
 reload the browser page to refetch `*.topo.tv.yaml`, `*.style.tv.yaml`, and
 `*.mapper.tv.yaml`. The panel also refetches when the selected bundle changes.
+
+## Containerlab Telemetry Lab
+
+The Containerlab lab is the real-telemetry validation path. It starts a compact
+CLOS-like SR Linux fabric, gNMIc, Prometheus, Grafana, and a TopoViewer
+normalizer. Grafana mounts the local panel build and the same bundle root used
+by the mounted-bundle workflow:
+
+```text
+/etc/topoviewer/bundles/clab-clos/
+  clab-clos.topo.tv.yaml
+  clab-clos.style.tv.yaml
+  clab-clos.mapper.tv.yaml
+```
+
+The normalizer converts live gNMIc metrics into stable TopoViewer join labels:
+`topology`, `node_id`, `link_id`, `source`, `target`, `interface`, and
+`direction`. The mapper then applies runtime overlays to nodes, links, and link
+directions. No Containerlab-specific style logic exists in the panel.
+
+The lab configures a routed client path through the SR Linux fabric. Use these
+commands to generate visible interface counter movement:
+
+```bash
+npm run grafana:clab:traffic:start
+npm run grafana:clab:traffic:status
+npm run grafana:clab:traffic:stop
+```
+
+Default URLs after startup:
+
+```text
+Grafana:    http://127.0.0.1:3001/d/topoviewer-clab/topoviewer-containerlab-phase-5
+Prometheus: http://127.0.0.1:9091
+gNMIc:      http://127.0.0.1:9804/metrics
+Normalizer: http://127.0.0.1:9110/health
+```
+
+Artifacts from `npm run grafana:clab:smoke` are written under
+`.artifacts/grafana-containerlab/`.
+
+### Upstream-Candidate Containerlab Smoke
+
+Phase 5 also tracks an upstream-candidate lab that keeps the existing streaming
+telemetry lab shape and adds TopoViewer with the smallest useful delta. That
+path should use Prometheus recording rules for mapper-friendly labels and should
+not depend on the repo-local normalizer.
+
+The production plugin contract is:
+
+- release mode: unpack a pinned TopoViewer Grafana panel artifact into the
+  lab's plugin install directory;
+- development mode: symlink or copy a local `packages/grafana-topoviewer-panel/dist`
+  build into the same directory.
+
+The upstream-candidate patch must not vendor the plugin `dist` directory and
+must not hard-code this monorepo's local path. After deploying that lab and
+starting traffic, validate it with:
+
+```bash
+GRAFANA_URL=http://127.0.0.1:3000 \
+PROMETHEUS_URL=http://127.0.0.1:9090 \
+npm run grafana:clab:smoke:upstream
+```
+
+The smoke checks Grafana, plugin registration, mounted bundle discovery,
+Prometheus recording rules, live directional traffic, mapper coverage, and a
+dashboard screenshot. The default artifact directory is
+`.artifacts/grafana-upstream/`.
+
+Fresh-checkout operator workflow for the upstream-candidate lab:
+
+```bash
+# 1. Unpack a pinned TopoViewer Grafana panel artifact into the lab checkout.
+mkdir -p configs/grafana/plugins/asadarafat-topoviewer-panel
+
+# 2. Deploy the lab.
+containerlab deploy --topo st.clab.yml
+
+# 3. Start visible traffic.
+bash traffic.sh start all
+
+# 4. Compare the dashboards in a browser:
+#    Original: http://127.0.0.1:3000/d/ce11ch1funwu8d/network-telemetry
+#    B:        http://127.0.0.1:3000/d/network-telemetry-topoviewer/network-telemetry-topoviewer
+```
+
+The mounted bundle is:
+
+```text
+configs/grafana/topoviewer-bundles/st-clos/
+  st-clos.topo.tv.yaml
+  st-clos.style.tv.yaml
+  st-clos.mapper.tv.yaml
+```
+
+The mapper is backed by Prometheus recording rules:
+
+- `topoviewer_st_link_up`
+- `topoviewer_st_link_direction_bps`
+
+Both include `topology="st-clos"` and stable TopoViewer join labels such as
+`link_id` and `direction`. The checked-in mapper renders direction bandwidth
+labels with `label: "{{ value | bps }}"`.
+
+The recording rules should be generated from topology telemetry bindings rather
+than maintained as a separate mapping table. In the CLOS lab, each topology link
+declares raw Prometheus labels under `data.telemetry`, and each direction
+declares raw traffic labels under `directions.<direction>.data.telemetry.bps`.
+The generator emits `topoviewer_st_link_up` and
+`topoviewer_st_link_direction_bps` with stable `link_id` and `direction` labels.
+
+If the provisioned dashboard cannot be saved from the Grafana UI, persist the
+change in `configs/grafana/dashboards/telemetry-dashboard-topoviewer.json` or
+save an editable copy for local exploration.
 
 ## Interaction State
 

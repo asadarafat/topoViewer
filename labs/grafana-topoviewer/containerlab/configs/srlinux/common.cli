@@ -1,0 +1,13 @@
+set / system information location "TopoViewer Grafana Phase 5"
+set / system information contact "TopoViewer lab"
+set / interface ethernet-1/1 admin-state enable
+set / interface ethernet-1/2 admin-state enable
+set / interface ethernet-1/10 admin-state enable
+set / interface ethernet-1/1 subinterface 0 admin-state enable
+set / interface ethernet-1/2 subinterface 0 admin-state enable
+set / interface ethernet-1/10 subinterface 0 admin-state enable
+set / network-instance default type default
+set / network-instance default admin-state enable
+set / network-instance default interface ethernet-1/1.0
+set / network-instance default interface ethernet-1/2.0
+set / network-instance default interface ethernet-1/10.0

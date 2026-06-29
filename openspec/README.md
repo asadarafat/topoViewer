@@ -11,6 +11,7 @@ Current active plans:
 - `changes/define-grafana-integration-roadmap/` - phased Grafana feasibility roadmap covering panel/harness parity, Prometheus weathermap, interactive runtime state, mounted bundle mapper foundation, Containerlab telemetry, and later Codespaces portability.
 - `changes/implement-grafana-containerlab-phase-5/` - planned `topoviewer-grafana` Containerlab telemetry lab with SR Linux, gNMIc, Prometheus, mounted TopoViewer bundles, and mapper-driven live overlays.
 - `changes/harden-link-direction-lanes/` - planned production hardening for direction lane geometry, physical parallel-link behavior, direction-specific interaction, attention, mapper coverage, mounted-bundle examples, and cross-surface parity.
+- `changes/harden-public-adoption-readiness/` - planned public repository and documentation hardening so the stable TopoViewer core, first-run workflow, support boundaries, curated examples, and quality gates are clear enough for broad external adoption.
 
 Current studies:
 

@@ -157,12 +157,14 @@ stylesheet:
       label: ""
       textBackgroundColor: var(--topoviewer-edge-label-bg)
       directionalStrokes: true
-      directionStartGap: 18
+      directionStartGap: 0
       directionCenterGap: 56
       directionLabelOffset: 12
   - selector: linkDirection
     style:
       lineWidth: 3
+      sourceArrowSize: 10
+      targetArrowSize: 10
       lineCap: round
       labelFontSize: 10
       labelFontWeight: 800
