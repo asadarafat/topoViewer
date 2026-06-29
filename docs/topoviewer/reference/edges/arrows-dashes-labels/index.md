@@ -7,11 +7,11 @@ hide:
 
 ## What This Demonstrates
 
-Arrows, dashes, and labels are edge styling. The request and reply links use opposite directions, so the endpoint labels make it clear that `sourceLabel` follows the edge source and `targetLabel` follows the edge target. The x/y offsets pull the labels away from the node icons.
+Arrows, dashes, and labels are edge styling. The request and reply links use the same `lineDashPattern` but different `lineDashOffset` values, so the rendered dash cadence is visibly phase-shifted. Endpoint labels make it clear that `sourceLabel` follows the edge source and `targetLabel` follows the edge target.
 
 ## Expected Result
 
-The live viewport should render "Arrows, dashes, and labels" without blocking diagnostics. It should show: Edges can carry labels, arrows, and dash patterns without changing topology semantics. The test metadata expects `graphNodes`: `2`, `minVisibleEdges`: `2`.
+The live viewport should render "Arrows, dashes, and labels" without blocking diagnostics. It should show: Edges can carry labels, arrows, dash patterns, and dash offsets without changing topology semantics. The test metadata expects `graphNodes`: `2`, `minVisibleEdges`: `2`.
 
 ## What To Inspect
 

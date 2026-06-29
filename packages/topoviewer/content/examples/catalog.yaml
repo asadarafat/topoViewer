@@ -104,7 +104,7 @@ examples:
     feature: edges
     path: edges/arrows-dashes-labels
     page: topoviewer/reference/edges/arrows-dashes-labels
-    summary: Edges can carry labels, arrows, and dash patterns without changing topology semantics.
+    summary: Edges can carry labels, arrows, dash patterns, and dash offsets without changing topology semantics.
     render:
       height: 420px
       controls: true

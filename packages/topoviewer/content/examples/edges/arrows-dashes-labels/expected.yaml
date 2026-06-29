@@ -5,6 +5,8 @@ dom:
   minVisibleEdges: 2
 assertions:
   edgeLabels: true
+  edgeDashPatterns: "14 6,14 6"
+  edgeDashOffsets: "0,10"
 semantic:
   errors: []
   warnings: []
