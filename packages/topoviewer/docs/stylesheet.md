@@ -2,7 +2,53 @@
 
 TopoViewer uses a selector stylesheet inspired by Cytoscape, then compiles matched rules into React Flow nodes and edges. Do not author React Flow internals directly in topology YAML. Keep graph facts in topology and presentation policy in the stylesheet.
 
-## Top-Level Shape
+Use this page in two passes:
+
+1. Start with the authoring workflow and file anatomy.
+2. Use the style key reference only when you need the exact key, accepted values, and defaults.
+
+## Authoring Workflow
+
+A production stylesheet usually follows this order:
+
+1. Set `layout` so every surface has the same viewport and layout policy.
+2. Define reusable `icons` once.
+3. Set broad defaults with selectors such as `node`, `link`, `path`, and `region`.
+4. Add label/data-specific rules such as `node[labels.role = "leaf"]`.
+5. Use per-object inline `style` only for exceptions that belong to one object.
+
+```yaml
+layout:
+  mode: manual
+  width: 860
+  height: 420
+
+icons:
+  router.generic:
+    glyph: R
+    fill: "#1976d2"
+    stroke: "#bbdefb"
+
+stylesheet:
+  - selector: node
+    style:
+      icon: router.generic
+      shape: rectangle
+      width: 82
+      height: 60
+  - selector: node[labels.role = "leaf"]
+    style:
+      outlineColor: "#1976d2"
+      outlineWidth: 3
+  - selector: link
+    style:
+      curveStyle: straight
+      lineWidth: 3
+```
+
+## File Anatomy
+
+Stylesheet YAML can define layout policy, reusable icon assets, label extraction, and ordered style rules.
 
 ```yaml
 $schema: ../../schemas/topoviewer-stylesheet.schema.json
@@ -28,7 +74,19 @@ stylesheet:
       height: 60
 ```
 
-## Selectors
+| Section | Purpose |
+|---|---|
+| `$schema` | Optional editor/schema hint. |
+| `layout` | Default viewport and layout policy. |
+| `icons` | Reusable glyph, image, data URI, or inline SVG assets. |
+| `labelFields` | Data fields rendered as primary labels when object labels are not explicit. |
+| `stylesheet` | Ordered selector rules that turn topology facts into visual presentation. |
+
+## Rule Model
+
+Rules have a `selector` and a `style` object. Rules are applied in order; later matching rules override earlier matching rules. Per-object `style` overrides matched stylesheet values last.
+
+### Selector Subjects
 
 Supported subject kinds:
 
@@ -55,7 +113,17 @@ Supported conditions:
 | `callout[labels.callout = "srrp"]` | Style line-only callout relationships. |
 | `link[data.metric = "20"]` | Match nested data value. |
 
-Rules are applied in order. Later matching rules override earlier rules. Per-object `style` overrides matched stylesheet values last.
+### Precedence
+
+For any object, TopoViewer resolves style in this order:
+
+1. canonical style defaults;
+2. broad stylesheet rules, such as `node`;
+3. narrower stylesheet rules, such as `node[labels.vendor = "nokia"]`;
+4. later matching rules overriding earlier matching rules;
+5. inline object `style`.
+
+Use inline object style sparingly. It is useful for one-off exceptions, but reusable visual policy belongs in `stylesheet`.
 
 ## Icons
 
@@ -165,7 +233,94 @@ Important defaults:
 - Diagram shapes default to `shape: rectangle`, `width: 180`, `height: 72`, `strokeWidth: 2`, draggable, non-selectable, and `zIndex: -10`.
 - Callouts default to `width: 320`, `height: 120`, `textAlign: left`, draggable, non-selectable, and `zIndex: 30`.
 
-## Node Style Keys
+## Common Recipes
+
+### Broad Defaults Then Classification
+
+Start with broad defaults, then classify with labels from topology YAML.
+
+```yaml
+stylesheet:
+  - selector: node
+    style:
+      icon: router.generic
+      width: 82
+      height: 60
+      labelColor: var(--topoviewer-fg-strong)
+  - selector: node[labels.vendor = "nokia"]
+    style:
+      icon: router.nokia
+  - selector: node[labels.role = "leaf"]
+    style:
+      outlineColor: "#1976d2"
+      outlineWidth: 3
+```
+
+### Theme-Safe Labels
+
+In MkDocs, Zensical, the harness, and Grafana, prefer TopoViewer CSS variables for labels and surfaces.
+
+```yaml
+stylesheet:
+  - selector: node
+    style:
+      labelColor: var(--topoviewer-fg-strong)
+      labelBackgroundColor: var(--topoviewer-panel-bg)
+  - selector: link
+    style:
+      labelColor: var(--topoviewer-fg-strong)
+      textBackgroundColor: var(--topoviewer-edge-label-bg)
+```
+
+### Explicit Dash Pattern And Offset
+
+Use `lineStyle: dashed` for a quick dash. Use `lineDashPattern` and `lineDashOffset` when the exact visual cadence matters.
+
+```yaml
+stylesheet:
+  - selector: link[labels.direction = "request"]
+    style:
+      lineWidth: 4
+      lineCap: round
+      lineDashPattern: 14 6
+      lineDashOffset: 0
+  - selector: link[labels.direction = "reply"]
+    style:
+      lineWidth: 4
+      lineCap: round
+      lineDashPattern: 14 6
+      lineDashOffset: 10
+```
+
+`14 6` means paint 14px, skip 6px, repeat. `lineDashOffset: 10` shifts the same pattern 10px along the path, which makes opposite-direction or parallel dashed links easier to distinguish.
+
+### Directional Link Strokes
+
+Use `link.directions` in topology YAML when one physical adjacency needs two independently styled telemetry directions. Use the virtual `linkDirection` selector in stylesheet YAML.
+
+```yaml
+stylesheet:
+  - selector: link
+    style:
+      directionalStrokes: true
+      directionCenterGap: 64
+      directionStartGap: 18
+  - selector: linkDirection[direction = "sourceToTarget"]
+    style:
+      lineColor: "#4caf50"
+      targetArrowShape: triangle
+  - selector: linkDirection[direction = "targetToSource"]
+    style:
+      lineColor: "#ff9800"
+      sourceArrowShape: triangle
+      lineStyle: dashed
+```
+
+## Style Key Reference
+
+The following sections list the supported style keys by rendered object type. Style keys are canonical `camelCase` in both TypeScript and Stylesheet YAML.
+
+### Node Style Keys
 
 Node `name` and `label` values are rendered as safe inline markdown. Supported label markup is `**bold**`, `*italic*`, `++underline++`, `~~strike~~`, inline code with backticks, links, and images. Raw HTML is escaped.
 
@@ -180,7 +335,7 @@ stylesheet:
 
 Hardcoded pale labels such as `#e5e7eb` look good in dark mode but disappear in light mode because `labelColor` is compiled into an inline style and overrides the theme fallback.
 
-## Node sizing
+#### Node Sizing
 
 Use `width` and `height` for the visible node body. The node shape, border, underlay, edge anchor, and default icon/image area use this body size.
 
@@ -208,7 +363,7 @@ stylesheet:
       iconFit: contain
 ```
 
-## Icon fit
+#### Icon Fit
 
 `iconFit` controls how SVG and image icons are fitted inside the node body. The node body is the fitting and clipping boundary, so circular and polygonal nodes do not expose a square icon background. Use `iconPadding` when the icon needs inset spacing inside the node boundary.
 
@@ -281,11 +436,10 @@ stylesheet:
 
 Badges and status markers are intentionally compact. For dense aggregate nodes, TopoViewer can use attention aggregate summary data as defaults: hidden member count becomes a badge, and known worst severity becomes a status color. Explicit stylesheet or per-node style keys override those generated defaults.
 
-## Link and Path Style Keys
+### Link and Path Style Keys
 
 Links, paths, callout lines, and virtual `linkDirection` strokes share compatible edge style keys. `linkDirection` applies only to `graph.links[].directions.*` strokes; it does not create another physical link.
 Edge labels, including source and target endpoint labels, render when the `showEdgeLabels` toggle is enabled.
-TopoViewer style keys are canonical `camelCase` in both TypeScript and Stylesheet YAML.
 
 | Key | Values | Use |
 |---|---|---|
@@ -302,9 +456,9 @@ TopoViewer style keys are canonical `camelCase` in both TypeScript and Styleshee
 | `controlPointWeight` | number | Control-point weight from source to target. Defaults to `0.5`. |
 | `edgeDistances` | `intersection`, `nodePosition`, `endpoints` | Cytoscape-compatible edge distance hint for control-point calculations. |
 | `laneWidth`, `laneGap` | number | Child link/path lane width and spacing when it is carried by a parent link or parent path. |
-| `lineStyle` | `solid`, `dashed`, `dotted` | Convenience dash style. Defaults to `solid`. |
-| `lineDashPattern` | string or number list | Explicit SVG dash pattern, for example `3 6` or `[3, 6]`. |
-| `lineDashOffset` | number | Dash offset for animated or phase-shifted dashed edges. |
+| `lineStyle` | `solid`, `dashed`, `dotted` | Convenience dash style. Defaults to `solid`. Use `lineDashPattern` when you need exact dash/gap lengths. |
+| `lineDashPattern` | string or number list | Explicit SVG dash pattern in pixels. Values alternate painted length and gap length: `14 6` means paint 14px, skip 6px, repeat. Equivalent forms are `14 6`, `"14 6"`, or `[14, 6]`. Longer patterns are allowed, for example `16 4 3 4`. |
+| `lineDashOffset` | number | Pixel phase shift for `lineDashPattern`. `0` starts the pattern at the edge path start; `10` shifts the same pattern 10px along the path, useful for making parallel or opposite-direction dashed links visibly distinct. |
 | `lineCap` | `butt`, `round`, `square` | SVG stroke cap. |
 | `lineOpacity` | number | Edge line opacity without changing label opacity. |
 | `lineOutlineWidth` | number | Draws an outline behind the edge line. |
@@ -353,7 +507,7 @@ TopoViewer style keys are canonical `camelCase` in both TypeScript and Styleshee
 
 This is a practical TopoViewer subset rather than full Cytoscape edge parity. Self-loop controls, haystack radius, overlay/underlay, ghost effects, radial gradients, and broad transition controls are intentionally not part of the declarative edge surface yet.
 
-## Region Style Keys
+### Region Style Keys
 
 | Key | Values | Use |
 |---|---|---|
@@ -372,7 +526,7 @@ This is a practical TopoViewer subset rather than full Cytoscape edge parity. Se
 
 `labelMargin` moves the label relative to the region border; it does not resize the hull. Use region sizing fields such as `headerPadding`, `paddingX`, and `paddingY` when the label needs reserved interior space away from member nodes.
 
-## Shape Style Keys
+### Shape Style Keys
 
 Shapes are geometry-only diagram primitives under `diagram.shapes`. Use callouts for labels, rich text, links, and images.
 
@@ -394,7 +548,7 @@ Supported 2D geometry types are `circle`, `triangle`, `square`, `rectangle`, `pe
 
 Supported 3D geometry types are `cube`, `cuboid`, `sphere`, `cone`, `cylinder`, `pyramid`, and `prism`.
 
-## Callout Style Keys
+### Callout Style Keys
 
 Callouts are markdown text boxes and line-only relationships under `diagram.callouts`.
 
@@ -416,32 +570,9 @@ Callouts are markdown text boxes and line-only relationships under `diagram.call
 
 Callouts that define `source`/`target`, `sourcePosition`, or `targetPosition` use the link/path edge keys above for their line styling.
 
-## Practical Pattern
+## Related Examples
 
-Use broad defaults first, then classify with labels.
-
-```yaml
-stylesheet:
-  - selector: node
-    style:
-      icon: router.generic
-      width: 82
-      height: 60
-  - selector: node[labels.vendor = "nokia"]
-    style:
-      icon: router.nokia
-  - selector: link[labels.protocol = "pcep"]
-    style:
-      label: PCEP
-      curveStyle: unbundled-bezier
-      lineColor: '#ffd166'
-      lineDashPattern: 3 6
-      targetArrowShape: triangle
-  - selector: path[labels.protocol = "sr-te"]
-    style:
-      label: Transport path
-      curveStyle: smooth-taxi
-      lineColor: '#ff6b9a'
-      lineWidth: 3
-      animated: true
-```
+- [Arrows, dashes, and labels](reference/edges/arrows-dashes-labels/index.md)
+- [Directional link strokes](reference/edges/directional-link-strokes/index.md)
+- [Icon fit and badges](reference/nodes/icon-fit-and-badges/index.md)
+- [Region label placement](reference/regions/region-label-placement/index.md)
