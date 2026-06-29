@@ -62,6 +62,32 @@ Recommended: `name`, `labels`, `layers`
 | `source` | node ID | Required source endpoint. |
 | `target` | node ID | Required target endpoint. |
 | `parent` | link ID | Carries this link inside another link as a child lane. |
+| `directions.sourceToTarget` | direction object | Optional telemetry/render channel from `source` toward `target`. |
+| `directions.targetToSource` | direction object | Optional telemetry/render channel from `target` toward `source`. |
+
+Use `directions` when one physical adjacency has two independently measured operational directions. The parent `link` remains the single physical relationship; `sourceToTarget` and `targetToSource` are directional strokes rendered inside that same link corridor.
+
+```yaml
+links:
+  - id: leaf1-spine1
+    source: leaf1
+    target: spine1
+    directions:
+      sourceToTarget:
+        label: 3.2 Gbps
+        labels:
+          direction: eastbound
+        data:
+          metric: if_out_bps
+      targetToSource:
+        label: 1.1 Gbps
+        labels:
+          direction: westbound
+        data:
+          metric: if_out_bps
+```
+
+Direction objects accept `id`, `name`, `label`, `labels`, `data`, and `style`. If `id` is omitted, TopoViewer derives a stable ID from the parent link ID and direction key, such as `leaf1-spine1:sourceToTarget`.
 
 ### Path
 

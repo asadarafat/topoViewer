@@ -34,6 +34,7 @@ Supported subject kinds:
 
 - `node`
 - `link`
+- `linkDirection`
 - `path`
 - `region`
 - `shape`
@@ -46,6 +47,7 @@ Supported conditions:
 | `node` | All nodes. |
 | `node[labels.vendor = "nokia"]` | Exact match. |
 | `link[labels.protocol = "pcep"]` | Match nested labels. |
+| `linkDirection[direction = "sourceToTarget"]` | Match the source-to-target directional stroke of a link that declares `directions.sourceToTarget`. |
 | `path[labels.protocol ~= "sr-te"]` | List or whitespace-token contains value. |
 | `region[id = "as65000"]` | Match direct entity field. |
 | `shape[labels.shape = "sap"]` | Style diagram shapes. |
@@ -158,7 +160,7 @@ Important defaults:
 
 - Nodes default to `shape: rectangle`, `width: 82`, `height: 60`, `borderWidth: 4`, `labelPosition: bottom`, `badgePosition: topRight`, `statusPlacement: bottomRight`, `draggable: true`, `selectable: true`, and `zIndex: 10`.
 - Node `backgroundColor` and `borderColor` are derived from the selected icon's `fill` and `stroke`.
-- Links and paths default to `curveStyle: bezier`, `anchor: floating`, `lineColor: #6ea8fe`, `lineWidth: 1`, `lineStyle: solid`, `lineFill: solid`, no arrows, `interactive: true`, `labelInteractive: true`, and `zIndex: 6`.
+- Links and paths default to `curveStyle: bezier`, `anchor: floating`, `lineColor: #6ea8fe`, `lineWidth: 1`, `lineStyle: solid`, `lineFill: solid`, no arrows, `interactive: true`, `labelInteractive: true`, and `zIndex: 6`. Links with declared `directions` can render `directionalStrokes` with `directionCenterGap: 48` and `directionStartGap: 14`.
 - Regions default to `shape: roundRectangle`, `labelPosition: topLeft`, `labelMargin: 12`, `borderWidth: 1`, non-draggable, non-selectable, and `zIndex: -20`.
 - Diagram shapes default to `shape: rectangle`, `width: 180`, `height: 72`, `strokeWidth: 2`, draggable, non-selectable, and `zIndex: -10`.
 - Callouts default to `width: 320`, `height: 120`, `textAlign: left`, draggable, non-selectable, and `zIndex: 30`.
@@ -281,7 +283,7 @@ Badges and status markers are intentionally compact. For dense aggregate nodes, 
 
 ## Link and Path Style Keys
 
-Links, paths, and callout lines share the same edge style keys.
+Links, paths, callout lines, and virtual `linkDirection` strokes share compatible edge style keys. `linkDirection` applies only to `graph.links[].directions.*` strokes; it does not create another physical link.
 Edge labels, including source and target endpoint labels, render when the `showEdgeLabels` toggle is enabled.
 TopoViewer style keys are canonical `camelCase` in both TypeScript and Stylesheet YAML.
 
@@ -310,14 +312,21 @@ TopoViewer style keys are canonical `camelCase` in both TypeScript and Styleshee
 | `targetArrowShape`, `sourceArrowShape` | `none`, `triangle`, `vee`, `tee`, `circle`, `diamond` | Directional arrow marker shape. Defaults to `none`. |
 | `arrowColor` | CSS color | Shared marker color fallback. Defaults to line color. |
 | `sourceArrowColor`, `targetArrowColor` | CSS color | Directional marker colors. |
-| `sourceArrowSize`, `targetArrowSize` | number | Directional marker sizes. |
+| `sourceArrowSize`, `targetArrowSize` | number | Directional marker sizes. When omitted, each marker size defaults to the rendered `lineWidth` for that link, path, or `linkDirection` stroke. |
+| `sourceArrowOffset`, `targetArrowOffset` | number | Pixel arrowhead offset. Defaults to `0`, which places the arrow tip on the computed stroke endpoint. Directional strokes trim the visible line before the marker body so the line does not paint underneath the arrowhead; positive values inset the arrowhead from the computed endpoint. |
 | `sourceDistanceFromNode`, `targetDistanceFromNode` | number | Moves the rendered endpoint inward from the node boundary. Short edges are clamped so the path does not collapse. |
+| `directionalStrokes` | boolean | On links with `directions`, render source-to-target and target-to-source as opposing styled strokes on one physical link corridor. Defaults to `false`, but links that declare directions render directional strokes unless explicitly disabled. |
+| `directionCenterGap` | number | Gap between opposing direction arrowheads near the link center. Defaults to `48`. |
+| `directionStartGap` | number | Inset between the node boundary and each visible directional stroke. Defaults to `14`. |
+| `directionLabelPlacement` | `center`, `source`, `target`, `outside` | Placement for directional labels. Defaults to `center`. |
+| `directionLabelOffset` | number | Pixel offset for directional labels relative to their stroke. |
 | `segmentDistances`, `segmentWeights` | number, number list, or string | Explicit bend controls for `curveStyle: segments`. Distances offset from the source-target line; weights place bends between source `0` and target `1`. |
 | `taxiDirection` | `auto`, `vertical`, `downward`, `upward`, `horizontal`, `rightward`, `leftward` | Primary direction for `curveStyle: taxi`. |
 | `taxiTurn`, `taxiTurnMinDistance` | number or percentage string, number | Taxi turn placement and minimum edge length before custom taxi routing applies. |
 | `lineFill` | `solid`, `linearGradient` | Stroke fill model. Defaults to `solid`. |
 | `lineGradientStopColors`, `lineGradientStopPositions` | string list or array | Linear gradient stops when `lineFill: linearGradient`. Positions are optional but must match the number of colors when provided. |
 | `label` | string | Fallback edge label. |
+| `labelXOffset`, `labelYOffset` | number | Pixel offsets for the center edge label relative to the computed midpoint. Defaults to automatic collision-avoidance on directional links and `(0, 0)` on normal links; explicit `0` pins the label to the midpoint. |
 | `sourceLabel` | string | Label rendered at the source endpoint. |
 | `targetLabel` | string | Label rendered at the target endpoint. |
 | `sourceLabelXOffset`, `sourceLabelYOffset` | number | Pixel offsets applied to the source endpoint label. |

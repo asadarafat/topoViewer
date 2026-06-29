@@ -181,6 +181,18 @@ examples:
       graphNodes: 4
       minVisibleEdges: 1
     readme: docs/topoviewer/examples/edges/parent-link-pipe/README.md
+  - id: edges-directional-link-strokes
+    title: Directional link strokes
+    feature: edges
+    path: edges/directional-link-strokes
+    page: topoviewer/reference/edges/directional-link-strokes
+    renderable: true
+    topology: docs/topoviewer/examples/edges/directional-link-strokes/topology.yaml
+    stylesheet: docs/topoviewer/examples/edges/directional-link-strokes/stylesheet.yaml
+    expected:
+      graphNodes: 2
+      minVisibleEdges: 1
+    readme: docs/topoviewer/examples/edges/directional-link-strokes/README.md
   - id: paths-sequenced-path
     title: Sequenced path
     feature: paths

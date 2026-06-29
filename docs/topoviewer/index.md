@@ -32,6 +32,7 @@ TopoViewer renders declarative graph and diagram documents from YAML. The canoni
 - [Gradient and interaction flags](reference/edges/gradient-and-interaction/index.md): Linear gradients and interaction flags can be declared directly on edge style rules.
 - [Floating anchors](reference/edges/floating-anchors/index.md): Floating anchors connect to the nearest point on each node boundary.
 - [Parent link pipe](reference/edges/parent-link-pipe/index.md): A child link can be visually carried inside a parent transport link.
+- [Directional link strokes](reference/edges/directional-link-strokes/index.md): One physical link can show two independently styled traffic directions.
 
 ### Paths
 

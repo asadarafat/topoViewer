@@ -20,7 +20,8 @@ const fixtures = [
   { id: 'clos-2spine-4leaf', sourcePath: 'harness/clos-2spine-4leaf' },
   { id: 'region-label-placement', sourcePath: 'regions/region-label-placement' },
   { id: 'styling-label-z-index', sourcePath: 'styling/label-z-index' },
-  { id: 'layered-network', sourcePath: 'harness/layered-network' }
+  { id: 'layered-network', sourcePath: 'harness/layered-network' },
+  { id: 'directional-link-strokes', sourcePath: 'edges/directional-link-strokes' }
 ];
 
 function fail(message) {

@@ -129,12 +129,50 @@ Telemetry mapping requires stable topology identifiers:
 | --- | --- |
 | `fixture_id` | Selects the matching harness fixture telemetry set. |
 | `link_id` | Primary join key to `graph.links[].id`. |
+| `direction` | Direction key for `linkDirection` overlays: `sourceToTarget` or `targetToSource`. |
 | `source` / `target` | Fallback join key when a metric does not carry `link_id`. |
 | `site` / `pod` | Dashboard filtering and troubleshooting labels. |
 
 The panel keeps canonical topology and stylesheet YAML immutable. Grafana data
 frames are converted into runtime overlays that update link color, width, style,
-label, and endpoint status markers.
+label, directional link strokes, and endpoint status markers.
+
+Directional link telemetry should use the mounted bundle mapper rather than
+duplicating physical links:
+
+```yaml
+rules:
+  - id: fabric-direction-utilization
+    metric: topoviewer_link_direction_utilization_percent
+    select: linkDirection
+    join:
+      link: link_id
+      direction: direction
+    value: percent
+    states:
+      high: ">=80"
+      saturated: ">=90"
+    style:
+      default:
+        label: "{{ label.direction }} {{ value | round }}%"
+      high:
+        lineColor: "#ff9800"
+        lineWidth: 5
+      saturated:
+        lineColor: "#d32f2f"
+        lineWidth: 7
+        lineStyle: dashed
+```
+
+The matching PromQL shape is:
+
+```promql
+topoviewer_link_direction_utilization_percent{fixture_id="clos-2spine-4leaf"}
+```
+
+Coverage diagnostics distinguish unresolved samples, ambiguous endpoint
+matches, missing parent links, missing or unsupported direction keys, duplicate
+direction overlays, and stale static object references.
 
 Phase 3 adds local interaction state:
 

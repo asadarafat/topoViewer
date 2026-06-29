@@ -330,13 +330,13 @@ Built-in scoring recognizes common values such as `critical`, `major`, `minor`, 
 |---|---|---|
 | `document` | `TopoDocument` | Required topology plus stylesheet document. |
 | `selectedLayerIds` | `string[]` | Visible layers. Defaults to all defined layers. |
-| `selectedObjectIds` | `string[]` | Pre-select node/edge object IDs in controlled modes. |
+| `selectedObjectIds` | `string[]` | Pre-select node, edge, path, region, or `linkDirection` object IDs in controlled modes. |
 | `toggles` | `TopoViewerToggles` | Display toggles such as `showRegions`, `showChildNodesInsideParents`, and `showEdgeLabels`. |
 | `layout` | `LayoutConfig` | Optional runtime layout override. |
 | `attention` | `{ query?: FocusQuery; presentation?: AttentionPresentationResult }` | Optional focus query or precomputed attention presentation. Overrides `document.attention` when provided. |
 | `extensions` | `TopoViewerExtension[]` | Optional extension hooks for project-specific node/edge types and compile transforms. |
 | `controlPanelToggle` | `{ enabled?: boolean; open?: boolean; onToggle?: () => void }` | Enables the in-viewport controls button used by embeds. |
-| `onObjectClick` | `(object: TopoViewerObjectClick) => void` | Called when a rendered node or edge is clicked; useful for controlled attention state. |
+| `onObjectClick` | `(object: TopoViewerObjectClick) => void` | Called when a rendered node, edge, or directional link lane is clicked; useful for controlled attention state. |
 | `onPaneClick` | `() => void` | Called when empty viewport space is clicked; use it to clear controlled attention state. |
 | `onNodePositionChange` | `(change: TopoViewerNodePositionChange) => void` | Fired when a node drag ends. |
 | `onViewportChange` | `(viewport: TopoViewerViewport) => void` | Fired on pan/zoom commit; useful for sync/URL persistence. |
@@ -348,6 +348,12 @@ TopoViewer uses React Flow `fitView` so oversized diagrams fit into the
 available viewport, but automatic fit is capped at `zoom: 1`. React Flow's
 default scale is therefore the upper bound: small diagrams are not enlarged
 beyond authored coordinates, while large diagrams can still scale down.
+
+Directional link lanes emit `element: 'linkDirection'`. The event `id` is the
+direction object ID, and `data` includes `linkId`, `parentLinkId`, `direction`,
+`source`, and `target`. The parent physical link remains clickable as
+`element: 'edge'`, so controlled UIs can choose between selecting the whole
+adjacency or only one traffic direction.
 
 ## Production Checklist
 

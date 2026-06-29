@@ -165,6 +165,17 @@ examples:
       controls: true
       controlsOpen: false
       title: Parent link pipe
+  - id: edges-directional-link-strokes
+    title: Directional link strokes
+    feature: edges
+    path: edges/directional-link-strokes
+    page: topoviewer/reference/edges/directional-link-strokes
+    summary: One physical link can show two independently styled traffic directions.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Directional link strokes
   - id: paths-sequenced-path
     title: Sequenced path
     feature: paths

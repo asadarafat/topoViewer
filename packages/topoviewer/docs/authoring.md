@@ -378,6 +378,45 @@ links:
 
 When a parent link has visible child links, TopoViewer renders the parent as a pipe/corridor and renders the child links as lanes along the parent route. The child link keeps its own source and target as graph facts, but its rendered lane follows the parent link geometry.
 
+Use `directions` when the topology has one physical link but telemetry differs by direction. This is different from two explicit links: the graph still has one adjacency, while the renderer shows two opposing strokes inside the same corridor.
+
+```yaml
+links:
+  - id: leaf1-spine1
+    source: leaf1
+    target: spine1
+    labels:
+      link: fabric
+    directions:
+      sourceToTarget:
+        label: 3.2 Gbps
+        data:
+          metric: if_out_bps
+      targetToSource:
+        label: 1.1 Gbps
+        data:
+          metric: if_out_bps
+```
+
+Style directions with the virtual `linkDirection` selector:
+
+```yaml
+stylesheet:
+  - selector: link
+    style:
+      directionalStrokes: true
+      directionCenterGap: 64
+      directionStartGap: 18
+  - selector: linkDirection[direction = "sourceToTarget"]
+    style:
+      lineColor: "#4caf50"
+      targetArrowShape: triangle
+  - selector: linkDirection[direction = "targetToSource"]
+    style:
+      lineColor: "#ff9800"
+      sourceArrowShape: triangle
+```
+
 ## Paths
 
 Paths are ordered node sequences. TopoViewer compiles them into visual edges between each consecutive node pair.

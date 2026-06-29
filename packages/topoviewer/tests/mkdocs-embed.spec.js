@@ -430,6 +430,80 @@ async function expectControlAssertions(page, example) {
     expect(await page.locator('.topoviewer-edge-lane').count()).toBeGreaterThan(0);
   }
 
+  if (assertions.linkDirections) {
+    await expect(page.locator('.topoviewer-edge-direction-stroke')).toHaveCount(2);
+    await expect(page.locator('.topoviewer-edge-direction-marker-carrier')).toHaveCount(2);
+    const directionGeometry = await page.locator('.topoviewer-edge-direction-stroke').evaluateAll((paths) => {
+      return paths.map((path) => {
+        const length = path.getTotalLength();
+        const start = path.getPointAtLength(0);
+        const end = path.getPointAtLength(length);
+        const style = window.getComputedStyle(path);
+        return {
+          direction: path.getAttribute('data-direction'),
+          d: path.getAttribute('d') || '',
+          length,
+          start: { x: start.x, y: start.y },
+          end: { x: end.x, y: end.y },
+          strokeWidth: style.strokeWidth
+        };
+      });
+    });
+    const markerGeometry = await page.locator('.topoviewer-edge-direction-marker-carrier').evaluateAll((paths) => {
+      return paths.map((path) => {
+        const length = path.getTotalLength();
+        const end = path.getPointAtLength(length);
+        const markerId = (path.getAttribute('marker-end') || '').match(/#([^)"]+)/)?.[1];
+        const marker = markerId ? document.getElementById(markerId) : null;
+        return {
+          direction: path.getAttribute('data-direction'),
+          end: { x: end.x, y: end.y },
+          markerWidth: marker?.getAttribute('markerWidth')
+        };
+      });
+    });
+    const sourceToTarget = directionGeometry.find((path) => path.direction === 'sourceToTarget');
+    const targetToSource = directionGeometry.find((path) => path.direction === 'targetToSource');
+    const sourceToTargetMarker = markerGeometry.find((path) => path.direction === 'sourceToTarget');
+    const targetToSourceMarker = markerGeometry.find((path) => path.direction === 'targetToSource');
+    expect(sourceToTarget?.d).toMatch(/^M /);
+    expect(targetToSource?.d).toMatch(/^M /);
+    expect(sourceToTarget?.length).toBeGreaterThan(40);
+    expect(targetToSource?.length).toBeGreaterThan(40);
+    expect(Number.parseFloat(sourceToTarget?.strokeWidth || '0')).toBeCloseTo(16);
+    expect(Number.parseFloat(targetToSource?.strokeWidth || '0')).toBeCloseTo(16);
+    expect(Number(sourceToTargetMarker?.markerWidth)).toBeCloseTo(16);
+    expect(Number(targetToSourceMarker?.markerWidth)).toBeCloseTo(16);
+    expect(Math.hypot(
+      Number(sourceToTargetMarker?.end.x || 0) - Number(sourceToTarget?.end.x || 0),
+      Number(sourceToTargetMarker?.end.y || 0) - Number(sourceToTarget?.end.y || 0)
+    )).toBeGreaterThan(8);
+    expect(Math.hypot(
+      Number(targetToSourceMarker?.end.x || 0) - Number(targetToSource?.end.x || 0),
+      Number(targetToSourceMarker?.end.y || 0) - Number(targetToSource?.end.y || 0)
+    )).toBeGreaterThan(8);
+    const labelTransforms = await page.locator('.topoviewer-edge-label-center').evaluateAll((labels) => {
+      return labels.map((label) => ({
+        text: label.textContent?.trim() || '',
+        transform: label.style.transform
+      }));
+    });
+    const transformY = (text) => {
+      const transform = labelTransforms.find((label) => label.text === text)?.transform || '';
+      const match = transform.match(/translate\(([-\d.]+)px,\s*([-\d.]+)px\)/);
+      return match ? Number(match[2]) : undefined;
+    };
+    const parentLabelY = transformY('Leaf-1 to Spine-1');
+    const eastboundLabelY = transformY('3.2 Gbps');
+    const westboundLabelY = transformY('1.1 Gbps');
+    expect(parentLabelY).toBeLessThan(Math.min(Number(eastboundLabelY), Number(westboundLabelY)));
+    const centerGap = Math.hypot(
+      Number(sourceToTargetMarker?.end.x || 0) - Number(targetToSourceMarker?.end.x || 0),
+      Number(sourceToTargetMarker?.end.y || 0) - Number(targetToSourceMarker?.end.y || 0)
+    );
+    expect(centerGap).toBeGreaterThan(30);
+  }
+
   if (assertions.floatingAnchors) {
     expect(await page.locator('.topoviewer-edge-visible-path').count()).toBeGreaterThan(0);
   }
