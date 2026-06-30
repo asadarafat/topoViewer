@@ -9,6 +9,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
 	"unicode/utf8"
@@ -49,6 +50,11 @@ type mountedBundle struct {
 	TopologyPath   string `json:"topologyPath"`
 	StylesheetPath string `json:"stylesheetPath"`
 	MapperPath     string `json:"mapperPath"`
+
+	rootPath       string
+	topologyFile   string
+	stylesheetFile string
+	mapperFile     string
 }
 
 type bundleIndexResponse struct {
@@ -82,6 +88,9 @@ type bundleManifestEntry struct {
 	Default    bool   `yaml:"default"`
 }
 
+var quotedAbsolutePathPattern = regexp.MustCompile(`"(/[^\"]*)"`)
+var bareAbsolutePathPattern = regexp.MustCompile(`(^|[\s:])(/[^\s:;,)]*)`)
+
 func NewBundleResourceHandler() backend.CallResourceHandler {
 	return &bundleResourceHandler{}
 }
@@ -108,13 +117,13 @@ func (handler *bundleResourceHandler) CallResource(
 		}
 		manifestPath, manifestErr := resolveManifestPath(root, parsedURL.Query().Get("manifest"))
 		if manifestErr != nil {
-			return sendError(sender, http.StatusBadRequest, "invalid-bundle-manifest", manifestErr.Error())
+			return sendErrorForRoot(sender, http.StatusBadRequest, "invalid-bundle-manifest", manifestErr.Error(), root)
 		}
 		index, discoverErr := discoverBundles(root, manifestPath)
 		if discoverErr != nil {
-			return sendError(sender, http.StatusInternalServerError, "bundle-discovery-failed", discoverErr.Error())
+			return sendErrorForRoot(sender, http.StatusInternalServerError, "bundle-discovery-failed", discoverErr.Error(), root)
 		}
-		return sendJSON(sender, http.StatusOK, index)
+		return sendJSON(sender, http.StatusOK, publicBundleIndex(root, index))
 	case "bundle":
 		root, rootErr := resolveBundleRoot(parsedURL.Query().Get("root"))
 		if rootErr != nil {
@@ -126,7 +135,7 @@ func (handler *bundleResourceHandler) CallResource(
 		}
 		manifestPath, manifestErr := resolveManifestPath(root, parsedURL.Query().Get("manifest"))
 		if manifestErr != nil {
-			return sendError(sender, http.StatusBadRequest, "invalid-bundle-manifest", manifestErr.Error())
+			return sendErrorForRoot(sender, http.StatusBadRequest, "invalid-bundle-manifest", manifestErr.Error(), root)
 		}
 		response, bundleErr := readBundle(root, manifestPath, bundleID)
 		if bundleErr != nil {
@@ -134,9 +143,9 @@ func (handler *bundleResourceHandler) CallResource(
 			if errors.Is(bundleErr, os.ErrNotExist) {
 				status = http.StatusNotFound
 			}
-			return sendError(sender, status, "bundle-read-failed", bundleErr.Error())
+			return sendErrorForRoot(sender, status, "bundle-read-failed", bundleErr.Error(), root)
 		}
-		return sendJSON(sender, http.StatusOK, response)
+		return sendJSON(sender, http.StatusOK, publicBundleResponse(root, response))
 	default:
 		return sendError(sender, http.StatusNotFound, "unknown-resource", fmt.Sprintf("Unknown TopoViewer resource path %q.", request.Path))
 	}
@@ -157,11 +166,15 @@ func sendJSON(sender backend.CallResourceResponseSender, status int, payload any
 }
 
 func sendError(sender backend.CallResourceResponseSender, status int, code string, message string) error {
+	return sendErrorForRoot(sender, status, code, message, "")
+}
+
+func sendErrorForRoot(sender backend.CallResourceResponseSender, status int, code string, message string, root string) error {
 	return sendJSON(sender, status, map[string]any{
 		"diagnostics": []diagnostic{{
 			Severity: severityError,
 			Code:     code,
-			Message:  message,
+			Message:  redactFilesystemPaths(message, root),
 		}},
 	})
 }
@@ -431,10 +444,14 @@ func manifestEntryBundle(root string, manifestDir string, entry bundleManifestEn
 	return &mountedBundle{
 		ID:             bundleID,
 		Name:           name,
-		Root:           commonBundleRoot(paths["topology"], paths["stylesheet"], paths["mapper"]),
-		TopologyPath:   paths["topology"],
-		StylesheetPath: paths["stylesheet"],
-		MapperPath:     paths["mapper"],
+		Root:           logicalPathForResponse(root, commonBundleRoot(paths["topology"], paths["stylesheet"], paths["mapper"])),
+		TopologyPath:   logicalPathForResponse(root, paths["topology"]),
+		StylesheetPath: logicalPathForResponse(root, paths["stylesheet"]),
+		MapperPath:     logicalPathForResponse(root, paths["mapper"]),
+		rootPath:       commonBundleRoot(paths["topology"], paths["stylesheet"], paths["mapper"]),
+		topologyFile:   paths["topology"],
+		stylesheetFile: paths["stylesheet"],
+		mapperFile:     paths["mapper"],
 	}, diagnostics
 }
 
@@ -571,10 +588,14 @@ func discoverBundle(root string, bundleRoot string, bundleID string) (*mountedBu
 	return &mountedBundle{
 		ID:             bundleID,
 		Name:           titleFromBundleID(bundleID),
-		Root:           bundleRoot,
-		TopologyPath:   matchesByKind["topology"][0],
-		StylesheetPath: matchesByKind["stylesheet"][0],
-		MapperPath:     matchesByKind["mapper"][0],
+		Root:           logicalPathForResponse(root, bundleRoot),
+		TopologyPath:   logicalPathForResponse(root, matchesByKind["topology"][0]),
+		StylesheetPath: logicalPathForResponse(root, matchesByKind["stylesheet"][0]),
+		MapperPath:     logicalPathForResponse(root, matchesByKind["mapper"][0]),
+		rootPath:       bundleRoot,
+		topologyFile:   matchesByKind["topology"][0],
+		stylesheetFile: matchesByKind["stylesheet"][0],
+		mapperFile:     matchesByKind["mapper"][0],
 	}, diagnostics, nil
 }
 
@@ -613,15 +634,15 @@ func readBundle(root string, manifestPath string, bundleID string) (bundleRespon
 		if bundle.ID != bundleID {
 			continue
 		}
-		topologyYAML, err := readLimitedTextFile(root, bundle.TopologyPath)
+		topologyYAML, err := readLimitedTextFile(root, bundle.actualTopologyPath())
 		if err != nil {
 			return bundleResponse{}, err
 		}
-		stylesheetYAML, err := readLimitedTextFile(root, bundle.StylesheetPath)
+		stylesheetYAML, err := readLimitedTextFile(root, bundle.actualStylesheetPath())
 		if err != nil {
 			return bundleResponse{}, err
 		}
-		mapperYAML, err := readLimitedTextFile(root, bundle.MapperPath)
+		mapperYAML, err := readLimitedTextFile(root, bundle.actualMapperPath())
 		if err != nil {
 			return bundleResponse{}, err
 		}
@@ -634,6 +655,27 @@ func readBundle(root string, manifestPath string, bundleID string) (bundleRespon
 		}, nil
 	}
 	return bundleResponse{}, fmt.Errorf("%w: mounted TopoViewer bundle %q was not found under %q", os.ErrNotExist, bundleID, root)
+}
+
+func (bundle mountedBundle) actualTopologyPath() string {
+	if bundle.topologyFile != "" {
+		return bundle.topologyFile
+	}
+	return bundle.TopologyPath
+}
+
+func (bundle mountedBundle) actualStylesheetPath() string {
+	if bundle.stylesheetFile != "" {
+		return bundle.stylesheetFile
+	}
+	return bundle.StylesheetPath
+}
+
+func (bundle mountedBundle) actualMapperPath() string {
+	if bundle.mapperFile != "" {
+		return bundle.mapperFile
+	}
+	return bundle.MapperPath
 }
 
 func validateBundleFile(root string, path string) (os.FileInfo, string, error) {
@@ -686,5 +728,96 @@ func diagnosticsForBundle(diagnostics []diagnostic, bundleID string) []diagnosti
 			result = append(result, diagnostic)
 		}
 	}
+	return result
+}
+
+func publicBundleIndex(root string, response bundleIndexResponse) bundleIndexResponse {
+	public := response
+	public.Root = "."
+	public.ManifestPath = logicalPathForResponse(root, response.ManifestPath)
+	public.Diagnostics = publicDiagnostics(root, response.Diagnostics)
+	for index, bundle := range public.Bundles {
+		public.Bundles[index] = publicBundle(root, bundle)
+	}
+	return public
+}
+
+func publicBundleResponse(root string, response bundleResponse) bundleResponse {
+	public := response
+	public.Bundle = publicBundle(root, response.Bundle)
+	public.Diagnostics = publicDiagnostics(root, response.Diagnostics)
+	return public
+}
+
+func publicBundle(root string, bundle mountedBundle) mountedBundle {
+	bundle.Root = logicalPathForResponse(root, firstNonEmpty(bundle.rootPath, bundle.Root))
+	bundle.TopologyPath = logicalPathForResponse(root, firstNonEmpty(bundle.topologyFile, bundle.TopologyPath))
+	bundle.StylesheetPath = logicalPathForResponse(root, firstNonEmpty(bundle.stylesheetFile, bundle.StylesheetPath))
+	bundle.MapperPath = logicalPathForResponse(root, firstNonEmpty(bundle.mapperFile, bundle.MapperPath))
+	return bundle
+}
+
+func publicDiagnostics(root string, diagnostics []diagnostic) []diagnostic {
+	result := make([]diagnostic, 0, len(diagnostics))
+	for _, diagnostic := range diagnostics {
+		diagnostic.Path = logicalPathForResponse(root, diagnostic.Path)
+		diagnostic.Message = redactFilesystemPaths(diagnostic.Message, root)
+		result = append(result, diagnostic)
+	}
+	return result
+}
+
+func firstNonEmpty(values ...string) string {
+	for _, value := range values {
+		if value != "" {
+			return value
+		}
+	}
+	return ""
+}
+
+func logicalPathForResponse(root string, pathValue string) string {
+	value := strings.TrimSpace(pathValue)
+	if value == "" {
+		return ""
+	}
+	if root == "" {
+		if filepath.IsAbs(value) {
+			return "<redacted-path>"
+		}
+		return filepath.ToSlash(filepath.Clean(value))
+	}
+	absoluteRoot, rootErr := filepath.Abs(filepath.Clean(root))
+	absoluteValue, valueErr := filepath.Abs(filepath.Clean(value))
+	if rootErr == nil && valueErr == nil && pathWithinRoot(absoluteRoot, absoluteValue) {
+		relative, err := filepath.Rel(absoluteRoot, absoluteValue)
+		if err == nil {
+			return filepath.ToSlash(relative)
+		}
+	}
+	if filepath.IsAbs(value) {
+		return "<redacted-path>"
+	}
+	clean := filepath.ToSlash(filepath.Clean(value))
+	if clean == ".." || strings.HasPrefix(clean, "../") {
+		return "<redacted-path>"
+	}
+	return clean
+}
+
+func redactFilesystemPaths(message string, root string) string {
+	if message == "" {
+		return ""
+	}
+	result := message
+	if root != "" {
+		cleanRoot, err := filepath.Abs(filepath.Clean(root))
+		if err == nil {
+			result = strings.ReplaceAll(result, cleanRoot, "<bundle-root>")
+			result = strings.ReplaceAll(result, filepath.ToSlash(cleanRoot), "<bundle-root>")
+		}
+	}
+	result = quotedAbsolutePathPattern.ReplaceAllString(result, "\"<redacted-path>\"")
+	result = bareAbsolutePathPattern.ReplaceAllString(result, `${1}<redacted-path>`)
 	return result
 }

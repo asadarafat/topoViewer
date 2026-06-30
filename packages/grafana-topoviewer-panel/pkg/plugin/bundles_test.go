@@ -146,7 +146,7 @@ func TestDiscoverBundlesUsesManifestOverride(t *testing.T) {
 	if index.Bundles[0].Name != "Explicit Core" {
 		t.Fatalf("expected manifest name, got %q", index.Bundles[0].Name)
 	}
-	if index.Bundles[0].TopologyPath != filepath.Join(explicitRoot, "second.topo.tv.yaml") {
+	if index.Bundles[0].TopologyPath != "explicit/second.topo.tv.yaml" {
 		t.Fatalf("manifest should select explicit topology path, got %q", index.Bundles[0].TopologyPath)
 	}
 
@@ -211,6 +211,98 @@ func TestBundleResourceRejectsEncodedManifestTraversal(t *testing.T) {
 	}
 	if !strings.Contains(string(response.Body), "invalid-bundle-manifest") {
 		t.Fatalf("expected invalid-bundle-manifest response, got %s", string(response.Body))
+	}
+	if strings.Contains(string(response.Body), root) {
+		t.Fatalf("response leaked bundle root %q: %s", root, string(response.Body))
+	}
+}
+
+func TestBundleResourceRedactsMountedFilesystemPaths(t *testing.T) {
+	root := t.TempDir()
+	t.Setenv("TOPOVIEWER_ALLOWED_BUNDLE_ROOTS", root)
+
+	writeValidTestBundle(t, root, "branch-core")
+	incompleteRoot := filepath.Join(root, "missing-mapper")
+	if err := os.MkdirAll(incompleteRoot, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	writeTestFile(t, filepath.Join(incompleteRoot, "missing-mapper.topo.tv.yaml"), "graph:\n  id: missing-mapper\n")
+	writeTestFile(t, filepath.Join(incompleteRoot, "missing-mapper.style.tv.yaml"), "layout:\n  mode: manual\n")
+
+	var response *backend.CallResourceResponse
+	handler := &bundleResourceHandler{}
+	err := handler.CallResource(
+		context.Background(),
+		&backend.CallResourceRequest{
+			Path: "bundles",
+			URL:  "http://topoviewer.local/bundles?root=" + url.QueryEscape(root),
+		},
+		backend.CallResourceResponseSenderFunc(func(resp *backend.CallResourceResponse) error {
+			response = resp
+			return nil
+		}),
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if response == nil {
+		t.Fatal("expected resource response")
+	}
+	body := string(response.Body)
+	if strings.Contains(body, root) {
+		t.Fatalf("response leaked bundle root %q: %s", root, body)
+	}
+	if strings.Contains(body, filepath.ToSlash(root)) {
+		t.Fatalf("response leaked slash-normalized bundle root %q: %s", filepath.ToSlash(root), body)
+	}
+	if !strings.Contains(body, `"root":"."`) {
+		t.Fatalf("expected logical response root, got %s", body)
+	}
+	if !strings.Contains(body, `"topologyPath":"branch-core/branch-core.topo.tv.yaml"`) {
+		t.Fatalf("expected logical topology path, got %s", body)
+	}
+	if !strings.Contains(body, `"path":"missing-mapper"`) {
+		t.Fatalf("expected logical diagnostic path, got %s", body)
+	}
+}
+
+func TestBundleResourceRedactsReadErrors(t *testing.T) {
+	root := t.TempDir()
+	t.Setenv("TOPOVIEWER_ALLOWED_BUNDLE_ROOTS", root)
+
+	bundleRoot := writeValidTestBundle(t, root, "non-utf8")
+	if err := os.WriteFile(filepath.Join(bundleRoot, "non-utf8.topo.tv.yaml"), []byte{0xff, 0xfe, 0xfd}, 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	var response *backend.CallResourceResponse
+	handler := &bundleResourceHandler{}
+	err := handler.CallResource(
+		context.Background(),
+		&backend.CallResourceRequest{
+			Path: "bundle",
+			URL:  "http://topoviewer.local/bundle?root=" + url.QueryEscape(root) + "&id=non-utf8",
+		},
+		backend.CallResourceResponseSenderFunc(func(resp *backend.CallResourceResponse) error {
+			response = resp
+			return nil
+		}),
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if response == nil {
+		t.Fatal("expected resource response")
+	}
+	body := string(response.Body)
+	if response.Status != http.StatusInternalServerError {
+		t.Fatalf("expected status %d, got %d: %s", http.StatusInternalServerError, response.Status, body)
+	}
+	if strings.Contains(body, root) || strings.Contains(body, filepath.ToSlash(root)) {
+		t.Fatalf("response leaked bundle root %q: %s", root, body)
+	}
+	if !strings.Contains(body, "bundle-root") && !strings.Contains(body, "redacted-path") {
+		t.Fatalf("expected redacted path marker, got %s", body)
 	}
 }
 
