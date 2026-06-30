@@ -251,7 +251,11 @@ function markdownTable(schema, objectKey, objectName, definition, options = {}) 
 }
 
 function escapeCell(value) {
-  return String(value).replace(/\|/g, '\\|').replace(/\n/g, '<br>');
+  return String(value)
+    .replace(/\|/g, '\\|')
+    .replace(/\[/g, '&#91;')
+    .replace(/\]/g, '&#93;')
+    .replace(/\n/g, '<br>');
 }
 
 function extractStyleDefinitions() {

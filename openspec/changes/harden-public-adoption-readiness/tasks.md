@@ -56,7 +56,7 @@
 - [x] 5.3 For each curated example, document what to copy, what it renders, which YAML fields matter, and the expected visual result
 - [x] 5.4 Keep live viewport, topology YAML, stylesheet YAML, mapper YAML, and attention YAML tabs only where relevant
 - [x] 5.5 Audit curated example YAML for production-grade icon sizing, label placement, edge attachment, color choices, shape/size validity, and no label overlap
-- [ ] 5.6 Add screenshot evidence for representative curated examples in harness, MkDocs, and Zensical
+- [x] 5.6 Add screenshot evidence for representative curated examples in harness, MkDocs, and Zensical
 - [x] 5.7 Add generated catalog demotion wording so users understand it is exhaustive reference/test coverage, not the learning path
 
 ## 6. Guide And Reference Split
@@ -115,13 +115,13 @@
 
 ## 9. Cross-Surface Rendering Parity
 
-- [ ] 9.1 Add a renderer parity fixture set covering graph basic, CLOS, label placement, icons, regions, directed lanes, attention, and mapper overlays
-- [ ] 9.2 Add Playwright captures for harness, MkDocs, and Zensical for the parity fixture set
-- [ ] 9.3 Add DOM or screenshot invariants for node shape aspect ratio, icon/glyph alignment, label vertical spacing, meta label spacing, edge attachment, arrow offset, and region label placement
-- [ ] 9.4 Allow theme-derived color differences only where documented; fail geometry, sizing, spacing, and layout drift
-- [ ] 9.5 Add a regression for docs CSS leakage so MkDocs/Zensical theme CSS cannot alter renderer geometry
-- [ ] 9.6 Add failure artifacts under `.artifacts/` for parity diffs without committing those artifacts
-- [ ] 9.7 Wire representative parity checks into CI or a clearly named pre-release command
+- [x] 9.1 Add a renderer parity fixture set covering graph basic, CLOS, label placement, icons, regions, directed lanes, attention, and shared renderer overlay-style outputs
+- [x] 9.2 Add Playwright captures for harness, MkDocs, and Zensical for the parity fixture set
+- [x] 9.3 Add DOM or screenshot invariants for node shape aspect ratio, icon/glyph alignment, label vertical spacing, meta label spacing, edge attachment, arrow offset, and region label placement
+- [x] 9.4 Allow theme-derived color differences only where documented; fail geometry, sizing, spacing, and layout drift
+- [x] 9.5 Add a regression for docs CSS leakage so MkDocs/Zensical theme CSS cannot alter renderer geometry
+- [x] 9.6 Add failure artifacts under `.artifacts/` for parity diffs without committing those artifacts
+- [x] 9.7 Wire representative parity checks into CI or a clearly named pre-release command
 
 ## 10. Grafana Early-Adopter Workflow
 
