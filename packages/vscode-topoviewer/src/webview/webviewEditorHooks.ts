@@ -14,6 +14,7 @@ import {
 
 interface DraftValidationOptions {
   draftDirty: boolean;
+  draftMapperText: string;
   draftStylesheetText: string;
   draftTopologyText: string;
   host: TopoViewerWebviewHost;
@@ -88,6 +89,7 @@ interface BrowserHarnessWindow {
 
 export function useDraftValidation({
   draftDirty,
+  draftMapperText,
   draftStylesheetText,
   draftTopologyText,
   host,
@@ -109,6 +111,7 @@ export function useDraftValidation({
       try {
         const result = await host.validate({
           ...state,
+          mapperText: draftMapperText,
           topologyText: draftTopologyText,
           stylesheetText: draftStylesheetText
         });
@@ -130,7 +133,7 @@ export function useDraftValidation({
     return () => {
       mounted = false;
     };
-  }, [draftDirty, draftStylesheetText, draftTopologyText, host, setDraftValidation, state, validation]);
+  }, [draftDirty, draftMapperText, draftStylesheetText, draftTopologyText, host, setDraftValidation, state, validation]);
 }
 
 export function useMonacoDiagnostics({

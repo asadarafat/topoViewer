@@ -4,6 +4,9 @@ import * as path from 'node:path';
 import * as vscode from 'vscode';
 
 interface PreviewState {
+  mapperText?: string;
+  mapperPath?: string;
+  mapperMissing?: boolean;
   topologyText: string;
   stylesheetText: string;
   topologyPath?: string;
@@ -56,27 +59,50 @@ function sibling(uri: vscode.Uri, fileName: string) {
   return vscode.Uri.joinPath(uri.with({ path: path.posix.dirname(uri.path) }), fileName);
 }
 
-function pairedUris(activeUri: vscode.Uri): { topologyUri: vscode.Uri; stylesheetUri: vscode.Uri } {
+function defaultMapperText(sourceId = 'topoviewer') {
+  return [
+    'version: 1',
+    'identity:',
+    `  sourceId: ${sourceId}`,
+    '  sourceIdLabel: source_id',
+    'rules: []',
+    ''
+  ].join('\n');
+}
+
+function pairedUris(activeUri: vscode.Uri): { topologyUri: vscode.Uri; stylesheetUri: vscode.Uri; mapperUri: vscode.Uri } {
   const config = vscode.workspace.getConfiguration('topoviewer.preview', activeUri);
   const defaultTopology = config.get<string>('defaultTopology', 'topology.yaml');
   const defaultStylesheet = config.get<string>('defaultStylesheet', 'stylesheet.yaml');
+  const defaultMapper = config.get<string>('defaultMapper', 'mapper.tv.yaml');
   const base = path.posix.basename(activeUri.path).toLowerCase();
-  if (base.includes('stylesheet') || base.includes('style')) {
-    return { topologyUri: sibling(activeUri, defaultTopology), stylesheetUri: activeUri };
+  if (base.includes('mapper')) {
+    return {
+      topologyUri: sibling(activeUri, defaultTopology),
+      stylesheetUri: sibling(activeUri, defaultStylesheet),
+      mapperUri: activeUri
+    };
   }
-  return { topologyUri: activeUri, stylesheetUri: sibling(activeUri, defaultStylesheet) };
+  if (base.includes('stylesheet') || base.includes('style')) {
+    return { topologyUri: sibling(activeUri, defaultTopology), stylesheetUri: activeUri, mapperUri: sibling(activeUri, defaultMapper) };
+  }
+  return { topologyUri: activeUri, stylesheetUri: sibling(activeUri, defaultStylesheet), mapperUri: sibling(activeUri, defaultMapper) };
 }
 
-async function previewState(topologyUri: vscode.Uri, stylesheetUri: vscode.Uri): Promise<PreviewState> {
-  const [topology, stylesheet] = await Promise.all([
+async function previewState(topologyUri: vscode.Uri, stylesheetUri: vscode.Uri, mapperUri: vscode.Uri): Promise<PreviewState> {
+  const [topology, stylesheet, mapper] = await Promise.all([
     readText(topologyUri),
-    readText(stylesheetUri)
+    readText(stylesheetUri),
+    readText(mapperUri)
   ]);
   return {
+    mapperPath: mapperUri.fsPath,
     topologyPath: topologyUri.fsPath,
     stylesheetPath: stylesheetUri.fsPath,
+    mapperText: mapper.missing ? defaultMapperText(path.posix.basename(path.posix.dirname(topologyUri.path)) || 'topoviewer') : mapper.text,
     topologyText: topology.text,
     stylesheetText: stylesheet.text,
+    mapperMissing: mapper.missing,
     topologyMissing: topology.missing,
     stylesheetMissing: stylesheet.missing
   };
@@ -89,7 +115,8 @@ class TopoViewerPreviewPanel {
     private readonly context: vscode.ExtensionContext,
     private readonly panel: vscode.WebviewPanel,
     private readonly topologyUri: vscode.Uri,
-    private readonly stylesheetUri: vscode.Uri
+    private readonly stylesheetUri: vscode.Uri,
+    private readonly mapperUri: vscode.Uri
   ) {
     this.panel.webview.options = {
       enableScripts: true,
@@ -98,7 +125,11 @@ class TopoViewerPreviewPanel {
     this.panel.webview.html = this.html();
     this.panel.webview.onDidReceiveMessage((message) => this.handleMessage(message), undefined, this.disposables);
     vscode.workspace.onDidSaveTextDocument((document) => {
-      if (document.uri.toString() === this.topologyUri.toString() || document.uri.toString() === this.stylesheetUri.toString()) {
+      if (
+        document.uri.toString() === this.topologyUri.toString()
+        || document.uri.toString() === this.stylesheetUri.toString()
+        || document.uri.toString() === this.mapperUri.toString()
+      ) {
         this.postState();
       }
     }, undefined, this.disposables);
@@ -168,7 +199,7 @@ class TopoViewerPreviewPanel {
   private async postState() {
     await this.panel.webview.postMessage({
       type: 'state',
-      state: await previewState(this.topologyUri, this.stylesheetUri)
+      state: await previewState(this.topologyUri, this.stylesheetUri, this.mapperUri)
     });
   }
 
@@ -184,14 +215,14 @@ async function openPreview(context: vscode.ExtensionContext, viewColumn: vscode.
     void vscode.window.showWarningMessage('Open a TopoViewer topology.yaml or stylesheet.yaml file first.');
     return;
   }
-  const { topologyUri, stylesheetUri } = pairedUris(active);
+  const { topologyUri, stylesheetUri, mapperUri } = pairedUris(active);
   const panel = vscode.window.createWebviewPanel(
     'topoviewer.preview',
     'TopoViewer Preview',
     viewColumn,
     { enableScripts: true, retainContextWhenHidden: true }
   );
-  new TopoViewerPreviewPanel(context, panel, topologyUri, stylesheetUri);
+  new TopoViewerPreviewPanel(context, panel, topologyUri, stylesheetUri, mapperUri);
 }
 
 export function activate(context: vscode.ExtensionContext) {

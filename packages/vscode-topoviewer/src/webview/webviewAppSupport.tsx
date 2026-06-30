@@ -13,8 +13,10 @@ interface HarnessTabPanelProps {
 
 export interface DocumentTransaction {
   label: string;
+  previousMapperText?: string;
   previousStylesheetText: string;
   previousTopologyText: string;
+  nextMapperText?: string;
   nextStylesheetText: string;
   nextTopologyText: string;
 }
@@ -200,12 +202,13 @@ export function sameRoundedPosition(a: { x: number; y: number } | undefined, b: 
   return !!a && Math.round(a.x) === Math.round(b.x) && Math.round(a.y) === Math.round(b.y);
 }
 
-export function editorDocumentForTab(tab: number): 'topology' | 'stylesheet' {
-  return tab === 0 ? 'topology' : 'stylesheet';
+export function editorDocumentForTab(tab: number): 'topology' | 'stylesheet' | 'mapper' {
+  if (tab === 0) return 'topology';
+  if (tab === 1) return 'stylesheet';
+  return 'mapper';
 }
 
 export function clampLine(line: number | undefined, maxLine: number) {
   if (!line || !Number.isFinite(line)) return 1;
   return Math.min(maxLine, Math.max(1, Math.round(line)));
 }
-

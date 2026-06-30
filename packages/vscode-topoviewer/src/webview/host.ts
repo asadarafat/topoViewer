@@ -15,6 +15,17 @@ export function exportViewportMessage(payload: ExportImagePayload) {
   return { type: 'exportViewport' as const, ...payload };
 }
 
+function defaultMapperText(sourceId = 'topoviewer') {
+  return [
+    'version: 1',
+    'identity:',
+    `  sourceId: ${sourceId}`,
+    '  sourceIdLabel: source_id',
+    'rules: []',
+    ''
+  ].join('\n');
+}
+
 export class VsCodeHostAdapter implements TopoViewerWebviewHost {
   readonly kind = 'vscode' as const;
   private readonly vscode = window.acquireVsCodeApi?.();
@@ -40,7 +51,11 @@ export class VsCodeHostAdapter implements TopoViewerWebviewHost {
       this.pendingState.push(resolve);
       window.setTimeout(() => {
         if (!this.latestState) {
-          resolve({ topologyText: 'graph:\n  nodes: []\n', stylesheetText: 'stylesheet: []\n' });
+          resolve({
+            topologyText: 'graph:\n  nodes: []\n',
+            stylesheetText: 'stylesheet: []\n',
+            mapperText: defaultMapperText()
+          });
         }
       }, 1500);
     });
@@ -106,14 +121,17 @@ export class BrowserHarnessHostAdapter implements TopoViewerWebviewHost {
         fixtureId: id,
         topologyPath: `local://${id}/topology.yaml`,
         stylesheetPath: `local://${id}/stylesheet.yaml`,
+        mapperPath: `local://${id}/mapper.tv.yaml`,
         topologyText: savedState.topologyText,
-        stylesheetText: savedState.stylesheetText
+        stylesheetText: savedState.stylesheetText,
+        mapperText: savedState.mapperText
       };
     }
 
-    const [topology, stylesheet] = await Promise.all([
+    const [topology, stylesheet, mapper] = await Promise.all([
       fetch(this.assetUrl(`fixtures/${id}/topology.yaml`)),
-      fetch(this.assetUrl(`fixtures/${id}/stylesheet.yaml`))
+      fetch(this.assetUrl(`fixtures/${id}/stylesheet.yaml`)),
+      fetch(this.assetUrl(`fixtures/${id}/mapper.yaml`))
     ]);
     if (!topology.ok || !stylesheet.ok) {
       throw new Error(`Failed to load fixture "${id}".`);
@@ -122,8 +140,10 @@ export class BrowserHarnessHostAdapter implements TopoViewerWebviewHost {
       fixtureId: id,
       topologyPath: this.assetUrl(`fixtures/${id}/topology.yaml`),
       stylesheetPath: this.assetUrl(`fixtures/${id}/stylesheet.yaml`),
+      mapperPath: this.assetUrl(`fixtures/${id}/mapper.yaml`),
       topologyText: await topology.text(),
-      stylesheetText: await stylesheet.text()
+      stylesheetText: await stylesheet.text(),
+      mapperText: mapper.ok ? await mapper.text() : defaultMapperText(id)
     };
     const savedState = this.isParityMode() ? undefined : this.loadSavedState(id);
     if (!this.isParityMode()) {
@@ -133,7 +153,8 @@ export class BrowserHarnessHostAdapter implements TopoViewerWebviewHost {
       ? {
         ...baseState,
         topologyText: savedState.topologyText,
-        stylesheetText: savedState.stylesheetText
+        stylesheetText: savedState.stylesheetText,
+        mapperText: savedState.mapperText
       }
       : baseState;
   }
@@ -150,6 +171,7 @@ export class BrowserHarnessHostAdapter implements TopoViewerWebviewHost {
       fixtureId: fixture.id,
       topologyPath: `local://${fixture.id}/topology.yaml`,
       stylesheetPath: `local://${fixture.id}/stylesheet.yaml`,
+      mapperPath: `local://${fixture.id}/mapper.tv.yaml`,
       topologyText: [
         'graph:',
         '  id: custom-topology',
@@ -162,7 +184,8 @@ export class BrowserHarnessHostAdapter implements TopoViewerWebviewHost {
         '  regions: []',
         ''
       ].join('\n'),
-      stylesheetText: 'stylesheet: []\n'
+      stylesheetText: 'stylesheet: []\n',
+      mapperText: defaultMapperText('custom-topology')
     };
     this.saveState(state);
     return state;
@@ -189,7 +212,8 @@ export class BrowserHarnessHostAdapter implements TopoViewerWebviewHost {
       window.localStorage.setItem(this.storageKey(fixtureId), JSON.stringify({
         fixtureId,
         topologyText: state.topologyText,
-        stylesheetText: state.stylesheetText
+        stylesheetText: state.stylesheetText,
+        mapperText: state.mapperText || defaultMapperText(fixtureId)
       }));
     } catch {
       // Local browser persistence is best effort for the harness.
@@ -215,23 +239,28 @@ export class BrowserHarnessHostAdapter implements TopoViewerWebviewHost {
 
     const topologyPath = params.get('topology');
     const stylesheetPath = params.get('stylesheet');
+    const mapperPath = params.get('mapper');
     if (!topologyPath) return undefined;
 
     const topologyUrl = new URL(topologyPath, window.location.href).toString();
     const stylesheetUrl = stylesheetPath ? new URL(stylesheetPath, window.location.href).toString() : undefined;
-    const [topology, stylesheet] = await Promise.all([
+    const mapperUrl = mapperPath ? new URL(mapperPath, window.location.href).toString() : undefined;
+    const [topology, stylesheet, mapper] = await Promise.all([
       fetch(topologyUrl),
-      stylesheetUrl ? fetch(stylesheetUrl) : Promise.resolve(undefined)
+      stylesheetUrl ? fetch(stylesheetUrl) : Promise.resolve(undefined),
+      mapperUrl ? fetch(mapperUrl) : Promise.resolve(undefined)
     ]);
-    if (!topology.ok || (stylesheet && !stylesheet.ok)) {
-      throw new Error('Failed to load parity topology or stylesheet.');
+    if (!topology.ok || (stylesheet && !stylesheet.ok) || (mapper && !mapper.ok)) {
+      throw new Error('Failed to load parity topology, stylesheet, or mapper.');
     }
     return {
       fixtureId: params.get('id') || 'renderer-parity',
       topologyPath: topologyUrl,
       stylesheetPath: stylesheetUrl,
+      mapperPath: mapperUrl,
       topologyText: await topology.text(),
-      stylesheetText: stylesheet ? await stylesheet.text() : ''
+      stylesheetText: stylesheet ? await stylesheet.text() : '',
+      mapperText: mapper ? await mapper.text() : defaultMapperText(params.get('id') || 'renderer-parity')
     };
   }
 
@@ -262,7 +291,7 @@ export class BrowserHarnessHostAdapter implements TopoViewerWebviewHost {
     }))));
   }
 
-  private loadSavedState(fixtureId: string): Pick<WebviewState, 'topologyText' | 'stylesheetText'> | undefined {
+  private loadSavedState(fixtureId: string): Pick<WebviewState, 'mapperText' | 'topologyText' | 'stylesheetText'> | undefined {
     try {
       const raw = window.localStorage.getItem(this.storageKey(fixtureId));
       if (!raw) return undefined;
@@ -270,7 +299,8 @@ export class BrowserHarnessHostAdapter implements TopoViewerWebviewHost {
       if (typeof parsed.topologyText !== 'string' || typeof parsed.stylesheetText !== 'string') return undefined;
       return {
         topologyText: parsed.topologyText,
-        stylesheetText: parsed.stylesheetText
+        stylesheetText: parsed.stylesheetText,
+        mapperText: typeof parsed.mapperText === 'string' ? parsed.mapperText : defaultMapperText(fixtureId)
       };
     } catch {
       return undefined;

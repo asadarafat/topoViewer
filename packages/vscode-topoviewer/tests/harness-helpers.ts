@@ -56,12 +56,25 @@ export async function stylesheetText(page: Page) {
   return page.evaluate(() => ((window as any).__topoviewerHarnessDraft?.stylesheetText || (window as any).__topoviewerHarnessState.stylesheetText) as string);
 }
 
+export async function mapperText(page: Page) {
+  await page.waitForFunction(() => (window as any).__topoviewerHarnessDraft?.mapperText !== undefined || (window as any).__topoviewerHarnessState?.mapperText !== undefined);
+  return page.evaluate(() => ((window as any).__topoviewerHarnessDraft?.mapperText ?? (window as any).__topoviewerHarnessState.mapperText) as string);
+}
+
 export async function setTopologyText(page: Page, text: string) {
   await page.waitForFunction(() => !!(window as any).__topoviewerHarnessEditor?.setValue);
   await page.evaluate((value) => {
     (window as any).__topoviewerHarnessEditor.setValue(value);
   }, text);
   await page.waitForFunction((value) => (window as any).__topoviewerHarnessDraft?.topologyText === value, text);
+}
+
+export async function setMapperText(page: Page, text: string) {
+  await page.waitForFunction(() => !!(window as any).__topoviewerHarnessEditor?.setValue);
+  await page.evaluate((value) => {
+    (window as any).__topoviewerHarnessEditor.setValue(value);
+  }, text);
+  await page.waitForFunction((value) => (window as any).__topoviewerHarnessDraft?.mapperText === value, text);
 }
 
 export async function yamlCompletions(

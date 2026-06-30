@@ -16,10 +16,10 @@ import type { ValidationResult, WebviewDiagnostic, WebviewState } from './types'
 
 class SourceYamlError extends Error {
   column?: number;
-  document: 'topology' | 'stylesheet';
+  document: 'topology' | 'stylesheet' | 'mapper';
   line?: number;
 
-  constructor(message: string, document: 'topology' | 'stylesheet', line?: number, column?: number) {
+  constructor(message: string, document: 'topology' | 'stylesheet' | 'mapper', line?: number, column?: number) {
     super(message);
     this.name = 'SourceYamlError';
     this.document = document;
@@ -32,7 +32,7 @@ function isYamlException(error: unknown): error is yaml.YAMLException {
   return !!error && typeof error === 'object' && 'mark' in error;
 }
 
-function parseYamlObject(text: string, source: string, document: 'topology' | 'stylesheet'): Record<string, unknown> {
+function parseYamlObject(text: string, source: string, document: 'topology' | 'stylesheet' | 'mapper'): Record<string, unknown> {
   let parsed: unknown;
   try {
     parsed = yaml.load(text || '{}');
@@ -47,6 +47,10 @@ function parseYamlObject(text: string, source: string, document: 'topology' | 's
     throw new SourceYamlError(`${source} must contain a YAML object at the document root.`, document, 1, 1);
   }
   return parsed as Record<string, unknown>;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
 export function composeTopoDocument(state: WebviewState): TopoDocument {
@@ -85,6 +89,107 @@ function diagnosticLocationForPath(path: string | undefined, state: WebviewState
   const stylesheetLine = findYamlPathLine(state.stylesheetText, path);
   if (stylesheetLine !== undefined) return { document: 'stylesheet', line: stylesheetLine, column: 1 };
   return {};
+}
+
+function mapperDiagnostic(
+  code: string,
+  message: string,
+  line = 1,
+  column = 1
+): WebviewDiagnostic {
+  return {
+    severity: 'error',
+    source: 'schema',
+    code,
+    message,
+    document: 'mapper',
+    line,
+    column
+  };
+}
+
+function validateMapperText(state: WebviewState): WebviewDiagnostic[] {
+  const text = state.mapperText?.trim();
+  if (!text) return [];
+
+  let mapper: Record<string, unknown>;
+  try {
+    mapper = parseYamlObject(state.mapperText || '', 'Mapper YAML', 'mapper');
+  } catch (error) {
+    const sourceYamlError = error instanceof SourceYamlError ? error : undefined;
+    return [mapperDiagnostic(
+      'invalid-mapper-yaml',
+      error instanceof Error ? error.message : String(error),
+      sourceYamlError?.line,
+      sourceYamlError?.column
+    )];
+  }
+
+  const diagnostics: WebviewDiagnostic[] = [];
+  const supportedRootKeys = new Set(['$schema', 'version', 'identity', 'palette', 'rules', 'mappings']);
+  for (const key of Object.keys(mapper).sort()) {
+    if (!supportedRootKeys.has(key)) {
+      diagnostics.push(mapperDiagnostic('invalid-mapper-schema', `Unsupported mapper root key "${key}".`));
+    }
+  }
+
+  if (mapper.version !== 1) {
+    diagnostics.push(mapperDiagnostic('invalid-mapper-schema', 'Mapper YAML must set version: 1.'));
+  }
+
+  const rules = mapper.rules;
+  const mappings = mapper.mappings;
+  if (rules === undefined && mappings === undefined) {
+    diagnostics.push(mapperDiagnostic('invalid-mapper-schema', 'Mapper YAML must define rules or mappings.'));
+  }
+  if (rules !== undefined && !Array.isArray(rules)) {
+    diagnostics.push(mapperDiagnostic('invalid-mapper-schema', 'Mapper rules must be a YAML list.'));
+  }
+  if (mappings !== undefined && !Array.isArray(mappings)) {
+    diagnostics.push(mapperDiagnostic('invalid-mapper-schema', 'Mapper mappings must be a YAML list.'));
+  }
+
+  if (Array.isArray(rules)) {
+    for (const [index, rule] of rules.entries()) {
+      if (!isRecord(rule)) {
+        diagnostics.push(mapperDiagnostic('invalid-mapper-schema', `rules[${index}] must be a YAML mapping.`));
+        continue;
+      }
+      for (const key of ['id', 'metric', 'select']) {
+        if (typeof rule[key] !== 'string' || !rule[key].trim()) {
+          diagnostics.push(mapperDiagnostic('invalid-mapper-schema', `rules[${index}].${key} is required.`));
+        }
+      }
+    }
+  }
+
+  const targetKinds = new Set(['node', 'link', 'linkDirection', 'path', 'region', 'layer', 'graph']);
+  if (Array.isArray(mappings)) {
+    for (const [index, mapping] of mappings.entries()) {
+      if (!isRecord(mapping)) {
+        diagnostics.push(mapperDiagnostic('invalid-mapper-schema', `mappings[${index}] must be a YAML mapping.`));
+        continue;
+      }
+      for (const key of ['id', 'metric']) {
+        if (typeof mapping[key] !== 'string' || !mapping[key].trim()) {
+          diagnostics.push(mapperDiagnostic('invalid-mapper-schema', `mappings[${index}].${key} is required.`));
+        }
+      }
+      const target = mapping.target;
+      if (!isRecord(target)) {
+        diagnostics.push(mapperDiagnostic('invalid-mapper-schema', `mappings[${index}].target is required.`));
+        continue;
+      }
+      if (!targetKinds.has(String(target.kind || ''))) {
+        diagnostics.push(mapperDiagnostic('invalid-mapper-schema', `mappings[${index}].target.kind must be a supported TopoViewer object kind.`));
+      }
+      if (!isRecord(target.resolve)) {
+        diagnostics.push(mapperDiagnostic('invalid-mapper-schema', `mappings[${index}].target.resolve is required.`));
+      }
+    }
+  }
+
+  return diagnostics;
 }
 
 function layerObjectCounts(document: TopoDocument): Map<string, number> {
@@ -129,6 +234,15 @@ export function validateSources(state: WebviewState): ValidationResult {
       message: `Stylesheet YAML file was not found${state.stylesheetPath ? `: ${state.stylesheetPath}` : ''}.`
     });
   }
+  if (state.mapperMissing) {
+    diagnostics.push({
+      severity: 'warning',
+      source: 'host',
+      code: 'missing-mapper-yaml',
+      message: `Mapper YAML file was not found${state.mapperPath ? `: ${state.mapperPath}` : ''}.`,
+      document: 'mapper'
+    });
+  }
 
   try {
     document = validateTopoDocument(composeTopoDocument(state), 'VS Code TopoViewer preview');
@@ -153,6 +267,8 @@ export function validateSources(state: WebviewState): ValidationResult {
         : diagnosticLocationForPath(inferredPath, state))
     });
   }
+
+  diagnostics.push(...validateMapperText(state));
 
   const objectCounts = document ? layerObjectCounts(document) : new Map<string, number>();
 

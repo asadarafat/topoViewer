@@ -18,7 +18,7 @@ const serverMarker = {
   gitSha: readGitSha()
 };
 
-type ExampleFileKey = 'topology' | 'stylesheet';
+type ExampleFileKey = 'topology' | 'stylesheet' | 'mapper';
 
 interface ContentExample {
   id: string;
@@ -37,12 +37,13 @@ interface HarnessFixtureSource {
   id: string;
   name: string;
   order: number;
+  mapperFile?: string;
   topologyFile: string;
   stylesheetFile: string;
 }
 
 function exampleSourceFile(example: ContentExample, key: ExampleFileKey) {
-  const fileName = key === 'topology' ? 'topology.yaml' : 'stylesheet.yaml';
+  const fileName = key === 'topology' ? 'topology.yaml' : key === 'stylesheet' ? 'stylesheet.yaml' : 'mapper.yaml';
   const configured = example.sourceFiles?.[key];
   const source = path.join(contentExamplesRoot, configured || example.sourcePath || example.path, fileName);
   const relativePath = path.relative(contentExamplesRoot, source);
@@ -72,6 +73,7 @@ function loadHarnessFixtures(): HarnessFixtureSource[] {
         id: metadata.id || example.id,
         name: metadata.name || example.title,
         order: metadata.order ?? Number.MAX_SAFE_INTEGER,
+        mapperFile: fs.existsSync(exampleSourceFile(example, 'mapper')) ? exampleSourceFile(example, 'mapper') : undefined,
         topologyFile: exampleSourceFile(example, 'topology'),
         stylesheetFile: exampleSourceFile(example, 'stylesheet')
       };
@@ -131,6 +133,25 @@ function fixtureFile(id: string, fileName: 'topology.yaml' | 'stylesheet.yaml') 
   return filePath;
 }
 
+function defaultMapperText(sourceId = 'topoviewer') {
+  return [
+    'version: 1',
+    'identity:',
+    `  sourceId: ${sourceId}`,
+    '  sourceIdLabel: source_id',
+    'rules: []',
+    ''
+  ].join('\n');
+}
+
+function fixtureMapperText(id: string) {
+  const fixture = fixtureById(id);
+  if (!fixture) return undefined;
+  return fixture.mapperFile && fs.existsSync(fixture.mapperFile)
+    ? fs.readFileSync(fixture.mapperFile, 'utf8')
+    : defaultMapperText(id);
+}
+
 function copyStaticFixtures(outDir: string) {
   const targetRoot = path.join(outDir, 'fixtures');
   fs.rmSync(targetRoot, { recursive: true, force: true });
@@ -148,6 +169,7 @@ function copyStaticFixtures(outDir: string) {
       if (!source) throw new Error(`Harness fixture "${fixture.id}" is missing ${fileName}.`);
       fs.copyFileSync(source, path.join(targetDirectory, fileName));
     }
+    fs.writeFileSync(path.join(targetDirectory, 'mapper.yaml'), fixtureMapperText(fixture.id) || defaultMapperText(fixture.id));
   }
 }
 
@@ -189,11 +211,23 @@ function fixtureApi(): Plugin {
           return;
         }
 
+        const mapperMatch = url.pathname.match(/^\/fixtures\/([^/]+)\/mapper\.yaml$/);
+        if (request.method === 'GET' && mapperMatch) {
+          const mapperText = fixtureMapperText(mapperMatch[1]);
+          if (mapperText === undefined) {
+            sendJson(response, { error: 'Fixture not found' }, 404);
+            return;
+          }
+          sendText(response, mapperText);
+          return;
+        }
+
         if (request.method === 'POST' && url.pathname === '/validate') {
           try {
             const body = JSON.parse(await readRequestBody(request));
             sendJson(response, validateSources({
               ...body,
+              mapperText: String(body.mapperText || ''),
               topologyText: String(body.topologyText || ''),
               stylesheetText: String(body.stylesheetText || '')
             }));

@@ -89,6 +89,7 @@ export function AuthoringRail(props: AuthoringRailProps) {
   dataRows,
   deleteSelection,
   draftDirty,
+  downloadYamlBundle,
   editorLabel,
   editorTheme,
   editorValue,
@@ -162,6 +163,7 @@ export function AuthoringRail(props: AuthoringRailProps) {
   setRelationshipComposer,
   setSelectedLayerIds,
   setTab,
+  setDraftMapperText,
   setDraftStylesheetText,
   setDraftTopologyText,
   showYamlSuggestions,
@@ -491,10 +493,12 @@ export function AuthoringRail(props: AuthoringRailProps) {
               <Tabs value={tab} onChange={(_event, next) => setTab(next)} variant="fullWidth" className="topoviewer-vscode-yaml-tabs">
                 <Tab label="Topology YAML" />
                 <Tab label="Stylesheet YAML" />
+                <Tab label="Mapper YAML" />
               </Tabs>
               <Stack className="topoviewer-vscode-yaml-actions" direction="row" spacing={1}>
                 <Button size="small" disabled={!selectedPrimary} onClick={styleSelectionInYaml}>Style in YAML</Button>
                 <Button size="small" onClick={showYamlSuggestions}>YAML assist</Button>
+                <Button size="small" onClick={downloadYamlBundle}>Download bundle</Button>
                 <Button size="small" variant="contained" disabled={!draftDirty} onClick={applyYamlDraft}>Apply</Button>
                 <Button size="small" disabled={!draftDirty} onClick={revertYamlDraft}>Revert draft</Button>
               </Stack>
@@ -520,7 +524,17 @@ export function AuthoringRail(props: AuthoringRailProps) {
                   theme={editorTheme}
                   value={editorValue}
                   onMount={handleEditorMount}
-                  onChange={(value) => (tab === 0 ? setDraftTopologyText(value || '') : setDraftStylesheetText(value || ''))}
+                  onChange={(value) => {
+                    if (tab === 0) {
+                      setDraftTopologyText(value || '');
+                      return;
+                    }
+                    if (tab === 1) {
+                      setDraftStylesheetText(value || '');
+                      return;
+                    }
+                    setDraftMapperText(value || '');
+                  }}
                   options={{
                     automaticLayout: true,
                     fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',

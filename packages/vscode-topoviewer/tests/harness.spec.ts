@@ -7,7 +7,9 @@ import {
   expectActivePanelBeforePreview,
   expectCurrentHarnessServer,
   expectSameVisualRow,
+  focusYamlEditorAt,
   graphNodeByLabel,
+  mapperText,
   nodePosition,
   panelOverflowIssues,
   railWidth,
@@ -15,6 +17,7 @@ import {
   selectHarnessObject,
   selectGraphNodes,
   selectedPreviewObjectCount,
+  setMapperText,
   setTopologyText,
   showAllHarnessLayers,
   stylesheetText,
@@ -736,6 +739,79 @@ test('applies and reverts YAML drafts without live canvas mutation', async ({ pa
   await expect(graphNodeByLabel(page, 'FRA-PE-Draft')).toHaveCount(1);
   await expect(graphNodeByLabel(page, 'FRA-PE-Revert-Candidate')).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'Revert draft' })).toBeDisabled();
+});
+
+test('authors mapper YAML as part of the editable Grafana bundle', async ({ page }) => {
+  await page.goto('/');
+  await waitForHarnessReady(page);
+
+  await page.getByRole('tab', { name: 'YAML', exact: true }).click();
+  await expect(page.getByRole('tab', { name: 'Topology YAML' })).toBeVisible();
+  await expect(page.getByRole('tab', { name: 'Stylesheet YAML' })).toBeVisible();
+  await expect(page.getByRole('tab', { name: 'Mapper YAML' })).toBeVisible();
+
+  await page.getByRole('tab', { name: 'Mapper YAML' }).click();
+  await expect.poll(() => mapperText(page)).toContain('version: 1');
+  await expect.poll(() => mapperText(page)).toContain('rules: []');
+
+  await setMapperText(page, 'version: 2\nrules: []\n');
+  await expect(page.locator('.topoviewer-vscode-diagnostic-strip')).toContainText('invalid-mapper-schema');
+  await page.getByRole('button', { name: /invalid-mapper-schema/ }).click();
+  await expect(page.getByRole('tab', { name: 'Mapper YAML' })).toHaveAttribute('aria-selected', 'true');
+  await expect(page.getByRole('button', { name: 'Apply', exact: true })).toBeEnabled();
+  await page.getByRole('button', { name: 'Apply', exact: true }).click();
+  await expect(page.locator('.topoviewer-vscode-diagnostic-strip')).toContainText('invalid-mapper-schema');
+
+  const validMapper = [
+    'version: 1',
+    'identity:',
+    '  sourceId: layered-network',
+    '  sourceIdLabel: source_id',
+    'rules:',
+    '  - id: link-health',
+    '    metric: topoviewer_link_up',
+    '    select: link',
+    '    join: link_id',
+    '    value: up',
+    '    states:',
+    '      down: "==0"',
+    '    style:',
+    '      default:',
+    '        label: UP',
+    '        lineColor: "#4caf50"',
+    '      down:',
+    '        label: DOWN',
+    '        lineColor: "#d32f2f"',
+    '        lineStyle: dashed',
+    ''
+  ].join('\n');
+  await setMapperText(page, validMapper);
+  await expect(page.locator('.topoviewer-vscode-diagnostic-strip')).toContainText('YAML draft has unapplied changes');
+  await page.getByRole('button', { name: 'Apply', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Apply', exact: true })).toBeDisabled();
+  await expect.poll(() => mapperText(page)).toContain('id: link-health');
+  await expect.poll(() => page.evaluate(() => (window as any).__topoviewerHarnessState?.mapperText || '')).toContain('lineStyle: dashed');
+  const graphId = await page.evaluate(() => (window as any).__topoviewerHarnessValidation?.document?.graph?.id || 'topoviewer');
+  const downloadedFiles: string[] = [];
+  page.on('download', (download) => downloadedFiles.push(download.suggestedFilename()));
+  await page.getByRole('button', { name: 'Download bundle' }).click();
+  await expect.poll(() => downloadedFiles.slice().sort()).toEqual([
+    `${graphId}.mapper.tv.yaml`,
+    `${graphId}.style.tv.yaml`,
+    `${graphId}.topo.tv.yaml`
+  ].sort());
+
+  await page.reload();
+  await waitForHarnessReady(page);
+  await expect.poll(() => mapperText(page)).toContain('id: link-health');
+
+  await page.getByRole('tab', { name: 'YAML', exact: true }).click();
+  await page.getByRole('tab', { name: 'Mapper YAML' }).click();
+  await setMapperText(page, 'version: 1\nrules:\n  - ');
+  await focusYamlEditorAt(page, 3, 5);
+  await page.getByRole('button', { name: 'YAML assist' }).click();
+  await expect(page.locator('.suggest-widget')).toBeVisible({ timeout: 15000 });
+  await expect(page.locator('.monaco-list-row').filter({ hasText: 'id' }).first()).toBeVisible();
 });
 
 test('creates a selected node style rule and opens YAML suggestions', async ({ page }) => {

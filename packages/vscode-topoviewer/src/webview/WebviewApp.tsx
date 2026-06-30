@@ -54,6 +54,7 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
   const [state, setState] = useState<WebviewState>();
   const [draftTopologyText, setDraftTopologyText] = useState('');
   const [draftStylesheetText, setDraftStylesheetText] = useState('');
+  const [draftMapperText, setDraftMapperText] = useState('');
   const [fixtures, setFixtures] = useState<HarnessFixture[]>([]);
   const [validation, setValidation] = useState<ValidationResult>({ diagnostics: [], layers: [] });
   const [draftValidation, setDraftValidation] = useState<ValidationResult>({ diagnostics: [], layers: [] });
@@ -109,7 +110,11 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
   }>({ layers: [], tab: 0 });
   const workspaceRef = useRef<HTMLDivElement | null>(null);
   const previewRef = useRef<HTMLDivElement | null>(null);
-  const draftDirty = !!state && (draftTopologyText !== state.topologyText || draftStylesheetText !== state.stylesheetText);
+  const draftDirty = !!state && (
+    draftTopologyText !== state.topologyText
+    || draftStylesheetText !== state.stylesheetText
+    || draftMapperText !== (state.mapperText || '')
+  );
   const parityMode = host.kind === 'browser'
     && typeof window !== 'undefined'
     && new URLSearchParams(window.location.search).get('parity') === '1';
@@ -161,18 +166,20 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
     (window as unknown as {
       __topoviewerHarnessDraft?: {
         dirty: boolean;
+        mapperText: string;
         stylesheetText: string;
         topologyText: string;
       };
     }).__topoviewerHarnessDraft = {
       dirty: draftDirty,
+      mapperText: draftMapperText,
       stylesheetText: draftStylesheetText,
       topologyText: draftTopologyText
     };
     return () => {
       delete (window as unknown as { __topoviewerHarnessDraft?: unknown }).__topoviewerHarnessDraft;
     };
-  }, [draftDirty, draftStylesheetText, draftTopologyText, host.kind]);
+  }, [draftDirty, draftMapperText, draftStylesheetText, draftTopologyText, host.kind]);
 
   useEffect(() => {
     if (host.kind !== 'browser') return undefined;
@@ -215,7 +222,7 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
     };
   }, [host, state]);
 
-  useDraftValidation({ draftDirty, draftStylesheetText, draftTopologyText, host, setDraftValidation, state, validation });
+  useDraftValidation({ draftDirty, draftMapperText, draftStylesheetText, draftTopologyText, host, setDraftValidation, state, validation });
 
   const visibleDocument = useMemo(() => validation.document as TopoDocument | undefined, [validation.document]);
   const graphNodes = visibleDocument?.graph?.nodes || [];
@@ -256,8 +263,8 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
   const shellClassName = `topoviewer-vscode-shell${themeMode ? ` topoviewer-vscode-shell--${themeMode}` : ''}${parityMode ? ' topoviewer-vscode-shell--parity topoviewer-parity-theme' : ''}`;
   const nextThemeMode = themeMode === 'dark' ? 'light' : 'dark';
   const editorTheme = themeMode === 'light' ? 'light' : 'vs-dark';
-  const editorValue = tab === 0 ? draftTopologyText : draftStylesheetText;
-  const editorLabel = tab === 0 ? 'Topology YAML' : 'Stylesheet YAML';
+  const editorValue = tab === 0 ? draftTopologyText : tab === 1 ? draftStylesheetText : draftMapperText;
+  const editorLabel = tab === 0 ? 'Topology YAML' : tab === 1 ? 'Stylesheet YAML' : 'Mapper YAML';
   const selectedPrimary = selectedObjects[0];
   const selectedPrimaryObject = useMemo(() => findObject(visibleDocument, selectedPrimary), [selectedPrimary, visibleDocument]);
   const selectedFixture = fixtures.find((fixture) => fixture.id === state?.fixtureId);
@@ -421,6 +428,7 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
     setState(nextState);
     setDraftTopologyText(nextState?.topologyText || '');
     setDraftStylesheetText(nextState?.stylesheetText || '');
+    setDraftMapperText(nextState?.mapperText || '');
     if (!nextState) {
       setDraftValidation({ diagnostics: [], layers: [] });
     }
@@ -428,7 +436,7 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
 
   function applyDocumentTransaction(
     label: string,
-    update: (current: WebviewState) => Partial<Pick<WebviewState, 'stylesheetText' | 'topologyText'>>
+    update: (current: WebviewState) => Partial<Pick<WebviewState, 'mapperText' | 'stylesheetText' | 'topologyText'>>
   ) {
     if (draftDirty) {
       setMode('yaml');
@@ -441,18 +449,22 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
         const result = update(current);
         const nextTopologyText = result.topologyText ?? current.topologyText;
         const nextStylesheetText = result.stylesheetText ?? current.stylesheetText;
+        const nextMapperText = result.mapperText ?? current.mapperText;
         setUndoStack((stack) => [...stack, {
           label,
           previousTopologyText: current.topologyText,
           previousStylesheetText: current.stylesheetText,
+          previousMapperText: current.mapperText,
           nextTopologyText,
-          nextStylesheetText
+          nextStylesheetText,
+          nextMapperText
         }]);
         setRedoStack([]);
         flash(label);
         setDraftTopologyText(nextTopologyText);
         setDraftStylesheetText(nextStylesheetText);
-        return { ...current, topologyText: nextTopologyText, stylesheetText: nextStylesheetText };
+        setDraftMapperText(nextMapperText || '');
+        return { ...current, topologyText: nextTopologyText, stylesheetText: nextStylesheetText, mapperText: nextMapperText };
       } catch (error) {
         flash(error instanceof Error ? error.message : String(error));
         return current;
@@ -474,10 +486,12 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
     setState((current) => current ? {
       ...current,
       topologyText: transaction.previousTopologyText,
-      stylesheetText: transaction.previousStylesheetText
+      stylesheetText: transaction.previousStylesheetText,
+      mapperText: transaction.previousMapperText
     } : current);
     setDraftTopologyText(transaction.previousTopologyText);
     setDraftStylesheetText(transaction.previousStylesheetText);
+    setDraftMapperText(transaction.previousMapperText || '');
     flash(`Undo ${transaction.label}`);
   }
 
@@ -489,10 +503,12 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
     setState((current) => current ? {
       ...current,
       topologyText: transaction.nextTopologyText,
-      stylesheetText: transaction.nextStylesheetText
+      stylesheetText: transaction.nextStylesheetText,
+      mapperText: transaction.nextMapperText
     } : current);
     setDraftTopologyText(transaction.nextTopologyText);
     setDraftStylesheetText(transaction.nextStylesheetText);
+    setDraftMapperText(transaction.nextMapperText || '');
     flash(`Redo ${transaction.label}`);
   }
 
@@ -582,6 +598,45 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
     }
   }
 
+  function bundleBaseName() {
+    const raw = String(visibleDocument?.graph?.id || state?.fixtureId || 'topoviewer');
+    return raw.trim().replace(/[^A-Za-z0-9._-]+/g, '-').replace(/^-+|-+$/g, '') || 'topoviewer';
+  }
+
+  function downloadTextFile(fileName: string, text: string) {
+    const blob = new Blob([text], { type: 'text/yaml;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = fileName;
+    anchor.rel = 'noopener';
+    document.body.appendChild(anchor);
+    anchor.click();
+    document.body.removeChild(anchor);
+    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  async function downloadYamlBundle() {
+    if (!state) return;
+    const draftState = {
+      ...state,
+      mapperText: draftMapperText,
+      stylesheetText: draftStylesheetText,
+      topologyText: draftTopologyText
+    };
+    const result = await host.validate(draftState);
+    setDraftValidation(result);
+    if (result.diagnostics.some((diagnostic) => diagnostic.severity === 'error')) {
+      flash('Fix YAML diagnostics before exporting bundle');
+      return;
+    }
+    const baseName = bundleBaseName();
+    downloadTextFile(`${baseName}.topo.tv.yaml`, draftTopologyText);
+    downloadTextFile(`${baseName}.style.tv.yaml`, draftStylesheetText);
+    downloadTextFile(`${baseName}.mapper.tv.yaml`, draftMapperText || 'version: 1\nrules: []\n');
+    flash(`Exported ${baseName} bundle`);
+  }
+
   async function copyYamlToClipboard() {
     try {
       let copied = false;
@@ -612,7 +667,7 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
 
   function openDiagnostic(diagnostic: WebviewDiagnostic) {
     setMode('yaml');
-    setTab(diagnostic.document === 'stylesheet' ? 1 : 0);
+    setTab(diagnostic.document === 'mapper' ? 2 : diagnostic.document === 'stylesheet' ? 1 : 0);
     setPendingYamlFocus({
       column: diagnostic.column || 1,
       document: diagnostic.document || 'topology',
@@ -624,6 +679,7 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
     if (!state) return;
     const draftState = {
       ...state,
+      mapperText: draftMapperText,
       topologyText: draftTopologyText,
       stylesheetText: draftStylesheetText
     };
@@ -637,8 +693,10 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
       label: 'Apply YAML draft',
       previousTopologyText: state.topologyText,
       previousStylesheetText: state.stylesheetText,
+      previousMapperText: state.mapperText,
       nextTopologyText: draftTopologyText,
-      nextStylesheetText: draftStylesheetText
+      nextStylesheetText: draftStylesheetText,
+      nextMapperText: draftMapperText
     }]);
     setRedoStack([]);
     setState(draftState);
@@ -651,6 +709,7 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
     if (!state) return;
     setDraftTopologyText(state.topologyText);
     setDraftStylesheetText(state.stylesheetText);
+    setDraftMapperText(state.mapperText || '');
     setDraftValidation(validation);
     flash('Reverted YAML draft');
   }
@@ -969,9 +1028,9 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
     setAttentionFocusKind, setAttentionInteractive, setAttentionLabelKey, setAttentionLabelValue, setAttentionMode,
     setAttentionRegionId, setInspectorLayerId, setInspectorName, setInspectorX, setInspectorY, setLinkGroupingThreshold,
     setLinkSourceId, setLinkTargetId, setMode, setPathSourceId, setPathTargetId, setPathTransitCandidate,
-    setDraftStylesheetText, setDraftTopologyText, setPresetName, setRelationshipComposer, setSelectedLayerIds, setTab, showYamlSuggestions, state,
+    setDraftMapperText, setDraftStylesheetText, setDraftTopologyText, setPresetName, setRelationshipComposer, setSelectedLayerIds, setTab, showYamlSuggestions, state,
     statusSeverity, statusSummary, styleSelectionInYaml, tab, updateKeyValueRow, useSelectionForAttention,
-    validation, visibleDocument, draftDirty, yamlAssistEmptyMessage
+    validation, visibleDocument, draftDirty, downloadYamlBundle, yamlAssistEmptyMessage
   };
 
   return (

@@ -1,6 +1,9 @@
 import type { TopoDocument } from 'topoviewer';
 
 export interface WebviewState {
+  mapperText?: string;
+  mapperPath?: string;
+  mapperMissing?: boolean;
   topologyText: string;
   stylesheetText: string;
   topologyPath?: string;
@@ -18,7 +21,7 @@ export interface HarnessFixture {
 
 export interface WebviewDiagnostic {
   column?: number;
-  document?: 'topology' | 'stylesheet';
+  document?: 'topology' | 'stylesheet' | 'mapper';
   line?: number;
   severity: 'error' | 'warning';
   source: 'schema' | 'semantic' | 'host';

@@ -55,6 +55,11 @@
           "default": "stylesheet.yaml",
           "description": "Default stylesheet filename to pair with a TopoViewer topology YAML file."
         },
+        "topoviewer.preview.defaultMapper": {
+          "type": "string",
+          "default": "mapper.tv.yaml",
+          "description": "Default mapper filename to pair with TopoViewer topology and stylesheet YAML files."
+        },
         "topoviewer.preview.defaultTopology": {
           "type": "string",
           "default": "topology.yaml",
