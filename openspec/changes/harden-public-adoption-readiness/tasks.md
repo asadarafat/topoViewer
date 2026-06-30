@@ -81,12 +81,12 @@
 
 ## 7. Differentiation And Positioning
 
-- [ ] 7.1 Add factual "Why not Mermaid.js?" comparison focused on semantic topology runtime, not generic diagram syntax
-- [ ] 7.2 Add factual "Why not raw React Flow?" comparison focused on schema, stylesheet, docs embeds, validation, and authoring workflow
-- [ ] 7.3 Add static image/SVG workflow comparison without unnecessary competitor callouts
-- [ ] 7.4 Add "Topology as Code" positioning that explains topology means graph/diagram facts, not only network device topology
-- [ ] 7.5 Add examples showing TopoViewer as an npm library inside an end product, not only docs pages
-- [ ] 7.6 Add a public "what TopoViewer is not" section to reduce overpromising and support burden
+- [x] 7.1 Add factual "Why not Mermaid.js?" comparison focused on semantic topology runtime, not generic diagram syntax
+- [x] 7.2 Add factual "Why not raw React Flow?" comparison focused on schema, stylesheet, docs embeds, validation, and authoring workflow
+- [x] 7.3 Add static image/SVG workflow comparison without unnecessary competitor callouts
+- [x] 7.4 Add "Topology as Code" positioning that explains topology means graph/diagram facts, not only network device topology
+- [x] 7.5 Add examples showing TopoViewer as an npm library inside an end product, not only docs pages
+- [x] 7.6 Add a public "what TopoViewer is not" section to reduce overpromising and support burden
 
 ## 8. Harness Mapper Authoring
 

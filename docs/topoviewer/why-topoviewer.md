@@ -12,13 +12,72 @@ TypeScript/React runtime.
 
 ![YAML to rendered network diagram](../assets/topoviewer-yaml-to-diagram.png)
 
+## Topology As Code
+
+Topology as Code means the diagram is an artifact with stable semantics:
+
+- topology facts are reviewable YAML, not hand-positioned pixels;
+- visual policy is reusable stylesheet YAML, not copied into every object;
+- labels and data are queryable by tools, selectors, attention, and telemetry
+  mappers;
+- the same source can render in documentation, a React product, the browser
+  harness, and Grafana without translating it into a new format.
+
+TopoViewer can describe network diagrams, service dependency diagrams,
+operational maps, inventory relationships, lab topologies, and other graph-like
+systems. It is not limited to physical network topology.
+
 ## Different From Mermaid.js
 
-TopoViewer is not a generic Mermaid.js replacement. Mermaid is broad
-text-to-diagram syntax for many diagram families. TopoViewer is narrower and
-more semantic: it is built for inspectable, data-driven topology views where
-layers, regions, paths, operational metadata, focus behavior, and reusable
-runtime APIs matter.
+[Mermaid](https://mermaid.js.org/) is broad text-to-diagram syntax for many
+diagram families. It is a good fit when the goal is a lightweight diagram in a
+Markdown document.
+
+TopoViewer is narrower and more semantic. It is built for inspectable,
+data-driven topology views where layers, regions, paths, operational metadata,
+focus behavior, reusable stylesheets, and runtime APIs matter. Use TopoViewer
+when the diagram needs to act like structured product data, not only rendered
+documentation.
+
+| Need | Mermaid-style diagram | TopoViewer topology |
+|---|---|---|
+| Quick explanatory diagram | Strong fit. | Possible, but likely heavier than needed. |
+| Reusable visual policy | Usually authored inside the diagram. | Stylesheet rules target labels, data, and object kinds. |
+| Runtime object selection | Host-specific. | Built into React events and attention queries. |
+| Operational data overlays | Host-specific. | Mapper-driven overlays are a product direction. |
+| Large graph progressive disclosure | Limited by diagram type and renderer. | Attention, layers, regions, paths, and aggregation are first-class concepts. |
+
+## Different From Raw React Flow
+
+[React Flow](https://reactflow.dev/) is the rendering foundation for building
+node-based UIs. It is the right choice when you want full control over nodes,
+edges, state, and application behavior.
+
+TopoViewer sits above that level. It provides a topology schema, stylesheet
+language, validation, examples, docs embeds, harness authoring, and operational
+integration patterns. Use raw React Flow when you are building a custom editor
+from primitives; use TopoViewer when you want a declarative topology format and
+consistent rendering surfaces.
+
+| Need | Raw React Flow | TopoViewer |
+|---|---|---|
+| Custom node editor from scratch | Strong fit. | Use extensions only where TopoViewer semantics still help. |
+| YAML topology source | Build and maintain your own schema. | Built-in topology and stylesheet documents. |
+| Docs live viewport | Build a documentation embed path. | MkDocs and Zensical surfaces share the same runtime. |
+| Validation and semantic linting | Host-owned. | Provided as package APIs and CI commands. |
+| Reusable examples as tests | Host-owned. | Catalog examples are documentation and regression fixtures. |
+
+## Different From Static SVG Or Screenshots
+
+Static SVG, screenshots, and drawing tools are useful for polished one-off
+illustrations. They are weak when the source of truth changes often, when
+operators need object identity, or when documentation and product surfaces must
+stay consistent.
+
+TopoViewer keeps object identity in YAML, so a node can be styled, selected,
+validated, focused, exported, and mapped to telemetry without redrawing the
+diagram. Static exports still matter, but they are outputs of the topology
+source rather than the source itself.
 
 ## What Makes It Different
 
@@ -54,6 +113,31 @@ The rendered view is produced by the same example catalog used by the tests:
 - [YAML to network diagram](yaml-to-diagram/index.md)
 - [Real network demo](real-network-demo.md)
 
+## Embed In A Product
+
+TopoViewer is not only a docs plugin. Product teams can embed the React package
+directly and keep their own application shell, state management, routing,
+permissions, and telemetry model:
+
+```tsx
+import { TopoViewer, validateTopoDocument, type TopoDocument } from 'topoviewer';
+import 'topoviewer/style.css';
+
+const documentSpec: TopoDocument = validateTopoDocument(rawDocument, 'inventory topology');
+
+export function InventoryTopology() {
+  return (
+    <TopoViewer
+      document={documentSpec}
+      selectedLayerIds={['underlay', 'service']}
+      onObjectClick={(object) => setSelectedObject(object)}
+      onNodePositionChange={(change) => persistNodePosition(change)}
+      style={{ height: 680 }}
+    />
+  );
+}
+```
+
 ## Built For Network Views
 
 TopoViewer is not a generic chart wrapper. Its model is shaped around topology primitives:
@@ -66,6 +150,16 @@ TopoViewer is not a generic chart wrapper. Its model is shaped around topology p
 - `data` for status, severity, capacity, timestamps, and operational signals.
 
 Those facts can drive multiple views of the same environment: underlay, BGP, service path, and failure impact.
+
+## What TopoViewer Is Not
+
+- It is not a replacement for every diagramming language.
+- It is not a drag-only drawing canvas where the saved artifact is pixels.
+- It is not a network source of truth; it consumes or represents topology data.
+- It is not an observability database; Grafana integrations map telemetry into
+  runtime overlays.
+- It is not a promise that every roadmap integration is production-supported
+  today. Check the support status before adopting a surface.
 
 ## Integration Direction
 
