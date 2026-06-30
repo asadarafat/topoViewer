@@ -1,5 +1,7 @@
 # Grafana Telemetry Call Flow
 
+**Support status:** Lab
+
 TopoViewer in Grafana has two inputs that stay intentionally separate:
 
 - mounted source files: `*.topo.tv.yaml`, `*.style.tv.yaml`, and

@@ -1,5 +1,7 @@
 # Zensical Adapter
 
+**Support status:** Supported Adapter
+
 TopoViewer's Zensical integration is currently an adapter-only static site integration. It is not an installable Zensical plugin package.
 
 The working model is:

@@ -1,5 +1,7 @@
 # MkDocs Embed
 
+**Support status:** Supported
+
 TopoViewer ships a browser embed bundle in:
 
 - `topoviewer/embed/topoviewer-embed.iife.js`

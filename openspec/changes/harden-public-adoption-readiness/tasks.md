@@ -25,9 +25,9 @@
 - [x] 2.3 Move Monorepo, Release, Documentation Standard, and Production Hardening under Maintainers
 - [ ] 2.4 Keep generated exhaustive reference/test catalog available but out of the primary learning path
 - [x] 2.5 Move lab-only and roadmap-heavy pages out of the first-run path
-- [ ] 2.6 Update docs home to route users by job: author, embed, operate, reference, maintain
-- [ ] 2.7 Add docs lint that fails when Maintainer/Lab pages appear in the primary Start path
-- [ ] 2.8 Add docs lint that fails when an integration page has no support-status label
+- [x] 2.6 Update docs home to route users by job: author, embed, operate, reference, maintain
+- [x] 2.7 Add docs lint that fails when Maintainer/Lab pages appear in the primary Start path
+- [x] 2.8 Add docs lint that fails when an integration page has no support-status label
 
 ## 3. README And First-Run Story
 
@@ -42,8 +42,8 @@
 
 ## 4. Support Status And Product Claims
 
-- [ ] 4.1 Define the exact status labels and wording in a reusable docs fragment or shared source
-- [ ] 4.2 Apply status labels to README, docs home, React, MkDocs, Zensical, harness, VS Code, Grafana, NetBox, and OpsMill/Infrahub pages; keep Containerlab status inside the Grafana lab page
+- [x] 4.1 Define the exact status labels and wording in a reusable docs fragment or shared source
+- [x] 4.2 Apply status labels to README, docs home, React, MkDocs, Zensical, harness, VS Code, Grafana, NetBox, and OpsMill/Infrahub pages; keep Containerlab status inside the Grafana lab page
 - [ ] 4.3 Add docs lint that rejects unsupported terms such as "production-ready" unless the page meets the matching readiness gate
 - [ ] 4.4 Add docs lint that flags "supported", "stable", "experimental", "lab", and "roadmap" contradictions across README, docs home, package READMEs, and integration pages
 - [x] 4.5 Add a public support matrix showing stable package/API/schema surfaces versus experimental fields and integrations

@@ -51,15 +51,27 @@ all have the same maturity.
 
 | Surface | Status | Use today |
 |---|---|---|
-| TypeScript/React package | Supported source API; npm publication pending | Embed the renderer from the repo/package build while public npm release gates are completed. |
+| TypeScript/React package | Pre-Publish Supported | Embed the renderer from the repo/package build while public npm release gates are completed. |
 | MkDocs | Supported | Publish live YAML examples through `mkdocs-topoviewer`. |
-| Zensical | Experimental | Preview the same docs content through the generated Zensical site. |
+| Zensical | Supported Adapter | Preview the same docs content through the generated Zensical site. |
 | Browser harness | Experimental | Author, validate, preview, and export TopoViewer YAML. |
 | VS Code extension | Experimental | Preview TopoViewer YAML locally; automatic full-project authoring is still evolving. |
 | Grafana panel | Experimental | Mount topology/style/mapper bundles and render Prometheus-driven overlays. |
 | Grafana Containerlab mode | Lab | Validate realistic telemetry under the Grafana lab; not a separate production surface. |
 | NetBox | Roadmap | Future in-product topology visualization from NetBox inventory and platform data. |
 | OpsMill/Infrahub | Roadmap | Future in-product topology visualization from Infrahub network topology and inventory data. |
+
+## Support Status Labels
+
+| Status | Meaning |
+|---|---|
+| Supported | Implemented, documented, CI-gated, and intended for normal use. Compatibility expectations apply. |
+| Pre-Publish Supported | Implemented, documented, and CI-gated from source, but public package publication is still pending. |
+| Supported Adapter | Implemented, documented, and CI-gated as an adapter path, not as a native upstream plugin package. |
+| Experimental | Implemented enough to try, but API, UX, packaging, or operational behavior may still change. |
+| Lab | Disposable local validation environment. Do not treat it as production deployment guidance. |
+| Roadmap | Planned or under study. Do not depend on it as shipped behavior. |
+| Maintainer | Repository maintenance workflow, not an end-user product surface. |
 
 ## Quick Links
 

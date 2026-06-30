@@ -1,18 +1,20 @@
 # Integration Roadmap
 
-TopoViewer currently supports the React/TypeScript package, the MkDocs plugin, and a static Zensical adapter. VS Code has an experimental package in this repo. Other integrations are roadmap items and are not supported packages yet.
+**Support status:** Roadmap
+
+TopoViewer currently supports the React/TypeScript source API before public npm publication, the MkDocs plugin, and a static Zensical adapter. VS Code and Grafana are experimental surfaces in this repo. NetBox and OpsMill/Infrahub are roadmap items and are not supported packages yet.
 
 ## Status Summary
 
 | Surface | Status | First useful shape |
 | --- | --- | --- |
-| React / TypeScript | Supported | Import `TopoViewer` from the npm package and render topology plus stylesheet data. |
+| React / TypeScript | Pre-Publish Supported | Import `TopoViewer` from the source package build and render topology plus stylesheet data while public npm release gates are completed. |
 | MkDocs | Supported | Use the `mkdocs-topoviewer` fenced-block plugin with live YAML examples. |
-| Zensical | Supported adapter | Build the mirrored Zensical site from shared docs and static TopoViewer embed assets. |
-| NetBox | Feasibility | Build a NetBox plugin that renders TopoViewer diagrams inside NetBox from inventory and mapping profiles. |
-| OpsMill / Infrahub | Feasibility | Build an in-platform OpsMill/Infrahub extension that publishes TopoViewer views or artifacts from graph data. |
-| VS Code | Experimental package | Use `packages/vscode-topoviewer` for a Material UI authoring preview, schema-backed YAML assist, candidate Apply/Revert workflow, semantic diagnostics, fixture workflow, browser-test harness, and PNG export wiring. |
-| Grafana | Exploratory panel spike | Render canonical harness fixtures, a local Prometheus-backed weathermap, and local runtime interaction state inside a pinned Grafana lab. |
+| Zensical | Supported Adapter | Build the mirrored Zensical site from shared docs and static TopoViewer embed assets. |
+| NetBox | Roadmap | Build a NetBox plugin that renders TopoViewer diagrams inside NetBox from inventory and mapping profiles. |
+| OpsMill / Infrahub | Roadmap | Build an in-platform OpsMill/Infrahub extension that publishes TopoViewer views or artifacts from graph data. |
+| VS Code | Experimental | Use `packages/vscode-topoviewer` for a Material UI authoring preview, schema-backed YAML assist, candidate Apply/Revert workflow, semantic diagnostics, fixture workflow, browser-test harness, and PNG export wiring. |
+| Grafana | Experimental | Render mounted topology/style/mapper bundles and Prometheus-driven overlays in a Grafana panel; validate local lab behavior separately. |
 
 ## NetBox
 

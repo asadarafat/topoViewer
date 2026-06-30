@@ -1,5 +1,7 @@
 # Browser Harness
 
+**Support status:** Experimental
+
 The browser harness is the fastest way to author and inspect TopoViewer YAML
 without embedding it in another product.
 

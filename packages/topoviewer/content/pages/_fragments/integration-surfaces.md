@@ -4,9 +4,9 @@ all have the same maturity.
 
 | Surface | Status | Use today |
 |---|---|---|
-| TypeScript/React package | Supported source API; npm publication pending | Embed the renderer from the repo/package build while public npm release gates are completed. |
+| TypeScript/React package | Pre-Publish Supported | Embed the renderer from the repo/package build while public npm release gates are completed. |
 | MkDocs | Supported | Publish live YAML examples through `mkdocs-topoviewer`. |
-| Zensical | Experimental | Preview the same docs content through the generated Zensical site. |
+| Zensical | Supported Adapter | Preview the same docs content through the generated Zensical site. |
 | Browser harness | Experimental | Author, validate, preview, and export TopoViewer YAML. |
 | VS Code extension | Experimental | Preview TopoViewer YAML locally; automatic full-project authoring is still evolving. |
 | Grafana panel | Experimental | Mount topology/style/mapper bundles and render Prometheus-driven overlays. |

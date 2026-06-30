@@ -1,5 +1,7 @@
 # React Usage
 
+**Support status:** Pre-Publish Supported
+
 Install the package and its peer dependencies.
 
 ```bash

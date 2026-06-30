@@ -13,6 +13,24 @@ const docsRoot = path.join(repoRoot, 'docs');
 const packageRoot = path.join(repoRoot, 'packages/topoviewer');
 
 const errors = [];
+const supportStatusLabels = new Set([
+  'Supported',
+  'Pre-Publish Supported',
+  'Supported Adapter',
+  'Experimental',
+  'Lab',
+  'Roadmap',
+  'Maintainer'
+]);
+
+const integrationStatusPages = [
+  ['react.md', 'Pre-Publish Supported'],
+  ['mkdocs.md', 'Supported'],
+  ['zensical.md', 'Supported Adapter'],
+  ['browser-harness.md', 'Experimental'],
+  ['integration-roadmap.md', 'Roadmap'],
+  ['grafana-telemetry-call-flow.md', 'Lab']
+];
 
 function readText(filePath) {
   return fs.readFileSync(filePath, 'utf8');
@@ -79,12 +97,80 @@ function checkDocsStandard() {
     'Page Jobs',
     'Example README Contract',
     'Wording Rules',
-    'supported',
-    'experimental',
-    'roadmap'
+    'Support status',
+    ...supportStatusLabels
   ]) {
     if (!text.includes(phrase)) {
       fail(`docs-standard.md must describe ${phrase}`);
+    }
+  }
+}
+
+function supportStatusForPage(filePath) {
+  const text = readText(filePath);
+  const match = text.match(/^\*\*Support status:\*\*\s+(.+?)\s*$/m);
+  return match ? match[1] : undefined;
+}
+
+function checkIntegrationPageStatusLabels() {
+  for (const [page, expectedStatus] of integrationStatusPages) {
+    const filePath = path.join(contentPagesRoot, page);
+    if (!assertFile(filePath, `integration status page ${page}`)) continue;
+    const status = supportStatusForPage(filePath);
+    if (!status) {
+      fail(`${relative(filePath)} must include "**Support status:** <label>" near the top.`);
+      continue;
+    }
+    if (!supportStatusLabels.has(status)) {
+      fail(`${relative(filePath)} uses unsupported support status "${status}".`);
+      continue;
+    }
+    if (status !== expectedStatus) {
+      fail(`${relative(filePath)} must use support status "${expectedStatus}", found "${status}".`);
+    }
+  }
+}
+
+function statusColumnValues(markdownTableText, tableLabel) {
+  const statuses = [];
+  let inStatusTable = false;
+  let sawSeparator = false;
+  for (const line of markdownTableText.split('\n')) {
+    if (!line.trim().startsWith('|')) {
+      inStatusTable = false;
+      sawSeparator = false;
+      continue;
+    }
+    if (/\|\s*Surface\s*\|\s*Status\s*\|/.test(line)) {
+      inStatusTable = true;
+      sawSeparator = false;
+      continue;
+    }
+    if (!inStatusTable) continue;
+    if (/^\|\s*-+/.test(line)) {
+      sawSeparator = true;
+      continue;
+    }
+    if (!sawSeparator) continue;
+    const columns = line.split('|').slice(1, -1).map((column) => column.trim());
+    if (columns.length < 2) continue;
+    statuses.push({ status: columns[1], line, tableLabel });
+  }
+  return statuses;
+}
+
+function checkSupportStatusTables() {
+  const files = [
+    path.join(contentPagesRoot, '_fragments/integration-surfaces.md'),
+    path.join(contentPagesRoot, 'integration-roadmap.md')
+  ];
+
+  for (const filePath of files) {
+    if (!assertFile(filePath)) continue;
+    for (const { status, line } of statusColumnValues(readText(filePath), relative(filePath))) {
+      if (!supportStatusLabels.has(status)) {
+        fail(`${relative(filePath)} uses unsupported integration status "${status}" in table row: ${line}`);
+      }
     }
   }
 }
@@ -328,6 +414,16 @@ function collectNavTargets(navItems, targets = new Set()) {
   return targets;
 }
 
+function findNavSection(navItems, sectionName) {
+  for (const item of navItems || []) {
+    if (!item || typeof item !== 'object' || Array.isArray(item)) continue;
+    if (Object.prototype.hasOwnProperty.call(item, sectionName)) {
+      return item[sectionName];
+    }
+  }
+  return undefined;
+}
+
 function isAllowedUnnavedDocsPage(relativePath) {
   return [
     /^topoviewer\/examples\/.+\/README\.md$/,
@@ -356,6 +452,24 @@ function checkMkDocsNavCoverage() {
   }
 }
 
+function checkStartNavBoundary() {
+  const mkdocsConfig = readYaml(path.join(repoRoot, 'mkdocs.yml'));
+  const startTargets = collectNavTargets(findNavSection(mkdocsConfig.nav || [], 'Start'));
+  const forbiddenStartTargets = new Set([
+    'topoviewer/grafana-telemetry-call-flow.md',
+    'topoviewer/monorepo.md',
+    'topoviewer/production.md',
+    'topoviewer/release.md',
+    'topoviewer/docs-standard.md'
+  ]);
+
+  for (const target of startTargets) {
+    if (forbiddenStartTargets.has(target)) {
+      fail(`MkDocs Start nav must not include Lab or Maintainer page: ${target}`);
+    }
+  }
+}
+
 function checkPublicPathWording() {
   const forbidden = [
     'asadarafat.github.io/TopoViewer',
@@ -380,6 +494,8 @@ function checkPublicPathWording() {
 
 checkRequiredPages();
 checkDocsStandard();
+checkIntegrationPageStatusLabels();
+checkSupportStatusTables();
 checkCatalogDuplicateKeys();
 checkExampleSources();
 checkExampleNodeDimensions();
@@ -388,6 +504,7 @@ checkApiCoverage();
 checkLocalLinks();
 checkGeneratedCriticalPages();
 checkMkDocsNavCoverage();
+checkStartNavBoundary();
 checkPublicPathWording();
 
 if (errors.length) {

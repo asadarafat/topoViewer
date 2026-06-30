@@ -108,6 +108,7 @@ function generatedNotice(source) {
 function readmeMarkdown() {
   const positioning = fragment('product-positioning.md');
   const integrations = fragment('integration-surfaces.md');
+  const supportStatuses = fragment('support-statuses.md');
   return `${generatedNotice('packages/topoviewer/content/pages/_fragments/*.md')}
 # TopoViewer
 
@@ -142,6 +143,10 @@ Open:
 ## Integration Surfaces
 
 ${integrations}
+
+## Support Status Labels
+
+${supportStatuses}
 
 ## Quick Links
 
@@ -183,6 +188,7 @@ The historical pre-refresh repository is preserved at
 function docsIndexMarkdown() {
   const positioning = fragment('product-positioning.md');
   const integrations = fragment('integration-surfaces.md');
+  const supportStatuses = fragment('support-statuses.md');
   return `${generatedNotice('packages/topoviewer/content/pages/_fragments/*.md')}
 # TopoViewer
 
@@ -194,18 +200,23 @@ ${positioning}
 
 | Need | Start here |
 |---|---|
-| Render your first YAML diagram | [First topology](topoviewer/getting-started.md) |
-| Learn the product position | [Why TopoViewer](topoviewer/why-topoviewer.md) |
-| Style nodes, links, paths, and regions | [Style a topology](topoviewer/style-a-topology.md) |
-| Author interactively | [Browser harness](topoviewer/browser-harness.md) |
+| Author a topology | [First topology](topoviewer/getting-started.md), then [Browser harness](topoviewer/browser-harness.md) |
+| Style a topology | [Style a topology](topoviewer/style-a-topology.md), then [stylesheet reference](topoviewer/stylesheet.md) |
 | Embed in documentation | [MkDocs](topoviewer/mkdocs.md) or [Zensical](topoviewer/zensical.md) |
-| Embed in React | [React usage](topoviewer/react.md) |
+| Embed in a React product | [React usage](topoviewer/react.md) and [TypeScript API](topoviewer/api-reference.md) |
+| Operate from telemetry | [Grafana lab call flow](topoviewer/grafana-telemetry-call-flow.md) and [integration roadmap](topoviewer/integration-roadmap.md) |
+| Compare product fit | [Why TopoViewer](topoviewer/why-topoviewer.md) |
+| Reference accepted contracts | [YAML schemas](topoviewer/schemas.md), [reference model](topoviewer/reference-model.md), and [stylesheet](topoviewer/stylesheet.md) |
+| Maintain or release the repo | [Production hardening](topoviewer/production.md), [release](topoviewer/release.md), and [docs standard](topoviewer/docs-standard.md) |
 | Debug a broken render | [Debug rendering](topoviewer/debugging.md) |
-| Check accepted YAML and API contracts | [YAML schemas](topoviewer/schemas.md), [stylesheet](topoviewer/stylesheet.md), and [TypeScript API](topoviewer/api-reference.md) |
 
 ## Integration Surfaces
 
 ${integrations}
+
+## Support Status Labels
+
+${supportStatuses}
 
 ## Examples
 
