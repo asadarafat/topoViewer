@@ -49,6 +49,7 @@ Options:
 | `controls` | Show layer/display controls. Defaults to `true`. |
 | `controlsOpen` | Open controls panel initially. Defaults to `false`. |
 | `selectedLayerIds` | Initial checked layer IDs for this embed. Defaults to all graph layers. |
+| `attention` | Optional runtime attention override for this specific rendered viewport. |
 
 ## Attention Blocks
 

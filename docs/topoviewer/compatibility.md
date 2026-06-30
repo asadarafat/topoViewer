@@ -46,6 +46,55 @@ change.
 | Grafana backend resource API | Experimental integration API | May change while the panel is experimental; dashboard migrations must be documented. |
 | Lab scripts and Containerlab mode | Lab | Not a production API. Do not build automation against lab-only ports, credentials, or file paths. |
 
+## Docs Embed API Compatibility
+
+MkDocs and Zensical share the same `topoviewer` fenced-block contract. The
+current documented options are:
+
+| Option | Compatibility rule |
+|---|---|
+| `topology` | Required. Removing or renaming this would be breaking. |
+| `stylesheet` | Optional. Must remain optional so topology-only examples keep rendering. |
+| `height` | Optional CSS length. Defaults remain adapter-owned. |
+| `width` | Optional CSS length. Defaults remain adapter-owned. |
+| `title` | Optional caption. |
+| `controls` | Optional boolean. Existing omitted value must keep showing controls by default. |
+| `controlsOpen` | Optional boolean. Existing omitted value must keep controls closed by default. |
+| `selectedLayerIds` | Optional list of layer IDs. Existing omitted value must keep selecting all layers. |
+| `attention` | Optional runtime attention override. Existing topology-level attention remains valid. |
+
+New embed options must be optional. Any removal, rename, or default change needs
+a migration note and a docs-embed compatibility test update.
+
+## Grafana Panel Option Compatibility
+
+Grafana dashboard JSON stores panel options. Treat these paths as the current
+experimental compatibility contract:
+
+| Option path | Compatibility rule |
+|---|---|
+| `sourceMode` | Defaults to mounted bundle. Existing fixture dashboards must still migrate or render as fixture compatibility mode. |
+| `fixtureId` | Demo/CI compatibility only; do not require normal users to edit fixture catalogs. |
+| `mountedBundle.bundleRoot` | Defaults to `/etc/topoviewer/bundles`; path validation remains backend-owned. |
+| `mountedBundle.manifestPath` | Optional. Empty string keeps suffix discovery. |
+| `mountedBundle.selectedBundleId` | Optional. Empty string selects the first complete bundle. |
+| `themeMode` | Optional display intent. Existing `auto` behavior must keep following host theme where possible. |
+| `showControls` | Optional boolean. Omitted dashboards keep controls visible. |
+| `controlsOpen` | Optional boolean. Omitted dashboards keep controls closed. |
+| `telemetry.enabled` | Optional boolean. Omitted dashboards render base topology without overlays. |
+| `telemetry.infoPercent` | Optional numeric threshold. Defaults to `50`. |
+| `telemetry.warningPercent` | Optional numeric threshold. Defaults to `80`. |
+| `telemetry.errorPercent` | Optional numeric threshold. Defaults to `90`. |
+| `interaction.enabled` | Optional boolean. Omitted dashboards keep interaction state enabled. |
+| `interaction.allowNodeDrag` | Optional boolean. Omitted dashboards allow local node drag. |
+| `interaction.persistViewport` | Optional persistence mode. Defaults to `session`. |
+| `interaction.persistSelection` | Optional persistence mode. Defaults to `session`. |
+| `interaction.persistNodePositions` | Optional persistence mode. Defaults to `session`. |
+| `interaction.resetOnTopologyIdentityChange` | Optional boolean. Omitted dashboards isolate state by topology identity. |
+
+Grafana option changes must update panel defaults, docs, dashboard migration
+notes, and tests in the same change.
+
 ## Document Migration Rules
 
 Use these rules when changing YAML, schema, style, attention, mapper, or layout

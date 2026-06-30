@@ -1,4 +1,7 @@
 import { describe, expect, it } from 'vitest';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import type { PanelOptionsEditorBuilder } from '@grafana/data';
 import { applyTopoViewerPanelOptions } from '../src/panelOptions';
 import type { TopoViewerGrafanaPanelOptions } from '../src/types';
@@ -32,6 +35,9 @@ function asGrafanaBuilder(builder: RecordingBuilder) {
 }
 
 describe('panel options', () => {
+  const testDir = path.dirname(fileURLToPath(import.meta.url));
+  const repoRoot = path.resolve(testDir, '../../..');
+
   it('registers stable production option defaults', () => {
     const builder = new RecordingBuilder();
     applyTopoViewerPanelOptions(asGrafanaBuilder(builder));
@@ -83,5 +89,17 @@ describe('panel options', () => {
     const settings = builder.calls[1]?.config.settings as { options: Array<{ value: string; label: string }> };
     expect(settings.options.map((option) => option.value)).toContain('clos-2spine-4leaf');
     expect(settings.options.map((option) => option.value)).toContain('region-label-placement');
+  });
+
+  it('keeps Grafana panel option paths documented for dashboard compatibility', () => {
+    const builder = new RecordingBuilder();
+    applyTopoViewerPanelOptions(asGrafanaBuilder(builder));
+    const docs = fs.readFileSync(path.join(repoRoot, 'packages/topoviewer/content/pages/compatibility.md'), 'utf8');
+
+    const missing = builder.calls
+      .map((call) => String(call.config.path))
+      .filter((optionPath) => !docs.includes(`\`${optionPath}\``));
+
+    expect(missing).toEqual([]);
   });
 });

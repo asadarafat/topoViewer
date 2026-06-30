@@ -54,6 +54,10 @@ The Zensical sync step rewrites those fences into plain static HTML:
 
 It also expands YAML snippet directives so the Zensical output shows full topology and stylesheet source text.
 
+Zensical accepts the same authored fenced-block options as MkDocs before sync:
+`topology`, `stylesheet`, `height`, `width`, `title`, `controls`,
+`controlsOpen`, `selectedLayerIds`, and `attention`.
+
 ## Local Commands
 
 Preview both local documentation sites:
