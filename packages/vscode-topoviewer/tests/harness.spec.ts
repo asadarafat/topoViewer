@@ -916,6 +916,112 @@ test('serves validation through the local fixture API', async ({ request }) => {
   expect(body.layers.every((layer: { objectCount: number }) => layer.objectCount > 0)).toBeTruthy();
 });
 
+test('reports topology-aware mapper diagnostics through validation', async ({ request }) => {
+  const topology = await (await request.get('/fixtures/layered-network/topology.yaml')).text();
+  const stylesheet = await (await request.get('/fixtures/layered-network/stylesheet.yaml')).text();
+  const mapper = [
+    'version: 1',
+    'mappings:',
+    '  - id: stale-node',
+    '    metric: topoviewer_node_health',
+    '    target:',
+    '      kind: node',
+    '      resolve:',
+    '        by: staticObjectIds',
+    '        objectIds:',
+    '          - fra-pe',
+    '          - missing-node',
+    '    overlay:',
+    '      lineColorBySeverity: true',
+    '  - id: selector-mismatch',
+    '    metric: topoviewer_node_health',
+    '    target:',
+    '      kind: node',
+    '      resolve:',
+    '        by: selector',
+    '        selector: link',
+    '    overlay:',
+    '      statusMarker: true',
+    ''
+  ].join('\n');
+
+  const response = await request.post('/validate', {
+    data: { topologyText: topology, stylesheetText: stylesheet, mapperText: mapper }
+  });
+  expect(response.ok()).toBeTruthy();
+  const body = await response.json() as { diagnostics: Array<{ code: string; document?: string; severity: string }> };
+  expect(body.diagnostics).toEqual(expect.arrayContaining([
+    expect.objectContaining({ code: 'mapper-static-object-stale', document: 'mapper', severity: 'warning' }),
+    expect.objectContaining({ code: 'mapper-overlay-unsupported', document: 'mapper', severity: 'warning' }),
+    expect.objectContaining({ code: 'mapper-selector-kind-mismatch', document: 'mapper', severity: 'warning' })
+  ]));
+});
+
+test('reports mapper ambiguity and missing link-direction diagnostics', async ({ request }) => {
+  const topology = [
+    'graph:',
+    '  id: mapper-ambiguous-endpoints',
+    '  layers:',
+    '    - id: underlay',
+    '      name: Underlay',
+    '  nodes:',
+    '    - id: A',
+    '      name: A',
+    '      layers: [underlay]',
+    '      position: [120, 120]',
+    '    - id: B',
+    '      name: B',
+    '      layers: [underlay]',
+    '      position: [360, 120]',
+    '  links:',
+    '    - id: A-B-primary',
+    '      source: A',
+    '      target: B',
+    '      layers: [underlay]',
+    '    - id: A-B-backup',
+    '      source: A',
+    '      target: B',
+    '      layers: [underlay]',
+    ''
+  ].join('\n');
+  const stylesheet = 'layout:\n  mode: manual\nstylesheet: []\n';
+  const mapper = [
+    'version: 1',
+    'mappings:',
+    '  - id: endpoint-link',
+    '    metric: link_utilization',
+    '    target:',
+    '      kind: link',
+    '      resolve:',
+    '        by: endpoint',
+    '        sourceLabel: source',
+    '        targetLabel: target',
+    '    overlay:',
+    '      lineColorBySeverity: true',
+    '  - id: directional-link',
+    '    metric: link_direction_bps',
+    '    target:',
+    '      kind: linkDirection',
+    '      resolve:',
+    '        by: id',
+    '        linkMetricLabel: link_id',
+    '        directionMetricLabel: direction',
+    '    overlay:',
+    '      lineWidthBySeverity: true',
+    ''
+  ].join('\n');
+
+  const response = await request.post('/validate', {
+    data: { topologyText: topology, stylesheetText: stylesheet, mapperText: mapper }
+  });
+  expect(response.ok()).toBeTruthy();
+  const body = await response.json() as { diagnostics: Array<{ code: string; document?: string; severity: string }> };
+  expect(body.diagnostics).toEqual(expect.arrayContaining([
+    expect.objectContaining({ code: 'mapper-endpoint-ambiguous', document: 'mapper', severity: 'warning' }),
+    expect.objectContaining({ code: 'mapper-link-direction-missing-direction', document: 'mapper', severity: 'warning' })
+  ]));
+});
+
 test('reports missing companion files through validation diagnostics', async ({ request }) => {
   const topology = await (await request.get('/fixtures/layered-network/topology.yaml')).text();
   const response = await request.post('/validate', {
