@@ -82,18 +82,31 @@ graph:
       position:
         - 900
         - 170
-    - id: diagnostics-runtime
-      name: Diagnostics
+    - id: source-diagnostics
+      name: Source Diagnostics
       labels:
         kind: diagnostic
-        role: diagnostics
+        role: source-diagnostics
       data:
-        detail: Source, mapper, telemetry, and render diagnostics surfaced in the panel.
+        detail: Source discovery, parse, schema, and bundle-selection diagnostics produced by the plugin backend.
       layers:
         - diagnostics
         - runtime
       position:
-        - 900
+        - 390
+        - 300
+    - id: runtime-diagnostics
+      name: Runtime Diagnostics
+      labels:
+        kind: diagnostic
+        role: runtime-diagnostics
+      data:
+        detail: Mapper coverage, telemetry matching, overlay, and render diagnostics surfaced by the panel runtime.
+      layers:
+        - diagnostics
+        - runtime
+      position:
+        - 830
         - 370
   links:
     - id: authoring-to-backend
@@ -153,19 +166,19 @@ graph:
     - id: mapper-to-diagnostics
       name: "7"
       source: mapper-runtime
-      target: diagnostics-runtime
+      target: runtime-diagnostics
       labels:
         flow: diagnostic
-        route: straight
+        route: smooth-taxi
       layers:
         - diagnostics
     - id: backend-to-diagnostics
       name: "8"
       source: plugin-backend
-      target: diagnostics-runtime
+      target: source-diagnostics
       labels:
         flow: diagnostic
-        route: bezier
+        route: straight
       layers:
         - diagnostics
   regions:
@@ -201,7 +214,8 @@ graph:
         - plugin-frontend
         - mapper-runtime
         - topoviewer-renderer
-        - diagnostics-runtime
+        - source-diagnostics
+        - runtime-diagnostics
       layers:
         - runtime
         - diagnostics
@@ -218,10 +232,12 @@ graph:
       parent: grafana-region
       members:
         - plugin-backend
+        - source-diagnostics
       layers:
         - runtime
+        - diagnostics
       paddingX: 42
-      paddingY: 56
+      paddingY: 62
     - id: frontend-region
       name: TopoViewer plugin frontend
       labels:
@@ -232,7 +248,7 @@ graph:
         - plugin-frontend
         - mapper-runtime
         - topoviewer-renderer
-        - diagnostics-runtime
+        - runtime-diagnostics
       layers:
         - runtime
       paddingX: 48

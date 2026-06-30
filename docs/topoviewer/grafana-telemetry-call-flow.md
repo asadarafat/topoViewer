@@ -46,9 +46,10 @@ selectedLayerIds:
        the embedded renderer.
     6. The mapper runtime produces transient runtime overlays for matching
        TopoViewer objects.
-    7. The mapper runtime emits mapping coverage diagnostics.
-    8. The TopoViewer plugin backend emits source discovery, parse, schema, and
-       bundle-selection diagnostics.
+    7. The mapper runtime emits frontend runtime diagnostics: coverage,
+       ambiguous matches, unsupported overlays, and render-facing warnings.
+    8. The TopoViewer plugin backend emits source diagnostics: discovery,
+       parse, schema, and bundle-selection errors.
 
 ## Source Loading
 
@@ -101,8 +102,17 @@ degraded, congested, or failed conditions without changing the authored YAML.
 
 ## Diagnostics
 
-Production behavior must be explicit when mapping cannot be trusted. The
-TopoViewer plugin frontend should surface diagnostics for:
+Production behavior must be explicit when source loading or telemetry mapping
+cannot be trusted. Diagnostics are split by owner:
+
+- the plugin backend reports source diagnostics for mounted bundle discovery,
+  canonical suffix validation, YAML parsing, schema validation, and selected
+  bundle loading;
+- the plugin frontend reports runtime diagnostics for mapper coverage,
+  telemetry matching, unsupported overlay styles, render limits, and panel
+  state.
+
+Together they should surface:
 
 - source parse or schema errors;
 - unsupported style keys for a target kind;

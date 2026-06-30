@@ -131,6 +131,8 @@ stylesheet:
       icon: diagnostics
       backgroundColor: "#d32f2f"
       borderColor: "#ef9a9a"
+      width: 172
+      labelTextMaxWidth: 164
   - selector: link
     style:
       curveStyle: straight
@@ -152,15 +154,17 @@ stylesheet:
       labelBorderColor: "rgba(15, 23, 42, 0.18)"
       labelBorderWidth: 1
       zIndex: 45
-  - selector: link[labels.route = "taxi"]
-    style:
-      curveStyle: taxi
-      taxiTurnMinDistance: 28
   - selector: link[labels.route = "bezier"]
     style:
       curveStyle: bezier
       controlPointDistance: 56
       controlPointWeight: 0.54
+  - selector: link[labels.route = "smooth-taxi"]
+    style:
+      curveStyle: smooth-taxi
+      taxiDirection: horizontal
+      taxiTurn: 50%
+      taxiTurnMinDistance: 90
   - selector: link[labels.flow = "source"]
     style:
       lineColor: "#1976d2"
@@ -221,7 +225,6 @@ stylesheet:
       labelYOffset: -24
   - selector: link[labels.flow = "diagnostic"]
     style:
-      curveStyle: taxi
       lineColor: "#d32f2f"
       targetArrowColor: "#d32f2f"
       lineStyle: dashed
@@ -231,10 +234,12 @@ stylesheet:
   - selector: link[id = "mapper-to-diagnostics"]
     style:
       label: "7"
-      labelXOffset: 22
-      labelYOffset: -12
+      controlPointDistance: 82
+      controlPointWeight: 0.5
+      labelXOffset: -10
+      labelYOffset: -26
   - selector: link[id = "backend-to-diagnostics"]
     style:
       label: "8"
-      labelXOffset: 34
-      labelYOffset: 20
+      labelXOffset: 26
+      labelYOffset: 0
