@@ -35,8 +35,8 @@ embedding product owns the browser, hardware profile, and failure behavior.
 | Package/public readiness | No local path leaks, stale generated output, or unsafe public claims | `npm run public-readiness` |
 
 The benchmark summaries published in docs must avoid local host paths. Local
-deep profiles belong under ignored artifact directories such as
-`.artifacts/benchmarks/`.
+deep profiles belong in an ignored local artifact directory, not in public
+docs, package files, or checked-in media.
 
 ## Benchmark Scenarios
 
