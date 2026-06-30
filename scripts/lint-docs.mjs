@@ -212,6 +212,36 @@ function checkPublicClaimWording() {
   }
 }
 
+function checkOpenSpecIndex() {
+  const readmePath = path.join(repoRoot, 'openspec/README.md');
+  if (!assertFile(readmePath, 'OpenSpec README')) return;
+  const text = readText(readmePath);
+  if (!text.includes('Active plans are not public support claims.')) {
+    fail('openspec/README.md must state that active OpenSpec plans are not public support claims.');
+  }
+
+  const changesRoot = path.join(repoRoot, 'openspec/changes');
+  const activeChanges = new Set(
+    fs.existsSync(changesRoot)
+      ? fs.readdirSync(changesRoot, { withFileTypes: true })
+        .filter((entry) => entry.isDirectory())
+        .map((entry) => entry.name)
+      : []
+  );
+  const listedChanges = new Set([...text.matchAll(/^- `changes\/([^/]+)\/`/gm)].map((match) => match[1]));
+
+  for (const change of activeChanges) {
+    if (!listedChanges.has(change)) {
+      fail(`openspec/README.md is missing active change: changes/${change}/`);
+    }
+  }
+  for (const change of listedChanges) {
+    if (!activeChanges.has(change)) {
+      fail(`openspec/README.md lists non-active change under Current active plans: changes/${change}/`);
+    }
+  }
+}
+
 function checkCatalogDuplicateKeys() {
   const catalogFile = path.join(contentExamplesRoot, 'catalog.yaml');
   if (!assertFile(catalogFile)) return;
@@ -534,6 +564,7 @@ checkDocsStandard();
 checkIntegrationPageStatusLabels();
 checkSupportStatusTables();
 checkPublicClaimWording();
+checkOpenSpecIndex();
 checkCatalogDuplicateKeys();
 checkExampleSources();
 checkExampleNodeDimensions();

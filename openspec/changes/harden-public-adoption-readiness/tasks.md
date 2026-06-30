@@ -47,7 +47,7 @@
 - [x] 4.3 Add docs lint that rejects unsupported terms such as "production-ready" unless the page meets the matching readiness gate
 - [ ] 4.4 Add docs lint that flags "supported", "stable", "experimental", "lab", and "roadmap" contradictions across README, docs home, package READMEs, and integration pages
 - [x] 4.5 Add a public support matrix showing stable package/API/schema surfaces versus experimental fields and integrations
-- [ ] 4.6 Update OpenSpec index or docs so active roadmap work does not read as shipped support
+- [x] 4.6 Update OpenSpec index or docs so active roadmap work does not read as shipped support
 
 ## 5. Curated Examples
 

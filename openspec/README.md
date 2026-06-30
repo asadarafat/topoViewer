@@ -4,12 +4,15 @@ This directory holds durable engineering plans for TopoViewer.
 
 OpenSpec is used here as a lightweight project structure, not as a runtime dependency. Active design and implementation plans live under `openspec/changes/<change-id>/`; implemented plans move to `openspec/archive/<date>-<change-id>/`.
 
+Active plans are not public support claims. Treat `openspec/changes/**` as
+engineering intent until the change is implemented, validated, archived, and
+reflected in public docs with an explicit support-status label.
+
 Current active plans:
 
+- `changes/define-codespaces-dev-environment/` - planned Codespaces developer environment that can run local MkDocs, Zensical, browser harness, Grafana lab, and Containerlab-Grafana workflows from a fresh cloud workspace.
 - `changes/define-netbox-integration-roadmap/` - planned NetBox feasibility, use cases, first integration shape, and roadmap wording constraints.
 - `changes/define-opsmill-infrahub-integration-roadmap/` - planned OpsMill/Infrahub feasibility, use cases, first integration shape, and roadmap wording constraints.
-- `changes/define-grafana-integration-roadmap/` - phased Grafana feasibility roadmap covering panel/harness parity, Prometheus weathermap, interactive runtime state, mounted bundle mapper foundation, Containerlab telemetry, and later Codespaces portability.
-- `changes/implement-grafana-containerlab-phase-5/` - planned `topoviewer-grafana` Containerlab telemetry lab with SR Linux, gNMIc, Prometheus, mounted TopoViewer bundles, and mapper-driven live overlays.
 - `changes/harden-link-direction-lanes/` - planned production hardening for direction lane geometry, physical parallel-link behavior, direction-specific interaction, attention, mapper coverage, mounted-bundle examples, and cross-surface parity.
 - `changes/harden-public-adoption-readiness/` - planned public repository and documentation hardening so the stable TopoViewer core, first-run workflow, support boundaries, curated examples, and quality gates are clear enough for broad external adoption.
 
