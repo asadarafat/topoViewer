@@ -1,0 +1,87 @@
+name: Security
+
+on:
+  pull_request:
+  push:
+    branches:
+      - development
+      - main
+      - master
+  schedule:
+    - cron: "37 3 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  dependency-and-secret-checks:
+    name: Dependency and secret checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: npm
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: "1.24.6"
+          cache-dependency-path: packages/grafana-topoviewer-panel/go.sum
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Public readiness guardrails
+        run: npm run ci:public-readiness
+
+      - name: npm production dependency audit
+        run: npm audit --omit=dev --audit-level=moderate
+
+      - name: npm full dependency audit
+        run: npm audit --audit-level=moderate
+
+      - name: Go vulnerability check
+        working-directory: packages/grafana-topoviewer-panel
+        run: go run golang.org/x/vuln/cmd/govulncheck@latest ./...
+
+      - name: Secret scan
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  container-image-checks:
+    name: Container image checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Scan Grafana image
+        uses: aquasecurity/trivy-action@0.33.1
+        with:
+          image-ref: grafana/grafana:13.1.0
+          severity: CRITICAL,HIGH
+          exit-code: "1"
+
+      - name: Scan Prometheus image
+        uses: aquasecurity/trivy-action@0.33.1
+        with:
+          image-ref: prom/prometheus:v3.5.0
+          severity: CRITICAL,HIGH
+          exit-code: "1"
+
+      - name: Scan gNMIc image
+        uses: aquasecurity/trivy-action@0.33.1
+        with:
+          image-ref: ghcr.io/openconfig/gnmic:0.40.0
+          severity: CRITICAL,HIGH
+          exit-code: "1"

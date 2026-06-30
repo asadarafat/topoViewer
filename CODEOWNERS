@@ -1,0 +1,12 @@
+# Repository ownership for review routing.
+* @asadarafat
+
+/packages/topoviewer/ @asadarafat
+/packages/mkdocs-topoviewer/ @asadarafat
+/packages/vscode-topoviewer/ @asadarafat
+/packages/grafana-topoviewer-panel/ @asadarafat
+/labs/grafana-topoviewer/ @asadarafat
+/docs/ @asadarafat
+/packages/topoviewer/content/ @asadarafat
+/.github/ @asadarafat
+/openspec/ @asadarafat

@@ -1,0 +1,267 @@
+#!/usr/bin/env node
+
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const errors = [];
+
+const PUBLIC_TEXT_ROOTS = [
+  'README.md',
+  'SECURITY.md',
+  'SUPPORT.md',
+  'CONTRIBUTING.md',
+  'mkdocs.yml',
+  'zensical.toml',
+  'docs',
+  'packages/topoviewer/content',
+  'packages/topoviewer/docs',
+  'packages/topoviewer/examples',
+  'packages/topoviewer/README.md',
+  'packages/mkdocs-topoviewer/README.md',
+  'packages/vscode-topoviewer/README.md',
+  'packages/grafana-topoviewer-panel/README.md',
+  '.github'
+];
+
+const TEXT_EXTENSIONS = new Set([
+  '.cjs',
+  '.css',
+  '.go',
+  '.html',
+  '.js',
+  '.json',
+  '.md',
+  '.mjs',
+  '.py',
+  '.sh',
+  '.toml',
+  '.ts',
+  '.tsx',
+  '.yaml',
+  '.yml'
+]);
+
+const IGNORED_PARTS = new Set([
+  '.git',
+  '.artifacts',
+  '.venv',
+  '.venv-docs',
+  'node_modules',
+  'dist',
+  'build',
+  'site',
+  'test-results',
+  'playwright-report',
+  '__pycache__'
+]);
+
+function repoPath(...parts) {
+  return path.join(repoRoot, ...parts);
+}
+
+function relative(filePath) {
+  return path.relative(repoRoot, filePath).split(path.sep).join(path.posix.sep);
+}
+
+function fail(message) {
+  errors.push(message);
+}
+
+function readText(relativePath) {
+  return fs.readFileSync(repoPath(relativePath), 'utf8');
+}
+
+function readJson(relativePath) {
+  return JSON.parse(readText(relativePath));
+}
+
+function assertFile(relativePath, requiredText = []) {
+  const absolute = repoPath(relativePath);
+  if (!fs.existsSync(absolute)) {
+    fail(`Missing required file: ${relativePath}`);
+    return '';
+  }
+
+  const text = fs.readFileSync(absolute, 'utf8');
+  for (const phrase of requiredText) {
+    if (!text.includes(phrase)) {
+      fail(`${relativePath} must mention "${phrase}".`);
+    }
+  }
+  return text;
+}
+
+function isIgnored(absolutePath) {
+  return relative(absolutePath).split('/').some((part) => IGNORED_PARTS.has(part));
+}
+
+function listTextFiles(start) {
+  const absolute = repoPath(start);
+  if (!fs.existsSync(absolute)) return [];
+  const stat = fs.statSync(absolute);
+  if (stat.isFile()) {
+    return TEXT_EXTENSIONS.has(path.extname(absolute)) ? [absolute] : [];
+  }
+
+  const files = [];
+  for (const entry of fs.readdirSync(absolute, { withFileTypes: true })) {
+    const child = path.join(absolute, entry.name);
+    if (isIgnored(child)) continue;
+    if (entry.isDirectory()) {
+      files.push(...listTextFiles(relative(child)));
+    } else if (entry.isFile() && TEXT_EXTENSIONS.has(path.extname(child))) {
+      files.push(child);
+    }
+  }
+  return files;
+}
+
+function assertRequiredGovernance() {
+  assertFile('SECURITY.md', [
+    'Reporting A Vulnerability',
+    'In Scope',
+    'Out Of Scope',
+    'Security Boundaries'
+  ]);
+  assertFile('SUPPORT.md', [
+    'Supported Surfaces',
+    'Best-Effort Surfaces',
+    'Lab-Only Surfaces',
+    'Roadmap Surfaces',
+    'This project does not provide a promised SLA'
+  ]);
+  assertFile('CONTRIBUTING.md', [
+    'npm run ci',
+    'Review Expectations',
+    'Public-readiness changes'
+  ]);
+  assertFile('CODEOWNERS', [
+    '@asadarafat'
+  ]);
+
+  for (const template of [
+    '.github/ISSUE_TEMPLATE/bug_report.yml',
+    '.github/ISSUE_TEMPLATE/docs_issue.yml',
+    '.github/ISSUE_TEMPLATE/feature_request.yml',
+    '.github/ISSUE_TEMPLATE/integration_issue.yml',
+    '.github/ISSUE_TEMPLATE/performance_regression.yml'
+  ]) {
+    assertFile(template);
+  }
+}
+
+function assertSecurityAutomation() {
+  assertFile('.github/dependabot.yml', [
+    'package-ecosystem: npm',
+    'package-ecosystem: gomod',
+    'package-ecosystem: github-actions',
+    'package-ecosystem: docker'
+  ]);
+  assertFile('.github/workflows/codeql.yml', [
+    'github/codeql-action/init',
+    'javascript-typescript',
+    '- go'
+  ]);
+  assertFile('.github/workflows/security.yml', [
+    'npm audit --omit=dev',
+    'npm audit --audit-level=moderate',
+    'govulncheck',
+    'gitleaks',
+    'trivy-action'
+  ]);
+}
+
+function assertPublicTextHasNoLocalLeaks() {
+  const forbidden = [
+    { value: '/Users/', reason: 'local home path' },
+    { value: 'DG_25_6_v2', reason: 'private workspace path' },
+    { value: 'github.com/asadarafat/TopoViewer', reason: 'wrong repository casing' },
+    { value: 'asadarafat.github.io/TopoViewer', reason: 'wrong Pages route casing' },
+    { value: '/TopoViewer/', reason: 'wrong public route casing' },
+    { value: '.donotpush', reason: 'private workspace marker' },
+    { value: '.artifacts/promo', reason: 'local promo artifact path' }
+  ];
+
+  const files = new Set(PUBLIC_TEXT_ROOTS.flatMap(listTextFiles));
+  for (const filePath of [...files].sort()) {
+    const file = relative(filePath);
+    const text = fs.readFileSync(filePath, 'utf8');
+    for (const { value, reason } of forbidden) {
+      if (text.includes(value)) {
+        fail(`${file} contains ${reason}: ${value}`);
+      }
+    }
+  }
+}
+
+function assertLabWarnings() {
+  for (const envFile of [
+    'labs/grafana-topoviewer/.env',
+    'labs/grafana-topoviewer/containerlab/.env'
+  ]) {
+    const text = assertFile(envFile);
+    if (!text) continue;
+    if (!/disposable local/i.test(text) || !/production/i.test(text)) {
+      fail(`${envFile} must clearly state that checked-in lab defaults are disposable and not production guidance.`);
+    }
+    if (text.includes('GRAFANA_ADMIN_PASSWORD=admin') && !/Do not copy/i.test(text)) {
+      fail(`${envFile} uses admin/admin and must include explicit copy-paste warning text.`);
+    }
+  }
+
+  assertFile('labs/grafana-topoviewer/README.md', [
+    'anonymous Admin',
+    'unsigned',
+    'plugin loading',
+    'not production'
+  ]);
+}
+
+function assertPackageAndCiContracts() {
+  const rootPackage = readJson('package.json');
+  if (rootPackage.scripts?.ci?.includes('node@24') || rootPackage.scripts?.['ci:node24']) {
+    fail('Root package must use plain npm run ci under Node 24, not ci:node24 or npx node@24 wrappers.');
+  }
+  if (!rootPackage.scripts?.['ci:public-readiness']) {
+    fail('Root package is missing ci:public-readiness.');
+  }
+
+  const ci = assertFile('.github/workflows/ci.yml');
+  if (!ci.includes('npm run ci:public-readiness')) {
+    fail('.github/workflows/ci.yml must run npm run ci:public-readiness.');
+  }
+
+  const workflows = listTextFiles('.github/workflows');
+  for (const filePath of workflows) {
+    const text = fs.readFileSync(filePath, 'utf8');
+    if (/npm\s+publish/.test(text) && !/workflow_dispatch/.test(text)) {
+      fail(`${relative(filePath)} contains npm publish outside an explicit manual workflow.`);
+    }
+  }
+
+  const topoviewerPackage = readJson('packages/topoviewer/package.json');
+  if (topoviewerPackage.name !== 'topoviewer') {
+    fail('packages/topoviewer/package.json must keep the public package name "topoviewer".');
+  }
+  if (topoviewerPackage.repository?.url && topoviewerPackage.repository.url.includes('TopoViewer')) {
+    fail('packages/topoviewer repository URL uses wrong casing.');
+  }
+}
+
+assertRequiredGovernance();
+assertSecurityAutomation();
+assertPublicTextHasNoLocalLeaks();
+assertLabWarnings();
+assertPackageAndCiContracts();
+
+if (errors.length) {
+  console.error('Public readiness checks failed:');
+  for (const error of errors) {
+    console.error(`- ${error}`);
+  }
+  process.exit(1);
+}
+
+console.log('public readiness checks passed');

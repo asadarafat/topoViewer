@@ -136,6 +136,9 @@ const laneDefinitions = {
     step('pack check', 'npm', ['run', 'pack:check']),
     step('build MkDocs wheel', 'npm', ['run', 'wheel:mkdocs']),
     step('inspect MkDocs wheel', 'npm', ['run', 'inspect:wheel'])
+  ],
+  'public-readiness': [
+    step('check public readiness guardrails', 'npm', ['run', 'public-readiness'])
   ]
 };
 
@@ -150,7 +153,8 @@ const fullLaneOrder = [
   'test:topoviewer',
   'test:harness',
   'perf:smoke',
-  'package'
+  'package',
+  'public-readiness'
 ];
 
 if (args.includes('--list')) {

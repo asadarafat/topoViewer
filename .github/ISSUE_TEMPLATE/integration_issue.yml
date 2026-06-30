@@ -1,0 +1,33 @@
+name: Integration issue
+description: Report a React, MkDocs, Zensical, VS Code, Grafana, NetBox, or OpsMill/Infrahub workflow problem.
+title: "integration: "
+labels:
+  - integration
+body:
+  - type: dropdown
+    id: integration
+    attributes:
+      label: Integration
+      options:
+        - React
+        - MkDocs
+        - Zensical
+        - Browser harness
+        - VS Code
+        - Grafana
+        - NetBox roadmap
+        - OpsMill/Infrahub roadmap
+    validations:
+      required: true
+  - type: textarea
+    id: workflow
+    attributes:
+      label: Workflow attempted
+      description: Commands, files, dashboard settings, or embed block used.
+    validations:
+      required: true
+  - type: textarea
+    id: result
+    attributes:
+      label: Actual result
+      description: Include diagnostics, screenshots, console output, or mapper coverage if relevant.

@@ -1,0 +1,25 @@
+name: Performance regression
+description: Report slow render, interaction latency, memory growth, or frozen UI.
+title: "perf: "
+labels:
+  - performance
+body:
+  - type: textarea
+    id: topology_size
+    attributes:
+      label: Topology size and surface
+      description: Node/link/path/region counts and the host surface.
+    validations:
+      required: true
+  - type: textarea
+    id: observed
+    attributes:
+      label: Observed behavior
+      description: Render time, interaction latency, memory, browser, and command details.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Reproducer
+      description: Link or paste the smallest data set that demonstrates the regression.

@@ -1,0 +1,25 @@
+name: Documentation issue
+description: Report unclear, stale, incomplete, or broken documentation.
+title: "docs: "
+labels:
+  - documentation
+body:
+  - type: input
+    id: page
+    attributes:
+      label: Page or link
+      description: Paste the README/docs URL or local file path.
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What is confusing, wrong, duplicated, or missing?
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected content
+      description: What should the reader be able to do after reading it?

@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security issue
+    url: https://github.com/asadarafat/topoviewer/security/advisories/new
+    about: Report vulnerabilities privately when GitHub private reporting is available.
+  - name: Published documentation
+    url: https://asadarafat.github.io/topoviewer/docs/mkdocs/
+    about: Check the current public docs before filing a usage issue.

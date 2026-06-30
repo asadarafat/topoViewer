@@ -1,6 +1,7 @@
 # Contributing
 
-TopoViewer is a declarative graph renderer. Keep contributions aligned with that product boundary:
+TopoViewer is a declarative graph renderer. Keep contributions aligned with
+that product boundary:
 
 - Topology YAML describes graph facts.
 - Stylesheet YAML describes presentation policy.
@@ -9,16 +10,12 @@ TopoViewer is a declarative graph renderer. Keep contributions aligned with that
 
 ## Development Setup
 
-Use Node.js `>=24 <25` and Python `>=3.10`.
+Use Node.js `>=24 <25` and Python `>=3.10`. The canonical local quality gate is
+the same command used by GitHub CI:
 
 ```bash
 npm ci
-npm run sync:docs
-npm run lint
-npm run validate:schemas
-npm run validate:semantics
-npm run build
-npm test
+npm run ci
 ```
 
 Run the focused static gates while iterating:
@@ -67,6 +64,16 @@ Changes that affect the model, renderer, or docs examples must include:
 - Playwright coverage through the generated MkDocs examples or focused interaction tests.
 - Documentation in `packages/topoviewer/docs`.
 
+Public-readiness changes must also consider:
+
+- support status and user-facing wording;
+- README/docs URL correctness;
+- local path and private artifact leakage;
+- package and plugin artifact contents;
+- dependency and security automation coverage;
+- accessibility, performance, and compatibility evidence when the public
+  contract changes.
+
 ## Commit Style
 
 Use Conventional Commits:
@@ -86,6 +93,20 @@ Do not import MkDocs or Python concerns into `packages/topoviewer`.
 Do not require Node/npm at MkDocs build time. The Python plugin must vendor the approved browser bundle from `packages/topoviewer/dist/embed`.
 
 Do not commit local lab material, credentials, customer diagrams, generated videos, screenshots, or private icon sets into the public package.
+
+Lab defaults under `labs/**/.env` are disposable local development defaults
+only. They must be clearly labeled as unsafe for production.
+
+## Review Expectations
+
+- Keep PRs focused enough to review.
+- Use conventional commits for commit messages.
+- Update OpenSpec tasks when implementing an active OpenSpec change.
+- Do not publish npm packages, Grafana plugin zips, docs, or release artifacts
+  from ordinary push/PR workflows.
+- Add a security note when touching YAML parsing, SVG/HTML rendering, mapper
+  templates, Grafana mounted bundles, local storage, telemetry labels, or
+  package artifact contents.
 
 ## Pull Request Checklist
 

@@ -1,0 +1,44 @@
+name: Bug report
+description: Report a reproducible TopoViewer bug.
+title: "bug: "
+labels:
+  - bug
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What happened, and what did you expect?
+    validations:
+      required: true
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Surface
+      options:
+        - React package
+        - MkDocs
+        - Zensical
+        - Browser harness
+        - VS Code extension
+        - Grafana panel
+        - Grafana lab
+        - Documentation
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: reproducer
+    attributes:
+      label: Minimal reproducer
+      description: Include the smallest topology/style/mapper YAML or command sequence that reproduces the issue.
+      render: yaml
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Node, browser, package, Grafana, OS, and command details.
+    validations:
+      required: true

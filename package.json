@@ -51,6 +51,7 @@
     "validate:vscode-harness-build": "node scripts/check-vscode-harness-build.mjs",
     "docs:smoke": "node scripts/require-node24.mjs && node scripts/smoke-docs-site.mjs",
     "docs:lint": "node scripts/lint-docs.mjs",
+    "public-readiness": "node scripts/require-node24.mjs && node scripts/check-public-readiness.mjs",
     "render:parity": "node scripts/require-node24.mjs && node scripts/check-renderer-surface-parity.mjs",
     "dense:fixture": "npm --workspace topoviewer run dense:fixture",
     "benchmark:attention": "npm --workspace topoviewer run benchmark:attention --",
@@ -102,6 +103,7 @@
     "ci:test:harness": "node scripts/require-node24.mjs && node scripts/ci.mjs --lane test:harness",
     "ci:perf:smoke": "node scripts/require-node24.mjs && node scripts/ci.mjs --lane perf:smoke",
     "ci:package": "node scripts/require-node24.mjs && node scripts/ci.mjs --lane package",
+    "ci:public-readiness": "node scripts/require-node24.mjs && node scripts/ci.mjs --lane public-readiness",
     "ci:remote-parity": "node scripts/require-node24.mjs && node scripts/ci.mjs --remote-parity"
   },
   "overrides": {

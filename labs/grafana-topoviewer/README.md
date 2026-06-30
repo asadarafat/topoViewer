@@ -4,6 +4,11 @@ This lab starts pinned Grafana, Prometheus, and a deterministic telemetry
 injector. Grafana mounts the local exploratory TopoViewer panel plugin from
 `packages/grafana-topoviewer-panel/dist`.
 
+This is a disposable local lab, not production guidance. The checked-in defaults
+use anonymous Admin, `admin`/`admin` credentials, disabled login flow, unsigned
+plugin loading, and published localhost ports so local validation is fast. Do
+not copy those settings into a shared or production Grafana deployment.
+
 Phase 1 proves fixture parity. Phase 2 proves a local Prometheus weathermap
 vertical slice. Phase 4 proves the production workflow: TopoViewer YAML bundles
 mounted into Grafana and selected by the panel backend. Phase 5 adds a separate

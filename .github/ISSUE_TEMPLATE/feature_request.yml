@@ -1,0 +1,31 @@
+name: Feature request
+description: Propose a new capability or public workflow.
+title: "feat: "
+labels:
+  - enhancement
+body:
+  - type: textarea
+    id: use_case
+    attributes:
+      label: Use case
+      description: What user workflow or integration does this unlock?
+    validations:
+      required: true
+  - type: textarea
+    id: proposed_shape
+    attributes:
+      label: Proposed shape
+      description: YAML, API, UI, docs, or integration behavior you expect.
+  - type: dropdown
+    id: boundary
+    attributes:
+      label: Product boundary
+      options:
+        - Topology YAML
+        - Stylesheet YAML
+        - Mapper YAML
+        - React API
+        - Docs embed
+        - Browser harness
+        - Grafana
+        - Other
