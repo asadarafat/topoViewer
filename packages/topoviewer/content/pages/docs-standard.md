@@ -57,7 +57,7 @@ legacy prose, the generator wraps that prose into the required public structure.
 - Use `Roadmap` for planned behavior with no stable implementation.
 - Use `Maintainer` for repository maintenance workflows, not user-facing
   product surfaces.
-- Do not describe feasibility studies as supported integrations.
+- Do not describe studies or planned integrations as supported integrations.
 - Do not expose local absolute paths in public docs.
 
 ## Validation

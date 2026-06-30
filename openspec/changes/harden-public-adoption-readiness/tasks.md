@@ -44,7 +44,7 @@
 
 - [x] 4.1 Define the exact status labels and wording in a reusable docs fragment or shared source
 - [x] 4.2 Apply status labels to README, docs home, React, MkDocs, Zensical, harness, VS Code, Grafana, NetBox, and OpsMill/Infrahub pages; keep Containerlab status inside the Grafana lab page
-- [ ] 4.3 Add docs lint that rejects unsupported terms such as "production-ready" unless the page meets the matching readiness gate
+- [x] 4.3 Add docs lint that rejects unsupported terms such as "production-ready" unless the page meets the matching readiness gate
 - [ ] 4.4 Add docs lint that flags "supported", "stable", "experimental", "lab", and "roadmap" contradictions across README, docs home, package READMEs, and integration pages
 - [x] 4.5 Add a public support matrix showing stable package/API/schema surfaces versus experimental fields and integrations
 - [ ] 4.6 Update OpenSpec index or docs so active roadmap work does not read as shipped support

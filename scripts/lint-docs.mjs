@@ -32,6 +32,15 @@ const integrationStatusPages = [
   ['grafana-telemetry-call-flow.md', 'Lab']
 ];
 
+const forbiddenPublicClaimPhrases = [
+  [/\bproduction[- ]ready\b/i, 'Do not claim production-ready in public docs until the readiness gate is complete.'],
+  [/\bSupported source API\b/, 'Use the canonical status label "Pre-Publish Supported".'],
+  [/\bSupported adapter\b/, 'Use the canonical status label "Supported Adapter".'],
+  [/\bExperimental package\b/, 'Use the canonical status label "Experimental".'],
+  [/\bExploratory panel spike\b/, 'Use the canonical status label "Experimental".'],
+  [/\bFeasibility\b/i, 'Use the canonical status label "Roadmap" for planned integrations.']
+];
+
 function readText(filePath) {
   return fs.readFileSync(filePath, 'utf8');
 }
@@ -68,6 +77,15 @@ function listMarkdownFiles(root) {
     }
   }
   return files;
+}
+
+function packageReadmes() {
+  const packagesRoot = path.join(repoRoot, 'packages');
+  if (!fs.existsSync(packagesRoot)) return [];
+  return fs.readdirSync(packagesRoot, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => path.join(packagesRoot, entry.name, 'README.md'))
+    .filter((filePath) => fs.existsSync(filePath));
 }
 
 function checkRequiredPages() {
@@ -170,6 +188,25 @@ function checkSupportStatusTables() {
     for (const { status, line } of statusColumnValues(readText(filePath), relative(filePath))) {
       if (!supportStatusLabels.has(status)) {
         fail(`${relative(filePath)} uses unsupported integration status "${status}" in table row: ${line}`);
+      }
+    }
+  }
+}
+
+function checkPublicClaimWording() {
+  const files = [
+    path.join(repoRoot, 'README.md'),
+    ...packageReadmes(),
+    ...listMarkdownFiles(contentPagesRoot),
+    ...listMarkdownFiles(docsRoot)
+  ].filter((filePath) => !relative(filePath).includes('/_fragments/'));
+
+  for (const filePath of files) {
+    const text = readText(filePath);
+    for (const [pattern, guidance] of forbiddenPublicClaimPhrases) {
+      const match = text.match(pattern);
+      if (match) {
+        fail(`${relative(filePath)} uses public claim wording "${match[0]}". ${guidance}`);
       }
     }
   }
@@ -496,6 +533,7 @@ checkRequiredPages();
 checkDocsStandard();
 checkIntegrationPageStatusLabels();
 checkSupportStatusTables();
+checkPublicClaimWording();
 checkCatalogDuplicateKeys();
 checkExampleSources();
 checkExampleNodeDimensions();

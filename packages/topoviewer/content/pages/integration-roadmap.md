@@ -246,7 +246,8 @@ The position overrides are runtime-only. They are applied after canonical
 topology/layout and before telemetry styling. Resetting positions clears local
 overrides without changing Prometheus-derived link or endpoint state.
 
-Grafana is still exploratory because the supported operational surface needs later phases:
+Grafana remains Experimental because the supported operational surface needs
+more release hardening:
 
 ```text
 Grafana data frames / JSON model -> TopoViewer props -> operational topology panel
@@ -264,4 +265,6 @@ state persistence, Containerlab integration, and dense-topology performance.
 
 ## Roadmap Rule
 
-Only call an integration "supported" when a working package, adapter, or documented runtime path exists. Until then, roadmap entries must stay explicit about feasibility, planned scope, and unresolved risks.
+Only call an integration `Supported` when a working package, adapter, or
+documented runtime path exists. Until then, roadmap entries must stay explicit
+about planned scope and unresolved risks.
