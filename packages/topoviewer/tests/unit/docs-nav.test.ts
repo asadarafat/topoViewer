@@ -14,6 +14,10 @@ function record(value: unknown): Record<string, unknown> {
   return value && typeof value === 'object' ? value as Record<string, unknown> : {};
 }
 
+function navValue(entry: Record<string, unknown>, key: string): unknown {
+  return Object.prototype.hasOwnProperty.call(entry, key) ? entry[key] : undefined;
+}
+
 describe('MkDocs navigation', () => {
   it('lists every public example category in the Examples nav', () => {
     const packageRoot = process.cwd();
@@ -29,8 +33,12 @@ describe('MkDocs navigation', () => {
     );
     const examplesNav = (mkdocs.nav as Array<Record<string, unknown>> | undefined || [])
       .find((entry) => Object.prototype.hasOwnProperty.call(entry, 'Examples'))?.Examples as Array<Record<string, string>> | undefined;
-    const actualCategories = new Set((examplesNav || []).flatMap((entry) => Object.keys(entry)));
+    const generatedCatalog = (examplesNav || [])
+      .map((entry) => navValue(entry, 'Generated Catalog'))
+      .find((value): value is Array<Record<string, string>> => Array.isArray(value));
+    const actualCategories = new Set((generatedCatalog || []).flatMap((entry) => Object.keys(entry)));
 
     expect([...expectedCategories].filter((category) => !actualCategories.has(category))).toEqual([]);
+    expect(navValue((examplesNav || [])[0] || {}, 'Curated Examples')).toBe('topoviewer/examples.md');
   });
 });

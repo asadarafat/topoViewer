@@ -228,7 +228,8 @@ The feature examples are generated from
 \`packages/topoviewer/content/examples\`. Each example is both documentation
 and a Playwright-backed test fixture.
 
-- [Feature examples](topoviewer/reference/graph/index.md)
+- [Curated examples](topoviewer/examples.md)
+- [Generated feature catalog](topoviewer/reference/graph/index.md)
 - [Real network demo](topoviewer/real-network-demo.md)
 - [CLOS layout examples](topoviewer/reference/layout/index.md)
 `;

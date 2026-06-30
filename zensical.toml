@@ -43,19 +43,22 @@ nav = [
     { "Zensical Adapter" = "topoviewer/zensical-embed.md" }
   ] },
   { "Examples" = [
-    { "Graph" = "topoviewer/reference/graph/index.md" },
-    { "Nodes" = "topoviewer/reference/nodes/index.md" },
-    { "Edges" = "topoviewer/reference/edges/index.md" },
-    { "Paths" = "topoviewer/reference/paths/index.md" },
-    { "Attention" = "topoviewer/reference/attention/index.md" },
-    { "Regions" = "topoviewer/reference/regions/index.md" },
-    { "Shapes" = "topoviewer/reference/shapes/index.md" },
-    { "Callouts" = "topoviewer/reference/callouts/index.md" },
-    { "Styling" = "topoviewer/reference/styling/index.md" },
-    { "Layout" = "topoviewer/reference/layout/index.md" },
-    { "Harness" = "topoviewer/reference/harness/index.md" },
-    { "Validation" = "topoviewer/reference/validation/index.md" },
-    { "Real Network Demo" = "topoviewer/real-network-demo.md" }
+    { "Curated Examples" = "topoviewer/examples.md" },
+    { "Real Network Demo" = "topoviewer/real-network-demo.md" },
+    { "Generated Catalog" = [
+      { "Graph" = "topoviewer/reference/graph/index.md" },
+      { "Nodes" = "topoviewer/reference/nodes/index.md" },
+      { "Edges" = "topoviewer/reference/edges/index.md" },
+      { "Paths" = "topoviewer/reference/paths/index.md" },
+      { "Attention" = "topoviewer/reference/attention/index.md" },
+      { "Regions" = "topoviewer/reference/regions/index.md" },
+      { "Shapes" = "topoviewer/reference/shapes/index.md" },
+      { "Callouts" = "topoviewer/reference/callouts/index.md" },
+      { "Styling" = "topoviewer/reference/styling/index.md" },
+      { "Layout" = "topoviewer/reference/layout/index.md" },
+      { "Harness" = "topoviewer/reference/harness/index.md" },
+      { "Validation" = "topoviewer/reference/validation/index.md" }
+    ] }
   ] },
   { "Reference" = [
     { "Reference Model" = "topoviewer/reference-model.md" },

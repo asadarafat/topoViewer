@@ -23,7 +23,7 @@
 - [x] 2.1 Refactor MkDocs nav into Start, Author, Embed, Examples, Reference, Labs, and Maintainers
 - [x] 2.2 Regenerate Zensical nav from the same public IA without an extra duplicate top-level Zensical section
 - [x] 2.3 Move Monorepo, Release, Documentation Standard, and Production Hardening under Maintainers
-- [ ] 2.4 Keep generated exhaustive reference/test catalog available but out of the primary learning path
+- [x] 2.4 Keep generated exhaustive reference/test catalog available but out of the primary learning path
 - [x] 2.5 Move lab-only and roadmap-heavy pages out of the first-run path
 - [x] 2.6 Update docs home to route users by job: author, embed, operate, reference, maintain
 - [x] 2.7 Add docs lint that fails when Maintainer/Lab pages appear in the primary Start path
@@ -51,13 +51,13 @@
 
 ## 5. Curated Examples
 
-- [ ] 5.1 Create or promote a curated Examples landing page before the generated catalog
-- [ ] 5.2 Include curated examples for basic graph, CLOS fabric, real network, node styling, edge styling, attention, and Grafana mapper overlay
-- [ ] 5.3 For each curated example, document what to copy, what it renders, which YAML fields matter, and the expected visual result
-- [ ] 5.4 Keep live viewport, topology YAML, stylesheet YAML, mapper YAML, and attention YAML tabs only where relevant
+- [x] 5.1 Create or promote a curated Examples landing page before the generated catalog
+- [x] 5.2 Include curated examples for basic graph, CLOS fabric, real network, node styling, edge styling, attention, and Grafana mapper overlay
+- [x] 5.3 For each curated example, document what to copy, what it renders, which YAML fields matter, and the expected visual result
+- [x] 5.4 Keep live viewport, topology YAML, stylesheet YAML, mapper YAML, and attention YAML tabs only where relevant
 - [ ] 5.5 Audit curated example YAML for production-grade icon sizing, label placement, edge attachment, color choices, shape/size validity, and no label overlap
 - [ ] 5.6 Add screenshot evidence for representative curated examples in harness, MkDocs, and Zensical
-- [ ] 5.7 Add generated catalog demotion wording so users understand it is exhaustive reference/test coverage, not the learning path
+- [x] 5.7 Add generated catalog demotion wording so users understand it is exhaustive reference/test coverage, not the learning path
 
 ## 6. Guide And Reference Split
 

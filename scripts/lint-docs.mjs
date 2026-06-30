@@ -91,6 +91,7 @@ function packageReadmes() {
 function checkRequiredPages() {
   const required = [
     'getting-started.md',
+    'examples.md',
     'style-a-topology.md',
     'browser-harness.md',
     'validate-yaml.md',
@@ -537,6 +538,48 @@ function checkStartNavBoundary() {
   }
 }
 
+function navEntryValue(entry, key) {
+  if (!entry || typeof entry !== 'object' || Array.isArray(entry)) return undefined;
+  return Object.prototype.hasOwnProperty.call(entry, key) ? entry[key] : undefined;
+}
+
+function checkExamplesNavBoundary() {
+  const mkdocsConfig = readYaml(path.join(repoRoot, 'mkdocs.yml'));
+  const examplesNav = findNavSection(mkdocsConfig.nav || [], 'Examples');
+  if (!Array.isArray(examplesNav)) {
+    fail('MkDocs Examples nav must be a list.');
+    return;
+  }
+
+  const firstEntry = examplesNav[0];
+  if (navEntryValue(firstEntry, 'Curated Examples') !== 'topoviewer/examples.md') {
+    fail('MkDocs Examples nav must start with Curated Examples: topoviewer/examples.md');
+  }
+
+  const generatedCatalog = examplesNav
+    .map((entry) => navEntryValue(entry, 'Generated Catalog'))
+    .find((value) => Array.isArray(value));
+  if (!generatedCatalog) {
+    fail('MkDocs Examples nav must keep generated reference pages under Generated Catalog.');
+    return;
+  }
+
+  const topLevelTargets = new Set();
+  for (const entry of examplesNav) {
+    for (const value of Object.values(entry || {})) {
+      if (typeof value === 'string') {
+        topLevelTargets.add(value);
+      }
+    }
+  }
+
+  for (const target of topLevelTargets) {
+    if (target.startsWith('topoviewer/reference/')) {
+      fail(`Generated reference example page must not be top-level in Examples nav: ${target}`);
+    }
+  }
+}
+
 function checkPublicPathWording() {
   const forbidden = [
     'asadarafat.github.io/TopoViewer',
@@ -574,6 +617,7 @@ checkLocalLinks();
 checkGeneratedCriticalPages();
 checkMkDocsNavCoverage();
 checkStartNavBoundary();
+checkExamplesNavBoundary();
 checkPublicPathWording();
 
 if (errors.length) {
