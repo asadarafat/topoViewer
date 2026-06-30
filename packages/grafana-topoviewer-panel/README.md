@@ -1,15 +1,14 @@
 # Grafana TopoViewer Panel
 
+**Support status:** Experimental
+
 Grafana panel plugin for embedding the shared TopoViewer runtime without
 renderer forks or Grafana-owned topology YAML copies.
 
-Phase 1 renders canonical browser harness fixtures inside a pinned local
-Grafana lab. Phase 2 adds a local Prometheus weathermap slice. Phase 3 adds
-local interaction-state persistence for viewport, selection, and node drag
-overrides. Phase 4 adds mounted Topology-as-Code bundles plus mapper-driven
-runtime overlays. Phase 5 adds an optional Containerlab SR Linux telemetry lab
-that validates the same mounted bundle and mapper path against live Prometheus
-data. Plugin signing and supported release packaging remain later phases.
+The current experimental surface supports mounted Topology-as-Code bundles,
+mapper-driven runtime overlays, local interaction-state persistence, a pinned
+Grafana validation lab, and an optional Containerlab telemetry lab. Plugin
+signing and supported release packaging remain future release work.
 
 ## Commands
 

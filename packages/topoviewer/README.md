@@ -1,5 +1,7 @@
 # TopoViewer
 
+**Support status:** Pre-Publish Supported
+
 TopoViewer is a declarative graph renderer for network, infrastructure, and service-topology diagrams. It turns YAML graph definitions and styles into interactive topology views.
 
 ## Direction
@@ -16,7 +18,7 @@ The target use cases are:
 
 - Interactive network and service-topology diagrams in documentation.
 - Standalone topology exploration for labs and trade-show demos.
-- Future embeddable renderers for MkDocs, internal portals, VS Code, and CLI-generated static exports.
+- Embeddable renderers for MkDocs, internal portals, VS Code previews, and CLI-generated static exports.
 
 The authoring model is intentionally not React Flow-specific:
 

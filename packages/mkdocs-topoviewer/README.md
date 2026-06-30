@@ -1,5 +1,7 @@
 # mkdocs-topoviewer
 
+**Support status:** Supported
+
 `mkdocs-topoviewer` is the MkDocs plugin wrapper for TopoViewer. It lets MkDocs users install TopoViewer with pip and embed declarative topology diagrams with a fenced Markdown block.
 
 This package is licensed under Apache-2.0, like TopoViewer. It is publish-shaped for intentional public Python package releases, while private/customer-specific material should stay in separate packages or private indexes.

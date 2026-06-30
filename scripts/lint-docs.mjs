@@ -33,6 +33,13 @@ const integrationStatusPages = [
   ['grafana-telemetry-call-flow.md', 'Lab']
 ];
 
+const packageReadmeStatuses = [
+  ['packages/topoviewer/README.md', 'Pre-Publish Supported'],
+  ['packages/mkdocs-topoviewer/README.md', 'Supported'],
+  ['packages/vscode-topoviewer/README.md', 'Experimental'],
+  ['packages/grafana-topoviewer-panel/README.md', 'Experimental']
+];
+
 const forbiddenPublicClaimPhrases = [
   [/\bproduction[- ]ready\b/i, 'Do not claim production-ready in public docs until the readiness gate is complete.'],
   [/\bSupported source API\b/, 'Use the canonical status label "Pre-Publish Supported".'],
@@ -147,6 +154,25 @@ function checkIntegrationPageStatusLabels() {
     }
     if (status !== expectedStatus) {
       fail(`${relative(filePath)} must use support status "${expectedStatus}", found "${status}".`);
+    }
+  }
+}
+
+function checkPackageReadmeStatusLabels() {
+  for (const [packageReadme, expectedStatus] of packageReadmeStatuses) {
+    const filePath = path.join(repoRoot, packageReadme);
+    if (!assertFile(filePath, `package README ${packageReadme}`)) continue;
+    const status = supportStatusForPage(filePath);
+    if (!status) {
+      fail(`${packageReadme} must include "**Support status:** <label>" near the top.`);
+      continue;
+    }
+    if (!supportStatusLabels.has(status)) {
+      fail(`${packageReadme} uses unsupported support status "${status}".`);
+      continue;
+    }
+    if (status !== expectedStatus) {
+      fail(`${packageReadme} must use support status "${expectedStatus}", found "${status}".`);
     }
   }
 }
@@ -606,6 +632,7 @@ function checkPublicPathWording() {
 checkRequiredPages();
 checkDocsStandard();
 checkIntegrationPageStatusLabels();
+checkPackageReadmeStatusLabels();
 checkSupportStatusTables();
 checkPublicClaimWording();
 checkOpenSpecIndex();

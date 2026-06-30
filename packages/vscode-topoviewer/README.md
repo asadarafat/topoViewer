@@ -1,5 +1,7 @@
 # TopoViewer VS Code Extension
 
+**Support status:** Experimental
+
 Experimental VS Code authoring preview for TopoViewer topology YAML.
 
 ## Extension Package
