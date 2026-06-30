@@ -64,8 +64,8 @@ fixtures through MkDocs and Zensical using a fixed viewport and parity theme.
 Allowed differences are page chrome, surrounding documentation layout, and
 non-parity wrapper themes. Not allowed: different graph geometry, missing
 edges, changed label placement, changed icon fit, style default drift, or
-different topology/stylesheet composition. The screenshots are stored under
-`.artifacts/render-parity` for local review.
+different topology/stylesheet composition. Failure screenshots are stored in
+the ignored local artifact directory for review.
 
 ## Performance Budgets
 

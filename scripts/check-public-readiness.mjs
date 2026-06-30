@@ -179,8 +179,7 @@ function assertSecurityAutomation() {
     '- go'
   ]);
   assertFile('.github/workflows/security.yml', [
-    'npm audit --omit=dev',
-    'npm audit --audit-level=moderate',
+    'npm run dependency:advisories',
     'govulncheck',
     'gitleaks',
     'trivy-action'
@@ -334,10 +333,38 @@ function assertPackageAndCiContracts() {
   if (!rootPackage.scripts?.['ci:public-readiness']) {
     fail('Root package is missing ci:public-readiness.');
   }
+  for (const scriptName of [
+    'dependency:advisories',
+    'artifact:check',
+    'artifact:check:docs',
+    'artifact:check:package'
+  ]) {
+    if (!rootPackage.scripts?.[scriptName]) {
+      fail(`Root package is missing ${scriptName}.`);
+    }
+  }
 
   const ci = assertFile('.github/workflows/ci.yml');
   if (!ci.includes('npm run ci:public-readiness')) {
     fail('.github/workflows/ci.yml must run npm run ci:public-readiness.');
+  }
+  const ciOrchestrator = assertFile('scripts/ci.mjs');
+  for (const phrase of [
+    "['run', 'artifact:check:docs']",
+    "['run', 'artifact:check:package']",
+    "['run', 'dependency:advisories']"
+  ]) {
+    if (!ciOrchestrator.includes(phrase)) {
+      fail(`scripts/ci.mjs must include ${phrase}.`);
+    }
+  }
+
+  const security = assertFile('.github/workflows/security.yml');
+  if (!security.includes('npm run dependency:advisories')) {
+    fail('.github/workflows/security.yml must run npm run dependency:advisories.');
+  }
+  if (security.includes('npm audit --audit-level=moderate')) {
+    fail('.github/workflows/security.yml must use dependency:advisories for full audit triage instead of an untriaged raw full npm audit.');
   }
 
   const workflows = listTextFiles('.github/workflows');

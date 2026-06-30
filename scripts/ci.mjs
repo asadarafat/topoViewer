@@ -117,7 +117,8 @@ const laneDefinitions = {
     }),
     step('build VS Code harness site', 'npm', ['run', 'vscode:harness:build']),
     step('write Pages redirects', 'npm', ['run', 'pages:redirects']),
-    step('smoke built docs site', 'npm', ['run', 'docs:smoke'])
+    step('smoke built docs site', 'npm', ['run', 'docs:smoke']),
+    step('inspect docs artifacts', 'npm', ['run', 'artifact:check:docs'])
   ],
   'render-parity': [
     step('check renderer surface parity', 'npm', ['run', 'render:parity'])
@@ -134,10 +135,13 @@ const laneDefinitions = {
   ],
   package: [
     step('pack check', 'npm', ['run', 'pack:check']),
+    step('build Grafana plugin artifact', 'npm', ['run', 'grafana:panel:build']),
+    step('inspect package artifacts', 'npm', ['run', 'artifact:check:package']),
     step('build MkDocs wheel', 'npm', ['run', 'wheel:mkdocs']),
     step('inspect MkDocs wheel', 'npm', ['run', 'inspect:wheel'])
   ],
   'public-readiness': [
+    step('check dependency advisories', 'npm', ['run', 'dependency:advisories']),
     step('check public readiness guardrails', 'npm', ['run', 'public-readiness'])
   ]
 };

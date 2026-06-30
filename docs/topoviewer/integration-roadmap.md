@@ -123,6 +123,9 @@ selectedLayerIds:
 The same call-flow diagram is maintained as a dedicated architecture page so it
 does not inherit the public example-page template.
 
+The local Grafana lab uses anonymous Admin access and unsigned plugin loading
+for disposable validation only. That setup is not production deployment guidance.
+
 Production flow:
 
 1. Author topology, stylesheet, and mapper YAML in the harness, VS Code preview,
@@ -143,8 +146,6 @@ stable metric names or labels, but they are not the TopoViewer source of truth.
 The source of truth remains the mounted TopoViewer bundle.
 
 Local commands:
-
-These local lab commands run Grafana with disposable credentials, anonymous Admin, disabled login, unsigned plugin loading, and local published ports. They are adoption-test scaffolding, not production deployment guidance.
 
 ```bash
 npm run grafana:fixtures:check

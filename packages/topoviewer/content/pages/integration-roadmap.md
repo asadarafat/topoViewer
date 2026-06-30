@@ -123,6 +123,9 @@ selectedLayerIds:
 The same call-flow diagram is maintained as a dedicated architecture page so it
 does not inherit the public example-page template.
 
+The local Grafana lab uses anonymous Admin access and unsigned plugin loading
+for disposable validation only. That setup is not production deployment guidance.
+
 Production flow:
 
 1. Author topology, stylesheet, and mapper YAML in the harness, VS Code preview,

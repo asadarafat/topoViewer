@@ -42,11 +42,8 @@ jobs:
       - name: Public readiness guardrails
         run: npm run ci:public-readiness
 
-      - name: npm production dependency audit
-        run: npm audit --omit=dev --audit-level=moderate
-
-      - name: npm full dependency audit
-        run: npm audit --audit-level=moderate
+      - name: npm dependency advisory triage
+        run: npm run dependency:advisories
 
       - name: Go vulnerability check
         working-directory: packages/grafana-topoviewer-panel

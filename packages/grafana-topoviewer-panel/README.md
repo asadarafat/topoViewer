@@ -426,8 +426,8 @@ gNMIc:      http://127.0.0.1:9804/metrics
 Normalizer: http://127.0.0.1:9110/health
 ```
 
-Artifacts from `npm run grafana:clab:smoke` are written under
-`.artifacts/grafana-containerlab/`.
+Artifacts from `npm run grafana:clab:smoke` are written to the ignored local
+artifact directory for review.
 
 ### Upstream-Candidate Containerlab Smoke
 
@@ -455,8 +455,8 @@ npm run grafana:clab:smoke:upstream
 
 The smoke checks Grafana, plugin registration, mounted bundle discovery,
 Prometheus recording rules, live directional traffic, mapper coverage, and a
-dashboard screenshot. The default artifact directory is
-`.artifacts/grafana-upstream/`.
+dashboard screenshot. The default screenshot and trace outputs stay in the
+ignored local artifact directory.
 
 Fresh-checkout operator workflow for the upstream-candidate lab:
 

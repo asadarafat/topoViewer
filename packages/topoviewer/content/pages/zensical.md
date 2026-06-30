@@ -6,7 +6,7 @@ The working model is:
 
 ```text
 TopoViewer build -> browser embed CSS/JS
-docs/ -> generated .artifacts/zensical-docs
+docs/ -> generated Zensical Markdown staging files
 Zensical config -> loads static assets
 adapter JavaScript -> mounts .topoviewer-embed blocks
 ```
@@ -99,9 +99,8 @@ The durable source files are:
 - `scripts/sync-zensical-docs.mjs`.
 - `scripts/sync-zensical-assets.mjs`.
 
-These generated files are ignored and recreated for Zensical builds:
-
-- `.artifacts/zensical-docs/**`
+Zensical build staging files are ignored and recreated by the sync/build
+commands. They are not part of the public source contract.
 
 ## Why Not A Plugin Yet
 

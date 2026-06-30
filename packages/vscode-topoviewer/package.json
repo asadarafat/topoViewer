@@ -99,7 +99,7 @@
     "@types/react-dom": "^18.3.1",
     "@types/vscode": "^1.95.0",
     "@vitejs/plugin-react": "^6.0.2",
-    "esbuild": "^0.27.2",
+    "esbuild": "^0.28.1",
     "typescript": "^5.9.3",
     "vite": "^8.0.16"
   }

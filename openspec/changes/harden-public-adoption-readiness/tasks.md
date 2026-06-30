@@ -173,18 +173,18 @@
 
 ## 14. Release Artifact Integrity
 
-- [ ] 14.1 Add npm package artifact autopsy that fails on `.env`, `.donotpush`, local paths, private keys, unexpected binaries, debug dumps, stale URLs, and generated junk
-- [ ] 14.2 Add Grafana plugin zip artifact autopsy with the same denylist plus plugin metadata and compatibility validation
-- [ ] 14.3 Add docs build artifact autopsy for generated pages, public assets, screenshots, videos, and accidental local/private content
-- [ ] 14.4 Add promotional media artifact checks for local paths, debug panels, personal data, failed diagnostics, and private lab names
-- [ ] 14.5 Add an artifact allowlist for npm pack contents and Grafana plugin zip contents
-- [ ] 14.6 Add CI wiring so artifact autopsy runs before publishing, release upload, or public readiness claim
+- [x] 14.1 Add npm package artifact autopsy that fails on `.env`, `.donotpush`, local paths, private keys, unexpected binaries, debug dumps, stale URLs, and generated junk
+- [x] 14.2 Add Grafana plugin zip artifact autopsy with the same denylist plus plugin metadata and compatibility validation
+- [x] 14.3 Add docs build artifact autopsy for generated pages, public assets, screenshots, videos, and accidental local/private content
+- [x] 14.4 Add promotional media artifact checks for local paths, debug panels, personal data, failed diagnostics, and private lab names
+- [x] 14.5 Add an artifact allowlist for npm pack contents and Grafana plugin zip contents
+- [x] 14.6 Add CI wiring so artifact autopsy runs before publishing, release upload, or public readiness claim
 
 ## 15. Dependency And Supply Chain
 
 - [x] 15.1 Add npm dependency audit triage policy separating shipped, dev-only, toolchain, upstream/external, and accepted temporary risk
 - [x] 15.2 Add a dependency-risk ledger and populate it with the current `dompurify`, Grafana package, `react-use`, `js-cookie`, and `esbuild` audit findings
-- [ ] 15.3 Fix or document every current npm advisory before claiming production-ready adoption
+- [x] 15.3 Fix or document every current npm advisory before claiming production-ready adoption
 - [ ] 15.4 Add Go vulnerability triage using `govulncheck` or documented equivalent for the Grafana backend
 - [ ] 15.5 Add package install dry runs for every public install command before it appears in README, MkDocs, Zensical, or package READMEs
 - [ ] 15.6 Add signed/unsigned Grafana plugin artifact status docs, checksum guidance, SBOM expectation, and version compatibility matrix
@@ -298,9 +298,9 @@
 - [ ] 24.4 Run mapper authoring harness tests
 - [ ] 24.5 Run TopoViewer object-attribute reference drift checks against schemas, TypeScript types, style metadata, mapper metadata, and YAML assist metadata
 - [ ] 24.6 Run a Grafana smoke using a harness-authored `*.topo.tv.yaml`, `*.style.tv.yaml`, and `*.mapper.tv.yaml` bundle with no catalog edits or fixture sync
-- [ ] 24.7 Run package dry-run validation
+- [x] 24.7 Run package dry-run validation
 - [ ] 24.8 Run hostile-input and mounted-bundle abuse tests
-- [ ] 24.9 Run artifact autopsy checks
+- [x] 24.9 Run artifact autopsy checks
 - [ ] 24.10 Run npm and Go dependency triage checks
 - [ ] 24.11 Run promotional video generation command
 - [ ] 24.12 Run compatibility/API report checks
