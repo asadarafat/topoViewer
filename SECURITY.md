@@ -77,10 +77,11 @@ Not guaranteed:
 
 ## Dependency Handling
 
-Use `npm audit`, Go vulnerability checks, CodeQL/static analysis, secret scans,
-and container-image scans as advisory signals that require triage. Do not run
-forced dependency upgrades into release branches without validating build,
-visual, interaction, docs, and package-artifact behavior.
+Use `npm audit`, OSV cross-ecosystem scanning, Go vulnerability checks,
+CodeQL/static analysis, secret scans, and container-image scans as advisory
+signals that require triage. Do not run forced dependency upgrades into release
+branches without validating build, visual, interaction, docs, and
+package-artifact behavior.
 
 ## Automated Security Monitoring
 
@@ -93,8 +94,9 @@ warning system:
   the same CI and Security workflows as normal changes.
 - CodeQL scans JavaScript/TypeScript and Go code on push, pull request,
   schedule, and manual dispatch.
-- The Security workflow runs npm audits, Go vulnerability checks, secret
-  scanning, public-readiness guardrails, and pinned container image scans.
+- The Security workflow runs npm audits, OSV cross-ecosystem scanning, Go
+  vulnerability checks, secret scanning, public-readiness guardrails, and
+  pinned container image scans.
   Third-party lab image scans are visible on push and pull request runs, but
   only scheduled and manual security sweeps block on upstream lab-image CVE
   drift. This keeps normal code review actionable while still surfacing pinned

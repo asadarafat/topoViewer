@@ -182,6 +182,9 @@ function assertSecurityAutomation() {
   assertFile('.github/workflows/security.yml', [
     'npm run dependency:advisories',
     'npm run go:vulncheck',
+    'google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml',
+    '--recursive',
+    '--skip-git',
     'fetch-depth: 0',
     'gitleaks',
     'trivy-action',
@@ -190,6 +193,7 @@ function assertSecurityAutomation() {
   assertFile('SECURITY.md', [
     'Automated Security Monitoring',
     'Dependabot checks npm, Go modules, GitHub Actions, and Docker/container image',
+    'OSV cross-ecosystem scanning',
     'Generated PRs target `development`',
     'Automation does not replace review',
     'Normal push and pull-request workflows must validate security'
