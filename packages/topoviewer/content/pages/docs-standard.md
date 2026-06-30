@@ -27,6 +27,21 @@ the result locally.
 | References | Enumerate fields, accepted values, defaults, and constraints. |
 | Examples | Show one behavior clearly with live viewport and YAML. |
 
+## Guide Page Budget
+
+Task guides should stay short enough to finish in one sitting. The docs lint
+gate enforces the current budget:
+
+| Page class | Budget | Action when exceeded |
+|---|---:|---|
+| Task guide | 320 lines | Split exhaustive material into Reference, Examples, or Maintainers. |
+| Integration guide | 480 lines | Move API, option, and troubleshooting tables to Reference or a lab handbook. |
+| Reference, Lab, Maintainer | No task-guide budget | Keep out of the primary Start path and provide task-guide links back to common workflows. |
+
+Use a task guide for the shortest successful path. Put complete attribute
+tables, all enum values, compatibility notes, hardening procedures, and lab
+runbooks in reference-like pages.
+
 Major guide pages must include a `## Next Steps` section with local links to
 the next useful guide, reference, example, or integration page. Do not leave
 readers at a dead end or send them to source-code internals when a public docs

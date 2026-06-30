@@ -68,7 +68,7 @@
 - [x] 6.5 Keep React page focused on embedding; move exhaustive exported API detail to TypeScript API reference
 - [x] 6.6 Add SSR, error handling, loading, caching, diagnostics, and versioning guidance to React docs
 - [x] 6.7 Add clear "next step" links at the end of major guide pages
-- [ ] 6.8 Add a guide-page length budget and demote pages that exceed it to Reference or Maintainers
+- [x] 6.8 Add a guide-page length budget and demote pages that exceed it to Reference or Maintainers
 - [x] 6.9 Add object reference pages for graph, layers, nodes, links, paths, regions, callouts, labels, data, layout, icons, stylesheet rules, style objects, attention, and mapper rules
 - [x] 6.10 For every object reference page, list every public attribute with purpose, required/optional status, data type, accepted values or format, default behavior, validation behavior, selector implications, mapper implications, and stability status
 - [x] 6.11 Add a minimal YAML snippet for every public object attribute

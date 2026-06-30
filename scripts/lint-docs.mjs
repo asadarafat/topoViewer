@@ -56,6 +56,22 @@ const majorGuidePages = [
   'grafana.md'
 ];
 
+const taskGuideLineBudget = 320;
+const integrationGuideLineBudget = 480;
+const guidePageLengthBudgets = new Map([
+  ['why-topoviewer.md', taskGuideLineBudget],
+  ['getting-started.md', taskGuideLineBudget],
+  ['examples.md', taskGuideLineBudget],
+  ['style-a-topology.md', taskGuideLineBudget],
+  ['browser-harness.md', taskGuideLineBudget],
+  ['validate-yaml.md', taskGuideLineBudget],
+  ['debugging.md', taskGuideLineBudget],
+  ['layout-guide.md', taskGuideLineBudget],
+  ['react.md', integrationGuideLineBudget],
+  ['mkdocs.md', taskGuideLineBudget],
+  ['zensical.md', taskGuideLineBudget]
+]);
+
 const forbiddenPublicClaimPhrases = [
   [/\bproduction[- ]ready\b/i, 'Do not claim production-ready in public docs until the readiness gate is complete.'],
   [/\bSupported source API\b/, 'Use the canonical status label "Pre-Publish Supported".'],
@@ -71,6 +87,10 @@ function readText(filePath) {
 
 function readYaml(filePath) {
   return yaml.load(readText(filePath)) || {};
+}
+
+function lineCount(text) {
+  return text.endsWith('\n') ? text.split('\n').length - 1 : text.split('\n').length;
 }
 
 function relative(filePath) {
@@ -674,6 +694,17 @@ function checkGuideNextSteps() {
   }
 }
 
+function checkGuidePageLengthBudgets() {
+  for (const [page, budget] of guidePageLengthBudgets.entries()) {
+    const filePath = path.join(contentPagesRoot, page);
+    if (!assertFile(filePath, `guide page ${page}`)) continue;
+    const lines = lineCount(readText(filePath));
+    if (lines > budget) {
+      fail(`${relative(filePath)} has ${lines} lines and exceeds the ${budget}-line guide budget. Split reference material out of the task guide or move the page under Reference, Labs, or Maintainers.`);
+    }
+  }
+}
+
 checkRequiredPages();
 checkDocsStandard();
 checkIntegrationPageStatusLabels();
@@ -693,6 +724,7 @@ checkStartNavBoundary();
 checkExamplesNavBoundary();
 checkPublicPathWording();
 checkGuideNextSteps();
+checkGuidePageLengthBudgets();
 
 if (errors.length) {
   console.error('Docs lint failed:');

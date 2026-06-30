@@ -19,8 +19,11 @@ const rendererReadinessTimeoutMs = 60000;
 const fixtures = [
   { id: 'graph-basic', sourcePath: 'graph/basic' },
   { id: 'clos-2spine-4leaf', sourcePath: 'harness/clos-2spine-4leaf' },
+  { id: 'nodes-label-placement', sourcePath: 'nodes/label-placement' },
+  { id: 'nodes-icon-fit-and-badges', sourcePath: 'nodes/icon-fit-and-badges' },
   { id: 'region-label-placement', sourcePath: 'regions/region-label-placement' },
   { id: 'styling-label-z-index', sourcePath: 'styling/label-z-index' },
+  { id: 'attention-object-focus', sourcePath: 'attention/object-focus' },
   { id: 'layered-network', sourcePath: 'harness/layered-network' },
   { id: 'directional-link-strokes', sourcePath: 'edges/directional-link-strokes' }
 ];
