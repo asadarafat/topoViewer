@@ -151,7 +151,7 @@
 ## 12. Security: Hostile Content Corpus
 
 - [ ] 12.1 Add a hostile SVG corpus covering script tags, event handlers, `javascript:` URLs, `foreignObject`, encoded bypasses, CSS injection, data SVGs, and malformed SVG
-- [ ] 12.2 Add tests proving SVG sanitization blocks or removes hostile payloads and preserves safe SVG icons
+- [x] 12.2 Add tests proving SVG sanitization blocks or removes hostile payloads and preserves safe SVG icons
 - [ ] 12.3 Add hostile label/callout/Markdown tests proving rendered HTML remains inert across React runtime paths
 - [ ] 12.4 Add docs-embed hostile content tests for MkDocs and Zensical live viewport rendering
 - [ ] 12.5 Add Grafana hostile content tests for labels, mapper-rendered labels, SVG icons, and panel diagnostics
@@ -163,13 +163,13 @@
 ## 13. Security: Grafana Mounted Bundle Backend
 
 - [ ] 13.1 Add backend tests for disallowed root, empty root, relative root, `root=/`, and root outside allowlist
-- [ ] 13.2 Add backend tests for manifest traversal, absolute manifest path, symlinked manifest outside root, and manifest path with encoded traversal
-- [ ] 13.3 Add backend tests for symlinked topology/style/mapper files outside the allowed root using realpath resolution
+- [x] 13.2 Add backend tests for manifest traversal, absolute manifest path, symlinked manifest outside root, and manifest path with encoded traversal
+- [x] 13.3 Add backend tests for symlinked topology/style/mapper files outside the allowed root using realpath resolution
 - [ ] 13.4 Add backend tests for duplicate bundle IDs, missing canonical suffix files, duplicate canonical suffix files, zero-byte files, non-UTF-8 files, and malformed YAML
-- [ ] 13.5 Add backend tests for oversized files, large directory counts, deeply nested directories, and many bundle directories
+- [x] 13.5 Add backend tests for oversized files, large directory counts, deeply nested directories, and many bundle directories
 - [ ] 13.6 Redact unnecessary filesystem paths from diagnostics returned to the Grafana frontend
 - [ ] 13.7 Add Grafana role/access tests or documented manual checks for Viewer, Editor, Admin, and anonymous lab access
-- [ ] 13.8 Add backend timeout or bounded work checks where bundle discovery can traverse many files
+- [x] 13.8 Add backend timeout or bounded work checks where bundle discovery can traverse many files
 
 ## 14. Release Artifact Integrity
 
@@ -185,7 +185,7 @@
 - [x] 15.1 Add npm dependency audit triage policy separating shipped, dev-only, toolchain, upstream/external, and accepted temporary risk
 - [x] 15.2 Add a dependency-risk ledger and populate it with the current `dompurify`, Grafana package, `react-use`, `js-cookie`, and `esbuild` audit findings
 - [x] 15.3 Fix or document every current npm advisory before claiming production-ready adoption
-- [ ] 15.4 Add Go vulnerability triage using `govulncheck` or documented equivalent for the Grafana backend
+- [x] 15.4 Add Go vulnerability triage using `govulncheck` or documented equivalent for the Grafana backend
 - [x] 15.5 Add package install dry runs for every public install command before it appears in README, MkDocs, Zensical, or package READMEs
 - [ ] 15.6 Add signed/unsigned Grafana plugin artifact status docs, checksum guidance, SBOM expectation, and version compatibility matrix
 - [x] 15.7 Add CI guard that normal push and pull-request workflows validate but never publish npm packages or Grafana release artifacts
@@ -301,7 +301,7 @@
 - [x] 24.7 Run package dry-run validation
 - [ ] 24.8 Run hostile-input and mounted-bundle abuse tests
 - [x] 24.9 Run artifact autopsy checks
-- [ ] 24.10 Run npm and Go dependency triage checks
+- [x] 24.10 Run npm and Go dependency triage checks
 - [ ] 24.11 Run promotional video generation command
 - [ ] 24.12 Run compatibility/API report checks
 - [ ] 24.13 Run performance and accessibility checks
