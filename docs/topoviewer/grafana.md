@@ -328,6 +328,30 @@ rules:
         lineWidth: 6
 ```
 
+Link operational state:
+
+```yaml
+rules:
+  - id: link-oper-state
+    metric: interface_oper_state
+    select: link
+    join: link_id
+    value: up
+    states:
+      down: "==0"
+    style:
+      default:
+        label: UP
+        lineColor: "#4caf50"
+        lineWidth: 3
+      down:
+        label: DOWN
+        lineColor: "#d32f2f"
+        lineWidth: 7
+        lineStyle: dashed
+        labelColor: "#c62828"
+```
+
 Directional link data:
 
 ```yaml

@@ -46,6 +46,24 @@ The YAML tab has three documents:
 the current graph ID as the filename base. Use those files directly under a
 Grafana mounted bundle directory.
 
+## Mapper Coverage Preview
+
+When `Mapper YAML` is active, the harness shows synthetic coverage against the
+currently applied topology. It checks whether mapper rules can resolve objects
+by ID, selector, labels, data keys, endpoints, aggregate targets, or static
+object IDs before the bundle is mounted in Grafana.
+
+The preview reports matched objects, unmatched rules, ambiguous endpoint rules,
+duplicate targets, and stale object references. It does not replace Grafana
+runtime coverage: Grafana recomputes coverage from real data frames and
+Prometheus labels when the panel refreshes.
+
+Use `Presets` in the Mapper YAML action row to insert a starter mapper document.
+The comprehensive starter demonstrates ID matching, label matching, data
+matching, endpoint matching, selector matching, status and badge overlays, label
+overlays, layer aggregates, and graph summary overlays. Presets edit only the
+draft; use `Apply` to accept them or `Revert draft` to discard them.
+
 ## YAML Assist
 
 Use `Ctrl+Space` or `Cmd+Space` in the editor for completions. Use `?` at

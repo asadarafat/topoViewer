@@ -95,6 +95,7 @@ nav:
       - Glossary: topoviewer/glossary.md
   - Labs:
       - Grafana Guide: topoviewer/grafana.md
+      - Grafana Mapper Recipes: topoviewer/grafana-mapper-recipes.md
       - Grafana Telemetry Call Flow: topoviewer/grafana-telemetry-call-flow.md
   - Maintainers:
       - Monorepo: topoviewer/monorepo.md
