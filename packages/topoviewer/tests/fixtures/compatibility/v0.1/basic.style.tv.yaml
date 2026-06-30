@@ -1,0 +1,25 @@
+layout:
+  mode: manual
+  width: 480
+  height: 260
+icons:
+  router.generic:
+    glyph: R
+    fill: "#1976d2"
+    stroke: "#bbdefb"
+labelFields:
+  - name
+stylesheet:
+  - selector: node
+    style:
+      icon: router.generic
+      shape: rectangle
+      width: 88
+      height: 56
+      borderWidth: 3
+      labelFontWeight: 800
+  - selector: link
+    style:
+      lineColor: "#42a5f5"
+      lineWidth: 3
+      targetArrowShape: none

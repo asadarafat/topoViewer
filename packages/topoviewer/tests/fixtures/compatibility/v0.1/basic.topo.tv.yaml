@@ -1,0 +1,33 @@
+graph:
+  id: compat-basic
+  layers:
+    - id: physical
+      name: Physical
+  nodes:
+    - id: R01
+      name: R01
+      labels:
+        role: router
+      layers:
+        - physical
+      position:
+        - 120
+        - 120
+    - id: R02
+      name: R02
+      labels:
+        role: router
+      layers:
+        - physical
+      position:
+        - 320
+        - 120
+  links:
+    - id: R01-R02
+      name: R01 to R02
+      source: R01
+      target: R02
+      labels:
+        kind: physical
+      layers:
+        - physical

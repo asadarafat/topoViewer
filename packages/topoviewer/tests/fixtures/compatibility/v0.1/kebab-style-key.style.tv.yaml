@@ -1,0 +1,4 @@
+stylesheet:
+  - selector: link
+    style:
+      line-color: "#42a5f5"

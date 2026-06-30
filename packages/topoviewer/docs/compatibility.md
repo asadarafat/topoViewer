@@ -110,6 +110,23 @@ contracts:
 Do not silently reinterpret existing YAML. A diagram that used to render should
 either render compatibly or fail with an actionable migration diagnostic.
 
+## Compatibility Fixtures
+
+Compatibility fixtures live under
+`packages/topoviewer/tests/fixtures/compatibility/`. They cover no-version
+YAML that appeared in early public examples and migration failures that should
+remain explicit.
+
+Current fixture contract:
+
+| Fixture | Expected behavior |
+|---|---|
+| `v0.1/basic.topo.tv.yaml` + `v0.1/basic.style.tv.yaml` | Validates, lints without errors, and compiles to the same two-node one-link graph. |
+| `v0.1/kebab-style-key.style.tv.yaml` | Fails with an explicit "use camelCase style keys" migration diagnostic. |
+
+Add a fixture when public docs, README snippets, generated examples, or
+released package examples change in a way that could break existing user YAML.
+
 ## Compatibility Matrix
 
 | Dependency or host | Current contract |

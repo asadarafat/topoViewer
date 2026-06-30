@@ -260,8 +260,8 @@
 - [x] 21.1 Define SemVer policy for npm package, YAML schema, stylesheet keys, mapper schema, docs embed blocks, and Grafana plugin options
 - [x] 21.2 Add a public/internal API boundary document for React exports, core compiler helpers, style metadata, schemas, harness internals, docs plugins, and Grafana APIs
 - [x] 21.3 Add schema versioning and migration guidance for topology, stylesheet, attention, mapper, and layout documents
-- [ ] 21.4 Add backwards-compatibility fixtures from previously documented YAML examples and archived examples
-- [ ] 21.5 Add compatibility tests proving old YAML either renders compatibly or fails with explicit migration diagnostics
+- [x] 21.4 Add backwards-compatibility fixtures from previously documented YAML examples and archived examples
+- [x] 21.5 Add compatibility tests proving old YAML either renders compatibly or fails with explicit migration diagnostics
 - [x] 21.6 Add TypeScript API report or equivalent exported-surface check for the public package
 - [x] 21.7 Add docs embed API compatibility checks for MkDocs/Zensical block options
 - [x] 21.8 Add Grafana panel option compatibility checks and dashboard migration notes
