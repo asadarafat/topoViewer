@@ -7,6 +7,8 @@ LAB_DIR="$(cd "${CLAB_DIR}/.." && pwd)"
 REPO_DIR="$(cd "${LAB_DIR}/../.." && pwd)"
 RUNTIME_ENV="${REPO_DIR}/.artifacts/grafana-containerlab.env"
 
+source "${LAB_DIR}/scripts/lib/lab-warning.sh"
+
 cd "${CLAB_DIR}"
 while IFS='=' read -r key value; do
   [[ -z "${key}" || "${key}" == \#* ]] && continue
@@ -30,6 +32,14 @@ if [[ -z "${CLAB_BIN}" ]]; then
   echo "Containerlab is required. Install containerlab or set CONTAINERLAB_BIN." >&2
   exit 1
 fi
+
+print_topoviewer_grafana_lab_warning \
+  "Containerlab lab" \
+  "Containerlab publishes Grafana, Prometheus, gNMIc, and normalizer host ports through Docker; keep this on a trusted local host or constrain access with host firewall rules." \
+  "Grafana: http://127.0.0.1:${GRAFANA_HTTP_PORT:-3001}" \
+  "Prometheus: http://127.0.0.1:${PROMETHEUS_HTTP_PORT:-9091}" \
+  "gNMIc metrics: http://127.0.0.1:${GNMIC_HTTP_PORT:-9804}/metrics" \
+  "TopoViewer normalizer: http://127.0.0.1:${NORMALIZER_HTTP_PORT:-9110}/health"
 
 cd "${CLAB_DIR}"
 "${CLAB_BIN}" deploy -t topoviewer-grafana.clab.yml

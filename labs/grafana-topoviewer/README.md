@@ -17,6 +17,10 @@ Prometheus into the same mounted-bundle mapper path.
 
 ## Run
 
+This command sequence starts local-only services with disposable credentials,
+anonymous Admin, disabled login, and unsigned plugin loading. It is for local
+validation only.
+
 ```bash
 npm run grafana:lab:up
 npm run grafana:lab:smoke:phase4
@@ -37,6 +41,11 @@ The lab defaults to:
 - Phase 2 legacy weathermap dashboard: `http://127.0.0.1:3000/d/topoviewer-phase-2/topoviewer-phase-2-weathermap`
 - Prometheus: `http://127.0.0.1:9090`
 - Telemetry injector: `http://127.0.0.1:9108/scenario`
+
+The Docker Compose lab binds Grafana, Prometheus, and the telemetry injector to
+`127.0.0.1` only. Override ports only when another local process owns the
+default port; do not use the checked-in Compose file as production network
+exposure guidance.
 
 The local dashboards are provisioned as editable lab seeds. Grafana UI saves
 write the edited dashboard to Grafana's database for the running lab; they do
@@ -62,6 +71,11 @@ bundle source and mapper path.
 
 The Containerlab profile is intentionally separate from the synthetic lab:
 
+This command sequence starts a real local network lab with host-published
+Grafana, Prometheus, gNMIc, and normalizer ports. Containerlab publishes those
+ports through Docker for lab access; keep it on a trusted local host or constrain
+access with host firewall rules.
+
 ```bash
 npm run grafana:clab:up
 npm run grafana:clab:smoke
@@ -74,6 +88,10 @@ The lab defaults to:
 - Prometheus: `http://127.0.0.1:9091`
 - gNMIc Prometheus exporter: `http://127.0.0.1:9804/metrics`
 - TopoViewer telemetry normalizer: `http://127.0.0.1:9110/health`
+
+The URLs use `127.0.0.1` because the profile is validated as a local lab. If
+you run Containerlab on a remote host, explicitly decide how these published
+ports are firewalled before sharing the host.
 
 The Containerlab profile lives under:
 
@@ -210,6 +228,27 @@ Remaining limits before a portable Codespaces-style workflow:
   the scripts.
 - The synthetic lab remains the CI baseline; the Containerlab lab is the real
   telemetry validation path.
+
+## Production-Shaped Grafana Baseline
+
+The checked-in labs intentionally optimize for fast local validation. A real
+deployment should invert those defaults:
+
+```yaml
+environment:
+  GF_AUTH_ANONYMOUS_ENABLED: "false"
+  GF_AUTH_DISABLE_LOGIN_FORM: "false"
+  GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER}
+  GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
+  TOPOVIEWER_BUNDLE_ROOT: /etc/topoviewer/bundles
+volumes:
+  - ./topoviewer-bundles:/etc/topoviewer/bundles:ro
+```
+
+Unsigned plugin loading is local lab/development only. A production-shaped
+deployment should install a reviewed plugin artifact, use the Grafana plugin
+signing path once available, authenticate users normally, and publish ports only
+through the organization's standard ingress, proxy, or firewall model.
 
 ### Upstream-Candidate Validation
 

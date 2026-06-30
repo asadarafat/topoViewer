@@ -144,6 +144,8 @@ The source of truth remains the mounted TopoViewer bundle.
 
 Local commands:
 
+These local lab commands run Grafana with disposable credentials, anonymous Admin, disabled login, unsigned plugin loading, and local published ports. They are adoption-test scaffolding, not production deployment guidance.
+
 ```bash
 npm run grafana:fixtures:check
 npm run grafana:injector:test

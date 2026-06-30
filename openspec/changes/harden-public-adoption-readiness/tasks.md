@@ -141,11 +141,11 @@
 ## 11. Lab Safety Boundaries
 
 - [x] 11.1 Replace or clearly label checked-in lab `.env` files as disposable local defaults
-- [ ] 11.2 Add startup warnings for npm scripts that run Grafana with anonymous Admin, disabled login form, unsigned plugin loading, or published host ports
-- [ ] 11.3 Add docs warnings beside every lab command that exposes Grafana, Prometheus, injector, gNMIc, or normalizer ports
-- [ ] 11.4 Add localhost binding or explicit docs rationale for every Docker and Grafana Containerlab-mode published port
-- [ ] 11.5 Add a production-shaped Grafana configuration example that does not use anonymous Admin or disposable credentials
-- [ ] 11.6 Add docs explaining unsigned plugin loading is local lab/development only
+- [x] 11.2 Add startup warnings for npm scripts that run Grafana with anonymous Admin, disabled login form, unsigned plugin loading, or published host ports
+- [x] 11.3 Add docs warnings beside every lab command that exposes Grafana, Prometheus, injector, gNMIc, or normalizer ports
+- [x] 11.4 Add localhost binding or explicit docs rationale for every Docker and Grafana Containerlab-mode published port
+- [x] 11.5 Add a production-shaped Grafana configuration example that does not use anonymous Admin or disposable credentials
+- [x] 11.6 Add docs explaining unsigned plugin loading is local lab/development only
 - [ ] 11.7 Add CI or lint checks that prevent lab credentials from appearing in production docs snippets
 
 ## 12. Security: Hostile Content Corpus

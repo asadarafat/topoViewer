@@ -341,6 +341,9 @@ by development fixture drift.
 
 Start the pinned Grafana lab:
 
+This lab uses disposable credentials, anonymous Admin, a disabled login form,
+unsigned plugin loading, and local published ports. It is development and validation scaffolding only.
+
 ```bash
 npm run grafana:lab:up
 ```
@@ -388,6 +391,10 @@ The Containerlab lab is the real-telemetry validation path. It starts a compact
 CLOS-like SR Linux fabric, gNMIc, Prometheus, Grafana, and a TopoViewer
 normalizer. Grafana mounts the local panel build and the same bundle root used
 by the mounted-bundle workflow:
+
+This profile also uses lab-only Grafana auth defaults and host-published
+Grafana, Prometheus, gNMIc, and normalizer ports. Run it only on a trusted local
+host or a controlled lab host with firewall rules.
 
 ```text
 /etc/topoviewer/bundles/clab-clos/

@@ -39,11 +39,11 @@ function checkPort({ name, envKey, defaultPort }) {
     });
     server.once('listening', () => {
       server.close(() => {
-        console.log(`${name} lab port is available: ${port}`);
+        console.log(`${name} localhost lab port is available: ${port}`);
         resolve();
       });
     });
-    server.listen(port, '0.0.0.0');
+    server.listen(port, '127.0.0.1');
   });
 }
 

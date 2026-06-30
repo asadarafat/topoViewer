@@ -6,10 +6,19 @@ LAB_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 REPO_DIR="$(cd "${LAB_DIR}/../.." && pwd)"
 RUNTIME_ENV="${REPO_DIR}/.artifacts/grafana-topoviewer-lab.env"
 
+source "${SCRIPT_DIR}/lib/lab-warning.sh"
+
 cd "${REPO_DIR}"
 node labs/grafana-topoviewer/scripts/check-versions.mjs
 node labs/grafana-topoviewer/scripts/check-port.mjs
 npm run grafana:panel:build
+
+print_topoviewer_grafana_lab_warning \
+  "Docker Compose lab" \
+  "Docker Compose binds Grafana, Prometheus, and the telemetry injector to 127.0.0.1 only." \
+  "Grafana: http://127.0.0.1:${GRAFANA_HTTP_PORT:-3000}" \
+  "Prometheus: http://127.0.0.1:${PROMETHEUS_HTTP_PORT:-9090}" \
+  "Telemetry injector: http://127.0.0.1:${TELEMETRY_INJECTOR_HTTP_PORT:-9108}/scenario"
 
 cd "${LAB_DIR}"
 docker compose --env-file .env up -d

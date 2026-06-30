@@ -215,8 +215,50 @@ function assertLabWarnings() {
     'anonymous Admin',
     'unsigned',
     'plugin loading',
-    'not production'
+    'not production',
+    'binds Grafana, Prometheus, and the telemetry injector to',
+    'Containerlab publishes those',
+    'Unsigned plugin loading is local lab/development only'
   ]);
+
+  assertFile('packages/grafana-topoviewer-panel/README.md', [
+    'anonymous Admin',
+    'unsigned plugin loading',
+    'development and validation scaffolding only'
+  ]);
+
+  assertFile('docs/topoviewer/integration-roadmap.md', [
+    'anonymous Admin',
+    'unsigned plugin loading',
+    'not production deployment guidance'
+  ]);
+
+  assertFile('labs/grafana-topoviewer/scripts/lib/lab-warning.sh', [
+    'anonymous Admin',
+    'disables the login form',
+    'unsigned TopoViewer plugin',
+    'Do not use this lab on a shared network'
+  ]);
+
+  assertFile('labs/grafana-topoviewer/scripts/up.sh', [
+    'print_topoviewer_grafana_lab_warning',
+    'Docker Compose binds Grafana'
+  ]);
+  assertFile('labs/grafana-topoviewer/containerlab/scripts/up.sh', [
+    'print_topoviewer_grafana_lab_warning',
+    'Containerlab publishes Grafana'
+  ]);
+
+  const compose = assertFile('labs/grafana-topoviewer/docker-compose.yml');
+  for (const binding of [
+    '127.0.0.1:${TELEMETRY_INJECTOR_HTTP_PORT}:9108',
+    '127.0.0.1:${PROMETHEUS_HTTP_PORT}:9090',
+    '127.0.0.1:${GRAFANA_HTTP_PORT}:3000'
+  ]) {
+    if (!compose.includes(binding)) {
+      fail(`labs/grafana-topoviewer/docker-compose.yml must bind ${binding} for localhost-only lab exposure.`);
+    }
+  }
 }
 
 function assertPackageAndCiContracts() {
