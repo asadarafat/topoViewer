@@ -193,28 +193,243 @@ rules:
         lineWidth: 8
 ```
 
-Mapper attributes:
+## Mapper Attribute Reference
+
+Root attributes:
 
 | Attribute | Type | Accepted values | Use |
 |---|---|---|---|
+| `$schema` | string | Schema URL. | Optional editor/schema hint. |
 | `version` | number | `1` | Canonical mapper document version. |
-| `identity.sourceId` | string | Any stable bundle/source ID. | Optional source identity. |
-| `identity.sourceIdLabel` | string | Grafana label name. | Filters samples to the selected topology source. |
-| `rules[].id` | string | Unique rule ID. | Diagnostic and coverage identity. |
-| `rules[].metric` | string | Grafana metric/data-frame name. | Selects samples for a rule. |
-| `rules[].select` | string | `node`, `link`, `linkDirection`, `path`, `region`, `layer`, `graph`, or a TopoViewer selector. | Selects target object kind or subset. |
-| `rules[].join` | string or map | Label name, or `link` plus `direction` for `linkDirection`. | Resolves telemetry labels to TopoViewer objects. |
-| `rules[].value` | string | Field/label name such as `percent`, `up`, or omitted value field. | Selects the numeric or scalar value. |
-| `rules[].states` | map | State name to comparison, such as `">=80"` or `"==0"`. | Names value ranges for conditional styles. |
-| `rules[].style.default` | style map | Any supported runtime style key for the target kind. | Baseline overlay for matched samples. |
-| `rules[].style.<state>` | style map | Any supported runtime style key for the target kind. | State-specific overlay. |
-| `mappings[]` | array | Canonical mapping objects. | Advanced resolver, threshold, aggregate, and condition shape. |
+| `identity.sourceId` | string | Any stable topology/source ID. | Expected source identity, usually the bundle or topology ID. |
+| `identity.sourceIdLabel` | string | Grafana label name. | Telemetry label that must equal `identity.sourceId`; unmatched samples are ignored. |
+| `palette.success` | string or `{ color, accent }` | CSS color. | Healthy/default severity color. |
+| `palette.info` | string or `{ color, accent }` | CSS color. | Informational severity color. |
+| `palette.warning` | string or `{ color, accent }` | CSS color. | Warning severity color. |
+| `palette.error` | string or `{ color, accent }` | CSS color. | Error severity color. |
+| `rules` | array | Compact authoring rules. | Preferred hand-authored mapper shape. |
+| `mappings` | array | Canonical mapping rules. | Advanced resolver, threshold, aggregate, and condition shape. |
 
-Supported target kinds are `node`, `link`, `linkDirection`, `path`, `region`,
-`layer`, and `graph`.
+Compact `rules[]` attributes:
 
-Supported resolver modes in canonical `mappings[]` are `id`, `label`, `data`,
-`endpoint`, `selector`, `aggregate`, and `staticObjectIds`.
+| Attribute | Type | Accepted values | Relationship to TopoViewer |
+|---|---|---|---|
+| `rules[].id` | string | Unique stable ID. | Used in diagnostics and coverage output. |
+| `rules[].metric` | string | Grafana metric/data-frame name. | Must match the query result name. |
+| `rules[].select` | string | `node`, `link`, `linkDirection`, `path`, `region`, `layer`, `graph`, or a selector such as `node[labels.role = "pe"]`. | Selects the TopoViewer object kind or subset. |
+| `rules[].join` | string | Telemetry label such as `node_id`, `link_id`, `path_id`, or `region_id`. | Label value must equal the selected TopoViewer object ID. |
+| `rules[].join.link` | string | Telemetry label name. | For `linkDirection`, carries parent `graph.links[].id`. |
+| `rules[].join.direction` | string | Telemetry label name. | For `linkDirection`, carries `sourceToTarget` or `targetToSource`. |
+| `rules[].value` | string | `percent`, `utilization`, `utilizationPercent`, `up`, `errors`, `errorsTotal`, `latency`, `latencyMs`, `loss`, `lossPercent`, `capacity`, `capacityPercent`, `health`. | Gives the sample value a semantic type for formatting and severity behavior. |
+| `rules[].states.<name>` | string | Expressions such as `==0`, `!=up`, `>0`, `>=70`, `<20`, or a bare scalar. | Defines named value states. State names become `{{ state }}` in style templates. |
+| `rules[].style.default` | style map | Any supported runtime style key for the selected target kind. | Baseline overlay applied to matched samples. |
+| `rules[].style.<state>` | style map | Any supported runtime style key for the selected target kind. | State-specific overlay when `states.<state>` matches. |
+
+Canonical `mappings[]` attributes:
+
+| Attribute | Type | Accepted values | Relationship to TopoViewer |
+|---|---|---|---|
+| `mappings[].id` | string | Unique stable ID. | Used in diagnostics and coverage output. |
+| `mappings[].metric` | string | Grafana metric/data-frame name. | Must match the query result name. |
+| `mappings[].target.kind` | string | `node`, `link`, `linkDirection`, `path`, `region`, `layer`, `graph`. | TopoViewer object family receiving the overlay. |
+| `mappings[].target.resolve.by` | string | `id`, `label`, `data`, `endpoint`, `selector`, `aggregate`, `staticObjectIds`. | Resolver mode used to bind telemetry samples to TopoViewer objects. |
+| `mappings[].target.resolve.metricLabel` | string | Telemetry label name. | Primary join value for `id`, `label`, or `data` resolvers. |
+| `mappings[].target.resolve.linkMetricLabel` | string | Telemetry label name. | Parent link ID label for `linkDirection`. |
+| `mappings[].target.resolve.directionMetricLabel` | string | Telemetry label name. | Direction label for `linkDirection`; value must be `sourceToTarget` or `targetToSource`. |
+| `mappings[].target.resolve.key` | string | TopoViewer label/data key. | Used with `label` or `data`; compares telemetry label value to `labels.<key>` or `data.<key>`. |
+| `mappings[].target.resolve.sourceLabel` | string | Telemetry label name. | Source node ID for endpoint-based link matching. |
+| `mappings[].target.resolve.targetLabel` | string | Telemetry label name. | Target node ID for endpoint-based link matching. |
+| `mappings[].target.resolve.selector` | string | TopoViewer selector. | Selects all matching objects; use carefully for broad overlays. |
+| `mappings[].target.resolve.objectIds` | string array | TopoViewer object IDs. | Static explicit target list. |
+| `mappings[].value.field` | string | Data-frame field name. | Reads a named field instead of the default sample value. |
+| `mappings[].value.as` | string | `up`, `utilizationPercent`, `errorsTotal`, `latencyMs`, `lossPercent`, `capacityPercent`, `health`. | Semantic value type for thresholds and formatting. |
+| `mappings[].thresholds.info` | number | Numeric threshold. | Produces `info` severity when crossed. |
+| `mappings[].thresholds.warning` | number | Numeric threshold. | Produces `warning` severity when crossed. |
+| `mappings[].thresholds.error` | number | Numeric threshold. | Produces `error` severity when crossed. |
+| `mappings[].thresholds.direction` | string | `above` or `below`. | Whether larger or smaller values are worse. Defaults to `above`. |
+| `mappings[].overlay.lineColorBySeverity` | boolean | `true` or `false`. | Sets line color from severity palette for links, paths, and direction lanes. |
+| `mappings[].overlay.lineWidthBySeverity` | boolean | `true` or `false`. | Increases line width by severity for links, paths, and direction lanes. |
+| `mappings[].overlay.sourceArrowColorBySeverity` | boolean | `true` or `false`. | Sets source arrow color for links and direction lanes. |
+| `mappings[].overlay.targetArrowColorBySeverity` | boolean | `true` or `false`. | Sets target arrow color for links and direction lanes. |
+| `mappings[].overlay.outlineBySeverity` | boolean | `true` or `false`. | Sets node/region outline from severity. |
+| `mappings[].overlay.statusMarker` | boolean | `true` or `false`. | Sets status marker color from severity. |
+| `mappings[].overlay.backgroundColorBySeverity` | boolean | `true` or `false`. | Sets background color from severity for supported targets. |
+| `mappings[].overlay.borderColorBySeverity` | boolean | `true` or `false`. | Sets border color from severity for supported targets. |
+| `mappings[].overlay.badgeLabel` | string | Template string. | Sets node badge text or equivalent supported target badge. |
+| `mappings[].overlay.label` | string | Template string. | Sets runtime label text for the target. |
+| `mappings[].overlay.propagateToLayerMembers` | boolean | `true` or `false`. | For `layer` or aggregate targets, optionally propagates state to child objects. |
+| `mappings[].overlay.style` | style map | Any supported runtime style key for the target kind. | Base style patch before conditions. |
+| `mappings[].conditions[].id` | string | Stable condition ID. | Optional diagnostic/review label. |
+| `mappings[].conditions[].when.severity` | string | `none`, `success`, `info`, `warning`, `error`. | Matches derived severity. |
+| `mappings[].conditions[].when.value` | map | `eq`, `ne`, `gt`, `gte`, `lt`, `lte`, `contains`, `exists`. | Matches sample value. |
+| `mappings[].conditions[].when.label` | map | `key` plus scalar condition. | Matches telemetry label value. |
+| `mappings[].conditions[].when.field` | map | `key` plus scalar condition. | Matches data-frame field value. |
+| `mappings[].conditions[].style` | style map | Any supported runtime style key for the target kind. | Conditional style patch. |
+
+Supported template tokens in style strings include `{{ value }}`,
+`{{ value | round }}`, `{{ value | bps }}`, `{{ severity }}`,
+`{{ state }}`, `{{ metric }}`, `{{ target.id }}`, `{{ label.<name> }}`,
+and `{{ field.<name> }}`.
+
+Resolver modes:
+
+| Resolver | Required fields | Use |
+|---|---|---|
+| `id` | `metricLabel`, or `linkMetricLabel` plus `directionMetricLabel` for `linkDirection`. | Match telemetry label value to TopoViewer object ID. |
+| `label` | `key`, `metricLabel`. | Match telemetry label value to `labels.<key>`. |
+| `data` | `key`, `metricLabel`. | Match telemetry label value to `data.<key>`. |
+| `endpoint` | `sourceLabel`, `targetLabel`. | Match a link by source and target node IDs; avoid this with parallel links unless labels disambiguate. |
+| `selector` | `selector`. | Apply one sample or aggregate state to all objects matching a TopoViewer selector. |
+| `aggregate` | Usually `selector` or `objectIds`. | Summarize child objects into a layer/region/graph style. |
+| `staticObjectIds` | `objectIds`. | Apply a metric to a fixed object list. |
+
+## Mapper Examples By Target
+
+Node badge and status:
+
+```yaml
+rules:
+  - id: node-health
+    metric: node_health
+    select: node
+    join: node_id
+    value: health
+    states:
+      down: "==0"
+    style:
+      default:
+        badgeLabel: OK
+        statusColor: "#4caf50"
+      down:
+        badgeLabel: DOWN
+        statusColor: "#d32f2f"
+        outlineColor: "#d32f2f"
+        outlineWidth: 6
+```
+
+Link style and label text:
+
+```yaml
+rules:
+  - id: link-utilization
+    metric: interface_utilization_percent
+    select: link
+    join: link_id
+    value: percent
+    states:
+      busy: ">=70"
+    style:
+      default:
+        label: "{{ value | round }}%"
+        lineColor: "#4caf50"
+      busy:
+        label: "busy {{ value | round }}%"
+        lineColor: "#ff9800"
+        lineWidth: 6
+```
+
+Directional link data:
+
+```yaml
+rules:
+  - id: directional-bandwidth
+    metric: interface_direction_bps
+    select: linkDirection
+    join:
+      link: link_id
+      direction: direction
+    states:
+      hot: ">=5000000000"
+    style:
+      default:
+        label: "{{ label.direction }} {{ value | bps }}"
+        lineWidth: 4
+      hot:
+        label: "{{ label.direction }} hot {{ value | bps }}"
+        lineColor: "#d32f2f"
+        targetArrowSize: 16
+```
+
+Path SLO:
+
+```yaml
+mappings:
+  - id: service-path-latency
+    metric: service_path_latency_ms
+    target:
+      kind: path
+      resolve:
+        by: id
+        metricLabel: path_id
+    value:
+      as: latencyMs
+    thresholds:
+      warning: 50
+      error: 100
+    overlay:
+      lineColorBySeverity: true
+      lineWidthBySeverity: true
+      label: "{{ value | round }} ms"
+```
+
+Region aggregate state:
+
+```yaml
+mappings:
+  - id: region-errors
+    metric: region_error_count
+    target:
+      kind: region
+      resolve:
+        by: label
+        key: region
+        metricLabel: region
+    value:
+      as: errorsTotal
+    thresholds:
+      warning: 1
+      error: 10
+    overlay:
+      borderColorBySeverity: true
+      backgroundColorBySeverity: true
+      label: "errors {{ value | round }}"
+```
+
+Layer aggregate state:
+
+```yaml
+mappings:
+  - id: underlay-layer-health
+    metric: layer_health
+    target:
+      kind: layer
+      resolve:
+        by: staticObjectIds
+        objectIds:
+          - underlay
+    value:
+      as: health
+    overlay:
+      statusMarker: true
+      propagateToLayerMembers: true
+```
+
+Graph summary state:
+
+```yaml
+mappings:
+  - id: graph-incident-count
+    metric: graph_incidents
+    target:
+      kind: graph
+      resolve:
+        by: aggregate
+    thresholds:
+      warning: 1
+      error: 5
+    overlay:
+      label: "{{ value | round }} active incidents"
+```
 
 ## Query Output Expectations
 

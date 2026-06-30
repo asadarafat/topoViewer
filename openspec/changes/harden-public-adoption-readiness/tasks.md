@@ -134,8 +134,8 @@
 - [ ] 10.7 Add screenshots for mounted bundle selection, mapper diagnostics, mapping coverage, and telemetry overlay states
 - [x] 10.8 Add a fresh-checkout Grafana smoke command sequence that does not require source-code reading
 - [x] 10.9 Add Grafana docs that start from a harness-authored bundle and explicitly show where the generated `*.mapper.tv.yaml` is mounted
-- [ ] 10.10 Add Grafana mapper docs for every mapper attribute with purpose, type, accepted values, examples, and relationship to topology object attributes
-- [ ] 10.11 Add Grafana examples that map telemetry to node style, link style, path style, region style, layer aggregate state, graph summary state, label text, badge/status, and directional link data
+- [x] 10.10 Add Grafana mapper docs for every mapper attribute with purpose, type, accepted values, examples, and relationship to topology object attributes
+- [x] 10.11 Add Grafana examples that map telemetry to node style, link style, path style, region style, layer aggregate state, graph summary state, label text, badge/status, and directional link data
 - [x] 10.12 Add troubleshooting docs for mapper rules that match no objects, match too many objects, match parallel links ambiguously, use unsupported overlay keys, or receive unexpected metric labels
 
 ## 11. Lab Safety Boundaries
