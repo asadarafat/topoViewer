@@ -15,6 +15,7 @@ integrity tasks, not a final production-ready sign-off.
 | docs artifact autopsy | `scripts/check-release-artifacts.mjs --scope docs` scans the generated `site/` tree when present, validates key published routes, and rejects local/private references and generated junk. | `npm run ci:docs` after docs build, Zensical build, harness build, redirects, and docs smoke. |
 | promotional media/public docs guardrail | The artifact script scans README, docs, package READMEs, `packages/topoviewer/docs`, and `docs/assets` so public content cannot reference local `.artifacts` media paths or checked-in junk such as `.DS_Store`. | `npm run ci:package` and `npm run ci:docs`. |
 | npm dependency advisory triage | `scripts/check-dependency-advisories.mjs` keeps production `npm audit --omit=dev --audit-level=moderate` blocking and validates full-audit findings against the dependency-risk ledger. New package names or unexpected vulnerable install paths fail. | `npm run ci:public-readiness` and `.github/workflows/security.yml`. |
+| security health report | `scripts/write-security-health-report.mjs` writes `.artifacts/security-health/security-health-report.md` with last run metadata, scanner job results, open findings, owners, and triage state. | `.github/workflows/security.yml` uploads `security-health-report` after dependency, secret, container, and OSV jobs. |
 
 ## Current Validation
 
@@ -54,5 +55,4 @@ committed.
 - Grafana artifact signing, checksum guidance, SBOM policy, and version matrix
   remain separate release-readiness tasks.
 - Package install dry-runs for public install commands remain open.
-- Go vulnerability triage and cross-ecosystem OSV scanning remain open.
 - Hostile-content and mounted-bundle abuse corpora remain open.

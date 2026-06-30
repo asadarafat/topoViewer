@@ -99,3 +99,36 @@ jobs:
         --recursive
         --skip-git
         .
+
+  security-health-report:
+    name: Security health report
+    runs-on: ubuntu-latest
+    needs:
+      - dependency-and-secret-checks
+      - container-image-checks
+      - osv-cross-ecosystem-scan
+    if: always()
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+
+      - name: Write security health report
+        run: npm run security:health-report
+        env:
+          SECURITY_JOB_DEPENDENCY_AND_SECRET_CHECKS: ${{ needs.dependency-and-secret-checks.result }}
+          SECURITY_JOB_CONTAINER_IMAGE_CHECKS: ${{ needs.container-image-checks.result }}
+          SECURITY_JOB_OSV_CROSS_ECOSYSTEM_SCAN: ${{ needs.osv-cross-ecosystem-scan.result }}
+          SECURITY_HEALTH_OWNER: "@asadarafat"
+
+      - name: Upload security health report
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-health-report
+          path: .artifacts/security-health/security-health-report.md
+          if-no-files-found: error

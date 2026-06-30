@@ -182,18 +182,31 @@ function assertSecurityAutomation() {
   assertFile('.github/workflows/security.yml', [
     'npm run dependency:advisories',
     'npm run go:vulncheck',
+    'npm run security:health-report',
     'google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml',
     '--recursive',
     '--skip-git',
     'fetch-depth: 0',
     'gitleaks',
     'trivy-action',
+    'security-health-report',
+    'actions/upload-artifact@v4',
+    '.artifacts/security-health/security-health-report.md',
     'continue-on-error: ${{ github.event_name == \'push\' || github.event_name == \'pull_request\' }}'
+  ]);
+  assertFile('scripts/write-security-health-report.mjs', [
+    'Security Health Report',
+    'Open Findings And Triage State',
+    'Primary owner',
+    'SECURITY_JOB_DEPENDENCY_AND_SECRET_CHECKS',
+    'SECURITY_JOB_CONTAINER_IMAGE_CHECKS',
+    'SECURITY_JOB_OSV_CROSS_ECOSYSTEM_SCAN'
   ]);
   assertFile('SECURITY.md', [
     'Automated Security Monitoring',
     'Dependabot checks npm, Go modules, GitHub Actions, and Docker/container image',
     'OSV cross-ecosystem scanning',
+    'security-health-report',
     'Generated PRs target `development`',
     'Automation does not replace review',
     'Normal push and pull-request workflows must validate security'

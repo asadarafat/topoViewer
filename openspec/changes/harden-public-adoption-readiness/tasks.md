@@ -195,7 +195,7 @@
 - [x] 15.11 Add secret scanning through GitHub-native settings, Gitleaks, TruffleHog, or an equivalent CI-enforced scanner
 - [x] 15.12 Add container image scanning through Trivy, Grype, or an equivalent scanner for Grafana lab and Grafana Containerlab-mode images
 - [x] 15.13 Add OSV/dependency vulnerability scanning or an equivalent cross-ecosystem check where npm audit and govulncheck do not cover the risk
-- [ ] 15.14 Add a scheduled security-health workflow/report that records last run, open findings, owners, and triage state
+- [x] 15.14 Add a scheduled security-health workflow/report that records last run, open findings, owners, and triage state
 - [x] 15.15 Add docs explaining automated security monitoring coverage, limitations, and how maintainers triage generated security PRs
 - [x] 15.16 Add CI/readiness checks that fail when Dependabot/security automation configuration is missing or does not cover a used ecosystem
 

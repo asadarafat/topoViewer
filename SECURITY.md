@@ -101,6 +101,10 @@ warning system:
   only scheduled and manual security sweeps block on upstream lab-image CVE
   drift. This keeps normal code review actionable while still surfacing pinned
   Grafana, Prometheus, and gNMIc image risk for triage.
+- Scheduled and manual Security workflow runs upload a
+  `security-health-report` artifact. The report records the run timestamp,
+  repository ref, scanner job results, current open findings, owner, and triage
+  state so maintainers have a durable review object even when one scanner fails.
 
 Automation does not replace review. Maintainers should triage each generated
 PR or finding as one of:
