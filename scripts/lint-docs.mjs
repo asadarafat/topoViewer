@@ -28,6 +28,7 @@ const integrationStatusPages = [
   ['mkdocs.md', 'Supported'],
   ['zensical.md', 'Supported Adapter'],
   ['browser-harness.md', 'Experimental'],
+  ['grafana.md', 'Experimental'],
   ['integration-roadmap.md', 'Roadmap'],
   ['grafana-telemetry-call-flow.md', 'Lab']
 ];

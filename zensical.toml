@@ -67,7 +67,8 @@ nav = [
     { "Glossary" = "topoviewer/glossary.md" }
   ] },
   { "Labs" = [
-    { "Grafana" = "topoviewer/grafana-telemetry-call-flow.md" }
+    { "Grafana Guide" = "topoviewer/grafana.md" },
+    { "Grafana Telemetry Call Flow" = "topoviewer/grafana-telemetry-call-flow.md" }
   ] },
   { "Maintainers" = [
     { "Monorepo" = "topoviewer/monorepo.md" },

@@ -125,18 +125,18 @@
 
 ## 10. Grafana Early-Adopter Workflow
 
-- [ ] 10.1 Document the production-shaped path: author in harness, export bundle files, mount bundle, select bundle, bind Prometheus, inspect coverage, validate overlays
-- [ ] 10.2 Remove or clearly demote any workflow that requires users to edit fixture catalogs, run fixture sync, or rebuild the plugin for normal bundle changes
-- [ ] 10.3 Add Grafana docs for mapper coverage numbers, including resolved, unresolved, ambiguous, duplicate, and stale examples
-- [ ] 10.4 Add Grafana docs for dashboard editability versus provisioning and what changes survive reload
-- [ ] 10.5 Add Grafana docs for panel interactivity: pan, zoom, select, focus, drag persistence, refresh, variable changes, bundle changes, and panel reload
-- [ ] 10.6 Add Grafana docs for expected query outputs and rendered overlay outcomes for healthy, degraded, failed, and no-data states
+- [x] 10.1 Document the production-shaped path: author in harness, export bundle files, mount bundle, select bundle, bind Prometheus, inspect coverage, validate overlays
+- [x] 10.2 Remove or clearly demote any workflow that requires users to edit fixture catalogs, run fixture sync, or rebuild the plugin for normal bundle changes
+- [x] 10.3 Add Grafana docs for mapper coverage numbers, including resolved, unresolved, ambiguous, duplicate, and stale examples
+- [x] 10.4 Add Grafana docs for dashboard editability versus provisioning and what changes survive reload
+- [x] 10.5 Add Grafana docs for panel interactivity: pan, zoom, select, focus, drag persistence, refresh, variable changes, bundle changes, and panel reload
+- [x] 10.6 Add Grafana docs for expected query outputs and rendered overlay outcomes for healthy, degraded, failed, and no-data states
 - [ ] 10.7 Add screenshots for mounted bundle selection, mapper diagnostics, mapping coverage, and telemetry overlay states
-- [ ] 10.8 Add a fresh-checkout Grafana smoke command sequence that does not require source-code reading
-- [ ] 10.9 Add Grafana docs that start from a harness-authored bundle and explicitly show where the generated `*.mapper.tv.yaml` is mounted
+- [x] 10.8 Add a fresh-checkout Grafana smoke command sequence that does not require source-code reading
+- [x] 10.9 Add Grafana docs that start from a harness-authored bundle and explicitly show where the generated `*.mapper.tv.yaml` is mounted
 - [ ] 10.10 Add Grafana mapper docs for every mapper attribute with purpose, type, accepted values, examples, and relationship to topology object attributes
 - [ ] 10.11 Add Grafana examples that map telemetry to node style, link style, path style, region style, layer aggregate state, graph summary state, label text, badge/status, and directional link data
-- [ ] 10.12 Add troubleshooting docs for mapper rules that match no objects, match too many objects, match parallel links ambiguously, use unsupported overlay keys, or receive unexpected metric labels
+- [x] 10.12 Add troubleshooting docs for mapper rules that match no objects, match too many objects, match parallel links ambiguously, use unsupported overlay keys, or receive unexpected metric labels
 
 ## 11. Lab Safety Boundaries
 
