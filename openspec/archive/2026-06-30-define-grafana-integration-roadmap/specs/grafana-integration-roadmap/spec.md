@@ -17,8 +17,94 @@ large implementation.
 
 - **WHEN** implementation begins
 - **THEN** Phase 1 SHALL prove panel rendering and canonical harness fixture
-  parity before Prometheus, interactivity persistence, Codespaces, or expanded
-  use cases are treated as release work
+  parity before Prometheus, interactivity persistence, or expanded use cases are
+  treated as release work
+
+### Requirement: Early-Adopter Ergonomics Are The Primary Grafana Success Metric
+
+TopoViewer SHALL judge Grafana integration by how quickly and safely an early
+adopter can bring their own TopoViewer YAML into Grafana, bind telemetry, and
+understand the result.
+
+#### Scenario: User Does Not Need Maintainer Knowledge
+
+- **GIVEN** a user has topology and stylesheet YAML
+- **WHEN** they follow Grafana docs
+- **THEN** they can create or validate mapper YAML, mount the bundle, select it
+  in the panel, configure telemetry, and inspect mapping coverage
+- **AND** they do not need to know monorepo source paths, edit fixture catalogs,
+  run fixture sync, rebuild the plugin for each topology, or read TypeScript
+  source code.
+
+#### Scenario: Adoption Gaps Are Tracked Explicitly
+
+- **WHEN** the Grafana roadmap is reviewed
+- **THEN** it SHALL include a blunt adoption-gap audit
+- **AND** implementation phases SHALL treat those gaps as product blockers, not
+  nice-to-have documentation tasks.
+
+#### Scenario: Documentation Is A Product Gate
+
+- **WHEN** a Grafana phase claims production-shaped or early-adopter readiness
+- **THEN** docs SHALL include runnable commands, expected URLs, expected
+  screenshots or visual states, copyable YAML, expected query or mapping
+  coverage output, and troubleshooting for likely failures
+- **AND** architecture-only documentation SHALL NOT be sufficient.
+
+### Requirement: Grafana Security And Abuse Resistance Is Explicit
+
+TopoViewer SHALL treat Grafana mounted bundles, mapper YAML, SVG/HTML-derived
+rendering, and lab services as security-sensitive integration surfaces.
+
+#### Scenario: Lab Defaults Cannot Masquerade As Production
+
+- **GIVEN** the local Grafana labs enable anonymous Admin, admin/admin defaults,
+  unsigned plugin loading, and exposed host ports
+- **WHEN** those labs are documented
+- **THEN** docs SHALL label them as disposable local-lab settings
+- **AND** docs SHALL provide production-safe counterexamples or warnings
+- **AND** no public adoption page SHALL imply those defaults are acceptable for
+  a real shared Grafana instance.
+
+#### Scenario: Backend Resource Endpoint Resists File Abuse
+
+- **GIVEN** a user or attacker controls mounted bundle files, manifest content,
+  or panel options for root/manifest/bundle ID
+- **WHEN** they attempt path traversal, symlink escape, absolute path escape,
+  oversized files, duplicate bundle IDs, missing suffix files, massive bundle
+  directories, or malformed manifests
+- **THEN** the backend SHALL reject unsafe access, keep CPU/memory bounded, and
+  return actionable diagnostics without leaking sensitive host paths.
+
+#### Scenario: Hostile YAML And Rendered Content Stay Inert
+
+- **GIVEN** topology, stylesheet, mapper, Markdown/callout, SVG, or telemetry
+  label content contains hostile payloads
+- **WHEN** the panel, harness, MkDocs, or Zensical renders it
+- **THEN** scripts, event handlers, `javascript:` references, raw HTML
+  execution, CSS/attribute breakout, and mapper-template injection SHALL NOT
+  execute
+- **AND** the UI SHALL remain responsive for oversized or malformed input.
+
+#### Scenario: Dependency Advisories Are Triage Blockers
+
+- **GIVEN** `npm audit`, Go vulnerability scanning, or plugin artifact
+  inspection reports issues
+- **WHEN** Grafana integration is evaluated for early-adopter readiness
+- **THEN** each issue SHALL be fixed or documented with shipped impact,
+  dev/tooling/external classification, owner, and follow-up action
+- **AND** untriaged moderate or higher advisories SHALL block production-ready
+  wording.
+
+#### Scenario: Plugin Artifact Is Inspectable
+
+- **GIVEN** an early adopter needs to install the plugin outside the monorepo
+- **WHEN** the plugin artifact is produced
+- **THEN** the artifact SHALL have documented version/Grafana compatibility,
+  checksum or provenance expectation, file manifest, signing/unsigned status,
+  and install instructions
+- **AND** it SHALL NOT include `.env`, local absolute paths, private files, or
+  unintended generated junk.
 
 ### Requirement: Phase 1 Panel Parity
 
@@ -241,6 +327,32 @@ interaction-state phases are proven.
   telemetry, observing visual changes, interacting with the panel, and
   troubleshooting
 
+#### Scenario: Harness Is The Mapper Authoring Surface
+
+- **WHEN** users need to create or correct `*.mapper.tv.yaml`
+- **THEN** the browser harness or VS Code harness SHALL be the primary authoring
+  surface
+- **AND** Grafana SHALL validate and explain mapper/runtime state, but SHALL NOT
+  be the only place where users discover mapper syntax or valid values.
+
+#### Scenario: Production-Grade Grafana Docs Exist
+
+- **WHEN** Phase 4 is considered ready for early adopters
+- **THEN** docs SHALL include a five-minute happy path, bring-your-YAML path,
+  mounted-bundle Docker path, mapper authoring guide, mapper reference,
+  Prometheus label guide, panel options guide, mapping coverage guide,
+  troubleshooting guide, and production-boundary explanation
+- **AND** each major workflow SHALL state expected result and what to inspect.
+
+#### Scenario: Failure Classes Are Documented
+
+- **WHEN** telemetry does not change the rendered topology
+- **THEN** docs and diagnostics SHALL help distinguish source loading failure,
+  YAML parse failure, topology validation failure, mapper schema failure,
+  unsupported overlay key, no query data, wrong frame shape, unmatched telemetry,
+  stale object ID, duplicate mapping, ambiguous endpoint matching, version
+  mismatch, and lab startup failure.
+
 #### Scenario: Phase 4 Must Pass Production Gate Before Phase 5
 
 - **WHEN** Phase 4 implementation appears feature-complete
@@ -274,16 +386,27 @@ bundle and mapper workflow is stable with deterministic telemetry.
 - **AND** public production support SHALL wait for a pinned TopoViewer Grafana
   panel artifact and a fresh-checkout smoke using that artifact
 
-### Requirement: Phase 6 Codespaces Portability
+#### Scenario: Containerlab Is An Advanced Proof
 
-TopoViewer SHALL treat Codespaces as a separate feasibility phase after local
-Grafana and Containerlab validation.
+- **WHEN** Containerlab docs are published
+- **THEN** they SHALL present Containerlab as an advanced real-telemetry proof
+  after the synthetic mounted-bundle flow
+- **AND** they SHALL include expected metric flow, expected screenshots, and
+  inspection points in Prometheus, Grafana query frames, mapper coverage, and
+  the rendered TopoViewer panel
+- **AND** they SHALL NOT make Containerlab the first required adoption path.
 
-#### Scenario: Codespaces Is Not First Proof
+### Requirement: Codespaces Is Decoupled From Grafana Roadmap
+
+TopoViewer SHALL track Codespaces as a repo-wide development environment, not
+as a Grafana-specific delivery phase.
+
+#### Scenario: Codespaces Scope Lives In A Separate Change
 
 - **WHEN** Codespaces work is proposed
-- **THEN** local panel parity, Prometheus weathermap, mapper workflow, and
-  Containerlab telemetry phases SHALL already pass
-- **AND** Codespaces feasibility SHALL separately validate privileges, nested
-  networking, image pulls, port forwarding, persisted workspace state, resource
-  limits, and URL documentation
+- **THEN** the scope SHALL live under
+  `openspec/changes/define-codespaces-dev-environment/`
+- **AND** it SHALL cover MkDocs, Zensical, browser harness, synthetic Grafana,
+  and Containerlab Grafana surfaces together
+- **AND** the Grafana roadmap SHALL only define Grafana plugin and telemetry
+  behavior, not the cloud development environment

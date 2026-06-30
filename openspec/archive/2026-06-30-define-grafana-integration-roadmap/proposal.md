@@ -3,7 +3,13 @@
 Grafana is attractive for operational topology dashboards, but a Grafana panel is
 a larger product surface than documentation embedding. The project should treat
 Grafana as a separate roadmap item with its own feasibility constraints,
-dashboard data model, plugin lifecycle, and performance risks.
+dashboard data model, plugin lifecycle, performance risks, and adoption
+ergonomics.
+
+The main priority is not merely "TopoViewer can render inside Grafana." The main
+priority is that an early adopter can bring TopoViewer YAML to Grafana with a
+clear, documented, low-friction workflow and understand every failure mode
+without reading source code.
 
 ## What Changes
 
@@ -15,8 +21,8 @@ Define the Grafana integration roadmap as a phased standalone OpenSpec change:
   parity;
 - make Phase 2 the first telemetry vertical slice: Prometheus-driven network
   weathermap;
-- defer interaction persistence, expanded operational dashboards, full docs, and
-  Codespaces into later phases;
+- defer interaction persistence, expanded operational dashboards, and full docs
+  into later phases;
 - make Phase 4 explicitly ergonomic as a mounted-bundle and mapper foundation:
   users mount topology bundles containing
   `*.topo.tv.yaml`, `*.style.tv.yaml`, and `*.mapper.tv.yaml` into the Grafana
@@ -40,11 +46,20 @@ Define the Grafana integration roadmap as a phased standalone OpenSpec change:
   parity;
 - require a runnable local Grafana/Prometheus lab before claiming telemetry
   behavior is technically satisfying;
-- treat GitHub Codespaces Containerlab/Grafana as a second-stage portability
-  target after the local lab is proven;
+- keep Codespaces out of the Grafana roadmap; Codespaces is a repo-wide
+  development environment track that should cover docs, Zensical, harness,
+  Grafana, and Containerlab Grafana together;
 - document the mounted bundle/mapper workflow that connects authored topology
   YAML to Prometheus labels, and record dedicated operational dashboards as
   follow-up playbooks;
+- make early-adopter ergonomics the primary success criterion across the
+  authoring harness, published docs, Grafana panel, synthetic lab, and
+  Containerlab lab;
+- require production-grade documentation with happy-path, from-scratch,
+  mounted-bundle, mapper-authoring, troubleshooting, screenshots, and
+  fresh-checkout validation paths;
+- record current adoption gaps bluntly so implementation phases do not confuse
+  maintainer demos with user-ready workflows;
 - document risks around data frames, panel UX, plugin signing, CSP, and dense
   topology performance.
 
@@ -70,8 +85,12 @@ Define the Grafana integration roadmap as a phased standalone OpenSpec change:
   edits, fixture sync, or plugin rebuilds.
 - Future harness-fixture parity contract so Grafana, browser harness, docs, and
   renderer parity checks use the same topology and stylesheet sources.
-- Future local lab definition for validating Grafana against Prometheus telemetry
-  before a cloud-hosted developer environment is promised.
+- Future local lab definition for validating Grafana against Prometheus
+  telemetry before any repo-wide cloud development environment claims Grafana
+  support.
+- Future early-adopter documentation contract for Grafana, harness mapper
+  authoring, mounted bundles, telemetry mapping, troubleshooting, and
+  fresh-checkout validation.
 - No renderer, schema, MkDocs, or package implementation in this change.
 
 ## Non-Goals
@@ -79,6 +98,7 @@ Define the Grafana integration roadmap as a phased standalone OpenSpec change:
 - Building a Grafana panel.
 - Building a Grafana app plugin.
 - Building the Grafana/Prometheus/Containerlab lab.
-- Claiming Codespaces support before the local lab is repeatable.
 - Claiming Grafana integration is supported.
 - Turning Grafana into the primary TopoViewer authoring environment.
+- Treating maintainer-only local lab scripts as a sufficient early-adopter
+  onboarding workflow.

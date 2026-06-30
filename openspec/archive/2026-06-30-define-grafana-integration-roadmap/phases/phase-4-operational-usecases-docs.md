@@ -179,6 +179,36 @@ Docs must cover:
 13. Confirm TopoViewer visual state changes.
 14. Interact with the panel: pan, zoom, select, focus, drag, refresh, reset.
 
+### Documentation Production Bar
+
+The Phase 4 docs are incomplete unless they are usable by someone who has not
+worked on the monorepo. They must not assume generated fixtures, internal
+source paths, or implicit mapper behavior.
+
+Required pages or sections:
+
+- overview: what Grafana integration is and what status it has;
+- quick start: synthetic Prometheus lab with expected screenshots;
+- bundle layout: canonical suffixes and Docker mount examples;
+- harness workflow: author topology/style/mapper YAML and export the bundle;
+- mapper guide: simple rules, states, style overlays, thresholds, and target
+  kinds;
+- mapper reference: accepted values for target kinds, resolver modes, overlay
+  keys, and state expressions;
+- Prometheus guide: metric labels, starter PromQL, expected frame shape, and
+  common mistakes;
+- panel options: source mode, selected bundle, interaction persistence,
+  diagnostics, and reset behavior;
+- coverage diagnostics: matched, unmatched, duplicate, ambiguous, stale, and
+  unsupported overlay examples;
+- troubleshooting: source loading, YAML parsing, mapper schema, query shape,
+  no data, stale telemetry, version mismatch, and lab startup;
+- production boundary: what is lab-only, what is production-shaped, and what
+  waits for signed/pinned plugin artifacts.
+
+Every major workflow should include "Expected result" and "What to inspect".
+Architecture diagrams are useful only after the copyable workflow is clear.
+
 ### Object Identity Mapping
 
 Prefer stable IDs:
@@ -216,3 +246,7 @@ site, pod, rack, role, service, tenant
 - Troubleshooting covers version mismatch, missing fixture, missing telemetry
   labels, no telemetry update, stale refresh, source-load failure, YAML parse
   failure, ambiguous mapping, and lab startup failure.
+- Documentation lets an early adopter complete the mounted-bundle flow without
+  reading source code or knowing monorepo internals.
+- Documentation includes expected screenshots or visual states for healthy,
+  degraded, and failed mapping scenarios.

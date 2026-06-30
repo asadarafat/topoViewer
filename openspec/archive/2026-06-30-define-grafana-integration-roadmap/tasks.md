@@ -4,7 +4,7 @@
 - [x] 1.2 Keep this change as the roadmap and sequencing contract
 - [x] 1.3 Move implementation detail into phase files
 - [x] 1.4 Make Phase 1 the first executable slice
-- [x] 1.5 Keep Codespaces as a later feasibility phase
+- [x] 1.5 Decouple Codespaces into the repo-wide `define-codespaces-dev-environment` OpenSpec
 
 ## 2. Phase 1: Panel Package And Harness Fixture Parity
 
@@ -51,6 +51,10 @@
 - [x] 5.10 Define Phase 4 production readiness gate before archive or Phase 5 implementation
 - [x] 5.11 Define mounted bundles as the production Grafana source and fixture mode as dev/demo/CI compatibility
 - [x] 5.12 Define that `grafana:lab:up` must not require fixture sync/check for production-shaped mounted bundle startup
+- [x] 5.13 Define early-adopter adoption gaps and explicitly reject maintainer-demo ergonomics as sufficient
+- [x] 5.14 Define production-grade documentation requirements for quick start, bring-your-YAML, mapper authoring, Prometheus binding, mapping coverage, interaction behavior, and troubleshooting
+- [x] 5.15 Define the harness as the primary mapper authoring surface and Grafana as the runtime validation surface
+- [x] 5.16 Define screenshot-backed expected results and fresh-checkout validation as part of the adoption gate
 
 ## 6. Phase 5: Containerlab Telemetry Lab
 
@@ -61,13 +65,20 @@
 - [x] 6.5 Keep Containerlab separate from the deterministic synthetic lab until Phase 4 is stable
 - [x] 6.6 Define Phase 5 as blocked until Phase 4 production readiness and production hardening pass and are archived
 - [x] 6.7 Record Phase 5 current status: local/upstream-candidate implementation exists, release-mode plugin artifact and fresh-checkout smoke remain before public production support
+- [x] 6.8 Define Containerlab documentation as an advanced real-telemetry proof, not the first required adoption path
+- [x] 6.9 Define Containerlab docs expectations for Prometheus, Grafana frames, mapper coverage, rendered overlays, and screenshots
 
-## 7. Phase 6: Codespaces Portability
+## 7. Early-Adopter Ergonomics And Documentation
 
-- [ ] 7.1 Define local-lab preconditions before Codespaces work starts
-- [ ] 7.2 Define Containerlab privilege and nested networking checks
-- [ ] 7.3 Define image pull, port forwarding, persistence, and resource-limit checks
-- [ ] 7.4 Define Codespaces go/no-go criteria
+- [x] 7.1 Integrate the brutal adoption-gap audit into `openspec/changes/harden-public-adoption-readiness/audit.md`
+- [x] 7.2 Define the first successful user journey from TopoViewer YAML to Grafana runtime overlay
+- [x] 7.3 Define documentation as a product gate, not post-implementation polish
+- [x] 7.4 Define explicit failure classes that docs and diagnostics must cover
+- [x] 7.5 Define status language for experimental, lab, production-shaped, unsigned, signed, and supported Grafana states
+- [x] 7.6 Define that public docs must not require source-code reading or monorepo-internal knowledge
+- [x] 7.7 Record concrete static scrutiny findings: checked-in lab `.env`, anonymous Admin, unsigned plugin loading, broad port exposure risk, missing signed artifact story, audit advisories, and security test gaps
+- [x] 7.8 Define a penetration-style test matrix for backend resources, mounted bundles, YAML, SVG, mapper templates, roles, storage, dependencies, and artifacts
+- [x] 7.9 Define that lab-insecure defaults must be loudly labeled and must not be copy-paste production guidance
 
 ## 8. Validation
 
@@ -77,3 +88,7 @@
 - [x] 8.4 Review Phase 2 scope to ensure it is a narrow weathermap slice
 - [x] 8.5 Review docs requirements for the full authoring-to-telemetry workflow
 - [x] 8.6 Review the phase lifecycle: implement phase, validate, archive, create next phase spec, update roadmap only when findings require it
+- [x] 8.7 Confirm Codespaces scope moved to `openspec/changes/define-codespaces-dev-environment/`
+- [x] 8.8 Review early-adopter ergonomics requirements against Phase 4 and Phase 5 boundaries
+- [x] 8.9 Run a static scrutiny pass over Grafana/lab/docs/security surfaces and record findings in the audit
+- [x] 8.10 Run advisory checks and record that npm audit currently needs triage before production claims

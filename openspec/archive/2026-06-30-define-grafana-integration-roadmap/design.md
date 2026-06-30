@@ -18,6 +18,27 @@ Grafana data frames / panel options / runtime interaction state
 The panel must wrap the existing `topoviewer` runtime. It must not fork renderer
 behavior or maintain separate topology examples.
 
+### Primary Product Priority
+
+The highest priority for this roadmap is early-adopter ergonomics across the
+complete integration path:
+
+```text
+browser harness / VS Code authoring
+  -> topology, stylesheet, and mapper YAML
+  -> mounted Grafana bundle
+  -> Grafana panel source diagnostics
+  -> Prometheus query/data frame
+  -> mapper coverage
+  -> TopoViewer runtime overlay
+  -> documented troubleshooting
+```
+
+Rendering a topology in Grafana is necessary but not sufficient. The adoption
+bar is that a user can follow public docs, mount their own YAML, bind telemetry
+to objects, understand coverage, and recover from failure without knowing repo
+internals.
+
 ### Phase Plan
 
 | Phase | Scope | Completion Signal |
@@ -27,7 +48,6 @@ behavior or maintain separate topology examples.
 | 3 | Interactive panel runtime state | User pan/zoom/select/focus/drag survives refresh according to explicit persistence options |
 | 4 | Mounted bundle source, TopoViewer mapper foundation, and production hardening | A Grafana user mounts bundles containing `*.topo.tv.yaml`, `*.style.tv.yaml`, and `*.mapper.tv.yaml`, validates telemetry binding without catalog edits, fixture sync, or plugin rebuilds, and passes the Phase 4 production readiness gate |
 | 5 | Containerlab telemetry lab | Real local lab telemetry drives the same mounted bundle mapper workflow; public production support waits for a pinned plugin artifact and fresh-checkout smoke |
-| 6 | Codespaces portability | Local Containerlab lab is reproducible first, then Codespaces constraints are proven separately |
 
 Detailed implementation notes live in:
 
@@ -36,7 +56,14 @@ Detailed implementation notes live in:
 - `phases/phase-3-interaction-state.md`
 - `phases/phase-4-operational-usecases-docs.md`
 - `phases/phase-5-containerlab-telemetry.md`
-- `phases/phase-6-codespaces.md`
+
+Repo-wide adoption risk, documentation gaps, release readiness, and security
+hardening are tracked in:
+
+- `openspec/changes/harden-public-adoption-readiness/audit.md`
+
+Grafana-specific phase work must satisfy that public-adoption gate instead of
+maintaining a separate, drifting audit.
 
 ### Execution Sequence
 
@@ -72,11 +99,15 @@ define-grafana-integration-roadmap
   -> archive implement-grafana-panel-phase-4-production-hardening
   -> implement phase 5 Containerlab telemetry only after Phase 4 is archived
   -> keep phase 5 open until release-mode plugin artifact and fresh-checkout smoke pass
-  -> create Codespaces portability phase only after local Containerlab telemetry works repeatably
 ```
 
 This keeps the roadmap durable while each implementation phase stays small
 enough to review, test, and archive independently.
+
+Codespaces is intentionally outside this Grafana roadmap. It is a repo-wide
+development environment concern that must cover MkDocs, Zensical, the browser
+harness, the synthetic Grafana lab, and the Containerlab Grafana lab. Track that
+work in `openspec/changes/define-codespaces-dev-environment/`.
 
 ### Development Fixture Contract
 
@@ -181,6 +212,17 @@ The practical bar is:
 - docs that start from "I have TopoViewer YAML" and end with an operational
   Grafana panel, not from "I have an SVG diagram."
 
+The benchmark is failed if the happy path requires any of these:
+
+- editing repo fixture catalogs;
+- running generated fixture sync to make a user topology appear;
+- rebuilding the plugin for every topology change;
+- knowing monorepo source paths;
+- reading TypeScript source to understand mapper keys;
+- guessing metric label names;
+- using Grafana as the primary mapper authoring surface;
+- debugging telemetry changes without mapping coverage output.
+
 Phase 4 is a foundation phase. It should define and implement generic
 mapper-driven overlays for all supported target kinds, but dedicated polished
 node-health, service-path, and routing-adjacency dashboards should be separate
@@ -198,6 +240,88 @@ complete. The production gate is:
 
 Phase 5 may exist as a draft spec before that gate passes, but it must not move
 to implementation until the gate is complete.
+
+### Production-Grade Documentation Contract
+
+Grafana documentation is part of the product, not a follow-up polish task. The
+docs must be written for a capable early adopter who has not read the source
+code.
+
+Required documentation paths:
+
+| Path | User question | Required outcome |
+| --- | --- | --- |
+| Five-minute happy path | "Can this work for me?" | User starts the synthetic lab, opens Grafana, changes telemetry, and sees a TopoViewer overlay change. |
+| Bring your YAML | "How do I use my topology?" | User mounts `*.topo.tv.yaml`, `*.style.tv.yaml`, and `*.mapper.tv.yaml` without catalog edits or plugin rebuild. |
+| Mapper authoring | "How do I bind metrics to objects?" | User creates mapper rules in the harness with schema and topology-aware suggestions. |
+| Prometheus binding | "What labels and PromQL do I need?" | User sees stable label conventions, starter PromQL, expected frame shape, and anti-patterns. |
+| Mapping coverage | "Why did nothing change?" | User can distinguish no data, unmatched telemetry, duplicate mapping, ambiguous endpoint match, stale ID, and unsupported overlay. |
+| Interaction behavior | "What persists on refresh?" | User understands pan, zoom, selection, focus, drag, telemetry overlays, bundle changes, and reset. |
+| Containerlab proof | "Can this work with real lab telemetry?" | User runs or reviews the advanced lab after understanding the synthetic flow. |
+| Production boundary | "What can I rely on?" | User sees status labels for experimental, lab, production-shaped, unsigned, signed, and future-supported artifacts. |
+
+Each path should include:
+
+- exact commands;
+- expected URLs;
+- expected screenshots or visual states;
+- example YAML snippets;
+- expected Grafana query or mapping coverage output;
+- troubleshooting for the nearest likely failure;
+- a short explanation of why the step exists.
+
+Documentation is not production-grade if it only describes architecture, only
+shows a final screenshot, or assumes maintainer knowledge of the repo.
+
+### Early-Adopter Definition Of Done
+
+Before Grafana is described as more than experimental, the project must prove:
+
+- a fresh checkout can run the documented synthetic Grafana path;
+- a user-provided mounted bundle can be selected without repo edits;
+- mapper YAML can be authored or corrected in the harness;
+- docs explain how to map at least node, link, path, region, layer, and graph
+  targets;
+- mapping coverage is visible and documented;
+- telemetry overlays are runtime-only and do not mutate topology/style source;
+- screenshots prove healthy, degraded, and failed examples;
+- Containerlab docs are clearly advanced/lab status and do not obscure the
+  simpler mounted-bundle path;
+- plugin artifact/signing/install status is explicit and not implied.
+
+### Security And Penetration Gate
+
+The Grafana integration must pass a hostile-input and lab-exposure gate before
+it can be called early-adopter ready. The gate is intentionally mean because
+this integration reads files from mounted paths, parses user YAML, renders SVG
+and HTML-derived content, exposes a backend resource endpoint, and runs lab
+services with intentionally unsafe defaults.
+
+Minimum gate:
+
+- `npm audit --omit=dev --audit-level=moderate` is clean, or every finding is
+  documented with shipped/not-shipped impact and an owner;
+- full `npm audit --audit-level=moderate` is triaged so Grafana external/dev
+  advisories are not ignored silently;
+- Go backend dependencies are checked with `go test ./...` and a Go
+  vulnerability scan where available;
+- Grafana backend resource endpoint has tests for path traversal, symlink
+  escape, manifest escape, oversized files, massive directory count, duplicate
+  IDs, and absolute path leakage;
+- Grafana resource endpoint behavior is tested or documented for Viewer,
+  Editor, Admin, and anonymous lab access;
+- SVG, Markdown/callout HTML, mapper template, and YAML parser hostile payloads
+  are captured in regression tests;
+- lab Docker/Containerlab docs warn that anonymous Admin and unsigned plugins
+  are disposable local-lab settings, not production settings;
+- lab port bindings are either localhost-only by default or documented loudly as
+  potentially exposed through Docker host networking;
+- plugin artifact inspection proves no `.env`, local absolute paths, hidden
+  maintainer files, or unintended generated files ship;
+- docs include a "do not copy this to production" section for every unsafe lab
+  default.
+
+Anything less is a demo, not a trustworthy integration.
 
 ### Product Boundary
 
@@ -223,3 +347,9 @@ Public docs should call Grafana exploratory until at least Phase 2 passes
 locally. Phase 1 may be described as a local exploratory panel spike. Do not
 claim supported Grafana integration until panel packaging, telemetry mapping,
 interaction state, docs, and repeatable validation are done.
+
+Once Phase 4 and Phase 5 implementations exist, public wording must still remain
+honest: "production-shaped" is acceptable for mounted-bundle labs, but
+"supported" requires an installable plugin artifact, documented compatibility,
+manual validation from a fresh checkout, and user-facing docs that pass the
+documentation contract above.

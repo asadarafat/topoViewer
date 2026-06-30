@@ -86,10 +86,16 @@ without a custom TopoViewer-specific telemetry normalizer.
 - Screenshots are captured under `.artifacts/grafana-containerlab/`.
 - Release-mode production support requires a pinned panel artifact and
   fresh-checkout smoke; local development may use an explicit plugin dist mount.
+- Documentation explains Containerlab as an advanced real-telemetry proof after
+  the mounted-bundle synthetic workflow, not as the first required user path.
+- Documentation includes the expected metric flow, expected screenshots, and
+  what to inspect in Prometheus, Grafana query frames, mapper coverage, and the
+  rendered TopoViewer panel.
 
 ### Non-Goals
 
-- Codespaces support.
+- Codespaces support; that is tracked in
+  `openspec/changes/define-codespaces-dev-environment/`.
 - Large topology scale testing.
 - Plugin signing or release packaging.
 - Writing Grafana interactions back to topology YAML.
