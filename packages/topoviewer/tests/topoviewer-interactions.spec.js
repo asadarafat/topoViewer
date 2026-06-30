@@ -34,13 +34,32 @@ function actionableErrors(browserErrors) {
 
 async function setCheckboxByLabel(page, name, checked) {
   const checkbox = page.getByRole('checkbox', { name, exact: true });
-  if (checked) {
-    await checkbox.check();
-    await expect(checkbox).toBeChecked();
-  } else {
-    await checkbox.uncheck();
-    await expect(checkbox).not.toBeChecked();
+  const label = page.locator('label').filter({ has: checkbox }).first();
+
+  await expect(checkbox).toBeAttached();
+
+  for (let attempt = 0; attempt < 4; attempt += 1) {
+    const isAlreadyChecked = await checkbox.isChecked();
+    if (isAlreadyChecked === checked) {
+      await expect.poll(() => checkbox.isChecked(), {
+        message: `checkbox "${name}" should be ${checked ? 'checked' : 'unchecked'}`
+      }).toBe(checked);
+      return;
+    }
+
+    const labelCount = await label.count();
+    if (labelCount > 0) {
+      await label.click();
+    } else {
+      await checkbox.click({ force: true });
+    }
+    await settleReact(page);
   }
+
+  const lastState = await checkbox.isChecked() ? 'checked' : 'unchecked';
+  throw new Error(
+    `Failed to set checkbox "${name}" to ${checked ? 'checked' : 'unchecked'}. Last state: ${lastState}`
+  );
 }
 
 function isNavigationRace(error) {
