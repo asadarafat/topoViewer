@@ -257,13 +257,19 @@ function renderNavItem(item, indentLevel) {
 
 function withZensicalAdapterPage(navItems) {
   return navItems.map((item) => {
-    if (item.title !== 'Embed' || !item.children) return item;
+    if (item.title !== 'Learn' || !item.children) return item;
     return {
       ...item,
-      children: [
-        ...item.children,
-        { title: 'Zensical Adapter', path: 'topoviewer/zensical-embed.md' },
-      ],
+      children: item.children.map((child) => {
+        if (child.title !== 'Guides' || !child.children) return child;
+        return {
+          ...child,
+          children: [
+            ...child.children,
+            { title: 'Zensical Adapter', path: 'topoviewer/zensical-embed.md' },
+          ],
+        };
+      }),
     };
   });
 }

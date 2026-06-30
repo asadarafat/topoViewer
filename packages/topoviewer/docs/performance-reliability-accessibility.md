@@ -124,4 +124,4 @@ Before claiming a release is ready for broad adoption:
 - [Production hardening](production.md): CI lanes, renderer limits, and failure triage.
 - [Threat model](threat-model.md): untrusted inputs and security guardrails.
 - [Object attributes](object-reference.md): accepted authored fields and defaults.
-- [Grafana guide](grafana.md): mapper coverage and telemetry overlay behavior.
+- [Grafana guide](learn/guides/render-in-grafana.md): mapper coverage and telemetry overlay behavior.

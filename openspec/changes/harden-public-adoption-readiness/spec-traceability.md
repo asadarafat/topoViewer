@@ -12,11 +12,11 @@ OpenSpec, or accepted with a named risk owner.
 | Spec requirement | Scenarios covered | Required task IDs |
 | --- | --- | --- |
 | Public Entry Point Clarity | First screen explains the product; stable path is separated from roadmap | 2.1-2.8, 3.1-3.8, 4.1-4.6, 5.1-5.7, 18.1 |
-| React Flow-Style Documentation Information Architecture | User follows a learning path; user needs exact API or schema details; user browses examples and showcase separately; lab and roadmap content stays honest | 2.9-2.17, 6.1-6.17, 24.2 |
+| React Flow-Style Documentation Information Architecture | User follows a learning path; user needs exact API or schema details; user browses examples and showcase separately; lab and roadmap content stays honest | 2.9-2.17, 6.1-6.18, 24.2 |
 | Support Status Taxonomy | Integration status is visible; roadmap does not imply support | 1.8, 4.1-4.6, 11.5-11.7, 19.2 |
 | Curated Example Path | User wants copyable network example; generated catalog remains available | 5.1-5.7, 9.1-9.7, 24.3 |
 | Promotional Walkthrough Video | Video generated repeatably; video tells YAML-to-graph story; README uses durable hosted asset | 17.1-17.11, 14.4, 24.11, 24.19 |
-| Stable Contract Visibility | User checks YAML field; user checks exported API | 4.5, 6.2-6.17, 8.2-8.4, 15.5, 21.1-21.10, 24.2, 24.12 |
+| Stable Contract Visibility | User checks YAML field; user checks exported API | 4.5, 6.2-6.18, 8.2-8.4, 15.5, 21.1-21.10, 24.2, 24.12 |
 | TopoViewer Object Attribute Reference | Developer checks topology object attribute; developer learns by example; reference stays aligned | 6.9-6.17, 8.19-8.20, 10.10, 21.3-21.5, 24.2, 24.5 |
 | Enterprise Trust And Governance | Project ownership; support boundaries; vulnerability reporting | 20.1-20.8, 24.14 |
 | Compatibility And API Stability | Existing YAML remains compatible; public API changes controlled; compatibility matrix visible | 21.1-21.10, 24.12 |

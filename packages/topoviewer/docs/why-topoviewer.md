@@ -179,7 +179,7 @@ Those facts can drive multiple views of the same environment: underlay, BGP, ser
 
 ## Next Steps
 
-- [Getting started](getting-started.md): render the smallest useful topology.
+- [Getting started](learn/guides/build-your-first-topology.md): render the smallest useful topology.
 - [Examples](examples.md): compare curated topology, styling, attention, and Grafana examples.
-- [React usage](react.md): embed TopoViewer in a product surface.
+- [React usage](learn/guides/render-in-react.md): embed TopoViewer in a product surface.
 - [Integration roadmap](integration-roadmap.md): check support status before adopting an integration.

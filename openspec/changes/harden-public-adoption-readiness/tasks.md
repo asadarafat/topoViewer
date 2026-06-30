@@ -28,15 +28,15 @@
 - [x] 2.6 Update docs home to route users by job: author, embed, operate, reference, maintain
 - [x] 2.7 Add docs lint that fails when Maintainer/Lab pages appear in the primary Start path
 - [x] 2.8 Add docs lint that fails when an integration page has no support-status label
-- [ ] 2.9 Refactor public docs navigation to top-level Learn, API Reference, Examples, Showcase, Labs, Changelog, and Maintainers
-- [ ] 2.10 Move quick-start and conceptual authoring material under Learn, with Concepts, Guides, and Advanced subgroups
-- [ ] 2.11 Move exhaustive schema, object, stylesheet, mapper, TypeScript, and command material under API Reference
-- [ ] 2.12 Group copy-first examples under Examples with Basic, Provider Network, Datacenter, and Integrations sections
-- [ ] 2.13 Add Showcase as polished scenario material separate from copy-first examples
-- [ ] 2.14 Keep Labs to Grafana only; document Containerlab as a Grafana lab mode rather than its own top-level lab
-- [ ] 2.15 Add Changelog as a top-level docs section or link with release/migration expectations
-- [ ] 2.16 Update MkDocs and generated Zensical nav from the same canonical IA source
-- [ ] 2.17 Add docs lint to reject drift from the canonical Learn/API Reference/Examples/Showcase/Labs/Changelog/Maintainers structure
+- [x] 2.9 Refactor public docs navigation to top-level Learn, API Reference, Examples, Showcase, Labs, Changelog, and Maintainers
+- [x] 2.10 Move quick-start and conceptual authoring material under Learn, with Concepts, Guides, and Advanced subgroups
+- [x] 2.11 Move exhaustive schema, object, stylesheet, mapper, TypeScript, and command material under API Reference
+- [x] 2.12 Group copy-first examples under Examples and move scenario material to Showcase
+- [x] 2.13 Add Showcase as polished scenario material separate from copy-first examples
+- [x] 2.14 Keep Labs to Grafana only; document Containerlab as a Grafana lab mode rather than its own top-level lab
+- [x] 2.15 Add Changelog as a top-level docs section or link with release/migration expectations
+- [x] 2.16 Update MkDocs and generated Zensical nav from the same canonical IA source
+- [x] 2.17 Add docs lint to reject drift from the canonical Learn/API Reference/Examples/Showcase/Labs/Changelog/Maintainers structure
 
 ## 3. README And First-Run Story
 
@@ -87,6 +87,7 @@
 - [x] 6.15 Generate or validate object-attribute tables from schema/type/style metadata so docs cannot silently drift
 - [x] 6.16 Add docs lint that fails when a public schema/type attribute is missing from the object reference
 - [x] 6.17 Add docs lint that fails when an object reference attribute lacks an example or explicit "not applicable" reason
+- [x] 6.18 Expand the TypeScript API reference with concrete code snippets, exported-name coverage, and expected rendered/result behavior for renderer, composition, compiler, layout, style metadata, attention, export, limits, and extension APIs
 
 ## 7. Differentiation And Positioning
 

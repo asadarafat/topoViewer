@@ -50,6 +50,6 @@ TopoViewer is a fit when all of these are true:
 ## Next Steps
 
 - [Why TopoViewer](why-topoviewer.md): product positioning and comparisons.
-- [Getting started](getting-started.md): render the first topology.
+- [Getting started](learn/guides/build-your-first-topology.md): render the first topology.
 - [Object attributes](object-reference.md): inspect the authored model.
 - [Architecture overview](architecture.md): understand runtime boundaries.

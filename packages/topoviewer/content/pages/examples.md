@@ -269,7 +269,7 @@ regression fixture:
 
 ## Next Steps
 
-- [Getting started](getting-started.md): build the smallest useful topology from scratch.
-- [Style a topology](style-a-topology.md): learn the reusable stylesheet pattern behind the examples.
-- [Grafana telemetry call flow](grafana-telemetry-call-flow.md): understand the runtime overlay path.
+- [Getting started](learn/guides/build-your-first-topology.md): build the smallest useful topology from scratch.
+- [Style a topology](learn/guides/style-a-topology.md): learn the reusable stylesheet pattern behind the examples.
+- [Grafana telemetry call flow](learn/guides/render-in-grafana.md#telemetry-call-flow): understand the runtime overlay path.
 - [Integration roadmap](integration-roadmap.md): check support status before adopting an integration.

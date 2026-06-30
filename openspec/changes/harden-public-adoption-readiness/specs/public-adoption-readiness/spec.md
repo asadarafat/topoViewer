@@ -48,9 +48,10 @@ maintainer material.
 
 - **GIVEN** a user wants copyable YAML
 - **WHEN** they open Examples
-- **THEN** they see practical examples grouped by Basic, Provider Network,
-  Datacenter, and Integrations.
-- **AND** Showcase remains aspirational or polished scenario material, separate
+- **THEN** they see practical examples and the generated feature catalog without
+  scenario pages crowding the copy-first path.
+- **AND** Showcase carries Provider Network, Datacenter, Integrations, Real
+  Network, and other polished scenario material, separate
   from copy-first examples.
 
 #### Scenario: Lab and roadmap content stays honest
