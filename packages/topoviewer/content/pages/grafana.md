@@ -45,6 +45,36 @@ GRAFANA_HTTP_PORT=3001 npm run grafana:lab:up
 GRAFANA_URL=http://127.0.0.1:3001 npm run grafana:lab:smoke:phase4
 ```
 
+## Plugin Artifact Trust
+
+The checked-in Grafana lab loads an unsigned local plugin build so developers
+can iterate quickly. That is acceptable for local validation only. Do not copy
+the lab settings for an exposed Grafana instance:
+
+- do not enable anonymous Admin for shared environments;
+- do not rely on `allow_loading_unsigned_plugins` outside development;
+- do not install an unreviewed local `dist` directory as a durable artifact.
+
+A reviewed installable panel artifact should include:
+
+- the plugin zip built from a committed version;
+- SHA-256 checksums for the zip and backend binaries;
+- an SBOM or equivalent dependency inventory;
+- release notes that list support status, compatibility, known limitations, and
+  migration notes;
+- the exact Grafana version range validated for the artifact.
+
+Current experimental validation matrix:
+
+| Item | Current validation |
+|---|---|
+| Grafana packages | `13.1.0` in the panel workspace. |
+| Local Grafana lab | Pinned by the lab Docker Compose/image inputs. |
+| Node.js | Node.js 24 LTS for build and tests. |
+| React runtime | React 18 via Grafana/plugin build dependencies. |
+| TopoViewer runtime | Same workspace `topoviewer` package version as the panel build. |
+| Signing status | Unsigned for local labs. Signed public distribution is not claimed yet. |
+
 ## Authoring To Mounting
 
 1. Open the browser harness.

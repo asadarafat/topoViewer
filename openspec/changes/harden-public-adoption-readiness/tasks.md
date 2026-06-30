@@ -187,7 +187,7 @@
 - [x] 15.3 Fix or document every current npm advisory before claiming production-ready adoption
 - [x] 15.4 Add Go vulnerability triage using `govulncheck` or documented equivalent for the Grafana backend
 - [x] 15.5 Add package install dry runs for every public install command before it appears in README, MkDocs, Zensical, or package READMEs
-- [ ] 15.6 Add signed/unsigned Grafana plugin artifact status docs, checksum guidance, SBOM expectation, and version compatibility matrix
+- [x] 15.6 Add signed/unsigned Grafana plugin artifact status docs, checksum guidance, SBOM expectation, and version compatibility matrix
 - [x] 15.7 Add CI guard that normal push and pull-request workflows validate but never publish npm packages or Grafana release artifacts
 - [x] 15.8 Add `.github/dependabot.yml` for npm, GitHub Actions, Go modules, and Docker/container image ecosystems used by the repo
 - [x] 15.9 Configure Dependabot or equivalent security update PR labels, grouping, schedule, reviewers/owners, and CI expectations

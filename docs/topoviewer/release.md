@@ -154,6 +154,23 @@ Rollback and deprecation expectations:
 - Move a dist-tag only after the replacement artifact has passed the same gates.
 - Record first-install feedback with the package release feedback issue template.
 
+## Grafana Plugin Artifact Gate
+
+The Grafana panel is Experimental. Local labs may load unsigned plugin builds,
+but an installable shared artifact needs a separate review before distribution:
+
+1. Build the plugin from a committed version.
+2. Record the exact Grafana version or version range validated for the artifact.
+3. Generate SHA-256 checksums for the plugin zip and backend binaries.
+4. Generate an SBOM or equivalent dependency inventory.
+5. Run `npm run grafana:panel:test`, `npm run grafana:panel:build`, and the
+   relevant Grafana smoke for the intended source mode.
+6. Document whether the artifact is unsigned or signed. Unsigned artifacts are
+   local/lab-only unless the receiving Grafana instance has an explicit policy
+   exception.
+7. Include support status, known limitations, migration notes, and rollback
+   instructions in the release notes.
+
 ## Public Readiness Rule
 
 A generic feature should be included in a public release when it has:

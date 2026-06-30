@@ -10,6 +10,32 @@ mapper-driven runtime overlays, local interaction-state persistence, a pinned
 Grafana validation lab, and an optional Containerlab telemetry lab. Plugin
 signing and supported release packaging remain future release work.
 
+## Artifact Status
+
+The local labs load an unsigned plugin build to make development fast. That is
+not a public install artifact. Do not use lab settings such as anonymous Admin,
+disabled login, or `allow_loading_unsigned_plugins` for an exposed Grafana
+instance.
+
+A reviewed installable artifact should include:
+
+- a plugin zip built from a committed version;
+- SHA-256 checksums for the zip and backend binaries;
+- an SBOM or equivalent dependency inventory;
+- release notes with support status, compatibility, known limitations, and
+  migration notes;
+- the exact Grafana version range validated for that artifact.
+
+Current experimental compatibility:
+
+| Item | Current validation |
+|---|---|
+| Grafana packages | `13.1.0` in this workspace. |
+| Node.js | Node.js 24 LTS for build and tests. |
+| React runtime | React 18 through the plugin build dependencies. |
+| TopoViewer runtime | Same workspace `topoviewer` package version as the panel build. |
+| Signing status | Unsigned local lab builds only; signed public distribution is not claimed yet. |
+
 ## Commands
 
 Production-shaped local lab:
