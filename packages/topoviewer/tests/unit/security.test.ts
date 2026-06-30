@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { sanitizeSvg, isSafeImageReference } from '../../src/core/security';
 import { markdownToHtml } from '../../src/core/style';
+import { hostileSvgCorpus } from './hostile-content-corpus';
 
 describe('hostile content sanitization', () => {
   it('removes executable SVG payloads while preserving safe geometry', () => {
@@ -21,6 +22,14 @@ describe('hostile content sanitization', () => {
     expect(sanitized).not.toMatch(/foreignObject/i);
     expect(sanitized).not.toMatch(/\son[a-z]+\s*=/i);
     expect(sanitized).not.toMatch(/javascript:/i);
+  });
+
+  it.each(hostileSvgCorpus)('sanitizes hostile SVG corpus case: $name', ({ svg, forbidden }) => {
+    const sanitized = sanitizeSvg(svg);
+
+    for (const pattern of forbidden) {
+      expect(sanitized).not.toMatch(pattern);
+    }
   });
 
   it('accepts only inert image references for Markdown and icon URLs', () => {
