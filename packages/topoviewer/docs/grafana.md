@@ -75,6 +75,32 @@ Current experimental validation matrix:
 | TopoViewer runtime | Same workspace `topoviewer` package version as the panel build. |
 | Signing status | Unsigned for local labs. Signed public distribution is not claimed yet. |
 
+## Role And Access Checks
+
+The panel backend reads mounted files from the Grafana container and serves only
+the selected bundle YAML to the panel frontend. Validate access with Grafana
+roles before using this workflow outside a disposable lab.
+
+Manual check matrix:
+
+| Role | Expected behavior |
+|---|---|
+| Viewer | Can open dashboards that already include the TopoViewer panel, load the selected mounted bundle, pan/zoom/select, and see telemetry overlays. Cannot change panel options or save dashboards. |
+| Editor | Can do Viewer actions, edit panel options, select a different mounted bundle, and save dashboard changes when the dashboard is not provisioned read-only. |
+| Admin | Can do Editor actions, install/configure the plugin, configure data sources, and manage dashboard provisioning. |
+| Anonymous | Disabled for shared or production environments. In the local lab only, anonymous is intentionally Admin so smoke tests and screenshots are fast. |
+
+Production-shaped validation:
+
+1. Disable anonymous access.
+2. Create or map one Viewer, one Editor, and one Admin user.
+3. Mount a read-only bundle directory under `/etc/topoviewer/bundles`.
+4. Confirm Viewer can render but cannot change bundle selection.
+5. Confirm Editor can change bundle selection and save only editable dashboards.
+6. Confirm Admin can configure the plugin and data source.
+7. Confirm failed or missing bundle paths return redacted diagnostics, not host
+   filesystem paths.
+
 ## Authoring To Mounting
 
 1. Open the browser harness.

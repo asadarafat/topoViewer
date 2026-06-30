@@ -168,7 +168,7 @@
 - [x] 13.4 Add backend tests for duplicate bundle IDs, missing canonical suffix files, duplicate canonical suffix files, zero-byte files, non-UTF-8 files, and malformed YAML
 - [x] 13.5 Add backend tests for oversized files, large directory counts, deeply nested directories, and many bundle directories
 - [x] 13.6 Redact unnecessary filesystem paths from diagnostics returned to the Grafana frontend
-- [ ] 13.7 Add Grafana role/access tests or documented manual checks for Viewer, Editor, Admin, and anonymous lab access
+- [x] 13.7 Add Grafana role/access tests or documented manual checks for Viewer, Editor, Admin, and anonymous lab access
 - [x] 13.8 Add backend timeout or bounded work checks where bundle discovery can traverse many files
 
 ## 14. Release Artifact Integrity
