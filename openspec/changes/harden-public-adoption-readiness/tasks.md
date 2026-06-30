@@ -262,7 +262,7 @@
 - [x] 21.3 Add schema versioning and migration guidance for topology, stylesheet, attention, mapper, and layout documents
 - [ ] 21.4 Add backwards-compatibility fixtures from previously documented YAML examples and archived examples
 - [ ] 21.5 Add compatibility tests proving old YAML either renders compatibly or fails with explicit migration diagnostics
-- [ ] 21.6 Add TypeScript API report or equivalent exported-surface check for the public package
+- [x] 21.6 Add TypeScript API report or equivalent exported-surface check for the public package
 - [ ] 21.7 Add docs embed API compatibility checks for MkDocs/Zensical block options
 - [ ] 21.8 Add Grafana panel option compatibility checks and dashboard migration notes
 - [x] 21.9 Add changelog, release note, deprecation, and migration documentation requirements to the release checklist

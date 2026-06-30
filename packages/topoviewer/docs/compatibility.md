@@ -26,6 +26,11 @@ runtime diagnostic when possible, and an example update.
 
 ## Public API Boundary
 
+The checked-in API report at `packages/topoviewer/api-report.md` is generated
+from `packages/topoviewer/src/index.ts`. Run `npm run api:check` to verify the
+public export surface or `npm run api:report` after an intentional export
+change.
+
 | Area | Public status | Ownership rule |
 |---|---|---|
 | `TopoViewer` React component | Supported | Public package contract. Keep props typed, documented, and covered by examples/tests. |

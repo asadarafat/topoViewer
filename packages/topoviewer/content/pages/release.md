@@ -12,6 +12,7 @@ npm run sync:content
 npm run sync:docs
 npm run validate:schemas
 npm run validate:semantics
+npm run api:check
 npm run build
 npm test
 npm run pack:check
@@ -131,7 +132,8 @@ Actions workflow:
    for the stable public package contract.
 3. Keep `dry_run` enabled for the first run and review the npm publish output.
 4. Confirm `npm run ci`, `npm run install:check`,
-   `npm run artifact:check:package`, and `npm run dependency:advisories` pass.
+   `npm run api:check`, `npm run artifact:check:package`, and
+   `npm run dependency:advisories` pass.
 5. Confirm the release note or changelog entry exists and describes support
    status, known limitations, and upgrade notes.
 6. Confirm package ownership, npm organization/user access, and maintainer
