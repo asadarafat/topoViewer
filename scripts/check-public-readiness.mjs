@@ -25,6 +25,15 @@ const PUBLIC_TEXT_ROOTS = [
   '.github'
 ];
 
+const PRODUCTION_DOC_TEXT_ROOTS = [
+  'README.md',
+  'docs',
+  'packages/topoviewer/README.md',
+  'packages/mkdocs-topoviewer/README.md',
+  'packages/vscode-topoviewer/README.md',
+  'packages/grafana-topoviewer-panel/README.md'
+];
+
 const TEXT_EXTENSIONS = new Set([
   '.cjs',
   '.css',
@@ -157,7 +166,12 @@ function assertSecurityAutomation() {
     'package-ecosystem: npm',
     'package-ecosystem: gomod',
     'package-ecosystem: github-actions',
-    'package-ecosystem: docker'
+    'package-ecosystem: docker',
+    'target-branch: development',
+    'reviewers:',
+    'assignees:',
+    'prefix: chore',
+    'include: scope'
   ]);
   assertFile('.github/workflows/codeql.yml', [
     'github/codeql-action/init',
@@ -170,6 +184,13 @@ function assertSecurityAutomation() {
     'govulncheck',
     'gitleaks',
     'trivy-action'
+  ]);
+  assertFile('SECURITY.md', [
+    'Automated Security Monitoring',
+    'Dependabot checks npm, Go modules, GitHub Actions, and Docker/container image',
+    'Generated PRs target `development`',
+    'Automation does not replace review',
+    'Normal push and pull-request workflows must validate security'
   ]);
 }
 
@@ -261,6 +282,50 @@ function assertLabWarnings() {
   }
 }
 
+function assertNoLabCredentialsInProductionDocs() {
+  const unsafeSnippetPatterns = [
+    {
+      pattern: /(^|\n)\s*GRAFANA_ADMIN_USER=admin\b/,
+      reason: 'literal Grafana admin username from lab defaults'
+    },
+    {
+      pattern: /(^|\n)\s*GRAFANA_ADMIN_PASSWORD=admin\b/,
+      reason: 'literal Grafana admin password from lab defaults'
+    },
+    {
+      pattern: /\badmin\/admin\b/,
+      reason: 'admin/admin lab credential shorthand'
+    },
+    {
+      pattern: /GF_SECURITY_ADMIN_PASSWORD:\s*['"]?admin['"]?/,
+      reason: 'literal Grafana admin password in YAML'
+    },
+    {
+      pattern: /GF_AUTH_ANONYMOUS_ENABLED:\s*['"]?true['"]?/,
+      reason: 'anonymous Grafana Admin setting enabled in YAML'
+    },
+    {
+      pattern: /GF_AUTH_DISABLE_LOGIN_FORM:\s*['"]?true['"]?/,
+      reason: 'Grafana login form disabled in YAML'
+    },
+    {
+      pattern: /GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS:/,
+      reason: 'unsigned Grafana plugin loading setting'
+    }
+  ];
+
+  const files = new Set(PRODUCTION_DOC_TEXT_ROOTS.flatMap(listTextFiles));
+  for (const filePath of [...files].sort()) {
+    const file = relative(filePath);
+    const text = fs.readFileSync(filePath, 'utf8');
+    for (const { pattern, reason } of unsafeSnippetPatterns) {
+      if (pattern.test(text)) {
+        fail(`${file} contains ${reason}; keep lab-only Grafana credentials/settings out of production-facing docs snippets.`);
+      }
+    }
+  }
+}
+
 function assertPackageAndCiContracts() {
   const rootPackage = readJson('package.json');
   if (rootPackage.scripts?.ci?.includes('node@24') || rootPackage.scripts?.['ci:node24']) {
@@ -296,6 +361,7 @@ assertRequiredGovernance();
 assertSecurityAutomation();
 assertPublicTextHasNoLocalLeaks();
 assertLabWarnings();
+assertNoLabCredentialsInProductionDocs();
 assertPackageAndCiContracts();
 
 if (errors.length) {

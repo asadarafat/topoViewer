@@ -146,7 +146,7 @@
 - [x] 11.4 Add localhost binding or explicit docs rationale for every Docker and Grafana Containerlab-mode published port
 - [x] 11.5 Add a production-shaped Grafana configuration example that does not use anonymous Admin or disposable credentials
 - [x] 11.6 Add docs explaining unsigned plugin loading is local lab/development only
-- [ ] 11.7 Add CI or lint checks that prevent lab credentials from appearing in production docs snippets
+- [x] 11.7 Add CI or lint checks that prevent lab credentials from appearing in production docs snippets
 
 ## 12. Security: Hostile Content Corpus
 
@@ -190,13 +190,13 @@
 - [ ] 15.6 Add signed/unsigned Grafana plugin artifact status docs, checksum guidance, SBOM expectation, and version compatibility matrix
 - [ ] 15.7 Add CI guard that normal push and pull-request workflows validate but never publish npm packages or Grafana release artifacts
 - [x] 15.8 Add `.github/dependabot.yml` for npm, GitHub Actions, Go modules, and Docker/container image ecosystems used by the repo
-- [ ] 15.9 Configure Dependabot or equivalent security update PR labels, grouping, schedule, reviewers/owners, and CI expectations
+- [x] 15.9 Configure Dependabot or equivalent security update PR labels, grouping, schedule, reviewers/owners, and CI expectations
 - [x] 15.10 Add CodeQL or equivalent static-analysis workflow for TypeScript/JavaScript and Go code
 - [x] 15.11 Add secret scanning through GitHub-native settings, Gitleaks, TruffleHog, or an equivalent CI-enforced scanner
 - [x] 15.12 Add container image scanning through Trivy, Grype, or an equivalent scanner for Grafana lab and Grafana Containerlab-mode images
 - [ ] 15.13 Add OSV/dependency vulnerability scanning or an equivalent cross-ecosystem check where npm audit and govulncheck do not cover the risk
 - [ ] 15.14 Add a scheduled security-health workflow/report that records last run, open findings, owners, and triage state
-- [ ] 15.15 Add docs explaining automated security monitoring coverage, limitations, and how maintainers triage generated security PRs
+- [x] 15.15 Add docs explaining automated security monitoring coverage, limitations, and how maintainers triage generated security PRs
 - [x] 15.16 Add CI/readiness checks that fail when Dependabot/security automation configuration is missing or does not cover a used ecosystem
 
 ## 16. Manual npm Publishing

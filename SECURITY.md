@@ -81,3 +81,33 @@ Use `npm audit`, Go vulnerability checks, CodeQL/static analysis, secret scans,
 and container-image scans as advisory signals that require triage. Do not run
 forced dependency upgrades into release branches without validating build,
 visual, interaction, docs, and package-artifact behavior.
+
+## Automated Security Monitoring
+
+The repository uses scheduled and pull-request security automation as an early
+warning system:
+
+- Dependabot checks npm, Go modules, GitHub Actions, and Docker/container image
+  references weekly. Generated PRs target `development`, carry
+  `dependencies` and `security` labels, assign the maintainer, and should run
+  the same CI and Security workflows as normal changes.
+- CodeQL scans JavaScript/TypeScript and Go code on push, pull request,
+  schedule, and manual dispatch.
+- The Security workflow runs npm audits, Go vulnerability checks, secret
+  scanning, public-readiness guardrails, and pinned container image scans.
+
+Automation does not replace review. Maintainers should triage each generated
+PR or finding as one of:
+
+- shipped runtime risk;
+- developer-tooling risk;
+- lab-only risk;
+- upstream false positive or accepted temporary risk;
+- blocked by incompatible upstream change.
+
+Before merging dependency or security updates, run `npm run ci` locally or
+confirm the equivalent GitHub checks passed, inspect generated docs/package
+artifacts when relevant, and note any accepted temporary risk in the change or
+release notes. Normal push and pull-request workflows must validate security
+state; publishing npm packages or release artifacts remains a separate manual
+release decision.

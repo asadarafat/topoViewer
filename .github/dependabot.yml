@@ -6,10 +6,18 @@ updates:
       interval: weekly
       day: monday
       time: "05:00"
+    target-branch: development
     open-pull-requests-limit: 10
     labels:
       - dependencies
       - security
+    reviewers:
+      - asadarafat
+    assignees:
+      - asadarafat
+    commit-message:
+      prefix: chore
+      include: scope
     groups:
       npm-runtime:
         dependency-type: production
@@ -22,9 +30,18 @@ updates:
       interval: weekly
       day: monday
       time: "05:20"
+    target-branch: development
+    open-pull-requests-limit: 5
     labels:
       - dependencies
       - security
+    reviewers:
+      - asadarafat
+    assignees:
+      - asadarafat
+    commit-message:
+      prefix: chore
+      include: scope
 
   - package-ecosystem: github-actions
     directory: /
@@ -32,9 +49,18 @@ updates:
       interval: weekly
       day: monday
       time: "05:40"
+    target-branch: development
+    open-pull-requests-limit: 5
     labels:
       - dependencies
       - security
+    reviewers:
+      - asadarafat
+    assignees:
+      - asadarafat
+    commit-message:
+      prefix: chore
+      include: scope
 
   - package-ecosystem: docker
     directory: /labs/grafana-topoviewer
@@ -42,9 +68,18 @@ updates:
       interval: weekly
       day: monday
       time: "06:00"
+    target-branch: development
+    open-pull-requests-limit: 5
     labels:
       - dependencies
       - security
+    reviewers:
+      - asadarafat
+    assignees:
+      - asadarafat
+    commit-message:
+      prefix: chore
+      include: scope
 
   - package-ecosystem: docker
     directory: /labs/grafana-topoviewer/containerlab
@@ -52,6 +87,15 @@ updates:
       interval: weekly
       day: monday
       time: "06:20"
+    target-branch: development
+    open-pull-requests-limit: 5
     labels:
       - dependencies
       - security
+    reviewers:
+      - asadarafat
+    assignees:
+      - asadarafat
+    commit-message:
+      prefix: chore
+      include: scope
