@@ -27,6 +27,7 @@
     "sync:examples": "npm --workspace topoviewer run sync:examples",
     "sync:docs": "npm run sync:content && npm run sync:docs-site && npm run sync:examples",
     "check:examples": "npm run check:content && npm --workspace topoviewer run check:examples",
+    "examples:audit": "node scripts/require-node24.mjs && node scripts/check-curated-examples.mjs",
     "grafana:fixtures:sync": "node scripts/require-node24.mjs && node scripts/sync-grafana-harness-fixtures.mjs",
     "grafana:fixtures:check": "node scripts/require-node24.mjs && node scripts/check-grafana-harness-fixtures.mjs",
     "grafana:injector:test": "node scripts/require-node24.mjs && node --test labs/grafana-topoviewer/telemetry-injector/tests/scenarios.test.mjs",

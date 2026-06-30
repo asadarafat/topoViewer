@@ -55,7 +55,7 @@
 - [x] 5.2 Include curated examples for basic graph, CLOS fabric, real network, node styling, edge styling, attention, and Grafana mapper overlay
 - [x] 5.3 For each curated example, document what to copy, what it renders, which YAML fields matter, and the expected visual result
 - [x] 5.4 Keep live viewport, topology YAML, stylesheet YAML, mapper YAML, and attention YAML tabs only where relevant
-- [ ] 5.5 Audit curated example YAML for production-grade icon sizing, label placement, edge attachment, color choices, shape/size validity, and no label overlap
+- [x] 5.5 Audit curated example YAML for production-grade icon sizing, label placement, edge attachment, color choices, shape/size validity, and no label overlap
 - [ ] 5.6 Add screenshot evidence for representative curated examples in harness, MkDocs, and Zensical
 - [x] 5.7 Add generated catalog demotion wording so users understand it is exhaustive reference/test coverage, not the learning path
 

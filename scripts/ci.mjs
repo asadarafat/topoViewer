@@ -145,6 +145,7 @@ const laneDefinitions = {
   'public-readiness': [
     step('lint documentation contract', 'npm', ['run', 'docs:lint']),
     step('check object reference drift', 'npm', ['run', 'check:object-reference']),
+    step('audit curated examples', 'npm', ['run', 'examples:audit']),
     step('check renderer surface parity', 'npm', ['run', 'render:parity']),
     step('run hostile-content tests', 'npm', ['run', 'test:hostile-content']),
     step('pack check', 'npm', ['run', 'pack:check']),
