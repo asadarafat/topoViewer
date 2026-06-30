@@ -251,7 +251,7 @@
 - [x] 20.3 Add or update `CONTRIBUTING.md` with setup, review expectations, coding standards, docs standards, test expectations, and conventional commit guidance
 - [x] 20.4 Add issue templates for bug report, security-safe bug report pointer, feature request, docs issue, integration issue, and performance regression
 - [x] 20.5 Add `CODEOWNERS` or an equivalent ownership document for core renderer, docs, harness, Grafana plugin, schemas, and release workflows
-- [ ] 20.6 Add a maintainer decision log or ADR index for public contract decisions such as schema, style keys, mapper, release, and integration boundaries
+- [x] 20.6 Add a maintainer decision log or ADR index for public contract decisions such as schema, style keys, mapper, release, and integration boundaries
 - [x] 20.7 Document project support boundaries without implying enterprise SLA or paid support
 - [x] 20.8 Add repository hygiene checks for missing governance files before public readiness can pass
 

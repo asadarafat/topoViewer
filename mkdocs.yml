@@ -97,3 +97,4 @@ nav:
       - Hardening: topoviewer/production.md
       - Release: topoviewer/release.md
       - Documentation Standard: topoviewer/docs-standard.md
+      - Decision Log: topoviewer/decisions.md

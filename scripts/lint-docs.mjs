@@ -124,6 +124,7 @@ function checkRequiredPages() {
     'api-reference.md',
     'compatibility.md',
     'glossary.md',
+    'decisions.md',
     'docs-standard.md'
   ];
 
