@@ -21,12 +21,12 @@ product controls the source.
 
 | Input | Main threats | Controls | Evidence |
 |---|---|---|---|
-| Topology and stylesheet YAML | YAML bombs, deep nesting, duplicate IDs, invalid references, renderer overload | Schema validation, semantic lint, renderer limits, hostile YAML tests planned | `npm run ci:schemas`, hostile corpus tasks |
+| Topology and stylesheet YAML | YAML bombs, deep nesting, duplicate IDs, invalid references, renderer overload | Schema validation, semantic lint, renderer limits, hostile YAML tests | `npm run ci:schemas`, `npm run test:hostile-content` |
 | Labels, data, and callouts | HTML/script injection, broken attributes, CSS injection, layout abuse | React escaping, sanitizer paths, hostile content tests | Hostile label/callout tests |
 | Inline SVG icons | Script tags, event handlers, `foreignObject`, `javascript:` URLs, CSS injection, encoded bypasses | SVG sanitizer, unsafe reference blocking, corpus tests | SVG hostile corpus tests |
 | Image references | Data exfiltration, unsafe protocols, huge embedded images | Allowed protocol checks, embedded byte limits, diagnostics | Renderer limit tests |
-| Mapper rules and templates | Executable labels, unexpected style mutation, ambiguous object matching | Mapper schema, target-kind validation, coverage diagnostics, runtime-only overlays | Mapper docs and Grafana coverage tests |
-| Prometheus labels and values | Label injection, stale IDs, high-cardinality denial of service | Mapper value extraction, coverage classification, bounded overlay application | Grafana mapper tests |
+| Mapper rules and templates | Executable labels, unexpected style mutation, ambiguous object matching | Mapper schema, target-kind validation, coverage diagnostics, runtime-only overlays, template style-value guards | Mapper docs and Grafana coverage tests |
+| Prometheus labels and values | Label injection, CSS injection, stale IDs, high-cardinality denial of service | Mapper value extraction, telemetry-controlled style-value guards, coverage classification, bounded overlay application | Grafana mapper tests |
 | Docs embed options | Asset path confusion, broken page hydration, CSS leakage | Static asset loading, docs smoke, render parity checks | Docs and render parity lanes |
 | Browser local storage | Stale draft confusion, accidental persistence of sensitive topology | Local-only authoring posture, export/revert workflow, privacy docs planned | Harness tests and telemetry/privacy tasks |
 | Grafana mounted files | Path traversal, symlink escape, oversized files, duplicate bundles, non-UTF-8 content | Backend allowlist, realpath checks, size limits, diagnostics redaction | Grafana backend security tests |
@@ -50,8 +50,8 @@ product controls the source.
 |---|---|
 | SVG icon includes `<script>` or event handler | Payload is removed or the icon is rejected; no script runs. |
 | Label contains HTML or JavaScript URL | Rendered as inert text or rejected; no script runs. |
-| Mapper label template receives hostile Prometheus label | Rendered overlay remains inert text. |
-| YAML uses aliases or huge nested structures | Validation fails before rendering becomes unresponsive. |
+| Mapper label template receives hostile Prometheus label | Rendered overlay remains inert text; telemetry-controlled CSS/color-style values are rejected when unsafe. |
+| YAML uses aliases, duplicate keys, control characters, or huge nested structures | Parser, semantic lint, or renderer limits fail before rendering becomes unresponsive. |
 | Mounted bundle path attempts `../` traversal or symlink escape | Backend rejects it and returns redacted diagnostics. |
 | Bundle contains duplicate canonical files | Backend rejects the bundle unless a future explicit manifest resolves it. |
 | Parallel links match one endpoint-only mapper rule | Mapper reports ambiguity instead of guessing. |
@@ -75,6 +75,23 @@ product controls the source.
 | Dependency and supply chain | npm audit, OSV, govulncheck, CodeQL, secret scanning, Trivy, Dependabot. |
 | Renderer parity drift | `ci:render-parity` and docs smoke checks. |
 | Unsupported public claims | Docs lint and public-readiness checks. |
+
+## Adding Hostile Corpus Cases
+
+When a security bug or bypass is found, add the smallest reproducer to the
+focused corpus before fixing the bug:
+
+| Surface | Where to add the case | Expected proof |
+|---|---|---|
+| SVG icon payload | `packages/topoviewer/tests/unit/hostile-content-corpus.ts` | Sanitized SVG no longer contains the active payload. |
+| Markdown, labels, callouts | `packages/topoviewer/tests/unit/security.test.ts` and `packages/topoviewer/tests/topoviewer-interactions.spec.js` | Unit output is inert and browser runtime does not execute script. |
+| Docs embed runtime | `packages/topoviewer/tests/fixtures/security-docs-embed.html` plus the hostile-content Playwright grep | Embed runtime remains inert through the same mount path MkDocs/Zensical use. |
+| YAML parser or renderer abuse | `packages/topoviewer/tests/unit/security.test.ts` | Parser, lint, or renderer limits reject the input before rendering. |
+| Grafana mapper or telemetry labels | `packages/grafana-topoviewer-panel/tests/mapperOverlayAdapter.test.ts` | Mapper output cannot turn telemetry labels into active HTML, CSS injection, SVG data URLs, or broken React attributes. |
+| Grafana mounted files | `packages/grafana-topoviewer-panel/pkg/plugin/*_test.go` | Backend rejects traversal, symlink, oversized, duplicate, malformed, or non-UTF-8 files with redacted diagnostics. |
+
+Run `npm run test:hostile-content` for the focused gate. Run
+`npm run ci:public-readiness` before a public release candidate.
 
 ## Next Steps
 

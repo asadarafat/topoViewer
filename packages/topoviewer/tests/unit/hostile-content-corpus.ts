@@ -11,6 +11,11 @@ export const hostileSvgCorpus: HostileSvgCase[] = [
     forbidden: [/<script/i, /alert\(1\)/]
   },
   {
+    name: 'escaped script closing tag',
+    svg: '<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)<\\/script><circle r="4" /></svg>',
+    forbidden: [/<script/i, /alert\(1\)/, /<\\?\/script/i]
+  },
+  {
     name: 'event handler attribute',
     svg: '<svg xmlns="http://www.w3.org/2000/svg"><rect width="10" height="10" onload="alert(1)" /></svg>',
     forbidden: [/\sonload\s*=/i, /alert\(1\)/]

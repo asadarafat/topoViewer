@@ -1,5 +1,6 @@
 const SVG_EVENT_ATTRIBUTE = /\s+on[a-z][\w:-]*\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi;
-const SVG_SCRIPT_BLOCK = /<script\b[\s\S]*?<\/script>/gi;
+const SVG_SCRIPT_BLOCK = /<script\b[\s\S]*?<\\?\/script>/gi;
+const SVG_SCRIPT_TAG = /<\/?script\b[^>]*>/gi;
 const SVG_FOREIGN_OBJECT_BLOCK = /<foreignObject\b[\s\S]*?<\/foreignObject>/gi;
 const SVG_FOREIGN_OBJECT_TAG = /<\/?foreignObject\b[^>]*>/gi;
 const SVG_HREF_ATTRIBUTE = /\s+(href|xlink:href)\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi;
@@ -52,6 +53,7 @@ function unsafeCssPayload(value: string): boolean {
 export function sanitizeSvg(svg: string): string {
   return svg
     .replace(SVG_SCRIPT_BLOCK, '')
+    .replace(SVG_SCRIPT_TAG, '')
     .replace(SVG_FOREIGN_OBJECT_BLOCK, '')
     .replace(SVG_FOREIGN_OBJECT_TAG, '')
     .replace(SVG_ACTIVE_ELEMENT_BLOCK, '')

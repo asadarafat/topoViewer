@@ -1,11 +1,14 @@
-import type {
-  GraphLink,
-  GraphNode,
-  GraphPath,
-  GraphRegion,
-  StyleDeclaration,
-  TopoDocument,
-  TopoViewerExtension
+import {
+  isColorStyleKey,
+  styleValueDefinitionForKey,
+  type GraphLink,
+  type GraphNode,
+  type GraphPath,
+  type GraphRegion,
+  type StyleDeclaration,
+  type StyleTargetKind,
+  type TopoDocument,
+  type TopoViewerExtension
 } from 'topoviewer';
 import type { GrafanaPanelDiagnostic } from './types';
 import type {
@@ -74,6 +77,7 @@ export interface MapperTelemetryOverlay {
 }
 
 type StyleBucket = Record<string, StyleDeclaration>;
+type TemplateStyleKind = Exclude<MapperTargetKind, 'graph' | 'layer'>;
 
 export interface MapperMappingCoverage {
   totalSamples: number;
@@ -277,18 +281,79 @@ function renderTemplate(template: string | undefined, sample: MapperTelemetrySam
   });
 }
 
+function isTemplatedValue(value: unknown): boolean {
+  return typeof value === 'string' && /\{\{[^}]+}}/.test(value);
+}
+
+function hasActivePayload(value: string): boolean {
+  return /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/.test(value)
+    || /<\s*\/?\s*(script|style|iframe|object|embed|foreignObject|svg|img|body)\b/i.test(value)
+    || /\son[a-z]+\s*=/i.test(value)
+    || /(?:javascript|vbscript)\s*:/i.test(value)
+    || /data\s*:\s*image\/svg\+xml/i.test(value)
+    || /url\s*\(/i.test(value)
+    || /expression\s*\(/i.test(value);
+}
+
+function isSafeColorValue(value: string): boolean {
+  const trimmed = value.trim();
+  return /^#[0-9a-f]{3,8}$/i.test(trimmed)
+    || /^rgba?\(\s*[\d.]+%?\s*,\s*[\d.]+%?\s*,\s*[\d.]+%?(?:\s*,\s*(?:0|1|0?\.\d+|100%))?\s*\)$/i.test(trimmed)
+    || /^hsla?\(\s*[\d.]+(?:deg|rad|turn)?\s*,\s*[\d.]+%\s*,\s*[\d.]+%(?:\s*,\s*(?:0|1|0?\.\d+|100%))?\s*\)$/i.test(trimmed)
+    || /^var\(--[\w-]+(?:\s*,\s*[^()<>]+)?\)$/i.test(trimmed)
+    || /^(transparent|currentColor|black|white|red|green|blue|yellow|orange|purple|gray|grey)$/i.test(trimmed);
+}
+
+function mapperStyleKind(kind: MapperTargetKind): TemplateStyleKind | undefined {
+  if (kind === 'node' || kind === 'link' || kind === 'linkDirection' || kind === 'path' || kind === 'region') return kind;
+  return undefined;
+}
+
+function coerceTemplatedStyleValue(kind: MapperTargetKind, key: string, value: unknown, templated: boolean): unknown {
+  if (!templated || typeof value !== 'string') return value;
+  if (key === 'label' || key === 'badgeLabel' || key === 'sourceLabel' || key === 'targetLabel') return value;
+  if (hasActivePayload(value)) return undefined;
+
+  const styleKind = mapperStyleKind(kind);
+  const definition = styleKind ? styleValueDefinitionForKey(styleKind as StyleTargetKind, key) : { dataType: 'text' as const };
+  const trimmed = value.trim();
+  if (definition.dataType === 'color' || isColorStyleKey(key)) return isSafeColorValue(trimmed) ? trimmed : undefined;
+  if (definition.dataType === 'integer') {
+    const numeric = Number(trimmed);
+    return Number.isInteger(numeric) ? numeric : undefined;
+  }
+  if (definition.dataType === 'number') {
+    const numeric = Number(trimmed);
+    return Number.isFinite(numeric) ? numeric : undefined;
+  }
+  if (definition.dataType === 'boolean') {
+    if (/^(true|false)$/i.test(trimmed)) return trimmed.toLowerCase() === 'true';
+    return undefined;
+  }
+  if (definition.dataType === 'numberList') {
+    return /^-?\d+(?:\.\d+)?(?:[\s,]+-?\d+(?:\.\d+)?)*$/.test(trimmed) ? trimmed.replace(/,/g, ' ') : undefined;
+  }
+  if (definition.dataType === 'enum' && definition.options?.length) {
+    return definition.options.includes(trimmed) ? trimmed : undefined;
+  }
+  return value;
+}
+
 function renderStyleTemplates(
   style: StyleDeclaration | undefined,
+  kind: MapperTargetKind,
   sample: MapperTelemetrySample,
   rule: MapperRule,
   entity: MapperOverlayEntity,
   severity: TelemetrySeverity
 ): StyleDeclaration {
   if (!style) return {};
-  return Object.fromEntries(Object.entries(style).map(([key, value]) => [
-    key,
-    typeof value === 'string' ? renderTemplate(value, sample, rule, entity, severity) : value
-  ])) as StyleDeclaration;
+  return Object.fromEntries(Object.entries(style).flatMap(([key, value]) => {
+    const templated = isTemplatedValue(value);
+    const renderedValue = typeof value === 'string' ? renderTemplate(value, sample, rule, entity, severity) : value;
+    const safeValue = coerceTemplatedStyleValue(kind, key, renderedValue, templated);
+    return safeValue === undefined ? [] : [[key, safeValue]];
+  })) as StyleDeclaration;
 }
 
 function scalarEquals(actual: unknown, expected: string | number | boolean): boolean {
@@ -348,7 +413,7 @@ function conditionalStyleForRule(
 ): StyleDeclaration {
   return (rule.conditions || []).reduce<StyleDeclaration>((style, condition) => {
     if (!conditionMatches(condition.when, sample, rule, severity)) return style;
-    return mergeStyle(style, renderStyleTemplates(condition.style, sample, rule, entity, severity));
+    return mergeStyle(style, renderStyleTemplates(condition.style, entity.kind, sample, rule, entity, severity));
   }, {});
 }
 
@@ -364,7 +429,7 @@ function styleForOverlay(
   const overlay = policy || {};
   const color = severityColor(severity, palette);
   const accent = severityAccent(severity, palette);
-  let style: StyleDeclaration = renderStyleTemplates(overlay.style, sample, rule, entity, severity);
+  let style: StyleDeclaration = renderStyleTemplates(overlay.style, kind, sample, rule, entity, severity);
   const label = renderTemplate(overlay.label, sample, rule, entity, severity);
   const badgeLabel = renderTemplate(overlay.badgeLabel, sample, rule, entity, severity);
   if (kind === 'link' || kind === 'linkDirection' || kind === 'path') {

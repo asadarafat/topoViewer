@@ -266,6 +266,44 @@ test.describe('TopoViewer package interactions', () => {
     expect(actionableErrors(browserErrors)).toEqual([]);
   });
 
+  test('keeps hostile docs embed content inert at runtime', async ({ page }) => {
+    const browserErrors = [];
+    page.on('pageerror', (error) => browserErrors.push(error.message));
+    page.on('console', (message) => {
+      if (message.type() === 'error') browserErrors.push(message.text());
+    });
+
+    await expectCurrentServerMarker(page, 'topoviewer');
+    await page.goto('/tests/fixtures/security-docs-embed.html', { waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('.react-flow__node[data-id="safe-node"]', { timeout: 30000 });
+    await expect(page.locator('.topoviewer-callout-title', { hasText: 'Hostile Docs Embed Callout' })).toBeVisible();
+
+    const runtimeSecurity = await page.locator('.topoviewer').evaluate((viewer) => {
+      const imagePayloads = [...viewer.querySelectorAll('img[src^="data:image/svg+xml"]')]
+        .map((image) => decodeURIComponent(image.getAttribute('src') || ''));
+      return {
+        hostileExecuted: Boolean(window.__topoviewerHostileExecuted),
+        scriptCount: viewer.querySelectorAll('script').length,
+        eventAttributeCount: viewer.querySelectorAll('[onload], [onerror], [onclick], [onmouseover]').length,
+        javascriptHrefCount: [...viewer.querySelectorAll('a[href], img[src]')]
+          .filter((element) => /javascript:/i.test(element.getAttribute('href') || element.getAttribute('src') || '')).length,
+        rawImageCount: [...viewer.querySelectorAll('img')]
+          .filter((element) => element.getAttribute('src') === 'x').length,
+        unsafeIconPayloadCount: imagePayloads.filter((payload) => /<script|foreignObject|javascript:|\son[a-z]+\s*=/i.test(payload)).length
+      };
+    });
+
+    expect(runtimeSecurity).toEqual({
+      hostileExecuted: false,
+      scriptCount: 0,
+      eventAttributeCount: 0,
+      javascriptHrefCount: 0,
+      rawImageCount: 0,
+      unsafeIconPayloadCount: 0
+    });
+    expect(actionableErrors(browserErrors)).toEqual([]);
+  });
+
   test('renders layer and display controls without invalid visible state', async ({ page }) => {
     const browserErrors = await openWorkbench(page);
 

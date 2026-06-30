@@ -58,6 +58,23 @@ function issue(severity: LintSeverity, code: string, message: string, path?: str
   return { severity, code, message, path };
 }
 
+const unsafeTextControlPattern = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F\u202A-\u202E\u2066-\u2069\uFFFD]/;
+
+function unsafeTextIssues(value: unknown, path: string): LintIssue[] {
+  if (typeof value === 'string') {
+    return unsafeTextControlPattern.test(value)
+      ? [issue('error', 'unsafe-text-control', 'Text contains a null byte, control character, bidi control, or invalid UTF-8 replacement character.', path)]
+      : [];
+  }
+  if (Array.isArray(value)) {
+    return value.flatMap((item, index) => unsafeTextIssues(item, `${path}[${index}]`));
+  }
+  if (value && typeof value === 'object') {
+    return Object.entries(value).flatMap(([key, item]) => unsafeTextIssues(item, `${path}.${key}`));
+  }
+  return [];
+}
+
 function addEntity(
   seen: Map<string, string>,
   issues: LintIssue[],
@@ -76,6 +93,11 @@ function addEntity(
   if (requireNames && !entity.name) {
     issues.push(issue('warning', 'missing-name', `${kind} "${entity.id}" should define name for readable labels, tooltips, and exports.`, path));
   }
+
+  const record = entity as unknown as Record<string, unknown>;
+  ['id', 'name', 'label', 'labels', 'data'].forEach((key) => {
+    issues.push(...unsafeTextIssues(record[key], `${path}.${key}`));
+  });
 }
 
 function objectLayerIssues(entity: GraphEntity, knownLayers: Set<string>, path: string): LintIssue[] {

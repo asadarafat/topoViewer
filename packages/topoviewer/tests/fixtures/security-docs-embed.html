@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TopoViewer Docs Embed Security Fixture</title>
+  </head>
+  <body>
+    <div class="topoviewer-embed" data-controls="false" style="height: 520px"></div>
+    <script type="module">
+      window.__topoviewerHostileExecuted = false;
+
+      const topologyYaml = `
+graph:
+  id: hostile-docs-embed
+  layers:
+    - id: physical
+      name: Physical
+  nodes:
+    - id: safe-node
+      name: '<img src=x onerror="window.__topoviewerHostileExecuted=true"> [bad](javascript:window.__topoviewerHostileExecuted=true)'
+      labels:
+        node: router
+      layers:
+        - physical
+      position: [120, 150]
+    - id: peer-node
+      name: Peer
+      labels:
+        node: router
+      layers:
+        - physical
+      position: [340, 150]
+  links:
+    - id: safe-link
+      source: safe-node
+      target: peer-node
+      labels:
+        link: physical
+      layers:
+        - physical
+diagram:
+  callouts:
+    - id: hostile-callout
+      title: Hostile Docs Embed Callout
+      position: [165, 36]
+      body:
+        - '# <script>window.__topoviewerHostileExecuted = true<\\/script>'
+        - '![bad](javascript:window.__topoviewerHostileExecuted=true)'
+        - '[bad](javascript:window.__topoviewerHostileExecuted=true)'
+        - '<img src=x onerror="window.__topoviewerHostileExecuted = true">'
+        - '**safe emphasis**'
+      layers:
+        - physical
+`;
+
+      const stylesheetYaml = `
+layout:
+  mode: manual
+  width: 480
+  height: 260
+icons:
+  hostileRouter:
+    svg: |
+      <svg xmlns="http://www.w3.org/2000/svg">
+        <script>window.__topoviewerHostileExecuted = true<\\/script>
+        <foreignObject><body onload="window.__topoviewerHostileExecuted = true">bad</body></foreignObject>
+        <a href="javascript:window.__topoviewerHostileExecuted=true"><rect width="10" height="10" /></a>
+        <circle cx="60" cy="60" r="36" fill="#1976d2" />
+      </svg>
+labelFields:
+  - name
+stylesheet:
+  - selector: node
+    style:
+      icon: hostileRouter
+      shape: rectangle
+      width: 96
+      height: 58
+      labelFontWeight: 800
+  - selector: link
+    style:
+      label: '<img src=x onerror="window.__topoviewerHostileExecuted=true">'
+`;
+
+      const blobUrl = (value) => URL.createObjectURL(new Blob([value], { type: 'text/yaml' }));
+      const embed = document.querySelector('.topoviewer-embed');
+      embed.dataset.topology = blobUrl(topologyYaml);
+      embed.dataset.stylesheet = blobUrl(stylesheetYaml);
+      const { mountAll } = await import('../../src/embed.tsx');
+      mountAll();
+    </script>
+  </body>
+</html>

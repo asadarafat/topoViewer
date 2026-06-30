@@ -1,4 +1,6 @@
 import { describe, expect, it } from 'vitest';
+import yaml from 'js-yaml';
+import { compileTopoGraph, lintTopoDocument, type TopoDocument } from '../../src';
 import { sanitizeSvg, isSafeImageReference } from '../../src/core/security';
 import { markdownToHtml } from '../../src/core/style';
 import { hostileSvgCorpus } from './hostile-content-corpus';
@@ -57,5 +59,77 @@ describe('hostile content sanitization', () => {
     expect(html).not.toMatch(/href="javascript:/i);
     expect(html).not.toMatch(/src="javascript:/i);
     expect(html).not.toMatch(/<img src=x/i);
+  });
+
+  it('keeps hostile YAML parser and renderer abuse cases out of render paths', () => {
+    expect(() => yaml.load([
+      'graph:',
+      '  id: one',
+      '  id: two'
+    ].join('\n'))).toThrow(/duplicated mapping key/i);
+
+    expect(() => yaml.load([
+      'graph:',
+      '  nodes: ['
+    ].join('\n'))).toThrow();
+
+    const oversized: TopoDocument = {
+      limits: {
+        maxNodes: 2,
+        maxEdges: 1,
+        maxLabels: 2,
+        maxImageBytes: 16
+      },
+      icons: {
+        huge: {
+          svg: '<svg xmlns="http://www.w3.org/2000/svg"><text>oversized hostile fixture</text></svg>'
+        }
+      },
+      graph: {
+        layers: [{ id: 'physical' }],
+        nodes: Array.from({ length: 4 }, (_value, index) => ({
+          id: `n${index}`,
+          name: `Node ${index}`,
+          layers: ['physical'],
+          position: [index * 80, 0]
+        })),
+        links: [
+          { id: 'n0-n1', source: 'n0', target: 'n1', layers: ['physical'] },
+          { id: 'n1-n2', source: 'n1', target: 'n2', layers: ['physical'] }
+        ]
+      }
+    };
+
+    expect(lintTopoDocument(oversized, { requireNames: false }).map((entry) => entry.code))
+      .toContain('renderer-limit');
+    expect(() => compileTopoGraph(oversized, ['physical'])).toThrow(/renderer limits exceeded/i);
+  });
+
+  it('reports null bytes, bidi controls, and invalid UTF-8 replacement characters in object text', () => {
+    const issues = lintTopoDocument({
+      graph: {
+        layers: [{ id: 'physical' }],
+        nodes: [
+          {
+            id: 'safe-node',
+            name: 'Safe\u202Eevil',
+            labels: {
+              role: 'pe\u0000router'
+            },
+            data: {
+              description: 'bad\uFFFDtext'
+            },
+            layers: ['physical'],
+            position: [0, 0]
+          }
+        ]
+      }
+    } as TopoDocument, { requireNames: false });
+
+    expect(issues.filter((entry) => entry.code === 'unsafe-text-control')).toEqual([
+      expect.objectContaining({ path: 'graph.nodes[0].name' }),
+      expect.objectContaining({ path: 'graph.nodes[0].labels.role' }),
+      expect.objectContaining({ path: 'graph.nodes[0].data.description' })
+    ]);
   });
 });

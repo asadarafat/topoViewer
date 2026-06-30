@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import type { TopoDocument } from 'topoviewer';
+import { compileTopoGraph, type TopoDocument } from 'topoviewer';
 import { createMapperTelemetryOverlay, createMapperTelemetryOverlayExtension } from '../src/mapperOverlayAdapter';
 import { parseTopoViewerMapperYaml } from '../src/mapperParser';
 import type { MapperTelemetrySample, TopoViewerMapper } from '../src/mapperTypes';
@@ -581,6 +581,79 @@ describe('mapper telemetry overlay adapter', () => {
       backgroundColor: '#ff9800',
       borderColor: '#ed6c02'
     });
+  });
+
+  it('keeps hostile telemetry labels from becoming executable mapper style payloads', () => {
+    const mapper: TopoViewerMapper = {
+      version: 1,
+      mappings: [
+        {
+          id: 'hostile-labels',
+          metric: 'topoviewer_link_utilization_percent',
+          target: {
+            kind: 'link',
+            resolve: {
+              by: 'id',
+              metricLabel: 'link_id'
+            }
+          },
+          overlay: {
+            style: {
+              label: 'util {{ label.injected_label }}',
+              lineColor: '{{ label.injected_color }}',
+              textBackgroundColor: '{{ label.injected_background }}',
+              lineWidth: '{{ label.injected_width }}',
+              lineDashPattern: '{{ label.injected_dash }}'
+            }
+          },
+          conditions: [
+            {
+              when: {
+                value: { gte: 1 }
+              },
+              style: {
+                targetArrowColor: '{{ label.injected_arrow_color }}'
+              }
+            }
+          ]
+        }
+      ]
+    };
+
+    const overlay = createMapperTelemetryOverlay(document, mapper, [{
+      metric: 'topoviewer_link_utilization_percent',
+      value: 91,
+      labels: {
+        link_id: 'pe1-p1',
+        injected_label: '<img src=x onerror="window.__topoviewerHostileExecuted=true">',
+        injected_color: 'url(javascript:alert(1))',
+        injected_background: 'data:image/svg+xml,<svg onload=alert(1)>',
+        injected_width: '7',
+        injected_dash: '12 6',
+        injected_arrow_color: 'javascript:alert(1)'
+      },
+      fields: { value: 91 }
+    }]);
+
+    expect(overlay.linkStylesById['pe1-p1']).toMatchObject({
+      label: 'util <img src=x onerror="window.__topoviewerHostileExecuted=true">',
+      lineWidth: 7,
+      lineDashPattern: '12 6'
+    });
+    expect(overlay.linkStylesById['pe1-p1']).not.toHaveProperty('lineColor');
+    expect(overlay.linkStylesById['pe1-p1']).not.toHaveProperty('textBackgroundColor');
+    expect(overlay.linkStylesById['pe1-p1']).not.toHaveProperty('targetArrowColor');
+
+    const extension = createMapperTelemetryOverlayExtension(overlay);
+    const renderedDocument = extension?.beforeCompile?.(document, {
+      document,
+      selectedLayerIds: [],
+      toggles: {}
+    }) as TopoDocument;
+    const compiled = compileTopoGraph(renderedDocument, ['underlay'], { showEdgeLabels: true });
+    const compiledLink = compiled.edges.find((edge) => edge.id === 'pe1-p1') as { data?: { style?: unknown }; style?: unknown } | undefined;
+    expect(JSON.stringify({ dataStyle: compiledLink?.data?.style, style: compiledLink?.style }))
+      .not.toMatch(/javascript:|data:image\/svg\+xml|url\(/i);
   });
 
   it('uses conditional style rules to map metric values to label text', () => {

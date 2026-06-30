@@ -58,7 +58,7 @@
     "check:public-readiness": "node scripts/require-node24.mjs && node scripts/check-public-readiness.mjs",
     "dependency:advisories": "node scripts/require-node24.mjs && node scripts/check-dependency-advisories.mjs",
     "security:health-report": "node scripts/require-node24.mjs && node scripts/write-security-health-report.mjs",
-    "test:hostile-content": "node scripts/require-node24.mjs && npm --workspace topoviewer run test:hostile-content",
+    "test:hostile-content": "node scripts/require-node24.mjs && npm --workspace topoviewer run test:hostile-content && npm --workspace grafana-topoviewer-panel run test:hostile-content",
     "install:check": "node scripts/require-node24.mjs && node scripts/check-install-commands.mjs",
     "api:report": "node scripts/require-node24.mjs && node scripts/check-public-api-report.mjs --write",
     "api:check": "node scripts/require-node24.mjs && node scripts/check-public-api-report.mjs",
