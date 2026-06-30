@@ -61,6 +61,7 @@ nav = [
     ] }
   ] },
   { "Reference" = [
+    { "Object Attributes" = "topoviewer/object-reference.md" },
     { "Reference Model" = "topoviewer/reference-model.md" },
     { "YAML Schemas" = "topoviewer/schemas.md" },
     { "TypeScript API" = "topoviewer/api-reference.md" },

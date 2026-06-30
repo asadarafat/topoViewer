@@ -121,6 +121,7 @@ function checkRequiredPages() {
     'validate-yaml.md',
     'debugging.md',
     'layout-guide.md',
+    'object-reference.md',
     'api-reference.md',
     'compatibility.md',
     'glossary.md',

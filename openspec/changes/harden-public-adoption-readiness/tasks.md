@@ -69,15 +69,15 @@
 - [x] 6.6 Add SSR, error handling, loading, caching, diagnostics, and versioning guidance to React docs
 - [x] 6.7 Add clear "next step" links at the end of major guide pages
 - [ ] 6.8 Add a guide-page length budget and demote pages that exceed it to Reference or Maintainers
-- [ ] 6.9 Add object reference pages for graph, layers, nodes, links, paths, regions, callouts, labels, data, layout, icons, stylesheet rules, style objects, attention, and mapper rules
-- [ ] 6.10 For every object reference page, list every public attribute with purpose, required/optional status, data type, accepted values or format, default behavior, validation behavior, selector implications, mapper implications, and stability status
-- [ ] 6.11 Add a minimal YAML snippet for every public object attribute
+- [x] 6.9 Add object reference pages for graph, layers, nodes, links, paths, regions, callouts, labels, data, layout, icons, stylesheet rules, style objects, attention, and mapper rules
+- [x] 6.10 For every object reference page, list every public attribute with purpose, required/optional status, data type, accepted values or format, default behavior, validation behavior, selector implications, mapper implications, and stability status
+- [x] 6.11 Add a minimal YAML snippet for every public object attribute
 - [ ] 6.12 Add a small rendered or diagnostic example for every object family, using focused graphs rather than crowded catalog examples
-- [ ] 6.13 Add mapper-relevant notes to node, link, path, region, layer, graph, label, and data attribute docs
-- [ ] 6.14 Add selector-relevant notes to labels, data, stylesheet rule, style object, node, link, path, and region attribute docs
-- [ ] 6.15 Generate or validate object-attribute tables from schema/type/style metadata so docs cannot silently drift
-- [ ] 6.16 Add docs lint that fails when a public schema/type attribute is missing from the object reference
-- [ ] 6.17 Add docs lint that fails when an object reference attribute lacks an example or explicit "not applicable" reason
+- [x] 6.13 Add mapper-relevant notes to node, link, path, region, layer, graph, label, and data attribute docs
+- [x] 6.14 Add selector-relevant notes to labels, data, stylesheet rule, style object, node, link, path, and region attribute docs
+- [x] 6.15 Generate or validate object-attribute tables from schema/type/style metadata so docs cannot silently drift
+- [x] 6.16 Add docs lint that fails when a public schema/type attribute is missing from the object reference
+- [x] 6.17 Add docs lint that fails when an object reference attribute lacks an example or explicit "not applicable" reason
 
 ## 7. Differentiation And Positioning
 

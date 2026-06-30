@@ -356,6 +356,7 @@ function assertPackageAndCiContracts() {
   for (const scriptName of [
     'dependency:advisories',
     'go:vulncheck',
+    'check:object-reference',
     'check:public-readiness',
     'test:hostile-content',
     'security:health-report',
@@ -381,6 +382,7 @@ function assertPackageAndCiContracts() {
     "['run', 'artifact:check:package']",
     "['run', 'install:check']",
     "['run', 'docs:lint']",
+    "['run', 'check:object-reference']",
     "['run', 'render:parity']",
     "['run', 'test:hostile-content']",
     "['run', 'pack:check']",
