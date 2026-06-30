@@ -203,6 +203,38 @@ function assertPerformanceReliabilityAccessibilityDocs() {
   ]);
 }
 
+function assertHardeningDrillEvidence() {
+  assertFile('openspec/changes/harden-public-adoption-readiness/evidence/early-adopter-drills.md', [
+    'Fresh Checkout General User',
+    'React Embedding User',
+    'MkDocs/Zensical Docs Embedding User',
+    'Grafana Mounted Bundle User',
+    'Remaining Source-Knowledge Leaks'
+  ]);
+  assertFile('openspec/changes/harden-public-adoption-readiness/evidence/support-burden-simulation.md', [
+    'first issues early adopters are likely to open',
+    'Top remaining support reducers'
+  ]);
+  assertFile('openspec/changes/harden-public-adoption-readiness/evidence/docs-contradiction-report.md', [
+    'Checked Surfaces',
+    'Current Contradiction Findings',
+    'Remaining Drift Risks'
+  ]);
+  assertFile('openspec/changes/harden-public-adoption-readiness/evidence/performance-budget-evidence.md', [
+    'Public budget source',
+    'Current smoke commands',
+    'Open performance/readiness gaps'
+  ]);
+  assertFile('openspec/changes/harden-public-adoption-readiness/evidence/pre-release-red-team-checklist.md', [
+    'Install And Package',
+    'Docs And Embeds',
+    'Harness Authoring',
+    'Grafana',
+    'Hostile Content',
+    'Release Decision'
+  ]);
+}
+
 function assertSecurityAutomation() {
   assertFile('.github/dependabot.yml', [
     'package-ecosystem: npm',
@@ -516,6 +548,7 @@ function assertPackageAndCiContracts() {
 assertRequiredGovernance();
 assertArchitectureAndThreatModelDocs();
 assertPerformanceReliabilityAccessibilityDocs();
+assertHardeningDrillEvidence();
 assertSecurityAutomation();
 assertPublicTextHasNoLocalLeaks();
 assertLabWarnings();

@@ -226,14 +226,14 @@
 
 ## 18. Uncommon Hardening Drills
 
-- [ ] 18.1 Run a fake early-adopter drill from a clean checkout using only public docs and record every place source-code knowledge was required
-- [ ] 18.2 Run the same drill for a user who only wants React embedding
-- [ ] 18.3 Run the same drill for a user who only wants MkDocs/Zensical docs embedding
-- [ ] 18.4 Run the same drill for a user who wants Grafana mounted bundle telemetry overlays
-- [ ] 18.5 Add a support-burden simulation: list the first 20 likely GitHub issues from early adopters and add docs/tests to prevent the top 10
-- [ ] 18.6 Add a "docs contradiction" report comparing README, docs home, package READMEs, integration pages, and OpenSpec status words
-- [ ] 18.7 Add performance budgets for curated examples and dense examples: first render time, interaction latency, memory ceiling, and screenshot stability
-- [ ] 18.8 Add a pre-release "red team" checklist that intentionally tries to break install, docs, embeds, mapper authoring, Grafana bundles, and hostile content handling
+- [x] 18.1 Run a fake early-adopter drill from a clean checkout using only public docs and record every place source-code knowledge was required
+- [x] 18.2 Run the same drill for a user who only wants React embedding
+- [x] 18.3 Run the same drill for a user who only wants MkDocs/Zensical docs embedding
+- [x] 18.4 Run the same drill for a user who wants Grafana mounted bundle telemetry overlays
+- [x] 18.5 Add a support-burden simulation: list the first 20 likely GitHub issues from early adopters and add docs/tests to prevent the top 10
+- [x] 18.6 Add a "docs contradiction" report comparing README, docs home, package READMEs, integration pages, and OpenSpec status words
+- [x] 18.7 Add performance budgets for curated examples and dense examples: first render time, interaction latency, memory ceiling, and screenshot stability
+- [x] 18.8 Add a pre-release "red team" checklist that intentionally tries to break install, docs, embeds, mapper authoring, Grafana bundles, and hostile content handling
 
 ## 19. CI And Command Ergonomics
 
