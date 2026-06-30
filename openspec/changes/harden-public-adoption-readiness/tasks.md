@@ -162,10 +162,10 @@
 
 ## 13. Security: Grafana Mounted Bundle Backend
 
-- [ ] 13.1 Add backend tests for disallowed root, empty root, relative root, `root=/`, and root outside allowlist
+- [x] 13.1 Add backend tests for disallowed root, empty root, relative root, `root=/`, and root outside allowlist
 - [x] 13.2 Add backend tests for manifest traversal, absolute manifest path, symlinked manifest outside root, and manifest path with encoded traversal
 - [x] 13.3 Add backend tests for symlinked topology/style/mapper files outside the allowed root using realpath resolution
-- [ ] 13.4 Add backend tests for duplicate bundle IDs, missing canonical suffix files, duplicate canonical suffix files, zero-byte files, non-UTF-8 files, and malformed YAML
+- [x] 13.4 Add backend tests for duplicate bundle IDs, missing canonical suffix files, duplicate canonical suffix files, zero-byte files, non-UTF-8 files, and malformed YAML
 - [x] 13.5 Add backend tests for oversized files, large directory counts, deeply nested directories, and many bundle directories
 - [x] 13.6 Redact unnecessary filesystem paths from diagnostics returned to the Grafana frontend
 - [ ] 13.7 Add Grafana role/access tests or documented manual checks for Viewer, Editor, Admin, and anonymous lab access

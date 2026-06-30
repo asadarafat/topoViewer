@@ -50,6 +50,30 @@ func requireDiagnosticCode(t *testing.T, diagnostics []diagnostic, code string) 
 	t.Fatalf("expected diagnostic code %q, got %#v", code, diagnosticCodes(diagnostics))
 }
 
+func callBundleResource(t *testing.T, path string, rawURL string) *backend.CallResourceResponse {
+	t.Helper()
+	var response *backend.CallResourceResponse
+	handler := &bundleResourceHandler{}
+	err := handler.CallResource(
+		context.Background(),
+		&backend.CallResourceRequest{
+			Path: path,
+			URL:  rawURL,
+		},
+		backend.CallResourceResponseSenderFunc(func(resp *backend.CallResourceResponse) error {
+			response = resp
+			return nil
+		}),
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if response == nil {
+		t.Fatal("expected resource response")
+	}
+	return response
+}
+
 func TestDiscoverBundlesRequiresCanonicalSuffixes(t *testing.T) {
 	root := t.TempDir()
 	writeValidTestBundle(t, root, "branch-core")
@@ -157,6 +181,70 @@ func TestDiscoverBundlesUsesManifestOverride(t *testing.T) {
 	if response.TopologyYAML != "graph:\n  id: used\n" {
 		t.Fatalf("expected manifest-selected topology YAML, got %q", response.TopologyYAML)
 	}
+}
+
+func TestBundleResourceRootAllowlist(t *testing.T) {
+	t.Run("uses configured default when query root is empty", func(t *testing.T) {
+		root := t.TempDir()
+		t.Setenv("TOPOVIEWER_BUNDLE_ROOT", root)
+		writeValidTestBundle(t, root, "default-root")
+
+		response := callBundleResource(t, "bundles", "http://topoviewer.local/bundles")
+
+		if response.Status != http.StatusOK {
+			t.Fatalf("expected status %d, got %d: %s", http.StatusOK, response.Status, string(response.Body))
+		}
+		if strings.Contains(string(response.Body), root) || strings.Contains(string(response.Body), filepath.ToSlash(root)) {
+			t.Fatalf("response leaked default bundle root %q: %s", root, string(response.Body))
+		}
+	})
+
+	t.Run("rejects root outside allowlist", func(t *testing.T) {
+		allowedRoot := t.TempDir()
+		outsideRoot := t.TempDir()
+		t.Setenv("TOPOVIEWER_ALLOWED_BUNDLE_ROOTS", allowedRoot)
+
+		response := callBundleResource(t, "bundles", "http://topoviewer.local/bundles?root="+url.QueryEscape(outsideRoot))
+
+		if response.Status != http.StatusBadRequest {
+			t.Fatalf("expected status %d, got %d: %s", http.StatusBadRequest, response.Status, string(response.Body))
+		}
+		body := string(response.Body)
+		if !strings.Contains(body, "invalid-bundle-root") {
+			t.Fatalf("expected invalid-bundle-root response, got %s", body)
+		}
+		if strings.Contains(body, allowedRoot) || strings.Contains(body, outsideRoot) {
+			t.Fatalf("response leaked root paths: %s", body)
+		}
+	})
+
+	t.Run("rejects slash root", func(t *testing.T) {
+		allowedRoot := t.TempDir()
+		t.Setenv("TOPOVIEWER_ALLOWED_BUNDLE_ROOTS", allowedRoot)
+
+		response := callBundleResource(t, "bundles", "http://topoviewer.local/bundles?root="+url.QueryEscape(string(filepath.Separator)))
+
+		if response.Status != http.StatusBadRequest {
+			t.Fatalf("expected status %d, got %d: %s", http.StatusBadRequest, response.Status, string(response.Body))
+		}
+		if !strings.Contains(string(response.Body), "invalid-bundle-root") {
+			t.Fatalf("expected invalid-bundle-root response, got %s", string(response.Body))
+		}
+	})
+
+	t.Run("rejects relative root outside allowlist", func(t *testing.T) {
+		allowedRoot := t.TempDir()
+		t.Setenv("TOPOVIEWER_ALLOWED_BUNDLE_ROOTS", allowedRoot)
+
+		response := callBundleResource(t, "bundles", "http://topoviewer.local/bundles?root=relative-bundles")
+
+		if response.Status != http.StatusBadRequest {
+			t.Fatalf("expected status %d, got %d: %s", http.StatusBadRequest, response.Status, string(response.Body))
+		}
+		if !strings.Contains(string(response.Body), "invalid-bundle-root") {
+			t.Fatalf("expected invalid-bundle-root response, got %s", string(response.Body))
+		}
+	})
 }
 
 func TestDiscoverBundlesRejectsManifestTraversalAndSymlinkEscape(t *testing.T) {
@@ -304,6 +392,21 @@ func TestBundleResourceRedactsReadErrors(t *testing.T) {
 	if !strings.Contains(body, "bundle-root") && !strings.Contains(body, "redacted-path") {
 		t.Fatalf("expected redacted path marker, got %s", body)
 	}
+}
+
+func TestDiscoverBundlesReportsMalformedManifestYAML(t *testing.T) {
+	root := t.TempDir()
+	manifestPath := filepath.Join(root, "bundles.yaml")
+	writeTestFile(t, manifestPath, "version: [\n")
+
+	index, err := discoverBundles(root, manifestPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(index.Bundles) != 0 {
+		t.Fatalf("expected malformed manifest to omit bundles, got %d bundles", len(index.Bundles))
+	}
+	requireDiagnosticCode(t, index.Diagnostics, "bundle-manifest-invalid")
 }
 
 func TestDiscoverBundlesReportsManifestDuplicateIDs(t *testing.T) {
