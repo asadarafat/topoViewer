@@ -21,6 +21,45 @@ const mapper: TopoViewerMapper = {
 };
 
 describe('mapper telemetry frame parser', () => {
+  it('reports a non-blocking no-data diagnostic when Grafana returns no frames', () => {
+    const result = parseMapperTelemetryDataFrames([], mapper);
+
+    expect(result.samples).toEqual([]);
+    expect(result.diagnostics).toEqual([
+      expect.objectContaining({
+        severity: 'info',
+        code: 'mapper-telemetry-empty'
+      })
+    ]);
+  });
+
+  it('reports unmatched frames without fabricating telemetry samples', () => {
+    const result = parseMapperTelemetryDataFrames([
+      {
+        name: 'unrelated_metric',
+        fields: [
+          { name: 'Time', values: [1] },
+          {
+            name: 'Value',
+            labels: {
+              __name__: 'unrelated_metric',
+              link_id: 'a-b'
+            },
+            values: [1]
+          }
+        ]
+      } as unknown as DataFrame
+    ], mapper);
+
+    expect(result.samples).toEqual([]);
+    expect(result.diagnostics).toEqual([
+      expect.objectContaining({
+        severity: 'warning',
+        code: 'mapper-telemetry-unmatched-frame'
+      })
+    ]);
+  });
+
   it('extracts Prometheus-style time series samples by mapper metric name', () => {
     const result = parseMapperTelemetryDataFrames([
       {

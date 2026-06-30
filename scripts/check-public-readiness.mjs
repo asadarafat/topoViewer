@@ -192,6 +192,17 @@ function assertArchitectureAndThreatModelDocs() {
   ]);
 }
 
+function assertPerformanceReliabilityAccessibilityDocs() {
+  assertFile('packages/topoviewer/content/pages/performance-reliability-accessibility.md', [
+    'Performance Tiers',
+    'Budgets',
+    'Benchmark Scenarios',
+    'Reliability Contract',
+    'Accessibility Posture',
+    'Data And Privacy'
+  ]);
+}
+
 function assertSecurityAutomation() {
   assertFile('.github/dependabot.yml', [
     'package-ecosystem: npm',
@@ -504,6 +515,7 @@ function assertPackageAndCiContracts() {
 
 assertRequiredGovernance();
 assertArchitectureAndThreatModelDocs();
+assertPerformanceReliabilityAccessibilityDocs();
 assertSecurityAutomation();
 assertPublicTextHasNoLocalLeaks();
 assertLabWarnings();

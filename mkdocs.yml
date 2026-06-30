@@ -90,6 +90,7 @@ nav:
       - YAML Schemas: topoviewer/schemas.md
       - TypeScript API: topoviewer/api-reference.md
       - Architecture: topoviewer/architecture.md
+      - Performance And Accessibility: topoviewer/performance-reliability-accessibility.md
       - Compatibility: topoviewer/compatibility.md
       - Glossary: topoviewer/glossary.md
   - Labs:

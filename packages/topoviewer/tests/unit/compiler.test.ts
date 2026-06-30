@@ -475,6 +475,93 @@ describe('compileTopoGraph', () => {
     }));
   });
 
+  it('keeps malformed YAML in the parse stage instead of treating it as a valid topology object', () => {
+    expect(() => yaml.load([
+      'graph:',
+      '  nodes: ['
+    ].join('\n'))).toThrow();
+  });
+
+  it('reports reliability diagnostics before unsafe or broken documents render', () => {
+    expect(() => validateTopoDocument({
+      version: '1.0',
+      stylesheet: [
+        {
+          selector: 'link',
+          style: {
+            'line-color': '#d32f2f'
+          }
+        }
+      ]
+    })).toThrow(/line-color/);
+
+    const issues = lintTopoDocument({
+      version: '1.0',
+      limits: {
+        maxNodes: 1,
+        maxEdges: 1,
+        maxImageBytes: 10
+      },
+      icons: {
+        unsafe: {
+          src: 'javascript:alert(1)'
+        },
+        huge: {
+          svg: '<svg xmlns="http://www.w3.org/2000/svg"><text>too large</text></svg>'
+        }
+      },
+      graph: {
+        layers: [{ id: 'physical' }],
+        nodes: [
+          { id: 'a', name: 'A', layers: ['physical'], position: [0, 0] },
+          { id: 'b', name: 'B', layers: ['unknown'], position: [120, 0] }
+        ],
+        links: [
+          {
+            id: 'a-missing',
+            source: 'a',
+            target: 'missing',
+            layers: ['physical']
+          }
+        ]
+      }
+    } as TopoDocument, { requireNames: false });
+
+    expect(issues.map((entry) => entry.code)).toEqual(expect.arrayContaining([
+      'unknown-layer',
+      'broken-target',
+      'unsafe-image-reference',
+      'renderer-limit'
+    ]));
+  });
+
+  it('falls back to a safe generic icon when an authored icon key is missing', () => {
+    const compiled = compileTopoGraph({
+      version: '1.0',
+      graph: {
+        layers: [{ id: 'physical' }],
+        nodes: [
+          { id: 'a', name: 'A', layers: ['physical'], position: [0, 0] }
+        ]
+      },
+      stylesheet: [
+        {
+          selector: 'node',
+          style: {
+            icon: 'missing-icon'
+          }
+        }
+      ]
+    }, ['physical']);
+
+    const nodeData = compiled.nodes[0]?.data as CompiledNodeData;
+    expect(nodeData.iconSpec).toMatchObject({
+      glyph: 'R',
+      fill: '#6ea8fe',
+      stroke: '#d8e8ff'
+    });
+  });
+
   it('applies label background opacity to eight-digit hex colors', () => {
     const compiled = compileTopoGraph({
       version: '1.0',

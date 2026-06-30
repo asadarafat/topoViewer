@@ -125,6 +125,7 @@ function checkRequiredPages() {
     'threat-model.md',
     'build-vs-adopt.md',
     'design-review-checklist.md',
+    'performance-reliability-accessibility.md',
     'object-reference.md',
     'api-reference.md',
     'compatibility.md',

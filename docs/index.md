@@ -30,7 +30,7 @@ runtime APIs matter.
 | Operate from telemetry | [Grafana guide](topoviewer/grafana.md), [Grafana call flow](topoviewer/grafana-telemetry-call-flow.md), and [integration roadmap](topoviewer/integration-roadmap.md) |
 | Compare product fit | [Why TopoViewer](topoviewer/why-topoviewer.md) |
 | Reference accepted contracts | [Object attributes](topoviewer/object-reference.md), [YAML schemas](topoviewer/schemas.md), [compatibility](topoviewer/compatibility.md), [reference model](topoviewer/reference-model.md), and [stylesheet](topoviewer/stylesheet.md) |
-| Evaluate architecture and risk | [Architecture overview](topoviewer/architecture.md), [threat model](topoviewer/threat-model.md), and [build or adopt](topoviewer/build-vs-adopt.md) |
+| Evaluate architecture and risk | [Architecture overview](topoviewer/architecture.md), [threat model](topoviewer/threat-model.md), [performance and accessibility](topoviewer/performance-reliability-accessibility.md), and [build or adopt](topoviewer/build-vs-adopt.md) |
 | Maintain or release the repo | [Production hardening](topoviewer/production.md), [design review checklist](topoviewer/design-review-checklist.md), [release](topoviewer/release.md), and [docs standard](topoviewer/docs-standard.md) |
 | Debug a broken render | [Debug rendering](topoviewer/debugging.md) |
 

@@ -270,16 +270,16 @@
 
 ## 22. Performance, Reliability, And Accessibility
 
-- [ ] 22.1 Define performance tiers for tiny, curated, dense, and stress topologies with node/link counts and expected use cases
+- [x] 22.1 Define performance tiers for tiny, curated, dense, and stress topologies with node/link counts and expected use cases
 - [ ] 22.2 Add benchmark scenarios for first render, zoom/pan, selection, attention focus, layout, mapper overlays, docs embeds, harness, and Grafana panel refresh
-- [ ] 22.3 Define budgets for first render time, interaction latency, memory, screenshot stability, and maximum supported default topology size
-- [ ] 22.4 Add benchmark output artifacts or summaries that can be published in docs without local paths
-- [ ] 22.5 Add reliability tests for bad YAML, bad stylesheet, missing assets, unsupported style keys, bad mapper, missing telemetry, and renderer-limit failures
-- [ ] 22.6 Add error-boundary and diagnostic behavior docs for React, MkDocs, Zensical, harness, and Grafana
-- [ ] 22.7 Define keyboard and focus behavior for supported controls in docs embeds, React runtime, harness, and Grafana
+- [x] 22.3 Define budgets for first render time, interaction latency, memory, screenshot stability, and maximum supported default topology size
+- [x] 22.4 Add benchmark output artifacts or summaries that can be published in docs without local paths
+- [x] 22.5 Add reliability tests for bad YAML, bad stylesheet, missing assets, unsupported style keys, bad mapper, missing telemetry, and renderer-limit failures
+- [x] 22.6 Add error-boundary and diagnostic behavior docs for React, MkDocs, Zensical, harness, and Grafana
+- [x] 22.7 Define keyboard and focus behavior for supported controls in docs embeds, React runtime, harness, and Grafana
 - [ ] 22.8 Add accessibility checks for focus visibility, color contrast, non-color status cues, text legibility, reduced motion, and keyboard escape behavior
-- [ ] 22.9 Add accessibility posture docs that state what is supported now, what is best-effort, and what is not yet accessible
-- [ ] 22.10 Add telemetry/privacy docs for local storage, session state, Grafana panel state, mapper labels, and screenshots/videos
+- [x] 22.9 Add accessibility posture docs that state what is supported now, what is best-effort, and what is not yet accessible
+- [x] 22.10 Add telemetry/privacy docs for local storage, session state, Grafana panel state, mapper labels, and screenshots/videos
 
 ## 23. Architecture And Threat Model
 
