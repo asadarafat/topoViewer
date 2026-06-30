@@ -550,6 +550,7 @@ export function compileEdgeStyle(style: StyleDeclaration, entity: GraphEntity, s
   const targetArrowShape = normalizeEdgeArrowShape(style.targetArrowShape) || 'none';
   const sourceArrowColor = String(style.sourceArrowColor || style.arrowColor || lineColor);
   const targetArrowColor = String(style.targetArrowColor || style.arrowColor || lineColor);
+  const zIndex = valueOrDefault(style.zIndex as number | undefined, styleDefaultNumber('link', 'zIndex', 6));
 
   return withoutUndefined({
     type: anchor === 'floating' ? 'floating' : curveType === 'bezier' ? 'default' : curveType,
@@ -560,7 +561,7 @@ export function compileEdgeStyle(style: StyleDeclaration, entity: GraphEntity, s
     interactionWidth: interactive
       ? valueOrDefault(style.interactionWidth as number | undefined, Math.max(12, lineWidth + 10))
       : 0,
-    zIndex: valueOrDefault(style.zIndex as number | undefined, styleDefaultNumber('link', 'zIndex', 6)),
+    zIndex,
     label: label || undefined,
     labelStyle: withoutUndefined({
       fill: style.labelColor,
@@ -573,6 +574,7 @@ export function compileEdgeStyle(style: StyleDeclaration, entity: GraphEntity, s
     }),
     data: {
       anchor,
+      zIndex,
       curveType,
       routeKind: routeKind(style),
       interactive,

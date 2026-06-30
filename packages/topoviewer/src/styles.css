@@ -745,6 +745,10 @@
   z-index: 40;
 }
 
+.topoviewer .react-flow__viewport-portal {
+  z-index: 60;
+}
+
 .topoviewer-edge-visible-path {
   fill: none;
   stroke-linecap: round;

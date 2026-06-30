@@ -579,6 +579,9 @@ export function FloatingEdge(props: EdgeProps) {
       }, `${svgId}-${safeSvgId(direction.id)}-gradient`)
     };
   }) : [];
+  const edgeRenderProps = props as EdgeProps & { zIndex?: unknown };
+  const paintLayerZIndex = numericOrUndefined(edgeRenderProps.zIndex) ?? numericOrUndefined(data.zIndex);
+  const paintLayerStyle: CSSProperties | undefined = paintLayerZIndex === undefined ? undefined : { zIndex: paintLayerZIndex };
   const visibleStyle = isPipe
     ? pipeStyle(props, data, 'fill')
     : edgePathStyle({
@@ -590,7 +593,7 @@ export function FloatingEdge(props: EdgeProps) {
   return (
     <>
       <ViewportPortal>
-        <svg className="topoviewer-edge-paint-layer" aria-hidden="true">
+        <svg className="topoviewer-edge-paint-layer" style={paintLayerStyle} aria-hidden="true">
           {gradient || sourceMarker || targetMarker || directionMarkers.some(({ marker }) => marker) || directionGradients.some(({ gradient: directionGradient }) => directionGradient) ? (
             <defs>
               {gradient ? (
