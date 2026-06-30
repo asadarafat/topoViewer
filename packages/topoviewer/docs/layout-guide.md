@@ -68,4 +68,8 @@ Layout diagnostics should be visible when:
 - shape dimensions conflict with shape rules;
 - pinned nodes prevent a clean layout.
 
-Next: [CLOS examples](reference/layout/index.md) and [Debug rendering](debugging.md).
+## Next Steps
+
+- [Layout examples](reference/layout/index.md): rendered CLOS and manual layout cases.
+- [Debug rendering](debugging.md): diagnose overlap, label, edge attachment, and layout issues.
+- [Stylesheet](stylesheet.md): validate shape dimensions and visual defaults.

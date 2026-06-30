@@ -40,5 +40,8 @@ The browser harness and VS Code webview use the same schema and style metadata
 where possible. Completion should suggest valid keys and typed values based on
 the current YAML location.
 
-Next: [Documentation standard](docs-standard.md) for the checks expected when a
-new feature adds YAML, styles, examples, or public APIs.
+## Next Steps
+
+- [Debug rendering](debugging.md): diagnose blank viewports, selectors, labels, and layout problems.
+- [Documentation standard](docs-standard.md): checks expected when adding YAML, styles, examples, or APIs.
+- [Schemas](schemas.md): schema files and validation ownership.

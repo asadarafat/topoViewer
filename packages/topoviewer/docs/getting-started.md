@@ -79,5 +79,8 @@ npm run validate:semantics
 When a viewport is blank, keep the last valid YAML, check diagnostics first, and
 then verify file paths, selectors, and layer visibility.
 
-Next: [Style a topology](style-a-topology.md) or open the
-[browser harness](browser-harness.md).
+## Next Steps
+
+- [Style a topology](style-a-topology.md): add reusable visual rules.
+- [Browser harness](browser-harness.md): edit topology, stylesheet, and mapper YAML interactively.
+- [Validate YAML](validate-yaml.md): run the same checks used by CI.

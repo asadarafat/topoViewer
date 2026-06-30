@@ -43,4 +43,8 @@ Published paths use the lowercase project base:
 - `https://asadarafat.github.io/topoviewer/docs/zensical/`
 - `https://asadarafat.github.io/topoviewer/harness/`
 
-Next: [Validate YAML](validate-yaml.md) for the command-line checks.
+## Next Steps
+
+- [Validate YAML](validate-yaml.md): run command-line schema and semantic checks.
+- [Browser harness](browser-harness.md): inspect draft YAML, diagnostics, and rendered output together.
+- [Cross-surface parity notes](docs-standard.md): keep renderer geometry independent from host docs CSS.

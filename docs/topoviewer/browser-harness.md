@@ -66,4 +66,8 @@ The assist model should be indentation-aware:
 The harness export button writes a PNG of the current viewport. Export is
 disabled when blocking diagnostics prevent a reliable render.
 
-Next: [Debug rendering](debugging.md) when the viewport does not match the YAML.
+## Next Steps
+
+- [Debug rendering](debugging.md): troubleshoot when the viewport does not match the YAML.
+- [Grafana guide](grafana.md): mount exported bundles and apply mapper-driven telemetry overlays.
+- [Integration roadmap](integration-roadmap.md): editor extension direction and supported integration surfaces.

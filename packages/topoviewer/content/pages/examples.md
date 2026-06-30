@@ -249,10 +249,6 @@ Expected result: a Prometheus sample with matching `link_id` and `direction`
 updates only the matching directional stroke. Unmatched, ambiguous, duplicate,
 or stale samples should appear in mapper coverage diagnostics.
 
-Next: [Grafana telemetry call flow](grafana-telemetry-call-flow.md) for the
-runtime data path and [Integration Roadmap](integration-roadmap.md) for the
-current Grafana support boundary.
-
 ## Generated Catalog
 
 Use the generated catalog when you need exhaustive feature coverage or a
@@ -270,3 +266,10 @@ regression fixture:
 - [Layout](reference/layout/index.md)
 - [Harness](reference/harness/index.md)
 - [Validation](reference/validation/index.md)
+
+## Next Steps
+
+- [Getting started](getting-started.md): build the smallest useful topology from scratch.
+- [Style a topology](style-a-topology.md): learn the reusable stylesheet pattern behind the examples.
+- [Grafana telemetry call flow](grafana-telemetry-call-flow.md): understand the runtime overlay path.
+- [Integration roadmap](integration-roadmap.md): check support status before adopting an integration.

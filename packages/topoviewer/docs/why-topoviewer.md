@@ -82,3 +82,10 @@ Those facts can drive multiple views of the same environment: underlay, BGP, ser
   NetBox inventory and platform data inside NetBox.
 - OpsMill/Infrahub is a roadmap plugin surface for visualizing topology derived
   from Infrahub network topology and inventory data inside that platform.
+
+## Next Steps
+
+- [Getting started](getting-started.md): render the smallest useful topology.
+- [Examples](examples.md): compare curated topology, styling, attention, and Grafana examples.
+- [React usage](react.md): embed TopoViewer in a product surface.
+- [Integration roadmap](integration-roadmap.md): check support status before adopting an integration.

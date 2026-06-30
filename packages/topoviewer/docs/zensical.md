@@ -114,3 +114,9 @@ A future `zensical-topoviewer` package can make sense when Zensical exposes stab
 - Build-time diagnostics.
 
 Until then, the adapter-only approach is the safer production path because it uses static assets, documented Zensical configuration, and the existing browser embed bundle.
+
+## Next Steps
+
+- [MkDocs](mkdocs.md): compare the supported plugin workflow with the Zensical adapter.
+- [Examples](examples.md): review the curated examples that sync into both documentation surfaces.
+- [Debug rendering](debugging.md): investigate geometry or theme differences across docs surfaces.

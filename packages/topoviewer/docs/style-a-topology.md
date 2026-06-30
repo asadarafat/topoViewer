@@ -65,5 +65,8 @@ class names.
   `square` and `circle` require equal width and height.
 - Use canonical camelCase keys everywhere.
 
-Next: [Stylesheet reference](stylesheet.md) for all supported keys and accepted
-values.
+## Next Steps
+
+- [Stylesheet reference](stylesheet.md): all supported keys, accepted values, defaults, and examples.
+- [Nodes reference](reference/nodes/index.md): node shapes, labels, badges, icons, and status markers.
+- [Edges reference](reference/edges/index.md): link styling, labels, arrows, and directional lanes.

@@ -40,6 +40,22 @@ const packageReadmeStatuses = [
   ['packages/grafana-topoviewer-panel/README.md', 'Experimental']
 ];
 
+const majorGuidePages = [
+  'why-topoviewer.md',
+  'getting-started.md',
+  'examples.md',
+  'authoring.md',
+  'style-a-topology.md',
+  'browser-harness.md',
+  'validate-yaml.md',
+  'debugging.md',
+  'layout-guide.md',
+  'react.md',
+  'mkdocs.md',
+  'zensical.md',
+  'grafana.md'
+];
+
 const forbiddenPublicClaimPhrases = [
   [/\bproduction[- ]ready\b/i, 'Do not claim production-ready in public docs until the readiness gate is complete.'],
   [/\bSupported source API\b/, 'Use the canonical status label "Pre-Publish Supported".'],
@@ -629,6 +645,27 @@ function checkPublicPathWording() {
   }
 }
 
+function checkGuideNextSteps() {
+  for (const page of majorGuidePages) {
+    const filePath = path.join(contentPagesRoot, page);
+    if (!assertFile(filePath, `major guide page ${page}`)) continue;
+    const text = readText(filePath);
+    const nextStepsMatch = text.match(/^## Next Steps\s*$(?<body>[\s\S]*)/m);
+    if (!nextStepsMatch?.groups?.body) {
+      fail(`${relative(filePath)} must end with a "## Next Steps" section.`);
+      continue;
+    }
+    if (/\n##\s+/.test(nextStepsMatch.groups.body)) {
+      fail(`${relative(filePath)} must not add another H2 section after "## Next Steps".`);
+      continue;
+    }
+    const bodyBeforeNextHeading = nextStepsMatch.groups.body;
+    if (!/\[[^\]]+\]\([^)]+\.md(?:#[^)]+)?\)/.test(bodyBeforeNextHeading)) {
+      fail(`${relative(filePath)} "## Next Steps" section must include at least one local Markdown link.`);
+    }
+  }
+}
+
 checkRequiredPages();
 checkDocsStandard();
 checkIntegrationPageStatusLabels();
@@ -647,6 +684,7 @@ checkMkDocsNavCoverage();
 checkStartNavBoundary();
 checkExamplesNavBoundary();
 checkPublicPathWording();
+checkGuideNextSteps();
 
 if (errors.length) {
   console.error('Docs lint failed:');

@@ -245,5 +245,8 @@ not written into dashboard JSON, topology YAML, stylesheet YAML, or mapper YAML.
 | Mapper YAML fails | Unsupported key, invalid target kind, invalid resolver, or invalid style key. | Use harness Mapper YAML assist and schema diagnostics. |
 | Edited mounted files do not appear | Grafana has not refetched the selected bundle. | Use dashboard refresh, reload the page, or change/reselect the bundle. |
 
-Next: [Grafana telemetry call flow](grafana-telemetry-call-flow.md) for the
-architecture diagram.
+## Next Steps
+
+- [Grafana telemetry call flow](grafana-telemetry-call-flow.md): data path from mounted bundle and Prometheus query to runtime overlay.
+- [Browser harness](browser-harness.md): author the topology, stylesheet, and mapper bundle before mounting it.
+- [Integration roadmap](integration-roadmap.md): understand what is supported, experimental, lab-only, or roadmap.

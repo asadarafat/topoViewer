@@ -27,6 +27,11 @@ the result locally.
 | References | Enumerate fields, accepted values, defaults, and constraints. |
 | Examples | Show one behavior clearly with live viewport and YAML. |
 
+Major guide pages must include a `## Next Steps` section with local links to
+the next useful guide, reference, example, or integration page. Do not leave
+readers at a dead end or send them to source-code internals when a public docs
+page exists.
+
 ## Example README Contract
 
 Public examples must render these sections:
@@ -70,5 +75,6 @@ npm run docs:lint
 npm run ci:docs
 ```
 
-The docs lint gate checks canonical pages, generated examples, style reference
-coverage, API reference coverage, public links, and route consistency.
+The docs lint gate checks canonical pages, generated examples, guide next-step
+links, style reference coverage, API reference coverage, public links, and
+route consistency.

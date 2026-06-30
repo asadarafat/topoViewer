@@ -156,3 +156,9 @@ The bundle mounts all `.topoviewer-embed` containers on page load. If content is
 ```js
 window.TopoViewerEmbed.mountAll();
 ```
+
+## Next Steps
+
+- [Examples](examples.md): copy focused topology and stylesheet examples into docs pages.
+- [Zensical](zensical.md): review the parallel static-docs adapter path.
+- [Debug rendering](debugging.md): compare MkDocs output with harness and Zensical when geometry differs.
