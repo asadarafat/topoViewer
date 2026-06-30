@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { spawnSync } from 'node:child_process';
+import fs from 'node:fs';
 
 const GENERATED_DOC_PATHS = [
   'README.md',
@@ -187,11 +188,11 @@ const lanesToRun = selectedLane ? [selectedLane] : fullLaneOrder;
 for (const laneName of lanesToRun) {
   console.log(`\n# CI lane: ${laneName}`);
   for (const { label, command, args: commandArgs, env } of laneDefinitions[laneName]) {
-    runStep(label, command, commandArgs, env);
+    runStep(laneName, label, command, commandArgs, env);
   }
 }
 
-function runStep(label, command, commandArgs, extraEnv = {}) {
+function runStep(laneName, label, command, commandArgs, extraEnv = {}) {
   console.log(`\n==> ${label}`);
   const result = spawnSync(command, commandArgs, {
     env: {
@@ -204,15 +205,36 @@ function runStep(label, command, commandArgs, extraEnv = {}) {
 
   if (result.error) {
     console.error(result.error.message);
+    writeFailureSummary(laneName, label, `${command} ${commandArgs.join(' ')}`, result.error.message);
     process.exit(1);
   }
 
   if (result.signal) {
     console.error(`${label} terminated with signal ${result.signal}.`);
+    writeFailureSummary(laneName, label, `${command} ${commandArgs.join(' ')}`, `terminated with signal ${result.signal}`);
     process.exit(1);
   }
 
   if (result.status !== 0) {
+    writeFailureSummary(laneName, label, `${command} ${commandArgs.join(' ')}`, `exited with status ${result.status ?? 1}`);
     process.exit(result.status ?? 1);
   }
+}
+
+function writeFailureSummary(laneName, label, commandLine, reason) {
+  const summaryPath = process.env.GITHUB_STEP_SUMMARY;
+  if (!summaryPath) {
+    return;
+  }
+  fs.appendFileSync(summaryPath, [
+    '## TopoViewer CI Failure',
+    '',
+    `- Lane: \`${laneName}\``,
+    `- Step: \`${label}\``,
+    `- Command: \`${commandLine}\``,
+    `- Reason: ${reason}`,
+    '',
+    'Run the same command locally from the repository root with Node.js 24 LTS.',
+    ''
+  ].join('\n'));
 }

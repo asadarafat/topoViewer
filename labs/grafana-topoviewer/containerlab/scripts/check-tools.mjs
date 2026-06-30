@@ -29,13 +29,18 @@ function requireWorkingDocker() {
   console.log(`Docker is available: ${result.stdout.trim()}`);
 }
 
-requireWorkingDocker();
-const clab = requireCommand(['containerlab', 'clab'], 'Containerlab');
-const version = spawnSync(clab.command, ['version', '--short'], {
-  encoding: 'utf8',
-  stdio: ['ignore', 'pipe', 'pipe']
-});
-console.log(`Containerlab is available: ${clab.resolved}`);
-if (version.status === 0 && version.stdout.trim()) {
-  console.log(`Containerlab version: ${version.stdout.trim()}`);
+try {
+  requireWorkingDocker();
+  const clab = requireCommand(['containerlab', 'clab'], 'Containerlab');
+  const version = spawnSync(clab.command, ['version', '--short'], {
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe']
+  });
+  console.log(`Containerlab is available: ${clab.resolved}`);
+  if (version.status === 0 && version.stdout.trim()) {
+    console.log(`Containerlab version: ${version.stdout.trim()}`);
+  }
+} catch (error) {
+  console.error(`[topoviewer] ${error instanceof Error ? error.message : String(error)}`);
+  process.exit(1);
 }

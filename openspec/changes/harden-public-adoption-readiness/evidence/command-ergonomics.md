@@ -28,11 +28,26 @@ npm run grafana:clab:down
 The public-readiness guard fails if `scripts/ci.mjs` adds `grafana:clab:*`
 commands to `ci:public-readiness`.
 
+## Failure Messages
+
+| Surface | Guardrail |
+| --- | --- |
+| Docs preview | `scripts/local-docs-preview.sh` checks the fixed preview port with `scripts/check-port-free.mjs` before building. |
+| Zensical preview | `scripts/local-zensical.sh` checks Python version and fixed serve port before starting. |
+| Browser harness | `packages/vscode-topoviewer` checks `127.0.0.1:5174` before launching Vite with `--strictPort`. |
+| Grafana lab | `labs/grafana-topoviewer/scripts/check-port.mjs` prints concise `[topoviewer]` port guidance. |
+| Grafana Containerlab lab | Containerlab port and tool checks print concise `[topoviewer]` guidance for busy ports, unusable Docker, or missing Containerlab. |
+
+When `scripts/ci.mjs` fails under GitHub Actions, it appends the lane, step,
+command, and exit reason to `GITHUB_STEP_SUMMARY`. This gives the remote run a
+copyable local command without requiring the user to dig through all logs first.
+
 ## Validation
 
 Run after this slice:
 
 ```bash
 npm run test:hostile-content
+npm run ci:public-readiness
 npm run public-readiness
 ```

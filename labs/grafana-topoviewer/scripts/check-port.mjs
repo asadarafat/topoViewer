@@ -47,6 +47,11 @@ function checkPort({ name, envKey, defaultPort }) {
   });
 }
 
-for (const portConfig of ports) {
-  await checkPort(portConfig);
+try {
+  for (const portConfig of ports) {
+    await checkPort(portConfig);
+  }
+} catch (error) {
+  console.error(`[topoviewer] ${error instanceof Error ? error.message : String(error)}`);
+  process.exit(1);
 }

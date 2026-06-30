@@ -375,6 +375,8 @@ function assertPackageAndCiContracts() {
   }
   const ciOrchestrator = assertFile('scripts/ci.mjs');
   for (const phrase of [
+    'GITHUB_STEP_SUMMARY',
+    'TopoViewer CI Failure',
     "['run', 'artifact:check:docs']",
     "['run', 'artifact:check:package']",
     "['run', 'install:check']",
@@ -396,6 +398,26 @@ function assertPackageAndCiContracts() {
   if (publicReadinessLane.includes("['run', 'grafana:clab:")) {
     fail('scripts/ci.mjs must keep Grafana Containerlab checks out of ci:public-readiness.');
   }
+  assertFile('packages/vscode-topoviewer/package.json', [
+    'check-port-free.mjs',
+    'Browser harness',
+    '--strictPort'
+  ]);
+  assertFile('labs/grafana-topoviewer/scripts/check-port.mjs', [
+    '[topoviewer]',
+    'is already in use',
+    '<free-port>'
+  ]);
+  assertFile('labs/grafana-topoviewer/containerlab/scripts/check-ports.mjs', [
+    '[topoviewer]',
+    'is already in use',
+    '<free-port>'
+  ]);
+  assertFile('labs/grafana-topoviewer/containerlab/scripts/check-tools.mjs', [
+    '[topoviewer]',
+    'Docker is installed but not usable',
+    'is required for the Containerlab Grafana lab'
+  ]);
 
   const security = assertFile('.github/workflows/security.yml');
   if (!security.includes('npm run dependency:advisories')) {
