@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { Box } from '@mui/material';
-import { downloadTopoViewerPng, topoviewerToPng, type TopoDocument, type TopoViewerNodePositionChange, type TopoViewerObjectClick } from 'topoviewer';
+import { type TopoDocument, type TopoViewerNodePositionChange, type TopoViewerObjectClick } from 'topoviewer';
 import type { HarnessFixture, TopoViewerWebviewHost, ValidationResult, WebviewDiagnostic, WebviewState } from '../shared/types';
 import {
   clearAttention,
@@ -42,6 +42,7 @@ import { AuthoringRail } from './AuthoringRail';
 import { PreviewPanel, ResizeDivider, ShellHeader, webviewShellSx } from './WebviewChrome';
 import { HarnessTabPanel, a11yProps, baseInsertObjectGroups, clamp, defaultSplitPercent, focusKindLabel, harnessModes, initialSavedPresets, initialSplitPercent, maxSplitPercent, mergeLayerSelection, minSplitPercent, modeIndex, modeLabel, pathSequenceFromObject, positionOf, presetFromObject, presetStorageKey, sameRoundedPosition, selectedNodeIds, selectedObjectIds, selectionSummary, sequenceFromControls, splitStorageKey, type DocumentTransaction, type HarnessMode } from './webviewAppSupport';
 import { useBrowserHarnessActions } from './harnessActions';
+import { copyTextToClipboard, downloadYamlBundle as downloadYamlBundleAction, exportPreviewImage, type ExportStatus } from './webviewExportActions';
 import { useBrowserYamlIntelligence, useDraftValidation, useMonacoDiagnostics, usePendingYamlFocus, useYamlEditorMount, useYamlMonacoProviders } from './webviewEditorHooks';
 import './webview.css';
 
@@ -67,7 +68,7 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
   const [resizing, setResizing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<string>();
-  const [exportStatus, setExportStatus] = useState<'idle' | 'exporting' | 'complete' | 'error'>('idle');
+  const [exportStatus, setExportStatus] = useState<ExportStatus>('idle');
   const [yamlAssistEmptyMessage, setYamlAssistEmptyMessage] = useState<string>();
   const [undoStack, setUndoStack] = useState<DocumentTransaction[]>([]);
   const [redoStack, setRedoStack] = useState<DocumentTransaction[]>([]);
@@ -571,98 +572,33 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
 
   async function exportImage() {
     const target = previewRef.current?.querySelector('.topoviewer') as HTMLElement | null;
-    if (!target) {
-      flash('Export target is not ready');
-      return;
-    }
-    if (hasExportBlockers) {
-      flash('Fix diagnostics before exporting');
-      return;
-    }
-    const fileName = `${visibleDocument?.graph?.id || state?.fixtureId || 'topoviewer'}.png`;
-    setExportStatus('exporting');
-    try {
-      if (host.kind === 'browser') {
-        await downloadTopoViewerPng(target, { fileName, backgroundColor: themeMode === 'dark' ? '#0b1118' : '#f8fafc' });
-      } else {
-        const dataUrl = await topoviewerToPng(target, { backgroundColor: themeMode === 'dark' ? '#0b1118' : '#f8fafc' });
-        await host.exportImage({ dataUrl, fileName, format: 'png' });
-      }
-      setExportStatus('complete');
-      flash(`Exported ${fileName}`);
-    } catch (error) {
-      setExportStatus('error');
-      flash(error instanceof Error ? error.message : 'Export failed');
-    } finally {
-      window.setTimeout(() => setExportStatus('idle'), 1800);
-    }
-  }
-
-  function bundleBaseName() {
-    const raw = String(visibleDocument?.graph?.id || state?.fixtureId || 'topoviewer');
-    return raw.trim().replace(/[^A-Za-z0-9._-]+/g, '-').replace(/^-+|-+$/g, '') || 'topoviewer';
-  }
-
-  function downloadTextFile(fileName: string, text: string) {
-    const blob = new Blob([text], { type: 'text/yaml;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const anchor = document.createElement('a');
-    anchor.href = url;
-    anchor.download = fileName;
-    anchor.rel = 'noopener';
-    document.body.appendChild(anchor);
-    anchor.click();
-    document.body.removeChild(anchor);
-    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+    await exportPreviewImage({
+      flash,
+      hasExportBlockers,
+      host,
+      setExportStatus,
+      state,
+      target,
+      themeMode: themeMode || 'dark',
+      visibleDocument
+    });
   }
 
   async function downloadYamlBundle() {
-    if (!state) return;
-    const draftState = {
-      ...state,
-      mapperText: draftMapperText,
-      stylesheetText: draftStylesheetText,
-      topologyText: draftTopologyText
-    };
-    const result = await host.validate(draftState);
-    setDraftValidation(result);
-    if (result.diagnostics.some((diagnostic) => diagnostic.severity === 'error')) {
-      flash('Fix YAML diagnostics before exporting bundle');
-      return;
-    }
-    const baseName = bundleBaseName();
-    downloadTextFile(`${baseName}.topo.tv.yaml`, draftTopologyText);
-    downloadTextFile(`${baseName}.style.tv.yaml`, draftStylesheetText);
-    downloadTextFile(`${baseName}.mapper.tv.yaml`, draftMapperText || 'version: 1\nrules: []\n');
-    flash(`Exported ${baseName} bundle`);
+    await downloadYamlBundleAction({
+      draftMapperText,
+      draftStylesheetText,
+      draftTopologyText,
+      flash,
+      host,
+      setDraftValidation,
+      state,
+      visibleDocument
+    });
   }
 
   async function copyYamlToClipboard() {
-    try {
-      let copied = false;
-      if (navigator.clipboard?.writeText) {
-        try {
-          await navigator.clipboard.writeText(editorValue);
-          copied = true;
-        } catch {
-          copied = false;
-        }
-      }
-      if (!copied) {
-        const textarea = document.createElement('textarea');
-        textarea.value = editorValue;
-        textarea.setAttribute('readonly', '');
-        textarea.style.position = 'fixed';
-        textarea.style.opacity = '0';
-        document.body.appendChild(textarea);
-        textarea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textarea);
-      }
-      flash(`Copied ${editorLabel}`);
-    } catch (error) {
-      flash(error instanceof Error ? error.message : 'Copy failed');
-    }
+    await copyTextToClipboard(editorLabel, editorValue, flash);
   }
 
   function openDiagnostic(diagnostic: WebviewDiagnostic) {
