@@ -23,8 +23,8 @@ and public support boundaries:
 
 - make `topoviewer` the obvious stable center of the project;
 - make the README and docs homepage visual, short, and adoption-oriented;
-- split public docs into learner paths, embedding paths, examples, reference,
-  labs, and maintainer material;
+- split public docs into a React Flow-style structure: Learn,
+  API Reference, Examples, Showcase, Labs, Changelog, and Maintainer material;
 - move internal maintainer details out of the primary public nav;
 - clearly label supported, experimental, lab, and roadmap surfaces;
 - define five polished examples that demonstrate the core value in the first

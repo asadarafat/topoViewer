@@ -28,6 +28,15 @@
 - [x] 2.6 Update docs home to route users by job: author, embed, operate, reference, maintain
 - [x] 2.7 Add docs lint that fails when Maintainer/Lab pages appear in the primary Start path
 - [x] 2.8 Add docs lint that fails when an integration page has no support-status label
+- [ ] 2.9 Refactor public docs navigation to top-level Learn, API Reference, Examples, Showcase, Labs, Changelog, and Maintainers
+- [ ] 2.10 Move quick-start and conceptual authoring material under Learn, with Concepts, Guides, and Advanced subgroups
+- [ ] 2.11 Move exhaustive schema, object, stylesheet, mapper, TypeScript, and command material under API Reference
+- [ ] 2.12 Group copy-first examples under Examples with Basic, Provider Network, Datacenter, and Integrations sections
+- [ ] 2.13 Add Showcase as polished scenario material separate from copy-first examples
+- [ ] 2.14 Keep Labs to Grafana only; document Containerlab as a Grafana lab mode rather than its own top-level lab
+- [ ] 2.15 Add Changelog as a top-level docs section or link with release/migration expectations
+- [ ] 2.16 Update MkDocs and generated Zensical nav from the same canonical IA source
+- [ ] 2.17 Add docs lint to reject drift from the canonical Learn/API Reference/Examples/Showcase/Labs/Changelog/Maintainers structure
 
 ## 3. README And First-Run Story
 
@@ -94,7 +103,7 @@
 - [x] 8.2 Add schema-backed Monaco suggestions for mapper keys, enums, target kinds, resolver modes, states, thresholds, overlays, and query hints
 - [x] 8.3 Add topology-aware suggestions for node IDs, link IDs, path IDs, region IDs, layers, labels, and data keys from the applied topology
 - [x] 8.4 Add style-overlay suggestions driven by the same style metadata used by runtime/docs/schema
-- [ ] 8.5 Add mapper diagnostics for YAML parse errors, schema errors, topology binding errors, ambiguous matches, stale IDs, unsupported overlay keys, and query hints
+- [x] 8.5 Add mapper diagnostics for YAML parse errors, schema errors, topology binding errors, ambiguous matches, stale IDs, unsupported overlay keys, and query hints
 - [ ] 8.6 Add a mapper coverage preview showing matched, unmatched, duplicate, ambiguous, and stale telemetry using synthetic frames or pasted sample labels
 - [x] 8.7 Add copy/export behavior for canonical bundle suffixes: `*.topo.tv.yaml`, `*.style.tv.yaml`, and `*.mapper.tv.yaml`
 - [ ] 8.8 Add curated mapper examples for node health, link state, bidirectional utilization, path SLO, region aggregate status, layer aggregate status, and graph summary status

@@ -22,6 +22,45 @@ OpenSpec history, labs, or experimental integrations.
 - **THEN** supported install, authoring, embedding, and reference material is
   visually separated from roadmap, lab, and maintainer content.
 
+### Requirement: React Flow-Style Documentation Information Architecture
+
+The public documentation SHALL use a developer-tool information architecture
+that separates learning, API reference, examples, showcase, labs, changelog, and
+maintainer material.
+
+#### Scenario: User follows a learning path
+
+- **GIVEN** a new user opens the published docs
+- **WHEN** they open Learn
+- **THEN** they can follow Quick Start, Concepts, Guides, and Advanced material
+  without encountering maintainer internals or lab-only commands as primary
+  content.
+
+#### Scenario: User needs exact API or schema details
+
+- **GIVEN** a developer is implementing against TopoViewer
+- **WHEN** they open API Reference
+- **THEN** they can find schema objects, style keys, mapper objects,
+  TypeScript components, supported hooks, and CLI commands in a reference-first
+  structure rather than mixed into guide prose.
+
+#### Scenario: User browses examples and showcase separately
+
+- **GIVEN** a user wants copyable YAML
+- **WHEN** they open Examples
+- **THEN** they see practical examples grouped by Basic, Provider Network,
+  Datacenter, and Integrations.
+- **AND** Showcase remains aspirational or polished scenario material, separate
+  from copy-first examples.
+
+#### Scenario: Lab and roadmap content stays honest
+
+- **GIVEN** an integration slot is experimental, lab-only, or roadmap
+- **WHEN** it appears under Learn, Examples, API Reference, Showcase, or Labs
+- **THEN** it carries the public support status
+- **AND** it explains the current working path without implying a shipped
+  package or plugin that does not exist.
+
 ### Requirement: Support Status Taxonomy
 
 The public docs SHALL classify major surfaces as Supported, Experimental, Lab,
