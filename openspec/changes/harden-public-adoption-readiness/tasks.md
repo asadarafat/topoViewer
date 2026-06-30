@@ -237,12 +237,12 @@
 
 ## 19. CI And Command Ergonomics
 
-- [ ] 19.1 Add or simplify npm scripts so public checks have obvious names and Node 24 enforcement
-- [ ] 19.2 Add `npm run ci:public-readiness` or equivalent to run docs lint, leak checks, package dry-run, representative parity, hostile corpus, artifact autopsy, and dependency triage
+- [x] 19.1 Add or simplify npm scripts so public checks have obvious names and Node 24 enforcement
+- [x] 19.2 Add `npm run ci:public-readiness` or equivalent to run docs lint, leak checks, package dry-run, representative parity, hostile corpus, artifact autopsy, and dependency triage
 - [x] 19.3 Ensure GitHub CI uses the same scripts as local development, with no hidden workflow-only command path
 - [ ] 19.4 Add clear failure messages for docs preview, Zensical preview, harness, Grafana lab, and Grafana Containerlab-mode preconditions
 - [ ] 19.5 Add workflow summary output for public-readiness failures so remote CI is not harder to debug than local CI
-- [ ] 19.6 Keep expensive Grafana Containerlab-mode checks out of default PR CI unless explicitly labeled or manually triggered
+- [x] 19.6 Keep expensive Grafana Containerlab-mode checks out of default PR CI unless explicitly labeled or manually triggered
 
 ## 20. Enterprise Trust And Governance
 

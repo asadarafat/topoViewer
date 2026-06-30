@@ -356,6 +356,9 @@ function assertPackageAndCiContracts() {
   for (const scriptName of [
     'dependency:advisories',
     'go:vulncheck',
+    'check:public-readiness',
+    'test:hostile-content',
+    'security:health-report',
     'install:check',
     'artifact:check',
     'artifact:check:docs',
@@ -375,12 +378,23 @@ function assertPackageAndCiContracts() {
     "['run', 'artifact:check:docs']",
     "['run', 'artifact:check:package']",
     "['run', 'install:check']",
+    "['run', 'docs:lint']",
+    "['run', 'render:parity']",
+    "['run', 'test:hostile-content']",
+    "['run', 'pack:check']",
+    "['run', 'grafana:panel:build']",
     "['run', 'go:vulncheck']",
-    "['run', 'dependency:advisories']"
+    "['run', 'dependency:advisories']",
+    "['run', 'security:health-report']",
+    "['run', 'check:public-readiness']"
   ]) {
     if (!ciOrchestrator.includes(phrase)) {
       fail(`scripts/ci.mjs must include ${phrase}.`);
     }
+  }
+  const publicReadinessLane = ciOrchestrator.slice(ciOrchestrator.indexOf("'public-readiness': ["));
+  if (publicReadinessLane.includes("['run', 'grafana:clab:")) {
+    fail('scripts/ci.mjs must keep Grafana Containerlab checks out of ci:public-readiness.');
   }
 
   const security = assertFile('.github/workflows/security.yml');

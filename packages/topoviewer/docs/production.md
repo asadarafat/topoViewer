@@ -19,6 +19,7 @@ npm run ci:test:topoviewer
 npm run ci:test:harness
 npm run ci:perf:smoke
 npm run ci:package
+npm run ci:public-readiness
 ```
 
 `npm run ci` runs the same lanes in order. `npm run ci:remote-parity` runs the
@@ -38,6 +39,7 @@ a GitHub Actions failure.
 | `ci:test:harness` | Runs Playwright tests for the VS Code browser harness. |
 | `ci:perf:smoke` | Enforces attention-engine and CLOS layout smoke benchmarks. |
 | `ci:package` | Runs npm pack inspection and MkDocs wheel inspection. |
+| `ci:public-readiness` | Runs the public-adoption gate: docs lint, render parity, hostile-content tests, package dry-run, install-command check, Grafana artifact autopsy, dependency triage, Go vulnerability check, security health report, and public leak/readiness guardrails. |
 
 JSON Schema catches malformed document shape. Semantic lint catches broken meaning:
 
@@ -128,6 +130,12 @@ published as browser harness templates and are not part of every pull-request
 gate. If a change improves or regresses stress behavior, record the timing in
 the change discussion and keep the required CI smoke threshold focused on the
 1k-node production interaction budget.
+
+Grafana Containerlab validation is also intentionally outside the default pull
+request gate. Run `npm run grafana:clab:up`, `npm run grafana:clab:smoke`, and
+`npm run grafana:clab:down` when changing the real telemetry lab, Containerlab
+topology, generated Prometheus rules, or mapper behavior that depends on live
+gNMIc/Prometheus data.
 
 ## Generated Artifact Contract
 

@@ -85,6 +85,7 @@
     "benchmark:clos:smoke": "npm run build:lib && node scripts/benchmark-clos-layout.mjs --nodes 1000 --assert-smoke",
     "benchmark:clos:local": "npm run build:lib && node scripts/benchmark-clos-layout.mjs --nodes 1000,5000",
     "test:unit": "vitest run tests/unit",
+    "test:hostile-content": "vitest run tests/unit/security.test.ts && playwright test tests/topoviewer-interactions.spec.js -g \"keeps hostile\"",
     "test": "npm run test:unit && playwright test",
     "test:headed": "playwright test --headed",
     "test:all": "npm run build && npm run validate:schemas && npm run validate:semantics && npm test"

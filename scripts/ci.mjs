@@ -142,9 +142,17 @@ const laneDefinitions = {
     step('inspect MkDocs wheel', 'npm', ['run', 'inspect:wheel'])
   ],
   'public-readiness': [
+    step('lint documentation contract', 'npm', ['run', 'docs:lint']),
+    step('check renderer surface parity', 'npm', ['run', 'render:parity']),
+    step('run hostile-content tests', 'npm', ['run', 'test:hostile-content']),
+    step('pack check', 'npm', ['run', 'pack:check']),
+    step('check consumer install command', 'npm', ['run', 'install:check']),
+    step('build Grafana plugin artifact', 'npm', ['run', 'grafana:panel:build']),
+    step('inspect package artifacts', 'npm', ['run', 'artifact:check:package']),
     step('check dependency advisories', 'npm', ['run', 'dependency:advisories']),
     step('check Go vulnerabilities', 'npm', ['run', 'go:vulncheck']),
-    step('check public readiness guardrails', 'npm', ['run', 'public-readiness'])
+    step('write security health report', 'npm', ['run', 'security:health-report']),
+    step('check public readiness guardrails', 'npm', ['run', 'check:public-readiness'])
   ]
 };
 

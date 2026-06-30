@@ -55,6 +55,7 @@ needed. The root scripts are the stable interface used by GitHub Actions.
 | Renderer surface parity | `npm run ci:render-parity` |
 | Renderer tests | `npm run ci:test:topoviewer` |
 | Browser harness tests | `npm run ci:test:harness` |
+| Public adoption/readiness gate | `npm run ci:public-readiness` |
 
 When changing renderer behavior:
 
@@ -124,6 +125,7 @@ workflows:
 |---|---|---|
 | `npm run test` | Renderer package test alias. | `npm run ci:test:topoviewer` |
 | `npm run test:vscode-harness` | Browser harness test alias. | `npm run ci:test:harness` |
+| `npm run test:hostile-content` | Focused hostile SVG/Markdown runtime and sanitizer tests. | `npm run ci:public-readiness` |
 | `npm run docs:build` | Full MkDocs build with local setup behavior. | `npm run ci:docs` |
 | `npm run docs:build:fast` | MkDocs build when the viewer bundle is already built. | `npm run ci:docs` |
 | `npm run docs:serve` | Serve MkDocs directly for focused page work. | `npm run docs:preview` for Pages parity |
@@ -131,6 +133,7 @@ workflows:
 | `npm run mkdocs:build` | Compatibility alias for the MkDocs build path. | `npm run docs:build` or `npm run ci:docs` |
 | `npm run zensical:build` | Focused Zensical build. | `npm run ci:docs` |
 | `npm run vscode:harness` | Browser harness development server. | `npm run ci:test:harness` for validation |
+| `npm run check:public-readiness` | Focused public leak/readiness guardrail. | `npm run ci:public-readiness` |
 
 Do not add new aliases for GitHub-facing behavior unless they improve the
 command taxonomy. Prefer adding a named `ci:*` lane or a focused `sync:*`,
