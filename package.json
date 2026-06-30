@@ -30,6 +30,7 @@
     "grafana:injector:test": "node scripts/require-node24.mjs && node --test labs/grafana-topoviewer/telemetry-injector/tests/scenarios.test.mjs",
     "grafana:panel:build": "node scripts/require-node24.mjs && npm --workspace grafana-topoviewer-panel run build",
     "grafana:panel:test": "node scripts/require-node24.mjs && npm --workspace grafana-topoviewer-panel run test",
+    "go:vulncheck": "npm --workspace grafana-topoviewer-panel run govulncheck",
     "grafana:lab:inject": "node scripts/require-node24.mjs && node labs/grafana-topoviewer/scripts/inject-telemetry.mjs",
     "grafana:lab:up": "node scripts/require-node24.mjs && bash labs/grafana-topoviewer/scripts/up.sh",
     "grafana:lab:down": "bash labs/grafana-topoviewer/scripts/down.sh",

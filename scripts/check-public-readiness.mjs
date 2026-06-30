@@ -181,7 +181,7 @@ function assertSecurityAutomation() {
   ]);
   assertFile('.github/workflows/security.yml', [
     'npm run dependency:advisories',
-    'govulncheck',
+    'npm run go:vulncheck',
     'gitleaks',
     'trivy-action'
   ]);
@@ -336,6 +336,7 @@ function assertPackageAndCiContracts() {
   }
   for (const scriptName of [
     'dependency:advisories',
+    'go:vulncheck',
     'install:check',
     'artifact:check',
     'artifact:check:docs',
@@ -355,6 +356,7 @@ function assertPackageAndCiContracts() {
     "['run', 'artifact:check:docs']",
     "['run', 'artifact:check:package']",
     "['run', 'install:check']",
+    "['run', 'go:vulncheck']",
     "['run', 'dependency:advisories']"
   ]) {
     if (!ciOrchestrator.includes(phrase)) {
@@ -365,6 +367,9 @@ function assertPackageAndCiContracts() {
   const security = assertFile('.github/workflows/security.yml');
   if (!security.includes('npm run dependency:advisories')) {
     fail('.github/workflows/security.yml must run npm run dependency:advisories.');
+  }
+  if (!security.includes('npm run go:vulncheck')) {
+    fail('.github/workflows/security.yml must run npm run go:vulncheck.');
   }
   if (security.includes('npm audit --audit-level=moderate')) {
     fail('.github/workflows/security.yml must use dependency:advisories for full audit triage instead of an untriaged raw full npm audit.');

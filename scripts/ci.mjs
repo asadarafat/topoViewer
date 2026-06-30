@@ -143,6 +143,7 @@ const laneDefinitions = {
   ],
   'public-readiness': [
     step('check dependency advisories', 'npm', ['run', 'dependency:advisories']),
+    step('check Go vulnerabilities', 'npm', ['run', 'go:vulncheck']),
     step('check public readiness guardrails', 'npm', ['run', 'public-readiness'])
   ]
 };
