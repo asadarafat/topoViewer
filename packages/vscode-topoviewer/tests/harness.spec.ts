@@ -751,8 +751,19 @@ test('authors mapper YAML as part of the editable Grafana bundle', async ({ page
   await expect(page.getByRole('tab', { name: 'Mapper YAML' })).toBeVisible();
 
   await page.getByRole('tab', { name: 'Mapper YAML' }).click();
+  await expect(page.getByRole('button', { name: 'Mapper docs' })).toBeVisible();
+  await page.getByRole('button', { name: 'Mapper docs' }).click();
+  await expect(page.getByRole('menuitem', { name: 'Mapper recipes' })).toBeVisible();
+  await expect(page.getByRole('menuitem', { name: 'Mapper schema' })).toBeVisible();
+  await expect(page.getByRole('menuitem', { name: 'Object attributes' })).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('button', { name: 'Presets' })).toBeVisible();
+  await page.getByRole('button', { name: 'Presets' }).click();
+  await expect(page.getByRole('menuitem', { name: /Comprehensive starter/ })).toBeVisible();
+  await page.getByRole('menuitem', { name: /Comprehensive starter/ }).click();
+  await expect.poll(() => mapperText(page)).toContain('id: node-health-by-id');
   await expect.poll(() => mapperText(page)).toContain('version: 1');
-  await expect.poll(() => mapperText(page)).toContain('rules: []');
+  await expect.poll(() => mapperText(page)).toContain('mappings:');
 
   await setMapperText(page, 'version: 2\nrules: []\n');
   await expect(page.locator('.topoviewer-vscode-diagnostic-strip')).toContainText('invalid-mapper-schema');
@@ -786,6 +797,8 @@ test('authors mapper YAML as part of the editable Grafana bundle', async ({ page
     ''
   ].join('\n');
   await setMapperText(page, validMapper);
+  await expect(page.getByText('Synthetic mapper coverage')).toBeVisible();
+  await expect(page.getByText(/1\/1 rules resolve against the current topology/)).toBeVisible();
   await expect(page.locator('.topoviewer-vscode-diagnostic-strip')).toContainText('YAML draft has unapplied changes');
   await page.getByRole('button', { name: 'Apply', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Apply', exact: true })).toBeDisabled();

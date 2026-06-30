@@ -13,6 +13,7 @@ import {
   FormHelperText,
   IconButton,
   InputLabel,
+  Menu,
   MenuItem,
   Paper,
   Select,
@@ -25,12 +26,14 @@ import {
 } from '@mui/material';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import type { Dispatch, SetStateAction } from 'react';
+import { useState, type Dispatch, type SetStateAction } from 'react';
 import type { TopoDocument } from 'topoviewer';
 import type { HarnessFixture, ValidationResult } from '../shared/types';
 import type { WebviewDiagnostic } from '../shared/types';
 import type { AttentionFocusKind } from '../shared/topologyMutations';
 import type { HarnessMode } from './webviewAppSupport';
+import type { MapperCoveragePreview } from './mapperCoveragePreview';
+import { mapperPresetOptions } from './mapperPresets';
 import type { KeyValueEditorRow } from './webviewStyleMetadata';
 
 type AuthoringRailProps = Record<string, any> & {
@@ -48,6 +51,8 @@ type AuthoringRailProps = Record<string, any> & {
   validation: ValidationResult;
   visibleDocument?: TopoDocument;
   activeDiagnostics: WebviewDiagnostic[];
+  mapperCoveragePreview?: MapperCoveragePreview;
+  insertMapperPreset?: (presetId: string) => void;
   yamlAssistEmptyMessage?: string;
 };
 
@@ -102,6 +107,7 @@ export function AuthoringRail(props: AuthoringRailProps) {
   host,
   insertObject,
   insertObjectGroups,
+  insertMapperPreset,
   insertPreset,
   inspectorLayerId,
   inspectorName,
@@ -111,6 +117,7 @@ export function AuthoringRail(props: AuthoringRailProps) {
   linkGroupingThreshold,
   linkSourceId,
   linkTargetId,
+  mapperCoveragePreview,
   mode,
   modeIndex,
   modeLabel,
@@ -178,6 +185,18 @@ export function AuthoringRail(props: AuthoringRailProps) {
   visibleDocument,
   yamlAssistEmptyMessage
   } = props;
+  const [mapperDocsAnchor, setMapperDocsAnchor] = useState<HTMLElement | null>(null);
+  const [mapperPresetAnchor, setMapperPresetAnchor] = useState<HTMLElement | null>(null);
+  const closeMapperDocs = () => setMapperDocsAnchor(null);
+  const closeMapperPresets = () => setMapperPresetAnchor(null);
+  const openMapperDocs = (target: string) => {
+    closeMapperDocs();
+    void host.openDocs(target);
+  };
+  const applyMapperPreset = (presetId: string) => {
+    closeMapperPresets();
+    insertMapperPreset?.(presetId);
+  };
 
   return (
         <Box className="topoviewer-vscode-rail">
@@ -496,7 +515,53 @@ export function AuthoringRail(props: AuthoringRailProps) {
                 <Tab label="Mapper YAML" />
               </Tabs>
               <Stack className="topoviewer-vscode-yaml-actions" direction="row" spacing={1}>
-                <Button size="small" disabled={!selectedPrimary} onClick={styleSelectionInYaml}>Style in YAML</Button>
+                {tab === 2
+                  ? (
+                    <>
+                      <Button
+                        aria-controls={mapperDocsAnchor ? 'topoviewer-vscode-mapper-docs-menu' : undefined}
+                        aria-haspopup="menu"
+                        size="small"
+                        onClick={(event) => setMapperDocsAnchor(event.currentTarget)}
+                      >
+                        Mapper docs
+                      </Button>
+                      <Menu
+                        anchorEl={mapperDocsAnchor}
+                        id="topoviewer-vscode-mapper-docs-menu"
+                        onClose={closeMapperDocs}
+                        open={Boolean(mapperDocsAnchor)}
+                      >
+                        <MenuItem onClick={() => openMapperDocs('docs/zensical/topoviewer/grafana-mapper-recipes/')}>Mapper recipes</MenuItem>
+                        <MenuItem onClick={() => openMapperDocs('docs/zensical/topoviewer/schemas/#grafana-mapper-yaml')}>Mapper schema</MenuItem>
+                        <MenuItem onClick={() => openMapperDocs('docs/zensical/topoviewer/object-reference/')}>Object attributes</MenuItem>
+                      </Menu>
+                      <Button
+                        aria-controls={mapperPresetAnchor ? 'topoviewer-vscode-mapper-presets-menu' : undefined}
+                        aria-haspopup="menu"
+                        size="small"
+                        onClick={(event) => setMapperPresetAnchor(event.currentTarget)}
+                      >
+                        Presets
+                      </Button>
+                      <Menu
+                        anchorEl={mapperPresetAnchor}
+                        id="topoviewer-vscode-mapper-presets-menu"
+                        onClose={closeMapperPresets}
+                        open={Boolean(mapperPresetAnchor)}
+                      >
+                        {mapperPresetOptions.map((preset) => (
+                          <MenuItem key={preset.id} onClick={() => applyMapperPreset(preset.id)}>
+                            <Stack spacing={0.25}>
+                              <Typography variant="body2">{preset.label}</Typography>
+                              <Typography variant="caption" color="text.secondary">{preset.description}</Typography>
+                            </Stack>
+                          </MenuItem>
+                        ))}
+                      </Menu>
+                    </>
+                  )
+                  : <Button size="small" disabled={!selectedPrimary} onClick={styleSelectionInYaml}>Style in YAML</Button>}
                 <Button size="small" onClick={showYamlSuggestions}>YAML assist</Button>
                 <Button size="small" onClick={downloadYamlBundle}>Download bundle</Button>
                 <Button size="small" variant="contained" disabled={!draftDirty} onClick={applyYamlDraft}>Apply</Button>
@@ -505,6 +570,41 @@ export function AuthoringRail(props: AuthoringRailProps) {
               {yamlAssistEmptyMessage && (
                 <Alert severity="info" className="topoviewer-vscode-yaml-assist-empty">
                   {yamlAssistEmptyMessage}
+                </Alert>
+              )}
+              {tab === 2 && mapperCoveragePreview && (
+                <Alert severity={mapperCoveragePreview.severity} className="topoviewer-vscode-mapper-coverage">
+                  <Stack spacing={1}>
+                    <Box>
+                      <Typography variant="subtitle2">Synthetic mapper coverage</Typography>
+                      <Typography variant="body2">{mapperCoveragePreview.summary}</Typography>
+                    </Box>
+                    <Stack direction="row" spacing={1} useFlexGap sx={{ flexWrap: 'wrap' }}>
+                      <Chip size="small" label={`${mapperCoveragePreview.counts.matchedRules}/${mapperCoveragePreview.counts.totalRules} rules`} />
+                      <Chip size="small" label={`${mapperCoveragePreview.counts.matchedObjects} objects`} />
+                      <Chip size="small" label={`${mapperCoveragePreview.counts.unmatchedRules} unmatched`} />
+                      <Chip size="small" label={`${mapperCoveragePreview.counts.ambiguousRules} ambiguous`} />
+                      <Chip size="small" label={`${mapperCoveragePreview.counts.staleReferences} stale`} />
+                      <Chip size="small" label={`${mapperCoveragePreview.counts.duplicateTargets} duplicate targets`} />
+                    </Stack>
+                    {mapperCoveragePreview.rows.length > 0 && (
+                      <Stack spacing={0.5}>
+                        {mapperCoveragePreview.rows.slice(0, 4).map((row) => (
+                          <Box key={row.id}>
+                            <Typography variant="caption">
+                              {row.id}: {row.target} / {row.resolver} / {row.status}
+                            </Typography>
+                            <Typography variant="caption" color="text.secondary" component="p">
+                              {row.detail}
+                            </Typography>
+                          </Box>
+                        ))}
+                      </Stack>
+                    )}
+                    <Typography variant="caption" color="text.secondary">
+                      This uses synthetic labels from the current topology. Grafana recomputes coverage from live data frames at runtime.
+                    </Typography>
+                  </Stack>
                 </Alert>
               )}
               <Box className="topoviewer-vscode-editor">

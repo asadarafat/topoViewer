@@ -44,6 +44,8 @@ import { HarnessTabPanel, a11yProps, baseInsertObjectGroups, clamp, defaultSplit
 import { useBrowserHarnessActions } from './harnessActions';
 import { copyTextToClipboard, downloadYamlBundle as downloadYamlBundleAction, exportPreviewImage, type ExportStatus } from './webviewExportActions';
 import { useBrowserYamlIntelligence, useDraftValidation, useMonacoDiagnostics, usePendingYamlFocus, useYamlEditorMount, useYamlMonacoProviders } from './webviewEditorHooks';
+import { createMapperCoveragePreview } from './mapperCoveragePreview';
+import { mapperPresetDocument } from './mapperPresets';
 import './webview.css';
 
 interface WebviewAppProps {
@@ -230,6 +232,10 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
   const nodeNameById = useMemo(() => new Map(graphNodes.map((node) => [node.id, node.name || node.label || node.id])), [graphNodes]);
   const activeValidation = draftDirty ? draftValidation : validation;
   const activeDiagnostics = activeValidation.diagnostics;
+  const mapperCoveragePreview = useMemo(
+    () => createMapperCoveragePreview(activeValidation.document as TopoDocument | undefined, draftMapperText),
+    [activeValidation.document, draftMapperText]
+  );
   const appliedHasErrors = validation.diagnostics.some((diagnostic) => diagnostic.severity === 'error');
   const activeHasErrors = activeDiagnostics.some((diagnostic) => diagnostic.severity === 'error');
   const hasErrors = appliedHasErrors || activeHasErrors;
@@ -669,6 +675,18 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
     }));
   }
 
+  function insertMapperPreset(presetId: string) {
+    const preset = mapperPresetDocument(presetId, visibleDocument?.graph?.id || state?.fixtureId || 'topoviewer');
+    if (!preset) {
+      flash('Mapper preset is not available');
+      return;
+    }
+    setMode('yaml');
+    setTab(2);
+    setDraftMapperText(preset);
+    flash('Inserted mapper preset');
+  }
+
   function selectObject(selection: TopoObjectSelection, modifiers?: TopoViewerObjectClick['modifiers']) {
     const additive = !!(modifiers?.ctrlKey || modifiers?.metaKey || modifiers?.shiftKey);
     setSelectedObjects((current) => {
@@ -954,9 +972,9 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
     attentionFocusId, attentionFocusKind, attentionInteractive, attentionLabelKey, attentionLabelValue, attentionMode,
     attentionRegionId, attentionSummary, applyYamlDraft, availableFocusIds, copyYamlToClipboard, createConnection, createPath,
     createTopology, currentAttention, dataRows, deleteSelection, editorLabel, editorTheme, editorValue, fixtures,
-    focusKindLabel, graphNodes, handleEditorMount, harnessModes, hasErrors, host, insertObject, insertObjectGroups,
+    focusKindLabel, graphNodes, handleEditorMount, harnessModes, hasErrors, host, insertObject, insertObjectGroups, insertMapperPreset,
     insertPreset, inspectorLayerId, inspectorName, inspectorX, inspectorY, labelRows, linkGroupingThreshold,
-    linkSourceId, linkTargetId, mode, modeIndex, modeLabel, movePathTransitNode, nodeNameById, openDiagnostic, pathSourceId,
+    linkSourceId, linkTargetId, mapperCoveragePreview, mode, modeIndex, modeLabel, movePathTransitNode, nodeNameById, openDiagnostic, pathSourceId,
     pathTargetId, pathTransitCandidate, pathTransitIds, pathTransitOptions, presetName, relationshipComposer,
     reloadFixture, removeKeyValueRow, removePathTransitNode, resetAttention, revertTopology, revertYamlDraft, saveSelectionAsPreset,
     saveTopology, selectedFixture, selectedLayerIds, selectedObjects, selectedPrimary, selectionSummary,
