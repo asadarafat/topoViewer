@@ -81,10 +81,15 @@ labs/grafana-topoviewer/containerlab/
   scripts/
 ```
 
-The first profile models a compact CLOS-like fabric with two SR Linux spines,
-two SR Linux leaves, two client endpoints, gNMIc, Prometheus, Grafana, and a
-small normalizer service. The normalizer converts live gNMIc output into
-mapper-friendly Prometheus metrics such as:
+The first repo-local profile models a compact CLOS-like fabric with two SR
+Linux spines, two SR Linux leaves, two client endpoints, gNMIc, Prometheus,
+Grafana, and a small compatibility normalizer service. The normalizer is local
+lab scaffolding for deterministic smoke tests. The upstream-candidate path uses
+Prometheus recording rules generated from topology telemetry bindings instead
+of a TopoViewer-specific normalizer service.
+
+The local normalizer converts live gNMIc output into mapper-friendly
+Prometheus metrics such as:
 
 - `topoviewer_clab_link_up`
 - `topoviewer_clab_link_utilization_percent`
@@ -137,6 +142,19 @@ volumes:
   - ../topoviewer-bundles:/etc/topoviewer/bundles:ro
 ```
 
+For local development, Grafana loads the TopoViewer panel from the path in
+`TOPOVIEWER_GRAFANA_PLUGIN_DIST`, defaulting to:
+
+```text
+../../../packages/grafana-topoviewer-panel/dist
+```
+
+Override that variable when testing a copied or unpacked plugin artifact:
+
+```bash
+TOPOVIEWER_GRAFANA_PLUGIN_DIST=/absolute/path/to/asadarafat-topoviewer-panel npm run grafana:clab:up
+```
+
 The smoke test captures artifacts under:
 
 ```text
@@ -181,8 +199,8 @@ Remaining limits before a portable Codespaces-style workflow:
 
 - This profile assumes a local host that can run Docker and Containerlab with
   the required network namespace privileges.
-- The Grafana plugin is mounted from the local `dist` build; signing and
-  packaged installation remain release work.
+- The default development mode mounts the Grafana plugin from the local `dist`
+  build; signing and packaged release-mode installation remain release work.
 - SR Linux image pull time and host CPU/memory requirements are not hidden by
   the scripts.
 - The synthetic lab remains the CI baseline; the Containerlab lab is the real
@@ -258,8 +276,8 @@ Regenerate the rules after changing those bindings:
 
 ```bash
 npm run grafana:clab:rules -- \
-  --topology .donotpush/srl-telemetry-lab/configs/grafana/topoviewer-bundles/st-clos/st-clos.topo.tv.yaml \
-  --output .donotpush/srl-telemetry-lab/configs/prometheus/topoviewer-rules.yml
+  --topology "$UPSTREAM_LAB/configs/grafana/topoviewer-bundles/st-clos/st-clos.topo.tv.yaml" \
+  --output "$UPSTREAM_LAB/configs/prometheus/topoviewer-rules.yml"
 ```
 
 Use `--check` in review or CI to detect drift between topology telemetry
@@ -288,9 +306,9 @@ bundle discovery, Prometheus targets, `topoviewer_st_link_up`,
 `topoviewer_st_link_direction_bps`, mapper coverage, and a Playwright
 screenshot. Artifacts are written under `.artifacts/grafana-upstream/`.
 
-This upstream-candidate path is not production grade until the plugin install
-contract works from a fresh lab checkout and the smoke can be run without hidden
-local monorepo state.
+This upstream-candidate path is not production grade until a pinned plugin
+artifact is available, the artifact can be installed from a fresh lab checkout,
+and the smoke can be run without hidden local monorepo state.
 
 ## Telemetry Scenarios
 

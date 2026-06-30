@@ -26,7 +26,7 @@ behavior or maintain separate topology examples.
 | 2 | Local Prometheus weathermap vertical slice | Prometheus injector changes link metrics and Grafana panel updates TopoViewer link state |
 | 3 | Interactive panel runtime state | User pan/zoom/select/focus/drag survives refresh according to explicit persistence options |
 | 4 | Mounted bundle source, TopoViewer mapper foundation, and production hardening | A Grafana user mounts bundles containing `*.topo.tv.yaml`, `*.style.tv.yaml`, and `*.mapper.tv.yaml`, validates telemetry binding without catalog edits, fixture sync, or plugin rebuilds, and passes the Phase 4 production readiness gate |
-| 5 | Containerlab telemetry lab | Real local lab telemetry drives the same mounted bundle mapper workflow after Phase 4 is hardened and archived |
+| 5 | Containerlab telemetry lab | Real local lab telemetry drives the same mounted bundle mapper workflow; public production support waits for a pinned plugin artifact and fresh-checkout smoke |
 | 6 | Codespaces portability | Local Containerlab lab is reproducible first, then Codespaces constraints are proven separately |
 
 Detailed implementation notes live in:
@@ -71,6 +71,7 @@ define-grafana-integration-roadmap
   -> archive implement-grafana-panel-phase-4
   -> archive implement-grafana-panel-phase-4-production-hardening
   -> implement phase 5 Containerlab telemetry only after Phase 4 is archived
+  -> keep phase 5 open until release-mode plugin artifact and fresh-checkout smoke pass
   -> create Codespaces portability phase only after local Containerlab telemetry works repeatably
 ```
 

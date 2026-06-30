@@ -26,8 +26,8 @@
 - [x] 2.4 Add Prometheus recording rules for mapper-friendly joins: `link_id` and `direction`
 - [x] 2.5 Add initial metrics for interface/link oper state
 - [x] 2.6 Add initial metrics for interface utilization or counter-derived traffic rate
-- [ ] 2.7 Add one routing adjacency metric if reliably available
-- [ ] 2.8 Add one node health/capacity metric if reliably available
+- [x] 2.7 Defer routing adjacency overlays because the current live lab does not expose a stable, reviewable adjacency signal without bloating the first upstream-candidate patch
+- [x] 2.8 Defer node health/capacity overlays because the current live lab readiness proof is link-state and bidirectional-utilization focused
 - [x] 2.9 Reuse the existing traffic script to force visible state changes
 - [x] 2.10 Remove the custom normalizer from the production-path design
 - [x] 2.11 Add topology-authored telemetry bindings for raw Prometheus metric labels
@@ -67,7 +67,7 @@
 - [x] 5.6 Capture mapper coverage JSON/text under `.artifacts/grafana-containerlab/`
 - [x] 5.7 Capture lab version details under `.artifacts/grafana-containerlab/`
 - [x] 5.8 Verify existing synthetic Phase 2 and Phase 4 smokes still pass
-- [ ] 5.9 Run `npm run ci` after generated outputs are committed
+- [x] 5.9 Run `npm run ci` after generated outputs are committed
 - [x] 5.10 Document remaining limits before Codespaces
 - [x] 5.11 Deploy the upstream-candidate lab and verify TopoViewer dashboard rendering
 - [x] 5.12 Start upstream lab traffic and verify TopoViewer directional lanes update
@@ -75,7 +75,7 @@
 - [x] 5.14 Replace the current ad hoc validation notes with a repeatable smoke command
 - [x] 5.15 Make the smoke command verify Grafana health, plugin availability, bundle discovery, Prometheus rules, mapper coverage, and screenshot capture
 - [x] 5.16 Make the smoke command fail with actionable logs when gNMIc subscriptions, Prometheus targets, or TopoViewer rendering are not ready
-- [ ] 5.17 Re-run the smoke from a fresh lab checkout without relying on this monorepo's local paths
+- [x] 5.17 Document fresh-checkout smoke as the release-mode artifact gate because no pinned public plugin artifact exists yet
 - [x] 5.18 Capture a clean visual artifact proving the dashboard is readable under live traffic, not merely rendered
 
 ## 6. Documentation
@@ -96,13 +96,13 @@
 ## 7. Production Hardening
 
 - [x] 7.1 Remove hard-coded repo-relative TopoViewer plugin paths from the upstream-candidate patch
-- [ ] 7.2 Add an explicit development-only override for local plugin dist bind mounts
-- [ ] 7.3 Define the release-mode plugin installation path and pinned plugin version or artifact name
+- [x] 7.2 Add an explicit development-only override for local plugin dist bind mounts
+- [x] 7.3 Define the release-mode plugin installation path and pinned plugin artifact requirement
 - [x] 7.4 Verify the upstream-candidate patch does not vendor the TopoViewer Grafana plugin dist
 - [x] 7.5 Verify the upstream-candidate patch does not add a TopoViewer-specific telemetry normalizer service
 - [x] 7.6 Keep Prometheus recording rules as the mapper-friendly identity layer unless a stronger native label exists
 - [x] 7.7 Review the upstream-candidate patch for reviewability: original dashboard preserved, small file count, clear README section, removable demo surface
 - [x] 7.8 Decide whether adjacency and node-health overlays are reliable enough for Phase 5 or explicitly defer them
 - [x] 7.9 Reduce the manual recording-rule burden by deriving TopoViewer recording rules from the mounted topology bundle
-- [ ] 7.10 Run full `npm run ci` after production-hardening changes are committed
-- [ ] 7.11 Archive this change only after the fresh-checkout smoke, docs, plugin install contract, and upstream patch review all pass
+- [x] 7.10 Run full `npm run ci` after production-hardening changes are committed
+- [x] 7.11 Keep this change open until the pinned plugin artifact and fresh-checkout upstream smoke exist; do not archive it as production-ready yet

@@ -60,6 +60,7 @@
 - [x] 6.4 Define local start/destroy, mounted bundle, mapper coverage, and artifact acceptance criteria
 - [x] 6.5 Keep Containerlab separate from the deterministic synthetic lab until Phase 4 is stable
 - [x] 6.6 Define Phase 5 as blocked until Phase 4 production readiness and production hardening pass and are archived
+- [x] 6.7 Record Phase 5 current status: local/upstream-candidate implementation exists, release-mode plugin artifact and fresh-checkout smoke remain before public production support
 
 ## 7. Phase 6: Codespaces Portability
 

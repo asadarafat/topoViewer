@@ -266,9 +266,13 @@ bundle and mapper workflow is stable with deterministic telemetry.
   rather than as a dependency of the deterministic synthetic lab
 - **AND** real lab telemetry SHALL still flow through `*.mapper.tv.yaml`
   instead of through hard-coded panel behavior
-- **AND** the first Containerlab slice SHALL focus on link state,
-  utilization, routing adjacency state, and node health before broad NOC
-  dashboard scope
+- **AND** the first Containerlab slice SHALL focus on link state and
+  bidirectional utilization before broad NOC dashboard scope
+- **AND** routing adjacency and node health overlays SHALL be deferred unless
+  the selected lab exposes stable metrics without custom TopoViewer-specific
+  telemetry normalization
+- **AND** public production support SHALL wait for a pinned TopoViewer Grafana
+  panel artifact and a fresh-checkout smoke using that artifact
 
 ### Requirement: Phase 6 Codespaces Portability
 

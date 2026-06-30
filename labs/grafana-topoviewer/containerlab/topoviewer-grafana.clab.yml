@@ -108,7 +108,7 @@ topology:
         GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS: asadarafat-topoviewer-panel
         TOPOVIEWER_BUNDLE_ROOT: /etc/topoviewer/bundles
       binds:
-        - ../../../packages/grafana-topoviewer-panel/dist:/var/lib/grafana/plugins/asadarafat-topoviewer-panel:ro
+        - ${TOPOVIEWER_GRAFANA_PLUGIN_DIST}:/var/lib/grafana/plugins/asadarafat-topoviewer-panel:ro
         - ../topoviewer-bundles:/etc/topoviewer/bundles:ro
         - configs/grafana/provisioning:/etc/grafana/provisioning:ro
         - configs/grafana/dashboards:/var/lib/grafana/dashboards:ro

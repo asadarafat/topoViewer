@@ -170,8 +170,9 @@ know TopoViewer monorepo internals.
   without using this monorepo's build output
 - **WHEN** the lab is run in development mode
 - **THEN** Grafana MAY bind-mount a local plugin `dist` directory
-- **AND** that development mount SHALL be explicit, documented, and excluded
-  from the upstream-candidate production path
+- **AND** that development mount SHALL be explicit, documented, configurable by
+  `TOPOVIEWER_GRAFANA_PLUGIN_DIST`, and excluded from the
+  upstream-candidate production path
 
 #### Scenario: Upstream Patch Is Reviewable
 
@@ -187,6 +188,15 @@ know TopoViewer monorepo internals.
 - **AND** it SHALL be removable without disrupting the existing telemetry lab
 - **AND** it SHALL include operator-facing README guidance for the TopoViewer
   dashboard
+
+#### Scenario: Release Artifact Gate Remains Before Archive
+
+- **WHEN** Phase 5 is evaluated for archive
+- **THEN** a pinned TopoViewer Grafana panel artifact SHALL be available for
+  the release-mode install path
+- **AND** the upstream-candidate smoke SHALL pass from a fresh lab checkout
+  using that artifact
+- **AND** the smoke SHALL NOT depend on hidden local monorepo state
 
 ### Requirement: Public Documentation Avoids External Lab Repository Links
 

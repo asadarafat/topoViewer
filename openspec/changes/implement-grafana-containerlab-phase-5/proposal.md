@@ -17,16 +17,18 @@ Grafana panel and alter TopoViewer runtime overlays through `*.mapper.tv.yaml`.
 
 ## Status
 
-Validated as a working upstream-candidate demo, but not production grade yet.
-The lab proves that live gNMIc/Prometheus telemetry can drive TopoViewer
-runtime overlays through mounted topology, stylesheet, and mapper YAML. That is
-not enough to archive this phase as production-ready.
+Validated as a working local and upstream-candidate implementation, but not
+archived as production-ready yet. The lab proves that live gNMIc/Prometheus
+telemetry can drive TopoViewer runtime overlays through mounted topology,
+stylesheet, and mapper YAML.
 
-The current demo still has production blockers: the Grafana plugin is
-bind-mounted from this repository, the validation flow depends on local
-operator knowledge, the upstream-candidate patch has not been reduced into a
-fresh-clone one-command workflow, and the Containerlab smoke is not yet a
-repeatable gate.
+The remaining production blocker is release packaging: there is not yet a
+pinned public TopoViewer Grafana panel artifact that a fresh upstream lab
+checkout can install without this monorepo. The repo-local lab now makes the
+development plugin mount explicit through `TOPOVIEWER_GRAFANA_PLUGIN_DIST`.
+The upstream-candidate docs define the release-mode plugin directory and smoke
+command, but final archive still waits for the published/signed artifact and a
+fresh-checkout smoke using that artifact.
 
 The Phase 4 mounted-bundle and mapper foundation has been archived. Phase 5 can
 now consume that contract. The synthetic Grafana lab remains the deterministic
@@ -57,9 +59,9 @@ knowing this monorepo's internal paths.
   `*.style.tv.yaml`, and `*.mapper.tv.yaml`.
 - Load the TopoViewer Grafana panel through a documented release-mode or
   development-mode plugin install contract.
-- Replace the repo-relative plugin bind mount with a production-grade install
-  contract before the phase is archived. A local dev mount may remain, but it
-  must be explicit and optional.
+- Keep the repo-local development bind mount explicit through
+  `TOPOVIEWER_GRAFANA_PLUGIN_DIST`; release mode must install a pinned plugin
+  artifact into the lab's Grafana plugin directory before archive.
 - Scrape live SR Linux telemetry into Prometheus through gNMIc.
 - Generate Prometheus recording rules from topology-authored telemetry bindings
   so mapper-friendly identities such as `link_id` and `direction` are produced
@@ -67,7 +69,7 @@ knowing this monorepo's internal paths.
 - Do not add a custom normalizer service as the production path.
 - Prove live link state and bidirectional interface utilization update
   TopoViewer runtime overlays through mapper YAML.
-- Add adjacency or node-health overlays only if the lab exposes stable metrics
+- Defer adjacency and node-health overlays until stable metrics can be proven
   without making the first upstream-candidate patch brittle.
 - Capture artifacts under `.artifacts/grafana-containerlab/`.
 - Add a repeatable smoke command that validates Containerlab startup,
@@ -81,9 +83,9 @@ knowing this monorepo's internal paths.
 
 - Codespaces support.
 - Large topology stress testing.
-- Actual Grafana marketplace publication. The phase still needs a realistic
-  release-artifact or plugin-install contract; it cannot depend only on a
-  developer's local `dist` directory.
+- Actual Grafana marketplace publication. The phase defines the release-mode
+  plugin install contract, but final archive still needs a pinned plugin
+  artifact and fresh-checkout smoke.
 - Making Grafana the YAML authoring environment.
 - Replacing the synthetic injector lab.
 - Vendoring the TopoViewer Grafana plugin dist into the upstream lab repository.

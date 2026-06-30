@@ -72,13 +72,13 @@ configs/
 ```
 
 For local validation before publication, Grafana may bind-mount the local
-TopoViewer plugin dist. The upstream PR should not vendor the plugin dist. Once
-the plugin is published or signed, the lab should load it through Grafana's
-normal plugin installation mechanism.
+TopoViewer plugin dist through `TOPOVIEWER_GRAFANA_PLUGIN_DIST`. The upstream
+PR should not vendor the plugin dist. Once the plugin is published or signed,
+the lab should load it through Grafana's normal plugin installation mechanism.
 
 This distinction is important:
 
-- local development may use a repo-relative plugin bind mount;
+- local development may use an explicit plugin bind mount;
 - the upstream-candidate patch must not require this monorepo layout;
 - the upstream-candidate patch must document a plugin source contract that a
   fresh lab checkout can satisfy.
@@ -243,11 +243,11 @@ All visual changes must be expressed in `st-clos.mapper.tv.yaml` state rules.
 The panel should not contain CLOS-specific or SR Linux-specific hard-coded style
 logic.
 
-The initial production-grade use case should stay focused on link state and
+The initial production-grade use case stays focused on link state and
 bidirectional utilization. Adjacency and node-health overlays are valuable, but
-they should be added only if the lab exposes stable metrics without bloating the
-first review. If those signals require fragile assumptions, document them as a
-later phase instead of forcing them into Phase 5.
+the current lab does not expose a stable enough signal to include them without
+bloating the first review. They are intentionally deferred to a later
+operational-overlay phase instead of being forced into Phase 5.
 
 ### TopoViewer Bundle Contract
 
@@ -303,7 +303,9 @@ review it against these rules:
 - the plugin install path is realistic for a user who is not developing
   TopoViewer itself.
 
-If any rule fails, the phase remains open.
+The current implementation satisfies the repo-local and upstream-candidate
+demo rules. The phase remains open only for the release-mode artifact and
+fresh-checkout smoke gate.
 
 ### Non-Goals
 
