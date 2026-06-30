@@ -255,16 +255,25 @@ function renderNavItem(item, indentLevel) {
   return `${indent}{ ${tomlString(item.title)} = [\n${childLines}\n${indent}] }`;
 }
 
+function withZensicalAdapterPage(navItems) {
+  return navItems.map((item) => {
+    if (item.title !== 'Embed' || !item.children) return item;
+    return {
+      ...item,
+      children: [
+        ...item.children,
+        { title: 'Zensical Adapter', path: 'topoviewer/zensical-embed.md' },
+      ],
+    };
+  });
+}
+
 function generateZensicalNav() {
   const mkdocsConfig = yaml.load(readText(mkdocsConfigPath)) || {};
-  const mirroredNav = (mkdocsConfig.nav || []).map(convertMkdocsNavItem).filter(Boolean);
+  const mirroredNav = withZensicalAdapterPage((mkdocsConfig.nav || []).map(convertMkdocsNavItem).filter(Boolean));
   const nav = [
     { title: 'Overview', path: 'index.md' },
     ...mirroredNav,
-    {
-      title: 'Zensical',
-      children: [{ title: 'Embed Adapter', path: 'topoviewer/zensical-embed.md' }],
-    },
   ];
   return [
     generatedNavStart,
