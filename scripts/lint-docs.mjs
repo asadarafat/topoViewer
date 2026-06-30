@@ -11,6 +11,7 @@ const contentPagesRoot = path.join(repoRoot, 'packages/topoviewer/content/pages'
 const contentExamplesRoot = path.join(repoRoot, 'packages/topoviewer/content/examples');
 const docsRoot = path.join(repoRoot, 'docs');
 const packageRoot = path.join(repoRoot, 'packages/topoviewer');
+const packageDocsRoot = path.join(packageRoot, 'docs');
 
 const errors = [];
 const supportStatusLabels = new Set([
@@ -673,6 +674,25 @@ function checkPublicPathWording() {
   }
 }
 
+function checkPublicPromoArtifactReferences() {
+  const publicFiles = [
+    ...listMarkdownFiles(contentPagesRoot),
+    ...listMarkdownFiles(packageDocsRoot),
+    ...listMarkdownFiles(docsRoot),
+    path.join(repoRoot, 'README.md'),
+    path.join(repoRoot, 'mkdocs.yml'),
+    path.join(repoRoot, 'zensical.toml')
+  ];
+
+  for (const filePath of publicFiles) {
+    if (!fs.existsSync(filePath)) continue;
+    const text = readText(filePath);
+    if (text.includes('.artifacts/promo') || text.includes('artifacts/promo')) {
+      fail(`${relative(filePath)} references local promotional media artifacts. Public docs must use docs/assets/ or a durable hosted media URL.`);
+    }
+  }
+}
+
 function checkGuideNextSteps() {
   for (const page of majorGuidePages) {
     const filePath = path.join(contentPagesRoot, page);
@@ -723,6 +743,7 @@ checkMkDocsNavCoverage();
 checkStartNavBoundary();
 checkExamplesNavBoundary();
 checkPublicPathWording();
+checkPublicPromoArtifactReferences();
 checkGuideNextSteps();
 checkGuidePageLengthBudgets();
 
