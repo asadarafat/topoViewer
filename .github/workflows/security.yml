@@ -23,6 +23,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
 
       - name: Set up Node.js
         uses: actions/setup-node@v6
@@ -63,6 +65,7 @@ jobs:
 
       - name: Scan Grafana image
         uses: aquasecurity/trivy-action@v0.36.0
+        continue-on-error: ${{ github.event_name == 'push' || github.event_name == 'pull_request' }}
         with:
           image-ref: grafana/grafana:13.1.0
           severity: CRITICAL,HIGH
@@ -70,6 +73,7 @@ jobs:
 
       - name: Scan Prometheus image
         uses: aquasecurity/trivy-action@v0.36.0
+        continue-on-error: ${{ github.event_name == 'push' || github.event_name == 'pull_request' }}
         with:
           image-ref: prom/prometheus:v3.5.0
           severity: CRITICAL,HIGH
@@ -77,6 +81,7 @@ jobs:
 
       - name: Scan gNMIc image
         uses: aquasecurity/trivy-action@v0.36.0
+        continue-on-error: ${{ github.event_name == 'push' || github.event_name == 'pull_request' }}
         with:
           image-ref: ghcr.io/openconfig/gnmic:0.40.0
           severity: CRITICAL,HIGH

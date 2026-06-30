@@ -182,8 +182,10 @@ function assertSecurityAutomation() {
   assertFile('.github/workflows/security.yml', [
     'npm run dependency:advisories',
     'npm run go:vulncheck',
+    'fetch-depth: 0',
     'gitleaks',
-    'trivy-action'
+    'trivy-action',
+    'continue-on-error: ${{ github.event_name == \'push\' || github.event_name == \'pull_request\' }}'
   ]);
   assertFile('SECURITY.md', [
     'Automated Security Monitoring',

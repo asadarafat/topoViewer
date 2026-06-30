@@ -15,6 +15,8 @@ This note records the mounted-bundle backend and Go vulnerability hardening slic
 | Go vulnerability triage | Added `npm run go:vulncheck`, pinned to Go 1.25.11 and `govulncheck@v1.5.0`; GitHub Security workflow and local public-readiness lane use the same command. | `npm run go:vulncheck` reports zero called vulnerabilities. |
 | Toolchain drift | CI, Docs, Security, and manual npm publish workflows now set up Go 1.25.11 consistently. | `scripts/check-public-readiness.mjs` requires `npm run go:vulncheck` in Security and public-readiness CI. |
 | Hostile SVG/Markdown unit coverage | Added unit tests for executable SVG payload removal, unsafe image references, and inert Markdown/callout HTML output. | `npm --workspace topoviewer run test:unit -- security.test.ts`. |
+| Remote secret-scan robustness | Security workflow checkout now uses full history so Gitleaks can scan the pushed commit range instead of failing on an unavailable base revision. | GitHub Security run `28449811135` exposed the shallow-checkout failure; local public-readiness now checks for `fetch-depth: 0`. |
+| Third-party lab image drift | Pinned Grafana images currently report upstream HIGH findings in bundled Grafana binaries. Push and pull-request runs keep these scans visible but non-blocking; scheduled/manual Security runs remain blocking so image drift still creates maintainer work. | Local Trivy probes checked current `grafana/grafana:13.1.0`, slim, distroless, Ubuntu, and `13.0.3` variants; no clean pinned Grafana image was available at the time of this slice. |
 
 ## Remaining Open Items
 

@@ -559,6 +559,9 @@ manual scans alone.
 - **THEN** container image scanning checks pinned images and generated images
   where applicable
 - **AND** critical/high findings are triaged before public-ready claims.
+- **AND** push and pull-request runs may report third-party lab image CVE drift
+  without blocking unrelated code review when scheduled or manual security
+  sweeps remain blocking for the same image findings.
 
 #### Scenario: Security automation health is visible
 

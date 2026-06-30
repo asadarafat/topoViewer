@@ -95,6 +95,10 @@ warning system:
   schedule, and manual dispatch.
 - The Security workflow runs npm audits, Go vulnerability checks, secret
   scanning, public-readiness guardrails, and pinned container image scans.
+  Third-party lab image scans are visible on push and pull request runs, but
+  only scheduled and manual security sweeps block on upstream lab-image CVE
+  drift. This keeps normal code review actionable while still surfacing pinned
+  Grafana, Prometheus, and gNMIc image risk for triage.
 
 Automation does not replace review. Maintainers should triage each generated
 PR or finding as one of:
