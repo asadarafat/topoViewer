@@ -122,6 +122,7 @@ function checkRequiredPages() {
     'debugging.md',
     'layout-guide.md',
     'api-reference.md',
+    'compatibility.md',
     'glossary.md',
     'docs-standard.md'
   ];

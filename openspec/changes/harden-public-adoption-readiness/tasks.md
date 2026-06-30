@@ -257,16 +257,16 @@
 
 ## 21. Compatibility, SemVer, And API Ownership
 
-- [ ] 21.1 Define SemVer policy for npm package, YAML schema, stylesheet keys, mapper schema, docs embed blocks, and Grafana plugin options
-- [ ] 21.2 Add a public/internal API boundary document for React exports, core compiler helpers, style metadata, schemas, harness internals, docs plugins, and Grafana APIs
-- [ ] 21.3 Add schema versioning and migration guidance for topology, stylesheet, attention, mapper, and layout documents
+- [x] 21.1 Define SemVer policy for npm package, YAML schema, stylesheet keys, mapper schema, docs embed blocks, and Grafana plugin options
+- [x] 21.2 Add a public/internal API boundary document for React exports, core compiler helpers, style metadata, schemas, harness internals, docs plugins, and Grafana APIs
+- [x] 21.3 Add schema versioning and migration guidance for topology, stylesheet, attention, mapper, and layout documents
 - [ ] 21.4 Add backwards-compatibility fixtures from previously documented YAML examples and archived examples
 - [ ] 21.5 Add compatibility tests proving old YAML either renders compatibly or fails with explicit migration diagnostics
 - [ ] 21.6 Add TypeScript API report or equivalent exported-surface check for the public package
 - [ ] 21.7 Add docs embed API compatibility checks for MkDocs/Zensical block options
 - [ ] 21.8 Add Grafana panel option compatibility checks and dashboard migration notes
-- [ ] 21.9 Add changelog, release note, deprecation, and migration documentation requirements to the release checklist
-- [ ] 21.10 Add a compatibility matrix for Node, React, React Flow, Grafana, browser engines, MkDocs, Zensical, and operating systems
+- [x] 21.9 Add changelog, release note, deprecation, and migration documentation requirements to the release checklist
+- [x] 21.10 Add a compatibility matrix for Node, React, React Flow, Grafana, browser engines, MkDocs, Zensical, and operating systems
 
 ## 22. Performance, Reliability, And Accessibility
 

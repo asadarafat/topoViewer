@@ -64,6 +64,7 @@ nav = [
     { "Reference Model" = "topoviewer/reference-model.md" },
     { "YAML Schemas" = "topoviewer/schemas.md" },
     { "TypeScript API" = "topoviewer/api-reference.md" },
+    { "Compatibility" = "topoviewer/compatibility.md" },
     { "Glossary" = "topoviewer/glossary.md" }
   ] },
   { "Labs" = [
