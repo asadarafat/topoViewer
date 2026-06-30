@@ -57,100 +57,39 @@ export function Diagram() {
 }
 ```
 
-## Public Exports
+## Embedding Contract
 
-```ts
+Most React applications only need the component, the document type, validation
+helpers, and the stylesheet:
+
+```tsx
 import {
-  assertRendererLimits,
-  effectiveRendererLimits,
-  lintTopoDocument,
-  rendererLimitUsage,
-  rendererLimitViolations,
-  DEFAULT_RENDERER_LIMITS,
-  applyStyle,
-  computeClosLayoutPositions,
-  computeLayoutPositions,
-  rebuildRegionNodes,
-  compileTopoGraph,
-  validateTopoDocument,
-  CURRENT_SCHEMA_VERSION,
-  migrateTopoDocument,
-  migrateTopoToggles,
-  attentionSourceKey,
-  attentionStateKey,
-  buildAttentionIndex,
-  buildAttentionIndexCached,
-  resolveFocusQuery,
-  resolveAttentionPresentationCached,
-  deriveAggregateGraph,
-  deriveAttentionPresentation,
-  scoreAttention,
-  explainAttentionScore,
-  type FocusQuery,
-  type FocusResult,
-  type AttentionPresentation,
-  type AttentionPresentationResult,
-  type AttentionGraphInput,
-  type AttentionGraphIndex,
   TopoViewer,
-  type TopoViewerProps,
-  type TopoViewerExtension,
-  type TopoViewerObjectClick,
-  type TopoViewerNodePositionChange,
-  type TopoViewerViewport,
+  lintTopoDocument,
+  validateTopoDocument,
   type TopoDocument,
-  type TopoDocumentAttention,
-  type TopoViewerToggles,
-  type GraphNode,
-  type GraphLink,
-  type GraphRegion,
-  type ClosInferLabelRole,
-  type ClosLayoutOptions,
-  type LayoutConfig,
-  topoviewerToPdf,
-  topoviewerToPng,
-  topoviewerToSvg,
-  downloadTopoViewerPdf,
-  downloadTopoViewerPng,
-  downloadTopoViewerSvg,
-  NODE_SHAPES,
-  normalizeNodeShape,
-  parseNodeShapePoints,
-  nodeBadgePositions,
-  nodeBorderStyles,
-  nodeIconFitValues,
-  nodeLabelPositions,
-  nodeLabelTextOverflowValues,
-  nodeLabelTextWrapValues,
-  nodeStatusPlacements,
-  type LintIssue,
-  type LintOptions
+  type TopoViewerObjectClick,
+  type TopoViewerViewport
 } from 'topoviewer';
+import 'topoviewer/style.css';
 ```
 
-| Export | Use |
+Use the React page for embedding patterns and production behavior. Use the
+[TypeScript API](api-reference.md) reference when you need the complete export
+surface, stability label, and lower-level compiler, layout, style metadata,
+attention, or export helper contracts.
+
+| Integration need | Primary API |
 |---|---|
-| `TopoViewer` | React component. |
-| `TopoViewerProps`, `TopoViewerObjectClick`, `TopoViewerNodePositionChange`, `TopoViewerViewport`, `TopoViewerExtension` | Canonical component props and event payload types. |
-| `TopoDocument`, `LayoutConfig`, `ClosLayoutOptions`, `ClosInferLabelRole`, `GraphNode`, `GraphLink`, `GraphRegion`, `TopoDocumentAttention`, `TopoViewerToggles` | Main schema and runtime contract types for integration layers. |
-| `attentionSourceKey`, `attentionStateKey` | Stable cache keys for graph content and attention query state. |
-| `LintIssue` / `LintOptions` | Static linting result shapes and lint options. |
-| `compileTopoGraph` | Converts a TopoViewer document into React Flow-compatible nodes and edges. |
-| `rebuildRegionNodes` | Recomputes region hull and containment geometry after graph changes. |
-| `computeLayoutPositions` | Executes the selected layout mode for graph nodes. |
-| `computeClosLayoutPositions` | Executes the generic CLOS layout engine directly for tests or custom host workflows. |
-| `applyStyle` | Applies a stylesheet style declaration against a base style object using existing style resolvers. |
-| `buildAttentionIndex` / `buildAttentionIndexCached` | Builds immutable attention indexes and cache-aware reuse variant. |
-| `resolveFocusQuery` | Resolves semantic focus input into focused/related/context/hidden object sets. |
-| `resolveAttentionPresentationCached` | Resolves presentation with cache keys based on graph and attention state. |
-| `deriveAggregateGraph` / `deriveAttentionPresentation` / `scoreAttention` / `explainAttentionScore` | Builds aggregate-overview documents and explains scoring behavior. |
-| `AttentionGraphIndex` / `AttentionGraphInput` / `AttentionPresentation` / `AttentionPresentationResult` / `FocusQuery` / `FocusResult` | Attention engine type contracts. |
-| `topoviewerToPng` / `topoviewerToSvg` / `topoviewerToPdf` | Converts a rendered TopoViewer element into a static export payload. |
-| `downloadTopoViewerPng` / `downloadTopoViewerSvg` / `downloadTopoViewerPdf` | Downloads a rendered TopoViewer viewport as an artifact. |
-| `assertRendererLimits`, `effectiveRendererLimits`, `rendererLimitUsage`, `rendererLimitViolations`, `DEFAULT_RENDERER_LIMITS` | Renderer safety/limit checks and observability APIs. |
-| `validateTopoDocument` / `lintTopoDocument` | Runtime validation and semantic lint gates for user-authored documents. |
-| `CURRENT_SCHEMA_VERSION`, `migrateTopoDocument`, `migrateTopoToggles` | Schema migration and backward compatibility helpers. |
-| `NODE_SHAPES`, `normalizeNodeShape`, `parseNodeShapePoints`, `nodeBadgePositions`, `nodeBorderStyles`, `nodeIconFitValues`, `nodeLabelPositions`, `nodeLabelTextOverflowValues`, `nodeLabelTextWrapValues`, `nodeStatusPlacements` | Canonical style enums and normalizers for production tooling and IDE hints. |
+| Render a declarative topology | `TopoViewer` |
+| Type a parsed topology document | `TopoDocument` |
+| Reject malformed YAML before render | `validateTopoDocument` |
+| Show author-facing warnings and errors | `lintTopoDocument` |
+| React to graph selection | `onObjectClick` with `TopoViewerObjectClick` |
+| Persist pan/zoom state | `onViewportChange` with `TopoViewerViewport` |
+| Persist dragged node coordinates | `onNodePositionChange` |
+| Drive focus or dimming from host UI | `attention` prop |
+| Add private node/edge types or transforms | `extensions` prop |
 
 ## Framework-specific snippets
 
@@ -401,6 +340,22 @@ try {
 - Prefer stable hashes over raw object references to cache expensive derived values for long-lived host pages.
 - Keep parsing/validation outside render and memoize stable inputs to avoid repeated schema and layout work.
 
+### Loading and versioning
+
+- Treat topology, stylesheet, and attention state as versioned application data.
+  Persist the source YAML or JSON next to the app version that produced it.
+- Run `migrateTopoDocument()` before validation when loading documents from
+  long-lived storage.
+- Render a non-TopoViewer loading state while YAML, schemas, or remote topology
+  data are still loading; avoid mounting the renderer with a partial document.
+- Keep `@xyflow/react`, `react`, and `react-dom` pinned through your lockfile.
+  Re-run visual regression checks after dependency updates because renderer
+  layout behavior is browser-visible.
+- For cached remote topology responses, cache the source document and the
+  validation result separately from runtime viewport, selection, and attention
+  state. That prevents stale operational state from being written back into the
+  declarative topology.
+
 ## Extensions
 
 Extensions are the supported boundary for project-specific capability that should not be generalized into the public package. A private package can add custom React Flow node types, edge types, document transforms, or compiled-graph transforms without importing TopoViewer internals.
@@ -459,3 +414,10 @@ const documentSpec = validateTopoDocument(parsedYaml, 'customer topology');
 ```
 
 Validation is permissive about custom fields, but rejects malformed core graph objects. Surface validation errors to authors instead of silently rendering incomplete graphs.
+
+## Next Steps
+
+- [TypeScript API](api-reference.md): exhaustive public exports and stability labels.
+- [Stylesheet](stylesheet.md): style keys, accepted values, and rendered examples.
+- [Topology attention](attention.md): focus, dimming, aggregation, and TypeScript attention APIs.
+- [Grafana guide](grafana.md): mounted bundles and mapper-driven telemetry overlays.
