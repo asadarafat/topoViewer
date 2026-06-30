@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TopoViewer Security Runtime Fixture</title>
+  </head>
+  <body>
+    <div id="root" style="height: 640px"></div>
+    <script type="module">
+      import React from 'react';
+      import { createRoot } from 'react-dom/client';
+      import { TopoViewer } from '../../src/components/TopoViewer.tsx';
+      import '../../src/styles.css';
+
+      window.__topoviewerHostileExecuted = false;
+
+      const documentSpec = {
+        layout: {
+          mode: 'manual',
+          width: 480,
+          height: 260
+        },
+        icons: {
+          router: {
+            glyph: 'R',
+            fill: '#1976d2',
+            stroke: '#bbdefb'
+          }
+        },
+        labelFields: ['name'],
+        stylesheet: [
+          {
+            selector: 'node',
+            style: {
+              icon: 'router',
+              shape: 'rectangle',
+              width: 96,
+              height: 58,
+              labelFontWeight: 800
+            }
+          }
+        ],
+        graph: {
+          id: 'hostile-runtime',
+          layers: [{ id: 'physical', name: 'Physical' }],
+          nodes: [
+            {
+              id: 'safe-node',
+              name: '**Safe** <img src=x onerror="window.__topoviewerHostileExecuted = true"> [bad](javascript:window.__topoviewerHostileExecuted=true)',
+              labels: { node: 'router' },
+              layers: ['physical'],
+              position: [120, 130]
+            },
+            {
+              id: 'peer-node',
+              name: 'Peer',
+              labels: { node: 'router' },
+              layers: ['physical'],
+              position: [340, 130]
+            }
+          ],
+          links: [
+            {
+              id: 'safe-link',
+              source: 'safe-node',
+              target: 'peer-node',
+              labels: { link: 'physical' },
+              layers: ['physical']
+            }
+          ]
+        },
+        diagram: {
+          callouts: [
+            {
+              id: 'hostile-callout',
+              title: 'Hostile Callout',
+              position: [210, 32],
+              body: [
+                '# <script>window.__topoviewerHostileExecuted = true<\\/script>',
+                '![bad](javascript:window.__topoviewerHostileExecuted=true)',
+                '[bad](javascript:window.__topoviewerHostileExecuted=true)',
+                '<img src=x onerror="window.__topoviewerHostileExecuted = true">',
+                '**safe emphasis**'
+              ],
+              layers: ['physical']
+            }
+          ]
+        }
+      };
+
+      createRoot(document.getElementById('root')).render(
+        React.createElement(TopoViewer, {
+          document: documentSpec,
+          selectedLayerIds: ['physical'],
+          style: { height: '100%' }
+        })
+      );
+    </script>
+  </body>
+</html>

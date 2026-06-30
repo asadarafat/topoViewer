@@ -152,7 +152,7 @@
 
 - [x] 12.1 Add a hostile SVG corpus covering script tags, event handlers, `javascript:` URLs, `foreignObject`, encoded bypasses, CSS injection, data SVGs, and malformed SVG
 - [x] 12.2 Add tests proving SVG sanitization blocks or removes hostile payloads and preserves safe SVG icons
-- [ ] 12.3 Add hostile label/callout/Markdown tests proving rendered HTML remains inert across React runtime paths
+- [x] 12.3 Add hostile label/callout/Markdown tests proving rendered HTML remains inert across React runtime paths
 - [ ] 12.4 Add docs-embed hostile content tests for MkDocs and Zensical live viewport rendering
 - [ ] 12.5 Add Grafana hostile content tests for labels, mapper-rendered labels, SVG icons, and panel diagnostics
 - [ ] 12.6 Add hostile mapper template and telemetry-label tests proving Prometheus labels cannot become executable HTML, CSS injection, invalid SVG, or broken React attributes
