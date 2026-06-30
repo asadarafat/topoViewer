@@ -35,62 +35,39 @@ repo-wide gate, not a Grafana-only concern.
 
 ## Public Information Architecture
 
-Recommended public docs structure should follow the proven shape used by
-developer tools with strong API adoption:
+Recommended public docs structure:
 
 ```text
 Home
-Learn
-  Quick start
-  Concepts
-    Topology model
-    Layers
-    Nodes and links
-    Styles and themes
-    Layouts
-  Guides
-    Build your first topology
-    Create a layered network map
-    Render in Grafana
-    Render in MkDocs
-    Render in Zensical
-    Export to SVG/PNG
-  Advanced
-    Custom node types
-    Dynamic layer filtering
-    Semantic annotations
-    Large topology performance
-    Plugin development
-API Reference
-  Schema
-    Topology
-    Node
-    Link
-    Layer
-    Style
-    Layout
-    Mapper
-  Components
-    TopoViewer
-    TopoViewerWorkbench
-  Hooks
-    useTopoViewerState
-  CLI
-    Validate
-    Build docs
+Start
+  First topology
+  Browser harness
+  Local preview
+Author
+  Topology YAML
+  Stylesheet YAML
+  Attention YAML
+  Layout
+  Validation
+Embed
+  React
+  MkDocs
+  Zensical
+  Grafana experimental
 Examples
-  Basic
-  Provider network
-  Datacenter
-  Integrations
-Showcase
-  ISP backbone
-  Mobile transport
-  Datacenter interconnect
-  AI workload transport
+  Basic graph
+  CLOS fabric
+  Real network
+  Node styling
+  Edge styling
+  Attention
+Reference
+  YAML model
+  Stylesheet keys
+  Schemas
+  TypeScript API
 Labs
   Grafana
-Changelog
 Maintainers
   Monorepo
   Release
@@ -102,13 +79,6 @@ The Grafana lab may include synthetic telemetry and Containerlab-backed
 telemetry modes, but Containerlab should not appear as a separate top-level
 public lab. Maintainer and lab material can stay public, but it should not sit
 beside the first topology path as if it is equally important to new users.
-
-The docs should not create placeholder pages that pretend unsupported surfaces
-exist. When a React Flow-style slot maps to a roadmap or experimental surface,
-the page must carry the support-status label and state the current working
-path. For example, NetBox and OpsMill/Infrahub import guides stay roadmap until
-real plugins exist; Grafana stays experimental/lab until package and plugin
-release gates pass.
 
 ## README Contract
 

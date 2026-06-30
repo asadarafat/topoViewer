@@ -12,7 +12,6 @@ OpenSpec, or accepted with a named risk owner.
 | Spec requirement | Scenarios covered | Required task IDs |
 | --- | --- | --- |
 | Public Entry Point Clarity | First screen explains the product; stable path is separated from roadmap | 2.1-2.8, 3.1-3.8, 4.1-4.6, 5.1-5.7, 18.1 |
-| React Flow-Style Documentation Information Architecture | User follows a learning path; user needs exact API or schema details; user browses examples and showcase separately; lab and roadmap content stays honest | 2.9-2.17, 6.1-6.17, 24.2 |
 | Support Status Taxonomy | Integration status is visible; roadmap does not imply support | 1.8, 4.1-4.6, 11.5-11.7, 19.2 |
 | Curated Example Path | User wants copyable network example; generated catalog remains available | 5.1-5.7, 9.1-9.7, 24.3 |
 | Promotional Walkthrough Video | Video generated repeatably; video tells YAML-to-graph story; README uses durable hosted asset | 17.1-17.11, 14.4, 24.11, 24.19 |
