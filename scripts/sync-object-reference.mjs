@@ -348,7 +348,7 @@ const content = [
   '',
   '- [Reference model](reference-model.md) for the conceptual model;',
   '- [Stylesheet](stylesheet.md) for detailed style-key accepted values and examples;',
-  '- [Grafana guide](learn/guides/render-in-grafana.md) for mapper workflow and telemetry examples;',
+  '- [Grafana guide](grafana.md) for mapper workflow and telemetry examples;',
   '- [YAML schemas](schemas.md) for editor configuration and validation commands.',
   '',
   '## Topology And Stylesheet Objects',

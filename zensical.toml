@@ -20,79 +20,32 @@ extra_javascript = [
 # BEGIN GENERATED ZENSICAL NAV
 nav = [
   { "Overview" = "index.md" },
-  { "Learn" = [
-    { "Quick Start" = "topoviewer/learn/quick-start.md" },
+  { "Start" = [
+    { "First Topology" = "topoviewer/getting-started.md" },
+    { "Browser Harness" = "topoviewer/browser-harness.md" },
     { "Why TopoViewer" = "topoviewer/why-topoviewer.md" },
     { "Build Or Adopt" = "topoviewer/build-vs-adopt.md" },
-    { "Concepts" = [
-      { "Topology Model" = "topoviewer/learn/concepts/topology-model.md" },
-      { "Layers" = "topoviewer/learn/concepts/layers.md" },
-      { "Nodes And Links" = "topoviewer/learn/concepts/nodes-and-links.md" },
-      { "Styles And Themes" = "topoviewer/learn/concepts/styles-and-themes.md" },
-      { "Layouts" = "topoviewer/learn/concepts/layouts.md" }
-    ] },
-    { "Guides" = [
-      { "Choose A Workflow" = "topoviewer/learn/guides/index.md" },
-      { "Author" = [
-        { "Build Your First Topology" = "topoviewer/learn/guides/build-your-first-topology.md" },
-        { "Browser Harness" = "topoviewer/learn/guides/browser-harness.md" },
-        { "Create A Layered Network Map" = "topoviewer/learn/guides/create-a-layered-network-map.md" },
-        { "Style A Topology" = "topoviewer/learn/guides/style-a-topology.md" },
-        { "Layout A Topology" = "topoviewer/learn/guides/layout-a-topology.md" }
-      ] },
-      { "Embed" = [
-        { "Render In React" = "topoviewer/learn/guides/render-in-react.md" },
-        { "Render In MkDocs" = "topoviewer/learn/guides/render-in-mkdocs.md" },
-        { "Render In Zensical" = "topoviewer/learn/guides/render-in-zensical.md" },
-        { "Export To SVG/PNG" = "topoviewer/learn/guides/export-to-svg-png.md" }
-      ] },
-      { "Operate" = [
-        { "Render In Grafana" = "topoviewer/learn/guides/render-in-grafana.md" }
-      ] },
-      { "Ship" = [
-        { "Validate YAML" = "topoviewer/learn/guides/validate-yaml.md" },
-        { "Debug Rendering" = "topoviewer/learn/guides/debug-rendering.md" },
-        { "Compatibility" = "topoviewer/learn/guides/compatibility.md" }
-      ] },
-      { "Zensical Adapter" = "topoviewer/zensical-embed.md" }
-    ] },
-    { "Advanced" = [
-      { "Attention" = "topoviewer/attention.md" },
-      { "Dynamic Layer Filtering" = "topoviewer/learn/concepts/layers.md" },
-      { "Semantic Annotations" = "topoviewer/reference-model.md" },
-      { "Large Topology Performance" = "topoviewer/performance-reliability-accessibility.md" },
-      { "Plugin Development" = "topoviewer/learn/advanced/plugin-development.md" },
-      { "Integration Roadmap" = "topoviewer/integration-roadmap.md" },
-      { "Architecture" = "topoviewer/architecture.md" }
-    ] },
-    { "Glossary" = "topoviewer/glossary.md" }
+    { "YAML to Diagram" = "topoviewer/yaml-to-diagram/index.md" }
   ] },
-  { "API Reference" = [
-    { "Schema" = [
-      { "Topology" = "topoviewer/api-reference/schema/topology.md" },
-      { "Node" = "topoviewer/api-reference/schema/node.md" },
-      { "Link" = "topoviewer/api-reference/schema/link.md" },
-      { "Layer" = "topoviewer/api-reference/schema/layer.md" },
-      { "Style" = "topoviewer/api-reference/schema/style.md" },
-      { "Layout" = "topoviewer/api-reference/schema/layout.md" },
-      { "Mapper" = "topoviewer/api-reference/schema/mapper.md" },
-      { "Object Attributes" = "topoviewer/object-reference.md" },
-      { "YAML Schemas" = "topoviewer/schemas.md" },
-      { "Stylesheet Keys" = "topoviewer/stylesheet.md" }
-    ] },
-    { "Components" = [
-      { "TopoViewer" = "topoviewer/api-reference/components/topoviewer.md" },
-      { "TopoViewerWorkbench" = "topoviewer/api-reference/components/topoviewer-workbench.md" },
-      { "React Usage" = "topoviewer/learn/guides/render-in-react.md" },
-      { "TypeScript API" = "topoviewer/api-reference.md" }
-    ] },
-    { "Hooks" = "topoviewer/api-reference/hooks/index.md" },
-    { "CLI And Commands" = "topoviewer/api-reference/cli/index.md" },
-    { "Compatibility" = "topoviewer/learn/guides/compatibility.md" }
+  { "Author" = [
+    { "Authoring" = "topoviewer/authoring.md" },
+    { "Style a Topology" = "topoviewer/style-a-topology.md" },
+    { "Stylesheet" = "topoviewer/stylesheet.md" },
+    { "Attention" = "topoviewer/attention.md" },
+    { "Layout" = "topoviewer/layout-guide.md" },
+    { "Validate YAML" = "topoviewer/validate-yaml.md" },
+    { "Debug Rendering" = "topoviewer/debugging.md" }
+  ] },
+  { "Embed" = [
+    { "React" = "topoviewer/react.md" },
+    { "MkDocs" = "topoviewer/mkdocs.md" },
+    { "Zensical" = "topoviewer/zensical.md" },
+    { "Integration Roadmap" = "topoviewer/integration-roadmap.md" },
+    { "Zensical Adapter" = "topoviewer/zensical-embed.md" }
   ] },
   { "Examples" = [
-    { "Curated" = "topoviewer/examples.md" },
-    { "Basic" = "topoviewer/example-guides/basic.md" },
+    { "Curated Examples" = "topoviewer/examples.md" },
+    { "Real Network Demo" = "topoviewer/real-network-demo.md" },
     { "Generated Catalog" = [
       { "Graph" = "topoviewer/reference/graph/index.md" },
       { "Nodes" = "topoviewer/reference/nodes/index.md" },
@@ -108,21 +61,19 @@ nav = [
       { "Validation" = "topoviewer/reference/validation/index.md" }
     ] }
   ] },
-  { "Showcase" = [
-    { "Overview" = "topoviewer/showcase/index.md" },
-    { "YAML To Diagram" = "topoviewer/yaml-to-diagram/index.md" },
-    { "Provider Network" = [
-      { "Overview" = "topoviewer/showcase/provider-network.md" },
-      { "Real Network Demo" = "topoviewer/real-network-demo.md" }
-    ] },
-    { "Datacenter" = "topoviewer/showcase/datacenter.md" },
-    { "Integrations" = "topoviewer/showcase/integrations.md" }
+  { "Reference" = [
+    { "Object Attributes" = "topoviewer/object-reference.md" },
+    { "Reference Model" = "topoviewer/reference-model.md" },
+    { "YAML Schemas" = "topoviewer/schemas.md" },
+    { "TypeScript API" = "topoviewer/api-reference.md" },
+    { "Architecture" = "topoviewer/architecture.md" },
+    { "Performance And Accessibility" = "topoviewer/performance-reliability-accessibility.md" },
+    { "Compatibility" = "topoviewer/compatibility.md" },
+    { "Glossary" = "topoviewer/glossary.md" }
   ] },
   { "Labs" = [
-    { "Grafana" = "topoviewer/learn/guides/render-in-grafana.md" }
-  ] },
-  { "Changelog" = [
-    { "Changelog" = "topoviewer/changelog/index.md" }
+    { "Grafana Guide" = "topoviewer/grafana.md" },
+    { "Grafana Telemetry Call Flow" = "topoviewer/grafana-telemetry-call-flow.md" }
   ] },
   { "Maintainers" = [
     { "Monorepo" = "topoviewer/monorepo.md" },

@@ -97,5 +97,5 @@ Run `npm run test:hostile-content` for the focused gate. Run
 
 - Repository `SECURITY.md`: vulnerability reporting and scope.
 - [Production hardening](production.md): validation gates and failure triage.
-- [Grafana guide](learn/guides/render-in-grafana.md): mounted bundle behavior and mapper diagnostics.
+- [Grafana guide](grafana.md): mounted bundle behavior and mapper diagnostics.
 - [Object attributes](object-reference.md): accepted authored fields and mapper implications.

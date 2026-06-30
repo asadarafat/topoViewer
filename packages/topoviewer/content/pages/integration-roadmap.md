@@ -122,8 +122,8 @@ selectedLayerIds:
   - diagnostics
 ```
 
-The same call-flow diagram is embedded in the Grafana guide so the operational
-data path is documented beside the user workflow.
+The same call-flow diagram is maintained as a dedicated architecture page so it
+does not inherit the public example-page template.
 
 The local Grafana lab uses anonymous Admin access and unsigned plugin loading
 for disposable validation only. That setup is not production deployment guidance.

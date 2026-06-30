@@ -148,7 +148,7 @@ Open:
 - Browser Harness: \`http://127.0.0.1:8001/topoviewer/harness/\`
 
 The smallest useful YAML pair is in the
-[Quick Start](https://asadarafat.github.io/topoviewer/docs/mkdocs/topoviewer/learn/quick-start/).
+[First topology guide](https://asadarafat.github.io/topoviewer/docs/mkdocs/topoviewer/getting-started/).
 
 ## Integration Surfaces
 
@@ -163,8 +163,6 @@ ${supportStatuses}
 - [Published MkDocs](https://asadarafat.github.io/topoviewer/docs/mkdocs/)
 - [Published Zensical](https://asadarafat.github.io/topoviewer/docs/zensical/)
 - [Why TopoViewer](https://asadarafat.github.io/topoviewer/docs/mkdocs/topoviewer/why-topoviewer/)
-- [Learn Quick Start](https://asadarafat.github.io/topoviewer/docs/mkdocs/topoviewer/learn/quick-start/)
-- [API Reference](https://asadarafat.github.io/topoviewer/docs/mkdocs/topoviewer/api-reference/schema/topology/)
 - [Browser Harness](https://asadarafat.github.io/topoviewer/harness/)
 - [Integration Roadmap](https://asadarafat.github.io/topoviewer/docs/mkdocs/topoviewer/integration-roadmap/)
 
@@ -206,17 +204,16 @@ ${positioning}
 
 | Need | Start here |
 |---|---|
-| Learn the model | [Quick Start](topoviewer/learn/quick-start.md), then [Topology model](topoviewer/learn/concepts/topology-model.md) |
-| Author a topology | [Build your first topology](topoviewer/learn/guides/build-your-first-topology.md), then [Browser harness](topoviewer/learn/guides/browser-harness.md) |
-| Style a topology | [Styles and themes](topoviewer/learn/concepts/styles-and-themes.md), then [stylesheet reference](topoviewer/stylesheet.md) |
-| Embed in documentation | [Render in MkDocs](topoviewer/learn/guides/render-in-mkdocs.md) or [Render in Zensical](topoviewer/learn/guides/render-in-zensical.md) |
-| Embed in a React product | [TopoViewer component](topoviewer/api-reference/components/topoviewer.md), [React usage](topoviewer/learn/guides/render-in-react.md), and [TypeScript API](topoviewer/api-reference.md) |
-| Operate from telemetry | [Render in Grafana](topoviewer/learn/guides/render-in-grafana.md), [Mapper schema](topoviewer/api-reference/schema/mapper.md), and [Grafana telemetry call flow](topoviewer/learn/guides/render-in-grafana.md#telemetry-call-flow) |
+| Author a topology | [First topology](topoviewer/getting-started.md), then [Browser harness](topoviewer/browser-harness.md) |
+| Style a topology | [Style a topology](topoviewer/style-a-topology.md), then [stylesheet reference](topoviewer/stylesheet.md) |
+| Embed in documentation | [MkDocs](topoviewer/mkdocs.md) or [Zensical](topoviewer/zensical.md) |
+| Embed in a React product | [React usage](topoviewer/react.md) and [TypeScript API](topoviewer/api-reference.md) |
+| Operate from telemetry | [Grafana guide](topoviewer/grafana.md), [Grafana call flow](topoviewer/grafana-telemetry-call-flow.md), and [integration roadmap](topoviewer/integration-roadmap.md) |
 | Compare product fit | [Why TopoViewer](topoviewer/why-topoviewer.md) |
-| Reference accepted contracts | [API Reference](topoviewer/api-reference/schema/topology.md), [Object attributes](topoviewer/object-reference.md), [YAML schemas](topoviewer/schemas.md), and [compatibility](topoviewer/learn/guides/compatibility.md) |
+| Reference accepted contracts | [Object attributes](topoviewer/object-reference.md), [YAML schemas](topoviewer/schemas.md), [compatibility](topoviewer/compatibility.md), [reference model](topoviewer/reference-model.md), and [stylesheet](topoviewer/stylesheet.md) |
 | Evaluate architecture and risk | [Architecture overview](topoviewer/architecture.md), [threat model](topoviewer/threat-model.md), [performance and accessibility](topoviewer/performance-reliability-accessibility.md), and [build or adopt](topoviewer/build-vs-adopt.md) |
 | Maintain or release the repo | [Production hardening](topoviewer/production.md), [design review checklist](topoviewer/design-review-checklist.md), [release](topoviewer/release.md), and [docs standard](topoviewer/docs-standard.md) |
-| Debug a broken render | [Debug rendering](topoviewer/learn/guides/debug-rendering.md) |
+| Debug a broken render | [Debug rendering](topoviewer/debugging.md) |
 
 ## Integration Surfaces
 
@@ -233,10 +230,7 @@ The feature examples are generated from
 and a Playwright-backed test fixture.
 
 - [Curated examples](topoviewer/examples.md)
-- [Basic examples](topoviewer/example-guides/basic.md)
 - [Generated feature catalog](topoviewer/reference/graph/index.md)
-- [Provider network showcase](topoviewer/showcase/provider-network.md)
-- [Datacenter showcase](topoviewer/showcase/datacenter.md)
 - [Real network demo](topoviewer/real-network-demo.md)
 - [CLOS layout examples](topoviewer/reference/layout/index.md)
 `;

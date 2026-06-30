@@ -24,12 +24,13 @@ const supportStatusLabels = new Set([
 ]);
 
 const integrationStatusPages = [
-  ['learn/guides/render-in-react.md', 'Pre-Publish Supported'],
-  ['learn/guides/render-in-mkdocs.md', 'Supported'],
-  ['learn/guides/render-in-zensical.md', 'Supported Adapter'],
-  ['learn/guides/browser-harness.md', 'Experimental'],
-  ['learn/guides/render-in-grafana.md', 'Experimental'],
-  ['integration-roadmap.md', 'Roadmap']
+  ['react.md', 'Pre-Publish Supported'],
+  ['mkdocs.md', 'Supported'],
+  ['zensical.md', 'Supported Adapter'],
+  ['browser-harness.md', 'Experimental'],
+  ['grafana.md', 'Experimental'],
+  ['integration-roadmap.md', 'Roadmap'],
+  ['grafana-telemetry-call-flow.md', 'Lab']
 ];
 
 const packageReadmeStatuses = [
@@ -41,34 +42,34 @@ const packageReadmeStatuses = [
 
 const majorGuidePages = [
   'why-topoviewer.md',
-  'learn/guides/build-your-first-topology.md',
+  'getting-started.md',
   'examples.md',
-  'learn/guides/create-a-layered-network-map.md',
-  'learn/guides/style-a-topology.md',
-  'learn/guides/browser-harness.md',
-  'learn/guides/validate-yaml.md',
-  'learn/guides/debug-rendering.md',
-  'learn/guides/layout-a-topology.md',
-  'learn/guides/render-in-react.md',
-  'learn/guides/render-in-mkdocs.md',
-  'learn/guides/render-in-zensical.md',
-  'learn/guides/render-in-grafana.md'
+  'authoring.md',
+  'style-a-topology.md',
+  'browser-harness.md',
+  'validate-yaml.md',
+  'debugging.md',
+  'layout-guide.md',
+  'react.md',
+  'mkdocs.md',
+  'zensical.md',
+  'grafana.md'
 ];
 
 const taskGuideLineBudget = 320;
 const integrationGuideLineBudget = 480;
 const guidePageLengthBudgets = new Map([
   ['why-topoviewer.md', taskGuideLineBudget],
-  ['learn/guides/build-your-first-topology.md', taskGuideLineBudget],
+  ['getting-started.md', taskGuideLineBudget],
   ['examples.md', taskGuideLineBudget],
-  ['learn/guides/style-a-topology.md', taskGuideLineBudget],
-  ['learn/guides/browser-harness.md', taskGuideLineBudget],
-  ['learn/guides/validate-yaml.md', taskGuideLineBudget],
-  ['learn/guides/debug-rendering.md', taskGuideLineBudget],
-  ['learn/guides/layout-a-topology.md', taskGuideLineBudget],
-  ['learn/guides/render-in-react.md', integrationGuideLineBudget],
-  ['learn/guides/render-in-mkdocs.md', taskGuideLineBudget],
-  ['learn/guides/render-in-zensical.md', taskGuideLineBudget]
+  ['style-a-topology.md', taskGuideLineBudget],
+  ['browser-harness.md', taskGuideLineBudget],
+  ['validate-yaml.md', taskGuideLineBudget],
+  ['debugging.md', taskGuideLineBudget],
+  ['layout-guide.md', taskGuideLineBudget],
+  ['react.md', integrationGuideLineBudget],
+  ['mkdocs.md', taskGuideLineBudget],
+  ['zensical.md', taskGuideLineBudget]
 ]);
 
 const forbiddenPublicClaimPhrases = [
@@ -133,13 +134,13 @@ function packageReadmes() {
 
 function checkRequiredPages() {
   const required = [
-    'learn/guides/build-your-first-topology.md',
+    'getting-started.md',
     'examples.md',
-    'learn/guides/style-a-topology.md',
-    'learn/guides/browser-harness.md',
-    'learn/guides/validate-yaml.md',
-    'learn/guides/debug-rendering.md',
-    'learn/guides/layout-a-topology.md',
+    'style-a-topology.md',
+    'browser-harness.md',
+    'validate-yaml.md',
+    'debugging.md',
+    'layout-guide.md',
     'architecture.md',
     'threat-model.md',
     'build-vs-adopt.md',
@@ -147,7 +148,7 @@ function checkRequiredPages() {
     'performance-reliability-accessibility.md',
     'object-reference.md',
     'api-reference.md',
-    'learn/guides/compatibility.md',
+    'compatibility.md',
     'glossary.md',
     'decisions.md',
     'docs-standard.md'
@@ -491,15 +492,17 @@ function checkLocalLinks() {
       if (target.startsWith('http')) continue;
       if (target.startsWith('topoviewer/')) continue;
       const resolved = path.resolve(path.dirname(filePath), target);
-      const projectedSource = path.join(docsRoot, 'topoviewer', path.relative(contentPagesRoot, filePath));
-      const projectedResolved = path.resolve(path.dirname(projectedSource), target);
+      const generatedResolved = path.resolve(docsRoot, 'topoviewer', target);
       const candidates = [
         resolved,
         `${resolved}.md`,
         path.join(resolved, 'index.md'),
-        projectedResolved,
-        `${projectedResolved}.md`,
-        path.join(projectedResolved, 'index.md')
+        generatedResolved,
+        `${generatedResolved}.md`,
+        path.join(generatedResolved, 'index.md'),
+        path.resolve(docsRoot, target),
+        path.resolve(docsRoot, `${target}.md`),
+        path.resolve(docsRoot, target, 'index.md')
       ];
       if (!candidates.some((candidate) => fs.existsSync(candidate))) {
         fail(`${relative(filePath)} has a broken local link: ${target}`);
@@ -511,8 +514,8 @@ function checkLocalLinks() {
 function checkGeneratedCriticalPages() {
   const critical = [
     'docs/index.md',
-    'docs/topoviewer/learn/guides/build-your-first-topology.md',
-    'docs/topoviewer/learn/guides/browser-harness.md',
+    'docs/topoviewer/getting-started.md',
+    'docs/topoviewer/browser-harness.md',
     'docs/topoviewer/api-reference.md',
     'docs/topoviewer/docs-standard.md',
     'docs/topoviewer/reference/graph/index.md'
@@ -588,44 +591,20 @@ function checkMkDocsNavCoverage() {
   }
 }
 
-function checkCanonicalDocsIA() {
+function checkStartNavBoundary() {
   const mkdocsConfig = readYaml(path.join(repoRoot, 'mkdocs.yml'));
-  const expectedTopLevel = ['Home', 'Learn', 'API Reference', 'Examples', 'Showcase', 'Labs', 'Changelog', 'Maintainers'];
-  const actualTopLevel = (mkdocsConfig.nav || []).flatMap((entry) => (
-    entry && typeof entry === 'object' && !Array.isArray(entry) ? Object.keys(entry) : []
-  ));
-  for (const section of expectedTopLevel) {
-    if (!actualTopLevel.includes(section)) {
-      fail(`MkDocs nav must include top-level ${section}.`);
-    }
-  }
-  for (const legacySection of ['Start', 'Author', 'Embed', 'Reference']) {
-    if (actualTopLevel.includes(legacySection)) {
-      fail(`MkDocs nav must use the canonical Learn/API Reference/Examples/Showcase/Labs/Changelog/Maintainers IA, not legacy top-level ${legacySection}.`);
-    }
-  }
-
-  const labsTargets = collectNavTargets(findNavSection(mkdocsConfig.nav || [], 'Labs'));
-  for (const target of labsTargets) {
-    if (target !== 'topoviewer/learn/guides/render-in-grafana.md') {
-      fail(`MkDocs Labs nav must only expose the Grafana lab guide; found ${target}`);
-    }
-  }
-}
-
-function checkLearnNavBoundary() {
-  const mkdocsConfig = readYaml(path.join(repoRoot, 'mkdocs.yml'));
-  const learnTargets = collectNavTargets(findNavSection(mkdocsConfig.nav || [], 'Learn'));
-  const forbiddenLearnTargets = new Set([
+  const startTargets = collectNavTargets(findNavSection(mkdocsConfig.nav || [], 'Start'));
+  const forbiddenStartTargets = new Set([
+    'topoviewer/grafana-telemetry-call-flow.md',
     'topoviewer/monorepo.md',
     'topoviewer/production.md',
     'topoviewer/release.md',
     'topoviewer/docs-standard.md'
   ]);
 
-  for (const target of learnTargets) {
-    if (forbiddenLearnTargets.has(target)) {
-      fail(`MkDocs Learn nav must not include Lab or Maintainer page: ${target}`);
+  for (const target of startTargets) {
+    if (forbiddenStartTargets.has(target)) {
+      fail(`MkDocs Start nav must not include Lab or Maintainer page: ${target}`);
     }
   }
 }
@@ -644,8 +623,8 @@ function checkExamplesNavBoundary() {
   }
 
   const firstEntry = examplesNav[0];
-  if (navEntryValue(firstEntry, 'Curated') !== 'topoviewer/examples.md') {
-    fail('MkDocs Examples nav must start with Curated: topoviewer/examples.md');
+  if (navEntryValue(firstEntry, 'Curated Examples') !== 'topoviewer/examples.md') {
+    fail('MkDocs Examples nav must start with Curated Examples: topoviewer/examples.md');
   }
 
   const generatedCatalog = examplesNav
@@ -668,29 +647,6 @@ function checkExamplesNavBoundary() {
   for (const target of topLevelTargets) {
     if (target.startsWith('topoviewer/reference/')) {
       fail(`Generated reference example page must not be top-level in Examples nav: ${target}`);
-    }
-  }
-
-  const showcaseTargets = collectNavTargets(findNavSection(mkdocsConfig.nav || [], 'Showcase'));
-  for (const target of [
-    'topoviewer/showcase/provider-network.md',
-    'topoviewer/showcase/datacenter.md',
-    'topoviewer/showcase/integrations.md',
-    'topoviewer/real-network-demo.md'
-  ]) {
-    if (!showcaseTargets.has(target)) {
-      fail(`MkDocs Showcase nav must include scenario page: ${target}`);
-    }
-  }
-
-  for (const target of [
-    'topoviewer/showcase/provider-network.md',
-    'topoviewer/showcase/datacenter.md',
-    'topoviewer/showcase/integrations.md',
-    'topoviewer/real-network-demo.md'
-  ]) {
-    if (collectNavTargets(examplesNav).has(target)) {
-      fail(`MkDocs Examples nav must not include showcase scenario page: ${target}`);
     }
   }
 }
@@ -764,8 +720,7 @@ checkApiCoverage();
 checkLocalLinks();
 checkGeneratedCriticalPages();
 checkMkDocsNavCoverage();
-checkCanonicalDocsIA();
-checkLearnNavBoundary();
+checkStartNavBoundary();
 checkExamplesNavBoundary();
 checkPublicPathWording();
 checkGuideNextSteps();

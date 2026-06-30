@@ -39,7 +39,7 @@ describe('MkDocs navigation', () => {
     const actualCategories = new Set((generatedCatalog || []).flatMap((entry) => Object.keys(entry)));
 
     expect([...expectedCategories].filter((category) => !actualCategories.has(category))).toEqual([]);
-    expect(navValue((examplesNav || [])[0] || {}, 'Curated')).toBe('topoviewer/examples.md');
+    expect(navValue((examplesNav || [])[0] || {}, 'Curated Examples')).toBe('topoviewer/examples.md');
   });
 
   it('documents every top-level MkDocs/Zensical embed block option from the schema', () => {
@@ -48,10 +48,10 @@ describe('MkDocs navigation', () => {
     const schema = record(JSON.parse(fs.readFileSync(path.join(packageRoot, 'schemas/topoviewer-mkdocs-block.schema.json'), 'utf8')));
     const properties = record(schema.properties);
     const documented = [
-      fs.readFileSync(path.join(packageRoot, 'content/pages/learn/guides/render-in-mkdocs.md'), 'utf8'),
-      fs.readFileSync(path.join(packageRoot, 'content/pages/learn/guides/render-in-zensical.md'), 'utf8'),
-      fs.readFileSync(path.join(repoRoot, 'docs/topoviewer/learn/guides/render-in-mkdocs.md'), 'utf8'),
-      fs.readFileSync(path.join(repoRoot, 'docs/topoviewer/learn/guides/render-in-zensical.md'), 'utf8')
+      fs.readFileSync(path.join(packageRoot, 'content/pages/mkdocs.md'), 'utf8'),
+      fs.readFileSync(path.join(packageRoot, 'content/pages/zensical.md'), 'utf8'),
+      fs.readFileSync(path.join(repoRoot, 'docs/topoviewer/mkdocs.md'), 'utf8'),
+      fs.readFileSync(path.join(repoRoot, 'docs/topoviewer/zensical.md'), 'utf8')
     ].join('\n');
 
     const publicOptions = Object.keys(properties).filter((key) => key !== '$schema');

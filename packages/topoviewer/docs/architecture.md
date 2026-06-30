@@ -68,6 +68,6 @@ React Flow ever receives renderable nodes and edges.
 ## Review Links
 
 - [Object attributes](object-reference.md): authored YAML, style, attention, and mapper fields.
-- [Compatibility](learn/guides/compatibility.md): public API and schema stability rules.
+- [Compatibility](compatibility.md): public API and schema stability rules.
 - [Threat model](threat-model.md): untrusted inputs and mitigations.
 - [Design review checklist](design-review-checklist.md): required review before adding public surface.

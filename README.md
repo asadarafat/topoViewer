@@ -51,7 +51,7 @@ Open:
 - Browser Harness: `http://127.0.0.1:8001/topoviewer/harness/`
 
 The smallest useful YAML pair is in the
-[Quick Start](https://asadarafat.github.io/topoviewer/docs/mkdocs/topoviewer/learn/quick-start/).
+[First topology guide](https://asadarafat.github.io/topoviewer/docs/mkdocs/topoviewer/getting-started/).
 
 ## Integration Surfaces
 
@@ -88,8 +88,6 @@ all have the same maturity.
 - [Published MkDocs](https://asadarafat.github.io/topoviewer/docs/mkdocs/)
 - [Published Zensical](https://asadarafat.github.io/topoviewer/docs/zensical/)
 - [Why TopoViewer](https://asadarafat.github.io/topoviewer/docs/mkdocs/topoviewer/why-topoviewer/)
-- [Learn Quick Start](https://asadarafat.github.io/topoviewer/docs/mkdocs/topoviewer/learn/quick-start/)
-- [API Reference](https://asadarafat.github.io/topoviewer/docs/mkdocs/topoviewer/api-reference/schema/topology/)
 - [Browser Harness](https://asadarafat.github.io/topoviewer/harness/)
 - [Integration Roadmap](https://asadarafat.github.io/topoviewer/docs/mkdocs/topoviewer/integration-roadmap/)
 
