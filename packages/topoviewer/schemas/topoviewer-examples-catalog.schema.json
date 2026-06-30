@@ -81,6 +81,10 @@
               }
             ]
           },
+          "publicPage": {
+            "type": "boolean",
+            "description": "When false, sync-examples still syncs the fixture assets but does not generate a standalone public example page or list item."
+          },
           "page": {
             "type": "string",
             "pattern": "^[a-z0-9][a-z0-9-]*(/[a-z0-9][a-z0-9-]*)*$"

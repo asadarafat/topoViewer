@@ -1,20 +1,12 @@
 layout:
   mode: manual
-  width: 1220
-  height: 660
+  width: 1080
+  height: 540
 icons:
   authoring:
     glyph: YAML
     fill: "#1976d2"
     stroke: "#bbdefb"
-  yaml:
-    glyph: TVY
-    fill: "#1565c0"
-    stroke: "#90caf9"
-  filesystem:
-    glyph: FS
-    fill: "#0288d1"
-    stroke: "#b3e5fc"
   backend:
     glyph: API
     fill: "#7b1fa2"
@@ -23,219 +15,226 @@ icons:
     glyph: UI
     fill: "#9c27b0"
     stroke: "#e1bee7"
-  prometheus:
-    glyph: P
-    fill: "#d32f2f"
-    stroke: "#ffcdd2"
-  grafana:
-    glyph: G
-    fill: "#ff9800"
-    stroke: "#ffe0b2"
-  process:
+  mapper:
     glyph: MAP
     fill: "#2e7d32"
-    stroke: "#c8e6c9"
-  overlay:
-    glyph: OVR
-    fill: "#4caf50"
     stroke: "#c8e6c9"
   renderer:
     glyph: TV
     fill: "#2e7d32"
     stroke: "#c8e6c9"
+  prometheus:
+    glyph: P
+    fill: "#d32f2f"
+    stroke: "#ffcdd2"
   diagnostics:
     glyph: "!"
     fill: "#d32f2f"
     stroke: "#ffcdd2"
-  state:
-    glyph: UX
-    fill: "#455a64"
-    stroke: "#cfd8dc"
-labelFields: []
+labelFields:
+  - name
 stylesheet:
   - selector: region
     style:
-      backgroundColor: "rgba(25, 118, 210, 0.06)"
-      borderColor: "rgba(66, 165, 245, 0.42)"
+      backgroundColor: "rgba(25, 118, 210, 0.05)"
+      borderColor: "rgba(66, 165, 245, 0.38)"
       borderWidth: 2
-      labelPosition: topCenter
+      labelPosition: topLeft
       labelMargin: 12
       labelColor: var(--topoviewer-region-label-fg)
       labelBackgroundColor: var(--topoviewer-region-label-bg)
-      labelFontSize: 13
+      labelFontSize: 12
       labelFontWeight: 800
       labelZIndex: 40
       zIndex: -30
-  - selector: region[labels.region = "boundary"]
+  - selector: region[labels.lane = "telemetry"]
     style:
-      backgroundColor: "rgba(156, 39, 176, 0.08)"
-      borderColor: "rgba(186, 104, 200, 0.58)"
-      borderWidth: 3
+      backgroundColor: "rgba(255, 152, 0, 0.07)"
+      borderColor: "rgba(255, 152, 0, 0.5)"
+  - selector: region[labels.lane = "backend"]
+    style:
+      backgroundColor: "rgba(156, 39, 176, 0.07)"
+      borderColor: "rgba(186, 104, 200, 0.52)"
+  - selector: region[labels.lane = "frontend"]
+    style:
+      backgroundColor: "rgba(46, 125, 50, 0.07)"
+      borderColor: "rgba(76, 175, 80, 0.5)"
+  - selector: region[labels.lane = "grafana"]
+    style:
+      backgroundColor: "rgba(2, 136, 209, 0.04)"
+      borderColor: "rgba(3, 169, 244, 0.42)"
+      borderWidth: 2
+      labelPosition: topCenter
+      labelMargin: 12
+      labelZIndex: 30
+      zIndex: -45
   - selector: node
     style:
       shape: rectangle
-      width: 138
-      height: 72
-      borderWidth: 3
-      iconWidth: 52
-      iconHeight: 40
+      width: 150
+      height: 58
+      borderWidth: 4
+      iconWidth: 48
+      iconHeight: 48
       iconFit: contain
-      iconPadding: 4
-      labelColor: var(--topoviewer-fg-strong)
-      labelBackgroundColor: var(--topoviewer-panel-bg)
-      labelBackgroundOpacity: 0.96
-      labelBorderColor: var(--topoviewer-border)
-      labelBorderWidth: 1
-      labelFontSize: 13
+      iconPadding: 0
+      iconOpacity: 0
+      labelPosition: center
+      labelColor: "#ffffff"
+      labelBackgroundColor: transparent
+      labelBackgroundOpacity: 0
+      labelBorderWidth: 0
+      labelFontSize: 12
       labelFontWeight: 800
       labelZIndex: 50
-      labelYOffset: 8
-      labelPadding: 4
+      labelPadding: 0
+      labelTextMaxWidth: 142
+      labelTextWrap: none
+      labelTextOverflow: clip
       metaColor: transparent
-  - selector: node[labels.kind = "authoring"]
+      zIndex: 20
+  - selector: node[labels.role = "authoring"]
     style:
       icon: authoring
       backgroundColor: "#1976d2"
       borderColor: "#90caf9"
-  - selector: node[labels.kind = "yaml"]
-    style:
-      icon: yaml
-      backgroundColor: "#1565c0"
-      borderColor: "#90caf9"
-  - selector: node[labels.kind = "filesystem"]
-    style:
-      icon: filesystem
-      backgroundColor: "#0288d1"
-      borderColor: "#81d4fa"
-  - selector: node[labels.kind = "backend"]
+  - selector: node[labels.role = "backend"]
     style:
       icon: backend
       backgroundColor: "#7b1fa2"
       borderColor: "#ce93d8"
-  - selector: node[labels.kind = "frontend"]
+  - selector: node[labels.role = "frontend"]
     style:
       icon: frontend
       backgroundColor: "#9c27b0"
       borderColor: "#ce93d8"
-  - selector: node[labels.kind = "datasource"]
+  - selector: node[labels.role = "mapper"]
     style:
-      icon: prometheus
-      backgroundColor: "#d32f2f"
-      borderColor: "#ef9a9a"
-  - selector: node[labels.kind = "grafana"]
-    style:
-      icon: grafana
-      backgroundColor: "#ff9800"
-      borderColor: "#ffcc80"
-  - selector: node[labels.kind = "config"]
-    style:
-      icon: yaml
-      backgroundColor: "#ed6c02"
-      borderColor: "#ffcc80"
-  - selector: node[labels.kind = "process"]
-    style:
-      icon: process
+      icon: mapper
       backgroundColor: "#2e7d32"
       borderColor: "#a5d6a7"
-  - selector: node[labels.kind = "overlay"]
-    style:
-      icon: overlay
-      backgroundColor: "#4caf50"
-      borderColor: "#c8e6c9"
-  - selector: node[labels.kind = "renderer"]
+  - selector: node[labels.role = "renderer"]
     style:
       icon: renderer
       backgroundColor: "#2e7d32"
       borderColor: "#a5d6a7"
       outlineColor: "#4caf50"
       outlineWidth: 4
-      outlineOpacity: 0.38
-  - selector: node[labels.kind = "diagnostics"]
+      outlineOpacity: 0.3
+  - selector: node[labels.role = "datasource"]
+    style:
+      icon: prometheus
+      backgroundColor: "#d32f2f"
+      borderColor: "#ef9a9a"
+  - selector: node[labels.kind = "diagnostic"]
     style:
       icon: diagnostics
       backgroundColor: "#d32f2f"
       borderColor: "#ef9a9a"
-  - selector: node[labels.kind = "state"]
-    style:
-      icon: state
-      backgroundColor: "#455a64"
-      borderColor: "#cfd8dc"
   - selector: link
     style:
-      curveStyle: smoothTaxi
-      label: ""
+      curveStyle: straight
       lineColor: "#78909c"
-      lineWidth: 3
+      lineWidth: 4
       lineCap: round
       targetArrowShape: triangle
       targetArrowColor: "#78909c"
-      targetArrowSize: 10
+      targetArrowSize: 14
+      targetArrowOffset: 0
+      sourceArrowShape: none
       labelColor: var(--topoviewer-fg-strong)
       labelFontSize: 11
-      textBackgroundColor: var(--topoviewer-edge-label-bg)
-      textBackgroundOpacity: 0.92
-      textBackgroundPadding: 3
+      labelFontWeight: 800
+      labelZIndex: 80
+      textBackgroundColor: "rgba(255, 255, 255, 0.96)"
+      textBackgroundOpacity: 1
+      textBackgroundPadding: 4
+      labelBorderColor: "rgba(15, 23, 42, 0.18)"
+      labelBorderWidth: 1
+      zIndex: 45
+  - selector: link[labels.route = "taxi"]
+    style:
+      curveStyle: taxi
+      taxiTurnMinDistance: 28
+  - selector: link[labels.route = "bezier"]
+    style:
+      curveStyle: bezier
+      controlPointDistance: 56
+      controlPointWeight: 0.54
   - selector: link[labels.flow = "source"]
     style:
       lineColor: "#1976d2"
       targetArrowColor: "#1976d2"
-      lineWidth: 4
-  - selector: link[labels.flow = "optional"]
+      labelColor: "#1565c0"
+  - selector: link[id = "authoring-to-backend"]
+    style:
+      label: "1"
+      labelXOffset: -28
+      labelYOffset: -22
+  - selector: link[id = "backend-to-frontend"]
+    style:
+      label: "2"
+      labelYOffset: -24
+  - selector: link[labels.flow = "telemetry"]
     style:
       lineColor: "#ff9800"
       targetArrowColor: "#ff9800"
-      lineStyle: dashed
-      lineDashPattern: 10 7
-      lineWidth: 3
-  - selector: link[labels.flow = "telemetry"]
+      labelColor: "#e65100"
+      controlPointDistance: 78
+      controlPointWeight: 0.46
+      labelXOffset: -44
+      labelYOffset: -14
+  - selector: link[id = "prometheus-to-backend"]
     style:
-      lineColor: "#d32f2f"
-      targetArrowColor: "#d32f2f"
-      lineWidth: 4
+      label: "3"
   - selector: link[labels.flow = "mapping"]
     style:
       lineColor: "#2e7d32"
       targetArrowColor: "#2e7d32"
-      lineWidth: 4
+      labelColor: "#1b5e20"
+      labelXOffset: -48
+      labelYOffset: 18
+  - selector: link[id = "frontend-to-mapper"]
+    style:
+      label: "4"
   - selector: link[labels.flow = "overlay"]
     style:
       lineColor: "#4caf50"
       targetArrowColor: "#4caf50"
-      lineWidth: 4
+      lineWidth: 5
+      labelColor: "#1b5e20"
+      labelXOffset: 34
+      labelYOffset: -30
+      targetArrowSize: 16
+      targetArrowOffset: 0
+  - selector: link[id = "mapper-to-renderer"]
+    style:
+      label: "6"
   - selector: link[labels.flow = "render"]
     style:
       lineColor: "#9c27b0"
       targetArrowColor: "#9c27b0"
-      lineWidth: 4
-  - selector: link[labels.flow = "diagnostics"]
+      labelColor: "#7b1fa2"
+  - selector: link[id = "frontend-to-renderer"]
     style:
+      label: "5"
+      labelYOffset: -24
+  - selector: link[labels.flow = "diagnostic"]
+    style:
+      curveStyle: taxi
       lineColor: "#d32f2f"
       targetArrowColor: "#d32f2f"
       lineStyle: dashed
-      lineDashPattern: 8 6
+      lineDashPattern: 9 7
       lineWidth: 3
-  - selector: link[labels.flow = "interaction"]
+      labelColor: "#c62828"
+  - selector: link[id = "mapper-to-diagnostics"]
     style:
-      lineColor: "#607d8b"
-      targetArrowColor: "#607d8b"
-      lineStyle: dashed
-      lineDashPattern: 12 6
-      lineWidth: 3
-  - selector: path
+      label: "7"
+      labelXOffset: 22
+      labelYOffset: -12
+  - selector: link[id = "backend-to-diagnostics"]
     style:
-      curveStyle: smoothTaxi
-      label: ""
-      lineWidth: 10
-      laneWidth: 10
-      lineOpacity: 0.13
-      targetArrowShape: none
-      zIndex: -10
-  - selector: path[labels.path = "source"]
-    style:
-      lineColor: "#1976d2"
-  - selector: path[labels.path = "telemetry"]
-    style:
-      lineColor: "#4caf50"
-  - selector: path[labels.path = "diagnostics"]
-    style:
-      lineColor: "#d32f2f"
+      label: "8"
+      labelXOffset: 34
+      labelYOffset: 20

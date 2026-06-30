@@ -669,17 +669,17 @@ examples:
     title: Grafana telemetry call flow
     feature: integration
     path: integration/grafana-telemetry-call-flow
+    publicPage: false
     page: topoviewer/grafana-telemetry-call-flow
     summary: >-
       A production call-flow diagram for mounted TopoViewer bundles, Grafana plugin boundaries, Prometheus data frames,
       mapper execution, runtime overlays, and diagnostics.
     render:
-      height: 620px
+      height: 520px
       controls: true
       controlsOpen: false
       title: Grafana telemetry call flow
       selectedLayerIds:
-        - authoring
         - source
         - telemetry
         - runtime

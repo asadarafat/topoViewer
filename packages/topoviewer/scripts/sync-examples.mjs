@@ -69,6 +69,10 @@ function pageFile(example) {
   return path.join(docsRoot, example.page, 'index.md');
 }
 
+function isPublicExample(example) {
+  return example.publicPage !== false;
+}
+
 function categoryFile(feature) {
   return path.join(docsRoot, 'topoviewer/reference', feature, 'index.md');
 }
@@ -419,6 +423,9 @@ function integrationNavItems(examples) {
   const items = [];
   let realNetworkAdded = false;
   for (const example of examples) {
+    if (!isPublicExample(example)) {
+      continue;
+    }
     if (isHiddenPublicIntegrationExample(example)) {
       continue;
     }
@@ -471,6 +478,9 @@ function indexMarkdown(catalog) {
     lines.push(`### ${featureTitle(feature)}`, '');
     let realNetworkAdded = false;
     for (const example of examples) {
+      if (!isPublicExample(example)) {
+        continue;
+      }
       if (isHiddenPublicIntegrationExample(example)) {
         continue;
       }
@@ -517,12 +527,14 @@ for (const example of catalog.examples || []) {
     }
   }
 
-  const page = pageFile(example);
-  const markdown = pageMarkdown(example);
-  if (checkOnly) {
-    assertSynced(page, markdown, `${example.id} markdown page`);
-  } else if (writeTextIfChanged(page, markdown)) {
-    console.log(`generated ${path.relative(docsRoot, page)}`);
+  if (isPublicExample(example)) {
+    const page = pageFile(example);
+    const markdown = pageMarkdown(example);
+    if (checkOnly) {
+      assertSynced(page, markdown, `${example.id} markdown page`);
+    } else if (writeTextIfChanged(page, markdown)) {
+      console.log(`generated ${path.relative(docsRoot, page)}`);
+    }
   }
 }
 

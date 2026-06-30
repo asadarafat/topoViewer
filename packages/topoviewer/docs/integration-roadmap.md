@@ -109,20 +109,19 @@ The production contract has three separate responsibilities:
 ```topoviewer
 topology: examples/integration/grafana-telemetry-call-flow/topology.yaml
 stylesheet: examples/integration/grafana-telemetry-call-flow/stylesheet.yaml
-height: 620px
+height: 520px
 controls: true
 controlsOpen: false
 title: Grafana telemetry call flow
 selectedLayerIds:
-  - authoring
   - source
   - telemetry
   - runtime
   - diagnostics
 ```
 
-The same call-flow diagram is also available as a generated example page with
-the topology and stylesheet YAML shown beside the live viewport.
+The same call-flow diagram is maintained as a dedicated architecture page so it
+does not inherit the public example-page template.
 
 Production flow:
 

@@ -15,5 +15,4 @@ nav:
       - Harness: reference/harness/index.md
       - Validation: reference/validation/index.md
   - YAML to network diagram: yaml-to-diagram/index.md
-  - Grafana telemetry call flow: grafana-telemetry-call-flow/index.md
   - Real network demo: real-network-demo.md
