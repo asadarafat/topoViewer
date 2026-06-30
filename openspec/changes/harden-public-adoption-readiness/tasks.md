@@ -9,14 +9,14 @@
 
 ## 1. Evidence Baseline
 
-- [ ] 1.1 Generate an inventory of public docs pages, package READMEs, generated pages, labs, examples, CI workflows, and package manifests
-- [ ] 1.2 Save the inventory output under this change so review can see exactly what was audited
+- [x] 1.1 Generate an inventory of public docs pages, package READMEs, generated pages, labs, examples, CI workflows, and package manifests
+- [x] 1.2 Save the inventory output under this change so review can see exactly what was audited
 - [x] 1.3 Search public files for local path leaks: `/Users/`, `DG_25`, `.donotpush`, `.artifacts`, temporary transfer files, private screenshots, and stale hostnames
 - [x] 1.4 Search public files for stale route/repo casing: `/TopoViewer/`, `github.com/asadarafat/TopoViewer`, and mixed `topoViewer` paths
-- [ ] 1.5 Search scripts, docs, workflows, and lab files for default credentials, anonymous Admin, unsigned plugin loading, and broad host-port exposure
+- [x] 1.5 Search scripts, docs, workflows, and lab files for default credentials, anonymous Admin, unsigned plugin loading, and broad host-port exposure
 - [ ] 1.6 Run and record current package/security baseline: `npm audit --omit=dev --audit-level=moderate`, full `npm audit --audit-level=moderate`, and Go backend tests
-- [ ] 1.7 Identify all `dangerouslySetInnerHTML`, SVG sanitization, YAML parsing, mapper template, and mounted-bundle file-read paths
-- [ ] 1.8 Classify every major public surface as Supported, Experimental, Lab, Roadmap, or Maintainer
+- [x] 1.7 Identify all `dangerouslySetInnerHTML`, SVG sanitization, YAML parsing, mapper template, and mounted-bundle file-read paths
+- [x] 1.8 Classify every major public surface as Supported, Experimental, Lab, Roadmap, or Maintainer
 
 ## 2. Public Information Architecture
 
