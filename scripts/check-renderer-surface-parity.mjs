@@ -14,6 +14,7 @@ const paritySiteRoot = path.join(siteRoot, 'render-parity');
 const viewerSize = { width: 936, height: 420 };
 const maxVisualDiffRatio = 0.035;
 const pixelChannelTolerance = 32;
+const rendererReadinessTimeoutMs = 60000;
 
 const fixtures = [
   { id: 'graph-basic', sourcePath: 'graph/basic' },
@@ -150,14 +151,27 @@ function sortObjects(values) {
 }
 
 async function waitForRenderer(page, label, expectedMinEdgePaths) {
-  await page.waitForSelector('.topoviewer', { timeout: 30000 });
-  await page.waitForFunction(() => !document.querySelector('.topoviewer-error'), undefined, { timeout: 30000 });
-  await page.waitForFunction(() => document.querySelectorAll('.topoviewer .react-flow__node').length > 0, undefined, { timeout: 30000 });
-  await page.waitForFunction((minimumEdgePaths) => {
-    const edgeCount = document.querySelectorAll('.topoviewer .react-flow__edge').length;
-    const visiblePathCount = document.querySelectorAll('.topoviewer .topoviewer-edge-visible-path').length;
-    return visiblePathCount >= minimumEdgePaths && (edgeCount === 0 || visiblePathCount >= edgeCount);
-  }, expectedMinEdgePaths, { timeout: 30000 });
+  try {
+    await page.waitForSelector('.topoviewer', { timeout: rendererReadinessTimeoutMs });
+    await page.waitForFunction(() => !document.querySelector('.topoviewer-error'), undefined, { timeout: rendererReadinessTimeoutMs });
+    await page.waitForFunction(() => document.querySelectorAll('.topoviewer .react-flow__node').length > 0, undefined, { timeout: rendererReadinessTimeoutMs });
+    await page.waitForFunction((minimumEdgePaths) => {
+      const edgeCount = document.querySelectorAll('.topoviewer .react-flow__edge').length;
+      const visiblePathCount = document.querySelectorAll('.topoviewer .topoviewer-edge-visible-path').length;
+      return visiblePathCount >= minimumEdgePaths && (edgeCount === 0 || visiblePathCount >= edgeCount);
+    }, expectedMinEdgePaths, { timeout: rendererReadinessTimeoutMs });
+  } catch (error) {
+    const snapshot = await page.evaluate(() => ({
+      bodyText: document.body.textContent?.replace(/\s+/g, ' ').trim().slice(0, 500) || '',
+      edges: document.querySelectorAll('.topoviewer .react-flow__edge').length,
+      errors: Array.from(document.querySelectorAll('.topoviewer-error')).map((element) => element.textContent || ''),
+      location: window.location.href,
+      nodes: document.querySelectorAll('.topoviewer .react-flow__node').length,
+      topoviewers: document.querySelectorAll('.topoviewer').length,
+      visiblePaths: document.querySelectorAll('.topoviewer .topoviewer-edge-visible-path').length
+    })).catch((snapshotError) => ({ snapshotError: snapshotError instanceof Error ? snapshotError.message : String(snapshotError) }));
+    throw new Error(`${label} renderer did not become ready: ${error instanceof Error ? error.message : String(error)}\nSnapshot: ${JSON.stringify(snapshot, null, 2)}`);
+  }
   await page.waitForTimeout(250);
   const errors = await page.locator('.topoviewer-error').allTextContents();
   if (errors.length > 0) {
