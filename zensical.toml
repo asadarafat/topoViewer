@@ -24,6 +24,7 @@ nav = [
     { "First Topology" = "topoviewer/getting-started.md" },
     { "Browser Harness" = "topoviewer/browser-harness.md" },
     { "Why TopoViewer" = "topoviewer/why-topoviewer.md" },
+    { "Build Or Adopt" = "topoviewer/build-vs-adopt.md" },
     { "YAML to Diagram" = "topoviewer/yaml-to-diagram/index.md" }
   ] },
   { "Author" = [
@@ -65,6 +66,7 @@ nav = [
     { "Reference Model" = "topoviewer/reference-model.md" },
     { "YAML Schemas" = "topoviewer/schemas.md" },
     { "TypeScript API" = "topoviewer/api-reference.md" },
+    { "Architecture" = "topoviewer/architecture.md" },
     { "Compatibility" = "topoviewer/compatibility.md" },
     { "Glossary" = "topoviewer/glossary.md" }
   ] },
@@ -75,6 +77,8 @@ nav = [
   { "Maintainers" = [
     { "Monorepo" = "topoviewer/monorepo.md" },
     { "Hardening" = "topoviewer/production.md" },
+    { "Threat Model" = "topoviewer/threat-model.md" },
+    { "Design Review Checklist" = "topoviewer/design-review-checklist.md" },
     { "Release" = "topoviewer/release.md" },
     { "Documentation Standard" = "topoviewer/docs-standard.md" },
     { "Decision Log" = "topoviewer/decisions.md" }

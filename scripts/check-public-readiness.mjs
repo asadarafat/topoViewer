@@ -162,6 +162,36 @@ function assertRequiredGovernance() {
   }
 }
 
+function assertArchitectureAndThreatModelDocs() {
+  assertFile('packages/topoviewer/content/pages/architecture.md', [
+    'Runtime Flow',
+    'Component Boundaries',
+    'Public And Internal Module Boundary',
+    'Data Flow By Surface',
+    'Failure Boundaries'
+  ]);
+  assertFile('packages/topoviewer/content/pages/threat-model.md', [
+    'Input Threats And Controls',
+    'Trust Boundaries',
+    'Abuse Cases',
+    'Evidence Map',
+    'Grafana mounted files'
+  ]);
+  assertFile('packages/topoviewer/content/pages/design-review-checklist.md', [
+    'Public Surface Classification',
+    'Compatibility Review',
+    'Security Review',
+    'Runtime Review',
+    'Documentation Review'
+  ]);
+  assertFile('packages/topoviewer/content/pages/build-vs-adopt.md', [
+    'What You Would Need To Build Internally',
+    'Where TopoViewer Has Leverage',
+    'When Not To Use TopoViewer',
+    'Adoption Test'
+  ]);
+}
+
 function assertSecurityAutomation() {
   assertFile('.github/dependabot.yml', [
     'package-ecosystem: npm',
@@ -473,6 +503,7 @@ function assertPackageAndCiContracts() {
 }
 
 assertRequiredGovernance();
+assertArchitectureAndThreatModelDocs();
 assertSecurityAutomation();
 assertPublicTextHasNoLocalLeaks();
 assertLabWarnings();

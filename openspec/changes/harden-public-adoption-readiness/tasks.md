@@ -283,12 +283,12 @@
 
 ## 23. Architecture And Threat Model
 
-- [ ] 23.1 Add architecture overview showing compiler, schema validation, stylesheet resolution, renderer, style metadata, docs embeds, harness, Grafana plugin, and mounted-bundle data flow
-- [ ] 23.2 Add public/internal module boundary diagram and list
-- [ ] 23.3 Add threat model for YAML, SVG, Markdown-derived HTML, labels, image references, mapper templates, telemetry labels, docs embed options, local storage, and Grafana mounted files
-- [ ] 23.4 Link threat-model risks to hostile corpus tests, mounted-bundle backend tests, artifact autopsy, and dependency triage
-- [ ] 23.5 Add a "why not build internally" page explaining compounding value: schema, stylesheet, docs embeds, harness, mapper, examples, and operational integrations
-- [ ] 23.6 Add design-review checklist for new public API, style key, schema field, mapper capability, docs embed option, or integration surface
+- [x] 23.1 Add architecture overview showing compiler, schema validation, stylesheet resolution, renderer, style metadata, docs embeds, harness, Grafana plugin, and mounted-bundle data flow
+- [x] 23.2 Add public/internal module boundary diagram and list
+- [x] 23.3 Add threat model for YAML, SVG, Markdown-derived HTML, labels, image references, mapper templates, telemetry labels, docs embed options, local storage, and Grafana mounted files
+- [x] 23.4 Link threat-model risks to hostile corpus tests, mounted-bundle backend tests, artifact autopsy, and dependency triage
+- [x] 23.5 Add a "why not build internally" page explaining compounding value: schema, stylesheet, docs embeds, harness, mapper, examples, and operational integrations
+- [x] 23.6 Add design-review checklist for new public API, style key, schema field, mapper capability, docs embed option, or integration surface
 
 ## 24. Validation
 
