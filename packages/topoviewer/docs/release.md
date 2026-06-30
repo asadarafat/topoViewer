@@ -109,6 +109,49 @@ Recommended future distribution shape:
 
 Do not publish generated test artifacts, local videos, screenshots, or MkDocs build output.
 
+## Manual npm Publishing
+
+The public npm package name is `topoviewer`. Public install snippets must use:
+
+```bash
+npm install topoviewer @xyflow/react react react-dom
+```
+
+Before the package is published, `npm run install:check` validates the same
+consumer contract by packing the local workspace tarball, installing it into a
+temporary app with the documented peer dependencies, and verifying ESM, CommonJS,
+CSS, and schema exports.
+
+Normal pushes, pull requests, docs deployments, and scheduled workflows must not
+publish to npm. Publication is manual through the `Manual npm Publish` GitHub
+Actions workflow:
+
+1. Choose the exact version already committed in `packages/topoviewer/package.json`.
+2. Choose the dist-tag. Use `next` for early public validation. Reserve `latest`
+   for the stable public package contract.
+3. Keep `dry_run` enabled for the first run and review the npm publish output.
+4. Confirm `npm run ci`, `npm run install:check`,
+   `npm run artifact:check:package`, and `npm run dependency:advisories` pass.
+5. Confirm the release note or changelog entry exists and describes support
+   status, known limitations, and upgrade notes.
+6. Confirm package ownership, npm organization/user access, and maintainer
+   approval.
+7. Confirm `NPM_TOKEN` is configured for the repository environment when a real
+   publish is intended.
+8. Confirm npm 2FA/provenance expectations: the workflow uses `--provenance`
+   and requires GitHub `id-token: write`; maintainers must keep npm account
+   security and token scope aligned with the registry policy.
+9. Run the workflow with `dry_run: false` only after the dry-run artifact and
+   validation logs are reviewed.
+
+Rollback and deprecation expectations:
+
+- Prefer publishing a fixed patch version over unpublishing.
+- If a bad version is already public, deprecate it with a clear message and
+  publish a replacement version.
+- Move a dist-tag only after the replacement artifact has passed the same gates.
+- Record first-install feedback with the package release feedback issue template.
+
 ## Public Readiness Rule
 
 A generic feature should be included in a public release when it has:

@@ -155,6 +155,7 @@ function assertRequiredGovernance() {
     '.github/ISSUE_TEMPLATE/docs_issue.yml',
     '.github/ISSUE_TEMPLATE/feature_request.yml',
     '.github/ISSUE_TEMPLATE/integration_issue.yml',
+    '.github/ISSUE_TEMPLATE/package_release_feedback.yml',
     '.github/ISSUE_TEMPLATE/performance_regression.yml'
   ]) {
     assertFile(template);
@@ -335,6 +336,7 @@ function assertPackageAndCiContracts() {
   }
   for (const scriptName of [
     'dependency:advisories',
+    'install:check',
     'artifact:check',
     'artifact:check:docs',
     'artifact:check:package'
@@ -352,6 +354,7 @@ function assertPackageAndCiContracts() {
   for (const phrase of [
     "['run', 'artifact:check:docs']",
     "['run', 'artifact:check:package']",
+    "['run', 'install:check']",
     "['run', 'dependency:advisories']"
   ]) {
     if (!ciOrchestrator.includes(phrase)) {
@@ -370,8 +373,31 @@ function assertPackageAndCiContracts() {
   const workflows = listTextFiles('.github/workflows');
   for (const filePath of workflows) {
     const text = fs.readFileSync(filePath, 'utf8');
-    if (/npm\s+publish/.test(text) && !/workflow_dispatch/.test(text)) {
-      fail(`${relative(filePath)} contains npm publish outside an explicit manual workflow.`);
+    if (!/npm\s+publish/.test(text)) {
+      continue;
+    }
+
+    const file = relative(filePath);
+    if (!/workflow_dispatch:/.test(text)) {
+      fail(`${file} contains npm publish outside an explicit manual workflow.`);
+    }
+    if (/(^|\n)\s+push:/.test(text) || /(^|\n)\s+pull_request:/.test(text)) {
+      fail(`${file} must not publish from push or pull_request events.`);
+    }
+    for (const phrase of [
+      'npm run ci',
+      'npm run install:check',
+      'npm run artifact:check:package',
+      'npm run dependency:advisories',
+      '--provenance',
+      '--access public',
+      '--tag',
+      '--dry-run',
+      'NPM_TOKEN'
+    ]) {
+      if (!text.includes(phrase)) {
+        fail(`${file} publish workflow must include "${phrase}".`);
+      }
     }
   }
 

@@ -135,6 +135,7 @@ const laneDefinitions = {
   ],
   package: [
     step('pack check', 'npm', ['run', 'pack:check']),
+    step('check consumer install command', 'npm', ['run', 'install:check']),
     step('build Grafana plugin artifact', 'npm', ['run', 'grafana:panel:build']),
     step('inspect package artifacts', 'npm', ['run', 'artifact:check:package']),
     step('build MkDocs wheel', 'npm', ['run', 'wheel:mkdocs']),

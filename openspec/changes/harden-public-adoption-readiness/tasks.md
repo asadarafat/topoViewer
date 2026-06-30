@@ -186,9 +186,9 @@
 - [x] 15.2 Add a dependency-risk ledger and populate it with the current `dompurify`, Grafana package, `react-use`, `js-cookie`, and `esbuild` audit findings
 - [x] 15.3 Fix or document every current npm advisory before claiming production-ready adoption
 - [ ] 15.4 Add Go vulnerability triage using `govulncheck` or documented equivalent for the Grafana backend
-- [ ] 15.5 Add package install dry runs for every public install command before it appears in README, MkDocs, Zensical, or package READMEs
+- [x] 15.5 Add package install dry runs for every public install command before it appears in README, MkDocs, Zensical, or package READMEs
 - [ ] 15.6 Add signed/unsigned Grafana plugin artifact status docs, checksum guidance, SBOM expectation, and version compatibility matrix
-- [ ] 15.7 Add CI guard that normal push and pull-request workflows validate but never publish npm packages or Grafana release artifacts
+- [x] 15.7 Add CI guard that normal push and pull-request workflows validate but never publish npm packages or Grafana release artifacts
 - [x] 15.8 Add `.github/dependabot.yml` for npm, GitHub Actions, Go modules, and Docker/container image ecosystems used by the repo
 - [x] 15.9 Configure Dependabot or equivalent security update PR labels, grouping, schedule, reviewers/owners, and CI expectations
 - [x] 15.10 Add CodeQL or equivalent static-analysis workflow for TypeScript/JavaScript and Go code
@@ -201,14 +201,14 @@
 
 ## 16. Manual npm Publishing
 
-- [ ] 16.1 Decide the public npm package name and verify it matches README, MkDocs, Zensical, and package README install commands
-- [ ] 16.2 Document the first publish checklist: version, changelog or release note, `npm run ci`, package dry-run, artifact autopsy, and maintainer approval
-- [ ] 16.3 Define a manual publish path using either a local maintainer command or GitHub Actions `workflow_dispatch`
-- [ ] 16.4 Ensure the publish path is never triggered by a normal push, pull request, or docs deployment
-- [ ] 16.5 Document npm token, 2FA, provenance, access, dist-tag, rollback, and deprecation expectations
-- [ ] 16.6 Validate `npm pack --dry-run` or equivalent before any real publish
-- [ ] 16.7 Prefer a deliberate early dist-tag such as `next` until the stable public package contract is ready for `latest`
-- [ ] 16.8 Add an issue/release template for first public package feedback and support boundaries
+- [x] 16.1 Decide the public npm package name and verify it matches README, MkDocs, Zensical, and package README install commands
+- [x] 16.2 Document the first publish checklist: version, changelog or release note, `npm run ci`, package dry-run, artifact autopsy, and maintainer approval
+- [x] 16.3 Define a manual publish path using either a local maintainer command or GitHub Actions `workflow_dispatch`
+- [x] 16.4 Ensure the publish path is never triggered by a normal push, pull request, or docs deployment
+- [x] 16.5 Document npm token, 2FA, provenance, access, dist-tag, rollback, and deprecation expectations
+- [x] 16.6 Validate `npm pack --dry-run` or equivalent before any real publish
+- [x] 16.7 Prefer a deliberate early dist-tag such as `next` until the stable public package contract is ready for `latest`
+- [x] 16.8 Add an issue/release template for first public package feedback and support boundaries
 
 ## 17. Promotional Demo Video
 

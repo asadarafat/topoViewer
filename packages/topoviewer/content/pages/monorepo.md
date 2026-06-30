@@ -166,7 +166,7 @@ Merging the packages would make a simple MkDocs plugin installation depend on fr
 The clean boundary is:
 
 ```bash
-npm install topoviewer
+npm install topoviewer @xyflow/react react react-dom
 pip install mkdocs-topoviewer
 ```
 
