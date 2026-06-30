@@ -11,15 +11,20 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/grafana/grafana-plugin-sdk-go/backend"
 	"go.yaml.in/yaml/v2"
 )
 
 const (
-	defaultBundleRoot = "/etc/topoviewer/bundles"
-	maxBundleFileSize = 2 * 1024 * 1024
+	defaultBundleRoot       = "/etc/topoviewer/bundles"
+	maxBundleFileSize       = 2 * 1024 * 1024
+	maxBundleDirectories    = 1000
+	maxBundleDirectoryFiles = 128
 )
+
+var errBundleDirectoryTooLarge = errors.New("bundle directory contains too many files")
 
 type severity string
 
@@ -250,12 +255,23 @@ func discoverBundles(root string, manifestPath string) (bundleIndexResponse, err
 		Diagnostics: []diagnostic{},
 	}
 
+	bundleDirectoryCount := 0
 	for _, entry := range entries {
 		if !entry.IsDir() || strings.HasPrefix(entry.Name(), ".") {
 			continue
 		}
+		bundleDirectoryCount += 1
+		if bundleDirectoryCount > maxBundleDirectories {
+			response.Diagnostics = append(response.Diagnostics, diagnostic{
+				Severity: severityError,
+				Code:     "bundle-root-too-large",
+				Message:  fmt.Sprintf("Mounted bundle root %q contains more than %d bundle directories; narrow the mount or use a manifest.", root, maxBundleDirectories),
+				Path:     root,
+			})
+			break
+		}
 		bundleRoot := filepath.Join(root, entry.Name())
-		bundle, diagnostics, err := discoverBundle(bundleRoot, entry.Name())
+		bundle, diagnostics, err := discoverBundle(root, bundleRoot, entry.Name())
 		if err != nil {
 			return bundleIndexResponse{}, err
 		}
@@ -286,7 +302,7 @@ func discoverBundlesFromManifest(root string, manifestPath string) (bundleIndexR
 		Diagnostics:  []diagnostic{},
 	}
 
-	content, err := readLimitedTextFile(manifestPath)
+	content, err := readLimitedTextFile(root, manifestPath)
 	if err != nil {
 		response.Diagnostics = append(response.Diagnostics, diagnostic{
 			Severity: severityError,
@@ -391,11 +407,15 @@ func manifestEntryBundle(root string, manifestDir string, entry bundleManifestEn
 			continue
 		}
 		paths[kind] = resolved
-		if _, err := os.Stat(resolved); err != nil {
+		if _, _, err := validateBundleFile(root, resolved); err != nil {
+			code := "bundle-manifest-file-invalid"
+			if errors.Is(err, os.ErrNotExist) {
+				code = "bundle-manifest-file-missing"
+			}
 			diagnostics = append(diagnostics, diagnostic{
 				Severity: severityError,
-				Code:     "bundle-manifest-file-missing",
-				Message:  fmt.Sprintf("Mounted bundle %q %s file does not exist: %s.", bundleID, kind, resolved),
+				Code:     code,
+				Message:  fmt.Sprintf("Mounted bundle %q %s file is not readable: %v.", bundleID, kind, err),
 				BundleID: bundleID,
 				Path:     resolved,
 			})
@@ -463,12 +483,13 @@ func commonBundleRoot(paths ...string) string {
 	return root
 }
 
-func discoverBundle(bundleRoot string, bundleID string) (*mountedBundle, []diagnostic, error) {
+func discoverBundle(root string, bundleRoot string, bundleID string) (*mountedBundle, []diagnostic, error) {
 	matchesByKind := map[string][]string{
 		"topology":   {},
 		"stylesheet": {},
 		"mapper":     {},
 	}
+	fileCount := 0
 	err := filepath.WalkDir(bundleRoot, func(path string, entry os.DirEntry, walkErr error) error {
 		if walkErr != nil {
 			return walkErr
@@ -478,6 +499,10 @@ func discoverBundle(bundleRoot string, bundleID string) (*mountedBundle, []diagn
 		}
 		if entry.IsDir() {
 			return nil
+		}
+		fileCount += 1
+		if fileCount > maxBundleDirectoryFiles {
+			return errBundleDirectoryTooLarge
 		}
 		name := entry.Name()
 		switch {
@@ -490,6 +515,15 @@ func discoverBundle(bundleRoot string, bundleID string) (*mountedBundle, []diagn
 		}
 		return nil
 	})
+	if errors.Is(err, errBundleDirectoryTooLarge) {
+		return nil, []diagnostic{{
+			Severity: severityError,
+			Code:     "bundle-directory-too-large",
+			Message:  fmt.Sprintf("Bundle %q contains more than %d files; keep mounted bundle directories small or use a manifest.", bundleID, maxBundleDirectoryFiles),
+			BundleID: bundleID,
+			Path:     bundleRoot,
+		}}, nil
+	}
 	if err != nil {
 		return nil, nil, err
 	}
@@ -517,6 +551,20 @@ func discoverBundle(bundleRoot string, bundleID string) (*mountedBundle, []diagn
 		}
 	}
 	if len(matchesByKind["topology"]) != 1 || len(matchesByKind["stylesheet"]) != 1 || len(matchesByKind["mapper"]) != 1 {
+		return nil, diagnostics, nil
+	}
+	for kind, matches := range matchesByKind {
+		if _, _, err := validateBundleFile(root, matches[0]); err != nil {
+			diagnostics = append(diagnostics, diagnostic{
+				Severity: severityError,
+				Code:     "bundle-file-invalid",
+				Message:  fmt.Sprintf("Bundle %q %s file is not readable: %v.", bundleID, kind, err),
+				BundleID: bundleID,
+				Path:     matches[0],
+			})
+		}
+	}
+	if len(diagnostics) > 0 {
 		return nil, diagnostics, nil
 	}
 
@@ -565,15 +613,15 @@ func readBundle(root string, manifestPath string, bundleID string) (bundleRespon
 		if bundle.ID != bundleID {
 			continue
 		}
-		topologyYAML, err := readLimitedTextFile(bundle.TopologyPath)
+		topologyYAML, err := readLimitedTextFile(root, bundle.TopologyPath)
 		if err != nil {
 			return bundleResponse{}, err
 		}
-		stylesheetYAML, err := readLimitedTextFile(bundle.StylesheetPath)
+		stylesheetYAML, err := readLimitedTextFile(root, bundle.StylesheetPath)
 		if err != nil {
 			return bundleResponse{}, err
 		}
-		mapperYAML, err := readLimitedTextFile(bundle.MapperPath)
+		mapperYAML, err := readLimitedTextFile(root, bundle.MapperPath)
 		if err != nil {
 			return bundleResponse{}, err
 		}
@@ -588,17 +636,45 @@ func readBundle(root string, manifestPath string, bundleID string) (bundleRespon
 	return bundleResponse{}, fmt.Errorf("%w: mounted TopoViewer bundle %q was not found under %q", os.ErrNotExist, bundleID, root)
 }
 
-func readLimitedTextFile(path string) (string, error) {
-	info, err := os.Stat(path)
+func validateBundleFile(root string, path string) (os.FileInfo, string, error) {
+	resolvedRoot, err := filepath.EvalSymlinks(root)
 	if err != nil {
-		return "", err
+		return nil, "", err
+	}
+	resolvedPath, err := filepath.EvalSymlinks(path)
+	if err != nil {
+		return nil, "", err
+	}
+	if !pathWithinRoot(resolvedRoot, resolvedPath) {
+		return nil, "", fmt.Errorf("bundle file %q resolves outside bundle root %q", path, root)
+	}
+	info, err := os.Stat(resolvedPath)
+	if err != nil {
+		return nil, "", err
+	}
+	if !info.Mode().IsRegular() {
+		return nil, "", fmt.Errorf("bundle file %q is not a regular file", path)
+	}
+	if info.Size() == 0 {
+		return nil, "", fmt.Errorf("bundle file %q is empty", path)
 	}
 	if info.Size() > maxBundleFileSize {
-		return "", fmt.Errorf("bundle file %q is too large (%d bytes); limit is %d bytes", path, info.Size(), maxBundleFileSize)
+		return nil, "", fmt.Errorf("bundle file %q is too large (%d bytes); limit is %d bytes", path, info.Size(), maxBundleFileSize)
 	}
-	content, err := os.ReadFile(path)
+	return info, resolvedPath, nil
+}
+
+func readLimitedTextFile(root string, path string) (string, error) {
+	_, resolvedPath, err := validateBundleFile(root, path)
 	if err != nil {
 		return "", err
+	}
+	content, err := os.ReadFile(resolvedPath)
+	if err != nil {
+		return "", err
+	}
+	if !utf8.Valid(content) {
+		return "", fmt.Errorf("bundle file %q is not valid UTF-8", path)
 	}
 	return string(content), nil
 }
