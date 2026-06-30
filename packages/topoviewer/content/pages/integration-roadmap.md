@@ -128,18 +128,25 @@ for disposable validation only. That setup is not production deployment guidance
 
 Production flow:
 
-1. Author topology, stylesheet, and mapper YAML in the harness, VS Code preview,
-   or another editor.
-2. Mount those files into Grafana under a bundle directory such as
+1. Author topology, stylesheet, and mapper YAML in the browser harness.
+2. Use `Download bundle` to export `<graph>.topo.tv.yaml`,
+   `<graph>.style.tv.yaml`, and `<graph>.mapper.tv.yaml`.
+3. Mount those files into Grafana under a bundle directory such as
    `/etc/topoviewer/bundles/<bundle-id>/`.
-3. The plugin backend discovers bundles and serves the selected source documents
+4. The plugin backend discovers bundles and serves the selected source documents
    to the panel through a resource endpoint.
-4. Grafana queries Prometheus or another configured data source and passes the
+5. Grafana queries Prometheus or another configured data source and passes the
    query result to the panel as data frames.
-5. The panel compiles the mapper, resolves samples to TopoViewer objects, and
+6. The panel compiles the mapper, resolves samples to TopoViewer objects, and
    produces runtime-only overlays.
-6. TopoViewer renders canonical topology and stylesheet YAML plus overlays and
+7. TopoViewer renders canonical topology and stylesheet YAML plus overlays and
    local interaction state.
+
+The harness is the preferred authoring surface because it validates the mapper
+with the same topology and stylesheet that Grafana later consumes. A text editor
+can still be used, but early adopters should not need to know repository
+fixture structure, generated catalogs, or plugin build steps just to bring their
+own topology into Grafana.
 
 Optional Prometheus recording rules can normalize vendor-specific metrics into
 stable metric names or labels, but they are not the TopoViewer source of truth.

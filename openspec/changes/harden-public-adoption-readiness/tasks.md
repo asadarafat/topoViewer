@@ -90,18 +90,18 @@
 
 ## 8. Harness Mapper Authoring
 
-- [ ] 8.1 Add browser harness support for editing `*.mapper.tv.yaml` alongside topology and stylesheet YAML
-- [ ] 8.2 Add schema-backed Monaco suggestions for mapper keys, enums, target kinds, resolver modes, states, thresholds, overlays, and query hints
-- [ ] 8.3 Add topology-aware suggestions for node IDs, link IDs, path IDs, region IDs, layers, labels, and data keys from the applied topology
-- [ ] 8.4 Add style-overlay suggestions driven by the same style metadata used by runtime/docs/schema
+- [x] 8.1 Add browser harness support for editing `*.mapper.tv.yaml` alongside topology and stylesheet YAML
+- [x] 8.2 Add schema-backed Monaco suggestions for mapper keys, enums, target kinds, resolver modes, states, thresholds, overlays, and query hints
+- [x] 8.3 Add topology-aware suggestions for node IDs, link IDs, path IDs, region IDs, layers, labels, and data keys from the applied topology
+- [x] 8.4 Add style-overlay suggestions driven by the same style metadata used by runtime/docs/schema
 - [ ] 8.5 Add mapper diagnostics for YAML parse errors, schema errors, topology binding errors, ambiguous matches, stale IDs, unsupported overlay keys, and query hints
 - [ ] 8.6 Add a mapper coverage preview showing matched, unmatched, duplicate, ambiguous, and stale telemetry using synthetic frames or pasted sample labels
-- [ ] 8.7 Add copy/export behavior for canonical bundle suffixes: `*.topo.tv.yaml`, `*.style.tv.yaml`, and `*.mapper.tv.yaml`
+- [x] 8.7 Add copy/export behavior for canonical bundle suffixes: `*.topo.tv.yaml`, `*.style.tv.yaml`, and `*.mapper.tv.yaml`
 - [ ] 8.8 Add curated mapper examples for node health, link state, bidirectional utilization, path SLO, region aggregate status, layer aggregate status, and graph summary status
-- [ ] 8.9 Document that the harness authors mapper YAML while Grafana consumes and validates it at runtime
-- [ ] 8.10 Add Playwright coverage proving a user can author a valid mapper without reading source files
-- [ ] 8.11 Add a dedicated Mapper YAML tab/mode in the browser harness with the same editor quality as topology and stylesheet YAML
-- [ ] 8.12 Treat topology, stylesheet, and mapper YAML as one editable bundle with shared dirty state, apply/revert behavior, local persistence, and export/copy behavior
+- [x] 8.9 Document that the harness authors mapper YAML while Grafana consumes and validates it at runtime
+- [x] 8.10 Add Playwright coverage proving a user can author a valid mapper without reading source files
+- [x] 8.11 Add a dedicated Mapper YAML tab/mode in the browser harness with the same editor quality as topology and stylesheet YAML
+- [x] 8.12 Treat topology, stylesheet, and mapper YAML as one editable bundle with shared dirty state, apply/revert behavior, local persistence, and export/copy behavior
 - [ ] 8.13 Add a mapper rule builder UI for target kind, selector/join mode, metric/query, value extraction, states, thresholds, overlay styles, label templates, and aggregate behavior
 - [ ] 8.14 Add target-kind-specific validation so node, link, path, region, layer, and graph mapper rules only expose supported overlay controls
 - [ ] 8.15 Add topology-derived picker UX for object IDs, layer IDs, label keys/values, data keys, link endpoints, path IDs, and region IDs
@@ -109,8 +109,8 @@
 - [ ] 8.17 Add a mapping coverage panel in the harness that mirrors Grafana coverage concepts before the user mounts the bundle
 - [ ] 8.18 Add copyable generated PromQL starters or metric label recommendations from mapper rules where possible
 - [ ] 8.19 Add docs links from the mapper editor to exact mapper object and object-attribute reference sections
-- [ ] 8.20 Add schema-backed hover help explaining each mapper attribute, accepted values, implications, and examples inline in Monaco
-- [ ] 8.21 Add tests that invalid mapper edits do not mutate applied topology/style YAML or corrupt the last valid preview
+- [x] 8.20 Add schema-backed hover help explaining each mapper attribute, accepted values, implications, and examples inline in Monaco
+- [x] 8.21 Add tests that invalid mapper edits do not mutate applied topology/style YAML or corrupt the last valid preview
 - [ ] 8.22 Add tests that exported `*.topo.tv.yaml`, `*.style.tv.yaml`, and `*.mapper.tv.yaml` can be mounted by the Grafana panel without catalog edits or fixture sync
 
 ## 9. Cross-Surface Rendering Parity

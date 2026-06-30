@@ -21,15 +21,28 @@ Open `http://127.0.0.1:8001/topoviewer/harness/`.
 ## Authoring Workflow
 
 1. Choose a template.
-2. Edit topology or stylesheet YAML.
+2. Edit topology, stylesheet, or mapper YAML.
 3. Press `Apply` to validate and render the draft.
 4. Use `Revert draft` to discard un-applied edits.
 5. Drag nodes only when the layout is manual or pinned.
 6. Use `Save` when the topology should survive browser refresh.
-7. Export the viewport when the rendered state is valid.
+7. Use `Download bundle` when you need Grafana-ready source files.
+8. Export the viewport when the rendered state is valid.
 
 The canvas always keeps the last valid applied document. A broken draft should
 show diagnostics without destroying the current viewport.
+
+The YAML tab has three documents:
+
+| Tab | File role | Grafana bundle suffix |
+| --- | --- | --- |
+| `Topology YAML` | Graph objects, layers, labels, data, layout hints, attention declarations. | `*.topo.tv.yaml` |
+| `Stylesheet YAML` | Icons, label fields, layout options, and selector-driven visual style. | `*.style.tv.yaml` |
+| `Mapper YAML` | Runtime telemetry rules that map Grafana data frames to TopoViewer object overlays. | `*.mapper.tv.yaml` |
+
+`Download bundle` validates the draft and writes all three canonical files using
+the current graph ID as the filename base. Use those files directly under a
+Grafana mounted bundle directory.
 
 ## YAML Assist
 
@@ -41,7 +54,10 @@ The assist model should be indentation-aware:
 - root keys are suggested only at root indentation;
 - graph keys are suggested under `graph`;
 - node, link, path, and region fields are suggested in their own arrays;
-- style keys and style values are suggested from the canonical style registry.
+- style keys and style values are suggested from the canonical style registry;
+- mapper keys, target kinds, resolver modes, object IDs, layer IDs, labels, data
+  keys, and overlay style keys are suggested from the mapper schema, style
+  metadata, and currently applied topology.
 
 ## Export
 

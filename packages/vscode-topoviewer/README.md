@@ -9,14 +9,17 @@ The extension contributes:
 - `TopoViewer: Open Preview`
 - `TopoViewer: Open Preview to Side`
 
-Open a `topology.yaml` or `stylesheet.yaml` file and run one of the commands.
-The preview pairs the active file with a sibling file using these default names:
+Open a `topology.yaml`, `stylesheet.yaml`, or `mapper.tv.yaml` file and run one
+of the commands. The preview pairs the active file with sibling files using
+these default names:
 
 - `topology.yaml`
 - `stylesheet.yaml`
+- `mapper.tv.yaml`
 
 The defaults are configurable through `topoviewer.preview.defaultTopology` and
-`topoviewer.preview.defaultStylesheet`.
+`topoviewer.preview.defaultStylesheet`. Mapper pairing is configurable through
+`topoviewer.preview.defaultMapper`.
 
 ## Build
 
@@ -33,8 +36,8 @@ npm run vscode:harness
 Open `http://127.0.0.1:5174/` to exercise the same React and Material UI
 webview app outside VS Code.
 
-The harness uses curated fixtures, a wide Monaco YAML editor for topology and
-stylesheet editing, a top-left preview action bar, compact scrollable layer
+The harness uses curated fixtures, a wide Monaco YAML editor for topology,
+stylesheet, and mapper editing, a top-left preview action bar, compact scrollable layer
 controls with object counts, diagnostics, and the real TopoViewer preview
 surface.
 
@@ -47,11 +50,11 @@ dark while reviewing the webview UI.
 
 ### Authoring Workflow
 
-YAML edits are drafts. Editing `Topology YAML` or `Stylesheet YAML` does not
-immediately mutate the canvas. Use `Apply` to validate and render the draft, or
-`Revert draft` to restore the last applied YAML. Build, Inspect, and Attention
-mutations are blocked while a draft is dirty so UI edits do not race with
-unapplied text edits.
+YAML edits are drafts. Editing `Topology YAML`, `Stylesheet YAML`, or `Mapper
+YAML` does not immediately mutate the canvas. Use `Apply` to validate and render
+the draft, or `Revert draft` to restore the last applied YAML. Build, Inspect,
+and Attention mutations are blocked while a draft is dirty so UI edits do not
+race with unapplied text edits.
 
 `YAML assist` opens Monaco completions for the current cursor context. Pressing
 Space keeps normal text entry behavior. Press `Ctrl+Space` or `?` at structural
@@ -60,6 +63,9 @@ strings, and scalar values.
 
 Diagnostics are durable below the fixture selector. Click a diagnostic to switch
 to the matching YAML document and reveal the reported line.
+
+Use `Download bundle` to export the current valid draft as Grafana-ready files:
+`<graph>.topo.tv.yaml`, `<graph>.style.tv.yaml`, and `<graph>.mapper.tv.yaml`.
 
 ### Export
 

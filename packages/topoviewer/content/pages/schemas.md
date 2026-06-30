@@ -93,6 +93,10 @@ With the Red Hat YAML extension, associate schemas by file pattern:
 
 Use inline `$schema` when diagrams live outside a project with shared VS Code settings.
 
+The browser harness uses the same document split for Grafana bundle authoring:
+`Topology YAML` exports as `*.topo.tv.yaml`, `Stylesheet YAML` exports as
+`*.style.tv.yaml`, and `Mapper YAML` exports as `*.mapper.tv.yaml`.
+
 ## Validation Philosophy
 
 The schemas are strict for TopoViewer's core graph contract:
