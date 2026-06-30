@@ -20,6 +20,13 @@ more semantic: it is built for inspectable, data-driven topology views where
 layers, regions, paths, operational metadata, focus behavior, and reusable
 runtime APIs matter.
 
+The stable core is deliberately small:
+
+- `topology.yaml` describes objects and relationships.
+- `stylesheet.yaml` describes presentation with selectors.
+- `TopoViewer` renders an interactive diagram that can be embedded in docs,
+  React products, authoring tools, and operational dashboards.
+
 ![TopoViewer YAML to rendered network diagram](docs/assets/topoviewer-yaml-to-diagram.png)
 
 ## Why It Matters
@@ -42,6 +49,9 @@ Open:
 - MkDocs: `http://127.0.0.1:8001/topoviewer/docs/mkdocs/`
 - Zensical: `http://127.0.0.1:8001/topoviewer/docs/zensical/`
 - Browser Harness: `http://127.0.0.1:8001/topoviewer/harness/`
+
+The smallest useful YAML pair is in the
+[First topology guide](https://asadarafat.github.io/topoviewer/docs/mkdocs/topoviewer/getting-started/).
 
 ## Integration Surfaces
 
@@ -96,12 +106,6 @@ npm run ci
 
 Content edits start in `packages/topoviewer/content/**`. Generated package
 docs/examples, MkDocs pages, Zensical pages, and this README are projections.
-
-## Package Layout
-
-- `packages/topoviewer` - React renderer, compiler, schemas, examples, and browser embed bundle
-- `packages/mkdocs-topoviewer` - MkDocs plugin and vendored viewer assets
-- `packages/vscode-topoviewer` - experimental VS Code extension and browser harness
 
 ## Legacy History
 

@@ -31,14 +31,14 @@
 
 ## 3. README And First-Run Story
 
-- [ ] 3.1 Refactor README first screen around the stable core promise: YAML topology, reusable stylesheet, interactive diagram
-- [ ] 3.2 Add the smallest useful topology and stylesheet snippets or a direct first-topology link
+- [x] 3.1 Refactor README first screen around the stable core promise: YAML topology, reusable stylesheet, interactive diagram
+- [x] 3.2 Add the smallest useful topology and stylesheet snippets or a direct first-topology link
 - [x] 3.3 Add one concise support-status table for React, MkDocs, Zensical, harness, VS Code, Grafana, NetBox, and OpsMill/Infrahub; document Containerlab only as a Grafana lab telemetry mode
-- [ ] 3.4 Remove monorepo internals, phase history, and long roadmap explanations from the README body
+- [x] 3.4 Remove monorepo internals, phase history, and long roadmap explanations from the README body
 - [x] 3.5 Verify README public URLs use lowercase `/topoviewer/` and the intended repository slug
 - [x] 3.6 Add a README install warning or pre-publish status if the npm package name is not live
 - [x] 3.7 Add README links for MkDocs, Zensical, harness, and integration roadmap that match the published GitHub Pages layout
-- [ ] 3.8 Add a review checklist that proves the README first screen answers "what is it", "why use it", and "how do I see it"
+- [x] 3.8 Add a review checklist that proves the README first screen answers "what is it", "why use it", and "how do I see it"
 
 ## 4. Support Status And Product Claims
 
