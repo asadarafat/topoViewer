@@ -14,7 +14,7 @@
 - [x] 1.3 Search public files for local path leaks: `/Users/`, `DG_25`, `.donotpush`, `.artifacts`, temporary transfer files, private screenshots, and stale hostnames
 - [x] 1.4 Search public files for stale route/repo casing: `/TopoViewer/`, `github.com/asadarafat/TopoViewer`, and mixed `topoViewer` paths
 - [x] 1.5 Search scripts, docs, workflows, and lab files for default credentials, anonymous Admin, unsigned plugin loading, and broad host-port exposure
-- [ ] 1.6 Run and record current package/security baseline: `npm audit --omit=dev --audit-level=moderate`, full `npm audit --audit-level=moderate`, and Go backend tests
+- [x] 1.6 Run and record current package/security baseline: `npm audit --omit=dev --audit-level=moderate`, full `npm audit --audit-level=moderate`, and Go backend tests
 - [x] 1.7 Identify all `dangerouslySetInnerHTML`, SVG sanitization, YAML parsing, mapper template, and mounted-bundle file-read paths
 - [x] 1.8 Classify every major public surface as Supported, Experimental, Lab, Roadmap, or Maintainer
 
@@ -182,8 +182,8 @@
 
 ## 15. Dependency And Supply Chain
 
-- [ ] 15.1 Add npm dependency audit triage policy separating shipped, dev-only, toolchain, upstream/external, and accepted temporary risk
-- [ ] 15.2 Add a dependency-risk ledger and populate it with the current `dompurify`, Grafana package, `react-use`, `js-cookie`, and `esbuild` audit findings
+- [x] 15.1 Add npm dependency audit triage policy separating shipped, dev-only, toolchain, upstream/external, and accepted temporary risk
+- [x] 15.2 Add a dependency-risk ledger and populate it with the current `dompurify`, Grafana package, `react-use`, `js-cookie`, and `esbuild` audit findings
 - [ ] 15.3 Fix or document every current npm advisory before claiming production-ready adoption
 - [ ] 15.4 Add Go vulnerability triage using `govulncheck` or documented equivalent for the Grafana backend
 - [ ] 15.5 Add package install dry runs for every public install command before it appears in README, MkDocs, Zensical, or package READMEs
