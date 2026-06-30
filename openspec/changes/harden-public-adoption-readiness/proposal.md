@@ -35,8 +35,25 @@ and public support boundaries:
 - document the difference from Mermaid.js and from directly using React Flow;
 - define a public stability contract for YAML schemas, TypeScript APIs, and
   generated examples;
+- make TopoViewer object attributes fully discoverable with per-object,
+  per-attribute reference docs and small examples;
+- make `*.mapper.tv.yaml` a first-class browser harness authoring surface,
+  because Grafana adoption depends on users creating correct mapper YAML
+  without reading source;
+- define enterprise adoption trust gates: governance files, ownership signals,
+  SemVer, compatibility matrix, security reporting, support boundaries,
+  accessibility posture, performance envelope, API ownership, and threat model;
+- define a manual npm publishing workflow for the public `topoviewer` package
+  so users can install from npm only after deliberate maintainer release gates;
+- integrate the brutal cross-surface adoption audit into this change, including
+  docs ergonomics, integration workflows, lab security posture, dependency
+  triage, release artifacts, mounted bundle abuse cases, and hostile input
+  testing;
+- require automated security monitoring, including Dependabot or equivalent
+  update automation, static analysis, secret scanning, and container image
+  scanning;
 - add quality gates that protect docs structure, public links, package metadata,
-  examples, and cross-surface rendering.
+  examples, cross-surface rendering, security posture, and artifact integrity.
 
 ## Capabilities
 
@@ -54,7 +71,13 @@ and public support boundaries:
 - Canonical content under `packages/topoviewer/content/**`.
 - Generated docs/examples projections.
 - Package README files where public support status is visible.
-- Docs lint and CI checks.
+- npm package metadata, release docs, and manual publish workflow definition.
+- Governance, security, support, compatibility, accessibility, performance,
+  and threat-model documentation.
+- Browser harness mapper authoring UX, schema assist, and examples for
+  Grafana-bound `*.mapper.tv.yaml`.
+- Docs lint, hostile-input tests, artifact autopsy, dependency triage, and CI
+  checks.
 - No renderer behavior changes are required by this plan.
 
 ## Non-Goals
@@ -64,3 +87,8 @@ and public support boundaries:
 - Hiding roadmap work from the repo.
 - Optimizing for marketing copy over accurate technical claims.
 - Adding new product surfaces before the stable core path is clearer.
+- Publishing npm packages automatically on every push.
+- Treating lab credentials, anonymous Admin, or unsigned Grafana plugin loading
+  as production guidance.
+- Pretending enterprise adoption can be achieved without a maintenance,
+  security, compatibility, and support story.
