@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TopoViewer Accessibility Runtime Fixture</title>
+  </head>
+  <body>
+    <button id="before-viewer">Before viewer</button>
+    <div id="root" style="height: 520px"></div>
+    <button id="after-viewer">After viewer</button>
+    <script type="module">
+      import React, { useState } from 'react';
+      import { createRoot } from 'react-dom/client';
+      import { TopoViewer } from '../../src/components/TopoViewer.tsx';
+      import '../../src/styles.css';
+
+      const documentSpec = {
+        layout: {
+          mode: 'manual',
+          width: 520,
+          height: 280
+        },
+        icons: {
+          router: {
+            glyph: 'R',
+            fill: '#1976d2',
+            stroke: '#bbdefb'
+          }
+        },
+        labelFields: ['name'],
+        stylesheet: [
+          {
+            selector: 'node',
+            style: {
+              icon: 'router',
+              shape: 'rectangle',
+              width: 88,
+              height: 56,
+              labelColor: '#0f172a',
+              labelBackgroundColor: '#ffffff',
+              labelBackgroundOpacity: 0.96,
+              labelFontWeight: 800,
+              badgeLabel: 'WARN',
+              badgeColor: '#111827',
+              badgeBackgroundColor: '#fef3c7',
+              badgeBorderColor: '#f59e0b',
+              statusColor: '#d97706',
+              statusPlacement: 'bottomRight'
+            }
+          },
+          {
+            selector: 'link',
+            style: {
+              lineColor: '#64748b',
+              lineStyle: 'dashed',
+              lineWidth: 3,
+              targetArrowShape: 'triangle'
+            }
+          }
+        ],
+        graph: {
+          id: 'accessibility-runtime',
+          layers: [{ id: 'physical', name: 'Physical' }],
+          nodes: [
+            {
+              id: 'router-a',
+              name: 'Router A',
+              labels: { role: 'edge' },
+              layers: ['physical'],
+              position: [140, 140]
+            },
+            {
+              id: 'router-b',
+              name: 'Router B',
+              labels: { role: 'core' },
+              layers: ['physical'],
+              position: [380, 140]
+            }
+          ],
+          links: [
+            {
+              id: 'router-a-router-b',
+              source: 'router-a',
+              target: 'router-b',
+              labels: { state: 'degraded' },
+              layers: ['physical']
+            }
+          ]
+        }
+      };
+
+      function App() {
+        const [controlsOpen, setControlsOpen] = useState(false);
+        return React.createElement(TopoViewer, {
+          document: documentSpec,
+          selectedLayerIds: ['physical'],
+          attention: { query: { ids: ['router-a'], mode: 'dim-context' } },
+          style: { height: '100%' },
+          controlPanelToggle: {
+            enabled: true,
+            open: controlsOpen,
+            onToggle: () => setControlsOpen((value) => !value)
+          }
+        });
+      }
+
+      createRoot(document.getElementById('root')).render(React.createElement(App));
+    </script>
+  </body>
+</html>

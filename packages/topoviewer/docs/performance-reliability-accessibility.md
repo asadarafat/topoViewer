@@ -40,20 +40,24 @@ docs, package files, or checked-in media.
 
 ## Benchmark Scenarios
 
-| Scenario | Command | Notes |
-|---|---|---|
-| CLOS layout smoke | `npm run benchmark:clos:smoke` | Layout-only, renderer-agnostic, deterministic 1k-node graph. |
-| CLOS layout local profile | `npm run benchmark:clos:local` | Writes local artifact output for maintainer review. |
-| Attention smoke | `npm run benchmark:attention:smoke` | Dense attention indexing and focus behavior. |
-| Attention local profile | `npm run benchmark:attention:local` | Local-only multi-size profile. |
-| Docs smoke | `npm run docs:smoke` | Built docs hydration and live viewport smoke. |
-| Render parity | `npm run render:parity` | Cross-surface renderer geometry parity. |
-| Grafana lab smoke | `npm run grafana:lab:smoke:phase4` | Mounted bundle and mapper overlay workflow without source edits. |
-| Grafana Containerlab smoke | `npm run grafana:clab:smoke` | Advanced lab telemetry mode; not a default PR gate. |
+| Scenario | Current gate | Automation level | Notes |
+|---|---|---|---|
+| First render, tiny and curated examples | `npm run docs:smoke`, `npm run render:parity` | CI/pre-release | Built docs must hydrate live viewports and parity fixtures must render visible nodes and links. |
+| First render, dense topology | `npm run ci:perf:smoke` plus release profiling | CI smoke plus pre-release review | Uses 1k attention and CLOS smoke today; default-limit browser profiling remains a release review item. |
+| Zoom/pan interaction | `npm run render:parity` and representative Playwright runs | Pre-release | Geometry must remain stable after viewport operations; stronger latency instrumentation is expected before a stable `1.0` claim. |
+| Selection interaction | `npm run render:parity`, `npm --workspace topoviewer run test` | CI/pre-release | Selection and object events are covered by renderer and workbench interaction tests. |
+| Attention focus | `npm run benchmark:attention:smoke` | CI | Dense indexing and focus query behavior must pass smoke thresholds. |
+| Layout | `npm run benchmark:clos:smoke` | CI | Renderer-agnostic 1k-node CLOS layout benchmark. |
+| Mapper overlays | `npm run grafana:panel:test` | CI | Mapper parsing, schema validation, overlay execution, and mounted-bundle runtime model tests. |
+| Docs embeds | `npm run docs:smoke`, `npm run render:parity` | CI/pre-release | MkDocs and Zensical embeds must hydrate without manual refresh and must not leak host CSS geometry. |
+| Browser harness | `npm run test:vscode-harness` | CI | Authoring workflow, YAML assist, persistence, export, mapper diagnostics, and editor behavior. |
+| Grafana panel refresh | `npm run grafana:lab:smoke:phase4` | Pre-release/local lab | Mounted bundle selection, Prometheus refresh, mapper coverage, and overlay update behavior. |
+| Grafana Containerlab telemetry | `npm run grafana:clab:smoke` | Advanced lab/manual | Real telemetry mode; intentionally not a default PR gate. |
 
-Selection, zoom/pan, mapper overlay refresh, and full accessibility automation
-are release-readiness scenarios. They should become stronger gates before a
-stable `1.0` claim.
+The current benchmark matrix is enough to block obvious regressions before
+public adoption. It is not yet a full performance lab: browser memory ceilings,
+per-interaction latency histograms, and Grafana dashboard refresh timing still
+belong in pre-release review until the project has stable release hardware.
 
 ## Reliability Contract
 
@@ -97,6 +101,14 @@ posture is:
 Until automated a11y checks are complete, release review must manually inspect
 focus visibility, keyboard escape behavior, text legibility, contrast, and
 non-color status cues on representative light and dark mode examples.
+
+Automated coverage now includes a focused runtime accessibility regression for:
+
+- visible focus on attention-focused topology objects;
+- non-color operational status cues through badge text plus status markers;
+- label contrast for representative runtime labels;
+- reduced-motion computed transition and animation durations;
+- keyboard escape from the viewer without trapping focus.
 
 ## Data And Privacy
 

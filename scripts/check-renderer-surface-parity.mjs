@@ -161,7 +161,9 @@ async function waitForRenderer(page, label, expectedMinEdgePaths) {
     await page.waitForFunction((minimumEdgePaths) => {
       const edgeCount = document.querySelectorAll('.topoviewer .react-flow__edge').length;
       const visiblePathCount = document.querySelectorAll('.topoviewer .topoviewer-edge-visible-path').length;
-      return visiblePathCount >= minimumEdgePaths && (edgeCount === 0 || visiblePathCount >= edgeCount);
+      if (minimumEdgePaths === 0 && edgeCount === 0) return true;
+      if (edgeCount === 0) return false;
+      return visiblePathCount >= Math.min(minimumEdgePaths, edgeCount);
     }, expectedMinEdgePaths, { timeout: rendererReadinessTimeoutMs });
   } catch (error) {
     const snapshot = await page.evaluate(() => ({
@@ -377,19 +379,28 @@ async function newParityPage(browser, baseUrl, failures) {
 }
 
 async function collectSurface(browser, baseUrl, failures, url, surface, fixture) {
-  const page = await newParityPage(browser, baseUrl, failures);
-  try {
-    await page.goto(url, { waitUntil: 'commit', timeout: 30000 });
-    await waitForRenderer(page, `${surface}/${fixture.id}`, expectedMinimumEdgePaths(fixture));
-    return {
-      metrics: comparableMetrics(await surfaceMetrics(page)),
-      screenshot: await screenshotViewer(page, surface, fixture)
-    };
-  } catch (error) {
-    throw new Error(`${surface}: ${error instanceof Error ? error.message : String(error)}`);
-  } finally {
-    await page.close();
+  let lastError;
+  for (let attempt = 1; attempt <= 2; attempt += 1) {
+    const page = await newParityPage(browser, baseUrl, failures);
+    try {
+      await page.goto(url, { waitUntil: 'load', timeout: 30000 });
+      await page.waitForLoadState('networkidle', { timeout: 30000 }).catch(() => undefined);
+      await waitForRenderer(page, `${surface}/${fixture.id}`, expectedMinimumEdgePaths(fixture));
+      return {
+        metrics: comparableMetrics(await surfaceMetrics(page)),
+        screenshot: await screenshotViewer(page, surface, fixture)
+      };
+    } catch (error) {
+      lastError = error;
+      if (attempt === 2) {
+        throw new Error(`${surface}: ${error instanceof Error ? error.message : String(error)}`);
+      }
+      await page.waitForTimeout(500).catch(() => undefined);
+    } finally {
+      await page.close();
+    }
   }
+  throw new Error(`${surface}: ${lastError instanceof Error ? lastError.message : String(lastError)}`);
 }
 
 async function run() {

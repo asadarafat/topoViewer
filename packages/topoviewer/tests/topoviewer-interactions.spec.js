@@ -234,6 +234,95 @@ async function dragBox(page, box, dx, dy, offset = { x: 48, y: 28 }) {
 }
 
 test.describe('TopoViewer package interactions', () => {
+  test('exposes the current runtime accessibility contract', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await expectCurrentServerMarker(page, 'topoviewer');
+    await page.goto('/tests/fixtures/accessibility-runtime.html', { waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('.react-flow__node[data-id="router-a"]', { timeout: 30000 });
+
+    const focusedNode = page.locator('.react-flow__node[data-id="router-a"] .topoviewer-node');
+    await expect(focusedNode).toHaveAttribute('aria-current', 'true');
+    await expect(focusedNode).toHaveAttribute('aria-label', /Router A, attention focused/);
+    await focusedNode.focus();
+    await expect(focusedNode).toBeFocused();
+
+    const snapshot = await page.locator('.topoviewer').evaluate((viewer) => {
+      const durationToMs = (duration) => duration
+        .split(',')
+        .map((part) => part.trim())
+        .filter(Boolean)
+        .map((part) => {
+          if (part.endsWith('ms')) return Number.parseFloat(part);
+          if (part.endsWith('s')) return Number.parseFloat(part) * 1000;
+          return Number.parseFloat(part) || 0;
+        });
+      const colorToRgb = (color) => {
+        const match = color.match(/rgba?\(([^)]+)\)/);
+        if (!match) return undefined;
+        const [r, g, b] = match[1].split(',').slice(0, 3).map((part) => Number.parseFloat(part.trim()));
+        return [r, g, b];
+      };
+      const luminance = ([r, g, b]) => {
+        const channel = [r, g, b].map((value) => {
+          const normalized = value / 255;
+          return normalized <= 0.03928 ? normalized / 12.92 : ((normalized + 0.055) / 1.055) ** 2.4;
+        });
+        return 0.2126 * channel[0] + 0.7152 * channel[1] + 0.0722 * channel[2];
+      };
+      const contrastRatio = (foreground, background) => {
+        const fg = colorToRgb(foreground);
+        const bg = colorToRgb(background);
+        if (!fg || !bg) return 0;
+        const lighter = Math.max(luminance(fg), luminance(bg));
+        const darker = Math.min(luminance(fg), luminance(bg));
+        return (lighter + 0.05) / (darker + 0.05);
+      };
+      const focused = viewer.querySelector('.react-flow__node[data-id="router-a"] .topoviewer-node');
+      const geometry = focused?.querySelector('.topoviewer-node-geometry');
+      const label = focused?.querySelector('.topoviewer-node-label');
+      const badge = focused?.querySelector('.topoviewer-node-badge');
+      const status = focused?.querySelector('.topoviewer-node-status');
+      const visibleEdge = viewer.querySelector('.topoviewer-edge-visible-path');
+      const animatedElements = [viewer, ...viewer.querySelectorAll('*')].map((element) => {
+        const style = getComputedStyle(element);
+        return {
+          transitionMs: Math.max(...durationToMs(style.transitionDuration), 0),
+          animationMs: Math.max(...durationToMs(style.animationDuration), 0)
+        };
+      });
+      const labelStyle = label ? getComputedStyle(label) : undefined;
+
+      return {
+        focusedFilter: geometry ? getComputedStyle(geometry).filter : '',
+        labelText: label?.textContent?.trim(),
+        badgeText: badge?.textContent?.trim(),
+        statusPlacement: status?.getAttribute('data-status-placement'),
+        edgeDash: visibleEdge ? getComputedStyle(visibleEdge).strokeDasharray : '',
+        labelContrast: labelStyle ? contrastRatio(labelStyle.color, labelStyle.backgroundColor) : 0,
+        maxTransitionMs: Math.max(...animatedElements.map((entry) => entry.transitionMs)),
+        maxAnimationMs: Math.max(...animatedElements.map((entry) => entry.animationMs))
+      };
+    });
+
+    expect(snapshot.focusedFilter).toContain('drop-shadow');
+    expect(snapshot.labelText).toBe('Router A');
+    expect(snapshot.badgeText).toBe('WARN');
+    expect(snapshot.statusPlacement).toBe('bottomRight');
+    expect(snapshot.edgeDash).not.toBe('none');
+    expect(snapshot.labelContrast).toBeGreaterThanOrEqual(4.5);
+    expect(snapshot.maxTransitionMs).toBeLessThanOrEqual(0.001);
+    expect(snapshot.maxAnimationMs).toBeLessThanOrEqual(0.001);
+
+    await page.keyboard.press('Escape');
+    let escapedViewer = false;
+    for (let attempt = 0; attempt < 8; attempt += 1) {
+      await page.keyboard.press('Tab');
+      escapedViewer = await page.evaluate(() => document.activeElement?.id === 'after-viewer');
+      if (escapedViewer) break;
+    }
+    expect(escapedViewer).toBe(true);
+  });
+
   test('keeps hostile label and callout markdown inert at runtime', async ({ page }) => {
     const browserErrors = [];
     page.on('pageerror', (error) => browserErrors.push(error.message));

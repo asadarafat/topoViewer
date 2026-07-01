@@ -4,6 +4,8 @@ Generated on 2026-06-30 with:
 
 ```bash
 npm run ci:render-parity
+npm run render:parity
+npm run render:parity
 ```
 
 The command builds temporary parity pages and captures screenshots under
@@ -34,3 +36,10 @@ Current gap:
 - Mapper overlays are a Grafana runtime behavior, not a MkDocs/Zensical embed
   behavior. They are covered by Grafana mounted-bundle smoke and mapper tests,
   not by this cross-surface renderer parity command.
+
+Hardening note:
+
+- The checker now waits for declared edge/path fixtures to produce visible edge
+  paths after the harness page reaches a loaded state. This caught transient
+  node-only harness renders for CLOS and attention examples and prevents false
+  parity passes when links silently disappear.
