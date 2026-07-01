@@ -65,14 +65,11 @@ legacy prose, the generator wraps that prose into the required public structure.
 ## Wording Rules
 
 - Use the exact public support-status labels: `Supported`,
-  `Pre-Publish Supported`, `Supported Adapter`, `Experimental`, `Lab`,
-  `Roadmap`, and `Maintainer`.
+  `Supported Adapter`, `Experimental`, `Lab`, `Roadmap`, and `Maintainer`.
 - Put `**Support status:** <label>` near the top of every integration-facing
   page.
 - Use `Supported` only for implemented, documented, CI-gated behavior intended
   for normal use.
-- Use `Pre-Publish Supported` when source behavior is implemented,
-  documented, and CI-gated, but the public package release is still pending.
 - Use `Supported Adapter` for implemented adapter paths that are not native
   upstream plugin packages.
 - Use `Experimental` for implemented behavior that is not yet release-grade.

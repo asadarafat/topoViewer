@@ -8,8 +8,8 @@ import { fileURLToPath } from 'node:url';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const sourceTarballInstallCommand = 'npm install /tmp/topoviewer-pack/topoviewer-0.1.0.tgz @xyflow/react react react-dom';
-const futurePublishedInstallCommand = 'npm install topoviewer @xyflow/react react react-dom';
-const futurePublishedInstallCommandFiles = new Set([
+const publishedInstallCommand = 'npm install topoviewer @xyflow/react react react-dom';
+const sourceTarballInstallCommandFiles = new Set([
   'docs/topoviewer/maintainers/release.md',
   'docs/topoviewer/maintainers/monorepo.md',
   'packages/topoviewer/README.md',
@@ -92,10 +92,10 @@ function assertPublicInstallCommands() {
     for (const match of matches) {
       const normalized = match.trim().replace(/\s+/g, ' ');
       const relativePath = relative(filePath);
-      const isAllowedSourceInstall = normalized === sourceTarballInstallCommand;
-      const isAllowedFutureInstall =
-        normalized === futurePublishedInstallCommand && futurePublishedInstallCommandFiles.has(relativePath);
-      if (!isAllowedSourceInstall && !isAllowedFutureInstall) {
+      const isAllowedPublishedInstall = normalized === publishedInstallCommand;
+      const isAllowedSourceInstall =
+        normalized === sourceTarballInstallCommand && sourceTarballInstallCommandFiles.has(relativePath);
+      if (!isAllowedPublishedInstall && !isAllowedSourceInstall) {
         badCommands.push(`${relative(filePath)}: ${normalized}`);
       }
     }
@@ -104,9 +104,8 @@ function assertPublicInstallCommands() {
   if (badCommands.length) {
     throw new Error([
       'Public TopoViewer install command drift detected.',
-      'The topoviewer package is pre-publish, so usage docs must use the local tarball install command.',
-      `Current source install command: ${sourceTarballInstallCommand}`,
-      'The future npm command is allowed only in release/package-boundary docs.',
+      `Current public install command: ${publishedInstallCommand}`,
+      `Local tarball install is allowed only in maintainer release/preflight docs: ${sourceTarballInstallCommand}`,
       ...badCommands.map((item) => `- ${item}`)
     ].join('\n'));
   }
@@ -181,7 +180,7 @@ try {
     'react-dom@^18.3.1'
   ], { cwd: consumerRoot, stdio: 'inherit' });
   assertInstalledPackage(consumerRoot);
-  console.log(`install dry-run passed for source tarball install command: ${sourceTarballInstallCommand}`);
+  console.log(`install dry-run passed for local release tarball command: ${sourceTarballInstallCommand}`);
 } finally {
   fs.rmSync(tempRoot, { recursive: true, force: true });
 }

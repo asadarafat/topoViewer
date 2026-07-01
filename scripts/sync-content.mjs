@@ -132,7 +132,16 @@ Topology diagrams drift when they are maintained as static images. TopoViewer
 keeps topology as reviewable code, so the same model can render documentation,
 product views, authoring previews, exported diagrams, and CI-backed examples.
 
+## Install
+
+\`\`\`bash
+npm install topoviewer @xyflow/react react react-dom
+\`\`\`
+
 ## First Result
+
+Run the local preview to see the same YAML rendered through MkDocs, Zensical,
+and the browser harness:
 
 \`\`\`bash
 git clone https://github.com/asadarafat/topoviewer.git

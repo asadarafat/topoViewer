@@ -47,7 +47,7 @@ they are not all part of the same stability promise.
 
 | Surface | Status | Use today |
 |---|---|---|
-| TypeScript/React package | Pre-Publish Supported | First public package target is `0.1.0` for early adopters once npm publication gates pass. |
+| TypeScript/React package | Supported | Install `topoviewer` from npm and embed schema-validated topology diagrams in React applications. |
 | MkDocs | Supported | Publish live YAML examples through `mkdocs-topoviewer`. |
 | Browser harness | Experimental | Author, validate, preview, and export TopoViewer YAML while the authoring UX matures. |
 | Grafana panel | Experimental | Mount topology/style/mapper bundles and render Prometheus-driven overlays. |
@@ -62,7 +62,6 @@ they are not all part of the same stability promise.
 | Status | Meaning |
 |---|---|
 | Supported | Implemented, documented, CI-gated, and intended for normal use. Compatibility expectations apply. |
-| Pre-Publish Supported | Implemented, documented, and CI-gated from source, but public npm publication is still pending. The first public release target is `0.1.0` for early adopters. |
 | Supported Adapter | Implemented, documented, and CI-gated as an adapter path, not as a native upstream plugin package. |
 | Experimental | Implemented enough to try, but API, UX, packaging, or operational behavior may still change. |
 | Lab | Disposable local validation environment. Do not treat it as production deployment guidance. |

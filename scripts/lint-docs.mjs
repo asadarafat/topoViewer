@@ -16,7 +16,6 @@ const packageDocsRoot = path.join(packageRoot, 'docs');
 const errors = [];
 const supportStatusLabels = new Set([
   'Supported',
-  'Pre-Publish Supported',
   'Supported Adapter',
   'Experimental',
   'Lab',
@@ -25,7 +24,7 @@ const supportStatusLabels = new Set([
 ]);
 
 const integrationStatusPages = [
-  ['embed/react.md', 'Pre-Publish Supported'],
+  ['embed/react.md', 'Supported'],
   ['embed/mkdocs.md', 'Supported'],
   ['embed/static-html-zensical-adapter.md', 'Supported Adapter'],
   ['tools/browser-harness.md', 'Experimental'],
@@ -35,7 +34,7 @@ const integrationStatusPages = [
 ];
 
 const packageReadmeStatuses = [
-  ['packages/topoviewer/README.md', 'Pre-Publish Supported'],
+  ['packages/topoviewer/README.md', 'Supported'],
   ['packages/mkdocs-topoviewer/README.md', 'Supported'],
   ['packages/vscode-topoviewer/README.md', 'Experimental'],
   ['packages/grafana-topoviewer-panel/README.md', 'Experimental']
@@ -75,7 +74,6 @@ const guidePageLengthBudgets = new Map([
 
 const forbiddenPublicClaimPhrases = [
   [/\bproduction[- ]ready\b/i, 'Do not claim production-ready in public docs until the readiness gate is complete.'],
-  [/\bSupported source API\b/, 'Use the canonical status label "Pre-Publish Supported".'],
   [/\bSupported adapter\b/, 'Use the canonical status label "Supported Adapter".'],
   [/\bExperimental package\b/, 'Use the canonical status label "Experimental".'],
   [/\bExploratory panel spike\b/, 'Use the canonical status label "Experimental".'],

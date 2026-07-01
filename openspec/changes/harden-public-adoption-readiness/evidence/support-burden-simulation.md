@@ -5,7 +5,7 @@ prevention work linked to docs, checks, or remaining tasks.
 
 | Rank | Likely issue | Prevention or owner |
 |---:|---|---|
-| 1 | `npm install topoviewer` returns 404 | README/React pages label package as pre-publish until manual npm publish. |
+| 1 | `npm install topoviewer` fails in a consumer app | README/React pages use the published package command; `npm run install:check` verifies peer dependency install and exports. |
 | 2 | Docs URL casing breaks after repo rename | Public-readiness checks reject stale `/TopoViewer/` and wrong repo casing. |
 | 3 | MkDocs and Zensical render differently from harness | Render parity tasks and `ci:render-parity`; still open for broader fixture coverage. |
 | 4 | Mapper YAML is hard to author | Harness mapper editor exists; rule-builder and coverage preview remain open in task 8. |

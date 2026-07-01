@@ -13,20 +13,20 @@ would need source-code knowledge.
 | Find first topology | README and docs home | Routes to First Topology and Browser Harness. | No |
 | Understand support status | README support table and docs status labels | Major surfaces are labeled. | No |
 
-Finding: this path is acceptable after package install status remains clearly
-pre-publish until npm publication is real.
+Finding: this path is acceptable for repository-based exploration. The README
+now also exposes the published npm install path for React adopters.
 
 ## Drill 2: React Embedding User
 
 | Step | Public instruction used | Result | Source-code knowledge required |
 |---|---|---|---|
-| Check package status | README and React page | Package is labeled Pre-Publish Supported; users are warned before npm publish. | No |
+| Check package status | README and React page | Package is published as `topoviewer@0.1.0`; docs open with `npm install topoviewer @xyflow/react react react-dom`. | No |
 | Embed component | React usage page | Props, diagnostics, SSR, loading, caching, and error handling are documented. | No |
 | Check API ownership | TypeScript API and Compatibility pages | Export status and SemVer rules are visible. | No |
 | Validate YAML | Validate YAML and Object Attributes pages | Schema and semantic lint path is documented. | No |
 
-Finding: npm publication remains the adoption blocker. Manual publish tasks
-cover this before a stable public claim.
+Finding: npm publication is no longer the first adoption blocker. Remaining
+work is API confidence, examples, and mapper authoring quality.
 
 ## Drill 3: MkDocs/Zensical Docs Embedding User
 

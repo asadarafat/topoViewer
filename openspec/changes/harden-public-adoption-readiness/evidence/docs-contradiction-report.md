@@ -22,7 +22,7 @@ README, docs home, package READMEs, and integration pages.
 | Unsupported "production-ready" claim | Guarded by docs lint forbidden-claim checks. |
 | Grafana fixture workflow presented as normal user workflow | Fixed in Grafana docs; fixture mode is demo/CI-only. |
 | Containerlab appears as a separate top-level lab | Corrected to Grafana lab mode. |
-| Npm install shown before package publication | README and React docs label package pre-publish. |
+| Npm install shown before package publication | Resolved: `topoviewer@0.1.0` is published, README/React docs use the public install command, and install-command lint allows tarball installs only in maintainer preflight docs. |
 
 ## Remaining Drift Risks
 

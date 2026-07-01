@@ -3,6 +3,16 @@
 Start with one topology YAML file and one stylesheet YAML file. The topology
 describes what exists; the stylesheet describes how it should look.
 
+Install the React package when you are embedding TopoViewer in an application:
+
+```bash
+npm install topoviewer @xyflow/react react react-dom
+```
+
+This page builds a two-node topology with one physical link. The same pattern
+scales to larger diagrams because topology facts and visual policy stay in
+separate YAML documents.
+
 ## Topology YAML
 
 ```yaml
@@ -58,6 +68,9 @@ stylesheet:
 
 ## Live Output
 
+Expected result: two rectangular nodes labeled `PE1` and `P1`, connected by a
+straight blue link.
+
 ```topoviewer
 topology: examples/graph/basic/topology.yaml
 stylesheet: examples/graph/basic/stylesheet.yaml
@@ -77,4 +90,5 @@ npm run validate:semantics
 ```
 
 When a viewport is blank, keep the last valid YAML, check diagnostics first, and
-then verify file paths, selectors, and layer visibility.
+then verify file paths, selectors, layer visibility, and whether the selected
+layer IDs include the layer used by the nodes and links.

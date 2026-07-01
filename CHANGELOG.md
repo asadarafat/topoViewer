@@ -1,15 +1,15 @@
 # Changelog
 
-TopoViewer follows semantic versioning for public releases. The intended first
-public release is `0.1.0`: an installable early-adopter release with honest
-pre-1.0 compatibility expectations. Reserve `1.0.0` for the later stable-core
-API-freeze release.
+TopoViewer follows semantic versioning for public releases. The first public
+release is `0.1.0`: an installable early-adopter release with honest pre-1.0
+compatibility expectations. Reserve `1.0.0` for the later stable-core API-freeze
+release.
 
-## 0.1.0 - Planned Early-Adopter Release
+## 0.1.0 - 2026-07-01
 
 ### Added
 
-- First public `topoviewer` npm package target with React renderer, schemas,
+- First public `topoviewer` npm package with React renderer, schemas,
   validation helpers, stylesheet keys, examples, and MkDocs embed behavior.
 - Production-shaped monorepo with separate `topoviewer` npm package and `mkdocs-topoviewer` Python package.
 - React renderer package exports, embeddable browser bundle, and schema package exports.
@@ -21,6 +21,7 @@ API-freeze release.
 - Playwright tests for workbench behavior, documented examples, child nodes, draggable regions, parent link pipes, stitched paths, and visual regression.
 - CI workflow for install, schema validation, semantic lint, build, Playwright, npm package dry-run, MkDocs wheel build, wheel inspection, and MkDocs site build.
 - GitHub Pages workflow for publishing generated MkDocs documentation.
+- Manual npm release workflow using npm Trusted Publishing with GitHub Actions OIDC.
 
 ### Changed
 
@@ -28,6 +29,8 @@ API-freeze release.
   - `packages/topoviewer`
   - `packages/mkdocs-topoviewer`
 - Changed default generated documentation root from the temporary RTFM tree to the monorepo `docs/` directory.
+- Updated README and React docs to use the live npm install command:
+  `npm install topoviewer @xyflow/react react react-dom`.
 
 ### Security
 

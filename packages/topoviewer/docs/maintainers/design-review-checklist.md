@@ -8,7 +8,7 @@ options, Grafana panel options, schemas, examples, or generated docs behavior.
 
 | Question | Required answer before merge |
 |---|---|
-| Is the surface Supported, Pre-Publish Supported, Experimental, Lab, Roadmap, Maintainer, Advanced, or Internal? | Add the status to docs or explicitly keep the surface internal. |
+| Is the surface Supported, Supported Adapter, Experimental, Lab, Roadmap, Maintainer, Advanced, or Internal? | Add the status to docs or explicitly keep the surface internal. |
 | Is this a public package export? | Update `packages/topoviewer/api-report.md` and API docs. |
 | Is this an authored YAML field? | Update schema, object reference, examples, YAML assist, and validation tests. |
 | Is this a style key? | Update style metadata, defaults, schema, docs, examples, render parity if geometry changes, and YAML assist. |

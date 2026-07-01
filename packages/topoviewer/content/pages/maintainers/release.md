@@ -112,22 +112,18 @@ Do not publish generated test artifacts, local videos, screenshots, or MkDocs bu
 
 ## Manual npm Publishing
 
-The public npm package name is `topoviewer`, but it is not available from npm
-until the manual publication workflow succeeds. Do not present the npm install
-command as a working current install path before that release is complete.
+The public npm package name is `topoviewer`. The `0.1.0` release is an
+installable early-adopter release: useful, documented, and CI-gated, but not an
+API-freeze claim. Reserve `1.0.0` for the later stable-core release.
 
-The intended first public release is `0.1.0`: an installable early-adopter
-release. It should be useful, documented, and CI-gated, but it should not claim
-API freeze. Reserve `1.0.0` for the later stable-core release.
-
-The future public npm install snippet is:
+The public npm install snippet is:
 
 ```bash
 npm install topoviewer @xyflow/react react react-dom
 ```
 
-Before the package is published, public usage docs must point users to the
-source tarball workflow:
+For local release preflight, maintainers can validate the source tarball
+workflow:
 
 ```bash
 npm --workspace topoviewer pack --pack-destination /tmp/topoviewer-pack
@@ -187,7 +183,7 @@ npm trust github topoviewer \
 
 ## 0.1.0 Early-Adopter Gate
 
-Do not publish `topoviewer@0.1.0` until these are true:
+`topoviewer@0.1.0` was published only after these gates were satisfied:
 
 - The package builds, type output, CSS, schemas, examples, and README are
   present in `npm pack --dry-run` output.

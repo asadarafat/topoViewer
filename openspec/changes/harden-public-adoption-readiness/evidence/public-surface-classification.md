@@ -14,8 +14,8 @@ This classification uses the status taxonomy from `design.md`:
 
 | Surface | Status | Evidence | Notes |
 | --- | --- | --- | --- |
-| TopoViewer YAML model and renderer core | Supported | `packages/topoviewer`, `docs/topoviewer/reference/reference-model.md`, generated schemas | Stable center of the repo. Public npm package still needs manual publish readiness before install docs can remove pre-publish caveat. |
-| React embedding | Supported | `docs/topoviewer/embed/react.md`, `packages/topoviewer/README.md` | Needs continued API/docs alignment and package install dry-run before public npm claim. |
+| TopoViewer YAML model and renderer core | Supported | `packages/topoviewer`, `docs/topoviewer/reference/reference-model.md`, generated schemas | Stable center of the repo. Public npm package is live as `topoviewer@0.1.0`; continued API hardening remains a pre-1.0 responsibility. |
+| React embedding | Supported | `docs/topoviewer/embed/react.md`, `packages/topoviewer/README.md` | Published npm install path is documented and guarded by package install checks. |
 | MkDocs plugin | Supported | `packages/mkdocs-topoviewer`, `docs/topoviewer/embed/mkdocs.md`, docs CI | Supported docs embed path. |
 | Zensical static adapter | Experimental | `docs/topoviewer/embed/static-html-zensical-adapter.md`, generated Zensical site | Works as a generated adapter, but not a standalone packaged plugin. |
 | Browser harness | Experimental | `packages/vscode-topoviewer/src/harness`, `docs/topoviewer/tools/browser-harness.md` | Strong authoring surface, but mapper bundle authoring is still missing. |
