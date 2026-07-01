@@ -23,6 +23,16 @@ runtime APIs matter.
 
 ![TopoViewer YAML to rendered network diagram](assets/topoviewer-yaml-to-diagram.png)
 
+## Start In 60 Seconds
+
+```bash
+npm install topoviewer @xyflow/react react react-dom
+```
+
+1. Render the copyable YAML pair in [First Topology](topoviewer/start/first-topology.md).
+2. Style it with [Style Your First Topology](topoviewer/start/style-your-first-topology.md).
+3. Embed it in [React](topoviewer/embed/react.md) or [MkDocs](topoviewer/embed/mkdocs.md).
+
 ## Choose A Path
 
 | Need | Start here |

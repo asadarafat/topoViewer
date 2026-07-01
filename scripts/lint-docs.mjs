@@ -605,6 +605,15 @@ function checkMkDocsNavCoverage() {
 function checkStartNavBoundary() {
   const mkdocsConfig = readYaml(path.join(repoRoot, 'mkdocs.yml'));
   const startTargets = collectNavTargets(findNavSection(mkdocsConfig.nav || [], 'Start'));
+  const forbiddenPathSegments = [
+    '/tools/',
+    '/labs/',
+    '/evaluate/',
+    '/maintainers/',
+    '/reference/',
+    '/examples/'
+  ];
+  const forbiddenWording = /roadmap|grafana|zensical|browser harness|containerlab|netbox|opsmill|infrahub|release|threat model|architecture|build or adopt/i;
   const forbiddenStartTargets = new Set([
     'topoviewer/labs/grafana-telemetry-call-flow.md',
     'topoviewer/maintainers/monorepo.md',
@@ -617,6 +626,15 @@ function checkStartNavBoundary() {
   ]);
 
   for (const target of startTargets) {
+    if (!target.startsWith('topoviewer/start/')) {
+      fail(`MkDocs Start nav must only point at beginner pages under topoviewer/start/: ${target}`);
+    }
+    if (forbiddenPathSegments.some((segment) => target.includes(segment))) {
+      fail(`MkDocs Start nav must not include Tools, Examples, Reference, Evaluate, Labs, or Maintainers pages: ${target}`);
+    }
+    if (forbiddenWording.test(target)) {
+      fail(`MkDocs Start nav must not include roadmap-heavy or secondary-surface pages: ${target}`);
+    }
     if (forbiddenStartTargets.has(target)) {
       fail(`MkDocs Start nav must not include Lab or Maintainer page: ${target}`);
     }

@@ -7,13 +7,19 @@ TopoViewer ships a browser embed bundle in:
 - `topoviewer/embed/topoviewer-embed.iife.js`
 - `topoviewer/embed/topoviewer-embed.css`
 
-Install the MkDocs integration as a Python package:
+The MkDocs adapter is implemented in this repository, but the public
+`mkdocs-topoviewer` Python package is not published yet. For local preview or
+repo integration work, install it from the checkout:
 
 ```bash
-pip install mkdocs-topoviewer
+python -m pip install -e packages/mkdocs-topoviewer
 ```
 
-Then enable the plugin:
+After the Python package is published and verified, this page can switch to the
+normal PyPI install command. Until then, do not advertise the PyPI install path
+as the public adoption flow.
+
+Enable the plugin:
 
 ```yaml
 plugins:

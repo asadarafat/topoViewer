@@ -2,7 +2,13 @@
 
 **Support status:** Supported
 
-TopoViewer is a declarative graph renderer for network, infrastructure, and service-topology diagrams. It turns YAML graph definitions and styles into interactive topology views.
+TopoViewer turns `topology.yaml` + `stylesheet.yaml` into interactive,
+embeddable, schema-validated topology diagrams for infrastructure docs,
+internal portals, and ops dashboards.
+
+```bash
+npm install topoviewer @xyflow/react react react-dom
+```
 
 ## Direction
 
@@ -114,18 +120,13 @@ controls: true
 
 ## Documentation
 
-- [Authoring model](docs/authoring.md): graph, layers, nodes, links, paths, regions, toggles, and validation.
-- [Reference model](docs/reference-model.md): exact semantics for document fields, graph objects, diagram primitives, parent relationships, labels, and data.
-- [Production hardening](docs/production.md): semantic lint, limits, migration, reference resolution, security, accessibility, export, and visual regression rules.
-- [Diagram primitive layer](docs/authoring.md#diagram-primitive-layer): shapes, callouts, pin targets, line-only callouts, and documentation frames.
-- [Stylesheet](docs/stylesheet.md): selectors, icons, layout, supported visual keys, and practical style patterns.
-- [YAML schemas](docs/schemas.md): editor schema hints, exported schema paths, and CI validation.
-- [React usage](docs/react.md): package imports, public exports, props, and validation.
-- [Extension boundary](docs/react.md#extensions): custom node/edge types and compile hooks for private or project-specific add-ons.
-- [MkDocs embed](docs/mkdocs.md): fenced-block syntax, direct HTML embed, and asset sync.
-- [Monorepo package boundary](docs/monorepo.md): why `topoviewer` and `mkdocs-topoviewer` stay as separate packages in one repository.
-- [Attention examples](https://asadarafat.github.io/topoviewer/docs/mkdocs/topoviewer/reference/attention/): live examples for object focus and change focus in dense topology views.
-- [Release checklist](docs/release.md): validation, dependency boundaries, pack contents, and publish steps.
+- [Getting started](https://asadarafat.github.io/topoviewer/docs/mkdocs/topoviewer/start/first-topology/)
+- [React usage](https://asadarafat.github.io/topoviewer/docs/mkdocs/topoviewer/embed/react/)
+- [MkDocs embed](https://asadarafat.github.io/topoviewer/docs/mkdocs/topoviewer/embed/mkdocs/)
+- [Examples gallery](https://asadarafat.github.io/topoviewer/docs/mkdocs/topoviewer/examples/examples-gallery/)
+- [Object attributes](https://asadarafat.github.io/topoviewer/docs/mkdocs/topoviewer/reference/object-attributes/)
+- [Stylesheet reference](https://asadarafat.github.io/topoviewer/docs/mkdocs/topoviewer/reference/stylesheet-reference/)
+- [TypeScript API](https://asadarafat.github.io/topoviewer/docs/mkdocs/topoviewer/reference/typescript-api/)
 
 ## Development
 
@@ -151,7 +152,11 @@ topoviewer/
     mkdocs-topoviewer/    # Python package: mkdocs-topoviewer
 ```
 
-The renderer is the product core. The MkDocs package is an adapter that vendors the approved browser bundle so MkDocs users can install with `pip install mkdocs-topoviewer` without running npm.
+The renderer is the product core. The MkDocs package is an adapter that vendors
+the approved browser bundle so MkDocs users can render live YAML examples
+without running npm during documentation builds. Do not advertise the public
+PyPI install command until the Python package is published and verified
+separately.
 
 The renderer validates topology and stylesheet documents at runtime before compiling them into React Flow state. Validation is intentionally permissive about custom fields, but it rejects malformed core graph objects such as links without `source`/`target`, paths without a two-node `sequence`, or entities without an `id`.
 

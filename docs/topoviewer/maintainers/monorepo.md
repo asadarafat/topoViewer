@@ -32,7 +32,9 @@ packages/topoviewer source -> built embed bundle -> packages/mkdocs-topoviewer v
 - `topoviewer-embed.iife.js`
 - `topoviewer-embed.css`
 
-The renderer must not import Python plugin code. The Python plugin must not require npm at documentation build time. MkDocs users should be able to install and use the plugin with:
+The renderer must not import Python plugin code. The Python plugin must not
+require npm at documentation build time. After the Python package is published
+and verified, MkDocs users should be able to install and use the plugin with:
 
 ```bash
 pip install mkdocs-topoviewer
@@ -170,6 +172,7 @@ The clean boundary for users is:
 
 ```bash
 npm install topoviewer @xyflow/react react react-dom
+# after PyPI publication:
 pip install mkdocs-topoviewer
 ```
 

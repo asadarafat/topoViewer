@@ -9,6 +9,7 @@ import { fileURLToPath } from 'node:url';
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const sourceTarballInstallCommand = 'npm install /tmp/topoviewer-pack/topoviewer-0.1.0.tgz @xyflow/react react react-dom';
 const publishedInstallCommand = 'npm install topoviewer @xyflow/react react react-dom';
+const mkdocsPublishedInstallCommand = 'pip install mkdocs-topoviewer';
 const sourceTarballInstallCommandFiles = new Set([
   'docs/topoviewer/maintainers/release.md',
   'docs/topoviewer/maintainers/monorepo.md',
@@ -28,6 +29,12 @@ const publicTextRoots = [
   'packages/vscode-topoviewer/README.md',
   'packages/grafana-topoviewer-panel/README.md'
 ];
+const mkdocsPublishedInstallCommandFiles = new Set([
+  'packages/mkdocs-topoviewer/README.md',
+  'packages/topoviewer/content/pages/maintainers/monorepo.md',
+  'packages/topoviewer/docs/maintainers/monorepo.md',
+  'docs/topoviewer/maintainers/monorepo.md'
+]);
 const textExtensions = new Set(['.md', '.mdx', '.txt', '.yaml', '.yml', '.toml', '.json']);
 const ignoredParts = new Set(['node_modules', 'dist', 'site', '.artifacts', '.git']);
 
@@ -111,6 +118,28 @@ function assertPublicInstallCommands() {
   }
 }
 
+function assertMkDocsInstallCommands() {
+  const badCommands = [];
+  const files = new Set(publicTextRoots.flatMap(walkTextFiles));
+
+  for (const filePath of [...files].sort()) {
+    const text = fs.readFileSync(filePath, 'utf8');
+    if (!text.includes(mkdocsPublishedInstallCommand)) continue;
+    const relativePath = relative(filePath);
+    if (!mkdocsPublishedInstallCommandFiles.has(relativePath)) {
+      badCommands.push(relativePath);
+    }
+  }
+
+  if (badCommands.length) {
+    throw new Error([
+      'Public mkdocs-topoviewer install command drift detected.',
+      '`pip install mkdocs-topoviewer` must not appear in public user guides until the PyPI package is published and verified.',
+      ...badCommands.map((item) => `- ${item}`)
+    ].join('\n'));
+  }
+}
+
 function packTopoviewer(tempRoot) {
   run('npm', ['--workspace', 'topoviewer', 'run', 'build'], { stdio: 'inherit' });
   const result = run('npm', ['pack', '--workspace', 'topoviewer', '--json', '--ignore-scripts', '--pack-destination', tempRoot]);
@@ -162,6 +191,7 @@ function assertInstalledPackage(consumerRoot) {
 }
 
 assertPublicInstallCommands();
+assertMkDocsInstallCommands();
 
 const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'topoviewer-install-check-'));
 try {
