@@ -4,7 +4,11 @@
 [![CI](https://github.com/asadarafat/topoviewer/actions/workflows/ci.yml/badge.svg)](https://github.com/asadarafat/topoviewer/actions/workflows/ci.yml)
 [![Docs](https://github.com/asadarafat/topoviewer/actions/workflows/docs.yml/badge.svg)](https://github.com/asadarafat/topoviewer/actions/workflows/docs.yml)
 
-TopoViewer is a **Topology as Code** toolkit for teams that want network,
+TopoViewer turns `topology.yaml` + `stylesheet.yaml` into interactive,
+embeddable, schema-validated topology diagrams for infrastructure docs,
+internal portals, and ops dashboards.
+
+It is a **Topology as Code** toolkit for teams that want network,
 infrastructure, service, and other connected-system diagrams to stay close to
 source data.
 
@@ -27,7 +31,7 @@ The stable core is deliberately small:
 - `TopoViewer` renders an interactive diagram that can be embedded in docs,
   React products, authoring tools, and operational dashboards.
 
-[![TopoViewer YAML to rendered network graph](docs/assets/topoviewer-yaml-to-graph-demo.png)](https://asadarafat.github.io/topoviewer/harness/)
+[![Same TopoViewer YAML rendered in Harness, MkDocs, Zensical, and Grafana](docs/assets/topoviewer-yaml-to-graph-collage.png)](https://asadarafat.github.io/topoviewer/harness/)
 
 ## Why It Matters
 
@@ -55,18 +59,18 @@ The smallest useful YAML pair is in the
 
 ## Integration Surfaces
 
-TopoViewer is designed to be used as a library, a documentation embed, an
-authoring surface, and an operational dashboard runtime. The surfaces do not
-all have the same maturity.
+TopoViewer's first public adoption path is the React package plus documentation
+embeds. Authoring tools and operational dashboards exist to prove the model, but
+they are not all part of the same stability promise.
 
 | Surface | Status | Use today |
 |---|---|---|
-| TypeScript/React package | Pre-Publish Supported | Embed the renderer from the repo/package build while public npm release gates are completed. |
+| TypeScript/React package | Pre-Publish Supported | First public package target is `0.1.0` for early adopters once npm publication gates pass. |
 | MkDocs | Supported | Publish live YAML examples through `mkdocs-topoviewer`. |
-| Zensical | Supported Adapter | Preview the same docs content through the generated Zensical site. |
-| Browser harness | Experimental | Author, validate, preview, and export TopoViewer YAML. |
-| VS Code extension | Experimental | Preview TopoViewer YAML locally; automatic full-project authoring is still evolving. |
+| Browser harness | Experimental | Author, validate, preview, and export TopoViewer YAML while the authoring UX matures. |
 | Grafana panel | Experimental | Mount topology/style/mapper bundles and render Prometheus-driven overlays. |
+| Zensical | Supported Adapter | Preview the same docs content through the generated Zensical site. |
+| VS Code extension | Experimental | Preview TopoViewer YAML locally; automatic full-project authoring is still evolving. |
 | Grafana Containerlab mode | Lab | Validate realistic telemetry under the Grafana lab; not a separate production surface. |
 | NetBox | Roadmap | Future in-product topology visualization from NetBox inventory and platform data. |
 | OpsMill/Infrahub | Roadmap | Future in-product topology visualization from Infrahub network topology and inventory data. |
@@ -76,7 +80,7 @@ all have the same maturity.
 | Status | Meaning |
 |---|---|
 | Supported | Implemented, documented, CI-gated, and intended for normal use. Compatibility expectations apply. |
-| Pre-Publish Supported | Implemented, documented, and CI-gated from source, but public package publication is still pending. |
+| Pre-Publish Supported | Implemented, documented, and CI-gated from source, but public npm publication is still pending. The first public release target is `0.1.0` for early adopters. |
 | Supported Adapter | Implemented, documented, and CI-gated as an adapter path, not as a native upstream plugin package. |
 | Experimental | Implemented enough to try, but API, UX, packaging, or operational behavior may still change. |
 | Lab | Disposable local validation environment. Do not treat it as production deployment guidance. |

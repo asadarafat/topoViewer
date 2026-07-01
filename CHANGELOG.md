@@ -1,11 +1,16 @@
 # Changelog
 
-TopoViewer follows semantic versioning for public releases. During early access, breaking changes may still occur, but they must be documented with migration notes.
+TopoViewer follows semantic versioning for public releases. The intended first
+public release is `0.1.0`: an installable early-adopter release with honest
+pre-1.0 compatibility expectations. Reserve `1.0.0` for the later stable-core
+API-freeze release.
 
-## 0.1.0 - Unreleased
+## 0.1.0 - Planned Early-Adopter Release
 
 ### Added
 
+- First public `topoviewer` npm package target with React renderer, schemas,
+  validation helpers, stylesheet keys, examples, and MkDocs embed behavior.
 - Production-shaped monorepo with separate `topoviewer` npm package and `mkdocs-topoviewer` Python package.
 - React renderer package exports, embeddable browser bundle, and schema package exports.
 - MkDocs fenced-block plugin with vendored frontend assets.
@@ -27,3 +32,9 @@ TopoViewer follows semantic versioning for public releases. During early access,
 ### Security
 
 - Documented the security boundary for Markdown, SVG, image references, and untrusted diagram content.
+
+## 1.0.0 - Future Stable-Core Release
+
+This future release is reserved for the stable-core API-freeze milestone after
+the early-adopter package has real user feedback, migration notes, and a
+supportable SemVer boundary.

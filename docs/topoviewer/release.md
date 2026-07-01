@@ -116,6 +116,10 @@ The public npm package name is `topoviewer`, but it is not available from npm
 until the manual publication workflow succeeds. Do not present the npm install
 command as a working current install path before that release is complete.
 
+The intended first public release is `0.1.0`: an installable early-adopter
+release. It should be useful, documented, and CI-gated, but it should not claim
+API freeze. Reserve `1.0.0` for the later stable-core release.
+
 The future public npm install snippet is:
 
 ```bash
@@ -139,8 +143,9 @@ publish to npm. Publication is manual through the `Manual npm Publish` GitHub
 Actions workflow:
 
 1. Choose the exact version already committed in `packages/topoviewer/package.json`.
-2. Choose the dist-tag. Use `next` for early public validation. Reserve `latest`
-   for the stable public package contract.
+2. Choose the dist-tag. Prefer `next` for `0.1.0` early-adopter validation
+   unless maintainers deliberately want `latest` with clear pre-1.0 wording.
+   Reserve `latest` without caveats for the stable-core `1.0.0` release.
 3. Keep `dry_run` enabled for the first run and review the npm publish output.
 4. Confirm `npm run ci`, `npm run install:check`,
    `npm run api:check`, `npm run artifact:check:package`, and
@@ -156,6 +161,37 @@ Actions workflow:
    security and token scope aligned with the registry policy.
 9. Run the workflow with `dry_run: false` only after the dry-run artifact and
    validation logs are reviewed.
+
+## 0.1.0 Early-Adopter Gate
+
+Do not publish `topoviewer@0.1.0` until these are true:
+
+- The package builds, type output, CSS, schemas, examples, and README are
+  present in `npm pack --dry-run` output.
+- `npm run ci`, `npm run install:check`, `npm run api:check`,
+  `npm run artifact:check:package`, and `npm run dependency:advisories` pass.
+- The changelog has a `0.1.0` entry with support status, known limitations,
+  and migration notes.
+- The README first run no longer points users at a missing npm package after
+  the package is published.
+- The README and docs clearly state that this is pre-1.0 early-adopter
+  software and that APIs may change with migration notes.
+- Experimental integrations remain clearly labeled and do not expand the
+  package compatibility promise.
+
+## 1.0.0 Stable-Core Gate
+
+Do not publish `topoviewer@1.0.0` until these are true:
+
+- `TopoViewer`, documented React props/events, validation/lint helpers,
+  topology schemas, stylesheet schemas, style keys, curated examples, and the
+  MkDocs embed path are treated as Supported.
+- The public API report is intentionally frozen enough for SemVer.
+- Compatibility fixtures cover previously documented public YAML.
+- The changelog has a `1.0.0` entry with support status, known limitations,
+  and migration notes from `0.x`.
+- Experimental integrations remain clearly labeled and do not expand the
+  stable-core SemVer promise.
 
 Rollback and deprecation expectations:
 

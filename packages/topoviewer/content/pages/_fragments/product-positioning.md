@@ -1,4 +1,8 @@
-TopoViewer is a **Topology as Code** toolkit for teams that want network,
+TopoViewer turns `topology.yaml` + `stylesheet.yaml` into interactive,
+embeddable, schema-validated topology diagrams for infrastructure docs,
+internal portals, and ops dashboards.
+
+It is a **Topology as Code** toolkit for teams that want network,
 infrastructure, service, and other connected-system diagrams to stay close to
 source data.
 
@@ -13,4 +17,3 @@ text-to-diagram syntax for many diagram families. TopoViewer is narrower and
 more semantic: it is built for inspectable, data-driven topology views where
 layers, regions, paths, operational metadata, focus behavior, and reusable
 runtime APIs matter.
-

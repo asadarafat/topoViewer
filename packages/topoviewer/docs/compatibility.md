@@ -7,14 +7,20 @@ does not have the same compatibility promise as a harness-only helper.
 
 ## Version Policy
 
-The public package is still `0.x`, so the project can make breaking changes
-before the first stable release. Even before `1.0`, supported surfaces must not
-break silently: every breaking change needs a migration note, a schema or
-runtime diagnostic when possible, and an example update.
+The first public package target is `0.1.0`: an installable early-adopter
+release with honest pre-1.0 compatibility expectations. It should be good
+enough to try from npm, but it should not claim API freeze.
+
+The later stable-core target is `1.0.0`. For `1.0.0`, the stable core means the
+React renderer, documented props/events, topology and stylesheet schemas,
+validation/lint helpers, curated examples, and MkDocs embed behavior are
+supportable under normal SemVer expectations. Grafana, VS Code, labs, Zensical
+adapter internals, NetBox, and OpsMill/Infrahub can remain Experimental, Lab,
+Supported Adapter, or Roadmap without blocking the core package release.
 
 | Surface | Compatibility rule |
 |---|---|
-| `topoviewer` npm package | Follow SemVer once `1.0` is reached. Before `1.0`, breaking changes are allowed only with migration notes and public examples updated in the same change. |
+| `topoviewer` npm package | `0.1.0` is the first public early-adopter release. `1.0.0` is the later stable-core release; after that, supported API/YAML/style/schema changes follow SemVer strictly. |
 | React component props | `TopoViewer`, documented props, and documented event payloads are the primary supported API. Breaking prop/event changes require migration notes. |
 | TypeScript exports | Exports marked `Supported` in [TypeScript API](api-reference.md) are intended for application code. `Advanced` exports are public but lower-level. `Experimental` exports may change while the feature matures. |
 | Topology YAML | `version` is the document migration hook. Missing versions are treated as current-compatible until a migration says otherwise. |
