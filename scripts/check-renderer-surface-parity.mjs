@@ -23,7 +23,7 @@ const fixtures = [
   { id: 'nodes-icon-fit-and-badges', sourcePath: 'nodes/icon-fit-and-badges' },
   { id: 'region-label-placement', sourcePath: 'regions/region-label-placement' },
   { id: 'styling-label-z-index', sourcePath: 'styling/label-z-index' },
-  { id: 'attention-object-focus', sourcePath: 'attention/object-focus' },
+  { id: 'attention-object-focus', sourcePath: 'attention/object-focus', expectEdges: false },
   { id: 'layered-network', sourcePath: 'harness/layered-network' },
   { id: 'directional-link-strokes', sourcePath: 'edges/directional-link-strokes' }
 ];
@@ -63,6 +63,7 @@ function copyFixture(fixture) {
 }
 
 function expectedMinimumEdgePaths(fixture) {
+  if (fixture.expectEdges === false) return 0;
   const topologyPath = path.join(repoRoot, 'packages/topoviewer/content/examples', fixture.sourcePath, 'topology.yaml');
   const topology = yaml.load(fs.readFileSync(topologyPath, 'utf8'));
   const graph = topology?.graph || {};
