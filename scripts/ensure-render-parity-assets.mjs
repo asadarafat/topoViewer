@@ -47,6 +47,7 @@ for (const asset of initialMissing) {
 }
 
 run('build MkDocs site for renderer parity', 'npm', ['run', 'docs:build:fast']);
+run('build TopoViewer package assets for renderer parity', 'npm', ['--workspace', 'topoviewer', 'run', 'build']);
 run('build Zensical site for renderer parity', 'npm', ['run', 'zensical:build'], {
   TOPOVIEWER_ZENSICAL_SKIP_VIEWER_BUILD: '1'
 });
