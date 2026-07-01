@@ -1,45 +1,116 @@
 #!/usr/bin/env node
 
+import { execFile } from 'node:child_process';
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { promisify } from 'node:util';
 import { fileURLToPath } from 'node:url';
 import { chromium } from '@playwright/test';
 
+const execFileAsync = promisify(execFile);
+
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const outputDir = path.join(repoRoot, '.artifacts', 'promo');
-const readmePosterPath = path.join(repoRoot, 'docs', 'assets', 'topoviewer-yaml-to-graph-demo.png');
+const frameDir = path.join(outputDir, 'frames');
+const readmeCollagePath = path.join(repoRoot, 'docs', 'assets', 'topoviewer-yaml-to-graph-collage.png');
+const reviewPosterPath = path.join(outputDir, 'topoviewer-yaml-to-graph-demo.png');
+const reviewMp4Path = path.join(outputDir, 'topoviewer-yaml-to-graph-demo.mp4');
+const reviewGifPath = path.join(outputDir, 'topoviewer-yaml-to-graph-demo.gif');
 const checkOnly = process.argv.includes('--check');
-const posterOnly = process.argv.includes('--poster-only');
+const mediaOnly = process.argv.includes('--media-only') || process.argv.includes('--poster-only');
+
+const fixtureId = process.env.TOPOVIEWER_PROMO_FIXTURE_ID || 'layered-network';
 const docsBaseUrl = process.env.TOPOVIEWER_PROMO_DOCS_BASE_URL || 'http://127.0.0.1:8001/topoviewer';
 const grafanaBaseUrl = process.env.TOPOVIEWER_PROMO_GRAFANA_URL || process.env.GRAFANA_URL || 'http://127.0.0.1:3000';
+const telemetryInjectorUrl = process.env.TOPOVIEWER_PROMO_TELEMETRY_INJECTOR_URL ||
+  process.env.TELEMETRY_INJECTOR_URL ||
+  'http://127.0.0.1:9108';
+
+const surfaceUrls = {
+  harness: process.env.TOPOVIEWER_PROMO_HARNESS_URL || `${docsBaseUrl}/harness/`,
+  mkdocs: process.env.TOPOVIEWER_PROMO_MKDOCS_URL ||
+    `${docsBaseUrl}/docs/mkdocs/topoviewer/reference/harness/layered-network/`,
+  zensical: process.env.TOPOVIEWER_PROMO_ZENSICAL_URL ||
+    `${docsBaseUrl}/docs/zensical/topoviewer/reference/harness/layered-network/`,
+  grafana: process.env.TOPOVIEWER_PROMO_GRAFANA_DASHBOARD_URL ||
+    `${grafanaBaseUrl}/d/topoviewer-phase-4/topoviewer-phase-4-mounted-bundles?orgId=1`
+};
 
 const surfaces = [
   {
+    id: 'harness',
     name: 'Browser harness',
-    url: process.env.TOPOVIEWER_PROMO_HARNESS_URL || `${docsBaseUrl}/harness/`,
-    caption: 'Author topology, stylesheet, and mapper YAML in the browser harness.'
+    title: 'Author in the Harness',
+    eyebrow: 'YAML authoring',
+    url: surfaceUrls.harness,
+    caption: 'Edit topology.yaml and stylesheet.yaml beside the rendered graph.',
+    collageSubtitle: 'Author topology and stylesheet YAML beside the live canvas.',
+    footer: 'The browser harness is the authoring surface for topology, styles, mapper YAML, and live validation.'
   },
   {
+    id: 'mkdocs',
     name: 'MkDocs live viewport',
-    url: process.env.TOPOVIEWER_PROMO_MKDOCS_URL || `${docsBaseUrl}/docs/mkdocs/topoviewer/examples/`,
-    caption: 'Render the same YAML as a live MkDocs viewport.'
+    title: 'Publish in MkDocs',
+    eyebrow: 'Documentation embed',
+    url: surfaceUrls.mkdocs,
+    caption: 'Render the same canonical YAML as an interactive documentation viewport.',
+    collageSubtitle: 'Embed the same YAML in MkDocs documentation.',
+    footer: 'MkDocs examples consume the same source bundle used by the harness and test catalog.'
   },
   {
+    id: 'zensical',
     name: 'Zensical live viewport',
-    url: process.env.TOPOVIEWER_PROMO_ZENSICAL_URL || `${docsBaseUrl}/docs/zensical/topoviewer/examples/`,
-    caption: 'Publish the same topology through Zensical without rewriting the model.'
+    title: 'Mirror into Zensical',
+    eyebrow: 'Parallel docs surface',
+    url: surfaceUrls.zensical,
+    caption: 'Reuse the same docs content through the Zensical publishing surface.',
+    collageSubtitle: 'Publish the same generated docs content through Zensical.',
+    footer: 'Zensical keeps the topology model intact while changing the documentation shell.'
   },
   {
+    id: 'grafana',
     name: 'Grafana TopoViewer panel',
-    url: process.env.TOPOVIEWER_PROMO_GRAFANA_DASHBOARD_URL || `${grafanaBaseUrl}/d/topoviewer-phase-4/topoviewer-phase-4-mounted-bundles`,
-    caption: 'Mount the bundle in Grafana and drive runtime overlays from telemetry.'
+    title: 'Operate in Grafana',
+    eyebrow: 'Telemetry overlay',
+    url: surfaceUrls.grafana,
+    caption: 'Mount the same TopoViewer bundle and overlay runtime telemetry.',
+    collageSubtitle: 'Mount the same bundle and overlay telemetry in Grafana.',
+    footer: 'Grafana reads *.topo.tv.yaml, *.style.tv.yaml, and *.mapper.tv.yaml without rebuilding the plugin.'
   }
 ];
+
+const docsDarkPalette = {
+  index: 1,
+  color: {
+    scheme: 'slate',
+    primary: 'blue',
+    accent: 'cyan'
+  }
+};
 
 function timeoutSignal(milliseconds) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), milliseconds);
   return { signal: controller.signal, timeout };
+}
+
+async function run(command, args, options = {}) {
+  try {
+    const result = await execFileAsync(command, args, {
+      cwd: repoRoot,
+      maxBuffer: 10 * 1024 * 1024,
+      ...options
+    });
+    return result;
+  } catch (error) {
+    const stderr = error?.stderr ? `\n${error.stderr}` : '';
+    const stdout = error?.stdout ? `\n${error.stdout}` : '';
+    throw new Error(`${command} ${args.join(' ')} failed.${stdout}${stderr}`);
+  }
+}
+
+async function assertFfmpeg() {
+  await run('ffmpeg', ['-version']);
 }
 
 async function assertSurface(surface) {
@@ -52,9 +123,9 @@ async function assertSurface(surface) {
   } catch (error) {
     throw new Error([
       `${surface.name} is not reachable at ${surface.url}.`,
-      'Start the required local surface first:',
-      '- docs/harness: npm run docs:preview',
-      '- Grafana lab: npm run grafana:lab:up',
+      'Start the required local surfaces first:',
+      '- docs/harness/MkDocs/Zensical: npm run docs:preview',
+      '- Grafana lab: GRAFANA_HTTP_PORT=3001 PROMETHEUS_HTTP_PORT=9091 TELEMETRY_INJECTOR_HTTP_PORT=9109 npm run grafana:lab:up',
       'Override URLs with TOPOVIEWER_PROMO_HARNESS_URL, TOPOVIEWER_PROMO_MKDOCS_URL, TOPOVIEWER_PROMO_ZENSICAL_URL, or TOPOVIEWER_PROMO_GRAFANA_DASHBOARD_URL.',
       `Underlying error: ${error instanceof Error ? error.message : String(error)}`
     ].join('\n'));
@@ -63,60 +134,197 @@ async function assertSurface(surface) {
   }
 }
 
-async function caption(page, text) {
-  await page.evaluate((value) => {
-    const id = 'topoviewer-promo-caption';
-    document.getElementById(id)?.remove();
-    const node = document.createElement('div');
-    node.id = id;
-    node.textContent = value;
-    Object.assign(node.style, {
-      position: 'fixed',
-      left: '50%',
-      bottom: '28px',
-      transform: 'translateX(-50%)',
-      zIndex: '2147483647',
-      maxWidth: '920px',
-      padding: '12px 18px',
-      borderRadius: '999px',
-      background: 'rgba(15, 23, 42, 0.86)',
-      border: '1px solid rgba(66, 165, 245, 0.48)',
-      color: '#e5f3ff',
-      font: '600 18px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-      boxShadow: '0 16px 40px rgba(0, 0, 0, 0.28)',
-      pointerEvents: 'none'
-    });
-    document.body.appendChild(node);
-  }, text);
+async function setTelemetryScenario(scenario) {
+  const response = await fetch(`${telemetryInjectorUrl}/scenario/${scenario}`, { method: 'POST' });
+  if (!response.ok) {
+    const text = await response.text().catch(() => '');
+    throw new Error(`Unable to set telemetry scenario "${scenario}" at ${telemetryInjectorUrl}: ${response.status} ${text}`);
+  }
 }
 
-async function visitSurface(page, surface) {
-  await page.goto(surface.url, { waitUntil: 'domcontentloaded', timeout: 30000 });
-  await page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => undefined);
-  await caption(page, surface.caption);
-  await page.waitForTimeout(4500);
+async function waitForTopoViewerNodes(page) {
+  await page.waitForSelector('.topoviewer .react-flow__node, .react-flow__node', { timeout: 45_000 });
+  await page.waitForFunction(() => document.querySelectorAll('.topoviewer .react-flow__node, .react-flow__node').length >= 2);
+  await page.waitForTimeout(1000);
 }
 
-function readmePosterHtml() {
+async function imageDataUrl(buffer) {
+  return `data:image/png;base64,${buffer.toString('base64')}`;
+}
+
+async function installDocsDarkMode(page) {
+  await page.addInitScript((palette) => {
+    try {
+      window.localStorage.setItem('__palette', JSON.stringify(palette));
+    } catch {
+      // Ignore storage failures in locked-down browser contexts.
+    }
+  }, docsDarkPalette);
+}
+
+async function forceDocsDarkMode(page) {
+  await page.evaluate((palette) => {
+    try {
+      window.localStorage.setItem('__palette', JSON.stringify(palette));
+    } catch {
+      // Ignore storage failures in locked-down browser contexts.
+    }
+
+    const root = document.documentElement;
+    root.classList.add('topoviewer-promo-force-dark');
+    root.style.colorScheme = 'dark';
+    root.setAttribute('data-md-color-scheme', 'slate');
+    root.setAttribute('data-md-color-primary', 'blue');
+    root.setAttribute('data-md-color-accent', 'cyan');
+    root.style.setProperty('--md-default-bg-color', '#0b1220');
+    root.style.setProperty('--md-default-fg-color', '#d7e3f3');
+    root.style.setProperty('--md-default-fg-color--light', '#a8b7cc');
+    root.style.setProperty('--md-default-fg-color--lighter', '#94a3b8');
+    root.style.setProperty('--md-default-fg-color--lightest', '#334155');
+    root.style.setProperty('--md-code-bg-color', '#111827');
+    root.style.setProperty('--md-code-fg-color', '#e5edf7');
+    root.style.setProperty('--md-typeset-a-color', '#42a5f5');
+  }, docsDarkPalette);
+
+  await page.addStyleTag({
+    content: `
+      html.topoviewer-promo-force-dark,
+      html.topoviewer-promo-force-dark body {
+        color-scheme: dark !important;
+        background: #0b1220 !important;
+      }
+
+      html.topoviewer-promo-force-dark :where(.md-main, .md-content, .md-sidebar, .md-sidebar__scrollwrap, .md-nav, .md-typeset) {
+        background-color: #0b1220 !important;
+        color: #d7e3f3 !important;
+      }
+
+      html.topoviewer-promo-force-dark :where(.md-header, .md-tabs) {
+        background-color: #0f172a !important;
+        color: #eef6ff !important;
+      }
+
+      html.topoviewer-promo-force-dark :where(.md-search__form, .md-search__input) {
+        background-color: rgba(15, 23, 42, 0.9) !important;
+        color: #eef6ff !important;
+      }
+
+      html.topoviewer-promo-force-dark :where(.md-nav__link, .md-typeset p, .md-typeset li, .md-typeset table) {
+        color: #c6d3e1 !important;
+      }
+
+      html.topoviewer-promo-force-dark :where(.md-typeset h1, .md-typeset h2, .md-typeset h3, .md-typeset h4, .md-typeset strong) {
+        color: #f8fafc !important;
+      }
+
+      html.topoviewer-promo-force-dark :where(.md-typeset a, .md-tabs__link--active, .tabbed-labels > label) {
+        color: #42a5f5 !important;
+      }
+    `
+  });
+}
+
+async function captureHarness(browser) {
+  const page = await browser.newPage({
+    colorScheme: 'dark',
+    deviceScaleFactor: 1,
+    viewport: { width: 1440, height: 860 }
+  });
+  try {
+    await page.addInitScript((activeFixtureId) => {
+      window.localStorage.setItem('topoviewer.vscodeHarness.activeFixture.v1', activeFixtureId);
+      window.localStorage.setItem('topoviewer.vscodeHarness.splitPercent.v2', '38');
+    }, fixtureId);
+    await page.goto(surfaceUrls.harness, { waitUntil: 'domcontentloaded', timeout: 30_000 });
+    await page.waitForFunction(() => !!window.__topoviewerHarnessState?.topologyText, null, { timeout: 45_000 });
+    await page.getByRole('tab', { name: /^YAML$/ }).click();
+    await page.getByRole('tab', { name: 'Topology YAML' }).click();
+    await waitForTopoViewerNodes(page);
+    await page.waitForSelector('.monaco-editor', { timeout: 30_000 });
+    return imageDataUrl(await page.screenshot({ fullPage: false }));
+  } finally {
+    await page.close();
+  }
+}
+
+async function captureDocsViewport(browser, url) {
+  const page = await browser.newPage({
+    colorScheme: 'dark',
+    deviceScaleFactor: 1,
+    viewport: { width: 1440, height: 860 }
+  });
+  try {
+    await installDocsDarkMode(page);
+    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30_000 });
+    await forceDocsDarkMode(page);
+    await waitForTopoViewerNodes(page);
+    await page.locator('.topoviewer').first().scrollIntoViewIfNeeded();
+    await forceDocsDarkMode(page);
+    await page.waitForTimeout(400);
+    return imageDataUrl(await page.screenshot({ fullPage: false }));
+  } finally {
+    await page.close();
+  }
+}
+
+async function captureGrafana(browser) {
+  await setTelemetryScenario('healthy');
+  const page = await browser.newPage({
+    colorScheme: 'dark',
+    deviceScaleFactor: 1,
+    locale: 'en-US',
+    viewport: { width: 1440, height: 860 }
+  });
+  try {
+    await page.goto(surfaceUrls.grafana, { waitUntil: 'domcontentloaded', timeout: 45_000 });
+    const panel = page.locator('[data-testid="topoviewer-grafana-panel"]').first();
+    await panel.waitFor({ state: 'visible', timeout: 60_000 });
+    const selector = page.locator('[data-testid="topoviewer-bundle-select"]').first();
+    if (await selector.count()) {
+      await selector.selectOption(fixtureId);
+    }
+    await waitForTopoViewerNodes(page);
+    await panel.scrollIntoViewIfNeeded();
+    await page.waitForTimeout(400);
+    return imageDataUrl(await page.screenshot({ fullPage: false }));
+  } finally {
+    await page.close();
+  }
+}
+
+async function captureSurfaces(browser) {
+  return {
+    harness: await captureHarness(browser),
+    mkdocs: await captureDocsViewport(browser, surfaceUrls.mkdocs),
+    zensical: await captureDocsViewport(browser, surfaceUrls.zensical),
+    grafana: await captureGrafana(browser)
+  };
+}
+
+function escapeHtml(value) {
+  return value
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;');
+}
+
+function slideHtml(surface, image) {
   return `<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>TopoViewer YAML to graph poster</title>
+    <title>${escapeHtml(surface.title)}</title>
     <style>
       :root {
         color-scheme: dark;
         --bg: #07111f;
-        --panel: rgba(15, 23, 42, 0.88);
-        --panel-strong: rgba(15, 23, 42, 0.96);
-        --border: rgba(148, 163, 184, 0.24);
+        --panel: rgba(15, 23, 42, 0.94);
+        --panel-2: rgba(17, 28, 46, 0.98);
+        --border: rgba(148, 163, 184, 0.32);
         --blue: #42a5f5;
-        --blue-strong: #1976d2;
-        --purple: #ba68c8;
-        --orange: #ff9800;
-        --green: #4caf50;
         --text: #f8fafc;
-        --muted: #9fb2cc;
+        --muted: #a8b7cc;
       }
 
       * {
@@ -125,371 +333,394 @@ function readmePosterHtml() {
 
       body {
         margin: 0;
-        width: 1440px;
-        height: 820px;
+        width: 1600px;
+        height: 900px;
         overflow: hidden;
         font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         color: var(--text);
         background:
-          radial-gradient(circle at 77% 20%, rgba(66, 165, 245, 0.18), transparent 34%),
+          radial-gradient(circle at 78% 16%, rgba(66, 165, 245, 0.18), transparent 34%),
           linear-gradient(135deg, #08111f 0%, #0d1728 48%, #06131b 100%);
-      }
-
-      .poster {
-        position: relative;
-        width: 100%;
-        height: 100%;
-        padding: 42px 48px 36px;
       }
 
       .grid {
         position: absolute;
         inset: 0;
         background-image:
-          linear-gradient(rgba(148, 163, 184, 0.08) 1px, transparent 1px),
-          linear-gradient(90deg, rgba(148, 163, 184, 0.08) 1px, transparent 1px);
-        background-size: 32px 32px;
-        mask-image: linear-gradient(to bottom, transparent, black 14%, black 86%, transparent);
+          linear-gradient(rgba(148, 163, 184, 0.07) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(148, 163, 184, 0.07) 1px, transparent 1px);
+        background-size: 34px 34px;
+        mask-image: linear-gradient(to bottom, transparent, black 12%, black 90%, transparent);
       }
 
-      .header {
+      main {
         position: relative;
+        width: 100%;
+        height: 100%;
+        padding: 32px 38px;
+        display: grid;
+        grid-template-rows: auto 1fr auto;
+        gap: 20px;
+      }
+
+      header,
+      footer {
         display: flex;
+        align-items: center;
         justify-content: space-between;
-        align-items: center;
-        margin-bottom: 24px;
+        gap: 24px;
       }
 
-      .brand {
-        display: flex;
-        align-items: center;
-        gap: 14px;
-        font-size: 28px;
-        font-weight: 800;
+      h1 {
+        margin: 0;
+        font-size: 48px;
+        line-height: 1.04;
         letter-spacing: 0;
       }
 
-      .badge {
-        border: 1px solid rgba(66, 165, 245, 0.42);
-        background: rgba(66, 165, 245, 0.12);
-        color: #d8efff;
-        border-radius: 999px;
-        padding: 8px 13px;
-        font-size: 16px;
-        font-weight: 700;
-      }
-
-      .headline {
-        position: relative;
-        max-width: 1120px;
-        font-size: 46px;
-        line-height: 1.06;
-        font-weight: 850;
-        letter-spacing: 0;
-        margin-bottom: 28px;
-      }
-
-      .headline span {
+      h1 span {
         color: #8fd0ff;
       }
 
-      .surface {
-        position: relative;
-        display: grid;
-        grid-template-columns: 470px 96px 1fr;
-        gap: 24px;
-        align-items: stretch;
+      .eyebrow,
+      code {
+        border: 1px solid rgba(66, 165, 245, 0.42);
+        background: rgba(66, 165, 245, 0.13);
+        color: #d8efff;
+        border-radius: 999px;
+        padding: 9px 14px;
+        font-size: 18px;
+        font-weight: 800;
       }
 
-      .card {
+      .shot {
+        min-height: 0;
+        overflow: hidden;
         border: 1px solid var(--border);
+        border-radius: 18px;
         background: var(--panel);
-        box-shadow: 0 24px 64px rgba(0, 0, 0, 0.28);
+        box-shadow: 0 24px 64px rgba(0, 0, 0, 0.3);
+        padding: 12px;
       }
 
-      .code-card {
-        border-radius: 18px;
-        overflow: hidden;
-      }
-
-      .card-head {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 16px 18px;
-        border-bottom: 1px solid var(--border);
-        background: var(--panel-strong);
-      }
-
-      .card-title {
-        color: #dce9f8;
-        font-size: 17px;
-        font-weight: 800;
-      }
-
-      .file-pill {
-        color: #b9c7da;
-        border: 1px solid rgba(148, 163, 184, 0.22);
-        border-radius: 999px;
-        padding: 6px 10px;
-        font-size: 13px;
-        font-weight: 700;
-      }
-
-      pre {
-        margin: 0;
-        padding: 18px 22px 20px;
-        min-height: 358px;
-        color: #dce9f8;
-        font: 600 16px/1.42 "SFMono-Regular", Consolas, "Liberation Mono", monospace;
-        white-space: pre-wrap;
-      }
-
-      .key { color: #5eead4; }
-      .value { color: #fdba74; }
-      .list { color: #93c5fd; }
-      .comment { color: #9fb2cc; }
-
-      .arrow {
-        align-self: center;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 12px;
-        color: #cdeaff;
-        font-weight: 800;
-        font-size: 15px;
-        text-align: center;
-      }
-
-      .arrow svg {
-        width: 94px;
-        height: 94px;
-        filter: drop-shadow(0 10px 24px rgba(66, 165, 245, 0.26));
-      }
-
-      .viewer-card {
-        position: relative;
-        min-height: 428px;
-        border-radius: 18px;
-        overflow: hidden;
-      }
-
-      .viewer-topbar {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 16px 18px;
-        border-bottom: 1px solid var(--border);
-        background: rgba(7, 17, 31, 0.82);
-      }
-
-      .viewer-title {
-        font-size: 17px;
-        font-weight: 800;
-      }
-
-      .viewer-tabs {
-        display: flex;
-        gap: 8px;
-      }
-
-      .viewer-tabs span {
-        border-radius: 999px;
-        padding: 6px 10px;
-        color: #c8d7eb;
-        background: rgba(148, 163, 184, 0.1);
-        font-size: 12px;
-        font-weight: 800;
-      }
-
-      .viewer-tabs span:first-child {
-        color: #e5f3ff;
-        background: rgba(66, 165, 245, 0.18);
-      }
-
-      .viewport {
-        position: relative;
-        height: 372px;
-        background:
-          radial-gradient(circle at 50% 45%, rgba(25, 118, 210, 0.16), transparent 42%),
-          linear-gradient(180deg, rgba(8, 21, 36, 0.98), rgba(4, 12, 20, 0.98));
-      }
-
-      .viewport svg {
-        position: absolute;
-        inset: 0;
+      .shot img {
+        display: block;
         width: 100%;
         height: 100%;
+        object-fit: contain;
+        border-radius: 12px;
+        background: #050d17;
       }
 
-      .footer {
-        position: relative;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-top: 20px;
+      .caption {
+        max-width: 820px;
+        color: var(--text);
+        font-size: 24px;
+        font-weight: 850;
+      }
+
+      .footer-right {
         color: var(--muted);
-        font-size: 17px;
-        font-weight: 700;
-      }
-
-      .chips {
-        display: flex;
-        gap: 10px;
-      }
-
-      .chips span {
-        border: 1px solid rgba(148, 163, 184, 0.22);
-        border-radius: 999px;
-        padding: 8px 12px;
-        background: rgba(15, 23, 42, 0.72);
+        font-size: 18px;
+        font-weight: 800;
+        text-align: right;
       }
     </style>
   </head>
   <body>
-    <main class="poster">
-      <div class="grid" aria-hidden="true"></div>
-      <section class="header">
-        <div class="brand">TopoViewer <span class="badge">Topology as Code</span></div>
-        <div class="badge">YAML to interactive graph</div>
+    <div class="grid" aria-hidden="true"></div>
+    <main>
+      <header>
+        <h1>Same TopoViewer YAML. <span>${escapeHtml(surface.title)}</span></h1>
+        <div class="eyebrow">${escapeHtml(surface.eyebrow)}</div>
+      </header>
+      <section class="shot">
+        <img src="${image}" alt="${escapeHtml(surface.name)} screenshot" />
       </section>
-      <section class="headline">
-        Define topology facts once. <span>Render docs, tools, and telemetry views from the same model.</span>
-      </section>
-      <section class="surface">
-        <article class="card code-card">
-          <div class="card-head">
-            <div class="card-title">Declarative source</div>
-            <div class="file-pill">topology + stylesheet YAML</div>
-          </div>
-          <pre><span class="key">graph:</span>
-  <span class="key">nodes:</span>
-    - <span class="key">id:</span> <span class="value">FRA-PE</span>
-      <span class="key">labels:</span> { <span class="key">role:</span> <span class="value">pe</span>, <span class="key">site:</span> <span class="value">fra</span> }
-    - <span class="key">id:</span> <span class="value">AMS-P</span>
-      <span class="key">labels:</span> { <span class="key">role:</span> <span class="value">p</span> }
-    - <span class="key">id:</span> <span class="value">Payments VPN</span>
-      <span class="key">labels:</span> { <span class="key">service:</span> <span class="value">payments</span> }
-
-<span class="key">stylesheet:</span>
-  - <span class="key">selector:</span> <span class="value">link[labels.tenant = "payments"]</span>
-    <span class="key">style:</span> { <span class="key">lineColor:</span> <span class="value">"#ff9800"</span>, <span class="key">lineWidth:</span> <span class="value">4</span> }</pre>
-        </article>
-
-        <div class="arrow">
-          <svg viewBox="0 0 96 96" fill="none" aria-hidden="true">
-            <path d="M14 48h58" stroke="#42a5f5" stroke-width="8" stroke-linecap="round" />
-            <path d="M51 25l22 23-22 23" stroke="#42a5f5" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" />
-            <circle cx="48" cy="48" r="43" stroke="rgba(66,165,245,.24)" stroke-width="2" />
-          </svg>
-          render once,<br />reuse anywhere
-        </div>
-
-        <article class="card viewer-card">
-          <div class="viewer-topbar">
-            <div class="viewer-title">Rendered topology</div>
-            <div class="viewer-tabs"><span>Layers</span><span>Attention</span><span>Telemetry</span></div>
-          </div>
-          <div class="viewport">
-            <svg viewBox="0 0 780 438" aria-label="Rendered TopoViewer network graph">
-              <defs>
-                <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
-                  <feDropShadow dx="0" dy="14" stdDeviation="14" flood-color="#020617" flood-opacity="0.44" />
-                </filter>
-                <marker id="arrowGreen" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
-                  <path d="M0 0l10 5-10 5z" fill="#4caf50" />
-                </marker>
-                <marker id="arrowOrange" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
-                  <path d="M0 0l10 5-10 5z" fill="#ff9800" />
-                </marker>
-                <marker id="arrowPurple" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
-                  <path d="M0 0l10 5-10 5z" fill="#ba68c8" />
-                </marker>
-              </defs>
-              <rect x="78" y="118" width="520" height="124" rx="10" fill="rgba(25,118,210,.08)" stroke="rgba(66,165,245,.32)" />
-              <text x="338" y="144" text-anchor="middle" fill="#e2e8f0" font-size="15" font-weight="800">PROVIDER CORE</text>
-              <path d="M155 196H320H485" stroke="#4caf50" stroke-width="16" stroke-linecap="round" opacity=".28" />
-              <path d="M155 196H320H485" stroke="#4caf50" stroke-width="5" stroke-linecap="round" marker-end="url(#arrowGreen)" />
-              <path d="M155 196Q320 336 485 196" stroke="#ff9800" stroke-width="6" fill="none" stroke-linecap="round" marker-end="url(#arrowOrange)" />
-              <path d="M155 196Q320 28 485 196" stroke="#ba68c8" stroke-width="4" stroke-dasharray="10 9" fill="none" marker-end="url(#arrowPurple)" />
-              <path d="M485 196H642V82" stroke="#ef5350" stroke-width="4" stroke-dasharray="8 7" fill="none" marker-end="url(#arrowOrange)" />
-
-              <g filter="url(#shadow)">
-                <rect x="122" y="163" width="66" height="66" rx="8" fill="#001135" stroke="#42a5f5" stroke-width="4" />
-                <path d="M143 181v12h-12M132 193l12-12M168 181v12h12M179 193l-12-12M143 211v-12h-12M132 199l12 12M168 211v-12h12M179 199l-12 12" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
-                <rect x="287" y="163" width="66" height="66" rx="8" fill="#001135" stroke="#90caf9" stroke-width="4" />
-                <path d="M308 181v12h-12M297 193l12-12M333 181v12h12M344 193l-12-12M308 211v-12h-12M297 199l12 12M333 211v-12h12M344 199l-12 12" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
-                <rect x="452" y="163" width="66" height="66" rx="8" fill="#001135" stroke="#42a5f5" stroke-width="4" />
-                <path d="M473 181v12h-12M462 193l12-12M498 181v12h12M509 193l-12-12M473 211v-12h-12M462 199l12 12M498 211v-12h12M509 199l-12 12" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
-                <rect x="296" y="285" width="48" height="48" rx="8" fill="#001135" stroke="#90caf9" stroke-width="4" />
-                <path d="M304 315c.5 6.1 6 11.1 12.4 11.1h32.8c5.4 0 10.6-2.8 13.6-7.2 6-8.9 0-21.9-10.6-23.5-1.5-.2-2.7-.2-4.1 0l-1.5.2c-1.1.2-2.3-.4-2.8-1.5-2.4-4.4-7.5-7.3-13.2-6.6-6 .7-11.5 5.5-11.5 11.4v1c0 1.5-1.3 2.8-2.8 2.8h-.2c-6.8 0-12.4 5.7-11.9 12.4z" fill="none" stroke="#fff" stroke-width="3" stroke-linejoin="round" />
-                <rect x="625" y="62" width="48" height="48" rx="6" fill="#001135" stroke="#90caf9" stroke-width="4" />
-                <circle cx="647" cy="86" r="13" fill="none" stroke="#fff" stroke-width="3" />
-                <path d="M660 76l10 10-10 10" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
-              </g>
-
-              <g font-family="Inter, system-ui, sans-serif" font-size="16" font-weight="850" fill="#f8fafc">
-                <text x="155" y="257" text-anchor="middle">FRA-PE</text>
-                <text x="320" y="257" text-anchor="middle">AMS-P</text>
-                <text x="485" y="257" text-anchor="middle">LON-PE</text>
-                <text x="320" y="364" text-anchor="middle">Payments VPN</text>
-                <text x="649" y="139" text-anchor="middle">NOC</text>
-              </g>
-              <g font-family="Inter, system-ui, sans-serif" font-size="13" font-weight="800">
-                <rect x="223" y="174" width="92" height="26" rx="13" fill="rgba(76,175,80,.16)" stroke="rgba(76,175,80,.34)" />
-                <text x="269" y="192" text-anchor="middle" fill="#bdf4c2">underlay</text>
-                <rect x="342" y="300" width="88" height="26" rx="13" fill="rgba(255,152,0,.16)" stroke="rgba(255,152,0,.38)" />
-                <text x="386" y="318" text-anchor="middle" fill="#ffd8a8">service path</text>
-                <rect x="332" y="64" width="64" height="26" rx="13" fill="rgba(186,104,200,.16)" stroke="rgba(186,104,200,.38)" />
-                <text x="364" y="82" text-anchor="middle" fill="#f1c7f7">BGP</text>
-              </g>
-            </svg>
-          </div>
-        </article>
-      </section>
-      <section class="footer">
-        <div>One YAML model, many rendering surfaces.</div>
-        <div class="chips"><span>MkDocs</span><span>Zensical</span><span>React</span><span>Grafana</span><span>Harness</span></div>
-      </section>
+      <footer>
+        <div class="caption">${escapeHtml(surface.caption)}</div>
+        <div class="footer-right">Canonical bundle: <code>${escapeHtml(fixtureId)}</code><br />${escapeHtml(surface.footer)}</div>
+      </footer>
     </main>
   </body>
 </html>`;
 }
 
-async function writeReadmePoster(browser) {
-  await fs.mkdir(outputDir, { recursive: true });
-  await fs.mkdir(path.dirname(readmePosterPath), { recursive: true });
-  const page = await browser.newPage({ viewport: { width: 1440, height: 820 }, deviceScaleFactor: 1 });
+function collageHtml(images) {
+  const cards = surfaces.map((surface) => ({
+    title: surface.name.replace(' live viewport', ''),
+    subtitle: surface.collageSubtitle,
+    image: images[surface.id]
+  }));
+
+  return `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>TopoViewer four-surface collage</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #07111f;
+        --panel: rgba(15, 23, 42, 0.92);
+        --panel-2: rgba(17, 28, 46, 0.98);
+        --border: rgba(148, 163, 184, 0.32);
+        --blue: #42a5f5;
+        --text: #f8fafc;
+        --muted: #a8b7cc;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        width: 2200px;
+        height: 1600px;
+        overflow: hidden;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(circle at 78% 16%, rgba(66, 165, 245, 0.18), transparent 34%),
+          linear-gradient(135deg, #08111f 0%, #0d1728 48%, #06131b 100%);
+      }
+
+      .grid {
+        position: absolute;
+        inset: 0;
+        background-image:
+          linear-gradient(rgba(148, 163, 184, 0.07) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(148, 163, 184, 0.07) 1px, transparent 1px);
+        background-size: 34px 34px;
+        mask-image: linear-gradient(to bottom, transparent, black 11%, black 90%, transparent);
+      }
+
+      main {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        padding: 46px 54px 50px;
+      }
+
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        gap: 32px;
+        margin-bottom: 30px;
+      }
+
+      h1 {
+        margin: 0;
+        max-width: 1420px;
+        font-size: 58px;
+        line-height: 1.04;
+        letter-spacing: 0;
+      }
+
+      h1 span {
+        color: #8fd0ff;
+      }
+
+      .badge,
+      code {
+        border: 1px solid rgba(66, 165, 245, 0.42);
+        background: rgba(66, 165, 245, 0.13);
+        color: #d8efff;
+        border-radius: 999px;
+        padding: 11px 17px;
+        font-size: 20px;
+        font-weight: 850;
+      }
+
+      .cards {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 28px;
+      }
+
+      .card {
+        min-width: 0;
+        overflow: hidden;
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        background: var(--panel);
+        box-shadow: 0 24px 64px rgba(0, 0, 0, 0.28);
+      }
+
+      .card-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 20px;
+        min-height: 82px;
+        padding: 17px 20px;
+        border-bottom: 1px solid var(--border);
+        background: var(--panel-2);
+      }
+
+      .card-title {
+        flex: 0 0 auto;
+        color: var(--text);
+        font-size: 25px;
+        font-weight: 900;
+      }
+
+      .card-subtitle {
+        color: var(--muted);
+        font-size: 16px;
+        font-weight: 750;
+        line-height: 1.25;
+        text-align: right;
+      }
+
+      .shot {
+        height: 510px;
+        padding: 10px;
+        background: #07111f;
+      }
+
+      .shot img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        border-radius: 10px;
+        background: #050d17;
+      }
+
+      footer {
+        margin-top: 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: var(--muted);
+        font-size: 21px;
+        font-weight: 800;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="grid" aria-hidden="true"></div>
+    <main>
+      <header>
+        <h1>Same TopoViewer YAML. <span>Harness, docs, and operations.</span></h1>
+        <div class="badge">Topology as Code</div>
+      </header>
+      <section class="cards">
+        ${cards.map((card) => `
+          <article class="card">
+            <div class="card-head">
+              <div class="card-title">${escapeHtml(card.title)}</div>
+              <div class="card-subtitle">${escapeHtml(card.subtitle)}</div>
+            </div>
+            <div class="shot"><img src="${card.image}" alt="${escapeHtml(card.title)} screenshot" /></div>
+          </article>
+        `).join('')}
+      </section>
+      <footer>
+        <div>Canonical bundle: <code>${escapeHtml(fixtureId)}</code></div>
+        <div>Harness · MkDocs · Zensical · Grafana</div>
+      </footer>
+    </main>
+  </body>
+</html>`;
+}
+
+async function writeSlideFrame(browser, surface, image, index) {
+  const page = await browser.newPage({
+    colorScheme: 'dark',
+    deviceScaleFactor: 1,
+    viewport: { width: 1600, height: 900 }
+  });
+  const framePath = path.join(frameDir, `frame-${String(index).padStart(2, '0')}.png`);
   try {
-    await page.setContent(readmePosterHtml(), { waitUntil: 'load' });
-    await page.screenshot({
-      path: path.join(outputDir, 'topoviewer-yaml-to-graph-demo.png'),
-      fullPage: false
-    });
-    await page.screenshot({
-      path: readmePosterPath,
-      fullPage: false
-    });
+    await page.setContent(slideHtml(surface, image), { waitUntil: 'load' });
+    await page.screenshot({ path: framePath, fullPage: false });
+    return framePath;
   } finally {
     await page.close();
   }
 }
 
-async function main() {
-  if (posterOnly) {
-    const browser = await chromium.launch();
-    try {
-      await writeReadmePoster(browser);
-    } finally {
-      await browser.close();
-    }
-    console.log(`README poster written to ${path.relative(repoRoot, readmePosterPath)}`);
-    return;
+async function writeCollageImage(browser, images) {
+  const page = await browser.newPage({
+    colorScheme: 'dark',
+    deviceScaleFactor: 1,
+        viewport: { width: 2200, height: 1600 }
+  });
+  try {
+    await page.setContent(collageHtml(images), { waitUntil: 'load' });
+    await page.screenshot({ path: readmeCollagePath, fullPage: false });
+    await page.screenshot({ path: path.join(outputDir, 'topoviewer-yaml-to-graph-collage.png'), fullPage: false });
+  } finally {
+    await page.close();
+  }
+}
+
+async function encodeMp4(framePaths) {
+  const concatPath = path.join(outputDir, 'topoviewer-yaml-to-graph-demo.frames.txt');
+  const lines = [];
+  for (const framePath of framePaths) {
+    lines.push(`file '${framePath.replaceAll("'", "'\\''")}'`);
+    lines.push('duration 2.45');
+  }
+  lines.push(`file '${framePaths.at(-1).replaceAll("'", "'\\''")}'`);
+  await fs.writeFile(concatPath, `${lines.join('\n')}\n`);
+
+  await run('ffmpeg', [
+    '-y',
+    '-f', 'concat',
+    '-safe', '0',
+    '-i', concatPath,
+    '-vf', 'fps=30,format=yuv420p',
+    '-movflags', '+faststart',
+    '-c:v', 'libx264',
+    '-preset', 'slow',
+    '-crf', '20',
+    reviewMp4Path
+  ]);
+}
+
+async function encodeGif() {
+  const palettePath = path.join(outputDir, 'topoviewer-yaml-to-graph-demo.palette.png');
+  await run('ffmpeg', [
+    '-y',
+    '-i', reviewMp4Path,
+    '-vf', 'fps=7,scale=960:-1:flags=lanczos,palettegen=max_colors=72:stats_mode=diff',
+    palettePath
+  ]);
+  await run('ffmpeg', [
+    '-y',
+    '-i', reviewMp4Path,
+    '-i', palettePath,
+    '-filter_complex', 'fps=7,scale=960:-1:flags=lanczos[x];[x][1:v]paletteuse=dither=bayer:bayer_scale=5:diff_mode=rectangle',
+    reviewGifPath
+  ]);
+}
+
+async function writePromoMedia(browser) {
+  await fs.rm(frameDir, { recursive: true, force: true });
+  await fs.mkdir(frameDir, { recursive: true });
+  await fs.mkdir(path.dirname(readmeCollagePath), { recursive: true });
+
+  const images = await captureSurfaces(browser);
+  await writeCollageImage(browser, images);
+
+  const framePaths = [];
+  for (const [index, surface] of surfaces.entries()) {
+    framePaths.push(await writeSlideFrame(browser, surface, images[surface.id], index + 1));
   }
 
+  await fs.copyFile(framePaths[0], reviewPosterPath);
+  await encodeMp4(framePaths);
+  await encodeGif();
+}
+
+async function main() {
   console.log('Checking promo demo surfaces...');
+  await assertFfmpeg();
   for (const surface of surfaces) {
     await assertSurface(surface);
     console.log(`- ${surface.name}: ${surface.url}`);
@@ -502,33 +733,25 @@ async function main() {
 
   await fs.mkdir(outputDir, { recursive: true });
   const browser = await chromium.launch();
-  const context = await browser.newContext({
-    colorScheme: 'dark',
-    recordVideo: {
-      dir: outputDir,
-      size: { width: 1440, height: 920 }
-    },
-    viewport: { width: 1440, height: 920 }
-  });
-  const page = await context.newPage();
-
   try {
-    for (const surface of surfaces) {
-      await visitSurface(page, surface);
-    }
-    await writeReadmePoster(browser);
+    await writePromoMedia(browser);
   } finally {
-    const video = page.video();
-    await context.close();
     await browser.close();
-    const videoPath = await video?.path();
-    if (videoPath) {
-      await fs.rename(videoPath, path.join(outputDir, 'topoviewer-yaml-to-graph-demo.webm'));
-    }
   }
 
-  console.log(`promo demo artifacts written to ${path.relative(repoRoot, outputDir)}`);
-  console.log('Review locally, then host the final video on a durable public URL before referencing it from README or docs.');
+  const stats = await Promise.all([
+    fs.stat(reviewMp4Path),
+    fs.stat(reviewGifPath),
+    fs.stat(reviewPosterPath),
+    fs.stat(readmeCollagePath)
+  ]);
+  console.log(`promo MP4 written to ${path.relative(repoRoot, reviewMp4Path)} (${(stats[0].size / 1024 / 1024).toFixed(2)} MiB)`);
+  console.log(`promo GIF written to ${path.relative(repoRoot, reviewGifPath)} (${(stats[1].size / 1024 / 1024).toFixed(2)} MiB)`);
+  console.log(`promo review PNG written to ${path.relative(repoRoot, reviewPosterPath)} (${(stats[2].size / 1024 / 1024).toFixed(2)} MiB)`);
+  console.log(`promo README collage PNG written to ${path.relative(repoRoot, readmeCollagePath)} (${(stats[3].size / 1024 / 1024).toFixed(2)} MiB)`);
+  if (!mediaOnly) {
+    console.log(`promo artifacts also copied to ${path.relative(repoRoot, outputDir)}`);
+  }
 }
 
 main().catch((error) => {

@@ -12,3 +12,6 @@ site/
 .DS_Store
 __pycache__/
 topoviewer-changes.patch
+docs/assets/topoviewer-yaml-to-graph-demo.gif
+docs/assets/topoviewer-yaml-to-graph-demo.mp4
+docs/assets/topoviewer-yaml-to-graph-demo.png
