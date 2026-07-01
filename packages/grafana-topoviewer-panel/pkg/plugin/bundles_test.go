@@ -2,6 +2,7 @@ package plugin
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -29,6 +30,71 @@ func writeValidTestBundle(t *testing.T, root string, id string) string {
 	writeTestFile(t, filepath.Join(bundleRoot, id+".topo.tv.yaml"), "graph:\n  id: "+id+"\n")
 	writeTestFile(t, filepath.Join(bundleRoot, id+".style.tv.yaml"), "layout:\n  mode: manual\n")
 	writeTestFile(t, filepath.Join(bundleRoot, id+".mapper.tv.yaml"), "version: 1\nmappings: []\n")
+	return bundleRoot
+}
+
+func writeHarnessExportedTestBundle(t *testing.T, root string, id string) string {
+	t.Helper()
+	bundleRoot := filepath.Join(root, id)
+	if err := os.MkdirAll(bundleRoot, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	writeTestFile(t, filepath.Join(bundleRoot, id+".topo.tv.yaml"), ""+
+		"graph:\n"+
+		"  id: "+id+"\n"+
+		"  layers:\n"+
+		"    - id: underlay\n"+
+		"      name: Underlay\n"+
+		"  nodes:\n"+
+		"    - id: PE1\n"+
+		"      name: PE1\n"+
+		"      layers: [underlay]\n"+
+		"      position: [120, 140]\n"+
+		"    - id: P1\n"+
+		"      name: P1\n"+
+		"      layers: [underlay]\n"+
+		"      position: [320, 140]\n"+
+		"  links:\n"+
+		"    - id: PE1-P1\n"+
+		"      source: PE1\n"+
+		"      target: P1\n"+
+		"      layers: [underlay]\n")
+	writeTestFile(t, filepath.Join(bundleRoot, id+".style.tv.yaml"), ""+
+		"layout:\n"+
+		"  mode: manual\n"+
+		"  width: 480\n"+
+		"  height: 280\n"+
+		"stylesheet:\n"+
+		"  - selector: node\n"+
+		"    style:\n"+
+		"      shape: rectangle\n"+
+		"      width: 80\n"+
+		"      height: 48\n"+
+		"  - selector: link\n"+
+		"    style:\n"+
+		"      lineWidth: 3\n"+
+		"      lineColor: \"#4caf50\"\n")
+	writeTestFile(t, filepath.Join(bundleRoot, id+".mapper.tv.yaml"), ""+
+		"version: 1\n"+
+		"identity:\n"+
+		"  sourceId: "+id+"\n"+
+		"  sourceIdLabel: source_id\n"+
+		"rules:\n"+
+		"  - id: link-state\n"+
+		"    metric: topoviewer_link_up\n"+
+		"    select: link\n"+
+		"    join: link_id\n"+
+		"    value: up\n"+
+		"    states:\n"+
+		"      down: \"==0\"\n"+
+		"    style:\n"+
+		"      default:\n"+
+		"        label: UP\n"+
+		"        lineColor: \"#4caf50\"\n"+
+		"      down:\n"+
+		"        label: DOWN\n"+
+		"        lineColor: \"#d32f2f\"\n"+
+		"        lineStyle: dashed\n")
 	return bundleRoot
 }
 
@@ -90,6 +156,56 @@ func TestDiscoverBundlesRequiresCanonicalSuffixes(t *testing.T) {
 	}
 	if index.Bundles[0].ID != "branch-core" {
 		t.Fatalf("expected branch-core bundle, got %q", index.Bundles[0].ID)
+	}
+}
+
+func TestBundleResourceReadsHarnessExportedCanonicalBundle(t *testing.T) {
+	root := t.TempDir()
+	t.Setenv("TOPOVIEWER_ALLOWED_BUNDLE_ROOTS", root)
+	bundleID := "harness-exported-branch"
+	writeHarnessExportedTestBundle(t, root, bundleID)
+
+	indexResponse := callBundleResource(t, "bundles", "http://topoviewer.local/bundles?root="+url.QueryEscape(root))
+	if indexResponse.Status != http.StatusOK {
+		t.Fatalf("expected status %d, got %d: %s", http.StatusOK, indexResponse.Status, string(indexResponse.Body))
+	}
+	var index bundleIndexResponse
+	if err := json.Unmarshal(indexResponse.Body, &index); err != nil {
+		t.Fatalf("unmarshal bundle index: %v", err)
+	}
+	if len(index.Diagnostics) != 0 {
+		t.Fatalf("expected no diagnostics, got %#v", index.Diagnostics)
+	}
+	if len(index.Bundles) != 1 || index.Bundles[0].ID != bundleID {
+		t.Fatalf("expected discovered harness-exported bundle, got %#v", index.Bundles)
+	}
+	if index.Bundles[0].TopologyPath != bundleID+"/"+bundleID+".topo.tv.yaml" {
+		t.Fatalf("expected canonical logical topology path, got %q", index.Bundles[0].TopologyPath)
+	}
+
+	readResponse := callBundleResource(t, "bundle", "http://topoviewer.local/bundle?root="+url.QueryEscape(root)+"&id="+url.QueryEscape(bundleID))
+	if readResponse.Status != http.StatusOK {
+		t.Fatalf("expected status %d, got %d: %s", http.StatusOK, readResponse.Status, string(readResponse.Body))
+	}
+	var payload bundleResponse
+	if err := json.Unmarshal(readResponse.Body, &payload); err != nil {
+		t.Fatalf("unmarshal bundle payload: %v", err)
+	}
+	if payload.Bundle.ID != bundleID {
+		t.Fatalf("expected payload bundle %q, got %q", bundleID, payload.Bundle.ID)
+	}
+	if !strings.Contains(payload.TopologyYAML, "id: "+bundleID) {
+		t.Fatalf("expected topology YAML from harness-exported bundle, got %q", payload.TopologyYAML)
+	}
+	if !strings.Contains(payload.StylesheetYAML, "lineColor: \"#4caf50\"") {
+		t.Fatalf("expected stylesheet YAML from harness-exported bundle, got %q", payload.StylesheetYAML)
+	}
+	if !strings.Contains(payload.MapperYAML, "rules:") || !strings.Contains(payload.MapperYAML, "id: link-state") {
+		t.Fatalf("expected mapper YAML from harness-exported bundle, got %q", payload.MapperYAML)
+	}
+	body := string(readResponse.Body)
+	if strings.Contains(body, root) || strings.Contains(body, filepath.ToSlash(root)) {
+		t.Fatalf("response leaked mounted filesystem path %q: %s", root, body)
 	}
 }
 

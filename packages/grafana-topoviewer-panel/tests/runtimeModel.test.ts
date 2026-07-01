@@ -54,6 +54,85 @@ function mountedBundlePayload(overrides: Partial<GrafanaMountedBundlePayload> = 
   };
 }
 
+function harnessExportedBundlePayload(): GrafanaMountedBundlePayload {
+  return {
+    bundle: {
+      id: 'harness-exported-branch',
+      name: 'Harness Exported Branch',
+      root: '/etc/topoviewer/bundles/harness-exported-branch',
+      topologyPath: '/etc/topoviewer/bundles/harness-exported-branch/harness-exported-branch.topo.tv.yaml',
+      stylesheetPath: '/etc/topoviewer/bundles/harness-exported-branch/harness-exported-branch.style.tv.yaml',
+      mapperPath: '/etc/topoviewer/bundles/harness-exported-branch/harness-exported-branch.mapper.tv.yaml'
+    },
+    topologyYaml: [
+      'graph:',
+      '  id: harness-exported-branch',
+      '  layers:',
+      '    - id: underlay',
+      '      name: Underlay',
+      '  nodes:',
+      '    - id: PE1',
+      '      name: PE1',
+      '      labels:',
+      '        role: pe',
+      '      layers: [underlay]',
+      '      position: [120, 140]',
+      '    - id: P1',
+      '      name: P1',
+      '      labels:',
+      '        role: p',
+      '      layers: [underlay]',
+      '      position: [320, 140]',
+      '  links:',
+      '    - id: PE1-P1',
+      '      source: PE1',
+      '      target: P1',
+      '      labels:',
+      '        link: underlay',
+      '      layers: [underlay]'
+    ].join('\n'),
+    stylesheetYaml: [
+      'layout:',
+      '  mode: manual',
+      '  width: 480',
+      '  height: 280',
+      'stylesheet:',
+      '  - selector: node',
+      '    style:',
+      '      shape: rectangle',
+      '      width: 80',
+      '      height: 48',
+      '  - selector: link',
+      '    style:',
+      '      lineWidth: 3',
+      '      lineColor: "#4caf50"'
+    ].join('\n'),
+    mapperYaml: [
+      'version: 1',
+      'identity:',
+      '  sourceId: harness-exported-branch',
+      '  sourceIdLabel: source_id',
+      'rules:',
+      '  - id: link-state',
+      '    metric: topoviewer_link_up',
+      '    select: link',
+      '    join: link_id',
+      '    value: up',
+      '    states:',
+      '      down: "==0"',
+      '    style:',
+      '      default:',
+      '        label: UP',
+      '        lineColor: "#4caf50"',
+      '      down:',
+      '        label: DOWN',
+      '        lineColor: "#d32f2f"',
+      '        lineStyle: dashed'
+    ].join('\n'),
+    diagnostics: []
+  };
+}
+
 describe('runtime model', () => {
   it('normalizes missing panel options', () => {
     expect(normalizePanelOptions(undefined)).toEqual({
@@ -120,6 +199,25 @@ describe('runtime model', () => {
     expect(model.mountedBundle?.bundle.id).toBe('branch');
     expect(model.document?.graph?.id).toBe('branch');
     expect(model.mapper?.mappings[0]?.id).toBe('utilization');
+    expect(model.topoviewerProps?.document).toBe(model.document);
+  });
+
+  it('renders a harness-exported canonical bundle without fixture catalog data', () => {
+    const model = createRuntimeModel({
+      sourceMode: 'mountedBundle',
+      fixtureId: 'clos-2spine-4leaf',
+      mountedBundle: {
+        bundleRoot: '/etc/topoviewer/bundles',
+        selectedBundleId: 'harness-exported-branch'
+      }
+    }, harnessExportedBundlePayload());
+
+    expect(model.diagnostics).toEqual([]);
+    expect(model.fixture).toBeUndefined();
+    expect(model.mountedBundle?.bundle.id).toBe('harness-exported-branch');
+    expect(model.document?.graph?.id).toBe('harness-exported-branch');
+    expect(model.mapper?.identity?.sourceId).toBe('harness-exported-branch');
+    expect(model.mapper?.mappings[0]?.id).toBe('link-state');
     expect(model.topoviewerProps?.document).toBe(model.document);
   });
 
