@@ -4,12 +4,12 @@ Date: 2026-07-01
 
 ## Recommendation
 
-Go for early-adopter review. No-go for archiving this OpenSpec until the full
-clean `npm run ci` committed-tree run, pushed remote verification, and final
-archive closeout are completed. The repo now has a live npm package, a
-`v0.1.0` prerelease, a first-screen install/render/embed path, a non-network
-curated example, explicit MkDocs Python publication deferral, a documented
-pre-1.0 API/Node compatibility boundary, and visual evidence for the docs
+Go for early-adopter review. No-go for archiving this OpenSpec until pushed
+remote CI/Docs verification and final archive closeout are completed. The repo
+now has a live npm package, a `v0.1.0` prerelease, a first-screen
+install/render/embed path, a non-network curated example, explicit MkDocs
+Python publication deferral, a documented pre-1.0 API/Node compatibility
+boundary, full local `npm run ci` evidence, and visual evidence for the docs
 conversion path.
 
 ## Completed Evidence
@@ -45,6 +45,7 @@ npm run docs:smoke
 npm run vscode:harness:build
 npm run render:parity
 npm run render:parity
+npm run ci
 npm run ci:public-readiness
 git diff --check
 ```
@@ -58,9 +59,8 @@ and `evidence/validation-run-2026-07-01.md` also passed.
 | --- | --- | --- |
 | Hosted promo video upload | Deprecated before implementation. The release media path is collage-first, using `docs/assets/topoviewer-yaml-to-graph-collage.png`; generated video/GIF/MP4 files remain local-only review artifacts. | Maintainer |
 | Rendered GitHub README media verification | Verify the checked-in collage renders from the pushed GitHub README. Hosted animated playback is not a release gate. | Maintainer |
-| Committed-tree closeout | Tasks 27.1-27.6 remain open for this patch set: reviewed commit, full `npm run ci` from committed tree, pushed GitHub CI/Docs verification, final traceability, and archive. | Maintainer |
-| Full `npm run ci` clean pass | Not run to completion in this dirty review worktree because generated-output guards intentionally fail until the generated outputs are committed. Run after review commit. | Maintainer |
-| Archive `harden-public-adoption-readiness` | Not archived in this patch. Archive only after full clean CI, pushed GitHub CI/Docs verification, final traceability, and the collage-first promo media decision are recorded. | Maintainer |
+| Remote closeout | Task 27.3 remains open until the pushed branch has passing GitHub CI and Docs workflows. | Maintainer |
+| Archive `harden-public-adoption-readiness` | Not archived in this patch. Archive only after pushed GitHub CI/Docs verification and final traceability are recorded. | Maintainer |
 
 ## Accepted Risk
 
@@ -72,5 +72,5 @@ and `evidence/validation-run-2026-07-01.md` also passed.
 ## Remaining Decision
 
 The repo is substantially better for early-adopter review. The next decision is
-whether to commit this patch set, run full `npm run ci` from the committed tree,
-then verify remote CI/Docs before archiving this OpenSpec.
+whether to push this patch set, verify remote CI/Docs, then archive this
+OpenSpec.

@@ -61,5 +61,5 @@ For each spec scenario, the final readiness report must include:
   `.artifacts/public-adoption-visual-review/`.
 - Validation scenarios are covered by
   `evidence/validation-run-2026-07-01.md`.
-- Remaining closeout is limited to task 27 committed-tree CI, remote CI/Docs
-  verification, and archive.
+- Remaining closeout is limited to task 27 remote CI/Docs verification and
+  archive.

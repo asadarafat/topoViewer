@@ -23,7 +23,7 @@ const fixtures = [
   { id: 'nodes-icon-fit-and-badges', sourcePath: 'nodes/icon-fit-and-badges' },
   { id: 'region-label-placement', sourcePath: 'regions/region-label-placement' },
   { id: 'styling-label-z-index', sourcePath: 'styling/label-z-index' },
-  { id: 'attention-object-focus', sourcePath: 'attention/object-focus', expectEdges: false },
+  { id: 'attention-object-focus', sourcePath: 'attention/object-focus' },
   { id: 'layered-network', sourcePath: 'harness/layered-network' },
   { id: 'directional-link-strokes', sourcePath: 'edges/directional-link-strokes' }
 ];

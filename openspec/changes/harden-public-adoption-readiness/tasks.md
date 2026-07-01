@@ -372,9 +372,9 @@
 
 ## 27. Closeout And Archive Gate
 
-- [ ] 27.1 Review and commit the public adoption hardening patch set
-- [ ] 27.2 Run full `npm run ci` from a clean committed tree
+- [x] 27.1 Review and commit the public adoption hardening patch set
+- [x] 27.2 Run full `npm run ci` from a clean committed tree
 - [ ] 27.3 Push and verify GitHub CI and Docs workflows pass for the pushed branch
 - [x] 27.4 Confirm the hosted animated-media follow-up is deprecated and the release is collage-first
-- [ ] 27.5 Confirm tasks 25.4-25.18 and 26.3-26.25 are completed, explicitly deferred to named follow-up OpenSpecs, or accepted with named risk owners
+- [x] 27.5 Confirm tasks 25.4-25.18 and 26.3-26.25 are completed, explicitly deferred to named follow-up OpenSpecs, or accepted with named risk owners
 - [ ] 27.6 Archive `openspec/changes/harden-public-adoption-readiness` only after local CI, remote CI/Docs, promo media decision, traceability, and readiness report are complete

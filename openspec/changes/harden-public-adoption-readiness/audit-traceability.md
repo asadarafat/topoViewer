@@ -45,5 +45,5 @@ For each audit area, the final readiness report must include:
 - The visual review directly caught and closed a moved-page live viewport path
   regression in MkDocs and a missing public Zensical page copy for the
   Kubernetes service map.
-- The only remaining audit closeout gate is the section 27 committed-tree and
-  remote verification path.
+- The only remaining audit closeout gate is the section 27 remote verification
+  and archive path.
