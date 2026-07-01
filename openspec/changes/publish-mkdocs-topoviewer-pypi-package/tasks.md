@@ -59,7 +59,7 @@ Do this before configuring or using production PyPI trusted publishing.
 
 Do this only after the dry-run workflow is credible.
 
-- [ ] 5.1 Configure PyPI trusted publisher or pending publisher for `mkdocs-topoviewer`
+- [x] 5.1 Configure PyPI trusted publisher or pending publisher for `mkdocs-topoviewer`
 - [x] 5.2 Use repository `asadarafat/topoviewer`
 - [x] 5.3 Use workflow file `pypi-publish.yml`
 - [x] 5.4 Use environment `pypi-publish`
@@ -70,57 +70,57 @@ Do this only after the dry-run workflow is credible.
 
 Do this only after PyPI Trusted Publishing is configured.
 
-- [ ] 6.1 Dispatch `pypi-publish.yml` with `version=0.1.0` and `dry_run=false`
-- [ ] 6.2 Verify the workflow rejects publish if `0.1.0` already exists
-- [ ] 6.3 Verify the workflow publishes through PyPI Trusted Publishing/OIDC
-- [ ] 6.4 Verify `mkdocs-topoviewer==0.1.0` is visible on production PyPI
-- [ ] 6.5 Record PyPI package URL, version, artifact hashes, and workflow URL in OpenSpec evidence
+- [x] 6.1 Dispatch `pypi-publish.yml` with `version=0.1.0` and `dry_run=false`
+- [x] 6.2 Verify the workflow rejects publish if `0.1.0` already exists
+- [x] 6.3 Verify the workflow publishes through PyPI Trusted Publishing/OIDC
+- [x] 6.4 Verify `mkdocs-topoviewer==0.1.0` is visible on production PyPI
+- [x] 6.5 Record PyPI package URL, version, artifact hashes, and workflow URL in OpenSpec evidence
 
 # Phase 7. Production Clean Install Smoke
 
 Do this after the real PyPI publish. This is the proof that public docs can
 switch to the PyPI install path.
 
-- [ ] 7.1 Add a clean virtualenv smoke script for `pip install mkdocs-topoviewer`
-- [ ] 7.2 Generate a minimal MkDocs site in a temporary directory
-- [ ] 7.3 Enable the `topoviewer` plugin and render one fenced `topoviewer` block
-- [ ] 7.4 Assert generated site includes the TopoViewer embed container
-- [ ] 7.5 Assert generated site includes vendored embed CSS and JavaScript
-- [ ] 7.6 Prove the smoke does not require npm or repository-local editable install
-- [ ] 7.7 Run the smoke against production PyPI
-- [ ] 7.8 Record smoke command and output in OpenSpec evidence
+- [x] 7.1 Add a clean virtualenv smoke script for `pip install mkdocs-topoviewer`
+- [x] 7.2 Generate a minimal MkDocs site in a temporary directory
+- [x] 7.3 Enable the `topoviewer` plugin and render one fenced `topoviewer` block
+- [x] 7.4 Assert generated site includes the TopoViewer embed container
+- [x] 7.5 Assert generated site includes vendored embed CSS and JavaScript
+- [x] 7.6 Prove the smoke does not require npm or repository-local editable install
+- [x] 7.7 Run the smoke against production PyPI
+- [x] 7.8 Record smoke command and output in OpenSpec evidence
 
 # Phase 8. Documentation Switch-Over
 
 Do this only after production PyPI install smoke passes.
 
-- [ ] 8.1 Update `packages/mkdocs-topoviewer/README.md` with the verified PyPI install path
-- [ ] 8.2 Update `packages/topoviewer/content/pages/embed/mkdocs.md` so the MkDocs guide starts with `pip install mkdocs-topoviewer`
-- [ ] 8.3 Keep local editable install guidance only in maintainer/development docs
-- [ ] 8.4 Update release docs to treat npm and PyPI as separate manual releases
-- [ ] 8.5 Update monorepo docs to show the verified PyPI contract
-- [ ] 8.6 Update integration roadmap/support-status wording if needed
-- [ ] 8.7 Run content sync so generated docs match canonical content
+- [x] 8.1 Update `packages/mkdocs-topoviewer/README.md` with the verified PyPI install path
+- [x] 8.2 Update `packages/topoviewer/content/pages/embed/mkdocs.md` so the MkDocs guide starts with `pip install mkdocs-topoviewer`
+- [x] 8.3 Keep local editable install guidance only in maintainer/development docs
+- [x] 8.4 Update release docs to treat npm and PyPI as separate manual releases
+- [x] 8.5 Update monorepo docs to show the verified PyPI contract
+- [x] 8.6 Update integration roadmap/support-status wording if needed
+- [x] 8.7 Run content sync so generated docs match canonical content
 
 # Phase 9. Guardrail Switch-Over
 
 Do this after docs switch-over. Guardrails should enforce the new public truth.
 
-- [ ] 9.1 Flip `scripts/check-install-commands.mjs` from blocking `pip install mkdocs-topoviewer` to enforcing it in public MkDocs docs after publication
-- [ ] 9.2 Fail if public docs use `pip install topoviewer` for MkDocs
-- [ ] 9.3 Fail if local editable Python install appears outside maintainer/development docs
-- [ ] 9.4 Include the clean install smoke in the relevant release/public-readiness gate
-- [ ] 9.5 Add or update release artifact checks for Python package artifacts
+- [x] 9.1 Flip `scripts/check-install-commands.mjs` from blocking `pip install mkdocs-topoviewer` to enforcing it in public MkDocs docs after publication
+- [x] 9.2 Fail if public docs use `pip install topoviewer` for MkDocs
+- [x] 9.3 Fail if local editable Python install appears outside maintainer/development docs
+- [x] 9.4 Include the clean install smoke in the relevant release/public-readiness gate
+- [x] 9.5 Add or update release artifact checks for Python package artifacts
 
 # Phase 10. Final Validation And Archive
 
 Do this last.
 
-- [ ] 10.1 Run `npm run wheel:mkdocs`
-- [ ] 10.2 Run `npm run inspect:wheel`
-- [ ] 10.3 Run the production clean PyPI install smoke
-- [ ] 10.4 Run `npm run ci:public-readiness`
-- [ ] 10.5 Run `npm run ci`
+- [x] 10.1 Run `npm run wheel:mkdocs`
+- [x] 10.2 Run `npm run inspect:wheel`
+- [x] 10.3 Run the production clean PyPI install smoke
+- [x] 10.4 Run `npm run ci:public-readiness`
+- [x] 10.5 Run `npm run ci`
 - [ ] 10.6 Commit and push
 - [ ] 10.7 Verify remote CI, Docs, Security, and CodeQL pass
 - [ ] 10.8 Archive this change only after PyPI publication, public docs switch-over, local validation, and remote validation are complete

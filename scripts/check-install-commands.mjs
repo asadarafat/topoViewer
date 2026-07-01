@@ -10,6 +10,8 @@ const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'
 const sourceTarballInstallCommand = 'npm install /tmp/topoviewer-pack/topoviewer-0.1.0.tgz @xyflow/react react react-dom';
 const publishedInstallCommand = 'npm install topoviewer @xyflow/react react react-dom';
 const mkdocsPublishedInstallCommand = 'pip install mkdocs-topoviewer';
+const mkdocsLocalEditableInstallPattern = /\b(?:python\s+-m\s+)?pip\s+install\s+-e\s+packages\/mkdocs-topoviewer\b/g;
+const mkdocsWrongInstallPattern = /\bpip\s+install\s+topoviewer\b/g;
 const sourceTarballInstallCommandFiles = new Set([
   'docs/topoviewer/maintainers/release.md',
   'docs/topoviewer/maintainers/monorepo.md',
@@ -29,11 +31,29 @@ const publicTextRoots = [
   'packages/vscode-topoviewer/README.md',
   'packages/grafana-topoviewer-panel/README.md'
 ];
-const mkdocsPublishedInstallCommandFiles = new Set([
+const requiredMkdocsPublishedInstallCommandFiles = new Set([
+  'packages/mkdocs-topoviewer/README.md',
+  'packages/topoviewer/content/pages/embed/mkdocs.md',
+  'packages/topoviewer/docs/embed/mkdocs.md',
+  'docs/topoviewer/embed/mkdocs.md'
+]);
+const allowedMkdocsPublishedInstallCommandFiles = new Set([
+  ...requiredMkdocsPublishedInstallCommandFiles,
+  'packages/topoviewer/content/pages/maintainers/monorepo.md',
+  'packages/topoviewer/content/pages/maintainers/release.md',
+  'packages/topoviewer/docs/maintainers/monorepo.md',
+  'packages/topoviewer/docs/maintainers/release.md',
+  'docs/topoviewer/maintainers/monorepo.md',
+  'docs/topoviewer/maintainers/release.md'
+]);
+const allowedMkdocsLocalEditableInstallFiles = new Set([
   'packages/mkdocs-topoviewer/README.md',
   'packages/topoviewer/content/pages/maintainers/monorepo.md',
+  'packages/topoviewer/content/pages/maintainers/release.md',
   'packages/topoviewer/docs/maintainers/monorepo.md',
-  'docs/topoviewer/maintainers/monorepo.md'
+  'packages/topoviewer/docs/maintainers/release.md',
+  'docs/topoviewer/maintainers/monorepo.md',
+  'docs/topoviewer/maintainers/release.md'
 ]);
 const textExtensions = new Set(['.md', '.mdx', '.txt', '.yaml', '.yml', '.toml', '.json']);
 const ignoredParts = new Set(['node_modules', 'dist', 'site', '.artifacts', '.git']);
@@ -120,22 +140,47 @@ function assertPublicInstallCommands() {
 
 function assertMkDocsInstallCommands() {
   const badCommands = [];
+  const missingRequiredCommands = [];
+  const wrongPackageCommands = [];
+  const leakedEditableCommands = [];
   const files = new Set(publicTextRoots.flatMap(walkTextFiles));
+
+  for (const relativePath of requiredMkdocsPublishedInstallCommandFiles) {
+    const absolutePath = repoPath(relativePath);
+    if (!fs.existsSync(absolutePath)) {
+      missingRequiredCommands.push(`${relativePath}: file missing`);
+      continue;
+    }
+    const text = fs.readFileSync(absolutePath, 'utf8');
+    if (!text.includes(mkdocsPublishedInstallCommand)) {
+      missingRequiredCommands.push(`${relativePath}: missing ${mkdocsPublishedInstallCommand}`);
+    }
+  }
 
   for (const filePath of [...files].sort()) {
     const text = fs.readFileSync(filePath, 'utf8');
-    if (!text.includes(mkdocsPublishedInstallCommand)) continue;
     const relativePath = relative(filePath);
-    if (!mkdocsPublishedInstallCommandFiles.has(relativePath)) {
+    if (mkdocsWrongInstallPattern.test(text)) {
+      wrongPackageCommands.push(relativePath);
+    }
+    mkdocsWrongInstallPattern.lastIndex = 0;
+    if (mkdocsLocalEditableInstallPattern.test(text) && !allowedMkdocsLocalEditableInstallFiles.has(relativePath)) {
+      leakedEditableCommands.push(relativePath);
+    }
+    mkdocsLocalEditableInstallPattern.lastIndex = 0;
+    if (text.includes(mkdocsPublishedInstallCommand) && !allowedMkdocsPublishedInstallCommandFiles.has(relativePath)) {
       badCommands.push(relativePath);
     }
   }
 
-  if (badCommands.length) {
+  if (missingRequiredCommands.length || wrongPackageCommands.length || leakedEditableCommands.length || badCommands.length) {
     throw new Error([
       'Public mkdocs-topoviewer install command drift detected.',
-      '`pip install mkdocs-topoviewer` must not appear in public user guides until the PyPI package is published and verified.',
-      ...badCommands.map((item) => `- ${item}`)
+      `Current public MkDocs install command: ${mkdocsPublishedInstallCommand}`,
+      ...missingRequiredCommands.map((item) => `- missing required command: ${item}`),
+      ...wrongPackageCommands.map((item) => `- wrong MkDocs package command in ${item}; use mkdocs-topoviewer, not topoviewer`),
+      ...leakedEditableCommands.map((item) => `- local editable MkDocs install leaked into public docs: ${item}`),
+      ...badCommands.map((item) => `- unexpected public MkDocs install command in ${item}`)
     ].join('\n'));
   }
 }

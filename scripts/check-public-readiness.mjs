@@ -437,6 +437,7 @@ function assertPackageAndCiContracts() {
     'test:hostile-content',
     'security:health-report',
     'install:check',
+    'install:check:mkdocs',
     'artifact:check',
     'artifact:check:docs',
     'artifact:check:package'
@@ -457,6 +458,7 @@ function assertPackageAndCiContracts() {
     "['run', 'artifact:check:docs']",
     "['run', 'artifact:check:package']",
     "['run', 'install:check']",
+    "['run', 'install:check:mkdocs']",
     "['run', 'docs:lint']",
     "['run', 'check:object-reference']",
     "['run', 'examples:audit']",

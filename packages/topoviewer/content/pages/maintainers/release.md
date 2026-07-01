@@ -181,6 +181,47 @@ npm trust github topoviewer \
   --allow-publish
 ```
 
+## Manual PyPI Publishing
+
+The public MkDocs package name is `mkdocs-topoviewer`. It is separate from the
+npm package:
+
+| Surface | Package | Release workflow |
+|---|---|---|
+| React/browser renderer | `topoviewer` on npm | `npm-publish.yml` |
+| MkDocs plugin | `mkdocs-topoviewer` on PyPI | `pypi-publish.yml` |
+
+The Python import module is `mkdocs_topoviewer`, and the MkDocs plugin key is
+`topoviewer`.
+
+Normal pushes, pull requests, docs deployments, and scheduled workflows must not
+publish to PyPI. Publication is manual through the `Manual PyPI Publish` GitHub
+Actions workflow, authenticated by PyPI Trusted Publishing with GitHub OIDC.
+
+Before a real PyPI publish:
+
+1. Choose the exact version already committed in
+   `packages/mkdocs-topoviewer/pyproject.toml`.
+2. Run the workflow with `dry_run: true` and review the built wheel and sdist.
+3. Confirm the PyPI trusted publisher is configured for:
+   - project: `mkdocs-topoviewer`;
+   - owner/repository: `asadarafat/topoviewer`;
+   - workflow filename: `pypi-publish.yml`;
+   - environment: `pypi-publish`.
+4. Confirm the workflow has GitHub `id-token: write` and does not reference
+   `PYPI_TOKEN` or repository secrets for publishing.
+5. Run the workflow with `dry_run: false` only after the dry-run artifact and
+   validation logs are reviewed.
+6. Verify the published package from a clean environment:
+
+```bash
+pip install mkdocs-topoviewer
+npm run install:check:mkdocs
+```
+
+PyPI package versions are immutable. A real publish for an already-published
+version fails before upload and requires a version bump.
+
 ## 0.1.0 Early-Adopter Gate
 
 `topoviewer@0.1.0` was published only after these gates were satisfied:

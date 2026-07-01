@@ -24,13 +24,13 @@ The dependency direction is one way: build TopoViewer first, then vendor its bro
 
 ## Install
 
-Target install after package publication:
+Install from PyPI:
 
 ```bash
 pip install mkdocs-topoviewer
 ```
 
-Local development install:
+For local plugin development inside the TopoViewer repository:
 
 ```bash
 pip install -e packages/mkdocs-topoviewer
