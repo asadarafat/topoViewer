@@ -401,12 +401,12 @@ function styleKeysFromRegistry() {
 }
 
 function checkStylesheetCoverage() {
-  const stylesheetFile = path.join(contentPagesRoot, 'stylesheet.md');
+  const stylesheetFile = path.join(contentPagesRoot, 'stylesheet-reference.md');
   if (!assertFile(stylesheetFile)) return;
   const text = readText(stylesheetFile);
   const missing = styleKeysFromRegistry().filter((key) => !new RegExp(`\\\`${key}\\\``).test(text));
   if (missing.length) {
-    fail(`stylesheet.md is missing style registry keys: ${missing.join(', ')}`);
+    fail(`stylesheet-reference.md is missing style registry keys: ${missing.join(', ')}`);
   }
 }
 

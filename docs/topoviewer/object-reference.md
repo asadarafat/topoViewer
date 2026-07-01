@@ -379,212 +379,212 @@ Use this reference with:
 
 ### Renderer Style Registry
 
-This table is generated from `packages/topoviewer/src/core/styleDefaults.ts`. It is a drift guard for public style-key discoverability. Use the Stylesheet page for full accepted values, defaults, and examples.
+This table is generated from `packages/topoviewer/src/core/styleDefaults.ts`. It is a drift guard for public style-key discoverability. Use the Stylesheet Reference page for full accepted values, defaults, and examples.
 
 | Style Key | Targets | Data Type | Detail | Minimal YAML Cue |
 |---|---|---|---|---|
-| `backgroundColor` | callout | color | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.backgroundColor: ...` |
-| `bodyColor` | callout | color | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.bodyColor: ...` |
-| `bodyFontSize` | callout | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.bodyFontSize: ...` |
-| `bodyFontWeight` | callout | text | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.bodyFontWeight: ...` |
-| `bodyLineHeight` | callout | number | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.bodyLineHeight: ...` |
-| `borderColor` | callout | color | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.borderColor: ...` |
-| `borderRadius` | callout | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.borderRadius: ...` |
-| `borderWidth` | callout | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.borderWidth: ...` |
-| `boxShadow` | callout | text | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.boxShadow: ...` |
-| `color` | callout | color | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.color: ...` |
-| `display` | callout | enum | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.display: ...` |
-| `draggable` | callout | boolean | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.draggable: ...` |
-| `height` | callout | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.height: ...` |
-| `labelZIndex` | callout | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.labelZIndex: ...` |
-| `opacity` | callout | number | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.opacity: ...` |
-| `selectable` | callout | boolean | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.selectable: ...` |
-| `textAlign` | callout | enum | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.textAlign: ...` |
-| `titleBackgroundColor` | callout | color | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.titleBackgroundColor: ...` |
-| `titleColor` | callout | color | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.titleColor: ...` |
-| `titleFontSize` | callout | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.titleFontSize: ...` |
-| `titleFontWeight` | callout | text | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.titleFontWeight: ...` |
-| `width` | callout | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.width: ...` |
-| `zIndex` | callout | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.zIndex: ...` |
-| `directionalStrokes` | link | boolean | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.directionalStrokes: ...` |
-| `directionCenterGap` | link | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.directionCenterGap: ...` |
-| `directionLabelOffset` | link | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.directionLabelOffset: ...` |
-| `directionLabelPlacement` | link | enum | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.directionLabelPlacement: ...` |
-| `directionStartGap` | link | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.directionStartGap: ...` |
-| `interactionWidth` | link | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.interactionWidth: ...` |
-| `labelBorderColor` | link | color | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.labelBorderColor: ...` |
-| `labelBorderWidth` | link | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.labelBorderWidth: ...` |
-| `labelInteractive` | link | boolean | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.labelInteractive: ...` |
-| `lineFill` | link | enum | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.lineFill: ...` |
-| `lineGradientStopColors` | link | text | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.lineGradientStopColors: ...` |
-| `lineGradientStopPositions` | link | text | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.lineGradientStopPositions: ...` |
-| `lineOutlineColor` | link | color | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.lineOutlineColor: ...` |
-| `lineOutlineWidth` | link | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.lineOutlineWidth: ...` |
-| `sourceDistanceFromNode` | link | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.sourceDistanceFromNode: ...` |
-| `sourceLabelBackgroundColor` | link | color | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.sourceLabelBackgroundColor: ...` |
-| `sourceLabelBorderColor` | link | color | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.sourceLabelBorderColor: ...` |
-| `sourceLabelBorderWidth` | link | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.sourceLabelBorderWidth: ...` |
-| `sourceLabelColor` | link | color | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.sourceLabelColor: ...` |
-| `sourceLabelFontSize` | link | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.sourceLabelFontSize: ...` |
-| `sourceLabelFontStyle` | link | text | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.sourceLabelFontStyle: ...` |
-| `sourceLabelFontWeight` | link | text | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.sourceLabelFontWeight: ...` |
-| `targetDistanceFromNode` | link | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.targetDistanceFromNode: ...` |
-| `targetLabelBackgroundColor` | link | color | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.targetLabelBackgroundColor: ...` |
-| `targetLabelBorderColor` | link | color | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.targetLabelBorderColor: ...` |
-| `targetLabelBorderWidth` | link | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.targetLabelBorderWidth: ...` |
-| `targetLabelColor` | link | color | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.targetLabelColor: ...` |
-| `targetLabelFontSize` | link | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.targetLabelFontSize: ...` |
-| `targetLabelFontStyle` | link | text | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.targetLabelFontStyle: ...` |
-| `targetLabelFontWeight` | link | text | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.targetLabelFontWeight: ...` |
-| `textBackgroundColor` | link | color | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.textBackgroundColor: ...` |
-| `textBackgroundOpacity` | link | number | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.textBackgroundOpacity: ...` |
-| `anchor` | link, path | enum | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.anchor: ...` |
-| `arrowColor` | link, path | color | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.arrowColor: ...` |
-| `controlPointDistance` | link, path | number | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.controlPointDistance: ...` |
-| `controlPointStepSize` | link, path | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.controlPointStepSize: ...` |
-| `controlPointWeight` | link, path | number | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.controlPointWeight: ...` |
-| `curveStyle` | link, path | enum | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.curveStyle: ...` |
-| `display` | link, path | enum | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.display: ...` |
-| `edgeDistances` | link, path | enum | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.edgeDistances: ...` |
-| `interactive` | link, path | boolean | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.interactive: ...` |
-| `label` | link, path | text | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.label: ...` |
-| `labelColor` | link, path | color | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.labelColor: ...` |
-| `labelFontSize` | link, path | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.labelFontSize: ...` |
-| `labelFontStyle` | link, path | text | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.labelFontStyle: ...` |
-| `labelFontWeight` | link, path | text | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.labelFontWeight: ...` |
-| `labelXOffset` | link, path | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.labelXOffset: ...` |
-| `labelYOffset` | link, path | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.labelYOffset: ...` |
-| `labelZIndex` | link, path | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.labelZIndex: ...` |
-| `lineCap` | link, path | enum | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.lineCap: ...` |
-| `lineColor` | link, path | color | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.lineColor: ...` |
-| `lineDashOffset` | link, path | number | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.lineDashOffset: ...` |
-| `lineDashPattern` | link, path | numberList | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.lineDashPattern: ...` |
-| `lineOpacity` | link, path | number | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.lineOpacity: ...` |
-| `lineStyle` | link, path | enum | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.lineStyle: ...` |
-| `lineWidth` | link, path | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.lineWidth: ...` |
-| `opacity` | link, path | number | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.opacity: ...` |
-| `segmentDistances` | link, path | numberList | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.segmentDistances: ...` |
-| `segmentWeights` | link, path | numberList | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.segmentWeights: ...` |
-| `sourceArrowColor` | link, path | color | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.sourceArrowColor: ...` |
-| `sourceArrowOffset` | link, path | number | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.sourceArrowOffset: ...` |
-| `sourceArrowShape` | link, path | enum | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.sourceArrowShape: ...` |
-| `sourceArrowSize` | link, path | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.sourceArrowSize: ...` |
-| `sourceLabel` | link, path | text | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.sourceLabel: ...` |
-| `sourceLabelXOffset` | link, path | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.sourceLabelXOffset: ...` |
-| `sourceLabelYOffset` | link, path | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.sourceLabelYOffset: ...` |
-| `sourceLabelZIndex` | link, path | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.sourceLabelZIndex: ...` |
-| `targetArrowColor` | link, path | color | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.targetArrowColor: ...` |
-| `targetArrowOffset` | link, path | number | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.targetArrowOffset: ...` |
-| `targetArrowShape` | link, path | enum | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.targetArrowShape: ...` |
-| `targetArrowSize` | link, path | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.targetArrowSize: ...` |
-| `targetLabel` | link, path | text | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.targetLabel: ...` |
-| `targetLabelXOffset` | link, path | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.targetLabelXOffset: ...` |
-| `targetLabelYOffset` | link, path | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.targetLabelYOffset: ...` |
-| `targetLabelZIndex` | link, path | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.targetLabelZIndex: ...` |
-| `taxiDirection` | link, path | enum | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.taxiDirection: ...` |
-| `taxiTurn` | link, path | text | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.taxiTurn: ...` |
-| `taxiTurnMinDistance` | link, path | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.taxiTurnMinDistance: ...` |
-| `zIndex` | link, path | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.zIndex: ...` |
-| `backgroundColor` | node | color | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.backgroundColor: ...` |
-| `badgeBackgroundColor` | node | color | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.badgeBackgroundColor: ...` |
-| `badgeBorderColor` | node | color | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.badgeBorderColor: ...` |
-| `badgeColor` | node | color | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.badgeColor: ...` |
-| `badgeLabel` | node | text | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.badgeLabel: ...` |
-| `badgePosition` | node | enum | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.badgePosition: ...` |
-| `borderColor` | node | color | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.borderColor: ...` |
-| `borderDashPattern` | node | numberList | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.borderDashPattern: ...` |
-| `borderOpacity` | node | number | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.borderOpacity: ...` |
-| `borderStyle` | node | enum | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.borderStyle: ...` |
-| `borderWidth` | node | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.borderWidth: ...` |
-| `display` | node | enum | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.display: ...` |
-| `draggable` | node | boolean | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.draggable: ...` |
-| `height` | node | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.height: ...` |
-| `icon` | node | text | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.icon: ...` |
-| `iconBackgroundColor` | node | color | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.iconBackgroundColor: ...` |
-| `iconColor` | node | color | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.iconColor: ...` |
-| `iconFit` | node | enum | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.iconFit: ...` |
-| `iconHeight` | node | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.iconHeight: ...` |
-| `iconOpacity` | node | number | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.iconOpacity: ...` |
-| `iconPadding` | node | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.iconPadding: ...` |
-| `iconSize` | node | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.iconSize: ...` |
-| `iconWidth` | node | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.iconWidth: ...` |
-| `labelBackgroundColor` | node | color | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.labelBackgroundColor: ...` |
-| `labelBackgroundOpacity` | node | number | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.labelBackgroundOpacity: ...` |
-| `labelBorderColor` | node | color | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.labelBorderColor: ...` |
-| `labelBorderWidth` | node | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.labelBorderWidth: ...` |
-| `labelColor` | node | color | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.labelColor: ...` |
-| `labelFontSize` | node | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.labelFontSize: ...` |
-| `labelFontWeight` | node | text | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.labelFontWeight: ...` |
-| `labelOpacity` | node | number | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.labelOpacity: ...` |
-| `labelPadding` | node | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.labelPadding: ...` |
-| `labelPosition` | node | enum | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.labelPosition: ...` |
-| `labelTextAlign` | node | enum | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.labelTextAlign: ...` |
-| `labelTextMaxWidth` | node | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.labelTextMaxWidth: ...` |
-| `labelTextOverflow` | node | enum | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.labelTextOverflow: ...` |
-| `labelTextWrap` | node | enum | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.labelTextWrap: ...` |
-| `labelXOffset` | node | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.labelXOffset: ...` |
-| `labelYOffset` | node | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.labelYOffset: ...` |
-| `labelZIndex` | node | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.labelZIndex: ...` |
-| `metaColor` | node | color | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.metaColor: ...` |
-| `metaFontSize` | node | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.metaFontSize: ...` |
-| `metaFontWeight` | node | text | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.metaFontWeight: ...` |
-| `minZoomedLabelFontSize` | node | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.minZoomedLabelFontSize: ...` |
-| `opacity` | node | number | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.opacity: ...` |
-| `outlineColor` | node | color | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.outlineColor: ...` |
-| `outlineOpacity` | node | number | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.outlineOpacity: ...` |
-| `outlineWidth` | node | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.outlineWidth: ...` |
-| `selectable` | node | boolean | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.selectable: ...` |
-| `shape` | node | enum | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.shape: ...` |
-| `shapePolygonPoints` | node | text | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.shapePolygonPoints: ...` |
-| `statusColor` | node | color | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.statusColor: ...` |
-| `statusPlacement` | node | enum | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.statusPlacement: ...` |
-| `statusSize` | node | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.statusSize: ...` |
-| `underlayColor` | node | color | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.underlayColor: ...` |
-| `underlayOpacity` | node | number | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.underlayOpacity: ...` |
-| `underlayPadding` | node | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.underlayPadding: ...` |
-| `width` | node | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.width: ...` |
-| `zIndex` | node | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.zIndex: ...` |
-| `animated` | path | boolean | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.animated: ...` |
-| `laneGap` | path | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.laneGap: ...` |
-| `laneWidth` | path | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.laneWidth: ...` |
-| `pipe` | path | boolean | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.pipe: ...` |
-| `pipeBorderColor` | path | color | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.pipeBorderColor: ...` |
-| `pipeBorderWidth` | path | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.pipeBorderWidth: ...` |
-| `pipeFill` | path | color | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.pipeFill: ...` |
-| `pipeOpacity` | path | number | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.pipeOpacity: ...` |
-| `pipeWidth` | path | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.pipeWidth: ...` |
-| `backgroundColor` | region | color | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.backgroundColor: ...` |
-| `borderColor` | region | color | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.borderColor: ...` |
-| `borderWidth` | region | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.borderWidth: ...` |
-| `draggable` | region | boolean | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.draggable: ...` |
-| `labelBackgroundColor` | region | color | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.labelBackgroundColor: ...` |
-| `labelColor` | region | color | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.labelColor: ...` |
-| `labelFontSize` | region | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.labelFontSize: ...` |
-| `labelFontWeight` | region | text | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.labelFontWeight: ...` |
-| `labelMargin` | region | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.labelMargin: ...` |
-| `labelPosition` | region | enum | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.labelPosition: ...` |
-| `labelZIndex` | region | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.labelZIndex: ...` |
-| `opacity` | region | number | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.opacity: ...` |
-| `selectable` | region | boolean | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.selectable: ...` |
-| `shape` | region | enum | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.shape: ...` |
-| `zIndex` | region | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.zIndex: ...` |
-| `backgroundColor` | shape | color | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.backgroundColor: ...` |
-| `borderColor` | shape | color | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.borderColor: ...` |
-| `borderWidth` | shape | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.borderWidth: ...` |
-| `boxShadow` | shape | text | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.boxShadow: ...` |
-| `display` | shape | enum | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.display: ...` |
-| `draggable` | shape | boolean | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.draggable: ...` |
-| `fill` | shape | color | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.fill: ...` |
-| `height` | shape | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.height: ...` |
-| `labelZIndex` | shape | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.labelZIndex: ...` |
-| `opacity` | shape | number | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.opacity: ...` |
-| `rotation` | shape | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.rotation: ...` |
-| `selectable` | shape | boolean | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.selectable: ...` |
-| `shape` | shape | enum | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.shape: ...` |
-| `stroke` | shape | color | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.stroke: ...` |
-| `strokeWidth` | shape | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.strokeWidth: ...` |
-| `width` | shape | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.width: ...` |
-| `zIndex` | shape | integer | [Stylesheet reference](stylesheet.md#style-key-reference) | `style.zIndex: ...` |
+| `backgroundColor` | callout | color | [Stylesheet reference](stylesheet-reference.md#callout-style-keys) | `style.backgroundColor: ...` |
+| `bodyColor` | callout | color | [Stylesheet reference](stylesheet-reference.md#callout-style-keys) | `style.bodyColor: ...` |
+| `bodyFontSize` | callout | integer | [Stylesheet reference](stylesheet-reference.md#callout-style-keys) | `style.bodyFontSize: ...` |
+| `bodyFontWeight` | callout | text | [Stylesheet reference](stylesheet-reference.md#callout-style-keys) | `style.bodyFontWeight: ...` |
+| `bodyLineHeight` | callout | number | [Stylesheet reference](stylesheet-reference.md#callout-style-keys) | `style.bodyLineHeight: ...` |
+| `borderColor` | callout | color | [Stylesheet reference](stylesheet-reference.md#callout-style-keys) | `style.borderColor: ...` |
+| `borderRadius` | callout | integer | [Stylesheet reference](stylesheet-reference.md#callout-style-keys) | `style.borderRadius: ...` |
+| `borderWidth` | callout | integer | [Stylesheet reference](stylesheet-reference.md#callout-style-keys) | `style.borderWidth: ...` |
+| `boxShadow` | callout | text | [Stylesheet reference](stylesheet-reference.md#callout-style-keys) | `style.boxShadow: ...` |
+| `color` | callout | color | [Stylesheet reference](stylesheet-reference.md#callout-style-keys) | `style.color: ...` |
+| `display` | callout | enum | [Stylesheet reference](stylesheet-reference.md#callout-style-keys) | `style.display: ...` |
+| `draggable` | callout | boolean | [Stylesheet reference](stylesheet-reference.md#callout-style-keys) | `style.draggable: ...` |
+| `height` | callout | integer | [Stylesheet reference](stylesheet-reference.md#callout-style-keys) | `style.height: ...` |
+| `labelZIndex` | callout | integer | [Stylesheet reference](stylesheet-reference.md#callout-style-keys) | `style.labelZIndex: ...` |
+| `opacity` | callout | number | [Stylesheet reference](stylesheet-reference.md#callout-style-keys) | `style.opacity: ...` |
+| `selectable` | callout | boolean | [Stylesheet reference](stylesheet-reference.md#callout-style-keys) | `style.selectable: ...` |
+| `textAlign` | callout | enum | [Stylesheet reference](stylesheet-reference.md#callout-style-keys) | `style.textAlign: ...` |
+| `titleBackgroundColor` | callout | color | [Stylesheet reference](stylesheet-reference.md#callout-style-keys) | `style.titleBackgroundColor: ...` |
+| `titleColor` | callout | color | [Stylesheet reference](stylesheet-reference.md#callout-style-keys) | `style.titleColor: ...` |
+| `titleFontSize` | callout | integer | [Stylesheet reference](stylesheet-reference.md#callout-style-keys) | `style.titleFontSize: ...` |
+| `titleFontWeight` | callout | text | [Stylesheet reference](stylesheet-reference.md#callout-style-keys) | `style.titleFontWeight: ...` |
+| `width` | callout | integer | [Stylesheet reference](stylesheet-reference.md#callout-style-keys) | `style.width: ...` |
+| `zIndex` | callout | integer | [Stylesheet reference](stylesheet-reference.md#callout-style-keys) | `style.zIndex: ...` |
+| `directionalStrokes` | link | boolean | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.directionalStrokes: ...` |
+| `directionCenterGap` | link | integer | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.directionCenterGap: ...` |
+| `directionLabelOffset` | link | integer | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.directionLabelOffset: ...` |
+| `directionLabelPlacement` | link | enum | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.directionLabelPlacement: ...` |
+| `directionStartGap` | link | integer | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.directionStartGap: ...` |
+| `interactionWidth` | link | integer | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.interactionWidth: ...` |
+| `labelBorderColor` | link | color | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.labelBorderColor: ...` |
+| `labelBorderWidth` | link | integer | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.labelBorderWidth: ...` |
+| `labelInteractive` | link | boolean | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.labelInteractive: ...` |
+| `lineFill` | link | enum | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.lineFill: ...` |
+| `lineGradientStopColors` | link | text | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.lineGradientStopColors: ...` |
+| `lineGradientStopPositions` | link | text | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.lineGradientStopPositions: ...` |
+| `lineOutlineColor` | link | color | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.lineOutlineColor: ...` |
+| `lineOutlineWidth` | link | integer | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.lineOutlineWidth: ...` |
+| `sourceDistanceFromNode` | link | integer | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.sourceDistanceFromNode: ...` |
+| `sourceLabelBackgroundColor` | link | color | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.sourceLabelBackgroundColor: ...` |
+| `sourceLabelBorderColor` | link | color | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.sourceLabelBorderColor: ...` |
+| `sourceLabelBorderWidth` | link | integer | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.sourceLabelBorderWidth: ...` |
+| `sourceLabelColor` | link | color | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.sourceLabelColor: ...` |
+| `sourceLabelFontSize` | link | integer | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.sourceLabelFontSize: ...` |
+| `sourceLabelFontStyle` | link | text | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.sourceLabelFontStyle: ...` |
+| `sourceLabelFontWeight` | link | text | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.sourceLabelFontWeight: ...` |
+| `targetDistanceFromNode` | link | integer | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.targetDistanceFromNode: ...` |
+| `targetLabelBackgroundColor` | link | color | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.targetLabelBackgroundColor: ...` |
+| `targetLabelBorderColor` | link | color | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.targetLabelBorderColor: ...` |
+| `targetLabelBorderWidth` | link | integer | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.targetLabelBorderWidth: ...` |
+| `targetLabelColor` | link | color | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.targetLabelColor: ...` |
+| `targetLabelFontSize` | link | integer | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.targetLabelFontSize: ...` |
+| `targetLabelFontStyle` | link | text | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.targetLabelFontStyle: ...` |
+| `targetLabelFontWeight` | link | text | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.targetLabelFontWeight: ...` |
+| `textBackgroundColor` | link | color | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.textBackgroundColor: ...` |
+| `textBackgroundOpacity` | link | number | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.textBackgroundOpacity: ...` |
+| `anchor` | link, path | enum | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.anchor: ...` |
+| `arrowColor` | link, path | color | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.arrowColor: ...` |
+| `controlPointDistance` | link, path | number | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.controlPointDistance: ...` |
+| `controlPointStepSize` | link, path | integer | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.controlPointStepSize: ...` |
+| `controlPointWeight` | link, path | number | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.controlPointWeight: ...` |
+| `curveStyle` | link, path | enum | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.curveStyle: ...` |
+| `display` | link, path | enum | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.display: ...` |
+| `edgeDistances` | link, path | enum | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.edgeDistances: ...` |
+| `interactive` | link, path | boolean | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.interactive: ...` |
+| `label` | link, path | text | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.label: ...` |
+| `labelColor` | link, path | color | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.labelColor: ...` |
+| `labelFontSize` | link, path | integer | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.labelFontSize: ...` |
+| `labelFontStyle` | link, path | text | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.labelFontStyle: ...` |
+| `labelFontWeight` | link, path | text | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.labelFontWeight: ...` |
+| `labelXOffset` | link, path | integer | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.labelXOffset: ...` |
+| `labelYOffset` | link, path | integer | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.labelYOffset: ...` |
+| `labelZIndex` | link, path | integer | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.labelZIndex: ...` |
+| `lineCap` | link, path | enum | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.lineCap: ...` |
+| `lineColor` | link, path | color | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.lineColor: ...` |
+| `lineDashOffset` | link, path | number | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.lineDashOffset: ...` |
+| `lineDashPattern` | link, path | numberList | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.lineDashPattern: ...` |
+| `lineOpacity` | link, path | number | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.lineOpacity: ...` |
+| `lineStyle` | link, path | enum | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.lineStyle: ...` |
+| `lineWidth` | link, path | integer | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.lineWidth: ...` |
+| `opacity` | link, path | number | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.opacity: ...` |
+| `segmentDistances` | link, path | numberList | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.segmentDistances: ...` |
+| `segmentWeights` | link, path | numberList | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.segmentWeights: ...` |
+| `sourceArrowColor` | link, path | color | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.sourceArrowColor: ...` |
+| `sourceArrowOffset` | link, path | number | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.sourceArrowOffset: ...` |
+| `sourceArrowShape` | link, path | enum | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.sourceArrowShape: ...` |
+| `sourceArrowSize` | link, path | integer | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.sourceArrowSize: ...` |
+| `sourceLabel` | link, path | text | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.sourceLabel: ...` |
+| `sourceLabelXOffset` | link, path | integer | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.sourceLabelXOffset: ...` |
+| `sourceLabelYOffset` | link, path | integer | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.sourceLabelYOffset: ...` |
+| `sourceLabelZIndex` | link, path | integer | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.sourceLabelZIndex: ...` |
+| `targetArrowColor` | link, path | color | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.targetArrowColor: ...` |
+| `targetArrowOffset` | link, path | number | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.targetArrowOffset: ...` |
+| `targetArrowShape` | link, path | enum | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.targetArrowShape: ...` |
+| `targetArrowSize` | link, path | integer | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.targetArrowSize: ...` |
+| `targetLabel` | link, path | text | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.targetLabel: ...` |
+| `targetLabelXOffset` | link, path | integer | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.targetLabelXOffset: ...` |
+| `targetLabelYOffset` | link, path | integer | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.targetLabelYOffset: ...` |
+| `targetLabelZIndex` | link, path | integer | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.targetLabelZIndex: ...` |
+| `taxiDirection` | link, path | enum | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.taxiDirection: ...` |
+| `taxiTurn` | link, path | text | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.taxiTurn: ...` |
+| `taxiTurnMinDistance` | link, path | integer | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.taxiTurnMinDistance: ...` |
+| `zIndex` | link, path | integer | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.zIndex: ...` |
+| `backgroundColor` | node | color | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.backgroundColor: ...` |
+| `badgeBackgroundColor` | node | color | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.badgeBackgroundColor: ...` |
+| `badgeBorderColor` | node | color | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.badgeBorderColor: ...` |
+| `badgeColor` | node | color | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.badgeColor: ...` |
+| `badgeLabel` | node | text | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.badgeLabel: ...` |
+| `badgePosition` | node | enum | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.badgePosition: ...` |
+| `borderColor` | node | color | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.borderColor: ...` |
+| `borderDashPattern` | node | numberList | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.borderDashPattern: ...` |
+| `borderOpacity` | node | number | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.borderOpacity: ...` |
+| `borderStyle` | node | enum | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.borderStyle: ...` |
+| `borderWidth` | node | integer | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.borderWidth: ...` |
+| `display` | node | enum | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.display: ...` |
+| `draggable` | node | boolean | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.draggable: ...` |
+| `height` | node | integer | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.height: ...` |
+| `icon` | node | text | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.icon: ...` |
+| `iconBackgroundColor` | node | color | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.iconBackgroundColor: ...` |
+| `iconColor` | node | color | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.iconColor: ...` |
+| `iconFit` | node | enum | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.iconFit: ...` |
+| `iconHeight` | node | integer | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.iconHeight: ...` |
+| `iconOpacity` | node | number | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.iconOpacity: ...` |
+| `iconPadding` | node | integer | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.iconPadding: ...` |
+| `iconSize` | node | integer | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.iconSize: ...` |
+| `iconWidth` | node | integer | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.iconWidth: ...` |
+| `labelBackgroundColor` | node | color | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.labelBackgroundColor: ...` |
+| `labelBackgroundOpacity` | node | number | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.labelBackgroundOpacity: ...` |
+| `labelBorderColor` | node | color | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.labelBorderColor: ...` |
+| `labelBorderWidth` | node | integer | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.labelBorderWidth: ...` |
+| `labelColor` | node | color | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.labelColor: ...` |
+| `labelFontSize` | node | integer | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.labelFontSize: ...` |
+| `labelFontWeight` | node | text | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.labelFontWeight: ...` |
+| `labelOpacity` | node | number | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.labelOpacity: ...` |
+| `labelPadding` | node | integer | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.labelPadding: ...` |
+| `labelPosition` | node | enum | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.labelPosition: ...` |
+| `labelTextAlign` | node | enum | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.labelTextAlign: ...` |
+| `labelTextMaxWidth` | node | integer | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.labelTextMaxWidth: ...` |
+| `labelTextOverflow` | node | enum | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.labelTextOverflow: ...` |
+| `labelTextWrap` | node | enum | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.labelTextWrap: ...` |
+| `labelXOffset` | node | integer | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.labelXOffset: ...` |
+| `labelYOffset` | node | integer | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.labelYOffset: ...` |
+| `labelZIndex` | node | integer | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.labelZIndex: ...` |
+| `metaColor` | node | color | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.metaColor: ...` |
+| `metaFontSize` | node | integer | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.metaFontSize: ...` |
+| `metaFontWeight` | node | text | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.metaFontWeight: ...` |
+| `minZoomedLabelFontSize` | node | integer | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.minZoomedLabelFontSize: ...` |
+| `opacity` | node | number | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.opacity: ...` |
+| `outlineColor` | node | color | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.outlineColor: ...` |
+| `outlineOpacity` | node | number | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.outlineOpacity: ...` |
+| `outlineWidth` | node | integer | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.outlineWidth: ...` |
+| `selectable` | node | boolean | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.selectable: ...` |
+| `shape` | node | enum | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.shape: ...` |
+| `shapePolygonPoints` | node | text | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.shapePolygonPoints: ...` |
+| `statusColor` | node | color | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.statusColor: ...` |
+| `statusPlacement` | node | enum | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.statusPlacement: ...` |
+| `statusSize` | node | integer | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.statusSize: ...` |
+| `underlayColor` | node | color | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.underlayColor: ...` |
+| `underlayOpacity` | node | number | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.underlayOpacity: ...` |
+| `underlayPadding` | node | integer | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.underlayPadding: ...` |
+| `width` | node | integer | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.width: ...` |
+| `zIndex` | node | integer | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.zIndex: ...` |
+| `animated` | path | boolean | [Stylesheet reference](stylesheet-reference.md#path-style-keys) | `style.animated: ...` |
+| `laneGap` | path | integer | [Stylesheet reference](stylesheet-reference.md#path-style-keys) | `style.laneGap: ...` |
+| `laneWidth` | path | integer | [Stylesheet reference](stylesheet-reference.md#path-style-keys) | `style.laneWidth: ...` |
+| `pipe` | path | boolean | [Stylesheet reference](stylesheet-reference.md#path-style-keys) | `style.pipe: ...` |
+| `pipeBorderColor` | path | color | [Stylesheet reference](stylesheet-reference.md#path-style-keys) | `style.pipeBorderColor: ...` |
+| `pipeBorderWidth` | path | integer | [Stylesheet reference](stylesheet-reference.md#path-style-keys) | `style.pipeBorderWidth: ...` |
+| `pipeFill` | path | color | [Stylesheet reference](stylesheet-reference.md#path-style-keys) | `style.pipeFill: ...` |
+| `pipeOpacity` | path | number | [Stylesheet reference](stylesheet-reference.md#path-style-keys) | `style.pipeOpacity: ...` |
+| `pipeWidth` | path | integer | [Stylesheet reference](stylesheet-reference.md#path-style-keys) | `style.pipeWidth: ...` |
+| `backgroundColor` | region | color | [Stylesheet reference](stylesheet-reference.md#region-style-keys) | `style.backgroundColor: ...` |
+| `borderColor` | region | color | [Stylesheet reference](stylesheet-reference.md#region-style-keys) | `style.borderColor: ...` |
+| `borderWidth` | region | integer | [Stylesheet reference](stylesheet-reference.md#region-style-keys) | `style.borderWidth: ...` |
+| `draggable` | region | boolean | [Stylesheet reference](stylesheet-reference.md#region-style-keys) | `style.draggable: ...` |
+| `labelBackgroundColor` | region | color | [Stylesheet reference](stylesheet-reference.md#region-style-keys) | `style.labelBackgroundColor: ...` |
+| `labelColor` | region | color | [Stylesheet reference](stylesheet-reference.md#region-style-keys) | `style.labelColor: ...` |
+| `labelFontSize` | region | integer | [Stylesheet reference](stylesheet-reference.md#region-style-keys) | `style.labelFontSize: ...` |
+| `labelFontWeight` | region | text | [Stylesheet reference](stylesheet-reference.md#region-style-keys) | `style.labelFontWeight: ...` |
+| `labelMargin` | region | integer | [Stylesheet reference](stylesheet-reference.md#region-style-keys) | `style.labelMargin: ...` |
+| `labelPosition` | region | enum | [Stylesheet reference](stylesheet-reference.md#region-style-keys) | `style.labelPosition: ...` |
+| `labelZIndex` | region | integer | [Stylesheet reference](stylesheet-reference.md#region-style-keys) | `style.labelZIndex: ...` |
+| `opacity` | region | number | [Stylesheet reference](stylesheet-reference.md#region-style-keys) | `style.opacity: ...` |
+| `selectable` | region | boolean | [Stylesheet reference](stylesheet-reference.md#region-style-keys) | `style.selectable: ...` |
+| `shape` | region | enum | [Stylesheet reference](stylesheet-reference.md#region-style-keys) | `style.shape: ...` |
+| `zIndex` | region | integer | [Stylesheet reference](stylesheet-reference.md#region-style-keys) | `style.zIndex: ...` |
+| `backgroundColor` | shape | color | [Stylesheet reference](stylesheet-reference.md#shape-style-keys) | `style.backgroundColor: ...` |
+| `borderColor` | shape | color | [Stylesheet reference](stylesheet-reference.md#shape-style-keys) | `style.borderColor: ...` |
+| `borderWidth` | shape | integer | [Stylesheet reference](stylesheet-reference.md#shape-style-keys) | `style.borderWidth: ...` |
+| `boxShadow` | shape | text | [Stylesheet reference](stylesheet-reference.md#shape-style-keys) | `style.boxShadow: ...` |
+| `display` | shape | enum | [Stylesheet reference](stylesheet-reference.md#shape-style-keys) | `style.display: ...` |
+| `draggable` | shape | boolean | [Stylesheet reference](stylesheet-reference.md#shape-style-keys) | `style.draggable: ...` |
+| `fill` | shape | color | [Stylesheet reference](stylesheet-reference.md#shape-style-keys) | `style.fill: ...` |
+| `height` | shape | integer | [Stylesheet reference](stylesheet-reference.md#shape-style-keys) | `style.height: ...` |
+| `labelZIndex` | shape | integer | [Stylesheet reference](stylesheet-reference.md#shape-style-keys) | `style.labelZIndex: ...` |
+| `opacity` | shape | number | [Stylesheet reference](stylesheet-reference.md#shape-style-keys) | `style.opacity: ...` |
+| `rotation` | shape | integer | [Stylesheet reference](stylesheet-reference.md#shape-style-keys) | `style.rotation: ...` |
+| `selectable` | shape | boolean | [Stylesheet reference](stylesheet-reference.md#shape-style-keys) | `style.selectable: ...` |
+| `shape` | shape | enum | [Stylesheet reference](stylesheet-reference.md#shape-style-keys) | `style.shape: ...` |
+| `stroke` | shape | color | [Stylesheet reference](stylesheet-reference.md#shape-style-keys) | `style.stroke: ...` |
+| `strokeWidth` | shape | integer | [Stylesheet reference](stylesheet-reference.md#shape-style-keys) | `style.strokeWidth: ...` |
+| `width` | shape | integer | [Stylesheet reference](stylesheet-reference.md#shape-style-keys) | `style.width: ...` |
+| `zIndex` | shape | integer | [Stylesheet reference](stylesheet-reference.md#shape-style-keys) | `style.zIndex: ...` |
 
 ## Attention Objects
 

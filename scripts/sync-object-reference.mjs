@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const outputPath = path.join(repoRoot, 'packages/topoviewer/content/pages/object-reference.md');
+const styleReferencePath = path.join(repoRoot, 'packages/topoviewer/content/pages/stylesheet-reference.md');
 const checkOnly = process.argv.includes('--check');
 
 function readJson(relativePath) {
@@ -258,29 +259,248 @@ function escapeCell(value) {
     .replace(/\n/g, '<br>');
 }
 
+function extractArrayConstants(relativePath) {
+  const source = readText(relativePath);
+  const constants = {};
+  const matcher = /(?:export\s+)?const\s+(\w+)\s*=\s*\[([\s\S]*?)\]\s*(?:as\s+const)?;/g;
+  let match;
+  while ((match = matcher.exec(source)) !== null) {
+    constants[match[1]] = [...match[2].matchAll(/'([^']+)'/g)].map((entry) => entry[1]);
+  }
+  return constants;
+}
+
+function extractStringConstants(relativePath) {
+  const source = readText(relativePath);
+  const constants = {};
+  const matcher = /(?:export\s+)?const\s+(\w+)(?::[^=]+)?\s*=\s*'([^']+)';/g;
+  let match;
+  while ((match = matcher.exec(source)) !== null) {
+    constants[match[1]] = match[2];
+  }
+  return constants;
+}
+
+const styleArrayConstants = {
+  ...extractArrayConstants('packages/topoviewer/src/core/styleDefaults.ts'),
+  ...extractArrayConstants('packages/topoviewer/src/core/nodeShapes.ts'),
+  ...extractArrayConstants('packages/topoviewer/src/core/nodeStyle.ts'),
+  ...extractArrayConstants('packages/topoviewer/src/core/edgeStyle.ts'),
+  ...extractArrayConstants('packages/topoviewer/src/core/regionStyle.ts'),
+  ...extractArrayConstants('packages/topoviewer/src/core/types.ts')
+};
+const styleStringConstants = {
+  ...extractStringConstants('packages/topoviewer/src/core/styleDefaults.ts'),
+  ...extractStringConstants('packages/topoviewer/src/core/nodeShapes.ts'),
+  ...extractStringConstants('packages/topoviewer/src/core/nodeStyle.ts'),
+  ...extractStringConstants('packages/topoviewer/src/core/edgeStyle.ts'),
+  ...extractStringConstants('packages/topoviewer/src/core/regionStyle.ts'),
+  ...extractStringConstants('packages/topoviewer/src/core/types.ts')
+};
+
+function splitTopLevelArgs(source) {
+  const args = [];
+  let current = '';
+  let depth = 0;
+  let quote;
+  let escaped = false;
+
+  for (const char of source) {
+    if (quote) {
+      current += char;
+      if (escaped) {
+        escaped = false;
+      } else if (char === '\\') {
+        escaped = true;
+      } else if (char === quote) {
+        quote = undefined;
+      }
+      continue;
+    }
+
+    if (char === '\'' || char === '"' || char === '`') {
+      quote = char;
+      current += char;
+      continue;
+    }
+    if (char === '(' || char === '[' || char === '{') depth += 1;
+    if (char === ')' || char === ']' || char === '}') depth -= 1;
+    if (char === ',' && depth === 0) {
+      args.push(current.trim());
+      current = '';
+      continue;
+    }
+    current += char;
+  }
+
+  if (current.trim()) args.push(current.trim());
+  return args;
+}
+
+function extractDefCalls(source) {
+  const calls = [];
+  let index = 0;
+  while (index < source.length) {
+    const start = source.indexOf('def(', index);
+    if (start === -1) break;
+    let cursor = start + 4;
+    let depth = 1;
+    let quote;
+    let escaped = false;
+    while (cursor < source.length && depth > 0) {
+      const char = source[cursor];
+      if (quote) {
+        if (escaped) {
+          escaped = false;
+        } else if (char === '\\') {
+          escaped = true;
+        } else if (char === quote) {
+          quote = undefined;
+        }
+      } else if (char === '\'' || char === '"' || char === '`') {
+        quote = char;
+      } else if (char === '(') {
+        depth += 1;
+      } else if (char === ')') {
+        depth -= 1;
+      }
+      cursor += 1;
+    }
+    calls.push(source.slice(start + 4, cursor - 1));
+    index = cursor;
+  }
+  return calls;
+}
+
+function unquote(value) {
+  const trimmed = String(value || '').trim();
+  if ((trimmed.startsWith('\'') && trimmed.endsWith('\'')) || (trimmed.startsWith('"') && trimmed.endsWith('"'))) {
+    return trimmed.slice(1, -1);
+  }
+  return trimmed;
+}
+
+function parseStyleTargets(value) {
+  return [...value.matchAll(/'([^']+)'/g)].map((entry) => entry[1]);
+}
+
+function parseDefaultSummary(expression) {
+  if (!expression) return 'No TopoViewer default; authored only.';
+  const trimmed = expression.trim();
+  if (trimmed.startsWith('value(')) {
+    const args = splitTopLevelArgs(trimmed.slice('value('.length, -1));
+    const raw = unquote(args[0]);
+    return `Defaults to \`${styleStringConstants[raw] || raw}\`.`;
+  }
+  if (trimmed.startsWith('derived(')) {
+    const args = splitTopLevelArgs(trimmed.slice('derived('.length, -1));
+    const description = unquote(args[1] || 'Derived from another rendered value.');
+    const fallback = args[2] ? ` Fallback: \`${unquote(args[2])}\`.` : '';
+    return `${description}${fallback}`;
+  }
+  if (trimmed.startsWith('none(')) {
+    const args = splitTopLevelArgs(trimmed.slice('none('.length, -1));
+    return args[0] ? unquote(args[0]) : 'No TopoViewer default; authored only.';
+  }
+  return 'No TopoViewer default; authored only.';
+}
+
+function dataTypeValuesSummary(dataType, expression) {
+  if (expression) {
+    const trimmed = expression.trim();
+    if (trimmed.startsWith('[')) {
+      const values = [...trimmed.matchAll(/'([^']+)'/g)].map((entry) => `\`${entry[1]}\``);
+      if (values.length) return values.join(', ');
+    }
+    const values = styleArrayConstants[trimmed];
+    if (values?.length) return values.map((value) => `\`${value}\``).join(', ');
+  }
+
+  const fallback = {
+    boolean: '`true`, `false`',
+    color: 'Any CSS color or supported theme variable.',
+    enum: 'See accepted values.',
+    integer: 'Finite integer number.',
+    number: 'Finite number.',
+    numberList: 'Space-separated string, comma-separated string, number, or number array.',
+    text: 'String value.'
+  };
+  return fallback[dataType] || 'Any valid value for the documented data type.';
+}
+
 function extractStyleDefinitions() {
   const source = readText('packages/topoviewer/src/core/styleDefaults.ts');
-  const definitions = [];
-  const pattern = /def\(\[([^\]]+)\],\s*'([^']+)',\s*'([^']+)',\s*'([^']+)'/g;
-  let match;
-  while ((match = pattern.exec(source))) {
-    definitions.push({
-      targets: match[1].split(',').map((entry) => entry.trim().replace(/^'|'$/g, '')).join(', '),
-      key: match[2],
-      label: match[3],
-      dataType: match[4]
-    });
-  }
-  return definitions.sort((a, b) => a.targets.localeCompare(b.targets) || a.key.localeCompare(b.key));
+  return extractDefCalls(source).filter((call) => call.trim().startsWith('[')).map((call) => {
+    const args = splitTopLevelArgs(call);
+    const dataType = unquote(args[3]);
+    return {
+      targets: parseStyleTargets(args[0]).join(', '),
+      key: unquote(args[1]),
+      label: unquote(args[2]),
+      dataType,
+      use: unquote(args[4]),
+      values: dataTypeValuesSummary(dataType, args[6]),
+      defaults: parseDefaultSummary(args[5])
+    };
+  }).sort((a, b) => a.targets.localeCompare(b.targets) || a.key.localeCompare(b.key));
+}
+
+function styleTargetSections() {
+  const definitions = extractStyleDefinitions();
+  const targetOrder = ['node', 'link', 'linkDirection', 'path', 'region', 'shape', 'callout'];
+  return targetOrder.map((target) => {
+    const rows = definitions
+      .filter((definition) => definition.targets.split(', ').includes(target) || (target === 'linkDirection' && definition.targets.split(', ').includes('link')))
+      .map((definition) => `| \`${definition.key}\` | ${definition.dataType} | ${escapeCell(definition.values)} | ${escapeCell(definition.defaults)} | ${escapeCell(definition.use)} |`);
+    if (!rows.length) return '';
+    const title = target === 'linkDirection' ? 'Link Direction Style Keys' : `${target[0].toUpperCase()}${target.slice(1)} Style Keys`;
+    const note = target === 'linkDirection'
+      ? ['', '`linkDirection` is the virtual selector subject for per-direction strokes declared under `graph.links[].directions`. It reuses the compatible link/path edge style surface.', '']
+      : [''];
+    return [
+      `## ${title}`,
+      ...note,
+      '| Key | Data Type | Values | Default | Use |',
+      '|---|---|---|---|---|',
+      ...rows,
+      ''
+    ].join('\n');
+  }).filter(Boolean);
+}
+
+function styleReferencePage() {
+  return [
+    '<!-- Generated by scripts/sync-object-reference.mjs. Do not edit directly. -->',
+    '# Stylesheet Reference',
+    '',
+    'This page is generated from `packages/topoviewer/src/core/styleDefaults.ts`. It is the canonical public table for stylesheet keys, data types, accepted values, defaults, and intended use.',
+    '',
+    'Use [Style a Topology](style-a-topology.md) and [TopoViewer Stylesheet](stylesheet.md) for workflow and recipes. Use this page when you need the exact key contract.',
+    '',
+    ...styleTargetSections(),
+    '## Drift Guard',
+    '',
+    'Run this before publishing docs:',
+    '',
+    '```bash',
+    'npm run check:object-reference',
+    '```',
+    '',
+    'The check fails if this page is not regenerated after style-registry changes. `npm run sync:docs` regenerates it.',
+    ''
+  ].join('\n');
 }
 
 function styleRegistryTable() {
   const definitions = extractStyleDefinitions();
-  const rows = definitions.map((definition) => `| \`${definition.key}\` | ${definition.targets} | ${definition.dataType} | [Stylesheet reference](stylesheet.md#style-key-reference) | \`style.${definition.key}: ...\` |`);
+  const rows = definitions.map((definition) => {
+    const firstTarget = definition.targets.split(', ')[0];
+    return `| \`${definition.key}\` | ${definition.targets} | ${definition.dataType} | [Stylesheet reference](stylesheet-reference.md#${firstTarget}-style-keys) | \`style.${definition.key}: ...\` |`;
+  });
   return [
     '### Renderer Style Registry',
     '',
-    'This table is generated from `packages/topoviewer/src/core/styleDefaults.ts`. It is a drift guard for public style-key discoverability. Use the Stylesheet page for full accepted values, defaults, and examples.',
+    'This table is generated from `packages/topoviewer/src/core/styleDefaults.ts`. It is a drift guard for public style-key discoverability. Use the Stylesheet Reference page for full accepted values, defaults, and examples.',
     '',
     '| Style Key | Targets | Data Type | Detail | Minimal YAML Cue |',
     '|---|---|---|---|---|',
@@ -391,4 +611,9 @@ const content = [
 
 if (writeIfChanged(outputPath, `${content.trim()}\n`)) {
   console.log(`generated ${path.relative(repoRoot, outputPath)}`);
+}
+
+const styleReferenceContent = styleReferencePage();
+if (writeIfChanged(styleReferencePath, `${styleReferenceContent.trim()}\n`)) {
+  console.log(`generated ${path.relative(repoRoot, styleReferencePath)}`);
 }

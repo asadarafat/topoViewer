@@ -27,7 +27,7 @@ The stable core is deliberately small:
 - `TopoViewer` renders an interactive diagram that can be embedded in docs,
   React products, authoring tools, and operational dashboards.
 
-![TopoViewer YAML to rendered network diagram](docs/assets/topoviewer-yaml-to-diagram.png)
+[![TopoViewer YAML to rendered network graph](docs/assets/topoviewer-yaml-to-graph-demo.png)](https://asadarafat.github.io/topoviewer/harness/)
 
 ## Why It Matters
 

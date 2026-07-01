@@ -45,6 +45,7 @@ nav = [
   ] },
   { "Examples" = [
     { "Curated Examples" = "topoviewer/examples.md" },
+    { "Object Family Examples" = "topoviewer/object-family-examples.md" },
     { "Real Network Demo" = "topoviewer/real-network-demo.md" },
     { "Generated Catalog" = [
       { "Graph" = "topoviewer/reference/graph/index.md" },
@@ -63,7 +64,11 @@ nav = [
   ] },
   { "Reference" = [
     { "Object Attributes" = "topoviewer/object-reference.md" },
+    { "Stylesheet Reference" = "topoviewer/stylesheet-reference.md" },
+    { "Attention Reference" = "topoviewer/attention-reference.md" },
+    { "Attention TypeScript API" = "topoviewer/attention-typescript-api.md" },
     { "Reference Model" = "topoviewer/reference-model.md" },
+    { "Topology Model" = "topoviewer/topology-model.md" },
     { "YAML Schemas" = "topoviewer/schemas.md" },
     { "TypeScript API" = "topoviewer/api-reference.md" },
     { "Architecture" = "topoviewer/architecture.md" },
