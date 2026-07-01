@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { Box } from '@mui/material';
-import { type TopoDocument, type TopoViewerNodePositionChange, type TopoViewerObjectClick } from 'topoviewer';
+import { type TopoDocument, type TopoViewerNodePositionChange } from 'topoviewer';
 import type { HarnessFixture, TopoViewerWebviewHost, ValidationResult, WebviewDiagnostic, WebviewState } from '../shared/types';
 import {
   clearAttention,
@@ -12,8 +12,6 @@ import {
   insertTopoPreset,
   objectExists,
   objectIdsByKind,
-  resolveSelectionFromObject,
-  sameSelection,
   updateGraphNodePosition,
   updateAttentionFocus,
   updateAttentionInteraction,
@@ -45,12 +43,9 @@ import { useBrowserHarnessActions } from './harnessActions';
 import { copyTextToClipboard, downloadYamlBundle as downloadYamlBundleAction, exportPreviewImage, type ExportStatus } from './webviewExportActions';
 import { useBrowserYamlIntelligence, useDraftValidation, useMonacoDiagnostics, usePendingYamlFocus, useYamlEditorMount, useYamlMonacoProviders } from './webviewEditorHooks';
 import { createMapperCoveragePreview } from './mapperCoveragePreview';
-import { mapperPresetDocument } from './mapperPresets';
-import {
-  appendMapperRule,
-  defaultMapperRuleBuilderState,
-  mapperTopologyPickers
-} from './mapperRuleBuilder';
+import { mapperTopologyPickers } from './mapperRuleBuilder';
+import { useMapperRuleAuthoring } from './webviewMapperAuthoring';
+import { useObjectSelectionActions } from './webviewSelectionActions';
 import './webview.css';
 
 interface WebviewAppProps {
@@ -105,7 +100,6 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
   const [attentionRegionId, setAttentionRegionId] = useState('');
   const [attentionExpandOnClick, setAttentionExpandOnClick] = useState(true);
   const [linkGroupingThreshold, setLinkGroupingThreshold] = useState('2');
-  const [mapperRuleBuilder, setMapperRuleBuilder] = useState(defaultMapperRuleBuilderState);
   const [editorReady, setEditorReady] = useState(false);
   const [pendingYamlFocus, setPendingYamlFocus] = useState<PendingYamlFocus>();
   const editorRef = useRef<any>(null);
@@ -230,9 +224,7 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
       mounted = false;
     };
   }, [host, state]);
-
   useDraftValidation({ draftDirty, draftMapperText, draftStylesheetText, draftTopologyText, host, setDraftValidation, state, validation });
-
   const visibleDocument = useMemo(() => validation.document as TopoDocument | undefined, [validation.document]);
   const graphNodes = visibleDocument?.graph?.nodes || [];
   const nodeNameById = useMemo(() => new Map(graphNodes.map((node) => [node.id, node.name || node.label || node.id])), [graphNodes]);
@@ -243,6 +235,30 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
     [activeValidation.document, draftMapperText]
   );
   const mapperPickers = useMemo(() => mapperTopologyPickers(visibleDocument), [visibleDocument]);
+  const {
+    insertMapperPreset,
+    insertMapperRuleFromBuilder,
+    mapperRuleBuilder,
+    updateMapperRuleBuilder
+  } = useMapperRuleAuthoring({
+    draftMapperText,
+    flash,
+    mapperPickers,
+    setDraftMapperText,
+    setMode,
+    setTab,
+    state,
+    visibleDocument
+  });
+  const { handleObjectClick, selectObject } = useObjectSelectionActions({
+    applyAttentionFocus,
+    mode,
+    setAttentionFocusId,
+    setAttentionFocusKind,
+    setMode,
+    setSelectedObjects,
+    visibleDocument
+  });
   const appliedHasErrors = validation.diagnostics.some((diagnostic) => diagnostic.severity === 'error');
   const activeHasErrors = activeDiagnostics.some((diagnostic) => diagnostic.severity === 'error');
   const hasErrors = appliedHasErrors || activeHasErrors;
@@ -681,60 +697,6 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
       stylesheetText: result.text
     }));
   }
-
-  function insertMapperPreset(presetId: string) {
-    const preset = mapperPresetDocument(presetId, visibleDocument?.graph?.id || state?.fixtureId || 'topoviewer');
-    if (!preset) {
-      flash('Mapper preset is not available');
-      return;
-    }
-    setMode('yaml');
-    setTab(2);
-    setDraftMapperText(preset);
-    flash('Inserted mapper preset');
-  }
-
-  function updateMapperRuleBuilder(patch: Partial<typeof mapperRuleBuilder>) {
-    setMapperRuleBuilder((current) => ({ ...current, ...patch }));
-  }
-
-  function insertMapperRuleFromBuilder() {
-    try {
-      const graphId = visibleDocument?.graph?.id || state?.fixtureId || 'topoviewer';
-      const nextMapper = appendMapperRule(draftMapperText || 'version: 1\nmappings: []\n', mapperRuleBuilder, mapperPickers, graphId);
-      setMode('yaml');
-      setTab(2);
-      setDraftMapperText(nextMapper);
-      flash('Inserted mapper rule draft');
-    } catch (error) {
-      flash(error instanceof Error ? error.message : String(error));
-    }
-  }
-
-  function selectObject(selection: TopoObjectSelection, modifiers?: TopoViewerObjectClick['modifiers']) {
-    const additive = !!(modifiers?.ctrlKey || modifiers?.metaKey || modifiers?.shiftKey);
-    setSelectedObjects((current) => {
-      if (!additive) return [selection];
-      return current.some((candidate) => sameSelection(candidate, selection))
-        ? current.filter((candidate) => !sameSelection(candidate, selection))
-        : [...current, selection];
-    });
-    if (mode !== 'attention') setMode('inspect');
-  }
-
-  function handleObjectClick(object: TopoViewerObjectClick) {
-    const selection = resolveSelectionFromObject(visibleDocument, object.id);
-    if (!selection) return;
-    selectObject(selection, object.modifiers);
-    if (mode === 'attention') {
-      const focusKind = focusKindForSelection(selection.kind);
-      if (!focusKind) return;
-      setAttentionFocusKind(focusKind);
-      setAttentionFocusId(selection.id);
-      applyAttentionFocus([selection.id], focusKind);
-    }
-  }
-
   useBrowserHarnessActions(host, { selectObject });
 
   function openRelationshipComposer(kind: 'link' | 'path') {
