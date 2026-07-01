@@ -13,10 +13,7 @@ Current active plans:
 - `changes/define-codespaces-dev-environment/` - planned Codespaces developer environment that can run local MkDocs, Zensical, browser harness, Grafana lab, and Containerlab-Grafana workflows from a fresh cloud workspace.
 - `changes/define-netbox-integration-roadmap/` - planned NetBox feasibility, use cases, first integration shape, and roadmap wording constraints.
 - `changes/define-opsmill-infrahub-integration-roadmap/` - planned OpsMill/Infrahub feasibility, use cases, first integration shape, and roadmap wording constraints.
-- `changes/finalize-public-adoption-readiness-closeout/` - planned post-review closeout for a clean committed-tree `npm run ci`, remote CI/Docs confirmation, and archive of the hardening change.
-- `changes/harden-link-direction-lanes/` - planned production hardening for direction lane geometry, physical parallel-link behavior, direction-specific interaction, attention, mapper coverage, mounted-bundle examples, and cross-surface parity.
 - `changes/harden-public-adoption-readiness/` - planned public repository and documentation hardening so the stable TopoViewer core, first-run workflow, support boundaries, curated examples, and quality gates are clear enough for broad external adoption.
-- `changes/publish-promo-video-hosted-asset/` - planned post-review upload and README playback verification for the public YAML-to-graph promo video.
 
 Current studies:
 
@@ -24,6 +21,8 @@ Current studies:
 
 Archived plans:
 
+- `archive/2026-07-01-publish-promo-video-hosted-asset/` - deprecated before implementation because the public README should favor the checked-in YAML-to-graph collage while generated video/GIF/MP4 files remain local-only review artifacts.
+- `archive/2026-07-01-harden-link-direction-lanes/` - implemented production hardening for direction lane geometry, physical parallel-link behavior, direction-specific interaction, attention, mapper coverage, mounted-bundle examples, and cross-surface parity.
 - `archive/2026-06-29-add-link-direction-lanes/` - implemented Phase 1 directional lane primitive for bidirectional telemetry on one physical link, including `link.directions`, `linkDirection` selectors, straight shared-corridor rendering, marker trimming, parent-label avoidance, mapper overlays, docs, and examples.
 - `archive/2026-06-28-implement-grafana-panel-phase-4-production-hardening/` - implemented mounted-bundle production defaults, explicit fixture compatibility dashboards, refresh-driven bundle reloads, editable local dashboards, and final Phase 4 readiness hardening.
 - `archive/2026-06-28-implement-grafana-panel-phase-4/` - implemented mounted bundle and mapper foundation for `*.topo.tv.yaml`, `*.style.tv.yaml`, and `*.mapper.tv.yaml` Grafana workflows.

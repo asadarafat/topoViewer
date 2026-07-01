@@ -37,4 +37,4 @@
 - [x] 5.2 Run focused Playwright visual tests for directional lanes
 - [x] 5.3 Run Grafana panel tests and build
 - [x] 5.4 Run docs build and representative docs preview checks
-- [ ] 5.5 Run full `npm run ci` after generated projections are committed
+- [x] 5.5 Run full `npm run ci` after generated projections are committed
