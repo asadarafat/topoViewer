@@ -41,6 +41,9 @@ jobs:
       - name: Install Node dependencies
         run: npm ci
 
+      - name: Install Chromium for Playwright
+        run: npx playwright install --with-deps chromium
+
       - name: Public readiness guardrails
         run: npm run ci:public-readiness
 
