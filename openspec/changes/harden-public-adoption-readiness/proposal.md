@@ -42,6 +42,16 @@ and public support boundaries:
   react-dom` work before any adoption push;
 - keep the README first screen focused on install, render this YAML, and embed
   in React or MkDocs;
+- reshape the docs homepage as a conversion path, not an encyclopedia: install,
+  render first topology, explore examples, embed in React or MkDocs;
+- add a "Start in 60 seconds" first CTA and rename the first tutorial to
+  "Getting Started";
+- align `mkdocs.yml`, docs homepage, canonical content organization, and
+  guide-level Next Steps around one user journey;
+- demote Zensical from front-door product surface to static adapter/integration
+  documentation;
+- enforce directional Next Steps: one primary next page and at most two
+  optional links per guide;
 - demote Zensical, VS Code, Grafana, Containerlab, NetBox, and Infrahub from
   the front-page core unless their support status changes;
 - define a visual demo-gallery backlog for AWS VPC, Kubernetes service map,
@@ -52,9 +62,11 @@ and public support boundaries:
   actions;
 - decide whether Node 24 remains a repo-only tooling requirement or becomes a
   justified package runtime requirement;
-- add a Playwright-recorded promotional walkthrough video for README and docs
-  that shows YAML turning into a rendered topology across MkDocs, Zensical, the
-  browser harness, and Grafana;
+- keep the README first-screen media collage-first, using the checked-in
+  Playwright-captured image that shows the same YAML across MkDocs, Zensical,
+  the browser harness, and Grafana;
+- keep any generated video/GIF/MP4 walkthrough output local-only for review,
+  not as a release gate or preferred README artifact;
 - document the difference from Mermaid.js and from directly using React Flow;
 - define a public stability contract for YAML schemas, TypeScript APIs, and
   generated examples;
@@ -90,7 +102,7 @@ and public support boundaries:
 
 - Public README.
 - MkDocs and Zensical information architecture.
-- Promotional media generation and GitHub-hosted asset workflow.
+- Promotional collage generation and local-only optional video review workflow.
 - Canonical content under `packages/topoviewer/content/**`.
 - Generated docs/examples projections.
 - Package README files where public support status is visible.

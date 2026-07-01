@@ -23,13 +23,13 @@ prevention work linked to docs, checks, or remaining tasks.
 | 16 | Security scanner reports dependency risk | Dependency-risk ledger and security workflow triage policy. |
 | 17 | User asks for VS Code extension production support | Status label remains Experimental. |
 | 18 | NetBox/OpsMill user expects shipped plugin | Integration roadmap labels these Roadmap. |
-| 19 | README video missing | Promo video tasks remain open. |
+| 19 | README animated media missing | Accepted: README favors the checked-in collage; generated video/GIF/MP4 remains local-only review media. |
 | 20 | Accessibility expectations are unclear | Performance/reliability/accessibility docs state current posture and gaps. |
 
 Top remaining support reducers:
 
 1. Finish mapper rule-builder and coverage preview.
 2. Add curated visual evidence across harness, MkDocs, and Zensical.
-3. Add the README promo walkthrough video.
+3. Keep the README collage polished and add curated visual evidence across surfaces.
 4. Expand hostile-content tests into docs embeds and Grafana.
 5. Add automated accessibility checks.

@@ -28,7 +28,7 @@ README, docs home, package READMEs, and integration pages.
 
 | Risk | Owner task |
 |---|---|
-| Promo video and README visual story can drift after video is added | Task 17. |
+| README collage and generated captures can drift from the product UI | Task 17. |
 | Curated screenshots can drift from live renderer | Tasks 5 and 9. |
 | Mapper docs can drift from harness rule-builder once implemented | Task 8. |
 | Accessibility posture can drift once automated checks exist | Task 22.8. |

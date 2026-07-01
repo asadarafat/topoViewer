@@ -18,6 +18,6 @@ Result:
 Closeout decision:
 
 - The local deterministic recording requirement is complete.
-- The durable hosted video upload and rendered GitHub README playback check are
-  deferred to `openspec/changes/publish-promo-video-hosted-asset` because they
-  require a reviewed public upload after repository publication.
+- The hosted video upload follow-up is deprecated. The release media path is
+  collage-first, and generated video/GIF/MP4 files remain local-only review
+  artifacts.

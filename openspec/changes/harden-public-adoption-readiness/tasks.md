@@ -215,18 +215,18 @@
 - [x] 16.12 Keep Grafana, VS Code, Zensical adapter internals, labs, NetBox, and OpsMill/Infrahub outside the `0.1.0` package promise unless their status is promoted to Supported
 - [x] 16.13 Update README, docs home, compatibility docs, release checklist, and changelog so public launch language consistently points to `0.1.0` first and `1.0.0` later
 
-## 17. Promotional Demo Video
+## 17. Promotional Collage And Local Demo Capture
 
-- [x] 17.1 Define the promotional storyboard for YAML to graph across harness, MkDocs, Zensical, and Grafana
-- [x] 17.2 Add `scripts/record-promo-demo.mjs` or equivalent Playwright recording command
+- [x] 17.1 Define the promotional visual story for YAML to graph across harness, MkDocs, Zensical, and Grafana
+- [x] 17.2 Add `scripts/record-promo-demo.mjs` or equivalent Playwright capture command
 - [x] 17.3 Make the script fail clearly when docs preview, harness, or Grafana lab surfaces are not running
-- [x] 17.4 Record deterministic dark-mode video to `.artifacts/promo/` only as a temporary local review artifact
-- [x] 17.5 Capture a poster image suitable for README fallback and place the accepted checked-in copy under `docs/assets/`
-- [x] 17.6 Document the GitHub asset-hosting workflow using a dedicated media issue or equivalent durable host
-- [x] 17.7 Defer reviewed-video upload and GitHub-hosted media URL capture to `openspec/changes/publish-promo-video-hosted-asset`
-- [x] 17.8 Embed the hosted video or compatible fallback in README using only a durable hosted URL or `docs/assets/` asset
-- [x] 17.9 Defer rendered GitHub README playback verification to `openspec/changes/publish-promo-video-hosted-asset`
-- [x] 17.10 Ensure public docs do not reference local `.artifacts` video paths
+- [x] 17.4 Capture deterministic dark-mode whole-window screenshots and optional local video/GIF/MP4 review artifacts under `.artifacts/promo/`
+- [x] 17.5 Place the accepted checked-in README collage under `docs/assets/topoviewer-yaml-to-graph-collage.png`
+- [x] 17.6 Document that generated video/GIF/MP4 outputs are local-only review artifacts, not preferred public README media
+- [x] 17.7 Archive `openspec/changes/publish-promo-video-hosted-asset` as deprecated because the public first impression is collage-first
+- [x] 17.8 Embed the checked-in collage in README using only a `docs/assets/` asset
+- [x] 17.9 Treat rendered GitHub README media verification as collage rendering, not hosted animated playback
+- [x] 17.10 Ensure public docs do not reference local `.artifacts` media paths
 - [x] 17.11 Add lint that fails if README, MkDocs, Zensical, or GitHub Pages content references `.artifacts/promo/`
 
 ## 18. Uncommon Hardening Drills
@@ -307,23 +307,23 @@
 - [x] 24.8 Run hostile-input and mounted-bundle abuse tests
 - [x] 24.9 Run artifact autopsy checks
 - [x] 24.10 Run npm and Go dependency triage checks
-- [x] 24.11 Run promotional video generation command
+- [x] 24.11 Run promotional collage generation command
 - [x] 24.12 Run compatibility/API report checks
 - [x] 24.13 Run performance and accessibility checks
 - [x] 24.14 Run governance-file and support-boundary checks
 - [x] 24.15 Run architecture/threat-model traceability checks
 - [x] 24.16 Run automated security monitoring checks: Dependabot coverage, CodeQL/static analysis, secret scanning, container scanning, npm audit, Go vulnerability scanning, and security-health reporting
-- [x] 24.17 Defer full `npm run ci` clean committed-tree validation to `openspec/changes/finalize-public-adoption-readiness-closeout`
+- [x] 24.17 Carry full `npm run ci` clean committed-tree validation as an in-scope closeout gate in section 27
 - [x] 24.18 Review the generated MkDocs and Zensical sites locally
-- [x] 24.19 Defer README video playback verification on GitHub after push to `openspec/changes/publish-promo-video-hosted-asset`
+- [x] 24.19 Treat GitHub README promo-media verification as checked-in collage rendering rather than hosted animated playback
 - [x] 24.20 Review `spec-traceability.md` and verify every `spec.md` requirement has completed evidence, named deferral, or accepted-risk owner
 - [x] 24.21 Review `audit-traceability.md` and verify every `audit.md` finding has completed evidence, named deferral, or accepted-risk owner
 - [x] 24.22 Produce the final public adoption readiness report from task 0.6
-- [x] 24.23 Defer archive closeout to `openspec/changes/finalize-public-adoption-readiness-closeout` after committed-tree CI and remaining public-hosted promo checks are complete or explicitly accepted
+- [x] 24.23 Carry archive closeout as an in-scope gate in section 27 after committed-tree CI and collage-first promo media verification are complete or explicitly accepted
 
 ## 25. V0.1 Public Product Launch Focus
 
-- [x] 25.1 Capture the adoption scorecard: core idea 8/10, engineering seriousness 7/10, public adoption 3/10, 10k-star readiness 2/10
+- [x] 25.1 Capture the adoption scorecard: core idea 8/10, engineering seriousness 7/10, public adoption 3/10, broad adoption readiness 2/10
 - [x] 25.2 Reframe the public category as "Topology-as-Code renderer for infrastructure diagrams"
 - [x] 25.3 Capture the killer product sentence: `topology.yaml` + `stylesheet.yaml` -> interactive, embeddable, schema-validated topology diagrams
 - [ ] 25.4 Make README first screen show only install, render this YAML, and embed in React or MkDocs before secondary surfaces
@@ -339,5 +339,42 @@
 - [ ] 25.14 Add typed public contracts for compiled graph data, extension hooks, events, node data, edge data, style declarations, and toolbar actions
 - [ ] 25.15 Decide Node compatibility for public package adoption: broaden runtime support to Node 20/22/24 where possible or document why Node 24 is required beyond repo tooling
 - [ ] 25.16 Add an adoption launch blocker that fails public-readiness if README/docs advertise npm install before the package is published or explicitly marked pre-publish
-- [ ] 25.17 Track GitHub adoption baseline before launch: stars, forks, releases, packages, and known first-user install issue
+- [ ] 25.17 Track GitHub adoption baseline before launch: forks, releases, packages, external issues, and known first-user install issue
 - [ ] 25.18 Define the later `1.0.0` stable-core gate from real early-adopter feedback, API ownership review, compatibility fixtures, and migration policy
+
+## 26. Public Docs Conversion Path
+
+- [x] 26.1 Capture the docs conversion scorecard: content 8/10, navigation 6.5/10, public adoption conversion 4/10, docs conversion readiness 4/10
+- [x] 26.2 Capture the public docs goal: a new engineer understands the value in 30 seconds and renders something beautiful in 2 minutes
+- [ ] 26.3 Reshape docs home so the top flow is product identity, install, render your first topology, explore examples, and embed in React/MkDocs before telemetry, architecture, release, roadmap, or maintainer material
+- [ ] 26.4 Add a "Start in 60 seconds" first CTA or make Getting Started explicitly satisfy that role with install command, topology YAML, stylesheet YAML, render code/live viewport, expected output, blank-viewport troubleshooting, and one next step
+- [ ] 26.5 Rename "First Topology" to "Getting Started" in public nav and page title, with redirects, aliases, or updated links for old references
+- [ ] 26.6 Add expected screenshot or live viewport near the top of Getting Started, plus "what you just built", common blank-viewport mistake, and next link to Style Your First Topology
+- [ ] 26.7 Restructure `mkdocs.yml` Start section to: Why TopoViewer, Getting Started, Style Your First Topology, Examples Gallery
+- [ ] 26.8 Move Browser Harness out of Start into Tools or Authoring Tools
+- [ ] 26.9 Move Build Or Adopt out of Start into Evaluate
+- [ ] 26.10 Move YAML to Diagram out of Start into product story or Examples, not the beginner path
+- [ ] 26.11 Demote Zensical from front-door story to Embed/Integrations as "Zensical Adapter" or "Static HTML / Zensical Adapter", after React and MkDocs
+- [ ] 26.12 Keep Grafana telemetry, Containerlab-backed lab material, architecture, threat model, release, and documentation standard outside the beginner conversion path
+- [ ] 26.13 Align the docs homepage task router with the same journey as `mkdocs.yml` so users do not see competing structures
+- [ ] 26.14 Align canonical content structure and generated docs paths with the public IA where practical, so `mkdocs.yml` is not the only source of the user journey
+- [ ] 26.15 Refactor guide-page Next Steps to exactly one primary next step and at most two optional links, each with a concrete reason
+- [ ] 26.16 Update Next Steps for Getting Started, Style Your First Topology, Browser Harness, and Authoring Model to remove reference dumps and roadmap/lab jumps from beginner pages
+- [ ] 26.17 Add docs lint for beginner guide Next Steps: one primary link, at most two optional links, no maintainer links, no roadmap links, and no Grafana/lab links unless explicitly optional and relevant
+- [ ] 26.18 Add docs lint or public-readiness checks that fail if Start contains Tools, Evaluate, Labs, Maintainers, or roadmap-heavy pages
+- [ ] 26.19 Preserve the useful "Choose A Path" router, but reorder it so first topology, styling, examples, and React/MkDocs embedding appear before telemetry, evaluation, roadmap, release, and maintainer paths
+- [ ] 26.20 Ensure maintainer pages such as Monorepo, Production Hardening, Design Review Checklist, Release, Documentation Standard, and Decision Log are grouped under Maintainers or an equivalent clearly non-beginner section
+- [ ] 26.21 Update curated example template so every curated example shows Live Viewport, Copy Topology YAML, Copy Stylesheet YAML, What this proves, and Use this when
+- [ ] 26.22 Review curated Examples visually so they feel like a gallery, not generated test catalog output
+- [ ] 26.23 Add visual review evidence for docs home, Getting Started, Style Your First Topology, Examples Gallery, React, MkDocs, and Zensical adapter pages
+- [ ] 26.24 Ensure React docs open with `npm install topoviewer @xyflow/react react react-dom` after publication, or with an unavoidable pre-publish warning and tarball preview path before publication
+- [ ] 26.25 Update `spec-traceability.md`, `audit-traceability.md`, and the readiness report after the docs IA implementation is complete
+
+## 27. Closeout And Archive Gate
+
+- [ ] 27.1 Review and commit the public adoption hardening patch set
+- [ ] 27.2 Run full `npm run ci` from a clean committed tree
+- [ ] 27.3 Push and verify GitHub CI and Docs workflows pass for the pushed branch
+- [x] 27.4 Confirm the hosted animated-media follow-up is deprecated and the release is collage-first
+- [ ] 27.5 Confirm tasks 25.4-25.18 and 26.3-26.25 are completed, explicitly deferred to named follow-up OpenSpecs, or accepted with named risk owners
+- [ ] 27.6 Archive `openspec/changes/harden-public-adoption-readiness` only after local CI, remote CI/Docs, promo media decision, traceability, and readiness report are complete

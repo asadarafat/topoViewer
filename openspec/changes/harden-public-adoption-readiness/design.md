@@ -66,45 +66,106 @@ Recommended public docs structure:
 ```text
 Home
 Start
-  First topology
-  Browser harness
-  Local preview
+  Why TopoViewer
+  Getting Started
+  Style Your First Topology
+  Examples Gallery
 Author
-  Topology YAML
-  Stylesheet YAML
-  Attention YAML
+  Authoring Model
   Layout
-  Validation
+  Attention YAML
+  Validate YAML
+  Debug Rendering
 Embed
   React
   MkDocs
-  Zensical
-  Grafana experimental
+  Static HTML Embed
+  Zensical Adapter
 Examples
-  Basic graph
-  CLOS fabric
-  Real network
-  Node styling
-  Edge styling
-  Attention
+  Curated Examples
+  Real Network Demo
+  Object Family Examples
+  Generated Reference Catalog
 Reference
-  YAML model
-  Stylesheet keys
-  Schemas
+  Topology Model
+  Object Attributes
+  Stylesheet Reference
+  YAML Schemas
   TypeScript API
+  Compatibility
+  Glossary
+Tools
+  Browser Harness
 Labs
   Grafana
+Evaluate
+  Build Or Adopt
+  Architecture
+  Performance And Accessibility
+  Threat Model
+  Integration Roadmap
 Maintainers
   Monorepo
+  Production Hardening
+  Design Review Checklist
   Release
   Documentation standard
-  Production hardening
+  Decision Log
 ```
 
 The Grafana lab may include synthetic telemetry and Containerlab-backed
 telemetry modes, but Containerlab should not appear as a separate top-level
 public lab. Maintainer and lab material can stay public, but it should not sit
 beside the first topology path as if it is equally important to new users.
+
+The docs homepage should follow the same story as the nav:
+
+1. install;
+2. render the first topology;
+3. explore curated examples;
+4. embed in React or MkDocs.
+
+Only after that should it route users to telemetry, architecture, threat model,
+release, and maintainer material.
+
+The existing "Choose A Path" task router can remain, because it is useful. It
+must, however, become a secondary router that reinforces the same user journey
+instead of competing with it. Keep its intent-based routing, but order and group
+the choices so first-time users see the shortest path to value before advanced
+operation, evaluation, roadmap, or maintainer paths.
+
+Zensical should remain documented as a static-site adapter, but it should not
+be a front-door product surface. Browser Harness belongs under Tools or
+Authoring Tools. Build Or Adopt belongs under Evaluate. The first tutorial
+should be named Getting Started, not First Topology.
+
+Where practical, the canonical content tree should mirror the public IA instead
+of letting `mkdocs.yml` be the only place the journey exists.
+
+If implementation chooses a simpler top-level `Use` section instead of separate
+`Author` and `Embed` sections, the same separation rules still apply: Start is
+beginner-only, Use contains normal user workflows, Reference contains complete
+API/schema material, Integrations/Labs are clearly labeled, and Maintainers
+contains architecture/release/docs-standard material.
+
+## Guide Next-Step Contract
+
+Every guide page should end with exactly one primary next step and at most two
+optional links:
+
+```text
+Next Step
+
+Continue with <one page> to <specific outcome>.
+
+Also useful:
+- <optional page>: <specific reason>
+- <optional page>: <specific reason>
+```
+
+Beginner pages must not end with reference-link dumps, roadmap links, or
+maintainer pages unless the page itself is explicitly an evaluation or
+maintainer page.
 
 ## README Contract
 
@@ -155,10 +216,10 @@ Each curated example should answer:
 - which YAML fields matter;
 - where to go for the full reference.
 
-## Promotional Demo Video
+## Promotional Collage And Local Demo Capture
 
-The README should include one short promotional walkthrough that proves the
-core workflow visually:
+The README should favor one durable checked-in collage that proves the core
+workflow visually:
 
 ```text
 Topology YAML + Stylesheet YAML
@@ -168,26 +229,30 @@ Topology YAML + Stylesheet YAML
   -> Grafana mounted-bundle telemetry overlay
 ```
 
-The video should be captured with Playwright so it is repeatable and can be
-regenerated when the UI changes.
+The collage should be captured with Playwright so it is repeatable and can be
+regenerated when the UI changes. This is the public artifact because it loads
+reliably on GitHub, survives repository checkout, and lets users inspect all
+surfaces at once.
 
-### Storyboard
+Generated video, MP4, WebM, or GIF output may still exist as optional local
+review material, but it is not the preferred README artifact and must not be a
+release gate.
 
-Target length: 45-75 seconds.
+### Collage Story
 
-1. Open the browser harness in dark mode with the YAML panel visible.
-2. Show topology/style YAML for a compact, polished example.
-3. Click Apply or otherwise show the rendered graph responding to YAML.
-4. Switch to MkDocs and show the same live viewport with YAML tabs.
-5. Switch to Zensical and show parity with the same live viewport.
-6. Switch to Grafana and show the same topology driven by a mounted bundle and
-   telemetry overlay.
-7. End on a clean rendered topology and a caption-level message:
+The collage should include whole-window captures, not only cropped graph
+content:
+
+1. Browser harness in dark mode with YAML authoring visible.
+2. MkDocs in dark mode showing the same live viewport and YAML tabs.
+3. Zensical in dark mode showing the same generated content.
+4. Grafana showing the same mounted-bundle topology with telemetry overlay.
+5. A concise caption-level message:
    "YAML topology. Reusable stylesheet. Interactive diagram."
 
 ### Recording Pipeline
 
-Add a Playwright recording script, for example:
+Maintain a Playwright capture script, for example:
 
 ```text
 scripts/record-promo-demo.mjs
@@ -198,54 +263,49 @@ The script should:
 - require Node 24;
 - fail with actionable messages if required local surfaces are not running;
 - use deterministic viewport size, dark mode, and seed data;
-- record temporary local review output to
-  `.artifacts/promo/topoviewer-yaml-to-graph-demo.webm`;
-- capture temporary local poster output to
-  `.artifacts/promo/topoviewer-yaml-to-graph-demo.png`;
 - copy the accepted README/docs collage to
   `docs/assets/topoviewer-yaml-to-graph-collage.png` or another checked-in
   `docs/assets/` path;
+- optionally record temporary local video/GIF/MP4 review output under
+  `.artifacts/promo/`;
 - avoid local filesystem paths, debug panels, failed diagnostics, or personal
   data in the frame.
 
-Optional post-processing can produce MP4 when `ffmpeg` is available:
+Optional local review artifacts can include:
 
 ```text
+.artifacts/promo/topoviewer-yaml-to-graph-demo.webm
 .artifacts/promo/topoviewer-yaml-to-graph-demo.mp4
+.artifacts/promo/topoviewer-yaml-to-graph-demo.gif
 ```
 
 `.artifacts/promo/` is only a local review/staging directory. It is not checked
 in and must not be referenced from README, MkDocs, Zensical, or GitHub Pages.
 
-### Asset Hosting
+### Asset Policy
 
-The repo should not depend on large committed binary video files as the primary
-README playback path. The preferred flow is:
+The repo should not depend on large committed binary video files or hosted video
+URLs as the primary README path. The preferred flow is:
 
-1. Generate the video locally with Playwright.
-2. Review the artifact.
-3. Upload the final video to a dedicated GitHub issue or discussion used only
-   for README media assets.
-4. Copy the resulting GitHub-hosted `user-attachments` URL into the README.
-5. Commit only lightweight static public media, such as the collage image under
-   `docs/assets/`; keep generated GIF/MP4 review artifacts out of the repo
-   unless they are uploaded to a durable hosted media URL.
+1. Generate the collage locally with Playwright.
+2. Review the whole-window captures for polish, parity, dark mode, and absence
+   of local-only noise.
+3. Commit the accepted collage under `docs/assets/`.
+4. Keep generated GIF/MP4/WebM review artifacts out of git.
 
-The README should use the GitHub-hosted asset URL for playback. If GitHub
-renders video differently in a context, the poster image should link to a
-published demo page where the video is also embedded. Any asset referenced by
-README or docs must be either checked in under `docs/assets/` or hosted by a
-durable public URL; never reference `.artifacts`.
+Any asset referenced by README or docs must be checked in under `docs/assets/`
+or intentionally hosted by a durable public URL for a separate reason. The
+promo media release gate is satisfied by the checked-in collage, not by hosted
+animated playback.
 
 ### Acceptance Bar
 
-The video is acceptable only if:
+The collage is acceptable only if:
 
-- it plays from the rendered GitHub README;
-- it has a useful poster frame;
-- it demonstrates YAML to graph, not only final screenshots;
+- it renders from the GitHub README without external media hosting;
+- it demonstrates YAML to graph across real product surfaces;
 - it includes MkDocs, Zensical, harness, and Grafana;
-- it is short enough to watch without friction;
+- each panel is readable at README scale;
 - it is regenerated through a documented command;
 - it does not expose local paths, secrets, or lab-only noise.
 
@@ -469,7 +529,7 @@ Add or tighten checks for:
 - Grafana mounted-bundle backend abuse tests for path traversal, symlinks,
   manifest abuse, role access, and resource limits;
 - artifact autopsy for npm packs, Grafana zips, docs builds, screenshots, and
-  promotional videos;
+  promotional media;
 - mapper YAML schema/docs/harness assist alignment for Grafana mounted bundles.
 - governance files, support boundaries, and security reporting are present;
 - SemVer, compatibility matrix, API ownership, deprecation, and migration

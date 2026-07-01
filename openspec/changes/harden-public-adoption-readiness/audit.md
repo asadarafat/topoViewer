@@ -16,7 +16,7 @@ product.
 | Core idea | 8/10 | "Topology as Code" is differentiated and worth pursuing. |
 | Engineering seriousness | 7/10 | CI, validation, schemas, docs, package boundaries, hostile-content tests, benchmarks, and artifact checks are real. |
 | Public adoption | 3/10 | Installability, first-run clarity, and product focus are still weaker than the code. |
-| 10k-star readiness | 2/10 | The project has not yet crossed from impressive repo to obvious, shareable, easy-to-try product. |
+| Broad adoption readiness | 2/10 | The project has not yet crossed from impressive repo to obvious, shareable, easy-to-try product. |
 
 The target is not to pretend TopoViewer is already a broad-adoption product.
 The target is to make `0.1.0` a credible early-adopter release and to define
@@ -196,7 +196,7 @@ The next phase is not more features. It is public product conversion:
 6. Harden the minimal public API.
 7. Promote one clear category.
 
-### 10k-Star Readiness Blockers
+### Public Adoption Readiness Blockers
 
 - `npm install topoviewer @xyflow/react react react-dom` must work before any
   serious adoption push.
@@ -222,6 +222,248 @@ lintTopoDocument(document)
 - Node compatibility must be made adoption-friendly: either justify Node 24 for
   repo tooling while broadening the package/runtime story, or document why the
   public package cannot support Node 20/22 yet.
+
+## Docs Conversion Audit
+
+The docs are stronger than the repo's current adoption state, but they still
+read too much like internal engineering documentation. The content is good; the
+conversion path is not sharp enough.
+
+| Area | Score | Brutal read |
+| --- | ---: | --- |
+| Content quality | 8/10 | The concepts, examples, reference depth, and docs standard are serious. |
+| Navigation | 6.5/10 | The nav is organized, but it is not yet a clean user journey. |
+| Public adoption conversion | 4/10 | Users see too many surfaces before the shortest path to value. |
+| Docs conversion readiness | 4/10 | The docs prove seriousness, but not effortless adoption. |
+
+### What Is Already Good
+
+- The docs home has the right core product statement: TopoViewer is Topology as
+  Code built from YAML facts, selector-based stylesheets, and a TypeScript/React
+  runtime.
+- The current "Choose A Path" table is useful because it routes users by
+  intent: author topology, style topology, embed in docs, embed in React,
+  operate from telemetry, compare product fit, debug rendering, and evaluate
+  architecture.
+- The first tutorial is structurally sound: one topology YAML, one stylesheet
+  YAML, one live output block, then validation commands.
+- The examples page starts in the right direction because it surfaces curated
+  patterns before the generated reference catalog.
+- The documentation standard is serious: feature work must include concept or
+  task docs, reference coverage, schema/lint coverage, examples, validation,
+  and next steps.
+
+These strengths should be preserved. The fix is not to add more documentation;
+it is to make the first path through the existing documentation more decisive.
+
+The docs homepage currently behaves like a task router and project portal. That
+is useful for maintainers and evaluators, but not good enough as the first
+public product experience. The top flow should be:
+
+```text
+TopoViewer
+Topology as Code for infrastructure diagrams.
+
+1. Install
+2. Render your first topology
+3. Explore examples
+4. Embed in React / MkDocs
+```
+
+Move "operate from telemetry", architecture risk, release, and maintainer
+material lower or into Advanced/Evaluate/Maintainers. These are important, but
+they are not first-screen conversion material.
+
+### The Main Information-Architecture Mismatch
+
+The docs currently expose three competing structures:
+
+1. `mkdocs.yml` says the journey is Start -> Author -> Embed -> Examples ->
+   Reference -> Labs -> Maintainers.
+2. The docs homepage says "Choose A Path" by task: author, style, embed,
+   operate, compare, debug, evaluate, maintain.
+3. Individual guide pages end with Next Steps that sometimes mix learning,
+   tooling, validation, reference, labs, and roadmap links.
+
+That creates a subtle but important doubt for new users: the content is useful,
+but the product does not feel like it has one shortest path to value.
+
+The homepage task router can stay, but it must support the same journey as the
+nav. It should not introduce a second mental model.
+
+### Zensical Should Not Be A Front Door
+
+The Zensical docs are honest and technically clean: they correctly say this is
+an adapter-only static site integration, not an installable Zensical plugin.
+That honesty should stay.
+
+For adoption, Zensical must be demoted. Most users do not know Zensical, and
+presenting it near React/MkDocs/Grafana on the front door makes TopoViewer look
+tied to a niche docs system. Keep the docs under an integration path such as:
+
+```text
+Integrations
+  MkDocs
+  React
+  Static HTML Embed
+  Zensical Adapter
+```
+
+Do not present Zensical as one of the main product surfaces on the docs home or
+README first screen.
+
+### The Current Start Path Is Not A Journey
+
+The current Start section mixes first-run learning, tool-specific guidance,
+product evaluation, and example material. A stronger public journey is:
+
+```text
+Start
+  Why TopoViewer
+  Getting Started
+  Style Your First Topology
+  Examples Gallery
+```
+
+Then move specialized or strategic pages out of Start:
+
+| Page | Better location |
+| --- | --- |
+| Browser Harness | Tools or Authoring Tools |
+| Build Or Adopt | Evaluate |
+| YAML to Diagram | Product story or Examples, not first-run Start |
+| Zensical | Embed or Integrations as "Zensical Adapter" |
+| Grafana telemetry | Labs/Grafana, not first-run Start |
+
+Rename "First Topology" to "Getting Started". Engineers scan for "Getting
+Started", and the current page already behaves like a getting-started guide.
+It should add expected output near the top, a short "what you just built"
+section, a common blank-viewport mistake, and one directional next step.
+
+### Next Steps Are Currently Link Dumps
+
+Every guide page should have exactly one primary next step and at most two
+optional links. Reference spam and roadmap links should not appear at the end
+of beginner pages.
+
+Use this pattern:
+
+```text
+Next Step
+
+Continue with <one page> to <specific outcome>.
+
+Also useful:
+- <optional page>: <specific reason>
+- <optional page>: <specific reason>
+```
+
+Examples:
+
+- Getting Started -> primary next step: Style Your First Topology.
+- Style Your First Topology -> primary next step: Layers and Views or curated
+  Examples, not a cluster of reference tables.
+- Browser Harness -> primary next step: Examples; Grafana only as an optional
+  link for telemetry users.
+- Authoring Model -> primary next step: Style Your First Topology or Layers,
+  not four unrelated reference links.
+
+### MkDocs Nav, Homepage, And Source Structure Must Agree
+
+The docs currently expose competing structures: nav hierarchy, homepage
+task-router, and page-level Next Steps. They should describe the same journey.
+
+Recommended public IA:
+
+```text
+Home
+
+Start
+  Why TopoViewer
+  Getting Started
+  Style Your First Topology
+  Examples Gallery
+
+Author
+  Authoring Model
+  Layout
+  Attention
+  Validate YAML
+  Debug Rendering
+
+Embed
+  React
+  MkDocs
+  Static HTML Embed
+  Zensical Adapter
+
+Examples
+  Curated Examples
+  Real Network Demo
+  Object Family Examples
+  Generated Reference Catalog
+
+Reference
+  Topology Model
+  Object Attributes
+  Stylesheet Reference
+  YAML Schemas
+  TypeScript API
+  Compatibility
+  Glossary
+
+Tools
+  Browser Harness
+
+Labs
+  Grafana
+
+Evaluate
+  Build Or Adopt
+  Architecture
+  Performance And Accessibility
+  Threat Model
+  Integration Roadmap
+
+Maintainers
+  Monorepo
+  Production Hardening
+  Design Review Checklist
+  Release
+  Documentation Standard
+  Decision Log
+```
+
+If the docs later choose a simpler public top-level `Use` grouping, it must
+still preserve the same separation: beginner conversion path first, normal user
+tasks next, reference after that, integrations/labs clearly labeled, and
+maintainer material last. The important rule is not the exact label "Author"
+versus "Use"; it is that user docs and maintainer docs must not compete.
+
+Where practical, the canonical content structure should follow the same mental
+model as `mkdocs.yml`, so the public IA is not just a nav veneer over unrelated
+source organization.
+
+### Examples Need Gallery Energy
+
+The examples are structurally good, but for public conversion each curated
+example should feel more like a gallery item and less like a test catalog
+entry. Each curated example should show:
+
+```text
+Live Viewport
+Copy Topology YAML
+Copy Stylesheet YAML
+What this proves
+Use this when
+```
+
+The next docs goal is not "more complete". It is:
+
+```text
+A new engineer understands the value in 30 seconds and renders something
+beautiful in 2 minutes.
+```
 
 ## Brutal Truth: Early-Adopter Adoption Gaps
 

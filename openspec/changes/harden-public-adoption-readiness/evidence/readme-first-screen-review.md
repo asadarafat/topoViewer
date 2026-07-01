@@ -14,5 +14,6 @@ questions without requiring repository knowledge.
 | Where is the smallest YAML? | The First Result section links directly to the First topology guide. |
 | What is not ready yet? | The integration surfaces and support-status labels distinguish Pre-Publish Supported, Supported Adapter, Experimental, Lab, and Roadmap surfaces. |
 
-Remaining risk: the README still depends on the checked-in promotional PNG
-until the promotional demo video task is completed.
+Remaining risk: the README depends on the checked-in promotional collage, so
+the collage must be regenerated when the harness, MkDocs, Zensical, or Grafana
+surfaces materially change.

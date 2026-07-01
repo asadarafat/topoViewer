@@ -31,6 +31,114 @@ OpenSpec history, labs, or experimental integrations.
 - **THEN** supported install, authoring, embedding, and reference material is
   visually separated from roadmap, lab, and maintainer content.
 
+### Requirement: Docs Conversion Path
+
+The published docs SHALL optimize the first two minutes for public adoption,
+not for showing every project surface.
+
+#### Scenario: Homepage is a conversion funnel
+
+- **GIVEN** a new engineer opens the published docs home
+- **WHEN** they scan the first screen and primary call-to-action area
+- **THEN** they see the product identity, install path, first topology path,
+  examples gallery, and React/MkDocs embedding path before telemetry,
+  architecture, maintainer, release, or roadmap material
+- **AND** the page does not present every integration surface as equal.
+
+#### Scenario: Task router supports the journey
+
+- **GIVEN** the docs home includes a "Choose A Path" or equivalent task router
+- **WHEN** a new user scans the available paths
+- **THEN** authoring the first topology, styling it, exploring examples, and
+  embedding in React or MkDocs appear before telemetry operation,
+  architecture/risk evaluation, roadmap, release, or maintainer paths
+- **AND** the task router does not contradict the `mkdocs.yml` navigation
+  journey.
+
+#### Scenario: Start in 60 seconds exists
+
+- **GIVEN** a new user wants the shortest path to value
+- **WHEN** they click the primary start CTA
+- **THEN** they reach a "Start in 60 seconds" or "Getting Started" path with
+  install command, topology YAML, stylesheet YAML, render code or live viewport,
+  expected output, common blank-viewport troubleshooting, and a single next
+  step
+- **AND** if the npm package is not yet published, the page clearly labels the
+  install path as pre-publish and does not pretend `npm install topoviewer`
+  works.
+
+#### Scenario: First tutorial uses common naming
+
+- **GIVEN** a user scans the nav for a first tutorial
+- **WHEN** they look under Start
+- **THEN** the tutorial is named "Getting Started" or equivalent common
+  onboarding language
+- **AND** old links to "First Topology" are redirected, aliased, or updated.
+
+### Requirement: Journey-Aligned Documentation IA
+
+The MkDocs nav, docs homepage, canonical content structure, and guide-level
+Next Steps SHALL describe one coherent user journey.
+
+#### Scenario: Start section is beginner-only
+
+- **GIVEN** a new user opens the Start nav section
+- **WHEN** they read the listed pages
+- **THEN** Start contains only the beginner conversion path: Why TopoViewer,
+  Getting Started, Style Your First Topology, and Examples Gallery or their
+  direct equivalents
+- **AND** Browser Harness, Build Or Adopt, YAML to Diagram, Grafana telemetry,
+  release, and maintainer pages are outside Start.
+
+#### Scenario: Zensical is an adapter path
+
+- **GIVEN** a user browses public integration docs
+- **WHEN** Zensical is shown
+- **THEN** it is presented as a static-site adapter/integration note, not as a
+  front-door product surface or native installable plugin
+- **AND** it appears after primary React and MkDocs paths.
+
+#### Scenario: Nav and homepage agree
+
+- **GIVEN** a maintainer changes `mkdocs.yml`, docs homepage routing, or
+  canonical content organization
+- **WHEN** docs lint or public-readiness checks run
+- **THEN** they fail if the homepage advertises a different primary journey
+  than the nav
+- **AND** generated docs projections do not reintroduce maintainer/lab pages
+  into the beginner flow.
+
+#### Scenario: Maintainer docs do not compete with user docs
+
+- **GIVEN** a user opens the public docs navigation
+- **WHEN** they browse Start, normal user workflows, reference, integrations,
+  labs, evaluation, and maintainer pages
+- **THEN** release, documentation standard, monorepo, production hardening,
+  design review, and decision-log pages are grouped under Maintainers or an
+  equivalent clearly non-beginner section
+- **AND** they do not appear in the primary beginner path.
+
+### Requirement: Directional Next Steps
+
+Guide pages SHALL move users along a deliberate learning path instead of
+ending in generic link dumps.
+
+#### Scenario: Guide has one primary next step
+
+- **GIVEN** a user reaches the end of a guide page
+- **WHEN** they read the Next Step section
+- **THEN** they see exactly one primary next page with a concrete outcome
+- **AND** they see at most two optional links with explicit reasons.
+
+#### Scenario: Beginner guides avoid reference spam
+
+- **GIVEN** a beginner guide such as Getting Started, Style Your First
+  Topology, Browser Harness, or Authoring Model
+- **WHEN** the page ends
+- **THEN** it does not jump directly into multiple reference tables, roadmap
+  pages, Grafana lab pages, or maintainer pages unless those are explicitly
+  marked as optional and relevant to the guide's user intent.
+
 ### Requirement: Support Status Taxonomy
 
 The public docs SHALL classify major surfaces as Supported, Experimental, Lab,
@@ -71,43 +179,37 @@ test catalog.
 - **THEN** they can still access every generated live viewport, topology YAML,
   stylesheet YAML, and relevant attention YAML.
 
-### Requirement: Promotional Walkthrough Video
+### Requirement: Promotional Collage
 
-The README SHALL include a playable promotional walkthrough video or a
-GitHub-compatible video fallback that demonstrates YAML becoming an interactive
-TopoViewer graph across the main public surfaces.
+The README SHALL include a checked-in promotional collage that demonstrates
+YAML becoming an interactive TopoViewer graph across the main public surfaces.
+Generated video, GIF, MP4, or WebM artifacts MAY be produced for local review,
+but hosted animated playback SHALL NOT be required for release readiness.
 
-#### Scenario: Video is generated repeatably
+#### Scenario: Collage is generated repeatably
 
 - **GIVEN** the local docs preview and Grafana lab surfaces are running
-- **WHEN** the promotional recording command runs
-- **THEN** Playwright records a deterministic walkthrough artifact
-- **AND** temporary review artifacts may be written under `.artifacts/promo/`
-- **AND** README/docs-visible poster or fallback assets are written under
-  `docs/assets/`
-- **AND** the final video is either uploaded to a durable GitHub-hosted media
-  URL or copied to a checked-in docs asset location approved for repository
-  size.
+- **WHEN** the promotional capture command runs
+- **THEN** Playwright captures deterministic whole-window surface images
+- **AND** the accepted public collage is written under `docs/assets/`
+- **AND** temporary review artifacts may be written under `.artifacts/promo/`.
 
-#### Scenario: Video tells the YAML-to-graph story
+#### Scenario: Collage tells the YAML-to-graph story
 
-- **GIVEN** a user watches the README video
-- **WHEN** the video plays
-- **THEN** it shows topology/style YAML
-- **AND** it shows the rendered graph in the browser harness
+- **GIVEN** a user views the README collage
+- **WHEN** the image is rendered by GitHub
+- **THEN** it shows topology/style YAML in the browser harness
 - **AND** it shows the same live viewport in MkDocs
 - **AND** it shows the same live viewport in Zensical
 - **AND** it shows Grafana rendering a mounted-bundle topology with telemetry
   overlay behavior.
 
-#### Scenario: README uses durable hosted asset
+#### Scenario: README uses durable checked-in asset
 
-- **GIVEN** the final video has been reviewed
+- **GIVEN** the final collage has been reviewed
 - **WHEN** it is added to the README
-- **THEN** the README uses a GitHub-hosted uploaded media asset or an equivalent
-  durable hosted URL
-- **AND** any checked-in poster image lives under `docs/assets/`
-- **AND** a poster image or linked demo page exists as fallback
+- **THEN** the README uses a checked-in `docs/assets/` image
+- **AND** no hosted animated-media upload is required
 - **AND** local-only `.artifacts` paths are not referenced by public docs.
 
 ### Requirement: Stable Contract Visibility
@@ -445,6 +547,15 @@ scenario.
 - **AND** each example includes the YAML to copy, expected rendered result,
   why it matters, and the next step.
 
+#### Scenario: Curated examples read like a gallery
+
+- **GIVEN** a user opens a curated example
+- **WHEN** they scan the page
+- **THEN** it shows Live Viewport, Copy Topology YAML, Copy Stylesheet YAML,
+  What this proves, and Use this when
+- **AND** generated catalog wording does not make the curated page feel like a
+  raw test-case dump.
+
 ### Requirement: Public API Hardening
 
 The repository SHALL define and harden a minimal public API before claiming a
@@ -678,7 +789,7 @@ not only ordinary unit and lint coverage.
 #### Scenario: Public artifacts are autopsied
 
 - **GIVEN** docs builds, npm packs, Grafana plugin zips, screenshots, and promo
-  videos are generated
+  media are generated
 - **WHEN** artifact autopsy runs
 - **THEN** it scans for local paths, private files, lab secrets, outdated
   routes, debug panels, personal data, and unexpected binary content.
@@ -729,3 +840,21 @@ CI SHALL protect public docs from structural drift.
 - **WHEN** representative visual checks run
 - **THEN** they verify at least one curated example across harness, MkDocs, and
   Zensical.
+
+### Requirement: Committed-Tree Readiness Closeout
+
+TopoViewer SHALL archive `harden-public-adoption-readiness` only after the
+reviewed patch set has passed full local and remote validation from a committed
+tree.
+
+#### Scenario: Maintainer closes hardening work
+
+- **GIVEN** the public adoption hardening patch set has been reviewed
+- **WHEN** the maintainer commits and runs closeout validation
+- **THEN** `npm run ci` passes from the committed tree
+- **AND** GitHub CI and Docs pass for the pushed branch
+- **AND** tasks 25.4-25.18 and 26.3-26.25 are completed, explicitly deferred to
+  named follow-up OpenSpecs, or accepted with named risk owners
+- **AND** the collage-first promo media decision is recorded
+- **AND** the hardening OpenSpec is archived only after those gates are
+  recorded in the readiness report.

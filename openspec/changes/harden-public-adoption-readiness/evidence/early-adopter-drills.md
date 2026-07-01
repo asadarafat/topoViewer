@@ -58,5 +58,5 @@ is still a major adoption gap and remains open in task 8.
 |---|---|
 | Fixture sync vocabulary appears in maintainer/lab contexts | Acceptable when labeled demo/CI-only. |
 | Full mapper authoring still benefits from knowing available topology IDs and style keys | Open harness mapper UX tasks. |
-| Promo video workflow not yet available from README | Open promo video tasks. |
+| Hosted promo video is not available from README | Accepted: README favors the checked-in collage instead. |
 | Visual parity evidence is not yet attached to each curated example | Open curated screenshot/render parity tasks. |
