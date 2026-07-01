@@ -583,7 +583,10 @@ function isAllowedUnnavedDocsPage(relativePath) {
     || [
       'topoviewer/index.md',
       'topoviewer/zensical-embed.md',
-      'topoviewer/complete-network-demo/index.md'
+      'topoviewer/complete-network-demo/index.md',
+      'topoviewer/labs/grafana.md',
+      'topoviewer/labs/grafana-mapper-recipes.md',
+      'topoviewer/labs/grafana-telemetry-call-flow.md'
     ].includes(relativePath);
 }
 

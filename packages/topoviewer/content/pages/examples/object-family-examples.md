@@ -16,7 +16,7 @@ This page maps each TopoViewer object family to a focused rendered example and t
 | Callouts and pins | [Callout examples](../reference/callouts/index.md) | [Callout attributes](../reference/object-attributes.md#callout) and [callout style keys](../reference/stylesheet-reference.md#callout-style-keys) | Markdown callouts, leader lines, images, and pin anchors support documentation-grade diagrams. |
 | Attention | [Attention examples](../reference/attention/index.md) | [Attention reference](../reference/attention-reference.md) | Focus, change queries, dependency traversal, aggregation, and link grouping all come from graph facts. |
 | Stylesheet rules | [Styling examples](../reference/styling/index.md) | [Stylesheet reference](../reference/stylesheet-reference.md) | Selectors map graph facts to reusable visual policy. |
-| Grafana mapper | [Mapper recipes](../labs/grafana-mapper-recipes.md) | [Mapper attributes](../reference/object-attributes.md#grafana-mapper-objects) | Telemetry values can resolve to TopoViewer objects and apply runtime-only overlays. |
+| Grafana mapper | [Mapper recipes](../labs/grafana-topoviewer-containerlab-lab.md#mapper-recipes) | [Mapper attributes](../reference/object-attributes.md#grafana-mapper-objects) | Telemetry values can resolve to TopoViewer objects and apply runtime-only overlays. |
 
 ## Validation
 

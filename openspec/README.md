@@ -10,7 +10,6 @@ reflected in public docs with an explicit support-status label.
 
 Current active plans:
 
-- `changes/publish-mkdocs-topoviewer-pypi-package/` - planned continuation of public adoption readiness to make `pip install mkdocs-topoviewer` real through PyPI Trusted Publishing, clean install smoke tests, docs switch-over, and install-path guardrails.
 - `changes/define-codespaces-dev-environment/` - planned Codespaces developer environment that can run local MkDocs, Zensical, browser harness, Grafana lab, and Containerlab-Grafana workflows from a fresh cloud workspace.
 - `changes/define-netbox-integration-roadmap/` - planned NetBox feasibility, use cases, first integration shape, and roadmap wording constraints.
 - `changes/define-opsmill-infrahub-integration-roadmap/` - planned OpsMill/Infrahub feasibility, use cases, first integration shape, and roadmap wording constraints.

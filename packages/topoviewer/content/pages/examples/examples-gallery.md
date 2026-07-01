@@ -301,7 +301,7 @@ Expected result: a Prometheus sample with matching `link_id` and `direction`
 updates only the matching directional stroke. Unmatched, ambiguous, duplicate,
 or stale samples should appear in mapper coverage diagnostics.
 
-More copyable mapper recipes are in [Grafana mapper recipes](../labs/grafana-mapper-recipes.md).
+More copyable mapper recipes are in [Grafana TopoViewer Containerlab Lab](../labs/grafana-topoviewer-containerlab-lab.md#mapper-recipes).
 
 ## Generated Catalog
 

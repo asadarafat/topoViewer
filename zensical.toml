@@ -75,9 +75,7 @@ nav = [
     { "Browser Harness" = "topoviewer/tools/browser-harness.md" }
   ] },
   { "Labs" = [
-    { "Grafana" = "topoviewer/labs/grafana.md" },
-    { "Grafana Mapper Recipes" = "topoviewer/labs/grafana-mapper-recipes.md" },
-    { "Grafana Telemetry Call Flow" = "topoviewer/labs/grafana-telemetry-call-flow.md" }
+    { "Grafana TopoViewer Containerlab Lab" = "topoviewer/labs/grafana-topoviewer-containerlab-lab.md" }
   ] },
   { "Evaluate" = [
     { "Build Or Adopt" = "topoviewer/evaluate/build-or-adopt.md" },
