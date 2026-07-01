@@ -21,32 +21,27 @@ extra_javascript = [
 nav = [
   { "Overview" = "index.md" },
   { "Start" = [
-    { "First Topology" = "topoviewer/getting-started.md" },
-    { "Browser Harness" = "topoviewer/browser-harness.md" },
-    { "Why TopoViewer" = "topoviewer/why-topoviewer.md" },
-    { "Build Or Adopt" = "topoviewer/build-vs-adopt.md" },
-    { "YAML to Diagram" = "topoviewer/yaml-to-diagram/index.md" }
+    { "Why TopoViewer" = "topoviewer/start/why-topoviewer.md" },
+    { "First Topology" = "topoviewer/start/first-topology.md" },
+    { "Style Your First Topology" = "topoviewer/start/style-your-first-topology.md" }
   ] },
   { "Author" = [
-    { "Authoring" = "topoviewer/authoring.md" },
-    { "Style a Topology" = "topoviewer/style-a-topology.md" },
-    { "Stylesheet" = "topoviewer/stylesheet.md" },
-    { "Attention" = "topoviewer/attention.md" },
-    { "Layout" = "topoviewer/layout-guide.md" },
-    { "Validate YAML" = "topoviewer/validate-yaml.md" },
-    { "Debug Rendering" = "topoviewer/debugging.md" }
+    { "Authoring Model" = "topoviewer/author/authoring-model.md" },
+    { "Layout" = "topoviewer/author/layout.md" },
+    { "Attention" = "topoviewer/author/attention.md" },
+    { "Validate YAML" = "topoviewer/author/validate-yaml.md" },
+    { "Debug Rendering" = "topoviewer/author/debug-rendering.md" }
   ] },
   { "Embed" = [
-    { "React" = "topoviewer/react.md" },
-    { "MkDocs" = "topoviewer/mkdocs.md" },
-    { "Zensical" = "topoviewer/zensical.md" },
-    { "Integration Roadmap" = "topoviewer/integration-roadmap.md" },
-    { "Zensical Adapter" = "topoviewer/zensical-embed.md" }
+    { "React" = "topoviewer/embed/react.md" },
+    { "MkDocs" = "topoviewer/embed/mkdocs.md" },
+    { "Static HTML / Zensical Adapter" = "topoviewer/embed/static-html-zensical-adapter.md" }
   ] },
   { "Examples" = [
-    { "Curated Examples" = "topoviewer/examples.md" },
-    { "Object Family Examples" = "topoviewer/object-family-examples.md" },
-    { "Real Network Demo" = "topoviewer/real-network-demo.md" },
+    { "Examples Gallery" = "topoviewer/examples/examples-gallery.md" },
+    { "YAML to Network Diagram" = "topoviewer/examples/yaml-to-network-diagram/index.md" },
+    { "Real Network Demo" = "topoviewer/examples/real-network-demo.md" },
+    { "Object Family Examples" = "topoviewer/examples/object-family-examples.md" },
     { "Generated Catalog" = [
       { "Graph" = "topoviewer/reference/graph/index.md" },
       { "Nodes" = "topoviewer/reference/nodes/index.md" },
@@ -63,32 +58,40 @@ nav = [
     ] }
   ] },
   { "Reference" = [
-    { "Object Attributes" = "topoviewer/object-reference.md" },
-    { "Stylesheet Reference" = "topoviewer/stylesheet-reference.md" },
-    { "Attention Reference" = "topoviewer/attention-reference.md" },
-    { "Attention TypeScript API" = "topoviewer/attention-typescript-api.md" },
-    { "Reference Model" = "topoviewer/reference-model.md" },
-    { "Topology Model" = "topoviewer/topology-model.md" },
-    { "YAML Schemas" = "topoviewer/schemas.md" },
-    { "TypeScript API" = "topoviewer/api-reference.md" },
-    { "Architecture" = "topoviewer/architecture.md" },
-    { "Performance And Accessibility" = "topoviewer/performance-reliability-accessibility.md" },
-    { "Compatibility" = "topoviewer/compatibility.md" },
-    { "Glossary" = "topoviewer/glossary.md" }
+    { "Topology Model" = "topoviewer/reference/topology-model.md" },
+    { "Reference Model" = "topoviewer/reference/reference-model.md" },
+    { "Object Attributes" = "topoviewer/reference/object-attributes.md" },
+    { "TopoViewer Stylesheet" = "topoviewer/reference/topoviewer-stylesheet.md" },
+    { "Stylesheet Reference" = "topoviewer/reference/stylesheet-reference.md" },
+    { "Attention Reference" = "topoviewer/reference/attention-reference.md" },
+    { "Attention TypeScript API" = "topoviewer/reference/attention-typescript-api.md" },
+    { "YAML Schemas" = "topoviewer/reference/yaml-schemas.md" },
+    { "TypeScript API" = "topoviewer/reference/typescript-api.md" },
+    { "Compatibility" = "topoviewer/reference/compatibility.md" },
+    { "Glossary" = "topoviewer/reference/glossary.md" }
+  ] },
+  { "Tools" = [
+    { "Browser Harness" = "topoviewer/tools/browser-harness.md" }
   ] },
   { "Labs" = [
-    { "Grafana Guide" = "topoviewer/grafana.md" },
-    { "Grafana Mapper Recipes" = "topoviewer/grafana-mapper-recipes.md" },
-    { "Grafana Telemetry Call Flow" = "topoviewer/grafana-telemetry-call-flow.md" }
+    { "Grafana" = "topoviewer/labs/grafana.md" },
+    { "Grafana Mapper Recipes" = "topoviewer/labs/grafana-mapper-recipes.md" },
+    { "Grafana Telemetry Call Flow" = "topoviewer/labs/grafana-telemetry-call-flow.md" }
+  ] },
+  { "Evaluate" = [
+    { "Build Or Adopt" = "topoviewer/evaluate/build-or-adopt.md" },
+    { "Architecture" = "topoviewer/evaluate/architecture.md" },
+    { "Performance, Reliability, Accessibility" = "topoviewer/evaluate/performance-reliability-accessibility.md" },
+    { "Threat Model" = "topoviewer/evaluate/threat-model.md" },
+    { "Integration Roadmap" = "topoviewer/evaluate/integration-roadmap.md" }
   ] },
   { "Maintainers" = [
-    { "Monorepo" = "topoviewer/monorepo.md" },
-    { "Hardening" = "topoviewer/production.md" },
-    { "Threat Model" = "topoviewer/threat-model.md" },
-    { "Design Review Checklist" = "topoviewer/design-review-checklist.md" },
-    { "Release" = "topoviewer/release.md" },
-    { "Documentation Standard" = "topoviewer/docs-standard.md" },
-    { "Decision Log" = "topoviewer/decisions.md" }
+    { "Monorepo" = "topoviewer/maintainers/monorepo.md" },
+    { "Production Hardening" = "topoviewer/maintainers/production-hardening.md" },
+    { "Design Review Checklist" = "topoviewer/maintainers/design-review-checklist.md" },
+    { "Release" = "topoviewer/maintainers/release.md" },
+    { "Documentation Standard" = "topoviewer/maintainers/documentation-standard.md" },
+    { "Decision Log" = "topoviewer/maintainers/decision-log.md" }
   ] }
 ]
 # END GENERATED ZENSICAL NAV

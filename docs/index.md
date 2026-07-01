@@ -27,16 +27,17 @@ runtime APIs matter.
 
 | Need | Start here |
 |---|---|
-| Author a topology | [First topology](topoviewer/getting-started.md), then [Browser harness](topoviewer/browser-harness.md) |
-| Style a topology | [Style a topology](topoviewer/style-a-topology.md), then [stylesheet reference](topoviewer/stylesheet.md) |
-| Embed in documentation | [MkDocs](topoviewer/mkdocs.md) or [Zensical](topoviewer/zensical.md) |
-| Embed in a React product | [React usage](topoviewer/react.md) and [TypeScript API](topoviewer/api-reference.md) |
-| Operate from telemetry | [Grafana guide](topoviewer/grafana.md), [Grafana call flow](topoviewer/grafana-telemetry-call-flow.md), and [integration roadmap](topoviewer/integration-roadmap.md) |
-| Compare product fit | [Why TopoViewer](topoviewer/why-topoviewer.md) |
-| Reference accepted contracts | [Object attributes](topoviewer/object-reference.md), [YAML schemas](topoviewer/schemas.md), [compatibility](topoviewer/compatibility.md), [reference model](topoviewer/reference-model.md), and [stylesheet](topoviewer/stylesheet.md) |
-| Evaluate architecture and risk | [Architecture overview](topoviewer/architecture.md), [threat model](topoviewer/threat-model.md), [performance and accessibility](topoviewer/performance-reliability-accessibility.md), and [build or adopt](topoviewer/build-vs-adopt.md) |
-| Maintain or release the repo | [Production hardening](topoviewer/production.md), [design review checklist](topoviewer/design-review-checklist.md), [release](topoviewer/release.md), and [docs standard](topoviewer/docs-standard.md) |
-| Debug a broken render | [Debug rendering](topoviewer/debugging.md) |
+| Understand the product | [Why TopoViewer](topoviewer/start/why-topoviewer.md) |
+| Author a topology | [First Topology](topoviewer/start/first-topology.md) |
+| Style a topology | [Style Your First Topology](topoviewer/start/style-your-first-topology.md) |
+| Explore examples | [Examples Gallery](topoviewer/examples/examples-gallery.md) |
+| Embed in a React product | [React](topoviewer/embed/react.md) and [TypeScript API](topoviewer/reference/typescript-api.md) |
+| Embed in documentation | [MkDocs](topoviewer/embed/mkdocs.md) or [Static HTML / Zensical Adapter](topoviewer/embed/static-html-zensical-adapter.md) |
+| Operate from telemetry | [Grafana](topoviewer/labs/grafana.md) and [Grafana Mapper Recipes](topoviewer/labs/grafana-mapper-recipes.md) |
+| Reference accepted contracts | [Object attributes](topoviewer/reference/object-attributes.md), [YAML schemas](topoviewer/reference/yaml-schemas.md), [compatibility](topoviewer/reference/compatibility.md), and [stylesheet reference](topoviewer/reference/stylesheet-reference.md) |
+| Evaluate architecture and risk | [Architecture](topoviewer/evaluate/architecture.md), [threat model](topoviewer/evaluate/threat-model.md), [performance and accessibility](topoviewer/evaluate/performance-reliability-accessibility.md), and [Build Or Adopt](topoviewer/evaluate/build-or-adopt.md) |
+| Maintain or release the repo | [Production Hardening](topoviewer/maintainers/production-hardening.md), [Design Review Checklist](topoviewer/maintainers/design-review-checklist.md), [Release](topoviewer/maintainers/release.md), and [Documentation Standard](topoviewer/maintainers/documentation-standard.md) |
+| Debug a broken render | [Debug Rendering](topoviewer/author/debug-rendering.md) |
 
 ## Integration Surfaces
 
@@ -74,7 +75,7 @@ The feature examples are generated from
 `packages/topoviewer/content/examples`. Each example is both documentation
 and a Playwright-backed test fixture.
 
-- [Curated examples](topoviewer/examples.md)
+- [Examples Gallery](topoviewer/examples/examples-gallery.md)
 - [Generated feature catalog](topoviewer/reference/graph/index.md)
-- [Real network demo](topoviewer/real-network-demo.md)
+- [Real Network Demo](topoviewer/examples/real-network-demo.md)
 - [CLOS layout examples](topoviewer/reference/layout/index.md)

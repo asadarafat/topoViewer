@@ -12,9 +12,9 @@ OpenSpec, or accepted with a named risk owner.
 | Spec requirement | Scenarios covered | Required task IDs |
 | --- | --- | --- |
 | Public Entry Point Clarity | First screen explains the product; first screen is not an integration inventory; stable path is separated from roadmap | 2.1-2.8, 3.1-3.8, 4.1-4.6, 5.1-5.7, 18.1, 25.2-25.5, 26.3-26.13 |
-| Docs Conversion Path | Homepage is a conversion funnel; task router supports the journey; Start in 60 seconds exists; first tutorial uses common naming | 26.1-26.6, 26.13, 26.19, 26.23-26.24 |
+| Docs Conversion Path | Homepage is a conversion funnel; task router supports the journey; First Topology satisfies the first-run path; first tutorial identity is consistent | 26.1-26.6, 26.13, 26.19, 26.23-26.24 |
 | Journey-Aligned Documentation IA | Start section is beginner-only; Zensical is an adapter path; nav and homepage agree; maintainer docs do not compete with user docs | 2.1-2.8, 4.1-4.6, 26.7-26.14, 26.18-26.20, 26.25 |
-| Directional Next Steps | Guide has one primary next step; beginner guides avoid reference spam | 6.7-6.8, 26.15-26.17, 26.25 |
+| No Public Guide Next Steps | Guide pages have no Next Steps section; wayfinding stays centralized in nav, TOC, search, and contextual inline links | 6.7-6.8, 26.15-26.17, 26.25 |
 | Support Status Taxonomy | Integration status is visible; roadmap does not imply support | 1.8, 4.1-4.6, 11.5-11.7, 19.2 |
 | Curated Example Path | User wants copyable network example; generated catalog remains available | 5.1-5.7, 9.1-9.7, 24.3 |
 | Promotional Collage | Collage generated repeatably; collage tells YAML-to-graph story; README uses checked-in `docs/assets/` media | 17.1-17.11, 14.4, 24.11, 24.19, 27.4 |

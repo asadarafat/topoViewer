@@ -656,7 +656,7 @@ examples:
     title: YAML to network diagram
     feature: integration
     path: integration/yaml-to-network-diagram
-    page: topoviewer/yaml-to-diagram
+    page: topoviewer/examples/yaml-to-network-diagram
     summary: A compact before/after example using the same provider underlay slice as the Real Network Demo.
     render:
       height: 520px
@@ -670,7 +670,7 @@ examples:
     feature: integration
     path: integration/grafana-telemetry-call-flow
     publicPage: false
-    page: topoviewer/grafana-telemetry-call-flow
+    page: topoviewer/labs/grafana-telemetry-call-flow
     summary: >-
       A production call-flow diagram for mounted TopoViewer bundles, Grafana plugin boundaries, Prometheus data frames,
       mapper execution, runtime overlays, and diagnostics.
@@ -688,7 +688,7 @@ examples:
     title: Real network underlay
     feature: integration
     path: integration/real-network-underlay
-    page: topoviewer/real-network-demo/underlay
+    page: topoviewer/examples/real-network-demo/underlay
     summary: A provider underlay view that foregrounds transport capacity, media, and backup links.
     render:
       height: 520px
@@ -701,7 +701,7 @@ examples:
     title: Real network BGP
     feature: integration
     path: integration/real-network-bgp
-    page: topoviewer/real-network-demo/bgp
+    page: topoviewer/examples/real-network-demo/bgp
     summary: A BGP view that makes route reflector sessions visible while keeping the underlay as context.
     render:
       height: 520px
@@ -715,7 +715,7 @@ examples:
     title: Real network transport layer
     feature: integration
     path: integration/real-network-transport-layer
-    page: topoviewer/real-network-demo/transport-layer
+    page: topoviewer/examples/real-network-demo/transport-layer
     summary: A transport layer view that adds the programmed SR path on top of the real network BGP view.
     render:
       height: 520px
@@ -730,7 +730,7 @@ examples:
     title: Real network service path
     feature: integration
     path: integration/real-network-service-path
-    page: topoviewer/real-network-demo/service-path
+    page: topoviewer/examples/real-network-demo/service-path
     summary: A service path view that focuses the customer L3VPN path across the same provider topology.
     render:
       height: 520px
@@ -751,7 +751,7 @@ examples:
     title: Real network failure view
     feature: integration
     path: integration/real-network-failure-view
-    page: topoviewer/real-network-demo/failure-view
+    page: topoviewer/examples/real-network-demo/failure-view
     summary: A failure view that focuses critical objects and keeps the impacted service path traceable.
     render:
       height: 520px

@@ -44,14 +44,15 @@ and public support boundaries:
   in React or MkDocs;
 - reshape the docs homepage as a conversion path, not an encyclopedia: install,
   render first topology, explore examples, embed in React or MkDocs;
-- add a "Start in 60 seconds" first CTA and rename the first tutorial to
-  "Getting Started";
-- align `mkdocs.yml`, docs homepage, canonical content organization, and
-  guide-level Next Steps around one user journey;
+- make the existing "First Topology" tutorial satisfy the first-run path with
+  install context, topology YAML, stylesheet YAML, expected output, and common
+  blank-viewport troubleshooting;
+- align `mkdocs.yml`, docs homepage, and canonical content organization around
+  one user journey, with `mkdocs.yml` as the navigation source of truth;
 - demote Zensical from front-door product surface to static adapter/integration
   documentation;
-- enforce directional Next Steps: one primary next page and at most two
-  optional links per guide;
+- remove public guide-level `Next Steps` sections; users navigate through the
+  left nav, page table of contents, search, and contextual inline links;
 - demote Zensical, VS Code, Grafana, Containerlab, NetBox, and Infrahub from
   the front-page core unless their support status changes;
 - define a visual demo-gallery backlog for AWS VPC, Kubernetes service map,

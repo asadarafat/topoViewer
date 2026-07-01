@@ -36,10 +36,10 @@ find packages -maxdepth 2 -name README.md -print | sort
 | Root README | `README.md` |
 | MkDocs nav and published docs | `mkdocs.yml`, `docs/index.md`, `docs/topoviewer/index.md` |
 | Zensical config | `zensical.toml` |
-| React/package docs | `packages/topoviewer/README.md`, `docs/topoviewer/react.md` |
-| MkDocs integration docs | `packages/mkdocs-topoviewer/README.md`, `docs/topoviewer/mkdocs.md` |
-| Zensical integration docs | `docs/topoviewer/zensical.md`, `docs/topoviewer/zensical-embed.md` |
-| Browser/VS Code harness docs | `packages/vscode-topoviewer/README.md`, `docs/topoviewer/browser-harness.md` |
+| React/package docs | `packages/topoviewer/README.md`, `docs/topoviewer/embed/react.md` |
+| MkDocs integration docs | `packages/mkdocs-topoviewer/README.md`, `docs/topoviewer/embed/mkdocs.md` |
+| Zensical integration docs | `docs/topoviewer/embed/static-html-zensical-adapter.md`, `docs/topoviewer/zensical-embed.md` |
+| Browser/VS Code harness docs | `packages/vscode-topoviewer/README.md`, `docs/topoviewer/tools/browser-harness.md` |
 | Grafana panel docs | `packages/grafana-topoviewer-panel/README.md`, `labs/grafana-topoviewer/README.md` |
 | Public support/security docs | `SECURITY.md`, `SUPPORT.md`, `CONTRIBUTING.md`, `CODEOWNERS` |
 | CI/security automation | `.github/workflows/*.yml`, `.github/dependabot.yml` |

@@ -25,13 +25,13 @@ const supportStatusLabels = new Set([
 ]);
 
 const integrationStatusPages = [
-  ['react.md', 'Pre-Publish Supported'],
-  ['mkdocs.md', 'Supported'],
-  ['zensical.md', 'Supported Adapter'],
-  ['browser-harness.md', 'Experimental'],
-  ['grafana.md', 'Experimental'],
-  ['integration-roadmap.md', 'Roadmap'],
-  ['grafana-telemetry-call-flow.md', 'Lab']
+  ['embed/react.md', 'Pre-Publish Supported'],
+  ['embed/mkdocs.md', 'Supported'],
+  ['embed/static-html-zensical-adapter.md', 'Supported Adapter'],
+  ['tools/browser-harness.md', 'Experimental'],
+  ['labs/grafana.md', 'Experimental'],
+  ['evaluate/integration-roadmap.md', 'Roadmap'],
+  ['labs/grafana-telemetry-call-flow.md', 'Lab']
 ];
 
 const packageReadmeStatuses = [
@@ -42,35 +42,35 @@ const packageReadmeStatuses = [
 ];
 
 const majorGuidePages = [
-  'why-topoviewer.md',
-  'getting-started.md',
-  'examples.md',
-  'authoring.md',
-  'style-a-topology.md',
-  'browser-harness.md',
-  'validate-yaml.md',
-  'debugging.md',
-  'layout-guide.md',
-  'react.md',
-  'mkdocs.md',
-  'zensical.md',
-  'grafana.md'
+  'start/why-topoviewer.md',
+  'start/first-topology.md',
+  'examples/examples-gallery.md',
+  'author/authoring-model.md',
+  'start/style-your-first-topology.md',
+  'tools/browser-harness.md',
+  'author/validate-yaml.md',
+  'author/debug-rendering.md',
+  'author/layout.md',
+  'embed/react.md',
+  'embed/mkdocs.md',
+  'embed/static-html-zensical-adapter.md',
+  'labs/grafana.md'
 ];
 
 const taskGuideLineBudget = 320;
 const integrationGuideLineBudget = 480;
 const guidePageLengthBudgets = new Map([
-  ['why-topoviewer.md', taskGuideLineBudget],
-  ['getting-started.md', taskGuideLineBudget],
-  ['examples.md', taskGuideLineBudget],
-  ['style-a-topology.md', taskGuideLineBudget],
-  ['browser-harness.md', taskGuideLineBudget],
-  ['validate-yaml.md', taskGuideLineBudget],
-  ['debugging.md', taskGuideLineBudget],
-  ['layout-guide.md', taskGuideLineBudget],
-  ['react.md', integrationGuideLineBudget],
-  ['mkdocs.md', taskGuideLineBudget],
-  ['zensical.md', taskGuideLineBudget]
+  ['start/why-topoviewer.md', taskGuideLineBudget],
+  ['start/first-topology.md', taskGuideLineBudget],
+  ['examples/examples-gallery.md', taskGuideLineBudget],
+  ['start/style-your-first-topology.md', taskGuideLineBudget],
+  ['tools/browser-harness.md', taskGuideLineBudget],
+  ['author/validate-yaml.md', taskGuideLineBudget],
+  ['author/debug-rendering.md', taskGuideLineBudget],
+  ['author/layout.md', taskGuideLineBudget],
+  ['embed/react.md', integrationGuideLineBudget],
+  ['embed/mkdocs.md', taskGuideLineBudget],
+  ['embed/static-html-zensical-adapter.md', taskGuideLineBudget]
 ]);
 
 const forbiddenPublicClaimPhrases = [
@@ -135,24 +135,35 @@ function packageReadmes() {
 
 function checkRequiredPages() {
   const required = [
-    'getting-started.md',
-    'examples.md',
-    'style-a-topology.md',
-    'browser-harness.md',
-    'validate-yaml.md',
-    'debugging.md',
-    'layout-guide.md',
-    'architecture.md',
-    'threat-model.md',
-    'build-vs-adopt.md',
-    'design-review-checklist.md',
-    'performance-reliability-accessibility.md',
-    'object-reference.md',
-    'api-reference.md',
-    'compatibility.md',
-    'glossary.md',
-    'decisions.md',
-    'docs-standard.md'
+    'start/why-topoviewer.md',
+    'start/first-topology.md',
+    'start/style-your-first-topology.md',
+    'examples/examples-gallery.md',
+    'author/authoring-model.md',
+    'author/layout.md',
+    'author/attention.md',
+    'author/validate-yaml.md',
+    'author/debug-rendering.md',
+    'embed/react.md',
+    'embed/mkdocs.md',
+    'embed/static-html-zensical-adapter.md',
+    'tools/browser-harness.md',
+    'labs/grafana.md',
+    'evaluate/build-or-adopt.md',
+    'evaluate/architecture.md',
+    'evaluate/threat-model.md',
+    'evaluate/performance-reliability-accessibility.md',
+    'examples/object-family-examples.md',
+    'examples/real-network-demo.md',
+    'reference/object-attributes.md',
+    'reference/typescript-api.md',
+    'reference/compatibility.md',
+    'reference/glossary.md',
+    'maintainers/decision-log.md',
+    'maintainers/design-review-checklist.md',
+    'maintainers/documentation-standard.md',
+    'maintainers/production-hardening.md',
+    'maintainers/release.md'
   ];
 
   for (const page of required) {
@@ -161,7 +172,7 @@ function checkRequiredPages() {
 }
 
 function checkDocsStandard() {
-  const filePath = path.join(contentPagesRoot, 'docs-standard.md');
+  const filePath = path.join(contentPagesRoot, 'maintainers/documentation-standard.md');
   if (!assertFile(filePath)) return;
   const text = readText(filePath);
   for (const phrase of [
@@ -173,7 +184,7 @@ function checkDocsStandard() {
     ...supportStatusLabels
   ]) {
     if (!text.includes(phrase)) {
-      fail(`docs-standard.md must describe ${phrase}`);
+      fail(`maintainers/documentation-standard.md must describe ${phrase}`);
     }
   }
 }
@@ -253,7 +264,7 @@ function statusColumnValues(markdownTableText, tableLabel) {
 function checkSupportStatusTables() {
   const files = [
     path.join(contentPagesRoot, '_fragments/integration-surfaces.md'),
-    path.join(contentPagesRoot, 'integration-roadmap.md')
+    path.join(contentPagesRoot, 'evaluate/integration-roadmap.md')
   ];
 
   for (const filePath of files) {
@@ -401,7 +412,7 @@ function styleKeysFromRegistry() {
 }
 
 function checkStylesheetCoverage() {
-  const stylesheetFile = path.join(contentPagesRoot, 'stylesheet-reference.md');
+  const stylesheetFile = path.join(contentPagesRoot, 'reference/stylesheet-reference.md');
   if (!assertFile(stylesheetFile)) return;
   const text = readText(stylesheetFile);
   const missing = styleKeysFromRegistry().filter((key) => !new RegExp(`\\\`${key}\\\``).test(text));
@@ -432,7 +443,7 @@ function exportedNames() {
 }
 
 function checkApiCoverage() {
-  const apiFile = path.join(contentPagesRoot, 'api-reference.md');
+  const apiFile = path.join(contentPagesRoot, 'reference/typescript-api.md');
   if (!assertFile(apiFile)) return;
   const text = readText(apiFile);
   const ignoredTypeGroups = new Set([
@@ -475,7 +486,7 @@ function checkApiCoverage() {
   ]);
   const missing = exportedNames().filter((name) => !ignoredTypeGroups.has(name) && !new RegExp(`\\\`${name}\\\``).test(text));
   if (missing.length) {
-    fail(`api-reference.md is missing exported names: ${missing.join(', ')}`);
+    fail(`reference/typescript-api.md is missing exported names: ${missing.join(', ')}`);
   }
 }
 
@@ -487,13 +498,14 @@ function checkLocalLinks() {
   for (const filePath of listMarkdownFiles(contentPagesRoot)) {
     if (relative(filePath).includes('/_fragments/')) continue;
     const text = withoutFencedCode(readText(filePath));
+    const projectedFilePath = path.join(docsRoot, 'topoviewer', path.relative(contentPagesRoot, filePath));
     for (const match of text.matchAll(/\[[^\]]+\]\(([^)]+)\)/g)) {
       const target = match[1].split('#')[0];
       if (!target || /^[a-z]+:/i.test(target) || target.startsWith('#')) continue;
       if (target.startsWith('http')) continue;
       if (target.startsWith('topoviewer/')) continue;
       const resolved = path.resolve(path.dirname(filePath), target);
-      const generatedResolved = path.resolve(docsRoot, 'topoviewer', target);
+      const generatedResolved = path.resolve(path.dirname(projectedFilePath), target);
       const candidates = [
         resolved,
         `${resolved}.md`,
@@ -515,10 +527,10 @@ function checkLocalLinks() {
 function checkGeneratedCriticalPages() {
   const critical = [
     'docs/index.md',
-    'docs/topoviewer/getting-started.md',
-    'docs/topoviewer/browser-harness.md',
-    'docs/topoviewer/api-reference.md',
-    'docs/topoviewer/docs-standard.md',
+    'docs/topoviewer/start/first-topology.md',
+    'docs/topoviewer/tools/browser-harness.md',
+    'docs/topoviewer/reference/typescript-api.md',
+    'docs/topoviewer/maintainers/documentation-standard.md',
     'docs/topoviewer/reference/graph/index.md'
   ];
   for (const page of critical) {
@@ -567,8 +579,8 @@ function findNavSection(navItems, sectionName) {
 function isAllowedUnnavedDocsPage(relativePath) {
   return [
     /^topoviewer\/examples\/.+\/README\.md$/,
-    /^topoviewer\/reference\/[^/]+\/[^/]+\/index\.md$/,
-    /^topoviewer\/real-network-demo\/[^/]+\/index\.md$/
+    /^topoviewer\/examples\/real-network-demo\/[^/]+\/index\.md$/,
+    /^topoviewer\/reference\/[^/]+\/[^/]+\/index\.md$/
   ].some((pattern) => pattern.test(relativePath))
     || [
       'topoviewer/index.md',
@@ -596,11 +608,14 @@ function checkStartNavBoundary() {
   const mkdocsConfig = readYaml(path.join(repoRoot, 'mkdocs.yml'));
   const startTargets = collectNavTargets(findNavSection(mkdocsConfig.nav || [], 'Start'));
   const forbiddenStartTargets = new Set([
-    'topoviewer/grafana-telemetry-call-flow.md',
-    'topoviewer/monorepo.md',
-    'topoviewer/production.md',
-    'topoviewer/release.md',
-    'topoviewer/docs-standard.md'
+    'topoviewer/labs/grafana-telemetry-call-flow.md',
+    'topoviewer/maintainers/monorepo.md',
+    'topoviewer/maintainers/production-hardening.md',
+    'topoviewer/maintainers/release.md',
+    'topoviewer/maintainers/documentation-standard.md',
+    'topoviewer/tools/browser-harness.md',
+    'topoviewer/evaluate/build-or-adopt.md',
+    'topoviewer/examples/yaml-to-network-diagram/index.md'
   ]);
 
   for (const target of startTargets) {
@@ -624,8 +639,8 @@ function checkExamplesNavBoundary() {
   }
 
   const firstEntry = examplesNav[0];
-  if (navEntryValue(firstEntry, 'Curated Examples') !== 'topoviewer/examples.md') {
-    fail('MkDocs Examples nav must start with Curated Examples: topoviewer/examples.md');
+  if (navEntryValue(firstEntry, 'Examples Gallery') !== 'topoviewer/examples/examples-gallery.md') {
+    fail('MkDocs Examples nav must start with Examples Gallery: topoviewer/examples/examples-gallery.md');
   }
 
   const generatedCatalog = examplesNav
@@ -648,6 +663,79 @@ function checkExamplesNavBoundary() {
   for (const target of topLevelTargets) {
     if (target.startsWith('topoviewer/reference/')) {
       fail(`Generated reference example page must not be top-level in Examples nav: ${target}`);
+    }
+  }
+}
+
+function slugifyNavLabel(label) {
+  return label
+    .toLowerCase()
+    .replace(/topoviewer/g, 'topoviewer')
+    .replace(/typescript/g, 'typescript')
+    .replace(/mkdocs/g, 'mkdocs')
+    .replace(/yaml/g, 'yaml')
+    .replace(/html/g, 'html')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+function navTargetSlug(target) {
+  const normalized = target.replace(/\\/g, '/').replace(/\.md$/, '');
+  if (normalized.endsWith('/index')) {
+    return path.posix.basename(path.posix.dirname(normalized));
+  }
+  return path.posix.basename(normalized);
+}
+
+function visitNavLeaves(navItems, visitor, ancestors = []) {
+  for (const item of navItems || []) {
+    if (typeof item === 'string') {
+      visitor(path.posix.basename(item, '.md'), item, ancestors);
+      continue;
+    }
+    if (!item || typeof item !== 'object' || Array.isArray(item)) continue;
+    for (const [label, value] of Object.entries(item)) {
+      if (typeof value === 'string') {
+        visitor(label, value, ancestors);
+      } else if (Array.isArray(value)) {
+        visitNavLeaves(value, visitor, [...ancestors, label]);
+      }
+    }
+  }
+}
+
+function checkNavPathAlignment() {
+  const mkdocsConfig = readYaml(path.join(repoRoot, 'mkdocs.yml'));
+  const sectionSlugs = new Map([
+    ['Start', 'start'],
+    ['Author', 'author'],
+    ['Embed', 'embed'],
+    ['Examples', 'examples'],
+    ['Reference', 'reference'],
+    ['Tools', 'tools'],
+    ['Labs', 'labs'],
+    ['Evaluate', 'evaluate'],
+    ['Maintainers', 'maintainers']
+  ]);
+
+  for (const item of mkdocsConfig.nav || []) {
+    if (!item || typeof item !== 'object' || Array.isArray(item)) continue;
+    for (const [section, value] of Object.entries(item)) {
+      const sectionSlug = sectionSlugs.get(section);
+      if (!sectionSlug || !Array.isArray(value)) continue;
+
+      visitNavLeaves(value, (label, target, ancestors) => {
+        if (ancestors.includes('Generated Catalog')) return;
+        if (!target.startsWith(`topoviewer/${sectionSlug}/`)) {
+          fail(`MkDocs nav path mismatch: ${section} > ${label} points to ${target}; expected topoviewer/${sectionSlug}/...`);
+          return;
+        }
+        const expectedSlug = slugifyNavLabel(label);
+        const actualSlug = navTargetSlug(target);
+        if (actualSlug !== expectedSlug) {
+          fail(`MkDocs nav label/path mismatch: ${section} > ${label} points to ${target}; expected slug "${expectedSlug}".`);
+        }
+      });
     }
   }
 }
@@ -693,23 +781,13 @@ function checkPublicPromoArtifactReferences() {
   }
 }
 
-function checkGuideNextSteps() {
+function checkNoGuideNextSteps() {
   for (const page of majorGuidePages) {
     const filePath = path.join(contentPagesRoot, page);
     if (!assertFile(filePath, `major guide page ${page}`)) continue;
     const text = readText(filePath);
-    const nextStepsMatch = text.match(/^## Next Steps\s*$(?<body>[\s\S]*)/m);
-    if (!nextStepsMatch?.groups?.body) {
-      fail(`${relative(filePath)} must end with a "## Next Steps" section.`);
-      continue;
-    }
-    if (/\n##\s+/.test(nextStepsMatch.groups.body)) {
-      fail(`${relative(filePath)} must not add another H2 section after "## Next Steps".`);
-      continue;
-    }
-    const bodyBeforeNextHeading = nextStepsMatch.groups.body;
-    if (!/\[[^\]]+\]\([^)]+\.md(?:#[^)]+)?\)/.test(bodyBeforeNextHeading)) {
-      fail(`${relative(filePath)} "## Next Steps" section must include at least one local Markdown link.`);
+    if (/^## Next Steps?\s*$/m.test(text)) {
+      fail(`${relative(filePath)} must not include a "Next Steps" section. Use mkdocs.yml navigation instead.`);
     }
   }
 }
@@ -740,11 +818,12 @@ checkApiCoverage();
 checkLocalLinks();
 checkGeneratedCriticalPages();
 checkMkDocsNavCoverage();
+checkNavPathAlignment();
 checkStartNavBoundary();
 checkExamplesNavBoundary();
 checkPublicPathWording();
 checkPublicPromoArtifactReferences();
-checkGuideNextSteps();
+checkNoGuideNextSteps();
 checkGuidePageLengthBudgets();
 
 if (errors.length) {

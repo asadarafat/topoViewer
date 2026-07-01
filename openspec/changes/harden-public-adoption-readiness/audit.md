@@ -282,8 +282,8 @@ The docs currently expose three competing structures:
    Reference -> Labs -> Maintainers.
 2. The docs homepage says "Choose A Path" by task: author, style, embed,
    operate, compare, debug, evaluate, maintain.
-3. Individual guide pages end with Next Steps that sometimes mix learning,
-   tooling, validation, reference, labs, and roadmap links.
+3. Individual guide pages have historically ended with footer link dumps that
+   mix learning, tooling, validation, reference, labs, and roadmap links.
 
 That creates a subtle but important doubt for new users: the content is useful,
 but the product does not feel like it has one shortest path to value.
@@ -320,58 +320,36 @@ product evaluation, and example material. A stronger public journey is:
 ```text
 Start
   Why TopoViewer
-  Getting Started
+  First Topology
   Style Your First Topology
-  Examples Gallery
 ```
 
 Then move specialized or strategic pages out of Start:
 
 | Page | Better location |
 | --- | --- |
-| Browser Harness | Tools or Authoring Tools |
+| Browser Harness | Tools |
 | Build Or Adopt | Evaluate |
 | YAML to Diagram | Product story or Examples, not first-run Start |
-| Zensical | Embed or Integrations as "Zensical Adapter" |
+| Zensical | Embed as "Static HTML / Zensical Adapter" |
 | Grafana telemetry | Labs/Grafana, not first-run Start |
 
-Rename "First Topology" to "Getting Started". Engineers scan for "Getting
-Started", and the current page already behaves like a getting-started guide.
-It should add expected output near the top, a short "what you just built"
-section, a common blank-viewport mistake, and one directional next step.
+Keep the first tutorial named "First Topology" and make the identity literal:
+`Start > First Topology` maps to `topoviewer/start/first-topology.md`. It
+should add expected output near the top, a short "what you just built" section,
+and a common blank-viewport mistake.
 
-### Next Steps Are Currently Link Dumps
+### Footer Link Dumps Are Not Public Wayfinding
 
-Every guide page should have exactly one primary next step and at most two
-optional links. Reference spam and roadmap links should not appear at the end
-of beginner pages.
-
-Use this pattern:
-
-```text
-Next Step
-
-Continue with <one page> to <specific outcome>.
-
-Also useful:
-- <optional page>: <specific reason>
-- <optional page>: <specific reason>
-```
-
-Examples:
-
-- Getting Started -> primary next step: Style Your First Topology.
-- Style Your First Topology -> primary next step: Layers and Views or curated
-  Examples, not a cluster of reference tables.
-- Browser Harness -> primary next step: Examples; Grafana only as an optional
-  link for telemetry users.
-- Authoring Model -> primary next step: Style Your First Topology or Layers,
-  not four unrelated reference links.
+Public docs should not end with guide-level `Next Steps` sections. The left
+nav, table of contents, search, and contextual inline links are the wayfinding
+system. This avoids stale footer links and keeps each page focused on its own
+task.
 
 ### MkDocs Nav, Homepage, And Source Structure Must Agree
 
 The docs currently expose competing structures: nav hierarchy, homepage
-task-router, and page-level Next Steps. They should describe the same journey.
+task-router, and physical source paths. They should describe the same journey.
 
 Recommended public IA:
 
@@ -380,9 +358,8 @@ Home
 
 Start
   Why TopoViewer
-  Getting Started
+  First Topology
   Style Your First Topology
-  Examples Gallery
 
 Author
   Authoring Model
@@ -398,7 +375,7 @@ Embed
   Zensical Adapter
 
 Examples
-  Curated Examples
+  Examples Gallery
   Real Network Demo
   Object Family Examples
   Generated Reference Catalog
@@ -421,7 +398,7 @@ Labs
 Evaluate
   Build Or Adopt
   Architecture
-  Performance And Accessibility
+  Performance, Reliability, Accessibility
   Threat Model
   Integration Roadmap
 
@@ -440,9 +417,9 @@ tasks next, reference after that, integrations/labs clearly labeled, and
 maintainer material last. The important rule is not the exact label "Author"
 versus "Use"; it is that user docs and maintainer docs must not compete.
 
-Where practical, the canonical content structure should follow the same mental
-model as `mkdocs.yml`, so the public IA is not just a nav veneer over unrelated
-source organization.
+The canonical content structure must follow the same mental model as
+`mkdocs.yml`, so the public IA is not just a nav veneer over unrelated source
+organization.
 
 ### Examples Need Gallery Energy
 

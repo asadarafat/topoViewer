@@ -67,9 +67,8 @@ Recommended public docs structure:
 Home
 Start
   Why TopoViewer
-  Getting Started
+  First Topology
   Style Your First Topology
-  Examples Gallery
 Author
   Authoring Model
   Layout
@@ -79,10 +78,10 @@ Author
 Embed
   React
   MkDocs
-  Static HTML Embed
-  Zensical Adapter
+  Static HTML / Zensical Adapter
 Examples
-  Curated Examples
+  Examples Gallery
+  YAML to Network Diagram
   Real Network Demo
   Object Family Examples
   Generated Reference Catalog
@@ -101,7 +100,7 @@ Labs
 Evaluate
   Build Or Adopt
   Architecture
-  Performance And Accessibility
+  Performance, Reliability, Accessibility
   Threat Model
   Integration Roadmap
 Maintainers
@@ -109,7 +108,7 @@ Maintainers
   Production Hardening
   Design Review Checklist
   Release
-  Documentation standard
+  Documentation Standard
   Decision Log
 ```
 
@@ -135,12 +134,23 @@ the choices so first-time users see the shortest path to value before advanced
 operation, evaluation, roadmap, or maintainer paths.
 
 Zensical should remain documented as a static-site adapter, but it should not
-be a front-door product surface. Browser Harness belongs under Tools or
-Authoring Tools. Build Or Adopt belongs under Evaluate. The first tutorial
-should be named Getting Started, not First Topology.
+be a front-door product surface. Browser Harness belongs under Tools. Build Or
+Adopt belongs under Evaluate. The first tutorial stays named First Topology so
+the nav label, page title, and `topoviewer/start/first-topology.md` path are
+literal and predictable.
 
-Where practical, the canonical content tree should mirror the public IA instead
-of letting `mkdocs.yml` be the only place the journey exists.
+The canonical content tree must mirror the public IA. `mkdocs.yml` is the
+navigation source of truth, and normal public pages follow this rule:
+
+```text
+<Nav Section> > <Page Label> -> topoviewer/<section-slug>/<page-slug>.md
+```
+
+For example, `Start > First Topology` maps to
+`topoviewer/start/first-topology.md` and the canonical source at
+`packages/topoviewer/content/pages/start/first-topology.md`. Generated catalog
+pages may keep their generated `reference/*/index.md` locations, but they must
+stay grouped below a catalog node instead of becoming top-level examples.
 
 If implementation chooses a simpler top-level `Use` section instead of separate
 `Author` and `Embed` sections, the same separation rules still apply: Start is
@@ -148,24 +158,12 @@ beginner-only, Use contains normal user workflows, Reference contains complete
 API/schema material, Integrations/Labs are clearly labeled, and Maintainers
 contains architecture/release/docs-standard material.
 
-## Guide Next-Step Contract
+## Public Navigation Contract
 
-Every guide page should end with exactly one primary next step and at most two
-optional links:
-
-```text
-Next Step
-
-Continue with <one page> to <specific outcome>.
-
-Also useful:
-- <optional page>: <specific reason>
-- <optional page>: <specific reason>
-```
-
-Beginner pages must not end with reference-link dumps, roadmap links, or
-maintainer pages unless the page itself is explicitly an evaluation or
-maintainer page.
+Public docs must not end with `Next Steps` sections. The left nav, page table
+of contents, search, and contextual inline links are the intended wayfinding
+system. This keeps pages focused on their own task and avoids stale link dumps
+at the end of guides.
 
 ## README Contract
 

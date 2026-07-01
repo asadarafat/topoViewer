@@ -1,0 +1,229 @@
+# Release
+
+TopoViewer is licensed under Apache-2.0. The monorepo root is marked `private` to prevent accidental workspace publication. The `packages/topoviewer` package is publish-shaped so release candidates can be inspected with `npm pack --dry-run` and published intentionally to an approved npm registry.
+
+The release goal is package quality and intentional distribution: the core renderer should remain installable, testable, embeddable, and generic, with private/customer-specific material kept out of the public packages.
+
+## Local Validation
+
+```bash
+npm ci
+npm run sync:content
+npm run sync:docs
+npm run validate:schemas
+npm run validate:semantics
+npm run api:check
+npm run build
+npm test
+npm run pack:check
+npm run sync:mkdocs-assets
+npm run wheel:mkdocs
+npm run inspect:wheel
+mkdocs build --strict
+```
+
+The gate builds the library and embed bundle, validates YAML schemas, runs semantic lint, runs Playwright tests against the workbench and MkDocs embed behavior, inspects npm package contents, builds the MkDocs plugin wheel, and builds the documentation site in strict mode.
+
+`npm run pack:check` runs `npm pack --dry-run`. Confirm the tarball includes:
+
+- `dist/topoviewer.mjs`
+- `dist/topoviewer.umd.js`
+- `dist/topoviewer.css`
+- `dist/types/index.d.ts`
+- `dist/embed/topoviewer-embed.iife.js`
+- `dist/embed/topoviewer-embed.css`
+- `schemas/topoviewer.schema.json`
+- `schemas/topoviewer-topology.schema.json`
+- `schemas/topoviewer-stylesheet.schema.json`
+- `schemas/topoviewer-mkdocs-block.schema.json`
+- `schemas/topoviewer-examples-catalog.schema.json`
+- `schemas/topoviewer-test-expected.schema.json`
+- `examples/test-cases/catalog.yaml` generated from `content/examples/catalog.yaml`
+- `examples/test-cases/**/topology.yaml` generated from `content/examples/**`
+- `examples/test-cases/**/stylesheet.yaml` generated from `content/examples/**`
+- `examples/test-cases/**/README.md` generated from `content/examples/**`
+- `examples/test-cases/**/expected.yaml` generated from `content/examples/**`
+- `README.md`
+- `LICENSE`
+- `package.json`
+
+## Dependency Boundary
+
+Runtime dependencies should stay small:
+
+- `d3-force`
+- `html-to-image`
+- `jspdf`
+- `zod`
+
+Peer dependencies:
+
+- `react`
+- `react-dom`
+- `@xyflow/react`
+
+The workbench dependencies, including MUI and Monaco, must remain development dependencies. Do not export `TopoViewerWorkbench` from `src/index.ts`; that would pull the demo/editor stack into the public library bundle.
+
+## MkDocs Asset Validation
+
+When the embed bundle changes:
+
+```bash
+npm run build
+npm run sync:mkdocs
+```
+
+Then validate the MkDocs site from your MkDocs validation workspace. For example, if a validation site is checked out next to this repository and its Makefile builds a wheel from the local `mkdocs-topoviewer` package:
+
+```bash
+cd ../my-mkdocs-site
+make docs MKDOCS_BUILD_FLAGS=--clean
+```
+
+Run the root Playwright MkDocs embed test if the local server is available:
+
+```bash
+npx playwright test tests/mkdocs-embed.spec.js
+```
+
+## Release Channels
+
+Do not publish directly from this development workspace.
+
+Before any external distribution:
+
+1. Confirm the channel: public release, internal preview, or customer-specific private package.
+2. Confirm package ownership, final npm package name, repository URL, issue tracker, and support channel.
+3. Keep the public package generic. Do not mix customer-owned diagrams, proprietary icon sets, credentials, or lab-only data into the package.
+4. Use `TopoViewerExtension` packages for private customer integrations, custom node/edge types, importers, policy checks, or enterprise-only workflows.
+5. Bump `version` according to semver.
+6. Run `npm run test:all`.
+7. Run `npm run pack:check` and inspect tarball contents.
+8. Publish only to the approved channel.
+
+Recommended future distribution shape:
+
+- `topoviewer`: public generic React renderer, schemas, compiler, and embed bundle.
+- `mkdocs-topoviewer`: public Python MkDocs wrapper that vendors the approved browser bundle.
+- Internal preview packages or a private registry equivalent: pre-release validation builds.
+- Private customer packages: customer-owned templates, proprietary icon libraries, policy checks, and deployment-specific import/export workflows.
+
+Do not publish generated test artifacts, local videos, screenshots, or MkDocs build output.
+
+## Manual npm Publishing
+
+The public npm package name is `topoviewer`, but it is not available from npm
+until the manual publication workflow succeeds. Do not present the npm install
+command as a working current install path before that release is complete.
+
+The intended first public release is `0.1.0`: an installable early-adopter
+release. It should be useful, documented, and CI-gated, but it should not claim
+API freeze. Reserve `1.0.0` for the later stable-core release.
+
+The future public npm install snippet is:
+
+```bash
+npm install topoviewer @xyflow/react react react-dom
+```
+
+Before the package is published, public usage docs must point users to the
+source tarball workflow:
+
+```bash
+npm --workspace topoviewer pack --pack-destination /tmp/topoviewer-pack
+npm install /tmp/topoviewer-pack/topoviewer-0.1.0.tgz @xyflow/react react react-dom
+```
+
+`npm run install:check` validates that same consumer contract by packing the
+local workspace tarball, installing it into a temporary app with the documented
+peer dependencies, and verifying ESM, CommonJS, CSS, and schema exports.
+
+Normal pushes, pull requests, docs deployments, and scheduled workflows must not
+publish to npm. Publication is manual through the `Manual npm Publish` GitHub
+Actions workflow:
+
+1. Choose the exact version already committed in `packages/topoviewer/package.json`.
+2. Choose the dist-tag. Prefer `next` for `0.1.0` early-adopter validation
+   unless maintainers deliberately want `latest` with clear pre-1.0 wording.
+   Reserve `latest` without caveats for the stable-core `1.0.0` release.
+3. Keep `dry_run` enabled for the first run and review the npm publish output.
+4. Confirm `npm run ci`, `npm run install:check`,
+   `npm run api:check`, `npm run artifact:check:package`, and
+   `npm run dependency:advisories` pass.
+5. Confirm the release note or changelog entry exists and describes support
+   status, known limitations, and upgrade notes.
+6. Confirm package ownership, npm organization/user access, and maintainer
+   approval.
+7. Confirm `NPM_TOKEN` is configured for the repository environment when a real
+   publish is intended.
+8. Confirm npm 2FA/provenance expectations: the workflow uses `--provenance`
+   and requires GitHub `id-token: write`; maintainers must keep npm account
+   security and token scope aligned with the registry policy.
+9. Run the workflow with `dry_run: false` only after the dry-run artifact and
+   validation logs are reviewed.
+
+## 0.1.0 Early-Adopter Gate
+
+Do not publish `topoviewer@0.1.0` until these are true:
+
+- The package builds, type output, CSS, schemas, examples, and README are
+  present in `npm pack --dry-run` output.
+- `npm run ci`, `npm run install:check`, `npm run api:check`,
+  `npm run artifact:check:package`, and `npm run dependency:advisories` pass.
+- The changelog has a `0.1.0` entry with support status, known limitations,
+  and migration notes.
+- The README first run no longer points users at a missing npm package after
+  the package is published.
+- The README and docs clearly state that this is pre-1.0 early-adopter
+  software and that APIs may change with migration notes.
+- Experimental integrations remain clearly labeled and do not expand the
+  package compatibility promise.
+
+## 1.0.0 Stable-Core Gate
+
+Do not publish `topoviewer@1.0.0` until these are true:
+
+- `TopoViewer`, documented React props/events, validation/lint helpers,
+  topology schemas, stylesheet schemas, style keys, curated examples, and the
+  MkDocs embed path are treated as Supported.
+- The public API report is intentionally frozen enough for SemVer.
+- Compatibility fixtures cover previously documented public YAML.
+- The changelog has a `1.0.0` entry with support status, known limitations,
+  and migration notes from `0.x`.
+- Experimental integrations remain clearly labeled and do not expand the
+  stable-core SemVer promise.
+
+Rollback and deprecation expectations:
+
+- Prefer publishing a fixed patch version over unpublishing.
+- If a bad version is already public, deprecate it with a clear message and
+  publish a replacement version.
+- Move a dist-tag only after the replacement artifact has passed the same gates.
+- Record first-install feedback with the package release feedback issue template.
+
+## Grafana Plugin Artifact Gate
+
+The Grafana panel is Experimental. Local labs may load unsigned plugin builds,
+but an installable shared artifact needs a separate review before distribution:
+
+1. Build the plugin from a committed version.
+2. Record the exact Grafana version or version range validated for the artifact.
+3. Generate SHA-256 checksums for the plugin zip and backend binaries.
+4. Generate an SBOM or equivalent dependency inventory.
+5. Run `npm run grafana:panel:test`, `npm run grafana:panel:build`, and the
+   relevant Grafana smoke for the intended source mode.
+6. Document whether the artifact is unsigned or signed. Unsigned artifacts are
+   local/lab-only unless the receiving Grafana instance has an explicit policy
+   exception.
+7. Include support status, known limitations, migration notes, and rollback
+   instructions in the release notes.
+
+## Public Readiness Rule
+
+A generic feature should be included in a public release when it has:
+
+- A stable YAML model and schema coverage.
+- Documentation with at least one focused example.
+- Playwright coverage for the important UI behavior.
+- No customer-specific dependencies or private assets.
+- A supportable migration path if the authored syntax changes.

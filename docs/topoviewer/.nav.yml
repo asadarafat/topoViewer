@@ -14,5 +14,5 @@ nav:
       - Layout: reference/layout/index.md
       - Harness: reference/harness/index.md
       - Validation: reference/validation/index.md
-  - YAML to network diagram: yaml-to-diagram/index.md
-  - Real network demo: real-network-demo.md
+  - YAML to network diagram: examples/yaml-to-network-diagram/index.md
+  - Real Network Demo: examples/real-network-demo.md

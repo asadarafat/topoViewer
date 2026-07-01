@@ -55,14 +55,13 @@ not for showing every project surface.
 - **AND** the task router does not contradict the `mkdocs.yml` navigation
   journey.
 
-#### Scenario: Start in 60 seconds exists
+#### Scenario: First topology satisfies first-run path
 
 - **GIVEN** a new user wants the shortest path to value
 - **WHEN** they click the primary start CTA
-- **THEN** they reach a "Start in 60 seconds" or "Getting Started" path with
+- **THEN** they reach a "First Topology" path with
   install command, topology YAML, stylesheet YAML, render code or live viewport,
-  expected output, common blank-viewport troubleshooting, and a single next
-  step
+  expected output, and common blank-viewport troubleshooting
 - **AND** if the npm package is not yet published, the page clearly labels the
   install path as pre-publish and does not pretend `npm install topoviewer`
   works.
@@ -71,22 +70,21 @@ not for showing every project surface.
 
 - **GIVEN** a user scans the nav for a first tutorial
 - **WHEN** they look under Start
-- **THEN** the tutorial is named "Getting Started" or equivalent common
-  onboarding language
-- **AND** old links to "First Topology" are redirected, aliased, or updated.
+- **THEN** the tutorial is named "First Topology"
+- **AND** the nav label, page title, published path, and canonical content path
+  use the same page identity.
 
 ### Requirement: Journey-Aligned Documentation IA
 
-The MkDocs nav, docs homepage, canonical content structure, and guide-level
-Next Steps SHALL describe one coherent user journey.
+The MkDocs nav, docs homepage, and canonical content structure SHALL describe
+one coherent user journey, with `mkdocs.yml` as the navigation source of truth.
 
 #### Scenario: Start section is beginner-only
 
 - **GIVEN** a new user opens the Start nav section
 - **WHEN** they read the listed pages
 - **THEN** Start contains only the beginner conversion path: Why TopoViewer,
-  Getting Started, Style Your First Topology, and Examples Gallery or their
-  direct equivalents
+  First Topology, and Style Your First Topology or their direct equivalents
 - **AND** Browser Harness, Build Or Adopt, YAML to Diagram, Grafana telemetry,
   release, and maintainer pages are outside Start.
 
@@ -97,6 +95,16 @@ Next Steps SHALL describe one coherent user journey.
 - **THEN** it is presented as a static-site adapter/integration note, not as a
   front-door product surface or native installable plugin
 - **AND** it appears after primary React and MkDocs paths.
+
+#### Scenario: Nav paths mirror nav structure
+
+- **GIVEN** a maintainer adds or moves a public docs page
+- **WHEN** docs lint runs
+- **THEN** normal public pages fail lint unless the path mirrors the nav section
+  and page label, such as `Start > First Topology` mapping to
+  `topoviewer/start/first-topology.md`
+- **AND** generated catalog pages are allowed only when grouped under a catalog
+  node and not exposed as unrelated top-level pages.
 
 #### Scenario: Nav and homepage agree
 
@@ -118,26 +126,25 @@ Next Steps SHALL describe one coherent user journey.
   equivalent clearly non-beginner section
 - **AND** they do not appear in the primary beginner path.
 
-### Requirement: Directional Next Steps
+### Requirement: No Public Guide Next Steps
 
-Guide pages SHALL move users along a deliberate learning path instead of
-ending in generic link dumps.
+Guide pages SHALL rely on navigation, table of contents, search, and
+contextual inline links instead of ending in generic link dumps.
 
-#### Scenario: Guide has one primary next step
+#### Scenario: Guide has no Next Steps section
 
 - **GIVEN** a user reaches the end of a guide page
-- **WHEN** they read the Next Step section
-- **THEN** they see exactly one primary next page with a concrete outcome
-- **AND** they see at most two optional links with explicit reasons.
+- **WHEN** they inspect the page structure
+- **THEN** there is no `Next Step` or `Next Steps` section.
 
-#### Scenario: Beginner guides avoid reference spam
+#### Scenario: Wayfinding stays centralized
 
-- **GIVEN** a beginner guide such as Getting Started, Style Your First
-  Topology, Browser Harness, or Authoring Model
+- **GIVEN** a user wants the next page after a guide
 - **WHEN** the page ends
-- **THEN** it does not jump directly into multiple reference tables, roadmap
-  pages, Grafana lab pages, or maintainer pages unless those are explicitly
-  marked as optional and relevant to the guide's user intent.
+- **THEN** the left nav, page table of contents, search, and contextual inline
+  links provide navigation
+- **AND** beginner pages do not append reference dumps, roadmap links, Grafana
+  lab links, or maintainer links as a footer.
 
 ### Requirement: Support Status Taxonomy
 

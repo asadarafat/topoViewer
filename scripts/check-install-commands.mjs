@@ -10,13 +10,13 @@ const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'
 const sourceTarballInstallCommand = 'npm install /tmp/topoviewer-pack/topoviewer-0.1.0.tgz @xyflow/react react react-dom';
 const futurePublishedInstallCommand = 'npm install topoviewer @xyflow/react react react-dom';
 const futurePublishedInstallCommandFiles = new Set([
-  'docs/topoviewer/release.md',
-  'docs/topoviewer/monorepo.md',
+  'docs/topoviewer/maintainers/release.md',
+  'docs/topoviewer/maintainers/monorepo.md',
   'packages/topoviewer/README.md',
-  'packages/topoviewer/content/pages/release.md',
-  'packages/topoviewer/content/pages/monorepo.md',
-  'packages/topoviewer/docs/release.md',
-  'packages/topoviewer/docs/monorepo.md'
+  'packages/topoviewer/content/pages/maintainers/release.md',
+  'packages/topoviewer/content/pages/maintainers/monorepo.md',
+  'packages/topoviewer/docs/maintainers/release.md',
+  'packages/topoviewer/docs/maintainers/monorepo.md'
 ]);
 const publicTextRoots = [
   'README.md',

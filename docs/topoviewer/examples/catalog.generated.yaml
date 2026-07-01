@@ -658,7 +658,7 @@ examples:
     title: YAML to network diagram
     feature: integration
     path: integration/yaml-to-network-diagram
-    page: topoviewer/yaml-to-diagram
+    page: topoviewer/examples/yaml-to-network-diagram
     renderable: true
     topology: docs/topoviewer/examples/integration/yaml-to-network-diagram/topology.yaml
     stylesheet: docs/topoviewer/examples/integration/yaml-to-network-diagram/stylesheet.yaml
@@ -671,7 +671,7 @@ examples:
     title: Grafana telemetry call flow
     feature: integration
     path: integration/grafana-telemetry-call-flow
-    page: topoviewer/grafana-telemetry-call-flow
+    page: topoviewer/labs/grafana-telemetry-call-flow
     renderable: true
     topology: docs/topoviewer/examples/integration/grafana-telemetry-call-flow/topology.yaml
     stylesheet: docs/topoviewer/examples/integration/grafana-telemetry-call-flow/stylesheet.yaml
@@ -684,7 +684,7 @@ examples:
     title: Real network underlay
     feature: integration
     path: integration/real-network-underlay
-    page: topoviewer/real-network-demo/underlay
+    page: topoviewer/examples/real-network-demo/underlay
     renderable: true
     topology: docs/topoviewer/examples/integration/real-network-underlay/topology.yaml
     stylesheet: docs/topoviewer/examples/integration/real-network-underlay/stylesheet.yaml
@@ -697,7 +697,7 @@ examples:
     title: Real network BGP
     feature: integration
     path: integration/real-network-bgp
-    page: topoviewer/real-network-demo/bgp
+    page: topoviewer/examples/real-network-demo/bgp
     renderable: true
     topology: docs/topoviewer/examples/integration/real-network-bgp/topology.yaml
     stylesheet: docs/topoviewer/examples/integration/real-network-bgp/stylesheet.yaml
@@ -710,7 +710,7 @@ examples:
     title: Real network transport layer
     feature: integration
     path: integration/real-network-transport-layer
-    page: topoviewer/real-network-demo/transport-layer
+    page: topoviewer/examples/real-network-demo/transport-layer
     renderable: true
     topology: docs/topoviewer/examples/integration/real-network-transport-layer/topology.yaml
     stylesheet: docs/topoviewer/examples/integration/real-network-transport-layer/stylesheet.yaml
@@ -723,7 +723,7 @@ examples:
     title: Real network service path
     feature: integration
     path: integration/real-network-service-path
-    page: topoviewer/real-network-demo/service-path
+    page: topoviewer/examples/real-network-demo/service-path
     renderable: true
     topology: docs/topoviewer/examples/integration/real-network-service-path/topology.yaml
     stylesheet: docs/topoviewer/examples/integration/real-network-service-path/stylesheet.yaml
@@ -736,7 +736,7 @@ examples:
     title: Real network failure view
     feature: integration
     path: integration/real-network-failure-view
-    page: topoviewer/real-network-demo/failure-view
+    page: topoviewer/examples/real-network-demo/failure-view
     renderable: true
     topology: docs/topoviewer/examples/integration/real-network-failure-view/topology.yaml
     stylesheet: docs/topoviewer/examples/integration/real-network-failure-view/stylesheet.yaml

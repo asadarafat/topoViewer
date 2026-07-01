@@ -431,7 +431,7 @@ function integrationNavItems(examples) {
     }
     if (isRealNetworkExample(example)) {
       if (!realNetworkAdded) {
-        items.push({ 'Real network demo': 'real-network-demo.md' });
+        items.push({ 'Real Network Demo': 'examples/real-network-demo.md' });
         realNetworkAdded = true;
       }
       continue;
@@ -486,7 +486,7 @@ function indexMarkdown(catalog) {
       }
       if (isRealNetworkExample(example)) {
         if (!realNetworkAdded) {
-          lines.push('- [Real network demo](real-network-demo.md): One provider topology rendered as underlay, BGP, transport, service path, and failure views.');
+          lines.push('- [Real Network Demo](examples/real-network-demo.md): One provider topology rendered as underlay, BGP, transport, service path, and failure views.');
           realNetworkAdded = true;
         }
         continue;

@@ -347,26 +347,26 @@
 - [x] 26.1 Capture the docs conversion scorecard: content 8/10, navigation 6.5/10, public adoption conversion 4/10, docs conversion readiness 4/10
 - [x] 26.2 Capture the public docs goal: a new engineer understands the value in 30 seconds and renders something beautiful in 2 minutes
 - [ ] 26.3 Reshape docs home so the top flow is product identity, install, render your first topology, explore examples, and embed in React/MkDocs before telemetry, architecture, release, roadmap, or maintainer material
-- [ ] 26.4 Add a "Start in 60 seconds" first CTA or make Getting Started explicitly satisfy that role with install command, topology YAML, stylesheet YAML, render code/live viewport, expected output, blank-viewport troubleshooting, and one next step
-- [ ] 26.5 Rename "First Topology" to "Getting Started" in public nav and page title, with redirects, aliases, or updated links for old references
-- [ ] 26.6 Add expected screenshot or live viewport near the top of Getting Started, plus "what you just built", common blank-viewport mistake, and next link to Style Your First Topology
-- [ ] 26.7 Restructure `mkdocs.yml` Start section to: Why TopoViewer, Getting Started, Style Your First Topology, Examples Gallery
-- [ ] 26.8 Move Browser Harness out of Start into Tools or Authoring Tools
-- [ ] 26.9 Move Build Or Adopt out of Start into Evaluate
-- [ ] 26.10 Move YAML to Diagram out of Start into product story or Examples, not the beginner path
-- [ ] 26.11 Demote Zensical from front-door story to Embed/Integrations as "Zensical Adapter" or "Static HTML / Zensical Adapter", after React and MkDocs
-- [ ] 26.12 Keep Grafana telemetry, Containerlab-backed lab material, architecture, threat model, release, and documentation standard outside the beginner conversion path
-- [ ] 26.13 Align the docs homepage task router with the same journey as `mkdocs.yml` so users do not see competing structures
-- [ ] 26.14 Align canonical content structure and generated docs paths with the public IA where practical, so `mkdocs.yml` is not the only source of the user journey
-- [ ] 26.15 Refactor guide-page Next Steps to exactly one primary next step and at most two optional links, each with a concrete reason
-- [ ] 26.16 Update Next Steps for Getting Started, Style Your First Topology, Browser Harness, and Authoring Model to remove reference dumps and roadmap/lab jumps from beginner pages
-- [ ] 26.17 Add docs lint for beginner guide Next Steps: one primary link, at most two optional links, no maintainer links, no roadmap links, and no Grafana/lab links unless explicitly optional and relevant
+- [ ] 26.4 Make First Topology explicitly satisfy the first-run role with install command or pre-publish warning, topology YAML, stylesheet YAML, render code/live viewport, expected output, and blank-viewport troubleshooting
+- [x] 26.5 Align First Topology nav label, page title, generated path, and canonical content path as `topoviewer/start/first-topology.md`
+- [ ] 26.6 Add expected screenshot or live viewport near the top of First Topology, plus "what you just built" and common blank-viewport mistake
+- [x] 26.7 Restructure `mkdocs.yml` Start section to: Why TopoViewer, First Topology, Style Your First Topology
+- [x] 26.8 Move Browser Harness out of Start into Tools or Authoring Tools
+- [x] 26.9 Move Build Or Adopt out of Start into Evaluate
+- [x] 26.10 Move YAML to Diagram out of Start into product story or Examples, not the beginner path
+- [x] 26.11 Demote Zensical from front-door story to Embed/Integrations as "Zensical Adapter" or "Static HTML / Zensical Adapter", after React and MkDocs
+- [x] 26.12 Keep Grafana telemetry, Containerlab-backed lab material, architecture, threat model, release, and documentation standard outside the beginner conversion path
+- [x] 26.13 Align the docs homepage task router with the same journey as `mkdocs.yml` so users do not see competing structures
+- [x] 26.14 Align canonical content structure and generated docs paths with the public IA so `mkdocs.yml` is the source of truth and page paths mirror nav section/page labels
+- [x] 26.15 Remove public guide-level `Next Steps` sections; users navigate via the left nav, page table of contents, search, and contextual inline links
+- [x] 26.16 Update First Topology, Style Your First Topology, Browser Harness, and Authoring Model to remove footer link dumps, roadmap/lab jumps, and maintainer links from page endings
+- [x] 26.17 Add docs lint for public guide pages: fail on `Next Step(s)` headings and fail when normal nav paths do not mirror nav section/page labels
 - [ ] 26.18 Add docs lint or public-readiness checks that fail if Start contains Tools, Evaluate, Labs, Maintainers, or roadmap-heavy pages
-- [ ] 26.19 Preserve the useful "Choose A Path" router, but reorder it so first topology, styling, examples, and React/MkDocs embedding appear before telemetry, evaluation, roadmap, release, and maintainer paths
-- [ ] 26.20 Ensure maintainer pages such as Monorepo, Production Hardening, Design Review Checklist, Release, Documentation Standard, and Decision Log are grouped under Maintainers or an equivalent clearly non-beginner section
+- [x] 26.19 Preserve the useful "Choose A Path" router, but reorder it so first topology, styling, examples, and React/MkDocs embedding appear before telemetry, evaluation, roadmap, release, and maintainer paths
+- [x] 26.20 Ensure maintainer pages such as Monorepo, Production Hardening, Design Review Checklist, Release, Documentation Standard, and Decision Log are grouped under Maintainers or an equivalent clearly non-beginner section
 - [ ] 26.21 Update curated example template so every curated example shows Live Viewport, Copy Topology YAML, Copy Stylesheet YAML, What this proves, and Use this when
 - [ ] 26.22 Review curated Examples visually so they feel like a gallery, not generated test catalog output
-- [ ] 26.23 Add visual review evidence for docs home, Getting Started, Style Your First Topology, Examples Gallery, React, MkDocs, and Zensical adapter pages
+- [ ] 26.23 Add visual review evidence for docs home, First Topology, Style Your First Topology, Examples Gallery, React, MkDocs, and Zensical adapter pages
 - [ ] 26.24 Ensure React docs open with `npm install topoviewer @xyflow/react react react-dom` after publication, or with an unavoidable pre-publish warning and tarball preview path before publication
 - [ ] 26.25 Update `spec-traceability.md`, `audit-traceability.md`, and the readiness report after the docs IA implementation is complete
 

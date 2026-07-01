@@ -10,8 +10,8 @@ post-review gates below are completed. The repo is now shaped like a serious
 launch until npm installability, first-screen focus, demo-gallery breadth,
 public API hardening, and Node compatibility decisions are closed.
 The docs also need a conversion-path pass: the current content is strong, but
-the homepage, nav, Zensical placement, and guide Next Steps still need to feel
-like a shortest path to value rather than an internal engineering portal.
+the homepage, nav, Zensical placement, and source-path alignment still need to
+feel like a shortest path to value rather than an internal engineering portal.
 
 ## Completed Evidence
 
@@ -54,7 +54,7 @@ also passed.
 | Hosted promo video upload | Deprecated before implementation. The release media path is collage-first, using `docs/assets/topoviewer-yaml-to-graph-collage.png`; generated video/GIF/MP4 files remain local-only review artifacts. | Maintainer |
 | Rendered GitHub README media verification | Verify the checked-in collage renders from the pushed GitHub README. Hosted animated playback is not a release gate. | Maintainer |
 | V0.1 public product launch focus | Tasks 25.4-25.18 remain open: first-screen simplification, secondary-surface demotion, npm publish or explicit adoption block, `v0.1.0` release, badges, demo gallery, API hardening, Node compatibility, adoption baseline, and later `1.0.0` gate. | Maintainer |
-| Public docs conversion path | Tasks 26.3-26.25 remain open: docs-home conversion flow, Start in 60 seconds, Getting Started rename, journey-aligned nav, Zensical demotion, one-primary-next-step rule, task-router ordering, maintainer-doc separation, gallery-style examples, lint, and visual review evidence. | Maintainer |
+| Public docs conversion path | Tasks 26.3-26.25 remain open: docs-home conversion flow, First Topology first-run path, journey-aligned nav, nav/source path alignment, Zensical demotion, removal of guide-level Next Steps, task-router ordering, maintainer-doc separation, gallery-style examples, lint, and visual review evidence. | Maintainer |
 | Committed-tree closeout | Tasks 27.1-27.6 remain open: reviewed commit, full `npm run ci` from committed tree, pushed GitHub CI/Docs verification, promo media decision, final traceability, and archive. | Maintainer |
 | Full `npm run ci` clean pass | Not run to completion in this dirty review worktree because generated-output guards intentionally fail until the generated outputs are committed. Run after review commit. | Maintainer |
 | Archive `harden-public-adoption-readiness` | Not archived in this patch. Archive only after full clean CI, pushed GitHub CI/Docs verification, final traceability, and the collage-first promo media decision are recorded. | Maintainer |

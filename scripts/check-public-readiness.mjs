@@ -163,28 +163,28 @@ function assertRequiredGovernance() {
 }
 
 function assertArchitectureAndThreatModelDocs() {
-  assertFile('packages/topoviewer/content/pages/architecture.md', [
+  assertFile('packages/topoviewer/content/pages/evaluate/architecture.md', [
     'Runtime Flow',
     'Component Boundaries',
     'Public And Internal Module Boundary',
     'Data Flow By Surface',
     'Failure Boundaries'
   ]);
-  assertFile('packages/topoviewer/content/pages/threat-model.md', [
+  assertFile('packages/topoviewer/content/pages/evaluate/threat-model.md', [
     'Input Threats And Controls',
     'Trust Boundaries',
     'Abuse Cases',
     'Evidence Map',
     'Grafana mounted files'
   ]);
-  assertFile('packages/topoviewer/content/pages/design-review-checklist.md', [
+  assertFile('packages/topoviewer/content/pages/maintainers/design-review-checklist.md', [
     'Public Surface Classification',
     'Compatibility Review',
     'Security Review',
     'Runtime Review',
     'Documentation Review'
   ]);
-  assertFile('packages/topoviewer/content/pages/build-vs-adopt.md', [
+  assertFile('packages/topoviewer/content/pages/evaluate/build-or-adopt.md', [
     'What You Would Need To Build Internally',
     'Where TopoViewer Has Leverage',
     'When Not To Use TopoViewer',
@@ -193,7 +193,7 @@ function assertArchitectureAndThreatModelDocs() {
 }
 
 function assertPerformanceReliabilityAccessibilityDocs() {
-  assertFile('packages/topoviewer/content/pages/performance-reliability-accessibility.md', [
+  assertFile('packages/topoviewer/content/pages/evaluate/performance-reliability-accessibility.md', [
     'Performance Tiers',
     'Budgets',
     'Benchmark Scenarios',
@@ -340,7 +340,7 @@ function assertLabWarnings() {
     'development and validation scaffolding only'
   ]);
 
-  assertFile('docs/topoviewer/integration-roadmap.md', [
+  assertFile('docs/topoviewer/evaluate/integration-roadmap.md', [
     'anonymous Admin',
     'unsigned plugin loading',
     'not production deployment guidance'

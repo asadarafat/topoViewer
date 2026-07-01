@@ -68,6 +68,17 @@ function copyTree(sourceRoot, targetRoot) {
   }
 }
 
+function copyExampleAssets(sourceRoot, targetRoot) {
+  cleanDirectory(targetRoot);
+  for (const source of listFiles(sourceRoot)) {
+    if (source.endsWith('.md')) continue;
+    const relative = path.relative(sourceRoot, source);
+    const target = path.join(targetRoot, relative);
+    fs.mkdirSync(path.dirname(target), { recursive: true });
+    fs.copyFileSync(source, target);
+  }
+}
+
 function copyTreeInto(sourceRoot, targetRoot) {
   if (!fs.existsSync(sourceRoot)) return;
   for (const source of listFiles(sourceRoot)) {
@@ -97,7 +108,11 @@ function parseFenceBool(config, key, defaultValue) {
 
 function resolveSourceReference(markdownPath, reference) {
   if (!reference || isExternalReference(String(reference))) return undefined;
-  return path.resolve(path.dirname(markdownPath), String(reference));
+  const pageRelative = path.resolve(path.dirname(markdownPath), String(reference));
+  if (fs.existsSync(pageRelative)) return pageRelative;
+  const topoviewerRelative = path.resolve(sourceTopoviewerRoot, String(reference));
+  if (fs.existsSync(topoviewerRelative)) return topoviewerRelative;
+  return pageRelative;
 }
 
 function exampleTargetForSource(sourcePath) {
@@ -210,12 +225,23 @@ function adaptMarkdown(markdown, sourceMarkdownPath, targetMarkdownPath) {
   return expandSnippetDirectives(rewriteTopoViewerFences(markdown, sourceMarkdownPath, targetMarkdownPath));
 }
 
+function isPublicExamplePage(relativePath) {
+  return [
+    'topoviewer/examples/examples-gallery.md',
+    'topoviewer/examples/object-family-examples.md',
+    'topoviewer/examples/real-network-demo.md',
+    'topoviewer/examples/yaml-to-network-diagram/index.md',
+  ].includes(relativePath)
+    || /^topoviewer\/examples\/real-network-demo\/[^/]+\/index\.md$/.test(relativePath);
+}
+
 function syncMarkdownDocs() {
   cleanDirectory(zensicalDocsRoot);
   for (const source of listFiles(sourceDocsRoot)) {
     const relative = path.relative(sourceDocsRoot, source);
     const parts = relative.split(path.sep);
-    if (parts[0] === 'topoviewer' && parts[1] === 'examples') {
+    const normalizedRelative = normalizeSeparators(relative);
+    if (parts[0] === 'topoviewer' && parts[1] === 'examples' && !isPublicExamplePage(normalizedRelative)) {
       continue;
     }
     if (relative === '.nav.yml' || !source.endsWith('.md')) {
@@ -258,6 +284,7 @@ function renderNavItem(item, indentLevel) {
 function withZensicalAdapterPage(navItems) {
   return navItems.map((item) => {
     if (item.title !== 'Embed' || !item.children) return item;
+    if (item.children.some((child) => /Zensical/.test(child.title || ''))) return item;
     return {
       ...item,
       children: [
@@ -308,7 +335,7 @@ function syncZensicalNav() {
 
 syncMarkdownDocs();
 copyTreeInto(sourceAssetsRoot, targetAssetsRoot);
-copyTree(sourceExamplesRoot, targetExamplesRoot);
+copyExampleAssets(sourceExamplesRoot, targetExamplesRoot);
 syncZensicalNav();
 
 console.log(`synced Zensical docs from ${path.relative(repoRoot, sourceDocsRoot)} into ${path.relative(repoRoot, zensicalDocsRoot)}`);
