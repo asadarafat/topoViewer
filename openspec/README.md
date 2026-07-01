@@ -13,8 +13,10 @@ Current active plans:
 - `changes/define-codespaces-dev-environment/` - planned Codespaces developer environment that can run local MkDocs, Zensical, browser harness, Grafana lab, and Containerlab-Grafana workflows from a fresh cloud workspace.
 - `changes/define-netbox-integration-roadmap/` - planned NetBox feasibility, use cases, first integration shape, and roadmap wording constraints.
 - `changes/define-opsmill-infrahub-integration-roadmap/` - planned OpsMill/Infrahub feasibility, use cases, first integration shape, and roadmap wording constraints.
+- `changes/finalize-public-adoption-readiness-closeout/` - planned post-review closeout for a clean committed-tree `npm run ci`, remote CI/Docs confirmation, and archive of the hardening change.
 - `changes/harden-link-direction-lanes/` - planned production hardening for direction lane geometry, physical parallel-link behavior, direction-specific interaction, attention, mapper coverage, mounted-bundle examples, and cross-surface parity.
 - `changes/harden-public-adoption-readiness/` - planned public repository and documentation hardening so the stable TopoViewer core, first-run workflow, support boundaries, curated examples, and quality gates are clear enough for broad external adoption.
+- `changes/publish-promo-video-hosted-asset/` - planned post-review upload and README playback verification for the public YAML-to-graph promo video.
 
 Current studies:
 

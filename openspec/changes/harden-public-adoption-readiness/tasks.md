@@ -3,9 +3,9 @@
 - [x] 0.1 Integrate the cross-surface brutal adoption and security audit into `audit.md`
 - [x] 0.2 Add an audit-to-task traceability table to this change that maps every `audit.md` section to task IDs
 - [x] 0.3 Add a spec-to-task traceability table that maps every `spec.md` requirement and scenario to task IDs
-- [ ] 0.4 Refuse archive until every spec requirement is implemented, explicitly deferred to a named OpenSpec, or documented as accepted risk
-- [ ] 0.5 Refuse archive until every audit smell is resolved, explicitly deferred to a named OpenSpec, or documented as accepted risk
-- [ ] 0.6 Add a final "public adoption readiness report" under this change with completed evidence links, remaining risks, and go/no-go recommendation
+- [x] 0.4 Refuse archive until every spec requirement is implemented, explicitly deferred to a named OpenSpec, or documented as accepted risk
+- [x] 0.5 Refuse archive until every audit smell is resolved, explicitly deferred to a named OpenSpec, or documented as accepted risk
+- [x] 0.6 Add a final "public adoption readiness report" under this change with completed evidence links, remaining risks, and go/no-go recommendation
 
 ## 1. Evidence Baseline
 
@@ -61,10 +61,10 @@
 
 ## 6. Guide And Reference Split
 
-- [ ] 6.1 Split oversized authoring material into task-oriented guide pages and model reference pages
-- [ ] 6.2 Keep the Stylesheet guide practical at the top and move exhaustive key tables to Reference
-- [ ] 6.3 Ensure every stylesheet key table lists accepted values, data type, defaults, and use without duplicating enum prose outside the table
-- [ ] 6.4 Split Attention into quick use cases, topology declaration, TypeScript API, and reference sections
+- [x] 6.1 Split oversized authoring material into task-oriented guide pages and model reference pages
+- [x] 6.2 Keep the Stylesheet guide practical at the top and move exhaustive key tables to Reference
+- [x] 6.3 Ensure every stylesheet key table lists accepted values, data type, defaults, and use without duplicating enum prose outside the table
+- [x] 6.4 Split Attention into quick use cases, topology declaration, TypeScript API, and reference sections
 - [x] 6.5 Keep React page focused on embedding; move exhaustive exported API detail to TypeScript API reference
 - [x] 6.6 Add SSR, error handling, loading, caching, diagnostics, and versioning guidance to React docs
 - [x] 6.7 Add clear "next step" links at the end of major guide pages
@@ -72,7 +72,7 @@
 - [x] 6.9 Add object reference pages for graph, layers, nodes, links, paths, regions, callouts, labels, data, layout, icons, stylesheet rules, style objects, attention, and mapper rules
 - [x] 6.10 For every object reference page, list every public attribute with purpose, required/optional status, data type, accepted values or format, default behavior, validation behavior, selector implications, mapper implications, and stability status
 - [x] 6.11 Add a minimal YAML snippet for every public object attribute
-- [ ] 6.12 Add a small rendered or diagnostic example for every object family, using focused graphs rather than crowded catalog examples
+- [x] 6.12 Add a small rendered or diagnostic example for every object family, using focused graphs rather than crowded catalog examples
 - [x] 6.13 Add mapper-relevant notes to node, link, path, region, layer, graph, label, and data attribute docs
 - [x] 6.14 Add selector-relevant notes to labels, data, stylesheet rule, style object, node, link, path, and region attribute docs
 - [x] 6.15 Generate or validate object-attribute tables from schema/type/style metadata so docs cannot silently drift
@@ -102,16 +102,16 @@
 - [x] 8.10 Add Playwright coverage proving a user can author a valid mapper without reading source files
 - [x] 8.11 Add a dedicated Mapper YAML tab/mode in the browser harness with the same editor quality as topology and stylesheet YAML
 - [x] 8.12 Treat topology, stylesheet, and mapper YAML as one editable bundle with shared dirty state, apply/revert behavior, local persistence, and export/copy behavior
-- [ ] 8.13 Add a mapper rule builder UI for target kind, selector/join mode, metric/query, value extraction, states, thresholds, overlay styles, label templates, and aggregate behavior
+- [x] 8.13 Add a mapper rule builder UI for target kind, selector/join mode, metric/query, value extraction, states, thresholds, overlay styles, label templates, and aggregate behavior
 - [x] 8.14 Add target-kind-specific validation so node, link, path, region, layer, and graph mapper rules only expose supported overlay controls
-- [ ] 8.15 Add topology-derived picker UX for object IDs, layer IDs, label keys/values, data keys, link endpoints, path IDs, and region IDs
+- [x] 8.15 Add topology-derived picker UX for object IDs, layer IDs, label keys/values, data keys, link endpoints, path IDs, and region IDs
 - [x] 8.16 Add mapper presets that demonstrate style changes, label changes, status/badge changes, aggregate state, ID matching, label/data matching, endpoint matching, selector matching, and ambiguous-match diagnostics
 - [x] 8.17 Add a mapping coverage panel in the harness that mirrors Grafana coverage concepts before the user mounts the bundle
 - [x] 8.18 Add copyable generated PromQL starters or metric label recommendations from mapper rules where possible
 - [x] 8.19 Add docs links from the mapper editor to exact mapper object and object-attribute reference sections
 - [x] 8.20 Add schema-backed hover help explaining each mapper attribute, accepted values, implications, and examples inline in Monaco
 - [x] 8.21 Add tests that invalid mapper edits do not mutate applied topology/style YAML or corrupt the last valid preview
-- [ ] 8.22 Add tests that exported `*.topo.tv.yaml`, `*.style.tv.yaml`, and `*.mapper.tv.yaml` can be mounted by the Grafana panel without catalog edits or fixture sync
+- [x] 8.22 Add tests that exported `*.topo.tv.yaml`, `*.style.tv.yaml`, and `*.mapper.tv.yaml` can be mounted by the Grafana panel without catalog edits or fixture sync
 
 ## 9. Cross-Surface Rendering Parity
 
@@ -131,7 +131,7 @@
 - [x] 10.4 Add Grafana docs for dashboard editability versus provisioning and what changes survive reload
 - [x] 10.5 Add Grafana docs for panel interactivity: pan, zoom, select, focus, drag persistence, refresh, variable changes, bundle changes, and panel reload
 - [x] 10.6 Add Grafana docs for expected query outputs and rendered overlay outcomes for healthy, degraded, failed, and no-data states
-- [ ] 10.7 Add screenshots for mounted bundle selection, mapper diagnostics, mapping coverage, and telemetry overlay states
+- [x] 10.7 Add screenshots for mounted bundle selection, mapper diagnostics, mapping coverage, and telemetry overlay states
 - [x] 10.8 Add a fresh-checkout Grafana smoke command sequence that does not require source-code reading
 - [x] 10.9 Add Grafana docs that start from a harness-authored bundle and explicitly show where the generated `*.mapper.tv.yaml` is mounted
 - [x] 10.10 Add Grafana mapper docs for every mapper attribute with purpose, type, accepted values, examples, and relationship to topology object attributes
@@ -215,12 +215,12 @@
 - [x] 17.1 Define the promotional storyboard for YAML to graph across harness, MkDocs, Zensical, and Grafana
 - [x] 17.2 Add `scripts/record-promo-demo.mjs` or equivalent Playwright recording command
 - [x] 17.3 Make the script fail clearly when docs preview, harness, or Grafana lab surfaces are not running
-- [ ] 17.4 Record deterministic dark-mode video to `.artifacts/promo/` only as a temporary local review artifact
-- [ ] 17.5 Capture a poster image suitable for README fallback and place the accepted checked-in copy under `docs/assets/`
+- [x] 17.4 Record deterministic dark-mode video to `.artifacts/promo/` only as a temporary local review artifact
+- [x] 17.5 Capture a poster image suitable for README fallback and place the accepted checked-in copy under `docs/assets/`
 - [x] 17.6 Document the GitHub asset-hosting workflow using a dedicated media issue or equivalent durable host
-- [ ] 17.7 Upload the reviewed video and capture the GitHub-hosted media URL
-- [ ] 17.8 Embed the hosted video or compatible fallback in README using only a durable hosted URL or `docs/assets/` asset
-- [ ] 17.9 Verify playback from the rendered GitHub README after push
+- [x] 17.7 Defer reviewed-video upload and GitHub-hosted media URL capture to `openspec/changes/publish-promo-video-hosted-asset`
+- [x] 17.8 Embed the hosted video or compatible fallback in README using only a durable hosted URL or `docs/assets/` asset
+- [x] 17.9 Defer rendered GitHub README playback verification to `openspec/changes/publish-promo-video-hosted-asset`
 - [x] 17.10 Ensure public docs do not reference local `.artifacts` video paths
 - [x] 17.11 Add lint that fails if README, MkDocs, Zensical, or GitHub Pages content references `.artifacts/promo/`
 
@@ -271,13 +271,13 @@
 ## 22. Performance, Reliability, And Accessibility
 
 - [x] 22.1 Define performance tiers for tiny, curated, dense, and stress topologies with node/link counts and expected use cases
-- [ ] 22.2 Add benchmark scenarios for first render, zoom/pan, selection, attention focus, layout, mapper overlays, docs embeds, harness, and Grafana panel refresh
+- [x] 22.2 Add benchmark scenarios for first render, zoom/pan, selection, attention focus, layout, mapper overlays, docs embeds, harness, and Grafana panel refresh
 - [x] 22.3 Define budgets for first render time, interaction latency, memory, screenshot stability, and maximum supported default topology size
 - [x] 22.4 Add benchmark output artifacts or summaries that can be published in docs without local paths
 - [x] 22.5 Add reliability tests for bad YAML, bad stylesheet, missing assets, unsupported style keys, bad mapper, missing telemetry, and renderer-limit failures
 - [x] 22.6 Add error-boundary and diagnostic behavior docs for React, MkDocs, Zensical, harness, and Grafana
 - [x] 22.7 Define keyboard and focus behavior for supported controls in docs embeds, React runtime, harness, and Grafana
-- [ ] 22.8 Add accessibility checks for focus visibility, color contrast, non-color status cues, text legibility, reduced motion, and keyboard escape behavior
+- [x] 22.8 Add accessibility checks for focus visibility, color contrast, non-color status cues, text legibility, reduced motion, and keyboard escape behavior
 - [x] 22.9 Add accessibility posture docs that state what is supported now, what is best-effort, and what is not yet accessible
 - [x] 22.10 Add telemetry/privacy docs for local storage, session state, Grafana panel state, mapper labels, and screenshots/videos
 
@@ -294,24 +294,24 @@
 
 - [x] 24.1 Run `npm run sync:docs`
 - [x] 24.2 Run docs lint and docs build
-- [ ] 24.3 Run representative Playwright checks for curated examples
-- [ ] 24.4 Run mapper authoring harness tests
-- [ ] 24.5 Run TopoViewer object-attribute reference drift checks against schemas, TypeScript types, style metadata, mapper metadata, and YAML assist metadata
-- [ ] 24.6 Run a Grafana smoke using a harness-authored `*.topo.tv.yaml`, `*.style.tv.yaml`, and `*.mapper.tv.yaml` bundle with no catalog edits or fixture sync
+- [x] 24.3 Run representative Playwright checks for curated examples
+- [x] 24.4 Run mapper authoring harness tests
+- [x] 24.5 Run TopoViewer object-attribute reference drift checks against schemas, TypeScript types, style metadata, mapper metadata, and YAML assist metadata
+- [x] 24.6 Run a Grafana smoke using a harness-authored `*.topo.tv.yaml`, `*.style.tv.yaml`, and `*.mapper.tv.yaml` bundle with no catalog edits or fixture sync
 - [x] 24.7 Run package dry-run validation
-- [ ] 24.8 Run hostile-input and mounted-bundle abuse tests
+- [x] 24.8 Run hostile-input and mounted-bundle abuse tests
 - [x] 24.9 Run artifact autopsy checks
 - [x] 24.10 Run npm and Go dependency triage checks
-- [ ] 24.11 Run promotional video generation command
-- [ ] 24.12 Run compatibility/API report checks
-- [ ] 24.13 Run performance and accessibility checks
+- [x] 24.11 Run promotional video generation command
+- [x] 24.12 Run compatibility/API report checks
+- [x] 24.13 Run performance and accessibility checks
 - [x] 24.14 Run governance-file and support-boundary checks
-- [ ] 24.15 Run architecture/threat-model traceability checks
-- [ ] 24.16 Run automated security monitoring checks: Dependabot coverage, CodeQL/static analysis, secret scanning, container scanning, npm audit, Go vulnerability scanning, and security-health reporting
-- [ ] 24.17 Run full `npm run ci`
-- [ ] 24.18 Review the generated MkDocs and Zensical sites locally
-- [ ] 24.19 Verify README video playback on GitHub after push
-- [ ] 24.20 Review `spec-traceability.md` and verify every `spec.md` requirement has completed evidence, named deferral, or accepted-risk owner
-- [ ] 24.21 Review `audit-traceability.md` and verify every `audit.md` finding has completed evidence, named deferral, or accepted-risk owner
-- [ ] 24.22 Produce the final public adoption readiness report from task 0.6
-- [ ] 24.23 Archive this change only after every spec requirement and audit finding is implemented, deferred to a named follow-up OpenSpec, or accepted with an explicit risk owner
+- [x] 24.15 Run architecture/threat-model traceability checks
+- [x] 24.16 Run automated security monitoring checks: Dependabot coverage, CodeQL/static analysis, secret scanning, container scanning, npm audit, Go vulnerability scanning, and security-health reporting
+- [x] 24.17 Defer full `npm run ci` clean committed-tree validation to `openspec/changes/finalize-public-adoption-readiness-closeout`
+- [x] 24.18 Review the generated MkDocs and Zensical sites locally
+- [x] 24.19 Defer README video playback verification on GitHub after push to `openspec/changes/publish-promo-video-hosted-asset`
+- [x] 24.20 Review `spec-traceability.md` and verify every `spec.md` requirement has completed evidence, named deferral, or accepted-risk owner
+- [x] 24.21 Review `audit-traceability.md` and verify every `audit.md` finding has completed evidence, named deferral, or accepted-risk owner
+- [x] 24.22 Produce the final public adoption readiness report from task 0.6
+- [x] 24.23 Defer archive closeout to `openspec/changes/finalize-public-adoption-readiness-closeout` after committed-tree CI and remaining public-hosted promo checks are complete or explicitly accepted
