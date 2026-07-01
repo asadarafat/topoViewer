@@ -15,6 +15,8 @@ const viewerSize = { width: 936, height: 420 };
 const maxVisualDiffRatio = 0.035;
 const pixelChannelTolerance = 32;
 const rendererReadinessTimeoutMs = 60000;
+const rendererSurfaceAttempts = 3;
+const rendererLayoutNudgeIntervalMs = 750;
 
 const fixtures = [
   { id: 'graph-basic', sourcePath: 'graph/basic' },
@@ -159,21 +161,45 @@ async function waitForRenderer(page, label, expectedMinEdgePaths) {
     await page.waitForSelector('.topoviewer', { timeout: rendererReadinessTimeoutMs });
     await page.waitForFunction(() => !document.querySelector('.topoviewer-error'), undefined, { timeout: rendererReadinessTimeoutMs });
     await page.waitForFunction(() => document.querySelectorAll('.topoviewer .react-flow__node').length > 0, undefined, { timeout: rendererReadinessTimeoutMs });
-    await page.waitForFunction((minimumEdgePaths) => {
+    await nudgeRendererLayout(page);
+    await page.waitForFunction(({ minimumEdgePaths, nudgeIntervalMs }) => {
       const edgeCount = document.querySelectorAll('.topoviewer .react-flow__edge').length;
       const visiblePathCount = document.querySelectorAll('.topoviewer .topoviewer-edge-visible-path').length;
       if (minimumEdgePaths === 0 && edgeCount === 0) return true;
+      if (edgeCount === 0 || visiblePathCount < Math.min(minimumEdgePaths, edgeCount)) {
+        const state = window.__topoviewerRendererParity ||= {};
+        const now = Date.now();
+        if (!state.lastLayoutNudgeAt || now - state.lastLayoutNudgeAt >= nudgeIntervalMs) {
+          state.lastLayoutNudgeAt = now;
+          document.querySelector('.topoviewer')?.getBoundingClientRect();
+          document.querySelector('.react-flow')?.getBoundingClientRect();
+          window.dispatchEvent(new Event('resize'));
+        }
+      }
       if (edgeCount === 0) return false;
       return visiblePathCount >= Math.min(minimumEdgePaths, edgeCount);
-    }, expectedMinEdgePaths, { timeout: rendererReadinessTimeoutMs });
+    }, {
+      minimumEdgePaths: expectedMinEdgePaths,
+      nudgeIntervalMs: rendererLayoutNudgeIntervalMs
+    }, { timeout: rendererReadinessTimeoutMs });
   } catch (error) {
     const snapshot = await page.evaluate(() => ({
       bodyText: document.body.textContent?.replace(/\s+/g, ' ').trim().slice(0, 500) || '',
+      directionStrokes: document.querySelectorAll('.topoviewer .topoviewer-edge-direction-stroke').length,
       edges: document.querySelectorAll('.topoviewer .react-flow__edge').length,
       errors: Array.from(document.querySelectorAll('.topoviewer-error')).map((element) => element.textContent || ''),
+      paintLayers: document.querySelectorAll('.topoviewer .topoviewer-edge-paint-layer').length,
+      reactFlowRect: (() => {
+        const rect = document.querySelector('.topoviewer .react-flow')?.getBoundingClientRect();
+        return rect ? { height: Math.round(rect.height), width: Math.round(rect.width) } : undefined;
+      })(),
       location: window.location.href,
       nodes: document.querySelectorAll('.topoviewer .react-flow__node').length,
       topoviewers: document.querySelectorAll('.topoviewer').length,
+      topoviewerRect: (() => {
+        const rect = document.querySelector('.topoviewer')?.getBoundingClientRect();
+        return rect ? { height: Math.round(rect.height), width: Math.round(rect.width) } : undefined;
+      })(),
       visiblePaths: document.querySelectorAll('.topoviewer .topoviewer-edge-visible-path').length
     })).catch((snapshotError) => ({ snapshotError: snapshotError instanceof Error ? snapshotError.message : String(snapshotError) }));
     throw new Error(`${label} renderer did not become ready: ${error instanceof Error ? error.message : String(error)}\nSnapshot: ${JSON.stringify(snapshot, null, 2)}`);
@@ -183,6 +209,15 @@ async function waitForRenderer(page, label, expectedMinEdgePaths) {
   if (errors.length > 0) {
     throw new Error(`${label} rendered TopoViewer errors:\n${errors.join('\n')}`);
   }
+}
+
+async function nudgeRendererLayout(page) {
+  await page.evaluate(() => {
+    document.querySelector('.topoviewer')?.getBoundingClientRect();
+    document.querySelector('.react-flow')?.getBoundingClientRect();
+    window.dispatchEvent(new Event('resize'));
+  });
+  await page.waitForTimeout(100);
 }
 
 async function surfaceMetrics(page) {
@@ -381,10 +416,12 @@ async function newParityPage(browser, baseUrl, failures) {
 
 async function collectSurface(browser, baseUrl, failures, url, surface, fixture) {
   let lastError;
-  for (let attempt = 1; attempt <= 2; attempt += 1) {
+  for (let attempt = 1; attempt <= rendererSurfaceAttempts; attempt += 1) {
     const page = await newParityPage(browser, baseUrl, failures);
     try {
-      await page.goto(url, { waitUntil: 'load', timeout: 30000 });
+      const attemptUrl = new URL(url);
+      attemptUrl.searchParams.set('parityAttempt', String(attempt));
+      await page.goto(attemptUrl.toString(), { waitUntil: 'load', timeout: 30000 });
       await page.waitForLoadState('networkidle', { timeout: 30000 }).catch(() => undefined);
       await waitForRenderer(page, `${surface}/${fixture.id}`, expectedMinimumEdgePaths(fixture));
       return {
@@ -393,7 +430,7 @@ async function collectSurface(browser, baseUrl, failures, url, surface, fixture)
       };
     } catch (error) {
       lastError = error;
-      if (attempt === 2) {
+      if (attempt === rendererSurfaceAttempts) {
         throw new Error(`${surface}: ${error instanceof Error ? error.message : String(error)}`);
       }
       await page.waitForTimeout(500).catch(() => undefined);
