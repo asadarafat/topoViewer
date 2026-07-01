@@ -220,6 +220,7 @@ function isPublicExamplePage(relativePath) {
     'topoviewer/examples/examples-gallery.md',
     'topoviewer/examples/object-family-examples.md',
     'topoviewer/examples/real-network-demo.md',
+    'topoviewer/examples/kubernetes-service-map/index.md',
     'topoviewer/examples/yaml-to-network-diagram/index.md',
   ].includes(relativePath)
     || /^topoviewer\/examples\/real-network-demo\/[^/]+\/index\.md$/.test(relativePath);

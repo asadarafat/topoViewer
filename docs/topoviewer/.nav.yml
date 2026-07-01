@@ -15,4 +15,5 @@ nav:
       - Harness: reference/harness/index.md
       - Validation: reference/validation/index.md
   - YAML to network diagram: examples/yaml-to-network-diagram/index.md
+  - Kubernetes service map: examples/kubernetes-service-map/index.md
   - Real Network Demo: examples/real-network-demo.md

@@ -680,6 +680,19 @@ examples:
       minVisibleEdges: 8
       minRegions: 5
     readme: docs/topoviewer/examples/integration/grafana-telemetry-call-flow/README.md
+  - id: integration-kubernetes-service-map
+    title: Kubernetes service map
+    feature: integration
+    path: integration/kubernetes-service-map
+    page: topoviewer/examples/kubernetes-service-map
+    renderable: true
+    topology: docs/topoviewer/examples/integration/kubernetes-service-map/topology.yaml
+    stylesheet: docs/topoviewer/examples/integration/kubernetes-service-map/stylesheet.yaml
+    expected:
+      graphNodes: 8
+      minVisibleEdges: 8
+      minRegions: 2
+    readme: docs/topoviewer/examples/integration/kubernetes-service-map/README.md
   - id: integration-real-network-underlay
     title: Real network underlay
     feature: integration

@@ -14,13 +14,17 @@ path.
 | [Node styling](#node-styling) | Icon fit, badges, and status markers. | One diagram shows contain, cover, and fill icon behavior. | `iconFit`, `badgeLabel`, `statusPlacement`, node dimensions. |
 | [Edge styling](#edge-styling) | Bidirectional directional strokes on one physical link. | One link carries independent source-to-target and target-to-source styles. | `link.directions`, `linkDirection` selectors, arrow offsets. |
 | [Attention](#attention) | Object focus with a small graph. | Clicking an object highlights it and dims unrelated context. | `attention`, object IDs, path IDs, focus mode. |
+| [Kubernetes service map](#kubernetes-service-map) | App services, data dependencies, and namespace regions. | TopoViewer renders non-network infrastructure diagrams from the same YAML contract. | regions, app/data layers, dependency edges, status markers. |
 | [Real network](#real-network) | Layered provider underlay, BGP, transport, service, and failure views. | One topology answers multiple operational questions. | `layers`, paths, service labels, severity data. |
 | [Grafana mapper overlay](#grafana-mapper-overlay) | Mapper rule skeleton for telemetry overlays. | Prometheus samples change runtime styles without rewriting source YAML. | `*.mapper.tv.yaml`, `select`, `join`, `states`, runtime `style`. |
 
 ## Basic Graph
 
-Use this first when validating that a topology file and stylesheet file are
-paired correctly.
+What this proves: the smallest useful TopoViewer diagram is just graph facts
+plus one selector stylesheet.
+
+Use this when you need to validate that a topology file and stylesheet file are
+paired correctly before adding layers, regions, paths, or attention.
 
 === "Live Viewport"
 
@@ -33,13 +37,13 @@ paired correctly.
     title: Basic graph
     ```
 
-=== "Topology YAML"
+=== "Copy Topology YAML"
 
     ```yaml
     --8<-- "docs/topoviewer/examples/graph/basic/topology.yaml"
     ```
 
-=== "Stylesheet YAML"
+=== "Copy Stylesheet YAML"
 
     ```yaml
     --8<-- "docs/topoviewer/examples/graph/basic/stylesheet.yaml"
@@ -47,8 +51,11 @@ paired correctly.
 
 ## CLOS Fabric
 
-Use this when the graph is a fabric and the layout should infer stages from
-connectivity instead of manual positions.
+What this proves: CLOS layout can infer fabric stages from connectivity instead
+of forcing authors to hand-place every node.
+
+Use this when the graph is a fabric and the layout should provide the first
+readable arrangement before the author tunes labels, icons, or regions.
 
 === "Live Viewport"
 
@@ -61,13 +68,13 @@ connectivity instead of manual positions.
     title: CLOS 2-spine 4-leaf
     ```
 
-=== "Topology YAML"
+=== "Copy Topology YAML"
 
     ```yaml
     --8<-- "docs/topoviewer/examples/harness/clos-2spine-4leaf/topology.yaml"
     ```
 
-=== "Stylesheet YAML"
+=== "Copy Stylesheet YAML"
 
     ```yaml
     --8<-- "docs/topoviewer/examples/harness/clos-2spine-4leaf/stylesheet.yaml"
@@ -75,8 +82,11 @@ connectivity instead of manual positions.
 
 ## Node Styling
 
-Use this when a node needs compact visual signals without changing topology
-facts.
+What this proves: node shape, icon fit, badges, and status markers are visual
+policy, not topology facts.
+
+Use this when a node needs compact operational signals without duplicating or
+mutating the source topology.
 
 === "Live Viewport"
 
@@ -89,13 +99,13 @@ facts.
     title: Icon fit and badges
     ```
 
-=== "Topology YAML"
+=== "Copy Topology YAML"
 
     ```yaml
     --8<-- "docs/topoviewer/examples/nodes/icon-fit-and-badges/topology.yaml"
     ```
 
-=== "Stylesheet YAML"
+=== "Copy Stylesheet YAML"
 
     ```yaml
     --8<-- "docs/topoviewer/examples/nodes/icon-fit-and-badges/stylesheet.yaml"
@@ -103,9 +113,11 @@ facts.
 
 ## Edge Styling
 
-Use this when one physical adjacency has independent telemetry per direction.
-Do not duplicate the physical link unless the topology really has parallel
-links.
+What this proves: one physical link can render independent directional strokes,
+labels, arrows, and line styles.
+
+Use this when one adjacency has independent telemetry per direction. Do not
+duplicate the physical link unless the topology really has parallel links.
 
 === "Live Viewport"
 
@@ -118,13 +130,13 @@ links.
     title: Directional link strokes
     ```
 
-=== "Topology YAML"
+=== "Copy Topology YAML"
 
     ```yaml
     --8<-- "docs/topoviewer/examples/edges/directional-link-strokes/topology.yaml"
     ```
 
-=== "Stylesheet YAML"
+=== "Copy Stylesheet YAML"
 
     ```yaml
     --8<-- "docs/topoviewer/examples/edges/directional-link-strokes/stylesheet.yaml"
@@ -132,9 +144,11 @@ links.
 
 ## Attention
 
-Use this when a dense graph needs an intentional focus state. The source graph
-stays complete; the viewport emphasizes the selected object and keeps context
-muted.
+What this proves: focus state can emphasize what matters without deleting
+context from the source graph.
+
+Use this when a dense graph needs object, path, dependency, or change focus
+without losing context.
 
 === "Live Viewport"
 
@@ -152,13 +166,13 @@ muted.
         mode: dim-context
     ```
 
-=== "Topology YAML"
+=== "Copy Topology YAML"
 
     ```yaml
     --8<-- "docs/topoviewer/examples/attention/object-focus/topology.yaml"
     ```
 
-=== "Stylesheet YAML"
+=== "Copy Stylesheet YAML"
 
     ```yaml
     --8<-- "docs/topoviewer/examples/attention/object-focus/stylesheet.yaml"
@@ -174,11 +188,48 @@ muted.
         mode: dim-context
     ```
 
+## Kubernetes Service Map
+
+What this proves: TopoViewer is not limited to network-provider diagrams. The
+same YAML model can describe service ownership, namespace scope, data services,
+and dependency edges.
+
+Use this when platform, SRE, or application teams need a reviewable dependency
+diagram.
+
+=== "Live Viewport"
+
+    ```topoviewer
+    topology: examples/integration/kubernetes-service-map/topology.yaml
+    stylesheet: examples/integration/kubernetes-service-map/stylesheet.yaml
+    height: 480px
+    controls: true
+    controlsOpen: false
+    title: Kubernetes service map
+    selectedLayerIds:
+      - application
+      - data
+    ```
+
+=== "Copy Topology YAML"
+
+    ```yaml
+    --8<-- "docs/topoviewer/examples/integration/kubernetes-service-map/topology.yaml"
+    ```
+
+=== "Copy Stylesheet YAML"
+
+    ```yaml
+    --8<-- "docs/topoviewer/examples/integration/kubernetes-service-map/stylesheet.yaml"
+    ```
+
 ## Real Network
 
-Use this when one topology needs multiple operational views. Start with the
-underlay, then add BGP, transport, service, and failure layers only when those
-questions matter.
+What this proves: one topology can answer different operational questions by
+switching layers and focus state.
+
+Use this when one source model needs multiple operational views without
+maintaining separate static diagrams.
 
 === "Live Viewport"
 
@@ -201,13 +252,13 @@ questions matter.
         mode: dim-context
     ```
 
-=== "Topology YAML"
+=== "Copy Topology YAML"
 
     ```yaml
     --8<-- "docs/topoviewer/examples/integration/real-network-service-path/topology.yaml"
     ```
 
-=== "Stylesheet YAML"
+=== "Copy Stylesheet YAML"
 
     ```yaml
     --8<-- "docs/topoviewer/examples/integration/real-network-service-path/stylesheet.yaml"
@@ -215,9 +266,12 @@ questions matter.
 
 ## Grafana Mapper Overlay
 
-Use this when telemetry should change runtime presentation without mutating the
-topology or stylesheet YAML. The harness exports three files for Grafana:
-`*.topo.tv.yaml`, `*.style.tv.yaml`, and `*.mapper.tv.yaml`.
+What this proves: telemetry can change runtime presentation without mutating the
+topology or stylesheet YAML.
+
+Use this when Grafana should mount harness-authored `*.topo.tv.yaml`,
+`*.style.tv.yaml`, and `*.mapper.tv.yaml` bundles and apply Prometheus-driven
+overlays at runtime.
 
 ```yaml
 rules:
@@ -251,8 +305,7 @@ More copyable mapper recipes are in [Grafana mapper recipes](../labs/grafana-map
 
 ## Generated Catalog
 
-Use the generated catalog when you need exhaustive feature coverage or a
-regression fixture:
+Use the generated catalog when you need exhaustive feature coverage:
 
 - [Graph](../reference/graph/index.md)
 - [Nodes](../reference/nodes/index.md)

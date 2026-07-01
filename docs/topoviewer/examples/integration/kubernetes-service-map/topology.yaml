@@ -1,0 +1,181 @@
+graph:
+  id: kubernetes-service-map
+  layers:
+    - id: application
+      name: Application
+    - id: data
+      name: Data Services
+  nodes:
+    - id: internet
+      name: Internet
+      labels:
+        kind: external
+      layers:
+        - application
+      position:
+        - 90
+        - 210
+    - id: ingress
+      name: Ingress
+      labels:
+        kind: gateway
+      layers:
+        - application
+      position:
+        - 240
+        - 210
+    - id: web
+      name: Web
+      labels:
+        kind: frontend
+        app: checkout
+      layers:
+        - application
+      position:
+        - 400
+        - 130
+    - id: api
+      name: API
+      labels:
+        kind: backend
+        app: checkout
+      layers:
+        - application
+      position:
+        - 580
+        - 210
+    - id: worker
+      name: Worker
+      labels:
+        kind: worker
+        app: checkout
+      layers:
+        - application
+      position:
+        - 400
+        - 290
+    - id: redis
+      name: Redis
+      labels:
+        kind: cache
+      layers:
+        - data
+      position:
+        - 780
+        - 120
+    - id: postgres
+      name: Postgres
+      labels:
+        kind: database
+      data:
+        severity: warning
+      layers:
+        - data
+      position:
+        - 780
+        - 220
+    - id: queue
+      name: Queue
+      labels:
+        kind: queue
+      layers:
+        - data
+      position:
+        - 780
+        - 320
+  links:
+    - id: internet-ingress
+      name: Internet to ingress
+      source: internet
+      target: ingress
+      labels:
+        kind: request
+      layers:
+        - application
+    - id: ingress-web
+      name: Ingress to web
+      source: ingress
+      target: web
+      labels:
+        kind: request
+      layers:
+        - application
+    - id: web-api
+      name: Web to API
+      source: web
+      target: api
+      labels:
+        kind: request
+      layers:
+        - application
+    - id: api-redis
+      name: API to Redis
+      source: api
+      target: redis
+      labels:
+        kind: dependency
+      layers:
+        - application
+        - data
+    - id: api-postgres
+      name: API to Postgres
+      source: api
+      target: postgres
+      labels:
+        kind: dependency
+      layers:
+        - application
+        - data
+    - id: api-queue
+      name: API to Queue
+      source: api
+      target: queue
+      labels:
+        kind: dependency
+      layers:
+        - application
+        - data
+    - id: worker-queue
+      name: Worker to Queue
+      source: worker
+      target: queue
+      labels:
+        kind: async
+      layers:
+        - application
+        - data
+    - id: worker-postgres
+      name: Worker to Postgres
+      source: worker
+      target: postgres
+      labels:
+        kind: write
+      layers:
+        - application
+        - data
+  regions:
+    - id: checkout-namespace
+      name: checkout namespace
+      labels:
+        scope: namespace
+      members:
+        - ingress
+        - web
+        - api
+        - worker
+      layers:
+        - application
+      paddingX: 54
+      paddingY: 48
+    - id: data-services
+      name: shared data services
+      labels:
+        scope: platform
+      members:
+        - redis
+        - postgres
+        - queue
+      layers:
+        - data
+      paddingX: 48
+      paddingY: 44

@@ -686,6 +686,20 @@ examples:
         - telemetry
         - runtime
         - diagnostics
+  - id: integration-kubernetes-service-map
+    title: Kubernetes service map
+    feature: integration
+    path: integration/kubernetes-service-map
+    page: topoviewer/examples/kubernetes-service-map
+    summary: A non-network infrastructure example showing app services, data dependencies, namespaces, and runtime status.
+    render:
+      height: 480px
+      controls: true
+      controlsOpen: false
+      title: Kubernetes service map
+      selectedLayerIds:
+        - application
+        - data
   - id: integration-real-network-underlay
     title: Real network underlay
     feature: integration
