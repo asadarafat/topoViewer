@@ -3,46 +3,46 @@
 Do this first. These tasks prevent the wrong package-name decision from leaking
 into implementation.
 
-- [ ] 1.1 Confirm PyPI availability for `mkdocs-topoviewer`
-- [ ] 1.2 Confirm `topoviewer` remains the npm/React package name only
-- [ ] 1.3 Confirm the Python import package remains `mkdocs_topoviewer`
-- [ ] 1.4 Confirm the MkDocs plugin key remains `topoviewer`
-- [ ] 1.5 Document the naming contract: distribution `mkdocs-topoviewer`, module `mkdocs_topoviewer`, plugin key `topoviewer`
-- [ ] 1.6 Confirm public docs do not say `pip install topoviewer` for MkDocs
-- [ ] 1.7 Confirm public docs do not advertise `pip install mkdocs-topoviewer` as live before PyPI publication
+- [x] 1.1 Confirm PyPI availability for `mkdocs-topoviewer`
+- [x] 1.2 Confirm `topoviewer` remains the npm/React package name only
+- [x] 1.3 Confirm the Python import package remains `mkdocs_topoviewer`
+- [x] 1.4 Confirm the MkDocs plugin key remains `topoviewer`
+- [x] 1.5 Document the naming contract: distribution `mkdocs-topoviewer`, module `mkdocs_topoviewer`, plugin key `topoviewer`
+- [x] 1.6 Confirm public docs do not say `pip install topoviewer` for MkDocs
+- [x] 1.7 Confirm public docs do not advertise `pip install mkdocs-topoviewer` as live before PyPI publication
 
 # Phase 2. Local Artifact Hardening
 
 Do this before adding or running any publish workflow. The local package contract
 must be credible first.
 
-- [ ] 2.1 Add or update Python artifact build command for wheel and sdist
-- [ ] 2.2 Add or update artifact inspection to cover wheel and sdist
-- [ ] 2.3 Add metadata validation with `twine check` or equivalent
-- [ ] 2.4 Verify package metadata: name, version, license, readme, project URLs, classifiers, dependencies, and entry point
-- [ ] 2.5 Verify vendored embed assets are present and current before artifact build
-- [ ] 2.6 Reject generated `build/`, `.egg-info/`, `__pycache__/`, and `.pyc` content from artifacts
-- [ ] 2.7 Run `npm run wheel:mkdocs`
-- [ ] 2.8 Run `npm run inspect:wheel`
-- [ ] 2.9 Record local artifact names and inspection output in OpenSpec evidence
+- [x] 2.1 Add or update Python artifact build command for wheel and sdist
+- [x] 2.2 Add or update artifact inspection to cover wheel and sdist
+- [x] 2.3 Add metadata validation with `twine check` or equivalent
+- [x] 2.4 Verify package metadata: name, version, license, readme, project URLs, classifiers, dependencies, and entry point
+- [x] 2.5 Verify vendored embed assets are present and current before artifact build
+- [x] 2.6 Reject generated `build/`, `.egg-info/`, `__pycache__/`, and `.pyc` content from artifacts
+- [x] 2.7 Run `npm run wheel:mkdocs`
+- [x] 2.8 Run `npm run inspect:wheel`
+- [x] 2.9 Record local artifact names and inspection output in OpenSpec evidence
 
 # Phase 3. Manual PyPI Publish Workflow
 
 Do this after local artifact hardening. The workflow should automate the same
 checks that passed locally.
 
-- [ ] 3.1 Add `.github/workflows/pypi-publish.yml`
-- [ ] 3.2 Add `workflow_dispatch` inputs for `version` and `dry_run`
-- [ ] 3.3 Run Node.js 24 and Python 3.12 in the workflow
-- [ ] 3.4 Verify requested version matches `packages/mkdocs-topoviewer/pyproject.toml`
-- [ ] 3.5 Check whether the requested PyPI version already exists
-- [ ] 3.6 Run repository/package gates needed to prove vendored assets and docs plugin behavior
-- [ ] 3.7 Build wheel and sdist artifacts
-- [ ] 3.8 Inspect artifacts and run metadata validation
-- [ ] 3.9 For dry-run, stop before upload and report artifact names
-- [ ] 3.10 For real publish, upload with PyPI Trusted Publishing/OIDC through environment `pypi-publish`
-- [ ] 3.11 Reject real publish for an already-published immutable version
-- [ ] 3.12 Document PyPI pending-publisher setup without requiring `PYPI_TOKEN`
+- [x] 3.1 Add `.github/workflows/pypi-publish.yml`
+- [x] 3.2 Add `workflow_dispatch` inputs for `version` and `dry_run`
+- [x] 3.3 Run Node.js 24 and Python 3.12 in the workflow
+- [x] 3.4 Verify requested version matches `packages/mkdocs-topoviewer/pyproject.toml`
+- [x] 3.5 Check whether the requested PyPI version already exists
+- [x] 3.6 Run repository/package gates needed to prove vendored assets and docs plugin behavior
+- [x] 3.7 Build wheel and sdist artifacts
+- [x] 3.8 Inspect artifacts and run metadata validation
+- [x] 3.9 For dry-run, stop before upload and report artifact names
+- [x] 3.10 For real publish, upload with PyPI Trusted Publishing/OIDC through environment `pypi-publish`
+- [x] 3.11 Reject real publish for an already-published immutable version
+- [x] 3.12 Document PyPI pending-publisher setup without requiring `PYPI_TOKEN`
 
 # Phase 4. Workflow Dry-Run
 

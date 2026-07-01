@@ -84,6 +84,15 @@ reject:
 - package names other than `mkdocs-topoviewer`;
 - version mismatch against the manual workflow input.
 
+The local artifact build should create an isolated virtual environment under
+`.artifacts/` for Python release tooling. It should not install `build`,
+`twine`, or publishing dependencies into the user or system Python environment.
+
+The package can use Hatchling for this small adapter boundary when that keeps
+the produced wheel and sdist cleaner than setuptools. The public contract is
+the package metadata, vendored assets, and MkDocs entry point, not a specific
+Python build backend.
+
 ## Clean Install Smoke
 
 After publish, verification must use a clean virtual environment, not the repo

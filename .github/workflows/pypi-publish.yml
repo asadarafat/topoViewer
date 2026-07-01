@@ -1,0 +1,147 @@
+name: Manual PyPI Publish
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Package version that must already be present in packages/mkdocs-topoviewer/pyproject.toml"
+        required: true
+        type: string
+      dry_run:
+        description: "Run all release gates without uploading to PyPI"
+        required: true
+        default: true
+        type: boolean
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    name: Validate and publish mkdocs-topoviewer with PyPI Trusted Publishing
+    runs-on: ubuntu-latest
+    environment: pypi-publish
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: npm
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Verify requested package version
+        run: |
+          python - <<'PY'
+          import os
+          import pathlib
+          import tomllib
+
+          pyproject = pathlib.Path("packages/mkdocs-topoviewer/pyproject.toml")
+          data = tomllib.loads(pyproject.read_text())
+          project = data["project"]
+          requested = os.environ["MKDOCS_TOPOVIEWER_RELEASE_VERSION"]
+
+          if project["name"] != "mkdocs-topoviewer":
+            raise SystemExit(f"Unexpected package name: {project['name']}")
+          if project["version"] != requested:
+            raise SystemExit(
+              f"pyproject version {project['version']} does not match requested {requested}"
+            )
+
+          entry_points = project.get("entry-points", {}).get("mkdocs.plugins", {})
+          if entry_points.get("topoviewer") != "mkdocs_topoviewer.plugin:TopoViewerPlugin":
+            raise SystemExit("MkDocs plugin entry point topoviewer is missing or changed")
+          PY
+        env:
+          MKDOCS_TOPOVIEWER_RELEASE_VERSION: ${{ inputs.version }}
+
+      - name: Check PyPI version availability
+        id: pypi_version
+        run: |
+          python - <<'PY'
+          import os
+          import urllib.error
+          import urllib.request
+
+          version = os.environ["MKDOCS_TOPOVIEWER_RELEASE_VERSION"]
+          output = os.environ["GITHUB_OUTPUT"]
+          url = f"https://pypi.org/pypi/mkdocs-topoviewer/{version}/json"
+
+          try:
+            with urllib.request.urlopen(url, timeout=20):
+              published = "true"
+          except urllib.error.HTTPError as error:
+            if error.code != 404:
+              raise
+            published = "false"
+
+          with open(output, "a", encoding="utf-8") as handle:
+            handle.write(f"published={published}\n")
+
+          if published == "true":
+            print(f"mkdocs-topoviewer=={version} is already published.")
+          else:
+            print(f"mkdocs-topoviewer=={version} is not published yet.")
+          PY
+        env:
+          MKDOCS_TOPOVIEWER_RELEASE_VERSION: ${{ inputs.version }}
+
+      - name: Reject real publish for existing version
+        if: ${{ inputs.dry_run == false && steps.pypi_version.outputs.published == 'true' }}
+        run: |
+          echo "mkdocs-topoviewer==${MKDOCS_TOPOVIEWER_RELEASE_VERSION} is already published. PyPI versions are immutable; bump packages/mkdocs-topoviewer/pyproject.toml before a real publish." >&2
+          exit 1
+        env:
+          MKDOCS_TOPOVIEWER_RELEASE_VERSION: ${{ inputs.version }}
+
+      - name: Build packages and synced MkDocs assets
+        run: npm run ci:build
+
+      - name: Build MkDocs Python artifacts
+        run: npm run dist:mkdocs
+
+      - name: Inspect MkDocs Python artifacts
+        run: npm run inspect:mkdocs
+
+      - name: Validate built wheel imports
+        run: |
+          python -m venv .artifacts/pypi-wheel-smoke
+          .artifacts/pypi-wheel-smoke/bin/python -m pip install --quiet --upgrade pip
+          .artifacts/pypi-wheel-smoke/bin/python -m pip install .artifacts/mkdocs-dist/*.whl
+          .artifacts/pypi-wheel-smoke/bin/python - <<'PY'
+          from mkdocs_topoviewer.plugin import TopoViewerPlugin
+
+          if TopoViewerPlugin.__name__ != "TopoViewerPlugin":
+            raise SystemExit("TopoViewerPlugin import smoke failed")
+          PY
+
+      - name: Upload Python package artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: mkdocs-topoviewer-python-dist
+          path: .artifacts/mkdocs-dist/*
+          if-no-files-found: error
+
+      - name: Dry-run summary
+        if: ${{ inputs.dry_run }}
+        run: |
+          echo "Dry-run complete. No upload attempted."
+          ls -lh .artifacts/mkdocs-dist
+
+      - name: Publish to PyPI with Trusted Publishing OIDC
+        if: ${{ inputs.dry_run == false && steps.pypi_version.outputs.published == 'false' }}
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: .artifacts/mkdocs-dist

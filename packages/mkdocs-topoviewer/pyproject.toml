@@ -1,6 +1,6 @@
 [build-system]
-requires = ["setuptools>=68", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
 
 [project]
 name = "mkdocs-topoviewer"
@@ -40,9 +40,14 @@ Issues = "https://github.com/asadarafat/topoviewer/issues"
 [project.entry-points."mkdocs.plugins"]
 topoviewer = "mkdocs_topoviewer.plugin:TopoViewerPlugin"
 
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["mkdocs_topoviewer*"]
+[tool.hatch.build.targets.wheel]
+packages = ["mkdocs_topoviewer"]
 
-[tool.setuptools.package-data]
-mkdocs_topoviewer = ["assets/*"]
+[tool.hatch.build.targets.sdist]
+include = [
+  "/LICENSE",
+  "/MANIFEST.in",
+  "/README.md",
+  "/mkdocs_topoviewer",
+  "/pyproject.toml"
+]
