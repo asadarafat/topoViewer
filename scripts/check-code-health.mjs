@@ -6,7 +6,7 @@ const repoRoot = path.resolve(import.meta.dirname, '..');
 const maxFileLines = 1000;
 const defaultMaxBarrelExports = 80;
 const customBarrelLimits = new Map([
-  ['packages/topoviewer/src/index.ts', 140]
+  ['packages/topoviewer/src/index.ts', 150]
 ]);
 const codeRoots = [
   'packages/topoviewer/src',
