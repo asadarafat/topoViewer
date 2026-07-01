@@ -72,6 +72,32 @@ jobs:
         env:
           TOPOVIEWER_RELEASE_VERSION: ${{ inputs.version }}
 
+      - name: Check npm version availability
+        id: npm_version
+        run: |
+          if npm view "topoviewer@${TOPOVIEWER_RELEASE_VERSION}" version --json >/tmp/topoviewer-npm-version.json 2>/tmp/topoviewer-npm-view-error.log; then
+            echo "published=true" >> "${GITHUB_OUTPUT}"
+            echo "::notice::topoviewer@${TOPOVIEWER_RELEASE_VERSION} is already published. Dry-run will validate the local package artifact with npm pack --dry-run because npm publish --dry-run also rejects immutable published versions."
+          else
+            if grep -q "E404" /tmp/topoviewer-npm-view-error.log; then
+              echo "published=false" >> "${GITHUB_OUTPUT}"
+              echo "::notice::topoviewer@${TOPOVIEWER_RELEASE_VERSION} is not published yet. Dry-run will execute npm publish --dry-run."
+            else
+              cat /tmp/topoviewer-npm-view-error.log >&2
+              exit 1
+            fi
+          fi
+        env:
+          TOPOVIEWER_RELEASE_VERSION: ${{ inputs.version }}
+
+      - name: Reject real publish for existing version
+        if: ${{ inputs.dry_run == false && steps.npm_version.outputs.published == 'true' }}
+        run: |
+          echo "topoviewer@${TOPOVIEWER_RELEASE_VERSION} is already published. npm package versions are immutable; bump packages/topoviewer/package.json before a real publish." >&2
+          exit 1
+        env:
+          TOPOVIEWER_RELEASE_VERSION: ${{ inputs.version }}
+
       - name: Run full repository CI
         run: npm run ci
 
@@ -82,14 +108,23 @@ jobs:
           npm run dependency:advisories
 
       - name: npm publish dry-run
-        if: ${{ inputs.dry_run }}
+        if: ${{ inputs.dry_run && steps.npm_version.outputs.published == 'false' }}
         working-directory: packages/topoviewer
         run: npm publish --access public --tag "${NPM_DIST_TAG}" --dry-run
         env:
           NPM_DIST_TAG: ${{ inputs.dist_tag }}
 
+      - name: npm pack dry-run for already-published version
+        if: ${{ inputs.dry_run && steps.npm_version.outputs.published == 'true' }}
+        working-directory: packages/topoviewer
+        run: |
+          echo "::notice::Skipping npm publish --dry-run because ${TOPOVIEWER_RELEASE_VERSION} is already published and npm rejects immutable versions even in dry-run mode."
+          npm pack --dry-run
+        env:
+          TOPOVIEWER_RELEASE_VERSION: ${{ inputs.version }}
+
       - name: npm publish with Trusted Publishing OIDC
-        if: ${{ inputs.dry_run == false }}
+        if: ${{ inputs.dry_run == false && steps.npm_version.outputs.published == 'false' }}
         working-directory: packages/topoviewer
         run: npm publish --access public --tag "${NPM_DIST_TAG}"
         env:

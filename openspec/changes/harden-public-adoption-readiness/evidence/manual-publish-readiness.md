@@ -13,6 +13,7 @@ This note records the public package install and manual npm publishing guardrail
 | CI package lane | `scripts/ci.mjs` runs `npm run install:check` in the package lane before artifact checks. | Implemented. |
 | Manual-only npm publish workflow | `.github/workflows/npm-publish.yml` is triggered only by `workflow_dispatch`, defaults to dry-run, requires an explicit version and dist-tag, runs `npm run ci`, re-runs release package gates, and publishes through npm Trusted Publishing with GitHub OIDC. | Implemented. |
 | No push/PR publish guard | `scripts/check-public-readiness.mjs` fails if a workflow containing `npm publish` is triggered by `push` or `pull_request`, lacks dry-run/OIDC/dist-tag controls, references token secrets, or omits release gates. | Implemented. |
+| Immutable version guard | The workflow checks whether the requested version already exists. Real publish fails early for published versions; dry-run uses `npm pack --dry-run` when npm would reject `npm publish --dry-run` for an immutable published version. | Implemented. |
 | First package feedback intake | `.github/ISSUE_TEMPLATE/package_release_feedback.yml` captures install command, package version, package manager, Node version, and expected/actual behavior. | Implemented. |
 
 ## Manual Publish Contract

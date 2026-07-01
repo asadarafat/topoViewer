@@ -167,6 +167,13 @@ Actions workflow, authenticated by npm Trusted Publishing with GitHub OIDC.
 9. Run the workflow with `dry_run: false` only after the dry-run artifact and
    validation logs are reviewed.
 
+When the requested version is already published, npm rejects
+`npm publish --dry-run` because package versions are immutable even in dry-run
+mode. In that case the workflow still runs all release gates, verifies the
+registry state, and uses `npm pack --dry-run` for artifact validation. A real
+publish for an already-published version fails before upload and requires a
+version bump.
+
 Maintainers can create or verify the npm-side trust relationship from npmjs.com
 or with the npm CLI:
 
