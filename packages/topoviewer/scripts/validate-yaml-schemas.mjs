@@ -167,6 +167,10 @@ if (!fs.existsSync(catalogFile)) {
     assertGeneratedCopy(source.stylesheet, generated.stylesheet, `${example.id} stylesheet`);
     assertGeneratedCopy(source.readme, generated.readme, `${example.id} README`);
 
+    if (example.publicPage === false) {
+      continue;
+    }
+
     const markdownFile = pageMarkdownPath(example.page);
     if (!markdownFile) {
       fail(`test case ${example.id} generated page does not exist: ${example.page}`);

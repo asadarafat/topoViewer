@@ -58,16 +58,6 @@ function listFiles(dirPath) {
   return files;
 }
 
-function copyTree(sourceRoot, targetRoot) {
-  cleanDirectory(targetRoot);
-  for (const source of listFiles(sourceRoot)) {
-    const relative = path.relative(sourceRoot, source);
-    const target = path.join(targetRoot, relative);
-    fs.mkdirSync(path.dirname(target), { recursive: true });
-    fs.copyFileSync(source, target);
-  }
-}
-
 function copyExampleAssets(sourceRoot, targetRoot) {
   cleanDirectory(targetRoot);
   for (const source of listFiles(sourceRoot)) {
