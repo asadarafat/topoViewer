@@ -521,16 +521,25 @@ function assertPackageAndCiContracts() {
     if (/(^|\n)\s+push:/.test(text) || /(^|\n)\s+pull_request:/.test(text)) {
       fail(`${file} must not publish from push or pull_request events.`);
     }
+    if (!text.includes('id-token: write')) {
+      fail(`${file} publish workflow must grant id-token: write for npm Trusted Publishing OIDC.`);
+    }
+    if (!text.includes('environment: npm-publish')) {
+      fail(`${file} publish workflow must use the npm-publish GitHub environment so npm trusted-publisher configuration can bind to a protected release surface.`);
+    }
+    if (/NPM_TOKEN|NODE_AUTH_TOKEN|secrets\./.test(text)) {
+      fail(`${file} publish workflow must use npm Trusted Publishing OIDC and must not reference npm tokens or GitHub secrets.`);
+    }
     for (const phrase of [
       'npm run ci',
       'npm run install:check',
       'npm run artifact:check:package',
       'npm run dependency:advisories',
-      '--provenance',
       '--access public',
       '--tag',
       '--dry-run',
-      'NPM_TOKEN'
+      'Trusted Publishing',
+      'npm >= 11.5.1'
     ]) {
       if (!text.includes(phrase)) {
         fail(`${file} publish workflow must include "${phrase}".`);

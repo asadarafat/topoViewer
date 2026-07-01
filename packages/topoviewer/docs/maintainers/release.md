@@ -140,7 +140,7 @@ peer dependencies, and verifying ESM, CommonJS, CSS, and schema exports.
 
 Normal pushes, pull requests, docs deployments, and scheduled workflows must not
 publish to npm. Publication is manual through the `Manual npm Publish` GitHub
-Actions workflow:
+Actions workflow, authenticated by npm Trusted Publishing with GitHub OIDC.
 
 1. Choose the exact version already committed in `packages/topoviewer/package.json`.
 2. Choose the dist-tag. Prefer `next` for `0.1.0` early-adopter validation
@@ -154,13 +154,29 @@ Actions workflow:
    status, known limitations, and upgrade notes.
 6. Confirm package ownership, npm organization/user access, and maintainer
    approval.
-7. Confirm `NPM_TOKEN` is configured for the repository environment when a real
-   publish is intended.
-8. Confirm npm 2FA/provenance expectations: the workflow uses `--provenance`
-   and requires GitHub `id-token: write`; maintainers must keep npm account
-   security and token scope aligned with the registry policy.
+7. Confirm npm Trusted Publishing is configured for the package with:
+   - provider: GitHub Actions;
+   - owner/repository: `asadarafat/topoviewer`;
+   - workflow filename: `npm-publish.yml`;
+   - environment: `npm-publish`;
+   - allowed action: `npm publish`.
+8. Confirm the workflow has GitHub `id-token: write`, runs on a GitHub-hosted
+   runner, and uses npm `>=11.5.1`. The workflow must not reference
+   `NPM_TOKEN`, `NODE_AUTH_TOKEN`, or repository secrets for publishing.
+   Trusted Publishing generates provenance automatically.
 9. Run the workflow with `dry_run: false` only after the dry-run artifact and
    validation logs are reviewed.
+
+Maintainers can create or verify the npm-side trust relationship from npmjs.com
+or with the npm CLI:
+
+```bash
+npm trust github topoviewer \
+  --repo asadarafat/topoviewer \
+  --file npm-publish.yml \
+  --env npm-publish \
+  --allow-publish
+```
 
 ## 0.1.0 Early-Adopter Gate
 

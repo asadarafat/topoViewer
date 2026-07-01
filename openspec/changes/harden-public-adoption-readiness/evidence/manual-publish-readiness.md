@@ -11,8 +11,8 @@ This note records the public package install and manual npm publishing guardrail
 | Canonical install command | `scripts/check-install-commands.mjs` scans public docs for `npm install ... topoviewer` drift and requires the canonical command: `npm install topoviewer @xyflow/react react react-dom`. | Implemented. |
 | Local tarball install dry-run | The same script builds `packages/topoviewer`, packs a local tarball with `npm pack --ignore-scripts`, installs it into a temporary consumer app with React, React DOM, and React Flow peers, then verifies ESM, CommonJS, CSS, and schema exports. | `npm run install:check` passed. |
 | CI package lane | `scripts/ci.mjs` runs `npm run install:check` in the package lane before artifact checks. | Implemented. |
-| Manual-only npm publish workflow | `.github/workflows/npm-publish.yml` is triggered only by `workflow_dispatch`, defaults to dry-run, requires an explicit version and dist-tag, runs `npm run ci`, re-runs release package gates, and uses npm provenance. | Implemented. |
-| No push/PR publish guard | `scripts/check-public-readiness.mjs` fails if a workflow containing `npm publish` is triggered by `push` or `pull_request`, lacks dry-run/provenance/token/dist-tag controls, or omits release gates. | Implemented. |
+| Manual-only npm publish workflow | `.github/workflows/npm-publish.yml` is triggered only by `workflow_dispatch`, defaults to dry-run, requires an explicit version and dist-tag, runs `npm run ci`, re-runs release package gates, and publishes through npm Trusted Publishing with GitHub OIDC. | Implemented. |
+| No push/PR publish guard | `scripts/check-public-readiness.mjs` fails if a workflow containing `npm publish` is triggered by `push` or `pull_request`, lacks dry-run/OIDC/dist-tag controls, references token secrets, or omits release gates. | Implemented. |
 | First package feedback intake | `.github/ISSUE_TEMPLATE/package_release_feedback.yml` captures install command, package version, package manager, Node version, and expected/actual behavior. | Implemented. |
 
 ## Manual Publish Contract
@@ -29,9 +29,12 @@ The manual workflow requires:
 - `npm run install:check`;
 - `npm run artifact:check:package`;
 - `npm run dependency:advisories`;
-- npm provenance via `--provenance`;
+- GitHub `id-token: write` for npm Trusted Publishing;
+- the `npm-publish` GitHub environment, matching the npm trusted-publisher configuration;
+- npm CLI `>=11.5.1`;
+- automatic npm provenance from Trusted Publishing;
 - explicit npm dist-tag;
-- `NPM_TOKEN` only for a real non-dry-run publish.
+- no `NPM_TOKEN`, `NODE_AUTH_TOKEN`, or token-backed repository secrets.
 
 ## Current Validation
 

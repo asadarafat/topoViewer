@@ -27,8 +27,9 @@ permissions:
 
 jobs:
   publish:
-    name: Validate and publish topoviewer
+    name: Validate and publish topoviewer with npm Trusted Publishing
     runs-on: ubuntu-latest
+    environment: npm-publish
 
     steps:
       - name: Checkout
@@ -55,6 +56,13 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Verify npm Trusted Publishing prerequisites
+        run: |
+          node --version
+          npm --version
+          node -e "const [major] = process.versions.node.split('.').map(Number); if (major < 24) { throw new Error('npm Trusted Publishing workflow must run on Node 24 in this repo.'); }"
+          node -e "const version = require('child_process').execFileSync('npm', ['--version'], { encoding: 'utf8' }).trim().split('.').map(Number); if (version[0] < 11 || (version[0] === 11 && version[1] < 5) || (version[0] === 11 && version[1] === 5 && version[2] < 1)) { throw new Error('npm Trusted Publishing requires npm >= 11.5.1.'); }"
+
       - name: Install Chromium for Playwright
         run: npx playwright install --with-deps chromium
 
@@ -63,16 +71,6 @@ jobs:
           node -e "const p=require('./packages/topoviewer/package.json'); const expected=process.env.TOPOVIEWER_RELEASE_VERSION; if (p.version !== expected) { throw new Error(`packages/topoviewer/package.json version ${p.version} does not match requested ${expected}`); }"
         env:
           TOPOVIEWER_RELEASE_VERSION: ${{ inputs.version }}
-
-      - name: Require npm token for real publish
-        if: ${{ inputs.dry_run == false }}
-        run: |
-          if [ -z "${NODE_AUTH_TOKEN:-}" ]; then
-            echo "NPM_TOKEN is required when dry-run is false." >&2
-            exit 1
-          fi
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Run full repository CI
         run: npm run ci
@@ -86,14 +84,13 @@ jobs:
       - name: npm publish dry-run
         if: ${{ inputs.dry_run }}
         working-directory: packages/topoviewer
-        run: npm publish --provenance --access public --tag "${NPM_DIST_TAG}" --dry-run
+        run: npm publish --access public --tag "${NPM_DIST_TAG}" --dry-run
         env:
           NPM_DIST_TAG: ${{ inputs.dist_tag }}
 
-      - name: npm publish
+      - name: npm publish with Trusted Publishing OIDC
         if: ${{ inputs.dry_run == false }}
         working-directory: packages/topoviewer
-        run: npm publish --provenance --access public --tag "${NPM_DIST_TAG}"
+        run: npm publish --access public --tag "${NPM_DIST_TAG}"
         env:
           NPM_DIST_TAG: ${{ inputs.dist_tag }}
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

@@ -492,7 +492,8 @@ workflow, not an automatic side effect of normal pushes.
 - **AND** it requires successful `npm run ci`
 - **AND** it requires package dry-run validation
 - **AND** it requires an explicit version, changelog or release note, npm
-  access, provenance or token/2FA expectations, and dist-tag decision.
+  access, Trusted Publishing OIDC/provenance expectations, and dist-tag
+  decision.
 
 #### Scenario: Install Instructions Match Published Package
 

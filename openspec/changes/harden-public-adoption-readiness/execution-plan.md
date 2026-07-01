@@ -46,7 +46,7 @@ Includes:
 - canonical package name decision;
 - package install dry runs;
 - manual-only npm publish workflow;
-- dist-tag, provenance, token/2FA, rollback, and deprecation docs;
+- dist-tag, Trusted Publishing OIDC, provenance, rollback, and deprecation docs;
 - first package release feedback intake.
 
 Status: implemented as a manual release path; actual publication remains a

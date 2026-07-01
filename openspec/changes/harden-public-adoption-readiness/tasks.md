@@ -205,7 +205,7 @@
 - [x] 16.2 Document the first publish checklist: version, changelog or release note, `npm run ci`, package dry-run, artifact autopsy, and maintainer approval
 - [x] 16.3 Define a manual publish path using either a local maintainer command or GitHub Actions `workflow_dispatch`
 - [x] 16.4 Ensure the publish path is never triggered by a normal push, pull request, or docs deployment
-- [x] 16.5 Document npm token, 2FA, provenance, access, dist-tag, rollback, and deprecation expectations
+- [x] 16.5 Document npm Trusted Publishing OIDC, provenance, access, dist-tag, rollback, and deprecation expectations
 - [x] 16.6 Validate `npm pack --dry-run` or equivalent before any real publish
 - [x] 16.7 Prefer a deliberate early dist-tag such as `next` until the stable public package contract is ready for `latest`
 - [x] 16.8 Add an issue/release template for first public package feedback and support boundaries

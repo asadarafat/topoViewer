@@ -487,8 +487,9 @@ The release contract should be:
 - the default npm dist-tag should be deliberate. Prefer `next` for the `0.1.0`
   early-adopter release; reserve uncaveated `latest` for the stable `1.0.0`
   contract, or use `latest` for `0.1.0` only with clear pre-1.0 wording;
-- npm provenance, 2FA/token requirements, package access, and rollback or
-  deprecation steps should be documented before first public publish.
+- npm Trusted Publishing OIDC, automatic provenance, package access, and
+  rollback or deprecation steps should be documented before first public
+  publish. Long-lived npm tokens should not be part of the normal release path.
 
 The first public package should be validated as if a new user will immediately
 run:
