@@ -70,8 +70,8 @@ Check traffic without changing state:
 npm run grafana:clab:traffic:status
 ```
 
-The smoke test captures healthy, high-utilization, and link-failure artifacts
-under `.artifacts/grafana-containerlab/`.
+The smoke test validates that Grafana, Prometheus, gNMIc metrics, and the
+TopoViewer normalizer are reachable after the lab starts.
 
 ## Local Ports
 

@@ -12,7 +12,7 @@ PING_SIZE="${TOPOVIEWER_CLAB_TRAFFIC_SIZE:-1400}"
 function require_container() {
   local container="$1"
   if ! docker inspect "${container}" >/dev/null 2>&1; then
-    echo "Container ${container} is not running. Start the lab with npm run grafana:clab:up." >&2
+    echo "Container ${container} is not running. Start the lab first." >&2
     exit 1
   fi
 }
@@ -75,4 +75,3 @@ case "${ACTION}" in
     exit 1
     ;;
 esac
-
