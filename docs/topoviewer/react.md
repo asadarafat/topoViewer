@@ -2,11 +2,27 @@
 
 **Support status:** Pre-Publish Supported
 
-Install the package and its peer dependencies.
+The public npm package name is reserved for `topoviewer`, but the package is
+not published to npm yet. Until the manual npm release is completed, build a
+local package tarball from this repository and install that tarball into your
+React app.
 
 ```bash
-npm install topoviewer @xyflow/react react react-dom
+git clone https://github.com/asadarafat/topoviewer.git
+cd topoviewer
+npm ci
+npm --workspace topoviewer pack --pack-destination /tmp/topoviewer-pack
 ```
+
+Then install the generated package into your React application:
+
+```bash
+npm install /tmp/topoviewer-pack/topoviewer-0.1.0.tgz @xyflow/react react react-dom
+```
+
+After the public npm package is published, the same import path will work with
+the normal npm package install. The import path is already the same in both
+cases.
 
 Import the component and stylesheet.
 

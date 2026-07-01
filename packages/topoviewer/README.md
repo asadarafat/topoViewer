@@ -66,11 +66,24 @@ Use `src` instead of `svg` when the icon already exists as a URL or data URI.
 
 ## Quick Start
 
-Target consumer install after package publication:
+The public npm package is not published yet. For current source validation,
+build a local tarball from the repository:
 
 ```bash
-npm install topoviewer @xyflow/react react react-dom
+git clone https://github.com/asadarafat/topoviewer.git
+cd topoviewer
+npm ci
+npm --workspace topoviewer pack --pack-destination /tmp/topoviewer-pack
 ```
+
+Install the generated tarball into your React app:
+
+```bash
+npm install /tmp/topoviewer-pack/topoviewer-0.1.0.tgz @xyflow/react react react-dom
+```
+
+After package publication, the install command becomes
+`npm install topoviewer @xyflow/react react react-dom`.
 
 Use it from React:
 

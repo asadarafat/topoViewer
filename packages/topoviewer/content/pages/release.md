@@ -112,16 +112,27 @@ Do not publish generated test artifacts, local videos, screenshots, or MkDocs bu
 
 ## Manual npm Publishing
 
-The public npm package name is `topoviewer`. Public install snippets must use:
+The public npm package name is `topoviewer`, but it is not available from npm
+until the manual publication workflow succeeds. Do not present the npm install
+command as a working current install path before that release is complete.
+
+The future public npm install snippet is:
 
 ```bash
 npm install topoviewer @xyflow/react react react-dom
 ```
 
-Before the package is published, `npm run install:check` validates the same
-consumer contract by packing the local workspace tarball, installing it into a
-temporary app with the documented peer dependencies, and verifying ESM, CommonJS,
-CSS, and schema exports.
+Before the package is published, public usage docs must point users to the
+source tarball workflow:
+
+```bash
+npm --workspace topoviewer pack --pack-destination /tmp/topoviewer-pack
+npm install /tmp/topoviewer-pack/topoviewer-0.1.0.tgz @xyflow/react react react-dom
+```
+
+`npm run install:check` validates that same consumer contract by packing the
+local workspace tarball, installing it into a temporary app with the documented
+peer dependencies, and verifying ESM, CommonJS, CSS, and schema exports.
 
 Normal pushes, pull requests, docs deployments, and scheduled workflows must not
 publish to npm. Publication is manual through the `Manual npm Publish` GitHub

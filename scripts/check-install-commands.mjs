@@ -7,7 +7,17 @@ import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const canonicalInstallCommand = 'npm install topoviewer @xyflow/react react react-dom';
+const sourceTarballInstallCommand = 'npm install /tmp/topoviewer-pack/topoviewer-0.1.0.tgz @xyflow/react react react-dom';
+const futurePublishedInstallCommand = 'npm install topoviewer @xyflow/react react react-dom';
+const futurePublishedInstallCommandFiles = new Set([
+  'docs/topoviewer/release.md',
+  'docs/topoviewer/monorepo.md',
+  'packages/topoviewer/README.md',
+  'packages/topoviewer/content/pages/release.md',
+  'packages/topoviewer/content/pages/monorepo.md',
+  'packages/topoviewer/docs/release.md',
+  'packages/topoviewer/docs/monorepo.md'
+]);
 const publicTextRoots = [
   'README.md',
   'docs',
@@ -81,14 +91,24 @@ function assertPublicInstallCommands() {
     const matches = (text.match(installCommandPattern) || []).filter((match) => /\btopoviewer\b/.test(match));
     for (const match of matches) {
       const normalized = match.trim().replace(/\s+/g, ' ');
-      if (normalized !== canonicalInstallCommand) {
+      const relativePath = relative(filePath);
+      const isAllowedSourceInstall = normalized === sourceTarballInstallCommand;
+      const isAllowedFutureInstall =
+        normalized === futurePublishedInstallCommand && futurePublishedInstallCommandFiles.has(relativePath);
+      if (!isAllowedSourceInstall && !isAllowedFutureInstall) {
         badCommands.push(`${relative(filePath)}: ${normalized}`);
       }
     }
   }
 
   if (badCommands.length) {
-    throw new Error(`Public npm install command drift detected:\n${badCommands.map((item) => `- ${item}`).join('\n')}`);
+    throw new Error([
+      'Public TopoViewer install command drift detected.',
+      'The topoviewer package is pre-publish, so usage docs must use the local tarball install command.',
+      `Current source install command: ${sourceTarballInstallCommand}`,
+      'The future npm command is allowed only in release/package-boundary docs.',
+      ...badCommands.map((item) => `- ${item}`)
+    ].join('\n'));
   }
 }
 
@@ -161,7 +181,7 @@ try {
     'react-dom@^18.3.1'
   ], { cwd: consumerRoot, stdio: 'inherit' });
   assertInstalledPackage(consumerRoot);
-  console.log(`install dry-run passed for canonical command: ${canonicalInstallCommand}`);
+  console.log(`install dry-run passed for source tarball install command: ${sourceTarballInstallCommand}`);
 } finally {
   fs.rmSync(tempRoot, { recursive: true, force: true });
 }

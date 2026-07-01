@@ -166,11 +166,14 @@ Those belong in separate private extension packages that depend on the public re
 
 Merging the packages would make a simple MkDocs plugin installation depend on frontend build tooling, and it would make React users carry Python packaging concerns. That increases support cost without improving the authoring model.
 
-The clean boundary is:
+The clean boundary after public npm publication is:
 
 ```bash
 npm install topoviewer @xyflow/react react react-dom
 pip install mkdocs-topoviewer
 ```
+
+Before npm publication, install the renderer through the local tarball produced
+by `npm --workspace topoviewer pack --pack-destination /tmp/topoviewer-pack`.
 
 One repository can coordinate the two packages, but each package should remain independently understandable, installable, testable, and publishable.
