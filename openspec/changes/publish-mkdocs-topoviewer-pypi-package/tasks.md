@@ -60,11 +60,11 @@ Do this before configuring or using production PyPI trusted publishing.
 Do this only after the dry-run workflow is credible.
 
 - [ ] 5.1 Configure PyPI trusted publisher or pending publisher for `mkdocs-topoviewer`
-- [ ] 5.2 Use repository `asadarafat/topoviewer`
-- [ ] 5.3 Use workflow file `pypi-publish.yml`
-- [ ] 5.4 Use environment `pypi-publish`
-- [ ] 5.5 Confirm no `PYPI_TOKEN` repository secret is required
-- [ ] 5.6 Record the PyPI trusted publishing setup decision in OpenSpec evidence
+- [x] 5.2 Use repository `asadarafat/topoviewer`
+- [x] 5.3 Use workflow file `pypi-publish.yml`
+- [x] 5.4 Use environment `pypi-publish`
+- [x] 5.5 Confirm no `PYPI_TOKEN` repository secret is required
+- [x] 5.6 Record the PyPI trusted publishing setup decision in OpenSpec evidence
 
 # Phase 6. Real PyPI Publish
 
