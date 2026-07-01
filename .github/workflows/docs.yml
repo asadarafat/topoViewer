@@ -61,7 +61,7 @@ jobs:
       - name: Build MkDocs wheel
         run: |
           npm run wheel:mkdocs
-          python -m pip install .artifacts/wheels/*.whl
+          python -m pip install .artifacts/mkdocs-dist/*.whl
 
       - name: Upload failure artifacts
         if: failure()

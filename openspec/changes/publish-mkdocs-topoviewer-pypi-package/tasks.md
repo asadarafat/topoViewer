@@ -48,12 +48,12 @@ checks that passed locally.
 
 Do this before configuring or using production PyPI trusted publishing.
 
-- [ ] 4.1 Commit and push the workflow and artifact hardening changes
-- [ ] 4.2 Dispatch `pypi-publish.yml` with `version=0.1.0` and `dry_run=true`
-- [ ] 4.3 Verify the dry-run builds wheel and sdist artifacts
-- [ ] 4.4 Verify the dry-run runs artifact inspection and metadata validation
-- [ ] 4.5 Verify the dry-run does not upload to PyPI
-- [ ] 4.6 Record dry-run workflow URL and result in OpenSpec evidence
+- [x] 4.1 Commit and push the workflow and artifact hardening changes
+- [x] 4.2 Dispatch `pypi-publish.yml` with `version=0.1.0` and `dry_run=true`
+- [x] 4.3 Verify the dry-run builds wheel and sdist artifacts
+- [x] 4.4 Verify the dry-run runs artifact inspection and metadata validation
+- [x] 4.5 Verify the dry-run does not upload to PyPI
+- [x] 4.6 Record dry-run workflow URL and result in OpenSpec evidence
 
 # Phase 5. PyPI Trusted Publishing Setup
 
