@@ -121,6 +121,6 @@ Do this last.
 - [x] 10.3 Run the production clean PyPI install smoke
 - [x] 10.4 Run `npm run ci:public-readiness`
 - [x] 10.5 Run `npm run ci`
-- [ ] 10.6 Commit and push
-- [ ] 10.7 Verify remote CI, Docs, Security, and CodeQL pass
-- [ ] 10.8 Archive this change only after PyPI publication, public docs switch-over, local validation, and remote validation are complete
+- [x] 10.6 Commit and push
+- [x] 10.7 Verify remote CI, Docs, Security, and CodeQL pass
+- [x] 10.8 Archive this change only after PyPI publication, public docs switch-over, local validation, and remote validation are complete
