@@ -49,3 +49,17 @@ For each spec scenario, the final readiness report must include:
 - validation command output or artifact paths;
 - screenshots or generated reports when the scenario is visual;
 - risk decision: pass, defer to named OpenSpec, or accepted risk with owner.
+
+## 2026-07-01 Closeout Update
+
+- Docs conversion path, journey-aligned IA, no guide-level Next Steps, curated
+  gallery presentation, public npm install, API hardening, and Node
+  compatibility decisions are implemented or documented in the evidence files
+  listed by `public-adoption-readiness-report.md`.
+- Visual scenarios are covered by
+  `evidence/docs-visual-review-2026-07-01.md` with local screenshots under
+  `.artifacts/public-adoption-visual-review/`.
+- Validation scenarios are covered by
+  `evidence/validation-run-2026-07-01.md`.
+- Remaining closeout is limited to task 27 committed-tree CI, remote CI/Docs
+  verification, and archive.

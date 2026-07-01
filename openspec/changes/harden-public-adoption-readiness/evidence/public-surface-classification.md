@@ -17,7 +17,7 @@ This classification uses the status taxonomy from `design.md`:
 | TopoViewer YAML model and renderer core | Supported | `packages/topoviewer`, `docs/topoviewer/reference/reference-model.md`, generated schemas | Stable center of the repo. Public npm package is live as `topoviewer@0.1.0`; continued API hardening remains a pre-1.0 responsibility. |
 | React embedding | Supported | `docs/topoviewer/embed/react.md`, `packages/topoviewer/README.md` | Published npm install path is documented and guarded by package install checks. |
 | MkDocs plugin | Supported | `packages/mkdocs-topoviewer`, `docs/topoviewer/embed/mkdocs.md`, docs CI | Supported docs embed path. |
-| Zensical static adapter | Experimental | `docs/topoviewer/embed/static-html-zensical-adapter.md`, generated Zensical site | Works as a generated adapter, but not a standalone packaged plugin. |
+| Zensical static adapter | Supported Adapter | `docs/topoviewer/embed/static-html-zensical-adapter.md`, generated Zensical site | Works as a generated adapter, but not a standalone packaged plugin. |
 | Browser harness | Experimental | `packages/vscode-topoviewer/src/harness`, `docs/topoviewer/tools/browser-harness.md` | Strong authoring surface, but mapper bundle authoring is still missing. |
 | VS Code extension package | Experimental | `packages/vscode-topoviewer`, `packages/vscode-topoviewer/README.md` | Package exists, but product workflow and distribution are not mature enough to call supported. |
 | Grafana panel mounted-bundle workflow | Experimental | `packages/grafana-topoviewer-panel`, `labs/grafana-topoviewer/README.md` | Implemented and valuable, but needs mapper docs, harness mapper authoring, backend hardening tests, release artifact integrity, and signed plugin guidance. |
@@ -29,8 +29,9 @@ This classification uses the status taxonomy from `design.md`:
 
 ## Classification Gaps
 
-- Status wording is not yet centrally generated across README, docs home,
-  package READMEs, and integration pages. Tasks `4.1` through `4.4` remain open.
+- Status wording is generated for the root README and docs home from canonical
+  fragments. Package READMEs still need manual review when their support status
+  changes.
 - The generated example catalog is public and useful, but it reads like an
   exhaustive regression catalog rather than an adoption path. Tasks `5.1`
   through `5.7` remain open.

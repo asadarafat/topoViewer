@@ -326,30 +326,30 @@
 - [x] 25.1 Capture the adoption scorecard: core idea 8/10, engineering seriousness 7/10, public adoption 3/10, broad adoption readiness 2/10
 - [x] 25.2 Reframe the public category as "Topology-as-Code renderer for infrastructure diagrams"
 - [x] 25.3 Capture the killer product sentence: `topology.yaml` + `stylesheet.yaml` -> interactive, embeddable, schema-validated topology diagrams
-- [ ] 25.4 Make README first screen show only install, render this YAML, and embed in React or MkDocs before secondary surfaces
-- [ ] 25.5 Demote Zensical, VS Code, Grafana, Containerlab, NetBox, and OpsMill/Infrahub from the README first-screen core while retaining status-labeled docs
+- [x] 25.4 Make README first screen show only install, render this YAML, and embed in React or MkDocs before secondary surfaces
+- [x] 25.5 Demote Zensical, VS Code, Grafana, Containerlab, NetBox, and OpsMill/Infrahub from the README first-screen core while retaining status-labeled docs
 - [x] 25.6 Publish `topoviewer@0.1.0` manually or keep the repo explicitly blocked from adoption launch until `npm install topoviewer @xyflow/react react react-dom` works
-- [ ] 25.7 Create GitHub Release `v0.1.0` with release notes, changelog link, known limitations, install command, support status, and feedback issue link
-- [ ] 25.8 Add npm badge, package-size badge, live demo badge, and "works in 60 seconds" section after the package and demo URLs are real
-- [ ] 25.9 Decide whether `mkdocs-topoviewer` is ready for `pip install mkdocs-topoviewer`; do not advertise the command until publication is real
-- [ ] 25.10 Add a copyable demo gallery backlog with AWS VPC, Kubernetes service map, BGP/CLOS fabric, microservice dependency graph, incident blast-radius view, and Grafana live overlay
-- [ ] 25.11 Add at least one beautiful copyable gallery example beyond network-provider examples so non-network infrastructure users understand the value immediately
-- [ ] 25.12 Freeze and document the minimal public API target: `<TopoViewer document={document} />`, `compileTopoGraph(document)`, `validateTopoDocument(document)`, and `lintTopoDocument(document)`
-- [ ] 25.13 Replace or wrap weak public API types such as `Array<Record<string, unknown>>`, `ComponentType<any>`, and `unknown[]` before promoting a `1.0.0` stable-core promise
-- [ ] 25.14 Add typed public contracts for compiled graph data, extension hooks, events, node data, edge data, style declarations, and toolbar actions
-- [ ] 25.15 Decide Node compatibility for public package adoption: broaden runtime support to Node 20/22/24 where possible or document why Node 24 is required beyond repo tooling
+- [x] 25.7 Create GitHub Release `v0.1.0` with release notes, changelog link, known limitations, install command, support status, and feedback issue link
+- [x] 25.8 Add npm badge, package-size badge, live demo badge, and "works in 60 seconds" section after the package and demo URLs are real
+- [x] 25.9 Decide whether `mkdocs-topoviewer` is ready for `pip install mkdocs-topoviewer`; do not advertise the command until publication is real
+- [x] 25.10 Add a copyable demo gallery backlog with AWS VPC, Kubernetes service map, BGP/CLOS fabric, microservice dependency graph, incident blast-radius view, and Grafana live overlay
+- [x] 25.11 Add at least one beautiful copyable gallery example beyond network-provider examples so non-network infrastructure users understand the value immediately
+- [x] 25.12 Freeze and document the minimal public API target: `<TopoViewer document={document} />`, `compileTopoGraph(document)`, `validateTopoDocument(document)`, and `lintTopoDocument(document)`
+- [x] 25.13 Replace or wrap weak public API types such as `Array<Record<string, unknown>>`, `ComponentType<any>`, and `unknown[]` before promoting a `1.0.0` stable-core promise
+- [x] 25.14 Add typed public contracts for compiled graph data, extension hooks, events, node data, edge data, style declarations, and toolbar actions
+- [x] 25.15 Decide Node compatibility for public package adoption: broaden runtime support to Node 20/22/24 where possible or document why Node 24 is required beyond repo tooling
 - [x] 25.16 Add an adoption launch blocker that fails public-readiness if README/docs advertise npm install before the package is published or explicitly marked pre-publish
-- [ ] 25.17 Track GitHub adoption baseline before launch: forks, releases, packages, external issues, and known first-user install issue
-- [ ] 25.18 Define the later `1.0.0` stable-core gate from real early-adopter feedback, API ownership review, compatibility fixtures, and migration policy
+- [x] 25.17 Track GitHub adoption baseline before launch: forks, releases, packages, external issues, and known first-user install issue
+- [x] 25.18 Define the later `1.0.0` stable-core gate from real early-adopter feedback, API ownership review, compatibility fixtures, and migration policy
 
 ## 26. Public Docs Conversion Path
 
 - [x] 26.1 Capture the docs conversion scorecard: content 8/10, navigation 6.5/10, public adoption conversion 4/10, docs conversion readiness 4/10
 - [x] 26.2 Capture the public docs goal: a new engineer understands the value in 30 seconds and renders something beautiful in 2 minutes
-- [ ] 26.3 Reshape docs home so the top flow is product identity, install, render your first topology, explore examples, and embed in React/MkDocs before telemetry, architecture, release, roadmap, or maintainer material
+- [x] 26.3 Reshape docs home so the top flow is product identity, install, render your first topology, explore examples, and embed in React/MkDocs before telemetry, architecture, release, roadmap, or maintainer material
 - [x] 26.4 Make First Topology explicitly satisfy the first-run role with install command or pre-publish warning, topology YAML, stylesheet YAML, render code/live viewport, expected output, and blank-viewport troubleshooting
 - [x] 26.5 Align First Topology nav label, page title, generated path, and canonical content path as `topoviewer/start/first-topology.md`
-- [ ] 26.6 Add expected screenshot or live viewport near the top of First Topology, plus "what you just built" and common blank-viewport mistake
+- [x] 26.6 Add expected screenshot or live viewport near the top of First Topology, plus "what you just built" and common blank-viewport mistake
 - [x] 26.7 Restructure `mkdocs.yml` Start section to: Why TopoViewer, First Topology, Style Your First Topology
 - [x] 26.8 Move Browser Harness out of Start into Tools or Authoring Tools
 - [x] 26.9 Move Build Or Adopt out of Start into Evaluate
@@ -361,14 +361,14 @@
 - [x] 26.15 Remove public guide-level `Next Steps` sections; users navigate via the left nav, page table of contents, search, and contextual inline links
 - [x] 26.16 Update First Topology, Style Your First Topology, Browser Harness, and Authoring Model to remove footer link dumps, roadmap/lab jumps, and maintainer links from page endings
 - [x] 26.17 Add docs lint for public guide pages: fail on `Next Step(s)` headings and fail when normal nav paths do not mirror nav section/page labels
-- [ ] 26.18 Add docs lint or public-readiness checks that fail if Start contains Tools, Evaluate, Labs, Maintainers, or roadmap-heavy pages
+- [x] 26.18 Add docs lint or public-readiness checks that fail if Start contains Tools, Evaluate, Labs, Maintainers, or roadmap-heavy pages
 - [x] 26.19 Preserve the useful "Choose A Path" router, but reorder it so first topology, styling, examples, and React/MkDocs embedding appear before telemetry, evaluation, roadmap, release, and maintainer paths
 - [x] 26.20 Ensure maintainer pages such as Monorepo, Production Hardening, Design Review Checklist, Release, Documentation Standard, and Decision Log are grouped under Maintainers or an equivalent clearly non-beginner section
-- [ ] 26.21 Update curated example template so every curated example shows Live Viewport, Copy Topology YAML, Copy Stylesheet YAML, What this proves, and Use this when
-- [ ] 26.22 Review curated Examples visually so they feel like a gallery, not generated test catalog output
-- [ ] 26.23 Add visual review evidence for docs home, First Topology, Style Your First Topology, Examples Gallery, React, MkDocs, and Zensical adapter pages
+- [x] 26.21 Update curated example template so every curated example shows Live Viewport, Copy Topology YAML, Copy Stylesheet YAML, What this proves, and Use this when
+- [x] 26.22 Review curated Examples visually so they feel like a gallery, not generated test catalog output
+- [x] 26.23 Add visual review evidence for docs home, First Topology, Style Your First Topology, Examples Gallery, React, MkDocs, and Zensical adapter pages
 - [x] 26.24 Ensure React docs open with `npm install topoviewer @xyflow/react react react-dom` after publication, or with an unavoidable pre-publish warning and tarball preview path before publication
-- [ ] 26.25 Update `spec-traceability.md`, `audit-traceability.md`, and the readiness report after the docs IA implementation is complete
+- [x] 26.25 Update `spec-traceability.md`, `audit-traceability.md`, and the readiness report after the docs IA implementation is complete
 
 ## 27. Closeout And Archive Gate
 

@@ -35,3 +35,15 @@ For each audit area, the final readiness report must include:
 - validation command output or artifact path;
 - remaining risk, if any;
 - decision: pass, defer, or accepted risk.
+
+## 2026-07-01 Closeout Update
+
+- Public adoption, docs conversion, documentation bar, and operational UX rows
+  are backed by `evidence/docs-visual-review-2026-07-01.md`,
+  `evidence/validation-run-2026-07-01.md`, and the current
+  `public-adoption-readiness-report.md`.
+- The visual review directly caught and closed a moved-page live viewport path
+  regression in MkDocs and a missing public Zensical page copy for the
+  Kubernetes service map.
+- The only remaining audit closeout gate is the section 27 committed-tree and
+  remote verification path.
