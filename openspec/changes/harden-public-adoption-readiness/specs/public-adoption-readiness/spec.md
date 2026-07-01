@@ -15,6 +15,15 @@ OpenSpec history, labs, or experimental integrations.
 - **AND** they can see a visual result
 - **AND** they can reach a first working topology path.
 
+#### Scenario: First screen is not an integration inventory
+
+- **GIVEN** a new user opens the README
+- **WHEN** they read the first screen
+- **THEN** they see install, render-this-YAML, and React or MkDocs embedding
+  paths before secondary surfaces
+- **AND** Zensical, VS Code, Grafana, Containerlab, NetBox, and OpsMill/Infrahub
+  do not appear as equal core product promises.
+
 #### Scenario: Stable path is separated from roadmap
 
 - **GIVEN** a user is evaluating adoption
@@ -384,13 +393,94 @@ workflow, not an automatic side effect of normal pushes.
   SHALL use the same package name and peer dependency contract
 - **AND** stale install commands SHALL be treated as public-adoption blockers.
 
-#### Scenario: Early Release Uses Deliberate Dist Tag
+#### Scenario: First Public Package Publishes As 0.1.0
 
-- **GIVEN** the project publishes an early public package for validation
-- **WHEN** the API or docs contract is not yet stable enough for broad users
-- **THEN** maintainers SHOULD publish with a deliberate non-default dist-tag
-  such as `next`
-- **AND** `latest` SHALL be reserved for the stable public package contract.
+- **GIVEN** the package is ready for early public adoption
+- **WHEN** maintainers publish the first public npm package
+- **THEN** the target version SHALL be `0.1.0`
+- **AND** docs SHALL frame it as pre-1.0 early-adopter software
+- **AND** maintainers SHOULD prefer the `next` dist-tag unless they
+  deliberately choose `latest` with clear pre-1.0 wording.
+
+#### Scenario: Install Works Before Launch Promotion
+
+- **GIVEN** the README or docs promote public npm installation
+- **WHEN** a user runs `npm install topoviewer @xyflow/react react react-dom`
+- **THEN** the command SHALL succeed from the public npm registry
+- **AND** if the package is not published yet, README/docs SHALL clearly mark
+  the package as pre-publish and provide only the source/tarball preview path.
+
+#### Scenario: V0.1 Release Has Public Product Signals
+
+- **GIVEN** maintainers publish `topoviewer@0.1.0`
+- **WHEN** users inspect the repository
+- **THEN** the repo SHALL include a GitHub Release `v0.1.0`, release notes,
+  changelog entry, npm or pre-publish status, package-size or artifact-size
+  signal, live demo link, known limitations, and feedback issue path.
+
+#### Scenario: Stable Core Later Publishes As 1.0.0
+
+- **GIVEN** the stable core has enough public feedback and compatibility
+  hardening for API freeze
+- **WHEN** maintainers publish the stable-core package
+- **THEN** the target version SHALL be `1.0.0`
+- **AND** supported React, YAML, stylesheet, schema, and MkDocs embed contracts
+  SHALL follow normal SemVer expectations after that release
+- **AND** Experimental, Lab, Supported Adapter, and Roadmap surfaces SHALL NOT
+  expand the `1.0.0` stable-core promise unless explicitly promoted.
+
+### Requirement: Demo Gallery For Adoption
+
+The repository SHALL include a curated gallery that proves TopoViewer is useful
+outside the maintainer's private lab and outside a single network-provider
+scenario.
+
+#### Scenario: User wants visually compelling examples
+
+- **GIVEN** a new user opens the Examples or gallery path
+- **WHEN** they scan the demos
+- **THEN** they can find copyable examples for at least AWS VPC, Kubernetes
+  service map, BGP/CLOS fabric, microservice dependency graph, incident
+  blast-radius view, and Grafana live overlay
+- **AND** each example includes the YAML to copy, expected rendered result,
+  why it matters, and the next step.
+
+### Requirement: Public API Hardening
+
+The repository SHALL define and harden a minimal public API before claiming a
+stable-core `1.0.0` release.
+
+#### Scenario: Developer chooses the stable API
+
+- **GIVEN** a TypeScript developer reads the React/API docs
+- **WHEN** they want the supported path
+- **THEN** they can use `<TopoViewer document={document} />`,
+  `compileTopoGraph(document)`, `validateTopoDocument(document)`, and
+  `lintTopoDocument(document)` as the minimal public target
+- **AND** lower-level or experimental APIs are labeled accordingly.
+
+#### Scenario: Public types are not vague
+
+- **GIVEN** a public type is exported for compiled graph data, extension hooks,
+  events, node data, edge data, style declarations, or toolbar actions
+- **WHEN** a consumer uses TypeScript
+- **THEN** the type SHALL be explicit enough for application code and SHALL NOT
+  rely on broad `any`, `unknown[]`, or `Record<string, unknown>` as the stable
+  long-term contract unless the looseness is intentionally documented.
+
+### Requirement: Public Runtime Compatibility Decision
+
+The repository SHALL make the Node compatibility story adoption-friendly before
+public launch claims.
+
+#### Scenario: User evaluates Node support
+
+- **GIVEN** a user sees the Node requirement
+- **WHEN** they are deciding whether to install the package
+- **THEN** docs SHALL explain whether Node 24 is required only for repo tooling
+  and CI, or also for package runtime/consumer builds
+- **AND** if Node 20/22 are not supported, the docs SHALL explain why and what
+  must change before support can broaden.
 
 ### Requirement: Cross-Surface Early-Adopter Ergonomics
 

@@ -11,9 +11,9 @@ npm run promo:record
 Result:
 
 - Passed.
-- Local review video written to `.artifacts/promo/topoviewer-yaml-to-graph-demo.webm`.
+- Local review video written to `.artifacts/promo/topoviewer-yaml-to-graph-demo.mp4`.
 - Local review poster written to `.artifacts/promo/topoviewer-yaml-to-graph-demo.png`.
-- Checked-in README fallback poster copied to `docs/assets/topoviewer-yaml-to-graph-demo.png`.
+- Checked-in README collage copied to `docs/assets/topoviewer-yaml-to-graph-collage.png`.
 
 Closeout decision:
 

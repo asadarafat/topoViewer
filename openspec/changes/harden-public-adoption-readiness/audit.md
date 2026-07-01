@@ -3,6 +3,25 @@
 Current state: TopoViewer is technically promising, but its public surface is
 too noisy for broad adoption.
 
+### Adoption Scorecard
+
+This repo no longer reads as a toy. It reads as a serious `0.1.x` engineering
+project with unusually strong validation, docs, package shaping, and product
+thinking for its age. The remaining problem is not lack of engineering effort;
+it is the gap between a strong private engineering lab and an easy public
+product.
+
+| Area | Score | Brutal read |
+| --- | ---: | --- |
+| Core idea | 8/10 | "Topology as Code" is differentiated and worth pursuing. |
+| Engineering seriousness | 7/10 | CI, validation, schemas, docs, package boundaries, hostile-content tests, benchmarks, and artifact checks are real. |
+| Public adoption | 3/10 | Installability, first-run clarity, and product focus are still weaker than the code. |
+| 10k-star readiness | 2/10 | The project has not yet crossed from impressive repo to obvious, shareable, easy-to-try product. |
+
+The target is not to pretend TopoViewer is already a broad-adoption product.
+The target is to make `0.1.0` a credible early-adopter release and to define
+the concrete gates that could later make `1.0.0` a stable-core release.
+
 ### Strengths
 
 - The core idea is differentiated: topology as code for semantic, inspectable
@@ -31,6 +50,16 @@ too noisy for broad adoption.
 - The README uses a static image where the product would benefit from a short,
   playable walkthrough showing YAML changing into a graph across the actual
   supported surfaces.
+- Users cannot install the package normally until `npm install topoviewer
+  @xyflow/react react react-dom` works. The documented tarball fallback is
+  useful for local validation, but it is not a public adoption path.
+- The exact Node `>=24 <25` requirement is a public adoption tax. It may be
+  correct for repo development and CI, but the published package must justify
+  or loosen its runtime compatibility story.
+- The TypeScript boundary is not yet strict enough for a polished public
+  library. Flexible types such as `Record<string, unknown>`, `ComponentType<any>`,
+  and `unknown[]` are acceptable during iteration, but they should not remain
+  the long-term stable API surface.
 - Integration messaging can drift. For example, Grafana implementation has
   moved beyond early phases, but shared public wording can still read as Phase 2.
 
@@ -43,6 +72,13 @@ too noisy for broad adoption.
   install-and-embed path.
 - If docs remain mechanically generated in the main learning path, the project
   will feel less polished than the renderer deserves.
+- If the first public package is not published to npm, a serious evaluator will
+  stop at `npm ERR! 404` and never see the engineering quality.
+- If the README continues to present React, MkDocs, Zensical, harness, VS Code,
+  Grafana, Containerlab, NetBox, and Infrahub as equally important, the project
+  will look powerful but unfocused.
+- If the first minute does not show install, render this YAML, and embed in
+  React or MkDocs, the project will feel overbuilt before it feels useful.
 
 ### Why A Serious Evaluator Still Says No
 
@@ -108,7 +144,7 @@ The first ten minutes should communicate:
 TopoViewer should present itself as:
 
 ```text
-Topology as Code for semantic, interactive diagrams.
+Topology-as-Code renderer for infrastructure diagrams.
 ```
 
 The supporting claim:
@@ -117,6 +153,75 @@ The supporting claim:
 Keep topology facts in YAML, keep presentation in reusable stylesheets, and
 render the same model in docs, apps, authoring tools, and operational dashboards.
 ```
+
+The product sentence that should drive public launch material is:
+
+```text
+TopoViewer turns topology.yaml + stylesheet.yaml into interactive,
+embeddable, schema-validated topology diagrams for infrastructure docs,
+internal portals, and ops dashboards.
+```
+
+Everything else is secondary.
+
+## V0.1 Public Product Gap
+
+The first public release should be `0.1.0`, not `1.0.0`. That is the honest
+SemVer signal: installable and useful for early adopters, but not yet an API
+freeze.
+
+The public front page should show only three things before deeper exploration:
+
+1. Install.
+2. Render this YAML.
+3. Embed in React or MkDocs.
+
+Demote these from the README first screen:
+
+| Surface | Front-page handling |
+| --- | --- |
+| Zensical | Keep as supported adapter in docs, not core front-page product. |
+| VS Code extension | Keep experimental, not front-page core. |
+| Grafana panel | Move to labs/future integrations until packaged and ergonomic enough. |
+| Containerlab mode | Keep as Grafana lab/demo, not product promise. |
+| NetBox / Infrahub | Roadmap only. |
+
+The next phase is not more features. It is public product conversion:
+
+1. Publish `topoviewer@0.1.0`.
+2. Simplify the front-page story.
+3. Beautify and expand copyable demos.
+4. Document the golden path.
+5. Show a gallery that makes the project memorable.
+6. Harden the minimal public API.
+7. Promote one clear category.
+
+### 10k-Star Readiness Blockers
+
+- `npm install topoviewer @xyflow/react react react-dom` must work before any
+  serious adoption push.
+- A GitHub Release `v0.1.0`, release notes, changelog, npm badge, package-size
+  badge, live demo badge, and "works in 60 seconds" section are needed for the
+  launch surface.
+- A demo gallery should include examples that different infrastructure users
+  understand immediately: AWS VPC, Kubernetes service map, BGP/CLOS fabric,
+  microservice dependency graph, incident blast-radius view, and Grafana live
+  overlay.
+- The minimal public API needs a stricter stable target:
+
+```ts
+<TopoViewer document={document} />
+compileTopoGraph(document)
+validateTopoDocument(document)
+lintTopoDocument(document)
+```
+
+- The published package needs typed public boundaries for compiled graph data,
+  extension hooks, events, node data, edge data, style declarations, and toolbar
+  actions.
+- Node compatibility must be made adoption-friendly: either justify Node 24 for
+  repo tooling while broadening the package/runtime story, or document why the
+  public package cannot support Node 20/22 yet.
 
 ## Brutal Truth: Early-Adopter Adoption Gaps
 

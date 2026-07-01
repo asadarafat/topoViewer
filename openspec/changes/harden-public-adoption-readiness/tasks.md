@@ -209,6 +209,11 @@
 - [x] 16.6 Validate `npm pack --dry-run` or equivalent before any real publish
 - [x] 16.7 Prefer a deliberate early dist-tag such as `next` until the stable public package contract is ready for `latest`
 - [x] 16.8 Add an issue/release template for first public package feedback and support boundaries
+- [x] 16.9 Reframe the first public release target as `0.1.0` early-adopter adoption, not `1.0.0` API freeze
+- [x] 16.10 Document that `1.0.0` is the later stable-core milestone after API ownership, compatibility, and migration hardening
+- [x] 16.11 Add a `0.1.0` early-adopter release gate that requires package dry-run, public install check, changelog, release notes, CI, and maintainer approval
+- [x] 16.12 Keep Grafana, VS Code, Zensical adapter internals, labs, NetBox, and OpsMill/Infrahub outside the `0.1.0` package promise unless their status is promoted to Supported
+- [x] 16.13 Update README, docs home, compatibility docs, release checklist, and changelog so public launch language consistently points to `0.1.0` first and `1.0.0` later
 
 ## 17. Promotional Demo Video
 
@@ -315,3 +320,24 @@
 - [x] 24.21 Review `audit-traceability.md` and verify every `audit.md` finding has completed evidence, named deferral, or accepted-risk owner
 - [x] 24.22 Produce the final public adoption readiness report from task 0.6
 - [x] 24.23 Defer archive closeout to `openspec/changes/finalize-public-adoption-readiness-closeout` after committed-tree CI and remaining public-hosted promo checks are complete or explicitly accepted
+
+## 25. V0.1 Public Product Launch Focus
+
+- [x] 25.1 Capture the adoption scorecard: core idea 8/10, engineering seriousness 7/10, public adoption 3/10, 10k-star readiness 2/10
+- [x] 25.2 Reframe the public category as "Topology-as-Code renderer for infrastructure diagrams"
+- [x] 25.3 Capture the killer product sentence: `topology.yaml` + `stylesheet.yaml` -> interactive, embeddable, schema-validated topology diagrams
+- [ ] 25.4 Make README first screen show only install, render this YAML, and embed in React or MkDocs before secondary surfaces
+- [ ] 25.5 Demote Zensical, VS Code, Grafana, Containerlab, NetBox, and OpsMill/Infrahub from the README first-screen core while retaining status-labeled docs
+- [ ] 25.6 Publish `topoviewer@0.1.0` manually or keep the repo explicitly blocked from adoption launch until `npm install topoviewer @xyflow/react react react-dom` works
+- [ ] 25.7 Create GitHub Release `v0.1.0` with release notes, changelog link, known limitations, install command, support status, and feedback issue link
+- [ ] 25.8 Add npm badge, package-size badge, live demo badge, and "works in 60 seconds" section after the package and demo URLs are real
+- [ ] 25.9 Decide whether `mkdocs-topoviewer` is ready for `pip install mkdocs-topoviewer`; do not advertise the command until publication is real
+- [ ] 25.10 Add a copyable demo gallery backlog with AWS VPC, Kubernetes service map, BGP/CLOS fabric, microservice dependency graph, incident blast-radius view, and Grafana live overlay
+- [ ] 25.11 Add at least one beautiful copyable gallery example beyond network-provider examples so non-network infrastructure users understand the value immediately
+- [ ] 25.12 Freeze and document the minimal public API target: `<TopoViewer document={document} />`, `compileTopoGraph(document)`, `validateTopoDocument(document)`, and `lintTopoDocument(document)`
+- [ ] 25.13 Replace or wrap weak public API types such as `Array<Record<string, unknown>>`, `ComponentType<any>`, and `unknown[]` before promoting a `1.0.0` stable-core promise
+- [ ] 25.14 Add typed public contracts for compiled graph data, extension hooks, events, node data, edge data, style declarations, and toolbar actions
+- [ ] 25.15 Decide Node compatibility for public package adoption: broaden runtime support to Node 20/22/24 where possible or document why Node 24 is required beyond repo tooling
+- [ ] 25.16 Add an adoption launch blocker that fails public-readiness if README/docs advertise npm install before the package is published or explicitly marked pre-publish
+- [ ] 25.17 Track GitHub adoption baseline before launch: stars, forks, releases, packages, and known first-user install issue
+- [ ] 25.18 Define the later `1.0.0` stable-core gate from real early-adopter feedback, API ownership review, compatibility fixtures, and migration policy

@@ -13,8 +13,17 @@ integration before they can render a useful topology.
 The public promise should be simple:
 
 ```text
-YAML topology -> beautiful interactive diagram -> embeddable anywhere.
+topology.yaml + stylesheet.yaml -> beautiful interactive diagram -> embeddable in apps and docs.
 ```
+
+The public category should be narrower and sharper:
+
+```text
+Topology-as-Code renderer for infrastructure diagrams.
+```
+
+The first public release target is `0.1.0`: an installable early-adopter npm
+package. The later `1.0.0` target is the stable-core/API-freeze milestone.
 
 ## What Changes
 
@@ -29,6 +38,20 @@ and public support boundaries:
 - clearly label supported, experimental, lab, and roadmap surfaces;
 - define five polished examples that demonstrate the core value in the first
   few minutes;
+- add a 0.1 launch plan that makes `npm install topoviewer @xyflow/react react
+  react-dom` work before any adoption push;
+- keep the README first screen focused on install, render this YAML, and embed
+  in React or MkDocs;
+- demote Zensical, VS Code, Grafana, Containerlab, NetBox, and Infrahub from
+  the front-page core unless their support status changes;
+- define a visual demo-gallery backlog for AWS VPC, Kubernetes service map,
+  BGP/CLOS fabric, microservice dependency graph, incident blast-radius view,
+  and Grafana live overlay;
+- define API hardening tasks for the minimal public API, compiled graph types,
+  extension hooks, events, node/edge data, style declarations, and toolbar
+  actions;
+- decide whether Node 24 remains a repo-only tooling requirement or becomes a
+  justified package runtime requirement;
 - add a Playwright-recorded promotional walkthrough video for README and docs
   that shows YAML turning into a rendered topology across MkDocs, Zensical, the
   browser harness, and Grafana;

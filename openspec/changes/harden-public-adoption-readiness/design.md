@@ -15,6 +15,32 @@ The design principle is separation:
 
 The stable core must be visible before the roadmap.
 
+## Release Target
+
+The first public package target for this change is `0.1.0`: an installable
+early-adopter release. That is the right SemVer signal because TopoViewer is
+ready to be tried from npm, but the package API, docs story, harness, Grafana
+mapper, and integration boundaries are still evolving.
+
+The release decision is:
+
+- use `0.1.0` for the first public npm release after package dry-run, public
+  install check, changelog, release notes, and maintainer approval pass;
+- frame `0.1.0` as early-adopter/pre-1.0 software, with migration notes for
+  breaking changes rather than a full API-freeze promise;
+- prefer the npm `next` dist-tag for the first release unless maintainers
+  deliberately choose `latest` with clear pre-1.0 wording;
+- reserve `1.0.0` for the later stable-core release after real public feedback,
+  API ownership review, compatibility fixtures, and SemVer boundary hardening;
+- keep Grafana, VS Code, Zensical adapter internals, labs, and roadmap
+  integrations as Experimental, Supported Adapter, Lab, or Roadmap surfaces
+  without blocking either the `0.1.0` early-adopter package or future `1.0.0`
+  stable-core package.
+
+This is the practical SemVer interpretation for this repository: `0.1.0` means
+"installable and useful for early adopters"; `1.0.0` means the stable core is
+supportable under normal SemVer expectations.
+
 ## Brutal Audit Contract
 
 `audit.md` is the canonical cross-surface adoption audit for this change. It
@@ -85,7 +111,8 @@ beside the first topology path as if it is equally important to new users.
 The README should optimize for the first screen and first result:
 
 - one-sentence product identity;
-- one short promotional video with a poster fallback;
+- one public visual collage proving the same YAML renders across adoption
+  surfaces;
 - smallest useful topology YAML snippet;
 - smallest useful stylesheet YAML snippet;
 - install/run/embed commands;
@@ -175,8 +202,8 @@ The script should:
   `.artifacts/promo/topoviewer-yaml-to-graph-demo.webm`;
 - capture temporary local poster output to
   `.artifacts/promo/topoviewer-yaml-to-graph-demo.png`;
-- copy the accepted README/docs poster to
-  `docs/assets/topoviewer-yaml-to-graph-demo.png` or another checked-in
+- copy the accepted README/docs collage to
+  `docs/assets/topoviewer-yaml-to-graph-collage.png` or another checked-in
   `docs/assets/` path;
 - avoid local filesystem paths, debug panels, failed diagnostics, or personal
   data in the frame.
@@ -200,8 +227,9 @@ README playback path. The preferred flow is:
 3. Upload the final video to a dedicated GitHub issue or discussion used only
    for README media assets.
 4. Copy the resulting GitHub-hosted `user-attachments` URL into the README.
-5. Commit the poster image under `docs/assets/` or upload it to the same asset
-   host.
+5. Commit only lightweight static public media, such as the collage image under
+   `docs/assets/`; keep generated GIF/MP4 review artifacts out of the repo
+   unless they are uploaded to a durable hosted media URL.
 
 The README should use the GitHub-hosted asset URL for playback. If GitHub
 renders video differently in a context, the poster image should link to a
@@ -385,6 +413,10 @@ Public adoption is blocked if install instructions point to an npm package that
 does not exist or is published accidentally from an unreviewed push. Package
 publication should be treated as an explicit release operation.
 
+The first public package should be planned as `0.1.0` when the early-adopter
+gates pass. `1.0.0` is a later stable-core milestone, not the first public
+publish.
+
 The release contract should be:
 
 - normal push and pull-request CI can validate package metadata, build output,
@@ -394,9 +426,9 @@ The release contract should be:
   maintainer command or a GitHub Actions `workflow_dispatch` release workflow;
 - the manual publish action must require a version/tag decision, a changelog or
   release note, successful `npm run ci`, and a package dry-run;
-- the default npm dist-tag should be deliberate, for example `next` for early
-  public validation and `latest` only when the stable docs and package contract
-  are ready;
+- the default npm dist-tag should be deliberate. Prefer `next` for the `0.1.0`
+  early-adopter release; reserve uncaveated `latest` for the stable `1.0.0`
+  contract, or use `latest` for `0.1.0` only with clear pre-1.0 wording;
 - npm provenance, 2FA/token requirements, package access, and rollback or
   deprecation steps should be documented before first public publish.
 
