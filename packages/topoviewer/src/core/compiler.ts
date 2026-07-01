@@ -423,8 +423,8 @@ export function compileTopoGraph(
   ];
 
   return {
-    nodes: [...regionNodes, ...shapeNodes, ...networkNodes, ...calloutNodes, ...pinNodes],
-    edges,
+    nodes: [...regionNodes, ...shapeNodes, ...networkNodes, ...calloutNodes, ...pinNodes] as CompiledGraph['nodes'],
+    edges: edges as CompiledGraph['edges'],
     selectedLayerIds: [...selectedLayers]
   };
 }

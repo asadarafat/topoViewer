@@ -1,4 +1,5 @@
 import type { ComponentType, CSSProperties } from 'react';
+import type { Edge, EdgeTypes, Node, NodeTypes } from '@xyflow/react';
 import type {
   AggregateGroupDefinition,
   AttentionPresentationResult,
@@ -276,7 +277,7 @@ export interface Bounds {
   height: number;
 }
 
-export interface CompiledNodeData extends GraphNode {
+export interface CompiledNodeData extends GraphNode, Record<string, unknown> {
   iconSpec?: IconSpec;
   edgeAnchor?: Bounds;
   nodeStyle?: CSSProperties;
@@ -325,10 +326,23 @@ export interface CompiledNodeData extends GraphNode {
 }
 
 export interface CompiledGraph {
-  nodes: Array<Record<string, unknown>>;
-  edges: Array<Record<string, unknown>>;
+  nodes: CompiledNode[];
+  edges: CompiledEdge[];
   selectedLayerIds: string[];
 }
+
+export interface CompiledEdgeData extends GraphEntity, Record<string, unknown> {
+  source?: string;
+  target?: string;
+  originalSource?: string;
+  originalTarget?: string;
+  parentLink?: string;
+  parentPath?: string;
+  linkDirections?: Array<Record<string, unknown>>;
+}
+
+export type CompiledNode = Node<CompiledNodeData>;
+export type CompiledEdge = Edge<CompiledEdgeData>;
 
 export interface TopoViewerExtensionContext {
   document: TopoDocument;
@@ -338,11 +352,20 @@ export interface TopoViewerExtensionContext {
 
 export interface TopoViewerExtension {
   name: string;
-  nodeTypes?: Record<string, ComponentType<any>>;
-  edgeTypes?: Record<string, ComponentType<any>>;
+  nodeTypes?: NodeTypes;
+  edgeTypes?: EdgeTypes;
   beforeCompile?: (document: TopoDocument, context: TopoViewerExtensionContext) => TopoDocument;
   afterCompile?: (graph: CompiledGraph, context: TopoViewerExtensionContext) => CompiledGraph;
-  toolbarActions?: unknown[];
+  toolbarActions?: TopoViewerToolbarAction[];
+}
+
+export interface TopoViewerToolbarAction {
+  id: string;
+  label: string;
+  disabled?: boolean;
+  tooltip?: string;
+  icon?: ComponentType<{ className?: string; 'aria-hidden'?: boolean }>;
+  onClick?: (context: TopoViewerExtensionContext) => void;
 }
 
 export interface TopoViewerObjectClick {

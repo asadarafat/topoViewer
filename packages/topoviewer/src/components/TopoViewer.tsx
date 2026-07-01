@@ -13,7 +13,16 @@ import { resolveAttentionPresentationCached } from '../core/attention/cache';
 import { assertRendererLimits } from '../core/limits';
 import { migrateTopoToggles } from '../core/migration';
 import type { AttentionPresentation, AttentionPresentationResult } from '../core/attention';
-import type { CompiledGraph, TopoDocument, TopoViewerExtensionContext, TopoViewerProps } from '../core/types';
+import type {
+  CompiledEdge,
+  CompiledEdgeData,
+  CompiledGraph,
+  CompiledNode,
+  CompiledNodeData,
+  TopoDocument,
+  TopoViewerExtensionContext,
+  TopoViewerProps
+} from '../core/types';
 import { CalloutNode } from './CalloutNode';
 import { FloatingEdge } from './FloatingEdge';
 import { LabelOverlay } from './LabelOverlay';
@@ -97,11 +106,11 @@ function applyAttentionToCompiledGraph(graph: CompiledGraph, presentation: Atten
           ...((node.style || {}) as Record<string, unknown>),
           ...(opacity !== undefined ? { opacity } : {})
         }
-      };
+      } as CompiledNode;
     }),
     edges: graph.edges.map((edge) => {
       const attention = presentation.items.get(sourceObjectId(edge));
-      const data = (edge.data || {}) as Record<string, unknown>;
+      const data = (edge.data || {}) as CompiledEdgeData;
       const linkDirections = Array.isArray(data.linkDirections)
         ? data.linkDirections.map((direction) => {
           if (!direction || typeof direction !== 'object') return direction;
@@ -120,7 +129,7 @@ function applyAttentionToCompiledGraph(graph: CompiledGraph, presentation: Atten
             ...data,
             linkDirections
           }
-        } : edge;
+        } as CompiledEdge : edge;
       }
       const hidden = attention.state === 'hidden' || attention.state === 'suppressed';
       const opacity = attentionOpacity(attention.state);
@@ -136,7 +145,7 @@ function applyAttentionToCompiledGraph(graph: CompiledGraph, presentation: Atten
           ...((edge.style || {}) as Record<string, unknown>),
           ...(opacity !== undefined ? { opacity } : {})
         }
-      };
+      } as CompiledEdge;
     })
   };
 }
@@ -152,14 +161,14 @@ function applySelectionToCompiledGraph(graph: CompiledGraph, selectedObjectIds: 
         ...node,
         selected: true,
         data: {
-          ...((node.data || {}) as Record<string, unknown>),
+          ...((node.data || {}) as CompiledNodeData),
           topoviewerSelected: true
-        }
-      } : node;
+        } as CompiledNodeData
+      } as CompiledNode : node;
     }),
     edges: graph.edges.map((edge) => {
       const selectedEdge = selected.has(sourceObjectId(edge));
-      const data = (edge.data || {}) as Record<string, unknown>;
+      const data = (edge.data || {}) as CompiledEdgeData;
       const linkDirections = Array.isArray(data.linkDirections)
         ? data.linkDirections.map((direction) => {
           if (!direction || typeof direction !== 'object') return direction;
@@ -181,14 +190,14 @@ function applySelectionToCompiledGraph(graph: CompiledGraph, selectedObjectIds: 
           ...data,
           ...(linkDirections ? { linkDirections } : {}),
           topoviewerSelected: true
-        }
-      } : linkDirections ? {
+        } as CompiledEdgeData
+      } as CompiledEdge : linkDirections ? {
         ...edge,
         data: {
           ...data,
           linkDirections
-        }
-      } : edge;
+        } as CompiledEdgeData
+      } as CompiledEdge : edge;
     })
   };
 }
@@ -199,7 +208,7 @@ function withRuntimeDirectionHandlers(
 ): ReturnType<typeof compileTopoGraph>['edges'] {
   if (!onObjectClick) return edges;
   return edges.map((edge) => {
-    const data = (edge.data || {}) as Record<string, unknown>;
+    const data = (edge.data || {}) as CompiledEdgeData;
     if (!Array.isArray(data.linkDirections) || !data.linkDirections.length) return edge;
     return {
       ...edge,
@@ -221,8 +230,8 @@ function withRuntimeDirectionHandlers(
             }
           });
         }
-      }
-    };
+      } as CompiledEdgeData
+    } as CompiledEdge;
   });
 }
 

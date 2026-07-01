@@ -137,7 +137,7 @@ released package examples change in a way that could break existing user YAML.
 
 | Dependency or host | Current contract |
 |---|---|
-| Node.js | Node.js 24 LTS for local development, CI, package build, docs generation, harness, and Grafana plugin build. |
+| Node.js | Node.js 24 LTS for local development, CI, package build, docs generation, harness, and Grafana plugin build. This is intentional for `0.1.0` so local and GitHub gates stay identical while the package is still pre-1.0. Broader Node 20/22/24 package-consumer support is a later compatibility decision, not a current claim. |
 | npm | Use the committed lockfile. Public install snippets must be validated by `npm run install:check` before publication. |
 | React | Peer dependency `react >=18`. React 18 is used in local tests. |
 | React DOM | Peer dependency `react-dom >=18`. React DOM 18 is used in local tests. |

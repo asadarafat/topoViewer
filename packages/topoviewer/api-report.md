@@ -96,6 +96,11 @@ not a replacement for migration notes, API docs, or compatibility tests.
 | `ClosLayoutDiagnostic` | `./core/closLayout` |
 | `ClosLayoutDirection` | `./core/types` |
 | `ClosLayoutOptions` | `./core/types` |
+| `CompiledEdge` | `./core/types` |
+| `CompiledEdgeData` | `./core/types` |
+| `CompiledGraph` | `./core/types` |
+| `CompiledNode` | `./core/types` |
+| `CompiledNodeData` | `./core/types` |
 | `ComposeTopoViewerDocumentOptions` | `./core/compose` |
 | `DeriveAggregateGraphOptions` | `./core/attention` |
 | `DiagramCallout` | `./core/types` |
@@ -155,5 +160,6 @@ not a replacement for migration notes, API docs, or compatibility tests.
 | `TopoViewerObjectClick` | `./core/types` |
 | `TopoViewerProps` | `./core/types` |
 | `TopoViewerToggles` | `./core/types` |
+| `TopoViewerToolbarAction` | `./core/types` |
 | `TopoViewerViewport` | `./core/types` |
 

@@ -12,6 +12,22 @@ types.
 | Advanced | Public but lower-level. Prefer wrappers unless you need exact control. |
 | Experimental | Useful today, but the contract may change while the feature matures. |
 
+## Minimal Supported API
+
+The public API that new consumers should start from is deliberately small:
+
+| Need | API |
+|---|---|
+| Render a composed document | `<TopoViewer document={document} />` |
+| Compile a document for inspection or extension hooks | `compileTopoGraph(document)` |
+| Validate schema-level document shape | `validateTopoDocument(document)` |
+| Validate semantic graph references and renderer limits | `lintTopoDocument(document)` |
+
+Everything else is supporting model/types, advanced compiler/layout control,
+export helpers, or experimental integration surface. Pre-1.0 releases may still
+refine advanced and experimental contracts, but this minimal API is the
+adoption target.
+
 ## Renderer
 
 | Export | Stability | Use |
@@ -121,7 +137,9 @@ Model types include `TopoDocument`, `TopologyDocument`, `StylesheetDocument`,
 `LayerDefinition`, `IconSpec`, `StyleRule`, `StyleDeclaration`,
 `LayoutConfig`, `ClosLayoutOptions`, `DiagramDefinition`, `DiagramShape`,
 `DiagramCallout`, `DiagramConnector`, `DiagramPin`, `ToggleDefinition`,
-`TopoViewerExtension`, and `TopoViewerExtensionContext`.
+`CompiledGraph`, `CompiledNode`, `CompiledEdge`, `CompiledNodeData`,
+`CompiledEdgeData`, `TopoViewerExtension`, `TopoViewerExtensionContext`, and
+`TopoViewerToolbarAction`.
 
 Attention types include `FocusQuery`, `FocusResult`,
 `FocusPresentationMode`, `AttentionPresentationResult`,
