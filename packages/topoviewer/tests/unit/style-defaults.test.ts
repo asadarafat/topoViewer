@@ -125,7 +125,7 @@ describe('canonical style defaults registry', () => {
   });
 
   it('keeps schema-owned style keys and public docs aligned with the registry', () => {
-    const documented = readText('packages/topoviewer/content/pages/stylesheet.md');
+    const documented = readText('packages/topoviewer/content/pages/reference/topoviewer-stylesheet.md');
 
     for (const key of stylePropertiesFromSchema()) {
       expect(canonicalStyleKeyByLowercase.has(key.toLowerCase()), `schema style key ${key} is missing from registry`).toBe(true);
