@@ -4,13 +4,12 @@ Date: 2026-07-01
 
 ## Recommendation
 
-Go for early-adopter review. No-go for archiving this OpenSpec until pushed
-remote CI/Docs verification and final archive closeout are completed. The repo
-now has a live npm package, a `v0.1.0` prerelease, a first-screen
-install/render/embed path, a non-network curated example, explicit MkDocs
-Python publication deferral, a documented pre-1.0 API/Node compatibility
-boundary, full local `npm run ci` evidence, and visual evidence for the docs
-conversion path.
+Go for early-adopter review and archive this OpenSpec. The repo now has a live
+npm package, a `v0.1.0` prerelease, a first-screen install/render/embed path, a
+non-network curated example, explicit MkDocs Python publication deferral, a
+documented pre-1.0 API/Node compatibility boundary, full local `npm run ci`
+evidence, pushed GitHub CI/Docs/Security/CodeQL evidence, and visual evidence
+for the docs conversion path.
 
 ## Completed Evidence
 
@@ -48,6 +47,7 @@ npm run render:parity
 npm run ci
 npm run ci:public-readiness
 git diff --check
+git push origin development
 ```
 
 Additional targeted checks listed in `evidence/validation-run-2026-06-30.md`
@@ -59,8 +59,17 @@ and `evidence/validation-run-2026-07-01.md` also passed.
 | --- | --- | --- |
 | Hosted promo video upload | Deprecated before implementation. The release media path is collage-first, using `docs/assets/topoviewer-yaml-to-graph-collage.png`; generated video/GIF/MP4 files remain local-only review artifacts. | Maintainer |
 | Rendered GitHub README media verification | Verify the checked-in collage renders from the pushed GitHub README. Hosted animated playback is not a release gate. | Maintainer |
-| Remote closeout | Task 27.3 remains open until the pushed branch has passing GitHub CI and Docs workflows. | Maintainer |
-| Archive `harden-public-adoption-readiness` | Not archived in this patch. Archive only after pushed GitHub CI/Docs verification and final traceability are recorded. | Maintainer |
+
+## Remote Closeout
+
+Pushed head `d7e403ff5c37ac4704e21b35d84595691e9f87cc` passed:
+
+| Workflow | Run ID | Result |
+| --- | --- | --- |
+| CI | `28533414204` | success |
+| Docs | `28533414225` | success |
+| Security | `28533414677` | success |
+| CodeQL | `28533414070` | success |
 
 ## Accepted Risk
 
@@ -71,6 +80,6 @@ and `evidence/validation-run-2026-07-01.md` also passed.
 
 ## Remaining Decision
 
-The repo is substantially better for early-adopter review. The next decision is
-whether to push this patch set, verify remote CI/Docs, then archive this
-OpenSpec.
+The repo is substantially better for early-adopter review. Archive this
+OpenSpec and continue future hardening through focused follow-up changes rather
+than keeping this umbrella change open.

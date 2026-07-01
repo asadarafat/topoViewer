@@ -24,6 +24,7 @@ TOPOVIEWER_ZENSICAL_SKIP_VIEWER_BUILD=1 npm run zensical:build
 npm run docs:smoke
 npm run render:parity
 npm run ci
+git push origin development
 ```
 
 ## Result
@@ -45,3 +46,6 @@ Notes:
   The parity fixture now waits for the canonical expected edge count.
 - The final full `npm run ci` run passed locally on Node 24 after the renderer
   parity wait fix.
+- The pushed `development` head `d7e403ff5c37ac4704e21b35d84595691e9f87cc`
+  passed the GitHub `CI`, `Docs`, `Security`, and `CodeQL` workflows:
+  `28533414204`, `28533414225`, `28533414677`, and `28533414070`.

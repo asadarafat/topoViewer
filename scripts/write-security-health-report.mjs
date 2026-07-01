@@ -33,13 +33,13 @@ const openFindings = [
     'Grafana plugin SDK transitive npm advisories',
     'Accepted temporary experimental integration risk',
     owner,
-    'Tracked in openspec/changes/harden-public-adoption-readiness/evidence/dependency-risk-ledger.md'
+    'Tracked in openspec/archive/2026-07-01-harden-public-adoption-readiness/evidence/dependency-risk-ledger.md'
   ],
   [
     'Pinned third-party lab image CVE drift',
     'Visible on push and pull requests; blocking on scheduled/manual security sweeps',
     owner,
-    'Tracked in openspec/changes/harden-public-adoption-readiness/evidence/backend-security-hardening.md'
+    'Tracked in openspec/archive/2026-07-01-harden-public-adoption-readiness/evidence/backend-security-hardening.md'
   ],
   [
     'New untriaged npm, Go, OSV, secret, or image findings',

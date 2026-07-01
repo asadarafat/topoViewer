@@ -61,5 +61,7 @@ For each spec scenario, the final readiness report must include:
   `.artifacts/public-adoption-visual-review/`.
 - Validation scenarios are covered by
   `evidence/validation-run-2026-07-01.md`.
-- Remaining closeout is limited to task 27 remote CI/Docs verification and
-  archive.
+- Task 27 remote verification is complete for pushed head
+  `d7e403ff5c37ac4704e21b35d84595691e9f87cc`: GitHub `CI`, `Docs`,
+  `Security`, and `CodeQL` all passed.
+- This change is ready to archive.

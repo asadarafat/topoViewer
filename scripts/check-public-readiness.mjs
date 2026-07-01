@@ -6,6 +6,8 @@ import { fileURLToPath } from 'node:url';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const errors = [];
+const PUBLIC_ADOPTION_READINESS_EVIDENCE_ROOT =
+  'openspec/archive/2026-07-01-harden-public-adoption-readiness/evidence';
 
 const PUBLIC_TEXT_ROOTS = [
   'README.md',
@@ -204,28 +206,28 @@ function assertPerformanceReliabilityAccessibilityDocs() {
 }
 
 function assertHardeningDrillEvidence() {
-  assertFile('openspec/changes/harden-public-adoption-readiness/evidence/early-adopter-drills.md', [
+  assertFile(`${PUBLIC_ADOPTION_READINESS_EVIDENCE_ROOT}/early-adopter-drills.md`, [
     'Fresh Checkout General User',
     'React Embedding User',
     'MkDocs/Zensical Docs Embedding User',
     'Grafana Mounted Bundle User',
     'Remaining Source-Knowledge Leaks'
   ]);
-  assertFile('openspec/changes/harden-public-adoption-readiness/evidence/support-burden-simulation.md', [
+  assertFile(`${PUBLIC_ADOPTION_READINESS_EVIDENCE_ROOT}/support-burden-simulation.md`, [
     'first issues early adopters are likely to open',
     'Top remaining support reducers'
   ]);
-  assertFile('openspec/changes/harden-public-adoption-readiness/evidence/docs-contradiction-report.md', [
+  assertFile(`${PUBLIC_ADOPTION_READINESS_EVIDENCE_ROOT}/docs-contradiction-report.md`, [
     'Checked Surfaces',
     'Current Contradiction Findings',
     'Remaining Drift Risks'
   ]);
-  assertFile('openspec/changes/harden-public-adoption-readiness/evidence/performance-budget-evidence.md', [
+  assertFile(`${PUBLIC_ADOPTION_READINESS_EVIDENCE_ROOT}/performance-budget-evidence.md`, [
     'Public budget source',
     'Current smoke commands',
     'Open performance/readiness gaps'
   ]);
-  assertFile('openspec/changes/harden-public-adoption-readiness/evidence/pre-release-red-team-checklist.md', [
+  assertFile(`${PUBLIC_ADOPTION_READINESS_EVIDENCE_ROOT}/pre-release-red-team-checklist.md`, [
     'Install And Package',
     'Docs And Embeds',
     'Harness Authoring',

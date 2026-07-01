@@ -45,5 +45,7 @@ For each audit area, the final readiness report must include:
 - The visual review directly caught and closed a moved-page live viewport path
   regression in MkDocs and a missing public Zensical page copy for the
   Kubernetes service map.
-- The only remaining audit closeout gate is the section 27 remote verification
-  and archive path.
+- Section 27 remote verification is complete for pushed head
+  `d7e403ff5c37ac4704e21b35d84595691e9f87cc`: GitHub `CI`, `Docs`,
+  `Security`, and `CodeQL` all passed.
+- This change is ready to archive.
