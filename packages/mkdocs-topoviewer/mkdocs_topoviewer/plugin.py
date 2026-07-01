@@ -38,6 +38,8 @@ def _source_uri(page, reference):
     reference = str(reference)
     if _is_external_reference(reference):
         return reference
+    if reference.startswith("examples/"):
+        return posixpath.normpath(posixpath.join("topoviewer", reference))
     source_dir = posixpath.dirname(page.file.src_uri)
     return posixpath.normpath(posixpath.join(source_dir, reference))
 
