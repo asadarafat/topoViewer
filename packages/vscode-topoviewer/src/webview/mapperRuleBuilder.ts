@@ -80,18 +80,6 @@ function asRecord(value: unknown): RecordLike | undefined {
   return typeof value === 'object' && value !== null && !Array.isArray(value) ? value as RecordLike : undefined;
 }
 
-function stringValue(value: unknown): string | undefined {
-  return typeof value === 'string' && value.trim() ? value.trim() : undefined;
-}
-
-function objectId(value: unknown): string | undefined {
-  return asRecord(value)?.id ? String(asRecord(value)?.id) : undefined;
-}
-
-function labelOf(entry: { id: string; name?: string }) {
-  return entry.name && entry.name !== entry.id ? `${entry.name} (${entry.id})` : entry.id;
-}
-
 function collectLabels(entries: unknown[] = []) {
   const labelEntries = new Map<string, { key: string; value: string }>();
   for (const entry of entries) {
