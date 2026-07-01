@@ -34,6 +34,15 @@ import type { AttentionFocusKind } from '../shared/topologyMutations';
 import type { HarnessMode } from './webviewAppSupport';
 import type { MapperCoveragePreview } from './mapperCoveragePreview';
 import { mapperPresetOptions } from './mapperPresets';
+import {
+  mapperRuleResolverModes,
+  mapperRuleTargetKinds,
+  mapperRuleValueKinds,
+  type MapperRuleBuilderState,
+  type MapperRuleResolverMode,
+  type MapperRuleTargetKind,
+  type MapperTopologyPickers
+} from './mapperRuleBuilder';
 import type { KeyValueEditorRow } from './webviewStyleMetadata';
 
 type AuthoringRailProps = Record<string, any> & {
@@ -52,7 +61,11 @@ type AuthoringRailProps = Record<string, any> & {
   visibleDocument?: TopoDocument;
   activeDiagnostics: WebviewDiagnostic[];
   mapperCoveragePreview?: MapperCoveragePreview;
+  mapperPickers?: MapperTopologyPickers;
+  mapperRuleBuilder?: MapperRuleBuilderState;
   insertMapperPreset?: (presetId: string) => void;
+  insertMapperRuleFromBuilder?: () => void;
+  updateMapperRuleBuilder?: (patch: Partial<MapperRuleBuilderState>) => void;
   yamlAssistEmptyMessage?: string;
 };
 
@@ -108,6 +121,7 @@ export function AuthoringRail(props: AuthoringRailProps) {
   insertObject,
   insertObjectGroups,
   insertMapperPreset,
+  insertMapperRuleFromBuilder,
   insertPreset,
   inspectorLayerId,
   inspectorName,
@@ -118,6 +132,8 @@ export function AuthoringRail(props: AuthoringRailProps) {
   linkSourceId,
   linkTargetId,
   mapperCoveragePreview,
+  mapperPickers,
+  mapperRuleBuilder,
   mode,
   modeIndex,
   modeLabel,
@@ -180,6 +196,7 @@ export function AuthoringRail(props: AuthoringRailProps) {
   styleSelectionInYaml,
   tab,
   updateKeyValueRow,
+  updateMapperRuleBuilder,
   useSelectionForAttention,
   validation,
   visibleDocument,
@@ -197,6 +214,18 @@ export function AuthoringRail(props: AuthoringRailProps) {
     closeMapperPresets();
     insertMapperPreset?.(presetId);
   };
+  const updateMapperBuilder = (patch: Partial<MapperRuleBuilderState>) => updateMapperRuleBuilder?.(patch);
+  const mapperObjectIds = mapperRuleBuilder && mapperPickers
+    ? mapperPickers.objectIdsByKind[mapperRuleBuilder.targetKind]
+    : [];
+  const mapperLabelValues = mapperRuleBuilder && mapperPickers
+    ? mapperPickers.labelEntries
+      .filter((entry) => !mapperRuleBuilder.labelKey || entry.key === mapperRuleBuilder.labelKey)
+      .map((entry) => entry.value)
+    : [];
+  const mapperLabelValue = mapperRuleBuilder
+    ? mapperLabelValues.includes(mapperRuleBuilder.labelValue) ? mapperRuleBuilder.labelValue : mapperLabelValues[0] || ''
+    : '';
 
   return (
         <Box className="topoviewer-vscode-rail">
@@ -567,6 +596,300 @@ export function AuthoringRail(props: AuthoringRailProps) {
                 <Button size="small" variant="contained" disabled={!draftDirty} onClick={applyYamlDraft}>Apply</Button>
                 <Button size="small" disabled={!draftDirty} onClick={revertYamlDraft}>Revert draft</Button>
               </Stack>
+              {tab === 2 && mapperRuleBuilder && mapperPickers && (
+                <Accordion className="topoviewer-vscode-mapper-builder" disableGutters elevation={0}>
+                  <AccordionSummary expandIcon={<ExpandMoreIcon fontSize="small" />}>
+                    <Stack spacing={0.25}>
+                      <Typography variant="subtitle2">Rule builder</Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        Build a mapper rule from current topology IDs, labels, data keys, and endpoints.
+                      </Typography>
+                    </Stack>
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    <Stack spacing={1}>
+                      <Stack direction="row" spacing={1}>
+                        <TextField
+                          fullWidth
+                          size="small"
+                          label="Rule ID"
+                          value={mapperRuleBuilder.id}
+                          onChange={(event) => updateMapperBuilder({ id: event.target.value })}
+                        />
+                        <TextField
+                          fullWidth
+                          size="small"
+                          label="Metric"
+                          value={mapperRuleBuilder.metric}
+                          onChange={(event) => updateMapperBuilder({ metric: event.target.value })}
+                        />
+                      </Stack>
+
+                      <Stack direction="row" spacing={1}>
+                        <FormControl fullWidth size="small">
+                          <InputLabel id="mapper-builder-target-kind">Target</InputLabel>
+                          <Select
+                            labelId="mapper-builder-target-kind"
+                            label="Target"
+                            value={mapperRuleBuilder.targetKind}
+                            onChange={(event) => updateMapperBuilder({
+                              objectId: '',
+                              targetKind: event.target.value as MapperRuleTargetKind
+                            })}
+                          >
+                            {mapperRuleTargetKinds.map((kind) => <MenuItem key={kind} value={kind}>{kind}</MenuItem>)}
+                          </Select>
+                          <FormHelperText>TopoViewer object family to overlay.</FormHelperText>
+                        </FormControl>
+                        <FormControl fullWidth size="small">
+                          <InputLabel id="mapper-builder-resolver">Match by</InputLabel>
+                          <Select
+                            labelId="mapper-builder-resolver"
+                            label="Match by"
+                            value={mapperRuleBuilder.resolverMode}
+                            onChange={(event) => updateMapperBuilder({ resolverMode: event.target.value as MapperRuleResolverMode })}
+                          >
+                            {mapperRuleResolverModes.map((mode) => <MenuItem key={mode} value={mode}>{mode}</MenuItem>)}
+                          </Select>
+                          <FormHelperText>How telemetry rows bind to objects.</FormHelperText>
+                        </FormControl>
+                      </Stack>
+
+                      {['id', 'label', 'data'].includes(mapperRuleBuilder.resolverMode) && (
+                        <TextField
+                          fullWidth
+                          size="small"
+                          label="Telemetry label"
+                          helperText="Prometheus label that carries the object ID, label value, or data value."
+                          value={mapperRuleBuilder.metricLabel}
+                          onChange={(event) => updateMapperBuilder({ metricLabel: event.target.value })}
+                        />
+                      )}
+
+                      {['id', 'staticObjectIds'].includes(mapperRuleBuilder.resolverMode) && (
+                        <FormControl fullWidth size="small">
+                          <InputLabel id="mapper-builder-object">Object</InputLabel>
+                          <Select
+                            labelId="mapper-builder-object"
+                            label="Object"
+                            value={mapperRuleBuilder.objectId || mapperObjectIds[0] || ''}
+                            onChange={(event) => updateMapperBuilder({ objectId: String(event.target.value) })}
+                          >
+                            {mapperObjectIds.map((id) => <MenuItem key={id} value={id}>{id}</MenuItem>)}
+                          </Select>
+                          <FormHelperText>Topology-derived object ID picker.</FormHelperText>
+                        </FormControl>
+                      )}
+
+                      {mapperRuleBuilder.resolverMode === 'label' && (
+                        <Stack direction="row" spacing={1}>
+                          <FormControl fullWidth size="small">
+                            <InputLabel id="mapper-builder-label-key">Label key</InputLabel>
+                            <Select
+                              labelId="mapper-builder-label-key"
+                              label="Label key"
+                              value={mapperRuleBuilder.labelKey || mapperPickers.labelKeys[0] || ''}
+                              onChange={(event) => {
+                                const nextKey = String(event.target.value);
+                                const nextValue = mapperPickers.labelEntries.find((entry) => entry.key === nextKey)?.value || '';
+                                updateMapperBuilder({ labelKey: nextKey, labelValue: nextValue });
+                              }}
+                            >
+                              {mapperPickers.labelKeys.map((key) => <MenuItem key={key} value={key}>{key}</MenuItem>)}
+                            </Select>
+                          </FormControl>
+                          <FormControl fullWidth size="small">
+                            <InputLabel id="mapper-builder-label-value">Label value</InputLabel>
+                            <Select
+                              labelId="mapper-builder-label-value"
+                              label="Label value"
+                              value={mapperLabelValue}
+                              onChange={(event) => updateMapperBuilder({ labelValue: String(event.target.value) })}
+                            >
+                              {mapperLabelValues.map((value) => <MenuItem key={value} value={value}>{value}</MenuItem>)}
+                            </Select>
+                          </FormControl>
+                        </Stack>
+                      )}
+
+                      {mapperRuleBuilder.resolverMode === 'data' && (
+                        <FormControl fullWidth size="small">
+                          <InputLabel id="mapper-builder-data-key">Data key</InputLabel>
+                          <Select
+                            labelId="mapper-builder-data-key"
+                            label="Data key"
+                            value={mapperRuleBuilder.dataKey || mapperPickers.dataKeys[0] || ''}
+                            onChange={(event) => updateMapperBuilder({ dataKey: String(event.target.value) })}
+                          >
+                            {mapperPickers.dataKeys.map((key) => <MenuItem key={key} value={key}>{key}</MenuItem>)}
+                          </Select>
+                          <FormHelperText>Topology-derived `data.*` key picker.</FormHelperText>
+                        </FormControl>
+                      )}
+
+                      {mapperRuleBuilder.resolverMode === 'endpoint' && (
+                        <Stack spacing={1}>
+                          <Stack direction="row" spacing={1}>
+                            <TextField
+                              fullWidth
+                              size="small"
+                              label="Source label"
+                              value={mapperRuleBuilder.sourceLabel}
+                              onChange={(event) => updateMapperBuilder({ sourceLabel: event.target.value })}
+                            />
+                            <TextField
+                              fullWidth
+                              size="small"
+                              label="Target label"
+                              value={mapperRuleBuilder.targetLabel}
+                              onChange={(event) => updateMapperBuilder({ targetLabel: event.target.value })}
+                            />
+                          </Stack>
+                          <FormControl fullWidth size="small">
+                            <InputLabel id="mapper-builder-endpoint-preview">Topology endpoint pair</InputLabel>
+                            <Select
+                              labelId="mapper-builder-endpoint-preview"
+                              label="Topology endpoint pair"
+                              value={mapperPickers.endpointPairs[0]?.label || ''}
+                              onChange={() => undefined}
+                            >
+                              {mapperPickers.endpointPairs.map((pair) => <MenuItem key={pair.label} value={pair.label}>{pair.label}</MenuItem>)}
+                            </Select>
+                            <FormHelperText>Reference picker only; endpoint matching uses telemetry source/target labels.</FormHelperText>
+                          </FormControl>
+                        </Stack>
+                      )}
+
+                      {mapperRuleBuilder.resolverMode === 'selector' && (
+                        <TextField
+                          fullWidth
+                          size="small"
+                          label="Selector"
+                          helperText="Example: link[labels.type = &quot;fabric&quot;]"
+                          value={mapperRuleBuilder.selector}
+                          onChange={(event) => updateMapperBuilder({ selector: event.target.value })}
+                        />
+                      )}
+
+                      <Stack direction="row" spacing={1}>
+                        <FormControl fullWidth size="small">
+                          <InputLabel id="mapper-builder-value">Value as</InputLabel>
+                          <Select
+                            labelId="mapper-builder-value"
+                            label="Value as"
+                            value={mapperRuleBuilder.valueAs}
+                            onChange={(event) => updateMapperBuilder({ valueAs: String(event.target.value) })}
+                          >
+                            {mapperRuleValueKinds.map((kind) => <MenuItem key={kind} value={kind}>{kind}</MenuItem>)}
+                          </Select>
+                        </FormControl>
+                        <TextField
+                          fullWidth
+                          size="small"
+                          label="Label template"
+                          value={mapperRuleBuilder.labelTemplate}
+                          onChange={(event) => updateMapperBuilder({ labelTemplate: event.target.value })}
+                        />
+                      </Stack>
+
+                      <Stack direction="row" spacing={1}>
+                        <TextField
+                          fullWidth
+                          size="small"
+                          label="Warning threshold"
+                          value={mapperRuleBuilder.warningThreshold}
+                          onChange={(event) => updateMapperBuilder({ warningThreshold: event.target.value })}
+                        />
+                        <TextField
+                          fullWidth
+                          size="small"
+                          label="Error threshold"
+                          value={mapperRuleBuilder.errorThreshold}
+                          onChange={(event) => updateMapperBuilder({ errorThreshold: event.target.value })}
+                        />
+                      </Stack>
+
+                      <Stack direction="row" spacing={1}>
+                        <TextField
+                          fullWidth
+                          size="small"
+                          label="Default color"
+                          type="color"
+                          value={mapperRuleBuilder.defaultColor}
+                          onChange={(event) => updateMapperBuilder({ defaultColor: event.target.value })}
+                        />
+                        <TextField
+                          fullWidth
+                          size="small"
+                          label="Default width"
+                          value={mapperRuleBuilder.defaultWidth}
+                          onChange={(event) => updateMapperBuilder({ defaultWidth: event.target.value })}
+                        />
+                        <TextField
+                          fullWidth
+                          size="small"
+                          label="Badge template"
+                          value={mapperRuleBuilder.badgeTemplate}
+                          onChange={(event) => updateMapperBuilder({ badgeTemplate: event.target.value })}
+                        />
+                      </Stack>
+
+                      <Stack direction="row" spacing={1}>
+                        <TextField
+                          fullWidth
+                          size="small"
+                          label="State"
+                          value={mapperRuleBuilder.stateName}
+                          onChange={(event) => updateMapperBuilder({ stateName: event.target.value })}
+                        />
+                        <TextField
+                          fullWidth
+                          size="small"
+                          label="When value"
+                          value={mapperRuleBuilder.stateExpression}
+                          onChange={(event) => updateMapperBuilder({ stateExpression: event.target.value })}
+                        />
+                      </Stack>
+                      <Stack direction="row" spacing={1}>
+                        <TextField
+                          fullWidth
+                          size="small"
+                          label="State color"
+                          type="color"
+                          value={mapperRuleBuilder.stateColor}
+                          onChange={(event) => updateMapperBuilder({ stateColor: event.target.value })}
+                        />
+                        <TextField
+                          fullWidth
+                          size="small"
+                          label="State width"
+                          value={mapperRuleBuilder.stateWidth}
+                          onChange={(event) => updateMapperBuilder({ stateWidth: event.target.value })}
+                        />
+                      </Stack>
+
+                      <FormControlLabel
+                        control={(
+                          <Checkbox
+                            checked={mapperRuleBuilder.propagateToLayerMembers}
+                            onChange={(event) => updateMapperBuilder({ propagateToLayerMembers: event.target.checked })}
+                          />
+                        )}
+                        label="Propagate aggregate state to layer members"
+                      />
+
+                      <Button
+                        size="small"
+                        variant="contained"
+                        disabled={!visibleDocument || !insertMapperRuleFromBuilder}
+                        onClick={insertMapperRuleFromBuilder}
+                      >
+                        Insert mapper rule
+                      </Button>
+                    </Stack>
+                  </AccordionDetails>
+                </Accordion>
+              )}
               {yamlAssistEmptyMessage && (
                 <Alert severity="info" className="topoviewer-vscode-yaml-assist-empty">
                   {yamlAssistEmptyMessage}

@@ -64,6 +64,31 @@ matching, endpoint matching, selector matching, status and badge overlays, label
 overlays, layer aggregates, and graph summary overlays. Presets edit only the
 draft; use `Apply` to accept them or `Revert draft` to discard them.
 
+## Mapper Rule Builder
+
+Use the Mapper YAML rule builder when you know the telemetry metric but do not
+want to hand-write the full mapper shape. It inserts a canonical `mappings`
+entry into the mapper draft.
+
+The builder is topology-aware:
+
+| Control | Uses topology data from | Mapper output |
+|---|---|---|
+| Target | graph object families | `target.kind` |
+| Match by | resolver mode | `target.resolve.by` |
+| Object | node, link, path, region, layer, or graph IDs | `objectIds` or an ID-oriented preview selector |
+| Label key/value | existing `labels.*` keys and values | `resolve.by: label` |
+| Data key | existing `data.*` keys | `resolve.by: data` |
+| Endpoint pair | existing link source/target pairs | endpoint matching guidance |
+| Value as | supported mapper value categories | `value.as` |
+| Warning/error threshold | numeric thresholds | `thresholds.warning` and `thresholds.error` |
+| Label and badge templates | mapper templates | `overlay.label` and `overlay.badgeLabel` |
+| Default/state styles | TopoViewer style keys | `overlay.style` and `conditions[].style` |
+| Propagate aggregate state | layer and graph aggregate workflows | `overlay.propagateToLayerMembers` |
+
+The builder edits the mapper draft only. The canvas and coverage preview use the
+last applied document until `Apply` succeeds.
+
 ## YAML Assist
 
 Use `Ctrl+Space` or `Cmd+Space` in the editor for completions. Use `?` at

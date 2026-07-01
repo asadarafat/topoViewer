@@ -6,6 +6,11 @@ Use these recipes as starting points for `*.mapper.tv.yaml`. They assume
 telemetry series carry stable labels such as `node_id`, `link_id`, `path_id`,
 `region_id`, and `direction`.
 
+You can hand-write these recipes or use the Browser Harness Mapper YAML rule
+builder. The builder reads the current topology and offers object IDs, layers,
+labels, data keys, endpoint pairs, value categories, thresholds, templates, and
+overlay styles as guided controls before inserting a canonical `mappings` rule.
+
 ## Metric Label Contract
 
 Prefer one stable label per TopoViewer target kind. Keep these labels in

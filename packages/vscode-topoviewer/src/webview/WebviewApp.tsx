@@ -46,6 +46,11 @@ import { copyTextToClipboard, downloadYamlBundle as downloadYamlBundleAction, ex
 import { useBrowserYamlIntelligence, useDraftValidation, useMonacoDiagnostics, usePendingYamlFocus, useYamlEditorMount, useYamlMonacoProviders } from './webviewEditorHooks';
 import { createMapperCoveragePreview } from './mapperCoveragePreview';
 import { mapperPresetDocument } from './mapperPresets';
+import {
+  appendMapperRule,
+  defaultMapperRuleBuilderState,
+  mapperTopologyPickers
+} from './mapperRuleBuilder';
 import './webview.css';
 
 interface WebviewAppProps {
@@ -100,6 +105,7 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
   const [attentionRegionId, setAttentionRegionId] = useState('');
   const [attentionExpandOnClick, setAttentionExpandOnClick] = useState(true);
   const [linkGroupingThreshold, setLinkGroupingThreshold] = useState('2');
+  const [mapperRuleBuilder, setMapperRuleBuilder] = useState(defaultMapperRuleBuilderState);
   const [editorReady, setEditorReady] = useState(false);
   const [pendingYamlFocus, setPendingYamlFocus] = useState<PendingYamlFocus>();
   const editorRef = useRef<any>(null);
@@ -236,6 +242,7 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
     () => createMapperCoveragePreview(activeValidation.document as TopoDocument | undefined, draftMapperText),
     [activeValidation.document, draftMapperText]
   );
+  const mapperPickers = useMemo(() => mapperTopologyPickers(visibleDocument), [visibleDocument]);
   const appliedHasErrors = validation.diagnostics.some((diagnostic) => diagnostic.severity === 'error');
   const activeHasErrors = activeDiagnostics.some((diagnostic) => diagnostic.severity === 'error');
   const hasErrors = appliedHasErrors || activeHasErrors;
@@ -687,6 +694,23 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
     flash('Inserted mapper preset');
   }
 
+  function updateMapperRuleBuilder(patch: Partial<typeof mapperRuleBuilder>) {
+    setMapperRuleBuilder((current) => ({ ...current, ...patch }));
+  }
+
+  function insertMapperRuleFromBuilder() {
+    try {
+      const graphId = visibleDocument?.graph?.id || state?.fixtureId || 'topoviewer';
+      const nextMapper = appendMapperRule(draftMapperText || 'version: 1\nmappings: []\n', mapperRuleBuilder, mapperPickers, graphId);
+      setMode('yaml');
+      setTab(2);
+      setDraftMapperText(nextMapper);
+      flash('Inserted mapper rule draft');
+    } catch (error) {
+      flash(error instanceof Error ? error.message : String(error));
+    }
+  }
+
   function selectObject(selection: TopoObjectSelection, modifiers?: TopoViewerObjectClick['modifiers']) {
     const additive = !!(modifiers?.ctrlKey || modifiers?.metaKey || modifiers?.shiftKey);
     setSelectedObjects((current) => {
@@ -973,9 +997,10 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
     attentionRegionId, attentionSummary, applyYamlDraft, availableFocusIds, copyYamlToClipboard, createConnection, createPath,
     createTopology, currentAttention, dataRows, deleteSelection, editorLabel, editorTheme, editorValue, fixtures,
     focusKindLabel, graphNodes, handleEditorMount, harnessModes, hasErrors, host, insertObject, insertObjectGroups, insertMapperPreset,
-    insertPreset, inspectorLayerId, inspectorName, inspectorX, inspectorY, labelRows, linkGroupingThreshold,
+    insertMapperRuleFromBuilder, insertPreset, inspectorLayerId, inspectorName, inspectorX, inspectorY, labelRows, linkGroupingThreshold,
     linkSourceId, linkTargetId, mapperCoveragePreview, mode, modeIndex, modeLabel, movePathTransitNode, nodeNameById, openDiagnostic, pathSourceId,
-    pathTargetId, pathTransitCandidate, pathTransitIds, pathTransitOptions, presetName, relationshipComposer,
+    pathTargetId, pathTransitCandidate, pathTransitIds, pathTransitOptions, presetName, relationshipComposer, mapperPickers,
+    mapperRuleBuilder,
     reloadFixture, removeKeyValueRow, removePathTransitNode, resetAttention, revertTopology, revertYamlDraft, saveSelectionAsPreset,
     saveTopology, selectedFixture, selectedLayerIds, selectedObjects, selectedPrimary, selectionSummary,
     setAttentionClickMode, setAttentionDataKey, setAttentionDataValue, setAttentionExpandOnClick, setAttentionFocusId,
@@ -984,7 +1009,7 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
     setLinkSourceId, setLinkTargetId, setMode, setPathSourceId, setPathTargetId, setPathTransitCandidate,
     setDraftMapperText, setDraftStylesheetText, setDraftTopologyText, setPresetName, setRelationshipComposer, setSelectedLayerIds, setTab, showYamlSuggestions, state,
     statusSeverity, statusSummary, styleSelectionInYaml, tab, updateKeyValueRow, useSelectionForAttention,
-    validation, visibleDocument, draftDirty, downloadYamlBundle, yamlAssistEmptyMessage
+    updateMapperRuleBuilder, validation, visibleDocument, draftDirty, downloadYamlBundle, yamlAssistEmptyMessage
   };
 
   return (

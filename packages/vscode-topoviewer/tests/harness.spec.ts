@@ -752,6 +752,29 @@ test('authors mapper YAML as part of the editable Grafana bundle', async ({ page
 
   await page.getByRole('tab', { name: 'Mapper YAML' }).click();
   await expect(page.getByRole('button', { name: 'Mapper docs' })).toBeVisible();
+  await page.getByRole('button', { name: /Rule builder/ }).click();
+  await expect(page.getByLabel('Rule ID')).toBeVisible();
+  await page.getByLabel('Rule ID').fill('builder-link-state');
+  await page.getByLabel('Metric').fill('topoviewer_link_up');
+  await chooseOption(page, page.getByRole('combobox', { name: 'Object' }), 'underlay-fra-ams');
+  await expect(page.getByLabel('Telemetry label')).toHaveValue('link_id');
+  await page.getByLabel('Label template').fill('{{ severity }}');
+  await page.getByRole('button', { name: 'Insert mapper rule' }).click();
+  await expect.poll(() => mapperText(page)).toContain('id: builder-link-state');
+  await expect.poll(() => mapperText(page)).toContain('mappings:');
+  await expect.poll(() => mapperText(page)).toContain('metricLabel: link_id');
+  await expect.poll(() => mapperText(page)).toContain('conditions:');
+
+  await chooseOption(page, page.getByRole('combobox', { name: 'Target' }), 'node');
+  await chooseOption(page, page.getByRole('combobox', { name: 'Match by' }), 'label');
+  await expect(page.getByRole('combobox', { name: 'Label key' })).toBeVisible();
+  await chooseOption(page, page.getByRole('combobox', { name: 'Label key' }), 'role');
+  await expect(page.getByRole('combobox', { name: 'Label value' })).toBeVisible();
+  await chooseOption(page, page.getByRole('combobox', { name: 'Match by' }), 'data');
+  await expect(page.getByRole('combobox', { name: 'Data key' })).toBeVisible();
+  await chooseOption(page, page.getByRole('combobox', { name: 'Match by' }), 'endpoint');
+  await expect(page.getByRole('combobox', { name: 'Topology endpoint pair' })).toBeVisible();
+
   await page.getByRole('button', { name: 'Mapper docs' }).click();
   await expect(page.getByRole('menuitem', { name: 'Mapper recipes' })).toBeVisible();
   await expect(page.getByRole('menuitem', { name: 'Mapper schema' })).toBeVisible();
