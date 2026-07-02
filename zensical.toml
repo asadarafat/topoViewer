@@ -87,6 +87,7 @@ nav = [
   { "Maintainers" = [
     { "Monorepo" = "topoviewer/maintainers/monorepo.md" },
     { "Production Hardening" = "topoviewer/maintainers/production-hardening.md" },
+    { "Root Tooling Surface" = "topoviewer/maintainers/root-tooling-surface.md" },
     { "Design Review Checklist" = "topoviewer/maintainers/design-review-checklist.md" },
     { "Release" = "topoviewer/maintainers/release.md" },
     { "Documentation Standard" = "topoviewer/maintainers/documentation-standard.md" },
