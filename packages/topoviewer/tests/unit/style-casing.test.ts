@@ -163,7 +163,7 @@ describe('style key casing', () => {
   });
 
   it('keeps first-party example style blocks in camelCase', () => {
-    const examplesRoot = path.join(process.cwd(), 'examples', 'test-cases');
+    const examplesRoot = path.join(process.cwd(), 'content', 'examples');
     const issues = collectYamlFiles(examplesRoot).flatMap((filePath) => {
       const parsed = YAML.load(fs.readFileSync(filePath, 'utf8'));
       return collectDashedStyleKeys(parsed).map((issue) => `${path.relative(examplesRoot, filePath)}:${issue}`);

@@ -2,37 +2,19 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
-import yaml from 'js-yaml';
-import { exampleFileKeys, sourceFileFor } from './lib/content-examples.mjs';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const packageRoot = path.join(repoRoot, 'packages/topoviewer');
 const contentRoot = path.join(packageRoot, 'content');
 const contentPagesRoot = path.join(contentRoot, 'pages');
-const contentExamplesRoot = path.join(contentRoot, 'examples');
 const contentFragmentsRoot = path.join(contentPagesRoot, '_fragments');
 const packageDocsRoot = path.join(packageRoot, 'docs');
-const packageExamplesRoot = path.join(packageRoot, 'examples');
-const packageTestCasesRoot = path.join(packageExamplesRoot, 'test-cases');
-const packageStressRoot = path.join(packageExamplesRoot, 'stress');
 const docsRoot = path.resolve(process.env.TOPOVIEWER_DOCS_ROOT || path.join(repoRoot, 'docs'));
 const checkOnly = process.argv.includes('--check');
 const allowDirtyProjectionOverwrite = process.env.TOPOVIEWER_SYNC_ALLOW_DIRTY_PROJECTIONS === '1';
 
 function readText(filePath) {
   return fs.readFileSync(filePath, 'utf8');
-}
-
-function readYaml(filePath) {
-  return yaml.load(readText(filePath)) || {};
-}
-
-function dumpYaml(document) {
-  return yaml.dump(document, {
-    lineWidth: 120,
-    noRefs: true,
-    quotingType: '"'
-  });
 }
 
 function toPosix(value) {
@@ -220,81 +202,7 @@ function projectPages() {
   projectText(path.join(docsRoot, 'index.md'), docsIndexMarkdown(), 'docs home', contentPagesRoot);
 }
 
-function projectedCatalog(catalog) {
-  return {
-    version: catalog.version,
-    examples: (catalog.examples || []).map((example) => {
-      const { sourcePath: _sourcePath, sourceFiles: _sourceFiles, ...publicExample } = example;
-      return publicExample;
-    })
-  };
-}
-
-function projectExampleFile(example, fileName, expectedPackageFiles) {
-  const source = sourceFileFor(contentExamplesRoot, example, fileName);
-  if (!fs.existsSync(source)) {
-    throw new Error(`Example ${example.id} source file is missing: ${relative(source)}`);
-  }
-  const target = path.join(packageTestCasesRoot, example.path, fileName);
-  expectedPackageFiles.add(target);
-  projectText(target, readText(source), `${example.id} ${fileName}`, source);
-}
-
-function projectExampleExtraFile(example, fileName, expectedPackageFiles) {
-  const source = path.join(contentExamplesRoot, example.sourcePath || example.path, fileName);
-  if (!source.startsWith(contentExamplesRoot + path.sep)) {
-    throw new Error(`Example ${example.id} extra file resolves outside content examples: ${relative(source)}`);
-  }
-  if (!fs.existsSync(source)) {
-    throw new Error(`Example ${example.id} extra file is missing: ${relative(source)}`);
-  }
-  const target = path.join(packageTestCasesRoot, example.path, fileName);
-  expectedPackageFiles.add(target);
-  projectText(target, readText(source), `${example.id} ${fileName}`, source);
-}
-
-function projectStressExamples(expectedPackageFiles) {
-  const stressSourceRoot = path.join(contentExamplesRoot, 'stress');
-  if (!fs.existsSync(stressSourceRoot)) return;
-
-  for (const source of listFiles(stressSourceRoot)) {
-    const sourceRelative = path.relative(stressSourceRoot, source);
-    const target = path.join(packageStressRoot, sourceRelative);
-    expectedPackageFiles.add(target);
-    projectText(target, readText(source), `stress example ${sourceRelative}`, source);
-  }
-}
-
-function projectExamples() {
-  const catalogFile = path.join(contentExamplesRoot, 'catalog.yaml');
-  if (!fs.existsSync(catalogFile)) {
-    throw new Error(`Canonical content catalog is missing: ${relative(catalogFile)}`);
-  }
-
-  const catalog = readYaml(catalogFile);
-  const expectedPackageFiles = new Set();
-  const generatedCatalogFile = path.join(packageTestCasesRoot, 'catalog.yaml');
-  expectedPackageFiles.add(generatedCatalogFile);
-  projectText(generatedCatalogFile, dumpYaml(projectedCatalog(catalog)), 'package examples catalog', catalogFile);
-
-  for (const example of catalog.examples || []) {
-    for (const fileName of Object.keys(exampleFileKeys)) {
-      projectExampleFile(example, fileName, expectedPackageFiles);
-    }
-    for (const fileName of example.extraFiles || []) {
-      projectExampleExtraFile(example, fileName, expectedPackageFiles);
-    }
-  }
-
-  removeStaleFiles(packageTestCasesRoot, expectedPackageFiles, 'package test-case projection');
-
-  const expectedStressFiles = new Set();
-  projectStressExamples(expectedStressFiles);
-  removeStaleFiles(packageStressRoot, expectedStressFiles, 'package stress projection');
-}
-
 projectPages();
-projectExamples();
 
 if (process.exitCode) {
   process.exit(process.exitCode);

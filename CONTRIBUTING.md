@@ -61,7 +61,7 @@ Changes that affect the model, renderer, or docs examples must include:
 
 - JSON Schema updates when the YAML shape changes.
 - Semantic linter updates when meaning changes.
-- At least one canonical example under `packages/topoviewer/examples/test-cases`.
+- At least one canonical example under `packages/topoviewer/content/examples`.
 - Playwright coverage through the generated MkDocs examples or focused interaction tests.
 - Documentation in `packages/topoviewer/docs`.
 

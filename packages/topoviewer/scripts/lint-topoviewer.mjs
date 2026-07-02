@@ -3,9 +3,11 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import yaml from 'js-yaml';
 import { lintTopoDocument } from '../dist/topoviewer.mjs';
+import { sourceFileFor } from '../../../scripts/lib/content-examples.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const packageRoot = path.resolve(__dirname, '..');
+const contentExamplesRoot = path.join(packageRoot, 'content/examples');
 
 function readYaml(filePath) {
   return yaml.load(fs.readFileSync(filePath, 'utf8')) || {};
@@ -24,16 +26,15 @@ function compose(topologyFile, stylesheetFile) {
 }
 
 function catalogChecks() {
-  const catalogFile = path.join(packageRoot, 'examples/test-cases/catalog.yaml');
+  const catalogFile = path.join(contentExamplesRoot, 'catalog.yaml');
   if (!fs.existsSync(catalogFile)) return [];
   const catalog = readYaml(catalogFile);
   return (catalog.examples || []).map((example) => {
-    const dir = path.join(packageRoot, 'examples/test-cases', example.path);
     return {
-      name: `test-case:${example.id}`,
-      topology: path.join(dir, 'topology.yaml'),
-      stylesheet: path.join(dir, 'stylesheet.yaml'),
-      expected: path.join(dir, 'expected.yaml')
+      name: `example:${example.id}`,
+      topology: sourceFileFor(contentExamplesRoot, example, 'topology.yaml'),
+      stylesheet: sourceFileFor(contentExamplesRoot, example, 'stylesheet.yaml'),
+      expected: sourceFileFor(contentExamplesRoot, example, 'expected.yaml')
     };
   });
 }

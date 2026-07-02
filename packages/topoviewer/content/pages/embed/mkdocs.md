@@ -110,7 +110,7 @@ This copies the built embed files into the sibling Python package:
 ../mkdocs-topoviewer/mkdocs_topoviewer/assets/
 ```
 
-It also syncs canonical feature examples from `packages/topoviewer/content/examples/` into the configured MkDocs docs tree through the generated package examples projection. The default target is this repository's `docs/` tree. Override it with `--docs-root` or `TOPOVIEWER_DOCS_ROOT` when syncing into another MkDocs workspace:
+It also syncs canonical feature examples from `packages/topoviewer/content/examples/` into the configured MkDocs docs tree. The default target is this repository's `docs/` tree. Override it with `--docs-root` or `TOPOVIEWER_DOCS_ROOT` when syncing into another MkDocs workspace:
 
 ```text
 TOPOVIEWER_DOCS_ROOT=../my-mkdocs-site/docs npm run sync:mkdocs

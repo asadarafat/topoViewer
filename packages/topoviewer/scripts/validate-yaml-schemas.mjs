@@ -3,6 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import Ajv from 'ajv';
 import yaml from 'js-yaml';
+import { sourceFileFor } from '../../../scripts/lib/content-examples.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const packageRoot = path.resolve(__dirname, '..');
@@ -60,7 +61,7 @@ for (const schema of schemas) {
 
 const checks = [];
 const contentCatalogFile = path.join(packageRoot, 'content/examples/catalog.yaml');
-const catalogFile = path.join(packageRoot, 'examples/test-cases/catalog.yaml');
+const contentExamplesRoot = path.join(packageRoot, 'content/examples');
 const generatedCatalogFile = path.join(docsRoot, 'topoviewer/examples/catalog.generated.yaml');
 const grafanaBundleRoot = path.join(repoRoot, 'labs/grafana-topoviewer/topoviewer-bundles');
 
@@ -116,13 +117,11 @@ function fencedTopoviewerBlocks(markdownFile) {
 }
 
 function expectedCaseFiles(example) {
-  const dir = path.join(packageRoot, 'examples/test-cases', example.path);
   return {
-    dir,
-    topology: path.join(dir, 'topology.yaml'),
-    stylesheet: path.join(dir, 'stylesheet.yaml'),
-    readme: path.join(dir, 'README.md'),
-    expected: path.join(dir, 'expected.yaml')
+    topology: sourceFileFor(contentExamplesRoot, example, 'topology.yaml'),
+    stylesheet: sourceFileFor(contentExamplesRoot, example, 'stylesheet.yaml'),
+    readme: sourceFileFor(contentExamplesRoot, example, 'README.md'),
+    expected: sourceFileFor(contentExamplesRoot, example, 'expected.yaml')
   };
 }
 
@@ -149,31 +148,23 @@ function assertGeneratedCopy(source, target, label) {
 
 if (fs.existsSync(contentCatalogFile)) {
   validateNow(
-    'canonical content examples catalog',
+    'canonical examples catalog',
     'https://topoviewer.dev/schemas/topoviewer-examples-catalog.schema.json',
     readYaml(contentCatalogFile)
   );
-} else {
-  fail(`Canonical content examples catalog is missing: ${contentCatalogFile}`);
-}
 
-if (!fs.existsSync(catalogFile)) {
-  fail(`Canonical examples catalog is missing: ${catalogFile}`);
-} else {
-  const catalog = readYaml(catalogFile);
-  validateNow('canonical examples catalog', 'https://topoviewer.dev/schemas/topoviewer-examples-catalog.schema.json', catalog);
-
+  const catalog = readYaml(contentCatalogFile);
   for (const example of catalog.examples || []) {
     const source = expectedCaseFiles(example);
     const generated = docsCaseFiles(example);
 
-    validateFile(`test case ${example.id} topology YAML`, 'https://topoviewer.dev/schemas/topoviewer-topology.schema.json', source.topology);
-    validateFile(`test case ${example.id} stylesheet YAML`, 'https://topoviewer.dev/schemas/topoviewer-stylesheet.schema.json', source.stylesheet);
-    validateFile(`test case ${example.id} expected YAML`, 'https://topoviewer.dev/schemas/topoviewer-test-expected.schema.json', source.expected);
-    validateNow(`test case ${example.id} composed TopoViewer document`, 'https://topoviewer.dev/schemas/topoviewer.schema.json', compose(source.topology, source.stylesheet));
+    validateFile(`example ${example.id} topology YAML`, 'https://topoviewer.dev/schemas/topoviewer-topology.schema.json', source.topology);
+    validateFile(`example ${example.id} stylesheet YAML`, 'https://topoviewer.dev/schemas/topoviewer-stylesheet.schema.json', source.stylesheet);
+    validateFile(`example ${example.id} expected YAML`, 'https://topoviewer.dev/schemas/topoviewer-test-expected.schema.json', source.expected);
+    validateNow(`example ${example.id} composed TopoViewer document`, 'https://topoviewer.dev/schemas/topoviewer.schema.json', compose(source.topology, source.stylesheet));
 
     if (!fs.existsSync(source.readme)) {
-      fail(`test case ${example.id} README is missing: ${source.readme}`);
+      fail(`example ${example.id} README is missing: ${source.readme}`);
     }
 
     assertGeneratedCopy(source.topology, generated.topology, `${example.id} topology`);
@@ -186,7 +177,7 @@ if (!fs.existsSync(catalogFile)) {
 
     const markdownFile = pageMarkdownPath(example.page);
     if (!markdownFile) {
-      fail(`test case ${example.id} generated page does not exist: ${example.page}`);
+      fail(`example ${example.id} generated page does not exist: ${example.page}`);
       continue;
     }
 
@@ -194,18 +185,18 @@ if (!fs.existsSync(catalogFile)) {
     const blocks = fencedTopoviewerBlocks(markdownFile);
     if (expected.renderable === false) {
       if (blocks.length) {
-        fail(`test case ${example.id} is non-renderable but generated page contains a topoviewer fence`);
+        fail(`example ${example.id} is non-renderable but generated page contains a topoviewer fence`);
       }
       continue;
     }
 
     if (!blocks.length) {
-      fail(`test case ${example.id} page has no topoviewer fenced block: ${example.page}`);
+      fail(`example ${example.id} page has no topoviewer fenced block: ${example.page}`);
       continue;
     }
 
     blocks.forEach((block, index) => {
-      validateNow(`test case ${example.id} MkDocs fenced block ${index + 1}`, 'https://topoviewer.dev/schemas/topoviewer-mkdocs-block.schema.json', block);
+      validateNow(`example ${example.id} MkDocs fenced block ${index + 1}`, 'https://topoviewer.dev/schemas/topoviewer-mkdocs-block.schema.json', block);
     });
 
     const block = blocks.find((candidate) => {
@@ -214,19 +205,21 @@ if (!fs.existsSync(catalogFile)) {
       return candidateTopology === generated.topology && candidateStylesheet === generated.stylesheet;
     });
     if (!block) {
-      fail(`test case ${example.id} page has no topoviewer fence for the canonical fixture`);
+      fail(`example ${example.id} page has no topoviewer fence for the canonical fixture`);
       continue;
     }
 
     const blockTopology = resolveMkdocsReference(markdownFile, block.topology);
     const blockStylesheet = resolveMkdocsReference(markdownFile, block.stylesheet);
     if (blockTopology !== generated.topology) {
-      fail(`test case ${example.id} topology disagrees with MkDocs block: ${generated.topology} != ${block.topology}`);
+      fail(`example ${example.id} topology disagrees with MkDocs block: ${generated.topology} != ${block.topology}`);
     }
     if (blockStylesheet !== generated.stylesheet) {
-      fail(`test case ${example.id} stylesheet disagrees with MkDocs block: ${generated.stylesheet} != ${block.stylesheet}`);
+      fail(`example ${example.id} stylesheet disagrees with MkDocs block: ${generated.stylesheet} != ${block.stylesheet}`);
     }
   }
+} else {
+  fail(`Canonical examples catalog is missing: ${contentCatalogFile}`);
 }
 
 if (fs.existsSync(generatedCatalogFile)) {

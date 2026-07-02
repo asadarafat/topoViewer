@@ -42,8 +42,8 @@ type FocusKind = 'id' | 'changes';
 type AggregateMode = 'none' | 'region' | 'parent' | 'role';
 type LabelDensity = 'auto' | 'minimal' | 'dense';
 
-const initialTopologyYamlUrl = new URL('../../examples/test-cases/integration/complete-network-demo/topology.yaml', import.meta.url);
-const initialStylesheetYamlUrl = new URL('../../examples/test-cases/integration/complete-network-demo/stylesheet.yaml', import.meta.url);
+const initialTopologyYamlUrl = new URL('../../content/examples/integration/complete-network-demo/topology.yaml', import.meta.url);
+const initialStylesheetYamlUrl = new URL('../../content/examples/integration/complete-network-demo/stylesheet.yaml', import.meta.url);
 const emptyWorkbenchDocument: TopoDocument = { graph: { id: 'workbench-loading' }, toggles: [] };
 
 async function fetchText(url: URL): Promise<string> {

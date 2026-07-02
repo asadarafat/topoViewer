@@ -14,7 +14,7 @@ release.
 - Production-shaped monorepo with separate `topoviewer` npm package and `mkdocs-topoviewer` Python package.
 - React renderer package exports, embeddable browser bundle, and schema package exports.
 - MkDocs fenced-block plugin with vendored frontend assets.
-- Canonical examples catalog under `packages/topoviewer/examples/test-cases`.
+- Canonical examples catalog under `packages/topoviewer/content/examples`.
 - Generated MkDocs reference pages for graph, edge, path, region, shape, callout, styling, layout, validation, and integration examples.
 - JSON Schema validation for topology, stylesheet, MkDocs block, example catalog, generated manifest, and expected test fixtures.
 - Semantic lint for graph meaning, unsafe references, model limits, and common authoring mistakes.

@@ -7,8 +7,7 @@ const GENERATED_DOC_PATHS = [
   'README.md',
   'docs/index.md',
   'docs/topoviewer',
-  'packages/topoviewer/docs',
-  'packages/topoviewer/examples'
+  'packages/topoviewer/docs'
 ];
 
 const MKDOCS_ASSET_PATHS = [
@@ -74,7 +73,7 @@ const laneDefinitions = {
     step('sync docs', 'npm', ['run', 'sync:docs']),
     checkGeneratedStep('check generated docs are committed', GENERATED_DOC_PATHS, {
       sourceArea: 'packages/topoviewer/content/**, docs source templates, and README source content',
-      projectionArea: 'README.md, docs/topoviewer/**, packages/topoviewer/docs/**, and packages/topoviewer/examples/**'
+      projectionArea: 'README.md, docs/topoviewer/**, and packages/topoviewer/docs/**'
     }),
     step('sync Grafana harness fixtures', 'npm', ['run', 'grafana:fixtures:sync']),
     checkGeneratedStep('check Grafana harness fixtures are committed', GRAFANA_GENERATED_PATHS, {
@@ -107,7 +106,7 @@ const laneDefinitions = {
     step('sync documentation sources', 'npm', ['run', 'sync:docs']),
     checkGeneratedStep('check documentation sources are committed', GENERATED_DOC_PATHS, {
       sourceArea: 'packages/topoviewer/content/**, docs source templates, and README source content',
-      projectionArea: 'README.md, docs/topoviewer/**, packages/topoviewer/docs/**, and packages/topoviewer/examples/**'
+      projectionArea: 'README.md, docs/topoviewer/**, and packages/topoviewer/docs/**'
     }),
     step('lint documentation contract', 'npm', ['run', 'docs:lint']),
     step('build MkDocs site', 'npm', ['run', 'docs:build:fast']),

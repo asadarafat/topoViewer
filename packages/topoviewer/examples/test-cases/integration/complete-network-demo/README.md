@@ -1,1 +1,0 @@
-The complete network demo is the integration fixture. It is intentionally broader than the feature fixtures and proves that graph facts, paths, regions, child nodes, shapes, callouts, SVG icons, controls, and theme variables can coexist.

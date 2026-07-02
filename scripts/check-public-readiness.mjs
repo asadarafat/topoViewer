@@ -19,7 +19,6 @@ const PUBLIC_TEXT_ROOTS = [
   'docs',
   'packages/topoviewer/content',
   'packages/topoviewer/docs',
-  'packages/topoviewer/examples',
   'packages/topoviewer/README.md',
   'packages/mkdocs-topoviewer/README.md',
   'packages/vscode-topoviewer/README.md',

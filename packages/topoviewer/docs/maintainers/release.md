@@ -38,11 +38,11 @@ The gate builds the library and embed bundle, validates YAML schemas, runs seman
 - `schemas/topoviewer-mkdocs-block.schema.json`
 - `schemas/topoviewer-examples-catalog.schema.json`
 - `schemas/topoviewer-test-expected.schema.json`
-- `examples/test-cases/catalog.yaml` generated from `content/examples/catalog.yaml`
-- `examples/test-cases/**/topology.yaml` generated from `content/examples/**`
-- `examples/test-cases/**/stylesheet.yaml` generated from `content/examples/**`
-- `examples/test-cases/**/README.md` generated from `content/examples/**`
-- `examples/test-cases/**/expected.yaml` generated from `content/examples/**`
+- `content/examples/catalog.yaml`
+- `content/examples/**/topology.yaml`
+- `content/examples/**/stylesheet.yaml`
+- `content/examples/**/README.md`
+- `content/examples/**/expected.yaml`
 - `README.md`
 - `LICENSE`
 - `package.json`

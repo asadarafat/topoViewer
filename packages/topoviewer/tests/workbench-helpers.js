@@ -4,7 +4,7 @@ const yaml = require('js-yaml');
 
 const canonicalTopologyPath = path.resolve(
   __dirname,
-  '../examples/test-cases/integration/complete-network-demo/topology.yaml'
+  '../content/examples/integration/complete-network-demo/topology.yaml'
 );
 
 function readCanonicalTopology() {

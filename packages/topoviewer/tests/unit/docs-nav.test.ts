@@ -22,7 +22,7 @@ describe('MkDocs navigation', () => {
   it('lists every public example category in the Examples nav', () => {
     const packageRoot = process.cwd();
     const repoRoot = path.resolve(packageRoot, '../..');
-    const catalog = record(YAML.load(fs.readFileSync(path.join(packageRoot, 'examples/test-cases/catalog.yaml'), 'utf8')));
+    const catalog = record(YAML.load(fs.readFileSync(path.join(packageRoot, 'content/examples/catalog.yaml'), 'utf8')));
     const mkdocs = record(YAML.load(fs.readFileSync(path.join(repoRoot, 'mkdocs.yml'), 'utf8')));
 
     const expectedCategories = new Set(

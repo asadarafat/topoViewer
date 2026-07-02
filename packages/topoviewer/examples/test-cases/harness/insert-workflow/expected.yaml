@@ -1,7 +1,0 @@
-renderable: true
-visualSnapshot: false
-dom: {}
-assertions: {}
-semantic:
-  errors: []
-  warnings: []

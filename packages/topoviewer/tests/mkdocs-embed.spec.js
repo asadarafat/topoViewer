@@ -9,10 +9,24 @@ const repoRoot = path.resolve(packageRoot, '../..');
 const rtfmPublic = process.env.TOPOVIEWER_MKDOCS_PUBLIC
   ? path.resolve(process.env.TOPOVIEWER_MKDOCS_PUBLIC)
   : path.join(repoRoot, 'site');
-const catalogPath = path.join(packageRoot, 'examples/test-cases/catalog.yaml');
+const contentExamplesRoot = path.join(packageRoot, 'content/examples');
+const catalogPath = path.join(contentExamplesRoot, 'catalog.yaml');
 
 function readYaml(filePath) {
   return yaml.load(fs.readFileSync(filePath, 'utf8')) || {};
+}
+
+function exampleFile(example, fileName) {
+  const key = {
+    'README.md': 'readme',
+    'topology.yaml': 'topology',
+    'stylesheet.yaml': 'stylesheet',
+    'expected.yaml': 'expected'
+  }[fileName];
+  const configured = key ? example.sourceFiles?.[key] : undefined;
+  return configured
+    ? path.join(contentExamplesRoot, configured)
+    : path.join(contentExamplesRoot, example.sourcePath || example.path, fileName);
 }
 
 function loadExamples() {
@@ -20,7 +34,7 @@ function loadExamples() {
   const catalog = readYaml(catalogPath);
   return (catalog.examples || []).map((example) => ({
     ...example,
-    expected: readYaml(path.join(packageRoot, 'examples/test-cases', example.path, 'expected.yaml'))
+    expected: readYaml(exampleFile(example, 'expected.yaml'))
   }));
 }
 

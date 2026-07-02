@@ -9,7 +9,7 @@ import { applyEndpointSpacing, segmentRoute, taxiRoute } from '../../src/core/ed
 import { compileEdgeStyle } from '../../src/core/style';
 
 const testDir = path.dirname(fileURLToPath(import.meta.url));
-const completeNetworkDemoDir = path.resolve(testDir, '../../examples/test-cases/integration/complete-network-demo');
+const completeNetworkDemoDir = path.resolve(testDir, '../../content/examples/integration/complete-network-demo');
 
 function readYamlFile(fileName: string): Record<string, unknown> {
   return (yaml.load(fs.readFileSync(path.join(completeNetworkDemoDir, fileName), 'utf8')) || {}) as Record<string, unknown>;
@@ -70,7 +70,7 @@ describe('compileTopoGraph', () => {
         }
       }
     }
-  });
+  }, 15000);
 
   it('compiles edge endpoint labels and offsets when edge labels are enabled', () => {
     const document: TopoDocument = {

@@ -1,1 +1,0 @@
-This before/after example starts with topology YAML and a selector stylesheet, then renders the underlay slice from the Real Network Demo. It shows the core TopoViewer contract: graph facts stay declarative, while visual policy turns router roles, regions, layers, and operational state into a readable network diagram.

@@ -1,1 +1,0 @@
-Use directional arrow properties when the two ends of an edge need different semantics. This example uses a circle at the source, a vee at the target, and separate endpoint label styles so source and target capacity are readable at a glance.

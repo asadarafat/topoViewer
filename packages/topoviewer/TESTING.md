@@ -65,9 +65,9 @@ README.md
 expected.yaml
 ```
 
-The catalog binds those files to generated package examples and MkDocs pages. `README.md` becomes the prose on the docs page. `expected.yaml` is the test contract: DOM counts, feature assertions, semantic lint expectations, and whether a visual snapshot is required.
+The catalog binds those files to MkDocs/Zensical pages and package tests. `README.md` becomes the prose on the docs page. `expected.yaml` is the test contract: DOM counts, feature assertions, semantic lint expectations, and whether a visual snapshot is required.
 
-Run `npm run sync:content` after editing canonical examples to refresh the package examples projection, then run `npm run sync:examples` to materialize the generated docs copies. To target another MkDocs docs directory, use:
+Run `npm run sync:examples` after editing canonical examples to materialize the generated docs copies. To target another MkDocs docs directory, use:
 
 ```bash
 node scripts/sync-examples.mjs --docs-root /path/to/docs
@@ -75,7 +75,7 @@ node scripts/sync-examples.mjs --docs-root /path/to/docs
 
 Run `npm run check:examples` in CI to fail if the generated docs drift from `packages/topoviewer/content/**`.
 
-The MkDocs embed test is catalog-driven. It reads the generated package catalog at `examples/test-cases/catalog.yaml`, which is produced from `content/examples/catalog.yaml`, and creates one browser test per renderable published example page. Non-renderable validation fixtures still get docs-page tests. Build the sibling docs first when validating the full integration:
+The MkDocs embed test is catalog-driven. It reads the canonical catalog at `content/examples/catalog.yaml` and creates one browser test per renderable published example page. Non-renderable validation fixtures still get docs-page tests. Build the sibling docs first when validating the full integration:
 
 ```bash
 cd ../../../rtfm
@@ -87,7 +87,7 @@ docker run --rm -v "$PWD:/docs" ghcr.io/asadarafat/mkdocs-material:v9.6.9 build 
 The suite locks down these behaviors:
 
 - The TypeScript `TopoViewer` workbench starts through Vite, renders the package component, and responds to core viewport and display controls.
-- Every documented MkDocs example listed in the generated package catalog has matching generated docs files, fenced-block paths, schema-valid topology/style/expected YAML, semantic lint coverage, and a Playwright render or validation-page check.
+- Every documented MkDocs example listed in the canonical catalog has matching generated docs files, fenced-block paths, schema-valid topology/style/expected YAML, semantic lint coverage, and a Playwright render or validation-page check.
 - Every layer/display-knob permutation renders without a schema/runtime alert, invalid SVG path, or edge-anchor regression.
 - Edges use floating anchoring by default and are painted through the visible TopoViewer edge path layer.
 - Stylesheet YAML edits update the graph without a page reload.
