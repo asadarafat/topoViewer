@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { execFileSync } from 'node:child_process';
 import yaml from 'js-yaml';
 import { exampleFileKeys, sourceFileFor } from './lib/content-examples.mjs';
 
@@ -16,6 +17,7 @@ const packageTestCasesRoot = path.join(packageExamplesRoot, 'test-cases');
 const packageStressRoot = path.join(packageExamplesRoot, 'stress');
 const docsRoot = path.resolve(process.env.TOPOVIEWER_DOCS_ROOT || path.join(repoRoot, 'docs'));
 const checkOnly = process.argv.includes('--check');
+const allowDirtyProjectionOverwrite = process.env.TOPOVIEWER_SYNC_ALLOW_DIRTY_PROJECTIONS === '1';
 
 function readText(filePath) {
   return fs.readFileSync(filePath, 'utf8');
@@ -54,7 +56,38 @@ function writeTextIfChanged(filePath, content) {
   return true;
 }
 
-function projectText(filePath, content, label) {
+function isGitDirty(filePath) {
+  try {
+    const output = execFileSync('git', ['status', '--porcelain', '--', path.relative(repoRoot, filePath)], {
+      cwd: repoRoot,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore']
+    });
+    return output.trim().length > 0;
+  } catch {
+    return false;
+  }
+}
+
+function assertProjectionCanBeOverwritten(filePath, content, label, source) {
+  if (checkOnly || allowDirtyProjectionOverwrite || !source || !fs.existsSync(filePath)) return;
+  if (readText(filePath) === content) return;
+  if (!isGitDirty(filePath) || isGitDirty(source)) return;
+
+  throw new Error([
+    `Refusing to overwrite dirty generated content projection: ${relative(filePath)}`,
+    `Projection: ${label}`,
+    `Canonical source: ${relative(source)}`,
+    '',
+    'Edit the canonical source under packages/topoviewer/content/**, then run:',
+    '  npm run sync:docs',
+    '',
+    'If this projected file was changed by mistake, revert or discard that generated-file edit first.',
+    'To force regeneration anyway, rerun with TOPOVIEWER_SYNC_ALLOW_DIRTY_PROJECTIONS=1.'
+  ].join('\n'));
+}
+
+function projectText(filePath, content, label, source) {
   if (checkOnly) {
     const existing = fs.existsSync(filePath) ? readText(filePath) : undefined;
     if (existing !== content) {
@@ -63,6 +96,7 @@ function projectText(filePath, content, label) {
     return false;
   }
 
+  assertProjectionCanBeOverwritten(filePath, content, label, source);
   if (writeTextIfChanged(filePath, content)) {
     console.log(`generated ${relative(filePath)}`);
     return true;
@@ -178,12 +212,12 @@ function projectPages() {
     if (!source.endsWith('.md')) continue;
     const target = path.join(packageDocsRoot, sourceRelative);
     expectedPackageDocs.add(target);
-    projectText(target, readText(source), `package doc ${sourceRelative}`);
+    projectText(target, readText(source), `package doc ${sourceRelative}`, source);
   }
 
   removeStaleFiles(packageDocsRoot, expectedPackageDocs, 'package docs projection');
-  projectText(path.join(repoRoot, 'README.md'), readmeMarkdown(), 'root README');
-  projectText(path.join(docsRoot, 'index.md'), docsIndexMarkdown(), 'docs home');
+  projectText(path.join(repoRoot, 'README.md'), readmeMarkdown(), 'root README', contentPagesRoot);
+  projectText(path.join(docsRoot, 'index.md'), docsIndexMarkdown(), 'docs home', contentPagesRoot);
 }
 
 function projectedCatalog(catalog) {
@@ -203,7 +237,7 @@ function projectExampleFile(example, fileName, expectedPackageFiles) {
   }
   const target = path.join(packageTestCasesRoot, example.path, fileName);
   expectedPackageFiles.add(target);
-  projectText(target, readText(source), `${example.id} ${fileName}`);
+  projectText(target, readText(source), `${example.id} ${fileName}`, source);
 }
 
 function projectExampleExtraFile(example, fileName, expectedPackageFiles) {
@@ -216,7 +250,7 @@ function projectExampleExtraFile(example, fileName, expectedPackageFiles) {
   }
   const target = path.join(packageTestCasesRoot, example.path, fileName);
   expectedPackageFiles.add(target);
-  projectText(target, readText(source), `${example.id} ${fileName}`);
+  projectText(target, readText(source), `${example.id} ${fileName}`, source);
 }
 
 function projectStressExamples(expectedPackageFiles) {
@@ -227,7 +261,7 @@ function projectStressExamples(expectedPackageFiles) {
     const sourceRelative = path.relative(stressSourceRoot, source);
     const target = path.join(packageStressRoot, sourceRelative);
     expectedPackageFiles.add(target);
-    projectText(target, readText(source), `stress example ${sourceRelative}`);
+    projectText(target, readText(source), `stress example ${sourceRelative}`, source);
   }
 }
 
@@ -241,7 +275,7 @@ function projectExamples() {
   const expectedPackageFiles = new Set();
   const generatedCatalogFile = path.join(packageTestCasesRoot, 'catalog.yaml');
   expectedPackageFiles.add(generatedCatalogFile);
-  projectText(generatedCatalogFile, dumpYaml(projectedCatalog(catalog)), 'package examples catalog');
+  projectText(generatedCatalogFile, dumpYaml(projectedCatalog(catalog)), 'package examples catalog', catalogFile);
 
   for (const example of catalog.examples || []) {
     for (const fileName of Object.keys(exampleFileKeys)) {

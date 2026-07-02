@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { execFileSync } from 'node:child_process';
 import yaml from 'js-yaml';
 import { sourceFileFor } from '../../../scripts/lib/content-examples.mjs';
 
@@ -12,6 +13,7 @@ const defaultDocsRoot = path.join(monorepoRoot, 'docs');
 const contentExamplesRoot = path.join(packageRoot, 'content/examples');
 const catalogFile = path.join(contentExamplesRoot, 'catalog.yaml');
 const checkOnly = process.argv.includes('--check');
+const allowDirtyProjectionOverwrite = process.env.TOPOVIEWER_SYNC_ALLOW_DIRTY_PROJECTIONS === '1';
 
 function argValue(name) {
   const index = process.argv.indexOf(name);
@@ -39,6 +41,43 @@ function writeTextIfChanged(filePath, content) {
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
   fs.writeFileSync(filePath, content);
   return true;
+}
+
+function repoRelative(filePath) {
+  return toPosix(path.relative(repoRoot, filePath));
+}
+
+function isGitDirty(filePath) {
+  try {
+    const relativePath = path.relative(repoRoot, filePath);
+    const output = execFileSync('git', ['status', '--porcelain', '--', relativePath], {
+      cwd: repoRoot,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore']
+    });
+    return output.trim().length > 0;
+  } catch {
+    return false;
+  }
+}
+
+function assertProjectionCanBeOverwritten(source, target, expected, label) {
+  if (allowDirtyProjectionOverwrite || !fs.existsSync(target)) return;
+  const existing = readText(target);
+  if (existing === expected) return;
+  if (!isGitDirty(target) || isGitDirty(source)) return;
+
+  throw new Error([
+    `Refusing to overwrite dirty generated docs example: ${repoRelative(target)}`,
+    `Projection: ${label}`,
+    `Canonical source: ${repoRelative(source)}`,
+    '',
+    'Edit the canonical source under packages/topoviewer/content/examples/**, then run:',
+    '  npm run sync:docs',
+    '',
+    'If this projected file was changed by mistake, revert or discard that generated-file edit first.',
+    'To force regeneration anyway, rerun with TOPOVIEWER_SYNC_ALLOW_DIRTY_PROJECTIONS=1.'
+  ].join('\n'));
 }
 
 function assertSynced(target, expected, label) {
@@ -542,8 +581,11 @@ for (const example of catalog.examples || []) {
     const content = readText(source);
     if (checkOnly) {
       assertSynced(target, content, `${example.id} ${sourceName}`);
-    } else if (writeTextIfChanged(target, content)) {
-      console.log(`synced ${path.relative(packageRoot, source)} -> ${path.relative(docsRoot, target)}`);
+    } else {
+      assertProjectionCanBeOverwritten(source, target, content, `${example.id} ${sourceName}`);
+      if (writeTextIfChanged(target, content)) {
+        console.log(`synced ${path.relative(packageRoot, source)} -> ${path.relative(docsRoot, target)}`);
+      }
     }
   }
 
