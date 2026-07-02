@@ -1,36 +1,36 @@
 layout:
   mode: manual
-  width: 1800
-  height: 420
+  width: 1320
+  height: 520
 icons:
-  source:
-    glyph: API
+  input:
+    glyph: JSON
     fill: "#1565c0"
     stroke: "#90caf9"
-  collector:
-    glyph: RUN
+  converter:
+    glyph: CLI
     fill: "#7b1fa2"
     stroke: "#ce93d8"
-  yaml:
-    glyph: YAML
-    fill: "#2e7d32"
-    stroke: "#a5d6a7"
   model:
     glyph: ID
     fill: "#00695c"
     stroke: "#80cbc4"
+  yaml:
+    glyph: YAML
+    fill: "#2e7d32"
+    stroke: "#a5d6a7"
+  policy:
+    glyph: CSS
+    fill: "#455a64"
+    stroke: "#b0bec5"
   renderer:
     glyph: TV
     fill: "#ed6c02"
     stroke: "#ffcc80"
-  controls:
+  behavior:
     glyph: UX
     fill: "#5d4037"
     stroke: "#d7ccc8"
-  map:
-    glyph: MAP
-    fill: "#455a64"
-    stroke: "#b0bec5"
 labelFields:
   - name
 stylesheet:
@@ -44,11 +44,12 @@ stylesheet:
       labelPosition: topCenter
       labelMargin: 10
       labelFontWeight: 800
+      labelZIndex: 6
   - selector: node
     style:
       shape: rectangle
-      width: 126
-      height: 62
+      width: 140
+      height: 58
       borderWidth: 3
       iconFit: contain
       labelFontWeight: 800
@@ -59,31 +60,54 @@ stylesheet:
       labelBorderWidth: 1
       labelPadding: 4
       metaColor: transparent
-  - selector: node[labels.object = "source"]
+  - selector: node[labels.object = "input"]
     style:
-      icon: source
+      icon: input
       backgroundColor: "rgba(25, 118, 210, 0.16)"
       borderColor: "#42a5f5"
-  - selector: node[labels.object = "process"]
-    style:
-      icon: collector
-      backgroundColor: "rgba(156, 39, 176, 0.14)"
-      borderColor: "#ba68c8"
   - selector: node[labels.object = "parentProcess"]
     style:
-      icon: collector
+      icon: converter
       backgroundColor: "rgba(156, 39, 176, 0.08)"
       borderColor: "#ba68c8"
-      width: 210
-      height: 230
+      width: 240
+      height: 380
       labelPosition: top
       labelYOffset: -4
-  - selector: node[labels.role = "converterStep"]
+  - selector: node[labels.object = "process"]
+    style:
+      icon: converter
+      backgroundColor: "rgba(156, 39, 176, 0.16)"
+      borderColor: "#ba68c8"
+      width: 168
+  - selector: node[labels.object = "model"]
+    style:
+      icon: model
+      backgroundColor: "rgba(0, 105, 92, 0.14)"
+      borderColor: "#26a69a"
+      width: 168
+  - selector: node[labels.object = "behavior"]
+    style:
+      icon: behavior
+      backgroundColor: "rgba(93, 64, 55, 0.14)"
+      borderColor: "#bcaaa4"
+      width: 152
+  - selector: node[labels.role = "read"]
     style:
       labelPosition: center
       labelBackgroundOpacity: 0
       labelBorderWidth: 0
-  - selector: node[labels.role = "contract"]
+  - selector: node[labels.role = "identity"]
+    style:
+      labelPosition: center
+      labelBackgroundOpacity: 0
+      labelBorderWidth: 0
+  - selector: node[labels.role = "relationships"]
+    style:
+      labelPosition: center
+      labelBackgroundOpacity: 0
+      labelBorderWidth: 0
+  - selector: node[labels.role = "attention"]
     style:
       labelPosition: center
       labelBackgroundOpacity: 0
@@ -93,27 +117,16 @@ stylesheet:
       icon: yaml
       backgroundColor: "rgba(46, 125, 50, 0.14)"
       borderColor: "#4caf50"
-  - selector: node[labels.object = "model"]
+  - selector: node[labels.object = "policy"]
     style:
-      icon: model
-      backgroundColor: "rgba(0, 105, 92, 0.14)"
-      borderColor: "#26a69a"
+      icon: policy
+      backgroundColor: "rgba(69, 90, 100, 0.14)"
+      borderColor: "#90a4ae"
   - selector: node[labels.object = "renderer"]
     style:
       icon: renderer
       backgroundColor: "rgba(237, 108, 2, 0.14)"
       borderColor: "#ff9800"
-  - selector: node[labels.object = "behavior"]
-    style:
-      icon: controls
-      backgroundColor: "rgba(93, 64, 55, 0.14)"
-      borderColor: "#bcaaa4"
-  - selector: node[labels.object = "output"]
-    style:
-      icon: map
-      backgroundColor: "rgba(69, 90, 100, 0.14)"
-      borderColor: "#90a4ae"
-      width: 152
   - selector: link
     style:
       curveStyle: bezier
@@ -126,49 +139,29 @@ stylesheet:
       labelFontWeight: 800
       textBackgroundColor: var(--topoviewer-edge-label-bg)
       textBackgroundOpacity: 0.94
-  - selector: link[labels.link = "collect"]
+      labelZIndex: 8
+  - selector: link[labels.link = "input"]
     style:
-      label: collect
+      label: read
       lineColor: "#1976d2"
       targetArrowColor: "#1976d2"
-  - selector: link[labels.link = "snapshot"]
-    style:
-      label: snapshot
-      lineColor: "#00838f"
-      targetArrowColor: "#00838f"
-  - selector: link[labels.link = "convert"]
-    style:
-      label: convert
-      lineColor: "#7b1fa2"
-      targetArrowColor: "#7b1fa2"
   - selector: link[labels.link = "derive"]
     style:
-      label: derive model
+      label: derive
       lineColor: "#00695c"
       targetArrowColor: "#00695c"
   - selector: link[labels.link = "write"]
     style:
-      label: write topology
+      label: write
       lineColor: "#2e7d32"
       targetArrowColor: "#2e7d32"
-  - selector: link[labels.link = "input"]
+  - selector: link[labels.link = "renderInput"]
     style:
       label: input
       lineColor: "#ff9800"
       targetArrowColor: "#ff9800"
-  - selector: link[labels.link = "interaction"]
+  - selector: link[labels.link = "behavior"]
     style:
-      label: layer/attention
+      label: enables
       lineColor: "#5d4037"
       targetArrowColor: "#5d4037"
-  - selector: link[labels.link = "render"]
-    style:
-      label: render
-      lineColor: "#455a64"
-      targetArrowColor: "#455a64"
-  - selector: link[labels.link = "refine"]
-    style:
-      label: refine view
-      lineColor: "#5d4037"
-      targetArrowColor: "#5d4037"
-      lineStyle: dashed

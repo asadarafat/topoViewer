@@ -694,6 +694,10 @@ examples:
       and runtime bindings.
     introMode: narrative
     extraFiles:
+      - collect-eda-kubernetes-inventory.sh
+      - convert-eda-kubernetes-inventory.mjs
+      - converter-flow-topology.yaml
+      - converter-flow-stylesheet.yaml
       - service-map-flow-topology.yaml
       - service-map-flow-stylesheet.yaml
     render:

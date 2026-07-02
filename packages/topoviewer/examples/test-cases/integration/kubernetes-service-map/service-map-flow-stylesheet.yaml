@@ -1,24 +1,32 @@
 layout:
   mode: manual
-  width: 1120
-  height: 360
+  width: 1800
+  height: 420
 icons:
   source:
     glyph: API
     fill: "#1565c0"
     stroke: "#90caf9"
   collector:
-    glyph: C
+    glyph: RUN
     fill: "#7b1fa2"
     stroke: "#ce93d8"
   yaml:
     glyph: YAML
     fill: "#2e7d32"
     stroke: "#a5d6a7"
+  model:
+    glyph: ID
+    fill: "#00695c"
+    stroke: "#80cbc4"
   renderer:
     glyph: TV
     fill: "#ed6c02"
     stroke: "#ffcc80"
+  controls:
+    glyph: UX
+    fill: "#5d4037"
+    stroke: "#d7ccc8"
   map:
     glyph: MAP
     fill: "#455a64"
@@ -61,16 +69,45 @@ stylesheet:
       icon: collector
       backgroundColor: "rgba(156, 39, 176, 0.14)"
       borderColor: "#ba68c8"
+  - selector: node[labels.object = "parentProcess"]
+    style:
+      icon: collector
+      backgroundColor: "rgba(156, 39, 176, 0.08)"
+      borderColor: "#ba68c8"
+      width: 210
+      height: 230
+      labelPosition: top
+      labelYOffset: -4
+  - selector: node[labels.role = "converterStep"]
+    style:
+      labelPosition: center
+      labelBackgroundOpacity: 0
+      labelBorderWidth: 0
+  - selector: node[labels.role = "contract"]
+    style:
+      labelPosition: center
+      labelBackgroundOpacity: 0
+      labelBorderWidth: 0
   - selector: node[labels.object = "artifact"]
     style:
       icon: yaml
       backgroundColor: "rgba(46, 125, 50, 0.14)"
       borderColor: "#4caf50"
+  - selector: node[labels.object = "model"]
+    style:
+      icon: model
+      backgroundColor: "rgba(0, 105, 92, 0.14)"
+      borderColor: "#26a69a"
   - selector: node[labels.object = "renderer"]
     style:
       icon: renderer
       backgroundColor: "rgba(237, 108, 2, 0.14)"
       borderColor: "#ff9800"
+  - selector: node[labels.object = "behavior"]
+    style:
+      icon: controls
+      backgroundColor: "rgba(93, 64, 55, 0.14)"
+      borderColor: "#bcaaa4"
   - selector: node[labels.object = "output"]
     style:
       icon: map
@@ -79,7 +116,7 @@ stylesheet:
       width: 152
   - selector: link
     style:
-      curveStyle: smoothTaxi
+      curveStyle: bezier
       lineColor: "#42a5f5"
       lineWidth: 3
       targetArrowShape: triangle
@@ -94,9 +131,24 @@ stylesheet:
       label: collect
       lineColor: "#1976d2"
       targetArrowColor: "#1976d2"
+  - selector: link[labels.link = "snapshot"]
+    style:
+      label: snapshot
+      lineColor: "#00838f"
+      targetArrowColor: "#00838f"
+  - selector: link[labels.link = "convert"]
+    style:
+      label: convert
+      lineColor: "#7b1fa2"
+      targetArrowColor: "#7b1fa2"
+  - selector: link[labels.link = "derive"]
+    style:
+      label: derive model
+      lineColor: "#00695c"
+      targetArrowColor: "#00695c"
   - selector: link[labels.link = "write"]
     style:
-      label: write YAML
+      label: write topology
       lineColor: "#2e7d32"
       targetArrowColor: "#2e7d32"
   - selector: link[labels.link = "input"]
@@ -104,8 +156,19 @@ stylesheet:
       label: input
       lineColor: "#ff9800"
       targetArrowColor: "#ff9800"
+  - selector: link[labels.link = "interaction"]
+    style:
+      label: layer/attention
+      lineColor: "#5d4037"
+      targetArrowColor: "#5d4037"
   - selector: link[labels.link = "render"]
     style:
       label: render
       lineColor: "#455a64"
       targetArrowColor: "#455a64"
+  - selector: link[labels.link = "refine"]
+    style:
+      label: refine view
+      lineColor: "#5d4037"
+      targetArrowColor: "#5d4037"
+      lineStyle: dashed

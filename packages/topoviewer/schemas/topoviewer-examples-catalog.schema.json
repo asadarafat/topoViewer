@@ -88,7 +88,7 @@
           "introMode": {
             "type": "string",
             "enum": ["standard", "narrative"],
-            "description": "Use narrative for story/tutorial pages that should not receive generated What/Expected/Inspect/Use sections."
+            "description": "Use narrative for story/tutorial pages where the README owns the page body, including embedded viewports, instead of receiving generated What/Expected/Inspect/Use sections or bottom viewport/YAML tabs."
           },
           "extraFiles": {
             "type": "array",

@@ -367,6 +367,7 @@ function exampleIntroMarkdown(example, expected, headingLevel = 2) {
 
 function pageMarkdown(example) {
   const expected = readYaml(exampleSourceFile(example, 'expected.yaml'));
+  const intro = exampleIntroMarkdown(example, expected, 2);
 
   return [
     '---',
@@ -376,11 +377,11 @@ function pageMarkdown(example) {
     '',
     `# ${example.title}`,
     '',
-    exampleIntroMarkdown(example, expected, 2),
-    '',
-    exampleTabsMarkdown(example, expected, pageFile(example)),
+    intro,
+    example.introMode === 'narrative' ? undefined : '',
+    example.introMode === 'narrative' ? undefined : exampleTabsMarkdown(example, expected, pageFile(example)),
     ''
-  ].join('\n');
+  ].filter((line) => line !== undefined).join('\n');
 }
 
 function categoryMarkdown(feature, examples) {
@@ -394,7 +395,11 @@ function categoryMarkdown(feature, examples) {
 
   for (const example of examples) {
     const expected = readYaml(exampleSourceFile(example, 'expected.yaml'));
-    lines.push(`## ${example.title}`, '', exampleIntroMarkdown(example, expected, 3), '', exampleTabsMarkdown(example, expected, markdownFile), '');
+    lines.push(`## ${example.title}`, '', exampleIntroMarkdown(example, expected, 3));
+    if (example.introMode !== 'narrative') {
+      lines.push('', exampleTabsMarkdown(example, expected, markdownFile));
+    }
+    lines.push('');
   }
 
   return lines.join('\n');

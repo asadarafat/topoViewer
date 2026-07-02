@@ -1,147 +1,216 @@
-## A Service Map For Kubernetes
+## Kubernetes Service Map From A Real Control Plane
 
-Kubernetes dashboards are usually good at showing object state. You can see
-Services, Deployments, Pods, custom resources, events, and health. That is
-necessary, but it does not always answer the first operational question:
+Kubernetes already gives operators a strong API. `kubectl`, custom-resource
+status, events, logs, and platform-specific UIs can all answer detailed object
+questions. What they do not automatically provide is a compact relationship
+map:
 
 ```text
-What is this platform actually connected to?
+Which service is the entry point, which workloads back it, and how does that
+control plane connect to the topology it manages?
 ```
 
-That question matters when the GUI shows a large platform and the operator has
-to understand the path from a user-facing endpoint into the control plane, then
-from the control plane into the infrastructure it manages. Object lists can show
-that things exist. They do not naturally show how the objects form a system.
+This example uses Nokia EDA as the concrete case study. The pattern is generic
+Kubernetes: collect inventory from the Kubernetes API and domain resources,
+convert stable objects into topology nodes, convert relationships into topology
+links, then render the result with TopoViewer.
 
-This example uses Nokia EDA as the case study, but the pattern is generic
-Kubernetes. EDA is useful here because it is not just a toy namespace: it has an
-operator-facing UI/API, many Kubernetes services and deployments, EDA custom
-resources, simulated network nodes, NPP pods, and runtime bindings between the
-platform and the managed topology.
-
-TopoViewer is added as the relationship view beside the Kubernetes or EDA GUI.
-The GUI remains the place to inspect detailed object status and perform actions.
-TopoViewer provides the missing service map: a visual, inspectable graph that
-shows how platform objects are connected.
-
-## Turning Inventory Into A Diagram
-
-The input is ordinary platform inventory. A collector reads the Kubernetes API
-and the EDA API, then writes the result as TopoViewer YAML.
+The flow below is the pattern this page demonstrates. It starts with inventory,
+keeps conversion separate from styling, and ends with a service map that can be
+reviewed, versioned, and rendered in more than one surface.
 
 ```topoviewer
 topology: examples/integration/kubernetes-service-map/service-map-flow-topology.yaml
 stylesheet: examples/integration/kubernetes-service-map/service-map-flow-stylesheet.yaml
-height: 360px
+height: 420px
 controls: false
 controlsOpen: false
 title: Inventory to service map
 ```
 
-The important detail is that the diagram is not hand drawn. Services,
-deployments, pods, `NetworkTopology`, and `TopoNode` objects become named graph
-nodes. Selectors, ownership, containment, runtime calls, simulator bindings, and
-NPP control relationships become typed graph links.
+## Inventory Collection
 
-That gives the map a useful property: every visible object can still carry the
-facts it came from. For example, Kubernetes selectors, ports, image names,
-object roles, and link types remain available in labels and data. The diagram
-is visual, but it is still tied to source inventory.
+Inventory collection means reading source-of-truth objects and preserving their
+identity before anything is styled. For this example, the source inventory is:
 
-## Reading The EDA Map
+- Kubernetes `Service`, `Deployment`, and `Pod` objects in the EDA namespace;
+- Kubernetes selectors and ownership relationships;
+- EDA custom resources such as topology and node objects;
+- selected runtime facts, including ports, image names, readiness, and status.
 
-Start at the operator entry point. The left side of the map shows the browser
-entering the `try-eda` service and then reaching `eda-api`. From there, the
-service-selector relationships show which deployments back the visible service
-surface, and the runtime-flow relationships show which internal services the
-API depends on.
+The checked-in example is a captured and curated topology derived from that kind
+of inventory. The repo does not currently include a full automatic
+EDA-to-TopoViewer converter. The scaffold below shows the collection stage only:
+it captures raw Kubernetes and EDA-resource JSON that a converter can then turn
+into `topology.yaml` and `stylesheet.yaml`.
 
-When the service surface becomes too noisy, turn attention to the
-`topology-runtime` layer. That layer follows the EDA-specific part of the story:
-the `NetworkTopology` custom resource contains `TopoNode` objects for `leaf1`,
-`leaf2`, and `spine1`; each `TopoNode` is bound to a simulator deployment; NPP
-pods maintain control connectivity to those managed nodes.
+??? example "Inventory collection scaffold"
 
-The regions are intentionally interactive. Expanded region hulls group related
-areas such as API/UI, identity/persistence, control engines, topology runtime,
-and simulated fabric. Click a region hull to collapse that area into a summary
-node. Click the summary node to expand it again. Drag a region hull when the
-operator view needs a cleaner arrangement without losing the semantic grouping.
+    ```bash
+    --8<-- "docs/topoviewer/examples/integration/kubernetes-service-map/collect-eda-kubernetes-inventory.sh"
+    ```
 
-## Why TopoViewer Is The Useful Piece
+Run it against a kubeconfig that can read the EDA namespaces:
 
-Without a topology layer, this story is spread across multiple GUI panels and
-commands. You can inspect a Service, then inspect a Deployment, then inspect a
-Pod, then inspect a custom resource, but the operator still has to hold the
-relationship model in their head.
+```bash
+bash packages/topoviewer/content/examples/integration/kubernetes-service-map/collect-eda-kubernetes-inventory.sh eda-system eda
+```
 
-TopoViewer changes the artifact. The output is not a screenshot of the GUI and
-not a static architecture drawing. It is a topology-as-code view:
+Expected result:
+
+```text
+.artifacts/eda-kubernetes-inventory/
+  services.json
+  deployments.json
+  pods.json
+  workload-summary.txt
+  eda-namespaced-resource-types.txt
+  eda-cluster-resource-types.txt
+  <discovered-eda-resource>.json
+```
+
+Those files are not the final TopoViewer model. They are the raw input.
+
+## Converter
+
+The converter is a script. In a production integration it would normally be a
+small CLI in the same repository as the collector, with tests around every
+relationship rule. In this example it is a scaffold that shows the shape of that
+CLI.
+
+The zoom-in below shows the converter as a parent process. The contained steps
+read the JSON snapshots, derive deterministic topology identity, derive
+relationships and regions, and write the topology contract that TopoViewer can
+validate.
+
+```topoviewer
+topology: examples/integration/kubernetes-service-map/converter-flow-topology.yaml
+stylesheet: examples/integration/kubernetes-service-map/converter-flow-stylesheet.yaml
+height: 500px
+controls: false
+controlsOpen: false
+title: Converter zoom-in
+attention:
+  query:
+    ids:
+      - converter-script
+      - read-snapshots
+      - derive-identity
+      - derive-relationships
+      - derive-attention
+    mode: dim-context
+```
+
+The converter is the deliberate boundary between the platform API and
+TopoViewer. It should not decide the visual design. Its job is to preserve
+stable object identity and turn platform relationships into a diagram model that
+can be validated. Colors, icons, labels, and link emphasis stay in
+`stylesheet.yaml`.
+
+For this example, a converter maps inventory into the topology contract like
+this:
+
+- object identity becomes `graph.nodes[].id`;
+- object names become `graph.nodes[].name`;
+- object family and status become `labels`;
+- ports, selectors, images, readiness, and status details become `data`;
+- selectors, ownership, containment, runtime calls, and control relationships
+  become `graph.links[]`;
+- object families become `graph.regions[]`;
+- Kubernetes and topology-runtime views become `graph.layers[]`;
+- dense groups become `attention.aggregate.groups[]` so regions can collapse;
+- visual policy stays in `stylesheet.yaml`, separate from collected facts.
+
+??? example "Converter scaffold"
+
+    ```javascript
+    --8<-- "docs/topoviewer/examples/integration/kubernetes-service-map/convert-eda-kubernetes-inventory.mjs"
+    ```
+
+Run the scaffold against the inventory output:
+
+```bash
+node packages/topoviewer/content/examples/integration/kubernetes-service-map/convert-eda-kubernetes-inventory.mjs \
+  .artifacts/eda-kubernetes-inventory \
+  .artifacts/eda-kubernetes-inventory/topology.yaml
+```
+
+The generated topology is intentionally deterministic. Re-running the converter
+against the same inventory should produce the same IDs, links, regions, and
+attention groups. That makes the output reviewable in Git and usable in CI.
+
+That separation matters. The same collected facts can be rendered as a compact
+service dependency map, a Kubernetes ownership view, a topology runtime view, or
+a Grafana overlay target without rewriting the source inventory. Layer hiding
+uses the generated `graph.layers[]`; collapse and expand behavior uses the
+generated `attention.aggregate` groups.
+
+## Reading The Service Map
+
+The service map is the result of the collection and conversion workflow. It does
+not replace `kubectl`, custom-resource status, logs, or platform operations
+screens. It is a relationship view built from the same inventory an operator
+already trusts.
+
+The upper layer is the Kubernetes control-plane view for the EDA system. Service
+nodes represent Kubernetes `Service` objects. Deployment nodes represent
+Kubernetes `Deployment` objects. Pod nodes represent runtime Pods. Green
+selector links show which deployments are selected by services. Blue runtime
+links show service-to-service dependencies that are useful for reading the
+platform flow.
+
+The lower layer is the topology runtime view. The `NetworkTopology` resource
+contains the `TopoNode` objects for `leaf1`, `leaf2`, and `spine1`. Those
+`TopoNode` objects are backed by simulator deployments and pods. NPP pods keep
+control connectivity to the managed nodes.
+
+Regions group the map into API/UI, identity and persistence, control engines,
+applications and bootstrap services, topology runtime, and simulated fabric.
+Expanded regions can be dragged to clean up the view. Clicking a region
+collapses it into a summary node; clicking the summary expands it again.
+
+```topoviewer
+topology: examples/integration/kubernetes-service-map/topology.yaml
+stylesheet: examples/integration/kubernetes-service-map/stylesheet.yaml
+height: 620px
+controls: true
+controlsOpen: true
+title: Kubernetes service map
+```
+
+## How TopoViewer Helps
+
+Without a topology layer, the same investigation is spread across separate
+commands: inspect a Service, follow selectors to Deployments, inspect Pods,
+check custom resources, then remember how the pieces fit together.
+
+TopoViewer turns that relationship model into a reusable artifact:
 
 - `topology.yaml` records what exists and how objects relate;
-- `stylesheet.yaml` records how those objects should be read visually;
+- `stylesheet.yaml` records how object families should be read visually;
 - layers separate the Kubernetes service surface from the topology runtime;
-- regions group related operational areas;
-- attention aggregation collapses dense areas without deleting context.
+- regions keep related areas understandable without hiding their members;
+- attention aggregation makes dense areas collapsible without deleting context.
 
-The result is a service map that can live in documentation, the browser harness,
-or an operational surface while still being regenerated from real platform data.
+The useful outcome is not a prettier object list. It is a service map that
+explains the platform shape before the reader drills into any single object.
 
-## What You Should See
+## Reusing The Pattern
 
-The live viewport should open as a Kubernetes service map with both
-`control-plane` and `topology-runtime` enabled. The reader should be able to
-trace the path from `Browser` to `try-eda` to `eda-api`, follow selector edges
-from services to deployments, and then switch focus to the runtime topology
-around `NetworkTopology`, `TopoNode`, simulator deployments, and NPP pods.
+Start with the operational question the map must answer. For this example, the
+question is how an operator-facing EDA endpoint connects to the Kubernetes
+workloads and topology runtime behind it.
 
-The map should render 59 nodes, at least 52 visible edges, and six region hulls.
-Expanded region hulls should be draggable and collapsible. Collapsed summaries
-should stay visible in the same layer as their member objects and expand again
-when clicked.
+For another platform, use the same sequence:
 
-## Reading The YAML
+1. collect the standard Kubernetes objects and the domain-specific resources;
+2. preserve stable object IDs so links and telemetry can attach later;
+3. convert selectors, ownership, containment, and runtime relationships into
+   typed links;
+4. keep raw source facts in `labels` and `data`;
+5. style object families separately from source facts;
+6. use layers and collapsible regions to keep the view usable as the system
+   grows.
 
-Use the live viewport first, then look at the YAML to see how the visual story
-is encoded.
-
-- In the topology YAML, inspect `graph.nodes` to see how Kubernetes services,
-  deployments, pods, EDA resources, and managed network nodes are represented as
-  named objects.
-- Inspect `graph.links` and `labels.link` to see the relationship vocabulary:
-  `entry`, `service-route`, `selector`, `runtime-flow`, `topology`,
-  `runtime-binding`, `control`, and `owns`.
-- Inspect `data.selector`, `data.ports`, and `data.images` to see how raw
-  Kubernetes facts stay attached to the graph objects.
-- Inspect the stylesheet YAML to see how the same object families are styled
-  without changing the source topology facts.
-- Inspect `attention.aggregate` to see how collapsible region summaries are
-  declared.
-
-## Applying The Pattern
-
-Use this pattern when a Kubernetes-hosted platform has a useful GUI, but the GUI
-does not make the platform shape obvious enough. The pattern works best when
-the operator needs to understand relationships before drilling into object
-details.
-
-It is especially useful for platform teams, SRE teams, and network automation
-teams that need to explain how a Kubernetes control plane connects to the
-infrastructure it manages.
-
-## Summary
-
-The reusable pattern is simple:
-
-1. Collect platform inventory from Kubernetes and any domain API, such as EDA.
-2. Convert real objects into stable TopoViewer nodes.
-3. Convert operational relationships into typed TopoViewer links.
-4. Keep raw object facts in labels and data.
-5. Use stylesheet rules to make object families readable.
-6. Use layers and collapsible regions to keep dense systems usable.
-
-For your own use case, start with the operator question you want the GUI to
-answer. Then model only the objects and relationships required to answer that
-question. TopoViewer becomes valuable when the map explains the system shape
-without forcing the reader to reverse-engineer it from tables, command output,
-or screenshots.
+TopoViewer becomes useful when the map explains the system shape without
+forcing the reader to reconstruct it from tables, command output, or screenshots.

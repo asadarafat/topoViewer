@@ -1,7 +1,7 @@
 layout:
   mode: manual
-  width: 1560
-  height: 1700
+  width: 2120
+  height: 1900
 icons:
   client:
     glyph: UI
@@ -131,7 +131,7 @@ stylesheet:
       badgeLabel: NPP
   - selector: link
     style:
-      curveStyle: smoothTaxi
+      curveStyle: bezier
       lineColor: '#90a4ae'
       lineWidth: 2
       targetArrowShape: triangle

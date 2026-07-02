@@ -13,9 +13,9 @@ graph:
         - story
       position:
         - 120
-        - 104
+        - 100
     - id: eda-api
-      name: EDA API
+      name: EDA resources/API
       labels:
         object: source
         role: eda
@@ -23,7 +23,7 @@ graph:
         - story
       position:
         - 120
-        - 240
+        - 250
     - id: collector
       name: Inventory collector
       labels:
@@ -33,7 +33,49 @@ graph:
         - story
       position:
         - 340
-        - 172
+        - 175
+    - id: raw-inventory
+      name: Inventory JSON
+      labels:
+        object: artifact
+        role: raw
+      layers:
+        - story
+      position:
+        - 560
+        - 175
+    - id: converter
+      name: Converter script
+      labels:
+        object: parentProcess
+        role: converter
+      layers:
+        - story
+      position:
+        - 760
+        - 80
+    - id: run-converter
+      name: Run converter
+      labels:
+        object: process
+        role: converterStep
+      parent: converter
+      layers:
+        - story
+      position:
+        - 760
+        - 140
+    - id: derive-topology-model
+      name: IDs, links, regions
+      labels:
+        object: model
+        role: contract
+      parent: converter
+      layers:
+        - story
+      position:
+        - 760
+        - 240
     - id: topology-yaml
       name: topology.yaml
       labels:
@@ -42,8 +84,8 @@ graph:
       layers:
         - story
       position:
-        - 560
-        - 112
+        - 1040
+        - 135
     - id: stylesheet-yaml
       name: stylesheet.yaml
       labels:
@@ -52,8 +94,8 @@ graph:
       layers:
         - story
       position:
-        - 560
-        - 232
+        - 1040
+        - 285
     - id: topoviewer
       name: TopoViewer
       labels:
@@ -62,8 +104,18 @@ graph:
       layers:
         - story
       position:
-        - 780
-        - 172
+        - 1280
+        - 210
+    - id: layer-attention-controls
+      name: Layers + attention
+      labels:
+        object: behavior
+        role: controls
+      layers:
+        - story
+      position:
+        - 1520
+        - 135
     - id: service-map
       name: Interactive service map
       labels:
@@ -72,8 +124,8 @@ graph:
       layers:
         - story
       position:
-        - 1010
-        - 172
+        - 1520
+        - 285
   links:
     - id: k8s-to-collector
       source: kubernetes-api
@@ -92,25 +144,43 @@ graph:
       layers:
         - story
       data:
-        detail: NetworkTopology, TopoNodes, simulator bindings, and control relationships.
+        detail: EDA custom resources, TopoNodes, simulator bindings, and control relationships.
     - id: collector-to-topology
       source: collector
+      target: raw-inventory
+      labels:
+        link: snapshot
+      layers:
+        - story
+      data:
+        detail: services.json, deployments.json, pods.json, and discovered EDA resource JSON.
+    - id: inventory-to-converter
+      source: raw-inventory
+      target: run-converter
+      labels:
+        link: convert
+      layers:
+        - story
+      data:
+        detail: Build stable topology objects from raw API snapshots.
+    - id: converter-to-contract
+      source: run-converter
+      target: derive-topology-model
+      labels:
+        link: derive
+      layers:
+        - story
+      data:
+        detail: Deterministic IDs, labels, data, selector links, ownership links, regions, layers, and attention groups.
+    - id: contract-to-topology
+      source: derive-topology-model
       target: topology-yaml
       labels:
         link: write
       layers:
         - story
       data:
-        detail: Stable object identity and typed relationships.
-    - id: collector-to-stylesheet
-      source: collector
-      target: stylesheet-yaml
-      labels:
-        link: write
-      layers:
-        - story
-      data:
-        detail: Visual policy for object families and relationship families.
+        detail: TopoViewer graph model with layers, regions, and attention aggregation.
     - id: topology-to-topoviewer
       source: topology-yaml
       target: topoviewer
@@ -125,6 +195,17 @@ graph:
         link: input
       layers:
         - story
+      data:
+        detail: Reusable visual policy for object families and relationship families.
+    - id: topoviewer-to-controls
+      source: topoviewer
+      target: layer-attention-controls
+      labels:
+        link: interaction
+      layers:
+        - story
+      data:
+        detail: Layer hiding and attention collapse keep the resulting map readable.
     - id: topoviewer-to-map
       source: topoviewer
       target: service-map
@@ -132,6 +213,15 @@ graph:
         link: render
       layers:
         - story
+    - id: controls-to-map
+      source: layer-attention-controls
+      target: service-map
+      labels:
+        link: refine
+      layers:
+        - story
+      data:
+        detail: Hide layers, expand regions, or collapse dense areas without deleting topology facts.
   regions:
     - id: source-systems
       name: Source systems
@@ -149,6 +239,8 @@ graph:
       labels:
         region: stage
       members:
+        - raw-inventory
+        - converter
         - topology-yaml
         - stylesheet-yaml
       layers:
@@ -161,8 +253,13 @@ graph:
         region: stage
       members:
         - topoviewer
+        - layer-attention-controls
         - service-map
       layers:
         - story
       paddingX: 44
       paddingY: 48
+toggles:
+  - id: showChildNodesInsideParents
+    name: Show converter steps inside converter
+    default: true
