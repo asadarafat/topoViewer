@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import yaml from 'js-yaml';
 
-const [inventoryDir = '.artifacts/eda-kubernetes-inventory', outputFile = 'topology.yaml'] = process.argv.slice(2);
+const [inventoryDir = 'eda-kubernetes-inventory', outputFile = 'topology.yaml'] = process.argv.slice(2);
 const knownFiles = new Set(['services.json', 'deployments.json', 'pods.json']);
 const read = (file, fallback = { items: [] }) => {
   const filePath = path.join(inventoryDir, file);

@@ -3,7 +3,7 @@ set -euo pipefail
 
 workload_namespace="${1:-eda-system}"
 domain_namespace="${2:-eda}"
-output_dir="${3:-.artifacts/eda-kubernetes-inventory}"
+output_dir="${3:-eda-kubernetes-inventory}"
 resource_pattern="${4:-networktopolog|toponode}"
 kubectl_cmd="${KUBECTL:-kubectl}"
 

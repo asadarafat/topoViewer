@@ -75,13 +75,13 @@ Collect a different custom-resource family by changing the discovery pattern:
 
 ```bash
 bash packages/topoviewer/content/examples/integration/kubernetes-service-map/collect-eda-kubernetes-inventory.sh \
-  eda-system eda .artifacts/eda-kubernetes-inventory 'networktopolog|toponode|myresource'
+  eda-system eda eda-kubernetes-inventory 'networktopolog|toponode|myresource'
 ```
 
 Expected result:
 
 ```text
-.artifacts/eda-kubernetes-inventory/
+eda-kubernetes-inventory/
   services.json
   deployments.json
   pods.json
@@ -153,8 +153,8 @@ Run the scaffold against the inventory output:
 
 ```bash
 node packages/topoviewer/content/examples/integration/kubernetes-service-map/convert-eda-kubernetes-inventory.mjs \
-  .artifacts/eda-kubernetes-inventory \
-  .artifacts/eda-kubernetes-inventory/topology.yaml
+  eda-kubernetes-inventory \
+  eda-kubernetes-inventory/topology.yaml
 ```
 
 The generated topology is intentionally deterministic. Re-running the converter
