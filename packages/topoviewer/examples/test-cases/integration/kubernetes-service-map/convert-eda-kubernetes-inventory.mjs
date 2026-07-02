@@ -2,7 +2,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import yaml from 'js-yaml';
-
 const [inventoryDir = 'eda-kubernetes-inventory', outputFile = 'topology.yaml'] = process.argv.slice(2);
 const knownFiles = new Set(['services.json', 'deployments.json', 'pods.json']);
 const read = (file, fallback = { items: [] }) => {
@@ -35,9 +34,9 @@ const node = (object, prefix, objectType, index, row, data, layer = 'control-pla
   labels: pick({ object: objectType, namespace: object.metadata?.namespace, role: role(object, objectType), status: status(object) }),
   data: pick(data), layers: [layer], position: xy(index, row),
 });
-const region = (idValue, name, members, layers) =>
-  ({ id: idValue, name, labels: { region: 'generated' }, members, layers, paddingX: 48, paddingY: 42 });
-
+const withParent = (nodes, parentId) => nodes.map((item) => ({ ...item, parent: parentId }));
+const parentGroup = (idValue, name, role, members, layers, position) =>
+  members.length ? { id: idValue, name, labels: { object: 'parentGroup', role }, data: { childCount: members.length }, layers, position } : undefined;
 const services = items(read('services.json'));
 const deployments = items(read('deployments.json'));
 const pods = items(read('pods.json'));
@@ -82,18 +81,21 @@ extras.filter((item) => /networktopology/i.test(item.kind ?? '')).forEach((topol
     id: `${id('cr-networktopology', topology)}-contains-${id('cr-toponode', topoNode)}`, name: 'contains',
     source: id('cr-networktopology', topology), target: id('cr-toponode', topoNode), labels: { link: 'topology' }, layers: ['topology-runtime'],
   })));
-const regions = [
-  region('region-services', 'Services', serviceNodes.map((item) => item.id), ['control-plane']),
-  region('region-workloads', 'Deployments and pods', [...deploymentNodes, ...podNodes].map((item) => item.id), ['control-plane']),
-  region('region-runtime', 'Topology runtime', extraNodes.filter((item) => item.layers.includes('topology-runtime')).map((item) => item.id), ['topology-runtime']),
-].filter((item) => item.members.length > 0);
-const graph = { id: 'kubernetes-inventory-service-map', layers: [
-  { id: 'control-plane', name: 'Control plane' }, { id: 'topology-runtime', name: 'Topology runtime' },
-], nodes: [...serviceNodes, ...deploymentNodes, ...podNodes, ...extraNodes], links, regions };
-const attention = { aggregate: {
-  groups: regions.map((item) => ({ id: item.id, by: 'region', regionId: item.id, label: item.name })),
-  expandedGroupIds: regions.map((item) => item.id), expandOnClick: true,
-}};
-fs.mkdirSync(path.dirname(outputFile), { recursive: true });
-fs.writeFileSync(outputFile, yaml.dump({ graph, attention }, { lineWidth: 120 }), 'utf8');
-console.log(`Wrote ${graph.nodes.length} nodes, ${graph.links.length} links, ${regions.length} regions to ${outputFile}`);
+const runtimeNodes = extraNodes.filter((item) => item.layers.includes('topology-runtime'));
+const parentNodes = [
+  parentGroup('parent-services', 'Services', 'services', serviceNodes, ['control-plane'], [60, 80]),
+  parentGroup('parent-workloads', 'Deployments and pods', 'workloads', [...deploymentNodes, ...podNodes], ['control-plane'], [60, 330]),
+  parentGroup('parent-runtime', 'Topology runtime', 'runtime', runtimeNodes, ['topology-runtime'], [60, 580]),
+].filter(Boolean);
+const graph = { id: 'kubernetes-inventory-service-map',
+  layers: [{ id: 'control-plane', name: 'Control plane' }, { id: 'topology-runtime', name: 'Topology runtime' }],
+  nodes: [
+  ...parentNodes,
+  ...withParent(serviceNodes, 'parent-services'),
+  ...withParent(deploymentNodes, 'parent-workloads'),
+  ...withParent(podNodes, 'parent-workloads'),
+  ...extraNodes.map((item) => runtimeNodes.some((runtime) => runtime.id === item.id) ? { ...item, parent: 'parent-runtime' } : item),
+], links };
+const attention = { aggregate: { groups: parentNodes.map((item) => ({ id: item.id, by: 'parent', parentId: item.id, label: item.name })), expandedGroupIds: parentNodes.map((item) => item.id), expandOnClick: true } };
+fs.mkdirSync(path.dirname(outputFile), { recursive: true }); fs.writeFileSync(outputFile, yaml.dump(parentNodes.length ? { graph, attention } : { graph }, { lineWidth: 120 }), 'utf8');
+console.log(`Wrote ${graph.nodes.length} nodes, ${graph.links.length} links, ${parentNodes.length} parent groups to ${outputFile}`);

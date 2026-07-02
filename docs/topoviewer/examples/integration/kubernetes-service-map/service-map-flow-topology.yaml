@@ -66,7 +66,7 @@ graph:
         - 760
         - 140
     - id: derive-topology-model
-      name: IDs, links, regions
+      name: IDs, links, parents
       labels:
         object: model
         role: contract
@@ -171,7 +171,7 @@ graph:
       layers:
         - story
       data:
-        detail: Deterministic IDs, labels, data, selector links, ownership links, regions, layers, and attention groups.
+        detail: Deterministic IDs, labels, data, selector links, ownership links, parent groups, layers, and attention groups.
     - id: contract-to-topology
       source: derive-topology-model
       target: topology-yaml
@@ -180,7 +180,7 @@ graph:
       layers:
         - story
       data:
-        detail: TopoViewer graph model with layers, regions, and attention aggregation.
+        detail: TopoViewer graph model with layers, parent groups, and attention aggregation.
     - id: topology-to-topoviewer
       source: topology-yaml
       target: topoviewer
@@ -205,7 +205,7 @@ graph:
       layers:
         - story
       data:
-        detail: Layer hiding and attention collapse keep the resulting map readable.
+        detail: Layer hiding and parent-group collapse keep the resulting map readable.
     - id: topoviewer-to-map
       source: topoviewer
       target: service-map
@@ -221,44 +221,7 @@ graph:
       layers:
         - story
       data:
-        detail: Hide layers, expand regions, or collapse dense areas without deleting topology facts.
-  regions:
-    - id: source-systems
-      name: Source systems
-      labels:
-        region: stage
-      members:
-        - kubernetes-api
-        - eda-api
-      layers:
-        - story
-      paddingX: 48
-      paddingY: 44
-    - id: generated-yaml
-      name: Generated model
-      labels:
-        region: stage
-      members:
-        - raw-inventory
-        - converter
-        - topology-yaml
-        - stylesheet-yaml
-      layers:
-        - story
-      paddingX: 48
-      paddingY: 44
-    - id: rendered-output
-      name: Rendering surface
-      labels:
-        region: stage
-      members:
-        - topoviewer
-        - layer-attention-controls
-        - service-map
-      layers:
-        - story
-      paddingX: 44
-      paddingY: 48
+        detail: Hide layers, expand parent groups, or collapse dense areas without deleting topology facts.
 toggles:
   - id: showChildNodesInsideParents
     name: Show converter steps inside converter

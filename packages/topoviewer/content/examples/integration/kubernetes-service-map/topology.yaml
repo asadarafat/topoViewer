@@ -6,8 +6,87 @@ graph:
     - id: topology-runtime
       name: EDA topology runtime
   nodes:
+    - id: parent-api-surface
+      name: API and UI surface
+      labels:
+        object: parentGroup
+        scope: kubernetes
+        zone: api
+      data:
+        childCount: 13
+      layers:
+        - control-plane
+      position:
+        - 1020
+        - 20
+    - id: parent-data-identity
+      name: Identity and persistence
+      labels:
+        object: parentGroup
+        scope: kubernetes
+        zone: data
+      data:
+        childCount: 8
+      layers:
+        - control-plane
+      position:
+        - 610
+        - 710
+    - id: parent-control-engine
+      name: EDA control engines
+      labels:
+        object: parentGroup
+        scope: kubernetes
+        zone: engine
+      data:
+        childCount: 14
+      layers:
+        - control-plane
+      position:
+        - 170
+        - 120
+    - id: parent-app-bootstrap
+      name: Apps, artifacts, and bootstrap
+      labels:
+        object: parentGroup
+        scope: kubernetes
+        zone: apps
+      data:
+        childCount: 10
+      layers:
+        - control-plane
+      position:
+        - 1310
+        - 500
+    - id: parent-topology-runtime
+      name: Topology runtime
+      labels:
+        object: parentGroup
+        scope: eda
+        zone: runtime
+      data:
+        childCount: 6
+      layers:
+        - topology-runtime
+      position:
+        - 220
+        - 1090
+    - id: parent-simulated-fabric
+      name: Simulated fabric
+      labels:
+        object: parentGroup
+        scope: eda
+        zone: fabric
+      data:
+        childCount: 8
+      layers:
+        - topology-runtime
+      position:
+        - 480
+        - 1480
     - id: client-browser
       name: Browser
+      parent: parent-api-surface
       labels:
         object: client
         role: user
@@ -20,6 +99,7 @@ graph:
         - 90
     - id: svc-try-eda
       name: try-eda
+      parent: parent-api-surface
       labels:
         object: service
         namespace: eda-system
@@ -39,6 +119,7 @@ graph:
         - 90
     - id: svc-eda-api
       name: eda-api
+      parent: parent-api-surface
       labels:
         object: service
         namespace: eda-system
@@ -58,6 +139,7 @@ graph:
         - 240
     - id: svc-eda-fe
       name: eda-fe
+      parent: parent-api-surface
       labels:
         object: service
         namespace: eda-system
@@ -77,6 +159,7 @@ graph:
         - 90
     - id: svc-eda-keycloak
       name: eda-keycloak
+      parent: parent-data-identity
       labels:
         object: service
         namespace: eda-system
@@ -96,6 +179,7 @@ graph:
         - 810
     - id: svc-eda-appstore
       name: eda-appstore
+      parent: parent-app-bootstrap
       labels:
         object: service
         namespace: eda-system
@@ -115,6 +199,7 @@ graph:
         - 600
     - id: svc-eda-git
       name: eda-git
+      parent: parent-data-identity
       labels:
         object: service
         namespace: eda-system
@@ -134,6 +219,7 @@ graph:
         - 810
     - id: svc-eda-postgres
       name: eda-postgres
+      parent: parent-data-identity
       labels:
         object: service
         namespace: eda-system
@@ -153,6 +239,7 @@ graph:
         - 810
     - id: svc-eda-ce
       name: eda-ce
+      parent: parent-control-engine
       labels:
         object: service
         namespace: eda-system
@@ -172,6 +259,7 @@ graph:
         - 220
     - id: svc-eda-sc
       name: eda-sc
+      parent: parent-control-engine
       labels:
         object: service
         namespace: eda-system
@@ -191,6 +279,7 @@ graph:
         - 220
     - id: svc-eda-sa
       name: eda-sa
+      parent: parent-control-engine
       labels:
         object: service
         namespace: eda-system
@@ -210,6 +299,7 @@ graph:
         - 220
     - id: svc-eda-cm
       name: eda-cm
+      parent: parent-api-surface
       labels:
         object: service
         namespace: eda-system
@@ -229,6 +319,7 @@ graph:
         - 240
     - id: svc-eda-cx
       name: eda-cx
+      parent: parent-control-engine
       labels:
         object: service
         namespace: eda-system
@@ -248,6 +339,7 @@ graph:
         - 540
     - id: svc-eda-bsvr
       name: eda-bsvr
+      parent: parent-app-bootstrap
       labels:
         object: service
         namespace: eda-system
@@ -267,6 +359,7 @@ graph:
         - 600
     - id: svc-eda-asvr
       name: eda-asvr
+      parent: parent-app-bootstrap
       labels:
         object: service
         namespace: eda-system
@@ -286,6 +379,7 @@ graph:
         - 600
     - id: svc-eda-ai
       name: eda-ai
+      parent: parent-control-engine
       labels:
         object: service
         namespace: eda-system
@@ -305,6 +399,7 @@ graph:
         - 220
     - id: svc-eda-aggsvr-svc
       name: eda-aggsvr-svc
+      parent: parent-api-surface
       labels:
         object: service
         namespace: eda-system
@@ -324,6 +419,7 @@ graph:
         - 240
     - id: svc-eda-api-debug-grpc
       name: eda-api-debug-grpc
+      parent: parent-api-surface
       labels:
         object: service
         namespace: eda-system
@@ -343,6 +439,7 @@ graph:
         - 240
     - id: svc-eda-dhcp
       name: eda-dhcp
+      parent: parent-app-bootstrap
       labels:
         object: service
         namespace: eda-system
@@ -362,6 +459,7 @@ graph:
         - 600
     - id: svc-eda-dhcpv6
       name: eda-dhcpv6
+      parent: parent-app-bootstrap
       labels:
         object: service
         namespace: eda-system
@@ -381,6 +479,7 @@ graph:
         - 760
     - id: svc-eda-git-replica
       name: eda-git-replica
+      parent: parent-data-identity
       labels:
         object: service
         namespace: eda-system
@@ -400,6 +499,7 @@ graph:
         - 810
     - id: svc-logoutput-fluentbit-collector
       name: logoutput-fluentbit-collector
+      parent: parent-api-surface
       labels:
         object: service
         namespace: eda-system
@@ -419,6 +519,7 @@ graph:
         - 240
     - id: svc-trust-manager
       name: trust-manager
+      parent: parent-app-bootstrap
       labels:
         object: service
         namespace: eda-system
@@ -438,6 +539,7 @@ graph:
         - 600
     - id: svc-trust-manager-metrics
       name: trust-manager-metrics
+      parent: parent-control-engine
       labels:
         object: service
         namespace: eda-system
@@ -457,6 +559,7 @@ graph:
         - 220
     - id: deploy-cx-eda-leaf1-sim
       name: cx-eda--leaf1-sim
+      parent: parent-simulated-fabric
       labels:
         object: deployment
         namespace: eda-system
@@ -474,6 +577,7 @@ graph:
         - 1580
     - id: deploy-cx-eda-leaf2-sim
       name: cx-eda--leaf2-sim
+      parent: parent-simulated-fabric
       labels:
         object: deployment
         namespace: eda-system
@@ -491,6 +595,7 @@ graph:
         - 1580
     - id: deploy-cx-eda-spine1-sim
       name: cx-eda--spine1-sim
+      parent: parent-simulated-fabric
       labels:
         object: deployment
         namespace: eda-system
@@ -508,6 +613,7 @@ graph:
         - 1580
     - id: deploy-cx-eda-testman-default-sim
       name: cx-eda--testman-default-sim
+      parent: parent-simulated-fabric
       labels:
         object: deployment
         namespace: eda-system
@@ -525,6 +631,7 @@ graph:
         - 1580
     - id: deploy-eda-ai-engine
       name: eda-ai-engine
+      parent: parent-control-engine
       labels:
         object: deployment
         namespace: eda-system
@@ -542,6 +649,7 @@ graph:
         - 380
     - id: deploy-eda-api
       name: eda-api
+      parent: parent-api-surface
       labels:
         object: deployment
         namespace: eda-system
@@ -559,6 +667,7 @@ graph:
         - 400
     - id: deploy-eda-appstore
       name: eda-appstore
+      parent: parent-app-bootstrap
       labels:
         object: deployment
         namespace: eda-system
@@ -576,6 +685,7 @@ graph:
         - 760
     - id: deploy-eda-asvr
       name: eda-asvr
+      parent: parent-app-bootstrap
       labels:
         object: deployment
         namespace: eda-system
@@ -593,6 +703,7 @@ graph:
         - 760
     - id: deploy-eda-bsvr
       name: eda-bsvr
+      parent: parent-app-bootstrap
       labels:
         object: deployment
         namespace: eda-system
@@ -610,6 +721,7 @@ graph:
         - 760
     - id: deploy-eda-ce
       name: eda-ce
+      parent: parent-control-engine
       labels:
         object: deployment
         namespace: eda-system
@@ -627,6 +739,7 @@ graph:
         - 380
     - id: deploy-eda-cert-checker
       name: eda-cert-checker
+      parent: parent-control-engine
       labels:
         object: deployment
         namespace: eda-system
@@ -644,6 +757,7 @@ graph:
         - 380
     - id: deploy-eda-cluster-manager
       name: eda-cluster-manager
+      parent: parent-api-surface
       labels:
         object: deployment
         namespace: eda-system
@@ -661,6 +775,7 @@ graph:
         - 400
     - id: deploy-eda-cx
       name: eda-cx
+      parent: parent-control-engine
       labels:
         object: deployment
         namespace: eda-system
@@ -678,6 +793,7 @@ graph:
         - 540
     - id: deploy-eda-fe
       name: eda-fe
+      parent: parent-api-surface
       labels:
         object: deployment
         namespace: eda-system
@@ -695,6 +811,7 @@ graph:
         - 400
     - id: deploy-eda-git
       name: eda-git
+      parent: parent-data-identity
       labels:
         object: deployment
         namespace: eda-system
@@ -712,6 +829,7 @@ graph:
         - 970
     - id: deploy-eda-git-replica
       name: eda-git-replica
+      parent: parent-data-identity
       labels:
         object: deployment
         namespace: eda-system
@@ -729,6 +847,7 @@ graph:
         - 970
     - id: deploy-eda-keycloak
       name: eda-keycloak
+      parent: parent-data-identity
       labels:
         object: deployment
         namespace: eda-system
@@ -746,6 +865,7 @@ graph:
         - 970
     - id: deploy-eda-logoutput-fluentbit-collector
       name: eda-logoutput-fluentbit-collector
+      parent: parent-api-surface
       labels:
         object: deployment
         namespace: eda-system
@@ -763,6 +883,7 @@ graph:
         - 400
     - id: deploy-eda-metrics-server
       name: eda-metrics-server
+      parent: parent-control-engine
       labels:
         object: deployment
         namespace: eda-system
@@ -780,6 +901,7 @@ graph:
         - 540
     - id: deploy-eda-postgres
       name: eda-postgres
+      parent: parent-data-identity
       labels:
         object: deployment
         namespace: eda-system
@@ -797,6 +919,7 @@ graph:
         - 970
     - id: deploy-eda-sa
       name: eda-sa
+      parent: parent-control-engine
       labels:
         object: deployment
         namespace: eda-system
@@ -814,6 +937,7 @@ graph:
         - 380
     - id: deploy-eda-sc
       name: eda-sc
+      parent: parent-control-engine
       labels:
         object: deployment
         namespace: eda-system
@@ -831,6 +955,7 @@ graph:
         - 380
     - id: deploy-eda-se
       name: eda-se
+      parent: parent-control-engine
       labels:
         object: deployment
         namespace: eda-system
@@ -848,6 +973,7 @@ graph:
         - 540
     - id: deploy-eda-toolbox
       name: eda-toolbox
+      parent: parent-api-surface
       labels:
         object: deployment
         namespace: eda-system
@@ -865,6 +991,7 @@ graph:
         - 400
     - id: deploy-trust-manager
       name: trust-manager
+      parent: parent-app-bootstrap
       labels:
         object: deployment
         namespace: eda-system
@@ -882,6 +1009,7 @@ graph:
         - 760
     - id: eda-topology-try-eda-topology
       name: try-eda-topology
+      parent: parent-topology-runtime
       labels:
         object: edaResource
         namespace: eda
@@ -897,6 +1025,7 @@ graph:
         - 1190
     - id: toponode-leaf1
       name: leaf1
+      parent: parent-topology-runtime
       labels:
         object: toponode
         namespace: eda
@@ -919,6 +1048,7 @@ graph:
         - 1340
     - id: toponode-leaf2
       name: leaf2
+      parent: parent-topology-runtime
       labels:
         object: toponode
         namespace: eda
@@ -941,6 +1071,7 @@ graph:
         - 1340
     - id: toponode-spine1
       name: spine1
+      parent: parent-topology-runtime
       labels:
         object: toponode
         namespace: eda
@@ -963,6 +1094,7 @@ graph:
         - 1340
     - id: pod-eda-npp-0
       name: eda-npp-0
+      parent: parent-topology-runtime
       labels:
         object: pod
         namespace: eda-system
@@ -979,6 +1111,7 @@ graph:
         - 1190
     - id: pod-eda-npp-1
       name: eda-npp-1
+      parent: parent-topology-runtime
       labels:
         object: pod
         namespace: eda-system
@@ -995,6 +1128,7 @@ graph:
         - 1190
     - id: pod-cx-eda-leaf1-sim-777d7654d8-rj7vt
       name: leaf1
+      parent: parent-simulated-fabric
       labels:
         object: pod
         namespace: eda-system
@@ -1013,6 +1147,7 @@ graph:
         - 1740
     - id: pod-cx-eda-leaf2-sim-756565d7ff-jb8cx
       name: leaf2
+      parent: parent-simulated-fabric
       labels:
         object: pod
         namespace: eda-system
@@ -1031,6 +1166,7 @@ graph:
         - 1740
     - id: pod-cx-eda-spine1-sim-7cdfb4bc99-fvxng
       name: spine1
+      parent: parent-simulated-fabric
       labels:
         object: pod
         namespace: eda-system
@@ -1049,6 +1185,7 @@ graph:
         - 1740
     - id: pod-cx-eda-testman-default-sim-5bd4dc65b4-8vghl
       name: testman-default
+      parent: parent-simulated-fabric
       labels:
         object: pod
         namespace: eda-system
@@ -1633,158 +1770,38 @@ graph:
           eda.nokia.com/app: apiserver
       layers:
         - control-plane
-  regions:
-    - id: region-api-surface
-      name: API and UI surface
-      labels:
-        region: kubernetes
-        zone: api
-      members:
-        - client-browser
-        - svc-try-eda
-        - svc-eda-api
-        - svc-eda-fe
-        - svc-eda-cm
-        - svc-eda-aggsvr-svc
-        - svc-eda-api-debug-grpc
-        - svc-logoutput-fluentbit-collector
-        - deploy-eda-api
-        - deploy-eda-cluster-manager
-        - deploy-eda-fe
-        - deploy-eda-logoutput-fluentbit-collector
-        - deploy-eda-toolbox
-      paddingX: 46
-      paddingY: 42
-      layers:
-        - control-plane
-    - id: region-data-identity
-      name: Identity and persistence
-      labels:
-        region: kubernetes
-        zone: data
-      members:
-        - svc-eda-keycloak
-        - svc-eda-git
-        - svc-eda-postgres
-        - svc-eda-git-replica
-        - deploy-eda-git
-        - deploy-eda-git-replica
-        - deploy-eda-keycloak
-        - deploy-eda-postgres
-      paddingX: 46
-      paddingY: 42
-      layers:
-        - control-plane
-    - id: region-control-engine
-      name: EDA control engines
-      labels:
-        region: kubernetes
-        zone: engine
-      members:
-        - svc-eda-ce
-        - svc-eda-sc
-        - svc-eda-sa
-        - svc-eda-cx
-        - svc-eda-ai
-        - svc-trust-manager-metrics
-        - deploy-eda-ai-engine
-        - deploy-eda-ce
-        - deploy-eda-cert-checker
-        - deploy-eda-cx
-        - deploy-eda-metrics-server
-        - deploy-eda-sa
-        - deploy-eda-sc
-        - deploy-eda-se
-      paddingX: 46
-      paddingY: 42
-      layers:
-        - control-plane
-    - id: region-app-bootstrap
-      name: Apps, artifacts, and bootstrap
-      labels:
-        region: kubernetes
-        zone: apps
-      members:
-        - svc-eda-appstore
-        - svc-eda-bsvr
-        - svc-eda-asvr
-        - svc-eda-dhcp
-        - svc-eda-dhcpv6
-        - svc-trust-manager
-        - deploy-eda-appstore
-        - deploy-eda-asvr
-        - deploy-eda-bsvr
-        - deploy-trust-manager
-      paddingX: 46
-      paddingY: 42
-      layers:
-        - control-plane
-    - id: region-topology-runtime
-      name: Topology runtime
-      labels:
-        region: eda
-        zone: runtime
-      members:
-        - eda-topology-try-eda-topology
-        - toponode-leaf1
-        - toponode-leaf2
-        - toponode-spine1
-        - pod-eda-npp-0
-        - pod-eda-npp-1
-      paddingX: 52
-      paddingY: 46
-      layers:
-        - topology-runtime
-    - id: region-simulated-fabric
-      name: Simulated fabric
-      labels:
-        region: eda
-        zone: fabric
-      members:
-        - deploy-cx-eda-leaf1-sim
-        - deploy-cx-eda-leaf2-sim
-        - deploy-cx-eda-spine1-sim
-        - deploy-cx-eda-testman-default-sim
-        - pod-cx-eda-leaf1-sim-777d7654d8-rj7vt
-        - pod-cx-eda-leaf2-sim-756565d7ff-jb8cx
-        - pod-cx-eda-spine1-sim-7cdfb4bc99-fvxng
-        - pod-cx-eda-testman-default-sim-5bd4dc65b4-8vghl
-      paddingX: 52
-      paddingY: 46
-      layers:
-        - topology-runtime
 attention:
   aggregate:
     groups:
-      - id: region-api-surface
-        by: region
-        regionId: region-api-surface
+      - id: parent-api-surface
+        by: parent
+        parentId: parent-api-surface
         label: API and UI surface
-      - id: region-data-identity
-        by: region
-        regionId: region-data-identity
+      - id: parent-data-identity
+        by: parent
+        parentId: parent-data-identity
         label: Identity and persistence
-      - id: region-control-engine
-        by: region
-        regionId: region-control-engine
+      - id: parent-control-engine
+        by: parent
+        parentId: parent-control-engine
         label: EDA control engines
-      - id: region-app-bootstrap
-        by: region
-        regionId: region-app-bootstrap
+      - id: parent-app-bootstrap
+        by: parent
+        parentId: parent-app-bootstrap
         label: Apps, artifacts, and bootstrap
-      - id: region-topology-runtime
-        by: region
-        regionId: region-topology-runtime
+      - id: parent-topology-runtime
+        by: parent
+        parentId: parent-topology-runtime
         label: Topology runtime
-      - id: region-simulated-fabric
-        by: region
-        regionId: region-simulated-fabric
+      - id: parent-simulated-fabric
+        by: parent
+        parentId: parent-simulated-fabric
         label: Simulated fabric
     expandedGroupIds:
-      - region-api-surface
-      - region-data-identity
-      - region-control-engine
-      - region-app-bootstrap
-      - region-topology-runtime
-      - region-simulated-fabric
+      - parent-api-surface
+      - parent-data-identity
+      - parent-control-engine
+      - parent-app-bootstrap
+      - parent-topology-runtime
+      - parent-simulated-fabric
     expandOnClick: true
