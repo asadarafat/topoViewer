@@ -15,8 +15,8 @@ icons:
     glyph: ID
     fill: "#00695c"
     stroke: "#80cbc4"
-  yaml:
-    glyph: YAML
+  artifact:
+    glyph: ARTIFACT
     fill: "#2e7d32"
     stroke: "#a5d6a7"
   policy:
@@ -114,7 +114,7 @@ stylesheet:
       labelBorderWidth: 0
   - selector: node[labels.object = "artifact"]
     style:
-      icon: yaml
+      icon: artifact
       backgroundColor: "rgba(46, 125, 50, 0.14)"
       borderColor: "#4caf50"
   - selector: node[labels.object = "policy"]

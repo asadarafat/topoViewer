@@ -11,8 +11,8 @@ icons:
     glyph: RUN
     fill: "#7b1fa2"
     stroke: "#ce93d8"
-  yaml:
-    glyph: YAML
+  artifact:
+    glyph: ARTIFACT
     fill: "#2e7d32"
     stroke: "#a5d6a7"
   model:
@@ -76,8 +76,7 @@ stylesheet:
       borderColor: "#ba68c8"
       width: 210
       height: 230
-      labelPosition: top
-      labelYOffset: -4
+      labelPosition: bottom
   - selector: node[labels.role = "converterStep"]
     style:
       labelPosition: center
@@ -90,7 +89,7 @@ stylesheet:
       labelBorderWidth: 0
   - selector: node[labels.object = "artifact"]
     style:
-      icon: yaml
+      icon: artifact
       backgroundColor: "rgba(46, 125, 50, 0.14)"
       borderColor: "#4caf50"
   - selector: node[labels.object = "model"]

@@ -245,8 +245,8 @@ graph:
         - stylesheet-yaml
       layers:
         - story
-      paddingX: 48
-      paddingY: 44
+      paddingX: 64
+      paddingY: 58
     - id: rendered-output
       name: Rendering surface
       labels:
