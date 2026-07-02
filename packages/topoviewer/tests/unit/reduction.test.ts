@@ -43,6 +43,41 @@ describe('deriveAggregateGraph', () => {
     expect(result.document.stylesheet?.some((rule) => rule.selector === 'node[isAggregate="true"]')).toBe(true);
   });
 
+  it('keeps collapsed aggregate nodes visible in the member layers', () => {
+    const document = {
+      graph: {
+        layers: [
+          { id: 'control-plane', name: 'Control plane' },
+          { id: 'topology-runtime', name: 'Topology runtime' }
+        ],
+        nodes: [
+          { id: 'svc-api', label: 'API service', layers: ['control-plane'], position: [100, 100] },
+          { id: 'deploy-api', label: 'API deployment', layers: ['control-plane'], position: [220, 100] },
+          { id: 'toponode-leaf1', label: 'leaf1', layers: ['topology-runtime'], position: [100, 260] }
+        ],
+        links: [
+          { id: 'svc-deploy', source: 'svc-api', target: 'deploy-api', layers: ['control-plane'] }
+        ],
+        regions: [
+          {
+            id: 'api-region',
+            name: 'API region',
+            members: ['svc-api', 'deploy-api'],
+            layers: ['control-plane']
+          }
+        ]
+      }
+    };
+    const index = buildAttentionIndex(document);
+
+    const result = deriveAggregateGraph(document, index, {
+      groups: [{ id: 'api-region', by: 'region', regionId: 'api-region', label: 'API region' }]
+    });
+
+    expect(result.document.graph?.nodes?.find((node) => node.id === 'aggregate:api-region')?.layers).toEqual(['control-plane']);
+    expect(result.document.graph?.nodes?.map((node) => node.id)).toEqual(['aggregate:api-region', 'toponode-leaf1']);
+  });
+
   it('collapses parent-child nodes and label-defined groups', () => {
     const document = attentionFixture();
     const index = buildAttentionIndex(document);

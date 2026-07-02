@@ -128,6 +128,11 @@ function aggregatePosition(memberIds: readonly string[], nodeById: Map<string, G
   };
 }
 
+function aggregateLayers(memberIds: readonly string[], nodeById: Map<string, GraphNode>): string[] {
+  const layers = uniqueIds(memberIds.flatMap((id) => nodeById.get(id)?.layers || []));
+  return [...layers];
+}
+
 function groupLinkCount(memberIds: readonly string[], links: readonly GraphLink[]): number {
   const members = new Set(memberIds);
   return links.filter((link) => members.has(link.source) || members.has(link.target)).length;
@@ -149,7 +154,7 @@ function createAggregateNode(group: AggregateGroupDefinition, summary: Aggregate
       ...(criticalCount ? { critical: criticalCount } : {}),
       ...(majorCount ? { major: majorCount } : {})
     },
-    layers: ['physical'],
+    layers: aggregateLayers(summary.memberIds, nodeById),
     position: aggregatePosition(summary.memberIds, nodeById),
     data: {
       isAggregate: true,
