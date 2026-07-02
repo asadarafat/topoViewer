@@ -689,15 +689,21 @@ examples:
     feature: integration
     path: integration/kubernetes-service-map
     page: topoviewer/examples/kubernetes-service-map
-    summary: A non-network infrastructure example showing app services, data dependencies, namespaces, and runtime status.
+    summary: >-
+      A real EDA Playground Kubernetes service map showing services, deployments, pods, EDA TopoNodes, simulator pods,
+      and runtime bindings.
+    introMode: narrative
+    extraFiles:
+      - service-map-flow-topology.yaml
+      - service-map-flow-stylesheet.yaml
     render:
-      height: 480px
+      height: 760px
       controls: true
       controlsOpen: false
       title: Kubernetes service map
       selectedLayerIds:
-        - application
-        - data
+        - control-plane
+        - topology-runtime
   - id: integration-real-network-underlay
     title: Real network underlay
     feature: integration

@@ -1,181 +1,1790 @@
 graph:
-  id: kubernetes-service-map
+  id: eda-kubernetes-service-map
   layers:
-    - id: application
-      name: Application
-    - id: data
-      name: Data Services
+    - id: control-plane
+      name: EDA control plane
+    - id: topology-runtime
+      name: EDA topology runtime
   nodes:
-    - id: internet
-      name: Internet
+    - id: client-browser
+      name: Browser
       labels:
-        kind: external
-      layers:
-        - application
-      position:
-        - 90
-        - 210
-    - id: ingress
-      name: Ingress
-      labels:
-        kind: gateway
-      layers:
-        - application
-      position:
-        - 240
-        - 210
-    - id: web
-      name: Web
-      labels:
-        kind: frontend
-        app: checkout
-      layers:
-        - application
-      position:
-        - 400
-        - 130
-    - id: api
-      name: API
-      labels:
-        kind: backend
-        app: checkout
-      layers:
-        - application
-      position:
-        - 580
-        - 210
-    - id: worker
-      name: Worker
-      labels:
-        kind: worker
-        app: checkout
-      layers:
-        - application
-      position:
-        - 400
-        - 290
-    - id: redis
-      name: Redis
-      labels:
-        kind: cache
-      layers:
-        - data
-      position:
-        - 780
-        - 120
-    - id: postgres
-      name: Postgres
-      labels:
-        kind: database
+        object: client
+        role: user
       data:
-        severity: warning
+        target: https://localhost:9443
       layers:
-        - data
+        - control-plane
       position:
-        - 780
-        - 220
-    - id: queue
-      name: Queue
+        - 80
+        - 90
+    - id: svc-try-eda
+      name: try-eda
       labels:
-        kind: queue
+        object: service
+        namespace: eda-system
+        role: api
+        status: ready
+      data:
+        type: NodePort
+        clusterIP: 10.96.114.73
+        externalIPs: ""
+        ports: https:443/TCP, grpc-proxy:51206/TCP
+        selector:
+          eda.nokia.com/app: apiserver
       layers:
-        - data
+        - control-plane
       position:
-        - 780
-        - 320
+        - 180
+        - 110
+    - id: svc-eda-api
+      name: eda-api
+      labels:
+        object: service
+        namespace: eda-system
+        role: api
+        status: ready
+      data:
+        type: LoadBalancer
+        clusterIP: 10.96.45.173
+        externalIPs: 172.21.255.2, fc00:f853:ccd:e793:ffff:ffff:ffff:ff00
+        ports: apiserver:80/TCP, apiserverhttps:443/TCP, redundancy:51201/TCP, state-aggregator:51202/TCP, fe:51203/TCP, grpc-proxy:51206/TCP, apiserver-grpc:51300/TCP, eda-dhcp:67/UDP, eda-dhcp6:547/UDP
+        selector:
+          eda.nokia.com/app: apiserver
+      layers:
+        - control-plane
+      position:
+        - 340
+        - 110
+    - id: svc-eda-fe
+      name: eda-fe
+      labels:
+        object: service
+        namespace: eda-system
+        role: frontend
+        status: ready
+      data:
+        type: ClusterIP
+        clusterIP: 10.96.190.5
+        externalIPs: ""
+        ports: fe:51101/TCP
+        selector:
+          eda.nokia.com/app: flowengine
+      layers:
+        - control-plane
+      position:
+        - 500
+        - 110
+    - id: svc-eda-keycloak
+      name: eda-keycloak
+      labels:
+        object: service
+        namespace: eda-system
+        role: identity
+        status: ready
+      data:
+        type: ClusterIP
+        clusterIP: 10.96.11.120
+        externalIPs: ""
+        ports: https:9443/TCP, debug-grpc:51200/TCP
+        selector:
+          eda.nokia.com/app: keycloak
+      layers:
+        - control-plane
+      position:
+        - 660
+        - 110
+    - id: svc-eda-appstore
+      name: eda-appstore
+      labels:
+        object: service
+        namespace: eda-system
+        role: appstore
+        status: ready
+      data:
+        type: ClusterIP
+        clusterIP: 10.96.17.76
+        externalIPs: ""
+        ports: appstore:8082/TCP, appstore-grpc:51202/TCP
+        selector:
+          eda.nokia.com/app: appstore
+      layers:
+        - control-plane
+      position:
+        - 180
+        - 510
+    - id: svc-eda-git
+      name: eda-git
+      labels:
+        object: service
+        namespace: eda-system
+        role: repository
+        status: ready
+      data:
+        type: LoadBalancer
+        clusterIP: 10.96.131.40
+        externalIPs: 172.21.255.1
+        ports: ssh:22/TCP, web:3000/TCP
+        selector:
+          eda.nokia.com/app: git
+      layers:
+        - control-plane
+      position:
+        - 980
+        - 110
+    - id: svc-eda-postgres
+      name: eda-postgres
+      labels:
+        object: service
+        namespace: eda-system
+        role: database
+        status: ready
+      data:
+        type: ClusterIP
+        clusterIP: 10.96.219.224
+        externalIPs: ""
+        ports: postgres:5432/TCP, grpc:51200/TCP
+        selector:
+          eda.nokia.com/app: postgres
+      layers:
+        - control-plane
+      position:
+        - 180
+        - 110
+    - id: svc-eda-ce
+      name: eda-ce
+      labels:
+        object: service
+        namespace: eda-system
+        role: engine
+        status: ready
+      data:
+        type: ClusterIP
+        clusterIP: 10.96.183.113
+        externalIPs: ""
+        ports: ce-grpc-port:51200/TCP
+        selector:
+          eda.nokia.com/app: configengine
+      layers:
+        - control-plane
+      position:
+        - 180
+        - 310
+    - id: svc-eda-sc
+      name: eda-sc
+      labels:
+        object: service
+        namespace: eda-system
+        role: engine
+        status: ready
+      data:
+        type: ClusterIP
+        clusterIP: 10.96.228.75
+        externalIPs: ""
+        ports: statecontroller:51100/TCP, shard:51101/TCP
+        selector:
+          eda.nokia.com/app: statecontroller
+      layers:
+        - control-plane
+      position:
+        - 340
+        - 310
+    - id: svc-eda-sa
+      name: eda-sa
+      labels:
+        object: service
+        namespace: eda-system
+        role: engine
+        status: ready
+      data:
+        type: ClusterIP
+        clusterIP: 10.96.52.184
+        externalIPs: ""
+        ports: stateaggregator:51100/TCP
+        selector:
+          eda.nokia.com/app: stateaggregator
+      layers:
+        - control-plane
+      position:
+        - 500
+        - 310
+    - id: svc-eda-cm
+      name: eda-cm
+      labels:
+        object: service
+        namespace: eda-system
+        role: service
+        status: ready
+      data:
+        type: ClusterIP
+        clusterIP: 10.96.95.129
+        externalIPs: ""
+        ports: grpc:51200/TCP, grpc-tunnel:51204/TCP
+        selector:
+          eda.nokia.com/app: eda-cluster-manager
+      layers:
+        - control-plane
+      position:
+        - 180
+        - 510
+    - id: svc-eda-cx
+      name: eda-cx
+      labels:
+        object: service
+        namespace: eda-system
+        role: sim-control
+        status: ready
+      data:
+        type: ClusterIP
+        clusterIP: 10.96.134.40
+        externalIPs: ""
+        ports: cx-grpc-port:52200/TCP
+        selector:
+          eda.nokia.com/app: cx
+      layers:
+        - control-plane
+      position:
+        - 820
+        - 310
+    - id: svc-eda-bsvr
+      name: eda-bsvr
+      labels:
+        object: service
+        namespace: eda-system
+        role: bootstrap
+        status: ready
+      data:
+        type: ClusterIP
+        clusterIP: 10.96.67.194
+        externalIPs: ""
+        ports: grpc:8000/TCP
+        selector:
+          eda.nokia.com/app: bootstrapserver
+      layers:
+        - control-plane
+      position:
+        - 180
+        - 510
+    - id: svc-eda-asvr
+      name: eda-asvr
+      labels:
+        object: service
+        namespace: eda-system
+        role: artifact
+        status: ready
+      data:
+        type: ClusterIP
+        clusterIP: 10.96.143.242
+        externalIPs: ""
+        ports: https:443/TCP
+        selector:
+          eda.nokia.com/app: artifactserver
+      layers:
+        - control-plane
+      position:
+        - 340
+        - 510
+    - id: svc-eda-ai
+      name: eda-ai
+      labels:
+        object: service
+        namespace: eda-system
+        role: ai
+        status: ready
+      data:
+        type: ClusterIP
+        clusterIP: 10.96.97.124
+        externalIPs: ""
+        ports: grpc:51200/TCP
+        selector:
+          eda.nokia.com/app: eda-ai-engine
+      layers:
+        - control-plane
+      position:
+        - 340
+        - 310
+    - id: svc-eda-aggsvr-svc
+      name: eda-aggsvr-svc
+      labels:
+        object: service
+        namespace: eda-system
+        role: service
+        status: ready
+      data:
+        type: ClusterIP
+        clusterIP: 10.96.59.23
+        externalIPs: ""
+        ports: 443:443/TCP
+        selector:
+          eda.nokia.com/app: configengine
+      layers:
+        - control-plane
+      position:
+        - 660
+        - 510
+    - id: svc-eda-api-debug-grpc
+      name: eda-api-debug-grpc
+      labels:
+        object: service
+        namespace: eda-system
+        role: api
+        status: ready
+      data:
+        type: ClusterIP
+        clusterIP: 10.96.104.218
+        externalIPs: ""
+        ports: 51200:51200/TCP
+        selector:
+          eda.nokia.com/app: apiserver
+      layers:
+        - control-plane
+      position:
+        - 820
+        - 110
+    - id: svc-eda-dhcp
+      name: eda-dhcp
+      labels:
+        object: service
+        namespace: eda-system
+        role: bootstrap
+        status: ready
+      data:
+        type: ClusterIP
+        clusterIP: 10.96.227.131
+        externalIPs: ""
+        ports: dhcp:67/UDP
+        selector:
+          eda.nokia.com/app: bootstrapserver
+      layers:
+        - control-plane
+      position:
+        - 980
+        - 510
+    - id: svc-eda-dhcpv6
+      name: eda-dhcpv6
+      labels:
+        object: service
+        namespace: eda-system
+        role: bootstrap
+        status: ready
+      data:
+        type: ClusterIP
+        clusterIP: 10.96.136.165
+        externalIPs: ""
+        ports: dhcp6:547/UDP
+        selector:
+          eda.nokia.com/app: bootstrapserver
+      layers:
+        - control-plane
+      position:
+        - 180
+        - 510
+    - id: svc-eda-git-replica
+      name: eda-git-replica
+      labels:
+        object: service
+        namespace: eda-system
+        role: repository
+        status: ready
+      data:
+        type: ClusterIP
+        clusterIP: 10.96.61.44
+        externalIPs: ""
+        ports: ssh:22/TCP, web:3000/TCP
+        selector:
+          eda.nokia.com/app: git-replica
+      layers:
+        - control-plane
+      position:
+        - 340
+        - 110
+    - id: svc-logoutput-fluentbit-collector
+      name: logoutput-fluentbit-collector
+      labels:
+        object: service
+        namespace: eda-system
+        role: service
+        status: ready
+      data:
+        type: ClusterIP
+        clusterIP: 10.96.121.164
+        externalIPs: ""
+        ports: 2020:2020/TCP
+        selector:
+          eda.nokia.com/app: logoutput-collector
+      layers:
+        - control-plane
+      position:
+        - 500
+        - 510
+    - id: svc-trust-manager
+      name: trust-manager
+      labels:
+        object: service
+        namespace: eda-system
+        role: trust
+        status: ready
+      data:
+        type: ClusterIP
+        clusterIP: 10.96.63.71
+        externalIPs: ""
+        ports: webhook:443/TCP
+        selector:
+          app: trust-manager
+      layers:
+        - control-plane
+      position:
+        - 660
+        - 510
+    - id: svc-trust-manager-metrics
+      name: trust-manager-metrics
+      labels:
+        object: service
+        namespace: eda-system
+        role: metrics
+        status: ready
+      data:
+        type: ClusterIP
+        clusterIP: 10.96.199.210
+        externalIPs: ""
+        ports: metrics:9402/TCP
+        selector:
+          app: trust-manager
+      layers:
+        - control-plane
+      position:
+        - 660
+        - 310
+    - id: deploy-cx-eda-leaf1-sim
+      name: cx-eda--leaf1-sim
+      labels:
+        object: deployment
+        namespace: eda-system
+        role: simulator
+        status: ready
+      data:
+        readyReplicas: 1
+        replicas: 1
+        containers: leaf1, cxdp
+        images: ghcr.io/nokia/srlinux:26.3.1-410, ghcr.io/nokia-eda/core/cxdp:26.4.3
+      layers:
+        - topology-runtime
+      position:
+        - 380
+        - 840
+    - id: deploy-cx-eda-leaf2-sim
+      name: cx-eda--leaf2-sim
+      labels:
+        object: deployment
+        namespace: eda-system
+        role: simulator
+        status: ready
+      data:
+        readyReplicas: 1
+        replicas: 1
+        containers: leaf2, cxdp
+        images: ghcr.io/nokia/srlinux:26.3.1-410, ghcr.io/nokia-eda/core/cxdp:26.4.3
+      layers:
+        - topology-runtime
+      position:
+        - 570
+        - 840
+    - id: deploy-cx-eda-spine1-sim
+      name: cx-eda--spine1-sim
+      labels:
+        object: deployment
+        namespace: eda-system
+        role: simulator
+        status: ready
+      data:
+        readyReplicas: 1
+        replicas: 1
+        containers: spine1, cxdp
+        images: ghcr.io/nokia/srlinux:26.3.1-410, ghcr.io/nokia-eda/core/cxdp:26.4.3
+      layers:
+        - topology-runtime
+      position:
+        - 760
+        - 840
+    - id: deploy-cx-eda-testman-default-sim
+      name: cx-eda--testman-default-sim
+      labels:
+        object: deployment
+        namespace: eda-system
+        role: simulator
+        status: ready
+      data:
+        readyReplicas: 1
+        replicas: 1
+        containers: testman-default, cxdp
+        images: ghcr.io/nokia-eda/core/testman:26.4.3, ghcr.io/nokia-eda/core/cxdp:26.4.3
+      layers:
+        - topology-runtime
+      position:
+        - 950
+        - 840
+    - id: deploy-eda-ai-engine
+      name: eda-ai-engine
+      labels:
+        object: deployment
+        namespace: eda-system
+        role: ai
+        status: ready
+      data:
+        readyReplicas: 1
+        replicas: 1
+        containers: eda-ai-engine
+        images: ghcr.io/nokia-eda/core/ai-engine:26.4.3
+      layers:
+        - control-plane
+      position:
+        - 340
+        - 390
+    - id: deploy-eda-api
+      name: eda-api
+      labels:
+        object: deployment
+        namespace: eda-system
+        role: api
+        status: ready
+      data:
+        readyReplicas: 1
+        replicas: 1
+        containers: eda-api
+        images: ghcr.io/nokia-eda/core/api-server:26.4.3
+      layers:
+        - control-plane
+      position:
+        - 180
+        - 190
+    - id: deploy-eda-appstore
+      name: eda-appstore
+      labels:
+        object: deployment
+        namespace: eda-system
+        role: appstore
+        status: ready
+      data:
+        readyReplicas: 1
+        replicas: 1
+        containers: eda-appstore, eda-docs-engine
+        images: ghcr.io/nokia-eda/core/appstore-server:26.4.3, ghcr.io/nokia-eda/core/appstore-docs-engine:26.4.3
+      layers:
+        - control-plane
+      position:
+        - 180
+        - 590
+    - id: deploy-eda-asvr
+      name: eda-asvr
+      labels:
+        object: deployment
+        namespace: eda-system
+        role: artifact
+        status: ready
+      data:
+        readyReplicas: 1
+        replicas: 1
+        containers: eda-asvr
+        images: ghcr.io/nokia-eda/core/artifact-server:26.4.3
+      layers:
+        - control-plane
+      position:
+        - 340
+        - 590
+    - id: deploy-eda-bsvr
+      name: eda-bsvr
+      labels:
+        object: deployment
+        namespace: eda-system
+        role: bootstrap
+        status: ready
+      data:
+        readyReplicas: 1
+        replicas: 1
+        containers: eda-bsvr
+        images: ghcr.io/nokia-eda/core/bootstrap-server:26.4.3
+      layers:
+        - control-plane
+      position:
+        - 180
+        - 590
+    - id: deploy-eda-ce
+      name: eda-ce
+      labels:
+        object: deployment
+        namespace: eda-system
+        role: engine
+        status: ready
+      data:
+        readyReplicas: 1
+        replicas: 1
+        containers: eda-ce
+        images: ghcr.io/nokia-eda/core/config-engine:26.4.3
+      layers:
+        - control-plane
+      position:
+        - 180
+        - 390
+    - id: deploy-eda-cert-checker
+      name: eda-cert-checker
+      labels:
+        object: deployment
+        namespace: eda-system
+        role: engine
+        status: ready
+      data:
+        readyReplicas: 1
+        replicas: 1
+        containers: eda-cert-checker
+        images: ghcr.io/nokia-eda/core/cert-checker:26.4.3
+      layers:
+        - control-plane
+      position:
+        - 1120
+        - 250
+    - id: deploy-eda-cluster-manager
+      name: eda-cluster-manager
+      labels:
+        object: deployment
+        namespace: eda-system
+        role: service
+        status: ready
+      data:
+        readyReplicas: 1
+        replicas: 1
+        containers: eda-cluster-manager
+        images: ghcr.io/nokia-eda/core/cluster-manager:26.4.3
+      layers:
+        - control-plane
+      position:
+        - 180
+        - 590
+    - id: deploy-eda-cx
+      name: eda-cx
+      labels:
+        object: deployment
+        namespace: eda-system
+        role: sim-control
+        status: ready
+      data:
+        readyReplicas: 1
+        replicas: 1
+        containers: eda-cx
+        images: ghcr.io/nokia-eda/core/cx:26.4.3
+      layers:
+        - control-plane
+      position:
+        - 820
+        - 390
+    - id: deploy-eda-fe
+      name: eda-fe
+      labels:
+        object: deployment
+        namespace: eda-system
+        role: frontend
+        status: ready
+      data:
+        readyReplicas: 1
+        replicas: 1
+        containers: eda-fe
+        images: ghcr.io/nokia-eda/core/flow-engine:26.4.3
+      layers:
+        - control-plane
+      position:
+        - 500
+        - 190
+    - id: deploy-eda-git
+      name: eda-git
+      labels:
+        object: deployment
+        namespace: eda-system
+        role: repository
+        status: ready
+      data:
+        readyReplicas: 1
+        replicas: 1
+        containers: gogs
+        images: ghcr.io/gogs/gogs:0.14.1
+      layers:
+        - control-plane
+      position:
+        - 980
+        - 190
+    - id: deploy-eda-git-replica
+      name: eda-git-replica
+      labels:
+        object: deployment
+        namespace: eda-system
+        role: repository
+        status: ready
+      data:
+        readyReplicas: 1
+        replicas: 1
+        containers: gogs
+        images: ghcr.io/gogs/gogs:0.14.1
+      layers:
+        - control-plane
+      position:
+        - 340
+        - 190
+    - id: deploy-eda-keycloak
+      name: eda-keycloak
+      labels:
+        object: deployment
+        namespace: eda-system
+        role: identity
+        status: ready
+      data:
+        readyReplicas: 1
+        replicas: 1
+        containers: eda-keycloak
+        images: ghcr.io/nokia-eda/core/eda-keycloak:26.4.3
+      layers:
+        - control-plane
+      position:
+        - 660
+        - 190
+    - id: deploy-eda-logoutput-fluentbit-collector
+      name: eda-logoutput-fluentbit-collector
+      labels:
+        object: deployment
+        namespace: eda-system
+        role: service
+        status: ready
+      data:
+        readyReplicas: 1
+        replicas: 1
+        containers: logoutput-fluent-bit-collector
+        images: ghcr.io/nokia-eda/core/eda-fluent-collector:26.4.3
+      layers:
+        - control-plane
+      position:
+        - 500
+        - 590
+    - id: deploy-eda-metrics-server
+      name: eda-metrics-server
+      labels:
+        object: deployment
+        namespace: eda-system
+        role: engine
+        status: ready
+      data:
+        readyReplicas: 1
+        replicas: 1
+        containers: eda-metrics-server
+        images: ghcr.io/nokia-eda/core/metrics-server:26.4.3
+      layers:
+        - control-plane
+      position:
+        - 1120
+        - 250
+    - id: deploy-eda-postgres
+      name: eda-postgres
+      labels:
+        object: deployment
+        namespace: eda-system
+        role: database
+        status: ready
+      data:
+        readyReplicas: 1
+        replicas: 1
+        containers: eda-postgres
+        images: ghcr.io/nokia-eda/core/eda-postgres:26.4.3
+      layers:
+        - control-plane
+      position:
+        - 180
+        - 190
+    - id: deploy-eda-sa
+      name: eda-sa
+      labels:
+        object: deployment
+        namespace: eda-system
+        role: engine
+        status: ready
+      data:
+        readyReplicas: 1
+        replicas: 1
+        containers: eda-sa
+        images: ghcr.io/nokia-eda/core/state-aggregator:26.4.3
+      layers:
+        - control-plane
+      position:
+        - 500
+        - 390
+    - id: deploy-eda-sc
+      name: eda-sc
+      labels:
+        object: deployment
+        namespace: eda-system
+        role: engine
+        status: ready
+      data:
+        readyReplicas: 1
+        replicas: 1
+        containers: eda-sc
+        images: ghcr.io/nokia-eda/core/state-controller:26.4.3
+      layers:
+        - control-plane
+      position:
+        - 340
+        - 390
+    - id: deploy-eda-se
+      name: eda-se
+      labels:
+        object: deployment
+        namespace: eda-system
+        role: engine
+        status: ready
+      data:
+        readyReplicas: 1
+        replicas: 1
+        containers: eda-se
+        images: ghcr.io/nokia-eda/core/state-engine:26.4.3
+      layers:
+        - control-plane
+      position:
+        - 1120
+        - 250
+    - id: deploy-eda-toolbox
+      name: eda-toolbox
+      labels:
+        object: deployment
+        namespace: eda-system
+        role: service
+        status: ready
+      data:
+        readyReplicas: 1
+        replicas: 1
+        containers: eda-toolbox
+        images: ghcr.io/nokia-eda/core/eda-toolbox:26.4.3
+      layers:
+        - control-plane
+      position:
+        - 1120
+        - 250
+    - id: deploy-trust-manager
+      name: trust-manager
+      labels:
+        object: deployment
+        namespace: eda-system
+        role: trust
+        status: ready
+      data:
+        readyReplicas: 1
+        replicas: 1
+        containers: trust-manager
+        images: quay.io/jetstack/trust-manager:v0.20.3
+      layers:
+        - control-plane
+      position:
+        - 660
+        - 590
+    - id: eda-topology-try-eda-topology
+      name: try-eda-topology
+      labels:
+        object: edaResource
+        namespace: eda
+        role: networkTopology
+        status: ready
+      data:
+        kind: NetworkTopology
+        workflow: 2
+      layers:
+        - topology-runtime
+      position:
+        - 140
+        - 700
+    - id: toponode-leaf1
+      name: leaf1
+      labels:
+        object: toponode
+        namespace: eda
+        role: leaf
+        status: connected
+        onboarded: "true"
+      data:
+        platform: 7220 IXR-D3L
+        version: 26.3.1
+        os: srl
+        npp: Connected
+        node: Synced
+        onboarded: "false"
+        nodeDetails: 10.244.0.40:57400
+        nppPod: eda-npp-0
+      layers:
+        - topology-runtime
+      position:
+        - 420
+        - 760
+    - id: toponode-leaf2
+      name: leaf2
+      labels:
+        object: toponode
+        namespace: eda
+        role: leaf
+        status: connected
+        onboarded: "true"
+      data:
+        platform: 7220 IXR-D3L
+        version: 26.3.1
+        os: srl
+        npp: Connected
+        node: Synced
+        onboarded: "false"
+        nodeDetails: 10.244.0.41:57400
+        nppPod: eda-npp-0
+      layers:
+        - topology-runtime
+      position:
+        - 640
+        - 760
+    - id: toponode-spine1
+      name: spine1
+      labels:
+        object: toponode
+        namespace: eda
+        role: spine
+        status: connected
+        onboarded: "true"
+      data:
+        platform: 7220 IXR-D5
+        version: 26.3.1
+        os: srl
+        npp: Connected
+        node: Synced
+        onboarded: "false"
+        nodeDetails: 10.244.0.42:57400
+        nppPod: eda-npp-1
+      layers:
+        - topology-runtime
+      position:
+        - 860
+        - 670
+    - id: pod-eda-npp-0
+      name: eda-npp-0
+      labels:
+        object: pod
+        namespace: eda-system
+        role: npp
+        status: ready
+      data:
+        phase: Running
+        podIP: 10.244.0.36
+        containers: eda-npp-0
+      layers:
+        - topology-runtime
+      position:
+        - 1080
+        - 650
+    - id: pod-eda-npp-1
+      name: eda-npp-1
+      labels:
+        object: pod
+        namespace: eda-system
+        role: npp
+        status: ready
+      data:
+        phase: Running
+        podIP: 10.244.0.37
+        containers: eda-npp-1
+      layers:
+        - topology-runtime
+      position:
+        - 1080
+        - 750
+    - id: pod-cx-eda-leaf1-sim-777d7654d8-rj7vt
+      name: leaf1
+      labels:
+        object: pod
+        namespace: eda-system
+        role: srl
+        status: ready
+      data:
+        pod: cx-eda--leaf1-sim-777d7654d8-rj7vt
+        phase: Running
+        podIP: 10.244.0.40
+        ready: true
+        node: eda-demo-control-plane
+      layers:
+        - topology-runtime
+      position:
+        - 380
+        - 980
+    - id: pod-cx-eda-leaf2-sim-756565d7ff-jb8cx
+      name: leaf2
+      labels:
+        object: pod
+        namespace: eda-system
+        role: srl
+        status: ready
+      data:
+        pod: cx-eda--leaf2-sim-756565d7ff-jb8cx
+        phase: Running
+        podIP: 10.244.0.41
+        ready: true
+        node: eda-demo-control-plane
+      layers:
+        - topology-runtime
+      position:
+        - 570
+        - 980
+    - id: pod-cx-eda-spine1-sim-7cdfb4bc99-fvxng
+      name: spine1
+      labels:
+        object: pod
+        namespace: eda-system
+        role: srl
+        status: ready
+      data:
+        pod: cx-eda--spine1-sim-7cdfb4bc99-fvxng
+        phase: Running
+        podIP: 10.244.0.42
+        ready: true
+        node: eda-demo-control-plane
+      layers:
+        - topology-runtime
+      position:
+        - 760
+        - 980
+    - id: pod-cx-eda-testman-default-sim-5bd4dc65b4-8vghl
+      name: testman-default
+      labels:
+        object: pod
+        namespace: eda-system
+        role: testman
+        status: ready
+      data:
+        pod: cx-eda--testman-default-sim-5bd4dc65b4-8vghl
+        phase: Running
+        podIP: 10.244.0.43
+        ready: true
+        node: eda-demo-control-plane
+      layers:
+        - topology-runtime
+      position:
+        - 950
+        - 980
   links:
-    - id: internet-ingress
-      name: Internet to ingress
-      source: internet
-      target: ingress
+    - id: client-to-try-eda
+      name: HTTPS 9443
+      source: client-browser
+      target: svc-try-eda
       labels:
-        kind: request
+        link: entry
+        layer: control-plane
+        protocol: https
+      data: {}
       layers:
-        - application
-    - id: ingress-web
-      name: Ingress to web
-      source: ingress
-      target: web
+        - control-plane
+    - id: try-eda-to-eda-api
+      name: NodePort selects API
+      source: svc-try-eda
+      target: svc-eda-api
       labels:
-        kind: request
+        link: service-route
+        layer: control-plane
+      data: {}
       layers:
-        - application
-    - id: web-api
-      name: Web to API
-      source: web
-      target: api
+        - control-plane
+    - id: flow-svc-eda-api-svc-eda-keycloak
+      name: auth
+      source: svc-eda-api
+      target: svc-eda-keycloak
       labels:
-        kind: request
+        link: runtime-flow
+        layer: control-plane
+      data: {}
       layers:
-        - application
-    - id: api-redis
-      name: API to Redis
-      source: api
-      target: redis
+        - control-plane
+    - id: flow-svc-eda-api-svc-eda-appstore
+      name: apps
+      source: svc-eda-api
+      target: svc-eda-appstore
       labels:
-        kind: dependency
+        link: runtime-flow
+        layer: control-plane
+      data: {}
       layers:
-        - application
-        - data
-    - id: api-postgres
-      name: API to Postgres
-      source: api
-      target: postgres
+        - control-plane
+    - id: flow-svc-eda-api-svc-eda-ce
+      name: config
+      source: svc-eda-api
+      target: svc-eda-ce
       labels:
-        kind: dependency
+        link: runtime-flow
+        layer: control-plane
+      data: {}
       layers:
-        - application
-        - data
-    - id: api-queue
-      name: API to Queue
-      source: api
-      target: queue
+        - control-plane
+    - id: flow-svc-eda-api-svc-eda-sc
+      name: state
+      source: svc-eda-api
+      target: svc-eda-sc
       labels:
-        kind: dependency
+        link: runtime-flow
+        layer: control-plane
+      data: {}
       layers:
-        - application
-        - data
-    - id: worker-queue
-      name: Worker to Queue
-      source: worker
-      target: queue
+        - control-plane
+    - id: flow-svc-eda-api-svc-eda-fe
+      name: workflow
+      source: svc-eda-api
+      target: svc-eda-fe
       labels:
-        kind: async
+        link: runtime-flow
+        layer: control-plane
+      data: {}
       layers:
-        - application
-        - data
-    - id: worker-postgres
-      name: Worker to Postgres
-      source: worker
-      target: postgres
+        - control-plane
+    - id: flow-svc-eda-appstore-svc-eda-git
+      name: catalog repo
+      source: svc-eda-appstore
+      target: svc-eda-git
       labels:
-        kind: write
+        link: runtime-flow
+        layer: control-plane
+      data: {}
       layers:
-        - application
-        - data
+        - control-plane
+    - id: flow-svc-eda-keycloak-svc-eda-postgres
+      name: identity db
+      source: svc-eda-keycloak
+      target: svc-eda-postgres
+      labels:
+        link: runtime-flow
+        layer: control-plane
+      data: {}
+      layers:
+        - control-plane
+    - id: flow-svc-eda-ce-svc-eda-sc
+      name: commit/state
+      source: svc-eda-ce
+      target: svc-eda-sc
+      labels:
+        link: runtime-flow
+        layer: control-plane
+      data: {}
+      layers:
+        - control-plane
+    - id: flow-svc-eda-sc-svc-eda-se
+      name: state engine
+      source: svc-eda-sc
+      target: deploy-eda-se
+      labels:
+        link: runtime-flow
+        layer: control-plane
+      data: {}
+      layers:
+        - control-plane
+    - id: flow-svc-eda-bsvr-svc-eda-asvr
+      name: bootstrap artifacts
+      source: svc-eda-bsvr
+      target: svc-eda-asvr
+      labels:
+        link: runtime-flow
+        layer: control-plane
+      data: {}
+      layers:
+        - control-plane
+    - id: flow-svc-eda-cx-svc-eda-api
+      name: sim control
+      source: svc-eda-cx
+      target: svc-eda-api
+      labels:
+        link: runtime-flow
+        layer: control-plane
+      data: {}
+      layers:
+        - control-plane
+    - id: topology-to-leaf1
+      name: contains
+      source: eda-topology-try-eda-topology
+      target: toponode-leaf1
+      labels:
+        link: topology
+        layer: topology-runtime
+      data: {}
+      layers:
+        - topology-runtime
+    - id: topology-to-leaf2
+      name: contains
+      source: eda-topology-try-eda-topology
+      target: toponode-leaf2
+      labels:
+        link: topology
+        layer: topology-runtime
+      data: {}
+      layers:
+        - topology-runtime
+    - id: topology-to-spine1
+      name: contains
+      source: eda-topology-try-eda-topology
+      target: toponode-spine1
+      labels:
+        link: topology
+        layer: topology-runtime
+      data: {}
+      layers:
+        - topology-runtime
+    - id: toponode-to-sim-leaf1
+      name: backed by sim pod
+      source: toponode-leaf1
+      target: deploy-cx-eda-leaf1-sim
+      labels:
+        link: runtime-binding
+        layer: topology-runtime
+      data: {}
+      layers:
+        - topology-runtime
+    - id: toponode-to-sim-leaf2
+      name: backed by sim pod
+      source: toponode-leaf2
+      target: deploy-cx-eda-leaf2-sim
+      labels:
+        link: runtime-binding
+        layer: topology-runtime
+      data: {}
+      layers:
+        - topology-runtime
+    - id: toponode-to-sim-spine1
+      name: backed by sim pod
+      source: toponode-spine1
+      target: deploy-cx-eda-spine1-sim
+      labels:
+        link: runtime-binding
+        layer: topology-runtime
+      data: {}
+      layers:
+        - topology-runtime
+    - id: npp-0-to-leaf1
+      name: NPP connected
+      source: pod-eda-npp-0
+      target: toponode-leaf1
+      labels:
+        link: control
+        layer: topology-runtime
+      data: {}
+      layers:
+        - topology-runtime
+    - id: npp-0-to-leaf2
+      name: NPP connected
+      source: pod-eda-npp-0
+      target: toponode-leaf2
+      labels:
+        link: control
+        layer: topology-runtime
+      data: {}
+      layers:
+        - topology-runtime
+    - id: npp-0-to-spine1
+      name: NPP connected
+      source: pod-eda-npp-0
+      target: toponode-spine1
+      labels:
+        link: control
+        layer: topology-runtime
+      data: {}
+      layers:
+        - topology-runtime
+    - id: npp-1-to-leaf1
+      name: NPP connected
+      source: pod-eda-npp-1
+      target: toponode-leaf1
+      labels:
+        link: control
+        layer: topology-runtime
+      data: {}
+      layers:
+        - topology-runtime
+    - id: npp-1-to-leaf2
+      name: NPP connected
+      source: pod-eda-npp-1
+      target: toponode-leaf2
+      labels:
+        link: control
+        layer: topology-runtime
+      data: {}
+      layers:
+        - topology-runtime
+    - id: npp-1-to-spine1
+      name: NPP connected
+      source: pod-eda-npp-1
+      target: toponode-spine1
+      labels:
+        link: control
+        layer: topology-runtime
+      data: {}
+      layers:
+        - topology-runtime
+    - id: deploy-to-pod-cx-eda-leaf1-sim-cx-eda-leaf1-sim-777d7654d8-rj7vt
+      name: creates pod
+      source: deploy-cx-eda-leaf1-sim
+      target: pod-cx-eda-leaf1-sim-777d7654d8-rj7vt
+      labels:
+        link: owns
+        layer: topology-runtime
+      data: {}
+      layers:
+        - topology-runtime
+    - id: deploy-to-pod-cx-eda-leaf2-sim-cx-eda-leaf2-sim-756565d7ff-jb8cx
+      name: creates pod
+      source: deploy-cx-eda-leaf2-sim
+      target: pod-cx-eda-leaf2-sim-756565d7ff-jb8cx
+      labels:
+        link: owns
+        layer: topology-runtime
+      data: {}
+      layers:
+        - topology-runtime
+    - id: deploy-to-pod-cx-eda-spine1-sim-cx-eda-spine1-sim-7cdfb4bc99-fvxng
+      name: creates pod
+      source: deploy-cx-eda-spine1-sim
+      target: pod-cx-eda-spine1-sim-7cdfb4bc99-fvxng
+      labels:
+        link: owns
+        layer: topology-runtime
+      data: {}
+      layers:
+        - topology-runtime
+    - id: deploy-to-pod-cx-eda-testman-default-sim-cx-eda-testman-default-sim-5bd4dc65b4-8vghl
+      name: creates pod
+      source: deploy-cx-eda-testman-default-sim
+      target: pod-cx-eda-testman-default-sim-5bd4dc65b4-8vghl
+      labels:
+        link: owns
+        layer: topology-runtime
+      data: {}
+      layers:
+        - topology-runtime
+    - id: selects-eda-aggsvr-svc-eda-ce
+      name: selector
+      source: svc-eda-aggsvr-svc
+      target: deploy-eda-ce
+      labels:
+        link: selector
+        layer: control-plane
+      data:
+        selector:
+          eda.nokia.com/app: configengine
+      layers:
+        - control-plane
+    - id: selects-eda-ai-eda-ai-engine
+      name: selector
+      source: svc-eda-ai
+      target: deploy-eda-ai-engine
+      labels:
+        link: selector
+        layer: control-plane
+      data:
+        selector:
+          eda.nokia.com/app: eda-ai-engine
+      layers:
+        - control-plane
+    - id: selects-eda-api-eda-api
+      name: selector
+      source: svc-eda-api
+      target: deploy-eda-api
+      labels:
+        link: selector
+        layer: control-plane
+      data:
+        selector:
+          eda.nokia.com/app: apiserver
+      layers:
+        - control-plane
+    - id: selects-eda-api-debug-grpc-eda-api
+      name: selector
+      source: svc-eda-api-debug-grpc
+      target: deploy-eda-api
+      labels:
+        link: selector
+        layer: control-plane
+      data:
+        selector:
+          eda.nokia.com/app: apiserver
+      layers:
+        - control-plane
+    - id: selects-eda-appstore-eda-appstore
+      name: selector
+      source: svc-eda-appstore
+      target: deploy-eda-appstore
+      labels:
+        link: selector
+        layer: control-plane
+      data:
+        selector:
+          eda.nokia.com/app: appstore
+      layers:
+        - control-plane
+    - id: selects-eda-asvr-eda-asvr
+      name: selector
+      source: svc-eda-asvr
+      target: deploy-eda-asvr
+      labels:
+        link: selector
+        layer: control-plane
+      data:
+        selector:
+          eda.nokia.com/app: artifactserver
+      layers:
+        - control-plane
+    - id: selects-eda-bsvr-eda-bsvr
+      name: selector
+      source: svc-eda-bsvr
+      target: deploy-eda-bsvr
+      labels:
+        link: selector
+        layer: control-plane
+      data:
+        selector:
+          eda.nokia.com/app: bootstrapserver
+      layers:
+        - control-plane
+    - id: selects-eda-ce-eda-ce
+      name: selector
+      source: svc-eda-ce
+      target: deploy-eda-ce
+      labels:
+        link: selector
+        layer: control-plane
+      data:
+        selector:
+          eda.nokia.com/app: configengine
+      layers:
+        - control-plane
+    - id: selects-eda-cm-eda-cluster-manager
+      name: selector
+      source: svc-eda-cm
+      target: deploy-eda-cluster-manager
+      labels:
+        link: selector
+        layer: control-plane
+      data:
+        selector:
+          eda.nokia.com/app: eda-cluster-manager
+      layers:
+        - control-plane
+    - id: selects-eda-cx-eda-cx
+      name: selector
+      source: svc-eda-cx
+      target: deploy-eda-cx
+      labels:
+        link: selector
+        layer: control-plane
+      data:
+        selector:
+          eda.nokia.com/app: cx
+      layers:
+        - control-plane
+    - id: selects-eda-dhcp-eda-bsvr
+      name: selector
+      source: svc-eda-dhcp
+      target: deploy-eda-bsvr
+      labels:
+        link: selector
+        layer: control-plane
+      data:
+        selector:
+          eda.nokia.com/app: bootstrapserver
+      layers:
+        - control-plane
+    - id: selects-eda-dhcpv6-eda-bsvr
+      name: selector
+      source: svc-eda-dhcpv6
+      target: deploy-eda-bsvr
+      labels:
+        link: selector
+        layer: control-plane
+      data:
+        selector:
+          eda.nokia.com/app: bootstrapserver
+      layers:
+        - control-plane
+    - id: selects-eda-fe-eda-fe
+      name: selector
+      source: svc-eda-fe
+      target: deploy-eda-fe
+      labels:
+        link: selector
+        layer: control-plane
+      data:
+        selector:
+          eda.nokia.com/app: flowengine
+      layers:
+        - control-plane
+    - id: selects-eda-git-eda-git
+      name: selector
+      source: svc-eda-git
+      target: deploy-eda-git
+      labels:
+        link: selector
+        layer: control-plane
+      data:
+        selector:
+          eda.nokia.com/app: git
+      layers:
+        - control-plane
+    - id: selects-eda-git-replica-eda-git-replica
+      name: selector
+      source: svc-eda-git-replica
+      target: deploy-eda-git-replica
+      labels:
+        link: selector
+        layer: control-plane
+      data:
+        selector:
+          eda.nokia.com/app: git-replica
+      layers:
+        - control-plane
+    - id: selects-eda-keycloak-eda-keycloak
+      name: selector
+      source: svc-eda-keycloak
+      target: deploy-eda-keycloak
+      labels:
+        link: selector
+        layer: control-plane
+      data:
+        selector:
+          eda.nokia.com/app: keycloak
+      layers:
+        - control-plane
+    - id: selects-eda-postgres-eda-postgres
+      name: selector
+      source: svc-eda-postgres
+      target: deploy-eda-postgres
+      labels:
+        link: selector
+        layer: control-plane
+      data:
+        selector:
+          eda.nokia.com/app: postgres
+      layers:
+        - control-plane
+    - id: selects-eda-sa-eda-sa
+      name: selector
+      source: svc-eda-sa
+      target: deploy-eda-sa
+      labels:
+        link: selector
+        layer: control-plane
+      data:
+        selector:
+          eda.nokia.com/app: stateaggregator
+      layers:
+        - control-plane
+    - id: selects-eda-sc-eda-sc
+      name: selector
+      source: svc-eda-sc
+      target: deploy-eda-sc
+      labels:
+        link: selector
+        layer: control-plane
+      data:
+        selector:
+          eda.nokia.com/app: statecontroller
+      layers:
+        - control-plane
+    - id: selects-logoutput-fluentbit-collector-eda-logoutput-fluentbit-collector
+      name: selector
+      source: svc-logoutput-fluentbit-collector
+      target: deploy-eda-logoutput-fluentbit-collector
+      labels:
+        link: selector
+        layer: control-plane
+      data:
+        selector:
+          eda.nokia.com/app: logoutput-collector
+      layers:
+        - control-plane
+    - id: selects-trust-manager-trust-manager
+      name: selector
+      source: svc-trust-manager
+      target: deploy-trust-manager
+      labels:
+        link: selector
+        layer: control-plane
+      data:
+        selector:
+          app: trust-manager
+      layers:
+        - control-plane
+    - id: selects-trust-manager-metrics-trust-manager
+      name: selector
+      source: svc-trust-manager-metrics
+      target: deploy-trust-manager
+      labels:
+        link: selector
+        layer: control-plane
+      data:
+        selector:
+          app: trust-manager
+      layers:
+        - control-plane
+    - id: selects-try-eda-eda-api
+      name: selector
+      source: svc-try-eda
+      target: deploy-eda-api
+      labels:
+        link: selector
+        layer: control-plane
+      data:
+        selector:
+          eda.nokia.com/app: apiserver
+      layers:
+        - control-plane
   regions:
-    - id: checkout-namespace
-      name: checkout namespace
+    - id: region-api-surface
+      name: API and UI surface
       labels:
-        scope: namespace
+        region: kubernetes
+        zone: api
       members:
-        - ingress
-        - web
-        - api
-        - worker
+        - client-browser
+        - svc-try-eda
+        - svc-eda-api
+        - svc-eda-fe
+        - svc-eda-cm
+        - svc-eda-aggsvr-svc
+        - svc-eda-api-debug-grpc
+        - svc-logoutput-fluentbit-collector
+        - deploy-eda-api
+        - deploy-eda-cluster-manager
+        - deploy-eda-fe
+        - deploy-eda-logoutput-fluentbit-collector
+        - deploy-eda-toolbox
+      paddingX: 46
+      paddingY: 42
       layers:
-        - application
-      paddingX: 54
-      paddingY: 48
-    - id: data-services
-      name: shared data services
+        - control-plane
+    - id: region-data-identity
+      name: Identity and persistence
       labels:
-        scope: platform
+        region: kubernetes
+        zone: data
       members:
-        - redis
-        - postgres
-        - queue
+        - svc-eda-keycloak
+        - svc-eda-git
+        - svc-eda-postgres
+        - svc-eda-git-replica
+        - deploy-eda-git
+        - deploy-eda-git-replica
+        - deploy-eda-keycloak
+        - deploy-eda-postgres
+      paddingX: 46
+      paddingY: 42
       layers:
-        - data
-      paddingX: 48
-      paddingY: 44
+        - control-plane
+    - id: region-control-engine
+      name: EDA control engines
+      labels:
+        region: kubernetes
+        zone: engine
+      members:
+        - svc-eda-ce
+        - svc-eda-sc
+        - svc-eda-sa
+        - svc-eda-cx
+        - svc-eda-ai
+        - svc-trust-manager-metrics
+        - deploy-eda-ai-engine
+        - deploy-eda-ce
+        - deploy-eda-cert-checker
+        - deploy-eda-cx
+        - deploy-eda-metrics-server
+        - deploy-eda-sa
+        - deploy-eda-sc
+        - deploy-eda-se
+      paddingX: 46
+      paddingY: 42
+      layers:
+        - control-plane
+    - id: region-app-bootstrap
+      name: Apps, artifacts, and bootstrap
+      labels:
+        region: kubernetes
+        zone: apps
+      members:
+        - svc-eda-appstore
+        - svc-eda-bsvr
+        - svc-eda-asvr
+        - svc-eda-dhcp
+        - svc-eda-dhcpv6
+        - svc-trust-manager
+        - deploy-eda-appstore
+        - deploy-eda-asvr
+        - deploy-eda-bsvr
+        - deploy-trust-manager
+      paddingX: 46
+      paddingY: 42
+      layers:
+        - control-plane
+    - id: region-topology-runtime
+      name: Topology runtime
+      labels:
+        region: eda
+        zone: runtime
+      members:
+        - eda-topology-try-eda-topology
+        - toponode-leaf1
+        - toponode-leaf2
+        - toponode-spine1
+        - pod-eda-npp-0
+        - pod-eda-npp-1
+      paddingX: 52
+      paddingY: 46
+      layers:
+        - topology-runtime
+    - id: region-simulated-fabric
+      name: Simulated fabric
+      labels:
+        region: eda
+        zone: fabric
+      members:
+        - deploy-cx-eda-leaf1-sim
+        - deploy-cx-eda-leaf2-sim
+        - deploy-cx-eda-spine1-sim
+        - deploy-cx-eda-testman-default-sim
+        - pod-cx-eda-leaf1-sim-777d7654d8-rj7vt
+        - pod-cx-eda-leaf2-sim-756565d7ff-jb8cx
+        - pod-cx-eda-spine1-sim-7cdfb4bc99-fvxng
+        - pod-cx-eda-testman-default-sim-5bd4dc65b4-8vghl
+      paddingX: 52
+      paddingY: 46
+      layers:
+        - topology-runtime
+attention:
+  aggregate:
+    groups:
+      - id: region-api-surface
+        by: region
+        regionId: region-api-surface
+        label: API and UI surface
+      - id: region-data-identity
+        by: region
+        regionId: region-data-identity
+        label: Identity and persistence
+      - id: region-control-engine
+        by: region
+        regionId: region-control-engine
+        label: EDA control engines
+      - id: region-app-bootstrap
+        by: region
+        regionId: region-app-bootstrap
+        label: Apps, artifacts, and bootstrap
+      - id: region-topology-runtime
+        by: region
+        regionId: region-topology-runtime
+        label: Topology runtime
+      - id: region-simulated-fabric
+        by: region
+        regionId: region-simulated-fabric
+        label: Simulated fabric
+    expandedGroupIds:
+      - region-api-surface
+      - region-data-identity
+      - region-control-engine
+      - region-app-bootstrap
+      - region-topology-runtime
+      - region-simulated-fabric
+    expandOnClick: true

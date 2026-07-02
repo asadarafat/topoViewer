@@ -1,12 +1,12 @@
 renderable: true
 visualSnapshot: false
 dom:
-  graphNodes: 8
-  minVisibleEdges: 8
-  minRegions: 2
+  graphNodes: 59
+  minVisibleEdges: 52
+  minRegions: 6
 assertions:
   controls: true
-  nodeStatusesMin: 1
+  nodeStatusesMin: 3
 semantic:
   errors: []
   warnings: []

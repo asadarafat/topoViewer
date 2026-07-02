@@ -689,9 +689,9 @@ examples:
     topology: docs/topoviewer/examples/integration/kubernetes-service-map/topology.yaml
     stylesheet: docs/topoviewer/examples/integration/kubernetes-service-map/stylesheet.yaml
     expected:
-      graphNodes: 8
-      minVisibleEdges: 8
-      minRegions: 2
+      graphNodes: 59
+      minVisibleEdges: 52
+      minRegions: 6
     readme: docs/topoviewer/examples/integration/kubernetes-service-map/README.md
   - id: integration-real-network-underlay
     title: Real network underlay

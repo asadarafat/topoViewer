@@ -14,7 +14,7 @@ path.
 | [Node styling](#node-styling) | Icon fit, badges, and status markers. | One diagram shows contain, cover, and fill icon behavior. | `iconFit`, `badgeLabel`, `statusPlacement`, node dimensions. |
 | [Edge styling](#edge-styling) | Bidirectional directional strokes on one physical link. | One link carries independent source-to-target and target-to-source styles. | `link.directions`, `linkDirection` selectors, arrow offsets. |
 | [Attention](#attention) | Object focus with a small graph. | Clicking an object highlights it and dims unrelated context. | `attention`, object IDs, path IDs, focus mode. |
-| [Kubernetes service map](#kubernetes-service-map) | App services, data dependencies, and namespace regions. | TopoViewer renders non-network infrastructure diagrams from the same YAML contract. | regions, app/data layers, dependency edges, status markers. |
+| [Kubernetes service map](#kubernetes-service-map) | Real EDA Kubernetes services, deployments, pods, and TopoNodes. | TopoViewer renders live platform inventory as a service map with topology runtime bindings. | `Service` selectors, control-plane/topology-runtime layers, regions, EDA status data. |
 | [Real network](#real-network) | Layered provider underlay, BGP, transport, service, and failure views. | One topology answers multiple operational questions. | `layers`, paths, service labels, severity data. |
 | [Grafana mapper overlay](#grafana-mapper-overlay) | Mapper rule skeleton for telemetry overlays. | Prometheus samples change runtime styles without rewriting source YAML. | `*.mapper.tv.yaml`, `select`, `join`, `states`, runtime `style`. |
 
@@ -191,24 +191,25 @@ without losing context.
 ## Kubernetes Service Map
 
 What this proves: TopoViewer is not limited to network-provider diagrams. The
-same YAML model can describe service ownership, namespace scope, data services,
-and dependency edges.
+same YAML model can describe Kubernetes services, deployments, pods, EDA custom
+resources, simulated fabric nodes, and service-selector relationships from a
+real EDA Playground cluster.
 
-Use this when platform, SRE, or application teams need a reviewable dependency
-diagram.
+Use this when platform, SRE, or application teams need a reviewable service map
+from live Kubernetes inventory rather than a hand-drawn dependency picture.
 
 === "Live Viewport"
 
     ```topoviewer
     topology: examples/integration/kubernetes-service-map/topology.yaml
     stylesheet: examples/integration/kubernetes-service-map/stylesheet.yaml
-    height: 480px
+    height: 760px
     controls: true
     controlsOpen: false
     title: Kubernetes service map
     selectedLayerIds:
-      - application
-      - data
+      - control-plane
+      - topology-runtime
     ```
 
 === "Copy Topology YAML"

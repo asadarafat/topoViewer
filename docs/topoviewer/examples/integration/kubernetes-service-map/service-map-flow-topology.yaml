@@ -1,0 +1,168 @@
+graph:
+  id: kubernetes-service-map-flow
+  layers:
+    - id: story
+      name: Story
+  nodes:
+    - id: kubernetes-api
+      name: Kubernetes API
+      labels:
+        object: source
+        role: kubernetes
+      layers:
+        - story
+      position:
+        - 120
+        - 104
+    - id: eda-api
+      name: EDA API
+      labels:
+        object: source
+        role: eda
+      layers:
+        - story
+      position:
+        - 120
+        - 240
+    - id: collector
+      name: Inventory collector
+      labels:
+        object: process
+        role: collector
+      layers:
+        - story
+      position:
+        - 340
+        - 172
+    - id: topology-yaml
+      name: topology.yaml
+      labels:
+        object: artifact
+        role: topology
+      layers:
+        - story
+      position:
+        - 560
+        - 112
+    - id: stylesheet-yaml
+      name: stylesheet.yaml
+      labels:
+        object: artifact
+        role: stylesheet
+      layers:
+        - story
+      position:
+        - 560
+        - 232
+    - id: topoviewer
+      name: TopoViewer
+      labels:
+        object: renderer
+        role: topoviewer
+      layers:
+        - story
+      position:
+        - 780
+        - 172
+    - id: service-map
+      name: Interactive service map
+      labels:
+        object: output
+        role: map
+      layers:
+        - story
+      position:
+        - 1010
+        - 172
+  links:
+    - id: k8s-to-collector
+      source: kubernetes-api
+      target: collector
+      labels:
+        link: collect
+      layers:
+        - story
+      data:
+        detail: Services, Deployments, Pods, selectors, and ownership facts.
+    - id: eda-to-collector
+      source: eda-api
+      target: collector
+      labels:
+        link: collect
+      layers:
+        - story
+      data:
+        detail: NetworkTopology, TopoNodes, simulator bindings, and control relationships.
+    - id: collector-to-topology
+      source: collector
+      target: topology-yaml
+      labels:
+        link: write
+      layers:
+        - story
+      data:
+        detail: Stable object identity and typed relationships.
+    - id: collector-to-stylesheet
+      source: collector
+      target: stylesheet-yaml
+      labels:
+        link: write
+      layers:
+        - story
+      data:
+        detail: Visual policy for object families and relationship families.
+    - id: topology-to-topoviewer
+      source: topology-yaml
+      target: topoviewer
+      labels:
+        link: input
+      layers:
+        - story
+    - id: stylesheet-to-topoviewer
+      source: stylesheet-yaml
+      target: topoviewer
+      labels:
+        link: input
+      layers:
+        - story
+    - id: topoviewer-to-map
+      source: topoviewer
+      target: service-map
+      labels:
+        link: render
+      layers:
+        - story
+  regions:
+    - id: source-systems
+      name: Source systems
+      labels:
+        region: stage
+      members:
+        - kubernetes-api
+        - eda-api
+      layers:
+        - story
+      paddingX: 48
+      paddingY: 44
+    - id: generated-yaml
+      name: Generated model
+      labels:
+        region: stage
+      members:
+        - topology-yaml
+        - stylesheet-yaml
+      layers:
+        - story
+      paddingX: 48
+      paddingY: 44
+    - id: rendered-output
+      name: Rendering surface
+      labels:
+        region: stage
+      members:
+        - topoviewer
+        - service-map
+      layers:
+        - story
+      paddingX: 44
+      paddingY: 48
