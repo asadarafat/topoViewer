@@ -6,7 +6,10 @@ packages/*/playwright-report/
 packages/*/build/
 packages/*/*.egg-info/
 .artifacts/
+.agents/
+.cache/
 .donotpush/
+.vscode/
 .venv*/
 site/
 .DS_Store

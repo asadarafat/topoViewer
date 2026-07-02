@@ -67,12 +67,12 @@ npm_repo() {
 
 prepare_zensical() {
     npm_repo run sync:docs
-    npm_repo run sync:zensical-docs
+    npm_repo run sync -- zensical-docs
 
     if [[ "${TOPOVIEWER_ZENSICAL_SKIP_VIEWER_BUILD:-0}" != "1" ]]; then
         npm_repo run build
     fi
-    npm_repo run sync:zensical-assets
+    npm_repo run sync -- zensical-assets
 }
 
 check_port() {

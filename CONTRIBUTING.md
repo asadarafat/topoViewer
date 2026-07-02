@@ -21,17 +21,18 @@ npm run ci
 Run the focused static gates while iterating:
 
 ```bash
-npm run lint:code-health # max 1000 lines per source/test/script file
-npm run lint:ts          # oxlint correctness checks
-npm run lint:deps        # dependency-cruiser cycle/boundary checks
-npm run lint:cpd         # jscpd duplicate-code threshold
-npm run lint:cpd:report  # inspect duplicate blocks when needed
+npm run lint                         # full local static gate
+npm run lint -- --only code-health   # max 1000 lines per source/test/script file
+npm run lint -- --only ts            # oxlint correctness checks
+npm run lint -- --only deps          # dependency-cruiser cycle/boundary checks
+npm run lint -- --only cpd           # jscpd duplicate-code threshold
+npm run lint -- --only cpd-report    # inspect duplicate blocks when needed
 ```
 
 Move a local dirty worktree to another machine without pushing:
 
 ```bash
-npm run transfer:bundle
+node scripts/create-manual-transfer.mjs
 ```
 
 The bundle is written under `.artifacts/manual-transfer/` by default and includes

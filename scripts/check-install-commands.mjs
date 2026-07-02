@@ -39,6 +39,8 @@ const requiredMkdocsPublishedInstallCommandFiles = new Set([
 ]);
 const allowedMkdocsPublishedInstallCommandFiles = new Set([
   ...requiredMkdocsPublishedInstallCommandFiles,
+  'README.md',
+  'packages/topoviewer/content/pages/_fragments/readme.md',
   'packages/topoviewer/content/pages/maintainers/monorepo.md',
   'packages/topoviewer/content/pages/maintainers/release.md',
   'packages/topoviewer/docs/maintainers/monorepo.md',

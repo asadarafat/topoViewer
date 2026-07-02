@@ -11,6 +11,7 @@ reflected in public docs with an explicit support-status label.
 Current active plans:
 
 - `changes/define-codespaces-dev-environment/` - planned Codespaces developer environment that can run local MkDocs, Zensical, browser harness, Grafana lab, and Containerlab-Grafana workflows from a fresh cloud workspace.
+- `changes/clean-root-tooling-surface/` - planned cleanup of the public root directory shape and root `package.json` script surface, including root-entry classification, local artifact cleanup guidance, npm script taxonomy, dispatcher migration, and CI-safe command simplification.
 - `changes/define-netbox-integration-roadmap/` - planned NetBox feasibility, use cases, first integration shape, and roadmap wording constraints.
 - `changes/define-opsmill-infrahub-integration-roadmap/` - planned OpsMill/Infrahub feasibility, use cases, first integration shape, and roadmap wording constraints.
 
