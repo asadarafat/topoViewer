@@ -5,12 +5,13 @@ workload_namespace="${1:-eda-system}"
 domain_namespace="${2:-eda}"
 output_dir="${3:-.artifacts/eda-kubernetes-inventory}"
 resource_pattern="${4:-networktopolog|toponode}"
+kubectl_cmd="${KUBECTL:-kubectl}"
 
-if ! command -v kubectl >/dev/null 2>&1; then
-  echo "kubectl is required." >&2
+if ! command -v "${kubectl_cmd%% *}" >/dev/null 2>&1; then
+  echo "kubectl is required. Set KUBECTL='docker exec <control-plane> kubectl' when kubectl is bundled in a container." >&2
   exit 1
 fi
-k() { kubectl --request-timeout=10s "$@"; }
+k() { $kubectl_cmd --request-timeout=10s "$@"; }
 
 mkdir -p "$output_dir"
 

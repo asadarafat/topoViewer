@@ -56,6 +56,14 @@ Run it against a kubeconfig that can read the EDA namespaces:
 bash packages/topoviewer/content/examples/integration/kubernetes-service-map/collect-eda-kubernetes-inventory.sh eda-system eda
 ```
 
+If `kubectl` is bundled inside a local control-plane container instead of
+installed on the host, pass the command explicitly:
+
+```bash
+KUBECTL='docker exec eda-demo-control-plane kubectl' \
+  bash packages/topoviewer/content/examples/integration/kubernetes-service-map/collect-eda-kubernetes-inventory.sh eda-system eda
+```
+
 Collect a different custom-resource family by changing the discovery pattern:
 
 ```bash
