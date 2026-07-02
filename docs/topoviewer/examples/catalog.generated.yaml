@@ -691,7 +691,7 @@ examples:
     expected:
       graphNodes: 59
       minVisibleEdges: 52
-      minRegions: 0
+      minRegions: 6
     readme: docs/topoviewer/examples/integration/kubernetes-service-map/README.md
   - id: integration-real-network-underlay
     title: Real network underlay

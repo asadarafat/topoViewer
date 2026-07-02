@@ -34,6 +34,16 @@ icons:
 labelFields:
   - name
 stylesheet:
+  - selector: region
+    style:
+      backgroundColor: "rgba(25, 118, 210, 0.06)"
+      borderColor: "rgba(66, 165, 245, 0.36)"
+      borderWidth: 1
+      labelColor: var(--topoviewer-region-label-fg)
+      labelBackgroundColor: var(--topoviewer-region-label-bg)
+      labelPosition: topCenter
+      labelMargin: 10
+      labelFontWeight: 800
   - selector: node
     style:
       shape: rectangle

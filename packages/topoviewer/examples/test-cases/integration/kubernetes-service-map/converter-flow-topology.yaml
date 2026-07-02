@@ -77,7 +77,7 @@ graph:
         - 380
         - 240
     - id: derive-relationships
-      name: Links, parents, layers
+      name: Links, regions, layers
       labels:
         object: model
         role: relationships
@@ -139,7 +139,7 @@ graph:
         - 1160
         - 218
     - id: attention-collapse
-      name: Parent collapse
+      name: Region collapse
       labels:
         object: behavior
         role: collapse
@@ -240,6 +240,34 @@ graph:
         link: behavior
       layers:
         - converter
+  regions:
+    - id: inventory-snapshots
+      name: Inventory snapshots
+      labels:
+        region: stage
+      members:
+        - services-json
+        - deployments-json
+        - pods-json
+        - eda-resources-json
+      layers:
+        - converter
+      paddingX: 44
+      paddingY: 38
+    - id: output-contract
+      name: TopoViewer contract
+      labels:
+        region: stage
+      members:
+        - topology-yaml
+        - stylesheet-yaml
+        - topoviewer
+        - layer-hiding
+        - attention-collapse
+      layers:
+        - converter
+      paddingX: 44
+      paddingY: 40
 toggles:
   - id: showChildNodesInsideParents
     name: Show converter internals

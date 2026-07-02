@@ -31,13 +31,21 @@ icons:
     glyph: CR
     fill: '#ed6c02'
     stroke: '#ffcc80'
-  group:
-    glyph: GRP
-    fill: '#0f172a'
-    stroke: '#90caf9'
 labelFields:
   - name
 stylesheet:
+  - selector: region
+    style:
+      backgroundColor: rgba(25, 118, 210, 0.08)
+      borderColor: rgba(66, 165, 245, 0.46)
+      borderWidth: 2
+      draggable: true
+      selectable: true
+      labelPosition: topCenter
+      labelMargin: 12
+      labelColor: var(--topoviewer-region-label-fg)
+      labelBackgroundColor: var(--topoviewer-region-label-bg)
+      labelZIndex: 6
   - selector: node
     style:
       shape: rectangle
@@ -52,21 +60,6 @@ stylesheet:
       labelBackgroundOpacity: 0.92
       labelPadding: 4
       metaColor: var(--topoviewer-fg-muted)
-  - selector: node[labels.object = "parentGroup"]
-    style:
-      icon: group
-      shape: roundRectangle
-      width: 190
-      height: 70
-      borderWidth: 2
-      backgroundColor: rgba(25, 118, 210, 0.1)
-      borderColor: rgba(66, 165, 245, 0.56)
-      labelPosition: center
-      labelBackgroundOpacity: 0
-      labelBorderWidth: 0
-      labelFontWeight: 900
-      metaColor: transparent
-      zIndex: 2
   - selector: node[labels.object = "client"]
     style:
       icon: client

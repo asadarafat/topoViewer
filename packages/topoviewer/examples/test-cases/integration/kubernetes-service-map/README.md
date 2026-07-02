@@ -95,7 +95,7 @@ the pattern is easy to copy, audit, and replace.
 
 The zoom-in below shows the converter as a parent process. The contained steps
 read the JSON snapshots, derive deterministic topology identity, derive
-relationships and parent groups, and write the topology contract that TopoViewer can
+relationships and regions, and write the topology contract that TopoViewer can
 validate.
 
 ```topoviewer
@@ -131,9 +131,9 @@ this:
 - ports, selectors, images, readiness, and status details become `data`;
 - selectors, ownership, containment, runtime calls, and control relationships
   become `graph.links[]`;
-- object families become parent nodes plus `graph.nodes[].parent`;
+- object families become `graph.regions[]`;
 - Kubernetes and topology-runtime views become `graph.layers[]`;
-- dense groups become `attention.aggregate.groups[]` so parent groups can collapse;
+- dense groups become `attention.aggregate.groups[]` so regions can collapse;
 - visual policy stays in `stylesheet.yaml`, separate from collected facts.
 
 ??? example "Converter scaffold"
@@ -151,14 +151,14 @@ node packages/topoviewer/content/examples/integration/kubernetes-service-map/con
 ```
 
 The generated topology is intentionally deterministic. Re-running the converter
-against the same inventory should produce the same IDs, links, parent groups, and
+against the same inventory should produce the same IDs, links, regions, and
 attention groups. That makes the output reviewable in Git and usable in CI.
 
 That separation matters. The same collected facts can be rendered as a compact
 service dependency map, a Kubernetes ownership view, a topology runtime view, or
 a Grafana overlay target without rewriting the source inventory. Layer hiding
 uses the generated `graph.layers[]`; collapse and expand behavior uses the
-generated parent groups in `attention.aggregate`.
+generated `attention.aggregate` groups.
 
 ## Reading The Service Map
 
@@ -179,10 +179,10 @@ contains the `TopoNode` objects for `leaf1`, `leaf2`, and `spine1`. Those
 `TopoNode` objects are backed by simulator deployments and pods. NPP pods keep
 control connectivity to the managed nodes.
 
-Parent groups organize the map into API/UI, identity and persistence, control
-engines, applications and bootstrap services, topology runtime, and simulated
-fabric. Clicking a parent group collapses its children into a summary node;
-clicking the summary expands the group again.
+Regions group the map into API/UI, identity and persistence, control engines,
+applications and bootstrap services, topology runtime, and simulated fabric.
+Expanded regions can be dragged to clean up the view. Clicking a region
+collapses it into a summary node; clicking the summary expands it again.
 
 ```topoviewer
 topology: examples/integration/kubernetes-service-map/topology.yaml
@@ -204,7 +204,7 @@ TopoViewer turns that relationship model into a reusable artifact:
 - `topology.yaml` records what exists and how objects relate;
 - `stylesheet.yaml` records how object families should be read visually;
 - layers separate the Kubernetes service surface from the topology runtime;
-- parent groups keep related areas understandable without hiding their members;
+- regions keep related areas understandable without hiding their members;
 - attention aggregation makes dense areas collapsible without deleting context.
 
 The useful outcome is not a prettier object list. It is a service map that
@@ -224,7 +224,7 @@ For another platform, use the same sequence:
    typed links;
 4. keep raw source facts in `labels` and `data`;
 5. style object families separately from source facts;
-6. use layers and collapsible parent groups to keep the view usable as the system
+6. use layers and collapsible regions to keep the view usable as the system
    grows.
 
 TopoViewer becomes useful when the map explains the system shape without

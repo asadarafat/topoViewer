@@ -3,7 +3,7 @@ visualSnapshot: false
 dom:
   graphNodes: 59
   minVisibleEdges: 52
-  minRegions: 0
+  minRegions: 6
 assertions:
   controls: true
   nodeStatusesMin: 3
