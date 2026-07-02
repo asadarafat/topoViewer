@@ -11,7 +11,6 @@ reflected in public docs with an explicit support-status label.
 Current active plans:
 
 - `changes/define-codespaces-dev-environment/` - planned Codespaces developer environment that can run local MkDocs, Zensical, browser harness, Grafana lab, and Containerlab-Grafana workflows from a fresh cloud workspace.
-- `changes/clean-root-tooling-surface/` - planned cleanup of the public root directory shape and root `package.json` script surface, including root-entry classification, local artifact cleanup guidance, npm script taxonomy, dispatcher migration, and CI-safe command simplification.
 - `changes/define-netbox-integration-roadmap/` - planned NetBox feasibility, use cases, first integration shape, and roadmap wording constraints.
 - `changes/define-opsmill-infrahub-integration-roadmap/` - planned OpsMill/Infrahub feasibility, use cases, first integration shape, and roadmap wording constraints.
 
@@ -21,6 +20,7 @@ Current studies:
 
 Archived plans:
 
+- `archive/2026-07-02-clean-root-tooling-surface/` - implemented first-pass root cleanup with repo-level local artifact ignore coverage, maintainer root-shape documentation, docs/sync/Grafana/lint dispatchers, safe internal alias reduction from 115 to 96 root scripts, generated Zensical nav sync, and full local CI validation.
 - `archive/2026-07-01-harden-public-adoption-readiness/` - implemented public repository and documentation hardening for the `0.1.0` early-adopter path, including npm publication, README/docs conversion path, curated examples, renderer parity, mapper authoring ergonomics, security guardrails, artifact autopsy, and remote CI/Docs/Security/CodeQL verification.
 - `archive/2026-07-01-publish-promo-video-hosted-asset/` - deprecated before implementation because the public README should favor the checked-in YAML-to-graph collage while generated video/GIF/MP4 files remain local-only review artifacts.
 - `archive/2026-07-01-harden-link-direction-lanes/` - implemented production hardening for direction lane geometry, physical parallel-link behavior, direction-specific interaction, attention, mapper coverage, mounted-bundle examples, and cross-surface parity.

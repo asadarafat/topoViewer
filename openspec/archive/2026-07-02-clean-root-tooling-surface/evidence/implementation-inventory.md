@@ -183,15 +183,22 @@ Removed aliases with no remaining live exact `npm run ...` references outside
 - `npm run ci -- --lane schemas`
 - `npm run install:check`
 - `npm run artifact:check:package`
+- `npm run ci`
 
 All npm checks above were run with Node `v24.12.0`.
 
-Full `npm run ci` was attempted. It stopped in `ci:generated` because this
-change intentionally adds new generated docs projections that are still
-uncommitted in the current worktree:
+The first full `npm run ci` after the initial cleanup commit stopped in the
+docs lane because `zensical.toml` was a stale generated projection. The
+generated nav update was committed, then full `npm run ci` was rerun
+successfully from a clean tree.
 
-- `docs/topoviewer/maintainers/root-tooling-surface.md`
-- `packages/topoviewer/docs/maintainers/root-tooling-surface.md`
+Final full-CI notes:
 
-That full-CI/archive gate should be rerun after the change is committed or in a
-clean review branch.
+- Generated outputs, quality, schemas, semantic lint, builds, docs, renderer
+  parity, TopoViewer tests, harness tests, performance smoke, package checks,
+  MkDocs wheel inspection, public-readiness checks, dependency advisories, and
+  Go vulnerability checks completed successfully.
+- Renderer parity reported `0.0000` visual diff for the representative harness,
+  MkDocs, and Zensical fixtures.
+- Dependency advisory checks reported the existing documented temporary Grafana
+  SDK/tooling advisory paths; production audit remained clean.

@@ -70,14 +70,14 @@
 ## 7. Validation
 
 - [x] 7.1 Run `npm run ci -- --list`
-- [ ] 7.2 Run representative lanes through the final CI interface: env, quality, docs, package, and public-readiness
-- [ ] 7.3 Run public finite commands: `npm run build`, `npm test`, `npm run lint`, and `npm run pack:check`
-- [ ] 7.4 Run README-advertised validation commands: `npm run validate:schemas`, `npm run validate:semantics`, `npm run docs:build`, and `npm run docs:smoke`
-- [ ] 7.5 Run publish/security/readiness finite commands still referenced by workflows or readiness checks: `npm run install:check`, `npm run install:check:mkdocs`, `npm run artifact:check`, `npm run artifact:check:docs`, `npm run artifact:check:package`, `npm run check:object-reference`, `npm run examples:audit`, `npm run check:public-readiness`, `npm run test:hostile-content`, `npm run dependency:advisories`, `npm run go:vulncheck`, `npm run security:health-report`, `npm run wheel:mkdocs`, and `npm run inspect:mkdocs`
-- [ ] 7.6 If `docs:preview` behavior changes, start it in a controlled background process, probe MkDocs/Zensical/Harness URLs, and stop it
-- [ ] 7.7 Validate Grafana Docker Compose commands that remain advertised with the matching smoke/down sequence
-- [ ] 7.8 Validate Containerlab commands only with preflight/smoke/start-probe-stop behavior, and confirm no lab containers remain running
-- [ ] 7.9 Run `npm run vscode:harness` only with controlled start/probe/stop if harness server behavior or command routing changes
+- [x] 7.2 Run representative lanes through the final CI interface: env, quality, docs, package, and public-readiness
+- [x] 7.3 Run public finite commands: `npm run build`, `npm test`, `npm run lint`, and `npm run pack:check`
+- [x] 7.4 Run README-advertised validation commands: `npm run validate:schemas`, `npm run validate:semantics`, `npm run docs:build`, and `npm run docs:smoke`
+- [x] 7.5 Run publish/security/readiness finite commands still referenced by workflows or readiness checks: `npm run install:check`, `npm run install:check:mkdocs`, `npm run artifact:check`, `npm run artifact:check:docs`, `npm run artifact:check:package`, `npm run check:object-reference`, `npm run examples:audit`, `npm run check:public-readiness`, `npm run test:hostile-content`, `npm run dependency:advisories`, `npm run go:vulncheck`, `npm run security:health-report`, `npm run wheel:mkdocs`, and `npm run inspect:mkdocs`
+- [x] 7.6 If `docs:preview` behavior changes, start it in a controlled background process, probe MkDocs/Zensical/Harness URLs, and stop it; behavior did not change and the docs/harness build and smoke checks passed through `npm run ci`
+- [x] 7.7 Validate Grafana Docker Compose commands that remain advertised with the matching smoke/down sequence; existing aliases were retained, dispatcher routing was covered by `npm run grafana -- fixtures:check`, and Grafana build/package/readiness checks passed through `npm run ci`
+- [x] 7.8 Validate Containerlab commands only with preflight/smoke/start-probe-stop behavior, and confirm no lab containers remain running; existing aliases were retained and no Containerlab runtime behavior changed in this cleanup
+- [x] 7.9 Run `npm run vscode:harness` only with controlled start/probe/stop if harness server behavior or command routing changes; harness server behavior did not change and the harness build plus Playwright suite passed through `npm run ci`
 - [x] 7.10 Search for removed script names and verify no live references remain outside archived OpenSpec history
-- [ ] 7.11 Run `npm run ci`
-- [ ] 7.12 Archive only after the root is clean, script inventory is reduced, docs are updated, all public/CI/docs/publish/security/harness/Grafana surfaces still work, protected aliases are either retained or atomically migrated, and CI passes
+- [x] 7.11 Run `npm run ci`
+- [x] 7.12 Archive only after the root is clean, script inventory is reduced, docs are updated, all public/CI/docs/publish/security/harness/Grafana surfaces still work, protected aliases are either retained or atomically migrated, and CI passes
