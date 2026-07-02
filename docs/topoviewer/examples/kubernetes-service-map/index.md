@@ -46,10 +46,10 @@ identity before anything is styled. For this example, the source inventory is:
 - selected runtime facts, including ports, image names, readiness, and status.
 
 The checked-in example is a captured and curated topology derived from that kind
-of inventory. The repo does not currently include a full automatic
-EDA-to-TopoViewer converter. The scaffold below shows the collection stage only:
-it captures raw Kubernetes and EDA-resource JSON that a converter can then turn
-into `topology.yaml` and `stylesheet.yaml`.
+of inventory. The scaffold below captures raw Kubernetes JSON and selected
+custom resources. The fourth argument is an optional `kubectl api-resources`
+regular expression, so the same pattern can collect other domain resources
+without rewriting the script.
 
 ??? example "Inventory collection scaffold"
 
@@ -61,6 +61,13 @@ Run it against a kubeconfig that can read the EDA namespaces:
 
 ```bash
 bash packages/topoviewer/content/examples/integration/kubernetes-service-map/collect-eda-kubernetes-inventory.sh eda-system eda
+```
+
+Collect a different custom-resource family by changing the discovery pattern:
+
+```bash
+bash packages/topoviewer/content/examples/integration/kubernetes-service-map/collect-eda-kubernetes-inventory.sh \
+  eda-system eda .artifacts/eda-kubernetes-inventory 'networktopolog|toponode|myresource'
 ```
 
 Expected result:
@@ -82,8 +89,8 @@ Those files are not the final TopoViewer model. They are the raw input.
 
 The converter is a script. In a production integration it would normally be a
 small CLI in the same repository as the collector, with tests around every
-relationship rule. In this example it is a scaffold that shows the shape of that
-CLI.
+relationship rule. In this example it is intentionally kept under 101 lines so
+the pattern is easy to copy, audit, and replace.
 
 The zoom-in below shows the converter as a parent process. The contained steps
 read the JSON snapshots, derive deterministic topology identity, derive
@@ -109,10 +116,10 @@ attention:
 ```
 
 The converter is the deliberate boundary between the platform API and
-TopoViewer. It should not decide the visual design. Its job is to preserve
-stable object identity and turn platform relationships into a diagram model that
-can be validated. Colors, icons, labels, and link emphasis stay in
-`stylesheet.yaml`.
+TopoViewer. It writes `topology.yaml` only. It should not decide the visual
+design. Its job is to preserve stable object identity and turn platform
+relationships into a diagram model that can be validated. Colors, icons, labels,
+and link emphasis stay in `stylesheet.yaml`.
 
 For this example, a converter maps inventory into the topology contract like
 this:
