@@ -16,8 +16,8 @@ graph:
       layers:
         - control-plane
       position:
-        - 80
-        - 90
+        - 100
+        - 100
     - id: svc-try-eda
       name: try-eda
       labels:
@@ -35,8 +35,8 @@ graph:
       layers:
         - control-plane
       position:
-        - 180
-        - 110
+        - 240
+        - 100
     - id: svc-eda-api
       name: eda-api
       labels:
@@ -54,8 +54,8 @@ graph:
       layers:
         - control-plane
       position:
-        - 340
-        - 110
+        - 380
+        - 100
     - id: svc-eda-fe
       name: eda-fe
       labels:
@@ -73,8 +73,8 @@ graph:
       layers:
         - control-plane
       position:
-        - 500
-        - 110
+        - 520
+        - 100
     - id: svc-eda-keycloak
       name: eda-keycloak
       labels:
@@ -92,8 +92,8 @@ graph:
       layers:
         - control-plane
       position:
-        - 660
-        - 110
+        - 900
+        - 100
     - id: svc-eda-appstore
       name: eda-appstore
       labels:
@@ -111,8 +111,8 @@ graph:
       layers:
         - control-plane
       position:
-        - 180
-        - 510
+        - 900
+        - 800
     - id: svc-eda-git
       name: eda-git
       labels:
@@ -130,8 +130,8 @@ graph:
       layers:
         - control-plane
       position:
-        - 980
-        - 110
+        - 1180
+        - 100
     - id: svc-eda-postgres
       name: eda-postgres
       labels:
@@ -149,8 +149,8 @@ graph:
       layers:
         - control-plane
       position:
-        - 180
-        - 110
+        - 1040
+        - 100
     - id: svc-eda-ce
       name: eda-ce
       labels:
@@ -168,8 +168,8 @@ graph:
       layers:
         - control-plane
       position:
-        - 180
-        - 310
+        - 100
+        - 800
     - id: svc-eda-sc
       name: eda-sc
       labels:
@@ -187,8 +187,8 @@ graph:
       layers:
         - control-plane
       position:
-        - 340
-        - 310
+        - 240
+        - 800
     - id: svc-eda-sa
       name: eda-sa
       labels:
@@ -206,8 +206,8 @@ graph:
       layers:
         - control-plane
       position:
-        - 500
-        - 310
+        - 380
+        - 800
     - id: svc-eda-cm
       name: eda-cm
       labels:
@@ -225,8 +225,8 @@ graph:
       layers:
         - control-plane
       position:
-        - 180
-        - 510
+        - 100
+        - 430
     - id: svc-eda-cx
       name: eda-cx
       labels:
@@ -244,8 +244,8 @@ graph:
       layers:
         - control-plane
       position:
-        - 820
-        - 310
+        - 240
+        - 1100
     - id: svc-eda-bsvr
       name: eda-bsvr
       labels:
@@ -263,8 +263,8 @@ graph:
       layers:
         - control-plane
       position:
-        - 180
-        - 510
+        - 1040
+        - 800
     - id: svc-eda-asvr
       name: eda-asvr
       labels:
@@ -282,8 +282,8 @@ graph:
       layers:
         - control-plane
       position:
-        - 340
-        - 510
+        - 1180
+        - 800
     - id: svc-eda-ai
       name: eda-ai
       labels:
@@ -301,8 +301,8 @@ graph:
       layers:
         - control-plane
       position:
-        - 340
-        - 310
+        - 520
+        - 800
     - id: svc-eda-aggsvr-svc
       name: eda-aggsvr-svc
       labels:
@@ -320,8 +320,8 @@ graph:
       layers:
         - control-plane
       position:
-        - 660
-        - 510
+        - 240
+        - 430
     - id: svc-eda-api-debug-grpc
       name: eda-api-debug-grpc
       labels:
@@ -339,8 +339,8 @@ graph:
       layers:
         - control-plane
       position:
-        - 820
-        - 110
+        - 660
+        - 100
     - id: svc-eda-dhcp
       name: eda-dhcp
       labels:
@@ -358,8 +358,8 @@ graph:
       layers:
         - control-plane
       position:
-        - 980
-        - 510
+        - 1320
+        - 800
     - id: svc-eda-dhcpv6
       name: eda-dhcpv6
       labels:
@@ -377,8 +377,8 @@ graph:
       layers:
         - control-plane
       position:
-        - 180
-        - 510
+        - 900
+        - 950
     - id: svc-eda-git-replica
       name: eda-git-replica
       labels:
@@ -396,8 +396,8 @@ graph:
       layers:
         - control-plane
       position:
-        - 340
-        - 110
+        - 1320
+        - 100
     - id: svc-logoutput-fluentbit-collector
       name: logoutput-fluentbit-collector
       labels:
@@ -415,8 +415,8 @@ graph:
       layers:
         - control-plane
       position:
-        - 500
-        - 510
+        - 380
+        - 430
     - id: svc-trust-manager
       name: trust-manager
       labels:
@@ -434,8 +434,8 @@ graph:
       layers:
         - control-plane
       position:
-        - 660
-        - 510
+        - 1040
+        - 950
     - id: svc-trust-manager-metrics
       name: trust-manager-metrics
       labels:
@@ -454,7 +454,7 @@ graph:
         - control-plane
       position:
         - 660
-        - 310
+        - 800
     - id: deploy-cx-eda-leaf1-sim
       name: cx-eda--leaf1-sim
       labels:
@@ -470,8 +470,8 @@ graph:
       layers:
         - topology-runtime
       position:
-        - 380
-        - 840
+        - 930
+        - 1360
     - id: deploy-cx-eda-leaf2-sim
       name: cx-eda--leaf2-sim
       labels:
@@ -487,8 +487,8 @@ graph:
       layers:
         - topology-runtime
       position:
-        - 570
-        - 840
+        - 1090
+        - 1360
     - id: deploy-cx-eda-spine1-sim
       name: cx-eda--spine1-sim
       labels:
@@ -504,8 +504,8 @@ graph:
       layers:
         - topology-runtime
       position:
-        - 760
-        - 840
+        - 1250
+        - 1360
     - id: deploy-cx-eda-testman-default-sim
       name: cx-eda--testman-default-sim
       labels:
@@ -521,8 +521,8 @@ graph:
       layers:
         - topology-runtime
       position:
-        - 950
-        - 840
+        - 1410
+        - 1360
     - id: deploy-eda-ai-engine
       name: eda-ai-engine
       labels:
@@ -538,8 +538,8 @@ graph:
       layers:
         - control-plane
       position:
-        - 340
-        - 390
+        - 520
+        - 950
     - id: deploy-eda-api
       name: eda-api
       labels:
@@ -555,8 +555,8 @@ graph:
       layers:
         - control-plane
       position:
-        - 180
-        - 190
+        - 240
+        - 250
     - id: deploy-eda-appstore
       name: eda-appstore
       labels:
@@ -572,8 +572,8 @@ graph:
       layers:
         - control-plane
       position:
-        - 180
-        - 590
+        - 900
+        - 1100
     - id: deploy-eda-asvr
       name: eda-asvr
       labels:
@@ -589,8 +589,8 @@ graph:
       layers:
         - control-plane
       position:
-        - 340
-        - 590
+        - 1180
+        - 1100
     - id: deploy-eda-bsvr
       name: eda-bsvr
       labels:
@@ -606,8 +606,8 @@ graph:
       layers:
         - control-plane
       position:
-        - 180
-        - 590
+        - 1040
+        - 1100
     - id: deploy-eda-ce
       name: eda-ce
       labels:
@@ -623,8 +623,8 @@ graph:
       layers:
         - control-plane
       position:
-        - 180
-        - 390
+        - 100
+        - 950
     - id: deploy-eda-cert-checker
       name: eda-cert-checker
       labels:
@@ -640,8 +640,8 @@ graph:
       layers:
         - control-plane
       position:
-        - 1120
-        - 250
+        - 660
+        - 950
     - id: deploy-eda-cluster-manager
       name: eda-cluster-manager
       labels:
@@ -657,8 +657,8 @@ graph:
       layers:
         - control-plane
       position:
-        - 180
-        - 590
+        - 100
+        - 580
     - id: deploy-eda-cx
       name: eda-cx
       labels:
@@ -674,8 +674,8 @@ graph:
       layers:
         - control-plane
       position:
-        - 820
-        - 390
+        - 380
+        - 1100
     - id: deploy-eda-fe
       name: eda-fe
       labels:
@@ -691,8 +691,8 @@ graph:
       layers:
         - control-plane
       position:
-        - 500
-        - 190
+        - 520
+        - 250
     - id: deploy-eda-git
       name: eda-git
       labels:
@@ -708,8 +708,8 @@ graph:
       layers:
         - control-plane
       position:
-        - 980
-        - 190
+        - 1180
+        - 250
     - id: deploy-eda-git-replica
       name: eda-git-replica
       labels:
@@ -725,8 +725,8 @@ graph:
       layers:
         - control-plane
       position:
-        - 340
-        - 190
+        - 1320
+        - 250
     - id: deploy-eda-keycloak
       name: eda-keycloak
       labels:
@@ -742,8 +742,8 @@ graph:
       layers:
         - control-plane
       position:
-        - 660
-        - 190
+        - 900
+        - 250
     - id: deploy-eda-logoutput-fluentbit-collector
       name: eda-logoutput-fluentbit-collector
       labels:
@@ -759,8 +759,8 @@ graph:
       layers:
         - control-plane
       position:
-        - 500
-        - 590
+        - 380
+        - 580
     - id: deploy-eda-metrics-server
       name: eda-metrics-server
       labels:
@@ -776,8 +776,8 @@ graph:
       layers:
         - control-plane
       position:
-        - 1120
-        - 250
+        - 520
+        - 1100
     - id: deploy-eda-postgres
       name: eda-postgres
       labels:
@@ -793,8 +793,8 @@ graph:
       layers:
         - control-plane
       position:
-        - 180
-        - 190
+        - 1040
+        - 250
     - id: deploy-eda-sa
       name: eda-sa
       labels:
@@ -810,8 +810,8 @@ graph:
       layers:
         - control-plane
       position:
-        - 500
-        - 390
+        - 380
+        - 950
     - id: deploy-eda-sc
       name: eda-sc
       labels:
@@ -827,8 +827,8 @@ graph:
       layers:
         - control-plane
       position:
-        - 340
-        - 390
+        - 240
+        - 950
     - id: deploy-eda-se
       name: eda-se
       labels:
@@ -844,8 +844,8 @@ graph:
       layers:
         - control-plane
       position:
-        - 1120
-        - 250
+        - 660
+        - 1100
     - id: deploy-eda-toolbox
       name: eda-toolbox
       labels:
@@ -861,8 +861,8 @@ graph:
       layers:
         - control-plane
       position:
-        - 1120
-        - 250
+        - 660
+        - 580
     - id: deploy-trust-manager
       name: trust-manager
       labels:
@@ -878,8 +878,8 @@ graph:
       layers:
         - control-plane
       position:
-        - 660
-        - 590
+        - 1320
+        - 1100
     - id: eda-topology-try-eda-topology
       name: try-eda-topology
       labels:
@@ -893,8 +893,8 @@ graph:
       layers:
         - topology-runtime
       position:
-        - 140
-        - 700
+        - 120
+        - 1360
     - id: toponode-leaf1
       name: leaf1
       labels:
@@ -915,8 +915,8 @@ graph:
       layers:
         - topology-runtime
       position:
-        - 420
-        - 760
+        - 320
+        - 1360
     - id: toponode-leaf2
       name: leaf2
       labels:
@@ -937,8 +937,8 @@ graph:
       layers:
         - topology-runtime
       position:
-        - 640
-        - 760
+        - 500
+        - 1360
     - id: toponode-spine1
       name: spine1
       labels:
@@ -959,8 +959,8 @@ graph:
       layers:
         - topology-runtime
       position:
-        - 860
-        - 670
+        - 680
+        - 1360
     - id: pod-eda-npp-0
       name: eda-npp-0
       labels:
@@ -975,8 +975,8 @@ graph:
       layers:
         - topology-runtime
       position:
-        - 1080
-        - 650
+        - 500
+        - 1510
     - id: pod-eda-npp-1
       name: eda-npp-1
       labels:
@@ -991,8 +991,8 @@ graph:
       layers:
         - topology-runtime
       position:
-        - 1080
-        - 750
+        - 680
+        - 1510
     - id: pod-cx-eda-leaf1-sim-777d7654d8-rj7vt
       name: leaf1
       labels:
@@ -1009,8 +1009,8 @@ graph:
       layers:
         - topology-runtime
       position:
-        - 380
-        - 980
+        - 930
+        - 1510
     - id: pod-cx-eda-leaf2-sim-756565d7ff-jb8cx
       name: leaf2
       labels:
@@ -1027,8 +1027,8 @@ graph:
       layers:
         - topology-runtime
       position:
-        - 570
-        - 980
+        - 1090
+        - 1510
     - id: pod-cx-eda-spine1-sim-7cdfb4bc99-fvxng
       name: spine1
       labels:
@@ -1045,8 +1045,8 @@ graph:
       layers:
         - topology-runtime
       position:
-        - 760
-        - 980
+        - 1250
+        - 1510
     - id: pod-cx-eda-testman-default-sim-5bd4dc65b4-8vghl
       name: testman-default
       labels:
@@ -1063,8 +1063,8 @@ graph:
       layers:
         - topology-runtime
       position:
-        - 950
-        - 980
+        - 1410
+        - 1510
   links:
     - id: client-to-try-eda
       name: HTTPS 9443
