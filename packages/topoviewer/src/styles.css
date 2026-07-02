@@ -367,15 +367,15 @@
 
 .topoviewer-node-parent {
   align-content: start;
-  padding: 10px 12px 14px;
-  border: 1px solid var(--topoviewer-border-strong);
-  border-radius: 16px;
-  background: color-mix(in srgb, var(--topoviewer-surface-bg) 74%, transparent);
-  box-shadow: var(--topoviewer-node-shadow);
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
 .topoviewer-node-parent .topoviewer-node-label {
-  margin-top: 1px;
+  margin-top: 0;
 }
 
 .topoviewer-node-child {
