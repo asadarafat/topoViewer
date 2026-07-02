@@ -206,6 +206,19 @@ function projectExampleFile(example, fileName, expectedPackageFiles) {
   projectText(target, readText(source), `${example.id} ${fileName}`);
 }
 
+function projectExampleExtraFile(example, fileName, expectedPackageFiles) {
+  const source = path.join(contentExamplesRoot, example.sourcePath || example.path, fileName);
+  if (!source.startsWith(contentExamplesRoot + path.sep)) {
+    throw new Error(`Example ${example.id} extra file resolves outside content examples: ${relative(source)}`);
+  }
+  if (!fs.existsSync(source)) {
+    throw new Error(`Example ${example.id} extra file is missing: ${relative(source)}`);
+  }
+  const target = path.join(packageTestCasesRoot, example.path, fileName);
+  expectedPackageFiles.add(target);
+  projectText(target, readText(source), `${example.id} ${fileName}`);
+}
+
 function projectStressExamples(expectedPackageFiles) {
   const stressSourceRoot = path.join(contentExamplesRoot, 'stress');
   if (!fs.existsSync(stressSourceRoot)) return;
@@ -233,6 +246,9 @@ function projectExamples() {
   for (const example of catalog.examples || []) {
     for (const fileName of Object.keys(exampleFileKeys)) {
       projectExampleFile(example, fileName, expectedPackageFiles);
+    }
+    for (const fileName of example.extraFiles || []) {
+      projectExampleExtraFile(example, fileName, expectedPackageFiles);
     }
   }
 

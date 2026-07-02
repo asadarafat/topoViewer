@@ -61,6 +61,15 @@ function readExampleFile(example, fileName) {
   return readText(exampleSourceFile(example, fileName));
 }
 
+function exampleExtraSourceFile(example, fileName) {
+  const source = path.join(contentExamplesRoot, example.sourcePath || example.path, fileName);
+  const relativePath = path.relative(contentExamplesRoot, source);
+  if (relativePath.startsWith('..') || path.isAbsolute(relativePath)) {
+    throw new Error(`Example ${example.id} extra file resolves outside examples content: ${source}`);
+  }
+  return source;
+}
+
 function docsExamplePath(example, fileName) {
   return path.posix.join('topoviewer/examples', example.path, fileName);
 }
@@ -325,6 +334,9 @@ function requiredExampleSections(readme) {
 
 function exampleIntroMarkdown(example, expected, headingLevel = 2) {
   const readme = readExampleFile(example, 'README.md').trim();
+  if (example.introMode === 'narrative') {
+    return readme;
+  }
   if (requiredExampleSections(readme)) {
     return readme;
   }
@@ -510,11 +522,14 @@ for (const example of catalog.examples || []) {
   const targets = [
     ['topology.yaml', docsExamplePath(example, 'topology.yaml')],
     ['stylesheet.yaml', docsExamplePath(example, 'stylesheet.yaml')],
-    ['README.md', docsExamplePath(example, 'README.md')]
+    ['README.md', docsExamplePath(example, 'README.md')],
+    ...(example.extraFiles || []).map((fileName) => [fileName, docsExamplePath(example, fileName)])
   ];
 
   for (const [sourceName, targetRelative] of targets) {
-    const source = exampleSourceFile(example, sourceName);
+    const source = sourceName in { 'topology.yaml': true, 'stylesheet.yaml': true, 'README.md': true }
+      ? exampleSourceFile(example, sourceName)
+      : exampleExtraSourceFile(example, sourceName);
     const target = path.join(docsRoot, targetRelative);
     if (!fs.existsSync(source)) {
       throw new Error(`Example ${example.id} source file is missing: ${source}`);

@@ -96,10 +96,23 @@ function pageMarkdownPath(page) {
   return undefined;
 }
 
-function fencedTopoviewerBlock(markdownFile) {
+function isExternalReference(value) {
+  return /^[a-z][a-z0-9+.-]*:/i.test(value) || value.startsWith('/') || value.startsWith('#');
+}
+
+function resolveMkdocsReference(markdownFile, reference) {
+  const value = String(reference || '');
+  if (!value || isExternalReference(value)) return undefined;
+  if (value.startsWith('examples/')) {
+    return path.resolve(docsRoot, 'topoviewer', value);
+  }
+  return path.resolve(path.dirname(markdownFile), value);
+}
+
+function fencedTopoviewerBlocks(markdownFile) {
   const markdown = fs.readFileSync(markdownFile, 'utf8');
-  const fencedBlock = markdown.match(/```topoviewer\n([\s\S]*?)```/);
-  return fencedBlock ? yaml.load(fencedBlock[1]) || {} : undefined;
+  return [...markdown.matchAll(/```topoviewer\n([\s\S]*?)```/g)]
+    .map((match) => yaml.load(match[1]) || {});
 }
 
 function expectedCaseFiles(example) {
@@ -178,23 +191,35 @@ if (!fs.existsSync(catalogFile)) {
     }
 
     const expected = readYaml(source.expected);
-    const block = fencedTopoviewerBlock(markdownFile);
+    const blocks = fencedTopoviewerBlocks(markdownFile);
     if (expected.renderable === false) {
-      if (block) {
+      if (blocks.length) {
         fail(`test case ${example.id} is non-renderable but generated page contains a topoviewer fence`);
       }
       continue;
     }
 
-    if (!block) {
+    if (!blocks.length) {
       fail(`test case ${example.id} page has no topoviewer fenced block: ${example.page}`);
       continue;
     }
 
-    validateNow(`test case ${example.id} MkDocs fenced block`, 'https://topoviewer.dev/schemas/topoviewer-mkdocs-block.schema.json', block);
+    blocks.forEach((block, index) => {
+      validateNow(`test case ${example.id} MkDocs fenced block ${index + 1}`, 'https://topoviewer.dev/schemas/topoviewer-mkdocs-block.schema.json', block);
+    });
 
-    const blockTopology = path.resolve(path.dirname(markdownFile), block.topology || '');
-    const blockStylesheet = path.resolve(path.dirname(markdownFile), block.stylesheet || '');
+    const block = blocks.find((candidate) => {
+      const candidateTopology = resolveMkdocsReference(markdownFile, candidate.topology);
+      const candidateStylesheet = resolveMkdocsReference(markdownFile, candidate.stylesheet);
+      return candidateTopology === generated.topology && candidateStylesheet === generated.stylesheet;
+    });
+    if (!block) {
+      fail(`test case ${example.id} page has no topoviewer fence for the canonical fixture`);
+      continue;
+    }
+
+    const blockTopology = resolveMkdocsReference(markdownFile, block.topology);
+    const blockStylesheet = resolveMkdocsReference(markdownFile, block.stylesheet);
     if (blockTopology !== generated.topology) {
       fail(`test case ${example.id} topology disagrees with MkDocs block: ${generated.topology} != ${block.topology}`);
     }
