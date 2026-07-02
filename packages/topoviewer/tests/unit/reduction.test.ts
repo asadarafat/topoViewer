@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildAttentionIndex, deriveAggregateGraph } from '../../src';
+import { buildAttentionIndex, deriveAggregateGraph, type TopoDocument } from '../../src';
 import { attentionFixture } from './attention-fixture';
 
 describe('deriveAggregateGraph', () => {
@@ -44,7 +44,7 @@ describe('deriveAggregateGraph', () => {
   });
 
   it('keeps collapsed aggregate nodes visible in the member layers', () => {
-    const document = {
+    const document: TopoDocument = {
       graph: {
         layers: [
           { id: 'control-plane', name: 'Control plane' },
