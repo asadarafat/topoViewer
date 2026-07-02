@@ -307,7 +307,6 @@ More copyable mapper recipes are in [Grafana TopoViewer Containerlab Lab](../lab
 ## Generated Catalog
 
 Use the generated catalog when you need exhaustive feature coverage:
-
 - [Graph](../reference/graph/index.md)
 - [Nodes](../reference/nodes/index.md)
 - [Edges](../reference/edges/index.md)
