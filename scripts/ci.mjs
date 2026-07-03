@@ -116,6 +116,7 @@ const laneDefinitions = {
     }),
     step('build VS Code harness site', 'npm', ['run', 'vscode:harness:build']),
     step('write Pages redirects', 'npm', ['run', 'pages:redirects']),
+    step('prune publish-only docs artifacts', 'npm', ['run', 'docs:prune']),
     step('smoke built docs site', 'npm', ['run', 'docs:smoke']),
     step('inspect docs artifacts', 'npm', ['run', 'artifact:check:docs'])
   ],

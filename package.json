@@ -51,6 +51,7 @@
     "validate:schemas": "npm --workspace topoviewer run validate:schemas",
     "validate:semantics": "npm --workspace topoviewer run validate:semantics",
     "docs:smoke": "node scripts/require-node24.mjs && node scripts/smoke-docs-site.mjs",
+    "docs:prune": "node scripts/require-node24.mjs && node scripts/prune-docs-site.mjs",
     "docs:lint": "node scripts/sync-object-reference.mjs --check && node scripts/lint-docs.mjs",
     "public-readiness": "node scripts/require-node24.mjs && node scripts/check-public-readiness.mjs",
     "check:public-readiness": "node scripts/require-node24.mjs && node scripts/check-public-readiness.mjs",

@@ -10,3 +10,4 @@ TOPOVIEWER_ZENSICAL_SKIP_VIEWER_BUILD=1 bash "$ROOT_DIR/scripts/local-zensical.s
 npm run validate:zensical
 npm run vscode:harness:build
 npm run pages:redirects
+npm run docs:prune

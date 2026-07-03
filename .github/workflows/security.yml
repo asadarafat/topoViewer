@@ -133,5 +133,6 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: security-health-report
+          retention-days: 14
           path: .artifacts/security-health/security-health-report.md
           if-no-files-found: error

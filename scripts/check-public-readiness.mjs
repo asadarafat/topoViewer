@@ -265,6 +265,7 @@ function assertSecurityAutomation() {
     'trivy-action',
     'security-health-report',
     'actions/upload-artifact@v7',
+    'retention-days: 14',
     '.artifacts/security-health/security-health-report.md',
     'continue-on-error: ${{ github.event_name == \'push\' || github.event_name == \'pull_request\' }}'
   ]);
@@ -439,7 +440,8 @@ function assertPackageAndCiContracts() {
     'install:check:mkdocs',
     'artifact:check',
     'artifact:check:docs',
-    'artifact:check:package'
+    'artifact:check:package',
+    'docs:prune'
   ]) {
     if (!rootPackage.scripts?.[scriptName]) {
       fail(`Root package is missing ${scriptName}.`);
@@ -459,6 +461,7 @@ function assertPackageAndCiContracts() {
     "['run', 'install:check']",
     "['run', 'install:check:mkdocs']",
     "['run', 'docs:lint']",
+    "['run', 'docs:prune']",
     "['run', 'check:object-reference']",
     "['run', 'examples:audit']",
     "['run', 'render:parity']",
@@ -508,6 +511,16 @@ function assertPackageAndCiContracts() {
   }
   if (security.includes('npm audit --audit-level=moderate')) {
     fail('.github/workflows/security.yml must use dependency:advisories for full audit triage instead of an untriaged raw full npm audit.');
+  }
+
+  const artifactRetentionExpectations = [
+    ['.github/workflows/ci.yml', 'name: ci-failure-artifacts', 'retention-days: 3'],
+    ['.github/workflows/docs.yml', 'name: docs-failure-artifacts', 'retention-days: 3'],
+    ['.github/workflows/security.yml', 'name: security-health-report', 'retention-days: 14'],
+    ['.github/workflows/pypi-publish.yml', 'name: mkdocs-topoviewer-python-dist', 'retention-days: 14']
+  ];
+  for (const [file, artifactName, retention] of artifactRetentionExpectations) {
+    assertFile(file, [artifactName, retention]);
   }
 
   const workflows = listTextFiles('.github/workflows');

@@ -68,6 +68,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: docs-failure-artifacts
+          retention-days: 3
           if-no-files-found: ignore
           path: |
             site
