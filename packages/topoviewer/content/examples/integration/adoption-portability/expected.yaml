@@ -3,6 +3,7 @@ visualSnapshot: false
 dom:
   graphNodes: 4
   minVisibleEdges: 3
+assertions: {}
 semantic:
   errors: []
   warnings: []
