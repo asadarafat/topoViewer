@@ -60,6 +60,10 @@ needed. The root scripts are the stable interface used by GitHub Actions.
 | Remote public-readiness guardrails | `npm run ci:public-readiness:core` |
 | Full local/release public-adoption gate | `npm run ci:public-readiness` |
 
+Remote `CI` is split by feedback lane after generated-content preflight. Local
+`npm run ci` intentionally stays sequential so release and pre-push validation
+exercise the complete gate in the same process tree.
+
 When changing renderer behavior:
 
 ```bash

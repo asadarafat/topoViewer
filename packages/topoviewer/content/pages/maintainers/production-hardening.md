@@ -42,6 +42,13 @@ a GitHub Actions failure.
 | `ci:public-readiness:core` | Runs remote readiness guardrails that are not already covered by the package and security workflow steps: docs lint, render parity, hostile-content tests, security health report, and public leak/readiness guardrails. |
 | `ci:public-readiness` | Runs the full local/release public-adoption gate: core readiness plus package dry-run, install-command checks, Grafana artifact autopsy, dependency triage, and Go vulnerability check. |
 
+GitHub `CI` uses a hybrid split for wall-clock feedback. Generated-content
+preflight runs first; quality, schemas, docs, tests, performance, and package
+checks then run as separate jobs. The final public-readiness job waits for docs
+and package checks, downloads the built `site/` artifact, and runs renderer
+parity without rebuilding the docs site. Local `npm run ci` remains sequential
+and conservative.
+
 JSON Schema catches malformed document shape. Semantic lint catches broken meaning:
 
 - Duplicate IDs.

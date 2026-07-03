@@ -8,10 +8,91 @@ on:
       - main
       - master
 
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  quality:
-    name: Build, validate, test, and inspect packages
+  preflight:
+    name: Preflight generated content
     runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: npm
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: "1.25.11"
+          cache-dependency-path: packages/grafana-topoviewer-panel/go.sum
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Report environment
+        run: npm run ci:env
+
+      - name: Check generated content
+        run: npm run ci:generated
+
+  quality:
+    name: Lint and typecheck
+    runs-on: ubuntu-latest
+    needs: preflight
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: npm
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Lint and typecheck
+        run: npm run ci:quality
+
+  schemas:
+    name: Validate schemas and semantics
+    runs-on: ubuntu-latest
+    needs: preflight
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: npm
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Validate schemas and semantics
+        run: npm run ci:schemas
+
+  docs:
+    name: Build and smoke documentation targets
+    runs-on: ubuntu-latest
+    needs: preflight
 
     steps:
       - name: Checkout
@@ -40,35 +121,195 @@ jobs:
       - name: Install Chromium for Playwright
         run: npx playwright install --with-deps chromium
 
-      - name: Report environment
-        run: npm run ci:env
-
-      - name: Check generated content
-        run: npm run ci:generated
-
-      - name: Lint and typecheck
-        run: npm run ci:quality
-
-      - name: Validate schemas and semantics
-        run: npm run ci:schemas
-
-      - name: Build packages and synced assets
-        run: npm run ci:build
-
       - name: Build and smoke documentation targets
         run: npm run ci:docs
+
+      - name: Upload docs site for downstream checks
+        uses: actions/upload-artifact@v7
+        with:
+          name: ci-docs-site
+          path: site
+          retention-days: 1
+          if-no-files-found: error
+
+      - name: Upload failure artifacts
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: docs-failure-artifacts
+          retention-days: 3
+          if-no-files-found: ignore
+          path: |
+            site
+            .artifacts
+
+  test-topoviewer:
+    name: Test TopoViewer package
+    runs-on: ubuntu-latest
+    needs: preflight
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: npm
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Install Chromium for Playwright
+        run: npx playwright install --with-deps chromium
 
       - name: Test TopoViewer package
         run: npm run ci:test:topoviewer
 
+      - name: Upload failure artifacts
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: topoviewer-test-failure-artifacts
+          retention-days: 3
+          if-no-files-found: ignore
+          path: |
+            packages/topoviewer/test-results
+            packages/topoviewer/playwright-report
+
+  test-harness:
+    name: Test VS Code harness
+    runs-on: ubuntu-latest
+    needs: preflight
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: npm
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Install Chromium for Playwright
+        run: npx playwright install --with-deps chromium
+
       - name: Test VS Code harness
         run: npm run ci:test:harness
+
+      - name: Upload failure artifacts
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: harness-test-failure-artifacts
+          retention-days: 3
+          if-no-files-found: ignore
+          path: |
+            packages/vscode-topoviewer/test-results
+            packages/vscode-topoviewer/playwright-report
+
+  perf-smoke:
+    name: Run performance smoke
+    runs-on: ubuntu-latest
+    needs: preflight
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: npm
+
+      - name: Install Node dependencies
+        run: npm ci
 
       - name: Run performance smoke
         run: npm run ci:perf:smoke
 
+  package:
+    name: Inspect package artifacts
+    runs-on: ubuntu-latest
+    needs: preflight
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: npm
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: "1.25.11"
+          cache-dependency-path: packages/grafana-topoviewer-panel/go.sum
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install Node dependencies
+        run: npm ci
+
       - name: Inspect package artifacts
         run: npm run ci:package
+
+      - name: Upload failure artifacts
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: package-failure-artifacts
+          retention-days: 3
+          if-no-files-found: ignore
+          path: |
+            .artifacts
+
+  public-readiness:
+    name: Check public-readiness guardrails
+    runs-on: ubuntu-latest
+    needs:
+      - preflight
+      - docs
+      - package
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: npm
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Install Chromium for Playwright
+        run: npx playwright install --with-deps chromium
+
+      - name: Download docs site for renderer parity
+        uses: actions/download-artifact@v7
+        with:
+          name: ci-docs-site
+          path: site
 
       - name: Check public-readiness guardrails
         run: npm run ci:public-readiness:core
@@ -77,13 +318,9 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v7
         with:
-          name: ci-failure-artifacts
+          name: public-readiness-failure-artifacts
           retention-days: 3
           if-no-files-found: ignore
           path: |
             site
             .artifacts
-            packages/topoviewer/test-results
-            packages/topoviewer/playwright-report
-            packages/vscode-topoviewer/test-results
-            packages/vscode-topoviewer/playwright-report

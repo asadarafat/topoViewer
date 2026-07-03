@@ -54,22 +54,22 @@ is read-only investigation that gathers evidence for the current phase.
 
 # 5. Workflow Shape Decision
 
-- [ ] 5.1 Re-read the baseline and post-dedupe local timings
-- [ ] 5.2 Evaluate whether `CI` should stay single-job, become split jobs, or use a hybrid model
-- [ ] 5.3 If keeping single-job, document why in `investigation.md` and skip phase 6
-- [ ] 5.4 If splitting jobs, define job dependencies so public-readiness runs only after required prerequisite jobs pass
-- [ ] 5.5 If splitting jobs, estimate repeated setup cost for Node, Go, Python, npm install, and Playwright browser install
-- [ ] 5.6 Stop and document the selected workflow shape before editing `.github/workflows/ci.yml`
+- [x] 5.1 Re-read the baseline and post-dedupe local timings
+- [x] 5.2 Evaluate whether `CI` should stay single-job, become split jobs, or use a hybrid model
+- [x] 5.3 If keeping single-job, document why in `investigation.md` and skip phase 6
+- [x] 5.4 If splitting jobs, define job dependencies so public-readiness runs only after required prerequisite jobs pass
+- [x] 5.5 If splitting jobs, estimate repeated setup cost for Node, Go, Python, npm install, and Playwright browser install
+- [x] 5.6 Stop and document the selected workflow shape before editing `.github/workflows/ci.yml`
 
 # 6. Workflow Shape Implementation
 
-- [ ] 6.1 Update `.github/workflows/ci.yml` according to the selected shape
-- [ ] 6.2 Add branch concurrency cancellation for stale non-deployment CI runs only if the design says it is safe
-- [ ] 6.3 Do not cancel Pages deployment runs in a way that can publish older artifacts after newer ones
-- [ ] 6.4 Keep local `npm run ci` as the full sequential local gate
+- [x] 6.1 Update `.github/workflows/ci.yml` according to the selected shape
+- [x] 6.2 Add branch concurrency cancellation for stale non-deployment CI runs only if the design says it is safe
+- [x] 6.3 Do not cancel Pages deployment runs in a way that can publish older artifacts after newer ones
+- [x] 6.4 Keep local `npm run ci` as the full sequential local gate
 - [ ] 6.5 Run all affected CI lanes directly
-- [ ] 6.6 Record expected remote before/after wall-clock hypothesis before pushing
-- [ ] 6.7 Run `git diff --check`
+- [x] 6.6 Record expected remote before/after wall-clock hypothesis before pushing
+- [x] 6.7 Run `git diff --check`
 - [ ] 6.8 Commit workflow-shape changes as their own conventional commit
 
 # 7. Final Local Validation

@@ -277,3 +277,77 @@ is lower than the full 52.5s if runner variance dominates, and higher if the
 remote repeated package/security checks are slower than local. This change is
 not expected to meet the full 20% CI target by itself; it is the first safe
 dedupe slice before considering workflow shape.
+
+## Workflow Shape Decision
+
+The post-dedupe local timings and baseline remote timings show that a single-job
+remote `CI` workflow is still unlikely to meet the target. The core readiness
+lane saves local repeated work, but the latest remote run spent most of its time
+in long independent lanes:
+
+- docs build and smoke: 82s;
+- TopoViewer tests: 40s;
+- VS Code harness tests: 146s;
+- package inspection: 60s;
+- public-readiness before dedupe: 176s.
+
+Selected shape: hybrid split.
+
+The `CI` workflow now runs:
+
+- `preflight`: Node-only environment report and generated-content checks;
+- `quality`: lint and typecheck;
+- `schemas`: schema and semantic validation;
+- `docs`: docs build, docs smoke, and short-lived upload of `site/`;
+- `test-topoviewer`: package interaction tests;
+- `test-harness`: browser harness tests;
+- `perf-smoke`: focused performance smoke checks;
+- `package`: npm, Grafana, and MkDocs package artifact checks;
+- `public-readiness`: final core guardrails after `docs` and `package` pass.
+
+The final public-readiness job downloads the docs job's `site/` artifact before
+running renderer parity. This preserves the current single-job behavior where
+renderer parity consumes already-built docs assets instead of rebuilding the
+docs site from scratch.
+
+Remote `CI` no longer runs standalone `ci:build`. This does not remove build
+coverage because `ci:docs` starts with the same package build, MkDocs asset sync,
+and committed-asset check that `ci:build` performs before continuing into docs
+build and smoke checks. Full local `npm run ci` still runs `ci:build` as a
+separate lane.
+
+Exact workflow-shape coverage:
+
+| Coverage item | Remote owner after split |
+| --- | --- |
+| generated docs and Grafana fixture drift | `preflight`, required by every downstream job |
+| lint and typecheck | `quality` |
+| schema and semantic validation | `schemas` |
+| package build and MkDocs asset drift | `docs`, via `npm run ci:docs`; still also in local `npm run ci:build` |
+| MkDocs, Zensical, harness docs site build and smoke | `docs` |
+| TopoViewer package tests | `test-topoviewer` |
+| VS Code harness tests | `test-harness` |
+| performance smoke | `perf-smoke` |
+| npm package, Grafana package, and MkDocs wheel artifacts | `package` |
+| renderer parity and hostile-content tests | `public-readiness`, consuming the docs `site/` artifact |
+| public leak/readiness guardrails | `public-readiness` |
+
+Branch concurrency cancellation is enabled only for the `CI` workflow. It does
+not affect the separate `Docs` deployment workflow, so it cannot cancel a Pages
+deployment in a way that would publish stale artifacts after newer docs.
+
+Expected remote wall-clock hypothesis before push:
+
+- preflight setup plus generated checks: about 75s;
+- docs job after preflight: about 181s;
+- package job after preflight: about 137s;
+- public-readiness after docs/package: about 137s when the docs `site/`
+  artifact prevents a docs rebuild;
+- harness job after preflight: about 240s.
+
+Expected `CI` wall-clock is therefore roughly 390-430s, dominated by
+`preflight -> docs/package -> public-readiness` and `preflight -> harness`.
+That would be a 37-43% reduction from the latest 687s baseline and below the
+540s target. The exact result must be confirmed remotely because GitHub runner
+setup, dependency cache state, artifact transfer time, and Playwright install
+variance can dominate short lanes.
