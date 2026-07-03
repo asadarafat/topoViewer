@@ -129,7 +129,16 @@ function styleKeyIssues(style: Record<string, unknown> | undefined, path: string
     if (canonicalKey && canonicalKey !== key) {
       issues.push(issue('error', 'non-canonical-style-key', `Style key "${key}" is not supported; use "${canonicalKey}".`, `${path}.${key}`));
     }
-    if ((key === 'labelZIndex' || key === 'sourceLabelZIndex' || key === 'targetLabelZIndex') && finiteNumber(style[key]) === undefined) {
+    if (
+      (
+        key === 'labelZIndex'
+        || key === 'sourceLabelZIndex'
+        || key === 'targetLabelZIndex'
+        || key === 'sourceArrowLabelZIndex'
+        || key === 'targetArrowLabelZIndex'
+      )
+      && finiteNumber(style[key]) === undefined
+    ) {
       issues.push(issue('error', 'invalid-label-z-index', `${key} must be a finite number.`, `${path}.${key}`));
     }
     if (style[key] === null && isColorStyleKey(key)) {
@@ -316,13 +325,24 @@ function edgeStyleIssues(style: Record<string, unknown> | undefined, path: strin
     issues.push(...nonNegativeNumberIssue(style, key, path, 'invalid-edge-arrow-size', 'Edge arrow size'));
   });
 
+  ['sourceArrowBorderWidth', 'targetArrowBorderWidth'].forEach((key) => {
+    issues.push(...nonNegativeNumberIssue(style, key, path, 'invalid-edge-arrow-border-width', 'Edge arrow border width'));
+  });
+
   ['sourceArrowOffset', 'targetArrowOffset'].forEach((key) => {
     if (style[key] !== undefined && finiteNumber(style[key]) === undefined) {
       issues.push(issue('error', 'invalid-edge-arrow-offset', `Edge arrow offset "${String(style[key])}" must be a finite number.`, `${path}.${key}`));
     }
   });
 
-  ['labelXOffset', 'labelYOffset'].forEach((key) => {
+  [
+    'labelXOffset',
+    'labelYOffset',
+    'sourceArrowLabelXOffset',
+    'sourceArrowLabelYOffset',
+    'targetArrowLabelXOffset',
+    'targetArrowLabelYOffset'
+  ].forEach((key) => {
     if (style[key] !== undefined && finiteNumber(style[key]) === undefined) {
       issues.push(issue('error', 'invalid-edge-label-offset', `${key} must be a finite number.`, `${path}.${key}`));
     }

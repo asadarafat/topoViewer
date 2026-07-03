@@ -537,6 +537,8 @@ export function compileEdgeStyle(style: StyleDeclaration, entity: GraphEntity, s
   const label = edgeLabel(entity, spec, labelsEnabled, String(style.label || ''));
   const sourceLabel = labelsEnabled ? style.sourceLabel : undefined;
   const targetLabel = labelsEnabled ? style.targetLabel : undefined;
+  const sourceArrowLabel = labelsEnabled ? style.sourceArrowLabel : undefined;
+  const targetArrowLabel = labelsEnabled ? style.targetArrowLabel : undefined;
   const curveType = mapCurveStyle(style);
   const anchor = String(style.anchor || styleDefaultValue('link', 'anchor') || 'floating').toLowerCase();
   const lineWidth = Number(style.lineWidth || styleDefaultNumber('link', 'lineWidth', 1));
@@ -550,6 +552,8 @@ export function compileEdgeStyle(style: StyleDeclaration, entity: GraphEntity, s
   const targetArrowShape = normalizeEdgeArrowShape(style.targetArrowShape) || 'none';
   const sourceArrowColor = String(style.sourceArrowColor || style.arrowColor || lineColor);
   const targetArrowColor = String(style.targetArrowColor || style.arrowColor || lineColor);
+  const edgeLabelColor = style.edgeLabelColor ?? style.labelColor ?? lineColor;
+  const arrowLabelColor = style.arrowLabelColor ?? lineColor;
   const zIndex = valueOrDefault(style.zIndex as number | undefined, styleDefaultNumber('link', 'zIndex', 6));
 
   return withoutUndefined({
@@ -564,7 +568,7 @@ export function compileEdgeStyle(style: StyleDeclaration, entity: GraphEntity, s
     zIndex,
     label: label || undefined,
     labelStyle: withoutUndefined({
-      fill: style.labelColor,
+      fill: edgeLabelColor,
       fontSize: style.labelFontSize,
       fontWeight: style.labelFontWeight,
       fontStyle: style.labelFontStyle
@@ -615,6 +619,10 @@ export function compileEdgeStyle(style: StyleDeclaration, entity: GraphEntity, s
       targetArrowShape,
       sourceArrowColor,
       targetArrowColor,
+      sourceArrowBorderColor: style.sourceArrowBorderColor,
+      targetArrowBorderColor: style.targetArrowBorderColor,
+      sourceArrowBorderWidth: positiveNumber(style.sourceArrowBorderWidth),
+      targetArrowBorderWidth: positiveNumber(style.targetArrowBorderWidth),
       lineWidth,
       sourceArrowSize: positiveNumber(style.sourceArrowSize),
       targetArrowSize: positiveNumber(style.targetArrowSize),
@@ -627,6 +635,16 @@ export function compileEdgeStyle(style: StyleDeclaration, entity: GraphEntity, s
       labelYOffset: finiteNumber(style.labelYOffset),
       sourceLabel: sourceLabel === undefined ? undefined : String(sourceLabel),
       targetLabel: targetLabel === undefined ? undefined : String(targetLabel),
+      sourceArrowLabel: sourceArrowLabel === undefined ? undefined : String(sourceArrowLabel),
+      targetArrowLabel: targetArrowLabel === undefined ? undefined : String(targetArrowLabel),
+      edgeLabelColor,
+      arrowLabelColor,
+      sourceArrowLabelColor: style.sourceArrowLabelColor,
+      sourceArrowLabelFontSize: style.sourceArrowLabelFontSize,
+      sourceArrowLabelFontWeight: style.sourceArrowLabelFontWeight,
+      targetArrowLabelColor: style.targetArrowLabelColor,
+      targetArrowLabelFontSize: style.targetArrowLabelFontSize,
+      targetArrowLabelFontWeight: style.targetArrowLabelFontWeight,
       sourceLabelColor: style.sourceLabelColor,
       sourceLabelBackgroundColor: style.sourceLabelBackgroundColor,
       sourceLabelBorderColor: style.sourceLabelBorderColor,
@@ -644,10 +662,16 @@ export function compileEdgeStyle(style: StyleDeclaration, entity: GraphEntity, s
       labelZIndex: finiteNumber(style.labelZIndex),
       sourceLabelZIndex: finiteNumber(style.sourceLabelZIndex),
       targetLabelZIndex: finiteNumber(style.targetLabelZIndex),
+      sourceArrowLabelZIndex: finiteNumber(style.sourceArrowLabelZIndex),
+      targetArrowLabelZIndex: finiteNumber(style.targetArrowLabelZIndex),
       sourceLabelXOffset: style.sourceLabelXOffset,
       sourceLabelYOffset: style.sourceLabelYOffset,
       targetLabelXOffset: style.targetLabelXOffset,
       targetLabelYOffset: style.targetLabelYOffset,
+      sourceArrowLabelXOffset: style.sourceArrowLabelXOffset,
+      sourceArrowLabelYOffset: style.sourceArrowLabelYOffset,
+      targetArrowLabelXOffset: style.targetArrowLabelXOffset,
+      targetArrowLabelYOffset: style.targetArrowLabelYOffset,
       labelColor: style.labelColor,
       labelFontSize: finiteNumber(style.labelFontSize),
       labelFontWeight: style.labelFontWeight,

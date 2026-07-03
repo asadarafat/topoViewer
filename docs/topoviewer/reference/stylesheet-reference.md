@@ -107,15 +107,17 @@ Use [Style Your First Topology](../start/style-your-first-topology.md) and [Topo
 | `textBackgroundOpacity` | number | Finite number. | No TopoViewer default; authored only. | Shared edge label background opacity. |
 | `anchor` | enum | `floating`, `fixed` | Defaults to `floating`. | Endpoint anchoring model. |
 | `arrowColor` | color | Any CSS color or supported theme variable. | Falls back to the edge line color. | Shared arrow color fallback. |
+| `arrowLabelColor` | color | Any CSS color or supported theme variable. | Falls back to the rendered edge line color. | Shared source/target arrow label text color. |
 | `controlPointDistance` | number | Finite number. | No TopoViewer default; authored only. | Manual Bezier control-point distance. |
 | `controlPointStepSize` | integer | Finite integer number. | No TopoViewer default; authored only. | Distance between same-endpoint Bezier control points. |
 | `controlPointWeight` | number | Finite number. | Defaults to `0.5`. | Manual Bezier control-point weight. |
 | `curveStyle` | enum | `straight`, `bezier`, `unbundledBezier`, `simpleBezier`, `segments`, `roundSegments`, `taxi`, `roundTaxi`, `smoothTaxi`, `smoothstep`, `haystack` | Defaults to `bezier`. | Edge route shape. |
 | `display` | enum | `element`, `none` | Defaults to `element`. | Set none to hide the edge. |
 | `edgeDistances` | enum | `intersection`, `nodePosition`, `endpoints` | No TopoViewer default; authored only. | Cytoscape-compatible edge distance hint. |
+| `edgeLabelColor` | color | Any CSS color or supported theme variable. | Falls back to the rendered edge line color. | Center edge label color. |
 | `interactive` | boolean | `true`, `false` | Defaults to `true`. | Whether edge click handling and focus are enabled. |
 | `label` | text | String value. | No TopoViewer default; authored only. | Fallback center edge label. |
-| `labelColor` | color | Any CSS color or supported theme variable. | Falls back to --topoviewer-fg-strong. | Center edge label color. |
+| `labelColor` | color | Any CSS color or supported theme variable. | Center labels prefer edgeLabelColor; source/target labels may still use labelColor as a shared fallback. | Shared legacy label color fallback. |
 | `labelFontSize` | integer | Finite integer number. | Falls back to edge label CSS font size. Fallback: `10`. | Center edge label font size. |
 | `labelFontStyle` | text | String value. | No TopoViewer default; authored only. | Center edge label font style. |
 | `labelFontWeight` | text | String value. | Falls back to edge label CSS font weight. Fallback: `650`. | Center edge label font weight. |
@@ -132,17 +134,35 @@ Use [Style Your First Topology](../start/style-your-first-topology.md) and [Topo
 | `opacity` | number | Finite number. | No TopoViewer default; authored only. | Edge opacity. |
 | `segmentDistances` | numberList | Space-separated string, comma-separated string, number, or number array. | No TopoViewer default; authored only. | Explicit bend distances for segment routing. |
 | `segmentWeights` | numberList | Space-separated string, comma-separated string, number, or number array. | No TopoViewer default; authored only. | Explicit bend weights for segment routing. |
+| `sourceArrowBorderColor` | color | Any CSS color or supported theme variable. | No TopoViewer default; authored only. | Source arrow marker outline color. |
+| `sourceArrowBorderWidth` | number | Finite number. | Defaults to `0`. | Source arrow marker outline width. |
 | `sourceArrowColor` | color | Any CSS color or supported theme variable. | Falls back to arrowColor, then lineColor. | Source arrow marker color. |
+| `sourceArrowLabel` | text | String value. | No TopoViewer default; authored only. | Port or endpoint label rendered near the source arrow/endpoint using the React Flow edge label layer. |
+| `sourceArrowLabelColor` | color | Any CSS color or supported theme variable. | Falls back to arrowLabelColor, then lineColor. | Source arrow label text color. |
+| `sourceArrowLabelFontSize` | integer | Finite integer number. | No TopoViewer default; authored only. | Source arrow label font size. |
+| `sourceArrowLabelFontWeight` | text | String value. | Falls back to sourceLabelFontWeight, then labelFontWeight. | Source arrow label font weight. |
+| `sourceArrowLabelXOffset` | integer | Finite integer number. | No TopoViewer default; authored only. | Pixel X offset applied after the source arrow label auto-position. |
+| `sourceArrowLabelYOffset` | integer | Finite integer number. | No TopoViewer default; authored only. | Pixel Y offset applied after the source arrow label auto-position. |
+| `sourceArrowLabelZIndex` | integer | Finite integer number. | Falls back to sourceLabelZIndex, then labelZIndex. | Source arrow label draw order. |
 | `sourceArrowOffset` | number | Finite number. | Defaults to `0`. | Pixel offset for the source arrowhead. `0` keeps the arrow tip exactly on the rendered stroke endpoint; positive values inset it from that endpoint. |
-| `sourceArrowShape` | enum | `none`, `triangle`, `vee`, `tee`, `circle`, `diamond` | Defaults to `none`. | Source arrow marker shape. |
+| `sourceArrowShape` | enum | `none`, `triangle`, `vee`, `tee`, `circle`, `square`, `diamond` | Defaults to `none`. | Source arrow marker shape. |
 | `sourceArrowSize` | integer | Finite integer number. | Falls back to the rendered lineWidth. | Source arrow marker size. |
 | `sourceLabel` | text | String value. | No TopoViewer default; authored only. | Label rendered near the source endpoint. |
 | `sourceLabelXOffset` | integer | Finite integer number. | No TopoViewer default; authored only. | Pixel X offset applied to the source endpoint label. |
 | `sourceLabelYOffset` | integer | Finite integer number. | No TopoViewer default; authored only. | Pixel Y offset applied to the source endpoint label. |
 | `sourceLabelZIndex` | integer | Finite integer number. | Falls back to labelZIndex when omitted. | Source endpoint label draw order. |
+| `targetArrowBorderColor` | color | Any CSS color or supported theme variable. | No TopoViewer default; authored only. | Target arrow marker outline color. |
+| `targetArrowBorderWidth` | number | Finite number. | Defaults to `0`. | Target arrow marker outline width. |
 | `targetArrowColor` | color | Any CSS color or supported theme variable. | Falls back to arrowColor, then lineColor. | Target arrow marker color. |
+| `targetArrowLabel` | text | String value. | No TopoViewer default; authored only. | Port or endpoint label rendered near the target arrow/endpoint using the React Flow edge label layer. |
+| `targetArrowLabelColor` | color | Any CSS color or supported theme variable. | Falls back to arrowLabelColor, then lineColor. | Target arrow label text color. |
+| `targetArrowLabelFontSize` | integer | Finite integer number. | No TopoViewer default; authored only. | Target arrow label font size. |
+| `targetArrowLabelFontWeight` | text | String value. | Falls back to targetLabelFontWeight, then labelFontWeight. | Target arrow label font weight. |
+| `targetArrowLabelXOffset` | integer | Finite integer number. | No TopoViewer default; authored only. | Pixel X offset applied after the target arrow label auto-position. |
+| `targetArrowLabelYOffset` | integer | Finite integer number. | No TopoViewer default; authored only. | Pixel Y offset applied after the target arrow label auto-position. |
+| `targetArrowLabelZIndex` | integer | Finite integer number. | Falls back to targetLabelZIndex, then labelZIndex. | Target arrow label draw order. |
 | `targetArrowOffset` | number | Finite number. | Defaults to `0`. | Pixel offset for the target arrowhead. `0` keeps the arrow tip exactly on the rendered stroke endpoint; positive values inset it from that endpoint. |
-| `targetArrowShape` | enum | `none`, `triangle`, `vee`, `tee`, `circle`, `diamond` | Defaults to `none`. | Target arrow marker shape. |
+| `targetArrowShape` | enum | `none`, `triangle`, `vee`, `tee`, `circle`, `square`, `diamond` | Defaults to `none`. | Target arrow marker shape. |
 | `targetArrowSize` | integer | Finite integer number. | Falls back to the rendered lineWidth. | Target arrow marker size. |
 | `targetLabel` | text | String value. | No TopoViewer default; authored only. | Label rendered near the target endpoint. |
 | `targetLabelXOffset` | integer | Finite integer number. | No TopoViewer default; authored only. | Pixel X offset applied to the target endpoint label. |
@@ -193,15 +213,17 @@ Use [Style Your First Topology](../start/style-your-first-topology.md) and [Topo
 | `textBackgroundOpacity` | number | Finite number. | No TopoViewer default; authored only. | Shared edge label background opacity. |
 | `anchor` | enum | `floating`, `fixed` | Defaults to `floating`. | Endpoint anchoring model. |
 | `arrowColor` | color | Any CSS color or supported theme variable. | Falls back to the edge line color. | Shared arrow color fallback. |
+| `arrowLabelColor` | color | Any CSS color or supported theme variable. | Falls back to the rendered edge line color. | Shared source/target arrow label text color. |
 | `controlPointDistance` | number | Finite number. | No TopoViewer default; authored only. | Manual Bezier control-point distance. |
 | `controlPointStepSize` | integer | Finite integer number. | No TopoViewer default; authored only. | Distance between same-endpoint Bezier control points. |
 | `controlPointWeight` | number | Finite number. | Defaults to `0.5`. | Manual Bezier control-point weight. |
 | `curveStyle` | enum | `straight`, `bezier`, `unbundledBezier`, `simpleBezier`, `segments`, `roundSegments`, `taxi`, `roundTaxi`, `smoothTaxi`, `smoothstep`, `haystack` | Defaults to `bezier`. | Edge route shape. |
 | `display` | enum | `element`, `none` | Defaults to `element`. | Set none to hide the edge. |
 | `edgeDistances` | enum | `intersection`, `nodePosition`, `endpoints` | No TopoViewer default; authored only. | Cytoscape-compatible edge distance hint. |
+| `edgeLabelColor` | color | Any CSS color or supported theme variable. | Falls back to the rendered edge line color. | Center edge label color. |
 | `interactive` | boolean | `true`, `false` | Defaults to `true`. | Whether edge click handling and focus are enabled. |
 | `label` | text | String value. | No TopoViewer default; authored only. | Fallback center edge label. |
-| `labelColor` | color | Any CSS color or supported theme variable. | Falls back to --topoviewer-fg-strong. | Center edge label color. |
+| `labelColor` | color | Any CSS color or supported theme variable. | Center labels prefer edgeLabelColor; source/target labels may still use labelColor as a shared fallback. | Shared legacy label color fallback. |
 | `labelFontSize` | integer | Finite integer number. | Falls back to edge label CSS font size. Fallback: `10`. | Center edge label font size. |
 | `labelFontStyle` | text | String value. | No TopoViewer default; authored only. | Center edge label font style. |
 | `labelFontWeight` | text | String value. | Falls back to edge label CSS font weight. Fallback: `650`. | Center edge label font weight. |
@@ -218,17 +240,35 @@ Use [Style Your First Topology](../start/style-your-first-topology.md) and [Topo
 | `opacity` | number | Finite number. | No TopoViewer default; authored only. | Edge opacity. |
 | `segmentDistances` | numberList | Space-separated string, comma-separated string, number, or number array. | No TopoViewer default; authored only. | Explicit bend distances for segment routing. |
 | `segmentWeights` | numberList | Space-separated string, comma-separated string, number, or number array. | No TopoViewer default; authored only. | Explicit bend weights for segment routing. |
+| `sourceArrowBorderColor` | color | Any CSS color or supported theme variable. | No TopoViewer default; authored only. | Source arrow marker outline color. |
+| `sourceArrowBorderWidth` | number | Finite number. | Defaults to `0`. | Source arrow marker outline width. |
 | `sourceArrowColor` | color | Any CSS color or supported theme variable. | Falls back to arrowColor, then lineColor. | Source arrow marker color. |
+| `sourceArrowLabel` | text | String value. | No TopoViewer default; authored only. | Port or endpoint label rendered near the source arrow/endpoint using the React Flow edge label layer. |
+| `sourceArrowLabelColor` | color | Any CSS color or supported theme variable. | Falls back to arrowLabelColor, then lineColor. | Source arrow label text color. |
+| `sourceArrowLabelFontSize` | integer | Finite integer number. | No TopoViewer default; authored only. | Source arrow label font size. |
+| `sourceArrowLabelFontWeight` | text | String value. | Falls back to sourceLabelFontWeight, then labelFontWeight. | Source arrow label font weight. |
+| `sourceArrowLabelXOffset` | integer | Finite integer number. | No TopoViewer default; authored only. | Pixel X offset applied after the source arrow label auto-position. |
+| `sourceArrowLabelYOffset` | integer | Finite integer number. | No TopoViewer default; authored only. | Pixel Y offset applied after the source arrow label auto-position. |
+| `sourceArrowLabelZIndex` | integer | Finite integer number. | Falls back to sourceLabelZIndex, then labelZIndex. | Source arrow label draw order. |
 | `sourceArrowOffset` | number | Finite number. | Defaults to `0`. | Pixel offset for the source arrowhead. `0` keeps the arrow tip exactly on the rendered stroke endpoint; positive values inset it from that endpoint. |
-| `sourceArrowShape` | enum | `none`, `triangle`, `vee`, `tee`, `circle`, `diamond` | Defaults to `none`. | Source arrow marker shape. |
+| `sourceArrowShape` | enum | `none`, `triangle`, `vee`, `tee`, `circle`, `square`, `diamond` | Defaults to `none`. | Source arrow marker shape. |
 | `sourceArrowSize` | integer | Finite integer number. | Falls back to the rendered lineWidth. | Source arrow marker size. |
 | `sourceLabel` | text | String value. | No TopoViewer default; authored only. | Label rendered near the source endpoint. |
 | `sourceLabelXOffset` | integer | Finite integer number. | No TopoViewer default; authored only. | Pixel X offset applied to the source endpoint label. |
 | `sourceLabelYOffset` | integer | Finite integer number. | No TopoViewer default; authored only. | Pixel Y offset applied to the source endpoint label. |
 | `sourceLabelZIndex` | integer | Finite integer number. | Falls back to labelZIndex when omitted. | Source endpoint label draw order. |
+| `targetArrowBorderColor` | color | Any CSS color or supported theme variable. | No TopoViewer default; authored only. | Target arrow marker outline color. |
+| `targetArrowBorderWidth` | number | Finite number. | Defaults to `0`. | Target arrow marker outline width. |
 | `targetArrowColor` | color | Any CSS color or supported theme variable. | Falls back to arrowColor, then lineColor. | Target arrow marker color. |
+| `targetArrowLabel` | text | String value. | No TopoViewer default; authored only. | Port or endpoint label rendered near the target arrow/endpoint using the React Flow edge label layer. |
+| `targetArrowLabelColor` | color | Any CSS color or supported theme variable. | Falls back to arrowLabelColor, then lineColor. | Target arrow label text color. |
+| `targetArrowLabelFontSize` | integer | Finite integer number. | No TopoViewer default; authored only. | Target arrow label font size. |
+| `targetArrowLabelFontWeight` | text | String value. | Falls back to targetLabelFontWeight, then labelFontWeight. | Target arrow label font weight. |
+| `targetArrowLabelXOffset` | integer | Finite integer number. | No TopoViewer default; authored only. | Pixel X offset applied after the target arrow label auto-position. |
+| `targetArrowLabelYOffset` | integer | Finite integer number. | No TopoViewer default; authored only. | Pixel Y offset applied after the target arrow label auto-position. |
+| `targetArrowLabelZIndex` | integer | Finite integer number. | Falls back to targetLabelZIndex, then labelZIndex. | Target arrow label draw order. |
 | `targetArrowOffset` | number | Finite number. | Defaults to `0`. | Pixel offset for the target arrowhead. `0` keeps the arrow tip exactly on the rendered stroke endpoint; positive values inset it from that endpoint. |
-| `targetArrowShape` | enum | `none`, `triangle`, `vee`, `tee`, `circle`, `diamond` | Defaults to `none`. | Target arrow marker shape. |
+| `targetArrowShape` | enum | `none`, `triangle`, `vee`, `tee`, `circle`, `square`, `diamond` | Defaults to `none`. | Target arrow marker shape. |
 | `targetArrowSize` | integer | Finite integer number. | Falls back to the rendered lineWidth. | Target arrow marker size. |
 | `targetLabel` | text | String value. | No TopoViewer default; authored only. | Label rendered near the target endpoint. |
 | `targetLabelXOffset` | integer | Finite integer number. | No TopoViewer default; authored only. | Pixel X offset applied to the target endpoint label. |
@@ -245,15 +285,17 @@ Use [Style Your First Topology](../start/style-your-first-topology.md) and [Topo
 |---|---|---|---|---|
 | `anchor` | enum | `floating`, `fixed` | Defaults to `floating`. | Endpoint anchoring model. |
 | `arrowColor` | color | Any CSS color or supported theme variable. | Falls back to the edge line color. | Shared arrow color fallback. |
+| `arrowLabelColor` | color | Any CSS color or supported theme variable. | Falls back to the rendered edge line color. | Shared source/target arrow label text color. |
 | `controlPointDistance` | number | Finite number. | No TopoViewer default; authored only. | Manual Bezier control-point distance. |
 | `controlPointStepSize` | integer | Finite integer number. | No TopoViewer default; authored only. | Distance between same-endpoint Bezier control points. |
 | `controlPointWeight` | number | Finite number. | Defaults to `0.5`. | Manual Bezier control-point weight. |
 | `curveStyle` | enum | `straight`, `bezier`, `unbundledBezier`, `simpleBezier`, `segments`, `roundSegments`, `taxi`, `roundTaxi`, `smoothTaxi`, `smoothstep`, `haystack` | Defaults to `bezier`. | Edge route shape. |
 | `display` | enum | `element`, `none` | Defaults to `element`. | Set none to hide the edge. |
 | `edgeDistances` | enum | `intersection`, `nodePosition`, `endpoints` | No TopoViewer default; authored only. | Cytoscape-compatible edge distance hint. |
+| `edgeLabelColor` | color | Any CSS color or supported theme variable. | Falls back to the rendered edge line color. | Center edge label color. |
 | `interactive` | boolean | `true`, `false` | Defaults to `true`. | Whether edge click handling and focus are enabled. |
 | `label` | text | String value. | No TopoViewer default; authored only. | Fallback center edge label. |
-| `labelColor` | color | Any CSS color or supported theme variable. | Falls back to --topoviewer-fg-strong. | Center edge label color. |
+| `labelColor` | color | Any CSS color or supported theme variable. | Center labels prefer edgeLabelColor; source/target labels may still use labelColor as a shared fallback. | Shared legacy label color fallback. |
 | `labelFontSize` | integer | Finite integer number. | Falls back to edge label CSS font size. Fallback: `10`. | Center edge label font size. |
 | `labelFontStyle` | text | String value. | No TopoViewer default; authored only. | Center edge label font style. |
 | `labelFontWeight` | text | String value. | Falls back to edge label CSS font weight. Fallback: `650`. | Center edge label font weight. |
@@ -270,17 +312,35 @@ Use [Style Your First Topology](../start/style-your-first-topology.md) and [Topo
 | `opacity` | number | Finite number. | No TopoViewer default; authored only. | Edge opacity. |
 | `segmentDistances` | numberList | Space-separated string, comma-separated string, number, or number array. | No TopoViewer default; authored only. | Explicit bend distances for segment routing. |
 | `segmentWeights` | numberList | Space-separated string, comma-separated string, number, or number array. | No TopoViewer default; authored only. | Explicit bend weights for segment routing. |
+| `sourceArrowBorderColor` | color | Any CSS color or supported theme variable. | No TopoViewer default; authored only. | Source arrow marker outline color. |
+| `sourceArrowBorderWidth` | number | Finite number. | Defaults to `0`. | Source arrow marker outline width. |
 | `sourceArrowColor` | color | Any CSS color or supported theme variable. | Falls back to arrowColor, then lineColor. | Source arrow marker color. |
+| `sourceArrowLabel` | text | String value. | No TopoViewer default; authored only. | Port or endpoint label rendered near the source arrow/endpoint using the React Flow edge label layer. |
+| `sourceArrowLabelColor` | color | Any CSS color or supported theme variable. | Falls back to arrowLabelColor, then lineColor. | Source arrow label text color. |
+| `sourceArrowLabelFontSize` | integer | Finite integer number. | No TopoViewer default; authored only. | Source arrow label font size. |
+| `sourceArrowLabelFontWeight` | text | String value. | Falls back to sourceLabelFontWeight, then labelFontWeight. | Source arrow label font weight. |
+| `sourceArrowLabelXOffset` | integer | Finite integer number. | No TopoViewer default; authored only. | Pixel X offset applied after the source arrow label auto-position. |
+| `sourceArrowLabelYOffset` | integer | Finite integer number. | No TopoViewer default; authored only. | Pixel Y offset applied after the source arrow label auto-position. |
+| `sourceArrowLabelZIndex` | integer | Finite integer number. | Falls back to sourceLabelZIndex, then labelZIndex. | Source arrow label draw order. |
 | `sourceArrowOffset` | number | Finite number. | Defaults to `0`. | Pixel offset for the source arrowhead. `0` keeps the arrow tip exactly on the rendered stroke endpoint; positive values inset it from that endpoint. |
-| `sourceArrowShape` | enum | `none`, `triangle`, `vee`, `tee`, `circle`, `diamond` | Defaults to `none`. | Source arrow marker shape. |
+| `sourceArrowShape` | enum | `none`, `triangle`, `vee`, `tee`, `circle`, `square`, `diamond` | Defaults to `none`. | Source arrow marker shape. |
 | `sourceArrowSize` | integer | Finite integer number. | Falls back to the rendered lineWidth. | Source arrow marker size. |
 | `sourceLabel` | text | String value. | No TopoViewer default; authored only. | Label rendered near the source endpoint. |
 | `sourceLabelXOffset` | integer | Finite integer number. | No TopoViewer default; authored only. | Pixel X offset applied to the source endpoint label. |
 | `sourceLabelYOffset` | integer | Finite integer number. | No TopoViewer default; authored only. | Pixel Y offset applied to the source endpoint label. |
 | `sourceLabelZIndex` | integer | Finite integer number. | Falls back to labelZIndex when omitted. | Source endpoint label draw order. |
+| `targetArrowBorderColor` | color | Any CSS color or supported theme variable. | No TopoViewer default; authored only. | Target arrow marker outline color. |
+| `targetArrowBorderWidth` | number | Finite number. | Defaults to `0`. | Target arrow marker outline width. |
 | `targetArrowColor` | color | Any CSS color or supported theme variable. | Falls back to arrowColor, then lineColor. | Target arrow marker color. |
+| `targetArrowLabel` | text | String value. | No TopoViewer default; authored only. | Port or endpoint label rendered near the target arrow/endpoint using the React Flow edge label layer. |
+| `targetArrowLabelColor` | color | Any CSS color or supported theme variable. | Falls back to arrowLabelColor, then lineColor. | Target arrow label text color. |
+| `targetArrowLabelFontSize` | integer | Finite integer number. | No TopoViewer default; authored only. | Target arrow label font size. |
+| `targetArrowLabelFontWeight` | text | String value. | Falls back to targetLabelFontWeight, then labelFontWeight. | Target arrow label font weight. |
+| `targetArrowLabelXOffset` | integer | Finite integer number. | No TopoViewer default; authored only. | Pixel X offset applied after the target arrow label auto-position. |
+| `targetArrowLabelYOffset` | integer | Finite integer number. | No TopoViewer default; authored only. | Pixel Y offset applied after the target arrow label auto-position. |
+| `targetArrowLabelZIndex` | integer | Finite integer number. | Falls back to targetLabelZIndex, then labelZIndex. | Target arrow label draw order. |
 | `targetArrowOffset` | number | Finite number. | Defaults to `0`. | Pixel offset for the target arrowhead. `0` keeps the arrow tip exactly on the rendered stroke endpoint; positive values inset it from that endpoint. |
-| `targetArrowShape` | enum | `none`, `triangle`, `vee`, `tee`, `circle`, `diamond` | Defaults to `none`. | Target arrow marker shape. |
+| `targetArrowShape` | enum | `none`, `triangle`, `vee`, `tee`, `circle`, `square`, `diamond` | Defaults to `none`. | Target arrow marker shape. |
 | `targetArrowSize` | integer | Finite integer number. | Falls back to the rendered lineWidth. | Target arrow marker size. |
 | `targetLabel` | text | String value. | No TopoViewer default; authored only. | Label rendered near the target endpoint. |
 | `targetLabelXOffset` | integer | Finite integer number. | No TopoViewer default; authored only. | Pixel X offset applied to the target endpoint label. |

@@ -90,7 +90,7 @@ Use this pattern when link readability, routing, arrowheads, or edge labels matt
 
 ### What This Demonstrates
 
-Use directional arrow properties when the two ends of an edge need different semantics. This example uses a circle at the source, a vee at the target, and separate endpoint label styles so source and target capacity are readable at a glance.
+Use directional arrow properties when the two ends of an edge need different semantics. This example uses circle and square arrow markers with source/target arrow labels rendered near the endpoint through the React Flow edge label layer, so port text stays readable without becoming part of the marker.
 
 ### Expected Result
 

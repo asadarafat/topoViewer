@@ -1,4 +1,4 @@
-export const edgeArrowShapes = ['none', 'triangle', 'vee', 'tee', 'circle', 'diamond'] as const;
+export const edgeArrowShapes = ['none', 'triangle', 'vee', 'tee', 'circle', 'square', 'diamond'] as const;
 export type EdgeArrowShape = (typeof edgeArrowShapes)[number];
 
 export const taxiDirections = [

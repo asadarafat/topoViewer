@@ -12,6 +12,7 @@ import { compileTopoGraph } from '../core/compiler';
 import { resolveAttentionPresentationCached } from '../core/attention/cache';
 import { assertRendererLimits } from '../core/limits';
 import { migrateTopoToggles } from '../core/migration';
+import { defaultTopoViewerToggles } from '../core/toggles';
 import type { AttentionPresentation, AttentionPresentationResult } from '../core/attention';
 import type {
   CompiledEdge,
@@ -387,7 +388,10 @@ export function TopoViewer({
   className = '',
   style
 }: TopoViewerProps) {
-  const effectiveToggles = migrateTopoToggles(toggles || emptyToggles) || emptyToggles;
+  const effectiveToggles = useMemo(() => {
+    const documentDefaults = defaultTopoViewerToggles(document);
+    return migrateTopoToggles({ ...documentDefaults, ...(toggles || emptyToggles) }) || emptyToggles;
+  }, [document, toggles]);
   const effectiveExtensions = extensions || emptyExtensions;
   const effectiveLayers = useMemo(() => {
     return selectedLayerIds || document.graph?.layers?.map((layer) => layer.id) || [];

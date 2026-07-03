@@ -25,11 +25,15 @@ stylesheet:
       lineColor: "#2563eb"
       controlPointDistance: -38
       sourceArrowShape: circle
-      targetArrowShape: vee
+      targetArrowShape: square
       sourceArrowColor: "#16a34a"
       targetArrowColor: "#dc2626"
-      sourceArrowSize: 10
-      targetArrowSize: 13
+      sourceArrowSize: 28
+      targetArrowSize: 28
+      sourceArrowLabelColor: "#ffffff"
+      targetArrowLabelColor: "#ffffff"
+      sourceArrowLabelFontWeight: 900
+      targetArrowLabelFontWeight: 900
       labelColor: var(--topoviewer-fg-strong)
       labelFontWeight: 800
       labelFontStyle: italic
@@ -40,27 +44,27 @@ stylesheet:
       sourceLabelBackgroundColor: "#e0f2fe"
       sourceLabelBorderColor: "#38bdf8"
       sourceLabelBorderWidth: 1
-      sourceLabelXOffset: 36
-      sourceLabelYOffset: -30
+      sourceArrowLabelXOffset: 0
+      sourceArrowLabelYOffset: 0
       targetLabelColor: "#991b1b"
       targetLabelBackgroundColor: "#fee2e2"
       targetLabelBorderColor: "#f87171"
       targetLabelBorderWidth: 1
-      targetLabelXOffset: -36
-      targetLabelYOffset: -30
+      targetArrowLabelXOffset: 0
+      targetArrowLabelYOffset: 0
   - selector: link[labels.class = "gold"]
     style:
       label: Gold
-      sourceLabel: ingress 100G
-      targetLabel: core 80G
+      sourceArrowLabel: e1-1
+      targetArrowLabel: e1-2
       lineColor: "#f59e0b"
       sourceArrowColor: "#0f766e"
       targetArrowColor: "#b45309"
   - selector: link[labels.class = "silver"]
     style:
       label: Silver
-      sourceLabel: core 40G
-      targetLabel: egress 40G
+      sourceArrowLabel: e1-3
+      targetArrowLabel: e1-4
       lineColor: "#64748b"
       sourceArrowColor: "#475569"
       targetArrowColor: "#475569"

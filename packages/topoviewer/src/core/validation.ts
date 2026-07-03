@@ -29,7 +29,16 @@ const styleSchema = z.record(z.unknown()).superRefine((style, ctx) => {
       });
     }
 
-    if ((key === 'labelZIndex' || key === 'sourceLabelZIndex' || key === 'targetLabelZIndex') && finiteNumber(style[key]) === undefined) {
+    if (
+      (
+        key === 'labelZIndex'
+        || key === 'sourceLabelZIndex'
+        || key === 'targetLabelZIndex'
+        || key === 'sourceArrowLabelZIndex'
+        || key === 'targetArrowLabelZIndex'
+      )
+      && finiteNumber(style[key]) === undefined
+    ) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: `${key} must be a finite number.`,

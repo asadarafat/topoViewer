@@ -91,8 +91,14 @@ describe('compileTopoGraph', () => {
           style: {
             sourceLabel: 'source side',
             targetLabel: 'target side',
+            sourceArrowLabel: 'xe-0/0/0',
+            targetArrowLabel: 'ethernet-1/1',
             labelXOffset: 4,
             labelYOffset: -6,
+            sourceArrowLabelXOffset: -4,
+            sourceArrowLabelYOffset: -10,
+            targetArrowLabelXOffset: 6,
+            targetArrowLabelYOffset: -12,
             sourceLabelXOffset: -8,
             sourceLabelYOffset: -12,
             targetLabelXOffset: 8,
@@ -108,8 +114,14 @@ describe('compileTopoGraph', () => {
     expect(edgeData).toMatchObject({
       sourceLabel: 'source side',
       targetLabel: 'target side',
+      sourceArrowLabel: 'xe-0/0/0',
+      targetArrowLabel: 'ethernet-1/1',
       labelXOffset: 4,
       labelYOffset: -6,
+      sourceArrowLabelXOffset: -4,
+      sourceArrowLabelYOffset: -10,
+      targetArrowLabelXOffset: 6,
+      targetArrowLabelYOffset: -12,
       sourceLabelXOffset: -8,
       sourceLabelYOffset: -12,
       targetLabelXOffset: 8,
@@ -645,19 +657,31 @@ describe('compileTopoGraph', () => {
         targetArrowShape: 'vee',
         sourceArrowColor: '#16a34a',
         targetArrowColor: '#dc2626',
+        sourceArrowBorderColor: '#bbf7d0',
+        targetArrowBorderColor: '#fecaca',
+        sourceArrowBorderWidth: 2,
+        targetArrowBorderWidth: 1,
         sourceArrowSize: 12,
         targetArrowSize: 14,
         sourceArrowOffset: 2,
         targetArrowOffset: -3,
         label: 'WAN',
         labelColor: '#0f172a',
+        edgeLabelColor: '#fef3c7',
+        arrowLabelColor: '#bae6fd',
         labelBorderColor: '#94a3b8',
         labelBorderWidth: 1,
         labelFontStyle: 'italic',
         sourceLabel: '10G',
         sourceLabelColor: '#0369a1',
         sourceLabelBackgroundColor: '#e0f2fe',
+        sourceArrowLabel: 'xe-0/0/0',
+        sourceArrowLabelXOffset: -4,
+        sourceArrowLabelYOffset: -8,
         targetLabel: '20G',
+        targetArrowLabel: 'ethernet-1/1',
+        targetArrowLabelXOffset: 4,
+        targetArrowLabelYOffset: -8,
         targetLabelFontWeight: 700,
         sourceDistanceFromNode: 8,
         targetDistanceFromNode: 10,
@@ -674,7 +698,7 @@ describe('compileTopoGraph', () => {
 
     expect(edge.selectable).toBe(false);
     expect(edge.interactionWidth).toBe(0);
-    expect(edge.labelStyle).toMatchObject({ fill: '#0f172a', fontStyle: 'italic' });
+    expect(edge.labelStyle).toMatchObject({ fill: '#fef3c7', fontStyle: 'italic' });
     expect(edge.data).toMatchObject({
       routeKind: 'segments',
       interactive: false,
@@ -683,6 +707,10 @@ describe('compileTopoGraph', () => {
       targetArrowShape: 'vee',
       sourceArrowColor: '#16a34a',
       targetArrowColor: '#dc2626',
+      sourceArrowBorderColor: '#bbf7d0',
+      targetArrowBorderColor: '#fecaca',
+      sourceArrowBorderWidth: 2,
+      targetArrowBorderWidth: 1,
       lineWidth: 1,
       sourceArrowSize: 12,
       targetArrowSize: 14,
@@ -690,10 +718,18 @@ describe('compileTopoGraph', () => {
       targetArrowOffset: -3,
       labelBorderColor: '#94a3b8',
       labelBorderWidth: 1,
+      edgeLabelColor: '#fef3c7',
+      arrowLabelColor: '#bae6fd',
       sourceLabel: '10G',
       sourceLabelColor: '#0369a1',
       sourceLabelBackgroundColor: '#e0f2fe',
+      sourceArrowLabel: 'xe-0/0/0',
+      sourceArrowLabelXOffset: -4,
+      sourceArrowLabelYOffset: -8,
       targetLabel: '20G',
+      targetArrowLabel: 'ethernet-1/1',
+      targetArrowLabelXOffset: 4,
+      targetArrowLabelYOffset: -8,
       targetLabelFontWeight: 700,
       sourceDistanceFromNode: 8,
       targetDistanceFromNode: 10,
@@ -702,6 +738,27 @@ describe('compileTopoGraph', () => {
       lineFill: 'linearGradient',
       lineGradientStopColors: ['#2563eb', '#f97316'],
       lineGradientStopPositions: ['0%', '100%']
+    });
+  });
+
+  it('defaults edge and arrow label colors to the rendered edge color', () => {
+    const link: GraphLink = { id: 'a-b', source: 'a', target: 'b' };
+    const edge = compileEdgeStyle(
+      {
+        lineColor: '#22c55e',
+        label: 'fabric',
+        sourceArrowLabel: 'e1-1',
+        targetArrowLabel: 'e1-49'
+      },
+      link,
+      {},
+      true
+    );
+
+    expect(edge.labelStyle).toMatchObject({ fill: '#22c55e' });
+    expect(edge.data).toMatchObject({
+      edgeLabelColor: '#22c55e',
+      arrowLabelColor: '#22c55e'
     });
   });
 
@@ -721,6 +778,7 @@ describe('compileTopoGraph', () => {
             style: {
               targetArrowShape: 'triangle-cross',
               sourceArrowSize: -1,
+              sourceArrowBorderWidth: -2,
               targetArrowOffset: 'center',
               labelYOffset: 'above',
               sourceDistanceFromNode: -4,
@@ -741,6 +799,7 @@ describe('compileTopoGraph', () => {
     expect(issues.map((entry) => entry.code)).toEqual(expect.arrayContaining([
       'unsupported-edge-arrow-shape',
       'invalid-edge-arrow-size',
+      'invalid-edge-arrow-border-width',
       'invalid-edge-arrow-offset',
       'invalid-edge-label-offset',
       'invalid-edge-endpoint-distance',

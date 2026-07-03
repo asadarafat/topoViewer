@@ -258,17 +258,31 @@
         },
         "sourceArrowShape": {
           "type": "string",
-          "enum": ["none", "triangle", "vee", "tee", "circle", "diamond"]
+          "enum": ["none", "triangle", "vee", "tee", "circle", "square", "diamond"]
         },
         "targetArrowShape": {
           "type": "string",
-          "enum": ["none", "triangle", "vee", "tee", "circle", "diamond"]
+          "enum": ["none", "triangle", "vee", "tee", "circle", "square", "diamond"]
         },
         "sourceArrowColor": {
           "type": "string"
         },
         "targetArrowColor": {
           "type": "string"
+        },
+        "sourceArrowBorderColor": {
+          "type": "string"
+        },
+        "targetArrowBorderColor": {
+          "type": "string"
+        },
+        "sourceArrowBorderWidth": {
+          "type": "number",
+          "minimum": 0
+        },
+        "targetArrowBorderWidth": {
+          "type": "number",
+          "minimum": 0
         },
         "sourceArrowSize": {
           "type": "number",
@@ -283,6 +297,12 @@
         },
         "targetArrowOffset": {
           "type": "number"
+        },
+        "arrowLabelColor": {
+          "type": "string"
+        },
+        "edgeLabelColor": {
+          "type": "string"
         },
         "labelBorderColor": {
           "type": "string"

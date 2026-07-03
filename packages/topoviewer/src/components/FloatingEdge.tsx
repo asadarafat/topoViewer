@@ -190,7 +190,7 @@ function textValue(value: unknown): string {
   return String(value);
 }
 
-type EdgeLabelRole = 'center' | 'source' | 'target';
+type EdgeLabelRole = 'center' | 'source' | 'target' | 'sourceArrow' | 'targetArrow';
 
 type LinkDirectionKey = 'sourceToTarget' | 'targetToSource';
 
@@ -211,20 +211,32 @@ function labelZIndex(data: Record<string, unknown>, role: EdgeLabelRole): number
     ? data.sourceLabelZIndex
     : role === 'target'
       ? data.targetLabelZIndex
-      : undefined;
+      : role === 'sourceArrow'
+        ? data.sourceArrowLabelZIndex ?? data.sourceLabelZIndex
+        : role === 'targetArrow'
+          ? data.targetArrowLabelZIndex ?? data.targetLabelZIndex
+          : undefined;
   return numericOrUndefined(roleValue ?? data.labelZIndex);
 }
 
+function labelRoleValue(data: Record<string, unknown>, role: EdgeLabelRole, suffix: string): unknown {
+  if (role === 'center' && suffix === 'Color') return data.edgeLabelColor ?? data.labelColor;
+  if (role === 'center') return data[`label${suffix}`];
+  if (role === 'sourceArrow' && suffix === 'Color') return data.sourceArrowLabelColor ?? data.arrowLabelColor ?? data.labelColor;
+  if (role === 'targetArrow' && suffix === 'Color') return data.targetArrowLabelColor ?? data.arrowLabelColor ?? data.labelColor;
+  if (role === 'sourceArrow') return data[`sourceArrowLabel${suffix}`] ?? data[`sourceLabel${suffix}`] ?? data[`label${suffix}`];
+  if (role === 'targetArrow') return data[`targetArrowLabel${suffix}`] ?? data[`targetLabel${suffix}`] ?? data[`label${suffix}`];
+  return data[`${role}Label${suffix}`] ?? data[`label${suffix}`];
+}
+
 function labelStyle(props: EdgeProps, data: Record<string, unknown>, x: number, y: number, role: EdgeLabelRole): CSSProperties {
-  const prefix = role === 'center' ? '' : role;
-  const roleKey = (suffix: string) => (prefix ? `${prefix}${suffix}` : suffix.charAt(0).toLowerCase() + suffix.slice(1));
-  const labelColor = data[roleKey('LabelColor')] || data.labelColor || props.labelStyle?.fill;
-  const background = data[roleKey('LabelBackgroundColor')] || data.textBackgroundColor || props.labelBgStyle?.fill;
-  const borderWidth = numeric(data[roleKey('LabelBorderWidth')], numeric(data.labelBorderWidth, 0));
-  const borderColor = data[roleKey('LabelBorderColor')] || data.labelBorderColor;
-  const fontSize = data[roleKey('LabelFontSize')] || props.labelStyle?.fontSize;
-  const fontWeight = data[roleKey('LabelFontWeight')] || props.labelStyle?.fontWeight;
-  const fontStyle = data[roleKey('LabelFontStyle')] || data.labelFontStyle || props.labelStyle?.fontStyle;
+  const labelColor = labelRoleValue(data, role, 'Color') || data.labelColor || props.labelStyle?.fill;
+  const background = labelRoleValue(data, role, 'BackgroundColor') || data.textBackgroundColor || props.labelBgStyle?.fill;
+  const borderWidth = numeric(labelRoleValue(data, role, 'BorderWidth'), numeric(data.labelBorderWidth, 0));
+  const borderColor = labelRoleValue(data, role, 'BorderColor') || data.labelBorderColor;
+  const fontSize = labelRoleValue(data, role, 'FontSize') || props.labelStyle?.fontSize;
+  const fontWeight = labelRoleValue(data, role, 'FontWeight') || props.labelStyle?.fontWeight;
+  const fontStyle = labelRoleValue(data, role, 'FontStyle') || data.labelFontStyle || props.labelStyle?.fontStyle;
   const zIndex = labelZIndex(data, role);
 
   return {
@@ -263,9 +275,7 @@ function renderEdgeLabel(
     </div>
   );
 
-  return zIndex === undefined
-    ? <EdgeLabelRenderer key={key}>{label}</EdgeLabelRenderer>
-    : <ViewportPortal key={key}>{label}</ViewportPortal>;
+  return <EdgeLabelRenderer key={key}>{label}</EdgeLabelRenderer>;
 }
 
 function pipeStyle(props: EdgeProps, data: Record<string, unknown>, role: 'border' | 'fill'): CSSProperties {
@@ -367,23 +377,36 @@ function markerInfo(data: Record<string, unknown>, role: 'source' | 'target', id
   const shape = String(data[`${role}ArrowShape`] || 'none');
   if (shape === 'none') return undefined;
   const size = numeric(data[`${role}ArrowSize`], fallbackLineWidth);
+  const borderColor = data[`${role}ArrowBorderColor`] ?? data.arrowBorderColor;
   return {
     id,
     url: `url(#${id})`,
     shape,
     color: String(data[`${role}ArrowColor`] || data.arrowColor || data.lineColor || '#6ea8fe'),
+    borderColor: borderColor === undefined ? undefined : String(borderColor),
+    borderWidth: numeric(data[`${role}ArrowBorderWidth`] ?? data.arrowBorderWidth, 0),
     offset: numeric(data[`${role}ArrowOffset`], 0),
     size
   };
 }
 
 function markerRefX(shape: string, size: number, offset: number): number {
-  const base = shape === 'circle' || shape === 'tee' ? 5 : 10;
+  const base = shape === 'circle' || shape === 'square' || shape === 'tee' ? 5 : 10;
   const scale = size > 0 ? size / markerViewBoxSize : 1;
   return base + offset / scale;
 }
 
-function markerShape(shape: string, color: string) {
+function markerBorderProps(marker: NonNullable<ReturnType<typeof markerInfo>>) {
+  if (!marker.borderColor || marker.borderWidth <= 0) return {};
+  return {
+    stroke: marker.borderColor,
+    strokeWidth: Math.max(0.25, (marker.borderWidth * markerViewBoxSize) / Math.max(1, marker.size))
+  };
+}
+
+function markerShape(marker: NonNullable<ReturnType<typeof markerInfo>>) {
+  const { shape, color } = marker;
+  const borderProps = markerBorderProps(marker);
   if (shape === 'vee') {
     return <path d="M1,1 L10,5 L1,9" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />;
   }
@@ -391,17 +414,20 @@ function markerShape(shape: string, color: string) {
     return <path d="M5,0 L5,10" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" />;
   }
   if (shape === 'circle') {
-    return <circle cx="5" cy="5" r="4" fill={color} />;
+    return <circle cx="5" cy="5" r="4" fill={color} {...borderProps} />;
+  }
+  if (shape === 'square') {
+    return <rect x="1" y="1" width="8" height="8" rx="1" fill={color} {...borderProps} />;
   }
   if (shape === 'diamond') {
-    return <path d="M1,5 L5,1 L10,5 L5,9 Z" fill={color} />;
+    return <path d="M1,5 L5,1 L10,5 L5,9 Z" fill={color} {...borderProps} />;
   }
-  return <path d="M0,0 L10,5 L0,10 Z" fill={color} />;
+  return <path d="M0,0 L10,5 L0,10 Z" fill={color} {...borderProps} />;
 }
 
 function markerBodyLength(marker: NonNullable<ReturnType<typeof markerInfo>>): number {
   if (marker.shape === 'tee') return 0;
-  if (marker.shape === 'circle') return marker.size * (8 / markerViewBoxSize);
+  if (marker.shape === 'circle' || marker.shape === 'square') return marker.size * (8 / markerViewBoxSize);
   return marker.size * (markerPathWidth / markerViewBoxSize);
 }
 
@@ -410,6 +436,37 @@ function directionStrokeEndTrim(marker: NonNullable<ReturnType<typeof markerInfo
   const cap = String(lineCap || '').toLowerCase();
   const capExtension = cap === 'round' || cap === 'square' ? strokeWidth / 2 : 0;
   return Math.max(0, markerBodyLength(marker) + marker.offset + capExtension);
+}
+
+function arrowLabelPoint(
+  data: Record<string, unknown>,
+  endpoints: ReturnType<typeof floatingEndpoints>,
+  offset: { x: number; y: number },
+  role: 'source' | 'target',
+  marker: ReturnType<typeof markerInfo> | undefined,
+  lineWidth: number
+): { x: number; y: number } {
+  const dx = endpoints.targetX - endpoints.sourceX;
+  const dy = endpoints.targetY - endpoints.sourceY;
+  const length = Math.sqrt(dx * dx + dy * dy) || 1;
+  const unitX = dx / length;
+  const unitY = dy / length;
+  const normalX = -unitY;
+  const normalY = unitX;
+  const markerSize = marker?.size ?? lineWidth;
+  const along = Math.max(18, markerSize + lineWidth + 10);
+  const away = Math.max(14, lineWidth + 10);
+  const baseX = role === 'source'
+    ? endpoints.sourceX + unitX * along
+    : endpoints.targetX - unitX * along;
+  const baseY = role === 'source'
+    ? endpoints.sourceY + unitY * along
+    : endpoints.targetY - unitY * along;
+
+  return {
+    x: baseX + offset.x - normalX * away + numeric(data[`${role}ArrowLabelXOffset`], 0),
+    y: baseY + offset.y - normalY * away + numeric(data[`${role}ArrowLabelYOffset`], 0)
+  };
 }
 
 function linkDirections(data: Record<string, unknown>): DirectionStroke[] {
@@ -540,6 +597,8 @@ export function FloatingEdge(props: EdgeProps) {
   const paintedLaneStyle = isLane ? laneStyle(props, data) : props.style;
   const sourceLabel = textValue(data.sourceLabel);
   const targetLabel = textValue(data.targetLabel);
+  const sourceArrowLabel = textValue(data.sourceArrowLabel);
+  const targetArrowLabel = textValue(data.targetArrowLabel);
   const sourceLabelX = endpoints.sourceX + offset.x + numeric(data.sourceLabelXOffset, 0);
   const sourceLabelY = endpoints.sourceY + offset.y + numeric(data.sourceLabelYOffset, 0);
   const targetLabelX = endpoints.targetX + offset.x + numeric(data.targetLabelXOffset, 0);
@@ -548,6 +607,8 @@ export function FloatingEdge(props: EdgeProps) {
   const lineWidth = numeric(props.style?.strokeWidth, numeric(data.lineWidth, styleDefaultNumber('link', 'lineWidth', 1)));
   const sourceMarker = markerInfo(data, 'source', `${svgId}-source-marker`, lineWidth);
   const targetMarker = markerInfo(data, 'target', `${svgId}-target-marker`, lineWidth);
+  const sourceArrowLabelPoint = sourceArrowLabel ? arrowLabelPoint(data, endpoints, offset, 'source', sourceMarker, lineWidth) : undefined;
+  const targetArrowLabelPoint = targetArrowLabel ? arrowLabelPoint(data, endpoints, offset, 'target', targetMarker, lineWidth) : undefined;
   const directions = data.directionalStrokes === false ? [] : linkDirections(data);
   const directionGeometry = directions.length
     ? linkDirectionGeometryForPath(
@@ -614,7 +675,7 @@ export function FloatingEdge(props: EdgeProps) {
                   markerUnits="userSpaceOnUse"
                   orient="auto-start-reverse"
                 >
-                  {markerShape(sourceMarker.shape, sourceMarker.color)}
+                  {markerShape(sourceMarker)}
                 </marker>
               ) : null}
               {targetMarker ? (
@@ -628,7 +689,7 @@ export function FloatingEdge(props: EdgeProps) {
                   markerUnits="userSpaceOnUse"
                   orient="auto-start-reverse"
                 >
-                  {markerShape(targetMarker.shape, targetMarker.color)}
+                  {markerShape(targetMarker)}
                 </marker>
               ) : null}
               {directionMarkers.map(({ marker }) => marker ? (
@@ -643,7 +704,7 @@ export function FloatingEdge(props: EdgeProps) {
                   markerUnits="userSpaceOnUse"
                   orient="auto-start-reverse"
                 >
-                  {markerShape(marker.shape, marker.color)}
+                  {markerShape(marker)}
                 </marker>
               ) : null)}
               {directionGradients.map(({ gradient: directionGradient }) => directionGradient ? (
@@ -808,6 +869,8 @@ export function FloatingEdge(props: EdgeProps) {
         labelY + offset.y + centerLabelOffsetPoint.y,
         'center'
       ) : null}
+      {sourceArrowLabel && sourceArrowLabelPoint ? renderEdgeLabel(props, data, sourceArrowLabel, sourceArrowLabelPoint.x, sourceArrowLabelPoint.y, 'sourceArrow') : null}
+      {targetArrowLabel && targetArrowLabelPoint ? renderEdgeLabel(props, data, targetArrowLabel, targetArrowLabelPoint.x, targetArrowLabelPoint.y, 'targetArrow') : null}
       {sourceLabel ? renderEdgeLabel(props, data, sourceLabel, sourceLabelX, sourceLabelY, 'source') : null}
       {targetLabel ? renderEdgeLabel(props, data, targetLabel, targetLabelX, targetLabelY, 'target') : null}
       {directionGeometry ? directions.map((direction) => {
