@@ -75,6 +75,8 @@ function pruneStaleContentPages() {
     'browser-harness.md',
     'build-vs-adopt.md',
     'evaluate/build-or-adopt.md',
+    'evaluate/adopt-topoviewer-or-build-a-renderer.md',
+    'evaluate/adopt-topoviewer-for-portable-topology.md',
     'compatibility.md',
     'debugging.md',
     'decisions.md',

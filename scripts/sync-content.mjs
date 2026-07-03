@@ -132,7 +132,7 @@ npm install topoviewer @xyflow/react react react-dom
 | Embed in documentation | [MkDocs](topoviewer/examples/use-cases/mkdocs.md) or [Static HTML / Zensical Adapter](topoviewer/examples/use-cases/static-html-zensical-adapter.md) |
 | Operate from telemetry | [Grafana TopoViewer Containerlab Lab](topoviewer/examples/use-cases/grafana-topoviewer-containerlab-lab.md) |
 | Reference accepted contracts | [Object attributes](topoviewer/reference/object-attributes.md), [YAML schemas](topoviewer/reference/yaml-schemas.md), [compatibility](topoviewer/reference/compatibility.md), and [stylesheet reference](topoviewer/reference/stylesheet-reference.md) |
-| Evaluate architecture and risk | [Architecture](topoviewer/evaluate/architecture.md), [threat model](topoviewer/evaluate/threat-model.md), [performance and accessibility](topoviewer/evaluate/performance-reliability-accessibility.md), and [Adopt TopoViewer Or Build A Renderer](topoviewer/evaluate/adopt-topoviewer-or-build-a-renderer.md) |
+| Evaluate architecture and risk | [Architecture](topoviewer/evaluate/architecture.md), [threat model](topoviewer/evaluate/threat-model.md), [performance and accessibility](topoviewer/evaluate/performance-reliability-accessibility.md), and [Adopt TopoViewer Or Keep Topology Locked To A Surface](topoviewer/evaluate/adopt-topoviewer-or-keep-topology-locked-to-a-surface.md) |
 | Maintain or release the repo | [Production Hardening](topoviewer/maintainers/production-hardening.md), [Design Review Checklist](topoviewer/maintainers/design-review-checklist.md), [Release](topoviewer/maintainers/release.md), and [Documentation Standard](topoviewer/maintainers/documentation-standard.md) |
 | Debug a broken render | [Debug Rendering](topoviewer/author/debug-rendering.md) |
 

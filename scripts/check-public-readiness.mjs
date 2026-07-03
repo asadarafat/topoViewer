@@ -185,11 +185,15 @@ function assertArchitectureAndThreatModelDocs() {
     'Runtime Review',
     'Documentation Review'
   ]);
-  assertFile('packages/topoviewer/content/pages/evaluate/adopt-topoviewer-or-build-a-renderer.md', [
-    'What You Would Need To Build Internally',
-    'Where TopoViewer Has Leverage',
+  assertFile('packages/topoviewer/content/pages/evaluate/adopt-topoviewer-or-keep-topology-locked-to-a-surface.md', [
+    'Why The YAML Bundle Matters',
+    'Visual Policy As Code',
+    'Runtime State Without Corrupting The Topology',
+    'The Converter And Adapter Question',
+    'Why Maintaining A Converter Can Be A Strength',
     'When Not To Use TopoViewer',
-    'Adoption Test'
+    'Adoption Test',
+    'Final Position'
   ]);
 }
 
