@@ -8,7 +8,6 @@ const packageRoot = path.join(repoRoot, 'packages/topoviewer');
 const contentRoot = path.join(packageRoot, 'content');
 const contentPagesRoot = path.join(contentRoot, 'pages');
 const contentFragmentsRoot = path.join(contentPagesRoot, '_fragments');
-const packageDocsRoot = path.join(packageRoot, 'docs');
 const docsRoot = path.resolve(process.env.TOPOVIEWER_DOCS_ROOT || path.join(repoRoot, 'docs'));
 const checkOnly = process.argv.includes('--check');
 const allowDirtyProjectionOverwrite = process.env.TOPOVIEWER_SYNC_ALLOW_DIRTY_PROJECTIONS === '1';
@@ -86,33 +85,6 @@ function projectText(filePath, content, label, source) {
   return false;
 }
 
-function listFiles(dirPath) {
-  if (!fs.existsSync(dirPath)) return [];
-  const files = [];
-  for (const entry of fs.readdirSync(dirPath, { withFileTypes: true })) {
-    const absolute = path.join(dirPath, entry.name);
-    if (entry.isDirectory()) {
-      files.push(...listFiles(absolute));
-    } else if (entry.isFile()) {
-      files.push(absolute);
-    }
-  }
-  return files;
-}
-
-function removeStaleFiles(root, expectedFiles, label) {
-  const expected = new Set([...expectedFiles].map((filePath) => path.resolve(filePath)));
-  for (const filePath of listFiles(root)) {
-    if (expected.has(path.resolve(filePath))) continue;
-    if (checkOnly) {
-      fail(`${label} has stale generated file: ${relative(filePath)}`);
-    } else {
-      fs.rmSync(filePath);
-      console.log(`removed stale ${relative(filePath)}`);
-    }
-  }
-}
-
 function fragment(name) {
   return readText(path.join(contentFragmentsRoot, name)).trim();
 }
@@ -186,18 +158,6 @@ and a Playwright-backed test fixture.
 }
 
 function projectPages() {
-  const expectedPackageDocs = new Set();
-
-  for (const source of listFiles(contentPagesRoot)) {
-    const sourceRelative = path.relative(contentPagesRoot, source);
-    if (sourceRelative.split(path.sep)[0] === '_fragments') continue;
-    if (!source.endsWith('.md')) continue;
-    const target = path.join(packageDocsRoot, sourceRelative);
-    expectedPackageDocs.add(target);
-    projectText(target, readText(source), `package doc ${sourceRelative}`, source);
-  }
-
-  removeStaleFiles(packageDocsRoot, expectedPackageDocs, 'package docs projection');
   projectText(path.join(repoRoot, 'README.md'), readmeMarkdown(), 'root README', contentPagesRoot);
   projectText(path.join(docsRoot, 'index.md'), docsIndexMarkdown(), 'docs home', contentPagesRoot);
 }

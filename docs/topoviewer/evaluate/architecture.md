@@ -38,7 +38,7 @@ React Flow ever receives renderable nodes and edges.
 | JSON Schemas under `packages/topoviewer/schemas` | Public | Schema changes require docs, examples, and compatibility review. |
 | Style defaults and style metadata | Public contract source | Runtime, docs, schema, and YAML assist must stay aligned. |
 | Example YAML under `packages/topoviewer/content/examples` | Public examples | Examples are documentation and regression inputs. |
-| Docs projections under `docs/**` and `packages/topoviewer/docs/**` | Generated public output | Edit canonical content, not projections. |
+| Docs projections under `docs/**` | Generated public output | Edit canonical content, not projections. |
 | Harness implementation files | Internal/experimental | Do not import from products. Use exported package APIs and generated bundles. |
 | Grafana plugin backend resource API | Experimental | Dashboard migration notes are required when options change. |
 | Lab scripts and Containerlab files | Lab | Local demo automation only; not a production API. |

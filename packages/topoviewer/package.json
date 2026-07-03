@@ -45,7 +45,7 @@
   },
   "files": [
     "dist",
-    "docs",
+    "content/pages",
     "schemas",
     "README.md",
     "LICENSE"

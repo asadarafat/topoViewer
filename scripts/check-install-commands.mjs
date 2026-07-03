@@ -17,15 +17,12 @@ const sourceTarballInstallCommandFiles = new Set([
   'docs/topoviewer/maintainers/monorepo.md',
   'packages/topoviewer/README.md',
   'packages/topoviewer/content/pages/maintainers/release.md',
-  'packages/topoviewer/content/pages/maintainers/monorepo.md',
-  'packages/topoviewer/docs/maintainers/release.md',
-  'packages/topoviewer/docs/maintainers/monorepo.md'
+  'packages/topoviewer/content/pages/maintainers/monorepo.md'
 ]);
 const publicTextRoots = [
   'README.md',
   'docs',
   'packages/topoviewer/README.md',
-  'packages/topoviewer/docs',
   'packages/topoviewer/content',
   'packages/mkdocs-topoviewer/README.md',
   'packages/vscode-topoviewer/README.md',
@@ -34,7 +31,6 @@ const publicTextRoots = [
 const requiredMkdocsPublishedInstallCommandFiles = new Set([
   'packages/mkdocs-topoviewer/README.md',
   'packages/topoviewer/content/pages/embed/mkdocs.md',
-  'packages/topoviewer/docs/embed/mkdocs.md',
   'docs/topoviewer/embed/mkdocs.md'
 ]);
 const allowedMkdocsPublishedInstallCommandFiles = new Set([
@@ -43,8 +39,6 @@ const allowedMkdocsPublishedInstallCommandFiles = new Set([
   'packages/topoviewer/content/pages/_fragments/readme.md',
   'packages/topoviewer/content/pages/maintainers/monorepo.md',
   'packages/topoviewer/content/pages/maintainers/release.md',
-  'packages/topoviewer/docs/maintainers/monorepo.md',
-  'packages/topoviewer/docs/maintainers/release.md',
   'docs/topoviewer/maintainers/monorepo.md',
   'docs/topoviewer/maintainers/release.md'
 ]);
@@ -52,8 +46,6 @@ const allowedMkdocsLocalEditableInstallFiles = new Set([
   'packages/mkdocs-topoviewer/README.md',
   'packages/topoviewer/content/pages/maintainers/monorepo.md',
   'packages/topoviewer/content/pages/maintainers/release.md',
-  'packages/topoviewer/docs/maintainers/monorepo.md',
-  'packages/topoviewer/docs/maintainers/release.md',
   'docs/topoviewer/maintainers/monorepo.md',
   'docs/topoviewer/maintainers/release.md'
 ]);
@@ -87,6 +79,21 @@ function run(command, args, options = {}) {
     throw new Error(`${command} ${args.join(' ')} failed with exit ${result.status}\n${result.stdout || ''}${result.stderr || ''}`);
   }
   return result;
+}
+
+function npmArgs(args) {
+  if (process.env.npm_execpath) {
+    return {
+      command: process.execPath,
+      args: [process.env.npm_execpath, ...args]
+    };
+  }
+  return { command: 'npm', args };
+}
+
+function runNpm(args, options = {}) {
+  const invocation = npmArgs(args);
+  return run(invocation.command, invocation.args, options);
 }
 
 function walkTextFiles(root) {
@@ -188,8 +195,8 @@ function assertMkDocsInstallCommands() {
 }
 
 function packTopoviewer(tempRoot) {
-  run('npm', ['--workspace', 'topoviewer', 'run', 'build'], { stdio: 'inherit' });
-  const result = run('npm', ['pack', '--workspace', 'topoviewer', '--json', '--ignore-scripts', '--pack-destination', tempRoot]);
+  runNpm(['--workspace', 'topoviewer', 'run', 'build'], { stdio: 'inherit' });
+  const result = runNpm(['pack', '--workspace', 'topoviewer', '--json', '--ignore-scripts', '--pack-destination', tempRoot]);
   const parsed = JSON.parse(result.stdout);
   const filename = parsed[0]?.filename;
   if (!filename) {
@@ -246,7 +253,7 @@ try {
   const consumerRoot = path.join(tempRoot, 'consumer');
   fs.mkdirSync(consumerRoot);
   writeConsumerProject(consumerRoot);
-  run('npm', [
+  runNpm([
     'install',
     '--ignore-scripts',
     '--no-audit',

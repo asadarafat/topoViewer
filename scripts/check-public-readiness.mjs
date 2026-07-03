@@ -18,7 +18,6 @@ const PUBLIC_TEXT_ROOTS = [
   'zensical.toml',
   'docs',
   'packages/topoviewer/content',
-  'packages/topoviewer/docs',
   'packages/topoviewer/README.md',
   'packages/mkdocs-topoviewer/README.md',
   'packages/vscode-topoviewer/README.md',
@@ -29,6 +28,7 @@ const PUBLIC_TEXT_ROOTS = [
 const PRODUCTION_DOC_TEXT_ROOTS = [
   'README.md',
   'docs',
+  'packages/topoviewer/content/pages',
   'packages/topoviewer/README.md',
   'packages/mkdocs-topoviewer/README.md',
   'packages/vscode-topoviewer/README.md',

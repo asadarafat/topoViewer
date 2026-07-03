@@ -69,8 +69,7 @@ const NPM_PACKAGE_ALLOWED_ROOT_FILES = new Set([
 
 const NPM_PACKAGE_ALLOWED_PREFIXES = [
   'dist/',
-  'docs/',
-  'examples/',
+  'content/pages/',
   'schemas/'
 ];
 
@@ -82,6 +81,9 @@ const NPM_PACKAGE_REQUIRED_FILES = [
   'dist/topoviewer.umd.js',
   'dist/topoviewer.css',
   'dist/types/index.d.ts',
+  'content/pages/start/first-topology.md',
+  'content/pages/embed/react.md',
+  'content/pages/reference/object-attributes.md',
   'schemas/topoviewer.schema.json',
   'schemas/topoviewer-topology.schema.json',
   'schemas/topoviewer-stylesheet.schema.json',
@@ -199,8 +201,19 @@ function readJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, 'utf8'));
 }
 
+function npmInvocation(args) {
+  if (process.env.npm_execpath) {
+    return {
+      command: process.execPath,
+      args: [process.env.npm_execpath, ...args]
+    };
+  }
+  return { command: 'npm', args };
+}
+
 function npmPackDryRun() {
-  const result = spawnSync('npm', ['pack', '--workspace', 'topoviewer', '--dry-run', '--json', '--ignore-scripts'], {
+  const invocation = npmInvocation(['pack', '--workspace', 'topoviewer', '--dry-run', '--json', '--ignore-scripts']);
+  const result = spawnSync(invocation.command, invocation.args, {
     cwd: repoRoot,
     encoding: 'utf8',
     shell: process.platform === 'win32'
@@ -354,7 +367,7 @@ function checkPromotionalMediaReferences() {
   const publicRoots = [
     'README.md',
     'docs',
-    'packages/topoviewer/docs',
+    'packages/topoviewer/content/pages',
     'packages/topoviewer/README.md',
     'packages/mkdocs-topoviewer/README.md',
     'packages/vscode-topoviewer/README.md',
