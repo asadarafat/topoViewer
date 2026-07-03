@@ -25,6 +25,9 @@ const GRAFANA_GENERATED_PATHS = [
 const args = process.argv.slice(2);
 const remoteParity = args.includes('--remote-parity');
 const selectedLane = parseLane(args);
+const ciStartedAt = Date.now();
+const laneTimings = [];
+const stepTimings = [];
 
 function parseLane(cliArgs) {
   const explicit = cliArgs.find((arg) => arg.startsWith('--lane='));
@@ -191,13 +194,42 @@ const lanesToRun = selectedLane ? [selectedLane] : fullLaneOrder;
 
 for (const laneName of lanesToRun) {
   console.log(`\n# CI lane: ${laneName}`);
+  const laneStartedAt = Date.now();
   for (const { label, command, args: commandArgs, env } of laneDefinitions[laneName]) {
-    runStep(laneName, label, command, commandArgs, env);
+    const result = runStep(label, command, commandArgs, env);
+    stepTimings.push({
+      laneName,
+      label,
+      commandLine: commandToString(command, commandArgs),
+      durationMs: result.durationMs,
+      status: result.ok ? 'success' : 'failure'
+    });
+
+    if (!result.ok) {
+      laneTimings.push({
+        laneName,
+        durationMs: Date.now() - laneStartedAt,
+        status: 'failure'
+      });
+      writeFailureSummary(laneName, label, commandToString(command, commandArgs), result.reason);
+      writeTimingSummary();
+      process.exit(result.exitCode);
+    }
   }
+  const laneDurationMs = Date.now() - laneStartedAt;
+  laneTimings.push({
+    laneName,
+    durationMs: laneDurationMs,
+    status: 'success'
+  });
+  console.log(`\n# CI lane completed: ${laneName} (${formatDuration(laneDurationMs)})`);
 }
 
-function runStep(laneName, label, command, commandArgs, extraEnv = {}) {
+writeTimingSummary();
+
+function runStep(label, command, commandArgs, extraEnv = {}) {
   console.log(`\n==> ${label}`);
+  const startedAt = Date.now();
   const result = spawnSync(command, commandArgs, {
     env: {
       ...process.env,
@@ -209,20 +241,39 @@ function runStep(laneName, label, command, commandArgs, extraEnv = {}) {
 
   if (result.error) {
     console.error(result.error.message);
-    writeFailureSummary(laneName, label, `${command} ${commandArgs.join(' ')}`, result.error.message);
-    process.exit(1);
+    return {
+      ok: false,
+      reason: result.error.message,
+      exitCode: 1,
+      durationMs: Date.now() - startedAt
+    };
   }
 
   if (result.signal) {
     console.error(`${label} terminated with signal ${result.signal}.`);
-    writeFailureSummary(laneName, label, `${command} ${commandArgs.join(' ')}`, `terminated with signal ${result.signal}`);
-    process.exit(1);
+    return {
+      ok: false,
+      reason: `terminated with signal ${result.signal}`,
+      exitCode: 1,
+      durationMs: Date.now() - startedAt
+    };
   }
 
   if (result.status !== 0) {
-    writeFailureSummary(laneName, label, `${command} ${commandArgs.join(' ')}`, `exited with status ${result.status ?? 1}`);
-    process.exit(result.status ?? 1);
+    return {
+      ok: false,
+      reason: `exited with status ${result.status ?? 1}`,
+      exitCode: result.status ?? 1,
+      durationMs: Date.now() - startedAt
+    };
   }
+
+  const durationMs = Date.now() - startedAt;
+  console.log(`==> ${label} completed in ${formatDuration(durationMs)}`);
+  return {
+    ok: true,
+    durationMs
+  };
 }
 
 function writeFailureSummary(laneName, label, commandLine, reason) {
@@ -241,4 +292,67 @@ function writeFailureSummary(laneName, label, commandLine, reason) {
     'Run the same command locally from the repository root with Node.js 24 LTS.',
     ''
   ].join('\n'));
+}
+
+function writeTimingSummary() {
+  printTimingSummary();
+
+  const summaryPath = process.env.GITHUB_STEP_SUMMARY;
+  if (!summaryPath) {
+    return;
+  }
+
+  fs.appendFileSync(summaryPath, [
+    '## TopoViewer CI Timing',
+    '',
+    `Total elapsed: ${formatDuration(Date.now() - ciStartedAt)}`,
+    '',
+    '### Lanes',
+    '',
+    '| Lane | Status | Duration |',
+    '| --- | --- | ---: |',
+    ...laneTimings.map(({ laneName, status, durationMs }) => (
+      `| \`${laneName}\` | ${status} | ${formatDuration(durationMs)} |`
+    )),
+    '',
+    '### Steps',
+    '',
+    '| Lane | Step | Status | Duration |',
+    '| --- | --- | --- | ---: |',
+    ...stepTimings.map(({ laneName, label, status, durationMs }) => (
+      `| \`${laneName}\` | ${escapeMarkdownTableCell(label)} | ${status} | ${formatDuration(durationMs)} |`
+    )),
+    ''
+  ].join('\n'));
+}
+
+function printTimingSummary() {
+  console.log('\n# CI timing summary');
+  console.log(`Total elapsed: ${formatDuration(Date.now() - ciStartedAt)}`);
+  for (const { laneName, status, durationMs } of laneTimings) {
+    console.log(`- ${laneName}: ${status}, ${formatDuration(durationMs)}`);
+  }
+}
+
+function commandToString(command, commandArgs) {
+  return [command, ...commandArgs].join(' ');
+}
+
+function formatDuration(durationMs) {
+  if (durationMs < 1000) {
+    return `${durationMs}ms`;
+  }
+
+  const totalSeconds = durationMs / 1000;
+  if (totalSeconds < 60) {
+    return `${totalSeconds.toFixed(1)}s`;
+  }
+
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds - (minutes * 60);
+  return `${minutes}m ${seconds.toFixed(1)}s`;
+}
+
+function escapeMarkdownTableCell(value) {
+  return value.replaceAll('|', '\\|');
 }

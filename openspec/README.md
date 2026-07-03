@@ -10,6 +10,7 @@ reflected in public docs with an explicit support-status label.
 
 Current active plans:
 
+- `changes/speed-up-ci-feedback-loop/` - planned CI speed investigation and implementation for measured workflow timing, duplicate-work reduction, and faster GitHub feedback without weakening package, docs, security, or public-readiness coverage.
 - `changes/define-codespaces-dev-environment/` - planned Codespaces developer environment that can run local MkDocs, Zensical, browser harness, Grafana lab, and Containerlab-Grafana workflows from a fresh cloud workspace.
 - `changes/define-netbox-integration-roadmap/` - planned NetBox feasibility, use cases, first integration shape, and roadmap wording constraints.
 - `changes/define-opsmill-infrahub-integration-roadmap/` - planned OpsMill/Infrahub feasibility, use cases, first integration shape, and roadmap wording constraints.
