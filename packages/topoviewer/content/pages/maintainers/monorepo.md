@@ -57,7 +57,8 @@ needed. The root scripts are the stable interface used by GitHub Actions.
 | Renderer surface parity | `npm run ci:render-parity` |
 | Renderer tests | `npm run ci:test:topoviewer` |
 | Browser harness tests | `npm run ci:test:harness` |
-| Public adoption/readiness gate | `npm run ci:public-readiness` |
+| Remote public-readiness guardrails | `npm run ci:public-readiness:core` |
+| Full local/release public-adoption gate | `npm run ci:public-readiness` |
 
 When changing renderer behavior:
 

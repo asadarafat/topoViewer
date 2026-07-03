@@ -67,6 +67,33 @@ function checkGeneratedStep(label, paths, { sourceArea, projectionArea }) {
   ]);
 }
 
+const publicReadinessContractSteps = [
+  step('lint documentation contract', 'npm', ['run', 'docs:lint']),
+  step('check object reference drift', 'npm', ['run', 'check:object-reference']),
+  step('audit curated examples', 'npm', ['run', 'examples:audit']),
+  step('prepare renderer parity site assets', 'node', ['scripts/ensure-render-parity-assets.mjs']),
+  step('check renderer surface parity', 'npm', ['run', 'render:parity']),
+  step('run hostile-content tests', 'npm', ['run', 'test:hostile-content'])
+];
+
+const publicReadinessPackageSteps = [
+  step('pack check', 'npm', ['run', 'pack:check']),
+  step('check consumer install command', 'npm', ['run', 'install:check']),
+  step('check MkDocs PyPI install command', 'npm', ['run', 'install:check:mkdocs']),
+  step('build Grafana plugin artifact', 'npm', ['run', 'grafana:panel:build']),
+  step('inspect package artifacts', 'npm', ['run', 'artifact:check:package'])
+];
+
+const publicReadinessSecuritySteps = [
+  step('check dependency advisories', 'npm', ['run', 'dependency:advisories']),
+  step('check Go vulnerabilities', 'npm', ['run', 'go:vulncheck'])
+];
+
+const publicReadinessFinalSteps = [
+  step('write security health report', 'npm', ['run', 'security:health-report']),
+  step('check public readiness guardrails', 'npm', ['run', 'check:public-readiness'])
+];
+
 const laneDefinitions = {
   env: [
     step('report environment', 'node', ['scripts/report-ci-environment.mjs'])
@@ -145,22 +172,15 @@ const laneDefinitions = {
     step('build MkDocs wheel', 'npm', ['run', 'wheel:mkdocs']),
     step('inspect MkDocs wheel', 'npm', ['run', 'inspect:wheel'])
   ],
+  'public-readiness:core': [
+    ...publicReadinessContractSteps,
+    ...publicReadinessFinalSteps
+  ],
   'public-readiness': [
-    step('lint documentation contract', 'npm', ['run', 'docs:lint']),
-    step('check object reference drift', 'npm', ['run', 'check:object-reference']),
-    step('audit curated examples', 'npm', ['run', 'examples:audit']),
-    step('prepare renderer parity site assets', 'node', ['scripts/ensure-render-parity-assets.mjs']),
-    step('check renderer surface parity', 'npm', ['run', 'render:parity']),
-    step('run hostile-content tests', 'npm', ['run', 'test:hostile-content']),
-    step('pack check', 'npm', ['run', 'pack:check']),
-    step('check consumer install command', 'npm', ['run', 'install:check']),
-    step('check MkDocs PyPI install command', 'npm', ['run', 'install:check:mkdocs']),
-    step('build Grafana plugin artifact', 'npm', ['run', 'grafana:panel:build']),
-    step('inspect package artifacts', 'npm', ['run', 'artifact:check:package']),
-    step('check dependency advisories', 'npm', ['run', 'dependency:advisories']),
-    step('check Go vulnerabilities', 'npm', ['run', 'go:vulncheck']),
-    step('write security health report', 'npm', ['run', 'security:health-report']),
-    step('check public readiness guardrails', 'npm', ['run', 'check:public-readiness'])
+    ...publicReadinessContractSteps,
+    ...publicReadinessPackageSteps,
+    ...publicReadinessSecuritySteps,
+    ...publicReadinessFinalSteps
   ]
 };
 

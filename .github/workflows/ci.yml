@@ -71,7 +71,7 @@ jobs:
         run: npm run ci:package
 
       - name: Check public-readiness guardrails
-        run: npm run ci:public-readiness
+        run: npm run ci:public-readiness:core
 
       - name: Upload failure artifacts
         if: failure()

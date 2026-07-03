@@ -39,7 +39,8 @@ a GitHub Actions failure.
 | `ci:test:harness` | Runs Playwright tests for the VS Code browser harness. |
 | `ci:perf:smoke` | Enforces attention-engine and CLOS layout smoke benchmarks. |
 | `ci:package` | Runs npm pack inspection and MkDocs wheel inspection. |
-| `ci:public-readiness` | Runs the public-adoption gate: docs lint, render parity, hostile-content tests, package dry-run, install-command check, Grafana artifact autopsy, dependency triage, Go vulnerability check, security health report, and public leak/readiness guardrails. |
+| `ci:public-readiness:core` | Runs remote readiness guardrails that are not already covered by the package and security workflow steps: docs lint, render parity, hostile-content tests, security health report, and public leak/readiness guardrails. |
+| `ci:public-readiness` | Runs the full local/release public-adoption gate: core readiness plus package dry-run, install-command checks, Grafana artifact autopsy, dependency triage, and Go vulnerability check. |
 
 JSON Schema catches malformed document shape. Semantic lint catches broken meaning:
 

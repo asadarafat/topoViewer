@@ -45,7 +45,7 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Public readiness guardrails
-        run: npm run ci:public-readiness
+        run: npm run ci:public-readiness:core
 
       - name: npm dependency advisory triage
         run: npm run dependency:advisories

@@ -428,6 +428,9 @@ function assertPackageAndCiContracts() {
   if (!rootPackage.scripts?.['ci:public-readiness']) {
     fail('Root package is missing ci:public-readiness.');
   }
+  if (!rootPackage.scripts?.['ci:public-readiness:core']) {
+    fail('Root package is missing ci:public-readiness:core.');
+  }
   for (const scriptName of [
     'dependency:advisories',
     'go:vulncheck',
@@ -449,8 +452,8 @@ function assertPackageAndCiContracts() {
   }
 
   const ci = assertFile('.github/workflows/ci.yml');
-  if (!ci.includes('npm run ci:public-readiness')) {
-    fail('.github/workflows/ci.yml must run npm run ci:public-readiness.');
+  if (!ci.includes('npm run ci:public-readiness:core')) {
+    fail('.github/workflows/ci.yml must run npm run ci:public-readiness:core.');
   }
   const ciOrchestrator = assertFile('scripts/ci.mjs');
   for (const phrase of [

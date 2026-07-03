@@ -196,3 +196,84 @@ and reported:
 - `validate schemas`: 1.2s;
 - `validate semantics`: 5.9s;
 - lane total: 7.0s.
+
+## Duplicate Work Audit
+
+`ci:package` owns package artifact and install-contract checks:
+
+- pack check;
+- consumer install command check;
+- MkDocs PyPI install command check;
+- Grafana plugin artifact build;
+- package artifact inspection;
+- MkDocs wheel build;
+- MkDocs wheel inspection.
+
+Full `ci:public-readiness` previously repeated several checks already owned by
+`ci:package`:
+
+- pack check;
+- consumer install command check;
+- MkDocs PyPI install command check;
+- Grafana plugin artifact build;
+- package artifact inspection.
+
+Full `ci:public-readiness` also runs dependency advisory and Go vulnerability
+checks. The `Security` workflow then ran full public-readiness and repeated
+dependency advisory and Go vulnerability checks as standalone steps.
+
+`CI` and `Docs` both run `ci:docs`. This remains intentionally unchanged in
+this slice because Pages deployment must validate the artifact it publishes.
+
+## Duplicate Work Reduction
+
+Selected first candidate: introduce `ci:public-readiness:core` for remote
+`CI` and `Security`, while keeping full `ci:public-readiness` as the local and
+release public-adoption gate.
+
+`ci:public-readiness:core` keeps:
+
+- docs lint;
+- object reference drift check;
+- curated examples audit;
+- renderer parity asset preparation;
+- renderer parity;
+- hostile-content tests;
+- security health report;
+- public-readiness guardrails.
+
+The core lane removes package checks and dependency/Go checks because:
+
+- package checks still run in `.github/workflows/ci.yml` through `npm run
+  ci:package`;
+- dependency advisory and Go vulnerability checks still run in
+  `.github/workflows/security.yml` as standalone steps;
+- full local/release `npm run ci` still runs full `ci:public-readiness`, so the
+  local gate remains conservative.
+
+Exact replacement coverage:
+
+| Removed from remote public-readiness core | Replacement owner |
+| --- | --- |
+| pack check | `.github/workflows/ci.yml`, push/pull_request, `npm run ci:package`, required CI gate |
+| consumer install check | `.github/workflows/ci.yml`, push/pull_request, `npm run ci:package`, required CI gate |
+| MkDocs PyPI install check | `.github/workflows/ci.yml`, push/pull_request, `npm run ci:package`, required CI gate |
+| Grafana plugin artifact build | `.github/workflows/ci.yml`, push/pull_request, `npm run ci:package`, required CI gate |
+| package artifact inspection | `.github/workflows/ci.yml`, push/pull_request, `npm run ci:package`, required CI gate |
+| dependency advisory check | `.github/workflows/security.yml`, push/pull_request/schedule/workflow_dispatch, standalone `npm run dependency:advisories`, security gate |
+| Go vulnerability check | `.github/workflows/security.yml`, push/pull_request/schedule/workflow_dispatch, standalone `npm run go:vulncheck`, security gate |
+
+Local timing after implementation:
+
+| Command | Result | Duration |
+| --- | --- | ---: |
+| `npm run ci:package` | pass | 48.9s |
+| `npm run ci:public-readiness:core` | pass | 43.4s |
+| `npm run ci:public-readiness` | pass | 95.9s |
+
+The local readiness-lane delta is 52.5s saved when remote workflows use the
+core lane instead of full public-readiness. The expected remote `CI` improvement
+is lower than the full 52.5s if runner variance dominates, and higher if the
+remote repeated package/security checks are slower than local. This change is
+not expected to meet the full 20% CI target by itself; it is the first safe
+dedupe slice before considering workflow shape.

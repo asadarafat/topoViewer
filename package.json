@@ -106,6 +106,7 @@
     "ci:perf:smoke": "node scripts/require-node24.mjs && node scripts/ci.mjs --lane perf:smoke",
     "ci:package": "node scripts/require-node24.mjs && node scripts/ci.mjs --lane package",
     "ci:public-readiness": "node scripts/require-node24.mjs && node scripts/ci.mjs --lane public-readiness",
+    "ci:public-readiness:core": "node scripts/require-node24.mjs && node scripts/ci.mjs --lane public-readiness:core",
     "ci:remote-parity": "node scripts/require-node24.mjs && node scripts/ci.mjs --remote-parity"
   },
   "overrides": {

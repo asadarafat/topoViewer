@@ -29,28 +29,28 @@ is read-only investigation that gathers evidence for the current phase.
 
 # 3. Duplicate Work Audit
 
-- [ ] 3.1 Compare `ci:package` and `ci:public-readiness` command-by-command
-- [ ] 3.2 Identify package checks repeated in public-readiness
-- [ ] 3.3 Compare `CI` docs coverage and `Docs` deployment coverage
-- [ ] 3.4 Identify checks that must remain before Pages deploy
-- [ ] 3.5 Compare `CI`, `Security`, and `ci:public-readiness` command-by-command
-- [ ] 3.6 Identify duplicated dependency advisory, Go vulnerability, package, and readiness checks in `Security`
-- [ ] 3.7 Identify checks that can move to release, scheduled, manual, or publish workflows
-- [ ] 3.8 Document every proposed removal or relocation with exact replacement coverage: workflow file, trigger, required/optional status, and release/deploy gate relationship
-- [ ] 3.9 Stop and choose exactly one first duplicate-work reduction candidate; do not change workflow parallelism in this phase
+- [x] 3.1 Compare `ci:package` and `ci:public-readiness` command-by-command
+- [x] 3.2 Identify package checks repeated in public-readiness
+- [x] 3.3 Compare `CI` docs coverage and `Docs` deployment coverage
+- [x] 3.4 Identify checks that must remain before Pages deploy
+- [x] 3.5 Compare `CI`, `Security`, and `ci:public-readiness` command-by-command
+- [x] 3.6 Identify duplicated dependency advisory, Go vulnerability, package, and readiness checks in `Security`
+- [x] 3.7 Identify checks that can move to release, scheduled, manual, or publish workflows
+- [x] 3.8 Document every proposed removal or relocation with exact replacement coverage: workflow file, trigger, required/optional status, and release/deploy gate relationship
+- [x] 3.9 Stop and choose exactly one first duplicate-work reduction candidate; do not change workflow parallelism in this phase
 
 # 4. Duplicate Work Reduction
 
-- [ ] 4.1 Implement the single selected duplicate-work reduction candidate
-- [ ] 4.2 Preserve local `npm run ci` as the full local gate
-- [ ] 4.3 Update public-readiness checks if a command contract changes
-- [ ] 4.4 Update `.github/workflows/docs.yml` only if docs duplication is intentionally changed
-- [ ] 4.5 Update contributor or maintainer docs if the workflow contract changes
-- [ ] 4.6 Run the affected targeted CI lanes locally
-- [ ] 4.7 Record local before/after timing for the affected lane or workflow command
-- [ ] 4.8 Record which coverage remains unchanged and where it runs
-- [ ] 4.9 Run `git diff --check`
-- [ ] 4.10 Commit duplicate-work reduction as its own conventional commit before workflow parallelization is considered
+- [x] 4.1 Implement the single selected duplicate-work reduction candidate
+- [x] 4.2 Preserve local `npm run ci` as the full local gate
+- [x] 4.3 Update public-readiness checks if a command contract changes
+- [x] 4.4 Update `.github/workflows/docs.yml` only if docs duplication is intentionally changed
+- [x] 4.5 Update contributor or maintainer docs if the workflow contract changes
+- [x] 4.6 Run the affected targeted CI lanes locally
+- [x] 4.7 Record local before/after timing for the affected lane or workflow command
+- [x] 4.8 Record which coverage remains unchanged and where it runs
+- [x] 4.9 Run `git diff --check`
+- [x] 4.10 Commit duplicate-work reduction as its own conventional commit before workflow parallelization is considered
 
 # 5. Workflow Shape Decision
 
