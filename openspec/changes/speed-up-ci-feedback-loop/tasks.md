@@ -67,18 +67,18 @@ is read-only investigation that gathers evidence for the current phase.
 - [x] 6.2 Add branch concurrency cancellation for stale non-deployment CI runs only if the design says it is safe
 - [x] 6.3 Do not cancel Pages deployment runs in a way that can publish older artifacts after newer ones
 - [x] 6.4 Keep local `npm run ci` as the full sequential local gate
-- [ ] 6.5 Run all affected CI lanes directly
+- [x] 6.5 Run all affected CI lanes directly
 - [x] 6.6 Record expected remote before/after wall-clock hypothesis before pushing
 - [x] 6.7 Run `git diff --check`
-- [ ] 6.8 Commit workflow-shape changes as their own conventional commit
+- [x] 6.8 Commit workflow-shape changes as their own conventional commit
 
 # 7. Final Local Validation
 
-- [ ] 7.1 Run `npm run ci:env`
-- [ ] 7.2 Run `npm run ci:generated`
-- [ ] 7.3 Run `npm run ci:quality`
-- [ ] 7.4 Run `npm run ci:schemas`
-- [ ] 7.5 Run all CI lanes directly if lane orchestration changed
+- [x] 7.1 Run `npm run ci:env`
+- [x] 7.2 Run `npm run ci:generated`
+- [x] 7.3 Run `npm run ci:quality`
+- [x] 7.4 Run `npm run ci:schemas`
+- [x] 7.5 Run all CI lanes directly if lane orchestration changed
 - [ ] 7.6 Run full `npm run ci`
 - [ ] 7.7 Record final local validation in `investigation.md`
 

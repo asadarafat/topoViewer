@@ -351,3 +351,27 @@ That would be a 37-43% reduction from the latest 687s baseline and below the
 540s target. The exact result must be confirmed remotely because GitHub runner
 setup, dependency cache state, artifact transfer time, and Playwright install
 variance can dominate short lanes.
+
+## Workflow Shape Local Validation
+
+Affected lanes after the hybrid workflow split:
+
+| Command | Result | Duration |
+| --- | --- | ---: |
+| `npm run ci:env` | pass | 0.1s |
+| `npm run ci:generated` | pass | 1.1s |
+| `npm run ci:quality` | pass | 25.5s |
+| `npm run ci:schemas` | pass | 6.7s |
+| `npm run ci:docs` | pass | 58.9s |
+| `npm run ci:test:topoviewer` | pass | 29.8s |
+| `npm run ci:test:harness` | pass | 95.7s |
+| `npm run ci:perf:smoke` | pass | 12.6s |
+| `npm run ci:package` | pass | 49.0s |
+| `npm run ci:public-readiness:core` | pass | 42.1s |
+
+The first `ci:public-readiness:core` run found a stale contract assertion that
+still expected the old aggregate `ci-failure-artifacts` upload. The public
+readiness guardrail now checks the split job artifact names explicitly:
+`ci-docs-site`, `docs-failure-artifacts`,
+`topoviewer-test-failure-artifacts`, `harness-test-failure-artifacts`,
+`package-failure-artifacts`, and `public-readiness-failure-artifacts`.

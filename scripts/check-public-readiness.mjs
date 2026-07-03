@@ -517,7 +517,12 @@ function assertPackageAndCiContracts() {
   }
 
   const artifactRetentionExpectations = [
-    ['.github/workflows/ci.yml', 'name: ci-failure-artifacts', 'retention-days: 3'],
+    ['.github/workflows/ci.yml', 'name: ci-docs-site', 'retention-days: 1'],
+    ['.github/workflows/ci.yml', 'name: docs-failure-artifacts', 'retention-days: 3'],
+    ['.github/workflows/ci.yml', 'name: topoviewer-test-failure-artifacts', 'retention-days: 3'],
+    ['.github/workflows/ci.yml', 'name: harness-test-failure-artifacts', 'retention-days: 3'],
+    ['.github/workflows/ci.yml', 'name: package-failure-artifacts', 'retention-days: 3'],
+    ['.github/workflows/ci.yml', 'name: public-readiness-failure-artifacts', 'retention-days: 3'],
     ['.github/workflows/docs.yml', 'name: docs-failure-artifacts', 'retention-days: 3'],
     ['.github/workflows/security.yml', 'name: security-health-report', 'retention-days: 14'],
     ['.github/workflows/pypi-publish.yml', 'name: mkdocs-topoviewer-python-dist', 'retention-days: 14']
