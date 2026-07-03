@@ -1,0 +1,75 @@
+layout:
+  mode: manual
+  width: 1040
+  height: 280
+icons:
+  source:
+    glyph: SRC
+    fill: "#1565c0"
+    stroke: "#90caf9"
+  converter:
+    glyph: CVT
+    fill: "#6a1b9a"
+    stroke: "#ce93d8"
+  bundle:
+    glyph: YAML
+    fill: "#2e7d32"
+    stroke: "#a5d6a7"
+  surface:
+    glyph: OUT
+    fill: "#ef6c00"
+    stroke: "#ffcc80"
+labelFields:
+  - name
+stylesheet:
+  - selector: node
+    style:
+      shape: rectangle
+      width: 170
+      height: 68
+      borderWidth: 3
+      iconFit: fill
+      iconPadding: 0
+      labelFontSize: 12
+      labelFontWeight: 800
+      labelColor: var(--topoviewer-fg-strong)
+      labelBackgroundColor: var(--topoviewer-panel-bg)
+      labelBackgroundOpacity: 0.92
+      labelPadding: 4
+      metaColor: transparent
+  - selector: node[labels.object = "source"]
+    style:
+      icon: source
+      backgroundColor: "#1565c0"
+      borderColor: "#90caf9"
+  - selector: node[labels.object = "converter"]
+    style:
+      icon: converter
+      backgroundColor: "#6a1b9a"
+      borderColor: "#ce93d8"
+  - selector: node[labels.object = "bundle"]
+    style:
+      icon: bundle
+      backgroundColor: "#2e7d32"
+      borderColor: "#a5d6a7"
+  - selector: node[labels.object = "surface"]
+    style:
+      icon: surface
+      backgroundColor: "#ef6c00"
+      borderColor: "#ffcc80"
+  - selector: link
+    style:
+      curveStyle: straight
+      lineWidth: 4
+      lineColor: "#90a4ae"
+      targetArrowShape: triangle
+      targetArrowColor: "#90a4ae"
+      labelColor: var(--topoviewer-fg-strong)
+      labelFontSize: 11
+      labelFontWeight: 800
+      textBackgroundColor: var(--topoviewer-edge-label-bg)
+      labelZIndex: 10
+  - selector: link[labels.link = "contract"]
+    style:
+      lineColor: "#4caf50"
+      targetArrowColor: "#4caf50"

@@ -1,0 +1,67 @@
+graph:
+  id: adoption-converter-boundary
+  layers:
+    - id: story
+      name: Converter boundary
+  nodes:
+    - id: source-of-truth
+      name: Source of truth
+      labels:
+        object: source
+      layers:
+        - story
+      position:
+        - 120
+        - 140
+    - id: converter-adapter
+      name: Converter / adapter
+      labels:
+        object: converter
+      layers:
+        - story
+      position:
+        - 350
+        - 140
+    - id: topoviewer-bundle
+      name: TopoViewer YAML bundle
+      labels:
+        object: bundle
+      layers:
+        - story
+      position:
+        - 590
+        - 140
+    - id: render-surfaces
+      name: Many render surfaces
+      labels:
+        object: surface
+      layers:
+        - story
+      position:
+        - 850
+        - 140
+  links:
+    - id: truth-to-converter
+      name: collect
+      source: source-of-truth
+      target: converter-adapter
+      labels:
+        link: flow
+      layers:
+        - story
+    - id: converter-to-bundle
+      name: contract
+      source: converter-adapter
+      target: topoviewer-bundle
+      labels:
+        link: contract
+      layers:
+        - story
+    - id: bundle-to-surfaces
+      name: reuse
+      source: topoviewer-bundle
+      target: render-surfaces
+      labels:
+        link: flow
+      layers:
+        - story

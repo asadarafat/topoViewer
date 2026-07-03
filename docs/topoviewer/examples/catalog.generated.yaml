@@ -680,6 +680,18 @@ examples:
       minVisibleEdges: 8
       minRegions: 5
     readme: docs/topoviewer/examples/integration/grafana-telemetry-call-flow/README.md
+  - id: integration-adoption-portability
+    title: Adoption portability flows
+    feature: integration
+    path: integration/adoption-portability
+    page: topoviewer/evaluate/adopt-topoviewer-or-keep-topology-locked-to-a-surface
+    renderable: true
+    topology: docs/topoviewer/examples/integration/adoption-portability/topology.yaml
+    stylesheet: docs/topoviewer/examples/integration/adoption-portability/stylesheet.yaml
+    expected:
+      graphNodes: 4
+      minVisibleEdges: 3
+    readme: docs/topoviewer/examples/integration/adoption-portability/README.md
   - id: integration-kubernetes-service-map
     title: Kubernetes service map
     feature: integration

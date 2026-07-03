@@ -687,6 +687,21 @@ examples:
         - telemetry
         - runtime
         - diagnostics
+  - id: integration-adoption-portability
+    title: Adoption portability flows
+    feature: integration
+    path: integration/adoption-portability
+    publicPage: false
+    page: topoviewer/evaluate/adopt-topoviewer-or-keep-topology-locked-to-a-surface
+    summary: Portable topology-bundle and converter-boundary diagrams for the adoption evaluation page.
+    extraFiles:
+      - converter-boundary-topology.yaml
+      - converter-strength-topology.yaml
+    render:
+      height: 320px
+      controls: false
+      controlsOpen: false
+      title: Adoption portability flow
   - id: integration-kubernetes-service-map
     title: Kubernetes service map
     feature: integration

@@ -87,14 +87,13 @@ from.
 Instead of every documentation page, dashboard, portal, and export inventing its
 own version of the topology, TopoViewer provides a portable model:
 
-```text id="bz8s9f"
-source-of-truth data
-      ↓
-converter / adapter
-      ↓
-TopoViewer YAML bundle
-      ↓
-docs, portals, dashboards, exports
+```topoviewer
+topology: examples/integration/adoption-portability/topology.yaml
+stylesheet: examples/integration/adoption-portability/stylesheet.yaml
+height: 320px
+controls: false
+controlsOpen: false
+title: Portable topology bundle
 ```
 
 That is the difference.
@@ -155,7 +154,7 @@ TopoViewer changes the workflow from drawing-first to model-first.
 Instead of creating a topology directly inside one tool, the team maintains a
 portable topology bundle:
 
-```text id="2a4v8x"
+```text
 topology.yaml      stable topology identity
 stylesheet.yaml    visual policy
 mapper.yaml        runtime binding, when telemetry is used
@@ -340,14 +339,13 @@ language.
 
 The practical pattern is:
 
-```text id="yyh8r5"
-source of truth
-      ↓
-converter / adapter
-      ↓
-TopoViewer YAML bundle
-      ↓
-many render surfaces
+```topoviewer
+topology: examples/integration/adoption-portability/converter-boundary-topology.yaml
+stylesheet: examples/integration/adoption-portability/stylesheet.yaml
+height: 320px
+controls: false
+controlsOpen: false
+title: Converter boundary
 ```
 
 Yes, the converter must be built and maintained.
@@ -398,14 +396,13 @@ The converter is where the organization encodes that decision.
 
 That makes the topology pipeline explicit:
 
-```text id="hdmv62"
-raw infrastructure data
-      ↓
-domain-specific normalization
-      ↓
-stable topology identity
-      ↓
-reusable visualization bundle
+```topoviewer
+topology: examples/integration/adoption-portability/converter-strength-topology.yaml
+stylesheet: examples/integration/adoption-portability/stylesheet.yaml
+height: 320px
+controls: false
+controlsOpen: false
+title: Converter as explicit contract
 ```
 
 This is healthier than hiding the logic inside a dashboard panel or a custom UI.

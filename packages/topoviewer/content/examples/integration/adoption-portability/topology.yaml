@@ -1,0 +1,67 @@
+graph:
+  id: adoption-portability
+  layers:
+    - id: story
+      name: Adoption flow
+  nodes:
+    - id: source-data
+      name: Source-of-truth data
+      labels:
+        object: source
+      layers:
+        - story
+      position:
+        - 120
+        - 140
+    - id: converter-adapter
+      name: Converter / adapter
+      labels:
+        object: converter
+      layers:
+        - story
+      position:
+        - 350
+        - 140
+    - id: topoviewer-bundle
+      name: TopoViewer YAML bundle
+      labels:
+        object: bundle
+      layers:
+        - story
+      position:
+        - 590
+        - 140
+    - id: render-surfaces
+      name: Docs, portals, dashboards, exports
+      labels:
+        object: surface
+      layers:
+        - story
+      position:
+        - 850
+        - 140
+  links:
+    - id: source-to-converter
+      name: normalize
+      source: source-data
+      target: converter-adapter
+      labels:
+        link: flow
+      layers:
+        - story
+    - id: converter-to-bundle
+      name: emit
+      source: converter-adapter
+      target: topoviewer-bundle
+      labels:
+        link: contract
+      layers:
+        - story
+    - id: bundle-to-surfaces
+      name: render
+      source: topoviewer-bundle
+      target: render-surfaces
+      labels:
+        link: flow
+      layers:
+        - story
