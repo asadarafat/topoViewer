@@ -79,6 +79,7 @@ nav:
           - React: topoviewer/examples/use-cases/react.md
           - MkDocs: topoviewer/examples/use-cases/mkdocs.md
           - Static HTML / Zensical Adapter: topoviewer/examples/use-cases/static-html-zensical-adapter.md
+          - Single Page HTML: topoviewer/examples/use-cases/single-page-html.md
           - Harness: topoviewer/examples/use-cases/harness.md
           - Kubernetes Service Map: topoviewer/examples/use-cases/kubernetes-service-map/index.md
           - Service Provider Network: topoviewer/examples/use-cases/service-provider-network.md

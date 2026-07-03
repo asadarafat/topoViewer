@@ -32,6 +32,15 @@ same authored documentation can be mirrored into static HTML embeds.
 Use it when the target documentation runtime is not the MkDocs plugin but still
 needs the same TopoViewer viewport behavior.
 
+## Build A Single-Page HTML Demo
+
+[Single Page HTML](single-page-html.md) shows a no-build CodePen-style NOC
+replay that loads the published embed bundle, generates topology documents in
+memory, and remounts TopoViewer as incident state changes.
+
+Use it when you need the fastest possible application-style demo without a
+bundler or local project.
+
 ## Author In The Harness
 
 [Harness](harness.md) is the authoring loop. It lets an author

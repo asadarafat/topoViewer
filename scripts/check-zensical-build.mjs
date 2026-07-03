@@ -17,6 +17,7 @@ const requiredFiles = [
   'topoviewer/zensical-embed/index.html',
   'topoviewer/index.html',
   'topoviewer/examples/use-cases/service-provider-network/index.html',
+  'topoviewer/examples/use-cases/single-page-html/index.html',
   'topoviewer/start/why-topoviewer/index.html',
   'assets/topoviewer-yaml-to-diagram.png',
   'topoviewer/examples/attention/object-focus/index.html',

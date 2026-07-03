@@ -2,415 +2,382 @@
 
 **Support status:** Supported
 
-Install the public package with its React and React Flow peer dependencies.
+Use the React package when TopoViewer is part of a product surface: an internal
+portal, incident console, topology explorer, or customer-facing application.
+The application owns state and interaction. TopoViewer receives a document,
+selected layers, and optional attention state.
+
+## Try A React NOC Replay
+
+Create a small Vite app:
 
 ```bash
+npm create vite@latest topoviewer-noc-replay -- --template react-ts
+cd topoviewer-noc-replay
 npm install topoviewer @xyflow/react react react-dom
+npm run dev
 ```
 
-Import the component and stylesheet.
+Replace `src/App.tsx` with this component:
 
 ```tsx
+import { useMemo, useState } from 'react';
 import { TopoViewer, type TopoDocument } from 'topoviewer';
 import 'topoviewer/style.css';
+import './App.css';
 
-const documentSpec: TopoDocument = {
-  graph: {
-    layers: [{ id: 'physical', name: 'Physical' }],
-    nodes: [
-      { id: 'R01', name: 'R01', labels: { node: 'router' }, layers: ['physical'], position: [120, 160] },
-      { id: 'R02', name: 'R02', labels: { node: 'router' }, layers: ['physical'], position: [360, 160] }
-    ],
-    links: [
-      { id: 'R01-R02', source: 'R01', target: 'R02', labels: { link: 'physical' }, layers: ['physical'] }
-    ]
-  },
-  stylesheet: [
-    {
-      selector: 'node',
-      style: {
-        width: 82,
-        height: 60,
-        backgroundColor: '#6ea8fe',
-        borderColor: '#d8e8ff'
-      }
-    },
-    {
-      selector: 'link',
-      style: {
-        lineColor: '#6ea8fe',
-        lineWidth: 1
-      }
-    }
-  ]
+type Scenario = {
+  name: string;
+  title: string;
+  focus: string;
+  impact: string;
+  badNodes: string[];
+  badLinks: string[];
 };
 
-export function Diagram() {
+const scenarios: Scenario[] = [
+  {
+    name: 'T-00 Calm',
+    title: 'All systems nominal',
+    focus: 'grafana',
+    impact: '0%',
+    badNodes: [],
+    badLinks: []
+  },
+  {
+    name: 'T+07 Fiber cut',
+    title: 'Atlantic fiber cut, traffic drains east',
+    focus: 'lon-core',
+    impact: '18%',
+    badNodes: ['lon-core'],
+    badLinks: ['fiber-sfo-lon']
+  },
+  {
+    name: 'T+12 BGP leak',
+    title: 'Route leak detected, controller isolates peer',
+    focus: 'ams-edge',
+    impact: '41%',
+    badNodes: ['ams-edge', 'nrc'],
+    badLinks: ['bgp-ams-nrc', 'svc-game']
+  }
+];
+
+function includes(list: string[], id: string) {
+  return list.includes(id);
+}
+
+function node(
+  scenario: Scenario,
+  id: string,
+  name: string,
+  kind: string,
+  x: number,
+  y: number,
+  layers: string[]
+) {
+  return {
+    id,
+    name,
+    labels: {
+      kind,
+      health: includes(scenario.badNodes, id) ? 'critical' : 'ok'
+    },
+    layers,
+    position: [x, y] as [number, number]
+  };
+}
+
+function link(
+  scenario: Scenario,
+  id: string,
+  source: string,
+  target: string,
+  kind: string,
+  layers: string[]
+) {
+  return {
+    id,
+    source,
+    target,
+    labels: {
+      kind,
+      health: includes(scenario.badLinks, id) ? 'critical' : 'ok'
+    },
+    layers
+  };
+}
+
+function buildDocument(scenario: Scenario): TopoDocument {
+  return {
+    graph: {
+      id: 'noc-time-machine',
+      layers: [
+        { id: 'underlay', name: 'Underlay' },
+        { id: 'control', name: 'Control plane' },
+        { id: 'services', name: 'Services' },
+        { id: 'telemetry', name: 'Telemetry' }
+      ],
+      nodes: [
+        node(scenario, 'sfo-edge', 'SFO Edge', 'router', 90, 250, ['underlay', 'services']),
+        node(scenario, 'lon-core', 'London Core', 'router', 360, 160, ['underlay', 'control']),
+        node(scenario, 'ams-edge', 'AMS Edge', 'router', 650, 230, ['underlay', 'services', 'control']),
+        node(scenario, 'nsp', 'NSP Intent Brain', 'controller', 480, 40, ['control', 'telemetry']),
+        node(scenario, 'nrc', 'NRC Path Engine', 'controller', 720, 70, ['control']),
+        node(scenario, 'grafana', 'Grafana NOC Wall', 'controller', 180, 55, ['telemetry']),
+        node(scenario, 'game-pop', 'Game POP', 'customer', 930, 235, ['services'])
+      ],
+      links: [
+        link(scenario, 'fiber-sfo-lon', 'sfo-edge', 'lon-core', 'fiber', ['underlay']),
+        link(scenario, 'fiber-lon-ams', 'lon-core', 'ams-edge', 'fiber', ['underlay']),
+        link(scenario, 'bgp-lon-nsp', 'lon-core', 'nsp', 'control', ['control']),
+        link(scenario, 'bgp-ams-nrc', 'ams-edge', 'nrc', 'control', ['control']),
+        link(scenario, 'telemetry-sfo', 'sfo-edge', 'grafana', 'telemetry', ['telemetry']),
+        link(scenario, 'telemetry-ams', 'ams-edge', 'grafana', 'telemetry', ['telemetry']),
+        link(scenario, 'svc-game', 'ams-edge', 'game-pop', 'service', ['services'])
+      ],
+      regions: [
+        { id: 'west', name: 'US West', members: ['sfo-edge', 'grafana'] },
+        { id: 'europe', name: 'Europe Backbone', members: ['lon-core', 'ams-edge'] },
+        { id: 'control', name: 'Autonomous Control', members: ['nsp', 'nrc'] }
+      ]
+    },
+    stylesheet: [
+      {
+        selector: 'node',
+        style: {
+          shape: 'rectangle',
+          width: 96,
+          height: 58,
+          backgroundColor: '#0f172a',
+          borderColor: '#7dd3fc',
+          borderWidth: 2,
+          labelColor: '#e0f2fe',
+          labelFontWeight: 800
+        }
+      },
+      {
+        selector: 'node[labels.kind = "controller"]',
+        style: { backgroundColor: '#3b0764', borderColor: '#c084fc' }
+      },
+      {
+        selector: 'node[labels.kind = "customer"]',
+        style: { backgroundColor: '#052e16', borderColor: '#86efac' }
+      },
+      {
+        selector: 'node[labels.health = "critical"]',
+        style: { backgroundColor: '#450a0a', borderColor: '#fb7185', borderWidth: 5 }
+      },
+      {
+        selector: 'link',
+        style: {
+          lineColor: '#60a5fa',
+          lineWidth: 2,
+          lineOpacity: 0.72,
+          targetArrowShape: 'triangle',
+          targetArrowColor: '#60a5fa'
+        }
+      },
+      {
+        selector: 'link[labels.kind = "control"]',
+        style: { lineColor: '#c084fc', lineWidth: 3, lineStyle: 'dashed' }
+      },
+      {
+        selector: 'link[labels.kind = "service"]',
+        style: { lineColor: '#22c55e', lineWidth: 4 }
+      },
+      {
+        selector: 'link[labels.health = "critical"]',
+        style: { lineColor: '#fb7185', lineWidth: 7, lineOpacity: 1 }
+      },
+      {
+        selector: 'region',
+        style: {
+          backgroundColor: 'rgba(14,165,233,.07)',
+          borderColor: 'rgba(125,211,252,.28)',
+          borderWidth: 1,
+          labelColor: '#e0f2fe'
+        }
+      }
+    ]
+  };
+}
+
+export default function App() {
+  const [scenario, setScenario] = useState(scenarios[0]);
+  const document = useMemo(() => buildDocument(scenario), [scenario]);
+
   return (
-    <TopoViewer
-      document={documentSpec}
-      selectedLayerIds={['physical']}
-      toggles={{ showRegions: true, showEdgeLabels: false }}
-      style={{ height: 520 }}
-    />
+    <main className="appShell">
+      <aside className="panel">
+        <p className="eyebrow">React TopoViewer app</p>
+        <h1>NOC Time Machine</h1>
+        <p className="copy">
+          Application state drives topology labels. TopoViewer renders the
+          topology and attention state.
+        </p>
+        <strong>Customer impact: {scenario.impact}</strong>
+        {scenarios.map((item) => (
+          <button
+            key={item.name}
+            className={item.name === scenario.name ? 'active' : ''}
+            onClick={() => setScenario(item)}
+          >
+            {item.name}
+          </button>
+        ))}
+      </aside>
+      <section className="stage">
+        <header>
+          <span>Live topology replay</span>
+          <strong>{scenario.title}</strong>
+        </header>
+        <TopoViewer
+          document={document}
+          selectedLayerIds={['underlay', 'control', 'services', 'telemetry']}
+          attention={{ query: { ids: [scenario.focus], mode: 'dim-context' } }}
+          style={{ height: '100%' }}
+        />
+      </section>
+    </main>
   );
 }
 ```
 
-## Embedding Contract
+Replace `src/App.css` with:
 
-Most React applications only need the component, the document type, validation
-helpers, and the stylesheet:
+```css
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: radial-gradient(circle at top left, #18345f, #050914 48%, #02040a);
+  color: #e5f2ff;
+  font-family: Inter, system-ui, sans-serif;
+}
 
-```tsx
-import {
-  TopoViewer,
-  lintTopoDocument,
-  validateTopoDocument,
-  type TopoDocument,
-  type TopoViewerObjectClick,
-  type TopoViewerViewport
-} from 'topoviewer';
-import 'topoviewer/style.css';
-```
+.appShell {
+  display: grid;
+  grid-template-columns: 320px minmax(0, 1fr);
+  gap: 18px;
+  height: 100vh;
+  padding: 18px;
+  box-sizing: border-box;
+}
 
-Use the React page for embedding patterns and production behavior. Use the
-[TypeScript API](../../reference/typescript-api.md) reference when you need the complete export
-surface, stability label, and lower-level compiler, layout, style metadata,
-attention, or export helper contracts.
+.panel,
+.stage {
+  border: 1px solid rgba(125, 211, 252, .24);
+  background: rgba(5, 10, 24, .82);
+  border-radius: 18px;
+  overflow: hidden;
+}
 
-| Integration need | Primary API |
-|---|---|
-| Render a declarative topology | `TopoViewer` |
-| Type a parsed topology document | `TopoDocument` |
-| Reject malformed YAML before render | `validateTopoDocument` |
-| Show author-facing warnings and errors | `lintTopoDocument` |
-| React to graph selection | `onObjectClick` with `TopoViewerObjectClick` |
-| Persist pan/zoom state | `onViewportChange` with `TopoViewerViewport` |
-| Persist dragged node coordinates | `onNodePositionChange` |
-| Drive focus or dimming from host UI | `attention` prop |
-| Add private node/edge types or transforms | `extensions` prop |
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 18px;
+}
 
-## Framework-specific snippets
+.stage {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+}
 
-### Plain React (Vite/CRA)
+.stage header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 18px;
+  border-bottom: 1px solid rgba(148, 163, 184, .16);
+}
 
-```tsx
-import { useMemo } from 'react';
-import { parse } from 'yaml';
-import { TopoViewer, validateTopoDocument, type TopoDocument } from 'topoviewer';
-import 'topoviewer/style.css';
+.eyebrow {
+  color: #7dd3fc;
+  font-size: 12px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
 
-const rawTopology = `
-graph:
-  id: demo
-  layers:
-    - id: physical
-  nodes:
-    - id: R01
-      labels:
-        node: router
-      layers: [physical]
-`;
+.copy {
+  color: #a7b9d6;
+  line-height: 1.55;
+}
 
-export function TopologyPanel() {
-  const document = useMemo<TopoDocument>(() => {
-    return validateTopoDocument(parse(rawTopology), 'topology yaml');
-  }, []);
+button {
+  cursor: pointer;
+  border: 1px solid rgba(125, 211, 252, .25);
+  background: rgba(14, 165, 233, .12);
+  color: #dff7ff;
+  border-radius: 12px;
+  padding: 10px 12px;
+  text-align: left;
+  font: inherit;
+}
 
-  return <TopoViewer document={document} selectedLayerIds={['physical']} style={{ height: 640 }} />;
+button:hover,
+button.active {
+  background: linear-gradient(135deg, rgba(14, 165, 233, .34), rgba(168, 85, 247, .22));
+  border-color: rgba(125, 211, 252, .65);
 }
 ```
 
-### Next.js (App Router)
+## The UX Pattern
 
-`@xyflow/react` needs DOM APIs, so load TopoViewer client-side:
+This is a real React pattern, not a static embed trick:
 
-```tsx
-// app/topology/page.tsx
-import dynamic from 'next/dynamic';
-import 'topoviewer/style.css';
-
-const TopoViewer = dynamic(
-  () => import('topoviewer').then((m) => m.TopoViewer),
-  { ssr: false }
-);
-
-export default function TopologyPage() {
-  return <div className="h-[680px]"><TopoViewer document={documentSpec} style={{ height: '100%' }} /></div>;
-}
+```text
+click incident step
+  -> update React state
+  -> derive topology document
+  -> pass document and attention query to TopoViewer
+  -> inspect affected topology objects
 ```
 
-### Gatsby
+The host application owns the scenario list, buttons, customer impact, and
+incident title. TopoViewer owns graph rendering, styling, layer filtering, and
+attention dimming.
 
-Load TopoViewer inside browser-only components and avoid prerendering it as raw JSX in server-only paths.
+## The DevX Pattern
 
-```tsx
-import { TopoViewer } from 'topoviewer';
-import 'topoviewer/style.css';
+Keep this boundary in your product:
 
-export function TopologyIsland({ document }) {
-  return <TopoViewer document={document} style={{ height: 600 }} />;
-}
+```text
+application state
+  -> topology document
+  -> stylesheet rules
+  -> selected layers and attention query
+  -> <TopoViewer />
 ```
 
-## Static Export
+The topology document is ordinary typed data. You can generate it from API
+responses, source-of-truth data, local YAML, or a mapper result. The stylesheet
+stays separate so visual policy does not get copied into every incident branch.
 
-Standalone apps can export the rendered viewport for slides or documentation.
+Use `validateTopoDocument()` before rendering user-provided or remotely loaded
+documents. Use `lintTopoDocument()` when the UI should show warnings without
+blocking every draft.
 
-```tsx
-import { downloadTopoViewerPdf, downloadTopoViewerPng } from 'topoviewer';
+## Use This Pattern When
 
-const element = document.querySelector('.topoviewer') as HTMLElement;
-await downloadTopoViewerPng(element, {
-  fileName: 'subscriber-interface.png',
-  pixelRatio: 2
-});
+Use the React component when a product already has state and needs a topology
+view:
 
-await downloadTopoViewerPdf(element, {
-  fileName: 'subscriber-interface.pdf',
-  pixelRatio: 2
-});
-```
+- incident replay and NOC consoles;
+- service dependency drilldowns;
+- customer-impact views;
+- topology previews in internal portals;
+- generated topology from inventory or controller APIs;
+- controlled selection, attention, and viewport persistence.
 
-The export helper targets the internal React Flow viewport when present, so graph objects, shapes, callouts, and callout lines are captured together.
+Use the static embed path instead when you need a no-build HTML page, CodePen
+demo, MkDocs page, Zensical page, or another documentation-like surface.
 
-Focused and aggregate views export the current rendered attention state. SVG is the most inspectable target for preserving dimming, hidden context, aggregate objects, and label priority; PNG/PDF are snapshots of that rendered viewport.
+## Production Notes
 
-The package also exports TypeScript types for topology documents, graph entities, style rules, layout config, toggles, and component props.
+Memoize the `document`, selected layers, and attention query. Keep parsing,
+validation, and topology generation outside render hot paths. Persist stable
+topology source separately from runtime state so an incident replay cannot
+corrupt the long-lived topology model.
 
-## Attention Queries
-
-The attention runtime APIs are UI-independent. Build an index once for a topology document, then resolve focus queries for paths, regions, labels, data fields, selectors, or dependency traversal. See [Topology attention](../../author/attention.md) for the full TypeScript reference, aggregation examples, scoring options, and MkDocs syntax.
-
-```ts
-import { buildAttentionIndex, resolveFocusQuery } from 'topoviewer';
-
-const index = buildAttentionIndex(documentSpec);
-
-const pathFocus = resolveFocusQuery(index, {
-  pathIds: ['svc-1001'],
-  mode: 'dim-context'
-});
-
-const blastRadius = resolveFocusQuery(index, {
-  ids: ['pe-1'],
-  dependency: {
-    from: ['pe-1'],
-    direction: 'both',
-    depth: 2
-  },
-  mode: 'hide-context'
-});
-
-const changedSinceRevision = resolveFocusQuery(index, {
-  changes: {
-    since: '2026-06-01T00:00:00Z',
-    revision: 41
-  },
-  mode: 'dim-context'
-});
-
-console.log(Array.from(pathFocus.focusedIds));
-console.log(blastRadius.reasons.get('pe-1'));
-console.log(Array.from(changedSinceRevision.focusedIds));
-```
-
-`changes.since` checks common timestamp fields under `data.*`, including `changedAt`, `updatedAt`, `lastChangedAt`, and `modifiedAt`. `changes.revision` checks common revision fields such as `revision`, `version`, `changeRevision`, and `updatedRevision`. Numeric revisions are treated as increasing counters; opaque string revisions are treated as changed when they differ from the baseline.
-
-For repeated focus interactions, use the cached helpers around the same document facts:
-
-```ts
-import { resolveAttentionPresentationCached } from 'topoviewer';
-
-const presentation = resolveAttentionPresentationCached(documentSpec, {
-  query: {
-    pathIds: ['svc-1001'],
-    mode: 'dim-context'
-  }
-});
-```
-
-The React component reads a top-level `document.attention` block as the document default. The `attention` prop accepts the same state directly and overrides the document default for controlled React views:
-
-```tsx
-<TopoViewer
-  document={documentSpec}
-  attention={{
-    query: {
-      ids: ['pe-1'],
-      dependency: { from: ['pe-1'], direction: 'both', depth: 2 },
-      mode: 'dim-context'
-    }
-  }}
-/>
-```
-
-## Attention Metadata
-
-TopoViewer keeps attention metadata generic. Put operational signals in `data.*` and select them through focus queries, scoring, or host-owned UI:
-
-```yaml
-graph:
-  nodes:
-    - id: pe-1
-      labels:
-        role: pe
-        site: fra
-      data:
-        severity: critical
-        changedAt: "2026-06-12T09:15:00Z"
-        revision: 42
-```
-
-Built-in scoring recognizes common values such as `critical`, `major`, `minor`, `warning`, `degraded`, `down`, `maintenance`, and `changed` under fields like `severity`, `status`, `health`, `alarmSeverity`, `operState`, and `adminState`. Hosts can still define their own data fields and selectors without changing the graph schema.
-
-## Component Props
-
-| Prop | Type | Use |
-|---|---|---|
-| `document` | `TopoDocument` | Required topology plus stylesheet document. |
-| `selectedLayerIds` | `string[]` | Visible layers. Defaults to all defined layers. |
-| `selectedObjectIds` | `string[]` | Pre-select node, edge, path, region, or `linkDirection` object IDs in controlled modes. |
-| `toggles` | `TopoViewerToggles` | Display toggles such as `showRegions`, `showChildNodesInsideParents`, and `showEdgeLabels`. |
-| `layout` | `LayoutConfig` | Optional runtime layout override. |
-| `attention` | `{ query?: FocusQuery; presentation?: AttentionPresentationResult }` | Optional focus query or precomputed attention presentation. Overrides `document.attention` when provided. |
-| `extensions` | `TopoViewerExtension[]` | Optional extension hooks for project-specific node/edge types and compile transforms. |
-| `controlPanelToggle` | `{ enabled?: boolean; open?: boolean; onToggle?: () => void }` | Enables the in-viewport controls button used by embeds. |
-| `onObjectClick` | `(object: TopoViewerObjectClick) => void` | Called when a rendered node, edge, or directional link lane is clicked; useful for controlled attention state. |
-| `onPaneClick` | `() => void` | Called when empty viewport space is clicked; use it to clear controlled attention state. |
-| `onNodePositionChange` | `(change: TopoViewerNodePositionChange) => void` | Fired when a node drag ends. |
-| `onViewportChange` | `(viewport: TopoViewerViewport) => void` | Fired on pan/zoom commit; useful for sync/URL persistence. |
-| `onExport` | `() => void` | Fired when the internal export toolbar action is clicked. |
-| `className` | `string` | Extra class on the root container. |
-| `style` | `React.CSSProperties` | Inline root style, commonly used for height. |
-
-TopoViewer uses React Flow `fitView` so oversized diagrams fit into the
-available viewport, but automatic fit is capped at `zoom: 1`. React Flow's
-default scale is therefore the upper bound: small diagrams are not enlarged
-beyond authored coordinates, while large diagrams can still scale down.
-
-Directional link lanes emit `element: 'linkDirection'`. The event `id` is the
-direction object ID, and `data` includes `linkId`, `parentLinkId`, `direction`,
-`source`, and `target`. The parent physical link remains clickable as
-`element: 'edge'`, so controlled UIs can choose between selecting the whole
-adjacency or only one traffic direction.
-
-## Production Checklist
-
-- [ ] Validate documents with `validateTopoDocument` before rendering and show line-oriented errors to users.
-- [ ] Run `lintTopoDocument` in CI and editor pipelines.
-- [ ] Set explicit limits (`document.limits` or environment override) and monitor `rendererLimitUsage(...)` for guardrails.
-- [ ] Keep `document`, `layout`, and `attention` inputs memoized for stable referential updates.
-- [ ] Debounce user edits before recomputing attention to reduce layout churn.
-- [ ] Confirm export behavior for dark/light themes before release.
-- [ ] Add acceptance tests that cover selection, pane interactions, and attention mode transitions.
-- [ ] Verify hydration paths in SSR frameworks with no client-side DOM access before mount.
-
-## Error handling and caching guidance
-
-### Error handling
-
-- `validateTopoDocument()` throws on malformed topology documents and should be wrapped in a `try/catch` around authoring flows.
-- `lintTopoDocument()` is non-throwing and returns structured issues (`error` / `warning`) suitable for UI badges, editor diagnostics, and pre-commit checks.
-- `assertRendererLimits()` throws fast when payloads exceed production safety policy.
-
-```ts
-import { validateTopoDocument, lintTopoDocument, assertRendererLimits } from 'topoviewer';
-
-try {
-  const parsed = validateTopoDocument(rawDocument, 'customer topology');
-  const issues = lintTopoDocument(parsed, { requireNames: true });
-  if (issues.some((issue) => issue.severity === 'error')) {
-    throw new Error(issues.map((issue) => issue.message).join('\n'));
-  }
-  assertRendererLimits(parsed);
-  // render TopoViewer
-} catch (error) {
-  console.error('Topology load failed:', error);
-}
-```
-
-### SSR and caching
-
-- TopoViewer is browser-first because `@xyflow/react` depends on layout APIs; load it in client-only boundaries (`dynamic(..., { ssr: false })` in Next.js, browser-only Gatsby/React routes, or custom hydration guards).
-- Use cache-aware APIs when interaction is focus-heavy:
-  - `buildAttentionIndexCached`
-  - `resolveAttentionPresentationCached`
-- Prefer stable hashes over raw object references to cache expensive derived values for long-lived host pages.
-- Keep parsing/validation outside render and memoize stable inputs to avoid repeated schema and layout work.
-
-### Loading and versioning
-
-- Treat topology, stylesheet, and attention state as versioned application data.
-  Persist the source YAML or JSON next to the app version that produced it.
-- Run `migrateTopoDocument()` before validation when loading documents from
-  long-lived storage.
-- Render a non-TopoViewer loading state while YAML, schemas, or remote topology
-  data are still loading; avoid mounting the renderer with a partial document.
-- Keep `@xyflow/react`, `react`, and `react-dom` pinned through your lockfile.
-  Re-run visual regression checks after dependency updates because renderer
-  layout behavior is browser-visible.
-- For cached remote topology responses, cache the source document and the
-  validation result separately from runtime viewport, selection, and attention
-  state. That prevents stale operational state from being written back into the
-  declarative topology.
-
-## Extensions
-
-Extensions are the supported boundary for project-specific capability that should not be generalized into the public package. A private package can add custom React Flow node types, edge types, document transforms, or compiled-graph transforms without importing TopoViewer internals.
-
-```tsx
-import { TopoViewer, type TopoDocument, type TopoViewerExtension } from 'topoviewer';
-import { PremiumDeviceNode } from '@example/topoviewer-pro-devices';
-
-const proDevices: TopoViewerExtension = {
-  name: 'pro-devices',
-  nodeTypes: {
-    premiumDevice: PremiumDeviceNode
-  },
-  beforeCompile(document) {
-    return {
-      ...document,
-      icons: {
-        ...document.icons,
-        'router.premium': {
-          src: '/assets/pro/router.svg',
-          alt: 'Premium router'
-        }
-      }
-    };
-  },
-  afterCompile(graph) {
-    return {
-      ...graph,
-      nodes: graph.nodes.map((node) => {
-        const data = node.data as { labels?: Record<string, unknown> } | undefined;
-        if (data?.labels?.node !== 'premium-device') {
-          return node;
-        }
-        return {
-          ...node,
-          type: 'premiumDevice'
-        };
-      })
-    };
-  }
-};
-
-export function Diagram({ documentSpec }: { documentSpec: TopoDocument }) {
-  return <TopoViewer document={documentSpec} extensions={[proDevices]} style={{ height: 640 }} />;
-}
-```
-
-Keep extension packages separate from the core package when they contain customer-owned icon sets, customer-specific importers, private policy logic, or deployment-specific export workflows.
-
-## Validation
-
-Call `validateTopoDocument()` before rendering user-provided YAML.
-
-```ts
-const documentSpec = validateTopoDocument(parsedYaml, 'customer topology');
-```
-
-Validation is permissive about custom fields, but rejects malformed core graph objects. Surface validation errors to authors instead of silently rendering incomplete graphs.
+For complete prop names, validation helpers, export helpers, and extension
+hooks, use the [TypeScript API](../../reference/typescript-api.md) reference.
