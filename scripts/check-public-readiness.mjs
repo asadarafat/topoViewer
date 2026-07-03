@@ -264,7 +264,7 @@ function assertSecurityAutomation() {
     'gitleaks',
     'trivy-action',
     'security-health-report',
-    'actions/upload-artifact@v4',
+    'actions/upload-artifact@v7',
     '.artifacts/security-health/security-health-report.md',
     'continue-on-error: ${{ github.event_name == \'push\' || github.event_name == \'pull_request\' }}'
   ]);
