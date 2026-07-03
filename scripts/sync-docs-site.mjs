@@ -74,6 +74,7 @@ function pruneStaleContentPages() {
     'authoring.md',
     'browser-harness.md',
     'build-vs-adopt.md',
+    'evaluate/build-or-adopt.md',
     'compatibility.md',
     'debugging.md',
     'decisions.md',

@@ -148,7 +148,7 @@ function checkRequiredPages() {
     'examples/use-cases/static-html-zensical-adapter.md',
     'examples/use-cases/harness.md',
     'labs/grafana.md',
-    'evaluate/build-or-adopt.md',
+    'evaluate/adopt-topoviewer-or-build-a-renderer.md',
     'evaluate/architecture.md',
     'evaluate/threat-model.md',
     'evaluate/performance-reliability-accessibility.md',
@@ -628,7 +628,7 @@ function checkStartNavBoundary() {
     'topoviewer/maintainers/release.md',
     'topoviewer/maintainers/documentation-standard.md',
     'topoviewer/examples/use-cases/harness.md',
-    'topoviewer/evaluate/build-or-adopt.md',
+    'topoviewer/evaluate/adopt-topoviewer-or-build-a-renderer.md',
     'topoviewer/examples/yaml-to-network-diagram/index.md'
   ]);
 

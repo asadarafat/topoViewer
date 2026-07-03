@@ -96,7 +96,7 @@ nav:
       - Compatibility: topoviewer/reference/compatibility.md
       - Glossary: topoviewer/reference/glossary.md
   - Evaluate:
-      - Build Or Adopt: topoviewer/evaluate/build-or-adopt.md
+      - Adopt TopoViewer Or Build A Renderer: topoviewer/evaluate/adopt-topoviewer-or-build-a-renderer.md
       - Architecture: topoviewer/evaluate/architecture.md
       - Performance, Reliability, Accessibility: topoviewer/evaluate/performance-reliability-accessibility.md
       - Threat Model: topoviewer/evaluate/threat-model.md

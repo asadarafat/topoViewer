@@ -185,7 +185,7 @@ function assertArchitectureAndThreatModelDocs() {
     'Runtime Review',
     'Documentation Review'
   ]);
-  assertFile('packages/topoviewer/content/pages/evaluate/build-or-adopt.md', [
+  assertFile('packages/topoviewer/content/pages/evaluate/adopt-topoviewer-or-build-a-renderer.md', [
     'What You Would Need To Build Internally',
     'Where TopoViewer Has Leverage',
     'When Not To Use TopoViewer',
