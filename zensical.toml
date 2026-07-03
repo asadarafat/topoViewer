@@ -1,5 +1,5 @@
 [project]
-site_name = "TopoViewer Zensical"
+site_name = "TopoViewer"
 site_description = "Parallel Zensical documentation preview for TopoViewer."
 site_author = "TopoViewer contributors"
 site_url = "https://asadarafat.github.io/topoviewer/docs/zensical/"
