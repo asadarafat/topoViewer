@@ -24,7 +24,6 @@ const lintTargets = {
         'scripts',
         'labs/grafana-topoviewer/scripts',
         'labs/grafana-topoviewer/containerlab/scripts',
-        'labs/grafana-topoviewer/containerlab/normalizer',
         '--ignore-path',
         '.gitignore'
       ]

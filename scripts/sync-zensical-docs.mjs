@@ -225,7 +225,7 @@ function isPublicExamplePage(relativePath) {
     'topoviewer/examples/use-cases/static-html-zensical-adapter.md',
     'topoviewer/examples/use-cases/single-page-html.md',
     'topoviewer/examples/use-cases/harness.md',
-    'topoviewer/examples/use-cases/grafana-topoviewer-containerlab-lab.md',
+    'topoviewer/examples/use-cases/grafana-topoviewer-panel.md',
     'topoviewer/examples/use-cases/service-provider-network.md',
     'topoviewer/examples/use-cases/kubernetes-service-map/index.md',
     'topoviewer/examples/yaml-to-network-diagram/index.md',

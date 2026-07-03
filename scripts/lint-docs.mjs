@@ -29,7 +29,7 @@ const integrationStatusPages = [
   ['examples/use-cases/static-html-zensical-adapter.md', 'Supported Adapter'],
   ['examples/use-cases/single-page-html.md', 'Supported Adapter'],
   ['examples/use-cases/harness.md', 'Experimental'],
-  ['examples/use-cases/grafana-topoviewer-containerlab-lab.md', 'Lab'],
+  ['examples/use-cases/grafana-topoviewer-panel.md', 'Lab'],
   ['labs/grafana.md', 'Experimental'],
   ['evaluate/integration-roadmap.md', 'Roadmap'],
   ['labs/grafana-telemetry-call-flow.md', 'Lab']
@@ -156,7 +156,7 @@ function checkRequiredPages() {
     'evaluate/performance-reliability-accessibility.md',
     'examples/object-family-examples.md',
     'examples/use-cases/service-provider-network.md',
-    'examples/use-cases/grafana-topoviewer-containerlab-lab.md',
+    'examples/use-cases/grafana-topoviewer-panel.md',
     'examples/use-cases/index.md',
     'reference/object-attributes.md',
     'reference/typescript-api.md',
@@ -712,7 +712,7 @@ function checkExamplesNavBoundary() {
     ['Harness', 'topoviewer/examples/use-cases/harness.md'],
     ['Kubernetes Service Map', 'topoviewer/examples/use-cases/kubernetes-service-map/index.md'],
     ['Service Provider Network', 'topoviewer/examples/use-cases/service-provider-network.md'],
-    ['Grafana TopoViewer Containerlab Lab', 'topoviewer/examples/use-cases/grafana-topoviewer-containerlab-lab.md']
+    ['Grafana TopoViewer Panel', 'topoviewer/examples/use-cases/grafana-topoviewer-panel.md']
   ]);
 
   for (const [label, target] of requiredUseCases) {

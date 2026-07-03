@@ -110,7 +110,7 @@ function pruneStaleContentPages() {
     'validate-yaml.md',
     'why-topoviewer.md',
     'tools/browser-harness.md',
-    'labs/grafana-topoviewer-containerlab-lab.md',
+    'labs/grafana-topoviewer-panel.md',
     'real-network-demo',
     'examples/real-network-demo.md',
     'examples/service-provider-network.md',

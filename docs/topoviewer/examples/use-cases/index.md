@@ -75,7 +75,7 @@ maintaining separate static diagrams.
 
 ## Operate In Grafana
 
-[Grafana TopoViewer Containerlab Lab](grafana-topoviewer-containerlab-lab.md)
+[Grafana TopoViewer Panel](grafana-topoviewer-panel.md)
 shows the mounted-bundle workflow:
 
 ```text

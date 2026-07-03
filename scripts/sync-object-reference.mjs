@@ -568,7 +568,7 @@ const content = [
   '',
   '- [Reference model](reference-model.md) for the conceptual model;',
   '- [TopoViewer Stylesheet](topoviewer-stylesheet.md) for detailed style-key accepted values and examples;',
-  '- [Grafana TopoViewer Containerlab Lab](../examples/use-cases/grafana-topoviewer-containerlab-lab.md) for mapper workflow and telemetry examples;',
+  '- [Grafana TopoViewer Panel](../examples/use-cases/grafana-topoviewer-panel.md) for mapper workflow and telemetry examples;',
   '- [YAML schemas](yaml-schemas.md) for editor configuration and validation commands.',
   '',
   '## Topology And Stylesheet Objects',

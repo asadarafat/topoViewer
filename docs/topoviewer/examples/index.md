@@ -87,7 +87,7 @@ documentation, topology imports, or operational dashboards.
 | [Harness](use-cases/harness.md) | Author topology, stylesheet, and mapper YAML while keeping the canvas on the last valid applied state. |
 | [Kubernetes Service Map](use-cases/kubernetes-service-map/index.md) | Convert Kubernetes and EDA inventory into a reviewable service map. |
 | [Service Provider Network](use-cases/service-provider-network.md) | Render one provider topology as underlay, BGP, transport, service path, and failure view. |
-| [Grafana TopoViewer Containerlab Lab](use-cases/grafana-topoviewer-containerlab-lab.md) | Mount topology/style/mapper bundles into Grafana and drive runtime overlays from telemetry. |
+| [Grafana TopoViewer Panel](use-cases/grafana-topoviewer-panel.md) | Mount topology/style/mapper bundles into Grafana and drive runtime overlays from telemetry. |
 
 Open [Use Cases](use-cases/index.md) when you want the applied examples grouped by
 workflow instead of by object family.

@@ -675,7 +675,7 @@ examples:
     feature: integration
     path: integration/grafana-telemetry-call-flow
     publicPage: false
-    page: topoviewer/examples/use-cases/grafana-topoviewer-containerlab-lab
+    page: topoviewer/examples/use-cases/grafana-topoviewer-panel
     summary: A production call-flow diagram for mounted TopoViewer bundles, Grafana plugin boundaries, Prometheus data frames, mapper execution, runtime overlays, and diagnostics.
     render:
       height: 520px

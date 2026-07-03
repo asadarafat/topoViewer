@@ -50,7 +50,6 @@ function removeStaleGeneratedPaths() {
     'topoviewer/examples/use-cases.md',
     'topoviewer/examples/kubernetes-service-map',
     'topoviewer/examples/service-provider-network',
-    'topoviewer/labs/grafana-topoviewer-containerlab-lab.md',
     'topoviewer/reference/graph',
     'topoviewer/reference/nodes',
     'topoviewer/reference/edges',

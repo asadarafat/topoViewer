@@ -671,7 +671,7 @@ examples:
     title: Grafana telemetry call flow
     feature: integration
     path: integration/grafana-telemetry-call-flow
-    page: topoviewer/examples/use-cases/grafana-topoviewer-containerlab-lab
+    page: topoviewer/examples/use-cases/grafana-topoviewer-panel
     renderable: true
     topology: docs/topoviewer/examples/integration/grafana-telemetry-call-flow/topology.yaml
     stylesheet: docs/topoviewer/examples/integration/grafana-telemetry-call-flow/stylesheet.yaml

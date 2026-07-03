@@ -15,11 +15,11 @@ page when available. Keep deeper rationale in the linked artifact.
 | ADR-0001 | Accepted | TopoViewer canonical authoring keys are camelCase across TypeScript and YAML. | Stylesheet and schema authoring. | [Stylesheet](../reference/topoviewer-stylesheet.md), [Compatibility](../reference/compatibility.md) |
 | ADR-0002 | Accepted | Default node shape is `rectangle`; `square` and `circle` require equal width and height. | Style defaults and validation. | [Stylesheet](../reference/topoviewer-stylesheet.md), [Debug rendering](../author/debug-rendering.md) |
 | ADR-0003 | Accepted | `packages/topoviewer/content/**` is the canonical docs/examples source; generated docs are projections. | Docs and examples ownership. | [Documentation standard](./documentation-standard.md), [Production hardening](./production-hardening.md) |
-| ADR-0004 | Accepted | Grafana user workflow is mounted `*.topo.tv.yaml`, `*.style.tv.yaml`, and `*.mapper.tv.yaml` bundles, not fixture catalog edits. | Grafana integration. | [Grafana TopoViewer Containerlab Lab](../examples/use-cases/grafana-topoviewer-containerlab-lab.md) |
+| ADR-0004 | Accepted | Grafana user workflow is mounted `*.topo.tv.yaml`, `*.style.tv.yaml`, and `*.mapper.tv.yaml` bundles, not fixture catalog edits. | Grafana integration. | [Grafana TopoViewer Panel](../examples/use-cases/grafana-topoviewer-panel.md) |
 | ADR-0005 | Accepted | Public npm publication is manual and gated; normal push/PR workflows never publish packages. | Release and supply chain. | [Release checklist](./release.md), [Compatibility](../reference/compatibility.md) |
 | ADR-0006 | Accepted | Active OpenSpec changes are plans, not public support claims. | Roadmap and support status. | [Integration roadmap](../evaluate/integration-roadmap.md), [Documentation standard](./documentation-standard.md) |
 | ADR-0007 | Accepted | Host documentation CSS may affect TopoViewer color variables, but not renderer geometry, spacing, or sizing. | Renderer surface parity. | [Debug rendering](../author/debug-rendering.md), [Production hardening](./production-hardening.md) |
-| ADR-0008 | Accepted | Runtime telemetry overlays must not mutate topology or stylesheet source YAML. | Grafana mapper and operational state. | [Grafana TopoViewer Containerlab Lab](../examples/use-cases/grafana-topoviewer-containerlab-lab.md), [Browser harness](../examples/use-cases/harness.md) |
+| ADR-0008 | Accepted | Runtime telemetry overlays must not mutate topology or stylesheet source YAML. | Grafana mapper and operational state. | [Grafana TopoViewer Panel](../examples/use-cases/grafana-topoviewer-panel.md), [Browser harness](../examples/use-cases/harness.md) |
 
 ## New Decision Checklist
 
