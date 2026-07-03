@@ -7,19 +7,19 @@ const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'
 const zensicalSite = path.join(repoRoot, 'site/docs/zensical');
 const zensicalDocsRoot = path.join(repoRoot, '.artifacts/zensical-docs');
 const adapterPage = path.join(zensicalSite, 'topoviewer/zensical-embed/index.html');
-const mirroredExamplePage = path.join(zensicalSite, 'topoviewer/reference/attention/object-focus/index.html');
-const realNetworkDemoPage = path.join(zensicalSite, 'topoviewer/examples/real-network-demo/index.html');
+const mirroredExamplePage = path.join(zensicalSite, 'topoviewer/examples/attention/object-focus/index.html');
+const serviceProviderNetworkPage = path.join(zensicalSite, 'topoviewer/examples/use-cases/service-provider-network/index.html');
 const whyTopoViewerPage = path.join(zensicalSite, 'topoviewer/start/why-topoviewer/index.html');
-const mirroredExampleSource = path.join(zensicalDocsRoot, 'topoviewer/reference/attention/object-focus/index.md');
+const mirroredExampleSource = path.join(zensicalDocsRoot, 'topoviewer/examples/attention/object-focus/index.md');
 const zensicalCssPath = path.join(zensicalSite, 'assets/topoviewer/topoviewer-zensical.css');
 const requiredFiles = [
   'index.html',
   'topoviewer/zensical-embed/index.html',
   'topoviewer/index.html',
-  'topoviewer/examples/real-network-demo/index.html',
+  'topoviewer/examples/use-cases/service-provider-network/index.html',
   'topoviewer/start/why-topoviewer/index.html',
   'assets/topoviewer-yaml-to-diagram.png',
-  'topoviewer/reference/attention/object-focus/index.html',
+  'topoviewer/examples/attention/object-focus/index.html',
   'assets/topoviewer/topoviewer-embed.css',
   'assets/topoviewer/topoviewer-embed.iife.js',
   'assets/topoviewer/topoviewer-zensical.css',
@@ -98,20 +98,20 @@ for (const needle of [
   }
 }
 
-const realNetworkHtml = fs.readFileSync(realNetworkDemoPage, 'utf8');
+const realNetworkHtml = fs.readFileSync(serviceProviderNetworkPage, 'utf8');
 for (const needle of [
   'class="topoviewer-embed topoviewer-parity-theme"',
-  'data-topology="../../../assets/topoviewer/examples/integration/real-network-underlay/topology.yaml"',
-  'data-stylesheet="../../../assets/topoviewer/examples/integration/real-network-underlay/stylesheet.yaml"',
+  'data-topology="../../../../assets/topoviewer/examples/integration/real-network-underlay/topology.yaml"',
+  'data-stylesheet="../../../../assets/topoviewer/examples/integration/real-network-underlay/stylesheet.yaml"',
   'data-selected-layer-ids="[&quot;underlay&quot;]"',
-  'data-topology="../../../assets/topoviewer/examples/integration/real-network-bgp/topology.yaml"',
+  'data-topology="../../../../assets/topoviewer/examples/integration/real-network-bgp/topology.yaml"',
   'data-selected-layer-ids="[&quot;underlay&quot;,&quot;bgp&quot;]"',
-  'data-topology="../../../assets/topoviewer/examples/integration/real-network-transport-layer/topology.yaml"',
-  'data-stylesheet="../../../assets/topoviewer/examples/integration/real-network-transport-layer/stylesheet.yaml"',
+  'data-topology="../../../../assets/topoviewer/examples/integration/real-network-transport-layer/topology.yaml"',
+  'data-stylesheet="../../../../assets/topoviewer/examples/integration/real-network-transport-layer/stylesheet.yaml"',
   'data-selected-layer-ids="[&quot;underlay&quot;,&quot;bgp&quot;,&quot;transport&quot;]"',
-  'data-topology="../../../assets/topoviewer/examples/integration/real-network-service-path/topology.yaml"',
+  'data-topology="../../../../assets/topoviewer/examples/integration/real-network-service-path/topology.yaml"',
   'data-selected-layer-ids="[&quot;underlay&quot;,&quot;bgp&quot;,&quot;transport&quot;,&quot;service&quot;]"',
-  'data-topology="../../../assets/topoviewer/examples/integration/real-network-failure-view/topology.yaml"',
+  'data-topology="../../../../assets/topoviewer/examples/integration/real-network-failure-view/topology.yaml"',
   'data-selected-layer-ids="[&quot;underlay&quot;,&quot;bgp&quot;,&quot;transport&quot;,&quot;service&quot;,&quot;operations&quot;]"',
   'data-attention="{&quot;query&quot;:{&quot;pathIds&quot;:[&quot;payments-primary&quot;],&quot;mode&quot;:&quot;dim-context&quot;}}"'
 ]) {

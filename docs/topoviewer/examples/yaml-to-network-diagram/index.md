@@ -5,28 +5,24 @@ hide:
 
 # YAML to network diagram
 
-## What This Demonstrates
+## From YAML To A Network Diagram
 
-This before/after example starts with topology YAML and a selector stylesheet, then renders the underlay slice from the Real Network Demo. It shows the core TopoViewer contract: graph facts stay declarative, while visual policy turns router roles, regions, layers, and operational state into a readable network diagram.
+This example is the smallest product story: topology facts are written once,
+then a stylesheet turns those facts into a readable network diagram.
 
-## Expected Result
+The topology file describes the provider underlay slice: routers, links, layers,
+regions, and metadata. The stylesheet decides how router roles, labels, regions,
+and link state should look. That separation is the point. The diagram can be
+reviewed and regenerated without redrawing boxes and lines by hand.
 
-The live viewport should render "YAML to network diagram" without blocking diagnostics. It should show: A compact before/after example using the same provider underlay slice as the Real Network Demo. The test metadata expects `graphNodes`: `4`, `minVisibleEdges`: `3`, `minRegions`: `3`.
-
-## What To Inspect
-
-- Inspect the topology YAML for semantic objects.
-- Inspect the stylesheet YAML for the visual contract.
-
-## Use When
-
-Use this pattern when documenting how TopoViewer fits into another system, dashboard, or operational workflow.
+Use this page before the larger real-network and Kubernetes examples. It shows
+the same contract those examples use, but with fewer moving parts.
 
 === "Live Viewport"
 
     ```topoviewer
-    topology: ../integration/yaml-to-network-diagram/topology.yaml
-    stylesheet: ../integration/yaml-to-network-diagram/stylesheet.yaml
+    topology: examples/integration/yaml-to-network-diagram/topology.yaml
+    stylesheet: examples/integration/yaml-to-network-diagram/stylesheet.yaml
     height: 520px
     controls: true
     controlsOpen: false
@@ -46,3 +42,8 @@ Use this pattern when documenting how TopoViewer fits into another system, dashb
     ```yaml
     --8<-- "docs/topoviewer/examples/integration/yaml-to-network-diagram/stylesheet.yaml"
     ```
+
+The rendered result should show the underlay layer from the Service Provider
+Network example: four infrastructure nodes, the physical links between them, and
+the regions that make the topology easier to scan. The same graph facts are
+reused later for BGP, transport, service-path, and failure views.

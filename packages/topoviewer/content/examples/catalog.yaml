@@ -4,7 +4,7 @@ examples:
     title: Graph basic
     feature: graph
     path: graph/basic
-    page: topoviewer/reference/graph/basic
+    page: topoviewer/examples/graph/basic
     summary: A minimal graph with two nodes and one named link.
     render:
       height: 420px
@@ -15,7 +15,7 @@ examples:
     title: Labels and data
     feature: graph
     path: graph/labels-and-data
-    page: topoviewer/reference/graph/labels-and-data
+    page: topoviewer/examples/graph/labels-and-data
     summary: Classification lives in `labels`; operational values live in `data`.
     render:
       height: 420px
@@ -26,7 +26,7 @@ examples:
     title: Parent and child nodes
     feature: graph
     path: graph/parent-child-nodes
-    page: topoviewer/reference/graph/parent-child-nodes
+    page: topoviewer/examples/graph/parent-child-nodes
     summary: Logical nodes can be nested inside physical parent nodes.
     render:
       height: 420px
@@ -37,7 +37,7 @@ examples:
     title: Named node shapes
     feature: nodes
     path: nodes/named-node-shapes
-    page: topoviewer/reference/nodes/named-node-shapes
+    page: topoviewer/examples/nodes/named-node-shapes
     summary: Node body shape can encode device or service role without changing graph facts.
     render:
       height: 440px
@@ -48,7 +48,7 @@ examples:
     title: Custom polygon node
     feature: nodes
     path: nodes/custom-polygon-shape
-    page: topoviewer/reference/nodes/custom-polygon-shape
+    page: topoviewer/examples/nodes/custom-polygon-shape
     summary: Polygon node bodies use normalized x/y point pairs through `shapePolygonPoints`.
     render:
       height: 420px
@@ -59,7 +59,7 @@ examples:
     title: Node label placement
     feature: nodes
     path: nodes/label-placement
-    page: topoviewer/reference/nodes/label-placement
+    page: topoviewer/examples/nodes/label-placement
     summary: Node labels can be placed around or inside node bodies with wrapping and backing controls.
     render:
       height: 420px
@@ -70,7 +70,7 @@ examples:
     title: Border, outline, and underlay
     feature: nodes
     path: nodes/border-outline-underlay
-    page: topoviewer/reference/nodes/border-outline-underlay
+    page: topoviewer/examples/nodes/border-outline-underlay
     summary: Node border, outline, and underlay controls provide operational emphasis without changing graph facts.
     render:
       height: 420px
@@ -81,7 +81,7 @@ examples:
     title: Icon fit and badges
     feature: nodes
     path: nodes/icon-fit-and-badges
-    page: topoviewer/reference/nodes/icon-fit-and-badges
+    page: topoviewer/examples/nodes/icon-fit-and-badges
     summary: Icon fit, badges, and status markers add compact node-level signals.
     render:
       height: 420px
@@ -92,7 +92,7 @@ examples:
     title: Edge curve styles
     feature: edges
     path: edges/curve-styles
-    page: topoviewer/reference/edges/curve-styles
+    page: topoviewer/examples/edges/curve-styles
     summary: Different `curveStyle` values produce different edge routing models.
     render:
       height: 420px
@@ -103,7 +103,7 @@ examples:
     title: Arrows, dashes, and labels
     feature: edges
     path: edges/arrows-dashes-labels
-    page: topoviewer/reference/edges/arrows-dashes-labels
+    page: topoviewer/examples/edges/arrows-dashes-labels
     summary: Edges can carry labels, arrows, dash patterns, and dash offsets without changing topology semantics.
     render:
       height: 420px
@@ -114,7 +114,7 @@ examples:
     title: Arrow and label controls
     feature: edges
     path: edges/arrow-label-controls
-    page: topoviewer/reference/edges/arrow-label-controls
+    page: topoviewer/examples/edges/arrow-label-controls
     summary: Directional arrow and endpoint label styles can be controlled independently.
     render:
       height: 420px
@@ -125,7 +125,7 @@ examples:
     title: Endpoint spacing and routing
     feature: edges
     path: edges/endpoint-spacing-routing
-    page: topoviewer/reference/edges/endpoint-spacing-routing
+    page: topoviewer/examples/edges/endpoint-spacing-routing
     summary: Endpoint spacing, segment controls, and taxi controls make edge routes explicit.
     render:
       height: 420px
@@ -136,7 +136,7 @@ examples:
     title: Gradient and interaction flags
     feature: edges
     path: edges/gradient-and-interaction
-    page: topoviewer/reference/edges/gradient-and-interaction
+    page: topoviewer/examples/edges/gradient-and-interaction
     summary: Linear gradients and interaction flags can be declared directly on edge style rules.
     render:
       height: 420px
@@ -147,7 +147,7 @@ examples:
     title: Floating anchors
     feature: edges
     path: edges/floating-anchors
-    page: topoviewer/reference/edges/floating-anchors
+    page: topoviewer/examples/edges/floating-anchors
     summary: Floating anchors connect to the nearest point on each node boundary.
     render:
       height: 420px
@@ -158,7 +158,7 @@ examples:
     title: Parent link pipe
     feature: edges
     path: edges/parent-link-pipe
-    page: topoviewer/reference/edges/parent-link-pipe
+    page: topoviewer/examples/edges/parent-link-pipe
     summary: A child link can be visually carried inside a parent transport link.
     render:
       height: 420px
@@ -169,7 +169,7 @@ examples:
     title: Directional link strokes
     feature: edges
     path: edges/directional-link-strokes
-    page: topoviewer/reference/edges/directional-link-strokes
+    page: topoviewer/examples/edges/directional-link-strokes
     summary: One physical link can show two independently styled traffic directions.
     render:
       height: 420px
@@ -180,7 +180,7 @@ examples:
     title: Sequenced path
     feature: paths
     path: paths/sequenced-path
-    page: topoviewer/reference/paths/sequenced-path
+    page: topoviewer/examples/paths/sequenced-path
     summary: A path sequence models ordered traversal through graph nodes.
     render:
       height: 420px
@@ -191,7 +191,7 @@ examples:
     title: Stitched child path
     feature: paths
     path: paths/stitched-child-path
-    page: topoviewer/reference/paths/stitched-child-path
+    page: topoviewer/examples/paths/stitched-child-path
     summary: A child service path can stitch from child endpoints into a parent transport path.
     render:
       height: 420px
@@ -202,7 +202,7 @@ examples:
     title: Object focus
     feature: attention
     path: attention/object-focus
-    page: topoviewer/reference/attention/object-focus
+    page: topoviewer/examples/attention/object-focus
     summary: Click one topology object to highlight it while dimming the surrounding context.
     render:
       height: 420px
@@ -213,7 +213,7 @@ examples:
     title: Change focus
     feature: attention
     path: attention/change-focus
-    page: topoviewer/reference/attention/change-focus
+    page: topoviewer/examples/attention/change-focus
     summary: Focus objects with recent change metadata while preserving topology context.
     render:
       height: 520px
@@ -224,7 +224,7 @@ examples:
     title: Region collapse
     feature: attention
     path: attention/region-collapse
-    page: topoviewer/reference/attention/region-collapse
+    page: topoviewer/examples/attention/region-collapse
     summary: Collapse a region into an aggregate summary, then click it to expand member nodes.
     sourceFiles:
       stylesheet: _shared/attention-region-style.yaml
@@ -237,7 +237,7 @@ examples:
     title: Dense summary drill-down
     feature: attention
     path: attention/dense-summary-drilldown
-    page: topoviewer/reference/attention/dense-summary-drilldown
+    page: topoviewer/examples/attention/dense-summary-drilldown
     summary: Keep dense metro topologies readable with summary nodes, counted full-mesh links, and explicit click-to-expand drill-down.
     render:
       height: 560px
@@ -248,7 +248,7 @@ examples:
     title: Advanced zoom policy
     feature: attention
     path: attention/advanced-zoom-policy
-    page: topoviewer/reference/attention/advanced-zoom-policy
+    page: topoviewer/examples/attention/advanced-zoom-policy
     summary: Optionally bind aggregate expansion to zoom thresholds when a host needs map-style overview/detail transitions.
     render:
       height: 500px
@@ -259,7 +259,7 @@ examples:
     title: Link grouping
     feature: attention
     path: attention/link-grouping
-    page: topoviewer/reference/attention/link-grouping
+    page: topoviewer/examples/attention/link-grouping
     summary: Group parallel links by endpoint and layer when the count crosses a threshold.
     render:
       height: 440px
@@ -270,7 +270,7 @@ examples:
     title: Query primitives
     feature: attention
     path: attention/query-primitives
-    page: topoviewer/reference/attention/query-primitives
+    page: topoviewer/examples/attention/query-primitives
     summary: Focus by explicit IDs, labels, data fields, and stylesheet-compatible selectors.
     render:
       height: 460px
@@ -281,7 +281,7 @@ examples:
     title: Region focus
     feature: attention
     path: attention/region-focus
-    page: topoviewer/reference/attention/region-focus
+    page: topoviewer/examples/attention/region-focus
     summary: Focus a region and its member nodes while preserving surrounding context.
     sourceFiles:
       stylesheet: _shared/attention-region-style.yaml
@@ -294,7 +294,7 @@ examples:
     title: Dependency focus
     feature: attention
     path: attention/dependency-focus
-    page: topoviewer/reference/attention/dependency-focus
+    page: topoviewer/examples/attention/dependency-focus
     summary: Traverse directed topology relationships to show downstream blast radius.
     render:
       height: 460px
@@ -305,7 +305,7 @@ examples:
     title: Hide context
     feature: attention
     path: attention/hide-context
-    page: topoviewer/reference/attention/hide-context
+    page: topoviewer/examples/attention/hide-context
     summary: Use hide-context mode when the focused set should be isolated instead of dimmed.
     render:
       height: 440px
@@ -316,7 +316,7 @@ examples:
     title: Parent and label collapse
     feature: attention
     path: attention/parent-label-collapse
-    page: topoviewer/reference/attention/parent-label-collapse
+    page: topoviewer/examples/attention/parent-label-collapse
     summary: Collapse parent-child objects and label-defined groups into aggregate summaries.
     render:
       height: 500px
@@ -327,7 +327,7 @@ examples:
     title: Aggregate badge and status
     feature: attention
     path: attention/aggregate-badge-status
-    page: topoviewer/reference/attention/aggregate-badge-status
+    page: topoviewer/examples/attention/aggregate-badge-status
     summary: Collapsed aggregate summaries can expose hidden member count and worst severity as compact node cues.
     render:
       height: 420px
@@ -338,7 +338,7 @@ examples:
     title: Nested regions
     feature: regions
     path: regions/nested-regions
-    page: topoviewer/reference/regions/nested-regions
+    page: topoviewer/examples/regions/nested-regions
     summary: Regions can be nested so broad domains contain smaller domains.
     render:
       height: 420px
@@ -349,7 +349,7 @@ examples:
     title: Overlapping regions
     feature: regions
     path: regions/overlapping-regions
-    page: topoviewer/reference/regions/overlapping-regions
+    page: topoviewer/examples/regions/overlapping-regions
     summary: A shared node can be a member of multiple regions.
     render:
       height: 420px
@@ -360,7 +360,7 @@ examples:
     title: Region label placement
     feature: regions
     path: regions/region-label-placement
-    page: topoviewer/reference/regions/region-label-placement
+    page: topoviewer/examples/regions/region-label-placement
     summary: Region labels can be anchored around the hull with an explicit margin.
     harness:
       id: region-label-placement
@@ -375,7 +375,7 @@ examples:
     title: Draggable regions
     feature: regions
     path: regions/draggable-regions
-    page: topoviewer/reference/regions/draggable-regions
+    page: topoviewer/examples/regions/draggable-regions
     summary: Regions can be selectable and draggable hulls.
     render:
       height: 420px
@@ -386,7 +386,7 @@ examples:
     title: Two-dimensional shapes
     feature: shapes
     path: shapes/two-dimensional
-    page: topoviewer/reference/shapes/two-dimensional
+    page: topoviewer/examples/shapes/two-dimensional
     summary: 2D geometry primitives are diagram objects, not graph facts.
     render:
       height: 420px
@@ -397,7 +397,7 @@ examples:
     title: Three-dimensional shapes
     feature: shapes
     path: shapes/three-dimensional
-    page: topoviewer/reference/shapes/three-dimensional
+    page: topoviewer/examples/shapes/three-dimensional
     summary: 3D geometry primitives are available for common diagram metaphors.
     render:
       height: 420px
@@ -408,7 +408,7 @@ examples:
     title: Shape rotation
     feature: shapes
     path: shapes/rotation
-    page: topoviewer/reference/shapes/rotation
+    page: topoviewer/examples/shapes/rotation
     summary: Shape geometry can be rotated directly or through a stylesheet rule.
     render:
       height: 420px
@@ -419,7 +419,7 @@ examples:
     title: Markdown callouts
     feature: callouts
     path: callouts/markdown
-    page: topoviewer/reference/callouts/markdown
+    page: topoviewer/examples/callouts/markdown
     summary: Callout bodies support markdown, inline formatting, and images.
     render:
       height: 420px
@@ -430,7 +430,7 @@ examples:
     title: Pins and leaders
     feature: callouts
     path: callouts/pins-and-leaders
-    page: topoviewer/reference/callouts/pins-and-leaders
+    page: topoviewer/examples/callouts/pins-and-leaders
     summary: Leaders can attach to named pins instead of object centers.
     render:
       height: 420px
@@ -441,7 +441,7 @@ examples:
     title: Image embed callout
     feature: callouts
     path: callouts/image-embed
-    page: topoviewer/reference/callouts/image-embed
+    page: topoviewer/examples/callouts/image-embed
     summary: Image embeds are allowed when the URL is safe.
     render:
       height: 420px
@@ -452,7 +452,7 @@ examples:
     title: Selector styling
     feature: styling
     path: styling/selectors
-    page: topoviewer/reference/styling/selectors
+    page: topoviewer/examples/styling/selectors
     summary: Selector rules classify objects by kind, id, labels, or data.
     render:
       height: 420px
@@ -463,7 +463,7 @@ examples:
     title: Inline style override
     feature: styling
     path: styling/inline-style-override
-    page: topoviewer/reference/styling/inline-style-override
+    page: topoviewer/examples/styling/inline-style-override
     summary: Inline `style` overrides are local escape hatches on individual objects.
     render:
       height: 420px
@@ -474,7 +474,7 @@ examples:
     title: Light and dark theme variables
     feature: styling
     path: styling/theme-light-dark
-    page: topoviewer/reference/styling/theme-light-dark
+    page: topoviewer/examples/styling/theme-light-dark
     summary: Theme-aware styles should use TopoViewer CSS variables.
     render:
       height: 420px
@@ -485,7 +485,7 @@ examples:
     title: Label z-index
     feature: styling
     path: styling/label-z-index
-    page: topoviewer/reference/styling/label-z-index
+    page: topoviewer/examples/styling/label-z-index
     summary: Labels can draw in their own layer without changing object, edge, or region draw order.
     render:
       height: 420px
@@ -496,7 +496,7 @@ examples:
     title: Manual layout
     feature: layout
     path: layout/manual
-    page: topoviewer/reference/layout/manual
+    page: topoviewer/examples/layout/manual
     summary: Manual layout preserves authored positions.
     render:
       height: 420px
@@ -507,7 +507,7 @@ examples:
     title: Force layout
     feature: layout
     path: layout/force
-    page: topoviewer/reference/layout/force
+    page: topoviewer/examples/layout/force
     summary: Force layout computes positions when the author omits coordinates.
     render:
       height: 420px
@@ -518,7 +518,7 @@ examples:
     title: CLOS layout
     feature: layout
     path: layout/clos
-    page: topoviewer/reference/layout/clos
+    page: topoviewer/examples/layout/clos
     summary: CLOS layout infers staged placement from graph structure.
     render:
       height: 420px
@@ -529,7 +529,7 @@ examples:
     title: Layered network authoring
     feature: harness
     path: harness/layered-network
-    page: topoviewer/reference/harness/layered-network
+    page: topoviewer/examples/harness/layered-network
     summary: The default browser harness template for layered network authoring.
     harness:
       id: layered-network
@@ -544,7 +544,7 @@ examples:
     title: CLOS 2-spine 4-leaf
     feature: harness
     path: harness/clos-2spine-4leaf
-    page: topoviewer/reference/harness/clos-2spine-4leaf
+    page: topoviewer/examples/harness/clos-2spine-4leaf
     summary: A compact data center fabric template with two spine switches, four leaf switches, and full leaf-to-spine mesh links.
     harness:
       id: clos-2spine-4leaf
@@ -559,7 +559,7 @@ examples:
     title: Insert workflow
     feature: harness
     path: harness/insert-workflow
-    page: topoviewer/reference/harness/insert-workflow
+    page: topoviewer/examples/harness/insert-workflow
     summary: A browser harness template for inserting nodes, links, paths, regions, and notes.
     harness:
       id: insert-workflow
@@ -574,7 +574,7 @@ examples:
     title: Attention workflow
     feature: harness
     path: harness/attention-workflow
-    page: topoviewer/reference/harness/attention-workflow
+    page: topoviewer/examples/harness/attention-workflow
     summary: A browser harness template for editing attention focus, aggregation, and link grouping.
     harness:
       id: attention-workflow
@@ -593,7 +593,7 @@ examples:
     title: Inspector workflow
     feature: harness
     path: harness/inspector-workflow
-    page: topoviewer/reference/harness/inspector-workflow
+    page: topoviewer/examples/harness/inspector-workflow
     summary: A browser harness template for inspecting object labels, data, positions, and relationships.
     harness:
       id: inspector-workflow
@@ -608,7 +608,7 @@ examples:
     title: Dense link grouping
     feature: harness
     path: harness/dense-links
-    page: topoviewer/reference/harness/dense-links
+    page: topoviewer/examples/harness/dense-links
     summary: A browser harness template for parallel link grouping and bundle threshold editing.
     harness:
       id: dense-links
@@ -623,7 +623,7 @@ examples:
     title: Broken reference validation
     feature: validation
     path: validation/broken-reference
-    page: topoviewer/reference/validation/broken-reference
+    page: topoviewer/examples/validation/broken-reference
     summary: The semantic linter catches links that reference missing nodes.
     render:
       height: 420px
@@ -634,7 +634,7 @@ examples:
     title: Unsafe image validation
     feature: validation
     path: validation/unsafe-image
-    page: topoviewer/reference/validation/unsafe-image
+    page: topoviewer/examples/validation/unsafe-image
     summary: The semantic linter rejects unsafe image references.
     render:
       height: 420px
@@ -645,7 +645,7 @@ examples:
     title: Renderer limit validation
     feature: validation
     path: validation/limit-exceeded
-    page: topoviewer/reference/validation/limit-exceeded
+    page: topoviewer/examples/validation/limit-exceeded
     summary: Renderer limits fail fast before a diagram becomes unsafe or unusable.
     render:
       height: 420px
@@ -661,7 +661,8 @@ examples:
       stylesheet: integration/real-network-underlay/stylesheet.yaml
       expected: integration/real-network-underlay/expected.yaml
     page: topoviewer/examples/yaml-to-network-diagram
-    summary: A compact before/after example using the same provider underlay slice as the Real Network Demo.
+    summary: A compact before/after example using the same provider underlay slice as the Service Provider Network example.
+    introMode: narrative
     render:
       height: 520px
       controls: true
@@ -674,7 +675,7 @@ examples:
     feature: integration
     path: integration/grafana-telemetry-call-flow
     publicPage: false
-    page: topoviewer/labs/grafana-topoviewer-containerlab-lab
+    page: topoviewer/examples/use-cases/grafana-topoviewer-containerlab-lab
     summary: A production call-flow diagram for mounted TopoViewer bundles, Grafana plugin boundaries, Prometheus data frames, mapper execution, runtime overlays, and diagnostics.
     render:
       height: 520px
@@ -690,7 +691,7 @@ examples:
     title: Kubernetes service map
     feature: integration
     path: integration/kubernetes-service-map
-    page: topoviewer/examples/kubernetes-service-map
+    page: topoviewer/examples/use-cases/kubernetes-service-map
     summary: A real EDA Playground Kubernetes service map showing services, deployments, pods, EDA TopoNodes, simulator pods, and runtime bindings.
     introMode: narrative
     extraFiles:
@@ -712,7 +713,7 @@ examples:
     title: Real network underlay
     feature: integration
     path: integration/real-network-underlay
-    page: topoviewer/examples/real-network-demo/underlay
+    page: topoviewer/examples/use-cases/service-provider-network/underlay
     summary: A provider underlay view that foregrounds transport capacity, media, and backup links.
     render:
       height: 520px
@@ -725,7 +726,7 @@ examples:
     title: Real network BGP
     feature: integration
     path: integration/real-network-bgp
-    page: topoviewer/examples/real-network-demo/bgp
+    page: topoviewer/examples/use-cases/service-provider-network/bgp
     summary: A BGP view that makes route reflector sessions visible while keeping the underlay as context.
     render:
       height: 520px
@@ -739,7 +740,7 @@ examples:
     title: Real network transport layer
     feature: integration
     path: integration/real-network-transport-layer
-    page: topoviewer/examples/real-network-demo/transport-layer
+    page: topoviewer/examples/use-cases/service-provider-network/transport-layer
     summary: A transport layer view that adds the programmed SR path on top of the real network BGP view.
     render:
       height: 520px
@@ -754,7 +755,7 @@ examples:
     title: Real network service path
     feature: integration
     path: integration/real-network-service-path
-    page: topoviewer/examples/real-network-demo/service-path
+    page: topoviewer/examples/use-cases/service-provider-network/service-path
     summary: A service path view that focuses the customer L3VPN path across the same provider topology.
     render:
       height: 520px
@@ -775,7 +776,7 @@ examples:
     title: Real network failure view
     feature: integration
     path: integration/real-network-failure-view
-    page: topoviewer/examples/real-network-demo/failure-view
+    page: topoviewer/examples/use-cases/service-provider-network/failure-view
     summary: A failure view that focuses critical objects and keeps the impacted service path traceable.
     render:
       height: 520px

@@ -123,7 +123,7 @@ controls: true
 - [Getting started](https://asadarafat.github.io/topoviewer/docs/mkdocs/topoviewer/start/first-topology/)
 - [React usage](https://asadarafat.github.io/topoviewer/docs/mkdocs/topoviewer/embed/react/)
 - [MkDocs embed](https://asadarafat.github.io/topoviewer/docs/mkdocs/topoviewer/embed/mkdocs/)
-- [Examples gallery](https://asadarafat.github.io/topoviewer/docs/mkdocs/topoviewer/examples/examples-gallery/)
+- [Examples](https://asadarafat.github.io/topoviewer/docs/mkdocs/topoviewer/examples/)
 - [Object attributes](https://asadarafat.github.io/topoviewer/docs/mkdocs/topoviewer/reference/object-attributes/)
 - [Stylesheet reference](https://asadarafat.github.io/topoviewer/docs/mkdocs/topoviewer/reference/stylesheet-reference/)
 - [TypeScript API](https://asadarafat.github.io/topoviewer/docs/mkdocs/topoviewer/reference/typescript-api/)

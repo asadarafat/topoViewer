@@ -384,7 +384,7 @@ Use [Attention Reference](../reference/attention-reference.md) for schema-backed
 
 ## Public Examples
 
-The [Attention examples](../reference/attention/index.md) page is generated from the canonical test catalog and includes live viewports, topology YAML, and stylesheet YAML for:
+The [Attention examples](../examples/attention/index.md) page is generated from the canonical test catalog and includes live viewports, topology YAML, and stylesheet YAML for:
 
 - Object focus and click-to-focus.
 - Change focus from timestamp metadata.

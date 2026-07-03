@@ -31,7 +31,7 @@ npm install topoviewer @xyflow/react react react-dom
 
 1. Render the copyable YAML pair in [First Topology](topoviewer/start/first-topology.md).
 2. Style it with [Style Your First Topology](topoviewer/start/style-your-first-topology.md).
-3. Embed it in [React](topoviewer/embed/react.md) or [MkDocs](topoviewer/embed/mkdocs.md).
+3. Embed it in [React](topoviewer/examples/use-cases/react.md) or [MkDocs](topoviewer/examples/use-cases/mkdocs.md).
 
 ## Choose A Path
 
@@ -40,10 +40,10 @@ npm install topoviewer @xyflow/react react react-dom
 | Understand the product | [Why TopoViewer](topoviewer/start/why-topoviewer.md) |
 | Author a topology | [First Topology](topoviewer/start/first-topology.md) |
 | Style a topology | [Style Your First Topology](topoviewer/start/style-your-first-topology.md) |
-| Explore examples | [Examples Gallery](topoviewer/examples/examples-gallery.md) |
-| Embed in a React product | [React](topoviewer/embed/react.md) and [TypeScript API](topoviewer/reference/typescript-api.md) |
-| Embed in documentation | [MkDocs](topoviewer/embed/mkdocs.md) or [Static HTML / Zensical Adapter](topoviewer/embed/static-html-zensical-adapter.md) |
-| Operate from telemetry | [Grafana TopoViewer Containerlab Lab](topoviewer/labs/grafana-topoviewer-containerlab-lab.md) |
+| Explore examples | [Examples](topoviewer/examples/index.md) |
+| Embed in a React product | [React](topoviewer/examples/use-cases/react.md) and [TypeScript API](topoviewer/reference/typescript-api.md) |
+| Embed in documentation | [MkDocs](topoviewer/examples/use-cases/mkdocs.md) or [Static HTML / Zensical Adapter](topoviewer/examples/use-cases/static-html-zensical-adapter.md) |
+| Operate from telemetry | [Grafana TopoViewer Containerlab Lab](topoviewer/examples/use-cases/grafana-topoviewer-containerlab-lab.md) |
 | Reference accepted contracts | [Object attributes](topoviewer/reference/object-attributes.md), [YAML schemas](topoviewer/reference/yaml-schemas.md), [compatibility](topoviewer/reference/compatibility.md), and [stylesheet reference](topoviewer/reference/stylesheet-reference.md) |
 | Evaluate architecture and risk | [Architecture](topoviewer/evaluate/architecture.md), [threat model](topoviewer/evaluate/threat-model.md), [performance and accessibility](topoviewer/evaluate/performance-reliability-accessibility.md), and [Build Or Adopt](topoviewer/evaluate/build-or-adopt.md) |
 | Maintain or release the repo | [Production Hardening](topoviewer/maintainers/production-hardening.md), [Design Review Checklist](topoviewer/maintainers/design-review-checklist.md), [Release](topoviewer/maintainers/release.md), and [Documentation Standard](topoviewer/maintainers/documentation-standard.md) |
@@ -84,7 +84,7 @@ The feature examples are generated from
 `packages/topoviewer/content/examples`. Each example is both documentation
 and a Playwright-backed test fixture.
 
-- [Examples Gallery](topoviewer/examples/examples-gallery.md)
-- [Generated feature catalog](topoviewer/reference/graph/index.md)
-- [Real Network Demo](topoviewer/examples/real-network-demo.md)
-- [CLOS layout examples](topoviewer/reference/layout/index.md)
+- [Examples](topoviewer/examples/index.md)
+- [Generated feature catalog](topoviewer/examples/graph/index.md)
+- [Service Provider Network](topoviewer/examples/use-cases/service-provider-network.md)
+- [CLOS layout examples](topoviewer/examples/layout/index.md)

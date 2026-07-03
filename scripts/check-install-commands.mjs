@@ -30,8 +30,8 @@ const publicTextRoots = [
 ];
 const requiredMkdocsPublishedInstallCommandFiles = new Set([
   'packages/mkdocs-topoviewer/README.md',
-  'packages/topoviewer/content/pages/embed/mkdocs.md',
-  'docs/topoviewer/embed/mkdocs.md'
+  'packages/topoviewer/content/pages/examples/use-cases/mkdocs.md',
+  'docs/topoviewer/examples/use-cases/mkdocs.md'
 ]);
 const allowedMkdocsPublishedInstallCommandFiles = new Set([
   ...requiredMkdocsPublishedInstallCommandFiles,

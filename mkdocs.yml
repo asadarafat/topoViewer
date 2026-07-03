@@ -59,29 +59,30 @@ nav:
       - Attention: topoviewer/author/attention.md
       - Validate YAML: topoviewer/author/validate-yaml.md
       - Debug Rendering: topoviewer/author/debug-rendering.md
-  - Embed:
-      - React: topoviewer/embed/react.md
-      - MkDocs: topoviewer/embed/mkdocs.md
-      - Static HTML / Zensical Adapter: topoviewer/embed/static-html-zensical-adapter.md
   - Examples:
-      - Examples Gallery: topoviewer/examples/examples-gallery.md
+      - Examples: topoviewer/examples/index.md
       - YAML to Network Diagram: topoviewer/examples/yaml-to-network-diagram/index.md
-      - Kubernetes Service Map: topoviewer/examples/kubernetes-service-map/index.md
-      - Real Network Demo: topoviewer/examples/real-network-demo.md
+      - Graph: topoviewer/examples/graph/index.md
+      - Nodes: topoviewer/examples/nodes/index.md
+      - Edges: topoviewer/examples/edges/index.md
+      - Paths: topoviewer/examples/paths/index.md
+      - Attention: topoviewer/examples/attention/index.md
+      - Regions: topoviewer/examples/regions/index.md
+      - Shapes: topoviewer/examples/shapes/index.md
+      - Callouts: topoviewer/examples/callouts/index.md
+      - Styling: topoviewer/examples/styling/index.md
+      - Layout: topoviewer/examples/layout/index.md
       - Object Family Examples: topoviewer/examples/object-family-examples.md
-      - Generated Catalog:
-          - Graph: topoviewer/reference/graph/index.md
-          - Nodes: topoviewer/reference/nodes/index.md
-          - Edges: topoviewer/reference/edges/index.md
-          - Paths: topoviewer/reference/paths/index.md
-          - Attention: topoviewer/reference/attention/index.md
-          - Regions: topoviewer/reference/regions/index.md
-          - Shapes: topoviewer/reference/shapes/index.md
-          - Callouts: topoviewer/reference/callouts/index.md
-          - Styling: topoviewer/reference/styling/index.md
-          - Layout: topoviewer/reference/layout/index.md
-          - Harness: topoviewer/reference/harness/index.md
-          - Validation: topoviewer/reference/validation/index.md
+      - Validation: topoviewer/examples/validation/index.md
+      - Use Cases:
+          - Use Cases: topoviewer/examples/use-cases/index.md
+          - React: topoviewer/examples/use-cases/react.md
+          - MkDocs: topoviewer/examples/use-cases/mkdocs.md
+          - Static HTML / Zensical Adapter: topoviewer/examples/use-cases/static-html-zensical-adapter.md
+          - Harness: topoviewer/examples/use-cases/harness.md
+          - Kubernetes Service Map: topoviewer/examples/use-cases/kubernetes-service-map/index.md
+          - Service Provider Network: topoviewer/examples/use-cases/service-provider-network.md
+          - Grafana TopoViewer Containerlab Lab: topoviewer/examples/use-cases/grafana-topoviewer-containerlab-lab.md
   - Reference:
       - Topology Model: topoviewer/reference/topology-model.md
       - Reference Model: topoviewer/reference/reference-model.md
@@ -94,10 +95,6 @@ nav:
       - TypeScript API: topoviewer/reference/typescript-api.md
       - Compatibility: topoviewer/reference/compatibility.md
       - Glossary: topoviewer/reference/glossary.md
-  - Tools:
-      - Browser Harness: topoviewer/tools/browser-harness.md
-  - Labs:
-      - Grafana TopoViewer Containerlab Lab: topoviewer/labs/grafana-topoviewer-containerlab-lab.md
   - Evaluate:
       - Build Or Adopt: topoviewer/evaluate/build-or-adopt.md
       - Architecture: topoviewer/evaluate/architecture.md

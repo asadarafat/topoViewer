@@ -71,6 +71,10 @@
             "type": "string",
             "minLength": 1
           },
+          "markdown": {
+            "type": "string",
+            "minLength": 1
+          },
           "source": {
             "$ref": "#/definitions/exampleFiles"
           },

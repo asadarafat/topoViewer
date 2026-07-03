@@ -29,9 +29,9 @@ const telemetryInjectorUrl = process.env.TOPOVIEWER_PROMO_TELEMETRY_INJECTOR_URL
 const surfaceUrls = {
   harness: process.env.TOPOVIEWER_PROMO_HARNESS_URL || `${docsBaseUrl}/harness/`,
   mkdocs: process.env.TOPOVIEWER_PROMO_MKDOCS_URL ||
-    `${docsBaseUrl}/docs/mkdocs/topoviewer/reference/harness/layered-network/`,
+    `${docsBaseUrl}/docs/mkdocs/topoviewer/examples/harness/layered-network/`,
   zensical: process.env.TOPOVIEWER_PROMO_ZENSICAL_URL ||
-    `${docsBaseUrl}/docs/zensical/topoviewer/reference/harness/layered-network/`,
+    `${docsBaseUrl}/docs/zensical/topoviewer/examples/harness/layered-network/`,
   grafana: process.env.TOPOVIEWER_PROMO_GRAFANA_DASHBOARD_URL ||
     `${grafanaBaseUrl}/d/topoviewer-phase-4/topoviewer-phase-4-mounted-bundles?orgId=1`
 };

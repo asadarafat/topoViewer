@@ -1,19 +1,18 @@
 title: TopoViewer
 nav:
   - Overview: index.md
-  - Reference:
-      - Graph: reference/graph/index.md
-      - Nodes: reference/nodes/index.md
-      - Edges: reference/edges/index.md
-      - Paths: reference/paths/index.md
-      - Attention: reference/attention/index.md
-      - Regions: reference/regions/index.md
-      - Shapes: reference/shapes/index.md
-      - Callouts: reference/callouts/index.md
-      - Styling: reference/styling/index.md
-      - Layout: reference/layout/index.md
-      - Harness: reference/harness/index.md
-      - Validation: reference/validation/index.md
+  - Examples:
+      - Graph: examples/graph/index.md
+      - Nodes: examples/nodes/index.md
+      - Edges: examples/edges/index.md
+      - Paths: examples/paths/index.md
+      - Attention: examples/attention/index.md
+      - Regions: examples/regions/index.md
+      - Shapes: examples/shapes/index.md
+      - Callouts: examples/callouts/index.md
+      - Styling: examples/styling/index.md
+      - Layout: examples/layout/index.md
+      - Validation: examples/validation/index.md
   - YAML to network diagram: examples/yaml-to-network-diagram/index.md
-  - Kubernetes service map: examples/kubernetes-service-map/index.md
-  - Real Network Demo: examples/real-network-demo.md
+  - Kubernetes service map: examples/use-cases/kubernetes-service-map/index.md
+  - Service Provider Network: examples/use-cases/service-provider-network.md

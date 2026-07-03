@@ -79,6 +79,7 @@ function pruneStaleContentPages() {
     'decisions.md',
     'design-review-checklist.md',
     'docs-standard.md',
+    'examples-gallery.md',
     'examples.md',
     'getting-started.md',
     'glossary.md',
@@ -105,8 +106,17 @@ function pruneStaleContentPages() {
     'topology-model.md',
     'validate-yaml.md',
     'why-topoviewer.md',
+    'tools/browser-harness.md',
+    'labs/grafana-topoviewer-containerlab-lab.md',
     'real-network-demo',
+    'examples/real-network-demo.md',
+    'examples/service-provider-network.md',
+    'examples/examples-gallery.md',
+    'examples/use-cases.md',
     'yaml-to-diagram/index.md',
+    'embed/react.md',
+    'embed/mkdocs.md',
+    'embed/static-html-zensical-adapter.md',
     'zensical.md'
   ];
 

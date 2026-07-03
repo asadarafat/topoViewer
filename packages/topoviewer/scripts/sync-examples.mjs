@@ -43,6 +43,58 @@ function writeTextIfChanged(filePath, content) {
   return true;
 }
 
+function removeStaleGeneratedPaths() {
+  const stalePaths = [
+    'topoviewer/examples/real-network-demo',
+    'topoviewer/examples/examples-gallery.md',
+    'topoviewer/examples/use-cases.md',
+    'topoviewer/examples/kubernetes-service-map',
+    'topoviewer/examples/service-provider-network',
+    'topoviewer/labs/grafana-topoviewer-containerlab-lab.md',
+    'topoviewer/reference/graph',
+    'topoviewer/reference/nodes',
+    'topoviewer/reference/edges',
+    'topoviewer/reference/paths',
+    'topoviewer/reference/attention',
+    'topoviewer/reference/regions',
+    'topoviewer/reference/shapes',
+    'topoviewer/reference/callouts',
+    'topoviewer/reference/styling',
+    'topoviewer/reference/layout',
+    'topoviewer/reference/harness',
+    'topoviewer/reference/validation'
+  ];
+
+  for (const relativePath of stalePaths) {
+    const target = path.join(docsRoot, relativePath);
+    if (!fs.existsSync(target)) continue;
+    if (checkOnly) {
+      console.error(`stale generated docs example exists: ${path.relative(repoRoot, target)}`);
+      process.exitCode = 1;
+      continue;
+    }
+    fs.rmSync(target, { recursive: true, force: true });
+    console.log(`removed stale generated docs example: ${path.relative(docsRoot, target)}`);
+  }
+}
+
+function removeConflictingReadmeProjections(catalog) {
+  for (const example of catalog.examples || []) {
+    if (!isPublicExample(example)) continue;
+    const readmeTarget = path.join(docsRoot, docsExamplePath(example, 'README.md'));
+    const generatedPage = pageFile(example);
+    if (path.dirname(readmeTarget) !== path.dirname(generatedPage)) continue;
+    if (!fs.existsSync(readmeTarget)) continue;
+    if (checkOnly) {
+      console.error(`stale README projection conflicts with generated example page: ${path.relative(repoRoot, readmeTarget)}`);
+      process.exitCode = 1;
+      continue;
+    }
+    fs.rmSync(readmeTarget, { force: true });
+    console.log(`removed stale conflicting README projection: ${path.relative(docsRoot, readmeTarget)}`);
+  }
+}
+
 function repoRelative(filePath) {
   return toPosix(path.relative(repoRoot, filePath));
 }
@@ -122,7 +174,7 @@ function isPublicExample(example) {
 }
 
 function categoryFile(feature) {
-  return path.join(docsRoot, 'topoviewer/reference', feature, 'index.md');
+  return path.join(docsRoot, 'topoviewer/examples', feature, 'index.md');
 }
 
 function relativeFromMarkdownFile(markdownFile, docsRelativePath) {
@@ -169,6 +221,7 @@ function generatedCatalog(catalog) {
     examples: (catalog.examples || []).map((example) => {
       const expected = readYaml(exampleSourceFile(example, 'expected.yaml'));
       const expectedMetadata = compactExpectedMetadata(expected);
+      const publicPage = isPublicExample(example);
       return {
         id: example.id,
         title: example.title,
@@ -179,7 +232,9 @@ function generatedCatalog(catalog) {
         topology: includePath(docsExamplePath(example, 'topology.yaml')),
         stylesheet: includePath(docsExamplePath(example, 'stylesheet.yaml')),
         ...(expectedMetadata ? { expected: expectedMetadata } : {}),
-        readme: includePath(docsExamplePath(example, 'README.md'))
+        ...(publicPage
+          ? { markdown: includePath(path.posix.join(example.page, 'index.md')) }
+          : { readme: includePath(docsExamplePath(example, 'README.md')) })
       };
     })
   };
@@ -487,7 +542,7 @@ function integrationNavItems(examples) {
     }
     if (isRealNetworkExample(example)) {
       if (!realNetworkAdded) {
-        items.push({ 'Real Network Demo': 'examples/real-network-demo.md' });
+        items.push({ 'Service Provider Network': 'examples/use-cases/service-provider-network.md' });
         realNetworkAdded = true;
       }
       continue;
@@ -499,16 +554,16 @@ function integrationNavItems(examples) {
 
 function navDocument(catalog) {
   const groups = groupExamples(catalog.examples || []);
-  const reference = [];
+  const examples = [];
   for (const feature of groups.keys()) {
-    if (feature === 'integration') continue;
-    reference.push({ [featureTitle(feature)]: `reference/${feature}/index.md` });
+    if (feature === 'integration' || feature === 'harness') continue;
+    examples.push({ [featureTitle(feature)]: `examples/${feature}/index.md` });
   }
   return {
     title: 'TopoViewer',
     nav: [
       { Overview: 'index.md' },
-      { Reference: reference },
+      { Examples: examples },
       ...integrationNavItems(groups.get('integration') || [])
     ]
   };
@@ -531,6 +586,7 @@ function indexMarkdown(catalog) {
   ];
 
   for (const [feature, examples] of groups.entries()) {
+    if (feature === 'harness') continue;
     lines.push(`### ${featureTitle(feature)}`, '');
     let realNetworkAdded = false;
     for (const example of examples) {
@@ -542,7 +598,7 @@ function indexMarkdown(catalog) {
       }
       if (isRealNetworkExample(example)) {
         if (!realNetworkAdded) {
-          lines.push('- [Real Network Demo](examples/real-network-demo.md): One provider topology rendered as underlay, BGP, transport, service path, and failure views.');
+          lines.push('- [Service Provider Network](examples/use-cases/service-provider-network.md): One provider topology rendered as underlay, BGP, transport, service path, and failure views.');
           realNetworkAdded = true;
         }
         continue;
@@ -562,11 +618,15 @@ if (!fs.existsSync(catalogFile)) {
 
 const catalog = readYaml(catalogFile);
 
+removeStaleGeneratedPaths();
+removeConflictingReadmeProjections(catalog);
+
 for (const example of catalog.examples || []) {
+  const shouldProjectReadme = !isPublicExample(example);
   const targets = [
     ['topology.yaml', docsExamplePath(example, 'topology.yaml')],
     ['stylesheet.yaml', docsExamplePath(example, 'stylesheet.yaml')],
-    ['README.md', docsExamplePath(example, 'README.md')],
+    ...(shouldProjectReadme ? [['README.md', docsExamplePath(example, 'README.md')]] : []),
     ...(example.extraFiles || []).map((fileName) => [fileName, docsExamplePath(example, fileName)])
   ];
 
@@ -601,7 +661,7 @@ for (const example of catalog.examples || []) {
 }
 
 for (const [feature, examples] of groupExamples(catalog.examples || []).entries()) {
-  if (feature === 'integration') continue;
+  if (feature === 'integration' || feature === 'harness') continue;
   const page = categoryFile(feature);
   const markdown = categoryMarkdown(feature, examples);
   if (checkOnly) {

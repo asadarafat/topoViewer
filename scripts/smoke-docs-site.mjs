@@ -70,13 +70,13 @@ async function run() {
     const checks = [
       {
         label: 'MkDocs graph basic',
-        url: `${baseUrl}${pagesBasePath}/docs/mkdocs/topoviewer/reference/graph/basic/`,
+        url: `${baseUrl}${pagesBasePath}/docs/mkdocs/topoviewer/examples/graph/basic/`,
         nodes: 2,
         edges: 1
       },
       {
         label: 'Zensical attention object focus',
-        url: `${baseUrl}${pagesBasePath}/docs/zensical/topoviewer/reference/attention/object-focus/`,
+        url: `${baseUrl}${pagesBasePath}/docs/zensical/topoviewer/examples/attention/object-focus/`,
         nodes: 2,
         edges: 1
       },

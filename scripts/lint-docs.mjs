@@ -24,10 +24,11 @@ const supportStatusLabels = new Set([
 ]);
 
 const integrationStatusPages = [
-  ['embed/react.md', 'Supported'],
-  ['embed/mkdocs.md', 'Supported'],
-  ['embed/static-html-zensical-adapter.md', 'Supported Adapter'],
-  ['tools/browser-harness.md', 'Experimental'],
+  ['examples/use-cases/react.md', 'Supported'],
+  ['examples/use-cases/mkdocs.md', 'Supported'],
+  ['examples/use-cases/static-html-zensical-adapter.md', 'Supported Adapter'],
+  ['examples/use-cases/harness.md', 'Experimental'],
+  ['examples/use-cases/grafana-topoviewer-containerlab-lab.md', 'Lab'],
   ['labs/grafana.md', 'Experimental'],
   ['evaluate/integration-roadmap.md', 'Roadmap'],
   ['labs/grafana-telemetry-call-flow.md', 'Lab']
@@ -43,16 +44,16 @@ const packageReadmeStatuses = [
 const majorGuidePages = [
   'start/why-topoviewer.md',
   'start/first-topology.md',
-  'examples/examples-gallery.md',
+  'examples/index.md',
   'author/authoring-model.md',
   'start/style-your-first-topology.md',
-  'tools/browser-harness.md',
+  'examples/use-cases/harness.md',
   'author/validate-yaml.md',
   'author/debug-rendering.md',
   'author/layout.md',
-  'embed/react.md',
-  'embed/mkdocs.md',
-  'embed/static-html-zensical-adapter.md',
+  'examples/use-cases/react.md',
+  'examples/use-cases/mkdocs.md',
+  'examples/use-cases/static-html-zensical-adapter.md',
   'labs/grafana.md'
 ];
 
@@ -61,15 +62,15 @@ const integrationGuideLineBudget = 480;
 const guidePageLengthBudgets = new Map([
   ['start/why-topoviewer.md', taskGuideLineBudget],
   ['start/first-topology.md', taskGuideLineBudget],
-  ['examples/examples-gallery.md', taskGuideLineBudget],
+  ['examples/index.md', taskGuideLineBudget],
   ['start/style-your-first-topology.md', taskGuideLineBudget],
-  ['tools/browser-harness.md', taskGuideLineBudget],
+  ['examples/use-cases/harness.md', taskGuideLineBudget],
   ['author/validate-yaml.md', taskGuideLineBudget],
   ['author/debug-rendering.md', taskGuideLineBudget],
   ['author/layout.md', taskGuideLineBudget],
-  ['embed/react.md', integrationGuideLineBudget],
-  ['embed/mkdocs.md', taskGuideLineBudget],
-  ['embed/static-html-zensical-adapter.md', taskGuideLineBudget]
+  ['examples/use-cases/react.md', integrationGuideLineBudget],
+  ['examples/use-cases/mkdocs.md', taskGuideLineBudget],
+  ['examples/use-cases/static-html-zensical-adapter.md', taskGuideLineBudget]
 ]);
 
 const forbiddenPublicClaimPhrases = [
@@ -136,23 +137,25 @@ function checkRequiredPages() {
     'start/why-topoviewer.md',
     'start/first-topology.md',
     'start/style-your-first-topology.md',
-    'examples/examples-gallery.md',
+    'examples/index.md',
     'author/authoring-model.md',
     'author/layout.md',
     'author/attention.md',
     'author/validate-yaml.md',
     'author/debug-rendering.md',
-    'embed/react.md',
-    'embed/mkdocs.md',
-    'embed/static-html-zensical-adapter.md',
-    'tools/browser-harness.md',
+    'examples/use-cases/react.md',
+    'examples/use-cases/mkdocs.md',
+    'examples/use-cases/static-html-zensical-adapter.md',
+    'examples/use-cases/harness.md',
     'labs/grafana.md',
     'evaluate/build-or-adopt.md',
     'evaluate/architecture.md',
     'evaluate/threat-model.md',
     'evaluate/performance-reliability-accessibility.md',
     'examples/object-family-examples.md',
-    'examples/real-network-demo.md',
+    'examples/use-cases/service-provider-network.md',
+    'examples/use-cases/grafana-topoviewer-containerlab-lab.md',
+    'examples/use-cases/index.md',
     'reference/object-attributes.md',
     'reference/typescript-api.md',
     'reference/compatibility.md',
@@ -526,16 +529,16 @@ function checkGeneratedCriticalPages() {
   const critical = [
     'docs/index.md',
     'docs/topoviewer/start/first-topology.md',
-    'docs/topoviewer/tools/browser-harness.md',
+    'docs/topoviewer/examples/use-cases/harness.md',
     'docs/topoviewer/reference/typescript-api.md',
     'docs/topoviewer/maintainers/documentation-standard.md',
-    'docs/topoviewer/reference/graph/index.md'
+    'docs/topoviewer/examples/graph/index.md'
   ];
   for (const page of critical) {
     assertFile(path.join(repoRoot, page), page);
   }
 
-  const graphIndex = path.join(docsRoot, 'topoviewer/reference/graph/index.md');
+  const graphIndex = path.join(docsRoot, 'topoviewer/examples/graph/index.md');
   if (fs.existsSync(graphIndex)) {
     const text = readText(graphIndex);
     for (const heading of ['What This Demonstrates', 'Expected Result', 'What To Inspect', 'Use When']) {
@@ -577,8 +580,9 @@ function findNavSection(navItems, sectionName) {
 function isAllowedUnnavedDocsPage(relativePath) {
   return [
     /^topoviewer\/examples\/.+\/README\.md$/,
-    /^topoviewer\/examples\/real-network-demo\/[^/]+\/index\.md$/,
-    /^topoviewer\/reference\/[^/]+\/[^/]+\/index\.md$/
+    /^topoviewer\/examples\/[^/]+\/[^/]+\/index\.md$/,
+    /^topoviewer\/examples\/use-cases\/service-provider-network\/[^/]+\/index\.md$/,
+    /^topoviewer\/examples\/harness\/[^/]+\/index\.md$/
   ].some((pattern) => pattern.test(relativePath))
     || [
       'topoviewer/index.md',
@@ -623,7 +627,7 @@ function checkStartNavBoundary() {
     'topoviewer/maintainers/production-hardening.md',
     'topoviewer/maintainers/release.md',
     'topoviewer/maintainers/documentation-standard.md',
-    'topoviewer/tools/browser-harness.md',
+    'topoviewer/examples/use-cases/harness.md',
     'topoviewer/evaluate/build-or-adopt.md',
     'topoviewer/examples/yaml-to-network-diagram/index.md'
   ]);
@@ -651,6 +655,12 @@ function navEntryValue(entry, key) {
 
 function checkExamplesNavBoundary() {
   const mkdocsConfig = readYaml(path.join(repoRoot, 'mkdocs.yml'));
+  for (const forbiddenSection of ['Tools', 'Labs']) {
+    if (findNavSection(mkdocsConfig.nav || [], forbiddenSection)) {
+      fail(`MkDocs nav must not expose ${forbiddenSection} as a top-level section. Put it under Examples > Use Cases.`);
+    }
+  }
+
   const examplesNav = findNavSection(mkdocsConfig.nav || [], 'Examples');
   if (!Array.isArray(examplesNav)) {
     fail('MkDocs Examples nav must be a list.');
@@ -658,30 +668,53 @@ function checkExamplesNavBoundary() {
   }
 
   const firstEntry = examplesNav[0];
-  if (navEntryValue(firstEntry, 'Examples Gallery') !== 'topoviewer/examples/examples-gallery.md') {
-    fail('MkDocs Examples nav must start with Examples Gallery: topoviewer/examples/examples-gallery.md');
+  if (navEntryValue(firstEntry, 'Examples') !== 'topoviewer/examples/index.md') {
+    fail('MkDocs Examples nav must start with Examples: topoviewer/examples/index.md');
   }
 
-  const generatedCatalog = examplesNav
-    .map((entry) => navEntryValue(entry, 'Generated Catalog'))
-    .find((value) => Array.isArray(value));
-  if (!generatedCatalog) {
-    fail('MkDocs Examples nav must keep generated reference pages under Generated Catalog.');
-    return;
-  }
+  const requiredExampleTargets = new Map([
+    ['Graph', 'topoviewer/examples/graph/index.md'],
+    ['Nodes', 'topoviewer/examples/nodes/index.md'],
+    ['Edges', 'topoviewer/examples/edges/index.md'],
+    ['Paths', 'topoviewer/examples/paths/index.md'],
+    ['Attention', 'topoviewer/examples/attention/index.md'],
+    ['Regions', 'topoviewer/examples/regions/index.md'],
+    ['Shapes', 'topoviewer/examples/shapes/index.md'],
+    ['Callouts', 'topoviewer/examples/callouts/index.md'],
+    ['Styling', 'topoviewer/examples/styling/index.md'],
+    ['Layout', 'topoviewer/examples/layout/index.md'],
+    ['Object Family Examples', 'topoviewer/examples/object-family-examples.md'],
+    ['Validation', 'topoviewer/examples/validation/index.md']
+  ]);
 
-  const topLevelTargets = new Set();
-  for (const entry of examplesNav) {
-    for (const value of Object.values(entry || {})) {
-      if (typeof value === 'string') {
-        topLevelTargets.add(value);
-      }
+  for (const [label, target] of requiredExampleTargets) {
+    if (!examplesNav.some((entry) => navEntryValue(entry, label) === target)) {
+      fail(`MkDocs Examples nav is missing ${label}: ${target}`);
     }
   }
 
-  for (const target of topLevelTargets) {
-    if (target.startsWith('topoviewer/reference/')) {
-      fail(`Generated reference example page must not be top-level in Examples nav: ${target}`);
+  const useCases = examplesNav
+    .map((entry) => navEntryValue(entry, 'Use Cases'))
+    .find((value) => Array.isArray(value));
+  if (!useCases) {
+    fail('MkDocs Examples nav must include a Use Cases subgroup.');
+    return;
+  }
+
+  const requiredUseCases = new Map([
+    ['Use Cases', 'topoviewer/examples/use-cases/index.md'],
+    ['React', 'topoviewer/examples/use-cases/react.md'],
+    ['MkDocs', 'topoviewer/examples/use-cases/mkdocs.md'],
+    ['Static HTML / Zensical Adapter', 'topoviewer/examples/use-cases/static-html-zensical-adapter.md'],
+    ['Harness', 'topoviewer/examples/use-cases/harness.md'],
+    ['Kubernetes Service Map', 'topoviewer/examples/use-cases/kubernetes-service-map/index.md'],
+    ['Service Provider Network', 'topoviewer/examples/use-cases/service-provider-network.md'],
+    ['Grafana TopoViewer Containerlab Lab', 'topoviewer/examples/use-cases/grafana-topoviewer-containerlab-lab.md']
+  ]);
+
+  for (const [label, target] of requiredUseCases) {
+    if (!useCases.some((entry) => navEntryValue(entry, label) === target)) {
+      fail(`MkDocs Examples > Use Cases nav is missing ${label}: ${target}`);
     }
   }
 }
@@ -744,9 +777,13 @@ function checkNavPathAlignment() {
       if (!sectionSlug || !Array.isArray(value)) continue;
 
       visitNavLeaves(value, (label, target, ancestors) => {
-        if (ancestors.includes('Generated Catalog')) return;
-        if (!target.startsWith(`topoviewer/${sectionSlug}/`)) {
-          fail(`MkDocs nav path mismatch: ${section} > ${label} points to ${target}; expected topoviewer/${sectionSlug}/...`);
+        const expectedPrefix = [
+          'topoviewer',
+          sectionSlug,
+          ...ancestors.map(slugifyNavLabel)
+        ].join('/');
+        if (!target.startsWith(`${expectedPrefix}/`)) {
+          fail(`MkDocs nav path mismatch: ${[section, ...ancestors, label].join(' > ')} points to ${target}; expected ${expectedPrefix}/...`);
           return;
         }
         const expectedSlug = slugifyNavLabel(label);

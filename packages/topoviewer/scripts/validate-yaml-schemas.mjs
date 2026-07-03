@@ -134,6 +134,10 @@ function docsCaseFiles(example) {
   };
 }
 
+function shouldProjectReadme(example) {
+  return example.publicPage === false;
+}
+
 function assertGeneratedCopy(source, target, label) {
   if (!fs.existsSync(target)) {
     fail(`${label} generated file is missing: ${target}`);
@@ -169,7 +173,9 @@ if (fs.existsSync(contentCatalogFile)) {
 
     assertGeneratedCopy(source.topology, generated.topology, `${example.id} topology`);
     assertGeneratedCopy(source.stylesheet, generated.stylesheet, `${example.id} stylesheet`);
-    assertGeneratedCopy(source.readme, generated.readme, `${example.id} README`);
+    if (shouldProjectReadme(example)) {
+      assertGeneratedCopy(source.readme, generated.readme, `${example.id} README`);
+    }
 
     if (example.publicPage === false) {
       continue;

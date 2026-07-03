@@ -111,7 +111,7 @@ graph:
 The rendered view is produced by the same example catalog used by the tests:
 
 - [YAML to network diagram](../examples/yaml-to-network-diagram/index.md)
-- [Real network demo](../examples/real-network-demo.md)
+- [Service Provider Network](../examples/use-cases/service-provider-network.md)
 
 ## Embed In A Product
 

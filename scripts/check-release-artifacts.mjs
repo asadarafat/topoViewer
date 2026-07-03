@@ -82,7 +82,7 @@ const NPM_PACKAGE_REQUIRED_FILES = [
   'dist/topoviewer.css',
   'dist/types/index.d.ts',
   'content/pages/start/first-topology.md',
-  'content/pages/embed/react.md',
+  'content/pages/examples/use-cases/react.md',
   'content/pages/reference/object-attributes.md',
   'schemas/topoviewer.schema.json',
   'schemas/topoviewer-topology.schema.json',
