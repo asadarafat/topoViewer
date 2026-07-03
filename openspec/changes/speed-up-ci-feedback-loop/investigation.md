@@ -375,3 +375,33 @@ readiness guardrail now checks the split job artifact names explicitly:
 `ci-docs-site`, `docs-failure-artifacts`,
 `topoviewer-test-failure-artifacts`, `harness-test-failure-artifacts`,
 `package-failure-artifacts`, and `public-readiness-failure-artifacts`.
+
+## Final Local Validation
+
+Full local sequential validation after the workflow split:
+
+| Command | Result | Duration |
+| --- | --- | ---: |
+| `npm run ci` | pass | 8m 18.9s |
+
+Lane timing from the successful local run:
+
+| Lane | Result | Duration |
+| --- | --- | ---: |
+| `env` | pass | 0.1s |
+| `generated` | pass | 1.0s |
+| `quality` | pass | 15.9s |
+| `schemas` | pass | 6.4s |
+| `build` | pass | 37.8s |
+| `docs` | pass | 57.8s |
+| `render-parity` | pass | 30.9s |
+| `test:topoviewer` | pass | 28.8s |
+| `test:harness` | pass | 1m 41.5s |
+| `perf:smoke` | pass | 11.1s |
+| `package` | pass | 49.2s |
+| `public-readiness` | pass | 2m 38.3s |
+
+This proves the local developer contract is unchanged: `npm run ci` remains the
+full sequential gate, while the remote `CI` workflow is optimized by splitting
+the same coverage into independent feedback lanes and narrowing only the remote
+public-readiness gate to checks not already owned by `package` and `Security`.

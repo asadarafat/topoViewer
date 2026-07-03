@@ -79,8 +79,8 @@ is read-only investigation that gathers evidence for the current phase.
 - [x] 7.3 Run `npm run ci:quality`
 - [x] 7.4 Run `npm run ci:schemas`
 - [x] 7.5 Run all CI lanes directly if lane orchestration changed
-- [ ] 7.6 Run full `npm run ci`
-- [ ] 7.7 Record final local validation in `investigation.md`
+- [x] 7.6 Run full `npm run ci`
+- [x] 7.7 Record final local validation in `investigation.md`
 
 # 8. Remote Validation
 
