@@ -405,3 +405,57 @@ This proves the local developer contract is unchanged: `npm run ci` remains the
 full sequential gate, while the remote `CI` workflow is optimized by splitting
 the same coverage into independent feedback lanes and narrowing only the remote
 public-readiness gate to checks not already owned by `package` and `Security`.
+
+## Final Remote Validation
+
+Pushed commit: `7accaec` (`docs: record ci speed local validation`).
+
+| Workflow | Run ID | Result | Duration | Baseline latest | Delta |
+| --- | ---: | --- | ---: | ---: | ---: |
+| `CI` | 28662209047 | pass | 449s | 687s | -238s (-34.6%) |
+| `Docs` | 28662209041 | pass | 227s | 241s | -14s (-5.8%) |
+| `Security` | 28662209445 | pass | 243s | 310s | -67s (-21.6%) |
+| `CodeQL` | 28662209049 | pass | 119s | 108s | +11s (+10.2%) |
+
+Remote `CI` comparison against the recorded baseline:
+
+| Baseline point | Baseline | Post-change | Delta |
+| --- | ---: | ---: | ---: |
+| p50 | 654s | 449s | -205s (-31.3%) |
+| p90 | 836s | 449s | -387s (-46.3%) |
+| worst | 958s | 449s | -509s (-53.1%) |
+| latest before change | 687s | 449s | -238s (-34.6%) |
+| target | 540s | 449s | 91s under target |
+
+The remote `CI` target was met. The observed result is slightly slower than the
+390-430s hypothesis, but still comfortably below the 540s target and materially
+faster than the latest pre-change run.
+
+Remote split-job timing:
+
+| CI job | Result | Duration |
+| --- | --- | ---: |
+| Preflight generated content | pass | 87s |
+| Lint and typecheck | pass | 90s |
+| Validate schemas and semantics | pass | 87s |
+| Build and smoke documentation targets | pass | 184s |
+| Test TopoViewer package | pass | 140s |
+| Test VS Code harness | pass | 251s |
+| Run performance smoke | pass | 93s |
+| Inspect package artifacts | pass | 148s |
+| Check public-readiness guardrails | pass | 165s |
+
+Coverage tradeoffs:
+
+- Unchanged local gate: `npm run ci` still runs every lane sequentially,
+  including full public-readiness.
+- Moved to parallel remote jobs: docs, package, quality, schema, harness,
+  package tests, and performance smoke.
+- Narrowed only for remote feedback: `ci:public-readiness:core` skips checks
+  already owned by the `package` job and `Security` workflow.
+- Preserved remote coverage: package artifact inspection remains in `CI`;
+  dependency advisories and Go vulnerability checks remain in `Security`;
+  renderer parity uses the `ci-docs-site` artifact from the docs job instead of
+  rebuilding the docs site.
+- No coverage was removed without another required workflow or local/release
+  gate owning it.

@@ -10,7 +10,6 @@ reflected in public docs with an explicit support-status label.
 
 Current active plans:
 
-- `changes/speed-up-ci-feedback-loop/` - planned CI speed investigation and implementation for measured workflow timing, duplicate-work reduction, and faster GitHub feedback without weakening package, docs, security, or public-readiness coverage.
 - `changes/define-codespaces-dev-environment/` - planned Codespaces developer environment that can run local MkDocs, Zensical, browser harness, Grafana lab, and Containerlab-Grafana workflows from a fresh cloud workspace.
 - `changes/define-netbox-integration-roadmap/` - planned NetBox feasibility, use cases, first integration shape, and roadmap wording constraints.
 - `changes/define-opsmill-infrahub-integration-roadmap/` - planned OpsMill/Infrahub feasibility, use cases, first integration shape, and roadmap wording constraints.
@@ -21,6 +20,7 @@ Current studies:
 
 Archived plans:
 
+- `archive/2026-07-03-speed-up-ci-feedback-loop/` - implemented measured CI timing instrumentation, remote public-readiness dedupe, split GitHub CI feedback lanes, branch concurrency cancellation, failure artifacts per lane, and remote validation showing CI reduced from 687s to 449s without removing package, docs, security, or public-readiness coverage.
 - `archive/2026-07-02-clean-root-tooling-surface/` - implemented first-pass root cleanup with repo-level local artifact ignore coverage, maintainer root-shape documentation, docs/sync/Grafana/lint dispatchers, safe internal alias reduction from 115 to 96 root scripts, generated Zensical nav sync, and full local CI validation.
 - `archive/2026-07-01-harden-public-adoption-readiness/` - implemented public repository and documentation hardening for the `0.1.0` early-adopter path, including npm publication, README/docs conversion path, curated examples, renderer parity, mapper authoring ergonomics, security guardrails, artifact autopsy, and remote CI/Docs/Security/CodeQL verification.
 - `archive/2026-07-01-publish-promo-video-hosted-asset/` - deprecated before implementation because the public README should favor the checked-in YAML-to-graph collage while generated video/GIF/MP4 files remain local-only review artifacts.

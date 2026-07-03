@@ -84,13 +84,13 @@ is read-only investigation that gathers evidence for the current phase.
 
 # 8. Remote Validation
 
-- [ ] 8.1 Push to `development`
-- [ ] 8.2 Confirm remote `CI` passes
-- [ ] 8.3 Confirm remote `Docs` passes
-- [ ] 8.4 Confirm remote `Security` and `CodeQL` are not regressed by workflow or command changes
-- [ ] 8.5 Collect post-change remote `CI`, `Docs`, `Security`, and `CodeQL` run IDs and durations for the pushed commit
-- [ ] 8.6 Compare post-change remote runtime against the baseline p50, p90, worst case, and latest-run values
-- [ ] 8.7 Record absolute seconds saved or added, percentage change, and whether the result met the target
-- [ ] 8.8 Record coverage tradeoffs: unchanged, moved, narrowed, or removed checks
-- [ ] 8.9 If speed regressed or coverage weakened unexpectedly, either fix forward or revert the specific optimization commit
-- [ ] 8.10 Archive this change only after remote validation and before/after timing comparison are complete
+- [x] 8.1 Push to `development`
+- [x] 8.2 Confirm remote `CI` passes
+- [x] 8.3 Confirm remote `Docs` passes
+- [x] 8.4 Confirm remote `Security` and `CodeQL` are not regressed by workflow or command changes
+- [x] 8.5 Collect post-change remote `CI`, `Docs`, `Security`, and `CodeQL` run IDs and durations for the pushed commit
+- [x] 8.6 Compare post-change remote runtime against the baseline p50, p90, worst case, and latest-run values
+- [x] 8.7 Record absolute seconds saved or added, percentage change, and whether the result met the target
+- [x] 8.8 Record coverage tradeoffs: unchanged, moved, narrowed, or removed checks
+- [x] 8.9 If speed regressed or coverage weakened unexpectedly, either fix forward or revert the specific optimization commit
+- [x] 8.10 Archive this change only after remote validation and before/after timing comparison are complete
