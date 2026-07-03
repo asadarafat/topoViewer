@@ -311,7 +311,14 @@ function mapperStyleKind(kind: MapperTargetKind): TemplateStyleKind | undefined 
 
 function coerceTemplatedStyleValue(kind: MapperTargetKind, key: string, value: unknown, templated: boolean): unknown {
   if (!templated || typeof value !== 'string') return value;
-  if (key === 'label' || key === 'badgeLabel' || key === 'sourceLabel' || key === 'targetLabel') return value;
+  if (
+    key === 'label'
+    || key === 'badgeLabel'
+    || key === 'sourceLabel'
+    || key === 'targetLabel'
+    || key === 'sourceArrowLabel'
+    || key === 'targetArrowLabel'
+  ) return value;
   if (hasActivePayload(value)) return undefined;
 
   const styleKind = mapperStyleKind(kind);

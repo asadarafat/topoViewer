@@ -346,9 +346,9 @@ describe('mapper telemetry overlay adapter', () => {
       targetLabel: 'down'
     });
     expect(overlay.linkDirectionStylesById['spine1-leaf1:sourceToTarget']).toMatchObject({
-      label: 'sourceToTarget saturated 95%',
+      label: 'saturated 95%',
       lineColor: '#d32f2f',
-      lineWidth: 7
+      lineWidth: 9
     });
     expect(overlay.nodeStylesById.leaf1).toMatchObject({
       badgeLabel: 'NODE',
@@ -679,7 +679,9 @@ describe('mapper telemetry overlay adapter', () => {
               style: {
                 label: 'DOWN',
                 lineColor: '#d32f2f',
-                lineStyle: 'dashed'
+                lineStyle: 'dashed',
+                sourceArrowLabel: '{{ label.source_port }}',
+                targetArrowLabel: '{{ label.target_port }}'
               }
             },
             {
@@ -699,14 +701,16 @@ describe('mapper telemetry overlay adapter', () => {
     const overlay = createMapperTelemetryOverlay(document, mapper, [{
       metric: 'topoviewer_link_up',
       value: 0,
-      labels: { link_id: 'pe1-p1' },
+      labels: { link_id: 'pe1-p1', source_port: 'xe-0/0/0', target_port: 'ethernet-1/1' },
       fields: { value: 0 }
     }]);
 
     expect(overlay.linkStylesById['pe1-p1']).toMatchObject({
       label: 'DOWN',
       lineColor: '#d32f2f',
-      lineStyle: 'dashed'
+      lineStyle: 'dashed',
+      sourceArrowLabel: 'xe-0/0/0',
+      targetArrowLabel: 'ethernet-1/1'
     });
   });
 

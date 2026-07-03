@@ -21,7 +21,7 @@ import type {
 
 const targetKinds = new Set<MapperTargetKind>(['node', 'link', 'linkDirection', 'path', 'region', 'layer', 'graph']);
 const resolverModes = new Set<MapperResolverMode>(['id', 'label', 'data', 'endpoint', 'selector', 'aggregate', 'staticObjectIds']);
-const valueAsKinds = new Set(['up', 'utilizationPercent', 'errorsTotal', 'latencyMs', 'lossPercent', 'capacityPercent', 'health']);
+const valueAsKinds = new Set(['up', 'utilizationPercent', 'errorsTotal', 'latencyMs', 'lossPercent', 'capacityPercent', 'bps', 'health']);
 const severityNames = new Set<MapperSeverityName>(['success', 'info', 'warning', 'error']);
 const rootKeys = new Set(['$schema', 'version', 'identity', 'palette', 'rules', 'mappings']);
 const identityKeys = new Set(['sourceId', 'sourceIdLabel']);

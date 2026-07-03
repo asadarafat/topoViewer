@@ -185,6 +185,40 @@ describe('TopoViewer mapper parser', () => {
     });
   });
 
+  it('parses compact linkDirection bandwidth rules', () => {
+    const result = parseTopoViewerMapperYaml([
+      'version: 1',
+      'rules:',
+      '  - id: directional-bandwidth',
+      '    metric: interface_direction_bps',
+      '    select: linkDirection',
+      '    join:',
+      '      link: link_id',
+      '      direction: direction',
+      '    value: bps',
+      '    style:',
+      '      default:',
+      '        label: "{{ value | bps }}"'
+    ].join('\n'));
+
+    expect(result.diagnostics).toEqual([]);
+    expect(result.mapper?.mappings[0]).toMatchObject({
+      id: 'directional-bandwidth',
+      metric: 'interface_direction_bps',
+      target: {
+        kind: 'linkDirection',
+        resolve: {
+          by: 'id',
+          linkMetricLabel: 'link_id',
+          directionMetricLabel: 'direction'
+        }
+      },
+      value: {
+        as: 'bps'
+      }
+    });
+  });
+
   it('parses severity palette shorthand colors', () => {
     const result = parseTopoViewerMapperYaml([
       'version: 1',

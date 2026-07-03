@@ -140,8 +140,8 @@
         },
         "value": {
           "type": "string",
-          "description": "Short value semantic. Supported values include percent, utilizationPercent, up, errorsTotal, latencyMs, lossPercent, capacityPercent, and health.",
-          "enum": ["percent", "utilization", "utilizationPercent", "up", "errors", "errorsTotal", "latency", "latencyMs", "loss", "lossPercent", "capacity", "capacityPercent", "health"]
+          "description": "Short value semantic. Supported values include percent, utilizationPercent, up, errorsTotal, latencyMs, lossPercent, capacityPercent, bps, and health.",
+          "enum": ["percent", "utilization", "utilizationPercent", "up", "errors", "errorsTotal", "latency", "latencyMs", "loss", "lossPercent", "capacity", "capacityPercent", "bps", "health"]
         },
         "states": {
           "type": "object",
@@ -282,7 +282,7 @@
         "as": {
           "type": "string",
           "description": "Semantic interpretation of the metric value.",
-          "enum": ["up", "utilizationPercent", "errorsTotal", "latencyMs", "lossPercent", "capacityPercent", "health"]
+          "enum": ["up", "utilizationPercent", "errorsTotal", "latencyMs", "lossPercent", "capacityPercent", "bps", "health"]
         }
       }
     },
