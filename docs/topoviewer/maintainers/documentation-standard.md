@@ -26,6 +26,7 @@ the result locally.
 | Guides | Teach one task with working YAML and clear placement in the nav. |
 | References | Enumerate fields, accepted values, defaults, and constraints. |
 | Examples | Show one behavior clearly with live viewport and YAML. |
+| Use cases | Put a replicable TopoViewer application on the main stage, then explain the UX and DevX pattern needed to reproduce it. |
 
 ## Guide Page Budget
 
@@ -49,6 +50,35 @@ Public docs paths must mirror the nav section and page label. For example,
 `Start > First Topology` is authored at
 `packages/topoviewer/content/pages/start/first-topology.md` and rendered at
 `docs/topoviewer/start/first-topology.md`.
+
+## Use Case Page Contract
+
+Pages under `Examples > Use Cases` are not reference pages and should not start
+by explaining what TopoViewer is. Their job is to give the reader a quick,
+replicable application of TopoViewer.
+
+A use-case page must:
+
+- put the runnable or published result near the top of the article;
+- give the reader a quick win before deep explanation;
+- describe the practical UX loop first: what to open, edit, apply, inspect, and
+  export;
+- describe the DevX loop next: what files, scripts, schemas, or generated
+  bundles make the workflow repeatable;
+- explain implementation details only after the reader understands the workflow;
+- keep local setup in collapsible admonitions when a hosted path exists;
+- avoid becoming a product overview, support matrix, or exhaustive field
+  reference.
+
+The expected storyline is:
+
+```text
+try it
+  -> repeat the useful workflow
+  -> understand the files and commands
+  -> inspect how TopoViewer implements the pattern
+  -> adapt the pattern to the reader's own topology
+```
 
 ## Example README Contract
 
