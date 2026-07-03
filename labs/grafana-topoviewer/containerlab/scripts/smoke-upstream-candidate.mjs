@@ -17,7 +17,7 @@ const artifactRoot = path.resolve(
 );
 const dashboardUrl = process.env.TOPOVIEWER_DASHBOARD_URL
   || `${grafanaBaseUrl}/d/network-telemetry-topoviewer/network-telemetry-topoviewer?orgId=1&kiosk`;
-const trafficCommand = process.env.TOPOVIEWER_TRAFFIC_COMMAND;
+const trafficCommand = process.env.TOPOVIEWER_TRAFFIC_COMMAND || 'bash labs/grafana-topoviewer/containerlab/traffic.sh start all';
 const requireTraffic = process.env.TOPOVIEWER_REQUIRE_TRAFFIC !== '0';
 
 function artifactPath(fileName) {
@@ -165,6 +165,7 @@ async function verifyPrometheus() {
   writeJson('query-direction-count.json', directionCount);
 
   if (requireTraffic) {
+    runOptionalTrafficCommand();
     const traffic = await waitForPrometheusValue(
       'TopoViewer live direction traffic',
       `max(topoviewer_st_link_direction_bps{topology="${topologyLabel}"})`,
@@ -248,7 +249,6 @@ writeJson('smoke-config.json', {
   trafficCommand: trafficCommand || null
 });
 
-runOptionalTrafficCommand();
 await verifyGrafana();
 await verifyPrometheus();
 await verifyDashboard();

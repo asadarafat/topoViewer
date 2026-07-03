@@ -38,7 +38,7 @@ function writeText(filePath, content, mode) {
 }
 
 function rewriteLabPaths() {
-  const topologyPath = path.join(bundleRoot, 'topoviewer-grafana.clab.yml');
+  const topologyPath = path.join(bundleRoot, 'st.clab.yml');
   const topology = fs.readFileSync(topologyPath, 'utf8')
     .replace('${TOPOVIEWER_GRAFANA_PLUGIN_DIST}:/var/lib/grafana/plugins/asadarafat-topoviewer-panel:ro', './grafana-plugin:/var/lib/grafana/plugins/asadarafat-topoviewer-panel:ro')
     .replace('../topoviewer-bundles:/etc/topoviewer/bundles:ro', './topoviewer-bundles:/etc/topoviewer/bundles:ro');
@@ -51,7 +51,7 @@ function rewriteLabPaths() {
 
   const dashboardPath = path.join(bundleRoot, 'configs/grafana/dashboards/topoviewer-containerlab.json');
   const dashboard = fs.readFileSync(dashboardPath, 'utf8')
-    .replace('Use `npm run grafana:clab:smoke` to capture before/after artifacts.', 'Use `./run.sh smoke` to validate local service readiness.');
+    .replace('Use `npm run grafana:clab:smoke` to capture healthy, high-utilization, and link-failure screenshots.', 'Use `./run.sh smoke` to validate local service readiness.');
   fs.writeFileSync(dashboardPath, dashboard);
 }
 
@@ -72,11 +72,6 @@ if [[ -f .env ]]; then
     fi
   done < .env
 fi
-
-GRAFANA_HTTP_PORT="\${GRAFANA_HTTP_PORT:-3001}"
-PROMETHEUS_HTTP_PORT="\${PROMETHEUS_HTTP_PORT:-9091}"
-GNMIC_HTTP_PORT="\${GNMIC_HTTP_PORT:-9804}"
-NORMALIZER_HTTP_PORT="\${NORMALIZER_HTTP_PORT:-9110}"
 
 find_clab() {
   if [[ -n "\${CONTAINERLAB_BIN:-}" ]]; then
@@ -132,11 +127,11 @@ port_in_use() {
 
 check_ports() {
   local busy=0
-  for entry in "Grafana:\${GRAFANA_HTTP_PORT}" "Prometheus:\${PROMETHEUS_HTTP_PORT}" "gNMIc:\${GNMIC_HTTP_PORT}" "TopoViewer normalizer:\${NORMALIZER_HTTP_PORT}"; do
+  for entry in "Grafana:3000" "Prometheus:9090"; do
     local name="\${entry%%:*}"
     local port="\${entry##*:}"
     if port_in_use "\${port}"; then
-      echo "[topoviewer] \${name} port \${port} is already in use. Stop the owner or override the matching *_HTTP_PORT variable." >&2
+      echo "[topoviewer] \${name} port \${port} is already in use. Stop the owner before deploying the upstream-shaped lab." >&2
       busy=1
     fi
   done
@@ -145,17 +140,11 @@ check_ports() {
 
 print_urls() {
   cat <<EOF
-Grafana TopoViewer Containerlab:
-  http://127.0.0.1:\${GRAFANA_HTTP_PORT}/d/topoviewer-clab/topoviewer-containerlab-phase-5
+Grafana TopoViewer Panel:
+  http://127.0.0.1:3000/d/network-telemetry-topoviewer/network-telemetry-topoviewer
 
 Prometheus:
-  http://127.0.0.1:\${PROMETHEUS_HTTP_PORT}
-
-gNMIc metrics:
-  http://127.0.0.1:\${GNMIC_HTTP_PORT}/metrics
-
-TopoViewer normalizer:
-  http://127.0.0.1:\${NORMALIZER_HTTP_PORT}/health
+  http://127.0.0.1:9090
 EOF
 }
 
@@ -191,7 +180,7 @@ up() {
 [topoviewer] Starting disposable local Grafana Containerlab lab.
 [topoviewer] Keep this on a trusted local host; lab services publish host ports.
 EOF
-  "\${clab_bin}" deploy -t topoviewer-grafana.clab.yml
+  "\${clab_bin}" deploy -t st.clab.yml
   print_urls
 }
 
@@ -201,15 +190,18 @@ down() {
     echo "[topoviewer] Containerlab is not installed; nothing to destroy." >&2
     exit 0
   fi
-  "\${clab_bin}" destroy -t topoviewer-grafana.clab.yml --cleanup
+  "\${clab_bin}" destroy -t st.clab.yml --cleanup
+}
+
+clean() {
+  down || true
+  rm -rf .artifacts
 }
 
 smoke() {
   require_command curl curl
-  wait_for_url Grafana "http://127.0.0.1:\${GRAFANA_HTTP_PORT}/api/health"
-  wait_for_url Prometheus "http://127.0.0.1:\${PROMETHEUS_HTTP_PORT}/api/v1/status/buildinfo"
-  wait_for_url "gNMIc metrics" "http://127.0.0.1:\${GNMIC_HTTP_PORT}/metrics"
-  wait_for_url "TopoViewer normalizer" "http://127.0.0.1:\${NORMALIZER_HTTP_PORT}/health"
+  wait_for_url Grafana "http://127.0.0.1:3000/api/health"
+  wait_for_url Prometheus "http://127.0.0.1:9090/api/v1/status/buildinfo"
   print_urls
 }
 
@@ -224,21 +216,24 @@ case "\${ACTION}" in
     down || true
     up
     ;;
+  clean)
+    clean
+    ;;
   smoke)
     smoke
     ;;
   traffic:start)
-    bash scripts/traffic.sh start
+    bash traffic.sh start all
     ;;
   traffic:status)
-    bash scripts/traffic.sh status
+    docker ps --filter name=client --format 'table {{.Names}}\t{{.Status}}'
     ;;
   traffic:stop)
-    bash scripts/traffic.sh stop
+    bash traffic.sh stop all
     ;;
   *)
     cat >&2 <<'EOF'
-Usage: ./run.sh {up|smoke|traffic:start|traffic:status|traffic:stop|down|restart}
+Usage: ./run.sh {up|smoke|traffic:start|traffic:status|traffic:stop|down|restart|clean}
 EOF
     exit 2
     ;;
@@ -262,7 +257,7 @@ Start:
 Open:
 
 \`\`\`text
-http://127.0.0.1:3001/d/topoviewer-clab/topoviewer-containerlab-phase-5
+http://127.0.0.1:3000/d/network-telemetry-topoviewer/network-telemetry-topoviewer
 \`\`\`
 
 Useful commands:
@@ -273,6 +268,7 @@ Useful commands:
 ./run.sh traffic:status
 ./run.sh traffic:stop
 ./run.sh down
+./run.sh clean
 \`\`\`
 
 This lab is disposable validation scaffolding. It uses local ports, anonymous

@@ -12,6 +12,7 @@ packages/*/*.egg-info/
 .vscode/
 .venv*/
 site/
+labs/grafana-topoviewer/containerlab/clab-*/
 .DS_Store
 __pycache__/
 topoviewer-changes.patch

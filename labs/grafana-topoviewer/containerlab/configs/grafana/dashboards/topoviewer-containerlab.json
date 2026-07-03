@@ -26,7 +26,7 @@
       "id": 1,
       "options": {
         "controlsOpen": false,
-        "fixtureId": "clos-2spine-4leaf",
+        "fixtureId": "st-clos",
         "interaction": {
           "allowNodeDrag": true,
           "enabled": true,
@@ -37,7 +37,7 @@
         },
         "mountedBundle": {
           "bundleRoot": "/etc/topoviewer/bundles",
-          "selectedBundleId": "clab-clos"
+          "selectedBundleId": "st-clos"
         },
         "showControls": true,
         "sourceMode": "mountedBundle",
@@ -56,7 +56,7 @@
             "uid": "topoviewer-prometheus"
           },
           "editorMode": "code",
-          "expr": "topoviewer_clab_link_up{topology=\"clab-clos\"}",
+          "expr": "topoviewer_st_link_up{topology=\"st-clos\"}",
           "format": "time_series",
           "instant": true,
           "legendFormat": "{{link_id}} up",
@@ -69,54 +69,15 @@
             "uid": "topoviewer-prometheus"
           },
           "editorMode": "code",
-          "expr": "topoviewer_clab_link_utilization_percent{topology=\"clab-clos\"}",
+          "expr": "topoviewer_st_link_direction_bps{topology=\"st-clos\"}",
           "format": "time_series",
           "instant": true,
-          "legendFormat": "{{link_id}} utilization",
+          "legendFormat": "{{link_id}} {{direction}} bps",
           "range": false,
           "refId": "B"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "topoviewer-prometheus"
-          },
-          "editorMode": "code",
-          "expr": "topoviewer_clab_link_direction_utilization_percent{topology=\"clab-clos\"}",
-          "format": "time_series",
-          "instant": true,
-          "legendFormat": "{{link_id}} {{direction}} utilization",
-          "range": false,
-          "refId": "C"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "topoviewer-prometheus"
-          },
-          "editorMode": "code",
-          "expr": "topoviewer_clab_node_health{topology=\"clab-clos\"}",
-          "format": "time_series",
-          "instant": true,
-          "legendFormat": "{{node_id}} health",
-          "range": false,
-          "refId": "D"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "topoviewer-prometheus"
-          },
-          "editorMode": "code",
-          "expr": "topoviewer_clab_adjacency_up{topology=\"clab-clos\"}",
-          "format": "time_series",
-          "instant": true,
-          "legendFormat": "{{link_id}} adjacency",
-          "range": false,
-          "refId": "E"
         }
       ],
-      "title": "TopoViewer Containerlab",
+      "title": "Network Telemetry TopoViewer",
       "type": "asadarafat-topoviewer-panel"
     },
     {
@@ -136,7 +97,7 @@
       },
       "id": 2,
       "options": {
-        "content": "Containerlab Phase 5 validates the mounted-bundle workflow with live SR Linux telemetry collected through gNMIc, normalized into mapper-friendly Prometheus labels, and applied by `clab-clos.mapper.tv.yaml` at runtime. Use `npm run grafana:clab:smoke` to capture before/after artifacts.",
+        "content": "This dashboard keeps the upstream SR Linux telemetry lab shape and replaces the topology panel with TopoViewer. gNMIc exports native SR Linux metrics to Prometheus. Prometheus recording rules add stable `link_id` and `direction` labels. `st-clos.mapper.tv.yaml` maps those labels to TopoViewer links and directional lanes at runtime.",
         "mode": "markdown"
       },
       "pluginVersion": "13.1.0",
@@ -191,8 +152,9 @@
   "refresh": "5s",
   "schemaVersion": 42,
   "tags": [
-    "topoviewer",
-    "containerlab"
+    "containerlab",
+    "srlinux",
+    "topoviewer"
   ],
   "templating": {
     "list": []
@@ -202,7 +164,7 @@
     "to": "now"
   },
   "timezone": "browser",
-  "title": "TopoViewer Containerlab Phase 5",
-  "uid": "topoviewer-clab",
+  "title": "Network Telemetry TopoViewer",
+  "uid": "network-telemetry-topoviewer",
   "version": 1
 }

@@ -91,28 +91,28 @@ rules:
       saturated: ">=90"
     style:
       default:
-        label: "{{ label.direction }} {{ value | round }}%"
-        lineWidth: 3
-        sourceArrowSize: 10
-        targetArrowSize: 10
+        label: "{{ value | round }}%"
+        lineWidth: 5
+        sourceArrowSize: 16
+        targetArrowSize: 16
       busy:
         lineColor: "#42a5f5"
-        lineWidth: 4
-        sourceArrowSize: 11
-        targetArrowSize: 11
+        lineWidth: 6
+        sourceArrowSize: 18
+        targetArrowSize: 18
         labelColor: "#1976d2"
       high:
         lineColor: "#ff9800"
-        lineWidth: 5
-        sourceArrowSize: 13
-        targetArrowSize: 13
+        lineWidth: 7
+        sourceArrowSize: 20
+        targetArrowSize: 20
         labelColor: "#ed6c02"
       saturated:
-        label: "{{ label.direction }} {{ state }} {{ value | round }}%"
+        label: "{{ state }} {{ value | round }}%"
         lineColor: "#d32f2f"
-        lineWidth: 7
-        sourceArrowSize: 16
-        targetArrowSize: 16
+        lineWidth: 9
+        sourceArrowSize: 24
+        targetArrowSize: 24
         lineStyle: dashed
         lineOutlineWidth: 3
         lineOutlineColor: "rgba(211, 47, 47, 0.22)"
@@ -127,16 +127,18 @@ rules:
     style:
       default:
         statusColor: "#4caf50"
-        statusPlacement: topRight
+        statusPlacement: bottomRight
         badgeLabel: OK
+        badgePosition: topLeft
         badgeBackgroundColor: "#e8f5e9"
         badgeColor: "#2e7d32"
         outlineColor: "#4caf50"
         outlineOpacity: 0.28
       unhealthy:
         statusColor: "#d32f2f"
-        statusPlacement: topRight
+        statusPlacement: bottomRight
         badgeLabel: NODE
+        badgePosition: topLeft
         badgeBackgroundColor: "#ffebee"
         badgeColor: "#c62828"
         outlineColor: "#d32f2f"

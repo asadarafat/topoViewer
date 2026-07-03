@@ -23,5 +23,5 @@ while IFS='=' read -r key value; do
     export "${key}=${value}"
   fi
 done < .env
-"${CLAB_BIN}" destroy -t topoviewer-grafana.clab.yml --cleanup
+"${CLAB_BIN}" destroy -t st.clab.yml --cleanup
 rm -f "${REPO_DIR}/.artifacts/grafana-containerlab.env"

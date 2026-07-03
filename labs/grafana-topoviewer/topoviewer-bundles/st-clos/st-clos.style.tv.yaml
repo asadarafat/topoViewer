@@ -1,7 +1,7 @@
 layout:
   mode: manual
-  width: 760
-  height: 620
+  width: 960
+  height: 700
 icons:
   router.spine:
     glyph: S
@@ -167,21 +167,23 @@ stylesheet:
       lineColor: "rgba(144, 164, 174, 0.74)"
       lineWidth: 3
       lineCap: round
-      sourceArrowShape: square
-      targetArrowShape: square
-      sourceArrowColor: "#e3f2fd"
-      targetArrowColor: "#e3f2fd"
-      sourceArrowSize: 34
-      targetArrowSize: 34
-      sourceArrowOffset: 12
-      targetArrowOffset: 12
+      sourceArrowShape: none
+      targetArrowShape: none
+      sourceArrowColor: "#0f172a"
+      targetArrowColor: "#0f172a"
+      sourceArrowBorderColor: "#93c5fd"
+      targetArrowBorderColor: "#93c5fd"
+      sourceArrowBorderWidth: 0
+      targetArrowBorderWidth: 0
+      sourceArrowSize: 0
+      targetArrowSize: 0
+      sourceArrowOffset: 0
+      targetArrowOffset: 0
       textBackgroundColor: var(--topoviewer-edge-label-bg)
-      labelColor: var(--topoviewer-fg-strong)
       interactionWidth: 18
-      sourceArrowLabelColor: "#0f172a"
-      targetArrowLabelColor: "#0f172a"
-      sourceArrowLabelFontSize: 9
-      targetArrowLabelFontSize: 9
+      arrowLabelColor: "#90a4ae"
+      sourceArrowLabelFontSize: 8
+      targetArrowLabelFontSize: 8
       sourceArrowLabelFontWeight: 900
       targetArrowLabelFontWeight: 900
       sourceLabelColor: var(--topoviewer-fg-strong)
@@ -210,6 +212,18 @@ stylesheet:
       lineWidth: 2
       lineColor: "rgba(148, 163, 184, 0.58)"
       lineStyle: dotted
+      sourceArrowColor: "#111827"
+      targetArrowColor: "#111827"
+      sourceArrowBorderColor: "#64748b"
+      targetArrowBorderColor: "#64748b"
+      sourceArrowBorderWidth: 1.2
+      targetArrowBorderWidth: 1.2
+      sourceArrowSize: 26
+      targetArrowSize: 26
+      sourceArrowOffset: 14
+      targetArrowOffset: 14
+      sourceArrowLabelColor: "#cbd5e1"
+      targetArrowLabelColor: "#cbd5e1"
   - selector: linkDirection
     style:
       lineWidth: 5
@@ -219,7 +233,6 @@ stylesheet:
       lineCap: round
       labelFontSize: 10
       labelFontWeight: 800
-      labelColor: var(--topoviewer-fg-strong)
       textBackgroundColor: var(--topoviewer-edge-label-bg)
       textBackgroundOpacity: 0.92
   - selector: linkDirection[direction = "sourceToTarget"]

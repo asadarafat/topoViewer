@@ -31,27 +31,10 @@ export const env = {
   )
 };
 
-export function envNumber(key, fallback) {
-  const value = Number(env[key] || fallback);
-  if (!Number.isFinite(value)) {
-    throw new Error(`${key} must be a number, got "${env[key]}".`);
-  }
-  return value;
-}
-
 export function grafanaUrl() {
-  return process.env.GRAFANA_URL || `http://127.0.0.1:${envNumber('GRAFANA_HTTP_PORT', 3001)}`;
+  return process.env.GRAFANA_URL || 'http://127.0.0.1:3000';
 }
 
 export function prometheusUrl() {
-  return process.env.PROMETHEUS_URL || `http://127.0.0.1:${envNumber('PROMETHEUS_HTTP_PORT', 9091)}`;
+  return process.env.PROMETHEUS_URL || 'http://127.0.0.1:9090';
 }
-
-export function gnmicUrl() {
-  return process.env.GNMIC_URL || `http://127.0.0.1:${envNumber('GNMIC_HTTP_PORT', 9804)}`;
-}
-
-export function normalizerUrl() {
-  return process.env.NORMALIZER_URL || `http://127.0.0.1:${envNumber('NORMALIZER_HTTP_PORT', 9110)}`;
-}
-

@@ -1,0 +1,84 @@
+version: 1
+identity:
+  sourceId: st-clos
+  sourceIdLabel: topology
+palette:
+  success:
+    color: "#4caf50"
+    accent: "#2e7d32"
+  info:
+    color: "#42a5f5"
+    accent: "#1976d2"
+  warning:
+    color: "#ff9800"
+    accent: "#ed6c02"
+  error:
+    color: "#d32f2f"
+    accent: "#c62828"
+rules:
+  - id: st-link-oper-state
+    metric: topoviewer_st_link_up
+    select: link
+    join: link_id
+    value: up
+    states:
+      down: "==0"
+    style:
+      default:
+        lineColor: "#4caf50"
+        lineWidth: 4
+        lineCap: round
+      down:
+        label: DOWN
+        lineColor: "#d32f2f"
+        lineWidth: 8
+        lineStyle: dashed
+        lineDashPattern: 12 7
+        lineDashOffset: 4
+        lineCap: round
+        lineOutlineWidth: 4
+        lineOutlineColor: "rgba(211, 47, 47, 0.22)"
+        labelColor: "#c62828"
+        textBackgroundColor: "rgba(255, 235, 238, 0.96)"
+        labelBorderColor: "rgba(198, 40, 40, 0.46)"
+        labelBorderWidth: 1
+        labelZIndex: 40
+  - id: st-direction-traffic
+    metric: topoviewer_st_link_direction_bps
+    select: linkDirection
+    join:
+      link: link_id
+      direction: direction
+    value: bps
+    states:
+      busy: ">=10000000"
+      high: ">=50000000"
+      saturated: ">=90000000"
+    style:
+      default:
+        label: "{{ value | bps }}"
+        lineWidth: 5
+        sourceArrowSize: 16
+        targetArrowSize: 16
+      busy:
+        lineColor: "#42a5f5"
+        lineWidth: 6
+        sourceArrowSize: 18
+        targetArrowSize: 18
+        labelColor: "#1976d2"
+      high:
+        lineColor: "#ff9800"
+        lineWidth: 7
+        sourceArrowSize: 20
+        targetArrowSize: 20
+        labelColor: "#ed6c02"
+      saturated:
+        label: "{{ state }} {{ value | bps }}"
+        lineColor: "#d32f2f"
+        lineWidth: 9
+        sourceArrowSize: 24
+        targetArrowSize: 24
+        lineStyle: dashed
+        lineOutlineWidth: 3
+        lineOutlineColor: "rgba(211, 47, 47, 0.22)"
+        labelColor: "#c62828"

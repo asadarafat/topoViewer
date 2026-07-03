@@ -9,11 +9,10 @@ use anonymous Admin, `admin`/`admin` credentials, disabled login flow, unsigned
 plugin loading, and published localhost ports so local validation is fast. Do
 not copy those settings into a shared or production Grafana deployment.
 
-Phase 1 proves fixture parity. Phase 2 proves a local Prometheus weathermap
-vertical slice. Phase 4 proves the production workflow: TopoViewer YAML bundles
-mounted into Grafana and selected by the panel backend. Phase 5 adds a separate
-Containerlab profile that streams SR Linux telemetry through gNMIc and
-Prometheus into the same mounted-bundle mapper path.
+The synthetic Compose lab keeps regression paths for fixture parity, local
+Prometheus overlays, and the mounted-bundle workflow. The Containerlab profile
+streams SR Linux telemetry through gNMIc and Prometheus into the same
+mounted-bundle mapper path.
 
 ## Run
 
@@ -67,14 +66,16 @@ detailed screenshots for `layered-network` and `clos-2spine-4leaf` under
 `.artifacts/grafana-phase-1/`. The Phase 4 smoke test exercises the mounted
 bundle source and mapper path.
 
-## Containerlab Phase 5
+## Grafana TopoViewer panel lab
 
-The Containerlab profile is intentionally separate from the synthetic lab:
+The Containerlab profile is intentionally separate from the synthetic lab. It
+keeps the streaming-telemetry lab shape recognizable and adds TopoViewer as a
+Grafana panel instead of replacing the lab with repo-local plumbing.
 
-This command sequence starts a real local network lab with host-published
-Grafana, Prometheus, gNMIc, and normalizer ports. Containerlab publishes those
-ports through Docker for lab access; keep it on a trusted local host or constrain
-access with host firewall rules.
+This command sequence starts a real local network lab with SR Linux nodes,
+gNMIc, Prometheus, Grafana, Alloy, Loki, and the TopoViewer panel. Containerlab
+publishes Grafana and Prometheus through Docker for lab access; keep it on a
+trusted local host or constrain access with host firewall rules.
 
 ```bash
 npm run grafana:clab:up
@@ -84,10 +85,8 @@ npm run grafana:clab:down
 
 The lab defaults to:
 
-- Grafana: `http://127.0.0.1:3001/d/topoviewer-clab/topoviewer-containerlab-phase-5`
-- Prometheus: `http://127.0.0.1:9091`
-- gNMIc Prometheus exporter: `http://127.0.0.1:9804/metrics`
-- TopoViewer telemetry normalizer: `http://127.0.0.1:9110/health`
+- Grafana: `http://127.0.0.1:3000/d/network-telemetry-topoviewer/network-telemetry-topoviewer`
+- Prometheus: `http://127.0.0.1:9090`
 
 The URLs use `127.0.0.1` because the profile is validated as a local lab. If
 you run Containerlab on a remote host, explicitly decide how these published
@@ -97,47 +96,35 @@ The Containerlab profile lives under:
 
 ```text
 labs/grafana-topoviewer/containerlab/
-  topoviewer-grafana.clab.yml
+  st.clab.yml
   configs/
-  inventory/
-  normalizer/
   scripts/
+  traffic.sh
 ```
 
-The first repo-local profile models a compact CLOS-like fabric with two SR
-Linux spines, two SR Linux leaves, two client endpoints, gNMIc, Prometheus,
-Grafana, and a small compatibility normalizer service. The normalizer is local
-lab scaffolding for deterministic smoke tests. The upstream-candidate path uses
-Prometheus recording rules generated from topology telemetry bindings instead
-of a TopoViewer-specific normalizer service.
+The profile is intentionally close to the streaming-telemetry lab: two SR Linux
+spines, three SR Linux leaves, three client endpoints, gNMIc, Prometheus,
+Grafana, Alloy, and Loki. TopoViewer-specific behavior is limited to:
 
-The local normalizer converts live gNMIc output into mapper-friendly
-Prometheus metrics such as:
+- mounting the local TopoViewer panel plugin into Grafana;
+- mounting `/etc/topoviewer/bundles`;
+- provisioning a TopoViewer dashboard beside the telemetry dashboards;
+- loading `topoviewer-rules.yml` in Prometheus.
 
-- `topoviewer_clab_link_up`
-- `topoviewer_clab_link_utilization_percent`
-- `topoviewer_clab_link_direction_utilization_percent`
-- `topoviewer_clab_node_health`
-- `topoviewer_clab_adjacency_up`
+There is no TopoViewer normalizer service. gNMIc exports native SR Linux
+metrics. Prometheus recording rules add stable `topology`, `link_id`, and
+`direction` labels. `st-clos.mapper.tv.yaml` maps those labels to TopoViewer
+links and directional lanes.
 
-Each sample carries stable join labels such as `topology`, `node_id`,
-`link_id`, `source`, `target`, `interface`, and `direction`. The panel does not
-contain SR Linux or Containerlab-specific rendering logic; all visual changes
-come from `clab-clos.mapper.tv.yaml`.
-
-The SR Linux nodes use per-node startup configs with routed subinterfaces and
-static routes:
+The SR Linux nodes use the upstream startup configs:
 
 ```text
-client1 192.0.2.10/31
-  -> leaf1 192.0.2.11/31
-  -> spine1/spine2 fabric links
-  -> leaf2 192.0.2.12/31
-  -> client2 192.0.2.13/31
+spine1/spine2
+  -> leaf1/leaf2/leaf3
+  -> client1/client2/client3
 ```
 
-Background keepalive pings prove reachability. For deliberate visible traffic,
-use:
+For deliberate visible traffic, use:
 
 ```bash
 npm run grafana:clab:traffic:start
@@ -145,17 +132,13 @@ npm run grafana:clab:traffic:status
 npm run grafana:clab:traffic:stop
 ```
 
-The normalizer inventory uses a 10 Mbps telemetry capacity for this compact
-demo so generated client traffic is visible in Grafana without requiring a
-heavy traffic generator.
-
 The mounted bundle is:
 
 ```text
-labs/grafana-topoviewer/topoviewer-bundles/clab-clos/
-  clab-clos.topo.tv.yaml
-  clab-clos.style.tv.yaml
-  clab-clos.mapper.tv.yaml
+labs/grafana-topoviewer/topoviewer-bundles/st-clos/
+  st-clos.topo.tv.yaml
+  st-clos.style.tv.yaml
+  st-clos.mapper.tv.yaml
 ```
 
 The Grafana container mounts the same bundle root used by the synthetic lab:
@@ -182,14 +165,10 @@ The smoke test captures artifacts under:
 
 ```text
 .artifacts/grafana-containerlab/
-  healthy.png
-  high-utilization.png
-  link-failure.png
-  mapper-coverage-*.txt
+  topoviewer-dashboard.png
+  mapper-coverage.json
   prometheus-targets.json
-  normalizer-metrics-*.prom
   bundle-index.json
-  versions.json
 ```
 
 Host requirements:
@@ -198,16 +177,10 @@ Host requirements:
 - Containerlab must be installed as `containerlab` or `clab`.
 - The current user must have the privileges required to start Containerlab
   network namespaces and containers.
-- Ports `3001`, `9091`, `9804`, and `9110` must be free unless overridden.
+- Ports `3000` and `9090` must be free. The checked-in `st.clab.yml` keeps the
+  same fixed port shape as the streaming-telemetry lab.
 - Image pulls can be large on the first run because SR Linux, gNMIc,
-  Prometheus, Grafana, and Node images are pinned.
-
-Port overrides follow the same pattern as the synthetic lab:
-
-```bash
-GRAFANA_HTTP_PORT=3011 PROMETHEUS_HTTP_PORT=9191 GNMIC_HTTP_PORT=9805 NORMALIZER_HTTP_PORT=9111 npm run grafana:clab:up
-GRAFANA_URL=http://127.0.0.1:3011 PROMETHEUS_URL=http://127.0.0.1:9191 GNMIC_URL=http://127.0.0.1:9805 NORMALIZER_URL=http://127.0.0.1:9111 npm run grafana:clab:smoke
-```
+  Prometheus, Grafana, Alloy, Loki, and client images are pinned.
 
 If startup fails, run:
 
@@ -226,8 +199,8 @@ Remaining limits before a portable Codespaces-style workflow:
   build; signing and packaged release-mode installation remain release work.
 - SR Linux image pull time and host CPU/memory requirements are not hidden by
   the scripts.
-- The synthetic lab remains the CI baseline; the Containerlab lab is the real
-  telemetry validation path.
+- The synthetic lab remains the light CI baseline; the Containerlab lab is the
+  real telemetry validation path.
 
 ## Production-Shaped Grafana Baseline
 
@@ -252,7 +225,7 @@ through the organization's standard ingress, proxy, or firewall model.
 
 ### Upstream-Candidate Validation
 
-The production-grade Phase 5 direction is the upstream-candidate lab shape: keep
+The production-grade Containerlab direction is the upstream-candidate lab shape: keep
 the existing streaming telemetry lab recognizable, preserve the original
 `Network Telemetry` dashboard, add a `Network Telemetry - TopoViewer` B
 dashboard, mount one TopoViewer bundle, and use Prometheus recording rules for

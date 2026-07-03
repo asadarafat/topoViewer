@@ -19,7 +19,6 @@ done < .env
 
 cd "${REPO_DIR}"
 node scripts/require-node24.mjs
-node labs/grafana-topoviewer/containerlab/scripts/check-versions.mjs
 node labs/grafana-topoviewer/containerlab/scripts/check-ports.mjs
 node labs/grafana-topoviewer/containerlab/scripts/check-tools.mjs
 npm run grafana:panel:build
@@ -35,25 +34,19 @@ fi
 
 print_topoviewer_grafana_lab_warning \
   "Containerlab lab" \
-  "Containerlab publishes Grafana, Prometheus, gNMIc, and normalizer host ports through Docker; keep this on a trusted local host or constrain access with host firewall rules." \
-  "Grafana: http://127.0.0.1:${GRAFANA_HTTP_PORT:-3001}" \
-  "Prometheus: http://127.0.0.1:${PROMETHEUS_HTTP_PORT:-9091}" \
-  "gNMIc metrics: http://127.0.0.1:${GNMIC_HTTP_PORT:-9804}/metrics" \
-  "TopoViewer normalizer: http://127.0.0.1:${NORMALIZER_HTTP_PORT:-9110}/health"
+  "Containerlab publishes Grafana and Prometheus host ports through Docker; keep this on a trusted local host or constrain access with host firewall rules." \
+  "Grafana: http://127.0.0.1:3000" \
+  "Prometheus: http://127.0.0.1:9090"
 
 cd "${CLAB_DIR}"
-"${CLAB_BIN}" deploy -t topoviewer-grafana.clab.yml
+"${CLAB_BIN}" deploy -t st.clab.yml
 
 mkdir -p "$(dirname "${RUNTIME_ENV}")"
 {
-  echo "GRAFANA_HTTP_PORT=${GRAFANA_HTTP_PORT:-3001}"
-  echo "PROMETHEUS_HTTP_PORT=${PROMETHEUS_HTTP_PORT:-9091}"
-  echo "GNMIC_HTTP_PORT=${GNMIC_HTTP_PORT:-9804}"
-  echo "NORMALIZER_HTTP_PORT=${NORMALIZER_HTTP_PORT:-9110}"
+  echo "GRAFANA_HTTP_PORT=3000"
+  echo "PROMETHEUS_HTTP_PORT=9090"
 } > "${RUNTIME_ENV}"
 
-echo "Grafana TopoViewer Containerlab: http://127.0.0.1:${GRAFANA_HTTP_PORT:-3001}/d/topoviewer-clab/topoviewer-containerlab-phase-5"
-echo "Prometheus: http://127.0.0.1:${PROMETHEUS_HTTP_PORT:-9091}"
-echo "gNMIc metrics: http://127.0.0.1:${GNMIC_HTTP_PORT:-9804}/metrics"
-echo "TopoViewer normalizer: http://127.0.0.1:${NORMALIZER_HTTP_PORT:-9110}/health"
+echo "Grafana TopoViewer Panel: http://127.0.0.1:3000/d/network-telemetry-topoviewer/network-telemetry-topoviewer"
+echo "Prometheus: http://127.0.0.1:9090"
 echo "Runtime ports: ${RUNTIME_ENV}"

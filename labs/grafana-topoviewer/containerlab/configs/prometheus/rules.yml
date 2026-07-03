@@ -1,6 +1,0 @@
-groups:
-  - name: topoviewer-clab-health
-    interval: 5s
-    rules:
-      - record: topoviewer_clab_prometheus_target_up
-        expr: up{job=~"gnmic|topoviewer-clab-normalizer"}

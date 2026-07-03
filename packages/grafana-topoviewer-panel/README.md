@@ -445,7 +445,7 @@ npm run grafana:clab:traffic:stop
 Default URLs after startup:
 
 ```text
-Grafana:    http://127.0.0.1:3001/d/topoviewer-clab/topoviewer-containerlab-phase-5
+Grafana:    http://127.0.0.1:3001/d/topoviewer-clab/grafana-topoviewer-panel
 Prometheus: http://127.0.0.1:9091
 gNMIc:      http://127.0.0.1:9804/metrics
 Normalizer: http://127.0.0.1:9110/health
@@ -456,10 +456,10 @@ artifact directory for review.
 
 ### Upstream-Candidate Containerlab Smoke
 
-Phase 5 also tracks an upstream-candidate lab that keeps the existing streaming
-telemetry lab shape and adds TopoViewer with the smallest useful delta. That
-path should use Prometheus recording rules for mapper-friendly labels and should
-not depend on the repo-local normalizer.
+The Containerlab path also tracks an upstream-candidate lab that keeps the
+existing streaming telemetry lab shape and adds TopoViewer with the smallest
+useful delta. That path should use Prometheus recording rules for
+mapper-friendly labels and should not depend on the repo-local normalizer.
 
 The production plugin contract is:
 
