@@ -1,3 +1,4 @@
+import { Handle, Position } from '@xyflow/react';
 import type { CSSProperties, SVGAttributes } from 'react';
 import type { CompiledNodeData } from '../core/types';
 
@@ -151,9 +152,11 @@ export function ShapeNode({ data }: { data: CompiledNodeData }) {
       style={data.shapeStyle as CSSProperties}
       aria-label={data.name || data.id}
     >
+      <Handle type="target" position={Position.Left} />
       <svg className="topoviewer-shape-geometry" viewBox="0 0 100 100" role="presentation" focusable="false">
         <ShapeSvg type={shapeType} fill={fill} stroke={stroke} strokeWidth={strokeWidth} rotation={rotation} />
       </svg>
+      <Handle type="source" position={Position.Right} />
     </div>
   );
 }
