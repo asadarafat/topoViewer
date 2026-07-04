@@ -5,55 +5,147 @@
 [![npm](https://img.shields.io/npm/v/topoviewer?label=npm)](https://www.npmjs.com/package/topoviewer)
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/asadarafat/topoviewer)
 
-TopoViewer turns infrastructure topology into interactive diagrams.
+**Topology as Code for infrastructure, network, and service diagrams.**
 
-Give TopoViewer a topology model, a stylesheet, and optionally a telemetry
-mapper. It renders the same source as a live diagram in documentation, React
-products, and Grafana dashboards.
-
-| Input | Purpose |
-|---|---|
-| `topology.yaml` | Defines the graph: nodes, links, paths, regions, layers, labels, and data. |
-| `stylesheet.yaml` | Defines presentation: icons, labels, colors, layout, emphasis, and interaction states. |
-| `mapper.yaml` | Optionally binds runtime telemetry to topology objects for operational overlays. |
-
-One model. Multiple surfaces. No stale screenshots.
+TopoViewer transforms declarative YAML models into interactive,
+schema-validated topology diagrams. It keeps topology as version-controlled
+code instead of static screenshots, so diagrams can be reviewed, tested,
+reused, embedded, and eventually connected to runtime state.
 
 ![Same TopoViewer YAML rendered as an interactive topology diagram](docs/assets/topoviewer-yaml-to-graph-collage.png)
 
-## Why This Exists
+## The Idea
 
-Infrastructure diagrams rot when they are maintained as pictures. Networks
-change, services move, labels drift, dashboards grow, and the diagram becomes a
-historical artifact.
+Most infrastructure diagrams start useful and then rot. A network changes, a
+service moves, a label drifts, a dashboard grows, and the diagram becomes a
+historical picture.
 
-TopoViewer treats topology diagrams as code:
+TopoViewer treats topology as a semantic asset:
 
-- stable object IDs instead of anonymous shapes
-- layers instead of duplicated drawings
-- regions and paths instead of hand-drawn grouping
-- labels and data for selectors, validation, attention, and telemetry mapping
-- reusable stylesheet YAML instead of visual choices copied into every object
-- runtime overlays instead of disconnected dashboard numbers
+| File | Responsibility |
+|---|---|
+| `topology.yaml` | The graph facts: nodes, links, paths, regions, layers, labels, data, and state. |
+| `stylesheet.yaml` | The presentation policy: icons, labels, colors, layout, emphasis, and interaction states. |
+| `mapper.yaml` | Optional runtime binding from telemetry samples to topology objects. |
 
-If a diagram explains production infrastructure, it should be reviewable,
-testable, diffable, reusable, and eventually generated from source data.
+The result is a clean split:
 
-## Try It
+```text
+topology.yaml     stable object identity and relationships
+stylesheet.yaml   reusable visual policy
+mapper.yaml       optional runtime binding
+```
+
+One source can then render across documentation, React applications, authoring
+tools, and operational dashboards.
+
+## Why TopoViewer Exists
+
+Generic drawing tools are excellent for sketches. TopoViewer is for diagrams
+that need to behave more like infrastructure code.
+
+Use TopoViewer when a topology should be:
+
+- **reviewable** as YAML in pull requests
+- **testable** through schemas, semantic validation, and fixtures
+- **reusable** across docs, product UIs, and dashboards
+- **layered** so one model can produce physical, logical, service, or transport views
+- **semantic** so nodes, links, paths, regions, labels, and state remain meaningful
+- **operational** when runtime telemetry should land on known topology objects
+
+TopoViewer is not trying to replace every diagramming tool. Mermaid,
+Excalidraw, diagrams.net, React Flow, Cytoscape, D3, Grafana, NetBox, Infrahub,
+Containerlab, and inventory APIs are still useful. TopoViewer sits in the gap
+between those worlds: it gives topology diagrams a stable semantic model and a
+renderer that can travel across surfaces.
+
+## Topology Pipeline At A Glance
+
+TopoViewer keeps source data, visual policy, and rendered output separate.
+
+```text
+source-of-truth data or hand-authored YAML
+        |
+        v
+topology.yaml + stylesheet.yaml + optional mapper.yaml
+        |
+        v
+TopoViewer renderer
+        |
+        v
+MkDocs · Zensical · Browser Harness · React · Grafana
+```
+
+![TopoViewer browser harness showing YAML beside the rendered graph](docs/assets/topoviewer-yaml-to-diagram.png)
+
+The core package owns the topology model, stylesheet resolution, validation,
+layout, and React rendering. Documentation, authoring, and operational surfaces
+reuse that core instead of inventing their own topology semantics.
+
+## Start Fast
 
 ### Browser Harness
 
-The Harness is the fastest way to author TopoViewer YAML without wiring it into
-another product.
+The Harness is the fastest way to try TopoViewer without wiring it into another
+product.
 
 ```text
 https://asadarafat.github.io/topoviewer/harness/
 ```
 
-Use it to edit topology, stylesheet, and mapper YAML, validate drafts, preview
-the rendered graph, and export Grafana-ready bundles.
+Use it to edit `topology.yaml`, `stylesheet.yaml`, and `mapper.yaml`; validate
+drafts; preview the rendered graph; and export bundles for docs, React, or
+Grafana.
+
+### MkDocs
+
+MkDocs is the flagship documentation workflow: render live TopoViewer diagrams
+directly inside Markdown.
+
+```bash
+pip install mkdocs-topoviewer
+```
+
+```yaml
+# mkdocs.yml
+plugins:
+  - search
+  - topoviewer
+```
+
+````markdown
+```topoviewer
+topology: examples/graph/basic/topology.yaml
+stylesheet: examples/graph/basic/stylesheet.yaml
+height: 420px
+controls: true
+title: Graph basic
+```
+````
+
+Published examples:
+
+```text
+https://asadarafat.github.io/topoviewer/docs/mkdocs/topoviewer/examples/
+```
+
+### Zensical Static Docs
+
+TopoViewer also publishes a Zensical static-docs view from the same authored
+documentation source:
+
+```text
+https://asadarafat.github.io/topoviewer/docs/zensical/
+```
+
+This is an adapter surface for the published docs, not a separate installable
+plugin. Its purpose is to prove that TopoViewer bundles can travel across docs
+surfaces without rewriting the topology.
 
 ### React
+
+Use the React package when TopoViewer belongs inside a product surface: an
+internal portal, topology explorer, incident console, or customer-facing app.
 
 ```bash
 npm install topoviewer @xyflow/react react react-dom
@@ -74,34 +166,6 @@ export function Diagram({ document }: { document: TopoDocument }) {
 }
 ```
 
-### MkDocs
-
-```bash
-pip install mkdocs-topoviewer
-```
-
-```yaml
-# mkdocs.yml
-plugins:
-  - search
-  - topoviewer
-```
-
-Then use a `topoviewer` fenced block in Markdown to render live YAML examples
-inside documentation.
-
-### Zensical
-
-TopoViewer also publishes a Zensical static-docs view from the same documentation
-source:
-
-```text
-https://asadarafat.github.io/topoviewer/docs/zensical/
-```
-
-This is an adapter surface for the published docs, not a separate installable
-plugin.
-
 ### Grafana Panel
 
 TopoViewer can also render operational topology in Grafana. The topology and
@@ -114,19 +178,18 @@ stable topology model
   = runtime topology overlay
 ```
 
-Try the Containerlab-backed Grafana panel demo on a Linux lab machine:
+Try the Containerlab-backed Grafana panel demo on a disposable Linux lab
+machine:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/asadarafat/topoviewer/development/scripts/bootstrap-grafana-containerlab-lab.sh | bash
 ```
 
-That command pulls the self-contained lab bundle and starts the local Grafana
-demo environment. Containerlab is used there only to create disposable
-telemetry; it is not a TopoViewer runtime dependency.
+Containerlab is demo plumbing. TopoViewer itself does not require Containerlab.
 
 ## Minimal Model
 
-Topology facts:
+`topology.yaml` defines the topology facts:
 
 ```yaml
 graph:
@@ -156,7 +219,7 @@ graph:
       layers: [physical]
 ```
 
-Presentation policy:
+`stylesheet.yaml` defines how those facts should look:
 
 ```yaml
 stylesheet:
@@ -179,27 +242,42 @@ stylesheet:
       lineWidth: 3
 ```
 
+The contract is intentionally simple:
+
 ```text
 model + style = diagram
 model + style + mapper = operational topology view
 ```
 
-## What Makes It Different
+## Core Semantics
 
-TopoViewer is not a generic Mermaid replacement, and it is not only a React Flow
-example. It is a topology-as-code renderer with semantic objects.
+TopoViewer uses semantic topology objects instead of anonymous drawing shapes.
 
 ```text
-node       has identity, labels, data, state, and position
-link       has endpoints, direction, labels, data, and style
-path       models ordered traversal through the graph
-region     groups objects without turning them into pixels
-layer      lets one model produce multiple views
-mapper     attaches runtime telemetry to known topology objects
+node       identity, labels, data, state, position, and visual policy
+link       endpoints, directionality, labels, data, style, and parallel lanes
+path       ordered traversal through the graph
+region     logical grouping without manual drawing
+layer      filtered views from the same model
+mapper     runtime telemetry binding to known topology objects
 ```
 
-That semantic layer is what lets the same topology render in docs, products,
+That semantic layer is what lets the same topology render in docs, product UIs,
 authoring tools, and operational dashboards.
+
+## Where It Fits
+
+TopoViewer is useful when the diagram is no longer just a picture.
+
+| Need | TopoViewer gives you |
+|---|---|
+| Keep diagrams in Git | Declarative YAML with stable IDs and reusable style policy |
+| Review topology changes | Diffs against model, style, and mapper files |
+| Avoid duplicated drawings | Layers, selectors, regions, and paths from one model |
+| Embed in products | React package with exported types and CSS |
+| Publish in docs | MkDocs plugin and generated docs surfaces |
+| Add runtime state | Mapper-driven overlays for operational dashboards |
+| Validate before publish | JSON Schema, semantic linting, and renderer checks |
 
 ## Project Status
 
@@ -314,11 +392,11 @@ Expected boundaries:
 ## Stability Note
 
 TopoViewer is a serious early project. The core package and MkDocs plugin are
-published, but some integration surfaces are still experimental. APIs, examples,
-and lab workflows may change while the project hardens.
+published, while some authoring and operational surfaces are still experimental.
+APIs, examples, and lab workflows may change while the project hardens.
 
 The project prioritizes stable install paths, clear examples, validated inputs,
-and predictable rendering over adding more surfaces.
+and predictable rendering over adding more surfaces too early.
 
 ## License
 
