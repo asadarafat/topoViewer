@@ -194,6 +194,24 @@ async function expectNoInvalidGeometry(page) {
   expect(invalidPathCount).toBe(0);
 }
 
+async function expectVisibleEdgePaintArea(page) {
+  const collapsedEdgeSvgIds = await page.locator('.react-flow__edges svg').evaluateAll((svgs) => (
+    svgs
+      .filter((svg) => svg.querySelector('.topoviewer-edge-visible-path'))
+      .map((svg, index) => {
+        const box = svg.getBoundingClientRect();
+        return {
+          index,
+          width: box.width,
+          height: box.height,
+          edges: [...svg.querySelectorAll('.react-flow__edge')].map((edge) => edge.getAttribute('data-id'))
+        };
+      })
+      .filter((entry) => entry.width < 1 || entry.height < 1)
+  ));
+  expect(collapsedEdgeSvgIds).toEqual([]);
+}
+
 function collectBrowserErrors(page, browserErrors) {
   page.on('pageerror', (error) => browserErrors.push(error.message));
   page.on('response', (response) => {
@@ -233,6 +251,7 @@ async function expectGenericExample(page, example) {
   }
   if (expected.minVisibleEdges !== undefined) {
     await expect.poll(async () => page.locator('.topoviewer-edge-visible-path').count(), { timeout: 15000 }).toBeGreaterThanOrEqual(expected.minVisibleEdges);
+    await expectVisibleEdgePaintArea(page);
   }
   if (expected.minRegions !== undefined) {
     await expect.poll(async () => page.locator('.react-flow__node-region').count(), { timeout: 15000 }).toBeGreaterThanOrEqual(expected.minRegions);

@@ -76,8 +76,7 @@
 /* Documentation hosts may theme TopoViewer colors through CSS variables, but
    renderer geometry must not inherit page-level SVG/image sizing resets. */
 .topoviewer .topoviewer-node-icon > .topoviewer-node-geometry,
-.topoviewer .topoviewer-shape > .topoviewer-shape-geometry,
-.topoviewer .react-flow__edge .topoviewer-edge-paint-layer {
+.topoviewer .topoviewer-shape > .topoviewer-shape-geometry {
   display: block;
   width: 100%;
   height: 100%;
@@ -87,11 +86,6 @@
   min-height: 0;
   aspect-ratio: auto;
   vertical-align: baseline;
-}
-
-.topoviewer .react-flow__edge .topoviewer-edge-paint-layer {
-  width: 1px;
-  height: 1px;
 }
 
 .topoviewer .topoviewer-node-icon-content > .topoviewer-node-icon-image {
@@ -106,6 +100,14 @@
   object-fit: contain;
   object-position: center;
   vertical-align: baseline;
+}
+
+.topoviewer .react-flow__edges,
+.topoviewer .react-flow__edges svg {
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
 }
 
 .topoviewer-embed-shell {
