@@ -60,7 +60,7 @@ nav:
       - Validate YAML: topoviewer/author/validate-yaml.md
       - Debug Rendering: topoviewer/author/debug-rendering.md
   - Examples:
-      - Examples: topoviewer/examples/index.md
+      - Overview: topoviewer/examples/index.md
       - YAML to Network Diagram: topoviewer/examples/yaml-to-network-diagram/index.md
       - Graph: topoviewer/examples/graph/index.md
       - Nodes: topoviewer/examples/nodes/index.md
@@ -75,7 +75,7 @@ nav:
       - Object Family Examples: topoviewer/examples/object-family-examples.md
       - Validation: topoviewer/examples/validation/index.md
       - Use Cases:
-          - Use Cases: topoviewer/examples/use-cases/index.md
+          - Overview: topoviewer/examples/use-cases/index.md
           - React: topoviewer/examples/use-cases/react.md
           - MkDocs: topoviewer/examples/use-cases/mkdocs.md
           - Static HTML / Zensical Adapter: topoviewer/examples/use-cases/static-html-zensical-adapter.md

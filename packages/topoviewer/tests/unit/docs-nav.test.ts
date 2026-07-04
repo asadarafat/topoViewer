@@ -43,7 +43,7 @@ describe('MkDocs navigation', () => {
     const actualCategories = new Set(directExampleCategories.flatMap((entry) => Object.keys(entry)));
 
     expect([...expectedCategories].filter((category) => !actualCategories.has(category))).toEqual([]);
-    expect(navValue((examplesNav || [])[0] || {}, 'Examples')).toBe('topoviewer/examples/index.md');
+    expect(navValue((examplesNav || [])[0] || {}, 'Overview')).toBe('topoviewer/examples/index.md');
     expect((examplesNav || []).some((entry) => Array.isArray(navValue(entry, 'Use Cases')))).toBe(true);
   });
 

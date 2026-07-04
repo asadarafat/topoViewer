@@ -670,8 +670,8 @@ function checkExamplesNavBoundary() {
   }
 
   const firstEntry = examplesNav[0];
-  if (navEntryValue(firstEntry, 'Examples') !== 'topoviewer/examples/index.md') {
-    fail('MkDocs Examples nav must start with Examples: topoviewer/examples/index.md');
+  if (navEntryValue(firstEntry, 'Overview') !== 'topoviewer/examples/index.md') {
+    fail('MkDocs Examples nav must start with Overview: topoviewer/examples/index.md');
   }
 
   const requiredExampleTargets = new Map([
@@ -704,7 +704,7 @@ function checkExamplesNavBoundary() {
   }
 
   const requiredUseCases = new Map([
-    ['Use Cases', 'topoviewer/examples/use-cases/index.md'],
+    ['Overview', 'topoviewer/examples/use-cases/index.md'],
     ['React', 'topoviewer/examples/use-cases/react.md'],
     ['MkDocs', 'topoviewer/examples/use-cases/mkdocs.md'],
     ['Static HTML / Zensical Adapter', 'topoviewer/examples/use-cases/static-html-zensical-adapter.md'],
@@ -720,6 +720,28 @@ function checkExamplesNavBoundary() {
       fail(`MkDocs Examples > Use Cases nav is missing ${label}: ${target}`);
     }
   }
+}
+
+function checkNoRepeatedNavLandingLabels() {
+  const mkdocsConfig = readYaml(path.join(repoRoot, 'mkdocs.yml'));
+
+  function visit(items, ancestors = []) {
+    for (const item of items || []) {
+      if (!item || typeof item !== 'object' || Array.isArray(item)) continue;
+      for (const [label, value] of Object.entries(item)) {
+        if (!Array.isArray(value)) continue;
+        for (const child of value) {
+          if (!child || typeof child !== 'object' || Array.isArray(child)) continue;
+          if (typeof child[label] === 'string') {
+            fail(`MkDocs nav must not duplicate a section label as its landing page: ${[...ancestors, label, label].join(' > ')}. Use "Overview" for section index pages.`);
+          }
+        }
+        visit(value, [...ancestors, label]);
+      }
+    }
+  }
+
+  visit(mkdocsConfig.nav || []);
 }
 
 function slugifyNavLabel(label) {
@@ -787,6 +809,9 @@ function checkNavPathAlignment() {
         ].join('/');
         if (!target.startsWith(`${expectedPrefix}/`)) {
           fail(`MkDocs nav path mismatch: ${[section, ...ancestors, label].join(' > ')} points to ${target}; expected ${expectedPrefix}/...`);
+          return;
+        }
+        if (label === 'Overview' && target === `${expectedPrefix}/index.md`) {
           return;
         }
         const expectedSlug = slugifyNavLabel(label);
@@ -877,6 +902,7 @@ checkApiCoverage();
 checkLocalLinks();
 checkGeneratedCriticalPages();
 checkMkDocsNavCoverage();
+checkNoRepeatedNavLandingLabels();
 checkNavPathAlignment();
 checkStartNavBoundary();
 checkExamplesNavBoundary();
