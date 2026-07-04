@@ -10,6 +10,7 @@ reflected in public docs with an explicit support-status label.
 
 Current active plans:
 
+- `changes/add-global-label-collision-layout/` - active hardening for deterministic label placement across node, region, edge, endpoint, and directional telemetry labels so dense Grafana and documentation views avoid avoidable overlaps.
 - `changes/define-codespaces-dev-environment/` - planned Codespaces developer environment that can run local MkDocs, Zensical, browser harness, Grafana lab, and Containerlab-Grafana workflows from a fresh cloud workspace.
 - `changes/define-netbox-integration-roadmap/` - planned NetBox feasibility, use cases, first integration shape, and roadmap wording constraints.
 - `changes/define-opsmill-infrahub-integration-roadmap/` - planned OpsMill/Infrahub feasibility, use cases, first integration shape, and roadmap wording constraints.
