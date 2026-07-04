@@ -78,10 +78,10 @@ If you want to remove the runtime smoke artifacts as well:
 npm run grafana:clab:clean
 ```
 
-The smoke test writes evidence under `.artifacts/grafana-containerlab/`,
-including panel crops, full Grafana dashboard frames, a walkthrough GIF when
-ImageMagick is installed, mapper coverage text, Prometheus query results, and
-service health checks.
+The smoke test writes local evidence to the repo's ignored smoke-output
+directory, including panel crops, full Grafana dashboard frames, a walkthrough
+GIF when ImageMagick is installed, mapper coverage text, Prometheus query
+results, and service health checks. The command prints the exact local paths.
 
 ## Local Ports
 
@@ -243,41 +243,23 @@ The mapper runtime performs the same sequence on each refresh:
 
 `npm run grafana:clab:smoke` captures three panel states:
 
-```text
-.artifacts/grafana-containerlab/healthy.png
-.artifacts/grafana-containerlab/high-utilization.png
-.artifacts/grafana-containerlab/link-failure.png
-```
+- healthy baseline;
+- high-utilization overlay;
+- link-failure overlay.
 
 Use those images as walkthrough frames when reviewing the lab or recording a
-short GIF. The smoke test also captures full Grafana dashboard frames:
+short GIF. The smoke test also captures full Grafana dashboard frames so the
+review shows the real dashboard chrome, query controls, side panels, and
+TopoViewer panel together.
 
-```text
-.artifacts/grafana-containerlab/grafana-healthy.png
-.artifacts/grafana-containerlab/grafana-high-utilization.png
-.artifacts/grafana-containerlab/grafana-link-failure.png
-```
+With ImageMagick installed, the smoke script automatically combines the
+dashboard frames into a local walkthrough GIF. If ImageMagick is not installed,
+the smoke output still includes the individual PNG frames and prints enough
+information to recreate the GIF locally.
 
-With ImageMagick installed, the smoke script automatically combines those
-Grafana frames into:
-
-```text
-.artifacts/grafana-containerlab/topoviewer-panel-walkthrough.gif
-```
-
-If ImageMagick is not installed, use this command after installing it:
-
-```bash
-magick -delay 160 \
-  .artifacts/grafana-containerlab/grafana-healthy.png \
-  .artifacts/grafana-containerlab/grafana-high-utilization.png \
-  .artifacts/grafana-containerlab/grafana-link-failure.png \
-  -loop 0 .artifacts/grafana-containerlab/topoviewer-panel-walkthrough.gif
-```
-
-The GIF is a local artifact, not a source file. Keep committed docs focused on
-the runnable lab and regenerate screenshots from smoke tests when the topology
-or panel behavior changes.
+The GIF and screenshots are local review artifacts, not source files. Keep
+committed docs focused on the runnable lab and regenerate screenshots from smoke
+tests when the topology or panel behavior changes.
 
 ??? reference "Mapper contract and attributes"
 
