@@ -76,6 +76,8 @@ This command sequence starts a real local network lab with SR Linux nodes,
 gNMIc, Prometheus, Grafana, Alloy, Loki, and the TopoViewer panel. Containerlab
 publishes Grafana and Prometheus through Docker for lab access; keep it on a
 trusted local host or constrain access with host firewall rules.
+Containerlab publishes those ports as disposable local lab endpoints, not
+production exposure guidance.
 
 ```bash
 npm run grafana:clab:up

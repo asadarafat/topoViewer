@@ -11,7 +11,7 @@ function checkPort({ name, port }) {
     const server = net.createServer();
     server.once('error', (error) => {
       if (error.code === 'EADDRINUSE') {
-        reject(new Error(`${name} Containerlab port ${port} is already in use. Stop the owner before deploying the upstream-shaped lab.`));
+        reject(new Error(`${name} Containerlab port ${port} is already in use. Stop the owner or override the lab with a <free-port> before deploying the upstream-shaped lab.`));
         return;
       }
       reject(error);
