@@ -12,6 +12,7 @@ import {
 import { useId, useState, type CSSProperties, type MouseEvent } from 'react';
 import { applyEndpointSpacing, segmentRoute, taxiRoute } from '../core/edgeGeometry';
 import { normalizeTaxiDirection, numberList, stringList } from '../core/edgeStyle';
+import { placeLabels, type LabelPlacementItem, type LabelPlacementObstacle, type LabelPlacementResult } from '../core/labelPlacement';
 import { linkDirectionGeometryForPath, linkDirectionSegment, trimPolylinePathEnd, type LinkDirectionGeometry } from '../core/linkDirectionGeometry';
 import { styleDefaultNumber } from '../core/styleDefaults';
 import type { Bounds } from '../core/types';
@@ -470,8 +471,8 @@ interface EndpointLabelLayout {
   opacity?: number;
 }
 
-function estimateEndpointLabelSize(data: Record<string, unknown>, role: 'source' | 'target', value: string): { width: number; height: number } {
-  const fontSize = numeric(data[`${role}LabelFontSize`] ?? data.labelFontSize, 10);
+function estimateEdgeLabelSize(data: Record<string, unknown>, role: EdgeLabelRole, value: string): { width: number; height: number } {
+  const fontSize = numeric(role === 'center' ? data.labelFontSize : data[`${role}LabelFontSize`] ?? data.labelFontSize, 10);
   const horizontalPadding = numeric(data.labelBorderWidth, 0) > 0 ? 10 : 8;
   return {
     width: Math.max(20, value.length * fontSize * 0.58 + horizontalPadding),
@@ -546,7 +547,7 @@ function endpointLabelPoint(
   const anchor = role === 'source'
     ? { x: endpoints.sourceX + offset.x, y: endpoints.sourceY + offset.y }
     : { x: endpoints.targetX + offset.x, y: endpoints.targetY + offset.y };
-  const size = estimateEndpointLabelSize(data, role, value);
+  const size = estimateEdgeLabelSize(data, role, value);
   if (!endpointLabelAutoEnabled(data, role)) {
     return {
       ...anchor,
@@ -585,46 +586,149 @@ function endpointLabelPoint(
   };
 }
 
-function labelBounds(label: EndpointLabelLayout): Bounds {
+function nodeObstacle(id: string, box: NonNullable<ReturnType<typeof internalNodeBox>> | null, margin: number): LabelPlacementObstacle | undefined {
+  if (!box) return undefined;
   return {
-    x: label.x - label.width / 2,
-    y: label.y - label.height / 2,
-    width: label.width,
-    height: label.height
+    id,
+    bounds: {
+      x: box.x - margin,
+      y: box.y - margin,
+      width: box.width + margin * 2,
+      height: box.height + margin * 2
+    }
   };
 }
 
-function boundsOverlap(a: Bounds, b: Bounds): boolean {
-  return a.x < b.x + b.width && a.x + a.width > b.x && a.y < b.y + b.height && a.y + a.height > b.y;
+function centeredLabelItem(id: string, data: Record<string, unknown>, role: EdgeLabelRole, value: string, point: { x: number; y: number }, priority: number): LabelPlacementItem {
+  const size = estimateEdgeLabelSize(data, role, value);
+  return {
+    id,
+    width: size.width,
+    height: size.height,
+    priority,
+    collisionPolicy: 'avoid',
+    candidates: [{
+      x: point.x,
+      y: point.y,
+      transform: 'translate(-50%, -50%)'
+    }]
+  };
 }
 
-function resolveEndpointLabelCollision(
-  source: EndpointLabelLayout | undefined,
-  target: EndpointLabelLayout | undefined,
-  endpoints: ReturnType<typeof floatingEndpoints>,
-  data: Record<string, unknown>
-): { source?: EndpointLabelLayout; target?: EndpointLabelLayout } {
-  if (!source || !target || !boundsOverlap(labelBounds(source), labelBounds(target))) return { source, target };
+function endpointLabelItem(
+  id: string,
+  data: Record<string, unknown>,
+  role: 'source' | 'target',
+  value: string,
+  base: EndpointLabelLayout,
+  endpoints: ReturnType<typeof floatingEndpoints>
+): LabelPlacementItem {
   const dx = endpoints.targetX - endpoints.sourceX;
   const dy = endpoints.targetY - endpoints.sourceY;
   const length = Math.sqrt(dx * dx + dy * dy) || 1;
   const normal = { x: -dy / length, y: dx / length };
-  let nextSource = source;
-  let nextTarget = target;
-  const iterations = Math.max(1, Math.min(12, numeric(data.endpointLabelCollisionIterations, 6)));
-  const step = Math.max(4, numeric(data.endpointLabelCollisionStep, 7));
-  for (let index = 0; index < iterations && boundsOverlap(labelBounds(nextSource), labelBounds(nextTarget)); index += 1) {
-    nextSource = { ...nextSource, x: nextSource.x - normal.x * step, y: nextSource.y - normal.y * step };
-    nextTarget = { ...nextTarget, x: nextTarget.x + normal.x * step, y: nextTarget.y + normal.y * step };
+  const step = numeric(data.endpointLabelCollisionStep, 7);
+  return {
+    id,
+    width: base.width,
+    height: base.height,
+    priority: 72,
+    collisionPolicy: 'fade',
+    candidates: [
+      { x: base.x, y: base.y, transform: 'translate(-50%, -50%)' },
+      { x: base.x + normal.x * step, y: base.y + normal.y * step, transform: 'translate(-50%, -50%)', weight: 8 },
+      { x: base.x - normal.x * step, y: base.y - normal.y * step, transform: 'translate(-50%, -50%)', weight: 10 },
+      { x: base.x + normal.x * step * 2, y: base.y + normal.y * step * 2, transform: 'translate(-50%, -50%)', weight: 14 },
+      { x: base.x - normal.x * step * 2, y: base.y - normal.y * step * 2, transform: 'translate(-50%, -50%)', weight: 16 }
+    ]
+  };
+}
+
+function directionalLabelItem(
+  direction: DirectionStroke,
+  data: Record<string, unknown>,
+  geometry: LinkDirectionGeometry,
+  placement: string,
+  offset: number
+): LabelPlacementItem | undefined {
+  if (!direction.label) return undefined;
+  const point = directionLabelPoint(direction.direction, geometry, placement, offset);
+  const size = estimateEdgeLabelSize({ ...data, ...direction.data }, 'center', direction.label);
+  const segment = linkDirectionSegment(geometry, direction.direction);
+  const step = Math.max(8, numeric(direction.data.directionLabelCollisionStep ?? data.directionLabelCollisionStep, 10));
+  const directionMultiplier = direction.direction === 'sourceToTarget' ? -1 : 1;
+  return {
+    id: `direction:${direction.id}`,
+    width: size.width,
+    height: size.height,
+    priority: 58,
+    collisionPolicy: 'fade',
+    candidates: [
+      { x: point.x, y: point.y, transform: 'translate(-50%, -50%)' },
+      { x: point.x + segment.normal.x * step * directionMultiplier, y: point.y + segment.normal.y * step * directionMultiplier, transform: 'translate(-50%, -50%)', weight: 8 },
+      { x: point.x - segment.normal.x * step * directionMultiplier, y: point.y - segment.normal.y * step * directionMultiplier, transform: 'translate(-50%, -50%)', weight: 10 },
+      { x: point.x + segment.normal.x * step * 2 * directionMultiplier, y: point.y + segment.normal.y * step * 2 * directionMultiplier, transform: 'translate(-50%, -50%)', weight: 14 },
+      { x: point.x - segment.normal.x * step * 2 * directionMultiplier, y: point.y - segment.normal.y * step * 2 * directionMultiplier, transform: 'translate(-50%, -50%)', weight: 16 }
+    ]
+  };
+}
+
+function edgeLabelLayouts({
+  props,
+  data,
+  centerPoint,
+  sourceLabel,
+  targetLabel,
+  sourceLabelLayout,
+  targetLabelLayout,
+  sourceBox,
+  targetBox,
+  endpoints,
+  directions,
+  directionGeometry
+}: {
+  props: EdgeProps;
+  data: Record<string, unknown>;
+  centerPoint: { x: number; y: number };
+  sourceLabel: string;
+  targetLabel: string;
+  sourceLabelLayout?: EndpointLabelLayout;
+  targetLabelLayout?: EndpointLabelLayout;
+  sourceBox: NonNullable<ReturnType<typeof internalNodeBox>> | null;
+  targetBox: NonNullable<ReturnType<typeof internalNodeBox>> | null;
+  endpoints: ReturnType<typeof floatingEndpoints>;
+  directions: DirectionStroke[];
+  directionGeometry?: LinkDirectionGeometry;
+}): Record<string, LabelPlacementResult> {
+  const items: LabelPlacementItem[] = [];
+  if (props.label) {
+    items.push(centeredLabelItem('center', data, 'center', String(props.label), centerPoint, 54));
   }
-  if (boundsOverlap(labelBounds(nextSource), labelBounds(nextTarget))) {
-    const opacity = Math.min(numeric(data.sourceLabelOpacity, 1), numeric(data.targetLabelOpacity, 1), 0.64);
-    return {
-      source: { ...nextSource, opacity },
-      target: { ...nextTarget, opacity }
-    };
+  if (sourceLabel && sourceLabelLayout) {
+    items.push(endpointLabelItem('source', data, 'source', sourceLabel, sourceLabelLayout, endpoints));
   }
-  return { source: nextSource, target: nextTarget };
+  if (targetLabel && targetLabelLayout) {
+    items.push(endpointLabelItem('target', data, 'target', targetLabel, targetLabelLayout, endpoints));
+  }
+  if (directionGeometry) {
+    for (const direction of directions) {
+      const item = directionalLabelItem(
+        direction,
+        data,
+        directionGeometry,
+        String(data.directionLabelPlacement || 'center'),
+        numeric(data.directionLabelOffset, 0)
+      );
+      if (item) items.push(item);
+    }
+  }
+
+  const obstacles = [
+    nodeObstacle('source-node', sourceBox, 6),
+    nodeObstacle('target-node', targetBox, 6)
+  ].filter(Boolean) as LabelPlacementObstacle[];
+
+  return placeLabels(items, obstacles, 3);
 }
 
 function linkDirections(data: Record<string, unknown>): DirectionStroke[] {
@@ -780,7 +884,6 @@ export function FloatingEdge(props: EdgeProps) {
   const targetLabelLayout = targetLabel
     ? endpointLabelPoint(data, endpoints, offset, 'target', lineWidth, targetLabel, targetBox)
     : undefined;
-  const endpointLabelLayout = resolveEndpointLabelCollision(sourceLabelLayout, targetLabelLayout, endpoints, data);
   const directions = data.directionalStrokes === false ? [] : linkDirections(data);
   const directionGeometry = directions.length
     ? linkDirectionGeometryForPath(
@@ -822,6 +925,23 @@ export function FloatingEdge(props: EdgeProps) {
       stroke: gradient?.url || paintedLaneStyle?.stroke
     });
   const centerLabelOffsetPoint = centerLabelOffset(data, directions, directionGeometry, lineWidth);
+  const edgeLabels = edgeLabelLayouts({
+    props,
+    data,
+    centerPoint: {
+      x: labelX + offset.x + centerLabelOffsetPoint.x,
+      y: labelY + offset.y + centerLabelOffsetPoint.y
+    },
+    sourceLabel,
+    targetLabel,
+    sourceLabelLayout,
+    targetLabelLayout,
+    sourceBox,
+    targetBox,
+    endpoints,
+    directions,
+    directionGeometry
+  });
 
   return (
     <>
@@ -1035,44 +1155,48 @@ export function FloatingEdge(props: EdgeProps) {
         props,
         data,
         String(props.label),
-        labelX + offset.x + centerLabelOffsetPoint.x,
-        labelY + offset.y + centerLabelOffsetPoint.y,
-        'center'
+        edgeLabels.center?.x ?? labelX + offset.x + centerLabelOffsetPoint.x,
+        edgeLabels.center?.y ?? labelY + offset.y + centerLabelOffsetPoint.y,
+        'center',
+        undefined,
+        undefined,
+        edgeLabels.center?.opacity === undefined ? undefined : { opacity: edgeLabels.center.opacity }
       ) : null}
-      {sourceLabel && endpointLabelLayout.source
+      {sourceLabel && edgeLabels.source
         ? renderEdgeLabel(
           props,
           data,
           sourceLabel,
-          endpointLabelLayout.source.x,
-          endpointLabelLayout.source.y,
+          edgeLabels.source.x,
+          edgeLabels.source.y,
           'source',
           undefined,
           undefined,
-          endpointLabelLayout.source.opacity === undefined ? undefined : { opacity: endpointLabelLayout.source.opacity }
+          edgeLabels.source.opacity === undefined ? undefined : { opacity: edgeLabels.source.opacity }
         )
         : null}
-      {targetLabel && endpointLabelLayout.target
+      {targetLabel && edgeLabels.target
         ? renderEdgeLabel(
           props,
           data,
           targetLabel,
-          endpointLabelLayout.target.x,
-          endpointLabelLayout.target.y,
+          edgeLabels.target.x,
+          edgeLabels.target.y,
           'target',
           undefined,
           undefined,
-          endpointLabelLayout.target.opacity === undefined ? undefined : { opacity: endpointLabelLayout.target.opacity }
+          edgeLabels.target.opacity === undefined ? undefined : { opacity: edgeLabels.target.opacity }
         )
         : null}
       {directionGeometry ? directions.map((direction) => {
         if (!direction.label) return null;
-        const point = directionLabelPoint(
+        const fallbackPoint = directionLabelPoint(
           direction.direction,
           directionGeometry,
           String(data.directionLabelPlacement || 'center'),
           numeric(data.directionLabelOffset, 0)
         );
+        const point = edgeLabels[`direction:${direction.id}`] || fallbackPoint;
         return renderEdgeLabel(
           {
             ...props,
@@ -1085,7 +1209,8 @@ export function FloatingEdge(props: EdgeProps) {
           point.y,
           'center',
           direction.id,
-          shouldRotateDirectionLabel(data, direction) ? point.angle : undefined
+          shouldRotateDirectionLabel(data, direction) ? fallbackPoint.angle : undefined,
+          point.opacity === undefined ? undefined : { opacity: point.opacity }
         );
       }) : null}
     </>

@@ -90,9 +90,17 @@ Use this pattern when link readability, routing, arrowheads, or edge labels matt
 
 ### What This Demonstrates
 
-Use endpoint labels when the two ends of an edge need visible port names. This example keeps circle and square arrow markers as geometry only, then renders `sourceLabel` and `targetLabel` as styled endpoint annotations with automatic placement.
+Use endpoint labels when the two ends of an edge need visible port names. This
+example keeps circle and square arrow markers as geometry only, then renders
+`sourceLabel` and `targetLabel` as styled endpoint annotations with automatic
+placement.
 
 `endpointLabelDistance` moves labels away from their endpoint along the edge. `endpointLabelSideOffset` moves labels perpendicular to the edge during auto placement. `sourceLabelXOffset`, `sourceLabelYOffset`, `targetLabelXOffset`, and `targetLabelYOffset` are final manual nudges after auto placement.
+
+Use the center `label` for the relationship name. Use `sourceLabel` and
+`targetLabel` for interface names. Do not put interface names inside arrow
+markers; arrows stay marker geometry so the label engine can place endpoint
+text independently.
 
 ### Expected Result
 
@@ -302,7 +310,19 @@ Use this pattern when link readability, routing, arrowheads, or edge labels matt
 
 ### What This Demonstrates
 
-Directional link strokes model two operational directions on one physical link. Use them when one adjacency has independent telemetry for each direction and duplicate links would misrepresent the topology.
+Directional link strokes model two operational directions on one physical link.
+Use them when one adjacency has independent telemetry for each direction and
+duplicate links would misrepresent the topology.
+
+The parent link still owns the stable topology identity and any endpoint port
+labels. Each `linkDirection` inherits the parent link style, then applies
+direction-specific overrides such as line color, arrow marker, dash pattern,
+and direction label.
+
+Use direction labels for vector values such as bandwidth or packet rate. Use
+`sourceLabel` and `targetLabel` for physical ports. TopoViewer keeps arrows as
+marker geometry and places endpoint, center, and direction labels with a shared
+label placement pass so dense operational diagrams remain inspectable.
 
 ### Expected Result
 

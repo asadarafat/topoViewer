@@ -234,6 +234,33 @@ Important defaults:
 - Diagram shapes: Defaults to `180` x `72`; also default to `shape: rectangle`, `strokeWidth: 2`, draggable, non-selectable, and `zIndex: -10`.
 - Callouts: Defaults to `320` x `120`; also default to `textAlign: left`, draggable, non-selectable, and `zIndex: 30`.
 
+## Link Label Roles
+
+Links can expose three different label roles. Keep them separate so dense
+diagrams remain readable and so telemetry overlays do not corrupt topology
+identity.
+
+- `label` is the center edge label. Use it for the relationship name, circuit
+  name, protocol, or other text that describes the whole link.
+- `sourceLabel` and `targetLabel` are endpoint labels. Use them for physical
+  port names such as `e1-1`, `eth1`, or `xe-0/0/0`.
+- `link.directions.*.label` is a direction label. Use it for vector values such
+  as bandwidth, packet rate, loss, or per-direction state.
+
+Arrows are marker geometry only. Do not put port names inside arrow markers.
+Use `sourceArrowShape` and `targetArrowShape` to show directionality, then use
+`sourceLabel` and `targetLabel` for endpoint text.
+
+Endpoint labels are automatically positioned near their endpoint by default.
+`endpointLabelDistance` moves the label along the link direction,
+`endpointLabelSideOffset` moves it perpendicular to the link direction, and
+`sourceLabelXOffset` / `targetLabelXOffset` plus their Y counterparts are final
+manual nudges after auto placement.
+
+When a link has center, endpoint, and direction labels, TopoViewer applies a
+deterministic label placement pass so those labels prefer nearby readable
+positions before falling back to opacity reduction in unavoidable dense cases.
+
 ## Style Key Index
 
 This is a compact index of canonical camelCase keys accepted by the runtime. Use [Stylesheet Reference](./stylesheet-reference.md) for exact data types, accepted enum values, defaults, and target-specific notes.
@@ -327,6 +354,24 @@ stylesheet:
       lineColor: "#ff9800"
       sourceArrowShape: triangle
       lineStyle: dashed
+```
+
+Use direction labels for the value carried by the vector. Use endpoint labels
+for the ports attached to the nodes:
+
+```yaml
+graph:
+  links:
+    - id: spine1-leaf1
+      source: spine1
+      target: leaf1
+      sourceLabel: e1-1
+      targetLabel: e1-49
+      directions:
+        sourceToTarget:
+          label: "2.4 Gbps"
+        targetToSource:
+          label: "710 Mbps"
 ```
 
 ## Detailed Reference
