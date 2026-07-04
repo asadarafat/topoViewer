@@ -5,6 +5,7 @@ export interface StaticExportOptions {
   fileName?: string;
   backgroundColor?: string;
   pixelRatio?: number;
+  embedFonts?: boolean;
 }
 
 export interface StaticPdfExportOptions extends StaticExportOptions {
@@ -26,13 +27,15 @@ function exportTarget(element: HTMLElement): HTMLElement {
 export async function topoviewerToPng(element: HTMLElement, options: StaticExportOptions = {}): Promise<string> {
   return toPng(exportTarget(element), {
     backgroundColor: options.backgroundColor,
-    pixelRatio: options.pixelRatio || 2
+    pixelRatio: options.pixelRatio || 2,
+    skipFonts: options.embedFonts !== true
   });
 }
 
 export async function topoviewerToSvg(element: HTMLElement, options: StaticExportOptions = {}): Promise<string> {
   return toSvg(exportTarget(element), {
-    backgroundColor: options.backgroundColor
+    backgroundColor: options.backgroundColor,
+    skipFonts: options.embedFonts !== true
   });
 }
 

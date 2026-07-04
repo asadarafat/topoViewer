@@ -30,46 +30,57 @@ function combinations(items: string[]): string[][] {
   return states;
 }
 
+function expectCompleteDemoCompiles(
+  document: TopoDocument,
+  selectedLayerIds: string[],
+  toggleIds: string[],
+  toggleStates: string[][]
+) {
+  for (const enabledToggleIds of toggleStates) {
+    const enabledToggles = new Set(enabledToggleIds);
+    const toggles = Object.fromEntries(toggleIds.map((id) => [id, enabledToggles.has(id)])) as TopoViewerToggles;
+    const compiled = compileTopoGraph(document, selectedLayerIds, toggles);
+    const nodeIds = new Set(compiled.nodes.map((node) => String(node.id)));
+    const regionCount = compiled.nodes.filter((node) => String(node.id).startsWith('region:')).length;
+    const edgeLabelCount = compiled.edges.filter((edge) => Boolean(edge.label)).length;
+
+    compiled.edges.forEach((edge) => {
+      expect(nodeIds.has(String(edge.source)), `${edge.id}: source ${edge.source} should be compiled`).toBe(true);
+      expect(nodeIds.has(String(edge.target)), `${edge.id}: target ${edge.target} should be compiled`).toBe(true);
+    });
+
+    if (!toggles.showRegions) {
+      expect(regionCount).toBe(0);
+    }
+
+    if (toggles.showRegions && (selectedLayerIds.includes('igp') || selectedLayerIds.includes('bgp'))) {
+      expect(regionCount).toBeGreaterThan(0);
+    }
+
+    if (toggles.showRegions && !selectedLayerIds.includes('igp') && !selectedLayerIds.includes('bgp')) {
+      expect(regionCount).toBe(0);
+    }
+
+    if (!toggles.showEdgeLabels) {
+      expect(edgeLabelCount).toBe(0);
+    }
+  }
+}
+
 describe('compileTopoGraph', () => {
-  it('compiles complete demo layer and display-control permutations deterministically', () => {
+  it.each([0, 1, 2, 3])('compiles complete demo layer and display-control permutations deterministically, chunk %i', (chunkIndex) => {
     const document = readCompleteNetworkDemo();
     const layerIds = (document.graph?.layers || [])
       .map((layer) => layer.id)
       .filter((id) => id !== 'diagram');
     const toggleIds = (document.toggles || []).map((toggle) => toggle.id);
+    const toggleStates = combinations(toggleIds);
 
-    for (const selectedLayerIds of combinations(layerIds)) {
-      for (const enabledToggleIds of combinations(toggleIds)) {
-        const enabledToggles = new Set(enabledToggleIds);
-        const toggles = Object.fromEntries(toggleIds.map((id) => [id, enabledToggles.has(id)])) as TopoViewerToggles;
-        const compiled = compileTopoGraph(document, selectedLayerIds, toggles);
-        const nodeIds = new Set(compiled.nodes.map((node) => String(node.id)));
-        const regionCount = compiled.nodes.filter((node) => String(node.id).startsWith('region:')).length;
-        const edgeLabelCount = compiled.edges.filter((edge) => Boolean(edge.label)).length;
-
-        compiled.edges.forEach((edge) => {
-          expect(nodeIds.has(String(edge.source)), `${edge.id}: source ${edge.source} should be compiled`).toBe(true);
-          expect(nodeIds.has(String(edge.target)), `${edge.id}: target ${edge.target} should be compiled`).toBe(true);
-        });
-
-        if (!toggles.showRegions) {
-          expect(regionCount).toBe(0);
-        }
-
-        if (toggles.showRegions && (selectedLayerIds.includes('igp') || selectedLayerIds.includes('bgp'))) {
-          expect(regionCount).toBeGreaterThan(0);
-        }
-
-        if (toggles.showRegions && !selectedLayerIds.includes('igp') && !selectedLayerIds.includes('bgp')) {
-          expect(regionCount).toBe(0);
-        }
-
-        if (!toggles.showEdgeLabels) {
-          expect(edgeLabelCount).toBe(0);
-        }
-      }
+    for (const [index, selectedLayerIds] of combinations(layerIds).entries()) {
+      if (index % 4 !== chunkIndex) continue;
+      expectCompleteDemoCompiles(document, selectedLayerIds, toggleIds, toggleStates);
     }
-  }, 15000);
+  });
 
   it('compiles edge endpoint labels and offsets when edge labels are enabled', () => {
     const document: TopoDocument = {

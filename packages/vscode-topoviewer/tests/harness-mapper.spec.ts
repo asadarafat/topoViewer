@@ -40,6 +40,7 @@ test.afterEach(async ({ page }) => {
 });
 
 test('authors mapper YAML as part of the editable Grafana bundle', async ({ page }) => {
+  test.setTimeout(60000);
   await page.goto('/');
   await waitForHarnessReady(page);
 

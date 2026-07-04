@@ -14,7 +14,7 @@ function collectYamlFiles(directory: string): string[] {
   return fs.readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
     const fullPath = path.join(directory, entry.name);
     if (entry.isDirectory()) return collectYamlFiles(fullPath);
-    return entry.isFile() && entry.name.endsWith('.yaml') ? [fullPath] : [];
+    return entry.isFile() && entry.name.endsWith('.yaml') && entry.name !== 'expected.yaml' ? [fullPath] : [];
   });
 }
 

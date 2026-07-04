@@ -9,9 +9,24 @@ import {
   yamlSuggestionWidgetVisible,
   yamlStyleMetadata,
   typeYamlEditorText,
+  type HarnessStyleMetadata,
   type StyleValueDataType
 } from './harness-helpers';
 import { exportViewportMessage } from '../src/webview/host';
+
+const STYLE_VALUE_COVERAGE_CHUNKS = 8;
+
+type StyleValueCase = {
+  definition: HarnessStyleMetadata['valueTypesByKind'][string][string];
+  key: string;
+  kind: string;
+};
+
+function styleValueCases(metadata: HarnessStyleMetadata): StyleValueCase[] {
+  return Object.entries(metadata.valueTypesByKind).flatMap(([kind, definitions]) => (
+    Object.entries(definitions).map(([key, definition]) => ({ definition, key, kind }))
+  ));
+}
 
 test('suggests topology keys and node references in YAML intelligence', async ({ page }) => {
   await page.goto('/');
@@ -429,12 +444,11 @@ test('creates stable VS Code export messages', () => {
   });
 });
 
-test('covers every stylesheet style key and value type in YAML intelligence', async ({ page }) => {
+test('covers every stylesheet style key in YAML intelligence', async ({ page }) => {
   await page.goto('/');
   await waitForHarnessReady(page);
 
   const metadata = await yamlStyleMetadata(page);
-  const seenDataTypes = new Set<StyleValueDataType>();
 
   for (const [kind, options] of Object.entries(metadata.optionsByKind)) {
     const suggestions = await yamlCompletions(page, {
@@ -452,10 +466,18 @@ test('covers every stylesheet style key and value type in YAML intelligence', as
       expect(suggestion?.documentation, `${kind}.${option.key} should document its value type`).toContain('Value type:');
     }
   }
+});
 
-  for (const [kind, definitions] of Object.entries(metadata.valueTypesByKind)) {
-    for (const [key, definition] of Object.entries(definitions)) {
-      seenDataTypes.add(definition.dataType);
+for (let chunkIndex = 0; chunkIndex < STYLE_VALUE_COVERAGE_CHUNKS; chunkIndex += 1) {
+  test(`covers stylesheet style value completions in YAML intelligence, chunk ${chunkIndex + 1}`, async ({ page }) => {
+    await page.goto('/');
+    await waitForHarnessReady(page);
+
+    const metadata = await yamlStyleMetadata(page);
+    const cases = styleValueCases(metadata)
+      .filter((_, index) => index % STYLE_VALUE_COVERAGE_CHUNKS === chunkIndex);
+
+    for (const { definition, key, kind } of cases) {
       const valueLine = `      ${key}: `;
       const suggestions = await yamlCompletions(page, {
         document: 'stylesheet',
@@ -489,8 +511,16 @@ test('covers every stylesheet style key and value type in YAML intelligence', as
       }
       expect(labels, `${kind}.${key} text values should stay free-form`).toHaveLength(0);
     }
-  }
+  });
+}
 
+test('covers every stylesheet value type in YAML intelligence metadata', async ({ page }) => {
+  await page.goto('/');
+  await waitForHarnessReady(page);
+
+  const metadata = await yamlStyleMetadata(page);
+  const seenDataTypes = new Set<StyleValueDataType>();
+  for (const { definition } of styleValueCases(metadata)) seenDataTypes.add(definition.dataType);
   expect([...seenDataTypes].sort()).toEqual(['boolean', 'color', 'enum', 'integer', 'number', 'text']);
 });
 
