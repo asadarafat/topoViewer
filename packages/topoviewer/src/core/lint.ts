@@ -36,10 +36,11 @@ import { selectorMatches } from './selector';
 import { applyStyle } from './style';
 import { canonicalStyleKeyByLowercase, isColorStyleKey } from './styleDefaults';
 import { LINK_DIRECTION_KEYS, type LinkDirectionKey } from './types';
-import type { DiagramCallout, DiagramConnector, GraphEntity, GraphLink, GraphLinkDirection, GraphPath, StyleRule, TopoDocument } from './types';
+import type { DiagramCallout, DiagramConnector, GraphEntity, GraphLink, GraphLinkDirection, GraphNode, GraphPath, StyleRule, TopoDocument } from './types';
 import { validateTopoDocument } from './validation';
 
 const directionLabelPlacements = ['center', 'source', 'target', 'outside'];
+const directionLabelRotations = ['none', 'auto', 'true', 'false'];
 
 export type LintSeverity = 'error' | 'warning';
 
@@ -134,8 +135,6 @@ function styleKeyIssues(style: Record<string, unknown> | undefined, path: string
         key === 'labelZIndex'
         || key === 'sourceLabelZIndex'
         || key === 'targetLabelZIndex'
-        || key === 'sourceArrowLabelZIndex'
-        || key === 'targetArrowLabelZIndex'
       )
       && finiteNumber(style[key]) === undefined
     ) {
@@ -338,13 +337,41 @@ function edgeStyleIssues(style: Record<string, unknown> | undefined, path: strin
   [
     'labelXOffset',
     'labelYOffset',
-    'sourceArrowLabelXOffset',
-    'sourceArrowLabelYOffset',
-    'targetArrowLabelXOffset',
-    'targetArrowLabelYOffset'
+    'sourceLabelXOffset',
+    'sourceLabelYOffset',
+    'targetLabelXOffset',
+    'targetLabelYOffset',
+    'endpointLabelSideOffset',
+    'sourceLabelSideOffset',
+    'targetLabelSideOffset'
   ].forEach((key) => {
     if (style[key] !== undefined && finiteNumber(style[key]) === undefined) {
       issues.push(issue('error', 'invalid-edge-label-offset', `${key} must be a finite number.`, `${path}.${key}`));
+    }
+  });
+
+  ['endpointLabelDistance', 'endpointLabelMaxDistance', 'sourceLabelDistance', 'sourceLabelMaxDistance', 'targetLabelDistance', 'targetLabelMaxDistance'].forEach((key) => {
+    issues.push(...nonNegativeNumberIssue(style, key, path, 'invalid-edge-label-distance', 'Edge endpoint label distance'));
+  });
+
+  ['endpointLabelAutoPosition', 'sourceLabelAutoPosition', 'targetLabelAutoPosition'].forEach((key) => {
+    if (style[key] !== undefined && typeof style[key] !== 'boolean') {
+      issues.push(issue('error', 'invalid-edge-label-auto-position', `${key} must be a boolean.`, `${path}.${key}`));
+    }
+  });
+
+  ['endpointLabelOverlayLayer', 'sourceLabelOverlayLayer', 'targetLabelOverlayLayer', 'directionOverlayLayer'].forEach((key) => {
+    if (style[key] !== undefined && (typeof style[key] !== 'string' || !style[key])) {
+      issues.push(issue('error', 'invalid-edge-overlay-layer', `${key} must be a non-empty toggle ID.`, `${path}.${key}`));
+    }
+  });
+
+  ['sourceLabelOpacity', 'targetLabelOpacity'].forEach((key) => {
+    if (style[key] !== undefined) {
+      const opacity = finiteNumber(style[key]);
+      if (opacity === undefined || opacity < 0 || opacity > 1) {
+        issues.push(issue('error', 'invalid-edge-label-opacity', `${key} must be a number between 0 and 1.`, `${path}.${key}`));
+      }
     }
   });
 
@@ -369,6 +396,12 @@ function edgeStyleIssues(style: Record<string, unknown> | undefined, path: strin
 
   if (style.directionLabelOffset !== undefined && finiteNumber(style.directionLabelOffset) === undefined) {
     issues.push(issue('error', 'invalid-link-direction-label-offset', 'directionLabelOffset must be a finite number.', `${path}.directionLabelOffset`));
+  }
+  if (
+    style.directionLabelRotation !== undefined
+    && !directionLabelRotations.includes(String(style.directionLabelRotation))
+  ) {
+    issues.push(issue('error', 'invalid-link-direction-label-rotation', `directionLabelRotation must be one of ${directionLabelRotations.join(', ')}.`, `${path}.directionLabelRotation`));
   }
 
   const segmentDistances = numberList(style.segmentDistances);
@@ -448,6 +481,61 @@ function hasCalloutBox(callout: DiagramCallout): boolean {
 function addPinOwners(pinIdsByOwner: Map<string, Set<string>>, owner: { id: string; pins?: Array<{ id: string }> }) {
   if (!owner.pins?.length) return;
   pinIdsByOwner.set(owner.id, new Set(owner.pins.map((pin) => pin.id)));
+}
+
+function handleCapability(value: unknown): Array<'source' | 'target'> {
+  if (value === 'source') return ['source'];
+  if (value === 'target') return ['target'];
+  return ['source', 'target'];
+}
+
+function addNodeHandleOwners(handleIdsByNode: Map<string, Map<string, Set<'source' | 'target'>>>, node: GraphNode) {
+  if (!node.handles?.length) return;
+  const handles = new Map<string, Set<'source' | 'target'>>();
+  node.handles.forEach((handle) => {
+    if (!handle?.id) return;
+    const capabilities = handles.get(handle.id) || new Set<'source' | 'target'>();
+    handleCapability(handle.type).forEach((type) => capabilities.add(type));
+    handles.set(handle.id, capabilities);
+  });
+  handleIdsByNode.set(node.id, handles);
+}
+
+function nodeHandleIssues(node: GraphNode, nodeIndex: number): LintIssue[] {
+  if (!node.handles?.length) return [];
+  const issues: LintIssue[] = [];
+  const seen = new Set<string>();
+  node.handles.forEach((handle, handleIndex) => {
+    const path = `graph.nodes[${nodeIndex}].handles[${handleIndex}]`;
+    if (seen.has(handle.id)) {
+      issues.push(issue('error', 'duplicate-node-handle', `Node "${node.id}" defines duplicate handle "${handle.id}".`, `${path}.id`));
+    }
+    seen.add(handle.id);
+    if (handle.offset !== undefined && (handle.offset < 0 || handle.offset > 100)) {
+      issues.push(issue('warning', 'node-handle-offset-clamped', `Node "${node.id}" handle "${handle.id}" offset will be clamped to the 0-100 range.`, `${path}.offset`));
+    }
+  });
+  return issues;
+}
+
+function linkHandleReferenceIssue(
+  link: GraphLink,
+  linkIndex: number,
+  endpoint: 'source' | 'target',
+  handleId: string | undefined,
+  nodeId: string,
+  handleIdsByNode: Map<string, Map<string, Set<'source' | 'target'>>>
+): LintIssue[] {
+  if (!handleId) return [];
+  const handles = handleIdsByNode.get(nodeId);
+  const capabilities = handles?.get(handleId);
+  if (capabilities?.has(endpoint)) return [];
+  return [issue(
+    'error',
+    `broken-${endpoint}-handle`,
+    `Link "${link.id}" ${endpoint}Handle "${handleId}" does not exist as a ${endpoint}-capable handle on node "${nodeId}".`,
+    `graph.links[${linkIndex}].${endpoint}Handle`
+  )];
 }
 
 function visualAnchorIssues(kind: string, id: string, endpoint: 'source' | 'target', ownerId: string | undefined, visualAnchorIds: Set<string>, path: string): LintIssue[] {
@@ -580,7 +668,9 @@ export function lintTopoDocument(input: TopoDocument, options: LintOptions = {})
   const calloutBoxIds = new Set((diagram.callouts || []).filter(hasCalloutBox).map((callout) => callout.id));
   const visualAnchorIds = new Set([...nodeIds, ...shapeIds, ...calloutBoxIds]);
   const pinIdsByOwner = new Map<string, Set<string>>();
+  const handleIdsByNode = new Map<string, Map<string, Set<'source' | 'target'>>>();
   (graph.nodes || []).forEach((node) => addPinOwners(pinIdsByOwner, node));
+  (graph.nodes || []).forEach((node) => addNodeHandleOwners(handleIdsByNode, node));
   (diagram.shapes || []).forEach((shape) => addPinOwners(pinIdsByOwner, shape));
   (diagram.callouts || []).forEach((callout) => addPinOwners(pinIdsByOwner, callout));
   const regionIds = new Set((graph.regions || []).map((region) => region.id));
@@ -595,6 +685,7 @@ export function lintTopoDocument(input: TopoDocument, options: LintOptions = {})
     issues.push(...layerMembershipIssues('node', node, `graph.nodes[${index}]`));
     issues.push(...styleKeyIssues(node.style, `graph.nodes[${index}].style`));
     issues.push(...nodeStyleIssues(node.style, `graph.nodes[${index}].style`));
+    issues.push(...nodeHandleIssues(node, index));
     if (node.parent && !nodeIds.has(node.parent)) {
       issues.push(issue('error', 'broken-parent', `Node "${node.id}" parent "${node.parent}" does not exist as a node.`, `graph.nodes[${index}].parent`));
     }
@@ -608,6 +699,8 @@ export function lintTopoDocument(input: TopoDocument, options: LintOptions = {})
     issues.push(...edgeStyleIssues(link.style, `graph.links[${index}].style`));
     if (!nodeIds.has(link.source)) issues.push(issue('error', 'broken-source', `Link "${link.id}" source "${link.source}" does not exist.`, `graph.links[${index}].source`));
     if (!nodeIds.has(link.target)) issues.push(issue('error', 'broken-target', `Link "${link.id}" target "${link.target}" does not exist.`, `graph.links[${index}].target`));
+    if (nodeIds.has(link.source)) issues.push(...linkHandleReferenceIssue(link, index, 'source', link.sourceHandle, link.source, handleIdsByNode));
+    if (nodeIds.has(link.target)) issues.push(...linkHandleReferenceIssue(link, index, 'target', link.targetHandle, link.target, handleIdsByNode));
     if (link.parent && !linkIds.has(link.parent)) {
       issues.push(issue('error', 'broken-parent-link', `Link "${link.id}" parent "${link.parent}" does not exist as a link.`, `graph.links[${index}].parent`));
     }

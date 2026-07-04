@@ -1,5 +1,5 @@
 graph:
-  id: arrow-label-controls
+  id: endpoint-label-controls
   layers:
     - id: services
       name: Services
@@ -36,6 +36,8 @@ graph:
       name: Gold service
       source: PE-1
       target: P-1
+      sourceLabel: e1-1
+      targetLabel: e1-2
       labels:
         class: gold
       layers:
@@ -44,6 +46,8 @@ graph:
       name: Silver service
       source: P-1
       target: PE-2
+      sourceLabel: e1-3
+      targetLabel: e1-4
       labels:
         class: silver
       layers:

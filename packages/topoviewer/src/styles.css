@@ -731,12 +731,6 @@
 }
 
 .topoviewer-edge-paint-layer {
-  position: absolute;
-  z-index: 8;
-  top: 0;
-  left: 0;
-  width: 1px;
-  height: 1px;
   overflow: visible;
   pointer-events: none;
 }

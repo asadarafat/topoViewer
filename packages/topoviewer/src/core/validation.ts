@@ -34,8 +34,6 @@ const styleSchema = z.record(z.unknown()).superRefine((style, ctx) => {
         key === 'labelZIndex'
         || key === 'sourceLabelZIndex'
         || key === 'targetLabelZIndex'
-        || key === 'sourceArrowLabelZIndex'
-        || key === 'targetArrowLabelZIndex'
       )
       && finiteNumber(style[key]) === undefined
     ) {
@@ -78,6 +76,14 @@ const pinSchema = z.object({
   position: positionSchema.optional(),
   x: z.number().optional(),
   y: z.number().optional()
+}).passthrough();
+
+const nodeHandleSchema = z.object({
+  id: z.string().min(1),
+  type: z.enum(['source', 'target', 'both']).optional(),
+  position: z.enum(['left', 'right', 'top', 'bottom']).optional(),
+  side: z.enum(['left', 'right', 'top', 'bottom']).optional(),
+  offset: z.number().optional()
 }).passthrough();
 
 const closLayoutSchema = z.object({
@@ -145,12 +151,17 @@ const linkDirectionsSchema = z.object(Object.fromEntries(
 const nodeSchema = graphEntitySchema.extend({
   position: positionSchema.optional(),
   parent: z.string().optional(),
-  pins: z.array(pinSchema).optional()
+  pins: z.array(pinSchema).optional(),
+  handles: z.array(nodeHandleSchema).optional()
 }).passthrough();
 
 const linkSchema = graphEntitySchema.extend({
   source: z.string().min(1),
   target: z.string().min(1),
+  sourceHandle: z.string().min(1).optional(),
+  targetHandle: z.string().min(1).optional(),
+  sourceLabel: z.string().min(1).optional(),
+  targetLabel: z.string().min(1).optional(),
   parent: z.string().optional(),
   directions: linkDirectionsSchema.optional()
 }).passthrough();

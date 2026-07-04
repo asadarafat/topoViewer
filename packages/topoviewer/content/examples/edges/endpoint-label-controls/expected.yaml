@@ -6,8 +6,8 @@ dom:
 assertions:
   edgeLabels: true
   edgeMarkersMin: 4
-  sourceEdgeLabelText: ingress 100G
-  targetEdgeLabelText: core 80G
+  sourceEdgeLabelText: e1-1
+  targetEdgeLabelText: e1-2
 semantic:
   errors: []
   warnings: []

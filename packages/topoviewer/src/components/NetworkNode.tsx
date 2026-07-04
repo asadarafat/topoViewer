@@ -64,6 +64,36 @@ function NodeShapeSvg({
   }
 }
 
+function handlePosition(value: unknown): Position {
+  const normalized = String(value || '').toLowerCase();
+  if (normalized === 'top') return Position.Top;
+  if (normalized === 'right') return Position.Right;
+  if (normalized === 'bottom') return Position.Bottom;
+  return Position.Left;
+}
+
+function handleTypes(value: unknown): Array<'source' | 'target'> {
+  if (value === 'source') return ['source'];
+  if (value === 'target') return ['target'];
+  return ['source', 'target'];
+}
+
+function handleOffsetStyle(position: Position, offsetValue: unknown): CSSProperties {
+  const parsed = Number(offsetValue);
+  const offset = Number.isFinite(parsed) ? Math.min(100, Math.max(0, parsed)) : 50;
+  const percent = `${offset}%`;
+  if (position === Position.Top || position === Position.Bottom) {
+    return { left: percent };
+  }
+  return { top: percent };
+}
+
+function explicitHandles(data: CompiledNodeData) {
+  return Array.isArray(data.handles)
+    ? data.handles.filter((handle): handle is NonNullable<CompiledNodeData['handles']>[number] => !!handle?.id)
+    : [];
+}
+
 export function NetworkNode({ data }: { data: CompiledNodeData }) {
   const viewport = useViewport();
   const icon = data.iconSpec || { glyph: 'R', fill: '#6ea8fe', stroke: '#d8e8ff' };
@@ -122,6 +152,7 @@ export function NetworkNode({ data }: { data: CompiledNodeData }) {
     displayName(data),
     data.attentionState ? `attention ${data.attentionState}` : ''
   ].filter(Boolean).join(', ');
+  const handles = explicitHandles(data);
 
   return (
     <div
@@ -132,11 +163,24 @@ export function NetworkNode({ data }: { data: CompiledNodeData }) {
       aria-label={accessibleLabel}
       tabIndex={isNavigableAttentionNode ? 0 : -1}
     >
-      <Handle type="target" position={Position.Left} />
       <div
         className="topoviewer-node-icon"
         style={iconFrameStyle}
       >
+        <Handle className="topoviewer-node-handle topoviewer-node-handle-default" type="target" position={Position.Left} />
+        {handles.flatMap((handle) => {
+          const position = handlePosition(handle.position || handle.side);
+          return handleTypes(handle.type).map((type) => (
+            <Handle
+              key={`${handle.id}:${type}`}
+              className="topoviewer-node-handle"
+              id={handle.id}
+              type={type}
+              position={position}
+              style={handleOffsetStyle(position, handle.offset)}
+            />
+          ));
+        })}
         <svg
           className="topoviewer-node-geometry"
           viewBox="0 0 100 100"
@@ -212,6 +256,7 @@ export function NetworkNode({ data }: { data: CompiledNodeData }) {
             style={data.statusStyle as CSSProperties}
           />
         ) : null}
+        <Handle className="topoviewer-node-handle topoviewer-node-handle-default" type="source" position={Position.Right} />
       </div>
       {rendersOverlayLabel ? null : (
         <div
@@ -224,7 +269,6 @@ export function NetworkNode({ data }: { data: CompiledNodeData }) {
         </div>
       )}
       {rendersMeta ? <div className="topoviewer-node-meta" style={data.metaStyle}>{metaText}</div> : null}
-      <Handle type="source" position={Position.Right} />
     </div>
   );
 }

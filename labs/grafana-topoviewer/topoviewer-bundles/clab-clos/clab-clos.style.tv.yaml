@@ -178,12 +178,6 @@ stylesheet:
       textBackgroundColor: var(--topoviewer-edge-label-bg)
       labelColor: var(--topoviewer-fg-strong)
       interactionWidth: 18
-      sourceArrowLabelColor: "#0f172a"
-      targetArrowLabelColor: "#0f172a"
-      sourceArrowLabelFontSize: 9
-      targetArrowLabelFontSize: 9
-      sourceArrowLabelFontWeight: 900
-      targetArrowLabelFontWeight: 900
       sourceLabelColor: var(--topoviewer-fg-strong)
       targetLabelColor: var(--topoviewer-fg-strong)
       sourceLabelBackgroundColor: var(--topoviewer-panel-bg)
@@ -196,10 +190,11 @@ stylesheet:
       targetLabelFontSize: 9
       sourceLabelFontWeight: 800
       targetLabelFontWeight: 800
-      sourceArrowLabelYOffset: 0
-      targetArrowLabelYOffset: 0
-      sourceArrowLabelZIndex: 31
-      targetArrowLabelZIndex: 31
+      endpointLabelAutoPosition: true
+      endpointLabelDistance: 18
+      endpointLabelMaxDistance: 42
+      sourceLabelZIndex: 31
+      targetLabelZIndex: 31
       directionalStrokes: true
       directionStartGap: 0
       directionCenterGap: 66

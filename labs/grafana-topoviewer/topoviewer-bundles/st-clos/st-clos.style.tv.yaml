@@ -1,7 +1,7 @@
 layout:
   mode: manual
-  width: 960
-  height: 700
+  width: 1140
+  height: 780
 icons:
   router.spine:
     glyph: S
@@ -169,23 +169,8 @@ stylesheet:
       lineCap: round
       sourceArrowShape: none
       targetArrowShape: none
-      sourceArrowColor: "#0f172a"
-      targetArrowColor: "#0f172a"
-      sourceArrowBorderColor: "#93c5fd"
-      targetArrowBorderColor: "#93c5fd"
-      sourceArrowBorderWidth: 0
-      targetArrowBorderWidth: 0
-      sourceArrowSize: 0
-      targetArrowSize: 0
-      sourceArrowOffset: 0
-      targetArrowOffset: 0
       textBackgroundColor: var(--topoviewer-edge-label-bg)
       interactionWidth: 18
-      arrowLabelColor: "#90a4ae"
-      sourceArrowLabelFontSize: 8
-      targetArrowLabelFontSize: 8
-      sourceArrowLabelFontWeight: 900
-      targetArrowLabelFontWeight: 900
       sourceLabelColor: var(--topoviewer-fg-strong)
       targetLabelColor: var(--topoviewer-fg-strong)
       sourceLabelBackgroundColor: var(--topoviewer-panel-bg)
@@ -198,17 +183,27 @@ stylesheet:
       targetLabelFontSize: 9
       sourceLabelFontWeight: 800
       targetLabelFontWeight: 800
-      sourceArrowLabelYOffset: 0
-      targetArrowLabelYOffset: 0
-      sourceArrowLabelZIndex: 31
-      targetArrowLabelZIndex: 31
+      sourceLabelOpacity: 0.92
+      targetLabelOpacity: 0.92
+      endpointLabelAutoPosition: true
+      endpointLabelDistance: 18
+      endpointLabelMaxDistance: 42
+      endpointLabelSideOffset: 0
+      endpointLabelOverlayLayer: physical-port
+      sourceLabelZIndex: 18
+      targetLabelZIndex: 18
       directionalStrokes: true
+      directionOverlayLayer: bandwidth
       directionStartGap: 0
-      directionCenterGap: 66
-      directionLabelOffset: -30
+      directionCenterGap: 0
+      directionLabelPlacement: center
+      directionLabelOffset: 0
+      directionLabelRotation: auto
   - selector: link[labels.link = "access"]
     style:
       directionalStrokes: false
+      sourceArrowShape: none
+      targetArrowShape: none
       lineWidth: 2
       lineColor: "rgba(148, 163, 184, 0.58)"
       lineStyle: dotted
@@ -222,19 +217,19 @@ stylesheet:
       targetArrowSize: 26
       sourceArrowOffset: 14
       targetArrowOffset: 14
-      sourceArrowLabelColor: "#cbd5e1"
-      targetArrowLabelColor: "#cbd5e1"
   - selector: linkDirection
     style:
-      lineWidth: 5
-      sourceArrowSize: 16
-      targetArrowSize: 16
+      lineWidth: 4
+      sourceArrowSize: 18
+      targetArrowSize: 18
       directionStartGap: 0
       lineCap: round
-      labelFontSize: 10
+      labelFontSize: 9
       labelFontWeight: 800
       textBackgroundColor: var(--topoviewer-edge-label-bg)
       textBackgroundOpacity: 0.92
+      labelBorderColor: "rgba(148, 163, 184, 0.28)"
+      labelBorderWidth: 1
   - selector: linkDirection[direction = "sourceToTarget"]
     style:
       lineColor: "#4caf50"

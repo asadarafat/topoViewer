@@ -680,8 +680,8 @@ describe('mapper telemetry overlay adapter', () => {
                 label: 'DOWN',
                 lineColor: '#d32f2f',
                 lineStyle: 'dashed',
-                sourceArrowLabel: '{{ label.source_port }}',
-                targetArrowLabel: '{{ label.target_port }}'
+                sourceLabel: '{{ label.source_port }}',
+                targetLabel: '{{ label.target_port }}'
               }
             },
             {
@@ -709,8 +709,8 @@ describe('mapper telemetry overlay adapter', () => {
       label: 'DOWN',
       lineColor: '#d32f2f',
       lineStyle: 'dashed',
-      sourceArrowLabel: 'xe-0/0/0',
-      targetArrowLabel: 'ethernet-1/1'
+      sourceLabel: 'xe-0/0/0',
+      targetLabel: 'ethernet-1/1'
     });
   });
 

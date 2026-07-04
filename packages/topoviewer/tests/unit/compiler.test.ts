@@ -82,27 +82,30 @@ describe('compileTopoGraph', () => {
           { id: 'b', name: 'B', layers: ['transport'], position: [240, 0] }
         ],
         links: [
-          { id: 'a-b', name: 'A-B', source: 'a', target: 'b', layers: ['transport'] }
+          {
+            id: 'a-b',
+            name: 'A-B',
+            source: 'a',
+            target: 'b',
+            sourceLabel: 'xe-0/0/0',
+            targetLabel: 'ethernet-1/1',
+            layers: ['transport']
+          }
         ]
       },
       stylesheet: [
         {
           selector: 'link',
           style: {
-            sourceLabel: 'source side',
-            targetLabel: 'target side',
-            sourceArrowLabel: 'xe-0/0/0',
-            targetArrowLabel: 'ethernet-1/1',
             labelXOffset: 4,
             labelYOffset: -6,
-            sourceArrowLabelXOffset: -4,
-            sourceArrowLabelYOffset: -10,
-            targetArrowLabelXOffset: 6,
-            targetArrowLabelYOffset: -12,
             sourceLabelXOffset: -8,
             sourceLabelYOffset: -12,
             targetLabelXOffset: 8,
-            targetLabelYOffset: 12
+            targetLabelYOffset: 12,
+            endpointLabelAutoPosition: true,
+            endpointLabelDistance: 20,
+            endpointLabelOverlayLayer: 'physical-port'
           }
         }
       ]
@@ -112,20 +115,117 @@ describe('compileTopoGraph', () => {
     const edgeData = compiled.edges[0].data as Record<string, unknown>;
 
     expect(edgeData).toMatchObject({
-      sourceLabel: 'source side',
-      targetLabel: 'target side',
-      sourceArrowLabel: 'xe-0/0/0',
-      targetArrowLabel: 'ethernet-1/1',
+      sourceLabel: 'xe-0/0/0',
+      targetLabel: 'ethernet-1/1',
       labelXOffset: 4,
       labelYOffset: -6,
-      sourceArrowLabelXOffset: -4,
-      sourceArrowLabelYOffset: -10,
-      targetArrowLabelXOffset: 6,
-      targetArrowLabelYOffset: -12,
       sourceLabelXOffset: -8,
       sourceLabelYOffset: -12,
       targetLabelXOffset: 8,
-      targetLabelYOffset: 12
+      targetLabelYOffset: 12,
+      endpointLabelAutoPosition: true,
+      endpointLabelDistance: 20,
+      endpointLabelOverlayLayer: 'physical-port'
+    });
+  });
+
+  it('applies annotation overlay toggles without hiding the base link', () => {
+    const document: TopoDocument = {
+      version: '1.0',
+      graph: {
+        layers: [{ id: 'fabric', name: 'Fabric' }],
+        nodes: [
+          { id: 'spine', layers: ['fabric'], position: [0, 0] },
+          { id: 'leaf', layers: ['fabric'], position: [200, 0] }
+        ],
+        links: [
+          {
+            id: 'spine-leaf',
+            source: 'spine',
+            target: 'leaf',
+            sourceLabel: 'e1-1',
+            targetLabel: 'e1-49',
+            layers: ['fabric'],
+            directions: {
+              sourceToTarget: { label: '10G' },
+              targetToSource: { label: '6G' }
+            }
+          }
+        ]
+      },
+      stylesheet: [
+        {
+          selector: 'link',
+          style: {
+            directionalStrokes: true,
+            endpointLabelOverlayLayer: 'physical-port',
+            directionOverlayLayer: 'bandwidth'
+          }
+        }
+      ]
+    };
+
+    const compiled = compileTopoGraph(document, ['fabric'], {
+      showEdgeLabels: true,
+      'physical-port': false,
+      bandwidth: false
+    });
+    const edge = compiled.edges[0];
+
+    expect(edge).toBeDefined();
+    expect(edge.data.sourceLabel).toBeUndefined();
+    expect(edge.data.targetLabel).toBeUndefined();
+    expect(edge.data.linkDirections).toBeUndefined();
+  });
+
+  it('compiles node handles and link handle endpoints', () => {
+    const document: TopoDocument = {
+      version: '1.0',
+      graph: {
+        layers: [{ id: 'physical', name: 'Physical' }],
+        nodes: [
+          {
+            id: 'leaf1',
+            name: 'Leaf 1',
+            layers: ['physical'],
+            position: [0, 0],
+            handles: [
+              { id: 'e1-49', type: 'both', position: 'top', offset: 35 }
+            ]
+          },
+          {
+            id: 'spine1',
+            name: 'Spine 1',
+            layers: ['physical'],
+            position: [200, 0],
+            handles: [
+              { id: 'e1-1', type: 'both', position: 'bottom', offset: 65 }
+            ]
+          }
+        ],
+        links: [
+          {
+            id: 'leaf1-spine1',
+            source: 'leaf1',
+            sourceHandle: 'e1-49',
+            target: 'spine1',
+            targetHandle: 'e1-1',
+            layers: ['physical']
+          }
+        ]
+      }
+    };
+
+    const compiled = compileTopoGraph(document, ['physical']);
+    const leaf = compiled.nodes.find((node) => node.id === 'leaf1')?.data as CompiledNodeData;
+    const edge = compiled.edges.find((item) => item.id === 'leaf1-spine1');
+
+    expect(leaf.handles).toEqual([
+      { id: 'e1-49', type: 'both', position: 'top', offset: 35 }
+    ]);
+    expect(edge).toMatchObject({
+      sourceHandle: 'e1-49',
+      targetHandle: 'e1-1'
     });
   });
 
@@ -668,21 +768,20 @@ describe('compileTopoGraph', () => {
         label: 'WAN',
         labelColor: '#0f172a',
         edgeLabelColor: '#fef3c7',
-        arrowLabelColor: '#bae6fd',
         labelBorderColor: '#94a3b8',
         labelBorderWidth: 1,
         labelFontStyle: 'italic',
         sourceLabel: '10G',
         sourceLabelColor: '#0369a1',
         sourceLabelBackgroundColor: '#e0f2fe',
-        sourceArrowLabel: 'xe-0/0/0',
-        sourceArrowLabelXOffset: -4,
-        sourceArrowLabelYOffset: -8,
+        sourceLabelOpacity: 0.8,
+        sourceLabelAutoPosition: true,
+        sourceLabelDistance: 20,
+        sourceLabelSideOffset: 4,
         targetLabel: '20G',
-        targetArrowLabel: 'ethernet-1/1',
-        targetArrowLabelXOffset: 4,
-        targetArrowLabelYOffset: -8,
         targetLabelFontWeight: 700,
+        targetLabelOverlayLayer: 'physical-port',
+        directionOverlayLayer: 'bandwidth',
         sourceDistanceFromNode: 8,
         targetDistanceFromNode: 10,
         curveStyle: 'segments',
@@ -719,18 +818,17 @@ describe('compileTopoGraph', () => {
       labelBorderColor: '#94a3b8',
       labelBorderWidth: 1,
       edgeLabelColor: '#fef3c7',
-      arrowLabelColor: '#bae6fd',
       sourceLabel: '10G',
       sourceLabelColor: '#0369a1',
       sourceLabelBackgroundColor: '#e0f2fe',
-      sourceArrowLabel: 'xe-0/0/0',
-      sourceArrowLabelXOffset: -4,
-      sourceArrowLabelYOffset: -8,
+      sourceLabelOpacity: 0.8,
+      sourceLabelAutoPosition: true,
+      sourceLabelDistance: 20,
+      sourceLabelSideOffset: 4,
       targetLabel: '20G',
-      targetArrowLabel: 'ethernet-1/1',
-      targetArrowLabelXOffset: 4,
-      targetArrowLabelYOffset: -8,
       targetLabelFontWeight: 700,
+      targetLabelOverlayLayer: 'physical-port',
+      directionOverlayLayer: 'bandwidth',
       sourceDistanceFromNode: 8,
       targetDistanceFromNode: 10,
       segmentDistances: [24],
@@ -741,14 +839,12 @@ describe('compileTopoGraph', () => {
     });
   });
 
-  it('defaults edge and arrow label colors to the rendered edge color', () => {
+  it('defaults edge label colors to the rendered edge color', () => {
     const link: GraphLink = { id: 'a-b', source: 'a', target: 'b' };
     const edge = compileEdgeStyle(
       {
         lineColor: '#22c55e',
-        label: 'fabric',
-        sourceArrowLabel: 'e1-1',
-        targetArrowLabel: 'e1-49'
+        label: 'fabric'
       },
       link,
       {},
@@ -757,8 +853,7 @@ describe('compileTopoGraph', () => {
 
     expect(edge.labelStyle).toMatchObject({ fill: '#22c55e' });
     expect(edge.data).toMatchObject({
-      edgeLabelColor: '#22c55e',
-      arrowLabelColor: '#22c55e'
+      edgeLabelColor: '#22c55e'
     });
   });
 
@@ -781,6 +876,10 @@ describe('compileTopoGraph', () => {
               sourceArrowBorderWidth: -2,
               targetArrowOffset: 'center',
               labelYOffset: 'above',
+              sourceLabelOpacity: 2,
+              endpointLabelAutoPosition: 'yes',
+              endpointLabelOverlayLayer: '',
+              endpointLabelDistance: -4,
               sourceDistanceFromNode: -4,
               segmentDistances: [10, 20],
               segmentWeights: [0.4],
@@ -802,6 +901,10 @@ describe('compileTopoGraph', () => {
       'invalid-edge-arrow-border-width',
       'invalid-edge-arrow-offset',
       'invalid-edge-label-offset',
+      'invalid-edge-label-opacity',
+      'invalid-edge-label-auto-position',
+      'invalid-edge-overlay-layer',
+      'invalid-edge-label-distance',
       'invalid-edge-endpoint-distance',
       'invalid-edge-segment-controls',
       'invalid-edge-taxi-direction',
@@ -847,6 +950,60 @@ describe('compileTopoGraph', () => {
       expect.objectContaining({
         code: 'duplicate-id',
         path: 'graph.links[0].directions.sourceToTarget.id'
+      })
+    ]));
+  });
+
+  it('reports invalid node handle declarations and link handle references', () => {
+    const document: TopoDocument = {
+      version: '1.0',
+      graph: {
+        nodes: [
+          {
+            id: 'leaf1',
+            position: [0, 0],
+            handles: [
+              { id: 'e1-49', type: 'target', position: 'top', offset: 110 },
+              { id: 'e1-49', type: 'source', position: 'bottom' }
+            ]
+          },
+          {
+            id: 'spine1',
+            position: [100, 0],
+            handles: [
+              { id: 'e1-1', type: 'source', position: 'bottom' }
+            ]
+          }
+        ],
+        links: [
+          {
+            id: 'leaf1-spine1',
+            source: 'leaf1',
+            sourceHandle: 'missing-source',
+            target: 'spine1',
+            targetHandle: 'e1-1'
+          }
+        ]
+      }
+    };
+
+    const issues = lintTopoDocument(document, { requireNames: false });
+    expect(issues).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        code: 'duplicate-node-handle',
+        path: 'graph.nodes[0].handles[1].id'
+      }),
+      expect.objectContaining({
+        code: 'node-handle-offset-clamped',
+        path: 'graph.nodes[0].handles[0].offset'
+      }),
+      expect.objectContaining({
+        code: 'broken-source-handle',
+        path: 'graph.links[0].sourceHandle'
+      }),
+      expect.objectContaining({
+        code: 'broken-target-handle',
+        path: 'graph.links[0].targetHandle'
       })
     ]));
   });

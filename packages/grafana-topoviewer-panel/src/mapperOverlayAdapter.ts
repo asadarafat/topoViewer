@@ -316,8 +316,6 @@ function coerceTemplatedStyleValue(kind: MapperTargetKind, key: string, value: u
     || key === 'badgeLabel'
     || key === 'sourceLabel'
     || key === 'targetLabel'
-    || key === 'sourceArrowLabel'
-    || key === 'targetArrowLabel'
   ) return value;
   if (hasActivePayload(value)) return undefined;
 

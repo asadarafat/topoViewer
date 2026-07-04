@@ -561,8 +561,8 @@
       "target": "client2",
       "sourceEndpoint": "e1-1",
       "targetEndpoint": "eth1",
-      "endpointLabelOffsetEnabled": true,
-      "endpointLabelOffset": 28
+      "endpointLabelSideOffsetEnabled": true,
+      "endpointLabelSideOffset": 28
     }
   ],
   "aliasEndpointAnnotations": [],

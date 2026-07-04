@@ -298,9 +298,6 @@
         "targetArrowOffset": {
           "type": "number"
         },
-        "arrowLabelColor": {
-          "type": "string"
-        },
         "edgeLabelColor": {
           "type": "string"
         },
@@ -323,6 +320,9 @@
         },
         "sourceLabelColor": {
           "type": "string"
+        },
+        "sourceLabel": {
+          "type": ["string", "number", "boolean"]
         },
         "sourceLabelBackgroundColor": {
           "type": "string"
@@ -349,6 +349,25 @@
         "sourceLabelFontStyle": {
           "type": "string"
         },
+        "sourceLabelOpacity": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "sourceLabelAutoPosition": {
+          "type": "boolean"
+        },
+        "sourceLabelDistance": {
+          "type": "number",
+          "minimum": 0
+        },
+        "sourceLabelMaxDistance": {
+          "type": "number",
+          "minimum": 0
+        },
+        "sourceLabelSideOffset": {
+          "type": "number"
+        },
         "sourceLabelZIndex": {
           "oneOf": [
             { "type": "number" },
@@ -358,6 +377,9 @@
         },
         "targetLabelColor": {
           "type": "string"
+        },
+        "targetLabel": {
+          "type": ["string", "number", "boolean"]
         },
         "targetLabelBackgroundColor": {
           "type": "string"
@@ -384,12 +406,69 @@
         "targetLabelFontStyle": {
           "type": "string"
         },
+        "targetLabelOpacity": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "targetLabelAutoPosition": {
+          "type": "boolean"
+        },
+        "targetLabelDistance": {
+          "type": "number",
+          "minimum": 0
+        },
+        "targetLabelMaxDistance": {
+          "type": "number",
+          "minimum": 0
+        },
+        "targetLabelSideOffset": {
+          "type": "number"
+        },
         "targetLabelZIndex": {
           "oneOf": [
             { "type": "number" },
             { "type": "string", "minLength": 1 }
           ],
           "description": "Independent draw order for the target endpoint edge label. Falls back to labelZIndex when omitted."
+        },
+        "sourceLabelXOffset": {
+          "type": "number"
+        },
+        "sourceLabelYOffset": {
+          "type": "number"
+        },
+        "targetLabelXOffset": {
+          "type": "number"
+        },
+        "targetLabelYOffset": {
+          "type": "number"
+        },
+        "endpointLabelAutoPosition": {
+          "type": "boolean"
+        },
+        "endpointLabelDistance": {
+          "type": "number",
+          "minimum": 0
+        },
+        "endpointLabelMaxDistance": {
+          "type": "number",
+          "minimum": 0
+        },
+        "endpointLabelSideOffset": {
+          "type": "number"
+        },
+        "endpointLabelOverlayLayer": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sourceLabelOverlayLayer": {
+          "type": "string",
+          "minLength": 1
+        },
+        "targetLabelOverlayLayer": {
+          "type": "string",
+          "minLength": 1
         },
         "sourceDistanceFromNode": {
           "type": "number",
@@ -416,6 +495,14 @@
         },
         "directionLabelOffset": {
           "type": "number"
+        },
+        "directionLabelRotation": {
+          "type": "string",
+          "enum": ["none", "auto"]
+        },
+        "directionOverlayLayer": {
+          "type": "string",
+          "minLength": 1
         },
         "segmentDistances": {
           "oneOf": [
@@ -600,6 +687,29 @@
         }
       }
     },
+    "nodeHandle": {
+      "type": "object",
+      "required": ["id"],
+      "additionalProperties": true,
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "type": {
+          "enum": ["source", "target", "both"]
+        },
+        "position": {
+          "enum": ["left", "right", "top", "bottom"]
+        },
+        "side": {
+          "enum": ["left", "right", "top", "bottom"]
+        },
+        "offset": {
+          "type": "number"
+        }
+      }
+    },
     "graphEntity": {
       "type": "object",
       "required": ["id"],
@@ -707,6 +817,12 @@
               "items": {
                 "$ref": "#/definitions/pin"
               }
+            },
+            "handles": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/nodeHandle"
+              }
             }
           }
         }
@@ -727,6 +843,22 @@
               "minLength": 1
             },
             "target": {
+              "type": "string",
+              "minLength": 1
+            },
+            "sourceHandle": {
+              "type": "string",
+              "minLength": 1
+            },
+            "targetHandle": {
+              "type": "string",
+              "minLength": 1
+            },
+            "sourceLabel": {
+              "type": "string",
+              "minLength": 1
+            },
+            "targetLabel": {
               "type": "string",
               "minLength": 1
             },

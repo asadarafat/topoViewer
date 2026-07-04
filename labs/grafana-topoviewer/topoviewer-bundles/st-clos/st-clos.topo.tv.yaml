@@ -13,8 +13,21 @@ graph:
         role: spine
       data:
         mgmtIp: 172.80.80.21
+      handles:
+        - id: e1-1
+          type: both
+          position: bottom
+          offset: 25
+        - id: e1-2
+          type: both
+          position: bottom
+          offset: 50
+        - id: e1-3
+          type: both
+          position: bottom
+          offset: 75
       layers: [fabric, telemetry]
-      position: [300, 110]
+      position: [350, 120]
     - id: spine2
       name: Spine 2
       labels:
@@ -22,8 +35,21 @@ graph:
         role: spine
       data:
         mgmtIp: 172.80.80.22
+      handles:
+        - id: e1-1
+          type: both
+          position: bottom
+          offset: 25
+        - id: e1-2
+          type: both
+          position: bottom
+          offset: 50
+        - id: e1-3
+          type: both
+          position: bottom
+          offset: 75
       layers: [fabric, telemetry]
-      position: [660, 110]
+      position: [790, 120]
     - id: leaf1
       name: Leaf 1
       labels:
@@ -31,8 +57,21 @@ graph:
         role: leaf
       data:
         mgmtIp: 172.80.80.11
+      handles:
+        - id: e1-49
+          type: both
+          position: top
+          offset: 36
+        - id: e1-50
+          type: both
+          position: top
+          offset: 64
+        - id: e1-1
+          type: both
+          position: bottom
+          offset: 50
       layers: [fabric, telemetry]
-      position: [180, 350]
+      position: [160, 410]
     - id: leaf2
       name: Leaf 2
       labels:
@@ -40,8 +79,21 @@ graph:
         role: leaf
       data:
         mgmtIp: 172.80.80.12
+      handles:
+        - id: e1-49
+          type: both
+          position: top
+          offset: 36
+        - id: e1-50
+          type: both
+          position: top
+          offset: 64
+        - id: e1-1
+          type: both
+          position: bottom
+          offset: 50
       layers: [fabric, telemetry]
-      position: [480, 350]
+      position: [570, 410]
     - id: leaf3
       name: Leaf 3
       labels:
@@ -49,33 +101,65 @@ graph:
         role: leaf
       data:
         mgmtIp: 172.80.80.13
+      handles:
+        - id: e1-49
+          type: both
+          position: top
+          offset: 36
+        - id: e1-50
+          type: both
+          position: top
+          offset: 64
+        - id: e1-1
+          type: both
+          position: bottom
+          offset: 50
       layers: [fabric, telemetry]
-      position: [780, 350]
+      position: [980, 410]
     - id: client1
       name: Client 1
       labels:
         node: host
         role: workload
+      handles:
+        - id: eth1
+          type: both
+          position: top
+          offset: 50
       layers: [fabric]
-      position: [180, 585]
+      position: [160, 680]
     - id: client2
       name: Client 2
       labels:
         node: host
         role: workload
+      handles:
+        - id: eth1
+          type: both
+          position: top
+          offset: 50
       layers: [fabric]
-      position: [480, 585]
+      position: [570, 680]
     - id: client3
       name: Client 3
       labels:
         node: host
         role: workload
+      handles:
+        - id: eth1
+          type: both
+          position: top
+          offset: 50
       layers: [fabric]
-      position: [780, 585]
+      position: [980, 680]
   links:
     - id: spine1-leaf1
       source: spine1
+      sourceHandle: e1-1
       target: leaf1
+      targetHandle: e1-49
+      sourceLabel: e1-1
+      targetLabel: e1-49
       labels:
         link: fabric
         protocol: fabric
@@ -87,9 +171,6 @@ graph:
             record: topoviewer_st_link_up
             expr: vector(scalar(interface_oper_state{source="spine1",interface_name="e1-1"}) * scalar(interface_oper_state{source="leaf1",interface_name="e1-49"}))
       layers: [fabric, telemetry]
-      style:
-        sourceArrowLabel: e1-1
-        targetArrowLabel: e1-49
       directions:
         sourceToTarget:
           labels:
@@ -115,7 +196,11 @@ graph:
                   interface_name: e1-49
     - id: spine1-leaf2
       source: spine1
+      sourceHandle: e1-2
       target: leaf2
+      targetHandle: e1-49
+      sourceLabel: e1-2
+      targetLabel: e1-49
       labels:
         link: fabric
         protocol: fabric
@@ -127,9 +212,6 @@ graph:
             record: topoviewer_st_link_up
             expr: vector(scalar(interface_oper_state{source="spine1",interface_name="e1-2"}) * scalar(interface_oper_state{source="leaf2",interface_name="e1-49"}))
       layers: [fabric, telemetry]
-      style:
-        sourceArrowLabel: e1-2
-        targetArrowLabel: e1-49
       directions:
         sourceToTarget:
           labels:
@@ -155,7 +237,11 @@ graph:
                   interface_name: e1-49
     - id: spine1-leaf3
       source: spine1
+      sourceHandle: e1-3
       target: leaf3
+      targetHandle: e1-49
+      sourceLabel: e1-3
+      targetLabel: e1-49
       labels:
         link: fabric
         protocol: fabric
@@ -167,9 +253,6 @@ graph:
             record: topoviewer_st_link_up
             expr: vector(scalar(interface_oper_state{source="spine1",interface_name="e1-3"}) * scalar(interface_oper_state{source="leaf3",interface_name="e1-49"}))
       layers: [fabric, telemetry]
-      style:
-        sourceArrowLabel: e1-3
-        targetArrowLabel: e1-49
       directions:
         sourceToTarget:
           labels:
@@ -195,7 +278,11 @@ graph:
                   interface_name: e1-49
     - id: spine2-leaf1
       source: spine2
+      sourceHandle: e1-1
       target: leaf1
+      targetHandle: e1-50
+      sourceLabel: e1-1
+      targetLabel: e1-50
       labels:
         link: fabric
         protocol: fabric
@@ -207,9 +294,6 @@ graph:
             record: topoviewer_st_link_up
             expr: vector(scalar(interface_oper_state{source="spine2",interface_name="e1-1"}) * scalar(interface_oper_state{source="leaf1",interface_name="e1-50"}))
       layers: [fabric, telemetry]
-      style:
-        sourceArrowLabel: e1-1
-        targetArrowLabel: e1-50
       directions:
         sourceToTarget:
           labels:
@@ -235,7 +319,11 @@ graph:
                   interface_name: e1-50
     - id: spine2-leaf2
       source: spine2
+      sourceHandle: e1-2
       target: leaf2
+      targetHandle: e1-50
+      sourceLabel: e1-2
+      targetLabel: e1-50
       labels:
         link: fabric
         protocol: fabric
@@ -247,9 +335,6 @@ graph:
             record: topoviewer_st_link_up
             expr: vector(scalar(interface_oper_state{source="spine2",interface_name="e1-2"}) * scalar(interface_oper_state{source="leaf2",interface_name="e1-50"}))
       layers: [fabric, telemetry]
-      style:
-        sourceArrowLabel: e1-2
-        targetArrowLabel: e1-50
       directions:
         sourceToTarget:
           labels:
@@ -275,7 +360,11 @@ graph:
                   interface_name: e1-50
     - id: spine2-leaf3
       source: spine2
+      sourceHandle: e1-3
       target: leaf3
+      targetHandle: e1-50
+      sourceLabel: e1-3
+      targetLabel: e1-50
       labels:
         link: fabric
         protocol: fabric
@@ -287,9 +376,6 @@ graph:
             record: topoviewer_st_link_up
             expr: vector(scalar(interface_oper_state{source="spine2",interface_name="e1-3"}) * scalar(interface_oper_state{source="leaf3",interface_name="e1-50"}))
       layers: [fabric, telemetry]
-      style:
-        sourceArrowLabel: e1-3
-        targetArrowLabel: e1-50
       directions:
         sourceToTarget:
           labels:
@@ -315,7 +401,11 @@ graph:
                   interface_name: e1-50
     - id: leaf1-client1
       source: leaf1
+      sourceHandle: e1-1
       target: client1
+      targetHandle: eth1
+      sourceLabel: e1-1
+      targetLabel: eth1
       labels:
         link: access
         protocol: ethernet
@@ -327,9 +417,6 @@ graph:
             record: topoviewer_st_link_up
             expr: vector(scalar(interface_oper_state{source="leaf1",interface_name="e1-1"}))
       layers: [fabric]
-      style:
-        sourceArrowLabel: ""
-        targetArrowLabel: ""
       directions:
         sourceToTarget:
           labels:
@@ -355,7 +442,11 @@ graph:
                   interface_name: e1-1
     - id: leaf2-client2
       source: leaf2
+      sourceHandle: e1-1
       target: client2
+      targetHandle: eth1
+      sourceLabel: e1-1
+      targetLabel: eth1
       labels:
         link: access
         protocol: ethernet
@@ -367,9 +458,6 @@ graph:
             record: topoviewer_st_link_up
             expr: vector(scalar(interface_oper_state{source="leaf2",interface_name="e1-1"}))
       layers: [fabric]
-      style:
-        sourceArrowLabel: ""
-        targetArrowLabel: ""
       directions:
         sourceToTarget:
           labels:
@@ -395,7 +483,11 @@ graph:
                   interface_name: e1-1
     - id: leaf3-client3
       source: leaf3
+      sourceHandle: e1-1
       target: client3
+      targetHandle: eth1
+      sourceLabel: e1-1
+      targetLabel: eth1
       labels:
         link: access
         protocol: ethernet
@@ -407,9 +499,6 @@ graph:
             record: topoviewer_st_link_up
             expr: vector(scalar(interface_oper_state{source="leaf3",interface_name="e1-1"}))
       layers: [fabric]
-      style:
-        sourceArrowLabel: ""
-        targetArrowLabel: ""
       directions:
         sourceToTarget:
           labels:
@@ -461,4 +550,10 @@ graph:
 toggles:
   - id: showEdgeLabels
     name: Edge labels
+    default: true
+  - id: physical-port
+    name: Physical ports
+    default: true
+  - id: bandwidth
+    name: Bandwidth
     default: true

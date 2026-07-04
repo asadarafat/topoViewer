@@ -104,11 +104,14 @@ function purposeFor(objectName, key, property) {
     label: 'Fallback display label.',
     labels: 'Low-cardinality classification data for selectors, filters, and mapper joins.',
     data: 'Arbitrary facts for domain metadata, selectors, mappers, and host applications.',
+    handles: 'Named node connection anchors for precise link attachment, usually used for ports or interfaces.',
     layers: 'Visibility layer IDs that include this object.',
     style: 'Inline style override for one object; prefer stylesheet rules for shared policy.',
     icon: 'Named icon override for this object.',
     source: 'Source endpoint object ID.',
     target: 'Target endpoint object ID.',
+    sourceHandle: 'Optional source node handle ID. Use this to attach a link to a specific source-side port or interface anchor.',
+    targetHandle: 'Optional target node handle ID. Use this to attach a link to a specific target-side port or interface anchor.',
     parent: 'Parent object ID for containment or carried relationships.',
     position: 'Authored position in TopoViewer coordinate space.',
     size: 'Authored width and height in TopoViewer coordinate space.',
@@ -137,7 +140,7 @@ function validationBehavior(key, property, required) {
   if (property?.additionalProperties === false) checks.push('no unknown keys');
   if (property?.enum) checks.push('enum checked');
   if (property?.const !== undefined) checks.push('const checked');
-  if (['source', 'target', 'parent', 'members', 'layers', 'sequence'].includes(key)) {
+  if (['source', 'target', 'parent', 'members', 'layers', 'sequence', 'sourceHandle', 'targetHandle'].includes(key)) {
     checks.push('semantic reference checks apply');
   }
   return checks.length ? checks.join('; ') : 'Schema/type validation applies.';

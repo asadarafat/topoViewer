@@ -110,17 +110,17 @@ examples:
       controls: true
       controlsOpen: false
       title: Arrows, dashes, and labels
-  - id: edges-arrow-label-controls
-    title: Arrow and label controls
+  - id: edges-endpoint-label-controls
+    title: Endpoint label controls
     feature: edges
-    path: edges/arrow-label-controls
-    page: topoviewer/examples/edges/arrow-label-controls
-    summary: Directional arrow and endpoint label styles can be controlled independently.
+    path: edges/endpoint-label-controls
+    page: topoviewer/examples/edges/endpoint-label-controls
+    summary: Endpoint labels can show physical ports while arrow markers remain pure geometry.
     render:
       height: 420px
       controls: true
       controlsOpen: false
-      title: Arrow and label controls
+      title: Endpoint label controls
   - id: edges-endpoint-spacing-routing
     title: Endpoint spacing and routing
     feature: edges

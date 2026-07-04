@@ -121,18 +121,18 @@ examples:
       graphNodes: 2
       minVisibleEdges: 2
     markdown: docs/topoviewer/examples/edges/arrows-dashes-labels/index.md
-  - id: edges-arrow-label-controls
-    title: Arrow and label controls
+  - id: edges-endpoint-label-controls
+    title: Endpoint label controls
     feature: edges
-    path: edges/arrow-label-controls
-    page: topoviewer/examples/edges/arrow-label-controls
+    path: edges/endpoint-label-controls
+    page: topoviewer/examples/edges/endpoint-label-controls
     renderable: true
-    topology: docs/topoviewer/examples/edges/arrow-label-controls/topology.yaml
-    stylesheet: docs/topoviewer/examples/edges/arrow-label-controls/stylesheet.yaml
+    topology: docs/topoviewer/examples/edges/endpoint-label-controls/topology.yaml
+    stylesheet: docs/topoviewer/examples/edges/endpoint-label-controls/stylesheet.yaml
     expected:
       graphNodes: 3
       minVisibleEdges: 2
-    markdown: docs/topoviewer/examples/edges/arrow-label-controls/index.md
+    markdown: docs/topoviewer/examples/edges/endpoint-label-controls/index.md
   - id: edges-endpoint-spacing-routing
     title: Endpoint spacing and routing
     feature: edges

@@ -34,11 +34,16 @@ export interface GraphNode extends GraphEntity {
   position?: PositionTuple | { x: number; y: number };
   parent?: string;
   pins?: DiagramPin[];
+  handles?: GraphNodeHandle[];
 }
 
 export interface GraphLink extends GraphEntity {
   source: string;
   target: string;
+  sourceHandle?: string;
+  targetHandle?: string;
+  sourceLabel?: string;
+  targetLabel?: string;
   parent?: string;
   directions?: Partial<Record<LinkDirectionKey, GraphLinkDirection>>;
 }
@@ -83,6 +88,14 @@ export interface DiagramPin {
   position?: PositionTuple | { x: number; y: number };
   x?: number;
   y?: number;
+}
+
+export interface GraphNodeHandle {
+  id: string;
+  type?: 'source' | 'target' | 'both';
+  position?: 'left' | 'right' | 'top' | 'bottom';
+  side?: 'left' | 'right' | 'top' | 'bottom';
+  offset?: number;
 }
 
 export const GEOMETRY_SHAPES = [
@@ -334,6 +347,8 @@ export interface CompiledGraph {
 export interface CompiledEdgeData extends GraphEntity, Record<string, unknown> {
   source?: string;
   target?: string;
+  sourceHandle?: string;
+  targetHandle?: string;
   originalSource?: string;
   originalTarget?: string;
   parentLink?: string;

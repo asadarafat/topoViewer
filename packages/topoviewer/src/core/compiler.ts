@@ -70,6 +70,18 @@ function childNodesInsideParentsEnabled(toggles: TopoViewerToggles): boolean {
   return !!(toggles.showChildNodesInsideParents ?? toggles.showServicesInsideNodes);
 }
 
+function overlayLayerEnabled(toggles: TopoViewerToggles, value: unknown): boolean {
+  if (value === undefined || value === null || value === '') return true;
+  return toggles[String(value)] !== false;
+}
+
+function applyEdgeOverlayToggles(edgeData: Record<string, unknown>, toggles: TopoViewerToggles): void {
+  const sourceLabelLayer = edgeData.sourceLabelOverlayLayer ?? edgeData.endpointLabelOverlayLayer;
+  const targetLabelLayer = edgeData.targetLabelOverlayLayer ?? edgeData.endpointLabelOverlayLayer;
+  if (!overlayLayerEnabled(toggles, sourceLabelLayer)) delete edgeData.sourceLabel;
+  if (!overlayLayerEnabled(toggles, targetLabelLayer)) delete edgeData.targetLabel;
+}
+
 function nodeDimensions(style: Record<string, unknown> | undefined): { width: number; height: number } {
   return {
     width: Number(style?.width || styleDefaultNumber('node', 'width', 82)),
@@ -565,7 +577,9 @@ function buildEdges(
     }
     const rendered = compileEdgeStyle(visualStyle, link, spec, !!toggles.showEdgeLabels);
     const edgeData = mergePlainObjects({ ...link, ...(link.data || {}) }, rendered.data || {}) as Record<string, unknown>;
-    const linkDirections = compileLinkDirections(link, visualStyle, spec, !!toggles.showEdgeLabels);
+    applyEdgeOverlayToggles(edgeData, toggles);
+    const linkDirections = compileLinkDirections(link, visualStyle, spec, !!toggles.showEdgeLabels)
+      .filter((direction) => overlayLayerEnabled(toggles, (direction.data as Record<string, unknown> | undefined)?.directionOverlayLayer));
     if (linkDirections.length) {
       edgeData.directionalStrokes = visualStyle.directionalStrokes ?? true;
       edgeData.linkDirections = linkDirections;
@@ -573,6 +587,7 @@ function buildEdges(
       edgeData.directionStartGap = visualStyle.directionStartGap;
       edgeData.directionLabelPlacement = visualStyle.directionLabelPlacement;
       edgeData.directionLabelOffset = visualStyle.directionLabelOffset;
+      edgeData.directionLabelRotation = visualStyle.directionLabelRotation;
     }
     if (hasChildLanes) {
       edgeData.isPipe = true;
@@ -605,6 +620,8 @@ function buildEdges(
       id: link.id,
       source: parentLink ? parentLink.source : link.source,
       target: parentLink ? parentLink.target : link.target,
+      sourceHandle: parentLink ? parentLink.sourceHandle : link.sourceHandle,
+      targetHandle: parentLink ? parentLink.targetHandle : link.targetHandle,
       data: edgeData
     });
   });
@@ -625,6 +642,7 @@ function buildEdges(
       if (!includedNodeIds.has(source) || !includedNodeIds.has(target)) return;
       const rendered = compileEdgeStyle(visualStyle, path, spec, !!toggles.showEdgeLabels);
       const edgeData = mergePlainObjects({ ...path, ...(path.data || {}) }, rendered.data || {}) as Record<string, unknown>;
+      applyEdgeOverlayToggles(edgeData, toggles);
       if (hasChildLanes) {
         edgeData.isPipe = true;
         edgeData.childPathCount = childPathsByParentId.get(path.id)?.length || 0;
@@ -657,6 +675,7 @@ function buildEdges(
         visualStyle.anchor = parentVisualStyle.anchor ?? visualStyle.anchor;
         const rendered = compileEdgeStyle(visualStyle, path, spec, !!toggles.showEdgeLabels && index === Math.floor(lastSegmentIndex / 2));
         const edgeData = mergePlainObjects({ ...path, ...(path.data || {}) }, rendered.data || {}) as Record<string, unknown>;
+        applyEdgeOverlayToggles(edgeData, toggles);
         edgeData.isLane = true;
         edgeData.parentPath = parentPath.id;
         edgeData.parentPathSegmentIndex = index;

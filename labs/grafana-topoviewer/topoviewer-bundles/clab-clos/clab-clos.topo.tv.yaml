@@ -60,6 +60,8 @@ graph:
     - id: spine1-leaf1
       source: spine1
       target: leaf1
+      sourceLabel: e1-1
+      targetLabel: e1-1
       labels:
         link: fabric
         protocol: fabric
@@ -67,9 +69,6 @@ graph:
         sourceInterface: ethernet-1/1
         targetInterface: ethernet-1/1
       layers: [fabric, telemetry]
-      style:
-        sourceArrowLabel: e1-1
-        targetArrowLabel: e1-1
       directions:
         sourceToTarget:
           labels:
@@ -80,6 +79,8 @@ graph:
     - id: spine1-leaf2
       source: spine1
       target: leaf2
+      sourceLabel: e1-2
+      targetLabel: e1-1
       labels:
         link: fabric
         protocol: fabric
@@ -87,9 +88,6 @@ graph:
         sourceInterface: ethernet-1/2
         targetInterface: ethernet-1/1
       layers: [fabric, telemetry]
-      style:
-        sourceArrowLabel: e1-2
-        targetArrowLabel: e1-1
       directions:
         sourceToTarget:
           labels:
@@ -100,6 +98,8 @@ graph:
     - id: spine2-leaf1
       source: spine2
       target: leaf1
+      sourceLabel: e1-1
+      targetLabel: e1-2
       labels:
         link: fabric
         protocol: fabric
@@ -107,9 +107,6 @@ graph:
         sourceInterface: ethernet-1/1
         targetInterface: ethernet-1/2
       layers: [fabric, telemetry]
-      style:
-        sourceArrowLabel: e1-1
-        targetArrowLabel: e1-2
       directions:
         sourceToTarget:
           labels:
@@ -120,6 +117,8 @@ graph:
     - id: spine2-leaf2
       source: spine2
       target: leaf2
+      sourceLabel: e1-2
+      targetLabel: e1-2
       labels:
         link: fabric
         protocol: fabric
@@ -127,9 +126,6 @@ graph:
         sourceInterface: ethernet-1/2
         targetInterface: ethernet-1/2
       layers: [fabric, telemetry]
-      style:
-        sourceArrowLabel: e1-2
-        targetArrowLabel: e1-2
       directions:
         sourceToTarget:
           labels:
@@ -140,6 +136,8 @@ graph:
     - id: leaf1-client1
       source: leaf1
       target: client1
+      sourceLabel: e1-10
+      targetLabel: eth1
       labels:
         link: access
         protocol: ethernet
@@ -147,12 +145,11 @@ graph:
         sourceInterface: ethernet-1/10
         targetInterface: eth1
       layers: [fabric]
-      style:
-        sourceArrowLabel: e1-10
-        targetArrowLabel: eth1
     - id: leaf2-client2
       source: leaf2
       target: client2
+      sourceLabel: e1-10
+      targetLabel: eth1
       labels:
         link: access
         protocol: ethernet
@@ -160,9 +157,6 @@ graph:
         sourceInterface: ethernet-1/10
         targetInterface: eth1
       layers: [fabric]
-      style:
-        sourceArrowLabel: e1-10
-        targetArrowLabel: eth1
   regions:
     - id: spine-region
       name: Spines

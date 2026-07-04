@@ -28,12 +28,8 @@ stylesheet:
       targetArrowShape: square
       sourceArrowColor: "#16a34a"
       targetArrowColor: "#dc2626"
-      sourceArrowSize: 28
-      targetArrowSize: 28
-      sourceArrowLabelColor: "#ffffff"
-      targetArrowLabelColor: "#ffffff"
-      sourceArrowLabelFontWeight: 900
-      targetArrowLabelFontWeight: 900
+      sourceArrowSize: 18
+      targetArrowSize: 18
       labelColor: var(--topoviewer-fg-strong)
       labelFontWeight: 800
       labelFontStyle: italic
@@ -44,27 +40,31 @@ stylesheet:
       sourceLabelBackgroundColor: "#e0f2fe"
       sourceLabelBorderColor: "#38bdf8"
       sourceLabelBorderWidth: 1
-      sourceArrowLabelXOffset: 0
-      sourceArrowLabelYOffset: 0
+      sourceLabelFontWeight: 800
+      sourceLabelOpacity: 0.94
       targetLabelColor: "#991b1b"
       targetLabelBackgroundColor: "#fee2e2"
       targetLabelBorderColor: "#f87171"
       targetLabelBorderWidth: 1
-      targetArrowLabelXOffset: 0
-      targetArrowLabelYOffset: 0
+      targetLabelFontWeight: 800
+      targetLabelOpacity: 0.94
+      endpointLabelAutoPosition: true
+      endpointLabelDistance: 22
+      endpointLabelMaxDistance: 46
+      endpointLabelSideOffset: 8
   - selector: link[labels.class = "gold"]
     style:
       label: Gold
-      sourceArrowLabel: e1-1
-      targetArrowLabel: e1-2
       lineColor: "#f59e0b"
       sourceArrowColor: "#0f766e"
       targetArrowColor: "#b45309"
+      sourceLabelXOffset: -2
+      targetLabelYOffset: -2
   - selector: link[labels.class = "silver"]
     style:
       label: Silver
-      sourceArrowLabel: e1-3
-      targetArrowLabel: e1-4
       lineColor: "#64748b"
       sourceArrowColor: "#475569"
       targetArrowColor: "#475569"
+      sourceLabelSideOffset: -10
+      targetLabelSideOffset: -10

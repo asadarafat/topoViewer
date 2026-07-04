@@ -86,15 +86,17 @@ Use this pattern when link readability, routing, arrowheads, or edge labels matt
     --8<-- "docs/topoviewer/examples/edges/arrows-dashes-labels/stylesheet.yaml"
     ```
 
-## Arrow and label controls
+## Endpoint label controls
 
 ### What This Demonstrates
 
-Use directional arrow properties when the two ends of an edge need different semantics. This example uses circle and square arrow markers with source/target arrow labels rendered near the endpoint through the React Flow edge label layer, so port text stays readable without becoming part of the marker.
+Use endpoint labels when the two ends of an edge need visible port names. This example keeps circle and square arrow markers as geometry only, then renders `sourceLabel` and `targetLabel` as styled endpoint annotations with automatic placement.
+
+`endpointLabelDistance` moves labels away from their endpoint along the edge. `endpointLabelSideOffset` moves labels perpendicular to the edge during auto placement. `sourceLabelXOffset`, `sourceLabelYOffset`, `targetLabelXOffset`, and `targetLabelYOffset` are final manual nudges after auto placement.
 
 ### Expected Result
 
-The live viewport should render "Arrow and label controls" without blocking diagnostics. It should show: Directional arrow and endpoint label styles can be controlled independently. The test metadata expects `graphNodes`: `3`, `minVisibleEdges`: `2`.
+The live viewport should render "Endpoint label controls" without blocking diagnostics. It should show: Endpoint labels can show physical ports while arrow markers remain pure geometry. The test metadata expects `graphNodes`: `3`, `minVisibleEdges`: `2`.
 
 ### What To Inspect
 
@@ -108,24 +110,24 @@ Use this pattern when link readability, routing, arrowheads, or edge labels matt
 === "Live Viewport"
 
     ```topoviewer
-    topology: arrow-label-controls/topology.yaml
-    stylesheet: arrow-label-controls/stylesheet.yaml
+    topology: endpoint-label-controls/topology.yaml
+    stylesheet: endpoint-label-controls/stylesheet.yaml
     height: 420px
     controls: true
     controlsOpen: false
-    title: Arrow and label controls
+    title: Endpoint label controls
     ```
 
 === "Topology YAML"
 
     ```yaml
-    --8<-- "docs/topoviewer/examples/edges/arrow-label-controls/topology.yaml"
+    --8<-- "docs/topoviewer/examples/edges/endpoint-label-controls/topology.yaml"
     ```
 
 === "Stylesheet YAML"
 
     ```yaml
-    --8<-- "docs/topoviewer/examples/edges/arrow-label-controls/stylesheet.yaml"
+    --8<-- "docs/topoviewer/examples/edges/endpoint-label-controls/stylesheet.yaml"
     ```
 
 ## Endpoint spacing and routing
