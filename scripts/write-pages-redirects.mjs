@@ -31,5 +31,6 @@ function writeRedirect(relativePath, target) {
 
 writeRedirect('index.html', 'docs/mkdocs/');
 writeRedirect('docs/index.html', 'mkdocs/');
+fs.writeFileSync(path.join(siteRoot, '.nojekyll'), '');
 
-console.log('Pages redirects written: site/index.html, site/docs/index.html');
+console.log('Pages redirects written: site/index.html, site/docs/index.html, site/.nojekyll');

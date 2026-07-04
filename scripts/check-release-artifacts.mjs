@@ -108,6 +108,7 @@ const GRAFANA_PLUGIN_ALLOWED_PATHS = [
 ];
 
 const DOCS_SITE_REQUIRED_FILES = [
+  '.nojekyll',
   'index.html',
   'docs/mkdocs/index.html',
   'docs/zensical/index.html',
