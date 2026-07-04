@@ -109,8 +109,8 @@ stylesheet:
       backgroundColor: "rgba(25, 118, 210, 0.08)"
       borderColor: "rgba(66, 165, 245, 0.34)"
       borderWidth: 2
-      labelPosition: topCenter
-      labelMargin: 12
+      labelPosition: topLeft
+      labelMargin: 6
       labelColor: var(--topoviewer-region-label-fg)
       labelBackgroundColor: var(--topoviewer-region-label-bg)
       labelZIndex: 5
@@ -151,6 +151,7 @@ stylesheet:
       outlineColor: "#1976d2"
       outlineWidth: 4
       outlineOpacity: 0.38
+      labelXOffset: -16
   - selector: node[labels.role = "workload"]
     style:
       icon: host
@@ -202,6 +203,10 @@ stylesheet:
   - selector: link[labels.link = "access"]
     style:
       directionalStrokes: false
+      sourceLabelSideOffset: -26
+      targetLabelSideOffset: -26
+      sourceLabelDistance: 14
+      targetLabelDistance: 14
       sourceArrowShape: none
       targetArrowShape: none
       lineWidth: 2

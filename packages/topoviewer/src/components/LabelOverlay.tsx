@@ -1,5 +1,6 @@
-import { ViewportPortal, useViewport, type Node } from '@xyflow/react';
+import { ViewportPortal, useViewport, type Edge, type Node } from '@xyflow/react';
 import type { CSSProperties } from 'react';
+import { labelBounds, placeLabels, type LabelPlacementCandidate, type LabelPlacementItem, type LabelPlacementObstacle, type LabelPlacementResult } from '../core/labelPlacement';
 import { displayName } from '../core/style';
 import type { Bounds, CompiledNodeData } from '../core/types';
 
@@ -18,6 +19,10 @@ type RuntimeNode = Node<Record<string, unknown>> & {
       y: number;
     };
   };
+};
+
+type RuntimeEdge = Edge<Record<string, unknown>> & {
+  label?: unknown;
 };
 
 type AnchorTransform = {
@@ -39,6 +44,11 @@ function cssNumber(value: unknown, fallback: number): number {
   return finiteNumber(value) ?? fallback;
 }
 
+function textValue(value: unknown): string | undefined {
+  if (value === undefined || value === null || value === '') return undefined;
+  return String(value);
+}
+
 function nodeSize(node: RuntimeNode, data: CompiledNodeData): { width: number; height: number } {
   const nodeStyle = (data.nodeStyle || {}) as Record<string, unknown>;
   const flowStyle = (node.style || {}) as Record<string, unknown>;
@@ -58,12 +68,11 @@ function nodePosition(node: RuntimeNode): { x: number; y: number } {
   return node.internals?.positionAbsolute || node.positionAbsolute || node.position || { x: 0, y: 0 };
 }
 
-function nodeLabelPoint(node: RuntimeNode, data: CompiledNodeData): AnchorTransform {
+function nodeLabelCandidate(node: RuntimeNode, data: CompiledNodeData, labelPosition: string): AnchorTransform {
   const { width, height } = nodeSize(node, data);
   const anchor = edgeAnchor(data, width, height);
   const position = nodePosition(node);
   const nodeStyle = (data.nodeStyle || {}) as Record<string, unknown>;
-  const labelPosition = data.labelPosition || 'bottom';
   const offsetX = cssNumber(nodeStyle['--topoviewer-node-label-x-offset'], 0);
   const offsetY = cssNumber(nodeStyle['--topoviewer-node-label-y-offset'], 0);
   const centerX = position.x + anchor.x + anchor.width / 2;
@@ -104,10 +113,31 @@ function nodeLabelPoint(node: RuntimeNode, data: CompiledNodeData): AnchorTransf
   }
 }
 
-function regionLabelPoint(node: RuntimeNode, data: CompiledNodeData): AnchorTransform {
+function uniqueCandidates(candidates: AnchorTransform[]): AnchorTransform[] {
+  const seen = new Set<string>();
+  return candidates.filter((candidate) => {
+    const key = `${candidate.x}:${candidate.y}:${candidate.transform}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function nodeLabelCandidates(node: RuntimeNode, data: CompiledNodeData): AnchorTransform[] {
+  const preferred = String(data.labelPosition || 'bottom');
+  return uniqueCandidates([
+    nodeLabelCandidate(node, data, preferred),
+    nodeLabelCandidate(node, data, 'bottom'),
+    nodeLabelCandidate(node, data, 'top'),
+    nodeLabelCandidate(node, data, 'right'),
+    nodeLabelCandidate(node, data, 'left'),
+    nodeLabelCandidate(node, data, 'center')
+  ]);
+}
+
+function regionLabelCandidate(node: RuntimeNode, data: CompiledNodeData, labelPosition: string): AnchorTransform {
   const { width, height } = nodeSize(node, data);
   const position = nodePosition(node);
-  const labelPosition = data.labelPosition || 'topLeft';
   const margin = cssNumber(data.labelMargin, 12);
   const leftMargin = cssNumber(data.labelLeftMargin, margin);
 
@@ -136,7 +166,29 @@ function regionLabelPoint(node: RuntimeNode, data: CompiledNodeData): AnchorTran
   }
 }
 
-function overlayStyle(baseStyle: CSSProperties | undefined, point: AnchorTransform, zIndex: number): CSSProperties {
+function regionLabelCandidates(node: RuntimeNode, data: CompiledNodeData): AnchorTransform[] {
+  const preferred = String(data.labelPosition || 'topLeft');
+  return uniqueCandidates([
+    regionLabelCandidate(node, data, preferred),
+    regionLabelCandidate(node, data, 'topLeft'),
+    regionLabelCandidate(node, data, 'topCenter'),
+    regionLabelCandidate(node, data, 'topRight'),
+    regionLabelCandidate(node, data, 'rightCenter'),
+    regionLabelCandidate(node, data, 'bottomRight'),
+    regionLabelCandidate(node, data, 'bottomCenter'),
+    regionLabelCandidate(node, data, 'bottomLeft'),
+    regionLabelCandidate(node, data, 'leftCenter')
+  ]);
+}
+
+function overlayStyle(
+  baseStyle: CSSProperties | undefined,
+  point: AnchorTransform | LabelPlacementResult,
+  zIndex: number,
+  overrideStyle?: CSSProperties
+): CSSProperties {
+  const opacity = 'opacity' in point ? point.opacity : undefined;
+  const hidden = 'hidden' in point ? point.hidden : undefined;
   return {
     ...(baseStyle || {}),
     position: 'absolute',
@@ -144,7 +196,10 @@ function overlayStyle(baseStyle: CSSProperties | undefined, point: AnchorTransfo
     top: point.y,
     zIndex,
     transform: point.transform,
-    pointerEvents: 'none'
+    pointerEvents: 'none',
+    ...(opacity === undefined ? {} : { opacity }),
+    ...(hidden ? { display: 'none' } : {}),
+    ...(overrideStyle || {})
   };
 }
 
@@ -163,15 +218,233 @@ function labelContent(data: CompiledNodeData) {
   return {};
 }
 
-export function LabelOverlay({ nodes }: { nodes: RuntimeNode[] }) {
+function estimateLabelSize(text: string, style: CSSProperties | undefined, fallbackFontSize = 10): { width: number; height: number } {
+  const fontSize = cssNumber(style?.fontSize, fallbackFontSize);
+  const padding = cssNumber(style?.padding, 4);
+  const borderWidth = cssNumber(style?.borderWidth, 0);
+  const maxWidth = finiteNumber(style?.maxWidth);
+  const width = Math.max(22, text.length * fontSize * 0.58 + padding * 2 + borderWidth * 2 + 4);
+  return {
+    width: maxWidth === undefined ? width : Math.min(width, maxWidth),
+    height: Math.max(16, fontSize + padding * 2 + borderWidth * 2 + 4)
+  };
+}
+
+function nodeBodyObstacle(node: RuntimeNode, data: CompiledNodeData): LabelPlacementObstacle | undefined {
+  if (node.hidden || node.type !== 'network') return undefined;
+  const position = nodePosition(node);
+  const size = nodeSize(node, data);
+  const anchor = edgeAnchor(data, size.width, size.height);
+  return {
+    id: `${node.id}:body`,
+    bounds: {
+      x: position.x + anchor.x,
+      y: position.y + anchor.y,
+      width: anchor.width,
+      height: anchor.height
+    }
+  };
+}
+
+function nodeBounds(node: RuntimeNode, data: CompiledNodeData): Bounds {
+  const position = nodePosition(node);
+  const size = nodeSize(node, data);
+  const anchor = edgeAnchor(data, size.width, size.height);
+  return {
+    x: position.x + anchor.x,
+    y: position.y + anchor.y,
+    width: anchor.width,
+    height: anchor.height
+  };
+}
+
+function boxCenter(box: Bounds) {
+  return {
+    x: box.x + box.width / 2,
+    y: box.y + box.height / 2
+  };
+}
+
+function boundaryPoint(from: Bounds, to: Bounds) {
+  const source = boxCenter(from);
+  const target = boxCenter(to);
+  const dx = target.x - source.x;
+  const dy = target.y - source.y;
+  if (dx === 0 && dy === 0) return source;
+  const scaleX = dx === 0 ? Number.POSITIVE_INFINITY : (from.width / 2) / Math.abs(dx);
+  const scaleY = dy === 0 ? Number.POSITIVE_INFINITY : (from.height / 2) / Math.abs(dy);
+  const scale = Math.min(scaleX, scaleY);
+  return {
+    x: source.x + dx * scale,
+    y: source.y + dy * scale
+  };
+}
+
+function edgeLabelSize(data: Record<string, unknown>, text: string, role: 'center' | 'source' | 'target') {
+  const fontSize = cssNumber(role === 'center' ? data.labelFontSize : data[`${role}LabelFontSize`] ?? data.labelFontSize, 10);
+  return {
+    width: Math.max(22, text.length * fontSize * 0.58 + 14),
+    height: Math.max(16, fontSize + 10)
+  };
+}
+
+function obstacleFromLabel(id: string, point: LabelPlacementCandidate, width: number, height: number): LabelPlacementObstacle {
+  return {
+    id,
+    bounds: labelBounds(point, width, height)
+  };
+}
+
+function endpointLabelObstacle(
+  edge: RuntimeEdge,
+  role: 'source' | 'target',
+  data: Record<string, unknown>,
+  sourceEndpoint: { x: number; y: number },
+  targetEndpoint: { x: number; y: number }
+): LabelPlacementObstacle | undefined {
+  const label = textValue(data[`${role}Label`]);
+  if (!label) return undefined;
+  const lineWidth = cssNumber(data.lineWidth, 1);
+  const distance = cssNumber(data[`${role}LabelDistance`] ?? data.endpointLabelDistance, Math.max(18, lineWidth + 14));
+  const sideOffset = cssNumber(data[`${role}LabelSideOffset`] ?? data.endpointLabelSideOffset, 0);
+  const xOffset = cssNumber(data[`${role}LabelXOffset`], 0);
+  const yOffset = cssNumber(data[`${role}LabelYOffset`], 0);
+  const dx = targetEndpoint.x - sourceEndpoint.x;
+  const dy = targetEndpoint.y - sourceEndpoint.y;
+  const length = Math.sqrt(dx * dx + dy * dy) || 1;
+  const unit = { x: dx / length, y: dy / length };
+  const normal = { x: -unit.y, y: unit.x };
+  const direction = role === 'source' ? 1 : -1;
+  const anchor = role === 'source' ? sourceEndpoint : targetEndpoint;
+  const point = {
+    x: anchor.x + unit.x * distance * direction + normal.x * sideOffset + xOffset,
+    y: anchor.y + unit.y * distance * direction + normal.y * sideOffset + yOffset,
+    transform: 'translate(-50%, -50%)'
+  };
+  const size = edgeLabelSize(data, label, role);
+  return obstacleFromLabel(`${edge.id}:${role}Label`, point, size.width, size.height);
+}
+
+function directionLabelObstacles(
+  edge: RuntimeEdge,
+  data: Record<string, unknown>,
+  sourceEndpoint: { x: number; y: number },
+  targetEndpoint: { x: number; y: number }
+): LabelPlacementObstacle[] {
+  if (!Array.isArray(data.linkDirections)) return [];
+  const dx = targetEndpoint.x - sourceEndpoint.x;
+  const dy = targetEndpoint.y - sourceEndpoint.y;
+  const length = Math.sqrt(dx * dx + dy * dy) || 1;
+  const unit = { x: dx / length, y: dy / length };
+  const normal = { x: -unit.y, y: unit.x };
+  const offset = cssNumber(data.directionLabelOffset, 0);
+
+  return data.linkDirections.flatMap((entry, index) => {
+    if (!entry || typeof entry !== 'object') return [];
+    const direction = entry as Record<string, unknown>;
+    const label = textValue(direction.label);
+    if (!label) return [];
+    const key = String(direction.direction || index);
+    const directionMultiplier = key === 'sourceToTarget' ? -1 : 1;
+    const point = {
+      x: (sourceEndpoint.x + targetEndpoint.x) / 2 + normal.x * offset * directionMultiplier,
+      y: (sourceEndpoint.y + targetEndpoint.y) / 2 + normal.y * offset * directionMultiplier,
+      transform: 'translate(-50%, -50%)'
+    };
+    const directionData = (direction.data && typeof direction.data === 'object' ? direction.data : {}) as Record<string, unknown>;
+    const size = edgeLabelSize({ ...data, ...directionData }, label, 'center');
+    return [obstacleFromLabel(`${edge.id}:direction:${key}`, point, size.width, size.height)];
+  });
+}
+
+function edgeLabelObstacles(edges: RuntimeEdge[], nodes: RuntimeNode[]): LabelPlacementObstacle[] {
+  const nodesById = new Map(nodes.map((node) => [node.id, node]));
+  return edges.flatMap((edge) => {
+    if (edge.hidden) return [];
+    const data = (edge.data || {}) as Record<string, unknown>;
+    const sourceNode = nodesById.get(edge.source);
+    const targetNode = nodesById.get(edge.target);
+    const sourceData = sourceNode?.data as unknown as CompiledNodeData | undefined;
+    const targetData = targetNode?.data as unknown as CompiledNodeData | undefined;
+    if (!sourceNode || !targetNode || !sourceData || !targetData) return [];
+
+    const sourceBox = nodeBounds(sourceNode, sourceData);
+    const targetBox = nodeBounds(targetNode, targetData);
+    const sourceEndpoint = boundaryPoint(sourceBox, targetBox);
+    const targetEndpoint = boundaryPoint(targetBox, sourceBox);
+    const obstacles: LabelPlacementObstacle[] = [];
+    const centerLabel = textValue(edge.label ?? data.label);
+    if (centerLabel) {
+      const xOffset = cssNumber(data.labelXOffset, 0);
+      const yOffset = cssNumber(data.labelYOffset, 0);
+      const point = {
+        x: (sourceEndpoint.x + targetEndpoint.x) / 2 + xOffset,
+        y: (sourceEndpoint.y + targetEndpoint.y) / 2 + yOffset,
+        transform: 'translate(-50%, -50%)'
+      };
+      const size = edgeLabelSize(data, centerLabel, 'center');
+      obstacles.push(obstacleFromLabel(`${edge.id}:label`, point, size.width, size.height));
+    }
+
+    const sourceLabel = endpointLabelObstacle(edge, 'source', data, sourceEndpoint, targetEndpoint);
+    const targetLabel = endpointLabelObstacle(edge, 'target', data, sourceEndpoint, targetEndpoint);
+    if (sourceLabel) obstacles.push(sourceLabel);
+    if (targetLabel) obstacles.push(targetLabel);
+    obstacles.push(...directionLabelObstacles(edge, data, sourceEndpoint, targetEndpoint));
+    return obstacles;
+  });
+}
+
+function labelItems(nodes: RuntimeNode[], viewportZoom: number): LabelPlacementItem[] {
+  return nodes.flatMap((node) => {
+    const data = node.data as unknown as CompiledNodeData | undefined;
+    const labelZIndex = finiteNumber(data?.labelZIndex);
+    if (!data || labelZIndex === undefined || node.hidden || !shouldRenderOverlayLabel(data, viewportZoom)) return [];
+    const text = displayName(data);
+    const size = estimateLabelSize(text, data.labelStyle, node.type === 'region' ? 12 : 10);
+
+    if (node.type === 'region') {
+      return [{
+        id: `${node.id}:label`,
+        width: size.width,
+        height: size.height,
+        priority: cssNumber(data.labelPriority, 40),
+        collisionPolicy: textValue(data.labelCollisionPolicy) === 'fade' ? 'fade' : 'avoid',
+        candidates: regionLabelCandidates(node, data)
+      }];
+    }
+
+    if (node.type !== 'network') return [];
+    return [{
+      id: `${node.id}:label`,
+      width: size.width,
+      height: size.height,
+      priority: cssNumber(data.labelPriority, 80),
+      collisionPolicy: textValue(data.labelCollisionPolicy) === 'fade' ? 'fade' : 'avoid',
+      ignoredObstacleIds: [`${node.id}:body`],
+      candidates: nodeLabelCandidates(node, data)
+    }];
+  });
+}
+
+export function LabelOverlay({ nodes, edges = [] }: { nodes: RuntimeNode[]; edges?: RuntimeEdge[] }) {
   const viewport = useViewport();
+  const obstacles = [
+    ...nodes.flatMap((node) => {
+      const data = node.data as unknown as CompiledNodeData | undefined;
+      const obstacle = data ? nodeBodyObstacle(node, data) : undefined;
+      return obstacle ? [obstacle] : [];
+    }),
+    ...edgeLabelObstacles(edges, nodes)
+  ];
+  const placements = placeLabels(labelItems(nodes, viewport.zoom), obstacles);
   const labels = nodes.flatMap((node) => {
     const data = node.data as unknown as CompiledNodeData | undefined;
     const labelZIndex = finiteNumber(data?.labelZIndex);
     if (!data || labelZIndex === undefined || node.hidden || !shouldRenderOverlayLabel(data, viewport.zoom)) return [];
 
     if (node.type === 'region') {
-      const point = regionLabelPoint(node, data);
+      const point = placements[`${node.id}:label`] || regionLabelCandidates(node, data)[0];
       return [(
         <div
           key={`${node.id}:label`}
@@ -185,7 +458,7 @@ export function LabelOverlay({ nodes }: { nodes: RuntimeNode[] }) {
     }
 
     if (node.type !== 'network') return [];
-    const point = nodeLabelPoint(node, data);
+    const point = placements[`${node.id}:label`] || nodeLabelCandidates(node, data)[0];
     return [(
       <div
         key={`${node.id}:label`}

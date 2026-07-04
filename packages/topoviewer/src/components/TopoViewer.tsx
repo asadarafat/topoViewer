@@ -356,7 +356,7 @@ function TopoFlow({
       proOptions={{ hideAttribution: true }}
     >
       <Background color="rgba(126, 139, 154, 0.20)" gap={24} />
-      <LabelOverlay nodes={nodes as never[]} />
+      <LabelOverlay nodes={nodes as never[]} edges={edges as never[]} />
       <ViewportControls
         controlPanelToggle={controlPanelToggle}
         exportDisabled={exportDisabled}
