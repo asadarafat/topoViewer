@@ -176,6 +176,17 @@ examples:
       controls: true
       controlsOpen: false
       title: Directional link strokes
+  - id: edges-dense-clos-labels
+    title: Dense CLOS labels
+    feature: edges
+    path: edges/dense-clos-labels
+    page: topoviewer/examples/edges/dense-clos-labels
+    summary: Show region, node, metadata, endpoint port, and bidirectional bandwidth labels in one compact CLOS fabric.
+    render:
+      height: 500px
+      controls: true
+      controlsOpen: false
+      title: Dense CLOS labels
   - id: paths-sequenced-path
     title: Sequenced path
     feature: paths

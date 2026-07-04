@@ -131,6 +131,11 @@
         "labelYOffset": {
           "type": "number"
         },
+        "labelCollisionPolicy": {
+          "type": "string",
+          "enum": ["none", "avoid", "fade", "hide"],
+          "description": "Collision behavior for automatically placed labels when overlap cannot be avoided."
+        },
         "labelTextWrap": {
           "type": "string",
           "enum": ["none", "wrap"]
@@ -317,6 +322,13 @@
             { "type": "string", "minLength": 1 }
           ],
           "description": "Independent label draw order. Use zIndex for the object body or edge line."
+        },
+        "metaZIndex": {
+          "oneOf": [
+            { "type": "number" },
+            { "type": "string", "minLength": 1 }
+          ],
+          "description": "Independent draw order for node metadata when rendered as a collision-managed overlay."
         },
         "sourceLabelColor": {
           "type": "string"

@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TopoViewer Label Collision Runtime Fixture</title>
+  </head>
+  <body>
+    <div id="root" style="height: 520px"></div>
+    <script type="module">
+      import React from 'react';
+      import { createRoot } from 'react-dom/client';
+      import { TopoViewer } from '../../src/components/TopoViewer.tsx';
+      import '../../src/styles.css';
+
+      const documentSpec = {
+        layout: {
+          mode: 'manual',
+          width: 700,
+          height: 320
+        },
+        icons: {
+          router: {
+            glyph: 'R',
+            fill: '#1d4ed8',
+            stroke: '#bfdbfe'
+          }
+        },
+        labelFields: ['name'],
+        stylesheet: [
+          {
+            selector: 'node',
+            style: {
+              icon: 'router',
+              shape: 'rectangle',
+              width: 96,
+              height: 58,
+              labelZIndex: 80,
+              metaZIndex: 70,
+              metaColor: '#94a3b8',
+              metaFontSize: 9,
+              labelBackgroundColor: '#ffffff',
+              labelBackgroundOpacity: 0.96,
+              labelFontWeight: 800
+            }
+          },
+          {
+            selector: 'region',
+            style: {
+              labelZIndex: 40,
+              labelPosition: 'topCenter',
+              labelBackgroundColor: '#e0f2fe',
+              labelColor: '#0f172a',
+              borderWidth: 2
+            }
+          },
+          {
+            selector: 'link',
+            style: {
+              label: 'fabric',
+              labelZIndex: 90,
+              labelYOffset: -70,
+              sourceLabelZIndex: 91,
+              targetLabelZIndex: 91,
+              sourceLabel: 'e1-1',
+              targetLabel: 'e1-49',
+              directionalStrokes: true,
+              directionLabelOffset: 38,
+              lineColor: '#2563eb',
+              lineWidth: 3,
+              targetArrowShape: 'triangle',
+              textBackgroundColor: '#eff6ff'
+            }
+          },
+          {
+            selector: 'linkDirection[direction = "sourceToTarget"]',
+            style: {
+              label: '8.2 Gb/s',
+              lineColor: '#22c55e',
+              targetArrowShape: 'triangle'
+            }
+          },
+          {
+            selector: 'linkDirection[direction = "targetToSource"]',
+            style: {
+              label: '3.1 Gb/s',
+              lineColor: '#f59e0b',
+              sourceArrowShape: 'triangle'
+            }
+          }
+        ],
+        graph: {
+          id: 'label-collision-runtime',
+          layers: [{ id: 'physical', name: 'Physical' }],
+          nodes: [
+            {
+              id: 'spine-1',
+              name: 'Spine 1',
+              labels: { role: 'spine', site: 'lab' },
+              layers: ['physical'],
+              position: [130, 150]
+            },
+            {
+              id: 'leaf-1',
+              name: 'Leaf 1',
+              labels: { role: 'leaf', site: 'lab' },
+              layers: ['physical'],
+              position: [470, 150]
+            }
+          ],
+          links: [
+            {
+              id: 'spine-1-leaf-1',
+              source: 'spine-1',
+              target: 'leaf-1',
+              layers: ['physical'],
+              directions: {
+                sourceToTarget: {},
+                targetToSource: {}
+              }
+            }
+          ],
+          regions: [
+            {
+              id: 'fabric',
+              name: 'Fabric Region',
+              members: ['spine-1', 'leaf-1'],
+              layers: ['physical'],
+              paddingX: 42,
+              paddingY: 54
+            }
+          ]
+        }
+      };
+
+      createRoot(document.getElementById('root')).render(React.createElement(TopoViewer, {
+        document: documentSpec,
+        selectedLayerIds: ['physical'],
+        toggles: {
+          showEdgeLabels: true,
+          showRegions: true
+        },
+        style: { height: '100%' }
+      }));
+    </script>
+  </body>
+</html>

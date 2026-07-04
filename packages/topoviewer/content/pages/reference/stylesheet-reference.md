@@ -36,6 +36,7 @@ Use [Style Your First Topology](../start/style-your-first-topology.md) and [Topo
 | `labelBackgroundOpacity` | number | Finite number. | No TopoViewer default; authored only. | Node label background opacity. |
 | `labelBorderColor` | color | Any CSS color or supported theme variable. | No TopoViewer default; authored only. | Node label border color. |
 | `labelBorderWidth` | integer | Finite integer number. | Falls back to the node label CSS border width. Fallback: `0`. | Node label border width. |
+| `labelCollisionPolicy` | enum | `none`, `avoid`, `fade`, `hide` | Defaults to `avoid`. | How node labels and metadata behave when automatic placement cannot avoid overlap. |
 | `labelColor` | color | Any CSS color or supported theme variable. | Falls back to --topoviewer-fg-strong. | Node label color. |
 | `labelFontSize` | integer | Finite integer number. | Falls back to the node label CSS font size. Fallback: `10`. | Node label font size. |
 | `labelFontWeight` | text | String value. | Falls back to the node label CSS font weight. Fallback: `620`. | Node label font weight. |
@@ -52,6 +53,7 @@ Use [Style Your First Topology](../start/style-your-first-topology.md) and [Topo
 | `metaColor` | color | Any CSS color or supported theme variable. | No TopoViewer default; authored only. | Node metadata color. |
 | `metaFontSize` | integer | Finite integer number. | No TopoViewer default; authored only. | Node metadata font size. |
 | `metaFontWeight` | text | String value. | No TopoViewer default; authored only. | Node metadata font weight. |
+| `metaZIndex` | integer | Finite integer number. | No TopoViewer default; authored only. | Independent draw order for node metadata when rendered as a collision-managed overlay. |
 | `minZoomedLabelFontSize` | integer | Finite integer number. | No TopoViewer default; authored only. | Hide label below this effective zoomed font size. |
 | `opacity` | number | Finite number. | No TopoViewer default; authored only. | Node opacity. |
 | `outlineColor` | color | Any CSS color or supported theme variable. | No TopoViewer default; authored only. | Visual outline color around the node body. |
@@ -135,6 +137,7 @@ Use [Style Your First Topology](../start/style-your-first-topology.md) and [Topo
 | `edgeLabelColor` | color | Any CSS color or supported theme variable. | Falls back to the rendered edge line color. | Center edge label color. |
 | `interactive` | boolean | `true`, `false` | Defaults to `true`. | Whether edge click handling and focus are enabled. |
 | `label` | text | String value. | No TopoViewer default; authored only. | Fallback center edge label. |
+| `labelCollisionPolicy` | enum | `none`, `avoid`, `fade`, `hide` | Defaults to `avoid`. | How center labels, endpoint labels, and direction labels behave when automatic placement cannot avoid overlap. |
 | `labelColor` | color | Any CSS color or supported theme variable. | Center labels prefer edgeLabelColor; source/target labels may still use labelColor as a shared fallback. | Shared legacy label color fallback. |
 | `labelFontSize` | integer | Finite integer number. | Falls back to edge label CSS font size. Fallback: `10`. | Center edge label font size. |
 | `labelFontStyle` | text | String value. | No TopoViewer default; authored only. | Center edge label font style. |
@@ -245,6 +248,7 @@ Use [Style Your First Topology](../start/style-your-first-topology.md) and [Topo
 | `edgeLabelColor` | color | Any CSS color or supported theme variable. | Falls back to the rendered edge line color. | Center edge label color. |
 | `interactive` | boolean | `true`, `false` | Defaults to `true`. | Whether edge click handling and focus are enabled. |
 | `label` | text | String value. | No TopoViewer default; authored only. | Fallback center edge label. |
+| `labelCollisionPolicy` | enum | `none`, `avoid`, `fade`, `hide` | Defaults to `avoid`. | How center labels, endpoint labels, and direction labels behave when automatic placement cannot avoid overlap. |
 | `labelColor` | color | Any CSS color or supported theme variable. | Center labels prefer edgeLabelColor; source/target labels may still use labelColor as a shared fallback. | Shared legacy label color fallback. |
 | `labelFontSize` | integer | Finite integer number. | Falls back to edge label CSS font size. Fallback: `10`. | Center edge label font size. |
 | `labelFontStyle` | text | String value. | No TopoViewer default; authored only. | Center edge label font style. |
@@ -302,6 +306,7 @@ Use [Style Your First Topology](../start/style-your-first-topology.md) and [Topo
 | `edgeLabelColor` | color | Any CSS color or supported theme variable. | Falls back to the rendered edge line color. | Center edge label color. |
 | `interactive` | boolean | `true`, `false` | Defaults to `true`. | Whether edge click handling and focus are enabled. |
 | `label` | text | String value. | No TopoViewer default; authored only. | Fallback center edge label. |
+| `labelCollisionPolicy` | enum | `none`, `avoid`, `fade`, `hide` | Defaults to `avoid`. | How center labels, endpoint labels, and direction labels behave when automatic placement cannot avoid overlap. |
 | `labelColor` | color | Any CSS color or supported theme variable. | Center labels prefer edgeLabelColor; source/target labels may still use labelColor as a shared fallback. | Shared legacy label color fallback. |
 | `labelFontSize` | integer | Finite integer number. | Falls back to edge label CSS font size. Fallback: `10`. | Center edge label font size. |
 | `labelFontStyle` | text | String value. | No TopoViewer default; authored only. | Center edge label font style. |
@@ -362,6 +367,7 @@ Use [Style Your First Topology](../start/style-your-first-topology.md) and [Topo
 | `borderWidth` | integer | Finite integer number. | Defaults to `1`. | Region border width. |
 | `draggable` | boolean | `true`, `false` | Defaults to `false`. | Whether the region hull can be dragged. |
 | `labelBackgroundColor` | color | Any CSS color or supported theme variable. | No TopoViewer default; authored only. | Region label background. |
+| `labelCollisionPolicy` | enum | `none`, `avoid`, `fade`, `hide` | Defaults to `avoid`. | How the region label behaves when automatic placement cannot avoid overlap. |
 | `labelColor` | color | Any CSS color or supported theme variable. | Falls back to region label CSS/theme styling. | Region label color. |
 | `labelFontSize` | integer | Finite integer number. | No TopoViewer default; authored only. | Region label font size. |
 | `labelFontWeight` | text | String value. | No TopoViewer default; authored only. | Region label font weight. |

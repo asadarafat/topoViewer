@@ -1,0 +1,14 @@
+renderable: true
+visualSnapshot: true
+dom:
+  graphNodes: 5
+  minVisibleEdges: 6
+assertions:
+  edgeLabels: true
+  edgeMarkersMin: 4
+  sourceEdgeLabelText: e1-49
+  targetEdgeLabelText: e1-1
+  labelZIndexValues: 40,70,80,90,91
+semantic:
+  errors: []
+  warnings: []

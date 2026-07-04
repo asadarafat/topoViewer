@@ -5,7 +5,7 @@
 - [x] 1.3 Document that direction arrows are marker geometry only and must not carry port text
 - [x] 1.4 Document that physical port text belongs to `sourceLabel` and `targetLabel`
 - [x] 1.5 Document overlay-layer behavior for endpoint labels and directional telemetry
-- [ ] 1.6 Add or update regression tests proving mapper overlays can style direction lanes without mutating parent link identity
+- [x] 1.6 Add or update regression tests proving mapper overlays can style direction lanes without mutating parent link identity
 - [x] 1.7 Add or update docs examples that contrast edge label, endpoint label, and direction label usage
 
 ## 2. Define Global Label Placement Contract
@@ -30,27 +30,27 @@
 ## 4. Wire Renderer Surfaces
 
 - [x] 4.1 Apply global placement to node labels
-- [ ] 4.1a Apply global placement to node meta
+- [x] 4.1a Apply global placement to node meta
 - [x] 4.2 Apply global placement to region labels
 - [x] 4.3 Apply shared placement to edge midpoint labels
 - [x] 4.4 Apply shared placement to endpoint `sourceLabel` and `targetLabel`
 - [x] 4.5 Apply shared placement to `linkDirection` labels
-- [ ] 4.6 Ensure label z-index remains independent from object z-index
-- [ ] 4.7 Ensure attention grouping and collapsed aggregate labels still render predictably
+- [x] 4.6 Ensure label z-index remains independent from object z-index
+- [x] 4.7 Ensure attention grouping and collapsed aggregate labels still render predictably
 
 ## 5. Documentation And Examples
 
-- [ ] 5.1 Update stylesheet reference for label auto-placement and collision-policy keys
+- [x] 5.1 Update stylesheet reference for label auto-placement and collision-policy keys
 - [x] 5.2 Update endpoint-label docs to explain auto placement versus manual offsets
 - [x] 5.3 Update directional-stroke docs to explain direction labels as vector values
-- [ ] 5.4 Add a dense CLOS example showing region, node, endpoint, and bandwidth labels together
-- [ ] 5.5 Update the Grafana TopoViewer panel use case after the ST CLOS bundle is visually cleaned up
+- [x] 5.4 Add a dense CLOS example showing region, node, endpoint, and bandwidth labels together
+- [x] 5.5 Update the Grafana TopoViewer panel use case after the ST CLOS bundle is visually cleaned up
 
 ## 6. Validation
 
 - [x] 6.1 Add unit tests for label candidate generation and scoring
-- [ ] 6.2 Add renderer tests for cross-object label collisions
+- [x] 6.2 Add renderer tests for cross-object label collisions
 - [x] 6.3 Add Grafana CLOS smoke screenshot coverage for the cleaned topology
-- [ ] 6.4 Add docs screenshot coverage for the dense label example
+- [x] 6.4 Add docs screenshot coverage for the dense label example
 - [x] 6.5 Run focused TopoViewer, docs, and Grafana checks
 - [x] 6.6 Run full `npm run ci` after generated outputs are committed

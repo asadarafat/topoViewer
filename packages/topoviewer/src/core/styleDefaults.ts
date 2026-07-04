@@ -41,6 +41,7 @@ const lineStyleValues = ['solid', 'dashed', 'dotted'];
 const lineCapValues = ['butt', 'round', 'square'];
 const displayValues = ['element', 'none'];
 const textAlignValues = ['left', 'center', 'right'];
+const labelCollisionPolicyValues = ['none', 'avoid', 'fade', 'hide'];
 const commonLabelKeys = new Set(['labelColor', 'labelFontSize', 'labelFontWeight', 'labelFontStyle', 'labelZIndex']);
 
 const none = (description = 'No TopoViewer default; the key only applies when authored.'): StyleDefault => ({ kind: 'none', description });
@@ -109,6 +110,7 @@ const nodeDefinitions = [
   def(['node'], 'labelTextAlign', 'Label alignment', 'enum', 'Node label text alignment.', derived('CSS', 'Falls back to centered node label text.', 'center'), textAlignValues),
   def(['node'], 'labelXOffset', 'Label X offset', 'integer', 'Pixel X offset after node label placement.', value(0)),
   def(['node'], 'labelYOffset', 'Label Y offset', 'integer', 'Pixel Y offset after node label placement.', value(0)),
+  def(['node'], 'labelCollisionPolicy', 'Label collision policy', 'enum', 'How node labels and metadata behave when automatic placement cannot avoid overlap.', value('avoid'), labelCollisionPolicyValues),
   def(['link', 'path'], 'labelXOffset', 'Label X offset', 'integer', 'Pixel X offset for the center edge label relative to the computed midpoint.', none('Directional links auto-offset the center label away from directional labels. Normal links use the midpoint. Explicit 0 pins the label to the midpoint.')),
   def(['link', 'path'], 'labelYOffset', 'Label Y offset', 'integer', 'Pixel Y offset for the center edge label relative to the computed midpoint.', none('Directional links auto-offset the center label away from directional labels. Normal links use the midpoint. Explicit 0 pins the label to the midpoint.')),
   def(['node'], 'labelZIndex', 'Label z index', 'integer', 'Independent draw order for the node label.'),
@@ -116,6 +118,7 @@ const nodeDefinitions = [
   def(['node'], 'metaColor', 'Meta color', 'color', 'Node metadata color.'),
   def(['node'], 'metaFontSize', 'Meta font size', 'integer', 'Node metadata font size.'),
   def(['node'], 'metaFontWeight', 'Meta font weight', 'text', 'Node metadata font weight.'),
+  def(['node'], 'metaZIndex', 'Meta z index', 'integer', 'Independent draw order for node metadata when rendered as a collision-managed overlay.'),
   def(['node'], 'badgeLabel', 'Badge label', 'text', 'Compact node badge label.', derived('aggregate childCount', 'Aggregate nodes can derive badge text from hidden member count.')),
   def(['node'], 'badgePosition', 'Badge position', 'enum', 'Compact node badge placement.', value('topRight'), nodeBadgePositions),
   def(['node'], 'badgeColor', 'Badge color', 'color', 'Compact node badge text color.'),
@@ -183,6 +186,7 @@ const edgeDefinitions = [
   def(['link', 'path'], 'labelFontSize', 'Label font size', 'integer', 'Center edge label font size.', derived('CSS', 'Falls back to edge label CSS font size.', 10)),
   def(['link', 'path'], 'labelFontWeight', 'Label font weight', 'text', 'Center edge label font weight.', derived('CSS', 'Falls back to edge label CSS font weight.', 650)),
   def(['link', 'path'], 'labelFontStyle', 'Label font style', 'text', 'Center edge label font style.'),
+  def(['link', 'path'], 'labelCollisionPolicy', 'Label collision policy', 'enum', 'How center labels, endpoint labels, and direction labels behave when automatic placement cannot avoid overlap.', value('avoid'), labelCollisionPolicyValues),
   def(['link'], 'labelBorderColor', 'Label border color', 'color', 'Shared edge label border color.', derived('CSS theme', 'Falls back to --topoviewer-edge-label-border.')),
   def(['link'], 'labelBorderWidth', 'Label border width', 'integer', 'Shared edge label border width.', derived('CSS', 'Falls back to edge label CSS border width.', 1)),
   def(['link'], 'textBackgroundColor', 'Label background', 'color', 'Shared edge label background.', derived('CSS theme', 'Falls back to --topoviewer-edge-label-bg.')),
@@ -256,6 +260,7 @@ const regionDefinitions = [
   def(['region'], 'labelFontSize', 'Label font size', 'integer', 'Region label font size.'),
   def(['region'], 'labelFontWeight', 'Label font weight', 'text', 'Region label font weight.'),
   def(['region'], 'labelZIndex', 'Label z index', 'integer', 'Independent draw order for the region label.'),
+  def(['region'], 'labelCollisionPolicy', 'Label collision policy', 'enum', 'How the region label behaves when automatic placement cannot avoid overlap.', value('avoid'), labelCollisionPolicyValues),
   def(['region'], 'draggable', 'Draggable', 'boolean', 'Whether the region hull can be dragged.', value(false)),
   def(['region'], 'selectable', 'Selectable', 'boolean', 'Whether the region hull can be selected.', value(false)),
   def(['region'], 'opacity', 'Opacity', 'number', 'Region opacity.'),

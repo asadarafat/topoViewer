@@ -193,6 +193,18 @@ examples:
       graphNodes: 2
       minVisibleEdges: 1
     markdown: docs/topoviewer/examples/edges/directional-link-strokes/index.md
+  - id: edges-dense-clos-labels
+    title: Dense CLOS labels
+    feature: edges
+    path: edges/dense-clos-labels
+    page: topoviewer/examples/edges/dense-clos-labels
+    renderable: true
+    topology: docs/topoviewer/examples/edges/dense-clos-labels/topology.yaml
+    stylesheet: docs/topoviewer/examples/edges/dense-clos-labels/stylesheet.yaml
+    expected:
+      graphNodes: 5
+      minVisibleEdges: 6
+    markdown: docs/topoviewer/examples/edges/dense-clos-labels/index.md
   - id: paths-sequenced-path
     title: Sequenced path
     feature: paths

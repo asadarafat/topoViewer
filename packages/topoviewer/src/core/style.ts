@@ -492,6 +492,7 @@ export function compileNodeStyle(style: StyleDeclaration, entity: GraphEntity, s
       }),
       labelPosition,
       labelZIndex: finiteNumber(style.labelZIndex),
+      labelCollisionPolicy: style.labelCollisionPolicy,
       labelMinZoom: nonNegativeNumber(style.minZoomedLabelFontSize),
       labelStyle: withoutUndefined({
         color: style.labelColor,
@@ -514,6 +515,7 @@ export function compileNodeStyle(style: StyleDeclaration, entity: GraphEntity, s
         fontSize: style.metaFontSize,
         fontWeight: style.metaFontWeight
       }),
+      metaZIndex: finiteNumber(style.metaZIndex),
       metaVisible,
       badgeLabel,
       badgePosition,
@@ -633,6 +635,7 @@ export function compileEdgeStyle(style: StyleDeclaration, entity: GraphEntity, s
       labelFontStyle: style.labelFontStyle,
       labelXOffset: finiteNumber(style.labelXOffset),
       labelYOffset: finiteNumber(style.labelYOffset),
+      labelCollisionPolicy: style.labelCollisionPolicy,
       sourceLabel: sourceLabel === undefined ? undefined : String(sourceLabel),
       targetLabel: targetLabel === undefined ? undefined : String(targetLabel),
       edgeLabelColor,
@@ -726,6 +729,7 @@ export function compileRegionStyle(style: StyleDeclaration, width: number, heigh
       labelMargin: defaultMargin,
       labelLeftMargin: legacyLeftMargin,
       labelZIndex: finiteNumber(style.labelZIndex),
+      labelCollisionPolicy: style.labelCollisionPolicy,
       labelStyle: withoutUndefined({
         color: style.labelColor,
         background: style.labelBackgroundColor,

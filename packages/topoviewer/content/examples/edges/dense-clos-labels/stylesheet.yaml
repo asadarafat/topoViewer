@@ -1,0 +1,115 @@
+layout:
+  mode: manual
+  width: 900
+  height: 460
+icons:
+  router.spine:
+    glyph: S
+    fill: "#001135"
+    stroke: "#90caf9"
+  router.leaf:
+    glyph: L
+    fill: "#001135"
+    stroke: "#90caf9"
+labelFields:
+  - name
+stylesheet:
+  - selector: region
+    style:
+      labelZIndex: 40
+      labelCollisionPolicy: avoid
+      backgroundColor: "rgba(25, 118, 210, 0.08)"
+      borderColor: "rgba(66, 165, 245, 0.42)"
+      borderWidth: 2
+      labelPosition: topCenter
+      labelMargin: 12
+      labelColor: var(--topoviewer-region-label-fg)
+      labelBackgroundColor: var(--topoviewer-region-label-bg)
+      labelFontWeight: 800
+  - selector: node
+    style:
+      icon: router.leaf
+      shape: square
+      width: 58
+      height: 58
+      borderWidth: 3
+      iconFit: fill
+      iconPadding: 0
+      labelZIndex: 80
+      metaZIndex: 70
+      labelCollisionPolicy: avoid
+      labelColor: var(--topoviewer-fg-strong)
+      labelFontWeight: 800
+      labelBackgroundColor: var(--topoviewer-panel-bg)
+      labelBackgroundOpacity: 0.92
+      labelBorderColor: var(--topoviewer-border)
+      labelBorderWidth: 1
+      labelPadding: 4
+      metaColor: var(--topoviewer-fg-muted)
+      metaFontSize: 9
+      metaFontWeight: 650
+  - selector: node[labels.node = "spine"]
+    style:
+      icon: router.spine
+      labelPosition: top
+      labelYOffset: -8
+      outlineColor: "#9c27b0"
+      outlineWidth: 4
+      outlineOpacity: 0.55
+  - selector: node[labels.node = "leaf"]
+    style:
+      icon: router.leaf
+      labelPosition: bottom
+      labelYOffset: 8
+      outlineColor: "#1976d2"
+      outlineWidth: 3
+      outlineOpacity: 0.42
+  - selector: link
+    style:
+      curveStyle: bezier
+      lineColor: "rgba(148, 163, 184, 0.34)"
+      lineWidth: 7
+      lineCap: round
+      directionalStrokes: true
+      directionStartGap: 10
+      directionCenterGap: 66
+      directionLabelOffset: 30
+      directionLabelRotation: auto
+      endpointLabelAutoPosition: true
+      endpointLabelDistance: 22
+      endpointLabelSideOffset: 0
+      labelCollisionPolicy: fade
+      targetArrowShape: none
+      sourceLabelZIndex: 91
+      targetLabelZIndex: 91
+      sourceLabelColor: "#dbeafe"
+      targetLabelColor: "#dbeafe"
+      sourceLabelBackgroundColor: "#0f172a"
+      targetLabelBackgroundColor: "#0f172a"
+      sourceLabelBorderColor: "#334155"
+      targetLabelBorderColor: "#334155"
+      sourceLabelBorderWidth: 1
+      targetLabelBorderWidth: 1
+      labelZIndex: 90
+      labelFontSize: 10
+      labelFontWeight: 800
+      textBackgroundColor: var(--topoviewer-edge-label-bg)
+      labelColor: var(--topoviewer-fg-strong)
+  - selector: linkDirection
+    style:
+      lineCap: round
+      labelFontWeight: 800
+      labelColor: var(--topoviewer-fg-strong)
+      textBackgroundColor: var(--topoviewer-edge-label-bg)
+  - selector: linkDirection[direction = "sourceToTarget"]
+    style:
+      lineColor: "#42a5f5"
+      targetArrowShape: triangle
+      targetArrowColor: "#42a5f5"
+  - selector: linkDirection[direction = "targetToSource"]
+    style:
+      lineColor: "#4caf50"
+      sourceArrowShape: triangle
+      sourceArrowColor: "#4caf50"
+      lineStyle: dashed
+      lineDashPattern: 10 7

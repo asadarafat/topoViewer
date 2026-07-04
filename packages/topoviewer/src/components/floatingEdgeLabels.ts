@@ -1,6 +1,6 @@
 import type { EdgeProps } from '@xyflow/react';
 import type { CSSProperties } from 'react';
-import { placeLabels, type LabelPlacementItem, type LabelPlacementObstacle, type LabelPlacementResult } from '../core/labelPlacement';
+import { placeLabels, type LabelCollisionPolicy, type LabelPlacementItem, type LabelPlacementObstacle, type LabelPlacementResult } from '../core/labelPlacement';
 import { linkDirectionSegment, type LinkDirectionGeometry } from '../core/linkDirectionGeometry';
 import type { Bounds } from '../core/types';
 
@@ -38,6 +38,11 @@ type EdgeNodeBox = Bounds | null;
 function numeric(value: unknown, fallback: number): number {
   const next = Number(value);
   return Number.isFinite(next) ? next : fallback;
+}
+
+function labelCollisionPolicy(value: unknown, fallback: LabelCollisionPolicy = 'avoid'): LabelCollisionPolicy {
+  if (value === 'none' || value === 'avoid' || value === 'fade' || value === 'hide') return value;
+  return fallback;
 }
 
 function endpointLabelAutoEnabled(data: Record<string, unknown>, role: 'source' | 'target'): boolean {
@@ -183,7 +188,7 @@ function centeredLabelItem(id: string, data: Record<string, unknown>, role: Edge
     width: size.width,
     height: size.height,
     priority,
-    collisionPolicy: 'avoid',
+    collisionPolicy: labelCollisionPolicy(data.labelCollisionPolicy),
     candidates: [{
       x: point.x,
       y: point.y,
@@ -208,7 +213,7 @@ function endpointLabelItem(
     width: base.width,
     height: base.height,
     priority: 72,
-    collisionPolicy: 'fade',
+    collisionPolicy: labelCollisionPolicy(data.labelCollisionPolicy, 'fade'),
     candidates: [
       { x: base.x, y: base.y, transform: 'translate(-50%, -50%)' },
       { x: base.x + normal.x * step, y: base.y + normal.y * step, transform: 'translate(-50%, -50%)', weight: 8 },
@@ -237,7 +242,7 @@ function directionalLabelItem(
     width: size.width,
     height: size.height,
     priority: 58,
-    collisionPolicy: 'fade',
+    collisionPolicy: labelCollisionPolicy(direction.data.labelCollisionPolicy ?? data.labelCollisionPolicy, 'fade'),
     candidates: [
       { x: point.x, y: point.y, transform: 'translate(-50%, -50%)' },
       { x: point.x + segment.normal.x * step * directionMultiplier, y: point.y + segment.normal.y * step * directionMultiplier, transform: 'translate(-50%, -50%)', weight: 8 },

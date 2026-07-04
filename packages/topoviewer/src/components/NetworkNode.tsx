@@ -147,6 +147,7 @@ export function NetworkNode({ data }: { data: CompiledNodeData }) {
   const metaText = formatLabels(data.labels);
   const rendersMeta = data.metaVisible !== false && metaText !== '';
   const rendersOverlayLabel = data.labelZIndex !== undefined;
+  const rendersOverlayMeta = data.metaZIndex !== undefined;
   const isNavigableAttentionNode = data.attentionState === 'focused' || data.attentionState === 'related';
   const accessibleLabel = [
     displayName(data),
@@ -268,7 +269,7 @@ export function NetworkNode({ data }: { data: CompiledNodeData }) {
           {labelHtml ? null : displayName(data)}
         </div>
       )}
-      {rendersMeta ? <div className="topoviewer-node-meta" style={data.metaStyle}>{metaText}</div> : null}
+      {rendersMeta && !rendersOverlayMeta ? <div className="topoviewer-node-meta" style={data.metaStyle}>{metaText}</div> : null}
     </div>
   );
 }

@@ -308,10 +308,12 @@ export interface CompiledNodeData extends GraphNode, Record<string, unknown> {
   labelMargin?: number;
   labelLeftMargin?: number;
   labelZIndex?: number;
+  labelCollisionPolicy?: string;
   labelMinZoom?: number;
   regionBoundsWidth?: number;
   regionBoundsHeight?: number;
   metaStyle?: CSSProperties;
+  metaZIndex?: number;
   metaVisible?: boolean;
   badgeLabel?: string;
   badgePosition?: string;

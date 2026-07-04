@@ -33,6 +33,7 @@ TopoViewer renders declarative graph and diagram documents from YAML. The canoni
 - [Floating anchors](examples/edges/floating-anchors/index.md): Floating anchors connect to the nearest point on each node boundary.
 - [Parent link pipe](examples/edges/parent-link-pipe/index.md): A child link can be visually carried inside a parent transport link.
 - [Directional link strokes](examples/edges/directional-link-strokes/index.md): One physical link can show two independently styled traffic directions.
+- [Dense CLOS labels](examples/edges/dense-clos-labels/index.md): Show region, node, metadata, endpoint port, and bidirectional bandwidth labels in one compact CLOS fabric.
 
 ### Paths
 

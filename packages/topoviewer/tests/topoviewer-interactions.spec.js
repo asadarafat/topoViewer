@@ -225,6 +225,47 @@ function movedBy(before, after) {
   };
 }
 
+async function visibleLabelLayout(page) {
+  return withNavigationRetry(page, () => page.evaluate(() => {
+    const visible = (element) => {
+      const style = getComputedStyle(element);
+      const box = element.getBoundingClientRect();
+      return style.display !== 'none'
+        && style.visibility !== 'hidden'
+        && Number.parseFloat(style.opacity || '1') > 0.05
+        && box.width > 0
+        && box.height > 0;
+    };
+    const labels = [...document.querySelectorAll('.topoviewer-label-overlay, .topoviewer-edge-label')]
+      .filter(visible)
+      .map((element, index) => {
+        const box = element.getBoundingClientRect();
+        return {
+          id: element.textContent?.trim() || `${element.className}:${index}`,
+          role: element.getAttribute('data-label-role') || (element.classList.contains('topoviewer-edge-label') ? 'edge' : 'overlay'),
+          zIndex: element.getAttribute('data-label-z-index') || getComputedStyle(element).zIndex,
+          x: box.x,
+          y: box.y,
+          width: box.width,
+          height: box.height
+        };
+      });
+    const overlapArea = (a, b) => {
+      const x = Math.max(0, Math.min(a.x + a.width, b.x + b.width) - Math.max(a.x, b.x));
+      const y = Math.max(0, Math.min(a.y + a.height, b.y + b.height) - Math.max(a.y, b.y));
+      return x * y;
+    };
+    const overlaps = [];
+    for (let i = 0; i < labels.length; i += 1) {
+      for (let j = i + 1; j < labels.length; j += 1) {
+        const area = overlapArea(labels[i], labels[j]);
+        if (area > 1) overlaps.push({ a: labels[i].id, b: labels[j].id, area });
+      }
+    }
+    return { labels, overlaps };
+  }));
+}
+
 async function dragBox(page, box, dx, dy, offset = { x: 48, y: 28 }) {
   await page.mouse.move(box.x + offset.x, box.y + offset.y);
   await page.mouse.down();
@@ -321,6 +362,20 @@ test.describe('TopoViewer package interactions', () => {
       if (escapedViewer) break;
     }
     expect(escapedViewer).toBe(true);
+  });
+
+  test('places dense node, meta, region, endpoint, and direction labels without visible overlap', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await expectCurrentServerMarker(page, 'topoviewer');
+    await page.goto('/tests/fixtures/label-collision-runtime.html', { waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('.topoviewer-label-overlay', { timeout: 30000 });
+    await page.waitForSelector('.topoviewer-edge-label', { timeout: 30000 });
+
+    const layout = await visibleLabelLayout(page);
+    expect(layout.labels.length).toBeGreaterThanOrEqual(10);
+    expect(layout.labels.some((label) => label.role === 'meta')).toBe(true);
+    expect(layout.labels.map((label) => label.zIndex)).toEqual(expect.arrayContaining(['40', '70', '80', '90', '91']));
+    expect(layout.overlaps).toEqual([]);
   });
 
   test('keeps hostile label and callout markdown inert at runtime', async ({ page }) => {

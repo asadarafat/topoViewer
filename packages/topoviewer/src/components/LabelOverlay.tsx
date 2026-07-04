@@ -1,7 +1,7 @@
 import { ViewportPortal, useViewport, type Edge, type Node } from '@xyflow/react';
 import type { CSSProperties } from 'react';
-import { labelBounds, placeLabels, type LabelPlacementCandidate, type LabelPlacementItem, type LabelPlacementObstacle, type LabelPlacementResult } from '../core/labelPlacement';
-import { displayName } from '../core/style';
+import { labelBounds, placeLabels, type LabelCollisionPolicy, type LabelPlacementCandidate, type LabelPlacementItem, type LabelPlacementObstacle, type LabelPlacementResult } from '../core/labelPlacement';
+import { displayName, formatLabels } from '../core/style';
 import type { Bounds, CompiledNodeData } from '../core/types';
 
 type RuntimeNode = Node<Record<string, unknown>> & {
@@ -47,6 +47,11 @@ function cssNumber(value: unknown, fallback: number): number {
 function textValue(value: unknown): string | undefined {
   if (value === undefined || value === null || value === '') return undefined;
   return String(value);
+}
+
+function labelCollisionPolicy(value: unknown): LabelCollisionPolicy {
+  if (value === 'none' || value === 'fade' || value === 'hide') return value;
+  return 'avoid';
 }
 
 function nodeSize(node: RuntimeNode, data: CompiledNodeData): { width: number; height: number } {
@@ -113,6 +118,31 @@ function nodeLabelCandidate(node: RuntimeNode, data: CompiledNodeData, labelPosi
   }
 }
 
+function nodeMetaCandidate(node: RuntimeNode, data: CompiledNodeData, labelPosition: string): AnchorTransform {
+  const { width, height } = nodeSize(node, data);
+  const anchor = edgeAnchor(data, width, height);
+  const position = nodePosition(node);
+  const nodeStyle = (data.nodeStyle || {}) as Record<string, unknown>;
+  const offsetX = cssNumber(nodeStyle['--topoviewer-node-label-x-offset'], 0);
+  const offsetY = cssNumber(nodeStyle['--topoviewer-node-label-y-offset'], 0);
+  const centerX = position.x + anchor.x + anchor.width / 2;
+  const centerY = position.y + anchor.y + anchor.height / 2;
+
+  switch (labelPosition) {
+    case 'top':
+      return { x: centerX + offsetX, y: position.y + anchor.y - 28 + offsetY, transform: 'translate(-50%, -100%)' };
+    case 'left':
+      return { x: position.x + anchor.x - 18 + offsetX, y: centerY + offsetY, transform: 'translate(-100%, -50%)' };
+    case 'right':
+      return { x: position.x + anchor.x + anchor.width + 18 + offsetX, y: centerY + offsetY, transform: 'translate(0, -50%)' };
+    case 'center':
+      return { x: centerX + offsetX, y: centerY + 18 + offsetY, transform: 'translate(-50%, 0)' };
+    case 'bottom':
+    default:
+      return { x: centerX + offsetX, y: position.y + anchor.y + anchor.height + 30 + offsetY, transform: 'translate(-50%, 0)' };
+  }
+}
+
 function uniqueCandidates(candidates: AnchorTransform[]): AnchorTransform[] {
   const seen = new Set<string>();
   return candidates.filter((candidate) => {
@@ -132,6 +162,18 @@ function nodeLabelCandidates(node: RuntimeNode, data: CompiledNodeData): AnchorT
     nodeLabelCandidate(node, data, 'right'),
     nodeLabelCandidate(node, data, 'left'),
     nodeLabelCandidate(node, data, 'center')
+  ]);
+}
+
+function nodeMetaCandidates(node: RuntimeNode, data: CompiledNodeData): AnchorTransform[] {
+  const preferred = String(data.labelPosition || 'bottom');
+  return uniqueCandidates([
+    nodeMetaCandidate(node, data, preferred),
+    nodeMetaCandidate(node, data, 'bottom'),
+    nodeMetaCandidate(node, data, 'top'),
+    nodeMetaCandidate(node, data, 'right'),
+    nodeMetaCandidate(node, data, 'left'),
+    nodeMetaCandidate(node, data, 'center')
   ]);
 }
 
@@ -211,6 +253,12 @@ function shouldRenderOverlayLabel(data: CompiledNodeData, viewportZoom: number):
     return configuredFontSize * viewportZoom >= data.labelMinZoom;
   }
   return true;
+}
+
+function shouldRenderOverlayMeta(data: CompiledNodeData): boolean {
+  return finiteNumber(data.metaZIndex) !== undefined
+    && data.metaVisible !== false
+    && formatLabels(data.labels) !== '';
 }
 
 function labelContent(data: CompiledNodeData) {
@@ -399,31 +447,51 @@ function labelItems(nodes: RuntimeNode[], viewportZoom: number): LabelPlacementI
   return nodes.flatMap((node) => {
     const data = node.data as unknown as CompiledNodeData | undefined;
     const labelZIndex = finiteNumber(data?.labelZIndex);
-    if (!data || labelZIndex === undefined || node.hidden || !shouldRenderOverlayLabel(data, viewportZoom)) return [];
-    const text = displayName(data);
-    const size = estimateLabelSize(text, data.labelStyle, node.type === 'region' ? 12 : 10);
+    if (!data || node.hidden) return [];
+    const items: LabelPlacementItem[] = [];
 
-    if (node.type === 'region') {
-      return [{
-        id: `${node.id}:label`,
-        width: size.width,
-        height: size.height,
-        priority: cssNumber(data.labelPriority, 40),
-        collisionPolicy: textValue(data.labelCollisionPolicy) === 'fade' ? 'fade' : 'avoid',
-        candidates: regionLabelCandidates(node, data)
-      }];
+    if (labelZIndex !== undefined && shouldRenderOverlayLabel(data, viewportZoom)) {
+      const text = displayName(data);
+      const size = estimateLabelSize(text, data.labelStyle, node.type === 'region' ? 12 : 10);
+
+      if (node.type === 'region') {
+        items.push({
+          id: `${node.id}:label`,
+          width: size.width,
+          height: size.height,
+          priority: cssNumber(data.labelPriority, 40),
+          collisionPolicy: labelCollisionPolicy(data.labelCollisionPolicy),
+          candidates: regionLabelCandidates(node, data)
+        });
+      }
+
+      if (node.type === 'network') {
+        items.push({
+          id: `${node.id}:label`,
+          width: size.width,
+          height: size.height,
+          priority: cssNumber(data.labelPriority, 80),
+          collisionPolicy: labelCollisionPolicy(data.labelCollisionPolicy),
+          ignoredObstacleIds: [`${node.id}:body`],
+          candidates: nodeLabelCandidates(node, data)
+        });
+      }
     }
 
-    if (node.type !== 'network') return [];
-    return [{
-      id: `${node.id}:label`,
-      width: size.width,
-      height: size.height,
-      priority: cssNumber(data.labelPriority, 80),
-      collisionPolicy: textValue(data.labelCollisionPolicy) === 'fade' ? 'fade' : 'avoid',
-      ignoredObstacleIds: [`${node.id}:body`],
-      candidates: nodeLabelCandidates(node, data)
-    }];
+    if (node.type === 'network' && shouldRenderOverlayMeta(data)) {
+      const metaText = formatLabels(data.labels);
+      const size = estimateLabelSize(metaText, data.metaStyle, 9);
+      items.push({
+        id: `${node.id}:meta`,
+        width: size.width,
+        height: size.height,
+        priority: cssNumber(data.metaPriority, 70),
+        collisionPolicy: labelCollisionPolicy(data.labelCollisionPolicy),
+        candidates: nodeMetaCandidates(node, data)
+      });
+    }
+
+    return items;
   });
 }
 
@@ -441,9 +509,9 @@ export function LabelOverlay({ nodes, edges = [] }: { nodes: RuntimeNode[]; edge
   const labels = nodes.flatMap((node) => {
     const data = node.data as unknown as CompiledNodeData | undefined;
     const labelZIndex = finiteNumber(data?.labelZIndex);
-    if (!data || labelZIndex === undefined || node.hidden || !shouldRenderOverlayLabel(data, viewport.zoom)) return [];
+    if (!data || node.hidden) return [];
 
-    if (node.type === 'region') {
+    if (node.type === 'region' && labelZIndex !== undefined && shouldRenderOverlayLabel(data, viewport.zoom)) {
       const point = placements[`${node.id}:label`] || regionLabelCandidates(node, data)[0];
       return [(
         <div
@@ -458,20 +526,42 @@ export function LabelOverlay({ nodes, edges = [] }: { nodes: RuntimeNode[]; edge
     }
 
     if (node.type !== 'network') return [];
-    const point = placements[`${node.id}:label`] || nodeLabelCandidates(node, data)[0];
-    return [(
-      <div
-        key={`${node.id}:label`}
-        className="topoviewer-node-label topoviewer-label-overlay"
-        data-label-position={data.labelPosition || 'bottom'}
-        data-label-priority={data.attentionLabelPriority || undefined}
-        data-label-z-index={labelZIndex}
-        style={overlayStyle(data.labelStyle, point, labelZIndex)}
-        {...labelContent(data)}
-      >
-        {data.labelHtml ? null : displayName(data)}
-      </div>
-    )];
+    const rendered = [];
+
+    if (labelZIndex !== undefined && shouldRenderOverlayLabel(data, viewport.zoom)) {
+      const point = placements[`${node.id}:label`] || nodeLabelCandidates(node, data)[0];
+      rendered.push((
+        <div
+          key={`${node.id}:label`}
+          className="topoviewer-node-label topoviewer-label-overlay"
+          data-label-position={data.labelPosition || 'bottom'}
+          data-label-priority={data.attentionLabelPriority || undefined}
+          data-label-z-index={labelZIndex}
+          style={overlayStyle(data.labelStyle, point, labelZIndex)}
+          {...labelContent(data)}
+        >
+          {data.labelHtml ? null : displayName(data)}
+        </div>
+      ));
+    }
+
+    if (shouldRenderOverlayMeta(data)) {
+      const metaZIndex = finiteNumber(data.metaZIndex) ?? (labelZIndex === undefined ? 0 : labelZIndex - 1);
+      const point = placements[`${node.id}:meta`] || nodeMetaCandidates(node, data)[0];
+      rendered.push((
+        <div
+          key={`${node.id}:meta`}
+          className="topoviewer-node-meta topoviewer-label-overlay"
+          data-label-role="meta"
+          data-label-z-index={metaZIndex}
+          style={overlayStyle(data.metaStyle, point, metaZIndex)}
+        >
+          {formatLabels(data.labels)}
+        </div>
+      ));
+    }
+
+    return rendered;
   });
 
   if (!labels.length) return null;

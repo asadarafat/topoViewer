@@ -318,6 +318,7 @@ Use this reference with:
 | `labelBackgroundOpacity` | optional | number | Number >= 0. | Optional; no schema default. | Schema/type validation applies. | Style keys are applied by matching stylesheet selectors. | Can be used by mapper runtime overlays when supported for the target kind. | Supported | `style.labelBackgroundOpacity: ...` | Schema Style Object attribute. |
 | `labelBorderColor` | optional | string | Any valid value of the documented type. | Optional; no schema default. | Schema/type validation applies. | Style keys are applied by matching stylesheet selectors. | Can be used by mapper runtime overlays when supported for the target kind. | Supported | `style.labelBorderColor: ...` | Schema Style Object attribute. |
 | `labelBorderWidth` | optional | number | Number >= 0. | Optional; no schema default. | Schema/type validation applies. | Style keys are applied by matching stylesheet selectors. | Can be used by mapper runtime overlays when supported for the target kind. | Supported | `style.labelBorderWidth: ...` | Schema Style Object attribute. |
+| `labelCollisionPolicy` | optional | none \| avoid \| fade \| hide | `none`, `avoid`, `fade`, `hide` | Optional; no schema default. | enum checked | Style keys are applied by matching stylesheet selectors. | Can be used by mapper runtime overlays when supported for the target kind. | Supported | `style.labelCollisionPolicy: ...` | Collision behavior for automatically placed labels when overlap cannot be avoided. |
 | `labelFontStyle` | optional | string | Any valid value of the documented type. | Optional; no schema default. | Schema/type validation applies. | Style keys are applied by matching stylesheet selectors. | Can be used by mapper runtime overlays when supported for the target kind. | Supported | `style.labelFontStyle: ...` | Schema Style Object attribute. |
 | `labelInteractive` | optional | boolean | Any valid value of the documented type. | Optional; no schema default. | Schema/type validation applies. | Style keys are applied by matching stylesheet selectors. | Can be used by mapper runtime overlays when supported for the target kind. | Supported | `style.labelInteractive: ...` | Schema Style Object attribute. |
 | `labelMargin` | optional | number | Number >= 0. | Optional; no schema default. | Schema/type validation applies. | Style keys are applied by matching stylesheet selectors. | Can be used by mapper runtime overlays when supported for the target kind. | Supported | `style.labelMargin: ...` | Uniform region-label margin in pixels from the selected region edge. |
@@ -334,6 +335,7 @@ Use this reference with:
 | `lineFill` | optional | solid \| linearGradient | `solid`, `linearGradient` | Optional; no schema default. | enum checked | Style keys are applied by matching stylesheet selectors. | Can be used by mapper runtime overlays when supported for the target kind. | Supported | `style.lineFill: ...` | Schema Style Object attribute. |
 | `lineGradientStopColors` | optional | array of string or string | Array length >= 2. or Any valid value of the documented type. | Optional; no schema default. | Schema/type validation applies. | Style keys are applied by matching stylesheet selectors. | Can be used by mapper runtime overlays when supported for the target kind. | Supported | `style.lineGradientStopColors: ...` | Schema Style Object attribute. |
 | `lineGradientStopPositions` | optional | array of string or string | Any valid value of the documented type. or Any valid value of the documented type. | Optional; no schema default. | Schema/type validation applies. | Style keys are applied by matching stylesheet selectors. | Can be used by mapper runtime overlays when supported for the target kind. | Supported | `style.lineGradientStopPositions: ...` | Schema Style Object attribute. |
+| `metaZIndex` | optional | number or string | Any valid value of the documented type. or Any valid value of the documented type. | Optional; no schema default. | Schema/type validation applies. | Style keys are applied by matching stylesheet selectors. | Can be used by mapper runtime overlays when supported for the target kind. | Supported | `style.metaZIndex: ...` | Independent draw order for node metadata when rendered as a collision-managed overlay. |
 | `minZoomedLabelFontSize` | optional | number | Number >= 0. | Optional; no schema default. | Schema/type validation applies. | Style keys are applied by matching stylesheet selectors. | Can be used by mapper runtime overlays when supported for the target kind. | Supported | `style.minZoomedLabelFontSize: ...` | Schema Style Object attribute. |
 | `outlineColor` | optional | string | Any valid value of the documented type. | Optional; no schema default. | Schema/type validation applies. | Style keys are applied by matching stylesheet selectors. | Can be used by mapper runtime overlays when supported for the target kind. | Supported | `style.outlineColor: ...` | Schema Style Object attribute. |
 | `outlineOpacity` | optional | number | Number >= 0. | Optional; no schema default. | Schema/type validation applies. | Style keys are applied by matching stylesheet selectors. | Can be used by mapper runtime overlays when supported for the target kind. | Supported | `style.outlineOpacity: ...` | Schema Style Object attribute. |
@@ -503,6 +505,7 @@ This table is generated from `packages/topoviewer/src/core/styleDefaults.ts`. It
 | `edgeLabelColor` | link, path | color | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.edgeLabelColor: ...` |
 | `interactive` | link, path | boolean | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.interactive: ...` |
 | `label` | link, path | text | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.label: ...` |
+| `labelCollisionPolicy` | link, path | enum | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.labelCollisionPolicy: ...` |
 | `labelColor` | link, path | color | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.labelColor: ...` |
 | `labelFontSize` | link, path | integer | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.labelFontSize: ...` |
 | `labelFontStyle` | link, path | text | [Stylesheet reference](stylesheet-reference.md#link-style-keys) | `style.labelFontStyle: ...` |
@@ -571,6 +574,7 @@ This table is generated from `packages/topoviewer/src/core/styleDefaults.ts`. It
 | `labelBackgroundOpacity` | node | number | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.labelBackgroundOpacity: ...` |
 | `labelBorderColor` | node | color | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.labelBorderColor: ...` |
 | `labelBorderWidth` | node | integer | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.labelBorderWidth: ...` |
+| `labelCollisionPolicy` | node | enum | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.labelCollisionPolicy: ...` |
 | `labelColor` | node | color | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.labelColor: ...` |
 | `labelFontSize` | node | integer | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.labelFontSize: ...` |
 | `labelFontWeight` | node | text | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.labelFontWeight: ...` |
@@ -587,6 +591,7 @@ This table is generated from `packages/topoviewer/src/core/styleDefaults.ts`. It
 | `metaColor` | node | color | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.metaColor: ...` |
 | `metaFontSize` | node | integer | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.metaFontSize: ...` |
 | `metaFontWeight` | node | text | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.metaFontWeight: ...` |
+| `metaZIndex` | node | integer | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.metaZIndex: ...` |
 | `minZoomedLabelFontSize` | node | integer | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.minZoomedLabelFontSize: ...` |
 | `opacity` | node | number | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.opacity: ...` |
 | `outlineColor` | node | color | [Stylesheet reference](stylesheet-reference.md#node-style-keys) | `style.outlineColor: ...` |
@@ -617,6 +622,7 @@ This table is generated from `packages/topoviewer/src/core/styleDefaults.ts`. It
 | `borderWidth` | region | integer | [Stylesheet reference](stylesheet-reference.md#region-style-keys) | `style.borderWidth: ...` |
 | `draggable` | region | boolean | [Stylesheet reference](stylesheet-reference.md#region-style-keys) | `style.draggable: ...` |
 | `labelBackgroundColor` | region | color | [Stylesheet reference](stylesheet-reference.md#region-style-keys) | `style.labelBackgroundColor: ...` |
+| `labelCollisionPolicy` | region | enum | [Stylesheet reference](stylesheet-reference.md#region-style-keys) | `style.labelCollisionPolicy: ...` |
 | `labelColor` | region | color | [Stylesheet reference](stylesheet-reference.md#region-style-keys) | `style.labelColor: ...` |
 | `labelFontSize` | region | integer | [Stylesheet reference](stylesheet-reference.md#region-style-keys) | `style.labelFontSize: ...` |
 | `labelFontWeight` | region | text | [Stylesheet reference](stylesheet-reference.md#region-style-keys) | `style.labelFontWeight: ...` |

@@ -725,7 +725,7 @@ describe('compileTopoGraph', () => {
       stylesheet: [
         { selector: 'node[labels.meta = "transparent"]', style: { metaColor: 'transparent' } },
         { selector: 'node[labels.meta = "zero"]', style: { metaFontSize: 0 } },
-        { selector: 'node[labels.meta = "visible"]', style: { metaColor: '#94a3b8', metaFontSize: 9 } }
+        { selector: 'node[labels.meta = "visible"]', style: { metaColor: '#94a3b8', metaFontSize: 9, metaZIndex: 69, labelCollisionPolicy: 'fade' } }
       ]
     }, ['underlay']);
 
@@ -740,6 +740,8 @@ describe('compileTopoGraph', () => {
       color: '#94a3b8',
       fontSize: 9
     });
+    expect(visibleMeta.metaZIndex).toBe(69);
+    expect(visibleMeta.labelCollisionPolicy).toBe('fade');
   });
 
   it('does not normalize kebab-case style keys inside edge style compilation', () => {
