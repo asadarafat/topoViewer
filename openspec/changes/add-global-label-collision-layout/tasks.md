@@ -53,4 +53,4 @@
 - [x] 6.3 Add Grafana CLOS smoke screenshot coverage for the cleaned topology
 - [ ] 6.4 Add docs screenshot coverage for the dense label example
 - [x] 6.5 Run focused TopoViewer, docs, and Grafana checks
-- [ ] 6.6 Run full `npm run ci` after generated outputs are committed
+- [x] 6.6 Run full `npm run ci` after generated outputs are committed
