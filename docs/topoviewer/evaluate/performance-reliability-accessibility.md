@@ -51,8 +51,7 @@ docs, package files, or checked-in media.
 | Mapper overlays | `npm run grafana:panel:test` | CI | Mapper parsing, schema validation, overlay execution, and mounted-bundle runtime model tests. |
 | Docs embeds | `npm run docs:smoke`, `npm run render:parity` | CI/pre-release | MkDocs and Zensical embeds must hydrate without manual refresh and must not leak host CSS geometry. |
 | Browser harness | `npm run test:vscode-harness` | CI | Authoring workflow, YAML assist, persistence, export, mapper diagnostics, and editor behavior. |
-| Grafana panel refresh | `npm run grafana:lab:smoke:phase4` | Pre-release/local lab | Mounted bundle selection, Prometheus refresh, mapper coverage, and overlay update behavior. |
-| Grafana Containerlab telemetry | `npm run grafana:clab:smoke` | Advanced lab/manual | Real telemetry mode; intentionally not a default PR gate. |
+| Grafana panel telemetry | `npm run grafana:clab:smoke` | Advanced lab/manual | Containerlab, Prometheus refresh, mounted bundle discovery, mapper coverage, directional lanes, and overlay update behavior. |
 
 The current benchmark matrix is enough to block obvious regressions before
 public adoption. It is not yet a full performance lab: browser memory ceilings,

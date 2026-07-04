@@ -7,7 +7,7 @@ LAB_DIR="$(cd "${CLAB_DIR}/.." && pwd)"
 REPO_DIR="$(cd "${LAB_DIR}/../.." && pwd)"
 RUNTIME_ENV="${REPO_DIR}/.artifacts/grafana-containerlab.env"
 
-source "${LAB_DIR}/scripts/lib/lab-warning.sh"
+source "${SCRIPT_DIR}/lab-warning.sh"
 
 cd "${CLAB_DIR}"
 while IFS='=' read -r key value; do

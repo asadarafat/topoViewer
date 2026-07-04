@@ -48,6 +48,21 @@ TopoViewer added as a Grafana panel. Prometheus recording rules attach stable
 `st-clos.mapper.tv.yaml` maps those labels to TopoViewer links and directional
 lanes.
 
+The cleaned `st-clos` view uses a deliberate label contract:
+
+- node labels identify devices;
+- node metadata stays separate from the node name;
+- region labels identify spine, leaf, and client groups;
+- `sourceLabel` and `targetLabel` identify physical ports;
+- `linkDirection` labels carry bandwidth values from telemetry;
+- runtime mapper overlays style directional lanes without changing the parent
+  link identity.
+
+This is the pattern to copy when building your own Grafana topology panel. Keep
+physical connectivity stable in topology YAML, keep the visual contract in
+stylesheet YAML, and let mapper YAML apply runtime-only values such as
+bandwidth, link state, or status.
+
 ## Quick Start
 
 Start the lab:
@@ -519,22 +534,22 @@ workflow is understood.
     If Grafana shows a "cannot be saved" message, save an editable copy for
     local exploration or update the dashboard JSON in the provisioning source.
 
-    ### Synthetic Grafana Fallback
+    ### Containerlab Local Validation
 
-    Use the synthetic Compose lab when you want to validate the Grafana plugin
-    and mounted-bundle workflow without Containerlab:
+    Use the Containerlab profile when you want to validate the Grafana plugin,
+    mounted-bundle workflow, Prometheus recording rules, mapper coverage, and
+    directional telemetry overlays against a real local SR Linux topology:
 
     ```bash
-    npm run grafana:lab:up
-    npm run grafana:lab:smoke:phase4
-    npm run grafana:lab:inject -- healthy
-    npm run grafana:lab:inject -- high-utilization
-    npm run grafana:lab:inject -- link-failure
-    npm run grafana:lab:down
+    npm run grafana:clab:up
+    npm run grafana:clab:traffic:start
+    npm run grafana:clab:smoke
+    npm run grafana:clab:traffic:stop
+    npm run grafana:clab:down
     ```
 
-    Fixture mode exists for demos and regression tests only. The
-    production-shaped workflow is mounted bundles.
+    Fixture mode remains a panel-development and regression path only. The
+    user-facing Grafana lab path is mounted bundles plus Containerlab telemetry.
 
     ### Plugin Artifact Trust
 

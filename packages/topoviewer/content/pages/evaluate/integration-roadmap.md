@@ -158,30 +158,28 @@ Local commands:
 
 ```bash
 npm run grafana:fixtures:check
-npm run grafana:injector:test
 npm run grafana:panel:test
 npm run grafana:panel:build
-npm run grafana:lab:up
-npm run grafana:lab:smoke:phase1
-npm run grafana:lab:smoke:phase2
-npm run grafana:lab:inject -- link-failure
-npm run grafana:lab:down
+npm run grafana:clab:up
+npm run grafana:clab:traffic:start
+npm run grafana:clab:smoke
+npm run grafana:clab:traffic:stop
+npm run grafana:clab:down
 ```
 
-Use `GRAFANA_HTTP_PORT=<port>`, `PROMETHEUS_HTTP_PORT=<port>`, and
-`TELEMETRY_INJECTOR_HTTP_PORT=<port>` with `grafana:lab:up` if local ports are
-already occupied. Use matching `GRAFANA_URL`, `PROMETHEUS_URL`, and
-`TELEMETRY_INJECTOR_URL` values with the smoke commands.
+The Containerlab profile uses fixed local Grafana and Prometheus ports so it
+stays close to the upstream streaming-telemetry lab shape. Resolve port
+conflicts before starting the lab, or run it on a disposable host with those
+ports free.
 
 Telemetry mapping requires stable topology identifiers:
 
 | Prometheus label | Purpose |
 | --- | --- |
-| `fixture_id` | Selects the matching harness fixture telemetry set. |
+| `topology` | Selects the matching TopoViewer mounted bundle telemetry set. |
 | `link_id` | Primary join key to `graph.links[].id`. |
 | `direction` | Direction key for `linkDirection` overlays: `sourceToTarget` or `targetToSource`. |
-| `source` / `target` | Fallback join key when a metric does not carry `link_id`. |
-| `site` / `pod` | Dashboard filtering and troubleshooting labels. |
+| `source` / `target` | Optional fallback join keys when a metric cannot carry `link_id`. |
 
 The panel keeps canonical topology and stylesheet YAML immutable. Grafana data
 frames are converted into runtime overlays that update link color, width, style,

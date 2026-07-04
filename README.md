@@ -258,16 +258,15 @@ Zensical: http://127.0.0.1:8001/topoviewer/docs/zensical/
 Harness: http://127.0.0.1:8001/topoviewer/harness/
 ```
 
-The Grafana panel demo can also run locally through the repository Docker
-Compose lab:
+The Grafana panel demo runs locally through the Containerlab profile:
 
 ```bash
-npm run grafana:lab:up
+npm run grafana:clab:up
 ```
 
 The Containerlab release bundle uses the same panel, topology bundles, mapper
-files, and Grafana provisioning, but packages them for the standalone
-Containerlab bootstrap path:
+files, and Grafana provisioning, but packages them for the standalone bootstrap
+path:
 
 ```bash
 npm run grafana:clab:bundle

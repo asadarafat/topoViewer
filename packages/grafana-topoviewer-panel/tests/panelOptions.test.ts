@@ -94,7 +94,7 @@ describe('panel options', () => {
   it('keeps Grafana panel option paths documented for dashboard compatibility', () => {
     const builder = new RecordingBuilder();
     applyTopoViewerPanelOptions(asGrafanaBuilder(builder));
-    const docs = fs.readFileSync(path.join(repoRoot, 'packages/topoviewer/content/pages/compatibility.md'), 'utf8');
+    const docs = fs.readFileSync(path.join(repoRoot, 'packages/topoviewer/content/pages/reference/compatibility.md'), 'utf8');
 
     const missing = builder.calls
       .map((call) => String(call.config.path))

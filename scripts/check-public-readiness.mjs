@@ -317,7 +317,6 @@ function assertPublicTextHasNoLocalLeaks() {
 
 function assertLabWarnings() {
   for (const envFile of [
-    'labs/grafana-topoviewer/.env',
     'labs/grafana-topoviewer/containerlab/.env'
   ]) {
     const text = assertFile(envFile);
@@ -335,7 +334,6 @@ function assertLabWarnings() {
     'unsigned',
     'plugin loading',
     'not production',
-    'binds Grafana, Prometheus, and the telemetry injector to',
     'Containerlab publishes those',
     'Unsigned plugin loading is local lab/development only'
   ]);
@@ -352,30 +350,25 @@ function assertLabWarnings() {
     'not production deployment guidance'
   ]);
 
-  assertFile('labs/grafana-topoviewer/scripts/lib/lab-warning.sh', [
+  assertFile('labs/grafana-topoviewer/containerlab/scripts/lab-warning.sh', [
     'anonymous Admin',
     'disables the login form',
     'unsigned TopoViewer plugin',
     'Do not use this lab on a shared network'
   ]);
 
-  assertFile('labs/grafana-topoviewer/scripts/up.sh', [
-    'print_topoviewer_grafana_lab_warning',
-    'Docker Compose binds Grafana'
-  ]);
   assertFile('labs/grafana-topoviewer/containerlab/scripts/up.sh', [
     'print_topoviewer_grafana_lab_warning',
     'Containerlab publishes Grafana'
   ]);
 
-  const compose = assertFile('labs/grafana-topoviewer/docker-compose.yml');
+  const containerlabTopology = assertFile('labs/grafana-topoviewer/containerlab/st.clab.yml');
   for (const binding of [
-    '127.0.0.1:${TELEMETRY_INJECTOR_HTTP_PORT}:9108',
-    '127.0.0.1:${PROMETHEUS_HTTP_PORT}:9090',
-    '127.0.0.1:${GRAFANA_HTTP_PORT}:3000'
+    '9090:9090',
+    '3000:3000'
   ]) {
-    if (!compose.includes(binding)) {
-      fail(`labs/grafana-topoviewer/docker-compose.yml must bind ${binding} for localhost-only lab exposure.`);
+    if (!containerlabTopology.includes(binding)) {
+      fail(`labs/grafana-topoviewer/containerlab/st.clab.yml must publish ${binding} for the documented local lab endpoints.`);
     }
   }
 }
@@ -492,11 +485,6 @@ function assertPackageAndCiContracts() {
     'check-port-free.mjs',
     'Browser harness',
     '--strictPort'
-  ]);
-  assertFile('labs/grafana-topoviewer/scripts/check-port.mjs', [
-    '[topoviewer]',
-    'is already in use',
-    '<free-port>'
   ]);
   assertFile('labs/grafana-topoviewer/containerlab/scripts/check-ports.mjs', [
     '[topoviewer]',

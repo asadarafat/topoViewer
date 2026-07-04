@@ -62,8 +62,8 @@ Stable user and maintainer commands:
 | `npm run docs:preview` | production-like local preview for MkDocs, Zensical, and harness |
 | `npm run docs:build` | focused MkDocs build |
 | `npm run pack:check` | npm package dry-run inspection |
-| `npm run grafana:lab:up` / `npm run grafana:lab:down` | Docker Compose Grafana proof of concept |
-| `npm run grafana:clab:bundle` | build the Containerlab Grafana lab bundle |
+| `npm run grafana:clab:up` / `npm run grafana:clab:down` | start or stop the Containerlab Grafana panel lab |
+| `npm run grafana:clab:bundle` | build the standalone Containerlab Grafana panel bundle |
 
 Protected command families:
 
@@ -83,7 +83,7 @@ a root alias:
 |---|---|
 | `npm run docs -- <command>` | `setup`, `build`, `build:fast`, `preview`, `preview:fast`, `clean`, `zensical:build` |
 | `npm run sync -- <command>` | `docs`, `docs-site`, `zensical-docs`, `zensical-assets`, `mkdocs` |
-| `npm run grafana -- <command>` | `panel:build`, `lab:up`, `clab:restart`, `clab:traffic:start` |
+| `npm run grafana -- <command>` | `panel:build`, `clab:up`, `clab:restart`, `clab:traffic:start` |
 | `npm run lint -- --only <target>` | `code-health`, `ts`, `test-types`, `deps`, `cpd`, `cpd-report` |
 
 Prefer dispatchers for narrow maintainer helpers. Keep root aliases for

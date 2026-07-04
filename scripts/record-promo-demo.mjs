@@ -22,9 +22,6 @@ const mediaOnly = process.argv.includes('--media-only') || process.argv.includes
 const fixtureId = process.env.TOPOVIEWER_PROMO_FIXTURE_ID || 'layered-network';
 const docsBaseUrl = process.env.TOPOVIEWER_PROMO_DOCS_BASE_URL || 'http://127.0.0.1:8001/topoviewer';
 const grafanaBaseUrl = process.env.TOPOVIEWER_PROMO_GRAFANA_URL || process.env.GRAFANA_URL || 'http://127.0.0.1:3000';
-const telemetryInjectorUrl = process.env.TOPOVIEWER_PROMO_TELEMETRY_INJECTOR_URL ||
-  process.env.TELEMETRY_INJECTOR_URL ||
-  'http://127.0.0.1:9108';
 
 const surfaceUrls = {
   harness: process.env.TOPOVIEWER_PROMO_HARNESS_URL || `${docsBaseUrl}/harness/`,
@@ -33,7 +30,7 @@ const surfaceUrls = {
   zensical: process.env.TOPOVIEWER_PROMO_ZENSICAL_URL ||
     `${docsBaseUrl}/docs/zensical/topoviewer/examples/harness/layered-network/`,
   grafana: process.env.TOPOVIEWER_PROMO_GRAFANA_DASHBOARD_URL ||
-    `${grafanaBaseUrl}/d/topoviewer-phase-4/topoviewer-phase-4-mounted-bundles?orgId=1`
+    `${grafanaBaseUrl}/d/network-telemetry-topoviewer/network-telemetry-topoviewer?orgId=1`
 };
 
 const surfaces = [
@@ -125,20 +122,12 @@ async function assertSurface(surface) {
       `${surface.name} is not reachable at ${surface.url}.`,
       'Start the required local surfaces first:',
       '- docs/harness/MkDocs/Zensical: npm run docs:preview',
-      '- Grafana lab: GRAFANA_HTTP_PORT=3001 PROMETHEUS_HTTP_PORT=9091 TELEMETRY_INJECTOR_HTTP_PORT=9109 npm run grafana:lab:up',
+      '- Grafana panel lab: npm run grafana:clab:up',
       'Override URLs with TOPOVIEWER_PROMO_HARNESS_URL, TOPOVIEWER_PROMO_MKDOCS_URL, TOPOVIEWER_PROMO_ZENSICAL_URL, or TOPOVIEWER_PROMO_GRAFANA_DASHBOARD_URL.',
       `Underlying error: ${error instanceof Error ? error.message : String(error)}`
     ].join('\n'));
   } finally {
     clearTimeout(timeout);
-  }
-}
-
-async function setTelemetryScenario(scenario) {
-  const response = await fetch(`${telemetryInjectorUrl}/scenario/${scenario}`, { method: 'POST' });
-  if (!response.ok) {
-    const text = await response.text().catch(() => '');
-    throw new Error(`Unable to set telemetry scenario "${scenario}" at ${telemetryInjectorUrl}: ${response.status} ${text}`);
   }
 }
 
@@ -268,7 +257,6 @@ async function captureDocsViewport(browser, url) {
 }
 
 async function captureGrafana(browser) {
-  await setTelemetryScenario('healthy');
   const page = await browser.newPage({
     colorScheme: 'dark',
     deviceScaleFactor: 1,
