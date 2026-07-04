@@ -34,6 +34,41 @@ async function setCheckboxByLabel(page, name, checked) {
   }).toBe(checked);
 }
 
+async function exportRenderedSurface(page) {
+  let lastError;
+
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try {
+      await page.waitForLoadState('domcontentloaded');
+      await page.waitForSelector('.react-flow__node-network', { timeout: 30000 });
+      return await page.locator('.topoviewer').first().evaluate(async (element) => {
+        const { topoviewerToPdf, topoviewerToPng, topoviewerToSvg } = await import('/src/core/export.ts');
+        const dataUrl = await topoviewerToSvg(element);
+        const payload = dataUrl.slice(dataUrl.indexOf(',') + 1);
+        const svg = dataUrl.includes(';base64,') ? atob(payload) : decodeURIComponent(payload);
+        const png = await topoviewerToPng(element, { pixelRatio: 1 });
+        const pdf = await topoviewerToPdf(element, { pixelRatio: 1 });
+        return {
+          svg,
+          pngPrefix: png.slice(0, 22),
+          pngLength: png.length,
+          pdfType: pdf.type,
+          pdfSize: pdf.size
+        };
+      });
+    } catch (error) {
+      lastError = error;
+      const message = String(error?.message || error);
+      if (!message.includes('Execution context was destroyed') && !message.includes('navigation')) {
+        throw error;
+      }
+      await page.waitForLoadState('domcontentloaded').catch(() => undefined);
+    }
+  }
+
+  throw lastError;
+}
+
 test.describe('TopoViewer package workbench', () => {
   test('renders the TypeScript TopoViewer workbench and responds to core controls', async ({ page }) => {
     test.setTimeout(60000);
@@ -122,23 +157,7 @@ test.describe('TopoViewer package workbench', () => {
   test('exports a rendered TopoViewer surface', async ({ page }) => {
     await expectCurrentServerMarker(page, 'topoviewer');
     await page.goto('/tests/fixtures/accessibility-runtime.html', { waitUntil: 'domcontentloaded' });
-    await page.waitForSelector('.react-flow__node-network', { timeout: 30000 });
-
-    const focusedExports = await page.locator('.topoviewer').evaluate(async (element) => {
-      const { topoviewerToPdf, topoviewerToPng, topoviewerToSvg } = await import('/src/core/export.ts');
-      const dataUrl = await topoviewerToSvg(element);
-      const payload = dataUrl.slice(dataUrl.indexOf(',') + 1);
-      const svg = dataUrl.includes(';base64,') ? atob(payload) : decodeURIComponent(payload);
-      const png = await topoviewerToPng(element, { pixelRatio: 1 });
-      const pdf = await topoviewerToPdf(element, { pixelRatio: 1 });
-      return {
-        svg,
-        pngPrefix: png.slice(0, 22),
-        pngLength: png.length,
-        pdfType: pdf.type,
-        pdfSize: pdf.size
-      };
-    });
+    const focusedExports = await exportRenderedSurface(page);
 
     expect(focusedExports.svg).toContain('topoviewer-node-attention-focused');
     expect(focusedExports.pngPrefix).toBe('data:image/png;base64,');
