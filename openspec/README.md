@@ -11,8 +11,6 @@ reflected in public docs with an explicit support-status label.
 Current active plans:
 
 - `changes/add-helper-lines/` - planned React Flow style helper-line interaction for draggable TopoViewer objects, including runtime-only API, pure alignment geometry, optional live snapping, viewport-correct overlays, browser harness/Grafana integration boundaries, and evidence-gated implementation sequencing.
-- `changes/add-card-node-layout/` - planned ergonomic card node layout for round-rectangle nodes with nested `nodeLayout` style, left icon cell, title/subtitle content, icon-scoped badges, schema/compiler/renderer/docs/YAML assist coverage, and evidence-gated implementation sequencing.
-- `changes/add-global-label-collision-layout/` - active hardening for deterministic label placement across node, region, edge, endpoint, and directional telemetry labels so dense Grafana and documentation views avoid avoidable overlaps.
 - `changes/define-codespaces-dev-environment/` - planned Codespaces developer environment that can run local MkDocs, Zensical, browser harness, Grafana lab, and Containerlab-Grafana workflows from a fresh cloud workspace.
 - `changes/define-netbox-integration-roadmap/` - planned NetBox feasibility, use cases, first integration shape, and roadmap wording constraints.
 - `changes/define-opsmill-infrahub-integration-roadmap/` - planned OpsMill/Infrahub feasibility, use cases, first integration shape, and roadmap wording constraints.
@@ -23,6 +21,8 @@ Current studies:
 
 Archived plans:
 
+- `archive/2026-07-05-add-global-label-collision-layout/` - implemented deterministic label placement across node, node meta, region, edge, endpoint, and link-direction labels, including link-direction styling contract hardening, auto-placement and collision-policy style keys, dense CLOS/Grafana docs, screenshot coverage, focused checks, and full CI validation.
+- `archive/2026-07-05-add-card-node-layout/` - implemented ergonomic `nodeLayout.type: card` support for round-rectangle nodes with schema/compiler/renderer/YAML assist coverage, card shell badge/status behavior, Turbo-style examples, cross-surface screenshots, focused tests, renderer parity, docs lint, and full CI validation evidence.
 - `archive/2026-07-03-speed-up-ci-feedback-loop/` - implemented measured CI timing instrumentation, remote public-readiness dedupe, split GitHub CI feedback lanes, branch concurrency cancellation, failure artifacts per lane, and remote validation showing CI reduced from 687s to 449s without removing package, docs, security, or public-readiness coverage.
 - `archive/2026-07-02-clean-root-tooling-surface/` - implemented first-pass root cleanup with repo-level local artifact ignore coverage, maintainer root-shape documentation, docs/sync/Grafana/lint dispatchers, safe internal alias reduction from 115 to 96 root scripts, generated Zensical nav sync, and full local CI validation.
 - `archive/2026-07-01-harden-public-adoption-readiness/` - implemented public repository and documentation hardening for the `0.1.0` early-adopter path, including npm publication, README/docs conversion path, curated examples, renderer parity, mapper authoring ergonomics, security guardrails, artifact autopsy, and remote CI/Docs/Security/CodeQL verification.
