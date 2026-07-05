@@ -10,6 +10,7 @@ reflected in public docs with an explicit support-status label.
 
 Current active plans:
 
+- `changes/add-helper-lines/` - planned React Flow style helper-line interaction for draggable TopoViewer objects, including runtime-only API, pure alignment geometry, optional live snapping, viewport-correct overlays, browser harness/Grafana integration boundaries, and evidence-gated implementation sequencing.
 - `changes/add-card-node-layout/` - planned ergonomic card node layout for round-rectangle nodes with nested `nodeLayout` style, left icon cell, title/subtitle content, icon-scoped badges, schema/compiler/renderer/docs/YAML assist coverage, and evidence-gated implementation sequencing.
 - `changes/add-global-label-collision-layout/` - active hardening for deterministic label placement across node, region, edge, endpoint, and directional telemetry labels so dense Grafana and documentation views avoid avoidable overlaps.
 - `changes/define-codespaces-dev-environment/` - planned Codespaces developer environment that can run local MkDocs, Zensical, browser harness, Grafana lab, and Containerlab-Grafana workflows from a fresh cloud workspace.
