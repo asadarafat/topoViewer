@@ -4,6 +4,10 @@ import {
   nodeBadgePositions,
   nodeBorderStyles,
   nodeIconFitValues,
+  nodeLayoutContentAlignments,
+  nodeLayoutDirections,
+  nodeLayoutIconPlacements,
+  nodeLayoutTypes,
   nodeLabelPositions,
   nodeLabelTextOverflowValues,
   nodeLabelTextWrapValues,
@@ -13,7 +17,7 @@ import { regionLabelPositions } from './regionStyle';
 import { GEOMETRY_SHAPES } from './types';
 
 export type StyleTargetKind = 'node' | 'link' | 'linkDirection' | 'path' | 'region' | 'shape' | 'callout';
-export type StyleValueDataType = 'text' | 'enum' | 'boolean' | 'integer' | 'number' | 'color' | 'numberList';
+export type StyleValueDataType = 'text' | 'enum' | 'boolean' | 'integer' | 'number' | 'color' | 'numberList' | 'object';
 
 export type StyleDefault =
   | { kind: 'value'; value: string | number | boolean }
@@ -70,6 +74,7 @@ function def(
 
 const nodeDefinitions = [
   def(['node'], 'shape', 'Shape', 'enum', 'Node body shape.', value(DEFAULT_NODE_SHAPE), NODE_SHAPES),
+  def(['node'], 'nodeLayout', 'Node layout', 'object', `Nested node content layout. Use { type: card } with explicit shape: roundRectangle. Supported card values: type ${nodeLayoutTypes.join(', ')}, direction ${nodeLayoutDirections.join(', ')}, icon placement ${nodeLayoutIconPlacements.join(', ')}, content align ${nodeLayoutContentAlignments.join(', ')}.`),
   def(['node'], 'shapePolygonPoints', 'Polygon points', 'text', 'Custom polygon points when shape is polygon.'),
   def(['node'], 'width', 'Body width', 'integer', 'Visible node body width.', value(82)),
   def(['node'], 'height', 'Body height', 'integer', 'Visible node body height.', value(60)),

@@ -394,6 +394,154 @@ describe('declarative node shapes', () => {
     });
   });
 
+  it('keeps legacy node rendering data unchanged when card layout is absent', () => {
+    const document: TopoDocument = {
+      graph: {
+        layers: [{ id: 'physical' }],
+        nodes: [
+          { id: 'svc-1', name: 'Service 1', data: { subtitle: 'API' }, layers: ['physical'], position: [0, 0] }
+        ]
+      },
+      stylesheet: [
+        { selector: 'node', style: { shape: 'roundRectangle', width: 180, height: 64 } }
+      ]
+    };
+
+    const compiled = compileTopoGraph(document, ['physical']);
+    const data = compiled.nodes[0].data as Record<string, unknown>;
+
+    expect(data.nodeShapeType).toBe('roundRectangle');
+    expect(data.nodeLayout).toBeUndefined();
+    expect(data.cardTitle).toBeUndefined();
+    expect(data.cardSubtitle).toBeUndefined();
+  });
+
+  it('compiles nested card node layout for explicit roundRectangle nodes', () => {
+    const document: TopoDocument = {
+      graph: {
+        layers: [{ id: 'physical' }],
+        nodes: [
+          {
+            id: 'svc-1',
+            name: 'Inventory API',
+            labels: { role: 'api' },
+            data: { subtitle: 'Ready / 3 pods' },
+            layers: ['physical'],
+            position: [0, 0]
+          }
+        ]
+      },
+      stylesheet: [
+        {
+          selector: 'node',
+          style: {
+            shape: 'roundRectangle',
+            width: 190,
+            height: 64,
+            icon: 'service',
+            iconPadding: 8,
+            badgeLabel: '3',
+            nodeLayout: {
+              type: 'card',
+              direction: 'horizontal',
+              icon: {
+                placement: 'left',
+                width: 44,
+                height: 44,
+                badgePlacement: 'topRight'
+              },
+              content: {
+                align: 'left',
+                titleField: 'name',
+                subtitleField: 'data.subtitle'
+              }
+            }
+          }
+        }
+      ]
+    };
+
+    expect(() => validateTopoDocument(document)).not.toThrow();
+    expect(lintTopoDocument(document, { requireNames: false }).filter((issue) => issue.severity === 'error')).toEqual([]);
+
+    const compiled = compileTopoGraph(document, ['physical']);
+    const data = compiled.nodes[0].data as Record<string, unknown>;
+
+    expect(data.nodeLayout).toMatchObject({
+      type: 'card',
+      direction: 'horizontal',
+      icon: {
+        placement: 'left',
+        width: 44,
+        height: 44,
+        badgePlacement: 'topRight'
+      },
+      content: {
+        align: 'left',
+        titleField: 'name',
+        subtitleField: 'data.subtitle'
+      }
+    });
+    expect(data.cardTitle).toBe('Inventory API');
+    expect(data.cardSubtitle).toBe('Ready / 3 pods');
+    expect(data.cardIconStyle).toMatchObject({ width: 44, height: 44 });
+    expect(data.cardIconContentStyle).toMatchObject({ padding: '8px' });
+    expect(data.cardBadgePosition).toBe('topRight');
+  });
+
+  it('reports card node layout when the effective node shape is not roundRectangle', () => {
+    const document: TopoDocument = {
+      graph: {
+        layers: [{ id: 'physical' }],
+        nodes: [
+          { id: 'bad-card', name: 'Bad Card', layers: ['physical'], position: [0, 0] }
+        ]
+      },
+      stylesheet: [
+        { selector: 'node', style: { shape: 'rectangle' } },
+        { selector: 'node[id = "bad-card"]', style: { nodeLayout: { type: 'card' } } }
+      ]
+    };
+
+    const issues = lintTopoDocument(document, { requireNames: false });
+
+    expect(issues).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        code: 'invalid-node-card-layout-shape',
+        path: 'graph.nodes[0].effectiveStyle.nodeLayout',
+        severity: 'error'
+      })
+    ]));
+  });
+
+  it('rejects unsupported nested card node layout values during validation', () => {
+    expect(() => validateTopoDocument({
+      graph: {
+        nodes: [
+          {
+            id: 'bad',
+            style: {
+              shape: 'roundRectangle',
+              nodeLayout: {
+                type: 'card',
+                direction: 'vertical',
+                icon: {
+                  placement: 'right',
+                  width: -1,
+                  badgePlacement: 'upperRight'
+                },
+                content: {
+                  align: 'start',
+                  titleField: 42
+                }
+              }
+            }
+          }
+        ]
+      }
+    })).toThrow(/nodeLayout/);
+  });
+
   it('reports invalid enhanced node style controls', () => {
     const issues = lintTopoDocument({
       graph: {

@@ -254,7 +254,8 @@ test('suggests stylesheet selectors, style keys, and typed values in YAML intell
   expect(styleKeySuggestions.map((suggestion) => suggestion.label)).toEqual(expect.arrayContaining([
     'shape',
     'borderColor',
-    'labelPosition'
+    'labelPosition',
+    'nodeLayout'
   ]));
 
   const enumSuggestions = await yamlCompletions(page, {
@@ -310,6 +311,88 @@ test('suggests stylesheet selectors, style keys, and typed values in YAML intell
     column: 12
   });
   expect(hover?.contents).toContain('Border color');
+});
+
+test('suggests nested nodeLayout card keys and values in YAML intelligence', async ({ page }) => {
+  await page.goto('/');
+  await waitForHarnessReady(page);
+
+  const rootSuggestions = await yamlCompletions(page, {
+    document: 'stylesheet',
+    text: 'stylesheet:\n  - selector: node\n    style:\n      nodeLayout:\n        ',
+    lineNumber: 5,
+    column: 9
+  });
+  expect(rootSuggestions.map((suggestion) => suggestion.label)).toEqual(expect.arrayContaining([
+    'type',
+    'direction',
+    'icon',
+    'content'
+  ]));
+
+  const typeSuggestions = await yamlCompletions(page, {
+    document: 'stylesheet',
+    text: 'stylesheet:\n  - selector: node\n    style:\n      nodeLayout:\n        type: ',
+    lineNumber: 5,
+    column: 15
+  });
+  expect(typeSuggestions.map((suggestion) => suggestion.label)).toEqual(expect.arrayContaining(['card']));
+
+  const iconSuggestions = await yamlCompletions(page, {
+    document: 'stylesheet',
+    text: 'stylesheet:\n  - selector: node\n    style:\n      nodeLayout:\n        icon:\n          ',
+    lineNumber: 6,
+    column: 11
+  });
+  expect(iconSuggestions.map((suggestion) => suggestion.label)).toEqual(expect.arrayContaining([
+    'placement',
+    'width',
+    'height',
+    'badgePlacement'
+  ]));
+
+  const placementSuggestions = await yamlCompletions(page, {
+    document: 'stylesheet',
+    text: 'stylesheet:\n  - selector: node\n    style:\n      nodeLayout:\n        icon:\n          placement: ',
+    lineNumber: 6,
+    column: 22
+  });
+  expect(placementSuggestions.map((suggestion) => suggestion.label)).toEqual(expect.arrayContaining(['left']));
+
+  const contentSuggestions = await yamlCompletions(page, {
+    document: 'stylesheet',
+    text: 'stylesheet:\n  - selector: node\n    style:\n      nodeLayout:\n        content:\n          ',
+    lineNumber: 6,
+    column: 11
+  });
+  expect(contentSuggestions.map((suggestion) => suggestion.label)).toEqual(expect.arrayContaining([
+    'align',
+    'titleField',
+    'subtitleField'
+  ]));
+
+  const alignSuggestions = await yamlCompletions(page, {
+    document: 'stylesheet',
+    text: 'stylesheet:\n  - selector: node\n    style:\n      nodeLayout:\n        content:\n          align: ',
+    lineNumber: 6,
+    column: 18
+  });
+  expect(alignSuggestions.map((suggestion) => suggestion.label)).toEqual(expect.arrayContaining([
+    'left',
+    'center',
+    'right'
+  ]));
+
+  const subtitleFieldSuggestions = await yamlCompletions(page, {
+    document: 'stylesheet',
+    text: 'stylesheet:\n  - selector: node\n    style:\n      nodeLayout:\n        content:\n          subtitleField: ',
+    lineNumber: 6,
+    column: 26
+  });
+  expect(subtitleFieldSuggestions.map((suggestion) => suggestion.label)).toEqual(expect.arrayContaining([
+    'data.subtitle',
+    'labels.role'
+  ]));
 });
 
 test('uses TopoViewer schemas for stylesheet root, icon, layout, and style-rule keys', async ({ page }) => {
@@ -521,7 +604,7 @@ test('covers every stylesheet value type in YAML intelligence metadata', async (
   const metadata = await yamlStyleMetadata(page);
   const seenDataTypes = new Set<StyleValueDataType>();
   for (const { definition } of styleValueCases(metadata)) seenDataTypes.add(definition.dataType);
-  expect([...seenDataTypes].sort()).toEqual(['boolean', 'color', 'enum', 'integer', 'number', 'text']);
+  expect([...seenDataTypes].sort()).toEqual(['boolean', 'color', 'enum', 'integer', 'number', 'object', 'text']);
 });
 
 test('suggests mapper keys, resolver values, object IDs, and metric labels in YAML intelligence', async ({ page }) => {

@@ -1,0 +1,82 @@
+layout:
+  mode: manual
+  width: 760
+  height: 300
+icons:
+  frontend:
+    glyph: API
+    fill: "#1976d2"
+    stroke: "#bbdefb"
+  service:
+    glyph: SVC
+    fill: "#2e7d32"
+    stroke: "#a5d6a7"
+  database:
+    glyph: DB
+    fill: "#7b1fa2"
+    stroke: "#ce93d8"
+labelFields:
+  - name
+stylesheet:
+  - selector: node
+    style:
+      shape: roundRectangle
+      width: 190
+      height: 64
+      backgroundColor: "#0f172a"
+      borderColor: "#334155"
+      borderWidth: 2
+      color: "#e2e8f0"
+      labelColor: "#f8fafc"
+      metaColor: "#94a3b8"
+      iconPadding: 6
+      badgeColor: "#0f172a"
+      badgeBackgroundColor: "#e0f2fe"
+      badgeBorderColor: "#38bdf8"
+      statusPlacement: topRight
+      statusSize: 10
+      nodeLayout:
+        type: card
+        direction: horizontal
+        icon:
+          placement: left
+          width: 44
+          height: 44
+          badgePlacement: topRight
+        content:
+          align: left
+          titleField: name
+          subtitleField: data.subtitle
+  - selector: node[labels.role = "frontend"]
+    style:
+      icon: frontend
+      borderColor: "#60a5fa"
+      badgeLabel: "4"
+  - selector: node[labels.role = "service"]
+    style:
+      icon: service
+      borderColor: "#86efac"
+      badgeLabel: "12"
+  - selector: node[labels.role = "database"]
+    style:
+      icon: database
+      borderColor: "#d8b4fe"
+      badgeLabel: "1"
+  - selector: node[labels.state = "healthy"]
+    style:
+      statusColor: "#22c55e"
+  - selector: node[labels.state = "busy"]
+    style:
+      statusColor: "#f59e0b"
+      outlineColor: "#f59e0b"
+      outlineWidth: 2
+      outlineOpacity: 0.45
+  - selector: link
+    style:
+      curveStyle: bezier
+      lineColor: "#64748b"
+      lineWidth: 3
+      targetArrowShape: triangle
+      targetArrowColor: "#64748b"
+      labelColor: "#cbd5e1"
+      textBackgroundColor: "#0f172a"

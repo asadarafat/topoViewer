@@ -88,6 +88,17 @@ examples:
       controls: true
       controlsOpen: false
       title: Icon fit and badges
+  - id: nodes-card-node-layout
+    title: Card node layout
+    feature: nodes
+    path: nodes/card-node-layout
+    page: topoviewer/examples/nodes/card-node-layout
+    summary: Nested `nodeLayout` makes round-rectangle nodes read like compact service cards.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Card node layout
   - id: edges-curve-styles
     title: Edge curve styles
     feature: edges

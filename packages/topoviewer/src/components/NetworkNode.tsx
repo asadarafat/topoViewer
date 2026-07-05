@@ -94,6 +94,26 @@ function explicitHandles(data: CompiledNodeData) {
     : [];
 }
 
+function RenderExplicitHandles({ handles }: { handles: ReturnType<typeof explicitHandles> }) {
+  return (
+    <>
+      {handles.flatMap((handle) => {
+        const position = handlePosition(handle.position || handle.side);
+        return handleTypes(handle.type).map((type) => (
+          <Handle
+            key={`${handle.id}:${type}`}
+            className="topoviewer-node-handle"
+            id={handle.id}
+            type={type}
+            position={position}
+            style={handleOffsetStyle(position, handle.offset)}
+          />
+        ));
+      })}
+    </>
+  );
+}
+
 export function NetworkNode({ data }: { data: CompiledNodeData }) {
   const viewport = useViewport();
   const icon = data.iconSpec || { glyph: 'R', fill: '#6ea8fe', stroke: '#d8e8ff' };
@@ -148,40 +168,141 @@ export function NetworkNode({ data }: { data: CompiledNodeData }) {
   const rendersMeta = data.metaVisible !== false && metaText !== '';
   const rendersOverlayLabel = data.labelZIndex !== undefined;
   const rendersOverlayMeta = data.metaZIndex !== undefined;
+  const cardLayout = data.nodeLayout?.type === 'card' ? data.nodeLayout : undefined;
   const isNavigableAttentionNode = data.attentionState === 'focused' || data.attentionState === 'related';
   const accessibleLabel = [
     displayName(data),
     data.attentionState ? `attention ${data.attentionState}` : ''
   ].filter(Boolean).join(', ');
   const handles = explicitHandles(data);
+  const cardTitleStyle: CSSProperties = {
+    color: labelStyle.color,
+    fontSize: labelStyle.fontSize,
+    fontWeight: labelStyle.fontWeight,
+    opacity: labelStyle.opacity,
+    textAlign: (data.cardContentStyle as CSSProperties | undefined)?.textAlign
+  };
+  const cardSubtitleStyle: CSSProperties = {
+    color: (data.metaStyle as CSSProperties | undefined)?.color,
+    fontSize: (data.metaStyle as CSSProperties | undefined)?.fontSize,
+    fontWeight: (data.metaStyle as CSSProperties | undefined)?.fontWeight,
+    textAlign: (data.cardContentStyle as CSSProperties | undefined)?.textAlign
+  };
 
   return (
     <div
-      className={className}
+      className={[className, cardLayout ? 'topoviewer-node-layout-card' : ''].filter(Boolean).join(' ')}
       style={data.nodeStyle}
       role="group"
       aria-current={data.attentionState === 'focused' ? 'true' : undefined}
       aria-label={accessibleLabel}
       tabIndex={isNavigableAttentionNode ? 0 : -1}
     >
+      {cardLayout ? (
+        <>
+          <Handle className="topoviewer-node-handle topoviewer-node-handle-default" type="target" position={Position.Left} />
+          <RenderExplicitHandles handles={handles} />
+          <div className="topoviewer-node-card">
+            <svg
+              className="topoviewer-node-geometry"
+              viewBox="0 0 100 100"
+              preserveAspectRatio={preservesShapeAspectRatio ? 'xMidYMid meet' : 'none'}
+              role="presentation"
+              focusable="false"
+              data-node-shape={nodeShapeType}
+            >
+              <NodeShapeSvg
+                type={nodeShapeType}
+                polygonPoints={data.nodeShapePoints}
+                className="topoviewer-node-geometry-underlay"
+                fill={underlayFill}
+                stroke="none"
+                strokeWidth={0}
+                style={nodeUnderlayStyle}
+                transform={underlayTransform}
+              />
+              <NodeShapeSvg
+                type={nodeShapeType}
+                polygonPoints={data.nodeShapePoints}
+                className="topoviewer-node-geometry-outline"
+                fill="none"
+                stroke={outlineStroke}
+                strokeWidth={outlineStrokeWidth}
+                style={nodeOutlineStyle}
+              />
+              <NodeShapeSvg
+                type={nodeShapeType}
+                polygonPoints={data.nodeShapePoints}
+                fill={fill}
+                stroke="none"
+                strokeWidth={0}
+              />
+            </svg>
+            <svg
+              className="topoviewer-node-geometry topoviewer-node-geometry-stroke-overlay"
+              viewBox="0 0 100 100"
+              preserveAspectRatio={preservesShapeAspectRatio ? 'xMidYMid meet' : 'none'}
+              role="presentation"
+              focusable="false"
+              data-node-shape={nodeShapeType}
+            >
+              <NodeShapeSvg
+                type={nodeShapeType}
+                polygonPoints={data.nodeShapePoints}
+                fill="none"
+                stroke={stroke}
+                strokeWidth={strokeWidth}
+                style={nodeStrokeOverlayStyle}
+              />
+            </svg>
+            <div className="topoviewer-node-card-inner">
+              <div className="topoviewer-node-card-icon" style={data.cardIconStyle as CSSProperties}>
+                <span className="topoviewer-node-card-icon-content" style={data.cardIconContentStyle as CSSProperties}>
+                  {imageSource ? (
+                    <img className="topoviewer-node-icon-image" src={imageSource} alt={imageAlt} draggable={false} style={data.cardIconImageStyle as CSSProperties} />
+                  ) : (
+                    icon.glyph
+                  )}
+                </span>
+                {data.badgeLabel ? (
+                  <span
+                    className="topoviewer-node-badge"
+                    data-badge-position={data.cardBadgePosition || data.badgePosition || 'topRight'}
+                    style={data.badgeStyle as CSSProperties}
+                  >
+                    {data.badgeLabel}
+                  </span>
+                ) : null}
+              </div>
+              <div className="topoviewer-node-card-content" style={data.cardContentStyle as CSSProperties}>
+                <div className="topoviewer-node-card-title" style={cardTitleStyle}>
+                  {data.cardTitle || displayName(data)}
+                </div>
+                {data.cardSubtitle ? (
+                  <div className="topoviewer-node-card-subtitle" style={cardSubtitleStyle}>
+                    {data.cardSubtitle}
+                  </div>
+                ) : null}
+              </div>
+            </div>
+            {data.statusStyle ? (
+              <span
+                className="topoviewer-node-status"
+                data-status-placement={data.statusPlacement || 'bottomRight'}
+                style={data.statusStyle as CSSProperties}
+              />
+            ) : null}
+          </div>
+          <Handle className="topoviewer-node-handle topoviewer-node-handle-default" type="source" position={Position.Right} />
+        </>
+      ) : (
+        <>
       <div
         className="topoviewer-node-icon"
         style={iconFrameStyle}
       >
         <Handle className="topoviewer-node-handle topoviewer-node-handle-default" type="target" position={Position.Left} />
-        {handles.flatMap((handle) => {
-          const position = handlePosition(handle.position || handle.side);
-          return handleTypes(handle.type).map((type) => (
-            <Handle
-              key={`${handle.id}:${type}`}
-              className="topoviewer-node-handle"
-              id={handle.id}
-              type={type}
-              position={position}
-              style={handleOffsetStyle(position, handle.offset)}
-            />
-          ));
-        })}
+        <RenderExplicitHandles handles={handles} />
         <svg
           className="topoviewer-node-geometry"
           viewBox="0 0 100 100"
@@ -270,6 +391,8 @@ export function NetworkNode({ data }: { data: CompiledNodeData }) {
         </div>
       )}
       {rendersMeta && !rendersOverlayMeta ? <div className="topoviewer-node-meta" style={data.metaStyle}>{metaText}</div> : null}
+        </>
+      )}
     </div>
   );
 }

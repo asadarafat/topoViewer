@@ -148,4 +148,5 @@ types.
 
 Style types include `StyleKeyDefinition`, `StyleTargetKind`,
 `StyleValueDataType`, `StyleDefault`, `NodeShapeName`, `NodeIconFit`,
-`NodeLabelPosition`, `NodeBadgePosition`, and `NodeStatusPlacement`.
+`NodeLayoutCardStyle`, `NodeLabelPosition`, `NodeBadgePosition`, and
+`NodeStatusPlacement`.

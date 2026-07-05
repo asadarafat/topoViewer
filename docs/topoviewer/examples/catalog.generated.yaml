@@ -97,6 +97,18 @@ examples:
       graphNodes: 3
       minVisibleEdges: 2
     markdown: docs/topoviewer/examples/nodes/icon-fit-and-badges/index.md
+  - id: nodes-card-node-layout
+    title: Card node layout
+    feature: nodes
+    path: nodes/card-node-layout
+    page: topoviewer/examples/nodes/card-node-layout
+    renderable: true
+    topology: docs/topoviewer/examples/nodes/card-node-layout/topology.yaml
+    stylesheet: docs/topoviewer/examples/nodes/card-node-layout/stylesheet.yaml
+    expected:
+      graphNodes: 3
+      minVisibleEdges: 2
+    markdown: docs/topoviewer/examples/nodes/card-node-layout/index.md
   - id: edges-curve-styles
     title: Edge curve styles
     feature: edges

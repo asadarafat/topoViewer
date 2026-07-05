@@ -378,6 +378,57 @@ test.describe('TopoViewer package interactions', () => {
     expect(layout.overlaps).toEqual([]);
   });
 
+  test('renders card node layout inside round-rectangle node bodies', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await expectCurrentServerMarker(page, 'topoviewer');
+    await page.goto('/tests/fixtures/card-node-runtime.html', { waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('.react-flow__node[data-id="orders-api"] .topoviewer-node-card', { timeout: 30000 });
+
+    const snapshot = await page.locator('.topoviewer').evaluate((viewer) => {
+      const node = viewer.querySelector('.react-flow__node[data-id="orders-api"]');
+      const card = node?.querySelector('.topoviewer-node-card');
+      const icon = node?.querySelector('.topoviewer-node-card-icon');
+      const title = node?.querySelector('.topoviewer-node-card-title');
+      const subtitle = node?.querySelector('.topoviewer-node-card-subtitle');
+      const badge = node?.querySelector('.topoviewer-node-badge');
+      const externalLabel = node?.querySelector('.topoviewer-node-label');
+      const edge = viewer.querySelector('.topoviewer-edge-visible-path');
+      const cardBox = card?.getBoundingClientRect();
+      const iconBox = icon?.getBoundingClientRect();
+      const titleBox = title?.getBoundingClientRect();
+      const edgePath = edge?.getAttribute('d') || '';
+
+      return {
+        cardWidth: Math.round(cardBox?.width || 0),
+        cardHeight: Math.round(cardBox?.height || 0),
+        iconWidth: Math.round(iconBox?.width || 0),
+        iconHeight: Math.round(iconBox?.height || 0),
+        iconLeftOfTitle: Boolean(iconBox && titleBox && iconBox.right <= titleBox.left),
+        title: title?.textContent?.trim(),
+        subtitle: subtitle?.textContent?.trim(),
+        badge: badge?.textContent?.trim(),
+        badgePosition: badge?.getAttribute('data-badge-position'),
+        externalLabelCount: externalLabel ? 1 : 0,
+        edgePath,
+        invalidEdgePath: !edgePath || /NaN|undefined|null/.test(edgePath)
+      };
+    });
+
+    expect(snapshot).toMatchObject({
+      cardWidth: 210,
+      cardHeight: 72,
+      iconWidth: 46,
+      iconHeight: 46,
+      iconLeftOfTitle: true,
+      title: 'Orders API',
+      subtitle: 'Ready / 3 pods',
+      badge: '3',
+      badgePosition: 'topRight',
+      externalLabelCount: 0,
+      invalidEdgePath: false
+    });
+  });
+
   test('keeps hostile label and callout markdown inert at runtime', async ({ page }) => {
     const browserErrors = [];
     page.on('pageerror', (error) => browserErrors.push(error.message));

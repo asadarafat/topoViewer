@@ -13,7 +13,7 @@ export type YamlCompletion = {
   label: string;
 };
 
-export type StyleValueDataType = 'text' | 'enum' | 'boolean' | 'integer' | 'number' | 'color';
+export type StyleValueDataType = 'text' | 'enum' | 'boolean' | 'integer' | 'number' | 'color' | 'object';
 
 export type HarnessStyleMetadata = {
   optionsByKind: Record<string, Array<{ key: string; label: string }>>;

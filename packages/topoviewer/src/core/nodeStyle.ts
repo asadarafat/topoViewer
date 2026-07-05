@@ -21,6 +21,34 @@ export type NodeBadgePosition = (typeof nodeBadgePositions)[number];
 export const nodeStatusPlacements = ['topLeft', 'topRight', 'bottomLeft', 'bottomRight', 'center'] as const;
 export type NodeStatusPlacement = (typeof nodeStatusPlacements)[number];
 
+export const nodeLayoutTypes = ['card'] as const;
+export type NodeLayoutType = (typeof nodeLayoutTypes)[number];
+
+export const nodeLayoutDirections = ['horizontal'] as const;
+export type NodeLayoutDirection = (typeof nodeLayoutDirections)[number];
+
+export const nodeLayoutIconPlacements = ['left'] as const;
+export type NodeLayoutIconPlacement = (typeof nodeLayoutIconPlacements)[number];
+
+export const nodeLayoutContentAlignments = ['left', 'center', 'right'] as const;
+export type NodeLayoutContentAlign = (typeof nodeLayoutContentAlignments)[number];
+
+export interface NodeLayoutCardStyle {
+  type: 'card';
+  direction: NodeLayoutDirection;
+  icon: {
+    placement: NodeLayoutIconPlacement;
+    width: number;
+    height: number;
+    badgePlacement?: NodeBadgePosition;
+  };
+  content: {
+    align: NodeLayoutContentAlign;
+    titleField: string;
+    subtitleField?: string;
+  };
+}
+
 function normalizeToken(value: unknown): string | undefined {
   if (typeof value !== 'string') return undefined;
   const trimmed = value.trim();
@@ -84,6 +112,76 @@ export function normalizeNodeStatusPlacement(value: unknown): NodeStatusPlacemen
   return nodeStatusPlacements.includes(normalized as NodeStatusPlacement)
     ? normalized as NodeStatusPlacement
     : undefined;
+}
+
+export function normalizeNodeLayoutType(value: unknown): NodeLayoutType | undefined {
+  const normalized = normalizeLowerToken(value);
+  return nodeLayoutTypes.includes(normalized as NodeLayoutType)
+    ? normalized as NodeLayoutType
+    : undefined;
+}
+
+export function normalizeNodeLayoutDirection(value: unknown): NodeLayoutDirection | undefined {
+  const normalized = normalizeLowerToken(value);
+  return nodeLayoutDirections.includes(normalized as NodeLayoutDirection)
+    ? normalized as NodeLayoutDirection
+    : undefined;
+}
+
+export function normalizeNodeLayoutIconPlacement(value: unknown): NodeLayoutIconPlacement | undefined {
+  const normalized = normalizeLowerToken(value);
+  return nodeLayoutIconPlacements.includes(normalized as NodeLayoutIconPlacement)
+    ? normalized as NodeLayoutIconPlacement
+    : undefined;
+}
+
+export function normalizeNodeLayoutContentAlign(value: unknown): NodeLayoutContentAlign | undefined {
+  const normalized = normalizeLowerToken(value);
+  return nodeLayoutContentAlignments.includes(normalized as NodeLayoutContentAlign)
+    ? normalized as NodeLayoutContentAlign
+    : undefined;
+}
+
+function recordValue(value: unknown): Record<string, unknown> | undefined {
+  return value && typeof value === 'object' && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : undefined;
+}
+
+function positiveOrDefault(value: unknown, fallback: number): number {
+  const parsed = positiveNumber(value);
+  return parsed === undefined || parsed <= 0 ? fallback : parsed;
+}
+
+export function normalizeNodeLayout(value: unknown): NodeLayoutCardStyle | undefined {
+  const layout = recordValue(value);
+  if (!layout || normalizeNodeLayoutType(layout.type) !== 'card') return undefined;
+
+  const icon = recordValue(layout.icon) || {};
+  const content = recordValue(layout.content) || {};
+  const badgePlacement = normalizeNodeBadgePosition(icon.badgePlacement);
+  const titleField = typeof content.titleField === 'string' && content.titleField.trim()
+    ? content.titleField.trim()
+    : 'name';
+  const subtitleField = typeof content.subtitleField === 'string' && content.subtitleField.trim()
+    ? content.subtitleField.trim()
+    : undefined;
+
+  return {
+    type: 'card',
+    direction: normalizeNodeLayoutDirection(layout.direction) || 'horizontal',
+    icon: {
+      placement: normalizeNodeLayoutIconPlacement(icon.placement) || 'left',
+      width: positiveOrDefault(icon.width, 44),
+      height: positiveOrDefault(icon.height, 44),
+      badgePlacement
+    },
+    content: {
+      align: normalizeNodeLayoutContentAlign(content.align) || 'left',
+      titleField,
+      subtitleField
+    }
+  };
 }
 
 export function opacityNumber(value: unknown): number | undefined {

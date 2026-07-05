@@ -22,6 +22,7 @@ TopoViewer renders declarative graph and diagram documents from YAML. The canoni
 - [Node label placement](examples/nodes/label-placement/index.md): Node labels can be placed around or inside node bodies with wrapping and backing controls.
 - [Border, outline, and underlay](examples/nodes/border-outline-underlay/index.md): Node border, outline, and underlay controls provide operational emphasis without changing graph facts.
 - [Icon fit and badges](examples/nodes/icon-fit-and-badges/index.md): Icon fit, badges, and status markers add compact node-level signals.
+- [Card node layout](examples/nodes/card-node-layout/index.md): Nested `nodeLayout` makes round-rectangle nodes read like compact service cards.
 
 ### Edges
 

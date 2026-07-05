@@ -9,6 +9,22 @@ import { migrateTopoDocument } from './migration';
 const scalarSchema = z.union([z.string(), z.number(), z.boolean()]);
 const labelsSchema = z.record(scalarSchema);
 const dataSchema = z.record(z.unknown());
+const nodeLayoutSchema = z.object({
+  type: z.literal('card'),
+  direction: z.enum(['horizontal']).optional(),
+  icon: z.object({
+    placement: z.enum(['left']).optional(),
+    width: z.number().positive().optional(),
+    height: z.number().positive().optional(),
+    badgePlacement: z.enum(['topLeft', 'topRight', 'bottomLeft', 'bottomRight']).optional()
+  }).passthrough().optional(),
+  content: z.object({
+    align: z.enum(['left', 'center', 'right']).optional(),
+    titleField: z.string().min(1).optional(),
+    subtitleField: z.string().min(1).optional()
+  }).passthrough().optional()
+}).passthrough();
+
 const styleSchema = z.record(z.unknown()).superRefine((style, ctx) => {
   for (const key of Object.keys(style)) {
     if (key.includes('-')) {
@@ -51,6 +67,16 @@ const styleSchema = z.record(z.unknown()).superRefine((style, ctx) => {
       message: polygonPoints.error,
       path: ['shapePolygonPoints']
     });
+  }
+  if (style.nodeLayout !== undefined) {
+    const nodeLayout = nodeLayoutSchema.safeParse(style.nodeLayout);
+    if (!nodeLayout.success) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `nodeLayout is invalid: ${nodeLayout.error.issues.map((entry) => `${formatPath(entry.path)}: ${entry.message}`).join('; ')}`,
+        path: ['nodeLayout']
+      });
+    }
   }
 });
 

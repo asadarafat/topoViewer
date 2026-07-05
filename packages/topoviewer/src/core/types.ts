@@ -7,6 +7,7 @@ import type {
   FocusQuery,
   LinkGroupingOptions
 } from './attention/types';
+import type { NodeLayoutCardStyle } from './nodeStyle';
 import type { NodeShapeName } from './nodeShapes';
 
 export type Scalar = string | number | boolean;
@@ -318,6 +319,14 @@ export interface CompiledNodeData extends GraphNode, Record<string, unknown> {
   badgeLabel?: string;
   badgePosition?: string;
   badgeStyle?: CSSProperties;
+  nodeLayout?: NodeLayoutCardStyle;
+  cardTitle?: string;
+  cardSubtitle?: string;
+  cardContentStyle?: CSSProperties;
+  cardIconStyle?: CSSProperties;
+  cardIconContentStyle?: CSSProperties;
+  cardIconImageStyle?: CSSProperties;
+  cardBadgePosition?: string;
   statusPlacement?: string;
   statusStyle?: CSSProperties;
   containedChildCount?: number;

@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TopoViewer Card Node Runtime Fixture</title>
+  </head>
+  <body>
+    <div id="root" style="height: 520px"></div>
+    <script type="module">
+      import React from 'react';
+      import { createRoot } from 'react-dom/client';
+      import { TopoViewer } from '../../src/components/TopoViewer.tsx';
+      import '../../src/styles.css';
+
+      const documentSpec = {
+        layout: {
+          mode: 'manual',
+          width: 640,
+          height: 320
+        },
+        icons: {
+          service: {
+            glyph: 'SVC',
+            fill: '#1d4ed8',
+            stroke: '#93c5fd'
+          }
+        },
+        stylesheet: [
+          {
+            selector: 'node',
+            style: {
+              shape: 'roundRectangle',
+              icon: 'service',
+              width: 210,
+              height: 72,
+              borderWidth: 3,
+              backgroundColor: '#0f172a',
+              borderColor: '#60a5fa',
+              iconColor: '#e0f2fe',
+              iconBackgroundColor: 'rgba(37, 99, 235, 0.32)',
+              iconPadding: 7,
+              labelColor: '#f8fafc',
+              labelFontSize: 13,
+              labelFontWeight: 860,
+              metaColor: '#93c5fd',
+              metaFontSize: 10,
+              badgeLabel: '3',
+              badgeBackgroundColor: '#dbeafe',
+              badgeColor: '#1e3a8a',
+              nodeLayout: {
+                type: 'card',
+                direction: 'horizontal',
+                icon: {
+                  placement: 'left',
+                  width: 46,
+                  height: 46,
+                  badgePlacement: 'topRight'
+                },
+                content: {
+                  align: 'left',
+                  titleField: 'name',
+                  subtitleField: 'data.subtitle'
+                }
+              }
+            }
+          },
+          {
+            selector: 'link',
+            style: {
+              curveStyle: 'bezier',
+              lineColor: '#38bdf8',
+              lineWidth: 4,
+              targetArrowShape: 'triangle',
+              targetArrowColor: '#38bdf8'
+            }
+          }
+        ],
+        graph: {
+          id: 'card-node-runtime',
+          layers: [{ id: 'services', name: 'Services' }],
+          nodes: [
+            {
+              id: 'orders-api',
+              name: 'Orders API',
+              data: { subtitle: 'Ready / 3 pods' },
+              layers: ['services'],
+              position: [80, 130]
+            },
+            {
+              id: 'inventory-api',
+              name: 'Inventory API',
+              data: { subtitle: 'Ready / 2 pods' },
+              layers: ['services'],
+              position: [380, 130]
+            }
+          ],
+          links: [
+            {
+              id: 'orders-inventory',
+              source: 'orders-api',
+              target: 'inventory-api',
+              layers: ['services']
+            }
+          ]
+        }
+      };
+
+      createRoot(document.getElementById('root')).render(React.createElement(TopoViewer, {
+        document: documentSpec,
+        selectedLayerIds: ['services'],
+        toggles: {
+          showEdgeLabels: true
+        },
+        style: { height: '100%' }
+      }));
+    </script>
+  </body>
+</html>

@@ -21,6 +21,7 @@ import {
   normalizeNodeLabelPosition,
   normalizeNodeLabelTextOverflow,
   normalizeNodeLabelTextWrap,
+  normalizeNodeLayout,
   normalizeNodeStatusPlacement,
   opacityNumber,
   worstSeverityColor,
@@ -298,6 +299,30 @@ function aggregateStatusColor(style: StyleDeclaration, entity: GraphEntity): unk
   return undefined;
 }
 
+function pathValue(source: Record<string, unknown>, path: string): unknown {
+  if (!path) return undefined;
+  if (Object.prototype.hasOwnProperty.call(source, path)) return source[path];
+  return path.split('.').reduce<unknown>((current, segment) => {
+    if (!current || typeof current !== 'object') return undefined;
+    return (current as Record<string, unknown>)[segment];
+  }, source);
+}
+
+function fieldText(entity: GraphEntity, field: string | undefined): string {
+  if (!field) return '';
+  const subject = {
+    ...(entity.data || {}),
+    ...entity,
+    data: entity.data || {},
+    labels: entity.labels || {}
+  } as Record<string, unknown>;
+  const value = pathValue(subject, field);
+  if (Array.isArray(value)) return value.map(String).filter(Boolean).join(' / ');
+  if (value === undefined || value === null) return '';
+  if (typeof value === 'object') return JSON.stringify(value);
+  return String(value);
+}
+
 function mapLineDash(style: StyleDeclaration): string {
   const explicitPattern = style.lineDashPattern;
   if (explicitPattern !== undefined) return dashPattern(explicitPattern);
@@ -400,6 +425,7 @@ export function compileNodeStyle(style: StyleDeclaration, entity: GraphEntity, s
   const iconFit = normalizeNodeIconFit(style.iconFit);
   const iconClipStyle = iconClipForNodeShape(shape, shapePoints);
   const metaVisible = !isTransparentColor(style.metaColor) && !isZeroNumber(style.metaFontSize);
+  const nodeLayout = shape === 'roundRectangle' ? normalizeNodeLayout(style.nodeLayout) : undefined;
 
   return {
     flow: withoutUndefined({
@@ -524,6 +550,42 @@ export function compileNodeStyle(style: StyleDeclaration, entity: GraphEntity, s
         backgroundColor: style.badgeBackgroundColor,
         borderColor: style.badgeBorderColor
       }),
+      nodeLayout,
+      cardTitle: nodeLayout ? fieldText(entity, nodeLayout.content.titleField) || displayName(entity) : undefined,
+      cardSubtitle: nodeLayout ? fieldText(entity, nodeLayout.content.subtitleField) : undefined,
+      cardContentStyle: nodeLayout ? withoutUndefined({
+        textAlign: nodeLayout.content.align
+      }) : undefined,
+      cardIconStyle: nodeLayout ? withoutUndefined({
+        width: nodeLayout.icon.width,
+        height: nodeLayout.icon.height,
+        color: style.iconColor,
+        backgroundColor: style.iconBackgroundColor,
+        opacity: opacityNumber(style.iconOpacity)
+      }) : undefined,
+      cardIconContentStyle: nodeLayout ? withoutUndefined({
+        width: nodeLayout.icon.width,
+        height: nodeLayout.icon.height,
+        padding: cssPadding(style.iconPadding),
+        opacity: opacityNumber(style.iconOpacity)
+      }) : undefined,
+      cardIconImageStyle: nodeLayout ? withoutUndefined({
+        position: 'absolute',
+        inset: 0,
+        width: '100%',
+        height: '100%',
+        minWidth: 0,
+        minHeight: 0,
+        maxWidth: 'none',
+        maxHeight: 'none',
+        display: 'block',
+        alignSelf: 'stretch',
+        justifySelf: 'stretch',
+        aspectRatio: 'auto',
+        objectPosition: 'center',
+        objectFit: iconFit
+      }) : undefined,
+      cardBadgePosition: nodeLayout?.icon.badgePlacement || badgePosition,
       statusPlacement,
       statusStyle: statusColor === undefined ? undefined : withoutUndefined({
         backgroundColor: statusColor,

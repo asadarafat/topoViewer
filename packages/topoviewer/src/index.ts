@@ -59,6 +59,7 @@ export type {
   NodeBadgePosition,
   NodeBorderStyle,
   NodeIconFit,
+  NodeLayoutCardStyle,
   NodeLabelPosition,
   NodeLabelTextOverflow,
   NodeLabelTextWrap,

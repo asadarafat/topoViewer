@@ -136,6 +136,7 @@ not a replacement for migration notes, API docs, or compatibility tests.
 | `NodeLabelPosition` | `./core/nodeStyle` |
 | `NodeLabelTextOverflow` | `./core/nodeStyle` |
 | `NodeLabelTextWrap` | `./core/nodeStyle` |
+| `NodeLayoutCardStyle` | `./core/nodeStyle` |
 | `NodeShapeName` | `./core/nodeShapes` |
 | `NodeShapePoint` | `./core/nodeShapes` |
 | `NodeStatusPlacement` | `./core/nodeStyle` |

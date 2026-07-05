@@ -67,6 +67,61 @@
       "type": "object",
       "additionalProperties": true
     },
+    "nodeLayout": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["card"]
+        },
+        "direction": {
+          "type": "string",
+          "enum": ["horizontal"]
+        },
+        "icon": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "placement": {
+              "type": "string",
+              "enum": ["left"]
+            },
+            "width": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "height": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "badgePlacement": {
+              "type": "string",
+              "enum": ["topLeft", "topRight", "bottomLeft", "bottomRight"]
+            }
+          }
+        },
+        "content": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "align": {
+              "type": "string",
+              "enum": ["left", "center", "right"]
+            },
+            "titleField": {
+              "type": "string",
+              "minLength": 1
+            },
+            "subtitleField": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    },
     "style": {
       "type": "object",
       "propertyNames": {
@@ -78,6 +133,10 @@
         "shape": {
           "type": "string",
           "description": "Shape name. For graph nodes, use canonical TopoViewer node shape values such as ellipse, circle, square, rectangle, roundRectangle, hexagon, star, or polygon."
+        },
+        "nodeLayout": {
+          "$ref": "#/definitions/nodeLayout",
+          "description": "Nested node content layout. Use nodeLayout.type: card with explicit shape: roundRectangle."
         },
         "shapePolygonPoints": {
           "description": "Custom graph-node polygon points in normalized [-1, 1] x/y coordinate space.",

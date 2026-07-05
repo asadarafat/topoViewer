@@ -16,10 +16,19 @@ import {
   nodeBadgePositions,
   nodeBorderStyles,
   nodeIconFitValues,
+  nodeLayoutContentAlignments,
+  nodeLayoutDirections,
+  nodeLayoutIconPlacements,
+  nodeLayoutTypes,
   nodeLabelPositions,
   nodeLabelTextOverflowValues,
   nodeLabelTextWrapValues,
   nodeStatusPlacements,
+  normalizeNodeLayout,
+  normalizeNodeLayoutContentAlign,
+  normalizeNodeLayoutDirection,
+  normalizeNodeLayoutIconPlacement,
+  normalizeNodeLayoutType,
   normalizeNodeBadgePosition,
   normalizeNodeBorderStyle,
   normalizeNodeIconFit,
@@ -192,6 +201,100 @@ function nodeShapeStyleIssues(style: Record<string, unknown> | undefined, path: 
   return issues;
 }
 
+function plainRecord(value: unknown): Record<string, unknown> | undefined {
+  return value && typeof value === 'object' && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : undefined;
+}
+
+function nodeLayoutValueIssues(style: Record<string, unknown>, path: string): LintIssue[] {
+  if (style.nodeLayout === undefined) return [];
+  const layout = plainRecord(style.nodeLayout);
+  if (!layout) {
+    return [issue('error', 'invalid-node-layout', 'nodeLayout must be an object.', `${path}.nodeLayout`)];
+  }
+
+  const issues: LintIssue[] = [];
+  if (!normalizeNodeLayoutType(layout.type)) {
+    issues.push(issue(
+      'error',
+      'unsupported-node-layout-type',
+      `nodeLayout.type "${String(layout.type)}" is not supported; use one of ${nodeLayoutTypes.join(', ')}.`,
+      `${path}.nodeLayout.type`
+    ));
+  }
+  if (layout.direction !== undefined && !normalizeNodeLayoutDirection(layout.direction)) {
+    issues.push(issue(
+      'error',
+      'unsupported-node-layout-direction',
+      `nodeLayout.direction "${String(layout.direction)}" is not supported; use one of ${nodeLayoutDirections.join(', ')}.`,
+      `${path}.nodeLayout.direction`
+    ));
+  }
+
+  const icon = plainRecord(layout.icon);
+  if (layout.icon !== undefined && !icon) {
+    issues.push(issue('error', 'invalid-node-layout-icon', 'nodeLayout.icon must be an object.', `${path}.nodeLayout.icon`));
+  }
+  if (icon) {
+    if (icon.placement !== undefined && !normalizeNodeLayoutIconPlacement(icon.placement)) {
+      issues.push(issue(
+        'error',
+        'unsupported-node-layout-icon-placement',
+        `nodeLayout.icon.placement "${String(icon.placement)}" is not supported; use one of ${nodeLayoutIconPlacements.join(', ')}.`,
+        `${path}.nodeLayout.icon.placement`
+      ));
+    }
+    ['width', 'height'].forEach((key) => {
+      if (icon[key] !== undefined && positiveNumber(icon[key]) === undefined) {
+        issues.push(issue('error', 'invalid-node-layout-icon-size', `nodeLayout.icon.${key} must be a positive number.`, `${path}.nodeLayout.icon.${key}`));
+      }
+    });
+    if (icon.badgePlacement !== undefined && !normalizeNodeBadgePosition(icon.badgePlacement)) {
+      issues.push(issue(
+        'error',
+        'unsupported-node-layout-badge-placement',
+        `nodeLayout.icon.badgePlacement "${String(icon.badgePlacement)}" is not supported; use one of ${nodeBadgePositions.join(', ')}.`,
+        `${path}.nodeLayout.icon.badgePlacement`
+      ));
+    }
+  }
+
+  const content = plainRecord(layout.content);
+  if (layout.content !== undefined && !content) {
+    issues.push(issue('error', 'invalid-node-layout-content', 'nodeLayout.content must be an object.', `${path}.nodeLayout.content`));
+  }
+  if (content) {
+    if (content.align !== undefined && !normalizeNodeLayoutContentAlign(content.align)) {
+      issues.push(issue(
+        'error',
+        'unsupported-node-layout-content-align',
+        `nodeLayout.content.align "${String(content.align)}" is not supported; use one of ${nodeLayoutContentAlignments.join(', ')}.`,
+        `${path}.nodeLayout.content.align`
+      ));
+    }
+    ['titleField', 'subtitleField'].forEach((key) => {
+      if (content[key] !== undefined && (typeof content[key] !== 'string' || !String(content[key]).trim())) {
+        issues.push(issue('error', 'invalid-node-layout-field', `nodeLayout.content.${key} must be a non-empty field path string.`, `${path}.nodeLayout.content.${key}`));
+      }
+    });
+  }
+
+  return issues;
+}
+
+function nodeLayoutShapeIssues(style: Record<string, unknown> | undefined, path: string): LintIssue[] {
+  if (!style || typeof style !== 'object' || !normalizeNodeLayout(style.nodeLayout)) return [];
+  const shape = normalizeNodeShape(style.shape);
+  if (shape === 'roundRectangle') return [];
+  return [issue(
+    'error',
+    'invalid-node-card-layout-shape',
+    'nodeLayout.type: card requires the effective node style to set shape: roundRectangle.',
+    `${path}.nodeLayout`
+  )];
+}
+
 function enumStyleIssue(
   style: Record<string, unknown>,
   key: string,
@@ -229,7 +332,8 @@ function nodeStyleIssues(style: Record<string, unknown> | undefined, path: strin
     ...enumStyleIssue(style, 'borderStyle', path, 'unsupported-node-border-style', nodeBorderStyles, normalizeNodeBorderStyle),
     ...enumStyleIssue(style, 'iconFit', path, 'unsupported-node-icon-fit', nodeIconFitValues, normalizeNodeIconFit),
     ...enumStyleIssue(style, 'badgePosition', path, 'unsupported-node-badge-position', nodeBadgePositions, normalizeNodeBadgePosition),
-    ...enumStyleIssue(style, 'statusPlacement', path, 'unsupported-node-status-placement', nodeStatusPlacements, normalizeNodeStatusPlacement)
+    ...enumStyleIssue(style, 'statusPlacement', path, 'unsupported-node-status-placement', nodeStatusPlacements, normalizeNodeStatusPlacement),
+    ...nodeLayoutValueIssues(style, path)
   ];
 
   [
@@ -818,6 +922,10 @@ export function lintTopoDocument(input: TopoDocument, options: LintOptions = {})
       issues.push(...nodeAspectDimensionIssues(applyStyle('node', node, document), `graph.nodes[${index}].effectiveStyle`));
     });
   }
+
+  (graph.nodes || []).forEach((node, index) => {
+    issues.push(...nodeLayoutShapeIssues(applyStyle('node', node, document), `graph.nodes[${index}].effectiveStyle`));
+  });
 
   Object.entries(document.icons || {}).forEach(([key, icon]) => {
     if (icon.src && unsafeImageReference(icon.src)) {

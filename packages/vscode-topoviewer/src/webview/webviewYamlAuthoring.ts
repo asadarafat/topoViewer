@@ -11,6 +11,7 @@ import {
   styleOptionsByKind,
   styleValueDefinitionForKey
 } from './webviewStyleMetadata';
+import { nodeLayoutKeyDocumentation, nodeLayoutStyleSuggestions } from './webviewNodeLayoutAssist';
 
 export type YamlAuthoringDocument = 'topology' | 'stylesheet' | 'mapper';
 
@@ -934,6 +935,10 @@ export function yamlAuthoringSuggestions(request: YamlAuthoringRequest): YamlAut
   if (key === 'selector') return selectorSuggestions(request);
   if (isStylesheetStyleContext(request)) {
     const selectorKind = selectorKindForContext(request);
+    if (selectorKind === 'node') {
+      const nestedNodeLayoutSuggestions = nodeLayoutStyleSuggestions(request, key, prefix);
+      if (nestedNodeLayoutSuggestions) return nestedNodeLayoutSuggestions;
+    }
     if (key && prefix.includes(':')) {
       return styleValueSuggestions(selectorKind, key);
     }
@@ -958,6 +963,9 @@ export function yamlAuthoringHover(request: YamlAuthoringRequest): YamlAuthoring
   if (request.document === 'stylesheet') {
     if (stylesheetKeyDocumentation[word]) return { contents: stylesheetKeyDocumentation[word] };
     const selectorKind = selectorKindForContext(request);
+    if (nodeLayoutKeyDocumentation[word] && yamlPathAtLine(request.text, request.lineNumber).includes('nodeLayout')) {
+      return { contents: nodeLayoutKeyDocumentation[word] };
+    }
     const option = styleOptionsByKind[selectorKind].find((candidate) => candidate.key === word);
     if (option) {
       return { contents: styleDocumentationForKey(selectorKind, word) };
