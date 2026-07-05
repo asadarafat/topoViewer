@@ -1,27 +1,23 @@
-import { useEffect, useMemo, useState } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 import yaml from 'js-yaml';
-import {
-  Alert,
-  Box,
-  Button,
-  Checkbox,
-  CssBaseline,
-  FormControlLabel,
-  IconButton,
-  MenuItem,
-  Paper,
-  Stack,
-  Tab,
-  Tabs,
-  ThemeProvider,
-  TextField,
-  Tooltip,
-  Typography,
-  createTheme
-} from '@mui/material';
+import Alert from '@mui/material/Alert';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Checkbox from '@mui/material/Checkbox';
+import CssBaseline from '@mui/material/CssBaseline';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import IconButton from '@mui/material/IconButton';
+import MenuItem from '@mui/material/MenuItem';
+import Paper from '@mui/material/Paper';
+import Stack from '@mui/material/Stack';
+import Tab from '@mui/material/Tab';
+import Tabs from '@mui/material/Tabs';
+import TextField from '@mui/material/TextField';
+import Tooltip from '@mui/material/Tooltip';
+import Typography from '@mui/material/Typography';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 import SkipNextIcon from '@mui/icons-material/SkipNext';
 import SkipPreviousIcon from '@mui/icons-material/SkipPrevious';
-import Editor from '@monaco-editor/react';
 import { TopoViewer } from './TopoViewer';
 import type { TopoDocument, TopoViewerToggles } from '../core/types';
 import {
@@ -37,6 +33,8 @@ import {
 import { validateTopoDocument } from '../core/validation';
 import { composeTopoViewerDocument } from '../core/compose';
 import './workbench.css';
+
+const Editor = lazy(() => import('@monaco-editor/react'));
 
 type FocusKind = 'id' | 'changes';
 type AggregateMode = 'none' | 'region' | 'parent' | 'role';
@@ -495,26 +493,28 @@ export function TopoViewerWorkbench() {
               <Tab value="topology" label="Topology YAML" />
               <Tab value="stylesheet" label="Stylesheet YAML" />
             </Tabs>
-            <Editor
-              value={activeTab === 'topology' ? topologyText : stylesheetText}
-              language="yaml"
-              theme="vs-dark"
-              onChange={(value) => {
-                if (activeTab === 'topology') setTopologyText(value || '');
-                else setStylesheetText(value || '');
-              }}
-              options={{
-                automaticLayout: true,
-                fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
-                fontSize: 12,
-                minimap: { enabled: false },
-                padding: { top: 14, bottom: 14 },
-                renderLineHighlight: 'gutter',
-                scrollBeyondLastLine: false,
-                tabSize: 2,
-                wordWrap: 'off'
-              }}
-            />
+            <Suspense fallback={<Box className="topoviewer-editor-loading">Loading YAML editor...</Box>}>
+              <Editor
+                value={activeTab === 'topology' ? topologyText : stylesheetText}
+                language="yaml"
+                theme="vs-dark"
+                onChange={(value?: string) => {
+                  if (activeTab === 'topology') setTopologyText(value || '');
+                  else setStylesheetText(value || '');
+                }}
+                options={{
+                  automaticLayout: true,
+                  fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
+                  fontSize: 12,
+                  minimap: { enabled: false },
+                  padding: { top: 14, bottom: 14 },
+                  renderLineHighlight: 'gutter',
+                  scrollBeyondLastLine: false,
+                  tabSize: 2,
+                  wordWrap: 'off'
+                }}
+              />
+            </Suspense>
           </Box>
 
           <Box component="footer" className="topoviewer-workbench-footer">

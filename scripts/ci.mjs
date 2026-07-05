@@ -145,6 +145,7 @@ const laneDefinitions = {
       projectionArea: 'zensical.toml'
     }),
     step('build VS Code harness site', 'npm', ['run', 'vscode:harness:build']),
+    step('check React authoring surface budgets', 'npm', ['run', 'react:perf:check:artifacts']),
     step('write Pages redirects', 'npm', ['run', 'pages:redirects']),
     step('prune publish-only docs artifacts', 'npm', ['run', 'docs:prune']),
     step('smoke built docs site', 'npm', ['run', 'docs:smoke']),

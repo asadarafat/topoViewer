@@ -125,6 +125,36 @@ Interaction budgets for production authoring and embedded docs:
 | Dense operational views | Prefer layers, regions, aggregates, and attention state over rendering every repeated service or endpoint. |
 | Browser harness and docs smoke | Assert durable rendered graph state instead of transient status text or fixed sleeps. |
 
+React authoring surfaces have an additional bundle budget because the browser
+harness and VS Code webview both contain rich YAML editing. Monaco must stay
+behind the lazy editor boundary; do not import `monacoSetup` or
+`@monaco-editor/react` from the harness or webview entry modules. Use
+`MonacoYamlEditor` for the webview rail and `React.lazy` for package workbench
+editor use.
+
+Use these commands when changing Harness, VS Code webview, Monaco/YAML
+authoring, or MUI imports:
+
+```bash
+npm run react:perf:report
+npm run react:perf:check
+npm run test:vscode-unit
+```
+
+`react:perf:report` reads the current built artifacts and reports initial and
+lazy JavaScript chunks for the browser harness and VS Code webview. `react:perf:check`
+rebuilds those surfaces, enforces the checked-in budgets in
+`scripts/react-performance-budgets.json`, and fails on forbidden
+`@mui/material` barrel imports in the budgeted paths. The budget includes a
+small byte tolerance for normal build variance; increase it only with a new
+before/after report saved under the ignored `.artifacts/` directory.
+
+Browser authoring preferences must use the safe storage helpers in
+`packages/vscode-topoviewer/src/webview/browserStorage.ts`. Direct
+`localStorage.setItem` or `sessionStorage.setItem` calls are not allowed in the
+React authoring surfaces because blocked storage, quota errors, and malformed
+JSON must degrade to defaults instead of breaking the harness.
+
 Stress fixtures are intentionally outside the required CI gate. The policy is:
 
 | Class | Size | Command home | Required gate |

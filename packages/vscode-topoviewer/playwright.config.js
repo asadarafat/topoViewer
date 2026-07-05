@@ -1,5 +1,6 @@
 export default {
   testDir: './tests',
+  testIgnore: ['**/unit/**'],
   timeout: 30000,
   reporter: [['list']],
   webServer: {

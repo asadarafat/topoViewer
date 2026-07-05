@@ -1,5 +1,6 @@
 import { validateSources } from '../shared/validation';
 import type { ExportImagePayload, HarnessFixture, TopoViewerWebviewHost, ValidationResult, WebviewState } from '../shared/types';
+import { safeGetJson, safeGetString, safeRemoveItem, safeSetJson, safeSetString } from './browserStorage';
 
 declare global {
   interface Window {
@@ -87,7 +88,7 @@ export class BrowserHarnessHostAdapter implements TopoViewerWebviewHost {
     if (urlState) return urlState;
 
     const fixtures = await this.listFixtures();
-    const activeFixtureId = window.localStorage.getItem(this.activeFixtureKey);
+    const activeFixtureId = safeGetString(this.activeFixtureKey, '');
     const fixtureId = activeFixtureId && fixtures.some((fixture) => fixture.id === activeFixtureId)
       ? activeFixtureId
       : fixtures[0]?.id || 'layered-network';
@@ -116,7 +117,7 @@ export class BrowserHarnessHostAdapter implements TopoViewerWebviewHost {
       const fixture = this.loadCustomFixtures().find((candidate) => candidate.id === id);
       const savedState = this.loadSavedState(id);
       if (!fixture || !savedState) throw new Error(`Saved topology "${id}" is no longer available.`);
-      window.localStorage.setItem(this.activeFixtureKey, id);
+      safeSetString(this.activeFixtureKey, id);
       return {
         fixtureId: id,
         topologyPath: `local://${id}/topology.yaml`,
@@ -147,7 +148,7 @@ export class BrowserHarnessHostAdapter implements TopoViewerWebviewHost {
     };
     const savedState = this.isParityMode() ? undefined : this.loadSavedState(id);
     if (!this.isParityMode()) {
-      window.localStorage.setItem(this.activeFixtureKey, id);
+      safeSetString(this.activeFixtureKey, id);
     }
     return savedState
       ? {
@@ -194,10 +195,10 @@ export class BrowserHarnessHostAdapter implements TopoViewerWebviewHost {
   async revertState(state: WebviewState): Promise<WebviewState> {
     const fixtureId = state.fixtureId;
     if (!fixtureId) return state;
-    window.localStorage.removeItem(this.storageKey(fixtureId));
+    safeRemoveItem(this.storageKey(fixtureId));
     if (this.isCustomFixture(fixtureId)) {
       this.saveCustomFixtures(this.loadCustomFixtures().filter((fixture) => fixture.id !== fixtureId));
-      window.localStorage.removeItem(this.activeFixtureKey);
+      safeRemoveItem(this.activeFixtureKey);
       return this.loadInitialState();
     }
     return this.loadFixture(fixtureId);
@@ -207,17 +208,13 @@ export class BrowserHarnessHostAdapter implements TopoViewerWebviewHost {
     if (this.isParityMode()) return;
     const fixtureId = state.fixtureId;
     if (!fixtureId) return;
-    try {
-      window.localStorage.setItem(this.activeFixtureKey, fixtureId);
-      window.localStorage.setItem(this.storageKey(fixtureId), JSON.stringify({
-        fixtureId,
-        topologyText: state.topologyText,
-        stylesheetText: state.stylesheetText,
-        mapperText: state.mapperText || defaultMapperText(fixtureId)
-      }));
-    } catch {
-      // Local browser persistence is best effort for the harness.
-    }
+    safeSetString(this.activeFixtureKey, fixtureId);
+    safeSetJson(this.storageKey(fixtureId), {
+      fixtureId,
+      topologyText: state.topologyText,
+      stylesheetText: state.stylesheetText,
+      mapperText: state.mapperText || defaultMapperText(fixtureId)
+    });
   }
 
   private storageKey(fixtureId: string): string {
@@ -269,42 +266,32 @@ export class BrowserHarnessHostAdapter implements TopoViewerWebviewHost {
   }
 
   private loadCustomFixtures(): HarnessFixture[] {
-    try {
-      const raw = window.localStorage.getItem(this.customFixtureIndexKey);
-      if (!raw) return [];
-      const parsed = JSON.parse(raw) as HarnessFixture[];
-      return Array.isArray(parsed)
-        ? parsed
-          .filter((fixture) => fixture?.id && fixture?.name)
-          .map((fixture) => ({ ...fixture, kind: 'saved' as const }))
-        : [];
-    } catch {
-      return [];
-    }
+    return safeGetJson<unknown[]>(this.customFixtureIndexKey, [])
+      .filter((fixture): fixture is HarnessFixture => Boolean(
+        fixture
+        && typeof fixture === 'object'
+        && 'id' in fixture
+        && 'name' in fixture
+      ))
+      .map((fixture) => ({ ...fixture, kind: 'saved' as const }));
   }
 
   private saveCustomFixtures(fixtures: HarnessFixture[]): void {
-    window.localStorage.setItem(this.customFixtureIndexKey, JSON.stringify(fixtures.map((fixture) => ({
+    safeSetJson(this.customFixtureIndexKey, fixtures.map((fixture) => ({
       id: fixture.id,
       kind: 'saved',
       name: fixture.name
-    }))));
+    })));
   }
 
   private loadSavedState(fixtureId: string): Pick<WebviewState, 'mapperText' | 'topologyText' | 'stylesheetText'> | undefined {
-    try {
-      const raw = window.localStorage.getItem(this.storageKey(fixtureId));
-      if (!raw) return undefined;
-      const parsed = JSON.parse(raw) as Partial<WebviewState>;
-      if (typeof parsed.topologyText !== 'string' || typeof parsed.stylesheetText !== 'string') return undefined;
-      return {
-        topologyText: parsed.topologyText,
-        stylesheetText: parsed.stylesheetText,
-        mapperText: typeof parsed.mapperText === 'string' ? parsed.mapperText : defaultMapperText(fixtureId)
-      };
-    } catch {
-      return undefined;
-    }
+    const parsed = safeGetJson<Partial<WebviewState> | undefined>(this.storageKey(fixtureId), undefined);
+    if (!parsed || typeof parsed.topologyText !== 'string' || typeof parsed.stylesheetText !== 'string') return undefined;
+    return {
+      topologyText: parsed.topologyText,
+      stylesheetText: parsed.stylesheetText,
+      mapperText: typeof parsed.mapperText === 'string' ? parsed.mapperText : defaultMapperText(fixtureId)
+    };
   }
 
   async validate(state: WebviewState): Promise<ValidationResult> {

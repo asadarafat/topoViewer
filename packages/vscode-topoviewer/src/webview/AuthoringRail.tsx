@@ -1,56 +1,169 @@
-import Editor from '@monaco-editor/react';
-import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
-  Alert,
-  Box,
-  Button,
-  Checkbox,
-  Chip,
-  FormControl,
-  FormControlLabel,
-  FormHelperText,
-  IconButton,
-  InputLabel,
-  MenuItem,
-  Paper,
-  Select,
-  Stack,
-  Tab,
-  Tabs,
-  TextField,
-  Tooltip,
-  Typography
-} from '@mui/material';
+import { lazy, memo, Suspense } from 'react';
+import Accordion from '@mui/material/Accordion';
+import AccordionDetails from '@mui/material/AccordionDetails';
+import AccordionSummary from '@mui/material/AccordionSummary';
+import Alert from '@mui/material/Alert';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Checkbox from '@mui/material/Checkbox';
+import Chip from '@mui/material/Chip';
+import FormControl from '@mui/material/FormControl';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import FormHelperText from '@mui/material/FormHelperText';
+import IconButton from '@mui/material/IconButton';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import Paper from '@mui/material/Paper';
+import Select from '@mui/material/Select';
+import Stack from '@mui/material/Stack';
+import Tab from '@mui/material/Tab';
+import Tabs from '@mui/material/Tabs';
+import TextField from '@mui/material/TextField';
+import Tooltip from '@mui/material/Tooltip';
+import Typography from '@mui/material/Typography';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import type { Dispatch, SetStateAction } from 'react';
 import type { TopoDocument } from 'topoviewer';
-import type { HarnessFixture, ValidationResult } from '../shared/types';
+import type { HarnessFixture, TopoViewerWebviewHost, ValidationResult, WebviewState } from '../shared/types';
 import type { WebviewDiagnostic } from '../shared/types';
 import type { AttentionFocusKind } from '../shared/topologyMutations';
+import type { TopoObjectSelection } from '../shared/topologyMutations';
 import type { HarnessMode } from './webviewAppSupport';
 import type { MapperCoveragePreview } from './mapperCoveragePreview';
 import { MapperRuleBuilderPanel, MapperYamlActions } from './MapperYamlTools';
 import type { MapperRuleBuilderState, MapperTopologyPickers } from './mapperRuleBuilder';
 import type { KeyValueEditorRow } from './webviewStyleMetadata';
+import { useRenderProfile } from './renderProfile';
 
-type AuthoringRailProps = Record<string, any> & {
+const Editor = lazy(() => import('./MonacoYamlEditor'));
+
+type AnyFn = (...args: any[]) => any;
+
+type AuthoringRailProps = {
+  HarnessTabPanel: AnyFn;
+  activeDiagnostics: WebviewDiagnostic[];
+  activeModeIndex: number;
+  addKeyValueRow: AnyFn;
+  addPathTransitNode: AnyFn;
+  a11yProps: AnyFn;
+  applyAggregation: AnyFn;
+  applyAttentionFocus: AnyFn;
+  applyAttentionMatcher: AnyFn;
+  applyInspector: AnyFn;
+  applyInteraction: AnyFn;
+  applyKeyValueRows: AnyFn;
+  applyLinkGrouping: AnyFn;
+  applyRelationshipInspector: AnyFn;
+  applyYamlDraft: AnyFn;
+  attentionClickMode: string;
+  attentionDataKey: string;
+  attentionDataValue: string;
+  attentionExpandOnClick: boolean;
+  attentionFocusId: string;
+  attentionFocusKind: AttentionFocusKind;
+  attentionInteractive: boolean;
+  attentionLabelKey: string;
+  attentionLabelValue: string;
+  attentionMode: string;
+  attentionRegionId: string;
+  attentionSummary: string;
   availableFocusIds: string[];
+  copyYamlToClipboard: AnyFn;
+  createConnection: AnyFn;
+  createPath: AnyFn;
+  createTopology: AnyFn;
+  currentAttention?: TopoDocument['attention'];
   dataRows: KeyValueEditorRow[];
+  deleteSelection: AnyFn;
+  draftDirty: boolean;
+  downloadYamlBundle: AnyFn;
+  editorLabel: string;
+  editorTheme: string;
+  editorValue: string;
   fixtures: HarnessFixture[];
+  focusKindLabel: (focusKind: AttentionFocusKind) => string;
   graphNodes: any[];
+  handleEditorMount: AnyFn;
   harnessModes: HarnessMode[];
+  hasErrors: boolean;
+  host: TopoViewerWebviewHost;
+  insertObject: AnyFn;
   insertObjectGroups: Array<{ description: string; objects: any[]; title: string }>;
+  insertPreset: AnyFn;
+  inspectorLayerId: string;
+  inspectorName: string;
+  inspectorX: string;
+  inspectorY: string;
   labelRows: KeyValueEditorRow[];
+  linkGroupingThreshold: string;
+  linkSourceId: string;
+  linkTargetId: string;
+  mode: HarnessMode;
+  modeIndex: (mode: HarnessMode) => number;
+  modeLabel: (mode: HarnessMode) => string;
+  movePathTransitNode: AnyFn;
+  nodeNameById: Map<string, string>;
+  openDiagnostic: (diagnostic: WebviewDiagnostic) => void;
+  pathSourceId: string;
+  pathTargetId: string;
+  pathTransitCandidate: string;
   pathTransitIds: string[];
   pathTransitOptions: any[];
+  presetName: string;
+  relationshipComposer?: 'link' | 'path';
+  reloadFixture: AnyFn;
+  removeKeyValueRow: AnyFn;
+  removePathTransitNode: AnyFn;
+  resetAttention: AnyFn;
+  revertTopology: AnyFn;
+  revertYamlDraft: AnyFn;
+  saveSelectionAsPreset: AnyFn;
+  saveTopology: AnyFn;
+  selectedFixture?: HarnessFixture;
   selectedLayerIds: string[];
+  selectedObjects: TopoObjectSelection[];
+  selectedPrimary?: TopoObjectSelection;
+  selectionSummary: (selection: TopoObjectSelection[]) => string;
+  setAttentionClickMode: Dispatch<SetStateAction<string>>;
+  setAttentionDataKey: Dispatch<SetStateAction<string>>;
+  setAttentionDataValue: Dispatch<SetStateAction<string>>;
+  setAttentionExpandOnClick: Dispatch<SetStateAction<boolean>>;
+  setAttentionFocusId: Dispatch<SetStateAction<string>>;
+  setAttentionFocusKind: Dispatch<SetStateAction<AttentionFocusKind>>;
+  setAttentionInteractive: Dispatch<SetStateAction<boolean>>;
+  setAttentionLabelKey: Dispatch<SetStateAction<string>>;
+  setAttentionLabelValue: Dispatch<SetStateAction<string>>;
+  setAttentionMode: Dispatch<SetStateAction<string>>;
+  setAttentionRegionId: Dispatch<SetStateAction<string>>;
+  setDraftMapperText: Dispatch<SetStateAction<string>>;
+  setDraftStylesheetText: Dispatch<SetStateAction<string>>;
+  setDraftTopologyText: Dispatch<SetStateAction<string>>;
+  setInspectorLayerId: Dispatch<SetStateAction<string>>;
+  setInspectorName: Dispatch<SetStateAction<string>>;
+  setInspectorX: Dispatch<SetStateAction<string>>;
+  setInspectorY: Dispatch<SetStateAction<string>>;
+  setLinkGroupingThreshold: Dispatch<SetStateAction<string>>;
+  setLinkSourceId: Dispatch<SetStateAction<string>>;
+  setLinkTargetId: Dispatch<SetStateAction<string>>;
+  setMode: Dispatch<SetStateAction<HarnessMode>>;
+  setPathSourceId: Dispatch<SetStateAction<string>>;
+  setPathTargetId: Dispatch<SetStateAction<string>>;
+  setPathTransitCandidate: Dispatch<SetStateAction<string>>;
+  setPresetName: Dispatch<SetStateAction<string>>;
+  setRelationshipComposer: Dispatch<SetStateAction<'link' | 'path' | undefined>>;
   setSelectedLayerIds: Dispatch<SetStateAction<string[]>>;
+  setTab: Dispatch<SetStateAction<number>>;
+  showYamlSuggestions: AnyFn;
+  state?: WebviewState;
+  statusSeverity: 'success' | 'warning' | 'error';
+  statusSummary: string;
+  styleSelectionInYaml: AnyFn;
+  tab: number;
+  updateKeyValueRow: AnyFn;
+  useSelectionForAttention: AnyFn;
   validation: ValidationResult;
   visibleDocument?: TopoDocument;
-  activeDiagnostics: WebviewDiagnostic[];
   mapperCoveragePreview?: MapperCoveragePreview;
   mapperPickers?: MapperTopologyPickers;
   mapperRuleBuilder?: MapperRuleBuilderState;
@@ -60,7 +173,7 @@ type AuthoringRailProps = Record<string, any> & {
   yamlAssistEmptyMessage?: string;
 };
 
-export function AuthoringRail(props: AuthoringRailProps) {
+export const AuthoringRail = memo(function AuthoringRail(props: AuthoringRailProps) {
   const {
   HarnessTabPanel,
   activeDiagnostics,
@@ -193,6 +306,7 @@ export function AuthoringRail(props: AuthoringRailProps) {
   visibleDocument,
   yamlAssistEmptyMessage
   } = props;
+  useRenderProfile('AuthoringRail', { mode, tab });
   return (
         <Box className="topoviewer-vscode-rail">
           <Paper className={`topoviewer-vscode-source topoviewer-vscode-source--${mode}`} elevation={0}>
@@ -544,41 +658,43 @@ export function AuthoringRail(props: AuthoringRailProps) {
                     <ContentCopyIcon fontSize="small" />
                   </IconButton>
                 </Tooltip>
-                <Editor
-                  height="100%"
-                  language="yaml"
-                  theme={editorTheme}
-                  value={editorValue}
-                  onMount={handleEditorMount}
-                  onChange={(value) => {
-                    if (tab === 0) {
-                      setDraftTopologyText(value || '');
-                      return;
-                    }
-                    if (tab === 1) {
-                      setDraftStylesheetText(value || '');
-                      return;
-                    }
-                    setDraftMapperText(value || '');
-                  }}
-                  options={{
-                    automaticLayout: true,
-                    fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
-                    glyphMargin: true,
-                    minimap: { enabled: false },
-                    padding: { top: 40 },
-                    renderLineHighlight: 'gutter',
-                    scrollBeyondLastLine: false,
-                    tabSize: 2,
-                    wordBasedSuggestions: 'off',
-                    wordWrap: 'off',
-                    scrollbar: {
-                      horizontal: 'auto',
-                      vertical: 'auto',
-                      useShadows: true
-                    }
-                  }}
-                />
+                <Suspense fallback={<Box className="topoviewer-vscode-editor-loading">Loading YAML editor...</Box>}>
+                  <Editor
+                    height="100%"
+                    language="yaml"
+                    theme={editorTheme}
+                    value={editorValue}
+                    onMount={handleEditorMount}
+                    onChange={(value?: string) => {
+                      if (tab === 0) {
+                        setDraftTopologyText(value || '');
+                        return;
+                      }
+                      if (tab === 1) {
+                        setDraftStylesheetText(value || '');
+                        return;
+                      }
+                      setDraftMapperText(value || '');
+                    }}
+                    options={{
+                      automaticLayout: true,
+                      fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
+                      glyphMargin: true,
+                      minimap: { enabled: false },
+                      padding: { top: 40 },
+                      renderLineHighlight: 'gutter',
+                      scrollBeyondLastLine: false,
+                      tabSize: 2,
+                      wordBasedSuggestions: 'off',
+                      wordWrap: 'off',
+                      scrollbar: {
+                        horizontal: 'auto',
+                        vertical: 'auto',
+                        useShadows: true
+                      }
+                    }}
+                  />
+                </Suspense>
               </Box>
             </HarnessTabPanel>
 
@@ -787,4 +903,4 @@ export function AuthoringRail(props: AuthoringRailProps) {
           </Paper>
         </Box>
   );
-}
+});

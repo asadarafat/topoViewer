@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
-import { Box } from '@mui/material';
+import Box from '@mui/material/Box';
 import { type TopoDocument, type TopoViewerNodePositionChange } from 'topoviewer';
 import type { HarnessFixture, TopoViewerWebviewHost, ValidationResult, WebviewDiagnostic, WebviewState } from '../shared/types';
 import {
@@ -38,7 +38,7 @@ import {
 } from './webviewYamlAuthoring';
 import { AuthoringRail } from './AuthoringRail';
 import { PreviewPanel, ResizeDivider, ShellHeader, webviewShellSx } from './WebviewChrome';
-import { HarnessTabPanel, a11yProps, baseInsertObjectGroups, clamp, defaultSplitPercent, focusKindLabel, harnessModes, initialSavedPresets, initialSplitPercent, maxSplitPercent, mergeLayerSelection, minSplitPercent, modeIndex, modeLabel, pathSequenceFromObject, positionOf, presetFromObject, presetStorageKey, sameRoundedPosition, selectedNodeIds, selectedObjectIds, selectionSummary, sequenceFromControls, splitStorageKey, type DocumentTransaction, type HarnessMode } from './webviewAppSupport';
+import { HarnessTabPanel, a11yProps, baseInsertObjectGroups, clamp, defaultSplitPercent, focusKindLabel, harnessModes, initialSavedPresets, initialSplitPercent, maxSplitPercent, mergeLayerSelection, minSplitPercent, modeIndex, modeLabel, pathSequenceFromObject, positionOf, presetFromObject, sameRoundedPosition, selectedNodeIds, selectedObjectIds, selectionSummary, sequenceFromControls, useHarnessPreferencePersistence, type DocumentTransaction, type HarnessMode } from './webviewAppSupport';
 import { useBrowserHarnessActions } from './harnessActions';
 import { copyTextToClipboard, downloadYamlBundle as downloadYamlBundleAction, exportPreviewImage, type ExportStatus } from './webviewExportActions';
 import { useBrowserYamlIntelligence, useDraftValidation, useMonacoDiagnostics, usePendingYamlFocus, useYamlEditorMount, useYamlMonacoProviders } from './webviewEditorHooks';
@@ -46,6 +46,7 @@ import { createMapperCoveragePreview } from './mapperCoveragePreview';
 import { mapperTopologyPickers } from './mapperRuleBuilder';
 import { useMapperRuleAuthoring } from './webviewMapperAuthoring';
 import { useObjectSelectionActions } from './webviewSelectionActions';
+import { useRenderProfile } from './renderProfile';
 import './webview.css';
 
 interface WebviewAppProps {
@@ -54,6 +55,7 @@ interface WebviewAppProps {
   onToggleThemeMode?: () => void;
 }
 export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppProps) {
+  useRenderProfile('WebviewApp', { host: host.kind });
   const [state, setState] = useState<WebviewState>();
   const [draftTopologyText, setDraftTopologyText] = useState('');
   const [draftStylesheetText, setDraftStylesheetText] = useState('');
@@ -326,6 +328,7 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
         ]
       }
   )), [savedPresets]);
+  const previewSelectedObjectIds = useMemo(() => selectedObjectIds(selectedObjects), [selectedObjects]);
 
   useEffect(() => {
     editorContextRef.current = {
@@ -353,17 +356,7 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
     updateEditorDiagnostics
   });
 
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      window.localStorage.setItem(splitStorageKey, String(splitPercent));
-    }
-  }, [splitPercent]);
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      window.localStorage.setItem(presetStorageKey, JSON.stringify(savedPresets));
-    }
-  }, [savedPresets]);
+  useHarnessPreferencePersistence(splitPercent, savedPresets);
 
   useEffect(() => {
     if (!visibleDocument) return;
@@ -992,7 +985,7 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
 
           <ResizeDivider clamp={clamp} defaultSplitPercent={defaultSplitPercent} maxSplitPercent={maxSplitPercent} minSplitPercent={minSplitPercent} setResizing={setResizing} setSplitPercent={setSplitPercent} splitPercent={splitPercent} updateSplitFromClientX={updateSplitFromClientX} />
 
-          <PreviewPanel exportImage={exportImage} exportTooltip={exportTooltip} handleNodePositionChange={handleNodePositionChange} handleObjectClick={handleObjectClick} hasErrors={appliedHasErrors} hasExportBlockers={hasExportBlockers} loading={loading} previewRef={previewRef} redoStack={redoStack} redoTopology={redoTopology} selectedLayerIds={selectedLayerIds} selectedObjectIds={selectedObjectIds(selectedObjects)} setSelectedObjects={setSelectedObjects} undoStack={undoStack} undoTopology={undoTopology} visibleDocument={visibleDocument} />
+          <PreviewPanel exportImage={exportImage} exportTooltip={exportTooltip} handleNodePositionChange={handleNodePositionChange} handleObjectClick={handleObjectClick} hasErrors={appliedHasErrors} hasExportBlockers={hasExportBlockers} loading={loading} previewRef={previewRef} redoStack={redoStack} redoTopology={redoTopology} selectedLayerIds={selectedLayerIds} selectedObjectIds={previewSelectedObjectIds} setSelectedObjects={setSelectedObjects} undoStack={undoStack} undoTopology={undoTopology} visibleDocument={visibleDocument} />
         </Box>
       )}
     </Box>

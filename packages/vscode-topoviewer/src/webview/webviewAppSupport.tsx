@@ -1,6 +1,7 @@
-import { type ReactNode } from 'react';
-import { Box } from '@mui/material';
+import { useEffect, type ReactNode } from 'react';
+import Box from '@mui/material/Box';
 import { type AttentionFocusKind, type InsertObjectType, type TopoObjectPreset, type TopoObjectSelection } from '../shared/topologyMutations';
+import { safeGetJson, safeGetString, safeSetJson, safeSetString } from './browserStorage';
 
 export type HarnessMode = 'build' | 'inspect' | 'yaml' | 'attention' | 'layers';
 
@@ -69,21 +70,31 @@ export function clamp(value: number, min: number, max: number) {
 }
 
 export function initialSplitPercent() {
-  if (typeof window === 'undefined') return defaultSplitPercent;
-  const raw = window.localStorage.getItem(splitStorageKey);
-  if (raw === null) return defaultSplitPercent;
+  const raw = safeGetString(splitStorageKey, '');
+  if (!raw) return defaultSplitPercent;
   const stored = Number(raw);
   return Number.isFinite(stored) ? clamp(stored, minSplitPercent, maxSplitPercent) : defaultSplitPercent;
 }
 
 export function initialSavedPresets(): TopoObjectPreset[] {
-  if (typeof window === 'undefined') return [];
-  try {
-    const parsed = JSON.parse(window.localStorage.getItem(presetStorageKey) || '[]');
-    return Array.isArray(parsed) ? parsed.filter((preset) => preset?.id && preset?.name && preset?.kind) : [];
-  } catch {
-    return [];
-  }
+  return safeGetJson<unknown[]>(presetStorageKey, [])
+    .filter((preset): preset is TopoObjectPreset => Boolean(
+      preset
+      && typeof preset === 'object'
+      && 'id' in preset
+      && 'name' in preset
+      && 'kind' in preset
+    ));
+}
+
+export function useHarnessPreferencePersistence(splitPercent: number, savedPresets: TopoObjectPreset[]) {
+  useEffect(() => {
+    safeSetString(splitStorageKey, String(splitPercent));
+  }, [splitPercent]);
+
+  useEffect(() => {
+    safeSetJson(presetStorageKey, savedPresets);
+  }, [savedPresets]);
 }
 
 export function mergeLayerSelection(previous: string[], layers: Array<{ id: string }>) {

@@ -4,7 +4,6 @@ import { ThemeProvider, type PaletteMode } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { WebviewApp } from '../webview/WebviewApp';
 import { BrowserHarnessHostAdapter } from '../webview/host';
-import '../webview/monacoSetup';
 import { createTopoViewerTheme } from '../webview/theme';
 
 function classifyBenignBrowserLayoutNoise() {

@@ -1,15 +1,26 @@
 import '@xyflow/react/dist/style.css';
 import '../../../topoviewer/src/styles.css';
-import { Alert, AppBar, Box, Button, Chip, CircularProgress, IconButton, Paper, Toolbar, Tooltip, Typography } from '@mui/material';
+import Alert from '@mui/material/Alert';
+import AppBar from '@mui/material/AppBar';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Chip from '@mui/material/Chip';
+import CircularProgress from '@mui/material/CircularProgress';
+import IconButton from '@mui/material/IconButton';
+import Paper from '@mui/material/Paper';
+import Toolbar from '@mui/material/Toolbar';
+import Tooltip from '@mui/material/Tooltip';
+import Typography from '@mui/material/Typography';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 import LightModeIcon from '@mui/icons-material/LightMode';
 import LaunchIcon from '@mui/icons-material/Launch';
 import { TopoViewer, defaultTopoViewerToggles, type TopoDocument, type TopoViewerNodePositionChange, type TopoViewerObjectClick } from 'topoviewer';
-import type { Dispatch, RefObject, SetStateAction } from 'react';
+import { memo, type Dispatch, type RefObject, type SetStateAction } from 'react';
 import type { Theme } from '@mui/material/styles';
 import type { TopoViewerWebviewHost } from '../shared/types';
 import type { TopoObjectSelection } from '../shared/topologyMutations';
 import type { DocumentTransaction } from './webviewAppSupport';
+import { useRenderProfile } from './renderProfile';
 
 interface ShellHeaderProps {
   host: TopoViewerWebviewHost;
@@ -69,7 +80,8 @@ export function webviewShellSx(theme: Theme) {
   };
 }
 
-export function ShellHeader({ host, nextThemeMode, onToggleThemeMode, themeMode }: ShellHeaderProps) {
+export const ShellHeader = memo(function ShellHeader({ host, nextThemeMode, onToggleThemeMode, themeMode }: ShellHeaderProps) {
+  useRenderProfile('ShellHeader', { host: host.kind });
   return (
     <AppBar position="static" elevation={0} color="default">
       <Toolbar variant="dense" className="topoviewer-vscode-toolbar">
@@ -97,9 +109,10 @@ export function ShellHeader({ host, nextThemeMode, onToggleThemeMode, themeMode 
       </Toolbar>
     </AppBar>
   );
-}
+});
 
-export function ResizeDivider({ clamp, defaultSplitPercent, maxSplitPercent, minSplitPercent, setResizing, setSplitPercent, splitPercent, updateSplitFromClientX }: ResizeDividerProps) {
+export const ResizeDivider = memo(function ResizeDivider({ clamp, defaultSplitPercent, maxSplitPercent, minSplitPercent, setResizing, setSplitPercent, splitPercent, updateSplitFromClientX }: ResizeDividerProps) {
+  useRenderProfile('ResizeDivider', { splitPercent: Math.round(splitPercent) });
   return (
     <Box
       className="topoviewer-vscode-divider"
@@ -127,9 +140,14 @@ export function ResizeDivider({ clamp, defaultSplitPercent, maxSplitPercent, min
       }}
     />
   );
-}
+});
 
-export function PreviewPanel({ exportImage, exportTooltip, handleNodePositionChange, handleObjectClick, hasErrors, hasExportBlockers, loading, parityMode = false, previewRef, redoStack, redoTopology, selectedLayerIds, selectedObjectIds, setSelectedObjects, undoStack, undoTopology, visibleDocument }: PreviewPanelProps) {
+export const PreviewPanel = memo(function PreviewPanel({ exportImage, exportTooltip, handleNodePositionChange, handleObjectClick, hasErrors, hasExportBlockers, loading, parityMode = false, previewRef, redoStack, redoTopology, selectedLayerIds, selectedObjectIds, setSelectedObjects, undoStack, undoTopology, visibleDocument }: PreviewPanelProps) {
+  useRenderProfile('PreviewPanel', {
+    hasDocument: !!visibleDocument,
+    selectedLayers: selectedLayerIds.length,
+    selectedObjects: selectedObjectIds.length
+  });
   const effectiveSelectedLayerIds = parityMode
     ? (visibleDocument?.graph?.layers || []).map((layer) => layer.id)
     : selectedLayerIds;
@@ -167,4 +185,4 @@ export function PreviewPanel({ exportImage, exportTooltip, handleNodePositionCha
       )}
     </Paper>
   );
-}
+});

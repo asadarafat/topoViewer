@@ -158,5 +158,5 @@ evidence files and screenshots must not be committed under this OpenSpec change.
 - [x] 8.8 Run `npm run render:parity`
 - [x] 8.9 Run full `npm run ci`
 - [x] 8.10 Record final validation evidence in command output
-- [ ] 8.11 Archive gate satisfied only after implementation, docs, examples,
+- [x] 8.11 Archive gate satisfied only after implementation, docs, examples,
       visual evidence, and full CI are complete

@@ -4,7 +4,6 @@ import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { WebviewApp } from './WebviewApp';
 import { VsCodeHostAdapter } from './host';
-import './monacoSetup';
 import { createTopoViewerTheme } from './theme';
 
 const theme = createTopoViewerTheme({ mode: 'light' });

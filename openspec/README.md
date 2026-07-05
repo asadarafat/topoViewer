@@ -11,6 +11,7 @@ reflected in public docs with an explicit support-status label.
 Current active plans:
 
 - `changes/add-helper-lines/` - planned React Flow style helper-line interaction for draggable TopoViewer objects, including runtime-only API, pure alignment geometry, optional live snapping, viewport-correct overlays, browser harness/Grafana integration boundaries, and evidence-gated implementation sequencing.
+- `changes/harden-react-performance-surface/` - planned React authoring-surface performance hardening for lazy Monaco/YAML authoring, MUI import boundaries, Harness/webview bundle budgets, profiled `WebviewApp` state splits, and safe browser storage helpers.
 - `changes/define-codespaces-dev-environment/` - planned Codespaces developer environment that can run local MkDocs, Zensical, browser harness, Grafana lab, and Containerlab-Grafana workflows from a fresh cloud workspace.
 - `changes/define-netbox-integration-roadmap/` - planned NetBox feasibility, use cases, first integration shape, and roadmap wording constraints.
 - `changes/define-opsmill-infrahub-integration-roadmap/` - planned OpsMill/Infrahub feasibility, use cases, first integration shape, and roadmap wording constraints.
