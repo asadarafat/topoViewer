@@ -108,9 +108,10 @@ graph:
       labels: { protocol: bgp }
 ```
 
-The rendered view is produced by the same example catalog used by the tests:
+Continue with the small tutorial first, then inspect a complete network use
+case:
 
-- [YAML to network diagram](../examples/yaml-to-network-diagram/index.md)
+- [First Topology](first-topology.md)
 - [Service Provider Network](../examples/use-cases/service-provider-network.md)
 
 ## Embed In A Product

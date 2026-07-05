@@ -631,7 +631,6 @@ function checkStartNavBoundary() {
     'topoviewer/maintainers/documentation-standard.md',
     'topoviewer/examples/use-cases/harness.md',
     'topoviewer/evaluate/adopt-topoviewer-or-keep-topology-locked-to-a-surface.md',
-    'topoviewer/examples/yaml-to-network-diagram/index.md'
   ]);
 
   for (const target of startTargets) {

@@ -96,7 +96,6 @@ TopoViewer renders declarative graph and diagram documents from YAML. The canoni
 
 ### Integration
 
-- [YAML to network diagram](examples/yaml-to-network-diagram/index.md): A compact before/after example using the same provider underlay slice as the Service Provider Network example.
 - [Kubernetes service map](examples/use-cases/kubernetes-service-map/index.md): A real EDA Playground Kubernetes service map showing services, deployments, pods, EDA TopoNodes, simulator pods, and runtime bindings.
 - [Service Provider Network](examples/use-cases/service-provider-network.md): One provider topology rendered as underlay, BGP, transport, service path, and failure views.
 

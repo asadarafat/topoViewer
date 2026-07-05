@@ -13,6 +13,5 @@ nav:
       - Styling: examples/styling/index.md
       - Layout: examples/layout/index.md
       - Validation: examples/validation/index.md
-  - YAML to network diagram: examples/yaml-to-network-diagram/index.md
   - Kubernetes service map: examples/use-cases/kubernetes-service-map/index.md
   - Service Provider Network: examples/use-cases/service-provider-network.md

@@ -49,6 +49,8 @@ function removeStaleGeneratedPaths() {
     'topoviewer/examples/examples-gallery.md',
     'topoviewer/examples/use-cases.md',
     'topoviewer/examples/kubernetes-service-map',
+    'topoviewer/examples/yaml-to-network-diagram',
+    'topoviewer/examples/integration/yaml-to-network-diagram',
     'topoviewer/examples/service-provider-network',
     'topoviewer/reference/graph',
     'topoviewer/reference/nodes',

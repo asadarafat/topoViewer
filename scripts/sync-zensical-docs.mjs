@@ -228,7 +228,6 @@ function isPublicExamplePage(relativePath) {
     'topoviewer/examples/use-cases/grafana-topoviewer-panel.md',
     'topoviewer/examples/use-cases/service-provider-network.md',
     'topoviewer/examples/use-cases/kubernetes-service-map/index.md',
-    'topoviewer/examples/yaml-to-network-diagram/index.md',
   ].includes(relativePath)
     || /^topoviewer\/examples\/(?:graph|nodes|edges|paths|attention|regions|shapes|callouts|styling|layout|validation)(?:\/[^/]+)?\/index\.md$/.test(relativePath)
     || /^topoviewer\/examples\/harness\/[^/]+\/index\.md$/.test(relativePath)

@@ -674,24 +674,6 @@ examples:
       controls: true
       controlsOpen: false
       title: Renderer limit validation
-  - id: integration-yaml-to-network-diagram
-    title: YAML to network diagram
-    feature: integration
-    path: integration/yaml-to-network-diagram
-    sourceFiles:
-      topology: integration/real-network-underlay/topology.yaml
-      stylesheet: integration/real-network-underlay/stylesheet.yaml
-      expected: integration/real-network-underlay/expected.yaml
-    page: topoviewer/examples/yaml-to-network-diagram
-    summary: A compact before/after example using the same provider underlay slice as the Service Provider Network example.
-    introMode: narrative
-    render:
-      height: 520px
-      controls: true
-      controlsOpen: false
-      title: YAML to network diagram
-      selectedLayerIds:
-        - underlay
   - id: integration-grafana-telemetry-call-flow
     title: Grafana telemetry call flow
     feature: integration

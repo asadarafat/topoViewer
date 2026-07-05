@@ -3,7 +3,6 @@
 This section is the fastest way to see what TopoViewer can render and which
 YAML contract to copy. Read it like a gallery:
 
-- start with the working diagram below;
 - use the object-family pages when you need a specific primitive;
 - use the use cases when you want a complete applied workflow;
 - use the generated example families when you need exhaustive feature coverage.
@@ -14,44 +13,17 @@ and stylesheet are part of the regression surface.
 
 ## Start Here
 
-The core contract is deliberately small:
+Examples are for reusable patterns, not product-positioning walkthroughs. Start
+with the smallest tutorial when you are learning the contract, then use this
+section when you need a concrete primitive or applied workflow.
 
-```text
-topology.yaml    semantic facts: nodes, links, layers, regions, paths
-stylesheet.yaml  visual policy: icons, labels, colors, layout, emphasis
-```
-
-The live viewport below uses a provider-network underlay slice. The topology
-declares the graph facts. The stylesheet decides how router roles, link state,
-and regions should look.
-
-=== "Live Viewport"
-
-    ```topoviewer
-    topology: examples/integration/yaml-to-network-diagram/topology.yaml
-    stylesheet: examples/integration/yaml-to-network-diagram/stylesheet.yaml
-    height: 520px
-    controls: true
-    controlsOpen: false
-    title: YAML to network diagram
-    selectedLayerIds:
-      - underlay
-    ```
-
-=== "Topology YAML"
-
-    ```yaml
-    --8<-- "docs/topoviewer/examples/integration/yaml-to-network-diagram/topology.yaml"
-    ```
-
-=== "Stylesheet YAML"
-
-    ```yaml
-    --8<-- "docs/topoviewer/examples/integration/yaml-to-network-diagram/stylesheet.yaml"
-    ```
-
-Open [YAML to Network Diagram](yaml-to-network-diagram/index.md) for the shorter
-walkthrough version of this starter example.
+- [First Topology](../start/first-topology.md) teaches the smallest
+  `topology.yaml` plus `stylesheet.yaml` pair.
+- [Nodes](./nodes/index.md), [Edges](./edges/index.md), and
+  [Regions](./regions/index.md) cover focused object behavior.
+- [Service Provider Network](use-cases/service-provider-network.md) shows a
+  complete network use case with underlay, BGP, transport, service path, and
+  failure views.
 
 ## Example Families
 

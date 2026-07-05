@@ -34,7 +34,6 @@ nav = [
   ] },
   { "Examples" = [
     { "Overview" = "topoviewer/examples/index.md" },
-    { "YAML to Network Diagram" = "topoviewer/examples/yaml-to-network-diagram/index.md" },
     { "Graph" = "topoviewer/examples/graph/index.md" },
     { "Nodes" = "topoviewer/examples/nodes/index.md" },
     { "Edges" = "topoviewer/examples/edges/index.md" },

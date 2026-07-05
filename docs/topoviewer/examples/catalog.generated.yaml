@@ -678,19 +678,6 @@ examples:
     topology: docs/topoviewer/examples/validation/limit-exceeded/topology.yaml
     stylesheet: docs/topoviewer/examples/validation/limit-exceeded/stylesheet.yaml
     markdown: docs/topoviewer/examples/validation/limit-exceeded/index.md
-  - id: integration-yaml-to-network-diagram
-    title: YAML to network diagram
-    feature: integration
-    path: integration/yaml-to-network-diagram
-    page: topoviewer/examples/yaml-to-network-diagram
-    renderable: true
-    topology: docs/topoviewer/examples/integration/yaml-to-network-diagram/topology.yaml
-    stylesheet: docs/topoviewer/examples/integration/yaml-to-network-diagram/stylesheet.yaml
-    expected:
-      graphNodes: 4
-      minVisibleEdges: 3
-      minRegions: 3
-    markdown: docs/topoviewer/examples/yaml-to-network-diagram/index.md
   - id: integration-grafana-telemetry-call-flow
     title: Grafana telemetry call flow
     feature: integration
