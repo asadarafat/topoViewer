@@ -347,9 +347,9 @@ test('suggests nested nodeLayout card keys and values in YAML intelligence', asy
   expect(iconSuggestions.map((suggestion) => suggestion.label)).toEqual(expect.arrayContaining([
     'placement',
     'width',
-    'height',
-    'badgePlacement'
+    'height'
   ]));
+  expect(iconSuggestions.map((suggestion) => suggestion.label)).not.toContain('badgePlacement');
 
   const placementSuggestions = await yamlCompletions(page, {
     document: 'stylesheet',

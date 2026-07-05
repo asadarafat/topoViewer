@@ -422,6 +422,7 @@ export function compileNodeStyle(style: StyleDeclaration, entity: GraphEntity, s
   const badgePosition = normalizeNodeBadgePosition(style.badgePosition) || String(styleDefaultValue('node', 'badgePosition') || 'topRight');
   const statusColor = aggregateStatusColor(style, entity);
   const statusPlacement = normalizeNodeStatusPlacement(style.statusPlacement) || String(styleDefaultValue('node', 'statusPlacement') || 'bottomRight');
+  const statusSize = nonNegativeNumber(style.statusSize);
   const iconFit = normalizeNodeIconFit(style.iconFit);
   const iconClipStyle = iconClipForNodeShape(shape, shapePoints);
   const metaVisible = !isTransparentColor(style.metaColor) && !isZeroNumber(style.metaFontSize);
@@ -548,7 +549,14 @@ export function compileNodeStyle(style: StyleDeclaration, entity: GraphEntity, s
       badgeStyle: withoutUndefined({
         color: style.badgeColor,
         backgroundColor: style.badgeBackgroundColor,
-        borderColor: style.badgeBorderColor
+        borderColor: style.badgeBorderColor,
+        borderWidth: cssPixel(style.badgeBorderWidth),
+        fontSize: cssPixel(style.badgeFontSize),
+        fontWeight: style.badgeFontWeight,
+        minWidth: cssPixel(style.badgeMinWidth),
+        minHeight: cssPixel(style.badgeMinHeight),
+        padding: cssPadding(style.badgePadding),
+        '--topoviewer-node-badge-offset': cssPixel(style.badgeOffset)
       }),
       nodeLayout,
       cardTitle: nodeLayout ? fieldText(entity, nodeLayout.content.titleField) || displayName(entity) : undefined,
@@ -585,12 +593,12 @@ export function compileNodeStyle(style: StyleDeclaration, entity: GraphEntity, s
         objectPosition: 'center',
         objectFit: iconFit
       }) : undefined,
-      cardBadgePosition: nodeLayout?.icon.badgePlacement || badgePosition,
       statusPlacement,
       statusStyle: statusColor === undefined ? undefined : withoutUndefined({
         backgroundColor: statusColor,
-        width: cssPixel(style.statusSize),
-        height: cssPixel(style.statusSize)
+        width: cssPixel(statusSize),
+        height: cssPixel(statusSize),
+        '--topoviewer-node-status-offset': statusSize === undefined ? undefined : `${statusSize / 2}px`
       })
     }
   };

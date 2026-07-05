@@ -11,7 +11,9 @@
   - left icon cell;
   - title from `name`;
   - subtitle from `data.subtitle`;
-  - icon-scoped badge through `icon.badgePlacement`;
+  - node-shell badge through `badgePosition`;
+  - node-shell status marker through `statusPlacement`;
+  - inline SVG router icon in the card icon cell;
   - two links connecting three card nodes.
 - Expanded `topoviewer-stylesheet.md` with a dedicated card node layout section that explains `shape` versus `nodeLayout`.
 - Regenerated projected docs and examples.

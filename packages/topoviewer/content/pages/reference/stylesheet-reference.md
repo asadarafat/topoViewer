@@ -12,8 +12,15 @@ Use [Style Your First Topology](../start/style-your-first-topology.md) and [Topo
 | `backgroundColor` | color | Any CSS color or supported theme variable. | Falls back to the selected icon fill. Fallback: `#6ea8fe`. | Node body fill. |
 | `badgeBackgroundColor` | color | Any CSS color or supported theme variable. | No TopoViewer default; authored only. | Compact node badge background color. |
 | `badgeBorderColor` | color | Any CSS color or supported theme variable. | No TopoViewer default; authored only. | Compact node badge border color. |
+| `badgeBorderWidth` | integer | Finite integer number. | Falls back to the compact badge CSS border width. Fallback: `1`. | Compact node badge border width. |
 | `badgeColor` | color | Any CSS color or supported theme variable. | No TopoViewer default; authored only. | Compact node badge text color. |
+| `badgeFontSize` | integer | Finite integer number. | Falls back to the compact badge CSS font size. Fallback: `9`. | Compact node badge font size. |
+| `badgeFontWeight` | text | String value. | Falls back to the compact badge CSS font weight. Fallback: `850`. | Compact node badge font weight. |
 | `badgeLabel` | text | String value. | Aggregate nodes can derive badge text from hidden member count. | Compact node badge label. |
+| `badgeMinHeight` | integer | Finite integer number. | Falls back to the compact badge CSS minimum height. Fallback: `16`. | Compact node badge minimum height. |
+| `badgeMinWidth` | integer | Finite integer number. | Falls back to the compact badge CSS minimum width. Fallback: `16`. | Compact node badge minimum width. |
+| `badgeOffset` | integer | Finite integer number. | Falls back to the compact badge CSS corner offset. Fallback: `7`. | Corner offset used for positioned node badges. |
+| `badgePadding` | integer | Finite integer number. | Falls back to the compact badge CSS padding. Fallback: `2`. | Compact node badge padding. |
 | `badgePosition` | enum | `topLeft`, `topRight`, `bottomLeft`, `bottomRight` | Defaults to `topRight`. | Compact node badge placement. |
 | `borderColor` | color | Any CSS color or supported theme variable. | Falls back to the selected icon stroke. Fallback: `#d8e8ff`. | Node body border color. |
 | `borderDashPattern` | numberList | Space-separated string, comma-separated string, number, or number array. | No TopoViewer default; authored only. | Explicit SVG dash pattern for the node body border. |

@@ -391,11 +391,16 @@ test.describe('TopoViewer package interactions', () => {
       const title = node?.querySelector('.topoviewer-node-card-title');
       const subtitle = node?.querySelector('.topoviewer-node-card-subtitle');
       const badge = node?.querySelector('.topoviewer-node-badge');
+      const status = node?.querySelector('.topoviewer-node-status');
+      const cluster = node?.querySelector('.topoviewer-node-corner-cluster');
       const externalLabel = node?.querySelector('.topoviewer-node-label');
       const edge = viewer.querySelector('.topoviewer-edge-visible-path');
       const cardBox = card?.getBoundingClientRect();
       const iconBox = icon?.getBoundingClientRect();
       const titleBox = title?.getBoundingClientRect();
+      const badgeBox = badge?.getBoundingClientRect();
+      const statusBox = status?.getBoundingClientRect();
+      const clusterBox = cluster?.getBoundingClientRect();
       const edgePath = edge?.getAttribute('d') || '';
 
       return {
@@ -408,6 +413,16 @@ test.describe('TopoViewer package interactions', () => {
         subtitle: subtitle?.textContent?.trim(),
         badge: badge?.textContent?.trim(),
         badgePosition: badge?.getAttribute('data-badge-position'),
+        badgeWidth: Math.round(badgeBox?.width || 0),
+        badgeHeight: Math.round(badgeBox?.height || 0),
+        clusterPosition: cluster?.getAttribute('data-corner-position'),
+        clusterOutsideCard: Boolean(cardBox && clusterBox && clusterBox.right > cardBox.right && clusterBox.top < cardBox.top),
+        statusPlacement: status?.getAttribute('data-status-placement'),
+        statusPriority: status?.getAttribute('data-status-priority'),
+        statusWidth: Math.round(statusBox?.width || 0),
+        statusHeight: Math.round(statusBox?.height || 0),
+        statusLeftOfBadge: Boolean(statusBox && badgeBox && statusBox.right <= badgeBox.left),
+        statusAlignedWithBadge: Boolean(statusBox && badgeBox && Math.abs((statusBox.top + statusBox.height / 2) - (badgeBox.top + badgeBox.height / 2)) <= 2),
         externalLabelCount: externalLabel ? 1 : 0,
         edgePath,
         invalidEdgePath: !edgePath || /NaN|undefined|null/.test(edgePath)
@@ -424,6 +439,16 @@ test.describe('TopoViewer package interactions', () => {
       subtitle: 'Ready / 3 pods',
       badge: '3',
       badgePosition: 'topRight',
+      badgeWidth: 22,
+      badgeHeight: 22,
+      clusterPosition: 'topRight',
+      clusterOutsideCard: true,
+      statusPlacement: 'topRight',
+      statusPriority: 'cluster',
+      statusWidth: 16,
+      statusHeight: 16,
+      statusLeftOfBadge: true,
+      statusAlignedWithBadge: true,
       externalLabelCount: 0,
       invalidEdgePath: false
     });

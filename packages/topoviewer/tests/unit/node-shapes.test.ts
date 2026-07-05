@@ -324,6 +324,14 @@ describe('declarative node shapes', () => {
             iconBackgroundColor: '#0f172a',
             badgeBackgroundColor: '#fee2e2',
             badgeColor: '#991b1b',
+            badgeBorderColor: '#ef4444',
+            badgeBorderWidth: 2,
+            badgeFontSize: 11,
+            badgeFontWeight: 900,
+            badgeMinWidth: 22,
+            badgeMinHeight: 22,
+            badgePadding: 3,
+            badgeOffset: 11,
             statusSize: 12
           }
         }
@@ -385,7 +393,15 @@ describe('declarative node shapes', () => {
     });
     expect(data.badgeStyle).toMatchObject({
       color: '#991b1b',
-      backgroundColor: '#fee2e2'
+      backgroundColor: '#fee2e2',
+      borderColor: '#ef4444',
+      borderWidth: '2px',
+      fontSize: '11px',
+      fontWeight: 900,
+      minWidth: '22px',
+      minHeight: '22px',
+      padding: '3px',
+      '--topoviewer-node-badge-offset': '11px'
     });
     expect(data.statusStyle).toMatchObject({
       backgroundColor: '#dc2626',
@@ -441,14 +457,18 @@ describe('declarative node shapes', () => {
             icon: 'service',
             iconPadding: 8,
             badgeLabel: '3',
+            badgeFontSize: 11,
+            badgeMinWidth: 22,
+            badgeMinHeight: 22,
+            badgePadding: 3,
+            badgeOffset: 11,
             nodeLayout: {
               type: 'card',
               direction: 'horizontal',
               icon: {
                 placement: 'left',
                 width: 44,
-                height: 44,
-                badgePlacement: 'topRight'
+                height: 44
               },
               content: {
                 align: 'left',
@@ -473,8 +493,7 @@ describe('declarative node shapes', () => {
       icon: {
         placement: 'left',
         width: 44,
-        height: 44,
-        badgePlacement: 'topRight'
+        height: 44
       },
       content: {
         align: 'left',
@@ -486,7 +505,14 @@ describe('declarative node shapes', () => {
     expect(data.cardSubtitle).toBe('Ready / 3 pods');
     expect(data.cardIconStyle).toMatchObject({ width: 44, height: 44 });
     expect(data.cardIconContentStyle).toMatchObject({ padding: '8px' });
-    expect(data.cardBadgePosition).toBe('topRight');
+    expect(data.badgePosition).toBe('topRight');
+    expect(data.badgeStyle).toMatchObject({
+      fontSize: '11px',
+      minWidth: '22px',
+      minHeight: '22px',
+      padding: '3px',
+      '--topoviewer-node-badge-offset': '11px'
+    });
   });
 
   it('reports card node layout when the effective node shape is not roundRectangle', () => {
@@ -527,8 +553,7 @@ describe('declarative node shapes', () => {
                 direction: 'vertical',
                 icon: {
                   placement: 'right',
-                  width: -1,
-                  badgePlacement: 'upperRight'
+                  width: -1
                 },
                 content: {
                   align: 'start',
@@ -540,6 +565,36 @@ describe('declarative node shapes', () => {
         ]
       }
     })).toThrow(/nodeLayout/);
+  });
+
+  it('reports icon-scoped card badge placement as unsupported semantic lint', () => {
+    const issues = lintTopoDocument({
+      graph: {
+        nodes: [
+          {
+            id: 'bad-card-badge',
+            name: 'Bad Card Badge',
+            style: {
+              shape: 'roundRectangle',
+              nodeLayout: {
+                type: 'card',
+                icon: {
+                  badgePlacement: 'topRight'
+                }
+              }
+            }
+          }
+        ]
+      }
+    }, { requireNames: false });
+
+    expect(issues).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        code: 'unsupported-node-layout-icon-badge-placement',
+        path: 'graph.nodes[0].style.nodeLayout.icon.badgePlacement',
+        severity: 'error'
+      })
+    ]));
   });
 
   it('reports invalid enhanced node style controls', () => {

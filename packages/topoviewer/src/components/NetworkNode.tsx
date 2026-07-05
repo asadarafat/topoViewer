@@ -188,6 +188,10 @@ export function NetworkNode({ data }: { data: CompiledNodeData }) {
     fontWeight: (data.metaStyle as CSSProperties | undefined)?.fontWeight,
     textAlign: (data.cardContentStyle as CSSProperties | undefined)?.textAlign
   };
+  const badgePosition = data.badgePosition || 'topRight';
+  const statusPlacement = data.statusPlacement || 'bottomRight';
+  const badgeStatusCluster = Boolean(cardLayout && data.badgeLabel && data.statusStyle && badgePosition === statusPlacement && statusPlacement !== 'center');
+  const statusPriority = badgeStatusCluster ? 'cluster' : undefined;
 
   return (
     <div
@@ -264,15 +268,6 @@ export function NetworkNode({ data }: { data: CompiledNodeData }) {
                     icon.glyph
                   )}
                 </span>
-                {data.badgeLabel ? (
-                  <span
-                    className="topoviewer-node-badge"
-                    data-badge-position={data.cardBadgePosition || data.badgePosition || 'topRight'}
-                    style={data.badgeStyle as CSSProperties}
-                  >
-                    {data.badgeLabel}
-                  </span>
-                ) : null}
               </div>
               <div className="topoviewer-node-card-content" style={data.cardContentStyle as CSSProperties}>
                 <div className="topoviewer-node-card-title" style={cardTitleStyle}>
@@ -285,13 +280,42 @@ export function NetworkNode({ data }: { data: CompiledNodeData }) {
                 ) : null}
               </div>
             </div>
-            {data.statusStyle ? (
-              <span
-                className="topoviewer-node-status"
-                data-status-placement={data.statusPlacement || 'bottomRight'}
-                style={data.statusStyle as CSSProperties}
-              />
-            ) : null}
+            {badgeStatusCluster ? (
+              <span className="topoviewer-node-corner-cluster" data-corner-position={badgePosition}>
+                <span
+                  className="topoviewer-node-status"
+                  data-status-placement={statusPlacement}
+                  data-status-priority={statusPriority}
+                  style={data.statusStyle as CSSProperties}
+                />
+                <span
+                  className="topoviewer-node-badge"
+                  data-badge-position={badgePosition}
+                  style={data.badgeStyle as CSSProperties}
+                >
+                  {data.badgeLabel}
+                </span>
+              </span>
+            ) : (
+              <>
+                {data.badgeLabel ? (
+                  <span
+                    className="topoviewer-node-badge"
+                    data-badge-position={badgePosition}
+                    style={data.badgeStyle as CSSProperties}
+                  >
+                    {data.badgeLabel}
+                  </span>
+                ) : null}
+                {data.statusStyle ? (
+                  <span
+                    className="topoviewer-node-status"
+                    data-status-placement={statusPlacement}
+                    style={data.statusStyle as CSSProperties}
+                  />
+                ) : null}
+              </>
+            )}
           </div>
           <Handle className="topoviewer-node-handle topoviewer-node-handle-default" type="source" position={Position.Right} />
         </>
@@ -365,7 +389,7 @@ export function NetworkNode({ data }: { data: CompiledNodeData }) {
         {data.badgeLabel ? (
           <span
             className="topoviewer-node-badge"
-            data-badge-position={data.badgePosition || 'topRight'}
+            data-badge-position={badgePosition}
             style={data.badgeStyle as CSSProperties}
           >
             {data.badgeLabel}
@@ -374,7 +398,7 @@ export function NetworkNode({ data }: { data: CompiledNodeData }) {
         {data.statusStyle ? (
           <span
             className="topoviewer-node-status"
-            data-status-placement={data.statusPlacement || 'bottomRight'}
+            data-status-placement={statusPlacement}
             style={data.statusStyle as CSSProperties}
           />
         ) : null}

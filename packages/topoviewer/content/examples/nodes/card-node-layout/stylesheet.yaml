@@ -3,10 +3,48 @@ layout:
   width: 760
   height: 300
 icons:
-  frontend:
-    glyph: API
-    fill: "#1976d2"
-    stroke: "#bbdefb"
+  router.nokia:
+    glyph: "N"
+    alt: Nokia router
+    svg: |
+      <svg
+        xmlns:xlink="http://www.w3.org/1999/xlink"
+        xmlns="http://www.w3.org/2000/svg"
+        xml:space="preserve"
+        style="enable-background:new 0 0 120 120;"
+        viewBox="0 0 120 120"
+        y="0px"
+        x="0px"
+        id="Layer_1"
+        version="1.1"
+        width="120px"
+        height="120px"
+        fill="none"
+      >
+        <style type="text/css">
+          .st0 { fill: #001135; }
+          .st1 { fill: none; stroke: #FFFFFF; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; stroke-miterlimit: 10; }
+        </style>
+        <rect height="120" width="120" class="st0" />
+        <g>
+          <g>
+            <path d="M71.7,19.7V48h28" class="st1" />
+            <path d="M91.2,38.5l7.5,7.6c1.3,1.3,1.3,3.1,0,4.3L91.1,58" class="st1" />
+          </g>
+          <g>
+            <path d="M20,47.8h28.4v-28" class="st1" />
+            <path d="M38.8,28.3l7.6-7.5c1.3-1.3,3.1-1.3,4.3,0l7.7,7.6" class="st1" />
+          </g>
+          <g>
+            <path d="M48,100.3V72H20" class="st1" />
+            <path d="M28.5,81.5L21,73.9c-1.3-1.3-1.3-3.1,0-4.3l7.6-7.7" class="st1" />
+          </g>
+          <g>
+            <path d="M100,71.9H71.6v28" class="st1" />
+            <path d="M81.2,91.4l-7.6,7.5c-1.3,1.3-3.1,1.3-4.3,0l-7.7-7.6" class="st1" />
+          </g>
+        </g>
+      </svg>
   service:
     glyph: SVC
     fill: "#2e7d32"
@@ -33,8 +71,16 @@ stylesheet:
       badgeColor: "#0f172a"
       badgeBackgroundColor: "#e0f2fe"
       badgeBorderColor: "#38bdf8"
+      badgeBorderWidth: 2
+      badgeFontSize: 11
+      badgeFontWeight: 900
+      badgeMinWidth: 22
+      badgeMinHeight: 22
+      badgePadding: 3
+      badgeOffset: 11
+      badgePosition: topRight
       statusPlacement: topRight
-      statusSize: 10
+      statusSize: 16
       nodeLayout:
         type: card
         direction: horizontal
@@ -42,14 +88,13 @@ stylesheet:
           placement: left
           width: 44
           height: 44
-          badgePlacement: topRight
         content:
           align: left
           titleField: name
           subtitleField: data.subtitle
   - selector: node[labels.role = "frontend"]
     style:
-      icon: frontend
+      icon: router.nokia
       borderColor: "#60a5fa"
       badgeLabel: "4"
   - selector: node[labels.role = "service"]

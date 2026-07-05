@@ -250,11 +250,11 @@ function nodeLayoutValueIssues(style: Record<string, unknown>, path: string): Li
         issues.push(issue('error', 'invalid-node-layout-icon-size', `nodeLayout.icon.${key} must be a positive number.`, `${path}.nodeLayout.icon.${key}`));
       }
     });
-    if (icon.badgePlacement !== undefined && !normalizeNodeBadgePosition(icon.badgePlacement)) {
+    if (icon.badgePlacement !== undefined) {
       issues.push(issue(
         'error',
-        'unsupported-node-layout-badge-placement',
-        `nodeLayout.icon.badgePlacement "${String(icon.badgePlacement)}" is not supported; use one of ${nodeBadgePositions.join(', ')}.`,
+        'unsupported-node-layout-icon-badge-placement',
+        'nodeLayout.icon.badgePlacement is not supported; use node-level badgePosition for card shell badges.',
         `${path}.nodeLayout.icon.badgePlacement`
       ));
     }
@@ -355,6 +355,12 @@ function nodeStyleIssues(style: Record<string, unknown> | undefined, path: strin
     'outlineWidth',
     'underlayPadding',
     'iconPadding',
+    'badgeBorderWidth',
+    'badgeFontSize',
+    'badgeMinWidth',
+    'badgeMinHeight',
+    'badgePadding',
+    'badgeOffset',
     'statusSize'
   ].forEach((key) => {
     issues.push(...nodeNonNegativeNumberIssue(style, key, path));

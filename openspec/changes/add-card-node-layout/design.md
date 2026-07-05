@@ -40,11 +40,12 @@ style:
       placement: left
       width: 44
       height: 44
-      badgePlacement: topRight
     content:
       align: left
       titleField: name
       subtitleField: data.subtitle
+  badgePosition: topRight
+  statusPlacement: bottomRight
 ```
 
 ## Shape Gate
@@ -74,7 +75,6 @@ type NodeLayoutStyle = {
     placement?: 'left';
     width?: number;
     height?: number;
-    badgePlacement?: 'topLeft' | 'topRight' | 'bottomLeft' | 'bottomRight';
   };
   content?: {
     align?: 'left' | 'center' | 'right';
@@ -123,24 +123,31 @@ Card rendering should preserve:
 - edge anchors based on the outer body box;
 - attention classes;
 - label collision and label z-index behavior for non-card labels;
+- node-level badge and status marker behavior;
 - export and screenshot behavior.
 
 The card body is still the node body. The internal icon cell is not the edge
-anchor. The icon-scoped badge is visual only.
+anchor.
 
 ## Badge Behavior
 
 Existing badge behavior remains compatible:
 
 - default layout uses existing `badgePosition` on the node body/icon frame;
-- card layout may use `nodeLayout.icon.badgePlacement` to attach the badge to
-  the icon cell;
-- if card layout omits `nodeLayout.icon.badgePlacement`, existing
-  `badgePosition` behavior should remain predictable and documented.
+- card layout uses existing `badgePosition` on the card shell;
+- card layout uses node-level badge size controls so larger cards can scale the
+  badge without creating a separate icon-scoped badge model;
+- card layout does not attach `badgeLabel` to the internal icon cell;
+- card corner status markers render outside the card shell so `topRight` and
+  `bottomRight` are visually readable on compact cards;
+- card corner status offset scales from `statusSize` so larger markers remain
+  anchored to the shell corner.
+- when a card badge and status marker target the same corner, they render as
+  one outside corner cluster so the status marker and badge read as one control.
 
-Do not introduce `badgePlacement: iconTopRight` as a flat value. Badge placement
-belongs either to the current node body placement enum or to the nested card
-icon layout.
+Do not introduce `badgePlacement: iconTopRight` or
+`nodeLayout.icon.badgePlacement`. Badge placement belongs to the existing
+node-level `badgePosition` enum.
 
 ## Schema And Style Metadata
 

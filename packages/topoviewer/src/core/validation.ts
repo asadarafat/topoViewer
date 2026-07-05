@@ -15,8 +15,7 @@ const nodeLayoutSchema = z.object({
   icon: z.object({
     placement: z.enum(['left']).optional(),
     width: z.number().positive().optional(),
-    height: z.number().positive().optional(),
-    badgePlacement: z.enum(['topLeft', 'topRight', 'bottomLeft', 'bottomRight']).optional()
+    height: z.number().positive().optional()
   }).passthrough().optional(),
   content: z.object({
     align: z.enum(['left', 'center', 'right']).optional(),

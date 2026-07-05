@@ -95,10 +95,6 @@
             "height": {
               "type": "number",
               "exclusiveMinimum": 0
-            },
-            "badgePlacement": {
-              "type": "string",
-              "enum": ["topLeft", "topRight", "bottomLeft", "bottomRight"]
             }
           }
         },
@@ -304,6 +300,36 @@
         },
         "badgeBorderColor": {
           "type": "string"
+        },
+        "badgeBorderWidth": {
+          "type": "number",
+          "minimum": 0
+        },
+        "badgeFontSize": {
+          "type": "number",
+          "minimum": 0
+        },
+        "badgeFontWeight": {
+          "oneOf": [
+            { "type": "string" },
+            { "type": "number" }
+          ]
+        },
+        "badgeMinWidth": {
+          "type": "number",
+          "minimum": 0
+        },
+        "badgeMinHeight": {
+          "type": "number",
+          "minimum": 0
+        },
+        "badgePadding": {
+          "type": "number",
+          "minimum": 0
+        },
+        "badgeOffset": {
+          "type": "number",
+          "minimum": 0
         },
         "badgePosition": {
           "type": "string",

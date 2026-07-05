@@ -256,11 +256,18 @@ stylesheet:
           placement: left
           width: 44
           height: 44
-          badgePlacement: topRight
         content:
           align: left
           titleField: name
           subtitleField: data.subtitle
+      badgePosition: topRight
+      badgeFontSize: 11
+      badgeMinWidth: 22
+      badgeMinHeight: 22
+      badgePadding: 3
+      badgeOffset: 11
+      statusPlacement: topRight
+      statusSize: 16
 ```
 
 Supported card fields:
@@ -269,10 +276,19 @@ Supported card fields:
 - `direction`: currently `horizontal`.
 - `icon.placement`: currently `left`.
 - `icon.width` and `icon.height`: icon box dimensions in pixels.
-- `icon.badgePlacement`: currently `topRight`.
 - `content.align`: `left`, `center`, or `right`.
 - `content.titleField`: node field path used for the primary text.
 - `content.subtitleField`: node field path used for secondary text.
+
+Badges and status markers remain node-level controls. Use `badgeLabel` and
+`badgePosition` for a TurboFlow-style badge on the card shell. Use
+`badgeFontSize`, `badgeMinWidth`, `badgeMinHeight`, `badgePadding`,
+`badgeBorderWidth`, and `badgeOffset` when the compact defaults are too small
+for card-sized nodes. Use `statusColor`, `statusPlacement`, and `statusSize`
+for the status marker. Card nodes place corner status markers outside the card
+body and auto-anchor the marker from `statusSize`. When a card badge and status
+marker use the same corner, TopoViewer renders them as one corner cluster. The
+status dot sits beside the badge so the corner reads as one designed control.
 
 The runtime rejects card layout on effective node shapes other than
 `roundRectangle`. Use normal label and icon styles when the node should remain
@@ -309,7 +325,7 @@ positions before falling back to opacity reduction in unavoidable dense cases.
 
 This is a compact index of canonical camelCase keys accepted by the runtime. Use [Stylesheet Reference](./stylesheet-reference.md) for exact data types, accepted enum values, defaults, and target-specific notes.
 
-- Node keys: `shape`, `nodeLayout`, `shapePolygonPoints`, `width`, `height`, `backgroundColor`, `borderColor`, `borderWidth`, `borderStyle`, `borderDashPattern`, `borderOpacity`, `outlineColor`, `outlineWidth`, `outlineOpacity`, `underlayColor`, `underlayPadding`, `underlayOpacity`, `icon`, `iconSize`, `iconWidth`, `iconHeight`, `iconColor`, `iconFit`, `iconPadding`, `iconBackgroundColor`, `iconOpacity`, `labelPosition`, `labelColor`, `labelFontSize`, `labelFontWeight`, `labelOpacity`, `labelBackgroundColor`, `labelBackgroundOpacity`, `labelBorderColor`, `labelBorderWidth`, `labelPadding`, `labelTextMaxWidth`, `labelTextWrap`, `labelTextOverflow`, `labelTextAlign`, `labelXOffset`, `labelYOffset`, `labelCollisionPolicy`, `labelZIndex`, `minZoomedLabelFontSize`, `metaColor`, `metaFontSize`, `metaFontWeight`, `metaZIndex`, `badgeLabel`, `badgePosition`, `badgeColor`, `badgeBackgroundColor`, `badgeBorderColor`, `statusColor`, `statusPlacement`, `statusSize`, `display`, `draggable`, `selectable`, `opacity`, `zIndex`.
+- Node keys: `shape`, `nodeLayout`, `shapePolygonPoints`, `width`, `height`, `backgroundColor`, `borderColor`, `borderWidth`, `borderStyle`, `borderDashPattern`, `borderOpacity`, `outlineColor`, `outlineWidth`, `outlineOpacity`, `underlayColor`, `underlayPadding`, `underlayOpacity`, `icon`, `iconSize`, `iconWidth`, `iconHeight`, `iconColor`, `iconFit`, `iconPadding`, `iconBackgroundColor`, `iconOpacity`, `labelPosition`, `labelColor`, `labelFontSize`, `labelFontWeight`, `labelOpacity`, `labelBackgroundColor`, `labelBackgroundOpacity`, `labelBorderColor`, `labelBorderWidth`, `labelPadding`, `labelTextMaxWidth`, `labelTextWrap`, `labelTextOverflow`, `labelTextAlign`, `labelXOffset`, `labelYOffset`, `labelCollisionPolicy`, `labelZIndex`, `minZoomedLabelFontSize`, `metaColor`, `metaFontSize`, `metaFontWeight`, `metaZIndex`, `badgeLabel`, `badgePosition`, `badgeColor`, `badgeBackgroundColor`, `badgeBorderColor`, `badgeBorderWidth`, `badgeFontSize`, `badgeFontWeight`, `badgeMinWidth`, `badgeMinHeight`, `badgePadding`, `badgeOffset`, `statusColor`, `statusPlacement`, `statusSize`, `display`, `draggable`, `selectable`, `opacity`, `zIndex`.
 - Link keys: `labelXOffset`, `labelYOffset`, `directionalStrokes`, `directionCenterGap`, `directionStartGap`, `directionLabelPlacement`, `directionLabelOffset`, `directionLabelRotation`, `directionOverlayLayer`, `label`, `lineColor`, `lineWidth`, `lineStyle`, `lineDashPattern`, `lineDashOffset`, `lineCap`, `lineOutlineWidth`, `lineOutlineColor`, `lineOpacity`, `lineFill`, `lineGradientStopColors`, `lineGradientStopPositions`, `curveStyle`, `anchor`, `controlPointStepSize`, `controlPointDistance`, `controlPointWeight`, `edgeDistances`, `segmentDistances`, `segmentWeights`, `taxiDirection`, `taxiTurn`, `taxiTurnMinDistance`, `sourceDistanceFromNode`, `targetDistanceFromNode`, `arrowColor`, `targetArrowShape`, `targetArrowColor`, `targetArrowBorderColor`, `targetArrowBorderWidth`, `targetArrowSize`, `targetArrowOffset`, `sourceArrowShape`, `sourceArrowColor`, `sourceArrowBorderColor`, `sourceArrowBorderWidth`, `sourceArrowSize`, `sourceArrowOffset`, `edgeLabelColor`, `labelColor`, `labelFontSize`, `labelFontWeight`, `labelFontStyle`, `labelCollisionPolicy`, `labelBorderColor`, `labelBorderWidth`, `textBackgroundColor`, `textBackgroundOpacity`, `labelZIndex`, `sourceLabel`, `sourceLabelColor`, `sourceLabelBackgroundColor`, `sourceLabelBorderColor`, `sourceLabelBorderWidth`, `sourceLabelFontSize`, `sourceLabelFontWeight`, `sourceLabelFontStyle`, `sourceLabelOpacity`, `sourceLabelAutoPosition`, `sourceLabelDistance`, `sourceLabelMaxDistance`, `sourceLabelSideOffset`, `sourceLabelZIndex`, `targetLabel`, `targetLabelColor`, `targetLabelBackgroundColor`, `targetLabelBorderColor`, `targetLabelBorderWidth`, `targetLabelFontSize`, `targetLabelFontWeight`, `targetLabelFontStyle`, `targetLabelOpacity`, `targetLabelAutoPosition`, `targetLabelDistance`, `targetLabelMaxDistance`, `targetLabelSideOffset`, `targetLabelZIndex`, `sourceLabelXOffset`, `sourceLabelYOffset`, `targetLabelXOffset`, `targetLabelYOffset`, `endpointLabelAutoPosition`, `endpointLabelDistance`, `endpointLabelMaxDistance`, `endpointLabelSideOffset`, `endpointLabelOverlayLayer`, `sourceLabelOverlayLayer`, `targetLabelOverlayLayer`, `interactive`, `interactionWidth`, `labelInteractive`, `display`, `opacity`, `zIndex`.
 - `linkDirection` selectors reuse the link stroke, arrow, label, display, opacity, and z-index keys for source-to-target and target-to-source directional lanes.
 - Path keys: `labelXOffset`, `labelYOffset`, `label`, `lineColor`, `lineWidth`, `lineStyle`, `lineDashPattern`, `lineDashOffset`, `lineCap`, `lineOpacity`, `curveStyle`, `anchor`, `controlPointStepSize`, `controlPointDistance`, `controlPointWeight`, `edgeDistances`, `segmentDistances`, `segmentWeights`, `taxiDirection`, `taxiTurn`, `taxiTurnMinDistance`, `arrowColor`, `targetArrowShape`, `targetArrowColor`, `targetArrowBorderColor`, `targetArrowBorderWidth`, `targetArrowSize`, `targetArrowOffset`, `sourceArrowShape`, `sourceArrowColor`, `sourceArrowBorderColor`, `sourceArrowBorderWidth`, `sourceArrowSize`, `sourceArrowOffset`, `edgeLabelColor`, `labelColor`, `labelFontSize`, `labelFontWeight`, `labelFontStyle`, `labelCollisionPolicy`, `labelZIndex`, `sourceLabel`, `sourceLabelZIndex`, `targetLabel`, `targetLabelZIndex`, `sourceLabelXOffset`, `sourceLabelYOffset`, `targetLabelXOffset`, `targetLabelYOffset`, `laneWidth`, `laneGap`, `pipe`, `pipeWidth`, `pipeFill`, `pipeBorderColor`, `pipeBorderWidth`, `pipeOpacity`, `animated`, `interactive`, `display`, `opacity`, `zIndex`.

@@ -76,23 +76,43 @@ paths.
 - **AND** rendering SHALL continue without diagnostics unless the field path
   itself is syntactically invalid
 
-### Requirement: Icon-Scoped Badge Placement
+### Requirement: Card Shell Badge And Status Placement
 
-TopoViewer SHALL support badge placement relative to the icon cell for card
-nodes.
+TopoViewer SHALL keep badge and status placement as node-level controls for
+card nodes.
 
-#### Scenario: Badge attaches to icon cell
+#### Scenario: Badge attaches to card shell
 
-- **WHEN** a card layout declares `nodeLayout.icon.badgePlacement: topRight`
-- **AND** the node has `badgeLabel`
-- **THEN** TopoViewer SHALL render the badge at the top-right of the card icon
-  cell
-- **AND** the badge SHALL not be positioned relative to the entire card body
+- **WHEN** a card node has `badgeLabel`
+- **AND** the effective style declares `badgePosition: topRight`
+- **THEN** TopoViewer SHALL render the badge at the top-right of the card shell
+- **AND** the badge SHALL not be positioned relative to the internal icon cell
 
-#### Scenario: Existing badge placement remains compatible
+#### Scenario: Badge sizing is configurable
 
-- **WHEN** a non-card node declares `badgePosition`
-- **THEN** TopoViewer SHALL keep the existing badge placement behavior
+- **WHEN** a card node style declares node-level badge sizing controls
+- **THEN** TopoViewer SHALL apply the controls to the card shell badge
+- **AND** supported controls SHALL include font size, font weight, minimum width,
+  minimum height, padding, border width, and corner offset
+
+#### Scenario: Status marker sits outside compact card corners
+
+- **WHEN** a card node has `statusColor`
+- **AND** the effective style declares a corner `statusPlacement`
+- **AND** no badge uses the same corner
+- **THEN** TopoViewer SHALL render the status marker outside the card body at
+  that corner
+- **AND** the corner offset SHALL scale with `statusSize`
+
+#### Scenario: Badge and status share one corner
+
+- **WHEN** a card node has both `badgeLabel` and `statusColor`
+- **AND** the effective `badgePosition` and corner `statusPlacement` are the
+  same value
+- **THEN** TopoViewer SHALL render the badge and status marker as one corner
+  cluster
+- **AND** the status marker SHALL sit beside the badge
+- **AND** the cluster SHALL keep the outside corner position
 
 ### Requirement: Card Schema, Lint, And YAML Assist
 

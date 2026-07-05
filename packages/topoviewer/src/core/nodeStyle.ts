@@ -40,7 +40,6 @@ export interface NodeLayoutCardStyle {
     placement: NodeLayoutIconPlacement;
     width: number;
     height: number;
-    badgePlacement?: NodeBadgePosition;
   };
   content: {
     align: NodeLayoutContentAlign;
@@ -159,7 +158,6 @@ export function normalizeNodeLayout(value: unknown): NodeLayoutCardStyle | undef
 
   const icon = recordValue(layout.icon) || {};
   const content = recordValue(layout.content) || {};
-  const badgePlacement = normalizeNodeBadgePosition(icon.badgePlacement);
   const titleField = typeof content.titleField === 'string' && content.titleField.trim()
     ? content.titleField.trim()
     : 'name';
@@ -173,8 +171,7 @@ export function normalizeNodeLayout(value: unknown): NodeLayoutCardStyle | undef
     icon: {
       placement: normalizeNodeLayoutIconPlacement(icon.placement) || 'left',
       width: positiveOrDefault(icon.width, 44),
-      height: positiveOrDefault(icon.height, 44),
-      badgePlacement
+      height: positiveOrDefault(icon.height, 44)
     },
     content: {
       align: normalizeNodeLayoutContentAlign(content.align) || 'left',

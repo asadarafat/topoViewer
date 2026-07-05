@@ -5,7 +5,7 @@
 - Added canonical style metadata for `nodeLayout` as an object-valued node style key.
 - Updated shared YAML authoring intelligence so nested `nodeLayout` contexts suggest:
   - root keys: `type`, `direction`, `icon`, `content`;
-  - icon keys: `placement`, `width`, `height`, `badgePlacement`;
+  - icon keys: `placement`, `width`, `height`;
   - content keys: `align`, `titleField`, `subtitleField`;
   - enum/value suggestions for supported card values.
 - Reused the shared webview authoring implementation used by the browser harness and VS Code harness.

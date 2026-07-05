@@ -6,11 +6,11 @@
 - Added Zod validation for supported card values.
 - Added canonical style metadata for `nodeLayout`.
 - Added TypeScript card layout types and package exports.
-- Added node layout normalizers for type, direction, icon placement, content alignment, icon size, and icon badge placement.
+- Added node layout normalizers for type, direction, icon placement, content alignment, and icon size.
 - Added semantic lint for invalid nested values and effective-style shape gate:
   `nodeLayout.type: card` requires `shape: roundRectangle`.
 - Added compiler field resolution for `id`, `name`, `label`, `labels.*`, `data.*`, and direct data fields.
-- Added compiled renderer metadata: `nodeLayout`, `cardTitle`, `cardSubtitle`, `cardIconStyle`, `cardIconContentStyle`, `cardIconImageStyle`, `cardContentStyle`, and `cardBadgePosition`.
+- Added compiled renderer metadata: `nodeLayout`, `cardTitle`, `cardSubtitle`, `cardIconStyle`, `cardIconContentStyle`, `cardIconImageStyle`, and `cardContentStyle`.
 - Synced generated object/style reference docs because the style registry guard requires public style-key discoverability.
 
 ## Evidence Commands

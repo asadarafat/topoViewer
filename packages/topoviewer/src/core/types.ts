@@ -326,7 +326,6 @@ export interface CompiledNodeData extends GraphNode, Record<string, unknown> {
   cardIconStyle?: CSSProperties;
   cardIconContentStyle?: CSSProperties;
   cardIconImageStyle?: CSSProperties;
-  cardBadgePosition?: string;
   statusPlacement?: string;
   statusStyle?: CSSProperties;
   containedChildCount?: number;

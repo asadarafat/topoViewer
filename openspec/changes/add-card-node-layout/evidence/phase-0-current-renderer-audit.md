@@ -46,7 +46,6 @@ style:
       placement: left
       width: 44
       height: 44
-      badgePlacement: topRight
     content:
       align: left
       titleField: name

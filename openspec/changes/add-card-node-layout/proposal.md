@@ -32,11 +32,12 @@ style:
       placement: left
       width: 44
       height: 44
-      badgePlacement: topRight
     content:
       align: left
       titleField: name
       subtitleField: data.subtitle
+  badgePosition: topRight
+  statusPlacement: bottomRight
 ```
 
 The contract deliberately separates outer shape from inner layout:
@@ -44,6 +45,9 @@ The contract deliberately separates outer shape from inner layout:
 - `shape` remains the node geometry and edge-boundary contract.
 - `nodeLayout` controls the internal content arrangement.
 - `nodeLayout.type: card` is valid only with `shape: roundRectangle`.
+- `badgePosition` and `statusPlacement` remain node-level controls on the card
+  shell, not icon-cell controls.
+- Node-level badge sizing controls scale shell badges for card-sized nodes.
 - The existing default node layout remains unchanged when `nodeLayout` is
   absent.
 

@@ -14,7 +14,6 @@ interface NodeLayoutRequest {
 
 export const nodeLayoutKeyDocumentation: Record<string, string> = {
   align: 'Horizontal alignment for card content text.',
-  badgePlacement: 'Placement for a badge scoped to the card icon box.',
   content: 'Card text content configuration.',
   direction: 'Card layout direction. Horizontal cards place the icon beside text content.',
   height: 'Card icon box height in pixels.',
@@ -81,7 +80,7 @@ function nodeLayoutPathContext(path: string[]) {
 
 function nodeLayoutKeySuggestions(path: string[]): NodeLayoutSuggestion[] {
   const context = nodeLayoutPathContext(path);
-  if (context === 'icon') return ['placement', 'width', 'height', 'badgePlacement'].map(nodeLayoutKeySuggestion);
+  if (context === 'icon') return ['placement', 'width', 'height'].map(nodeLayoutKeySuggestion);
   if (context === 'content') return ['align', 'titleField', 'subtitleField'].map(nodeLayoutKeySuggestion);
   if (context === 'root') return ['type', 'direction', 'icon', 'content'].map(nodeLayoutKeySuggestion);
   return [];
@@ -98,7 +97,6 @@ function nodeLayoutValueSuggestions(key: string): NodeLayoutSuggestion[] {
   if (key === 'type') return referenceSuggestions(['card'], 'nodeLayout type');
   if (key === 'direction') return referenceSuggestions(['horizontal'], 'nodeLayout direction');
   if (key === 'placement') return referenceSuggestions(['left'], 'Card icon placement');
-  if (key === 'badgePlacement') return referenceSuggestions(['topRight'], 'Card icon badge placement');
   if (key === 'align') return referenceSuggestions(['left', 'center', 'right'], 'Card content alignment');
   if (key === 'width' || key === 'height') {
     return integerValueSuggestions.map((value) => ({
