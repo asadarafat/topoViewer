@@ -85,6 +85,6 @@ produce measurable evidence before implementation advances.
 - [x] 7.4 Run focused Playwright tests for card layout example
 - [x] 7.5 Run `npm run render:parity`
 - [x] 7.6 Run `npm run docs:lint`
-- [ ] 7.7 Run full `npm run ci`
-- [ ] 7.8 Write final evidence: `evidence/phase-7-final-validation.md`
-- [ ] 7.9 Archive only after implementation, docs, examples, and final validation evidence are complete
+- [x] 7.7 Run full `npm run ci`
+- [x] 7.8 Write final evidence: `evidence/phase-7-final-validation.md`
+- [x] 7.9 Archive gate satisfied: implementation, docs, examples, and final validation evidence are complete; archive only when requested
