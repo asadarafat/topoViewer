@@ -52,6 +52,7 @@ export interface TopoViewerHelperLinesOptions {
   threshold?: number;
   showMidpoints?: boolean;
   candidateLimit?: number;
+  midpointCandidateLimit?: number;
 }
 ```
 
@@ -66,8 +67,13 @@ Normalization:
 - `false` or omitted means disabled;
 - `true` means `{ enabled: true, snap: true }`;
 - object form defaults `enabled` to true when the object is present;
-- default `threshold` should be small, likely 5 flow-coordinate pixels;
-- `candidateLimit` should prevent large-graph drag stalls.
+- default `threshold` is `5` flow-coordinate pixels;
+- default `snap` is `true`;
+- default `showMidpoints` is `false`;
+- default `candidateLimit` is `300`;
+- default `midpointCandidateLimit` is `80`;
+- midpoint guides are disabled automatically when visible candidate count is
+  greater than `midpointCandidateLimit`.
 
 This prop is runtime-only. It must not be added to `TopoDocument`, topology
 schema, stylesheet schema, mapper schema, generated fixture YAML, or mounted
@@ -90,6 +96,13 @@ Inputs:
 Candidate boxes should come from current React Flow nodes after layer,
 attention, collapsed-group, and show-region visibility has already been
 resolved. Hidden nodes and the dragged object must be excluded.
+
+Boxes must be in one shared flow-coordinate space. React Flow node positions can
+be parent-relative for child nodes, so implementation must prefer React Flow
+internal absolute positions when available and fall back to public node
+positions only for non-parented nodes. A helper that mixes parent-relative and
+absolute coordinates is not acceptable because it will align children,
+contained nodes, or aggregate nodes incorrectly.
 
 Initial alignment candidates:
 
@@ -132,6 +145,23 @@ The implementation should prefer transforming pending `NodeChange` position
 changes before they are applied, rather than performing unrelated state writes
 from an overlay component.
 
+Concrete integration path:
+
+1. Wrap the current `onNodesChange` handler in `TopoViewer.tsx`.
+2. For `position` changes with `dragging: true`, compute helper-line geometry
+   from current rendered node boxes.
+3. If snap is enabled and a snapped coordinate is available, replace
+   `change.position` before passing changes into `applyTopoNodeChanges`.
+4. Record the snapped runtime position in a drag-session ref keyed by runtime
+   node id.
+5. On `onNodeDragStop`, report the final position from the current nodes state
+   or the drag-session ref, not blindly from the React Flow event node argument.
+6. Clear helper-line and drag-session state after drag stop.
+
+This matters because the React Flow drag-stop event can carry the last event
+node, while TopoViewer state may already contain a transformed snapped position.
+The host callback must receive the same position the user sees.
+
 ## Object Scope
 
 The feature should align visible draggable React Flow nodes that represent
@@ -148,12 +178,20 @@ The feature should exclude:
 - pin nodes;
 - hidden nodes;
 - collapsed child nodes that are not rendered;
-- non-draggable objects;
 - nodes outside the current rendered React Flow surface.
+
+Dragged objects must be draggable. Candidate objects do not have to be
+draggable; a visible fixed region or fixed node can still be a useful alignment
+target. Candidate eligibility is based on rendered object kind and visibility,
+not on whether that candidate itself can be moved.
 
 Region dragging is a special case because moving a region also moves its
 members. Snapping a region must apply to the region hull position and let the
 existing region-drag translation path move members coherently.
+
+The snapped region position must be represented as the region node's position
+change before `applyTopoNodeChanges` runs. That preserves the existing delta
+calculation in `regionDrag.ts` and avoids a second movement path for members.
 
 ## Overlay Rendering
 
@@ -211,8 +249,10 @@ Docs examples:
 
 - Helper lines are runtime interaction state, not YAML.
 - Geometry is implemented as a pure, unit-tested module first.
-- Snapping is a real contract, not just a returned value ignored by the drag
-  wrapper.
-- Midpoint guides are optional and capped.
+- Snapping is implemented by transforming pending `NodeChange` position values,
+  not by drawing a line and hoping React Flow state catches up.
+- Drag-stop callbacks must resolve final position from snapped state.
+- Candidate boxes use absolute flow coordinates.
+- Midpoint guides are optional, off by default, and capped.
 - The first implementation should not attempt smart distribution, magnetic
   spacing grids, or full alignment panels.

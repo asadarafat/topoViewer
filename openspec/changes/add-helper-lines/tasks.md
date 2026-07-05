@@ -16,20 +16,25 @@ produce measurable evidence before implementation advances.
       topology/style/mapper YAML
 - [x] 0.6 Write source-study evidence:
       `evidence/phase-0-source-study.md`
+- [x] 0.7 Audit implementation weaknesses and harden the plan:
+      `evidence/phase-0-implementation-readiness-audit.md`
 
 ## 1. Baseline Evidence Before Implementation
 
 - [ ] 1.1 Capture the current browser harness drag behavior with no helper
       lines
 - [ ] 1.2 Capture the current Grafana local node-drag behavior with no helper
-      lines, if the Grafana lab is available
+      lines, if the Grafana lab is already available; do not block core
+      implementation on starting Grafana
 - [ ] 1.3 Confirm current `onNodePositionChange` reports unsnapped drag-stop
       coordinates
 - [ ] 1.4 Confirm region dragging still translates member nodes before the
       helper-lines feature is added
-- [ ] 1.5 Record baseline screenshots and notes in:
+- [ ] 1.5 Confirm whether parented/contained nodes expose absolute positions
+      through React Flow internals in the current renderer
+- [ ] 1.6 Record baseline screenshots and notes in:
       `evidence/phase-1-baseline-drag.md`
-- [ ] 1.6 Gate: do not add helper-line code until Phase 1 evidence exists
+- [ ] 1.7 Gate: do not add helper-line code until Phase 1 evidence exists
 
 ## 2. Contract Tests First
 
@@ -39,19 +44,25 @@ produce measurable evidence before implementation advances.
       excluded from candidates
 - [ ] 2.3 Add geometry tests for measured dimensions falling back to compiled
       dimensions when React Flow measurement is absent
-- [ ] 2.4 Add threshold tests proving near misses do not snap outside the
+- [ ] 2.4 Add geometry tests proving parent-relative nodes are converted to
+      absolute flow-coordinate boxes before alignment
+- [ ] 2.5 Add threshold tests proving near misses do not snap outside the
       configured threshold
-- [ ] 2.5 Add tests for guide-only mode where lines render but snapped position
+- [ ] 2.6 Add tests for guide-only mode where lines render but snapped position
       is not applied
-- [ ] 2.6 Add tests for snap mode where the snapped position is returned and
+- [ ] 2.7 Add tests for snap mode where the snapped position is returned and
       applied to pending node changes
-- [ ] 2.7 Add midpoint tests with a candidate cap so `O(n^2)` behavior is
+- [ ] 2.8 Add tests proving visible fixed objects can be alignment candidates
+      even when they are not draggable
+- [ ] 2.9 Add midpoint tests with a candidate cap so `O(n^2)` behavior is
       bounded
-- [ ] 2.8 Add region-drag contract tests proving snapped region movement still
+- [ ] 2.10 Add region-drag contract tests proving snapped region movement still
       translates region members coherently
-- [ ] 2.9 Write evidence:
+- [ ] 2.11 Add drag-stop callback tests proving `onNodePositionChange` reports
+      the snapped position, not a stale event-node position
+- [ ] 2.12 Write evidence:
       `evidence/phase-2-contract-tests.md`
-- [ ] 2.10 Gate: do not wire React components until Phase 2 tests exist and
+- [ ] 2.13 Gate: do not wire React components until Phase 2 tests exist and
       fail for missing implementation
 
 ## 3. Core Geometry And Interaction State
@@ -59,19 +70,23 @@ produce measurable evidence before implementation advances.
 - [ ] 3.1 Add `TopoViewerHelperLinesOptions` and normalized defaults to the
       public TypeScript API
 - [ ] 3.2 Implement a pure helper-line geometry module with no React dependency
-- [ ] 3.3 Add a React hook to hold helper-line state and throttle visual updates
+- [ ] 3.3 Add a helper to extract rendered object boxes in absolute flow
+      coordinates from React Flow internals with safe public-node fallbacks
+- [ ] 3.4 Add a React hook to hold helper-line state and throttle visual updates
       with `requestAnimationFrame`
-- [ ] 3.4 Add helper-line state cleanup for drag stop, cancelled drag, and
+- [ ] 3.5 Add helper-line state cleanup for drag stop, cancelled drag, and
       component unmount
-- [ ] 3.5 Intercept position changes so snap mode visibly snaps the dragged
-      object during drag
-- [ ] 3.6 Preserve existing behavior when helper lines are omitted or disabled
-- [ ] 3.7 Preserve region-drag member translation by routing snapped region
+- [ ] 3.6 Intercept `NodeChange` position changes so snap mode visibly snaps the
+      dragged object during drag
+- [ ] 3.7 Track snapped drag-session positions so drag-stop callbacks report
+      what the user sees
+- [ ] 3.8 Preserve existing behavior when helper lines are omitted or disabled
+- [ ] 3.9 Preserve region-drag member translation by routing snapped region
       changes through the existing `applyTopoNodeChanges` path
-- [ ] 3.8 Run Phase 2 focused tests and typecheck
-- [ ] 3.9 Write evidence:
+- [ ] 3.10 Run Phase 2 focused tests and typecheck
+- [ ] 3.11 Write evidence:
       `evidence/phase-3-geometry-interaction.md`
-- [ ] 3.10 Gate: do not add overlay rendering until Phase 3 evidence exists
+- [ ] 3.12 Gate: do not add overlay rendering until Phase 3 evidence exists
 
 ## 4. Overlay Rendering
 

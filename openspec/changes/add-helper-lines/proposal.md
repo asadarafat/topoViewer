@@ -42,6 +42,7 @@ type TopoViewerHelperLinesOptions = {
   threshold?: number;
   showMidpoints?: boolean;
   candidateLimit?: number;
+  midpointCandidateLimit?: number;
 };
 
 <TopoViewer
@@ -60,6 +61,11 @@ When snapping is enabled, the dragged object position must visibly snap during
 the drag and the final `onNodePositionChange` event must report the snapped
 position. When snapping is disabled, guide lines may render without changing
 the drag position.
+
+Implementation must be done in the current React Flow position-change path, not
+as an unrelated overlay-only side effect. The guide geometry may be rendered by
+an overlay, but snap must transform the pending drag position before TopoViewer
+applies and commits it.
 
 ## Capabilities
 

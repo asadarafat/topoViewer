@@ -45,6 +45,14 @@ TopoViewer SHALL calculate helper-line candidates from object bounding boxes.
   React Flow hidden state
 - **THEN** that object SHALL NOT be used as an alignment candidate
 
+#### Scenario: Parent-relative positions are normalized
+
+- **WHEN** a rendered object has a parent-relative React Flow position
+- **THEN** TopoViewer SHALL calculate helper-line geometry from the object's
+  absolute flow-coordinate box
+- **AND** helper-line alignment SHALL NOT mix parent-relative and absolute
+  coordinate spaces
+
 #### Scenario: Dragged object is ignored as a candidate
 
 - **WHEN** an object is being dragged
@@ -70,6 +78,15 @@ TopoViewer SHALL separate guide rendering from snap behavior.
   coordinate during drag
 - **AND** the final drag-stop position SHALL match the snapped coordinate
 
+#### Scenario: Snap transforms position changes
+
+- **WHEN** React Flow emits a position change for a dragged object
+- **AND** helper-line snap selects a snapped coordinate
+- **THEN** TopoViewer SHALL transform the pending position change before
+  applying it to React Flow nodes
+- **AND** TopoViewer SHALL NOT rely on an overlay-only state update to move the
+  object
+
 #### Scenario: Guide-only mode does not move the object
 
 - **WHEN** helper lines are enabled without snap mode
@@ -82,6 +99,8 @@ TopoViewer SHALL separate guide rendering from snap behavior.
 - **WHEN** snap mode changes the drag position
 - **AND** the host receives `onNodePositionChange`
 - **THEN** the callback SHALL receive the snapped position
+- **AND** the callback SHALL NOT report a stale unsnapped position from the
+  drag-stop event node
 
 ### Requirement: Viewport-Correct Overlay
 
@@ -123,11 +142,17 @@ their source object semantics.
   drag translation path
 - **AND** region member nodes SHALL move consistently with the region
 
-#### Scenario: Non-draggable objects are ignored
+#### Scenario: Non-draggable objects cannot initiate helper lines
 
 - **WHEN** an object is not draggable
 - **THEN** dragging that object SHALL NOT trigger helper lines
-- **AND** the object SHALL NOT be used as an alignment or snap candidate
+
+#### Scenario: Visible fixed objects can be alignment candidates
+
+- **WHEN** a visible object is an eligible TopoViewer object kind
+- **AND** that object is fixed or non-draggable
+- **THEN** TopoViewer MAY use it as an alignment candidate
+- **AND** TopoViewer SHALL NOT move that candidate because of helper-line snap
 
 ### Requirement: Performance Boundaries
 
@@ -143,7 +168,8 @@ TopoViewer SHALL keep helper-line drag computation bounded for dense graphs.
 #### Scenario: Midpoint guides are bounded
 
 - **WHEN** midpoint guide calculation is enabled
-- **THEN** TopoViewer SHALL cap midpoint candidate work
+- **THEN** TopoViewer SHALL cap midpoint candidate work using
+  `midpointCandidateLimit`
 - **AND** TopoViewer SHALL disable or degrade midpoint guides rather than run
   unbounded pairwise scans on large graphs
 
