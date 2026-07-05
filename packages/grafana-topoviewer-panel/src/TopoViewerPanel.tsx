@@ -551,6 +551,11 @@ export function TopoViewerPanel(props: PanelProps<TopoViewerGrafanaPanelOptions>
             {...model.topoviewerProps}
             key={topologyIdentity}
             extensions={topoviewerExtensions.length ? topoviewerExtensions : undefined}
+            helperLines={{
+              enabled: normalized.interaction.enabled && normalized.interaction.allowNodeDrag,
+              snap: true,
+              showMidpoints: true
+            }}
             initialViewport={normalized.interaction.enabled ? activeInteractionState.viewport : undefined}
             nodesDraggable={normalized.interaction.enabled && normalized.interaction.allowNodeDrag}
             selectedObjectIds={normalized.interaction.enabled ? activeInteractionState.selectedObjectIds : undefined}

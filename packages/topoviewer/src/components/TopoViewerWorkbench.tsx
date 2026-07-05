@@ -536,6 +536,7 @@ export function TopoViewerWorkbench() {
             toggles={toggles}
             layout={{ mode: 'force', ...(viewerDocument.layout || {}) }}
             attention={attentionQuery ? { query: attentionQuery } : undefined}
+            helperLines={{ enabled: true, snap: true, showMidpoints: true }}
             className={`topoviewer-label-density-${labelDensity}`}
           />
         </Paper>

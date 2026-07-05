@@ -626,6 +626,79 @@ test('persists dragged node positions into topology YAML with undo and redo', as
   await expect.poll(async () => nodePosition(await topologyText(page), 'fra-pe')).toEqual(moved);
 });
 
+test('shows alignment helper lines while dragging nodes in the browser harness preview', async ({ page }) => {
+  const seededTopology = [
+    'layout:',
+    '  mode: manual',
+    '  width: 640',
+    '  height: 360',
+    'graph:',
+    '  id: helper-lines-harness',
+    '  layers:',
+    '    - id: physical',
+    '      name: Physical',
+    '  nodes:',
+    '    - id: drag-me',
+    '      name: Drag Me',
+    '      layers: [physical]',
+    '      position: [90, 140]',
+    '    - id: align-peer',
+    '      name: Peer',
+    '      layers: [physical]',
+    '      position: [300, 140]',
+    ''
+  ].join('\n');
+  const seededStylesheet = [
+    'stylesheet:',
+    '  - selector: node',
+    '    style:',
+    '      shape: roundRectangle',
+    '      width: 92',
+    '      height: 56',
+    '      borderWidth: 2',
+    '      backgroundColor: "#0f172a"',
+    '      borderColor: "#60a5fa"',
+    '      labelColor: "#f8fafc"',
+    ''
+  ].join('\n');
+  await page.addInitScript(({ topologyText: topologySeed, stylesheetText: stylesheetSeed }) => {
+    window.localStorage.clear();
+    window.localStorage.setItem('topoviewer.vscodeHarness.customFixtures.v1', JSON.stringify([{
+      id: 'helper-lines-harness',
+      name: 'Helper lines harness'
+    }]));
+    window.localStorage.setItem('topoviewer.vscodeHarness.activeFixture.v1', 'helper-lines-harness');
+    window.localStorage.setItem('topoviewer.vscodeHarness.fixtureState.v1:helper-lines-harness', JSON.stringify({
+      fixtureId: 'helper-lines-harness',
+      topologyText: topologySeed,
+      stylesheetText: stylesheetSeed
+    }));
+  }, { topologyText: seededTopology, stylesheetText: seededStylesheet });
+
+  await page.goto('/');
+  await expect(page.getByText('No diagnostics')).toBeVisible();
+  await expect(graphNodeByLabel(page, 'Drag Me')).toBeVisible();
+  await expect(graphNodeByLabel(page, 'Peer')).toBeVisible();
+
+  const dragNode = graphNodeByLabel(page, 'Drag Me').first();
+  const peerNode = graphNodeByLabel(page, 'Peer').first();
+  const dragBox = await dragNode.boundingBox();
+  const peerBox = await peerNode.boundingBox();
+  expect(dragBox).not.toBeNull();
+  expect(peerBox).not.toBeNull();
+
+  const pointerOffset = {
+    x: dragBox!.width / 2,
+    y: dragBox!.height / 2
+  };
+  await page.mouse.move(dragBox!.x + pointerOffset.x, dragBox!.y + pointerOffset.y);
+  await page.mouse.down();
+  await page.mouse.move(peerBox!.x + pointerOffset.x + 2, peerBox!.y + pointerOffset.y + 2, { steps: 12 });
+  await expect(page.locator('.topoviewer-helper-line').first()).toBeVisible();
+  await page.mouse.up();
+  await expect(page.locator('.topoviewer-helper-line')).toHaveCount(0);
+});
+
 test('updates selected object properties and deletes with reversible YAML mutations', async ({ page }) => {
   await page.goto('/');
   await waitForHarnessReady(page);

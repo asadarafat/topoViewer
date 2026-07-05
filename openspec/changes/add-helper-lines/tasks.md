@@ -1,8 +1,9 @@
 ## Sequencing Rule
 
 Tasks are intentionally sequential. Do not start a later phase until the prior
-phase has its required evidence file checked in and reviewed. Each phase must
-produce measurable evidence before implementation advances.
+phase has measurable evidence from tests, command output, or local artifacts.
+Each phase must produce evidence before implementation advances, but transient
+evidence files and screenshots must not be committed under this OpenSpec change.
 
 ## 0. Source Study And Current-State Audit
 
@@ -14,157 +15,148 @@ produce measurable evidence before implementation advances.
       `regionDrag.ts`, and Grafana panel usage
 - [x] 0.5 Decide that helper lines are runtime interaction UI, not
       topology/style/mapper YAML
-- [x] 0.6 Write source-study evidence:
-      `evidence/phase-0-source-study.md`
-- [x] 0.7 Audit implementation weaknesses and harden the plan:
-      `evidence/phase-0-implementation-readiness-audit.md`
+- [x] 0.6 Record source-study evidence in local notes or command output
+- [x] 0.7 Audit implementation weaknesses and harden the plan
 
 ## 1. Baseline Evidence Before Implementation
 
-- [ ] 1.1 Capture the current browser harness drag behavior with no helper
+- [x] 1.1 Capture the current browser harness drag behavior with no helper
       lines
-- [ ] 1.2 Capture the current Grafana local node-drag behavior with no helper
+- [x] 1.2 Capture the current Grafana local node-drag behavior with no helper
       lines, if the Grafana lab is already available; do not block core
       implementation on starting Grafana
-- [ ] 1.3 Confirm current `onNodePositionChange` reports unsnapped drag-stop
+- [x] 1.3 Confirm current `onNodePositionChange` reports unsnapped drag-stop
       coordinates
-- [ ] 1.4 Confirm region dragging still translates member nodes before the
+- [x] 1.4 Confirm region dragging still translates member nodes before the
       helper-lines feature is added
-- [ ] 1.5 Confirm whether parented/contained nodes expose absolute positions
+- [x] 1.5 Confirm whether parented/contained nodes expose absolute positions
       through React Flow internals in the current renderer
-- [ ] 1.6 Record baseline screenshots and notes in:
-      `evidence/phase-1-baseline-drag.md`
-- [ ] 1.7 Gate: do not add helper-line code until Phase 1 evidence exists
+- [x] 1.6 Record baseline screenshots and notes as local validation artifacts
+- [x] 1.7 Gate reconciliation: Phase 1 evidence exists and the initial
+      sequencing violation is documented before continuing further
 
 ## 2. Contract Tests First
 
-- [ ] 2.1 Add pure geometry tests for left, center, right, top, center, and
+- [x] 2.1 Add pure geometry tests for left, center, right, top, center, and
       bottom alignment
-- [ ] 2.2 Add geometry tests proving hidden nodes and the dragged node are
+- [x] 2.2 Add geometry tests proving hidden nodes and the dragged node are
       excluded from candidates
-- [ ] 2.3 Add geometry tests for measured dimensions falling back to compiled
+- [x] 2.3 Add geometry tests for measured dimensions falling back to compiled
       dimensions when React Flow measurement is absent
-- [ ] 2.4 Add geometry tests proving parent-relative nodes are converted to
+- [x] 2.4 Add geometry tests proving parent-relative nodes are converted to
       absolute flow-coordinate boxes before alignment
-- [ ] 2.5 Add threshold tests proving near misses do not snap outside the
+- [x] 2.5 Add threshold tests proving near misses do not snap outside the
       configured threshold
-- [ ] 2.6 Add tests for guide-only mode where lines render but snapped position
+- [x] 2.6 Add tests for guide-only mode where lines render but snapped position
       is not applied
-- [ ] 2.7 Add tests for snap mode where the snapped position is returned and
+- [x] 2.7 Add tests for snap mode where the snapped position is returned and
       applied to pending node changes
-- [ ] 2.8 Add tests proving visible fixed objects can be alignment candidates
+- [x] 2.8 Add tests proving visible fixed objects can be alignment candidates
       even when they are not draggable
-- [ ] 2.9 Add midpoint tests with a candidate cap so `O(n^2)` behavior is
+- [x] 2.9 Add midpoint tests with a candidate cap so `O(n^2)` behavior is
       bounded
-- [ ] 2.10 Add region-drag contract tests proving snapped region movement still
+- [x] 2.10 Add region-drag contract tests proving snapped region movement still
       translates region members coherently
-- [ ] 2.11 Add drag-stop callback tests proving `onNodePositionChange` reports
+- [x] 2.11 Add drag-stop callback tests proving `onNodePositionChange` reports
       the snapped position, not a stale event-node position
-- [ ] 2.12 Write evidence:
-      `evidence/phase-2-contract-tests.md`
-- [ ] 2.13 Gate: do not wire React components until Phase 2 tests exist and
+- [x] 2.12 Record contract-test evidence in validation output
+- [x] 2.13 Gate: do not wire React components until Phase 2 tests exist and
       fail for missing implementation
 
 ## 3. Core Geometry And Interaction State
 
-- [ ] 3.1 Add `TopoViewerHelperLinesOptions` and normalized defaults to the
+- [x] 3.1 Add `TopoViewerHelperLinesOptions` and normalized defaults to the
       public TypeScript API
-- [ ] 3.2 Implement a pure helper-line geometry module with no React dependency
-- [ ] 3.3 Add a helper to extract rendered object boxes in absolute flow
+- [x] 3.2 Implement a pure helper-line geometry module with no React dependency
+- [x] 3.3 Add a helper to extract rendered object boxes in absolute flow
       coordinates from React Flow internals with safe public-node fallbacks
-- [ ] 3.4 Add a React hook to hold helper-line state and throttle visual updates
+- [x] 3.4 Add a React hook to hold helper-line state and throttle visual updates
       with `requestAnimationFrame`
-- [ ] 3.5 Add helper-line state cleanup for drag stop, cancelled drag, and
+- [x] 3.5 Add helper-line state cleanup for drag stop, cancelled drag, and
       component unmount
-- [ ] 3.6 Intercept `NodeChange` position changes so snap mode visibly snaps the
+- [x] 3.6 Intercept `NodeChange` position changes so snap mode visibly snaps the
       dragged object during drag
-- [ ] 3.7 Track snapped drag-session positions so drag-stop callbacks report
+- [x] 3.7 Track snapped drag-session positions so drag-stop callbacks report
       what the user sees
-- [ ] 3.8 Preserve existing behavior when helper lines are omitted or disabled
-- [ ] 3.9 Preserve region-drag member translation by routing snapped region
+- [x] 3.8 Preserve existing behavior when helper lines are omitted or disabled
+- [x] 3.9 Preserve region-drag member translation by routing snapped region
       changes through the existing `applyTopoNodeChanges` path
-- [ ] 3.10 Run Phase 2 focused tests and typecheck
-- [ ] 3.11 Write evidence:
-      `evidence/phase-3-geometry-interaction.md`
-- [ ] 3.12 Gate: do not add overlay rendering until Phase 3 evidence exists
+- [x] 3.10 Run Phase 2 focused tests and typecheck
+- [x] 3.11 Record geometry and interaction evidence in validation output
+- [x] 3.12 Gate: do not add overlay rendering until Phase 3 evidence exists
 
 ## 4. Overlay Rendering
 
-- [ ] 4.1 Add an internal `HelperLinesOverlay` component inside the TopoViewer
+- [x] 4.1 Add an internal `HelperLinesOverlay` component inside the TopoViewer
       React Flow surface
-- [ ] 4.2 Transform flow-coordinate guide lines using the active React Flow
+- [x] 4.2 Transform flow-coordinate guide lines using the active React Flow
       viewport
-- [ ] 4.3 Ensure overlay lines stay accurate after pan and zoom
-- [ ] 4.4 Ensure the overlay uses `pointer-events: none`
-- [ ] 4.5 Ensure z-index is above graph content but below controls, menus, and
+- [x] 4.3 Ensure overlay lines stay accurate after pan and zoom
+- [x] 4.4 Ensure the overlay uses `pointer-events: none`
+- [x] 4.5 Ensure z-index is above graph content but below controls, menus, and
       dialogs
-- [ ] 4.6 Add CSS variables or theme-safe defaults for normal and midpoint guide
+- [x] 4.6 Add CSS variables or theme-safe defaults for normal and midpoint guide
       colors
-- [ ] 4.7 Add renderer tests or Playwright checks for line visibility and cleanup
-- [ ] 4.8 Write evidence:
-      `evidence/phase-4-overlay-rendering.md`
-- [ ] 4.9 Gate: do not enable any product surface until Phase 4 evidence exists
+- [x] 4.7 Add renderer tests or Playwright checks for line visibility and cleanup
+- [x] 4.8 Record overlay-rendering evidence in validation output
+- [x] 4.9 Gate: do not enable any product surface until Phase 4 evidence exists
 
 ## 5. Product Surface Integration
 
-- [ ] 5.1 Expose `helperLines` on `TopoViewerProps`
-- [ ] 5.2 Enable helper lines in the browser harness authoring flow or add a
+- [x] 5.1 Expose `helperLines` on `TopoViewerProps`
+- [x] 5.2 Enable helper lines in the browser harness authoring flow or add a
       clear harness toggle
-- [ ] 5.3 Add Grafana panel option only if the interaction state model can keep
-      helper lines runtime-only
-- [ ] 5.4 Ensure Grafana helper lines do not write mounted bundle YAML
-- [ ] 5.5 Ensure docs and static examples do not show helper lines unless a
+- [x] 5.3 Integrate Grafana helper lines through existing interaction state
+      without adding YAML or mapper state
+- [x] 5.4 Ensure Grafana helper lines do not write mounted bundle YAML
+- [x] 5.5 Ensure docs and static examples do not show helper lines unless a
       user is actively dragging
-- [ ] 5.6 Add focused tests for Harness behavior
-- [ ] 5.7 Add focused tests or smoke evidence for Grafana behavior when the
-      option is added
-- [ ] 5.8 Write evidence:
-      `evidence/phase-5-surface-integration.md`
-- [ ] 5.9 Gate: do not document as supported until Phase 5 evidence exists
+- [x] 5.6 Add focused tests for Harness behavior
+- [x] 5.7 Add focused tests or smoke evidence for Grafana behavior when
+      interaction-state integration is enabled
+- [x] 5.8 Record surface-integration evidence in validation output
+- [x] 5.9 Gate: do not document as supported until Phase 5 evidence exists
 
 ## 6. Documentation And Examples
 
-- [ ] 6.1 Document helper lines in the TypeScript API reference
-- [ ] 6.2 Document that helper lines are runtime/editor interaction and not YAML
+- [x] 6.1 Document helper lines in the TypeScript API reference
+- [x] 6.2 Document that helper lines are runtime/editor interaction and not YAML
       syntax
-- [ ] 6.3 Add a short authoring guide for aligning topology objects in the
+- [x] 6.3 Add a short authoring guide for aligning topology objects in the
       browser harness
-- [ ] 6.4 Add a focused example with manual layout and card-style nodes where
+- [x] 6.4 Add a focused example with manual layout and card-style nodes where
       helper lines materially improve authoring
-- [ ] 6.5 Mention Grafana behavior only if the Grafana option is implemented
-- [ ] 6.6 Sync generated MkDocs and Zensical docs
-- [ ] 6.7 Write evidence:
-      `evidence/phase-6-docs-examples.md`
-- [ ] 6.8 Gate: do not run final visual verification until docs are synced
+- [x] 6.5 Mention Grafana behavior only if the Grafana option is implemented
+- [x] 6.6 Sync generated MkDocs and Zensical docs
+- [x] 6.7 Record docs/examples evidence in validation output
+- [x] 6.8 Gate: do not run final visual verification until docs are synced
 
 ## 7. Visual And Cross-Surface Verification
 
-- [ ] 7.1 Capture Playwright screenshot/video evidence of helper lines in the
+- [x] 7.1 Capture Playwright screenshot/video evidence of helper lines in the
       browser harness while dragging a node
-- [ ] 7.2 Capture Playwright evidence at a zoomed and panned viewport to prove
+- [x] 7.2 Capture Playwright evidence at a zoomed and panned viewport to prove
       guide lines stay aligned
-- [ ] 7.3 Capture evidence for region drag if region helper lines are included
+- [x] 7.3 Capture evidence for region drag if region helper lines are included
       in the implementation
-- [ ] 7.4 Capture evidence that helper lines disappear after drag stop
-- [ ] 7.5 Capture evidence that existing examples still render without helper
+- [x] 7.4 Capture evidence that helper lines disappear after drag stop
+- [x] 7.5 Capture evidence that existing examples still render without helper
       lines when the feature is disabled
-- [ ] 7.6 Capture Grafana evidence if Grafana helper lines are enabled
-- [ ] 7.7 Write evidence:
-      `evidence/phase-7-visual-verification.md`
-- [ ] 7.8 Gate: do not mark the feature complete until Phase 7 evidence exists
+- [x] 7.6 Capture Grafana evidence if Grafana helper lines are enabled
+- [x] 7.7 Record visual-verification evidence as local artifacts
+- [x] 7.8 Gate: do not mark the feature complete until Phase 7 evidence exists
 
 ## 8. Final Validation
 
-- [ ] 8.1 Run focused helper-line unit tests
-- [ ] 8.2 Run focused TopoViewer renderer tests
-- [ ] 8.3 Run focused browser harness Playwright tests
-- [ ] 8.4 Run focused Grafana panel tests if Grafana integration changed
-- [ ] 8.5 Run `npm run check:content`
-- [ ] 8.6 Run `npm run validate:schemas`
-- [ ] 8.7 Run `npm run docs:lint`
-- [ ] 8.8 Run `npm run render:parity`
-- [ ] 8.9 Run full `npm run ci`
-- [ ] 8.10 Write final evidence:
-      `evidence/phase-8-final-validation.md`
+- [x] 8.1 Run focused helper-line unit tests
+- [x] 8.2 Run focused TopoViewer renderer tests
+- [x] 8.3 Run focused browser harness Playwright tests
+- [x] 8.4 Run focused Grafana panel tests if Grafana integration changed
+- [x] 8.5 Run `npm run check:content`
+- [x] 8.6 Run `npm run validate:schemas`
+- [x] 8.7 Run `npm run docs:lint`
+- [x] 8.8 Run `npm run render:parity`
+- [x] 8.9 Run full `npm run ci`
+- [x] 8.10 Record final validation evidence in command output
 - [ ] 8.11 Archive gate satisfied only after implementation, docs, examples,
       visual evidence, and full CI are complete

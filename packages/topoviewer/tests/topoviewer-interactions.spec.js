@@ -454,6 +454,30 @@ test.describe('TopoViewer package interactions', () => {
     });
   });
 
+  test('shows helper lines during drag and clears them after drag stop', async ({ page }) => {
+    await expectCurrentServerMarker(page, 'topoviewer');
+    await page.goto('/tests/fixtures/helper-lines-runtime.html', { waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('.react-flow__node[data-id="drag-me"]', { timeout: 30000 });
+
+    const dragBefore = await nodeBox(page, 'drag-me');
+    const peerBefore = await nodeBox(page, 'align-peer');
+    const pointerOffset = {
+      x: dragBefore.width / 2,
+      y: dragBefore.height / 2
+    };
+
+    await page.mouse.move(dragBefore.x + pointerOffset.x, dragBefore.y + pointerOffset.y);
+    await page.mouse.down();
+    await page.mouse.move(peerBefore.x + pointerOffset.x + 2, peerBefore.y + pointerOffset.y + 2, { steps: 12 });
+    await expect(page.locator('.topoviewer-helper-line').first()).toBeVisible();
+    await page.mouse.up();
+    await expect(page.locator('.topoviewer-helper-line')).toHaveCount(0);
+
+    const dragAfter = await nodeBox(page, 'drag-me');
+    expect(dragAfter.x - dragBefore.x).toBeGreaterThan(150);
+    expect(Math.abs(dragAfter.y - peerBefore.y)).toBeLessThanOrEqual(30);
+  });
+
   test('keeps hostile label and callout markdown inert at runtime', async ({ page }) => {
     const browserErrors = [];
     page.on('pageerror', (error) => browserErrors.push(error.message));

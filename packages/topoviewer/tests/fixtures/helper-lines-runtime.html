@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TopoViewer Helper Lines Runtime Fixture</title>
+  </head>
+  <body>
+    <div id="root" style="height: 520px"></div>
+    <script type="module">
+      import React from 'react';
+      import { createRoot } from 'react-dom/client';
+      import { TopoViewer } from '../../src/components/TopoViewer.tsx';
+      import '../../src/styles.css';
+
+      const documentSpec = {
+        layout: {
+          mode: 'manual',
+          width: 640,
+          height: 360
+        },
+        stylesheet: [
+          {
+            selector: 'node',
+            style: {
+              shape: 'roundRectangle',
+              width: 92,
+              height: 56,
+              borderWidth: 2,
+              backgroundColor: '#0f172a',
+              borderColor: '#60a5fa',
+              labelColor: '#f8fafc'
+            }
+          },
+          {
+            selector: 'link',
+            style: {
+              curveStyle: 'straight',
+              lineColor: '#60a5fa',
+              lineWidth: 3
+            }
+          }
+        ],
+        graph: {
+          id: 'helper-lines-runtime',
+          layers: [{ id: 'physical', name: 'Physical' }],
+          nodes: [
+            {
+              id: 'drag-me',
+              name: 'Drag Me',
+              layers: ['physical'],
+              position: [90, 140]
+            },
+            {
+              id: 'align-peer',
+              name: 'Peer',
+              layers: ['physical'],
+              position: [300, 140]
+            },
+            {
+              id: 'fixed-peer',
+              name: 'Fixed',
+              layers: ['physical'],
+              position: [300, 260],
+              style: {
+                draggable: false
+              }
+            }
+          ],
+          links: [
+            {
+              id: 'drag-peer',
+              source: 'drag-me',
+              target: 'align-peer',
+              layers: ['physical']
+            }
+          ]
+        }
+      };
+
+      createRoot(document.getElementById('root')).render(React.createElement(TopoViewer, {
+        document: documentSpec,
+        selectedLayerIds: ['physical'],
+        helperLines: {
+          enabled: true,
+          snap: true,
+          showMidpoints: true
+        },
+        style: { height: '100%' }
+      }));
+    </script>
+  </body>
+</html>

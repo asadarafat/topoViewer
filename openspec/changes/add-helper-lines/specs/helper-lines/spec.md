@@ -209,6 +209,8 @@ as complete.
 #### Scenario: Visual evidence proves viewport correctness
 
 - **WHEN** implementation claims helper lines are complete
-- **THEN** the change SHALL include visual evidence for normal, zoomed, and
-  panned drag sessions
+- **THEN** local validation SHALL capture visual evidence for normal, zoomed,
+  and panned drag sessions
 - **AND** the evidence SHALL show that helper lines clear after drag stop
+- **AND** transient screenshots, traces, or evidence artifacts SHALL NOT be
+  committed under the OpenSpec change directory

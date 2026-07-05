@@ -7,7 +7,7 @@ import {
   useNodesState,
   type NodeChange
 } from '@xyflow/react';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { compileTopoGraph } from '../core/compiler';
 import { resolveAttentionPresentationCached } from '../core/attention/cache';
 import { assertRendererLimits } from '../core/limits';
@@ -26,12 +26,21 @@ import type {
 } from '../core/types';
 import { CalloutNode } from './CalloutNode';
 import { FloatingEdge } from './FloatingEdge';
+import { HelperLinesOverlay } from './HelperLinesOverlay';
 import { LabelOverlay } from './LabelOverlay';
 import { NetworkNode } from './NetworkNode';
 import { PinNode } from './PinNode';
 import { RegionNode } from './RegionNode';
 import { ShapeNode } from './ShapeNode';
 import { ViewportControls } from './ViewportControls';
+import {
+  applyHelperLineSnapToChanges,
+  emptyHelperLineState,
+  normalizeHelperLinesOptions,
+  resolveDragStopPosition,
+  type HelperLineNodeLike,
+  type HelperLineState
+} from './helperLines';
 import { applyTopoNodeChanges } from './regionDrag';
 import '../styles.css';
 
@@ -240,6 +249,20 @@ function resolveAttentionPresentation(document: TopoDocument, attention: TopoVie
   return resolveAttentionPresentationCached(document, attention || document.attention);
 }
 
+function useHelperLineState() {
+  const [state, setState] = useState<HelperLineState>(emptyHelperLineState);
+
+  const scheduleState = useCallback((nextState: HelperLineState) => {
+    setState(nextState);
+  }, []);
+
+  const clearState = useCallback(() => {
+    scheduleState(emptyHelperLineState);
+  }, [scheduleState]);
+
+  return [state, scheduleState, clearState] as const;
+}
+
 function TopoFlow({
   compiled,
   document,
@@ -247,6 +270,7 @@ function TopoFlow({
   controlPanelToggle,
   exportDisabled,
   exportTooltip,
+  helperLines,
   initialViewport,
   nodesDraggable = true,
   onExport,
@@ -263,6 +287,7 @@ function TopoFlow({
   controlPanelToggle?: TopoViewerProps['controlPanelToggle'];
   exportDisabled?: TopoViewerProps['exportDisabled'];
   exportTooltip?: TopoViewerProps['exportTooltip'];
+  helperLines?: TopoViewerProps['helperLines'];
   initialViewport?: TopoViewerProps['initialViewport'];
   nodesDraggable?: TopoViewerProps['nodesDraggable'];
   onExport?: TopoViewerProps['onExport'];
@@ -275,21 +300,89 @@ function TopoFlow({
 }) {
   const [nodes, setNodes] = useNodesState(compiled.nodes as never[]);
   const [edges, setEdges, onEdgesChange] = useEdgesState(withRuntimeDirectionHandlers(compiled.edges, onObjectClick) as never[]);
+  const helperLineOptions = useMemo(() => normalizeHelperLinesOptions(helperLines), [helperLines]);
+  const [helperLineState, scheduleHelperLineState, clearHelperLines] = useHelperLineState();
+  const nodesRef = useRef<HelperLineNodeLike[]>(compiled.nodes as unknown as HelperLineNodeLike[]);
+  const snappedPositionsRef = useRef(new Map<string, { x: number; y: number }>());
+  const activeDragNodeIdRef = useRef<string | undefined>();
 
   useEffect(() => {
     setNodes(compiled.nodes as never[]);
     setEdges(withRuntimeDirectionHandlers(compiled.edges, onObjectClick) as never[]);
-  }, [compiled, onObjectClick, setEdges, setNodes]);
+    nodesRef.current = compiled.nodes as unknown as HelperLineNodeLike[];
+    snappedPositionsRef.current.clear();
+    activeDragNodeIdRef.current = undefined;
+    clearHelperLines();
+  }, [clearHelperLines, compiled, onObjectClick, setEdges, setNodes]);
+
+  useEffect(() => {
+    nodesRef.current = nodes as unknown as HelperLineNodeLike[];
+  }, [nodes]);
+
+  useEffect(() => {
+    if (!helperLineOptions.enabled) {
+      snappedPositionsRef.current.clear();
+      activeDragNodeIdRef.current = undefined;
+      clearHelperLines();
+    }
+  }, [clearHelperLines, helperLineOptions.enabled]);
 
   const onNodesChange = useCallback((changes: NodeChange[]) => {
-    setNodes((currentNodes) => applyTopoNodeChanges({
-      changes,
-      currentNodes,
-      document,
-      selectedLayerIds: compiled.selectedLayerIds,
-      showRegions
-    }));
-  }, [compiled.selectedLayerIds, document, setNodes, showRegions]);
+    let nextChanges = changes;
+    const hasPositionChange = changes.some((change) => (
+      change.type === 'position' && !!change.id && !!change.position
+    ));
+    if (helperLineOptions.enabled && nodesDraggable !== false && hasPositionChange) {
+      const helperResult = applyHelperLineSnapToChanges({
+        changes,
+        nodes: nodesRef.current,
+        options: helperLineOptions,
+        activeNodeId: activeDragNodeIdRef.current
+      });
+      nextChanges = helperResult.changes as NodeChange[];
+      scheduleHelperLineState(helperResult.lines);
+      helperResult.snappedPositions.forEach((position, id) => {
+        snappedPositionsRef.current.set(id, position);
+      });
+    }
+    setNodes((currentNodes) => {
+      const nextNodes = applyTopoNodeChanges({
+        changes: nextChanges,
+        currentNodes,
+        document,
+        selectedLayerIds: compiled.selectedLayerIds,
+        showRegions
+      });
+      nodesRef.current = nextNodes as unknown as HelperLineNodeLike[];
+      return nextNodes;
+    });
+  }, [compiled.selectedLayerIds, document, helperLineOptions, nodesDraggable, scheduleHelperLineState, setNodes, showRegions]);
+
+  const onNodeDragStart = useCallback((_event: unknown, node: unknown) => {
+    const runtimeNode = node as unknown as Record<string, unknown>;
+    activeDragNodeIdRef.current = String(runtimeNode.id || '');
+  }, []);
+
+  const onNodeDragStop = useCallback((_event: unknown, node: unknown) => {
+    clearHelperLines();
+    const runtimeNode = node as unknown as Record<string, unknown>;
+    const runtimeId = String(runtimeNode.id || '');
+    const position = resolveDragStopPosition({
+      runtimeId,
+      eventPosition: (runtimeNode.position || {}) as { x?: number; y?: number },
+      nodes: nodesRef.current,
+      snappedPositions: snappedPositionsRef.current
+    });
+    snappedPositionsRef.current.delete(runtimeId);
+    activeDragNodeIdRef.current = undefined;
+    if (!onNodePositionChange) return undefined;
+    return onNodePositionChange({
+      id: sourceObjectId(runtimeNode),
+      runtimeId,
+      position,
+      data: (runtimeNode.data || {}) as Record<string, unknown>
+    });
+  }, [clearHelperLines, onNodePositionChange]);
 
   return (
     <ReactFlow
@@ -330,19 +423,8 @@ function TopoFlow({
         });
       } : undefined}
       onPaneClick={onPaneClick}
-      onNodeDragStop={onNodePositionChange ? (_event, node) => {
-        const runtimeNode = node as unknown as Record<string, unknown>;
-        const position = (runtimeNode.position || {}) as { x?: number; y?: number };
-        return onNodePositionChange({
-          id: sourceObjectId(runtimeNode),
-          runtimeId: String(runtimeNode.id),
-          position: {
-            x: Number(position.x || 0),
-            y: Number(position.y || 0)
-          },
-          data: (runtimeNode.data || {}) as Record<string, unknown>
-        });
-      } : undefined}
+      onNodeDragStop={helperLineOptions.enabled || onNodePositionChange ? onNodeDragStop : undefined}
+      onNodeDragStart={helperLineOptions.enabled ? onNodeDragStart : undefined}
       onMoveEnd={onViewportChange ? (_event, viewport) => onViewportChange(viewport) : undefined}
       nodeTypes={nodeTypes as never}
       edgeTypes={edgeTypes as never}
@@ -357,6 +439,7 @@ function TopoFlow({
     >
       <Background color="rgba(126, 139, 154, 0.20)" gap={24} />
       <LabelOverlay nodes={nodes as never[]} edges={edges as never[]} />
+      <HelperLinesOverlay lines={helperLineState} />
       <ViewportControls
         controlPanelToggle={controlPanelToggle}
         exportDisabled={exportDisabled}
@@ -378,6 +461,7 @@ export function TopoViewer({
   controlPanelToggle,
   exportDisabled,
   exportTooltip,
+  helperLines,
   initialViewport,
   nodesDraggable,
   onObjectClick,
@@ -438,6 +522,7 @@ export function TopoViewer({
           controlPanelToggle={controlPanelToggle}
           exportDisabled={exportDisabled}
           exportTooltip={exportTooltip}
+          helperLines={helperLines}
           initialViewport={initialViewport}
           nodesDraggable={nodesDraggable}
           onExport={onExport}

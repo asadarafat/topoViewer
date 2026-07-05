@@ -37,7 +37,29 @@ adoption target.
 | `TopoViewerViewport` | Supported | Viewport state passed through events. |
 | `TopoViewerObjectClick` | Supported | Object click event payload. |
 | `TopoViewerNodePositionChange` | Supported | Node drag/persist event payload. |
+| `TopoViewerHelperLinesOptions` | Experimental | Runtime-only drag alignment guides and optional snapping for authoring surfaces. |
 | `TopoViewerToggles` | Supported | Layer and viewport toggle state. |
+
+`helperLines` is a React runtime option on `TopoViewerProps`, not topology or
+stylesheet YAML. Use it when the host surface lets users drag objects and should
+show alignment guides:
+
+```tsx
+<TopoViewer
+  document={document}
+  nodesDraggable
+  helperLines={{
+    enabled: true,
+    snap: true,
+    threshold: 5,
+    showMidpoints: true
+  }}
+/>
+```
+
+When snapping is enabled, pending drag position changes are transformed before
+TopoViewer applies them. `onNodePositionChange` receives the snapped final
+position so hosts can persist the same coordinates the user saw.
 
 ## Compile, Compose, Validate
 
@@ -139,7 +161,7 @@ Model types include `TopoDocument`, `TopologyDocument`, `StylesheetDocument`,
 `DiagramCallout`, `DiagramConnector`, `DiagramPin`, `ToggleDefinition`,
 `CompiledGraph`, `CompiledNode`, `CompiledEdge`, `CompiledNodeData`,
 `CompiledEdgeData`, `TopoViewerExtension`, `TopoViewerExtensionContext`, and
-`TopoViewerToolbarAction`.
+`TopoViewerHelperLinesOptions`, and `TopoViewerToolbarAction`.
 
 Attention types include `FocusQuery`, `FocusResult`,
 `FocusPresentationMode`, `AttentionPresentationResult`,

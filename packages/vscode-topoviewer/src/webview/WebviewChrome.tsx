@@ -162,6 +162,7 @@ export function PreviewPanel({ exportImage, exportTooltip, handleNodePositionCha
           onObjectClick={handleObjectClick}
           onPaneClick={() => setSelectedObjects([])}
           onNodePositionChange={handleNodePositionChange}
+          helperLines={parityMode ? false : { enabled: true, snap: true, showMidpoints: true }}
         />
       )}
     </Paper>

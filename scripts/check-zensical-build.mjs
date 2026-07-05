@@ -9,6 +9,7 @@ const zensicalDocsRoot = path.join(repoRoot, '.artifacts/zensical-docs');
 const adapterPage = path.join(zensicalSite, 'topoviewer/zensical-embed/index.html');
 const mirroredExamplePage = path.join(zensicalSite, 'topoviewer/examples/attention/object-focus/index.html');
 const serviceProviderNetworkPage = path.join(zensicalSite, 'topoviewer/examples/use-cases/service-provider-network/index.html');
+const harnessUseCasePage = path.join(zensicalSite, 'topoviewer/examples/use-cases/harness/index.html');
 const whyTopoViewerPage = path.join(zensicalSite, 'topoviewer/start/why-topoviewer/index.html');
 const mirroredExampleSource = path.join(zensicalDocsRoot, 'topoviewer/examples/attention/object-focus/index.md');
 const zensicalCssPath = path.join(zensicalSite, 'assets/topoviewer/topoviewer-zensical.css');
@@ -17,6 +18,7 @@ const requiredFiles = [
   'topoviewer/zensical-embed/index.html',
   'topoviewer/index.html',
   'topoviewer/examples/use-cases/service-provider-network/index.html',
+  'topoviewer/examples/use-cases/harness/index.html',
   'topoviewer/examples/use-cases/single-page-html/index.html',
   'topoviewer/start/why-topoviewer/index.html',
   'assets/topoviewer-yaml-to-diagram.png',
@@ -92,7 +94,8 @@ const mirroredHtml = fs.readFileSync(mirroredExamplePage, 'utf8');
 for (const needle of [
   'class="topoviewer-embed topoviewer-parity-theme"',
   'data-topology="../../../../assets/topoviewer/examples/attention/object-focus/topology.yaml"',
-  'data-stylesheet="../../../../assets/topoviewer/examples/attention/object-focus/stylesheet.yaml"'
+  'data-stylesheet="../../../../assets/topoviewer/examples/attention/object-focus/stylesheet.yaml"',
+  'data-helper-lines="true"'
 ]) {
   if (!mirroredHtml.includes(needle)) {
     fail(`Mirrored Zensical TopoViewer page does not include expected content: ${needle}`);
@@ -122,6 +125,16 @@ for (const needle of [
 }
 if (realNetworkHtml.includes('data-topology="../assets/topoviewer/examples/')) {
   fail('Zensical real network demo page has root-relative embed paths computed from the Markdown file instead of the generated page directory.');
+}
+
+const harnessHtml = fs.readFileSync(harnessUseCasePage, 'utf8');
+for (const needle of [
+  'class="topoviewer-embed topoviewer-parity-theme"',
+  'data-helper-lines="true"'
+]) {
+  if (!harnessHtml.includes(needle)) {
+    fail(`Zensical Harness page does not include expected helper-lines embed content: ${needle}`);
+  }
 }
 
 const whyTopoViewerHtml = fs.readFileSync(whyTopoViewerPage, 'utf8');

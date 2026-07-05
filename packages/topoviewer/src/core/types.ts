@@ -418,12 +418,22 @@ export interface TopoViewerNodePositionChange {
   data: Record<string, unknown>;
 }
 
+export interface TopoViewerHelperLinesOptions {
+  enabled?: boolean;
+  snap?: boolean;
+  threshold?: number;
+  showMidpoints?: boolean;
+  candidateLimit?: number;
+  midpointCandidateLimit?: number;
+}
+
 export interface TopoViewerProps {
   document: TopoDocument;
   selectedLayerIds?: string[];
   selectedObjectIds?: string[];
   initialViewport?: TopoViewerViewport;
   nodesDraggable?: boolean;
+  helperLines?: boolean | TopoViewerHelperLinesOptions;
   toggles?: TopoViewerToggles;
   layout?: LayoutConfig;
   attention?: {

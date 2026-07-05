@@ -31,6 +31,7 @@ height: 640px
 title: MV network SR-TE service path
 controls: true
 controlsOpen: false
+helperLines: true
 selectedLayerIds: [underlay]
 ```
 ````
@@ -48,6 +49,7 @@ Options:
 | `title` | Optional caption/title. |
 | `controls` | Show layer/display controls. Defaults to `true`. |
 | `controlsOpen` | Open controls panel initially. Defaults to `false`. |
+| `helperLines` | Drag alignment helper lines are enabled by default in docs embeds. Use `false` to start with them off or an object to tune snapping. Readers can toggle them from the viewport settings panel. |
 | `selectedLayerIds` | Initial checked layer IDs for this embed. Defaults to all graph layers. |
 | `attention` | Optional runtime attention override for this specific rendered viewport. |
 

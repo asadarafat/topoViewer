@@ -157,6 +157,7 @@ not a replacement for migration notes, API docs, or compatibility tests.
 | `TopologyDocument` | `./core/types` |
 | `TopoViewerExtension` | `./core/types` |
 | `TopoViewerExtensionContext` | `./core/types` |
+| `TopoViewerHelperLinesOptions` | `./core/types` |
 | `TopoViewerNodePositionChange` | `./core/types` |
 | `TopoViewerObjectClick` | `./core/types` |
 | `TopoViewerProps` | `./core/types` |

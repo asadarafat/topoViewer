@@ -56,7 +56,7 @@ It also expands YAML snippet directives so the Zensical output shows full topolo
 
 Zensical accepts the same authored fenced-block options as MkDocs before sync:
 `topology`, `stylesheet`, `height`, `width`, `title`, `controls`,
-`controlsOpen`, `selectedLayerIds`, and `attention`.
+`controlsOpen`, `helperLines`, `selectedLayerIds`, and `attention`.
 
 ## Local Commands
 

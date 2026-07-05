@@ -34,6 +34,14 @@ async function setCheckboxByLabel(page, name, checked) {
   }).toBe(checked);
 }
 
+async function nodeBox(page, id) {
+  const locator = page.locator(`.react-flow__node[data-id="${id}"]`);
+  await expect(locator, `Expected node ${id} to exist`).toHaveCount(1);
+  const box = await locator.boundingBox();
+  expect(box, `Expected node ${id} to have a rendered box`).toBeTruthy();
+  return box;
+}
+
 async function exportRenderedSurface(page) {
   let lastError;
 
@@ -164,6 +172,30 @@ test.describe('TopoViewer package workbench', () => {
     expect(focusedExports.pngLength).toBeGreaterThan(1000);
     expect(focusedExports.pdfType).toBe('application/pdf');
     expect(focusedExports.pdfSize).toBeGreaterThan(1000);
+  });
+
+  test('shows helper lines while dragging objects in the browser harness', async ({ page }) => {
+    await expectCurrentServerMarker(page, 'topoviewer');
+    await page.goto('/');
+    await page.waitForSelector('.react-flow__node[data-id="R03"]', { timeout: 30000 });
+
+    const dragBefore = await nodeBox(page, 'R03');
+    const peerBefore = await nodeBox(page, 'R05');
+    const pointerOffset = {
+      x: dragBefore.width / 2,
+      y: dragBefore.height / 2
+    };
+
+    await page.mouse.move(dragBefore.x + pointerOffset.x, dragBefore.y + pointerOffset.y);
+    await page.mouse.down();
+    await page.mouse.move(peerBefore.x + pointerOffset.x + 8, peerBefore.y + pointerOffset.y, { steps: 12 });
+    await expect(page.locator('.topoviewer-helper-line').first()).toBeVisible();
+    await page.mouse.up();
+    await expect(page.locator('.topoviewer-helper-line')).toHaveCount(0);
+
+    const dragAfter = await nodeBox(page, 'R03');
+    expect(dragAfter.x - dragBefore.x).toBeGreaterThan(60);
+    expect(Math.abs(dragAfter.y - peerBefore.y)).toBeLessThanOrEqual(35);
   });
 
   test('matches the reference workbench rendering screenshot', async ({ page }) => {

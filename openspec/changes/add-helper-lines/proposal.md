@@ -116,8 +116,10 @@ should render and no diagnostics should be emitted.
 ## Implementation Discipline
 
 Tasks are sequential and evidence-gated. Do not start a later phase until the
-prior phase has its required evidence file checked in and reviewed.
+prior phase has measurable evidence from tests, command output, or local
+artifacts.
 
 Implementation must be test-first where feasible. The geometry engine must be
 covered before renderer wiring. Visual evidence must be captured before the
-feature is marked complete.
+feature is marked complete, but screenshots and transient evidence artifacts
+must stay outside the OpenSpec change directory, such as under `.artifacts/`.

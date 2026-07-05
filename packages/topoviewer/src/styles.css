@@ -511,6 +511,38 @@
   pointer-events: none;
 }
 
+.topoviewer-helper-lines {
+  position: absolute;
+  inset: 0;
+  z-index: 80;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.topoviewer-helper-line {
+  position: absolute;
+  pointer-events: none;
+  background: var(--topoviewer-helper-line-color, rgba(56, 189, 248, 0.96));
+  box-shadow: 0 0 0 1px rgba(2, 6, 23, 0.7), 0 0 18px rgba(56, 189, 248, 0.68);
+}
+
+.topoviewer-helper-line[data-helper-line-kind="midpoint"] {
+  background: var(--topoviewer-helper-line-midpoint-color, rgba(250, 204, 21, 0.96));
+  box-shadow: 0 0 0 1px rgba(2, 6, 23, 0.7), 0 0 18px rgba(250, 204, 21, 0.62);
+}
+
+.topoviewer-helper-line-vertical {
+  top: 0;
+  bottom: 0;
+  width: 2px;
+}
+
+.topoviewer-helper-line-horizontal {
+  right: 0;
+  left: 0;
+  height: 2px;
+}
+
 .topoviewer-node-meta {
   max-width: max(var(--topoviewer-node-icon-width, 34px), 11rem);
   color: var(--topoviewer-fg-muted);

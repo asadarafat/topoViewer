@@ -172,6 +172,44 @@ async function setLayerChecked(page, layerName, checked) {
   await page.waitForTimeout(250);
 }
 
+async function setEmbedCheck(page, label, checked) {
+  const input = page.locator('.topoviewer-embed-check', { hasText: label }).locator('input').first();
+  await expect(input).toBeVisible();
+  if ((await input.isChecked()) !== checked) {
+    await input.click();
+  }
+  if (checked) {
+    await expect(input).toBeChecked();
+  } else {
+    await expect(input).not.toBeChecked();
+  }
+  await page.waitForTimeout(150);
+}
+
+async function nodeBox(page, id) {
+  const locator = page.locator(`.react-flow__node[data-id="${id}"]`);
+  await expect(locator).toBeVisible();
+  const box = await locator.boundingBox();
+  expect(box, `node ${id} should have a visible bounding box`).toBeTruthy();
+  return box;
+}
+
+async function dragNodeNearPeer(page, draggedId, peerId, offset = { x: 4, y: 2 }) {
+  const dragBefore = await nodeBox(page, draggedId);
+  const peerBefore = await nodeBox(page, peerId);
+  const pointerOffset = {
+    x: dragBefore.width / 2,
+    y: dragBefore.height / 2
+  };
+  await page.mouse.move(dragBefore.x + pointerOffset.x, dragBefore.y + pointerOffset.y);
+  await page.mouse.down();
+  await page.mouse.move(
+    peerBefore.x + pointerOffset.x + offset.x,
+    peerBefore.y + pointerOffset.y + offset.y,
+    { steps: 12 }
+  );
+}
+
 async function expectRenderedCounts(page, { nodes, edges, regions }) {
   if (nodes !== undefined) {
     await expect(page.locator('.react-flow__node-network')).toHaveCount(nodes);
@@ -723,6 +761,30 @@ test.describe('MkDocs TopoViewer documented examples', () => {
     }
 
     await expect(page.locator('.topoviewer-embed')).toHaveCount(graphExamples.length);
+  });
+
+  test('viewport display controls toggle helper lines in docs embeds', async ({ page }) => {
+    const pagePath = 'topoviewer/examples/graph/basic';
+    test.skip(!fs.existsSync(publicPageIndexPath(pagePath)), `Graph basic example output is missing: ${publicPageIndexPath(pagePath)}`);
+
+    await page.goto(`${baseURL}/${pagePath}/`, { waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('.react-flow__node[data-id="R01"]', { timeout: 30000 });
+    await openEmbedControls(page);
+
+    await setEmbedCheck(page, 'Helper lines', false);
+    await dragNodeNearPeer(page, 'R01', 'R02');
+    await expect(page.locator('.topoviewer-helper-line')).toHaveCount(0);
+    await page.mouse.up();
+
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('.react-flow__node[data-id="R01"]', { timeout: 30000 });
+    await openEmbedControls(page);
+    await setEmbedCheck(page, 'Helper lines', false);
+    await setEmbedCheck(page, 'Helper lines', true);
+    await dragNodeNearPeer(page, 'R01', 'R02');
+    await expect(page.locator('.topoviewer-helper-line').first()).toBeVisible();
+    await page.mouse.up();
+    await expect(page.locator('.topoviewer-helper-line')).toHaveCount(0);
   });
 
   test('renders the real network demo as one public multi-view page', async ({ page }) => {

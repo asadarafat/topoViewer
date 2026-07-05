@@ -102,6 +102,7 @@ class TopoViewerPlugin(BasePlugin):
         controls_open = "true" if _fence_bool(config, "controlsOpen", False) else "false"
         title = str(config.get("title") or "").strip()
         attention = config.get("attention")
+        helper_lines = config.get("helperLines", True)
         selected_layer_ids = config.get("selectedLayerIds")
         seed = f"{page.file.src_uri}:{ordinal}:{topology_source}:{stylesheet_source}"
         embed_id = f"topoviewer-{hashlib.sha1(seed.encode('utf-8')).hexdigest()[:10]}"
@@ -119,6 +120,8 @@ class TopoViewerPlugin(BasePlugin):
         if attention is not None:
             attention_json = json.dumps(attention, separators=(",", ":"), sort_keys=True)
             attributes.append(f'data-attention="{html.escape(attention_json, quote=True)}"')
+        helper_lines_json = json.dumps(helper_lines, separators=(",", ":"), sort_keys=True)
+        attributes.append(f'data-helper-lines="{html.escape(helper_lines_json, quote=True)}"')
         if selected_layer_ids is not None:
             selected_layer_ids_json = json.dumps(selected_layer_ids, separators=(",", ":"))
             attributes.append(f'data-selected-layer-ids="{html.escape(selected_layer_ids_json, quote=True)}"')

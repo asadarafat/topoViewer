@@ -130,6 +130,7 @@ export type {
   TopologyDocument,
   TopoViewerExtension,
   TopoViewerExtensionContext,
+  TopoViewerHelperLinesOptions,
   TopoViewerNodePositionChange,
   TopoViewerObjectClick,
   TopoViewerToolbarAction,

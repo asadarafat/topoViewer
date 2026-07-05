@@ -41,6 +41,10 @@
       "type": "boolean",
       "default": false
     },
+    "helperLines": {
+      "$ref": "#/definitions/helperLines",
+      "description": "Initial drag alignment helper-line state/options for this static embed. MkDocs and Zensical default this to true; readers can toggle helper lines from the viewport settings panel."
+    },
     "selectedLayerIds": {
       "$ref": "#/definitions/stringList",
       "description": "Initial checked layer IDs for the embed. Defaults to all graph layers."
@@ -74,6 +78,46 @@
         "type": "string",
         "minLength": 1
       }
+    },
+    "helperLines": {
+      "oneOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "snap": {
+              "type": "boolean",
+              "default": true
+            },
+            "threshold": {
+              "type": "number",
+              "minimum": 0,
+              "default": 5
+            },
+            "showMidpoints": {
+              "type": "boolean",
+              "default": false
+            },
+            "candidateLimit": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 300
+            },
+            "midpointCandidateLimit": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 80
+            }
+          }
+        }
+      ]
     },
     "focusDependencyQuery": {
       "type": "object",

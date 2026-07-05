@@ -27,6 +27,10 @@ async function assertNoTopoViewerError(page, label) {
 
 async function assertEmbedRendered(page, label, minimumNodes = 1, minimumEdges = 0) {
   await page.waitForSelector('.topoviewer-embed', { timeout: 30000 });
+  const helperLines = await page.locator('.topoviewer-embed').first().getAttribute('data-helper-lines');
+  if (helperLines !== 'true') {
+    throw new Error(`${label} embed is missing docs-default helper lines.`);
+  }
   await page.waitForFunction(
     ([nodes]) => document.querySelectorAll('.react-flow__node-network').length >= nodes,
     [minimumNodes],

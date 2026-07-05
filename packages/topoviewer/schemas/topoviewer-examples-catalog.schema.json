@@ -127,6 +127,9 @@
               "controlsOpen": {
                 "type": "boolean"
               },
+              "helperLines": {
+                "$ref": "topoviewer-mkdocs-block.schema.json#/definitions/helperLines"
+              },
               "selectedLayerIds": {
                 "type": "array",
                 "minItems": 1,

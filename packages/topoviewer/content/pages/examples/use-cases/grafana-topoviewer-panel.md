@@ -528,6 +528,15 @@ workflow is understood.
     Dragged positions are local runtime overrides. They are applied after the
     canonical topology/layout and before telemetry overlays.
 
+    When node dragging is enabled, alignment helper lines are also runtime-only.
+    They help snap objects during local panel exploration without writing back
+    to mounted bundle YAML.
+
+    New panels enable `Enable interaction state` and `Allow node drag` by
+    default. Helper lines are therefore available by default while dragging. If
+    a dashboard is intentionally read-only, disable either setting and the panel
+    will stop exposing drag alignment affordances.
+
     ### Dashboard Editability
 
     Provisioned dashboards cannot always be saved back through the Grafana UI.
