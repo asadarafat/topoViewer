@@ -2,6 +2,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
+import { runGo } from './go-toolchain.mjs';
 
 const packageRoot = path.resolve(import.meta.dirname, '..');
 const repoRoot = path.resolve(packageRoot, '../..');
@@ -30,7 +31,7 @@ run('webpack', ['--config', 'webpack.config.cjs'], packageRoot);
 const backendGoos = process.env.GRAFANA_PLUGIN_GOOS || 'linux';
 const backendGoarch = process.env.GRAFANA_PLUGIN_GOARCH || goArchForNodeArch(process.arch);
 const backendExecutableForPlatform = `${backendExecutable}_${backendGoos}_${backendGoarch}`;
-run('go', ['build', '-o', path.join(distRoot, backendExecutableForPlatform), './pkg'], packageRoot, {
+runGo(['build', '-o', path.join(distRoot, backendExecutableForPlatform), './pkg'], packageRoot, {
   CGO_ENABLED: '0',
   GOOS: backendGoos,
   GOARCH: backendGoarch

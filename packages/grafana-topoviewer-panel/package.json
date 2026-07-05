@@ -8,8 +8,8 @@
   "scripts": {
     "build": "node ../../scripts/require-node24.mjs && node scripts/build-plugin.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "govulncheck": "GOTOOLCHAIN=go1.25.11+auto go run golang.org/x/vuln/cmd/govulncheck@v1.5.0 ./...",
-    "test": "node ../../scripts/require-node24.mjs && npm --workspace topoviewer run build:lib && vitest run && go test ./...",
+    "govulncheck": "node scripts/run-go.mjs run golang.org/x/vuln/cmd/govulncheck@v1.5.0 ./...",
+    "test": "node ../../scripts/require-node24.mjs && npm --workspace topoviewer run build:lib && vitest run && node scripts/run-go.mjs test ./...",
     "test:hostile-content": "node ../../scripts/require-node24.mjs && npm --workspace topoviewer run build:lib && vitest run tests/mapperOverlayAdapter.test.ts tests/runtimeModel.test.ts"
   },
   "dependencies": {

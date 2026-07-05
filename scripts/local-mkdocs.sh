@@ -12,6 +12,10 @@ ensure_venv() {
         python3 -m venv "$VENV_DIR"
     fi
 
+    if ! "$VENV_DIR/bin/python" -m pip --version >/dev/null 2>&1; then
+        "$VENV_DIR/bin/python" -m ensurepip --upgrade
+    fi
+
     "$VENV_DIR/bin/python" -m pip install --upgrade pip
     "$VENV_DIR/bin/python" -m pip install -e "$ROOT_DIR/packages/mkdocs-topoviewer" mkdocs-material
 }

@@ -147,7 +147,7 @@ rebuilds those surfaces, enforces the checked-in budgets in
 `scripts/react-performance-budgets.json`, and fails on forbidden
 `@mui/material` barrel imports in the budgeted paths. The budget includes a
 small byte tolerance for normal build variance; increase it only with a new
-before/after report saved under the ignored `.artifacts/` directory.
+before/after report saved under an ignored local artifact directory.
 
 Browser authoring preferences must use the safe storage helpers in
 `packages/vscode-topoviewer/src/webview/browserStorage.ts`. Direct
