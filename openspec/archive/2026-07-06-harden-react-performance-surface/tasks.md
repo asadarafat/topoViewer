@@ -156,5 +156,5 @@ outside `openspec/changes/**`, preferably under
       intentionally dirty docs projection until this change is committed)
 - [x] 9.7 Record final before/after summary in command output or a local
       `.artifacts/` report
-- [ ] 9.8 Archive gate satisfied only after implementation, documentation,
+- [x] 9.8 Archive gate satisfied only after implementation, documentation,
       guardrails, local validation, and requested remote validation are complete
