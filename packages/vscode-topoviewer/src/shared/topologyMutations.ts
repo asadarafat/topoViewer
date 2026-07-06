@@ -187,14 +187,91 @@ function presetFields(preset: TopoObjectPreset): Record<string, unknown> {
 }
 
 export function defaultLayerId(document: Record<string, any> | TopoDocument | undefined, selectedLayerIds: string[]): string {
-  if (selectedLayerIds.length === 1) return selectedLayerIds[0];
   const layers = document?.graph?.layers || [];
+  const declared = new Set(layers.map((layer: any) => String(layer.id || '')).filter(Boolean));
+  const selected = selectedLayerIds.find((id) => declared.has(id)) || selectedLayerIds[0];
+  if (selected) return selected;
   return layers[0]?.id || 'default';
 }
 
 function layoutCenter(document: Record<string, any>): [number, number] {
   const layout = document.layout || {};
   return [Number(layout.width || 900) / 2, Number(layout.height || 520) / 2];
+}
+
+function positionOf(value: unknown): { x: number; y: number } | undefined {
+  if (Array.isArray(value)) {
+    const x = Number(value[0]);
+    const y = Number(value[1]);
+    return Number.isFinite(x) && Number.isFinite(y) ? { x, y } : undefined;
+  }
+  if (value && typeof value === 'object') {
+    const candidate = value as { x?: unknown; y?: unknown };
+    const x = Number(candidate.x);
+    const y = Number(candidate.y);
+    return Number.isFinite(x) && Number.isFinite(y) ? { x, y } : undefined;
+  }
+  return undefined;
+}
+
+function positionedObjects(document: Record<string, any>): Array<{ x: number; y: number }> {
+  return [
+    ...(document.graph?.nodes || []),
+    ...(document.diagram?.shapes || []),
+    ...(document.diagram?.callouts || [])
+  ].flatMap((object: any) => {
+    const position = positionOf(object.position);
+    return position ? [position] : [];
+  });
+}
+
+function selectedNodePosition(document: Record<string, any>, selectedObjects: TopoObjectSelection[]): { x: number; y: number } | undefined {
+  const selectedNodeId = selectedIds(selectedObjects, 'node')[0];
+  const node = selectedNodeId ? graphNodes(document).find((candidate) => candidate.id === selectedNodeId) : undefined;
+  return positionOf(node?.position);
+}
+
+function hasNearbyObject(candidate: { x: number; y: number }, occupied: Array<{ x: number; y: number }>): boolean {
+  return occupied.some((position) => Math.abs(candidate.x - position.x) < 140 && Math.abs(candidate.y - position.y) < 92);
+}
+
+function nextCanvasPosition(
+  document: Record<string, any>,
+  selectedObjects: TopoObjectSelection[],
+  offset: { x: number; y: number } = { x: 0, y: 0 }
+): { x: number; y: number } {
+  const selectedPosition = selectedNodePosition(document, selectedObjects);
+  const [centerX, centerY] = layoutCenter(document);
+  const base = selectedPosition
+    ? { x: selectedPosition.x + 180 + offset.x, y: selectedPosition.y + offset.y }
+    : { x: centerX + offset.x, y: centerY + offset.y };
+  const occupied = positionedObjects(document);
+  const offsets = [
+    [0, 0],
+    [180, 0],
+    [-180, 0],
+    [0, 120],
+    [0, -120],
+    [180, 120],
+    [-180, 120],
+    [180, -120],
+    [-180, -120],
+    [360, 0],
+    [-360, 0],
+    [360, 120],
+    [-360, 120],
+    [0, 240],
+    [0, -240]
+  ];
+  for (const [x, y] of offsets) {
+    const candidate = { x: Math.round(base.x + x), y: Math.round(base.y + y) };
+    if (!hasNearbyObject(candidate, occupied)) return candidate;
+  }
+  const index = occupied.length;
+  return {
+    x: Math.round(centerX + (index % 6) * 180),
+    y: Math.round(centerY + Math.floor(index / 6) * 120)
+  };
 }
 
 function selectedIds(selectedObjects: TopoObjectSelection[], kind: TopoObjectKind): string[] {
@@ -295,7 +372,6 @@ export function insertTopoObject(text: string, options: InsertObjectOptions): Mu
     const graph = ensureGraph(document);
     const diagram = ensureDiagram(document);
     const layerId = defaultLayerId(document, options.selectedLayerIds);
-    const [cx, cy] = layoutCenter(document);
     const nodes = ensureArray(graph, 'nodes');
     const links = ensureArray(graph, 'links');
     const paths = ensureArray(graph, 'paths');
@@ -304,6 +380,7 @@ export function insertTopoObject(text: string, options: InsertObjectOptions): Mu
 
     if (options.type === 'node' || options.type === 'router' || options.type === 'controller' || options.type === 'external' || options.type === 'service') {
       const id = nextId(document, options.type === 'service' ? 'service' : options.type);
+      const position = nextCanvasPosition(document, options.selectedObjects);
       const roleByType: Record<string, string> = {
         node: 'node',
         router: 'router',
@@ -316,7 +393,7 @@ export function insertTopoObject(text: string, options: InsertObjectOptions): Mu
         name: options.type === 'node' ? 'New Node' : options.type === 'service' ? 'New Service' : `New ${capitalize(options.type)}`,
         labels: { role: roleByType[options.type] },
         layers: [layerId],
-        position: [Math.round(cx), Math.round(cy)]
+        position: [position.x, position.y]
       });
       return;
     }
@@ -324,13 +401,14 @@ export function insertTopoObject(text: string, options: InsertObjectOptions): Mu
     if (options.type === 'alert') {
       const target = selectedNodeIdsOrFallback(document, options.selectedObjects, 1)[0];
       const id = nextId(document, 'alert');
+      const position = nextCanvasPosition(document, options.selectedObjects, { x: 180, y: -120 });
       nodes.push({
         id,
         name: 'Alert',
         labels: { role: 'ops' },
         data: { severity: 'major', status: 'investigating' },
         layers: [layerId],
-        position: [Math.round(cx + 180), Math.round(cy - 120)]
+        position: [position.x, position.y]
       });
       if (target) {
         links.push({
@@ -391,11 +469,12 @@ export function insertTopoObject(text: string, options: InsertObjectOptions): Mu
 
     if (options.type === 'callout') {
       const target = options.selectedObjects[0]?.kind === 'node' ? options.selectedObjects[0].id : undefined;
+      const position = nextCanvasPosition(document, options.selectedObjects, { x: 120, y: -80 });
       callouts.push({
         id: nextId(document, 'callout'),
         title: 'New Callout',
         body: 'Add context',
-        ...(target ? { target } : { position: [Math.round(cx + 120), Math.round(cy - 80)] }),
+        ...(target ? { target } : { position: [position.x, position.y] }),
         size: [160, 88],
         layers: [layerId]
       });
@@ -408,7 +487,6 @@ export function insertTopoPreset(text: string, options: InsertPresetOptions): Mu
     const graph = ensureGraph(document);
     const diagram = ensureDiagram(document);
     const layerId = defaultLayerId(document, options.selectedLayerIds);
-    const [cx, cy] = layoutCenter(document);
     const nodes = ensureArray(graph, 'nodes');
     const links = ensureArray(graph, 'links');
     const paths = ensureArray(graph, 'paths');
@@ -420,11 +498,12 @@ export function insertTopoPreset(text: string, options: InsertPresetOptions): Mu
     const fields = presetFields(preset);
 
     if (preset.kind === 'node') {
+      const position = nextCanvasPosition(document, options.selectedObjects);
       nodes.push({
         id,
         ...fields,
         layers: [layerId],
-        position: [Math.round(cx), Math.round(cy)]
+        position: [position.x, position.y]
       });
       return;
     }
@@ -467,24 +546,26 @@ export function insertTopoPreset(text: string, options: InsertPresetOptions): Mu
     }
 
     if (preset.kind === 'shape') {
+      const position = nextCanvasPosition(document, options.selectedObjects);
       shapes.push({
         id,
         ...fields,
         ...(preset.type ? { type: preset.type } : {}),
         layers: [layerId],
-        position: [Math.round(cx), Math.round(cy)]
+        position: [position.x, position.y]
       });
       return;
     }
 
     if (preset.kind === 'callout') {
       const target = options.selectedObjects[0]?.kind === 'node' ? options.selectedObjects[0].id : undefined;
+      const position = nextCanvasPosition(document, options.selectedObjects, { x: 120, y: -80 });
       callouts.push({
         id,
         ...fields,
         ...(preset.title ? { title: preset.title } : {}),
         ...(preset.body !== undefined ? { body: cloneUnknown(preset.body) } : {}),
-        ...(target ? { target } : { position: [Math.round(cx + 120), Math.round(cy - 80)] }),
+        ...(target ? { target } : { position: [position.x, position.y] }),
         layers: [layerId]
       });
     }

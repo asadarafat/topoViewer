@@ -165,6 +165,10 @@ function selectorKind(selector: string): string {
   return selector.trim().match(/^[a-zA-Z][\w-]*/)?.[0] || '';
 }
 
+function selectorIsBareKind(selector: string): boolean {
+  return /^[a-zA-Z][\w-]*$/.test(selector.trim());
+}
+
 function nodeAspectDimensionIssues(style: Record<string, unknown> | undefined, path: string): LintIssue[] {
   if (!style || typeof style !== 'object') return [];
   const shape = normalizeNodeShape(style.shape);
@@ -788,6 +792,7 @@ export function lintTopoDocument(input: TopoDocument, options: LintOptions = {})
   const sequencedPathIds = new Set((graph.paths || []).filter(hasSequence).map((path) => path.id));
   const nodeParents = new Map((graph.nodes || []).filter((node) => node.parent).map((node) => [node.id, node.parent!]));
   const seenIds = new Map<string, string>();
+  const styleSubjects = subjectEntities(document);
 
   (graph.nodes || []).forEach((node, index) => {
     addEntity(seenIds, issues, 'node', node, `graph.nodes[${index}]`, requireNames);
@@ -918,7 +923,12 @@ export function lintTopoDocument(input: TopoDocument, options: LintOptions = {})
     if (['link', 'linkDirection', 'path', 'connector'].includes(selectorKind(rule.selector))) {
       issues.push(...edgeStyleIssues(rule.style, `stylesheet[${index}].style`));
     }
-    if (!selectorTargetsGeneratedObject(rule.selector) && !selectorHasMatch(rule, document)) {
+    if (
+      styleSubjects.length > 0
+      && !selectorIsBareKind(rule.selector)
+      && !selectorTargetsGeneratedObject(rule.selector)
+      && !selectorHasMatch(rule, document)
+    ) {
       issues.push(issue('warning', 'unused-selector', `Stylesheet selector "${rule.selector}" does not match any current object.`, `stylesheet[${index}].selector`));
     }
   });

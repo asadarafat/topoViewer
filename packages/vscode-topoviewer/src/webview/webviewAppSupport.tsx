@@ -1,6 +1,6 @@
 import { useEffect, type ReactNode } from 'react';
 import Box from '@mui/material/Box';
-import { type AttentionFocusKind, type InsertObjectType, type TopoObjectPreset, type TopoObjectSelection } from '../shared/topologyMutations';
+import { parseTopologyText, type AttentionFocusKind, type InsertObjectType, type TopoObjectPreset, type TopoObjectSelection } from '../shared/topologyMutations';
 import { safeGetJson, safeGetString, safeSetJson, safeSetString } from './browserStorage';
 
 export type HarnessMode = 'build' | 'inspect' | 'yaml' | 'attention' | 'layers';
@@ -102,6 +102,20 @@ export function mergeLayerSelection(previous: string[], layers: Array<{ id: stri
   const known = new Set(layers.map((layer) => layer.id));
   const kept = previous.filter((id) => known.has(id));
   return kept.length ? kept : layers.map((layer) => layer.id);
+}
+
+export function layerSelectionFromTopologyText(topologyText: string | undefined): Array<{ id: string }> {
+  if (!topologyText) return [];
+  try {
+    const document = parseTopologyText(topologyText);
+    const layers = Array.isArray(document.graph?.layers) ? document.graph.layers : [];
+    return layers
+      .map((layer: { id?: unknown }) => String(layer?.id || ''))
+      .filter((id: string) => Boolean(id))
+      .map((id: string) => ({ id }));
+  } catch {
+    return [];
+  }
 }
 
 export function modeLabel(mode: HarnessMode) {

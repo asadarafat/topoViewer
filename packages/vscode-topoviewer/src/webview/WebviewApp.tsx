@@ -38,7 +38,7 @@ import {
 } from './webviewYamlAuthoring';
 import { AuthoringRail } from './AuthoringRail';
 import { PreviewPanel, ResizeDivider, ShellHeader, webviewShellSx } from './WebviewChrome';
-import { HarnessTabPanel, a11yProps, baseInsertObjectGroups, clamp, defaultSplitPercent, focusKindLabel, harnessModes, initialSavedPresets, initialSplitPercent, maxSplitPercent, mergeLayerSelection, minSplitPercent, modeIndex, modeLabel, pathSequenceFromObject, positionOf, presetFromObject, sameRoundedPosition, selectedNodeIds, selectedObjectIds, selectionSummary, sequenceFromControls, useHarnessPreferencePersistence, type DocumentTransaction, type HarnessMode } from './webviewAppSupport';
+import { HarnessTabPanel, a11yProps, baseInsertObjectGroups, clamp, defaultSplitPercent, focusKindLabel, harnessModes, initialSavedPresets, initialSplitPercent, layerSelectionFromTopologyText, maxSplitPercent, mergeLayerSelection, minSplitPercent, modeIndex, modeLabel, pathSequenceFromObject, positionOf, presetFromObject, sameRoundedPosition, selectedNodeIds, selectedObjectIds, selectionSummary, sequenceFromControls, useHarnessPreferencePersistence, type DocumentTransaction, type HarnessMode } from './webviewAppSupport';
 import { useBrowserHarnessActions } from './harnessActions';
 import { copyTextToClipboard, downloadYamlBundle as downloadYamlBundleAction, exportPreviewImage, type ExportStatus } from './webviewExportActions';
 import { useBrowserYamlIntelligence, useDraftValidation, useMonacoDiagnostics, usePendingYamlFocus, useYamlEditorMount, useYamlMonacoProviders } from './webviewEditorHooks';
@@ -48,12 +48,8 @@ import { useMapperRuleAuthoring } from './webviewMapperAuthoring';
 import { useObjectSelectionActions } from './webviewSelectionActions';
 import { useRenderProfile } from './renderProfile';
 import './webview.css';
+type WebviewAppProps = { host: TopoViewerWebviewHost; themeMode?: 'light' | 'dark'; onToggleThemeMode?: () => void };
 
-interface WebviewAppProps {
-  host: TopoViewerWebviewHost;
-  themeMode?: 'light' | 'dark';
-  onToggleThemeMode?: () => void;
-}
 export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppProps) {
   useRenderProfile('WebviewApp', { host: host.kind });
   const [state, setState] = useState<WebviewState>();
@@ -229,7 +225,15 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
   useDraftValidation({ draftDirty, draftMapperText, draftStylesheetText, draftTopologyText, host, setDraftValidation, state, validation });
   const visibleDocument = useMemo(() => validation.document as TopoDocument | undefined, [validation.document]);
   const graphNodes = visibleDocument?.graph?.nodes || [];
-  const nodeNameById = useMemo(() => new Map(graphNodes.map((node) => [node.id, node.name || node.label || node.id])), [graphNodes]);
+  const nodeNameById = useMemo(() => {
+    const baseNames = graphNodes.map((node) => String(node.name || node.label || node.id));
+    const nameCounts = new Map<string, number>();
+    baseNames.forEach((name) => nameCounts.set(name, (nameCounts.get(name) || 0) + 1));
+    return new Map(graphNodes.map((node, index) => {
+      const baseName = baseNames[index] || String(node.id);
+      return [node.id, nameCounts.get(baseName)! > 1 ? `${baseName} (${node.id})` : baseName];
+    }));
+  }, [graphNodes]);
   const activeValidation = draftDirty ? draftValidation : validation;
   const activeDiagnostics = activeValidation.diagnostics;
   const mapperCoveragePreview = useMemo(
@@ -452,7 +456,10 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
     setDraftTopologyText(nextState?.topologyText || '');
     setDraftStylesheetText(nextState?.stylesheetText || '');
     setDraftMapperText(nextState?.mapperText || '');
-    if (!nextState) {
+    if (nextState) {
+      setSelectedLayerIds(layerSelectionFromTopologyText(nextState.topologyText).map((layer) => layer.id));
+    } else {
+      setSelectedLayerIds([]);
       setDraftValidation({ diagnostics: [], layers: [] });
     }
   }

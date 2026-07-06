@@ -1,5 +1,6 @@
 import { validateSources } from '../shared/validation';
 import type { ExportImagePayload, HarnessFixture, TopoViewerWebviewHost, ValidationResult, WebviewState } from '../shared/types';
+import { starterAuthoringMapperText, starterAuthoringStylesheetText, starterAuthoringTopologyText } from '../shared/starterAuthoring';
 import { safeGetJson, safeGetString, safeRemoveItem, safeSetJson, safeSetString } from './browserStorage';
 
 declare global {
@@ -17,14 +18,7 @@ export function exportViewportMessage(payload: ExportImagePayload) {
 }
 
 function defaultMapperText(sourceId = 'topoviewer') {
-  return [
-    'version: 1',
-    'identity:',
-    `  sourceId: ${sourceId}`,
-    '  sourceIdLabel: source_id',
-    'rules: []',
-    ''
-  ].join('\n');
+  return starterAuthoringMapperText(sourceId);
 }
 
 export class VsCodeHostAdapter implements TopoViewerWebviewHost {
@@ -53,9 +47,9 @@ export class VsCodeHostAdapter implements TopoViewerWebviewHost {
       window.setTimeout(() => {
         if (!this.latestState) {
           resolve({
-            topologyText: 'graph:\n  nodes: []\n',
-            stylesheetText: 'stylesheet: []\n',
-            mapperText: defaultMapperText()
+            topologyText: starterAuthoringTopologyText,
+            stylesheetText: starterAuthoringStylesheetText,
+            mapperText: starterAuthoringMapperText()
           });
         }
       }, 1500);
@@ -173,20 +167,9 @@ export class BrowserHarnessHostAdapter implements TopoViewerWebviewHost {
       topologyPath: `local://${fixture.id}/topology.yaml`,
       stylesheetPath: `local://${fixture.id}/stylesheet.yaml`,
       mapperPath: `local://${fixture.id}/mapper.tv.yaml`,
-      topologyText: [
-        'graph:',
-        '  id: custom-topology',
-        '  layers:',
-        '    - id: default',
-        '      name: Default',
-        '  nodes: []',
-        '  links: []',
-        '  paths: []',
-        '  regions: []',
-        ''
-      ].join('\n'),
-      stylesheetText: 'stylesheet: []\n',
-      mapperText: defaultMapperText('custom-topology')
+      topologyText: starterAuthoringTopologyText,
+      stylesheetText: starterAuthoringStylesheetText,
+      mapperText: starterAuthoringMapperText('custom-topology')
     };
     this.saveState(state);
     return state;
