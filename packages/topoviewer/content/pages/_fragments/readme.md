@@ -1,7 +1,7 @@
 # TopoViewer
 
 [![CI](https://github.com/asadarafat/topoviewer/actions/workflows/ci.yml/badge.svg)](https://github.com/asadarafat/topoviewer/actions/workflows/ci.yml)
-[![Docs](https://github.com/asadarafat/topoviewer/actions/workflows/docs.yml/badge.svg)](https://github.com/asadarafat/topoviewer/actions/workflows/docs.yml)
+[![Docs](https://github.com/asadarafat/topoviewer/actions/workflows/docs.yml/badge.svg)](https://asadarafat.github.io/topoviewer/docs/zensical/)
 [![npm](https://img.shields.io/npm/v/topoviewer?label=npm)](https://www.npmjs.com/package/topoviewer)
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/asadarafat/topoviewer)
 
@@ -84,14 +84,12 @@ reuse that core instead of inventing their own topology semantics.
 
 ## Start Fast
 
-### Browser Harness
+### Harness
 
 The Harness is the fastest way to try TopoViewer without wiring it into another
 product.
 
-```text
-https://asadarafat.github.io/topoviewer/harness/
-```
+[https://asadarafat.github.io/topoviewer/harness/](https://asadarafat.github.io/topoviewer/harness/)
 
 Use it to edit `topology.yaml`, `stylesheet.yaml`, and `mapper.yaml`; validate
 drafts; preview the rendered graph; and export bundles for docs, React, or
@@ -123,20 +121,16 @@ title: Graph basic
 ```
 ````
 
-Published examples:
+Published docs:
 
-```text
-https://asadarafat.github.io/topoviewer/docs/mkdocs/topoviewer/examples/
-```
+[https://asadarafat.github.io/topoviewer/docs/mkdocs/topoviewer/](https://asadarafat.github.io/topoviewer/docs/mkdocs/topoviewer/)
 
 ### Zensical Static Docs
 
 TopoViewer also publishes a Zensical static-docs view from the same authored
 documentation source:
 
-```text
-https://asadarafat.github.io/topoviewer/docs/zensical/
-```
+[https://asadarafat.github.io/topoviewer/docs/zensical/](https://asadarafat.github.io/topoviewer/docs/zensical/)
 
 This is an adapter surface for the published docs, not a separate installable
 plugin. Its purpose is to prove that TopoViewer bundles can travel across docs
