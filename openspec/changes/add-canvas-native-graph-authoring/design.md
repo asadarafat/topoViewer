@@ -1,0 +1,245 @@
+# Design
+
+## Current State
+
+The Harness has the foundations needed for a real authoring surface:
+
+- stable manual-layout starter topology;
+- deterministic object insertion;
+- layer-aware creation;
+- selection and multi-selection;
+- node dragging with persisted YAML positions;
+- helper lines and drag smoothness coverage;
+- connection/path/region/callout/shape CRUD through buttons and Inspector;
+- candidate/apply YAML editing;
+- diagnostics, YAML assist, undo/redo, and bundle export.
+
+The limitation is interaction shape. The user still drives most creation and
+editing through panels. A canvas-native editor should put the canvas in charge
+of common actions while keeping YAML as the source of truth.
+
+## Product Principle
+
+Canvas authoring must be topology-aware, not whiteboard-first.
+
+The editor may feel familiar to draw.io or PowerPoint, but the output is not an
+opaque drawing. A user action creates or changes a TopoViewer object:
+
+```text
+pointer gesture / keyboard action
+        -> topology mutation
+        -> validated YAML
+        -> rendered graph
+```
+
+If an action cannot be represented as clean TopoViewer YAML, it should not be a
+primary authoring action.
+
+## Authoring Modes
+
+Use an explicit tool model:
+
+```ts
+type CanvasAuthoringTool =
+  | 'select'
+  | 'pan'
+  | 'node'
+  | 'router'
+  | 'service'
+  | 'controller'
+  | 'external'
+  | 'link'
+  | 'path'
+  | 'region'
+  | 'callout'
+  | 'shape'
+  | 'text';
+```
+
+Initial support can map `text` to a callout or label-like diagram primitive if
+there is no standalone text primitive yet. Do not expose unsupported tools in
+the UI.
+
+Tool behavior:
+
+- `select`: click selects, shift-click toggles, drag empty canvas creates a
+  marquee selection, drag selected objects moves them.
+- `pan`: drag canvas pans the viewport.
+- node preset tools: click canvas inserts the preset at the clicked topology
+  coordinate.
+- `link`: drag from a source node/handle to a target node/handle creates a link.
+- `path`: click nodes in sequence, Enter commits, Escape cancels.
+- `region`: drag a rectangle or create from current selection.
+- `callout`: click target then click placement, or create from selected object.
+- `shape`: drag rectangle/ellipse/line-like annotation where supported.
+
+## Data Flow
+
+All direct-manipulation actions should reuse shared mutation helpers or add new
+helpers under `packages/vscode-topoviewer/src/shared/`.
+
+Recommended shape:
+
+```ts
+type AuthoringCommand =
+  | { type: 'insertNodeAt'; preset: InsertObjectType; position: Point; layers: string[] }
+  | { type: 'insertLinkBetween'; source: EndpointRef; target: EndpointRef; layers: string[] }
+  | { type: 'insertPathSequence'; sequence: string[]; layers: string[] }
+  | { type: 'insertRegionFromBounds'; bounds: Rect; members: string[]; layers: string[] }
+  | { type: 'insertCalloutAt'; target?: TopoObjectSelection; position: Point; layers: string[] }
+  | { type: 'moveSelection'; selections: TopoObjectSelection[]; delta: Point }
+  | { type: 'resizeObject'; selection: TopoObjectSelection; bounds: Rect }
+  | { type: 'duplicateSelection'; selections: TopoObjectSelection[]; offset: Point }
+  | { type: 'deleteSelection'; selections: TopoObjectSelection[] };
+```
+
+Each command becomes one durable undo/redo transaction. The transaction label
+should describe the user action, such as `Place router`, `Draw link`, or
+`Resize region`.
+
+## Coordinate Model
+
+Pointer coordinates must be converted through the current React Flow viewport
+into topology coordinates. Do not infer positions from DOM pixels after zoom.
+
+Creation coordinates should respect:
+
+- current zoom/pan;
+- selected visible layer set;
+- snap grid when enabled;
+- helper-line commit snap where applicable;
+- parent/region/group context when the user creates inside a container.
+
+## Link Drawing
+
+Link drawing needs a first-class interaction rather than combobox-only creation.
+
+The minimum contract:
+
+- dragging from a node body or visible handle starts a link preview;
+- hovering a valid target node/handle highlights the target;
+- dropping on a valid target creates a `graph.links[]` entry;
+- dropping on empty canvas cancels unless a future "create node on drop" flow
+  is explicitly implemented;
+- source/target labels and handles must be recorded when they are supported by
+  the schema and renderer;
+- parallel links must receive deterministic IDs and must not overwrite existing
+  links.
+
+Do not implement link drawing by relying on React Flow's temporary edge state
+alone. React Flow can provide interaction hooks, but the committed output must
+be the shared TopoViewer topology mutation.
+
+## Transform Handles
+
+Supported direct geometry editing should be explicit:
+
+- nodes: move, optional resize when width/height are object-specific or style
+  override support exists;
+- shapes: move and resize;
+- callouts: move anchor/label position where supported;
+- regions: move region if explicit region geometry exists or by translating
+  member objects when region-as-group behavior is active.
+
+For object families without a clean YAML target for resize or rotate, do not
+show resize/rotate handles.
+
+## Selection And Clipboard
+
+Selection must behave predictably:
+
+- click selects one object;
+- shift-click toggles one object;
+- drag empty canvas creates a marquee selection;
+- Escape clears selection or cancels an active tool;
+- Delete/Backspace deletes selected objects;
+- Cmd/Ctrl+C copies selected topology objects as internal JSON/YAML;
+- Cmd/Ctrl+V pastes with deterministic new IDs and an offset;
+- Cmd/Ctrl+D duplicates selected objects;
+- Cmd/Ctrl+Z/Y or Shift+Cmd/Ctrl+Z uses the existing undo/redo stack.
+
+Clipboard behavior must preserve internal references where possible:
+
+- duplicated links should point to duplicated endpoint nodes when both endpoints
+  are included;
+- links whose endpoints are not included should either be omitted or keep
+  references only if that behavior is explicitly chosen and tested;
+- regions should include only members present in the duplicated selection unless
+  a "keep external members" option is added later.
+
+## Alignment And Distribution
+
+Canvas authoring should expose common layout commands:
+
+- align left, center, right, top, middle, bottom;
+- distribute horizontally/vertically;
+- bring forward/send backward where diagram object ordering exists;
+- nudge by arrow keys;
+- larger nudge with Shift+arrow;
+- optional grid snap.
+
+These are deterministic YAML mutations and must be tested by checking object
+positions after the command.
+
+## UI Placement
+
+The first production surface should use:
+
+- a compact floating canvas toolbar for high-frequency tools;
+- a right or left Inspector for selected-object properties;
+- a context menu for object-level commands;
+- keyboard shortcut labels in tooltips, not persistent explanatory text;
+- a small mode/status readout for active tool and pending command.
+
+The existing rail may stay for YAML, diagnostics, mapper, and advanced
+structured flows, but the primary authoring path should not require the user to
+open the Build tab for common actions.
+
+## YAML Draft Interaction
+
+Canvas mutations should not silently overwrite dirty YAML drafts.
+
+If YAML draft is dirty:
+
+- disable canvas mutation tools and show a clear apply/revert prompt; or
+- apply the mutation to the draft only and keep the preview on the last valid
+  applied document.
+
+The first option is safer and matches the existing candidate/apply model.
+
+## Test Strategy
+
+Testing must cover both UI behavior and YAML output.
+
+For each implemented action:
+
+- assert the visual object exists or changes;
+- assert the corresponding YAML object exists or changes;
+- assert undo/redo;
+- assert reload persistence when the action changes applied state;
+- assert no actionable browser console errors.
+
+The CRUD matrix should include:
+
+- node presets: node, router, service, controller, external;
+- links: create, edit labels/data if surfaced, delete, undo/redo;
+- paths: create sequence, edit sequence, delete, undo/redo;
+- regions: create from selection and/or bounds, edit name/members, delete;
+- callouts: create from target, move, edit text/name, delete;
+- shapes: create, move, resize, style/name, delete;
+- layers: creation uses visible layer context and updates correctly when only a
+  subset is selected.
+
+## Risks
+
+- React Flow makes some interactions easy but not all topology semantics. Avoid
+  leaking React Flow-specific edge/node data into TopoViewer YAML.
+- A full freeform drawing editor would dilute TopoViewer's topology-as-code
+  value. Keep the model semantic.
+- Direct manipulation can race with YAML draft state unless mutation gating is
+  strict.
+- Clipboard and duplication can create broken references if references are not
+  rewritten deliberately.
+- Resize/region behavior can become confusing if object bounds are style-driven
+  rather than object-driven.
+

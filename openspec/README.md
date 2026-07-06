@@ -14,6 +14,11 @@ Current active plans:
   harness node dragging by measuring drag smoothness, decoupling helper-line
   guide rendering from live snap position rewrites, scheduling transient overlay
   state, and preserving final YAML position persistence.
+- `changes/add-canvas-native-graph-authoring/` - planned canvas-native Harness
+  authoring workflow for draw.io/PowerPoint-like direct manipulation while
+  keeping TopoViewer YAML as the source of truth, including tool palette,
+  click-to-create, drag-to-connect, direct geometry edits, marquee selection,
+  clipboard, alignment, documentation, and CRUD permutation coverage.
 - `changes/define-codespaces-dev-environment/` - planned Codespaces developer environment that can run local MkDocs, Zensical, browser harness, Grafana lab, and Containerlab-Grafana workflows from a fresh cloud workspace.
 - `changes/define-netbox-integration-roadmap/` - planned NetBox feasibility, use cases, first integration shape, and roadmap wording constraints.
 - `changes/define-opsmill-infrahub-integration-roadmap/` - planned OpsMill/Infrahub feasibility, use cases, first integration shape, and roadmap wording constraints.
