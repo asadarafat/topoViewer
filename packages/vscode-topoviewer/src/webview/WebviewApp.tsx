@@ -682,7 +682,6 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
     }));
   }
   useBrowserHarnessActions(host, { selectObject });
-
   function openRelationshipComposer(kind: 'link' | 'path') {
     const selectedNodes = selectedGraphNodeIds;
     setRelationshipComposer(kind);
@@ -691,12 +690,13 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
         setLinkSourceId(selectedNodes[0]);
         setLinkTargetId(selectedNodes[1]);
       } else {
-        setLinkSourceId((current) => current || graphNodes[0]?.id || '');
-        setLinkTargetId((current) => current || graphNodes.find((node) => node.id !== (selectedNodes[0] || linkSourceId || graphNodes[0]?.id))?.id || '');
+        const graphNodeIds = graphNodes.map((node) => node.id).filter(Boolean);
+        const source = selectedNodes[0] || (graphNodeIds.includes(linkSourceId) ? linkSourceId : '') || graphNodeIds[0] || '';
+        setLinkSourceId(source);
+        setLinkTargetId(graphNodeIds.includes(linkTargetId) && linkTargetId !== source ? linkTargetId : graphNodeIds.find((id) => id !== source) || '');
       }
       return;
     }
-
     if (selectedNodes.length >= 2) {
       setPathSourceId(selectedNodes[0]);
       setPathTargetId(selectedNodes[selectedNodes.length - 1]);

@@ -5,6 +5,7 @@ import {
   ReactFlowProvider,
   useReactFlow,
   useEdgesState,
+  useNodesInitialized,
   useNodesState,
   type NodeChange
 } from '@xyflow/react';
@@ -293,6 +294,22 @@ function useHelperLineState() {
   return [state, scheduleState, clearState] as const;
 }
 
+function preserveRuntimeNodeMeasurements(nextNodes: unknown[], currentNodes: unknown[]) {
+  const currentById = new Map(currentNodes.map((node) => [String((node as { id?: unknown }).id || ''), node as Record<string, unknown>]));
+  return nextNodes.map((node) => {
+    const current = currentById.get(String((node as { id?: unknown }).id || ''));
+    if (!current) return node;
+    const runtimeMeasurements: Record<string, unknown> = {};
+    if (current.height !== undefined) runtimeMeasurements.height = current.height;
+    if (current.measured !== undefined) runtimeMeasurements.measured = current.measured;
+    if (current.width !== undefined) runtimeMeasurements.width = current.width;
+    return {
+      ...(node as Record<string, unknown>),
+      ...runtimeMeasurements
+    };
+  });
+}
+
 function TopoFlow({
   compiled,
   document,
@@ -331,6 +348,7 @@ function TopoFlow({
   const [nodes, setNodes] = useNodesState(compiled.nodes as never[]);
   const [edges, setEdges, onEdgesChange] = useEdgesState(withRuntimeDirectionHandlers(compiled.edges, onObjectClick) as never[]);
   const reactFlow = useReactFlow();
+  const nodesInitialized = useNodesInitialized({ includeHiddenNodes: true });
   const helperLineOptions = useMemo(() => normalizeHelperLinesOptions(helperLines), [helperLines]);
   const [helperLineState, scheduleHelperLineState, clearHelperLines] = useHelperLineState();
   const nodesRef = useRef<HelperLineNodeLike[]>(compiled.nodes as unknown as HelperLineNodeLike[]);
@@ -339,9 +357,12 @@ function TopoFlow({
   const activeHelperLineStateRef = useRef<HelperLineState>(emptyHelperLineState);
 
   useEffect(() => {
-    setNodes(compiled.nodes as never[]);
+    setNodes((currentNodes) => {
+      const nextNodes = preserveRuntimeNodeMeasurements(compiled.nodes, currentNodes);
+      nodesRef.current = nextNodes as unknown as HelperLineNodeLike[];
+      return nextNodes as never[];
+    });
     setEdges(withRuntimeDirectionHandlers(compiled.edges, onObjectClick) as never[]);
-    nodesRef.current = compiled.nodes as unknown as HelperLineNodeLike[];
     snappedPositionsRef.current.clear();
     activeDragNodeIdRef.current = undefined;
     activeHelperLineStateRef.current = emptyHelperLineState;
@@ -492,7 +513,7 @@ function TopoFlow({
       fitViewOptions={{ padding: 0.06, maxZoom: 1 }}
       minZoom={0.2}
       maxZoom={8}
-      nodesDraggable={nodesDraggable}
+      nodesDraggable={nodesDraggable !== false && nodesInitialized}
       elementsSelectable
       proOptions={{ hideAttribution: true }}
     >

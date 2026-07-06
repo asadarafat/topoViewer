@@ -40,15 +40,19 @@ async function startNewTopology(page: Parameters<typeof topologyText>[0]) {
 async function topologyPointForClientClick(page: Parameters<typeof topologyText>[0], clientX: number, clientY: number) {
   const paneBox = await page.locator('.react-flow__pane').boundingBox();
   expect(paneBox).not.toBeNull();
-  const viewport = await page.locator('.react-flow__viewport').evaluate((element) => {
-    const transform = getComputedStyle(element).transform;
-    const matrix = new DOMMatrixReadOnly(transform === 'none' ? undefined : transform);
-    return { x: matrix.m41, y: matrix.m42, zoom: matrix.a || 1 };
-  });
+  const viewport = await reactFlowViewport(page);
   return {
     x: (clientX - paneBox!.x - viewport.x) / viewport.zoom,
     y: (clientY - paneBox!.y - viewport.y) / viewport.zoom
   };
+}
+
+async function reactFlowViewport(page: Parameters<typeof topologyText>[0]) {
+  return page.locator('.react-flow__viewport').evaluate((element) => {
+    const transform = getComputedStyle(element).transform;
+    const matrix = new DOMMatrixReadOnly(transform === 'none' ? undefined : transform);
+    return { x: matrix.m41, y: matrix.m42, zoom: matrix.a || 1 };
+  });
 }
 
 test.beforeEach(async ({ page }) => {
@@ -199,6 +203,62 @@ test('places canvas nodes on the currently visible authoring layer', async ({ pa
   await expect(graphNodeByLabel(page, 'New Node')).toBeVisible();
   await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'node-1')).toContain('- service');
   await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'node-1')).not.toContain('- physical');
+});
+
+test('keeps click-created linked nodes stable during staggered vertical drags', async ({ page }) => {
+  await startNewTopology(page);
+
+  const paneBox = await page.locator('.react-flow__pane').boundingBox();
+  expect(paneBox).not.toBeNull();
+  const nodeTool = page.getByRole('toolbar', { name: 'Canvas authoring tools' }).getByRole('button', { name: 'Node tool' });
+  await nodeTool.click();
+  await page.mouse.click(paneBox!.x + paneBox!.width * 0.44, paneBox!.y + paneBox!.height * 0.5);
+  await page.mouse.click(paneBox!.x + paneBox!.width * 0.62, paneBox!.y + paneBox!.height * 0.5);
+  await waitForValidatedGraphNodes(page, ['node-1', 'node-2']);
+  await expect(page.locator('.react-flow__node[data-id="node-1"]')).toBeVisible();
+  await expect(page.locator('.react-flow__node[data-id="node-2"]')).toBeVisible();
+
+  const build = page.locator('.topoviewer-vscode-build-pane');
+  await build.getByRole('button', { name: 'Insert Connection' }).click();
+  await build.getByRole('button', { name: 'Create connection' }).click();
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'link-1')).toContain('node-1');
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'link-1')).toContain('node-2');
+
+  const draggedNode = page.locator('.react-flow__node[data-id="node-1"]');
+  const startPosition = nodePosition(await topologyText(page), 'node-1');
+  expect(startPosition).toBeDefined();
+  const deltas = [90, -55, 115, -70, 45];
+
+  for (const deltaY of deltas) {
+    const before = nodePosition(await topologyText(page), 'node-1');
+    const box = await draggedNode.boundingBox();
+    expect(before).toBeDefined();
+    expect(box).not.toBeNull();
+    const from = { x: box!.x + box!.width / 2, y: box!.y + box!.height / 2 };
+    await page.mouse.move(from.x, from.y);
+    await page.mouse.down();
+    await page.mouse.move(from.x, from.y + deltaY, { steps: 12 });
+    await page.mouse.up();
+    await expect(draggedNode).toBeVisible();
+    await expect(page.locator('.react-flow__node[data-id="node-2"]')).toBeVisible();
+    await expect(page.locator('.react-flow__edge')).toHaveCount(1);
+    let observedDelta = 0;
+    await expect.poll(async () => {
+      const next = nodePosition(await topologyText(page), 'node-1');
+      observedDelta = next ? Math.round(next.y - before!.y) : Number.NaN;
+      return observedDelta;
+    }).not.toBe(0);
+    expect(Math.sign(observedDelta)).toBe(Math.sign(deltaY));
+    expect(Math.abs(observedDelta)).toBeGreaterThanOrEqual(Math.abs(deltaY) * 0.3);
+  }
+
+  const finalPosition = nodePosition(await topologyText(page), 'node-1');
+  expect(finalPosition).toBeDefined();
+  expect(finalPosition).not.toEqual(startPosition);
+  await page.reload();
+  await waitForHarnessState(page);
+  await expect(page.getByText('No diagnostics')).toBeVisible();
+  await expect.poll(async () => nodePosition(await topologyText(page), 'node-1')).toEqual(finalPosition);
 });
 
 test('crud covers new topology regions, callouts, and relationship objects', async ({ page }) => {
