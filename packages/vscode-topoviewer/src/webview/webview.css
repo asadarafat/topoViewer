@@ -251,10 +251,6 @@ body,
 }
 
 .topoviewer-vscode-preview--tool-node .react-flow__pane,
-.topoviewer-vscode-preview--tool-router .react-flow__pane,
-.topoviewer-vscode-preview--tool-service .react-flow__pane,
-.topoviewer-vscode-preview--tool-controller .react-flow__pane,
-.topoviewer-vscode-preview--tool-external .react-flow__pane,
 .topoviewer-vscode-preview--tool-link .react-flow__pane,
 .topoviewer-vscode-preview--tool-path .react-flow__pane,
 .topoviewer-vscode-preview--tool-region .react-flow__pane,

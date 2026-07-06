@@ -16,15 +16,11 @@ import CategoryIcon from '@mui/icons-material/Category';
 import ChatBubbleIcon from '@mui/icons-material/ChatBubble';
 import CropFreeIcon from '@mui/icons-material/CropFree';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
-import DnsIcon from '@mui/icons-material/Dns';
-import HubIcon from '@mui/icons-material/Hub';
 import LightModeIcon from '@mui/icons-material/LightMode';
 import LaunchIcon from '@mui/icons-material/Launch';
 import MouseIcon from '@mui/icons-material/Mouse';
 import PanToolAltIcon from '@mui/icons-material/PanToolAlt';
 import PolylineIcon from '@mui/icons-material/Polyline';
-import RouterIcon from '@mui/icons-material/Router';
-import StorageIcon from '@mui/icons-material/Storage';
 import { TopoViewer, defaultTopoViewerToggles, type TopoDocument, type TopoViewerNodePositionChange, type TopoViewerObjectClick } from 'topoviewer';
 import { memo, useCallback, useEffect, useState, type ComponentType, type Dispatch, type RefObject, type SetStateAction } from 'react';
 import type { Theme } from '@mui/material/styles';
@@ -81,10 +77,6 @@ const canvasToolDefinitions: Array<{
   { icon: MouseIcon, label: 'Select tool', shortcut: 'V', tool: 'select' },
   { icon: PanToolAltIcon, label: 'Pan tool', shortcut: 'H', tool: 'pan' },
   { icon: AddBoxIcon, label: 'Node tool', shortcut: 'N', tool: 'node' },
-  { icon: RouterIcon, label: 'Router tool', shortcut: 'R', tool: 'router' },
-  { icon: StorageIcon, label: 'Service tool', shortcut: 'S', tool: 'service' },
-  { icon: DnsIcon, label: 'Controller tool', shortcut: 'C', tool: 'controller' },
-  { icon: HubIcon, label: 'External tool', shortcut: 'X', tool: 'external' },
   { icon: CableIcon, label: 'Link tool', shortcut: 'L', tool: 'link' },
   { icon: PolylineIcon, label: 'Path tool', shortcut: 'P', tool: 'path' },
   { icon: CategoryIcon, label: 'Region tool', shortcut: 'G', tool: 'region' },

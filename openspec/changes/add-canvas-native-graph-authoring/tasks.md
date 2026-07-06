@@ -35,8 +35,8 @@ Each implementation phase must prove:
 
 ## 2. Canvas Tool Palette Shell
 
-- [x] 2.1 Add compact canvas toolbar with select, pan, node presets, link, path,
-      region, callout, and shape tools based on implemented support
+- [x] 2.1 Add compact canvas toolbar with select, pan, generic node, link,
+      path, region, callout, and shape tools based on implemented support
 - [x] 2.2 Add active-tool visual state and cursor state
 - [x] 2.3 Add keyboard shortcuts for supported tools
 - [x] 2.4 Add tooltip labels and shortcut hints without adding noisy in-app

@@ -117,20 +117,19 @@ test('activates canvas authoring tools from toolbar buttons and keyboard shortcu
   await expect(toolbar).toBeVisible();
 
   const selectTool = toolbar.getByRole('button', { name: 'Select tool' });
-  const routerTool = toolbar.getByRole('button', { name: 'Router tool' });
+  const nodeTool = toolbar.getByRole('button', { name: 'Node tool' });
   const linkTool = toolbar.getByRole('button', { name: 'Link tool' });
-  const serviceTool = toolbar.getByRole('button', { name: 'Service tool' });
   const shapeTool = toolbar.getByRole('button', { name: 'Shape tool' });
 
   await expect(selectTool).toHaveAttribute('aria-pressed', 'true');
-  await routerTool.click();
-  await expect(routerTool).toHaveAttribute('aria-pressed', 'true');
+  await nodeTool.click();
+  await expect(nodeTool).toHaveAttribute('aria-pressed', 'true');
   await expect(selectTool).toHaveAttribute('aria-pressed', 'false');
 
   await page.keyboard.press('l');
   await expect(linkTool).toHaveAttribute('aria-pressed', 'true');
-  await page.keyboard.press('s');
-  await expect(serviceTool).toHaveAttribute('aria-pressed', 'true');
+  await page.keyboard.press('n');
+  await expect(nodeTool).toHaveAttribute('aria-pressed', 'true');
   await page.keyboard.press('d');
   await expect(shapeTool).toHaveAttribute('aria-pressed', 'true');
   await page.keyboard.press('Escape');
