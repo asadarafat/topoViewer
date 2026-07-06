@@ -306,7 +306,7 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Download docs site for renderer parity
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: ci-docs-site
           path: site
