@@ -218,6 +218,51 @@ body,
   backdrop-filter: blur(10px);
 }
 
+.topoviewer-vscode-canvas-toolbar {
+  position: absolute;
+  top: var(--topoviewer-vscode-space-1-5);
+  left: 50%;
+  z-index: 21;
+  display: flex;
+  gap: var(--topoviewer-vscode-space-half);
+  align-items: center;
+  padding: var(--topoviewer-vscode-space-half);
+  border: 1px solid var(--vscode-panel-border, #d7dee8);
+  border-radius: var(--topoviewer-vscode-radius-lg);
+  background: color-mix(in srgb, var(--vscode-sideBar-background, #ffffff) 90%, transparent);
+  box-shadow: 0 var(--topoviewer-vscode-space-1) var(--topoviewer-vscode-space-3-5) rgba(15, 23, 42, 0.14);
+  transform: translateX(-50%);
+  backdrop-filter: blur(10px);
+}
+
+.topoviewer-vscode-canvas-tool {
+  width: calc(var(--topoviewer-vscode-space-3-5) + var(--topoviewer-vscode-space-half));
+  height: calc(var(--topoviewer-vscode-space-3-5) + var(--topoviewer-vscode-space-half));
+  border: 1px solid transparent;
+}
+
+.topoviewer-vscode-canvas-tool--active {
+  border-color: color-mix(in srgb, var(--topoviewer-accent, #1976d2) 52%, transparent);
+  background: color-mix(in srgb, var(--topoviewer-accent, #1976d2) 14%, transparent);
+}
+
+.topoviewer-vscode-preview--tool-pan .react-flow__pane {
+  cursor: grab;
+}
+
+.topoviewer-vscode-preview--tool-node .react-flow__pane,
+.topoviewer-vscode-preview--tool-router .react-flow__pane,
+.topoviewer-vscode-preview--tool-service .react-flow__pane,
+.topoviewer-vscode-preview--tool-controller .react-flow__pane,
+.topoviewer-vscode-preview--tool-external .react-flow__pane,
+.topoviewer-vscode-preview--tool-link .react-flow__pane,
+.topoviewer-vscode-preview--tool-path .react-flow__pane,
+.topoviewer-vscode-preview--tool-region .react-flow__pane,
+.topoviewer-vscode-preview--tool-shape .react-flow__pane,
+.topoviewer-vscode-preview--tool-callout .react-flow__pane {
+  cursor: crosshair;
+}
+
 .topoviewer-vscode-preview .topoviewer .topoviewer-reactflow-controls.top-right {
   top: var(--topoviewer-vscode-space-1-5);
   right: var(--topoviewer-vscode-space-1-5);

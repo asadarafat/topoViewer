@@ -174,6 +174,15 @@ export async function showAllHarnessLayers(page: Page) {
   await page.getByRole('tab', { name: 'Build', exact: true }).click();
 }
 
+export async function waitForValidatedLayers(page: Page, ids: string[]) {
+  await page.waitForFunction((targetIds) => {
+    const layers = (window as any).__topoviewerHarnessValidation?.layers;
+    if (!Array.isArray(layers)) return false;
+    const available = new Set(layers.map((layer: { id?: unknown }) => String(layer.id || '')));
+    return (targetIds as string[]).every((id) => available.has(id));
+  }, ids);
+}
+
 export async function waitForHarnessState(page: Page) {
   await page.waitForFunction(() => !!(window as any).__topoviewerHarnessState?.topologyText);
 }
@@ -184,6 +193,15 @@ export async function waitForValidatedGraphObject(page: Page, collection: 'links
     return Array.isArray(graph?.[targetCollection])
       && graph[targetCollection].some((object: { id?: string }) => object.id === targetId);
   }, [collection, id]);
+}
+
+export async function waitForValidatedGraphNodes(page: Page, ids: string[]) {
+  await page.waitForFunction((targetIds) => {
+    const nodes = (window as any).__topoviewerHarnessValidation?.document?.graph?.nodes;
+    if (!Array.isArray(nodes)) return false;
+    const available = new Set(nodes.map((node: { id?: unknown }) => String(node.id || '')));
+    return (targetIds as string[]).every((id) => available.has(id));
+  }, ids);
 }
 
 export async function selectHarnessObject(page: Page, kind: 'node' | 'link' | 'path' | 'region' | 'shape' | 'callout', id: string) {

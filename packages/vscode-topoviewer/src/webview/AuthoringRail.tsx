@@ -19,7 +19,6 @@ import Stack from '@mui/material/Stack';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
 import TextField from '@mui/material/TextField';
-import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -383,19 +382,16 @@ export const AuthoringRail = memo(function AuthoringRail(props: AuthoringRailPro
                     </Box>
                     <Stack direction="row" spacing={1} useFlexGap sx={{ flexWrap: 'wrap' }}>
                       {group.objects.map((object) => (
-                        <Tooltip
+                        <Button
                           key={object.kind === 'insert' ? object.type : object.preset.id}
+                          size="small"
+                          variant="outlined"
+                          aria-label={`Insert ${object.label}`}
                           title={object.kind === 'insert' ? `Insert ${object.label}` : `Insert ${object.label} preset`}
+                          onClick={() => object.kind === 'insert' ? insertObject(object.type) : insertPreset(object.preset)}
                         >
-                          <Button
-                            size="small"
-                            variant="outlined"
-                            aria-label={`Insert ${object.label}`}
-                            onClick={() => object.kind === 'insert' ? insertObject(object.type) : insertPreset(object.preset)}
-                          >
-                            + {object.label}
-                          </Button>
-                        </Tooltip>
+                          + {object.label}
+                        </Button>
                       ))}
                     </Stack>
                   </Stack>
@@ -648,16 +644,15 @@ export const AuthoringRail = memo(function AuthoringRail(props: AuthoringRailPro
                 </Alert>
               )}
               <Box className="topoviewer-vscode-editor">
-                <Tooltip title={`Copy ${editorLabel}`}>
-                  <IconButton
-                    aria-label={`Copy ${editorLabel}`}
-                    className="topoviewer-vscode-yaml-copy"
-                    size="small"
-                    onClick={copyYamlToClipboard}
-                  >
-                    <ContentCopyIcon fontSize="small" />
-                  </IconButton>
-                </Tooltip>
+                <IconButton
+                  aria-label={`Copy ${editorLabel}`}
+                  className="topoviewer-vscode-yaml-copy"
+                  size="small"
+                  title={`Copy ${editorLabel}`}
+                  onClick={copyYamlToClipboard}
+                >
+                  <ContentCopyIcon fontSize="small" />
+                </IconButton>
                 <Suspense fallback={<Box className="topoviewer-vscode-editor-loading">Loading YAML editor...</Box>}>
                   <Editor
                     height="100%"

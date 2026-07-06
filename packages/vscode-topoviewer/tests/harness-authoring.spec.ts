@@ -5,9 +5,12 @@ import {
   nodePosition,
   selectGraphNodes,
   selectHarnessObject,
+  showAllHarnessLayers,
   stylesheetText,
   topologyText,
   waitForHarnessReady,
+  waitForValidatedGraphNodes,
+  waitForValidatedLayers,
   waitForHarnessState,
   yamlObjectBlock,
 } from './harness-helpers';
@@ -29,6 +32,8 @@ async function startNewTopology(page: Parameters<typeof topologyText>[0]) {
   await expect.poll(() => topologyText(page)).toContain('mode: manual');
   await expect.poll(() => topologyText(page)).toContain('id: physical');
   await expect.poll(() => stylesheetText(page)).toContain('curveStyle: bezier');
+  await waitForValidatedLayers(page, ['physical', 'service', 'operations']);
+  await showAllHarnessLayers(page);
 }
 
 test.beforeEach(async ({ page }) => {
@@ -105,11 +110,39 @@ test('creates new objects on the currently visible authoring layer', async ({ pa
   await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'node-1')).not.toContain('- physical');
 });
 
+test('activates canvas authoring tools from toolbar buttons and keyboard shortcuts', async ({ page }) => {
+  await startNewTopology(page);
+
+  const toolbar = page.getByRole('toolbar', { name: 'Canvas authoring tools' });
+  await expect(toolbar).toBeVisible();
+
+  const selectTool = toolbar.getByRole('button', { name: 'Select tool' });
+  const routerTool = toolbar.getByRole('button', { name: 'Router tool' });
+  const linkTool = toolbar.getByRole('button', { name: 'Link tool' });
+  const serviceTool = toolbar.getByRole('button', { name: 'Service tool' });
+  const shapeTool = toolbar.getByRole('button', { name: 'Shape tool' });
+
+  await expect(selectTool).toHaveAttribute('aria-pressed', 'true');
+  await routerTool.click();
+  await expect(routerTool).toHaveAttribute('aria-pressed', 'true');
+  await expect(selectTool).toHaveAttribute('aria-pressed', 'false');
+
+  await page.keyboard.press('l');
+  await expect(linkTool).toHaveAttribute('aria-pressed', 'true');
+  await page.keyboard.press('s');
+  await expect(serviceTool).toHaveAttribute('aria-pressed', 'true');
+  await page.keyboard.press('d');
+  await expect(shapeTool).toHaveAttribute('aria-pressed', 'true');
+  await page.keyboard.press('Escape');
+  await expect(selectTool).toHaveAttribute('aria-pressed', 'true');
+});
+
 test('crud covers new topology regions, callouts, and relationship objects', async ({ page }) => {
   await startNewTopology(page);
 
   await page.getByRole('button', { name: 'Insert Router' }).click();
   await page.getByRole('button', { name: 'Insert Service' }).click();
+  await waitForValidatedGraphNodes(page, ['router-1', 'service-1']);
   await expect(graphNodeByLabel(page, 'New Router')).toBeVisible();
   await expect(graphNodeByLabel(page, 'New Service')).toBeVisible();
 

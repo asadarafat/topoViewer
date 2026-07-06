@@ -35,13 +35,13 @@ Each implementation phase must prove:
 
 ## 2. Canvas Tool Palette Shell
 
-- [ ] 2.1 Add compact canvas toolbar with select, pan, node presets, link, path,
+- [x] 2.1 Add compact canvas toolbar with select, pan, node presets, link, path,
       region, callout, and shape tools based on implemented support
-- [ ] 2.2 Add active-tool visual state and cursor state
-- [ ] 2.3 Add keyboard shortcuts for supported tools
-- [ ] 2.4 Add tooltip labels and shortcut hints without adding noisy in-app
+- [x] 2.2 Add active-tool visual state and cursor state
+- [x] 2.3 Add keyboard shortcuts for supported tools
+- [x] 2.4 Add tooltip labels and shortcut hints without adding noisy in-app
       explanatory text
-- [ ] 2.5 Add Playwright smoke coverage for tool activation and keyboard
+- [x] 2.5 Add Playwright smoke coverage for tool activation and keyboard
       shortcuts
 
 ## 3. Click-To-Create Node Presets
