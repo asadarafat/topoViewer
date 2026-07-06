@@ -251,14 +251,43 @@ function resolveAttentionPresentation(document: TopoDocument, attention: TopoVie
 
 function useHelperLineState() {
   const [state, setState] = useState<HelperLineState>(emptyHelperLineState);
+  const stateRef = useRef<HelperLineState>(emptyHelperLineState);
+  const frameRef = useRef<number | undefined>();
 
-  const scheduleState = useCallback((nextState: HelperLineState) => {
+  const setStateIfChanged = useCallback((nextState: HelperLineState) => {
+    const current = stateRef.current;
+    const unchanged = current.vertical?.value === nextState.vertical?.value
+      && current.vertical?.kind === nextState.vertical?.kind
+      && current.horizontal?.value === nextState.horizontal?.value
+      && current.horizontal?.kind === nextState.horizontal?.kind;
+    if (unchanged) return;
+    stateRef.current = nextState;
     setState(nextState);
   }, []);
 
+  const scheduleState = useCallback((nextState: HelperLineState) => {
+    if (frameRef.current !== undefined) {
+      cancelAnimationFrame(frameRef.current);
+    }
+    frameRef.current = requestAnimationFrame(() => {
+      frameRef.current = undefined;
+      setStateIfChanged(nextState);
+    });
+  }, [setStateIfChanged]);
+
   const clearState = useCallback(() => {
-    scheduleState(emptyHelperLineState);
-  }, [scheduleState]);
+    if (frameRef.current !== undefined) {
+      cancelAnimationFrame(frameRef.current);
+      frameRef.current = undefined;
+    }
+    setStateIfChanged(emptyHelperLineState);
+  }, [setStateIfChanged]);
+
+  useEffect(() => () => {
+    if (frameRef.current !== undefined) {
+      cancelAnimationFrame(frameRef.current);
+    }
+  }, []);
 
   return [state, scheduleState, clearState] as const;
 }
@@ -305,6 +334,7 @@ function TopoFlow({
   const nodesRef = useRef<HelperLineNodeLike[]>(compiled.nodes as unknown as HelperLineNodeLike[]);
   const snappedPositionsRef = useRef(new Map<string, { x: number; y: number }>());
   const activeDragNodeIdRef = useRef<string | undefined>();
+  const activeHelperLineStateRef = useRef<HelperLineState>(emptyHelperLineState);
 
   useEffect(() => {
     setNodes(compiled.nodes as never[]);
@@ -312,6 +342,7 @@ function TopoFlow({
     nodesRef.current = compiled.nodes as unknown as HelperLineNodeLike[];
     snappedPositionsRef.current.clear();
     activeDragNodeIdRef.current = undefined;
+    activeHelperLineStateRef.current = emptyHelperLineState;
     clearHelperLines();
   }, [clearHelperLines, compiled, onObjectClick, setEdges, setNodes]);
 
@@ -323,6 +354,7 @@ function TopoFlow({
     if (!helperLineOptions.enabled) {
       snappedPositionsRef.current.clear();
       activeDragNodeIdRef.current = undefined;
+      activeHelperLineStateRef.current = emptyHelperLineState;
       clearHelperLines();
     }
   }, [clearHelperLines, helperLineOptions.enabled]);
@@ -332,15 +364,23 @@ function TopoFlow({
     const hasPositionChange = changes.some((change) => (
       change.type === 'position' && !!change.id && !!change.position
     ));
+    const hasActivePositionDrag = changes.some((change) => (
+      change.type === 'position' && change.dragging === true
+    ));
     if (helperLineOptions.enabled && nodesDraggable !== false && hasPositionChange) {
       const helperResult = applyHelperLineSnapToChanges({
         changes,
         nodes: nodesRef.current,
         options: helperLineOptions,
-        activeNodeId: activeDragNodeIdRef.current
+        activeNodeId: activeDragNodeIdRef.current,
+        previousLines: activeHelperLineStateRef.current
       });
       nextChanges = helperResult.changes as NodeChange[];
+      activeHelperLineStateRef.current = helperResult.lines;
       scheduleHelperLineState(helperResult.lines);
+      if (activeDragNodeIdRef.current && !helperResult.snappedPositions.has(activeDragNodeIdRef.current)) {
+        snappedPositionsRef.current.delete(activeDragNodeIdRef.current);
+      }
       helperResult.snappedPositions.forEach((position, id) => {
         snappedPositionsRef.current.set(id, position);
       });
@@ -351,7 +391,8 @@ function TopoFlow({
         currentNodes,
         document,
         selectedLayerIds: compiled.selectedLayerIds,
-        showRegions
+        showRegions,
+        deferRegionRebuild: hasActivePositionDrag
       });
       nodesRef.current = nextNodes as unknown as HelperLineNodeLike[];
       return nextNodes;
@@ -365,6 +406,7 @@ function TopoFlow({
 
   const onNodeDragStop = useCallback((_event: unknown, node: unknown) => {
     clearHelperLines();
+    activeHelperLineStateRef.current = emptyHelperLineState;
     const runtimeNode = node as unknown as Record<string, unknown>;
     const runtimeId = String(runtimeNode.id || '');
     const position = resolveDragStopPosition({

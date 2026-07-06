@@ -28,8 +28,15 @@ describe('helper line geometry', () => {
     expect(normalizeHelperLinesOptions({ snap: false, threshold: 9, showMidpoints: true })).toMatchObject({
       enabled: true,
       snap: false,
+      snapMode: 'live',
+      snapHysteresis: 3,
       threshold: 9,
       showMidpoints: true
+    });
+    expect(normalizeHelperLinesOptions({ snap: true, snapMode: 'commit' })).toMatchObject({
+      enabled: true,
+      snap: true,
+      snapMode: 'commit'
     });
   });
 
@@ -166,6 +173,53 @@ describe('helper line geometry', () => {
     expect(result.snappedPositions.get('drag')).toEqual({ x: 100, y: 100 });
   });
 
+  it('retains an active live snap candidate until the release threshold is crossed', () => {
+    const options = normalizeHelperLinesOptions({ threshold: 5, snapHysteresis: 3 });
+    const result = applyHelperLineSnapToChanges({
+      changes: [{ id: 'drag', type: 'position', dragging: true, position: { x: 106, y: 100 } }],
+      nodes: [node('drag', 0, 0), node('peer', 100, 100)],
+      options,
+      previousLines: { vertical: { value: 100, kind: 'edge' } }
+    });
+
+    expect(result.lines.vertical).toEqual({ value: 100, kind: 'edge' });
+    expect(result.changes[0].position).toEqual({ x: 100, y: 100 });
+  });
+
+  it('switches live snap candidates only when the competing guide is materially closer', () => {
+    const options = normalizeHelperLinesOptions({ threshold: 5, snapHysteresis: 3 });
+    const retained = applyHelperLineSnapToChanges({
+      changes: [{ id: 'drag', type: 'position', dragging: true, position: { x: 103, y: 100 } }],
+      nodes: [node('drag', 0, 0), node('active', 100, 100), node('competing', 105, 100)],
+      options,
+      previousLines: { vertical: { value: 100, kind: 'edge' } }
+    });
+    const switched = applyHelperLineSnapToChanges({
+      changes: [{ id: 'drag', type: 'position', dragging: true, position: { x: 108.5, y: 100 } }],
+      nodes: [node('drag', 0, 0), node('active', 100, 100), node('competing', 110, 100)],
+      options,
+      previousLines: { vertical: { value: 100, kind: 'edge' } }
+    });
+
+    expect(retained.lines.vertical).toEqual({ value: 100, kind: 'edge' });
+    expect(retained.changes[0].position).toEqual({ x: 100, y: 100 });
+    expect(switched.lines.vertical).toEqual({ value: 110, kind: 'edge' });
+    expect(switched.changes[0].position).toEqual({ x: 110, y: 100 });
+  });
+
+  it('records commit-mode snap candidates without rewriting live drag changes', () => {
+    const options = normalizeHelperLinesOptions({ snap: true, snapMode: 'commit' });
+    const result = applyHelperLineSnapToChanges({
+      changes: [{ id: 'drag', type: 'position', dragging: true, position: { x: 101, y: 100 } }],
+      nodes: [node('drag', 0, 0), node('peer', 100, 100)],
+      options
+    });
+
+    expect(result.lines.vertical).toEqual({ value: 100, kind: 'edge' });
+    expect(result.changes[0].position).toEqual({ x: 101, y: 100 });
+    expect(result.snappedPositions.get('drag')).toEqual({ x: 100, y: 100 });
+  });
+
   it('accepts active position changes when React Flow omits the dragging flag', () => {
     const options = normalizeHelperLinesOptions(true);
     const result = applyHelperLineSnapToChanges({
@@ -278,6 +332,45 @@ describe('helper line integration contracts', () => {
 
     expect(changed.find((changedNode) => changedNode.id === 'n1')?.position).toEqual({ x: 60, y: 90 });
     expect(changed.find((changedNode) => changedNode.id === 'n2')?.position).toEqual({ x: 180, y: 50 });
+  });
+
+  it('can defer region hull rebuilds during active drag frames', () => {
+    const document: TopoDocument = {
+      graph: {
+        layers: [{ id: 'physical' }],
+        nodes: [
+          { id: 'n1', position: [40, 50], layers: ['physical'] },
+          { id: 'n2', position: [180, 50], layers: ['physical'] }
+        ],
+        regions: [
+          { id: 'group', members: ['n1'], layers: ['physical'], paddingX: 20, paddingY: 20 }
+        ]
+      }
+    };
+    const currentNodes = [
+      { id: 'region:group', type: 'region', position: { x: 20, y: 20 }, data: { id: 'group' } },
+      { id: 'n1', type: 'network', position: { x: 40, y: 50 }, data: { id: 'n1' } },
+      { id: 'n2', type: 'network', position: { x: 180, y: 50 }, data: { id: 'n2' } }
+    ] as never[];
+
+    const activeFrame = applyTopoNodeChanges({
+      changes: [{ id: 'n1', type: 'position', dragging: true, position: { x: 90, y: 70 } }] as NodeChange[],
+      currentNodes,
+      document,
+      selectedLayerIds: ['physical'],
+      showRegions: true,
+      deferRegionRebuild: true
+    }) as unknown as Array<{ id: string; position?: { x: number; y: number } }>;
+    const stopFrame = applyTopoNodeChanges({
+      changes: [{ id: 'n1', type: 'position', dragging: false, position: { x: 90, y: 70 } }] as NodeChange[],
+      currentNodes,
+      document,
+      selectedLayerIds: ['physical'],
+      showRegions: true
+    }) as unknown as Array<{ id: string; position?: { x: number; y: number } }>;
+
+    expect(activeFrame.find((changedNode) => changedNode.id === 'region:group')?.position).toEqual({ x: 20, y: 20 });
+    expect(stopFrame.find((changedNode) => changedNode.id === 'region:group')?.position).not.toEqual({ x: 20, y: 20 });
   });
 
   it('resolves drag-stop callback position from snapped drag-session state first', () => {

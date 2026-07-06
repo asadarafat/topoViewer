@@ -421,6 +421,8 @@ export interface TopoViewerNodePositionChange {
 export interface TopoViewerHelperLinesOptions {
   enabled?: boolean;
   snap?: boolean;
+  snapMode?: 'live' | 'commit';
+  snapHysteresis?: number;
   threshold?: number;
   showMidpoints?: boolean;
   candidateLimit?: number;

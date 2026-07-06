@@ -63,18 +63,23 @@ export function applyTopoNodeChanges({
   currentNodes,
   document,
   selectedLayerIds,
-  showRegions
+  showRegions,
+  deferRegionRebuild = false
 }: {
   changes: NodeChange[];
   currentNodes: never[];
   document: TopoDocument;
   selectedLayerIds: string[];
   showRegions: boolean;
+  deferRegionRebuild?: boolean;
 }): never[] {
   const current = currentNodes as unknown as Array<Record<string, unknown>>;
   const regionDeltas = regionDragDeltas(changes, current);
   const changedNodes = applyNodeChanges(changes, currentNodes) as unknown as Array<Record<string, unknown>>;
   const translatedNodes = translateRegionMembers(changedNodes, regionDeltas, document.graph?.regions || []);
+  if (deferRegionRebuild) {
+    return translatedNodes as never[];
+  }
   const nonRegionNodes = translatedNodes.filter((node) => node.type !== 'region');
   const regionNodes = showRegions
     ? rebuildRegionNodes(document.graph?.regions || [], new Set(selectedLayerIds), nonRegionNodes, document)

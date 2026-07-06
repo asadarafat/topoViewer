@@ -112,13 +112,13 @@ function edgePathForCurve(curveType: string, props: EdgeProps, data: Record<stri
   if (curveType === 'bezier') {
     const distance = bezierControlPointDistance(data);
     if (distance !== undefined) return quadraticBezierPathForEndpoints(props, endpoints, distance, numeric(data.controlPointWeight, 0.5));
-    return getBezierPath(props);
+    return getBezierPath({ ...props, ...endpoints });
   }
-  if (curveType === 'straight') return getStraightPath(props);
-  if (curveType === 'step') return getSmoothStepPath({ ...props, borderRadius: 0 });
-  if (curveType === 'smoothstep') return getSmoothStepPath(props);
-  if (curveType === 'simplebezier') return getSimpleBezierPath(props);
-  return getBezierPath(props);
+  if (curveType === 'straight') return getStraightPath({ ...props, ...endpoints });
+  if (curveType === 'step') return getSmoothStepPath({ ...props, ...endpoints, borderRadius: 0 });
+  if (curveType === 'smoothstep') return getSmoothStepPath({ ...props, ...endpoints });
+  if (curveType === 'simplebezier') return getSimpleBezierPath({ ...props, ...endpoints });
+  return getBezierPath({ ...props, ...endpoints });
 }
 
 function straightPathForEndpoints(props: EdgeProps, endpoints: ReturnType<typeof floatingEndpoints>) {

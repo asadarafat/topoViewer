@@ -180,7 +180,7 @@ export const PreviewPanel = memo(function PreviewPanel({ exportImage, exportTool
           onObjectClick={handleObjectClick}
           onPaneClick={() => setSelectedObjects([])}
           onNodePositionChange={handleNodePositionChange}
-          helperLines={parityMode ? false : { enabled: true, snap: true, showMidpoints: true }}
+          helperLines={parityMode ? false : { enabled: true, snap: true, snapMode: 'commit', showMidpoints: true }}
         />
       )}
     </Paper>

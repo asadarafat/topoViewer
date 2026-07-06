@@ -51,15 +51,18 @@ show alignment guides:
   helperLines={{
     enabled: true,
     snap: true,
+    snapMode: 'commit',
+    snapHysteresis: 3,
     threshold: 5,
     showMidpoints: true
   }}
 />
 ```
 
-When snapping is enabled, pending drag position changes are transformed before
-TopoViewer applies them. `onNodePositionChange` receives the snapped final
-position so hosts can persist the same coordinates the user saw.
+Use `snapMode: 'commit'` for smooth pointer-following while dragging; alignment
+is applied to the final `onNodePositionChange` position. The default live snap
+mode remains available for hosts that want the dragged object to move directly to
+each guide candidate during drag.
 
 ## Compile, Compose, Validate
 

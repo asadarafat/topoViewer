@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Locator } from '@playwright/test';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -55,6 +55,42 @@ function matchingGeneratedObjectId(text: string, prefix: 'link' | 'path', requir
   const idPattern = new RegExp(`(?:^|\\n)\\s*- id: (${prefix}-\\d+)`, 'g');
   const ids = [...text.matchAll(idPattern)].map((match) => match[1]).filter(Boolean);
   return ids.find((id) => requiredLines.every((line) => yamlObjectBlock(text, id).includes(line))) || '';
+}
+
+function dragMotionIssues(samples: Array<{ pointerX: number; pointerY: number; nodeX: number; nodeY: number }>) {
+  return samples.slice(1).flatMap((sample, index) => {
+    const previous = samples[index];
+    const pointerDelta = Math.hypot(sample.pointerX - previous.pointerX, sample.pointerY - previous.pointerY);
+    const nodeDelta = Math.hypot(sample.nodeX - previous.nodeX, sample.nodeY - previous.nodeY);
+    if (pointerDelta > 2 && nodeDelta < 0.5) {
+      return [`held while pointer moved: step ${index + 2}, pointer=${pointerDelta.toFixed(2)}, node=${nodeDelta.toFixed(2)}`];
+    }
+    if (nodeDelta > pointerDelta + 4.5) {
+      return [`jumped ahead of pointer: step ${index + 2}, pointer=${pointerDelta.toFixed(2)}, node=${nodeDelta.toFixed(2)}`];
+    }
+    return [];
+  });
+}
+
+function pointNearBox(point: { x: number; y: number } | undefined, box: { x: number; y: number; width: number; height: number }, tolerance = 32) {
+  if (!point) return false;
+  return point.x >= box.x - tolerance
+    && point.x <= box.x + box.width + tolerance
+    && point.y >= box.y - tolerance
+    && point.y <= box.y + box.height + tolerance;
+}
+
+async function pathEndScreenPoint(path: Locator) {
+  return path.evaluate((element) => {
+    const pathElement = element as SVGPathElement;
+    const matrix = pathElement.getScreenCTM();
+    if (!matrix) return undefined;
+    const point = pathElement.getPointAtLength(pathElement.getTotalLength());
+    return {
+      x: point.x * matrix.a + point.y * matrix.c + matrix.e,
+      y: point.x * matrix.b + point.y * matrix.d + matrix.f
+    };
+  });
 }
 
 test('renders the browser harness with fixtures, diagnostics, layers, preview, and export wiring', async ({ page }) => {
@@ -691,12 +727,72 @@ test('shows alignment helper lines while dragging nodes in the browser harness p
     x: dragBox!.width / 2,
     y: dragBox!.height / 2
   };
-  await page.mouse.move(dragBox!.x + pointerOffset.x, dragBox!.y + pointerOffset.y);
+  const from = {
+    x: dragBox!.x + pointerOffset.x,
+    y: dragBox!.y + pointerOffset.y
+  };
+  const to = {
+    x: peerBox!.x + pointerOffset.x + 2,
+    y: peerBox!.y + pointerOffset.y + 2
+  };
+  const samples: Array<{ pointerX: number; pointerY: number; nodeX: number; nodeY: number }> = [];
+  let helperLineVisible = false;
+
+  await page.mouse.move(from.x, from.y);
   await page.mouse.down();
-  await page.mouse.move(peerBox!.x + pointerOffset.x + 2, peerBox!.y + pointerOffset.y + 2, { steps: 12 });
-  await expect(page.locator('.topoviewer-helper-line').first()).toBeVisible();
+  for (let step = 1; step <= 48; step += 1) {
+    const pointerX = from.x + ((to.x - from.x) * step) / 48;
+    const pointerY = from.y + ((to.y - from.y) * step) / 48;
+    await page.mouse.move(pointerX, pointerY);
+    await page.waitForTimeout(16);
+    helperLineVisible ||= await page.locator('.topoviewer-helper-line').first().isVisible();
+    const currentBox = await dragNode.boundingBox();
+    expect(currentBox).not.toBeNull();
+    samples.push({
+      pointerX,
+      pointerY,
+      nodeX: currentBox!.x,
+      nodeY: currentBox!.y
+    });
+  }
+  expect(helperLineVisible).toBe(true);
+  expect(dragMotionIssues(samples)).toEqual([]);
   await page.mouse.up();
   await expect(page.locator('.topoviewer-helper-line')).toHaveCount(0);
+  await expect.poll(async () => nodePosition(await topologyText(page), 'drag-me')).toEqual({ x: 300, y: 140 });
+});
+
+test('keeps callout leaders attached while dragging target nodes in the browser harness preview', async ({ page }) => {
+  await page.addInitScript(() => {
+    window.localStorage.clear();
+    window.localStorage.setItem('topoviewer.vscodeHarness.activeFixture.v1', 'insert-workflow');
+  });
+
+  await page.goto('/');
+  await expect(page.getByText('No diagnostics')).toBeVisible();
+  await expect.poll(() => page.evaluate(() => (window as any).__topoviewerHarnessState?.fixtureId)).toBe('insert-workflow');
+  const targetNode = graphNodeByLabel(page, 'Edge A').first();
+  const leaderPath = page.locator('.react-flow__edge[data-id="insert-note:leader"] .topoviewer-edge-visible-path').first();
+  await expect(targetNode).toBeVisible();
+  await expect(leaderPath).toBeVisible();
+
+  const beforeBox = await targetNode.boundingBox();
+  expect(beforeBox).not.toBeNull();
+  const pointerOffset = {
+    x: beforeBox!.width / 2,
+    y: beforeBox!.height / 2
+  };
+
+  await page.mouse.move(beforeBox!.x + pointerOffset.x, beforeBox!.y + pointerOffset.y);
+  await page.mouse.down();
+  await page.mouse.move(beforeBox!.x + pointerOffset.x + 240, beforeBox!.y + pointerOffset.y, { steps: 24 });
+  await page.waitForTimeout(50);
+
+  const duringBox = await targetNode.boundingBox();
+  expect(duringBox).not.toBeNull();
+  expect(pointNearBox(await pathEndScreenPoint(leaderPath), duringBox!)).toBe(true);
+
+  await page.mouse.up();
 });
 
 test('updates selected object properties and deletes with reversible YAML mutations', async ({ page }) => {

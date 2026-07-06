@@ -120,6 +120,8 @@ React hosts can enable the same behavior with the `helperLines` prop:
   helperLines={{
     enabled: true,
     snap: true,
+    snapMode: 'commit',
+    snapHysteresis: 3,
     threshold: 5,
     showMidpoints: true
   }}
@@ -140,13 +142,18 @@ Use the object form when a documentation page needs different snapping behavior:
 helperLines:
   enabled: true
   snap: true
+  snapMode: commit
+  snapHysteresis: 3
   threshold: 5
   showMidpoints: true
 ```
 
 Use `threshold` to control how close a dragged object must be before a guide is
-considered active. Use `showMidpoints` when the authoring workflow benefits from
-centering an object between nearby objects.
+considered active. Use `snapMode: commit` when the object should follow the
+pointer smoothly during drag and settle to the alignment candidate on drag stop.
+Use `snapHysteresis` when live snapping should retain an active guide until the
+pointer moves outside a larger release threshold. Use `showMidpoints` when the
+authoring workflow benefits from centering an object between nearby objects.
 
 ## Bundle Files
 

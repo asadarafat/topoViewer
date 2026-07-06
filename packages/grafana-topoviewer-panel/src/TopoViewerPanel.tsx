@@ -554,6 +554,7 @@ export function TopoViewerPanel(props: PanelProps<TopoViewerGrafanaPanelOptions>
             helperLines={{
               enabled: normalized.interaction.enabled && normalized.interaction.allowNodeDrag,
               snap: true,
+              snapMode: 'commit',
               showMidpoints: true
             }}
             initialViewport={normalized.interaction.enabled ? activeInteractionState.viewport : undefined}

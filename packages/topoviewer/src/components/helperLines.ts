@@ -3,6 +3,8 @@ import type { TopoViewerProps } from '../core/types';
 export interface HelperLinesOptions {
   enabled: boolean;
   snap: boolean;
+  snapMode: 'live' | 'commit';
+  snapHysteresis: number;
   threshold: number;
   showMidpoints: boolean;
   candidateLimit: number;
@@ -84,6 +86,7 @@ export interface HelperLineChangeResult<TChange extends HelperLinePositionChange
 }
 
 const DEFAULT_THRESHOLD = 5;
+const DEFAULT_SNAP_HYSTERESIS = 3;
 const DEFAULT_CANDIDATE_LIMIT = 300;
 const DEFAULT_MIDPOINT_CANDIDATE_LIMIT = 80;
 const DEFAULT_NODE_WIDTH = 80;
@@ -120,6 +123,8 @@ export function normalizeHelperLinesOptions(value: TopoViewerProps['helperLines'
     return {
       enabled: false,
       snap: false,
+      snapMode: 'live',
+      snapHysteresis: DEFAULT_SNAP_HYSTERESIS,
       threshold: DEFAULT_THRESHOLD,
       showMidpoints: false,
       candidateLimit: DEFAULT_CANDIDATE_LIMIT,
@@ -130,6 +135,8 @@ export function normalizeHelperLinesOptions(value: TopoViewerProps['helperLines'
     return {
       enabled: true,
       snap: true,
+      snapMode: 'live',
+      snapHysteresis: DEFAULT_SNAP_HYSTERESIS,
       threshold: DEFAULT_THRESHOLD,
       showMidpoints: false,
       candidateLimit: DEFAULT_CANDIDATE_LIMIT,
@@ -139,6 +146,8 @@ export function normalizeHelperLinesOptions(value: TopoViewerProps['helperLines'
   return {
     enabled: value.enabled ?? true,
     snap: booleanOption(value.snap, true),
+    snapMode: value.snapMode === 'commit' ? 'commit' : 'live',
+    snapHysteresis: optionNumber(value.snapHysteresis, DEFAULT_SNAP_HYSTERESIS),
     threshold: optionNumber(value.threshold, DEFAULT_THRESHOLD),
     showMidpoints: booleanOption(value.showMidpoints, false),
     candidateLimit: Math.floor(optionNumber(value.candidateLimit, DEFAULT_CANDIDATE_LIMIT, 1)),
@@ -269,42 +278,60 @@ function bestAxisAlignment(
   dragged: HelperLineBox,
   candidates: HelperLineBox[],
   axis: 'vertical' | 'horizontal',
-  options: HelperLinesOptions
+  options: HelperLinesOptions,
+  previousLine?: HelperLinePosition
 ) {
   const draggedCoordinates = boxCoordinates(dragged)[axis];
   const candidatesForAxis = options.showMidpoints && candidates.length <= options.midpointCandidateLimit
     ? [...candidateCoordinates(candidates, axis), ...midpointCoordinates(candidates, axis)]
     : candidateCoordinates(candidates, axis);
+  const releaseThreshold = options.threshold + options.snapHysteresis;
   let best: {
     line: HelperLinePosition;
     snappedAxisValue: number;
     distance: number;
   } | undefined;
+  let retained: typeof best;
 
   for (const draggedCoordinate of draggedCoordinates) {
     for (const candidateCoordinate of candidatesForAxis) {
       if (candidateCoordinate.kind === 'midpoint' && draggedCoordinate.kind !== 'center') continue;
       const distance = Math.abs(draggedCoordinate.value - candidateCoordinate.value);
-      if (distance > options.threshold) continue;
-      if (best && distance >= best.distance) continue;
-      best = {
-        line: {
-          value: candidateCoordinate.value,
-          kind: candidateCoordinate.kind === 'midpoint' ? 'midpoint' : draggedCoordinate.kind
-        },
+      if (distance > releaseThreshold) continue;
+      const line = {
+        value: candidateCoordinate.value,
+        kind: candidateCoordinate.kind === 'midpoint' ? 'midpoint' as const : draggedCoordinate.kind
+      };
+      const alignment = {
+        line,
         snappedAxisValue: candidateCoordinate.value - draggedCoordinate.offset,
         distance
       };
+      if (
+        previousLine
+        && previousLine.value === line.value
+        && previousLine.kind === line.kind
+        && (!retained || distance < retained.distance)
+      ) {
+        retained = alignment;
+      }
+      if (distance > options.threshold) continue;
+      if (best && distance >= best.distance) continue;
+      best = alignment;
     }
   }
 
+  if (retained && (!best || best.distance + options.snapHysteresis >= retained.distance)) {
+    return retained;
+  }
   return best;
 }
 
 export function calculateHelperLines(
   dragged: HelperLineBox,
   candidates: HelperLineBox[],
-  options: HelperLinesOptions
+  options: HelperLinesOptions,
+  previousLines: HelperLineState = emptyHelperLineState
 ): { lines: HelperLineState; snappedPosition?: { x: number; y: number } } {
   if (!options.enabled || dragged.hidden || dragged.draggable === false) {
     return { lines: emptyHelperLineState };
@@ -312,8 +339,8 @@ export function calculateHelperLines(
   const eligibleCandidates = sortedCandidates(candidates, dragged.id, options.candidateLimit);
   if (!eligibleCandidates.length) return { lines: emptyHelperLineState };
 
-  const vertical = bestAxisAlignment(dragged, eligibleCandidates, 'vertical', options);
-  const horizontal = bestAxisAlignment(dragged, eligibleCandidates, 'horizontal', options);
+  const vertical = bestAxisAlignment(dragged, eligibleCandidates, 'vertical', options, previousLines.vertical);
+  const horizontal = bestAxisAlignment(dragged, eligibleCandidates, 'horizontal', options, previousLines.horizontal);
   const lines: HelperLineState = {
     ...(vertical ? { vertical: vertical.line } : {}),
     ...(horizontal ? { horizontal: horizontal.line } : {})
@@ -331,12 +358,14 @@ export function applyHelperLineSnapToChanges<TChange extends HelperLinePositionC
   changes,
   nodes,
   options,
-  activeNodeId
+  activeNodeId,
+  previousLines
 }: {
   changes: TChange[];
   nodes: HelperLineNodeLike[];
   options: HelperLinesOptions;
   activeNodeId?: string;
+  previousLines?: HelperLineState;
 }): HelperLineChangeResult<TChange> {
   if (!options.enabled) {
     return { changes, lines: emptyHelperLineState, snappedPositions: new Map() };
@@ -363,7 +392,7 @@ export function applyHelperLineSnapToChanges<TChange extends HelperLinePositionC
     const box = helperLineBoxFromNode(node);
     return box ? [box] : [];
   });
-  const result = calculateHelperLines(dragged, candidates, options);
+  const result = calculateHelperLines(dragged, candidates, options, previousLines);
   const snappedPositions = new Map<string, { x: number; y: number }>();
 
   if (!result.snappedPosition) {
@@ -372,6 +401,14 @@ export function applyHelperLineSnapToChanges<TChange extends HelperLinePositionC
 
   const snappedLocalPosition = localPositionForAbsoluteSnap(activeNode, result.snappedPosition);
   snappedPositions.set(String(activeChange.id), snappedLocalPosition);
+  if (options.snapMode === 'commit') {
+    return {
+      changes,
+      lines: result.lines,
+      snappedPositions
+    };
+  }
+
   return {
     lines: result.lines,
     snappedPositions,
