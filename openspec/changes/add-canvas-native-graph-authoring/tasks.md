@@ -28,7 +28,7 @@ Each implementation phase must prove:
 - [x] 1.1 Define `CanvasAuthoringTool` and tool-state reducer outside
       `WebviewApp.tsx`
 - [x] 1.2 Add shared pointer-to-topology coordinate conversion helpers
-- [ ] 1.3 Add shared `AuthoringCommand` mutation boundary helpers
+- [x] 1.3 Add shared `AuthoringCommand` mutation boundary helpers
 - [x] 1.4 Gate canvas mutations when YAML draft state is dirty
 - [x] 1.5 Add unit tests for tool-state transitions and coordinate conversion
 - [x] 1.6 Run unit/typecheck evidence before UI work

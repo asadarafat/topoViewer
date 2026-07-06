@@ -1,4 +1,13 @@
-import type { InsertObjectType, TopoObjectSelection } from '../shared/topologyMutations';
+import {
+  deleteTopoObjects,
+  findObject,
+  insertTopoObject,
+  mutateTopologyText,
+  upsertGraphLink,
+  upsertGraphPath,
+  type MutationResult,
+  type TopoObjectSelection
+} from '../shared/topologyMutations';
 
 export type CanvasAuthoringTool =
   | 'select'
@@ -44,7 +53,7 @@ export type CanvasAuthoringCommand =
   | {
     layers: string[];
     position: CanvasAuthoringPoint;
-    preset: InsertObjectType;
+    preset: CanvasNodePresetTool;
     type: 'insertNodeAt';
   }
   | {
@@ -172,4 +181,105 @@ export function snapTopologyPoint(point: CanvasAuthoringPoint, gridSize?: number
 export function layersForCanvasCreation(selectedLayerIds: string[], fallbackLayerId: string) {
   const layers = selectedLayerIds.filter((layerId) => layerId.trim().length > 0);
   return layers.length ? [...layers] : [fallbackLayerId];
+}
+
+export function canvasAuthoringCommandLabel(command: CanvasAuthoringCommand) {
+  if (command.type === 'insertNodeAt') return `Place ${command.preset}`;
+  if (command.type === 'insertLinkBetween') return 'Draw link';
+  if (command.type === 'insertPathSequence') return 'Create path';
+  if (command.type === 'insertRegionFromBounds') return 'Create region';
+  if (command.type === 'insertCalloutAt') return 'Place callout';
+  if (command.type === 'moveSelection') return 'Move selection';
+  if (command.type === 'resizeObject') return 'Resize object';
+  if (command.type === 'duplicateSelection') return 'Duplicate selection';
+  return 'Delete selection';
+}
+
+export function applyCanvasAuthoringCommand(text: string, command: CanvasAuthoringCommand): MutationResult {
+  if (command.type === 'insertNodeAt') {
+    return insertTopoObject(text, {
+      position: command.position,
+      selectedLayerIds: command.layers,
+      selectedObjects: [],
+      type: command.preset
+    });
+  }
+
+  if (command.type === 'insertLinkBetween') {
+    return upsertGraphLink(text, {
+      selectedLayerIds: command.layers,
+      source: command.source.nodeId,
+      target: command.target.nodeId
+    });
+  }
+
+  if (command.type === 'insertPathSequence') {
+    return upsertGraphPath(text, {
+      selectedLayerIds: command.layers,
+      sequence: command.sequence
+    });
+  }
+
+  if (command.type === 'insertCalloutAt') {
+    return insertTopoObject(text, {
+      position: command.position,
+      selectedLayerIds: command.layers,
+      selectedObjects: command.target ? [command.target] : [],
+      type: 'callout'
+    });
+  }
+
+  if (command.type === 'moveSelection') {
+    return movePositionedSelection(text, command.selections, command.delta);
+  }
+
+  if (command.type === 'deleteSelection') {
+    return deleteTopoObjects(text, command.selections);
+  }
+
+  if (command.type === 'insertRegionFromBounds') {
+    throw new Error('Canvas region bounds creation is not implemented yet.');
+  }
+
+  if (command.type === 'resizeObject') {
+    throw new Error('Canvas resize is not implemented yet.');
+  }
+
+  throw new Error('Canvas duplicate is not implemented yet.');
+}
+
+function movePositionedSelection(
+  text: string,
+  selections: TopoObjectSelection[],
+  delta: CanvasAuthoringPoint
+): MutationResult {
+  return mutateTopologyText(text, (document) => {
+    let moved = 0;
+    selections.forEach((selection) => {
+      if (selection.kind !== 'node' && selection.kind !== 'shape' && selection.kind !== 'callout') return;
+      const object = findObject(document, selection);
+      if (!object) throw new Error(`Selected ${selection.kind} "${selection.id}" no longer exists.`);
+      const position = objectPosition(object.position);
+      if (!position) throw new Error(`Selected ${selection.kind} "${selection.id}" does not have an editable position.`);
+      object.position = [
+        Math.round(position.x + delta.x),
+        Math.round(position.y + delta.y)
+      ];
+      moved += 1;
+    });
+    if (!moved) throw new Error('Move selection requires at least one positioned object.');
+  });
+}
+
+function objectPosition(value: unknown): CanvasAuthoringPoint | undefined {
+  if (Array.isArray(value)) {
+    const x = Number(value[0]);
+    const y = Number(value[1]);
+    return Number.isFinite(x) && Number.isFinite(y) ? { x, y } : undefined;
+  }
+  if (!value || typeof value !== 'object') return undefined;
+  const candidate = value as { x?: unknown; y?: unknown };
+  const x = Number(candidate.x);
+  const y = Number(candidate.y);
+  return Number.isFinite(x) && Number.isFinite(y) ? { x, y } : undefined;
 }

@@ -16,6 +16,7 @@ export interface MutationResult {
 }
 
 export interface InsertObjectOptions {
+  position?: { x: number; y: number };
   type: InsertObjectType;
   selectedObjects: TopoObjectSelection[];
   selectedLayerIds: string[];
@@ -380,7 +381,7 @@ export function insertTopoObject(text: string, options: InsertObjectOptions): Mu
 
     if (options.type === 'node' || options.type === 'router' || options.type === 'controller' || options.type === 'external' || options.type === 'service') {
       const id = nextId(document, options.type === 'service' ? 'service' : options.type);
-      const position = nextCanvasPosition(document, options.selectedObjects);
+      const position = options.position || nextCanvasPosition(document, options.selectedObjects);
       const roleByType: Record<string, string> = {
         node: 'node',
         router: 'router',
@@ -393,7 +394,7 @@ export function insertTopoObject(text: string, options: InsertObjectOptions): Mu
         name: options.type === 'node' ? 'New Node' : options.type === 'service' ? 'New Service' : `New ${capitalize(options.type)}`,
         labels: { role: roleByType[options.type] },
         layers: [layerId],
-        position: [position.x, position.y]
+        position: [Math.round(position.x), Math.round(position.y)]
       });
       return;
     }
@@ -469,12 +470,13 @@ export function insertTopoObject(text: string, options: InsertObjectOptions): Mu
 
     if (options.type === 'callout') {
       const target = options.selectedObjects[0]?.kind === 'node' ? options.selectedObjects[0].id : undefined;
-      const position = nextCanvasPosition(document, options.selectedObjects, { x: 120, y: -80 });
+      const position = options.position || nextCanvasPosition(document, options.selectedObjects, { x: 120, y: -80 });
       callouts.push({
         id: nextId(document, 'callout'),
         title: 'New Callout',
         body: 'Add context',
-        ...(target ? { target } : { position: [position.x, position.y] }),
+        ...(target ? { target } : {}),
+        ...(!target || options.position ? { position: [Math.round(position.x), Math.round(position.y)] } : {}),
         size: [160, 88],
         layers: [layerId]
       });
