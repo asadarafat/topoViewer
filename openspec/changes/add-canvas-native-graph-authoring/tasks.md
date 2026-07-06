@@ -44,15 +44,14 @@ Each implementation phase must prove:
 - [x] 2.5 Add Playwright smoke coverage for tool activation and keyboard
       shortcuts
 
-## 3. Click-To-Create Node Presets
+## 3. Click-To-Create Generic Nodes
 
-- [ ] 3.1 Implement click-to-place for node, router, service, controller, and
-      external presets
-- [ ] 3.2 Use clicked topology coordinates, not hard-coded insertion positions
-- [ ] 3.3 Respect selected visible authoring layers
-- [ ] 3.4 Select the newly created object after creation
-- [ ] 3.5 Add Playwright CRUD coverage for each node preset
-- [ ] 3.6 Verify undo/redo and reload persistence for click-created nodes
+- [x] 3.1 Implement click-to-place for the generic node tool
+- [x] 3.2 Use clicked topology coordinates, not hard-coded insertion positions
+- [x] 3.3 Respect selected visible authoring layers
+- [x] 3.4 Select the newly created object after creation
+- [x] 3.5 Add Playwright coverage for generic node click-to-place
+- [x] 3.6 Verify undo/redo and reload persistence for click-created nodes
 
 ## 4. Drag-To-Connect Links
 

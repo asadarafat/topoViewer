@@ -21,7 +21,7 @@ import LaunchIcon from '@mui/icons-material/Launch';
 import MouseIcon from '@mui/icons-material/Mouse';
 import PanToolAltIcon from '@mui/icons-material/PanToolAlt';
 import PolylineIcon from '@mui/icons-material/Polyline';
-import { TopoViewer, defaultTopoViewerToggles, type TopoDocument, type TopoViewerNodePositionChange, type TopoViewerObjectClick } from 'topoviewer';
+import { TopoViewer, defaultTopoViewerToggles, type TopoDocument, type TopoViewerNodePositionChange, type TopoViewerObjectClick, type TopoViewerPaneClick } from 'topoviewer';
 import { memo, useCallback, useEffect, useState, type ComponentType, type Dispatch, type RefObject, type SetStateAction } from 'react';
 import type { Theme } from '@mui/material/styles';
 import type { TopoViewerWebviewHost } from '../shared/types';
@@ -56,6 +56,7 @@ interface PreviewPanelProps {
   hasErrors: boolean;
   hasExportBlockers: boolean;
   loading: boolean;
+  placeCanvasNode: (position: { x: number; y: number }) => void;
   previewRef: RefObject<HTMLDivElement>;
   parityMode?: boolean;
   redoStack: DocumentTransaction[];
@@ -165,7 +166,7 @@ export const ResizeDivider = memo(function ResizeDivider({ clamp, defaultSplitPe
   );
 });
 
-export const PreviewPanel = memo(function PreviewPanel({ exportImage, exportTooltip, handleNodePositionChange, handleObjectClick, hasErrors, hasExportBlockers, loading, parityMode = false, previewRef, redoStack, redoTopology, selectedLayerIds, selectedObjectIds, setSelectedObjects, undoStack, undoTopology, visibleDocument }: PreviewPanelProps) {
+export const PreviewPanel = memo(function PreviewPanel({ exportImage, exportTooltip, handleNodePositionChange, handleObjectClick, hasErrors, hasExportBlockers, loading, parityMode = false, placeCanvasNode, previewRef, redoStack, redoTopology, selectedLayerIds, selectedObjectIds, setSelectedObjects, undoStack, undoTopology, visibleDocument }: PreviewPanelProps) {
   const [canvasAuthoring, setCanvasAuthoring] = useState(defaultCanvasAuthoringState);
   useRenderProfile('PreviewPanel', {
     hasDocument: !!visibleDocument,
@@ -199,6 +200,14 @@ export const PreviewPanel = memo(function PreviewPanel({ exportImage, exportTool
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [parityMode, selectCanvasTool]);
+  const handlePaneClick = useCallback((event: TopoViewerPaneClick) => {
+    if (!parityMode && canvasAuthoring.activeTool === 'node') {
+      placeCanvasNode(event.position);
+      setCanvasAuthoring((current) => reduceCanvasAuthoringState(current, { type: 'completeAction' }));
+      return;
+    }
+    if (canvasAuthoring.activeTool === 'select') setSelectedObjects([]);
+  }, [canvasAuthoring.activeTool, parityMode, placeCanvasNode, setSelectedObjects]);
   const effectiveSelectedLayerIds = parityMode
     ? (visibleDocument?.graph?.layers || []).map((layer) => layer.id)
     : selectedLayerIds;
@@ -250,7 +259,7 @@ export const PreviewPanel = memo(function PreviewPanel({ exportImage, exportTool
           onExport={parityMode ? undefined : exportImage}
           toggles={parityMode ? defaultTopoViewerToggles(visibleDocument) : viewerToggles}
           onObjectClick={handleObjectClick}
-          onPaneClick={() => setSelectedObjects([])}
+          onPaneClick={handlePaneClick}
           onNodePositionChange={handleNodePositionChange}
           helperLines={parityMode ? false : { enabled: true, snap: true, snapMode: 'commit', showMidpoints: true }}
         />

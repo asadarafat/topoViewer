@@ -161,15 +161,22 @@ export async function selectedPreviewObjectCount(page: Page) {
   return page.locator('.react-flow__node.selected, .react-flow__edge.selected').count();
 }
 
-export async function showAllHarnessLayers(page: Page) {
+export async function showAllHarnessLayers(page: Page, expectedLayerNames: string[] = []) {
   await page.getByRole('tab', { name: 'Layers', exact: true }).click();
+  for (const layerName of expectedLayerNames) {
+    await expect(page.getByRole('checkbox', { name: layerName })).toBeVisible();
+  }
   const checkboxes = page.locator('.topoviewer-vscode-layers-pane input[type="checkbox"]');
+  await expect.poll(() => checkboxes.count()).toBeGreaterThan(0);
   const count = await checkboxes.count();
   for (let index = 0; index < count; index += 1) {
     const checkbox = checkboxes.nth(index);
     if (!(await checkbox.isChecked())) {
       await checkbox.check();
     }
+  }
+  for (const layerName of expectedLayerNames) {
+    await expect(page.getByRole('checkbox', { name: layerName })).toBeChecked();
   }
   await page.getByRole('tab', { name: 'Build', exact: true }).click();
 }

@@ -3,11 +3,12 @@ import {
   Background,
   ReactFlow,
   ReactFlowProvider,
+  useReactFlow,
   useEdgesState,
   useNodesState,
   type NodeChange
 } from '@xyflow/react';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent } from 'react';
 import { compileTopoGraph } from '../core/compiler';
 import { resolveAttentionPresentationCached } from '../core/attention/cache';
 import { assertRendererLimits } from '../core/limits';
@@ -329,6 +330,7 @@ function TopoFlow({
 }) {
   const [nodes, setNodes] = useNodesState(compiled.nodes as never[]);
   const [edges, setEdges, onEdgesChange] = useEdgesState(withRuntimeDirectionHandlers(compiled.edges, onObjectClick) as never[]);
+  const reactFlow = useReactFlow();
   const helperLineOptions = useMemo(() => normalizeHelperLinesOptions(helperLines), [helperLines]);
   const [helperLineState, scheduleHelperLineState, clearHelperLines] = useHelperLineState();
   const nodesRef = useRef<HelperLineNodeLike[]>(compiled.nodes as unknown as HelperLineNodeLike[]);
@@ -426,6 +428,21 @@ function TopoFlow({
     });
   }, [clearHelperLines, onNodePositionChange]);
 
+  const handlePaneClick = useCallback((event: MouseEvent) => {
+    if (!onPaneClick) return;
+    onPaneClick({
+      clientX: event.clientX,
+      clientY: event.clientY,
+      position: reactFlow.screenToFlowPosition({ x: event.clientX, y: event.clientY }),
+      viewport: reactFlow.getViewport(),
+      modifiers: {
+        ctrlKey: event.ctrlKey,
+        metaKey: event.metaKey,
+        shiftKey: event.shiftKey
+      }
+    });
+  }, [onPaneClick, reactFlow]);
+
   return (
     <ReactFlow
       nodes={nodes}
@@ -464,7 +481,7 @@ function TopoFlow({
           }
         });
       } : undefined}
-      onPaneClick={onPaneClick}
+      onPaneClick={onPaneClick ? handlePaneClick : undefined}
       onNodeDragStop={helperLineOptions.enabled || onNodePositionChange ? onNodeDragStop : undefined}
       onNodeDragStart={helperLineOptions.enabled ? onNodeDragStart : undefined}
       onMoveEnd={onViewportChange ? (_event, viewport) => onViewportChange(viewport) : undefined}

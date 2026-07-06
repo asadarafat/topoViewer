@@ -418,6 +418,18 @@ export interface TopoViewerNodePositionChange {
   data: Record<string, unknown>;
 }
 
+export interface TopoViewerPaneClick {
+  clientX: number;
+  clientY: number;
+  position: { x: number; y: number };
+  viewport: TopoViewerViewport;
+  modifiers?: {
+    ctrlKey: boolean;
+    metaKey: boolean;
+    shiftKey: boolean;
+  };
+}
+
 export interface TopoViewerHelperLinesOptions {
   enabled?: boolean;
   snap?: boolean;
@@ -449,7 +461,7 @@ export interface TopoViewerProps {
     onToggle?: () => void;
   };
   onObjectClick?: (object: TopoViewerObjectClick) => void;
-  onPaneClick?: () => void;
+  onPaneClick?: (event: TopoViewerPaneClick) => void;
   onNodePositionChange?: (change: TopoViewerNodePositionChange) => void;
   onViewportChange?: (viewport: TopoViewerViewport) => void;
   onExport?: () => void;

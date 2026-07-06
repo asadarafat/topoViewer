@@ -5,6 +5,7 @@ import {
   nodePosition,
   selectGraphNodes,
   selectHarnessObject,
+  selectedPreviewObjectCount,
   showAllHarnessLayers,
   stylesheetText,
   topologyText,
@@ -33,7 +34,21 @@ async function startNewTopology(page: Parameters<typeof topologyText>[0]) {
   await expect.poll(() => topologyText(page)).toContain('id: physical');
   await expect.poll(() => stylesheetText(page)).toContain('curveStyle: bezier');
   await waitForValidatedLayers(page, ['physical', 'service', 'operations']);
-  await showAllHarnessLayers(page);
+  await showAllHarnessLayers(page, ['Physical', 'Service', 'Operations']);
+}
+
+async function topologyPointForClientClick(page: Parameters<typeof topologyText>[0], clientX: number, clientY: number) {
+  const paneBox = await page.locator('.react-flow__pane').boundingBox();
+  expect(paneBox).not.toBeNull();
+  const viewport = await page.locator('.react-flow__viewport').evaluate((element) => {
+    const transform = getComputedStyle(element).transform;
+    const matrix = new DOMMatrixReadOnly(transform === 'none' ? undefined : transform);
+    return { x: matrix.m41, y: matrix.m42, zoom: matrix.a || 1 };
+  });
+  return {
+    x: (clientX - paneBox!.x - viewport.x) / viewport.zoom,
+    y: (clientY - paneBox!.y - viewport.y) / viewport.zoom
+  };
 }
 
 test.beforeEach(async ({ page }) => {
@@ -134,6 +149,56 @@ test('activates canvas authoring tools from toolbar buttons and keyboard shortcu
   await expect(shapeTool).toHaveAttribute('aria-pressed', 'true');
   await page.keyboard.press('Escape');
   await expect(selectTool).toHaveAttribute('aria-pressed', 'true');
+});
+
+test('places generic nodes from canvas clicks with stable YAML positions', async ({ page }) => {
+  await startNewTopology(page);
+
+  const paneBox = await page.locator('.react-flow__pane').boundingBox();
+  expect(paneBox).not.toBeNull();
+  const click = {
+    x: paneBox!.x + paneBox!.width * 0.63,
+    y: paneBox!.y + paneBox!.height * 0.58
+  };
+  const expected = await topologyPointForClientClick(page, click.x, click.y);
+
+  await page.getByRole('toolbar', { name: 'Canvas authoring tools' }).getByRole('button', { name: 'Node tool' }).click();
+  await page.mouse.click(click.x, click.y);
+  await waitForValidatedGraphNodes(page, ['node-1']);
+  await expect(graphNodeByLabel(page, 'New Node')).toBeVisible();
+  await expect.poll(() => selectedPreviewObjectCount(page)).toBe(1);
+
+  const placed = nodePosition(await topologyText(page), 'node-1');
+  expect(placed).toBeDefined();
+  expect(Math.abs(placed!.x - expected.x)).toBeLessThanOrEqual(1);
+  expect(Math.abs(placed!.y - expected.y)).toBeLessThanOrEqual(1);
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'node-1')).toContain('- physical');
+
+  await page.getByRole('button', { name: 'Undo' }).click();
+  await expect.poll(() => topologyText(page)).not.toContain('id: node-1');
+  await page.getByRole('button', { name: 'Redo' }).click();
+  await expect.poll(async () => nodePosition(await topologyText(page), 'node-1')).toEqual(placed);
+  await page.reload();
+  await waitForHarnessState(page);
+  await waitForValidatedGraphNodes(page, ['node-1']);
+  await expect.poll(async () => nodePosition(await topologyText(page), 'node-1')).toEqual(placed);
+});
+
+test('places canvas nodes on the currently visible authoring layer', async ({ page }) => {
+  await startNewTopology(page);
+
+  await page.getByRole('tab', { name: 'Layers', exact: true }).click();
+  await page.getByRole('checkbox', { name: 'Physical' }).uncheck();
+  await page.getByRole('tab', { name: 'Build', exact: true }).click();
+
+  const paneBox = await page.locator('.react-flow__pane').boundingBox();
+  expect(paneBox).not.toBeNull();
+  await page.getByRole('toolbar', { name: 'Canvas authoring tools' }).getByRole('button', { name: 'Node tool' }).click();
+  await page.mouse.click(paneBox!.x + paneBox!.width * 0.54, paneBox!.y + paneBox!.height * 0.52);
+  await waitForValidatedGraphNodes(page, ['node-1']);
+  await expect(graphNodeByLabel(page, 'New Node')).toBeVisible();
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'node-1')).toContain('- service');
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'node-1')).not.toContain('- physical');
 });
 
 test('crud covers new topology regions, callouts, and relationship objects', async ({ page }) => {

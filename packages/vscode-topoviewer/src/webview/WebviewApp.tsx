@@ -3,28 +3,11 @@ import Box from '@mui/material/Box';
 import { type TopoDocument, type TopoViewerNodePositionChange } from 'topoviewer';
 import type { HarnessFixture, TopoViewerWebviewHost, ValidationResult, WebviewDiagnostic, WebviewState } from '../shared/types';
 import {
-  clearAttention,
-  defaultLayerId,
-  deleteTopoObjects,
-  findObject,
-  focusKindForSelection,
-  insertTopoObject,
-  insertTopoPreset,
-  objectExists,
-  objectIdsByKind,
-  updateGraphNodePosition,
-  updateAttentionFocus,
-  updateAttentionInteraction,
-  updateAttentionLinkGrouping,
-  updateAttentionMatcher,
-  updateAttentionRegionAggregation,
-  updateTopoObject,
-  upsertGraphLink,
-  upsertGraphPath,
-  type AttentionFocusKind,
-  type InsertObjectType,
-  type TopoObjectPreset,
-  type TopoObjectSelection
+  clearAttention, defaultLayerId, deleteTopoObjects, findObject, focusKindForSelection, insertTopoObject,
+  insertTopoPreset, objectExists, objectIdsByKind, updateGraphNodePosition, updateAttentionFocus,
+  updateAttentionInteraction, updateAttentionLinkGrouping, updateAttentionMatcher,
+  updateAttentionRegionAggregation, updateTopoObject, upsertGraphLink, upsertGraphPath,
+  type AttentionFocusKind, type InsertObjectType, type TopoObjectPreset, type TopoObjectSelection
 } from '../shared/topologyMutations';
 import {
   keyValueRowsForObject,
@@ -47,6 +30,7 @@ import { mapperTopologyPickers } from './mapperRuleBuilder';
 import { useMapperRuleAuthoring } from './webviewMapperAuthoring';
 import { useObjectSelectionActions } from './webviewSelectionActions';
 import { useRenderProfile } from './renderProfile';
+import { applyCanvasAuthoringCommand, type CanvasAuthoringPoint } from './canvasAuthoring';
 import './webview.css';
 type WebviewAppProps = { host: TopoViewerWebviewHost; themeMode?: 'light' | 'dark'; onToggleThemeMode?: () => void };
 
@@ -738,6 +722,22 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
     }));
   }
 
+  function placeCanvasNode(position: CanvasAuthoringPoint) {
+    setTab(0);
+    applyTopologyTransaction('Place node', (topologyText) => {
+      const result = applyCanvasAuthoringCommand(topologyText, {
+        layers: selectedLayerIds,
+        position,
+        preset: 'node',
+        type: 'insertNodeAt'
+      });
+      const nodes = result.document.graph?.nodes || [];
+      const createdId = nodes[nodes.length - 1]?.id;
+      if (createdId) setSelectedObjects([{ kind: 'node', id: String(createdId) }]);
+      return result;
+    });
+  }
+
   function createConnection() {
     setTab(0);
     applyTopologyTransaction('Create connection', (topologyText) => upsertGraphLink(topologyText, {
@@ -981,7 +981,7 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
       )}
 
       {parityMode ? (
-        <PreviewPanel exportImage={exportImage} exportTooltip={exportTooltip} handleNodePositionChange={handleNodePositionChange} handleObjectClick={handleObjectClick} hasErrors={appliedHasErrors} hasExportBlockers={hasExportBlockers} loading={loading} parityMode previewRef={previewRef} redoStack={redoStack} redoTopology={redoTopology} selectedLayerIds={selectedLayerIds} selectedObjectIds={[]} setSelectedObjects={setSelectedObjects} undoStack={undoStack} undoTopology={undoTopology} visibleDocument={visibleDocument} />
+          <PreviewPanel exportImage={exportImage} exportTooltip={exportTooltip} handleNodePositionChange={handleNodePositionChange} handleObjectClick={handleObjectClick} hasErrors={appliedHasErrors} hasExportBlockers={hasExportBlockers} loading={loading} parityMode placeCanvasNode={placeCanvasNode} previewRef={previewRef} redoStack={redoStack} redoTopology={redoTopology} selectedLayerIds={selectedLayerIds} selectedObjectIds={[]} setSelectedObjects={setSelectedObjects} undoStack={undoStack} undoTopology={undoTopology} visibleDocument={visibleDocument} />
       ) : (
         <Box
           ref={workspaceRef}
@@ -992,7 +992,7 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
 
           <ResizeDivider clamp={clamp} defaultSplitPercent={defaultSplitPercent} maxSplitPercent={maxSplitPercent} minSplitPercent={minSplitPercent} setResizing={setResizing} setSplitPercent={setSplitPercent} splitPercent={splitPercent} updateSplitFromClientX={updateSplitFromClientX} />
 
-          <PreviewPanel exportImage={exportImage} exportTooltip={exportTooltip} handleNodePositionChange={handleNodePositionChange} handleObjectClick={handleObjectClick} hasErrors={appliedHasErrors} hasExportBlockers={hasExportBlockers} loading={loading} previewRef={previewRef} redoStack={redoStack} redoTopology={redoTopology} selectedLayerIds={selectedLayerIds} selectedObjectIds={previewSelectedObjectIds} setSelectedObjects={setSelectedObjects} undoStack={undoStack} undoTopology={undoTopology} visibleDocument={visibleDocument} />
+          <PreviewPanel exportImage={exportImage} exportTooltip={exportTooltip} handleNodePositionChange={handleNodePositionChange} handleObjectClick={handleObjectClick} hasErrors={appliedHasErrors} hasExportBlockers={hasExportBlockers} loading={loading} placeCanvasNode={placeCanvasNode} previewRef={previewRef} redoStack={redoStack} redoTopology={redoTopology} selectedLayerIds={selectedLayerIds} selectedObjectIds={previewSelectedObjectIds} setSelectedObjects={setSelectedObjects} undoStack={undoStack} undoTopology={undoTopology} visibleDocument={visibleDocument} />
         </Box>
       )}
     </Box>
