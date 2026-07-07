@@ -8,6 +8,11 @@ type DebugEvent = {
   time: string;
 };
 
+type EdgeDragDebugState = {
+  detail: string;
+  startedLinkCount: number;
+};
+
 const buttonNames = ['Left', 'Middle', 'Right', 'Back', 'Forward'];
 
 function formatTime() {
@@ -46,6 +51,24 @@ function pointerDetail(event: PointerEvent | MouseEvent) {
   return `${pointerType} ${button} at ${Math.round(event.clientX)}, ${Math.round(event.clientY)}`;
 }
 
+function harnessLinkCount() {
+  const graph = (window as unknown as {
+    __topoviewerHarnessValidation?: { document?: { graph?: { links?: unknown[] } } };
+  }).__topoviewerHarnessValidation?.document?.graph;
+  return Array.isArray(graph?.links) ? graph.links.length : 0;
+}
+
+function edgeHandleDetail(target: EventTarget | null) {
+  if (!(target instanceof Element)) return undefined;
+  const handle = target.closest('.react-flow__handle');
+  if (!handle?.closest('.topoviewer--connectable')) return undefined;
+  const node = handle.closest('.react-flow__node');
+  const nodeId = node?.getAttribute('data-id') || 'unknown-node';
+  const handleId = handle.getAttribute('data-handleid') || handle.id || 'default';
+  const type = handle.classList.contains('source') ? 'source' : handle.classList.contains('target') ? 'target' : 'handle';
+  return `${type} ${nodeId}:${handleId}`;
+}
+
 function isPrintableKey(event: KeyboardEvent) {
   return event.key.length === 1 && !event.metaKey && !event.ctrlKey && !event.altKey;
 }
@@ -55,6 +78,8 @@ function useInputDebugRecorder() {
   const moveLoggedAtRef = useRef(0);
   const pointerFrameRef = useRef<number | undefined>();
   const pendingPointerRef = useRef<{ buttons: number; x: number; y: number } | undefined>();
+  const edgeDragRef = useRef<EdgeDragDebugState | undefined>();
+  const edgeResultTimersRef = useRef<number[]>([]);
   const [events, setEvents] = useState<DebugEvent[]>([]);
   const [lastEvent, setLastEvent] = useState<DebugEvent>({
     id: 0,
@@ -81,6 +106,23 @@ function useInputDebugRecorder() {
   useEffect(() => {
     const pressed = new Set<string>();
     const syncPressedKeys = () => setPressedKeys([...pressed].sort((a, b) => a.localeCompare(b)));
+
+    const recordEdgeDragResult = (edgeDrag: EdgeDragDebugState, attempt = 0) => {
+      const timer = window.setTimeout(() => {
+        edgeResultTimersRef.current = edgeResultTimersRef.current.filter((id) => id !== timer);
+        const endedLinkCount = harnessLinkCount();
+        if (endedLinkCount > edgeDrag.startedLinkCount) {
+          record('Edge created', `${edgeDrag.detail} · links ${edgeDrag.startedLinkCount} → ${endedLinkCount}`);
+          return;
+        }
+        if (attempt < 7) {
+          recordEdgeDragResult(edgeDrag, attempt + 1);
+          return;
+        }
+        record('Edge cancelled', edgeDrag.detail);
+      }, 80);
+      edgeResultTimersRef.current = [...edgeResultTimersRef.current, timer];
+    };
 
     const syncPointer = (event: PointerEvent, immediate = false) => {
       pendingPointerRef.current = {
@@ -129,11 +171,23 @@ function useInputDebugRecorder() {
     const onPointerDown = (event: PointerEvent) => {
       syncPointer(event, true);
       record('Pointer down', pointerDetail(event));
+      const detail = edgeHandleDetail(event.target);
+      if (detail) {
+        edgeDragRef.current = {
+          detail,
+          startedLinkCount: harnessLinkCount()
+        };
+        record('Edge drag start', detail);
+      }
     };
 
     const onPointerUp = (event: PointerEvent) => {
       syncPointer(event, true);
       record('Pointer up', pointerDetail(event));
+      const edgeDrag = edgeDragRef.current;
+      if (!edgeDrag) return;
+      edgeDragRef.current = undefined;
+      recordEdgeDragResult(edgeDrag);
     };
 
     const onPointerMove = (event: PointerEvent) => {
@@ -174,6 +228,8 @@ function useInputDebugRecorder() {
         cancelAnimationFrame(pointerFrameRef.current);
         pointerFrameRef.current = undefined;
       }
+      edgeResultTimersRef.current.forEach((timer) => window.clearTimeout(timer));
+      edgeResultTimersRef.current = [];
     };
   }, [record]);
 

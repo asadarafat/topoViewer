@@ -21,7 +21,7 @@ import LaunchIcon from '@mui/icons-material/Launch';
 import MouseIcon from '@mui/icons-material/Mouse';
 import PanToolAltIcon from '@mui/icons-material/PanToolAlt';
 import PolylineIcon from '@mui/icons-material/Polyline';
-import { TopoViewer, defaultTopoViewerToggles, type TopoDocument, type TopoViewerNodePositionChange, type TopoViewerObjectClick, type TopoViewerPaneClick } from 'topoviewer';
+import { TopoViewer, defaultTopoViewerToggles, type TopoDocument, type TopoViewerConnectionCreate, type TopoViewerNodePositionChange, type TopoViewerObjectClick, type TopoViewerPaneClick } from 'topoviewer';
 import { memo, useCallback, useEffect, useState, type ComponentType, type Dispatch, type RefObject, type SetStateAction } from 'react';
 import type { Theme } from '@mui/material/styles';
 import { authoringHelperLinesOptions } from '../../../topoviewer/src/components/helperLines';
@@ -54,6 +54,7 @@ interface ResizeDividerProps {
 interface PreviewPanelProps {
   exportImage: () => Promise<void>;
   exportTooltip?: string;
+  createCanvasConnection: (connection: TopoViewerConnectionCreate) => void;
   handleNodePositionChange: (change: TopoViewerNodePositionChange) => void;
   handleObjectClick: (object: TopoViewerObjectClick) => void;
   hasErrors: boolean;
@@ -170,7 +171,7 @@ export const ResizeDivider = memo(function ResizeDivider({ clamp, defaultSplitPe
   );
 });
 
-export const PreviewPanel = memo(function PreviewPanel({ exportImage, exportTooltip, handleNodePositionChange, handleObjectClick, hasErrors, hasExportBlockers, loading, parityMode = false, placeCanvasNode, previewRef, redoStack, redoTopology, selectedLayerIds, selectedObjectIds, setSelectedLayerIds, setSelectedObjects, undoStack, undoTopology, visibleDocument }: PreviewPanelProps) {
+export const PreviewPanel = memo(function PreviewPanel({ exportImage, exportTooltip, createCanvasConnection, handleNodePositionChange, handleObjectClick, hasErrors, hasExportBlockers, loading, parityMode = false, placeCanvasNode, previewRef, redoStack, redoTopology, selectedLayerIds, selectedObjectIds, setSelectedLayerIds, setSelectedObjects, undoStack, undoTopology, visibleDocument }: PreviewPanelProps) {
   const [canvasAuthoring, setCanvasAuthoring] = useState(defaultCanvasAuthoringState);
   const [controlsOpen, setControlsOpen] = useState(false);
   const [helperLinesEnabled, setHelperLinesEnabled] = useState(true);
@@ -285,6 +286,8 @@ export const PreviewPanel = memo(function PreviewPanel({ exportImage, exportTool
             onObjectClick={handleObjectClick}
             onPaneClick={handlePaneClick}
             onNodePositionChange={handleNodePositionChange}
+            onConnectionCreate={canvasAuthoring.activeTool === 'link' ? createCanvasConnection : undefined}
+            nodesConnectable={canvasAuthoring.activeTool === 'link'}
             helperLines={parityMode || !helperLinesEnabled ? false : authoringHelperLinesOptions}
             controlPanelToggle={parityMode ? undefined : { enabled: true, open: controlsOpen, onToggle: () => setControlsOpen((current) => !current) }}
           />

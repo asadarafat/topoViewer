@@ -168,7 +168,9 @@ describe('canvas authoring command mutations', () => {
       id: 'link-1',
       name: 'New Link',
       source: 'node-a',
+      sourceHandle: 'e1-1',
       target: 'node-b',
+      targetHandle: 'e1-2',
       labels: { layer: 'physical' },
       layers: ['physical']
     }]);
@@ -228,7 +230,31 @@ describe('canvas authoring command mutations', () => {
   });
 
   it('deletes selected objects through the shared command boundary', () => {
-    const result = applyCanvasAuthoringCommand(baseTopology, {
+    const topologyWithDependencies = baseTopology
+      .replace('  links: []', [
+        '  links:',
+        '    - id: link-ab',
+        '      source: node-a',
+        '      target: node-b'
+      ].join('\n'))
+      .replace('  paths: []', [
+        '  paths:',
+        '    - id: path-ab',
+        '      sequence: [node-a, node-b]'
+      ].join('\n'))
+      .replace('  regions: []', [
+        '  regions:',
+        '    - id: region-a',
+        '      members: [node-a, node-b]'
+      ].join('\n'))
+      .replace('  callouts: []', [
+        '  callouts:',
+        '    - id: callout-b',
+        '      title: Node B note',
+        '      target: node-b',
+        '      position: [340, 220]'
+      ].join('\n'));
+    const result = applyCanvasAuthoringCommand(topologyWithDependencies, {
       selections: [
         { kind: 'node', id: 'node-b' },
         { kind: 'shape', id: 'shape-a' }
@@ -238,7 +264,14 @@ describe('canvas authoring command mutations', () => {
     const document = parseTopologyText(result.text);
 
     expect(document.graph.nodes.map((node: any) => node.id)).toEqual(['node-a']);
+    expect(document.graph.links).toEqual([]);
+    expect(document.graph.paths).toEqual([]);
+    expect(document.graph.regions).toEqual([{
+      id: 'region-a',
+      members: ['node-a']
+    }]);
     expect(document.diagram.shapes).toEqual([]);
+    expect(document.diagram.callouts).toEqual([]);
   });
 
   it('fails explicitly for command families that are not implemented yet', () => {

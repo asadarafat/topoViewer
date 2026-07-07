@@ -59,7 +59,9 @@ export interface UpsertGraphLinkOptions {
   name?: string;
   selectedLayerIds: string[];
   source: string;
+  sourceHandle?: string;
   target: string;
+  targetHandle?: string;
 }
 
 export interface UpsertGraphPathOptions {
@@ -371,13 +373,11 @@ export function sameSelection(a: TopoObjectSelection, b: TopoObjectSelection): b
 export function insertTopoObject(text: string, options: InsertObjectOptions): MutationResult {
   return mutateTopologyText(text, (document) => {
     const graph = ensureGraph(document);
-    const diagram = ensureDiagram(document);
     const layerId = defaultLayerId(document, options.selectedLayerIds);
     const nodes = ensureArray(graph, 'nodes');
     const links = ensureArray(graph, 'links');
     const paths = ensureArray(graph, 'paths');
     const regions = ensureArray(graph, 'regions');
-    const callouts = ensureArray(diagram, 'callouts');
 
     if (options.type === 'node' || options.type === 'router' || options.type === 'controller' || options.type === 'external' || options.type === 'service') {
       const id = nextId(document, options.type === 'service' ? 'service' : options.type);
@@ -469,6 +469,7 @@ export function insertTopoObject(text: string, options: InsertObjectOptions): Mu
     }
 
     if (options.type === 'callout') {
+      const callouts = ensureArray(ensureDiagram(document), 'callouts');
       const target = options.selectedObjects[0]?.kind === 'node' ? options.selectedObjects[0].id : undefined;
       const position = options.position || nextCanvasPosition(document, options.selectedObjects, { x: 120, y: -80 });
       callouts.push({
@@ -487,14 +488,11 @@ export function insertTopoObject(text: string, options: InsertObjectOptions): Mu
 export function insertTopoPreset(text: string, options: InsertPresetOptions): MutationResult {
   return mutateTopologyText(text, (document) => {
     const graph = ensureGraph(document);
-    const diagram = ensureDiagram(document);
     const layerId = defaultLayerId(document, options.selectedLayerIds);
     const nodes = ensureArray(graph, 'nodes');
     const links = ensureArray(graph, 'links');
     const paths = ensureArray(graph, 'paths');
     const regions = ensureArray(graph, 'regions');
-    const shapes = ensureArray(diagram, 'shapes');
-    const callouts = ensureArray(diagram, 'callouts');
     const preset = options.preset;
     const id = nextId(document, presetPrefix(preset));
     const fields = presetFields(preset);
@@ -548,6 +546,7 @@ export function insertTopoPreset(text: string, options: InsertPresetOptions): Mu
     }
 
     if (preset.kind === 'shape') {
+      const shapes = ensureArray(ensureDiagram(document), 'shapes');
       const position = nextCanvasPosition(document, options.selectedObjects);
       shapes.push({
         id,
@@ -560,6 +559,7 @@ export function insertTopoPreset(text: string, options: InsertPresetOptions): Mu
     }
 
     if (preset.kind === 'callout') {
+      const callouts = ensureArray(ensureDiagram(document), 'callouts');
       const target = options.selectedObjects[0]?.kind === 'node' ? options.selectedObjects[0].id : undefined;
       const position = nextCanvasPosition(document, options.selectedObjects, { x: 120, y: -80 });
       callouts.push({
@@ -640,6 +640,16 @@ export function upsertGraphLink(text: string, options: UpsertGraphLinkOptions): 
     if (existing) {
       existing.source = options.source;
       existing.target = options.target;
+      if (options.sourceHandle) {
+        existing.sourceHandle = options.sourceHandle;
+      } else {
+        delete existing.sourceHandle;
+      }
+      if (options.targetHandle) {
+        existing.targetHandle = options.targetHandle;
+      } else {
+        delete existing.targetHandle;
+      }
       if (options.name !== undefined) existing.name = options.name;
       return;
     }
@@ -649,6 +659,8 @@ export function upsertGraphLink(text: string, options: UpsertGraphLinkOptions): 
       name: options.name || 'New Link',
       source: options.source,
       target: options.target,
+      ...(options.sourceHandle ? { sourceHandle: options.sourceHandle } : {}),
+      ...(options.targetHandle ? { targetHandle: options.targetHandle } : {}),
       labels: { layer: layerId },
       layers: [layerId]
     });
@@ -702,6 +714,18 @@ export function updateGraphNodePosition(text: string, options: UpdateNodePositio
 
 export function deleteTopoObjects(text: string, selections: TopoObjectSelection[]): MutationResult {
   return mutateTopologyText(text, (document) => {
+    const deleted = selections.reduce((sets, selection) => {
+      if (selection.kind !== 'linkDirection') sets[selection.kind].add(selection.id);
+      return sets;
+    }, {
+      callout: new Set<string>(),
+      link: new Set<string>(),
+      node: new Set<string>(),
+      path: new Set<string>(),
+      region: new Set<string>(),
+      shape: new Set<string>()
+    } satisfies Record<Exclude<TopoObjectKind, 'linkDirection'>, Set<string>>);
+
     for (const selection of selections) {
       if (selection.kind === 'linkDirection') continue;
       if (selection.kind in graphCollectionByKind) {
@@ -713,6 +737,70 @@ export function deleteTopoObjects(text: string, selections: TopoObjectSelection[
         const collection = diagramCollectionByKind[selection.kind as keyof typeof diagramCollectionByKind];
         diagram[collection] = (diagram[collection] || []).filter((item: any) => item.id !== selection.id);
       }
+    }
+
+    const graph = ensureGraph(document);
+    const diagram = ensureDiagram(document);
+    const deletedNodeIds = deleted.node;
+    const deletedRegionIds = deleted.region;
+    const deletedVisualAnchorIds = new Set([
+      ...deleted.callout,
+      ...deleted.node,
+      ...deleted.region,
+      ...deleted.shape
+    ]);
+
+    if (deletedNodeIds.size > 0) {
+      const removedLinkIds = new Set<string>();
+      graph.links = (graph.links || []).filter((link: any) => {
+        const remove = deletedNodeIds.has(String(link.source)) || deletedNodeIds.has(String(link.target));
+        if (remove && link.id) removedLinkIds.add(String(link.id));
+        return !remove;
+      });
+      removedLinkIds.forEach((id) => deleted.link.add(id));
+
+      graph.paths = (graph.paths || []).filter((path: any) => {
+        if (Array.isArray(path.sequence) && path.sequence.some((nodeId: unknown) => deletedNodeIds.has(String(nodeId)))) {
+          return false;
+        }
+        return !deletedNodeIds.has(String(path.source)) && !deletedNodeIds.has(String(path.target));
+      });
+
+      graph.regions = (graph.regions || []).map((region: any) => ({
+        ...region,
+        members: Array.isArray(region.members)
+          ? region.members.filter((member: unknown) => !deletedNodeIds.has(String(member)))
+          : region.members
+      }));
+    }
+
+    if (deleted.link.size > 0) {
+      graph.links = (graph.links || []).filter((link: any) => !deleted.link.has(String(link.parent)));
+    }
+
+    if (deleted.path.size > 0) {
+      graph.paths = (graph.paths || []).filter((path: any) => !deleted.path.has(String(path.parent)));
+    }
+
+    if (deletedRegionIds.size > 0) {
+      graph.regions = (graph.regions || []).filter((region: any) => !deletedRegionIds.has(String(region.parent))).map((region: any) => ({
+        ...region,
+        members: Array.isArray(region.members)
+          ? region.members.filter((member: unknown) => !deletedRegionIds.has(String(member)))
+          : region.members
+      }));
+    }
+
+    if (deletedVisualAnchorIds.size > 0 && diagram) {
+      diagram.connectors = (diagram.connectors || []).filter((connector: any) => (
+        (connector.sourcePosition || !deletedVisualAnchorIds.has(String(connector.source)))
+        && (connector.targetPosition || !deletedVisualAnchorIds.has(String(connector.target)))
+      ));
+      diagram.callouts = (diagram.callouts || []).filter((callout: any) => {
+        const source = callout.source || (callout.position || callout.size ? callout.id : undefined);
+        return (callout.sourcePosition || !deletedVisualAnchorIds.has(String(source)))
+          && (callout.targetPosition || !deletedVisualAnchorIds.has(String(callout.target)));
+      });
     }
   });
 }

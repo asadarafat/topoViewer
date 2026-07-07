@@ -1,6 +1,7 @@
 import '@xyflow/react/dist/style.css';
 import {
   Background,
+  ConnectionMode,
   ReactFlow,
   ReactFlowProvider,
   applyNodeChanges,
@@ -8,6 +9,7 @@ import {
   useEdgesState,
   useNodesInitialized,
   useNodesState,
+  type Connection,
   type NodeChange
 } from '@xyflow/react';
 import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent } from 'react';
@@ -314,10 +316,12 @@ function TopoFlow({
   helperLines,
   initialViewport,
   nodesDraggable = true,
+  nodesConnectable = false,
   onExport,
   onObjectClick,
   onPaneClick,
   onNodePositionChange,
+  onConnectionCreate,
   onViewportChange,
   nodeTypes,
   edgeTypes
@@ -331,10 +335,12 @@ function TopoFlow({
   helperLines?: TopoViewerProps['helperLines'];
   initialViewport?: TopoViewerProps['initialViewport'];
   nodesDraggable?: TopoViewerProps['nodesDraggable'];
+  nodesConnectable?: TopoViewerProps['nodesConnectable'];
   onExport?: TopoViewerProps['onExport'];
   onObjectClick?: TopoViewerProps['onObjectClick'];
   onPaneClick?: TopoViewerProps['onPaneClick'];
   onNodePositionChange?: TopoViewerProps['onNodePositionChange'];
+  onConnectionCreate?: TopoViewerProps['onConnectionCreate'];
   onViewportChange?: TopoViewerProps['onViewportChange'];
   nodeTypes: Record<string, unknown>;
   edgeTypes: Record<string, unknown>;
@@ -484,6 +490,23 @@ function TopoFlow({
     });
   }, [clearHelperLines, compiled.selectedLayerIds, document, onNodePositionChange, setNodes, showRegions]);
 
+  const handleConnect = useCallback((connection: Connection) => {
+    if (!onConnectionCreate || !connection.source || !connection.target) return;
+    const sourceNode = nodesRef.current.find((node) => String(node.id || '') === connection.source);
+    const targetNode = nodesRef.current.find((node) => String(node.id || '') === connection.target);
+    if (!sourceNode || !targetNode) return;
+    const sourceRuntime = sourceNode as unknown as Record<string, unknown>;
+    const targetRuntime = targetNode as unknown as Record<string, unknown>;
+    onConnectionCreate({
+      sourceId: sourceObjectId(sourceRuntime),
+      sourceRuntimeId: connection.source,
+      sourceHandleId: connection.sourceHandle || undefined,
+      targetId: sourceObjectId(targetRuntime),
+      targetRuntimeId: connection.target,
+      targetHandleId: connection.targetHandle || undefined
+    });
+  }, [onConnectionCreate]);
+
   const handlePaneClick = useCallback((event: MouseEvent) => {
     if (!onPaneClick) return;
     onPaneClick({
@@ -537,6 +560,7 @@ function TopoFlow({
           }
         });
       } : undefined}
+      onConnect={onConnectionCreate ? handleConnect : undefined}
       onPaneClick={onPaneClick ? handlePaneClick : undefined}
       onNodeDragStop={helperLineOptions.enabled || onNodePositionChange ? onNodeDragStop : undefined}
       onNodeDragStart={helperLineOptions.enabled ? onNodeDragStart : undefined}
@@ -548,7 +572,10 @@ function TopoFlow({
       fitViewOptions={{ padding: 0.06, maxZoom: 1 }}
       minZoom={0.2}
       maxZoom={8}
+      connectionMode={ConnectionMode.Loose}
+      connectionRadius={28}
       nodesDraggable={nodesDraggable !== false && nodesInitialized}
+      nodesConnectable={nodesConnectable === true && nodesInitialized}
       elementsSelectable
       proOptions={{ hideAttribution: true }}
     >
@@ -579,9 +606,11 @@ export function TopoViewer({
   helperLines,
   initialViewport,
   nodesDraggable,
+  nodesConnectable,
   onObjectClick,
   onPaneClick,
   onNodePositionChange,
+  onConnectionCreate,
   onViewportChange,
   onExport,
   className = '',
@@ -627,8 +656,12 @@ export function TopoViewer({
     };
   }, [attention, document, effectiveExtensions, effectiveLayers, effectiveToggles, extensionContext, layout, selectedObjectIds]);
 
+  const rootClassName = ['topoviewer', nodesConnectable ? 'topoviewer--connectable' : '', className]
+    .filter(Boolean)
+    .join(' ');
+
   return (
-    <div className={`topoviewer ${className}`} style={style} role="img" aria-label={document.graph?.id || 'TopoViewer diagram'}>
+    <div className={rootClassName} style={style} role="img" aria-label={document.graph?.id || 'TopoViewer diagram'}>
       <ReactFlowProvider>
         <TopoFlow
           compiled={compiled}
@@ -640,10 +673,12 @@ export function TopoViewer({
           helperLines={helperLines}
           initialViewport={initialViewport}
           nodesDraggable={nodesDraggable}
+          nodesConnectable={nodesConnectable}
           onExport={onExport}
           onObjectClick={onObjectClick}
           onPaneClick={onPaneClick}
           onNodePositionChange={onNodePositionChange}
+          onConnectionCreate={onConnectionCreate}
           onViewportChange={onViewportChange}
           nodeTypes={nodeTypes}
           edgeTypes={edgeTypes}

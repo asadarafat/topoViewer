@@ -10,6 +10,7 @@ import {
   stylesheetText,
   topologyText,
   waitForHarnessReady,
+  waitForValidatedGraphObject,
   waitForValidatedGraphNodes,
   waitForValidatedLayers,
   waitForHarnessState,
@@ -203,6 +204,70 @@ test('places canvas nodes on the currently visible authoring layer', async ({ pa
   await expect(graphNodeByLabel(page, 'New Node')).toBeVisible();
   await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'node-1')).toContain('- service');
   await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'node-1')).not.toContain('- physical');
+});
+
+test('draws canvas links between nodes and cancels invalid drops safely', async ({ page }) => {
+  await startNewTopology(page);
+
+  const paneBox = await page.locator('.react-flow__pane').boundingBox();
+  expect(paneBox).not.toBeNull();
+  const toolbar = page.getByRole('toolbar', { name: 'Canvas authoring tools' });
+  const nodeTool = toolbar.getByRole('button', { name: 'Node tool' });
+  await nodeTool.click();
+  await page.mouse.click(paneBox!.x + paneBox!.width * 0.38, paneBox!.y + paneBox!.height * 0.5);
+  await page.mouse.click(paneBox!.x + paneBox!.width * 0.62, paneBox!.y + paneBox!.height * 0.5);
+  await waitForValidatedGraphNodes(page, ['node-1', 'node-2']);
+
+  const sourceHandle = page.locator('.react-flow__node[data-id="node-1"] .react-flow__handle.source').first();
+  const targetHandle = page.locator('.react-flow__node[data-id="node-2"] .react-flow__handle.target').first();
+  await expect(sourceHandle).toBeVisible();
+  await expect(targetHandle).toBeVisible();
+  const sourceBox = await sourceHandle.boundingBox();
+  const targetBox = await targetHandle.boundingBox();
+  expect(sourceBox).not.toBeNull();
+  expect(targetBox).not.toBeNull();
+  const source = { x: sourceBox!.x + sourceBox!.width / 2, y: sourceBox!.y + sourceBox!.height / 2 };
+  const target = { x: targetBox!.x + targetBox!.width / 2, y: targetBox!.y + targetBox!.height / 2 };
+
+  await toolbar.getByRole('button', { name: 'Link tool' }).click();
+  await page.mouse.move(source.x, source.y);
+  await page.mouse.down();
+  await page.mouse.move((source.x + target.x) / 2, (source.y + target.y) / 2, { steps: 6 });
+  await expect(page.locator('.react-flow__connection, .react-flow__connection-path').first()).toHaveCount(1);
+  await page.mouse.move(target.x, target.y, { steps: 6 });
+  await page.mouse.up();
+  await waitForValidatedGraphObject(page, 'links', 'link-1');
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'link-1')).toContain('source: node-1');
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'link-1')).toContain('target: node-2');
+
+  await page.mouse.move(source.x, source.y);
+  await page.mouse.down();
+  await page.mouse.move(paneBox!.x + paneBox!.width * 0.86, paneBox!.y + paneBox!.height * 0.82, { steps: 8 });
+  await page.mouse.up();
+  await expect.poll(() => topologyText(page)).not.toContain('id: link-2');
+
+  await page.mouse.move(target.x, target.y);
+  await page.mouse.down();
+  await page.mouse.move(source.x, source.y, { steps: 8 });
+  await page.mouse.up();
+  await waitForValidatedGraphObject(page, 'links', 'link-2');
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'link-2')).toContain('source: node-1');
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'link-2')).toContain('target: node-2');
+
+  await page.getByRole('button', { name: 'Undo' }).click();
+  await expect.poll(() => topologyText(page)).not.toContain('id: link-2');
+  await page.getByRole('button', { name: 'Redo' }).click();
+  await waitForValidatedGraphObject(page, 'links', 'link-2');
+  await page.reload();
+  await waitForHarnessState(page);
+  await waitForValidatedGraphObject(page, 'links', 'link-2');
+
+  await page.locator('.react-flow__node[data-id="node-1"]').click();
+  await page.getByRole('tab', { name: 'Inspect', exact: true }).click();
+  await page.locator('.topoviewer-vscode-inspector-pane').getByRole('button', { name: 'Delete' }).click();
+  await expect.poll(() => topologyText(page)).not.toContain('id: link-1');
+  await expect.poll(() => topologyText(page)).not.toContain('id: link-2');
+  await expect(page.getByText('No diagnostics')).toBeVisible();
 });
 
 test('keeps click-created linked nodes stable during staggered vertical drags', async ({ page }) => {

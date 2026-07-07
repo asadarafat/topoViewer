@@ -99,5 +99,23 @@ test('records keyboard and mouse interactions on the harness debug route', async
   await expect(page.locator('.topoviewer-debug-overlay-log')).toContainText('Drag move');
   await expect(page.locator('.topoviewer-debug-overlay-log')).toContainText('Pointer up');
 
+  await page.getByRole('toolbar', { name: 'Canvas authoring tools' }).getByRole('button', { name: 'Link tool' }).click();
+  const sourceHandle = page.locator('.react-flow__node[data-id="debug-a"] .react-flow__handle.source').first();
+  const targetHandle = page.locator('.react-flow__node[data-id="debug-b"] .react-flow__handle.target').first();
+  await expect(sourceHandle).toBeVisible();
+  await expect(targetHandle).toBeVisible();
+  const sourceBox = await sourceHandle.boundingBox();
+  const targetBox = await targetHandle.boundingBox();
+  expect(sourceBox).not.toBeNull();
+  expect(targetBox).not.toBeNull();
+  const source = { x: sourceBox!.x + sourceBox!.width / 2, y: sourceBox!.y + sourceBox!.height / 2 };
+  const target = { x: targetBox!.x + targetBox!.width / 2, y: targetBox!.y + targetBox!.height / 2 };
+  await page.mouse.move(source.x, source.y);
+  await page.mouse.down();
+  await expect(page.locator('.topoviewer-debug-overlay-log')).toContainText('Edge drag start');
+  await page.mouse.move(target.x, target.y, { steps: 8 });
+  await page.mouse.up();
+  await expect(page.locator('.topoviewer-debug-overlay-log')).toContainText('Edge created');
+
   await expect(page.locator('.topoviewer-debug-overlay-meta')).toContainText('A');
 });

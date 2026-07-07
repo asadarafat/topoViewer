@@ -55,11 +55,11 @@ Each implementation phase must prove:
 
 ## 4. Drag-To-Connect Links
 
-- [ ] 4.1 Add link drawing interaction state and live preview
-- [ ] 4.2 Support source/target node and handle detection
-- [ ] 4.3 Commit valid drops as deterministic `graph.links[]` YAML mutations
-- [ ] 4.4 Cancel invalid drops without mutating YAML
-- [ ] 4.5 Add Playwright coverage for valid link draw, invalid drop, parallel
+- [x] 4.1 Add link drawing interaction state and live preview
+- [x] 4.2 Support source/target node and handle detection
+- [x] 4.3 Commit valid drops as deterministic `graph.links[]` YAML mutations
+- [x] 4.4 Cancel invalid drops without mutating YAML
+- [x] 4.5 Add Playwright coverage for valid link draw, invalid drop, parallel
       link creation, undo/redo, and reload persistence
 
 ## 5. Canvas Path Authoring

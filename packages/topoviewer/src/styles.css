@@ -998,6 +998,34 @@
   pointer-events: none;
 }
 
+.topoviewer.topoviewer--connectable .react-flow__handle {
+  width: 0.875rem;
+  height: 0.875rem;
+  min-width: 0.875rem;
+  min-height: 0.875rem;
+  border: 2px solid var(--topoviewer-fg-strong);
+  background: var(--topoviewer-accent);
+  box-shadow:
+    0 0 0 2px var(--topoviewer-panel-bg),
+    0 0 0 5px rgba(56, 189, 248, 0.28),
+    0 0 18px rgba(56, 189, 248, 0.46);
+  cursor: crosshair;
+  opacity: 0.94;
+  pointer-events: auto;
+  z-index: 30;
+}
+
+.topoviewer.topoviewer--connectable .react-flow__handle:hover,
+.topoviewer.topoviewer--connectable .react-flow__handle.connectingfrom,
+.topoviewer.topoviewer--connectable .react-flow__handle.connectingto {
+  background: #7dd3fc;
+  box-shadow:
+    0 0 0 2px var(--topoviewer-panel-bg),
+    0 0 0 6px rgba(125, 211, 252, 0.34),
+    0 0 24px rgba(125, 211, 252, 0.72);
+  opacity: 1;
+}
+
 .topoviewer-reactflow-controls {
   overflow: hidden;
   border: 1px solid var(--topoviewer-border-strong);

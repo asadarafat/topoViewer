@@ -209,7 +209,9 @@ export function applyCanvasAuthoringCommand(text: string, command: CanvasAuthori
     return upsertGraphLink(text, {
       selectedLayerIds: command.layers,
       source: command.source.nodeId,
-      target: command.target.nodeId
+      sourceHandle: command.source.handleId,
+      target: command.target.nodeId,
+      targetHandle: command.target.handleId
     });
   }
 
