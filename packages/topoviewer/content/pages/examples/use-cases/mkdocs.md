@@ -49,7 +49,7 @@ Options:
 | `title` | Optional caption/title. |
 | `controls` | Show layer/display controls. Defaults to `true`. |
 | `controlsOpen` | Open controls panel initially. Defaults to `false`. |
-| `helperLines` | Drag alignment helper lines are enabled by default in docs embeds. Use `false` to start with them off or an object to tune snapping. Readers can toggle them from the viewport settings panel. |
+| `helperLines` | Drag alignment helper lines are enabled by default in docs embeds and snap on drag stop. Use `false` to start with them off, `snap: false` for guide-only overlays, or `snapMode: live` for live snapping. Readers can toggle them from the viewport settings panel. |
 | `selectedLayerIds` | Initial checked layer IDs for this embed. Defaults to all graph layers. |
 | `attention` | Optional runtime attention override for this specific rendered viewport. |
 

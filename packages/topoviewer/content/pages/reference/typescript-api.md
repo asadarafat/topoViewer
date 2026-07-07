@@ -36,6 +36,7 @@ adoption target.
 | `TopoViewerProps` | Supported | Props accepted by the React component. |
 | `TopoViewerViewport` | Supported | Viewport state passed through events. |
 | `TopoViewerObjectClick` | Supported | Object click event payload. |
+| `TopoViewerPaneClick` | Supported | Pane/background click event payload. |
 | `TopoViewerNodePositionChange` | Supported | Node drag/persist event payload. |
 | `TopoViewerHelperLinesOptions` | Experimental | Runtime-only drag alignment guides and optional snapping for authoring surfaces. |
 | `TopoViewerToggles` | Supported | Layer and viewport toggle state. |
@@ -59,9 +60,10 @@ show alignment guides:
 />
 ```
 
-Use `snapMode: 'commit'` for smooth pointer-following while dragging; alignment
-is applied to the final `onNodePositionChange` position. The default live snap
-mode remains available for hosts that want the dragged object to move directly to
+By default helper lines snap on drag stop with `snapMode: 'commit'`: the node
+follows the pointer during drag, then `onNodePositionChange` receives the
+aligned position. Set `snap: false` for guide-only overlays. The live snap mode
+remains available for hosts that want the dragged object to move directly to
 each guide candidate during drag.
 
 ## Compile, Compose, Validate

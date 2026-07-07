@@ -50,7 +50,7 @@ Start with a template, make one change, apply it, and inspect the result.
 7. If diagnostics appear, click the diagnostic, fix the line, and apply again.
 8. Drag nodes only when the layout is manual or pinned. Alignment helper lines
    appear during drag so nearby nodes, regions, and midpoint guides are easier
-   to snap into place.
+   to line up without fighting the pointer.
 9. Use `Download bundle` when the current topology should become source files.
 
 The canvas keeps the last valid applied document. A broken draft should show
@@ -77,9 +77,11 @@ the render is valid.
 
 Drag alignment helper lines are runtime guides for manual layout work. They
 appear while an object is being dragged and show when the dragged object is
-aligned with another node, region, or midpoint. When snapping is enabled, the
-dragged object snaps to the visible guide before the drag-stop position is
-reported to the host surface.
+aligned with another node, region, or midpoint. By default, dragging stays
+smooth under the pointer and the nearest visible guide is applied on drag stop.
+Use `snap: false` for guide-only overlays, or `snapMode: live` only when the
+host intentionally wants the node to move directly onto guide candidates during
+drag.
 
 They are intentionally not YAML syntax. Helper lines do not write topology,
 stylesheet, or mapper files by themselves. The persisted source of truth is
@@ -92,14 +94,14 @@ regions, or service objects without guessing by eye. The productive pattern is:
 1. Switch to a manual or pinned layout.
 2. Drag one object near another object.
 3. Watch for horizontal, vertical, or midpoint guide lines.
-4. Release the drag when the object snaps into the intended alignment.
+4. Release the drag when the intended guide is visible.
 5. Apply or download the bundle only when the rendered layout is the layout you want.
 
 In MkDocs and Zensical live examples, helper lines are enabled by default and
 can be toggled from the viewport settings button beside the zoom controls. The
 toggle is runtime-only: it does not change the fenced block, topology YAML, or
 stylesheet YAML. Page authors can still set `helperLines: false` to start a
-block with helper lines off, or provide an object to tune snapping.
+block with helper lines off, or provide an object to tune snap behavior.
 
 In Grafana, helper lines are also runtime-only. They appear only when the panel
 allows local interaction and node dragging. New panels default both settings to
@@ -128,7 +130,7 @@ React hosts can enable the same behavior with the `helperLines` prop:
 />
 ```
 
-MkDocs and Zensical live examples enable the same runtime behavior by default.
+MkDocs and Zensical live examples enable the same snap-on-release runtime behavior by default.
 Use `helperLines: false` when a read-only documentation example should not show
 drag guides:
 
@@ -136,7 +138,7 @@ drag guides:
 helperLines: false
 ```
 
-Use the object form when a documentation page needs different snapping behavior:
+Use the object form when a documentation page needs explicit snapping behavior:
 
 ```yaml
 helperLines:
@@ -151,9 +153,11 @@ helperLines:
 Use `threshold` to control how close a dragged object must be before a guide is
 considered active. Use `snapMode: commit` when the object should follow the
 pointer smoothly during drag and settle to the alignment candidate on drag stop.
-Use `snapHysteresis` when live snapping should retain an active guide until the
-pointer moves outside a larger release threshold. Use `showMidpoints` when the
-authoring workflow benefits from centering an object between nearby objects.
+Use `snapMode: live` only when the node should move onto guide candidates while
+the pointer is still down. Use `snapHysteresis` when live snapping should retain
+an active guide until the pointer moves outside a larger release threshold. Use
+`showMidpoints` when the authoring workflow benefits from centering an object
+between nearby objects.
 
 ## Bundle Files
 

@@ -24,11 +24,11 @@ function node(id: string, x: number, y: number, width = 80, height = 40, extra: 
 describe('helper line geometry', () => {
   it('normalizes disabled and enabled options', () => {
     expect(normalizeHelperLinesOptions(undefined)).toMatchObject({ enabled: false, snap: false, threshold: 5 });
-    expect(normalizeHelperLinesOptions(true)).toMatchObject({ enabled: true, snap: true, threshold: 5 });
+    expect(normalizeHelperLinesOptions(true)).toMatchObject({ enabled: true, snap: true, snapMode: 'commit', threshold: 5 });
     expect(normalizeHelperLinesOptions({ snap: false, threshold: 9, showMidpoints: true })).toMatchObject({
       enabled: true,
       snap: false,
-      snapMode: 'live',
+      snapMode: 'commit',
       snapHysteresis: 3,
       threshold: 9,
       showMidpoints: true
@@ -38,10 +38,15 @@ describe('helper line geometry', () => {
       snap: true,
       snapMode: 'commit'
     });
+    expect(normalizeHelperLinesOptions({ snap: true, snapMode: 'live' })).toMatchObject({
+      enabled: true,
+      snap: true,
+      snapMode: 'live'
+    });
   });
 
   it('detects edge and center alignments', () => {
-    const options = normalizeHelperLinesOptions(true);
+    const options = normalizeHelperLinesOptions({ snap: true });
     const result = calculateHelperLines(
       { id: 'drag', x: 96, y: 183, width: 80, height: 40 },
       [{ id: 'peer', x: 100, y: 170, width: 80, height: 60 }],
@@ -53,8 +58,22 @@ describe('helper line geometry', () => {
     expect(result.snappedPosition).toEqual({ x: 100, y: 180 });
   });
 
+  it('keeps guide-lock metadata readable but outside the enumerable line shape', () => {
+    const options = normalizeHelperLinesOptions({ snap: true });
+    const result = calculateHelperLines(
+      { id: 'drag', x: 96, y: 100, width: 80, height: 40 },
+      [{ id: 'peer', x: 100, y: 100, width: 80, height: 40 }],
+      options
+    );
+
+    expect(result.lines.vertical).toEqual({ value: 100, kind: 'edge' });
+    expect(result.lines.vertical?.candidateId).toBe('peer');
+    expect(result.lines.vertical?.draggedOffset).toBe(0);
+    expect(Object.keys(result.lines.vertical || {})).toEqual(['value', 'kind']);
+  });
+
   it('detects right and bottom edge alignments', () => {
-    const options = normalizeHelperLinesOptions(true);
+    const options = normalizeHelperLinesOptions({ snap: true });
     const result = calculateHelperLines(
       { id: 'drag', x: 176, y: 176, width: 20, height: 20 },
       [{ id: 'peer', x: 100, y: 100, width: 100, height: 100 }],
@@ -109,7 +128,7 @@ describe('helper line geometry', () => {
   });
 
   it('snaps parent-relative node changes using absolute geometry and returns local coordinates', () => {
-    const options = normalizeHelperLinesOptions(true);
+    const options = normalizeHelperLinesOptions({ snap: true, snapMode: 'live' });
     const result = applyHelperLineSnapToChanges({
       changes: [{ id: 'child', type: 'position', dragging: true, position: { x: 2, y: 20 } }],
       nodes: [
@@ -136,7 +155,7 @@ describe('helper line geometry', () => {
   });
 
   it('does not snap outside the threshold', () => {
-    const options = normalizeHelperLinesOptions({ threshold: 3 });
+    const options = normalizeHelperLinesOptions({ snap: true, threshold: 3 });
     const result = calculateHelperLines(
       { id: 'drag', x: 96, y: 100, width: 80, height: 40 },
       [{ id: 'peer', x: 100, y: 100, width: 80, height: 40 }],
@@ -161,8 +180,8 @@ describe('helper line geometry', () => {
     expect(result.snappedPositions.size).toBe(0);
   });
 
-  it('snaps pending position changes in snap mode', () => {
-    const options = normalizeHelperLinesOptions(true);
+  it('snaps pending position changes in live snap mode', () => {
+    const options = normalizeHelperLinesOptions({ snap: true, snapMode: 'live' });
     const result = applyHelperLineSnapToChanges({
       changes: [{ id: 'drag', type: 'position', dragging: true, position: { x: 101, y: 100 } }],
       nodes: [node('drag', 0, 0), node('peer', 100, 100)],
@@ -173,21 +192,22 @@ describe('helper line geometry', () => {
     expect(result.snappedPositions.get('drag')).toEqual({ x: 100, y: 100 });
   });
 
-  it('retains an active live snap candidate until the release threshold is crossed', () => {
-    const options = normalizeHelperLinesOptions({ threshold: 5, snapHysteresis: 3 });
+  it('retains an active live guide outside the snap threshold without moving the node', () => {
+    const options = normalizeHelperLinesOptions({ snap: true, snapMode: 'live', threshold: 5, snapHysteresis: 3 });
     const result = applyHelperLineSnapToChanges({
-      changes: [{ id: 'drag', type: 'position', dragging: true, position: { x: 106, y: 100 } }],
+      changes: [{ id: 'drag', type: 'position', dragging: true, position: { x: 106, y: 0 } }],
       nodes: [node('drag', 0, 0), node('peer', 100, 100)],
       options,
       previousLines: { vertical: { value: 100, kind: 'edge' } }
     });
 
     expect(result.lines.vertical).toEqual({ value: 100, kind: 'edge' });
-    expect(result.changes[0].position).toEqual({ x: 100, y: 100 });
+    expect(result.changes[0].position).toEqual({ x: 106, y: 0 });
+    expect(result.snappedPositions.size).toBe(0);
   });
 
   it('switches live snap candidates only when the competing guide is materially closer', () => {
-    const options = normalizeHelperLinesOptions({ threshold: 5, snapHysteresis: 3 });
+    const options = normalizeHelperLinesOptions({ snap: true, snapMode: 'live', threshold: 5, snapHysteresis: 3 });
     const retained = applyHelperLineSnapToChanges({
       changes: [{ id: 'drag', type: 'position', dragging: true, position: { x: 103, y: 100 } }],
       nodes: [node('drag', 0, 0), node('active', 100, 100), node('competing', 105, 100)],
@@ -221,7 +241,7 @@ describe('helper line geometry', () => {
   });
 
   it('accepts active position changes when React Flow omits the dragging flag', () => {
-    const options = normalizeHelperLinesOptions(true);
+    const options = normalizeHelperLinesOptions({ snap: true, snapMode: 'live' });
     const result = applyHelperLineSnapToChanges({
       changes: [{ id: 'drag', type: 'position', position: { x: 101, y: 100 } }],
       nodes: [node('drag', 0, 0), node('peer', 100, 100)],
@@ -245,7 +265,7 @@ describe('helper line geometry', () => {
   });
 
   it('accepts explicit non-drag position changes for the active drag-session node', () => {
-    const options = normalizeHelperLinesOptions(true);
+    const options = normalizeHelperLinesOptions({ snap: true, snapMode: 'live' });
     const result = applyHelperLineSnapToChanges({
       changes: [{ id: 'drag', type: 'position', dragging: false, position: { x: 101, y: 100 } }],
       nodes: [node('drag', 0, 0), node('peer', 100, 100)],
@@ -258,7 +278,7 @@ describe('helper line geometry', () => {
   });
 
   it('uses fixed visible objects as candidates', () => {
-    const options = normalizeHelperLinesOptions(true);
+    const options = normalizeHelperLinesOptions({ snap: true, snapMode: 'live' });
     const result = applyHelperLineSnapToChanges({
       changes: [{ id: 'drag', type: 'position', dragging: true, position: { x: 101, y: 100 } }],
       nodes: [node('drag', 0, 0), node('fixed', 100, 100, 80, 40, { draggable: false })],
@@ -270,7 +290,7 @@ describe('helper line geometry', () => {
   });
 
   it('supports bounded midpoint guide candidates', () => {
-    const options = normalizeHelperLinesOptions({ showMidpoints: true, midpointCandidateLimit: 4 });
+    const options = normalizeHelperLinesOptions({ snap: true, showMidpoints: true, midpointCandidateLimit: 4 });
     const result = calculateHelperLines(
       { id: 'drag', x: 145, y: 0, width: 20, height: 20 },
       [
@@ -296,6 +316,44 @@ describe('helper line geometry', () => {
     );
 
     expect(result.lines).toEqual({});
+  });
+
+  it('keeps a two-node commit-snap guide stable through staggered near-threshold movement', () => {
+    const options = normalizeHelperLinesOptions({
+      snap: true,
+      snapMode: 'commit',
+      threshold: 5,
+      snapHysteresis: 3
+    });
+    const nodes = [node('drag', 100, 100), node('peer', 220, 100)];
+    let previousLines = {};
+
+    const nearFrames = [216, 223, 226].map((x) => {
+      const result = applyHelperLineSnapToChanges({
+        changes: [{ id: 'drag', type: 'position', dragging: true, position: { x, y: 100 } }],
+        nodes,
+        options,
+        previousLines
+      });
+      previousLines = result.lines;
+      return result;
+    });
+    const released = applyHelperLineSnapToChanges({
+      changes: [{ id: 'drag', type: 'position', dragging: true, position: { x: 229, y: 149 } }],
+      nodes,
+      options,
+      previousLines
+    });
+
+    expect(nearFrames.map((frame) => frame.lines.vertical)).toEqual([
+      { value: 220, kind: 'edge' },
+      { value: 220, kind: 'edge' },
+      { value: 220, kind: 'edge' }
+    ]);
+    expect(nearFrames.map((frame) => frame.changes[0].position?.x)).toEqual([216, 223, 226]);
+    expect(nearFrames.map((frame) => frame.snappedPositions.get('drag')?.x)).toEqual([220, 220, 226]);
+    expect(released.lines).toEqual({});
+    expect(released.snappedPositions.size).toBe(0);
   });
 });
 

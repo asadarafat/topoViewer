@@ -5,6 +5,7 @@ import CssBaseline from '@mui/material/CssBaseline';
 import { WebviewApp } from '../webview/WebviewApp';
 import { BrowserHarnessHostAdapter } from '../webview/host';
 import { createTopoViewerTheme } from '../webview/theme';
+import { DebugInputOverlay } from './DebugInputApp';
 
 function classifyBenignBrowserLayoutNoise() {
   window.addEventListener('error', (event) => {
@@ -50,10 +51,24 @@ function BrowserHarnessRoot() {
   );
 }
 
+function isDebugRoute() {
+  return /\/debug\/?$/.test(window.location.pathname);
+}
+
+function HarnessRoot() {
+  if (!isDebugRoute()) return <BrowserHarnessRoot />;
+  return (
+    <>
+      <BrowserHarnessRoot />
+      <DebugInputOverlay />
+    </>
+  );
+}
+
 classifyBenignBrowserLayoutNoise();
 
 createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
-    <BrowserHarnessRoot />
+    <HarnessRoot />
   </React.StrictMode>
 );

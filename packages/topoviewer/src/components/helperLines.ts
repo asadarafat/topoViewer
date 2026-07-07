@@ -25,11 +25,43 @@ export interface HelperLineBox {
 export interface HelperLinePosition {
   value: number;
   kind: 'edge' | 'center' | 'midpoint';
+  candidateId?: string;
+  draggedOffset?: number;
+  snappedAxisValue?: number;
 }
 
 export interface HelperLineState {
   vertical?: HelperLinePosition;
   horizontal?: HelperLinePosition;
+}
+
+interface HelperLineCandidateCoordinate {
+  value: number;
+  offset: number;
+  kind: 'edge' | 'center' | 'midpoint';
+  candidateId: string;
+}
+
+function helperLinePosition({
+  candidateId,
+  draggedOffset,
+  kind,
+  snappedAxisValue,
+  value
+}: Required<HelperLinePosition>): HelperLinePosition {
+  const line: HelperLinePosition = { value, kind };
+  Object.defineProperties(line, {
+    candidateId: { value: candidateId, enumerable: false },
+    draggedOffset: { value: draggedOffset, enumerable: false },
+    snappedAxisValue: { value: snappedAxisValue, enumerable: false }
+  });
+  return line;
+}
+
+export interface HelperLineCandidateIndex {
+  boxes: HelperLineBox[];
+  vertical: HelperLineCandidateCoordinate[];
+  horizontal: HelperLineCandidateCoordinate[];
 }
 
 export interface HelperLinePositionChange {
@@ -87,7 +119,7 @@ export interface HelperLineChangeResult<TChange extends HelperLinePositionChange
 
 const DEFAULT_THRESHOLD = 5;
 const DEFAULT_SNAP_HYSTERESIS = 3;
-const DEFAULT_CANDIDATE_LIMIT = 300;
+const DEFAULT_CANDIDATE_LIMIT = 1000;
 const DEFAULT_MIDPOINT_CANDIDATE_LIMIT = 80;
 const DEFAULT_NODE_WIDTH = 80;
 const DEFAULT_NODE_HEIGHT = 50;
@@ -97,6 +129,8 @@ export const authoringHelperLinesOptions: TopoViewerHelperLinesOptions = {
   enabled: true,
   snap: true,
   snapMode: 'commit',
+  snapHysteresis: 8,
+  threshold: 6,
   showMidpoints: true
 };
 
@@ -141,7 +175,7 @@ export function normalizeHelperLinesOptions(value: TopoViewerProps['helperLines'
     return {
       enabled: true,
       snap: true,
-      snapMode: 'live',
+      snapMode: 'commit',
       snapHysteresis: DEFAULT_SNAP_HYSTERESIS,
       threshold: DEFAULT_THRESHOLD,
       showMidpoints: false,
@@ -152,7 +186,7 @@ export function normalizeHelperLinesOptions(value: TopoViewerProps['helperLines'
   return {
     enabled: value.enabled ?? true,
     snap: booleanOption(value.snap, true),
-    snapMode: value.snapMode === 'commit' ? 'commit' : 'live',
+    snapMode: value.snapMode === 'live' ? 'live' : 'commit',
     snapHysteresis: optionNumber(value.snapHysteresis, DEFAULT_SNAP_HYSTERESIS),
     threshold: optionNumber(value.threshold, DEFAULT_THRESHOLD),
     showMidpoints: booleanOption(value.showMidpoints, false),
@@ -173,6 +207,13 @@ export function helperLinesWithEnabled(value: TopoViewerProps['helperLines'], en
   }
   if (!value || typeof value === 'boolean') return true;
   return { ...value, enabled: true };
+}
+
+export function helperLineStatesEqual(first: HelperLineState, second: HelperLineState) {
+  return first.vertical?.value === second.vertical?.value
+    && first.vertical?.kind === second.vertical?.kind
+    && first.horizontal?.value === second.horizontal?.value
+    && first.horizontal?.kind === second.horizontal?.kind;
 }
 
 function positionFromNode(node: HelperLineNodeLike) {
@@ -294,17 +335,45 @@ function midpointCoordinates(candidates: HelperLineBox[], axis: 'vertical' | 'ho
   return midpoints;
 }
 
+function coordinatesForAxis(candidates: HelperLineBox[], axis: 'vertical' | 'horizontal', options: HelperLinesOptions) {
+  const coordinates = candidateCoordinates(candidates, axis);
+  if (!options.showMidpoints || candidates.length > options.midpointCandidateLimit) {
+    return coordinates;
+  }
+  return [...coordinates, ...midpointCoordinates(candidates, axis)];
+}
+
+export function prepareHelperLineCandidateIndex(
+  candidates: HelperLineBox[],
+  draggedId: string,
+  options: HelperLinesOptions
+): HelperLineCandidateIndex {
+  const boxes = sortedCandidates(candidates, draggedId, options.candidateLimit);
+  return {
+    boxes,
+    vertical: coordinatesForAxis(boxes, 'vertical', options),
+    horizontal: coordinatesForAxis(boxes, 'horizontal', options)
+  };
+}
+
+function candidateInputToIndex(
+  candidates: HelperLineBox[] | HelperLineCandidateIndex,
+  draggedId: string,
+  options: HelperLinesOptions
+) {
+  return Array.isArray(candidates)
+    ? prepareHelperLineCandidateIndex(candidates, draggedId, options)
+    : candidates;
+}
+
 function bestAxisAlignment(
   dragged: HelperLineBox,
-  candidates: HelperLineBox[],
+  candidateCoordinatesForAxis: HelperLineCandidateCoordinate[],
   axis: 'vertical' | 'horizontal',
   options: HelperLinesOptions,
   previousLine?: HelperLinePosition
 ) {
   const draggedCoordinates = boxCoordinates(dragged)[axis];
-  const candidatesForAxis = options.showMidpoints && candidates.length <= options.midpointCandidateLimit
-    ? [...candidateCoordinates(candidates, axis), ...midpointCoordinates(candidates, axis)]
-    : candidateCoordinates(candidates, axis);
   const releaseThreshold = options.threshold + options.snapHysteresis;
   let best: {
     line: HelperLinePosition;
@@ -314,23 +383,29 @@ function bestAxisAlignment(
   let retained: typeof best;
 
   for (const draggedCoordinate of draggedCoordinates) {
-    for (const candidateCoordinate of candidatesForAxis) {
+    for (const candidateCoordinate of candidateCoordinatesForAxis) {
       if (candidateCoordinate.kind === 'midpoint' && draggedCoordinate.kind !== 'center') continue;
       const distance = Math.abs(draggedCoordinate.value - candidateCoordinate.value);
       if (distance > releaseThreshold) continue;
-      const line = {
+      const snappedAxisValue = candidateCoordinate.value - draggedCoordinate.offset;
+      const line = helperLinePosition({
+        candidateId: candidateCoordinate.candidateId,
+        draggedOffset: draggedCoordinate.offset,
+        snappedAxisValue,
         value: candidateCoordinate.value,
         kind: candidateCoordinate.kind === 'midpoint' ? 'midpoint' as const : draggedCoordinate.kind
-      };
+      });
       const alignment = {
         line,
-        snappedAxisValue: candidateCoordinate.value - draggedCoordinate.offset,
+        snappedAxisValue,
         distance
       };
       if (
         previousLine
         && previousLine.value === line.value
         && previousLine.kind === line.kind
+        && (previousLine.candidateId === undefined || previousLine.candidateId === line.candidateId)
+        && (previousLine.draggedOffset === undefined || previousLine.draggedOffset === line.draggedOffset)
         && (!retained || distance < retained.distance)
       ) {
         retained = alignment;
@@ -349,26 +424,28 @@ function bestAxisAlignment(
 
 export function calculateHelperLines(
   dragged: HelperLineBox,
-  candidates: HelperLineBox[],
+  candidates: HelperLineBox[] | HelperLineCandidateIndex,
   options: HelperLinesOptions,
   previousLines: HelperLineState = emptyHelperLineState
 ): { lines: HelperLineState; snappedPosition?: { x: number; y: number } } {
   if (!options.enabled || dragged.hidden || dragged.draggable === false) {
     return { lines: emptyHelperLineState };
   }
-  const eligibleCandidates = sortedCandidates(candidates, dragged.id, options.candidateLimit);
-  if (!eligibleCandidates.length) return { lines: emptyHelperLineState };
+  const candidateIndex = candidateInputToIndex(candidates, dragged.id, options);
+  if (!candidateIndex.boxes.length) return { lines: emptyHelperLineState };
 
-  const vertical = bestAxisAlignment(dragged, eligibleCandidates, 'vertical', options, previousLines.vertical);
-  const horizontal = bestAxisAlignment(dragged, eligibleCandidates, 'horizontal', options, previousLines.horizontal);
+  const vertical = bestAxisAlignment(dragged, candidateIndex.vertical, 'vertical', options, previousLines.vertical);
+  const horizontal = bestAxisAlignment(dragged, candidateIndex.horizontal, 'horizontal', options, previousLines.horizontal);
   const lines: HelperLineState = {
     ...(vertical ? { vertical: vertical.line } : {}),
     ...(horizontal ? { horizontal: horizontal.line } : {})
   };
-  const snappedPosition = options.snap && (vertical || horizontal)
+  const snapVertical = options.snap && vertical && vertical.distance <= options.threshold;
+  const snapHorizontal = options.snap && horizontal && horizontal.distance <= options.threshold;
+  const snappedPosition = snapVertical || snapHorizontal
     ? {
-      x: vertical?.snappedAxisValue ?? dragged.x,
-      y: horizontal?.snappedAxisValue ?? dragged.y
+      x: snapVertical ? vertical.snappedAxisValue : dragged.x,
+      y: snapHorizontal ? horizontal.snappedAxisValue : dragged.y
     }
     : undefined;
   return { lines, snappedPosition };
@@ -379,12 +456,14 @@ export function applyHelperLineSnapToChanges<TChange extends HelperLinePositionC
   nodes,
   options,
   activeNodeId,
+  candidateIndex,
   previousLines
 }: {
   changes: TChange[];
   nodes: HelperLineNodeLike[];
   options: HelperLinesOptions;
   activeNodeId?: string;
+  candidateIndex?: HelperLineCandidateIndex;
   previousLines?: HelperLineState;
 }): HelperLineChangeResult<TChange> {
   if (!options.enabled) {
@@ -408,7 +487,7 @@ export function applyHelperLineSnapToChanges<TChange extends HelperLinePositionC
   if (!dragged) {
     return { changes, lines: emptyHelperLineState, snappedPositions: new Map() };
   }
-  const candidates = nodes.flatMap((node) => {
+  const candidates = candidateIndex || nodes.flatMap((node) => {
     const box = helperLineBoxFromNode(node);
     return box ? [box] : [];
   });

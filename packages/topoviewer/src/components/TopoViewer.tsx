@@ -3,6 +3,7 @@ import {
   Background,
   ReactFlow,
   ReactFlowProvider,
+  applyNodeChanges,
   useReactFlow,
   useEdgesState,
   useNodesInitialized,
@@ -39,8 +40,12 @@ import { ViewportControls } from './ViewportControls';
 import {
   applyHelperLineSnapToChanges,
   emptyHelperLineState,
+  helperLineBoxFromNode,
+  helperLineStatesEqual,
   normalizeHelperLinesOptions,
+  prepareHelperLineCandidateIndex,
   resolveDragStopPosition,
+  type HelperLineCandidateIndex,
   type HelperLineNodeLike,
   type HelperLineState
 } from './helperLines';
@@ -81,6 +86,11 @@ function applyAfterCompileExtensions(
 function sourceObjectId(compiledObject: Record<string, unknown>): string {
   const data = (compiledObject.data || {}) as Record<string, unknown>;
   return String(data.id || compiledObject.id || '');
+}
+
+function samePosition(first: { x: number; y: number } | undefined, second: { x: number; y: number } | undefined) {
+  if (!first || !second) return false;
+  return Math.abs(first.x - second.x) < 0.5 && Math.abs(first.y - second.y) < 0.5;
 }
 
 function decoratedAttentionData(data: Record<string, unknown>, attention: AttentionPresentation | undefined) {
@@ -255,7 +265,6 @@ function resolveAttentionPresentation(document: TopoDocument, attention: TopoVie
 function useHelperLineState() {
   const [state, setState] = useState<HelperLineState>(emptyHelperLineState);
   const stateRef = useRef<HelperLineState>(emptyHelperLineState);
-  const frameRef = useRef<number | undefined>();
 
   const setStateIfChanged = useCallback((nextState: HelperLineState) => {
     const current = stateRef.current;
@@ -268,31 +277,9 @@ function useHelperLineState() {
     setState(nextState);
   }, []);
 
-  const scheduleState = useCallback((nextState: HelperLineState) => {
-    if (frameRef.current !== undefined) {
-      cancelAnimationFrame(frameRef.current);
-    }
-    frameRef.current = requestAnimationFrame(() => {
-      frameRef.current = undefined;
-      setStateIfChanged(nextState);
-    });
-  }, [setStateIfChanged]);
+  const clearState = useCallback(() => setStateIfChanged(emptyHelperLineState), [setStateIfChanged]);
 
-  const clearState = useCallback(() => {
-    if (frameRef.current !== undefined) {
-      cancelAnimationFrame(frameRef.current);
-      frameRef.current = undefined;
-    }
-    setStateIfChanged(emptyHelperLineState);
-  }, [setStateIfChanged]);
-
-  useEffect(() => () => {
-    if (frameRef.current !== undefined) {
-      cancelAnimationFrame(frameRef.current);
-    }
-  }, []);
-
-  return [state, scheduleState, clearState] as const;
+  return [state, setStateIfChanged, clearState] as const;
 }
 
 function preserveRuntimeNodeMeasurements(nextNodes: unknown[], currentNodes: unknown[]) {
@@ -309,6 +296,12 @@ function preserveRuntimeNodeMeasurements(nextNodes: unknown[], currentNodes: unk
       ...runtimeMeasurements
     };
   });
+}
+
+function hasRegionPositionChange(changes: NodeChange[]) {
+  return changes.some((change) => (
+    change.type === 'position' && String(change.id || '').startsWith('region:')
+  ));
 }
 
 function TopoFlow({
@@ -356,8 +349,10 @@ function TopoFlow({
   const snappedPositionsRef = useRef(new Map<string, { x: number; y: number }>());
   const activeDragNodeIdRef = useRef<string | undefined>();
   const activeHelperLineStateRef = useRef<HelperLineState>(emptyHelperLineState);
+  const helperLineCandidateIndexRef = useRef<HelperLineCandidateIndex | undefined>();
 
   useEffect(() => {
+    if (activeDragNodeIdRef.current) return;
     setNodes((currentNodes) => {
       const nextNodes = preserveRuntimeNodeMeasurements(compiled.nodes, currentNodes);
       nodesRef.current = nextNodes as unknown as HelperLineNodeLike[];
@@ -367,6 +362,7 @@ function TopoFlow({
     snappedPositionsRef.current.clear();
     activeDragNodeIdRef.current = undefined;
     activeHelperLineStateRef.current = emptyHelperLineState;
+    helperLineCandidateIndexRef.current = undefined;
     clearHelperLines();
   }, [clearHelperLines, compiled, onObjectClick, setEdges, setNodes]);
 
@@ -379,6 +375,7 @@ function TopoFlow({
       snappedPositionsRef.current.clear();
       activeDragNodeIdRef.current = undefined;
       activeHelperLineStateRef.current = emptyHelperLineState;
+      helperLineCandidateIndexRef.current = undefined;
       clearHelperLines();
     }
   }, [clearHelperLines, helperLineOptions.enabled]);
@@ -392,16 +389,20 @@ function TopoFlow({
       change.type === 'position' && change.dragging === true
     ));
     if (helperLineOptions.enabled && nodesDraggable !== false && hasPositionChange) {
+      const previousLines = activeHelperLineStateRef.current;
       const helperResult = applyHelperLineSnapToChanges({
         changes,
         nodes: nodesRef.current,
         options: helperLineOptions,
         activeNodeId: activeDragNodeIdRef.current,
-        previousLines: activeHelperLineStateRef.current
+        candidateIndex: helperLineCandidateIndexRef.current,
+        previousLines
       });
       nextChanges = helperResult.changes as NodeChange[];
       activeHelperLineStateRef.current = helperResult.lines;
-      scheduleHelperLineState(helperResult.lines);
+      if (!helperLineStatesEqual(previousLines, helperResult.lines)) {
+        scheduleHelperLineState(helperResult.lines);
+      }
       if (activeDragNodeIdRef.current && !helperResult.snappedPositions.has(activeDragNodeIdRef.current)) {
         snappedPositionsRef.current.delete(activeDragNodeIdRef.current);
       }
@@ -410,14 +411,16 @@ function TopoFlow({
       });
     }
     setNodes((currentNodes) => {
-      const nextNodes = applyTopoNodeChanges({
-        changes: nextChanges,
-        currentNodes,
-        document,
-        selectedLayerIds: compiled.selectedLayerIds,
-        showRegions,
-        deferRegionRebuild: hasActivePositionDrag
-      });
+      const nextNodes = hasActivePositionDrag && !hasRegionPositionChange(nextChanges)
+        ? applyNodeChanges(nextChanges, currentNodes) as never[]
+        : applyTopoNodeChanges({
+          changes: nextChanges,
+          currentNodes,
+          document,
+          selectedLayerIds: compiled.selectedLayerIds,
+          showRegions,
+          deferRegionRebuild: hasActivePositionDrag
+        });
       nodesRef.current = nextNodes as unknown as HelperLineNodeLike[];
       return nextNodes;
     });
@@ -425,22 +428,53 @@ function TopoFlow({
 
   const onNodeDragStart = useCallback((_event: unknown, node: unknown) => {
     const runtimeNode = node as unknown as Record<string, unknown>;
-    activeDragNodeIdRef.current = String(runtimeNode.id || '');
-  }, []);
+    const runtimeId = String(runtimeNode.id || '');
+    activeDragNodeIdRef.current = runtimeId;
+    if (!helperLineOptions.enabled || !runtimeId) {
+      helperLineCandidateIndexRef.current = undefined;
+      return;
+    }
+    const candidates = nodesRef.current.flatMap((candidateNode) => {
+      const box = helperLineBoxFromNode(candidateNode);
+      return box ? [box] : [];
+    });
+    helperLineCandidateIndexRef.current = prepareHelperLineCandidateIndex(candidates, runtimeId, helperLineOptions);
+  }, [helperLineOptions]);
 
   const onNodeDragStop = useCallback((_event: unknown, node: unknown) => {
     clearHelperLines();
     activeHelperLineStateRef.current = emptyHelperLineState;
     const runtimeNode = node as unknown as Record<string, unknown>;
     const runtimeId = String(runtimeNode.id || '');
+    const hasCommittedSnap = snappedPositionsRef.current.has(runtimeId);
+    const shouldRebuildRegions = showRegions && !!document.graph?.regions?.length;
     const position = resolveDragStopPosition({
       runtimeId,
       eventPosition: (runtimeNode.position || {}) as { x?: number; y?: number },
       nodes: nodesRef.current,
       snappedPositions: snappedPositionsRef.current
     });
+    if (hasCommittedSnap || shouldRebuildRegions) {
+      setNodes((currentNodes) => {
+        const currentNode = (currentNodes as unknown as Array<{ id?: string; position?: { x: number; y: number } }>)
+          .find((candidate) => String(candidate.id || '') === runtimeId);
+        const currentPosition = currentNode?.position;
+        const nextNodes = applyTopoNodeChanges({
+          changes: samePosition(currentPosition, position)
+            ? []
+            : [{ id: runtimeId, type: 'position', dragging: false, position }] as NodeChange[],
+          currentNodes,
+          document,
+          selectedLayerIds: compiled.selectedLayerIds,
+          showRegions
+        });
+        nodesRef.current = nextNodes as unknown as HelperLineNodeLike[];
+        return nextNodes;
+      });
+    }
     snappedPositionsRef.current.delete(runtimeId);
     activeDragNodeIdRef.current = undefined;
+    helperLineCandidateIndexRef.current = undefined;
     if (!onNodePositionChange) return undefined;
     return onNodePositionChange({
       id: sourceObjectId(runtimeNode),
@@ -448,7 +482,7 @@ function TopoFlow({
       position,
       data: (runtimeNode.data || {}) as Record<string, unknown>
     });
-  }, [clearHelperLines, onNodePositionChange]);
+  }, [clearHelperLines, compiled.selectedLayerIds, document, onNodePositionChange, setNodes, showRegions]);
 
   const handlePaneClick = useCallback((event: MouseEvent) => {
     if (!onPaneClick) return;

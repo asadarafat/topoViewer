@@ -529,8 +529,8 @@ workflow is understood.
     canonical topology/layout and before telemetry overlays.
 
     When node dragging is enabled, alignment helper lines are also runtime-only.
-    They help snap objects during local panel exploration without writing back
-    to mounted bundle YAML.
+    They guide object alignment during local panel exploration and snap on drag
+    stop without writing back to mounted bundle YAML.
 
     New panels enable `Enable interaction state` and `Allow node drag` by
     default. Helper lines are therefore available by default while dragging. If

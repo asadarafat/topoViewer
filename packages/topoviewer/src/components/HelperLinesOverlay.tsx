@@ -18,14 +18,14 @@ export function HelperLinesOverlay({ lines }: { lines: HelperLineState }) {
         <div
           className="topoviewer-helper-line topoviewer-helper-line-vertical"
           data-helper-line-kind={lines.vertical?.kind}
-          style={{ transform: `translateX(${verticalX}px)` }}
+          style={{ transform: `translate3d(${verticalX}px, 0, 0)` }}
         />
       ) : null}
       {horizontalY !== undefined ? (
         <div
           className="topoviewer-helper-line topoviewer-helper-line-horizontal"
           data-helper-line-kind={lines.horizontal?.kind}
-          style={{ transform: `translateY(${horizontalY}px)` }}
+          style={{ transform: `translate3d(0, ${horizontalY}px, 0)` }}
         />
       ) : null}
     </div>
