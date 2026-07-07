@@ -13,6 +13,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent } fr
 import { compileTopoGraph } from '../core/compiler';
 import { resolveAttentionPresentationCached } from '../core/attention/cache';
 import { assertRendererLimits } from '../core/limits';
+import { layerIds } from '../core/layers';
 import { migrateTopoToggles } from '../core/migration';
 import { defaultTopoViewerToggles } from '../core/toggles';
 import type { AttentionPresentation, AttentionPresentationResult } from '../core/attention';
@@ -558,7 +559,7 @@ export function TopoViewer({
   }, [document, toggles]);
   const effectiveExtensions = extensions || emptyExtensions;
   const effectiveLayers = useMemo(() => {
-    return selectedLayerIds || document.graph?.layers?.map((layer) => layer.id) || [];
+    return selectedLayerIds || layerIds(document.graph?.layers);
   }, [document, selectedLayerIds]);
   const extensionContext = useMemo(() => ({
     document,

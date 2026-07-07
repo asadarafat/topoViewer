@@ -32,6 +32,7 @@ import {
 } from '../core/attention';
 import { validateTopoDocument } from '../core/validation';
 import { composeTopoViewerDocument } from '../core/compose';
+import { authoringHelperLinesOptions } from './helperLines';
 import './workbench.css';
 
 const Editor = lazy(() => import('@monaco-editor/react'));
@@ -536,7 +537,7 @@ export function TopoViewerWorkbench() {
             toggles={toggles}
             layout={{ mode: 'force', ...(viewerDocument.layout || {}) }}
             attention={attentionQuery ? { query: attentionQuery } : undefined}
-            helperLines={{ enabled: true, snap: true, snapMode: 'commit', showMidpoints: true }}
+            helperLines={authoringHelperLinesOptions}
             className={`topoviewer-label-density-${labelDensity}`}
           />
         </Paper>

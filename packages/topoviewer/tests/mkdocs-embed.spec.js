@@ -819,8 +819,8 @@ test.describe('MkDocs TopoViewer documented examples', () => {
   });
 
   test('real network layer controls hide unchecked layer-owned geometry', async ({ page }) => {
-    const bgpPagePath = 'topoviewer/real-network-demo/bgp';
-    const transportPagePath = 'topoviewer/real-network-demo/transport-layer';
+    const bgpPagePath = 'topoviewer/examples/use-cases/service-provider-network/bgp';
+    const transportPagePath = 'topoviewer/examples/use-cases/service-provider-network/transport-layer';
     test.skip(!fs.existsSync(publicPageIndexPath(bgpPagePath)), `Real network BGP output is missing: ${publicPageIndexPath(bgpPagePath)}`);
     test.skip(!fs.existsSync(publicPageIndexPath(transportPagePath)), `Real network transport output is missing: ${publicPageIndexPath(transportPagePath)}`);
 

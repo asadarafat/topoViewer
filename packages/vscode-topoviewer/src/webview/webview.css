@@ -246,6 +246,16 @@ body,
   background: color-mix(in srgb, var(--topoviewer-accent, #1976d2) 14%, transparent);
 }
 
+.topoviewer-vscode-controls-overlay {
+  top: calc(var(--topoviewer-vscode-space-1-5) * 2 + var(--topoviewer-vscode-space-3-5) + var(--topoviewer-vscode-space-half));
+  z-index: 22;
+}
+
+.topoviewer-vscode-controls-overlay .topoviewer-embed-controls {
+  max-height: min(46vh, 18rem);
+  overflow: auto;
+}
+
 .topoviewer-vscode-preview--tool-pan .react-flow__pane {
   cursor: grab;
 }

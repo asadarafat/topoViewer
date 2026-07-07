@@ -1,5 +1,6 @@
 import { useEffect, type ReactNode } from 'react';
 import Box from '@mui/material/Box';
+import { reconcileSelectedLayerIds } from '../../../topoviewer/src/core/layers';
 import { parseTopologyText, type AttentionFocusKind, type InsertObjectType, type TopoObjectPreset, type TopoObjectSelection } from '../shared/topologyMutations';
 import { safeGetJson, safeGetString, safeSetJson, safeSetString } from './browserStorage';
 
@@ -98,10 +99,7 @@ export function useHarnessPreferencePersistence(splitPercent: number, savedPrese
 }
 
 export function mergeLayerSelection(previous: string[], layers: Array<{ id: string }>) {
-  if (!layers.length) return [];
-  const known = new Set(layers.map((layer) => layer.id));
-  const kept = previous.filter((id) => known.has(id));
-  return kept.length ? kept : layers.map((layer) => layer.id);
+  return reconcileSelectedLayerIds(layers, previous);
 }
 
 export function layerSelectionFromTopologyText(topologyText: string | undefined): Array<{ id: string }> {

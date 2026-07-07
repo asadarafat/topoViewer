@@ -2,10 +2,13 @@ import { createRoot } from 'react-dom/client';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import yaml from 'js-yaml';
 import { TopoViewer } from './components/TopoViewer';
+import { ViewportSettingsPanel } from './components/ViewportSettingsPanel';
+import { helperLinesInitialEnabled, helperLinesWithEnabled } from './components/helperLines';
 import { buildAttentionIndex, deriveAggregateGraph } from './core/attention';
 import { composeTopoViewerDocument } from './core/compose';
+import { layerIds, selectedLayerIdsOrAll, toggleSelectedLayerId } from './core/layers';
 import { defaultTopoViewerToggles } from './core/toggles';
-import type { LayerDefinition, ToggleDefinition, TopoDocument, TopoViewerProps, TopoViewerToggles } from './core/types';
+import type { TopoDocument, TopoViewerProps, TopoViewerToggles } from './core/types';
 import type { AggregateGroupDefinition, AttentionViewportPolicy, LinkGroupingOptions, LinkGroupingViewportPolicy } from './core/attention';
 
 type FocusQuery = NonNullable<NonNullable<TopoViewerProps['attention']>['query']>;
@@ -82,27 +85,6 @@ function parseHelperLines(raw: string | undefined): TopoViewerProps['helperLines
   return parsed as TopoViewerProps['helperLines'];
 }
 
-function helperLinesInitialEnabled(value: TopoViewerProps['helperLines']): boolean {
-  if (value === undefined) return false;
-  if (typeof value === 'boolean') return value;
-  return value.enabled !== false;
-}
-
-function helperLinesWithEnabled(value: TopoViewerProps['helperLines'], enabled: boolean): TopoViewerProps['helperLines'] {
-  if (!enabled) {
-    return value && typeof value === 'object' ? { ...value, enabled: false } : false;
-  }
-  if (!value || typeof value === 'boolean') return true;
-  return { ...value, enabled: true };
-}
-
-function initialLayerIds(layers: LayerDefinition[], selectedLayerIds: string[] | undefined): string[] {
-  if (!selectedLayerIds) return layers.map((layer) => layer.id);
-
-  const availableLayerIds = new Set(layers.map((layer) => layer.id));
-  return [...new Set(selectedLayerIds)].filter((layerId) => availableLayerIds.has(layerId));
-}
-
 function graphObjectSets(document: TopoDocument) {
   const graph = document.graph || {};
   return {
@@ -164,90 +146,6 @@ function linkGroupingZoomThresholds(policy: LinkGroupingViewportPolicy | undefin
   };
 }
 
-function EmbeddedControls({
-  layers,
-  selectedLayerIds,
-  toggles,
-  toggleDefinitions,
-  hasAttention,
-  initialAttention,
-  attentionControls,
-  helperLinesEnabled,
-  onLayerChange,
-  onToggleChange,
-  onHelperLinesChange,
-  onSelectAllLayers,
-  onClearLayers,
-  onClearAttention,
-  onResetAttention
-}: {
-  layers: LayerDefinition[];
-  selectedLayerIds: string[];
-  toggles: TopoViewerToggles;
-  toggleDefinitions: ToggleDefinition[];
-  hasAttention: boolean;
-  initialAttention: boolean;
-  attentionControls: boolean;
-  helperLinesEnabled: boolean;
-  onLayerChange: (layerId: string, enabled: boolean) => void;
-  onToggleChange: (toggleId: string, enabled: boolean) => void;
-  onHelperLinesChange: (enabled: boolean) => void;
-  onSelectAllLayers: () => void;
-  onClearLayers: () => void;
-  onClearAttention: () => void;
-  onResetAttention: () => void;
-}) {
-  return (
-    <div className="topoviewer-embed-controls">
-      <div className="topoviewer-embed-control-group">
-        <span className="topoviewer-embed-control-label">Layers</span>
-        {layers.map((layer) => (
-          <label key={layer.id} className="topoviewer-embed-check">
-            <input
-              type="checkbox"
-              checked={selectedLayerIds.includes(layer.id)}
-              onChange={(event) => onLayerChange(layer.id, event.target.checked)}
-            />
-            <span>{layer.name || layer.id}</span>
-          </label>
-        ))}
-        <button type="button" onClick={onSelectAllLayers}>All</button>
-        <button type="button" onClick={onClearLayers}>None</button>
-      </div>
-      <div className="topoviewer-embed-control-group">
-        <span className="topoviewer-embed-control-label">Display</span>
-        {toggleDefinitions.map((toggle) => (
-          <label key={toggle.id} className="topoviewer-embed-check">
-            <input
-              type="checkbox"
-              checked={!!toggles[toggle.id]}
-              onChange={(event) => onToggleChange(toggle.id, event.target.checked)}
-            />
-            <span>{toggle.name || toggle.id}</span>
-          </label>
-        ))}
-        <label className="topoviewer-embed-check">
-          <input
-            type="checkbox"
-            checked={helperLinesEnabled}
-            onChange={(event) => onHelperLinesChange(event.target.checked)}
-          />
-          <span>Helper lines</span>
-        </label>
-      </div>
-      {attentionControls ? (
-        <div className="topoviewer-embed-control-group">
-          <span className="topoviewer-embed-control-label">Attention</span>
-          <button type="button" onClick={onClearAttention} disabled={!hasAttention}>Clear</button>
-          {initialAttention ? (
-            <button type="button" onClick={onResetAttention}>Reset</button>
-          ) : null}
-        </div>
-      ) : null}
-    </div>
-  );
-}
-
 function EmbeddedTopoViewer({
   documentSpec,
   attention,
@@ -306,7 +204,7 @@ function EmbeddedTopoViewer({
   const layers = useMemo(() => viewerDocument.graph?.layers || [], [viewerDocument]);
   const toggleDefinitions = useMemo(() => viewerDocument.toggles || [], [viewerDocument]);
   const graphSets = useMemo(() => graphObjectSets(viewerDocument), [viewerDocument]);
-  const [selectedLayerIds, setSelectedLayerIds] = useState(() => initialLayerIds(layers, initialSelectedLayerIds));
+  const [selectedLayerIds, setSelectedLayerIds] = useState(() => selectedLayerIdsOrAll(layers, initialSelectedLayerIds));
   const [toggles, setToggles] = useState<TopoViewerToggles>(() => defaultTopoViewerToggles(viewerDocument));
   const [helperLinesEnabled, setHelperLinesEnabled] = useState(() => helperLinesInitialEnabled(helperLines));
   const [controlsOpen, setControlsOpen] = useState(controlsDefaultOpen);
@@ -354,7 +252,7 @@ function EmbeddedTopoViewer({
   }, [aggregateConfig, linkGroupingConfig]);
 
   const controls = controlsEnabled ? (
-    <EmbeddedControls
+    <ViewportSettingsPanel
       layers={layers}
       selectedLayerIds={selectedLayerIds}
       toggles={toggles}
@@ -364,13 +262,11 @@ function EmbeddedTopoViewer({
       attentionControls={attentionInteractive || !!effectiveAttention?.query || !!attentionQuery || !!aggregateConfig?.groups?.length || !!linkGroupingConfig}
       helperLinesEnabled={helperLinesEnabled}
       onLayerChange={(layerId, enabled) => {
-        setSelectedLayerIds((current) => enabled
-          ? [...new Set([...current, layerId])]
-          : current.filter((item) => item !== layerId));
+        setSelectedLayerIds((current) => toggleSelectedLayerId(current, layerId, enabled));
       }}
       onToggleChange={(toggleId, enabled) => setToggles((current) => ({ ...current, [toggleId]: enabled }))}
       onHelperLinesChange={setHelperLinesEnabled}
-      onSelectAllLayers={() => setSelectedLayerIds(layers.map((layer) => layer.id))}
+      onSelectAllLayers={() => setSelectedLayerIds(layerIds(layers))}
       onClearLayers={() => setSelectedLayerIds([])}
       onClearAttention={() => setAttentionQuery(undefined)}
       onResetAttention={() => {

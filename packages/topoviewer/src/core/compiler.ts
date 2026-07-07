@@ -1,5 +1,6 @@
 import { applyStyle, compileCalloutStyle, compileEdgeStyle, compileNodeStyle, compileRegionStyle, compileShapeStyle } from './style';
 import { computeLayoutPositions } from './layout';
+import { layerIds } from './layers';
 import { assertRendererLimits } from './limits';
 import { mergePlainObjects } from './object';
 import { buildRegionBoundsMap } from './regions';
@@ -27,7 +28,7 @@ import { LINK_DIRECTION_KEYS } from './types';
 import { validateTopoDocument } from './validation';
 
 function defaultLayerIds(spec: TopoDocument): string[] {
-  return spec.graph?.layers?.map((layer) => layer.id) || [];
+  return layerIds(spec.graph?.layers);
 }
 
 function intersects(values: string[] | undefined, layers: Set<string>): boolean {

@@ -1,4 +1,4 @@
-import type { TopoViewerProps } from '../core/types';
+import type { TopoViewerHelperLinesOptions, TopoViewerProps } from '../core/types';
 
 export interface HelperLinesOptions {
   enabled: boolean;
@@ -93,6 +93,12 @@ const DEFAULT_NODE_WIDTH = 80;
 const DEFAULT_NODE_HEIGHT = 50;
 
 export const emptyHelperLineState: HelperLineState = {};
+export const authoringHelperLinesOptions: TopoViewerHelperLinesOptions = {
+  enabled: true,
+  snap: true,
+  snapMode: 'commit',
+  showMidpoints: true
+};
 
 function finiteNumber(value: unknown): number | undefined {
   const numberValue = typeof value === 'number'
@@ -153,6 +159,20 @@ export function normalizeHelperLinesOptions(value: TopoViewerProps['helperLines'
     candidateLimit: Math.floor(optionNumber(value.candidateLimit, DEFAULT_CANDIDATE_LIMIT, 1)),
     midpointCandidateLimit: Math.floor(optionNumber(value.midpointCandidateLimit, DEFAULT_MIDPOINT_CANDIDATE_LIMIT, 1))
   };
+}
+
+export function helperLinesInitialEnabled(value: TopoViewerProps['helperLines']): boolean {
+  if (value === undefined) return false;
+  if (typeof value === 'boolean') return value;
+  return value.enabled !== false;
+}
+
+export function helperLinesWithEnabled(value: TopoViewerProps['helperLines'], enabled: boolean): TopoViewerProps['helperLines'] {
+  if (!enabled) {
+    return value && typeof value === 'object' ? { ...value, enabled: false } : false;
+  }
+  if (!value || typeof value === 'boolean') return true;
+  return { ...value, enabled: true };
 }
 
 function positionFromNode(node: HelperLineNodeLike) {

@@ -24,6 +24,9 @@ import PolylineIcon from '@mui/icons-material/Polyline';
 import { TopoViewer, defaultTopoViewerToggles, type TopoDocument, type TopoViewerNodePositionChange, type TopoViewerObjectClick, type TopoViewerPaneClick } from 'topoviewer';
 import { memo, useCallback, useEffect, useState, type ComponentType, type Dispatch, type RefObject, type SetStateAction } from 'react';
 import type { Theme } from '@mui/material/styles';
+import { authoringHelperLinesOptions } from '../../../topoviewer/src/components/helperLines';
+import { ViewportSettingsPanel } from '../../../topoviewer/src/components/ViewportSettingsPanel';
+import { layerIds, toggleSelectedLayerId } from '../../../topoviewer/src/core/layers';
 import type { TopoViewerWebviewHost } from '../shared/types';
 import type { TopoObjectSelection } from '../shared/topologyMutations';
 import type { DocumentTransaction } from './webviewAppSupport';
@@ -63,6 +66,7 @@ interface PreviewPanelProps {
   redoTopology: () => void;
   selectedLayerIds: string[];
   selectedObjectIds: string[];
+  setSelectedLayerIds: Dispatch<SetStateAction<string[]>>;
   setSelectedObjects: Dispatch<SetStateAction<TopoObjectSelection[]>>;
   undoStack: DocumentTransaction[];
   undoTopology: () => void;
@@ -166,8 +170,10 @@ export const ResizeDivider = memo(function ResizeDivider({ clamp, defaultSplitPe
   );
 });
 
-export const PreviewPanel = memo(function PreviewPanel({ exportImage, exportTooltip, handleNodePositionChange, handleObjectClick, hasErrors, hasExportBlockers, loading, parityMode = false, placeCanvasNode, previewRef, redoStack, redoTopology, selectedLayerIds, selectedObjectIds, setSelectedObjects, undoStack, undoTopology, visibleDocument }: PreviewPanelProps) {
+export const PreviewPanel = memo(function PreviewPanel({ exportImage, exportTooltip, handleNodePositionChange, handleObjectClick, hasErrors, hasExportBlockers, loading, parityMode = false, placeCanvasNode, previewRef, redoStack, redoTopology, selectedLayerIds, selectedObjectIds, setSelectedLayerIds, setSelectedObjects, undoStack, undoTopology, visibleDocument }: PreviewPanelProps) {
   const [canvasAuthoring, setCanvasAuthoring] = useState(defaultCanvasAuthoringState);
+  const [controlsOpen, setControlsOpen] = useState(false);
+  const [helperLinesEnabled, setHelperLinesEnabled] = useState(true);
   useRenderProfile('PreviewPanel', {
     hasDocument: !!visibleDocument,
     canvasTool: canvasAuthoring.activeTool,
@@ -209,14 +215,18 @@ export const PreviewPanel = memo(function PreviewPanel({ exportImage, exportTool
     if (canvasAuthoring.activeTool === 'select') setSelectedObjects([]);
   }, [canvasAuthoring.activeTool, parityMode, placeCanvasNode, setSelectedObjects]);
   const effectiveSelectedLayerIds = parityMode
-    ? (visibleDocument?.graph?.layers || []).map((layer) => layer.id)
+    ? layerIds(visibleDocument?.graph?.layers)
     : selectedLayerIds;
+  const viewportLayers = visibleDocument?.graph?.layers || [];
   const viewerToggles = visibleDocument
     ? {
       ...defaultTopoViewerToggles(visibleDocument),
       showRegions: true
     }
     : { showRegions: true };
+  const setLayerEnabled = useCallback((layerId: string, enabled: boolean) => {
+    setSelectedLayerIds((current) => toggleSelectedLayerId(current, layerId, enabled));
+  }, [setSelectedLayerIds]);
 
   return (
     <Paper className={`topoviewer-vscode-preview topoviewer-vscode-preview--tool-${canvasAuthoring.activeTool}${parityMode ? ' topoviewer-vscode-preview--parity topoviewer-parity-theme' : ''}`} elevation={0} ref={previewRef}>
@@ -250,19 +260,35 @@ export const PreviewPanel = memo(function PreviewPanel({ exportImage, exportTool
       {loading && <CircularProgress />}
       {!loading && hasErrors && <Alert severity="error">Fix diagnostics before the preview can render.</Alert>}
       {!loading && !hasErrors && visibleDocument && (
-        <TopoViewer
-          document={visibleDocument}
-          selectedLayerIds={effectiveSelectedLayerIds}
-          selectedObjectIds={selectedObjectIds}
-          exportDisabled={hasExportBlockers}
-          exportTooltip={exportTooltip}
-          onExport={parityMode ? undefined : exportImage}
-          toggles={parityMode ? defaultTopoViewerToggles(visibleDocument) : viewerToggles}
-          onObjectClick={handleObjectClick}
-          onPaneClick={handlePaneClick}
-          onNodePositionChange={handleNodePositionChange}
-          helperLines={parityMode ? false : { enabled: true, snap: true, snapMode: 'commit', showMidpoints: true }}
-        />
+        <>
+          {!parityMode && controlsOpen ? (
+            <div className="topoviewer-embed-controls-overlay topoviewer-vscode-controls-overlay">
+              <ViewportSettingsPanel
+                layers={viewportLayers}
+                selectedLayerIds={selectedLayerIds}
+                helperLinesEnabled={helperLinesEnabled}
+                onLayerChange={setLayerEnabled}
+                onHelperLinesChange={setHelperLinesEnabled}
+                onSelectAllLayers={() => setSelectedLayerIds(layerIds(viewportLayers))}
+                onClearLayers={() => setSelectedLayerIds([])}
+              />
+            </div>
+          ) : null}
+          <TopoViewer
+            document={visibleDocument}
+            selectedLayerIds={effectiveSelectedLayerIds}
+            selectedObjectIds={selectedObjectIds}
+            exportDisabled={hasExportBlockers}
+            exportTooltip={exportTooltip}
+            onExport={parityMode ? undefined : exportImage}
+            toggles={parityMode ? defaultTopoViewerToggles(visibleDocument) : viewerToggles}
+            onObjectClick={handleObjectClick}
+            onPaneClick={handlePaneClick}
+            onNodePositionChange={handleNodePositionChange}
+            helperLines={parityMode || !helperLinesEnabled ? false : authoringHelperLinesOptions}
+            controlPanelToggle={parityMode ? undefined : { enabled: true, open: controlsOpen, onToggle: () => setControlsOpen((current) => !current) }}
+          />
+        </>
       )}
     </Paper>
   );

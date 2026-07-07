@@ -716,6 +716,20 @@ test('shows alignment helper lines while dragging nodes in the browser harness p
   await expect(graphNodeByLabel(page, 'Drag Me')).toBeVisible();
   await expect(graphNodeByLabel(page, 'Peer')).toBeVisible();
 
+  await page.getByRole('button', { name: 'Show topology controls' }).click();
+  const settings = page.locator('.topoviewer-vscode-controls-overlay');
+  await expect(settings).toBeVisible();
+  await expect(settings.getByRole('checkbox', { name: 'Physical' })).toBeChecked();
+  await settings.getByRole('checkbox', { name: 'Physical' }).uncheck();
+  await expect(graphNodeByLabel(page, 'Drag Me')).toBeHidden();
+  await settings.getByRole('checkbox', { name: 'Physical' }).check();
+  await expect(graphNodeByLabel(page, 'Drag Me')).toBeVisible();
+  await expect(settings.getByRole('checkbox', { name: 'Helper lines' })).toBeChecked();
+  await settings.getByRole('checkbox', { name: 'Helper lines' }).uncheck();
+  await expect(settings.getByRole('checkbox', { name: 'Helper lines' })).not.toBeChecked();
+  await settings.getByRole('checkbox', { name: 'Helper lines' }).check();
+  await expect(settings.getByRole('checkbox', { name: 'Helper lines' })).toBeChecked();
+
   const dragNode = graphNodeByLabel(page, 'Drag Me').first();
   const peerNode = graphNodeByLabel(page, 'Peer').first();
   const dragBox = await dragNode.boundingBox();
