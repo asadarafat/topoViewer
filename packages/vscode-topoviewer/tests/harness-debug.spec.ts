@@ -101,7 +101,7 @@ test('records keyboard and mouse interactions on the harness debug route', async
 
   await page.getByRole('toolbar', { name: 'Canvas authoring tools' }).getByRole('button', { name: 'Link tool' }).click();
   const sourceHandle = page.locator('.react-flow__node[data-id="debug-a"] .react-flow__handle.source').first();
-  const targetHandle = page.locator('.react-flow__node[data-id="debug-b"] .react-flow__handle.target').first();
+  const targetHandle = page.locator('.react-flow__node[data-id="debug-b"] .react-flow__handle.source').first();
   await expect(sourceHandle).toBeVisible();
   await expect(targetHandle).toBeVisible();
   const sourceBox = await sourceHandle.boundingBox();

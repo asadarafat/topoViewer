@@ -57,6 +57,7 @@ export interface UpdateObjectOptions {
 export interface UpsertGraphLinkOptions {
   id?: string;
   name?: string;
+  normalizeByNodeOrder?: boolean;
   selectedLayerIds: string[];
   source: string;
   sourceHandle?: string;
@@ -635,11 +636,23 @@ export function upsertGraphLink(text: string, options: UpsertGraphLinkOptions): 
     const links = ensureArray(graph, 'links');
     const existing = options.id ? links.find((link) => link.id === options.id) : undefined;
     const layerId = defaultLayerId(document, options.selectedLayerIds);
+    const shouldNormalize = options.normalizeByNodeOrder && !options.id && !options.sourceHandle && !options.targetHandle;
+    const nodeOrder = shouldNormalize
+      ? new Map((graph.nodes || []).map((node: any, index: number) => [String(node.id || ''), index]))
+      : undefined;
+    const sourceOrder = nodeOrder?.get(options.source);
+    const targetOrder = nodeOrder?.get(options.target);
+    const swapsEndpoints = shouldNormalize
+      && typeof sourceOrder === 'number'
+      && typeof targetOrder === 'number'
+      && sourceOrder > targetOrder;
+    const source = swapsEndpoints ? options.target : options.source;
+    const target = swapsEndpoints ? options.source : options.target;
 
     if (options.id && !existing) throw new Error(`Link "${options.id}" no longer exists.`);
     if (existing) {
-      existing.source = options.source;
-      existing.target = options.target;
+      existing.source = source;
+      existing.target = target;
       if (options.sourceHandle) {
         existing.sourceHandle = options.sourceHandle;
       } else {
@@ -657,8 +670,8 @@ export function upsertGraphLink(text: string, options: UpsertGraphLinkOptions): 
     links.push({
       id: nextId(document, 'link'),
       name: options.name || 'New Link',
-      source: options.source,
-      target: options.target,
+      source,
+      target,
       ...(options.sourceHandle ? { sourceHandle: options.sourceHandle } : {}),
       ...(options.targetHandle ? { targetHandle: options.targetHandle } : {}),
       labels: { layer: layerId },

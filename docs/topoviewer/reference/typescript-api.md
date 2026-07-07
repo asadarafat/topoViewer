@@ -38,6 +38,7 @@ adoption target.
 | `TopoViewerObjectClick` | Supported | Object click event payload. |
 | `TopoViewerPaneClick` | Supported | Pane/background click event payload. |
 | `TopoViewerNodePositionChange` | Supported | Node drag/persist event payload. |
+| `TopoViewerConnectionCreate` | Experimental | Canvas connection-create event payload for authoring surfaces. |
 | `TopoViewerHelperLinesOptions` | Experimental | Runtime-only drag alignment guides and optional snapping for authoring surfaces. |
 | `TopoViewerToggles` | Supported | Layer and viewport toggle state. |
 
@@ -166,7 +167,8 @@ Model types include `TopoDocument`, `TopologyDocument`, `StylesheetDocument`,
 `DiagramCallout`, `DiagramConnector`, `DiagramPin`, `ToggleDefinition`,
 `CompiledGraph`, `CompiledNode`, `CompiledEdge`, `CompiledNodeData`,
 `CompiledEdgeData`, `TopoViewerExtension`, `TopoViewerExtensionContext`, and
-`TopoViewerHelperLinesOptions`, and `TopoViewerToolbarAction`.
+`TopoViewerConnectionCreate`, `TopoViewerHelperLinesOptions`, and
+`TopoViewerToolbarAction`.
 
 Attention types include `FocusQuery`, `FocusResult`,
 `FocusPresentationMode`, `AttentionPresentationResult`,

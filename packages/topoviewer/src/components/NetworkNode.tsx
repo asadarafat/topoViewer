@@ -104,6 +104,8 @@ function RenderExplicitHandles({ handles }: { handles: ReturnType<typeof explici
             key={`${handle.id}:${type}`}
             className="topoviewer-node-handle"
             id={handle.id}
+            aria-label={type === 'source' ? 'Link source endpoint' : 'Link target endpoint'}
+            title={type === 'source' ? 'Source endpoint: start link here' : 'Target endpoint: drop link here'}
             type={type}
             position={position}
             style={handleOffsetStyle(position, handle.offset)}
@@ -111,6 +113,35 @@ function RenderExplicitHandles({ handles }: { handles: ReturnType<typeof explici
         ));
       })}
     </>
+  );
+}
+
+function RenderDefaultConnectionHandles() {
+  return (
+    <>
+      <Handle
+        className="topoviewer-node-handle topoviewer-node-handle-default-target"
+        aria-label="Link target anchor"
+        title="Link target anchor"
+        type="target"
+        position={Position.Left}
+      />
+      <Handle
+        className="topoviewer-node-handle topoviewer-node-handle-default"
+        aria-label="Link endpoint"
+        title="Link endpoint: drag to another node"
+        type="source"
+        position={Position.Right}
+      />
+    </>
+  );
+}
+
+function RenderLinkAuthoringPill() {
+  return (
+    <span className="topoviewer-node-link-authoring-pill" aria-hidden="true">
+      LINK
+    </span>
   );
 }
 
@@ -202,11 +233,12 @@ export function NetworkNode({ data }: { data: CompiledNodeData }) {
       aria-label={accessibleLabel}
       tabIndex={isNavigableAttentionNode ? 0 : -1}
     >
+      <RenderDefaultConnectionHandles />
       {cardLayout ? (
         <>
-          <Handle className="topoviewer-node-handle topoviewer-node-handle-default" type="target" position={Position.Left} />
           <RenderExplicitHandles handles={handles} />
           <div className="topoviewer-node-card">
+            <RenderLinkAuthoringPill />
             <svg
               className="topoviewer-node-geometry"
               viewBox="0 0 100 100"
@@ -317,7 +349,6 @@ export function NetworkNode({ data }: { data: CompiledNodeData }) {
               </>
             )}
           </div>
-          <Handle className="topoviewer-node-handle topoviewer-node-handle-default" type="source" position={Position.Right} />
         </>
       ) : (
         <>
@@ -325,8 +356,8 @@ export function NetworkNode({ data }: { data: CompiledNodeData }) {
         className="topoviewer-node-icon"
         style={iconFrameStyle}
       >
-        <Handle className="topoviewer-node-handle topoviewer-node-handle-default" type="target" position={Position.Left} />
         <RenderExplicitHandles handles={handles} />
+        <RenderLinkAuthoringPill />
         <svg
           className="topoviewer-node-geometry"
           viewBox="0 0 100 100"
@@ -402,7 +433,6 @@ export function NetworkNode({ data }: { data: CompiledNodeData }) {
             style={data.statusStyle as CSSProperties}
           />
         ) : null}
-        <Handle className="topoviewer-node-handle topoviewer-node-handle-default" type="source" position={Position.Right} />
       </div>
       {rendersOverlayLabel ? null : (
         <div

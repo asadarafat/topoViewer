@@ -572,7 +572,7 @@ function TopoFlow({
       fitViewOptions={{ padding: 0.06, maxZoom: 1 }}
       minZoom={0.2}
       maxZoom={8}
-      connectionMode={ConnectionMode.Loose}
+      connectionMode={nodesConnectable ? ConnectionMode.Loose : ConnectionMode.Strict}
       connectionRadius={28}
       nodesDraggable={nodesDraggable !== false && nodesInitialized}
       nodesConnectable={nodesConnectable === true && nodesInitialized}

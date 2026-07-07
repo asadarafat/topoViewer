@@ -176,6 +176,46 @@ describe('canvas authoring command mutations', () => {
     }]);
   });
 
+  it('normalizes default canvas links to topology node order', () => {
+    const result = applyCanvasAuthoringCommand(baseTopology, {
+      layers: ['physical'],
+      source: { nodeId: 'node-b' },
+      target: { nodeId: 'node-a' },
+      type: 'insertLinkBetween'
+    });
+    const document = parseTopologyText(result.text);
+
+    expect(document.graph.links).toEqual([{
+      id: 'link-1',
+      name: 'New Link',
+      source: 'node-a',
+      target: 'node-b',
+      labels: { layer: 'physical' },
+      layers: ['physical']
+    }]);
+  });
+
+  it('preserves explicit handle direction for canvas links', () => {
+    const result = applyCanvasAuthoringCommand(baseTopology, {
+      layers: ['physical'],
+      source: { handleId: 'e1-2', nodeId: 'node-b' },
+      target: { handleId: 'e1-1', nodeId: 'node-a' },
+      type: 'insertLinkBetween'
+    });
+    const document = parseTopologyText(result.text);
+
+    expect(document.graph.links).toEqual([{
+      id: 'link-1',
+      name: 'New Link',
+      source: 'node-b',
+      sourceHandle: 'e1-2',
+      target: 'node-a',
+      targetHandle: 'e1-1',
+      labels: { layer: 'physical' },
+      layers: ['physical']
+    }]);
+  });
+
   it('maps canvas path commands to path sequence YAML', () => {
     const result = applyCanvasAuthoringCommand(baseTopology, {
       layers: ['service'],

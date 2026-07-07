@@ -207,6 +207,7 @@ export function applyCanvasAuthoringCommand(text: string, command: CanvasAuthori
 
   if (command.type === 'insertLinkBetween') {
     return upsertGraphLink(text, {
+      normalizeByNodeOrder: true,
       selectedLayerIds: command.layers,
       source: command.source.nodeId,
       sourceHandle: command.source.handleId,

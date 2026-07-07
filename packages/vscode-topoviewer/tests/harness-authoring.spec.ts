@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Locator } from '@playwright/test';
 import {
   expectCurrentHarnessServer,
   graphNodeByLabel,
@@ -54,6 +54,29 @@ async function reactFlowViewport(page: Parameters<typeof topologyText>[0]) {
     const matrix = new DOMMatrixReadOnly(transform === 'none' ? undefined : transform);
     return { x: matrix.m41, y: matrix.m42, zoom: matrix.a || 1 };
   });
+}
+
+function nodeEndpoint(page: Parameters<typeof topologyText>[0], nodeId: string) {
+  return page.locator(`.react-flow__node[data-id="${nodeId}"] .topoviewer-node-handle-default.source`).first();
+}
+
+async function endpointCenter(endpoint: Locator) {
+  await expect(endpoint).toBeVisible();
+  const box = await endpoint.boundingBox();
+  expect(box).not.toBeNull();
+  return { x: box!.x + box!.width / 2, y: box!.y + box!.height / 2 };
+}
+
+async function drawConnectionBetween(
+  page: Parameters<typeof topologyText>[0],
+  start: { x: number; y: number },
+  end: { x: number; y: number }
+) {
+  await page.mouse.move(start.x, start.y);
+  await page.mouse.down();
+  await page.mouse.move((start.x + end.x) / 2, (start.y + end.y) / 2, { steps: 6 });
+  await page.mouse.move(end.x, end.y, { steps: 6 });
+  await page.mouse.up();
 }
 
 test.beforeEach(async ({ page }) => {
@@ -213,60 +236,93 @@ test('draws canvas links between nodes and cancels invalid drops safely', async 
   expect(paneBox).not.toBeNull();
   const toolbar = page.getByRole('toolbar', { name: 'Canvas authoring tools' });
   const nodeTool = toolbar.getByRole('button', { name: 'Node tool' });
+  const linkTool = toolbar.getByRole('button', { name: 'Link tool' });
   await nodeTool.click();
   await page.mouse.click(paneBox!.x + paneBox!.width * 0.38, paneBox!.y + paneBox!.height * 0.5);
   await page.mouse.click(paneBox!.x + paneBox!.width * 0.62, paneBox!.y + paneBox!.height * 0.5);
   await waitForValidatedGraphNodes(page, ['node-1', 'node-2']);
+  await expect(nodeEndpoint(page, 'node-1')).toHaveCount(1);
+  await expect(nodeEndpoint(page, 'node-2')).toHaveCount(1);
 
-  const sourceHandle = page.locator('.react-flow__node[data-id="node-1"] .react-flow__handle.source').first();
-  const targetHandle = page.locator('.react-flow__node[data-id="node-2"] .react-flow__handle.target').first();
-  await expect(sourceHandle).toBeVisible();
-  await expect(targetHandle).toBeVisible();
-  const sourceBox = await sourceHandle.boundingBox();
-  const targetBox = await targetHandle.boundingBox();
-  expect(sourceBox).not.toBeNull();
-  expect(targetBox).not.toBeNull();
-  const source = { x: sourceBox!.x + sourceBox!.width / 2, y: sourceBox!.y + sourceBox!.height / 2 };
-  const target = { x: targetBox!.x + targetBox!.width / 2, y: targetBox!.y + targetBox!.height / 2 };
+  await linkTool.click();
+  await expect(linkTool).toHaveAttribute('aria-pressed', 'true');
+  const linkPill = page.locator('.react-flow__node[data-id="node-1"] .topoviewer-node-link-authoring-pill');
+  await expect(linkPill).toHaveText('LINK');
+  await expect(linkPill).toBeVisible();
+  const linkPillBox = await linkPill.boundingBox();
+  const iconBox = await page.locator('.react-flow__node[data-id="node-1"] .topoviewer-node-icon').boundingBox();
+  expect(linkPillBox).not.toBeNull();
+  expect(iconBox).not.toBeNull();
+  expect(linkPillBox!.x).toBeGreaterThanOrEqual(iconBox!.x);
+  expect(linkPillBox!.x + linkPillBox!.width).toBeLessThanOrEqual(iconBox!.x + iconBox!.width);
+  expect(linkPillBox!.y).toBeGreaterThanOrEqual(iconBox!.y);
+  expect(linkPillBox!.y + linkPillBox!.height).toBeLessThanOrEqual(iconBox!.y + iconBox!.height);
+  const endpointBox = await nodeEndpoint(page, 'node-1').boundingBox();
+  const nodeBox = await page.locator('.react-flow__node[data-id="node-1"]').boundingBox();
+  expect(endpointBox).not.toBeNull();
+  expect(nodeBox).not.toBeNull();
+  expect(endpointBox!.width).toBeGreaterThanOrEqual(nodeBox!.width - 2);
+  expect(endpointBox!.height).toBeGreaterThanOrEqual(nodeBox!.height - 2);
+  await page.mouse.move(nodeBox!.x + nodeBox!.width / 2, nodeBox!.y + nodeBox!.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(nodeBox!.x + nodeBox!.width / 2, nodeBox!.y + nodeBox!.height / 2 + 60, { steps: 8 });
+  await expect(linkTool).toHaveAttribute('aria-pressed', 'true');
+  await page.mouse.up();
+  await expect(linkTool).toHaveAttribute('aria-pressed', 'true');
 
-  await toolbar.getByRole('button', { name: 'Link tool' }).click();
+  const source = await endpointCenter(nodeEndpoint(page, 'node-1'));
+  const target = await endpointCenter(nodeEndpoint(page, 'node-2'));
   await page.mouse.move(source.x, source.y);
   await page.mouse.down();
   await page.mouse.move((source.x + target.x) / 2, (source.y + target.y) / 2, { steps: 6 });
   await expect(page.locator('.react-flow__connection, .react-flow__connection-path').first()).toHaveCount(1);
-  await page.mouse.move(target.x, target.y, { steps: 6 });
-  await page.mouse.up();
-  await waitForValidatedGraphObject(page, 'links', 'link-1');
-  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'link-1')).toContain('source: node-1');
-  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'link-1')).toContain('target: node-2');
-
-  await page.mouse.move(source.x, source.y);
-  await page.mouse.down();
   await page.mouse.move(paneBox!.x + paneBox!.width * 0.86, paneBox!.y + paneBox!.height * 0.82, { steps: 8 });
   await page.mouse.up();
-  await expect.poll(() => topologyText(page)).not.toContain('id: link-2');
+  await expect.poll(() => topologyText(page)).not.toContain('id: link-1');
 
-  await page.mouse.move(target.x, target.y);
-  await page.mouse.down();
-  await page.mouse.move(source.x, source.y, { steps: 8 });
-  await page.mouse.up();
-  await waitForValidatedGraphObject(page, 'links', 'link-2');
-  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'link-2')).toContain('source: node-1');
-  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'link-2')).toContain('target: node-2');
+  await drawConnectionBetween(page, source, target);
+  await waitForValidatedGraphObject(page, 'links', 'link-1');
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'link-1')).toContain('source: node-1');
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'link-1')).not.toContain('sourceHandle:');
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'link-1')).toContain('target: node-2');
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'link-1')).not.toContain('targetHandle:');
+  await expect.poll(async () => topologyText(page)).not.toContain('handles:');
 
   await page.getByRole('button', { name: 'Undo' }).click();
-  await expect.poll(() => topologyText(page)).not.toContain('id: link-2');
+  await expect.poll(() => topologyText(page)).not.toContain('id: link-1');
   await page.getByRole('button', { name: 'Redo' }).click();
-  await waitForValidatedGraphObject(page, 'links', 'link-2');
+  await waitForValidatedGraphObject(page, 'links', 'link-1');
   await page.reload();
   await waitForHarnessState(page);
-  await waitForValidatedGraphObject(page, 'links', 'link-2');
+  await waitForValidatedGraphObject(page, 'links', 'link-1');
 
   await page.locator('.react-flow__node[data-id="node-1"]').click();
   await page.getByRole('tab', { name: 'Inspect', exact: true }).click();
   await page.locator('.topoviewer-vscode-inspector-pane').getByRole('button', { name: 'Delete' }).click();
   await expect.poll(() => topologyText(page)).not.toContain('id: link-1');
-  await expect.poll(() => topologyText(page)).not.toContain('id: link-2');
+  await expect(page.getByText('No diagnostics')).toBeVisible();
+});
+
+test('normalizes reverse default canvas links to stable node order', async ({ page }) => {
+  await startNewTopology(page);
+
+  const paneBox = await page.locator('.react-flow__pane').boundingBox();
+  expect(paneBox).not.toBeNull();
+  const toolbar = page.getByRole('toolbar', { name: 'Canvas authoring tools' });
+  await toolbar.getByRole('button', { name: 'Node tool' }).click();
+  await page.mouse.click(paneBox!.x + paneBox!.width * 0.38, paneBox!.y + paneBox!.height * 0.5);
+  await page.mouse.click(paneBox!.x + paneBox!.width * 0.62, paneBox!.y + paneBox!.height * 0.5);
+  await waitForValidatedGraphNodes(page, ['node-1', 'node-2']);
+
+  await toolbar.getByRole('button', { name: 'Link tool' }).click();
+  const source = await endpointCenter(nodeEndpoint(page, 'node-2'));
+  const target = await endpointCenter(nodeEndpoint(page, 'node-1'));
+  await drawConnectionBetween(page, source, target);
+  await waitForValidatedGraphObject(page, 'links', 'link-1');
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'link-1')).toContain('source: node-1');
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'link-1')).toContain('target: node-2');
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'link-1')).not.toContain('sourceHandle:');
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'link-1')).not.toContain('targetHandle:');
   await expect(page.getByText('No diagnostics')).toBeVisible();
 });
 
