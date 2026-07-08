@@ -10,6 +10,7 @@ import {
   graphNodeByLabel,
   nodePosition,
   panelOverflowIssues,
+  placeCanvasNode,
   railWidth,
   revertTemplateState,
   selectHarnessObject,
@@ -92,10 +93,12 @@ test('renders the browser harness with fixtures, diagnostics, layers, preview, a
   for (const tabName of ['Build', 'Inspect', 'YAML', 'Attention', 'Layers']) {
     await expect(page.getByRole('tab', { name: tabName, exact: true })).toBeVisible();
   }
-  await expect(page.getByText('Primitives')).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Insert Node' })).toBeVisible();
-  await expect(page.getByText('Presets')).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Insert Router' })).toBeVisible();
+  await expect(page.getByText('Structured relationships')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Insert Connection' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Insert Path' })).toBeVisible();
+  await expect(page.getByRole('toolbar', { name: 'Canvas authoring tools' }).getByRole('button', { name: 'Node tool' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Insert Node' })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Insert Router' })).toHaveCount(0);
   await expect(page.locator('.topoviewer-vscode-editor .monaco-editor')).toBeHidden();
   await expect(page.locator('.topoviewer')).toBeVisible();
   await expect(page.getByText('No diagnostics')).toBeVisible();
@@ -227,7 +230,7 @@ test('uses a stacked narrow viewport fallback without horizontal page overflow',
 
   await expect(page.getByRole('separator', { name: /resize authoring column and canvas/i })).toBeHidden();
   await expect(page.locator('.topoviewer-vscode-preview')).toBeVisible();
-  await expect(page.getByText('Primitives')).toBeVisible();
+  await expect(page.getByText('Structured relationships')).toBeVisible();
   await expectActivePanelBeforePreview(page, '.topoviewer-vscode-build-pane');
 
   await page.getByRole('tab', { name: 'Inspect', exact: true }).click();
@@ -408,7 +411,12 @@ test('supports authoring modes, selection, multi-select, and blank-canvas clear'
   await graphNodeByLabel(page, 'AMS-P').click({ modifiers: ['Shift'] });
   await expect(page.locator('.topoviewer-vscode-diagnostic-strip')).toContainText('2 node selected');
   await expect.poll(() => selectedPreviewObjectCount(page)).toBe(2);
-  await page.locator('.react-flow__pane').click({ position: { x: 24, y: 120 } });
+  const paneBox = await page.locator('.react-flow__pane').boundingBox();
+  expect(paneBox).not.toBeNull();
+  await page.locator('.react-flow__pane').click({
+    force: true,
+    position: { x: paneBox!.width - 24, y: paneBox!.height - 24 }
+  });
   await expect(page.getByText('Select a canvas object')).toBeVisible();
   await expect(page.locator('.topoviewer-vscode-diagnostic-strip')).not.toContainText('selected');
   await expect.poll(() => selectedPreviewObjectCount(page)).toBe(0);
@@ -417,6 +425,8 @@ test('supports authoring modes, selection, multi-select, and blank-canvas clear'
 test('inserts objects into structured topology YAML and supports undo and redo', async ({ page }) => {
   await page.goto('/');
   await waitForHarnessReady(page);
+  await page.getByRole('button', { name: 'New topology' }).click();
+  await waitForHarnessState(page);
 
   await expect(page.getByText('New Node')).toHaveCount(0);
   const undoButton = page.getByRole('button', { name: 'Undo' });
@@ -424,7 +434,7 @@ test('inserts objects into structured topology YAML and supports undo and redo',
   await expect(undoButton).toBeDisabled();
   await expect(redoButton).toBeDisabled();
 
-  await page.getByRole('button', { name: 'Insert Node' }).click();
+  await placeCanvasNode(page, { expectedId: 'node-1', xFraction: 0.90, yFraction: 0.78 });
   await expect(graphNodeByLabel(page, 'New Node')).toBeVisible();
   await page.getByRole('tab', { name: 'YAML', exact: true }).click();
   await expect.poll(() => topologyText(page)).toContain('id: node-1');
@@ -452,7 +462,7 @@ test('creates saved topologies, reverts templates, and copies YAML', async ({ pa
   await expect(page.getByLabel('Template')).toHaveText('Custom topology 1');
   await expect.poll(() => topologyText(page)).toContain('id: custom-topology');
 
-  await page.getByRole('button', { name: 'Insert Node' }).click();
+  await placeCanvasNode(page, { expectedId: 'node-1', xFraction: 0.9, yFraction: 0.78 });
   await expect(graphNodeByLabel(page, 'New Node')).toBeVisible();
   await expect.poll(() => topologyText(page)).toContain('id: node-1');
   await page.getByRole('button', { name: 'Save', exact: true }).click();
@@ -472,8 +482,7 @@ test('creates saved topologies, reverts templates, and copies YAML', async ({ pa
   await expect(page.getByLabel('Template')).toHaveText('Layered network authoring');
   await expect.poll(() => topologyText(page)).not.toContain('id: node-1');
 
-  await page.getByRole('tab', { name: 'Build', exact: true }).click();
-  await page.getByRole('button', { name: 'Insert Node' }).click();
+  await placeCanvasNode(page, { expectedId: 'node-1', xFraction: 0.9, yFraction: 0.78 });
   await expect.poll(() => topologyText(page)).toContain('id: node-1');
   await page.getByRole('button', { name: 'Save', exact: true }).click();
   await page.reload();
@@ -732,7 +741,7 @@ test('updates selected object properties and deletes with reversible YAML mutati
   await expect.poll(() => topologyText(page)).not.toContain('id: fra-pe');
 });
 
-test('preserves invalid Monaco content when a structured mutation cannot be applied', async ({ page }) => {
+test('preserves invalid Monaco content while structured mutations are disabled', async ({ page }) => {
   await page.goto('/');
   await waitForHarnessReady(page);
 
@@ -746,7 +755,9 @@ test('preserves invalid Monaco content when a structured mutation cannot be appl
   await expect(page.locator('.topoviewer-vscode-diagnostic-line--error').first()).toBeVisible();
   await expect(page.getByRole('button', { name: /export/i })).toBeDisabled();
   await page.getByRole('tab', { name: 'Build', exact: true }).click();
-  await page.getByRole('button', { name: 'Insert Node' }).click();
+  const build = page.locator('.topoviewer-vscode-build-pane');
+  await build.getByRole('button', { name: 'Insert Connection' }).click();
+  await expect(build.getByRole('button', { name: 'Create connection' })).toBeDisabled();
   await expect.poll(() => topologyText(page)).toBe('graph: [');
 });
 

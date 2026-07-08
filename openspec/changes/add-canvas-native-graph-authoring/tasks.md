@@ -145,14 +145,21 @@ Evidence:
 
 ## 10. Inspector And Rail Rebalancing
 
-- [ ] 10.1 Move high-frequency creation actions out of the Build rail into the
+- [x] 10.1 Move high-frequency creation actions out of the Build rail into the
       canvas toolbar
-- [ ] 10.2 Keep Build rail only for advanced or fallback structured flows that
+- [x] 10.2 Keep Build rail only for advanced or fallback structured flows that
       are not yet canvas-native
-- [ ] 10.3 Ensure Inspector remains the detailed property editor for selected
+- [x] 10.3 Ensure Inspector remains the detailed property editor for selected
       objects
-- [ ] 10.4 Verify small viewport behavior and no horizontal page overflow
-- [ ] 10.5 Add Playwright coverage for compact/narrow viewport authoring
+- [x] 10.4 Verify small viewport behavior and no horizontal page overflow
+- [x] 10.5 Add Playwright coverage for compact/narrow viewport authoring
+
+Evidence:
+
+- `npm --workspace vscode-topoviewer run typecheck`
+- `npm --workspace vscode-topoviewer run test:unit -- canvasAuthoring`
+- `npm --workspace vscode-topoviewer run test:vscode-harness -- tests/harness.spec.ts`
+- `npm --workspace vscode-topoviewer run test:vscode-harness -- tests/harness-authoring.spec.ts`
 
 ## 11. Documentation
 

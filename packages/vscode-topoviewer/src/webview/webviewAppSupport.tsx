@@ -30,19 +30,9 @@ export const minSplitPercent = 24;
 export const maxSplitPercent = 55;
 export const harnessModes: HarnessMode[] = ['build', 'inspect', 'yaml', 'attention', 'layers'];
 
-const primitiveObjects: Array<{ type: InsertObjectType; label: string }> = [
-  { type: 'node', label: 'Node' },
+const relationshipObjects: Array<{ type: InsertObjectType; label: string }> = [
   { type: 'link', label: 'Connection' },
-  { type: 'path', label: 'Path' },
-  { type: 'region', label: 'Region' },
-  { type: 'callout', label: 'Callout' }
-];
-
-const presetObjects: Array<{ type: InsertObjectType; label: string }> = [
-  { type: 'router', label: 'Router' },
-  { type: 'service', label: 'Service' },
-  { type: 'controller', label: 'Controller' },
-  { type: 'external', label: 'External' }
+  { type: 'path', label: 'Path' }
 ];
 
 type InsertPaletteItem =
@@ -55,14 +45,9 @@ export const baseInsertObjectGroups: Array<{
   title: string;
 }> = [
   {
-    title: 'Primitives',
-    description: 'Generic topology building blocks',
-    objects: primitiveObjects.map((object) => ({ kind: 'insert' as const, ...object }))
-  },
-  {
-    title: 'Presets',
-    description: 'Optional starting labels for common environments',
-    objects: presetObjects.map((object) => ({ kind: 'insert' as const, ...object }))
+    title: 'Structured relationships',
+    description: 'Exact source, transit, and target forms',
+    objects: relationshipObjects.map((object) => ({ kind: 'insert' as const, ...object }))
   }
 ];
 

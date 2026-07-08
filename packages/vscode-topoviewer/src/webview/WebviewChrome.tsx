@@ -682,6 +682,11 @@ export const PreviewPanel = memo(function PreviewPanel({ alignSelectedObjects, c
       regionIds
     });
   }, [directRegionIdsByNodeId, parityMode]);
+  const handlePanePointerDownCapture = useCallback((event: ReactPointerEvent<HTMLElement>) => {
+    if (parityMode || canvasAuthoring.activeTool !== 'select') return;
+    const target = event.target as HTMLElement | null;
+    if (target?.classList.contains('react-flow__pane')) setSelectedObjects([]);
+  }, [canvasAuthoring.activeTool, parityMode, setSelectedObjects]);
 
   return (
     <Paper
@@ -690,6 +695,7 @@ export const PreviewPanel = memo(function PreviewPanel({ alignSelectedObjects, c
       ref={previewRef}
       onContextMenuCapture={handleContextMenuCapture}
       onPointerDownCapture={(event) => {
+        handlePanePointerDownCapture(event);
         startPendingRegionDrag(event);
         startPendingSelectionDrag(event);
       }}

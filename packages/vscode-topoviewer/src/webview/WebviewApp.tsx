@@ -304,21 +304,20 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
   const selectedGraphNodeIds = selectedNodeIds(selectedObjects);
   const pathTransitOptions = graphNodes.filter((node) => node.id !== pathSourceId && node.id !== pathTargetId && !pathTransitIds.includes(node.id));
   const activeModeIndex = modeIndex(mode);
-  const insertObjectGroups = useMemo(() => baseInsertObjectGroups.map((group) => (
-    group.title !== 'Presets'
-      ? group
-      : {
-        ...group,
-        objects: [
-          ...group.objects,
-          ...savedPresets.map((preset) => ({
-            kind: 'preset' as const,
-            label: preset.name,
-            preset
-          }))
-        ]
-      }
-  )), [savedPresets]);
+  const insertObjectGroups = useMemo(() => [
+    ...baseInsertObjectGroups,
+    ...(savedPresets.length
+      ? [{
+        title: 'Saved presets',
+        description: 'Reusable objects captured from the Inspector',
+        objects: savedPresets.map((preset) => ({
+          kind: 'preset' as const,
+          label: preset.name,
+          preset
+        }))
+      }]
+      : [])
+  ], [savedPresets]);
   const previewSelectedObjectIds = useMemo(() => selectedObjectIds(selectedObjects), [selectedObjects]);
 
   useEffect(() => {

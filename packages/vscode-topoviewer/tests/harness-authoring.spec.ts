@@ -1,9 +1,10 @@
 import { expect, test, type Locator } from '@playwright/test';
 import {
+  chooseOption,
   expectCurrentHarnessServer,
   graphNodeByLabel,
   nodePosition,
-  selectGraphNodes,
+  placeCanvasNode,
   selectHarnessObject,
   selectedPreviewObjectCount,
   showAllHarnessLayers,
@@ -126,8 +127,8 @@ test.afterEach(async ({ page }) => {
 test('keeps new topology insertions manual after connection creation and position update', async ({ page }) => {
   await startNewTopology(page);
 
-  await page.getByRole('button', { name: 'Insert Node' }).click();
-  await page.getByRole('button', { name: 'Insert Node' }).click();
+  await placeCanvasNode(page, { expectedId: 'node-1', xFraction: 0.42, yFraction: 0.48 });
+  await placeCanvasNode(page, { expectedId: 'node-2', xFraction: 0.62, yFraction: 0.48 });
   await expect(graphNodeByLabel(page, 'New Node')).toHaveCount(2);
 
   const firstPosition = nodePosition(await topologyText(page), 'node-1');
@@ -139,6 +140,8 @@ test('keeps new topology insertions manual after connection creation and positio
 
   const build = page.locator('.topoviewer-vscode-build-pane');
   await build.getByRole('button', { name: 'Insert Connection' }).click();
+  await chooseOption(page, build.getByRole('combobox', { name: 'Connection source' }), 'New Node (node-1)');
+  await chooseOption(page, build.getByRole('combobox', { name: 'Connection target' }), 'New Node (node-2)');
   await expect(build.getByRole('combobox', { name: 'Connection source' })).toHaveText('New Node (node-1)');
   await expect(build.getByRole('combobox', { name: 'Connection target' })).toHaveText('New Node (node-2)');
   await expect(build.getByRole('button', { name: 'Create connection' })).toBeEnabled();
@@ -173,7 +176,7 @@ test('creates new graph objects on semantic authoring layers even when visibilit
   await physical.uncheck();
   await page.getByRole('tab', { name: 'Build', exact: true }).click();
 
-  await page.getByRole('button', { name: 'Insert Node' }).click();
+  await placeCanvasNode(page, { expectedId: 'node-1' });
   await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'node-1')).toContain('- physical');
   await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'node-1')).not.toContain('- paths');
 });
@@ -493,8 +496,8 @@ test('creates canvas regions from deterministic drag bounds', async ({ page }) =
   const paneBox = await page.locator('.react-flow__pane').boundingBox();
   expect(paneBox).not.toBeNull();
   await page.getByRole('tab', { name: 'Build', exact: true }).click();
-  await page.getByRole('button', { name: 'Insert Node' }).click();
-  await page.getByRole('button', { name: 'Insert Node' }).click();
+  await placeCanvasNode(page, { expectedId: 'node-1', xFraction: 0.42, yFraction: 0.48 });
+  await placeCanvasNode(page, { expectedId: 'node-2', xFraction: 0.62, yFraction: 0.48 });
   await waitForValidatedGraphNodes(page, ['node-1', 'node-2']);
 
   const node1 = nodePosition(await topologyText(page), 'node-1');
@@ -635,8 +638,8 @@ test('moves canvas region groups by translating member nodes with helper lines d
   await startNewTopology(page);
 
   await page.getByRole('tab', { name: 'Build', exact: true }).click();
-  await page.getByRole('button', { name: 'Insert Node' }).click();
-  await page.getByRole('button', { name: 'Insert Node' }).click();
+  await placeCanvasNode(page, { expectedId: 'node-1', xFraction: 0.42, yFraction: 0.48 });
+  await placeCanvasNode(page, { expectedId: 'node-2', xFraction: 0.62, yFraction: 0.48 });
   await waitForValidatedGraphNodes(page, ['node-1', 'node-2']);
 
   await page.locator('.react-flow__node[data-id="node-1"]').click();
@@ -842,9 +845,12 @@ test('arranges selected canvas objects with align, distribute, nudge, and grid s
   await startNewTopology(page);
 
   const toolbar = page.getByRole('toolbar', { name: 'Canvas authoring tools' });
-  const build = page.locator('.topoviewer-vscode-build-pane');
   for (let count = 1; count <= 3; count += 1) {
-    await build.getByRole('button', { name: 'Insert Node' }).click();
+    await placeCanvasNode(page, {
+      expectedId: `node-${count}`,
+      xFraction: 0.30 + count * 0.13,
+      yFraction: 0.36 + count * 0.06
+    });
     await waitForValidatedGraphNodes(page, Array.from({ length: count }, (_, index) => `node-${index + 1}`));
   }
 
@@ -852,8 +858,14 @@ test('arranges selected canvas objects with align, distribute, nudge, and grid s
   const positions = ['node-1', 'node-2', 'node-3'].map((id) => nodePosition(initialTopologyText, id));
   positions.forEach((position) => expect(position).toBeDefined());
   await toolbar.getByRole('button', { name: 'Select tool' }).click();
-  const selectionStart = await clientPointForTopologyPoint(page, { x: 40, y: 60 });
-  const selectionEnd = await clientPointForTopologyPoint(page, { x: 760, y: 430 });
+  const selectionStart = await clientPointForTopologyPoint(page, {
+    x: Math.min(...positions.map((position) => position!.x)) - 80,
+    y: Math.min(...positions.map((position) => position!.y)) - 80
+  });
+  const selectionEnd = await clientPointForTopologyPoint(page, {
+    x: Math.max(...positions.map((position) => position!.x)) + 160,
+    y: Math.max(...positions.map((position) => position!.y)) + 120
+  });
   await page.mouse.move(selectionStart.x, selectionStart.y);
   await page.mouse.down();
   await page.mouse.move(selectionEnd.x, selectionEnd.y, { steps: 6 });
@@ -906,6 +918,69 @@ test('arranges selected canvas objects with align, distribute, nudge, and grid s
     const next = await nodePositions(page, ['node-1', 'node-2', 'node-3']);
     return next.every((position, index) => position?.x === snapped[index].x + 20 && position.y === snapped[index].y);
   }).toBe(true);
+});
+
+test('keeps canvas authoring controls usable on compact viewport without horizontal overflow', async ({ page }) => {
+  await page.setViewportSize({ width: 900, height: 900 });
+  await startNewTopology(page);
+
+  await expect(page.getByRole('button', { name: 'Insert Node' })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Insert Connection' })).toBeVisible();
+  await placeCanvasNode(page, { expectedId: 'node-1', xFraction: 0.34, yFraction: 0.40 });
+  await page.keyboard.press('Control+D');
+  await waitForValidatedGraphNodes(page, ['node-1', 'node-2']);
+  await page.keyboard.press('Control+D');
+  await waitForValidatedGraphNodes(page, ['node-1', 'node-2', 'node-3']);
+
+  const toolbar = page.getByRole('toolbar', { name: 'Canvas authoring tools' });
+  await toolbar.getByRole('button', { name: 'Select tool' }).click();
+  const positions = (await nodePositions(page, ['node-1', 'node-2', 'node-3'])).map((position) => position!);
+  const selectionStart = await clientPointForTopologyPoint(page, {
+    x: Math.min(...positions.map((position) => position.x)) - 80,
+    y: Math.min(...positions.map((position) => position.y)) - 80
+  });
+  const selectionEnd = await clientPointForTopologyPoint(page, {
+    x: Math.max(...positions.map((position) => position.x)) + 160,
+    y: Math.max(...positions.map((position) => position.y)) + 120
+  });
+  await page.mouse.move(selectionStart.x, selectionStart.y);
+  await page.mouse.down();
+  await page.mouse.move(selectionEnd.x, selectionEnd.y, { steps: 8 });
+  await page.mouse.up();
+  await expect.poll(() => selectedPreviewObjectCount(page)).toBe(3);
+
+  const arrange = page.getByRole('toolbar', { name: 'Selection arrangement' });
+  await expect(arrange).toBeVisible();
+  await arrange.getByRole('button', { name: 'Align left' }).click();
+  await expect.poll(async () => {
+    const next = await nodePositions(page, ['node-1', 'node-2', 'node-3']);
+    if (next.some((position) => !position)) return false;
+    return next.every((position) => position!.x === next[0]!.x);
+  }).toBe(true);
+
+  const overflow = await page.evaluate(() => {
+    const elements = [
+      document.documentElement,
+      document.body,
+      document.querySelector('.topoviewer-vscode-workspace')
+    ].filter(Boolean) as HTMLElement[];
+    return elements.map((element) => Math.max(0, element.scrollWidth - element.clientWidth));
+  });
+  expect(Math.max(...overflow)).toBeLessThanOrEqual(2);
+
+  const clippedControls = await page.evaluate(() => {
+    const preview = document.querySelector('.topoviewer-vscode-preview')?.getBoundingClientRect();
+    if (!preview) return ['preview missing'];
+    return Array.from(document.querySelectorAll('.topoviewer-vscode-canvas-toolbar, .topoviewer-vscode-canvas-arrange-strip'))
+      .flatMap((element) => {
+        const rect = element.getBoundingClientRect();
+        const failures: string[] = [];
+        if (rect.left < preview.left - 1) failures.push(`${element.className} clips left`);
+        if (rect.right > preview.right + 1) failures.push(`${element.className} clips right`);
+        return failures;
+      });
+  });
+  expect(clippedControls).toEqual([]);
 });
 
 test('places and moves canvas shapes and callouts from toolbar tools', async ({ page }) => {
@@ -1048,51 +1123,72 @@ test('places and moves canvas shapes and callouts from toolbar tools', async ({ 
 test('crud covers new topology regions, callouts, and relationship objects', async ({ page }) => {
   await startNewTopology(page);
 
-  await page.getByRole('button', { name: 'Insert Router' }).click();
-  await page.getByRole('button', { name: 'Insert Service' }).click();
-  await waitForValidatedGraphNodes(page, ['router-1', 'service-1']);
-  await expect(graphNodeByLabel(page, 'New Router')).toBeVisible();
-  await expect(graphNodeByLabel(page, 'New Service')).toBeVisible();
+  await placeCanvasNode(page, { expectedId: 'node-1', xFraction: 0.38, yFraction: 0.46 });
+  await placeCanvasNode(page, { expectedId: 'node-2', xFraction: 0.58, yFraction: 0.46 });
+  await waitForValidatedGraphNodes(page, ['node-1', 'node-2']);
+  await expect(graphNodeByLabel(page, 'New Node')).toHaveCount(2);
+  const inspector = page.locator('.topoviewer-vscode-inspector-pane');
+  await selectHarnessObject(page, 'node', 'node-1');
+  await inspector.getByLabel('Display name').fill('Router');
+  await inspector.getByRole('button', { name: 'Apply properties' }).click();
+  await selectHarnessObject(page, 'node', 'node-2');
+  await inspector.getByLabel('Display name').fill('Service');
+  await inspector.getByRole('button', { name: 'Apply properties' }).click();
 
-  await selectGraphNodes(page, ['New Router', 'New Service']);
-  await page.getByRole('tab', { name: 'Build', exact: true }).click();
-  await page.getByRole('button', { name: 'Insert Region' }).click();
-  await page.mouse.move(1180, 820);
+  const node1 = nodePosition(await topologyText(page), 'node-1');
+  const node2 = nodePosition(await topologyText(page), 'node-2');
+  expect(node1).toBeDefined();
+  expect(node2).toBeDefined();
+  const regionTool = page.getByRole('toolbar', { name: 'Canvas authoring tools' }).getByRole('button', { name: 'Region tool' });
+  await regionTool.click();
+  const regionStart = await clientPointForTopologyPoint(page, {
+    x: Math.min(node1!.x, node2!.x) - 90,
+    y: Math.min(node1!.y, node2!.y) - 90
+  });
+  const regionEnd = await clientPointForTopologyPoint(page, {
+    x: Math.max(node1!.x, node2!.x) + 190,
+    y: Math.max(node1!.y, node2!.y) + 150
+  });
+  await page.mouse.move(regionStart.x, regionStart.y);
+  await page.mouse.down();
+  await page.mouse.move(regionEnd.x, regionEnd.y, { steps: 8 });
+  await page.mouse.up();
   await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'region-1')).toContain('members:');
-  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'region-1')).toContain('- router-1');
-  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'region-1')).toContain('- service-1');
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'region-1')).toContain('- node-1');
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'region-1')).toContain('- node-2');
   await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'region-1')).toContain('- physical');
 
+  await page.getByRole('tab', { name: 'Build', exact: true }).click();
   await page.getByRole('button', { name: 'Insert Connection' }).click();
   await page.getByRole('button', { name: 'Create connection' }).click();
-  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'link-1')).toContain('source: router-1');
-  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'link-1')).toContain('target: service-1');
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'link-1')).toContain('source: node-1');
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'link-1')).toContain('target: node-2');
   await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'link-1')).toContain('- physical');
 
   await page.getByRole('button', { name: 'Insert Path' }).click();
   await page.getByRole('button', { name: 'Create path' }).click();
-  await page.mouse.move(1180, 820);
-  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'path-1')).toContain('- router-1');
-  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'path-1')).toContain('- service-1');
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'path-1')).toContain('- node-1');
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'path-1')).toContain('- node-2');
   await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'path-1')).toContain('- paths');
 
-  await selectHarnessObject(page, 'node', 'router-1');
-  await page.getByRole('tab', { name: 'Build', exact: true }).click();
-  await page.getByRole('button', { name: 'Insert Callout' }).click();
-  await page.mouse.move(1180, 820);
-  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'callout-1')).toContain('target: router-1');
+  await selectHarnessObject(page, 'node', 'node-1');
+  const calloutTool = page.getByRole('toolbar', { name: 'Canvas authoring tools' }).getByRole('button', { name: 'Callout tool' });
+  await calloutTool.click();
+  const paneBox = await page.locator('.react-flow__pane').boundingBox();
+  expect(paneBox).not.toBeNull();
+  await page.mouse.click(paneBox!.x + paneBox!.width * 0.82, paneBox!.y + paneBox!.height * 0.34);
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'callout-1')).toContain('target: node-1');
   await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'callout-1')).toContain('- annotations');
 
   await selectHarnessObject(page, 'region', 'region-1');
-  const inspector = page.locator('.topoviewer-vscode-inspector-pane');
   await inspector.getByLabel('Display name').fill('Edited Region');
   await inspector.getByLabel('Members').click();
-  await page.getByRole('option', { name: 'New Service' }).click();
+  await page.getByRole('option', { name: 'Service' }).click();
   await page.keyboard.press('Escape');
   await inspector.getByRole('button', { name: 'Apply properties' }).click();
   await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'region-1')).toContain('name: Edited Region');
-  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'region-1')).toContain('- router-1');
-  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'region-1')).not.toContain('- service-1');
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'region-1')).toContain('- node-1');
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'region-1')).not.toContain('- node-2');
 
   await selectHarnessObject(page, 'callout', 'callout-1');
   await inspector.getByLabel('Display name').fill('Edited Callout');

@@ -211,6 +211,25 @@ export async function waitForValidatedGraphNodes(page: Page, ids: string[]) {
   }, ids);
 }
 
+export async function placeCanvasNode(
+  page: Page,
+  options: { expectedId?: string; xFraction?: number; yFraction?: number } = {}
+) {
+  const {
+    expectedId,
+    xFraction = 0.5,
+    yFraction = 0.5
+  } = options;
+  const paneBox = await page.locator('.react-flow__pane').boundingBox();
+  expect(paneBox).not.toBeNull();
+  await page.getByRole('toolbar', { name: 'Canvas authoring tools' }).getByRole('button', { name: 'Node tool' }).click();
+  await page.mouse.click(
+    paneBox!.x + paneBox!.width * xFraction,
+    paneBox!.y + paneBox!.height * yFraction
+  );
+  if (expectedId) await waitForValidatedGraphNodes(page, [expectedId]);
+}
+
 export async function selectHarnessObject(page: Page, kind: 'node' | 'link' | 'path' | 'region' | 'shape' | 'callout', id: string) {
   await page.waitForFunction(() => !!(window as any).__topoviewerHarnessActions?.selectObject);
   await page.evaluate((selection) => {
