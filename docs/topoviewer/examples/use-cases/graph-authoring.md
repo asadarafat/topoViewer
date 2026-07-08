@@ -74,6 +74,10 @@ objects instead of arbitrary whiteboard shapes.
 The tools are intentionally compact. The Inspector carries the detailed fields
 after an object exists.
 
+Canvas shortcuts are ignored while the YAML editor, Inspector fields, menus, or
+other editable controls have focus. In those contexts the focused editor owns
+the keyboard.
+
 ## Layer Defaults
 
 Canvas-created objects use semantic layer defaults:

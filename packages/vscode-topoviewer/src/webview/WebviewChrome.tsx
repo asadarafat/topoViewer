@@ -108,6 +108,33 @@ const canvasToolDefinitions: Array<{
 ];
 
 const canvasToolByShortcut = new Map(canvasToolDefinitions.map((definition) => [definition.shortcut.toLowerCase(), definition.tool]));
+const editableShortcutSelector = [
+  'input',
+  'textarea',
+  'select',
+  '[contenteditable="true"]',
+  '[role="textbox"]',
+  '[role="combobox"]',
+  '[role="listbox"]',
+  '[role="option"]',
+  '[role="menu"]',
+  '[role="menuitem"]',
+  '.monaco-editor',
+  '.topoviewer-vscode-editor'
+].join(',');
+
+function isEditableShortcutContext(target: EventTarget | null) {
+  const candidates = [
+    target instanceof HTMLElement ? target : undefined,
+    document.activeElement instanceof HTMLElement ? document.activeElement : undefined
+  ];
+  return candidates.some((candidate) => {
+    if (!candidate) return false;
+    if (candidate.matches(editableShortcutSelector)) return true;
+    if (candidate.isContentEditable) return true;
+    return Boolean(candidate.closest(editableShortcutSelector));
+  });
+}
 
 type PendingRegionDrag = {
   currentClient: CanvasAuthoringPoint;
@@ -438,9 +465,7 @@ export const PreviewPanel = memo(function PreviewPanel({ alignSelectedObjects, c
   useEffect(() => {
     if (parityMode) return undefined;
     const handleKeyDown = (event: KeyboardEvent) => {
-      const target = event.target as HTMLElement | null;
-      const tagName = target?.tagName?.toLowerCase();
-      if (tagName === 'input' || tagName === 'textarea' || target?.isContentEditable) return;
+      if (isEditableShortcutContext(event.target)) return;
       if ((event.metaKey || event.ctrlKey) && !event.altKey) {
         const key = event.key.toLowerCase();
         if (key === 'c') {

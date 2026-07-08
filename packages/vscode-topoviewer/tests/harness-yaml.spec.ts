@@ -514,6 +514,26 @@ test('surfaces empty YAML assist state and keeps editor keyboard behavior predic
   await expect(page.locator('.topoviewer-vscode-yaml-assist-empty')).toContainText('No YAML suggestions are valid at the current cursor.');
 });
 
+test('keeps canvas tool shortcuts inactive while YAML editor is focused', async ({ page }) => {
+  await page.goto('/');
+  await waitForHarnessReady(page);
+
+  await page.getByRole('tab', { name: 'YAML', exact: true }).click();
+  const toolbar = page.getByRole('toolbar', { name: 'Canvas authoring tools' });
+  const selectTool = toolbar.getByRole('button', { name: 'Select tool' });
+  await expect(selectTool).toHaveAttribute('aria-pressed', 'true');
+
+  await focusYamlEditorAt(page, 1, 1);
+  for (const key of ['N', 'L', 'P', 'G', 'D', 'A', 'H', 'V']) {
+    await page.keyboard.press(key);
+  }
+
+  await expect(selectTool).toHaveAttribute('aria-pressed', 'true');
+  for (const label of ['Node tool', 'Link tool', 'Path tool', 'Region tool', 'Shape tool', 'Callout tool', 'Pan tool']) {
+    await expect(toolbar.getByRole('button', { name: label })).toHaveAttribute('aria-pressed', 'false');
+  }
+});
+
 test('creates stable VS Code export messages', () => {
   expect(exportViewportMessage({
     dataUrl: 'data:image/png;base64,AAAA',
