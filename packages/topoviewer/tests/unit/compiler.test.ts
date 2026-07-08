@@ -528,6 +528,47 @@ describe('compileTopoGraph', () => {
     expect(new Set(laneData.map((data) => data.parallelLinkGroup)).size).toBe(1);
   });
 
+  it('renders path segments over existing links as overlay lanes', () => {
+    const document: TopoDocument = {
+      version: '1.0',
+      graph: {
+        layers: [{ id: 'physical', name: 'Physical' }],
+        nodes: [
+          { id: 'a', name: 'A', layers: ['physical'], position: [0, 0] },
+          { id: 'b', name: 'B', layers: ['physical'], position: [240, 0] }
+        ],
+        links: [
+          { id: 'a-b', name: 'A-B', source: 'a', target: 'b', layers: ['physical'] }
+        ],
+        paths: [
+          { id: 'path-a-b', name: 'A to B path', sequence: ['a', 'b'], layers: ['physical'] }
+        ]
+      },
+      stylesheet: [
+        { selector: 'link', style: { curveStyle: 'bezier', lineColor: '#2563eb', lineWidth: 3 } },
+        { selector: 'path', style: { curveStyle: 'bezier', lineColor: '#f97316', lineWidth: 2, laneGap: 20 } }
+      ]
+    };
+
+    const compiled = compileTopoGraph(document, ['physical']);
+    const linkEdge = compiled.edges.find((edge) => edge.id === 'a-b');
+    const pathEdge = compiled.edges.find((edge) => edge.id === 'path-a-b:0');
+    const pathData = pathEdge?.data as Record<string, unknown> | undefined;
+
+    expect(linkEdge).toBeDefined();
+    expect(pathEdge).toBeDefined();
+    expect(linkEdge?.data).not.toMatchObject({ isLane: true });
+    expect(pathData).toMatchObject({
+      isLane: true,
+      parallelLinkGroup: 'path-overlay:a::b',
+      laneIndex: 1,
+      laneCount: 2,
+      laneGap: 20,
+      controlPointStepSize: 20,
+      laneWidth: 2
+    });
+  });
+
   it('rejects kebab-case style keys during document validation', () => {
     const document: TopoDocument = {
       version: '1.0',

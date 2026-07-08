@@ -553,28 +553,24 @@ test('authors and edits explicit connections and path sequences', async ({ page 
   await page.getByRole('tab', { name: 'Build', exact: true }).click();
   await build.getByRole('button', { name: 'Insert Path' }).click();
   await chooseOption(page, build.getByRole('combobox', { name: 'Path source' }), 'FRA-PE');
-  await chooseOption(page, build.getByRole('combobox', { name: 'Path target' }), 'NOC');
+  await chooseOption(page, build.getByRole('combobox', { name: 'Path target' }), 'LON-PE');
   await chooseOption(page, build.getByRole('combobox', { name: 'Add transit node' }), 'AMS-P');
   await build.getByRole('button', { name: 'Add' }).click();
   await expect(build.getByText('AMS-P')).toBeVisible();
-  await chooseOption(page, build.getByRole('combobox', { name: 'Add transit node' }), 'LON-PE');
-  await build.getByRole('button', { name: 'Add' }).click();
-  await build.locator('.topoviewer-vscode-transit-row').filter({ hasText: 'AMS-P' }).getByRole('button', { name: 'Down' }).click();
   await build.getByRole('button', { name: 'Create path' }).click();
   let createdPathId = '';
   await expect.poll(async () => {
-    createdPathId = matchingGeneratedObjectId(await topologyText(page), 'path', ['- fra-pe', '- lon-pe', '- ams-p', '- noc']);
+    createdPathId = matchingGeneratedObjectId(await topologyText(page), 'path', ['- fra-pe', '- ams-p', '- lon-pe']);
     return createdPathId;
   }).toMatch(/^path-\d+$/);
   await waitForValidatedGraphObject(page, 'paths', createdPathId);
   await expect.poll(() => topologyText(page)).toContain('sequence:');
   await expect.poll(() => topologyText(page)).toContain('- fra-pe');
-  await expect.poll(() => topologyText(page)).toContain('- lon-pe');
   await expect.poll(() => topologyText(page)).toContain('- ams-p');
-  await expect.poll(() => topologyText(page)).toContain('- noc');
+  await expect.poll(() => topologyText(page)).toContain('- lon-pe');
   await expect.poll(async () => {
     const block = yamlObjectBlock(await topologyText(page), createdPathId);
-    return block.indexOf('- lon-pe') < block.indexOf('- ams-p');
+    return block.indexOf('- ams-p') < block.indexOf('- lon-pe');
   }).toBeTruthy();
 
   await page.getByRole('button', { name: 'Undo' }).click();
@@ -590,15 +586,16 @@ test('edits existing path sequences in Inspector with undo and redo', async ({ p
   await selectHarnessObject(page, 'path', 'payments-path');
   const inspector = page.locator('.topoviewer-vscode-inspector-pane');
   await expect(inspector.getByLabel('Object name')).toHaveValue('path:payments-path');
-  await chooseOption(page, inspector.getByRole('combobox', { name: 'Path target' }), 'NOC');
-  await inspector.locator('.topoviewer-vscode-transit-row').filter({ hasText: 'AMS-P' }).getByRole('button', { name: 'Remove' }).click();
+  await chooseOption(page, inspector.getByRole('combobox', { name: 'Path target' }), 'RR-1');
+  await chooseOption(page, inspector.getByRole('combobox', { name: 'Add transit node' }), 'LON-PE');
+  await inspector.getByRole('button', { name: 'Add', exact: true }).click();
   await inspector.getByRole('button', { name: 'Apply relationship' }).click();
   await expect.poll(async () => {
     return yamlObjectBlock(await topologyText(page), 'payments-path');
-  }).toContain('- noc');
+  }).toContain('- rr');
   await expect.poll(async () => {
     return yamlObjectBlock(await topologyText(page), 'payments-path');
-  }).not.toContain('- ams-p');
+  }).toContain('- lon-pe');
   await page.getByRole('button', { name: 'Undo' }).click();
   await expect.poll(async () => {
     return yamlObjectBlock(await topologyText(page), 'payments-path');
@@ -609,7 +606,7 @@ test('edits existing path sequences in Inspector with undo and redo', async ({ p
   await page.getByRole('button', { name: 'Redo' }).click();
   await expect.poll(async () => {
     return yamlObjectBlock(await topologyText(page), 'payments-path');
-  }).toContain('- noc');
+  }).toContain('- rr');
 });
 
 test('persists dragged node positions into topology YAML with undo and redo', async ({ page }) => {

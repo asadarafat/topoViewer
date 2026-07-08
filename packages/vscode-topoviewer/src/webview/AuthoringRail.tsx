@@ -110,6 +110,7 @@ type AuthoringRailProps = {
   pathTransitIds: string[];
   pathTransitOptions: any[];
   presetName: string;
+  regionMemberIds: string[];
   relationshipComposer?: 'link' | 'path';
   reloadFixture: AnyFn;
   removeKeyValueRow: AnyFn;
@@ -150,6 +151,7 @@ type AuthoringRailProps = {
   setPathTargetId: Dispatch<SetStateAction<string>>;
   setPathTransitCandidate: Dispatch<SetStateAction<string>>;
   setPresetName: Dispatch<SetStateAction<string>>;
+  setRegionMemberIds: Dispatch<SetStateAction<string[]>>;
   setRelationshipComposer: Dispatch<SetStateAction<'link' | 'path' | undefined>>;
   setSelectedLayerIds: Dispatch<SetStateAction<string[]>>;
   setTab: Dispatch<SetStateAction<number>>;
@@ -248,6 +250,7 @@ export const AuthoringRail = memo(function AuthoringRail(props: AuthoringRailPro
   pathTransitIds,
   pathTransitOptions,
   presetName,
+  regionMemberIds,
   openDiagnostic,
   relationshipComposer,
   reloadFixture,
@@ -286,6 +289,7 @@ export const AuthoringRail = memo(function AuthoringRail(props: AuthoringRailPro
   setPathTargetId,
   setPathTransitCandidate,
   setPresetName,
+  setRegionMemberIds,
   setRelationshipComposer,
   setSelectedLayerIds,
   setTab,
@@ -565,6 +569,29 @@ export const AuthoringRail = memo(function AuthoringRail(props: AuthoringRailPro
                       >
                         Apply relationship
                       </Button>
+                    </Stack>
+                  )}
+                  {selectedPrimary.kind === 'region' && (
+                    <Stack className="topoviewer-vscode-relationship-composer" spacing={1}>
+                      <Typography variant="subtitle2">Region members</Typography>
+                      <FormControl fullWidth size="small">
+                        <InputLabel id="inspector-region-members-label">Members</InputLabel>
+                        <Select
+                          multiple
+                          labelId="inspector-region-members-label"
+                          label="Members"
+                          value={regionMemberIds}
+                          onChange={(event) => {
+                            const value = event.target.value;
+                            setRegionMemberIds(typeof value === 'string' ? value.split(',') : value.map(String));
+                          }}
+                          renderValue={(selected) => (selected as string[])
+                            .map((nodeId) => nodeNameById.get(nodeId) || nodeId)
+                            .join(', ')}
+                        >
+                          {graphNodes.map((node) => <MenuItem key={node.id} value={node.id}>{nodeNameById.get(node.id)}</MenuItem>)}
+                        </Select>
+                      </FormControl>
                     </Stack>
                   )}
                   <Stack direction="row" spacing={1}>

@@ -1,13 +1,13 @@
 import type { TopoViewerConnectionCreate } from 'topoviewer';
 import type { MutationResult, TopoObjectSelection } from '../shared/topologyMutations';
-import { applyCanvasAuthoringCommand, type CanvasAuthoringPoint } from './canvasAuthoring';
+import { applyCanvasAuthoringCommand, layersForCanvasTool, type CanvasAuthoringPoint, type CanvasAuthoringRect } from './canvasAuthoring';
 
 type ApplyTopologyTransaction = (label: string, update: (topologyText: string) => MutationResult) => void;
 type SetSelectedObjects = (objects: TopoObjectSelection[]) => void;
 
 function selectLastGraphObject(
   result: MutationResult,
-  collection: 'links' | 'nodes',
+  collection: 'links' | 'nodes' | 'paths',
   kind: TopoObjectSelection['kind'],
   setSelectedObjects: SetSelectedObjects
 ) {
@@ -29,7 +29,7 @@ export function placeCanvasNodeAction({
 }) {
   applyTopologyTransaction('Place node', (topologyText) => {
     const result = applyCanvasAuthoringCommand(topologyText, {
-      layers: selectedLayerIds,
+      layers: layersForCanvasTool('node', selectedLayerIds),
       position,
       preset: 'node',
       type: 'insertNodeAt'
@@ -52,12 +52,67 @@ export function createCanvasConnectionAction({
 }) {
   applyTopologyTransaction('Draw link', (topologyText) => {
     const result = applyCanvasAuthoringCommand(topologyText, {
-      layers: selectedLayerIds,
+      layers: layersForCanvasTool('link', selectedLayerIds),
       source: { nodeId: connection.sourceId, handleId: connection.sourceHandleId },
       target: { nodeId: connection.targetId, handleId: connection.targetHandleId },
       type: 'insertLinkBetween'
     });
     selectLastGraphObject(result, 'links', 'link', setSelectedObjects);
+    return result;
+  });
+}
+
+export function createCanvasPathAction({
+  applyTopologyTransaction,
+  selectedLayerIds,
+  sequence,
+  setSelectedObjects
+}: {
+  applyTopologyTransaction: ApplyTopologyTransaction;
+  selectedLayerIds: string[];
+  sequence: string[];
+  setSelectedObjects: SetSelectedObjects;
+}) {
+  applyTopologyTransaction('Create path', (topologyText) => {
+    const result = applyCanvasAuthoringCommand(topologyText, {
+      layers: layersForCanvasTool('path', selectedLayerIds),
+      sequence,
+      type: 'insertPathSequence'
+    });
+    selectLastGraphObject(result, 'paths', 'path', setSelectedObjects);
+    return result;
+  });
+}
+
+export function createCanvasRegionAction({
+  applyTopologyTransaction,
+  bounds,
+  members,
+  selectedLayerIds,
+  setSelectedObjects
+}: {
+  applyTopologyTransaction: ApplyTopologyTransaction;
+  bounds?: CanvasAuthoringRect;
+  members: string[];
+  selectedLayerIds: string[];
+  setSelectedObjects: SetSelectedObjects;
+}) {
+  applyTopologyTransaction('Create region', (topologyText) => {
+    const result = bounds
+      ? applyCanvasAuthoringCommand(topologyText, {
+        bounds,
+        layers: layersForCanvasTool('region', selectedLayerIds),
+        members,
+        type: 'insertRegionFromBounds'
+      })
+      : applyCanvasAuthoringCommand(topologyText, {
+        layers: layersForCanvasTool('region', selectedLayerIds),
+        members,
+        type: 'insertRegionFromSelection'
+      });
+    const regions = result.document.graph?.regions || [];
+    const createdId = regions[regions.length - 1]?.id;
+    if (createdId) setSelectedObjects([{ kind: 'region', id: String(createdId) }]);
     return result;
   });
 }

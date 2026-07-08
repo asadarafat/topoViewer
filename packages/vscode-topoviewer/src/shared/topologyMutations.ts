@@ -45,6 +45,7 @@ export interface UpdateObjectOptions {
   selection: TopoObjectSelection;
   name?: string;
   layerId?: string;
+  members?: string[];
   position?: { x: number; y: number };
   labels?: Record<string, unknown>;
   labelsReplace?: Record<string, unknown>;
@@ -193,9 +194,11 @@ function presetFields(preset: TopoObjectPreset): Record<string, unknown> {
 export function defaultLayerId(document: Record<string, any> | TopoDocument | undefined, selectedLayerIds: string[]): string {
   const layers = document?.graph?.layers || [];
   const declared = new Set(layers.map((layer: any) => String(layer.id || '')).filter(Boolean));
-  const selected = selectedLayerIds.find((id) => declared.has(id)) || selectedLayerIds[0];
-  if (selected) return selected;
-  return layers[0]?.id || 'default';
+  const selectedDeclared = selectedLayerIds.find((id) => declared.has(id));
+  if (selectedDeclared) return selectedDeclared;
+  const selected = selectedLayerIds.find((id) => id.trim().length > 0);
+  if (!layers.length && selected) return selected;
+  return layers[0]?.id || selected || 'default';
 }
 
 function layoutCenter(document: Record<string, any>): [number, number] {
@@ -312,11 +315,72 @@ function graphNodeIds(document: Record<string, any>): Set<string> {
   return new Set(graphNodes(document).map((node) => String(node.id || '')).filter(Boolean));
 }
 
+function graphLinks(document: Record<string, any>): any[] {
+  return Array.isArray(document.graph?.links) ? document.graph.links : [];
+}
+
 function requireGraphNodeIds(document: Record<string, any>, ids: string[]) {
   const available = graphNodeIds(document);
   ids.forEach((id) => {
     if (!available.has(id)) throw new Error(`Node "${id}" does not exist.`);
   });
+}
+
+export function graphHasLinkBetween(document: Record<string, any> | TopoDocument | undefined, source: string, target: string): boolean {
+  if (!document || !source || !target) return false;
+  return graphLinks(document as Record<string, any>).some((link) => (
+    (String(link.source || '') === source && String(link.target || '') === target)
+    || (String(link.source || '') === target && String(link.target || '') === source)
+  ));
+}
+
+export function graphHasReachabilityBetween(document: Record<string, any> | TopoDocument | undefined, source: string, target: string): boolean {
+  if (!document || !source || !target) return false;
+  if (source === target) return true;
+  const adjacency = new Map<string, Set<string>>();
+  graphLinks(document as Record<string, any>).forEach((link) => {
+    const linkSource = String(link.source || '');
+    const linkTarget = String(link.target || '');
+    if (!linkSource || !linkTarget) return;
+    if (!adjacency.has(linkSource)) adjacency.set(linkSource, new Set());
+    if (!adjacency.has(linkTarget)) adjacency.set(linkTarget, new Set());
+    adjacency.get(linkSource)?.add(linkTarget);
+    adjacency.get(linkTarget)?.add(linkSource);
+  });
+  if (!adjacency.has(source) || !adjacency.has(target)) return false;
+  const seen = new Set<string>([source]);
+  const queue = [source];
+  for (let index = 0; index < queue.length; index += 1) {
+    const current = queue[index];
+    for (const next of adjacency.get(current) || []) {
+      if (next === target) return true;
+      if (seen.has(next)) continue;
+      seen.add(next);
+      queue.push(next);
+    }
+  }
+  return false;
+}
+
+export function pathSegmentsWithoutReachability(document: Record<string, any> | TopoDocument | undefined, sequence: string[]) {
+  return sequence.slice(0, -1).flatMap((source, index) => {
+    const target = sequence[index + 1];
+    return graphHasReachabilityBetween(document, source, target) ? [] : [{ source, target }];
+  });
+}
+
+export function pathSegmentsWithoutDirectLinks(document: Record<string, any> | TopoDocument | undefined, sequence: string[]) {
+  return sequence.slice(0, -1).flatMap((source, index) => {
+    const target = sequence[index + 1];
+    return graphHasLinkBetween(document, source, target) ? [] : [{ source, target }];
+  });
+}
+
+function requirePathReachability(document: Record<string, any>, sequence: string[]) {
+  const missing = pathSegmentsWithoutReachability(document, sequence);
+  if (!missing.length) return;
+  const segment = missing[0];
+  throw new Error(`Path segment "${segment.source}" -> "${segment.target}" requires graph reachability through existing links.`);
 }
 
 function normalizedPathSequence(sequence: string[]): string[] {
@@ -581,6 +645,12 @@ export function updateTopoObject(text: string, options: UpdateObjectOptions): Mu
     if (!object) throw new Error(`Selected ${options.selection.kind} "${options.selection.id}" no longer exists.`);
     if (options.name !== undefined) object.name = options.name;
     if (options.layerId) object.layers = [options.layerId];
+    if (options.members !== undefined) {
+      if (options.selection.kind !== 'region') throw new Error('Only regions support member updates.');
+      const members = Array.from(new Set(options.members.map((member) => member.trim()).filter(Boolean)));
+      if (!members.length) throw new Error('Region requires at least one member.');
+      object.members = members;
+    }
     if (options.position && (options.selection.kind === 'node' || options.selection.kind === 'shape' || options.selection.kind === 'callout')) {
       object.position = [Math.round(options.position.x), Math.round(options.position.y)];
     }
@@ -684,6 +754,7 @@ export function upsertGraphPath(text: string, options: UpsertGraphPathOptions): 
   return mutateTopologyText(text, (document) => {
     const sequence = normalizedPathSequence(options.sequence);
     requireGraphNodeIds(document, sequence);
+    requirePathReachability(document, sequence);
 
     const graph = ensureGraph(document);
     const paths = ensureArray(graph, 'paths');

@@ -32,15 +32,20 @@ locations.
 - **THEN** the Harness SHALL create a graph node using the clicked topology
   coordinate
 - **AND** the generated YAML SHALL contain the new node with deterministic ID,
-  selected visible layers, and explicit position
+  semantic default layer, and explicit position
 - **AND** undo/redo SHALL remove and restore the node
 
-#### Scenario: Creation respects current layers
+#### Scenario: Creation uses semantic default authoring layers
 
-- **WHEN** only a subset of graph layers is visible or selected for authoring
-- **AND** the user creates a new object from the canvas
-- **THEN** the generated YAML SHALL assign the object to the active authoring
-  layers, not to hidden layers
+- **WHEN** the user creates a new node, node preset, link, or region
+- **THEN** the generated YAML SHALL default the object to the `physical` layer
+- **WHEN** the user creates a new path
+- **THEN** the generated YAML SHALL default the object to the `paths` layer
+- **WHEN** the user creates a callout, shape, or future text primitive
+- **THEN** the generated YAML SHALL default the object to the `annotations`
+  layer
+- **AND** visible layer filters SHALL NOT redirect those writes to a different
+  layer
 
 ### Requirement: Drag-To-Connect Links
 
@@ -63,6 +68,43 @@ The Harness SHALL support drawing graph links directly between nodes.
 - **THEN** no link SHALL be added
 - **AND** the previous YAML SHALL remain unchanged
 - **AND** the UI SHALL leave the user in a recoverable state
+
+### Requirement: Strict And Loose Path Authoring
+
+The Harness SHALL treat a path as an ordered topology route or tunnel intent,
+not as an implicit graph link generator.
+
+#### Scenario: Disconnected path segments are rejected
+
+- **WHEN** the user builds a path by clicking nodes in sequence
+- **AND** an adjacent node pair in that sequence has no graph reachability
+  through existing `graph.links[]`
+- **THEN** the Harness SHALL reject the segment
+- **AND** the UI SHALL explain that graph reachability is required
+- **AND** the generated YAML SHALL NOT add a `graph.paths[]` entry
+- **AND** the generated YAML SHALL NOT add a phantom `graph.links[]` entry
+
+#### Scenario: Loose reachable path segments are allowed without creating links
+
+- **WHEN** the user builds a path by clicking nodes in sequence
+- **AND** an adjacent node pair in that sequence has graph reachability through
+  existing `graph.links[]`
+- **AND** that adjacent node pair has no direct `graph.links[]` edge between
+  them
+- **THEN** the Harness SHALL allow the segment as a loose/tunnel path segment
+- **AND** the UI SHOULD make the loose segment state visible while authoring
+- **AND** the generated YAML SHALL add only a `graph.paths[]` entry
+- **AND** the generated YAML SHALL NOT add a phantom `graph.links[]` entry
+
+#### Scenario: Path over existing links preserves links
+
+- **WHEN** an adjacent node pair in the path sequence is backed by an existing
+  `graph.links[]` edge
+- **AND** the user commits the path
+- **THEN** the Harness SHALL add a `graph.paths[]` sequence
+- **AND** the existing `graph.links[]` entries SHALL remain in YAML
+- **AND** the path visual SHALL read as a route overlay, not as a replacement
+  for the underlying links
 
 ### Requirement: Direct Geometry Editing
 
@@ -171,4 +213,3 @@ TopoViewer SHALL document the canvas-native authoring loop as a product feature.
   path
 - **AND** YAML details SHALL explain what the UI produced rather than replacing
   the UI workflow
-

@@ -6,7 +6,7 @@ The Harness has the foundations needed for a real authoring surface:
 
 - stable manual-layout starter topology;
 - deterministic object insertion;
-- layer-aware creation;
+- semantic default layer-aware creation;
 - selection and multi-selection;
 - node dragging with persisted YAML positions;
 - helper lines and drag smoothness coverage;
@@ -73,6 +73,30 @@ Tool behavior:
 - `callout`: click target then click placement, or create from selected object.
 - `shape`: drag rectangle/ellipse/line-like annotation where supported.
 
+Authoring layer defaults are semantic, not a side effect of the visible layer
+filter. New nodes, node presets, links, and regions should default to the
+`physical` layer. New paths should default to the `paths` layer. Diagram
+annotations such as callouts, shapes, and future text primitives should default
+to the `annotations` layer. If a document does not declare one of those
+preferred layers, the mutation helper should fall back to a declared layer
+instead of writing an undeclared layer id.
+
+Path authoring must preserve topology semantics without assuming every path is
+a strict hop-by-hop physical walk. In IP networking a path can represent a
+strict route over existing links, or an abstract/loose transport construct such
+as an IGP shortcut, Binding SID tunnel, loose SID tunnel, or service path. The
+canvas path tool may therefore create `graph.paths[]` sequences whose adjacent
+nodes are not backed by direct visible `graph.links[]` entries.
+
+The invariant is that every adjacent path node must be reachable through the
+existing graph. A disconnected node cannot be added to a path. Path authoring
+must not create hidden or phantom `graph.links[]` entries to manufacture that
+reachability. If a path segment is backed by a direct existing link, the
+renderer should make the path read as an overlay lane instead of visually
+replacing that link. If a segment has graph reachability but no direct link,
+the UI should treat it as a loose/tunnel segment and make that authoring state
+visible.
+
 ## Data Flow
 
 All direct-manipulation actions should reuse shared mutation helpers or add new
@@ -105,7 +129,7 @@ into topology coordinates. Do not infer positions from DOM pixels after zoom.
 Creation coordinates should respect:
 
 - current zoom/pan;
-- selected visible layer set;
+- semantic layer intent plus selected visible layer set as fallback context;
 - snap grid when enabled;
 - helper-line commit snap where applicable;
 - parent/region/group context when the user creates inside a container.
@@ -143,6 +167,30 @@ Supported direct geometry editing should be explicit:
 
 For object families without a clean YAML target for resize or rotate, do not
 show resize/rotate handles.
+
+## Region Move Contract
+
+Region bounds are derived from member objects unless a future schema revision
+adds explicit persisted region geometry. Canvas-native authoring should
+therefore treat a region as a topology-aware group, not as an independent
+rectangle with its own durable position.
+
+The selected behavior is:
+
+- creating a region writes `graph.regions[].members`;
+- drag-bounds region creation derives members from positioned nodes whose YAML
+  positions fall inside the drag rectangle;
+- dragging an existing region should translate member object positions when the
+  operation can be persisted as one undoable YAML transaction;
+- region drag must not write hidden region-only geometry;
+- if member translation cannot be persisted safely for a selected object family,
+  the UI should keep that drag visual/selection-only instead of inventing
+  local state.
+
+This keeps region behavior aligned with TopoViewer's model: the region is a
+semantic grouping and a computed visual container. The durable geometry remains
+on the member nodes, shapes, or callouts until the schema explicitly supports
+region geometry.
 
 ## Selection And Clipboard
 
@@ -227,8 +275,9 @@ The CRUD matrix should include:
 - regions: create from selection and/or bounds, edit name/members, delete;
 - callouts: create from target, move, edit text/name, delete;
 - shapes: create, move, resize, style/name, delete;
-- layers: creation uses visible layer context and updates correctly when only a
-  subset is selected.
+- layers: creation uses semantic defaults (`physical`, `paths`, `annotations`)
+  and does not accidentally write graph objects into a hidden or merely visible
+  non-semantic layer.
 
 ## Risks
 
@@ -242,4 +291,3 @@ The CRUD matrix should include:
   rewritten deliberately.
 - Resize/region behavior can become confusing if object bounds are style-driven
   rather than object-driven.
-

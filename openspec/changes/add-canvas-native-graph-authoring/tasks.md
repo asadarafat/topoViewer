@@ -16,8 +16,8 @@ Each implementation phase must prove:
 
 - [x] 0.1 Confirm current Harness CRUD coverage for button/Inspector workflows
 - [x] 0.2 Add focused authoring regression coverage for fresh-topology
-      positioning, visible-layer insertion, regions, links, paths, callouts,
-      shapes, delete, undo/redo, and reload persistence
+      positioning, semantic default layer insertion, regions, links, paths,
+      callouts, shapes, delete, undo/redo, and reload persistence
 - [x] 0.3 Run focused authoring CRUD tests and full Harness tests
 - [x] 0.4 Capture a current UI capability matrix: supported, partially
       supported, missing, and intentionally out of scope
@@ -48,7 +48,7 @@ Each implementation phase must prove:
 
 - [x] 3.1 Implement click-to-place for the generic node tool
 - [x] 3.2 Use clicked topology coordinates, not hard-coded insertion positions
-- [x] 3.3 Respect selected visible authoring layers
+- [x] 3.3 Use semantic default authoring layers instead of visible layer filters
 - [x] 3.4 Select the newly created object after creation
 - [x] 3.5 Add Playwright coverage for generic node click-to-place
 - [x] 3.6 Verify undo/redo and reload persistence for click-created nodes
@@ -64,20 +64,23 @@ Each implementation phase must prove:
 
 ## 5. Canvas Path Authoring
 
-- [ ] 5.1 Add path tool with click-to-build node sequence
-- [ ] 5.2 Show pending path preview and selected sequence state
-- [ ] 5.3 Commit with Enter or button, cancel with Escape
-- [ ] 5.4 Reject invalid sequences with actionable feedback
-- [ ] 5.5 Add Playwright coverage for create, edit, cancel, delete, undo/redo
+- [x] 5.1 Add path tool with click-to-build node sequence
+- [x] 5.2 Show pending path preview and selected sequence state
+- [x] 5.3 Commit with Enter or button, cancel with Escape
+- [x] 5.4 Reject invalid sequences with actionable feedback
+- [x] 5.5 Add Playwright coverage for create, edit, cancel, delete, undo/redo
+- [x] 5.6 Support strict and reachable loose/tunnel paths without phantom
+      links, reject disconnected hops, and render path overlays without
+      visually replacing underlying links
 
 ## 6. Region And Group-Like Authoring
 
-- [ ] 6.1 Add region creation from current selection
-- [ ] 6.2 Add region creation from marquee/bounds when object membership can be
+- [x] 6.1 Add region creation from current selection
+- [x] 6.2 Add region creation from marquee/bounds when object membership can be
       derived deterministically
-- [ ] 6.3 Decide whether region drag translates members, moves explicit region
+- [x] 6.3 Decide whether region drag translates members, moves explicit region
       geometry, or remains a style/selection operation
-- [ ] 6.4 Add region membership edit affordance
+- [x] 6.4 Add region membership edit affordance
 - [ ] 6.5 Add Playwright coverage for create, edit members, move behavior,
       collapse/expand interaction, delete, undo/redo
 

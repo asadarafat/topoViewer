@@ -30,8 +30,8 @@ import { mapperTopologyPickers } from './mapperRuleBuilder';
 import { useMapperRuleAuthoring } from './webviewMapperAuthoring';
 import { useObjectSelectionActions } from './webviewSelectionActions';
 import { useRenderProfile } from './renderProfile';
-import type { CanvasAuthoringPoint } from './canvasAuthoring';
-import { createCanvasConnectionAction, placeCanvasNodeAction } from './webviewCanvasActions';
+import { layersForInsertObjectType, layersForPresetKind, type CanvasAuthoringPoint, type CanvasAuthoringRect } from './canvasAuthoring';
+import { createCanvasConnectionAction, createCanvasPathAction, createCanvasRegionAction, placeCanvasNodeAction } from './webviewCanvasActions';
 import './webview.css';
 type WebviewAppProps = { host: TopoViewerWebviewHost; themeMode?: 'light' | 'dark'; onToggleThemeMode?: () => void };
 
@@ -71,6 +71,7 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
   const [pathTargetId, setPathTargetId] = useState('');
   const [pathTransitIds, setPathTransitIds] = useState<string[]>([]);
   const [pathTransitCandidate, setPathTransitCandidate] = useState('');
+  const [regionMemberIds, setRegionMemberIds] = useState<string[]>([]);
   const [attentionFocusKind, setAttentionFocusKind] = useState<AttentionFocusKind>('pathIds');
   const [attentionFocusId, setAttentionFocusId] = useState('');
   const [attentionMode, setAttentionMode] = useState('dim-context');
@@ -361,6 +362,7 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
       setPresetName('');
       setLabelRows([]);
       setDataRows([]);
+      setRegionMemberIds([]);
       return;
     }
     setInspectorName(selectedPrimaryObject.name || '');
@@ -381,6 +383,11 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
       setPathTargetId(sequence[sequence.length - 1] || '');
       setPathTransitIds(sequence.slice(1, -1));
       setPathTransitCandidate('');
+    }
+    if (selectedPrimary.kind === 'region') {
+      setRegionMemberIds(Array.isArray(selectedPrimaryObject.members)
+        ? selectedPrimaryObject.members.map((member: unknown) => String(member))
+        : []);
     }
   }, [selectedLayerIds, selectedPrimary, selectedPrimaryObject, visibleDocument]);
 
@@ -718,7 +725,7 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
     setTab(0);
     applyTopologyTransaction(`Insert ${type}`, (topologyText) => insertTopoObject(topologyText, {
       type,
-      selectedLayerIds,
+      selectedLayerIds: layersForInsertObjectType(type, selectedLayerIds),
       selectedObjects
     }));
   }
@@ -734,10 +741,22 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
     createCanvasConnectionAction({ applyTopologyTransaction, connection, selectedLayerIds, setSelectedObjects });
   }
 
+  function createCanvasPath(sequence: string[]) {
+    if (hasErrors) return;
+    setTab(0);
+    createCanvasPathAction({ applyTopologyTransaction, selectedLayerIds, sequence, setSelectedObjects });
+  }
+
+  function createCanvasRegion(members: string[], bounds?: CanvasAuthoringRect) {
+    if (hasErrors) return;
+    setTab(0);
+    createCanvasRegionAction({ applyTopologyTransaction, bounds, members, selectedLayerIds, setSelectedObjects });
+  }
+
   function createConnection() {
     setTab(0);
     applyTopologyTransaction('Create connection', (topologyText) => upsertGraphLink(topologyText, {
-      selectedLayerIds,
+      selectedLayerIds: layersForInsertObjectType('link', selectedLayerIds),
       source: linkSourceId,
       target: linkTargetId
     }));
@@ -746,7 +765,7 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
   function createPath() {
     setTab(0);
     applyTopologyTransaction('Create path', (topologyText) => upsertGraphPath(topologyText, {
-      selectedLayerIds,
+      selectedLayerIds: layersForInsertObjectType('path', selectedLayerIds),
       sequence: sequenceFromControls(pathSourceId, pathTransitIds, pathTargetId)
     }));
   }
@@ -768,7 +787,7 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
       applyTopologyTransaction('Update path sequence', (topologyText) => upsertGraphPath(topologyText, {
         id: selectedPrimary.id,
         name: inspectorName,
-        selectedLayerIds,
+        selectedLayerIds: layersForInsertObjectType('path', selectedLayerIds),
         sequence: sequenceFromControls(pathSourceId, pathTransitIds, pathTargetId)
       }));
     }
@@ -799,7 +818,7 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
     setTab(0);
     applyTopologyTransaction(`Insert preset ${preset.name}`, (topologyText) => insertTopoPreset(topologyText, {
       preset,
-      selectedLayerIds,
+      selectedLayerIds: layersForPresetKind(preset.kind, selectedLayerIds),
       selectedObjects
     }));
   }
@@ -830,6 +849,7 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
       selection: selectedPrimary,
       name: inspectorName,
       layerId: inspectorLayerId,
+      members: selectedPrimary.kind === 'region' ? regionMemberIds : undefined,
       position: inspectorX && inspectorY ? { x: Number(inspectorX), y: Number(inspectorY) } : undefined
     }));
   }
@@ -959,12 +979,12 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
     linkSourceId, linkTargetId, mapperCoveragePreview, mode, modeIndex, modeLabel, movePathTransitNode, nodeNameById, openDiagnostic, pathSourceId,
     pathTargetId, pathTransitCandidate, pathTransitIds, pathTransitOptions, presetName, relationshipComposer, mapperPickers,
     mapperRuleBuilder,
-    reloadFixture, removeKeyValueRow, removePathTransitNode, resetAttention, revertTopology, revertYamlDraft, saveSelectionAsPreset,
+    regionMemberIds, reloadFixture, removeKeyValueRow, removePathTransitNode, resetAttention, revertTopology, revertYamlDraft, saveSelectionAsPreset,
     saveTopology, selectedFixture, selectedLayerIds, selectedObjects, selectedPrimary, selectionSummary,
     setAttentionClickMode, setAttentionDataKey, setAttentionDataValue, setAttentionExpandOnClick, setAttentionFocusId,
     setAttentionFocusKind, setAttentionInteractive, setAttentionLabelKey, setAttentionLabelValue, setAttentionMode,
     setAttentionRegionId, setInspectorLayerId, setInspectorName, setInspectorX, setInspectorY, setLinkGroupingThreshold,
-    setLinkSourceId, setLinkTargetId, setMode, setPathSourceId, setPathTargetId, setPathTransitCandidate,
+    setLinkSourceId, setLinkTargetId, setMode, setPathSourceId, setPathTargetId, setPathTransitCandidate, setRegionMemberIds,
     setDraftMapperText, setDraftStylesheetText, setDraftTopologyText, setPresetName, setRelationshipComposer, setSelectedLayerIds, setTab, showYamlSuggestions, state,
     statusSeverity, statusSummary, styleSelectionInYaml, tab, updateKeyValueRow, useSelectionForAttention,
     updateMapperRuleBuilder, validation, visibleDocument, draftDirty, downloadYamlBundle, yamlAssistEmptyMessage
@@ -977,7 +997,7 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
       )}
 
       {parityMode ? (
-          <PreviewPanel exportImage={exportImage} exportTooltip={exportTooltip} createCanvasConnection={createCanvasConnection} handleNodePositionChange={handleNodePositionChange} handleObjectClick={handleObjectClick} hasErrors={appliedHasErrors} hasExportBlockers={hasExportBlockers} loading={loading} parityMode placeCanvasNode={placeCanvasNode} previewRef={previewRef} redoStack={redoStack} redoTopology={redoTopology} selectedLayerIds={selectedLayerIds} selectedObjectIds={[]} setSelectedLayerIds={setSelectedLayerIds} setSelectedObjects={setSelectedObjects} undoStack={undoStack} undoTopology={undoTopology} visibleDocument={visibleDocument} />
+          <PreviewPanel exportImage={exportImage} exportTooltip={exportTooltip} createCanvasConnection={createCanvasConnection} createCanvasPath={createCanvasPath} createCanvasRegion={createCanvasRegion} handleNodePositionChange={handleNodePositionChange} handleObjectClick={handleObjectClick} hasErrors={appliedHasErrors} hasExportBlockers={hasExportBlockers} loading={loading} parityMode placeCanvasNode={placeCanvasNode} previewRef={previewRef} redoStack={redoStack} redoTopology={redoTopology} selectedLayerIds={selectedLayerIds} selectedObjectIds={[]} setSelectedLayerIds={setSelectedLayerIds} setSelectedObjects={setSelectedObjects} undoStack={undoStack} undoTopology={undoTopology} visibleDocument={visibleDocument} />
       ) : (
         <Box
           ref={workspaceRef}
@@ -988,7 +1008,7 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
 
           <ResizeDivider clamp={clamp} defaultSplitPercent={defaultSplitPercent} maxSplitPercent={maxSplitPercent} minSplitPercent={minSplitPercent} setResizing={setResizing} setSplitPercent={setSplitPercent} splitPercent={splitPercent} updateSplitFromClientX={updateSplitFromClientX} />
 
-          <PreviewPanel exportImage={exportImage} exportTooltip={exportTooltip} createCanvasConnection={createCanvasConnection} handleNodePositionChange={handleNodePositionChange} handleObjectClick={handleObjectClick} hasErrors={appliedHasErrors} hasExportBlockers={hasExportBlockers} loading={loading} placeCanvasNode={placeCanvasNode} previewRef={previewRef} redoStack={redoStack} redoTopology={redoTopology} selectedLayerIds={selectedLayerIds} selectedObjectIds={previewSelectedObjectIds} setSelectedLayerIds={setSelectedLayerIds} setSelectedObjects={setSelectedObjects} undoStack={undoStack} undoTopology={undoTopology} visibleDocument={visibleDocument} />
+          <PreviewPanel exportImage={exportImage} exportTooltip={exportTooltip} createCanvasConnection={createCanvasConnection} createCanvasPath={createCanvasPath} createCanvasRegion={createCanvasRegion} handleNodePositionChange={handleNodePositionChange} handleObjectClick={handleObjectClick} hasErrors={appliedHasErrors} hasExportBlockers={hasExportBlockers} loading={loading} placeCanvasNode={placeCanvasNode} previewRef={previewRef} redoStack={redoStack} redoTopology={redoTopology} selectedLayerIds={selectedLayerIds} selectedObjectIds={previewSelectedObjectIds} setSelectedLayerIds={setSelectedLayerIds} setSelectedObjects={setSelectedObjects} undoStack={undoStack} undoTopology={undoTopology} visibleDocument={visibleDocument} />
         </Box>
       )}
     </Box>

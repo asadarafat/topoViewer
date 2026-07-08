@@ -246,6 +246,44 @@ body,
   background: color-mix(in srgb, var(--topoviewer-accent, #1976d2) 14%, transparent);
 }
 
+.topoviewer-vscode-canvas-authoring-strip {
+  position: absolute;
+  top: calc(var(--topoviewer-vscode-space-1-5) * 2 + var(--topoviewer-vscode-space-3-5) + var(--topoviewer-vscode-space-half));
+  left: 50%;
+  z-index: 21;
+  display: flex;
+  max-width: min(42rem, calc(100% - 12rem));
+  align-items: center;
+  gap: var(--topoviewer-vscode-space-half);
+  padding: var(--topoviewer-vscode-space-half) var(--topoviewer-vscode-space-1);
+  border: 1px solid color-mix(in srgb, var(--topoviewer-accent, #1976d2) 28%, var(--vscode-panel-border, #d7dee8));
+  border-radius: var(--topoviewer-vscode-radius-lg);
+  background: color-mix(in srgb, var(--vscode-sideBar-background, #ffffff) 92%, transparent);
+  box-shadow: 0 var(--topoviewer-vscode-space-1) var(--topoviewer-vscode-space-3-5) rgba(15, 23, 42, 0.14);
+  transform: translateX(-50%);
+  backdrop-filter: blur(10px);
+}
+
+.topoviewer-vscode-canvas-authoring-summary {
+  min-width: 0;
+  max-width: 26rem;
+  overflow: hidden;
+  color: var(--vscode-descriptionForeground, #5f6b7a);
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.topoviewer-vscode-region-marquee {
+  position: absolute;
+  z-index: 20;
+  border: 1px solid color-mix(in srgb, var(--topoviewer-accent, #1976d2) 76%, transparent);
+  border-radius: var(--topoviewer-vscode-radius);
+  background: color-mix(in srgb, var(--topoviewer-accent, #1976d2) 12%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--vscode-sideBar-background, #ffffff) 70%, transparent);
+  pointer-events: none;
+}
+
 .topoviewer-vscode-controls-overlay {
   top: calc(var(--topoviewer-vscode-space-1-5) * 2 + var(--topoviewer-vscode-space-3-5) + var(--topoviewer-vscode-space-half));
   z-index: 22;

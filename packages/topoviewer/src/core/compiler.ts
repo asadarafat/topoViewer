@@ -129,6 +129,11 @@ function parallelLinkKey(link: GraphLink): string {
   return `${endpoints[0]}::${endpoints[1]}::${linkLayerKey(link)}`;
 }
 
+function undirectedSegmentKey(source: string, target: string): string {
+  const endpoints = [source, target].sort();
+  return `${endpoints[0]}::${endpoints[1]}`;
+}
+
 function parallelLinkLanes(links: readonly GraphLink[]): Map<string, { groupId: string; index: number; count: number }> {
   const groups = new Map<string, GraphLink[]>();
   links
@@ -543,6 +548,7 @@ function buildEdges(
   const pathById = new Map(visiblePaths.filter(pathHasSequence).map((path) => [path.id, path]));
   const childPathsByParentId = new Map<string, GraphPath[]>();
   const linkLanes = parallelLinkLanes(visibleLinks);
+  const visibleLinkSegments = new Set(visibleLinks.map((link) => undirectedSegmentKey(link.source, link.target)));
 
   visibleLinks.forEach((link) => {
     if (!link.parent || !linkById.has(link.parent)) return;
@@ -644,6 +650,16 @@ function buildEdges(
       const rendered = compileEdgeStyle(visualStyle, path, spec, !!toggles.showEdgeLabels);
       const edgeData = mergePlainObjects({ ...path, ...(path.data || {}) }, rendered.data || {}) as Record<string, unknown>;
       applyEdgeOverlayToggles(edgeData, toggles);
+      if (visibleLinkSegments.has(undirectedSegmentKey(source, target))) {
+        const laneGap = visualStyle.laneGap ?? visualStyle.controlPointStepSize ?? 16;
+        edgeData.isLane = true;
+        edgeData.parallelLinkGroup = `path-overlay:${undirectedSegmentKey(source, target)}`;
+        edgeData.laneIndex = 1;
+        edgeData.laneCount = 2;
+        edgeData.laneGap = laneGap;
+        edgeData.controlPointStepSize = visualStyle.controlPointStepSize ?? laneGap;
+        edgeData.laneWidth = visualStyle.laneWidth ?? visualStyle.lineWidth ?? 2;
+      }
       if (hasChildLanes) {
         edgeData.isPipe = true;
         edgeData.childPathCount = childPathsByParentId.get(path.id)?.length || 0;

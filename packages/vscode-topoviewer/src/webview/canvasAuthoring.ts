@@ -6,6 +6,8 @@ import {
   upsertGraphLink,
   upsertGraphPath,
   type MutationResult,
+  type InsertObjectType,
+  type TopoObjectPreset,
   type TopoObjectSelection
 } from '../shared/topologyMutations';
 
@@ -61,6 +63,11 @@ export type CanvasAuthoringCommand =
     source: CanvasEndpointRef;
     target: CanvasEndpointRef;
     type: 'insertLinkBetween';
+  }
+  | {
+    layers: string[];
+    members: string[];
+    type: 'insertRegionFromSelection';
   }
   | {
     layers: string[];
@@ -178,15 +185,99 @@ export function snapTopologyPoint(point: CanvasAuthoringPoint, gridSize?: number
   };
 }
 
+export function normalizedCanvasRect(start: CanvasAuthoringPoint, end: CanvasAuthoringPoint): CanvasAuthoringRect {
+  const x = Math.min(start.x, end.x);
+  const y = Math.min(start.y, end.y);
+  return {
+    height: Math.abs(end.y - start.y),
+    width: Math.abs(end.x - start.x),
+    x,
+    y
+  };
+}
+
+function numericPosition(value: unknown): CanvasAuthoringPoint | undefined {
+  if (Array.isArray(value) && value.length >= 2) {
+    const [x, y] = value;
+    if (typeof x === 'number' && typeof y === 'number' && Number.isFinite(x) && Number.isFinite(y)) return { x, y };
+  }
+  if (value && typeof value === 'object') {
+    const record = value as Record<string, unknown>;
+    if (typeof record.x === 'number' && typeof record.y === 'number' && Number.isFinite(record.x) && Number.isFinite(record.y)) {
+      return { x: record.x, y: record.y };
+    }
+  }
+  return undefined;
+}
+
+function hasLayerIntersection(objectLayers: unknown, selectedLayerIds: string[]) {
+  if (!selectedLayerIds.length) return true;
+  if (!Array.isArray(objectLayers) || objectLayers.length === 0) return true;
+  const selected = new Set(selectedLayerIds);
+  return objectLayers.some((layerId) => selected.has(String(layerId)));
+}
+
+export function nodeIdsWithinCanvasBounds(
+  document: Record<string, any> | undefined,
+  bounds: CanvasAuthoringRect,
+  selectedLayerIds: string[] = []
+) {
+  const maxX = bounds.x + bounds.width;
+  const maxY = bounds.y + bounds.height;
+  return (document?.graph?.nodes || [])
+    .filter((node: any) => {
+      if (!hasLayerIntersection(node.layers, selectedLayerIds)) return false;
+      const position = numericPosition(node.position);
+      if (!position) return false;
+      return position.x >= bounds.x && position.x <= maxX && position.y >= bounds.y && position.y <= maxY;
+    })
+    .map((node: any) => String(node.id));
+}
+
 export function layersForCanvasCreation(selectedLayerIds: string[], fallbackLayerId: string) {
   const layers = selectedLayerIds.filter((layerId) => layerId.trim().length > 0);
   return layers.length ? [...layers] : [fallbackLayerId];
+}
+
+export type CanvasAuthoringLayerIntent = 'physical' | 'paths' | 'annotations';
+
+const layerIdByAuthoringIntent: Record<CanvasAuthoringLayerIntent, string> = {
+  annotations: 'annotations',
+  paths: 'paths',
+  physical: 'physical'
+};
+
+export function layersForAuthoringIntent(intent: CanvasAuthoringLayerIntent, selectedLayerIds: string[] = []) {
+  const preferredLayerId = layerIdByAuthoringIntent[intent];
+  return [
+    preferredLayerId,
+    ...selectedLayerIds.filter((layerId) => layerId.trim().length > 0 && layerId !== preferredLayerId)
+  ];
+}
+
+export function layersForCanvasTool(tool: CanvasAuthoringTool, selectedLayerIds: string[] = []) {
+  if (tool === 'path') return layersForAuthoringIntent('paths', selectedLayerIds);
+  if (tool === 'shape' || tool === 'callout' || tool === 'text') return layersForAuthoringIntent('annotations', selectedLayerIds);
+  return layersForAuthoringIntent('physical', selectedLayerIds);
+}
+
+export function layersForInsertObjectType(type: InsertObjectType, selectedLayerIds: string[] = []) {
+  if (type === 'path') return layersForAuthoringIntent('paths', selectedLayerIds);
+  if (type === 'callout') return layersForAuthoringIntent('annotations', selectedLayerIds);
+  return layersForAuthoringIntent('physical', selectedLayerIds);
+}
+
+export function layersForPresetKind(kind: TopoObjectPreset['kind'], selectedLayerIds: string[] = []) {
+  if (kind === 'path') return layersForAuthoringIntent('paths', selectedLayerIds);
+  if (kind === 'shape' || kind === 'callout') return layersForAuthoringIntent('annotations', selectedLayerIds);
+  return layersForAuthoringIntent('physical', selectedLayerIds);
 }
 
 export function canvasAuthoringCommandLabel(command: CanvasAuthoringCommand) {
   if (command.type === 'insertNodeAt') return `Place ${command.preset}`;
   if (command.type === 'insertLinkBetween') return 'Draw link';
   if (command.type === 'insertPathSequence') return 'Create path';
+  if (command.type === 'insertRegionFromSelection') return 'Create region';
   if (command.type === 'insertRegionFromBounds') return 'Create region';
   if (command.type === 'insertCalloutAt') return 'Place callout';
   if (command.type === 'moveSelection') return 'Move selection';
@@ -223,6 +314,14 @@ export function applyCanvasAuthoringCommand(text: string, command: CanvasAuthori
     });
   }
 
+  if (command.type === 'insertRegionFromSelection') {
+    return insertTopoObject(text, {
+      selectedLayerIds: command.layers,
+      selectedObjects: command.members.map((id) => ({ kind: 'node', id })),
+      type: 'region'
+    });
+  }
+
   if (command.type === 'insertCalloutAt') {
     return insertTopoObject(text, {
       position: command.position,
@@ -241,7 +340,11 @@ export function applyCanvasAuthoringCommand(text: string, command: CanvasAuthori
   }
 
   if (command.type === 'insertRegionFromBounds') {
-    throw new Error('Canvas region bounds creation is not implemented yet.');
+    return insertTopoObject(text, {
+      selectedLayerIds: command.layers,
+      selectedObjects: command.members.map((id) => ({ kind: 'node', id })),
+      type: 'region'
+    });
   }
 
   if (command.type === 'resizeObject') {

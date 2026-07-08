@@ -22,15 +22,15 @@ import MouseIcon from '@mui/icons-material/Mouse';
 import PanToolAltIcon from '@mui/icons-material/PanToolAlt';
 import PolylineIcon from '@mui/icons-material/Polyline';
 import { TopoViewer, defaultTopoViewerToggles, type TopoDocument, type TopoViewerConnectionCreate, type TopoViewerNodePositionChange, type TopoViewerObjectClick, type TopoViewerPaneClick } from 'topoviewer';
-import { memo, useCallback, useEffect, useState, type ComponentType, type Dispatch, type RefObject, type SetStateAction } from 'react';
+import { memo, useCallback, useEffect, useMemo, useState, type ComponentType, type Dispatch, type PointerEvent as ReactPointerEvent, type RefObject, type SetStateAction } from 'react';
 import type { Theme } from '@mui/material/styles';
 import { authoringHelperLinesOptions } from '../../../topoviewer/src/components/helperLines';
 import { ViewportSettingsPanel } from '../../../topoviewer/src/components/ViewportSettingsPanel';
 import { layerIds, toggleSelectedLayerId } from '../../../topoviewer/src/core/layers';
 import type { TopoViewerWebviewHost } from '../shared/types';
-import type { TopoObjectSelection } from '../shared/topologyMutations';
+import { graphHasReachabilityBetween, pathSegmentsWithoutDirectLinks, pathSegmentsWithoutReachability, type TopoObjectSelection } from '../shared/topologyMutations';
 import type { DocumentTransaction } from './webviewAppSupport';
-import { defaultCanvasAuthoringState, reduceCanvasAuthoringState, type CanvasAuthoringTool } from './canvasAuthoring';
+import { clientPointToTopologyPoint, defaultCanvasAuthoringState, layersForCanvasTool, nodeIdsWithinCanvasBounds, normalizedCanvasRect, reduceCanvasAuthoringState, type CanvasAuthoringPoint, type CanvasAuthoringRect, type CanvasAuthoringTool } from './canvasAuthoring';
 import { useRenderProfile } from './renderProfile';
 
 interface ShellHeaderProps {
@@ -55,6 +55,8 @@ interface PreviewPanelProps {
   exportImage: () => Promise<void>;
   exportTooltip?: string;
   createCanvasConnection: (connection: TopoViewerConnectionCreate) => void;
+  createCanvasPath: (sequence: string[]) => void;
+  createCanvasRegion: (members: string[], bounds?: CanvasAuthoringRect) => void;
   handleNodePositionChange: (change: TopoViewerNodePositionChange) => void;
   handleObjectClick: (object: TopoViewerObjectClick) => void;
   hasErrors: boolean;
@@ -91,6 +93,31 @@ const canvasToolDefinitions: Array<{
 ];
 
 const canvasToolByShortcut = new Map(canvasToolDefinitions.map((definition) => [definition.shortcut.toLowerCase(), definition.tool]));
+
+type PendingRegionDrag = {
+  currentClient: CanvasAuthoringPoint;
+  currentTopology: CanvasAuthoringPoint;
+  pointerId: number;
+  startClient: CanvasAuthoringPoint;
+  startTopology: CanvasAuthoringPoint;
+};
+
+function reactFlowViewportFromPreview(preview: HTMLElement) {
+  const pane = preview.querySelector<HTMLElement>('.react-flow__pane');
+  const viewportElement = preview.querySelector<HTMLElement>('.react-flow__viewport');
+  if (!pane || !viewportElement) return undefined;
+  const paneBounds = pane.getBoundingClientRect();
+  const transform = getComputedStyle(viewportElement).transform;
+  const matrix = new DOMMatrixReadOnly(transform === 'none' ? undefined : transform);
+  return {
+    paneBounds,
+    viewport: {
+      x: matrix.m41,
+      y: matrix.m42,
+      zoom: matrix.a || 1
+    }
+  };
+}
 
 export function webviewShellSx(theme: Theme) {
   return {
@@ -171,10 +198,14 @@ export const ResizeDivider = memo(function ResizeDivider({ clamp, defaultSplitPe
   );
 });
 
-export const PreviewPanel = memo(function PreviewPanel({ exportImage, exportTooltip, createCanvasConnection, handleNodePositionChange, handleObjectClick, hasErrors, hasExportBlockers, loading, parityMode = false, placeCanvasNode, previewRef, redoStack, redoTopology, selectedLayerIds, selectedObjectIds, setSelectedLayerIds, setSelectedObjects, undoStack, undoTopology, visibleDocument }: PreviewPanelProps) {
+export const PreviewPanel = memo(function PreviewPanel({ exportImage, exportTooltip, createCanvasConnection, createCanvasPath, createCanvasRegion, handleNodePositionChange, handleObjectClick, hasErrors, hasExportBlockers, loading, parityMode = false, placeCanvasNode, previewRef, redoStack, redoTopology, selectedLayerIds, selectedObjectIds, setSelectedLayerIds, setSelectedObjects, undoStack, undoTopology, visibleDocument }: PreviewPanelProps) {
   const [canvasAuthoring, setCanvasAuthoring] = useState(defaultCanvasAuthoringState);
   const [controlsOpen, setControlsOpen] = useState(false);
   const [helperLinesEnabled, setHelperLinesEnabled] = useState(true);
+  const [pendingPathNodeIds, setPendingPathNodeIds] = useState<string[]>([]);
+  const [pendingPathMessage, setPendingPathMessage] = useState<string>();
+  const [pendingRegionDrag, setPendingRegionDrag] = useState<PendingRegionDrag>();
+  const [pendingRegionMessage, setPendingRegionMessage] = useState<string>();
   useRenderProfile('PreviewPanel', {
     hasDocument: !!visibleDocument,
     canvasTool: canvasAuthoring.activeTool,
@@ -188,6 +219,120 @@ export const PreviewPanel = memo(function PreviewPanel({ exportImage, exportTool
       type: 'selectTool'
     }));
   }, []);
+  const nodeNameById = useMemo(() => {
+    const nodes = visibleDocument?.graph?.nodes || [];
+    return new Map(nodes.map((node) => [String(node.id), String(node.name || node.label || node.id)]));
+  }, [visibleDocument]);
+  const pendingPathLabel = pendingPathNodeIds.length
+    ? pendingPathNodeIds.map((id) => nodeNameById.get(id) || id).join(' -> ')
+    : 'Click nodes to build a path';
+  const selectedRegionMemberIds = useMemo(() => {
+    const nodeIds = new Set((visibleDocument?.graph?.nodes || []).map((node) => String(node.id)));
+    return selectedObjectIds.filter((id) => nodeIds.has(id));
+  }, [selectedObjectIds, visibleDocument]);
+  const regionSelectionLabel = selectedRegionMemberIds.length
+    ? selectedRegionMemberIds.map((id) => nodeNameById.get(id) || id).join(', ')
+    : 'Select nodes to create a region';
+  const commitPendingPath = useCallback(() => {
+    if (pendingPathNodeIds.length < 2) {
+      setPendingPathMessage('Path requires at least two nodes');
+      return;
+    }
+    const unreachable = pathSegmentsWithoutReachability(visibleDocument, pendingPathNodeIds);
+    if (unreachable.length) {
+      setPendingPathMessage(`Path requires graph reachability between ${nodeNameById.get(unreachable[0].source) || unreachable[0].source} and ${nodeNameById.get(unreachable[0].target) || unreachable[0].target}`);
+      return;
+    }
+    createCanvasPath(pendingPathNodeIds);
+    setPendingPathNodeIds([]);
+    setPendingPathMessage(undefined);
+    setCanvasAuthoring((current) => reduceCanvasAuthoringState(current, { type: 'completeAction' }));
+  }, [createCanvasPath, nodeNameById, pendingPathNodeIds, visibleDocument]);
+  const cancelPendingPath = useCallback(() => {
+    setPendingPathNodeIds([]);
+    setPendingPathMessage(undefined);
+    setCanvasAuthoring((current) => reduceCanvasAuthoringState(current, { type: 'cancel' }));
+  }, []);
+  const commitSelectedRegion = useCallback(() => {
+    if (!selectedRegionMemberIds.length) return;
+    createCanvasRegion(selectedRegionMemberIds);
+    setPendingRegionMessage(undefined);
+    setCanvasAuthoring((current) => reduceCanvasAuthoringState(current, { type: 'completeAction' }));
+  }, [createCanvasRegion, selectedRegionMemberIds]);
+  const topologyPointFromPointer = useCallback((event: ReactPointerEvent<HTMLElement>) => {
+    const preview = previewRef.current;
+    if (!preview) return undefined;
+    const geometry = reactFlowViewportFromPreview(preview);
+    if (!geometry) return undefined;
+    return clientPointToTopologyPoint(
+      { x: event.clientX, y: event.clientY },
+      { left: geometry.paneBounds.left, top: geometry.paneBounds.top },
+      geometry.viewport
+    );
+  }, [previewRef]);
+  const startPendingRegionDrag = useCallback((event: ReactPointerEvent<HTMLElement>) => {
+    if (parityMode || canvasAuthoring.activeTool !== 'region' || event.button !== 0) return;
+    const target = event.target as HTMLElement | null;
+    if (!target?.closest('.react-flow__pane')) return;
+    const topologyPoint = topologyPointFromPointer(event);
+    if (!topologyPoint) return;
+    const clientPoint = { x: event.clientX, y: event.clientY };
+    event.preventDefault();
+    event.stopPropagation();
+    event.currentTarget.setPointerCapture(event.pointerId);
+    setPendingRegionDrag({
+      currentClient: clientPoint,
+      currentTopology: topologyPoint,
+      pointerId: event.pointerId,
+      startClient: clientPoint,
+      startTopology: topologyPoint
+    });
+    setPendingRegionMessage(undefined);
+  }, [canvasAuthoring.activeTool, parityMode, topologyPointFromPointer]);
+  const updatePendingRegionDrag = useCallback((event: ReactPointerEvent<HTMLElement>) => {
+    if (!pendingRegionDrag || event.pointerId !== pendingRegionDrag.pointerId) return;
+    const topologyPoint = topologyPointFromPointer(event);
+    if (!topologyPoint) return;
+    event.preventDefault();
+    event.stopPropagation();
+    setPendingRegionDrag((current) => current && current.pointerId === event.pointerId
+      ? {
+        ...current,
+        currentClient: { x: event.clientX, y: event.clientY },
+        currentTopology: topologyPoint
+      }
+      : current);
+  }, [pendingRegionDrag, topologyPointFromPointer]);
+  const cancelPendingRegionDrag = useCallback((event?: ReactPointerEvent<HTMLElement>) => {
+    if (event && pendingRegionDrag && event.pointerId === pendingRegionDrag.pointerId) {
+      event.preventDefault();
+      event.stopPropagation();
+      if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+    setPendingRegionDrag(undefined);
+  }, [pendingRegionDrag]);
+  const commitPendingRegionDrag = useCallback((event: ReactPointerEvent<HTMLElement>) => {
+    if (!pendingRegionDrag || event.pointerId !== pendingRegionDrag.pointerId) return;
+    const topologyPoint = topologyPointFromPointer(event) || pendingRegionDrag.currentTopology;
+    const bounds = normalizedCanvasRect(pendingRegionDrag.startTopology, topologyPoint);
+    const clientBounds = normalizedCanvasRect(pendingRegionDrag.startClient, { x: event.clientX, y: event.clientY });
+    event.preventDefault();
+    event.stopPropagation();
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
+    setPendingRegionDrag(undefined);
+    if (clientBounds.width < 8 || clientBounds.height < 8 || bounds.width <= 0 || bounds.height <= 0) {
+      setPendingRegionMessage('Drag a larger area to create a region');
+      return;
+    }
+    const members = nodeIdsWithinCanvasBounds(visibleDocument, bounds, selectedLayerIds);
+    if (!members.length) {
+      setPendingRegionMessage('No nodes inside region bounds');
+      return;
+    }
+    createCanvasRegion(members, bounds);
+    setPendingRegionMessage(undefined);
+    setCanvasAuthoring((current) => reduceCanvasAuthoringState(current, { type: 'completeAction' }));
+  }, [createCanvasRegion, pendingRegionDrag, selectedLayerIds, topologyPointFromPointer, visibleDocument]);
   useEffect(() => {
     if (parityMode) return undefined;
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -196,7 +341,12 @@ export const PreviewPanel = memo(function PreviewPanel({ exportImage, exportTool
       if (tagName === 'input' || tagName === 'textarea' || target?.isContentEditable) return;
       if (event.metaKey || event.ctrlKey || event.altKey) return;
       if (event.key === 'Escape') {
-        setCanvasAuthoring((current) => reduceCanvasAuthoringState(current, { type: 'cancel' }));
+        cancelPendingPath();
+        return;
+      }
+      if (event.key === 'Enter' && canvasAuthoring.activeTool === 'path') {
+        event.preventDefault();
+        commitPendingPath();
         return;
       }
       const tool = canvasToolByShortcut.get(event.key.toLowerCase());
@@ -206,18 +356,88 @@ export const PreviewPanel = memo(function PreviewPanel({ exportImage, exportTool
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [parityMode, selectCanvasTool]);
+  }, [cancelPendingPath, canvasAuthoring.activeTool, commitPendingPath, parityMode, selectCanvasTool]);
+  useEffect(() => {
+    if (canvasAuthoring.activeTool !== 'path') {
+      setPendingPathNodeIds([]);
+      setPendingPathMessage(undefined);
+    }
+  }, [canvasAuthoring.activeTool]);
+  useEffect(() => {
+    if (canvasAuthoring.activeTool !== 'region') {
+      setPendingRegionDrag(undefined);
+      setPendingRegionMessage(undefined);
+    }
+  }, [canvasAuthoring.activeTool]);
   const handlePaneClick = useCallback((event: TopoViewerPaneClick) => {
     if (!parityMode && canvasAuthoring.activeTool === 'node') {
       placeCanvasNode(event.position);
       setCanvasAuthoring((current) => reduceCanvasAuthoringState(current, { type: 'completeAction' }));
       return;
     }
+    if (!parityMode && canvasAuthoring.activeTool === 'path') {
+      setPendingPathMessage('Click a node to add it to the path');
+      return;
+    }
     if (canvasAuthoring.activeTool === 'select') setSelectedObjects([]);
   }, [canvasAuthoring.activeTool, parityMode, placeCanvasNode, setSelectedObjects]);
+  const handlePreviewObjectClick = useCallback((object: TopoViewerObjectClick) => {
+    if (!parityMode && canvasAuthoring.activeTool === 'path') {
+      const nodeIds = new Set((visibleDocument?.graph?.nodes || []).map((node) => String(node.id)));
+      if (!nodeIds.has(object.id)) {
+        setPendingPathMessage('Path tool accepts node clicks only');
+        return;
+      }
+      if (pendingPathNodeIds.includes(object.id)) {
+        setPendingPathMessage(`${nodeNameById.get(object.id) || object.id} is already in the path`);
+        return;
+      }
+      const previousNodeId = pendingPathNodeIds[pendingPathNodeIds.length - 1];
+      if (previousNodeId && !graphHasReachabilityBetween(visibleDocument, previousNodeId, object.id)) {
+        setPendingPathMessage(`Path requires graph reachability between ${nodeNameById.get(previousNodeId) || previousNodeId} and ${nodeNameById.get(object.id) || object.id}`);
+        return;
+      }
+      const next = [...pendingPathNodeIds, object.id];
+      const looseSegments = pathSegmentsWithoutDirectLinks(visibleDocument, next);
+      setPendingPathNodeIds(next);
+      if (looseSegments.length) {
+        const latest = looseSegments[looseSegments.length - 1];
+        setPendingPathMessage(`Loose tunnel segment: ${nodeNameById.get(latest.source) || latest.source} -> ${nodeNameById.get(latest.target) || latest.target}`);
+      } else {
+        setPendingPathMessage(undefined);
+      }
+      setSelectedObjects(next.map((id) => ({ kind: 'node', id })));
+      return;
+    }
+    handleObjectClick(object);
+  }, [canvasAuthoring.activeTool, handleObjectClick, nodeNameById, parityMode, pendingPathNodeIds, setSelectedObjects, visibleDocument]);
   const effectiveSelectedLayerIds = parityMode
     ? layerIds(visibleDocument?.graph?.layers)
     : selectedLayerIds;
+  const visibleDocumentWithPendingPath = useMemo(() => {
+    if (!visibleDocument || pendingPathNodeIds.length < 2 || canvasAuthoring.activeTool !== 'path') return visibleDocument;
+    const pathLayerIds = layersForCanvasTool('path', selectedLayerIds);
+    return {
+      ...visibleDocument,
+      graph: {
+        ...visibleDocument.graph,
+        paths: [
+          ...(visibleDocument.graph?.paths || []),
+          {
+            id: '__pending-canvas-path',
+            name: 'Pending path',
+            labels: { path: 'pending' },
+            layers: pathLayerIds,
+            sequence: pendingPathNodeIds
+          }
+        ]
+      }
+    };
+  }, [canvasAuthoring.activeTool, pendingPathNodeIds, selectedLayerIds, visibleDocument]);
+  const previewSelectedObjectIds = useMemo(() => {
+    if (canvasAuthoring.activeTool !== 'path' || !pendingPathNodeIds.length) return selectedObjectIds;
+    return Array.from(new Set([...selectedObjectIds, ...pendingPathNodeIds, '__pending-canvas-path']));
+  }, [canvasAuthoring.activeTool, pendingPathNodeIds, selectedObjectIds]);
   const viewportLayers = visibleDocument?.graph?.layers || [];
   const viewerToggles = visibleDocument
     ? {
@@ -228,9 +448,29 @@ export const PreviewPanel = memo(function PreviewPanel({ exportImage, exportTool
   const setLayerEnabled = useCallback((layerId: string, enabled: boolean) => {
     setSelectedLayerIds((current) => toggleSelectedLayerId(current, layerId, enabled));
   }, [setSelectedLayerIds]);
+  const pendingRegionMarqueeStyle = useMemo(() => {
+    const preview = previewRef.current;
+    if (!preview || !pendingRegionDrag) return undefined;
+    const previewBounds = preview.getBoundingClientRect();
+    const bounds = normalizedCanvasRect(pendingRegionDrag.startClient, pendingRegionDrag.currentClient);
+    return {
+      height: `${bounds.height}px`,
+      left: `${bounds.x - previewBounds.left}px`,
+      top: `${bounds.y - previewBounds.top}px`,
+      width: `${bounds.width}px`
+    };
+  }, [pendingRegionDrag, previewRef]);
 
   return (
-    <Paper className={`topoviewer-vscode-preview topoviewer-vscode-preview--tool-${canvasAuthoring.activeTool}${parityMode ? ' topoviewer-vscode-preview--parity topoviewer-parity-theme' : ''}`} elevation={0} ref={previewRef}>
+    <Paper
+      className={`topoviewer-vscode-preview topoviewer-vscode-preview--tool-${canvasAuthoring.activeTool}${parityMode ? ' topoviewer-vscode-preview--parity topoviewer-parity-theme' : ''}`}
+      elevation={0}
+      ref={previewRef}
+      onPointerDownCapture={startPendingRegionDrag}
+      onPointerMoveCapture={updatePendingRegionDrag}
+      onPointerUpCapture={commitPendingRegionDrag}
+      onPointerCancelCapture={cancelPendingRegionDrag}
+    >
       {parityMode ? null : (
         <>
           <Box className="topoviewer-vscode-preview-actions">
@@ -256,12 +496,32 @@ export const PreviewPanel = memo(function PreviewPanel({ exportImage, exportTool
               );
             })}
           </Box>
+          {canvasAuthoring.activeTool === 'path' ? (
+            <Box className="topoviewer-vscode-canvas-authoring-strip" role="status" aria-label="Path authoring sequence">
+              <Typography className="topoviewer-vscode-canvas-authoring-summary" variant="caption">
+                {pendingPathMessage || pendingPathLabel}
+              </Typography>
+              <Button size="small" disabled={hasErrors || pendingPathNodeIds.length < 2} onClick={commitPendingPath}>Create path</Button>
+              <Button size="small" onClick={cancelPendingPath}>Cancel</Button>
+            </Box>
+          ) : null}
+          {canvasAuthoring.activeTool === 'region' ? (
+            <Box className="topoviewer-vscode-canvas-authoring-strip" role="status" aria-label="Region authoring selection">
+              <Typography className="topoviewer-vscode-canvas-authoring-summary" variant="caption">
+                {pendingRegionMessage || (pendingRegionDrag ? 'Release to create a region from the selected bounds' : regionSelectionLabel)}
+              </Typography>
+              <Button size="small" disabled={hasErrors || selectedRegionMemberIds.length < 1} onClick={commitSelectedRegion}>Create region</Button>
+            </Box>
+          ) : null}
         </>
       )}
       {loading && <CircularProgress />}
       {!loading && hasErrors && <Alert severity="error">Fix diagnostics before the preview can render.</Alert>}
       {!loading && !hasErrors && visibleDocument && (
         <>
+          {pendingRegionMarqueeStyle ? (
+            <Box className="topoviewer-vscode-region-marquee" aria-hidden="true" style={pendingRegionMarqueeStyle} />
+          ) : null}
           {!parityMode && controlsOpen ? (
             <div className="topoviewer-embed-controls-overlay topoviewer-vscode-controls-overlay">
               <ViewportSettingsPanel
@@ -276,14 +536,14 @@ export const PreviewPanel = memo(function PreviewPanel({ exportImage, exportTool
             </div>
           ) : null}
           <TopoViewer
-            document={visibleDocument}
+            document={visibleDocumentWithPendingPath || visibleDocument}
             selectedLayerIds={effectiveSelectedLayerIds}
-            selectedObjectIds={selectedObjectIds}
+            selectedObjectIds={previewSelectedObjectIds}
             exportDisabled={hasExportBlockers}
             exportTooltip={exportTooltip}
             onExport={parityMode ? undefined : exportImage}
             toggles={parityMode ? defaultTopoViewerToggles(visibleDocument) : viewerToggles}
-            onObjectClick={handleObjectClick}
+            onObjectClick={handlePreviewObjectClick}
             onPaneClick={handlePaneClick}
             onNodePositionChange={handleNodePositionChange}
             onConnectionCreate={canvasAuthoring.activeTool === 'link' ? createCanvasConnection : undefined}

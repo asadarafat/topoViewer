@@ -8,7 +8,12 @@ import {
   defaultCanvasAuthoringState,
   isCanvasMutatingTool,
   isNodePresetTool,
+  layersForAuthoringIntent,
   layersForCanvasCreation,
+  layersForCanvasTool,
+  layersForInsertObjectType,
+  nodeIdsWithinCanvasBounds,
+  normalizedCanvasRect,
   reduceCanvasAuthoringState,
   snapTopologyPoint,
   type CanvasAuthoringTool
@@ -24,8 +29,10 @@ const baseTopology = [
   '  layers:',
   '    - id: physical',
   '      name: Physical',
-  '    - id: service',
-  '      name: Service',
+  '    - id: paths',
+  '      name: Paths',
+  '    - id: annotations',
+  '      name: Annotations',
   '  nodes:',
   '    - id: node-a',
   '      name: Node A',
@@ -43,7 +50,7 @@ const baseTopology = [
   '    - id: shape-a',
   '      name: Shape A',
   '      type: rectangle',
-  '      layers: [physical]',
+  '      layers: [annotations]',
   '      position: [160, 260]',
   '      size: [120, 80]',
   '  callouts: []',
@@ -124,16 +131,44 @@ describe('canvas authoring coordinates', () => {
     expect(snapTopologyPoint({ x: 143, y: 87 })).toEqual({ x: 143, y: 87 });
   });
 
+  it('normalizes drag rectangles regardless of pointer direction', () => {
+    expect(normalizedCanvasRect({ x: 360, y: 240 }, { x: 120, y: 80 })).toEqual({
+      height: 160,
+      width: 240,
+      x: 120,
+      y: 80
+    });
+  });
+
+  it('derives region members from node positions and selected layers', () => {
+    const document = parseTopologyText(baseTopology);
+
+    expect(nodeIdsWithinCanvasBounds(document, { height: 80, width: 260, x: 80, y: 90 }, ['physical'])).toEqual(['node-a', 'node-b']);
+    expect(nodeIdsWithinCanvasBounds(document, { height: 80, width: 260, x: 80, y: 90 }, ['paths'])).toEqual([]);
+    expect(nodeIdsWithinCanvasBounds(document, { height: 80, width: 80, x: 80, y: 90 }, ['physical'])).toEqual(['node-a']);
+  });
+
   it('uses selected layers for creation with a deterministic fallback', () => {
-    expect(layersForCanvasCreation(['service', ''], 'physical')).toEqual(['service']);
+    expect(layersForCanvasCreation(['paths', ''], 'physical')).toEqual(['paths']);
     expect(layersForCanvasCreation([], 'physical')).toEqual(['physical']);
+  });
+
+  it('uses semantic default authoring layers before visible layer selection', () => {
+    expect(layersForAuthoringIntent('physical', ['paths', 'annotations'])).toEqual(['physical', 'paths', 'annotations']);
+    expect(layersForCanvasTool('node', ['paths'])).toEqual(['physical', 'paths']);
+    expect(layersForCanvasTool('link', ['annotations'])).toEqual(['physical', 'annotations']);
+    expect(layersForCanvasTool('path', ['physical'])).toEqual(['paths', 'physical']);
+    expect(layersForCanvasTool('callout', ['physical'])).toEqual(['annotations', 'physical']);
+    expect(layersForCanvasTool('shape', ['physical'])).toEqual(['annotations', 'physical']);
+    expect(layersForInsertObjectType('path', ['physical'])).toEqual(['paths', 'physical']);
+    expect(layersForInsertObjectType('callout', ['physical'])).toEqual(['annotations', 'physical']);
   });
 });
 
 describe('canvas authoring command mutations', () => {
   it('places node presets at explicit topology coordinates', () => {
     const result = applyCanvasAuthoringCommand(baseTopology, {
-      layers: ['service'],
+      layers: ['physical'],
       position: { x: 438.7, y: 221.2 },
       preset: 'router',
       type: 'insertNodeAt'
@@ -142,7 +177,7 @@ describe('canvas authoring command mutations', () => {
     const router = document.graph.nodes.find((node: any) => node.id === 'router-1');
 
     expect(canvasAuthoringCommandLabel({
-      layers: ['service'],
+      layers: ['physical'],
       position: { x: 438.7, y: 221.2 },
       preset: 'router',
       type: 'insertNodeAt'
@@ -150,7 +185,7 @@ describe('canvas authoring command mutations', () => {
     expect(router).toMatchObject({
       name: 'New Router',
       labels: { role: 'router' },
-      layers: ['service'],
+      layers: ['physical'],
       position: [439, 221]
     });
   });
@@ -216,10 +251,35 @@ describe('canvas authoring command mutations', () => {
     }]);
   });
 
-  it('maps canvas path commands to path sequence YAML', () => {
-    const result = applyCanvasAuthoringCommand(baseTopology, {
-      layers: ['service'],
+  it('rejects canvas path commands when nodes have no link reachability', () => {
+    expect(() => applyCanvasAuthoringCommand(baseTopology, {
+      layers: ['paths'],
       sequence: ['node-a', 'node-b'],
+      type: 'insertPathSequence'
+    })).toThrow('Path segment "node-a" -> "node-b" requires graph reachability through existing links.');
+  });
+
+  it('maps loose reachable canvas paths without creating phantom links', () => {
+    const topologyWithReachability = baseTopology
+      .replace('    - id: node-b', [
+        '    - id: node-c',
+        '      name: Node C',
+        '      layers: [physical]',
+        '      position: [500, 120]',
+        '    - id: node-b'
+      ].join('\n'))
+      .replace('  links: []', [
+        '  links:',
+        '    - id: link-a-b',
+        '      source: node-a',
+        '      target: node-b',
+        '    - id: link-b-c',
+        '      source: node-b',
+        '      target: node-c'
+      ].join('\n'));
+    const result = applyCanvasAuthoringCommand(topologyWithReachability, {
+      layers: ['paths'],
+      sequence: ['node-a', 'node-c'],
       type: 'insertPathSequence'
     });
     const document = parseTopologyText(result.text);
@@ -227,9 +287,82 @@ describe('canvas authoring command mutations', () => {
     expect(document.graph.paths).toEqual([{
       id: 'path-1',
       name: 'New Path',
-      labels: { path: 'service' },
-      layers: ['service'],
+      labels: { path: 'paths' },
+      layers: ['paths'],
+      sequence: ['node-a', 'node-c']
+    }]);
+    expect(document.graph.links).toEqual([
+      { id: 'link-a-b', source: 'node-a', target: 'node-b' },
+      { id: 'link-b-c', source: 'node-b', target: 'node-c' }
+    ]);
+  });
+
+  it('maps canvas paths over existing links without mutating link YAML', () => {
+    const topologyWithLink = baseTopology.replace('  links: []', [
+      '  links:',
+      '    - id: link-ab',
+      '      source: node-a',
+      '      target: node-b'
+    ].join('\n'));
+    const result = applyCanvasAuthoringCommand(topologyWithLink, {
+      layers: ['paths'],
+      sequence: ['node-a', 'node-b'],
+      type: 'insertPathSequence'
+    });
+    const document = parseTopologyText(result.text);
+
+    expect(document.graph.links).toEqual([{
+      id: 'link-ab',
+      source: 'node-a',
+      target: 'node-b'
+    }]);
+    expect(document.graph.paths).toEqual([{
+      id: 'path-1',
+      name: 'New Path',
+      labels: { path: 'paths' },
+      layers: ['paths'],
       sequence: ['node-a', 'node-b']
+    }]);
+  });
+
+  it('maps canvas region commands to selected node members', () => {
+    const result = applyCanvasAuthoringCommand(baseTopology, {
+      layers: ['physical'],
+      members: ['node-a', 'node-b'],
+      type: 'insertRegionFromSelection'
+    });
+    const document = parseTopologyText(result.text);
+
+    expect(document.graph.regions).toEqual([{
+      id: 'region-1',
+      name: 'New Region',
+      labels: { scope: 'physical' },
+      members: ['node-a', 'node-b'],
+      layers: ['physical'],
+      paddingX: 34,
+      paddingY: 28,
+      headerPadding: 34
+    }]);
+  });
+
+  it('maps canvas region bounds commands to region YAML', () => {
+    const result = applyCanvasAuthoringCommand(baseTopology, {
+      bounds: { height: 120, width: 260, x: 80, y: 80 },
+      layers: ['physical'],
+      members: ['node-a', 'node-b'],
+      type: 'insertRegionFromBounds'
+    });
+    const document = parseTopologyText(result.text);
+
+    expect(document.graph.regions).toEqual([{
+      id: 'region-1',
+      name: 'New Region',
+      labels: { scope: 'physical' },
+      members: ['node-a', 'node-b'],
+      layers: ['physical'],
+      paddingX: 34,
+      paddingY: 28,
+      headerPadding: 34
     }]);
   });
 
@@ -251,7 +384,7 @@ describe('canvas authoring command mutations', () => {
 
   it('places targeted callouts with explicit placement coordinates', () => {
     const result = applyCanvasAuthoringCommand(baseTopology, {
-      layers: ['physical'],
+      layers: ['annotations'],
       position: { x: 210, y: 90 },
       target: { kind: 'node', id: 'node-a' },
       type: 'insertCalloutAt'
@@ -265,7 +398,7 @@ describe('canvas authoring command mutations', () => {
       target: 'node-a',
       position: [210, 90],
       size: [160, 88],
-      layers: ['physical']
+      layers: ['annotations']
     }]);
   });
 
@@ -315,13 +448,6 @@ describe('canvas authoring command mutations', () => {
   });
 
   it('fails explicitly for command families that are not implemented yet', () => {
-    expect(() => applyCanvasAuthoringCommand(baseTopology, {
-      bounds: { height: 100, width: 200, x: 80, y: 80 },
-      layers: ['physical'],
-      members: ['node-a'],
-      type: 'insertRegionFromBounds'
-    })).toThrow('Canvas region bounds creation is not implemented yet.');
-
     expect(() => applyCanvasAuthoringCommand(baseTopology, {
       offset: { x: 32, y: 32 },
       selections: [{ kind: 'node', id: 'node-a' }],

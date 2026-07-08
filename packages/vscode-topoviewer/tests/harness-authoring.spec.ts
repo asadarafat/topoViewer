@@ -34,8 +34,8 @@ async function startNewTopology(page: Parameters<typeof topologyText>[0]) {
   await expect.poll(() => topologyText(page)).toContain('mode: manual');
   await expect.poll(() => topologyText(page)).toContain('id: physical');
   await expect.poll(() => stylesheetText(page)).toContain('curveStyle: bezier');
-  await waitForValidatedLayers(page, ['physical', 'service', 'operations']);
-  await showAllHarnessLayers(page, ['Physical', 'Service', 'Operations']);
+  await waitForValidatedLayers(page, ['physical', 'paths', 'annotations']);
+  await showAllHarnessLayers(page, ['Physical', 'Paths', 'Annotations']);
 }
 
 async function topologyPointForClientClick(page: Parameters<typeof topologyText>[0], clientX: number, clientY: number) {
@@ -45,6 +45,16 @@ async function topologyPointForClientClick(page: Parameters<typeof topologyText>
   return {
     x: (clientX - paneBox!.x - viewport.x) / viewport.zoom,
     y: (clientY - paneBox!.y - viewport.y) / viewport.zoom
+  };
+}
+
+async function clientPointForTopologyPoint(page: Parameters<typeof topologyText>[0], point: { x: number; y: number }) {
+  const paneBox = await page.locator('.react-flow__pane').boundingBox();
+  expect(paneBox).not.toBeNull();
+  const viewport = await reactFlowViewport(page);
+  return {
+    x: paneBox!.x + viewport.x + point.x * viewport.zoom,
+    y: paneBox!.y + viewport.y + point.y * viewport.zoom
   };
 }
 
@@ -136,21 +146,20 @@ test('keeps new topology insertions manual after connection creation and positio
   await expect.poll(async () => nodePosition(await topologyText(page), 'node-1')).toEqual(movedPosition);
 });
 
-test('creates new objects on the currently visible authoring layer', async ({ page }) => {
+test('creates new graph objects on semantic authoring layers even when visibility changes', async ({ page }) => {
   await startNewTopology(page);
 
   await page.getByRole('tab', { name: 'Layers', exact: true }).click();
   const physical = page.getByRole('checkbox', { name: 'Physical' });
-  const service = page.getByRole('checkbox', { name: 'Service' });
+  const paths = page.getByRole('checkbox', { name: 'Paths' });
   await expect(physical).toBeChecked();
-  await expect(service).toBeChecked();
+  await expect(paths).toBeChecked();
   await physical.uncheck();
   await page.getByRole('tab', { name: 'Build', exact: true }).click();
 
   await page.getByRole('button', { name: 'Insert Node' }).click();
-  await expect(graphNodeByLabel(page, 'New Node')).toBeVisible();
-  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'node-1')).toContain('- service');
-  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'node-1')).not.toContain('- physical');
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'node-1')).toContain('- physical');
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'node-1')).not.toContain('- paths');
 });
 
 test('activates canvas authoring tools from toolbar buttons and keyboard shortcuts', async ({ page }) => {
@@ -212,7 +221,7 @@ test('places generic nodes from canvas clicks with stable YAML positions', async
   await expect.poll(async () => nodePosition(await topologyText(page), 'node-1')).toEqual(placed);
 });
 
-test('places canvas nodes on the currently visible authoring layer', async ({ page }) => {
+test('places canvas nodes on the physical authoring layer regardless of visible layers', async ({ page }) => {
   await startNewTopology(page);
 
   await page.getByRole('tab', { name: 'Layers', exact: true }).click();
@@ -224,9 +233,8 @@ test('places canvas nodes on the currently visible authoring layer', async ({ pa
   await page.getByRole('toolbar', { name: 'Canvas authoring tools' }).getByRole('button', { name: 'Node tool' }).click();
   await page.mouse.click(paneBox!.x + paneBox!.width * 0.54, paneBox!.y + paneBox!.height * 0.52);
   await waitForValidatedGraphNodes(page, ['node-1']);
-  await expect(graphNodeByLabel(page, 'New Node')).toBeVisible();
-  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'node-1')).toContain('- service');
-  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'node-1')).not.toContain('- physical');
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'node-1')).toContain('- physical');
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'node-1')).not.toContain('- paths');
 });
 
 test('draws canvas links between nodes and cancels invalid drops safely', async ({ page }) => {
@@ -326,6 +334,189 @@ test('normalizes reverse default canvas links to stable node order', async ({ pa
   await expect(page.getByText('No diagnostics')).toBeVisible();
 });
 
+test('creates canvas paths from clicked node sequences with preview, commit, cancel, and recovery', async ({ page }) => {
+  await startNewTopology(page);
+
+  const paneBox = await page.locator('.react-flow__pane').boundingBox();
+  expect(paneBox).not.toBeNull();
+  const toolbar = page.getByRole('toolbar', { name: 'Canvas authoring tools' });
+  await toolbar.getByRole('button', { name: 'Node tool' }).click();
+  await page.mouse.click(paneBox!.x + paneBox!.width * 0.34, paneBox!.y + paneBox!.height * 0.48);
+  await page.mouse.click(paneBox!.x + paneBox!.width * 0.50, paneBox!.y + paneBox!.height * 0.62);
+  await page.mouse.click(paneBox!.x + paneBox!.width * 0.66, paneBox!.y + paneBox!.height * 0.48);
+  await waitForValidatedGraphNodes(page, ['node-1', 'node-2', 'node-3']);
+
+  const pathTool = toolbar.getByRole('button', { name: 'Path tool' });
+  await pathTool.click();
+  await expect(pathTool).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByRole('status', { name: 'Path authoring sequence' })).toContainText('Click nodes to build a path');
+
+  await page.keyboard.press('Enter');
+  await expect(page.getByRole('status', { name: 'Path authoring sequence' })).toContainText('Path requires at least two nodes');
+  await expect.poll(() => topologyText(page)).not.toContain('id: path-1');
+
+  await page.locator('.react-flow__node[data-id="node-1"]').click();
+  await expect(page.getByRole('status', { name: 'Path authoring sequence' })).toContainText('New Node');
+  await page.locator('.react-flow__node[data-id="node-2"]').click();
+  await expect(page.getByRole('status', { name: 'Path authoring sequence' })).toContainText('Path requires graph reachability');
+  await expect(page.locator('.react-flow__edge[data-id^="__pending-canvas-path"]')).toHaveCount(0);
+  await page.keyboard.press('Escape');
+  await expect.poll(() => topologyText(page)).not.toContain('id: link-1');
+  await expect.poll(() => topologyText(page)).not.toContain('id: path-1');
+
+  const linkTool = toolbar.getByRole('button', { name: 'Link tool' });
+  await linkTool.click();
+  await drawConnectionBetween(page, await endpointCenter(nodeEndpoint(page, 'node-1')), await endpointCenter(nodeEndpoint(page, 'node-2')));
+  await waitForValidatedGraphObject(page, 'links', 'link-1');
+  await linkTool.click();
+  await drawConnectionBetween(page, await endpointCenter(nodeEndpoint(page, 'node-2')), await endpointCenter(nodeEndpoint(page, 'node-3')));
+  await waitForValidatedGraphObject(page, 'links', 'link-2');
+
+  await pathTool.click();
+  await page.locator('.react-flow__node[data-id="node-1"]').click();
+  await page.locator('.react-flow__node[data-id="node-3"]').click();
+  await expect(page.getByRole('status', { name: 'Path authoring sequence' })).toContainText('Loose tunnel segment');
+  await expect(page.locator('.react-flow__edge[data-id^="__pending-canvas-path"]')).toHaveCount(1);
+  await page.getByRole('button', { name: 'Create path' }).click();
+  await waitForValidatedGraphObject(page, 'paths', 'path-1');
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'path-1')).toContain('- node-1');
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'path-1')).toContain('- node-3');
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'link-1')).toContain('source: node-1');
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'link-2')).toContain('source: node-2');
+  await expect.poll(() => topologyText(page)).not.toContain('id: link-3');
+  await page.getByRole('button', { name: 'Undo' }).click();
+  await expect.poll(() => topologyText(page)).not.toContain('id: path-1');
+
+  await pathTool.click();
+  await page.locator('.react-flow__node[data-id="node-1"]').click();
+  await page.locator('.react-flow__node[data-id="node-2"]').click();
+  await expect(page.locator('.react-flow__edge[data-id^="__pending-canvas-path"]')).toHaveCount(1);
+  await page.locator('.react-flow__node[data-id="node-3"]').click();
+  await expect(page.locator('.react-flow__edge[data-id^="__pending-canvas-path"]')).toHaveCount(2);
+  await page.getByRole('button', { name: 'Create path' }).click();
+  await waitForValidatedGraphObject(page, 'paths', 'path-1');
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'path-1')).toContain('- node-1');
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'path-1')).toContain('- node-2');
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'path-1')).toContain('- node-3');
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'link-1')).toContain('source: node-1');
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'link-2')).toContain('source: node-2');
+  await expect(page.locator('.react-flow__edge[data-id="link-1"] .topoviewer-edge-visible-path')).toBeVisible();
+  await expect(page.locator('.react-flow__edge[data-id="link-2"] .topoviewer-edge-visible-path')).toBeVisible();
+  await expect(page.locator('.react-flow__edge[data-id^="path-1:"] .topoviewer-edge-visible-path')).toHaveCount(2);
+  await expect(page.locator('.react-flow__edge[data-id^="path-1:"] .topoviewer-edge-lane')).toHaveCount(2);
+
+  await page.getByRole('button', { name: 'Undo' }).click();
+  await expect.poll(() => topologyText(page)).not.toContain('id: path-1');
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'link-1')).toContain('target: node-2');
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'link-2')).toContain('target: node-3');
+  await page.getByRole('button', { name: 'Redo' }).click();
+  await waitForValidatedGraphObject(page, 'paths', 'path-1');
+
+  await selectHarnessObject(page, 'path', 'path-1');
+  await page.locator('.topoviewer-vscode-inspector-pane').getByRole('button', { name: 'Delete' }).click();
+  await expect.poll(() => topologyText(page)).not.toContain('id: path-1');
+  await page.getByRole('button', { name: 'Undo' }).click();
+  await waitForValidatedGraphObject(page, 'paths', 'path-1');
+
+  await selectHarnessObject(page, 'path', 'path-1');
+  await page.locator('.topoviewer-vscode-inspector-pane').getByRole('button', { name: 'Delete' }).click();
+  await expect.poll(() => topologyText(page)).not.toContain('id: path-1');
+  await pathTool.click();
+  await page.locator('.react-flow__node[data-id="node-2"]').click();
+  await page.locator('.react-flow__node[data-id="node-3"]').click();
+  await page.keyboard.press('Enter');
+  await waitForValidatedGraphObject(page, 'paths', 'path-1');
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'path-1')).toContain('- node-2');
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'path-1')).toContain('- node-3');
+  await page.reload();
+  await waitForHarnessState(page);
+  await waitForValidatedGraphObject(page, 'paths', 'path-1');
+});
+
+test('creates canvas regions from the current node selection', async ({ page }) => {
+  await startNewTopology(page);
+
+  const paneBox = await page.locator('.react-flow__pane').boundingBox();
+  expect(paneBox).not.toBeNull();
+  const toolbar = page.getByRole('toolbar', { name: 'Canvas authoring tools' });
+  await toolbar.getByRole('button', { name: 'Node tool' }).click();
+  await page.mouse.click(paneBox!.x + paneBox!.width * 0.40, paneBox!.y + paneBox!.height * 0.48);
+  await page.mouse.click(paneBox!.x + paneBox!.width * 0.58, paneBox!.y + paneBox!.height * 0.54);
+  await waitForValidatedGraphNodes(page, ['node-1', 'node-2']);
+
+  await toolbar.getByRole('button', { name: 'Select tool' }).click();
+  await page.locator('.react-flow__node[data-id="node-1"]').click();
+  await page.locator('.react-flow__node[data-id="node-2"]').click({ modifiers: ['Shift'] });
+  await expect.poll(() => selectedPreviewObjectCount(page)).toBe(2);
+
+  const regionTool = toolbar.getByRole('button', { name: 'Region tool' });
+  await regionTool.click();
+  await expect(regionTool).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByRole('status', { name: 'Region authoring selection' })).toContainText('New Node');
+  await page.getByRole('button', { name: 'Create region' }).click();
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'region-1')).toContain('members:');
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'region-1')).toContain('- node-1');
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'region-1')).toContain('- node-2');
+  await selectHarnessObject(page, 'region', 'region-1');
+  await expect(page.locator('.topoviewer-vscode-inspector-pane').getByLabel('Object name')).toHaveValue('region:region-1');
+
+  await page.getByRole('button', { name: 'Undo' }).click();
+  await expect.poll(() => topologyText(page)).not.toContain('id: region-1');
+  await page.getByRole('button', { name: 'Redo' }).click();
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'region-1')).toContain('- node-1');
+
+  await page.reload();
+  await waitForHarnessState(page);
+  await expect(page.getByText('No diagnostics')).toBeVisible();
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'region-1')).toContain('- node-2');
+});
+
+test('creates canvas regions from deterministic drag bounds', async ({ page }) => {
+  await startNewTopology(page);
+
+  const paneBox = await page.locator('.react-flow__pane').boundingBox();
+  expect(paneBox).not.toBeNull();
+  await page.getByRole('tab', { name: 'Build', exact: true }).click();
+  await page.getByRole('button', { name: 'Insert Node' }).click();
+  await page.getByRole('button', { name: 'Insert Node' }).click();
+  await waitForValidatedGraphNodes(page, ['node-1', 'node-2']);
+
+  const node1 = nodePosition(await topologyText(page), 'node-1');
+  const node2 = nodePosition(await topologyText(page), 'node-2');
+  expect(node1).toBeDefined();
+  expect(node2).toBeDefined();
+
+  const start = await clientPointForTopologyPoint(page, {
+    x: Math.min(node1!.x, node2!.x) - 24,
+    y: Math.min(node1!.y, node2!.y) - 24
+  });
+  const end = await clientPointForTopologyPoint(page, {
+    x: Math.max(node1!.x, node2!.x) + 24,
+    y: Math.max(node1!.y, node2!.y) + 24
+  });
+
+  const regionTool = page.getByRole('toolbar', { name: 'Canvas authoring tools' }).getByRole('button', { name: 'Region tool' });
+  await regionTool.click();
+  await page.mouse.move(start.x, start.y);
+  await page.mouse.down();
+  await page.mouse.move((start.x + end.x) / 2, (start.y + end.y) / 2, { steps: 4 });
+  await expect(page.locator('.topoviewer-vscode-region-marquee')).toBeVisible();
+  await page.mouse.move(end.x, end.y, { steps: 4 });
+  await page.mouse.up();
+
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'region-1')).toContain('- node-1');
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'region-1')).toContain('- node-2');
+
+  await page.getByRole('button', { name: 'Undo' }).click();
+  await expect.poll(() => topologyText(page)).not.toContain('id: region-1');
+  await page.getByRole('button', { name: 'Redo' }).click();
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'region-1')).toContain('- node-2');
+  await page.reload();
+  await waitForHarnessState(page);
+  await expect(page.getByText('No diagnostics')).toBeVisible();
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'region-1')).toContain('- node-1');
+});
+
 test('keeps click-created linked nodes stable during staggered vertical drags', async ({ page }) => {
   await startNewTopology(page);
 
@@ -398,29 +589,38 @@ test('crud covers new topology regions, callouts, and relationship objects', asy
   await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'region-1')).toContain('members:');
   await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'region-1')).toContain('- router-1');
   await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'region-1')).toContain('- service-1');
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'region-1')).toContain('- physical');
 
   await page.getByRole('button', { name: 'Insert Connection' }).click();
   await page.getByRole('button', { name: 'Create connection' }).click();
   await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'link-1')).toContain('source: router-1');
   await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'link-1')).toContain('target: service-1');
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'link-1')).toContain('- physical');
 
   await page.getByRole('button', { name: 'Insert Path' }).click();
   await page.getByRole('button', { name: 'Create path' }).click();
   await page.mouse.move(1180, 820);
   await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'path-1')).toContain('- router-1');
   await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'path-1')).toContain('- service-1');
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'path-1')).toContain('- paths');
 
   await selectHarnessObject(page, 'node', 'router-1');
   await page.getByRole('tab', { name: 'Build', exact: true }).click();
   await page.getByRole('button', { name: 'Insert Callout' }).click();
   await page.mouse.move(1180, 820);
   await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'callout-1')).toContain('target: router-1');
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'callout-1')).toContain('- annotations');
 
   await selectHarnessObject(page, 'region', 'region-1');
   const inspector = page.locator('.topoviewer-vscode-inspector-pane');
   await inspector.getByLabel('Display name').fill('Edited Region');
+  await inspector.getByLabel('Members').click();
+  await page.getByRole('option', { name: 'New Service' }).click();
+  await page.keyboard.press('Escape');
   await inspector.getByRole('button', { name: 'Apply properties' }).click();
   await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'region-1')).toContain('name: Edited Region');
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'region-1')).toContain('- router-1');
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'region-1')).not.toContain('- service-1');
 
   await selectHarnessObject(page, 'callout', 'callout-1');
   await inspector.getByLabel('Display name').fill('Edited Callout');
