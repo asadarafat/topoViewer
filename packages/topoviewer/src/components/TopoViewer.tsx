@@ -10,6 +10,7 @@ import {
   useNodesInitialized,
   useNodesState,
   type Connection,
+  type ResizeParams,
   type NodeChange
 } from '@xyflow/react';
 import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent } from 'react';
@@ -28,6 +29,7 @@ import type {
   CompiledNodeData,
   TopoDocument,
   TopoViewerExtensionContext,
+  TopoViewerNodeResizeChange,
   TopoViewerProps
 } from '../core/types';
 import { CalloutNode } from './CalloutNode';
@@ -88,6 +90,14 @@ function applyAfterCompileExtensions(
 function sourceObjectId(compiledObject: Record<string, unknown>): string {
   const data = (compiledObject.data || {}) as Record<string, unknown>;
   return String(data.id || compiledObject.id || '');
+}
+
+function resizableObjectKind(compiledNode: Record<string, unknown>): 'region' | 'shape' | 'callout' | undefined {
+  const data = (compiledNode.data || {}) as Record<string, unknown>;
+  const objectKind = String(data.objectKind || '');
+  if (objectKind === 'shape' || objectKind === 'callout') return objectKind;
+  if (String(compiledNode.type || '') === 'region') return 'region';
+  return undefined;
 }
 
 function samePosition(first: { x: number; y: number } | undefined, second: { x: number; y: number } | undefined) {
@@ -270,6 +280,43 @@ function withRuntimeDirectionHandlers(
   });
 }
 
+function withRuntimeResizeHandlers(
+  nodes: ReturnType<typeof compileTopoGraph>['nodes'],
+  nodesResizable: boolean | undefined,
+  onNodeResizeChange: TopoViewerProps['onNodeResizeChange']
+): ReturnType<typeof compileTopoGraph>['nodes'] {
+  if (!nodesResizable || !onNodeResizeChange) return nodes;
+  return nodes.map((node) => {
+    const runtimeNode = node as unknown as Record<string, unknown>;
+    if (runtimeNode.selected !== true || !resizableObjectKind(runtimeNode)) return node;
+    const data = (runtimeNode.data || {}) as Record<string, unknown>;
+    return {
+      ...node,
+      data: {
+        ...data,
+        __topoviewerResizable: true,
+        __topoviewerOnResizeEnd: (params: ResizeParams) => {
+          const position = {
+            x: Math.round(Number(params.x || 0)),
+            y: Math.round(Number(params.y || 0))
+          };
+          const size = {
+            width: Math.max(1, Math.round(Number(params.width || 0))),
+            height: Math.max(1, Math.round(Number(params.height || 0)))
+          };
+          onNodeResizeChange({
+            id: sourceObjectId(runtimeNode),
+            runtimeId: String(runtimeNode.id || ''),
+            position,
+            size,
+            data
+          } satisfies TopoViewerNodeResizeChange);
+        }
+      } as unknown as CompiledNodeData
+    } as typeof node;
+  });
+}
+
 function resolveAttentionPresentation(document: TopoDocument, attention: TopoViewerProps['attention']): AttentionPresentationResult | undefined {
   return resolveAttentionPresentationCached(document, attention || document.attention);
 }
@@ -326,11 +373,13 @@ function TopoFlow({
   helperLines,
   initialViewport,
   nodesDraggable = true,
+  nodesResizable = false,
   nodesConnectable = false,
   onExport,
   onObjectClick,
   onPaneClick,
   onNodePositionChange,
+  onNodeResizeChange,
   onConnectionCreate,
   onViewportChange,
   nodeTypes,
@@ -345,17 +394,20 @@ function TopoFlow({
   helperLines?: TopoViewerProps['helperLines'];
   initialViewport?: TopoViewerProps['initialViewport'];
   nodesDraggable?: TopoViewerProps['nodesDraggable'];
+  nodesResizable?: TopoViewerProps['nodesResizable'];
   nodesConnectable?: TopoViewerProps['nodesConnectable'];
   onExport?: TopoViewerProps['onExport'];
   onObjectClick?: TopoViewerProps['onObjectClick'];
   onPaneClick?: TopoViewerProps['onPaneClick'];
   onNodePositionChange?: TopoViewerProps['onNodePositionChange'];
+  onNodeResizeChange?: TopoViewerProps['onNodeResizeChange'];
   onConnectionCreate?: TopoViewerProps['onConnectionCreate'];
   onViewportChange?: TopoViewerProps['onViewportChange'];
   nodeTypes: Record<string, unknown>;
   edgeTypes: Record<string, unknown>;
 }) {
-  const [nodes, setNodes] = useNodesState(compiled.nodes as never[]);
+  const runtimeNodes = useMemo(() => withRuntimeResizeHandlers(compiled.nodes, nodesResizable, onNodeResizeChange), [compiled.nodes, nodesResizable, onNodeResizeChange]);
+  const [nodes, setNodes] = useNodesState(runtimeNodes as never[]);
   const [edges, setEdges, onEdgesChange] = useEdgesState(withRuntimeDirectionHandlers(compiled.edges, onObjectClick) as never[]);
   const [nodesReadyForInteraction, setNodesReadyForInteraction] = useState(false);
   const reactFlow = useReactFlow();
@@ -372,7 +424,7 @@ function TopoFlow({
   useEffect(() => {
     if (activeDragNodeIdRef.current) return;
     setNodes((currentNodes) => {
-      const nextNodes = preserveRuntimeNodeMeasurements(compiled.nodes, currentNodes);
+      const nextNodes = preserveRuntimeNodeMeasurements(runtimeNodes, currentNodes);
       nodesRef.current = nextNodes as unknown as HelperLineNodeLike[];
       return nextNodes as never[];
     });
@@ -383,7 +435,7 @@ function TopoFlow({
     activeHelperLineStateRef.current = emptyHelperLineState;
     helperLineCandidateIndexRef.current = undefined;
     clearHelperLines();
-  }, [clearHelperLines, compiled, onObjectClick, setEdges, setNodes]);
+  }, [clearHelperLines, compiled, onObjectClick, runtimeNodes, setEdges, setNodes]);
 
   useEffect(() => {
     setNodesReadyForInteraction(false);
@@ -638,10 +690,12 @@ export function TopoViewer({
   helperLines,
   initialViewport,
   nodesDraggable,
+  nodesResizable,
   nodesConnectable,
   onObjectClick,
   onPaneClick,
   onNodePositionChange,
+  onNodeResizeChange,
   onConnectionCreate,
   onViewportChange,
   onExport,
@@ -705,11 +759,13 @@ export function TopoViewer({
           helperLines={helperLines}
           initialViewport={initialViewport}
           nodesDraggable={nodesDraggable}
+          nodesResizable={nodesResizable}
           nodesConnectable={nodesConnectable}
           onExport={onExport}
           onObjectClick={onObjectClick}
           onPaneClick={onPaneClick}
           onNodePositionChange={onNodePositionChange}
+          onNodeResizeChange={onNodeResizeChange}
           onConnectionCreate={onConnectionCreate}
           onViewportChange={onViewportChange}
           nodeTypes={nodeTypes}

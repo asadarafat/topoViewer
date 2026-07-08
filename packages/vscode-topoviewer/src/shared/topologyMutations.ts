@@ -89,6 +89,12 @@ export interface UpdatePositionedObjectPositionOptions {
   position: { x: number; y: number };
 }
 
+export interface UpdatePositionedObjectGeometryOptions {
+  selection: TopoObjectSelection;
+  position: { x: number; y: number };
+  size: { width: number; height: number };
+}
+
 export interface ReleaseNodeFromRegionOptions {
   nodeId: string;
   regionId: string;
@@ -1065,6 +1071,21 @@ export function updatePositionedObjectPosition(text: string, options: UpdatePosi
       throw new Error(`Selected ${options.selection.kind} "${options.selection.id}" does not support direct position updates.`);
     }
     object.position = [Math.round(options.position.x), Math.round(options.position.y)];
+  });
+}
+
+export function updatePositionedObjectGeometry(text: string, options: UpdatePositionedObjectGeometryOptions): MutationResult {
+  return mutateTopologyText(text, (document) => {
+    const object = findObject(document, options.selection);
+    if (!object) throw new Error(`Selected ${options.selection.kind} "${options.selection.id}" no longer exists.`);
+    if (options.selection.kind !== 'shape' && options.selection.kind !== 'callout' && options.selection.kind !== 'region') {
+      throw new Error(`Selected ${options.selection.kind} "${options.selection.id}" does not support direct geometry updates.`);
+    }
+    object.position = [Math.round(options.position.x), Math.round(options.position.y)];
+    object.size = [
+      Math.max(1, Math.round(options.size.width)),
+      Math.max(1, Math.round(options.size.height))
+    ];
   });
 }
 

@@ -3,6 +3,7 @@ import {
   parseTopologyText,
   releaseNodeFromRegion,
   updateGraphNodePositionAndRegionMembership,
+  updatePositionedObjectGeometry,
   updatePositionedObjectPosition,
   updateRegionMemberPositions
 } from '../../src/shared/topologyMutations';
@@ -603,6 +604,53 @@ describe('canvas authoring command mutations', () => {
 
     expect(document.diagram.shapes.find((shape: any) => shape.id === 'shape-1').position).toEqual([300, 220]);
     expect(document.diagram.callouts.find((callout: any) => callout.id === 'callout-1').position).toEqual([180, 130]);
+  });
+
+  it('persists shape, callout, and region resize geometry through shared positioned-object updates', () => {
+    const withRegion = baseTopology.replace('  regions: []', [
+      '  regions:',
+      '    - id: region-a',
+      '      members: [node-a]',
+      '      position: [80, 70]',
+      '      size: [220, 140]',
+      '      layers: [physical]'
+    ].join('\n')).replace('  callouts: []', [
+      '  callouts:',
+      '    - id: callout-a',
+      '      title: Existing Callout',
+      '      position: [340, 220]',
+      '      size: [160, 88]',
+      '      layers: [annotations]'
+    ].join('\n'));
+    const resizedShape = updatePositionedObjectGeometry(withRegion, {
+      position: { x: 170, y: 250 },
+      selection: { kind: 'shape', id: 'shape-a' },
+      size: { width: 240, height: 130 }
+    });
+    const resizedCallout = updatePositionedObjectGeometry(resizedShape.text, {
+      position: { x: 360, y: 230 },
+      selection: { kind: 'callout', id: 'callout-a' },
+      size: { width: 220, height: 110 }
+    });
+    const resizedRegion = updatePositionedObjectGeometry(resizedCallout.text, {
+      position: { x: 60, y: 50 },
+      selection: { kind: 'region', id: 'region-a' },
+      size: { width: 320, height: 180 }
+    });
+    const document = parseTopologyText(resizedRegion.text);
+
+    expect(document.diagram.shapes.find((shape: any) => shape.id === 'shape-a')).toMatchObject({
+      position: [170, 250],
+      size: [240, 130]
+    });
+    expect(document.diagram.callouts.find((callout: any) => callout.id === 'callout-a')).toMatchObject({
+      position: [360, 230],
+      size: [220, 110]
+    });
+    expect(document.graph.regions.find((region: any) => region.id === 'region-a')).toMatchObject({
+      position: [60, 50],
+      size: [320, 180]
+    });
   });
 
   it('deletes selected objects through the shared command boundary', () => {

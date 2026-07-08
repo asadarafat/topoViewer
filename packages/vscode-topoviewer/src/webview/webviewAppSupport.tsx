@@ -211,6 +211,15 @@ export function positionOf(value: unknown): { x: number; y: number } | undefined
   return undefined;
 }
 
+export function sizeOf(value: unknown): { width: number; height: number } | undefined {
+  if (Array.isArray(value)) return { width: Number(value[0] || 0), height: Number(value[1] || 0) };
+  if (value && typeof value === 'object') {
+    const size = value as { width?: number; height?: number };
+    return { width: Number(size.width || 0), height: Number(size.height || 0) };
+  }
+  return undefined;
+}
+
 export function pathSequenceFromObject(path: any): string[] {
   if (Array.isArray(path?.sequence)) return path.sequence.map(String);
   return [path?.source, path?.target].map((id) => String(id || '')).filter(Boolean);
@@ -223,6 +232,10 @@ export function sequenceFromControls(source: string, transitIds: string[], targe
 
 export function sameRoundedPosition(a: { x: number; y: number } | undefined, b: { x: number; y: number }) {
   return !!a && Math.round(a.x) === Math.round(b.x) && Math.round(a.y) === Math.round(b.y);
+}
+
+export function sameRoundedSize(a: { width: number; height: number } | undefined, b: { width: number; height: number }) {
+  return !!a && Math.round(a.width) === Math.round(b.width) && Math.round(a.height) === Math.round(b.height);
 }
 
 export function editorDocumentForTab(tab: number): 'topology' | 'stylesheet' | 'mapper' {

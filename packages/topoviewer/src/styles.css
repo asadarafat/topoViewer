@@ -925,6 +925,21 @@
   margin-top: 5px;
 }
 
+.topoviewer .topoviewer-resize-handle.react-flow__resize-control {
+  width: 10px;
+  height: 10px;
+  border: 2px solid #38bdf8;
+  border-radius: 2px;
+  background: #0f172a;
+  box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.82), 0 0 10px rgba(56, 189, 248, 0.48);
+  z-index: 200;
+}
+
+.topoviewer .topoviewer-resize-line.react-flow__resize-control {
+  border-color: rgba(56, 189, 248, 0.82);
+  z-index: 190;
+}
+
 .topoviewer-pin {
   width: 1px;
   height: 1px;

@@ -472,6 +472,7 @@ export function rebuildRegionNodes(regions: GraphRegion[], selectedLayers: Set<s
       position: { x: bounds.x, y: bounds.y },
       data: {
         ...region,
+        objectKind: 'region',
         ...(region.data || {}),
         ...rendered.data
       },

@@ -219,8 +219,13 @@ geometry can be represented in YAML.
 
 #### Scenario: Resize updates supported geometry only
 
-- **WHEN** the user resizes a shape or other resize-capable object
-- **THEN** the YAML SHALL update the object's size or supported geometry fields
+- **WHEN** the user resizes a selected shape, callout, or explicit region
+  container
+- **THEN** the canvas SHALL show native resize handles only while that object is
+  selected and the host has enabled editing
+- **AND** the resize SHALL be committed as one transaction on resize stop
+- **AND** the YAML SHALL update the object's `position` and `size` fields
+- **AND** undo/redo and reload SHALL preserve the resized geometry
 - **AND** resize handles SHALL NOT be shown for object families whose size is
   controlled only by stylesheet policy
 

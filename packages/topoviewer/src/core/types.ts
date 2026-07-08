@@ -421,6 +421,14 @@ export interface TopoViewerNodePositionChange {
   data: Record<string, unknown>;
 }
 
+export interface TopoViewerNodeResizeChange {
+  id: string;
+  runtimeId: string;
+  position: { x: number; y: number };
+  size: { width: number; height: number };
+  data: Record<string, unknown>;
+}
+
 export interface TopoViewerConnectionCreate {
   sourceId: string;
   sourceRuntimeId: string;
@@ -459,6 +467,7 @@ export interface TopoViewerProps {
   selectedObjectIds?: string[];
   initialViewport?: TopoViewerViewport;
   nodesDraggable?: boolean;
+  nodesResizable?: boolean;
   nodesConnectable?: boolean;
   helperLines?: boolean | TopoViewerHelperLinesOptions;
   toggles?: TopoViewerToggles;
@@ -476,6 +485,7 @@ export interface TopoViewerProps {
   onObjectClick?: (object: TopoViewerObjectClick) => void;
   onPaneClick?: (event: TopoViewerPaneClick) => void;
   onNodePositionChange?: (change: TopoViewerNodePositionChange) => void;
+  onNodeResizeChange?: (change: TopoViewerNodeResizeChange) => void;
   onConnectionCreate?: (connection: TopoViewerConnectionCreate) => void;
   onViewportChange?: (viewport: TopoViewerViewport) => void;
   onExport?: () => void;

@@ -133,6 +133,7 @@ export type {
   TopoViewerConnectionCreate,
   TopoViewerHelperLinesOptions,
   TopoViewerNodePositionChange,
+  TopoViewerNodeResizeChange,
   TopoViewerObjectClick,
   TopoViewerPaneClick,
   TopoViewerToolbarAction,

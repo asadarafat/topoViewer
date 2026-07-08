@@ -1,4 +1,4 @@
-import { Handle, Position } from '@xyflow/react';
+import { Handle, NodeResizer, Position, type ResizeParams } from '@xyflow/react';
 import type { CSSProperties, SVGAttributes } from 'react';
 import type { CompiledNodeData } from '../core/types';
 
@@ -145,6 +145,9 @@ export function ShapeNode({ data }: { data: CompiledNodeData }) {
   const stroke = data.stroke || 'rgba(148, 163, 184, 0.64)';
   const strokeWidth = Number(data.borderWidth || 2);
   const rotation = Number(data.rotation || 0);
+  const onResizeEnd = typeof data.__topoviewerOnResizeEnd === 'function'
+    ? data.__topoviewerOnResizeEnd as (params: ResizeParams) => void
+    : undefined;
 
   return (
     <div
@@ -152,6 +155,14 @@ export function ShapeNode({ data }: { data: CompiledNodeData }) {
       style={data.shapeStyle as CSSProperties}
       aria-label={data.name || data.id}
     >
+      <NodeResizer
+        isVisible={data.__topoviewerResizable === true}
+        minWidth={48}
+        minHeight={32}
+        handleClassName="topoviewer-resize-handle"
+        lineClassName="topoviewer-resize-line"
+        onResizeEnd={onResizeEnd ? (_event, params) => onResizeEnd(params) : undefined}
+      />
       <Handle type="target" position={Position.Left} />
       <svg className="topoviewer-shape-geometry" viewBox="0 0 100 100" role="presentation" focusable="false">
         <ShapeSvg type={shapeType} fill={fill} stroke={stroke} strokeWidth={strokeWidth} rotation={rotation} />

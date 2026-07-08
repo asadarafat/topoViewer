@@ -66,6 +66,17 @@ async function reactFlowViewport(page: Parameters<typeof topologyText>[0]) {
   });
 }
 
+function yamlTuple(block: string, key: string): number[] | undefined {
+  const inline = block.match(new RegExp(`${key}:\\s*\\[\\s*(-?\\d+(?:\\.\\d+)?)\\s*,\\s*(-?\\d+(?:\\.\\d+)?)\\s*\\]`));
+  if (inline) return [Number(inline[1]), Number(inline[2])];
+  const lines = block.split('\n');
+  const keyIndex = lines.findIndex((line) => line.trim() === `${key}:`);
+  if (keyIndex < 0) return undefined;
+  const first = lines[keyIndex + 1]?.trim().match(/^-\s*(-?\d+(?:\.\d+)?)/);
+  const second = lines[keyIndex + 2]?.trim().match(/^-\s*(-?\d+(?:\.\d+)?)/);
+  return first && second ? [Number(first[1]), Number(second[1])] : undefined;
+}
+
 function nodeEndpoint(page: Parameters<typeof topologyText>[0], nodeId: string) {
   return page.locator(`.react-flow__node[data-id="${nodeId}"] .topoviewer-node-handle-default.source`).first();
 }
@@ -531,6 +542,21 @@ test('creates region containers and releases dragged-in nodes explicitly', async
   await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'region-1')).toContain('size:');
   const region = page.locator('.react-flow__node[data-id="region:region-1"] .topoviewer-region-drag');
   await expect(region).toBeVisible();
+  await selectHarnessObject(page, 'region', 'region-1');
+  const beforeRegionSize = yamlTuple(yamlObjectBlock(await topologyText(page), 'region-1'), 'size');
+  expect(beforeRegionSize).toBeDefined();
+  const regionResizeHandle = page.locator('.react-flow__node[data-id="region:region-1"] .react-flow__resize-control.handle.bottom.right');
+  await expect(regionResizeHandle).toBeVisible();
+  const regionHandleBox = await regionResizeHandle.boundingBox();
+  expect(regionHandleBox).not.toBeNull();
+  await page.mouse.move(regionHandleBox!.x + regionHandleBox!.width / 2, regionHandleBox!.y + regionHandleBox!.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(regionHandleBox!.x + regionHandleBox!.width / 2 + 72, regionHandleBox!.y + regionHandleBox!.height / 2 + 44, { steps: 8 });
+  await page.mouse.up();
+  await expect.poll(async () => {
+    const nextSize = yamlTuple(yamlObjectBlock(await topologyText(page), 'region-1'), 'size');
+    return nextSize && beforeRegionSize ? `${nextSize[0] - beforeRegionSize[0]},${nextSize[1] - beforeRegionSize[1]}` : 'missing';
+  }).not.toBe('0,0');
 
   await toolbar.getByRole('button', { name: 'Node tool' }).click();
   await page.mouse.click(paneBox!.x + paneBox!.width * 0.22, paneBox!.y + paneBox!.height * 0.5);
@@ -758,11 +784,50 @@ test('places and moves canvas shapes and callouts from toolbar tools', async ({ 
     return afterCallout && beforeCallout ? `${afterCallout.x - beforeCallout.x},${afterCallout.y - beforeCallout.y}` : 'missing';
   }).not.toBe('0,0');
 
+  await selectHarnessObject(page, 'shape', 'shape-1');
+  const shapeResizeHandle = shape.locator('.react-flow__resize-control.handle.bottom.right');
+  await expect(shapeResizeHandle).toBeVisible();
+  const beforeShapeSize = yamlTuple(yamlObjectBlock(await topologyText(page), 'shape-1'), 'size');
+  expect(beforeShapeSize).toBeDefined();
+  const shapeHandleBox = await shapeResizeHandle.boundingBox();
+  expect(shapeHandleBox).not.toBeNull();
+  await page.mouse.move(shapeHandleBox!.x + shapeHandleBox!.width / 2, shapeHandleBox!.y + shapeHandleBox!.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(shapeHandleBox!.x + shapeHandleBox!.width / 2 + 64, shapeHandleBox!.y + shapeHandleBox!.height / 2 + 36, { steps: 8 });
+  await page.mouse.up();
+  await expect.poll(async () => {
+    const nextSize = yamlTuple(yamlObjectBlock(await topologyText(page), 'shape-1'), 'size');
+    return nextSize && beforeShapeSize ? `${nextSize[0] - beforeShapeSize[0]},${nextSize[1] - beforeShapeSize[1]}` : 'missing';
+  }).not.toBe('0,0');
+
+  await selectHarnessObject(page, 'callout', 'callout-1');
+  const calloutResizeHandle = callout.locator('.react-flow__resize-control.handle.bottom.right');
+  await expect(calloutResizeHandle).toBeVisible();
+  const beforeCalloutSize = yamlTuple(yamlObjectBlock(await topologyText(page), 'callout-1'), 'size');
+  expect(beforeCalloutSize).toBeDefined();
+  const calloutHandleBox = await calloutResizeHandle.boundingBox();
+  expect(calloutHandleBox).not.toBeNull();
+  await page.mouse.move(calloutHandleBox!.x + calloutHandleBox!.width / 2, calloutHandleBox!.y + calloutHandleBox!.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(calloutHandleBox!.x + calloutHandleBox!.width / 2 + 48, calloutHandleBox!.y + calloutHandleBox!.height / 2 + 28, { steps: 8 });
+  await page.mouse.up();
+  await expect.poll(async () => {
+    const nextSize = yamlTuple(yamlObjectBlock(await topologyText(page), 'callout-1'), 'size');
+    return nextSize && beforeCalloutSize ? `${nextSize[0] - beforeCalloutSize[0]},${nextSize[1] - beforeCalloutSize[1]}` : 'missing';
+  }).not.toBe('0,0');
+
+  const afterShapeSize = yamlTuple(yamlObjectBlock(await topologyText(page), 'shape-1'), 'size');
+  const afterCalloutSize = yamlTuple(yamlObjectBlock(await topologyText(page), 'callout-1'), 'size');
+  expect(afterShapeSize).toBeDefined();
+  expect(afterCalloutSize).toBeDefined();
+
   await page.reload();
   await waitForHarnessState(page);
   await expect(page.getByText('No diagnostics')).toBeVisible();
   await expect.poll(async () => nodePosition(await topologyText(page), 'shape-1')).toEqual(afterShape);
   await expect.poll(async () => nodePosition(await topologyText(page), 'callout-1')).toEqual(afterCallout);
+  await expect.poll(async () => yamlTuple(yamlObjectBlock(await topologyText(page), 'shape-1'), 'size')).toEqual(afterShapeSize);
+  await expect.poll(async () => yamlTuple(yamlObjectBlock(await topologyText(page), 'callout-1'), 'size')).toEqual(afterCalloutSize);
 });
 
 test('crud covers new topology regions, callouts, and relationship objects', async ({ page }) => {

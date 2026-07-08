@@ -96,7 +96,9 @@ Each implementation phase must prove:
 - [x] 7.1 Add canvas shape placement for supported rectangle primitive with
       annotation-layer YAML persistence, undo/redo compatibility, drag
       movement, reload coverage, unit evidence, and Playwright evidence
-- [ ] 7.2 Add resize handles for shape geometry
+- [x] 7.2 Add native resize handles for shape, callout, and explicit region
+      container geometry; persist `position` and `size` YAML on resize stop;
+      prove with shared mutation unit coverage and focused Playwright evidence
 - [x] 7.3 Add callout click placement from the canvas toolbar with annotation
       layer YAML persistence and browser evidence
 - [x] 7.4 Add callout movement persistence through shared positioned-object

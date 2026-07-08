@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import Box from '@mui/material/Box';
-import { type TopoDocument, type TopoViewerConnectionCreate, type TopoViewerNodePositionChange } from 'topoviewer';
+import { type TopoDocument, type TopoViewerConnectionCreate, type TopoViewerNodePositionChange, type TopoViewerNodeResizeChange } from 'topoviewer';
 import type { HarnessFixture, TopoViewerWebviewHost, ValidationResult, WebviewDiagnostic, WebviewState } from '../shared/types';
 import {
   clearAttention, defaultLayerId, deleteTopoObjects, findObject, focusKindForSelection, insertTopoObject,
   insertTopoPreset, objectExists, objectIdsByKind, releaseNodeFromRegion, updateGraphNodePositionAndRegionMembership, updateAttentionFocus,
   updateAttentionInteraction, updateAttentionLinkGrouping, updateAttentionMatcher,
-  updateAttentionRegionAggregation, updatePositionedObjectPosition, updateRegionMemberPositions, updateTopoObject, upsertGraphLink, upsertGraphPath,
+  updateAttentionRegionAggregation, updatePositionedObjectGeometry, updatePositionedObjectPosition, updateRegionMemberPositions, updateTopoObject, upsertGraphLink, upsertGraphPath,
   type AttentionFocusKind, type InsertObjectType, type TopoObjectPreset, type TopoObjectSelection
 } from '../shared/topologyMutations';
 import {
@@ -21,7 +21,7 @@ import {
 } from './webviewYamlAuthoring';
 import { AuthoringRail } from './AuthoringRail';
 import { PreviewPanel, ResizeDivider, ShellHeader, webviewShellSx } from './WebviewChrome';
-import { HarnessTabPanel, a11yProps, baseInsertObjectGroups, clamp, defaultSplitPercent, focusKindLabel, harnessModes, initialSavedPresets, initialSplitPercent, layerSelectionFromTopologyText, maxSplitPercent, mergeLayerSelection, minSplitPercent, modeIndex, modeLabel, pathSequenceFromObject, positionOf, presetFromObject, sameRoundedPosition, selectedNodeIds, selectedObjectIds, selectionSummary, sequenceFromControls, useHarnessPreferencePersistence, type DocumentTransaction, type HarnessMode } from './webviewAppSupport';
+import { HarnessTabPanel, a11yProps, baseInsertObjectGroups, clamp, defaultSplitPercent, focusKindLabel, harnessModes, initialSavedPresets, initialSplitPercent, layerSelectionFromTopologyText, maxSplitPercent, mergeLayerSelection, minSplitPercent, modeIndex, modeLabel, pathSequenceFromObject, positionOf, presetFromObject, sameRoundedPosition, sameRoundedSize, selectedNodeIds, selectedObjectIds, selectionSummary, sequenceFromControls, sizeOf, useHarnessPreferencePersistence, type DocumentTransaction, type HarnessMode } from './webviewAppSupport';
 import { useBrowserHarnessActions } from './harnessActions';
 import { copyTextToClipboard, downloadYamlBundle as downloadYamlBundleAction, exportPreviewImage, type ExportStatus } from './webviewExportActions';
 import { useBrowserYamlIntelligence, useDraftValidation, useMonacoDiagnostics, usePendingYamlFocus, useYamlEditorMount, useYamlMonacoProviders } from './webviewEditorHooks';
@@ -870,6 +870,32 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
     }));
   }
 
+  function handleNodeResizeChange(change: TopoViewerNodeResizeChange) {
+    if (hasErrors) return;
+    const objectKind = String(change.data.objectKind || '');
+    const selectionKind = objectKind === 'shape' || objectKind === 'callout' || objectKind === 'region'
+      ? objectKind
+      : change.runtimeId.startsWith('region:')
+        ? 'region'
+        : undefined;
+    if (!selectionKind) return;
+    const selection: TopoObjectSelection = { kind: selectionKind, id: change.id };
+    const object = findObject(visibleDocument, selection);
+    if (
+      !object
+      || (
+        sameRoundedPosition(positionOf(object.position), change.position)
+        && sameRoundedSize(sizeOf(object.size), change.size)
+      )
+    ) return;
+    setTab(0);
+    applyTopologyTransaction(`Resize ${selectionKind}`, (topologyText) => updatePositionedObjectGeometry(topologyText, {
+      position: change.position,
+      selection,
+      size: change.size
+    }));
+  }
+
   function handleReleaseNodeFromRegion(nodeId: string, regionId: string) {
     if (hasErrors) return;
     setTab(0);
@@ -1041,7 +1067,7 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
       )}
 
       {parityMode ? (
-          <PreviewPanel exportImage={exportImage} exportTooltip={exportTooltip} createCanvasConnection={createCanvasConnection} createCanvasPath={createCanvasPath} createCanvasRegion={createCanvasRegion} handleNodePositionChange={handleNodePositionChange} handleObjectClick={handleObjectClick} hasErrors={appliedHasErrors} hasExportBlockers={hasExportBlockers} loading={loading} parityMode placeCanvasCallout={placeCanvasCallout} placeCanvasNode={placeCanvasNode} placeCanvasShape={placeCanvasShape} previewRef={previewRef} redoStack={redoStack} redoTopology={redoTopology} releaseNodeFromRegion={handleReleaseNodeFromRegion} selectedLayerIds={selectedLayerIds} selectedObjectIds={[]} setSelectedLayerIds={setSelectedLayerIds} setSelectedObjects={setSelectedObjects} undoStack={undoStack} undoTopology={undoTopology} visibleDocument={visibleDocument} />
+          <PreviewPanel exportImage={exportImage} exportTooltip={exportTooltip} createCanvasConnection={createCanvasConnection} createCanvasPath={createCanvasPath} createCanvasRegion={createCanvasRegion} handleNodePositionChange={handleNodePositionChange} handleNodeResizeChange={handleNodeResizeChange} handleObjectClick={handleObjectClick} hasErrors={appliedHasErrors} hasExportBlockers={hasExportBlockers} loading={loading} parityMode placeCanvasCallout={placeCanvasCallout} placeCanvasNode={placeCanvasNode} placeCanvasShape={placeCanvasShape} previewRef={previewRef} redoStack={redoStack} redoTopology={redoTopology} releaseNodeFromRegion={handleReleaseNodeFromRegion} selectedLayerIds={selectedLayerIds} selectedObjectIds={[]} setSelectedLayerIds={setSelectedLayerIds} setSelectedObjects={setSelectedObjects} undoStack={undoStack} undoTopology={undoTopology} visibleDocument={visibleDocument} />
       ) : (
         <Box
           ref={workspaceRef}
@@ -1052,7 +1078,7 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
 
           <ResizeDivider clamp={clamp} defaultSplitPercent={defaultSplitPercent} maxSplitPercent={maxSplitPercent} minSplitPercent={minSplitPercent} setResizing={setResizing} setSplitPercent={setSplitPercent} splitPercent={splitPercent} updateSplitFromClientX={updateSplitFromClientX} />
 
-          <PreviewPanel exportImage={exportImage} exportTooltip={exportTooltip} createCanvasConnection={createCanvasConnection} createCanvasPath={createCanvasPath} createCanvasRegion={createCanvasRegion} handleNodePositionChange={handleNodePositionChange} handleObjectClick={handleObjectClick} hasErrors={appliedHasErrors} hasExportBlockers={hasExportBlockers} loading={loading} placeCanvasCallout={placeCanvasCallout} placeCanvasNode={placeCanvasNode} placeCanvasShape={placeCanvasShape} previewRef={previewRef} redoStack={redoStack} redoTopology={redoTopology} releaseNodeFromRegion={handleReleaseNodeFromRegion} selectedLayerIds={selectedLayerIds} selectedObjectIds={previewSelectedObjectIds} setSelectedLayerIds={setSelectedLayerIds} setSelectedObjects={setSelectedObjects} undoStack={undoStack} undoTopology={undoTopology} visibleDocument={visibleDocument} />
+          <PreviewPanel exportImage={exportImage} exportTooltip={exportTooltip} createCanvasConnection={createCanvasConnection} createCanvasPath={createCanvasPath} createCanvasRegion={createCanvasRegion} handleNodePositionChange={handleNodePositionChange} handleNodeResizeChange={handleNodeResizeChange} handleObjectClick={handleObjectClick} hasErrors={appliedHasErrors} hasExportBlockers={hasExportBlockers} loading={loading} placeCanvasCallout={placeCanvasCallout} placeCanvasNode={placeCanvasNode} placeCanvasShape={placeCanvasShape} previewRef={previewRef} redoStack={redoStack} redoTopology={redoTopology} releaseNodeFromRegion={handleReleaseNodeFromRegion} selectedLayerIds={selectedLayerIds} selectedObjectIds={previewSelectedObjectIds} setSelectedLayerIds={setSelectedLayerIds} setSelectedObjects={setSelectedObjects} undoStack={undoStack} undoTopology={undoTopology} visibleDocument={visibleDocument} />
         </Box>
       )}
     </Box>
