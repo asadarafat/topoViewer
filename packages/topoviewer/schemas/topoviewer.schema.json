@@ -1051,6 +1051,12 @@
             "parent": {
               "type": "string"
             },
+            "position": {
+              "$ref": "#/definitions/position"
+            },
+            "size": {
+              "$ref": "#/definitions/size"
+            },
             "padding": {
               "type": "number"
             },

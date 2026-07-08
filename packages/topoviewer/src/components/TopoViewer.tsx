@@ -95,6 +95,16 @@ function samePosition(first: { x: number; y: number } | undefined, second: { x: 
   return Math.abs(first.x - second.x) < 0.5 && Math.abs(first.y - second.y) < 0.5;
 }
 
+function runtimeNodePosition(node: Record<string, unknown>): { x: number; y: number } {
+  const position = (node.position || {}) as { x?: unknown; y?: unknown };
+  const x = Number(position.x);
+  const y = Number(position.y);
+  return {
+    x: Number.isFinite(x) ? x : 0,
+    y: Number.isFinite(y) ? y : 0
+  };
+}
+
 function decoratedAttentionData(data: Record<string, unknown>, attention: AttentionPresentation | undefined) {
   if (!attention) return data;
   return {
@@ -347,6 +357,7 @@ function TopoFlow({
 }) {
   const [nodes, setNodes] = useNodesState(compiled.nodes as never[]);
   const [edges, setEdges, onEdgesChange] = useEdgesState(withRuntimeDirectionHandlers(compiled.edges, onObjectClick) as never[]);
+  const [nodesReadyForInteraction, setNodesReadyForInteraction] = useState(false);
   const reactFlow = useReactFlow();
   const nodesInitialized = useNodesInitialized({ includeHiddenNodes: true });
   const helperLineOptions = useMemo(() => normalizeHelperLinesOptions(helperLines), [helperLines]);
@@ -354,6 +365,7 @@ function TopoFlow({
   const nodesRef = useRef<HelperLineNodeLike[]>(compiled.nodes as unknown as HelperLineNodeLike[]);
   const snappedPositionsRef = useRef(new Map<string, { x: number; y: number }>());
   const activeDragNodeIdRef = useRef<string | undefined>();
+  const activeDragStartPositionRef = useRef<{ x: number; y: number } | undefined>();
   const activeHelperLineStateRef = useRef<HelperLineState>(emptyHelperLineState);
   const helperLineCandidateIndexRef = useRef<HelperLineCandidateIndex | undefined>();
 
@@ -367,10 +379,25 @@ function TopoFlow({
     setEdges(withRuntimeDirectionHandlers(compiled.edges, onObjectClick) as never[]);
     snappedPositionsRef.current.clear();
     activeDragNodeIdRef.current = undefined;
+    activeDragStartPositionRef.current = undefined;
     activeHelperLineStateRef.current = emptyHelperLineState;
     helperLineCandidateIndexRef.current = undefined;
     clearHelperLines();
   }, [clearHelperLines, compiled, onObjectClick, setEdges, setNodes]);
+
+  useEffect(() => {
+    setNodesReadyForInteraction(false);
+    if (!nodesInitialized) return undefined;
+    let firstFrame = 0;
+    let secondFrame = 0;
+    firstFrame = requestAnimationFrame(() => {
+      secondFrame = requestAnimationFrame(() => setNodesReadyForInteraction(true));
+    });
+    return () => {
+      cancelAnimationFrame(firstFrame);
+      cancelAnimationFrame(secondFrame);
+    };
+  }, [compiled, nodesInitialized]);
 
   useEffect(() => {
     nodesRef.current = nodes as unknown as HelperLineNodeLike[];
@@ -380,6 +407,7 @@ function TopoFlow({
     if (!helperLineOptions.enabled) {
       snappedPositionsRef.current.clear();
       activeDragNodeIdRef.current = undefined;
+      activeDragStartPositionRef.current = undefined;
       activeHelperLineStateRef.current = emptyHelperLineState;
       helperLineCandidateIndexRef.current = undefined;
       clearHelperLines();
@@ -436,6 +464,7 @@ function TopoFlow({
     const runtimeNode = node as unknown as Record<string, unknown>;
     const runtimeId = String(runtimeNode.id || '');
     activeDragNodeIdRef.current = runtimeId;
+    activeDragStartPositionRef.current = runtimeId ? runtimeNodePosition(runtimeNode) : undefined;
     if (!helperLineOptions.enabled || !runtimeId) {
       helperLineCandidateIndexRef.current = undefined;
       return;
@@ -454,6 +483,7 @@ function TopoFlow({
     const runtimeId = String(runtimeNode.id || '');
     const hasCommittedSnap = snappedPositionsRef.current.has(runtimeId);
     const shouldRebuildRegions = showRegions && !!document.graph?.regions?.length;
+    const startPosition = activeDragStartPositionRef.current;
     const position = resolveDragStopPosition({
       runtimeId,
       eventPosition: (runtimeNode.position || {}) as { x?: number; y?: number },
@@ -480,9 +510,11 @@ function TopoFlow({
     }
     snappedPositionsRef.current.delete(runtimeId);
     activeDragNodeIdRef.current = undefined;
+    activeDragStartPositionRef.current = undefined;
     helperLineCandidateIndexRef.current = undefined;
     if (!onNodePositionChange) return undefined;
     return onNodePositionChange({
+      ...(startPosition ? { delta: { x: position.x - startPosition.x, y: position.y - startPosition.y } } : {}),
       id: sourceObjectId(runtimeNode),
       runtimeId,
       position,
@@ -563,7 +595,7 @@ function TopoFlow({
       onConnect={onConnectionCreate ? handleConnect : undefined}
       onPaneClick={onPaneClick ? handlePaneClick : undefined}
       onNodeDragStop={helperLineOptions.enabled || onNodePositionChange ? onNodeDragStop : undefined}
-      onNodeDragStart={helperLineOptions.enabled ? onNodeDragStart : undefined}
+      onNodeDragStart={helperLineOptions.enabled || onNodePositionChange ? onNodeDragStart : undefined}
       onMoveEnd={onViewportChange ? (_event, viewport) => onViewportChange(viewport) : undefined}
       nodeTypes={nodeTypes as never}
       edgeTypes={edgeTypes as never}
@@ -574,8 +606,8 @@ function TopoFlow({
       maxZoom={8}
       connectionMode={nodesConnectable ? ConnectionMode.Loose : ConnectionMode.Strict}
       connectionRadius={28}
-      nodesDraggable={nodesDraggable !== false && nodesInitialized}
-      nodesConnectable={nodesConnectable === true && nodesInitialized}
+      nodesDraggable={nodesDraggable !== false && nodesInitialized && nodesReadyForInteraction}
+      nodesConnectable={nodesConnectable === true && nodesInitialized && nodesReadyForInteraction}
       elementsSelectable
       proOptions={{ hideAttribution: true }}
     >

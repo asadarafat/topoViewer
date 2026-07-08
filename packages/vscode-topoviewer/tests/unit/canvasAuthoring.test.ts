@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { parseTopologyText } from '../../src/shared/topologyMutations';
+import {
+  parseTopologyText,
+  releaseNodeFromRegion,
+  updateGraphNodePositionAndRegionMembership,
+  updatePositionedObjectPosition,
+  updateRegionMemberPositions
+} from '../../src/shared/topologyMutations';
 import {
   applyCanvasAuthoringCommand,
   canRunCanvasMutation,
@@ -341,7 +347,38 @@ describe('canvas authoring command mutations', () => {
       layers: ['physical'],
       paddingX: 34,
       paddingY: 28,
-      headerPadding: 34
+      headerPadding: 34,
+      style: {
+        draggable: true,
+        selectable: true
+      }
+    }]);
+  });
+
+  it('creates empty placed canvas regions as persistent containers', () => {
+    const result = applyCanvasAuthoringCommand(baseTopology, {
+      bounds: { height: 150, width: 280, x: 210, y: 180 },
+      layers: ['physical'],
+      members: [],
+      type: 'insertRegionFromBounds'
+    });
+    const document = parseTopologyText(result.text);
+
+    expect(document.graph.regions).toEqual([{
+      id: 'region-1',
+      name: 'New Region',
+      labels: { scope: 'physical' },
+      members: [],
+      position: [210, 180],
+      size: [280, 150],
+      layers: ['physical'],
+      paddingX: 34,
+      paddingY: 28,
+      headerPadding: 34,
+      style: {
+        draggable: true,
+        selectable: true
+      }
     }]);
   });
 
@@ -359,11 +396,133 @@ describe('canvas authoring command mutations', () => {
       name: 'New Region',
       labels: { scope: 'physical' },
       members: ['node-a', 'node-b'],
+      position: [80, 80],
+      size: [260, 120],
       layers: ['physical'],
       paddingX: 34,
       paddingY: 28,
-      headerPadding: 34
+      headerPadding: 34,
+      style: {
+        draggable: true,
+        selectable: true
+      }
     }]);
+  });
+
+  it('keeps canvas-created regions exclusive at the sibling level', () => {
+    const first = applyCanvasAuthoringCommand(baseTopology, {
+      layers: ['physical'],
+      members: ['node-a', 'node-b'],
+      type: 'insertRegionFromSelection'
+    });
+    const second = applyCanvasAuthoringCommand(first.text, {
+      layers: ['physical'],
+      members: ['node-b'],
+      type: 'insertRegionFromSelection'
+    });
+    const document = parseTopologyText(second.text);
+
+    expect(document.graph.regions.map((region: any) => ({
+      id: region.id,
+      members: region.members
+    }))).toEqual([
+      { id: 'region-1', members: ['node-a'] },
+      { id: 'region-2', members: ['node-b'] }
+    ]);
+  });
+
+  it('assigns moved nodes to containing explicit regions without implicit release', () => {
+    const topology = baseTopology.replace('  regions: []', [
+      '  regions:',
+      '    - id: region-a',
+      '      members: []',
+      '      position: [180, 80]',
+      '      size: [260, 180]',
+      '      layers: [physical]',
+      '    - id: region-b',
+      '      members: []',
+      '      position: [500, 80]',
+      '      size: [220, 180]',
+      '      layers: [physical]'
+    ].join('\n'));
+    const movedIntoA = updateGraphNodePositionAndRegionMembership(topology, {
+      nodeId: 'node-a',
+      position: { x: 210, y: 120 }
+    });
+    const movedOutside = updateGraphNodePositionAndRegionMembership(movedIntoA.text, {
+      nodeId: 'node-a',
+      position: { x: 20, y: 20 }
+    });
+    const movedIntoB = updateGraphNodePositionAndRegionMembership(movedOutside.text, {
+      nodeId: 'node-a',
+      position: { x: 540, y: 120 }
+    });
+    const document = parseTopologyText(movedIntoB.text);
+
+    expect(document.graph.nodes.find((node: any) => node.id === 'node-a').position).toEqual([540, 120]);
+    expect(document.graph.regions.find((region: any) => region.id === 'region-a').members).toEqual([]);
+    expect(document.graph.regions.find((region: any) => region.id === 'region-b').members).toEqual(['node-a']);
+  });
+
+  it('releases nodes from explicit regions without deleting the empty container', () => {
+    const topology = baseTopology.replace('  regions: []', [
+      '  regions:',
+      '    - id: region-a',
+      '      members: [node-a]',
+      '      position: [80, 80]',
+      '      size: [260, 180]',
+      '      layers: [physical]'
+    ].join('\n'));
+    const released = releaseNodeFromRegion(topology, {
+      nodeId: 'node-a',
+      regionId: 'region-a'
+    });
+    const document = parseTopologyText(released.text);
+
+    expect(document.graph.regions).toEqual([{
+      id: 'region-a',
+      members: [],
+      position: [80, 80],
+      size: [260, 180],
+      layers: ['physical']
+    }]);
+  });
+
+  it('persists region group movement by translating member node positions', () => {
+    const withRegion = applyCanvasAuthoringCommand(baseTopology, {
+      layers: ['physical'],
+      members: ['node-a', 'node-b'],
+      type: 'insertRegionFromSelection'
+    });
+    const moved = updateRegionMemberPositions(withRegion.text, {
+      delta: { x: 40, y: -30 },
+      regionId: 'region-1'
+    });
+    const document = parseTopologyText(moved.text);
+
+    expect(document.graph.nodes.find((node: any) => node.id === 'node-a').position).toEqual([140, 90]);
+    expect(document.graph.nodes.find((node: any) => node.id === 'node-b').position).toEqual([340, 90]);
+  });
+
+  it('persists parent region movement through child region members', () => {
+    const nestedRegions = baseTopology.replace('  regions: []', [
+      '  regions:',
+      '    - id: region-parent',
+      '      members: [node-a]',
+      '      layers: [physical]',
+      '    - id: region-child',
+      '      parent: region-parent',
+      '      members: [node-b]',
+      '      layers: [physical]'
+    ].join('\n'));
+    const moved = updateRegionMemberPositions(nestedRegions, {
+      delta: { x: -25, y: 45 },
+      regionId: 'region-parent'
+    });
+    const document = parseTopologyText(moved.text);
+
+    expect(document.graph.nodes.find((node: any) => node.id === 'node-a').position).toEqual([75, 165]);
+    expect(document.graph.nodes.find((node: any) => node.id === 'node-b').position).toEqual([275, 165]);
   });
 
   it('moves positioned selections in one YAML mutation', () => {
@@ -400,6 +559,50 @@ describe('canvas authoring command mutations', () => {
       size: [160, 88],
       layers: ['annotations']
     }]);
+  });
+
+  it('places canvas shapes as annotation-layer diagram objects', () => {
+    const result = applyCanvasAuthoringCommand(baseTopology, {
+      layers: ['annotations'],
+      position: { x: 260, y: 180 },
+      size: { width: 210, height: 110 },
+      type: 'insertShapeAt'
+    });
+    const document = parseTopologyText(result.text);
+
+    expect(document.diagram.shapes.find((shape: any) => shape.id === 'shape-1')).toEqual({
+      id: 'shape-1',
+      name: 'New Shape',
+      type: 'rectangle',
+      position: [260, 180],
+      size: [210, 110],
+      layers: ['annotations']
+    });
+  });
+
+  it('persists direct shape and callout movement through shared positioned-object updates', () => {
+    const withShape = applyCanvasAuthoringCommand(baseTopology, {
+      layers: ['annotations'],
+      position: { x: 260, y: 180 },
+      type: 'insertShapeAt'
+    });
+    const withCallout = applyCanvasAuthoringCommand(withShape.text, {
+      layers: ['annotations'],
+      position: { x: 120, y: 80 },
+      type: 'insertCalloutAt'
+    });
+    const movedShape = updatePositionedObjectPosition(withCallout.text, {
+      position: { x: 300, y: 220 },
+      selection: { kind: 'shape', id: 'shape-1' }
+    });
+    const movedCallout = updatePositionedObjectPosition(movedShape.text, {
+      position: { x: 180, y: 130 },
+      selection: { kind: 'callout', id: 'callout-1' }
+    });
+    const document = parseTopologyText(movedCallout.text);
+
+    expect(document.diagram.shapes.find((shape: any) => shape.id === 'shape-1').position).toEqual([300, 220]);
+    expect(document.diagram.callouts.find((callout: any) => callout.id === 'callout-1').position).toEqual([180, 130]);
   });
 
   it('deletes selected objects through the shared command boundary', () => {

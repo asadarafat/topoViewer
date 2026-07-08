@@ -109,7 +109,7 @@ type AuthoringCommand =
   | { type: 'insertNodeAt'; preset: InsertObjectType; position: Point; layers: string[] }
   | { type: 'insertLinkBetween'; source: EndpointRef; target: EndpointRef; layers: string[] }
   | { type: 'insertPathSequence'; sequence: string[]; layers: string[] }
-  | { type: 'insertRegionFromBounds'; bounds: Rect; members: string[]; layers: string[] }
+  | { type: 'insertRegionFromBounds'; bounds: Rect; members?: string[]; layers: string[] }
   | { type: 'insertCalloutAt'; target?: TopoObjectSelection; position: Point; layers: string[] }
   | { type: 'moveSelection'; selections: TopoObjectSelection[]; delta: Point }
   | { type: 'resizeObject'; selection: TopoObjectSelection; bounds: Rect }
@@ -133,6 +133,26 @@ Creation coordinates should respect:
 - snap grid when enabled;
 - helper-line commit snap where applicable;
 - parent/region/group context when the user creates inside a container.
+
+## Region Container Model
+
+The region tool supports two compatible YAML models:
+
+- member-derived regions, where `members` define computed visual bounds;
+- explicit region containers, where `position` and `size` define a durable
+  canvas container that may start with `members: []`.
+
+Clicking the Region tool on the canvas creates an explicit empty region
+container. Dragging a bounds marquee creates an explicit region container and
+adds any deterministically enclosed nodes as initial members. Dragging a node
+into a region container adds that node to the region on drag stop. Dragging the
+node back out does not release membership because that would make ordinary
+layout cleanup destructive; releasing a node from a region is an explicit node
+context-menu action.
+
+Existing member-derived region YAML remains valid. Explicit region containers
+must render even when empty, must survive reload, and must remain selectable
+and draggable through the normal region node surface.
 
 ## Link Drawing
 
@@ -178,10 +198,19 @@ rectangle with its own durable position.
 The selected behavior is:
 
 - creating a region writes `graph.regions[].members`;
+- canvas-created regions are draggable/selectable by default so the authored
+  group can be manipulated immediately;
+- creating or editing a top-level region removes its member nodes from sibling
+  top-level regions by default; this prevents accidental duplicate ownership
+  and overlapping region hulls while preserving explicit nested `parent`
+  regions;
 - drag-bounds region creation derives members from positioned nodes whose YAML
   positions fall inside the drag rectangle;
-- dragging an existing region should translate member object positions when the
+- region creation exits the region tool after completion so a follow-up drag
+  moves the group instead of drawing another region;
+- dragging an existing region translates member node positions when the
   operation can be persisted as one undoable YAML transaction;
+- moving a parent region also translates member nodes in child regions;
 - region drag must not write hidden region-only geometry;
 - if member translation cannot be persisted safely for a selected object family,
   the UI should keep that drag visual/selection-only instead of inventing
@@ -191,6 +220,12 @@ This keeps region behavior aligned with TopoViewer's model: the region is a
 semantic grouping and a computed visual container. The durable geometry remains
 on the member nodes, shapes, or callouts until the schema explicitly supports
 region geometry.
+
+Collapse/expand is intentionally separate from region geometry. The current
+production path is attention aggregation (`attention.aggregate`) rather than
+persisting a collapsed region rectangle. A future canvas-native collapse affordance
+must be backed by that aggregate model or a schema addition; it must not hide
+members in local React state only.
 
 ## Selection And Clipboard
 

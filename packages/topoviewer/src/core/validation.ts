@@ -207,6 +207,8 @@ const pathSchema = graphEntitySchema.extend({
 const regionSchema = graphEntitySchema.extend({
   members: z.array(z.string().min(1)).optional(),
   parent: z.string().optional(),
+  position: positionSchema.optional(),
+  size: sizeSchema.optional(),
   padding: z.number().optional(),
   paddingX: z.number().optional(),
   paddingY: z.number().optional(),

@@ -7,6 +7,8 @@ import Button from '@mui/material/Button';
 import Chip from '@mui/material/Chip';
 import CircularProgress from '@mui/material/CircularProgress';
 import IconButton from '@mui/material/IconButton';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
 import Paper from '@mui/material/Paper';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
@@ -22,7 +24,7 @@ import MouseIcon from '@mui/icons-material/Mouse';
 import PanToolAltIcon from '@mui/icons-material/PanToolAlt';
 import PolylineIcon from '@mui/icons-material/Polyline';
 import { TopoViewer, defaultTopoViewerToggles, type TopoDocument, type TopoViewerConnectionCreate, type TopoViewerNodePositionChange, type TopoViewerObjectClick, type TopoViewerPaneClick } from 'topoviewer';
-import { memo, useCallback, useEffect, useMemo, useState, type ComponentType, type Dispatch, type PointerEvent as ReactPointerEvent, type RefObject, type SetStateAction } from 'react';
+import { memo, useCallback, useEffect, useMemo, useState, type ComponentType, type Dispatch, type MouseEvent as ReactMouseEvent, type PointerEvent as ReactPointerEvent, type RefObject, type SetStateAction } from 'react';
 import type { Theme } from '@mui/material/styles';
 import { authoringHelperLinesOptions } from '../../../topoviewer/src/components/helperLines';
 import { ViewportSettingsPanel } from '../../../topoviewer/src/components/ViewportSettingsPanel';
@@ -62,11 +64,14 @@ interface PreviewPanelProps {
   hasErrors: boolean;
   hasExportBlockers: boolean;
   loading: boolean;
+  placeCanvasCallout: (position: { x: number; y: number }) => void;
   placeCanvasNode: (position: { x: number; y: number }) => void;
+  placeCanvasShape: (position: { x: number; y: number }) => void;
   previewRef: RefObject<HTMLDivElement>;
   parityMode?: boolean;
   redoStack: DocumentTransaction[];
   redoTopology: () => void;
+  releaseNodeFromRegion: (nodeId: string, regionId: string) => void;
   selectedLayerIds: string[];
   selectedObjectIds: string[];
   setSelectedLayerIds: Dispatch<SetStateAction<string[]>>;
@@ -198,7 +203,7 @@ export const ResizeDivider = memo(function ResizeDivider({ clamp, defaultSplitPe
   );
 });
 
-export const PreviewPanel = memo(function PreviewPanel({ exportImage, exportTooltip, createCanvasConnection, createCanvasPath, createCanvasRegion, handleNodePositionChange, handleObjectClick, hasErrors, hasExportBlockers, loading, parityMode = false, placeCanvasNode, previewRef, redoStack, redoTopology, selectedLayerIds, selectedObjectIds, setSelectedLayerIds, setSelectedObjects, undoStack, undoTopology, visibleDocument }: PreviewPanelProps) {
+export const PreviewPanel = memo(function PreviewPanel({ exportImage, exportTooltip, createCanvasConnection, createCanvasPath, createCanvasRegion, handleNodePositionChange, handleObjectClick, hasErrors, hasExportBlockers, loading, parityMode = false, placeCanvasCallout, placeCanvasNode, placeCanvasShape, previewRef, redoStack, redoTopology, releaseNodeFromRegion, selectedLayerIds, selectedObjectIds, setSelectedLayerIds, setSelectedObjects, undoStack, undoTopology, visibleDocument }: PreviewPanelProps) {
   const [canvasAuthoring, setCanvasAuthoring] = useState(defaultCanvasAuthoringState);
   const [controlsOpen, setControlsOpen] = useState(false);
   const [helperLinesEnabled, setHelperLinesEnabled] = useState(true);
@@ -206,6 +211,12 @@ export const PreviewPanel = memo(function PreviewPanel({ exportImage, exportTool
   const [pendingPathMessage, setPendingPathMessage] = useState<string>();
   const [pendingRegionDrag, setPendingRegionDrag] = useState<PendingRegionDrag>();
   const [pendingRegionMessage, setPendingRegionMessage] = useState<string>();
+  const [regionContextMenu, setRegionContextMenu] = useState<{
+    mouseX: number;
+    mouseY: number;
+    nodeId: string;
+    regionIds: string[];
+  }>();
   useRenderProfile('PreviewPanel', {
     hasDocument: !!visibleDocument,
     canvasTool: canvasAuthoring.activeTool,
@@ -223,6 +234,26 @@ export const PreviewPanel = memo(function PreviewPanel({ exportImage, exportTool
     const nodes = visibleDocument?.graph?.nodes || [];
     return new Map(nodes.map((node) => [String(node.id), String(node.name || node.label || node.id)]));
   }, [visibleDocument]);
+  const regionNameById = useMemo(() => {
+    const regions = visibleDocument?.graph?.regions || [];
+    return new Map(regions.map((region) => [String(region.id), String(region.name || region.id)]));
+  }, [visibleDocument]);
+  const directRegionIdsByNodeId = useMemo(() => {
+    const regions = visibleDocument?.graph?.regions || [];
+    const regionIdsByNodeId = new Map<string, string[]>();
+    regions.forEach((region) => {
+      const regionId = String(region.id || '');
+      if (!regionId || !Array.isArray(region.members)) return;
+      region.members.forEach((memberId) => {
+        const nodeId = String(memberId || '');
+        if (!nodeId) return;
+        const current = regionIdsByNodeId.get(nodeId) || [];
+        current.push(regionId);
+        regionIdsByNodeId.set(nodeId, current);
+      });
+    });
+    return regionIdsByNodeId;
+  }, [visibleDocument]);
   const pendingPathLabel = pendingPathNodeIds.length
     ? pendingPathNodeIds.map((id) => nodeNameById.get(id) || id).join(' -> ')
     : 'Click nodes to build a path';
@@ -232,7 +263,7 @@ export const PreviewPanel = memo(function PreviewPanel({ exportImage, exportTool
   }, [selectedObjectIds, visibleDocument]);
   const regionSelectionLabel = selectedRegionMemberIds.length
     ? selectedRegionMemberIds.map((id) => nodeNameById.get(id) || id).join(', ')
-    : 'Select nodes to create a region';
+    : 'Click the canvas to place a region, or drag an area';
   const commitPendingPath = useCallback(() => {
     if (pendingPathNodeIds.length < 2) {
       setPendingPathMessage('Path requires at least two nodes');
@@ -257,7 +288,7 @@ export const PreviewPanel = memo(function PreviewPanel({ exportImage, exportTool
     if (!selectedRegionMemberIds.length) return;
     createCanvasRegion(selectedRegionMemberIds);
     setPendingRegionMessage(undefined);
-    setCanvasAuthoring((current) => reduceCanvasAuthoringState(current, { type: 'completeAction' }));
+    setCanvasAuthoring((current) => reduceCanvasAuthoringState(current, { type: 'cancel' }));
   }, [createCanvasRegion, selectedRegionMemberIds]);
   const topologyPointFromPointer = useCallback((event: ReactPointerEvent<HTMLElement>) => {
     const preview = previewRef.current;
@@ -321,17 +352,21 @@ export const PreviewPanel = memo(function PreviewPanel({ exportImage, exportTool
     if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
     setPendingRegionDrag(undefined);
     if (clientBounds.width < 8 || clientBounds.height < 8 || bounds.width <= 0 || bounds.height <= 0) {
-      setPendingRegionMessage('Drag a larger area to create a region');
+      const size = { width: 260, height: 160 };
+      createCanvasRegion([], {
+        height: size.height,
+        width: size.width,
+        x: Math.round(topologyPoint.x - size.width / 2),
+        y: Math.round(topologyPoint.y - size.height / 2)
+      });
+      setPendingRegionMessage(undefined);
+      setCanvasAuthoring((current) => reduceCanvasAuthoringState(current, { type: 'cancel' }));
       return;
     }
     const members = nodeIdsWithinCanvasBounds(visibleDocument, bounds, selectedLayerIds);
-    if (!members.length) {
-      setPendingRegionMessage('No nodes inside region bounds');
-      return;
-    }
     createCanvasRegion(members, bounds);
     setPendingRegionMessage(undefined);
-    setCanvasAuthoring((current) => reduceCanvasAuthoringState(current, { type: 'completeAction' }));
+    setCanvasAuthoring((current) => reduceCanvasAuthoringState(current, { type: 'cancel' }));
   }, [createCanvasRegion, pendingRegionDrag, selectedLayerIds, topologyPointFromPointer, visibleDocument]);
   useEffect(() => {
     if (parityMode) return undefined;
@@ -375,12 +410,34 @@ export const PreviewPanel = memo(function PreviewPanel({ exportImage, exportTool
       setCanvasAuthoring((current) => reduceCanvasAuthoringState(current, { type: 'completeAction' }));
       return;
     }
+    if (!parityMode && canvasAuthoring.activeTool === 'shape') {
+      placeCanvasShape(event.position);
+      setCanvasAuthoring((current) => reduceCanvasAuthoringState(current, { type: 'completeAction' }));
+      return;
+    }
+    if (!parityMode && canvasAuthoring.activeTool === 'callout') {
+      placeCanvasCallout(event.position);
+      setCanvasAuthoring((current) => reduceCanvasAuthoringState(current, { type: 'completeAction' }));
+      return;
+    }
     if (!parityMode && canvasAuthoring.activeTool === 'path') {
       setPendingPathMessage('Click a node to add it to the path');
       return;
     }
+    if (!parityMode && canvasAuthoring.activeTool === 'region') {
+      const size = { width: 260, height: 160 };
+      createCanvasRegion([], {
+        height: size.height,
+        width: size.width,
+        x: Math.round(event.position.x - size.width / 2),
+        y: Math.round(event.position.y - size.height / 2)
+      });
+      setPendingRegionMessage(undefined);
+      setCanvasAuthoring((current) => reduceCanvasAuthoringState(current, { type: 'cancel' }));
+      return;
+    }
     if (canvasAuthoring.activeTool === 'select') setSelectedObjects([]);
-  }, [canvasAuthoring.activeTool, parityMode, placeCanvasNode, setSelectedObjects]);
+  }, [canvasAuthoring.activeTool, createCanvasRegion, parityMode, placeCanvasCallout, placeCanvasNode, placeCanvasShape, setSelectedObjects]);
   const handlePreviewObjectClick = useCallback((object: TopoViewerObjectClick) => {
     if (!parityMode && canvasAuthoring.activeTool === 'path') {
       const nodeIds = new Set((visibleDocument?.graph?.nodes || []).map((node) => String(node.id)));
@@ -460,17 +517,56 @@ export const PreviewPanel = memo(function PreviewPanel({ exportImage, exportTool
       width: `${bounds.width}px`
     };
   }, [pendingRegionDrag, previewRef]);
+  const closeRegionContextMenu = useCallback(() => setRegionContextMenu(undefined), []);
+  const handleContextMenuCapture = useCallback((event: ReactMouseEvent<HTMLElement>) => {
+    if (parityMode) return;
+    const target = event.target as HTMLElement | null;
+    const nodeElement = target?.closest<HTMLElement>('.react-flow__node');
+    const nodeId = nodeElement?.dataset.id;
+    if (!nodeId || nodeId.startsWith('region:')) return;
+    const regionIds = directRegionIdsByNodeId.get(nodeId) || [];
+    if (!regionIds.length) return;
+    event.preventDefault();
+    event.stopPropagation();
+    setRegionContextMenu({
+      mouseX: event.clientX + 2,
+      mouseY: event.clientY - 6,
+      nodeId,
+      regionIds
+    });
+  }, [directRegionIdsByNodeId, parityMode]);
 
   return (
     <Paper
       className={`topoviewer-vscode-preview topoviewer-vscode-preview--tool-${canvasAuthoring.activeTool}${parityMode ? ' topoviewer-vscode-preview--parity topoviewer-parity-theme' : ''}`}
       elevation={0}
       ref={previewRef}
+      onContextMenuCapture={handleContextMenuCapture}
       onPointerDownCapture={startPendingRegionDrag}
       onPointerMoveCapture={updatePendingRegionDrag}
       onPointerUpCapture={commitPendingRegionDrag}
       onPointerCancelCapture={cancelPendingRegionDrag}
     >
+      {!parityMode && regionContextMenu ? (
+        <Menu
+          open
+          onClose={closeRegionContextMenu}
+          anchorReference="anchorPosition"
+          anchorPosition={{ top: regionContextMenu.mouseY, left: regionContextMenu.mouseX }}
+        >
+          {regionContextMenu.regionIds.map((regionId) => (
+            <MenuItem
+              key={regionId}
+              onClick={() => {
+                releaseNodeFromRegion(regionContextMenu.nodeId, regionId);
+                closeRegionContextMenu();
+              }}
+            >
+              Release from {regionNameById.get(regionId) || regionId}
+            </MenuItem>
+          ))}
+        </Menu>
+      ) : null}
       {parityMode ? null : (
         <>
           <Box className="topoviewer-vscode-preview-actions">
@@ -508,7 +604,7 @@ export const PreviewPanel = memo(function PreviewPanel({ exportImage, exportTool
           {canvasAuthoring.activeTool === 'region' ? (
             <Box className="topoviewer-vscode-canvas-authoring-strip" role="status" aria-label="Region authoring selection">
               <Typography className="topoviewer-vscode-canvas-authoring-summary" variant="caption">
-                {pendingRegionMessage || (pendingRegionDrag ? 'Release to create a region from the selected bounds' : regionSelectionLabel)}
+                {pendingRegionMessage || (pendingRegionDrag ? 'Release to create a region from these bounds' : regionSelectionLabel)}
               </Typography>
               <Button size="small" disabled={hasErrors || selectedRegionMemberIds.length < 1} onClick={commitSelectedRegion}>Create region</Button>
             </Box>

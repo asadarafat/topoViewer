@@ -238,7 +238,7 @@ function compileShapeNodes(
       ...rendered.flow,
       id: shape.id,
       position: positionOf(shape.position),
-      data: mergePlainObjects({ ...shape, ...(shape.data || {}) }, rendered.data || {}),
+      data: mergePlainObjects({ ...shape, objectKind: 'shape', ...(shape.data || {}) }, rendered.data || {}),
       style: { ...(rendered.flow.style || {}) }
     }];
   });
@@ -260,7 +260,7 @@ function compileCalloutNodes(
       ...rendered.flow,
       id: callout.id,
       position: positionOf(callout.position),
-      data: mergePlainObjects({ ...callout, ...(callout.data || {}) }, rendered.data || {}),
+      data: mergePlainObjects({ ...callout, objectKind: 'callout', ...(callout.data || {}) }, rendered.data || {}),
       style: { ...(rendered.flow.style || {}) }
     }];
   });

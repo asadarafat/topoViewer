@@ -71,6 +71,8 @@ export interface GraphPath extends GraphEntity {
 export interface GraphRegion extends GraphEntity {
   members?: string[];
   parent?: string;
+  position?: PositionTuple | { x: number; y: number };
+  size?: PositionTuple | { width: number; height: number };
   padding?: number;
   paddingX?: number;
   paddingY?: number;
@@ -412,6 +414,7 @@ export interface TopoViewerViewport {
 }
 
 export interface TopoViewerNodePositionChange {
+  delta?: { x: number; y: number };
   id: string;
   runtimeId: string;
   position: { x: number; y: number };

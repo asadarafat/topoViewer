@@ -75,9 +75,15 @@ export type CanvasAuthoringCommand =
     type: 'insertPathSequence';
   }
   | {
+    layers: string[];
+    position: CanvasAuthoringPoint;
+    size?: { width: number; height: number };
+    type: 'insertShapeAt';
+  }
+  | {
     bounds: CanvasAuthoringRect;
     layers: string[];
-    members: string[];
+    members?: string[];
     type: 'insertRegionFromBounds';
   }
   | {
@@ -280,6 +286,7 @@ export function canvasAuthoringCommandLabel(command: CanvasAuthoringCommand) {
   if (command.type === 'insertRegionFromSelection') return 'Create region';
   if (command.type === 'insertRegionFromBounds') return 'Create region';
   if (command.type === 'insertCalloutAt') return 'Place callout';
+  if (command.type === 'insertShapeAt') return 'Place shape';
   if (command.type === 'moveSelection') return 'Move selection';
   if (command.type === 'resizeObject') return 'Resize object';
   if (command.type === 'duplicateSelection') return 'Duplicate selection';
@@ -331,6 +338,16 @@ export function applyCanvasAuthoringCommand(text: string, command: CanvasAuthori
     });
   }
 
+  if (command.type === 'insertShapeAt') {
+    return insertTopoObject(text, {
+      position: command.position,
+      selectedLayerIds: command.layers,
+      selectedObjects: [],
+      size: command.size,
+      type: 'shape'
+    });
+  }
+
   if (command.type === 'moveSelection') {
     return movePositionedSelection(text, command.selections, command.delta);
   }
@@ -341,8 +358,10 @@ export function applyCanvasAuthoringCommand(text: string, command: CanvasAuthori
 
   if (command.type === 'insertRegionFromBounds') {
     return insertTopoObject(text, {
+      position: { x: command.bounds.x, y: command.bounds.y },
       selectedLayerIds: command.layers,
-      selectedObjects: command.members.map((id) => ({ kind: 'node', id })),
+      selectedObjects: (command.members || []).map((id) => ({ kind: 'node', id })),
+      size: { width: command.bounds.width, height: command.bounds.height },
       type: 'region'
     });
   }

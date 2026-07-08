@@ -5,10 +5,28 @@ type RegionMemberNode = Pick<GraphNode, 'id' | 'position'> & {
   regionBoundsHeight?: number;
 };
 
-export function normalizePosition(position: GraphNode['position']): { x: number; y: number } {
+export function normalizePosition(position: GraphNode['position'] | GraphRegion['position']): { x: number; y: number } {
   if (Array.isArray(position)) return { x: Number(position[0] || 0), y: Number(position[1] || 0) };
   if (position && typeof position === 'object') return { x: Number(position.x || 0), y: Number(position.y || 0) };
   return { x: 0, y: 0 };
+}
+
+function normalizeSize(size: GraphRegion['size']): { width: number; height: number } | undefined {
+  if (Array.isArray(size)) {
+    const width = Number(size[0]);
+    const height = Number(size[1]);
+    return Number.isFinite(width) && Number.isFinite(height) && width > 0 && height > 0
+      ? { width, height }
+      : undefined;
+  }
+  if (size && typeof size === 'object') {
+    const width = Number(size.width);
+    const height = Number(size.height);
+    return Number.isFinite(width) && Number.isFinite(height) && width > 0 && height > 0
+      ? { width, height }
+      : undefined;
+  }
+  return undefined;
 }
 
 export function unionBounds(boundsList: Array<Bounds | null | undefined>): Bounds | null {
@@ -64,12 +82,25 @@ function regionDepth(region: GraphRegion, regionById: Map<string, GraphRegion>):
   return depth;
 }
 
+function explicitRegionBounds(region: GraphRegion): Bounds | null {
+  const size = normalizeSize(region.size);
+  if (!size) return null;
+  const position = normalizePosition(region.position);
+  return {
+    x: position.x,
+    y: position.y,
+    width: size.width,
+    height: size.height
+  };
+}
+
 function regionBounds(region: GraphRegion, nodeById: Map<string, RegionMemberNode>, regions: GraphRegion[]): Bounds | null {
+  const explicitBounds = explicitRegionBounds(region);
   const nodes = (region.members || [])
     .map((id) => nodeById.get(id))
     .filter(Boolean) as RegionMemberNode[];
 
-  if (!nodes.length) return null;
+  if (!nodes.length) return explicitBounds;
 
   const padding = numberOrDefault(region.padding, 88);
   const paddingX = numberOrDefault(region.paddingX, padding);
@@ -94,12 +125,13 @@ function regionBounds(region: GraphRegion, nodeById: Map<string, RegionMemberNod
     return point.y + regionMemberHeight(node, nodeHeight);
   })) + paddingY;
 
-  return {
+  const memberBounds = {
     x: minX,
     y: minY,
     width: Math.max(minWidth, maxX - minX),
     height: Math.max(minHeight, maxY - minY)
   };
+  return unionBounds([explicitBounds, memberBounds]);
 }
 
 export function buildRegionBoundsMap(regions: GraphRegion[], selectedLayerIds: Set<string>, nodeById: Map<string, RegionMemberNode>): Map<string, Bounds> {

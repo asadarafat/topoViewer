@@ -517,6 +517,140 @@ test('creates canvas regions from deterministic drag bounds', async ({ page }) =
   await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'region-1')).toContain('- node-1');
 });
 
+test('creates region containers and releases dragged-in nodes explicitly', async ({ page }) => {
+  await startNewTopology(page);
+
+  const paneBox = await page.locator('.react-flow__pane').boundingBox();
+  expect(paneBox).not.toBeNull();
+  const toolbar = page.getByRole('toolbar', { name: 'Canvas authoring tools' });
+  await toolbar.getByRole('button', { name: 'Region tool' }).click();
+  await page.mouse.click(paneBox!.x + paneBox!.width * 0.55, paneBox!.y + paneBox!.height * 0.5);
+
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'region-1')).toContain('members: []');
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'region-1')).toContain('position:');
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'region-1')).toContain('size:');
+  const region = page.locator('.react-flow__node[data-id="region:region-1"] .topoviewer-region-drag');
+  await expect(region).toBeVisible();
+
+  await toolbar.getByRole('button', { name: 'Node tool' }).click();
+  await page.mouse.click(paneBox!.x + paneBox!.width * 0.22, paneBox!.y + paneBox!.height * 0.5);
+  await waitForValidatedGraphNodes(page, ['node-1']);
+  const node = page.locator('.react-flow__node[data-id="node-1"]');
+  await expect(node).toBeVisible();
+
+  const nodeBox = await node.boundingBox();
+  const regionBox = await region.boundingBox();
+  expect(nodeBox).not.toBeNull();
+  expect(regionBox).not.toBeNull();
+  const from = { x: nodeBox!.x + nodeBox!.width / 2, y: nodeBox!.y + nodeBox!.height / 2 };
+  const intoRegion = { x: regionBox!.x + regionBox!.width / 2, y: regionBox!.y + regionBox!.height / 2 };
+  await page.mouse.move(from.x, from.y);
+  await page.mouse.down();
+  await page.mouse.move((from.x + intoRegion.x) / 2, (from.y + intoRegion.y) / 2, { steps: 8 });
+  await page.mouse.move(intoRegion.x, intoRegion.y, { steps: 8 });
+  await page.mouse.up();
+
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'region-1')).toContain('- node-1');
+
+  const nodeAfterDrop = await node.boundingBox();
+  expect(nodeAfterDrop).not.toBeNull();
+  const outside = { x: paneBox!.x + paneBox!.width * 0.15, y: paneBox!.y + paneBox!.height * 0.18 };
+  await page.mouse.move(nodeAfterDrop!.x + nodeAfterDrop!.width / 2, nodeAfterDrop!.y + nodeAfterDrop!.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(outside.x, outside.y, { steps: 8 });
+  await page.mouse.up();
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'region-1')).toContain('- node-1');
+
+  const nodeAfterOutsideDrag = await node.boundingBox();
+  expect(nodeAfterOutsideDrag).not.toBeNull();
+  await page.mouse.click(
+    nodeAfterOutsideDrag!.x + nodeAfterOutsideDrag!.width / 2,
+    nodeAfterOutsideDrag!.y + nodeAfterOutsideDrag!.height / 2,
+    { button: 'right' }
+  );
+  await page.getByRole('menuitem', { name: /Release from/ }).click();
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'region-1')).not.toContain('- node-1');
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'region-1')).toContain('members: []');
+
+  await page.reload();
+  await waitForHarnessState(page);
+  await expect(page.getByText('No diagnostics')).toBeVisible();
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'region-1')).toContain('members: []');
+});
+
+test('moves canvas region groups by translating member nodes with helper lines disabled', async ({ page }) => {
+  await startNewTopology(page);
+
+  await page.getByRole('tab', { name: 'Build', exact: true }).click();
+  await page.getByRole('button', { name: 'Insert Node' }).click();
+  await page.getByRole('button', { name: 'Insert Node' }).click();
+  await waitForValidatedGraphNodes(page, ['node-1', 'node-2']);
+
+  await page.locator('.react-flow__node[data-id="node-1"]').click();
+  await page.locator('.react-flow__node[data-id="node-2"]').click({ modifiers: ['Shift'] });
+  await expect.poll(() => selectedPreviewObjectCount(page)).toBe(2);
+  const regionTool = page.getByRole('toolbar', { name: 'Canvas authoring tools' }).getByRole('button', { name: 'Region tool' });
+  await regionTool.click();
+  await page.getByRole('button', { name: 'Create region' }).click();
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'region-1')).toContain('members:');
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'region-1')).toContain('draggable: true');
+  const beforeNode1 = nodePosition(await topologyText(page), 'node-1');
+  const beforeNode2 = nodePosition(await topologyText(page), 'node-2');
+  expect(beforeNode1).toBeDefined();
+  expect(beforeNode2).toBeDefined();
+
+  const settings = page.locator('.topoviewer-vscode-controls-overlay');
+  const helperLinesToggle = settings.getByRole('checkbox', { name: 'Helper lines' });
+  if (await helperLinesToggle.count() === 0) {
+    await page.getByRole('button', { name: 'Show topology controls' }).click();
+  }
+  await expect(helperLinesToggle).toBeChecked();
+  await helperLinesToggle.uncheck();
+  await expect(helperLinesToggle).not.toBeChecked();
+
+  const region = page.locator('.react-flow__node[data-id="region:region-1"] .topoviewer-region-drag');
+  await expect(region).toBeVisible();
+  const regionBox = await region.boundingBox();
+  expect(regionBox).not.toBeNull();
+  const from = { x: regionBox!.x + 18, y: regionBox!.y + 18 };
+  const to = { x: from.x + 92, y: from.y + 54 };
+  await page.mouse.move(from.x, from.y);
+  await page.mouse.down();
+  await page.mouse.move((from.x + to.x) / 2, (from.y + to.y) / 2, { steps: 6 });
+  await page.mouse.move(to.x, to.y, { steps: 6 });
+  await page.mouse.up();
+
+  let afterNode1 = beforeNode1;
+  let afterNode2 = beforeNode2;
+  await expect.poll(async () => {
+    afterNode1 = nodePosition(await topologyText(page), 'node-1');
+    afterNode2 = nodePosition(await topologyText(page), 'node-2');
+    return afterNode1 && afterNode2
+      ? `${afterNode1.x - beforeNode1!.x},${afterNode1.y - beforeNode1!.y},${afterNode2.x - beforeNode2!.x},${afterNode2.y - beforeNode2!.y}`
+      : 'missing';
+  }).not.toBe('0,0,0,0');
+
+  const delta1 = { x: afterNode1!.x - beforeNode1!.x, y: afterNode1!.y - beforeNode1!.y };
+  const delta2 = { x: afterNode2!.x - beforeNode2!.x, y: afterNode2!.y - beforeNode2!.y };
+  expect(delta1.x).toBe(delta2.x);
+  expect(delta1.y).toBe(delta2.y);
+  expect(delta1.x).toBeGreaterThan(0);
+  expect(delta1.y).toBeGreaterThan(0);
+
+  await page.getByRole('button', { name: 'Undo' }).click();
+  await expect.poll(async () => nodePosition(await topologyText(page), 'node-1')).toEqual(beforeNode1);
+  await expect.poll(async () => nodePosition(await topologyText(page), 'node-2')).toEqual(beforeNode2);
+  await page.getByRole('button', { name: 'Redo' }).click();
+  await expect.poll(async () => nodePosition(await topologyText(page), 'node-1')).toEqual(afterNode1);
+  await expect.poll(async () => nodePosition(await topologyText(page), 'node-2')).toEqual(afterNode2);
+
+  await page.reload();
+  await waitForHarnessState(page);
+  await expect(page.getByText('No diagnostics')).toBeVisible();
+  await expect.poll(async () => nodePosition(await topologyText(page), 'node-1')).toEqual(afterNode1);
+  await expect.poll(async () => nodePosition(await topologyText(page), 'node-2')).toEqual(afterNode2);
+});
+
 test('keeps click-created linked nodes stable during staggered vertical drags', async ({ page }) => {
   await startNewTopology(page);
 
@@ -571,6 +705,64 @@ test('keeps click-created linked nodes stable during staggered vertical drags', 
   await waitForHarnessState(page);
   await expect(page.getByText('No diagnostics')).toBeVisible();
   await expect.poll(async () => nodePosition(await topologyText(page), 'node-1')).toEqual(finalPosition);
+});
+
+test('places and moves canvas shapes and callouts from toolbar tools', async ({ page }) => {
+  await startNewTopology(page);
+
+  const paneBox = await page.locator('.react-flow__pane').boundingBox();
+  expect(paneBox).not.toBeNull();
+  const toolbar = page.getByRole('toolbar', { name: 'Canvas authoring tools' });
+
+  await toolbar.getByRole('button', { name: 'Shape tool' }).click();
+  await page.mouse.click(paneBox!.x + paneBox!.width * 0.40, paneBox!.y + paneBox!.height * 0.55);
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'shape-1')).toContain('type: rectangle');
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'shape-1')).toContain('- annotations');
+  await expect(page.locator('.react-flow__node[data-id="shape-1"]')).toBeVisible();
+
+  await toolbar.getByRole('button', { name: 'Callout tool' }).click();
+  await page.mouse.click(paneBox!.x + paneBox!.width * 0.62, paneBox!.y + paneBox!.height * 0.42);
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'callout-1')).toContain('title: New Callout');
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'callout-1')).toContain('- annotations');
+  await expect(page.locator('.react-flow__node[data-id="callout-1"]')).toBeVisible();
+
+  const beforeShape = nodePosition(await topologyText(page), 'shape-1');
+  const beforeCallout = nodePosition(await topologyText(page), 'callout-1');
+  expect(beforeShape).toBeDefined();
+  expect(beforeCallout).toBeDefined();
+
+  const shape = page.locator('.react-flow__node[data-id="shape-1"]');
+  const shapeBox = await shape.boundingBox();
+  expect(shapeBox).not.toBeNull();
+  await page.mouse.move(shapeBox!.x + shapeBox!.width / 2, shapeBox!.y + shapeBox!.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(shapeBox!.x + shapeBox!.width / 2 + 70, shapeBox!.y + shapeBox!.height / 2 + 45, { steps: 8 });
+  await page.mouse.up();
+
+  const callout = page.locator('.react-flow__node[data-id="callout-1"]');
+  const calloutBox = await callout.boundingBox();
+  expect(calloutBox).not.toBeNull();
+  await page.mouse.move(calloutBox!.x + calloutBox!.width / 2, calloutBox!.y + calloutBox!.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(calloutBox!.x + calloutBox!.width / 2 - 60, calloutBox!.y + calloutBox!.height / 2 + 55, { steps: 8 });
+  await page.mouse.up();
+
+  let afterShape = beforeShape;
+  let afterCallout = beforeCallout;
+  await expect.poll(async () => {
+    afterShape = nodePosition(await topologyText(page), 'shape-1');
+    return afterShape && beforeShape ? `${afterShape.x - beforeShape.x},${afterShape.y - beforeShape.y}` : 'missing';
+  }).not.toBe('0,0');
+  await expect.poll(async () => {
+    afterCallout = nodePosition(await topologyText(page), 'callout-1');
+    return afterCallout && beforeCallout ? `${afterCallout.x - beforeCallout.x},${afterCallout.y - beforeCallout.y}` : 'missing';
+  }).not.toBe('0,0');
+
+  await page.reload();
+  await waitForHarnessState(page);
+  await expect(page.getByText('No diagnostics')).toBeVisible();
+  await expect.poll(async () => nodePosition(await topologyText(page), 'shape-1')).toEqual(afterShape);
+  await expect.poll(async () => nodePosition(await topologyText(page), 'callout-1')).toEqual(afterCallout);
 });
 
 test('crud covers new topology regions, callouts, and relationship objects', async ({ page }) => {

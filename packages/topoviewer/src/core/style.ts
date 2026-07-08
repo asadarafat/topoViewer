@@ -782,6 +782,7 @@ export function compileRegionStyle(style: StyleDeclaration, width: number, heigh
       dragHandle: style.draggable === true ? '.topoviewer-region-drag' : undefined,
       width,
       height,
+      measured: { width, height },
       zIndex: valueOrDefault(style.zIndex as number | undefined, styleDefaultNumber('region', 'zIndex', -20)),
       style: withoutUndefined({
         width,

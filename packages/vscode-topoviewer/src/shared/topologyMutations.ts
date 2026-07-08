@@ -2,7 +2,7 @@ import yaml from 'js-yaml';
 import type { TopoDocument } from 'topoviewer';
 
 export type TopoObjectKind = 'node' | 'link' | 'linkDirection' | 'path' | 'region' | 'callout' | 'shape';
-export type InsertObjectType = 'node' | 'router' | 'service' | 'controller' | 'external' | 'link' | 'path' | 'region' | 'callout' | 'alert';
+export type InsertObjectType = 'node' | 'router' | 'service' | 'controller' | 'external' | 'link' | 'path' | 'region' | 'callout' | 'shape' | 'alert';
 export type AttentionFocusKind = 'nodeIds' | 'linkIds' | 'pathIds' | 'regionIds';
 
 export interface TopoObjectSelection {
@@ -17,6 +17,7 @@ export interface MutationResult {
 
 export interface InsertObjectOptions {
   position?: { x: number; y: number };
+  size?: { width: number; height: number };
   type: InsertObjectType;
   selectedObjects: TopoObjectSelection[];
   selectedLayerIds: string[];
@@ -76,6 +77,26 @@ export interface UpsertGraphPathOptions {
 export interface UpdateNodePositionOptions {
   nodeId: string;
   position: { x: number; y: number };
+}
+
+export interface UpdateNodePositionAndRegionMembershipOptions {
+  nodeId: string;
+  position: { x: number; y: number };
+}
+
+export interface UpdatePositionedObjectPositionOptions {
+  selection: TopoObjectSelection;
+  position: { x: number; y: number };
+}
+
+export interface ReleaseNodeFromRegionOptions {
+  nodeId: string;
+  regionId: string;
+}
+
+export interface UpdateRegionMemberPositionsOptions {
+  delta: { x: number; y: number };
+  regionId: string;
 }
 
 export interface AttentionFocusOptions {
@@ -221,6 +242,25 @@ function positionOf(value: unknown): { x: number; y: number } | undefined {
   return undefined;
 }
 
+function sizeOf(value: unknown): { width: number; height: number } | undefined {
+  if (Array.isArray(value)) {
+    const width = Number(value[0]);
+    const height = Number(value[1]);
+    return Number.isFinite(width) && Number.isFinite(height) && width > 0 && height > 0
+      ? { width, height }
+      : undefined;
+  }
+  if (value && typeof value === 'object') {
+    const candidate = value as { width?: unknown; height?: unknown };
+    const width = Number(candidate.width);
+    const height = Number(candidate.height);
+    return Number.isFinite(width) && Number.isFinite(height) && width > 0 && height > 0
+      ? { width, height }
+      : undefined;
+  }
+  return undefined;
+}
+
 function positionedObjects(document: Record<string, any>): Array<{ x: number; y: number }> {
   return [
     ...(document.graph?.nodes || []),
@@ -292,6 +332,158 @@ function firstGraphNodeIds(document: Record<string, any>, count: number): string
 function selectedNodeIdsOrFallback(document: Record<string, any>, selectedObjects: TopoObjectSelection[], count: number): string[] {
   const selected = selectedIds(selectedObjects, 'node');
   return selected.length >= count ? selected.slice(0, count) : firstGraphNodeIds(document, count);
+}
+
+function selectedRegionMemberIdsOrFallback(document: Record<string, any>, selectedObjects: TopoObjectSelection[]): string[] {
+  const selected = selectedIds(selectedObjects, 'node');
+  return selected.length ? selected : firstGraphNodeIds(document, 1);
+}
+
+function uniqueIds(ids: string[]): string[] {
+  return Array.from(new Set(ids.map((id) => id.trim()).filter(Boolean)));
+}
+
+function regionParentKey(region: Record<string, any> | undefined): string {
+  return String(region?.parent || '');
+}
+
+function hasExplicitRegionBounds(region: Record<string, any> | undefined): boolean {
+  return !!region && !!positionOf(region.position) && !!sizeOf(region.size);
+}
+
+function pruneTouchedEmptyRegions(regions: any[], touchedRegionIds: Set<string>) {
+  if (!touchedRegionIds.size) return;
+  for (let index = regions.length - 1; index >= 0; index -= 1) {
+    const region = regions[index];
+    const regionId = String(region?.id || '');
+    if (!touchedRegionIds.has(regionId)) continue;
+    const hasMembers = Array.isArray(region.members) && region.members.length > 0;
+    const hasChildren = regions.some((candidate) => String(candidate?.parent || '') === regionId);
+    if (!hasMembers && !hasChildren && !hasExplicitRegionBounds(region)) regions.splice(index, 1);
+  }
+}
+
+function removeMembersFromSiblingRegions(
+  regions: any[],
+  members: string[],
+  options: { exemptRegionId?: string; parentId?: string } = {}
+) {
+  const memberSet = new Set(members);
+  if (!memberSet.size) return;
+  const parentKey = options.parentId || '';
+  const touchedRegionIds = new Set<string>();
+
+  regions.forEach((region) => {
+    const regionId = String(region?.id || '');
+    if (!regionId || regionId === options.exemptRegionId) return;
+    if (regionParentKey(region) !== parentKey) return;
+    if (!Array.isArray(region.members)) return;
+    const nextMembers = region.members.map(String).filter((memberId: string) => !memberSet.has(memberId));
+    if (nextMembers.length === region.members.length) return;
+    region.members = nextMembers;
+    if (!nextMembers.length) touchedRegionIds.add(regionId);
+  });
+
+  pruneTouchedEmptyRegions(regions, touchedRegionIds);
+}
+
+function recursiveRegionMemberNodeIds(document: Record<string, any>, regionId: string): string[] {
+  const regions = Array.isArray(document.graph?.regions) ? document.graph.regions : [];
+  const regionById = new Map<string, any>(regions.map((region: any) => [String(region.id || ''), region]));
+  const nodeIds = graphNodeIds(document);
+  const visitedRegions = new Set<string>();
+  const memberNodeIds = new Set<string>();
+
+  function visit(currentRegionId: string) {
+    if (visitedRegions.has(currentRegionId)) return;
+    visitedRegions.add(currentRegionId);
+    const region = regionById.get(currentRegionId);
+    if (!region) return;
+    (Array.isArray(region.members) ? region.members : []).forEach((memberId: unknown) => {
+      const normalizedMemberId = String(memberId || '');
+      if (nodeIds.has(normalizedMemberId)) memberNodeIds.add(normalizedMemberId);
+    });
+    regions
+      .filter((candidate: any) => String(candidate.parent || '') === currentRegionId)
+      .forEach((child: any) => visit(String(child.id || '')));
+  }
+
+  visit(regionId);
+  return [...memberNodeIds];
+}
+
+function translatePosition(value: unknown, delta: { x: number; y: number }): [number, number] | { x: number; y: number } {
+  const current = positionOf(value) || { x: 0, y: 0 };
+  const x = Math.round(current.x + delta.x);
+  const y = Math.round(current.y + delta.y);
+  return value && !Array.isArray(value) && typeof value === 'object' ? { x, y } : [x, y];
+}
+
+type Bounds = { x: number; y: number; width: number; height: number };
+type RegionBoundsCandidate = { region: Record<string, any>; bounds: Bounds | undefined; area: number };
+
+function unionBounds(boundsList: Array<Bounds | undefined>): Bounds | undefined {
+  const bounds = boundsList.filter(Boolean) as Bounds[];
+  if (!bounds.length) return undefined;
+  const minX = Math.min(...bounds.map((item) => item.x));
+  const minY = Math.min(...bounds.map((item) => item.y));
+  const maxX = Math.max(...bounds.map((item) => item.x + item.width));
+  const maxY = Math.max(...bounds.map((item) => item.y + item.height));
+  return { x: minX, y: minY, width: maxX - minX, height: maxY - minY };
+}
+
+function explicitRegionBounds(region: Record<string, any>): Bounds | undefined {
+  const position = positionOf(region.position);
+  const size = sizeOf(region.size);
+  return position && size ? { x: position.x, y: position.y, width: size.width, height: size.height } : undefined;
+}
+
+function memberRegionBounds(document: Record<string, any>, region: Record<string, any>): Bounds | undefined {
+  const members = Array.isArray(region.members) ? region.members.map(String) : [];
+  if (!members.length) return undefined;
+  const nodesById = new Map(graphNodes(document).map((node) => [String(node.id || ''), node]));
+  const nodes = members.map((id) => nodesById.get(id)).filter(Boolean);
+  if (!nodes.length) return undefined;
+  const padding = Number.isFinite(Number(region.padding)) ? Number(region.padding) : 88;
+  const paddingX = Number.isFinite(Number(region.paddingX)) ? Number(region.paddingX) : padding;
+  const paddingY = Number.isFinite(Number(region.paddingY)) ? Number(region.paddingY) : padding;
+  const nodeWidth = Number.isFinite(Number(region.nodeWidth)) ? Number(region.nodeWidth) : 88;
+  const nodeHeight = Number.isFinite(Number(region.nodeHeight)) ? Number(region.nodeHeight) : 74;
+  const points = nodes.map((node) => positionOf(node.position) || { x: 0, y: 0 });
+  const minX = Math.min(...points.map((point) => point.x)) - paddingX;
+  const minY = Math.min(...points.map((point) => point.y)) - paddingY;
+  const maxX = Math.max(...points.map((point) => point.x + nodeWidth)) + paddingX;
+  const maxY = Math.max(...points.map((point) => point.y + nodeHeight)) + paddingY;
+  return { x: minX, y: minY, width: maxX - minX, height: maxY - minY };
+}
+
+function regionBoundsForMembership(document: Record<string, any>, region: Record<string, any>): Bounds | undefined {
+  return unionBounds([explicitRegionBounds(region), memberRegionBounds(document, region)]);
+}
+
+function containsPoint(bounds: Bounds | undefined, point: { x: number; y: number }): boolean {
+  return !!bounds
+    && point.x >= bounds.x
+    && point.x <= bounds.x + bounds.width
+    && point.y >= bounds.y
+    && point.y <= bounds.y + bounds.height;
+}
+
+function containingRegionForNodePosition(
+  document: Record<string, any>,
+  nodeId: string,
+  position: { x: number; y: number }
+): Record<string, any> | undefined {
+  const regions = Array.isArray(document.graph?.regions) ? document.graph.regions : [];
+  const point = { x: position.x + 44, y: position.y + 37 };
+  return regions
+    .map((region: any): RegionBoundsCandidate => {
+      const bounds = regionBoundsForMembership(document, region);
+      return { region, bounds, area: bounds ? bounds.width * bounds.height : Number.POSITIVE_INFINITY };
+    })
+    .filter((candidate: RegionBoundsCandidate) => String(candidate.region?.id || '') && containsPoint(candidate.bounds, point))
+    .filter((candidate: RegionBoundsCandidate) => !(Array.isArray(candidate.region.members) && candidate.region.members.map(String).includes(nodeId)))
+    .sort((a: RegionBoundsCandidate, b: RegionBoundsCandidate) => a.area - b.area)[0]?.region;
 }
 
 function graphLinkDirectionObjects(document: Record<string, any> | TopoDocument | undefined): any[] {
@@ -518,17 +710,29 @@ export function insertTopoObject(text: string, options: InsertObjectOptions): Mu
     }
 
     if (options.type === 'region') {
-      const members = selectedNodeIdsOrFallback(document, options.selectedObjects, 2);
-      if (!members.length) throw new Error('Insert Region requires at least one node.');
+      const hasPlacement = !!options.position && !!options.size;
+      const members = hasPlacement
+        ? selectedIds(options.selectedObjects, 'node')
+        : selectedRegionMemberIdsOrFallback(document, options.selectedObjects);
+      if (!members.length && !hasPlacement) throw new Error('Insert Region requires at least one node or placement bounds.');
+      const id = nextId(document, 'region');
+      const normalizedMembers = uniqueIds(members);
+      if (normalizedMembers.length) removeMembersFromSiblingRegions(regions, normalizedMembers);
       regions.push({
-        id: nextId(document, 'region'),
+        id,
         name: 'New Region',
         labels: { scope: layerId },
-        members,
+        members: normalizedMembers,
+        ...(options.position ? { position: [Math.round(options.position.x), Math.round(options.position.y)] } : {}),
+        ...(options.size ? { size: [Math.round(options.size.width), Math.round(options.size.height)] } : {}),
         layers: [layerId],
         paddingX: 34,
         paddingY: 28,
-        headerPadding: 34
+        headerPadding: 34,
+        style: {
+          draggable: true,
+          selectable: true
+        }
       });
       return;
     }
@@ -544,6 +748,21 @@ export function insertTopoObject(text: string, options: InsertObjectOptions): Mu
         ...(target ? { target } : {}),
         ...(!target || options.position ? { position: [Math.round(position.x), Math.round(position.y)] } : {}),
         size: [160, 88],
+        layers: [layerId]
+      });
+      return;
+    }
+
+    if (options.type === 'shape') {
+      const shapes = ensureArray(ensureDiagram(document), 'shapes');
+      const position = options.position || nextCanvasPosition(document, options.selectedObjects);
+      const size = options.size || { width: 180, height: 96 };
+      shapes.push({
+        id: nextId(document, 'shape'),
+        name: 'New Shape',
+        type: 'rectangle',
+        position: [Math.round(position.x), Math.round(position.y)],
+        size: [Math.round(size.width), Math.round(size.height)],
         layers: [layerId]
       });
     }
@@ -599,13 +818,20 @@ export function insertTopoPreset(text: string, options: InsertPresetOptions): Mu
     }
 
     if (preset.kind === 'region') {
-      const members = selectedNodeIdsOrFallback(document, options.selectedObjects, 2);
+      const members = selectedRegionMemberIdsOrFallback(document, options.selectedObjects);
       if (!members.length) throw new Error('Insert region preset requires at least one node.');
+      const normalizedMembers = uniqueIds(members);
+      removeMembersFromSiblingRegions(regions, normalizedMembers);
       regions.push({
         id,
         ...fields,
-        members,
-        layers: [layerId]
+        members: normalizedMembers,
+        layers: [layerId],
+        style: {
+          draggable: true,
+          selectable: true,
+          ...(fields.style && typeof fields.style === 'object' && !Array.isArray(fields.style) ? fields.style : {})
+        }
       });
       return;
     }
@@ -647,11 +873,17 @@ export function updateTopoObject(text: string, options: UpdateObjectOptions): Mu
     if (options.layerId) object.layers = [options.layerId];
     if (options.members !== undefined) {
       if (options.selection.kind !== 'region') throw new Error('Only regions support member updates.');
-      const members = Array.from(new Set(options.members.map((member) => member.trim()).filter(Boolean)));
+      const members = uniqueIds(options.members);
       if (!members.length) throw new Error('Region requires at least one member.');
+      const graph = ensureGraph(document);
+      const regions = ensureArray(graph, 'regions');
+      removeMembersFromSiblingRegions(regions, members, {
+        exemptRegionId: options.selection.id,
+        parentId: regionParentKey(object)
+      });
       object.members = members;
     }
-    if (options.position && (options.selection.kind === 'node' || options.selection.kind === 'shape' || options.selection.kind === 'callout')) {
+    if (options.position && (options.selection.kind === 'node' || options.selection.kind === 'shape' || options.selection.kind === 'callout' || options.selection.kind === 'region')) {
       object.position = [Math.round(options.position.x), Math.round(options.position.y)];
     }
     if (options.labels && Object.keys(options.labels).length > 0) {
@@ -793,6 +1025,74 @@ export function updateGraphNodePosition(text: string, options: UpdateNodePositio
     } else {
       node.position = [x, y];
     }
+  });
+}
+
+export function updateGraphNodePositionAndRegionMembership(text: string, options: UpdateNodePositionAndRegionMembershipOptions): MutationResult {
+  return mutateTopologyText(text, (document) => {
+    const node = graphNodes(document).find((candidate) => candidate.id === options.nodeId);
+    if (!node) throw new Error(`Node "${options.nodeId}" no longer exists.`);
+    const x = Math.round(options.position.x);
+    const y = Math.round(options.position.y);
+    if (Array.isArray(node.position)) {
+      node.position = [x, y];
+    } else if (node.position && typeof node.position === 'object') {
+      node.position = { x, y };
+    } else {
+      node.position = [x, y];
+    }
+
+    const targetRegion = containingRegionForNodePosition(document, options.nodeId, { x, y });
+    if (!targetRegion) return;
+    const targetRegionId = String(targetRegion.id || '');
+    targetRegion.members = uniqueIds([
+      ...(Array.isArray(targetRegion.members) ? targetRegion.members.map(String) : []),
+      options.nodeId
+    ]);
+    const regions = ensureArray(ensureGraph(document), 'regions');
+    removeMembersFromSiblingRegions(regions, [options.nodeId], {
+      exemptRegionId: targetRegionId,
+      parentId: regionParentKey(targetRegion)
+    });
+  });
+}
+
+export function updatePositionedObjectPosition(text: string, options: UpdatePositionedObjectPositionOptions): MutationResult {
+  return mutateTopologyText(text, (document) => {
+    const object = findObject(document, options.selection);
+    if (!object) throw new Error(`Selected ${options.selection.kind} "${options.selection.id}" no longer exists.`);
+    if (options.selection.kind !== 'shape' && options.selection.kind !== 'callout' && options.selection.kind !== 'region') {
+      throw new Error(`Selected ${options.selection.kind} "${options.selection.id}" does not support direct position updates.`);
+    }
+    object.position = [Math.round(options.position.x), Math.round(options.position.y)];
+  });
+}
+
+export function releaseNodeFromRegion(text: string, options: ReleaseNodeFromRegionOptions): MutationResult {
+  return mutateTopologyText(text, (document) => {
+    const regions = Array.isArray(document.graph?.regions) ? document.graph.regions : [];
+    const region = regions.find((candidate: any) => String(candidate.id || '') === options.regionId);
+    if (!region) throw new Error(`Region "${options.regionId}" no longer exists.`);
+    if (!Array.isArray(region.members)) return;
+    region.members = region.members.map(String).filter((memberId: string) => memberId !== options.nodeId);
+    pruneTouchedEmptyRegions(regions, new Set([options.regionId]));
+  });
+}
+
+export function updateRegionMemberPositions(text: string, options: UpdateRegionMemberPositionsOptions): MutationResult {
+  return mutateTopologyText(text, (document) => {
+    const regions = Array.isArray(document.graph?.regions) ? document.graph.regions : [];
+    const region = regions.find((candidate: any) => String(candidate.id || '') === options.regionId);
+    if (!region) {
+      throw new Error(`Region "${options.regionId}" no longer exists.`);
+    }
+    const memberNodeIds = new Set(recursiveRegionMemberNodeIds(document, options.regionId));
+    if (!memberNodeIds.size && !positionOf(region.position)) throw new Error(`Region "${options.regionId}" does not contain movable nodes.`);
+    if (positionOf(region.position)) region.position = translatePosition(region.position, options.delta);
+    graphNodes(document).forEach((node) => {
+      if (!memberNodeIds.has(String(node.id || ''))) return;
+      node.position = translatePosition(node.position, options.delta);
+    });
   });
 }
 

@@ -35,6 +35,26 @@ locations.
   semantic default layer, and explicit position
 - **AND** undo/redo SHALL remove and restore the node
 
+#### Scenario: Shape is placed at clicked canvas location
+
+- **WHEN** the user selects the shape tool
+- **AND** clicks an empty canvas location
+- **THEN** the Harness SHALL create a `diagram.shapes[]` entry with
+  deterministic ID, annotation layer, explicit position, and explicit size
+- **AND** the new shape SHALL render in the canvas and be selected for
+  inspection
+- **AND** reload SHALL preserve the shape geometry
+
+#### Scenario: Callout is placed at clicked canvas location
+
+- **WHEN** the user selects the callout tool
+- **AND** clicks an empty canvas location
+- **THEN** the Harness SHALL create a `diagram.callouts[]` entry with
+  deterministic ID, annotation layer, explicit position, and default content
+- **AND** the new callout SHALL render in the canvas and be selected for
+  inspection
+- **AND** reload SHALL preserve the callout geometry
+
 #### Scenario: Creation uses semantic default authoring layers
 
 - **WHEN** the user creates a new node, node preset, link, or region
@@ -106,6 +126,77 @@ not as an implicit graph link generator.
 - **AND** the path visual SHALL read as a route overlay, not as a replacement
   for the underlying links
 
+### Requirement: Region Group Authoring
+
+The Harness SHALL treat authored regions as durable topology group containers.
+Existing member-derived regions SHALL remain valid, and canvas-authored regions
+MAY also carry explicit `position` and `size` so empty or partially populated
+groups can be placed intentionally.
+
+#### Scenario: Region creation owns selected members
+
+- **WHEN** the user creates a region from selected nodes or drag bounds
+- **THEN** the generated YAML SHALL add a `graph.regions[]` entry with
+  deterministic member IDs
+- **AND** the generated region SHALL be selectable and draggable by default
+- **AND** the region tool SHALL exit after creation so the next drag can move
+  the group
+
+#### Scenario: Empty region container is placed from the canvas
+
+- **WHEN** the user activates the region tool
+- **AND** clicks an empty canvas location
+- **THEN** the Harness SHALL create a `graph.regions[]` entry with
+  deterministic ID, semantic default layer, `members: []`, explicit `position`,
+  and explicit `size`
+- **AND** the empty region SHALL render as a selectable and draggable region
+  container
+- **AND** undo/redo and reload SHALL preserve the region container
+
+#### Scenario: Dragging a node into a region assigns membership
+
+- **WHEN** a node is dragged into an explicit region container
+- **THEN** the committed YAML SHALL add that node ID to the region `members`
+- **AND** the node SHALL be removed from sibling regions at the same parent
+  level
+- **AND** the membership change SHALL be part of the node-move transaction
+
+#### Scenario: Releasing a node from a region is explicit
+
+- **WHEN** a node belongs to a region
+- **AND** the user right-clicks the node
+- **THEN** the Harness SHALL expose a release-from-region action
+- **WHEN** the user chooses that action
+- **THEN** the committed YAML SHALL remove that node from the region `members`
+- **AND** explicit empty region containers SHALL remain present
+- **AND** dragging a node outside a region SHALL NOT release it implicitly
+
+#### Scenario: Sibling regions do not duplicate member ownership
+
+- **WHEN** a top-level region is created or edited with member nodes
+- **THEN** those member nodes SHALL be removed from sibling top-level regions
+- **AND** sibling regions that become empty SHALL be removed unless they still
+  contain child regions or explicit `position`/`size` container geometry
+- **AND** explicit nested regions using `parent` SHALL remain valid
+
+#### Scenario: Region drag persists as member movement
+
+- **WHEN** the user drags a draggable region
+- **THEN** the visible member nodes SHALL move with the region
+- **AND** the committed YAML SHALL update the member node positions in one
+  undoable transaction
+- **AND** explicit region containers SHALL update their container position in
+  the same transaction
+- **AND** undo/redo and reload SHALL preserve the expected member positions
+
+#### Scenario: Region collapse is not local-only state
+
+- **WHEN** the Harness exposes native region collapse or expand
+- **THEN** the behavior SHALL be backed by `attention.aggregate` or a schema
+  addition
+- **AND** the Harness SHALL NOT fake collapse by hiding members only in local
+  React state
+
 ### Requirement: Direct Geometry Editing
 
 The Harness SHALL expose direct move and resize handles for objects whose
@@ -117,6 +208,14 @@ geometry can be represented in YAML.
 - **THEN** the rendered object SHALL follow the pointer smoothly
 - **AND** the final topology YAML SHALL contain the committed position
 - **AND** undo/redo and reload SHALL preserve the expected position
+
+#### Scenario: Shape and callout runtime nodes preserve their object kind
+
+- **WHEN** the renderer emits a drag-stop event for a diagram shape or callout
+- **THEN** the Harness SHALL map the runtime node back to `diagram.shapes[]` or
+  `diagram.callouts[]`
+- **AND** it SHALL NOT treat the runtime node as a graph node
+- **AND** the committed YAML SHALL update the correct diagram object
 
 #### Scenario: Resize updates supported geometry only
 

@@ -16,6 +16,17 @@ function selectLastGraphObject(
   if (createdId) setSelectedObjects([{ kind, id: String(createdId) }]);
 }
 
+function selectLastDiagramObject(
+  result: MutationResult,
+  collection: 'callouts' | 'shapes',
+  kind: TopoObjectSelection['kind'],
+  setSelectedObjects: SetSelectedObjects
+) {
+  const objects = result.document.diagram?.[collection] || [];
+  const createdId = objects[objects.length - 1]?.id;
+  if (createdId) setSelectedObjects([{ kind, id: String(createdId) }]);
+}
+
 export function placeCanvasNodeAction({
   applyTopologyTransaction,
   position,
@@ -93,7 +104,7 @@ export function createCanvasRegionAction({
 }: {
   applyTopologyTransaction: ApplyTopologyTransaction;
   bounds?: CanvasAuthoringRect;
-  members: string[];
+  members?: string[];
   selectedLayerIds: string[];
   setSelectedObjects: SetSelectedObjects;
 }) {
@@ -102,17 +113,66 @@ export function createCanvasRegionAction({
       ? applyCanvasAuthoringCommand(topologyText, {
         bounds,
         layers: layersForCanvasTool('region', selectedLayerIds),
-        members,
+        members: members || [],
         type: 'insertRegionFromBounds'
       })
       : applyCanvasAuthoringCommand(topologyText, {
         layers: layersForCanvasTool('region', selectedLayerIds),
-        members,
+        members: members || [],
         type: 'insertRegionFromSelection'
       });
     const regions = result.document.graph?.regions || [];
     const createdId = regions[regions.length - 1]?.id;
     if (createdId) setSelectedObjects([{ kind: 'region', id: String(createdId) }]);
+    return result;
+  });
+}
+
+export function placeCanvasShapeAction({
+  applyTopologyTransaction,
+  position,
+  selectedLayerIds,
+  setSelectedObjects
+}: {
+  applyTopologyTransaction: ApplyTopologyTransaction;
+  position: CanvasAuthoringPoint;
+  selectedLayerIds: string[];
+  setSelectedObjects: SetSelectedObjects;
+}) {
+  applyTopologyTransaction('Place shape', (topologyText) => {
+    const result = applyCanvasAuthoringCommand(topologyText, {
+      layers: layersForCanvasTool('shape', selectedLayerIds),
+      position: { x: Math.round(position.x - 90), y: Math.round(position.y - 48) },
+      size: { width: 180, height: 96 },
+      type: 'insertShapeAt'
+    });
+    selectLastDiagramObject(result, 'shapes', 'shape', setSelectedObjects);
+    return result;
+  });
+}
+
+export function placeCanvasCalloutAction({
+  applyTopologyTransaction,
+  position,
+  selectedLayerIds,
+  selectedObjects,
+  setSelectedObjects
+}: {
+  applyTopologyTransaction: ApplyTopologyTransaction;
+  position: CanvasAuthoringPoint;
+  selectedLayerIds: string[];
+  selectedObjects: TopoObjectSelection[];
+  setSelectedObjects: SetSelectedObjects;
+}) {
+  applyTopologyTransaction('Place callout', (topologyText) => {
+    const target = selectedObjects.find((selection) => selection.kind === 'node');
+    const result = applyCanvasAuthoringCommand(topologyText, {
+      layers: layersForCanvasTool('callout', selectedLayerIds),
+      position: { x: Math.round(position.x), y: Math.round(position.y) },
+      ...(target ? { target } : {}),
+      type: 'insertCalloutAt'
+    });
+    selectLastDiagramObject(result, 'callouts', 'callout', setSelectedObjects);
     return result;
   });
 }

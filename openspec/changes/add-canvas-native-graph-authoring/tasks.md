@@ -81,15 +81,27 @@ Each implementation phase must prove:
 - [x] 6.3 Decide whether region drag translates members, moves explicit region
       geometry, or remains a style/selection operation
 - [x] 6.4 Add region membership edit affordance
-- [ ] 6.5 Add Playwright coverage for create, edit members, move behavior,
-      collapse/expand interaction, delete, undo/redo
+- [x] 6.5 Add sibling-exclusive region membership, default region
+      draggable/selectable authoring style, persisted group movement, delete,
+      undo/redo, and reload coverage
+- [x] 6.6 Add explicit region containers with `position`/`size`, click-to-place
+      region authoring, drag-in membership assignment, explicit context-menu
+      release, and unit/browser regression evidence
+- [ ] 6.7 Add native collapse/expand affordance backed by
+      `attention.aggregate` or an explicit schema addition; do not fake this
+      with local-only hidden state
 
 ## 7. Shapes, Callouts, And Text-Like Annotations
 
-- [ ] 7.1 Add shape drawing for supported shape primitives
+- [x] 7.1 Add canvas shape placement for supported rectangle primitive with
+      annotation-layer YAML persistence, undo/redo compatibility, drag
+      movement, reload coverage, unit evidence, and Playwright evidence
 - [ ] 7.2 Add resize handles for shape geometry
-- [ ] 7.3 Add callout creation from selected target and click placement
-- [ ] 7.4 Add callout movement and leader persistence
+- [x] 7.3 Add callout click placement from the canvas toolbar with annotation
+      layer YAML persistence and browser evidence
+- [x] 7.4 Add callout movement persistence through shared positioned-object
+      drag handling; add leader-specific anchor editing later with resize/leader
+      controls
 - [ ] 7.5 Decide whether standalone text is a callout variant or a new diagram
       primitive before exposing a text tool
 - [ ] 7.6 Add Playwright coverage for create, move, resize, edit, delete,
