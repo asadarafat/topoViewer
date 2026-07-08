@@ -15,6 +15,7 @@ import {
 } from '@xyflow/react';
 import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent } from 'react';
 import { compileTopoGraph } from '../core/compiler';
+import { buildAttentionIndex, deriveAggregateGraph } from '../core/attention';
 import { resolveAttentionPresentationCached } from '../core/attention/cache';
 import { assertRendererLimits } from '../core/limits';
 import { layerIds } from '../core/layers';
@@ -317,6 +318,51 @@ function withRuntimeResizeHandlers(
   });
 }
 
+function withRuntimeRegionAggregateHandlers(
+  nodes: ReturnType<typeof compileTopoGraph>['nodes'],
+  onRegionAggregateToggle: TopoViewerProps['onRegionAggregateToggle']
+): ReturnType<typeof compileTopoGraph>['nodes'] {
+  if (!onRegionAggregateToggle) return nodes;
+  return nodes.map((node) => {
+    const runtimeNode = node as unknown as Record<string, unknown>;
+    const data = (runtimeNode.data || {}) as Record<string, unknown>;
+    const aggregateBy = String(data.aggregateBy || '');
+    const aggregateSourceId = String(data.aggregateSourceId || '');
+    const aggregateId = String(data.aggregateId || '');
+    if (data.isAggregate === true && aggregateBy === 'region' && aggregateSourceId && aggregateId) {
+      return {
+        ...node,
+        data: {
+          ...data,
+          __topoviewerAggregateExpandable: true,
+          __topoviewerOnAggregateExpand: () => onRegionAggregateToggle({
+            data,
+            expanded: true,
+            groupId: aggregateId,
+            regionId: aggregateSourceId
+          })
+        } as unknown as CompiledNodeData
+      } as typeof node;
+    }
+    const objectKind = String(data.objectKind || '');
+    const regionId = objectKind === 'region' ? sourceObjectId(runtimeNode) : undefined;
+    if (!regionId) return node;
+    return {
+      ...node,
+      data: {
+        ...data,
+        __topoviewerRegionCollapsible: true,
+        __topoviewerOnRegionCollapse: () => onRegionAggregateToggle({
+          data,
+          expanded: false,
+          groupId: `summary-${regionId}`,
+          regionId
+        })
+      } as unknown as CompiledNodeData
+    } as typeof node;
+  });
+}
+
 function resolveAttentionPresentation(document: TopoDocument, attention: TopoViewerProps['attention']): AttentionPresentationResult | undefined {
   return resolveAttentionPresentationCached(document, attention || document.attention);
 }
@@ -380,6 +426,7 @@ function TopoFlow({
   onPaneClick,
   onNodePositionChange,
   onNodeResizeChange,
+  onRegionAggregateToggle,
   onConnectionCreate,
   onViewportChange,
   nodeTypes,
@@ -401,12 +448,17 @@ function TopoFlow({
   onPaneClick?: TopoViewerProps['onPaneClick'];
   onNodePositionChange?: TopoViewerProps['onNodePositionChange'];
   onNodeResizeChange?: TopoViewerProps['onNodeResizeChange'];
+  onRegionAggregateToggle?: TopoViewerProps['onRegionAggregateToggle'];
   onConnectionCreate?: TopoViewerProps['onConnectionCreate'];
   onViewportChange?: TopoViewerProps['onViewportChange'];
   nodeTypes: Record<string, unknown>;
   edgeTypes: Record<string, unknown>;
 }) {
-  const runtimeNodes = useMemo(() => withRuntimeResizeHandlers(compiled.nodes, nodesResizable, onNodeResizeChange), [compiled.nodes, nodesResizable, onNodeResizeChange]);
+  const runtimeNodes = useMemo(() => withRuntimeResizeHandlers(
+    withRuntimeRegionAggregateHandlers(compiled.nodes, onRegionAggregateToggle),
+    nodesResizable,
+    onNodeResizeChange
+  ), [compiled.nodes, nodesResizable, onNodeResizeChange, onRegionAggregateToggle]);
   const [nodes, setNodes] = useNodesState(runtimeNodes as never[]);
   const [edges, setEdges, onEdgesChange] = useEdgesState(withRuntimeDirectionHandlers(compiled.edges, onObjectClick) as never[]);
   const [nodesReadyForInteraction, setNodesReadyForInteraction] = useState(false);
@@ -696,6 +748,7 @@ export function TopoViewer({
   onPaneClick,
   onNodePositionChange,
   onNodeResizeChange,
+  onRegionAggregateToggle,
   onConnectionCreate,
   onViewportChange,
   onExport,
@@ -729,15 +782,24 @@ export function TopoViewer({
   }, [effectiveExtensions]);
   const { compiled, preparedDocument } = useMemo(() => {
     const nextDocument = applyBeforeCompileExtensions(document, extensionContext, effectiveExtensions);
-    assertRendererLimits(nextDocument);
-    const attentionPresentation = resolveAttentionPresentation(nextDocument, attention);
+    const aggregateConfig = nextDocument.attention?.aggregate;
+    const linkGroupingConfig = nextDocument.attention?.links?.grouping;
+    const reducedDocument = (aggregateConfig?.groups?.length || linkGroupingConfig)
+      ? deriveAggregateGraph(nextDocument, buildAttentionIndex(nextDocument), {
+        groups: aggregateConfig?.groups || [],
+        expandedGroupIds: aggregateConfig?.expandedGroupIds || [],
+        linkGrouping: linkGroupingConfig
+      }).document
+      : nextDocument;
+    assertRendererLimits(reducedDocument);
+    const attentionPresentation = resolveAttentionPresentation(reducedDocument, attention);
     const compiledGraph = applyAttentionToCompiledGraph(
-      compileTopoGraph(nextDocument, effectiveLayers, effectiveToggles, layout),
+      compileTopoGraph(reducedDocument, effectiveLayers, effectiveToggles, layout),
       attentionPresentation
     );
-    const nextContext = { ...extensionContext, document: nextDocument };
+    const nextContext = { ...extensionContext, document: reducedDocument };
     return {
-      preparedDocument: nextDocument,
+      preparedDocument: reducedDocument,
       compiled: applySelectionToCompiledGraph(applyAfterCompileExtensions(compiledGraph, nextContext, effectiveExtensions), selectedObjectIds)
     };
   }, [attention, document, effectiveExtensions, effectiveLayers, effectiveToggles, extensionContext, layout, selectedObjectIds]);
@@ -766,6 +828,7 @@ export function TopoViewer({
           onPaneClick={onPaneClick}
           onNodePositionChange={onNodePositionChange}
           onNodeResizeChange={onNodeResizeChange}
+          onRegionAggregateToggle={onRegionAggregateToggle}
           onConnectionCreate={onConnectionCreate}
           onViewportChange={onViewportChange}
           nodeTypes={nodeTypes}

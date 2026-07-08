@@ -23,7 +23,7 @@ import LaunchIcon from '@mui/icons-material/Launch';
 import MouseIcon from '@mui/icons-material/Mouse';
 import PanToolAltIcon from '@mui/icons-material/PanToolAlt';
 import PolylineIcon from '@mui/icons-material/Polyline';
-import { TopoViewer, defaultTopoViewerToggles, type TopoDocument, type TopoViewerConnectionCreate, type TopoViewerNodePositionChange, type TopoViewerNodeResizeChange, type TopoViewerObjectClick, type TopoViewerPaneClick } from 'topoviewer';
+import { TopoViewer, defaultTopoViewerToggles, type TopoDocument, type TopoViewerConnectionCreate, type TopoViewerNodePositionChange, type TopoViewerNodeResizeChange, type TopoViewerObjectClick, type TopoViewerPaneClick, type TopoViewerRegionAggregateToggle } from 'topoviewer';
 import { memo, useCallback, useEffect, useMemo, useState, type ComponentType, type Dispatch, type MouseEvent as ReactMouseEvent, type PointerEvent as ReactPointerEvent, type RefObject, type SetStateAction } from 'react';
 import type { Theme } from '@mui/material/styles';
 import { authoringHelperLinesOptions } from '../../../topoviewer/src/components/helperLines';
@@ -62,6 +62,7 @@ interface PreviewPanelProps {
   handleNodePositionChange: (change: TopoViewerNodePositionChange) => void;
   handleNodeResizeChange: (change: TopoViewerNodeResizeChange) => void;
   handleObjectClick: (object: TopoViewerObjectClick) => void;
+  handleRegionAggregateToggle: (change: TopoViewerRegionAggregateToggle) => void;
   hasErrors: boolean;
   hasExportBlockers: boolean;
   loading: boolean;
@@ -204,7 +205,7 @@ export const ResizeDivider = memo(function ResizeDivider({ clamp, defaultSplitPe
   );
 });
 
-export const PreviewPanel = memo(function PreviewPanel({ exportImage, exportTooltip, createCanvasConnection, createCanvasPath, createCanvasRegion, handleNodePositionChange, handleNodeResizeChange, handleObjectClick, hasErrors, hasExportBlockers, loading, parityMode = false, placeCanvasCallout, placeCanvasNode, placeCanvasShape, previewRef, redoStack, redoTopology, releaseNodeFromRegion, selectedLayerIds, selectedObjectIds, setSelectedLayerIds, setSelectedObjects, undoStack, undoTopology, visibleDocument }: PreviewPanelProps) {
+export const PreviewPanel = memo(function PreviewPanel({ exportImage, exportTooltip, createCanvasConnection, createCanvasPath, createCanvasRegion, handleNodePositionChange, handleNodeResizeChange, handleObjectClick, handleRegionAggregateToggle, hasErrors, hasExportBlockers, loading, parityMode = false, placeCanvasCallout, placeCanvasNode, placeCanvasShape, previewRef, redoStack, redoTopology, releaseNodeFromRegion, selectedLayerIds, selectedObjectIds, setSelectedLayerIds, setSelectedObjects, undoStack, undoTopology, visibleDocument }: PreviewPanelProps) {
   const [canvasAuthoring, setCanvasAuthoring] = useState(defaultCanvasAuthoringState);
   const [controlsOpen, setControlsOpen] = useState(false);
   const [helperLinesEnabled, setHelperLinesEnabled] = useState(true);
@@ -467,8 +468,21 @@ export const PreviewPanel = memo(function PreviewPanel({ exportImage, exportTool
       setSelectedObjects(next.map((id) => ({ kind: 'node', id })));
       return;
     }
+    if (!parityMode && object.element === 'node' && object.data?.isAggregate === true && object.data.aggregateBy === 'region') {
+      const regionId = String(object.data.aggregateSourceId || '');
+      const groupId = String(object.data.aggregateId || '');
+      if (regionId && groupId) {
+        handleRegionAggregateToggle({
+          data: object.data,
+          expanded: true,
+          groupId,
+          regionId
+        });
+        return;
+      }
+    }
     handleObjectClick(object);
-  }, [canvasAuthoring.activeTool, handleObjectClick, nodeNameById, parityMode, pendingPathNodeIds, setSelectedObjects, visibleDocument]);
+  }, [canvasAuthoring.activeTool, handleObjectClick, handleRegionAggregateToggle, nodeNameById, parityMode, pendingPathNodeIds, setSelectedObjects, visibleDocument]);
   const effectiveSelectedLayerIds = parityMode
     ? layerIds(visibleDocument?.graph?.layers)
     : selectedLayerIds;
@@ -644,6 +658,7 @@ export const PreviewPanel = memo(function PreviewPanel({ exportImage, exportTool
             onPaneClick={handlePaneClick}
             onNodePositionChange={handleNodePositionChange}
             onNodeResizeChange={parityMode ? undefined : handleNodeResizeChange}
+            onRegionAggregateToggle={parityMode ? undefined : handleRegionAggregateToggle}
             onConnectionCreate={canvasAuthoring.activeTool === 'link' ? createCanvasConnection : undefined}
             nodesResizable={!parityMode}
             nodesConnectable={canvasAuthoring.activeTool === 'link'}

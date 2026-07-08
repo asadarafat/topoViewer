@@ -8,6 +8,9 @@ export function RegionNode({ data }: { data: CompiledNodeData }) {
   const onResizeEnd = typeof data.__topoviewerOnResizeEnd === 'function'
     ? data.__topoviewerOnResizeEnd as (params: ResizeParams) => void
     : undefined;
+  const onCollapse = typeof data.__topoviewerOnRegionCollapse === 'function'
+    ? data.__topoviewerOnRegionCollapse as () => void
+    : undefined;
 
   return (
     <div
@@ -27,6 +30,21 @@ export function RegionNode({ data }: { data: CompiledNodeData }) {
         lineClassName="topoviewer-resize-line"
         onResizeEnd={onResizeEnd ? (_event, params) => onResizeEnd(params) : undefined}
       />
+      {onCollapse ? (
+        <button
+          type="button"
+          className="topoviewer-region-collapse-button nodrag nopan"
+          aria-label={`Collapse ${displayName(data)}`}
+          title="Collapse region"
+          onClick={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            onCollapse();
+          }}
+        >
+          -
+        </button>
+      ) : null}
       {rendersOverlayLabel ? null : <div className="topoviewer-region-label" style={data.labelStyle}>{displayName(data)}</div>}
     </div>
   );

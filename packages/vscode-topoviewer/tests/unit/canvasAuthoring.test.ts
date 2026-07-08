@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   parseTopologyText,
   releaseNodeFromRegion,
+  setRegionAggregateExpanded,
   updateGraphNodePositionAndRegionMembership,
   updatePositionedObjectGeometry,
   updatePositionedObjectPosition,
@@ -704,5 +705,36 @@ describe('canvas authoring command mutations', () => {
       selections: [{ kind: 'node', id: 'node-a' }],
       type: 'duplicateSelection'
     })).toThrow('Canvas duplicate is not implemented yet.');
+  });
+
+  it('persists region collapse and expand through attention aggregate groups', () => {
+    const withRegion = applyCanvasAuthoringCommand(baseTopology, {
+      bounds: { x: 72, y: 84, width: 320, height: 140 },
+      layers: ['physical'],
+      members: ['node-a', 'node-b'],
+      type: 'insertRegionFromBounds'
+    });
+    const collapsed = setRegionAggregateExpanded(withRegion.text, {
+      expanded: false,
+      regionId: 'region-1'
+    });
+    const collapsedDocument = parseTopologyText(collapsed.text);
+
+    expect(collapsedDocument.attention.aggregate.groups).toEqual([{
+      id: 'summary-region-1',
+      by: 'region',
+      regionId: 'region-1'
+    }]);
+    expect(collapsedDocument.attention.aggregate.expandedGroupIds).toEqual([]);
+    expect(collapsedDocument.attention.aggregate.expandOnClick).toBe(true);
+
+    const expanded = setRegionAggregateExpanded(collapsed.text, {
+      expanded: true,
+      groupId: 'summary-region-1',
+      regionId: 'region-1'
+    });
+    const expandedDocument = parseTopologyText(expanded.text);
+    expect(expandedDocument.attention.aggregate.groups).toHaveLength(1);
+    expect(expandedDocument.attention.aggregate.expandedGroupIds).toEqual(['summary-region-1']);
   });
 });

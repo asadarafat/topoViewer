@@ -578,6 +578,28 @@ test('creates region containers and releases dragged-in nodes explicitly', async
 
   await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'region-1')).toContain('- node-1');
 
+  await page.locator('.react-flow__node[data-id="region:region-1"] .topoviewer-region-collapse-button').click();
+  await expect(page.locator('.react-flow__node[data-id="aggregate:summary-region-1"]')).toBeVisible();
+  await expect(page.locator('.react-flow__node[data-id="region:region-1"]')).toHaveCount(0);
+  await expect.poll(() => topologyText(page)).toContain('id: summary-region-1');
+
+  await page.getByRole('button', { name: 'Undo' }).click();
+  await expect(page.locator('.react-flow__node[data-id="region:region-1"]')).toBeVisible();
+  await expect(page.locator('.react-flow__node[data-id="aggregate:summary-region-1"]')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Redo' }).click();
+  await expect(page.locator('.react-flow__node[data-id="aggregate:summary-region-1"]')).toBeVisible();
+
+  await page.locator('.react-flow__node[data-id="aggregate:summary-region-1"] .topoviewer-aggregate-expand-button').click();
+  await expect(page.locator('.react-flow__node[data-id="region:region-1"]')).toBeVisible();
+  await expect(page.locator('.react-flow__node[data-id="aggregate:summary-region-1"]')).toHaveCount(0);
+  await expect.poll(() => topologyText(page)).toContain('- summary-region-1');
+
+  await page.reload();
+  await waitForHarnessState(page);
+  await expect(page.getByText('No diagnostics')).toBeVisible();
+  await expect(page.locator('.react-flow__node[data-id="region:region-1"]')).toBeVisible();
+  await expect(page.locator('.react-flow__node[data-id="node-1"]')).toBeVisible();
+
   const nodeAfterDrop = await node.boundingBox();
   expect(nodeAfterDrop).not.toBeNull();
   const outside = { x: paneBox!.x + paneBox!.width * 0.15, y: paneBox!.y + paneBox!.height * 0.18 };

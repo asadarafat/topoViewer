@@ -118,6 +118,12 @@ export interface AttentionMatcherOptions {
   mode: string;
 }
 
+export interface SetRegionAggregateExpandedOptions {
+  expanded: boolean;
+  groupId?: string;
+  regionId: string;
+}
+
 const graphCollectionByKind: Record<'node' | 'link' | 'path' | 'region', string> = {
   node: 'nodes',
   link: 'links',
@@ -1248,6 +1254,37 @@ export function updateAttentionRegionAggregation(text: string, regionIds: string
       : {};
     document.attention.aggregate.groups = regionIds.map((regionId) => ({ id: `summary-${regionId}`, by: 'region', regionId }));
     document.attention.aggregate.expandOnClick = expandOnClick;
+  });
+}
+
+export function setRegionAggregateExpanded(text: string, options: SetRegionAggregateExpandedOptions): MutationResult {
+  return mutateTopologyText(text, (document) => {
+    const regionId = options.regionId.trim();
+    if (!regionId) throw new Error('Region aggregate toggle requires a region id.');
+    const regions = Array.isArray(document.graph?.regions) ? document.graph.regions : [];
+    if (!regions.some((region: any) => String(region.id || '') === regionId)) {
+      throw new Error(`Region "${regionId}" no longer exists.`);
+    }
+
+    const groupId = (options.groupId || `summary-${regionId}`).trim() || `summary-${regionId}`;
+    document.attention = document.attention && typeof document.attention === 'object' ? document.attention : {};
+    document.attention.aggregate = document.attention.aggregate && typeof document.attention.aggregate === 'object'
+      ? document.attention.aggregate
+      : {};
+    const aggregate = document.attention.aggregate;
+    const groups = Array.isArray(aggregate.groups) ? aggregate.groups : [];
+    if (!groups.some((group: any) => String(group.id || '') === groupId)) {
+      groups.push({ id: groupId, by: 'region', regionId });
+    }
+    aggregate.groups = groups;
+    aggregate.expandOnClick = aggregate.expandOnClick !== false;
+
+    const expandedGroupIds = Array.isArray(aggregate.expandedGroupIds)
+      ? aggregate.expandedGroupIds.map(String)
+      : [];
+    aggregate.expandedGroupIds = options.expanded
+      ? [...new Set([...expandedGroupIds, groupId])]
+      : expandedGroupIds.filter((id: string) => id !== groupId);
   });
 }
 

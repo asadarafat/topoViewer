@@ -196,6 +196,18 @@ groups can be placed intentionally.
   addition
 - **AND** the Harness SHALL NOT fake collapse by hiding members only in local
   React state
+- **WHEN** a user collapses a region
+- **THEN** the topology YAML SHALL contain a stable region aggregate group such
+  as `summary-<regionId>`
+- **AND** that group SHALL be absent from `attention.aggregate.expandedGroupIds`
+- **AND** the rendered graph SHALL replace the region members with the aggregate
+  summary node
+- **WHEN** the user expands the aggregate summary
+- **THEN** the topology YAML SHALL add the group to
+  `attention.aggregate.expandedGroupIds`
+- **AND** the original region and member nodes SHALL render again
+- **AND** undo/redo and reload SHALL preserve the expected collapsed or
+  expanded state
 
 ### Requirement: Direct Geometry Editing
 

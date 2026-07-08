@@ -87,9 +87,10 @@ Each implementation phase must prove:
 - [x] 6.6 Add explicit region containers with `position`/`size`, click-to-place
       region authoring, drag-in membership assignment, explicit context-menu
       release, and unit/browser regression evidence
-- [ ] 6.7 Add native collapse/expand affordance backed by
-      `attention.aggregate` or an explicit schema addition; do not fake this
-      with local-only hidden state
+- [x] 6.7 Add native collapse/expand affordance backed by
+      `attention.aggregate`; persist `expandedGroupIds`, expose region collapse
+      and aggregate expand controls, and prove with unit/typecheck/focused
+      Playwright evidence instead of local-only hidden state
 
 ## 7. Shapes, Callouts, And Text-Like Annotations
 

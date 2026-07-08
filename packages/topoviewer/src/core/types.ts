@@ -429,6 +429,13 @@ export interface TopoViewerNodeResizeChange {
   data: Record<string, unknown>;
 }
 
+export interface TopoViewerRegionAggregateToggle {
+  regionId: string;
+  groupId: string;
+  expanded: boolean;
+  data: Record<string, unknown>;
+}
+
 export interface TopoViewerConnectionCreate {
   sourceId: string;
   sourceRuntimeId: string;
@@ -486,6 +493,7 @@ export interface TopoViewerProps {
   onPaneClick?: (event: TopoViewerPaneClick) => void;
   onNodePositionChange?: (change: TopoViewerNodePositionChange) => void;
   onNodeResizeChange?: (change: TopoViewerNodeResizeChange) => void;
+  onRegionAggregateToggle?: (change: TopoViewerRegionAggregateToggle) => void;
   onConnectionCreate?: (connection: TopoViewerConnectionCreate) => void;
   onViewportChange?: (viewport: TopoViewerViewport) => void;
   onExport?: () => void;

@@ -136,6 +136,7 @@ export type {
   TopoViewerNodeResizeChange,
   TopoViewerObjectClick,
   TopoViewerPaneClick,
+  TopoViewerRegionAggregateToggle,
   TopoViewerToolbarAction,
   TopoViewerViewport,
   TopoViewerProps,

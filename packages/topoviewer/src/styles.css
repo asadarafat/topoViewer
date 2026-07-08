@@ -230,6 +230,45 @@
   cursor: inherit;
 }
 
+.topoviewer-aggregate-expand-button,
+.topoviewer-region-collapse-button {
+  position: absolute;
+  z-index: 20;
+  display: inline-grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 1px solid rgba(125, 211, 252, 0.72);
+  border-radius: 999px;
+  color: #e0f2fe;
+  background: rgba(15, 23, 42, 0.94);
+  box-shadow: 0 6px 16px rgba(2, 6, 23, 0.34);
+  font: 800 14px/1 system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.topoviewer-aggregate-expand-button {
+  top: -8px;
+  right: -8px;
+}
+
+.topoviewer-region-collapse-button {
+  top: 8px;
+  right: 8px;
+}
+
+.topoviewer-node .topoviewer-aggregate-expand-button,
+.topoviewer-region .topoviewer-region-collapse-button {
+  cursor: pointer;
+}
+
+.topoviewer-aggregate-expand-button:hover,
+.topoviewer-region-collapse-button:hover {
+  border-color: #38bdf8;
+  background: rgba(14, 116, 144, 0.96);
+}
+
 .topoviewer-node:focus-visible .topoviewer-node-icon {
   outline: 0;
 }

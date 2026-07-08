@@ -145,6 +145,25 @@ function RenderLinkAuthoringPill() {
   );
 }
 
+function RenderAggregateExpandButton({ data }: { data: CompiledNodeData }) {
+  if (typeof data.__topoviewerOnAggregateExpand !== 'function') return null;
+  return (
+    <button
+      type="button"
+      className="topoviewer-aggregate-expand-button nodrag nopan"
+      aria-label={`Expand ${displayName(data)}`}
+      title="Expand region"
+      onClick={(event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        (data.__topoviewerOnAggregateExpand as () => void)();
+      }}
+    >
+      +
+    </button>
+  );
+}
+
 export function NetworkNode({ data }: { data: CompiledNodeData }) {
   const viewport = useViewport();
   const icon = data.iconSpec || { glyph: 'R', fill: '#6ea8fe', stroke: '#d8e8ff' };
@@ -234,6 +253,7 @@ export function NetworkNode({ data }: { data: CompiledNodeData }) {
       tabIndex={isNavigableAttentionNode ? 0 : -1}
     >
       <RenderDefaultConnectionHandles />
+      <RenderAggregateExpandButton data={data} />
       {cardLayout ? (
         <>
           <RenderExplicitHandles handles={handles} />
