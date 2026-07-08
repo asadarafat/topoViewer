@@ -21,6 +21,7 @@ import {
   layersForCanvasTool,
   layersForInsertObjectType,
   nodeIdsWithinCanvasBounds,
+  objectSelectionsWithinCanvasBounds,
   normalizedCanvasRect,
   reduceCanvasAuthoringState,
   snapTopologyPoint,
@@ -154,6 +155,37 @@ describe('canvas authoring coordinates', () => {
     expect(nodeIdsWithinCanvasBounds(document, { height: 80, width: 260, x: 80, y: 90 }, ['physical'])).toEqual(['node-a', 'node-b']);
     expect(nodeIdsWithinCanvasBounds(document, { height: 80, width: 260, x: 80, y: 90 }, ['paths'])).toEqual([]);
     expect(nodeIdsWithinCanvasBounds(document, { height: 80, width: 80, x: 80, y: 90 }, ['physical'])).toEqual(['node-a']);
+  });
+
+  it('derives canvas marquee selections from positioned object families', () => {
+    const topology = baseTopology.replace('  regions: []', [
+      '  regions:',
+      '    - id: region-a',
+      '      members: [node-a]',
+      '      position: [80, 80]',
+      '      size: [220, 140]',
+      '      layers: [physical]'
+    ].join('\n')).replace('  callouts: []', [
+      '  callouts:',
+      '    - id: callout-a',
+      '      title: Existing Callout',
+      '      target: node-a',
+      '      position: [340, 220]',
+      '      layers: [annotations]'
+    ].join('\n'));
+    const document = parseTopologyText(topology);
+
+    expect(objectSelectionsWithinCanvasBounds(document, { height: 260, width: 330, x: 70, y: 70 }, [])).toEqual([
+      { kind: 'node', id: 'node-a' },
+      { kind: 'node', id: 'node-b' },
+      { kind: 'region', id: 'region-a' },
+      { kind: 'shape', id: 'shape-a' },
+      { kind: 'callout', id: 'callout-a' }
+    ]);
+    expect(objectSelectionsWithinCanvasBounds(document, { height: 260, width: 330, x: 70, y: 70 }, ['annotations'])).toEqual([
+      { kind: 'shape', id: 'shape-a' },
+      { kind: 'callout', id: 'callout-a' }
+    ]);
   });
 
   it('uses selected layers for creation with a deterministic fallback', () => {
@@ -699,12 +731,59 @@ describe('canvas authoring command mutations', () => {
     expect(document.diagram.callouts).toEqual([]);
   });
 
-  it('fails explicitly for command families that are not implemented yet', () => {
+  it('duplicates positioned canvas selections with deterministic IDs and rewritten references', () => {
+    const topology = baseTopology.replace('  regions: []', [
+      '  regions:',
+      '    - id: region-a',
+      '      members: [node-a, node-b]',
+      '      position: [72, 84]',
+      '      size: [320, 140]',
+      '      layers: [physical]'
+    ].join('\n')).replace('  callouts: []', [
+      '  callouts:',
+      '    - id: callout-a',
+      '      title: Existing Callout',
+      '      target: node-a',
+      '      position: [340, 220]',
+      '      layers: [annotations]'
+    ].join('\n'));
+    const result = applyCanvasAuthoringCommand(topology, {
+      offset: { x: 32, y: 32 },
+      selections: [
+        { kind: 'node', id: 'node-a' },
+        { kind: 'region', id: 'region-a' },
+        { kind: 'shape', id: 'shape-a' },
+        { kind: 'callout', id: 'callout-a' }
+      ],
+      type: 'duplicateSelection'
+    });
+    const document = parseTopologyText(result.text);
+
+    expect(document.graph.nodes.find((node: any) => node.id === 'node-a-1')).toMatchObject({
+      name: 'Node A Copy',
+      position: [132, 152]
+    });
+    expect(document.graph.regions.find((region: any) => region.id === 'region-a-1')).toMatchObject({
+      members: ['node-a-1'],
+      position: [104, 116],
+      size: [320, 140]
+    });
+    expect(document.diagram.shapes.find((shape: any) => shape.id === 'shape-a-1')).toMatchObject({
+      name: 'Shape A Copy',
+      position: [192, 292]
+    });
+    expect(document.diagram.callouts.find((callout: any) => callout.id === 'callout-a-1')).toMatchObject({
+      target: 'node-a-1',
+      position: [372, 252]
+    });
+  });
+
+  it('rejects duplicate commands when no supported positioned objects are selected', () => {
     expect(() => applyCanvasAuthoringCommand(baseTopology, {
       offset: { x: 32, y: 32 },
-      selections: [{ kind: 'node', id: 'node-a' }],
+      selections: [{ kind: 'link', id: 'link-a' }],
       type: 'duplicateSelection'
-    })).toThrow('Canvas duplicate is not implemented yet.');
+    })).toThrow('Duplicate selection requires a node, region, shape, or callout.');
   });
 
   it('persists region collapse and expand through attention aggregate groups', () => {

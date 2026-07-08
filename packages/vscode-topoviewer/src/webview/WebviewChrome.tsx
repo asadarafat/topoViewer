@@ -32,7 +32,7 @@ import { layerIds, toggleSelectedLayerId } from '../../../topoviewer/src/core/la
 import type { TopoViewerWebviewHost } from '../shared/types';
 import { graphHasReachabilityBetween, pathSegmentsWithoutDirectLinks, pathSegmentsWithoutReachability, type TopoObjectSelection } from '../shared/topologyMutations';
 import type { DocumentTransaction } from './webviewAppSupport';
-import { clientPointToTopologyPoint, defaultCanvasAuthoringState, layersForCanvasTool, nodeIdsWithinCanvasBounds, normalizedCanvasRect, reduceCanvasAuthoringState, type CanvasAuthoringPoint, type CanvasAuthoringRect, type CanvasAuthoringTool } from './canvasAuthoring';
+import { clientPointToTopologyPoint, defaultCanvasAuthoringState, layersForCanvasTool, nodeIdsWithinCanvasBounds, normalizedCanvasRect, objectSelectionsWithinCanvasBounds, reduceCanvasAuthoringState, type CanvasAuthoringPoint, type CanvasAuthoringRect, type CanvasAuthoringTool } from './canvasAuthoring';
 import { useRenderProfile } from './renderProfile';
 
 interface ShellHeaderProps {
@@ -54,6 +54,9 @@ interface ResizeDividerProps {
 }
 
 interface PreviewPanelProps {
+  copySelectedObjects: () => void;
+  deleteSelectedObjects: () => void;
+  duplicateSelectedObjects: () => void;
   exportImage: () => Promise<void>;
   exportTooltip?: string;
   createCanvasConnection: (connection: TopoViewerConnectionCreate) => void;
@@ -66,6 +69,7 @@ interface PreviewPanelProps {
   hasErrors: boolean;
   hasExportBlockers: boolean;
   loading: boolean;
+  pasteSelectedObjects: () => void;
   placeCanvasCallout: (position: { x: number; y: number }) => void;
   placeCanvasNode: (position: { x: number; y: number }) => void;
   placeCanvasShape: (position: { x: number; y: number }) => void;
@@ -108,6 +112,8 @@ type PendingRegionDrag = {
   startClient: CanvasAuthoringPoint;
   startTopology: CanvasAuthoringPoint;
 };
+
+type PendingSelectionDrag = PendingRegionDrag;
 
 function reactFlowViewportFromPreview(preview: HTMLElement) {
   const pane = preview.querySelector<HTMLElement>('.react-flow__pane');
@@ -205,7 +211,7 @@ export const ResizeDivider = memo(function ResizeDivider({ clamp, defaultSplitPe
   );
 });
 
-export const PreviewPanel = memo(function PreviewPanel({ exportImage, exportTooltip, createCanvasConnection, createCanvasPath, createCanvasRegion, handleNodePositionChange, handleNodeResizeChange, handleObjectClick, handleRegionAggregateToggle, hasErrors, hasExportBlockers, loading, parityMode = false, placeCanvasCallout, placeCanvasNode, placeCanvasShape, previewRef, redoStack, redoTopology, releaseNodeFromRegion, selectedLayerIds, selectedObjectIds, setSelectedLayerIds, setSelectedObjects, undoStack, undoTopology, visibleDocument }: PreviewPanelProps) {
+export const PreviewPanel = memo(function PreviewPanel({ copySelectedObjects, deleteSelectedObjects, duplicateSelectedObjects, exportImage, exportTooltip, createCanvasConnection, createCanvasPath, createCanvasRegion, handleNodePositionChange, handleNodeResizeChange, handleObjectClick, handleRegionAggregateToggle, hasErrors, hasExportBlockers, loading, parityMode = false, pasteSelectedObjects, placeCanvasCallout, placeCanvasNode, placeCanvasShape, previewRef, redoStack, redoTopology, releaseNodeFromRegion, selectedLayerIds, selectedObjectIds, setSelectedLayerIds, setSelectedObjects, undoStack, undoTopology, visibleDocument }: PreviewPanelProps) {
   const [canvasAuthoring, setCanvasAuthoring] = useState(defaultCanvasAuthoringState);
   const [controlsOpen, setControlsOpen] = useState(false);
   const [helperLinesEnabled, setHelperLinesEnabled] = useState(true);
@@ -213,6 +219,7 @@ export const PreviewPanel = memo(function PreviewPanel({ exportImage, exportTool
   const [pendingPathMessage, setPendingPathMessage] = useState<string>();
   const [pendingRegionDrag, setPendingRegionDrag] = useState<PendingRegionDrag>();
   const [pendingRegionMessage, setPendingRegionMessage] = useState<string>();
+  const [pendingSelectionDrag, setPendingSelectionDrag] = useState<PendingSelectionDrag>();
   const [regionContextMenu, setRegionContextMenu] = useState<{
     mouseX: number;
     mouseY: number;
@@ -370,12 +377,87 @@ export const PreviewPanel = memo(function PreviewPanel({ exportImage, exportTool
     setPendingRegionMessage(undefined);
     setCanvasAuthoring((current) => reduceCanvasAuthoringState(current, { type: 'cancel' }));
   }, [createCanvasRegion, pendingRegionDrag, selectedLayerIds, topologyPointFromPointer, visibleDocument]);
+  const startPendingSelectionDrag = useCallback((event: ReactPointerEvent<HTMLElement>) => {
+    if (parityMode || canvasAuthoring.activeTool !== 'select' || event.button !== 0) return;
+    const target = event.target as HTMLElement | null;
+    if (!target?.classList.contains('react-flow__pane')) return;
+    const topologyPoint = topologyPointFromPointer(event);
+    if (!topologyPoint) return;
+    const clientPoint = { x: event.clientX, y: event.clientY };
+    event.preventDefault();
+    event.stopPropagation();
+    event.currentTarget.setPointerCapture(event.pointerId);
+    setPendingSelectionDrag({
+      currentClient: clientPoint,
+      currentTopology: topologyPoint,
+      pointerId: event.pointerId,
+      startClient: clientPoint,
+      startTopology: topologyPoint
+    });
+  }, [canvasAuthoring.activeTool, parityMode, topologyPointFromPointer]);
+  const updatePendingSelectionDrag = useCallback((event: ReactPointerEvent<HTMLElement>) => {
+    if (!pendingSelectionDrag || event.pointerId !== pendingSelectionDrag.pointerId) return;
+    const topologyPoint = topologyPointFromPointer(event);
+    if (!topologyPoint) return;
+    event.preventDefault();
+    event.stopPropagation();
+    setPendingSelectionDrag((current) => current && current.pointerId === event.pointerId
+      ? {
+        ...current,
+        currentClient: { x: event.clientX, y: event.clientY },
+        currentTopology: topologyPoint
+      }
+      : current);
+  }, [pendingSelectionDrag, topologyPointFromPointer]);
+  const cancelPendingSelectionDrag = useCallback((event?: ReactPointerEvent<HTMLElement>) => {
+    if (event && pendingSelectionDrag && event.pointerId === pendingSelectionDrag.pointerId) {
+      event.preventDefault();
+      event.stopPropagation();
+      if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+    setPendingSelectionDrag(undefined);
+  }, [pendingSelectionDrag]);
+  const commitPendingSelectionDrag = useCallback((event: ReactPointerEvent<HTMLElement>) => {
+    if (!pendingSelectionDrag || event.pointerId !== pendingSelectionDrag.pointerId) return;
+    const topologyPoint = topologyPointFromPointer(event) || pendingSelectionDrag.currentTopology;
+    const bounds = normalizedCanvasRect(pendingSelectionDrag.startTopology, topologyPoint);
+    const clientBounds = normalizedCanvasRect(pendingSelectionDrag.startClient, { x: event.clientX, y: event.clientY });
+    event.preventDefault();
+    event.stopPropagation();
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
+    setPendingSelectionDrag(undefined);
+    if (clientBounds.width < 8 || clientBounds.height < 8 || bounds.width <= 0 || bounds.height <= 0) return;
+    setSelectedObjects(objectSelectionsWithinCanvasBounds(visibleDocument, bounds, selectedLayerIds));
+  }, [pendingSelectionDrag, selectedLayerIds, setSelectedObjects, topologyPointFromPointer, visibleDocument]);
   useEffect(() => {
     if (parityMode) return undefined;
     const handleKeyDown = (event: KeyboardEvent) => {
       const target = event.target as HTMLElement | null;
       const tagName = target?.tagName?.toLowerCase();
       if (tagName === 'input' || tagName === 'textarea' || target?.isContentEditable) return;
+      if ((event.metaKey || event.ctrlKey) && !event.altKey) {
+        const key = event.key.toLowerCase();
+        if (key === 'c') {
+          event.preventDefault();
+          copySelectedObjects();
+          return;
+        }
+        if (key === 'd') {
+          event.preventDefault();
+          duplicateSelectedObjects();
+          return;
+        }
+        if (key === 'v') {
+          event.preventDefault();
+          pasteSelectedObjects();
+          return;
+        }
+      }
+      if (event.key === 'Delete' || event.key === 'Backspace') {
+        event.preventDefault();
+        deleteSelectedObjects();
+        return;
+      }
       if (event.metaKey || event.ctrlKey || event.altKey) return;
       if (event.key === 'Escape') {
         cancelPendingPath();
@@ -393,7 +475,7 @@ export const PreviewPanel = memo(function PreviewPanel({ exportImage, exportTool
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [cancelPendingPath, canvasAuthoring.activeTool, commitPendingPath, parityMode, selectCanvasTool]);
+  }, [cancelPendingPath, canvasAuthoring.activeTool, commitPendingPath, copySelectedObjects, deleteSelectedObjects, duplicateSelectedObjects, parityMode, pasteSelectedObjects, selectCanvasTool]);
   useEffect(() => {
     if (canvasAuthoring.activeTool !== 'path') {
       setPendingPathNodeIds([]);
@@ -404,6 +486,11 @@ export const PreviewPanel = memo(function PreviewPanel({ exportImage, exportTool
     if (canvasAuthoring.activeTool !== 'region') {
       setPendingRegionDrag(undefined);
       setPendingRegionMessage(undefined);
+    }
+  }, [canvasAuthoring.activeTool]);
+  useEffect(() => {
+    if (canvasAuthoring.activeTool !== 'select') {
+      setPendingSelectionDrag(undefined);
     }
   }, [canvasAuthoring.activeTool]);
   const handlePaneClick = useCallback((event: TopoViewerPaneClick) => {
@@ -532,6 +619,18 @@ export const PreviewPanel = memo(function PreviewPanel({ exportImage, exportTool
       width: `${bounds.width}px`
     };
   }, [pendingRegionDrag, previewRef]);
+  const pendingSelectionMarqueeStyle = useMemo(() => {
+    const preview = previewRef.current;
+    if (!preview || !pendingSelectionDrag) return undefined;
+    const previewBounds = preview.getBoundingClientRect();
+    const bounds = normalizedCanvasRect(pendingSelectionDrag.startClient, pendingSelectionDrag.currentClient);
+    return {
+      height: `${bounds.height}px`,
+      left: `${bounds.x - previewBounds.left}px`,
+      top: `${bounds.y - previewBounds.top}px`,
+      width: `${bounds.width}px`
+    };
+  }, [pendingSelectionDrag, previewRef]);
   const closeRegionContextMenu = useCallback(() => setRegionContextMenu(undefined), []);
   const handleContextMenuCapture = useCallback((event: ReactMouseEvent<HTMLElement>) => {
     if (parityMode) return;
@@ -557,10 +656,22 @@ export const PreviewPanel = memo(function PreviewPanel({ exportImage, exportTool
       elevation={0}
       ref={previewRef}
       onContextMenuCapture={handleContextMenuCapture}
-      onPointerDownCapture={startPendingRegionDrag}
-      onPointerMoveCapture={updatePendingRegionDrag}
-      onPointerUpCapture={commitPendingRegionDrag}
-      onPointerCancelCapture={cancelPendingRegionDrag}
+      onPointerDownCapture={(event) => {
+        startPendingRegionDrag(event);
+        startPendingSelectionDrag(event);
+      }}
+      onPointerMoveCapture={(event) => {
+        updatePendingRegionDrag(event);
+        updatePendingSelectionDrag(event);
+      }}
+      onPointerUpCapture={(event) => {
+        commitPendingRegionDrag(event);
+        commitPendingSelectionDrag(event);
+      }}
+      onPointerCancelCapture={(event) => {
+        cancelPendingRegionDrag(event);
+        cancelPendingSelectionDrag(event);
+      }}
     >
       {!parityMode && regionContextMenu ? (
         <Menu
@@ -632,6 +743,9 @@ export const PreviewPanel = memo(function PreviewPanel({ exportImage, exportTool
         <>
           {pendingRegionMarqueeStyle ? (
             <Box className="topoviewer-vscode-region-marquee" aria-hidden="true" style={pendingRegionMarqueeStyle} />
+          ) : null}
+          {pendingSelectionMarqueeStyle ? (
+            <Box className="topoviewer-vscode-selection-marquee" aria-hidden="true" style={pendingSelectionMarqueeStyle} />
           ) : null}
           {!parityMode && controlsOpen ? (
             <div className="topoviewer-embed-controls-overlay topoviewer-vscode-controls-overlay">

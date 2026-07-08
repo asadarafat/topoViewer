@@ -30,7 +30,7 @@ import { mapperTopologyPickers } from './mapperRuleBuilder';
 import { useMapperRuleAuthoring } from './webviewMapperAuthoring';
 import { useObjectSelectionActions } from './webviewSelectionActions';
 import { useRenderProfile } from './renderProfile';
-import { layersForInsertObjectType, layersForPresetKind, type CanvasAuthoringPoint, type CanvasAuthoringRect } from './canvasAuthoring';
+import { applyCanvasAuthoringCommand, layersForInsertObjectType, layersForPresetKind, type CanvasAuthoringPoint, type CanvasAuthoringRect } from './canvasAuthoring';
 import { createCanvasConnectionAction, createCanvasPathAction, createCanvasRegionAction, placeCanvasCalloutAction, placeCanvasNodeAction, placeCanvasShapeAction } from './webviewCanvasActions';
 import './webview.css';
 type WebviewAppProps = { host: TopoViewerWebviewHost; themeMode?: 'light' | 'dark'; onToggleThemeMode?: () => void };
@@ -46,6 +46,7 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
   const [draftValidation, setDraftValidation] = useState<ValidationResult>({ diagnostics: [], layers: [] });
   const [selectedLayerIds, setSelectedLayerIds] = useState<string[]>([]);
   const [selectedObjects, setSelectedObjects] = useState<TopoObjectSelection[]>([]);
+  const [canvasClipboardObjects, setCanvasClipboardObjects] = useState<TopoObjectSelection[]>([]);
   const [savedPresets, setSavedPresets] = useState<TopoObjectPreset[]>(initialSavedPresets);
   const [tab, setTab] = useState(0);
   const [mode, setMode] = useState<HarnessMode>('build');
@@ -850,8 +851,26 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
     }
     const selection: TopoObjectSelection = { kind: 'node', id: change.id };
     const objectKind = String(change.data.objectKind || '');
+    const positionedSelection: TopoObjectSelection = objectKind === 'shape' || objectKind === 'callout'
+      ? { kind: objectKind, id: change.id }
+      : selection;
+    const delta = change.delta || { x: 0, y: 0 };
+    const draggedSelected = selectedObjects.some((candidate) => candidate.kind === positionedSelection.kind && candidate.id === positionedSelection.id);
+    if (
+      selectedObjects.length > 1
+      && draggedSelected
+      && !sameRoundedPosition({ x: 0, y: 0 }, delta)
+    ) {
+      setTab(0);
+      const movement = [...selectedObjects];
+      applyTopologyTransaction('Move selection', (topologyText) => applyCanvasAuthoringCommand(topologyText, {
+        delta,
+        selections: movement,
+        type: 'moveSelection'
+      }));
+      return;
+    }
     if (objectKind === 'shape' || objectKind === 'callout') {
-      const positionedSelection: TopoObjectSelection = { kind: objectKind, id: change.id };
       const object = findObject(visibleDocument, positionedSelection);
       if (!object || sameRoundedPosition(positionOf(object.position), change.position)) return;
       setTab(0);
@@ -972,9 +991,35 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
   function deleteSelection() {
     if (!selectedObjects.length) return;
     setTab(0);
+    setRelationshipComposer(undefined);
     const deletion = [...selectedObjects];
     applyTopologyTransaction('Delete selection', (topologyText) => deleteTopoObjects(topologyText, deletion));
     setSelectedObjects([]);
+  }
+
+  function copySelectedObjects() {
+    if (!selectedObjects.length) return;
+    setCanvasClipboardObjects([...selectedObjects]);
+    flash(`Copied ${selectedObjects.length} object${selectedObjects.length === 1 ? '' : 's'}`);
+  }
+
+  function duplicateCanvasSelection(selections = selectedObjects, label = 'Duplicate selection') {
+    if (!selections.length || hasErrors) return;
+    setTab(0);
+    const duplication = [...selections];
+    applyTopologyTransaction(label, (topologyText) => applyCanvasAuthoringCommand(topologyText, {
+      offset: { x: 32, y: 32 },
+      selections: duplication,
+      type: 'duplicateSelection'
+    }));
+  }
+
+  function duplicateSelectedObjects() {
+    duplicateCanvasSelection(selectedObjects, 'Duplicate selection');
+  }
+
+  function pasteSelectedObjects() {
+    duplicateCanvasSelection(canvasClipboardObjects, 'Paste selection');
   }
 
   function applyAttentionFocus(ids = attentionFocusId ? [attentionFocusId] : [], focusKind = attentionFocusKind) {
@@ -1077,7 +1122,7 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
       )}
 
       {parityMode ? (
-          <PreviewPanel exportImage={exportImage} exportTooltip={exportTooltip} createCanvasConnection={createCanvasConnection} createCanvasPath={createCanvasPath} createCanvasRegion={createCanvasRegion} handleNodePositionChange={handleNodePositionChange} handleNodeResizeChange={handleNodeResizeChange} handleObjectClick={handleObjectClick} handleRegionAggregateToggle={handleRegionAggregateToggle} hasErrors={appliedHasErrors} hasExportBlockers={hasExportBlockers} loading={loading} parityMode placeCanvasCallout={placeCanvasCallout} placeCanvasNode={placeCanvasNode} placeCanvasShape={placeCanvasShape} previewRef={previewRef} redoStack={redoStack} redoTopology={redoTopology} releaseNodeFromRegion={handleReleaseNodeFromRegion} selectedLayerIds={selectedLayerIds} selectedObjectIds={[]} setSelectedLayerIds={setSelectedLayerIds} setSelectedObjects={setSelectedObjects} undoStack={undoStack} undoTopology={undoTopology} visibleDocument={visibleDocument} />
+          <PreviewPanel copySelectedObjects={copySelectedObjects} deleteSelectedObjects={deleteSelection} duplicateSelectedObjects={duplicateSelectedObjects} exportImage={exportImage} exportTooltip={exportTooltip} createCanvasConnection={createCanvasConnection} createCanvasPath={createCanvasPath} createCanvasRegion={createCanvasRegion} handleNodePositionChange={handleNodePositionChange} handleNodeResizeChange={handleNodeResizeChange} handleObjectClick={handleObjectClick} handleRegionAggregateToggle={handleRegionAggregateToggle} hasErrors={appliedHasErrors} hasExportBlockers={hasExportBlockers} loading={loading} parityMode pasteSelectedObjects={pasteSelectedObjects} placeCanvasCallout={placeCanvasCallout} placeCanvasNode={placeCanvasNode} placeCanvasShape={placeCanvasShape} previewRef={previewRef} redoStack={redoStack} redoTopology={redoTopology} releaseNodeFromRegion={handleReleaseNodeFromRegion} selectedLayerIds={selectedLayerIds} selectedObjectIds={[]} setSelectedLayerIds={setSelectedLayerIds} setSelectedObjects={setSelectedObjects} undoStack={undoStack} undoTopology={undoTopology} visibleDocument={visibleDocument} />
       ) : (
         <Box
           ref={workspaceRef}
@@ -1088,7 +1133,7 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
 
           <ResizeDivider clamp={clamp} defaultSplitPercent={defaultSplitPercent} maxSplitPercent={maxSplitPercent} minSplitPercent={minSplitPercent} setResizing={setResizing} setSplitPercent={setSplitPercent} splitPercent={splitPercent} updateSplitFromClientX={updateSplitFromClientX} />
 
-          <PreviewPanel exportImage={exportImage} exportTooltip={exportTooltip} createCanvasConnection={createCanvasConnection} createCanvasPath={createCanvasPath} createCanvasRegion={createCanvasRegion} handleNodePositionChange={handleNodePositionChange} handleNodeResizeChange={handleNodeResizeChange} handleObjectClick={handleObjectClick} handleRegionAggregateToggle={handleRegionAggregateToggle} hasErrors={appliedHasErrors} hasExportBlockers={hasExportBlockers} loading={loading} placeCanvasCallout={placeCanvasCallout} placeCanvasNode={placeCanvasNode} placeCanvasShape={placeCanvasShape} previewRef={previewRef} redoStack={redoStack} redoTopology={redoTopology} releaseNodeFromRegion={handleReleaseNodeFromRegion} selectedLayerIds={selectedLayerIds} selectedObjectIds={previewSelectedObjectIds} setSelectedLayerIds={setSelectedLayerIds} setSelectedObjects={setSelectedObjects} undoStack={undoStack} undoTopology={undoTopology} visibleDocument={visibleDocument} />
+          <PreviewPanel copySelectedObjects={copySelectedObjects} deleteSelectedObjects={deleteSelection} duplicateSelectedObjects={duplicateSelectedObjects} exportImage={exportImage} exportTooltip={exportTooltip} createCanvasConnection={createCanvasConnection} createCanvasPath={createCanvasPath} createCanvasRegion={createCanvasRegion} handleNodePositionChange={handleNodePositionChange} handleNodeResizeChange={handleNodeResizeChange} handleObjectClick={handleObjectClick} handleRegionAggregateToggle={handleRegionAggregateToggle} hasErrors={appliedHasErrors} hasExportBlockers={hasExportBlockers} loading={loading} pasteSelectedObjects={pasteSelectedObjects} placeCanvasCallout={placeCanvasCallout} placeCanvasNode={placeCanvasNode} placeCanvasShape={placeCanvasShape} previewRef={previewRef} redoStack={redoStack} redoTopology={redoTopology} releaseNodeFromRegion={handleReleaseNodeFromRegion} selectedLayerIds={selectedLayerIds} selectedObjectIds={previewSelectedObjectIds} setSelectedLayerIds={setSelectedLayerIds} setSelectedObjects={setSelectedObjects} undoStack={undoStack} undoTopology={undoTopology} visibleDocument={visibleDocument} />
         </Box>
       )}
     </Box>

@@ -238,6 +238,41 @@ export function nodeIdsWithinCanvasBounds(
     .map((node: any) => String(node.id));
 }
 
+export function objectSelectionsWithinCanvasBounds(
+  document: Record<string, any> | undefined,
+  bounds: CanvasAuthoringRect,
+  selectedLayerIds: string[] = []
+): TopoObjectSelection[] {
+  const maxX = bounds.x + bounds.width;
+  const maxY = bounds.y + bounds.height;
+  const containsPosition = (value: unknown) => {
+    const position = numericPosition(value);
+    return !!position && position.x >= bounds.x && position.x <= maxX && position.y >= bounds.y && position.y <= maxY;
+  };
+  const graph = document?.graph || {};
+  const diagram = document?.diagram || {};
+  const selections: TopoObjectSelection[] = [];
+
+  (graph.nodes || []).forEach((node: any) => {
+    if (!hasLayerIntersection(node.layers, selectedLayerIds)) return;
+    if (containsPosition(node.position)) selections.push({ kind: 'node', id: String(node.id) });
+  });
+  (graph.regions || []).forEach((region: any) => {
+    if (!hasLayerIntersection(region.layers, selectedLayerIds)) return;
+    if (containsPosition(region.position)) selections.push({ kind: 'region', id: String(region.id) });
+  });
+  (diagram.shapes || []).forEach((shape: any) => {
+    if (!hasLayerIntersection(shape.layers, selectedLayerIds)) return;
+    if (containsPosition(shape.position)) selections.push({ kind: 'shape', id: String(shape.id) });
+  });
+  (diagram.callouts || []).forEach((callout: any) => {
+    if (!hasLayerIntersection(callout.layers, selectedLayerIds)) return;
+    if (containsPosition(callout.position)) selections.push({ kind: 'callout', id: String(callout.id) });
+  });
+
+  return selections.filter((selection) => selection.id.trim().length > 0);
+}
+
 export function layersForCanvasCreation(selectedLayerIds: string[], fallbackLayerId: string) {
   const layers = selectedLayerIds.filter((layerId) => layerId.trim().length > 0);
   return layers.length ? [...layers] : [fallbackLayerId];
@@ -368,7 +403,7 @@ export function applyCanvasAuthoringCommand(text: string, command: CanvasAuthori
     throw new Error('Canvas resize is not implemented yet.');
   }
 
-  throw new Error('Canvas duplicate is not implemented yet.');
+  return duplicatePositionedSelection(text, command.selections, command.offset);
 }
 
 function movePositionedSelection(
@@ -379,7 +414,7 @@ function movePositionedSelection(
   return mutateTopologyText(text, (document) => {
     let moved = 0;
     selections.forEach((selection) => {
-      if (selection.kind !== 'node' && selection.kind !== 'shape' && selection.kind !== 'callout') return;
+      if (selection.kind !== 'node' && selection.kind !== 'shape' && selection.kind !== 'callout' && selection.kind !== 'region') return;
       const object = findObject(document, selection);
       if (!object) throw new Error(`Selected ${selection.kind} "${selection.id}" no longer exists.`);
       const position = objectPosition(object.position);
@@ -392,6 +427,140 @@ function movePositionedSelection(
     });
     if (!moved) throw new Error('Move selection requires at least one positioned object.');
   });
+}
+
+function duplicatePositionedSelection(
+  text: string,
+  selections: TopoObjectSelection[],
+  offset: CanvasAuthoringPoint
+): MutationResult {
+  return mutateTopologyText(text, (document) => {
+    const supportedKinds = new Set<TopoObjectSelection['kind']>(['node', 'region', 'shape', 'callout']);
+    const normalizedSelections = uniqueSelections(selections).filter((selection) => supportedKinds.has(selection.kind));
+    if (!normalizedSelections.length) {
+      throw new Error('Duplicate selection requires a node, region, shape, or callout.');
+    }
+
+    const idBySelection = new Map<string, string>();
+    const idBySourceId = new Map<string, string>();
+    const reservedIds = allCanvasObjectIds(document);
+    normalizedSelections.forEach((selection) => {
+      const object = findObject(document, selection);
+      if (!object) throw new Error(`Selected ${selection.kind} "${selection.id}" no longer exists.`);
+      const position = objectPosition(object.position);
+      if (!position) throw new Error(`Selected ${selection.kind} "${selection.id}" does not have an editable position.`);
+      const id = nextDuplicateId(document, duplicatePrefix(selection), reservedIds);
+      reservedIds.add(id);
+      idBySelection.set(selectionKey(selection), id);
+      idBySourceId.set(selection.id, id);
+    });
+
+    const graph = document.graph && typeof document.graph === 'object' ? document.graph : (document.graph = {});
+    const diagram = document.diagram && typeof document.diagram === 'object' ? document.diagram : (document.diagram = {});
+    graph.nodes = Array.isArray(graph.nodes) ? graph.nodes : [];
+    graph.regions = Array.isArray(graph.regions) ? graph.regions : [];
+    diagram.shapes = Array.isArray(diagram.shapes) ? diagram.shapes : [];
+    diagram.callouts = Array.isArray(diagram.callouts) ? diagram.callouts : [];
+
+    normalizedSelections.forEach((selection) => {
+      const source = findObject(document, selection);
+      const id = idBySelection.get(selectionKey(selection));
+      if (!source || !id) return;
+      const duplicate = cloneCanvasObject(source);
+      duplicate.id = id;
+      duplicate.position = translateCanvasPosition(source.position, offset);
+      duplicate.name = duplicate.name ? `${duplicate.name} Copy` : duplicate.name;
+
+      if (selection.kind === 'node') {
+        graph.nodes.push(duplicate);
+        return;
+      }
+
+      if (selection.kind === 'region') {
+        const rewrittenMembers = Array.isArray(duplicate.members)
+          ? duplicate.members.map((memberId: unknown) => idBySourceId.get(String(memberId || ''))).filter(Boolean)
+          : [];
+        duplicate.members = rewrittenMembers;
+        if (duplicate.parent) {
+          const rewrittenParentId = idBySourceId.get(String(duplicate.parent));
+          if (rewrittenParentId) duplicate.parent = rewrittenParentId;
+          else delete duplicate.parent;
+        }
+        graph.regions.push(duplicate);
+        return;
+      }
+
+      if (selection.kind === 'shape') {
+        diagram.shapes.push(duplicate);
+        return;
+      }
+
+      if (duplicate.target) {
+        duplicate.target = idBySourceId.get(String(duplicate.target)) || duplicate.target;
+      }
+      if (duplicate.source) {
+        duplicate.source = idBySourceId.get(String(duplicate.source)) || duplicate.source;
+      }
+      diagram.callouts.push(duplicate);
+    });
+  });
+}
+
+function cloneCanvasObject<T>(value: T): T {
+  return JSON.parse(JSON.stringify(value)) as T;
+}
+
+function allCanvasObjectIds(document: Record<string, any>): Set<string> {
+  const graph = document.graph || {};
+  const diagram = document.diagram || {};
+  return new Set([
+    ...(graph.nodes || []),
+    ...(graph.links || []),
+    ...(graph.paths || []),
+    ...(graph.regions || []),
+    ...(diagram.shapes || []),
+    ...(diagram.callouts || [])
+  ].map((item: any) => String(item.id || '')).filter(Boolean));
+}
+
+function duplicatePrefix(selection: TopoObjectSelection): string {
+  const normalized = selection.id
+    .replace(/-\d+$/, '')
+    .replace(/[^a-zA-Z0-9_-]+/g, '-')
+    .replace(/(^-|-$)/g, '')
+    .toLowerCase();
+  return normalized || selection.kind;
+}
+
+function nextDuplicateId(document: Record<string, any>, prefix: string, reservedIds: Set<string>) {
+  const existingIds = allCanvasObjectIds(document);
+  let index = 1;
+  while (existingIds.has(`${prefix}-${index}`) || reservedIds.has(`${prefix}-${index}`)) index += 1;
+  return `${prefix}-${index}`;
+}
+
+function selectionKey(selection: TopoObjectSelection) {
+  return `${selection.kind}:${selection.id}`;
+}
+
+function uniqueSelections(selections: TopoObjectSelection[]) {
+  const seen = new Set<string>();
+  return selections.filter((selection) => {
+    const key = selectionKey(selection);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function translateCanvasPosition(value: unknown, delta: CanvasAuthoringPoint): [number, number] | { x: number; y: number } {
+  const position = objectPosition(value);
+  if (!position) throw new Error('Cannot translate an object without an editable position.');
+  const next = {
+    x: Math.round(position.x + delta.x),
+    y: Math.round(position.y + delta.y)
+  };
+  return value && typeof value === 'object' && !Array.isArray(value) ? next : [next.x, next.y];
 }
 
 function objectPosition(value: unknown): CanvasAuthoringPoint | undefined {

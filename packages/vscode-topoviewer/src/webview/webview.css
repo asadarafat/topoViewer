@@ -274,7 +274,8 @@ body,
   white-space: nowrap;
 }
 
-.topoviewer-vscode-region-marquee {
+.topoviewer-vscode-region-marquee,
+.topoviewer-vscode-selection-marquee {
   position: absolute;
   z-index: 20;
   border: 1px solid color-mix(in srgb, var(--topoviewer-accent, #1976d2) 76%, transparent);
@@ -282,6 +283,11 @@ body,
   background: color-mix(in srgb, var(--topoviewer-accent, #1976d2) 12%, transparent);
   box-shadow: 0 0 0 1px color-mix(in srgb, var(--vscode-sideBar-background, #ffffff) 70%, transparent);
   pointer-events: none;
+}
+
+.topoviewer-vscode-selection-marquee {
+  border-style: dashed;
+  background: color-mix(in srgb, var(--topoviewer-accent, #1976d2) 8%, transparent);
 }
 
 .topoviewer-vscode-controls-overlay {

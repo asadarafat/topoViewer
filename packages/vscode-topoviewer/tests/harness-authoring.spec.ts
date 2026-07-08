@@ -755,6 +755,84 @@ test('keeps click-created linked nodes stable during staggered vertical drags', 
   await expect.poll(async () => nodePosition(await topologyText(page), 'node-1')).toEqual(finalPosition);
 });
 
+test('marquee selects positioned objects for group move, duplicate, paste, and delete', async ({ page }) => {
+  await startNewTopology(page);
+
+  const paneBox = await page.locator('.react-flow__pane').boundingBox();
+  expect(paneBox).not.toBeNull();
+  const toolbar = page.getByRole('toolbar', { name: 'Canvas authoring tools' });
+  await toolbar.getByRole('button', { name: 'Node tool' }).click();
+  await page.mouse.click(paneBox!.x + paneBox!.width * 0.38, paneBox!.y + paneBox!.height * 0.46);
+  await page.mouse.click(paneBox!.x + paneBox!.width * 0.58, paneBox!.y + paneBox!.height * 0.46);
+  await waitForValidatedGraphNodes(page, ['node-1', 'node-2']);
+
+  const build = page.locator('.topoviewer-vscode-build-pane');
+  await build.getByRole('button', { name: 'Insert Connection' }).click();
+  await build.getByRole('button', { name: 'Create connection' }).click();
+  await waitForValidatedGraphObject(page, 'links', 'link-1');
+
+  const beforeNode1 = nodePosition(await topologyText(page), 'node-1');
+  const beforeNode2 = nodePosition(await topologyText(page), 'node-2');
+  expect(beforeNode1).toBeDefined();
+  expect(beforeNode2).toBeDefined();
+  await toolbar.getByRole('button', { name: 'Select tool' }).click();
+
+  const selectionStart = await clientPointForTopologyPoint(page, {
+    x: Math.min(beforeNode1!.x, beforeNode2!.x) - 80,
+    y: Math.min(beforeNode1!.y, beforeNode2!.y) - 80
+  });
+  const selectionEnd = await clientPointForTopologyPoint(page, {
+    x: Math.max(beforeNode1!.x, beforeNode2!.x) + 160,
+    y: Math.max(beforeNode1!.y, beforeNode2!.y) + 120
+  });
+  await page.mouse.move(selectionStart.x, selectionStart.y);
+  await page.mouse.down();
+  await page.mouse.move((selectionStart.x + selectionEnd.x) / 2, (selectionStart.y + selectionEnd.y) / 2, { steps: 4 });
+  await page.mouse.move(selectionEnd.x, selectionEnd.y, { steps: 4 });
+  await page.mouse.up();
+  await expect.poll(() => selectedPreviewObjectCount(page)).toBe(2);
+
+  const node1 = page.locator('.react-flow__node[data-id="node-1"]');
+  const nodeBox = await node1.boundingBox();
+  expect(nodeBox).not.toBeNull();
+  await page.mouse.move(nodeBox!.x + nodeBox!.width / 2, nodeBox!.y + nodeBox!.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(nodeBox!.x + nodeBox!.width / 2 + 96, nodeBox!.y + nodeBox!.height / 2 + 42, { steps: 8 });
+  await page.mouse.up();
+
+  let movedNode1 = beforeNode1;
+  let movedNode2 = beforeNode2;
+  await expect.poll(async () => {
+    movedNode1 = nodePosition(await topologyText(page), 'node-1');
+    return movedNode1 && beforeNode1 ? `${movedNode1.x - beforeNode1.x},${movedNode1.y - beforeNode1.y}` : 'missing';
+  }).not.toBe('0,0');
+  await expect.poll(async () => {
+    movedNode2 = nodePosition(await topologyText(page), 'node-2');
+    return movedNode2 && beforeNode2 ? `${movedNode2.x - beforeNode2.x},${movedNode2.y - beforeNode2.y}` : 'missing';
+  }).not.toBe('0,0');
+  expect(movedNode1!.x - beforeNode1!.x).toBe(movedNode2!.x - beforeNode2!.x);
+  expect(movedNode1!.y - beforeNode1!.y).toBe(movedNode2!.y - beforeNode2!.y);
+
+  await page.keyboard.press('Control+D');
+  await waitForValidatedGraphNodes(page, ['node-1', 'node-2', 'node-3', 'node-4']);
+  await expect.poll(() => topologyText(page)).toContain('id: node-3');
+  await expect.poll(() => topologyText(page)).toContain('id: node-4');
+
+  await page.keyboard.press('Control+C');
+  await page.keyboard.press('Control+V');
+  await waitForValidatedGraphNodes(page, ['node-1', 'node-2', 'node-3', 'node-4', 'node-5', 'node-6']);
+
+  await page.keyboard.press('Delete');
+  await expect.poll(() => topologyText(page)).not.toContain('id: node-1');
+  await expect.poll(() => topologyText(page)).not.toContain('id: node-2');
+  await expect.poll(() => topologyText(page)).not.toContain('id: link-1');
+  await expect.poll(() => topologyText(page)).toContain('id: node-6');
+
+  await page.getByRole('button', { name: 'Undo' }).click();
+  await waitForValidatedGraphNodes(page, ['node-1', 'node-2', 'node-3', 'node-4', 'node-5', 'node-6']);
+  await waitForValidatedGraphObject(page, 'links', 'link-1');
+});
+
 test('places and moves canvas shapes and callouts from toolbar tools', async ({ page }) => {
   await startNewTopology(page);
 

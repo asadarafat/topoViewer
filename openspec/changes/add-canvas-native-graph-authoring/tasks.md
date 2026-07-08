@@ -113,13 +113,20 @@ Each implementation phase must prove:
 
 ## 8. Marquee, Clipboard, And Keyboard Editing
 
-- [ ] 8.1 Add marquee selection for positioned objects
-- [ ] 8.2 Add multi-select move as one transaction
-- [ ] 8.3 Add Delete/Backspace selected-object deletion
-- [ ] 8.4 Add Cmd/Ctrl+C, Cmd/Ctrl+V, and Cmd/Ctrl+D for copy/paste/duplicate
-- [ ] 8.5 Rewrite duplicated IDs and internal references deterministically
-- [ ] 8.6 Add Playwright coverage for selection, duplicate, paste, delete,
+- [x] 8.1 Add marquee selection for positioned objects
+- [x] 8.2 Add multi-select move as one transaction
+- [x] 8.3 Add Delete/Backspace selected-object deletion
+- [x] 8.4 Add Cmd/Ctrl+C, Cmd/Ctrl+V, and Cmd/Ctrl+D for copy/paste/duplicate
+- [x] 8.5 Rewrite duplicated IDs and internal references deterministically
+- [x] 8.6 Add Playwright coverage for selection, duplicate, paste, delete,
       undo/redo, and dependency handling
+
+Evidence:
+
+- `npm --workspace vscode-topoviewer run test:unit -- canvasAuthoring`
+- `npm --workspace vscode-topoviewer run typecheck`
+- `npm --workspace vscode-topoviewer run test:vscode-harness -- --grep "marquee selects"`
+- `npm --workspace vscode-topoviewer run test:vscode-harness -- tests/harness-authoring.spec.ts`
 
 ## 9. Alignment, Distribution, And Snap
 
