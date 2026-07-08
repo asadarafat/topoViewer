@@ -850,6 +850,46 @@ test('places and moves canvas shapes and callouts from toolbar tools', async ({ 
   await expect.poll(async () => nodePosition(await topologyText(page), 'callout-1')).toEqual(afterCallout);
   await expect.poll(async () => yamlTuple(yamlObjectBlock(await topologyText(page), 'shape-1'), 'size')).toEqual(afterShapeSize);
   await expect.poll(async () => yamlTuple(yamlObjectBlock(await topologyText(page), 'callout-1'), 'size')).toEqual(afterCalloutSize);
+
+  const inspector = page.locator('.topoviewer-vscode-inspector-pane');
+  await selectHarnessObject(page, 'shape', 'shape-1');
+  await inspector.getByLabel('Display name').fill('Edited Shape');
+  await inspector.getByRole('button', { name: 'Apply properties' }).click();
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'shape-1')).toContain('name: Edited Shape');
+
+  await selectHarnessObject(page, 'callout', 'callout-1');
+  await inspector.getByLabel('Display name').fill('Edited Callout');
+  await inspector.getByRole('button', { name: 'Apply properties' }).click();
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'callout-1')).toContain('name: Edited Callout');
+
+  await inspector.getByRole('button', { name: 'Delete' }).click();
+  await expect.poll(() => topologyText(page)).not.toContain('id: callout-1');
+  await page.getByRole('button', { name: 'Undo' }).click();
+  await expect.poll(() => topologyText(page)).toContain('id: callout-1');
+  await page.getByRole('button', { name: 'Redo' }).click();
+  await expect.poll(() => topologyText(page)).not.toContain('id: callout-1');
+  await page.getByRole('button', { name: 'Undo' }).click();
+  await expect.poll(() => topologyText(page)).toContain('id: callout-1');
+
+  await selectHarnessObject(page, 'shape', 'shape-1');
+  await inspector.getByRole('button', { name: 'Delete' }).click();
+  await expect.poll(() => topologyText(page)).not.toContain('id: shape-1');
+  await page.getByRole('button', { name: 'Undo' }).click();
+  await expect.poll(() => topologyText(page)).toContain('id: shape-1');
+  await page.getByRole('button', { name: 'Redo' }).click();
+  await expect.poll(() => topologyText(page)).not.toContain('id: shape-1');
+  await page.getByRole('button', { name: 'Undo' }).click();
+  await expect.poll(() => topologyText(page)).toContain('id: shape-1');
+
+  await page.reload();
+  await waitForHarnessState(page);
+  await expect(page.getByText('No diagnostics')).toBeVisible();
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'shape-1')).toContain('name: Edited Shape');
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'callout-1')).toContain('name: Edited Callout');
+  await expect.poll(async () => nodePosition(await topologyText(page), 'shape-1')).toEqual(afterShape);
+  await expect.poll(async () => nodePosition(await topologyText(page), 'callout-1')).toEqual(afterCallout);
+  await expect.poll(async () => yamlTuple(yamlObjectBlock(await topologyText(page), 'shape-1'), 'size')).toEqual(afterShapeSize);
+  await expect.poll(async () => yamlTuple(yamlObjectBlock(await topologyText(page), 'callout-1'), 'size')).toEqual(afterCalloutSize);
 });
 
 test('crud covers new topology regions, callouts, and relationship objects', async ({ page }) => {

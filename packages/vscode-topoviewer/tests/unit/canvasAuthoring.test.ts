@@ -76,7 +76,7 @@ describe('canvas authoring tools', () => {
 
   it('classifies node preset tools', () => {
     const presetTools: CanvasAuthoringTool[] = ['node', 'router', 'service', 'controller', 'external'];
-    const nonPresetTools: CanvasAuthoringTool[] = ['select', 'pan', 'link', 'path', 'region', 'callout', 'shape', 'text'];
+    const nonPresetTools: CanvasAuthoringTool[] = ['select', 'pan', 'link', 'path', 'region', 'callout', 'shape'];
 
     expect(presetTools.every(isNodePresetTool)).toBe(true);
     expect(nonPresetTools.some(isNodePresetTool)).toBe(false);

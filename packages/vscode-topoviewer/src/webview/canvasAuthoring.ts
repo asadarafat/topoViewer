@@ -23,8 +23,7 @@ export type CanvasAuthoringTool =
   | 'path'
   | 'region'
   | 'callout'
-  | 'shape'
-  | 'text';
+  | 'shape';
 
 export type CanvasNodePresetTool = Extract<CanvasAuthoringTool, 'node' | 'router' | 'service' | 'controller' | 'external'>;
 
@@ -138,8 +137,7 @@ const mutatingTools = new Set<CanvasAuthoringTool>([
   'path',
   'region',
   'callout',
-  'shape',
-  'text'
+  'shape'
 ]);
 
 export function isNodePresetTool(tool: CanvasAuthoringTool): tool is CanvasNodePresetTool {
@@ -263,7 +261,7 @@ export function layersForAuthoringIntent(intent: CanvasAuthoringLayerIntent, sel
 
 export function layersForCanvasTool(tool: CanvasAuthoringTool, selectedLayerIds: string[] = []) {
   if (tool === 'path') return layersForAuthoringIntent('paths', selectedLayerIds);
-  if (tool === 'shape' || tool === 'callout' || tool === 'text') return layersForAuthoringIntent('annotations', selectedLayerIds);
+  if (tool === 'shape' || tool === 'callout') return layersForAuthoringIntent('annotations', selectedLayerIds);
   return layersForAuthoringIntent('physical', selectedLayerIds);
 }
 

@@ -105,10 +105,11 @@ Each implementation phase must prove:
 - [x] 7.4 Add callout movement persistence through shared positioned-object
       drag handling; add leader-specific anchor editing later with resize/leader
       controls
-- [ ] 7.5 Decide whether standalone text is a callout variant or a new diagram
-      primitive before exposing a text tool
-- [ ] 7.6 Add Playwright coverage for create, move, resize, edit, delete,
-      undo/redo, and reload persistence
+- [x] 7.5 Decide standalone text is a callout variant for this phase; remove
+      the unimplemented text tool type from canvas authoring so the toolbar
+      exposes only schema-backed annotation tools
+- [x] 7.6 Add Playwright coverage for shape/callout create, move, resize,
+      edit, delete, undo/redo, and reload persistence
 
 ## 8. Marquee, Clipboard, And Keyboard Editing
 

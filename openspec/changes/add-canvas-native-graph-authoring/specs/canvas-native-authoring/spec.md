@@ -61,7 +61,7 @@ locations.
 - **THEN** the generated YAML SHALL default the object to the `physical` layer
 - **WHEN** the user creates a new path
 - **THEN** the generated YAML SHALL default the object to the `paths` layer
-- **WHEN** the user creates a callout, shape, or future text primitive
+- **WHEN** the user creates a callout, shape, or text-like annotation
 - **THEN** the generated YAML SHALL default the object to the `annotations`
   layer
 - **AND** visible layer filters SHALL NOT redirect those writes to a different
@@ -213,6 +213,16 @@ groups can be placed intentionally.
 
 The Harness SHALL expose direct move and resize handles for objects whose
 geometry can be represented in YAML.
+
+#### Scenario: Standalone text is represented as a callout variant
+
+- **WHEN** the Harness exposes text-like annotation authoring in this phase
+- **THEN** it SHALL use `diagram.callouts[]` rather than a separate text
+  primitive
+- **AND** the primary canvas toolbar SHALL NOT expose a standalone text tool
+  until a distinct schema primitive is justified
+- **AND** text-like annotations SHALL inherit callout create, move, resize,
+  edit, delete, undo/redo, and reload behavior
 
 #### Scenario: Dragging an object persists position
 
