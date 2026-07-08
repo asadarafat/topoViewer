@@ -50,6 +50,16 @@ apply or revert drafts deliberately.
 Use it when you are designing a topology bundle, checking mapper coverage before
 Grafana, or validating that drag/manual layout changes persist back to YAML.
 
+## Author Graphs On The Canvas
+
+[Graph Authoring](graph-authoring.md) shows the canvas-native authoring surface:
+node placement, link drawing, path sequencing, regions, shapes, callouts,
+marquee selection, duplicate, align, distribute, grid snap, and the YAML written
+by each action.
+
+Use it when you want a draw.io-style workflow that still produces reviewable
+TopoViewer topology files.
+
 ## Build A Kubernetes Service Map
 
 [Kubernetes Service Map](kubernetes-service-map/index.md) shows how platform

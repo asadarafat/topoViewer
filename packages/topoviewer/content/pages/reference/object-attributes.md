@@ -149,6 +149,8 @@ Use this reference with:
 | `parentPadding` | optional | number | Any valid value of the documented type. | Optional; no schema default. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `graph.regions[].parentPadding: ...` | Region attribute. |
 | `parentPaddingX` | optional | number | Any valid value of the documented type. | Optional; no schema default. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `graph.regions[].parentPaddingX: ...` | Region attribute. |
 | `parentPaddingY` | optional | number | Any valid value of the documented type. | Optional; no schema default. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `graph.regions[].parentPaddingY: ...` | Region attribute. |
+| `position` | optional | position | See `position`. | Optional; no schema default. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `graph.regions[].position: ...` | Authored position in TopoViewer coordinate space. |
+| `size` | optional | size | See `size`. | Optional; no schema default. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `graph.regions[].size: ...` | Authored width and height in TopoViewer coordinate space. |
 | `style` | optional | style | See `style`. | Absent means stylesheet rules and runtime defaults determine presentation. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `graph.regions[].style: ...` | Inline style override for one object; prefer stylesheet rules for shared policy. |
 
 ### Diagram

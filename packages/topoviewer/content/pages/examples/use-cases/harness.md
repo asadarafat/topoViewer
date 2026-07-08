@@ -1,7 +1,9 @@
 # Harness
 
-The Harness is the quickest way to author a TopoViewer bundle: topology YAML,
-stylesheet YAML, and optional mapper YAML beside a live canvas.
+The Harness is the fastest way to author a TopoViewer bundle before embedding
+it in docs, React, Zensical, or Grafana. It gives you a canvas-first editor for
+common graph work, an Inspector for object details, and YAML tabs for the source
+files that every other TopoViewer surface consumes.
 
 **Support status:** Experimental
 
@@ -11,8 +13,19 @@ Open the published Harness:
 
 [https://asadarafat.github.io/topoviewer/harness/](https://asadarafat.github.io/topoviewer/harness/)
 
-Use it when you want to test an idea before wiring TopoViewer into React,
-MkDocs, Zensical, or Grafana.
+Use the toolbar above the canvas for the normal authoring loop:
+
+1. Press `N` or click the node tool, then click the canvas to place nodes.
+2. Press `L` or click the link tool, then drag between nodes to create links.
+3. Press `P` or click the path tool, then click reachable nodes in sequence and
+   press `Enter` to create a path.
+4. Press `G` or click the region tool, then drag bounds around nodes or click
+   empty canvas to create a region container.
+5. Select objects to edit names, labels, data, relationship endpoints, and
+   geometry in the Inspector.
+6. Open the YAML tab to inspect or refine the files that the canvas produced.
+7. Download the bundle when the graph, style, and mapper are ready to move into
+   another surface.
 
 ??? example "Run the Harness locally"
 
@@ -37,127 +50,69 @@ MkDocs, Zensical, or Grafana.
 
     Use the printed local URL.
 
-## Fast Authoring Loop
+## Authoring Pattern
 
-Start with a template, make one change, apply it, and inspect the result.
-
-1. Pick `Layered network authoring` or `CLOS 2-spine 4-leaf`.
-2. Open the `YAML` tab.
-3. Edit `Topology YAML` for objects: nodes, links, paths, regions, layers, labels, and data.
-4. Edit `Stylesheet YAML` for visual policy: icons, labels, shape, color, links, regions, and layout.
-5. Edit `Mapper YAML` only when you want Grafana runtime overlays.
-6. Press `Apply`.
-7. If diagnostics appear, click the diagnostic, fix the line, and apply again.
-8. Drag nodes only when the layout is manual or pinned. Alignment helper lines
-   appear during drag so nearby nodes, regions, and midpoint guides are easier
-   to line up without fighting the pointer.
-9. Use `Download bundle` when the current topology should become source files.
-
-The canvas keeps the last valid applied document. A broken draft should show
-diagnostics without destroying the current rendered graph.
-
-## UX Pattern
-
-The productive Harness pattern is small, repeated edits:
+The productive Harness pattern is small, visible changes:
 
 ```text
-choose template
-  -> edit one YAML concern
-  -> apply
-  -> inspect canvas and diagnostics
+choose a template or create a new topology
+  -> use the canvas tool for the object you want
+  -> select the object and refine it in the Inspector
+  -> inspect the YAML that was written
   -> repeat
-  -> download bundle
+  -> download the bundle
 ```
 
-Use `Revert draft` when an edit path is not worth saving. Use `Save` only when
-the browser should remember the topology across refreshes. Use export only after
-the render is valid.
+The canvas is not a separate drawing layer. A pointer gesture writes
+TopoViewer YAML through the same validation path used by the rest of the
+project. If a draft YAML edit is invalid, the canvas keeps the last valid graph
+instead of destroying the preview.
+
+Use `Save` when the browser should remember the topology across refreshes. Use
+`Revert draft` when an editing path is not worth keeping. Use `Download bundle`
+when the current topology should become source files.
+
+## What Each Area Does
+
+The toolbar above the canvas is for high-frequency graph authoring: select,
+pan, node, link, path, region, shape, and callout.
+
+The Inspector is the detailed object editor. Use it for display names, labels,
+data, positions, sizes, path sequences, link endpoints, region membership,
+saved presets, and delete operations.
+
+The Build tab is now the fallback structured form for relationships that are
+easier to express through exact fields: connection and path creation. Saved
+presets appear there only after you create them from the Inspector.
+
+The YAML tab is the source editor for topology, stylesheet, and mapper files.
+Use it when you want precise edits, schema assist, or a reviewable diff.
+
+The Attention and Layers tabs are for runtime view control and authoring
+metadata. They should not replace topology, stylesheet, or mapper YAML.
+
+## Graph Authoring Guide
+
+The detailed guide is [Graph Authoring](graph-authoring.md). It covers the
+toolbar tools, shortcuts, grouping behavior, path reachability rules,
+copy/paste, alignment, grid snap, helper lines, and the exact YAML families
+written by each action.
 
 ## Drag Alignment Helper Lines
 
-Drag alignment helper lines are runtime guides for manual layout work. They
-appear while an object is being dragged and show when the dragged object is
-aligned with another node, region, or midpoint. By default, dragging stays
-smooth under the pointer and the nearest visible guide is applied on drag stop.
-Use `snap: false` for guide-only overlays, or `snapMode: live` only when the
-host intentionally wants the node to move directly onto guide candidates during
-drag.
+Helper lines are enabled by default in the Harness. They appear while an object
+is dragged and show horizontal, vertical, or midpoint alignment candidates.
+Dragging stays smooth under the pointer and the nearest visible guide is applied
+on drag stop.
 
-They are intentionally not YAML syntax. Helper lines do not write topology,
-stylesheet, or mapper files by themselves. The persisted source of truth is
-still the bundle you apply and download.
+Helper lines are runtime guides. They do not write topology, stylesheet, or
+mapper YAML by themselves. The persisted source of truth is still the bundle
+you apply and download.
 
-In the Harness, helper lines are enabled by default for the authoring canvas.
-Use them when the layout is manual or pinned and you want to line up nodes,
-regions, or service objects without guessing by eye. The productive pattern is:
-
-1. Switch to a manual or pinned layout.
-2. Drag one object near another object.
-3. Watch for horizontal, vertical, or midpoint guide lines.
-4. Release the drag when the intended guide is visible.
-5. Apply or download the bundle only when the rendered layout is the layout you want.
-
-In MkDocs and Zensical live examples, helper lines are enabled by default and
-can be toggled from the viewport settings button beside the zoom controls. The
-toggle is runtime-only: it does not change the fenced block, topology YAML, or
-stylesheet YAML. Page authors can still set `helperLines: false` to start a
-block with helper lines off, or provide an object to tune snap behavior.
-
-In Grafana, helper lines are also runtime-only. They appear only when the panel
-allows local interaction and node dragging. New panels default both settings to
-enabled, so helper lines are available by default during local exploration. If a
-dashboard owner disables interaction or node dragging, helper lines disappear
-with the drag affordance.
-
-Grafana stores dragged positions as panel interaction state when configured to
-persist them. It does not mutate mounted `*.topo.tv.yaml`,
-`*.style.tv.yaml`, or `*.mapper.tv.yaml` files.
-
-React hosts can enable the same behavior with the `helperLines` prop:
-
-```tsx
-<TopoViewer
-  document={document}
-  nodesDraggable
-  helperLines={{
-    enabled: true,
-    snap: true,
-    snapMode: 'commit',
-    snapHysteresis: 3,
-    threshold: 5,
-    showMidpoints: true
-  }}
-/>
-```
-
-MkDocs and Zensical live examples enable the same snap-on-release runtime behavior by default.
-Use `helperLines: false` when a read-only documentation example should not show
-drag guides:
-
-```yaml
-helperLines: false
-```
-
-Use the object form when a documentation page needs explicit snapping behavior:
-
-```yaml
-helperLines:
-  enabled: true
-  snap: true
-  snapMode: commit
-  snapHysteresis: 3
-  threshold: 5
-  showMidpoints: true
-```
-
-Use `threshold` to control how close a dragged object must be before a guide is
-considered active. Use `snapMode: commit` when the object should follow the
-pointer smoothly during drag and settle to the alignment candidate on drag stop.
-Use `snapMode: live` only when the node should move onto guide candidates while
-the pointer is still down. Use `snapHysteresis` when live snapping should retain
-an active guide until the pointer moves outside a larger release threshold. Use
-`showMidpoints` when the authoring workflow benefits from centering an object
-between nearby objects.
+Use the settings button beside the zoom controls to toggle helper lines or grid
+snap while authoring. Use grid snap when you want deterministic spacing; use
+helper lines when you want visual alignment without forcing every object onto a
+grid.
 
 ## Bundle Files
 
@@ -179,6 +134,7 @@ structural YAML positions for candidate keys and short explanations.
 
 The useful pattern is:
 
+- use the canvas for object placement and common relationship work;
 - use assist to insert the correct key or object scaffold;
 - keep indentation aligned with the surrounding YAML;
 - apply early so diagnostics stay close to the change;
@@ -194,13 +150,14 @@ applied topology. It reports matched objects, unmatched rules, ambiguous
 endpoint rules, duplicate targets, and stale object references before the bundle
 is mounted in Grafana.
 
-Use `Presets` for a starter mapper. Use the rule builder when you know the
+Use presets for a starter mapper. Use the rule builder when you know the
 telemetry metric but do not want to hand-write the full mapper shape.
 
 ## Templates To Start From
 
 The templates are practical starting points, not feature explanations. Open one,
-change the YAML, apply, and then download the result when the shape is right.
+change the graph through the canvas or YAML, apply, and download the result when
+the shape is right.
 
 ### Layered Network Authoring
 
@@ -232,10 +189,10 @@ helperLines: true
 title: CLOS 2-spine 4-leaf
 ```
 
-### Insert Workflow
+### Canvas Workflow
 
 Use this when you want to practice adding nodes, links, regions, paths, and
-notes from the Build panel.
+notes from the canvas toolbar.
 
 ```topoviewer
 topology: examples/harness/insert-workflow/topology.yaml
@@ -244,7 +201,7 @@ height: 520px
 controls: true
 controlsOpen: false
 helperLines: true
-title: Insert workflow
+title: Canvas workflow
 ```
 
 ### Attention Workflow

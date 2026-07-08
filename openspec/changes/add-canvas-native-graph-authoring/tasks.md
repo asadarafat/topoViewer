@@ -163,11 +163,20 @@ Evidence:
 
 ## 11. Documentation
 
-- [ ] 11.1 Update Harness use-case guide to lead with canvas authoring
-- [ ] 11.2 Add a polished "Graph Authoring" feature guide
-- [ ] 11.3 Document keyboard shortcuts and tool behavior
-- [ ] 11.4 Document what each UI action writes into YAML
-- [ ] 11.5 Sync generated MkDocs and Zensical docs
+- [x] 11.1 Update Harness use-case guide to lead with canvas authoring
+- [x] 11.2 Add a polished "Graph Authoring" feature guide
+- [x] 11.3 Document keyboard shortcuts and tool behavior
+- [x] 11.4 Document what each UI action writes into YAML
+- [x] 11.5 Sync generated MkDocs and Zensical docs
+
+Evidence:
+
+- `npm run sync:docs`
+- `npm run docs:lint`
+- `npm run check:content`
+- `npm run check:examples`
+- `npm run docs:build:fast`
+- `npm run zensical:build`
 
 ## 12. Final Validation
 
