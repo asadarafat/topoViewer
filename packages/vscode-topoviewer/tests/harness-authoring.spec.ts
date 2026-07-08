@@ -81,6 +81,11 @@ function nodeEndpoint(page: Parameters<typeof topologyText>[0], nodeId: string) 
   return page.locator(`.react-flow__node[data-id="${nodeId}"] .topoviewer-node-handle-default.source`).first();
 }
 
+async function nodePositions(page: Parameters<typeof topologyText>[0], ids: string[]) {
+  const text = await topologyText(page);
+  return ids.map((id) => nodePosition(text, id));
+}
+
 async function endpointCenter(endpoint: Locator) {
   await expect(endpoint).toBeVisible();
   const box = await endpoint.boundingBox();
@@ -831,6 +836,76 @@ test('marquee selects positioned objects for group move, duplicate, paste, and d
   await page.getByRole('button', { name: 'Undo' }).click();
   await waitForValidatedGraphNodes(page, ['node-1', 'node-2', 'node-3', 'node-4', 'node-5', 'node-6']);
   await waitForValidatedGraphObject(page, 'links', 'link-1');
+});
+
+test('arranges selected canvas objects with align, distribute, nudge, and grid snap', async ({ page }) => {
+  await startNewTopology(page);
+
+  const toolbar = page.getByRole('toolbar', { name: 'Canvas authoring tools' });
+  const build = page.locator('.topoviewer-vscode-build-pane');
+  for (let count = 1; count <= 3; count += 1) {
+    await build.getByRole('button', { name: 'Insert Node' }).click();
+    await waitForValidatedGraphNodes(page, Array.from({ length: count }, (_, index) => `node-${index + 1}`));
+  }
+
+  const initialTopologyText = await topologyText(page);
+  const positions = ['node-1', 'node-2', 'node-3'].map((id) => nodePosition(initialTopologyText, id));
+  positions.forEach((position) => expect(position).toBeDefined());
+  await toolbar.getByRole('button', { name: 'Select tool' }).click();
+  const selectionStart = await clientPointForTopologyPoint(page, { x: 40, y: 60 });
+  const selectionEnd = await clientPointForTopologyPoint(page, { x: 760, y: 430 });
+  await page.mouse.move(selectionStart.x, selectionStart.y);
+  await page.mouse.down();
+  await page.mouse.move(selectionEnd.x, selectionEnd.y, { steps: 6 });
+  await page.mouse.up();
+  await expect.poll(() => selectedPreviewObjectCount(page)).toBe(3);
+
+  const arrange = page.getByRole('toolbar', { name: 'Selection arrangement' });
+  await arrange.getByRole('button', { name: 'Distribute H' }).click();
+  await expect.poll(async () => {
+    const next = await nodePositions(page, ['node-1', 'node-2', 'node-3']);
+    if (next.some((position) => !position)) return Number.NaN;
+    const xs = next.map((position) => position!.x).sort((a, b) => a - b);
+    return xs[1] - Math.round((xs[0] + xs[2]) / 2);
+  }).toBe(0);
+
+  await arrange.getByRole('button', { name: 'Align top' }).click();
+  let alignedY = 0;
+  await expect.poll(async () => {
+    const next = await nodePositions(page, ['node-1', 'node-2', 'node-3']);
+    if (next.some((position) => !position)) return 'missing';
+    alignedY = next[0]!.y;
+    return next.every((position) => position!.y === alignedY);
+  }).toBe(true);
+
+  await page.keyboard.press('Shift+ArrowDown');
+  await expect.poll(async () => {
+    const next = await nodePositions(page, ['node-1', 'node-2', 'node-3']);
+    return next.every((position) => position?.y === alignedY + 10);
+  }).toBe(true);
+
+  const beforeArrowRight = (await nodePositions(page, ['node-1', 'node-2', 'node-3'])).map((position) => position!);
+  await page.keyboard.press('ArrowRight');
+  await expect.poll(async () => {
+    const next = await nodePositions(page, ['node-1', 'node-2', 'node-3']);
+    return next.every((position, index) => position?.x === beforeArrowRight[index].x + 1);
+  }).toBe(true);
+
+  await arrange.getByRole('button', { name: 'Snap' }).click();
+  await expect.poll(async () => {
+    const next = await nodePositions(page, ['node-1', 'node-2', 'node-3']);
+    return next.every((position) => position && position.x % 20 === 0 && position.y % 20 === 0);
+  }).toBe(true);
+
+  const snapped = (await nodePositions(page, ['node-1', 'node-2', 'node-3'])).map((position) => position!);
+  await page.getByRole('button', { name: 'Show topology controls' }).click();
+  await page.getByRole('checkbox', { name: 'Grid snap' }).check();
+  await page.getByRole('button', { name: 'Hide topology controls' }).click();
+  await page.keyboard.press('ArrowRight');
+  await expect.poll(async () => {
+    const next = await nodePositions(page, ['node-1', 'node-2', 'node-3']);
+    return next.every((position, index) => position?.x === snapped[index].x + 20 && position.y === snapped[index].y);
+  }).toBe(true);
 });
 
 test('places and moves canvas shapes and callouts from toolbar tools', async ({ page }) => {

@@ -274,6 +274,17 @@ body,
   white-space: nowrap;
 }
 
+.topoviewer-vscode-canvas-arrange-strip {
+  max-width: min(58rem, calc(100% - 8rem));
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.topoviewer-vscode-canvas-arrange-strip .MuiButton-root {
+  min-width: auto;
+  white-space: nowrap;
+}
+
 .topoviewer-vscode-region-marquee,
 .topoviewer-vscode-selection-marquee {
   position: absolute;

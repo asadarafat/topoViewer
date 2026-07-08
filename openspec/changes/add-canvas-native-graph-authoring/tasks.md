@@ -130,11 +130,18 @@ Evidence:
 
 ## 9. Alignment, Distribution, And Snap
 
-- [ ] 9.1 Add align left/center/right/top/middle/bottom commands
-- [ ] 9.2 Add distribute horizontal/vertical commands
-- [ ] 9.3 Add arrow-key nudge and Shift+nudge
-- [ ] 9.4 Add optional grid snap separate from helper-line snap
-- [ ] 9.5 Add Playwright coverage asserting YAML positions after each command
+- [x] 9.1 Add align left/center/right/top/middle/bottom commands
+- [x] 9.2 Add distribute horizontal/vertical commands
+- [x] 9.3 Add arrow-key nudge and Shift+nudge
+- [x] 9.4 Add optional grid snap separate from helper-line snap
+- [x] 9.5 Add Playwright coverage asserting YAML positions after each command
+
+Evidence:
+
+- `npm --workspace vscode-topoviewer run typecheck`
+- `npm --workspace vscode-topoviewer run test:unit -- canvasAuthoring`
+- `npm --workspace vscode-topoviewer run test:vscode-harness -- --grep "arranges selected"`
+- `npm --workspace vscode-topoviewer run test:vscode-harness -- tests/harness-authoring.spec.ts`
 
 ## 10. Inspector And Rail Rebalancing
 

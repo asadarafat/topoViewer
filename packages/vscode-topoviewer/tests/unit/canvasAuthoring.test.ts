@@ -575,6 +575,81 @@ describe('canvas authoring command mutations', () => {
     expect(document.diagram.shapes.find((shape: any) => shape.id === 'shape-a').position).toEqual([185, 245]);
   });
 
+  it('aligns positioned selections by shared bounds', () => {
+    const result = applyCanvasAuthoringCommand(baseTopology, {
+      alignment: 'bottom',
+      selections: [
+        { kind: 'node', id: 'node-a' },
+        { kind: 'node', id: 'node-b' },
+        { kind: 'shape', id: 'shape-a' }
+      ],
+      type: 'alignSelection'
+    });
+    const document = parseTopologyText(result.text);
+
+    expect(document.graph.nodes.find((node: any) => node.id === 'node-a').position).toEqual([100, 266]);
+    expect(document.graph.nodes.find((node: any) => node.id === 'node-b').position).toEqual([300, 266]);
+    expect(document.diagram.shapes.find((shape: any) => shape.id === 'shape-a').position).toEqual([160, 260]);
+  });
+
+  it('distributes positioned selections horizontally without moving the outer anchors', () => {
+    const topology = baseTopology.replace('  links: []', [
+      '    - id: node-c',
+      '      name: Node C',
+      '      layers: [physical]',
+      '      position: [600, 180]',
+      '  links: []'
+    ].join('\n'));
+    const result = applyCanvasAuthoringCommand(topology, {
+      axis: 'horizontal',
+      selections: [
+        { kind: 'node', id: 'node-a' },
+        { kind: 'node', id: 'node-b' },
+        { kind: 'node', id: 'node-c' }
+      ],
+      type: 'distributeSelection'
+    });
+    const document = parseTopologyText(result.text);
+
+    expect(document.graph.nodes.find((node: any) => node.id === 'node-a').position).toEqual([100, 120]);
+    expect(document.graph.nodes.find((node: any) => node.id === 'node-b').position).toEqual([350, 120]);
+    expect(document.graph.nodes.find((node: any) => node.id === 'node-c').position).toEqual([600, 180]);
+  });
+
+  it('snaps positioned selections to a configurable grid', () => {
+    const topology = baseTopology
+      .replace('position: [100, 120]', 'position: [107, 129]')
+      .replace('position: [160, 260]', 'position: [171, 253]');
+    const result = applyCanvasAuthoringCommand(topology, {
+      gridSize: 20,
+      selections: [
+        { kind: 'node', id: 'node-a' },
+        { kind: 'shape', id: 'shape-a' }
+      ],
+      type: 'snapSelectionToGrid'
+    });
+    const document = parseTopologyText(result.text);
+
+    expect(document.graph.nodes.find((node: any) => node.id === 'node-a').position).toEqual([100, 120]);
+    expect(document.diagram.shapes.find((shape: any) => shape.id === 'shape-a').position).toEqual([180, 260]);
+  });
+
+  it('rejects arrange commands that do not have enough positioned objects', () => {
+    expect(() => applyCanvasAuthoringCommand(baseTopology, {
+      alignment: 'left',
+      selections: [{ kind: 'node', id: 'node-a' }],
+      type: 'alignSelection'
+    })).toThrow('Align selection requires at least two positioned objects.');
+    expect(() => applyCanvasAuthoringCommand(baseTopology, {
+      axis: 'horizontal',
+      selections: [
+        { kind: 'node', id: 'node-a' },
+        { kind: 'node', id: 'node-b' }
+      ],
+      type: 'distributeSelection'
+    })).toThrow('Distribute selection requires at least three positioned objects.');
+  });
+
   it('places targeted callouts with explicit placement coordinates', () => {
     const result = applyCanvasAuthoringCommand(baseTopology, {
       layers: ['annotations'],

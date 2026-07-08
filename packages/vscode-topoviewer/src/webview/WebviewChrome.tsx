@@ -32,7 +32,7 @@ import { layerIds, toggleSelectedLayerId } from '../../../topoviewer/src/core/la
 import type { TopoViewerWebviewHost } from '../shared/types';
 import { graphHasReachabilityBetween, pathSegmentsWithoutDirectLinks, pathSegmentsWithoutReachability, type TopoObjectSelection } from '../shared/topologyMutations';
 import type { DocumentTransaction } from './webviewAppSupport';
-import { clientPointToTopologyPoint, defaultCanvasAuthoringState, layersForCanvasTool, nodeIdsWithinCanvasBounds, normalizedCanvasRect, objectSelectionsWithinCanvasBounds, reduceCanvasAuthoringState, type CanvasAuthoringPoint, type CanvasAuthoringRect, type CanvasAuthoringTool } from './canvasAuthoring';
+import { clientPointToTopologyPoint, defaultCanvasAuthoringState, layersForCanvasTool, nodeIdsWithinCanvasBounds, normalizedCanvasRect, objectSelectionsWithinCanvasBounds, reduceCanvasAuthoringState, snapTopologyPoint, type CanvasAuthoringPoint, type CanvasAuthoringRect, type CanvasAuthoringTool, type CanvasSelectionAlignment, type CanvasSelectionDistributionAxis } from './canvasAuthoring';
 import { useRenderProfile } from './renderProfile';
 
 interface ShellHeaderProps {
@@ -54,8 +54,10 @@ interface ResizeDividerProps {
 }
 
 interface PreviewPanelProps {
+  alignSelectedObjects: (alignment: CanvasSelectionAlignment, gridSize?: number) => void;
   copySelectedObjects: () => void;
   deleteSelectedObjects: () => void;
+  distributeSelectedObjects: (axis: CanvasSelectionDistributionAxis, gridSize?: number) => void;
   duplicateSelectedObjects: () => void;
   exportImage: () => Promise<void>;
   exportTooltip?: string;
@@ -82,6 +84,8 @@ interface PreviewPanelProps {
   selectedObjectIds: string[];
   setSelectedLayerIds: Dispatch<SetStateAction<string[]>>;
   setSelectedObjects: Dispatch<SetStateAction<TopoObjectSelection[]>>;
+  snapSelectedObjectsToGrid: (gridSize: number) => void;
+  nudgeSelectedObjects: (delta: CanvasAuthoringPoint, gridSize?: number) => void;
   undoStack: DocumentTransaction[];
   undoTopology: () => void;
   visibleDocument?: TopoDocument;
@@ -211,9 +215,10 @@ export const ResizeDivider = memo(function ResizeDivider({ clamp, defaultSplitPe
   );
 });
 
-export const PreviewPanel = memo(function PreviewPanel({ copySelectedObjects, deleteSelectedObjects, duplicateSelectedObjects, exportImage, exportTooltip, createCanvasConnection, createCanvasPath, createCanvasRegion, handleNodePositionChange, handleNodeResizeChange, handleObjectClick, handleRegionAggregateToggle, hasErrors, hasExportBlockers, loading, parityMode = false, pasteSelectedObjects, placeCanvasCallout, placeCanvasNode, placeCanvasShape, previewRef, redoStack, redoTopology, releaseNodeFromRegion, selectedLayerIds, selectedObjectIds, setSelectedLayerIds, setSelectedObjects, undoStack, undoTopology, visibleDocument }: PreviewPanelProps) {
+export const PreviewPanel = memo(function PreviewPanel({ alignSelectedObjects, copySelectedObjects, deleteSelectedObjects, distributeSelectedObjects, duplicateSelectedObjects, exportImage, exportTooltip, createCanvasConnection, createCanvasPath, createCanvasRegion, handleNodePositionChange, handleNodeResizeChange, handleObjectClick, handleRegionAggregateToggle, hasErrors, hasExportBlockers, loading, parityMode = false, pasteSelectedObjects, placeCanvasCallout, placeCanvasNode, placeCanvasShape, previewRef, redoStack, redoTopology, releaseNodeFromRegion, selectedLayerIds, selectedObjectIds, setSelectedLayerIds, setSelectedObjects, snapSelectedObjectsToGrid, nudgeSelectedObjects, undoStack, undoTopology, visibleDocument }: PreviewPanelProps) {
   const [canvasAuthoring, setCanvasAuthoring] = useState(defaultCanvasAuthoringState);
   const [controlsOpen, setControlsOpen] = useState(false);
+  const [gridSnapEnabled, setGridSnapEnabled] = useState(false);
   const [helperLinesEnabled, setHelperLinesEnabled] = useState(true);
   const [pendingPathNodeIds, setPendingPathNodeIds] = useState<string[]>([]);
   const [pendingPathMessage, setPendingPathMessage] = useState<string>();
@@ -232,6 +237,7 @@ export const PreviewPanel = memo(function PreviewPanel({ copySelectedObjects, de
     selectedLayers: selectedLayerIds.length,
     selectedObjects: selectedObjectIds.length
   });
+  const gridSnapSize = 20;
   const selectCanvasTool = useCallback((tool: CanvasAuthoringTool, sticky = true) => {
     setCanvasAuthoring((current) => reduceCanvasAuthoringState(current, {
       sticky,
@@ -458,6 +464,17 @@ export const PreviewPanel = memo(function PreviewPanel({ copySelectedObjects, de
         deleteSelectedObjects();
         return;
       }
+      if (canvasAuthoring.activeTool === 'select' && selectedObjectIds.length > 0 && event.key.startsWith('Arrow')) {
+        const baseStep = gridSnapEnabled ? gridSnapSize : 1;
+        const step = event.shiftKey ? baseStep * 10 : baseStep;
+        const delta = {
+          x: event.key === 'ArrowLeft' ? -step : event.key === 'ArrowRight' ? step : 0,
+          y: event.key === 'ArrowUp' ? -step : event.key === 'ArrowDown' ? step : 0
+        };
+        event.preventDefault();
+        nudgeSelectedObjects(delta, gridSnapEnabled ? gridSnapSize : undefined);
+        return;
+      }
       if (event.metaKey || event.ctrlKey || event.altKey) return;
       if (event.key === 'Escape') {
         cancelPendingPath();
@@ -475,7 +492,7 @@ export const PreviewPanel = memo(function PreviewPanel({ copySelectedObjects, de
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [cancelPendingPath, canvasAuthoring.activeTool, commitPendingPath, copySelectedObjects, deleteSelectedObjects, duplicateSelectedObjects, parityMode, pasteSelectedObjects, selectCanvasTool]);
+  }, [cancelPendingPath, canvasAuthoring.activeTool, commitPendingPath, copySelectedObjects, deleteSelectedObjects, duplicateSelectedObjects, gridSnapEnabled, nudgeSelectedObjects, parityMode, pasteSelectedObjects, selectCanvasTool, selectedObjectIds.length]);
   useEffect(() => {
     if (canvasAuthoring.activeTool !== 'path') {
       setPendingPathNodeIds([]);
@@ -607,6 +624,22 @@ export const PreviewPanel = memo(function PreviewPanel({ copySelectedObjects, de
   const setLayerEnabled = useCallback((layerId: string, enabled: boolean) => {
     setSelectedLayerIds((current) => toggleSelectedLayerId(current, layerId, enabled));
   }, [setSelectedLayerIds]);
+  const snapNodePositionChange = useCallback((change: TopoViewerNodePositionChange): TopoViewerNodePositionChange => {
+    if (!gridSnapEnabled) return change;
+    const snappedPosition = snapTopologyPoint(change.position, gridSnapSize);
+    if (snappedPosition.x === change.position.x && snappedPosition.y === change.position.y) return change;
+    const delta = change.delta
+      ? {
+        x: change.delta.x + snappedPosition.x - change.position.x,
+        y: change.delta.y + snappedPosition.y - change.position.y
+      }
+      : change.delta;
+    return {
+      ...change,
+      delta,
+      position: snappedPosition
+    };
+  }, [gridSnapEnabled]);
   const pendingRegionMarqueeStyle = useMemo(() => {
     const preview = previewRef.current;
     if (!preview || !pendingRegionDrag) return undefined;
@@ -735,6 +768,22 @@ export const PreviewPanel = memo(function PreviewPanel({ copySelectedObjects, de
               <Button size="small" disabled={hasErrors || selectedRegionMemberIds.length < 1} onClick={commitSelectedRegion}>Create region</Button>
             </Box>
           ) : null}
+          {canvasAuthoring.activeTool === 'select' && selectedObjectIds.length > 0 ? (
+            <Box className="topoviewer-vscode-canvas-authoring-strip topoviewer-vscode-canvas-arrange-strip" role="toolbar" aria-label="Selection arrangement">
+              <Typography className="topoviewer-vscode-canvas-authoring-summary" variant="caption">
+                {selectedObjectIds.length} selected
+              </Typography>
+              <Button size="small" disabled={hasErrors || selectedObjectIds.length < 2} onClick={() => alignSelectedObjects('left', gridSnapEnabled ? gridSnapSize : undefined)}>Align left</Button>
+              <Button size="small" disabled={hasErrors || selectedObjectIds.length < 2} onClick={() => alignSelectedObjects('center', gridSnapEnabled ? gridSnapSize : undefined)}>Center</Button>
+              <Button size="small" disabled={hasErrors || selectedObjectIds.length < 2} onClick={() => alignSelectedObjects('right', gridSnapEnabled ? gridSnapSize : undefined)}>Align right</Button>
+              <Button size="small" disabled={hasErrors || selectedObjectIds.length < 2} onClick={() => alignSelectedObjects('top', gridSnapEnabled ? gridSnapSize : undefined)}>Align top</Button>
+              <Button size="small" disabled={hasErrors || selectedObjectIds.length < 2} onClick={() => alignSelectedObjects('middle', gridSnapEnabled ? gridSnapSize : undefined)}>Middle</Button>
+              <Button size="small" disabled={hasErrors || selectedObjectIds.length < 2} onClick={() => alignSelectedObjects('bottom', gridSnapEnabled ? gridSnapSize : undefined)}>Align bottom</Button>
+              <Button size="small" disabled={hasErrors || selectedObjectIds.length < 3} onClick={() => distributeSelectedObjects('horizontal', gridSnapEnabled ? gridSnapSize : undefined)}>Distribute H</Button>
+              <Button size="small" disabled={hasErrors || selectedObjectIds.length < 3} onClick={() => distributeSelectedObjects('vertical', gridSnapEnabled ? gridSnapSize : undefined)}>Distribute V</Button>
+              <Button size="small" disabled={hasErrors} onClick={() => snapSelectedObjectsToGrid(gridSnapSize)}>Snap</Button>
+            </Box>
+          ) : null}
         </>
       )}
       {loading && <CircularProgress />}
@@ -750,9 +799,11 @@ export const PreviewPanel = memo(function PreviewPanel({ copySelectedObjects, de
           {!parityMode && controlsOpen ? (
             <div className="topoviewer-embed-controls-overlay topoviewer-vscode-controls-overlay">
               <ViewportSettingsPanel
+                gridSnapEnabled={gridSnapEnabled}
                 layers={viewportLayers}
                 selectedLayerIds={selectedLayerIds}
                 helperLinesEnabled={helperLinesEnabled}
+                onGridSnapChange={setGridSnapEnabled}
                 onLayerChange={setLayerEnabled}
                 onHelperLinesChange={setHelperLinesEnabled}
                 onSelectAllLayers={() => setSelectedLayerIds(layerIds(viewportLayers))}
@@ -770,7 +821,7 @@ export const PreviewPanel = memo(function PreviewPanel({ copySelectedObjects, de
             toggles={parityMode ? defaultTopoViewerToggles(visibleDocument) : viewerToggles}
             onObjectClick={handlePreviewObjectClick}
             onPaneClick={handlePaneClick}
-            onNodePositionChange={handleNodePositionChange}
+            onNodePositionChange={(change) => handleNodePositionChange(snapNodePositionChange(change))}
             onNodeResizeChange={parityMode ? undefined : handleNodeResizeChange}
             onRegionAggregateToggle={parityMode ? undefined : handleRegionAggregateToggle}
             onConnectionCreate={canvasAuthoring.activeTool === 'link' ? createCanvasConnection : undefined}

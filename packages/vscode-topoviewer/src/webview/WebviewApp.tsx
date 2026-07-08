@@ -30,7 +30,7 @@ import { mapperTopologyPickers } from './mapperRuleBuilder';
 import { useMapperRuleAuthoring } from './webviewMapperAuthoring';
 import { useObjectSelectionActions } from './webviewSelectionActions';
 import { useRenderProfile } from './renderProfile';
-import { applyCanvasAuthoringCommand, layersForInsertObjectType, layersForPresetKind, type CanvasAuthoringPoint, type CanvasAuthoringRect } from './canvasAuthoring';
+import { applyCanvasAuthoringCommand, layersForInsertObjectType, layersForPresetKind, type CanvasAuthoringPoint, type CanvasAuthoringRect, type CanvasSelectionAlignment, type CanvasSelectionDistributionAxis } from './canvasAuthoring';
 import { createCanvasConnectionAction, createCanvasPathAction, createCanvasRegionAction, placeCanvasCalloutAction, placeCanvasNodeAction, placeCanvasShapeAction } from './webviewCanvasActions';
 import './webview.css';
 type WebviewAppProps = { host: TopoViewerWebviewHost; themeMode?: 'light' | 'dark'; onToggleThemeMode?: () => void };
@@ -1022,6 +1022,61 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
     duplicateCanvasSelection(canvasClipboardObjects, 'Paste selection');
   }
 
+  function nudgeSelectedObjects(delta: CanvasAuthoringPoint, gridSize?: number) {
+    if (!selectedObjects.length || hasErrors) return;
+    setTab(0);
+    const movement = [...selectedObjects];
+    applyTopologyTransaction('Nudge selection', (topologyText) => {
+      const moved = applyCanvasAuthoringCommand(topologyText, {
+        delta,
+        selections: movement,
+        type: 'moveSelection'
+      });
+      return gridSize
+        ? applyCanvasAuthoringCommand(moved.text, {
+          gridSize,
+          selections: movement,
+          type: 'snapSelectionToGrid'
+        })
+        : moved;
+    });
+  }
+
+  function alignSelectedObjects(alignment: CanvasSelectionAlignment, gridSize?: number) {
+    if (selectedObjects.length < 2 || hasErrors) return;
+    setTab(0);
+    const arrangement = [...selectedObjects];
+    applyTopologyTransaction('Align selection', (topologyText) => applyCanvasAuthoringCommand(topologyText, {
+      alignment,
+      gridSize,
+      selections: arrangement,
+      type: 'alignSelection'
+    }));
+  }
+
+  function distributeSelectedObjects(axis: CanvasSelectionDistributionAxis, gridSize?: number) {
+    if (selectedObjects.length < 3 || hasErrors) return;
+    setTab(0);
+    const arrangement = [...selectedObjects];
+    applyTopologyTransaction('Distribute selection', (topologyText) => applyCanvasAuthoringCommand(topologyText, {
+      axis,
+      gridSize,
+      selections: arrangement,
+      type: 'distributeSelection'
+    }));
+  }
+
+  function snapSelectedObjectsToGrid(gridSize: number) {
+    if (!selectedObjects.length || hasErrors) return;
+    setTab(0);
+    const snapping = [...selectedObjects];
+    applyTopologyTransaction('Snap selection', (topologyText) => applyCanvasAuthoringCommand(topologyText, {
+      gridSize,
+      selections: snapping,
+      type: 'snapSelectionToGrid'
+    }));
+  }
+
   function applyAttentionFocus(ids = attentionFocusId ? [attentionFocusId] : [], focusKind = attentionFocusKind) {
     if (!ids.length) return;
     setTab(0);
@@ -1122,7 +1177,7 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
       )}
 
       {parityMode ? (
-          <PreviewPanel copySelectedObjects={copySelectedObjects} deleteSelectedObjects={deleteSelection} duplicateSelectedObjects={duplicateSelectedObjects} exportImage={exportImage} exportTooltip={exportTooltip} createCanvasConnection={createCanvasConnection} createCanvasPath={createCanvasPath} createCanvasRegion={createCanvasRegion} handleNodePositionChange={handleNodePositionChange} handleNodeResizeChange={handleNodeResizeChange} handleObjectClick={handleObjectClick} handleRegionAggregateToggle={handleRegionAggregateToggle} hasErrors={appliedHasErrors} hasExportBlockers={hasExportBlockers} loading={loading} parityMode pasteSelectedObjects={pasteSelectedObjects} placeCanvasCallout={placeCanvasCallout} placeCanvasNode={placeCanvasNode} placeCanvasShape={placeCanvasShape} previewRef={previewRef} redoStack={redoStack} redoTopology={redoTopology} releaseNodeFromRegion={handleReleaseNodeFromRegion} selectedLayerIds={selectedLayerIds} selectedObjectIds={[]} setSelectedLayerIds={setSelectedLayerIds} setSelectedObjects={setSelectedObjects} undoStack={undoStack} undoTopology={undoTopology} visibleDocument={visibleDocument} />
+          <PreviewPanel alignSelectedObjects={alignSelectedObjects} copySelectedObjects={copySelectedObjects} deleteSelectedObjects={deleteSelection} distributeSelectedObjects={distributeSelectedObjects} duplicateSelectedObjects={duplicateSelectedObjects} exportImage={exportImage} exportTooltip={exportTooltip} createCanvasConnection={createCanvasConnection} createCanvasPath={createCanvasPath} createCanvasRegion={createCanvasRegion} handleNodePositionChange={handleNodePositionChange} handleNodeResizeChange={handleNodeResizeChange} handleObjectClick={handleObjectClick} handleRegionAggregateToggle={handleRegionAggregateToggle} hasErrors={appliedHasErrors} hasExportBlockers={hasExportBlockers} loading={loading} nudgeSelectedObjects={nudgeSelectedObjects} parityMode pasteSelectedObjects={pasteSelectedObjects} placeCanvasCallout={placeCanvasCallout} placeCanvasNode={placeCanvasNode} placeCanvasShape={placeCanvasShape} previewRef={previewRef} redoStack={redoStack} redoTopology={redoTopology} releaseNodeFromRegion={handleReleaseNodeFromRegion} selectedLayerIds={selectedLayerIds} selectedObjectIds={[]} setSelectedLayerIds={setSelectedLayerIds} setSelectedObjects={setSelectedObjects} snapSelectedObjectsToGrid={snapSelectedObjectsToGrid} undoStack={undoStack} undoTopology={undoTopology} visibleDocument={visibleDocument} />
       ) : (
         <Box
           ref={workspaceRef}
@@ -1133,7 +1188,7 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
 
           <ResizeDivider clamp={clamp} defaultSplitPercent={defaultSplitPercent} maxSplitPercent={maxSplitPercent} minSplitPercent={minSplitPercent} setResizing={setResizing} setSplitPercent={setSplitPercent} splitPercent={splitPercent} updateSplitFromClientX={updateSplitFromClientX} />
 
-          <PreviewPanel copySelectedObjects={copySelectedObjects} deleteSelectedObjects={deleteSelection} duplicateSelectedObjects={duplicateSelectedObjects} exportImage={exportImage} exportTooltip={exportTooltip} createCanvasConnection={createCanvasConnection} createCanvasPath={createCanvasPath} createCanvasRegion={createCanvasRegion} handleNodePositionChange={handleNodePositionChange} handleNodeResizeChange={handleNodeResizeChange} handleObjectClick={handleObjectClick} handleRegionAggregateToggle={handleRegionAggregateToggle} hasErrors={appliedHasErrors} hasExportBlockers={hasExportBlockers} loading={loading} pasteSelectedObjects={pasteSelectedObjects} placeCanvasCallout={placeCanvasCallout} placeCanvasNode={placeCanvasNode} placeCanvasShape={placeCanvasShape} previewRef={previewRef} redoStack={redoStack} redoTopology={redoTopology} releaseNodeFromRegion={handleReleaseNodeFromRegion} selectedLayerIds={selectedLayerIds} selectedObjectIds={previewSelectedObjectIds} setSelectedLayerIds={setSelectedLayerIds} setSelectedObjects={setSelectedObjects} undoStack={undoStack} undoTopology={undoTopology} visibleDocument={visibleDocument} />
+          <PreviewPanel alignSelectedObjects={alignSelectedObjects} copySelectedObjects={copySelectedObjects} deleteSelectedObjects={deleteSelection} distributeSelectedObjects={distributeSelectedObjects} duplicateSelectedObjects={duplicateSelectedObjects} exportImage={exportImage} exportTooltip={exportTooltip} createCanvasConnection={createCanvasConnection} createCanvasPath={createCanvasPath} createCanvasRegion={createCanvasRegion} handleNodePositionChange={handleNodePositionChange} handleNodeResizeChange={handleNodeResizeChange} handleObjectClick={handleObjectClick} handleRegionAggregateToggle={handleRegionAggregateToggle} hasErrors={appliedHasErrors} hasExportBlockers={hasExportBlockers} loading={loading} nudgeSelectedObjects={nudgeSelectedObjects} pasteSelectedObjects={pasteSelectedObjects} placeCanvasCallout={placeCanvasCallout} placeCanvasNode={placeCanvasNode} placeCanvasShape={placeCanvasShape} previewRef={previewRef} redoStack={redoStack} redoTopology={redoTopology} releaseNodeFromRegion={handleReleaseNodeFromRegion} selectedLayerIds={selectedLayerIds} selectedObjectIds={previewSelectedObjectIds} setSelectedLayerIds={setSelectedLayerIds} setSelectedObjects={setSelectedObjects} snapSelectedObjectsToGrid={snapSelectedObjectsToGrid} undoStack={undoStack} undoTopology={undoTopology} visibleDocument={visibleDocument} />
         </Box>
       )}
     </Box>

@@ -50,6 +50,9 @@ export type CanvasEndpointRef = {
   nodeId: string;
 };
 
+export type CanvasSelectionAlignment = 'left' | 'center' | 'right' | 'top' | 'middle' | 'bottom';
+export type CanvasSelectionDistributionAxis = 'horizontal' | 'vertical';
+
 export type CanvasAuthoringCommand =
   | {
     layers: string[];
@@ -95,6 +98,23 @@ export type CanvasAuthoringCommand =
     delta: CanvasAuthoringPoint;
     selections: TopoObjectSelection[];
     type: 'moveSelection';
+  }
+  | {
+    alignment: CanvasSelectionAlignment;
+    gridSize?: number;
+    selections: TopoObjectSelection[];
+    type: 'alignSelection';
+  }
+  | {
+    axis: CanvasSelectionDistributionAxis;
+    gridSize?: number;
+    selections: TopoObjectSelection[];
+    type: 'distributeSelection';
+  }
+  | {
+    gridSize: number;
+    selections: TopoObjectSelection[];
+    type: 'snapSelectionToGrid';
   }
   | {
     bounds: CanvasAuthoringRect;
@@ -321,6 +341,9 @@ export function canvasAuthoringCommandLabel(command: CanvasAuthoringCommand) {
   if (command.type === 'insertCalloutAt') return 'Place callout';
   if (command.type === 'insertShapeAt') return 'Place shape';
   if (command.type === 'moveSelection') return 'Move selection';
+  if (command.type === 'alignSelection') return 'Align selection';
+  if (command.type === 'distributeSelection') return 'Distribute selection';
+  if (command.type === 'snapSelectionToGrid') return 'Snap selection';
   if (command.type === 'resizeObject') return 'Resize object';
   if (command.type === 'duplicateSelection') return 'Duplicate selection';
   return 'Delete selection';
@@ -383,6 +406,18 @@ export function applyCanvasAuthoringCommand(text: string, command: CanvasAuthori
 
   if (command.type === 'moveSelection') {
     return movePositionedSelection(text, command.selections, command.delta);
+  }
+
+  if (command.type === 'alignSelection') {
+    return alignPositionedSelection(text, command.selections, command.alignment, command.gridSize);
+  }
+
+  if (command.type === 'distributeSelection') {
+    return distributePositionedSelection(text, command.selections, command.axis, command.gridSize);
+  }
+
+  if (command.type === 'snapSelectionToGrid') {
+    return snapPositionedSelectionToGrid(text, command.selections, command.gridSize);
   }
 
   if (command.type === 'deleteSelection') {
@@ -504,6 +539,156 @@ function duplicatePositionedSelection(
       diagram.callouts.push(duplicate);
     });
   });
+}
+
+function alignPositionedSelection(
+  text: string,
+  selections: TopoObjectSelection[],
+  alignment: CanvasSelectionAlignment,
+  gridSize?: number
+): MutationResult {
+  return mutateTopologyText(text, (document) => {
+    const boxes = positionedSelectionBoxes(document, selections);
+    if (boxes.length < 2) throw new Error('Align selection requires at least two positioned objects.');
+    const bounds = selectionBounds(boxes);
+    boxes.forEach((box) => {
+      const next = { x: box.x, y: box.y };
+      if (alignment === 'left') next.x = bounds.x;
+      if (alignment === 'center') next.x = bounds.x + bounds.width / 2 - box.width / 2;
+      if (alignment === 'right') next.x = bounds.x + bounds.width - box.width;
+      if (alignment === 'top') next.y = bounds.y;
+      if (alignment === 'middle') next.y = bounds.y + bounds.height / 2 - box.height / 2;
+      if (alignment === 'bottom') next.y = bounds.y + bounds.height - box.height;
+      setCanvasObjectPosition(box.object, maybeSnapPoint(next, gridSize));
+    });
+  });
+}
+
+function distributePositionedSelection(
+  text: string,
+  selections: TopoObjectSelection[],
+  axis: CanvasSelectionDistributionAxis,
+  gridSize?: number
+): MutationResult {
+  return mutateTopologyText(text, (document) => {
+    const boxes = positionedSelectionBoxes(document, selections);
+    if (boxes.length < 3) throw new Error('Distribute selection requires at least three positioned objects.');
+    const sorted = [...boxes].sort((a, b) => axis === 'horizontal'
+      ? a.x + a.width / 2 - (b.x + b.width / 2)
+      : a.y + a.height / 2 - (b.y + b.height / 2));
+    const first = sorted[0];
+    const last = sorted[sorted.length - 1];
+    const firstCenter = axis === 'horizontal' ? first.x + first.width / 2 : first.y + first.height / 2;
+    const lastCenter = axis === 'horizontal' ? last.x + last.width / 2 : last.y + last.height / 2;
+    const step = (lastCenter - firstCenter) / (sorted.length - 1);
+
+    sorted.forEach((box, index) => {
+      const targetCenter = firstCenter + step * index;
+      const next = {
+        x: axis === 'horizontal' ? targetCenter - box.width / 2 : box.x,
+        y: axis === 'vertical' ? targetCenter - box.height / 2 : box.y
+      };
+      setCanvasObjectPosition(box.object, maybeSnapPoint(next, gridSize));
+    });
+  });
+}
+
+function snapPositionedSelectionToGrid(
+  text: string,
+  selections: TopoObjectSelection[],
+  gridSize: number
+): MutationResult {
+  return mutateTopologyText(text, (document) => {
+    const boxes = positionedSelectionBoxes(document, selections);
+    if (!boxes.length) throw new Error('Snap selection requires at least one positioned object.');
+    const validGridSize = normalizedGridSize(gridSize);
+    boxes.forEach((box) => {
+      setCanvasObjectPosition(box.object, snapTopologyPoint({ x: box.x, y: box.y }, validGridSize));
+    });
+  });
+}
+
+type PositionedSelectionBox = {
+  height: number;
+  object: any;
+  width: number;
+  x: number;
+  y: number;
+};
+
+function positionedSelectionBoxes(document: Record<string, any>, selections: TopoObjectSelection[]): PositionedSelectionBox[] {
+  return uniqueSelections(selections).flatMap((selection) => {
+    if (selection.kind !== 'node' && selection.kind !== 'shape' && selection.kind !== 'callout' && selection.kind !== 'region') return [];
+    const object = findObject(document, selection);
+    if (!object) throw new Error(`Selected ${selection.kind} "${selection.id}" no longer exists.`);
+    const position = objectPosition(object.position);
+    if (!position) throw new Error(`Selected ${selection.kind} "${selection.id}" does not have an editable position.`);
+    const size = objectSize(selection, object);
+    return [{
+      height: size.height,
+      object,
+      width: size.width,
+      x: position.x,
+      y: position.y
+    }];
+  });
+}
+
+function selectionBounds(boxes: PositionedSelectionBox[]): CanvasAuthoringRect {
+  const minX = Math.min(...boxes.map((box) => box.x));
+  const minY = Math.min(...boxes.map((box) => box.y));
+  const maxX = Math.max(...boxes.map((box) => box.x + box.width));
+  const maxY = Math.max(...boxes.map((box) => box.y + box.height));
+  return {
+    height: maxY - minY,
+    width: maxX - minX,
+    x: minX,
+    y: minY
+  };
+}
+
+function objectSize(selection: TopoObjectSelection, object: any): { height: number; width: number } {
+  const explicit = sizeFromUnknown(object.size);
+  if (explicit) return explicit;
+  const width = numberFromUnknown(object.width) ?? numberFromUnknown(object.style?.width);
+  const height = numberFromUnknown(object.height) ?? numberFromUnknown(object.style?.height);
+  if (width && height) return { width, height };
+  if (selection.kind === 'node') return { width: 88, height: 74 };
+  if (selection.kind === 'callout') return { width: 160, height: 88 };
+  if (selection.kind === 'shape' || selection.kind === 'region') return { width: 0, height: 0 };
+  return { width: 0, height: 0 };
+}
+
+function sizeFromUnknown(value: unknown): { height: number; width: number } | undefined {
+  if (Array.isArray(value)) {
+    const width = numberFromUnknown(value[0]);
+    const height = numberFromUnknown(value[1]);
+    return width && height ? { width, height } : undefined;
+  }
+  if (!value || typeof value !== 'object') return undefined;
+  const record = value as Record<string, unknown>;
+  const width = numberFromUnknown(record.width);
+  const height = numberFromUnknown(record.height);
+  return width && height ? { width, height } : undefined;
+}
+
+function numberFromUnknown(value: unknown): number | undefined {
+  const number = Number(value);
+  return Number.isFinite(number) && number > 0 ? number : undefined;
+}
+
+function maybeSnapPoint(point: CanvasAuthoringPoint, gridSize?: number): CanvasAuthoringPoint {
+  return gridSize ? snapTopologyPoint(point, normalizedGridSize(gridSize)) : point;
+}
+
+function normalizedGridSize(gridSize: number): number {
+  return Number.isFinite(gridSize) && gridSize > 0 ? gridSize : 20;
+}
+
+function setCanvasObjectPosition(object: any, point: CanvasAuthoringPoint) {
+  object.position = object.position && typeof object.position === 'object' && !Array.isArray(object.position)
+    ? { x: Math.round(point.x), y: Math.round(point.y) }
+    : [Math.round(point.x), Math.round(point.y)];
 }
 
 function cloneCanvasObject<T>(value: T): T {

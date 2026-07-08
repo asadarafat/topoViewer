@@ -2,12 +2,14 @@ import type { LayerDefinition, ToggleDefinition, TopoViewerToggles } from '../co
 
 export interface ViewportSettingsPanelProps {
   attentionControls?: boolean;
+  gridSnapEnabled?: boolean;
   hasAttention?: boolean;
   helperLinesEnabled?: boolean;
   initialAttention?: boolean;
   layers: LayerDefinition[];
   onClearAttention?: () => void;
   onClearLayers: () => void;
+  onGridSnapChange?: (enabled: boolean) => void;
   onHelperLinesChange?: (enabled: boolean) => void;
   onLayerChange: (layerId: string, enabled: boolean) => void;
   onResetAttention?: () => void;
@@ -20,12 +22,14 @@ export interface ViewportSettingsPanelProps {
 
 export function ViewportSettingsPanel({
   attentionControls = false,
+  gridSnapEnabled,
   hasAttention = false,
   helperLinesEnabled,
   initialAttention = false,
   layers,
   onClearAttention,
   onClearLayers,
+  onGridSnapChange,
   onHelperLinesChange,
   onLayerChange,
   onResetAttention,
@@ -36,7 +40,8 @@ export function ViewportSettingsPanel({
   toggles = {}
 }: ViewportSettingsPanelProps) {
   const showHelperLines = helperLinesEnabled !== undefined && !!onHelperLinesChange;
-  const showDisplay = toggleDefinitions.length > 0 || showHelperLines;
+  const showGridSnap = gridSnapEnabled !== undefined && !!onGridSnapChange;
+  const showDisplay = toggleDefinitions.length > 0 || showHelperLines || showGridSnap;
 
   return (
     <div className="topoviewer-embed-controls">
@@ -78,6 +83,16 @@ export function ViewportSettingsPanel({
                 onChange={(event) => onHelperLinesChange(event.target.checked)}
               />
               <span>Helper lines</span>
+            </label>
+          ) : null}
+          {showGridSnap ? (
+            <label className="topoviewer-embed-check">
+              <input
+                type="checkbox"
+                checked={gridSnapEnabled}
+                onChange={(event) => onGridSnapChange(event.target.checked)}
+              />
+              <span>Grid snap</span>
             </label>
           ) : null}
         </div>
