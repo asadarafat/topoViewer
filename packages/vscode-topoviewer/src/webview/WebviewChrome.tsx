@@ -23,7 +23,7 @@ import LaunchIcon from '@mui/icons-material/Launch';
 import MouseIcon from '@mui/icons-material/Mouse';
 import PanToolAltIcon from '@mui/icons-material/PanToolAlt';
 import PolylineIcon from '@mui/icons-material/Polyline';
-import { TopoViewer, defaultTopoViewerToggles, type TopoDocument, type TopoViewerConnectionCreate, type TopoViewerNodePositionChange, type TopoViewerNodeResizeChange, type TopoViewerObjectClick, type TopoViewerPaneClick, type TopoViewerRegionAggregateToggle } from 'topoviewer';
+import { TopoViewer, defaultTopoViewerToggles, type TopoDocument, type TopoViewerConnectionCreate, type TopoViewerNodePositionChange, type TopoViewerObjectClick, type TopoViewerPaneClick } from 'topoviewer';
 import { memo, useCallback, useEffect, useMemo, useState, type ComponentType, type Dispatch, type MouseEvent as ReactMouseEvent, type PointerEvent as ReactPointerEvent, type RefObject, type SetStateAction } from 'react';
 import type { Theme } from '@mui/material/styles';
 import { authoringHelperLinesOptions } from '../../../topoviewer/src/components/helperLines';
@@ -34,6 +34,7 @@ import { graphHasReachabilityBetween, pathSegmentsWithoutDirectLinks, pathSegmen
 import type { DocumentTransaction } from './webviewAppSupport';
 import { clientPointToTopologyPoint, defaultCanvasAuthoringState, layersForCanvasTool, nodeIdsWithinCanvasBounds, normalizedCanvasRect, objectSelectionsWithinCanvasBounds, reduceCanvasAuthoringState, snapTopologyPoint, type CanvasAuthoringPoint, type CanvasAuthoringRect, type CanvasAuthoringTool, type CanvasSelectionAlignment, type CanvasSelectionDistributionAxis } from './canvasAuthoring';
 import { useRenderProfile } from './renderProfile';
+import type { TopoViewerNodeResizeChange, TopoViewerRegionAggregateToggle } from './topoviewerEventTypes';
 
 interface ShellHeaderProps {
   host: TopoViewerWebviewHost;

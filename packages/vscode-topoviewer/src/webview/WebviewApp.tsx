@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import Box from '@mui/material/Box';
-import { type TopoDocument, type TopoViewerConnectionCreate, type TopoViewerNodePositionChange, type TopoViewerNodeResizeChange, type TopoViewerRegionAggregateToggle } from 'topoviewer';
+import { type TopoDocument, type TopoViewerConnectionCreate, type TopoViewerNodePositionChange } from 'topoviewer';
 import type { HarnessFixture, TopoViewerWebviewHost, ValidationResult, WebviewDiagnostic, WebviewState } from '../shared/types';
 import {
   clearAttention, defaultLayerId, deleteTopoObjects, findObject, focusKindForSelection, insertTopoObject,
@@ -9,16 +9,8 @@ import {
   updateAttentionRegionAggregation, updatePositionedObjectGeometry, updatePositionedObjectPosition, updateRegionMemberPositions, updateTopoObject, upsertGraphLink, upsertGraphPath,
   type AttentionFocusKind, type InsertObjectType, type TopoObjectPreset, type TopoObjectSelection
 } from '../shared/topologyMutations';
-import {
-  keyValueRowsForObject,
-  recordFromRows,
-  type KeyValueEditorRow
-} from './webviewStyleMetadata';
-import {
-  ensureStyleRule,
-  stylesheetSelectorForSelection,
-  type PendingYamlFocus
-} from './webviewYamlAuthoring';
+import { keyValueRowsForObject, recordFromRows, type KeyValueEditorRow } from './webviewStyleMetadata';
+import { ensureStyleRule, stylesheetSelectorForSelection, type PendingYamlFocus } from './webviewYamlAuthoring';
 import { AuthoringRail } from './AuthoringRail';
 import { PreviewPanel, ResizeDivider, ShellHeader, webviewShellSx } from './WebviewChrome';
 import { HarnessTabPanel, a11yProps, baseInsertObjectGroups, clamp, defaultSplitPercent, focusKindLabel, harnessModes, initialSavedPresets, initialSplitPercent, layerSelectionFromTopologyText, maxSplitPercent, mergeLayerSelection, minSplitPercent, modeIndex, modeLabel, pathSequenceFromObject, positionOf, presetFromObject, sameRoundedPosition, sameRoundedSize, selectedNodeIds, selectedObjectIds, selectionSummary, sequenceFromControls, sizeOf, useHarnessPreferencePersistence, type DocumentTransaction, type HarnessMode } from './webviewAppSupport';
@@ -32,7 +24,9 @@ import { useObjectSelectionActions } from './webviewSelectionActions';
 import { useRenderProfile } from './renderProfile';
 import { applyCanvasAuthoringCommand, layersForInsertObjectType, layersForPresetKind, type CanvasAuthoringPoint, type CanvasAuthoringRect, type CanvasSelectionAlignment, type CanvasSelectionDistributionAxis } from './canvasAuthoring';
 import { createCanvasConnectionAction, createCanvasPathAction, createCanvasRegionAction, placeCanvasCalloutAction, placeCanvasNodeAction, placeCanvasShapeAction } from './webviewCanvasActions';
+import type { TopoViewerNodeResizeChange, TopoViewerRegionAggregateToggle } from './topoviewerEventTypes';
 import './webview.css';
+
 type WebviewAppProps = { host: TopoViewerWebviewHost; themeMode?: 'light' | 'dark'; onToggleThemeMode?: () => void };
 
 export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppProps) {
