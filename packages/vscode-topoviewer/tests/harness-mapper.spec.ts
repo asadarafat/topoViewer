@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, type Page, test } from '@playwright/test';
 import {
   chooseOption,
   expectCurrentHarnessServer,
@@ -20,6 +20,14 @@ const HARNESS_ALLOWED_BROWSER_ERROR_PATTERNS = [
   /Error while reading CSS rules from/
 ];
 const harnessBrowserErrors = new WeakMap<object, string[]>();
+
+async function ensureMapperRuleBuilderOpen(page: Page) {
+  const ruleIdField = page.getByLabel('Rule ID');
+  if (!(await ruleIdField.isVisible().catch(() => false))) {
+    await page.getByRole('button', { name: /Rule builder/ }).click();
+  }
+  await expect(ruleIdField).toBeVisible({ timeout: 15000 });
+}
 
 test.beforeEach(async ({ page }) => {
   const browserErrors: string[] = [];
@@ -51,14 +59,16 @@ test('authors mapper YAML as part of the editable Grafana bundle', async ({ page
 
   await page.getByRole('tab', { name: 'Mapper YAML' }).click();
   await expect(page.getByRole('button', { name: 'Mapper docs' })).toBeVisible();
-  await page.getByRole('button', { name: /Rule builder/ }).click();
-  await expect(page.getByLabel('Rule ID')).toBeVisible();
+  await ensureMapperRuleBuilderOpen(page);
   await page.getByLabel('Rule ID').fill('builder-link-state');
   await page.getByLabel('Metric').fill('topoviewer_link_up');
   await chooseOption(page, page.getByRole('combobox', { name: 'Object' }), 'underlay-fra-ams');
   await expect(page.getByLabel('Telemetry label')).toHaveValue('link_id');
   await page.getByLabel('Label template').fill('{{ severity }}');
-  await page.getByRole('button', { name: 'Insert mapper rule' }).click();
+  await ensureMapperRuleBuilderOpen(page);
+  const insertMapperRuleButton = page.getByRole('button', { name: 'Insert mapper rule' });
+  await expect(insertMapperRuleButton).toBeEnabled({ timeout: 15000 });
+  await insertMapperRuleButton.click();
   await expect.poll(() => mapperText(page)).toContain('id: builder-link-state');
   await expect.poll(() => mapperText(page)).toContain('mappings:');
   await expect.poll(() => mapperText(page)).toContain('metricLabel: link_id');

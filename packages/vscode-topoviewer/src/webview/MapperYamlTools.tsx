@@ -118,6 +118,8 @@ export function MapperRuleBuilderPanel({
   updateMapperRuleBuilder,
   visibleDocument
 }: MapperRuleBuilderPanelProps) {
+  const [builderExpanded, setBuilderExpanded] = useState(true);
+
   if (!mapperRuleBuilder || !mapperPickers) {
     return mapperCoveragePreview ? <MapperCoverageSummary mapperCoveragePreview={mapperCoveragePreview} /> : null;
   }
@@ -133,7 +135,13 @@ export function MapperRuleBuilderPanel({
 
   return (
     <>
-      <Accordion className="topoviewer-vscode-mapper-builder" disableGutters elevation={0}>
+      <Accordion
+        className="topoviewer-vscode-mapper-builder"
+        disableGutters
+        elevation={0}
+        expanded={builderExpanded}
+        onChange={(_event, expanded) => setBuilderExpanded(expanded)}
+      >
         <AccordionSummary expandIcon={<ExpandMoreIcon fontSize="small" />}>
           <Stack spacing={0.25}>
             <Typography variant="subtitle2">Rule builder</Typography>
