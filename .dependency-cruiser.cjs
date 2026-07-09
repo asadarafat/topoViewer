@@ -9,6 +9,20 @@ module.exports = {
       to: { circular: true }
     },
     {
+      name: 'no-adapter-imports-core-source',
+      severity: 'error',
+      comment: 'Application adapters must consume the topoviewer package API instead of sibling source files.',
+      from: { path: '^packages/(vscode-topoviewer|grafana-topoviewer-panel)/' },
+      to: { path: '^packages/topoviewer/src/' }
+    },
+    {
+      name: 'no-core-imports-adapter-source',
+      severity: 'error',
+      comment: 'The reusable topoviewer package must not depend on application adapter source.',
+      from: { path: '^packages/topoviewer/src/' },
+      to: { path: '^packages/(vscode-topoviewer|grafana-topoviewer-panel)/' }
+    },
+    {
       name: 'no-deep-parent-imports',
       severity: 'warn',
       comment: 'Deep upward imports are a sign that ownership boundaries need cleanup.',

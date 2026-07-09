@@ -1,6 +1,6 @@
 import { useEffect, type ReactNode } from 'react';
 import Box from '@mui/material/Box';
-import { reconcileSelectedLayerIds } from '../../../topoviewer/src/core/layers';
+import { reconcileSelectedLayerIds } from 'topoviewer/integration';
 import { parseTopologyText, type AttentionFocusKind, type InsertObjectType, type TopoObjectPreset, type TopoObjectSelection } from '../shared/topologyMutations';
 import { safeGetJson, safeGetString, safeSetJson, safeSetString } from './browserStorage';
 

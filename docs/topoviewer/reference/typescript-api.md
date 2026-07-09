@@ -67,6 +67,25 @@ aligned position. Set `snap: false` for guide-only overlays. The live snap mode
 remains available for hosts that want the dragged object to move directly to
 each guide candidate during drag.
 
+## Host Integration Helpers
+
+These exports support application adapters that need the same viewport control
+contract as the static embed. They are public but experimental while the
+authoring surfaces mature.
+
+| Export | Stability | Use |
+|---|---|---|
+| `ViewportSettingsPanel` | Experimental | Shared layer, display, helper-line, grid-snap, and attention controls. |
+| `ViewportSettingsPanelProps` | Experimental | Typed host callback contract for `ViewportSettingsPanel`. |
+| `authoringHelperLinesOptions` | Experimental | Smooth authoring defaults with commit-time snapping. |
+| `layerIds` | Advanced | Return stable IDs from layer definitions. |
+| `reconcileSelectedLayerIds` | Advanced | Keep valid selected layers or fall back to all available layers. |
+| `toggleSelectedLayerId` | Advanced | Add or remove one layer ID without duplicates. |
+
+Import these helpers from `topoviewer/integration`; do not import package source
+files by relative repository path. Import the shared renderer stylesheet from
+`topoviewer/style.css`.
+
 ## Compile, Compose, Validate
 
 | Export | Stability | Use |

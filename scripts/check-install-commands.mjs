@@ -229,9 +229,13 @@ function assertInstalledPackage(consumerRoot) {
     '-e',
     [
       "import { TopoViewer, compileTopoGraph, validateTopoDocument } from 'topoviewer';",
+      "import { ViewportSettingsPanel, authoringHelperLinesOptions, layerIds } from 'topoviewer/integration';",
       'if (typeof TopoViewer !== "function") throw new Error("TopoViewer export missing");',
       'if (typeof compileTopoGraph !== "function") throw new Error("compileTopoGraph export missing");',
-      'if (typeof validateTopoDocument !== "function") throw new Error("validateTopoDocument export missing");'
+      'if (typeof validateTopoDocument !== "function") throw new Error("validateTopoDocument export missing");',
+      'if (typeof ViewportSettingsPanel !== "function") throw new Error("ViewportSettingsPanel integration export missing");',
+      'if (authoringHelperLinesOptions.snapMode !== "commit") throw new Error("authoring helper-line policy missing");',
+      'if (layerIds([{ id: "physical" }])[0] !== "physical") throw new Error("layer integration helper missing");'
     ].join(' ')
   ], { cwd: consumerRoot });
 
@@ -239,7 +243,9 @@ function assertInstalledPackage(consumerRoot) {
     '-e',
     [
       "const viewer = require('topoviewer');",
+      "const integration = require('topoviewer/integration');",
       "if (typeof viewer.TopoViewer !== 'function') throw new Error('CommonJS TopoViewer export missing');",
+      "if (typeof integration.ViewportSettingsPanel !== 'function') throw new Error('CommonJS integration export missing');",
       "require.resolve('topoviewer/style.css');",
       "require.resolve('topoviewer/schemas/topoviewer.schema.json');"
     ].join(' ')

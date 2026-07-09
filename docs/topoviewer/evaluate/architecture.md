@@ -30,6 +30,36 @@ React Flow ever receives renderable nodes and edges.
 | Grafana plugin | Mounted bundle discovery, Prometheus data mapping, runtime overlays | Editing source YAML in place, production Grafana security policy |
 | Labs | Reproducible local demos with disposable settings | Production deployment defaults |
 
+## Repository Ownership And Dependency Direction
+
+The repository coordinates one reusable runtime, two application adapters, one
+Python adapter, and local deployment proof. Sharing a repository does not make
+their private source trees shared APIs.
+
+| Repository-local area | Distribution boundary | Allowed dependency |
+|---|---|---|
+| `packages/topoviewer` | Public npm package | React, React DOM, React Flow peers and renderer dependencies |
+| `packages/vscode-topoviewer` | Private/experimental application package | Public `topoviewer` exports and `topoviewer/integration` |
+| `packages/grafana-topoviewer-panel` | Private/experimental Grafana plugin package | Public `topoviewer` exports plus Grafana SDK/runtime |
+| `packages/mkdocs-topoviewer` | Public PyPI package | Vendored files produced by the TopoViewer embed build |
+| `labs/grafana-topoviewer/containerlab` | Disposable lab | Built Grafana plugin, mounted YAML bundle, and pinned lab containers |
+
+The allowed flow is one way:
+
+```text
+topoviewer public API ----------------> React hosts
+        |-----------------------------> VS Code / Browser Harness
+        |-----------------------------> Grafana panel
+        +-- built embed assets --------> mkdocs-topoviewer
+
+built Grafana plugin + YAML bundle ---> Containerlab or external lab
+```
+
+Application packages must not import files under another package's `src/`
+tree. Local Vite aliases may resolve the public `topoviewer` and
+`topoviewer/integration` specifiers to source for development, but application
+code remains written against package APIs.
+
 ## Public And Internal Module Boundary
 
 | Module family | Status | Rule |
@@ -52,6 +82,34 @@ React Flow ever receives renderable nodes and edges.
 | Zensical | Synced docs content is adapted into static TopoViewer embeds. | Same renderer contract as MkDocs. | Documentation page only. |
 | Browser harness | User edits topology, stylesheet, and mapper YAML as one bundle. | Draft/applied documents, diagnostics, local preview, local storage. | Browser local storage and exported files. |
 | Grafana | Backend discovers mounted bundle files and frontend receives YAML through plugin resources. | Prometheus data frames map into runtime overlays. | Grafana dashboard options plus mounted files; source YAML is not mutated by telemetry. |
+
+## Deployment And External Repository Boundary
+
+TopoViewer does not read sibling repositories at runtime. An external
+Containerlab or telemetry repository consumes a built Grafana plugin artifact
+and copied/mounted TopoViewer YAML files. Repository-relative development paths
+may exist inside this repository's local lab, but they must not appear in an
+upstream contribution or production deployment.
+
+The local Containerlab profile is intentionally disposable. It may enable an
+unsigned plugin, anonymous Grafana access, demo credentials, and directly
+published host ports. Those defaults prove integration; they are not production
+configuration. Production operators own authenticated Grafana access, ingress,
+TLS, secret delivery, plugin signing and provenance, telemetry retention, and
+network isolation.
+
+## Security Ownership
+
+| Boundary | Security owner |
+|---|---|
+| Parsed topology, stylesheet, and mapper inputs | TopoViewer schema, semantic validation, sanitization, and renderer limits |
+| React application data loading and persistence | Host application |
+| Browser Harness local drafts | Harness storage adapter; no multi-user trust boundary |
+| VS Code file access | VS Code extension host and workspace permissions |
+| MkDocs static assets | MkDocs build and hosting pipeline |
+| Grafana mounted files | Grafana plugin backend root allowlist and deployment filesystem policy |
+| Grafana users, organizations, and data sources | Grafana deployment operator |
+| Container images, ports, credentials, and traffic | Lab or production deployment operator |
 
 ## Failure Boundaries
 

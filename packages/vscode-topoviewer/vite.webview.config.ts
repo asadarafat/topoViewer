@@ -11,6 +11,7 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: [
+      { find: /^topoviewer\/integration$/, replacement: path.join(repoRoot, 'packages/topoviewer/src/integration.ts') },
       { find: /^topoviewer$/, replacement: path.join(repoRoot, 'packages/topoviewer/src/index.ts') }
     ]
   },

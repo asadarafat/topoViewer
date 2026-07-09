@@ -6,9 +6,20 @@ import { fileURLToPath } from 'node:url';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const packageRoot = path.join(repoRoot, 'packages/topoviewer');
-const sourceFile = path.join(packageRoot, 'src/index.ts');
 const reportFile = path.join(packageRoot, 'api-report.md');
 const writeMode = process.argv.includes('--write');
+const entries = [
+  {
+    heading: 'Root Entry (`topoviewer`)',
+    sourceFile: path.join(packageRoot, 'src/index.ts'),
+    sourceLabel: 'packages/topoviewer/src/index.ts'
+  },
+  {
+    heading: 'Integration Entry (`topoviewer/integration`)',
+    sourceFile: path.join(packageRoot, 'src/integration.ts'),
+    sourceLabel: 'packages/topoviewer/src/integration.ts'
+  }
+];
 
 function readText(filePath) {
   return fs.readFileSync(filePath, 'utf8');
@@ -59,26 +70,33 @@ function renderTable(rows) {
   ].join('\n') + '\n';
 }
 
-function renderReport(exports) {
-  return `# TopoViewer Public API Report
+function renderEntry(entry) {
+  const exports = collectExports(readText(entry.sourceFile));
+  return `## ${entry.heading}
 
-Generated from \`packages/topoviewer/src/index.ts\`.
+Generated from \`${entry.sourceLabel}\`.
+
+### Value Exports
+
+${renderTable(exports.valueExports)}
+
+### Type Exports
+
+${renderTable(exports.typeExports)}`;
+}
+
+function renderReport() {
+  return `# TopoViewer Public API Report
 
 Run \`npm run api:report\` after intentionally adding, removing, renaming, or
 moving a public package export. The report is a public-surface tripwire; it is
 not a replacement for migration notes, API docs, or compatibility tests.
 
-## Value Exports
-
-${renderTable(exports.valueExports)}
-
-## Type Exports
-
-${renderTable(exports.typeExports)}
+${entries.map(renderEntry).join('\n\n')}
 `;
 }
 
-const report = renderReport(collectExports(readText(sourceFile)));
+const report = renderReport();
 
 if (writeMode) {
   fs.writeFileSync(reportFile, report);
@@ -98,4 +116,4 @@ if (existing !== report) {
   process.exit(1);
 }
 
-console.log(`${path.relative(repoRoot, reportFile)} is in sync with packages/topoviewer/src/index.ts`);
+console.log(`${path.relative(repoRoot, reportFile)} is in sync with the public package entries`);

@@ -1,6 +1,7 @@
 # Monorepo
 
-TopoViewer is intended to live as two separately published packages in one repository:
+TopoViewer coordinates two published packages, two application adapters, and a
+disposable integration lab in one repository:
 
 ```text
 topoviewer/
@@ -8,24 +9,55 @@ topoviewer/
   packages/
     topoviewer/           # npm package: topoviewer
     mkdocs-topoviewer/    # Python package: mkdocs-topoviewer
+    vscode-topoviewer/    # Browser Harness and VS Code application
+    grafana-topoviewer-panel/ # Grafana frontend and Go backend
+  labs/
+    grafana-topoviewer/containerlab/ # disposable runtime proof
 ```
 
-The packages stay separate because they serve different runtimes:
+These boundaries stay separate because they serve different runtimes and
+release contracts:
 
-| Package | Runtime | Published as | Responsibility |
+| Area | Runtime | Distribution | Responsibility |
 |---|---|---|---|
-| `packages/topoviewer/` | Node, browser, React | `topoviewer` on npm | Renderer, compiler, schemas, React component, and embeddable browser bundle |
-| `packages/mkdocs-topoviewer/` | Python, MkDocs | `mkdocs-topoviewer` on PyPI or a private Python index | MkDocs fenced-block adapter and vendored browser assets |
+| `packages/topoviewer/` | Browser, React, Node build tooling | `topoviewer` on npm | Public model, compiler, validation, renderer, CSS, schemas, and embed bundle |
+| `packages/mkdocs-topoviewer/` | Python, MkDocs | `mkdocs-topoviewer` on PyPI | Fenced-block adapter and vendored browser assets |
+| `packages/vscode-topoviewer/` | Browser Harness and VS Code webview/extension | Private and experimental | YAML authoring, host adapters, persistence, canvas commands, and VS Code messaging |
+| `packages/grafana-topoviewer-panel/` | Grafana frontend and Go plugin backend | Private and experimental | Mounted-bundle resources, Grafana data-frame mapping, panel options, and diagnostics |
+| `labs/grafana-topoviewer/containerlab/` | Docker and Containerlab | Generated local bundle only | Disposable telemetry and deployment proof |
 
-The monorepo is only a coordination boundary. It does not mean the Python plugin becomes part of the npm package, and it does not mean React users need MkDocs dependencies.
+The monorepo is a coordination boundary, not permission to import sibling
+internals. Application source consumes public package exports. Python consumes
+built embed assets. Labs consume built artifacts and mounted data.
 
 ## Dependency Direction
 
 The dependency direction is one way:
 
 ```text
-packages/topoviewer source -> built embed bundle -> packages/mkdocs-topoviewer vendored assets
+packages/topoviewer public API
+  |-> packages/vscode-topoviewer
+  |-> packages/grafana-topoviewer-panel
+  +-> external React applications
+
+packages/topoviewer source
+  -> built embed bundle
+  -> packages/mkdocs-topoviewer vendored assets
+
+packages/grafana-topoviewer-panel build + mounted YAML
+  -> labs/grafana-topoviewer/containerlab
+  -> external lab or deployment
 ```
+
+Consumer code may import `topoviewer`, `topoviewer/integration`, and documented
+package subpaths such as `topoviewer/style.css` and
+`topoviewer/schemas/...`. It must not import `packages/topoviewer/src/**`
+directly. Dependency-cruiser enforces that rule in both directions.
+
+Harness and webview Vite configs resolve the exact `topoviewer` and
+`topoviewer/integration` package names to their local source entries during
+development. Those aliases are build plumbing; they do not make private source
+modules part of the consumer API.
 
 `mkdocs-topoviewer` vendors the browser-ready files from `packages/topoviewer/dist/embed/`:
 
@@ -154,6 +186,11 @@ Release these as independent artifacts, even when the version numbers are intent
 2. Sync the approved embed bundle into `mkdocs-topoviewer`.
 3. Build and test `mkdocs-topoviewer`.
 4. Publish npm and Python packages independently.
+
+The VS Code/Harness and Grafana packages are built and tested as application
+consumers before release, but they are not implied public packages. The
+Containerlab bundle is generated from a built Grafana plugin and copied YAML;
+it must not depend on an external checkout path.
 
 Keeping the artifacts independent lets React apps install only the renderer, while MkDocs users install only the plugin.
 

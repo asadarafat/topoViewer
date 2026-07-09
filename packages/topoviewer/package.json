@@ -30,6 +30,11 @@
       "import": "./dist/topoviewer.mjs",
       "require": "./dist/topoviewer.umd.js"
     },
+    "./integration": {
+      "types": "./dist/types/integration.d.ts",
+      "import": "./dist/integration.mjs",
+      "require": "./dist/integration.umd.js"
+    },
     "./style.css": "./dist/topoviewer.css",
     "./embed/topoviewer-embed.css": "./dist/embed/topoviewer-embed.css",
     "./embed/topoviewer-embed.iife.js": "./dist/embed/topoviewer-embed.iife.js",
@@ -62,7 +67,7 @@
     "clean:dist": "rm -rf dist",
     "clean": "rm -rf dist test-results playwright-report",
     "build": "npm run clean:dist && npm run build:lib && npm run build:embed",
-    "build:lib": "vite build && npm run build:types",
+    "build:lib": "vite build && vite build --config vite.integration.config.ts && npm run build:types",
     "build:types": "tsc -p tsconfig.build.json",
     "build:embed": "vite build --config vite.embed.config.ts",
     "prepack": "npm run build",

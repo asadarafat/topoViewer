@@ -1,12 +1,14 @@
 # TopoViewer Public API Report
 
-Generated from `packages/topoviewer/src/index.ts`.
-
 Run `npm run api:report` after intentionally adding, removing, renaming, or
 moving a public package export. The report is a public-surface tripwire; it is
 not a replacement for migration notes, API docs, or compatibility tests.
 
-## Value Exports
+## Root Entry (`topoviewer`)
+
+Generated from `packages/topoviewer/src/index.ts`.
+
+### Value Exports
 
 | Export | Source |
 |---|---|
@@ -70,7 +72,7 @@ not a replacement for migration notes, API docs, or compatibility tests.
 | `validateTopoDocument` | `./core/validation` |
 
 
-## Type Exports
+### Type Exports
 
 | Export | Source |
 |---|---|
@@ -166,4 +168,26 @@ not a replacement for migration notes, API docs, or compatibility tests.
 | `TopoViewerToggles` | `./core/types` |
 | `TopoViewerToolbarAction` | `./core/types` |
 | `TopoViewerViewport` | `./core/types` |
+
+
+## Integration Entry (`topoviewer/integration`)
+
+Generated from `packages/topoviewer/src/integration.ts`.
+
+### Value Exports
+
+| Export | Source |
+|---|---|
+| `authoringHelperLinesOptions` | `./components/helperLines` |
+| `layerIds` | `./core/layers` |
+| `reconcileSelectedLayerIds` | `./core/layers` |
+| `toggleSelectedLayerId` | `./core/layers` |
+| `ViewportSettingsPanel` | `./components/ViewportSettingsPanel` |
+
+
+### Type Exports
+
+| Export | Source |
+|---|---|
+| `ViewportSettingsPanelProps` | `./components/ViewportSettingsPanel` |
 
