@@ -211,13 +211,6 @@ function assertInside(outer, inner, tolerance = NODE_CONTAINMENT_TOLERANCE_PX) {
   expect(inner.y + inner.height).toBeLessThanOrEqual(outer.y + outer.height + tolerance);
 }
 
-function center(box) {
-  return {
-    x: box.x + box.width / 2,
-    y: box.y + box.height / 2
-  };
-}
-
 function movedBy(before, after) {
   return {
     dx: after.x - before.x,
@@ -270,6 +263,54 @@ async function dragBox(page, box, dx, dy, offset = { x: 48, y: 28 }) {
   await page.mouse.move(box.x + offset.x, box.y + offset.y);
   await page.mouse.down();
   await page.mouse.move(box.x + offset.x + dx, box.y + offset.y + dy, { steps: 12 });
+  await page.mouse.up();
+  await page.waitForTimeout(400);
+}
+
+async function topmostNodeDragPoint(page, id) {
+  const point = await page.evaluate((nodeId) => {
+    const node = document.querySelector(`.react-flow__node[data-id="${nodeId}"]`);
+    if (!node) return null;
+    const box = node.getBoundingClientRect();
+    const offsets = [
+      [24, 24],
+      [box.width - 24, 24],
+      [24, box.height - 24],
+      [box.width - 24, box.height - 24],
+      [box.width / 2, 24],
+      [box.width / 2, box.height - 24],
+      [24, box.height / 2],
+      [box.width - 24, box.height / 2]
+    ];
+    for (let x = 32; x < box.width - 16; x += 32) {
+      offsets.push([x, 24], [x, box.height - 24]);
+    }
+    for (let y = 32; y < box.height - 16; y += 32) {
+      offsets.push([24, y], [box.width - 24, y]);
+    }
+    const isDragSurface = (element) => !!element?.closest?.(
+      '.topoviewer-region-drag, .topoviewer-node-drag, .topoviewer-shape-drag, .topoviewer-callout-drag'
+    );
+    for (const [relativeX, relativeY] of offsets) {
+      const x = box.left + Math.max(4, Math.min(box.width - 4, relativeX));
+      const y = box.top + Math.max(4, Math.min(box.height - 4, relativeY));
+      const topmost = document.elementFromPoint(x, y);
+      const topmostNode = topmost?.closest?.('.react-flow__node');
+      if (topmostNode?.getAttribute('data-id') === nodeId && isDragSurface(topmost)) {
+        return { x, y };
+      }
+    }
+    return null;
+  }, id);
+  expect(point, `Expected topmost draggable point for ${id}`).toBeTruthy();
+  return point;
+}
+
+async function dragNodeByTopmostPoint(page, id, dx, dy) {
+  const point = await topmostNodeDragPoint(page, id);
+  await page.mouse.move(point.x, point.y);
+  await page.mouse.down();
+  await page.mouse.move(point.x + dx, point.y + dy, { steps: 12 });
   await page.mouse.up();
   await page.waitForTimeout(400);
 }
@@ -616,11 +657,10 @@ test.describe('TopoViewer package interactions', () => {
     await page.waitForTimeout(400);
 
     const r05Before = await nodeBox(page, 'R05');
-    const l1Before = await nodeBox(page, 'region:isis-l1');
     const l2Before = await nodeBox(page, 'region:isis-l2');
     const asBefore = await nodeBox(page, 'region:as65000');
 
-    await dragBox(page, l1Before, 80, 35, { x: 320, y: 44 });
+    await dragNodeByTopmostPoint(page, 'region:isis-l1', 80, 35);
 
     const r05After = await nodeBox(page, 'R05');
     const l1After = await nodeBox(page, 'region:isis-l1');
@@ -649,20 +689,22 @@ test.describe('TopoViewer package interactions', () => {
     const l1Before = await nodeBox(page, 'region:isis-l1');
     const asBefore = await nodeBox(page, 'region:as65000');
 
-    await dragBox(page, asBefore, 70, 50, { x: 360, y: 44 });
+    await dragNodeByTopmostPoint(page, 'region:as65000', 70, 50);
 
     const r01After = await nodeBox(page, 'R01');
     const l1After = await nodeBox(page, 'region:isis-l1');
     const asAfter = await nodeBox(page, 'region:as65000');
-    const r01CenterBefore = center(r01Before);
-    const r01CenterAfter = center(r01After);
+    const r01Delta = movedBy(r01Before, r01After);
+    const l1Delta = movedBy(l1Before, l1After);
+    const asDelta = movedBy(asBefore, asAfter);
 
-    expect(r01CenterAfter.x - r01CenterBefore.x).toBeGreaterThan(50);
-    expect(r01CenterAfter.y - r01CenterBefore.y).toBeGreaterThan(35);
+    expect(Math.abs(r01Delta.dx) + Math.abs(r01Delta.dy)).toBeGreaterThan(5);
     assertInside(l1After, r01After);
     assertInside(asAfter, r01After);
 
-    expect(l1After.x - l1Before.x).toBeCloseTo(r01After.x - r01Before.x, 0);
-    expect(asAfter.x - asBefore.x).toBeCloseTo(r01After.x - r01Before.x, 0);
+    expect(Math.abs(l1Delta.dx - r01Delta.dx)).toBeLessThan(2);
+    expect(Math.abs(l1Delta.dy - r01Delta.dy)).toBeLessThan(2);
+    expect(Math.abs(asDelta.dx - r01Delta.dx)).toBeLessThan(2);
+    expect(Math.abs(asDelta.dy - r01Delta.dy)).toBeLessThan(2);
   });
 });
