@@ -9,16 +9,6 @@ engineering intent until the change is implemented, validated, archived, and
 reflected in public docs with an explicit support-status label.
 
 Current active plans:
-
-- `changes/stabilize-harness-drag-feedback/` - planned fix for jittery browser
-  harness node dragging by measuring drag smoothness, decoupling helper-line
-  guide rendering from live snap position rewrites, scheduling transient overlay
-  state, and preserving final YAML position persistence.
-- `changes/add-canvas-native-graph-authoring/` - planned canvas-native Harness
-  authoring workflow for draw.io/PowerPoint-like direct manipulation while
-  keeping TopoViewer YAML as the source of truth, including tool palette,
-  click-to-create, drag-to-connect, direct geometry edits, marquee selection,
-  clipboard, alignment, documentation, and CRUD permutation coverage.
 - `changes/define-codespaces-dev-environment/` - planned Codespaces developer environment that can run local MkDocs, Zensical, browser harness, Grafana lab, and Containerlab-Grafana workflows from a fresh cloud workspace.
 - `changes/define-netbox-integration-roadmap/` - planned NetBox feasibility, use cases, first integration shape, and roadmap wording constraints.
 - `changes/define-opsmill-infrahub-integration-roadmap/` - planned OpsMill/Infrahub feasibility, use cases, first integration shape, and roadmap wording constraints.
@@ -29,6 +19,18 @@ Current studies:
 
 Archived plans:
 
+- `archive/2026-07-09-add-canvas-native-graph-authoring/` - implemented
+  canvas-native Harness authoring with tool palette, click-to-create,
+  drag-to-connect, direct geometry edits, regions, annotations, marquee
+  selection, clipboard, alignment, documentation, and CRUD permutation
+  coverage while keeping TopoViewer YAML as the source of truth.
+- `archive/2026-07-09-harden-workspace-integration-boundaries/` - implemented
+  explicit `topoviewer/integration` ownership, migrated Harness consumers away
+  from sibling source imports, enforced dependency direction, and documented
+  application, adapter, deployment, and security boundaries.
+- `archive/2026-07-09-stabilize-harness-drag-feedback/` - implemented smooth
+  drag feedback with frame-scheduled helper lines, stable commit-time snapping,
+  final-position persistence, and browser-level regression coverage.
 - `archive/2026-07-06-harden-react-performance-surface/` - implemented React authoring-surface performance hardening with lazy Monaco/YAML authoring, MUI import boundaries, Harness/webview bundle budgets, profiled `WebviewApp` state splits, safe browser storage helpers, focused validation, and CI coverage.
 - `archive/2026-07-06-add-helper-lines/` - implemented React Flow style helper-line interaction for draggable TopoViewer objects, including runtime-only API, pure alignment geometry, optional live snapping, viewport-correct overlays, browser harness/Grafana integration boundaries, evidence-gated implementation, and full validation.
 - `archive/2026-07-05-add-global-label-collision-layout/` - implemented deterministic label placement across node, node meta, region, edge, endpoint, and link-direction labels, including link-direction styling contract hardening, auto-placement and collision-policy style keys, dense CLOS/Grafana docs, screenshot coverage, focused checks, and full CI validation.

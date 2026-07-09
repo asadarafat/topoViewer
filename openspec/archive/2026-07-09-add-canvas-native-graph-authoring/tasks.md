@@ -180,10 +180,10 @@ Evidence:
 
 ## 12. Final Validation
 
-- [ ] 12.1 Run focused unit tests for authoring commands and coordinate helpers
-- [ ] 12.2 Run focused Playwright specs for each phase
-- [ ] 12.3 Run `npm run test:vscode-harness`
-- [ ] 12.4 Run `npm run lint`
-- [ ] 12.5 Run `npm run validate:schemas`
-- [ ] 12.6 Run `npm run ci`
-- [ ] 12.7 Capture final local/remote validation status before archive
+- [x] 12.1 Run focused unit tests for authoring commands and coordinate helpers
+- [x] 12.2 Run focused Playwright specs for each phase
+- [x] 12.3 Run `npm run test:vscode-harness`
+- [x] 12.4 Run `npm run lint`
+- [x] 12.5 Run `npm run validate:schemas`
+- [x] 12.6 Run `npm run ci`
+- [x] 12.7 Capture final local/remote validation status before archive

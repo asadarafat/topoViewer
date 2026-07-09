@@ -4,22 +4,59 @@ context: |
   TopoViewer is a TypeScript/React monorepo for declarative graph rendering.
   The npm package lives in packages/topoviewer and exposes React/browser/rendering APIs.
   The MkDocs plugin lives in packages/mkdocs-topoviewer and consumes built browser assets.
-  Public docs are generated from packages/topoviewer/docs into docs/topoviewer.
+  The VS Code/Harness and Grafana packages are application adapters, not private
+  extensions of the core package. Containerlab and sibling repositories are
+  artifact consumers and must not become runtime dependencies.
+  Public docs are generated from packages/topoviewer/content/pages into docs/topoviewer.
   Use OpenSpec here as durable engineering planning, not as a runtime dependency.
 
 rules:
   proposal:
     - Keep public positioning separate from implementation detail.
     - Identify package and documentation impact explicitly.
+    - >-
+      State ownership boundaries, non-goals, compatibility impact, and external
+      repository assumptions.
+    - Preserve unrelated dirty worktrees and local-only directories.
   specs:
     - Use SHALL or MUST for normative behavior.
     - Use scenario headings with exactly four hashes.
     - Prefer testable operator workflows over vague feature descriptions.
+    - >-
+      Use ADDED, MODIFIED, REMOVED, or RENAMED requirement sections so every
+      change has a machine-readable delta.
+    - >-
+      Describe schema, API, runtime, security, and cross-surface behavior when
+      the change affects those contracts.
   design:
     - Separate runtime contracts from UI controls.
     - Include performance and rendering trade-offs for dense graphs.
     - Preserve existing graph schema compatibility unless a migration is explicitly planned.
+    - >-
+      Name the canonical owner, allowed consumers, build/runtime assumptions,
+      failure boundaries, and security responsibility for each integration.
+    - >-
+      Prefer a shared core-package contract over duplicated host behavior, but
+      keep host-specific persistence, authentication, and deployment concerns
+      in the owning adapter.
   tasks:
     - Write or update tests before implementation tasks where feasible.
     - Keep tasks small enough to complete in one coding session.
     - Include local and remote validation commands.
+    - >-
+      Order tasks sequentially: audit, baseline, contract, implementation,
+      consumers, docs/generated projections, validation, then archive.
+    - >-
+      Do not check a task until its command output, test, artifact, or reviewable
+      diff provides evidence; keep transient evidence under .artifacts/.
+    - >-
+      Treat packages/topoviewer/content/** and mkdocs.yml as canonical sources;
+      generated docs and vendored assets must be synchronized and reviewed.
+    - >-
+      For React or canvas work, measure bundle/render/interaction behavior and
+      use Playwright for visible behavior, including overlap, blank output,
+      persistence, and representative dense graphs.
+    - >-
+      Archive only after every task is checked, strict OpenSpec validation passes,
+      the full local CI gate passes on a clean committed tree, and remaining
+      risks are recorded.
