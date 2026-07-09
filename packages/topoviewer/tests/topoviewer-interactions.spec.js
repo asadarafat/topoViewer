@@ -47,11 +47,15 @@ async function setCheckboxByLabel(page, name, checked) {
       return;
     }
 
-    const labelCount = await label.count();
-    if (labelCount > 0) {
-      await label.click();
-    } else {
-      await checkbox.click({ force: true });
+    try {
+      await checkbox.setChecked(checked, { force: true });
+    } catch (error) {
+      const labelCount = await label.count();
+      if (labelCount > 0) {
+        await label.click();
+      } else {
+        await checkbox.click({ force: true });
+      }
     }
     await settleReact(page);
   }
