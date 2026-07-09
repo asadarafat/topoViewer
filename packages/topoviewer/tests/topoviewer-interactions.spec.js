@@ -49,7 +49,7 @@ async function setCheckboxByLabel(page, name, checked) {
 
     try {
       await checkbox.setChecked(checked, { force: true });
-    } catch (error) {
+    } catch {
       const labelCount = await label.count();
       if (labelCount > 0) {
         await label.click();
