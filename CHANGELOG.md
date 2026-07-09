@@ -7,6 +7,25 @@ release.
 
 ## 0.2.0 - 2026-07-09
 
+Second early-adopter release after `0.1.0`. This is a minor pre-1.0 release
+because it adds new user-facing authoring, styling, layout, documentation, and
+package-release capabilities.
+
+### Packages
+
+- `topoviewer@0.2.0`
+- `mkdocs-topoviewer==0.2.0`
+
+### Highlights
+
+- Create and edit topology objects directly from the Browser Harness viewport.
+- Align objects with helper lines and snap behavior during canvas authoring.
+- Style richer infrastructure nodes with additive nested `nodeLayout` card
+  settings.
+- Improve source and target endpoint labels for dense link-heavy diagrams.
+- Use a clearer examples/use-cases documentation structure for practical
+  adoption paths.
+
 ### Added
 
 - Canvas-native Browser Harness graph authoring for creating and editing nodes,
@@ -30,8 +49,8 @@ release.
   docs are synced.
 - Improved Harness drag behavior so live movement stays smooth and document
   writes are deferred to safer commit points.
-- Prepared the public `topoviewer` npm package and `mkdocs-topoviewer` PyPI
-  package for the `0.2.0` early-adopter release train.
+- Updated the public `topoviewer` npm package and `mkdocs-topoviewer` PyPI
+  package release train to `0.2.0`.
 
 ### Fixed
 
@@ -41,12 +60,39 @@ release.
   jitter, or lose committed positions.
 - Tightened graph-semantic authoring checks so path creation respects existing
   link reachability.
+- Fixed release-prep checks that previously hard-coded `0.1.0` tarball and
+  wheel versions.
 
-### Compatibility
+### Compatibility And Upgrade Notes
 
 - `0.2.0` remains pre-1.0 early-adopter software. Supported public surfaces are
   installable, documented, and CI-gated, but the stable-core API freeze remains
   reserved for `1.0.0`.
+- No known breaking changes from `0.1.0`.
+- Existing flat stylesheet keys remain supported.
+- Nested `nodeLayout` card styling is additive.
+- Existing public install commands remain:
+
+```bash
+npm install topoviewer @xyflow/react react react-dom
+pip install mkdocs-topoviewer
+```
+
+### Validation
+
+Release-prep validation passed locally:
+
+- `npm run check:content`
+- `npm run docs:lint`
+- `npm run install:check`
+- `npm run pack:check`
+- `npm run api:check`
+- `npm run artifact:check:package`
+- `npm run dependency:advisories`
+- `npm run wheel:mkdocs`
+- `npm run inspect:wheel`
+- `npm run ci:package`
+- `npm ls topoviewer --workspaces`
 
 ## 0.1.0 - 2026-07-01
 
@@ -78,9 +124,3 @@ release.
 ### Security
 
 - Documented the security boundary for Markdown, SVG, image references, and untrusted diagram content.
-
-## 1.0.0 - Future Stable-Core Release
-
-This future release is reserved for the stable-core API-freeze milestone after
-the early-adopter package has real user feedback, migration notes, and a
-supportable SemVer boundary.
