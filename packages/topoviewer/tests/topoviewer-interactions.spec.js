@@ -36,7 +36,8 @@ async function setCheckboxByLabel(page, name, checked) {
   const checkbox = page.getByRole('checkbox', { name, exact: true });
   const label = page.locator('label').filter({ has: checkbox }).first();
 
-  await expect(checkbox).toBeAttached();
+  await expect(checkbox).toHaveCount(1);
+  await expect(checkbox).toBeEnabled();
 
   for (let attempt = 0; attempt < 4; attempt += 1) {
     const isAlreadyChecked = await checkbox.isChecked();
@@ -48,7 +49,7 @@ async function setCheckboxByLabel(page, name, checked) {
     }
 
     try {
-      await checkbox.setChecked(checked, { force: true });
+      await checkbox.setChecked(checked);
     } catch {
       const labelCount = await label.count();
       if (labelCount > 0) {
