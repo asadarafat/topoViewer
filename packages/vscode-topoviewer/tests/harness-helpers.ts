@@ -28,8 +28,23 @@ function currentGitSha() {
   }).trim();
 }
 
+async function getMarkerWithRetry(page: Page) {
+  let lastError: unknown;
+
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    try {
+      return await page.request.get('/__topoviewer-test-marker.json', { timeout: 5000 });
+    } catch (error) {
+      lastError = error;
+      await page.waitForTimeout(200 * (attempt + 1));
+    }
+  }
+
+  throw lastError;
+}
+
 export async function expectCurrentHarnessServer(page: Page) {
-  const response = await page.request.get('/__topoviewer-test-marker.json');
+  const response = await getMarkerWithRetry(page);
   expect(response.ok(), 'served harness should expose the TopoViewer test marker').toBe(true);
   const marker = await response.json();
   expect(marker).toEqual({
