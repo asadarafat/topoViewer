@@ -5,7 +5,7 @@ import { execFileSync, spawnSync } from 'node:child_process';
 const packageRoot = path.resolve(import.meta.dirname, '..');
 const repoRoot = path.resolve(packageRoot, '../..');
 const localGoBinary = path.join(repoRoot, '.artifacts', 'go', 'bin', process.platform === 'win32' ? 'go.exe' : 'go');
-const requiredGoToolchain = 'go1.25.11+auto';
+const requiredGoToolchain = 'go1.25.12+auto';
 
 function canRun(command) {
   const result = spawnSync(command, ['version'], {

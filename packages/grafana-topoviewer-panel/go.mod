@@ -1,6 +1,6 @@
 module github.com/asadarafat/topoviewer/packages/grafana-topoviewer-panel
 
-go 1.25.11
+go 1.25.12
 
 require (
 	github.com/grafana/grafana-plugin-sdk-go v0.280.0
