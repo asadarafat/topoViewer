@@ -1,6 +1,6 @@
 {
   "name": "topoviewer",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Declarative graph renderer for network, infrastructure, and service-topology diagrams.",
   "keywords": [
     "topology",

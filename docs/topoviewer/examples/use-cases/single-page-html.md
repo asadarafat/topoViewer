@@ -31,7 +31,7 @@ and attention.
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       <title>TopoViewer NOC Time Machine</title>
-      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/topoviewer@0.1.0/dist/embed/topoviewer-embed.css">
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/topoviewer@0.2.0/dist/embed/topoviewer-embed.css">
       <style>
         body { margin: 0; min-height: 100vh; background: radial-gradient(circle at top left, #18345f, #050914 48%, #02040a); color: #e5f2ff; font-family: Inter, system-ui, sans-serif; }
         .app { display: grid; grid-template-columns: 320px 1fr; gap: 18px; padding: 18px; height: 100vh; box-sizing: border-box; }
@@ -80,7 +80,7 @@ and attention.
         </main>
       </div>
 
-      <script src="https://cdn.jsdelivr.net/npm/topoviewer@0.1.0/dist/embed/topoviewer-embed.iife.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/topoviewer@0.2.0/dist/embed/topoviewer-embed.iife.js"></script>
       <script>
         var host = document.getElementById("viewerHost");
         var buttons = document.getElementById("buttons");
@@ -267,8 +267,8 @@ owns topology rendering, styling, layer filtering, and attention dimming.
 The page loads only two TopoViewer assets:
 
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/topoviewer@0.1.0/dist/embed/topoviewer-embed.css">
-<script src="https://cdn.jsdelivr.net/npm/topoviewer@0.1.0/dist/embed/topoviewer-embed.iife.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/topoviewer@0.2.0/dist/embed/topoviewer-embed.css">
+<script src="https://cdn.jsdelivr.net/npm/topoviewer@0.2.0/dist/embed/topoviewer-embed.iife.js"></script>
 ```
 
 The application creates temporary URLs for JSON documents:

@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import email
 import glob
+import re
 import sys
 import tarfile
 import zipfile
@@ -12,7 +13,18 @@ from pathlib import Path
 
 
 PACKAGE_NAME = "mkdocs-topoviewer"
-PACKAGE_VERSION = "0.1.0"
+PYPROJECT = Path(__file__).resolve().parent.parent / "packages/mkdocs-topoviewer/pyproject.toml"
+
+
+def read_package_version() -> str:
+    text = PYPROJECT.read_text(encoding="utf-8")
+    match = re.search(r'^version\s*=\s*"([^"]+)"\s*$', text, flags=re.MULTILINE)
+    if match is None:
+        raise RuntimeError(f"could not read project version from {PYPROJECT}")
+    return match.group(1)
+
+
+PACKAGE_VERSION = read_package_version()
 
 REQUIRED_PACKAGE_SUFFIXES = {
     "mkdocs_topoviewer/__init__.py",

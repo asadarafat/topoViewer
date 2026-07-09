@@ -112,9 +112,9 @@ Do not publish generated test artifacts, local videos, screenshots, or MkDocs bu
 
 ## Manual npm Publishing
 
-The public npm package name is `topoviewer`. The `0.1.0` release is an
-installable early-adopter release: useful, documented, and CI-gated, but not an
-API-freeze claim. Reserve `1.0.0` for the later stable-core release.
+The public npm package name is `topoviewer`. The `0.x` line is installable
+early-adopter software: useful, documented, and CI-gated, but not an API-freeze
+claim. Reserve `1.0.0` for the later stable-core release.
 
 The public npm install snippet is:
 
@@ -127,7 +127,7 @@ workflow:
 
 ```bash
 npm --workspace topoviewer pack --pack-destination /tmp/topoviewer-pack
-npm install /tmp/topoviewer-pack/topoviewer-0.1.0.tgz @xyflow/react react react-dom
+npm install /tmp/topoviewer-pack/topoviewer-0.2.0.tgz @xyflow/react react react-dom
 ```
 
 `npm run install:check` validates that same consumer contract by packing the
@@ -139,9 +139,9 @@ publish to npm. Publication is manual through the `Manual npm Publish` GitHub
 Actions workflow, authenticated by npm Trusted Publishing with GitHub OIDC.
 
 1. Choose the exact version already committed in `packages/topoviewer/package.json`.
-2. Choose the dist-tag. Prefer `next` for `0.1.0` early-adopter validation
-   unless maintainers deliberately want `latest` with clear pre-1.0 wording.
-   Reserve `latest` without caveats for the stable-core `1.0.0` release.
+2. Choose the dist-tag. Prefer `next` for early-adopter `0.x` validation unless
+   maintainers deliberately want `latest` with clear pre-1.0 wording. Reserve
+   `latest` without caveats for the stable-core `1.0.0` release.
 3. Keep `dry_run` enabled for the first run and review the npm publish output.
 4. Confirm `npm run ci`, `npm run install:check`,
    `npm run api:check`, `npm run artifact:check:package`, and
@@ -221,6 +221,25 @@ npm run install:check:mkdocs
 
 PyPI package versions are immutable. A real publish for an already-published
 version fails before upload and requires a version bump.
+
+## 0.2.0 Early-Adopter Gate
+
+`topoviewer@0.2.0` must not be published until these gates are satisfied:
+
+- The package builds, type output, CSS, schemas, examples, and README are
+  present in `npm pack --dry-run` output.
+- `npm run ci`, `npm run install:check`, `npm run api:check`,
+  `npm run artifact:check:package`, and `npm run dependency:advisories` pass.
+- `npm run wheel:mkdocs` and `npm run inspect:wheel` pass when
+  `mkdocs-topoviewer==0.2.0` is part of the release train.
+- The changelog has a `0.2.0` entry with support status, notable changes,
+  known limitations, and migration notes.
+- The README and docs keep React, MkDocs, Browser Harness, Zensical, Grafana,
+  VS Code, NetBox, and Infrahub support status accurate.
+- Experimental integrations remain clearly labeled and do not expand the
+  package compatibility promise.
+- The npm and PyPI Trusted Publishing dry-run workflows are reviewed before
+  any real publish.
 
 ## 0.1.0 Early-Adopter Gate
 

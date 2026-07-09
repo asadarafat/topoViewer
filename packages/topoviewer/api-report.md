@@ -160,9 +160,11 @@ not a replacement for migration notes, API docs, or compatibility tests.
 | `TopoViewerExtensionContext` | `./core/types` |
 | `TopoViewerHelperLinesOptions` | `./core/types` |
 | `TopoViewerNodePositionChange` | `./core/types` |
+| `TopoViewerNodeResizeChange` | `./core/types` |
 | `TopoViewerObjectClick` | `./core/types` |
 | `TopoViewerPaneClick` | `./core/types` |
 | `TopoViewerProps` | `./core/types` |
+| `TopoViewerRegionAggregateToggle` | `./core/types` |
 | `TopoViewerToggles` | `./core/types` |
 | `TopoViewerToolbarAction` | `./core/types` |
 | `TopoViewerViewport` | `./core/types` |

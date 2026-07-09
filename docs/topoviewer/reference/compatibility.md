@@ -7,9 +7,10 @@ does not have the same compatibility promise as a harness-only helper.
 
 ## Version Policy
 
-The first public package target is `0.1.0`: an installable early-adopter
-release with honest pre-1.0 compatibility expectations. It should be good
-enough to try from npm, but it should not claim API freeze.
+The public `0.x` package line is installable early-adopter software with honest
+pre-1.0 compatibility expectations. It should be good enough to try from npm,
+but it should not claim API freeze. `0.1.0` was the first public package;
+`0.2.0` continues the same pre-1.0 contract with migration notes.
 
 The later stable-core target is `1.0.0`. For `1.0.0`, the stable core means the
 React renderer, documented props/events, topology and stylesheet schemas,
@@ -20,7 +21,7 @@ Supported Adapter, or Roadmap without blocking the core package release.
 
 | Surface | Compatibility rule |
 |---|---|
-| `topoviewer` npm package | `0.1.0` is the first public early-adopter release. `1.0.0` is the later stable-core release; after that, supported API/YAML/style/schema changes follow SemVer strictly. |
+| `topoviewer` npm package | `0.x` releases are public early-adopter releases. `1.0.0` is the later stable-core release; after that, supported API/YAML/style/schema changes follow SemVer strictly. |
 | React component props | `TopoViewer`, documented props, and documented event payloads are the primary supported API. Breaking prop/event changes require migration notes. |
 | TypeScript exports | Exports marked `Supported` in [TypeScript API](./typescript-api.md) are intended for application code. `Advanced` exports are public but lower-level. `Experimental` exports may change while the feature matures. |
 | Topology YAML | `version` is the document migration hook. Missing versions are treated as current-compatible until a migration says otherwise. |
@@ -137,7 +138,7 @@ released package examples change in a way that could break existing user YAML.
 
 | Dependency or host | Current contract |
 |---|---|
-| Node.js | Node.js 24 LTS for local development, CI, package build, docs generation, harness, and Grafana plugin build. This is intentional for `0.1.0` so local and GitHub gates stay identical while the package is still pre-1.0. Broader Node 20/22/24 package-consumer support is a later compatibility decision, not a current claim. |
+| Node.js | Node.js 24 LTS for local development, CI, package build, docs generation, harness, and Grafana plugin build. This is intentional for the `0.x` line so local and GitHub gates stay identical while the package is still pre-1.0. Broader Node 20/22/24 package-consumer support is a later compatibility decision, not a current claim. |
 | npm | Use the committed lockfile. Public install snippets must be validated by `npm run install:check` before publication. |
 | React | Peer dependency `react >=18`. React 18 is used in local tests. |
 | React DOM | Peer dependency `react-dom >=18`. React DOM 18 is used in local tests. |

@@ -7,7 +7,9 @@ import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const sourceTarballInstallCommand = 'npm install /tmp/topoviewer-pack/topoviewer-0.1.0.tgz @xyflow/react react react-dom';
+const topoviewerPackage = JSON.parse(fs.readFileSync(path.join(repoRoot, 'packages/topoviewer/package.json'), 'utf8'));
+const sourceTarballInstallCommand =
+  `npm install /tmp/topoviewer-pack/topoviewer-${topoviewerPackage.version}.tgz @xyflow/react react react-dom`;
 const publishedInstallCommand = 'npm install topoviewer @xyflow/react react react-dom';
 const mkdocsPublishedInstallCommand = 'pip install mkdocs-topoviewer';
 const mkdocsLocalEditableInstallPattern = /\b(?:python\s+-m\s+)?pip\s+install\s+-e\s+packages\/mkdocs-topoviewer\b/g;

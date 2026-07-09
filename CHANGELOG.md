@@ -5,6 +5,49 @@ release is `0.1.0`: an installable early-adopter release with honest pre-1.0
 compatibility expectations. Reserve `1.0.0` for the later stable-core API-freeze
 release.
 
+## 0.2.0 - 2026-07-09
+
+### Added
+
+- Canvas-native Browser Harness graph authoring for creating and editing nodes,
+  links, paths, regions, shapes, and callouts from the viewport.
+- Drag helper lines, snap behavior, and viewport settings controls shared by
+  package-level surfaces.
+- Nested `nodeLayout` card styling for richer infrastructure-style nodes while
+  preserving existing flat style keys.
+- Endpoint label styling and automatic placement for link source and target
+  labels.
+- Global label collision behavior for dense topology views.
+- Single-page HTML embed use case and expanded use-case documentation for
+  React, MkDocs, Zensical/static HTML, Harness, Kubernetes service maps, service
+  provider networks, and Grafana TopoViewer workflows.
+
+### Changed
+
+- Reworked docs navigation and physical content structure so user-facing
+  examples and use cases are easier to scan.
+- Consolidated example content into the canonical content tree before generated
+  docs are synced.
+- Improved Harness drag behavior so live movement stays smooth and document
+  writes are deferred to safer commit points.
+- Prepared the public `topoviewer` npm package and `mkdocs-topoviewer` PyPI
+  package for the `0.2.0` early-adopter release train.
+
+### Fixed
+
+- Prevented canvas graph-authoring shortcuts from firing while the YAML editor,
+  forms, or Monaco controls have focus.
+- Fixed new-topology authoring behavior where newly added nodes could repel,
+  jitter, or lose committed positions.
+- Tightened graph-semantic authoring checks so path creation respects existing
+  link reachability.
+
+### Compatibility
+
+- `0.2.0` remains pre-1.0 early-adopter software. Supported public surfaces are
+  installable, documented, and CI-gated, but the stable-core API freeze remains
+  reserved for `1.0.0`.
+
 ## 0.1.0 - 2026-07-01
 
 ### Added

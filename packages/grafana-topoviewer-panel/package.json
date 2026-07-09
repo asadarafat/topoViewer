@@ -1,6 +1,6 @@
 {
   "name": "grafana-topoviewer-panel",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "license": "Apache-2.0",
   "description": "Grafana panel plugin for rendering TopoViewer topology-as-code bundles.",
@@ -15,7 +15,7 @@
   "dependencies": {
     "@xyflow/react": "^12.10.2",
     "js-yaml": "^4.1.0",
-    "topoviewer": "0.1.0"
+    "topoviewer": "0.2.0"
   },
   "devDependencies": {
     "@grafana/data": "13.1.0",
