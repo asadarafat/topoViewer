@@ -1,5 +1,21 @@
 import yaml from 'js-yaml';
 import type { TopoDocument } from 'topoviewer';
+import {
+  authoringLinkDirectionObjects,
+  authoringObjectDisplayName,
+  authoringObjectExists,
+  authoringSelectionKey,
+  createAuthoringNode,
+  defaultLayerId as sharedDefaultLayerId,
+  findAuthoringObject,
+  graphHasLinkBetween as sharedGraphHasLinkBetween,
+  graphHasReachabilityBetween as sharedGraphHasReachabilityBetween,
+  nextAuthoringObjectId,
+  pathSegmentsWithoutDirectLinks as sharedPathSegmentsWithoutDirectLinks,
+  pathSegmentsWithoutReachability as sharedPathSegmentsWithoutReachability,
+  resolveAuthoringSelection,
+  sameAuthoringSelection
+} from 'topoviewer/authoring';
 
 export type TopoObjectKind = 'node' | 'link' | 'linkDirection' | 'path' | 'region' | 'callout' | 'shape';
 export type InsertObjectType = 'node' | 'router' | 'service' | 'controller' | 'external' | 'link' | 'path' | 'region' | 'callout' | 'shape' | 'alert';
@@ -180,24 +196,8 @@ function ensureArray(parent: Record<string, any>, key: string): any[] {
   return parent[key];
 }
 
-function allObjectIds(document: Record<string, any>): Set<string> {
-  const graph = document.graph || {};
-  const diagram = document.diagram || {};
-  return new Set([
-    ...(graph.nodes || []),
-    ...(graph.links || []),
-    ...(graph.paths || []),
-    ...(graph.regions || []),
-    ...(diagram.shapes || []),
-    ...(diagram.callouts || [])
-  ].map((item: any) => String(item.id || '')).filter(Boolean));
-}
-
 function nextId(document: Record<string, any>, prefix: string): string {
-  const ids = allObjectIds(document);
-  let index = 1;
-  while (ids.has(`${prefix}-${index}`)) index += 1;
-  return `${prefix}-${index}`;
+  return nextAuthoringObjectId(document, prefix);
 }
 
 function cloneRecord(value: unknown): Record<string, unknown> | undefined {
@@ -225,13 +225,7 @@ function presetFields(preset: TopoObjectPreset): Record<string, unknown> {
 }
 
 export function defaultLayerId(document: Record<string, any> | TopoDocument | undefined, selectedLayerIds: string[]): string {
-  const layers = document?.graph?.layers || [];
-  const declared = new Set(layers.map((layer: any) => String(layer.id || '')).filter(Boolean));
-  const selectedDeclared = selectedLayerIds.find((id) => declared.has(id));
-  if (selectedDeclared) return selectedDeclared;
-  const selected = selectedLayerIds.find((id) => id.trim().length > 0);
-  if (!layers.length && selected) return selected;
-  return layers[0]?.id || selected || 'default';
+  return sharedDefaultLayerId(document, selectedLayerIds);
 }
 
 function layoutCenter(document: Record<string, any>): [number, number] {
@@ -498,18 +492,7 @@ function containingRegionForNodePosition(
     .sort((a: RegionBoundsCandidate, b: RegionBoundsCandidate) => a.area - b.area)[0]?.region;
 }
 
-function graphLinkDirectionObjects(document: Record<string, any> | TopoDocument | undefined): any[] {
-  return ((document?.graph?.links || []) as any[]).flatMap((link) => Object.entries(link.directions || {}).flatMap(([direction, value]) => {
-    if (!value || typeof value !== 'object' || Array.isArray(value)) return [];
-    return [{
-      ...(value as Record<string, unknown>),
-      id: (value as Record<string, unknown>).id || `${link.id}:${direction}`,
-      direction,
-      linkId: link.id,
-      parentLinkId: link.id
-    }];
-  }));
-}
+const graphLinkDirectionObjects = authoringLinkDirectionObjects;
 
 function graphNodes(document: Record<string, any>): any[] {
   return Array.isArray(document.graph?.nodes) ? document.graph.nodes : [];
@@ -517,10 +500,6 @@ function graphNodes(document: Record<string, any>): any[] {
 
 function graphNodeIds(document: Record<string, any>): Set<string> {
   return new Set(graphNodes(document).map((node) => String(node.id || '')).filter(Boolean));
-}
-
-function graphLinks(document: Record<string, any>): any[] {
-  return Array.isArray(document.graph?.links) ? document.graph.links : [];
 }
 
 function requireGraphNodeIds(document: Record<string, any>, ids: string[]) {
@@ -531,53 +510,19 @@ function requireGraphNodeIds(document: Record<string, any>, ids: string[]) {
 }
 
 export function graphHasLinkBetween(document: Record<string, any> | TopoDocument | undefined, source: string, target: string): boolean {
-  if (!document || !source || !target) return false;
-  return graphLinks(document as Record<string, any>).some((link) => (
-    (String(link.source || '') === source && String(link.target || '') === target)
-    || (String(link.source || '') === target && String(link.target || '') === source)
-  ));
+  return sharedGraphHasLinkBetween(document, source, target);
 }
 
 export function graphHasReachabilityBetween(document: Record<string, any> | TopoDocument | undefined, source: string, target: string): boolean {
-  if (!document || !source || !target) return false;
-  if (source === target) return true;
-  const adjacency = new Map<string, Set<string>>();
-  graphLinks(document as Record<string, any>).forEach((link) => {
-    const linkSource = String(link.source || '');
-    const linkTarget = String(link.target || '');
-    if (!linkSource || !linkTarget) return;
-    if (!adjacency.has(linkSource)) adjacency.set(linkSource, new Set());
-    if (!adjacency.has(linkTarget)) adjacency.set(linkTarget, new Set());
-    adjacency.get(linkSource)?.add(linkTarget);
-    adjacency.get(linkTarget)?.add(linkSource);
-  });
-  if (!adjacency.has(source) || !adjacency.has(target)) return false;
-  const seen = new Set<string>([source]);
-  const queue = [source];
-  for (let index = 0; index < queue.length; index += 1) {
-    const current = queue[index];
-    for (const next of adjacency.get(current) || []) {
-      if (next === target) return true;
-      if (seen.has(next)) continue;
-      seen.add(next);
-      queue.push(next);
-    }
-  }
-  return false;
+  return sharedGraphHasReachabilityBetween(document, source, target);
 }
 
 export function pathSegmentsWithoutReachability(document: Record<string, any> | TopoDocument | undefined, sequence: string[]) {
-  return sequence.slice(0, -1).flatMap((source, index) => {
-    const target = sequence[index + 1];
-    return graphHasReachabilityBetween(document, source, target) ? [] : [{ source, target }];
-  });
+  return sharedPathSegmentsWithoutReachability(document, sequence);
 }
 
 export function pathSegmentsWithoutDirectLinks(document: Record<string, any> | TopoDocument | undefined, sequence: string[]) {
-  return sequence.slice(0, -1).flatMap((source, index) => {
-    const target = sequence[index + 1];
-    return graphHasLinkBetween(document, source, target) ? [] : [{ source, target }];
-  });
+  return sharedPathSegmentsWithoutDirectLinks(document, sequence);
 }
 
 function requirePathReachability(document: Record<string, any>, sequence: string[]) {
@@ -597,46 +542,27 @@ function normalizedPathSequence(sequence: string[]): string[] {
 }
 
 export function findObject(document: Record<string, any> | TopoDocument | undefined, selection: TopoObjectSelection | undefined): any | undefined {
-  if (!document || !selection) return undefined;
-  if (selection.kind === 'linkDirection') {
-    return graphLinkDirectionObjects(document).find((item) => item.id === selection.id);
-  }
-  if (selection.kind in graphCollectionByKind) {
-    const collection = graphCollectionByKind[selection.kind as keyof typeof graphCollectionByKind];
-    return (document.graph?.[collection] || []).find((item: any) => item.id === selection.id);
-  }
-  const collection = diagramCollectionByKind[selection.kind as keyof typeof diagramCollectionByKind];
-  return (document.diagram?.[collection] || []).find((item: any) => item.id === selection.id);
+  return findAuthoringObject(document, selection) as any;
 }
 
 export function objectExists(document: Record<string, any> | TopoDocument | undefined, selection: TopoObjectSelection): boolean {
-  return !!findObject(document, selection);
+  return authoringObjectExists(document, selection);
 }
 
 export function objectDisplayName(document: Record<string, any> | TopoDocument | undefined, selection: TopoObjectSelection | undefined): string {
-  const object = findObject(document, selection);
-  if (!selection) return 'No selection';
-  return object?.name || object?.label || selection.id;
+  return authoringObjectDisplayName(document, selection);
 }
 
 export function resolveSelectionFromObject(document: TopoDocument | undefined, sourceId: string): TopoObjectSelection | undefined {
-  if (!document || !sourceId) return undefined;
-  if ((document.graph?.nodes || []).some((node) => node.id === sourceId)) return { kind: 'node', id: sourceId };
-  if ((document.graph?.links || []).some((link) => link.id === sourceId)) return { kind: 'link', id: sourceId };
-  if (graphLinkDirectionObjects(document).some((direction) => direction.id === sourceId)) return { kind: 'linkDirection', id: sourceId };
-  if ((document.graph?.paths || []).some((path) => path.id === sourceId)) return { kind: 'path', id: sourceId };
-  if ((document.graph?.regions || []).some((region) => region.id === sourceId)) return { kind: 'region', id: sourceId };
-  if ((document.diagram?.callouts || []).some((callout) => callout.id === sourceId)) return { kind: 'callout', id: sourceId };
-  if ((document.diagram?.shapes || []).some((shape) => shape.id === sourceId)) return { kind: 'shape', id: sourceId };
-  return undefined;
+  return resolveAuthoringSelection(document, sourceId);
 }
 
 export function selectionKey(selection: TopoObjectSelection): string {
-  return `${selection.kind}:${selection.id}`;
+  return authoringSelectionKey(selection);
 }
 
 export function sameSelection(a: TopoObjectSelection, b: TopoObjectSelection): boolean {
-  return a.kind === b.kind && a.id === b.id;
+  return sameAuthoringSelection(a, b);
 }
 
 export function insertTopoObject(text: string, options: InsertObjectOptions): MutationResult {
@@ -649,22 +575,12 @@ export function insertTopoObject(text: string, options: InsertObjectOptions): Mu
     const regions = ensureArray(graph, 'regions');
 
     if (options.type === 'node' || options.type === 'router' || options.type === 'controller' || options.type === 'external' || options.type === 'service') {
-      const id = nextId(document, options.type === 'service' ? 'service' : options.type);
       const position = options.position || nextCanvasPosition(document, options.selectedObjects);
-      const roleByType: Record<string, string> = {
-        node: 'node',
-        router: 'router',
-        controller: 'controller',
-        external: 'external',
-        service: 'service'
-      };
-      nodes.push({
-        id,
-        name: options.type === 'node' ? 'New Node' : options.type === 'service' ? 'New Service' : `New ${capitalize(options.type)}`,
-        labels: { role: roleByType[options.type] },
-        layers: [layerId],
-        position: [Math.round(position.x), Math.round(position.y)]
-      });
+      nodes.push(createAuthoringNode(document, {
+        kind: options.type,
+        position,
+        selectedLayerIds: [layerId]
+      }));
       return;
     }
 
@@ -1321,8 +1237,4 @@ export function focusKindForSelection(kind: TopoObjectKind): AttentionFocusKind 
   if (kind === 'path') return 'pathIds';
   if (kind === 'region') return 'regionIds';
   return undefined;
-}
-
-function capitalize(value: string): string {
-  return `${value.slice(0, 1).toUpperCase()}${value.slice(1)}`;
 }
