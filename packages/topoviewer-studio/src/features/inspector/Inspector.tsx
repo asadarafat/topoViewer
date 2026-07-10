@@ -1,11 +1,7 @@
 import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from 'react';
-import CloseIcon from '@mui/icons-material/Close';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import SearchIcon from '@mui/icons-material/Search';
-import SwapVertIcon from '@mui/icons-material/SwapVert';
-import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import {
   authoringFieldDefaultValue,
   authoringFieldIsVisible,
@@ -35,11 +31,13 @@ import {
   resolveStudioFieldProfile
 } from './profile';
 
-type InspectorView = 'basic' | 'advanced' | 'all' | 'modified';
+type InspectorView = 'basic' | 'all';
+type InspectorDocumentView = 'topology' | 'style' | 'mapper';
 
 interface InspectorProps {
   onCommit(path: Array<string | number>, value: unknown, scopePath: Array<string | number>): void;
   onCommitStyle(request: StudioStyleEditRequest): boolean;
+  onOpenMapper(): void;
   onOpenSource(document: StudioDocumentKind, path: Array<string | number>): void;
   onReorderFieldProfile(target: StyleTargetKind, path: string, direction: -1 | 1): void;
   onResetProfile(): void;
@@ -57,9 +55,12 @@ interface InspectorProps {
 
 const inspectorViews: Array<{ id: InspectorView; label: string }> = [
   { id: 'basic', label: 'Basic' },
-  { id: 'advanced', label: 'Advanced' },
-  { id: 'all', label: 'All' },
-  { id: 'modified', label: 'Modified' }
+  { id: 'all', label: 'All' }
+];
+const inspectorDocumentViews: Array<{ id: InspectorDocumentView; label: string }> = [
+  { id: 'topology', label: 'Topology' },
+  { id: 'style', label: 'Styles' },
+  { id: 'mapper', label: 'Mapper' }
 ];
 const styleTargets = new Set<StyleTargetKind>(['node', 'link', 'linkDirection', 'path', 'region', 'shape', 'callout']);
 
@@ -119,19 +120,33 @@ function FieldActions({
   profileActions?: StyleFieldEditorProps['profileActions'];
 }) {
   const defaultValue = authoringFieldDefaultValue(field);
+  const [open, setOpen] = useState(false);
   return (
-    <span className="studio-field-actions">
-      {profileActions ? (
-        <>
-          <button aria-label={`Move ${field.label} earlier`} onClick={() => profileActions.onReorder(-1)} title="Move field earlier" type="button"><KeyboardArrowUpIcon fontSize="inherit" /></button>
-          <button aria-label={`Move ${field.label} later`} onClick={() => profileActions.onReorder(1)} title="Move field later" type="button"><KeyboardArrowDownIcon fontSize="inherit" /></button>
-          <button aria-label={`Move ${field.label} to ${profileActions.level === 'basic' ? 'Advanced' : 'Basic'}`} onClick={profileActions.onToggleLevel} title={`Move to ${profileActions.level === 'basic' ? 'Advanced' : 'Basic'}`} type="button"><SwapVertIcon fontSize="inherit" /></button>
-          <button aria-label={`${profileActions.hidden ? 'Restore' : 'Hide'} ${field.label}`} onClick={() => profileActions.onHide(!profileActions.hidden)} title={profileActions.hidden ? 'Restore field' : 'Hide field'} type="button"><VisibilityOffIcon fontSize="inherit" /></button>
-        </>
-      ) : null}
-      <button aria-label={`Use default for ${field.label}`} disabled={defaultValue === undefined} onClick={onDefault} title="Write the documented default" type="button"><RestartAltIcon fontSize="inherit" /></button>
-      <button aria-label={`Unset ${field.label}`} disabled={!explicit} onClick={onUnset} title="Remove the explicit value" type="button"><CloseIcon fontSize="inherit" /></button>
-    </span>
+    <div
+      className="studio-field-actions"
+      data-open={open}
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false);
+      }}
+    >
+      <button aria-expanded={open} aria-haspopup="menu" aria-label={`${field.label} actions`} onClick={() => setOpen((value) => !value)} title={`${field.label} actions`} type="button"><MoreVertIcon fontSize="inherit" /></button>
+      {open ? <div className="studio-field-action-menu" role="menu">
+        <button disabled={defaultValue === undefined} onClick={() => { onDefault(); setOpen(false); }} role="menuitem" type="button">Write default</button>
+        <button disabled={!explicit} onClick={() => { onUnset(); setOpen(false); }} role="menuitem" type="button">Unset value</button>
+        {profileActions ? (
+          <>
+            <button onClick={() => { profileActions.onToggleLevel(); setOpen(false); }} role="menuitem" type="button">
+              {profileActions.level === 'basic' ? 'Remove from Basic' : 'Show in Basic'}
+            </button>
+            <button onClick={() => { profileActions.onReorder(-1); setOpen(false); }} role="menuitem" type="button">Move earlier</button>
+            <button onClick={() => { profileActions.onReorder(1); setOpen(false); }} role="menuitem" type="button">Move later</button>
+            <button onClick={() => { profileActions.onHide(!profileActions.hidden); setOpen(false); }} role="menuitem" type="button">
+              {profileActions.hidden ? 'Restore field' : 'Hide field'}
+            </button>
+          </>
+        ) : null}
+      </div> : null}
+    </div>
   );
 }
 
@@ -394,6 +409,7 @@ function PositionEditor({
 export function Inspector({
   onCommit,
   onCommitStyle,
+  onOpenMapper,
   onOpenSource,
   onReorderFieldProfile,
   onResetProfile,
@@ -406,6 +422,7 @@ export function Inspector({
 }: InspectorProps) {
   const renderCount = useRef(0);
   renderCount.current += 1;
+  const [documentView, setDocumentView] = useState<InspectorDocumentView>('topology');
   const [view, setView] = useState<InspectorView>('basic');
   const [query, setQuery] = useState('');
   const [showHidden, setShowHidden] = useState(false);
@@ -424,8 +441,8 @@ export function Inspector({
   const style = record(object?.style);
   const position = Array.isArray(object?.position) ? object.position : undefined;
   const assetOptions = Object.keys(snapshot.projection.document.icons || {}).sort();
-  const allFields = target ? styleAuthoringMetadataByTarget[target] : [];
-  const provenance = target && object
+  const allFields = documentView === 'style' && target ? styleAuthoringMetadataByTarget[target] : [];
+  const provenance = documentView === 'style' && target && object
     ? resolveStyleProvenance(target, object as Parameters<typeof resolveStyleProvenance>[1], snapshot.projection.document, {
         inlineSourcePath: objectPath
       })
@@ -460,8 +477,6 @@ export function Inspector({
     if (fieldProfile?.hidden && !showHidden) return false;
     if (!authoringFieldIsVisible(field, style)) return false;
     if (view === 'basic' && (fieldProfile?.level || field.level) !== 'basic') return false;
-    if (view === 'advanced' && (fieldProfile?.level || field.level) !== 'advanced') return false;
-    if (view === 'modified' && scopeStyle[field.path] === undefined) return false;
     return !normalizedQuery || [field.path, field.label, field.description, field.group, ...(field.aliases || [])]
       .some((value) => value.toLocaleLowerCase().includes(normalizedQuery));
   }).sort((left, right) => (
@@ -478,7 +493,7 @@ export function Inspector({
     return result;
   }, new Map());
   const knownKeys = new Set(allFields.map((field) => field.path));
-  const unknownKeys = Object.keys(style).filter((key) => !knownKeys.has(key));
+  const unknownKeys = Object.keys(scopeStyle).filter((key) => !knownKeys.has(key));
   const identityKey = selection?.kind === 'callout' ? 'title' : 'name';
   const identityLabel = identityKey === 'title' ? 'Title' : 'Name';
   const identityValue = String(object?.[identityKey] || '');
@@ -502,6 +517,14 @@ export function Inspector({
     onUnsetStyle({ fieldPath, objectPath, scope: editScope });
   }
 
+  function openUnsupportedStyleField(key: string) {
+    if (editScope.kind === 'rule') {
+      onOpenSource('stylesheet', ['stylesheet', editScope.ruleIndex, 'style', key]);
+      return;
+    }
+    onOpenSource('topology', [...objectPath!, 'style', key]);
+  }
+
   return (
     <aside className="studio-inspector" aria-label="Inspector" data-render-count={renderCount.current} data-state={state}>
       <div className="studio-panel-heading"><h2>Inspector</h2></div>
@@ -509,35 +532,72 @@ export function Inspector({
         <div className="studio-inspector-empty"><strong>Nothing selected</strong></div>
       ) : (
         <div className="studio-inspector-content">
-          <section className="studio-field-group">
-            <h3>Identity</h3>
-            <label className="studio-field">
-              <span>{identityLabel}</span>
-              <input
-                aria-label={identityLabel}
-                key={identityValue}
-                defaultValue={identityValue}
-                onBlur={(event) => onCommit([...objectPath, identityKey], event.target.value, objectPath)}
-                onKeyDown={(event) => {
-                  if (event.key === 'Enter') {
-                    event.preventDefault();
-                    event.currentTarget.blur();
-                  }
-                  if (event.key === 'Escape') {
-                    event.currentTarget.value = identityValue;
-                    event.currentTarget.blur();
-                  }
-                }}
-              />
-            </label>
-            <label className="studio-field">
-              <span>ID</span>
-              <input aria-label="ID" readOnly value={selection.id} />
-            </label>
-          </section>
-          {position ? <PositionEditor objectPath={objectPath} onCommit={onCommit} position={position} /> : null}
-          {target ? (
+          <div className="studio-inspector-document-tabs" role="tablist" aria-label="Inspector document">
+            {inspectorDocumentViews.map((item) => (
+              <button
+                aria-selected={documentView === item.id}
+                key={item.id}
+                onClick={() => setDocumentView(item.id)}
+                onKeyDown={handleRovingTabKey}
+                role="tab"
+                tabIndex={documentView === item.id ? 0 : -1}
+                type="button"
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
+          {documentView === 'topology' ? (
+            <>
+              <div className="studio-document-owner">
+                <strong>topology.yaml</strong>
+                <span>Object identity and geometry</span>
+              </div>
+              <section className="studio-field-group">
+                <h3>Identity</h3>
+                <label className="studio-field">
+                  <span>{identityLabel}</span>
+                  <input
+                    aria-label={identityLabel}
+                    key={identityValue}
+                    defaultValue={identityValue}
+                    onBlur={(event) => onCommit([...objectPath, identityKey], event.target.value, objectPath)}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter') {
+                        event.preventDefault();
+                        event.currentTarget.blur();
+                      }
+                      if (event.key === 'Escape') {
+                        event.currentTarget.value = identityValue;
+                        event.currentTarget.blur();
+                      }
+                    }}
+                  />
+                </label>
+                <label className="studio-field">
+                  <span>ID</span>
+                  <input aria-label="ID" readOnly value={selection.id} />
+                </label>
+              </section>
+              {position ? <PositionEditor objectPath={objectPath} onCommit={onCommit} position={position} /> : null}
+            </>
+          ) : null}
+          {documentView === 'mapper' ? (
+            <section className="studio-inspector-mapper" aria-label="Mapper ownership">
+              <div className="studio-document-owner">
+                <strong>mapper.yaml</strong>
+                <span>Telemetry rules map runtime samples to stable topology objects.</span>
+              </div>
+              <p>Mapper rules are shared contracts, so they are edited in the telemetry workspace rather than stored on this object.</p>
+              <button onClick={onOpenMapper} type="button">Open mapper workspace</button>
+            </section>
+          ) : null}
+          {documentView === 'style' && target ? (
             <section className="studio-style-inspector" aria-label={`${target} style fields`}>
+              <div className="studio-document-owner">
+                <strong>{editScope.kind === 'object' ? 'topology.yaml' : 'stylesheet.yaml'}</strong>
+                <span>{editScope.kind === 'object' ? 'Selected object style override' : 'Reusable selector rule'}</span>
+              </div>
               <section className="studio-edit-scope" aria-label="Style edit scope">
                 <label>Edit scope
                   <select aria-label="Edit scope" onChange={(event) => setEditScopeKey(event.target.value)} value={editScopeKey}>
@@ -577,10 +637,13 @@ export function Inspector({
                 <SearchIcon fontSize="small" />
                 <input aria-label="Search style fields" onChange={(event) => setQuery(event.target.value)} placeholder="Search fields" type="search" value={query} />
               </label>
-              <div className="studio-inspector-profile-actions">
-                <label><input checked={showHidden} onChange={(event) => setShowHidden(event.target.checked)} type="checkbox" />Show hidden</label>
-                <button aria-label="Reset field profile" onClick={onResetProfile} title="Reset field profile" type="button"><RestartAltIcon fontSize="small" /></button>
-              </div>
+              <details className="studio-inspector-profile-actions">
+                <summary>Customize fields</summary>
+                <div>
+                  <label><input checked={showHidden} onChange={(event) => setShowHidden(event.target.checked)} type="checkbox" />Show hidden</label>
+                  <button aria-label="Reset field profile" onClick={onResetProfile} title="Reset field profile" type="button"><RestartAltIcon fontSize="small" />Reset</button>
+                </div>
+              </details>
               <div className="studio-generated-fields" data-field-count={filteredFields.length} data-rendered-field-count={displayedFields.length}>
                 {[...groups.entries()].map(([group, fields]) => (
                   <section className="studio-field-group" key={group}>
@@ -623,8 +686,8 @@ export function Inspector({
                     <button
                       aria-label={`Open ${key} in YAML`}
                       key={key}
-                      onClick={() => onOpenSource('topology', [...objectPath, 'style', key])}
-                      title="Open in topology YAML"
+                      onClick={() => openUnsupportedStyleField(key)}
+                      title={`Open in ${editScope.kind === 'rule' ? 'stylesheet' : 'topology'} YAML`}
                       type="button"
                     >
                       <code>{key}</code>
@@ -634,6 +697,9 @@ export function Inspector({
                 </section>
               ) : null}
             </section>
+          ) : null}
+          {documentView === 'style' && !target ? (
+            <div className="studio-inspector-empty"><span>This object has no stylesheet target.</span></div>
           ) : null}
         </div>
       )}

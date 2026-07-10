@@ -135,7 +135,7 @@ shall verify the browser workflow in Chromium, Firefox, and WebKit.
 #### Scenario: Run the golden authoring journey
 
 - **WHEN** the shared Playwright journey runs in each supported browser and host
-- **THEN** it creates nodes and a link, edits Basic and Advanced style, builds a
+- **THEN** it creates nodes and a link, edits Basic and All style, builds a
   mapper rule, recovers invalid YAML, uses undo/redo, reloads, exports, and re-
   imports successfully
 - **AND** the exported bundle renders in a runtime consumer fixture
@@ -166,4 +166,3 @@ full local CI, remote CI, documentation, and rollback requirements are complete.
   parity, or CI gate fails
 - **THEN** Studio remains opt-in and experimental
 - **AND** the existing public authoring route is not removed
-

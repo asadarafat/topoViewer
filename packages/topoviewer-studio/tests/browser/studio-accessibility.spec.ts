@@ -57,8 +57,8 @@ test('passes automated accessibility checks in every major authoring state', asy
   await expect(page.locator('.react-flow__node[data-id="router-1"]')).toHaveAccessibleName('node New Router');
   await expectNoBlockingViolations(page, 'selected object and Inspector');
 
-  await page.getByRole('button', { name: 'Viewport settings' }).click();
-  await expectNoBlockingViolations(page, 'viewport settings and layers');
+  await page.getByRole('button', { name: 'Layers', exact: true }).click();
+  await expectNoBlockingViolations(page, 'layers');
   await page.getByRole('button', { name: /^Delete .* layer$/ }).first().click();
   await expectNoBlockingViolations(page, 'layer deletion confirmation');
   await page.getByRole('alertdialog').getByRole('button', { name: 'Cancel' }).click();
@@ -110,6 +110,7 @@ test('supports the primary authoring workflow without pointer input', async ({ p
   await expect(liveAnnouncement(page)).toContainText('Create link');
 
   await selectByKeyboard(page, 'node-1');
+  await page.getByRole('tab', { name: 'Styles' }).click();
   const width = page.getByRole('spinbutton', { name: 'Body width' });
   const originalWidth = Number(await width.inputValue());
   await page.getByTestId('studio-canvas').focus();
@@ -149,16 +150,16 @@ test('supports the primary authoring workflow without pointer input', async ({ p
   await expect(liveAnnouncement(page)).toContainText('Project saved');
 });
 
-test('announces valid and invalid native connection targets without color dependence', async ({ page }) => {
+test('announces parallel and invalid native connection targets without color dependence', async ({ page }) => {
   await page.goto('/');
   await createByKeyboard(page, 'node');
   await createByKeyboard(page, 'node');
   const source = page.locator('.react-flow__node[data-id="node-1"] .topoviewer-node-handle-default');
   const target = page.locator('.react-flow__node[data-id="node-2"] .topoviewer-node-handle-default-target');
 
-  async function dragConnection() {
+  async function dragConnection(targetHandle = target) {
     const sourceBox = await source.boundingBox();
-    const targetBox = await target.boundingBox();
+    const targetBox = await targetHandle.boundingBox();
     if (!sourceBox || !targetBox) throw new Error('Connection handles are not measurable.');
     await page.mouse.move(sourceBox.x + sourceBox.width / 2, sourceBox.y + sourceBox.height / 2);
     await page.mouse.down();
@@ -171,9 +172,22 @@ test('announces valid and invalid native connection targets without color depend
   await expect(page.locator('.react-flow__edge')).toHaveCount(1);
 
   await dragConnection();
-  await expect(liveAnnouncement(page)).toContainText('Invalid or duplicate connection from node-1 to node-2');
   await page.mouse.up();
-  await expect(page.locator('.react-flow__edge')).toHaveCount(1);
+  await expect(page.locator('.react-flow__edge')).toHaveCount(2);
+
+  await page.getByTestId('palette-callout').dragTo(page.getByTestId('studio-canvas'), { targetPosition: { x: 140, y: 320 } });
+  await page.getByTestId('palette-callout').dragTo(page.getByTestId('studio-canvas'), { targetPosition: { x: 440, y: 320 } });
+  const calloutSource = page.locator('.react-flow__node[data-id="callout-1"] .react-flow__handle-right');
+  const calloutTarget = page.locator('.react-flow__node[data-id="callout-2"] .react-flow__handle-left');
+  const calloutSourceBox = await calloutSource.boundingBox();
+  const calloutTargetBox = await calloutTarget.boundingBox();
+  if (!calloutSourceBox || !calloutTargetBox) throw new Error('Callout handles are not measurable.');
+  await page.mouse.move(calloutSourceBox.x + calloutSourceBox.width / 2, calloutSourceBox.y + calloutSourceBox.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(calloutTargetBox.x + calloutTargetBox.width / 2, calloutTargetBox.y + calloutTargetBox.height / 2, { steps: 8 });
+  await expect(liveAnnouncement(page)).toContainText('Invalid connection from callout-1 to callout-2');
+  await page.mouse.up();
+  await expect(page.locator('.react-flow__edge')).toHaveCount(2);
 });
 
 test('contains and restores focus across dialogs, drawers, tabs, and presentation', async ({ page }) => {
@@ -220,6 +234,7 @@ test('contains and restores focus across dialogs, drawers, tabs, and presentatio
 test('associates validation errors and exposes non-color status text', async ({ page }) => {
   await page.goto('/');
   await createByKeyboard(page, 'node');
+  await page.getByRole('tab', { name: 'Styles' }).click();
   const width = page.getByRole('spinbutton', { name: 'Body width' });
   await width.fill('1.2');
   await width.blur();

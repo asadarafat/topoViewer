@@ -240,12 +240,12 @@ promotes a reviewed asset into documentation.
 
 - [x] 9.1 Write generated-form contract tests for every style value type, nested
   object, condition, target kind, unset/default behavior, and specialized editor
-- [x] 9.2 Implement Basic, Advanced, All, and Modified field views with search,
-  grouping, virtualized long lists where measured necessary, and stable focus
+- [x] 9.2 Implement Basic and All field views with search, grouping, virtualized
+  long lists where measured necessary, and stable focus
 - [x] 9.3 Implement generic accessible controls and reviewed specialized editors
   using canonical metadata
-- [x] 9.4 Implement user promote, demote, hide, reorder, reset, version, and profile
-  migration as preferences independent of project YAML
+- [x] 9.4 Implement user add/remove-Basic, hide, reorder, reset, version, and
+  profile migration as contextual preferences independent of project YAML
 - [x] 9.5 Add core style-resolution provenance that reports winner, source range,
   overridden contributors, default origin, and runtime contribution
 - [x] 9.6 Implement Inspector provenance display and explicit edit scopes for
@@ -423,7 +423,7 @@ promotes a reviewed asset into documentation.
 - [x] 17.3 Profile active drag with 2, 100, and 1,000 nodes and fix helper-line,
   snap, label-layout, selector, persistence, and validation work outside the
   interaction-critical path
-- [x] 17.4 Profile complete Basic/Advanced/All metadata forms and add memoized
+- [x] 17.4 Profile complete Basic/All metadata forms and add memoized
   selectors or virtualization only where measurement justifies them
 - [x] 17.5 Profile mapper sample ingestion and coverage at documented small,
   typical, and maximum cardinalities; move blocking work off the main thread
@@ -449,7 +449,7 @@ promotes a reviewed asset into documentation.
 - [x] 18.4 Add generated-content and dependency-boundary guards so docs, metadata,
   examples, and package ownership cannot drift
 - [x] 18.5 Add canonical user docs under nav-aligned physical paths for first
-  project, palette/direct manipulation, Inspector Basic/Advanced, style
+  project, palette/direct manipulation, Inspector Basic/All, style
   provenance, YAML recovery, mapper authoring, browser projects, VS Code, export,
   security, accessibility, troubleshooting, and migration
 - [x] 18.6 Remove page-local “Next Steps” blocks and rely on the canonical nav in
@@ -472,9 +472,16 @@ promotes a reviewed asset into documentation.
 
 - [x] 19.1 Publish Studio as an opt-in experimental route with a feedback path and
   no redirect from `/harness/`
+- [x] 19.1.1 Record maintainer-submitted preview findings #85-#92 as internal
+  product feedback without counting them as independent adoption cohorts
+- [x] 19.1.2 Remediate the internal preview findings for parallel links, callout
+  leaders, Inspector ownership/density, direct Layers access, and canonical
+  palette families with focused regression evidence
+- [ ] 19.1.3 Re-run Studio quality, browser, accessibility, performance, bundle,
+  docs, and strict OpenSpec gates before requesting independent preview sessions
 - [ ] 19.2 Run a structured adoption preview with new and experienced TopoViewer
-  users using the primary journey; record failures, hesitation, gesture count,
-  recovery behavior, and unsupported expectations
+  users using the primary journey; record independently attributable failures,
+  hesitation, gesture count, recovery behavior, and unsupported expectations
 - [ ] 19.3 Fix release-blocking usability, data-loss, blank-canvas, accessibility,
   security, performance, and host-parity findings and rerun affected gates
 - [ ] 19.4 Complete two release cycles without data-loss, unrecoverable

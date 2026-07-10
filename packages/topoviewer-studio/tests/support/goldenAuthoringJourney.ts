@@ -44,8 +44,9 @@ export async function runGoldenAuthoringJourney(page: Page, options: GoldenAutho
 
   await firstNode.click();
   const inspector = await openInspectorWhenCollapsed(page);
+  await inspector.getByRole('tab', { name: 'Styles' }).click();
   await inspector.getByRole('combobox', { name: 'Shape' }).selectOption('roundRectangle');
-  await inspector.getByRole('tab', { name: 'Advanced' }).click();
+  await inspector.getByRole('tab', { name: 'All' }).click();
   await inspector.getByRole('searchbox', { name: 'Search style fields' }).fill('outline width');
   const outline = inspector.getByRole('spinbutton', { name: 'Outline width' });
   await outline.fill('5');

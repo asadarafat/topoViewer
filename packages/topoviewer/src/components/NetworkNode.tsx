@@ -122,7 +122,7 @@ function RenderDefaultConnectionHandles() {
       <Handle
         className="topoviewer-node-handle topoviewer-node-handle-default-target"
         aria-hidden="true"
-        title="Target endpoint. Self-links and duplicate links are rejected."
+        title="Target endpoint. Self-links are rejected."
         type="target"
         position={Position.Left}
       />

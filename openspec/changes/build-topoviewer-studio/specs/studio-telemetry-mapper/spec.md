@@ -67,8 +67,8 @@ for the selected target object kind.
 - **WHEN** a mapper rule targets links and a user edits a state style
 - **THEN** Studio displays fields compatible with links and link directions
 - **AND** rejects node-only or region-only style fields
-- **AND** uses the same labels, controls, validation, and Basic/Advanced profile
-  as ordinary stylesheet authoring
+- **AND** uses the same canonical labels, controls, validation, and Basic-field
+  eligibility as ordinary stylesheet authoring
 
 ### Requirement: Sample-driven rule inference
 
@@ -120,4 +120,3 @@ topology and stylesheet editing.
 - **WHEN** a mapper contains an unknown extension field
 - **THEN** Studio preserves it through unrelated structured edits
 - **AND** identifies that field as unsupported by the current visual editor
-

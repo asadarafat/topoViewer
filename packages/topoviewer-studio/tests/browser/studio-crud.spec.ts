@@ -31,17 +31,17 @@ async function dragTemplate(
   await page.getByTestId(`palette-${id}`).dragTo(page.getByTestId('studio-canvas'), { targetPosition: position });
 }
 
-test('creates topology, annotation, structure, asset, and user-preset objects', async ({ page }) => {
+test('creates node, annotation, structure, and user-preset objects', async ({ page }) => {
   await page.goto('/');
 
   await dragTemplate(page, 'node', { x: 120, y: 160 });
   await dragTemplate(page, 'shape', { x: 280, y: 160 });
   await dragTemplate(page, 'callout', { x: 440, y: 160 });
-  await dragTemplate(page, 'asset-router', { x: 600, y: 160 });
+  await dragTemplate(page, 'router', { x: 600, y: 160 });
   await expect(page.locator('.react-flow__node')).toHaveCount(4);
 
   await page.getByRole('button', { name: 'Save selection as preset' }).click();
-  await expect(page.getByRole('button', { name: 'Add Router Icon preset' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Add New Router preset' })).toBeVisible();
   await dragTemplate(page, 'preset:preset-1', { x: 600, y: 340 });
   await expect(page.locator('.react-flow__node')).toHaveCount(5);
 
@@ -88,7 +88,7 @@ test('connects in reverse with native handles and stores normalized endpoints', 
   await expectSourceContains(page, 'target: node-2');
 });
 
-test('rejects invalid native connections before they mutate the graph', async ({ page }) => {
+test('rejects self-links while allowing parallel native links', async ({ page }) => {
   await page.goto('/');
   await page.getByTestId('palette-node').click();
   await page.getByTestId('palette-node').click();
@@ -98,7 +98,7 @@ test('rejects invalid native connections before they mutate the graph', async ({
   const nodeTwoTarget = page.locator('.react-flow__node[data-id="node-2"] .topoviewer-node-handle-default-target');
   await expect(nodeOneSource).toHaveCSS('border-radius', '50%');
   await expect(nodeOneTarget).toHaveCSS('border-radius', '2px');
-  await expect(nodeOneTarget).toHaveAttribute('title', /Self-links and duplicate links are rejected/);
+  await expect(nodeOneTarget).toHaveAttribute('title', /Self-links are rejected/);
 
   async function connect(source: import('@playwright/test').Locator, target: import('@playwright/test').Locator) {
     const sourceBox = await source.boundingBox();
@@ -128,11 +128,48 @@ test('rejects invalid native connections before they mutate the graph', async ({
   await expect(page.locator('.react-flow__edge')).toHaveCount(1);
 
   release = await connect(nodeOneSource, nodeTwoTarget);
-  await expect(nodeTwoTarget).not.toHaveClass(/\bvalid\b/);
+  await expect(nodeTwoTarget).toHaveClass(/\bvalid\b/);
   await release();
-  await expect(page.locator('.react-flow__edge')).toHaveCount(1);
+  await expect(page.locator('.react-flow__edge')).toHaveCount(2);
+  const parallelPaths = await page.locator('.react-flow__edge path.react-flow__edge-path').evaluateAll((paths) => (
+    paths.map((path) => path.getAttribute('d'))
+  ));
+  expect(new Set(parallelPaths).size).toBe(2);
   await openSource(page);
-  await expectSourceContains(page, 'id: link-2', false);
+  await expectSourceContains(page, 'id: link-2');
+});
+
+test('connects a callout to a node through the canonical leader target', async ({ page }) => {
+  await page.goto('/');
+  await dragTemplate(page, 'callout', { x: 140, y: 180 });
+  await dragTemplate(page, 'node', { x: 500, y: 180 });
+  await dragTemplate(page, 'callout', { x: 500, y: 380 });
+
+  const calloutSource = page.locator('.react-flow__node[data-id="callout-1"] .react-flow__handle-right');
+  const nodeTarget = page.locator('.react-flow__node[data-id="node-1"] .topoviewer-node-handle-default-target');
+  const sourceBox = await calloutSource.boundingBox();
+  const targetBox = await nodeTarget.boundingBox();
+  if (!sourceBox || !targetBox) throw new Error('Callout connection handles are not measurable.');
+  await page.mouse.move(sourceBox.x + sourceBox.width / 2, sourceBox.y + sourceBox.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(targetBox.x + targetBox.width / 2, targetBox.y + targetBox.height / 2, { steps: 8 });
+  await page.mouse.up();
+
+  await expect(page.locator('.react-flow__edge[data-id="callout-1:leader"]')).toHaveCount(1);
+  const nodeSource = page.locator('.react-flow__node[data-id="node-1"] .topoviewer-node-handle-default');
+  const secondCalloutTarget = page.locator('.react-flow__node[data-id="callout-2"] .react-flow__handle-left');
+  const nodeSourceBox = await nodeSource.boundingBox();
+  const secondCalloutTargetBox = await secondCalloutTarget.boundingBox();
+  if (!nodeSourceBox || !secondCalloutTargetBox) throw new Error('Reverse callout connection handles are not measurable.');
+  await page.mouse.move(nodeSourceBox.x + nodeSourceBox.width / 2, nodeSourceBox.y + nodeSourceBox.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(secondCalloutTargetBox.x + secondCalloutTargetBox.width / 2, secondCalloutTargetBox.y + secondCalloutTargetBox.height / 2, { steps: 8 });
+  await page.mouse.up();
+  await expect(page.locator('.react-flow__edge[data-id="callout-2:leader"]')).toHaveCount(1);
+
+  await openSource(page);
+  await expectSourceContains(page, 'target: node-1');
+  await expectSourceContains(page, 'id: link-1', false);
 });
 
 test('supports selection CRUD, clipboard, layout actions, history, and scoped shortcuts', async ({ page }) => {
@@ -209,6 +246,7 @@ test('resizes a selected node through the native resize handles', async ({ page 
 
   const handle = page.locator('.react-flow__node[data-id="node-1"] .topoviewer-resize-handle.bottom.right');
   await expect(handle).toBeVisible();
+  await page.getByRole('tab', { name: 'Styles' }).click();
   const before = await page.getByRole('spinbutton', { name: 'Body width' }).inputValue();
   const box = await handle.boundingBox();
   if (!box) throw new Error('Resize handle is not measurable.');

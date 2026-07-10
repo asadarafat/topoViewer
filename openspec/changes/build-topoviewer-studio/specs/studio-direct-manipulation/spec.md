@@ -26,6 +26,14 @@ directly onto the canvas to create topology and annotation objects.
 - **THEN** Studio provides an equivalent choose-and-place workflow
 - **AND** the resulting object and history behavior match pointer creation
 
+#### Scenario: Browse canonical object families
+
+- **WHEN** a user browses the palette
+- **THEN** templates are grouped under their canonical object family
+- **AND** Basic and styled variants remain within that family
+- **AND** a styled template such as Router creates a valid node backed by a
+  declared local icon rather than appearing as an unrelated asset object
+
 ### Requirement: Direct graph relationship authoring
 
 Studio SHALL use visible React Flow connection affordances and graph-semantic
@@ -39,6 +47,19 @@ validation for relationship creation without requiring a permanent link mode.
 - **AND** normalizes identity and geometry deterministically where direction is
   not semantically significant
 - **AND** preserves explicit direction where the model requires it
+
+#### Scenario: Create parallel links
+
+- **WHEN** a user repeats a valid connection between the same two nodes
+- **THEN** Studio creates another link with a collision-free stable ID
+- **AND** the runtime renders deterministic parallel lanes
+- **AND** graph reachability continues to treat the endpoints as connected
+
+#### Scenario: Attach a callout leader
+
+- **WHEN** a user connects a callout and a node in either gesture direction
+- **THEN** Studio writes the node as the callout's canonical leader target
+- **AND** does not create a graph link for the annotation relationship
 
 #### Scenario: Reject an invalid connection
 
@@ -115,6 +136,10 @@ Studio SHALL provide clipboard, duplicate, delete, align, distribute, nudge,
 resize, undo, redo, and contextual actions without requiring modal dialogs for
 routine reversible work.
 
+Layer operations SHALL be available from a dedicated Layers control on the
+canvas toolbar and SHALL reuse the canonical layer controller rather than being
+hidden inside general viewport settings.
+
 #### Scenario: Duplicate and place an object
 
 - **WHEN** a user duplicates a selected object
@@ -128,4 +153,3 @@ routine reversible work.
 - **WHEN** keyboard focus is inside a text or Monaco editor
 - **THEN** canvas shortcuts do not intercept normal editing commands unless the
   shortcut is explicitly scoped and documented for that editor
-

@@ -44,29 +44,28 @@ async function sampled(operation: (index: number) => Promise<number>) {
   return summarizeBrowserSamples(values);
 }
 
-test('profiles complete Basic, Advanced, and All Inspector forms', async ({ page }) => {
+test('profiles complete Basic and All Inspector forms', async ({ page }) => {
   await page.goto('./?__studio-test-state=performance-2');
   const inspector = page.getByRole('complementary', { name: 'Inspector' });
   const nodeOne = page.locator('.react-flow__node[data-id="dense-1"]');
   const nodeTwo = page.locator('.react-flow__node[data-id="dense-2"]');
   await expect(nodeOne).toBeVisible();
   await nodeOne.click();
+  await inspector.getByRole('tab', { name: 'Styles' }).click();
 
   const renderCount = async () => Number(await inspector.getAttribute('data-render-count'));
   const fieldContainer = inspector.locator('.studio-generated-fields');
   const profileCounts: Record<string, number> = {};
-  for (const name of ['Basic', 'Advanced', 'All'] as const) {
+  for (const name of ['Basic', 'All'] as const) {
     await inspector.getByRole('tab', { name }).click();
     profileCounts[name.toLowerCase()] = Number(await fieldContainer.getAttribute('data-field-count'));
   }
   expect(profileCounts.basic).toBeGreaterThan(0);
-  expect(profileCounts.advanced).toBeGreaterThan(0);
   expect(profileCounts.all).toBeGreaterThanOrEqual(profileCounts.basic);
-  expect(profileCounts.all).toBeGreaterThanOrEqual(profileCounts.advanced);
 
   const initialRenders = await renderCount();
   let interactionCount = 0;
-  const measureTab = async (targetName: 'Basic' | 'Advanced' | 'All', resetName: 'Basic' | 'Advanced') => {
+  const measureTab = async (targetName: 'Basic' | 'All', resetName: 'Basic' | 'All') => {
     const target = inspector.getByRole('tab', { name: targetName });
     const reset = inspector.getByRole('tab', { name: resetName });
     return sampled(async () => {
@@ -78,12 +77,11 @@ test('profiles complete Basic, Advanced, and All Inspector forms', async ({ page
     });
   };
 
-  await inspector.getByRole('tab', { name: 'Advanced' }).click();
+  await inspector.getByRole('tab', { name: 'All' }).click();
   interactionCount += 1;
-  const basic = await measureTab('Basic', 'Advanced');
+  const basic = await measureTab('Basic', 'All');
   await inspector.getByRole('tab', { name: 'Basic' }).click();
   interactionCount += 1;
-  const advanced = await measureTab('Advanced', 'Basic');
   const all = await measureTab('All', 'Basic');
 
   await inspector.getByRole('tab', { name: 'All' }).click();
@@ -126,7 +124,7 @@ test('profiles complete Basic, Advanced, and All Inspector forms', async ({ page
     interactions: interactionCount,
     perInteraction: (finalRenders - initialRenders) / interactionCount
   };
-  const interactions = { advanced, all, basic, color, search, selection };
+  const interactions = { all, basic, color, search, selection };
   const failures: string[] = [];
   for (const [name, series] of Object.entries(interactions)) {
     try {

@@ -25,7 +25,7 @@ npm --workspace vscode-topoviewer run test:studio-host
 npm --workspace vscode-topoviewer run test:unit
 ```
 
-The golden host test creates nodes and a link, edits Basic and Advanced style,
+The golden host test creates nodes and a link, edits Basic and All style,
 authors a mapper rule, recovers invalid YAML, saves through the workspace
 protocol, and validates an exported archive through the core runtime.
 

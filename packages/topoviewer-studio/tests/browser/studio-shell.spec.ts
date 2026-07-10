@@ -39,6 +39,20 @@ test('authors, edits, restores, saves, and reloads one node through the canvas-f
   await expect(page.getByText('Core Router', { exact: true })).toBeVisible();
 });
 
+test('groups palette templates by canonical object family and renders an SVG router preset', async ({ page }) => {
+  await page.goto('/');
+  const palette = page.getByRole('complementary', { name: 'Object palette' });
+  for (const family of ['Nodes', 'Paths', 'Regions', 'Shapes', 'Callouts']) {
+    await expect(palette.getByRole('heading', { name: family })).toBeVisible();
+  }
+  await expect(palette.getByRole('heading', { name: 'Topology' })).toHaveCount(0);
+  await expect(palette.getByRole('heading', { name: 'Assets' })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Add Basic node' })).toBeVisible();
+  await page.getByTestId('palette-router').click();
+  const router = page.locator('.react-flow__node[data-id="router-1"]');
+  await expect(router.locator('.topoviewer-node-icon-image')).toHaveAttribute('src', /^data:image\/svg\+xml/);
+});
+
 test('searches, creates by keyboard, and collapses desktop panels', async ({ page }) => {
   await page.goto('/');
 

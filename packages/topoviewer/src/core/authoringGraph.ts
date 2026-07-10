@@ -522,6 +522,26 @@ export function authoringObjectSourcePath(
   return undefined;
 }
 
+export function planAuthoringCalloutAttachment(
+  document: Record<string, unknown> | TopoDocument,
+  calloutId: string,
+  targetNodeId: string
+): AuthoringEditPlan {
+  const callout = sourceEntry(document, { id: calloutId, kind: 'callout' });
+  if (!callout) throw new Error(`Callout "${calloutId}" does not exist.`);
+  const target = sourceEntry(document, { id: targetNodeId, kind: 'node' });
+  if (!target) throw new Error(`Callout target node "${targetNodeId}" does not exist.`);
+  return {
+    insertions: [],
+    removals: [],
+    updates: [{
+      path: [...callout.scopePath, 'target'],
+      scopePath: callout.scopePath,
+      value: targetNodeId
+    }]
+  };
+}
+
 function uniqueAuthoringSelections(selections: AuthoringObjectSelection[]) {
   const seen = new Set<string>();
   return selections.filter((selection) => {

@@ -102,6 +102,7 @@ export {
   pathSegmentsWithoutReachability,
   pasteAuthoringClipboard,
   planAuthoringAlignment,
+  planAuthoringCalloutAttachment,
   planAuthoringDeletion,
   planAuthoringDistribution,
   planAuthoringPositionDelta,

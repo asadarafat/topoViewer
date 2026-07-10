@@ -59,7 +59,7 @@ nav:
           - Overview: topoviewer/author/studio/index.md
           - First Project: topoviewer/author/studio/first-project.md
           - Palette And Direct Manipulation: topoviewer/author/studio/palette-and-direct-manipulation.md
-          - Inspector Basic And Advanced: topoviewer/author/studio/inspector-basic-and-advanced.md
+          - Inspector Basic And All: topoviewer/author/studio/inspector-basic-and-all.md
           - Style Provenance: topoviewer/author/studio/style-provenance.md
           - YAML Recovery: topoviewer/author/studio/yaml-recovery.md
           - Telemetry Mapper: topoviewer/author/studio/telemetry-mapper.md

@@ -44,12 +44,12 @@ remains available while Studio completes preview-release and cutover gates.
 
 ## Workspace Areas
 
-- **Object palette:** searchable node, path, region, annotation, asset, and
-  preset templates.
+- **Object palette:** searchable canonical object families with basic, styled,
+  and user-preset templates.
 - **Topology canvas:** selection, connection, movement, resize, grouping,
   alignment, layers, overlays, and presentation.
-- **Inspector:** object facts and generated Basic, Advanced, All, and Modified
-  style controls.
+- **Inspector:** explicit Topology, Styles, and Mapper ownership with generated
+  Basic and All style controls, provenance, and edit scope.
 - **Workspace drawer:** lazy topology, stylesheet, and mapper YAML editors with
   diagnostics and recovery actions.
 - **Telemetry mapper:** optional mapper rules, local sample analysis, coverage,

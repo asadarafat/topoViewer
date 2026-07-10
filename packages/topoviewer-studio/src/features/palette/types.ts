@@ -16,5 +16,4 @@ export type StudioPaletteTemplateId =
   | 'callout'
   | 'path'
   | 'region'
-  | 'asset-router'
   | `preset:${string}`;

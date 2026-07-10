@@ -7,12 +7,12 @@ portable two-node topology.
 
 ## Create The Graph
 
-1. Drag **Node** from the Object palette onto the canvas twice.
+1. Drag **Basic node** from the **Nodes** palette family onto the canvas twice.
 2. Select the first node, then add the second node to the selection with
    `Ctrl+click` or `Cmd+click`.
 3. Choose **Connect selected nodes** from the canvas toolbar.
-4. Select a node and change **Name** in the Inspector.
-5. In the Basic style profile, change **Shape** to `roundRectangle`.
+4. Select a node and change **Name** under **Topology** in the Inspector.
+5. Open **Styles** and change **Shape** to `roundRectangle` in Basic.
 6. Select **Save project**.
 
 The footer reports the current host and source document. The header status

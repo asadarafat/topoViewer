@@ -8,9 +8,12 @@ template and press `Enter` to place it at a deterministic visible position.
 
 ## Object Families
 
-The palette creates nodes, paths, regions, shapes, callouts, local assets, and
-saved presets. Nodes and links join the `physical` layer by default. Paths use
-the `paths` layer. Shapes and callouts use the `annotations` layer.
+The palette is grouped by canonical object family: Nodes, Paths, Regions,
+Shapes, Callouts, and saved Presets. Each family contains compatible templates.
+For example, **Basic node** creates an unopinionated node while **Router**
+creates a node backed by the starter bundle's SVG router icon. Nodes and links
+join the `physical` layer by default. Paths use the `paths` layer. Shapes and
+callouts use the `annotations` layer.
 
 Creating a path does not invent missing graph reachability. Select a connected
 sequence or use deterministic shortest-path creation. Studio blocks a path when
@@ -21,7 +24,10 @@ the required links do not exist.
 - Drag a node or annotation to move it. Source position commits once on release.
 - Use native resize handles for nodes, regions, shapes, and callouts that expose
   geometry.
-- Drag from a valid connection handle to another node to create a link.
+- Drag from a valid connection handle to another node to create a link. Repeat
+  the gesture to create a parallel link; TopoViewer assigns deterministic lanes.
+- Drag between a callout and a node to attach the callout's canonical leader.
+  This updates the callout target and does not create a graph link.
 - Use marquee selection or additive click for multi-object commands.
 - Copy, cut, paste, duplicate, delete, nudge, align, and distribute selected
   objects from the canvas toolbar or scoped shortcuts.
@@ -31,6 +37,10 @@ the required links do not exist.
 Helper lines and grid snap are transient authoring aids. They affect the final
 position but do not serialize private guide objects. Active drag remains in the
 renderer and writes YAML only after release.
+
+Open **Layers** from its dedicated canvas-toolbar button to create, rename,
+reorder, filter, assign, or safely delete topology layers. Viewport behavior and
+overlay toggles remain under **Viewport settings**.
 
 ## Regions As Groups
 

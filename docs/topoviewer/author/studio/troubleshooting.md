@@ -15,8 +15,10 @@ dependency build.
 
 ## A Link Or Path Was Not Created
 
-A link needs valid source and target nodes. Studio rejects self-links,
-unsupported handles, and duplicate invalid connections before source mutation.
+A link needs valid source and target nodes. Studio rejects self-links and
+unsupported endpoints before source mutation. Repeating a valid connection
+creates a parallel link with its own stable ID and rendered lane. Connecting a
+callout to a node creates a callout leader rather than a graph link.
 A path requires graph reachability through existing links; create the missing
 links or select a reachable traversal first.
 

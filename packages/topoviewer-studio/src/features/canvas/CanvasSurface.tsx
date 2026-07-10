@@ -8,6 +8,7 @@ import ContentPasteIcon from '@mui/icons-material/ContentPaste';
 import ControlPointDuplicateIcon from '@mui/icons-material/ControlPointDuplicate';
 import DeleteIcon from '@mui/icons-material/Delete';
 import FullscreenExitIcon from '@mui/icons-material/FullscreenExit';
+import LayersIcon from '@mui/icons-material/Layers';
 import LinkIcon from '@mui/icons-material/Link';
 import SettingsIcon from '@mui/icons-material/Settings';
 import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
@@ -74,7 +75,7 @@ interface CanvasSurfaceProps {
 }
 
 const builtInTemplateIds = new Set<StudioPaletteTemplateId>([
-  'node', 'router', 'service', 'controller', 'external', 'path', 'region', 'shape', 'callout', 'asset-router'
+  'node', 'router', 'service', 'controller', 'external', 'path', 'region', 'shape', 'callout'
 ]);
 
 function blocksCanvasShortcut(target: EventTarget | null) {
@@ -135,6 +136,7 @@ export function CanvasSurface({
 }: CanvasSurfaceProps) {
   const [contextMenu, setContextMenu] = useState<{ objectId: string; x: number; y: number }>();
   const [regionPreviewId, setRegionPreviewId] = useState<string>();
+  const [layersOpen, setLayersOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [helperLinesEnabled, setHelperLinesEnabled] = useState(true);
   const [snapEnabled, setSnapEnabled] = useState(true);
@@ -342,7 +344,7 @@ export function CanvasSurface({
       connectionAnnouncementFrameRef.current = requestAnimationFrame(() => {
         onAnnouncement(valid
           ? `Valid connection from ${connection.sourceId} to ${connection.targetId}`
-          : `Invalid or duplicate connection from ${connection.sourceId} to ${connection.targetId}`);
+          : `Invalid connection from ${connection.sourceId} to ${connection.targetId}`);
       });
     }
     return valid;
@@ -355,8 +357,9 @@ export function CanvasSurface({
       return;
     }
     if (blocksCanvasShortcut(event.target)) return;
-    if (event.key === 'Escape' && settingsOpen) {
+    if (event.key === 'Escape' && (layersOpen || settingsOpen)) {
       event.preventDefault();
+      setLayersOpen(false);
       setSettingsOpen(false);
       return;
     }
@@ -474,8 +477,24 @@ export function CanvasSurface({
         <button aria-label="Distribute selection vertically" disabled={snapshot.selection.length < 3} onClick={() => distributeSelection('vertical')} title="Distribute vertically" type="button"><SwapVertIcon fontSize="small" /></button>
         <button aria-label="Save selection as preset" disabled={!canCopy} onClick={saveSelectionAsPreset} title="Save as preset" type="button"><BookmarkAddIcon fontSize="small" /></button>
         <span className="studio-toolbar-separator" aria-hidden="true" />
-        <button aria-expanded={settingsOpen} aria-label="Viewport settings" onClick={() => setSettingsOpen((value) => !value)} title="Viewport settings" type="button"><SettingsIcon fontSize="small" /></button>
+        <button aria-expanded={layersOpen} aria-label="Layers" onClick={() => { setSettingsOpen(false); setLayersOpen((value) => !value); }} title="Layers" type="button"><LayersIcon fontSize="small" /></button>
+        <button aria-expanded={settingsOpen} aria-label="Viewport settings" onClick={() => { setLayersOpen(false); setSettingsOpen((value) => !value); }} title="Viewport settings" type="button"><SettingsIcon fontSize="small" /></button>
       </div>
+
+      {layersOpen ? (
+        <div className="studio-canvas-layers" role="dialog" aria-label="Layers">
+          <LayerControls
+            createLayer={createLayer}
+            deleteLayer={deleteLayer}
+            hiddenLayerIds={hiddenLayerIds}
+            renameLayer={renameLayer}
+            reorderLayer={reorderLayer}
+            setHiddenLayerIds={setHiddenLayerIds}
+            setLayerMembership={setLayerMembership}
+            snapshot={snapshot}
+          />
+        </div>
+      ) : null}
 
       {settingsOpen ? (
         <div className="studio-canvas-settings" role="dialog" aria-label="Viewport settings">
@@ -488,16 +507,6 @@ export function CanvasSurface({
               <option value="explicit">Explicit hops</option>
             </select>
           </label>
-          <LayerControls
-            createLayer={createLayer}
-            deleteLayer={deleteLayer}
-            hiddenLayerIds={hiddenLayerIds}
-            renameLayer={renameLayer}
-            reorderLayer={reorderLayer}
-            setHiddenLayerIds={setHiddenLayerIds}
-            setLayerMembership={setLayerMembership}
-            snapshot={snapshot}
-          />
           {overlayDefinitions.length ? (
             <fieldset className="studio-overlay-controls">
               <legend>Overlays</legend>

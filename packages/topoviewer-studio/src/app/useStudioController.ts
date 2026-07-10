@@ -16,9 +16,9 @@ import {
   createBasicMapperRule,
   mapperRuleFromProposal,
   proposeMapperRule,
-  graphHasLinkBetween,
   pasteAuthoringClipboard,
   planAuthoringAlignment,
+  planAuthoringCalloutAttachment,
   planAuthoringDeletion,
   planAuthoringDistribution,
   planAuthoringLayerDeletion,
@@ -216,11 +216,10 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
         ['diagram', 'callouts'], { id: value.id, kind: 'callout' }, value as unknown as Record<string, unknown>
       ));
     }
-    const kind = (templateId === 'asset-router' ? 'router' : templateId) as AuthoringNodeKind;
+    const kind = templateId as AuthoringNodeKind;
     const value = createAuthoringNode(topology, { kind, position: target, selectedLayerIds: ['physical'] });
-    if (templateId === 'asset-router') {
+    if (templateId === 'router') {
       value.icon = 'router.generic';
-      value.name = 'Router Icon';
     }
     return executeEditPlan(`create-${value.id}`, `Create ${value.name}`, insertionPlan(
       ['graph', 'nodes'], { id: value.id, kind: 'node' }, value as unknown as Record<string, unknown>
@@ -338,9 +337,16 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
   function createConnection(connection: TopoViewerConnectionCreate) {
     try {
       const topology = session.snapshot().projection.document;
-      if (graphHasLinkBetween(topology, connection.sourceId, connection.targetId)) {
-        setAnnouncement(`Link between ${connection.sourceId} and ${connection.targetId} already exists`);
-        return true;
+      const source = resolveAuthoringSelection(topology, connection.sourceId);
+      const target = resolveAuthoringSelection(topology, connection.targetId);
+      const callout = source?.kind === 'callout' ? source : target?.kind === 'callout' ? target : undefined;
+      const node = source?.kind === 'node' ? source : target?.kind === 'node' ? target : undefined;
+      if (callout && node) {
+        return executeEditPlan(`attach-${callout.id}-${node.id}`, 'Attach callout leader',
+          planAuthoringCalloutAttachment(topology, callout.id, node.id), [callout as StudioSelection]);
+      }
+      if (source?.kind !== 'node' || target?.kind !== 'node') {
+        throw new Error('Connections require two nodes or one callout and one node.');
       }
       const value = createAuthoringLink(topology, {
         selectedLayerIds: ['physical'],
@@ -365,9 +371,9 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
     const topology = session.snapshot().projection.document;
     const source = resolveAuthoringSelection(topology, connection.sourceId);
     const target = resolveAuthoringSelection(topology, connection.targetId);
-    return source?.kind === 'node'
-      && target?.kind === 'node'
-      && !graphHasLinkBetween(topology, connection.sourceId, connection.targetId);
+    return (source?.kind === 'node' && target?.kind === 'node')
+      || (source?.kind === 'callout' && target?.kind === 'node')
+      || (source?.kind === 'node' && target?.kind === 'callout');
   }
 
   function previewRegionForNode(id: string, position: { x: number; y: number }) {

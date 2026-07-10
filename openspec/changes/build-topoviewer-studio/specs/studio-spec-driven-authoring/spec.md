@@ -24,7 +24,7 @@ authoring level, ordering, conditional visibility, and control hints.
 ### Requirement: Complete generated style controls
 
 Studio SHALL make every applicable public style field discoverable and editable
-through Basic, Advanced, All, or reviewed raw-YAML fallback behavior.
+through Basic, All, or reviewed raw-YAML fallback behavior.
 
 #### Scenario: Inspect Basic fields
 
@@ -47,14 +47,16 @@ through Basic, Advanced, All, or reviewed raw-YAML fallback behavior.
 - **AND** enforces parent conditions and value compatibility
 - **AND** preserves unknown nested keys during unrelated edits
 
-### Requirement: Customizable Basic and Advanced profiles
+### Requirement: Customizable Basic profile
 
-Users SHALL be able to promote, demote, hide, and reorder authoring fields
-without changing the runtime schema or project bundle.
+Users SHALL be able to add fields to Basic, remove them from Basic, hide them,
+and reorder authoring fields without changing the runtime schema or project
+bundle. These infrequent controls SHALL remain behind a contextual field menu
+rather than occupying every field row.
 
-#### Scenario: Promote a field
+#### Scenario: Add a field to Basic
 
-- **WHEN** a user promotes an Advanced field to Basic
+- **WHEN** a user adds a non-Basic field to Basic
 - **THEN** Studio stores a sparse versioned preference override
 - **AND** the field appears in Basic for the applicable object kinds
 - **AND** exported topology and stylesheet files remain unchanged
@@ -70,6 +72,21 @@ without changing the runtime schema or project bundle.
 - **WHEN** canonical field metadata changes between compatible versions
 - **THEN** Studio migrates valid overrides
 - **AND** reports removed or incompatible overrides without blocking the project
+
+### Requirement: Inspector document ownership
+
+Studio SHALL separate topology facts, visual policy, and telemetry mapping in
+the Inspector and SHALL identify the exact YAML document receiving an edit.
+
+#### Scenario: Switch Inspector work areas
+
+- **WHEN** a selected object is inspected
+- **THEN** Topology, Styles, and Mapper are separate work areas
+- **AND** Topology identifies `topology.yaml`
+- **AND** Styles identifies `topology.yaml` for an inline override or
+  `stylesheet.yaml` for a reusable rule
+- **AND** Mapper opens the rule-oriented `mapper.yaml` workspace instead of
+  storing mapper fields on the selected topology object
 
 ### Requirement: Typed and usable controls
 
@@ -133,4 +150,3 @@ does not require normalization.
 - **WHEN** an edit cannot preserve the source representation safely
 - **THEN** Studio previews the normalization diff and reason
 - **AND** requires confirmation before rewriting the affected scope
-

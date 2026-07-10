@@ -60,7 +60,7 @@ The desktop shell consists of four stable areas:
 +----------------+-----------------------------------+------------------+
 | Object Palette | Canvas                            | Inspector        |
 | search/presets | selection, direct manipulation   | selection-aware  |
-| drag sources   | layers and helper-line settings  | Basic/Advanced   |
+| drag sources   | layers and helper-line settings  | document-owned   |
 +----------------+-----------------------------------+------------------+
 | Optional bottom drawer: YAML | Diagnostics | Telemetry | History     |
 +-----------------------------------------------------------------------+
@@ -220,13 +220,11 @@ specialized editor.
 Inspector field views:
 
 - **Basic**: the default task-oriented subset for the selected object;
-- **Advanced**: less common but supported fields for that object;
-- **All**: every applicable public field, searchable by name and description;
-- **Modified**: fields changed in the current edit scope.
+- **All**: every applicable public field, searchable by name and description.
 
-Users can promote, demote, hide, and reorder fields. Overrides are sparse,
-versioned preferences layered over canonical metadata. Reset restores the
-shipped profile without touching topology data.
+Users can add or remove Basic fields, hide, and reorder fields from a contextual
+menu. Overrides are sparse, versioned preferences layered over canonical
+metadata. Reset restores the shipped profile without touching topology data.
 
 Nested contracts such as `nodeLayout` render as grouped controls. Specialized
 editors are allowed for geometry, selector builders, icons/assets, dash arrays,
@@ -436,7 +434,7 @@ The primary Playwright journey is repeated in Chromium, Firefox, and WebKit:
 1. create a project;
 2. drag two nodes from the palette;
 3. connect them;
-4. edit Basic and Advanced style fields;
+4. edit Basic and All style fields;
 5. create and validate a mapper rule from sample telemetry;
 6. edit YAML, introduce and recover from an error;
 7. undo and redo;
@@ -469,4 +467,3 @@ the exported TopoViewer YAML bundle and core runtime, not Studio's internal
 component API. Promotion to supported requires two release cycles without a
 data-loss, blank-canvas, unrecoverable persistence, or host-parity regression,
 plus completion of every gate in this change.
-

@@ -251,6 +251,7 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
         onReorderFieldProfile={controller.reorderFieldProfile}
         onResetProfile={controller.resetAuthoringProfile}
         onCommitStyle={controller.commitStyleInspector}
+        onOpenMapper={() => openDrawer('mapper')}
         onOpenSource={(document, path) => {
           setSourceRequest({ document, path });
           openDrawer('source');

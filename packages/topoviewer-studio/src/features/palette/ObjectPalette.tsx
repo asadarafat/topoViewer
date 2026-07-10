@@ -3,23 +3,22 @@ import SearchIcon from '@mui/icons-material/Search';
 import type { StudioPaletteTemplateId, StudioUserPreset } from './types';
 
 interface PaletteTemplate {
-  category: 'Topology' | 'Structure' | 'Annotations' | 'Assets' | 'Presets';
+  category: 'Nodes' | 'Paths' | 'Regions' | 'Shapes' | 'Callouts' | 'Presets';
   glyph: string;
   id: StudioPaletteTemplateId;
   label: string;
 }
 
 const builtInTemplates: PaletteTemplate[] = [
-  { category: 'Topology', glyph: 'N', id: 'node', label: 'Node' },
-  { category: 'Topology', glyph: 'R', id: 'router', label: 'Router' },
-  { category: 'Topology', glyph: 'S', id: 'service', label: 'Service' },
-  { category: 'Topology', glyph: 'C', id: 'controller', label: 'Controller' },
-  { category: 'Topology', glyph: 'E', id: 'external', label: 'External' },
-  { category: 'Structure', glyph: 'P', id: 'path', label: 'Path' },
-  { category: 'Structure', glyph: 'RG', id: 'region', label: 'Region' },
-  { category: 'Annotations', glyph: 'SH', id: 'shape', label: 'Shape' },
-  { category: 'Annotations', glyph: 'CO', id: 'callout', label: 'Callout' },
-  { category: 'Assets', glyph: 'SVG', id: 'asset-router', label: 'Router icon' }
+  { category: 'Nodes', glyph: 'N', id: 'node', label: 'Basic node' },
+  { category: 'Nodes', glyph: 'R', id: 'router', label: 'Router' },
+  { category: 'Nodes', glyph: 'S', id: 'service', label: 'Service' },
+  { category: 'Nodes', glyph: 'C', id: 'controller', label: 'Controller' },
+  { category: 'Nodes', glyph: 'E', id: 'external', label: 'External' },
+  { category: 'Paths', glyph: 'P', id: 'path', label: 'Basic path' },
+  { category: 'Regions', glyph: 'RG', id: 'region', label: 'Basic region' },
+  { category: 'Shapes', glyph: 'SH', id: 'shape', label: 'Basic shape' },
+  { category: 'Callouts', glyph: 'CO', id: 'callout', label: 'Basic callout' }
 ];
 
 interface ObjectPaletteProps {

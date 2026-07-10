@@ -10,6 +10,7 @@ import {
   createAuthoringShape,
   defaultLayerId,
   planAuthoringAlignment,
+  planAuthoringCalloutAttachment,
   planAuthoringDeletion,
   planAuthoringDistribution,
   planAuthoringPositionDelta,
@@ -119,6 +120,24 @@ describe('shared authoring graph queries', () => {
     expect(createAuthoringCallout(document, { position: { x: 40, y: 50 } })).toMatchObject({
       body: 'Add context', id: 'callout-1', layers: ['annotations'], position: [40, 50], title: 'New Callout'
     });
+  });
+
+  it('plans a callout leader attachment to an existing node', () => {
+    const withCallout: TopoDocument = {
+      ...document,
+      diagram: { callouts: [{ id: 'notice', title: 'Notice', position: [40, 50] }] }
+    };
+    expect(planAuthoringCalloutAttachment(withCallout, 'notice', 'B')).toEqual({
+      insertions: [],
+      removals: [],
+      updates: [{
+        path: ['diagram', 'callouts', 0, 'target'],
+        scopePath: ['diagram', 'callouts', 0],
+        value: 'B'
+      }]
+    });
+    expect(() => planAuthoringCalloutAttachment(withCallout, 'missing', 'B')).toThrow(/does not exist/);
+    expect(() => planAuthoringCalloutAttachment(withCallout, 'notice', 'missing')).toThrow(/does not exist/);
   });
 
   it('creates valid path and region entry objects in compatible layers', () => {

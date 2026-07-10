@@ -243,6 +243,7 @@ Generated from `packages/topoviewer/src/authoring.ts`.
 | `pathSegmentsWithoutDirectLinks` | `./core/authoringGraph` |
 | `pathSegmentsWithoutReachability` | `./core/authoringGraph` |
 | `planAuthoringAlignment` | `./core/authoringGraph` |
+| `planAuthoringCalloutAttachment` | `./core/authoringGraph` |
 | `planAuthoringDeletion` | `./core/authoringGraph` |
 | `planAuthoringDistribution` | `./core/authoringGraph` |
 | `planAuthoringLayerDeletion` | `./core/authoringLayers` |

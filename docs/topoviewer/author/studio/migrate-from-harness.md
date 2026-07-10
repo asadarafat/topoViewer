@@ -24,7 +24,7 @@ migration changes the authoring shell, not the topology model.
 | Inspect | Selection-driven Inspector |
 | YAML | Lazy Workspace drawer |
 | Attention | Inspector/document controls and canvas overlays |
-| Layers | Canvas settings plus layer Inspector controls |
+| Layers | Dedicated Layers button in the canvas toolbar |
 | Download bundle | Project archive and Export panel |
 
 Studio intentionally removes fixture-revert behavior, the permanent resizable
