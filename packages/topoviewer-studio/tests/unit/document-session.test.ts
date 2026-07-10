@@ -208,6 +208,7 @@ describe('Studio document session', () => {
 
   it('appends an object inside one YAML sequence without rewriting the document', () => {
     const session = createStudioDocumentSession(project());
+    const beforeDocument = session.snapshot().projection.document;
     const result = session.insertValue('topology', ['graph', 'nodes'], {
       id: 'P2', name: 'Second core', layers: ['physical'], position: [560, 160]
     });
@@ -217,6 +218,7 @@ describe('Studio document session', () => {
     expect(text).toContain('# topology stays reviewable');
     expect(text).toContain('x-extension: keep-me');
     expect(text).toContain('id: P2');
+    expect(session.snapshot().projection.document).not.toBe(beforeDocument);
     expect(session.snapshot().projection.document.graph?.nodes).toHaveLength(3);
   });
 

@@ -4,7 +4,6 @@ import {
   ConnectionMode,
   ReactFlow,
   ReactFlowProvider,
-  applyNodeChanges,
   useReactFlow,
   useEdgesState,
   useNodesInitialized,
@@ -20,8 +19,15 @@ import { buildAttentionIndex, deriveAggregateGraph } from '../core/attention';
 import { resolveAttentionPresentationCached } from '../core/attention/cache';
 import { assertRendererLimits } from '../core/limits';
 import { layerIds } from '../core/layers';
+import {
+  assertValidPositionOnlyFields,
+  patchCompiledPositions,
+  positionInsensitiveDocumentSignature,
+  supportsPositionOnlyCompile
+} from '../core/incrementalCompile';
 import { migrateTopoToggles } from '../core/migration';
 import { defaultTopoViewerToggles } from '../core/toggles';
+import { validateTopoDocument } from '../core/validation';
 import type { AttentionPresentation, AttentionPresentationResult } from '../core/attention';
 import type {
   CompiledEdge,
@@ -37,7 +43,7 @@ import type {
 } from '../core/types';
 import { CalloutNode } from './CalloutNode';
 import { FloatingEdge } from './FloatingEdge';
-import { HelperLinesOverlay } from './HelperLinesOverlay';
+import { createHelperLineStore, HelperLinesOverlay, type HelperLineStore } from './HelperLinesOverlay';
 import { LabelOverlay } from './LabelOverlay';
 import { useEdgeEndpointInternals } from './edgeEndpointInternals';
 import { NetworkNode } from './NetworkNode';
@@ -187,73 +193,6 @@ function applyAttentionToCompiledGraph(graph: CompiledGraph, presentation: Atten
   };
 }
 
-function applySelectionToCompiledGraph(graph: CompiledGraph, selectedObjectIds: string[] | undefined): CompiledGraph {
-  if (!selectedObjectIds?.length) return graph;
-  const selected = new Set(selectedObjectIds);
-  return {
-    ...graph,
-    nodes: graph.nodes.map((node) => {
-      const selectedNode = selected.has(sourceObjectId(node));
-      return selectedNode ? {
-        ...node,
-        selected: true,
-        data: {
-          ...((node.data || {}) as CompiledNodeData),
-          topoviewerSelected: true
-        } as CompiledNodeData
-      } as CompiledNode : node;
-    }),
-    edges: graph.edges.map((edge) => {
-      const selectedEdge = selected.has(sourceObjectId(edge));
-      const data = (edge.data || {}) as CompiledEdgeData;
-      const linkDirections = Array.isArray(data.linkDirections)
-        ? data.linkDirections.map((direction) => {
-          if (!direction || typeof direction !== 'object') return direction;
-          const record = direction as Record<string, unknown>;
-          const selectedDirection = selected.has(String(record.id || ''));
-          return selectedDirection ? {
-            ...record,
-            data: {
-              ...((record.data || {}) as Record<string, unknown>),
-              topoviewerSelected: true
-            }
-          } : direction;
-        })
-        : undefined;
-      return selectedEdge ? {
-        ...edge,
-        selected: true,
-        data: {
-          ...data,
-          ...(linkDirections ? { linkDirections } : {}),
-          topoviewerSelected: true
-        } as CompiledEdgeData
-      } as CompiledEdge : linkDirections ? {
-        ...edge,
-        data: {
-          ...data,
-          linkDirections
-        } as CompiledEdgeData
-      } as CompiledEdge : edge;
-    })
-  };
-}
-
-function applyPreviewToCompiledGraph(graph: CompiledGraph, previewObjectIds: string[] | undefined): CompiledGraph {
-  if (!previewObjectIds?.length) return graph;
-  const previewed = new Set(previewObjectIds);
-  return {
-    ...graph,
-    nodes: graph.nodes.map((node) => previewed.has(sourceObjectId(node)) ? {
-      ...node,
-      data: {
-        ...((node.data || {}) as CompiledNodeData),
-        topoviewerPreview: true
-      } as CompiledNodeData
-    } as CompiledNode : node)
-  };
-}
-
 function withRuntimeDirectionHandlers(
   edges: ReturnType<typeof compileTopoGraph>['edges'],
   onObjectClick: TopoViewerProps['onObjectClick']
@@ -295,8 +234,16 @@ function withRuntimeResizeHandlers(
   if (!nodesResizable || !onNodeResizeChange) return nodes;
   return nodes.map((node) => {
     const runtimeNode = node as unknown as Record<string, unknown>;
-    if (runtimeNode.selected !== true || !resizableObjectKind(runtimeNode)) return node;
     const data = (runtimeNode.data || {}) as Record<string, unknown>;
+    if (runtimeNode.selected !== true || !resizableObjectKind(runtimeNode)) {
+      if (!('__topoviewerResizable' in data) && !('__topoviewerOnResizeEnd' in data)) return node;
+      const {
+        __topoviewerOnResizeEnd: _onResizeEnd,
+        __topoviewerResizable: _resizable,
+        ...remainingData
+      } = data;
+      return { ...node, data: remainingData as unknown as CompiledNodeData } as typeof node;
+    }
     return {
       ...node,
       data: {
@@ -373,39 +320,23 @@ function resolveAttentionPresentation(document: TopoDocument, attention: TopoVie
   return resolveAttentionPresentationCached(document, attention || document.attention);
 }
 
-function useHelperLineState() {
-  const [state, setState] = useState<HelperLineState>(emptyHelperLineState);
-  const stateRef = useRef<HelperLineState>(emptyHelperLineState);
-
-  const setStateIfChanged = useCallback((nextState: HelperLineState) => {
-    const current = stateRef.current;
-    const unchanged = current.vertical?.value === nextState.vertical?.value
-      && current.vertical?.kind === nextState.vertical?.kind
-      && current.horizontal?.value === nextState.horizontal?.value
-      && current.horizontal?.kind === nextState.horizontal?.kind;
-    if (unchanged) return;
-    stateRef.current = nextState;
-    setState(nextState);
-  }, []);
-
-  const clearState = useCallback(() => setStateIfChanged(emptyHelperLineState), [setStateIfChanged]);
-
-  return [state, setStateIfChanged, clearState] as const;
-}
-
 function TopoFlow({
   compiled,
+  compileToken,
   document,
+  positionOnlyCompile,
   showRegions,
   controlPanelToggle,
   exportDisabled,
   exportTooltip,
   helperLines,
+  selectedObjectIds,
   previewObjectIds,
   initialViewport,
   nodesDraggable = true,
   nodesResizable = false,
   nodesConnectable = false,
+  onlyRenderVisibleElements = false,
   connectionHandleMode = 'full-node',
   onExport,
   onObjectClick,
@@ -423,17 +354,21 @@ function TopoFlow({
   edgeTypes
 }: {
   compiled: ReturnType<typeof compileTopoGraph>;
+  compileToken: object;
   document: TopoViewerProps['document'];
+  positionOnlyCompile: boolean;
   showRegions: boolean;
   controlPanelToggle?: TopoViewerProps['controlPanelToggle'];
   exportDisabled?: TopoViewerProps['exportDisabled'];
   exportTooltip?: TopoViewerProps['exportTooltip'];
   helperLines?: TopoViewerProps['helperLines'];
+  selectedObjectIds?: TopoViewerProps['selectedObjectIds'];
   previewObjectIds?: TopoViewerProps['previewObjectIds'];
   initialViewport?: TopoViewerProps['initialViewport'];
   nodesDraggable?: TopoViewerProps['nodesDraggable'];
   nodesResizable?: TopoViewerProps['nodesResizable'];
   nodesConnectable?: TopoViewerProps['nodesConnectable'];
+  onlyRenderVisibleElements?: TopoViewerProps['onlyRenderVisibleElements'];
   connectionHandleMode?: TopoViewerProps['connectionHandleMode'];
   onExport?: TopoViewerProps['onExport'];
   onObjectClick?: TopoViewerProps['onObjectClick'];
@@ -458,6 +393,9 @@ function TopoFlow({
     )
   ), [nodesResizable, onNodeResizeChange, onRegionAggregateToggle]);
   const runtimeNodes = useMemo(() => decorateRuntimeNodes(compiled.nodes), [compiled.nodes, decorateRuntimeNodes]);
+  const compiledNodeByRuntimeId = useMemo(() => new Map(
+    compiled.nodes.map((node) => [String(node.id || ''), node])
+  ), [compiled.nodes]);
   const decorateRuntimeEdges = useCallback((sourceEdges: ReturnType<typeof compileTopoGraph>['edges']) => (
     withRuntimeDirectionHandlers(sourceEdges, onObjectClick)
   ), [onObjectClick]);
@@ -469,10 +407,15 @@ function TopoFlow({
   ), [applyRuntimeEdgeChanges, sourceEdgeIds]);
   useEdgeEndpointInternals(compiled.edges);
   const [nodesReadyForInteraction, setNodesReadyForInteraction] = useState(false);
+  const [labelsFrozen, setLabelsFrozen] = useState(false);
   const reactFlow = useReactFlow();
   const nodesInitialized = useNodesInitialized({ includeHiddenNodes: true });
   const helperLineOptions = useMemo(() => normalizeHelperLinesOptions(helperLines), [helperLines]);
-  const [helperLineState, scheduleHelperLineState, clearHelperLines] = useHelperLineState();
+  const helperLineStoreRef = useRef<HelperLineStore>();
+  if (!helperLineStoreRef.current) helperLineStoreRef.current = createHelperLineStore();
+  const helperLineStore = helperLineStoreRef.current;
+  const scheduleHelperLineState = helperLineStore.set;
+  const clearHelperLines = helperLineStore.clear;
   const nodesRef = useRef<HelperLineNodeLike[]>(compiled.nodes as unknown as HelperLineNodeLike[]);
   const snappedPositionsRef = useRef(new Map<string, { x: number; y: number }>());
   const activeDragNodeIdRef = useRef<string | undefined>();
@@ -480,9 +423,32 @@ function TopoFlow({
   const activeDragLatestPositionRef = useRef<{ x: number; y: number } | undefined>();
   const activeHelperLineStateRef = useRef<HelperLineState>(emptyHelperLineState);
   const helperLineCandidateIndexRef = useRef<HelperLineCandidateIndex | undefined>();
+  const labelThawFrameRef = useRef<number>();
+  useEffect(() => () => {
+    if (labelThawFrameRef.current !== undefined) cancelAnimationFrame(labelThawFrameRef.current);
+  }, []);
+  const appliedCompileTokenRef = useRef<object>();
   useEffect(() => {
+    if (positionOnlyCompile && appliedCompileTokenRef.current === compileToken) {
+      const nextById = new Map(runtimeNodes.map((node) => [String(node.id || ''), node]));
+      setNodes((currentNodes) => {
+        let changed = false;
+        const nextNodes = (currentNodes as unknown as Array<Record<string, unknown>>).map((currentNode) => {
+          const nextNode = nextById.get(String(currentNode.id || '')) as unknown as Record<string, unknown> | undefined;
+          if (!nextNode) return currentNode;
+          const currentPosition = runtimeNodePosition(currentNode);
+          const nextPosition = runtimeNodePosition(nextNode);
+          if (sameRuntimePosition(currentPosition, nextPosition)) return currentNode;
+          changed = true;
+          return { ...currentNode, position: nextPosition };
+        });
+        if (changed) nodesRef.current = nextNodes as unknown as HelperLineNodeLike[];
+        return (changed ? nextNodes : currentNodes) as never[];
+      });
+      return;
+    }
+    appliedCompileTokenRef.current = compileToken;
     setEdges(decorateRuntimeEdges(compiled.edges) as never[]);
-    if (activeDragNodeIdRef.current) return;
     setNodes((currentNodes) => {
       const nextNodes = preserveRuntimeNodeMeasurements(runtimeNodes, currentNodes);
       nodesRef.current = nextNodes as unknown as HelperLineNodeLike[];
@@ -495,7 +461,7 @@ function TopoFlow({
     activeHelperLineStateRef.current = emptyHelperLineState;
     helperLineCandidateIndexRef.current = undefined;
     clearHelperLines();
-  }, [clearHelperLines, compiled, decorateRuntimeEdges, runtimeNodes, setEdges, setNodes]);
+  }, [clearHelperLines, compiled, compileToken, decorateRuntimeEdges, positionOnlyCompile, runtimeNodes, setEdges, setNodes]);
   useEffect(() => {
     setNodesReadyForInteraction(false);
     if (!nodesInitialized) return undefined;
@@ -508,10 +474,60 @@ function TopoFlow({
       cancelAnimationFrame(firstFrame);
       cancelAnimationFrame(secondFrame);
     };
-  }, [compiled, nodesInitialized]);
+  }, [compileToken, nodesInitialized]);
   useEffect(() => {
     nodesRef.current = nodes as unknown as HelperLineNodeLike[];
   }, [nodes]);
+
+  useEffect(() => {
+    const selected = new Set(selectedObjectIds || []);
+    setNodes((currentNodes) => {
+      let changed = false;
+      const nextNodes = (currentNodes as unknown as Array<Record<string, unknown>>).map((node) => {
+        const nextSelected = selected.has(sourceObjectId(node));
+        if ((node.selected === true) === nextSelected) return node;
+        changed = true;
+        const sourceNode = compiledNodeByRuntimeId.get(String(node.id || '')) || node;
+        const decorated = decorateRuntimeNodes([
+          { ...sourceNode, selected: nextSelected } as never
+        ])[0];
+        return preserveRuntimeNodeMeasurements([decorated], [node])[0] as Record<string, unknown>;
+      });
+      if (changed) nodesRef.current = nextNodes as unknown as HelperLineNodeLike[];
+      return (changed ? nextNodes : currentNodes) as never[];
+    });
+    setEdges((currentEdges) => {
+      let changed = false;
+      const nextEdges = (currentEdges as unknown as Array<Record<string, unknown>>).map((edge) => {
+        const data = (edge.data || {}) as Record<string, unknown>;
+        let directionChanged = false;
+        const linkDirections = Array.isArray(data.linkDirections)
+          ? data.linkDirections.map((direction) => {
+            if (!direction || typeof direction !== 'object') return direction;
+            const record = direction as Record<string, unknown>;
+            const directionData = (record.data || {}) as Record<string, unknown>;
+            const nextSelected = selected.has(String(record.id || directionData.id || ''));
+            if ((directionData.topoviewerSelected === true) === nextSelected) return direction;
+            directionChanged = true;
+            if (nextSelected) {
+              return { ...record, data: { ...directionData, topoviewerSelected: true } };
+            }
+            const { topoviewerSelected: _selected, ...remainingData } = directionData;
+            return { ...record, data: remainingData };
+          })
+          : undefined;
+        const nextSelected = selected.has(sourceObjectId(edge));
+        if ((edge.selected === true) === nextSelected && !directionChanged) return edge;
+        changed = true;
+        return {
+          ...edge,
+          selected: nextSelected,
+          ...(directionChanged ? { data: { ...data, linkDirections } } : {})
+        };
+      });
+      return (changed ? nextEdges : currentEdges) as never[];
+    });
+  }, [compiledNodeByRuntimeId, decorateRuntimeNodes, selectedObjectIds, setEdges, setNodes]);
 
   useEffect(() => {
     const previewed = new Set(previewObjectIds || []);
@@ -582,17 +598,18 @@ function TopoFlow({
     if (activeDragChange?.type === 'position' && activeDragChange.position) {
       activeDragLatestPositionRef.current = activeDragChange.position;
     }
+    if (hasActivePositionDrag && !hasRegionPositionChange(nextChanges)) {
+      return;
+    }
     setNodes((currentNodes) => {
-      const nextNodes = hasActivePositionDrag && !hasRegionPositionChange(nextChanges)
-        ? applyNodeChanges(nextChanges, currentNodes) as never[]
-        : applyTopoNodeChanges({
-          changes: nextChanges,
-          currentNodes,
-          document,
-          selectedLayerIds: compiled.selectedLayerIds,
-          showRegions,
-          deferRegionRebuild: hasActivePositionDrag
-        });
+      const nextNodes = applyTopoNodeChanges({
+        changes: nextChanges,
+        currentNodes,
+        document,
+        selectedLayerIds: compiled.selectedLayerIds,
+        showRegions,
+        deferRegionRebuild: hasActivePositionDrag
+      });
       const decoratedNodes = hasActivePositionDrag
         ? nextNodes
         : decorateRuntimeNodes(nextNodes as ReturnType<typeof compileTopoGraph>['nodes']);
@@ -602,6 +619,11 @@ function TopoFlow({
   }, [compiled.selectedLayerIds, decorateRuntimeNodes, document, helperLineOptions, nodesDraggable, scheduleHelperLineState, setNodes, showRegions]);
 
   const onNodeDragStart = useCallback((_event: unknown, node: unknown) => {
+    if (labelThawFrameRef.current !== undefined) {
+      cancelAnimationFrame(labelThawFrameRef.current);
+      labelThawFrameRef.current = undefined;
+    }
+    setLabelsFrozen(true);
     const runtimeNode = node as unknown as Record<string, unknown>;
     const runtimeId = String(runtimeNode.id || '');
     activeDragNodeIdRef.current = runtimeId;
@@ -660,14 +682,22 @@ function TopoFlow({
     activeDragStartPositionRef.current = undefined;
     activeDragLatestPositionRef.current = undefined;
     helperLineCandidateIndexRef.current = undefined;
-    if (!onNodePositionChange) return undefined;
-    return onNodePositionChange({
+    if (!onNodePositionChange) {
+      setLabelsFrozen(false);
+      return undefined;
+    }
+    const result = onNodePositionChange({
       ...(startPosition ? { delta: { x: position.x - startPosition.x, y: position.y - startPosition.y } } : {}),
       id: sourceObjectId(runtimeNode),
       runtimeId,
       position,
       data: (runtimeNode.data || {}) as Record<string, unknown>
     });
+    labelThawFrameRef.current = requestAnimationFrame(() => {
+      labelThawFrameRef.current = undefined;
+      setLabelsFrozen(false);
+    });
+    return result;
   }, [clearHelperLines, compiled.selectedLayerIds, decorateRuntimeNodes, document, onNodePositionChange, setNodes, showRegions]);
 
   const onNodeDrag = useCallback((_event: unknown, node: unknown) => {
@@ -843,12 +873,18 @@ function TopoFlow({
       connectionRadius={28}
       nodesDraggable={nodesDraggable !== false && nodesInitialized && nodesReadyForInteraction}
       nodesConnectable={nodesConnectable === true && nodesInitialized}
+      onlyRenderVisibleElements={onlyRenderVisibleElements}
       elementsSelectable
       proOptions={{ hideAttribution: true }}
     >
       <Background color="rgba(126, 139, 154, 0.20)" gap={24} />
-      <LabelOverlay nodes={nodes as never[]} edges={edges as never[]} />
-      <HelperLinesOverlay lines={helperLineState} />
+      <LabelOverlay
+        nodes={nodes as never[]}
+        edges={edges as never[]}
+        frozen={labelsFrozen}
+        onlyRenderVisibleElements={onlyRenderVisibleElements}
+      />
+      <HelperLinesOverlay store={helperLineStore} />
       <ViewportControls
         controlPanelToggle={controlPanelToggle}
         exportDisabled={exportDisabled}
@@ -876,6 +912,7 @@ export function TopoViewer({
   nodesDraggable,
   nodesResizable,
   nodesConnectable,
+  onlyRenderVisibleElements,
   connectionHandleMode = 'full-node',
   onObjectClick,
   onPaneClick,
@@ -917,7 +954,54 @@ export function TopoViewer({
       ...(extension.edgeTypes || {})
     }), builtInEdgeTypes as Record<string, unknown>);
   }, [effectiveExtensions]);
-  const { compiled, preparedDocument } = useMemo(() => {
+  const documentCompileSignature = useMemo(
+    () => positionInsensitiveDocumentSignature(document),
+    [document]
+  );
+  const renderCompileSignature = useMemo(() => JSON.stringify({
+    layout,
+    selectedLayerIds: effectiveLayers,
+    toggles: effectiveToggles
+  }), [effectiveLayers, effectiveToggles, layout]);
+  const positionCompileCacheRef = useRef<{
+    baseCompiled: CompiledGraph;
+    compileToken: object;
+    documentSignature: string;
+    positionOnlyEligible: boolean;
+    preparedDocument: TopoDocument;
+    renderSignature: string;
+  }>();
+  const { baseCompiled, compileToken, positionOnlyCompile, preparedDocument } = useMemo(() => {
+    const previous = positionCompileCacheRef.current;
+    if (
+      previous
+      && previous.positionOnlyEligible
+      && attention === undefined
+      && previous.documentSignature === documentCompileSignature
+      && previous.renderSignature === renderCompileSignature
+      && supportsPositionOnlyCompile({
+        document,
+        hasExtensions: effectiveExtensions.length > 0,
+        layoutOverride: layout
+      })
+    ) {
+      assertValidPositionOnlyFields(document);
+      const result = {
+        preparedDocument: document,
+        baseCompiled: patchCompiledPositions(previous.baseCompiled, document),
+        compileToken: previous.compileToken,
+        positionOnlyCompile: true
+      };
+      positionCompileCacheRef.current = {
+        baseCompiled: result.baseCompiled,
+        compileToken: result.compileToken,
+        preparedDocument: result.preparedDocument,
+        documentSignature: documentCompileSignature,
+        positionOnlyEligible: true,
+        renderSignature: renderCompileSignature
+      };
+      return result;
+    }
     const nextDocument = applyBeforeCompileExtensions(document, extensionContext, effectiveExtensions);
     const aggregateConfig = nextDocument.attention?.aggregate;
     const linkGroupingConfig = nextDocument.attention?.links?.grouping;
@@ -935,14 +1019,38 @@ export function TopoViewer({
       attentionPresentation
     );
     const nextContext = { ...extensionContext, document: reducedDocument };
-    return {
+    const positionOnlyEligible = attention === undefined && supportsPositionOnlyCompile({
+      document,
+      hasExtensions: effectiveExtensions.length > 0,
+      layoutOverride: layout
+    });
+    const result = {
       preparedDocument: reducedDocument,
-      compiled: applyPreviewToCompiledGraph(
-        applySelectionToCompiledGraph(applyAfterCompileExtensions(compiledGraph, nextContext, effectiveExtensions), selectedObjectIds),
-        previewObjectIds
-      )
+      baseCompiled: applyAfterCompileExtensions(compiledGraph, nextContext, effectiveExtensions),
+      compileToken: {},
+      positionOnlyCompile: false
     };
-  }, [attention, document, effectiveExtensions, effectiveLayers, effectiveToggles, extensionContext, layout, previewObjectIds, selectedObjectIds]);
+    positionCompileCacheRef.current = {
+      baseCompiled: result.baseCompiled,
+      compileToken: result.compileToken,
+      preparedDocument: result.preparedDocument,
+      documentSignature: documentCompileSignature,
+      positionOnlyEligible,
+      renderSignature: renderCompileSignature
+    };
+    return result;
+  }, [
+    attention,
+    document,
+    documentCompileSignature,
+    effectiveExtensions,
+    effectiveLayers,
+    effectiveToggles,
+    extensionContext,
+    layout,
+    renderCompileSignature
+  ]);
+  const compiled = baseCompiled;
 
   const rootClassName = [
     'topoviewer',
@@ -957,17 +1065,21 @@ export function TopoViewer({
       <ReactFlowProvider>
         <TopoFlow
           compiled={compiled}
+          compileToken={compileToken}
           document={preparedDocument}
+          positionOnlyCompile={positionOnlyCompile}
           showRegions={effectiveToggles.showRegions !== false}
           controlPanelToggle={controlPanelToggle}
           exportDisabled={exportDisabled}
           exportTooltip={exportTooltip}
           helperLines={helperLines}
+          selectedObjectIds={selectedObjectIds}
           previewObjectIds={previewObjectIds}
           initialViewport={initialViewport}
           nodesDraggable={nodesDraggable}
           nodesResizable={nodesResizable}
           nodesConnectable={nodesConnectable}
+          onlyRenderVisibleElements={onlyRenderVisibleElements}
           connectionHandleMode={connectionHandleMode}
           onExport={onExport}
           onObjectClick={onObjectClick}

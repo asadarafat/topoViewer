@@ -1,0 +1,19 @@
+{
+  "budgetVersion": 1,
+  "capturedAt": "2026-07-10T13:38:14.095Z",
+  "surfaces": {
+    "studio": {
+      "initialCssGzipBytes": 14552,
+      "initialJsGzipBytes": 284464,
+      "largestLazyJsGzipBytes": 640982,
+      "totalLazyJsGzipBytes": 1117905
+    },
+    "vscode": {
+      "extensionBytes": 51890,
+      "initialCssGzipBytes": 14786,
+      "initialJsGzipBytes": 278825,
+      "largestLazyJsGzipBytes": 640972,
+      "totalLazyJsGzipBytes": 1118172
+    }
+  }
+}

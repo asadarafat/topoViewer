@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { performance } from 'node:perf_hooks';
 import type { TopoDocument } from 'topoviewer';
-import { evaluateMapperCoverage } from 'topoviewer/authoring';
+import { evaluateMapperCoverage, ingestMapperSamples } from 'topoviewer/authoring';
 import { mapperWorkerSampleThreshold } from '../../src/features/mapper/useMapperAnalysis';
+import { benchmark, budgets, expectSeriesWithinBudget, writeBenchmarkReport } from './benchmark';
 
 describe('mapper analysis performance evidence', () => {
-  it('documents why maximum-cardinality analysis is scheduled off the main thread', () => {
-    const document: TopoDocument = {
+  it('profiles small, typical, and maximum ingestion and coverage cardinalities', () => {
+    const topology: TopoDocument = {
       graph: {
         nodes: Array.from({ length: 1_000 }, (_, index) => ({
           id: `node-${index}`, position: [index, 0]
@@ -20,15 +20,30 @@ describe('mapper analysis performance evidence', () => {
       }],
       version: 1
     };
-    const samples = Array.from({ length: 5_000 }, (_, index) => ({
+    const fixture = (sampleCount: number) => Array.from({ length: sampleCount }, (_, index) => ({
       fields: {}, labels: { node_id: `node-${index % 1_000}` }, metric: 'health', value: 1
     }));
-    const started = performance.now();
-    const coverage = evaluateMapperCoverage(document, mapper, samples);
-    const elapsedMs = performance.now() - started;
+    const smallSamples = fixture(50);
+    const typicalSamples = fixture(500);
+    const maximumSamples = fixture(5_000);
+    const maximumJson = JSON.stringify(maximumSamples);
+    const coverage = evaluateMapperCoverage(topology, mapper, maximumSamples);
+    const smallCardinality = benchmark(() => evaluateMapperCoverage(topology, mapper, smallSamples));
+    const typicalCardinality = benchmark(() => evaluateMapperCoverage(topology, mapper, typicalSamples));
+    const maximumCardinality = benchmark(() => evaluateMapperCoverage(topology, mapper, maximumSamples));
+    const maximumIngestion = benchmark(() => ingestMapperSamples(maximumJson));
 
     expect(coverage.summary.resolved).toBe(5_000);
-    expect(mapperWorkerSampleThreshold).toBeLessThan(samples.length);
-    expect(elapsedMs).toBeLessThan(2_000);
+    expect(mapperWorkerSampleThreshold).toBeLessThan(maximumSamples.length);
+    writeBenchmarkReport('mapper.json', {
+      maximumCardinality,
+      maximumIngestion,
+      smallCardinality,
+      typicalCardinality
+    });
+    expectSeriesWithinBudget(smallCardinality, budgets.budgets.unit.mapperMs.smallCardinality, 'smallCardinality');
+    expectSeriesWithinBudget(typicalCardinality, budgets.budgets.unit.mapperMs.typicalCardinality, 'typicalCardinality');
+    expectSeriesWithinBudget(maximumCardinality, budgets.budgets.unit.mapperMs.maximumCardinality, 'maximumCardinality');
+    expectSeriesWithinBudget(maximumIngestion, budgets.budgets.unit.mapperMs.maximumIngestion, 'maximumIngestion');
   });
 });

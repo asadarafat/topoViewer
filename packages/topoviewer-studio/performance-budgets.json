@@ -1,0 +1,111 @@
+{
+  "schemaVersion": 1,
+  "description": "Versioned TopoViewer Studio performance budgets. Threshold changes require a measured report and reviewable rationale in PERFORMANCE.md.",
+  "owner": "TopoViewer Studio maintainers",
+  "referenceRunner": {
+    "architecture": "aarch64",
+    "browser": "Playwright Chromium",
+    "cpuThrottlingRate": 1,
+    "node": "24.x",
+    "os": "Linux OrbStack on Apple silicon",
+    "viewport": {
+      "height": 960,
+      "width": 1440
+    }
+  },
+  "sampling": {
+    "aggregate": "median",
+    "fastMetricFloorMs": 5,
+    "maxCoefficientOfVariation": 0.5,
+    "maxFastMetricRangeMs": 15,
+    "sampleIterations": 7,
+    "warmupIterations": 2
+  },
+  "phase0HarnessBaseline": {
+    "bundle": {
+      "initialGzipBytes": 465436,
+      "initialJsBytes": 1546828,
+      "lazyJsBytes": 3329016
+    },
+    "runtime": {
+      "dragCommitMs": 2228,
+      "dragP95FrameMs": 450,
+      "dragVisibleGestureMs": 35272,
+      "framesAbove50Ms": 115,
+      "startupMs": 6237
+    }
+  },
+  "budgets": {
+    "unit": {
+      "commandsMs": {
+        "bulkCommit": 75,
+        "dragCommit": 30,
+        "pointerUpdates": 5
+      },
+      "mapperMs": {
+        "maximumCardinality": 1000,
+        "maximumIngestion": 250,
+        "smallCardinality": 25,
+        "typicalCardinality": 150
+      },
+      "sessionMs": {
+        "denseMutation": 50,
+        "denseParse": 500,
+        "denseProjection": 1000,
+        "invalidDraftContainment": 15,
+        "smallMutation": 25,
+        "smallParse": 25,
+        "smallProjection": 40
+      }
+    },
+    "browser": {
+      "denseRenderMs": {
+        "2": 1000,
+        "100": 2000,
+        "1000": 8000
+      },
+      "dropToVisibleMs": 100,
+      "drag": {
+        "commitMs": 250,
+        "longTasksAbove50Ms": 2,
+        "maximumLongTaskMs": 100,
+        "p95FrameMs": {
+          "2": 25,
+          "100": 32,
+          "1000": 50
+        }
+      },
+      "inspector": {
+        "hardOutlierMs": 200,
+        "interactionMedianMs": 100,
+        "rendersPerInteraction": 6
+      },
+      "mapper": {
+        "maximumCardinalitySamples": 5000,
+        "maximumLongTaskMs": 100,
+        "p95FrameMs": 32,
+        "workerCompletionMs": 2000
+      },
+      "memory": {
+        "cycles": 10,
+        "maxRetainedGrowthBytes": 16777216
+      },
+      "startupMs": 3000
+    },
+    "bundle": {
+      "studio": {
+        "initialCssGzipBytes": 24576,
+        "initialJsGzipBytes": 409600,
+        "largestLazyJsGzipBytes": 716800,
+        "totalLazyJsGzipBytes": 1258291
+      },
+      "vscode": {
+        "extensionBytes": 65536,
+        "initialCssGzipBytes": 24576,
+        "initialJsGzipBytes": 409600,
+        "largestLazyJsGzipBytes": 716800,
+        "totalLazyJsGzipBytes": 1258291
+      }
+    }
+  }
+}

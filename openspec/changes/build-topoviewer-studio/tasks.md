@@ -415,27 +415,27 @@ promotes a reviewed asset into documentation.
 
 ## 17. Performance, Scale, And Bundle Freeze
 
-- [ ] 17.1 Convert phase 0 measurements into versioned CI budgets with stable
+- [x] 17.1 Convert phase 0 measurements into versioned CI budgets with stable
   fixtures, warm-up, sample count, variance policy, and JSON output
-- [ ] 17.2 Profile Studio startup and remove request waterfalls, duplicate code,
+- [x] 17.2 Profile Studio startup and remove request waterfalls, duplicate code,
   eager Monaco/mapper/export dependencies, broad context rerenders, and
   expensive barrel imports
-- [ ] 17.3 Profile active drag with 2, 100, and 1,000 nodes and fix helper-line,
+- [x] 17.3 Profile active drag with 2, 100, and 1,000 nodes and fix helper-line,
   snap, label-layout, selector, persistence, and validation work outside the
   interaction-critical path
-- [ ] 17.4 Profile complete Basic/Advanced/All metadata forms and add memoized
+- [x] 17.4 Profile complete Basic/Advanced/All metadata forms and add memoized
   selectors or virtualization only where measurement justifies them
-- [ ] 17.5 Profile mapper sample ingestion and coverage at documented small,
+- [x] 17.5 Profile mapper sample ingestion and coverage at documented small,
   typical, and maximum cardinalities; move blocking work off the main thread
-- [ ] 17.6 Add memory-leak checks for repeated open/close, import, undo history,
+- [x] 17.6 Add memory-leak checks for repeated open/close, import, undo history,
   Monaco drawer, mapper samples, exports, and route transitions
-- [ ] 17.7 Enforce initial and lazy compressed chunk budgets for Studio and VS
+- [x] 17.7 Enforce initial and lazy compressed chunk budgets for Studio and VS
   Code webview and report before/after deltas in CI
-- [ ] 17.8 Run the full performance suite repeatedly on the reference runner and
+- [x] 17.8 Run the full performance suite repeatedly on the reference runner and
   investigate variance rather than accepting a single favorable result
-- [ ] 17.9 Record approved budgets and any explicit waiver with owner, rationale,
+- [x] 17.9 Record approved budgets and any explicit waiver with owner, rationale,
   expiration, and follow-up task
-- [ ] 17.10 **Exit gate:** interaction, startup, Inspector, mapper, memory, dense
+- [x] 17.10 **Exit gate:** interaction, startup, Inspector, mapper, memory, dense
   graph, and bundle budgets pass without subjective exceptions
 
 ## 18. Parity, Documentation, And CI Integration

@@ -162,7 +162,8 @@ const laneDefinitions = {
   ],
   'perf:smoke': [
     step('attention smoke benchmark', 'npm', ['run', 'benchmark:attention:smoke']),
-    step('CLOS layout smoke benchmark', 'npm', ['run', 'benchmark:clos:smoke'])
+    step('CLOS layout smoke benchmark', 'npm', ['run', 'benchmark:clos:smoke']),
+    step('check Studio bundle budgets', 'npm', ['run', 'studio:benchmark:bundle'])
   ],
   package: [
     step('pack check', 'npm', ['run', 'pack:check']),

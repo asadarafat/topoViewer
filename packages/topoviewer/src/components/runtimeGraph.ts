@@ -1,6 +1,31 @@
 import type { EdgeChange, NodeChange } from '@xyflow/react';
 import type { TopoDocument } from '../core/types';
 
+const runtimeOwnedNodeKeys = new Set([
+  'dragging',
+  'height',
+  'internals',
+  'measured',
+  'positionAbsolute',
+  'resizing',
+  'width'
+]);
+
+function sourceNodeDefinitionUnchanged(next: Record<string, unknown>, current: Record<string, unknown>) {
+  return Object.keys(next).every((key) => (
+    runtimeOwnedNodeKeys.has(key)
+    || next[key] === current[key]
+    || (
+      key === 'position'
+      && sameRuntimePosition(
+        next[key] as { x: number; y: number } | undefined,
+        current[key] as { x: number; y: number } | undefined
+      )
+    )
+  ))
+    && Object.keys(current).every((key) => runtimeOwnedNodeKeys.has(key) || key in next);
+}
+
 export function sourceObjectId(compiledObject: Record<string, unknown>): string {
   const data = (compiledObject.data || {}) as Record<string, unknown>;
   return String(data.id || compiledObject.id || '');
@@ -63,6 +88,7 @@ export function preserveRuntimeNodeMeasurements(nextNodes: unknown[], currentNod
       return Number.isFinite(nextValue) && Number.isFinite(currentValue) && Math.abs(nextValue - currentValue) > 0.5;
     });
     if (declaredDimensionChanged) return node;
+    if (sourceNodeDefinitionUnchanged(nextRecord, current)) return current;
     const runtimeMeasurements: Record<string, unknown> = {};
     if (current.height !== undefined) runtimeMeasurements.height = current.height;
     if (current.measured !== undefined) runtimeMeasurements.measured = current.measured;

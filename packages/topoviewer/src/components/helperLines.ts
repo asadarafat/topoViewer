@@ -40,6 +40,7 @@ interface HelperLineCandidateCoordinate {
   offset: number;
   kind: 'edge' | 'center' | 'midpoint';
   candidateId: string;
+  order: number;
 }
 
 function helperLinePosition({
@@ -337,10 +338,15 @@ function midpointCoordinates(candidates: HelperLineBox[], axis: 'vertical' | 'ho
 
 function coordinatesForAxis(candidates: HelperLineBox[], axis: 'vertical' | 'horizontal', options: HelperLinesOptions) {
   const coordinates = candidateCoordinates(candidates, axis);
-  if (!options.showMidpoints || candidates.length > options.midpointCandidateLimit) {
-    return coordinates;
-  }
-  return [...coordinates, ...midpointCoordinates(candidates, axis)];
+  const combined = !options.showMidpoints || candidates.length > options.midpointCandidateLimit
+    ? coordinates
+    : [...coordinates, ...midpointCoordinates(candidates, axis)];
+  return combined.map((coordinate, order) => ({ ...coordinate, order })).sort((left, right) => (
+    left.value - right.value
+    || left.candidateId.localeCompare(right.candidateId)
+    || left.offset - right.offset
+    || left.kind.localeCompare(right.kind)
+  ));
 }
 
 export function prepareHelperLineCandidateIndex(
@@ -379,11 +385,27 @@ function bestAxisAlignment(
     line: HelperLinePosition;
     snappedAxisValue: number;
     distance: number;
+    order: number;
   } | undefined;
   let retained: typeof best;
 
-  for (const draggedCoordinate of draggedCoordinates) {
-    for (const candidateCoordinate of candidateCoordinatesForAxis) {
+  function lowerBound(value: number) {
+    let low = 0;
+    let high = candidateCoordinatesForAxis.length;
+    while (low < high) {
+      const middle = (low + high) >>> 1;
+      if (candidateCoordinatesForAxis[middle].value < value) low = middle + 1;
+      else high = middle;
+    }
+    return low;
+  }
+
+  for (let draggedIndex = 0; draggedIndex < draggedCoordinates.length; draggedIndex += 1) {
+    const draggedCoordinate = draggedCoordinates[draggedIndex];
+    const firstCandidate = lowerBound(draggedCoordinate.value - releaseThreshold);
+    for (let candidateIndex = firstCandidate; candidateIndex < candidateCoordinatesForAxis.length; candidateIndex += 1) {
+      const candidateCoordinate = candidateCoordinatesForAxis[candidateIndex];
+      if (candidateCoordinate.value > draggedCoordinate.value + releaseThreshold) break;
       if (candidateCoordinate.kind === 'midpoint' && draggedCoordinate.kind !== 'center') continue;
       const distance = Math.abs(draggedCoordinate.value - candidateCoordinate.value);
       if (distance > releaseThreshold) continue;
@@ -398,7 +420,8 @@ function bestAxisAlignment(
       const alignment = {
         line,
         snappedAxisValue,
-        distance
+        distance,
+        order: draggedIndex * candidateCoordinatesForAxis.length + candidateCoordinate.order
       };
       if (
         previousLine
@@ -406,12 +429,12 @@ function bestAxisAlignment(
         && previousLine.kind === line.kind
         && (previousLine.candidateId === undefined || previousLine.candidateId === line.candidateId)
         && (previousLine.draggedOffset === undefined || previousLine.draggedOffset === line.draggedOffset)
-        && (!retained || distance < retained.distance)
+        && (!retained || distance < retained.distance || (distance === retained.distance && alignment.order < retained.order))
       ) {
         retained = alignment;
       }
       if (distance > options.threshold) continue;
-      if (best && distance >= best.distance) continue;
+      if (best && (distance > best.distance || (distance === best.distance && alignment.order >= best.order))) continue;
       best = alignment;
     }
   }
@@ -478,8 +501,7 @@ export function applyHelperLineSnapToChanges<TChange extends HelperLinePositionC
   if (!activeChange?.position) {
     return { changes, lines: emptyHelperLineState, snappedPositions: new Map() };
   }
-  const nodeById = new Map(nodes.map((node) => [String(node.id || ''), node]));
-  const activeNode = nodeById.get(String(activeChange.id));
+  const activeNode = nodes.find((node) => String(node.id || '') === String(activeChange.id));
   if (!activeNode) {
     return { changes, lines: emptyHelperLineState, snappedPositions: new Map() };
   }

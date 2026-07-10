@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type DragEvent, type KeyboardEvent, type Ref } from 'react';
+import { useEffect, useMemo, useRef, useState, type DragEvent, type KeyboardEvent, type Ref } from 'react';
 import AlignHorizontalLeftIcon from '@mui/icons-material/AlignHorizontalLeft';
 import AlignVerticalTopIcon from '@mui/icons-material/AlignVerticalTop';
 import BookmarkAddIcon from '@mui/icons-material/BookmarkAdd';
@@ -142,24 +142,48 @@ export function CanvasSurface({
   const overlayDefinitions = (snapshot.projection.document.toggles || [])
     .filter((toggle) => toggle.id === 'physical-port' || toggle.id === 'bandwidth');
   const [overlayToggles, setOverlayToggles] = useState(() => defaultTopoViewerToggles(snapshot.projection.document));
+  const overlayTogglesRef = useRef(overlayToggles);
+  overlayTogglesRef.current = overlayToggles;
   const [viewport, setViewport] = useState({ x: 0, y: 0, zoom: 1 });
   const [viewportMount, setViewportMount] = useState(0);
   const contextMenuRef = useRef<HTMLDivElement>(null);
   const contextReturnFocusRef = useRef<HTMLElement | null>(null);
   const connectionAnnouncementRef = useRef('');
   const connectionAnnouncementFrameRef = useRef<number>();
+  const pendingDropPaintRef = useRef(false);
+  const previousObjectCountRef = useRef(0);
+  const regionPreviewIdRef = useRef<string>();
   const authoringViewportRef = useRef(viewport);
   const previousPresentationRef = useRef(presentationMode);
   const overlayDefinitionSignature = overlayDefinitions
     .map((toggle) => `${toggle.id}:${toggle.default !== false}`)
     .join('|');
-  const layerIds = (snapshot.projection.document.graph?.layers || []).map((layer) => layer.id);
-  const selectedLayerIds = layerIds.filter((layerId) => !hiddenLayerIds.includes(layerId));
+  const topologyDocument = snapshot.projection.document;
+  const layerIds = useMemo(
+    () => (topologyDocument.graph?.layers || []).map((layer) => layer.id),
+    [topologyDocument]
+  );
+  const selectedLayerIds = useMemo(
+    () => layerIds.filter((layerId) => !hiddenLayerIds.includes(layerId)),
+    [hiddenLayerIds, layerIds]
+  );
   const objectCount = (snapshot.projection.document.graph?.nodes?.length || 0)
     + (snapshot.projection.document.graph?.regions?.length || 0)
     + (snapshot.projection.document.diagram?.shapes?.length || 0)
     + (snapshot.projection.document.diagram?.callouts?.length || 0);
-  const selectedObjectIds = snapshot.selection.map((selection) => selection.id);
+  const linkCount = snapshot.projection.document.graph?.links?.length || 0;
+  const useViewportCulling = (snapshot.projection.document.graph?.nodes?.length || 0) >= 500
+    || (snapshot.projection.document.graph?.links?.length || 0) >= 1000;
+  const selectedObjectIds = useMemo(
+    () => snapshot.selection.map((selection) => selection.id),
+    [snapshot.selection]
+  );
+  const previewObjectIds = useMemo(() => regionPreviewId ? [regionPreviewId] : [], [regionPreviewId]);
+  const helperLineConfiguration = useMemo(() => ({
+    enabled: helperLinesEnabled,
+    snap: snapEnabled,
+    snapMode: 'commit' as const
+  }), [helperLinesEnabled, snapEnabled]);
   const selectedNodeCount = snapshot.selection.filter((selection) => selection.kind === 'node').length;
   const contextSelection = contextMenu
     ? resolveAuthoringSelection(snapshot.projection.document, contextMenu.objectId)
@@ -178,6 +202,32 @@ export function CanvasSurface({
     : undefined;
 
   useEffect(() => {
+    const frame = requestAnimationFrame(() => performance.mark('topoviewer-studio-canvas-ready'));
+    return () => cancelAnimationFrame(frame);
+  }, []);
+
+  useEffect(() => {
+    performance.clearMarks('topoviewer-studio-graph-visible');
+    let secondFrame = 0;
+    const firstFrame = requestAnimationFrame(() => {
+      secondFrame = requestAnimationFrame(() => performance.mark('topoviewer-studio-graph-visible'));
+    });
+    return () => {
+      cancelAnimationFrame(firstFrame);
+      cancelAnimationFrame(secondFrame);
+    };
+  }, [linkCount, objectCount]);
+
+  useEffect(() => {
+    const previousCount = previousObjectCountRef.current;
+    previousObjectCountRef.current = objectCount;
+    if (!pendingDropPaintRef.current || objectCount <= previousCount) return undefined;
+    pendingDropPaintRef.current = false;
+    const frame = requestAnimationFrame(() => performance.mark('topoviewer-studio-drop-visible'));
+    return () => cancelAnimationFrame(frame);
+  }, [objectCount]);
+
+  useEffect(() => {
     if (contextMenu) focusFirstAvailable(contextMenuRef.current);
   }, [contextMenu]);
 
@@ -189,10 +239,16 @@ export function CanvasSurface({
 
   useEffect(() => {
     const defaults = defaultTopoViewerToggles(snapshot.projection.document);
-    setOverlayToggles((current) => ({
+    const current = overlayTogglesRef.current;
+    const next = {
       ...defaults,
       ...Object.fromEntries(overlayDefinitions.map((toggle) => [toggle.id, current[toggle.id] ?? defaults[toggle.id]]))
-    }));
+    };
+    const currentKeys = Object.keys(current);
+    const nextKeys = Object.keys(next);
+    if (currentKeys.length === nextKeys.length && nextKeys.every((key) => current[key] === next[key])) return;
+    overlayTogglesRef.current = next;
+    setOverlayToggles(next);
   }, [overlayDefinitionSignature, snapshot.projection.document]);
 
   function drop(event: DragEvent<HTMLElement>) {
@@ -214,10 +270,15 @@ export function CanvasSurface({
       return;
     }
     const bounds = event.currentTarget.getBoundingClientRect();
-    createObject(templateId, {
+    performance.clearMarks('topoviewer-studio-drop-start');
+    performance.clearMarks('topoviewer-studio-drop-visible');
+    performance.mark('topoviewer-studio-drop-start');
+    pendingDropPaintRef.current = true;
+    const created = createObject(templateId, {
       x: Math.max(0, event.clientX - bounds.left - 44),
       y: Math.max(0, event.clientY - bounds.top - 30)
     });
+    if (!created) pendingDropPaintRef.current = false;
   }
 
   function openContextMenu(object: TopoViewerObjectContextMenu) {
@@ -457,28 +518,31 @@ export function CanvasSurface({
 
       <TopoViewer
         connectionHandleMode="handles"
-        document={snapshot.projection.document}
-        helperLines={{ enabled: helperLinesEnabled, snap: snapEnabled, snapMode: 'commit' }}
+        document={topologyDocument}
+        helperLines={helperLineConfiguration}
         initialViewport={presentationMode ? authoringViewportRef.current : viewport}
         key={viewportMount}
         nodesConnectable
         nodesDraggable
         nodesResizable
+        onlyRenderVisibleElements={useViewportCulling}
         isConnectionValid={validateConnection}
         onConnectionCreate={createConnection}
         onNodePositionChange={(change) => {
+          regionPreviewIdRef.current = undefined;
           setRegionPreviewId(undefined);
-          moveObject(change.id, change.position, change.delta);
+          if (moveObject(change.id, change.position, change.delta)) {
+            performance.mark('topoviewer-studio-drag-commit');
+          }
         }}
         onNodePositionPreview={(change) => {
           const next = previewRegionForNode(change.id, change.position);
-          setRegionPreviewId((current) => {
-            if (current === next) return current;
-            onAnnouncement(next
-              ? `${change.id} will join region ${next} when movement completes`
-              : `${change.id} is outside an eligible region`);
-            return next;
-          });
+          if (regionPreviewIdRef.current === next) return;
+          regionPreviewIdRef.current = next;
+          onAnnouncement(next
+            ? `${change.id} will join region ${next} when movement completes`
+            : `${change.id} is outside an eligible region`);
+          setRegionPreviewId(next);
         }}
         onNodeResizeChange={resizeObject}
         onObjectClick={selectObject}
@@ -493,7 +557,7 @@ export function CanvasSurface({
           setViewport(nextViewport);
           if (!presentationMode) authoringViewportRef.current = nextViewport;
         }}
-        previewObjectIds={regionPreviewId ? [regionPreviewId] : []}
+        previewObjectIds={previewObjectIds}
         selectedLayerIds={selectedLayerIds}
         selectedObjectIds={selectedObjectIds}
         style={{ height: '100%', width: '100%' }}

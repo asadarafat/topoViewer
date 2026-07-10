@@ -19,11 +19,12 @@ function success<T>(value: T): StudioResult<T> {
   return { ok: true, value };
 }
 
-function denseProject(nodeCount = 120): StudioProject {
+function denseProject(nodeCount = 120, linkCount = 0): StudioProject {
   const project = createStarterProject();
+  const columns = Math.max(2, Math.ceil(Math.sqrt(nodeCount)));
   const nodes = Array.from({ length: nodeCount }, (_, index) => {
-    const column = index % 12;
-    const row = Math.floor(index / 12);
+    const column = index % columns;
+    const row = Math.floor(index / columns);
     return [
       `    - id: dense-${index + 1}`,
       `      name: Dense ${index + 1}`,
@@ -33,14 +34,35 @@ function denseProject(nodeCount = 120): StudioProject {
       `      position: [${80 + column * 100}, ${80 + row * 84}]`
     ].join('\n');
   }).join('\n');
-  const topology = project.documents.topology.text.replace('  nodes: []', `  nodes:\n${nodes}`);
+  const links = Array.from({ length: linkCount }, (_, index) => {
+    const source = index % nodeCount;
+    const lane = Math.floor(index / nodeCount);
+    let target = ((source * 17) + 1 + (lane * 37)) % nodeCount;
+    if (target === source) target = (target + 1) % nodeCount;
+    return [
+      `    - id: dense-link-${index + 1}`,
+      `      source: dense-${source + 1}`,
+      `      target: dense-${target + 1}`,
+      '      layers: [physical]'
+    ].join('\n');
+  }).join('\n');
+  const topology = [
+    'limits:',
+    `  maxNodes: ${Math.max(1500, nodeCount)}`,
+    `  maxEdges: ${Math.max(3000, linkCount)}`,
+    project.documents.topology.text
+      .replace('  nodes: []', `  nodes:\n${nodes}`)
+      .replace('  links: []', linkCount ? `  links:\n${links}` : '  links: []')
+  ].join('\n');
   project.documents.topology = {
     ...project.documents.topology,
     contentHash: `dense-${nodeCount}-${topology.length}`,
     text: topology
   };
   project.id = 'studio-dense-project';
-  project.name = `Dense topology (${nodeCount} nodes)`;
+  project.name = linkCount
+    ? `Dense topology (${nodeCount} nodes, ${linkCount} links)`
+    : `Dense topology (${nodeCount} nodes)`;
   return project;
 }
 
@@ -215,8 +237,39 @@ function mapperCoverageProject(): StudioProject {
   return project;
 }
 
+export const memoryStudioFixtures = [
+  'dense',
+  'performance-2',
+  'performance-100',
+  'performance-1000',
+  'future-style',
+  'mapper-coverage',
+  'mapper-future',
+  'overlay'
+] as const;
+
+export type MemoryStudioFixture = typeof memoryStudioFixtures[number];
+
+export function isMemoryStudioFixture(value: string | null | undefined): value is MemoryStudioFixture {
+  return memoryStudioFixtures.includes(value as MemoryStudioFixture);
+}
+
 export interface MemoryStudioHostOptions {
-  fixture?: 'starter' | 'dense' | 'future-style' | 'mapper-coverage' | 'mapper-future' | 'overlay';
+  fixture?: 'starter' | MemoryStudioFixture;
+}
+
+function fixtureProject(fixture: MemoryStudioHostOptions['fixture']): StudioProject {
+  switch (fixture) {
+    case 'dense': return denseProject();
+    case 'performance-2': return denseProject(2, 1);
+    case 'performance-100': return denseProject(100, 250);
+    case 'performance-1000': return denseProject(1000, 2500);
+    case 'mapper-coverage': return mapperCoverageProject();
+    case 'mapper-future': return futureMapperProject();
+    case 'future-style': return futureStyleProject();
+    case 'overlay': return overlayProject();
+    default: return createStarterProject();
+  }
 }
 
 export class MemoryStudioHost implements StudioHost {
@@ -227,17 +280,7 @@ export class MemoryStudioHost implements StudioHost {
   private preferences = new Map<string, unknown>();
 
   constructor(options: MemoryStudioHostOptions = {}) {
-    this.project = options.fixture === 'dense'
-      ? denseProject()
-      : options.fixture === 'mapper-coverage'
-        ? mapperCoverageProject()
-      : options.fixture === 'mapper-future'
-        ? futureMapperProject()
-      : options.fixture === 'future-style'
-        ? futureStyleProject()
-      : options.fixture === 'overlay'
-        ? overlayProject()
-        : createStarterProject();
+    this.project = fixtureProject(options.fixture);
     this.projects.set(this.project.id, structuredClone(this.project));
   }
 

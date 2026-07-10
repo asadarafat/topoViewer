@@ -486,6 +486,7 @@ export interface TopoViewerProps {
   nodesDraggable?: boolean;
   nodesResizable?: boolean;
   nodesConnectable?: boolean;
+  onlyRenderVisibleElements?: boolean;
   connectionHandleMode?: 'full-node' | 'handles';
   helperLines?: boolean | TopoViewerHelperLinesOptions;
   toggles?: TopoViewerToggles;

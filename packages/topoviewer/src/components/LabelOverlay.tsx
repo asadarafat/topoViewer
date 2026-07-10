@@ -1,5 +1,5 @@
-import { ViewportPortal, useViewport, type Edge, type Node } from '@xyflow/react';
-import type { CSSProperties } from 'react';
+import { ViewportPortal, useStore, useViewport, type Edge, type Node } from '@xyflow/react';
+import { memo, useMemo, type CSSProperties } from 'react';
 import { labelBounds, placeLabels, type LabelCollisionPolicy, type LabelPlacementCandidate, type LabelPlacementItem, type LabelPlacementObstacle, type LabelPlacementResult } from '../core/labelPlacement';
 import { displayName, formatLabels } from '../core/style';
 import type { Bounds, CompiledNodeData } from '../core/types';
@@ -306,6 +306,13 @@ function nodeBounds(node: RuntimeNode, data: CompiledNodeData): Bounds {
   };
 }
 
+function intersects(first: Bounds, second: Bounds): boolean {
+  return first.x <= second.x + second.width
+    && first.x + first.width >= second.x
+    && first.y <= second.y + second.height
+    && first.y + first.height >= second.y;
+}
+
 function boxCenter(box: Bounds) {
   return {
     x: box.x + box.width / 2,
@@ -410,6 +417,16 @@ function edgeLabelObstacles(edges: RuntimeEdge[], nodes: RuntimeNode[]): LabelPl
   return edges.flatMap((edge) => {
     if (edge.hidden) return [];
     const data = (edge.data || {}) as Record<string, unknown>;
+    const hasDirectionLabel = Array.isArray(data.linkDirections)
+      && data.linkDirections.some((entry) => (
+        entry && typeof entry === 'object' && textValue((entry as Record<string, unknown>).label)
+      ));
+    if (
+      !textValue(edge.label ?? data.label)
+      && !textValue(data.sourceLabel)
+      && !textValue(data.targetLabel)
+      && !hasDirectionLabel
+    ) return [];
     const sourceNode = nodesById.get(edge.source);
     const targetNode = nodesById.get(edge.target);
     const sourceData = sourceNode?.data as unknown as CompiledNodeData | undefined;
@@ -495,18 +512,53 @@ function labelItems(nodes: RuntimeNode[], viewportZoom: number): LabelPlacementI
   });
 }
 
-export function LabelOverlay({ nodes, edges = [] }: { nodes: RuntimeNode[]; edges?: RuntimeEdge[] }) {
+function LabelOverlayComponent({
+  nodes,
+  edges = [],
+  onlyRenderVisibleElements = false
+}: {
+  nodes: RuntimeNode[];
+  edges?: RuntimeEdge[];
+  frozen?: boolean;
+  onlyRenderVisibleElements?: boolean;
+}) {
   const viewport = useViewport();
+  const viewportSize = useStore(
+    (state) => ({ height: state.height, width: state.width }),
+    (previous, next) => previous.height === next.height && previous.width === next.width
+  );
+  const visibleBounds = useMemo<Bounds | undefined>(() => {
+    if (!onlyRenderVisibleElements || viewportSize.width <= 0 || viewportSize.height <= 0) return undefined;
+    const zoom = Math.max(0.01, viewport.zoom);
+    const margin = 160;
+    return {
+      x: (-viewport.x - margin) / zoom,
+      y: (-viewport.y - margin) / zoom,
+      width: (viewportSize.width + margin * 2) / zoom,
+      height: (viewportSize.height + margin * 2) / zoom
+    };
+  }, [onlyRenderVisibleElements, viewport.x, viewport.y, viewport.zoom, viewportSize.height, viewportSize.width]);
+  const overlayNodes = useMemo(() => {
+    if (!visibleBounds) return nodes;
+    return nodes.filter((node) => {
+      const data = node.data as unknown as CompiledNodeData | undefined;
+      return !!data && intersects(nodeBounds(node, data), visibleBounds);
+    });
+  }, [nodes, visibleBounds]);
+  const edgeObstacles = useMemo(() => {
+    const all = edgeLabelObstacles(edges, nodes);
+    return visibleBounds ? all.filter((obstacle) => intersects(obstacle.bounds, visibleBounds)) : all;
+  }, [edges, nodes, visibleBounds]);
   const obstacles = [
-    ...nodes.flatMap((node) => {
+    ...overlayNodes.flatMap((node) => {
       const data = node.data as unknown as CompiledNodeData | undefined;
       const obstacle = data ? nodeBodyObstacle(node, data) : undefined;
       return obstacle ? [obstacle] : [];
     }),
-    ...edgeLabelObstacles(edges, nodes)
+    ...edgeObstacles
   ];
-  const placements = placeLabels(labelItems(nodes, viewport.zoom), obstacles);
-  const labels = nodes.flatMap((node) => {
+  const placements = placeLabels(labelItems(overlayNodes, viewport.zoom), obstacles);
+  const labels = overlayNodes.flatMap((node) => {
     const data = node.data as unknown as CompiledNodeData | undefined;
     const labelZIndex = finiteNumber(data?.labelZIndex);
     if (!data || node.hidden) return [];
@@ -571,3 +623,14 @@ export function LabelOverlay({ nodes, edges = [] }: { nodes: RuntimeNode[]; edge
     </ViewportPortal>
   );
 }
+
+export const LabelOverlay = memo(LabelOverlayComponent, (previous, next) => {
+  if (previous.frozen && next.frozen) {
+    return previous.edges === next.edges
+      && previous.onlyRenderVisibleElements === next.onlyRenderVisibleElements;
+  }
+  return previous.nodes === next.nodes
+    && previous.edges === next.edges
+    && previous.frozen === next.frozen
+    && previous.onlyRenderVisibleElements === next.onlyRenderVisibleElements;
+});
