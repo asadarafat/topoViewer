@@ -9,6 +9,11 @@ engineering intent until the change is implemented, validated, archived, and
 reflected in public docs with an explicit support-status label.
 
 Current active plans:
+- `changes/build-topoviewer-studio/` - planned production-grade, canvas-first
+  TopoViewer authoring product with drag-to-create workflows, complete
+  specification-driven style and mapper controls, lossless YAML editing, shared
+  browser/VS Code behavior, measured production gates, and a reversible Harness
+  migration.
 - `changes/define-codespaces-dev-environment/` - planned Codespaces developer environment that can run local MkDocs, Zensical, browser harness, Grafana lab, and Containerlab-Grafana workflows from a fresh cloud workspace.
 - `changes/define-netbox-integration-roadmap/` - planned NetBox feasibility, use cases, first integration shape, and roadmap wording constraints.
 - `changes/define-opsmill-infrahub-integration-roadmap/` - planned OpsMill/Infrahub feasibility, use cases, first integration shape, and roadmap wording constraints.
