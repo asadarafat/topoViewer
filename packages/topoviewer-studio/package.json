@@ -29,6 +29,7 @@
   },
   "files": [
     "dist",
+    "ACCESSIBILITY.md",
     "ARCHITECTURE.md",
     "package.json"
   ],

@@ -61,6 +61,8 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
   const [externalChangeError, setExternalChangeError] = useState<string>();
   const [externalChangeLoading, setExternalChangeLoading] = useState(false);
   const canvasRef = useRef<HTMLElement>(null);
+  const drawerReturnFocusRef = useRef<HTMLElement | null>(null);
+  const presentationTriggerRef = useRef<HTMLButtonElement>(null);
   const { snapshot } = controller;
   const snapshotRef = useRef(snapshot);
   const autosave = useStudioAutosave(host, snapshot);
@@ -133,9 +135,45 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
 
   useEffect(() => {
     if (!controller.normalizationReview) return;
+    if (!drawerOpen && document.activeElement instanceof HTMLElement) {
+      drawerReturnFocusRef.current = document.activeElement;
+    }
     setDrawerView('source');
     setDrawerOpen(true);
-  }, [controller.normalizationReview]);
+  }, [controller.normalizationReview, drawerOpen]);
+
+  function openDrawer(view: 'source' | 'mapper') {
+    if (!drawerOpen && document.activeElement instanceof HTMLElement) {
+      drawerReturnFocusRef.current = document.activeElement;
+    }
+    setDrawerView(view);
+    setDrawerOpen(true);
+  }
+
+  function closeDrawer() {
+    setDrawerOpen(false);
+    const target = drawerReturnFocusRef.current;
+    if (target?.isConnected) queueMicrotask(() => target.focus());
+  }
+
+  function toggleDrawer(view: 'source' | 'mapper') {
+    if (drawerOpen && drawerView === view) {
+      closeDrawer();
+      return;
+    }
+    openDrawer(view);
+  }
+
+  function createFromPalette(templateId: Parameters<typeof controller.createPaletteObject>[0]) {
+    const created = controller.createPaletteObject(templateId);
+    if (created) requestAnimationFrame(() => canvasRef.current?.focus());
+    return created;
+  }
+
+  function exitPresentation() {
+    setPresentationMode(false);
+    requestAnimationFrame(() => presentationTriggerRef.current?.focus());
+  }
 
   return (
     <main
@@ -146,7 +184,7 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
         <div className="studio-product">
           <button className="studio-icon-button studio-desktop-control" aria-expanded={paletteState !== 'closed'} aria-label={`${paletteState === 'closed' ? 'Open' : 'Close'} object palette`} onClick={() => setPaletteState((state) => state === 'closed' ? 'default' : 'closed')} title="Objects" type="button"><MenuIcon fontSize="small" /></button>
           <button className="studio-icon-button studio-mobile-control" aria-expanded={paletteState === 'open'} aria-label={`${paletteState === 'open' ? 'Close' : 'Open'} object palette`} onClick={() => setPaletteState((state) => state === 'open' ? 'default' : 'open')} title="Objects" type="button"><MenuIcon fontSize="small" /></button>
-          <strong>TopoViewer Studio</strong>
+          <h1>TopoViewer Studio</h1>
           <span className="studio-status">Experimental</span>
         </div>
         <ProjectMenu actions={projectLifecycle} project={snapshot.project} />
@@ -157,13 +195,13 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
           <button className="studio-icon-button" aria-label="Save project" disabled={snapshot.status === 'saved' || snapshot.status === 'saving'} onClick={() => void controller.save()} title="Save" type="button"><SaveIcon fontSize="small" /></button>
           <button className="studio-icon-button" aria-label="Reload project" onClick={() => void controller.reload()} title="Reload" type="button"><RefreshIcon fontSize="small" /></button>
           <button className="studio-icon-button" aria-label="Open export panel" onClick={() => setExportOpen(true)} title="Export" type="button"><IosShareIcon fontSize="small" /></button>
-          <button className="studio-icon-button" aria-label="Enter presentation mode" onClick={() => { setDrawerOpen(false); setPresentationMode(true); }} title="Presentation mode" type="button"><PresentToAllIcon fontSize="small" /></button>
+          <button className="studio-icon-button" aria-label="Enter presentation mode" onClick={() => { setDrawerOpen(false); setPresentationMode(true); }} ref={presentationTriggerRef} title="Presentation mode" type="button"><PresentToAllIcon fontSize="small" /></button>
           <button className="studio-icon-button studio-desktop-control" aria-expanded={inspectorState !== 'closed'} aria-label={`${inspectorState === 'closed' ? 'Open' : 'Close'} Inspector`} onClick={() => setInspectorState((state) => state === 'closed' ? 'default' : 'closed')} title="Inspector" type="button"><TuneIcon fontSize="small" /></button>
           <button className="studio-icon-button studio-mobile-control" aria-expanded={inspectorState === 'open'} aria-label={`${inspectorState === 'open' ? 'Close' : 'Open'} Inspector`} onClick={() => setInspectorState((state) => state === 'open' ? 'default' : 'open')} title="Inspector" type="button"><TuneIcon fontSize="small" /></button>
         </div>
       </header>
 
-      <ObjectPalette onCreate={controller.createPaletteObject} presets={controller.presets} state={paletteState} />
+      <ObjectPalette onCreate={createFromPalette} presets={controller.presets} state={paletteState} />
       <CanvasSurface
         alignSelection={controller.alignSelection}
         canvasRef={canvasRef}
@@ -183,6 +221,7 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
         duplicateSelection={controller.duplicateSelection}
         moveObject={controller.moveObject}
         nudgeSelection={controller.nudgeSelection}
+        onAnnouncement={controller.announce}
         pasteClipboard={controller.pasteClipboard}
         pathMode={controller.pathMode}
         presentationMode={presentationMode}
@@ -191,6 +230,7 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
         releaseNodeFromRegion={controller.releaseNodeFromRegion}
         renameLayer={controller.renameLayer}
         resizeObject={controller.resizeObject}
+        resizeSelection={controller.resizeSelection}
         reorderLayer={controller.reorderLayer}
         saveSelectionAsPreset={controller.saveSelectionAsPreset}
         selectFromCanvas={controller.selectFromCanvas}
@@ -200,7 +240,7 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
         setPathMode={controller.setPathMode}
         setRegionExpanded={controller.setRegionExpanded}
         snapshot={snapshot}
-        onExitPresentation={() => setPresentationMode(false)}
+        onExitPresentation={exitPresentation}
       />
       <Inspector
         profile={controller.authoringProfile}
@@ -210,8 +250,7 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
         onCommitStyle={controller.commitStyleInspector}
         onOpenSource={(document, path) => {
           setSourceRequest({ document, path });
-          setDrawerView('source');
-          setDrawerOpen(true);
+          openDrawer('source');
         }}
         onUnsetStyle={controller.unsetStyleInspector}
         onUpdateFieldProfile={controller.updateFieldProfile}
@@ -249,12 +288,13 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
         <Suspense fallback={<section className="studio-workspace-loading">Opening workspace...</section>}>
           <WorkspaceDrawer
             forceEditorFailure={forceEditorFailure}
+            height={drawerHeight}
             history={controller.historyEntries}
             initialDocument={sourceRequest?.document}
             normalizationReview={controller.normalizationReview}
             onApply={controller.applySourceDraft}
             onCancelNormalization={controller.cancelNormalizationReview}
-            onClose={() => setDrawerOpen(false)}
+            onClose={closeDrawer}
             onConfirmNormalization={controller.confirmNormalizationReview}
             onCursorOffset={controller.selectSourceOffset}
             onDiscardInvalid={controller.discardInvalidDraft}
@@ -274,7 +314,7 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
       {drawerOpen && drawerView === 'mapper' && (
         <Suspense fallback={<section className="studio-workspace-loading">Opening telemetry mapper...</section>}>
           <MapperWorkspace
-            onClose={() => setDrawerOpen(false)}
+            onClose={closeDrawer}
             onCommitField={controller.commitMapperField}
             onCommitProposal={controller.commitMapperProposal}
             onCommitStyle={controller.commitMapperStyle}
@@ -303,12 +343,10 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
         <div className="studio-footer-tools">
           <button className="studio-drawer-button" aria-label="Open workspace drawer" onClick={() => {
             setSourceRequest(controller.sourcePathForSelection());
-            setDrawerView('source');
-            setDrawerOpen((value) => drawerView === 'source' ? !value : true);
+            toggleDrawer('source');
           }} type="button"><CodeIcon fontSize="small" /><span>topology.yaml</span></button>
           <button className="studio-drawer-button" aria-label="Open telemetry mapper" onClick={() => {
-            setDrawerView('mapper');
-            setDrawerOpen((value) => drawerView === 'mapper' ? !value : true);
+            toggleDrawer('mapper');
           }} type="button"><SensorsIcon fontSize="small" /><span>Telemetry</span></button>
         </div>
         {controller.commandError ? <span className="studio-command-error" role="alert">{controller.commandError}</span> : null}
@@ -318,7 +356,7 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
             {autosave.error.retryable ? <button onClick={autosave.retry} type="button">Retry</button> : null}
           </span>
         ) : null}
-        <span className="studio-visually-hidden" aria-live="polite">{controller.announcement}</span>
+        <span className="studio-visually-hidden" aria-atomic="true" aria-live="polite">{controller.announcement}</span>
         <span>{host.kind === 'vscode' ? 'VS Code workspace' : 'Browser project'}</span>
       </footer>
     </main>

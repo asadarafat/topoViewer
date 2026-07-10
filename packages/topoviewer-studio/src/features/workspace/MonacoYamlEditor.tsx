@@ -149,7 +149,7 @@ export default function MonacoYamlEditor({
         }}
         path={`inmemory://topoviewer-studio/${document}.yaml`}
         saveViewState
-        theme="vs-dark"
+        theme="topoviewer-studio-dark"
         value={value}
       />
     </div>

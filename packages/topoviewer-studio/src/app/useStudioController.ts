@@ -16,7 +16,6 @@ import {
   createBasicMapperRule,
   mapperRuleFromProposal,
   proposeMapperRule,
-  findAuthoringObject,
   graphHasLinkBetween,
   pasteAuthoringClipboard,
   planAuthoringAlignment,
@@ -27,9 +26,7 @@ import {
   planAuthoringLayerRename,
   planAuthoringLayerReorder,
   planAuthoringPositionDelta,
-  planAuthoringNodeMove,
   planAuthoringRegionExpanded,
-  planAuthoringRegionMove,
   planAuthoringReleaseFromRegion,
   planAuthoringResize,
   authoringRegionForNodePosition,
@@ -83,6 +80,11 @@ import {
   type UseStudioControllerOptions,
   valueAtNestedPath
 } from './controllerUtils';
+import {
+  describeStudioSelection,
+  planStudioObjectMove,
+  planStudioSelectionResize
+} from './controllerAuthoring';
 
 export function useStudioController({ host, onReload, project, recovery }: UseStudioControllerOptions) {
   const session = useMemo(() => {
@@ -267,7 +269,7 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
     const current = session.snapshot();
     if (sameSelection(current.selection, selection)) return;
     session.setSelection(selection);
-    setAnnouncement(selection.length ? `${selection.length} object${selection.length === 1 ? '' : 's'} selected` : 'Selection cleared');
+    setAnnouncement(describeStudioSelection(current.projection.document, selection));
     refresh();
   }
 
@@ -307,28 +309,13 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
     });
     if (sameSelection(current.selection, selection)) return;
     session.setSelection(selection);
-    setAnnouncement(selection.length ? `${selection.length} object${selection.length === 1 ? '' : 's'} selected` : 'Selection cleared');
+    setAnnouncement(describeStudioSelection(current.projection.document, selection));
     setSnapshot(session.snapshot());
   }, [session]);
 
   function moveObject(id: string, position: { x: number; y: number }, dragDelta?: { x: number; y: number }) {
-    const currentSnapshot = session.snapshot();
-    const topology = currentSnapshot.projection.document;
-    const selection = resolveAuthoringSelection(topology, id);
-    const object = findAuthoringObject(topology, selection);
-    const current = positionOf(object?.position);
-    if (!selection || !current) return false;
-    const plan = selection.kind === 'node'
-      ? planAuthoringNodeMove(topology, selection.id, position)
-      : selection.kind === 'region'
-        ? planAuthoringRegionMove(topology, selection.id, dragDelta
-            ? { x: current.x + dragDelta.x, y: current.y + dragDelta.y }
-            : position)
-        : planAuthoringPositionDelta(topology, [selection], {
-            x: position.x - current.x,
-            y: position.y - current.y
-          });
-    return executeEditPlan(`move-${id}`, `Move ${authoringObjectDisplayName(topology, selection)}`, plan, [selection as StudioSelection]);
+    const planned = planStudioObjectMove(session.snapshot().projection.document, id, position, dragDelta);
+    return planned ? executeEditPlan(`move-${id}`, planned.label, planned.plan, [planned.selection]) : false;
   }
 
   function resizeObject(change: TopoViewerNodeResizeChange) {
@@ -337,6 +324,15 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
     if (!selection) return false;
     return executeEditPlan(`resize-${selection.id}`, `Resize ${authoringObjectDisplayName(topology, selection)}`,
       planAuthoringResize(topology, selection, change.position, change.size), [selection as StudioSelection]);
+  }
+
+  function resizeSelection(delta: { width: number; height: number }) {
+    const current = session.snapshot();
+    if (current.selection.length !== 1) return false;
+    const planned = planStudioSelectionResize(current.projection.document, current.selection[0], delta);
+    return planned
+      ? executeEditPlan(`resize-${planned.selection.id}`, planned.label, planned.plan, [planned.selection])
+      : false;
   }
 
   function createConnection(connection: TopoViewerConnectionCreate) {
@@ -972,6 +968,7 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
     removeMapper,
     reload: onReload,
     resizeObject,
+    resizeSelection,
     reorderLayer,
     reorderFieldProfile,
     resetAuthoringProfile,

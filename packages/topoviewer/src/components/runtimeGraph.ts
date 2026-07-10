@@ -6,6 +6,24 @@ export function sourceObjectId(compiledObject: Record<string, unknown>): string 
   return String(data.id || compiledObject.id || '');
 }
 
+export function sameRuntimePosition(
+  first: { x: number; y: number } | undefined,
+  second: { x: number; y: number } | undefined
+) {
+  if (!first || !second) return false;
+  return Math.abs(first.x - second.x) < 0.5 && Math.abs(first.y - second.y) < 0.5;
+}
+
+export function runtimeNodePosition(node: Record<string, unknown>): { x: number; y: number } {
+  const position = (node.position || {}) as { x?: unknown; y?: unknown };
+  const x = Number(position.x);
+  const y = Number(position.y);
+  return {
+    x: Number.isFinite(x) ? x : 0,
+    y: Number.isFinite(y) ? y : 0
+  };
+}
+
 export function regionDragGroupRuntimeIds(document: TopoDocument, runtimeId: string): Set<string> {
   if (!runtimeId.startsWith('region:')) return new Set([runtimeId]);
   const rootRegionId = runtimeId.replace(/^region:/, '');

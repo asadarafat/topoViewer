@@ -1,4 +1,5 @@
 import { applyStyle, compileCalloutStyle, compileEdgeStyle, compileNodeStyle, compileRegionStyle, compileShapeStyle } from './style';
+import { withCompiledEdgeAccessibility, withCompiledNodeAccessibility } from './compiledAccessibility';
 import { computeLayoutPositions } from './layout';
 import { layerIds } from './layers';
 import { assertRendererLimits } from './limits';
@@ -441,8 +442,10 @@ export function compileTopoGraph(
   ];
 
   return {
-    nodes: [...regionNodes, ...shapeNodes, ...networkNodes, ...calloutNodes, ...pinNodes] as CompiledGraph['nodes'],
-    edges: edges as CompiledGraph['edges'],
+    nodes: withCompiledNodeAccessibility([
+      ...regionNodes, ...shapeNodes, ...networkNodes, ...calloutNodes, ...pinNodes
+    ]) as CompiledGraph['nodes'],
+    edges: withCompiledEdgeAccessibility(edges) as CompiledGraph['edges'],
     selectedLayerIds: [...selectedLayers]
   };
 }

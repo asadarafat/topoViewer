@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react';
+import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from 'react';
 import CloseIcon from '@mui/icons-material/Close';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
@@ -29,6 +29,7 @@ import type {
   StudioStyleEditScope,
   StudioStyleUnsetRequest
 } from '../../contracts/inspector';
+import { handleRovingTabKey } from '../../accessibility/tabs';
 import {
   fieldLevelAfterToggle,
   resolveStudioFieldProfile
@@ -236,6 +237,10 @@ export function StyleFieldEditor({
   const options = field.control?.kind === 'asset' ? assetOptions : field.values || [];
   const selectOptions = draft && !options.includes(draft) ? [draft, ...options] : options;
   const specializedEditor = field.control?.specializedEditor;
+  const generatedId = useId();
+  const fieldId = `studio-field-${generatedId.replaceAll(':', '')}`;
+  const descriptionId = `studio-field-description-${path.join('-')}`;
+  const errorId = `studio-field-error-${path.join('-')}`;
 
   if (field.control?.kind === 'nested' && field.nestedFields) {
     const nestedRecord = record(value);
@@ -282,7 +287,7 @@ export function StyleFieldEditor({
   return (
     <div className="studio-generated-field" data-field-path={path.join('.')} data-specialized-editor={specializedEditor}>
       <div className="studio-generated-field-heading">
-        <label htmlFor={`studio-field-${path.join('-')}`}>{field.label}</label>
+        <label htmlFor={fieldId}>{field.label}</label>
         <FieldActions
           explicit={explicit}
           field={field}
@@ -297,8 +302,9 @@ export function StyleFieldEditor({
       {field.control?.kind === 'switch' ? (
         <label className="studio-switch-field">
           <input
+            aria-describedby={descriptionId}
             checked={effective === true}
-            id={`studio-field-${path.join('-')}`}
+            id={fieldId}
             onChange={(event) => commit(event.target.checked)}
             type="checkbox"
           />
@@ -306,8 +312,9 @@ export function StyleFieldEditor({
         </label>
       ) : field.control?.kind === 'select' || field.control?.kind === 'asset' ? (
         <select
+          aria-describedby={descriptionId}
           aria-label={field.label}
-          id={`studio-field-${path.join('-')}`}
+          id={fieldId}
           onChange={(event) => {
             setDraft(event.target.value);
             commit(event.target.value);
@@ -331,9 +338,10 @@ export function StyleFieldEditor({
             />
           ) : null}
           <input
-            aria-describedby={`studio-field-description-${path.join('-')}`}
+            aria-describedby={`${descriptionId}${error ? ` ${errorId}` : ''}`}
+            aria-errormessage={error ? errorId : undefined}
             aria-invalid={Boolean(error)}
-            id={`studio-field-${path.join('-')}`}
+            id={fieldId}
             inputMode={field.valueType === 'integer' || field.valueType === 'number' ? 'decimal' : undefined}
             min={field.control?.minimum}
             max={field.control?.maximum}
@@ -346,8 +354,8 @@ export function StyleFieldEditor({
           />
         </div>
       )}
-      <span className="studio-field-description" id={`studio-field-description-${path.join('-')}`}>{field.description}</span>
-      {error ? <span className="studio-field-error" role="alert">{error}</span> : null}
+      <span className="studio-field-description" id={descriptionId}>{field.description}</span>
+      {error ? <span className="studio-field-error" id={errorId} role="alert">{error}</span> : null}
       {provenance ? <ProvenanceDetails provenance={provenance} sourceRange={sourceRange} /> : null}
     </div>
   );
@@ -556,7 +564,9 @@ export function Inspector({
                     aria-selected={view === item.id}
                     key={item.id}
                     onClick={() => setView(item.id)}
+                    onKeyDown={handleRovingTabKey}
                     role="tab"
+                    tabIndex={view === item.id ? 0 : -1}
                     type="button"
                   >
                     {item.label}

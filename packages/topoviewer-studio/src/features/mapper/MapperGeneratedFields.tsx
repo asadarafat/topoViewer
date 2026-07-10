@@ -92,6 +92,8 @@ function MapperScalarControl({
   }
 
   const inputId = `studio-mapper-${path.map(String).join('-')}`;
+  const descriptionId = `${inputId}-description`;
+  const errorId = `${inputId}-error`;
   return (
     <div className="studio-mapper-field" data-field-path={field.path}>
       <div>
@@ -100,11 +102,11 @@ function MapperScalarControl({
       </div>
       {field.valueType === 'boolean' ? (
         <label className="studio-switch-field">
-          <input checked={value === true} id={inputId} onChange={(event) => commit(event.target.checked)} type="checkbox" />
+          <input aria-describedby={descriptionId} checked={value === true} id={inputId} onChange={(event) => commit(event.target.checked)} type="checkbox" />
           <span>{value === true ? 'On' : 'Off'}</span>
         </label>
       ) : field.valueType === 'enum' ? (
-        <select aria-label={field.label} id={inputId} onChange={(event) => {
+        <select aria-describedby={descriptionId} aria-label={field.label} id={inputId} onChange={(event) => {
           setDraft(event.target.value);
           commit(event.target.value);
         }} value={draft}>
@@ -113,6 +115,8 @@ function MapperScalarControl({
         </select>
       ) : (
         <input
+          aria-describedby={`${descriptionId}${error ? ` ${errorId}` : ''}`}
+          aria-errormessage={error ? errorId : undefined}
           aria-invalid={Boolean(error)}
           id={inputId}
           inputMode={field.valueType === 'integer' || field.valueType === 'number' ? 'decimal' : undefined}
@@ -123,8 +127,8 @@ function MapperScalarControl({
           value={draft}
         />
       )}
-      <span>{field.description}</span>
-      {error ? <strong role="alert">{error}</strong> : null}
+      <span id={descriptionId}>{field.description}</span>
+      {error ? <strong id={errorId} role="alert">{error}</strong> : null}
     </div>
   );
 }

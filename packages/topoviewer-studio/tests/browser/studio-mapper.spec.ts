@@ -54,8 +54,9 @@ test('edits Advanced fields and accounts for the complete metadata surface', asy
   await workspace.getByRole('button', { name: 'Enable telemetry mapper' }).click();
   await workspace.getByRole('textbox', { name: 'Metric' }).fill('node_health');
   await workspace.getByRole('button', { name: 'Create rule' }).click();
+  const authoringViews = workspace.getByRole('tablist', { name: 'Mapper authoring views' });
 
-  await workspace.getByRole('button', { name: 'Advanced' }).click();
+  await authoringViews.getByRole('tab', { name: 'Advanced' }).click();
   const advanced = workspace.getByRole('region', { name: 'advanced mapper fields' });
   await advanced.getByRole('textbox', { name: 'Source Id', exact: true }).fill('branch-core');
   await advanced.getByRole('textbox', { name: 'Source Id', exact: true }).press('Enter');
@@ -63,7 +64,7 @@ test('edits Advanced fields and accounts for the complete metadata surface', asy
   await advanced.getByRole('textbox', { name: 'Metric', exact: true }).press('Enter');
   await expect(page.locator('.studio-saved-state')).toHaveText('Modified');
 
-  await workspace.getByRole('button', { name: 'All' }).click();
+  await authoringViews.getByRole('tab', { name: 'All' }).click();
   const all = workspace.getByRole('region', { name: 'all mapper fields' });
   await expect(all.locator('[data-field-path]')).toHaveCount(92);
   await expect(all.locator('[data-field-path="mappings[].conditions"]')).toContainText('Edit in YAML');
@@ -73,7 +74,10 @@ test('preserves and navigates unsupported future mapper fields', async ({ page }
   await page.goto('/?__studio-test-state=mapper-future');
   await page.getByRole('button', { name: 'Open telemetry mapper' }).click();
   const workspace = page.getByRole('region', { name: 'Telemetry mapper workspace' });
-  await workspace.getByRole('button', { name: 'All' }).click();
+  await workspace
+    .getByRole('tablist', { name: 'Mapper authoring views' })
+    .getByRole('tab', { name: 'All' })
+    .click();
   const future = workspace.getByRole('button', { name: 'x-future-transform' });
   await expect(future).toBeVisible();
   await future.click();

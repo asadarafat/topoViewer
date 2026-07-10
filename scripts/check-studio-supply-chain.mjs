@@ -32,7 +32,7 @@ if (packageJson.private !== true) fail('topoviewer-studio must remain private.')
 if (packageJson.license !== 'Apache-2.0') fail('topoviewer-studio must declare Apache-2.0.');
 if (packageJson.publishConfig) fail('topoviewer-studio must not define publishConfig.');
 if (Object.keys(packageJson.scripts || {}).some((name) => /publish/i.test(name))) fail('topoviewer-studio must not define publish scripts.');
-if (JSON.stringify(packageJson.files) !== JSON.stringify(['dist', 'ARCHITECTURE.md', 'package.json'])) {
+if (JSON.stringify(packageJson.files) !== JSON.stringify(['dist', 'ACCESSIBILITY.md', 'ARCHITECTURE.md', 'package.json'])) {
   fail('topoviewer-studio package files must remain on the reviewed allowlist.');
 }
 if (!packageJson.exports?.['./security']) fail('topoviewer-studio must expose its reviewed cross-host security boundary.');
@@ -89,7 +89,7 @@ for (const file of sourceFiles) {
 const packed = JSON.parse(run('npm', ['pack', '--workspace', 'topoviewer-studio', '--dry-run', '--json']))[0];
 const packedFiles = packed.files.map((entry) => entry.path);
 for (const file of packedFiles) {
-  if (!/^(?:ARCHITECTURE\.md|package\.json|dist\/)/.test(file)) fail(`Studio dry-run package contains unexpected file ${file}.`);
+  if (!/^(?:ACCESSIBILITY\.md|ARCHITECTURE\.md|package\.json|dist\/)/.test(file)) fail(`Studio dry-run package contains unexpected file ${file}.`);
   if (/(?:\.env|\.artifacts|\.donotpush|test-results|playwright-report|node_modules)/.test(file)) fail(`Studio dry-run package leaks forbidden path ${file}.`);
 }
 for (const required of ['dist/security.js', 'dist/security.d.ts', 'dist/hostSecurity.js', 'dist/hostSecurity.d.ts', 'dist/contracts/host.js', 'dist/app.js']) {

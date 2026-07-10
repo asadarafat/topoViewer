@@ -20,6 +20,8 @@ import type {
 } from '../../contracts/mapper';
 import type { StudioAuthoringProfileOverride } from '../../contracts/profiles';
 import type { StudioSessionSnapshot } from '../../contracts/project';
+import { useDialogFocus } from '../../accessibility/focus';
+import { handleRovingTabKey } from '../../accessibility/tabs';
 import { MapperGeneratedFields } from './MapperGeneratedFields';
 import { MapperStyleEditor } from './MapperStyleEditor';
 import { MapperSampleWorkspace } from './MapperSampleWorkspace';
@@ -118,6 +120,10 @@ export default function MapperWorkspace({
   const analysis = useMapperAnalysis(snapshot.projection.document, mapperValue, sampleResult?.samples);
   const coverage = analysis.coverage;
   const invalidIngestionCount = sampleResult?.diagnostics.filter((diagnostic) => diagnostic.code === 'sample-record-invalid').length || 0;
+  const removeDialog = useDialogFocus<HTMLDivElement>({
+    active: confirmRemove,
+    onDismiss: () => setConfirmRemove(false)
+  });
 
   useEffect(() => {
     const selected = selectedTarget(snapshot);
@@ -191,7 +197,7 @@ export default function MapperWorkspace({
                 </button>
               </div>
             ) : (
-              <div className="studio-mapper-remove-confirm" role="alertdialog" aria-label="Remove telemetry mapper">
+              <div aria-label="Remove telemetry mapper" aria-modal="true" className="studio-mapper-remove-confirm" onKeyDown={removeDialog.onDialogKeyDown} ref={removeDialog.dialogRef} role="alertdialog" tabIndex={-1}>
                 <span>Remove mapper.yaml? Topology and stylesheet are not changed.</span>
                 <button onClick={() => setConfirmRemove(false)} type="button">Cancel</button>
                 <button className="studio-danger-button" onClick={() => {
@@ -201,12 +207,15 @@ export default function MapperWorkspace({
             )}
           </div>
 
-          <nav aria-label="Mapper authoring views" className="studio-mapper-view-tabs">
+          <nav aria-label="Mapper authoring views" className="studio-mapper-view-tabs" role="tablist">
             {(['basic', 'advanced', 'all'] as const).map((candidate) => (
               <button
-                aria-current={view === candidate ? 'page' : undefined}
+                aria-selected={view === candidate}
                 key={candidate}
                 onClick={() => setView(candidate)}
+                onKeyDown={handleRovingTabKey}
+                role="tab"
+                tabIndex={view === candidate ? 0 : -1}
                 type="button"
               >
                 {candidate[0].toUpperCase() + candidate.slice(1)}

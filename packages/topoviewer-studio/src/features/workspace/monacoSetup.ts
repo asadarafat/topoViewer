@@ -15,3 +15,14 @@ import 'monaco-editor/esm/vs/editor/contrib/suggest/browser/suggestController';
 };
 
 loader.config({ monaco });
+
+monaco.editor.defineTheme('topoviewer-studio-dark', {
+  base: 'vs-dark',
+  inherit: true,
+  rules: [],
+  colors: {
+    'editor.selectionBackground': '#000000',
+    'editor.inactiveSelectionBackground': '#111820',
+    'editor.selectionHighlightBackground': '#111820'
+  }
+});

@@ -8,7 +8,7 @@ export function CalloutNode({ data }: { data: CompiledNodeData }) {
     : undefined;
 
   return (
-    <div className="topoviewer-callout topoviewer-callout-drag" style={data.shapeStyle as CSSProperties} role="note" aria-label={data.title || data.name || data.id}>
+    <div className="topoviewer-callout topoviewer-callout-drag" data-topoviewer-object-id={data.id} style={data.shapeStyle as CSSProperties} role="note" aria-label={data.title || data.name || data.id}>
       <NodeResizer
         isVisible={data.__topoviewerResizable === true}
         minWidth={120}

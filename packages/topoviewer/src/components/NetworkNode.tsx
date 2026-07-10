@@ -253,6 +253,7 @@ export function NetworkNode({ data }: { data: CompiledNodeData }) {
       role="group"
       aria-current={data.attentionState === 'focused' ? 'true' : undefined}
       aria-label={accessibleLabel}
+      data-topoviewer-object-id={data.id}
       tabIndex={isNavigableAttentionNode ? 0 : -1}
     >
       {onResizeEnd ? (

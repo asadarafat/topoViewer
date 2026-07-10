@@ -8,6 +8,7 @@ import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import type { StudioProjectSummary } from '../../contracts/host';
 import type { StudioProject } from '../../contracts/project';
+import { useDialogFocus } from '../../accessibility/focus';
 
 export interface StudioProjectLifecycleActions {
   activeProjectId: string;
@@ -33,6 +34,18 @@ export function ProjectMenu({ actions, project }: { actions: StudioProjectLifecy
   const [resetOpen, setResetOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [draftName, setDraftName] = useState(name);
+  const menuDialog = useDialogFocus<HTMLElement>({
+    active: open && !deleteOpen && !resetOpen,
+    onDismiss: () => setOpen(false)
+  });
+  const deleteDialog = useDialogFocus<HTMLElement>({
+    active: deleteOpen,
+    onDismiss: () => setDeleteOpen(false)
+  });
+  const resetDialog = useDialogFocus<HTMLElement>({
+    active: resetOpen,
+    onDismiss: () => setResetOpen(false)
+  });
 
   async function run(action: () => Promise<void>, close = true) {
     setBusy(true);
@@ -61,7 +74,7 @@ export function ProjectMenu({ actions, project }: { actions: StudioProjectLifecy
         <span>{name}</span>
       </button>
       {open ? (
-        <section aria-label="Project menu" className="studio-project-menu" role="dialog">
+        <section aria-label="Project menu" className="studio-project-menu" onKeyDown={menuDialog.onDialogKeyDown} ref={menuDialog.dialogRef} role="dialog" tabIndex={-1}>
           <header><strong>{actions.mode === 'workspace' ? 'VS Code bundle' : 'Browser projects'}</strong>{actions.mode === 'browser' ? <span>{actions.projects.length}</span> : null}</header>
           <div className="studio-project-actions">
             {actions.create ? <button disabled={busy} onClick={() => void run(actions.create!)} type="button"><AddIcon fontSize="small" />New</button> : null}
@@ -109,7 +122,7 @@ export function ProjectMenu({ actions, project }: { actions: StudioProjectLifecy
         </section>
       ) : null}
       {deleteOpen ? (
-        <section aria-label={`Delete ${name}?`} className="studio-confirm-dialog" role="alertdialog">
+        <section aria-label={`Delete ${name}?`} aria-modal="true" className="studio-confirm-dialog" onKeyDown={deleteDialog.onDialogKeyDown} ref={deleteDialog.dialogRef} role="alertdialog" tabIndex={-1}>
           <strong>Delete {name}?</strong>
           <p>The browser project and its recovery snapshots will be removed.</p>
           <div>
@@ -119,7 +132,7 @@ export function ProjectMenu({ actions, project }: { actions: StudioProjectLifecy
         </section>
       ) : null}
       {resetOpen ? (
-        <section aria-label="Reset browser storage?" className="studio-confirm-dialog" role="alertdialog">
+        <section aria-label="Reset browser storage?" aria-modal="true" className="studio-confirm-dialog" onKeyDown={resetDialog.onDialogKeyDown} ref={resetDialog.dialogRef} role="alertdialog" tabIndex={-1}>
           <strong>Reset browser storage?</strong>
           <p>All Studio browser projects and recovery snapshots will be removed. Export recoverable work first.</p>
           <div>

@@ -9,6 +9,7 @@ import type {
 import type { StudioAuthoringProfileOverride } from '../../contracts/profiles';
 import { StyleFieldEditor } from '../inspector/Inspector';
 import { resolveStudioFieldProfile } from '../inspector/profile';
+import { handleRovingTabKey } from '../../accessibility/tabs';
 import { mapperStyleSlots, mapperStyleTarget } from './mapperFieldModel';
 
 interface MapperStyleEditorProps {
@@ -79,7 +80,7 @@ export function MapperStyleEditor({
         </label>
         <div aria-label="Mapper style field view" className="studio-mapper-style-view" role="tablist">
           {(['basic', 'advanced', 'all'] as const).map((candidate) => (
-            <button aria-selected={view === candidate} key={candidate} onClick={() => setView(candidate)} role="tab" type="button">
+            <button aria-selected={view === candidate} key={candidate} onClick={() => setView(candidate)} onKeyDown={handleRovingTabKey} role="tab" tabIndex={view === candidate ? 0 : -1} type="button">
               {candidate[0].toUpperCase() + candidate.slice(1)}
             </button>
           ))}

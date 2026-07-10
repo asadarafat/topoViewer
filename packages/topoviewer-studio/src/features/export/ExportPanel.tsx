@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import CloseIcon from '@mui/icons-material/Close';
 import type { StudioHost } from '../../contracts/host';
 import type { StudioSessionSnapshot } from '../../contracts/project';
+import { useDialogFocus } from '../../accessibility/focus';
 import { createDocumentationSnippet, type DocumentationSnippetKind } from '../../export/documentationSnippets';
 import { createStudioExportSnapshot } from '../../export/exportSnapshot';
 import { encodeGrafanaBundle } from '../../export/grafanaBundle';
@@ -29,6 +30,10 @@ export default function ExportPanel({ canvasElement, host, onAnnouncement, onClo
   const [error, setError] = useState<string>();
   const [failedAction, setFailedAction] = useState<ExportAction>();
   const abortRef = useRef<AbortController>();
+  const { dialogRef, onDialogKeyDown } = useDialogFocus<HTMLElement>({
+    initialFocus: '[aria-label="Close export panel"]',
+    onDismiss: stage ? undefined : onClose
+  });
 
   async function runImageExport() {
     if (!canvasElement) {
@@ -109,9 +114,9 @@ export default function ExportPanel({ canvasElement, host, onAnnouncement, onClo
 
   return (
     <div className="studio-export-backdrop">
-      <section aria-label="Export project" className="studio-export-panel" role="dialog">
+      <section aria-label="Export project" aria-modal="true" className="studio-export-panel" onKeyDown={onDialogKeyDown} ref={dialogRef} role="dialog" tabIndex={-1}>
         <header>
-          <div><strong>Export</strong><span>Current source revision</span></div>
+          <div><strong id="studio-export-title">Export</strong><span>Current source revision</span></div>
           <button aria-label="Close export panel" disabled={Boolean(stage)} onClick={onClose} title="Close" type="button"><CloseIcon fontSize="small" /></button>
         </header>
         <div aria-label="Image format" className="studio-export-segments" role="group">

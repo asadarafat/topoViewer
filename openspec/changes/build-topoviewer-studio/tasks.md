@@ -396,21 +396,21 @@ promotes a reviewed asset into documentation.
 
 ## 16. Accessibility And UX Review
 
-- [ ] 16.1 Define the keyboard map and focus model for palette, canvas, handles,
+- [x] 16.1 Define the keyboard map and focus model for palette, canvas, handles,
   Inspector, drawers, dialogs, layers, presentation, and exports
-- [ ] 16.2 Implement keyboard-equivalent choose/place, connect, move, resize,
+- [x] 16.2 Implement keyboard-equivalent choose/place, connect, move, resize,
   region membership, context action, and mapper workflows
-- [ ] 16.3 Implement screen-reader announcements for selection, placement,
+- [x] 16.3 Implement screen-reader announcements for selection, placement,
   connection validity, command result, diagnostics, save state, and errors
-- [ ] 16.4 Verify accessible names, descriptions, error associations, target
+- [x] 16.4 Verify accessible names, descriptions, error associations, target
   sizes, tooltips, and no color-only state across generated and custom controls
-- [ ] 16.5 Test 200 percent zoom, narrow viewport, keyboard-only, reduced motion,
+- [x] 16.5 Test 200 percent zoom, narrow viewport, keyboard-only, reduced motion,
   high contrast, light/dark themes, and long translated-like labels
-- [ ] 16.6 Run automated accessibility tests on every major state in Chromium and
+- [x] 16.6 Run automated accessibility tests on every major state in Chromium and
   perform documented VoiceOver and keyboard workflow reviews on macOS
-- [ ] 16.7 Resolve all critical/serious findings and record justified lower-
+- [x] 16.7 Resolve all critical/serious findings and record justified lower-
   severity residual findings with owners
-- [ ] 16.8 **Exit gate:** WCAG 2.2 AA target workflows and manual assistive-
+- [x] 16.8 **Exit gate:** WCAG 2.2 AA target workflows and manual assistive-
   technology review pass before performance freeze
 
 ## 17. Performance, Scale, And Bundle Freeze

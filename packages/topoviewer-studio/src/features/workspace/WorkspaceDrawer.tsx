@@ -15,6 +15,7 @@ import type {
   StudioDocumentKind,
   StudioSessionSnapshot
 } from '../../contracts/project';
+import { handleRovingTabKey } from '../../accessibility/tabs';
 import type { StudioNormalizationReview, StudioSourceRange } from '../../session';
 import { createStudioYamlAssist } from './yamlAssist';
 
@@ -25,6 +26,7 @@ type WorkspaceView = 'yaml' | 'diagnostics' | 'diff' | 'history';
 interface WorkspaceDrawerProps {
   forceEditorFailure?: boolean;
   history: StudioHistoryEntry[];
+  height: number;
   initialDocument?: StudioDocumentKind;
   normalizationReview?: StudioNormalizationReview;
   onApply(document: StudioDocumentKind, text: string): boolean;
@@ -129,6 +131,7 @@ function EditorFailureProbe(): never {
 
 export default function WorkspaceDrawer({
   forceEditorFailure = false,
+  height,
   history,
   initialDocument = 'topology',
   normalizationReview,
@@ -244,6 +247,10 @@ export default function WorkspaceDrawer({
     <section className="studio-workspace-drawer" aria-label="Workspace drawer">
       <div
         aria-label="Resize workspace drawer"
+        aria-valuemax={Math.max(220, globalThis.innerHeight - 240)}
+        aria-valuemin={180}
+        aria-valuenow={Math.round(height)}
+        aria-valuetext={`${Math.round(height)} pixels high`}
         aria-orientation="horizontal"
         className="studio-workspace-resizer"
         onKeyDown={resizeWithKeyboard}
@@ -251,18 +258,22 @@ export default function WorkspaceDrawer({
         role="separator"
         tabIndex={0}
       />
-      <div className="studio-workspace-view-tabs" role="tablist" aria-label="Workspace views">
-        {views.map((tab) => (
-          <button
-            aria-selected={view === tab.id}
-            key={tab.id}
-            onClick={() => setView(tab.id)}
-            role="tab"
-            type="button"
-          >
-            {tab.label}{tab.id === 'diagnostics' && diagnostics.length ? ` (${diagnostics.length})` : ''}
-          </button>
-        ))}
+      <div className="studio-workspace-view-tabs">
+        <div aria-label="Workspace views" className="studio-workspace-view-tablist" role="tablist">
+          {views.map((tab) => (
+            <button
+              aria-selected={view === tab.id}
+              key={tab.id}
+              onClick={() => setView(tab.id)}
+              onKeyDown={handleRovingTabKey}
+              role="tab"
+              tabIndex={view === tab.id ? 0 : -1}
+              type="button"
+            >
+              {tab.label}{tab.id === 'diagnostics' && diagnostics.length ? ` (${diagnostics.length})` : ''}
+            </button>
+          ))}
+        </div>
         <button className="studio-workspace-close" onClick={onClose} type="button">Close</button>
       </div>
 
@@ -275,7 +286,9 @@ export default function WorkspaceDrawer({
                 disabled={!snapshot.project.documents[tab.kind]}
                 key={tab.kind}
                 onClick={() => activateDocument(tab.kind)}
+                onKeyDown={handleRovingTabKey}
                 role="tab"
+                tabIndex={active === tab.kind ? 0 : -1}
                 type="button"
               >
                 {tab.label}

@@ -154,6 +154,7 @@ export function ShapeNode({ data }: { data: CompiledNodeData }) {
       className={`topoviewer-shape topoviewer-shape-drag topoviewer-shape-${shapeType}`}
       style={data.shapeStyle as CSSProperties}
       aria-label={data.name || data.id}
+      data-topoviewer-object-id={data.id}
     >
       <NodeResizer
         isVisible={data.__topoviewerResizable === true}

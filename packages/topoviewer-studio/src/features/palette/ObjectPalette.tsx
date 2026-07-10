@@ -23,7 +23,7 @@ const builtInTemplates: PaletteTemplate[] = [
 ];
 
 interface ObjectPaletteProps {
-  onCreate(templateId: StudioPaletteTemplateId): void;
+  onCreate(templateId: StudioPaletteTemplateId): boolean;
   presets: StudioUserPreset[];
   state: 'default' | 'open' | 'closed';
 }

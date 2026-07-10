@@ -6,6 +6,7 @@ import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { findAuthoringObject, type AuthoringObjectSelection } from 'topoviewer/authoring';
 import type { LayerDefinition } from 'topoviewer';
 import type { StudioSelection, StudioSessionSnapshot } from '../../contracts/project';
+import { useDialogFocus } from '../../accessibility/focus';
 
 interface LayerControlsProps {
   createLayer(name?: string): boolean;
@@ -145,6 +146,10 @@ export function LayerControls({
   const pendingDelete = layers.find((layer) => layer.id === pendingDeleteId);
   const replacementOptions = layers.filter((layer) => layer.id !== pendingDeleteId);
   const [replacementLayerId, setReplacementLayerId] = useState('');
+  const deleteDialog = useDialogFocus<HTMLDivElement>({
+    active: Boolean(pendingDelete),
+    onDismiss: () => setPendingDeleteId(undefined)
+  });
 
   function setVisible(layerId: string, visible: boolean) {
     setHiddenLayerIds(visible
@@ -199,7 +204,7 @@ export function LayerControls({
       </div>
 
       {pendingDelete ? (
-        <div className="studio-layer-dialog" role="alertdialog" aria-labelledby="studio-layer-delete-title" aria-modal="true">
+        <div className="studio-layer-dialog" role="alertdialog" aria-labelledby="studio-layer-delete-title" aria-modal="true" onKeyDown={deleteDialog.onDialogKeyDown} ref={deleteDialog.dialogRef} tabIndex={-1}>
           <strong id="studio-layer-delete-title">Delete {pendingDelete.name || pendingDelete.id}?</strong>
           <label>Move assigned objects to
             <select aria-label="Replacement layer" onChange={(event) => setReplacementLayerId(event.target.value)} value={replacementLayerId}>

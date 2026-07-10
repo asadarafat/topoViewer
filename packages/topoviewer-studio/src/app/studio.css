@@ -102,6 +102,12 @@ button {
   gap: 8px;
 }
 
+.studio-product h1 {
+  margin: 0;
+  font-size: 16px;
+  letter-spacing: 0;
+}
+
 .studio-status {
   padding: 2px 6px;
   border: 1px solid #b7c4d0;
@@ -1370,7 +1376,7 @@ button {
   font-weight: 700;
 }
 
-.studio-mapper-view-tabs button[aria-current="page"] {
+.studio-mapper-view-tabs button[aria-selected="true"] {
   border-color: #1976d2;
   background: #e3f2fd;
   color: #0d47a1;
@@ -2043,6 +2049,11 @@ button {
   display: flex;
   align-items: stretch;
   border-bottom: 1px solid #e0e6ec;
+}
+
+.studio-workspace-view-tablist {
+  display: flex;
+  align-items: stretch;
 }
 
 .studio-workspace-view-tabs button,
@@ -2769,5 +2780,191 @@ button {
   .studio-drawer-button:hover,
   .studio-drawer-button:focus-visible {
     background: #263442;
+  }
+}
+
+.studio-shell :is(button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid #0b69b7 !important;
+  outline-offset: 2px;
+}
+
+.studio-field-actions button,
+.studio-mapper-field > div button {
+  width: 24px;
+  height: 24px;
+}
+
+.studio-shell input[type="checkbox"],
+.studio-shell input[type="radio"] {
+  min-width: 18px;
+  min-height: 18px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .studio-shell *,
+  .studio-shell *::before,
+  .studio-shell *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media (prefers-contrast: more) {
+  .studio-shell :is(button, input, select, textarea),
+  .studio-palette,
+  .studio-inspector,
+  .studio-canvas-toolbar,
+  .studio-canvas-settings {
+    border-width: 2px;
+  }
+}
+
+@media (forced-colors: active) {
+  .studio-shell,
+  .studio-canvas,
+  .studio-palette,
+  .studio-inspector,
+  .studio-header,
+  .studio-footer,
+  .studio-workspace-drawer,
+  .studio-mapper-workspace,
+  .studio-project-menu,
+  .studio-export-panel,
+  .studio-external-change-dialog {
+    background: Canvas;
+    color: CanvasText;
+  }
+
+  .studio-shell :is(button, input, select, textarea, [role="tab"], [role="menuitem"]),
+  .studio-template-glyph,
+  .studio-canvas-toolbar,
+  .studio-canvas-settings {
+    border: 1px solid ButtonText;
+    background: Canvas;
+    color: CanvasText;
+    forced-color-adjust: auto;
+  }
+
+  .studio-shell :is(button, input, select, textarea, [tabindex]):focus-visible,
+  .studio-shell :is([aria-selected="true"], [aria-pressed="true"], [aria-current="true"]) {
+    outline: 3px solid Highlight !important;
+    outline-offset: 2px;
+  }
+
+  .studio-shell :disabled {
+    color: GrayText;
+  }
+
+  .studio-command-error,
+  .studio-field-error,
+  [role="alert"] {
+    color: MarkText;
+    background: Mark;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .studio-project-menu,
+  .studio-confirm-dialog,
+  .studio-export-panel,
+  .studio-external-change-dialog,
+  .studio-mapper-workspace,
+  .studio-mapper-field,
+  .studio-mapper-raw-field,
+  .studio-mapper-proposal label,
+  .studio-mapper-coverage-items > div,
+  .studio-mapper-sample-summary {
+    border-color: #4d5e70;
+    background: #18212b;
+    color: #e6edf4;
+  }
+
+  .studio-project-menu button,
+  .studio-confirm-dialog button,
+  .studio-export-panel button,
+  .studio-mapper-header button,
+  .studio-mapper-enabled button,
+  .studio-mapper-rule-list > button,
+  .studio-mapper-samples button,
+  .studio-file-button,
+  .studio-mapper-coverage-items button,
+  .studio-mapper-raw-field button,
+  .studio-mapper-unknown-fields button,
+  .studio-mapper-view-tabs button,
+  .studio-mapper-style-view button {
+    border-color: #4d5e70;
+    background: #263442;
+    color: #e6edf4;
+  }
+
+  .studio-project-menu input,
+  .studio-export-panel input,
+  .studio-export-panel select,
+  .studio-mapper-basic-form input,
+  .studio-mapper-basic-form select,
+  .studio-mapper-field > input,
+  .studio-mapper-field > select,
+  .studio-mapper-samples textarea,
+  .studio-mapper-style-toolbar select {
+    border-color: #4d5e70;
+    background: #111820;
+    color: #e6edf4;
+  }
+
+  .studio-project-menu :is(span, p),
+  .studio-export-panel :is(span, label),
+  .studio-mapper-workspace :is(label, span),
+  .studio-mapper-field > span,
+  .studio-mapper-raw-field > span,
+  .studio-mapper-unknown-fields > span,
+  .studio-mapper-style-editor > span {
+    color: #b7c4d0;
+  }
+
+  .studio-status,
+  .studio-inspector :is(label, summary),
+  .studio-inspector-search,
+  .studio-inspector-profile-actions,
+  .studio-generated-field-heading,
+  .studio-scope-impact,
+  .studio-style-provenance,
+  .studio-unsupported-fields span {
+    color: #c4d0dc;
+  }
+
+  .studio-field input:read-only {
+    color: #d7e1eb;
+  }
+
+  .studio-shell input::placeholder,
+  .studio-shell textarea::placeholder {
+    color: #aebdca;
+    opacity: 1;
+  }
+
+  .studio-mapper-view-tabs button[aria-selected="true"],
+  .studio-mapper-style-view button[aria-selected="true"],
+  .studio-mapper-rule-list > button[aria-pressed="true"] {
+    border-color: #64b5f6;
+    background: #0d2942;
+    color: #d9efff;
+  }
+
+  .studio-mapper-empty button,
+  .studio-mapper-basic-form .studio-primary-button,
+  .studio-mapper-proposal > button,
+  .studio-export-panel footer button:last-child {
+    border-color: #64b5f6;
+    background: #1565c0;
+    color: #ffffff;
+  }
+
+  .studio-export-error,
+  .studio-field-error,
+  .studio-mapper-field > strong,
+  .studio-mapper-samples > strong {
+    color: #ffb4ab;
   }
 }

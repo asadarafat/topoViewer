@@ -28,6 +28,7 @@ import type {
   TopoViewerSelectionChange
 } from 'topoviewer/authoring';
 import type { StudioSelection, StudioSessionSnapshot } from '../../contracts/project';
+import { focusFirstAvailable } from '../../accessibility/focus';
 import { LayerControls } from '../layers/LayerControls';
 import type { StudioPaletteTemplateId } from '../palette/types';
 
@@ -50,6 +51,7 @@ interface CanvasSurfaceProps {
   duplicateSelection(): boolean;
   moveObject(id: string, position: { x: number; y: number }, delta?: { x: number; y: number }): boolean;
   nudgeSelection(delta: { x: number; y: number }): boolean;
+  onAnnouncement(message: string): void;
   pasteClipboard(): boolean;
   pathMode: NonNullable<CreateAuthoringPathOptions['mode']>;
   presentationMode: boolean;
@@ -58,6 +60,7 @@ interface CanvasSurfaceProps {
   releaseNodeFromRegion(nodeId: string, regionId?: string): boolean;
   renameLayer(layerId: string, name: string): boolean;
   resizeObject(change: TopoViewerNodeResizeChange): boolean;
+  resizeSelection(delta: { width: number; height: number }): boolean;
   reorderLayer(layerId: string, targetIndex: number): boolean;
   saveSelectionAsPreset(): boolean;
   selectFromCanvas(change: TopoViewerSelectionChange): void;
@@ -109,6 +112,7 @@ export function CanvasSurface({
   duplicateSelection,
   moveObject,
   nudgeSelection,
+  onAnnouncement,
   pasteClipboard,
   pathMode,
   presentationMode,
@@ -117,6 +121,7 @@ export function CanvasSurface({
   releaseNodeFromRegion,
   renameLayer,
   resizeObject,
+  resizeSelection,
   reorderLayer,
   saveSelectionAsPreset,
   selectFromCanvas,
@@ -139,6 +144,10 @@ export function CanvasSurface({
   const [overlayToggles, setOverlayToggles] = useState(() => defaultTopoViewerToggles(snapshot.projection.document));
   const [viewport, setViewport] = useState({ x: 0, y: 0, zoom: 1 });
   const [viewportMount, setViewportMount] = useState(0);
+  const contextMenuRef = useRef<HTMLDivElement>(null);
+  const contextReturnFocusRef = useRef<HTMLElement | null>(null);
+  const connectionAnnouncementRef = useRef('');
+  const connectionAnnouncementFrameRef = useRef<number>();
   const authoringViewportRef = useRef(viewport);
   const previousPresentationRef = useRef(presentationMode);
   const overlayDefinitionSignature = overlayDefinitions
@@ -169,6 +178,16 @@ export function CanvasSurface({
     : undefined;
 
   useEffect(() => {
+    if (contextMenu) focusFirstAvailable(contextMenuRef.current);
+  }, [contextMenu]);
+
+  useEffect(() => () => {
+    if (connectionAnnouncementFrameRef.current !== undefined) {
+      cancelAnimationFrame(connectionAnnouncementFrameRef.current);
+    }
+  }, []);
+
+  useEffect(() => {
     const defaults = defaultTopoViewerToggles(snapshot.projection.document);
     setOverlayToggles((current) => ({
       ...defaults,
@@ -186,10 +205,14 @@ export function CanvasSurface({
       const runtimeId = target?.dataset.id;
       const selection = runtimeId ? resolveAuthoringSelection(snapshot.projection.document, runtimeId) : undefined;
       if (selection) proposeMapperMetric(metric, selection as StudioSelection);
+      else onAnnouncement(`Mapper metric ${metric} was not placed because the drop target is not a topology object`);
       return;
     }
     const templateId = event.dataTransfer.getData('application/x-topoviewer-object') as StudioPaletteTemplateId;
-    if (!builtInTemplateIds.has(templateId) && !templateId.startsWith('preset:')) return;
+    if (!builtInTemplateIds.has(templateId) && !templateId.startsWith('preset:')) {
+      onAnnouncement('Object placement rejected because the palette template is not supported');
+      return;
+    }
     const bounds = event.currentTarget.getBoundingClientRect();
     createObject(templateId, {
       x: Math.max(0, event.clientX - bounds.left - 44),
@@ -199,11 +222,80 @@ export function CanvasSurface({
 
   function openContextMenu(object: TopoViewerObjectContextMenu) {
     if (!snapshot.selection.some((selection) => selection.id === object.id)) selectObject(object);
+    contextReturnFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     setContextMenu({ objectId: object.id, x: object.clientX, y: object.clientY });
   }
 
+  function closeContextMenu() {
+    setContextMenu(undefined);
+    const target = contextReturnFocusRef.current;
+    if (target?.isConnected) queueMicrotask(() => target.focus());
+  }
+
+  function openKeyboardContextMenu(container: HTMLElement) {
+    const selection = snapshot.selection[0];
+    if (!selection) {
+      onAnnouncement('Select an object before opening selection actions');
+      return;
+    }
+    contextReturnFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : container;
+    const selectedElement = container.querySelector<HTMLElement>('.react-flow__node.selected, .react-flow__edge.selected');
+    const bounds = selectedElement?.getBoundingClientRect() || container.getBoundingClientRect();
+    setContextMenu({
+      objectId: selection.id,
+      x: Math.min(window.innerWidth - 190, Math.max(8, bounds.left + Math.min(bounds.width, 32))),
+      y: Math.min(window.innerHeight - 220, Math.max(8, bounds.top + Math.min(bounds.height, 32)))
+    });
+  }
+
+  function contextMenuKeyDown(event: KeyboardEvent<HTMLDivElement>) {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      closeContextMenu();
+      return;
+    }
+    if (!['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) return;
+    const items = [...event.currentTarget.querySelectorAll<HTMLButtonElement>('[role="menuitem"]:not([disabled])')];
+    if (!items.length) return;
+    event.preventDefault();
+    const current = items.indexOf(document.activeElement as HTMLButtonElement);
+    const next = event.key === 'Home'
+      ? 0
+      : event.key === 'End'
+        ? items.length - 1
+        : (Math.max(0, current) + (event.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length;
+    items[next].focus();
+  }
+
+  function validateConnection(connection: TopoViewerConnectionCreate) {
+    const valid = isConnectionValid(connection);
+    const key = `${connection.sourceId}:${connection.targetId}:${valid}`;
+    if (connectionAnnouncementRef.current !== key) {
+      connectionAnnouncementRef.current = key;
+      if (connectionAnnouncementFrameRef.current !== undefined) {
+        cancelAnimationFrame(connectionAnnouncementFrameRef.current);
+      }
+      connectionAnnouncementFrameRef.current = requestAnimationFrame(() => {
+        onAnnouncement(valid
+          ? `Valid connection from ${connection.sourceId} to ${connection.targetId}`
+          : `Invalid or duplicate connection from ${connection.sourceId} to ${connection.targetId}`);
+      });
+    }
+    return valid;
+  }
+
   function keyDown(event: KeyboardEvent<HTMLElement>) {
+    if ((event.shiftKey && event.key === 'F10') || event.key === 'ContextMenu') {
+      event.preventDefault();
+      openKeyboardContextMenu(event.currentTarget);
+      return;
+    }
     if (blocksCanvasShortcut(event.target)) return;
+    if (event.key === 'Escape' && settingsOpen) {
+      event.preventDefault();
+      setSettingsOpen(false);
+      return;
+    }
     const command = event.metaKey || event.ctrlKey;
     if (command && event.key.toLocaleLowerCase() === 'c' && canCopy) {
       event.preventDefault();
@@ -238,16 +330,54 @@ export function CanvasSurface({
       ArrowUp: { x: 0, y: -amount }
     };
     const delta = deltaByKey[event.key];
+    if (delta && event.altKey && snapshot.selection.length === 1) {
+      event.preventDefault();
+      resizeSelection({ height: delta.y, width: delta.x });
+      return;
+    }
     if (delta && canCopy) {
       event.preventDefault();
       nudgeSelection(delta);
+      return;
     }
+    if (event.key.toLocaleLowerCase() === 'l' && selectedNodeCount === 2) {
+      event.preventDefault();
+      connectSelected();
+    }
+  }
+
+  function keyDownCapture(event: KeyboardEvent<HTMLElement>) {
+    if (!['Enter', ' '].includes(event.key) || blocksCanvasShortcut(event.target)) return;
+    const target = event.target instanceof Element ? event.target : undefined;
+    const flowObject = target?.closest<HTMLElement>('.react-flow__node, .react-flow__edge');
+    if (!flowObject) return;
+    const annotated = flowObject.querySelector<HTMLElement>('[data-topoviewer-object-id]');
+    const link = flowObject.querySelector<HTMLElement>('[data-link-id]');
+    const runtimeId = flowObject.dataset.id || '';
+    const sourceId = annotated?.dataset.topoviewerObjectId
+      || link?.dataset.linkId
+      || runtimeId.replace(/^region:/, '');
+    const selection = resolveAuthoringSelection(snapshot.projection.document, sourceId) as StudioSelection | undefined;
+    if (!selection) return;
+    event.preventDefault();
+    event.stopPropagation();
+    const additive = event.ctrlKey || event.metaKey || event.shiftKey;
+    const selected = snapshot.selection.some((candidate) => (
+      candidate.id === selection.id && candidate.kind === selection.kind
+    ));
+    setSelection(additive
+      ? selected
+        ? snapshot.selection.filter((candidate) => candidate.id !== selection.id || candidate.kind !== selection.kind)
+        : [...snapshot.selection, selection]
+      : [selection]);
   }
 
   return (
     <section
       className="studio-canvas"
       aria-label="Topology canvas"
+      aria-describedby="studio-canvas-keyboard-help"
+      aria-keyshortcuts="ArrowUp ArrowDown ArrowLeft ArrowRight Alt+ArrowUp Alt+ArrowDown Alt+ArrowLeft Alt+ArrowRight Shift+F10 L Control+C Meta+C Control+V Meta+V"
       data-testid="studio-canvas"
       ref={canvasRef}
       onDragOver={(event) => {
@@ -256,10 +386,15 @@ export function CanvasSurface({
       }}
       onDrop={drop}
       onKeyDown={keyDown}
+      onKeyDownCapture={keyDownCapture}
       tabIndex={0}
     >
+      <span className="studio-visually-hidden" id="studio-canvas-keyboard-help">
+        Tab to topology objects. Arrow keys move the selection, Alt plus arrow keys resize one selected object,
+        L connects two selected nodes, and Shift F10 opens selection actions.
+      </span>
       {presentationMode ? (
-        <button className="studio-presentation-exit" aria-label="Exit presentation mode" onClick={onExitPresentation} title="Exit presentation mode" type="button"><FullscreenExitIcon fontSize="small" /></button>
+        <button autoFocus className="studio-presentation-exit" aria-label="Exit presentation mode" onClick={onExitPresentation} title="Exit presentation mode" type="button"><FullscreenExitIcon fontSize="small" /></button>
       ) : null}
       <div className="studio-canvas-toolbar" role="toolbar" aria-label="Canvas actions">
         <button aria-label="Copy selection" disabled={!canCopy} onClick={copySelection} title="Copy" type="button"><ContentCopyIcon fontSize="small" /></button>
@@ -268,7 +403,7 @@ export function CanvasSurface({
         <button aria-label="Duplicate selection" disabled={!canCopy} onClick={duplicateSelection} title="Duplicate" type="button"><ControlPointDuplicateIcon fontSize="small" /></button>
         <button aria-label="Delete selection" disabled={!canCopy} onClick={deleteSelection} title="Delete" type="button"><DeleteIcon fontSize="small" /></button>
         <span className="studio-toolbar-separator" aria-hidden="true" />
-        <button aria-label="Connect selected nodes" disabled={selectedNodeCount !== 2} onClick={connectSelected} title="Connect selected nodes" type="button"><LinkIcon fontSize="small" /></button>
+        <button aria-keyshortcuts="L" aria-label="Connect selected nodes" disabled={selectedNodeCount !== 2} onClick={connectSelected} title="Connect selected nodes" type="button"><LinkIcon fontSize="small" /></button>
         <button aria-label="Align selection left" disabled={snapshot.selection.length < 2} onClick={() => alignSelection('left')} title="Align left" type="button"><AlignHorizontalLeftIcon fontSize="small" /></button>
         <button aria-label="Align selection top" disabled={snapshot.selection.length < 2} onClick={() => alignSelection('top')} title="Align top" type="button"><AlignVerticalTopIcon fontSize="small" /></button>
         <button aria-label="Distribute selection horizontally" disabled={snapshot.selection.length < 3} onClick={() => distributeSelection('horizontal')} title="Distribute horizontally" type="button"><SwapHorizIcon fontSize="small" /></button>
@@ -329,7 +464,7 @@ export function CanvasSurface({
         nodesConnectable
         nodesDraggable
         nodesResizable
-        isConnectionValid={isConnectionValid}
+        isConnectionValid={validateConnection}
         onConnectionCreate={createConnection}
         onNodePositionChange={(change) => {
           setRegionPreviewId(undefined);
@@ -337,13 +472,19 @@ export function CanvasSurface({
         }}
         onNodePositionPreview={(change) => {
           const next = previewRegionForNode(change.id, change.position);
-          setRegionPreviewId((current) => current === next ? current : next);
+          setRegionPreviewId((current) => {
+            if (current === next) return current;
+            onAnnouncement(next
+              ? `${change.id} will join region ${next} when movement completes`
+              : `${change.id} is outside an eligible region`);
+            return next;
+          });
         }}
         onNodeResizeChange={resizeObject}
         onObjectClick={selectObject}
         onObjectContextMenu={openContextMenu}
         onPaneClick={() => {
-          setContextMenu(undefined);
+          closeContextMenu();
           setSelection([]);
         }}
         onSelectionChange={selectFromCanvas}
@@ -360,21 +501,21 @@ export function CanvasSurface({
       />
 
       {contextMenu ? (
-        <div className="studio-context-menu" role="menu" aria-label="Selection actions" style={{ left: contextMenu.x, top: contextMenu.y }}>
-          <button disabled={!canCopy} onClick={() => { copySelection(); setContextMenu(undefined); }} role="menuitem" type="button">Copy</button>
-          <button disabled={!canCopy} onClick={() => { cutSelection(); setContextMenu(undefined); }} role="menuitem" type="button">Cut</button>
-          <button disabled={!canCopy} onClick={() => { duplicateSelection(); setContextMenu(undefined); }} role="menuitem" type="button">Duplicate</button>
-          <button disabled={!canCopy} onClick={() => { saveSelectionAsPreset(); setContextMenu(undefined); }} role="menuitem" type="button">Save as preset</button>
+        <div className="studio-context-menu" onKeyDown={contextMenuKeyDown} ref={contextMenuRef} role="menu" aria-label="Selection actions" style={{ left: contextMenu.x, top: contextMenu.y }}>
+          <button disabled={!canCopy} onClick={() => { copySelection(); closeContextMenu(); }} role="menuitem" type="button">Copy</button>
+          <button disabled={!canCopy} onClick={() => { cutSelection(); closeContextMenu(); }} role="menuitem" type="button">Cut</button>
+          <button disabled={!canCopy} onClick={() => { duplicateSelection(); closeContextMenu(); }} role="menuitem" type="button">Duplicate</button>
+          <button disabled={!canCopy} onClick={() => { saveSelectionAsPreset(); closeContextMenu(); }} role="menuitem" type="button">Save as preset</button>
           {contextSelection?.kind === 'node' && contextRegionId ? (
-            <button onClick={() => { releaseNodeFromRegion(contextSelection.id, contextRegionId); setContextMenu(undefined); }} role="menuitem" type="button">Release from region</button>
+            <button onClick={() => { releaseNodeFromRegion(contextSelection.id, contextRegionId); closeContextMenu(); }} role="menuitem" type="button">Release from region</button>
           ) : null}
           {contextSelection?.kind === 'region' ? (
             <>
-              <button onClick={() => { createNestedRegion(contextSelection.id); setContextMenu(undefined); }} role="menuitem" type="button">Create nested region</button>
-              <button onClick={() => { setRegionExpanded({ data: {}, expanded: false, groupId: `summary-${contextSelection.id}`, regionId: contextSelection.id }); setContextMenu(undefined); }} role="menuitem" type="button">Collapse region</button>
+              <button onClick={() => { createNestedRegion(contextSelection.id); closeContextMenu(); }} role="menuitem" type="button">Create nested region</button>
+              <button onClick={() => { setRegionExpanded({ data: {}, expanded: false, groupId: `summary-${contextSelection.id}`, regionId: contextSelection.id }); closeContextMenu(); }} role="menuitem" type="button">Collapse region</button>
             </>
           ) : null}
-          <button disabled={!canCopy} onClick={() => { deleteSelection(); setContextMenu(undefined); }} role="menuitem" type="button">Delete</button>
+          <button disabled={!canCopy} onClick={() => { deleteSelection(); closeContextMenu(); }} role="menuitem" type="button">Delete</button>
         </div>
       ) : null}
 

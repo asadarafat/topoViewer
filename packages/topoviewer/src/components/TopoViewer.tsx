@@ -63,6 +63,8 @@ import {
   preserveRuntimeNodeMeasurements,
   preserveSourceOwnedEdges,
   regionDragGroupRuntimeIds,
+  runtimeNodePosition,
+  sameRuntimePosition,
   sourceObjectId
 } from './runtimeGraph';
 import '../styles.css';
@@ -103,21 +105,6 @@ function resizableObjectKind(compiledNode: Record<string, unknown>): 'node' | 'r
   if (objectKind === 'shape' || objectKind === 'callout') return objectKind;
   if (String(compiledNode.type || '') === 'region') return 'region';
   return String(compiledNode.type || '') === 'network' ? 'node' : undefined;
-}
-
-function samePosition(first: { x: number; y: number } | undefined, second: { x: number; y: number } | undefined) {
-  if (!first || !second) return false;
-  return Math.abs(first.x - second.x) < 0.5 && Math.abs(first.y - second.y) < 0.5;
-}
-
-function runtimeNodePosition(node: Record<string, unknown>): { x: number; y: number } {
-  const position = (node.position || {}) as { x?: unknown; y?: unknown };
-  const x = Number(position.x);
-  const y = Number(position.y);
-  return {
-    x: Number.isFinite(x) ? x : 0,
-    y: Number.isFinite(y) ? y : 0
-  };
 }
 
 function decoratedAttentionData(data: Record<string, unknown>, attention: AttentionPresentation | undefined) {
@@ -471,9 +458,12 @@ function TopoFlow({
     )
   ), [nodesResizable, onNodeResizeChange, onRegionAggregateToggle]);
   const runtimeNodes = useMemo(() => decorateRuntimeNodes(compiled.nodes), [compiled.nodes, decorateRuntimeNodes]);
+  const decorateRuntimeEdges = useCallback((sourceEdges: ReturnType<typeof compileTopoGraph>['edges']) => (
+    withRuntimeDirectionHandlers(sourceEdges, onObjectClick)
+  ), [onObjectClick]);
   const [nodes, setNodes] = useNodesState(runtimeNodes as never[]);
   const sourceEdgeIds = useMemo(() => new Set(compiled.edges.map((edge) => edge.id)), [compiled.edges]);
-  const [edges, setEdges, applyRuntimeEdgeChanges] = useEdgesState(withRuntimeDirectionHandlers(compiled.edges, onObjectClick) as never[]);
+  const [edges, setEdges, applyRuntimeEdgeChanges] = useEdgesState(decorateRuntimeEdges(compiled.edges) as never[]);
   const onEdgesChange = useCallback((changes: Parameters<typeof applyRuntimeEdgeChanges>[0]) => (
     applyRuntimeEdgeChanges(preserveSourceOwnedEdges(changes, sourceEdgeIds))
   ), [applyRuntimeEdgeChanges, sourceEdgeIds]);
@@ -491,7 +481,7 @@ function TopoFlow({
   const activeHelperLineStateRef = useRef<HelperLineState>(emptyHelperLineState);
   const helperLineCandidateIndexRef = useRef<HelperLineCandidateIndex | undefined>();
   useEffect(() => {
-    setEdges(withRuntimeDirectionHandlers(compiled.edges, onObjectClick) as never[]);
+    setEdges(decorateRuntimeEdges(compiled.edges) as never[]);
     if (activeDragNodeIdRef.current) return;
     setNodes((currentNodes) => {
       const nextNodes = preserveRuntimeNodeMeasurements(runtimeNodes, currentNodes);
@@ -505,7 +495,7 @@ function TopoFlow({
     activeHelperLineStateRef.current = emptyHelperLineState;
     helperLineCandidateIndexRef.current = undefined;
     clearHelperLines();
-  }, [clearHelperLines, compiled, onObjectClick, runtimeNodes, setEdges, setNodes]);
+  }, [clearHelperLines, compiled, decorateRuntimeEdges, runtimeNodes, setEdges, setNodes]);
   useEffect(() => {
     setNodesReadyForInteraction(false);
     if (!nodesInitialized) return undefined;
@@ -652,7 +642,7 @@ function TopoFlow({
           .find((candidate) => String(candidate.id || '') === runtimeId);
         const currentPosition = currentNode?.position;
         const nextNodes = applyTopoNodeChanges({
-          changes: samePosition(currentPosition, position)
+          changes: sameRuntimePosition(currentPosition, position)
             ? []
             : [{ id: runtimeId, type: 'position', dragging: false, position }] as NodeChange[],
           currentNodes,

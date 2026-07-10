@@ -1,5 +1,6 @@
 import type { StudioExternalChange } from '../../contracts/host';
 import type { StudioDocumentKind, StudioProject } from '../../contracts/project';
+import { useDialogFocus } from '../../accessibility/focus';
 
 const documentKinds: StudioDocumentKind[] = ['topology', 'stylesheet', 'mapper'];
 const MAX_DIFF_CHARACTERS = 12_000;
@@ -54,9 +55,10 @@ export function ExternalChangeDialog({
   studioProject
 }: ExternalChangeDialogProps) {
   const differences = diskProject ? externalDocumentDifferences(studioProject, diskProject) : [];
+  const { dialogRef, onDialogKeyDown } = useDialogFocus<HTMLElement>();
   return (
     <div className="studio-external-change-backdrop">
-      <section aria-describedby="studio-external-change-description" aria-labelledby="studio-external-change-title" aria-modal="true" className="studio-external-change-dialog" role="dialog">
+      <section aria-describedby="studio-external-change-description" aria-labelledby="studio-external-change-title" aria-modal="true" className="studio-external-change-dialog" onKeyDown={onDialogKeyDown} ref={dialogRef} role="dialog" tabIndex={-1}>
         <header>
           <div>
             <span>Workspace conflict</span>
