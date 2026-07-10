@@ -32,6 +32,39 @@ const defaults = {
   maximumSamples: 5_000
 };
 
+const maximumInputDepth = 32;
+
+function boundedInput(value: unknown, maximumBytes: number): 'ok' | 'cyclic-or-deep' | 'too-large' {
+  const stack: Array<{ depth: number; value: unknown }> = [{ depth: 0, value }];
+  const seen = new Set<object>();
+  let bytes = 0;
+  while (stack.length) {
+    const current = stack.pop()!;
+    if (current.depth > maximumInputDepth) return 'cyclic-or-deep';
+    const item = current.value;
+    if (item === null || item === undefined || typeof item === 'boolean' || typeof item === 'number') {
+      bytes += 8;
+    } else if (typeof item === 'string') {
+      bytes += item.length * 2;
+    } else if (typeof item === 'object') {
+      if (seen.has(item)) return 'cyclic-or-deep';
+      seen.add(item);
+      if (Array.isArray(item)) {
+        bytes += item.length * 4;
+        for (let index = item.length - 1; index >= 0; index -= 1) stack.push({ depth: current.depth + 1, value: item[index] });
+      } else {
+        const entries = Object.entries(item as Record<string, unknown>);
+        bytes += entries.reduce((total, [key]) => total + key.length * 2, 0);
+        for (let index = entries.length - 1; index >= 0; index -= 1) stack.push({ depth: current.depth + 1, value: entries[index][1] });
+      }
+    } else {
+      return 'cyclic-or-deep';
+    }
+    if (bytes > maximumBytes) return 'too-large';
+  }
+  return 'ok';
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 }
@@ -83,10 +116,15 @@ function latest(values: unknown): unknown {
   return undefined;
 }
 
-function prometheusSamples(root: Record<string, unknown>): MapperAuthoringSample[] | undefined {
+interface CandidateSamples {
+  samples: MapperAuthoringSample[];
+  truncated: boolean;
+}
+
+function prometheusSamples(root: Record<string, unknown>, maximumSamples: number): CandidateSamples | undefined {
   const data = isRecord(root.data) ? root.data : root;
   if (!Array.isArray(data.result)) return undefined;
-  return data.result.flatMap((entry) => {
+  return { samples: data.result.slice(0, maximumSamples).flatMap((entry) => {
     if (!isRecord(entry) || !isRecord(entry.metric)) return [];
     const labels = Object.fromEntries(Object.entries(entry.metric).flatMap(([key, value]) => {
       const converted = scalarString(value);
@@ -104,7 +142,7 @@ function prometheusSamples(root: Record<string, unknown>): MapperAuthoringSample
       metric,
       value
     }];
-  });
+  }), truncated: data.result.length > maximumSamples };
 }
 
 interface JsonFrameField {
@@ -113,9 +151,9 @@ interface JsonFrameField {
   values: unknown[];
 }
 
-function frameFields(frame: Record<string, unknown>): JsonFrameField[] {
+function frameFields(frame: Record<string, unknown>, maximumFields: number): JsonFrameField[] {
   if (!Array.isArray(frame.fields)) return [];
-  return frame.fields.flatMap((field) => {
+  return frame.fields.slice(0, maximumFields).flatMap((field) => {
     if (!isRecord(field) || typeof field.name !== 'string' || !Array.isArray(field.values)) return [];
     return [{ labels: isRecord(field.labels) ? field.labels : undefined, name: field.name, values: field.values }];
   });
@@ -125,7 +163,7 @@ function labelsForFrameField(field: JsonFrameField): Record<string, string> {
   return boundedRecord(field.labels, defaults.maximumLabels, scalarString) as Record<string, string>;
 }
 
-function grafanaSamples(root: Record<string, unknown>): MapperAuthoringSample[] | undefined {
+function grafanaSamples(root: Record<string, unknown>, maximumSamples: number, maximumFields: number): CandidateSamples | undefined {
   const frames = Array.isArray(root.frames)
     ? root.frames
     : isRecord(root.data) && Array.isArray(root.data.frames)
@@ -134,9 +172,16 @@ function grafanaSamples(root: Record<string, unknown>): MapperAuthoringSample[] 
         ? [root]
         : undefined;
   if (!frames) return undefined;
-  return frames.flatMap((rawFrame) => {
-    if (!isRecord(rawFrame)) return [];
-    const fields = frameFields(rawFrame);
+  const samples: MapperAuthoringSample[] = [];
+  let truncated = false;
+  for (let frameIndex = 0; frameIndex < frames.length; frameIndex += 1) {
+    const rawFrame = frames[frameIndex];
+    if (samples.length >= maximumSamples) {
+      truncated = true;
+      break;
+    }
+    if (!isRecord(rawFrame)) continue;
+    const fields = frameFields(rawFrame, maximumFields);
     const frameName = typeof rawFrame.name === 'string' ? rawFrame.name : '';
     const timeSeries = fields.flatMap((field) => {
       const labels = labelsForFrameField(field);
@@ -145,28 +190,42 @@ function grafanaSamples(root: Record<string, unknown>): MapperAuthoringSample[] 
       const value = latest(field.values);
       return [{ fields: { field: field.name, frame: frameName, value }, labels, metric, value }];
     });
-    if (timeSeries.length) return timeSeries;
+    if (timeSeries.length) {
+      if (timeSeries.length > maximumSamples - samples.length) truncated = true;
+      samples.push(...timeSeries.slice(0, maximumSamples - samples.length));
+      continue;
+    }
 
-    const rows = Math.max(0, ...fields.map((field) => field.values.length));
+    const availableRows = Math.max(0, ...fields.map((field) => field.values.length));
+    const rows = Math.min(maximumSamples, availableRows);
+    if (availableRows > rows) truncated = true;
     const metricFields = fields.filter((field) => (
       field.name.toLowerCase() !== 'time'
       && field.values.some((value) => typeof value === 'number')
     ));
-    return Array.from({ length: rows }, (_, rowIndex) => {
+    for (let rowIndex = 0; rowIndex < rows && samples.length < maximumSamples; rowIndex += 1) {
       const rowFields = Object.fromEntries(fields.map((field) => [field.name, field.values[rowIndex]]));
       const rowLabels = Object.fromEntries(fields.flatMap((field) => {
         if (metricFields.includes(field)) return [];
         const value = scalarString(field.values[rowIndex]);
         return value === undefined ? [] : [[field.name, value]];
       }));
-      return metricFields.map((field) => ({
-        fields: rowFields,
-        labels: { ...rowLabels, ...labelsForFrameField(field) },
-        metric: labelsForFrameField(field).__name__ || field.name,
-        value: field.values[rowIndex]
-      }));
-    }).flat();
-  });
+      for (const field of metricFields) {
+        if (samples.length >= maximumSamples) {
+          truncated = true;
+          break;
+        }
+        const labels = labelsForFrameField(field);
+        samples.push({
+          fields: rowFields,
+          labels: { ...rowLabels, ...labels },
+          metric: labels.__name__ || field.name,
+          value: field.values[rowIndex]
+        });
+      }
+    }
+  }
+  return { samples, truncated };
 }
 
 export function ingestMapperSamples(
@@ -200,17 +259,33 @@ export function ingestMapperSamples(
       };
     }
   }
+  const inputStatus = boundedInput(value, limits.maximumBytes);
+  if (inputStatus !== 'ok') {
+    return {
+      diagnostics: [{
+        code: inputStatus === 'too-large' ? 'sample-input-too-large' : 'sample-input-too-complex',
+        message: inputStatus === 'too-large'
+          ? `Sample data exceeds the ${limits.maximumBytes} byte limit.`
+          : `Sample data is cyclic or exceeds the ${maximumInputDepth} level depth limit.`,
+        severity: 'error'
+      }],
+      format: 'unknown', samples: [], truncated: false
+    };
+  }
   const root = isRecord(value) ? value : undefined;
   let format: MapperSampleIngestionResult['format'] = 'unknown';
   let candidates: unknown[] = [];
-  const prometheus = root ? prometheusSamples(root) : undefined;
-  const grafana = root && !prometheus ? grafanaSamples(root) : undefined;
+  let sourceTruncated = false;
+  const prometheus = root ? prometheusSamples(root, limits.maximumSamples) : undefined;
+  const grafana = root && !prometheus ? grafanaSamples(root, limits.maximumSamples, limits.maximumFields) : undefined;
   if (prometheus) {
     format = 'prometheus';
-    candidates = prometheus;
+    candidates = prometheus.samples;
+    sourceTruncated = prometheus.truncated;
   } else if (grafana) {
     format = 'grafana-data-frames';
-    candidates = grafana;
+    candidates = grafana.samples;
+    sourceTruncated = grafana.truncated;
   } else {
     const generic = Array.isArray(value)
       ? value
@@ -241,7 +316,7 @@ export function ingestMapperSamples(
     }
     return parsed ? [parsed] : [];
   });
-  const truncated = candidates.length > limits.maximumSamples;
+  const truncated = sourceTruncated || candidates.length > limits.maximumSamples;
   if (truncated) diagnostics.push({
     code: 'sample-limit-reached',
     message: `Loaded the first ${limits.maximumSamples} of ${candidates.length} samples.`,

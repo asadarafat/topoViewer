@@ -162,12 +162,9 @@ Generated from `packages/topoviewer/src/index.ts`.
 | `TopoViewerExtensionContext` | `./core/types` |
 | `TopoViewerHelperLinesOptions` | `./core/types` |
 | `TopoViewerNodePositionChange` | `./core/types` |
-| `TopoViewerNodeResizeChange` | `./core/types` |
 | `TopoViewerObjectClick` | `./core/types` |
-| `TopoViewerObjectContextMenu` | `./core/types` |
 | `TopoViewerPaneClick` | `./core/types` |
 | `TopoViewerProps` | `./core/types` |
-| `TopoViewerSelectionChange` | `./core/types` |
 | `TopoViewerToggles` | `./core/types` |
 | `TopoViewerToolbarAction` | `./core/types` |
 | `TopoViewerViewport` | `./core/types` |
@@ -225,13 +222,22 @@ Generated from `packages/topoviewer/src/authoring.ts`.
 | `createAuthoringPath` | `./core/authoringGraph` |
 | `createAuthoringRegion` | `./core/authoringGraph` |
 | `createAuthoringShape` | `./core/authoringGraph` |
+| `createBasicMapperRule` | `./core/mapperAuthoring` |
 | `defaultLayerId` | `./core/authoringGraph` |
+| `discoverMapperMetrics` | `./core/mapperInference` |
+| `evaluateMapperCoverage` | `./core/mapperCoverage` |
 | `findAuthoringObject` | `./core/authoringGraph` |
 | `findAuthoringPathTraversals` | `./core/authoringGraph` |
 | `graphHasLinkBetween` | `./core/authoringGraph` |
 | `graphHasReachabilityBetween` | `./core/authoringGraph` |
+| `ingestMapperSamples` | `./core/mapperSamples` |
+| `mapperAuthoringCapabilities` | `./core/mapperAuthoringMetadata` |
 | `mapperAuthoringField` | `./core/mapperAuthoringMetadata` |
 | `mapperAuthoringMetadata` | `./core/mapperAuthoringMetadata` |
+| `mapperAuthoringTargetKinds` | `./core/mapperAuthoring` |
+| `mapperAuthoringValueSemantics` | `./core/mapperAuthoring` |
+| `mapperRuleFromProposal` | `./core/mapperInference` |
+| `mapperRuleTargetKind` | `./core/mapperAuthoring` |
 | `nextAuthoringObjectId` | `./core/authoringGraph` |
 | `pasteAuthoringClipboard` | `./core/authoringGraph` |
 | `pathSegmentsWithoutDirectLinks` | `./core/authoringGraph` |
@@ -249,6 +255,7 @@ Generated from `packages/topoviewer/src/authoring.ts`.
 | `planAuthoringRegionMove` | `./core/authoringRegions` |
 | `planAuthoringReleaseFromRegion` | `./core/authoringRegions` |
 | `planAuthoringResize` | `./core/authoringGraph` |
+| `proposeMapperRule` | `./core/mapperInference` |
 | `resolveAuthoringSelection` | `./core/authoringGraph` |
 | `resolveStyleProvenance` | `./core/styleProvenance` |
 | `sameAuthoringSelection` | `./core/authoringGraph` |
@@ -288,17 +295,54 @@ Generated from `packages/topoviewer/src/authoring.ts`.
 | `AuthoringRemoval` | `./core/authoringGraph` |
 | `AuthoringSourcePath` | `./core/authoringGraph` |
 | `AuthoringValueUpdate` | `./core/authoringGraph` |
+| `BasicMapperRule` | `./core/mapperAuthoring` |
 | `CreateAuthoringLinkOptions` | `./core/authoringGraph` |
 | `CreateAuthoringNodeOptions` | `./core/authoringGraph` |
 | `CreateAuthoringPathOptions` | `./core/authoringGraph` |
 | `CreateAuthoringPositionedObjectOptions` | `./core/authoringGraph` |
 | `CreateAuthoringRegionOptions` | `./core/authoringGraph` |
+| `CreateBasicMapperRuleOptions` | `./core/mapperAuthoring` |
 | `FindAuthoringPathTraversalsOptions` | `./core/authoringGraph` |
+| `MapperAuthoringCapability` | `./core/authoringMetadata` |
+| `MapperAuthoringCapabilityId` | `./core/authoringMetadata` |
 | `MapperAuthoringFieldMetadata` | `./core/authoringMetadata` |
+| `MapperAuthoringSample` | `./core/mapperSamples` |
+| `MapperAuthoringTargetKind` | `./core/mapperAuthoring` |
+| `MapperAuthoringValueSemantic` | `./core/mapperAuthoring` |
+| `MapperCoverageItem` | `./core/mapperCoverage` |
+| `MapperCoverageResult` | `./core/mapperCoverage` |
+| `MapperCoverageStatus` | `./core/mapperCoverage` |
+| `MapperJoinCandidate` | `./core/mapperInference` |
+| `MapperMetricDiscovery` | `./core/mapperInference` |
+| `MapperRuleProposal` | `./core/mapperInference` |
+| `MapperSampleDiagnostic` | `./core/mapperSamples` |
+| `MapperSampleIngestionOptions` | `./core/mapperSamples` |
+| `MapperSampleIngestionResult` | `./core/mapperSamples` |
+| `ProposedMapperRule` | `./core/mapperInference` |
 | `ResolveStyleProvenanceOptions` | `./core/styleProvenance` |
 | `StyleFieldProvenance` | `./core/styleProvenance` |
 | `StyleProvenanceContributor` | `./core/styleProvenance` |
 | `StyleProvenanceDocument` | `./core/styleProvenance` |
 | `StyleProvenanceSourceKind` | `./core/styleProvenance` |
 | `StyleRuleAffectedObject` | `./core/styleProvenance` |
+| `TopoViewerNodeResizeChange` | `./core/types` |
+| `TopoViewerObjectContextMenu` | `./core/types` |
+| `TopoViewerSelectionChange` | `./core/types` |
+
+
+## Security Entry (`topoviewer/security`)
+
+Generated from `packages/topoviewer/src/security.ts`.
+
+### Value Exports
+
+| Export | Source |
+|---|---|
+| `isSafeImageReference` | `./core/security` |
+| `sanitizeSvg` | `./core/security` |
+
+
+### Type Exports
+
+_None._
 

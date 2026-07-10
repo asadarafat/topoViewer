@@ -23,14 +23,14 @@ class MemoryWorkspacePort implements WorkspaceStudioPort {
   readonly name = 'Workspace project';
   trusted = true;
   readonly chosenAsset: StudioAssetContent = {
-    bytes: encoder.encode('<svg xmlns="http://www.w3.org/2000/svg"/>'),
+    bytes: encoder.encode('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"/>'),
     mediaType: 'image/svg+xml',
     name: 'chosen.svg'
   };
-  readonly files = new Map<string, { bytes: Uint8Array; mediaType?: string }>([
+  readonly files = new Map<string, { bytes: Uint8Array; mediaType?: string; symbolicLink?: boolean }>([
     ['topology.yaml', { bytes: encoder.encode('graph:\n  id: workspace-project\n  nodes: []\n  links: []\n') }],
     ['stylesheet.yaml', { bytes: encoder.encode('stylesheet: []\n') }],
-    ['assets/router.svg', { bytes: encoder.encode('<svg xmlns="http://www.w3.org/2000/svg"/>'), mediaType: 'image/svg+xml' }]
+    ['assets/router.svg', { bytes: encoder.encode('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"/>'), mediaType: 'image/svg+xml' }]
   ]);
   readonly preferences = new Map<string, unknown>();
   readonly reports: StudioHostEvent[] = [];
@@ -50,7 +50,8 @@ class MemoryWorkspacePort implements WorkspaceStudioPort {
     return Promise.resolve([...this.files.entries()].map(([path, value]) => ({
       mediaType: value.mediaType,
       path,
-      size: value.bytes.byteLength
+      size: value.bytes.byteLength,
+      symbolicLink: value.symbolicLink
     })));
   }
   readFile(path: string): Promise<Uint8Array> {
@@ -181,5 +182,16 @@ describe('WorkspaceStudioHost policy', () => {
     }
     const { host } = fixture(port);
     expect(await host.loadProject()).toMatchObject({ error: { code: 'quota-exceeded' }, ok: false });
+  });
+
+  it('rejects symbolic links before reading workspace content', async () => {
+    const port = new MemoryWorkspacePort();
+    port.files.set('assets/linked.svg', {
+      bytes: encoder.encode('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"/>'),
+      mediaType: 'image/svg+xml',
+      symbolicLink: true
+    });
+    const { host } = fixture(port);
+    expect(await host.loadProject()).toMatchObject({ error: { code: 'permission-denied' }, ok: false });
   });
 });

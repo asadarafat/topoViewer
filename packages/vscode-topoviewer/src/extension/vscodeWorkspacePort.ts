@@ -26,6 +26,7 @@ function relativePath(root: vscode.Uri, uri: vscode.Uri): string | undefined {
 function mediaType(fileName: string): string {
   switch (path.extname(fileName).toLowerCase()) {
     case '.svg': return 'image/svg+xml';
+    case '.gif': return 'image/gif';
     case '.png': return 'image/png';
     case '.jpg':
     case '.jpeg': return 'image/jpeg';
@@ -45,6 +46,7 @@ function acceptedExtensions(accepted: string[]): string[] {
     'application/zip': 'zip',
     'application/yaml': 'yaml',
     'image/jpeg': 'jpg',
+    'image/gif': 'gif',
     'image/png': 'png',
     'image/svg+xml': 'svg',
     'image/webp': 'webp'
@@ -135,8 +137,15 @@ export class VsCodeWorkspacePort implements WorkspaceStudioPort {
       const relative = relativePath(this.root, uri);
       if (!relative) continue;
       const stat = await vscode.workspace.fs.stat(uri);
-      if (stat.type !== vscode.FileType.File) continue;
-      entries.push({ mediaType: mediaType(relative), modifiedAt: new Date(stat.mtime).toISOString(), path: relative, size: stat.size });
+      const symbolicLink = Boolean(stat.type & vscode.FileType.SymbolicLink);
+      if (!symbolicLink && !(stat.type & vscode.FileType.File)) continue;
+      entries.push({
+        mediaType: mediaType(relative),
+        modifiedAt: new Date(stat.mtime).toISOString(),
+        path: relative,
+        size: stat.size,
+        ...(symbolicLink ? { symbolicLink: true } : {})
+      });
     }
     return entries.sort((left, right) => left.path.localeCompare(right.path));
   }

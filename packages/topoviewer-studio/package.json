@@ -17,6 +17,14 @@
     "./app": {
       "types": "./dist/app.d.ts",
       "import": "./dist/app.js"
+    },
+    "./security": {
+      "types": "./dist/security.d.ts",
+      "import": "./dist/security.js"
+    },
+    "./host-security": {
+      "types": "./dist/hostSecurity.d.ts",
+      "import": "./dist/hostSecurity.js"
     }
   },
   "files": [

@@ -17,6 +17,7 @@
     "studio:typecheck": "node scripts/require-node24.mjs && npm --workspace topoviewer run build:types && npm --workspace topoviewer-studio run typecheck",
     "studio:test": "node scripts/require-node24.mjs && npm --workspace topoviewer run build:types && npm --workspace topoviewer-studio run test",
     "studio:boundaries": "node scripts/require-node24.mjs && node scripts/check-studio-boundaries.mjs",
+    "studio:supply-chain": "node scripts/require-node24.mjs && npm --workspace topoviewer run build:lib && npm --workspace topoviewer-studio run build:contracts && node scripts/check-studio-supply-chain.mjs",
     "studio:dev": "node scripts/require-node24.mjs && npm --workspace topoviewer run build:lib && npm --workspace topoviewer-studio run dev",
     "studio:build": "node scripts/require-node24.mjs && npm --workspace topoviewer run build:lib && npm --workspace topoviewer-studio run build",
     "studio:test:browser": "node scripts/require-node24.mjs && npm --workspace topoviewer run build:lib && npm --workspace topoviewer-studio run test:browser",

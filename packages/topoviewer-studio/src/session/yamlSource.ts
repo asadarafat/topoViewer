@@ -10,6 +10,7 @@ import {
   type Node
 } from 'yaml';
 import type { StudioDiagnostic, StudioDocumentKind } from '../contracts/project';
+import { studioSecurityLimits } from '../security/limits';
 import type { StudioSourceRange, StudioYamlPath } from './types';
 
 export interface ParsedStudioSource {
@@ -26,6 +27,13 @@ export type StudioSourceParseResult =
   | { diagnostics: StudioDiagnostic[]; ok: false }
   | { ok: true; source: ParsedStudioSource };
 
+export const studioYamlLimits = {
+  maximumAliases: studioSecurityLimits.sourceAliases,
+  maximumBytes: studioSecurityLimits.sourceBytes,
+  maximumDepth: studioSecurityLimits.sourceDepth,
+  maximumNodes: studioSecurityLimits.sourceNodes
+} as const;
+
 function lineEndingFor(text: string): '\n' | '\r\n' {
   return text.includes('\r\n') ? '\r\n' : '\n';
 }
@@ -35,14 +43,39 @@ function rootIsRecord(value: unknown): value is Record<string, unknown> {
 }
 
 export function parseStudioSource(kind: StudioDocumentKind, text: string): StudioSourceParseResult {
+  const sourceBytes = new TextEncoder().encode(text).byteLength;
+  if (sourceBytes > studioYamlLimits.maximumBytes) {
+    return {
+      diagnostics: [{
+        code: 'yaml-source-too-large',
+        column: 1,
+        document: kind,
+        line: 1,
+        message: `${kind} YAML exceeds the ${studioYamlLimits.maximumBytes} byte source limit.`,
+        severity: 'error'
+      }],
+      ok: false
+    };
+  }
   const lineCounter = new LineCounter();
-  const yamlDocument = parseDocument(text || '{}\n', {
-    keepSourceTokens: true,
-    lineCounter,
-    prettyErrors: true,
-    strict: true,
-    uniqueKeys: true
-  });
+  let yamlDocument: ReturnType<typeof parseDocument>;
+  try {
+    yamlDocument = parseDocument(text || '{}\n', {
+      keepSourceTokens: true,
+      lineCounter,
+      prettyErrors: true,
+      strict: true,
+      uniqueKeys: true
+    });
+  } catch (error) {
+    return {
+      diagnostics: [{
+        code: 'invalid-yaml', column: 1, document: kind, line: 1,
+        message: error instanceof Error ? error.message : String(error), severity: 'error'
+      }],
+      ok: false
+    };
+  }
   if (yamlDocument.errors.length > 0) {
     return {
       diagnostics: yamlDocument.errors.map((error) => ({
@@ -59,9 +92,28 @@ export function parseStudioSource(kind: StudioDocumentKind, text: string): Studi
     };
   }
 
+  const rangedNodes: Node[] = [];
+  let excessiveStructure = false;
+  visit(yamlDocument, (_key, node, path) => {
+    if (isNode(node) && node.range) rangedNodes.push(node);
+    if (path.length > studioYamlLimits.maximumDepth || rangedNodes.length > studioYamlLimits.maximumNodes) {
+      excessiveStructure = true;
+      return visit.BREAK;
+    }
+  });
+  if (excessiveStructure) {
+    return {
+      diagnostics: [{
+        code: 'yaml-structure-limit', column: 1, document: kind, line: 1,
+        message: `${kind} YAML exceeds the supported structure depth or node-count limit.`, severity: 'error'
+      }],
+      ok: false
+    };
+  }
+
   let value: unknown;
   try {
-    value = yamlDocument.toJS({ maxAliasCount: 100 });
+    value = yamlDocument.toJS({ maxAliasCount: studioYamlLimits.maximumAliases });
   } catch (error) {
     return {
       diagnostics: [{
@@ -88,10 +140,6 @@ export function parseStudioSource(kind: StudioDocumentKind, text: string): Studi
       ok: false
     };
   }
-  const rangedNodes: Node[] = [];
-  visit(yamlDocument, (_key, node) => {
-    if (isNode(node) && node.range) rangedNodes.push(node);
-  });
   return {
     ok: true,
     source: { document: yamlDocument, kind, lineCounter, lineEnding: lineEndingFor(text), rangedNodes, text, value }

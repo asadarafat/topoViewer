@@ -58,5 +58,27 @@ describe('mapper sample ingestion', () => {
     expect(Object.keys(result.samples[0].fields)).toHaveLength(1);
     expect(result).toMatchObject({ truncated: true });
     expect(result.diagnostics.map((item) => item.code)).toContain('sample-limit-reached');
+
+    const cyclic: Record<string, unknown> = { samples: [] };
+    cyclic.self = cyclic;
+    expect(ingestMapperSamples(cyclic).diagnostics[0]?.code).toBe('sample-input-too-complex');
+    expect(ingestMapperSamples({ samples: [{ metric: 'm', value: 'x'.repeat(100) }] }, { maximumBytes: 20 }).diagnostics[0]?.code)
+      .toBe('sample-input-too-large');
+  });
+
+  it('caps Prometheus and Grafana expansion before returning candidates', () => {
+    const prometheus = ingestMapperSamples({ data: { result: Array.from({ length: 20 }, (_, index) => ({
+      metric: { __name__: 'm', node_id: `n${index}` }, value: [index, index]
+    })) } }, { maximumSamples: 3 });
+    expect(prometheus.samples).toHaveLength(3);
+
+    const grafana = ingestMapperSamples({ frames: [{
+      name: 'table',
+      fields: [
+        { name: 'node_id', values: Array.from({ length: 20 }, (_, index) => `n${index}`) },
+        { name: 'node_health', values: Array.from({ length: 20 }, (_, index) => index) }
+      ]
+    }] }, { maximumSamples: 4 });
+    expect(grafana.samples).toHaveLength(4);
   });
 });

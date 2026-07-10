@@ -18,10 +18,16 @@ import type {
   StudioSaveResult
 } from 'topoviewer-studio/host';
 import type { StudioProject, StudioRecoverySnapshot, StudioSourceDocument } from 'topoviewer-studio';
+import {
+  canonicalStudioPath,
+  studioSecurityLimits,
+  validateStudioAssetContent,
+  validateStudioProjectEnvelope
+} from 'topoviewer-studio/host-security';
 
-const MAX_PROJECT_FILES = 256;
-const MAX_PROJECT_BYTES = 25 * 1024 * 1024;
-const MAX_SOURCE_BYTES = 10 * 1024 * 1024;
+const MAX_PROJECT_FILES = studioSecurityLimits.archiveFiles;
+const MAX_PROJECT_BYTES = studioSecurityLimits.archiveExpandedBytes;
+const MAX_SOURCE_BYTES = studioSecurityLimits.sourceBytes;
 const MAX_RECOVERY_BYTES = 10 * 1024 * 1024;
 
 export interface WorkspaceFileEntry {
@@ -29,6 +35,7 @@ export interface WorkspaceFileEntry {
   modifiedAt?: string;
   path: string;
   size: number;
+  symbolicLink?: boolean;
 }
 
 export interface WorkspaceFileWrite {
@@ -117,16 +124,11 @@ async function result<T>(operation: () => Promise<T>): Promise<StudioResult<T>> 
 }
 
 function canonicalRelativePath(candidate: string): string {
-  const normalized = candidate.replaceAll('\\', '/').replace(/^\.\//, '');
-  if (
-    !normalized
-    || normalized.startsWith('/')
-    || normalized.includes('\0')
-    || normalized.split('/').some((segment) => !segment || segment === '.' || segment === '..')
-  ) {
+  try {
+    return canonicalStudioPath(candidate);
+  } catch {
     throw new WorkspaceStudioHostError('invalid-request', `Project path "${candidate}" is outside the trusted bundle root.`);
   }
-  return normalized;
 }
 
 function stableHash(value: Uint8Array | string): string {
@@ -142,6 +144,7 @@ function stableHash(value: Uint8Array | string): string {
 function mediaTypeForPath(path: string): string {
   const extension = path.toLowerCase().split('.').at(-1);
   if (extension === 'svg') return 'image/svg+xml';
+  if (extension === 'gif') return 'image/gif';
   if (extension === 'png') return 'image/png';
   if (extension === 'jpg' || extension === 'jpeg') return 'image/jpeg';
   if (extension === 'webp') return 'image/webp';
@@ -309,11 +312,11 @@ export class WorkspaceStudioHost implements StudioHost {
       const sourcePaths = new Set([this.topologyPath, this.stylesheetPath, this.mapperPath].filter(Boolean));
       return Promise.all(entries
         .filter((entry) => !sourcePaths.has(entry.path))
-        .map(async (entry) => ({
+        .map(async (entry) => validateStudioAssetContent({
           bytes: await this.port.readFile(entry.path),
           mediaType: entry.mediaType || mediaTypeForPath(entry.path),
           name: entry.path
-        })));
+        }, { allowMediaTypeSniffing: true })));
     });
   }
 
@@ -338,6 +341,7 @@ export class WorkspaceStudioHost implements StudioHost {
   saveProject(request: StudioSaveRequest): Promise<StudioResult<StudioSaveResult>> {
     return result(async () => {
       ensureTrusted(this.port, 'Saving the Studio project');
+      validateStudioProjectEnvelope(request.project);
       if (request.project.id !== this.port.id) {
         throw new WorkspaceStudioHostError('invalid-request', 'The project does not belong to the open workspace bundle.');
       }
@@ -359,7 +363,7 @@ export class WorkspaceStudioHost implements StudioHost {
         paths.add(path);
         const bytes = new TextEncoder().encode(document.text);
         if (bytes.byteLength > MAX_SOURCE_BYTES) {
-          throw new WorkspaceStudioHostError('quota-exceeded', `Source file "${path}" exceeds the 10 MiB limit.`);
+          throw new WorkspaceStudioHostError('quota-exceeded', `Source file "${path}" exceeds the ${MAX_SOURCE_BYTES} byte limit.`);
         }
         return { bytes, path };
       });
@@ -413,6 +417,12 @@ export class WorkspaceStudioHost implements StudioHost {
 
   private async validatedEntries(): Promise<WorkspaceFileEntry[]> {
     const entries = (await this.port.listFiles()).map((entry) => ({ ...entry, path: canonicalRelativePath(entry.path) }));
+    if (entries.some((entry) => entry.symbolicLink)) {
+      throw new WorkspaceStudioHostError('permission-denied', 'Symbolic links are not supported inside a TopoViewer workspace bundle.');
+    }
+    if (entries.some((entry) => !Number.isSafeInteger(entry.size) || entry.size < 0 || entry.size > studioSecurityLimits.assetBytes)) {
+      throw new WorkspaceStudioHostError('quota-exceeded', 'A workspace bundle file exceeds the per-file host limit.');
+    }
     const bytes = entries.reduce((total, entry) => total + entry.size, 0);
     if (entries.length > MAX_PROJECT_FILES || bytes > MAX_PROJECT_BYTES) {
       throw new WorkspaceStudioHostError('quota-exceeded', 'The workspace bundle exceeds the 256-file or 25 MiB host limit.');
@@ -432,17 +442,22 @@ export class WorkspaceStudioHost implements StudioHost {
       ? decodeSource(this.mapperPath, await this.port.readFile(this.mapperPath))
       : undefined;
     const sourcePaths = new Set([this.topologyPath, this.stylesheetPath, this.mapperPath].filter(Boolean));
-    const assets = await Promise.all(entries
+    const assetContent = await Promise.all(entries
       .filter((entry) => !sourcePaths.has(entry.path))
       .map(async (entry) => {
         const bytes = await this.port.readFile(entry.path);
-        return {
-          contentHash: `fnv1a-${stableHash(bytes)}`,
+        return validateStudioAssetContent({
+          bytes,
           mediaType: entry.mediaType || mediaTypeForPath(entry.path),
-          path: entry.path,
-          size: bytes.byteLength
-        };
+          name: entry.path
+        }, { allowMediaTypeSniffing: true });
       }));
+    const assets = assetContent.map((asset) => ({
+      contentHash: `fnv1a-${stableHash(asset.bytes)}`,
+      mediaType: asset.mediaType,
+      path: asset.name,
+      size: asset.bytes.byteLength
+    }));
     const updatedAt = entries
       .map((entry) => entry.modifiedAt)
       .filter((value): value is string => Boolean(value))
@@ -463,6 +478,7 @@ export class WorkspaceStudioHost implements StudioHost {
       revision: ''
     };
     project.revision = revisionFor(project);
+    validateStudioProjectEnvelope(project, assetContent);
     const recovery = await this.port.readRecovery();
     return {
       project,

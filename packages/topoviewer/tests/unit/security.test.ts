@@ -40,7 +40,23 @@ describe('hostile content sanitization', () => {
     expect(isSafeImageReference('data:image/png;base64,AAAA')).toBe(true);
     expect(isSafeImageReference('data:image/svg+xml,<svg onload=alert(1)>')).toBe(false);
     expect(isSafeImageReference('javascript:alert(1)')).toBe(false);
+    expect(isSafeImageReference('//example.test/icon.png')).toBe(false);
+    expect(isSafeImageReference('data:text/html;base64,PHNjcmlwdD4=')).toBe(false);
     expect(isSafeImageReference('https://example.test/icon.png\nonerror=alert(1)')).toBe(false);
+  });
+
+  it('removes implicit network references from inline SVG', () => {
+    const sanitized = sanitizeSvg([
+      '<svg xmlns="http://www.w3.org/2000/svg">',
+      '<image href="https://attacker.invalid/pixel.png" />',
+      '<use xlink:href="//attacker.invalid/sprite.svg#router" />',
+      '<circle r="4" />',
+      '</svg>'
+    ].join(''));
+
+    expect(sanitized).toContain('<circle');
+    expect(sanitized).not.toMatch(/attacker\.invalid/);
+    expect(sanitized).not.toMatch(/(?:xlink:)?href=/i);
   });
 
   it('keeps hostile Markdown and callout HTML inert', () => {

@@ -29,7 +29,7 @@ class ConformanceHost implements StudioHost {
   readonly kind = 'browser' as const;
   readonly exported: StudioExportRequest[] = [];
   readonly chosenAsset: StudioAssetContent = {
-    bytes: new TextEncoder().encode('<svg xmlns="http://www.w3.org/2000/svg"/>'),
+    bytes: new TextEncoder().encode('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"/>'),
     mediaType: 'image/svg+xml',
     name: 'router.svg'
   };

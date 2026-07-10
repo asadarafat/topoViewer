@@ -77,7 +77,7 @@
     "clean": "rm -rf dist test-results playwright-report",
     "build": "node ../../scripts/require-node24.mjs && npm --workspace topoviewer run build:lib && npm run build:webview && npm run build:extension && npm run typecheck",
     "build:webview": "vite build --config vite.webview.config.ts",
-    "build:extension": "node scripts/build-extension.mjs",
+    "build:extension": "npm --workspace topoviewer-studio run build:contracts && node scripts/build-extension.mjs",
     "check:studio-webview": "node scripts/check-studio-webview-budget.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "vscode:harness": "node ../../scripts/require-node24.mjs && node ../../scripts/check-port-free.mjs \"Browser harness\" 127.0.0.1 5174 && npm --workspace topoviewer run build:lib && vite --host 127.0.0.1 --port 5174 --strictPort --config vite.harness.config.ts",

@@ -36,9 +36,15 @@ function normalizedPayload(value: string): string {
 
 function unsafeUrlPayload(value: string): boolean {
   const normalized = normalizedPayload(value);
+  if (normalized.startsWith('#')) return false;
+  if (/^data:image\/(?:png|jpe?g|gif|webp);base64,/i.test(normalized)) return false;
   return normalized.includes('javascript:')
     || normalized.includes('vbscript:')
-    || normalized.startsWith('data:image/svg+xml');
+    || normalized.startsWith('data:')
+    || normalized.startsWith('http:')
+    || normalized.startsWith('https:')
+    || normalized.startsWith('//')
+    || Boolean(normalized);
 }
 
 function unsafeCssPayload(value: string): boolean {
@@ -67,5 +73,5 @@ export function sanitizeSvg(svg: string): string {
 export function isSafeImageReference(value: string): boolean {
   const reference = value.trim();
   if (!reference || /[\u0000-\u001F\u007F\s]/.test(reference)) return false;
-  return /^(https?:|data:image\/(?:png|jpe?g|gif|webp);|\.{0,2}\/|#)/i.test(reference);
+  return /^(?:https?:|data:image\/(?:png|jpe?g|gif|webp);|\/(?!\/)|\.\/|\.\.\/|#)/i.test(reference);
 }

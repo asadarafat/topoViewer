@@ -15,6 +15,9 @@ export default defineConfig({
       { find: /^topoviewer\/integration$/, replacement: path.join(repoRoot, 'packages/topoviewer/src/integration.ts') },
       { find: /^topoviewer-studio\/app$/, replacement: path.join(repoRoot, 'packages/topoviewer-studio/src/app.ts') },
       { find: /^topoviewer-studio\/host$/, replacement: path.join(repoRoot, 'packages/topoviewer-studio/src/contracts/host.ts') },
+      { find: /^topoviewer-studio\/host-security$/, replacement: path.join(repoRoot, 'packages/topoviewer-studio/src/hostSecurity.ts') },
+      { find: /^topoviewer-studio\/security$/, replacement: path.join(repoRoot, 'packages/topoviewer-studio/src/security.ts') },
+      { find: /^topoviewer\/security$/, replacement: path.join(repoRoot, 'packages/topoviewer/src/security.ts') },
       { find: /^topoviewer-studio$/, replacement: path.join(repoRoot, 'packages/topoviewer-studio/src/index.ts') },
       { find: /^topoviewer$/, replacement: path.join(repoRoot, 'packages/topoviewer/src/index.ts') }
     ]

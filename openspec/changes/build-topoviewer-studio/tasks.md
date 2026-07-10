@@ -374,24 +374,24 @@ promotes a reviewed asset into documentation.
 
 ## 15. Security Hardening
 
-- [ ] 15.1 Update the threat model for browser and VS Code Studio trust
+- [x] 15.1 Update the threat model for browser and VS Code Studio trust
   boundaries, assets, archives, YAML, mapper samples, exports, and host messages
-- [ ] 15.2 Add adversarial fixtures for path traversal, symlink escape where
+- [x] 15.2 Add adversarial fixtures for path traversal, symlink escape where
   applicable, archive bombs, excess files, oversized files, hostile MIME/data
   URLs, decompression ratios, and malformed manifests
-- [ ] 15.3 Add hostile SVG, Markdown, image, YAML alias expansion, mapper
+- [x] 15.3 Add hostile SVG, Markdown, image, YAML alias expansion, mapper
   expression, telemetry-cardinality, and renderer-limit tests
-- [ ] 15.4 Enforce import/export quotas, canonical paths, allowed MIME types, image
+- [x] 15.4 Enforce import/export quotas, canonical paths, allowed MIME types, image
   dimensions, SVG sanitization, no implicit network fetch, and bounded parsing
-- [ ] 15.5 Fuzz YAML/session commands, archive manifests, host messages, mapper
+- [x] 15.5 Fuzz YAML/session commands, archive manifests, host messages, mapper
   samples, and metadata conditions with crash and timeout assertions
-- [ ] 15.6 Run dependency advisory, license, provenance, secret, static-analysis,
+- [x] 15.6 Run dependency advisory, license, provenance, secret, static-analysis,
   hostile-content, and package-artifact checks for the new package
-- [ ] 15.7 Conduct a manual abuse review with CSP violations, corrupt persistence,
+- [x] 15.7 Conduct a manual abuse review with CSP violations, corrupt persistence,
   rapid command sequences, malformed drops, and repeated failed imports
-- [ ] 15.8 Record residual security assumptions, host responsibilities, and
+- [x] 15.8 Record residual security assumptions, host responsibilities, and
   unsupported trusted-content modes
-- [ ] 15.9 **Exit gate:** all automated security checks and manual abuse review
+- [x] 15.9 **Exit gate:** all automated security checks and manual abuse review
   pass, or Studio remains blocked from public cutover
 
 ## 16. Accessibility And UX Review
