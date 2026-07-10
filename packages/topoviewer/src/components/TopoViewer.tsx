@@ -10,6 +10,7 @@ import {
   useNodesInitialized,
   useNodesState,
   type Connection,
+  type OnSelectionChangeFunc,
   type ResizeParams,
   type NodeChange
 } from '@xyflow/react';
@@ -29,6 +30,7 @@ import type {
   CompiledNode,
   CompiledNodeData,
   TopoDocument,
+  TopoViewerConnectionCreate,
   TopoViewerExtensionContext,
   TopoViewerNodeResizeChange,
   TopoViewerProps
@@ -37,6 +39,7 @@ import { CalloutNode } from './CalloutNode';
 import { FloatingEdge } from './FloatingEdge';
 import { HelperLinesOverlay } from './HelperLinesOverlay';
 import { LabelOverlay } from './LabelOverlay';
+import { useEdgeEndpointInternals } from './edgeEndpointInternals';
 import { NetworkNode } from './NetworkNode';
 import { PinNode } from './PinNode';
 import { RegionNode } from './RegionNode';
@@ -55,13 +58,19 @@ import {
   type HelperLineState
 } from './helperLines';
 import { applyTopoNodeChanges } from './regionDrag';
+import {
+  hasRegionPositionChange,
+  preserveRuntimeNodeMeasurements,
+  preserveSourceOwnedEdges,
+  regionDragGroupRuntimeIds,
+  sourceObjectId
+} from './runtimeGraph';
 import '../styles.css';
 
 const builtInNodeTypes = { network: NetworkNode, region: RegionNode, shape: ShapeNode, callout: CalloutNode, pin: PinNode };
 const builtInEdgeTypes = { floating: FloatingEdge };
 const emptyToggles: NonNullable<TopoViewerProps['toggles']> = {};
 const emptyExtensions: NonNullable<TopoViewerProps['extensions']> = [];
-
 function applyBeforeCompileExtensions(
   document: TopoDocument,
   context: TopoViewerExtensionContext,
@@ -88,17 +97,12 @@ function applyAfterCompileExtensions(
   }, graph);
 }
 
-function sourceObjectId(compiledObject: Record<string, unknown>): string {
-  const data = (compiledObject.data || {}) as Record<string, unknown>;
-  return String(data.id || compiledObject.id || '');
-}
-
-function resizableObjectKind(compiledNode: Record<string, unknown>): 'region' | 'shape' | 'callout' | undefined {
+function resizableObjectKind(compiledNode: Record<string, unknown>): 'node' | 'region' | 'shape' | 'callout' | undefined {
   const data = (compiledNode.data || {}) as Record<string, unknown>;
   const objectKind = String(data.objectKind || '');
   if (objectKind === 'shape' || objectKind === 'callout') return objectKind;
   if (String(compiledNode.type || '') === 'region') return 'region';
-  return undefined;
+  return String(compiledNode.type || '') === 'network' ? 'node' : undefined;
 }
 
 function samePosition(first: { x: number; y: number } | undefined, second: { x: number; y: number } | undefined) {
@@ -248,6 +252,21 @@ function applySelectionToCompiledGraph(graph: CompiledGraph, selectedObjectIds: 
   };
 }
 
+function applyPreviewToCompiledGraph(graph: CompiledGraph, previewObjectIds: string[] | undefined): CompiledGraph {
+  if (!previewObjectIds?.length) return graph;
+  const previewed = new Set(previewObjectIds);
+  return {
+    ...graph,
+    nodes: graph.nodes.map((node) => previewed.has(sourceObjectId(node)) ? {
+      ...node,
+      data: {
+        ...((node.data || {}) as CompiledNodeData),
+        topoviewerPreview: true
+      } as CompiledNodeData
+    } as CompiledNode : node)
+  };
+}
+
 function withRuntimeDirectionHandlers(
   edges: ReturnType<typeof compileTopoGraph>['edges'],
   onObjectClick: TopoViewerProps['onObjectClick']
@@ -387,28 +406,6 @@ function useHelperLineState() {
   return [state, setStateIfChanged, clearState] as const;
 }
 
-function preserveRuntimeNodeMeasurements(nextNodes: unknown[], currentNodes: unknown[]) {
-  const currentById = new Map(currentNodes.map((node) => [String((node as { id?: unknown }).id || ''), node as Record<string, unknown>]));
-  return nextNodes.map((node) => {
-    const current = currentById.get(String((node as { id?: unknown }).id || ''));
-    if (!current) return node;
-    const runtimeMeasurements: Record<string, unknown> = {};
-    if (current.height !== undefined) runtimeMeasurements.height = current.height;
-    if (current.measured !== undefined) runtimeMeasurements.measured = current.measured;
-    if (current.width !== undefined) runtimeMeasurements.width = current.width;
-    return {
-      ...(node as Record<string, unknown>),
-      ...runtimeMeasurements
-    };
-  });
-}
-
-function hasRegionPositionChange(changes: NodeChange[]) {
-  return changes.some((change) => (
-    change.type === 'position' && String(change.id || '').startsWith('region:')
-  ));
-}
-
 function TopoFlow({
   compiled,
   document,
@@ -417,17 +414,23 @@ function TopoFlow({
   exportDisabled,
   exportTooltip,
   helperLines,
+  previewObjectIds,
   initialViewport,
   nodesDraggable = true,
   nodesResizable = false,
   nodesConnectable = false,
+  connectionHandleMode = 'full-node',
   onExport,
   onObjectClick,
   onPaneClick,
   onNodePositionChange,
+  onNodePositionPreview,
   onNodeResizeChange,
   onRegionAggregateToggle,
   onConnectionCreate,
+  isConnectionValid,
+  onObjectContextMenu,
+  onSelectionChange,
   onViewportChange,
   nodeTypes,
   edgeTypes
@@ -439,28 +442,42 @@ function TopoFlow({
   exportDisabled?: TopoViewerProps['exportDisabled'];
   exportTooltip?: TopoViewerProps['exportTooltip'];
   helperLines?: TopoViewerProps['helperLines'];
+  previewObjectIds?: TopoViewerProps['previewObjectIds'];
   initialViewport?: TopoViewerProps['initialViewport'];
   nodesDraggable?: TopoViewerProps['nodesDraggable'];
   nodesResizable?: TopoViewerProps['nodesResizable'];
   nodesConnectable?: TopoViewerProps['nodesConnectable'];
+  connectionHandleMode?: TopoViewerProps['connectionHandleMode'];
   onExport?: TopoViewerProps['onExport'];
   onObjectClick?: TopoViewerProps['onObjectClick'];
   onPaneClick?: TopoViewerProps['onPaneClick'];
   onNodePositionChange?: TopoViewerProps['onNodePositionChange'];
+  onNodePositionPreview?: TopoViewerProps['onNodePositionPreview'];
   onNodeResizeChange?: TopoViewerProps['onNodeResizeChange'];
   onRegionAggregateToggle?: TopoViewerProps['onRegionAggregateToggle'];
   onConnectionCreate?: TopoViewerProps['onConnectionCreate'];
+  isConnectionValid?: TopoViewerProps['isConnectionValid'];
+  onObjectContextMenu?: TopoViewerProps['onObjectContextMenu'];
+  onSelectionChange?: TopoViewerProps['onSelectionChange'];
   onViewportChange?: TopoViewerProps['onViewportChange'];
   nodeTypes: Record<string, unknown>;
   edgeTypes: Record<string, unknown>;
 }) {
-  const runtimeNodes = useMemo(() => withRuntimeResizeHandlers(
-    withRuntimeRegionAggregateHandlers(compiled.nodes, onRegionAggregateToggle),
-    nodesResizable,
-    onNodeResizeChange
-  ), [compiled.nodes, nodesResizable, onNodeResizeChange, onRegionAggregateToggle]);
+  const decorateRuntimeNodes = useCallback((sourceNodes: ReturnType<typeof compileTopoGraph>['nodes']) => (
+    withRuntimeResizeHandlers(
+      withRuntimeRegionAggregateHandlers(sourceNodes, onRegionAggregateToggle),
+      nodesResizable,
+      onNodeResizeChange
+    )
+  ), [nodesResizable, onNodeResizeChange, onRegionAggregateToggle]);
+  const runtimeNodes = useMemo(() => decorateRuntimeNodes(compiled.nodes), [compiled.nodes, decorateRuntimeNodes]);
   const [nodes, setNodes] = useNodesState(runtimeNodes as never[]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(withRuntimeDirectionHandlers(compiled.edges, onObjectClick) as never[]);
+  const sourceEdgeIds = useMemo(() => new Set(compiled.edges.map((edge) => edge.id)), [compiled.edges]);
+  const [edges, setEdges, applyRuntimeEdgeChanges] = useEdgesState(withRuntimeDirectionHandlers(compiled.edges, onObjectClick) as never[]);
+  const onEdgesChange = useCallback((changes: Parameters<typeof applyRuntimeEdgeChanges>[0]) => (
+    applyRuntimeEdgeChanges(preserveSourceOwnedEdges(changes, sourceEdgeIds))
+  ), [applyRuntimeEdgeChanges, sourceEdgeIds]);
+  useEdgeEndpointInternals(compiled.edges);
   const [nodesReadyForInteraction, setNodesReadyForInteraction] = useState(false);
   const reactFlow = useReactFlow();
   const nodesInitialized = useNodesInitialized({ includeHiddenNodes: true });
@@ -470,25 +487,25 @@ function TopoFlow({
   const snappedPositionsRef = useRef(new Map<string, { x: number; y: number }>());
   const activeDragNodeIdRef = useRef<string | undefined>();
   const activeDragStartPositionRef = useRef<{ x: number; y: number } | undefined>();
+  const activeDragLatestPositionRef = useRef<{ x: number; y: number } | undefined>();
   const activeHelperLineStateRef = useRef<HelperLineState>(emptyHelperLineState);
   const helperLineCandidateIndexRef = useRef<HelperLineCandidateIndex | undefined>();
-
   useEffect(() => {
+    setEdges(withRuntimeDirectionHandlers(compiled.edges, onObjectClick) as never[]);
     if (activeDragNodeIdRef.current) return;
     setNodes((currentNodes) => {
       const nextNodes = preserveRuntimeNodeMeasurements(runtimeNodes, currentNodes);
       nodesRef.current = nextNodes as unknown as HelperLineNodeLike[];
       return nextNodes as never[];
     });
-    setEdges(withRuntimeDirectionHandlers(compiled.edges, onObjectClick) as never[]);
     snappedPositionsRef.current.clear();
     activeDragNodeIdRef.current = undefined;
     activeDragStartPositionRef.current = undefined;
+    activeDragLatestPositionRef.current = undefined;
     activeHelperLineStateRef.current = emptyHelperLineState;
     helperLineCandidateIndexRef.current = undefined;
     clearHelperLines();
   }, [clearHelperLines, compiled, onObjectClick, runtimeNodes, setEdges, setNodes]);
-
   useEffect(() => {
     setNodesReadyForInteraction(false);
     if (!nodesInitialized) return undefined;
@@ -502,16 +519,34 @@ function TopoFlow({
       cancelAnimationFrame(secondFrame);
     };
   }, [compiled, nodesInitialized]);
-
   useEffect(() => {
     nodesRef.current = nodes as unknown as HelperLineNodeLike[];
   }, [nodes]);
+
+  useEffect(() => {
+    const previewed = new Set(previewObjectIds || []);
+    setNodes((currentNodes) => {
+      let changed = false;
+      const nextNodes = (currentNodes as unknown as Array<Record<string, unknown>>).map((node) => {
+        const data = (node.data || {}) as Record<string, unknown>;
+        const nextPreview = previewed.has(sourceObjectId(node));
+        if ((data.topoviewerPreview === true) === nextPreview) return node;
+        changed = true;
+        if (nextPreview) return { ...node, data: { ...data, topoviewerPreview: true } };
+        const { topoviewerPreview: _preview, ...remainingData } = data;
+        return { ...node, data: remainingData };
+      });
+      if (changed) nodesRef.current = nextNodes as unknown as HelperLineNodeLike[];
+      return (changed ? nextNodes : currentNodes) as never[];
+    });
+  }, [previewObjectIds, setNodes]);
 
   useEffect(() => {
     if (!helperLineOptions.enabled) {
       snappedPositionsRef.current.clear();
       activeDragNodeIdRef.current = undefined;
       activeDragStartPositionRef.current = undefined;
+      activeDragLatestPositionRef.current = undefined;
       activeHelperLineStateRef.current = emptyHelperLineState;
       helperLineCandidateIndexRef.current = undefined;
       clearHelperLines();
@@ -548,6 +583,15 @@ function TopoFlow({
         snappedPositionsRef.current.set(id, position);
       });
     }
+    const activeDragChange = nextChanges.find((change) => (
+      change.type === 'position'
+      && change.id === activeDragNodeIdRef.current
+      && change.dragging === true
+      && !!change.position
+    ));
+    if (activeDragChange?.type === 'position' && activeDragChange.position) {
+      activeDragLatestPositionRef.current = activeDragChange.position;
+    }
     setNodes((currentNodes) => {
       const nextNodes = hasActivePositionDrag && !hasRegionPositionChange(nextChanges)
         ? applyNodeChanges(nextChanges, currentNodes) as never[]
@@ -559,26 +603,32 @@ function TopoFlow({
           showRegions,
           deferRegionRebuild: hasActivePositionDrag
         });
-      nodesRef.current = nextNodes as unknown as HelperLineNodeLike[];
-      return nextNodes;
+      const decoratedNodes = hasActivePositionDrag
+        ? nextNodes
+        : decorateRuntimeNodes(nextNodes as ReturnType<typeof compileTopoGraph>['nodes']);
+      nodesRef.current = decoratedNodes as unknown as HelperLineNodeLike[];
+      return decoratedNodes as never[];
     });
-  }, [compiled.selectedLayerIds, document, helperLineOptions, nodesDraggable, scheduleHelperLineState, setNodes, showRegions]);
+  }, [compiled.selectedLayerIds, decorateRuntimeNodes, document, helperLineOptions, nodesDraggable, scheduleHelperLineState, setNodes, showRegions]);
 
   const onNodeDragStart = useCallback((_event: unknown, node: unknown) => {
     const runtimeNode = node as unknown as Record<string, unknown>;
     const runtimeId = String(runtimeNode.id || '');
     activeDragNodeIdRef.current = runtimeId;
     activeDragStartPositionRef.current = runtimeId ? runtimeNodePosition(runtimeNode) : undefined;
+    activeDragLatestPositionRef.current = activeDragStartPositionRef.current;
     if (!helperLineOptions.enabled || !runtimeId) {
       helperLineCandidateIndexRef.current = undefined;
       return;
     }
+    const excludedRuntimeIds = regionDragGroupRuntimeIds(document, runtimeId);
     const candidates = nodesRef.current.flatMap((candidateNode) => {
+      if (excludedRuntimeIds.has(String(candidateNode.id || ''))) return [];
       const box = helperLineBoxFromNode(candidateNode);
       return box ? [box] : [];
     });
     helperLineCandidateIndexRef.current = prepareHelperLineCandidateIndex(candidates, runtimeId, helperLineOptions);
-  }, [helperLineOptions]);
+  }, [document, helperLineOptions]);
 
   const onNodeDragStop = useCallback((_event: unknown, node: unknown) => {
     clearHelperLines();
@@ -588,12 +638,14 @@ function TopoFlow({
     const hasCommittedSnap = snappedPositionsRef.current.has(runtimeId);
     const shouldRebuildRegions = showRegions && !!document.graph?.regions?.length;
     const startPosition = activeDragStartPositionRef.current;
-    const position = resolveDragStopPosition({
-      runtimeId,
-      eventPosition: (runtimeNode.position || {}) as { x?: number; y?: number },
-      nodes: nodesRef.current,
-      snappedPositions: snappedPositionsRef.current
-    });
+    const position = snappedPositionsRef.current.get(runtimeId)
+      || activeDragLatestPositionRef.current
+      || resolveDragStopPosition({
+        runtimeId,
+        eventPosition: (runtimeNode.position || {}) as { x?: number; y?: number },
+        nodes: nodesRef.current,
+        snappedPositions: snappedPositionsRef.current
+      });
     if (hasCommittedSnap || shouldRebuildRegions) {
       setNodes((currentNodes) => {
         const currentNode = (currentNodes as unknown as Array<{ id?: string; position?: { x: number; y: number } }>)
@@ -608,13 +660,15 @@ function TopoFlow({
           selectedLayerIds: compiled.selectedLayerIds,
           showRegions
         });
-        nodesRef.current = nextNodes as unknown as HelperLineNodeLike[];
-        return nextNodes;
+        const decoratedNodes = decorateRuntimeNodes(nextNodes as ReturnType<typeof compileTopoGraph>['nodes']);
+        nodesRef.current = decoratedNodes as unknown as HelperLineNodeLike[];
+        return decoratedNodes as never[];
       });
     }
     snappedPositionsRef.current.delete(runtimeId);
     activeDragNodeIdRef.current = undefined;
     activeDragStartPositionRef.current = undefined;
+    activeDragLatestPositionRef.current = undefined;
     helperLineCandidateIndexRef.current = undefined;
     if (!onNodePositionChange) return undefined;
     return onNodePositionChange({
@@ -624,24 +678,48 @@ function TopoFlow({
       position,
       data: (runtimeNode.data || {}) as Record<string, unknown>
     });
-  }, [clearHelperLines, compiled.selectedLayerIds, document, onNodePositionChange, setNodes, showRegions]);
+  }, [clearHelperLines, compiled.selectedLayerIds, decorateRuntimeNodes, document, onNodePositionChange, setNodes, showRegions]);
 
-  const handleConnect = useCallback((connection: Connection) => {
-    if (!onConnectionCreate || !connection.source || !connection.target) return;
+  const onNodeDrag = useCallback((_event: unknown, node: unknown) => {
+    const runtimeNode = node as unknown as Record<string, unknown>;
+    activeDragLatestPositionRef.current = runtimeNodePosition(runtimeNode);
+    if (!onNodePositionPreview) return;
+    onNodePositionPreview({
+      id: sourceObjectId(runtimeNode),
+      runtimeId: String(runtimeNode.id || ''),
+      position: runtimeNodePosition(runtimeNode),
+      data: (runtimeNode.data || {}) as Record<string, unknown>
+    });
+  }, [onNodePositionPreview]);
+
+  const resolveConnection = useCallback((connection: Connection): TopoViewerConnectionCreate | undefined => {
+    if (!connection.source || !connection.target) return undefined;
     const sourceNode = nodesRef.current.find((node) => String(node.id || '') === connection.source);
     const targetNode = nodesRef.current.find((node) => String(node.id || '') === connection.target);
-    if (!sourceNode || !targetNode) return;
+    if (!sourceNode || !targetNode) return undefined;
     const sourceRuntime = sourceNode as unknown as Record<string, unknown>;
     const targetRuntime = targetNode as unknown as Record<string, unknown>;
-    onConnectionCreate({
+    return {
       sourceId: sourceObjectId(sourceRuntime),
       sourceRuntimeId: connection.source,
       sourceHandleId: connection.sourceHandle || undefined,
       targetId: sourceObjectId(targetRuntime),
       targetRuntimeId: connection.target,
       targetHandleId: connection.targetHandle || undefined
-    });
-  }, [onConnectionCreate]);
+    };
+  }, []);
+
+  const handleConnect = useCallback((connection: Connection) => {
+    if (!onConnectionCreate) return;
+    const resolved = resolveConnection(connection);
+    if (resolved) onConnectionCreate(resolved);
+  }, [onConnectionCreate, resolveConnection]);
+
+  const handleConnectionValidation = useCallback((connection: Connection) => {
+    const resolved = resolveConnection(connection);
+    if (!resolved) return false;
+    return isConnectionValid ? isConnectionValid(resolved) : true;
+  }, [isConnectionValid, resolveConnection]);
 
   const handlePaneClick = useCallback((event: MouseEvent) => {
     if (!onPaneClick) return;
@@ -657,6 +735,32 @@ function TopoFlow({
       }
     });
   }, [onPaneClick, reactFlow]);
+
+  const handleSelectionChange = useCallback<OnSelectionChangeFunc>(({ nodes: selectedNodes, edges: selectedEdges }) => {
+    if (!onSelectionChange) return;
+    onSelectionChange({
+      objects: [
+        ...selectedNodes.map((node) => {
+          const runtimeNode = node as unknown as Record<string, unknown>;
+          return {
+            id: sourceObjectId(runtimeNode),
+            runtimeId: String(runtimeNode.id),
+            element: 'node' as const,
+            data: (runtimeNode.data || {}) as Record<string, unknown>
+          };
+        }),
+        ...selectedEdges.map((edge) => {
+          const runtimeEdge = edge as unknown as Record<string, unknown>;
+          return {
+            id: sourceObjectId(runtimeEdge),
+            runtimeId: String(runtimeEdge.id),
+            element: 'edge' as const,
+            data: (runtimeEdge.data || {}) as Record<string, unknown>
+          };
+        })
+      ]
+    });
+  }, [onSelectionChange]);
 
   return (
     <ReactFlow
@@ -696,10 +800,47 @@ function TopoFlow({
           }
         });
       } : undefined}
+      onNodeContextMenu={onObjectContextMenu ? (_event, node) => {
+        _event.preventDefault();
+        const runtimeNode = node as unknown as Record<string, unknown>;
+        onObjectContextMenu({
+          clientX: _event.clientX,
+          clientY: _event.clientY,
+          id: sourceObjectId(runtimeNode),
+          runtimeId: String(runtimeNode.id),
+          element: 'node',
+          data: (runtimeNode.data || {}) as Record<string, unknown>,
+          modifiers: {
+            ctrlKey: _event.ctrlKey,
+            metaKey: _event.metaKey,
+            shiftKey: _event.shiftKey
+          }
+        });
+      } : undefined}
+      onEdgeContextMenu={onObjectContextMenu ? (_event, edge) => {
+        _event.preventDefault();
+        const runtimeEdge = edge as unknown as Record<string, unknown>;
+        onObjectContextMenu({
+          clientX: _event.clientX,
+          clientY: _event.clientY,
+          id: sourceObjectId(runtimeEdge),
+          runtimeId: String(runtimeEdge.id),
+          element: 'edge',
+          data: (runtimeEdge.data || {}) as Record<string, unknown>,
+          modifiers: {
+            ctrlKey: _event.ctrlKey,
+            metaKey: _event.metaKey,
+            shiftKey: _event.shiftKey
+          }
+        });
+      } : undefined}
+      onSelectionChange={onSelectionChange ? handleSelectionChange : undefined}
       onConnect={onConnectionCreate ? handleConnect : undefined}
+      isValidConnection={isConnectionValid ? handleConnectionValidation : undefined}
       onPaneClick={onPaneClick ? handlePaneClick : undefined}
       onNodeDragStop={helperLineOptions.enabled || onNodePositionChange ? onNodeDragStop : undefined}
       onNodeDragStart={helperLineOptions.enabled || onNodePositionChange ? onNodeDragStart : undefined}
+      onNodeDrag={onNodePositionPreview ? onNodeDrag : undefined}
       onMoveEnd={onViewportChange ? (_event, viewport) => onViewportChange(viewport) : undefined}
       nodeTypes={nodeTypes as never}
       edgeTypes={edgeTypes as never}
@@ -708,10 +849,10 @@ function TopoFlow({
       fitViewOptions={{ padding: 0.06, maxZoom: 1 }}
       minZoom={0.2}
       maxZoom={8}
-      connectionMode={nodesConnectable ? ConnectionMode.Loose : ConnectionMode.Strict}
+      connectionMode={connectionHandleMode === 'handles' ? ConnectionMode.Strict : ConnectionMode.Loose}
       connectionRadius={28}
       nodesDraggable={nodesDraggable !== false && nodesInitialized && nodesReadyForInteraction}
-      nodesConnectable={nodesConnectable === true && nodesInitialized && nodesReadyForInteraction}
+      nodesConnectable={nodesConnectable === true && nodesInitialized}
       elementsSelectable
       proOptions={{ hideAttribution: true }}
     >
@@ -732,6 +873,7 @@ export function TopoViewer({
   document,
   selectedLayerIds,
   selectedObjectIds,
+  previewObjectIds,
   toggles,
   layout,
   attention,
@@ -744,12 +886,17 @@ export function TopoViewer({
   nodesDraggable,
   nodesResizable,
   nodesConnectable,
+  connectionHandleMode = 'full-node',
   onObjectClick,
   onPaneClick,
   onNodePositionChange,
+  onNodePositionPreview,
   onNodeResizeChange,
   onRegionAggregateToggle,
   onConnectionCreate,
+  isConnectionValid,
+  onObjectContextMenu,
+  onSelectionChange,
   onViewportChange,
   onExport,
   className = '',
@@ -800,16 +947,23 @@ export function TopoViewer({
     const nextContext = { ...extensionContext, document: reducedDocument };
     return {
       preparedDocument: reducedDocument,
-      compiled: applySelectionToCompiledGraph(applyAfterCompileExtensions(compiledGraph, nextContext, effectiveExtensions), selectedObjectIds)
+      compiled: applyPreviewToCompiledGraph(
+        applySelectionToCompiledGraph(applyAfterCompileExtensions(compiledGraph, nextContext, effectiveExtensions), selectedObjectIds),
+        previewObjectIds
+      )
     };
-  }, [attention, document, effectiveExtensions, effectiveLayers, effectiveToggles, extensionContext, layout, selectedObjectIds]);
+  }, [attention, document, effectiveExtensions, effectiveLayers, effectiveToggles, extensionContext, layout, previewObjectIds, selectedObjectIds]);
 
-  const rootClassName = ['topoviewer', nodesConnectable ? 'topoviewer--connectable' : '', className]
+  const rootClassName = [
+    'topoviewer',
+    nodesConnectable ? 'topoviewer--connectable' : '',
+    nodesConnectable ? `topoviewer--connection-${connectionHandleMode}` : '',
+    className
+  ]
     .filter(Boolean)
     .join(' ');
-
   return (
-    <div className={rootClassName} style={style} role="img" aria-label={document.graph?.id || 'TopoViewer diagram'}>
+    <div className={rootClassName} style={style} role="region" aria-label={document.graph?.id || 'TopoViewer diagram'}>
       <ReactFlowProvider>
         <TopoFlow
           compiled={compiled}
@@ -819,17 +973,23 @@ export function TopoViewer({
           exportDisabled={exportDisabled}
           exportTooltip={exportTooltip}
           helperLines={helperLines}
+          previewObjectIds={previewObjectIds}
           initialViewport={initialViewport}
           nodesDraggable={nodesDraggable}
           nodesResizable={nodesResizable}
           nodesConnectable={nodesConnectable}
+          connectionHandleMode={connectionHandleMode}
           onExport={onExport}
           onObjectClick={onObjectClick}
           onPaneClick={onPaneClick}
           onNodePositionChange={onNodePositionChange}
+          onNodePositionPreview={onNodePositionPreview}
           onNodeResizeChange={onNodeResizeChange}
           onRegionAggregateToggle={onRegionAggregateToggle}
           onConnectionCreate={onConnectionCreate}
+          isConnectionValid={isConnectionValid}
+          onObjectContextMenu={onObjectContextMenu}
+          onSelectionChange={onSelectionChange}
           onViewportChange={onViewportChange}
           nodeTypes={nodeTypes}
           edgeTypes={edgeTypes}

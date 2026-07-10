@@ -263,6 +263,12 @@
   cursor: pointer;
 }
 
+.topoviewer-region-preview {
+  outline: 3px solid var(--topoviewer-accent);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 7px rgba(56, 189, 248, 0.18);
+}
+
 .topoviewer-aggregate-expand-button:hover,
 .topoviewer-region-collapse-button:hover {
   border-color: #38bdf8;
@@ -376,10 +382,6 @@
   text-transform: uppercase;
   transform: translateX(-50%);
   white-space: nowrap;
-}
-
-.topoviewer.topoviewer--connectable .topoviewer-node-link-authoring-pill {
-  display: inline-block;
 }
 
 .topoviewer-node-layout-card {
@@ -976,6 +978,7 @@
 
 .topoviewer .topoviewer-resize-line.react-flow__resize-control {
   border-color: rgba(56, 189, 248, 0.82);
+  pointer-events: none;
   z-index: 190;
 }
 
@@ -1100,7 +1103,45 @@
   z-index: 30;
 }
 
-.topoviewer.topoviewer--connectable .react-flow__handle.topoviewer-node-handle-default-target {
+.topoviewer.topoviewer--connection-handles .react-flow__handle.topoviewer-node-handle-default-target {
+  background: #f59e0b;
+  border-radius: 2px;
+}
+
+.topoviewer.topoviewer--connection-handles .react-flow__handle.topoviewer-node-handle-default {
+  background: #22c55e;
+  border-radius: 50%;
+}
+
+.topoviewer.topoviewer--connection-handles .react-flow__handle.connectingto:not(.valid) {
+  background: #dc2626;
+  box-shadow:
+    0 0 0 2px var(--topoviewer-panel-bg),
+    0 0 0 6px rgba(220, 38, 38, 0.32);
+}
+
+.topoviewer.topoviewer--connection-handles .react-flow__handle.connectingto:not(.valid)::after {
+  position: absolute;
+  color: #fff;
+  content: "\00d7";
+  font-size: 0.75rem;
+  font-weight: 900;
+  line-height: 0.65rem;
+  pointer-events: none;
+}
+
+.topoviewer.topoviewer--connectable .react-flow__handle.topoviewer-node-handle-default:hover,
+.topoviewer.topoviewer--connectable .react-flow__handle.topoviewer-node-handle-default.connectingfrom,
+.topoviewer.topoviewer--connectable .react-flow__handle.topoviewer-node-handle-default.connectingto {
+  background: #86efac;
+  opacity: 1;
+}
+
+.topoviewer.topoviewer--connection-full-node .topoviewer-node-link-authoring-pill {
+  display: inline-block;
+}
+
+.topoviewer.topoviewer--connection-full-node .react-flow__handle.topoviewer-node-handle-default-target {
   inset: 0;
   width: 100%;
   height: 100%;
@@ -1115,7 +1156,7 @@
   transform: none;
 }
 
-.topoviewer.topoviewer--connectable .react-flow__handle.topoviewer-node-handle-default {
+.topoviewer.topoviewer--connection-full-node .react-flow__handle.topoviewer-node-handle-default {
   inset: 0;
   width: 100%;
   height: 100%;
@@ -1129,9 +1170,9 @@
   transform: none;
 }
 
-.topoviewer.topoviewer--connectable .react-flow__handle.topoviewer-node-handle-default:hover,
-.topoviewer.topoviewer--connectable .react-flow__handle.topoviewer-node-handle-default.connectingfrom,
-.topoviewer.topoviewer--connectable .react-flow__handle.topoviewer-node-handle-default.connectingto {
+.topoviewer.topoviewer--connection-full-node .react-flow__handle.topoviewer-node-handle-default:hover,
+.topoviewer.topoviewer--connection-full-node .react-flow__handle.topoviewer-node-handle-default.connectingfrom,
+.topoviewer.topoviewer--connection-full-node .react-flow__handle.topoviewer-node-handle-default.connectingto {
   opacity: 0;
 }
 

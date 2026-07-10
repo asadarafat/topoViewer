@@ -1,4 +1,4 @@
-import { Handle, Position, useViewport } from '@xyflow/react';
+import { Handle, NodeResizer, Position, useViewport, type ResizeParams } from '@xyflow/react';
 import type { CSSProperties, SVGAttributes } from 'react';
 import { displayName, formatLabels } from '../core/style';
 import { sanitizeSvg } from '../core/security';
@@ -104,7 +104,7 @@ function RenderExplicitHandles({ handles }: { handles: ReturnType<typeof explici
             key={`${handle.id}:${type}`}
             className="topoviewer-node-handle"
             id={handle.id}
-            aria-label={type === 'source' ? 'Link source endpoint' : 'Link target endpoint'}
+            aria-hidden="true"
             title={type === 'source' ? 'Source endpoint: start link here' : 'Target endpoint: drop link here'}
             type={type}
             position={position}
@@ -121,15 +121,15 @@ function RenderDefaultConnectionHandles() {
     <>
       <Handle
         className="topoviewer-node-handle topoviewer-node-handle-default-target"
-        aria-label="Link target anchor"
-        title="Link target anchor"
+        aria-hidden="true"
+        title="Target endpoint. Self-links and duplicate links are rejected."
         type="target"
         position={Position.Left}
       />
       <Handle
         className="topoviewer-node-handle topoviewer-node-handle-default"
-        aria-label="Link endpoint"
-        title="Link endpoint: drag to another node"
+        aria-hidden="true"
+        title="Source endpoint: drag to a target endpoint"
         type="source"
         position={Position.Right}
       />
@@ -242,6 +242,9 @@ export function NetworkNode({ data }: { data: CompiledNodeData }) {
   const statusPlacement = data.statusPlacement || 'bottomRight';
   const badgeStatusCluster = Boolean(cardLayout && data.badgeLabel && data.statusStyle && badgePosition === statusPlacement && statusPlacement !== 'center');
   const statusPriority = badgeStatusCluster ? 'cluster' : undefined;
+  const onResizeEnd = typeof data.__topoviewerOnResizeEnd === 'function'
+    ? data.__topoviewerOnResizeEnd as (params: ResizeParams) => void
+    : undefined;
 
   return (
     <div
@@ -252,6 +255,15 @@ export function NetworkNode({ data }: { data: CompiledNodeData }) {
       aria-label={accessibleLabel}
       tabIndex={isNavigableAttentionNode ? 0 : -1}
     >
+      {onResizeEnd ? (
+        <NodeResizer
+          handleClassName="topoviewer-resize-handle"
+          lineClassName="topoviewer-resize-line"
+          minHeight={36}
+          minWidth={48}
+          onResizeEnd={(_event, params) => onResizeEnd(params)}
+        />
+      ) : null}
       <RenderDefaultConnectionHandles />
       <RenderAggregateExpandButton data={data} />
       {cardLayout ? (

@@ -1,0 +1,63 @@
+import { expect, test, type Locator, type Page } from '@playwright/test';
+
+async function staggeredDrag(page: Page, node: Locator, deltas: Array<{ x: number; y: number }>) {
+  const durations: number[] = [];
+  for (const delta of deltas) {
+    const box = await node.boundingBox();
+    if (!box) throw new Error('Dragged node is not measurable.');
+    const start = Date.now();
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(box.x + box.width / 2 + delta.x, box.y + box.height / 2 + delta.y, { steps: 12 });
+    await page.mouse.up();
+    await expect(page.locator('.topoviewer-helper-line')).toHaveCount(0);
+    await expect(node).toBeVisible();
+    const after = await node.boundingBox();
+    if (!after) throw new Error('Dragged node disappeared after release.');
+    expect(Math.hypot(after.x - box.x, after.y - box.y)).toBeGreaterThan(2);
+    durations.push(Date.now() - start);
+  }
+  return durations;
+}
+
+test('keeps two-node staggered drag stable and commits only after release', async ({ page }) => {
+  await page.goto('/');
+  await page.getByTestId('palette-node').click();
+  await page.getByTestId('palette-node').click();
+  const announcement = page.locator('.studio-visually-hidden[aria-live="polite"]');
+  await page.waitForTimeout(250);
+  const node = page.locator('.react-flow__node[data-id="node-1"]');
+  const box = await node.boundingBox();
+  if (!box) throw new Error('Dragged node is not measurable.');
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2 + 4);
+  await expect(announcement).toContainText('selected');
+  const duringSelection = await announcement.textContent();
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2 + 70, { steps: 10 });
+  await expect(announcement).toHaveText(duringSelection ?? '');
+  await page.mouse.up();
+  await expect(announcement).toContainText('Move');
+
+  const durations = await staggeredDrag(page, node, [
+    { x: 0, y: -34 }, { x: 24, y: 0 }, { x: -18, y: 30 }, { x: 0, y: -22 }
+  ]);
+  expect(Math.max(...durations)).toBeLessThan(1000);
+  await expect(page.locator('.react-flow__node')).toHaveCount(2);
+  await expect(page.getByRole('region', { name: 'Topology canvas' })).toBeVisible();
+});
+
+test('keeps dense repeated drag nonblank and bounded', async ({ page }) => {
+  await page.goto('/?__studio-test-state=dense');
+  const nodes = page.locator('.react-flow__node');
+  await expect(nodes).toHaveCount(120, { timeout: 10_000 });
+  const node = page.locator('.react-flow__node[data-id="dense-1"]');
+  const durations = await staggeredDrag(page, node, [
+    { x: 0, y: 42 }, { x: 18, y: 0 }, { x: 0, y: -24 }, { x: -12, y: 18 }, { x: 20, y: -14 }
+  ]);
+
+  expect(Math.max(...durations)).toBeLessThan(1500);
+  await expect(nodes).toHaveCount(120);
+  await expect(page.locator('.react-flow__renderer')).toBeVisible();
+  await expect(page.getByText('Dense topology (120 nodes)')).toBeVisible();
+});
