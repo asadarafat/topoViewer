@@ -12,7 +12,7 @@ module.exports = {
       name: 'no-adapter-imports-core-source',
       severity: 'error',
       comment: 'Application adapters must consume the topoviewer package API instead of sibling source files.',
-      from: { path: '^packages/(vscode-topoviewer|grafana-topoviewer-panel)/' },
+      from: { path: '^packages/(topoviewer-studio|vscode-topoviewer|grafana-topoviewer-panel)/' },
       to: { path: '^packages/topoviewer/src/' }
     },
     {
@@ -20,6 +20,13 @@ module.exports = {
       severity: 'error',
       comment: 'The reusable topoviewer package must not depend on application adapter source.',
       from: { path: '^packages/topoviewer/src/' },
+      to: { path: '^packages/(topoviewer-studio|vscode-topoviewer|grafana-topoviewer-panel)/' }
+    },
+    {
+      name: 'no-studio-imports-adapter-source',
+      severity: 'error',
+      comment: 'Studio owns shared authoring behavior and must not depend on host adapter source.',
+      from: { path: '^packages/topoviewer-studio/' },
       to: { path: '^packages/(vscode-topoviewer|grafana-topoviewer-panel)/' }
     },
     {
@@ -38,9 +45,10 @@ module.exports = {
         pathNot: [
           '(^|/)index\\.(ts|tsx|js|mjs)$',
           '(^|/)main\\.(ts|tsx)$',
+          '(^|/)[^/]+\\.worker\\.ts$',
           '(^|/)vite-env\\.d\\.ts$',
           '(^|/)vite\\.[^/]+\\.ts$',
-          '(^|/)playwright\\.config\\.js$',
+          '(^|/)playwright\\.config\\.(js|ts)$',
           '(^|/)tests?/',
           '(^|/)scripts?/',
           '(^|/)examples?/'
