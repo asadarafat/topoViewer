@@ -1,0 +1,20 @@
+import type { AuthoringClipboardItem } from 'topoviewer/authoring';
+
+export interface StudioUserPreset {
+  id: string;
+  item: AuthoringClipboardItem;
+  name: string;
+}
+
+export type StudioPaletteTemplateId =
+  | 'node'
+  | 'router'
+  | 'service'
+  | 'controller'
+  | 'external'
+  | 'shape'
+  | 'callout'
+  | 'path'
+  | 'region'
+  | 'asset-router'
+  | `preset:${string}`;
