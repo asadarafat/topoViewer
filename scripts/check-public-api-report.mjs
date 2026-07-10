@@ -18,6 +18,11 @@ const entries = [
     heading: 'Integration Entry (`topoviewer/integration`)',
     sourceFile: path.join(packageRoot, 'src/integration.ts'),
     sourceLabel: 'packages/topoviewer/src/integration.ts'
+  },
+  {
+    heading: 'Authoring Entry (`topoviewer/authoring`)',
+    sourceFile: path.join(packageRoot, 'src/authoring.ts'),
+    sourceLabel: 'packages/topoviewer/src/authoring.ts'
   }
 ];
 

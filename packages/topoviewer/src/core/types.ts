@@ -407,6 +407,15 @@ export interface TopoViewerObjectClick {
   };
 }
 
+export interface TopoViewerObjectContextMenu extends TopoViewerObjectClick {
+  clientX: number;
+  clientY: number;
+}
+
+export interface TopoViewerSelectionChange {
+  objects: TopoViewerObjectClick[];
+}
+
 export interface TopoViewerViewport {
   x: number;
   y: number;
@@ -472,10 +481,12 @@ export interface TopoViewerProps {
   document: TopoDocument;
   selectedLayerIds?: string[];
   selectedObjectIds?: string[];
+  previewObjectIds?: string[];
   initialViewport?: TopoViewerViewport;
   nodesDraggable?: boolean;
   nodesResizable?: boolean;
   nodesConnectable?: boolean;
+  connectionHandleMode?: 'full-node' | 'handles';
   helperLines?: boolean | TopoViewerHelperLinesOptions;
   toggles?: TopoViewerToggles;
   layout?: LayoutConfig;
@@ -490,11 +501,15 @@ export interface TopoViewerProps {
     onToggle?: () => void;
   };
   onObjectClick?: (object: TopoViewerObjectClick) => void;
+  onObjectContextMenu?: (object: TopoViewerObjectContextMenu) => void;
+  onSelectionChange?: (selection: TopoViewerSelectionChange) => void;
   onPaneClick?: (event: TopoViewerPaneClick) => void;
   onNodePositionChange?: (change: TopoViewerNodePositionChange) => void;
+  onNodePositionPreview?: (change: TopoViewerNodePositionChange) => void;
   onNodeResizeChange?: (change: TopoViewerNodeResizeChange) => void;
   onRegionAggregateToggle?: (change: TopoViewerRegionAggregateToggle) => void;
   onConnectionCreate?: (connection: TopoViewerConnectionCreate) => void;
+  isConnectionValid?: (connection: TopoViewerConnectionCreate) => boolean;
   onViewportChange?: (viewport: TopoViewerViewport) => void;
   onExport?: () => void;
   exportDisabled?: boolean;

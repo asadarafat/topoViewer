@@ -1,13 +1,8 @@
+import { styleDefaultSummary, type StyleTargetKind, type StyleValueDataType } from 'topoviewer';
 import {
-  isColorStyleKey,
-  isCommonLabelStyleKey,
-  styleDefaultSummary,
-  styleDefinitionForKey,
-  styleDefinitionsByKind,
-  styleValueDefinitionForKey as topoviewerStyleValueDefinitionForKey,
-  type StyleTargetKind,
-  type StyleValueDataType
-} from 'topoviewer';
+  styleAuthoringFieldForKey,
+  styleAuthoringMetadataByTarget
+} from 'topoviewer/authoring';
 import type { TopoObjectSelection } from '../shared/topologyMutations';
 
 export type { StyleValueDataType };
@@ -28,28 +23,37 @@ function targetKind(kind: TopoObjectSelection['kind']): StyleTargetKind {
 }
 
 export const styleOptionsByKind: Record<TopoObjectSelection['kind'], Array<{ key: string; label: string }>> = {
-  node: styleDefinitionsByKind.node.map(({ key, label }) => ({ key, label })),
-  link: styleDefinitionsByKind.link.map(({ key, label }) => ({ key, label })),
-  linkDirection: styleDefinitionsByKind.linkDirection.map(({ key, label }) => ({ key, label })),
-  path: styleDefinitionsByKind.path.map(({ key, label }) => ({ key, label })),
-  region: styleDefinitionsByKind.region.map(({ key, label }) => ({ key, label })),
-  callout: styleDefinitionsByKind.callout.map(({ key, label }) => ({ key, label })),
-  shape: styleDefinitionsByKind.shape.map(({ key, label }) => ({ key, label }))
+  node: styleAuthoringMetadataByTarget.node.map(({ path: key, label }) => ({ key, label })),
+  link: styleAuthoringMetadataByTarget.link.map(({ path: key, label }) => ({ key, label })),
+  linkDirection: styleAuthoringMetadataByTarget.linkDirection.map(({ path: key, label }) => ({ key, label })),
+  path: styleAuthoringMetadataByTarget.path.map(({ path: key, label }) => ({ key, label })),
+  region: styleAuthoringMetadataByTarget.region.map(({ path: key, label }) => ({ key, label })),
+  callout: styleAuthoringMetadataByTarget.callout.map(({ path: key, label }) => ({ key, label })),
+  shape: styleAuthoringMetadataByTarget.shape.map(({ path: key, label }) => ({ key, label }))
 };
 
 export function styleValueDefinitionForKey(kind: TopoObjectSelection['kind'], key: string): StyleValueDefinition {
-  const definition = topoviewerStyleValueDefinitionForKey(targetKind(kind), key);
-  return definition.dataType === 'numberList'
+  const definition = styleAuthoringFieldForKey(targetKind(kind), key);
+  const dataType = definition?.valueType || 'text';
+  return dataType === 'numberList'
     ? { dataType: 'text' }
-    : definition;
+    : { dataType, options: definition?.values };
 }
 
 export function styleDocumentationForKey(kind: TopoObjectSelection['kind'], key: string): string {
-  const definition = styleDefinitionForKey(targetKind(kind), key);
+  const definition = styleAuthoringFieldForKey(targetKind(kind), key);
   if (!definition) return `Style key ${key}.`;
   const values = definition.values?.length ? ` Accepted values: ${definition.values.join(', ')}.` : '';
-  const valueType = definition.dataType === 'numberList' ? 'text' : definition.dataType;
-  return `${definition.label}. ${definition.use} Value type: ${valueType}.${values} ${styleDefaultSummary(definition)}`;
+  const valueType = definition.valueType === 'numberList' ? 'text' : definition.valueType;
+  return `${definition.label}. ${definition.description} Value type: ${valueType}.${values} ${styleDefaultSummary({
+    dataType: definition.valueType,
+    default: definition.default,
+    key: definition.path,
+    label: definition.label,
+    targets: definition.targets,
+    use: definition.description,
+    values: definition.values
+  })}`;
 }
 
 function cloneRecord(value: unknown): Record<string, unknown> | undefined {
@@ -106,18 +110,5 @@ export function recordFromRows(rows: KeyValueEditorRow[]): Record<string, unknow
 }
 
 export function styleGroupForKey(kind: TopoObjectSelection['kind'], key: string) {
-  if (kind === 'link' || kind === 'linkDirection' || kind === 'path') {
-    if (key.includes('Arrow')) return 'Arrows';
-    if (isCommonLabelStyleKey(key) || key.includes('Label') || key.startsWith('sourceLabel') || key.startsWith('targetLabel') || key.startsWith('text')) return 'Labels';
-    if (key.includes('Distance') || key.includes('control') || key.includes('segment') || key.includes('taxi') || key === 'curveStyle' || key === 'edgeDistances') return 'Routing';
-    if (key.startsWith('line')) return 'Line';
-    return 'General';
-  }
-  if (key.startsWith('label') || key.startsWith('meta')) return 'Labels';
-  if (key.startsWith('badge') || key.startsWith('status')) return 'Status';
-  if (key.startsWith('icon')) return 'Icon';
-  if (key.includes('border') || key.includes('outline') || key.includes('underlay') || isColorStyleKey(key)) return 'Border and underlay';
-  if (['width', 'height', 'shape', 'shapePolygonPoints', 'zIndex', 'rotation'].includes(key)) return 'Geometry';
-  if (['display', 'draggable', 'selectable', 'opacity', 'interactive'].includes(key)) return 'Interaction';
-  return 'General';
+  return styleAuthoringFieldForKey(targetKind(kind), key)?.group || 'General';
 }

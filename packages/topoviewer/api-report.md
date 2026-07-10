@@ -162,9 +162,12 @@ Generated from `packages/topoviewer/src/index.ts`.
 | `TopoViewerExtensionContext` | `./core/types` |
 | `TopoViewerHelperLinesOptions` | `./core/types` |
 | `TopoViewerNodePositionChange` | `./core/types` |
+| `TopoViewerNodeResizeChange` | `./core/types` |
 | `TopoViewerObjectClick` | `./core/types` |
+| `TopoViewerObjectContextMenu` | `./core/types` |
 | `TopoViewerPaneClick` | `./core/types` |
 | `TopoViewerProps` | `./core/types` |
+| `TopoViewerSelectionChange` | `./core/types` |
 | `TopoViewerToggles` | `./core/types` |
 | `TopoViewerToolbarAction` | `./core/types` |
 | `TopoViewerViewport` | `./core/types` |
@@ -190,4 +193,112 @@ Generated from `packages/topoviewer/src/integration.ts`.
 | Export | Source |
 |---|---|
 | `ViewportSettingsPanelProps` | `./components/ViewportSettingsPanel` |
+
+
+## Authoring Entry (`topoviewer/authoring`)
+
+Generated from `packages/topoviewer/src/authoring.ts`.
+
+### Value Exports
+
+| Export | Source |
+|---|---|
+| `authoringFieldDefaultValue` | `./core/authoringMetadata` |
+| `authoringFieldIsVisible` | `./core/authoringMetadata` |
+| `authoringLayerReferences` | `./core/authoringLayers` |
+| `authoringLinkDirectionObjects` | `./core/authoringGraph` |
+| `authoringObjectDisplayName` | `./core/authoringGraph` |
+| `authoringObjectExists` | `./core/authoringGraph` |
+| `authoringObjectSourcePath` | `./core/authoringGraph` |
+| `authoringRegionBounds` | `./core/authoringRegions` |
+| `authoringRegionDepth` | `./core/authoringRegions` |
+| `authoringRegionForNodePosition` | `./core/authoringRegions` |
+| `authoringRegionPlacement` | `./core/authoringRegions` |
+| `authoringRegionsForMember` | `./core/authoringRegions` |
+| `authoringSelectionKey` | `./core/authoringGraph` |
+| `coerceAuthoringFieldValue` | `./core/authoringMetadata` |
+| `copyAuthoringSelection` | `./core/authoringGraph` |
+| `createAuthoringCallout` | `./core/authoringGraph` |
+| `createAuthoringLayer` | `./core/authoringLayers` |
+| `createAuthoringLink` | `./core/authoringGraph` |
+| `createAuthoringNode` | `./core/authoringGraph` |
+| `createAuthoringPath` | `./core/authoringGraph` |
+| `createAuthoringRegion` | `./core/authoringGraph` |
+| `createAuthoringShape` | `./core/authoringGraph` |
+| `defaultLayerId` | `./core/authoringGraph` |
+| `findAuthoringObject` | `./core/authoringGraph` |
+| `findAuthoringPathTraversals` | `./core/authoringGraph` |
+| `graphHasLinkBetween` | `./core/authoringGraph` |
+| `graphHasReachabilityBetween` | `./core/authoringGraph` |
+| `mapperAuthoringField` | `./core/mapperAuthoringMetadata` |
+| `mapperAuthoringMetadata` | `./core/mapperAuthoringMetadata` |
+| `nextAuthoringObjectId` | `./core/authoringGraph` |
+| `pasteAuthoringClipboard` | `./core/authoringGraph` |
+| `pathSegmentsWithoutDirectLinks` | `./core/authoringGraph` |
+| `pathSegmentsWithoutReachability` | `./core/authoringGraph` |
+| `planAuthoringAlignment` | `./core/authoringGraph` |
+| `planAuthoringDeletion` | `./core/authoringGraph` |
+| `planAuthoringDistribution` | `./core/authoringGraph` |
+| `planAuthoringLayerDeletion` | `./core/authoringLayers` |
+| `planAuthoringLayerMembership` | `./core/authoringLayers` |
+| `planAuthoringLayerRename` | `./core/authoringLayers` |
+| `planAuthoringLayerReorder` | `./core/authoringLayers` |
+| `planAuthoringNodeMove` | `./core/authoringRegions` |
+| `planAuthoringPositionDelta` | `./core/authoringGraph` |
+| `planAuthoringRegionExpanded` | `./core/authoringRegions` |
+| `planAuthoringRegionMove` | `./core/authoringRegions` |
+| `planAuthoringReleaseFromRegion` | `./core/authoringRegions` |
+| `planAuthoringResize` | `./core/authoringGraph` |
+| `resolveAuthoringSelection` | `./core/authoringGraph` |
+| `resolveStyleProvenance` | `./core/styleProvenance` |
+| `sameAuthoringSelection` | `./core/authoringGraph` |
+| `searchMapperAuthoringMetadata` | `./core/mapperAuthoringMetadata` |
+| `searchStyleAuthoringMetadata` | `./core/styleAuthoringMetadata` |
+| `styleAuthoringFieldForKey` | `./core/styleAuthoringMetadata` |
+| `styleAuthoringMetadata` | `./core/styleAuthoringMetadata` |
+| `styleAuthoringMetadataByTarget` | `./core/styleAuthoringMetadata` |
+| `styleRuleAffectedObjects` | `./core/styleProvenance` |
+| `validateAuthoringMetadata` | `./core/authoringMetadataValidation` |
+
+
+### Type Exports
+
+| Export | Source |
+|---|---|
+| `AuthoringAlignment` | `./core/authoringGraph` |
+| `AuthoringClipboardItem` | `./core/authoringGraph` |
+| `AuthoringCondition` | `./core/authoringMetadata` |
+| `AuthoringControlHint` | `./core/authoringMetadata` |
+| `AuthoringControlKind` | `./core/authoringMetadata` |
+| `AuthoringDistributionAxis` | `./core/authoringGraph` |
+| `AuthoringEditPlan` | `./core/authoringGraph` |
+| `AuthoringFieldLevel` | `./core/authoringMetadata` |
+| `AuthoringFieldMetadata` | `./core/authoringMetadata` |
+| `AuthoringGraphObject` | `./core/authoringGraph` |
+| `AuthoringInputResult` | `./core/authoringMetadata` |
+| `AuthoringInsertion` | `./core/authoringGraph` |
+| `AuthoringLinkDirectionObject` | `./core/authoringGraph` |
+| `AuthoringMetadataIssue` | `./core/authoringMetadataValidation` |
+| `AuthoringNestedFieldMetadata` | `./core/authoringMetadata` |
+| `AuthoringNodeKind` | `./core/authoringGraph` |
+| `AuthoringObjectKind` | `./core/authoringGraph` |
+| `AuthoringObjectSelection` | `./core/authoringGraph` |
+| `AuthoringRegionBounds` | `./core/authoringRegions` |
+| `AuthoringRegionPlacementOptions` | `./core/authoringRegions` |
+| `AuthoringRemoval` | `./core/authoringGraph` |
+| `AuthoringSourcePath` | `./core/authoringGraph` |
+| `AuthoringValueUpdate` | `./core/authoringGraph` |
+| `CreateAuthoringLinkOptions` | `./core/authoringGraph` |
+| `CreateAuthoringNodeOptions` | `./core/authoringGraph` |
+| `CreateAuthoringPathOptions` | `./core/authoringGraph` |
+| `CreateAuthoringPositionedObjectOptions` | `./core/authoringGraph` |
+| `CreateAuthoringRegionOptions` | `./core/authoringGraph` |
+| `FindAuthoringPathTraversalsOptions` | `./core/authoringGraph` |
+| `MapperAuthoringFieldMetadata` | `./core/authoringMetadata` |
+| `ResolveStyleProvenanceOptions` | `./core/styleProvenance` |
+| `StyleFieldProvenance` | `./core/styleProvenance` |
+| `StyleProvenanceContributor` | `./core/styleProvenance` |
+| `StyleProvenanceDocument` | `./core/styleProvenance` |
+| `StyleProvenanceSourceKind` | `./core/styleProvenance` |
+| `StyleRuleAffectedObject` | `./core/styleProvenance` |
 

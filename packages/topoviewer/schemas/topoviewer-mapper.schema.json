@@ -26,7 +26,8 @@
   ],
   "properties": {
     "$schema": {
-      "type": "string"
+      "type": "string",
+      "description": "Optional URI of the mapper JSON Schema used by editors and validation tools."
     },
     "version": {
       "const": 1,
@@ -147,7 +148,8 @@
           "type": "object",
           "description": "State names mapped to simple value expressions. Examples: down: \"==0\", busy: \">=70\", saturated: \">=90\".",
           "additionalProperties": {
-            "type": "string"
+            "type": "string",
+            "description": "Value expression that activates the named mapper state."
           }
         },
         "style": {
@@ -155,7 +157,8 @@
           "description": "Runtime style by state. style.default applies first; style.<state> overrides when the matching states.<state> expression is true.",
           "additionalProperties": {
             "type": "object",
-            "additionalProperties": true
+            "additionalProperties": true,
+            "description": "TopoViewer style patch applied for the named mapper state."
           }
         }
       }
@@ -197,6 +200,7 @@
     "target": {
       "type": "object",
       "additionalProperties": false,
+      "description": "Topology object kind and resolver used by a canonical mapping.",
       "required": ["kind", "resolve"],
       "properties": {
         "kind": {
@@ -212,6 +216,7 @@
     "resolver": {
       "type": "object",
       "additionalProperties": false,
+      "description": "Rules for resolving telemetry labels to stable TopoViewer object identities.",
       "required": ["by"],
       "properties": {
         "by": {
@@ -274,6 +279,7 @@
     "value": {
       "type": "object",
       "additionalProperties": false,
+      "description": "Data-frame field selection and semantic interpretation for a mapping value.",
       "properties": {
         "field": {
           "type": "string",
@@ -289,18 +295,23 @@
     "thresholds": {
       "type": "object",
       "additionalProperties": false,
+      "description": "Optional severity thresholds evaluated against the mapped value.",
       "properties": {
         "info": {
-          "type": "number"
+          "type": "number",
+          "description": "Value at which informational severity begins."
         },
         "warning": {
-          "type": "number"
+          "type": "number",
+          "description": "Value at which warning severity begins."
         },
         "error": {
-          "type": "number"
+          "type": "number",
+          "description": "Value at which error severity begins."
         },
         "direction": {
           "type": "string",
+          "description": "Whether severity increases above or below each threshold.",
           "enum": ["above", "below"],
           "default": "above"
         }
@@ -309,43 +320,56 @@
     "overlay": {
       "type": "object",
       "additionalProperties": false,
+      "description": "Visual overlay behavior applied after a metric resolves to topology objects.",
       "properties": {
         "lineColorBySeverity": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Color link or path lines using the resolved severity palette."
         },
         "lineWidthBySeverity": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Increase link or path line width according to resolved severity."
         },
         "sourceArrowColorBySeverity": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Color source arrow markers using the resolved severity palette."
         },
         "targetArrowColorBySeverity": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Color target arrow markers using the resolved severity palette."
         },
         "outlineBySeverity": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Apply a severity-colored outline to compatible topology objects."
         },
         "statusMarker": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Display a compact status marker using the resolved severity color."
         },
         "backgroundColorBySeverity": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Color compatible object backgrounds using the resolved severity palette."
         },
         "borderColorBySeverity": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Color compatible object borders using the resolved severity palette."
         },
         "badgeLabel": {
-          "type": "string"
+          "type": "string",
+          "description": "Badge label template rendered on compatible target objects."
         },
         "label": {
-          "type": "string"
+          "type": "string",
+          "description": "Runtime label template rendered for the resolved target."
         },
         "propagateToLayerMembers": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Apply a layer-targeted overlay to the objects that belong to the resolved layer."
         },
         "style": {
           "type": "object",
-          "additionalProperties": true
+          "additionalProperties": true,
+          "description": "Explicit TopoViewer style patch applied to every object resolved by the mapping."
         }
       }
     },
@@ -375,6 +399,7 @@
       "properties": {
         "severity": {
           "type": "string",
+          "description": "Required resolved severity for this condition to match.",
           "enum": ["none", "success", "info", "warning", "error"]
         },
         "value": {
@@ -391,36 +416,46 @@
     "scalarCondition": {
       "type": "object",
       "additionalProperties": false,
+      "description": "Comparison operators evaluated against the mapped scalar value.",
       "properties": {
         "eq": {
-          "$ref": "#/definitions/conditionScalar"
+          "$ref": "#/definitions/conditionScalar",
+          "description": "Match when the value equals this scalar."
         },
         "ne": {
-          "$ref": "#/definitions/conditionScalar"
+          "$ref": "#/definitions/conditionScalar",
+          "description": "Match when the value does not equal this scalar."
         },
         "gt": {
-          "type": "number"
+          "type": "number",
+          "description": "Match when the value is greater than this number."
         },
         "gte": {
-          "type": "number"
+          "type": "number",
+          "description": "Match when the value is greater than or equal to this number."
         },
         "lt": {
-          "type": "number"
+          "type": "number",
+          "description": "Match when the value is less than this number."
         },
         "lte": {
-          "type": "number"
+          "type": "number",
+          "description": "Match when the value is less than or equal to this number."
         },
         "contains": {
-          "type": "string"
+          "type": "string",
+          "description": "Match when the string representation contains this text."
         },
         "exists": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Match according to whether the value exists."
         }
       }
     },
     "keyedCondition": {
       "type": "object",
       "additionalProperties": false,
+      "description": "Comparison operators evaluated against one telemetry label or data-frame field.",
       "required": ["key"],
       "properties": {
         "key": {
@@ -428,28 +463,36 @@
           "description": "Telemetry label or field key to test."
         },
         "eq": {
-          "$ref": "#/definitions/conditionScalar"
+          "$ref": "#/definitions/conditionScalar",
+          "description": "Match when the keyed value equals this scalar."
         },
         "ne": {
-          "$ref": "#/definitions/conditionScalar"
+          "$ref": "#/definitions/conditionScalar",
+          "description": "Match when the keyed value does not equal this scalar."
         },
         "gt": {
-          "type": "number"
+          "type": "number",
+          "description": "Match when the keyed value is greater than this number."
         },
         "gte": {
-          "type": "number"
+          "type": "number",
+          "description": "Match when the keyed value is greater than or equal to this number."
         },
         "lt": {
-          "type": "number"
+          "type": "number",
+          "description": "Match when the keyed value is less than this number."
         },
         "lte": {
-          "type": "number"
+          "type": "number",
+          "description": "Match when the keyed value is less than or equal to this number."
         },
         "contains": {
-          "type": "string"
+          "type": "string",
+          "description": "Match when the keyed string contains this text."
         },
         "exists": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Match according to whether the keyed value exists."
         }
       }
     },
