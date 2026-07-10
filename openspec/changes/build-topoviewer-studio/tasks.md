@@ -470,7 +470,7 @@ promotes a reviewed asset into documentation.
 
 ## 19. Preview Release And Harness Cutover
 
-- [ ] 19.1 Publish Studio as an opt-in experimental route with a feedback path and
+- [x] 19.1 Publish Studio as an opt-in experimental route with a feedback path and
   no redirect from `/harness/`
 - [ ] 19.2 Run a structured adoption preview with new and experienced TopoViewer
   users using the primary journey; record failures, hesitation, gesture count,
