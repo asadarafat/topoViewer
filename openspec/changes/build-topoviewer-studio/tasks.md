@@ -477,7 +477,7 @@ promotes a reviewed asset into documentation.
 - [x] 19.1.2 Remediate the internal preview findings for parallel links, callout
   leaders, Inspector ownership/density, direct Layers access, and canonical
   palette families with focused regression evidence
-- [ ] 19.1.3 Re-run Studio quality, browser, accessibility, performance, bundle,
+- [x] 19.1.3 Re-run Studio quality, browser, accessibility, performance, bundle,
   docs, and strict OpenSpec gates before requesting independent preview sessions
 - [ ] 19.2 Run a structured adoption preview with new and experienced TopoViewer
   users using the primary journey; record independently attributable failures,
