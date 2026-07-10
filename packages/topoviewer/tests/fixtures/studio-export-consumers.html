@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Studio Export Consumer Fixture</title>
+    <style>
+      html, body, #root, #root > figure { height: 100%; margin: 0; }
+    </style>
+  </head>
+  <body>
+    <main id="root" style="height: 560px"></main>
+    <script type="module">
+      import React from 'react';
+      import { createRoot } from 'react-dom/client';
+      import { load } from 'js-yaml';
+      import {
+        compileTopoGraph,
+        composeTopoViewerDocument,
+        TopoViewer
+      } from '../../src/index.ts';
+      import { mountAll } from '../../src/embed.tsx';
+      import '../../src/styles.css';
+      import topologyText from '../../../topoviewer-studio/tests/fixtures/portable-consumer/topology.yaml?raw';
+      import stylesheetText from '../../../topoviewer-studio/tests/fixtures/portable-consumer/stylesheet.yaml?raw';
+
+      const root = document.getElementById('root');
+      const surface = new URLSearchParams(window.location.search).get('surface') || 'browser';
+      const documentSpec = composeTopoViewerDocument(load(topologyText), load(stylesheetText));
+
+      function semanticHash(nodes, edges) {
+        const value = JSON.stringify({
+          edges: [...edges].sort(),
+          nodes: [...nodes].sort()
+        });
+        let hash = 0x811c9dc5;
+        for (let index = 0; index < value.length; index += 1) {
+          hash ^= value.charCodeAt(index);
+          hash = Math.imul(hash, 0x01000193);
+        }
+        return `fnv1a-${(hash >>> 0).toString(16).padStart(8, '0')}`;
+      }
+
+      function expectedHash() {
+        const graph = compileTopoGraph(documentSpec, ['physical']);
+        return semanticHash(graph.nodes.map((node) => node.id), graph.edges.map((edge) => edge.id));
+      }
+
+      function dataUrl(text) {
+        return `data:text/yaml;charset=utf-8,${encodeURIComponent(text)}`;
+      }
+
+      function docsWrapper(className) {
+        const figure = document.createElement('figure');
+        figure.className = className;
+        const embed = document.createElement('div');
+        embed.className = 'topoviewer-embed topoviewer-parity-theme';
+        embed.dataset.topology = dataUrl(topologyText);
+        embed.dataset.stylesheet = dataUrl(stylesheetText);
+        embed.dataset.controls = 'false';
+        embed.style.height = '100%';
+        figure.appendChild(embed);
+        root.appendChild(figure);
+        mountAll();
+      }
+
+      if (surface === 'react') {
+        createRoot(root).render(React.createElement(TopoViewer, {
+          document: documentSpec,
+          selectedLayerIds: ['physical'],
+          style: { height: '100%' }
+        }));
+      } else if (surface === 'mkdocs') {
+        docsWrapper('topoviewer-figure mkdocs-consumer-fixture');
+      } else if (surface === 'zensical') {
+        docsWrapper('topoviewer-figure zensical-consumer-fixture');
+      } else {
+        docsWrapper('core-browser-consumer-fixture');
+      }
+
+      async function inspectRenderedGraph() {
+        for (let attempt = 0; attempt < 120; attempt += 1) {
+          const nodes = [...document.querySelectorAll('.react-flow__node[data-id]')]
+            .map((element) => element.dataset.id);
+          const edges = [...document.querySelectorAll('.react-flow__edge[data-id]')]
+            .map((element) => element.dataset.id);
+          if (nodes.length === 2 && edges.length === 1) {
+            root.dataset.consumerSurface = surface;
+            root.dataset.expectedSemanticHash = expectedHash();
+            root.dataset.renderedSemanticHash = semanticHash(nodes, edges);
+            return;
+          }
+          await new Promise((resolve) => window.setTimeout(resolve, 25));
+        }
+        throw new Error(`Consumer ${surface} did not render the exported semantic graph.`);
+      }
+
+      inspectRenderedGraph().catch((error) => {
+        root.dataset.consumerError = error instanceof Error ? error.message : String(error);
+      });
+    </script>
+  </body>
+</html>

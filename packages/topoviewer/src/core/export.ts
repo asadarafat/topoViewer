@@ -6,6 +6,8 @@ export interface StaticExportOptions {
   backgroundColor?: string;
   pixelRatio?: number;
   embedFonts?: boolean;
+  height?: number;
+  width?: number;
 }
 
 export interface StaticPdfExportOptions extends StaticExportOptions {
@@ -25,16 +27,22 @@ function exportTarget(element: HTMLElement): HTMLElement {
 }
 
 export async function topoviewerToPng(element: HTMLElement, options: StaticExportOptions = {}): Promise<string> {
+  await document.fonts?.ready;
   return toPng(exportTarget(element), {
     backgroundColor: options.backgroundColor,
-    pixelRatio: options.pixelRatio || 2,
+    ...(options.height ? { canvasHeight: options.height, height: options.height } : {}),
+    ...(options.width ? { canvasWidth: options.width, width: options.width } : {}),
+    pixelRatio: options.pixelRatio || (options.height || options.width ? 1 : 2),
     skipFonts: options.embedFonts !== true
   });
 }
 
 export async function topoviewerToSvg(element: HTMLElement, options: StaticExportOptions = {}): Promise<string> {
+  await document.fonts?.ready;
   return toSvg(exportTarget(element), {
     backgroundColor: options.backgroundColor,
+    ...(options.height ? { height: options.height } : {}),
+    ...(options.width ? { width: options.width } : {}),
     skipFonts: options.embedFonts !== true
   });
 }
