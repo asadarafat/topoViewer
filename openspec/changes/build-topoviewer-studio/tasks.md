@@ -463,9 +463,9 @@ promotes a reviewed asset into documentation.
   broken-link, live-viewport, screenshot, and generated-content checks
 - [x] 18.10 Run focused package checks, `npm run ci`, strict OpenSpec validation,
   docs builds, and both authoring routes on a clean committed worktree
-- [ ] 18.11 Push the reviewed commits and monitor every required remote check;
+- [x] 18.11 Push the reviewed commits and monitor every required remote check;
   fix regressions before continuing rather than marking them as follow-up
-- [ ] 18.12 **Exit gate:** parity, docs, local CI, remote CI, generated projections,
+- [x] 18.12 **Exit gate:** parity, docs, local CI, remote CI, generated projections,
   and support-status review pass
 
 ## 19. Preview Release And Harness Cutover
