@@ -691,6 +691,18 @@ examples:
       minVisibleEdges: 8
       minRegions: 5
     readme: docs/topoviewer/examples/integration/grafana-telemetry-call-flow/README.md
+  - id: integration-studio-portable-bundle
+    title: Studio portable bundle
+    feature: integration
+    path: integration/studio-portable-bundle
+    page: topoviewer/examples/use-cases/topoviewer-studio
+    renderable: true
+    topology: docs/topoviewer/examples/integration/studio-portable-bundle/topology.yaml
+    stylesheet: docs/topoviewer/examples/integration/studio-portable-bundle/stylesheet.yaml
+    expected:
+      graphNodes: 2
+      minVisibleEdges: 1
+    readme: docs/topoviewer/examples/integration/studio-portable-bundle/README.md
   - id: integration-adoption-portability
     title: Adoption portability flows
     feature: integration

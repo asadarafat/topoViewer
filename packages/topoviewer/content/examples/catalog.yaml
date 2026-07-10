@@ -691,6 +691,20 @@ examples:
         - telemetry
         - runtime
         - diagnostics
+  - id: integration-studio-portable-bundle
+    title: Studio portable bundle
+    feature: integration
+    path: integration/studio-portable-bundle
+    publicPage: false
+    page: topoviewer/examples/use-cases/topoviewer-studio
+    summary: One topology, stylesheet, and mapper bundle consumed by Studio, documentation, the Harness, and Grafana packaging.
+    extraFiles:
+      - mapper.yaml
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Studio portable bundle
   - id: integration-adoption-portability
     title: Adoption portability flows
     feature: integration

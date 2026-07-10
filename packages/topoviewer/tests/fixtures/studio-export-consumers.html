@@ -21,8 +21,8 @@
       } from '../../src/index.ts';
       import { mountAll } from '../../src/embed.tsx';
       import '../../src/styles.css';
-      import topologyText from '../../../topoviewer-studio/tests/fixtures/portable-consumer/topology.yaml?raw';
-      import stylesheetText from '../../../topoviewer-studio/tests/fixtures/portable-consumer/stylesheet.yaml?raw';
+      import topologyText from '../../content/examples/integration/studio-portable-bundle/topology.yaml?raw';
+      import stylesheetText from '../../content/examples/integration/studio-portable-bundle/stylesheet.yaml?raw';
 
       const root = document.getElementById('root');
       const surface = new URLSearchParams(window.location.search).get('surface') || 'browser';

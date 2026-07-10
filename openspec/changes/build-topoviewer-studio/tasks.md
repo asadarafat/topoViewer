@@ -440,28 +440,28 @@ promotes a reviewed asset into documentation.
 
 ## 18. Parity, Documentation, And CI Integration
 
-- [ ] 18.1 Complete the Harness parity matrix with evidence links for every
+- [x] 18.1 Complete the Harness parity matrix with evidence links for every
   workflow and resolve all unapproved gaps
-- [ ] 18.2 Run the golden authoring journey in browser Chromium/Firefox/WebKit,
+- [x] 18.2 Run the golden authoring journey in browser Chromium/Firefox/WebKit,
   VS Code, and a narrow viewport with traces retained as CI artifacts on failure
-- [ ] 18.3 Add Studio checks to the fastest appropriate CI jobs with path filters,
+- [x] 18.3 Add Studio checks to the fastest appropriate CI jobs with path filters,
   caching, fail-fast quality checks, and a full required integration lane
-- [ ] 18.4 Add generated-content and dependency-boundary guards so docs, metadata,
+- [x] 18.4 Add generated-content and dependency-boundary guards so docs, metadata,
   examples, and package ownership cannot drift
-- [ ] 18.5 Add canonical user docs under nav-aligned physical paths for first
+- [x] 18.5 Add canonical user docs under nav-aligned physical paths for first
   project, palette/direct manipulation, Inspector Basic/Advanced, style
   provenance, YAML recovery, mapper authoring, browser projects, VS Code, export,
   security, accessibility, troubleshooting, and migration
-- [ ] 18.6 Remove page-local “Next Steps” blocks and rely on the canonical nav in
+- [x] 18.6 Remove page-local “Next Steps” blocks and rely on the canonical nav in
   accordance with the repository documentation contract
-- [ ] 18.7 Add a curated Studio use case that demonstrates one bundle in Harness
+- [x] 18.7 Add a curated Studio use case that demonstrates one bundle in Harness
   comparison, Studio, MkDocs/Zensical, and Grafana packaging without presenting
   separate authoring wizards
-- [ ] 18.8 Update README and project-status language only to the delivered support
+- [x] 18.8 Update README and project-status language only to the delivered support
   level; keep Studio experimental until promotion gates pass
-- [ ] 18.9 Synchronize canonical docs projections and run nav/physical-structure,
+- [x] 18.9 Synchronize canonical docs projections and run nav/physical-structure,
   broken-link, live-viewport, screenshot, and generated-content checks
-- [ ] 18.10 Run focused package checks, `npm run ci`, strict OpenSpec validation,
+- [x] 18.10 Run focused package checks, `npm run ci`, strict OpenSpec validation,
   docs builds, and both authoring routes on a clean committed worktree
 - [ ] 18.11 Push the reviewed commits and monitor every required remote check;
   fix regressions before continuing rather than marking them as follow-up

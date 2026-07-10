@@ -5,14 +5,14 @@
     "harness": {
       "html": "site/harness/index.html",
       "assetRoot": "site/harness",
-      "maxInitialJsBytes": 1560000,
+      "maxInitialJsBytes": 1561000,
       "maxLazyJsBytes": 3400000
     },
     "webview": {
       "html": "packages/vscode-topoviewer/dist/webview/src/webview/index.html",
       "assetRoot": "packages/vscode-topoviewer/dist/webview",
       "maxInitialJsBytes": 1560000,
-      "maxLazyJsBytes": 3400000
+      "maxLazyJsBytes": 4200000
     }
   },
   "forbiddenImports": [

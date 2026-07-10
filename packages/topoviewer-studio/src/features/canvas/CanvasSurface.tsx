@@ -302,10 +302,13 @@ export function CanvasSurface({
     contextReturnFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : container;
     const selectedElement = container.querySelector<HTMLElement>('.react-flow__node.selected, .react-flow__edge.selected');
     const bounds = selectedElement?.getBoundingClientRect() || container.getBoundingClientRect();
+    const view = container.ownerDocument.defaultView;
+    const viewportWidth = view?.innerWidth ?? container.ownerDocument.documentElement.clientWidth;
+    const viewportHeight = view?.innerHeight ?? container.ownerDocument.documentElement.clientHeight;
     setContextMenu({
       objectId: selection.id,
-      x: Math.min(window.innerWidth - 190, Math.max(8, bounds.left + Math.min(bounds.width, 32))),
-      y: Math.min(window.innerHeight - 220, Math.max(8, bounds.top + Math.min(bounds.height, 32)))
+      x: Math.min(viewportWidth - 190, Math.max(8, bounds.left + Math.min(bounds.width, 32))),
+      y: Math.min(viewportHeight - 220, Math.max(8, bounds.top + Math.min(bounds.height, 32)))
     });
   }
 

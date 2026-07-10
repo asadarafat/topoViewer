@@ -392,6 +392,42 @@ describe('helper line integration contracts', () => {
     expect(changed.find((changedNode) => changedNode.id === 'n2')?.position).toEqual({ x: 180, y: 50 });
   });
 
+  it('translates nested overlapping region members once per outer-region drag', () => {
+    const document: TopoDocument = {
+      graph: {
+        layers: [{ id: 'physical' }],
+        nodes: [
+          { id: 'n1', position: [40, 50], layers: ['physical'] },
+          { id: 'n2', position: [180, 50], layers: ['physical'] }
+        ],
+        regions: [
+          { id: 'child-a', parent: 'outer', members: ['n1', 'n2'], layers: ['physical'] },
+          { id: 'child-b', parent: 'outer', members: ['n2'], layers: ['physical'] },
+          { id: 'outer', members: ['n1', 'n2'], layers: ['physical'] }
+        ]
+      }
+    };
+    const currentNodes = [
+      { id: 'region:outer', type: 'region', position: { x: 20, y: 20 }, data: { id: 'outer' } },
+      { id: 'region:child-a', type: 'region', position: { x: 30, y: 30 }, data: { id: 'child-a' } },
+      { id: 'region:child-b', type: 'region', position: { x: 160, y: 30 }, data: { id: 'child-b' } },
+      { id: 'n1', type: 'network', position: { x: 40, y: 50 }, data: { id: 'n1' } },
+      { id: 'n2', type: 'network', position: { x: 180, y: 50 }, data: { id: 'n2' } }
+    ] as never[];
+
+    const changed = applyTopoNodeChanges({
+      changes: [{ id: 'region:outer', type: 'position', dragging: true, position: { x: 50, y: 60 } }] as NodeChange[],
+      currentNodes,
+      document,
+      selectedLayerIds: ['physical'],
+      showRegions: true,
+      deferRegionRebuild: true
+    }) as unknown as Array<{ id: string; position?: { x: number; y: number } }>;
+
+    expect(changed.find((node) => node.id === 'n1')?.position).toEqual({ x: 70, y: 90 });
+    expect(changed.find((node) => node.id === 'n2')?.position).toEqual({ x: 210, y: 90 });
+  });
+
   it('can defer region hull rebuilds during active drag frames', () => {
     const document: TopoDocument = {
       graph: {

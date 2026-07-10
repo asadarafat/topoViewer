@@ -1,0 +1,105 @@
+name: Studio
+
+on:
+  pull_request:
+    paths:
+      - ".dependency-cruiser.cjs"
+      - ".github/workflows/studio.yml"
+      - "package.json"
+      - "package-lock.json"
+      - "packages/topoviewer/package.json"
+      - "packages/topoviewer/src/**"
+      - "packages/topoviewer-studio/**"
+      - "packages/vscode-topoviewer/package.json"
+      - "packages/vscode-topoviewer/src/**"
+      - "packages/vscode-topoviewer/tests/studio-host/**"
+      - "packages/vscode-topoviewer/tests/unit/**"
+      - "scripts/check-authoring-metadata.mjs"
+      - "scripts/check-studio-*.mjs"
+      - "scripts/run-studio-*.mjs"
+      - "openspec/changes/build-topoviewer-studio/**"
+  push:
+    branches:
+      - development
+      - main
+      - master
+    paths:
+      - ".dependency-cruiser.cjs"
+      - ".github/workflows/studio.yml"
+      - "package.json"
+      - "package-lock.json"
+      - "packages/topoviewer/package.json"
+      - "packages/topoviewer/src/**"
+      - "packages/topoviewer-studio/**"
+      - "packages/vscode-topoviewer/package.json"
+      - "packages/vscode-topoviewer/src/**"
+      - "packages/vscode-topoviewer/tests/studio-host/**"
+      - "packages/vscode-topoviewer/tests/unit/**"
+      - "scripts/check-authoring-metadata.mjs"
+      - "scripts/check-studio-*.mjs"
+      - "scripts/run-studio-*.mjs"
+      - "openspec/changes/build-topoviewer-studio/**"
+
+concurrency:
+  group: studio-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Studio quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run fail-fast Studio quality checks
+        run: npm run studio:ci:quality
+
+  integration:
+    name: Studio integration
+    needs: quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium firefox webkit
+
+      - name: Run required Studio integration lane
+        run: npm run studio:ci:integration
+
+      - name: Upload Studio failure artifacts
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: studio-failure-artifacts
+          retention-days: 3
+          if-no-files-found: ignore
+          path: |
+            packages/topoviewer-studio/test-results
+            packages/topoviewer-studio/playwright-report
+            packages/vscode-topoviewer/test-results
+            packages/vscode-topoviewer/playwright-report

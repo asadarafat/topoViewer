@@ -51,6 +51,7 @@
     "dev": "vite --host 127.0.0.1 --port 5175 --strictPort",
     "preview:performance": "vite preview --host 127.0.0.1 --port 5177 --strictPort",
     "test:browser": "playwright test --config playwright.config.ts",
+    "test:parity": "playwright test --config playwright.parity.config.ts",
     "test:accessibility": "playwright test --config playwright.config.ts tests/browser/studio-accessibility.spec.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run tests/unit"

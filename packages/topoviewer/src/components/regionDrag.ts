@@ -36,19 +36,25 @@ function translateRegionMembers(nodes: Array<Record<string, unknown>>, deltas: M
   const nodeIds = new Set(nodes.filter((node) => node.type !== 'region').map((node) => String(node.id)));
   const movementByNodeId = new Map<string, { dx: number; dy: number }>();
 
-  function addMemberMovement(regionId: string, delta: { dx: number; dy: number }, visited = new Set<string>()) {
-    if (visited.has(regionId)) return;
-    visited.add(regionId);
+  function addMemberMovement(
+    regionId: string,
+    delta: { dx: number; dy: number },
+    visitedRegions = new Set<string>(),
+    movedMembers = new Set<string>()
+  ) {
+    if (visitedRegions.has(regionId)) return;
+    visitedRegions.add(regionId);
     const region = regionById.get(regionId);
     if (!region) return;
     (region.members || []).forEach((memberId) => {
-      if (!nodeIds.has(memberId)) return;
+      if (!nodeIds.has(memberId) || movedMembers.has(memberId)) return;
+      movedMembers.add(memberId);
       const current = movementByNodeId.get(memberId) || { dx: 0, dy: 0 };
       movementByNodeId.set(memberId, { dx: current.dx + delta.dx, dy: current.dy + delta.dy });
     });
     regions
       .filter((candidate) => candidate.parent === regionId)
-      .forEach((childRegion) => addMemberMovement(childRegion.id, delta, visited));
+      .forEach((childRegion) => addMemberMovement(childRegion.id, delta, visitedRegions, movedMembers));
   }
 
   deltas.forEach(({ dx, dy }, regionId) => {

@@ -13,7 +13,7 @@ import {
   oversizedFileArchive
 } from '../fixtures/security/adversarial';
 
-const portableFixtureRoot = new URL('../fixtures/portable-consumer/', import.meta.url);
+const portableFixtureRoot = new URL('../../../topoviewer/content/examples/integration/studio-portable-bundle/', import.meta.url);
 
 function portableFixture(name: string) {
   return readFileSync(new URL(name, portableFixtureRoot), 'utf8');

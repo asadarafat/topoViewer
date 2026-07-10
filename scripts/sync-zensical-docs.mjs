@@ -22,6 +22,23 @@ function readText(filePath) {
   return fs.readFileSync(filePath, 'utf8');
 }
 
+function collectNavTargets(items, targets = new Set()) {
+  for (const item of items || []) {
+    if (!item || typeof item !== 'object' || Array.isArray(item)) continue;
+    for (const value of Object.values(item)) {
+      if (typeof value === 'string') {
+        targets.add(value);
+      } else if (Array.isArray(value)) {
+        collectNavTargets(value, targets);
+      }
+    }
+  }
+  return targets;
+}
+
+const mkdocsConfig = yaml.load(readText(mkdocsConfigPath)) || {};
+const mkdocsNavTargets = collectNavTargets(mkdocsConfig.nav);
+
 function writeText(filePath, content) {
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
   fs.writeFileSync(filePath, content);
@@ -218,20 +235,7 @@ function adaptMarkdown(markdown, sourceMarkdownPath, targetMarkdownPath) {
 }
 
 function isPublicExamplePage(relativePath) {
-  return [
-    'topoviewer/examples/index.md',
-    'topoviewer/examples/object-family-examples.md',
-    'topoviewer/examples/use-cases/index.md',
-    'topoviewer/examples/use-cases/react.md',
-    'topoviewer/examples/use-cases/mkdocs.md',
-    'topoviewer/examples/use-cases/static-html-zensical-adapter.md',
-    'topoviewer/examples/use-cases/single-page-html.md',
-    'topoviewer/examples/use-cases/harness.md',
-    'topoviewer/examples/use-cases/graph-authoring.md',
-    'topoviewer/examples/use-cases/grafana-topoviewer-panel.md',
-    'topoviewer/examples/use-cases/service-provider-network.md',
-    'topoviewer/examples/use-cases/kubernetes-service-map/index.md',
-  ].includes(relativePath)
+  return mkdocsNavTargets.has(relativePath)
     || /^topoviewer\/examples\/(?:graph|nodes|edges|paths|attention|regions|shapes|callouts|styling|layout|validation)(?:\/[^/]+)?\/index\.md$/.test(relativePath)
     || /^topoviewer\/examples\/harness\/[^/]+\/index\.md$/.test(relativePath)
     || /^topoviewer\/examples\/use-cases\/service-provider-network\/[^/]+\/index\.md$/.test(relativePath);
@@ -298,7 +302,6 @@ function withZensicalAdapterPage(navItems) {
 }
 
 function generateZensicalNav() {
-  const mkdocsConfig = yaml.load(readText(mkdocsConfigPath)) || {};
   const mirroredNav = withZensicalAdapterPage((mkdocsConfig.nav || []).map(convertMkdocsNavItem).filter(Boolean));
   const nav = [
     { title: 'Overview', path: 'index.md' },

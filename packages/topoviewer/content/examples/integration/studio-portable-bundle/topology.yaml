@@ -1,0 +1,26 @@
+graph:
+  id: studio-portable-consumer
+  layers:
+    - id: physical
+      name: Physical
+  nodes:
+    - id: edge-a
+      name: Edge A
+      labels:
+        role: edge
+      layers: [physical]
+      position: [140, 180]
+    - id: core-b
+      name: Core B
+      labels:
+        role: core
+      layers: [physical]
+      position: [420, 180]
+  links:
+    - id: edge-a-core-b
+      name: Physical uplink
+      source: edge-a
+      target: core-b
+      layers: [physical]
+  paths: []
+  regions: []

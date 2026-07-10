@@ -1,5 +1,6 @@
 import '@xyflow/react/dist/style.css';
 import {
+  applyNodeChanges,
   Background,
   ConnectionMode,
   ReactFlow,
@@ -10,13 +11,11 @@ import {
   useNodesState,
   type Connection,
   type OnSelectionChangeFunc,
-  type ResizeParams,
   type NodeChange
 } from '@xyflow/react';
 import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent } from 'react';
 import { compileTopoGraph } from '../core/compiler';
 import { buildAttentionIndex, deriveAggregateGraph } from '../core/attention';
-import { resolveAttentionPresentationCached } from '../core/attention/cache';
 import { assertRendererLimits } from '../core/limits';
 import { layerIds } from '../core/layers';
 import {
@@ -27,18 +26,10 @@ import {
 } from '../core/incrementalCompile';
 import { migrateTopoToggles } from '../core/migration';
 import { defaultTopoViewerToggles } from '../core/toggles';
-import { validateTopoDocument } from '../core/validation';
-import type { AttentionPresentation, AttentionPresentationResult } from '../core/attention';
 import type {
-  CompiledEdge,
-  CompiledEdgeData,
   CompiledGraph,
-  CompiledNode,
-  CompiledNodeData,
   TopoDocument,
   TopoViewerConnectionCreate,
-  TopoViewerExtensionContext,
-  TopoViewerNodeResizeChange,
   TopoViewerProps
 } from '../core/types';
 import { CalloutNode } from './CalloutNode';
@@ -46,6 +37,15 @@ import { FloatingEdge } from './FloatingEdge';
 import { createHelperLineStore, HelperLinesOverlay, type HelperLineStore } from './HelperLinesOverlay';
 import { LabelOverlay } from './LabelOverlay';
 import { useEdgeEndpointInternals } from './edgeEndpointInternals';
+import {
+  applyAfterCompileExtensions,
+  applyAttentionToCompiledGraph,
+  applyBeforeCompileExtensions,
+  resolveAttentionPresentation,
+  withRuntimeDirectionHandlers,
+  withRuntimeRegionAggregateHandlers,
+  withRuntimeResizeHandlers
+} from './graphDecorators';
 import { NetworkNode } from './NetworkNode';
 import { PinNode } from './PinNode';
 import { RegionNode } from './RegionNode';
@@ -79,245 +79,19 @@ const builtInNodeTypes = { network: NetworkNode, region: RegionNode, shape: Shap
 const builtInEdgeTypes = { floating: FloatingEdge };
 const emptyToggles: NonNullable<TopoViewerProps['toggles']> = {};
 const emptyExtensions: NonNullable<TopoViewerProps['extensions']> = [];
-function applyBeforeCompileExtensions(
-  document: TopoDocument,
-  context: TopoViewerExtensionContext,
-  extensions: NonNullable<TopoViewerProps['extensions']>
+
+function preserveActiveDragNodes(
+  nextNodes: Array<Record<string, unknown>>,
+  currentNodes: Array<Record<string, unknown>>,
+  activeRuntimeIds: ReadonlySet<string>
 ) {
-  return extensions.reduce((currentDocument, extension) => {
-    if (!extension.beforeCompile) {
-      return currentDocument;
-    }
-    return extension.beforeCompile(currentDocument, { ...context, document: currentDocument });
-  }, document);
-}
-
-function applyAfterCompileExtensions(
-  graph: CompiledGraph,
-  context: TopoViewerExtensionContext,
-  extensions: NonNullable<TopoViewerProps['extensions']>
-) {
-  return extensions.reduce((currentGraph, extension) => {
-    if (!extension.afterCompile) {
-      return currentGraph;
-    }
-    return extension.afterCompile(currentGraph, context);
-  }, graph);
-}
-
-function resizableObjectKind(compiledNode: Record<string, unknown>): 'node' | 'region' | 'shape' | 'callout' | undefined {
-  const data = (compiledNode.data || {}) as Record<string, unknown>;
-  const objectKind = String(data.objectKind || '');
-  if (objectKind === 'shape' || objectKind === 'callout') return objectKind;
-  if (String(compiledNode.type || '') === 'region') return 'region';
-  return String(compiledNode.type || '') === 'network' ? 'node' : undefined;
-}
-
-function decoratedAttentionData(data: Record<string, unknown>, attention: AttentionPresentation | undefined) {
-  if (!attention) return data;
-  return {
-    ...data,
-    attentionState: attention.state,
-    attentionScore: attention.score,
-    attentionReasons: attention.reasons,
-    attentionLabelPriority: attention.labelPriority
-  };
-}
-
-function attentionOpacity(state: string | undefined): number | undefined {
-  if (state === 'dimmed') return 0.28;
-  if (state === 'suppressed') return 0.12;
-  return undefined;
-}
-
-function applyAttentionToCompiledGraph(graph: CompiledGraph, presentation: AttentionPresentationResult | undefined): CompiledGraph {
-  if (!presentation) return graph;
-
-  return {
-    ...graph,
-    nodes: graph.nodes.map((node) => {
-      const attention = presentation.items.get(sourceObjectId(node));
-      if (!attention) return node;
-      const hidden = attention.state === 'hidden' || attention.state === 'suppressed';
-      const opacity = attentionOpacity(attention.state);
-      return {
-        ...node,
-        hidden,
-        zIndex: attention.state === 'focused' ? 120 : attention.state === 'related' ? 90 : node.zIndex,
-        data: decoratedAttentionData((node.data || {}) as Record<string, unknown>, attention),
-        style: {
-          ...((node.style || {}) as Record<string, unknown>),
-          ...(opacity !== undefined ? { opacity } : {})
-        }
-      } as CompiledNode;
-    }),
-    edges: graph.edges.map((edge) => {
-      const attention = presentation.items.get(sourceObjectId(edge));
-      const data = (edge.data || {}) as CompiledEdgeData;
-      const linkDirections = Array.isArray(data.linkDirections)
-        ? data.linkDirections.map((direction) => {
-          if (!direction || typeof direction !== 'object') return direction;
-          const record = direction as Record<string, unknown>;
-          const directionAttention = presentation.items.get(String(record.id || ''));
-          return directionAttention ? {
-            ...record,
-            data: decoratedAttentionData((record.data || {}) as Record<string, unknown>, directionAttention)
-          } : direction;
-        })
-        : undefined;
-      if (!attention) {
-        return linkDirections ? {
-          ...edge,
-          data: {
-            ...data,
-            linkDirections
-          }
-        } as CompiledEdge : edge;
-      }
-      const hidden = attention.state === 'hidden' || attention.state === 'suppressed';
-      const opacity = attentionOpacity(attention.state);
-      return {
-        ...edge,
-        hidden,
-        zIndex: attention.state === 'focused' ? 110 : attention.state === 'related' ? 80 : edge.zIndex,
-        data: {
-          ...decoratedAttentionData(data, attention),
-          ...(linkDirections ? { linkDirections } : {})
-        },
-        style: {
-          ...((edge.style || {}) as Record<string, unknown>),
-          ...(opacity !== undefined ? { opacity } : {})
-        }
-      } as CompiledEdge;
-    })
-  };
-}
-
-function withRuntimeDirectionHandlers(
-  edges: ReturnType<typeof compileTopoGraph>['edges'],
-  onObjectClick: TopoViewerProps['onObjectClick']
-): ReturnType<typeof compileTopoGraph>['edges'] {
-  if (!onObjectClick) return edges;
-  return edges.map((edge) => {
-    const data = (edge.data || {}) as CompiledEdgeData;
-    if (!Array.isArray(data.linkDirections) || !data.linkDirections.length) return edge;
-    return {
-      ...edge,
-      data: {
-        ...data,
-        __topoviewerOnLinkDirectionClick: (event: { stopPropagation: () => void; ctrlKey?: boolean; metaKey?: boolean; shiftKey?: boolean }, direction: Record<string, unknown>) => {
-          event.stopPropagation();
-          const directionData = (direction.data || {}) as Record<string, unknown>;
-          if (data.interactive === false || directionData.interactive === false) return;
-          onObjectClick({
-            id: String(direction.id || directionData.id || ''),
-            runtimeId: `${String(edge.id)}:${String(direction.id || directionData.id || '')}`,
-            element: 'linkDirection',
-            data: directionData,
-            modifiers: {
-              ctrlKey: !!event.ctrlKey,
-              metaKey: !!event.metaKey,
-              shiftKey: !!event.shiftKey
-            }
-          });
-        }
-      } as CompiledEdgeData
-    } as CompiledEdge;
-  });
-}
-
-function withRuntimeResizeHandlers(
-  nodes: ReturnType<typeof compileTopoGraph>['nodes'],
-  nodesResizable: boolean | undefined,
-  onNodeResizeChange: TopoViewerProps['onNodeResizeChange']
-): ReturnType<typeof compileTopoGraph>['nodes'] {
-  if (!nodesResizable || !onNodeResizeChange) return nodes;
-  return nodes.map((node) => {
-    const runtimeNode = node as unknown as Record<string, unknown>;
-    const data = (runtimeNode.data || {}) as Record<string, unknown>;
-    if (runtimeNode.selected !== true || !resizableObjectKind(runtimeNode)) {
-      if (!('__topoviewerResizable' in data) && !('__topoviewerOnResizeEnd' in data)) return node;
-      const {
-        __topoviewerOnResizeEnd: _onResizeEnd,
-        __topoviewerResizable: _resizable,
-        ...remainingData
-      } = data;
-      return { ...node, data: remainingData as unknown as CompiledNodeData } as typeof node;
-    }
-    return {
-      ...node,
-      data: {
-        ...data,
-        __topoviewerResizable: true,
-        __topoviewerOnResizeEnd: (params: ResizeParams) => {
-          const position = {
-            x: Math.round(Number(params.x || 0)),
-            y: Math.round(Number(params.y || 0))
-          };
-          const size = {
-            width: Math.max(1, Math.round(Number(params.width || 0))),
-            height: Math.max(1, Math.round(Number(params.height || 0)))
-          };
-          onNodeResizeChange({
-            id: sourceObjectId(runtimeNode),
-            runtimeId: String(runtimeNode.id || ''),
-            position,
-            size,
-            data
-          } satisfies TopoViewerNodeResizeChange);
-        }
-      } as unknown as CompiledNodeData
-    } as typeof node;
-  });
-}
-
-function withRuntimeRegionAggregateHandlers(
-  nodes: ReturnType<typeof compileTopoGraph>['nodes'],
-  onRegionAggregateToggle: TopoViewerProps['onRegionAggregateToggle']
-): ReturnType<typeof compileTopoGraph>['nodes'] {
-  if (!onRegionAggregateToggle) return nodes;
-  return nodes.map((node) => {
-    const runtimeNode = node as unknown as Record<string, unknown>;
-    const data = (runtimeNode.data || {}) as Record<string, unknown>;
-    const aggregateBy = String(data.aggregateBy || '');
-    const aggregateSourceId = String(data.aggregateSourceId || '');
-    const aggregateId = String(data.aggregateId || '');
-    if (data.isAggregate === true && aggregateBy === 'region' && aggregateSourceId && aggregateId) {
-      return {
-        ...node,
-        data: {
-          ...data,
-          __topoviewerAggregateExpandable: true,
-          __topoviewerOnAggregateExpand: () => onRegionAggregateToggle({
-            data,
-            expanded: true,
-            groupId: aggregateId,
-            regionId: aggregateSourceId
-          })
-        } as unknown as CompiledNodeData
-      } as typeof node;
-    }
-    const objectKind = String(data.objectKind || '');
-    const regionId = objectKind === 'region' ? sourceObjectId(runtimeNode) : undefined;
-    if (!regionId) return node;
-    return {
-      ...node,
-      data: {
-        ...data,
-        __topoviewerRegionCollapsible: true,
-        __topoviewerOnRegionCollapse: () => onRegionAggregateToggle({
-          data,
-          expanded: false,
-          groupId: `summary-${regionId}`,
-          regionId
-        })
-      } as unknown as CompiledNodeData
-    } as typeof node;
-  });
-}
-
-function resolveAttentionPresentation(document: TopoDocument, attention: TopoViewerProps['attention']): AttentionPresentationResult | undefined {
-  return resolveAttentionPresentationCached(document, attention || document.attention);
+  if (!activeRuntimeIds.size) return nextNodes;
+  const currentById = new Map(currentNodes.map((node) => [String(node.id || ''), node]));
+  return nextNodes.map((node) => (
+    activeRuntimeIds.has(String(node.id || ''))
+      ? currentById.get(String(node.id || '')) || node
+      : node
+  ));
 }
 
 function TopoFlow({
@@ -419,6 +193,7 @@ function TopoFlow({
   const nodesRef = useRef<HelperLineNodeLike[]>(compiled.nodes as unknown as HelperLineNodeLike[]);
   const snappedPositionsRef = useRef(new Map<string, { x: number; y: number }>());
   const activeDragNodeIdRef = useRef<string | undefined>();
+  const activeDragRuntimeIdsRef = useRef<ReadonlySet<string>>(new Set());
   const activeDragStartPositionRef = useRef<{ x: number; y: number } | undefined>();
   const activeDragLatestPositionRef = useRef<{ x: number; y: number } | undefined>();
   const activeHelperLineStateRef = useRef<HelperLineState>(emptyHelperLineState);
@@ -429,11 +204,13 @@ function TopoFlow({
   }, []);
   const appliedCompileTokenRef = useRef<object>();
   useEffect(() => {
+    const activeDragRuntimeIds = activeDragRuntimeIdsRef.current;
     if (positionOnlyCompile && appliedCompileTokenRef.current === compileToken) {
       const nextById = new Map(runtimeNodes.map((node) => [String(node.id || ''), node]));
       setNodes((currentNodes) => {
         let changed = false;
         const nextNodes = (currentNodes as unknown as Array<Record<string, unknown>>).map((currentNode) => {
+          if (activeDragRuntimeIds.has(String(currentNode.id || ''))) return currentNode;
           const nextNode = nextById.get(String(currentNode.id || '')) as unknown as Record<string, unknown> | undefined;
           if (!nextNode) return currentNode;
           const currentPosition = runtimeNodePosition(currentNode);
@@ -450,12 +227,18 @@ function TopoFlow({
     appliedCompileTokenRef.current = compileToken;
     setEdges(decorateRuntimeEdges(compiled.edges) as never[]);
     setNodes((currentNodes) => {
-      const nextNodes = preserveRuntimeNodeMeasurements(runtimeNodes, currentNodes);
+      const nextNodes = preserveActiveDragNodes(
+        preserveRuntimeNodeMeasurements(runtimeNodes, currentNodes) as Array<Record<string, unknown>>,
+        currentNodes as unknown as Array<Record<string, unknown>>,
+        activeDragRuntimeIds
+      );
       nodesRef.current = nextNodes as unknown as HelperLineNodeLike[];
       return nextNodes as never[];
     });
+    if (activeDragRuntimeIds.size) return;
     snappedPositionsRef.current.clear();
     activeDragNodeIdRef.current = undefined;
+    activeDragRuntimeIdsRef.current = new Set();
     activeDragStartPositionRef.current = undefined;
     activeDragLatestPositionRef.current = undefined;
     activeHelperLineStateRef.current = emptyHelperLineState;
@@ -463,6 +246,7 @@ function TopoFlow({
     clearHelperLines();
   }, [clearHelperLines, compiled, compileToken, decorateRuntimeEdges, positionOnlyCompile, runtimeNodes, setEdges, setNodes]);
   useEffect(() => {
+    if (activeDragRuntimeIdsRef.current.size) return undefined;
     setNodesReadyForInteraction(false);
     if (!nodesInitialized) return undefined;
     let firstFrame = 0;
@@ -487,6 +271,9 @@ function TopoFlow({
         const nextSelected = selected.has(sourceObjectId(node));
         if ((node.selected === true) === nextSelected) return node;
         changed = true;
+        if (activeDragRuntimeIdsRef.current.has(String(node.id || ''))) {
+          return { ...node, selected: nextSelected };
+        }
         const sourceNode = compiledNodeByRuntimeId.get(String(node.id || '')) || node;
         const decorated = decorateRuntimeNodes([
           { ...sourceNode, selected: nextSelected } as never
@@ -551,6 +338,7 @@ function TopoFlow({
     if (!helperLineOptions.enabled) {
       snappedPositionsRef.current.clear();
       activeDragNodeIdRef.current = undefined;
+      activeDragRuntimeIdsRef.current = new Set();
       activeDragStartPositionRef.current = undefined;
       activeDragLatestPositionRef.current = undefined;
       activeHelperLineStateRef.current = emptyHelperLineState;
@@ -599,6 +387,11 @@ function TopoFlow({
       activeDragLatestPositionRef.current = activeDragChange.position;
     }
     if (hasActivePositionDrag && !hasRegionPositionChange(nextChanges)) {
+      setNodes((currentNodes) => {
+        const nextNodes = applyNodeChanges(nextChanges, currentNodes) as never[];
+        nodesRef.current = nextNodes as unknown as HelperLineNodeLike[];
+        return nextNodes;
+      });
       return;
     }
     setNodes((currentNodes) => {
@@ -627,15 +420,18 @@ function TopoFlow({
     const runtimeNode = node as unknown as Record<string, unknown>;
     const runtimeId = String(runtimeNode.id || '');
     activeDragNodeIdRef.current = runtimeId;
+    const activeDragRuntimeIds = runtimeId
+      ? regionDragGroupRuntimeIds(document, runtimeId)
+      : new Set<string>();
+    activeDragRuntimeIdsRef.current = activeDragRuntimeIds;
     activeDragStartPositionRef.current = runtimeId ? runtimeNodePosition(runtimeNode) : undefined;
     activeDragLatestPositionRef.current = activeDragStartPositionRef.current;
     if (!helperLineOptions.enabled || !runtimeId) {
       helperLineCandidateIndexRef.current = undefined;
       return;
     }
-    const excludedRuntimeIds = regionDragGroupRuntimeIds(document, runtimeId);
     const candidates = nodesRef.current.flatMap((candidateNode) => {
-      if (excludedRuntimeIds.has(String(candidateNode.id || ''))) return [];
+      if (activeDragRuntimeIds.has(String(candidateNode.id || ''))) return [];
       const box = helperLineBoxFromNode(candidateNode);
       return box ? [box] : [];
     });
@@ -679,6 +475,7 @@ function TopoFlow({
     }
     snappedPositionsRef.current.delete(runtimeId);
     activeDragNodeIdRef.current = undefined;
+    activeDragRuntimeIdsRef.current = new Set();
     activeDragStartPositionRef.current = undefined;
     activeDragLatestPositionRef.current = undefined;
     helperLineCandidateIndexRef.current = undefined;

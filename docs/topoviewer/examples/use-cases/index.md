@@ -50,6 +50,16 @@ apply or revert drafts deliberately.
 Use it when you are designing a topology bundle, checking mapper coverage before
 Grafana, or validating that drag/manual layout changes persist back to YAML.
 
+## Author One Portable Bundle In Studio
+
+[TopoViewer Studio](topoviewer-studio.md) runs one topology, stylesheet, and
+mapper bundle through Studio, the Harness, MkDocs/Zensical, and Grafana
+packaging. It demonstrates that authoring stays surface-neutral while each
+consumer keeps its own runtime responsibilities.
+
+Use it when evaluating Studio or designing a bundle pipeline that must not fork
+topology identity by destination.
+
 ## Author Graphs On The Canvas
 
 [Graph Authoring](graph-authoring.md) shows the canvas-native authoring surface:

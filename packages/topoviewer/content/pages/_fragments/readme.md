@@ -279,6 +279,7 @@ TopoViewer is useful when the diagram is no longer just a picture.
 |---|---|---|
 | React package | Supported | Install `topoviewer` from npm and embed `TopoViewer`. |
 | MkDocs plugin | Supported | Install `mkdocs-topoviewer` and render live YAML examples. |
+| TopoViewer Studio | Experimental | Run the repository-local browser app to author portable bundles; it is not yet the default public authoring route. |
 | Browser Harness | Experimental | Author, validate, preview, and export TopoViewer bundles. |
 | Zensical | Adapter | Static generated docs adapter, not an installable plugin. |
 | Grafana panel | Experimental | Mounted bundles and mapper-driven runtime overlays, proven through the Containerlab demo path. |

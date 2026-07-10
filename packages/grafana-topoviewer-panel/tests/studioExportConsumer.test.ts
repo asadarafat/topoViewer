@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest';
 import { compileTopoGraph, composeTopoViewerDocument, type TopoDocument } from 'topoviewer';
 import { createRuntimeModel } from '../src/runtimeModel';
 
-const fixtureRoot = path.resolve(import.meta.dirname, '../../topoviewer-studio/tests/fixtures/portable-consumer');
+const fixtureRoot = path.resolve(import.meta.dirname, '../../topoviewer/content/examples/integration/studio-portable-bundle');
 
 function fixture(name: string) {
   return fs.readFileSync(path.join(fixtureRoot, name), 'utf8');
@@ -57,4 +57,3 @@ describe('Studio export Grafana consumer', () => {
     expect(model.document && semanticHash(model.document)).toBe(semanticHash(expected));
   });
 });
-

@@ -19,6 +19,8 @@ const lintTargets = {
         'packages/topoviewer-studio/tests',
         'packages/topoviewer-studio/vite.config.ts',
         'packages/topoviewer-studio/playwright.config.ts',
+        'packages/topoviewer-studio/playwright.parity.config.ts',
+        'packages/topoviewer-studio/playwright.performance.config.ts',
         'packages/grafana-topoviewer-panel/src',
         'packages/grafana-topoviewer-panel/scripts',
         'packages/grafana-topoviewer-panel/tests',

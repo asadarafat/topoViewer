@@ -120,6 +120,6 @@ npm run docs:lint
 npm run ci:docs
 ```
 
-The docs lint gate checks canonical pages, generated examples, guide next-step
-links, style reference coverage, API reference coverage, public links, and
-route consistency.
+The docs lint gate checks canonical pages, generated examples, forbidden
+page-local next-step headings, style reference coverage, API reference coverage,
+public links, and route consistency.

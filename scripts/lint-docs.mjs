@@ -42,22 +42,6 @@ const packageReadmeStatuses = [
   ['packages/grafana-topoviewer-panel/README.md', 'Experimental']
 ];
 
-const majorGuidePages = [
-  'start/why-topoviewer.md',
-  'start/first-topology.md',
-  'examples/index.md',
-  'author/authoring-model.md',
-  'start/style-your-first-topology.md',
-  'examples/use-cases/harness.md',
-  'author/validate-yaml.md',
-  'author/debug-rendering.md',
-  'author/layout.md',
-  'examples/use-cases/react.md',
-  'examples/use-cases/mkdocs.md',
-  'examples/use-cases/static-html-zensical-adapter.md',
-  'labs/grafana.md'
-];
-
 const taskGuideLineBudget = 320;
 const integrationGuideLineBudget = 480;
 const guidePageLengthBudgets = new Map([
@@ -865,11 +849,9 @@ function checkPublicPromoArtifactReferences() {
 }
 
 function checkNoGuideNextSteps() {
-  for (const page of majorGuidePages) {
-    const filePath = path.join(contentPagesRoot, page);
-    if (!assertFile(filePath, `major guide page ${page}`)) continue;
+  for (const filePath of listMarkdownFiles(contentPagesRoot)) {
     const text = readText(filePath);
-    if (/^## Next Steps?\s*$/m.test(text)) {
+    if (/^#{1,6}\s+Next Steps?\s*$/mi.test(text)) {
       fail(`${relative(filePath)} must not include a "Next Steps" section. Use mkdocs.yml navigation instead.`);
     }
   }

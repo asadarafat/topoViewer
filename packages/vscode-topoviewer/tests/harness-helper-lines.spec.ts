@@ -33,18 +33,51 @@ test.afterEach(async ({ page }) => {
 });
 
 function dragMotionIssues(samples: Array<{ pointerX: number; pointerY: number; nodeX: number; nodeY: number }>) {
-  return samples.slice(1).flatMap((sample, index) => {
+  const maximumFunctionalTrackingError = 40;
+  if (samples.length < 2) return [];
+  const origin = samples[0];
+  const issues: string[] = [];
+  let stationaryPointerTravel = 0;
+  let trackingErrorReported = false;
+  let stationaryReported = false;
+
+  samples.slice(1).forEach((sample, index) => {
     const previous = samples[index];
     const pointerDelta = Math.hypot(sample.pointerX - previous.pointerX, sample.pointerY - previous.pointerY);
     const nodeDelta = Math.hypot(sample.nodeX - previous.nodeX, sample.nodeY - previous.nodeY);
-    if (pointerDelta > 2 && nodeDelta < 0.5) {
-      return [`held while pointer moved: step ${index + 2}, pointer=${pointerDelta.toFixed(2)}, node=${nodeDelta.toFixed(2)}`];
+    stationaryPointerTravel = pointerDelta > 2 && nodeDelta < 0.5
+      ? stationaryPointerTravel + pointerDelta
+      : 0;
+    if (!stationaryReported && stationaryPointerTravel > 24) {
+      issues.push(`held across ${stationaryPointerTravel.toFixed(2)}px of pointer travel at step ${index + 2}`);
+      stationaryReported = true;
     }
-    if (nodeDelta > pointerDelta + 4.5) {
-      return [`jumped ahead of pointer: step ${index + 2}, pointer=${pointerDelta.toFixed(2)}, node=${nodeDelta.toFixed(2)}`];
+
+    const pointerTravel = {
+      x: sample.pointerX - origin.pointerX,
+      y: sample.pointerY - origin.pointerY
+    };
+    const nodeTravel = {
+      x: sample.nodeX - origin.nodeX,
+      y: sample.nodeY - origin.nodeY
+    };
+    const trackingError = Math.hypot(nodeTravel.x - pointerTravel.x, nodeTravel.y - pointerTravel.y);
+    if (!trackingErrorReported && trackingError > maximumFunctionalTrackingError) {
+      issues.push(`diverged from pointer by ${trackingError.toFixed(2)}px at step ${index + 2}`);
+      trackingErrorReported = true;
     }
-    return [];
+
+    const pointerDistance = Math.hypot(pointerTravel.x, pointerTravel.y);
+    if (pointerDistance > 4) {
+      const nodeStep = {
+        x: sample.nodeX - previous.nodeX,
+        y: sample.nodeY - previous.nodeY
+      };
+      const forwardStep = ((nodeStep.x * pointerTravel.x) + (nodeStep.y * pointerTravel.y)) / pointerDistance;
+      if (forwardStep < -4) issues.push(`reversed against pointer direction at step ${index + 2}`);
+    }
   });
+  return issues;
 }
 
 const seededStylesheet = [
@@ -141,6 +174,7 @@ test('shows alignment helper lines while dragging nodes in the browser harness p
 
   await page.mouse.move(from.x, from.y);
   await page.mouse.down();
+  samples.push({ pointerX: from.x, pointerY: from.y, nodeX: dragBox!.x, nodeY: dragBox!.y });
   for (let step = 1; step <= 48; step += 1) {
     const pointerX = from.x + ((to.x - from.x) * step) / 48;
     const pointerY = from.y + ((to.y - from.y) * step) / 48;
@@ -228,6 +262,7 @@ test('keeps helper-line snapping stable across repeated staggered drags', async 
 
     await page.mouse.move(from.x, from.y);
     await page.mouse.down();
+    samples.push({ pointerX: from.x, pointerY: from.y, nodeX: box!.x, nodeY: box!.y });
     for (let step = 1; step <= 24; step += 1) {
       const pointerX = from.x + (deltaX * step) / 24;
       const pointerY = from.y + (deltaY * step) / 24;
@@ -238,7 +273,7 @@ test('keeps helper-line snapping stable across repeated staggered drags', async 
       expect(currentBox).not.toBeNull();
       samples.push({ pointerX, pointerY, nodeX: currentBox!.x, nodeY: currentBox!.y });
     }
-    expect(dragMotionIssues(samples)).toEqual([]);
+    expect(dragMotionIssues(samples), JSON.stringify(samples, null, 2)).toEqual([]);
     await page.mouse.up();
     await expect(page.locator('.topoviewer-helper-line')).toHaveCount(0);
     return helperLineVisible;

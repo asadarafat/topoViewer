@@ -195,6 +195,24 @@ largest lazy chunk, and 1.2 MiB total lazy JavaScript budgets. The VS Code host
 also remains below 64 KiB. Baseline updates are explicit; ordinary CI runs only
 compare and enforce.
 
+The older cross-surface raw-byte guard in
+`scripts/react-performance-budgets.json` remains active for the Harness and VS
+Code webview. The pre-Studio webview ceiling of 3,400,000 lazy JavaScript bytes
+did not include the isolated Studio export, mapper, archive, and workspace
+features. The completed Studio webview measures 937,729 initial bytes and
+4,153,893 lazy bytes, with the compressed lazy total above remaining at
+1,118,172 bytes. The raw lazy ceiling is therefore reset to 4,200,000 bytes;
+the compressed total, largest-chunk, initial-bundle, and lazy-feature gates are
+unchanged. This is a measured baseline update, not a waiver.
+
+The Phase 18 active-drag synchronization fix moved the legacy Harness entry
+from 1,567,902 raw / 471,291 gzip bytes to 1,568,394 raw / 471,550 gzip bytes.
+The 492-byte raw and 259-byte compressed increase prevents stale compiled or
+controlled-selection snapshots from resetting live node geometry between
+consecutive drags. The Harness raw initial ceiling moves from 1,560,000 to
+1,561,000 bytes; the 8,192-byte tolerance and every compressed Studio budget
+remain unchanged. This is a measured correctness baseline update, not a waiver.
+
 ## Repeated Suite
 
 `npm run studio:benchmark:repeat` completed three full serial runs on the
