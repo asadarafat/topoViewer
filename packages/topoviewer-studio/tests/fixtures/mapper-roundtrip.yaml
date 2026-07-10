@@ -1,0 +1,50 @@
+# Mapper round-trip fixture exercises both supported authoring shapes.
+version: 1
+identity:
+  sourceId: branch-core # preserve identity comment
+  sourceIdLabel: source_id
+rules:
+  - id: compact-link-bps
+    metric: interface_traffic_rate_out_bps
+    select: linkDirection
+    join:
+      link: link_id
+      direction: direction
+    value: bps
+    states:
+      busy: ">=1000000000"
+    style:
+      default:
+        label: "{{ value | bps }}"
+      busy:
+        lineWidth: 6
+mappings:
+  - id: canonical-node-health
+    metric: node_health
+    target:
+      kind: node
+      resolve:
+        by: id
+        metricLabel: node_id
+    value:
+      field: value
+      as: health
+    thresholds:
+      warning: 1
+      error: 2
+      direction: above
+    overlay:
+      statusMarker: true
+      badgeLabel: "{{ severity }}"
+    conditions:
+      - id: down-state
+        when:
+          severity: error
+        style:
+          borderWidth: 5
+# A future extension must survive unrelated structured edits.
+x-future-transform:
+  normalize: clamp
+  priority: 20
+  diagnostics:
+    unresolved: warn
