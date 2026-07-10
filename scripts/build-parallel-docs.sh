@@ -9,5 +9,6 @@ bash "$ROOT_DIR/scripts/local-mkdocs.sh" build
 TOPOVIEWER_ZENSICAL_SKIP_VIEWER_BUILD=1 bash "$ROOT_DIR/scripts/local-zensical.sh" build
 npm run validate:zensical
 npm run vscode:harness:build
+npm run studio:pages:build
 npm run pages:redirects
 npm run docs:prune

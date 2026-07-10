@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect, useRef, useState, type CSSProperties } from 'react';
 import CodeIcon from '@mui/icons-material/Code';
+import FeedbackOutlinedIcon from '@mui/icons-material/FeedbackOutlined';
 import IosShareIcon from '@mui/icons-material/IosShare';
 import MenuIcon from '@mui/icons-material/Menu';
 import PresentToAllIcon from '@mui/icons-material/PresentToAll';
@@ -22,6 +23,7 @@ import { useStudioAutosave } from './useStudioAutosave';
 const WorkspaceDrawer = lazy(() => import('../features/workspace/WorkspaceDrawer'));
 const MapperWorkspace = lazy(() => import('../features/mapper/MapperWorkspace'));
 const ExportPanel = lazy(() => import('../features/export/ExportPanel'));
+const studioFeedbackUrl = 'https://github.com/asadarafat/topoviewer/issues/new?template=studio_preview_feedback.yml';
 
 interface StudioWorkspaceProps {
   forceEditorFailure?: boolean;
@@ -195,6 +197,7 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
           <button className="studio-icon-button" aria-label="Save project" disabled={snapshot.status === 'saved' || snapshot.status === 'saving'} onClick={() => void controller.save()} title="Save" type="button"><SaveIcon fontSize="small" /></button>
           <button className="studio-icon-button" aria-label="Reload project" onClick={() => void controller.reload()} title="Reload" type="button"><RefreshIcon fontSize="small" /></button>
           <button className="studio-icon-button" aria-label="Open export panel" onClick={() => setExportOpen(true)} title="Export" type="button"><IosShareIcon fontSize="small" /></button>
+          <a className="studio-icon-button" aria-label="Send Studio preview feedback" href={studioFeedbackUrl} rel="noreferrer" target="_blank" title="Preview feedback"><FeedbackOutlinedIcon fontSize="small" /></a>
           <button className="studio-icon-button" aria-label="Enter presentation mode" onClick={() => { setDrawerOpen(false); setPresentationMode(true); }} ref={presentationTriggerRef} title="Presentation mode" type="button"><PresentToAllIcon fontSize="small" /></button>
           <button className="studio-icon-button studio-desktop-control" aria-expanded={inspectorState !== 'closed'} aria-label={`${inspectorState === 'closed' ? 'Open' : 'Close'} Inspector`} onClick={() => setInspectorState((state) => state === 'closed' ? 'default' : 'closed')} title="Inspector" type="button"><TuneIcon fontSize="small" /></button>
           <button className="studio-icon-button studio-mobile-control" aria-expanded={inspectorState === 'open'} aria-label={`${inspectorState === 'open' ? 'Close' : 'Open'} Inspector`} onClick={() => setInspectorState((state) => state === 'open' ? 'default' : 'open')} title="Inspector" type="button"><TuneIcon fontSize="small" /></button>

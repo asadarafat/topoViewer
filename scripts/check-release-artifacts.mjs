@@ -112,7 +112,8 @@ const DOCS_SITE_REQUIRED_FILES = [
   'index.html',
   'docs/mkdocs/index.html',
   'docs/zensical/index.html',
-  'harness/index.html'
+  'harness/index.html',
+  'studio/index.html'
 ];
 
 function readScope(cliArgs) {

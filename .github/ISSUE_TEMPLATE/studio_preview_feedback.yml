@@ -1,0 +1,100 @@
+name: Studio preview feedback
+description: Record a structured TopoViewer Studio preview session.
+title: "[Studio Preview]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form after trying the primary Studio authoring journey. Do not attach proprietary topology, telemetry, credentials, or screenshots containing secrets.
+
+  - type: dropdown
+    id: experience
+    attributes:
+      label: TopoViewer experience
+      options:
+        - New to TopoViewer
+        - Used TopoViewer, but not the Browser Harness
+        - Existing Browser Harness user
+        - TopoViewer maintainer or contributor
+    validations:
+      required: true
+
+  - type: dropdown
+    id: host
+    attributes:
+      label: Studio host
+      options:
+        - Published browser preview
+        - Local browser development server
+        - VS Code development host
+    validations:
+      required: true
+
+  - type: textarea
+    id: journey
+    attributes:
+      label: Journey attempted
+      description: Describe the project, objects, styles, mapper rule, YAML recovery, and export steps you attempted.
+    validations:
+      required: true
+
+  - type: input
+    id: elapsed
+    attributes:
+      label: Approximate completion time
+      placeholder: "For example: 8 minutes, or did not complete"
+    validations:
+      required: true
+
+  - type: input
+    id: gestures
+    attributes:
+      label: Approximate gesture count
+      description: Count meaningful clicks, drags, keyboard commands, or menu selections for the primary journey.
+      placeholder: "For example: 24"
+    validations:
+      required: true
+
+  - type: textarea
+    id: hesitation
+    attributes:
+      label: Hesitation points
+      description: Where did you pause, search, backtrack, or need documentation?
+    validations:
+      required: true
+
+  - type: textarea
+    id: failures
+    attributes:
+      label: Failures or blocked steps
+      description: Include exact actions, visible diagnostics, browser, operating system, and whether the canvas remained usable.
+    validations:
+      required: true
+
+  - type: textarea
+    id: recovery
+    attributes:
+      label: Recovery behavior
+      description: Describe undo, reload, invalid YAML recovery, autosave recovery, export/re-import, or any work that was lost.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expectations
+    attributes:
+      label: Unsupported or surprising expectations
+      description: What did you expect Studio to support, and what happened instead?
+    validations:
+      required: true
+
+  - type: dropdown
+    id: outcome
+    attributes:
+      label: Outcome
+      options:
+        - Completed without assistance
+        - Completed with documentation
+        - Completed with maintainer assistance
+        - Could not complete
+    validations:
+      required: true

@@ -19,6 +19,7 @@ body:
         - React package
         - MkDocs
         - Zensical
+        - TopoViewer Studio
         - Browser harness
         - VS Code extension
         - Grafana panel

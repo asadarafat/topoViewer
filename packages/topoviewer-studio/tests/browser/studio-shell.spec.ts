@@ -75,6 +75,16 @@ test('keeps the canvas usable at the narrow breakpoint', async ({ page }) => {
   expect(overflow).toBeLessThanOrEqual(1);
 });
 
+test('exposes the structured preview feedback path without replacing Studio', async ({ page }) => {
+  await page.goto('/');
+
+  const feedback = page.getByRole('link', { name: 'Send Studio preview feedback' });
+  await expect(feedback).toBeVisible();
+  await expect(feedback).toHaveAttribute('href', 'https://github.com/asadarafat/topoviewer/issues/new?template=studio_preview_feedback.yml');
+  await expect(feedback).toHaveAttribute('target', '_blank');
+  await expect(page.getByRole('region', { name: 'Topology canvas' })).toBeVisible();
+});
+
 test('renders a nonblank dark canvas and lazy workspace drawer', async ({ page }) => {
   await page.emulateMedia({ colorScheme: 'dark' });
   await page.goto('/');

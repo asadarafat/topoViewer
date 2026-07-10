@@ -22,6 +22,7 @@
     "studio:supply-chain": "node scripts/require-node24.mjs && npm --workspace topoviewer run build:lib && npm --workspace topoviewer-studio run build:contracts && node scripts/check-studio-supply-chain.mjs",
     "studio:dev": "node scripts/require-node24.mjs && npm --workspace topoviewer run build:lib && npm --workspace topoviewer-studio run dev",
     "studio:build": "node scripts/require-node24.mjs && npm --workspace topoviewer run build:lib && npm --workspace topoviewer-studio run build",
+    "studio:pages:build": "node scripts/require-node24.mjs && npm --workspace topoviewer-studio run build && node scripts/check-studio-build.mjs",
     "studio:test:browser": "node scripts/require-node24.mjs && npm --workspace topoviewer run build:lib && npm --workspace topoviewer-studio run test:browser",
     "studio:test:parity": "node scripts/require-node24.mjs && npm --workspace topoviewer run build:lib && npm --workspace topoviewer-studio run test:parity && npm --workspace vscode-topoviewer run test:studio-host",
     "studio:ci:quality": "npm run studio:typecheck && npm run studio:test && npm run studio:drift",

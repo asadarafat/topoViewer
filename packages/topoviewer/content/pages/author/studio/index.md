@@ -22,7 +22,15 @@ bundle, not a separate Grafana-only project.
 
 ## Run The Experimental App
 
-From a repository checkout:
+Open the opt-in [Studio preview](https://asadarafat.github.io/topoviewer/studio/)
+in a current desktop browser. The preview stores browser projects locally and
+does not replace the published Harness.
+
+Use the **Preview feedback** action in Studio to report the completed workflow,
+hesitation points, recovery behavior, and unsupported expectations through the
+structured [Studio preview feedback form](https://github.com/asadarafat/topoviewer/issues/new?template=studio_preview_feedback.yml).
+
+To run the same application from a repository checkout:
 
 ```bash
 npm ci
