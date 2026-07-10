@@ -3,72 +3,8 @@ import type { ExportImagePayload, HarnessFixture, TopoViewerWebviewHost, Validat
 import { starterAuthoringMapperText, starterAuthoringStylesheetText, starterAuthoringTopologyText } from '../shared/starterAuthoring';
 import { safeGetJson, safeGetString, safeRemoveItem, safeSetJson, safeSetString } from './browserStorage';
 
-declare global {
-  interface Window {
-    acquireVsCodeApi?: () => {
-      postMessage(message: unknown): void;
-    };
-  }
-}
-
-type PendingResolver = (state: WebviewState) => void;
-
-export function exportViewportMessage(payload: ExportImagePayload) {
-  return { type: 'exportViewport' as const, ...payload };
-}
-
 function defaultMapperText(sourceId = 'topoviewer') {
   return starterAuthoringMapperText(sourceId);
-}
-
-export class VsCodeHostAdapter implements TopoViewerWebviewHost {
-  readonly kind = 'vscode' as const;
-  private readonly vscode = window.acquireVsCodeApi?.();
-  private pendingState: PendingResolver[] = [];
-  private latestState: WebviewState | undefined;
-
-  constructor() {
-    window.addEventListener('message', (event) => {
-      const message = event.data || {};
-      if (message.type === 'state') {
-        this.latestState = message.state;
-        const pending = this.pendingState;
-        this.pendingState = [];
-        pending.forEach((resolve) => resolve(message.state));
-      }
-    });
-  }
-
-  loadInitialState(): Promise<WebviewState> {
-    if (this.latestState) return Promise.resolve(this.latestState);
-    this.vscode?.postMessage({ type: 'ready' });
-    return new Promise((resolve) => {
-      this.pendingState.push(resolve);
-      window.setTimeout(() => {
-        if (!this.latestState) {
-          resolve({
-            topologyText: starterAuthoringTopologyText,
-            stylesheetText: starterAuthoringStylesheetText,
-            mapperText: starterAuthoringMapperText()
-          });
-        }
-      }, 1500);
-    });
-  }
-
-  validate(state: WebviewState): Promise<ValidationResult> {
-    return Promise.resolve(validateSources(state));
-  }
-
-  openDocs(target: string): Promise<void> {
-    this.vscode?.postMessage({ type: 'openDocs', target });
-    return Promise.resolve();
-  }
-
-  exportImage(payload: ExportImagePayload): Promise<void> {
-    this.vscode?.postMessage(exportViewportMessage(payload));
-    return Promise.resolve();
-  }
 }
 
 export class BrowserHarnessHostAdapter implements TopoViewerWebviewHost {

@@ -8,6 +8,7 @@ import type { StudioSourceMutation } from '../contracts/commands';
 import type { StudioHost } from '../contracts/host';
 import type { StudioProject, StudioRecoverySnapshot, StudioSelection } from '../contracts/project';
 import { createStudioDocumentSession } from '../session';
+import type { StudioDocumentSession } from '../session';
 
 export interface UseStudioControllerOptions {
   host: StudioHost;
@@ -27,6 +28,28 @@ export function createRecoveredStudioSession(project: StudioProject, recovery?: 
     });
   } else if (recovery) session.setStatus('recovery');
   return session;
+}
+
+export function createExternalChangeActions(
+  session: StudioDocumentSession,
+  setError: (message?: string) => void,
+  announce: (message: string) => void,
+  refresh: () => void
+) {
+  return {
+    keepDraftAfterExternalChange(revision: string) {
+      session.rebaseRevision(revision);
+      setError(undefined);
+      announce('Kept the Studio draft and accepted the current disk revision');
+      refresh();
+    },
+    markExternalConflict() {
+      session.setStatus('conflict');
+      setError('The project changed outside Studio. Inspect the disk change, keep this draft, or reload disk.');
+      announce('External project change detected');
+      refresh();
+    }
+  };
 }
 
 export function positionOf(value: unknown): { x: number; y: number } | undefined {

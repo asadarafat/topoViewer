@@ -9,12 +9,13 @@ import SaveIcon from '@mui/icons-material/Save';
 import SensorsIcon from '@mui/icons-material/Sensors';
 import TuneIcon from '@mui/icons-material/Tune';
 import UndoIcon from '@mui/icons-material/Undo';
-import type { StudioHost } from '../contracts/host';
+import type { StudioExternalChange, StudioHost } from '../contracts/host';
 import type { StudioDocumentKind, StudioProject, StudioRecoverySnapshot, StudioSelection } from '../contracts/project';
 import { CanvasSurface } from '../features/canvas/CanvasSurface';
 import { Inspector } from '../features/inspector/Inspector';
 import { ObjectPalette } from '../features/palette/ObjectPalette';
 import { ProjectMenu, type StudioProjectLifecycleActions } from '../features/projects/ProjectMenu';
+import { ExternalChangeDialog } from '../features/projects/ExternalChangeDialog';
 import { useStudioController } from './useStudioController';
 import { useStudioAutosave } from './useStudioAutosave';
 
@@ -55,9 +56,80 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
   const [inspectorState, setInspectorState] = useState<PanelState>('default');
   const [presentationMode, setPresentationMode] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
+  const [externalChange, setExternalChange] = useState<StudioExternalChange>();
+  const [externalDiskProject, setExternalDiskProject] = useState<StudioProject>();
+  const [externalChangeError, setExternalChangeError] = useState<string>();
+  const [externalChangeLoading, setExternalChangeLoading] = useState(false);
   const canvasRef = useRef<HTMLElement>(null);
   const { snapshot } = controller;
+  const snapshotRef = useRef(snapshot);
   const autosave = useStudioAutosave(host, snapshot);
+
+  useEffect(() => {
+    snapshotRef.current = snapshot;
+  }, [snapshot]);
+
+  useEffect(() => host.watchProject?.((event) => {
+    const current = snapshotRef.current;
+    host.report({ category: 'persistence', detail: { kind: event.kind }, name: 'studio-external-change-detected' });
+    if (current.status === 'saved' && event.kind === 'changed') {
+      void onReload();
+      return;
+    }
+    controller.markExternalConflict();
+    setExternalChange(event);
+    setExternalDiskProject(undefined);
+    setExternalChangeError(undefined);
+  }), [host, onReload]);
+
+  async function loadExternalProject() {
+    if (!externalChange) return undefined;
+    setExternalChangeLoading(true);
+    const loaded = await host.loadProject(externalChange.reference);
+    setExternalChangeLoading(false);
+    if (!loaded.ok) {
+      setExternalChangeError(loaded.error.message);
+      return undefined;
+    }
+    setExternalDiskProject(loaded.value.project);
+    setExternalChangeError(undefined);
+    return loaded.value.project;
+  }
+
+  async function keepExternalDraft() {
+    if (!externalChange) return;
+    const disk = externalDiskProject || await loadExternalProject();
+    const revision = disk?.revision || externalChange.revision;
+    if (!revision) {
+      setExternalChangeError('Studio cannot rebase this draft because the disk revision is unavailable. Export the project before closing it.');
+      return;
+    }
+    controller.keepDraftAfterExternalChange(revision);
+    setExternalChange(undefined);
+    setExternalDiskProject(undefined);
+  }
+
+  async function reloadExternalProject() {
+    if (!externalChange) return;
+    setExternalChangeLoading(true);
+    const current = snapshotRef.current;
+    const recovery = await host.saveRecovery({
+      capturedAt: new Date().toISOString(),
+      invalidDrafts: structuredClone(current.invalidDrafts),
+      project: structuredClone(current.project),
+      reason: 'before-reload',
+      sourceRevision: current.projection.sourceRevision
+    });
+    if (!recovery.ok) {
+      setExternalChangeLoading(false);
+      setExternalChangeError(`Studio could not preserve the current draft before reload: ${recovery.error.message}`);
+      return;
+    }
+    await onReload();
+    setExternalChangeLoading(false);
+    setExternalChange(undefined);
+    setExternalDiskProject(undefined);
+  }
 
   useEffect(() => {
     if (!controller.normalizationReview) return;
@@ -158,6 +230,19 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
             snapshot={snapshot}
           />
         </Suspense>
+      ) : null}
+
+      {externalChange ? (
+        <ExternalChangeDialog
+          diskProject={externalDiskProject}
+          error={externalChangeError}
+          event={externalChange}
+          loading={externalChangeLoading}
+          onInspect={() => void loadExternalProject()}
+          onKeepDraft={() => void keepExternalDraft()}
+          onReloadDisk={() => void reloadExternalProject()}
+          studioProject={snapshot.project}
+        />
       ) : null}
 
       {drawerOpen && drawerView === 'source' && (

@@ -1,87 +1,44 @@
-# TopoViewer VS Code Extension
+# TopoViewer Studio For VS Code
 
 **Support status:** Experimental
 
-Experimental VS Code authoring preview for TopoViewer topology YAML.
+This package is the VS Code workspace host for the shared TopoViewer Studio
+application. Studio owns canvas, Inspector, mapper, YAML, history, recovery,
+and export behavior. The extension owns only workspace files, VS Code dialogs,
+preferences, file watches, trust checks, CSP, and typed webview transport.
 
-## Extension Package
+## Open A Bundle
 
-The extension contributes:
+Open a topology, stylesheet, or mapper YAML file and run one of these commands:
 
-- `TopoViewer: Open Preview`
-- `TopoViewer: Open Preview to Side`
+- `TopoViewer: Open Studio`
+- `TopoViewer: Open Studio to Side`
 
-Open a `topology.yaml`, `stylesheet.yaml`, or `mapper.tv.yaml` file and run one
-of the commands. The preview pairs the active file with sibling files using
-these default names:
+The stable command IDs remain `topoviewer.openPreview` and
+`topoviewer.openPreviewToSide` for compatibility. Companion files are resolved
+from the active file's directory using these configurable defaults:
 
 - `topology.yaml`
 - `stylesheet.yaml`
 - `mapper.tv.yaml`
 
-The defaults are configurable through `topoviewer.preview.defaultTopology` and
-`topoviewer.preview.defaultStylesheet`. Mapper pairing is configurable through
-`topoviewer.preview.defaultMapper`.
+Studio reads only inside that bundle root. Saving and asset/export operations
+are disabled when the workspace is untrusted. A disk change refreshes a clean
+session; a dirty session keeps both versions and offers diff, keep-draft, and
+reload-disk decisions.
 
-## Build
+## Build And Verify
 
 ```bash
 npm --workspace vscode-topoviewer run build
+npm --workspace vscode-topoviewer run test:unit
+npm --workspace vscode-topoviewer run test:studio-host
+npm --workspace vscode-topoviewer run test:extension
 ```
 
-## Local Browser Harness
+`test:studio-host` runs the shared authoring journey through the typed VS Code
+message bridge in Chromium. `test:extension` runs activation, command, workspace,
+and webview checks in an isolated VS Code Extension Development Host.
 
-```bash
-npm run vscode:harness
-```
-
-Open `http://127.0.0.1:5174/` to exercise the same React and Material UI
-webview app outside VS Code.
-
-The harness uses curated fixtures, a wide Monaco YAML editor for topology,
-stylesheet, and mapper editing, a top-left preview action bar, compact scrollable layer
-controls with object counts, diagnostics, and the real TopoViewer preview
-surface.
-
-Harness fixtures are intentionally stricter than narrative docs examples: every
-layer shown in the layer panel must have at least one topology object behind it.
-
-The harness starts in the browser system color scheme from
-`prefers-color-scheme`. Use the toolbar theme button to switch between light and
-dark while reviewing the webview UI.
-
-### Authoring Workflow
-
-YAML edits are drafts. Editing `Topology YAML`, `Stylesheet YAML`, or `Mapper
-YAML` does not immediately mutate the canvas. Use `Apply` to validate and render
-the draft, or `Revert draft` to restore the last applied YAML. Build, Inspect,
-and Attention mutations are blocked while a draft is dirty so UI edits do not
-race with unapplied text edits.
-
-`YAML assist` opens Monaco completions for the current cursor context. Pressing
-Space keeps normal text entry behavior. Press `Ctrl+Space` or `?` at structural
-YAML locations for help; literal `?` remains editable inside comments, quoted
-strings, and scalar values.
-
-Diagnostics are durable below the fixture selector. Click a diagnostic to switch
-to the matching YAML document and reveal the reported line.
-
-Use `Download bundle` to export the current valid draft as Grafana-ready files:
-`<graph>.topo.tv.yaml`, `<graph>.style.tv.yaml`, and `<graph>.mapper.tv.yaml`.
-
-### Export
-
-In the browser harness, the viewport export control downloads a PNG named from
-the graph or fixture ID. In VS Code, the webview generates the PNG payload and
-the extension host opens a save dialog before writing the file.
-
-## Test
-
-```bash
-npm run test:vscode-harness
-```
-
-The Playwright harness verifies fixture loading, diagnostics, preview rendering,
-Monaco editor rendering, layer toggles, preview action placement, export wiring,
-YAML assist behavior, candidate Apply/Revert behavior, missing companion-file
-diagnostics, and browser theme-mode behavior.
+The legacy Browser Harness remains a separate rollback surface during Studio's
+experimental cutover. It is not the extension webview implementation.

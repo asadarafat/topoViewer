@@ -12,7 +12,6 @@ import {
   type HarnessStyleMetadata,
   type StyleValueDataType
 } from './harness-helpers';
-import { exportViewportMessage } from '../src/webview/host';
 
 const STYLE_VALUE_COVERAGE_CHUNKS = 8;
 
@@ -532,19 +531,6 @@ test('keeps canvas tool shortcuts inactive while YAML editor is focused', async 
   for (const label of ['Node tool', 'Link tool', 'Path tool', 'Region tool', 'Shape tool', 'Callout tool', 'Pan tool']) {
     await expect(toolbar.getByRole('button', { name: label })).toHaveAttribute('aria-pressed', 'false');
   }
-});
-
-test('creates stable VS Code export messages', () => {
-  expect(exportViewportMessage({
-    dataUrl: 'data:image/png;base64,AAAA',
-    fileName: 'topology.png',
-    format: 'png'
-  })).toEqual({
-    type: 'exportViewport',
-    dataUrl: 'data:image/png;base64,AAAA',
-    fileName: 'topology.png',
-    format: 'png'
-  });
 });
 
 test('covers every stylesheet style key in YAML intelligence', async ({ page }) => {

@@ -123,7 +123,7 @@ function diagnosticLabel(diagnostic: StudioDiagnostic) {
   return `${diagnostic.code.replace(/-/g, ' ')}: ${diagnostic.message}`;
 }
 
-function EditorFailureProbe() {
+function EditorFailureProbe(): never {
   throw new Error('Intentional Studio editor failure.');
 }
 

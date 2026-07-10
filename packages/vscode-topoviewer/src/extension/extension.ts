@@ -1,234 +1,191 @@
-import * as fs from 'node:fs';
 import * as crypto from 'node:crypto';
+import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as vscode from 'vscode';
+import {
+  dispatchStudioHostRequest,
+  parseStudioHostReport,
+  parseStudioHostRequest,
+  type StudioHostResponseMessage,
+  type StudioHostWatchMessage
+} from '../shared/studioHostProtocol';
+import { VsCodeWorkspacePort, bundleRoot, relativeBundlePath } from './vscodeWorkspacePort';
+import { WorkspaceStudioHost } from './workspaceStudioHost';
+import { studioWebviewContentSecurityPolicy } from './webviewSecurity';
 
-interface PreviewState {
-  mapperText?: string;
-  mapperPath?: string;
-  mapperMissing?: boolean;
-  topologyText: string;
-  stylesheetText: string;
-  topologyPath?: string;
-  stylesheetPath?: string;
-  topologyMissing?: boolean;
-  stylesheetMissing?: boolean;
-}
-
-interface ExportViewportMessage {
-  type: 'exportViewport';
-  format?: 'png' | 'svg';
-  fileName?: string;
-  dataUrl?: string;
-}
-
-function isExportViewportMessage(message: { type?: string } | ExportViewportMessage): message is ExportViewportMessage {
-  return message.type === 'exportViewport';
+interface BundleUris {
+  mapper: vscode.Uri;
+  stylesheet: vscode.Uri;
+  topology: vscode.Uri;
 }
 
 function nonce() {
-  return crypto.randomBytes(16).toString('hex');
+  return crypto.randomBytes(16).toString('base64url');
 }
 
 function extensionAssetUris(context: vscode.ExtensionContext, webview: vscode.Webview) {
-  const assetsDir = vscode.Uri.joinPath(context.extensionUri, 'dist', 'webview', 'assets');
-  const diskAssetsDir = path.join(context.extensionPath, 'dist', 'webview', 'assets');
-  const assets = fs.existsSync(diskAssetsDir) ? fs.readdirSync(diskAssetsDir) : [];
+  const assetsDirectory = vscode.Uri.joinPath(context.extensionUri, 'dist', 'webview', 'assets');
+  const diskAssetsDirectory = path.join(context.extensionPath, 'dist', 'webview', 'assets');
+  const assets = fs.existsSync(diskAssetsDirectory) ? fs.readdirSync(diskAssetsDirectory) : [];
   const script = assets.find((asset) => asset === 'index.js') || assets.find((asset) => asset.endsWith('.js'));
   const styles = assets.filter((asset) => asset.endsWith('.css'));
-  if (!script) {
-    throw new Error('TopoViewer webview assets are missing. Run npm run build in packages/vscode-topoviewer.');
-  }
+  if (!script) throw new Error('TopoViewer Studio webview assets are missing. Build the extension before opening Studio.');
   return {
-    scriptUri: webview.asWebviewUri(vscode.Uri.joinPath(assetsDir, script)),
-    styleUris: styles.map((style) => webview.asWebviewUri(vscode.Uri.joinPath(assetsDir, style)))
+    script: webview.asWebviewUri(vscode.Uri.joinPath(assetsDirectory, script)),
+    styles: styles.map((style) => webview.asWebviewUri(vscode.Uri.joinPath(assetsDirectory, style)))
   };
-}
-
-async function readText(uri: vscode.Uri | undefined): Promise<{ text: string; missing: boolean }> {
-  if (!uri) return { text: '', missing: true };
-  try {
-    const data = await vscode.workspace.fs.readFile(uri);
-    return { text: Buffer.from(data).toString('utf8'), missing: false };
-  } catch {
-    return { text: '', missing: true };
-  }
 }
 
 function sibling(uri: vscode.Uri, fileName: string) {
   return vscode.Uri.joinPath(uri.with({ path: path.posix.dirname(uri.path) }), fileName);
 }
 
-function defaultMapperText(sourceId = 'topoviewer') {
-  return [
-    'version: 1',
-    'identity:',
-    `  sourceId: ${sourceId}`,
-    '  sourceIdLabel: source_id',
-    'rules: []',
-    ''
-  ].join('\n');
-}
-
-function pairedUris(activeUri: vscode.Uri): { topologyUri: vscode.Uri; stylesheetUri: vscode.Uri; mapperUri: vscode.Uri } {
-  const config = vscode.workspace.getConfiguration('topoviewer.preview', activeUri);
-  const defaultTopology = config.get<string>('defaultTopology', 'topology.yaml');
-  const defaultStylesheet = config.get<string>('defaultStylesheet', 'stylesheet.yaml');
-  const defaultMapper = config.get<string>('defaultMapper', 'mapper.tv.yaml');
-  const base = path.posix.basename(activeUri.path).toLowerCase();
-  if (base.includes('mapper')) {
-    return {
-      topologyUri: sibling(activeUri, defaultTopology),
-      stylesheetUri: sibling(activeUri, defaultStylesheet),
-      mapperUri: activeUri
-    };
+function pairedUris(active: vscode.Uri): BundleUris {
+  const configuration = vscode.workspace.getConfiguration('topoviewer.preview', active);
+  const topologyName = configuration.get<string>('defaultTopology', 'topology.yaml');
+  const stylesheetName = configuration.get<string>('defaultStylesheet', 'stylesheet.yaml');
+  const mapperName = configuration.get<string>('defaultMapper', 'mapper.tv.yaml');
+  const baseName = path.posix.basename(active.path).toLowerCase();
+  if (baseName.includes('mapper')) {
+    return { mapper: active, stylesheet: sibling(active, stylesheetName), topology: sibling(active, topologyName) };
   }
-  if (base.includes('stylesheet') || base.includes('style')) {
-    return { topologyUri: sibling(activeUri, defaultTopology), stylesheetUri: activeUri, mapperUri: sibling(activeUri, defaultMapper) };
+  if (baseName.includes('stylesheet') || baseName.includes('style')) {
+    return { mapper: sibling(active, mapperName), stylesheet: active, topology: sibling(active, topologyName) };
   }
-  return { topologyUri: activeUri, stylesheetUri: sibling(activeUri, defaultStylesheet), mapperUri: sibling(activeUri, defaultMapper) };
+  return { mapper: sibling(active, mapperName), stylesheet: sibling(active, stylesheetName), topology: active };
 }
 
-async function previewState(topologyUri: vscode.Uri, stylesheetUri: vscode.Uri, mapperUri: vscode.Uri): Promise<PreviewState> {
-  const [topology, stylesheet, mapper] = await Promise.all([
-    readText(topologyUri),
-    readText(stylesheetUri),
-    readText(mapperUri)
-  ]);
-  return {
-    mapperPath: mapperUri.fsPath,
-    topologyPath: topologyUri.fsPath,
-    stylesheetPath: stylesheetUri.fsPath,
-    mapperText: mapper.missing ? defaultMapperText(path.posix.basename(path.posix.dirname(topologyUri.path)) || 'topoviewer') : mapper.text,
-    topologyText: topology.text,
-    stylesheetText: stylesheet.text,
-    mapperMissing: mapper.missing,
-    topologyMissing: topology.missing,
-    stylesheetMissing: stylesheet.missing
-  };
+function assertTrustedBundleRoot(active: vscode.Uri, root: vscode.Uri) {
+  const folder = vscode.workspace.getWorkspaceFolder(active);
+  if (!folder) return;
+  if (folder.uri.toString(true) === root.toString(true)) return;
+  relativeBundlePath(folder.uri, root);
 }
 
-class TopoViewerPreviewPanel {
-  private disposables: vscode.Disposable[] = [];
+class TopoViewerStudioPanel {
+  private readonly disposables: vscode.Disposable[] = [];
+  private readonly host: WorkspaceStudioHost;
+  private readonly unwatch: () => void;
 
   constructor(
-    private readonly context: vscode.ExtensionContext,
+    context: vscode.ExtensionContext,
     private readonly panel: vscode.WebviewPanel,
-    private readonly topologyUri: vscode.Uri,
-    private readonly stylesheetUri: vscode.Uri,
-    private readonly mapperUri: vscode.Uri
+    output: vscode.OutputChannel,
+    uris: BundleUris
   ) {
+    const root = bundleRoot(uris.topology);
+    assertTrustedBundleRoot(uris.topology, root);
+    const port = new VsCodeWorkspacePort({ context, output, root });
+    this.host = new WorkspaceStudioHost({
+      mapperPath: relativeBundlePath(root, uris.mapper),
+      port,
+      stylesheetPath: relativeBundlePath(root, uris.stylesheet),
+      topologyPath: relativeBundlePath(root, uris.topology)
+    });
     this.panel.webview.options = {
       enableScripts: true,
       localResourceRoots: [vscode.Uri.joinPath(context.extensionUri, 'dist', 'webview')]
     };
-    this.panel.webview.html = this.html();
-    this.panel.webview.onDidReceiveMessage((message) => this.handleMessage(message), undefined, this.disposables);
-    vscode.workspace.onDidSaveTextDocument((document) => {
-      if (
-        document.uri.toString() === this.topologyUri.toString()
-        || document.uri.toString() === this.stylesheetUri.toString()
-        || document.uri.toString() === this.mapperUri.toString()
-      ) {
-        this.postState();
-      }
-    }, undefined, this.disposables);
+    this.panel.webview.html = this.html(context);
+    this.panel.webview.onDidReceiveMessage((message) => void this.handleMessage(message), undefined, this.disposables);
+    this.unwatch = this.host.watchProject?.((event) => {
+      const message: StudioHostWatchMessage = { event, type: 'studio:host-watch' };
+      void this.panel.webview.postMessage(message);
+    }) || (() => {});
     this.panel.onDidDispose(() => this.dispose(), undefined, this.disposables);
   }
 
-  private html() {
+  private html(context: vscode.ExtensionContext) {
     const token = nonce();
-    const { scriptUri, styleUris } = extensionAssetUris(this.context, this.panel.webview);
-    const styles = styleUris.map((uri) => `<link rel="stylesheet" href="${uri}">`).join('\n');
+    const assets = extensionAssetUris(context, this.panel.webview);
+    const styles = assets.styles.map((uri) => `<link rel="stylesheet" href="${uri}">`).join('\n');
+    const contentSecurityPolicy = studioWebviewContentSecurityPolicy(this.panel.webview.cspSource, token);
     return `<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src ${this.panel.webview.cspSource} data: blob:; font-src ${this.panel.webview.cspSource} data:; style-src ${this.panel.webview.cspSource} 'unsafe-inline'; script-src 'nonce-${token}' ${this.panel.webview.cspSource}; worker-src ${this.panel.webview.cspSource} blob:; child-src ${this.panel.webview.cspSource} blob:;">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta http-equiv="Content-Security-Policy" content="${contentSecurityPolicy}">
     ${styles}
-    <title>TopoViewer Preview</title>
+    <title>TopoViewer Studio</title>
   </head>
   <body>
     <div id="root"></div>
-    <script type="module" nonce="${token}" src="${scriptUri}"></script>
+    <script type="module" nonce="${token}" src="${assets.script}"></script>
   </body>
 </html>`;
   }
 
-  private async handleMessage(message: { type?: string; target?: string } | ExportViewportMessage) {
-    if (message.type === 'ready' || message.type === 'requestState') {
-      await this.postState();
-    }
-    if (message.type === 'openDocs') {
-      const target = (message.target || 'docs/zensical/').replace(/^\/+/, '');
-      await vscode.env.openExternal(vscode.Uri.parse(`https://asadarafat.github.io/topoviewer/${target}`));
-    }
-    if (isExportViewportMessage(message)) {
-      await this.saveExport(message);
-    }
-  }
-
-  private async saveExport(message: ExportViewportMessage) {
-    const format = message.format || 'png';
-    const dataUrl = message.dataUrl || '';
-    const payload = dataUrl.match(/^data:[^;]+;base64,(.+)$/)?.[1];
-    if (!payload) {
-      void vscode.window.showErrorMessage('TopoViewer export did not include a valid image payload.');
+  private async handleMessage(message: unknown) {
+    const request = parseStudioHostRequest(message);
+    if (request) {
+      const response: StudioHostResponseMessage = {
+        id: request.id,
+        result: await dispatchStudioHostRequest(this.host, request),
+        type: 'studio:host-response'
+      };
+      await this.panel.webview.postMessage(response);
       return;
     }
-
-    const target = await vscode.window.showSaveDialog({
-      defaultUri: vscode.Uri.file(path.join(
-        vscode.workspace.workspaceFolders?.[0]?.uri.fsPath || this.context.extensionPath,
-        message.fileName || `topoviewer.${format}`
-      )),
-      filters: format === 'svg' ? { SVG: ['svg'] } : { PNG: ['png'] },
-      saveLabel: 'Export TopoViewer viewport'
-    });
-    if (!target) return;
-
-    await vscode.workspace.fs.writeFile(target, Buffer.from(payload, 'base64'));
-    const open = 'Open';
-    const result = await vscode.window.showInformationMessage(`Exported ${path.basename(target.fsPath)}.`, open);
-    if (result === open) {
-      await vscode.env.openExternal(target);
+    const report = parseStudioHostReport(message);
+    if (report) {
+      this.host.report(report.event);
+      return;
     }
-  }
-
-  private async postState() {
-    await this.panel.webview.postMessage({
-      type: 'state',
-      state: await previewState(this.topologyUri, this.stylesheetUri, this.mapperUri)
-    });
+    const candidate = message as { id?: unknown; type?: unknown } | undefined;
+    if (candidate?.type === 'studio:host-request' && typeof candidate.id === 'string') {
+      const response: StudioHostResponseMessage = {
+        id: candidate.id.slice(0, 128),
+        result: {
+          error: { code: 'invalid-request', message: 'The VS Code host rejected an invalid Studio message.', retryable: false },
+          ok: false
+        },
+        type: 'studio:host-response'
+      };
+      await this.panel.webview.postMessage(response);
+    }
   }
 
   dispose() {
-    this.disposables.forEach((disposable) => disposable.dispose());
-    this.disposables = [];
+    this.unwatch();
+    this.disposables.splice(0).forEach((disposable) => disposable.dispose());
   }
 }
 
-async function openPreview(context: vscode.ExtensionContext, viewColumn: vscode.ViewColumn) {
+async function openStudio(context: vscode.ExtensionContext, output: vscode.OutputChannel, viewColumn: vscode.ViewColumn) {
   const active = vscode.window.activeTextEditor?.document.uri;
   if (!active) {
-    void vscode.window.showWarningMessage('Open a TopoViewer topology.yaml or stylesheet.yaml file first.');
+    void vscode.window.showWarningMessage('Open a TopoViewer topology, stylesheet, or mapper YAML file first.');
     return;
   }
-  const { topologyUri, stylesheetUri, mapperUri } = pairedUris(active);
+  let uris: BundleUris;
+  try {
+    uris = pairedUris(active);
+    assertTrustedBundleRoot(active, bundleRoot(uris.topology));
+  } catch (error) {
+    void vscode.window.showErrorMessage(error instanceof Error ? error.message : String(error));
+    return;
+  }
   const panel = vscode.window.createWebviewPanel(
-    'topoviewer.preview',
-    'TopoViewer Preview',
+    'topoviewer.studio',
+    'TopoViewer Studio',
     viewColumn,
     { enableScripts: true, retainContextWhenHidden: true }
   );
-  new TopoViewerPreviewPanel(context, panel, topologyUri, stylesheetUri, mapperUri);
+  try {
+    new TopoViewerStudioPanel(context, panel, output, uris);
+  } catch (error) {
+    panel.dispose();
+    void vscode.window.showErrorMessage(error instanceof Error ? error.message : String(error));
+  }
 }
 
 export function activate(context: vscode.ExtensionContext) {
+  const output = vscode.window.createOutputChannel('TopoViewer Studio', { log: true });
   context.subscriptions.push(
-    vscode.commands.registerCommand('topoviewer.openPreview', () => openPreview(context, vscode.ViewColumn.Active)),
-    vscode.commands.registerCommand('topoviewer.openPreviewToSide', () => openPreview(context, vscode.ViewColumn.Beside))
+    output,
+    vscode.commands.registerCommand('topoviewer.openPreview', () => openStudio(context, output, vscode.ViewColumn.Active)),
+    vscode.commands.registerCommand('topoviewer.openPreviewToSide', () => openStudio(context, output, vscode.ViewColumn.Beside))
   );
 }
 

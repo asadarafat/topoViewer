@@ -20,7 +20,7 @@ import {
   type AuthoringObjectSelection,
   type StyleFieldProvenance
 } from 'topoviewer/authoring';
-import type { GraphEntity, StyleTargetKind } from 'topoviewer';
+import type { StyleTargetKind } from 'topoviewer';
 import type { StudioAuthoringProfileOverride, StudioFieldPreference } from '../../contracts/profiles';
 import type { StudioDocumentKind, StudioSessionSnapshot } from '../../contracts/project';
 import type {
@@ -418,7 +418,7 @@ export function Inspector({
   const assetOptions = Object.keys(snapshot.projection.document.icons || {}).sort();
   const allFields = target ? styleAuthoringMetadataByTarget[target] : [];
   const provenance = target && object
-    ? resolveStyleProvenance(target, object as GraphEntity, snapshot.projection.document, {
+    ? resolveStyleProvenance(target, object as Parameters<typeof resolveStyleProvenance>[1], snapshot.projection.document, {
         inlineSourcePath: objectPath
       })
     : [];

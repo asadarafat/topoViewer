@@ -1,18 +1,15 @@
-import React from 'react';
+import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { ThemeProvider } from '@mui/material/styles';
-import CssBaseline from '@mui/material/CssBaseline';
-import { WebviewApp } from './WebviewApp';
-import { VsCodeHostAdapter } from './host';
-import { createTopoViewerTheme } from './theme';
+import { StudioApp, StudioErrorBoundary } from 'topoviewer-studio/app';
+import 'topoviewer/style.css';
+import { VsCodeStudioHost } from './studioVsCodeHost';
 
-const theme = createTopoViewerTheme({ mode: 'light' });
+const host = new VsCodeStudioHost();
 
 createRoot(document.getElementById('root') as HTMLElement).render(
-  <React.StrictMode>
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <WebviewApp host={new VsCodeHostAdapter()} />
-    </ThemeProvider>
-  </React.StrictMode>
+  <StrictMode>
+    <StudioErrorBoundary>
+      <StudioApp host={host} />
+    </StudioErrorBoundary>
+  </StrictMode>
 );

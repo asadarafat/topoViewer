@@ -74,6 +74,7 @@ import {
 import { createStudioDocumentSession, type StudioNormalizationReview } from '../session';
 import {
   createRecoveredStudioSession,
+  createExternalChangeActions,
   insertionPlan,
   mutationForAuthoringUpdate,
   positionOf,
@@ -906,6 +907,8 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
     refresh();
   }
 
+  const externalChangeActions = createExternalChangeActions(session, setCommandError, setAnnouncement, refresh);
+
   function undo() {
     const result = dispatcher.undo();
     if (result) setAnnouncement(`Undid ${result.summary}`);
@@ -952,6 +955,7 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
     enableMapper,
     exportMapper,
     isConnectionValid,
+    ...externalChangeActions,
     mapperProposal,
     mapperSamples,
     moveObject,

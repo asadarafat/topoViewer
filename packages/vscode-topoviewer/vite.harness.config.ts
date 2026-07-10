@@ -254,6 +254,9 @@ export default defineConfig(({ command }) => ({
   base: command === 'build' ? harnessBase : '/',
   root: packageRoot,
   plugins: [fixtureApi(), react()],
+  optimizeDeps: {
+    entries: [path.join(packageRoot, 'index.html')]
+  },
   resolve: {
     alias: [
       { find: /^topoviewer\/authoring$/, replacement: path.join(repoRoot, 'packages/topoviewer/src/authoring.ts') },

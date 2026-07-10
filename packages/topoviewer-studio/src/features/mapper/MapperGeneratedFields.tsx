@@ -137,7 +137,11 @@ export function MapperGeneratedFields({ mapper, onCommit, onOpenSource, onUnset,
       `${field.path} ${field.label} ${field.description} ${field.group}`.toLowerCase().includes(normalized)
     ));
   }, [query, rule, view]);
-  const groups = useMemo(() => Map.groupBy(fields, (field) => field.group), [fields]);
+  const groups = useMemo(() => {
+    const grouped = new Map<string, typeof fields>();
+    fields.forEach((field) => grouped.set(field.group, [...(grouped.get(field.group) || []), field]));
+    return grouped;
+  }, [fields]);
   const unknownPaths = useMemo(() => unknownMapperSourcePaths(mapper), [mapper]);
 
   return (

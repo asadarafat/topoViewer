@@ -2200,6 +2200,133 @@ button {
   cursor: pointer;
 }
 
+.studio-external-change-backdrop {
+  position: fixed;
+  z-index: 1200;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgb(15 23 42 / 56%);
+}
+
+.studio-external-change-dialog {
+  display: grid;
+  gap: 14px;
+  width: min(900px, 100%);
+  max-height: min(760px, calc(100vh - 48px));
+  padding: 20px;
+  overflow: auto;
+  border: 1px solid #c8d3de;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 24px 72px rgb(15 23 42 / 30%);
+  color: #172b3d;
+}
+
+.studio-external-change-dialog h2,
+.studio-external-change-dialog p {
+  margin: 0;
+}
+
+.studio-external-change-dialog header span {
+  color: #b45309;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.studio-external-change-dialog footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.studio-external-change-dialog button {
+  min-height: 34px;
+  padding: 0 12px;
+  border: 1px solid #aebdca;
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.studio-external-change-dialog button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.studio-external-change-dialog .studio-primary-action {
+  border-color: #1565c0;
+  background: #1565c0;
+  color: #fff;
+}
+
+.studio-external-change-error {
+  padding: 8px 10px;
+  border-left: 3px solid #d32f2f;
+  background: #ffebee;
+  color: #8e1515;
+}
+
+.studio-external-differences {
+  display: grid;
+  gap: 8px;
+  min-height: 0;
+}
+
+.studio-external-differences details {
+  border: 1px solid #d6dee6;
+  border-radius: 4px;
+}
+
+.studio-external-differences summary {
+  padding: 9px 10px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.studio-external-differences details > div {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border-top: 1px solid #d6dee6;
+}
+
+.studio-external-differences section {
+  min-width: 0;
+  padding: 10px;
+}
+
+.studio-external-differences section + section {
+  border-left: 1px solid #d6dee6;
+}
+
+.studio-external-differences pre {
+  max-height: 260px;
+  margin: 8px 0 0;
+  padding: 8px;
+  overflow: auto;
+  background: #f8fafc;
+  white-space: pre;
+  font: 11px/1.45 ui-monospace, SFMono-Regular, Consolas, monospace;
+}
+
+@media (max-width: 700px) {
+  .studio-external-differences details > div {
+    grid-template-columns: 1fr;
+  }
+
+  .studio-external-differences section + section {
+    border-top: 1px solid #d6dee6;
+    border-left: 0;
+  }
+
+  .studio-external-change-dialog footer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}
+
 .studio-history-panel li {
   display: grid;
   grid-template-columns: minmax(180px, 1fr) minmax(120px, 240px) 64px;

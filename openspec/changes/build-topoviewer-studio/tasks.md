@@ -355,21 +355,21 @@ promotes a reviewed asset into documentation.
 
 ## 14. VS Code Host And Shared Host Conformance
 
-- [ ] 14.1 Write a host conformance suite covering load, save, preferences, assets,
+- [x] 14.1 Write a host conformance suite covering load, save, preferences, assets,
   export, typed failures, revisions, watch events, and conflict decisions
-- [ ] 14.2 Implement the VS Code host adapter for workspace reads/writes, atomic
+- [x] 14.2 Implement the VS Code host adapter for workspace reads/writes, atomic
   saves, URI translation, assets, exports, preferences, and reporting
-- [ ] 14.3 Implement nonce-based CSP, typed webview message validation, trusted
+- [x] 14.3 Implement nonce-based CSP, typed webview message validation, trusted
   roots, workspace trust, file count/size limits, and no implicit remote content
-- [ ] 14.4 Implement external-change handling: clean refresh and dirty-session
+- [x] 14.4 Implement external-change handling: clean refresh and dirty-session
   inspect-diff, keep-draft, or reload-disk decisions
-- [ ] 14.5 Mount the same Studio application in the extension and delete migrated
+- [x] 14.5 Mount the same Studio application in the extension and delete migrated
   UI/session implementations instead of retaining parallel copies
-- [ ] 14.6 Run the golden browser authoring journey against the VS Code test host
+- [x] 14.6 Run the golden browser authoring journey against the VS Code test host
   and real extension harness
-- [ ] 14.7 Verify extension activation, webview bundle size, startup, file watch,
+- [x] 14.7 Verify extension activation, webview bundle size, startup, file watch,
   save conflict, reload recovery, and workspace trust budgets
-- [ ] 14.8 **Exit gate:** browser and VS Code pass the shared host contract and
+- [x] 14.8 **Exit gate:** browser and VS Code pass the shared host contract and
   golden journey with no Studio deep import of VS Code internals
 
 ## 15. Security Hardening

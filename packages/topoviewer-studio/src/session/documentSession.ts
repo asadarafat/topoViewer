@@ -346,6 +346,13 @@ export function createStudioDocumentSession(initialProject: StudioProject): Stud
         status: 'saved'
       });
     },
+    rebaseRevision(revision) {
+      current = immutableSnapshot({
+        ...current,
+        project: { ...current.project, revision },
+        status: Object.keys(current.invalidDrafts).length > 0 ? 'invalid-draft' : 'modified'
+      });
+    },
     replaceDraft(kind, text) {
       return applyText(kind, text);
     },

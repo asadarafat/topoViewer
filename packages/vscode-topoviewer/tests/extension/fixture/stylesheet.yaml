@@ -1,0 +1,10 @@
+layout:
+  mode: manual
+  width: 800
+  height: 480
+stylesheet:
+  - selector: node
+    style:
+      shape: rectangle
+      width: 96
+      height: 60

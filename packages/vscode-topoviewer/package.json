@@ -4,7 +4,7 @@
   "version": "0.2.0",
   "private": true,
   "license": "Apache-2.0",
-  "description": "VS Code authoring preview extension for TopoViewer topology YAML.",
+  "description": "VS Code workspace host for TopoViewer Studio.",
   "publisher": "asadarafat",
   "type": "module",
   "main": "./dist/extension.cjs",
@@ -24,11 +24,11 @@
     "commands": [
       {
         "command": "topoviewer.openPreview",
-        "title": "TopoViewer: Open Preview"
+        "title": "TopoViewer: Open Studio"
       },
       {
         "command": "topoviewer.openPreviewToSide",
-        "title": "TopoViewer: Open Preview to Side"
+        "title": "TopoViewer: Open Studio to Side"
       }
     ],
     "menus": {
@@ -78,10 +78,15 @@
     "build": "node ../../scripts/require-node24.mjs && npm --workspace topoviewer run build:lib && npm run build:webview && npm run build:extension && npm run typecheck",
     "build:webview": "vite build --config vite.webview.config.ts",
     "build:extension": "node scripts/build-extension.mjs",
+    "check:studio-webview": "node scripts/check-studio-webview-budget.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "vscode:harness": "node ../../scripts/require-node24.mjs && node ../../scripts/check-port-free.mjs \"Browser harness\" 127.0.0.1 5174 && npm --workspace topoviewer run build:lib && vite --host 127.0.0.1 --port 5174 --strictPort --config vite.harness.config.ts",
     "vscode:harness:build": "node ../../scripts/require-node24.mjs && npm --workspace topoviewer run build:lib && vite build --config vite.harness.config.ts",
+    "vscode:studio-host": "node ../../scripts/require-node24.mjs && npm --workspace topoviewer run build:lib && vite --host 127.0.0.1 --port 5176 --strictPort --config vite.studio-host.config.ts",
     "test:unit": "vitest run --config vitest.config.ts tests/unit",
+    "test:extension": "npm run build && xvfb-run -a node scripts/run-extension-tests.mjs",
+    "test:studio-host": "node ../../scripts/require-node24.mjs && playwright test --config playwright.studio-host.config.ts",
+    "test:studio-host:gate": "npm run build && npm run check:studio-webview && npm run test:unit && npm run test:studio-host && npm run test:extension",
     "test:vscode-harness": "node ../../scripts/require-node24.mjs && npm --workspace topoviewer run build:lib && playwright test --config playwright.config.js"
   },
   "dependencies": {
@@ -95,7 +100,8 @@
     "monaco-editor": "^0.53.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "topoviewer": "0.2.0"
+    "topoviewer": "0.2.0",
+    "topoviewer-studio": "0.2.0"
   },
   "devDependencies": {
     "@playwright/test": "^1.60.0",
@@ -105,6 +111,7 @@
     "@types/react-dom": "^18.3.1",
     "@types/vscode": "^1.95.0",
     "@vitejs/plugin-react": "^6.0.2",
+    "@vscode/test-electron": "^3.0.0",
     "esbuild": "^0.28.1",
     "typescript": "^5.9.3",
     "vite": "^8.0.16"

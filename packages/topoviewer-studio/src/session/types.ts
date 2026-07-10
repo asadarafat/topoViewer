@@ -56,6 +56,7 @@ export interface StudioDocumentSession {
   discardInvalidDraft(document: StudioDocumentKind): void;
   insertValue(document: StudioDocumentKind, path: StudioYamlPath, value: unknown): StudioSessionUpdateResult;
   markSaved(revision: string, savedAt: string): void;
+  rebaseRevision(revision: string): void;
   removeValue(
     document: StudioDocumentKind,
     path: StudioYamlPath,

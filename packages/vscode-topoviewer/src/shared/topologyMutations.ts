@@ -554,7 +554,10 @@ export function objectDisplayName(document: Record<string, any> | TopoDocument |
 }
 
 export function resolveSelectionFromObject(document: TopoDocument | undefined, sourceId: string): TopoObjectSelection | undefined {
-  return resolveAuthoringSelection(document, sourceId);
+  const selection = resolveAuthoringSelection(document, sourceId);
+  return !selection || selection.kind === 'layer'
+    ? undefined
+    : { id: selection.id, kind: selection.kind };
 }
 
 export function selectionKey(selection: TopoObjectSelection): string {

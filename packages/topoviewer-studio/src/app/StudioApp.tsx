@@ -5,7 +5,7 @@ import type { StudioProject, StudioRecoverySnapshot } from '../contracts/project
 import { StudioWorkspace } from './StudioWorkspace';
 import './studio.css';
 
-interface StudioAppProps {
+export interface StudioAppProps {
   forceEditorFailure?: boolean;
   host: StudioHost;
 }
@@ -101,27 +101,26 @@ export function StudioApp({ forceEditorFailure, host }: StudioAppProps) {
       projectLifecycle={{
         activeProjectId: project.id,
         error: actionError,
+        mode: host.kind === 'vscode' ? 'workspace' : 'browser',
         projects,
-        create: async () => {
+        ...(host.kind === 'browser' ? { create: async () => {
           const created = await host.createProject({});
           if (!created.ok) setActionError(created.error.message);
           else applyLoad(created.value);
           await refreshProjects();
-        },
-        delete: async () => {
+        }, delete: async () => {
           const deleted = await host.deleteProject({ id: project.id });
           if (!deleted.ok) {
             setActionError(deleted.error.message);
             return;
           }
           await load();
-        },
-        duplicate: async () => {
+        }, duplicate: async () => {
           const duplicated = await host.duplicateProject({ id: project.id });
           if (!duplicated.ok) setActionError(duplicated.error.message);
           else applyLoad(duplicated.value);
           await refreshProjects();
-        },
+        } } : {}),
         exportArchive: async (currentProject) => {
           const assets = await host.readProjectAssets({ id: currentProject.id });
           if (!assets.ok) {
@@ -145,13 +144,12 @@ export function StudioApp({ forceEditorFailure, host }: StudioAppProps) {
             setActionError(archiveError instanceof Error ? archiveError.message : String(archiveError));
           }
         },
-        open: async (id) => {
+        ...(host.kind === 'browser' ? { open: async (id: string) => {
           const opened = await host.loadProject({ id });
           if (!opened.ok) setActionError(opened.error.message);
           else applyLoad(opened.value);
           await refreshProjects();
-        },
-        openArchive: async () => {
+        }, openArchive: async () => {
           if (!host.chooseAssets) {
             setActionError('This host does not provide a local archive picker.');
             return;
@@ -175,7 +173,7 @@ export function StudioApp({ forceEditorFailure, host }: StudioAppProps) {
           } catch (archiveError) {
             setActionError(archiveError instanceof Error ? archiveError.message : String(archiveError));
           }
-        },
+        } } : {}),
         ...(host.capabilities.directoryProjects && host.openProjectFolder ? {
           openFolder: async () => {
             const opened = await host.openProjectFolder!();
@@ -187,12 +185,12 @@ export function StudioApp({ forceEditorFailure, host }: StudioAppProps) {
             await refreshProjects();
           }
         } : {}),
-        rename: async (name) => {
+        ...(host.kind === 'browser' ? { rename: async (name: string) => {
           const renamed = await host.renameProject({ id: project.id, name });
           if (!renamed.ok) setActionError(renamed.error.message);
           else applyLoad(renamed.value);
           await refreshProjects();
-        },
+        } } : {}),
         ...(host.resetStorage ? { resetStorage } : {})
       }}
       recovery={recovery}
