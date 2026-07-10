@@ -14,7 +14,7 @@ export function RegionNode({ data }: { data: CompiledNodeData }) {
 
   return (
     <div
-      className="topoviewer-region topoviewer-region-drag"
+      className={`topoviewer-region topoviewer-region-drag${data.topoviewerPreview === true ? ' topoviewer-region-preview' : ''}`}
       style={{
         '--topoviewer-region-fill': data.fill,
         '--topoviewer-region-stroke': data.stroke,
