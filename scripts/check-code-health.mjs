@@ -17,6 +17,8 @@ const codeRoots = [
   'packages/topoviewer/src',
   'packages/topoviewer/scripts',
   'packages/topoviewer/tests',
+  'packages/topoviewer-studio/src',
+  'packages/topoviewer-studio/tests',
   'packages/grafana-topoviewer-panel/src',
   'packages/grafana-topoviewer-panel/scripts',
   'packages/grafana-topoviewer-panel/tests',

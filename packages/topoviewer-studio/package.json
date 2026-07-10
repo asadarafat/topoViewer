@@ -1,0 +1,64 @@
+{
+  "name": "topoviewer-studio",
+  "version": "0.2.0",
+  "private": true,
+  "license": "Apache-2.0",
+  "description": "Private authoring application for portable TopoViewer bundles.",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./host": {
+      "types": "./dist/contracts/host.d.ts",
+      "import": "./dist/contracts/host.js"
+    }
+  },
+  "files": [
+    "dist",
+    "ARCHITECTURE.md",
+    "package.json"
+  ],
+  "scripts": {
+    "clean": "rm -rf dist coverage",
+    "build": "vite build",
+    "build:contracts": "tsc -p tsconfig.build.json",
+    "benchmark:session": "vitest run tests/performance/document-session-performance.test.ts",
+    "benchmark:commands": "vitest run tests/performance/command-performance.test.ts",
+    "dev": "vite --host 127.0.0.1 --port 5175 --strictPort",
+    "test:browser": "playwright test --config playwright.config.ts",
+    "test:accessibility": "playwright test --config playwright.config.ts tests/browser/studio-accessibility.spec.ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run tests/unit"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@monaco-editor/react": "^4.7.0",
+    "@mui/icons-material": "^9.1.1",
+    "@mui/material": "^9.1.1",
+    "@xyflow/react": "^12.10.2",
+    "fflate": "^0.8.3",
+    "monaco-editor": "^0.53.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "topoviewer": "0.2.0",
+    "yaml": "^2.9.0"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.12.1",
+    "@playwright/test": "^1.60.0",
+    "@types/node": "^22.10.2",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^6.0.2",
+    "fake-indexeddb": "^6.2.5",
+    "typescript": "^5.9.3",
+    "vite": "^8.0.16",
+    "vitest": "^4.1.9"
+  },
+  "engines": {
+    "node": ">=24 <25"
+  }
+}

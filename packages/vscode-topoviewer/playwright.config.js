@@ -1,5 +1,6 @@
 export default {
   testDir: './tests',
+  tsconfig: './tsconfig.playwright.json',
   testIgnore: ['**/unit/**'],
   timeout: 30000,
   reporter: [['list']],
