@@ -484,7 +484,7 @@ promotes a reviewed asset into documentation.
   counting them as independent adoption cohorts
 - [x] 19.1.5 Remediate findings #93-#95 at the shared Inspector, starter-template,
   and core authoring boundaries with focused regression evidence
-- [ ] 19.1.6 Re-run Studio quality, browser, accessibility, API, integration,
+- [x] 19.1.6 Re-run Studio quality, browser, accessibility, API, integration,
   bundle-budget, docs, and strict OpenSpec gates after the remediation
 - [ ] 19.2 Run a structured adoption preview with new and experienced TopoViewer
   users using the primary journey; record independently attributable failures,
