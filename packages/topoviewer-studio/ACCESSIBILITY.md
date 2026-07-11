@@ -40,7 +40,7 @@ text inputs, editable content, dialogs, menus, or Monaco.
 | Context actions | Press `Shift+F10` or the Context Menu key. Use arrow keys, `Home`, and `End` within the menu; press `Escape` to close it. |
 | Clipboard | Use `Control/Command+C`, `X`, or `V`; use `Control/Command+D` to duplicate. |
 | Delete | Press `Delete` or `Backspace` while canvas focus is active. |
-| Inspector and mapper | Tab through generated controls. `Enter` commits text fields and `Escape` restores their previous value. Mapper metrics are buttons as well as drag sources. |
+| Inspector and mapper | Tab through generated controls. `Enter` commits text fields and `Escape` restores their previous value. Field action menus use arrow keys and return focus to their trigger on `Escape`. Mapper metrics are buttons as well as drag sources. |
 | Layers | Open viewport settings, then use named checkboxes and buttons for visibility, membership, ordering, creation, and deletion. |
 | Drawer resize | Focus the drawer separator and press `ArrowUp` or `ArrowDown`. |
 | Tabs | Use left/right arrows or `Home`/`End`; only the active tab is in the Tab sequence. |

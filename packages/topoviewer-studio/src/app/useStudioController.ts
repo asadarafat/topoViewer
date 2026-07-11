@@ -9,7 +9,6 @@ import {
   createAuthoringLayer,
   createAuthoringCallout,
   createAuthoringLink,
-  createAuthoringNode,
   createAuthoringPath,
   createAuthoringRegion,
   createAuthoringShape,
@@ -39,7 +38,6 @@ import {
   type AuthoringClipboardItem,
   type AuthoringDistributionAxis,
   type AuthoringEditPlan,
-  type AuthoringNodeKind,
   type AuthoringObjectSelection,
   type CreateAuthoringPathOptions,
   type CreateBasicMapperRuleOptions,
@@ -73,7 +71,7 @@ import {
   createRecoveredStudioSession,
   createExternalChangeActions,
   insertionPlan,
-  mutationForAuthoringUpdate,
+  mutationsForAuthoringEditPlan,
   positionOf,
   type RegionAggregateToggle,
   sameSelection,
@@ -85,6 +83,7 @@ import {
   planStudioObjectMove,
   planStudioSelectionResize
 } from './controllerAuthoring';
+import { createStudioPaletteNodePlan } from './controllerTemplates';
 
 export function useStudioController({ host, onReload, project, recovery }: UseStudioControllerOptions) {
   const session = useMemo(() => {
@@ -140,19 +139,16 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
     }
   }
 
-  function executeEditPlan(id: string, label: string, plan: AuthoringEditPlan, selection?: StudioSelection[]) {
-    const mutations: StudioSourceMutation[] = [
-      ...plan.updates.map((update) => mutationForAuthoringUpdate(
-        update,
-        Boolean(session.sourceRange('topology', update.path))
-      )),
-      ...plan.removals.map((removal): StudioSourceMutation => ({
-        document: 'topology', kind: 'remove-value', path: removal.path, scopePath: removal.scopePath
-      })),
-      ...plan.insertions.map((insertion): StudioSourceMutation => ({
-        document: 'topology', kind: 'insert-value', path: insertion.path, value: insertion.value
-      }))
-    ];
+  function executeEditPlan(
+    id: string,
+    label: string,
+    plan: AuthoringEditPlan,
+    selection?: StudioSelection[],
+    additionalMutations: StudioSourceMutation[] = []
+  ) {
+    const mutations = mutationsForAuthoringEditPlan(
+      plan, (path) => Boolean(session.sourceRange('topology', path)), additionalMutations
+    );
     return execute({
       id,
       label,
@@ -216,14 +212,12 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
         ['diagram', 'callouts'], { id: value.id, kind: 'callout' }, value as unknown as Record<string, unknown>
       ));
     }
-    const kind = templateId as AuthoringNodeKind;
-    const value = createAuthoringNode(topology, { kind, position: target, selectedLayerIds: ['physical'] });
-    if (templateId === 'router') {
-      value.icon = 'router.generic';
-    }
+    const { additionalMutations, value } = createStudioPaletteNodePlan(
+      topology, session.sourceValue('stylesheet'), templateId, target
+    );
     return executeEditPlan(`create-${value.id}`, `Create ${value.name}`, insertionPlan(
       ['graph', 'nodes'], { id: value.id, kind: 'node' }, value as unknown as Record<string, unknown>
-    ));
+    ), undefined, additionalMutations);
   }
 
   function createLayer(name = 'New Layer') {

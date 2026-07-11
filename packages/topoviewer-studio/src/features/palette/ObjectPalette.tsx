@@ -1,17 +1,20 @@
 import { useMemo, useState } from 'react';
 import SearchIcon from '@mui/icons-material/Search';
+import { studioVisualNodeTemplateDataUri } from '../../templates/starterNodeTemplates';
 import type { StudioPaletteTemplateId, StudioUserPreset } from './types';
 
 interface PaletteTemplate {
   category: 'Nodes' | 'Paths' | 'Regions' | 'Shapes' | 'Callouts' | 'Presets';
   glyph: string;
   id: StudioPaletteTemplateId;
+  iconDataUri?: string;
   label: string;
 }
 
 const builtInTemplates: PaletteTemplate[] = [
   { category: 'Nodes', glyph: 'N', id: 'node', label: 'Basic node' },
-  { category: 'Nodes', glyph: 'R', id: 'router', label: 'Router' },
+  { category: 'Nodes', glyph: 'R', iconDataUri: studioVisualNodeTemplateDataUri('router'), id: 'router', label: 'Router' },
+  { category: 'Nodes', glyph: 'SW', iconDataUri: studioVisualNodeTemplateDataUri('switch'), id: 'switch', label: 'Switch' },
   { category: 'Nodes', glyph: 'S', id: 'service', label: 'Service' },
   { category: 'Nodes', glyph: 'C', id: 'controller', label: 'Controller' },
   { category: 'Nodes', glyph: 'E', id: 'external', label: 'External' },
@@ -76,7 +79,11 @@ export function ObjectPalette({ onCreate, presets, state }: ObjectPaletteProps) 
                 title={`Add ${template.label}`}
                 type="button"
               >
-                <span className="studio-template-glyph" aria-hidden="true">{template.glyph}</span>
+                <span className="studio-template-glyph" aria-hidden="true" data-visual={template.iconDataUri ? 'svg' : 'glyph'}>
+                  {template.iconDataUri
+                    ? <img alt="" draggable={false} src={template.iconDataUri} />
+                    : template.glyph}
+                </span>
                 <span>{template.label}</span>
               </button>
             ))}

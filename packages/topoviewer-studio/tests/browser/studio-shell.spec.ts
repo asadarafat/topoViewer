@@ -39,7 +39,7 @@ test('authors, edits, restores, saves, and reloads one node through the canvas-f
   await expect(page.getByText('Core Router', { exact: true })).toBeVisible();
 });
 
-test('groups palette templates by canonical object family and renders an SVG router preset', async ({ page }) => {
+test('groups palette templates by canonical object family and previews visual node templates', async ({ page }) => {
   await page.goto('/');
   const palette = page.getByRole('complementary', { name: 'Object palette' });
   for (const family of ['Nodes', 'Paths', 'Regions', 'Shapes', 'Callouts']) {
@@ -48,9 +48,30 @@ test('groups palette templates by canonical object family and renders an SVG rou
   await expect(palette.getByRole('heading', { name: 'Topology' })).toHaveCount(0);
   await expect(palette.getByRole('heading', { name: 'Assets' })).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'Add Basic node' })).toBeVisible();
+  await expect(page.getByTestId('palette-router').locator('img')).toHaveAttribute('src', /^data:image\/svg\+xml/);
+  await expect(page.getByTestId('palette-switch').locator('img')).toHaveAttribute('src', /^data:image\/svg\+xml/);
   await page.getByTestId('palette-router').click();
+  await page.getByTestId('palette-switch').click();
   const router = page.locator('.react-flow__node[data-id="router-1"]');
+  const networkSwitch = page.locator('.react-flow__node[data-id="switch-1"]');
   await expect(router.locator('.topoviewer-node-icon-image')).toHaveAttribute('src', /^data:image\/svg\+xml/);
+  await expect(networkSwitch.locator('.topoviewer-node-icon-image')).toHaveAttribute('alt', 'Switch');
+});
+
+test('adds a visual template icon to an imported stylesheet that has no icon catalog', async ({ page }) => {
+  await page.goto('/?__studio-test-state=unstyled');
+  await page.getByTestId('palette-switch').click();
+  const networkSwitch = page.locator('.react-flow__node[data-id="switch-1"]');
+  await expect(networkSwitch.locator('.topoviewer-node-icon-image')).toHaveAttribute('alt', 'Switch');
+
+  await page.getByRole('button', { name: 'Open workspace drawer' }).click();
+  const drawer = page.getByRole('region', { name: 'Workspace drawer' });
+  await drawer.getByRole('tab', { name: 'stylesheet.yaml' }).click();
+  await page.getByLabel('stylesheet YAML editor').focus();
+  await page.keyboard.press('Control+f');
+  await page.getByRole('textbox', { name: 'Find', exact: true }).fill('switch.generic');
+  await expect(page.locator('.find-widget .matchesCount')).toHaveText(/\d+ of \d+/);
+  await page.keyboard.press('Escape');
 });
 
 test('searches, creates by keyboard, and collapses desktop panels', async ({ page }) => {

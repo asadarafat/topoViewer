@@ -24,6 +24,9 @@ test('captures generated style groups for authored object families', async ({ pa
   await inspector.getByRole('tab', { name: 'Styles' }).click();
   await expect(inspector.getByRole('combobox', { name: 'Shape' })).toBeVisible();
   await capture(inspector, 'node');
+  await inspector.locator('[data-field-path="shape"]').getByRole('button', { name: 'Shape actions' }).click();
+  await capture(inspector, 'field-actions');
+  await page.keyboard.press('Escape');
 
   await inspector.getByRole('combobox', { name: 'Shape' }).selectOption('roundRectangle');
   const cardLayout = inspector.locator('[data-specialized-editor="node-layout"]');

@@ -88,6 +88,15 @@ the Inspector and SHALL identify the exact YAML document receiving an edit.
 - **AND** Mapper opens the rule-oriented `mapper.yaml` workspace instead of
   storing mapper fields on the selected topology object
 
+#### Scenario: Navigate Inspector tabs in constrained space
+
+- **WHEN** a user navigates document or field-view tabs with pointer, keyboard,
+  touch, or assistive technology
+- **THEN** Studio exposes standards-based tab semantics and visible selection
+- **AND** the tab strip uses the available Inspector width without clipping
+- **AND** constrained layouts remain navigable without page-level horizontal
+  overflow
+
 ### Requirement: Typed and usable controls
 
 Generated forms SHALL use controls appropriate to the field semantics and SHALL
@@ -100,6 +109,14 @@ support validation, unset, reset-to-default, and explicit-value behavior.
 - **THEN** Studio presents an appropriate accessible control
 - **AND** validates before commit
 - **AND** explains accepted values and errors using canonical metadata
+
+#### Scenario: Open field actions
+
+- **WHEN** a user opens a generated field's action menu
+- **THEN** each action remains legible on one line within the available
+  Inspector or viewport width
+- **AND** the menu does not inherit the icon trigger's fixed dimensions
+- **AND** disabled and focused actions remain distinguishable
 
 #### Scenario: Use an unsupported future field
 

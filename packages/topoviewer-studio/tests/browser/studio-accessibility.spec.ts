@@ -56,6 +56,15 @@ test('passes automated accessibility checks in every major authoring state', asy
   await createByKeyboard(page, 'router');
   await expect(page.locator('.react-flow__node[data-id="router-1"]')).toHaveAccessibleName('node New Router');
   await expectNoBlockingViolations(page, 'selected object and Inspector');
+  const inspector = page.getByRole('complementary', { name: 'Inspector' });
+  await inspector.getByRole('tab', { name: 'Styles' }).click();
+  await inspector.locator('[data-field-path="shape"]').getByRole('button', { name: 'Shape actions' }).click();
+  await expectNoBlockingViolations(page, 'Inspector field action menu');
+  await expectControlAffordances(page, 'Inspector tabs and field actions');
+  await page.keyboard.press('ArrowDown');
+  await expect(inspector.getByRole('menuitem', { name: 'Write default' })).toBeFocused();
+  await page.keyboard.press('Escape');
+  await expect(inspector.getByRole('menu')).toHaveCount(0);
 
   await page.getByRole('button', { name: 'Layers', exact: true }).click();
   await expectNoBlockingViolations(page, 'layers');

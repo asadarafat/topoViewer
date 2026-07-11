@@ -55,3 +55,11 @@ Authoring behavior moves by capability with tests; it is not copied into two
 maintained implementations. Route cutover and old-shell removal are separate
 changes after quality gates and a rollback window.
 
+## ADR-008: Self-Contained Visual Templates
+
+Studio owns a small trusted starter-template catalog, while the core package
+owns only the semantic node-kind helper. Palette previews, newly created node
+icon references, and starter stylesheet declarations resolve from that one
+catalog. Creating a visual template in an imported project atomically adds a
+missing local icon declaration, so exported bundles do not depend on private
+Studio state or remote image URLs.

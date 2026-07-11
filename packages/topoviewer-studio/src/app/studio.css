@@ -592,6 +592,19 @@ button {
   place-items: center;
 }
 
+.studio-template-glyph[data-visual="svg"] {
+  overflow: hidden;
+  border-width: 1px;
+  background: transparent;
+}
+
+.studio-template-glyph img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .studio-inspector-empty {
   display: grid;
   gap: 5px;
@@ -601,35 +614,40 @@ button {
   display: grid;
 }
 
-.studio-inspector-document-tabs {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 2px;
-  padding: 10px;
+.studio-inspector-document-tabs.MuiTabs-root {
+  min-height: 40px;
+  padding: 4px 8px 0;
   border-bottom: 1px solid #e0e6ec;
 }
 
-.studio-inspector-document-tabs button,
-.studio-inspector-view-tabs button {
+.studio-inspector-document-tabs .MuiTab-root,
+.studio-inspector-view-tabs .MuiTab-root {
   min-width: 0;
-  min-height: 30px;
-  padding: 0 6px;
+  min-height: 36px;
+  padding: 0 8px;
   overflow: hidden;
-  border: 1px solid #bdc9d4;
-  background: #f8fafc;
   color: #526579;
-  cursor: pointer;
   font-size: 11px;
   font-weight: 700;
+  letter-spacing: 0;
   text-overflow: ellipsis;
+  text-transform: none;
   white-space: nowrap;
 }
 
-.studio-inspector-document-tabs button[aria-selected="true"],
-.studio-inspector-view-tabs button[aria-selected="true"] {
-  border-color: #1976d2;
-  background: #e3f2fd;
+.studio-inspector-document-tabs .MuiTab-root.Mui-selected,
+.studio-inspector-view-tabs .MuiTab-root.Mui-selected {
   color: #0d47a1;
+}
+
+.studio-inspector-document-tabs .MuiTabs-indicator,
+.studio-inspector-view-tabs .MuiTabs-indicator {
+  height: 3px;
+  background: #1976d2;
+}
+
+.studio-inspector-document-panel {
+  min-width: 0;
 }
 
 .studio-document-owner {
@@ -787,10 +805,8 @@ button {
   white-space: nowrap;
 }
 
-.studio-inspector-view-tabs {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 2px;
+.studio-inspector-view-tabs.MuiTabs-root {
+  min-height: 40px;
   padding: 10px 10px 0;
 }
 
@@ -933,6 +949,8 @@ button {
 }
 
 .studio-field-action-menu button {
+  width: 100%;
+  height: auto;
   min-height: 28px;
   padding: 0 8px;
   border: 0;
@@ -942,6 +960,7 @@ button {
   cursor: pointer;
   font-size: 11px;
   text-align: left;
+  white-space: nowrap;
 }
 
 .studio-field-action-menu button:hover,
@@ -2770,10 +2789,8 @@ button {
     color: #b7c4d0;
   }
 
-  .studio-inspector-document-tabs button,
-  .studio-inspector-view-tabs button {
-    border-color: #4d5e70;
-    background: #111820;
+  .studio-inspector-document-tabs .MuiTab-root,
+  .studio-inspector-view-tabs .MuiTab-root {
     color: #9fb0c2;
   }
 
@@ -2811,11 +2828,14 @@ button {
     color: #e6edf4;
   }
 
-  .studio-inspector-document-tabs button[aria-selected="true"],
-  .studio-inspector-view-tabs button[aria-selected="true"] {
-    border-color: #42a5f5;
-    background: #0d2942;
+  .studio-inspector-document-tabs .MuiTab-root.Mui-selected,
+  .studio-inspector-view-tabs .MuiTab-root.Mui-selected {
     color: #bbdefb;
+  }
+
+  .studio-inspector-document-tabs .MuiTabs-indicator,
+  .studio-inspector-view-tabs .MuiTabs-indicator {
+    background: #42a5f5;
   }
 
   .studio-inspector-search,
@@ -2947,7 +2967,7 @@ button {
   outline-offset: 2px;
 }
 
-.studio-field-actions button,
+.studio-field-actions > button,
 .studio-mapper-field > div button {
   width: 24px;
   height: 24px;

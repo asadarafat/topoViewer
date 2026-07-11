@@ -9,6 +9,7 @@ export interface StudioUserPreset {
 export type StudioPaletteTemplateId =
   | 'node'
   | 'router'
+  | 'switch'
   | 'service'
   | 'controller'
   | 'external'

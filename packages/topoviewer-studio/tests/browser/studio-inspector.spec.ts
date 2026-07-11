@@ -16,8 +16,12 @@ test('separates document ownership and generates searchable Basic and All style 
   await expect(inspector.getByRole('tab', { name: 'Topology' })).toHaveAttribute('aria-selected', 'true');
   await expect(inspector.getByText('topology.yaml', { exact: true })).toBeVisible();
   await expect(inspector.getByRole('textbox', { name: 'Name' })).toBeVisible();
-  await inspector.getByRole('tab', { name: 'Styles' }).click();
+  await expect(inspector.locator('.studio-inspector-document-tabs.MuiTabs-root')).toBeVisible();
+  await inspector.getByRole('tab', { name: 'Topology' }).focus();
+  await page.keyboard.press('ArrowRight');
+  await expect(inspector.getByRole('tab', { name: 'Styles' })).toHaveAttribute('aria-selected', 'true');
   await expect(inspector.getByRole('tab', { name: 'Basic' })).toHaveAttribute('aria-selected', 'true');
+  await expect(inspector.locator('.studio-inspector-view-tabs.MuiTabs-root')).toBeVisible();
   await expect(inspector.getByRole('combobox', { name: 'Shape' })).toBeVisible();
   await expect(inspector.getByRole('spinbutton', { name: 'Outline width' })).toHaveCount(0);
 
@@ -61,6 +65,17 @@ test('writes explicit defaults and validates typed list controls', async ({ page
 
   const widthField = inspector.locator('[data-field-path="width"]');
   await widthField.getByRole('button', { name: 'Body width actions' }).click();
+  const menuMetrics = await widthField.getByRole('menu').evaluate((menu) => {
+    const items = [...menu.querySelectorAll<HTMLElement>('[role="menuitem"]')];
+    return {
+      menuWidth: menu.getBoundingClientRect().width,
+      wrappedItems: items.filter((item) => item.scrollWidth > item.clientWidth || item.getBoundingClientRect().height > 32).length,
+      narrowItems: items.filter((item) => item.getBoundingClientRect().width < 120).length
+    };
+  });
+  expect(menuMetrics.menuWidth).toBeGreaterThanOrEqual(150);
+  expect(menuMetrics.wrappedItems).toBe(0);
+  expect(menuMetrics.narrowItems).toBe(0);
   await widthField.getByRole('menuitem', { name: 'Write default' }).click();
   await expect(inspector.getByRole('spinbutton', { name: 'Body width' })).toHaveValue('82');
   await widthField.getByRole('button', { name: 'Body width actions' }).click();

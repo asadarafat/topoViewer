@@ -18,10 +18,11 @@ than color alone.
 - Use `Escape` to close contextual menus, drawers, dialogs, and presentation
   mode.
 
-Dialogs trap focus and return it to the invoking control. Tabs implement arrow
-key navigation. Validation errors use `aria-invalid` and associated error text.
-Status, mapper coverage, and connection validity are announced through live
-regions.
+Dialogs trap focus and return it to the invoking control. Inspector tabs use
+standard tab semantics and arrow-key selection. Field action menus support
+arrow-key traversal and return focus to the trigger when closed with `Escape`.
+Validation errors use `aria-invalid` and associated error text. Status, mapper
+coverage, and connection validity are announced through live regions.
 
 The tested visual states include light and dark themes, forced colors, reduced
 motion, 200 percent reflow, a 640 px viewport, long labels, dialogs, invalid

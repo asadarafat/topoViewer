@@ -479,6 +479,13 @@ promotes a reviewed asset into documentation.
   palette families with focused regression evidence
 - [x] 19.1.3 Re-run Studio quality, browser, accessibility, performance, bundle,
   docs, and strict OpenSpec gates before requesting independent preview sessions
+- [x] 19.1.4 Record maintainer-submitted preview findings #93-#95 for Inspector
+  field density, standards-based tabs, and visual node templates without
+  counting them as independent adoption cohorts
+- [x] 19.1.5 Remediate findings #93-#95 at the shared Inspector, starter-template,
+  and core authoring boundaries with focused regression evidence
+- [ ] 19.1.6 Re-run Studio quality, browser, accessibility, API, integration,
+  bundle-budget, docs, and strict OpenSpec gates after the remediation
 - [ ] 19.2 Run a structured adoption preview with new and experienced TopoViewer
   users using the primary journey; record independently attributable failures,
   hesitation, gesture count, recovery behavior, and unsupported expectations

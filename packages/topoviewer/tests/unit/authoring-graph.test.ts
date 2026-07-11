@@ -80,6 +80,18 @@ describe('shared authoring graph queries', () => {
       name: 'New Router',
       position: [439, 221]
     });
+
+    expect(createAuthoringNode(document, {
+      kind: 'switch',
+      position: { x: 180.4, y: 310.6 },
+      selectedLayerIds: ['physical']
+    })).toEqual({
+      id: 'switch-1',
+      labels: { role: 'switch' },
+      layers: ['physical'],
+      name: 'New Switch',
+      position: [180, 311]
+    });
   });
 
   it('normalizes a reverse link while preserving physical endpoint handles', () => {

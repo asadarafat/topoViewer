@@ -9,7 +9,7 @@ when the product decision is explicit below.
 |---|---|---|---|
 | Open a built-in fixture | Replaced by browser projects, portable archive import, and curated example bundles rather than a fixture-runner lifecycle. | [persistence browser tests](tests/browser/studio-persistence.spec.ts) | Delivered |
 | Create a blank topology | Replaced by a schema-valid starter project and compact New project action. | [shell journey](tests/browser/studio-shell.spec.ts), [project lifecycle](tests/browser/studio-persistence.spec.ts) | Delivered |
-| Create a node on the canvas | Replaced by searchable palette drag/drop with a keyboard placement fallback. | [direct CRUD](tests/browser/studio-crud.spec.ts), [keyboard journey](tests/browser/studio-accessibility.spec.ts) | Delivered |
+| Create a node on the canvas | Replaced by searchable palette drag/drop with a keyboard placement fallback and self-contained SVG-backed Router/Switch templates. | [shell journey](tests/browser/studio-shell.spec.ts), [direct CRUD](tests/browser/studio-crud.spec.ts), [keyboard journey](tests/browser/studio-accessibility.spec.ts) | Delivered |
 | Create a link directly | Uses visible native React Flow connection affordances, validates endpoints, and normalizes reverse connections. | [direct CRUD](tests/browser/studio-crud.spec.ts) | Delivered |
 | Create or edit a path | Uses selected traversal or deterministic shortest-path creation and rejects unreachable traversal. | [path authoring tests](tests/browser/studio-crud.spec.ts) | Delivered |
 | Create a region and manage membership | Provides direct placement, containment preview, group movement, collapse/expand, nesting, resize, and explicit release. | [region authoring tests](tests/browser/studio-regions.spec.ts) | Delivered |

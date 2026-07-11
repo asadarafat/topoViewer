@@ -12,6 +12,8 @@ The Inspector follows canvas selection and separates authoring by document:
 
 Generated controls come from canonical authoring metadata so schema, YAML
 assistance, Studio, and future hosts do not maintain separate field lists.
+The document and style-view tab strips use standard keyboard tab behavior,
+consume the available Inspector width, and retain a visible active indicator.
 
 ## Style Profiles
 
@@ -31,7 +33,9 @@ committed silently.
 
 Open a field's overflow menu and choose **Write default** when the default value
 must be explicit. Choose **Unset value** to remove it and return to inherited
-behavior.
+behavior. Menu actions retain their full text width; they are not constrained by
+the compact icon trigger. Arrow keys move between open menu actions and
+`Escape` closes the menu and restores focus to its trigger.
 
 ## Personal Field Profiles
 

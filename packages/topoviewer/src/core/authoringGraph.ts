@@ -22,7 +22,7 @@ export type {
 } from './authoringTypes';
 
 export type AuthoringLinkDirectionObject = AuthoringGraphObject & { id: string };
-export type AuthoringNodeKind = 'node' | 'router' | 'service' | 'controller' | 'external';
+export type AuthoringNodeKind = 'node' | 'router' | 'switch' | 'service' | 'controller' | 'external';
 
 export interface CreateAuthoringNodeOptions {
   kind: AuthoringNodeKind;

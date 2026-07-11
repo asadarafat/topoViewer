@@ -87,6 +87,23 @@ export function mutationForAuthoringUpdate(update: AuthoringValueUpdate, existin
       };
 }
 
+export function mutationsForAuthoringEditPlan(
+  plan: AuthoringEditPlan,
+  sourcePathExists: (path: Array<string | number>) => boolean,
+  additional: StudioSourceMutation[] = []
+): StudioSourceMutation[] {
+  return [
+    ...additional,
+    ...plan.updates.map((update) => mutationForAuthoringUpdate(update, sourcePathExists(update.path))),
+    ...plan.removals.map((removal): StudioSourceMutation => ({
+      document: 'topology', kind: 'remove-value', path: removal.path, scopePath: removal.scopePath
+    })),
+    ...plan.insertions.map((insertion): StudioSourceMutation => ({
+      document: 'topology', kind: 'insert-value', path: insertion.path, value: insertion.value
+    }))
+  ];
+}
+
 export function insertionPlan(
   path: Array<string | number>,
   selection: AuthoringObjectSelection,

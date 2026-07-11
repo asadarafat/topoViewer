@@ -2,6 +2,8 @@ import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from 
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import SearchIcon from '@mui/icons-material/Search';
+import Tab from '@mui/material/Tab';
+import Tabs from '@mui/material/Tabs';
 import {
   authoringFieldDefaultValue,
   authoringFieldIsVisible,
@@ -25,7 +27,6 @@ import type {
   StudioStyleEditScope,
   StudioStyleUnsetRequest
 } from '../../contracts/inspector';
-import { handleRovingTabKey } from '../../accessibility/tabs';
 import {
   fieldLevelAfterToggle,
   resolveStudioFieldProfile
@@ -121,6 +122,7 @@ function FieldActions({
 }) {
   const defaultValue = authoringFieldDefaultValue(field);
   const [open, setOpen] = useState(false);
+  const menuId = `studio-field-actions-${useId().replaceAll(':', '')}`;
   return (
     <div
       className="studio-field-actions"
@@ -128,9 +130,31 @@ function FieldActions({
       onBlur={(event) => {
         if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false);
       }}
+      onKeyDown={(event) => {
+        if (!open) return;
+        if (event.key === 'Escape') {
+          event.preventDefault();
+          setOpen(false);
+          event.currentTarget.querySelector<HTMLButtonElement>(':scope > button')?.focus();
+          return;
+        }
+        if (!['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) return;
+        const items = [...event.currentTarget.querySelectorAll<HTMLButtonElement>('[role="menuitem"]:not(:disabled)')];
+        if (!items.length) return;
+        event.preventDefault();
+        const current = items.indexOf(event.target as HTMLButtonElement);
+        const next = event.key === 'Home'
+          ? 0
+          : event.key === 'End'
+            ? items.length - 1
+            : current < 0
+              ? event.key === 'ArrowDown' ? 0 : items.length - 1
+              : (current + (event.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length;
+        items[next].focus();
+      }}
     >
-      <button aria-expanded={open} aria-haspopup="menu" aria-label={`${field.label} actions`} onClick={() => setOpen((value) => !value)} title={`${field.label} actions`} type="button"><MoreVertIcon fontSize="inherit" /></button>
-      {open ? <div className="studio-field-action-menu" role="menu">
+      <button aria-controls={open ? menuId : undefined} aria-expanded={open} aria-haspopup="menu" aria-label={`${field.label} actions`} onClick={() => setOpen((value) => !value)} title={`${field.label} actions`} type="button"><MoreVertIcon fontSize="inherit" /></button>
+      {open ? <div className="studio-field-action-menu" id={menuId} role="menu">
         <button disabled={defaultValue === undefined} onClick={() => { onDefault(); setOpen(false); }} role="menuitem" type="button">Write default</button>
         <button disabled={!explicit} onClick={() => { onUnset(); setOpen(false); }} role="menuitem" type="button">Unset value</button>
         {profileActions ? (
@@ -532,23 +556,31 @@ export function Inspector({
         <div className="studio-inspector-empty"><strong>Nothing selected</strong></div>
       ) : (
         <div className="studio-inspector-content">
-          <div className="studio-inspector-document-tabs" role="tablist" aria-label="Inspector document">
+          <Tabs
+            aria-label="Inspector document"
+            className="studio-inspector-document-tabs"
+            onChange={(_event, value: InspectorDocumentView) => setDocumentView(value)}
+            selectionFollowsFocus
+            value={documentView}
+            variant="fullWidth"
+          >
             {inspectorDocumentViews.map((item) => (
-              <button
-                aria-selected={documentView === item.id}
+              <Tab
+                aria-controls={`studio-inspector-${item.id}-panel`}
+                id={`studio-inspector-${item.id}-tab`}
                 key={item.id}
-                onClick={() => setDocumentView(item.id)}
-                onKeyDown={handleRovingTabKey}
-                role="tab"
-                tabIndex={documentView === item.id ? 0 : -1}
-                type="button"
-              >
-                {item.label}
-              </button>
+                label={item.label}
+                value={item.id}
+              />
             ))}
-          </div>
+          </Tabs>
           {documentView === 'topology' ? (
-            <>
+            <div
+              aria-labelledby="studio-inspector-topology-tab"
+              className="studio-inspector-document-panel"
+              id="studio-inspector-topology-panel"
+              role="tabpanel"
+            >
               <div className="studio-document-owner">
                 <strong>topology.yaml</strong>
                 <span>Object identity and geometry</span>
@@ -580,10 +612,16 @@ export function Inspector({
                 </label>
               </section>
               {position ? <PositionEditor objectPath={objectPath} onCommit={onCommit} position={position} /> : null}
-            </>
+            </div>
           ) : null}
           {documentView === 'mapper' ? (
-            <section className="studio-inspector-mapper" aria-label="Mapper ownership">
+            <section
+              aria-label="Mapper ownership"
+              aria-labelledby="studio-inspector-mapper-tab"
+              className="studio-inspector-mapper studio-inspector-document-panel"
+              id="studio-inspector-mapper-panel"
+              role="tabpanel"
+            >
               <div className="studio-document-owner">
                 <strong>mapper.yaml</strong>
                 <span>Telemetry rules map runtime samples to stable topology objects.</span>
@@ -593,7 +631,13 @@ export function Inspector({
             </section>
           ) : null}
           {documentView === 'style' && target ? (
-            <section className="studio-style-inspector" aria-label={`${target} style fields`}>
+            <section
+              aria-label={`${target} style fields`}
+              aria-labelledby="studio-inspector-style-tab"
+              className="studio-style-inspector studio-inspector-document-panel"
+              id="studio-inspector-style-panel"
+              role="tabpanel"
+            >
               <div className="studio-document-owner">
                 <strong>{editScope.kind === 'object' ? 'topology.yaml' : 'stylesheet.yaml'}</strong>
                 <span>{editScope.kind === 'object' ? 'Selected object style override' : 'Reusable selector rule'}</span>
@@ -618,21 +662,22 @@ export function Inspector({
                   <span>{affectedObjects.map((affected) => affected.id).join(', ') || 'No current matches'}</span>
                 </div>
               </section>
-              <div className="studio-inspector-view-tabs" role="tablist" aria-label="Style field view">
+              <Tabs
+                aria-label="Style field view"
+                className="studio-inspector-view-tabs"
+                onChange={(_event, value: InspectorView) => setView(value)}
+                selectionFollowsFocus
+                value={view}
+                variant="fullWidth"
+              >
                 {inspectorViews.map((item) => (
-                  <button
-                    aria-selected={view === item.id}
+                  <Tab
                     key={item.id}
-                    onClick={() => setView(item.id)}
-                    onKeyDown={handleRovingTabKey}
-                    role="tab"
-                    tabIndex={view === item.id ? 0 : -1}
-                    type="button"
-                  >
-                    {item.label}
-                  </button>
+                    label={item.label}
+                    value={item.id}
+                  />
                 ))}
-              </div>
+              </Tabs>
               <label className="studio-inspector-search">
                 <SearchIcon fontSize="small" />
                 <input aria-label="Search style fields" onChange={(event) => setQuery(event.target.value)} placeholder="Search fields" type="search" value={query} />
@@ -699,7 +744,12 @@ export function Inspector({
             </section>
           ) : null}
           {documentView === 'style' && !target ? (
-            <div className="studio-inspector-empty"><span>This object has no stylesheet target.</span></div>
+            <div
+              aria-labelledby="studio-inspector-style-tab"
+              className="studio-inspector-empty studio-inspector-document-panel"
+              id="studio-inspector-style-panel"
+              role="tabpanel"
+            ><span>This object has no stylesheet target.</span></div>
           ) : null}
         </div>
       )}

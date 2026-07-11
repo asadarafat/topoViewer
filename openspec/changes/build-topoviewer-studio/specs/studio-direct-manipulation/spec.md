@@ -34,6 +34,15 @@ directly onto the canvas to create topology and annotation objects.
 - **AND** a styled template such as Router creates a valid node backed by a
   declared local icon rather than appearing as an unrelated asset object
 
+#### Scenario: Create a self-contained visual node template
+
+- **WHEN** a user creates a Router or Switch from the palette
+- **THEN** the palette previews the trusted local SVG used by that template
+- **AND** the created node references the corresponding icon key
+- **AND** Studio writes the required icon declaration to `stylesheet.yaml` when
+  the opened project does not already declare it
+- **AND** the project remains portable without remote image dependencies
+
 ### Requirement: Direct graph relationship authoring
 
 Studio SHALL use visible React Flow connection affordances and graph-semantic

@@ -149,6 +149,29 @@ function overlayProject(): StudioProject {
   return project;
 }
 
+function unstyledProject(): StudioProject {
+  const project = createStarterProject();
+  const stylesheet = [
+    'layout:',
+    '  mode: manual',
+    '  width: 1280',
+    '  height: 720',
+    'stylesheet:',
+    '  - selector: node',
+    '    style:',
+    '      shape: rectangle',
+    ''
+  ].join('\n');
+  project.documents.stylesheet = {
+    ...project.documents.stylesheet,
+    contentHash: `unstyled-${stylesheet.length}`,
+    text: stylesheet
+  };
+  project.id = 'studio-unstyled-project';
+  project.name = 'Unstyled topology';
+  return project;
+}
+
 function futureStyleProject(): StudioProject {
   const project = createStarterProject();
   const topology = project.documents.topology.text.replace('  nodes: []', [
@@ -245,7 +268,8 @@ export const memoryStudioFixtures = [
   'future-style',
   'mapper-coverage',
   'mapper-future',
-  'overlay'
+  'overlay',
+  'unstyled'
 ] as const;
 
 export type MemoryStudioFixture = typeof memoryStudioFixtures[number];
@@ -268,6 +292,7 @@ function fixtureProject(fixture: MemoryStudioHostOptions['fixture']): StudioProj
     case 'mapper-future': return futureMapperProject();
     case 'future-style': return futureStyleProject();
     case 'overlay': return overlayProject();
+    case 'unstyled': return unstyledProject();
     default: return createStarterProject();
   }
 }

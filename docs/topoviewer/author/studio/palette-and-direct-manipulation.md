@@ -10,10 +10,14 @@ template and press `Enter` to place it at a deterministic visible position.
 
 The palette is grouped by canonical object family: Nodes, Paths, Regions,
 Shapes, Callouts, and saved Presets. Each family contains compatible templates.
-For example, **Basic node** creates an unopinionated node while **Router**
-creates a node backed by the starter bundle's SVG router icon. Nodes and links
-join the `physical` layer by default. Paths use the `paths` layer. Shapes and
-callouts use the `annotations` layer.
+For example, **Basic node** creates an unopinionated node while **Router** and
+**Switch** preview and create trusted local SVG-backed nodes. A visual template
+also adds its icon declaration to `stylesheet.yaml` when the opened project
+does not already provide that key. The resulting bundle therefore remains
+self-contained instead of depending on a Studio-only asset catalog.
+
+Nodes and links join the `physical` layer by default. Paths use the `paths`
+layer. Shapes and callouts use the `annotations` layer.
 
 Creating a path does not invent missing graph reachability. Select a connected
 sequence or use deterministic shortest-path creation. Studio blocks a path when

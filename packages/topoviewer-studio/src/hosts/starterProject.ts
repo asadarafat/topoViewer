@@ -1,9 +1,19 @@
 import type { StudioProject } from '../contracts/project';
+import { stringify } from 'yaml';
+import { studioVisualNodeTemplates } from '../templates/starterNodeTemplates';
 
 export interface CreateStarterProjectOptions {
   id?: string;
   name?: string;
   now?: string;
+}
+
+function starterIconYamlLines(): string[] {
+  const icons = Object.fromEntries(Object.values(studioVisualNodeTemplates).map((template) => [
+    template.iconKey,
+    template.icon
+  ]));
+  return stringify({ icons }, { lineWidth: 0 }).trimEnd().split('\n');
 }
 
 export function createStarterProject(options: CreateStarterProjectOptions = {}): StudioProject {
@@ -47,25 +57,11 @@ export function createStarterProject(options: CreateStarterProjectOptions = {}):
         ].join('\n')
       },
       stylesheet: {
-        contentHash: 'starter-stylesheet-v2',
+        contentHash: 'starter-stylesheet-v3',
         kind: 'stylesheet',
         path: 'stylesheet.yaml',
         text: [
-          'icons:',
-          '  router.generic:',
-          '    glyph: R',
-          '    alt: Router',
-          '    svg: |',
-          '      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img">',
-          '        <rect width="120" height="120" rx="12" fill="#1976d2"/>',
-          '        <g fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">',
-          '          <path d="M25 60h70M60 25v70"/>',
-          '          <path d="m25 60 12-10M25 60l12 10M95 60 83 50M95 60 83 70"/>',
-          '          <path d="m60 25-10 12M60 25l10 12M60 95 50 83M60 95l10-12"/>',
-          '        </g>',
-          '      </svg>',
-          '    fill: "#1976d2"',
-          '    stroke: "#bbdefb"',
+          ...starterIconYamlLines(),
           'layout:',
           '  mode: manual',
           '  width: 1280',
