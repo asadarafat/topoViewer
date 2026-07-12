@@ -123,3 +123,12 @@ The feature is additive. Removing `diagram.texts` support would require a
 schema migration and is therefore not a runtime rollback mechanism. Studio UI
 migration remains reviewable in separate conventional commits: theme/control
 foundation, feature migration, text primitive, and direct manipulation.
+
+## Archive Dependency
+
+This change modifies `studio-direct-manipulation`, `studio-product-contract`,
+and `studio-spec-driven-authoring` requirements introduced by the still-active
+`build-topoviewer-studio` change. It therefore remains active and complete until
+that parent change establishes those baseline specs. Reclassifying these deltas
+as `ADDED` would create competing baseline contracts; archiving the parent early
+would bypass its independent adoption and cutover gates.

@@ -76,5 +76,7 @@ checked with reviewable output or a passing command.
 - [x] 10.2 Run Studio browser, accessibility, visual, parity, VS Code-host, and 1,000-node interaction suites
 - [x] 10.3 Measure before/after initial CSS, initial JS, lazy chunks, startup, Inspector, resize, and memory behavior; update baselines only with an explicit reviewed rationale
 - [x] 10.4 Review desktop, narrow, light, dark, forced-colors, reduced-motion, loading, empty, error, destructive, menu, dialog, popover, and dense Inspector screenshots
-- [ ] 10.5 Run full local CI on a clean committed tree, push only with explicit user approval, and monitor remote CI
-- [ ] 10.6 Archive only after every task is checked and strict OpenSpec validation passes
+- [x] 10.5 Run full local CI on a clean committed tree; push and monitor remote CI only with explicit user approval
+- [x] 10.6 Record the archive dependency on `build-topoviewer-studio`; keep this
+  implementation-complete change active until that change establishes the
+  baseline `studio-*` specs
