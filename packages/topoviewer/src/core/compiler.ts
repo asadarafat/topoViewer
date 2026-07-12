@@ -1,4 +1,5 @@
-import { applyStyle, compileCalloutStyle, compileEdgeStyle, compileNodeStyle, compileRegionStyle, compileShapeStyle, compileTextStyle } from './style';
+import { applyStyle, compileCalloutStyle, compileEdgeStyle, compileNodeStyle, compileRegionStyle, compileShapeStyle } from './style';
+import { compileTextStyle } from './textStyle';
 import { withCompiledEdgeAccessibility, withCompiledNodeAccessibility } from './compiledAccessibility';
 import { computeLayoutPositions } from './layout';
 import { layerIds } from './layers';

@@ -7,12 +7,8 @@ import {
   authoringObjectDisplayName,
   copyAuthoringSelection,
   createAuthoringLayer,
-  createAuthoringCallout,
   createAuthoringLink,
-  createAuthoringPath,
   createAuthoringRegion,
-  createAuthoringShape,
-  createAuthoringText,
   createBasicMapperRule,
   ingestMapperSamples,
   mapperRuleFromProposal,
@@ -73,8 +69,8 @@ import {
   createExternalChangeActions,
   insertionPlan,
   mutationsForAuthoringEditPlan,
-  positionOf,
   type RegionAggregateToggle,
+  saveRecoveryBeforeReload,
   sameSelection,
   type UseStudioControllerOptions,
   valueAtNestedPath
@@ -85,7 +81,7 @@ import {
   planStudioSelectionResize,
   resolveStudioQuickEditTarget
 } from './controllerAuthoring';
-import { createStudioPaletteNodePlan } from './controllerTemplates';
+import { planStudioPaletteCreation } from './controllerPalette';
 
 export function useStudioController({ host, onReload, project, recovery }: UseStudioControllerOptions) {
   const session = useMemo(() => {
@@ -164,72 +160,29 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
 
   function createPaletteObject(templateId: StudioPaletteTemplateId, position?: { x: number; y: number }) {
     const current = session.snapshot();
-    const topology = current.projection.document;
-    const count = (topology.graph?.nodes?.length || 0)
-      + (topology.graph?.regions?.length || 0)
-      + (topology.diagram?.shapes?.length || 0)
-      + (topology.diagram?.callouts?.length || 0)
-      + (topology.diagram?.texts?.length || 0);
-    const target = position || { x: 120 + (count % 3) * 240, y: 120 + Math.floor(count / 3) * 160 };
-    if (templateId.startsWith('preset:')) {
-      const preset = presets.find((candidate) => `preset:${candidate.id}` === templateId);
-      if (!preset) return false;
-      const sourcePosition = positionOf(preset.item.value.position) || { x: 0, y: 0 };
-      const plan = pasteAuthoringClipboard(topology, [preset.item], {
-        x: target.x - sourcePosition.x,
-        y: target.y - sourcePosition.y
+    try {
+      const creation = planStudioPaletteCreation({
+        document: current.projection.document,
+        pathMode,
+        position,
+        presets,
+        selection: current.selection,
+        stylesheet: session.sourceValue('stylesheet'),
+        templateId
       });
-      return executeEditPlan(`create-${preset.id}`, `Create ${preset.name}`, plan);
+      return executeEditPlan(
+        creation.commandId,
+        creation.label,
+        creation.plan,
+        undefined,
+        creation.additionalMutations
+      );
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      setCommandError(message);
+      setAnnouncement(`${templateId === 'path' ? 'Path' : 'Object'} rejected: ${message}`);
+      return false;
     }
-    if (templateId === 'path') {
-      try {
-        const value = createAuthoringPath(topology, {
-          mode: pathMode,
-          sequence: current.selection.filter((selection) => selection.kind === 'node').map((selection) => selection.id)
-        });
-        return executeEditPlan(`create-${value.id}`, 'Create path', insertionPlan(
-          ['graph', 'paths'], { id: value.id, kind: 'path' }, value as unknown as Record<string, unknown>
-        ));
-      } catch (error) {
-        const message = error instanceof Error ? error.message : String(error);
-        setCommandError(message);
-        setAnnouncement(`Path rejected: ${message}`);
-        return false;
-      }
-    }
-    if (templateId === 'region') {
-      const value = createAuthoringRegion(topology, {
-        members: current.selection.filter((selection) => selection.kind === 'node').map((selection) => selection.id),
-        position: target
-      });
-      return executeEditPlan(`create-${value.id}`, 'Create region', insertionPlan(
-        ['graph', 'regions'], { id: value.id, kind: 'region' }, value as unknown as Record<string, unknown>
-      ));
-    }
-    if (templateId === 'shape') {
-      const value = createAuthoringShape(topology, { position: target });
-      return executeEditPlan(`create-${value.id}`, 'Create shape', insertionPlan(
-        ['diagram', 'shapes'], { id: value.id, kind: 'shape' }, value as unknown as Record<string, unknown>
-      ));
-    }
-    if (templateId === 'callout') {
-      const value = createAuthoringCallout(topology, { position: target });
-      return executeEditPlan(`create-${value.id}`, 'Create callout', insertionPlan(
-        ['diagram', 'callouts'], { id: value.id, kind: 'callout' }, value as unknown as Record<string, unknown>
-      ));
-    }
-    if (templateId === 'text') {
-      const value = createAuthoringText(topology, { position: target });
-      return executeEditPlan(`create-${value.id}`, 'Create text', insertionPlan(
-        ['diagram', 'texts'], { id: value.id, kind: 'text' }, value as unknown as Record<string, unknown>
-      ));
-    }
-    const { additionalMutations, value } = createStudioPaletteNodePlan(
-      topology, session.sourceValue('stylesheet'), templateId, target
-    );
-    return executeEditPlan(`create-${value.id}`, `Create ${value.name}`, insertionPlan(
-      ['graph', 'nodes'], { id: value.id, kind: 'node' }, value as unknown as Record<string, unknown>
-    ), undefined, additionalMutations);
   }
 
   function createLayer(name = 'New Layer') {
@@ -940,15 +893,7 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
   }
 
   async function flushRecovery() {
-    const current = session.snapshot();
-    if (current.status === 'saved') return true;
-    const result = await host.saveRecovery({
-      capturedAt: new Date().toISOString(),
-      invalidDrafts: structuredClone(current.invalidDrafts),
-      project: structuredClone(current.project),
-      reason: 'before-reload',
-      sourceRevision: current.projection.sourceRevision
-    });
+    const result = await saveRecoveryBeforeReload(session, host);
     if (result.ok) return true;
     setCommandError(`Recovery save failed: ${result.error.message}`);
     setAnnouncement(`Project switch blocked: ${result.error.message}`);

@@ -23,8 +23,7 @@ import {
   StudioCircularProgress,
   StudioTab,
   StudioTabs,
-  StudioTextarea,
-  StudioTextField
+  StudioTextarea
 } from '../../ui/controls';
 
 const MonacoYamlEditor = lazy(() => import('./MonacoYamlEditor'));

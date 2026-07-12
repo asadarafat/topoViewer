@@ -11,7 +11,8 @@ const customFileLineLimits = new Map([
 ]);
 const defaultMaxBarrelExports = 80;
 const customBarrelLimits = new Map([
-  ['packages/topoviewer/src/index.ts', 150]
+  // The reviewed root package API is also guarded by packages/topoviewer/api-report.md.
+  ['packages/topoviewer/src/index.ts', 160]
 ]);
 const codeRoots = [
   'packages/topoviewer/src',

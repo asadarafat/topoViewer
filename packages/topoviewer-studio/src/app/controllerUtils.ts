@@ -5,7 +5,7 @@ import type {
 } from 'topoviewer/authoring';
 import type { TopoViewerProps } from 'topoviewer';
 import type { StudioSourceMutation } from '../contracts/commands';
-import type { StudioHost } from '../contracts/host';
+import type { StudioHost, StudioResult } from '../contracts/host';
 import type { StudioProject, StudioRecoverySnapshot, StudioSelection } from '../contracts/project';
 import { createStudioDocumentSession } from '../session';
 import type { StudioDocumentSession } from '../session';
@@ -50,6 +50,21 @@ export function createExternalChangeActions(
       refresh();
     }
   };
+}
+
+export async function saveRecoveryBeforeReload(
+  session: StudioDocumentSession,
+  host: StudioHost
+): Promise<StudioResult<void>> {
+  const current = session.snapshot();
+  if (current.status === 'saved') return { ok: true, value: undefined };
+  return host.saveRecovery({
+    capturedAt: new Date().toISOString(),
+    invalidDrafts: structuredClone(current.invalidDrafts),
+    project: structuredClone(current.project),
+    reason: 'before-reload',
+    sourceRevision: current.projection.sourceRevision
+  });
 }
 
 export function positionOf(value: unknown): { x: number; y: number } | undefined {
