@@ -9,6 +9,10 @@ engineering intent until the change is implemented, validated, archived, and
 reflected in public docs with an explicit support-status label.
 
 Current active plans:
+- `changes/harden-studio-material-authoring/` - production hardening for the
+  Material UI Studio surface, standalone text objects, schema-driven color
+  controls, shared resizing, direct double-click editing, and measured
+  browser/VS Code parity.
 - `changes/build-topoviewer-studio/` - planned production-grade, canvas-first
   TopoViewer authoring product with drag-to-create workflows, complete
   specification-driven style and mapper controls, lossless YAML editing, shared

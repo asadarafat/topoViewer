@@ -36,6 +36,7 @@ adoption target.
 | `TopoViewerProps` | Supported | Props accepted by the React component. |
 | `TopoViewerViewport` | Supported | Viewport state passed through events. |
 | `TopoViewerObjectClick` | Supported | Object click event payload. |
+| `TopoViewerObjectDoubleClick` | Supported | Object double-click payload used by host-owned direct editors. |
 | `TopoViewerPaneClick` | Supported | Pane/background click event payload. |
 | `TopoViewerNodePositionChange` | Supported | Node drag/persist event payload. |
 | `TopoViewerConnectionCreate` | Experimental | Canvas connection-create event payload for authoring surfaces. |
@@ -183,12 +184,14 @@ Model types include `TopoDocument`, `TopologyDocument`, `StylesheetDocument`,
 `GraphDefinition`, `GraphNode`, `GraphLink`, `GraphPath`, `GraphRegion`,
 `LayerDefinition`, `IconSpec`, `StyleRule`, `StyleDeclaration`,
 `LayoutConfig`, `ClosLayoutOptions`, `DiagramDefinition`, `DiagramShape`,
-`DiagramCallout`, `DiagramConnector`, `DiagramPin`, `ToggleDefinition`,
+`DiagramCallout`, `DiagramConnector`, `DiagramPin`, `DiagramText`,
+`ToggleDefinition`,
 `CompiledGraph`, `CompiledNode`, `CompiledEdge`, `CompiledNodeData`,
 `CompiledEdgeData`, `TopoViewerExtension`, `TopoViewerExtensionContext`, and
 `TopoViewerConnectionCreate`, `TopoViewerHelperLinesOptions`, and
-`TopoViewerNodePositionChange`, `TopoViewerObjectClick`, `TopoViewerPaneClick`,
-`TopoViewerToolbarAction`, and `TopoViewerViewport`.
+`TopoViewerNodePositionChange`, `TopoViewerObjectClick`,
+`TopoViewerObjectDoubleClick`, `TopoViewerPaneClick`, `TopoViewerToolbarAction`,
+and `TopoViewerViewport`.
 
 Attention types include `FocusQuery`, `FocusResult`,
 `FocusPresentationMode`, `AttentionPresentationResult`,
