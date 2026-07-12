@@ -227,6 +227,16 @@ consecutive drags. The Harness raw initial ceiling moves from 1,560,000 to
 1,561,000 bytes; the 8,192-byte tolerance and every compressed Studio budget
 remain unchanged. This is a measured correctness baseline update, not a waiver.
 
+The standalone text and shared direct-manipulation runtime moves the legacy
+Harness entry from 1,568,394 raw / 471,550 gzip bytes to 1,576,484 raw /
+473,315 gzip bytes. The 8,090-byte raw and 1,765-byte compressed increase adds
+the renderer-owned text primitive, shared resize behavior, and public
+double-click interaction contract used by Studio and other hosts. Material UI
+is not included in the Harness bundle. The Harness raw initial ceiling moves
+from 1,561,000 to 1,569,000 bytes; the 8,192-byte tolerance, lazy JavaScript
+ceiling, and every compressed Studio budget remain unchanged. This is a
+measured shared-runtime baseline update, not a waiver.
+
 ## Repeated Suite
 
 `npm run studio:benchmark:repeat` completed three full serial runs on the
