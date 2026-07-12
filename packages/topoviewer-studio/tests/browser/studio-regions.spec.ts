@@ -2,7 +2,13 @@ import { expect, test, type Locator, type Page } from '@playwright/test';
 import { expectEditorContains } from './helpers/monaco';
 
 async function dragTemplate(page: Page, id: string, position: { x: number; y: number }) {
-  await page.getByTestId(`palette-${id}`).dragTo(page.getByTestId('studio-canvas'), { targetPosition: position });
+  if (['callout', 'region', 'shape', 'text'].includes(id)) {
+    const group = page.getByRole('button', { name: 'Annotations palette group' });
+    if (await group.getAttribute('aria-expanded') !== 'true') await group.click();
+  }
+  const source = page.getByTestId(`palette-${id}`);
+  await source.scrollIntoViewIfNeeded();
+  await source.dragTo(page.getByTestId('studio-canvas'), { targetPosition: position });
 }
 
 async function dragBy(page: Page, object: Locator, delta: { x: number; y: number }, startInset = { x: 0.5, y: 0.5 }) {

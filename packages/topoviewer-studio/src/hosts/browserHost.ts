@@ -146,7 +146,7 @@ export class BrowserStudioHost implements StudioHost {
   readonly projects: BrowserProjectStore;
 
   constructor(options: BrowserStudioHostOptions = {}) {
-    this.createInitialProject = options.createInitialProject || (() => createStarterProject());
+    this.createInitialProject = options.createInitialProject || (() => createStarterProject({ template: 'backbone' }));
     this.directoryPicker = options.directoryPicker || globalDirectoryPicker();
     this.capabilities = { directoryProjects: Boolean(this.directoryPicker) };
     this.projects = new BrowserProjectStore(options);

@@ -21,6 +21,37 @@ export function createStudioPaletteNodePlan(
     selectedLayerIds: ['physical']
   });
   const visualTemplate = studioVisualNodeTemplate(templateId);
+  if (templateId === 'controller') {
+    value.data = { ...value.data, subtitle: 'Control plane' };
+    value.style = {
+      ...value.style,
+      shape: 'roundRectangle',
+      width: 190,
+      height: 64,
+      nodeLayout: {
+        type: 'card',
+        direction: 'horizontal',
+        icon: { placement: 'left', width: 44, height: 44 },
+        content: { align: 'left', titleField: 'name', subtitleField: 'data.subtitle' }
+      }
+    };
+  } else if (templateId === 'router' || templateId === 'switch') {
+    value.style = { ...value.style, shape: 'square', width: 64, height: 64 };
+  } else if (templateId === 'service') {
+    value.data = { ...value.data, subtitle: 'Service' };
+    value.style = {
+      ...value.style,
+      shape: 'roundRectangle',
+      width: 176,
+      height: 60,
+      nodeLayout: {
+        type: 'card',
+        direction: 'horizontal',
+        icon: { placement: 'left', width: 40, height: 40 },
+        content: { align: 'left', titleField: 'name', subtitleField: 'data.subtitle' }
+      }
+    };
+  }
   if (!visualTemplate) return { additionalMutations: [], value };
 
   value.icon = visualTemplate.iconKey;

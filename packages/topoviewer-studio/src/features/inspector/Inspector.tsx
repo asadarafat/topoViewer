@@ -2,7 +2,6 @@ import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from 
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
-import SearchIcon from '@mui/icons-material/Search';
 import {
   authoringFieldDefaultValue,
   authoringFieldIsVisible,
@@ -17,6 +16,7 @@ import {
   type AuthoringObjectSelection,
   type StyleFieldProvenance
 } from 'topoviewer/authoring';
+import type { CreateAuthoringPathOptions, MapperAuthoringTargetKind } from 'topoviewer/authoring';
 import type { StyleTargetKind } from 'topoviewer';
 import type { StudioAuthoringProfileOverride, StudioFieldPreference } from '../../contracts/profiles';
 import type { StudioDocumentKind, StudioSessionSnapshot } from '../../contracts/project';
@@ -26,6 +26,7 @@ import type {
   StudioStyleEditScope,
   StudioStyleUnsetRequest
 } from '../../contracts/inspector';
+import type { StudioViewportPreferences } from '../viewport/types';
 import {
   fieldLevelAfterToggle,
   resolveStudioFieldProfile
@@ -39,18 +40,22 @@ import {
   StudioAccordionSummary,
   StudioIconButton,
   StudioLabeledControl,
+  StudioSearchField,
   StudioSelect,
   StudioSwitch,
   StudioTab,
   StudioTabs,
   StudioTextField
 } from '../../ui/controls';
+import { MapperContextPanel } from './MapperContextPanel';
+import { ViewportProperties } from './ViewportProperties';
 
 type InspectorView = 'basic' | 'all';
-type InspectorDocumentView = 'topology' | 'style' | 'mapper';
+type InspectorDocumentView = 'object' | 'style' | 'mapper' | 'viewport';
 
 interface InspectorProps {
   onCommit(path: Array<string | number>, value: unknown, scopePath: Array<string | number>): void;
+  onCommitViewport(path: Array<string | number>, value: unknown, scopePath: Array<string | number>): void;
   onCommitStyle(request: StudioStyleEditRequest): boolean;
   onOpenMapper(): void;
   onOpenSource(document: StudioDocumentKind, path: Array<string | number>): void;
@@ -62,10 +67,14 @@ interface InspectorProps {
     path: string,
     patch: Partial<Pick<StudioFieldPreference, 'hidden' | 'level' | 'order'>>
   ): void;
+  onViewportPreferencesChange(patch: Partial<StudioViewportPreferences>): void;
+  pathMode: NonNullable<CreateAuthoringPathOptions['mode']>;
   profile: StudioAuthoringProfileOverride;
   sourceRange: StudioSourceRangeLookup;
   state: 'default' | 'open' | 'closed';
   snapshot: StudioSessionSnapshot;
+  setPathMode(mode: NonNullable<CreateAuthoringPathOptions['mode']>): void;
+  viewportPreferences: StudioViewportPreferences;
 }
 
 const inspectorViews: Array<{ id: InspectorView; label: string }> = [
@@ -73,11 +82,13 @@ const inspectorViews: Array<{ id: InspectorView; label: string }> = [
   { id: 'all', label: 'All' }
 ];
 const inspectorDocumentViews: Array<{ id: InspectorDocumentView; label: string }> = [
-  { id: 'topology', label: 'Topology' },
-  { id: 'style', label: 'Styles' },
-  { id: 'mapper', label: 'Mapper' }
+  { id: 'object', label: 'Object' },
+  { id: 'style', label: 'Style' },
+  { id: 'mapper', label: 'Mapper' },
+  { id: 'viewport', label: 'Viewport' }
 ];
 const styleTargets = new Set<StyleTargetKind>(['node', 'link', 'linkDirection', 'path', 'region', 'shape', 'callout', 'text']);
+const mapperTargets = new Set<MapperAuthoringTargetKind>(['node', 'link', 'linkDirection', 'path', 'region', 'graph']);
 
 function record(value: unknown): Record<string, unknown> {
   return value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : {};
@@ -100,6 +111,10 @@ function draftValue(value: unknown): string {
 
 function targetForSelection(kind: string | undefined): StyleTargetKind | undefined {
   return kind && styleTargets.has(kind as StyleTargetKind) ? kind as StyleTargetKind : undefined;
+}
+
+function mapperTargetForSelection(kind: string | undefined): MapperAuthoringTargetKind | undefined {
+  return kind && mapperTargets.has(kind as MapperAuthoringTargetKind) ? kind as MapperAuthoringTargetKind : undefined;
 }
 
 export interface StyleFieldEditorProps {
@@ -444,6 +459,7 @@ function PositionEditor({
 
 export function Inspector({
   onCommit,
+  onCommitViewport,
   onCommitStyle,
   onOpenMapper,
   onOpenSource,
@@ -451,14 +467,18 @@ export function Inspector({
   onResetProfile,
   onUnsetStyle,
   onUpdateFieldProfile,
+  onViewportPreferencesChange,
+  pathMode,
   profile,
+  setPathMode,
   sourceRange,
   state,
-  snapshot
+  snapshot,
+  viewportPreferences
 }: InspectorProps) {
   const renderCount = useRef(0);
   renderCount.current += 1;
-  const [documentView, setDocumentView] = useState<InspectorDocumentView>('topology');
+  const [documentView, setDocumentView] = useState<InspectorDocumentView>('viewport');
   const [view, setView] = useState<InspectorView>('basic');
   const [query, setQuery] = useState('');
   const [showHidden, setShowHidden] = useState(false);
@@ -466,6 +486,8 @@ export function Inspector({
   const [newRuleSelector, setNewRuleSelector] = useState('');
   const [visibleFieldLimit, setVisibleFieldLimit] = useState(12);
   const selection = snapshot.selection[0];
+  const selectionKey = selection ? `${selection.kind}:${selection.id}` : undefined;
+  const previousSelectionKey = useRef<string>();
   const object = useMemo(
     () => findAuthoringObject(snapshot.projection.document, selection as AuthoringObjectSelection | undefined),
     [selection, snapshot.projection.document]
@@ -474,11 +496,13 @@ export function Inspector({
     ? authoringObjectSourcePath(snapshot.projection.document, selection as AuthoringObjectSelection)
     : undefined;
   const target = targetForSelection(selection?.kind);
+  const mapperTarget = mapperTargetForSelection(selection?.kind);
+  const activeDocumentView = documentView;
   const style = record(object?.style);
   const position = Array.isArray(object?.position) ? object.position : undefined;
   const assetOptions = Object.keys(snapshot.projection.document.icons || {}).sort();
-  const allFields = documentView === 'style' && target ? styleAuthoringMetadataByTarget[target] : [];
-  const provenance = documentView === 'style' && target && object
+  const allFields = activeDocumentView === 'style' && target ? styleAuthoringMetadataByTarget[target] : [];
+  const provenance = activeDocumentView === 'style' && target && object
     ? resolveStyleProvenance(target, object as Parameters<typeof resolveStyleProvenance>[1], snapshot.projection.document, {
         inlineSourcePath: objectPath
       })
@@ -538,6 +562,11 @@ export function Inspector({
     setEditScopeKey('object');
     setNewRuleSelector(target || 'node');
   }, [selection?.id, target]);
+  useEffect(() => {
+    if (selectionKey === previousSelectionKey.current) return;
+    previousSelectionKey.current = selectionKey;
+    setDocumentView(selectionKey ? 'object' : 'viewport');
+  }, [selectionKey]);
   useEffect(() => setVisibleFieldLimit(12), [normalizedQuery, target, view]);
 
   function commitStyle(fieldPath: string[], value: unknown) {
@@ -562,35 +591,42 @@ export function Inspector({
   }
 
   return (
-    <aside className="studio-inspector" aria-label="Inspector" data-render-count={renderCount.current} data-state={state}>
-      <div className="studio-panel-heading"><h2>Inspector</h2></div>
-      {!selection || !object || !objectPath ? (
-        <div className="studio-inspector-empty"><strong>Nothing selected</strong></div>
-      ) : (
-        <div className="studio-inspector-content">
-          <StudioTabs
-            aria-label="Inspector document"
-            className="studio-inspector-document-tabs"
-            onChange={(_event, value: InspectorDocumentView) => setDocumentView(value)}
-            selectionFollowsFocus
-            value={documentView}
-            variant="fullWidth"
-          >
-            {inspectorDocumentViews.map((item) => (
-              <StudioTab
-                aria-controls={`studio-inspector-${item.id}-panel`}
-                id={`studio-inspector-${item.id}-tab`}
-                key={item.id}
-                label={item.label}
-                value={item.id}
-              />
-            ))}
-          </StudioTabs>
-          {documentView === 'topology' ? (
+    <aside className="studio-inspector" aria-label="Properties" data-render-count={renderCount.current} data-state={state}>
+      <h2 className="studio-visually-hidden">Properties</h2>
+      <div className="studio-inspector-content">
+        <StudioTabs
+          aria-label="Contextual properties"
+          className="studio-inspector-document-tabs"
+          onChange={(_event, value: InspectorDocumentView) => setDocumentView(value)}
+          selectionFollowsFocus
+          value={activeDocumentView}
+          variant="fullWidth"
+        >
+          {inspectorDocumentViews.map((item) => (
+            <StudioTab
+              aria-controls={`studio-inspector-${item.id}-panel`}
+              id={`studio-inspector-${item.id}-tab`}
+              key={item.id}
+              label={item.label}
+              value={item.id}
+            />
+          ))}
+        </StudioTabs>
+        {activeDocumentView === 'viewport' ? (
+          <ViewportProperties
+            onCommit={onCommitViewport}
+            onPreferencesChange={onViewportPreferencesChange}
+            pathMode={pathMode}
+            preferences={viewportPreferences}
+            setPathMode={setPathMode}
+            snapshot={snapshot}
+          />
+        ) : null}
+        {activeDocumentView === 'object' && selection && object && objectPath ? (
             <div
-              aria-labelledby="studio-inspector-topology-tab"
+              aria-labelledby="studio-inspector-object-tab"
               className="studio-inspector-document-panel"
-              id="studio-inspector-topology-panel"
+              id="studio-inspector-object-panel"
               role="tabpanel"
             >
               <div className="studio-document-owner">
@@ -629,23 +665,20 @@ export function Inspector({
               {position ? <PositionEditor objectPath={objectPath} onCommit={onCommit} position={position} /> : null}
             </div>
           ) : null}
-          {documentView === 'mapper' ? (
-            <section
-              aria-label="Mapper ownership"
-              aria-labelledby="studio-inspector-mapper-tab"
-              className="studio-inspector-mapper studio-inspector-document-panel"
-              id="studio-inspector-mapper-panel"
-              role="tabpanel"
-            >
-              <div className="studio-document-owner">
-                <strong>mapper.yaml</strong>
-                <span>Telemetry rules map runtime samples to stable topology objects.</span>
-              </div>
-              <p>Mapper rules are shared contracts, so they are edited in the telemetry workspace rather than stored on this object.</p>
-              <StudioButton onClick={onOpenMapper} type="button">Open mapper workspace</StudioButton>
-            </section>
-          ) : null}
-          {documentView === 'style' && target ? (
+        {activeDocumentView === 'object' && (!selection || !object || !objectPath) ? (
+          <div className="studio-inspector-empty studio-inspector-document-panel" id="studio-inspector-object-panel" role="tabpanel">
+            <span>Select an object on the canvas.</span>
+          </div>
+        ) : null}
+        {activeDocumentView === 'mapper' && mapperTarget ? (
+          <MapperContextPanel onOpenMapper={onOpenMapper} snapshot={snapshot} target={mapperTarget} />
+        ) : null}
+        {activeDocumentView === 'mapper' && !mapperTarget ? (
+          <div className="studio-inspector-empty studio-inspector-document-panel" id="studio-inspector-mapper-panel" role="tabpanel">
+            <span>Select a topology object to inspect telemetry mapping.</span>
+          </div>
+        ) : null}
+          {activeDocumentView === 'style' && target ? (
             <section
               aria-label={`${target} style fields`}
               aria-labelledby="studio-inspector-style-tab"
@@ -693,10 +726,15 @@ export function Inspector({
                   />
                 ))}
               </StudioTabs>
-              <label className="studio-inspector-search">
-                <SearchIcon fontSize="small" />
-                <StudioTextField aria-label="Search style fields" onChange={(event) => setQuery(event.target.value)} placeholder="Search fields" type="search" value={query} />
-              </label>
+              <StudioSearchField
+                aria-label="Search style fields"
+                className="studio-inspector-search"
+                clearLabel="Clear style field search"
+                onChange={(event) => setQuery(event.target.value)}
+                onClear={() => setQuery('')}
+                placeholder="Search fields"
+                value={query}
+              />
               <StudioAccordion className="studio-inspector-profile-actions">
                 <StudioAccordionSummary expandIcon={<ExpandMoreIcon fontSize="small" />}>Customize fields</StudioAccordionSummary>
                 <StudioAccordionDetails>
@@ -758,16 +796,12 @@ export function Inspector({
               ) : null}
             </section>
           ) : null}
-          {documentView === 'style' && !target ? (
-            <div
-              aria-labelledby="studio-inspector-style-tab"
-              className="studio-inspector-empty studio-inspector-document-panel"
-              id="studio-inspector-style-panel"
-              role="tabpanel"
-            ><span>This object has no stylesheet target.</span></div>
+          {activeDocumentView === 'style' && !target ? (
+            <div className="studio-inspector-empty studio-inspector-document-panel" id="studio-inspector-style-panel" role="tabpanel">
+              <span>Select an object to edit its visual policy.</span>
+            </div>
           ) : null}
-        </div>
-      )}
+      </div>
     </aside>
   );
 }

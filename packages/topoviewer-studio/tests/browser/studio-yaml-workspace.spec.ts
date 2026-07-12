@@ -113,7 +113,7 @@ test('navigates from a source cursor to the matching canvas object', async ({ pa
   const drawer = await openWorkspace(page);
   await expect(drawer.locator('.view-line').filter({ hasText: 'id: future-node' })).toBeVisible();
   await page.locator('.react-flow__pane').click({ position: { x: 100, y: 250 } });
-  await expect(page.getByText('Nothing selected')).toBeVisible();
+  await expect(page.getByRole('tab', { name: 'Viewport' })).toBeVisible();
   await drawer.locator('.view-line').filter({ hasText: 'id: future-node' }).click();
 
   await expect(page.getByRole('textbox', { name: 'Name' })).toHaveValue('Future Node');

@@ -6,6 +6,7 @@ import { StudioThemeProvider } from '../ui/StudioThemeProvider';
 import { StudioButton, StudioCircularProgress } from '../ui/controls';
 import { StudioWorkspace } from './StudioWorkspace';
 import './studio.css';
+import './studio-wireframe.css';
 
 export interface StudioAppProps {
   forceEditorFailure?: boolean;

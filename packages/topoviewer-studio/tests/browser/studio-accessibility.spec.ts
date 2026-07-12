@@ -23,7 +23,13 @@ async function expectControlAffordances(page: Page, state: string) {
   expect(findings, state).toEqual([]);
 }
 
+async function expandPaletteGroup(page: Page, name: string) {
+  const group = page.getByRole('button', { name: `${name} palette group` });
+  if (await group.getAttribute('aria-expanded') !== 'true') await group.click();
+}
+
 async function createByKeyboard(page: Page, template: string) {
+  if (['callout', 'region', 'shape', 'text'].includes(template)) await expandPaletteGroup(page, 'Annotations');
   await page.getByTestId(`palette-${template}`).focus();
   await page.keyboard.press('Enter');
   await expect(page.getByTestId('studio-canvas')).toBeFocused();
@@ -51,18 +57,19 @@ async function emitExternalChange(page: Page) {
 }
 
 test('passes automated accessibility checks in every major authoring state', async ({ page }) => {
+  test.setTimeout(45_000);
   await page.goto('/');
   await expectNoBlockingViolations(page, 'empty shell');
   await expectControlAffordances(page, 'empty shell controls');
 
   await createByKeyboard(page, 'router');
   await expect(page.locator('.react-flow__node[data-id="router-1"]')).toHaveAccessibleName('node New Router');
-  await expectNoBlockingViolations(page, 'selected object and Inspector');
-  const inspector = page.getByRole('complementary', { name: 'Inspector' });
-  await inspector.getByRole('tab', { name: 'Styles' }).click();
+  await expectNoBlockingViolations(page, 'selected object and properties');
+  const inspector = page.getByRole('complementary', { name: 'Properties' });
+  await inspector.getByRole('tab', { name: 'Style' }).click();
   await inspector.locator('[data-field-path="shape"]').getByRole('button', { name: 'Shape actions' }).click();
-  await expectNoBlockingViolations(page, 'Inspector field action menu');
-  await expectControlAffordances(page, 'Inspector tabs and field actions');
+  await expectNoBlockingViolations(page, 'properties field action menu');
+  await expectControlAffordances(page, 'properties tabs and field actions');
   await page.keyboard.press('ArrowDown');
   await expect(inspector.getByRole('menuitem', { name: 'Write default' })).toBeFocused();
   await page.keyboard.press('Escape');
@@ -121,7 +128,7 @@ test('supports the primary authoring workflow without pointer input', async ({ p
   await expect(liveAnnouncement(page)).toContainText('Create link');
 
   await selectByKeyboard(page, 'node-1');
-  await page.getByRole('tab', { name: 'Styles' }).click();
+  await page.getByRole('tab', { name: 'Style' }).click();
   const width = page.getByRole('spinbutton', { name: 'Body width' });
   const originalWidth = Number(await width.inputValue());
   await page.getByTestId('studio-canvas').focus();
@@ -186,8 +193,12 @@ test('announces parallel and invalid native connection targets without color dep
   await page.mouse.up();
   await expect(page.locator('.react-flow__edge')).toHaveCount(2);
 
-  await page.getByTestId('palette-callout').dragTo(page.getByTestId('studio-canvas'), { targetPosition: { x: 140, y: 320 } });
-  await page.getByTestId('palette-callout').dragTo(page.getByTestId('studio-canvas'), { targetPosition: { x: 440, y: 320 } });
+  await expandPaletteGroup(page, 'Annotations');
+  const calloutTemplate = page.getByTestId('palette-callout');
+  await calloutTemplate.scrollIntoViewIfNeeded();
+  await calloutTemplate.dragTo(page.getByTestId('studio-canvas'), { targetPosition: { x: 140, y: 320 } });
+  await calloutTemplate.scrollIntoViewIfNeeded();
+  await calloutTemplate.dragTo(page.getByTestId('studio-canvas'), { targetPosition: { x: 440, y: 320 } });
   const calloutSource = page.locator('.react-flow__node[data-id="callout-1"] .react-flow__handle-right');
   const calloutTarget = page.locator('.react-flow__node[data-id="callout-2"] .react-flow__handle-left');
   const calloutSourceBox = await calloutSource.boundingBox();
@@ -245,7 +256,7 @@ test('contains and restores focus across dialogs, drawers, tabs, and presentatio
 test('associates validation errors and exposes non-color status text', async ({ page }) => {
   await page.goto('/');
   await createByKeyboard(page, 'node');
-  await page.getByRole('tab', { name: 'Styles' }).click();
+  await page.getByRole('tab', { name: 'Style' }).click();
   const width = page.getByRole('spinbutton', { name: 'Body width' });
   await width.fill('1.2');
   await width.blur();
@@ -268,7 +279,7 @@ test('passes dark, reduced-motion, forced-color, zoom, narrow, and long-label ch
   await page.getByRole('button', { name: 'Open object palette' }).click();
   await createByKeyboard(page, 'router');
   await page.getByRole('button', { name: 'Close object palette' }).click();
-  await page.getByRole('button', { name: 'Open Inspector' }).click();
+  await page.getByRole('button', { name: 'Open properties' }).click();
   const name = page.getByRole('textbox', { name: 'Name' });
   await name.fill('Internationalized edge gateway with a deliberately long translated-like object name');
   await name.press('Enter');

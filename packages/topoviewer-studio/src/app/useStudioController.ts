@@ -7,7 +7,6 @@ import {
   authoringObjectDisplayName,
   copyAuthoringSelection,
   createAuthoringLayer,
-  createAuthoringLink,
   createAuthoringRegion,
   createBasicMapperRule,
   ingestMapperSamples,
@@ -55,7 +54,7 @@ import type {
 import type { StudioFieldPreference } from '../contracts/profiles';
 import type { StudioSelection } from '../contracts/project';
 import { createStudioCommandDispatcher, StudioCommandExecutionError } from '../commands';
-import type { StudioPaletteTemplateId, StudioUserPreset } from '../features/palette/types';
+import type { StudioEdgeTemplateId, StudioPaletteTemplateId, StudioUserPreset } from '../features/palette/types';
 import {
   emptyStudioAuthoringProfile,
   migrateStudioAuthoringProfile,
@@ -81,7 +80,8 @@ import {
   planStudioSelectionResize,
   resolveStudioQuickEditTarget
 } from './controllerAuthoring';
-import { planStudioPaletteCreation } from './controllerPalette';
+import { planStudioEdgeCreation, planStudioPaletteCreation } from './controllerPalette';
+import { createStudioInspectorEditCommand, createStudioViewportEditCommand } from './controllerSourceEdit';
 
 export function useStudioController({ host, onReload, project, recovery }: UseStudioControllerOptions) {
   const session = useMemo(() => {
@@ -91,7 +91,7 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
   const [snapshot, setSnapshot] = useState(session.snapshot());
   const [clipboard, setClipboard] = useState<AuthoringClipboardItem[]>([]);
   const [presets, setPresets] = useState<StudioUserPreset[]>([]);
-  const [pathMode, setPathMode] = useState<NonNullable<CreateAuthoringPathOptions['mode']>>('loose');
+  const [pathMode, setPathMode] = useState<NonNullable<CreateAuthoringPathOptions['mode']>>('shortest');
   const [authoringProfile, setAuthoringProfile] = useState(emptyStudioAuthoringProfile);
   const [commandError, setCommandError] = useState<string>();
   const [announcement, setAnnouncement] = useState('Studio ready');
@@ -180,7 +180,12 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       setCommandError(message);
-      setAnnouncement(`${templateId === 'path' ? 'Path' : 'Object'} rejected: ${message}`);
+      const family = templateId === 'path'
+        ? 'Path'
+        : templateId === 'link' || templateId === 'parallel-link' || templateId === 'parent-link-pipe'
+          ? 'Link'
+          : 'Object';
+      setAnnouncement(`${family} rejected: ${message}`);
       return false;
     }
   }
@@ -293,7 +298,7 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
       : false;
   }
 
-  function createConnection(connection: TopoViewerConnectionCreate) {
+  function createConnection(connection: TopoViewerConnectionCreate, templateId: StudioEdgeTemplateId = 'link') {
     try {
       const topology = session.snapshot().projection.document;
       const source = resolveAuthoringSelection(topology, connection.sourceId);
@@ -301,22 +306,29 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
       const callout = source?.kind === 'callout' ? source : target?.kind === 'callout' ? target : undefined;
       const node = source?.kind === 'node' ? source : target?.kind === 'node' ? target : undefined;
       if (callout && node) {
+        if (templateId !== 'link') throw new Error('Only the Link tool can attach a callout leader.');
         return executeEditPlan(`attach-${callout.id}-${node.id}`, 'Attach callout leader',
           planAuthoringCalloutAttachment(topology, callout.id, node.id), [callout as StudioSelection]);
       }
       if (source?.kind !== 'node' || target?.kind !== 'node') {
         throw new Error('Connections require two nodes or one callout and one node.');
       }
-      const value = createAuthoringLink(topology, {
-        selectedLayerIds: ['physical'],
+      const creation = planStudioEdgeCreation({
+        document: topology,
         source: connection.sourceId,
         sourceHandle: connection.sourceHandleId,
         target: connection.targetId,
-        targetHandle: connection.targetHandleId
+        targetHandle: connection.targetHandleId,
+        templateId
       });
-      return executeEditPlan(`create-${value.id}`, 'Create link', insertionPlan(
-        ['graph', 'links'], { id: value.id, kind: 'link' }, value as unknown as Record<string, unknown>
-      ));
+      const firstSelection = creation.plan.insertions[0]?.selection as StudioSelection | undefined;
+      return executeEditPlan(
+        creation.commandId,
+        creation.label,
+        creation.plan,
+        templateId === 'parallel-link' ? [] : firstSelection ? [firstSelection] : [],
+        creation.additionalMutations
+      );
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       setCommandError(message);
@@ -325,12 +337,16 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
     }
   }
 
-  function isConnectionValid(connection: TopoViewerConnectionCreate) {
+  function isConnectionValid(connection: TopoViewerConnectionCreate, templateId: StudioEdgeTemplateId = 'link') {
     if (connection.sourceId === connection.targetId) return false;
     const topology = session.snapshot().projection.document;
     const source = resolveAuthoringSelection(topology, connection.sourceId);
     const target = resolveAuthoringSelection(topology, connection.targetId);
-    return (source?.kind === 'node' && target?.kind === 'node')
+    const connectsNodes = source?.kind === 'node' && target?.kind === 'node';
+    if (templateId === 'parallel-link' || templateId === 'parent-link-pipe' || templateId === 'directional-link') {
+      return connectsNodes;
+    }
+    return connectsNodes
       || (source?.kind === 'callout' && target?.kind === 'node')
       || (source?.kind === 'node' && target?.kind === 'callout');
   }
@@ -452,20 +468,17 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
   }
 
   function commitInspector(path: Array<string | number>, value: unknown, scopePath: Array<string | number>) {
-    const selection = session.snapshot().selection[0];
-    const existing = session.sourceRange('topology', path);
-    execute({
-      coalescingKey: selection ? `${selection.kind}:${selection.id}:${path.join('.')}` : undefined,
-      id: `inspect-${path.join('-')}`,
-      label: `Edit ${String(path.at(-1))}`,
-      execute: () => ({
-        mutations: [existing
-          ? { document: 'topology', kind: 'set-value', path, value }
-          : { document: 'topology', kind: 'upsert-value', path, scopePath, value }],
-        selection: selection ? [selection] : undefined,
-        summary: `Edit ${String(path.at(-1))}`
-      })
-    });
+    const selection = session.snapshot().selection.slice(0, 1);
+    return execute(createStudioInspectorEditCommand({
+      existing: Boolean(session.sourceRange('topology', path)), path, scopePath, selection, value
+    }));
+  }
+
+  function commitViewport(path: Array<string | number>, value: unknown, scopePath: Array<string | number>) {
+    return execute(createStudioViewportEditCommand({
+      existing: Boolean(session.sourceRange('stylesheet', path)), path, scopePath,
+      selection: session.snapshot().selection, value
+    }));
   }
 
   function commitObjectText(selection: StudioSelection, value: string) {
@@ -932,6 +945,7 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
     commitMapperProposal,
     commitMapperStyle,
     commitStyleInspector,
+    commitViewport,
     connectSelected,
     copySelection,
     cutSelection,

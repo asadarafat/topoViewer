@@ -4,27 +4,14 @@ import type { PropsWithChildren } from 'react';
 
 const studioTheme = createTheme({
   cssVariables: true,
-  colorSchemes: {
-    light: {
-      palette: {
-        background: { default: '#eef2f6', paper: '#ffffff' },
-        divider: '#cbd5df',
-        primary: { main: '#1769aa' },
-        secondary: { main: '#53657a' },
-        error: { main: '#b42318' },
-        text: { primary: '#18212f', secondary: '#526274' }
-      }
-    },
-    dark: {
-      palette: {
-        background: { default: '#10151d', paper: '#171e28' },
-        divider: '#3d4b5e',
-        primary: { main: '#64b5f6' },
-        secondary: { main: '#a9b8ca' },
-        error: { main: '#ff8a80' },
-        text: { primary: '#f1f5f9', secondary: '#b4c0cf' }
-      }
-    }
+  palette: {
+    mode: 'dark',
+    background: { default: '#0c1219', paper: '#18212b' },
+    divider: '#3d4b5e',
+    primary: { main: '#64b5f6' },
+    secondary: { main: '#a9b8ca' },
+    error: { main: '#ff8a80' },
+    text: { primary: '#f1f5f9', secondary: '#b4c0cf' }
   },
   shape: { borderRadius: 5 },
   typography: {
@@ -63,7 +50,36 @@ const studioTheme = createTheme({
       defaultProps: { disableRipple: true }
     },
     MuiSwitch: {
-      defaultProps: { disableRipple: true }
+      defaultProps: { disableRipple: true },
+      styleOverrides: {
+        root: {
+          width: 30,
+          height: 18,
+          padding: 0,
+          overflow: 'visible'
+        },
+        switchBase: {
+          padding: 3,
+          '&.Mui-checked': {
+            color: '#ffffff',
+            transform: 'translateX(12px)',
+            '& + .MuiSwitch-track': {
+              backgroundColor: '#1976d2',
+              opacity: 1
+            }
+          }
+        },
+        thumb: {
+          width: 12,
+          height: 12,
+          boxShadow: 'none'
+        },
+        track: {
+          borderRadius: 10,
+          backgroundColor: '#455565',
+          opacity: 1
+        }
+      }
     },
     MuiTab: {
       defaultProps: { disableRipple: true },
@@ -90,5 +106,5 @@ const studioTheme = createTheme({
 });
 
 export function StudioThemeProvider({ children }: PropsWithChildren) {
-  return <ThemeProvider defaultMode="system" theme={studioTheme}><CssBaseline enableColorScheme />{children}</ThemeProvider>;
+  return <ThemeProvider theme={studioTheme}><CssBaseline enableColorScheme />{children}</ThemeProvider>;
 }

@@ -6,6 +6,7 @@ export interface CreateStarterProjectOptions {
   id?: string;
   name?: string;
   now?: string;
+  template?: 'backbone' | 'blank';
 }
 
 function starterIconYamlLines(): string[] {
@@ -19,11 +20,12 @@ function starterIconYamlLines(): string[] {
 export function createStarterProject(options: CreateStarterProjectOptions = {}): StudioProject {
   const now = options.now || new Date().toISOString();
   const id = options.id || 'studio-project';
+  const backbone = options.template === 'backbone';
   return {
     assets: [],
     documents: {
       topology: {
-        contentHash: 'starter-topology-v2',
+        contentHash: backbone ? 'starter-backbone-topology-v1' : 'starter-topology-v2',
         kind: 'topology',
         path: 'topology.yaml',
         text: [
@@ -46,8 +48,74 @@ export function createStarterProject(options: CreateStarterProjectOptions = {}):
           '      name: Paths',
           '    - id: annotations',
           '      name: Annotations',
-          '  nodes: []',
-          '  links: []',
+          ...(backbone ? [
+            '  nodes:',
+            '    - id: edge-01',
+            '      name: edge-01',
+            '      icon: topoviewer.router',
+            '      layers: [physical]',
+            '      position: [215, 326]',
+            '      style:',
+            '        shape: square',
+            '        width: 58',
+            '        height: 58',
+            '        borderWidth: 1',
+            '        labelPosition: bottom',
+            '        labelMargin: 7',
+            '    - id: noc-controller',
+            '      name: NOC Controller',
+            '      icon: topoviewer.controller',
+            '      data:',
+            '        subtitle: Control plane · Healthy',
+            '      layers: [physical]',
+            '      position: [459, 269]',
+            '      style:',
+            '        shape: roundRectangle',
+            '        width: 184',
+            '        height: 62',
+            '        backgroundColor: "#172430"',
+            '        borderColor: "#52708a"',
+            '        borderWidth: 1',
+            '        nodeLayout:',
+            '          type: card',
+            '          direction: horizontal',
+            '          icon:',
+            '            placement: left',
+            '            width: 44',
+            '            height: 44',
+            '          content:',
+            '            align: left',
+            '            titleField: name',
+            '            subtitleField: data.subtitle',
+            '    - id: edge-02',
+            '      name: edge-02',
+            '      icon: topoviewer.router',
+            '      layers: [physical]',
+            '      position: [761, 392]',
+            '      style:',
+            '        shape: square',
+            '        width: 58',
+            '        height: 58',
+            '        borderWidth: 1',
+            '        labelPosition: bottom',
+            '        labelMargin: 7',
+            '  links:',
+            '    - id: edge-01-controller',
+            '      source: edge-01',
+            '      target: noc-controller',
+            '      layers: [physical]',
+            '      style:',
+            '        curveStyle: straight',
+            '    - id: controller-edge-02',
+            '      source: noc-controller',
+            '      target: edge-02',
+            '      layers: [physical]',
+            '      style:',
+            '        curveStyle: straight'
+          ] : [
+            '  nodes: []',
+            '  links: []'
+          ]),
           '  paths: []',
           '  regions: []',
           'diagram:',
@@ -58,7 +126,7 @@ export function createStarterProject(options: CreateStarterProjectOptions = {}):
         ].join('\n')
       },
       stylesheet: {
-        contentHash: 'starter-stylesheet-v3',
+        contentHash: 'starter-stylesheet-v4',
         kind: 'stylesheet',
         path: 'stylesheet.yaml',
         text: [
@@ -71,9 +139,16 @@ export function createStarterProject(options: CreateStarterProjectOptions = {}):
           '  - selector: node',
           '    style:',
           '      shape: rectangle',
+          '      backgroundColor: "#1976d2"',
+          '      borderColor: "#64b5f6"',
+          '      borderWidth: 1',
+          '      labelColor: "#e7edf4"',
+          '      metaColor: "#93a8ba"',
           '  - selector: link',
           '    style:',
           '      curveStyle: bezier',
+          '      lineColor: "#4f83ad"',
+          '      lineWidth: 2',
           '  - selector: node[isAggregate = "true"]',
           '    style:',
           '      shape: roundRectangle',
@@ -95,7 +170,7 @@ export function createStarterProject(options: CreateStarterProjectOptions = {}):
       schemaVersion: 1,
       updatedAt: now
     },
-    name: options.name?.trim() || 'Untitled topology',
+    name: options.name?.trim() || (backbone ? 'Backbone topology' : 'Untitled topology'),
     revision: 'browser-initial'
   };
 }

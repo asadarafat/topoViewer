@@ -24,7 +24,10 @@ test('autosaves a modified browser project and restores it as recovery after rel
   await expect(page.locator('.react-flow__node')).toHaveCount(1);
   await expect(page.locator('.studio-saved-state')).toHaveText('Modified');
   await expect.poll(() => recoveryCount(page), { timeout: 5_000 }).toBeGreaterThan(0);
-  expect(await page.evaluate(() => Object.entries(localStorage))).toEqual([]);
+  const localEntries = await page.evaluate(() => Object.entries(localStorage));
+  expect(localEntries.map(([key]) => key)).toEqual(['topoviewer-studio:preference:v1:canvas-display']);
+  expect(localEntries[0]?.[1]).not.toContain('topology.yaml');
+  expect(localEntries[0]?.[1]).not.toContain('stylesheet.yaml');
 
   await page.reload();
   await expect(page.locator('.react-flow__node')).toHaveCount(1);

@@ -17,7 +17,13 @@ function overlaps(left: Rect, right: Rect, tolerance = 1) {
 }
 
 async function dragTemplate(page: Page, id: string, position: { x: number; y: number }) {
-  await page.getByTestId(`palette-${id}`).dragTo(page.getByTestId('studio-canvas'), { targetPosition: position });
+  if (['callout', 'region', 'shape', 'text'].includes(id)) {
+    const group = page.getByRole('button', { name: 'Annotations palette group' });
+    if (await group.getAttribute('aria-expanded') !== 'true') await group.click();
+  }
+  const source = page.getByTestId(`palette-${id}`);
+  await source.scrollIntoViewIfNeeded();
+  await source.dragTo(page.getByTestId('studio-canvas'), { targetPosition: position });
 }
 
 async function dragCenterTo(object: Locator, target: Rect, page: Page) {

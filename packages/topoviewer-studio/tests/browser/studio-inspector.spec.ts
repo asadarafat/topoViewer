@@ -12,14 +12,14 @@ test('separates document ownership and generates searchable Basic and All style 
   await page.goto('/');
   await page.getByTestId('palette-node').click();
 
-  const inspector = page.getByRole('complementary', { name: 'Inspector' });
-  await expect(inspector.getByRole('tab', { name: 'Topology' })).toHaveAttribute('aria-selected', 'true');
+  const inspector = page.getByRole('complementary', { name: 'Properties' });
+  await expect(inspector.getByRole('tab', { name: 'Node' })).toHaveAttribute('aria-selected', 'true');
   await expect(inspector.getByText('topology.yaml', { exact: true })).toBeVisible();
   await expect(inspector.getByRole('textbox', { name: 'Name' })).toBeVisible();
   await expect(inspector.locator('.studio-inspector-document-tabs.MuiTabs-root')).toBeVisible();
-  await inspector.getByRole('tab', { name: 'Topology' }).focus();
+  await inspector.getByRole('tab', { name: 'Node' }).focus();
   await page.keyboard.press('ArrowRight');
-  await expect(inspector.getByRole('tab', { name: 'Styles' })).toHaveAttribute('aria-selected', 'true');
+  await expect(inspector.getByRole('tab', { name: 'Style' })).toHaveAttribute('aria-selected', 'true');
   await expect(inspector.getByRole('tab', { name: 'Basic' })).toHaveAttribute('aria-selected', 'true');
   await expect(inspector.locator('.studio-inspector-view-tabs.MuiTabs-root')).toBeVisible();
   await expect(inspector.getByRole('combobox', { name: 'Shape' })).toBeVisible();
@@ -53,15 +53,15 @@ test('separates document ownership and generates searchable Basic and All style 
 
   await inspector.getByRole('tab', { name: 'Mapper' }).click();
   await expect(inspector.getByText('mapper.yaml', { exact: true })).toBeVisible();
-  await inspector.getByRole('button', { name: 'Open mapper workspace' }).click();
+  await inspector.getByRole('button', { name: 'Edit mapper rules' }).click();
   await expect(page.getByRole('region', { name: 'Telemetry mapper workspace' })).toBeVisible();
 });
 
 test('writes explicit defaults and validates typed list controls', async ({ page }) => {
   await page.goto('/');
   await page.getByTestId('palette-node').click();
-  const inspector = page.getByRole('complementary', { name: 'Inspector' });
-  await inspector.getByRole('tab', { name: 'Styles' }).click();
+  const inspector = page.getByRole('complementary', { name: 'Properties' });
+  await inspector.getByRole('tab', { name: 'Style' }).click();
 
   const widthField = inspector.locator('[data-field-path="width"]');
   await widthField.getByRole('button', { name: 'Body width actions' }).click();
@@ -102,8 +102,8 @@ test('persists sparse field-profile overrides without modifying project YAML', a
   await page.getByRole('button', { name: 'Save project' }).click();
   await expect(page.locator('.studio-saved-state')).toHaveText('Saved');
 
-  const inspector = page.getByRole('complementary', { name: 'Inspector' });
-  await inspector.getByRole('tab', { name: 'Styles' }).click();
+  const inspector = page.getByRole('complementary', { name: 'Properties' });
+  await inspector.getByRole('tab', { name: 'Style' }).click();
   const shapeField = inspector.locator('[data-field-path="shape"]');
   await shapeField.getByRole('button', { name: 'Shape actions' }).click();
   await shapeField.getByRole('menuitem', { name: 'Remove from Basic' }).click();
@@ -131,8 +131,8 @@ test('persists sparse field-profile overrides without modifying project YAML', a
 
   await page.getByRole('button', { name: 'Reload project' }).click();
   await page.locator('.react-flow__node[data-id="node-1"]').click();
-  const reloadedInspector = page.getByRole('complementary', { name: 'Inspector' });
-  await reloadedInspector.getByRole('tab', { name: 'Styles' }).click();
+  const reloadedInspector = page.getByRole('complementary', { name: 'Properties' });
+  await reloadedInspector.getByRole('tab', { name: 'Style' }).click();
   await reloadedInspector.getByRole('tab', { name: 'All' }).click();
   await expect(reloadedInspector.getByRole('combobox', { name: 'Shape' })).toBeVisible();
   const customization = reloadedInspector.getByText('Customize fields');
@@ -148,8 +148,8 @@ test('shows provenance and writes only the explicitly selected style scope', asy
   await page.getByTestId('palette-node').click();
   await page.getByTestId('palette-node').click();
   await page.locator('.react-flow__node[data-id="node-1"]').click();
-  const inspector = page.getByRole('complementary', { name: 'Inspector' });
-  await inspector.getByRole('tab', { name: 'Styles' }).click();
+  const inspector = page.getByRole('complementary', { name: 'Properties' });
+  await inspector.getByRole('tab', { name: 'Style' }).click();
 
   const shapeField = inspector.locator('[data-field-path="shape"]');
   const provenance = shapeField.getByRole('button', { name: 'Rule node' });
@@ -182,8 +182,8 @@ test('shows provenance and writes only the explicitly selected style scope', asy
 test('preserves unknown future fields and navigates to their raw YAML range', async ({ page }) => {
   await page.goto('/?__studio-test-state=future-style');
   await page.locator('.react-flow__node[data-id="future-node"]').click();
-  const inspector = page.getByRole('complementary', { name: 'Inspector' });
-  await inspector.getByRole('tab', { name: 'Styles' }).click();
+  const inspector = page.getByRole('complementary', { name: 'Properties' });
+  await inspector.getByRole('tab', { name: 'Style' }).click();
   await expect(inspector.getByText('Unsupported fields')).toBeVisible();
   await inspector.getByRole('button', { name: 'Open futureGlow in YAML' }).click();
 

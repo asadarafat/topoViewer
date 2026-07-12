@@ -11,6 +11,7 @@ import DialogContent, { type DialogContentProps } from '@mui/material/DialogCont
 import DialogTitle, { type DialogTitleProps } from '@mui/material/DialogTitle';
 import FormControlLabel, { type FormControlLabelProps } from '@mui/material/FormControlLabel';
 import IconButton, { type IconButtonProps } from '@mui/material/IconButton';
+import InputAdornment from '@mui/material/InputAdornment';
 import Menu, { type MenuProps } from '@mui/material/Menu';
 import MenuItem, { type MenuItemProps } from '@mui/material/MenuItem';
 import Popover, { type PopoverProps } from '@mui/material/Popover';
@@ -25,6 +26,8 @@ import TextField, { type TextFieldProps } from '@mui/material/TextField';
 import ToggleButton, { type ToggleButtonProps } from '@mui/material/ToggleButton';
 import ToggleButtonGroup, { type ToggleButtonGroupProps } from '@mui/material/ToggleButtonGroup';
 import Tooltip, { type TooltipProps } from '@mui/material/Tooltip';
+import ClearIcon from '@mui/icons-material/Clear';
+import SearchIcon from '@mui/icons-material/Search';
 import {
   forwardRef,
   type AnchorHTMLAttributes,
@@ -91,6 +94,63 @@ export function StudioTextField({
           onKeyDown
         }
       }}
+    />
+  );
+}
+
+type StudioSearchFieldProps = Omit<TextFieldProps, 'type'> & {
+  clearLabel: string;
+  onClear(): void;
+  value: string;
+};
+
+export function StudioSearchField({
+  className,
+  clearLabel,
+  onClear,
+  onKeyDown,
+  slotProps,
+  value,
+  ...props
+}: StudioSearchFieldProps) {
+  const input = typeof slotProps?.input === 'object' ? slotProps.input : {};
+  return (
+    <StudioTextField
+      {...props}
+      className={['studio-search-field', className].filter(Boolean).join(' ')}
+      onKeyDown={(event) => {
+        onKeyDown?.(event);
+        if (event.defaultPrevented || event.key !== 'Escape' || !value) return;
+        event.preventDefault();
+        onClear();
+      }}
+      slotProps={{
+        ...slotProps,
+        input: {
+          ...input,
+          endAdornment: value ? (
+            <InputAdornment position="end">
+              <StudioIconButton
+                aria-label={clearLabel}
+                edge="end"
+                onClick={onClear}
+                onMouseDown={(event) => event.preventDefault()}
+                title={clearLabel}
+                type="button"
+              >
+                <ClearIcon fontSize="small" />
+              </StudioIconButton>
+            </InputAdornment>
+          ) : undefined,
+          startAdornment: (
+            <InputAdornment position="start">
+              <SearchIcon aria-hidden="true" fontSize="small" />
+            </InputAdornment>
+          )
+        }
+      }}
+      type="search"
+      value={value}
     />
   );
 }

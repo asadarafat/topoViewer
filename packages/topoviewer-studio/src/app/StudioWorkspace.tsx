@@ -1,20 +1,24 @@
 import { lazy, Suspense, useEffect, useRef, useState, type CSSProperties } from 'react';
 import CodeIcon from '@mui/icons-material/Code';
-import FeedbackOutlinedIcon from '@mui/icons-material/FeedbackOutlined';
+import CropSquareIcon from '@mui/icons-material/CropSquare';
 import IosShareIcon from '@mui/icons-material/IosShare';
 import MenuIcon from '@mui/icons-material/Menu';
-import PresentToAllIcon from '@mui/icons-material/PresentToAll';
 import RedoIcon from '@mui/icons-material/Redo';
 import RefreshIcon from '@mui/icons-material/Refresh';
-import SaveIcon from '@mui/icons-material/Save';
+import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 import SensorsIcon from '@mui/icons-material/Sensors';
-import TuneIcon from '@mui/icons-material/Tune';
 import UndoIcon from '@mui/icons-material/Undo';
 import type { StudioExternalChange, StudioHost } from '../contracts/host';
 import type { StudioDocumentKind, StudioProject, StudioRecoverySnapshot, StudioSelection } from '../contracts/project';
 import { CanvasSurface } from '../features/canvas/CanvasSurface';
 import { Inspector } from '../features/inspector/Inspector';
 import { ObjectPalette } from '../features/palette/ObjectPalette';
+import type { StudioEdgeTemplateId } from '../features/palette/types';
+import {
+  defaultStudioViewportPreferences,
+  normalizeStudioViewportPreferences,
+  type StudioViewportPreferences
+} from '../features/viewport/types';
 import { ProjectMenu, type StudioProjectLifecycleActions } from '../features/projects/ProjectMenu';
 import { ExternalChangeDialog } from '../features/projects/ExternalChangeDialog';
 import { StudioButton, StudioIconButton } from '../ui/controls';
@@ -24,7 +28,6 @@ import { useStudioAutosave } from './useStudioAutosave';
 const WorkspaceDrawer = lazy(() => import('../features/workspace/WorkspaceDrawer'));
 const MapperWorkspace = lazy(() => import('../features/mapper/MapperWorkspace'));
 const ExportPanel = lazy(() => import('../features/export/ExportPanel'));
-const studioFeedbackUrl = 'https://github.com/asadarafat/topoviewer/issues/new?template=studio_preview_feedback.yml';
 
 interface StudioWorkspaceProps {
   forceEditorFailure?: boolean;
@@ -63,6 +66,9 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
   const [externalDiskProject, setExternalDiskProject] = useState<StudioProject>();
   const [externalChangeError, setExternalChangeError] = useState<string>();
   const [externalChangeLoading, setExternalChangeLoading] = useState(false);
+  const [viewportPreferences, setViewportPreferences] = useState<StudioViewportPreferences>(defaultStudioViewportPreferences);
+  const [viewportPreferencesReady, setViewportPreferencesReady] = useState(false);
+  const [edgeAuthoringTemplate, setEdgeAuthoringTemplate] = useState<StudioEdgeTemplateId>();
   const canvasRef = useRef<HTMLElement>(null);
   const drawerReturnFocusRef = useRef<HTMLElement | null>(null);
   const presentationTriggerRef = useRef<HTMLButtonElement>(null);
@@ -86,6 +92,32 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
   useEffect(() => {
     snapshotRef.current = snapshot;
   }, [snapshot]);
+
+  useEffect(() => {
+    let active = true;
+    void host.readPreference<StudioViewportPreferences>('canvas-display').then((result) => {
+      if (!active) return;
+      if (result.ok && result.value) setViewportPreferences(normalizeStudioViewportPreferences(result.value));
+      setViewportPreferencesReady(true);
+    });
+    return () => {
+      active = false;
+    };
+  }, [host]);
+
+  useEffect(() => {
+    if (!viewportPreferencesReady) return;
+    const timer = setTimeout(() => {
+      void host.writePreference('canvas-display', viewportPreferences).then((result) => {
+        if (!result.ok) host.report({
+          category: 'persistence',
+          detail: { code: result.error.code },
+          name: 'studio-viewport-preference-write-failed'
+        });
+      });
+    }, 150);
+    return () => clearTimeout(timer);
+  }, [host, viewportPreferences, viewportPreferencesReady]);
 
   useEffect(() => host.watchProject?.((event) => {
     const current = snapshotRef.current;
@@ -186,6 +218,20 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
     return created;
   }
 
+  function changeEdgeAuthoringTemplate(templateId?: StudioEdgeTemplateId) {
+    setEdgeAuthoringTemplate(templateId);
+    controller.announce(templateId
+      ? `${templateId === 'directional-link'
+        ? 'Directional traffic'
+        : templateId === 'parallel-link'
+          ? 'Parallel link'
+          : templateId === 'parent-link-pipe'
+            ? 'Parent link pipe'
+            : 'Link'} authoring active`
+      : 'Edge authoring cancelled');
+    if (templateId) requestAnimationFrame(() => canvasRef.current?.focus());
+  }
+
   function exitPresentation() {
     setPresentationMode(false);
     requestAnimationFrame(() => presentationTriggerRef.current?.focus());
@@ -209,19 +255,24 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
           <span aria-live="polite" className={`studio-saved-state studio-saved-state--${snapshot.status}`}>{statusLabels[snapshot.status]}</span>
           <StudioIconButton className="studio-icon-button" aria-label="Undo" disabled={!controller.canUndo} onClick={controller.undo} title="Undo"><UndoIcon fontSize="small" /></StudioIconButton>
           <StudioIconButton className="studio-icon-button" aria-label="Redo" disabled={!controller.canRedo} onClick={controller.redo} title="Redo"><RedoIcon fontSize="small" /></StudioIconButton>
-          <StudioIconButton className="studio-icon-button" aria-label="Save project" disabled={snapshot.status === 'saved' || snapshot.status === 'saving'} onClick={() => void controller.save()} title="Save"><SaveIcon fontSize="small" /></StudioIconButton>
+          <StudioIconButton className="studio-icon-button" aria-label="Enter presentation mode" onClick={() => { setDrawerOpen(false); setEdgeAuthoringTemplate(undefined); setPresentationMode(true); }} ref={presentationTriggerRef} title="Presentation mode"><CropSquareIcon fontSize="small" /></StudioIconButton>
           <StudioIconButton className="studio-icon-button" aria-label="Reload project" onClick={() => void controller.reload()} title="Reload"><RefreshIcon fontSize="small" /></StudioIconButton>
           <StudioIconButton className="studio-icon-button" aria-label="Open export panel" onClick={() => setExportOpen(true)} title="Export"><IosShareIcon fontSize="small" /></StudioIconButton>
-          <StudioIconButton className="studio-icon-button" aria-label="Send Studio preview feedback" component="a" href={studioFeedbackUrl} rel="noreferrer" target="_blank" title="Preview feedback"><FeedbackOutlinedIcon fontSize="small" /></StudioIconButton>
-          <StudioIconButton className="studio-icon-button" aria-label="Enter presentation mode" onClick={() => { setDrawerOpen(false); setPresentationMode(true); }} ref={presentationTriggerRef} title="Presentation mode"><PresentToAllIcon fontSize="small" /></StudioIconButton>
-          <StudioIconButton className="studio-icon-button studio-desktop-control" aria-expanded={inspectorState !== 'closed'} aria-label={`${inspectorState === 'closed' ? 'Open' : 'Close'} Inspector`} onClick={() => setInspectorState((state) => state === 'closed' ? 'default' : 'closed')} title="Inspector"><TuneIcon fontSize="small" /></StudioIconButton>
-          <StudioIconButton className="studio-icon-button studio-mobile-control" aria-expanded={inspectorState === 'open'} aria-label={`${inspectorState === 'open' ? 'Close' : 'Open'} Inspector`} onClick={() => setInspectorState((state) => state === 'open' ? 'default' : 'open')} title="Inspector"><TuneIcon fontSize="small" /></StudioIconButton>
+          <StudioIconButton className="studio-icon-button studio-desktop-control" aria-expanded={inspectorState !== 'closed'} aria-label={`${inspectorState === 'closed' ? 'Open' : 'Close'} properties`} onClick={() => setInspectorState((state) => state === 'closed' ? 'default' : 'closed')} title="Properties"><SettingsOutlinedIcon fontSize="small" /></StudioIconButton>
+          <StudioIconButton className="studio-icon-button studio-mobile-control" aria-expanded={inspectorState === 'open'} aria-label={`${inspectorState === 'open' ? 'Close' : 'Open'} properties`} onClick={() => setInspectorState((state) => state === 'open' ? 'default' : 'open')} title="Properties"><SettingsOutlinedIcon fontSize="small" /></StudioIconButton>
         </div>
       </header>
 
-      <ObjectPalette onCreate={createFromPalette} presets={controller.presets} state={paletteState} />
+      <ObjectPalette
+        activeEdgeTemplate={edgeAuthoringTemplate}
+        onCollapse={() => setPaletteState('closed')}
+        onCreate={createFromPalette}
+        onEdgeTemplateChange={changeEdgeAuthoringTemplate}
+        presets={controller.presets}
+        selectedNodeCount={snapshot.selection.filter((item) => item.kind === 'node').length}
+        state={paletteState}
+      />
       <CanvasSurface
-        alignSelection={controller.alignSelection}
         canvasRef={canvasRef}
         canCopy={controller.canCopy}
         canPaste={controller.canPaste}
@@ -234,6 +285,7 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
         createNestedRegion={controller.createNestedRegion}
         isConnectionValid={controller.isConnectionValid}
         createObject={controller.createPaletteObject}
+        edgeAuthoringTemplate={edgeAuthoringTemplate}
         deleteSelection={controller.deleteSelection}
         deleteLayer={controller.deleteLayer}
         distributeSelection={controller.distributeSelection}
@@ -242,7 +294,6 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
         nudgeSelection={controller.nudgeSelection}
         onAnnouncement={controller.announce}
         pasteClipboard={controller.pasteClipboard}
-        pathMode={controller.pathMode}
         presentationMode={presentationMode}
         previewRegionForNode={controller.previewRegionForNode}
         proposeMapperMetric={controller.proposeMapperMetric}
@@ -256,14 +307,17 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
         selectObject={controller.selectObject}
         setSelection={controller.setSelection}
         setLayerMembership={controller.setLayerMembership}
-        setPathMode={controller.setPathMode}
         setRegionExpanded={controller.setRegionExpanded}
         snapshot={snapshot}
+        viewportPreferences={viewportPreferences}
         onExitPresentation={exitPresentation}
+        onCancelEdgeAuthoring={() => changeEdgeAuthoringTemplate(undefined)}
+        onCompleteEdgeAuthoring={() => setEdgeAuthoringTemplate(undefined)}
       />
       <Inspector
         profile={controller.authoringProfile}
         onCommit={controller.commitInspector}
+        onCommitViewport={controller.commitViewport}
         onReorderFieldProfile={controller.reorderFieldProfile}
         onResetProfile={controller.resetAuthoringProfile}
         onCommitStyle={controller.commitStyleInspector}
@@ -274,9 +328,13 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
         }}
         onUnsetStyle={controller.unsetStyleInspector}
         onUpdateFieldProfile={controller.updateFieldProfile}
+        onViewportPreferencesChange={(patch) => setViewportPreferences((current) => ({ ...current, ...patch }))}
+        pathMode={controller.pathMode}
+        setPathMode={controller.setPathMode}
         state={inspectorState}
         snapshot={snapshot}
         sourceRange={controller.sourceRange}
+        viewportPreferences={viewportPreferences}
       />
 
       {exportOpen ? (

@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState, type KeyboardEvent } from 'react';
 import CodeIcon from '@mui/icons-material/Code';
 import CloseIcon from '@mui/icons-material/Close';
-import SearchIcon from '@mui/icons-material/Search';
 import type { MapperAuthoringFieldMetadata } from 'topoviewer/authoring';
 import type {
   StudioMapperFieldEditRequest,
@@ -21,6 +20,7 @@ import {
   StudioButton,
   StudioIconButton,
   StudioLabeledControl,
+  StudioSearchField,
   StudioSelect,
   StudioSwitch,
   StudioTextField
@@ -167,10 +167,15 @@ export function MapperGeneratedFields({ mapper, onCommit, onOpenSource, onUnset,
 
   return (
     <section className="studio-mapper-generated" aria-label={`${view} mapper fields`}>
-      <label className="studio-inspector-search">
-        <SearchIcon fontSize="small" />
-        <StudioTextField aria-label="Search mapper fields" onChange={(event) => setQuery(event.target.value)} placeholder="Search mapper fields" value={query} />
-      </label>
+      <StudioSearchField
+        aria-label="Search mapper fields"
+        className="studio-inspector-search"
+        clearLabel="Clear mapper field search"
+        onChange={(event) => setQuery(event.target.value)}
+        onClear={() => setQuery('')}
+        placeholder="Search mapper fields"
+        value={query}
+      />
       {[...groups.entries()].map(([group, groupFields]) => (
         <section className="studio-mapper-field-group" key={group}>
           <h3>{group}</h3>

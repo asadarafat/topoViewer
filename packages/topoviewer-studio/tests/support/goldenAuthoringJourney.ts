@@ -14,10 +14,10 @@ async function openPaletteWhenCollapsed(page: Page) {
   if (!await palette.isVisible()) await page.getByRole('button', { name: 'Open object palette' }).click();
 }
 
-async function openInspectorWhenCollapsed(page: Page) {
-  const inspector = page.getByRole('complementary', { name: 'Inspector' });
-  if (!await inspector.isVisible()) await page.getByRole('button', { name: 'Open Inspector' }).click();
-  return inspector;
+async function openPropertiesWhenCollapsed(page: Page) {
+  const properties = page.getByRole('complementary', { name: 'Properties' });
+  if (!await properties.isVisible()) await page.getByRole('button', { name: 'Open properties' }).click();
+  return properties;
 }
 
 export async function runGoldenAuthoringJourney(page: Page, options: GoldenAuthoringJourneyOptions) {
@@ -43,16 +43,16 @@ export async function runGoldenAuthoringJourney(page: Page, options: GoldenAutho
   await expect(page.locator('.react-flow__edge')).toHaveCount(1);
 
   await firstNode.click();
-  const inspector = await openInspectorWhenCollapsed(page);
-  await inspector.getByRole('tab', { name: 'Styles' }).click();
-  await inspector.getByRole('combobox', { name: 'Shape' }).selectOption('roundRectangle');
-  await inspector.getByRole('tab', { name: 'All' }).click();
-  await inspector.getByRole('searchbox', { name: 'Search style fields' }).fill('outline width');
-  const outline = inspector.getByRole('spinbutton', { name: 'Outline width' });
+  const properties = await openPropertiesWhenCollapsed(page);
+  await properties.getByRole('tab', { name: 'Style' }).click();
+  await properties.getByRole('combobox', { name: 'Shape' }).selectOption('roundRectangle');
+  await properties.getByRole('tab', { name: 'All' }).click();
+  await properties.getByRole('searchbox', { name: 'Search style fields' }).fill('outline width');
+  const outline = properties.getByRole('spinbutton', { name: 'Outline width' });
   await outline.fill('5');
   await outline.press('Enter');
-  const closeInspector = page.getByRole('button', { name: 'Close Inspector' });
-  if (await closeInspector.isVisible()) await closeInspector.click();
+  const closeProperties = page.getByRole('button', { name: 'Close properties' });
+  if (await closeProperties.isVisible()) await closeProperties.click();
 
   await page.getByRole('button', { name: 'Open telemetry mapper' }).click();
   const mapper = page.getByRole('region', { name: 'Telemetry mapper workspace' });

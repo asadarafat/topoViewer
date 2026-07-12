@@ -1,15 +1,24 @@
 import { expect, test } from '@playwright/test';
 
+async function expandPaletteGroup(page: import('@playwright/test').Page, name: string) {
+  const group = page.getByRole('button', { name: `${name} palette group` });
+  if (await group.getAttribute('aria-expanded') !== 'true') await group.click();
+}
+
 async function dragTemplate(
   page: import('@playwright/test').Page,
   id: string,
   position: { x: number; y: number }
 ) {
-  await page.getByTestId(`palette-${id}`).dragTo(page.getByTestId('studio-canvas'), { targetPosition: position });
+  if (['callout', 'region', 'shape', 'text'].includes(id)) await expandPaletteGroup(page, 'Annotations');
+  const source = page.getByTestId(`palette-${id}`);
+  await source.scrollIntoViewIfNeeded();
+  await source.dragTo(page.getByTestId('studio-canvas'), { targetPosition: position });
 }
 
 test('offsets click-created objects across canvas object families', async ({ page }) => {
   await page.goto('/');
+  await expandPaletteGroup(page, 'Annotations');
   await page.getByTestId('palette-text').click();
   await page.getByTestId('palette-node').click();
   const text = await page.locator('.react-flow__node[data-id="text-1"]').boundingBox();
@@ -91,6 +100,7 @@ test('disables resize completion animation when reduced motion is requested', as
 
 test('uses the shared reliable resize affordance for shapes and callouts', async ({ page }) => {
   await page.goto('/');
+  await expandPaletteGroup(page, 'Annotations');
   for (const [template, id] of [['shape', 'shape-1'], ['callout', 'callout-1']] as const) {
     await page.getByTestId(`palette-${template}`).click();
     const object = page.locator(`.react-flow__node[data-id="${id}"]`);
@@ -109,7 +119,7 @@ test('renders a visual color control for every color-valued Inspector field', as
   await page.goto('/');
   await page.getByTestId('palette-node').click();
   await page.locator('.react-flow__node[data-id="node-1"]').click();
-  await page.getByRole('tab', { name: 'Styles' }).click();
+  await page.getByRole('tab', { name: 'Style' }).click();
   await page.getByRole('tab', { name: 'All' }).click();
 
   const textField = page.getByRole('textbox', { exact: true, name: 'Background color' });

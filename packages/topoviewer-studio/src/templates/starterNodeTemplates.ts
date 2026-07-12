@@ -1,6 +1,6 @@
 import type { IconSpec } from 'topoviewer';
 
-export type StudioVisualNodeTemplateId = 'router' | 'switch';
+export type StudioVisualNodeTemplateId = 'controller' | 'router' | 'switch';
 
 export interface StudioVisualNodeTemplate {
   iconKey: string;
@@ -33,13 +33,29 @@ const switchSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120"
   </g>
 </svg>`;
 
+const controllerSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img">
+  <rect width="120" height="120" rx="14" fill="#6a45b8"/>
+  <g fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round">
+    <circle cx="60" cy="60" r="17"/>
+    <path d="M60 43V22M60 98V77M43 60H22M98 60H77"/>
+    <circle cx="60" cy="17" r="5" fill="#fff"/>
+    <circle cx="60" cy="103" r="5" fill="#fff"/>
+    <circle cx="17" cy="60" r="5" fill="#fff"/>
+    <circle cx="103" cy="60" r="5" fill="#fff"/>
+  </g>
+</svg>`;
+
 export const studioVisualNodeTemplates: Record<StudioVisualNodeTemplateId, StudioVisualNodeTemplate> = {
+  controller: {
+    iconKey: 'topoviewer.controller',
+    icon: { alt: 'Controller', fill: '#6a45b8', glyph: 'CTL', stroke: '#d8b4fe', svg: controllerSvg }
+  },
   router: {
-    iconKey: 'router.generic',
+    iconKey: 'topoviewer.router',
     icon: { alt: 'Router', fill: '#1976d2', glyph: 'R', stroke: '#bbdefb', svg: routerSvg }
   },
   switch: {
-    iconKey: 'switch.generic',
+    iconKey: 'topoviewer.switch',
     icon: { alt: 'Switch', fill: '#00897b', glyph: 'SW', stroke: '#b2dfdb', svg: switchSvg }
   }
 };

@@ -46,12 +46,12 @@ async function sampled(operation: (index: number) => Promise<number>) {
 
 test('profiles complete Basic and All Inspector forms', async ({ page }) => {
   await page.goto('./?__studio-test-state=performance-2');
-  const inspector = page.getByRole('complementary', { name: 'Inspector' });
+  const inspector = page.getByRole('complementary', { name: 'Properties' });
   const nodeOne = page.locator('.react-flow__node[data-id="dense-1"]');
   const nodeTwo = page.locator('.react-flow__node[data-id="dense-2"]');
   await expect(nodeOne).toBeVisible();
   await nodeOne.click();
-  await inspector.getByRole('tab', { name: 'Styles' }).click();
+  await inspector.getByRole('tab', { name: 'Style' }).click();
 
   const renderCount = async () => Number(await inspector.getAttribute('data-render-count'));
   const fieldContainer = inspector.locator('.studio-generated-fields');

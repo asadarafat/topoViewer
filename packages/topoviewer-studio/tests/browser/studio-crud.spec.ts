@@ -23,12 +23,38 @@ async function selectNodes(page: import('@playwright/test').Page, ids: string[])
   }
 }
 
+async function expandPaletteGroup(page: import('@playwright/test').Page, name: string) {
+  const group = page.getByRole('button', { name: `${name} palette group` });
+  if (await group.getAttribute('aria-expanded') !== 'true') await group.click();
+}
+
 async function dragTemplate(
   page: import('@playwright/test').Page,
   id: string,
   position: { x: number; y: number }
 ) {
-  await page.getByTestId(`palette-${id}`).dragTo(page.getByTestId('studio-canvas'), { targetPosition: position });
+  if (['callout', 'region', 'shape', 'text'].includes(id)) await expandPaletteGroup(page, 'Annotations');
+  const source = page.getByTestId(`palette-${id}`);
+  await source.scrollIntoViewIfNeeded();
+  await source.dragTo(page.getByTestId('studio-canvas'), { targetPosition: position });
+}
+
+async function drawEdgeTemplate(
+  page: import('@playwright/test').Page,
+  templateId: string,
+  sourceId: string,
+  targetId: string
+) {
+  await page.getByTestId(`palette-${templateId}`).click();
+  const source = page.locator(`.react-flow__node[data-id="${sourceId}"] .topoviewer-node-handle-default`);
+  const target = page.locator(`.react-flow__node[data-id="${targetId}"] .topoviewer-node-handle-default-target`);
+  const sourceBox = await source.boundingBox();
+  const targetBox = await target.boundingBox();
+  if (!sourceBox || !targetBox) throw new Error(`${templateId} connection handles are not measurable.`);
+  await page.mouse.move(sourceBox.x + sourceBox.width / 2, sourceBox.y + sourceBox.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(targetBox.x + targetBox.width / 2, targetBox.y + targetBox.height / 2, { steps: 8 });
+  await page.mouse.up();
 }
 
 test('creates node, annotation, structure, and user-preset objects', async ({ page }) => {
@@ -41,7 +67,7 @@ test('creates node, annotation, structure, and user-preset objects', async ({ pa
   await expect(page.locator('.react-flow__node')).toHaveCount(4);
 
   await page.getByRole('button', { name: 'Save selection as preset' }).click();
-  await expect(page.getByRole('button', { name: 'Add New Router preset' })).toBeVisible();
+  await expect(page.getByTestId('palette-preset:preset-1')).toBeVisible();
   await dragTemplate(page, 'preset:preset-1', { x: 600, y: 340 });
   await expect(page.locator('.react-flow__node')).toHaveCount(5);
 
@@ -51,7 +77,7 @@ test('creates node, annotation, structure, and user-preset objects', async ({ pa
   await expect(physicalLink).toHaveCount(1);
   await expect(physicalLink.locator('path').first()).toHaveAttribute('d', /\S+/);
   await selectNodes(page, ['node-1', 'router-1']);
-  await dragTemplate(page, 'path', { x: 520, y: 360 });
+  await page.getByTestId('palette-path').click();
   await expect(physicalLink).toHaveCount(1);
   await expect(physicalLink.locator('path').first()).toHaveAttribute('d', /\S+/);
 
@@ -59,7 +85,7 @@ test('creates node, annotation, structure, and user-preset objects', async ({ pa
   await expect(page.getByText('New Region', { exact: true })).toBeVisible();
 
   await openSource(page);
-  for (const query of ['shapes:', 'callouts:', 'icon: router.generic', 'paths:', '- paths', '- physical', 'layers:', '- annotations']) {
+  for (const query of ['shapes:', 'callouts:', 'icon: topoviewer.router', 'paths:', '- paths', '- physical', 'layers:', '- annotations']) {
     await expectSourceContains(page, query);
   }
 });
@@ -139,6 +165,50 @@ test('rejects self-links while allowing parallel native links', async ({ page })
   await expectSourceContains(page, 'id: link-2');
 });
 
+test('authors grouped parallel links and expands the aggregate on click', async ({ page }) => {
+  await page.goto('/');
+  await page.getByTestId('palette-router').click();
+  await page.getByTestId('palette-router').click();
+
+  await drawEdgeTemplate(page, 'parallel-link', 'router-1', 'router-2');
+
+  const aggregate = page.locator('.topoviewer-edge-aggregate[data-link-aggregate="true"]');
+  await expect(aggregate).toHaveCount(1);
+  await expect(aggregate).toHaveAttribute('data-link-count', '3');
+  await page.getByRole('button', { name: 'Expand 3 parallel links' }).click();
+  await expect(aggregate).toHaveCount(0);
+  await expect(page.locator('.react-flow__edge[data-id^="link-"]')).toHaveCount(3);
+  const collapse = page.getByRole('button', { name: 'Collapse 3 parallel links' });
+  await expect(collapse).toBeVisible();
+  await collapse.click();
+  await expect(aggregate).toHaveCount(1);
+  await expect(page.locator('.react-flow__edge[data-id^="link-"]')).toHaveCount(0);
+
+  await openSource(page);
+  for (const query of ['id: link-3', 'grouping:', 'expandOnClick: true']) {
+    await expectSourceContains(page, query);
+  }
+});
+
+test('authors a parent link pipe independently from parallel grouping', async ({ page }) => {
+  await page.goto('/');
+  await page.getByTestId('palette-router').click();
+  await page.getByTestId('palette-router').click();
+
+  await drawEdgeTemplate(page, 'parallel-link', 'router-1', 'router-2');
+  await expect(page.locator('.topoviewer-edge-aggregate[data-link-aggregate="true"]')).toHaveCount(1);
+  await drawEdgeTemplate(page, 'parent-link-pipe', 'edge-01', 'noc-controller');
+
+  await expect(page.locator('.topoviewer-edge-aggregate[data-link-aggregate="true"]')).toHaveCount(1);
+  await expect(page.locator('.topoviewer-edge-pipe-fill')).toHaveCount(1);
+  await expect(page.locator('.react-flow__edge[data-id="link-4"]')).toHaveCount(1);
+  await expect(page.locator('.react-flow__edge[data-id="link-5"]')).toHaveCount(1);
+  await openSource(page);
+  for (const query of ['name: Parent Link Pipe', 'pipe: true', 'name: Child Link Lane', 'parent: link-4']) {
+    await expectSourceContains(page, query);
+  }
+});
+
 test('connects a callout to a node through the canonical leader target', async ({ page }) => {
   await page.goto('/');
   await dragTemplate(page, 'callout', { x: 140, y: 180 });
@@ -205,15 +275,13 @@ test('supports selection CRUD, clipboard, layout actions, history, and scoped sh
   await name.press('Backspace');
   await expect(page.locator('.react-flow__node')).toHaveCount(3);
 
-  await page.getByRole('button', { name: 'Viewport settings' }).click();
+  await page.locator('.react-flow__pane').click({ position: { x: 12, y: 12 } });
   const helperLines = page.getByRole('switch', { name: 'Helper lines' });
   await helperLines.uncheck();
   await expect(page.getByRole('switch', { name: 'Snap to alignment' })).toBeDisabled();
   await helperLines.focus();
   await page.keyboard.press('Delete');
   await expect(page.locator('.react-flow__node')).toHaveCount(3);
-  await page.getByRole('button', { name: 'Viewport settings' }).click();
-
   const node = page.locator('.react-flow__node[data-id="node-1"]');
   const box = await node.boundingBox();
   if (!box) throw new Error('Node is not measurable.');
@@ -246,7 +314,7 @@ test('resizes a selected node through the native resize handles', async ({ page 
 
   const handle = page.locator('.react-flow__node[data-id="node-1"] .topoviewer-resize-handle.bottom.right');
   await expect(handle).toBeVisible();
-  await page.getByRole('tab', { name: 'Styles' }).click();
+  await page.getByRole('tab', { name: 'Style' }).click();
   const before = await page.getByRole('spinbutton', { name: 'Body width' }).inputValue();
   const box = await handle.boundingBox();
   if (!box) throw new Error('Resize handle is not measurable.');
@@ -265,15 +333,15 @@ test('resizes a selected node through the native resize handles', async ({ page 
 
 test('uses context actions and native marquee selection', async ({ page }) => {
   await page.goto('/');
-  await page.getByTestId('palette-router').click();
-  await page.getByTestId('palette-service').click();
-  await page.getByTestId('palette-controller').click();
+  await dragTemplate(page, 'router', { x: 140, y: 180 });
+  await dragTemplate(page, 'service', { x: 330, y: 240 });
+  await dragTemplate(page, 'controller', { x: 500, y: 300 });
 
   await page.locator('.react-flow__node[data-id="router-1"]').click({ button: 'right' });
   const menu = page.getByRole('menu', { name: 'Selection actions' });
   await expect(menu).toBeVisible();
   await menu.getByRole('menuitem', { name: 'Save as preset' }).click();
-  await expect(page.getByRole('button', { name: 'Add New Router preset' })).toBeVisible();
+  await expect(page.getByTestId('palette-preset:preset-1')).toBeVisible();
 
   await page.getByTestId('studio-canvas').click({ position: { x: 620, y: 520 } });
   const first = await page.locator('.react-flow__node[data-id="router-1"]').boundingBox();
@@ -314,9 +382,9 @@ test('creates a deterministic shortest path when that authoring mode is selected
   await selectNodes(page, ['node-2', 'node-3']);
   await page.getByRole('button', { name: 'Connect selected nodes' }).click();
 
+  await page.locator('.react-flow__pane').click({ position: { x: 12, y: 12 } });
+  await page.getByRole('combobox', { name: 'Path authoring' }).selectOption('shortest');
   await selectNodes(page, ['node-1', 'node-3']);
-  await page.getByRole('button', { name: 'Viewport settings' }).click();
-  await page.getByRole('combobox', { name: 'Path mode' }).selectOption('shortest');
   await page.getByTestId('palette-path').click();
 
   await openSource(page);

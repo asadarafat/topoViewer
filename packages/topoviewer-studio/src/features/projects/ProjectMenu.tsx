@@ -5,6 +5,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import DownloadIcon from '@mui/icons-material/Download';
 import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
 import FolderOpenIcon from '@mui/icons-material/FolderOpen';
+import StopOutlinedIcon from '@mui/icons-material/StopOutlined';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import type { StudioProjectSummary } from '../../contracts/host';
 import type { StudioProject } from '../../contracts/project';
@@ -70,7 +71,7 @@ export function ProjectMenu({ actions, project }: { actions: StudioProjectLifecy
         }}
         title={name}
       >
-        <FolderOpenIcon fontSize="small" />
+        <StopOutlinedIcon className="studio-project-icon" fontSize="small" />
         <span>{name}</span>
       </StudioButtonBase>
       {open ? (

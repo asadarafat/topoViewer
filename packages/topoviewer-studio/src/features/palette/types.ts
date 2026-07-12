@@ -6,6 +6,8 @@ export interface StudioUserPreset {
   name: string;
 }
 
+export type StudioEdgeTemplateId = 'link' | 'parallel-link' | 'parent-link-pipe' | 'directional-link';
+
 export type StudioPaletteTemplateId =
   | 'node'
   | 'router'
@@ -13,6 +15,11 @@ export type StudioPaletteTemplateId =
   | 'service'
   | 'controller'
   | 'external'
+  | 'parent-child'
+  | 'link'
+  | 'parallel-link'
+  | 'parent-link-pipe'
+  | 'directional-link'
   | 'shape'
   | 'callout'
   | 'text'
