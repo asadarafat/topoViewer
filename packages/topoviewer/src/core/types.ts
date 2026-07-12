@@ -1,4 +1,4 @@
-import type { ComponentType, CSSProperties } from 'react';
+import type { ComponentType, CSSProperties, ReactNode } from 'react';
 import type { Edge, EdgeTypes, Node, NodeTypes } from '@xyflow/react';
 import type {
   AggregateGroupDefinition,
@@ -464,6 +464,13 @@ export interface TopoViewerRegionAggregateToggle {
   data: Record<string, unknown>;
 }
 
+export interface TopoViewerLinkAggregateToggle {
+  groupId: string;
+  expanded: boolean;
+  memberIds: string[];
+  data: Record<string, unknown>;
+}
+
 export interface TopoViewerConnectionCreate {
   sourceId: string;
   sourceRuntimeId: string;
@@ -496,6 +503,20 @@ export interface TopoViewerHelperLinesOptions {
   midpointCandidateLimit?: number;
 }
 
+export interface TopoViewerViewportControlsOptions {
+  children?: ReactNode;
+  className?: string;
+  position?: 'top-left' | 'top-center' | 'top-right' | 'bottom-left' | 'bottom-center' | 'bottom-right';
+  showFitView?: boolean;
+  showZoom?: boolean;
+}
+
+export interface TopoViewerGridOptions {
+  color?: string;
+  gap?: number;
+  size?: number;
+}
+
 export interface TopoViewerProps {
   document: TopoDocument;
   selectedLayerIds?: string[];
@@ -520,6 +541,10 @@ export interface TopoViewerProps {
     open?: boolean;
     onToggle?: () => void;
   };
+  fitViewOnInit?: boolean;
+  grid?: boolean | TopoViewerGridOptions;
+  miniMap?: boolean;
+  viewportControls?: boolean | TopoViewerViewportControlsOptions;
   onObjectClick?: (object: TopoViewerObjectClick) => void;
   onObjectDoubleClick?: (object: TopoViewerObjectDoubleClick) => void;
   onObjectContextMenu?: (object: TopoViewerObjectContextMenu) => void;
@@ -529,6 +554,7 @@ export interface TopoViewerProps {
   onNodePositionPreview?: (change: TopoViewerNodePositionChange) => void;
   onNodeResizeChange?: (change: TopoViewerNodeResizeChange) => void;
   onRegionAggregateToggle?: (change: TopoViewerRegionAggregateToggle) => void;
+  onLinkAggregateToggle?: (change: TopoViewerLinkAggregateToggle) => void;
   onConnectionCreate?: (connection: TopoViewerConnectionCreate) => void;
   isConnectionValid?: (connection: TopoViewerConnectionCreate) => boolean;
   onViewportChange?: (viewport: TopoViewerViewport) => void;

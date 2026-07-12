@@ -133,12 +133,15 @@ export type {
   TopoViewerExtensionContext,
   TopoViewerConnectionCreate,
   TopoViewerHelperLinesOptions,
+  TopoViewerLinkAggregateToggle,
   TopoViewerNodePositionChange,
   TopoViewerObjectClick,
   TopoViewerObjectDoubleClick,
   TopoViewerPaneClick,
   TopoViewerToolbarAction,
   TopoViewerViewport,
+  TopoViewerViewportControlsOptions,
+  TopoViewerGridOptions,
   TopoViewerProps,
   TopoViewerToggles
 } from './core/types';

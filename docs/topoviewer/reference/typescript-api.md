@@ -40,7 +40,9 @@ adoption target.
 | `TopoViewerPaneClick` | Supported | Pane/background click event payload. |
 | `TopoViewerNodePositionChange` | Supported | Node drag/persist event payload. |
 | `TopoViewerConnectionCreate` | Experimental | Canvas connection-create event payload for authoring surfaces. |
+| `TopoViewerGridOptions` | Experimental | Configure the renderer grid color, spacing, and dot size. |
 | `TopoViewerHelperLinesOptions` | Experimental | Runtime-only drag alignment guides and optional snapping for authoring surfaces. |
+| `TopoViewerViewportControlsOptions` | Experimental | Compose host actions into the native viewport controls without adding a second toolbar. |
 | `TopoViewerToggles` | Supported | Layer and viewport toggle state. |
 
 `helperLines` is a React runtime option on `TopoViewerProps`, not topology or
@@ -48,6 +50,8 @@ stylesheet YAML. Use it when the host surface lets users drag objects and should
 show alignment guides:
 
 ```tsx
+import { ControlButton } from '@xyflow/react';
+
 <TopoViewer
   document={document}
   nodesDraggable
@@ -62,11 +66,40 @@ show alignment guides:
 />
 ```
 
+Hosts can also compose viewport presentation without changing topology YAML:
+
+```tsx
+<TopoViewer
+  document={document}
+  fitViewOnInit
+  grid={{ color: 'rgba(126, 139, 154, 0.32)', gap: 20, size: 1 }}
+  miniMap
+/>
+```
+
+Set `grid={false}` or `miniMap={false}` to hide those surfaces. These are host
+presentation preferences; they do not change graph identity or stylesheet
+policy.
+
 By default helper lines snap on drag stop with `snapMode: 'commit'`: the node
 follows the pointer during drag, then `onNodePositionChange` receives the
 aligned position. Set `snap: false` for guide-only overlays. The live snap mode
 remains available for hosts that want the dragged object to move directly to
 each guide candidate during drag.
+
+`viewportControls` keeps zoom, fit, and host-owned actions in one React Flow
+control stack. Pass `false` to hide the stack, or pass options to position it,
+hide native actions, and append `ControlButton` children:
+
+```tsx
+<TopoViewer
+  document={document}
+  viewportControls={{
+    position: 'top-left',
+    children: <ControlButton aria-label="Layers">...</ControlButton>
+  }}
+/>
+```
 
 ## Host Integration Helpers
 
@@ -188,10 +221,10 @@ Model types include `TopoDocument`, `TopologyDocument`, `StylesheetDocument`,
 `ToggleDefinition`,
 `CompiledGraph`, `CompiledNode`, `CompiledEdge`, `CompiledNodeData`,
 `CompiledEdgeData`, `TopoViewerExtension`, `TopoViewerExtensionContext`, and
-`TopoViewerConnectionCreate`, `TopoViewerHelperLinesOptions`, and
+`TopoViewerConnectionCreate`, `TopoViewerGridOptions`, `TopoViewerHelperLinesOptions`, and
 `TopoViewerNodePositionChange`, `TopoViewerObjectClick`,
 `TopoViewerObjectDoubleClick`, `TopoViewerPaneClick`, `TopoViewerToolbarAction`,
-and `TopoViewerViewport`.
+`TopoViewerViewport`, and `TopoViewerViewportControlsOptions`.
 
 Attention types include `FocusQuery`, `FocusResult`,
 `FocusPresentationMode`, `AttentionPresentationResult`,

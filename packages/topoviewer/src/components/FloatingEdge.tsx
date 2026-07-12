@@ -281,6 +281,17 @@ function renderEdgeLabel(
   return <EdgeLabelRenderer key={key}>{label}</EdgeLabelRenderer>;
 }
 
+function linkGroupCollapsePoint(
+  endpoints: ReturnType<typeof floatingEndpoints>,
+  x: number,
+  y: number
+) {
+  const dx = endpoints.targetX - endpoints.sourceX;
+  const dy = endpoints.targetY - endpoints.sourceY;
+  const length = Math.hypot(dx, dy) || 1;
+  return { x: x + (dy / length) * 44, y: y - (dx / length) * 44 };
+}
+
 function pipeStyle(props: EdgeProps, data: Record<string, unknown>, role: 'border' | 'fill'): CSSProperties {
   const baseStroke = String(props.style?.stroke || '#6ea8fe');
   const pipeWidth = numeric(data.pipeWidth, numeric(props.style?.strokeWidth, 1) + 14);
@@ -532,6 +543,8 @@ function FloatingEdgeComponent(props: EdgeProps) {
   const isPipe = !!data.isPipe || data.pipe === true;
   const isLane = !!data.isLane;
   const isLinkAggregate = data.isLinkAggregate === true || data.isLinkAggregate === 'true';
+  const linkGroupExpandHandler = data.__topoviewerOnLinkGroupExpand as (() => void) | undefined;
+  const linkGroupCollapseHandler = data.__topoviewerOnLinkGroupCollapse as (() => void) | undefined;
   const outlineStyle = !isPipe ? lineOutlineStyle(props, data) : undefined;
   const hasSourceLaneStub = isLane && !!data.originalSource;
   const hasTargetLaneStub = isLane && !!data.originalTarget;
@@ -627,6 +640,9 @@ function FloatingEdgeComponent(props: EdgeProps) {
     directions,
     directionGeometry
   });
+  const linkGroupCollapsePosition = linkGroupCollapseHandler
+    ? linkGroupCollapsePoint(endpoints, labelX, labelY)
+    : undefined;
 
   return (
     <>
@@ -837,16 +853,59 @@ function FloatingEdgeComponent(props: EdgeProps) {
         onMouseEnter={() => setParentHovered(true)}
         onMouseLeave={() => setParentHovered(false)}
       />
-      {props.label ? renderEdgeLabel(
-        props,
-        data,
-        String(props.label),
-        edgeLabels.center?.x ?? labelX + offset.x + centerLabelOffsetPoint.x,
-        edgeLabels.center?.y ?? labelY + offset.y + centerLabelOffsetPoint.y,
-        'center',
-        undefined,
-        undefined,
-        edgeLabels.center?.opacity === undefined ? undefined : { opacity: edgeLabels.center.opacity }
+      {props.label ? linkGroupExpandHandler ? (
+        <EdgeLabelRenderer>
+          <button
+            aria-label={`Expand ${String(data.count || '')} parallel links`}
+            className="topoviewer-edge-label topoviewer-edge-label-center topoviewer-link-group-expand-button nodrag nopan"
+            onClick={(event: MouseEvent<HTMLButtonElement>) => {
+              event.preventDefault();
+              event.stopPropagation();
+              linkGroupExpandHandler();
+            }}
+            style={labelStyle(
+              props,
+              data,
+              edgeLabels.center?.x ?? labelX + offset.x + centerLabelOffsetPoint.x,
+              edgeLabels.center?.y ?? labelY + offset.y + centerLabelOffsetPoint.y,
+              'center',
+              undefined,
+              edgeLabels.center?.opacity === undefined ? undefined : { opacity: edgeLabels.center.opacity }
+            )}
+            type="button"
+          >
+            {String(props.label)}
+          </button>
+        </EdgeLabelRenderer>
+      ) : renderEdgeLabel(
+          props,
+          data,
+          String(props.label),
+          edgeLabels.center?.x ?? labelX + offset.x + centerLabelOffsetPoint.x,
+          edgeLabels.center?.y ?? labelY + offset.y + centerLabelOffsetPoint.y,
+          'center',
+          undefined,
+          undefined,
+          edgeLabels.center?.opacity === undefined ? undefined : { opacity: edgeLabels.center.opacity }
+        ) : null}
+      {linkGroupCollapseHandler && linkGroupCollapsePosition ? (
+        <EdgeLabelRenderer>
+          <button
+            aria-label={`Collapse ${String(data.linkAggregateCount || '')} parallel links`}
+            className="topoviewer-link-group-collapse-button nodrag nopan"
+            onClick={(event: MouseEvent<HTMLButtonElement>) => {
+              event.preventDefault();
+              event.stopPropagation();
+              linkGroupCollapseHandler();
+            }}
+            style={{
+              transform: `translate(-50%, -50%) translate(${linkGroupCollapsePosition.x}px, ${linkGroupCollapsePosition.y}px)`
+            }}
+            type="button"
+          >
+            Collapse {String(data.linkAggregateCount || '')} links
+          </button>
+        </EdgeLabelRenderer>
       ) : null}
       {sourceLabel && edgeLabels.source
         ? renderEdgeLabel(

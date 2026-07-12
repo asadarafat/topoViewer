@@ -223,6 +223,7 @@ export interface AggregateGroupSummary {
 export interface LinkAggregateGroupSummary {
   readonly id: string;
   readonly aggregateLinkId: string;
+  readonly expanded: boolean;
   readonly source: string;
   readonly target: string;
   readonly layers: readonly string[];

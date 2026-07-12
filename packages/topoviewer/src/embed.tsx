@@ -179,15 +179,37 @@ function EmbeddedTopoViewer({
       expandedGroupIds: expandedLinkGroupIds
     };
   }, [expandedLinkGroupIds, linkGroupingConfig, linkGroupingViewportEnabled]);
+  const viewerDocument = useMemo<TopoDocument>(() => {
+    if (!effectiveAttention) return documentSpec;
+    return {
+      ...documentSpec,
+      attention: {
+        ...(documentSpec.attention || {}),
+        ...effectiveAttention,
+        ...(aggregateConfig ? {
+          aggregate: {
+            ...aggregateConfig,
+            expandedGroupIds: expandedAggregateIds
+          }
+        } : {}),
+        ...(effectiveLinkGrouping ? {
+          links: {
+            ...(documentSpec.attention?.links || {}),
+            ...(effectiveAttention.links || {}),
+            grouping: effectiveLinkGrouping
+          }
+        } : {})
+      }
+    };
+  }, [aggregateConfig, documentSpec, effectiveAttention, effectiveLinkGrouping, expandedAggregateIds]);
   const aggregateResult = useMemo(() => {
     if (!aggregateConfig?.groups?.length && !effectiveLinkGrouping) return undefined;
-    return deriveAggregateGraph(documentSpec, buildAttentionIndex(documentSpec), {
+    return deriveAggregateGraph(viewerDocument, buildAttentionIndex(viewerDocument), {
       groups: aggregateConfig?.groups || [],
       expandedGroupIds: expandedAggregateIds,
       linkGrouping: effectiveLinkGrouping
     });
-  }, [aggregateConfig, documentSpec, effectiveLinkGrouping, expandedAggregateIds]);
-  const viewerDocument = aggregateResult?.document || documentSpec;
+  }, [aggregateConfig, effectiveLinkGrouping, expandedAggregateIds, viewerDocument]);
   const aggregateGroupByNodeId = useMemo(() => new Map((aggregateResult?.groups || []).map((group) => [
     group.aggregateNodeId,
     group.id
@@ -307,7 +329,10 @@ function EmbeddedTopoViewer({
               }
             }
             if (linkGroupingExpandOnClick && object.element === 'edge') {
-              const linkGroupId = linkGroupByEdgeId.get(object.id);
+              const aggregateGroupId = object.data?.isLinkAggregate === true || object.data?.isLinkAggregate === 'true'
+                ? String(object.data.aggregateId || '')
+                : '';
+              const linkGroupId = linkGroupByEdgeId.get(object.id) || aggregateGroupId || undefined;
               if (linkGroupId) {
                 setExpandedLinkGroupIds((current) => [...new Set([...current, linkGroupId])]);
                 return;
@@ -316,6 +341,11 @@ function EmbeddedTopoViewer({
             if (!attentionInteractive) return;
             const query = focusQueryForObject(object.id, graphSets, attentionClickMode);
             if (query) setAttentionQuery(query);
+          } : undefined}
+          onLinkAggregateToggle={linkGroupingExpandOnClick ? (change) => {
+            setExpandedLinkGroupIds((current) => change.expanded
+              ? [...new Set([...current, change.groupId])]
+              : current.filter((item) => item !== change.groupId));
           } : undefined}
           onPaneClick={(attentionInteractive || attentionQuery) ? () => setAttentionQuery(undefined) : undefined}
           onViewportChange={(aggregateConfig?.viewport || linkGroupingConfig?.viewport) ? handleViewportChange : undefined}

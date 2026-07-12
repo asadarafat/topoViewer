@@ -268,7 +268,7 @@ Use this pattern when link readability, routing, arrowheads, or edge labels matt
 
 ### What This Demonstrates
 
-Parent links let an overlay relationship ride inside a carrier relationship. The service still connects child endpoints, but the visual lane follows the parent transport pipe.
+Parent links let an overlay relationship ride inside a carrier relationship. The service still connects child endpoints, but the visual lane follows the parent transport pipe. Parent links, their carrier links, and links styled as pipes remain independent from attention-based parallel-link grouping because they describe containment rather than parallel capacity.
 
 ### Expected Result
 

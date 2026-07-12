@@ -627,7 +627,9 @@ async function expectControlAssertions(page, example) {
     await clickNodeById(page, assertions.expandClickNode);
   }
   if (assertions.expandClickEdge) {
-    await page.locator(`.react-flow__edge[data-id="${assertions.expandClickEdge}"]`).click({ force: true });
+    const expandControl = page.locator('.topoviewer-link-group-expand-button');
+    if (await expandControl.count()) await expandControl.click();
+    else await page.locator(`.react-flow__edge[data-id="${assertions.expandClickEdge}"]`).click({ force: true });
   }
   if (assertions.expandedGraphNodes !== undefined) {
     await expect(page.locator('.react-flow__node-network')).toHaveCount(Number(assertions.expandedGraphNodes));
@@ -651,6 +653,12 @@ async function expectControlAssertions(page, example) {
   if (assertions.expandedMinRegions !== undefined) {
     await expect.poll(async () => page.locator('.react-flow__node-region').count()).toBeGreaterThanOrEqual(Number(assertions.expandedMinRegions));
   }
+  if (assertions.linkAggregateEdgesAfterExpand !== undefined) {
+    await expect(page.locator('.topoviewer-edge-aggregate')).toHaveCount(Number(assertions.linkAggregateEdgesAfterExpand));
+  }
+  if (assertions.collapseLinkGroupButton) {
+    await page.getByRole('button', { name: assertions.collapseLinkGroupButton }).click();
+  }
   if (assertions.collapseClickNode) {
     await clickNodeById(page, assertions.collapseClickNode);
   }
@@ -660,11 +668,14 @@ async function expectControlAssertions(page, example) {
   if (assertions.collapsedMinVisibleEdges !== undefined) {
     await expect.poll(async () => page.locator('.topoviewer-edge-visible-path').count()).toBeGreaterThanOrEqual(Number(assertions.collapsedMinVisibleEdges));
   }
+  if (assertions.collapsedVisibleEdges !== undefined) {
+    await expect(page.locator('.topoviewer-edge-visible-path')).toHaveCount(Number(assertions.collapsedVisibleEdges));
+  }
   if (assertions.collapsedRegions !== undefined) {
     await expect(page.locator('.react-flow__node-region')).toHaveCount(Number(assertions.collapsedRegions));
   }
-  if (assertions.linkAggregateEdgesAfterExpand !== undefined) {
-    await expect(page.locator('.topoviewer-edge-aggregate')).toHaveCount(Number(assertions.linkAggregateEdgesAfterExpand));
+  if (assertions.linkAggregateEdgesAfterCollapse !== undefined) {
+    await expect(page.locator('.topoviewer-edge-aggregate')).toHaveCount(Number(assertions.linkAggregateEdgesAfterCollapse));
   }
 
   if (assertions.attentionFocusedNodes !== undefined) {

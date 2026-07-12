@@ -10,6 +10,9 @@ assertions:
   expandedVisibleEdges: 3
   expandedUniqueEdgePaths: 3
   linkAggregateEdgesAfterExpand: 0
+  collapseLinkGroupButton: Collapse 3 parallel links
+  collapsedVisibleEdges: 1
+  linkAggregateEdgesAfterCollapse: 1
 semantic:
   errors: []
   warnings: []

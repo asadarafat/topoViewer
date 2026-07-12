@@ -16,11 +16,13 @@ function ControlsPanelIcon() {
 
 export function ViewportControls({
   controlPanelToggle,
+  controls,
   exportDisabled,
   exportTooltip,
   onExport
 }: {
   controlPanelToggle?: TopoViewerProps['controlPanelToggle'];
+  controls?: Exclude<TopoViewerProps['viewportControls'], boolean>;
   exportDisabled?: TopoViewerProps['exportDisabled'];
   exportTooltip?: TopoViewerProps['exportTooltip'];
   onExport?: TopoViewerProps['onExport'];
@@ -60,11 +62,14 @@ export function ViewportControls({
   return (
     <Controls
       aria-label="Viewport controls"
-      className="topoviewer-reactflow-controls"
+      className={['topoviewer-reactflow-controls', controls?.className].filter(Boolean).join(' ')}
       fitViewOptions={{ padding: 0.06, maxZoom: 1, duration: 220 }}
-      position="top-right"
+      position={controls?.position || 'top-right'}
+      showFitView={controls?.showFitView !== false}
       showInteractive={false}
+      showZoom={controls?.showZoom !== false}
     >
+      {controls?.children}
       {toggleButton}
       {exportButton}
     </Controls>

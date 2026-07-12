@@ -152,6 +152,7 @@ describe('deriveAggregateGraph', () => {
     expect(grouped.linkGroups[0]).toMatchObject({
       id: 'endpoints-a-b-layer-transport',
       aggregateLinkId: 'aggregate-link-group:endpoints-a-b-layer-transport',
+      expanded: false,
       source: 'a',
       target: 'b',
       count: 3,
@@ -176,7 +177,37 @@ describe('deriveAggregateGraph', () => {
         expandedGroupIds: ['endpoints-a-b-layer-transport']
       }
     });
-    expect(expanded.linkGroups).toHaveLength(0);
+    expect(expanded.linkGroups).toEqual([
+      expect.objectContaining({
+        id: 'endpoints-a-b-layer-transport',
+        expanded: true,
+        memberIds: ['a-b-1', 'a-b-2', 'b-a-3']
+      })
+    ]);
     expect(expanded.document.graph?.links?.map((link) => link.id)).toEqual(['a-b-1', 'a-b-2', 'b-a-3']);
+    expect(expanded.document.graph?.links?.[0]?.data).toMatchObject({
+      isExpandedLinkAggregateMember: true,
+      linkAggregateCollapseControl: true,
+      linkAggregateGroupId: 'endpoints-a-b-layer-transport'
+    });
+  });
+
+  it('does not group parent-link carrier relationships as parallel links', () => {
+    const document: TopoDocument = {
+      graph: {
+        nodes: [{ id: 'a' }, { id: 'b' }],
+        links: [
+          { id: 'carrier', source: 'a', target: 'b', style: { pipe: true } },
+          { id: 'child', source: 'a', target: 'b', parent: 'carrier' }
+        ]
+      }
+    };
+    const grouped = deriveAggregateGraph(document, buildAttentionIndex(document), {
+      groups: [],
+      linkGrouping: { threshold: 2, by: ['endpoints', 'layer'] }
+    });
+
+    expect(grouped.linkGroups).toHaveLength(0);
+    expect(grouped.document.graph?.links?.map((link) => link.id)).toEqual(['carrier', 'child']);
   });
 });

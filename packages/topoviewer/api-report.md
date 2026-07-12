@@ -161,7 +161,9 @@ Generated from `packages/topoviewer/src/index.ts`.
 | `TopoViewerConnectionCreate` | `./core/types` |
 | `TopoViewerExtension` | `./core/types` |
 | `TopoViewerExtensionContext` | `./core/types` |
+| `TopoViewerGridOptions` | `./core/types` |
 | `TopoViewerHelperLinesOptions` | `./core/types` |
+| `TopoViewerLinkAggregateToggle` | `./core/types` |
 | `TopoViewerNodePositionChange` | `./core/types` |
 | `TopoViewerObjectClick` | `./core/types` |
 | `TopoViewerObjectDoubleClick` | `./core/types` |
@@ -170,6 +172,7 @@ Generated from `packages/topoviewer/src/index.ts`.
 | `TopoViewerToggles` | `./core/types` |
 | `TopoViewerToolbarAction` | `./core/types` |
 | `TopoViewerViewport` | `./core/types` |
+| `TopoViewerViewportControlsOptions` | `./core/types` |
 
 
 ## Integration Entry (`topoviewer/integration`)

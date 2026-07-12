@@ -1068,6 +1068,40 @@
   box-shadow: var(--topoviewer-label-shadow);
 }
 
+.topoviewer-link-group-collapse-button {
+  position: absolute;
+  z-index: 42;
+  padding: 4px 7px;
+  color: var(--topoviewer-fg-strong);
+  background: var(--topoviewer-edge-label-bg);
+  border: 1px solid var(--topoviewer-edge-label-border);
+  border-radius: 4px;
+  font: inherit;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: 0;
+  white-space: nowrap;
+  cursor: pointer;
+  pointer-events: all;
+  box-shadow: var(--topoviewer-label-shadow);
+}
+
+.topoviewer-link-group-expand-button {
+  margin: 0;
+  font: inherit;
+  cursor: pointer;
+}
+
+.topoviewer-link-group-expand-button:hover,
+.topoviewer-link-group-expand-button:focus-visible,
+.topoviewer-link-group-collapse-button:hover,
+.topoviewer-link-group-collapse-button:focus-visible {
+  border-color: #60a5fa;
+  outline: 2px solid rgba(96, 165, 250, 0.38);
+  outline-offset: 2px;
+}
+
 .topoviewer-edge-paint-layer {
   overflow: visible;
   pointer-events: none;
@@ -1290,6 +1324,13 @@
   aspect-ratio: auto;
   fill: currentColor;
   stroke: currentColor;
+}
+
+.topoviewer .react-flow__minimap {
+  overflow: hidden;
+  border: 1px solid var(--topoviewer-border-strong);
+  border-radius: 4px;
+  box-shadow: var(--topoviewer-panel-shadow);
 }
 
 @media (prefers-reduced-motion: reduce) {

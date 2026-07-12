@@ -279,6 +279,52 @@ export function withRuntimeRegionAggregateHandlers(
   });
 }
 
+export function withRuntimeLinkAggregateHandlers(
+  edges: CompiledGraph['edges'],
+  onLinkAggregateToggle: TopoViewerProps['onLinkAggregateToggle']
+): CompiledGraph['edges'] {
+  if (!onLinkAggregateToggle) return edges;
+  return edges.map((edge) => {
+    const runtimeEdge = edge as unknown as Record<string, unknown>;
+    const data = (runtimeEdge.data || {}) as Record<string, unknown>;
+    const aggregateGroupId = String(data.aggregateId || '');
+    const aggregateMemberIds = Array.isArray(data.members) ? data.members.map(String) : [];
+    if ((data.isLinkAggregate === true || data.isLinkAggregate === 'true') && aggregateGroupId) {
+      return {
+        ...edge,
+        data: {
+          ...data,
+          __topoviewerLinkGroupExpandable: true,
+          __topoviewerOnLinkGroupExpand: () => onLinkAggregateToggle({
+            data,
+            expanded: true,
+            groupId: aggregateGroupId,
+            memberIds: aggregateMemberIds
+          })
+        } as unknown as CompiledEdgeData
+      } as typeof edge;
+    }
+    const groupId = String(data.linkAggregateGroupId || '');
+    const memberIds = Array.isArray(data.linkAggregateMemberIds)
+      ? data.linkAggregateMemberIds.map(String)
+      : [];
+    if (!groupId || data.linkAggregateCollapseControl !== true) return edge;
+    return {
+      ...edge,
+      data: {
+        ...data,
+        __topoviewerLinkGroupCollapsible: true,
+        __topoviewerOnLinkGroupCollapse: () => onLinkAggregateToggle({
+          data,
+          expanded: false,
+          groupId,
+          memberIds
+        })
+      } as unknown as CompiledEdgeData
+    } as typeof edge;
+  });
+}
+
 export function resolveAttentionPresentation(
   document: TopoDocument,
   attention: TopoViewerProps['attention']

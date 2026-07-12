@@ -286,8 +286,15 @@ function groupParallelLinks(
   const expanded = new Set(options?.expandedGroupIds || []);
   const keys = linkGroupingKeys(options);
   const groupsByKey = new Map<string, GraphLink[]>();
+  const parentLinkIds = new Set(links.map((link) => link.parent).filter((id): id is string => !!id));
+  const candidates = new Set(links.filter((link) => (
+    !link.parent
+    && !parentLinkIds.has(link.id)
+    && link.style?.pipe !== true
+  )).map((link) => link.id));
 
   links.forEach((link) => {
+    if (!candidates.has(link.id)) return;
     const key = linkGroupKey(link, keys);
     const group = groupsByKey.get(key) || [];
     group.push(link);
@@ -299,6 +306,10 @@ function groupParallelLinks(
   const result: GraphLink[] = [];
 
   links.forEach((link) => {
+    if (!candidates.has(link.id)) {
+      result.push(cloneDeep(link));
+      return;
+    }
     const key = linkGroupKey(link, keys);
     if (emitted.has(key)) return;
     emitted.add(key);
@@ -306,22 +317,39 @@ function groupParallelLinks(
     const memberIds = entries.flatMap((entry) => linkMemberIds(entry));
     const id = safeId(key);
 
-    if (entries.length < threshold || expanded.has(id)) {
+    if (entries.length < threshold) {
       result.push(...entries.map((entry) => cloneDeep(entry)));
       return;
     }
 
     const aggregateLink = createLinkAggregateLink(id, entries, memberIds, keys);
+    const isExpanded = expanded.has(id);
     groups.push({
       id,
       aggregateLinkId: aggregateLink.id,
+      expanded: isExpanded,
       source: aggregateLink.source,
       target: aggregateLink.target,
       layers: aggregateLink.layers || [],
       memberIds,
       count: memberIds.length
     });
-    result.push(aggregateLink);
+    if (isExpanded) {
+      result.push(...entries.map((entry, index) => {
+        const expandedEntry = cloneDeep(entry);
+        expandedEntry.data = {
+          ...(expandedEntry.data || {}),
+          isExpandedLinkAggregateMember: true,
+          linkAggregateCollapseControl: index === 0,
+          linkAggregateCount: memberIds.length,
+          linkAggregateGroupId: id,
+          linkAggregateMemberIds: [...memberIds]
+        };
+        return expandedEntry;
+      }));
+    } else {
+      result.push(aggregateLink);
+    }
   });
 
   return { links: result, groups };

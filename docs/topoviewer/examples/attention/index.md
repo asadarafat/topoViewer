@@ -216,7 +216,7 @@ Use this pattern when a dense graph needs focus, dimming, aggregation, or label-
 
 ### What This Demonstrates
 
-Link grouping demonstrates threshold-based edge aggregation. Three transport links between the same two routers start as one summary link labeled `3 links`; click the summary link to reveal each member as a Cytoscape-style bundled Bezier edge.
+Link grouping demonstrates threshold-based edge aggregation. Three transport links between the same two routers start as one summary link labeled `3 links`; click the summary link to reveal each member as a Cytoscape-style bundled Bezier edge. Use the explicit `Collapse 3 links` control to return to the summary without turning member-edge selection into a hidden toggle.
 
 ### Expected Result
 

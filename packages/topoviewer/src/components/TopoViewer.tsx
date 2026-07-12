@@ -3,6 +3,7 @@ import {
   applyNodeChanges,
   Background,
   ConnectionMode,
+  MiniMap,
   ReactFlow,
   ReactFlowProvider,
   useReactFlow,
@@ -44,6 +45,7 @@ import {
   resolveAttentionPresentation,
   withRuntimeDirectionHandlers,
   withRuntimeRegionAggregateHandlers,
+  withRuntimeLinkAggregateHandlers,
   withRuntimeResizeHandlers
 } from './graphDecorators';
 import { NetworkNode } from './NetworkNode';
@@ -103,6 +105,10 @@ function TopoFlow({
   positionOnlyCompile,
   showRegions,
   controlPanelToggle,
+  fitViewOnInit,
+  grid,
+  miniMap,
+  viewportControls,
   exportDisabled,
   exportTooltip,
   helperLines,
@@ -122,6 +128,7 @@ function TopoFlow({
   onNodePositionPreview,
   onNodeResizeChange,
   onRegionAggregateToggle,
+  onLinkAggregateToggle,
   onConnectionCreate,
   isConnectionValid,
   onObjectContextMenu,
@@ -136,6 +143,10 @@ function TopoFlow({
   positionOnlyCompile: boolean;
   showRegions: boolean;
   controlPanelToggle?: TopoViewerProps['controlPanelToggle'];
+  fitViewOnInit?: TopoViewerProps['fitViewOnInit'];
+  grid?: TopoViewerProps['grid'];
+  miniMap?: TopoViewerProps['miniMap'];
+  viewportControls?: TopoViewerProps['viewportControls'];
   exportDisabled?: TopoViewerProps['exportDisabled'];
   exportTooltip?: TopoViewerProps['exportTooltip'];
   helperLines?: TopoViewerProps['helperLines'];
@@ -155,6 +166,7 @@ function TopoFlow({
   onNodePositionPreview?: TopoViewerProps['onNodePositionPreview'];
   onNodeResizeChange?: TopoViewerProps['onNodeResizeChange'];
   onRegionAggregateToggle?: TopoViewerProps['onRegionAggregateToggle'];
+  onLinkAggregateToggle?: TopoViewerProps['onLinkAggregateToggle'];
   onConnectionCreate?: TopoViewerProps['onConnectionCreate'];
   isConnectionValid?: TopoViewerProps['isConnectionValid'];
   onObjectContextMenu?: TopoViewerProps['onObjectContextMenu'];
@@ -175,8 +187,11 @@ function TopoFlow({
     compiled.nodes.map((node) => [String(node.id || ''), node])
   ), [compiled.nodes]);
   const decorateRuntimeEdges = useCallback((sourceEdges: ReturnType<typeof compileTopoGraph>['edges']) => (
-    withRuntimeDirectionHandlers(sourceEdges, onObjectClick, onObjectDoubleClick)
-  ), [onObjectClick, onObjectDoubleClick]);
+    withRuntimeLinkAggregateHandlers(
+      withRuntimeDirectionHandlers(sourceEdges, onObjectClick, onObjectDoubleClick),
+      onLinkAggregateToggle
+    )
+  ), [onLinkAggregateToggle, onObjectClick, onObjectDoubleClick]);
   const [nodes, setNodes] = useNodesState(runtimeNodes as never[]);
   const sourceEdgeIds = useMemo(() => new Set(compiled.edges.map((edge) => edge.id)), [compiled.edges]);
   const [edges, setEdges, applyRuntimeEdgeChanges] = useEdgesState(decorateRuntimeEdges(compiled.edges) as never[]);
@@ -447,11 +462,16 @@ function TopoFlow({
     activeHelperLineStateRef.current = emptyHelperLineState;
     const runtimeNode = node as unknown as Record<string, unknown>;
     const runtimeId = String(runtimeNode.id || '');
-    const hasCommittedSnap = snappedPositionsRef.current.has(runtimeId);
+    const snappedPosition = snappedPositionsRef.current.get(runtimeId);
+    const latestPosition = activeDragLatestPositionRef.current;
     const shouldRebuildRegions = showRegions && !!document.graph?.regions?.length;
     const startPosition = activeDragStartPositionRef.current;
-    const position = snappedPositionsRef.current.get(runtimeId)
-      || activeDragLatestPositionRef.current
+    const snapReturnsToOrigin = Boolean(snappedPosition && latestPosition && startPosition
+      && Math.hypot(snappedPosition.x - startPosition.x, snappedPosition.y - startPosition.y) < 0.5
+      && Math.hypot(latestPosition.x - startPosition.x, latestPosition.y - startPosition.y) > helperLineOptions.threshold);
+    const hasCommittedSnap = !!snappedPosition && !snapReturnsToOrigin;
+    const position = (hasCommittedSnap ? snappedPosition : undefined)
+      || latestPosition
       || resolveDragStopPosition({
         runtimeId,
         eventPosition: (runtimeNode.position || {}) as { x?: number; y?: number },
@@ -503,7 +523,7 @@ function TopoFlow({
       startTransition(() => setLabelsFrozen(false));
     });
     return result;
-  }, [clearHelperLines, compiled.selectedLayerIds, decorateRuntimeNodes, document, onNodePositionChange, setNodes, showRegions]);
+  }, [clearHelperLines, compiled.selectedLayerIds, decorateRuntimeNodes, document, helperLineOptions.threshold, onNodePositionChange, setNodes, showRegions]);
 
   const onNodeDrag = useCallback((_event: unknown, node: unknown) => {
     const runtimeNode = node as unknown as Record<string, unknown>;
@@ -683,7 +703,7 @@ function TopoFlow({
       nodeTypes={nodeTypes as never}
       edgeTypes={edgeTypes as never}
       defaultViewport={initialViewport}
-      fitView={!initialViewport}
+      fitView={fitViewOnInit ?? !initialViewport}
       fitViewOptions={{ padding: 0.06, maxZoom: 1 }}
       minZoom={0.2}
       maxZoom={8}
@@ -695,7 +715,13 @@ function TopoFlow({
       elementsSelectable
       proOptions={{ hideAttribution: true }}
     >
-      <Background color="rgba(126, 139, 154, 0.20)" gap={24} />
+      {grid !== false ? (
+        <Background
+          color={typeof grid === 'object' ? grid.color : 'rgba(126, 139, 154, 0.20)'}
+          gap={typeof grid === 'object' ? grid.gap : 24}
+          size={typeof grid === 'object' ? grid.size : 1}
+        />
+      ) : null}
       <LabelOverlay
         nodes={nodes as never[]}
         edges={edges as never[]}
@@ -703,12 +729,25 @@ function TopoFlow({
         onlyRenderVisibleElements={onlyRenderVisibleElements}
       />
       <HelperLinesOverlay store={helperLineStore} />
-      <ViewportControls
-        controlPanelToggle={controlPanelToggle}
-        exportDisabled={exportDisabled}
-        exportTooltip={exportTooltip}
-        onExport={onExport}
-      />
+      {miniMap ? (
+        <MiniMap
+          ariaLabel="Topology minimap"
+          bgColor="var(--topoviewer-panel-bg, #ffffff)"
+          maskColor="rgba(15, 23, 42, 0.28)"
+          pannable
+          position="bottom-right"
+          zoomable
+        />
+      ) : null}
+      {viewportControls !== false ? (
+        <ViewportControls
+          controlPanelToggle={controlPanelToggle}
+          controls={typeof viewportControls === 'object' ? viewportControls : undefined}
+          exportDisabled={exportDisabled}
+          exportTooltip={exportTooltip}
+          onExport={onExport}
+        />
+      ) : null}
     </ReactFlow>
   );
 }
@@ -723,6 +762,10 @@ export function TopoViewer({
   attention,
   extensions,
   controlPanelToggle,
+  fitViewOnInit,
+  grid,
+  miniMap,
+  viewportControls,
   exportDisabled,
   exportTooltip,
   helperLines,
@@ -739,6 +782,7 @@ export function TopoViewer({
   onNodePositionPreview,
   onNodeResizeChange,
   onRegionAggregateToggle,
+  onLinkAggregateToggle,
   onConnectionCreate,
   isConnectionValid,
   onObjectContextMenu,
@@ -889,6 +933,10 @@ export function TopoViewer({
           positionOnlyCompile={positionOnlyCompile}
           showRegions={effectiveToggles.showRegions !== false}
           controlPanelToggle={controlPanelToggle}
+          fitViewOnInit={fitViewOnInit}
+          grid={grid}
+          miniMap={miniMap}
+          viewportControls={viewportControls}
           exportDisabled={exportDisabled}
           exportTooltip={exportTooltip}
           helperLines={helperLines}
@@ -908,6 +956,7 @@ export function TopoViewer({
           onNodePositionPreview={onNodePositionPreview}
           onNodeResizeChange={onNodeResizeChange}
           onRegionAggregateToggle={onRegionAggregateToggle}
+          onLinkAggregateToggle={onLinkAggregateToggle}
           onConnectionCreate={onConnectionCreate}
           isConnectionValid={isConnectionValid}
           onObjectContextMenu={onObjectContextMenu}
