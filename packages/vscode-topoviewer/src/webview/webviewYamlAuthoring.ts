@@ -303,7 +303,7 @@ function isMapperStyleContext(request: YamlAuthoringRequest) {
 
 function selectorKindForContext(request: YamlAuthoringRequest): TopoObjectSelection['kind'] {
   const lines = request.text.split(/\r?\n/);
-  const allowed = new Set<TopoObjectSelection['kind']>(['node', 'link', 'linkDirection', 'path', 'region', 'callout', 'shape']);
+  const allowed = new Set<TopoObjectSelection['kind']>(['node', 'link', 'linkDirection', 'path', 'region', 'callout', 'shape', 'text']);
   for (let index = request.lineNumber - 1; index >= 0; index -= 1) {
     const kind = lines[index]?.match(/selector:\s*["']?([A-Za-z][A-Za-z0-9_-]*)/)?.[1];
     if (allowed.has(kind as TopoObjectSelection['kind'])) return kind as TopoObjectSelection['kind'];
